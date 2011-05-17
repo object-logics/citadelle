@@ -35,10 +35,9 @@ text{* A key-concept for linking strict referential equality to
        to which the object is associated to in the state), 
        referential equality coincides with logical equality. *}
 
-definition WFF 
+definition WFF :: "('\<AA>::object)st \<Rightarrow> bool"
 where "WFF \<tau> = ((\<forall> x \<in> dom(fst \<tau>). x = oid_of(the(fst \<tau> x))) \<and>
                 (\<forall> x \<in> dom(snd \<tau>). x = oid_of(the(snd \<tau> x))))"
-
 
 text{* This is a generic definition of referential equality:
 Equality on objects in a state is reduced to equality on the
@@ -514,8 +513,17 @@ lemma foundation11: "\<tau> \<Turnstile> (x \<triangleq> y) \<Longrightarrow> \<
 by(simp add: OclValid_def StrongEq_def true_def)
 
 
+lemma strictEqBool_vs_strongEq: 
+"\<tau> \<Turnstile>(\<delta> x) \<Longrightarrow> \<tau> \<Turnstile>(\<delta> y) \<Longrightarrow> (\<tau> \<Turnstile> ((x::('\<AA>,bool)val) \<doteq> y)) = (\<tau> \<Turnstile> (x \<triangleq> y))"
+by(simp add: StrictRefEq_bool OclValid_def)
 
+lemma strictEqInt_vs_strongEq: 
+"\<tau> \<Turnstile>(\<delta> x) \<Longrightarrow> \<tau> \<Turnstile>(\<delta> y) \<Longrightarrow> (\<tau> \<Turnstile> ((x::('\<AA>,int)val) \<doteq> y)) = (\<tau> \<Turnstile> (x \<triangleq> y))"
+by(simp add: StrictRefEq_int OclValid_def)
 
-
+lemma strictEqGen_vs_strongEq: 
+"WFF \<tau> \<Longrightarrow> \<tau> \<Turnstile>(\<delta> x) \<Longrightarrow> \<tau> \<Turnstile>(\<delta> y) \<Longrightarrow> 
+ (\<tau> \<Turnstile> (gen_ref_eq (x::('b::object,'a::object)val) y)) = (\<tau> \<Turnstile> (x \<triangleq> y))"
+apply(auto simp: gen_ref_eq_def OclValid_def WFF_def StrongEq_def true_def)
 
 end
