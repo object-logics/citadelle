@@ -10,7 +10,7 @@ section{* Mini-OCL *}
 
 section{* OCL Core Definitions *}
 
-subsection{* State, State Transitions *}
+subsection{* State, State Transitions, Well-formed States *}
 type_synonym oid = ind
 
 fun    drop :: "'\<alpha> option \<Rightarrow> '\<alpha>" ("|^(_)^|")
@@ -24,6 +24,35 @@ translations
 type_synonym ('\<AA>) state = "oid \<rightharpoonup> '\<AA> "
 
 type_synonym ('\<AA>)st = "'\<AA> state \<times> '\<AA> state"
+
+
+class object =
+  fixes oid_of :: "'a \<Rightarrow> oid"
+
+text{* A key-concept for linking strict referential equality to
+       logical equality: in well-formed states (i.e. those
+       states where the self (oid-of) field contains the pointer
+       to which the object is associated to in the state), 
+       referential equality coincides with logical equality. *}
+
+definition WFF 
+where "WFF \<tau> = ((\<forall> x \<in> dom(fst \<tau>). x = oid_of(the(fst \<tau> x))) \<and>
+                (\<forall> x \<in> dom(snd \<tau>). x = oid_of(the(snd \<tau> x))))"
+
+
+text{* This is a generic definition of referential equality:
+Equality on objects in a state is reduced to equality on the
+references to these objects. As in HOL-OCL, we will store
+the reference of an object inside the object in a (ghost) field.
+By establishing certain invariants ("consistent state"), it can
+be assured that there is a "one-to-one-correspondance" of objects
+to their references --- and therefore the definition below
+behaves as we expect. *}
+text{* Generic Referential Equality enjoys the usual properties:
+(quasi) reflexivity, symmetry, transitivity, substitutivity for
+defined values. For type-technical reasons, for each concrete
+object type, the equality \<doteq> is defined by generic referential
+equality. *}
 
 subsection{* Valuations *}
 
@@ -259,6 +288,17 @@ lemma and_commute: "(X and Y) = (Y and X)"
   apply(case_tac "ac", simp_all)
 done
 
+ (*
+lemma and_false1[simp]: "(false and X) = false"
+  apply(rule ext, simp add: ocl_and_def)
+  apply(auto simp:true_def false_def invalid_def 
+             split: option.split option.split_asm)
+  done
+
+lemma and_false2[simp]: "(X and false) = false"
+  by(simp add: and_commute) 
+*)
+
 lemma or_idem[simp]: "(X or X) = X"
   by(simp add: ocl_or_def)
 
@@ -267,48 +307,11 @@ lemma or_commute: "(X or Y) = (Y or X)"
 
 lemma and_assoc: "(X and (Y and Z)) = (X and Y and Z)"
   apply(rule ext, simp add: ocl_and_def)
-  apply(case_tac "X x", simp_all)
-  apply(case_tac "Y x", simp_all)
-  apply(case_tac "Z x", simp_all)
-  apply(case_tac "a", simp_all)
-  apply(case_tac "aa", simp_all)
-  apply(case_tac "a", simp_all)
-  apply(case_tac "a", simp_all)
-  apply(case_tac "Z x", simp_all)
-  apply(case_tac "aa", simp_all)
-  apply(case_tac "ab", simp_all)
-  apply(case_tac "aa", simp_all)
-sorry
-(*
-  apply(case_tac "Z x", simp_all)
-  apply(case_tac "ab", simp_all)
-  apply(case_tac "a", simp_all)
-  apply(case_tac "Y x", simp_all)
-  apply(case_tac "Z x", simp_all)
-  apply(case_tac "aa", simp_all)
-  apply(case_tac "ab", simp_all)
-  apply(case_tac "aa", simp_all)
-  apply(case_tac "Z x", simp_all)
-  apply(case_tac "ab", simp_all)
-  apply(case_tac "ac", simp_all)
-  apply(case_tac "ab", simp_all)
-  apply(case_tac "Z x", simp_all)
-  apply(case_tac "ac", simp_all)
-  apply(case_tac "aa", simp_all)
-  apply(case_tac "Y x", simp_all)
-  apply(case_tac "Z x", simp_all)
-  apply(case_tac "ab", simp_all)
-  apply(case_tac "ac", simp_all)
-  apply(case_tac "ab", simp_all)
-  apply(case_tac "Z x", simp_all)
-  apply(case_tac "ac", simp_all)
-  apply(case_tac "ad", simp_all)
-  apply(case_tac "ac", simp_all)
-  apply(case_tac "Z x", simp_all)
-  apply(case_tac "ad", simp_all)
-
+  apply(auto simp:true_def false_def invalid_def 
+                            split: option.split option.split_asm
+                                   bool.split bool.split_asm)
 done
-*)
+
 
 
 
@@ -332,6 +335,19 @@ defs   StrictRefEq_int : "(x::('\<AA>,int)val) \<doteq> y \<equiv>
                                   then (x \<triangleq> y)\<tau>
                                   else invalid \<tau>"
 
+lemma StrictRefEq_int_strict1[simp] : "((x::('\<AA>,int)val) \<doteq> invalid) = invalid"
+by(rule ext, simp add: StrictRefEq_int true_def false_def)
+
+lemma StrictRefEq_int_strict2[simp] : "(invalid \<doteq> (x::('\<AA>,int)val)) = invalid"
+by(rule ext, simp add: StrictRefEq_int true_def false_def)
+
+lemma StrictRefEq_int_strict3[simp] : "((x::('\<AA>,int)val) \<doteq> null) = invalid"
+by(rule ext, simp add: StrictRefEq_int true_def false_def)
+
+lemma StrictRefEq_int_strict4[simp] : "(null \<doteq> (x::('\<AA>,int)val)) = invalid"
+by(rule ext, simp add: StrictRefEq_int true_def false_def)
+
+
 lemma StrictRefEq_int_strict :
   assumes A: "\<delta> (x::('\<AA>,int)val) = true"
   and     B: "\<delta> y = true"
@@ -347,7 +363,7 @@ by(simp add:false_def)
 lemma StrictRefEq_int_strict' :
   assumes A: "\<delta> ((x::('\<AA>,int)val) \<doteq> y) = true"
   shows      "\<delta> x = true \<and> \<delta> y = true"
-  apply(insert A, rule conjI) thm fun_cong
+  apply(insert A, rule conjI) 
   apply(rule ext, drule_tac x=xa in fun_cong)
   prefer 2
   apply(rule ext, drule_tac x=xa in fun_cong)
@@ -366,6 +382,19 @@ defs   StrictRefEq_bool : "(x::('\<AA>,bool)val) \<doteq> y \<equiv>
                                   then (x \<triangleq> y)\<tau>
                                   else invalid \<tau>"
 
+lemma StrictRefEq_bool_strict1[simp] : "((x::('\<AA>,bool)val) \<doteq> invalid) = invalid"
+by(rule ext, simp add: StrictRefEq_bool true_def false_def)
+
+lemma StrictRefEq_bool_strict2[simp] : "(invalid \<doteq> (x::('\<AA>,bool)val)) = invalid"
+by(rule ext, simp add: StrictRefEq_bool true_def false_def)
+
+lemma StrictRefEq_bool_strict3[simp] : "((x::('\<AA>,bool)val) \<doteq> null) = invalid"
+by(rule ext, simp add: StrictRefEq_bool true_def false_def)
+
+lemma StrictRefEq_bool_strict4[simp] : "(null \<doteq> (x::('\<AA>,bool)val)) = invalid"
+by(rule ext, simp add: StrictRefEq_bool true_def false_def)
+
+
 lemma StrictRefEq_strict :
   assumes A: "\<delta> (x::('\<AA>,int)val) = true"
   and     B: "\<delta> y = true"
@@ -374,85 +403,46 @@ lemma StrictRefEq_strict :
   apply(rule ext, simp add: StrongEq_def StrictRefEq_int true_def defined_def)
   done
 
-
-
-class object =
-  fixes oid_of :: "'a \<Rightarrow> oid"
-
-text{* This is a generic definition of referential equality:
-Equality on objects in a state is reduced to equality on the
-references to these objects. As in HOL-OCL, we will store
-the reference of an object inside the object in a (ghost) field.
-By establishing certain invariants ("consistent state"), it can
-be assured that there is a "one-to-one-correspondance" of objects
-to their references --- and therefore the definition below
-behaves as we expect. *}
-text{* Generic Referential Equality enjoys the usual properties:
-(quasi) reflexivity, symmetry, transitivity, substitutivity for
-defined values. For type-technical reasons, for each concrete
-object type, the equality \<doteq> is defined by generic referential
-equality. *}
+text{* Generic referential equality - to be used for instantiations
+ with concrete object types ... *}
 definition "gen_ref_eq (x::('\<AA>,'a::object)val) y
             \<equiv> \<lambda> \<tau>. if (\<delta> x) \<tau> = true \<tau> \<and> (\<delta> y) \<tau> = true \<tau>
                    then |.|. (oid_of |^|^(x \<tau>)^|^|) = (oid_of |^|^(y \<tau>)^|^|) .|.|
                    else invalid \<tau>"
 
+lemma gen_ref_eq_object_strict1[simp] : "(gen_ref_eq (x::('\<AA>,'a::object)val) invalid) = invalid"
+by(rule ext, simp add: gen_ref_eq_def true_def false_def)
+
+lemma gen_ref_eq_object_strict2[simp] : "(gen_ref_eq invalid (x::('\<AA>,'a::object)val)) = invalid"
+by(rule ext, simp add: gen_ref_eq_def true_def false_def)
+
+lemma gen_ref_eq_object_strict3[simp] : "(gen_ref_eq (x::('\<AA>,'a::object)val) null) = invalid"
+by(rule ext, simp add: gen_ref_eq_def true_def false_def)
+
+lemma gen_ref_eq_object_strict4[simp] : "(gen_ref_eq null (x::('\<AA>,'a::object)val)) = invalid"
+by(rule ext, simp add: gen_ref_eq_def true_def false_def)
 
 
 section{* Local Validity *}
 definition OclValid  :: "[('\<AA>)st, ('\<AA>)Boolean] \<Rightarrow> bool" ("(1(_)/ \<Turnstile> (_))" 50)
 where     "\<tau> \<Turnstile> P \<equiv> ((P \<tau>) = true \<tau>)"
 
+section{* Global vs. Local Judgements*}
 lemma transform1: "P = true \<Longrightarrow> \<tau> \<Turnstile> P"
 by(simp add: OclValid_def)
 
 lemma transform2: "(P = Q) \<Longrightarrow> ((\<tau> \<Turnstile> P) = (\<tau> \<Turnstile> Q))"
 by(auto simp: OclValid_def)
 
-lemma foundation1[simp]: "\<tau> \<Turnstile> true"
-by(auto simp: OclValid_def)
-
-lemma foundation2[simp]: "\<not>(\<tau> \<Turnstile> false)"
-by(auto simp: OclValid_def true_def false_def)
-
-lemma foundation3[simp]: "\<not>(\<tau> \<Turnstile> invalid)"
-by(auto simp: OclValid_def true_def false_def invalid_def)
-
-lemma foundation4[simp]: "\<not>(\<tau> \<Turnstile> null)"
-by(auto simp: OclValid_def true_def false_def null_def)
-
-lemma foundation5[simp]: 
-"(\<tau> \<Turnstile> (x \<triangleq> invalid)) \<or> (\<tau> \<Turnstile> (x \<triangleq> null)) \<or> (\<tau> \<Turnstile> (x \<triangleq> true)) \<or> (\<tau> \<Turnstile> (x \<triangleq> false))" 
-apply(insert bool_split[of x \<tau>], auto)
-apply(simp_all add: OclValid_def StrongEq_def true_def null_def invalid_def)
+lemma transform2_rev: "\<forall> \<tau>. (\<tau> \<Turnstile> \<delta> P) \<and> (\<tau> \<Turnstile> \<delta> Q) \<and> (\<tau> \<Turnstile> P) = (\<tau> \<Turnstile> Q) \<Longrightarrow> P = Q"
+apply(rule ext,auto simp: OclValid_def true_def defined_def)
+apply(erule_tac x=a in allE)
+apply(erule_tac x=b in allE)
+apply(auto simp: false_def true_def defined_def
+                 split: option.split option.split_asm)
 done
-
-lemma foundation6: 
-"(\<tau> \<Turnstile> \<delta> x) = (\<not>(\<tau> \<Turnstile> (x \<triangleq> invalid))) \<and> (\<not> (\<tau> \<Turnstile> (x \<triangleq> null)))"
-sorry
-
-lemma foundation7[simp]: 
-"(\<tau> \<Turnstile> not (\<delta> x)) = (\<not> (\<tau> \<Turnstile> \<delta> x))"
-sorry
-
-lemma foundation8: 
-"(\<tau> \<Turnstile> \<delta> x) \<or> (\<tau> \<Turnstile> (x \<triangleq> invalid)) \<or> (\<tau> \<Turnstile> (x \<triangleq> null))"
-proof -
-  have 1 : "(\<tau> \<Turnstile> \<delta> x) \<or> (\<not>(\<tau> \<Turnstile> \<delta> x))" by auto
-  have 2 : "(\<not>(\<tau> \<Turnstile> \<delta> x)) = ((\<tau> \<Turnstile> (x \<triangleq> invalid)) \<or> (\<tau> \<Turnstile> (x \<triangleq> null)))"
-           by(simp only: foundation6, simp) 
-  show ?thesis by(insert 1, simp add:2)
-qed
-
-lemma foundation9: "\<tau> \<Turnstile> (x \<triangleq> y)"
-sorry
-lemma foundation10: "\<tau> \<Turnstile> (x \<triangleq> y) \<Longrightarrow> \<tau> \<Turnstile> (y \<triangleq> x)"
-sorry 
-
-lemma foundation11: "\<tau> \<Turnstile> (x \<triangleq> y) \<Longrightarrow> \<tau> \<Turnstile> (y \<triangleq> z) \<Longrightarrow> \<tau> \<Turnstile> (x \<triangleq> z)"
-sorry
-
-
+(* Something stronger is possible here (consider P null, Q invalid),
+   but this thingi should do for our purpose *)
 
 text{* However, certain properties (like transitivity) can not
        be \emph{transformed} from the global level to the local one, 
@@ -466,6 +456,66 @@ apply(rule H[THEN fun_cong])
 apply(rule ext)
 oops
 
-find_theorems name:Mini "_ = _"
+section{* Local Validity and Meta-logic*}
+
+lemma foundation1[simp]: "\<tau> \<Turnstile> true"
+by(auto simp: OclValid_def)
+
+lemma foundation2[simp]: "\<not>(\<tau> \<Turnstile> false)"
+by(auto simp: OclValid_def true_def false_def)
+
+lemma foundation3[simp]: "\<not>(\<tau> \<Turnstile> invalid)"
+by(auto simp: OclValid_def true_def false_def invalid_def)
+
+lemma foundation4[simp]: "\<not>(\<tau> \<Turnstile> null)"
+by(auto simp: OclValid_def true_def false_def null_def)
+
+lemma bool_split_local[simp]: 
+"(\<tau> \<Turnstile> (x \<triangleq> invalid)) \<or> (\<tau> \<Turnstile> (x \<triangleq> null)) \<or> (\<tau> \<Turnstile> (x \<triangleq> true)) \<or> (\<tau> \<Turnstile> (x \<triangleq> false))" 
+apply(insert bool_split[of x \<tau>], auto)
+apply(simp_all add: OclValid_def StrongEq_def true_def null_def invalid_def)
+done
+
+lemma def_split_local: 
+"(\<tau> \<Turnstile> \<delta> x) = ((\<not>(\<tau> \<Turnstile> (x \<triangleq> invalid))) \<and> (\<not> (\<tau> \<Turnstile> (x \<triangleq> null))))"
+apply(simp add:defined_def true_def false_def invalid_def null_def 
+               StrongEq_def OclValid_def)
+apply(case_tac "x \<tau>",simp,simp add:false_def)
+apply(case_tac "a",simp only:)
+apply(simp_all add:false_def true_def)
+done
+
+
+
+lemma foundation7[simp]: 
+"(\<tau> \<Turnstile> not (\<delta> x)) = (\<not> (\<tau> \<Turnstile> \<delta> x))"
+by(simp add: not_def OclValid_def true_def false_def defined_def
+             split: option.split option.split_asm)
+
+lemma foundation8: 
+"(\<tau> \<Turnstile> \<delta> x) \<or> (\<tau> \<Turnstile> (x \<triangleq> invalid)) \<or> (\<tau> \<Turnstile> (x \<triangleq> null))"
+proof -
+  have 1 : "(\<tau> \<Turnstile> \<delta> x) \<or> (\<not>(\<tau> \<Turnstile> \<delta> x))" by auto
+  have 2 : "(\<not>(\<tau> \<Turnstile> \<delta> x)) = ((\<tau> \<Turnstile> (x \<triangleq> invalid)) \<or> (\<tau> \<Turnstile> (x \<triangleq> null)))"
+           by(simp only: def_split_local, simp) 
+  show ?thesis by(insert 1, simp add:2)
+qed
+
+section{* Local Judgements and Strong Equality *}
+
+lemma foundation9: "\<tau> \<Turnstile> (x \<triangleq> x)"
+by(simp add: OclValid_def StrongEq_def)
+
+
+lemma foundation10: "\<tau> \<Turnstile> (x \<triangleq> y) \<Longrightarrow> \<tau> \<Turnstile> (y \<triangleq> x)"
+by(simp add: OclValid_def StrongEq_def)
+
+lemma foundation11: "\<tau> \<Turnstile> (x \<triangleq> y) \<Longrightarrow> \<tau> \<Turnstile> (y \<triangleq> z) \<Longrightarrow> \<tau> \<Turnstile> (x \<triangleq> z)"
+by(simp add: OclValid_def StrongEq_def true_def)
+
+
+
+
+
 
 end
