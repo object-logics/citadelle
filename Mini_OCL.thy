@@ -418,7 +418,7 @@ lemma StrictRefEq_strict :
 
 text{* Generic referential equality - to be used for instantiations
  with concrete object types ... *}
-definition "gen_ref_eq (x::('\<AA>,'a::object)val) y
+definition "gen_ref_eq (x::('\<AA>,'a::object)val) (y::('\<AA>,'a::object)val)
             \<equiv> \<lambda> \<tau>. if (\<delta> x) \<tau> = true \<tau> \<and> (\<delta> y) \<tau> = true \<tau>
                    then |.|. (oid_of |^|^(x \<tau>)^|^|) = (oid_of |^|^(y \<tau>)^|^|) .|.|
                    else invalid \<tau>"

@@ -4,11 +4,10 @@ imports
   Mini_OCL (* Testing *)
 begin
 
-
 section{* Example Data-Universe *}
+text{* Should be generated entirely from a class-diagram. *}
 
 datatype node = Node oid int oid
- find_theorems Node
 
 instantiation node :: object
 begin
@@ -21,9 +20,10 @@ instance ..
 end
 
 section{* Instantiation of the generic strict equality *}
+text{* Should be generated entirely from a class-diagram. *}
 
 defs   StrictRefEq_node : 
-       "(x::('\<AA>,node)val) \<doteq> y \<equiv> gen_ref_eq x y"
+       "(x::(node,node)val) \<doteq> y \<equiv> gen_ref_eq x y"
 
 lemmas strict_eq_node =
     cp_gen_ref_eq_object[of "x::(node,node)val" 
@@ -32,7 +32,7 @@ lemmas strict_eq_node =
                          simplified StrictRefEq_node[symmetric]]
 
     cp_intro(11)        [of "P::(node,node)val \<Rightarrow>(node,node)val"
-                            "P::(node,node)val \<Rightarrow>(node,node)val",
+                            "Q::(node,node)val \<Rightarrow>(node,node)val",
                          simplified StrictRefEq_node[symmetric] ]
     gen_ref_eq_def      [of "x::(node,node)val" 
                             "y::(node,node)val", 
@@ -42,50 +42,110 @@ lemmas strict_eq_node =
                             "y::(node,node)val", 
                          simplified StrictRefEq_node[symmetric]]
     gen_ref_eq_object_strict1 
-                        [of "x::(node,node)val", 
+                        [of "x::(node,node)val",
                          simplified StrictRefEq_node[symmetric]]
-(* etc *)
+    gen_ref_eq_object_strict2 
+                        [of "x::(node,node)val",
+                         simplified StrictRefEq_node[symmetric]]
+    gen_ref_eq_object_strict3 
+                        [of "x::(node,node)val",
+                         simplified StrictRefEq_node[symmetric]]
+    gen_ref_eq_object_strict4 
+                        [of "x::(node,node)val",
+                         simplified StrictRefEq_node[symmetric]]
+
 
 section{* Selector Definition *}
+text{* Should be generated entirely from a class-diagram. *}
 
-
-fun at_next:: "(node,node)val \<Rightarrow> (node,node)val"  ("(1(_).next)" 50)
-  where "X .next = (\<lambda> \<tau>. case X \<tau> of
+fun dot_next:: "(node,node)val \<Rightarrow> (node,node)val"  ("(1(_).next)" 50)
+  where "(X).next = (\<lambda> \<tau>. case X \<tau> of
                None \<Rightarrow> None
           | |. None .| \<Rightarrow> None
-          | |.|. Node oid i next .|.| \<Rightarrow> if next \<in> dom (fst \<tau>)
-                                         then |. (fst \<tau>) next .|
+          | |.|. Node oid i next .|.| \<Rightarrow> if next \<in> dom (snd \<tau>)
+                                         then |. (snd \<tau>) next .|
                                          else None)"
 
+fun dot_i:: "(node,node)val \<Rightarrow> (node)Integer"  ("(1(_).i)" 50)
+  where "(X).i = (\<lambda> \<tau>. case X \<tau> of
+               None \<Rightarrow> None
+          | |. None .| \<Rightarrow> None
+          | |.|. Node oid i next .|.| \<Rightarrow> 
+                      if oid \<in> dom (snd \<tau>)
+                      then (case (snd \<tau>) oid of
+                                 None \<Rightarrow> None
+                            | |. Node oid i next .| \<Rightarrow> |. |. i .| .|)
+                      else None)"
 
 
-fun at_nextATpre:: "(node,node)val \<Rightarrow> (node,node)val"  ("(1(_).next@pre)" 50)
-  where "X .next@pre = (\<lambda> \<tau>. case X \<tau> of
+fun dot_next_at_pre:: "(node,node)val \<Rightarrow> (node,node)val"  ("(1(_).next@pre)" 50)
+  where "(X).next@pre = (\<lambda> \<tau>. case X \<tau> of
                         None \<Rightarrow> None
                       | |. None .| \<Rightarrow> None
                       | |. |. Node oid i next .| .| \<Rightarrow> if next \<in> dom (snd \<tau>)
-                                                   then |. (snd \<tau>) next .|
-                                                   else None)"
+                                                       then |. (snd \<tau>) next .|
+                                                       else None)"
 
 
-lemma at_next_nullstrict [simp]: "null .next = invalid"
+fun dot_i_at_pre:: "(node,node)val \<Rightarrow> (node)Integer"  ("(1(_).i@pre)" 50)
+where "(X).i@pre = (\<lambda> \<tau>. case X \<tau> of
+               None \<Rightarrow> None
+          | |. None .| \<Rightarrow> None
+          | |.|. Node oid i next .|.| \<Rightarrow> 
+                      if oid \<in> dom (snd \<tau>)
+                      then (case (snd \<tau>) oid of
+                                 None \<Rightarrow> None
+                            | |. Node oid i next .| \<Rightarrow> |. |. i .| .|)
+                      else None)"
+
+lemma cp_dot_next:
+"((X).next) \<tau> = ((\<lambda>_. X \<tau>).next) \<tau>" by(simp)
+
+lemma cp_dot_i:
+"((X).i) \<tau> = ((\<lambda>_. X \<tau>).i) \<tau>" by(simp)
+
+lemma cp_dot_next_at_pre:
+"((X).next@pre) \<tau> = ((\<lambda>_. X \<tau>).next@pre) \<tau>" by(simp)
+
+lemma cp_dot_i_pre:
+"((X).i@pre) \<tau> = ((\<lambda>_. X \<tau>).i@pre) \<tau>" by(simp)
+
+lemmas cp_dot_nextI [simp, intro!]= 
+       cp_dot_next[THEN allI[THEN allI], of "\<lambda> X _. X" "\<lambda> _ \<tau>. \<tau>", THEN cpI1]
+
+lemmas cp_dot_nextI_at_pre [simp, intro!]= 
+       cp_dot_next_at_pre[THEN allI[THEN allI], 
+                          of "\<lambda> X _. X" "\<lambda> _ \<tau>. \<tau>", THEN cpI1]
+
+lemma dot_next_nullstrict [simp]: "(null).next = invalid"
 by(rule ext, simp add: null_def invalid_def)
 
-lemma at_nextATpre_nullstrict [simp] : "null .next@pre = invalid"
+lemma dot_next_at_pre_nullstrict [simp] : "(null).next@pre = invalid"
 by(rule ext, simp add: null_def invalid_def)
 
-lemma at_next_strict[simp] : "invalid .next = invalid"
+lemma dot_next_strict[simp] : "(invalid).next = invalid"
 by(rule ext, simp add: null_def invalid_def)
 
-lemma at_nextATpre_strict[simp] : "invalid .next@pre = invalid"
+lemma dot_nextATpre_strict[simp] : "(invalid).next@pre = invalid"
 by(rule ext, simp add: null_def invalid_def)
 
+section{* Invariant *}
+
+axiomatization inv_Node :: "node st \<Rightarrow> bool"
+where A : " \<tau> \<Turnstile> \<partial> self \<longrightarrow> 
+               \<tau> \<Turnstile> invNode(self) =
+                   (\<tau> \<Turnstile> (self).next \<doteq> null \<or> 
+                    \<tau> \<Turnstile> not((self).next \<doteq> null) 
+
+"
 
 
 
 coinductive inv :: "'a state \<Rightarrow> 'a oid \<Rightarrow> bool" where
-"st x = Some (Node i None) \<Longrightarrow> inv st x"  |
-"st x = Some (Node i (Some next)) \<and> st next = Some (Node next_i next_next) \<and> i > next_i \<and> inv st next \<Longrightarrow> inv st x"
+ "st x = Some (Node oid i next) \<Longrightarrow> inv st x"  |
+"st x = Some (Node oid i next) \<and> 
+              st next = Some (Node oid next_i next_next) \<and> 
+              i > next_i \<and> inv st next \<Longrightarrow> inv st x"
 
 fun contents_contract :: "('a state \<Rightarrow> ('a oid option) \<Rightarrow> int set) \<Rightarrow> 'a state \<Rightarrow> ('a oid option) \<Rightarrow> bool" where
 "contents_contract f st None = True" |
