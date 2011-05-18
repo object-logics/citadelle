@@ -577,7 +577,7 @@ lemma strictEqGen_vs_strongEq:
  (\<tau> \<Turnstile> (gen_ref_eq (x::('b::object,'a::object)val) y)) = (\<tau> \<Turnstile> (x \<triangleq> y))"
 apply(auto simp: gen_ref_eq_def OclValid_def WFF_def StrongEq_def true_def)
 sorry
-
+text{* WFF and object must be defined strong enough that this can be proven! *}
 
 section{* Local Judgements and Strong Equality *}
 

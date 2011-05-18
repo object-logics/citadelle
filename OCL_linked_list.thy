@@ -6,16 +6,56 @@ begin
 
 
 section{* Example Data-Universe *}
-datatype node = Node int oid
+
+datatype node = Node oid int oid
+ find_theorems Node
+
+instantiation node :: object
+begin
+
+definition oid_of_def:
+   "oid_of x = (case x of Node oid _ _ \<Rightarrow> oid)"
+
+instance ..
+
+end
+
+section{* Instantiation of the generic strict equality *}
+
+defs   StrictRefEq_node : 
+       "(x::('\<AA>,node)val) \<doteq> y \<equiv> gen_ref_eq x y"
+
+lemmas strict_eq_node =
+    cp_gen_ref_eq_object[of "x::(node,node)val" 
+                            "y::(node,node)val" 
+                            \<tau>, 
+                         simplified StrictRefEq_node[symmetric]]
+
+    cp_intro(11)        [of "P::(node,node)val \<Rightarrow>(node,node)val"
+                            "P::(node,node)val \<Rightarrow>(node,node)val",
+                         simplified StrictRefEq_node[symmetric] ]
+    gen_ref_eq_def      [of "x::(node,node)val" 
+                            "y::(node,node)val", 
+                         simplified StrictRefEq_node[symmetric]]
+    gen_ref_eq_defargs  [of _
+                            "x::(node,node)val" 
+                            "y::(node,node)val", 
+                         simplified StrictRefEq_node[symmetric]]
+    gen_ref_eq_object_strict1 
+                        [of "x::(node,node)val", 
+                         simplified StrictRefEq_node[symmetric]]
+(* etc *)
+
+section{* Selector Definition *}
 
 
 fun at_next:: "(node,node)val \<Rightarrow> (node,node)val"  ("(1(_).next)" 50)
   where "X .next = (\<lambda> \<tau>. case X \<tau> of
-                        None \<Rightarrow> None
-                      | |. None .| \<Rightarrow> None
-                      | |. |. Node i next .| .| \<Rightarrow> if next \<in> dom (fst \<tau>)
-                                                   then |. (fst \<tau>) next .|
-                                                   else None)"
+               None \<Rightarrow> None
+          | |. None .| \<Rightarrow> None
+          | |.|. Node oid i next .|.| \<Rightarrow> if next \<in> dom (fst \<tau>)
+                                         then |. (fst \<tau>) next .|
+                                         else None)"
 
 
 
@@ -23,7 +63,7 @@ fun at_nextATpre:: "(node,node)val \<Rightarrow> (node,node)val"  ("(1(_).next@p
   where "X .next@pre = (\<lambda> \<tau>. case X \<tau> of
                         None \<Rightarrow> None
                       | |. None .| \<Rightarrow> None
-                      | |. |. Node i next .| .| \<Rightarrow> if next \<in> dom (snd \<tau>)
+                      | |. |. Node oid i next .| .| \<Rightarrow> if next \<in> dom (snd \<tau>)
                                                    then |. (snd \<tau>) next .|
                                                    else None)"
 
