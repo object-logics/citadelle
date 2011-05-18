@@ -183,11 +183,11 @@ where     "X and Y \<equiv>  (\<lambda> \<tau> . case X \<tau> of
                         | |. None .| \<Rightarrow> (case Y \<tau> of
                                               None \<Rightarrow>  None
                                           | |.None.| \<Rightarrow> |.None.|
-                                          | |.|.True.|.| \<Rightarrow>  None
+                                          | |.|.True.|.| \<Rightarrow> |. None .|
                                           | |.|.False.|.| \<Rightarrow>  |.|.False.|.|)
                         | |. |. True .| .| \<Rightarrow> (case Y \<tau> of
                                               None \<Rightarrow>  None
-                                          | |.None.| \<Rightarrow> None
+                                          | |.None.| \<Rightarrow> |. None .|
                                           | |.|.y.|.| \<Rightarrow>  |.|. y .|.|)
                         | |. |. False .| .| \<Rightarrow>  |.|. False .|.|)"
 
@@ -229,90 +229,102 @@ apply(subst cp_ocl_or[of "not (\<lambda>_. X \<tau>)" "(\<lambda>_. Y \<tau>)"])
 by(simp add: cp_not[symmetric] cp_ocl_or[symmetric] )
 
 
-lemma and1[simp]: "(invalid and true) = invalid"
+lemma ocl_and1[simp]: "(invalid and true) = invalid"
   by(rule ext,simp add: ocl_and_def null_def invalid_def true_def false_def)
-lemma and2[simp]: "(invalid and false) = false"
+lemma ocl_and2[simp]: "(invalid and false) = false"
   by(rule ext,simp add: ocl_and_def null_def invalid_def true_def false_def)
-lemma and3[simp]: "(invalid and null) = invalid"
+lemma ocl_and3[simp]: "(invalid and null) = invalid"
   by(rule ext,simp add: ocl_and_def null_def invalid_def true_def false_def)
-lemma and4[simp]: "(invalid and invalid) = invalid"
-  by(rule ext,simp add: ocl_and_def null_def invalid_def true_def false_def)
-
-lemma and5[simp]: "(null and true) = invalid"
-  by(rule ext,simp add: ocl_and_def null_def invalid_def true_def false_def)
-lemma and6[simp]: "(null and false) = false"
-  by(rule ext,simp add: ocl_and_def null_def invalid_def true_def false_def)
-lemma and7[simp]: "(null and null) = null"
-  by(rule ext,simp add: ocl_and_def null_def invalid_def true_def false_def)
-lemma and8[simp]: "(null and invalid) = invalid"
+lemma ocl_and4[simp]: "(invalid and invalid) = invalid"
   by(rule ext,simp add: ocl_and_def null_def invalid_def true_def false_def)
 
-lemma and9[simp]: "(false and true) = false"
+lemma ocl_and5[simp]: "(null and true) = null"
   by(rule ext,simp add: ocl_and_def null_def invalid_def true_def false_def)
-lemma and10[simp]: "(false and false) = false"
+lemma ocl_and6[simp]: "(null and false) = false"
   by(rule ext,simp add: ocl_and_def null_def invalid_def true_def false_def)
-lemma and11[simp]: "(false and null) = false"
+lemma ocl_and7[simp]: "(null and null) = null"
   by(rule ext,simp add: ocl_and_def null_def invalid_def true_def false_def)
-lemma and12[simp]: "(false and invalid) = false"
-  by(rule ext,simp add: ocl_and_def null_def invalid_def true_def false_def)
-
-lemma and13[simp]: "(true and true) = true"
-  by(rule ext,simp add: ocl_and_def null_def invalid_def true_def false_def)
-lemma and14[simp]: "(true and false) = false"
-  by(rule ext,simp add: ocl_and_def null_def invalid_def true_def false_def)
-lemma and15[simp]: "(true and null) = invalid"
-  by(rule ext,simp add: ocl_and_def null_def invalid_def true_def false_def)
-lemma and16[simp]: "(true and invalid) = invalid"
+lemma ocl_and8[simp]: "(null and invalid) = invalid"
   by(rule ext,simp add: ocl_and_def null_def invalid_def true_def false_def)
 
-lemma and_idem[simp]: "(X and X) = X"
+lemma ocl_and9[simp]: "(false and true) = false"
+  by(rule ext,simp add: ocl_and_def null_def invalid_def true_def false_def)
+lemma ocl_and10[simp]: "(false and false) = false"
+  by(rule ext,simp add: ocl_and_def null_def invalid_def true_def false_def)
+lemma ocl_and11[simp]: "(false and null) = false"
+  by(rule ext,simp add: ocl_and_def null_def invalid_def true_def false_def)
+lemma ocl_and12[simp]: "(false and invalid) = false"
+  by(rule ext,simp add: ocl_and_def null_def invalid_def true_def false_def)
+
+lemma ocl_and13[simp]: "(true and true) = true"
+  by(rule ext,simp add: ocl_and_def null_def invalid_def true_def false_def)
+lemma ocl_and14[simp]: "(true and false) = false"
+  by(rule ext,simp add: ocl_and_def null_def invalid_def true_def false_def)
+lemma ocl_and15[simp]: "(true and null) = null"
+  by(rule ext,simp add: ocl_and_def null_def invalid_def true_def false_def)
+lemma ocl_and16[simp]: "(true and invalid) = invalid"
+  by(rule ext,simp add: ocl_and_def null_def invalid_def true_def false_def)
+
+lemma ocl_and_idem[simp]: "(X and X) = X"
   apply(rule ext,simp add: ocl_and_def null_def invalid_def true_def false_def)
   apply(case_tac "X x", simp_all)
   apply(case_tac "a", simp_all)
   apply(case_tac "aa", simp_all)
   done
 
-lemma and_commute: "(X and Y) = (Y and X)"
+lemma ocl_and_commute: "(X and Y) = (Y and X)"
   by(rule ext,auto simp:true_def false_def ocl_and_def invalid_def 
                    split: option.split option.split_asm
                           bool.split bool.split_asm)
 
 
-lemma and_false1[simp]: "(false and X) = false"
+lemma ocl_and_false1[simp]: "(false and X) = false"
   apply(rule ext, simp add: ocl_and_def)
   apply(auto simp:true_def false_def invalid_def 
              split: option.split option.split_asm)
   done
 
-lemma and_false2[simp]: "(X and false) = false"
-  by(simp add: and_commute) 
+lemma ocl_and_false2[simp]: "(X and false) = false"
+  by(simp add: ocl_and_commute) 
 
-(* gilt nicht: true and null.
-lemma and_false1[simp]: "(true and X) = X"
+
+lemma ocl_and_true1[simp]: "(true and X) = X"
   apply(rule ext, simp add: ocl_and_def)
   apply(auto simp:true_def false_def invalid_def 
              split: option.split option.split_asm)
   done
-*)
 
-lemma or_idem[simp]: "(X or X) = X"
-  by(simp add: ocl_or_def)
+lemma ocl_and_true2[simp]: "(X and true) = X"
+  by(simp add: ocl_and_commute) 
 
-lemma or_commute: "(X or Y) = (Y or X)"
-  by(simp add: ocl_or_def and_commute)
 
-lemma and_assoc: "(X and (Y and Z)) = (X and Y and Z)"
+lemma ocl_and_assoc: "(X and (Y and Z)) = (X and Y and Z)"
   apply(rule ext, simp add: ocl_and_def)
-  apply(auto simp:true_def false_def invalid_def 
-                            split: option.split option.split_asm
-                                   bool.split bool.split_asm)
+  apply(auto simp:true_def false_def null_def invalid_def 
+             split: option.split option.split_asm
+                    bool.split bool.split_asm)
 done
 
+lemma ocl_or_idem[simp]: "(X or X) = X"
+  by(simp add: ocl_or_def)
 
+lemma ocl_or_commute: "(X or Y) = (Y or X)"
+  by(simp add: ocl_or_def ocl_and_commute)
 
+lemma ocl_or_false1[simp]: "(false or Y) = Y"
+  by(simp add: ocl_or_def)
 
-lemma or_assoc: "(X or (Y or Z)) = (X or Y or Z)"
-  by(simp add: ocl_or_def and_assoc)
+lemma ocl_or_false2[simp]: "(Y or false) = Y"
+  by(simp add: ocl_or_def)
+
+lemma ocl_or_true1[simp]: "(true or Y) = true"
+  by(simp add: ocl_or_def)
+
+lemma ocl_or_true2: "(Y or true) = true"
+  by(simp add: ocl_or_def)
+
+lemma ocl_or_assoc: "(X or (Y or Z)) = (X or Y or Z)"
+  by(simp add: ocl_or_def ocl_and_assoc)
 
 lemma deMorgan1: "not(X and Y) = ((not X) or (not Y))"
   by(simp add: ocl_or_def)
