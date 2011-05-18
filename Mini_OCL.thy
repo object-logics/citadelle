@@ -269,25 +269,11 @@ lemma and_idem[simp]: "(X and X) = X"
   done
 
 lemma and_commute: "(X and Y) = (Y and X)"
-  apply(rule ext,simp add: ocl_and_def null_def invalid_def true_def false_def)
-  apply(case_tac "X x", simp_all)
-  apply(case_tac "Y x", simp_all)
-  apply(case_tac "a", simp_all)
-  apply(case_tac "aa", simp_all)
-  apply(case_tac "Y x", simp_all)
-  apply(case_tac "a", simp_all)
-  apply(case_tac "aa", simp_all)
-  apply(case_tac "a", simp_all)
-  apply(case_tac "aa", simp_all)
-  apply(case_tac "ab", simp_all)
-  apply(case_tac "ab", simp_all)
-  apply(case_tac "aa", simp_all)
-  apply(case_tac "ac", simp_all)
-  apply(case_tac "aa", simp_all)
-  apply(case_tac "ac", simp_all)
-done
+  by(rule ext,auto simp:true_def false_def ocl_and_def invalid_def 
+                   split: option.split option.split_asm
+                          bool.split bool.split_asm)
 
- (*
+
 lemma and_false1[simp]: "(false and X) = false"
   apply(rule ext, simp add: ocl_and_def)
   apply(auto simp:true_def false_def invalid_def 
@@ -296,7 +282,7 @@ lemma and_false1[simp]: "(false and X) = false"
 
 lemma and_false2[simp]: "(X and false) = false"
   by(simp add: and_commute) 
-*)
+
 
 lemma or_idem[simp]: "(X or X) = X"
   by(simp add: ocl_or_def)
@@ -512,6 +498,54 @@ by(simp add: OclValid_def StrongEq_def)
 lemma foundation11: "\<tau> \<Turnstile> (x \<triangleq> y) \<Longrightarrow> \<tau> \<Turnstile> (y \<triangleq> z) \<Longrightarrow> \<tau> \<Turnstile> (x \<triangleq> z)"
 by(simp add: OclValid_def StrongEq_def true_def)
 
+definition cp   :: "(('\<AA>,'\<alpha>) val \<Rightarrow> ('\<AA>,'\<beta>) val) \<Rightarrow> bool"
+where     "cp P \<equiv> (\<exists> f. \<forall> X \<tau>. P X \<tau> = f (X \<tau>) \<tau>)"
+
+lemma cp_charn : "!! \<tau>. A \<tau> = B \<tau> \<Longrightarrow> cp P \<Longrightarrow> P A \<tau> = P B \<tau>"
+  by (auto simp: cp_def)
+
+lemma cp_const [simp, intro!]: "cp(\<lambda>_. c)"
+  by (simp add: cp_def, fast)
+
+lemma cp_id [simp, intro!]:    "cp(\<lambda>X. X)"
+  by (simp add: cp_def, fast)
+
+text{* The rule of substitutivity in HOL-OCL holds only 
+for context-passing expressions - i.e. those, that pass
+the context \<tau> without changing it. Fortunately, all 
+operators of the OCL language satisfy this property 
+(but not all HOL operators).*}
+
+lemma ocl_subst1: "!! \<tau>. cp P \<Longrightarrow> \<tau> \<Turnstile> (x \<triangleq> y) \<Longrightarrow> \<tau> \<Turnstile> (P x \<triangleq> P y)"
+by(auto simp: OclValid_def StrongEq_def true_def cp_def)
+
+lemma ocl_subst2: 
+"!! \<tau>.  cp P \<Longrightarrow> \<tau> \<Turnstile> (x \<triangleq> y) \<Longrightarrow> \<tau> \<Turnstile> (P x) \<Longrightarrow> \<tau> \<Turnstile> (P y)"
+by(auto simp: OclValid_def StrongEq_def true_def cp_def)
+
+lemma cpI1:
+"(\<forall> X \<tau>. f X \<tau> = f(\<lambda>_. X \<tau>) \<tau>) \<Longrightarrow> cp P \<Longrightarrow> cp(\<lambda>X. f (P X))"
+apply(auto simp: true_def cp_def)
+apply(rule exI, (rule allI)+)
+by(erule_tac x="P X" in allE, auto)
+
+lemma cpI2:
+"(\<forall> X Y \<tau>. f X Y \<tau> = f(\<lambda>_. X \<tau>)(\<lambda>_. Y \<tau>) \<tau>) \<Longrightarrow> 
+ cp P \<Longrightarrow> cp Q \<Longrightarrow> cp(\<lambda>X. f (P X) (Q X))"
+apply(auto simp: true_def cp_def)
+apply(rule exI, (rule allI)+)
+by(erule_tac x="P X" in allE, auto)
+
+
+lemmas cp_intro[simp,intro!] = 
+       cp_const 
+       cp_id
+       cp_not[THEN allI[THEN allI[THEN cpI1], of not]]
+       cp_ocl_and[THEN allI[THEN allI[THEN allI[THEN cpI2]], of "op and"]]
+       cp_ocl_or[THEN allI[THEN allI[THEN allI[THEN cpI2]], of "op or"]]
+       cp_ocl_implies[THEN allI[THEN allI[THEN allI[THEN cpI2]], of "op implies"]]
+
+
 
 lemma strictEqBool_vs_strongEq: 
 "\<tau> \<Turnstile>(\<delta> x) \<Longrightarrow> \<tau> \<Turnstile>(\<delta> y) \<Longrightarrow> (\<tau> \<Turnstile> ((x::('\<AA>,bool)val) \<doteq> y)) = (\<tau> \<Turnstile> (x \<triangleq> y))"
@@ -525,5 +559,6 @@ lemma strictEqGen_vs_strongEq:
 "WFF \<tau> \<Longrightarrow> \<tau> \<Turnstile>(\<delta> x) \<Longrightarrow> \<tau> \<Turnstile>(\<delta> y) \<Longrightarrow> 
  (\<tau> \<Turnstile> (gen_ref_eq (x::('b::object,'a::object)val) y)) = (\<tau> \<Turnstile> (x \<triangleq> y))"
 apply(auto simp: gen_ref_eq_def OclValid_def WFF_def StrongEq_def true_def)
+sorry
 
 end
