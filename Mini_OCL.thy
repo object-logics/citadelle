@@ -4,10 +4,6 @@ imports
   Main (* Testing *)
 begin
 
-section{* Mini-OCL *}
-
-
-
 section{* OCL Core Definitions *}
 
 subsection{* State, State Transitions, Well-formed States *}
@@ -84,6 +80,16 @@ apply(case_tac "aa",simp)
 apply auto
 done
 
+
+lemma [simp]: "false (a, b) = |.|.False.|.|"
+by(simp add:false_def)
+
+lemma [simp]: "true (a, b) = |.|.True.|.|"
+by(simp add:true_def)
+
+
+section{* Logical (Strong) Equality and Definedness *}
+
 definition StrongEq::"[('\<AA>,'\<alpha>)val,('\<AA>,'\<alpha>)val] \<Rightarrow> ('\<AA>)Boolean"  (infixl "\<triangleq>" 30)
 where     "X \<triangleq> Y \<equiv>  \<lambda> \<tau>. |. |. X \<tau> = Y \<tau> .| .|"
 
@@ -134,7 +140,9 @@ lemma defined3[simp]: "\<delta> \<delta> X = true"
 lemma defined4[simp]: "\<delta> (X \<triangleq> Y) = true"
   by(rule ext,
      simp add: defined_def null_def invalid_def StrongEq_def true_def false_def)
- 
+
+
+section{* Logical Connectives and their Universal Properties *}
 
 definition not :: "('\<AA>)Boolean \<Rightarrow> ('\<AA>)Boolean"
 where     "not X \<equiv>  \<lambda> \<tau> . case X \<tau> of
@@ -221,10 +229,6 @@ apply(subst cp_ocl_or[of "not (\<lambda>_. X \<tau>)" "(\<lambda>_. Y \<tau>)"])
 by(simp add: cp_not[symmetric] cp_ocl_or[symmetric] )
 
 
-lemmas cp_simps = cp_StrongEq cp_defined cp_not cp_ocl_and 
-                  cp_ocl_or cp_ocl_implies
-
-
 lemma and1[simp]: "(invalid and true) = invalid"
   by(rule ext,simp add: ocl_and_def null_def invalid_def true_def false_def)
 lemma and2[simp]: "(invalid and false) = false"
@@ -283,6 +287,13 @@ lemma and_false1[simp]: "(false and X) = false"
 lemma and_false2[simp]: "(X and false) = false"
   by(simp add: and_commute) 
 
+(* gilt nicht: true and null.
+lemma and_false1[simp]: "(true and X) = X"
+  apply(rule ext, simp add: ocl_and_def)
+  apply(auto simp:true_def false_def invalid_def 
+             split: option.split option.split_asm)
+  done
+*)
 
 lemma or_idem[simp]: "(X or X) = X"
   by(simp add: ocl_or_def)
@@ -308,8 +319,8 @@ lemma deMorgan1: "not(X and Y) = ((not X) or (not Y))"
 
 lemma deMorgan2: "not(X or Y) = ((not X) and (not Y))"
   by(simp add: ocl_or_def)
-
-section{* Logical Equality, Referential Equality, and Rewriting *}
+ 
+section{* Logical Equality and Referential Equality *}
 
 text{* Construction by overloading: for each base type, there is an equality.*}
 
@@ -341,9 +352,6 @@ lemma StrictRefEq_int_strict :
   apply(rule ext, simp add: StrongEq_def StrictRefEq_int true_def defined_def)
   done
 
-
-lemma [simp]: "false (a, b) = |.|.False.|.|"
-by(simp add:false_def)
 
 lemma StrictRefEq_int_strict' :
   assumes A: "\<delta> ((x::('\<AA>,int)val) \<doteq> y) = true"
@@ -379,6 +387,14 @@ by(rule ext, simp add: StrictRefEq_bool true_def false_def)
 lemma StrictRefEq_bool_strict4[simp] : "(null \<doteq> (x::('\<AA>,bool)val)) = invalid"
 by(rule ext, simp add: StrictRefEq_bool true_def false_def)
 
+lemma cp_StrictRefEq_bool: 
+"((X::('\<AA>,bool)val) \<doteq> Y) \<tau> = ((\<lambda> _. X \<tau>) \<doteq> (\<lambda> _. Y \<tau>)) \<tau>"
+by(auto simp: StrictRefEq_bool StrongEq_def invalid_def  cp_defined[symmetric])
+
+lemma cp_StrictRefEq_int: 
+"((X::('\<AA>,int)val) \<doteq> Y) \<tau> = ((\<lambda> _. X \<tau>) \<doteq> (\<lambda> _. Y \<tau>)) \<tau>"
+by(auto simp: StrictRefEq_int StrongEq_def invalid_def  cp_defined[symmetric])
+
 
 lemma StrictRefEq_strict :
   assumes A: "\<delta> (x::('\<AA>,int)val) = true"
@@ -406,6 +422,12 @@ by(rule ext, simp add: gen_ref_eq_def true_def false_def)
 
 lemma gen_ref_eq_object_strict4[simp] : "(gen_ref_eq null (x::('\<AA>,'a::object)val)) = invalid"
 by(rule ext, simp add: gen_ref_eq_def true_def false_def)
+
+lemma cp_gen_ref_eq_object: 
+"(gen_ref_eq x (y::('\<AA>,'a::object)val)) \<tau> = 
+ (gen_ref_eq (\<lambda>_. x \<tau>) (\<lambda>_. y \<tau>)) \<tau>"
+by(auto simp: gen_ref_eq_def StrongEq_def invalid_def  cp_defined[symmetric])
+
 
 
 section{* Local Validity *}
@@ -470,6 +492,15 @@ apply(case_tac "a",simp only:)
 apply(simp_all add:false_def true_def)
 done
 
+lemma foundation5: 
+"\<tau> \<Turnstile> (P and Q) \<Longrightarrow> (\<tau> \<Turnstile> P) \<and> (\<tau> \<Turnstile> Q)"
+by(simp add: ocl_and_def OclValid_def true_def false_def defined_def
+             split: option.split option.split_asm bool.split bool.split_asm)
+
+lemma foundation6: 
+"\<tau> \<Turnstile> P \<Longrightarrow> \<tau> \<Turnstile> \<delta> P"
+by(simp add: not_def OclValid_def true_def false_def defined_def
+             split: option.split option.split_asm)
 
 
 lemma foundation7[simp]: 
@@ -477,6 +508,10 @@ lemma foundation7[simp]:
 by(simp add: not_def OclValid_def true_def false_def defined_def
              split: option.split option.split_asm)
 
+text{* Key theorem for the Delta-closure: either an expression
+is defined, or it can be replaced (substituted via StrongEq_L_subst2; see
+below) by invalid or null. Strictness-reduction rules will usually 
+reduce these substituted terms drastically.  *}
 lemma foundation8: 
 "(\<tau> \<Turnstile> \<delta> x) \<or> (\<tau> \<Turnstile> (x \<triangleq> invalid)) \<or> (\<tau> \<Turnstile> (x \<triangleq> null))"
 proof -
@@ -486,29 +521,67 @@ proof -
   show ?thesis by(insert 1, simp add:2)
 qed
 
+lemma foundation9:
+"\<tau> \<Turnstile> \<delta> x \<Longrightarrow> (\<tau> \<Turnstile> not x) = (\<not> (\<tau> \<Turnstile> x))"
+apply(simp add: def_split_local)
+by(auto simp: not_def OclValid_def invalid_def true_def null_def StrongEq_def)
+
+
+lemma foundation10:
+"\<tau> \<Turnstile> \<delta> x \<Longrightarrow> \<tau> \<Turnstile> \<delta> y \<Longrightarrow> (\<tau> \<Turnstile> (x and y)) = ( (\<tau> \<Turnstile> x) \<and> (\<tau> \<Turnstile> y))"
+apply(simp add: def_split_local)
+by(auto simp: ocl_and_def OclValid_def invalid_def 
+              true_def null_def StrongEq_def
+        split:bool.split_asm)
+
+
+lemma foundation11:
+"\<tau> \<Turnstile> \<delta> x \<Longrightarrow>  \<tau> \<Turnstile> \<delta> y \<Longrightarrow> (\<tau> \<Turnstile> (x or y)) = ( (\<tau> \<Turnstile> x) \<or> (\<tau> \<Turnstile> y))"
+apply(simp add: def_split_local)
+by(auto simp: not_def ocl_or_def ocl_and_def OclValid_def invalid_def 
+              true_def null_def StrongEq_def
+        split:bool.split_asm bool.split)
+
+
+
+lemma foundation12:
+"\<tau> \<Turnstile> \<delta> x \<Longrightarrow>  \<tau> \<Turnstile> \<delta> y \<Longrightarrow> (\<tau> \<Turnstile> (x implies y)) = ( (\<tau> \<Turnstile> x) \<longrightarrow> (\<tau> \<Turnstile> y))"
+apply(simp add: def_split_local)
+by(auto simp: not_def ocl_or_def ocl_and_def ocl_implies_def 
+              OclValid_def invalid_def true_def null_def StrongEq_def
+        split:bool.split_asm bool.split)
+
+
+lemma strictEqBool_vs_strongEq: 
+"\<tau> \<Turnstile>(\<delta> x) \<Longrightarrow> \<tau> \<Turnstile>(\<delta> y) \<Longrightarrow> (\<tau> \<Turnstile> ((x::('\<AA>,bool)val) \<doteq> y)) = (\<tau> \<Turnstile> (x \<triangleq> y))"
+by(simp add: StrictRefEq_bool OclValid_def)
+
+lemma strictEqInt_vs_strongEq: 
+"\<tau> \<Turnstile>(\<delta> x) \<Longrightarrow> \<tau> \<Turnstile>(\<delta> y) \<Longrightarrow> (\<tau> \<Turnstile> ((x::('\<AA>,int)val) \<doteq> y)) = (\<tau> \<Turnstile> (x \<triangleq> y))"
+by(simp add: StrictRefEq_int OclValid_def)
+
+lemma strictEqGen_vs_strongEq: 
+"WFF \<tau> \<Longrightarrow> \<tau> \<Turnstile>(\<delta> x) \<Longrightarrow> \<tau> \<Turnstile>(\<delta> y) \<Longrightarrow> 
+ (\<tau> \<Turnstile> (gen_ref_eq (x::('b::object,'a::object)val) y)) = (\<tau> \<Turnstile> (x \<triangleq> y))"
+apply(auto simp: gen_ref_eq_def OclValid_def WFF_def StrongEq_def true_def)
+sorry
+
+
 section{* Local Judgements and Strong Equality *}
 
-lemma foundation9: "\<tau> \<Turnstile> (x \<triangleq> x)"
+lemma StrongEq_L_refl: "\<tau> \<Turnstile> (x \<triangleq> x)"
 by(simp add: OclValid_def StrongEq_def)
 
 
-lemma foundation10: "\<tau> \<Turnstile> (x \<triangleq> y) \<Longrightarrow> \<tau> \<Turnstile> (y \<triangleq> x)"
+lemma StrongEq_L_sym: "\<tau> \<Turnstile> (x \<triangleq> y) \<Longrightarrow> \<tau> \<Turnstile> (y \<triangleq> x)"
 by(simp add: OclValid_def StrongEq_def)
 
-lemma foundation11: "\<tau> \<Turnstile> (x \<triangleq> y) \<Longrightarrow> \<tau> \<Turnstile> (y \<triangleq> z) \<Longrightarrow> \<tau> \<Turnstile> (x \<triangleq> z)"
+lemma StrongEq_L_trans: "\<tau> \<Turnstile> (x \<triangleq> y) \<Longrightarrow> \<tau> \<Turnstile> (y \<triangleq> z) \<Longrightarrow> \<tau> \<Turnstile> (x \<triangleq> z)"
 by(simp add: OclValid_def StrongEq_def true_def)
 
 definition cp   :: "(('\<AA>,'\<alpha>) val \<Rightarrow> ('\<AA>,'\<beta>) val) \<Rightarrow> bool"
 where     "cp P \<equiv> (\<exists> f. \<forall> X \<tau>. P X \<tau> = f (X \<tau>) \<tau>)"
 
-lemma cp_charn : "!! \<tau>. A \<tau> = B \<tau> \<Longrightarrow> cp P \<Longrightarrow> P A \<tau> = P B \<tau>"
-  by (auto simp: cp_def)
-
-lemma cp_const [simp, intro!]: "cp(\<lambda>_. c)"
-  by (simp add: cp_def, fast)
-
-lemma cp_id [simp, intro!]:    "cp(\<lambda>X. X)"
-  by (simp add: cp_def, fast)
 
 text{* The rule of substitutivity in HOL-OCL holds only 
 for context-passing expressions - i.e. those, that pass
@@ -516,10 +589,10 @@ the context \<tau> without changing it. Fortunately, all
 operators of the OCL language satisfy this property 
 (but not all HOL operators).*}
 
-lemma ocl_subst1: "!! \<tau>. cp P \<Longrightarrow> \<tau> \<Turnstile> (x \<triangleq> y) \<Longrightarrow> \<tau> \<Turnstile> (P x \<triangleq> P y)"
+lemma StrongEq_L_subst1: "!! \<tau>. cp P \<Longrightarrow> \<tau> \<Turnstile> (x \<triangleq> y) \<Longrightarrow> \<tau> \<Turnstile> (P x \<triangleq> P y)"
 by(auto simp: OclValid_def StrongEq_def true_def cp_def)
 
-lemma ocl_subst2: 
+lemma StrongEq_L_subst2: 
 "!! \<tau>.  cp P \<Longrightarrow> \<tau> \<Turnstile> (x \<triangleq> y) \<Longrightarrow> \<tau> \<Turnstile> (P x) \<Longrightarrow> \<tau> \<Turnstile> (P y)"
 by(auto simp: OclValid_def StrongEq_def true_def cp_def)
 
@@ -537,28 +610,29 @@ apply(rule exI, (rule allI)+)
 by(erule_tac x="P X" in allE, auto)
 
 
+lemma cp_const [simp, intro!]: "cp(\<lambda>_. c)"
+  by (simp add: cp_def, fast)
+
+lemma cp_id [simp, intro!]:    "cp(\<lambda>X. X)"
+  by (simp add: cp_def, fast)
+
 lemmas cp_intro[simp,intro!] = 
        cp_const 
        cp_id
+       cp_defined[THEN allI[THEN allI[THEN cpI1], of defined]]
        cp_not[THEN allI[THEN allI[THEN cpI1], of not]]
        cp_ocl_and[THEN allI[THEN allI[THEN allI[THEN cpI2]], of "op and"]]
        cp_ocl_or[THEN allI[THEN allI[THEN allI[THEN cpI2]], of "op or"]]
        cp_ocl_implies[THEN allI[THEN allI[THEN allI[THEN cpI2]], of "op implies"]]
+       cp_StrongEq[THEN allI[THEN allI[THEN allI[THEN cpI2]], 
+             of "StrongEq"]]
+       cp_StrictRefEq_bool[THEN allI[THEN allI[THEN allI[THEN cpI2]], 
+             of "StrictRefEq"]]
+       cp_StrictRefEq_int[THEN allI[THEN allI[THEN allI[THEN cpI2]], 
+             of "StrictRefEq"]]
+       cp_gen_ref_eq_object[THEN allI[THEN allI[THEN allI[THEN cpI2]], 
+             of "gen_ref_eq"]]
 
 
-
-lemma strictEqBool_vs_strongEq: 
-"\<tau> \<Turnstile>(\<delta> x) \<Longrightarrow> \<tau> \<Turnstile>(\<delta> y) \<Longrightarrow> (\<tau> \<Turnstile> ((x::('\<AA>,bool)val) \<doteq> y)) = (\<tau> \<Turnstile> (x \<triangleq> y))"
-by(simp add: StrictRefEq_bool OclValid_def)
-
-lemma strictEqInt_vs_strongEq: 
-"\<tau> \<Turnstile>(\<delta> x) \<Longrightarrow> \<tau> \<Turnstile>(\<delta> y) \<Longrightarrow> (\<tau> \<Turnstile> ((x::('\<AA>,int)val) \<doteq> y)) = (\<tau> \<Turnstile> (x \<triangleq> y))"
-by(simp add: StrictRefEq_int OclValid_def)
-
-lemma strictEqGen_vs_strongEq: 
-"WFF \<tau> \<Longrightarrow> \<tau> \<Turnstile>(\<delta> x) \<Longrightarrow> \<tau> \<Turnstile>(\<delta> y) \<Longrightarrow> 
- (\<tau> \<Turnstile> (gen_ref_eq (x::('b::object,'a::object)val) y)) = (\<tau> \<Turnstile> (x \<triangleq> y))"
-apply(auto simp: gen_ref_eq_def OclValid_def WFF_def StrongEq_def true_def)
-sorry
 
 end
