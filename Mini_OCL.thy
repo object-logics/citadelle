@@ -579,6 +579,9 @@ by(simp add: OclValid_def StrongEq_def)
 lemma StrongEq_L_trans: "\<tau> \<Turnstile> (x \<triangleq> y) \<Longrightarrow> \<tau> \<Turnstile> (y \<triangleq> z) \<Longrightarrow> \<tau> \<Turnstile> (x \<triangleq> z)"
 by(simp add: OclValid_def StrongEq_def true_def)
 
+text{* In order to establish substitutivity (which does not
+hold in general HOL-formulas we introduce the following 
+predicate that allows for a calculus of the necessary side-conditions.*}
 definition cp   :: "(('\<AA>,'\<alpha>) val \<Rightarrow> ('\<AA>,'\<beta>) val) \<Rightarrow> bool"
 where     "cp P \<equiv> (\<exists> f. \<forall> X \<tau>. P X \<tau> = f (X \<tau>) \<tau>)"
 
@@ -610,10 +613,10 @@ apply(rule exI, (rule allI)+)
 by(erule_tac x="P X" in allE, auto)
 
 
-lemma cp_const [simp, intro!]: "cp(\<lambda>_. c)"
+lemma cp_const : "cp(\<lambda>_. c)"
   by (simp add: cp_def, fast)
 
-lemma cp_id [simp, intro!]:    "cp(\<lambda>X. X)"
+lemma cp_id :    "cp(\<lambda>X. X)"
   by (simp add: cp_def, fast)
 
 lemmas cp_intro[simp,intro!] = 
@@ -633,6 +636,36 @@ lemmas cp_intro[simp,intro!] =
        cp_gen_ref_eq_object[THEN allI[THEN allI[THEN allI[THEN cpI2]], 
              of "gen_ref_eq"]]
 
+section{* Laws to Establish Definedness (Delta-Closure) *}
 
+text{* For the logical connectives, we have --- beyond
+@{thm foundation6} --- the followinf facts:  *}
+lemma ocl_not_defargs: 
+"\<tau> \<Turnstile> (not P) \<Longrightarrow> \<tau> \<Turnstile> \<delta> P"
+by(auto simp: not_def OclValid_def true_def invalid_def defined_def false_def
+        split: bool.split_asm HOL.split_if_asm option.split option.split_asm)
+
+
+lemma ocl_and_defargs: 
+"\<tau> \<Turnstile> (P and Q) \<Longrightarrow> (\<tau> \<Turnstile> \<delta> P) \<and> (\<tau> \<Turnstile> \<delta> Q)"
+by(auto dest: foundation5 foundation6)
+
+text{* So far, we have only one strict Boolean predicate (-family):
+The strict equality. *}
+
+lemma strictEqBool_defargs: 
+"\<tau> \<Turnstile> ((x::('\<AA>,bool)val) \<doteq> y) \<Longrightarrow> (\<tau> \<Turnstile>(\<delta> x)) \<and> (\<tau> \<Turnstile>(\<delta> y))"
+by(simp add: StrictRefEq_bool OclValid_def true_def invalid_def
+           split: bool.split_asm HOL.split_if_asm)
+
+lemma strictEqInt_defargs: 
+"\<tau> \<Turnstile> ((x::('\<AA>,int)val) \<doteq> y)\<Longrightarrow> (\<tau> \<Turnstile>(\<delta> x)) \<and> (\<tau> \<Turnstile>(\<delta> y))"
+by(simp add: StrictRefEq_int OclValid_def true_def invalid_def
+           split: bool.split_asm HOL.split_if_asm)
+
+lemma gen_ref_eq_defargs: 
+"\<tau> \<Turnstile> (gen_ref_eq x (y::('\<AA>,'a::object)val))\<Longrightarrow> (\<tau> \<Turnstile>(\<delta> x)) \<and> (\<tau> \<Turnstile>(\<delta> y))"
+by(simp add: gen_ref_eq_def OclValid_def true_def invalid_def
+           split: bool.split_asm HOL.split_if_asm)
 
 end
