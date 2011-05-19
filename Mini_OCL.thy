@@ -1,5 +1,5 @@
 theory 
-  Mini_OCL
+  OCL_core
 imports
   Main (* Testing *)
 begin
@@ -9,13 +9,13 @@ section{* OCL Core Definitions *}
 subsection{* State, State Transitions, Well-formed States *}
 type_synonym oid = ind
 
-fun    drop :: "'\<alpha> option \<Rightarrow> '\<alpha>" ("|^(_)^|")
+fun    drop :: "'\<alpha> option \<Rightarrow> '\<alpha>" ("\<lceil>(_)\<rceil>")
 where "drop (Some v) = v "
 
 syntax
-  "lift"        :: "'\<alpha> \<Rightarrow> '\<alpha> option"   ("|.(_).|")
+  "lift"        :: "'\<alpha> \<Rightarrow> '\<alpha> option"   ("\<lfloor>(_)\<rfloor>")
 translations
-  "|.a.|" == "CONST Some a"
+  "\<lfloor>a\<rfloor>" == "CONST Some a"
 
 type_synonym ('\<AA>) state = "oid \<rightharpoonup> '\<AA> "
 
@@ -57,7 +57,7 @@ definition invalid :: "('\<AA>,'\<alpha>) val"
 where     "invalid \<equiv> \<lambda> \<tau>. None"
 
 definition null :: "('\<AA>,'\<alpha>) val" 
-where     "null \<equiv> \<lambda> \<tau>. |. None .| "
+where     "null \<equiv> \<lambda> \<tau>. \<lfloor> None \<rfloor>   "
 
 
 subsection{* Boolean Type and Logic *}
@@ -65,11 +65,12 @@ subsection{* Boolean Type and Logic *}
 type_synonym ('\<AA>)Boolean = "('\<AA>,bool) val"
 type_synonym ('\<AA>)Integer = "('\<AA>,int) val"
 
+   
 definition true :: "('\<AA>)Boolean"
-where     "true \<equiv> \<lambda> \<tau>. |. |. True .| .|"
+where     "true \<equiv> \<lambda> \<tau>. \<lfloor>\<lfloor>True\<rfloor>\<rfloor>"
 
 definition false :: "('\<AA>)Boolean"
-where     "false \<equiv>  \<lambda> \<tau>. |. |. False .| .|"
+where     "false \<equiv>  \<lambda> \<tau>. \<lfloor>\<lfloor>False\<rfloor>\<rfloor>"
 
 lemma bool_split: "X \<tau> = invalid \<tau> \<or> X \<tau> = null \<tau> \<or> 
                    X \<tau> = true \<tau> \<or> X \<tau> = false \<tau>"
@@ -81,17 +82,17 @@ apply auto
 done
 
 
-lemma [simp]: "false (a, b) = |.|.False.|.|"
+lemma [simp]: "false (a, b) = \<lfloor>\<lfloor>False\<rfloor>\<rfloor>"
 by(simp add:false_def)
 
-lemma [simp]: "true (a, b) = |.|.True.|.|"
+lemma [simp]: "true (a, b) = \<lfloor>\<lfloor>True\<rfloor>\<rfloor>"
 by(simp add:true_def)
 
 
 section{* Logical (Strong) Equality and Definedness *}
 
 definition StrongEq::"[('\<AA>,'\<alpha>)val,('\<AA>,'\<alpha>)val] \<Rightarrow> ('\<AA>)Boolean"  (infixl "\<triangleq>" 30)
-where     "X \<triangleq> Y \<equiv>  \<lambda> \<tau>. |. |. X \<tau> = Y \<tau> .| .|"
+where     "X \<triangleq> Y \<equiv>  \<lambda> \<tau>. \<lfloor>\<lfloor>X \<tau> = Y \<tau> \<rfloor>\<rfloor>"
 
 lemma cp_StrongEq: "(X \<triangleq> Y) \<tau> = ((\<lambda> _. X \<tau>) \<triangleq> (\<lambda> _. Y \<tau>)) \<tau>"
 by(simp add: StrongEq_def)
@@ -118,9 +119,9 @@ class ref_eq =
 *)
 definition defined :: "('\<AA>,'a)val \<Rightarrow> ('\<AA>)Boolean" ("\<delta> _" [100]100)
 where   "\<delta> X \<equiv>  \<lambda> \<tau> . case X \<tau> of
-                            None \<Rightarrow> false \<tau>
-                       | |. None .| \<Rightarrow> false \<tau>
-                       | |. |. x .| .| \<Rightarrow> true \<tau>"
+                           None   \<Rightarrow> false \<tau>
+                       | \<lfloor> None \<rfloor> \<Rightarrow> false \<tau>
+                       | \<lfloor>\<lfloor> x \<rfloor>\<rfloor>  \<Rightarrow> true \<tau>"
 
 lemma cp_defined:"(\<delta> X)\<tau> = (\<delta> (\<lambda> _. X \<tau>)) \<tau>"
 by(simp add: defined_def)
@@ -146,9 +147,9 @@ section{* Logical Connectives and their Universal Properties *}
 
 definition not :: "('\<AA>)Boolean \<Rightarrow> ('\<AA>)Boolean"
 where     "not X \<equiv>  \<lambda> \<tau> . case X \<tau> of
-                             None \<Rightarrow> None
-                           | |. None .| \<Rightarrow> |. None .|
-                           | |. |. x .| .| \<Rightarrow> |. |. \<not> x .| .|"
+                             None     \<Rightarrow> None
+                           | \<lfloor> None \<rfloor> \<Rightarrow> \<lfloor> None \<rfloor>  
+                           | \<lfloor>\<lfloor> x \<rfloor>\<rfloor>  \<Rightarrow> \<lfloor>\<lfloor> \<not> x \<rfloor>\<rfloor>"
 
 lemma cp_not: "(not X)\<tau> = (not (\<lambda> _. X \<tau>)) \<tau>"
 by(simp add: not_def)
@@ -175,21 +176,21 @@ lemma not_not[simp]: "not (not X) = X"
 definition ocl_and :: "[('\<AA>)Boolean, ('\<AA>)Boolean] \<Rightarrow> ('\<AA>)Boolean"
                                                          (infixl "and" 30)
 where     "X and Y \<equiv>  (\<lambda> \<tau> . case X \<tau> of
-                             None \<Rightarrow> (case Y \<tau> of
+                            None  \<Rightarrow> (case Y \<tau> of
                                               None \<Rightarrow>  None
-                                          | |.None.| \<Rightarrow> None
-                                          | |.|.True.|.| \<Rightarrow>  None
-                                          | |.|.False.|.| \<Rightarrow>  |.|.False.|.|)
-                        | |. None .| \<Rightarrow> (case Y \<tau> of
+                                          | \<lfloor>None\<rfloor> \<Rightarrow> None
+                                          | \<lfloor>\<lfloor>True\<rfloor>\<rfloor> \<Rightarrow>  None
+                                          | \<lfloor>\<lfloor>False\<rfloor>\<rfloor> \<Rightarrow>  \<lfloor>\<lfloor>False\<rfloor>\<rfloor>)
+                        | \<lfloor> None \<rfloor> \<Rightarrow> (case Y \<tau> of
                                               None \<Rightarrow>  None
-                                          | |.None.| \<Rightarrow> |.None.|
-                                          | |.|.True.|.| \<Rightarrow> |. None .|
-                                          | |.|.False.|.| \<Rightarrow>  |.|.False.|.|)
-                        | |. |. True .| .| \<Rightarrow> (case Y \<tau> of
+                                          | \<lfloor>None\<rfloor> \<Rightarrow> \<lfloor>None\<rfloor>
+                                          | \<lfloor>\<lfloor>True\<rfloor>\<rfloor> \<Rightarrow> \<lfloor>None\<rfloor>
+                                          | \<lfloor>\<lfloor>False\<rfloor>\<rfloor> \<Rightarrow>  \<lfloor>\<lfloor>False\<rfloor>\<rfloor>)
+                        | \<lfloor>\<lfloor>True\<rfloor>\<rfloor> \<Rightarrow> (case Y \<tau> of
                                               None \<Rightarrow>  None
-                                          | |.None.| \<Rightarrow> |. None .|
-                                          | |.|.y.|.| \<Rightarrow>  |.|. y .|.|)
-                        | |. |. False .| .| \<Rightarrow>  |.|. False .|.|)"
+                                          | \<lfloor>None\<rfloor> \<Rightarrow> \<lfloor>None\<rfloor>
+                                          | \<lfloor>\<lfloor>y\<rfloor>\<rfloor> \<Rightarrow>  \<lfloor>\<lfloor>y\<rfloor>\<rfloor>)
+                        | \<lfloor>\<lfloor>False\<rfloor>\<rfloor> \<Rightarrow>  \<lfloor>\<lfloor> False \<rfloor>\<rfloor>)"
 
 
 definition ocl_or :: "[('\<AA>)Boolean, ('\<AA>)Boolean] \<Rightarrow> ('\<AA>)Boolean"
@@ -338,101 +339,27 @@ text{* Construction by overloading: for each base type, there is an equality.*}
 
 consts StrictRefEq :: "[('\<AA>,'a)val,('\<AA>,'a)val] \<Rightarrow> ('\<AA>)Boolean" (infixl "\<doteq>" 30)
 
-defs   StrictRefEq_int : "(x::('\<AA>,int)val) \<doteq> y \<equiv>
-                             \<lambda> \<tau>. if (\<delta> x) \<tau> = true \<tau> \<and> (\<delta> y) \<tau> = true \<tau>
-                                  then (x \<triangleq> y)\<tau>
-                                  else invalid \<tau>"
-
-lemma StrictRefEq_int_strict1[simp] : "((x::('\<AA>,int)val) \<doteq> invalid) = invalid"
-by(rule ext, simp add: StrictRefEq_int true_def false_def)
-
-lemma StrictRefEq_int_strict2[simp] : "(invalid \<doteq> (x::('\<AA>,int)val)) = invalid"
-by(rule ext, simp add: StrictRefEq_int true_def false_def)
-
-lemma StrictRefEq_int_strict3[simp] : "((x::('\<AA>,int)val) \<doteq> null) = invalid"
-by(rule ext, simp add: StrictRefEq_int true_def false_def)
-
-lemma StrictRefEq_int_strict4[simp] : "(null \<doteq> (x::('\<AA>,int)val)) = invalid"
-by(rule ext, simp add: StrictRefEq_int true_def false_def)
-
-
-lemma StrictRefEq_int_strict :
-  assumes A: "\<delta> (x::('\<AA>,int)val) = true"
-  and     B: "\<delta> y = true"
-  shows   "\<delta> (x \<doteq> y) = true"
-  apply(insert A B)
-  apply(rule ext, simp add: StrongEq_def StrictRefEq_int true_def defined_def)
-  done
-
-
-lemma StrictRefEq_int_strict' :
-  assumes A: "\<delta> ((x::('\<AA>,int)val) \<doteq> y) = true"
-  shows      "\<delta> x = true \<and> \<delta> y = true"
-  apply(insert A, rule conjI) 
-  apply(rule ext, drule_tac x=xa in fun_cong)
-  prefer 2
-  apply(rule ext, drule_tac x=xa in fun_cong)
-  apply(simp_all add: StrongEq_def StrictRefEq_int 
-                            false_def true_def defined_def)
-  apply(case_tac "y xa", auto)
-  apply(simp_all add: true_def invalid_def)
-  apply(case_tac "aa", auto simp:true_def false_def invalid_def 
-                            split: option.split option.split_asm)
-  done
-
-
-
-defs   StrictRefEq_bool : "(x::('\<AA>,bool)val) \<doteq> y \<equiv>
-                             \<lambda> \<tau>. if (\<delta> x) \<tau> = true \<tau> \<and> (\<delta> y) \<tau> = true \<tau>
-                                  then (x \<triangleq> y)\<tau>
-                                  else invalid \<tau>"
-
-lemma StrictRefEq_bool_strict1[simp] : "((x::('\<AA>,bool)val) \<doteq> invalid) = invalid"
-by(rule ext, simp add: StrictRefEq_bool true_def false_def)
-
-lemma StrictRefEq_bool_strict2[simp] : "(invalid \<doteq> (x::('\<AA>,bool)val)) = invalid"
-by(rule ext, simp add: StrictRefEq_bool true_def false_def)
-
-lemma StrictRefEq_bool_strict3[simp] : "((x::('\<AA>,bool)val) \<doteq> null) = invalid"
-by(rule ext, simp add: StrictRefEq_bool true_def false_def)
-
-lemma StrictRefEq_bool_strict4[simp] : "(null \<doteq> (x::('\<AA>,bool)val)) = invalid"
-by(rule ext, simp add: StrictRefEq_bool true_def false_def)
-
-lemma cp_StrictRefEq_bool: 
-"((X::('\<AA>,bool)val) \<doteq> Y) \<tau> = ((\<lambda> _. X \<tau>) \<doteq> (\<lambda> _. Y \<tau>)) \<tau>"
-by(auto simp: StrictRefEq_bool StrongEq_def invalid_def  cp_defined[symmetric])
-
-lemma cp_StrictRefEq_int: 
-"((X::('\<AA>,int)val) \<doteq> Y) \<tau> = ((\<lambda> _. X \<tau>) \<doteq> (\<lambda> _. Y \<tau>)) \<tau>"
-by(auto simp: StrictRefEq_int StrongEq_def invalid_def  cp_defined[symmetric])
-
-
-lemma StrictRefEq_strict :
-  assumes A: "\<delta> (x::('\<AA>,int)val) = true"
-  and     B: "\<delta> y = true"
-  shows   "\<delta> (x \<doteq> y) = true"
-  apply(insert A B)
-  apply(rule ext, simp add: StrongEq_def StrictRefEq_int true_def defined_def)
-  done
-
 text{* Generic referential equality - to be used for instantiations
  with concrete object types ... *}
 definition "gen_ref_eq (x::('\<AA>,'a::object)val) (y::('\<AA>,'a::object)val)
             \<equiv> \<lambda> \<tau>. if (\<delta> x) \<tau> = true \<tau> \<and> (\<delta> y) \<tau> = true \<tau>
-                   then |.|. (oid_of |^|^(x \<tau>)^|^|) = (oid_of |^|^(y \<tau>)^|^|) .|.|
+                   then \<lfloor>\<lfloor> (oid_of \<lceil>\<lceil>x \<tau>\<rceil>\<rceil>) = (oid_of \<lceil>\<lceil>y \<tau>\<rceil>\<rceil>) \<rfloor>\<rfloor>
                    else invalid \<tau>"
 
-lemma gen_ref_eq_object_strict1[simp] : "(gen_ref_eq (x::('\<AA>,'a::object)val) invalid) = invalid"
+lemma gen_ref_eq_object_strict1[simp] : 
+"(gen_ref_eq (x::('\<AA>,'a::object)val) invalid) = invalid"
 by(rule ext, simp add: gen_ref_eq_def true_def false_def)
 
-lemma gen_ref_eq_object_strict2[simp] : "(gen_ref_eq invalid (x::('\<AA>,'a::object)val)) = invalid"
+lemma gen_ref_eq_object_strict2[simp] : 
+"(gen_ref_eq invalid (x::('\<AA>,'a::object)val)) = invalid"
 by(rule ext, simp add: gen_ref_eq_def true_def false_def)
 
-lemma gen_ref_eq_object_strict3[simp] : "(gen_ref_eq (x::('\<AA>,'a::object)val) null) = invalid"
+lemma gen_ref_eq_object_strict3[simp] : 
+"(gen_ref_eq (x::('\<AA>,'a::object)val) null) = invalid"
 by(rule ext, simp add: gen_ref_eq_def true_def false_def)
 
-lemma gen_ref_eq_object_strict4[simp] : "(gen_ref_eq null (x::('\<AA>,'a::object)val)) = invalid"
+lemma gen_ref_eq_object_strict4[simp] : 
+"(gen_ref_eq null (x::('\<AA>,'a::object)val)) = invalid"
 by(rule ext, simp add: gen_ref_eq_def true_def false_def)
 
 lemma cp_gen_ref_eq_object: 
@@ -564,14 +491,6 @@ by(auto simp: not_def ocl_or_def ocl_and_def ocl_implies_def
         split:bool.split_asm bool.split)
 
 
-lemma strictEqBool_vs_strongEq: 
-"\<tau> \<Turnstile>(\<delta> x) \<Longrightarrow> \<tau> \<Turnstile>(\<delta> y) \<Longrightarrow> (\<tau> \<Turnstile> ((x::('\<AA>,bool)val) \<doteq> y)) = (\<tau> \<Turnstile> (x \<triangleq> y))"
-by(simp add: StrictRefEq_bool OclValid_def)
-
-lemma strictEqInt_vs_strongEq: 
-"\<tau> \<Turnstile>(\<delta> x) \<Longrightarrow> \<tau> \<Turnstile>(\<delta> y) \<Longrightarrow> (\<tau> \<Turnstile> ((x::('\<AA>,int)val) \<doteq> y)) = (\<tau> \<Turnstile> (x \<triangleq> y))"
-by(simp add: StrictRefEq_int OclValid_def)
-
 lemma strictEqGen_vs_strongEq: 
 "WFF \<tau> \<Longrightarrow> \<tau> \<Turnstile>(\<delta> x) \<Longrightarrow> \<tau> \<Turnstile>(\<delta> y) \<Longrightarrow> 
  (\<tau> \<Turnstile> (gen_ref_eq (x::('b::object,'a::object)val) y)) = (\<tau> \<Turnstile> (x \<triangleq> y))"
@@ -641,10 +560,6 @@ lemmas cp_intro[simp,intro!] =
        cp_ocl_implies[THEN allI[THEN allI[THEN allI[THEN cpI2]], of "op implies"]]
        cp_StrongEq[THEN allI[THEN allI[THEN allI[THEN cpI2]], 
              of "StrongEq"]]
-       cp_StrictRefEq_bool[THEN allI[THEN allI[THEN allI[THEN cpI2]], 
-             of "StrictRefEq"]]
-       cp_StrictRefEq_int[THEN allI[THEN allI[THEN allI[THEN cpI2]], 
-             of "StrictRefEq"]]
        cp_gen_ref_eq_object[THEN allI[THEN allI[THEN allI[THEN cpI2]], 
              of "gen_ref_eq"]]
 
@@ -664,20 +579,5 @@ by(auto dest: foundation5 foundation6)
 
 text{* So far, we have only one strict Boolean predicate (-family):
 The strict equality. *}
-
-lemma strictEqBool_defargs: 
-"\<tau> \<Turnstile> ((x::('\<AA>,bool)val) \<doteq> y) \<Longrightarrow> (\<tau> \<Turnstile>(\<delta> x)) \<and> (\<tau> \<Turnstile>(\<delta> y))"
-by(simp add: StrictRefEq_bool OclValid_def true_def invalid_def
-           split: bool.split_asm HOL.split_if_asm)
-
-lemma strictEqInt_defargs: 
-"\<tau> \<Turnstile> ((x::('\<AA>,int)val) \<doteq> y)\<Longrightarrow> (\<tau> \<Turnstile>(\<delta> x)) \<and> (\<tau> \<Turnstile>(\<delta> y))"
-by(simp add: StrictRefEq_int OclValid_def true_def invalid_def
-           split: bool.split_asm HOL.split_if_asm)
-
-lemma gen_ref_eq_defargs: 
-"\<tau> \<Turnstile> (gen_ref_eq x (y::('\<AA>,'a::object)val))\<Longrightarrow> (\<tau> \<Turnstile>(\<delta> x)) \<and> (\<tau> \<Turnstile>(\<delta> y))"
-by(simp add: gen_ref_eq_def OclValid_def true_def invalid_def
-           split: bool.split_asm HOL.split_if_asm)
 
 end
