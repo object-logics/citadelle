@@ -1,7 +1,7 @@
 theory 
   OCL_linked_list
 imports
-  Mini_OCL (* Testing *)
+  OCL_main (* Testing *)
 begin
 
 section{* Example Data-Universe *}
@@ -31,7 +31,7 @@ lemmas strict_eq_node =
                             \<tau>, 
                          simplified StrictRefEq_node[symmetric]]
 
-    cp_intro(11)        [of "P::(node,node)val \<Rightarrow>(node,node)val"
+    cp_intro(9)         [of "P::(node,node)val \<Rightarrow>(node,node)val"
                             "Q::(node,node)val \<Rightarrow>(node,node)val",
                          simplified StrictRefEq_node[symmetric] ]
     gen_ref_eq_def      [of "x::(node,node)val" 
@@ -61,41 +61,40 @@ text{* Should be generated entirely from a class-diagram. *}
 fun dot_next:: "(node,node)val \<Rightarrow> (node,node)val"  ("(1(_).next)" 50)
   where "(X).next = (\<lambda> \<tau>. case X \<tau> of
                None \<Rightarrow> None
-          | |. None .| \<Rightarrow> None
-          | |.|. Node oid i next .|.| \<Rightarrow> if next \<in> dom (snd \<tau>)
-                                         then |. (snd \<tau>) next .|
+          | \<lfloor> None \<rfloor> \<Rightarrow> None
+          | \<lfloor>\<lfloor> Node oid i next \<rfloor>\<rfloor> \<Rightarrow> if next \<in> dom (snd \<tau>)
+                                         then \<lfloor> (snd \<tau>) next \<rfloor>
                                          else None)"
 
 fun dot_i:: "(node,node)val \<Rightarrow> (node)Integer"  ("(1(_).i)" 50)
   where "(X).i = (\<lambda> \<tau>. case X \<tau> of
                None \<Rightarrow> None
-          | |. None .| \<Rightarrow> None
-          | |.|. Node oid i next .|.| \<Rightarrow> 
+          | \<lfloor> None \<rfloor> \<Rightarrow> None
+          | \<lfloor>\<lfloor> Node oid i next \<rfloor>\<rfloor> \<Rightarrow> 
                       if oid \<in> dom (snd \<tau>)
                       then (case (snd \<tau>) oid of
                                  None \<Rightarrow> None
-                            | |. Node oid i next .| \<Rightarrow> |. |. i .| .|)
+                            | \<lfloor> Node oid i next \<rfloor> \<Rightarrow> \<lfloor>\<lfloor> i \<rfloor>\<rfloor>)
                       else None)"
-
 
 fun dot_next_at_pre:: "(node,node)val \<Rightarrow> (node,node)val"  ("(1(_).next@pre)" 50)
   where "(X).next@pre = (\<lambda> \<tau>. case X \<tau> of
                         None \<Rightarrow> None
-                      | |. None .| \<Rightarrow> None
-                      | |. |. Node oid i next .| .| \<Rightarrow> if next \<in> dom (snd \<tau>)
-                                                       then |. (snd \<tau>) next .|
+                      | \<lfloor> None \<rfloor> \<Rightarrow> None
+                      | \<lfloor>\<lfloor> Node oid i next  \<rfloor>\<rfloor> \<Rightarrow> if next \<in> dom (snd \<tau>)
+                                                       then \<lfloor> (snd \<tau>) next \<rfloor>
                                                        else None)"
 
 
 fun dot_i_at_pre:: "(node,node)val \<Rightarrow> (node)Integer"  ("(1(_).i@pre)" 50)
 where "(X).i@pre = (\<lambda> \<tau>. case X \<tau> of
                None \<Rightarrow> None
-          | |. None .| \<Rightarrow> None
-          | |.|. Node oid i next .|.| \<Rightarrow> 
+          | \<lfloor> None \<rfloor> \<Rightarrow> None
+          | \<lfloor>\<lfloor> Node oid i next \<rfloor>\<rfloor> \<Rightarrow> 
                       if oid \<in> dom (snd \<tau>)
                       then (case (snd \<tau>) oid of
                                  None \<Rightarrow> None
-                            | |. Node oid i next .| \<Rightarrow> |. |. i .| .|)
+                            | \<lfloor> Node oid i next \<rfloor> \<Rightarrow> \<lfloor>\<lfloor> i \<rfloor>\<rfloor>)
                       else None)"
 
 lemma cp_dot_next:
@@ -131,13 +130,12 @@ by(rule ext, simp add: null_def invalid_def)
 
 section{* Invariant *}
 
-axiomatization inv_Node :: "node st \<Rightarrow> bool"
-where A : " \<tau> \<Turnstile> \<partial> self \<longrightarrow> 
-               \<tau> \<Turnstile> invNode(self) =
-                   (\<tau> \<Turnstile> (self).next \<doteq> null \<or> 
-                    \<tau> \<Turnstile> not((self).next \<doteq> null) 
 
-"
+axiomatization inv_Node :: "(node,node)val \<Rightarrow> (node)Boolean"
+where A : "(\<tau> \<Turnstile> \<delta> self) \<longrightarrow> 
+               (\<tau> \<Turnstile> inv_Node(self)) =
+                   ((\<tau> \<Turnstile> ((self).next \<doteq> null)) \<or> 
+                    (\<tau> \<Turnstile> ((self).next <> null))) "
 
 
 

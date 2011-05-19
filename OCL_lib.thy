@@ -1,5 +1,5 @@
 theory OCL_lib
-imports Mini_OCL
+imports OCL_core
 begin
 
 
