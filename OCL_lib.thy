@@ -106,7 +106,7 @@ by(auto simp: StrictRefEq_int StrongEq_def invalid_def  cp_defined[symmetric])
 
 
 
-lemmas H =
+lemmas cp_rules =
        cp_StrictRefEq_bool[THEN allI[THEN allI[THEN allI[THEN cpI2]], 
              of "StrictRefEq"]]
        cp_StrictRefEq_int[THEN allI[THEN allI[THEN allI[THEN cpI2]], 
@@ -152,6 +152,37 @@ where      "\<eight> = (\<lambda> _ . \<lfloor>\<lfloor>8::int\<rfloor>\<rfloor>
 definition ocl_nine ::"('\<AA>)Integer" ("\<nine>")
 where      "\<nine> = (\<lambda> _ . \<lfloor>\<lfloor>9::int\<rfloor>\<rfloor>)"
 
+definition ten_nine ::"('\<AA>)Integer" ("\<one>\<zero>")
+where      "\<one>\<zero> = (\<lambda> _ . \<lfloor>\<lfloor>10::int\<rfloor>\<rfloor>)"
+
+text{* Here is a way to cast in standard operators 
+via the type class system of Isabelle. *}
+
+
+(*
+class   ord_null = ord +  
+   fixes  order_null :: "'a::ord \<Rightarrow> 'a \<Rightarrow> bool"
+begin
+   notation (xsymbols)
+        UU  ("\<bottom>")
+end
+*)
+
+instance option   :: (plus) plus 
+by intro_classes
+
+
+instance "fun"    :: (type, plus) plus 
+by intro_classes
+
+(* Makarius: why does this not work ? It worked in 2005 !!! 
+defs (overloaded) ocl_plus_def : 
+            "op + \<equiv> (\<lambda> (X::('\<AA>)Integer) (Y::('\<AA>)Integer) \<tau>. 
+                     if (\<delta> X) \<tau> = true \<tau> \<and> (\<delta> Y) \<tau> = true \<tau>
+                     then \<lfloor>\<lfloor> \<lceil>\<lceil> (X \<tau>) \<rceil>\<rceil> + \<lceil>\<lceil> (Y \<tau>) \<rceil>\<rceil>  \<rfloor>\<rfloor> 
+                     else invalid \<tau>)"
+*)
+
 
 definition ocl_less_int ::"('\<AA>)Integer \<Rightarrow> ('\<AA>)Integer \<Rightarrow> ('\<AA>)Boolean" (infix "\<prec>" 40) 
 where "x \<prec> y \<equiv> \<lambda> \<tau>. if (\<delta> x) \<tau> = true \<tau> \<and> (\<delta> y) \<tau> = true \<tau>
@@ -163,6 +194,72 @@ where "x \<preceq> y \<equiv> \<lambda> \<tau>. if (\<delta> x) \<tau> = true \<
                 then \<lfloor>\<lfloor>\<lceil>\<lceil>x \<tau>\<rceil>\<rceil> \<le> \<lceil>\<lceil>y \<tau>\<rceil>\<rceil>\<rfloor>\<rfloor>
                 else invalid \<tau> "   
 
+section{*Collection Types*}
 
+
+class   bottom = 
+   fixes  UUX :: "'a"
+   assumes nonEmpty : "\<exists> x. x \<noteq> UUX"
+
+(*
+begin
+   notation (xsymbols)  UUX ("\<bottom>")
+end
+*)
+
+section {* Semantic Constructions: Liftings of Type Constructors *}
+
+text {* The class is then propagated across lifting, function spaceand cartesian products. *}
+
+
+
+instantiation   option  :: ("type")bottom
+begin 
+
+declare [[show_sorts]]
+
+definition UUX :: "'a option"
+where  bot_def: "(UUX::'a option) \<equiv> (None::'a option)"
+
+instance 
+proof
+  show "\<exists>(x::'a option). x \<noteq> bottom_class.UUX "
+  apply(rule_tac x="Some x" in exI)
+  apply(insert   bot_def)
+  apply(simp add:bot_def)
+
+end
+
+
+class   bottom = bot0 +
+   assumes nonEmpty : "\<exists> x. x \<noteq> UUX"
+
+
+instantiation   option   :: (type) bottom
+begin
+
+instance 
+proof
+  show "\<exists>x\<Colon>'a option. x \<noteq> bot0_class.UUX"
+  apply(rule_tac x="Some x" in exI)
+  apply(insert   bot_def)
+apply(simp add:bot_def)
+
+end 
+
+
+lemma a : "X = X" sorry
+
+arities    fun  :: (type,bot) bot
+
+instance   "*"  :: (ord,ord)  ord
+  by intro_classes
+instance   "+"  :: (ord,ord)  ord
+
+
+
+text {* All bottom types posses a constant $\bottom$ *}
+
+  
 
 end

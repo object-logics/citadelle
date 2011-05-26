@@ -81,8 +81,8 @@ fun dot_next_at_pre:: "(node,node)val \<Rightarrow> (node,node)val"  ("(1(_).nex
   where "(X).next@pre = (\<lambda> \<tau>. case X \<tau> of
                         None \<Rightarrow> None
                       | \<lfloor> None \<rfloor> \<Rightarrow> None
-                      | \<lfloor>\<lfloor> Node oid i next  \<rfloor>\<rfloor> \<Rightarrow> if next \<in> dom (snd \<tau>)
-                                                       then \<lfloor> (snd \<tau>) next \<rfloor>
+                      | \<lfloor>\<lfloor> Node oid i next  \<rfloor>\<rfloor> \<Rightarrow> if next \<in> dom (fst \<tau>)
+                                                       then \<lfloor> (fst \<tau>) next \<rfloor>
                                                        else None)"
 
 
@@ -91,9 +91,9 @@ where "(X).i@pre = (\<lambda> \<tau>. case X \<tau> of
                None \<Rightarrow> None
           | \<lfloor> None \<rfloor> \<Rightarrow> None
           | \<lfloor>\<lfloor> Node oid i next \<rfloor>\<rfloor> \<Rightarrow> 
-                      if oid \<in> dom (snd \<tau>)
-                      then (case (snd \<tau>) oid of
-                                 None \<Rightarrow> None
+                      if oid \<in> dom (fst \<tau>)
+                      then (case (fst \<tau>) oid of
+                                None \<Rightarrow> None
                             | \<lfloor> Node oid i next \<rfloor> \<Rightarrow> \<lfloor>\<lfloor> i \<rfloor>\<rfloor>)
                       else None)"
 
@@ -130,20 +130,32 @@ by(rule ext, simp add: null_def invalid_def)
 
 section{* Invariant *}
 
-
 axiomatization inv_Node :: "(node,node)val \<Rightarrow> (node)Boolean"
-where A : "(\<tau> \<Turnstile> \<delta> self) \<longrightarrow> 
+where A : "(\<tau> \<Turnstile> (\<delta> self)) \<longrightarrow> 
                (\<tau> \<Turnstile> inv_Node(self)) =
-                   ((\<tau> \<Turnstile> ((self).next \<doteq> null)) \<or> 
-                    (\<tau> \<Turnstile> ((self).next <> null))) "
+                   ((\<tau> \<Turnstile> (self .next \<doteq> null)) \<or> 
+                    ( \<tau> \<Turnstile> (self .next <> null) \<and> (\<tau> \<Turnstile> (self .next .i \<prec> self .i))  \<and> 
+                     (\<tau> \<Turnstile> (inv_Node(self .next))))) "
 
+thm A
 
+axiomatization inv_Node_at_pre :: "(node,node)val \<Rightarrow> (node)Boolean"
+where B : "(\<tau> \<Turnstile> (\<delta> self)) \<longrightarrow> 
+               (\<tau> \<Turnstile> inv_Node_at_pre(self)) =
+                   ((\<tau> \<Turnstile> (self .next@pre \<doteq> null)) \<or> 
+                    ( \<tau> \<Turnstile> (self .next@pre <> null) \<and> (\<tau> \<Turnstile> (self .next@pre .i@pre \<prec> self .i@pre))  \<and> 
+                     (\<tau> \<Turnstile> (inv_Node_at_pre(self .next@pre))))) "
 
-coinductive inv :: "'a state \<Rightarrow> 'a oid \<Rightarrow> bool" where
- "st x = Some (Node oid i next) \<Longrightarrow> inv st x"  |
-"st x = Some (Node oid i next) \<and> 
-              st next = Some (Node oid next_i next_next) \<and> 
-              i > next_i \<and> inv st next \<Longrightarrow> inv st x"
+text{* A very first attempt to characterize the axiomatization by an inductive
+definition - this can not be the last word since too weak (should be equality!) *}
+coinductive inv :: " (node,node)val \<Rightarrow> (node)st \<Rightarrow> bool" where
+ "(\<tau> \<Turnstile> (\<delta> self)) \<Longrightarrow> inv st x"  |
+ "(\<tau> \<Turnstile> (\<delta> self)) \<Longrightarrow> ((\<tau> \<Turnstile> (self .next \<doteq> null)) \<or> 
+                      (\<tau> \<Turnstile> (self .next <> null) \<and> (\<tau> \<Turnstile> (self .next .i \<prec> self .i))  \<and> 
+                     ( (inv(self .next))\<tau> )))
+                     \<Longrightarrow> ( inv st \<tau>)"
+
+find_theorems "inv"
 
 fun contents_contract :: "('a state \<Rightarrow> ('a oid option) \<Rightarrow> int set) \<Rightarrow> 'a state \<Rightarrow> ('a oid option) \<Rightarrow> bool" where
 "contents_contract f st None = True" |

@@ -112,11 +112,28 @@ lemma StrongEq_trans_strong [simp]:
   apply(drule_tac x=x in fun_cong)+
   by auto
 
-(* Build class for referential equality *)
-(* However this does not work - too many type-vars \<dots>
-class ref_eq =
-   fixes RefEq :: "[('\<AA>,'\<alpha>)val,('\<AA>,'\<alpha>)val] \<Rightarrow> ('\<AA>)Boolean" (infixl "\<doteq>" 30)
-*)
+
+definition valid :: "('\<AA>,'a)val \<Rightarrow> ('\<AA>)Boolean" ("\<upsilon> _" [100]100)
+where   "\<upsilon> X \<equiv>  \<lambda> \<tau> . case X \<tau> of
+                           None   \<Rightarrow> false \<tau>
+                       | \<lfloor> None \<rfloor> \<Rightarrow> true \<tau>
+                       | \<lfloor>\<lfloor> x \<rfloor>\<rfloor>  \<Rightarrow> true \<tau>"
+
+lemma cp_valid: "(\<upsilon> X) \<tau> = (\<upsilon> (\<lambda> _. X \<tau>)) \<tau>"
+by(simp add: valid_def)
+
+lemma valid1[simp]: "\<upsilon> invalid = false"
+  by(rule ext,simp add: valid_def null_def invalid_def true_def false_def)
+
+lemma valid2[simp]: "\<upsilon> null = true"
+  by(rule ext,simp add: valid_def null_def invalid_def true_def false_def)
+
+lemma valid3[simp]: "\<upsilon> \<upsilon> X = true"
+  apply(rule ext,simp add: valid_def null_def invalid_def true_def false_def)
+  apply(case_tac "X x", simp_all add: true_def false_def)
+  apply(case_tac "a", simp_all add: true_def false_def)
+  done
+
 definition defined :: "('\<AA>,'a)val \<Rightarrow> ('\<AA>)Boolean" ("\<delta> _" [100]100)
 where   "\<delta> X \<equiv>  \<lambda> \<tau> . case X \<tau> of
                            None   \<Rightarrow> false \<tau>
@@ -138,9 +155,26 @@ lemma defined3[simp]: "\<delta> \<delta> X = true"
   apply(case_tac "a", simp_all add: true_def false_def)
   done
 
+lemma valid4[simp]: "\<upsilon> (X \<triangleq> Y) = true"
+  by(rule ext,
+     simp add: valid_def null_def invalid_def StrongEq_def true_def false_def)
+
+
 lemma defined4[simp]: "\<delta> (X \<triangleq> Y) = true"
   by(rule ext,
      simp add: defined_def null_def invalid_def StrongEq_def true_def false_def)
+
+lemma defined5[simp]: "\<delta> \<upsilon> X = true"
+  apply(rule ext,simp add: valid_def defined_def null_def invalid_def true_def false_def)
+  apply(case_tac "X x", simp_all add: true_def false_def)
+  apply(case_tac "a", simp_all add: true_def false_def)
+  done
+
+lemma valid5[simp]: "\<upsilon> \<delta> X = true"
+  apply(rule ext,simp add: valid_def defined_def null_def invalid_def true_def false_def)
+  apply(case_tac "X x", simp_all add: true_def false_def)
+  apply(case_tac "a", simp_all add: true_def false_def)
+  done
 
 
 section{* Logical Connectives and their Universal Properties *}
