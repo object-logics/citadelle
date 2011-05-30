@@ -158,6 +158,13 @@ where      "\<one>\<zero> = (\<lambda> _ . \<lfloor>\<lfloor>10::int\<rfloor>\<r
 text{* Here is a way to cast in standard operators 
 via the type class system of Isabelle. *}
 
+lemma [simp]:"\<delta> \<zero> = true" 
+by(simp add:ocl_zero_def defined_def true_def)
+
+lemma [simp]:"\<upsilon> \<zero> = true" 
+by(simp add:ocl_zero_def valid_def true_def)
+
+(* plus all the others ...*)
 
 
 instance option   :: (plus) plus 
@@ -186,6 +193,8 @@ where "x \<preceq> y \<equiv> \<lambda> \<tau>. if (\<delta> x) \<tau> = true \<
                 then \<lfloor>\<lfloor>\<lceil>\<lceil>x \<tau>\<rceil>\<rceil> \<le> \<lceil>\<lceil>y \<tau>\<rceil>\<rceil>\<rfloor>\<rfloor>
                 else invalid \<tau> "   
 
+
+
 section{*Collection Types*}
 
 
@@ -198,12 +207,23 @@ begin
    notation (xsymbols)  UU ("\<bottom>")
 end
 
+class   null = bottom +
+   fixes  NULL :: "'a"
+   assumes null_is_valid : "NULL \<noteq> UU"
+
+(* 
+
+begin
+   notation (xsymbols)  NULL ("\<null>")
+end
+
+*)
 
 section {* Liftings of Type Constructors for Collections *}
 
 text {* In order to have the possibility to nest collection types,
 it is necessary to introduce a uniform interface for types having
-the "invalid" (= bottom) element. In a secon d step, our base-types
+the "invalid" (= bottom) element. In a second step, our base-types
 will be shown to be instances of this class.
 
 It is conceivable to construct a class of types that have both null AND
@@ -222,19 +242,46 @@ end
 
 instantiation "fun"  :: (type,bottom) bottom 
 begin
- definition bot_fun_def: "UU \<equiv> (\<lambda> x. \<bottom>)"
+   definition bot_fun_def: "UU \<equiv> (\<lambda> x. \<bottom>)"
+
+   instance proof  show "\<exists>(x::'a \<Rightarrow> 'b). x \<noteq> \<bottom>"
+                   apply(rule_tac x="\<lambda> _. (SOME y. y \<noteq> \<bottom>)" in exI, auto)
+                   apply(drule_tac x=x in fun_cong,auto simp:bot_fun_def)
+                   apply(erule contrapos_pp, simp)
+                   apply(rule some_eq_ex[THEN iffD2])
+                   apply(simp add: nonEmpty)
+                   done
+            qed
+end
+
+instantiation   option  :: (bottom)null
+begin 
+   definition NULL_def: "(NULL::'a\<Colon>bottom option) \<equiv>  \<lfloor> \<bottom> \<rfloor>"
+
+   instance proof  show "(NULL::'a\<Colon>bottom option) \<noteq> \<bottom>"
+                   by( simp add:NULL_def bot_option_def)
+            qed
+end
+
+instantiation "fun"  :: (type,null) null 
+begin
+ definition null_fun_def: "(NULL::'a \<Rightarrow> 'b::null) \<equiv> (\<lambda> x. NULL)"
 
  instance proof 
-              show "\<exists>(x::'a => 'b). x \<noteq> \<bottom>"
-              apply(rule_tac x="\<lambda> _. (SOME y. y \<noteq> \<bottom>)" in exI, auto)
-              apply(drule_tac x=x in fun_cong,auto simp:bot_fun_def)
-              apply(erule contrapos_pp, simp)
-              apply(rule some_eq_ex[THEN iffD2])
-              apply(simp add: nonEmpty)
+              show "(NULL::'a \<Rightarrow> 'b::null) \<noteq> \<bottom>"
+              apply(auto simp: null_fun_def bot_fun_def)
+              apply(drule_tac x=x in fun_cong)
+              apply(erule contrapos_pp, simp add: null_is_valid)
             done
           qed
-
 end
+
+
+lemma "\<zero> \<noteq> NULL"
+apply(auto simp:ocl_zero_def null_fun_def NULL_def bot_option_def) 
+apply(drule_tac x=x in fun_cong, simp)
+done
+
 
 text{* In order to have full abstract types (i.e. all elements of the 
 "full" HOL-type correspond to elements in the OCL type; full abstractness
@@ -243,19 +290,49 @@ elements in collections that are \<bottom> (null, however, is ok). The technical
 machinery for this is a construction called "smashing" which maps essentially
 all pre-collections with \<bottom> elements itself into \<bottom>. *}
 
-definition smash :: "[['\<beta>::bottom, '\<alpha>\<Colon>bottom] \<Rightarrow> bool, '\<alpha>] \<Rightarrow> '\<alpha>"
-where     "smash f X \<equiv> if f \<bottom> X then \<bottom> else X"
+typedef  '\<alpha> Set_0 = "{X::('\<alpha>\<Colon>null) set option option.
+                         X = \<bottom> \<or> X = NULL \<or> (\<forall>x\<in>\<lceil>\<lceil>X\<rceil>\<rceil>. x \<noteq> \<bottom>)}"
+          
+          by (rule_tac x="\<bottom>" in exI, simp)
 
-text{* Now, (fully-abstract) collections like Set in OCL can be constructed via
-smashing as follows:*}
 
-(* FIXME: STILL OLD CONSTRUCTION FROM HOL_OCL; lifted only one !!! *)
-typedef  '\<alpha> Set_0 = "{X::('\<alpha>\<Colon>bottom) set option.
-                         smash (\<lambda> x X. X \<noteq> \<bottom> \<and> x \<in> \<lceil>X\<rceil>) X = X}"
-          by (rule_tac x="\<bottom>" in exI, simp add: smash_def)
+instantiation   Set_0  :: (null)bottom
+begin 
+
+   definition bot_Set_0_def: "(UU::('a::null) Set_0) \<equiv> Abs_Set_0 None"
+
+   instance proof show "\<exists>x\<Colon>'a Set_0. x \<noteq> \<bottom>"
+                  apply(rule_tac x="Abs_Set_0 \<lfloor>None\<rfloor>" in exI)
+                  apply(simp add:bot_Set_0_def)
+                  apply(subst Abs_Set_0_inject) 
+                  apply(simp_all add: Set_0_def bot_Set_0_def 
+                                      NULL_def bot_option_def)
+                  done
+            qed
+end
+
+
+instantiation   Set_0  :: (null)null
+begin 
+
+   definition NULL_Set_0_def: "(NULL::('a::null) Set_0) \<equiv> Abs_Set_0 \<lfloor> None \<rfloor>"
+
+   instance proof show "(NULL::('a::null) Set_0) \<noteq> \<bottom>"
+                  apply(simp add:NULL_Set_0_def bot_Set_0_def)
+                  apply(subst Abs_Set_0_inject) 
+                  apply(simp_all add: Set_0_def bot_Set_0_def 
+                                      NULL_def bot_option_def)
+                  done
+            qed
+end
+
+
+text{* Now, on this basis we redefine the concept of a valuation:*}
+
+type_synonym ('\<AA>,'\<alpha>) val' = "'\<AA> st \<Rightarrow> '\<alpha>::null"
 
 text{* ...  and lifting this type to the format of a valuation gives us:*}
-type_synonym    ('\<AA>,'\<alpha>) Set  = "('\<AA>, '\<alpha> Set_0) val"
+type_synonym    ('\<AA>,'\<alpha>) Set  = "('\<AA>, '\<alpha> Set_0) val'"
 
 text{* ... which means that we can have a type ('\<AA>,('\<AA>,('\<AA>) Integer) Set) Set
 corresponding exactly to Set(Set(Integer)) in OCL notation. Note that the parameter
@@ -264,20 +341,20 @@ in the object universe makes it possible to study (and prove) its properties
 independently from a concrete class diagram. *}
 
 consts (* abstract set collection operations *)
-    OclSize        :: " ('\<AA>,'\<alpha>) Set \<Rightarrow> '\<AA> Integer"    
-    OclCount       :: "[('\<AA>,'\<alpha>) Set,('\<AA>,'\<alpha>) Set] \<Rightarrow> '\<AA> Integer"    
-    OclIncludes    :: "[('\<AA>,'\<alpha>) Set,('\<AA>,'\<alpha>) val] \<Rightarrow> '\<AA> Boolean"    
-    OclExcludes    :: "[('\<AA>,'\<alpha>) Set,('\<AA>,'\<alpha>) val] \<Rightarrow> '\<AA> Boolean"    
-    OclIncluding   :: "[('\<AA>,'\<alpha>) Set,('\<AA>,'\<alpha>) val] \<Rightarrow> ('\<AA>,'\<alpha>) Set"    
-    OclExcluding   :: "[('\<AA>,'\<alpha>) Set,('\<AA>,'\<alpha>) val] \<Rightarrow> ('\<AA>,'\<alpha>) Set"
-    OclSum         :: " ('\<AA>,'\<alpha>) Set \<Rightarrow> '\<AA> Integer"
-    OclIncludesAll :: "[('\<AA>,'\<alpha>) Set,('\<AA>,'\<alpha>) Set] \<Rightarrow> '\<AA> Boolean"
-    OclExcludesAll :: "[('\<AA>,'\<alpha>) Set,('\<AA>,'\<alpha>) Set] \<Rightarrow> '\<AA> Boolean"
-    OclIsEmpty     :: " ('\<AA>,'\<alpha>) Set \<Rightarrow> '\<AA> Boolean"
-    OclNotEmpty    :: " ('\<AA>,'\<alpha>) Set \<Rightarrow> '\<AA> Boolean"
-    OclComplement  :: " ('\<AA>,'\<alpha>) Set \<Rightarrow> ('\<AA>,'\<alpha>) Set"
-    OclUnion       :: "[('\<AA>,'\<alpha>) Set,('\<AA>,'\<alpha>) Set] \<Rightarrow> ('\<AA>,'\<alpha>) Set"
-    OclIntersection:: "[('\<AA>,'\<alpha>) Set,('\<AA>,'\<alpha>) Set] \<Rightarrow> ('\<AA>,'\<alpha>) Set"
+    OclSize        :: " ('\<AA>,'\<alpha>::null) Set \<Rightarrow> '\<AA> Integer"    
+    OclCount       :: "[('\<AA>,'\<alpha>::null) Set,('\<AA>,'\<alpha>) Set] \<Rightarrow> '\<AA> Integer"    
+    OclIncludes    :: "[('\<AA>,'\<alpha>::null) Set,('\<AA>,'\<alpha>) val'] \<Rightarrow> '\<AA> Boolean"    
+    OclExcludes    :: "[('\<AA>,'\<alpha>::null) Set,('\<AA>,'\<alpha>) val'] \<Rightarrow> '\<AA> Boolean"    
+    OclIncluding   :: "[('\<AA>,'\<alpha>::null) Set,('\<AA>,'\<alpha>) val'] \<Rightarrow> ('\<AA>,'\<alpha>) Set"    
+    OclExcluding   :: "[('\<AA>,'\<alpha>::null) Set,('\<AA>,'\<alpha>) val'] \<Rightarrow> ('\<AA>,'\<alpha>) Set"
+    OclSum         :: " ('\<AA>,'\<alpha>::null) Set \<Rightarrow> '\<AA> Integer"
+    OclIncludesAll :: "[('\<AA>,'\<alpha>::null) Set,('\<AA>,'\<alpha>) Set] \<Rightarrow> '\<AA> Boolean"
+    OclExcludesAll :: "[('\<AA>,'\<alpha>::null) Set,('\<AA>,'\<alpha>) Set] \<Rightarrow> '\<AA> Boolean"
+    OclIsEmpty     :: " ('\<AA>,'\<alpha>::null) Set \<Rightarrow> '\<AA> Boolean"
+    OclNotEmpty    :: " ('\<AA>,'\<alpha>::null) Set \<Rightarrow> '\<AA> Boolean"
+    OclComplement  :: " ('\<AA>,'\<alpha>::null) Set \<Rightarrow> ('\<AA>,'\<alpha>) Set"
+    OclUnion       :: "[('\<AA>,'\<alpha>::null) Set,('\<AA>,'\<alpha>) Set] \<Rightarrow> ('\<AA>,'\<alpha>) Set"
+    OclIntersection:: "[('\<AA>,'\<alpha>::null) Set,('\<AA>,'\<alpha>) Set] \<Rightarrow> ('\<AA>,'\<alpha>) Set"
 
   
 notation  (* standard ascii syntax *)
@@ -299,7 +376,7 @@ and
 and
     OclNotEmpty    ("_ ->notEmpty'(')" [66])
 and
-    OclIncluding    ("_ ->including'( _ ')")
+    OclIncluding   ("_ ->including'( _ ')")
 and
     OclExcluding   ("_ ->excluding'( _ ')")
 and
@@ -307,18 +384,23 @@ and
 and
     OclUnion       ("_ ->union'( _ ')"          [66,65]65)
 and
-    OclIntersection   ("_ ->intersection'( _ ')"   [71,70]70)
+    OclIntersection("_ ->intersection'( _ ')"   [71,70]70)
 
 
-definition mtSet::"('\<AA>,'a::bottom) Set"  ("Set{}")
-where "Set{} \<equiv> (\<lambda> \<tau>.  \<lfloor>\<lfloor>Abs_Set_0 \<lfloor>{}::'a set\<rfloor>\<rfloor>\<rfloor> )"
+definition mtSet::"('\<AA>,'a::null) Set"  ("Set{}")
+where "Set{} \<equiv> (\<lambda> \<tau>.  Abs_Set_0 \<lfloor>\<lfloor>{}::'a set\<rfloor>\<rfloor> )"
 
 syntax
-  "_OclFinset" :: "args => ('\<AA>,'a::bottom) Set"    ("Set{(_)}")
+  "_OclFinset" :: "args => ('\<AA>,'a::null) Set"    ("Set{(_)}")
 translations
   "Set{x, xs}" == "CONST OclIncluding (Set{xs}) x"
   "Set{x}" == "CONST OclIncluding (Set{}) x "
 
-term "Set{\<one>,\<two>} = (Set{}->including(\<one>)->including(\<two>)) "
+lemma syntax_test: "Set{\<two>,\<one>} = (Set{}->including(\<one>)->including(\<two>))"
+by simp
+
+
+(* And if we stick to the idea that there is just one notion of
+   valuation ????? *)
 
 end

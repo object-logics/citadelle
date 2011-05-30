@@ -82,6 +82,8 @@ apply auto
 done
 
 
+thm bool_split
+
 lemma [simp]: "false (a, b) = \<lfloor>\<lfloor>False\<rfloor>\<rfloor>"
 by(simp add:false_def)
 
