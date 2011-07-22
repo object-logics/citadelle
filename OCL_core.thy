@@ -617,6 +617,7 @@ lemmas cp_intro[simp,intro!] =
        cp_const 
        cp_id
        cp_defined[THEN allI[THEN allI[THEN cpI1], of defined]]
+       cp_valid[THEN allI[THEN allI[THEN cpI1], of valid]]
        cp_not[THEN allI[THEN allI[THEN cpI1], of not]]
        cp_ocl_and[THEN allI[THEN allI[THEN allI[THEN cpI2]], of "op and"]]
        cp_ocl_or[THEN allI[THEN allI[THEN allI[THEN cpI2]], of "op or"]]
