@@ -433,7 +433,7 @@ end
 
 instantiation   Set_0  :: (null)null
 begin 
-
+ 
    definition NULL_Set_0_def: "(NULL::('a::null) Set_0) \<equiv> Abs_Set_0 \<lfloor> None \<rfloor>"
 
    instance proof show "(NULL::('a::null) Set_0) \<noteq> \<bottom>"
