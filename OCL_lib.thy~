@@ -394,7 +394,7 @@ text{* For the semantic construction of the collection types, we have two goals:
       contain junk-elements that are not representable by OCL expressions.
 \item We want a possibility to nest collection types (so, we want the 
       potential to talking about @{text "Set(Set(Sequences(Pairs(X,Y))))"}), and
-\end{enumerate}
+\end
 The former principe rules out the option to define @{text "'\<alpha> Set"} just by 
  @{text "('\<AA>, ('\<alpha> option option) set) val"}. This would allow sets to contain
 junk elements such as @{text "{\<bottom>}"} which we need to identify with undefinedness
