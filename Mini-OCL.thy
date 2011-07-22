@@ -1,5 +1,5 @@
 theory 
-  MiniHOLOCL
+  Mini-OCL
 imports
   Main (* Testing *)
 begin

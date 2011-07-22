@@ -6,24 +6,53 @@ begin
 
 section{* OCL Core Definitions *}
 
-subsection{* State, State Transitions, Well-formed States *}
-type_synonym oid = ind
+subsection{* Foundational Notations *}
 
-fun    drop :: "'\<alpha> option \<Rightarrow> '\<alpha>" ("\<lceil>(_)\<rceil>")
-where "drop (Some v) = v "
+text{*First of all, we will use a more compact notation for the library 
+option type which occur all over in our definitions and which will make
+the presentation more "textbook"-like:*}
 
 syntax
   "lift"        :: "'\<alpha> \<Rightarrow> '\<alpha> option"   ("\<lfloor>(_)\<rfloor>")
 translations
   "\<lfloor>a\<rfloor>" == "CONST Some a"
 
+syntax
+  "bottom"      :: "'\<alpha> option"   ("\<bottom>")
+translations
+  "\<bottom>" == "CONST None"
+
+fun    drop :: "'\<alpha> option \<Rightarrow> '\<alpha>" ("\<lceil>(_)\<rceil>")
+where "drop (Some v) = v "
+
+subsection{* State, State Transitions, Well-formed States *}
+text{* Next we will introduce the foundational concept of an object id (oid), 
+which is just some infinite set.  *}
+
+type_synonym oid = ind
+
+
+text{* States are just a partial map from oid's to elements of an object universe @{text "'\<AA>"},
+and state transitions pairs of states...  *}
 type_synonym ('\<AA>) state = "oid \<rightharpoonup> '\<AA> "
 
 type_synonym ('\<AA>)st = "'\<AA> state \<times> '\<AA> state"
 
-
+text{* In certain contexts, we will require that the elements of the object universe have 
+a particular structure; more precisely, we will require that there is a function that
+reconstructs the oid of an object in the state (we will settle the question how to define
+this function later). *}
 class object =
   fixes oid_of :: "'a \<Rightarrow> oid"
+
+text{* Thus, if needed, we can constrain the object universe to objects by adding
+the following type class constraint:*}
+typ "'\<AA> :: object"
+
+text{* All OCL expressions \emph{denote} functions that map the underlying *}
+
+type_synonym ('\<AA>,'\<alpha>) val = "'\<AA> st \<Rightarrow> '\<alpha> option option"
+
 
 text{* A key-concept for linking strict referential equality to
        logical equality: in well-formed states (i.e. those
@@ -49,15 +78,14 @@ defined values. For type-technical reasons, for each concrete
 object type, the equality \<doteq> is defined by generic referential
 equality. *}
 
-subsection{* Valuations *}
+subsection{* Basic Constants *}
 
-type_synonym ('\<AA>,'\<alpha>) val = "'\<AA> st \<Rightarrow> '\<alpha> option option"
 
 definition invalid :: "('\<AA>,'\<alpha>) val" 
-where     "invalid \<equiv> \<lambda> \<tau>. None"
+where     "invalid \<equiv> \<lambda> \<tau>. \<bottom>"
 
 definition null :: "('\<AA>,'\<alpha>) val" 
-where     "null \<equiv> \<lambda> \<tau>. \<lfloor> None \<rfloor>   "
+where     "null \<equiv> \<lambda> \<tau>. \<lfloor> \<bottom> \<rfloor>   "
 
 
 subsection{* Boolean Type and Logic *}
@@ -117,8 +145,8 @@ lemma StrongEq_trans_strong [simp]:
 
 definition valid :: "('\<AA>,'a)val \<Rightarrow> ('\<AA>)Boolean" ("\<upsilon> _" [100]100)
 where   "\<upsilon> X \<equiv>  \<lambda> \<tau> . case X \<tau> of
-                           None   \<Rightarrow> false \<tau>
-                       | \<lfloor> None \<rfloor> \<Rightarrow> true \<tau>
+                           \<bottom>     \<Rightarrow> false \<tau>
+                       | \<lfloor> \<bottom> \<rfloor>   \<Rightarrow> true \<tau>
                        | \<lfloor>\<lfloor> x \<rfloor>\<rfloor>  \<Rightarrow> true \<tau>"
 
 lemma cp_valid: "(\<upsilon> X) \<tau> = (\<upsilon> (\<lambda> _. X \<tau>)) \<tau>"
@@ -138,8 +166,8 @@ lemma valid3[simp]: "\<upsilon> \<upsilon> X = true"
 
 definition defined :: "('\<AA>,'a)val \<Rightarrow> ('\<AA>)Boolean" ("\<delta> _" [100]100)
 where   "\<delta> X \<equiv>  \<lambda> \<tau> . case X \<tau> of
-                           None   \<Rightarrow> false \<tau>
-                       | \<lfloor> None \<rfloor> \<Rightarrow> false \<tau>
+                           \<bottom>     \<Rightarrow> false \<tau>
+                       | \<lfloor> \<bottom> \<rfloor>   \<Rightarrow> false \<tau>
                        | \<lfloor>\<lfloor> x \<rfloor>\<rfloor>  \<Rightarrow> true \<tau>"
 
 lemma cp_defined:"(\<delta> X)\<tau> = (\<delta> (\<lambda> _. X \<tau>)) \<tau>"
@@ -183,8 +211,8 @@ section{* Logical Connectives and their Universal Properties *}
 
 definition not :: "('\<AA>)Boolean \<Rightarrow> ('\<AA>)Boolean"
 where     "not X \<equiv>  \<lambda> \<tau> . case X \<tau> of
-                             None     \<Rightarrow> None
-                           | \<lfloor> None \<rfloor> \<Rightarrow> \<lfloor> None \<rfloor>  
+                               \<bottom>     \<Rightarrow> \<bottom>
+                           | \<lfloor> \<bottom> \<rfloor>   \<Rightarrow> \<lfloor> \<bottom> \<rfloor>  
                            | \<lfloor>\<lfloor> x \<rfloor>\<rfloor>  \<Rightarrow> \<lfloor>\<lfloor> \<not> x \<rfloor>\<rfloor>"
 
 lemma cp_not: "(not X)\<tau> = (not (\<lambda> _. X \<tau>)) \<tau>"
@@ -209,22 +237,21 @@ lemma not_not[simp]: "not (not X) = X"
   apply(case_tac "a", simp_all)
   done
 
-definition ocl_and :: "[('\<AA>)Boolean, ('\<AA>)Boolean] \<Rightarrow> ('\<AA>)Boolean"
-                                                         (infixl "and" 30)
+definition ocl_and :: "[('\<AA>)Boolean, ('\<AA>)Boolean] \<Rightarrow> ('\<AA>)Boolean" (infixl "and" 30)
 where     "X and Y \<equiv>  (\<lambda> \<tau> . case X \<tau> of
-                            None  \<Rightarrow> (case Y \<tau> of
-                                              None \<Rightarrow>  None
-                                          | \<lfloor>None\<rfloor> \<Rightarrow> None
-                                          | \<lfloor>\<lfloor>True\<rfloor>\<rfloor> \<Rightarrow>  None
+                            \<bottom>  \<Rightarrow> (case Y \<tau> of
+                                             \<bottom> \<Rightarrow>  \<bottom>
+                                          | \<lfloor>\<bottom>\<rfloor> \<Rightarrow> \<bottom>
+                                          | \<lfloor>\<lfloor>True\<rfloor>\<rfloor> \<Rightarrow>  \<bottom>
                                           | \<lfloor>\<lfloor>False\<rfloor>\<rfloor> \<Rightarrow>  \<lfloor>\<lfloor>False\<rfloor>\<rfloor>)
-                        | \<lfloor> None \<rfloor> \<Rightarrow> (case Y \<tau> of
-                                              None \<Rightarrow>  None
-                                          | \<lfloor>None\<rfloor> \<Rightarrow> \<lfloor>None\<rfloor>
-                                          | \<lfloor>\<lfloor>True\<rfloor>\<rfloor> \<Rightarrow> \<lfloor>None\<rfloor>
+                        | \<lfloor> \<bottom> \<rfloor> \<Rightarrow> (case Y \<tau> of
+                                             \<bottom> \<Rightarrow>  \<bottom>
+                                          | \<lfloor>\<bottom>\<rfloor> \<Rightarrow> \<lfloor>\<bottom>\<rfloor>
+                                          | \<lfloor>\<lfloor>True\<rfloor>\<rfloor> \<Rightarrow> \<lfloor>\<bottom>\<rfloor>
                                           | \<lfloor>\<lfloor>False\<rfloor>\<rfloor> \<Rightarrow>  \<lfloor>\<lfloor>False\<rfloor>\<rfloor>)
                         | \<lfloor>\<lfloor>True\<rfloor>\<rfloor> \<Rightarrow> (case Y \<tau> of
-                                              None \<Rightarrow>  None
-                                          | \<lfloor>None\<rfloor> \<Rightarrow> \<lfloor>None\<rfloor>
+                                             \<bottom> \<Rightarrow>  \<bottom>
+                                          | \<lfloor>\<bottom>\<rfloor> \<Rightarrow> \<lfloor>\<bottom>\<rfloor>
                                           | \<lfloor>\<lfloor>y\<rfloor>\<rfloor> \<Rightarrow>  \<lfloor>\<lfloor>y\<rfloor>\<rfloor>)
                         | \<lfloor>\<lfloor>False\<rfloor>\<rfloor> \<Rightarrow>  \<lfloor>\<lfloor> False \<rfloor>\<rfloor>)"
 
