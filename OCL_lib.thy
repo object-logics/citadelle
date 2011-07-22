@@ -1,4 +1,4 @@
-theory OCL_lib2
+theory OCL_lib
 imports OCL_core
 begin
 
