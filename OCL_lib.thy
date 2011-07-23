@@ -105,12 +105,10 @@ lemma cp_StrictRefEq_int:
 by(auto simp: StrictRefEq_int StrongEq_def invalid_def  cp_defined[symmetric])
 
 
-
-lemmas cp_rules =
-       cp_StrictRefEq_bool[THEN allI[THEN allI[THEN allI[THEN cpI2]], 
-             of "StrictRefEq"]]
-       cp_StrictRefEq_int[THEN allI[THEN allI[THEN allI[THEN cpI2]], 
-             of "StrictRefEq"]]
+lemmas cp_intro[simp,intro!] = 
+       cp_intro
+       cp_StrictRefEq_bool[THEN allI[THEN allI[THEN allI[THEN cpI2]], of "StrictRefEq"]]
+       cp_StrictRefEq_int[THEN allI[THEN allI[THEN allI[THEN cpI2]],  of "StrictRefEq"]]
 
 
 lemma StrictRefEq_strict :
@@ -316,8 +314,8 @@ the null-class:*}
 
 type_synonym ('\<AA>,'\<alpha>) val' = "'\<AA> st \<Rightarrow> '\<alpha>::null"
 
-text{* However, this has also the consequence that core concepts like definedned 
-or validness have to be redefined on this type class:*}
+text{* However, this has also the consequence that core concepts like definedness, 
+validness and even cp have to be redefined on this type class:*}
 
 definition valid' :: "('\<AA>,'a::null)val' \<Rightarrow> ('\<AA>)Boolean" ("\<upsilon>' _" [100]100)
 where   "\<upsilon>' X \<equiv>  \<lambda> \<tau> . if X \<tau> = UU \<tau> then false \<tau> else true \<tau>"
@@ -368,23 +366,42 @@ by(simp add: valid'_def)
 lemma cp_defined':"(\<delta>' X)\<tau> = (\<delta>' (\<lambda> _. X \<tau>)) \<tau>"
 by(simp add: defined'_def)
 
-lemmas cp_intro[simp,intro!] = 
-       cp_defined'[THEN allI[THEN allI[THEN cpI1], of defined']]
-       cp_valid'[THEN allI[THEN allI[THEN cpI1], of valid']]
+lemmas cp_intro'[simp,intro!] = 
        cp_intro
+       cp_defined'[THEN allI[THEN allI[THEN cpI1], of defined']]
+       cp_valid'  [THEN allI[THEN allI[THEN cpI1], of valid']]
 
 text{* In fact, it can be proven for the base types that both versions of undefined
 and invalid are actually the same: *}
 
-lemma defined_is_defined'(* [simp] *): "\<delta> X = \<delta>' X"
+lemma defined_is_defined' [simp] : "\<delta> X = \<delta>' X"
 by(rule ext,
    auto simp: defined'_def defined_def true_def false_def false_def true_def
               UU_fun_def UU_option_def NULL_option_def NULL_fun_def)
 
-lemma valid_is_valid'(* [simp] *): "\<upsilon>' X = \<upsilon>' X"
+lemma valid_is_valid' [simp] : "\<upsilon> X = \<upsilon>' X"
 by(rule ext,
-   auto simp: valid'_def valid_def true_def false_def false_def true_def
-              UU_fun_def UU_option_def NULL_option_def NULL_fun_def)
+   auto simp: valid'_def valid_def  false_def  true_def
+              UU_fun_def UU_option_def NULL_option_def NULL_fun_def
+        split: option.split)
+
+definition cp'   :: "(('\<AA>,'\<alpha>::null) val' \<Rightarrow> ('\<AA>,'\<beta>::null) val') \<Rightarrow> bool"
+where     "cp' P \<equiv> (\<exists> f. \<forall> X \<tau>. P X \<tau> = f (X \<tau>) \<tau>)"
+
+
+lemma cp'I1:
+"(\<forall> X \<tau>. f X \<tau> = f(\<lambda>_. X \<tau>) \<tau>) \<Longrightarrow> cp' P \<Longrightarrow> cp'(\<lambda>X. f (P X))"
+apply(auto simp: true_def cp'_def)
+apply(rule exI, (rule allI)+)
+by(erule_tac x="P X" in allE, auto)
+
+lemma cp'I2:
+"(\<forall> X Y \<tau>. f X Y \<tau> = f(\<lambda>_. X \<tau>)(\<lambda>_. Y \<tau>) \<tau>) \<Longrightarrow> 
+ cp' P \<Longrightarrow> cp' Q \<Longrightarrow> cp'(\<lambda>X. f (P X) (Q X))"
+apply(auto simp: true_def cp'_def)
+apply(rule exI, (rule allI)+)
+by(erule_tac x="P X" in allE, auto)
+
 
 subsection {* Example: The Set-Collection Type *}
 
@@ -491,33 +508,53 @@ consts (* abstract set collection operations *)
 
   
 notation  (* standard ascii syntax *)
-    OclSize        ("_ ->size'(')" [66])
+    OclSize        ("_->size'(')" [66])
 and
-    OclCount       ("_ ->count'(_')" [66,65]65)
+    OclCount       ("_->count'(_')" [66,65]65)
 and
-    OclIncludes    ("_ ->includes'(_')" [66,65]65)
+    OclIncludes    ("_->includes'(_')" [66,65]65)
 and
-    OclExcludes    ("_ ->excludes'(_')" [66,65]65)
+    OclExcludes    ("_->excludes'(_')" [66,65]65)
 and
-    OclSum         ("_ ->sum'(')" [66])
+    OclSum         ("_->sum'(')" [66])
 and
-    OclIncludesAll ("_ ->includesAll'(_')" [66,65]65)
+    OclIncludesAll ("_->includesAll'(_')" [66,65]65)
 and
-    OclExcludesAll ("_ ->excludesAll'(_')" [66,65]65)
+    OclExcludesAll ("_->excludesAll'(_')" [66,65]65)
 and
-    OclIsEmpty     ("_ ->isEmpty'(')" [66])
+    OclIsEmpty     ("_->isEmpty'(')" [66])
 and
-    OclNotEmpty    ("_ ->notEmpty'(')" [66])
+    OclNotEmpty    ("_->notEmpty'(')" [66])
 and
-    OclIncluding   ("_ ->including'( _ ')")
+    OclIncluding   ("_->including'(_')")
 and
-    OclExcluding   ("_ ->excluding'( _ ')")
+    OclExcluding   ("_->excluding'(_')")
 and
-    OclComplement  ("_ ->complement'(')")
+    OclComplement  ("_->complement'(')")
 and
-    OclUnion       ("_ ->union'( _ ')"          [66,65]65)
+    OclUnion       ("_->union'(_')"          [66,65]65)
 and
-    OclIntersection("_ ->intersection'( _ ')"   [71,70]70)
+    OclIntersection("_->intersection'(_')"   [71,70]70)
+
+
+lemma cp_OclIncluding: 
+"(X->including(x)) \<tau> = ((\<lambda> _. X \<tau>)->including(\<lambda> _. x \<tau>)) \<tau>"
+by(auto simp: OclIncluding_def StrongEq_def invalid_def  
+                 cp_defined'[symmetric] cp_valid'[symmetric])
+
+lemma cp_OclIncludes: 
+"(X->includes(x)) \<tau> = (OclIncludes (\<lambda> _. X \<tau>) (\<lambda> _. x \<tau>) \<tau>)"
+by(auto simp: OclIncludes_def StrongEq_def invalid_def  
+                 cp_defined'[symmetric] cp_valid'[symmetric])
+(* Why does this not work syntactically ???
+   lemma cp_OclIncludes: "(X->includes(x)) \<tau> = (((\<lambda> _. X \<tau>)->includes( \<lambda> _. x \<tau>)) \<tau>)" *)
+
+
+
+lemmas cp_intro''[simp,intro!] = 
+       cp_intro'
+       cp_OclIncludes  [THEN allI[THEN allI[THEN allI[THEN cp'I2]], of "OclIncludes"]]
+       cp_OclIncluding [THEN allI[THEN allI[THEN allI[THEN cp'I2]], of "OclIncluding"]]
 
 
 lemma including_strict1[simp]:"(\<bottom>->including(x)) = \<bottom>"

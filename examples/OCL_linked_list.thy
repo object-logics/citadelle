@@ -34,7 +34,7 @@ lemmas strict_eq_node =
     cp_intro(9)         [of "P::(node,node)val \<Rightarrow>(node,node)val"
                             "Q::(node,node)val \<Rightarrow>(node,node)val",
                          simplified StrictRefEq_node[symmetric] ]
-    gen_ref_eq_def      [of "x::(node,node)val" 
+(*    gen_ref_eq_def      [of "x::(node,node)val" 
                             "y::(node,node)val", 
                          simplified StrictRefEq_node[symmetric]]
     gen_ref_eq_defargs  [of _
@@ -53,7 +53,7 @@ lemmas strict_eq_node =
     gen_ref_eq_object_strict4 
                         [of "x::(node,node)val",
                          simplified StrictRefEq_node[symmetric]]
-
+*)
 
 section{* Selector Definition *}
 text{* Should be generated entirely from a class-diagram. *}
