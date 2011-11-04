@@ -23,7 +23,7 @@ translations
   "\<bottom>" == "CONST None"
 
 fun    drop :: "'\<alpha> option \<Rightarrow> '\<alpha>" ("\<lceil>(_)\<rceil>")
-where "drop (Some v) = v "
+where drop_lift[simp]: "\<lceil>\<lfloor>v\<rfloor>\<rceil> = v"
 
 subsection{* State, State Transitions, Well-formed States *}
 text{* Next we will introduce the foundational concept of an object id (oid), 
@@ -361,9 +361,8 @@ lemma ocl_and_true1[simp]: "(true and X) = X"
 lemma ocl_and_true2[simp]: "(X and true) = X"
   by(simp add: ocl_and_commute) 
 
-
 lemma ocl_and_assoc: "(X and (Y and Z)) = (X and Y and Z)"
-  apply(rule ext, simp add: ocl_and_def)
+  apply(rule ext, simp add: ocl_and_def) 
   apply(auto simp:true_def false_def null_def invalid_def 
              split: option.split option.split_asm
                     bool.split bool.split_asm)
