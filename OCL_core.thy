@@ -1,4 +1,4 @@
-theory 
+ theory 
   OCL_core
 imports
   Main (* Testing *)
@@ -439,6 +439,7 @@ section{* Global vs. Local Judgements*}
 lemma transform1: "P = true \<Longrightarrow> \<tau> \<Turnstile> P"
 by(simp add: OclValid_def)
 
+
 lemma transform2: "(P = Q) \<Longrightarrow> ((\<tau> \<Turnstile> P) = (\<tau> \<Turnstile> Q))"
 by(auto simp: OclValid_def)
 
@@ -552,7 +553,18 @@ by(auto simp: not_def ocl_or_def ocl_and_def ocl_implies_def
               OclValid_def invalid_def true_def null_def StrongEq_def
         split:bool.split_asm bool.split)
 
+lemma foundation13:"(\<tau> \<Turnstile> A \<triangleq> true)    = (\<tau> \<Turnstile> A)" 
+by(auto simp: not_def  OclValid_def invalid_def true_def null_def StrongEq_def
+           split:bool.split_asm bool.split)
 
+lemma foundation14:"(\<tau> \<Turnstile> A \<triangleq> false)   = (\<tau> \<Turnstile> not A)" 
+by(auto simp: not_def  OclValid_def invalid_def false_def true_def null_def StrongEq_def 
+        split:bool.split_asm bool.split option.split)
+
+lemma foundation15:"(\<tau> \<Turnstile> A \<triangleq> invalid) = (\<tau> \<Turnstile> not(\<upsilon> A))" 
+by(auto simp: not_def  OclValid_def valid_def invalid_def false_def true_def null_def StrongEq_def 
+         split:bool.split_asm bool.split option.split)
+ 
 lemma strictEqGen_vs_strongEq: 
 "WFF \<tau> \<Longrightarrow> \<tau> \<Turnstile>(\<delta> x) \<Longrightarrow> \<tau> \<Turnstile>(\<delta> y) \<Longrightarrow> 
  (\<tau> \<Turnstile> (gen_ref_eq (x::('b::object,'a::object)val) y)) = (\<tau> \<Turnstile> (x \<triangleq> y))"
@@ -585,11 +597,11 @@ the context @{text "\<tau>"} without changing it. Fortunately, all
 operators of the OCL language satisfy this property 
 (but not all HOL operators).*}
 
-lemma StrongEq_L_subst1: "!! \<tau>. cp P \<Longrightarrow> \<tau> \<Turnstile> (x \<triangleq> y) \<Longrightarrow> \<tau> \<Turnstile> (P x \<triangleq> P y)"
+lemma StrongEq_L_subst1: "\<And> \<tau>. cp P \<Longrightarrow> \<tau> \<Turnstile> (x \<triangleq> y) \<Longrightarrow> \<tau> \<Turnstile> (P x \<triangleq> P y)"
 by(auto simp: OclValid_def StrongEq_def true_def cp_def)
 
 lemma StrongEq_L_subst2: 
-"!! \<tau>.  cp P \<Longrightarrow> \<tau> \<Turnstile> (x \<triangleq> y) \<Longrightarrow> \<tau> \<Turnstile> (P x) \<Longrightarrow> \<tau> \<Turnstile> (P y)"
+"\<And> \<tau>.  cp P \<Longrightarrow> \<tau> \<Turnstile> (x \<triangleq> y) \<Longrightarrow> \<tau> \<Turnstile> (P x) \<Longrightarrow> \<tau> \<Turnstile> (P y)"
 by(auto simp: OclValid_def StrongEq_def true_def cp_def)
 
 lemma cpI1:

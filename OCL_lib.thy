@@ -2,55 +2,67 @@ theory OCL_lib
 imports OCL_core
 begin
 
-
+section{* Simple, Basic Types like Boolean and Integer *}
 syntax
   "notequal"        :: "('\<AA>)Boolean \<Rightarrow> ('\<AA>)Boolean \<Rightarrow> ('\<AA>)Boolean"   (infix "<>" 40)
 translations
   "a <> b" == "CONST not( a \<doteq> b)"
 
-defs   StrictRefEq_int : "(x::('\<AA>,int)val) \<doteq> y \<equiv>
-                             \<lambda> \<tau>. if (\<delta> x) \<tau> = true \<tau> \<and> (\<delta> y) \<tau> = true \<tau>
+text{* Note that the strict equality on basic types (actually on all types) 
+must be exceptionally defined on null --- otherwise the entire concept of 
+null in the language does not make much sense. This is an important exception
+from the general rule that null arguments --- especially if passed as "self"-argument ---
+lead to invalid results. *}
+
+defs   StrictRefEq_int : "(x::('\<AA>)Integer) \<doteq> y \<equiv>
+                             \<lambda> \<tau>. if (\<upsilon> x) \<tau> = true \<tau> \<and> (\<upsilon> y) \<tau> = true \<tau>
                                   then (x \<triangleq> y)\<tau>
                                   else invalid \<tau>"
 
 
-defs   StrictRefEq_bool : "(x::('\<AA>,bool)val) \<doteq> y \<equiv>
-                             \<lambda> \<tau>. if (\<delta> x) \<tau> = true \<tau> \<and> (\<delta> y) \<tau> = true \<tau>
+defs   StrictRefEq_bool : "(x::('\<AA>)Boolean) \<doteq> y \<equiv>
+                             \<lambda> \<tau>. if (\<upsilon> x) \<tau> = true \<tau> \<and> (\<upsilon> y) \<tau> = true \<tau>
                                   then (x \<triangleq> y)\<tau>
                                   else invalid \<tau>"
 
 
-lemma StrictRefEq_int_strict1[simp] : "((x::('\<AA>,int)val) \<doteq> invalid) = invalid"
+lemma StrictRefEq_int_strict1[simp] : "((x::('\<AA>)Integer) \<doteq> invalid) = invalid"
 by(rule ext, simp add: StrictRefEq_int true_def false_def)
 
-lemma StrictRefEq_int_strict2[simp] : "(invalid \<doteq> (x::('\<AA>,int)val)) = invalid"
+lemma StrictRefEq_int_strict2[simp] : "(invalid \<doteq> (x::('\<AA>)Integer)) = invalid"
 by(rule ext, simp add: StrictRefEq_int true_def false_def)
 
-lemma StrictRefEq_int_strict3[simp] : "((x::('\<AA>,int)val) \<doteq> null) = invalid"
-by(rule ext, simp add: StrictRefEq_int true_def false_def)
-
-lemma StrictRefEq_int_strict4[simp] : "(null \<doteq> (x::('\<AA>,int)val)) = invalid"
-by(rule ext, simp add: StrictRefEq_int true_def false_def)
 
 
 lemma strictEqBool_vs_strongEq: 
-"\<tau> \<Turnstile>(\<delta> x) \<Longrightarrow> \<tau> \<Turnstile>(\<delta> y) \<Longrightarrow> (\<tau> \<Turnstile> ((x::('\<AA>,bool)val) \<doteq> y)) = (\<tau> \<Turnstile> (x \<triangleq> y))"
+"\<tau> \<Turnstile>(\<upsilon> x) \<Longrightarrow> \<tau> \<Turnstile>(\<upsilon> y) \<Longrightarrow> (\<tau> \<Turnstile> ((x::('\<AA>)Boolean) \<doteq> y)) = (\<tau> \<Turnstile> (x \<triangleq> y))"
 by(simp add: StrictRefEq_bool OclValid_def)
 
 lemma strictEqInt_vs_strongEq: 
-"\<tau> \<Turnstile>(\<delta> x) \<Longrightarrow> \<tau> \<Turnstile>(\<delta> y) \<Longrightarrow> (\<tau> \<Turnstile> ((x::('\<AA>,int)val) \<doteq> y)) = (\<tau> \<Turnstile> (x \<triangleq> y))"
+"\<tau> \<Turnstile>(\<upsilon> x) \<Longrightarrow> \<tau> \<Turnstile>(\<upsilon> y) \<Longrightarrow> (\<tau> \<Turnstile> ((x::('\<AA>)Integer) \<doteq> y)) = (\<tau> \<Turnstile> (x \<triangleq> y))"
 by(simp add: StrictRefEq_int OclValid_def)
 
-
-lemma strictEqBool_defargs: 
-"\<tau> \<Turnstile> ((x::('\<AA>,bool)val) \<doteq> y) \<Longrightarrow> (\<tau> \<Turnstile>(\<delta> x)) \<and> (\<tau> \<Turnstile>(\<delta> y))"
+lemma strictEqBool_defargs:
+"\<tau> \<Turnstile> ((x::('\<AA>)Boolean) \<doteq> y) \<Longrightarrow> (\<tau> \<Turnstile> (\<upsilon> x)) \<and> (\<tau> \<Turnstile>(\<upsilon> y))"
 by(simp add: StrictRefEq_bool OclValid_def true_def invalid_def
            split: bool.split_asm HOL.split_if_asm)
 
-lemma strictEqInt_defargs: 
-"\<tau> \<Turnstile> ((x::('\<AA>,int)val) \<doteq> y)\<Longrightarrow> (\<tau> \<Turnstile>(\<delta> x)) \<and> (\<tau> \<Turnstile>(\<delta> y))"
+lemma strictEqInt_defargs:
+"\<tau> \<Turnstile> ((x::('\<AA>)Integer) \<doteq> y) \<Longrightarrow> (\<tau> \<Turnstile> (\<upsilon> x)) \<and> (\<tau> \<Turnstile> (\<upsilon> y))"
 by(simp add: StrictRefEq_int OclValid_def true_def invalid_def
            split: bool.split_asm HOL.split_if_asm)
+
+lemma strictEqBool_valid_args_valid: 
+"(\<tau> \<Turnstile> \<upsilon>((x::('\<AA>)Boolean) \<doteq> y)) = ((\<tau> \<Turnstile>(\<upsilon> x)) \<and> (\<tau> \<Turnstile>(\<upsilon> y)))"
+by(auto simp: StrictRefEq_bool OclValid_def true_def valid_def false_def StrongEq_def 
+                 defined_def invalid_def
+           split: bool.split_asm HOL.split_if_asm option.split)
+
+lemma strictEqInt_valid_args_valid: 
+"(\<tau> \<Turnstile> \<upsilon>((x::('\<AA>)Integer) \<doteq> y)) = ((\<tau> \<Turnstile>(\<upsilon> x)) \<and> (\<tau> \<Turnstile>(\<upsilon> y)))"
+by(auto simp: StrictRefEq_int OclValid_def true_def valid_def false_def StrongEq_def 
+                 defined_def invalid_def
+           split: bool.split_asm HOL.split_if_asm option.split)
 
 lemma gen_ref_eq_defargs: 
 "\<tau> \<Turnstile> (gen_ref_eq x (y::('\<AA>,'a::object)val))\<Longrightarrow> (\<tau> \<Turnstile>(\<delta> x)) \<and> (\<tau> \<Turnstile>(\<delta> y))"
@@ -59,23 +71,23 @@ by(simp add: gen_ref_eq_def OclValid_def true_def invalid_def
 
 
 lemma StrictRefEq_int_strict :
-  assumes A: "\<delta> (x::('\<AA>,int)val) = true"
-  and     B: "\<delta> y = true"
-  shows   "\<delta> (x \<doteq> y) = true"
+  assumes A: "\<upsilon> (x::('\<AA>)Integer) = true"
+  and     B: "\<upsilon> y = true"
+  shows   "\<upsilon> (x \<doteq> y) = true"
   apply(insert A B)
-  apply(rule ext, simp add: StrongEq_def StrictRefEq_int true_def defined_def)
+  apply(rule ext, simp add: StrongEq_def StrictRefEq_int true_def valid_def defined_def)
   done
 
 
 lemma StrictRefEq_int_strict' :
-  assumes A: "\<delta> ((x::('\<AA>,int)val) \<doteq> y) = true"
-  shows      "\<delta> x = true \<and> \<delta> y = true"
+  assumes A: "\<upsilon> (((x::('\<AA>)Integer)) \<doteq> y) = true"
+  shows      "\<upsilon> x = true \<and> \<upsilon> y = true"
   apply(insert A, rule conjI) 
   apply(rule ext, drule_tac x=xa in fun_cong)
   prefer 2
   apply(rule ext, drule_tac x=xa in fun_cong)
   apply(simp_all add: StrongEq_def StrictRefEq_int 
-                            false_def true_def defined_def)
+                            false_def true_def valid_def defined_def)
   apply(case_tac "y xa", auto)
   apply(simp_all add: true_def invalid_def)
   apply(case_tac "aa", auto simp:true_def false_def invalid_def 
@@ -84,25 +96,19 @@ lemma StrictRefEq_int_strict' :
 
 
 
-lemma StrictRefEq_bool_strict1[simp] : "((x::('\<AA>,bool)val) \<doteq> invalid) = invalid"
+lemma StrictRefEq_bool_strict1[simp] : "((x::('\<AA>)Boolean) \<doteq> invalid) = invalid"
 by(rule ext, simp add: StrictRefEq_bool true_def false_def)
 
-lemma StrictRefEq_bool_strict2[simp] : "(invalid \<doteq> (x::('\<AA>,bool)val)) = invalid"
-by(rule ext, simp add: StrictRefEq_bool true_def false_def)
-
-lemma StrictRefEq_bool_strict3[simp] : "((x::('\<AA>,bool)val) \<doteq> null) = invalid"
-by(rule ext, simp add: StrictRefEq_bool true_def false_def)
-
-lemma StrictRefEq_bool_strict4[simp] : "(null \<doteq> (x::('\<AA>,bool)val)) = invalid"
+lemma StrictRefEq_bool_strict2[simp] : "(invalid \<doteq> (x::('\<AA>)Boolean)) = invalid"
 by(rule ext, simp add: StrictRefEq_bool true_def false_def)
 
 lemma cp_StrictRefEq_bool: 
-"((X::('\<AA>,bool)val) \<doteq> Y) \<tau> = ((\<lambda> _. X \<tau>) \<doteq> (\<lambda> _. Y \<tau>)) \<tau>"
-by(auto simp: StrictRefEq_bool StrongEq_def invalid_def  cp_defined[symmetric])
+"((X::('\<AA>)Boolean) \<doteq> Y) \<tau> = ((\<lambda> _. X \<tau>) \<doteq> (\<lambda> _. Y \<tau>)) \<tau>"
+by(auto simp: StrictRefEq_bool StrongEq_def defined_def valid_def  cp_defined[symmetric])
 
 lemma cp_StrictRefEq_int: 
 "((X::('\<AA>,int)val) \<doteq> Y) \<tau> = ((\<lambda> _. X \<tau>) \<doteq> (\<lambda> _. Y \<tau>)) \<tau>"
-by(auto simp: StrictRefEq_int StrongEq_def invalid_def  cp_defined[symmetric])
+by(auto simp: StrictRefEq_int StrongEq_def valid_def  cp_defined[symmetric])
 
 
 lemmas cp_intro[simp,intro!] = 
@@ -112,11 +118,11 @@ lemmas cp_intro[simp,intro!] =
 
 
 lemma StrictRefEq_strict :
-  assumes A: "\<delta> (x::('\<AA>,int)val) = true"
-  and     B: "\<delta> y = true"
-  shows   "\<delta> (x \<doteq> y) = true"
+  assumes A: "\<upsilon> (x::('\<AA>,int)val) = true"
+  and     B: "\<upsilon> y = true"
+  shows   "\<upsilon> (x \<doteq> y) = true"
   apply(insert A B)
-  apply(rule ext, simp add: StrongEq_def StrictRefEq_int true_def defined_def)
+  apply(rule ext, simp add: StrongEq_def StrictRefEq_int true_def valid_def)
   done
 
 
@@ -156,31 +162,36 @@ where      "\<one>\<zero> = (\<lambda> _ . \<lfloor>\<lfloor>10::int\<rfloor>\<r
 text{* Here is a way to cast in standard operators 
 via the type class system of Isabelle. *}
 
+lemma  "\<delta> null = false" by simp (* recall *)
+lemma  "\<upsilon> null = true"  by simp (* recall *)
+
 lemma [simp]:"\<delta> \<zero> = true" 
 by(simp add:ocl_zero_def defined_def true_def)
 
 lemma [simp]:"\<upsilon> \<zero> = true" 
 by(simp add:ocl_zero_def valid_def true_def)
 
+lemma [simp]:"\<delta> \<one> = true" 
+by(simp add:ocl_one_def defined_def true_def)
+
+lemma [simp]:"\<upsilon> \<one> = true" 
+by(simp add:ocl_one_def valid_def true_def)
+
+
+lemma one_non_null[simp]: "\<zero> \<noteq> null"
+apply(auto simp:ocl_zero_def  null_def ) 
+apply(drule_tac x=x in fun_cong, simp)
+done
+
+lemma zero_non_null[simp]: "\<one> \<noteq> null"
+apply(auto simp:ocl_one_def  null_def ) 
+apply(drule_tac x=x in fun_cong, simp)
+done
+
 (* plus all the others ...*)
 
-
-instance option   :: (plus) plus 
-by intro_classes
-
-
-instance "fun"    :: (type, plus) plus 
-by intro_classes
-
-(* Makarius: why does this not work ? It worked in 2005 !!! 
-defs (overloaded) ocl_plus_def : 
-            "op + \<equiv> (\<lambda> (X::('\<AA>)Integer) (Y::('\<AA>)Integer) \<tau>. 
-                     if (\<delta> X) \<tau> = true \<tau> \<and> (\<delta> Y) \<tau> = true \<tau>
-                     then \<lfloor>\<lfloor> \<lceil>\<lceil> (X \<tau>) \<rceil>\<rceil> + \<lceil>\<lceil> (Y \<tau>) \<rceil>\<rceil>  \<rfloor>\<rfloor> 
-                     else invalid \<tau>)"
-*)
-
-
+text{* Here is a common case of a built-in operation on built-in types.
+Note that the arguments must be both defined (non-null, non-bottom). *}
 definition ocl_less_int ::"('\<AA>)Integer \<Rightarrow> ('\<AA>)Integer \<Rightarrow> ('\<AA>)Boolean" (infix "\<prec>" 40) 
 where "x \<prec> y \<equiv> \<lambda> \<tau>. if (\<delta> x) \<tau> = true \<tau> \<and> (\<delta> y) \<tau> = true \<tau>
                 then \<lfloor>\<lfloor>\<lceil>\<lceil>x \<tau>\<rceil>\<rceil> < \<lceil>\<lceil>y \<tau>\<rceil>\<rceil>\<rfloor>\<rfloor>
@@ -190,13 +201,6 @@ definition ocl_le_int ::"('\<AA>)Integer \<Rightarrow> ('\<AA>)Integer \<Rightar
 where "x \<preceq> y \<equiv> \<lambda> \<tau>. if (\<delta> x) \<tau> = true \<tau> \<and> (\<delta> y) \<tau> = true \<tau>
                 then \<lfloor>\<lfloor>\<lceil>\<lceil>x \<tau>\<rceil>\<rceil> \<le> \<lceil>\<lceil>y \<tau>\<rceil>\<rceil>\<rfloor>\<rfloor>
                 else invalid \<tau> "   
-
-
-
-lemma zero_non_null[simp]: "\<zero> \<noteq> null"
-apply(auto simp:ocl_zero_def  null_def ) 
-apply(drule_tac x=x in fun_cong, simp)
-done
 
 
 section{*Collection Types*}
@@ -219,6 +223,10 @@ on top of this interface. *}
 text{* This interface consists in two abstract type classes @{text bottom} 
 and @{text null} for the class of all types comprising a bottom and a 
 distinct null element.  *}
+
+instance option   :: (plus) plus  by intro_classes
+instance "fun"    :: (type, plus) plus by intro_classes
+
 class   bottom = 
    fixes  UU :: "'a"
    assumes nonEmpty : "\<exists> x. x \<noteq> UU"
@@ -232,12 +240,13 @@ class   null = bottom +
    fixes  NULL :: "'a"
    assumes null_is_valid : "NULL \<noteq> UU"
 
-(* 
+(* TOO MUCH SYNTACTIC AMBIGUITIES ...
 begin
    notation (xsymbols)  NULL ("\<null>")
 end
 *)
 
+subsection {* Accomodation of Basic Types to the Abstract Interface *}
 
 text{* In the following it is shown that the option-option type type is
 in fact in the @{text null} class and that function spaces over these classes
@@ -297,15 +306,13 @@ text{* A trivial consequence of this adaption of the interface is that
 abstract and concrete versions of NULL are the same on base types
 (as could be expected). *}
 
-lemma [simp]: "null = (NULL::('a)Integer)"
+lemma conc_null_eq_abs_null_int: "null = (NULL::('a)Integer)"
 by(rule ext,simp add: UU_option_def NULL_option_def null_def NULL_fun_def)
 
-lemma [simp]: "null = (NULL::('a)Boolean)"
+lemma conc_null_eq_abs_null_bool: "null = (NULL::('a)Boolean)"
 by(rule ext,simp add: UU_option_def NULL_option_def null_def NULL_fun_def)
 
-lemma [simp]: "\<zero>  \<noteq> NULL"
-by(simp add: zero_non_null[simplified])
-
+subsection {* Redefining the concept of Valuation *}
 
 text{* Now, on this basis we generalize the concept of a valuation: we do no
 longer care that the @{text "\<bottom>"} and @{text "NULL"} were actually constructed
@@ -402,8 +409,16 @@ apply(auto simp: true_def cp'_def)
 apply(rule exI, (rule allI)+)
 by(erule_tac x="P X" in allE, auto)
 
+lemma definedD: "\<tau> \<Turnstile> (\<delta>' X) \<Longrightarrow> (X \<tau> \<noteq> UU \<and> X \<tau> \<noteq> (NULL \<tau>))"
+by(auto simp: OclValid_def defined'_def false_def true_def cp'_def UU_fun_def
+        split:split_if_asm)
 
-subsection {* Example: The Set-Collection Type *}
+lemma validD: "\<tau> \<Turnstile> (\<upsilon>' X) \<Longrightarrow> (X \<tau> \<noteq> UU)"
+by(auto simp: OclValid_def valid'_def false_def true_def cp'_def UU_fun_def
+        split:split_if_asm)
+
+
+subsection {* Example: The Set-Collection Type on the Abstract Interface *}
 
 text{* For the semantic construction of the collection types, we have two goals:
 \begin{enumerate}
@@ -466,6 +481,12 @@ end
 text{* ...  and lifting this type to the format of a valuation gives us:*}
 type_synonym    ('\<AA>,'\<alpha>) Set  = "('\<AA>, '\<alpha> Set_0) val'"
 
+lemma Set_inv_lemma: "\<tau> \<Turnstile> (\<delta>' X) \<Longrightarrow> 
+    (X \<tau> = OCL_lib.Abs_Set_0 \<lfloor>UU\<rfloor>) \<or>
+    (\<forall>x\<in>\<lceil>\<lceil>OCL_lib.Rep_Set_0 (X \<tau>)\<rceil>\<rceil>. x \<noteq> UU)"
+
+sorry
+
 text{* ... which means that we can have a type @{text "('\<AA>,('\<AA>,('\<AA>) Integer) Set) Set"}
 corresponding exactly to Set(Set(Integer)) in OCL notation. Note that the parameter
 @{text "\<AA>"} still refers to the object universe; making the OCL semantics entirely parametric
@@ -476,6 +497,19 @@ independently from a concrete class diagram. *}
 definition mtSet::"('\<AA>,'\<alpha>::null) Set"  ("Set{}")
 where "Set{} \<equiv> (\<lambda> \<tau>.  Abs_Set_0 \<lfloor>\<lfloor>{}::'\<alpha> set\<rfloor>\<rfloor> )"
 
+
+lemma mtSet_defined[simp]:"\<delta>'(Set{}) = true"  
+apply(rule ext, auto simp: mtSet_def defined'_def NULL_Set_0_def 
+                           bot_Set_0_def UU_fun_def NULL_fun_def)
+apply(simp_all add: Abs_Set_0_inject Set_0_def UU_option_def NULL_Set_0_def NULL_option_def)
+done
+
+lemma mtSet_valid[simp]:"\<upsilon>'(Set{}) = true" 
+apply(rule ext,auto simp: mtSet_def valid'_def NULL_Set_0_def 
+                          bot_Set_0_def UU_fun_def NULL_fun_def)
+apply(simp_all add: Abs_Set_0_inject Set_0_def UU_option_def NULL_Set_0_def NULL_option_def)
+done
+
 text{* Note that the collection types in OCL allow for NULL to be included;
   however, there is the NULL-collection into which inclusion yields invalid. *}
 
@@ -485,23 +519,31 @@ where     "OclIncluding x y = (\<lambda> \<tau>.  if (\<delta>' x) \<tau> = true
                                      else UU )"
 
 definition OclIncludes   :: "[('\<AA>,'\<alpha>::null) Set,('\<AA>,'\<alpha>) val'] \<Rightarrow> '\<AA> Boolean"
-where     "OclIncludes x y = (\<lambda> \<tau>.  if (\<delta>' x) \<tau> = true \<tau> \<and> (\<upsilon>' y) \<tau> = true \<tau> 
-                                    then UU
-                                    else \<lfloor>\<lfloor>(y \<tau>) \<in> \<lceil>\<lceil>Rep_Set_0 (x \<tau>)\<rceil>\<rceil> \<rfloor>\<rfloor> )"
+where     "OclIncludes x y = (\<lambda> \<tau>.   if (\<delta>' x) \<tau> = true \<tau> \<and> (\<upsilon>' y) \<tau> = true \<tau> 
+                                     then \<lfloor>\<lfloor>(y \<tau>) \<in> \<lceil>\<lceil>Rep_Set_0 (x \<tau>)\<rceil>\<rceil> \<rfloor>\<rfloor>
+                                     else UU  )"
+
+definition OclExcluding   :: "[('\<AA>,'\<alpha>::null) Set,('\<AA>,'\<alpha>) val'] \<Rightarrow> ('\<AA>,'\<alpha>) Set"
+where     "OclExcluding x y = (\<lambda> \<tau>.  if (\<delta>' x) \<tau> = true \<tau> \<and> (\<upsilon>' y) \<tau> = true \<tau>
+                                     then Abs_Set_0 \<lfloor>\<lfloor> \<lceil>\<lceil>Rep_Set_0 (x \<tau>)\<rceil>\<rceil> - {y \<tau>} \<rfloor>\<rfloor> 
+                                     else UU )"
+
+definition OclExcludes   :: "[('\<AA>,'\<alpha>::null) Set,('\<AA>,'\<alpha>) val'] \<Rightarrow> '\<AA> Boolean"
+where     "OclExcludes x y = (not(OclIncludes x y))"
 
 
 consts (* abstract set collection operations *)
     OclSize        :: " ('\<AA>,'\<alpha>::null) Set \<Rightarrow> '\<AA> Integer"    
     OclCount       :: "[('\<AA>,'\<alpha>::null) Set,('\<AA>,'\<alpha>) Set] \<Rightarrow> '\<AA> Integer"    
- (* OclIncludes    :: "[('\<AA>,'\<alpha>::null) Set,('\<AA>,'\<alpha>) val'] \<Rightarrow> '\<AA> Boolean"     *)
-    OclExcludes    :: "[('\<AA>,'\<alpha>::null) Set,('\<AA>,'\<alpha>) val'] \<Rightarrow> '\<AA> Boolean"    
- (* OclIncluding   :: "[('\<AA>,'\<alpha>::null) Set,('\<AA>,'\<alpha>) val'] \<Rightarrow> ('\<AA>,'\<alpha>) Set"    *)
-    OclExcluding   :: "[('\<AA>,'\<alpha>::null) Set,('\<AA>,'\<alpha>) val'] \<Rightarrow> ('\<AA>,'\<alpha>) Set"
+ (* OclIncludes    :: "[('\<AA>,'\<alpha>::null) Set,('\<AA>,'\<alpha>) val'] \<Rightarrow> '\<AA> Boolean"    *)
+ (* OclExcludes    :: "[('\<AA>,'\<alpha>::null) Set,('\<AA>,'\<alpha>) val'] \<Rightarrow> '\<AA> Boolean"    *)   
+ (* OclIncluding   :: "[('\<AA>,'\<alpha>::null) Set,('\<AA>,'\<alpha>) val'] \<Rightarrow> ('\<AA>,'\<alpha>) Set"   *)
+ (* OclExcluding   :: "[('\<AA>,'\<alpha>::null) Set,('\<AA>,'\<alpha>) val'] \<Rightarrow> ('\<AA>,'\<alpha>) Set"   *)
+    OclIsEmpty     :: " ('\<AA>,'\<alpha>::null) Set \<Rightarrow> '\<AA> Boolean"
+    OclNotEmpty    :: " ('\<AA>,'\<alpha>::null) Set \<Rightarrow> '\<AA> Boolean"
     OclSum         :: " ('\<AA>,'\<alpha>::null) Set \<Rightarrow> '\<AA> Integer"
     OclIncludesAll :: "[('\<AA>,'\<alpha>::null) Set,('\<AA>,'\<alpha>) Set] \<Rightarrow> '\<AA> Boolean"
     OclExcludesAll :: "[('\<AA>,'\<alpha>::null) Set,('\<AA>,'\<alpha>) Set] \<Rightarrow> '\<AA> Boolean"
-    OclIsEmpty     :: " ('\<AA>,'\<alpha>::null) Set \<Rightarrow> '\<AA> Boolean"
-    OclNotEmpty    :: " ('\<AA>,'\<alpha>::null) Set \<Rightarrow> '\<AA> Boolean"
     OclComplement  :: " ('\<AA>,'\<alpha>::null) Set \<Rightarrow> ('\<AA>,'\<alpha>) Set"
     OclUnion       :: "[('\<AA>,'\<alpha>::null) Set,('\<AA>,'\<alpha>) Set] \<Rightarrow> ('\<AA>,'\<alpha>) Set"
     OclIntersection:: "[('\<AA>,'\<alpha>::null) Set,('\<AA>,'\<alpha>) Set] \<Rightarrow> ('\<AA>,'\<alpha>) Set"
@@ -536,10 +578,14 @@ and
 and
     OclIntersection("_->intersection'(_')"   [71,70]70)
 
-
 lemma cp_OclIncluding: 
 "(X->including(x)) \<tau> = ((\<lambda> _. X \<tau>)->including(\<lambda> _. x \<tau>)) \<tau>"
 by(auto simp: OclIncluding_def StrongEq_def invalid_def  
+                 cp_defined'[symmetric] cp_valid'[symmetric])
+
+lemma cp_OclExcluding: 
+"(X->excluding(x)) \<tau> = ((\<lambda> _. X \<tau>)->excluding(\<lambda> _. x \<tau>)) \<tau>"
+by(auto simp: OclExcluding_def StrongEq_def invalid_def  
                  cp_defined'[symmetric] cp_valid'[symmetric])
 
 lemma cp_OclIncludes: 
@@ -567,6 +613,81 @@ lemma including_strict3[simp]:"(NULL->including(x)) = \<bottom>"
 by(simp add: OclIncluding_def UU_fun_def defined'_def valid'_def false_def true_def)
 
 
+
+lemma excluding_strict1[simp]:"(\<bottom>->excluding(x)) = \<bottom>"
+by(simp add: UU_fun_def OclExcluding_def defined'_def valid'_def false_def true_def)
+
+lemma excluding_strict2[simp]:"(X->excluding(\<bottom>)) = \<bottom>"
+by(simp add: OclExcluding_def UU_fun_def defined'_def valid'_def false_def true_def)
+
+lemma excluding_strict3[simp]:"(NULL->excluding(x)) = \<bottom>"
+by(simp add: OclExcluding_def UU_fun_def defined'_def valid'_def false_def true_def)
+
+lemma including_valid_args_valid: 
+"(\<tau> \<Turnstile> \<upsilon>'(X->including(y))) = ((\<tau> \<Turnstile>(\<delta>' X)) \<and> (\<tau> \<Turnstile>(\<upsilon>' y)))"
+apply(auto simp: OclIncluding_def OclValid_def true_def valid_def false_def StrongEq_def 
+                 defined'_def invalid_def valid'_def
+           split: bool.split_asm HOL.split_if_asm option.split)
+sorry
+
+
+text{* Some computational laws:*}
+
+lemma including_charn0[simp]:
+assumes val_x:"\<tau> \<Turnstile> (\<upsilon>' x)"
+shows         "\<tau> \<Turnstile> not(Set{}->includes(x))"
+using val_x
+apply(auto simp: OclValid_def OclIncludes_def not_def false_def true_def)
+apply(auto simp: mtSet_def OCL_lib.Set_0.Abs_Set_0_inverse Set_0_def)
+done
+
+(*declare [[names_long,show_types,show_sorts]]*)
+lemma including_charn1:
+assumes def_X:"\<tau> \<Turnstile> (\<delta>' X)"
+assumes val_x:"\<tau> \<Turnstile> (\<upsilon>' x)"
+shows         "\<tau> \<Turnstile> (X->including(x)->includes(x))"
+proof -
+ have A : "bottom \<in> Set_0" by(simp add: Set_0_def UU_option_def)
+ have B : "\<lfloor>bottom\<rfloor> \<in> Set_0" by(simp add: Set_0_def NULL_option_def UU_option_def)
+ have C : "\<lfloor>\<lfloor>insert (x \<tau>) \<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil>\<rfloor>\<rfloor> \<in> Set_0"
+          apply(insert def_X[THEN definedD] val_x[THEN validD] Set_inv_lemma[OF def_X])
+          apply(simp add: Set_0_def UU_option_def NULL_Set_0_def NULL_fun_def) 
+          done
+ show ?thesis
+   apply(insert def_X[THEN definedD] val_x[THEN validD])
+   apply(auto simp: OclValid_def UU_fun_def OclIncluding_def OclIncludes_def false_def true_def
+                    defined'_def valid'_def bot_Set_0_def NULL_fun_def NULL_Set_0_def)
+   apply(simp_all add: Abs_Set_0_inject Abs_Set_0_inverse A B C) 
+ done
+qed
+
+lemma including_charn2:
+assumes def_X:"\<tau> \<Turnstile> (\<delta>' X)"
+and     val_x:"\<tau> \<Turnstile> (\<upsilon>' x)"
+and     val_y:"\<tau> \<Turnstile> (\<upsilon>' y)"
+and     neq  :"\<tau> \<Turnstile> not(x \<triangleq> y)" 
+shows         "\<tau> \<Turnstile> (X->including(x)->includes(y)) \<triangleq> (X->includes(y))"
+proof -
+ have A : "bottom \<in> Set_0" by(simp add: Set_0_def UU_option_def)
+ have B : "\<lfloor>bottom\<rfloor> \<in> Set_0" by(simp add: Set_0_def NULL_option_def UU_option_def)
+ have C : "\<lfloor>\<lfloor>insert (x \<tau>) \<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil>\<rfloor>\<rfloor> \<in> Set_0"
+          apply(insert def_X[THEN definedD] val_x[THEN validD] Set_inv_lemma[OF def_X])
+          apply(simp add: Set_0_def UU_option_def NULL_Set_0_def NULL_fun_def) 
+          done
+ have D : "y \<tau> \<noteq> x \<tau>" 
+          apply(insert neq)
+          by(auto simp: OclValid_def UU_fun_def OclIncluding_def OclIncludes_def 
+                        false_def true_def defined'_def valid'_def bot_Set_0_def 
+                        NULL_fun_def NULL_Set_0_def StrongEq_def not_def)
+ show ?thesis
+  apply(insert def_X[THEN definedD] val_x[THEN validD])
+  apply(auto simp: OclValid_def UU_fun_def OclIncluding_def OclIncludes_def false_def true_def
+                   defined'_def valid'_def bot_Set_0_def NULL_fun_def NULL_Set_0_def StrongEq_def)
+  apply(simp_all add: Abs_Set_0_inject Abs_Set_0_inverse A B C D) 
+ done
+qed
+
+
 syntax
   "_OclFinset" :: "args => ('\<AA>,'a::null) Set"    ("Set{(_)}")
 translations
@@ -576,5 +697,15 @@ translations
 lemma syntax_test: "Set{\<two>,\<one>} = (Set{}->including(\<one>)->including(\<two>))"
 by simp
 
+lemma semantic_test: "\<tau> \<Turnstile> (Set{\<two>,null}->includes(null))"
+oops
+
+find_theorems null 
+declare[[show_types,show_sorts]]
+lemma semantic_test: "\<tau> \<Turnstile> (Set{null,\<two>}->includes(null))"
+apply(subst including_charn1, 
+      simp_all del: valid_is_valid' 
+               add: valid_is_valid'[symmetric] including_valid_args_valid)
+oops
 
 end
