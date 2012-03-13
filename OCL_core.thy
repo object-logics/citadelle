@@ -401,6 +401,11 @@ text{* Construction by overloading: for each base type, there is an equality.*}
 
 consts StrictRefEq :: "[('\<AA>,'a)val,('\<AA>,'a)val] \<Rightarrow> ('\<AA>)Boolean" (infixl "\<doteq>" 30)
 
+syntax
+  "notequal"        :: "('\<AA>)Boolean \<Rightarrow> ('\<AA>)Boolean \<Rightarrow> ('\<AA>)Boolean"   (infix "<>" 40)
+translations
+  "a <> b" == "CONST not( a \<doteq> b)"
+
 text{* Generic referential equality - to be used for instantiations
  with concrete object types ... *}
 definition "gen_ref_eq (x::('\<AA>,'a::object)val) (y::('\<AA>,'a::object)val)

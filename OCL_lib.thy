@@ -3,10 +3,6 @@ imports OCL_core
 begin
 
 section{* Simple, Basic Types like Boolean and Integer *}
-syntax
-  "notequal"        :: "('\<AA>)Boolean \<Rightarrow> ('\<AA>)Boolean \<Rightarrow> ('\<AA>)Boolean"   (infix "<>" 40)
-translations
-  "a <> b" == "CONST not( a \<doteq> b)"
 
 text{* Note that the strict equality on basic types (actually on all types) 
 must be exceptionally defined on null --- otherwise the entire concept of 
@@ -208,6 +204,7 @@ where "x \<preceq> y \<equiv> \<lambda> \<tau>. if (\<delta> x) \<tau> = true \<
                 then \<lfloor>\<lfloor>\<lceil>\<lceil>x \<tau>\<rceil>\<rceil> \<le> \<lceil>\<lceil>y \<tau>\<rceil>\<rceil>\<rfloor>\<rfloor>
                 else invalid \<tau> "   
 
+(* ... and the usual rules on strictness, definedness propoagation, and cp ... *)
 
 section{*Collection Types*}
 
@@ -536,10 +533,22 @@ done
 text{* Note that the collection types in OCL allow for NULL to be included;
   however, there is the NULL-collection into which inclusion yields invalid. *}
 
+text{* The case of the size definition is somewhat special, we admit
+explicitly in Essential OCL the possibility of infinite sets. For
+the size definition, this requires an extra condition that assures
+that the cardinality of the set is actually a defined integer. *}
+
+definition OclSize     :: "('\<AA>,'\<alpha>::null)Set \<Rightarrow> '\<AA> Integer"    
+where     "OclSize x = (\<lambda> \<tau>. if (\<delta>' x) \<tau> = true \<tau> \<and> finite(\<lceil>\<lceil>Rep_Set_0 (x \<tau>)\<rceil>\<rceil>)
+                             then \<lfloor>\<lfloor> int(card \<lceil>\<lceil>Rep_Set_0 (x \<tau>)\<rceil>\<rceil>) \<rfloor>\<rfloor>
+                             else UU )"
+
+
 definition OclIncluding   :: "[('\<AA>,'\<alpha>::null) Set,('\<AA>,'\<alpha>) val'] \<Rightarrow> ('\<AA>,'\<alpha>) Set"
-where     "OclIncluding x y = (\<lambda> \<tau>.  if (\<delta>' x) \<tau> = true \<tau> \<and> (\<upsilon>' y) \<tau> = true \<tau>
-                                     then Abs_Set_0 \<lfloor>\<lfloor> \<lceil>\<lceil>Rep_Set_0 (x \<tau>)\<rceil>\<rceil>  \<union> {y \<tau>} \<rfloor>\<rfloor> 
-                                     else UU )"
+where     "OclIncluding x y = (\<lambda> \<tau>. if (\<delta>' x) \<tau> = true \<tau> \<and> (\<upsilon>' y) \<tau> = true \<tau>
+                                    then Abs_Set_0 \<lfloor>\<lfloor> \<lceil>\<lceil>Rep_Set_0 (x \<tau>)\<rceil>\<rceil>  \<union> {y \<tau>} \<rfloor>\<rfloor> 
+                                    else UU )"
+
 
 definition OclIncludes   :: "[('\<AA>,'\<alpha>::null) Set,('\<AA>,'\<alpha>) val'] \<Rightarrow> '\<AA> Boolean"
 where     "OclIncludes x y = (\<lambda> \<tau>.   if (\<delta>' x) \<tau> = true \<tau> \<and> (\<upsilon>' y) \<tau> = true \<tau> 
@@ -555,14 +564,21 @@ definition OclExcludes   :: "[('\<AA>,'\<alpha>::null) Set,('\<AA>,'\<alpha>) va
 where     "OclExcludes x y = (not(OclIncludes x y))"
 
 
+definition OclIsEmpty   :: "('\<AA>,'\<alpha>::null) Set \<Rightarrow> '\<AA> Boolean"
+where     "OclIsEmpty x =  ((OclSize x) \<doteq> \<zero>)"
+
+definition OclNotEmpty   :: "('\<AA>,'\<alpha>::null) Set \<Rightarrow> '\<AA> Boolean"
+where     "OclNotEmpty x =  not(OclIsEmpty x)"
+
+
 consts (* abstract set collection operations *)
-    OclSize        :: " ('\<AA>,'\<alpha>::null) Set \<Rightarrow> '\<AA> Integer"    
+ (* OclSize        :: " ('\<AA>,'\<alpha>::null) Set \<Rightarrow> '\<AA> Integer"      *) 
  (* OclIncludes    :: "[('\<AA>,'\<alpha>::null) Set,('\<AA>,'\<alpha>) val'] \<Rightarrow> '\<AA> Boolean"    *)
  (* OclExcludes    :: "[('\<AA>,'\<alpha>::null) Set,('\<AA>,'\<alpha>) val'] \<Rightarrow> '\<AA> Boolean"    *)   
  (* OclIncluding   :: "[('\<AA>,'\<alpha>::null) Set,('\<AA>,'\<alpha>) val'] \<Rightarrow> ('\<AA>,'\<alpha>) Set"   *)
  (* OclExcluding   :: "[('\<AA>,'\<alpha>::null) Set,('\<AA>,'\<alpha>) val'] \<Rightarrow> ('\<AA>,'\<alpha>) Set"   *)
-    OclIsEmpty     :: " ('\<AA>,'\<alpha>::null) Set \<Rightarrow> '\<AA> Boolean"
-    OclNotEmpty    :: " ('\<AA>,'\<alpha>::null) Set \<Rightarrow> '\<AA> Boolean"
+ (* OclIsEmpty     :: " ('\<AA>,'\<alpha>::null) Set \<Rightarrow> '\<AA> Boolean" *)
+ (* OclNotEmpty    :: " ('\<AA>,'\<alpha>::null) Set \<Rightarrow> '\<AA> Boolean"*)
     OclUnion       :: "[('\<AA>,'\<alpha>::null) Set,('\<AA>,'\<alpha>) Set] \<Rightarrow> ('\<AA>,'\<alpha>) Set"
     OclIntersection:: "[('\<AA>,'\<alpha>::null) Set,('\<AA>,'\<alpha>) Set] \<Rightarrow> ('\<AA>,'\<alpha>) Set"
     OclIncludesAll :: "[('\<AA>,'\<alpha>::null) Set,('\<AA>,'\<alpha>) Set] \<Rightarrow> '\<AA> Boolean"
