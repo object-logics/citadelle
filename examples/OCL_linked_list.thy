@@ -7,7 +7,17 @@ begin
 section{* Example Data-Universe *}
 text{* Should be generated entirely from a class-diagram. *}
 
-datatype node = Node oid int oid
+text{* Our data universe @{text "'\<AA>"} consists in the 
+       concrete class diagram just of node's. *}
+
+datatype node = Node oid (* the oid to the node itself *)
+                     int (* the attribute i *) 
+                     oid (* the attribute "next" *)
+
+type_synonym Boolean = "(node)Boolean"
+type_synonym Integer = "(node)Integer"
+type_synonym Node = "(node,node)val"
+
 
 instantiation node :: object
 begin
@@ -23,7 +33,7 @@ section{* Instantiation of the generic strict equality *}
 text{* Should be generated entirely from a class-diagram. *}
 
 defs   StrictRefEq_node : 
-       "(x::(node,node)val) \<doteq> y \<equiv> gen_ref_eq x y"
+       "(x::Node) \<doteq> y \<equiv> gen_ref_eq x y"
 
 lemmas strict_eq_node =
     cp_gen_ref_eq_object[of "x::(node,node)val" 
@@ -34,7 +44,7 @@ lemmas strict_eq_node =
     cp_intro(9)         [of "P::(node,node)val \<Rightarrow>(node,node)val"
                             "Q::(node,node)val \<Rightarrow>(node,node)val",
                          simplified StrictRefEq_node[symmetric] ]
-(*    gen_ref_eq_def      [of "x::(node,node)val" 
+    gen_ref_eq_def      [of "x::(node,node)val" 
                             "y::(node,node)val", 
                          simplified StrictRefEq_node[symmetric]]
     gen_ref_eq_defargs  [of _
@@ -50,15 +60,18 @@ lemmas strict_eq_node =
     gen_ref_eq_object_strict3 
                         [of "x::(node,node)val",
                          simplified StrictRefEq_node[symmetric]]
+    gen_ref_eq_object_strict3 
+                        [of "x::(node,node)val",
+                         simplified StrictRefEq_node[symmetric]]
     gen_ref_eq_object_strict4 
                         [of "x::(node,node)val",
                          simplified StrictRefEq_node[symmetric]]
-*)
+
 
 section{* Selector Definition *}
 text{* Should be generated entirely from a class-diagram. *}
 
-fun dot_next:: "(node,node)val \<Rightarrow> (node,node)val"  ("(1(_).next)" 50)
+fun dot_next:: "Node \<Rightarrow> Node"  ("(1(_).next)" 50)
   where "(X).next = (\<lambda> \<tau>. case X \<tau> of
                None \<Rightarrow> None
           | \<lfloor> None \<rfloor> \<Rightarrow> None
@@ -66,7 +79,7 @@ fun dot_next:: "(node,node)val \<Rightarrow> (node,node)val"  ("(1(_).next)" 50)
                                          then \<lfloor> (snd \<tau>) next \<rfloor>
                                          else None)"
 
-fun dot_i:: "(node,node)val \<Rightarrow> (node)Integer"  ("(1(_).i)" 50)
+fun dot_i:: "Node \<Rightarrow> Integer"  ("(1(_).i)" 50)
   where "(X).i = (\<lambda> \<tau>. case X \<tau> of
                None \<Rightarrow> None
           | \<lfloor> None \<rfloor> \<Rightarrow> None
@@ -77,7 +90,7 @@ fun dot_i:: "(node,node)val \<Rightarrow> (node)Integer"  ("(1(_).i)" 50)
                             | \<lfloor> Node oid i next \<rfloor> \<Rightarrow> \<lfloor>\<lfloor> i \<rfloor>\<rfloor>)
                       else None)"
 
-fun dot_next_at_pre:: "(node,node)val \<Rightarrow> (node,node)val"  ("(1(_).next@pre)" 50)
+fun dot_next_at_pre:: "Node \<Rightarrow> Node"  ("(1(_).next@pre)" 50)
   where "(X).next@pre = (\<lambda> \<tau>. case X \<tau> of
                         None \<Rightarrow> None
                       | \<lfloor> None \<rfloor> \<Rightarrow> None
@@ -86,7 +99,7 @@ fun dot_next_at_pre:: "(node,node)val \<Rightarrow> (node,node)val"  ("(1(_).nex
                                                        else None)"
 
 
-fun dot_i_at_pre:: "(node,node)val \<Rightarrow> (node)Integer"  ("(1(_).i@pre)" 50)
+fun dot_i_at_pre:: "Node \<Rightarrow> Integer"  ("(1(_).i@pre)" 50)
 where "(X).i@pre = (\<lambda> \<tau>. case X \<tau> of
                None \<Rightarrow> None
           | \<lfloor> None \<rfloor> \<Rightarrow> None
@@ -128,18 +141,24 @@ by(rule ext, simp add: null_def invalid_def)
 lemma dot_nextATpre_strict[simp] : "(invalid).next@pre = invalid"
 by(rule ext, simp add: null_def invalid_def)
 
-section{* Invariant *}
+section{* Standard State Infrastructure *}
+text{* These definitions should be generated --- again --- from the class
+diagram. *}
 
-axiomatization inv_Node :: "(node,node)val \<Rightarrow> (node)Boolean"
+section{* Invariant *}
+text{* These recursive predicates can be defined conservatively 
+by greatest fix-point constructions - automatically. See HOL-OCL Book
+for details. For the purpose of this example, we state them as axioms
+here.*}
+axiomatization inv_Node :: "Node \<Rightarrow> Boolean"
 where A : "(\<tau> \<Turnstile> (\<delta> self)) \<longrightarrow> 
                (\<tau> \<Turnstile> inv_Node(self)) =
                    ((\<tau> \<Turnstile> (self .next \<doteq> null)) \<or> 
                     ( \<tau> \<Turnstile> (self .next <> null) \<and> (\<tau> \<Turnstile> (self .next .i \<prec> self .i))  \<and> 
                      (\<tau> \<Turnstile> (inv_Node(self .next))))) "
 
-thm A
 
-axiomatization inv_Node_at_pre :: "(node,node)val \<Rightarrow> (node)Boolean"
+axiomatization inv_Node_at_pre :: "Node \<Rightarrow> Boolean"
 where B : "(\<tau> \<Turnstile> (\<delta> self)) \<longrightarrow> 
                (\<tau> \<Turnstile> inv_Node_at_pre(self)) =
                    ((\<tau> \<Turnstile> (self .next@pre \<doteq> null)) \<or> 
@@ -148,25 +167,25 @@ where B : "(\<tau> \<Turnstile> (\<delta> self)) \<longrightarrow>
 
 text{* A very first attempt to characterize the axiomatization by an inductive
 definition - this can not be the last word since too weak (should be equality!) *}
-coinductive inv :: " (node,node)val \<Rightarrow> (node)st \<Rightarrow> bool" where
- "(\<tau> \<Turnstile> (\<delta> self)) \<Longrightarrow> inv st x"  |
+coinductive inv :: " Node \<Rightarrow> (node)st \<Rightarrow> bool" where 
  "(\<tau> \<Turnstile> (\<delta> self)) \<Longrightarrow> ((\<tau> \<Turnstile> (self .next \<doteq> null)) \<or> 
                       (\<tau> \<Turnstile> (self .next <> null) \<and> (\<tau> \<Turnstile> (self .next .i \<prec> self .i))  \<and> 
                      ( (inv(self .next))\<tau> )))
-                     \<Longrightarrow> ( inv st \<tau>)"
+                     \<Longrightarrow> ( inv self \<tau>)"
 
-find_theorems "inv"
 
 fun contents_contract :: "('a state \<Rightarrow> ('a oid option) \<Rightarrow> int set) \<Rightarrow> 'a state \<Rightarrow> ('a oid option) \<Rightarrow> bool" where
-"contents_contract f st None = True" |
-"contents_contract f st (Some s) = (case st s of None \<Rightarrow> True 
-  | Some (Node i next) \<Rightarrow> f st (Some s) = (case next of None \<Rightarrow> {i} | Some n \<Rightarrow> f st (Some n) \<union> {i}))"
+  "contents_contract f st None = True" 
+| "contents_contract f st (Some s) = 
+      (case st s of 
+          None \<Rightarrow> True 
+        | Some (Node i next) \<Rightarrow> f st (Some s) = (case next of None \<Rightarrow> {i} | Some n \<Rightarrow> f st (Some n) \<union> {i}))"
 
 definition contents :: "'a state \<Rightarrow> ('a oid option) \<Rightarrow> int set" where
-contents_post: "contents = (SOME f . \<forall> st s . contents_contract f st s)"
+  contents_post: "contents = (SOME f . \<forall> st s . contents_contract f st s)"
 
 definition contents_at_pre :: "'a state \<Rightarrow> ('a oid option) \<Rightarrow> int set" where
-contents_post2: "contents_at_pre = (SOME f . \<forall> st s . contents_contract f st s)"
+  contents_post2: "contents_at_pre = (SOME f . \<forall> st s . contents_contract f st s)"
 
 lemma contents_def: "contents_at_pre st (Some s) = (case st s of None \<Rightarrow> undefined
   | Some (Node i next) \<Rightarrow> (case next of None \<Rightarrow> {i} | Some n \<Rightarrow> contents_at_pre st (Some n) \<union> {i}))"

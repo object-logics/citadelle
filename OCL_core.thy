@@ -23,7 +23,7 @@ translations
   "\<bottom>" == "CONST None"
 
 fun    drop :: "'\<alpha> option \<Rightarrow> '\<alpha>" ("\<lceil>(_)\<rceil>")
-where drop_lift[simp]: "\<lceil>\<lfloor>v\<rfloor>\<rceil> = v"
+where  drop_lift[simp]: "\<lceil>\<lfloor>v\<rfloor>\<rceil> = v"
 
 subsection{* State, State Transitions, Well-formed States *}
 text{* Next we will introduce the foundational concept of an object id (oid), 
@@ -52,7 +52,6 @@ typ "'\<AA> :: object"
 text{* All OCL expressions \emph{denote} functions that map the underlying *}
 
 type_synonym ('\<AA>,'\<alpha>) val = "'\<AA> st \<Rightarrow> '\<alpha> option option"
-
 
 text{* A key-concept for linking strict referential equality to
        logical equality: in well-formed states (i.e. those

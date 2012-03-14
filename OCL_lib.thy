@@ -15,12 +15,10 @@ defs   StrictRefEq_int : "(x::('\<AA>)Integer) \<doteq> y \<equiv>
                                   then (x \<triangleq> y)\<tau>
                                   else invalid \<tau>"
 
-
 defs   StrictRefEq_bool : "(x::('\<AA>)Boolean) \<doteq> y \<equiv>
                              \<lambda> \<tau>. if (\<upsilon> x) \<tau> = true \<tau> \<and> (\<upsilon> y) \<tau> = true \<tau>
                                   then (x \<triangleq> y)\<tau>
                                   else invalid \<tau>"
-
 
 lemma StrictRefEq_int_strict1[simp] : "((x::('\<AA>)Integer) \<doteq> invalid) = invalid"
 by(rule ext, simp add: StrictRefEq_int true_def false_def)
@@ -211,12 +209,22 @@ section{*Collection Types*}
 subsection {* Prerequisite: An Abstract Interface for OCL Types *}
 
 text {* In order to have the possibility to nest collection types,
+such that we can give semantics to expressions like @{text "Set{Set{\<two>},null}"},
 it is necessary to introduce a uniform interface for types having
-the "invalid" (= bottom) element. In a second step, our base-types
-will be shown to be instances of this class. *}
+the @{text "invalid"} (= bottom) element. The reason is that we impose
+a data-invariant on raw-collection types_code which assures
+that the @{text "invalid"} element is not allowed inside the collection;
+all raw-collections of this form were identified with the @{text "invalid"} element
+itself. The construction requires that the new collection type is
+un-comparable with the raw-types (consisting of nested option type constructions),
+such that the data-invariant mussed be expressed in terms of the interface.
+In a second step, our base-types will be shown to be instances of this interface.
+ *}
 
-text{* This uniform interface consists in abstracting the null (which is defined
-by @{text "\<lfloor> \<bottom> \<rfloor>"} on @{text "'a option option"} to a NULL - element, which may
+text{* This uniform interface consists in a type class requiring the existence
+of a bottom and a null element. The construction proceeds by
+ abstracting the null (which is defined by @{text "\<lfloor> \<bottom> \<rfloor>"} on 
+@{text "'a option option"} to a NULL - element, which may
 have an abritrary semantic structure, and an undefinedness element @{text "\<bottom> "}
 to an abstract undefinedness element @{text "UU"} (also written  
 @{text "\<bottom> "} whenever no confusion arises). As a consequence, it is necessary  
@@ -239,8 +247,8 @@ begin
    notation (xsymbols)  UU ("\<bottom>")
 end
 
-class   null = bottom +
-   fixes  NULL :: "'a"
+class      null = bottom +
+   fixes   NULL :: "'a"
    assumes null_is_valid : "NULL \<noteq> UU"
 
 (* TOO MUCH SYNTACTIC AMBIGUITIES ...
@@ -252,8 +260,8 @@ end
 subsection {* Accomodation of Basic Types to the Abstract Interface *}
 
 text{* In the following it is shown that the option-option type type is
-in fact in the @{text null} class and that function spaces over these classes
-again "live" in these classes. *}
+in fact in the @{text null} class and that function spaces over these 
+classes again "live" in these classes. *}
 
 instantiation   option  :: (type)bottom
 begin 
@@ -261,8 +269,8 @@ begin
    definition UU_option_def: "(UU::'a option) \<equiv> (None::'a option)"
 
    instance proof 
-              show "\<exists>x\<Colon>'a option. x \<noteq> UU"  (* notation for \<bottom> which is too heavily
-                                              overloaded here *)
+              show "\<exists>x\<Colon>'a option. x \<noteq> UU"  (* notation for \<bottom> which is too 
+                                              heavily overloaded here *)
               by(rule_tac x="Some x" in exI, simp add:UU_option_def)
             qed
 end
@@ -308,6 +316,13 @@ end
 text{* A trivial consequence of this adaption of the interface is that
 abstract and concrete versions of NULL are the same on base types
 (as could be expected). *}
+
+lemma conc_bot_eq_abs_UU_int: "\<bottom> = (UU::('a)Integer)"
+by(rule ext,simp add: UU_option_def NULL_option_def null_def NULL_fun_def)
+
+lemma conc_bot_eq_abs_UU_bool: "\<bottom> = (UU::('a)Boolean)"
+by(rule ext,simp add: UU_option_def NULL_option_def null_def NULL_fun_def)
+
 
 lemma conc_null_eq_abs_null_int: "null = (NULL::('a)Integer)"
 by(rule ext,simp add: UU_option_def NULL_option_def null_def NULL_fun_def)
@@ -452,10 +467,8 @@ provides the raw-type @{text "'\<alpha> Set_0"}. it is shown that this type "fit
 into the abstract type interface discussed in the previous section. *}
 
 typedef  '\<alpha> Set_0 = "{X::('\<alpha>\<Colon>null) set option option.
-                         X = UU \<or> X = NULL \<or> (\<forall>x\<in>\<lceil>\<lceil>X\<rceil>\<rceil>. x \<noteq> UU)}"
-          
+                      X = UU \<or> X = NULL \<or> (\<forall>x\<in>\<lceil>\<lceil>X\<rceil>\<rceil>. x \<noteq> UU)}"
           by (rule_tac x="UU" in exI, simp)
-
 
 instantiation   Set_0  :: (null)bottom
 begin 
@@ -753,6 +766,17 @@ by simp
 
 lemma semantic_test: "\<tau> \<Turnstile> (Set{\<two>,null}->includes(null))"
 oops
+
+text{* Here is an example of a nested collection. Note that we have
+to use the abstract NULL (since we did not (yet) define a concrete
+constant @{term null} for the non-existing Sets) :*}
+lemma semantic_test: "\<tau> \<Turnstile> (Set{Set{\<two>},NULL}->includes(NULL))"
+oops
+
+(* The next challenge:
+lemma hurx : "Set{Set{\<two>},NULL} \<triangleq> Set{Set{\<two>},NULL}"
+oops
+*)
 
 lemma semantic_test: "\<tau> \<Turnstile> (Set{null,\<two>}->includes(null))"
 by(simp_all del: valid_is_valid' 
