@@ -12,15 +12,21 @@ text{*First of all, we will use a more compact notation for the library
 option type which occur all over in our definitions and which will make
 the presentation more "textbook"-like:*}
 
+notation Some ("\<lfloor>(_)\<rfloor>")
+notation None ("\<bottom>")
+
+(*
 syntax
   "lift"        :: "'\<alpha> \<Rightarrow> '\<alpha> option"   ("\<lfloor>(_)\<rfloor>")
 translations
   "\<lfloor>a\<rfloor>" == "CONST Some a"
 
+
 syntax
   "bottom"      :: "'\<alpha> option"   ("\<bottom>")
 translations
   "\<bottom>" == "CONST None"
+*)
 
 fun    drop :: "'\<alpha> option \<Rightarrow> '\<alpha>" ("\<lceil>(_)\<rceil>")
 where  drop_lift[simp]: "\<lceil>\<lfloor>v\<rfloor>\<rceil> = v"

@@ -9,7 +9,7 @@ must be exceptionally defined on null --- otherwise the entire concept of
 null in the language does not make much sense. This is an important exception
 from the general rule that null arguments --- especially if passed as "self"-argument ---
 lead to invalid results. *}
-
+ 
 defs   StrictRefEq_int : "(x::('\<AA>)Integer) \<doteq> y \<equiv>
                              \<lambda> \<tau>. if (\<upsilon> x) \<tau> = true \<tau> \<and> (\<upsilon> y) \<tau> = true \<tau>
                                   then (x \<triangleq> y)\<tau>
@@ -667,8 +667,8 @@ by(simp add: OclIncluding_def UU_fun_def defined'_def valid'_def false_def true_
 lemma including_valid_args_valid: 
 "(\<tau> \<Turnstile> \<delta>'(X->including(x))) = ((\<tau> \<Turnstile>(\<delta>' X)) \<and> (\<tau> \<Turnstile>(\<upsilon>' x)))"
 proof -
- have A : "bottom \<in> Set_0" by(simp add: Set_0_def UU_option_def)
- have B : "\<lfloor>bottom\<rfloor> \<in> Set_0" by(simp add: Set_0_def NULL_option_def UU_option_def)
+ have A : "UU \<in> Set_0" by(simp add: Set_0_def UU_option_def)
+ have B : "\<lfloor>UU\<rfloor> \<in> Set_0" by(simp add: Set_0_def NULL_option_def UU_option_def)
  have C : "(\<tau> \<Turnstile>(\<delta>' X)) \<Longrightarrow> (\<tau> \<Turnstile>(\<upsilon>' x)) \<Longrightarrow> \<lfloor>\<lfloor>insert (x \<tau>) \<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil>\<rfloor>\<rfloor> \<in> Set_0"
           apply(frule Set_inv_lemma) 
           apply(simp add: Set_0_def UU_option_def NULL_Set_0_def NULL_fun_def valid_charn defined_charn) 
@@ -682,7 +682,10 @@ proof -
           apply(auto simp: OclIncluding_def OclValid_def true_def valid_def false_def StrongEq_def 
                            defined'_def invalid_def valid'_def UU_fun_def NULL_fun_def
                      split: bool.split_asm HOL.split_if_asm option.split)
-          by(simp_all add: NULL_Set_0_def bot_Set_0_def Abs_Set_0_inject A B) 
+          apply(simp_all add: NULL_Set_0_def bot_Set_0_def UU_option_def)
+          apply(simp_all add: Abs_Set_0_inject A B UU_option_def[symmetric], 
+                simp_all add: UU_option_def)
+          done
 show ?thesis by(auto dest:D intro:E)
 qed
  
@@ -714,8 +717,8 @@ assumes def_X:"\<tau> \<Turnstile> (\<delta>' X)"
 assumes val_x:"\<tau> \<Turnstile> (\<upsilon>' x)"
 shows         "\<tau> \<Turnstile> (X->including(x)->includes(x))"
 proof -
- have A : "bottom \<in> Set_0" by(simp add: Set_0_def UU_option_def)
- have B : "\<lfloor>bottom\<rfloor> \<in> Set_0" by(simp add: Set_0_def NULL_option_def UU_option_def)
+ have A : "UU \<in> Set_0" by(simp add: Set_0_def UU_option_def)
+ have B : "\<lfloor>UU\<rfloor> \<in> Set_0" by(simp add: Set_0_def NULL_option_def UU_option_def)
  have C : "\<lfloor>\<lfloor>insert (x \<tau>) \<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil>\<rfloor>\<rfloor> \<in> Set_0"
           apply(insert def_X[THEN definedD] val_x[THEN validD] Set_inv_lemma[OF def_X])
           apply(simp add: Set_0_def UU_option_def NULL_Set_0_def NULL_fun_def) 
@@ -723,9 +726,10 @@ proof -
  show ?thesis
    apply(insert def_X[THEN definedD] val_x[THEN validD])
    apply(auto simp: OclValid_def UU_fun_def OclIncluding_def OclIncludes_def false_def true_def
-                    defined'_def valid'_def bot_Set_0_def NULL_fun_def NULL_Set_0_def)
-   apply(simp_all add: Abs_Set_0_inject Abs_Set_0_inverse A B C) 
- done
+                    defined'_def valid'_def bot_Set_0_def NULL_fun_def NULL_Set_0_def UU_option_def)
+   apply(simp_all add: Abs_Set_0_inject A B C UU_option_def[symmetric], 
+         simp_all add: UU_option_def Abs_Set_0_inverse C)
+   done
 qed
 
 lemma including_charn2:
@@ -735,8 +739,8 @@ and     val_y:"\<tau> \<Turnstile> (\<upsilon>' y)"
 and     neq  :"\<tau> \<Turnstile> not(x \<triangleq> y)" 
 shows         "\<tau> \<Turnstile> (X->including(x)->includes(y)) \<triangleq> (X->includes(y))"
 proof -
- have A : "bottom \<in> Set_0" by(simp add: Set_0_def UU_option_def)
- have B : "\<lfloor>bottom\<rfloor> \<in> Set_0" by(simp add: Set_0_def NULL_option_def UU_option_def)
+ have A : "UU \<in> Set_0" by(simp add: Set_0_def UU_option_def)
+ have B : "\<lfloor>UU\<rfloor> \<in> Set_0" by(simp add: Set_0_def NULL_option_def UU_option_def)
  have C : "\<lfloor>\<lfloor>insert (x \<tau>) \<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil>\<rfloor>\<rfloor> \<in> Set_0"
           apply(insert def_X[THEN definedD] val_x[THEN validD] Set_inv_lemma[OF def_X])
           apply(simp add: Set_0_def UU_option_def NULL_Set_0_def NULL_fun_def) 
@@ -751,7 +755,9 @@ proof -
   apply(auto simp: OclValid_def UU_fun_def OclIncluding_def OclIncludes_def false_def true_def
                    defined'_def valid'_def bot_Set_0_def NULL_fun_def NULL_Set_0_def StrongEq_def)
   apply(simp_all add: Abs_Set_0_inject Abs_Set_0_inverse A B C D) 
- done
+  apply(simp_all add: Abs_Set_0_inject A B C UU_option_def[symmetric], 
+        simp_all add: UU_option_def Abs_Set_0_inverse C)
+  done
 qed
 
 
