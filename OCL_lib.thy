@@ -191,7 +191,7 @@ done
 (* plus all the others ...*)
 
 text{* Here is a common case of a built-in operation on built-in types.
-Note that the arguments must be both defined (non-null, non-bottom). *}
+Note that the arguments must be both defined (non-null, non-bot). *}
 definition ocl_less_int ::"('\<AA>)Integer \<Rightarrow> ('\<AA>)Integer \<Rightarrow> ('\<AA>)Boolean" (infix "\<prec>" 40) 
 where "x \<prec> y \<equiv> \<lambda> \<tau>. if (\<delta> x) \<tau> = true \<tau> \<and> (\<delta> y) \<tau> = true \<tau>
                 then \<lfloor>\<lfloor>\<lceil>\<lceil>x \<tau>\<rceil>\<rceil> < \<lceil>\<lceil>y \<tau>\<rceil>\<rceil>\<rfloor>\<rfloor>
@@ -211,7 +211,7 @@ subsection {* Prerequisite: An Abstract Interface for OCL Types *}
 text {* In order to have the possibility to nest collection types,
 such that we can give semantics to expressions like @{text "Set{Set{\<two>},null}"},
 it is necessary to introduce a uniform interface for types having
-the @{text "invalid"} (= bottom) element. The reason is that we impose
+the @{text "invalid"} (= bot) element. The reason is that we impose
 a data-invariant on raw-collection types_code which assures
 that the @{text "invalid"} element is not allowed inside the collection;
 all raw-collections of this form were identified with the @{text "invalid"} element
@@ -222,40 +222,35 @@ In a second step, our base-types will be shown to be instances of this interface
  *}
 
 text{* This uniform interface consists in a type class requiring the existence
-of a bottom and a null element. The construction proceeds by
+of a bot and a null element. The construction proceeds by
  abstracting the null (which is defined by @{text "\<lfloor> \<bottom> \<rfloor>"} on 
 @{text "'a option option"} to a NULL - element, which may
 have an abritrary semantic structure, and an undefinedness element @{text "\<bottom> "}
-to an abstract undefinedness element @{text "UU"} (also written  
+to an abstract undefinedness element @{text "BOT"} (also written  
 @{text "\<bottom> "} whenever no confusion arises). As a consequence, it is necessary  
 to redefine the notions of invalid, defined, valuation etc.
 on top of this interface. *}
 
-text{* This interface consists in two abstract type classes @{text bottom} 
-and @{text null} for the class of all types comprising a bottom and a 
+text{* This interface consists in two abstract type classes @{text bot} 
+and @{text null} for the class of all types comprising a bot and a 
 distinct null element.  *}
 
 instance option   :: (plus) plus  by intro_classes
 instance "fun"    :: (type, plus) plus by intro_classes
 
-class   bottom = 
-   fixes  UU :: "'a"
-   assumes nonEmpty : "\<exists> x. x \<noteq> UU"
+class   bot = 
+   fixes  BOT :: "'a"
+   assumes nonEmpty : "\<exists> x. x \<noteq> BOT"
 
 
 begin
-   notation (xsymbols)  UU ("\<bottom>")
+   notation (xsymbols)  BOT ("\<bottom>")
 end
 
-class      null = bottom +
+class      null = bot +
    fixes   NULL :: "'a"
-   assumes null_is_valid : "NULL \<noteq> UU"
+   assumes null_is_valid : "NULL \<noteq> BOT"
 
-(* TOO MUCH SYNTACTIC AMBIGUITIES ...
-begin
-   notation (xsymbols)  NULL ("\<null>")
-end
-*)
 
 subsection {* Accomodation of Basic Types to the Abstract Interface *}
 
@@ -263,35 +258,35 @@ text{* In the following it is shown that the option-option type type is
 in fact in the @{text null} class and that function spaces over these 
 classes again "live" in these classes. *}
 
-instantiation   option  :: (type)bottom
+instantiation   option  :: (type)bot
 begin 
 
-   definition UU_option_def: "(UU::'a option) \<equiv> (None::'a option)"
+   definition BOT_option_def: "(BOT::'a option) \<equiv> (None::'a option)"
 
    instance proof 
-              show "\<exists>x\<Colon>'a option. x \<noteq> UU"  (* notation for \<bottom> which is too 
+              show "\<exists>x\<Colon>'a option. x \<noteq> BOT"  (* notation for \<bottom> which is too 
                                               heavily overloaded here *)
-              by(rule_tac x="Some x" in exI, simp add:UU_option_def)
+              by(rule_tac x="Some x" in exI, simp add:BOT_option_def)
             qed
 end
 
-instantiation   option  :: (bottom)null
+instantiation   option  :: (bot)null
 begin 
-   definition NULL_option_def: "(NULL::'a\<Colon>bottom option) \<equiv>  \<lfloor> UU \<rfloor>"
+   definition NULL_option_def: "(NULL::'a\<Colon>bot option) \<equiv>  \<lfloor> BOT \<rfloor>"
 
-   instance proof  show "(NULL::'a\<Colon>bottom option) \<noteq> UU"
-                   by( simp add:NULL_option_def UU_option_def)
+   instance proof  show "(NULL::'a\<Colon>bot option) \<noteq> BOT"
+                   by( simp add:NULL_option_def BOT_option_def)
             qed
 end
 
 
-instantiation "fun"  :: (type,bottom) bottom 
+instantiation "fun"  :: (type,bot) bot 
 begin
-   definition UU_fun_def: "UU \<equiv> (\<lambda> x. UU)"
+   definition BOT_fun_def: "BOT \<equiv> (\<lambda> x. BOT)"
 
-   instance proof  show "\<exists>(x::'a \<Rightarrow> 'b). x \<noteq> UU"
-                   apply(rule_tac x="\<lambda> _. (SOME y. y \<noteq> UU)" in exI, auto)
-                   apply(drule_tac x=x in fun_cong,auto simp:UU_fun_def)
+   instance proof  show "\<exists>(x::'a \<Rightarrow> 'b). x \<noteq> BOT"
+                   apply(rule_tac x="\<lambda> _. (SOME y. y \<noteq> BOT)" in exI, auto)
+                   apply(drule_tac x=x in fun_cong,auto simp:BOT_fun_def)
                    apply(erule contrapos_pp, simp)
                    apply(rule some_eq_ex[THEN iffD2])
                    apply(simp add: nonEmpty)
@@ -306,7 +301,7 @@ begin
 
  instance proof 
               show "(NULL::'a \<Rightarrow> 'b::null) \<noteq> \<bottom>"
-              apply(auto simp: NULL_fun_def UU_fun_def)
+              apply(auto simp: NULL_fun_def BOT_fun_def)
               apply(drule_tac x=x in fun_cong)
               apply(erule contrapos_pp, simp add: null_is_valid)
             done
@@ -317,18 +312,18 @@ text{* A trivial consequence of this adaption of the interface is that
 abstract and concrete versions of NULL are the same on base types
 (as could be expected). *}
 
-lemma conc_bot_eq_abs_UU_int: "\<bottom> = (UU::('a)Integer)"
-by(rule ext,simp add: UU_option_def NULL_option_def null_def NULL_fun_def)
+lemma conc_bot_eq_abs_BOT_int: "\<bottom> = (BOT::('a)Integer)"
+by(rule ext,simp add: BOT_option_def NULL_option_def null_def NULL_fun_def)
 
-lemma conc_bot_eq_abs_UU_bool: "\<bottom> = (UU::('a)Boolean)"
-by(rule ext,simp add: UU_option_def NULL_option_def null_def NULL_fun_def)
+lemma conc_bot_eq_abs_BOT_bool: "\<bottom> = (BOT::('a)Boolean)"
+by(rule ext,simp add: BOT_option_def NULL_option_def null_def NULL_fun_def)
 
 
 lemma conc_null_eq_abs_null_int: "null = (NULL::('a)Integer)"
-by(rule ext,simp add: UU_option_def NULL_option_def null_def NULL_fun_def)
+by(rule ext,simp add: BOT_option_def NULL_option_def null_def NULL_fun_def)
 
 lemma conc_null_eq_abs_null_bool: "null = (NULL::('a)Boolean)"
-by(rule ext,simp add: UU_option_def NULL_option_def null_def NULL_fun_def)
+by(rule ext,simp add: BOT_option_def NULL_option_def null_def NULL_fun_def)
 
 subsection {* Redefining the concept of Valuation *}
 
@@ -343,46 +338,46 @@ text{* However, this has also the consequence that core concepts like definednes
 validness and even cp have to be redefined on this type class:*}
 
 definition valid' :: "('\<AA>,'a::null)val' \<Rightarrow> ('\<AA>)Boolean" ("\<upsilon>' _" [100]100)
-where   "\<upsilon>' X \<equiv>  \<lambda> \<tau> . if X \<tau> = UU \<tau> then false \<tau> else true \<tau>"
+where   "\<upsilon>' X \<equiv>  \<lambda> \<tau> . if X \<tau> = BOT \<tau> then false \<tau> else true \<tau>"
 
 definition defined' :: "('\<AA>,'a::null)val' \<Rightarrow> ('\<AA>)Boolean" ("\<delta>' _" [100]100)
-where   "\<delta>' X \<equiv>  \<lambda> \<tau> . if X \<tau> = UU \<tau>  \<or> X \<tau> = NULL \<tau> then false \<tau> else true \<tau>"
+where   "\<delta>' X \<equiv>  \<lambda> \<tau> . if X \<tau> = BOT \<tau>  \<or> X \<tau> = NULL \<tau> then false \<tau> else true \<tau>"
 
 text{* The generalized definitions of invalid and definedness have the same
 properties as the old ones : *}
 lemma defined1[simp]: "\<delta>' invalid = false"
-  by(rule ext,simp add: defined'_def UU_fun_def UU_option_def 
+  by(rule ext,simp add: defined'_def BOT_fun_def BOT_option_def 
                            null_def invalid_def true_def false_def)
 
 lemma defined2[simp]: "\<delta>' null = false"
-  by(rule ext,simp add: defined'_def bot_fun_def UU_option_def 
+  by(rule ext,simp add: defined'_def bot_fun_def BOT_option_def 
                            null_def NULL_option_def NULL_fun_def invalid_def true_def false_def)
 
 
 lemma defined3[simp]: "\<delta>' \<delta>' X = true"
   by(rule ext,auto simp: defined'_def   true_def false_def 
-                           UU_fun_def UU_option_def NULL_option_def NULL_fun_def)
+                           BOT_fun_def BOT_option_def NULL_option_def NULL_fun_def)
 
 lemma valid4[simp]: "\<upsilon>' (X \<triangleq> Y) = true"
   by(rule ext,
      auto simp: valid'_def  true_def false_def StrongEq_def
-                           UU_fun_def UU_option_def NULL_option_def NULL_fun_def)
+                           BOT_fun_def BOT_option_def NULL_option_def NULL_fun_def)
 
 
 lemma defined4[simp]: "\<delta>' (X \<triangleq> Y) = true"
   by(rule ext,
      auto simp: valid'_def  defined'_def true_def false_def StrongEq_def
-                           UU_fun_def UU_option_def NULL_option_def NULL_fun_def)
+                           BOT_fun_def BOT_option_def NULL_option_def NULL_fun_def)
 
 lemma defined5[simp]: "\<delta>' \<upsilon>' X = true"
   by(rule ext,
      auto simp: valid'_def  defined'_def true_def false_def StrongEq_def
-                           UU_fun_def UU_option_def NULL_option_def NULL_fun_def)
+                           BOT_fun_def BOT_option_def NULL_option_def NULL_fun_def)
 
 lemma valid5[simp]: "\<upsilon>' \<delta>' X = true"
   by(rule ext,
      auto simp: valid'_def  defined'_def true_def false_def StrongEq_def
-                           UU_fun_def UU_option_def NULL_option_def NULL_fun_def)
+                           BOT_fun_def BOT_option_def NULL_option_def NULL_fun_def)
 
  
 lemma cp_valid': "(\<upsilon>' X) \<tau> = (\<upsilon>' (\<lambda> _. X \<tau>)) \<tau>"
@@ -403,12 +398,12 @@ and invalid are actually the same: *}
 lemma defined_is_defined' [simp] : "\<delta> X = \<delta>' X"
 by(rule ext,
    auto simp: defined'_def defined_def true_def false_def false_def true_def
-              UU_fun_def UU_option_def NULL_option_def NULL_fun_def)
+              BOT_fun_def BOT_option_def NULL_option_def NULL_fun_def)
 
 lemma valid_is_valid' [simp] : "\<upsilon> X = \<upsilon>' X"
 by(rule ext,
    auto simp: valid'_def valid_def  false_def  true_def
-              UU_fun_def UU_option_def NULL_option_def NULL_fun_def
+              BOT_fun_def BOT_option_def NULL_option_def NULL_fun_def
         split: option.split)
 
 definition cp'   :: "(('\<AA>,'\<alpha>::null) val' \<Rightarrow> ('\<AA>,'\<beta>::null) val') \<Rightarrow> bool"
@@ -428,14 +423,14 @@ apply(auto simp: true_def cp'_def)
 apply(rule exI, (rule allI)+)
 by(erule_tac x="P X" in allE, auto)
 
-lemma defined_charn: "\<tau> \<Turnstile> (\<delta>' X) = (X \<tau> \<noteq> UU \<and> X \<tau> \<noteq> (NULL \<tau>))"
-by(auto simp: OclValid_def defined'_def false_def true_def cp'_def UU_fun_def
+lemma defined_charn: "\<tau> \<Turnstile> (\<delta>' X) = (X \<tau> \<noteq> BOT \<and> X \<tau> \<noteq> (NULL \<tau>))"
+by(auto simp: OclValid_def defined'_def false_def true_def cp'_def BOT_fun_def
         split:split_if_asm)
 
 lemmas definedD = defined_charn[THEN iffD1,standard]
 
-lemma valid_charn: "\<tau> \<Turnstile> (\<upsilon>' X) = (X \<tau> \<noteq> UU)"
-by(auto simp: OclValid_def valid'_def false_def true_def cp'_def UU_fun_def
+lemma valid_charn: "\<tau> \<Turnstile> (\<upsilon>' X) = (X \<tau> \<noteq> BOT)"
+by(auto simp: OclValid_def valid'_def false_def true_def cp'_def BOT_fun_def
         split:split_if_asm)
 
 lemmas validD = valid_charn[THEN iffD1,standard]
@@ -467,20 +462,20 @@ provides the raw-type @{text "'\<alpha> Set_0"}. it is shown that this type "fit
 into the abstract type interface discussed in the previous section. *}
 
 typedef  '\<alpha> Set_0 = "{X::('\<alpha>\<Colon>null) set option option.
-                      X = UU \<or> X = NULL \<or> (\<forall>x\<in>\<lceil>\<lceil>X\<rceil>\<rceil>. x \<noteq> UU)}"
-          by (rule_tac x="UU" in exI, simp)
+                      X = BOT \<or> X = NULL \<or> (\<forall>x\<in>\<lceil>\<lceil>X\<rceil>\<rceil>. x \<noteq> BOT)}"
+          by (rule_tac x="BOT" in exI, simp)
 
-instantiation   Set_0  :: (null)bottom
+instantiation   Set_0  :: (null)bot
 begin 
 
-   definition bot_Set_0_def: "(UU::('a::null) Set_0) \<equiv> Abs_Set_0 None"
+   definition bot_Set_0_def: "(BOT::('a::null) Set_0) \<equiv> Abs_Set_0 None"
 
    instance proof show "\<exists>x\<Colon>'a Set_0. x \<noteq> \<bottom>"
                   apply(rule_tac x="Abs_Set_0 \<lfloor>None\<rfloor>" in exI)
                   apply(simp add:bot_Set_0_def)
                   apply(subst Abs_Set_0_inject) 
                   apply(simp_all add: Set_0_def bot_Set_0_def 
-                                      NULL_option_def UU_option_def)
+                                      NULL_option_def BOT_option_def)
                   done
             qed
 end
@@ -495,7 +490,7 @@ begin
                   apply(simp add:NULL_Set_0_def bot_Set_0_def)
                   apply(subst Abs_Set_0_inject) 
                   apply(simp_all add: Set_0_def bot_Set_0_def 
-                                      NULL_option_def UU_option_def)
+                                      NULL_option_def BOT_option_def)
                   done
             qed
 end
@@ -504,15 +499,15 @@ end
 text{* ...  and lifting this type to the format of a valuation gives us:*}
 type_synonym    ('\<AA>,'\<alpha>) Set  = "('\<AA>, '\<alpha> Set_0) val'"
 
-lemma Set_inv_lemma: "\<tau> \<Turnstile> (\<delta>' X) \<Longrightarrow> (X \<tau> = Abs_Set_0 \<lfloor>UU\<rfloor>) \<or> (\<forall>x\<in>\<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil>. x \<noteq> UU)"
+lemma Set_inv_lemma: "\<tau> \<Turnstile> (\<delta>' X) \<Longrightarrow> (X \<tau> = Abs_Set_0 \<lfloor>BOT\<rfloor>) \<or> (\<forall>x\<in>\<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil>. x \<noteq> BOT)"
 apply(insert OCL_lib.Set_0.Rep_Set_0 [of "X \<tau>"], simp add:Set_0_def)
 apply(auto simp: OclValid_def defined'_def false_def true_def cp'_def 
-                 UU_fun_def bot_Set_0_def NULL_Set_0_def NULL_fun_def
+                 BOT_fun_def bot_Set_0_def NULL_Set_0_def NULL_fun_def
            split:split_if_asm)
-apply(erule contrapos_pp [of "Rep_Set_0 (X \<tau>) = UU"]) 
+apply(erule contrapos_pp [of "Rep_Set_0 (X \<tau>) = BOT"]) 
 apply(subst Abs_Set_0_inject[symmetric], simp add:Rep_Set_0)
 apply(simp add: Set_0_def)
-apply(simp add: Rep_Set_0_inverse bot_Set_0_def UU_option_def)
+apply(simp add: Rep_Set_0_inverse bot_Set_0_def BOT_option_def)
 apply(erule contrapos_pp [of "Rep_Set_0 (X \<tau>) = NULL"]) 
 apply(subst Abs_Set_0_inject[symmetric], simp add:Rep_Set_0)
 apply(simp add: Set_0_def)
@@ -533,14 +528,14 @@ where "Set{} \<equiv> (\<lambda> \<tau>.  Abs_Set_0 \<lfloor>\<lfloor>{}::'\<alp
 
 lemma mtSet_defined[simp]:"\<delta>'(Set{}) = true"  
 apply(rule ext, auto simp: mtSet_def defined'_def NULL_Set_0_def 
-                           bot_Set_0_def UU_fun_def NULL_fun_def)
-apply(simp_all add: Abs_Set_0_inject Set_0_def UU_option_def NULL_Set_0_def NULL_option_def)
+                           bot_Set_0_def BOT_fun_def NULL_fun_def)
+apply(simp_all add: Abs_Set_0_inject Set_0_def BOT_option_def NULL_Set_0_def NULL_option_def)
 done
 
 lemma mtSet_valid[simp]:"\<upsilon>'(Set{}) = true" 
 apply(rule ext,auto simp: mtSet_def valid'_def NULL_Set_0_def 
-                          bot_Set_0_def UU_fun_def NULL_fun_def)
-apply(simp_all add: Abs_Set_0_inject Set_0_def UU_option_def NULL_Set_0_def NULL_option_def)
+                          bot_Set_0_def BOT_fun_def NULL_fun_def)
+apply(simp_all add: Abs_Set_0_inject Set_0_def BOT_option_def NULL_Set_0_def NULL_option_def)
 done
 
 text{* Note that the collection types in OCL allow for NULL to be included;
@@ -554,24 +549,24 @@ that the cardinality of the set is actually a defined integer. *}
 definition OclSize     :: "('\<AA>,'\<alpha>::null)Set \<Rightarrow> '\<AA> Integer"    
 where     "OclSize x = (\<lambda> \<tau>. if (\<delta>' x) \<tau> = true \<tau> \<and> finite(\<lceil>\<lceil>Rep_Set_0 (x \<tau>)\<rceil>\<rceil>)
                              then \<lfloor>\<lfloor> int(card \<lceil>\<lceil>Rep_Set_0 (x \<tau>)\<rceil>\<rceil>) \<rfloor>\<rfloor>
-                             else UU )"
+                             else BOT )"
 
 
 definition OclIncluding   :: "[('\<AA>,'\<alpha>::null) Set,('\<AA>,'\<alpha>) val'] \<Rightarrow> ('\<AA>,'\<alpha>) Set"
 where     "OclIncluding x y = (\<lambda> \<tau>. if (\<delta>' x) \<tau> = true \<tau> \<and> (\<upsilon>' y) \<tau> = true \<tau>
                                     then Abs_Set_0 \<lfloor>\<lfloor> \<lceil>\<lceil>Rep_Set_0 (x \<tau>)\<rceil>\<rceil>  \<union> {y \<tau>} \<rfloor>\<rfloor> 
-                                    else UU )"
+                                    else BOT )"
 
 
 definition OclIncludes   :: "[('\<AA>,'\<alpha>::null) Set,('\<AA>,'\<alpha>) val'] \<Rightarrow> '\<AA> Boolean"
 where     "OclIncludes x y = (\<lambda> \<tau>.   if (\<delta>' x) \<tau> = true \<tau> \<and> (\<upsilon>' y) \<tau> = true \<tau> 
                                      then \<lfloor>\<lfloor>(y \<tau>) \<in> \<lceil>\<lceil>Rep_Set_0 (x \<tau>)\<rceil>\<rceil> \<rfloor>\<rfloor>
-                                     else UU  )"
+                                     else BOT  )"
 
 definition OclExcluding   :: "[('\<AA>,'\<alpha>::null) Set,('\<AA>,'\<alpha>) val'] \<Rightarrow> ('\<AA>,'\<alpha>) Set"
 where     "OclExcluding x y = (\<lambda> \<tau>.  if (\<delta>' x) \<tau> = true \<tau> \<and> (\<upsilon>' y) \<tau> = true \<tau>
                                      then Abs_Set_0 \<lfloor>\<lfloor> \<lceil>\<lceil>Rep_Set_0 (x \<tau>)\<rceil>\<rceil> - {y \<tau>} \<rfloor>\<rfloor> 
-                                     else UU )"
+                                     else BOT )"
 
 definition OclExcludes   :: "[('\<AA>,'\<alpha>::null) Set,('\<AA>,'\<alpha>) val'] \<Rightarrow> '\<AA> Boolean"
 where     "OclExcludes x y = (not(OclIncludes x y))"
@@ -656,48 +651,48 @@ lemmas cp_intro''[simp,intro!] =
 
 
 lemma including_strict1[simp]:"(\<bottom>->including(x)) = \<bottom>"
-by(simp add: UU_fun_def OclIncluding_def defined'_def valid'_def false_def true_def)
+by(simp add: BOT_fun_def OclIncluding_def defined'_def valid'_def false_def true_def)
 
 lemma including_strict2[simp]:"(X->including(\<bottom>)) = \<bottom>"
-by(simp add: OclIncluding_def UU_fun_def defined'_def valid'_def false_def true_def)
+by(simp add: OclIncluding_def BOT_fun_def defined'_def valid'_def false_def true_def)
 
 lemma including_strict3[simp]:"(NULL->including(x)) = \<bottom>"
-by(simp add: OclIncluding_def UU_fun_def defined'_def valid'_def false_def true_def)
+by(simp add: OclIncluding_def BOT_fun_def defined'_def valid'_def false_def true_def)
 
 lemma including_valid_args_valid: 
 "(\<tau> \<Turnstile> \<delta>'(X->including(x))) = ((\<tau> \<Turnstile>(\<delta>' X)) \<and> (\<tau> \<Turnstile>(\<upsilon>' x)))"
 proof -
- have A : "UU \<in> Set_0" by(simp add: Set_0_def UU_option_def)
- have B : "\<lfloor>UU\<rfloor> \<in> Set_0" by(simp add: Set_0_def NULL_option_def UU_option_def)
+ have A : "BOT \<in> Set_0" by(simp add: Set_0_def BOT_option_def)
+ have B : "\<lfloor>BOT\<rfloor> \<in> Set_0" by(simp add: Set_0_def NULL_option_def BOT_option_def)
  have C : "(\<tau> \<Turnstile>(\<delta>' X)) \<Longrightarrow> (\<tau> \<Turnstile>(\<upsilon>' x)) \<Longrightarrow> \<lfloor>\<lfloor>insert (x \<tau>) \<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil>\<rfloor>\<rfloor> \<in> Set_0"
           apply(frule Set_inv_lemma) 
-          apply(simp add: Set_0_def UU_option_def NULL_Set_0_def NULL_fun_def valid_charn defined_charn) 
+          apply(simp add: Set_0_def BOT_option_def NULL_Set_0_def NULL_fun_def valid_charn defined_charn) 
           done
  have D: "(\<tau> \<Turnstile> \<delta>'(X->including(x))) \<Longrightarrow> ((\<tau> \<Turnstile>(\<delta>' X)) \<and> (\<tau> \<Turnstile>(\<upsilon>' x)))" 
           by(auto simp: OclIncluding_def OclValid_def true_def valid_def false_def StrongEq_def 
-                        defined'_def invalid_def valid'_def UU_fun_def NULL_fun_def
+                        defined'_def invalid_def valid'_def BOT_fun_def NULL_fun_def
                   split: bool.split_asm HOL.split_if_asm option.split)
  have E: "(\<tau> \<Turnstile>(\<delta>' X)) \<Longrightarrow> (\<tau> \<Turnstile>(\<upsilon>' x)) \<Longrightarrow> (\<tau> \<Turnstile> \<delta>'(X->including(x)))" 
           apply(frule C, simp)
           apply(auto simp: OclIncluding_def OclValid_def true_def valid_def false_def StrongEq_def 
-                           defined'_def invalid_def valid'_def UU_fun_def NULL_fun_def
+                           defined'_def invalid_def valid'_def BOT_fun_def NULL_fun_def
                      split: bool.split_asm HOL.split_if_asm option.split)
-          apply(simp_all add: NULL_Set_0_def bot_Set_0_def UU_option_def)
-          apply(simp_all add: Abs_Set_0_inject A B UU_option_def[symmetric], 
-                simp_all add: UU_option_def)
+          apply(simp_all add: NULL_Set_0_def bot_Set_0_def BOT_option_def)
+          apply(simp_all add: Abs_Set_0_inject A B BOT_option_def[symmetric], 
+                simp_all add: BOT_option_def)
           done
 show ?thesis by(auto dest:D intro:E)
 qed
  
 
 lemma excluding_strict1[simp]:"(\<bottom>->excluding(x)) = \<bottom>"
-by(simp add: UU_fun_def OclExcluding_def defined'_def valid'_def false_def true_def)
+by(simp add: BOT_fun_def OclExcluding_def defined'_def valid'_def false_def true_def)
 
 lemma excluding_strict2[simp]:"(X->excluding(\<bottom>)) = \<bottom>"
-by(simp add: OclExcluding_def UU_fun_def defined'_def valid'_def false_def true_def)
+by(simp add: OclExcluding_def BOT_fun_def defined'_def valid'_def false_def true_def)
 
 lemma excluding_strict3[simp]:"(NULL->excluding(x)) = \<bottom>"
-by(simp add: OclExcluding_def UU_fun_def defined'_def valid'_def false_def true_def)
+by(simp add: OclExcluding_def BOT_fun_def defined'_def valid'_def false_def true_def)
 
 (* and many more *) 
 
@@ -717,18 +712,18 @@ assumes def_X:"\<tau> \<Turnstile> (\<delta>' X)"
 assumes val_x:"\<tau> \<Turnstile> (\<upsilon>' x)"
 shows         "\<tau> \<Turnstile> (X->including(x)->includes(x))"
 proof -
- have A : "UU \<in> Set_0" by(simp add: Set_0_def UU_option_def)
- have B : "\<lfloor>UU\<rfloor> \<in> Set_0" by(simp add: Set_0_def NULL_option_def UU_option_def)
+ have A : "BOT \<in> Set_0" by(simp add: Set_0_def BOT_option_def)
+ have B : "\<lfloor>BOT\<rfloor> \<in> Set_0" by(simp add: Set_0_def NULL_option_def BOT_option_def)
  have C : "\<lfloor>\<lfloor>insert (x \<tau>) \<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil>\<rfloor>\<rfloor> \<in> Set_0"
           apply(insert def_X[THEN definedD] val_x[THEN validD] Set_inv_lemma[OF def_X])
-          apply(simp add: Set_0_def UU_option_def NULL_Set_0_def NULL_fun_def) 
+          apply(simp add: Set_0_def BOT_option_def NULL_Set_0_def NULL_fun_def) 
           done
  show ?thesis
    apply(insert def_X[THEN definedD] val_x[THEN validD])
-   apply(auto simp: OclValid_def UU_fun_def OclIncluding_def OclIncludes_def false_def true_def
-                    defined'_def valid'_def bot_Set_0_def NULL_fun_def NULL_Set_0_def UU_option_def)
-   apply(simp_all add: Abs_Set_0_inject A B C UU_option_def[symmetric], 
-         simp_all add: UU_option_def Abs_Set_0_inverse C)
+   apply(auto simp: OclValid_def BOT_fun_def OclIncluding_def OclIncludes_def false_def true_def
+                    defined'_def valid'_def bot_Set_0_def NULL_fun_def NULL_Set_0_def BOT_option_def)
+   apply(simp_all add: Abs_Set_0_inject A B C BOT_option_def[symmetric], 
+         simp_all add: BOT_option_def Abs_Set_0_inverse C)
    done
 qed
 
@@ -739,24 +734,24 @@ and     val_y:"\<tau> \<Turnstile> (\<upsilon>' y)"
 and     neq  :"\<tau> \<Turnstile> not(x \<triangleq> y)" 
 shows         "\<tau> \<Turnstile> (X->including(x)->includes(y)) \<triangleq> (X->includes(y))"
 proof -
- have A : "UU \<in> Set_0" by(simp add: Set_0_def UU_option_def)
- have B : "\<lfloor>UU\<rfloor> \<in> Set_0" by(simp add: Set_0_def NULL_option_def UU_option_def)
+ have A : "BOT \<in> Set_0" by(simp add: Set_0_def BOT_option_def)
+ have B : "\<lfloor>BOT\<rfloor> \<in> Set_0" by(simp add: Set_0_def NULL_option_def BOT_option_def)
  have C : "\<lfloor>\<lfloor>insert (x \<tau>) \<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil>\<rfloor>\<rfloor> \<in> Set_0"
           apply(insert def_X[THEN definedD] val_x[THEN validD] Set_inv_lemma[OF def_X])
-          apply(simp add: Set_0_def UU_option_def NULL_Set_0_def NULL_fun_def) 
+          apply(simp add: Set_0_def BOT_option_def NULL_Set_0_def NULL_fun_def) 
           done
  have D : "y \<tau> \<noteq> x \<tau>" 
           apply(insert neq)
-          by(auto simp: OclValid_def UU_fun_def OclIncluding_def OclIncludes_def 
+          by(auto simp: OclValid_def BOT_fun_def OclIncluding_def OclIncludes_def 
                         false_def true_def defined'_def valid'_def bot_Set_0_def 
                         NULL_fun_def NULL_Set_0_def StrongEq_def not_def)
  show ?thesis
   apply(insert def_X[THEN definedD] val_x[THEN validD])
-  apply(auto simp: OclValid_def UU_fun_def OclIncluding_def OclIncludes_def false_def true_def
+  apply(auto simp: OclValid_def BOT_fun_def OclIncluding_def OclIncludes_def false_def true_def
                    defined'_def valid'_def bot_Set_0_def NULL_fun_def NULL_Set_0_def StrongEq_def)
   apply(simp_all add: Abs_Set_0_inject Abs_Set_0_inverse A B C D) 
-  apply(simp_all add: Abs_Set_0_inject A B C UU_option_def[symmetric], 
-        simp_all add: UU_option_def Abs_Set_0_inverse C)
+  apply(simp_all add: Abs_Set_0_inject A B C BOT_option_def[symmetric], 
+        simp_all add: BOT_option_def Abs_Set_0_inverse C)
   done
 qed
 
