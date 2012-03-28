@@ -1,7 +1,7 @@
 theory 
   OCL_linked_list
 imports
-  OCL_main (* Testing *)
+  "../OCL_main" (* Testing *)
 begin
 
 section{* Example Data-Universe *}
@@ -10,13 +10,14 @@ text{* Should be generated entirely from a class-diagram. *}
 text{* Our data universe @{text "'\<AA>"} consists in the 
        concrete class diagram just of node's. *}
 
-datatype node = Node oid (* the oid to the node itself *)
+datatype node = BOT | NULL |
+                Node oid (* the oid to the node itself *)
                      int (* the attribute i *) 
                      oid (* the attribute "next" *)
 
 type_synonym Boolean = "(node)Boolean"
 type_synonym Integer = "(node)Integer"
-type_synonym Node = "(node,node)val"
+type_synonym Node =    "(node,node)val"
 
 
 instantiation node :: object
@@ -27,6 +28,22 @@ definition oid_of_def:
 
 instance ..
 
+end
+
+instantiation node::bot
+begin
+definition node_bot_def: "bot \<equiv> BOT"
+instance proof show "\<exists>x\<Colon>node. x \<noteq> bot"
+                 by(rule_tac x="NULL" in exI, simp add:node_bot_def)
+         qed
+end
+
+instantiation node::null
+begin
+definition node_null_def: "null \<equiv> NULL"
+instance   proof show "(null::node) \<noteq> bot"
+                 by(simp add:node_null_def node_bot_def)
+           qed
 end
 
 section{* Instantiation of the generic strict equality *}

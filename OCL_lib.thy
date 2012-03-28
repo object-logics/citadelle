@@ -121,7 +121,7 @@ lemmas cp_intro[simp,intro!] =
 lemma StrictRefEq_strict :
   assumes A: "\<upsilon> (x::('\<AA>)Integer) = true"
   and     B: "\<upsilon> y = true"
-  shows   "\<upsilon> (x \<doteq> y) = true"
+  shows      "\<upsilon> (x \<doteq> y) = true"
   apply(insert A B)
   apply(rule ext, simp add: StrongEq_def StrictRefEq_int true_def valid_def
                             bot_fun_def bot_option_def)
@@ -219,14 +219,6 @@ where "x \<preceq> y \<equiv> \<lambda> \<tau>. if (\<delta> x) \<tau> = true \<
                 else invalid \<tau> "   
 
 subsection {* Example: The Set-Collection Type on the Abstract Interface *}
-
-(* legacy *)
-lemmas defined_charn = foundation16
-lemmas definedD = foundation17
-lemmas valid_charn = foundation18
-lemmas validD = foundation19
-lemmas valid_implies_defined = foundation20
-(* end legacy *)
 
 
 
@@ -452,6 +444,8 @@ by(simp add: OclIncluding_def bot_fun_def defined_def valid_def false_def true_d
 lemma including_strict3[simp]:"(null->including(x)) = \<bottom>"
 by(simp add: OclIncluding_def bot_fun_def defined_def valid_def false_def true_def)
 
+
+
 lemma including_valid_args_valid: 
 "(\<tau> \<Turnstile> \<delta>(X->including(x))) = ((\<tau> \<Turnstile>(\<delta> X)) \<and> (\<tau> \<Turnstile>(\<upsilon> x)))"
 proof -
@@ -459,7 +453,8 @@ proof -
  have B : "\<lfloor>bot\<rfloor> \<in> Set_0" by(simp add: Set_0_def null_option_def bot_option_def)
  have C : "(\<tau> \<Turnstile>(\<delta> X)) \<Longrightarrow> (\<tau> \<Turnstile>(\<upsilon> x)) \<Longrightarrow> \<lfloor>\<lfloor>insert (x \<tau>) \<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil>\<rfloor>\<rfloor> \<in> Set_0"
           apply(frule Set_inv_lemma) 
-          apply(simp add: Set_0_def bot_option_def null_Set_0_def null_fun_def valid_charn defined_charn) 
+          apply(simp add: Set_0_def bot_option_def null_Set_0_def null_fun_def 
+                          foundation18 foundation16) 
           done
  have D: "(\<tau> \<Turnstile> \<delta>(X->including(x))) \<Longrightarrow> ((\<tau> \<Turnstile>(\<delta> X)) \<and> (\<tau> \<Turnstile>(\<upsilon> x)))" 
           by(auto simp: OclIncluding_def OclValid_def true_def valid_def false_def StrongEq_def 
@@ -499,6 +494,8 @@ apply(auto simp: OclValid_def OclIncludes_def not_def false_def true_def)
 apply(auto simp: mtSet_def OCL_lib.Set_0.Abs_Set_0_inverse Set_0_def)
 done
 
+
+
 (*declare [[names_long,show_types,show_sorts]]*)
 lemma including_charn1:
 assumes def_X:"\<tau> \<Turnstile> (\<delta> X)"
@@ -508,17 +505,19 @@ proof -
  have A : "bot \<in> Set_0" by(simp add: Set_0_def bot_option_def)
  have B : "\<lfloor>bot\<rfloor> \<in> Set_0" by(simp add: Set_0_def null_option_def bot_option_def)
  have C : "\<lfloor>\<lfloor>insert (x \<tau>) \<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil>\<rfloor>\<rfloor> \<in> Set_0"
-          apply(insert def_X[THEN definedD] val_x[THEN validD] Set_inv_lemma[OF def_X])
+          apply(insert def_X[THEN foundation17] val_x[THEN foundation19] Set_inv_lemma[OF def_X])
           apply(simp add: Set_0_def bot_option_def null_Set_0_def null_fun_def) 
           done
  show ?thesis
-   apply(insert def_X[THEN definedD] val_x[THEN validD])
+   apply(insert def_X[THEN foundation17] val_x[THEN foundation19])
    apply(auto simp: OclValid_def bot_fun_def OclIncluding_def OclIncludes_def false_def true_def
                     defined_def valid_def bot_Set_0_def null_fun_def null_Set_0_def bot_option_def)
    apply(simp_all add: Abs_Set_0_inject A B C bot_option_def[symmetric], 
          simp_all add: bot_option_def Abs_Set_0_inverse C)
    done
 qed
+
+
 
 lemma including_charn2:
 assumes def_X:"\<tau> \<Turnstile> (\<delta> X)"
@@ -530,7 +529,7 @@ proof -
  have A : "bot \<in> Set_0" by(simp add: Set_0_def bot_option_def)
  have B : "\<lfloor>bot\<rfloor> \<in> Set_0" by(simp add: Set_0_def null_option_def bot_option_def)
  have C : "\<lfloor>\<lfloor>insert (x \<tau>) \<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil>\<rfloor>\<rfloor> \<in> Set_0"
-          apply(insert def_X[THEN definedD] val_x[THEN validD] Set_inv_lemma[OF def_X])
+          apply(insert def_X[THEN foundation17] val_x[THEN foundation19] Set_inv_lemma[OF def_X])
           apply(simp add: Set_0_def bot_option_def null_Set_0_def null_fun_def) 
           done
  have D : "y \<tau> \<noteq> x \<tau>" 
@@ -539,7 +538,7 @@ proof -
                         false_def true_def defined_def valid_def bot_Set_0_def 
                         null_fun_def null_Set_0_def StrongEq_def not_def)
  show ?thesis
-  apply(insert def_X[THEN definedD] val_x[THEN validD])
+  apply(insert def_X[THEN foundation17] val_x[THEN foundation19])
   apply(auto simp: OclValid_def bot_fun_def OclIncluding_def OclIncludes_def false_def true_def
                    defined_def valid_def bot_Set_0_def null_fun_def null_Set_0_def StrongEq_def)
   apply(simp_all add: Abs_Set_0_inject Abs_Set_0_inverse A B C D) 
@@ -567,11 +566,20 @@ constant @{term null} for the non-existing Sets) :*}
 lemma semantic_test: "\<tau> \<Turnstile> (Set{Set{\<two>},null}->includes(null))"
 oops
 
-lemma hurx : "\<tau> \<Turnstile> Set{Set{\<two>},null} \<triangleq> Set{Set{\<two>},null}"
+lemma hurx : "\<tau> \<Turnstile> Set{Set{\<two>},null} \<triangleq> Set{null,Set{\<two>}}"
 oops
 
 
 lemma semantic_test: "\<tau> \<Turnstile> (Set{null,\<two>}->includes(null))"
 by(simp_all add: including_charn1 including_valid_args_valid)
+
+(* legacy --- still better names ?
+lemmas defined_charn = foundation16
+lemmas definedD = foundation17
+lemmas valid_charn = foundation18
+lemmas validD = foundation19
+lemmas valid_implies_defined = foundation20
+ end legacy *)
+
 
 end
