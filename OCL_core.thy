@@ -115,19 +115,15 @@ of the semantic domain for the basic types (Boolean, Integer, Reals, ...). *}
 
 instantiation   option  :: (type)bot
 begin 
-
    definition bot_option_def: "(bot::'a option) \<equiv> (None::'a option)"
-
-   instance proof 
-              show "\<exists>x\<Colon>'a option. x \<noteq> bot"  
-              by(rule_tac x="Some x" in exI, simp add:bot_option_def)
+   instance proof show "\<exists>x\<Colon>'a option. x \<noteq> bot"  
+                  by(rule_tac x="Some x" in exI, simp add:bot_option_def)
             qed
 end
 
 instantiation   option  :: (bot)null
 begin 
    definition null_option_def: "(null::'a\<Colon>bot option) \<equiv>  \<lfloor> bot \<rfloor>"
-
    instance proof  show "(null::'a\<Colon>bot option) \<noteq> bot"
                    by( simp add:null_option_def bot_option_def)
             qed

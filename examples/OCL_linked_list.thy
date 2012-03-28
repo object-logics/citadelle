@@ -10,78 +10,57 @@ text{* Should be generated entirely from a class-diagram. *}
 text{* Our data universe @{text "'\<AA>"} consists in the 
        concrete class diagram just of node's. *}
 
-datatype node = BOT | NULL |
-                Node oid (* the oid to the node itself *)
+datatype node = Node oid (* the oid to the node itself *)
                      int (* the attribute i *) 
                      oid (* the attribute "next" *)
 
 type_synonym Boolean = "(node)Boolean"
 type_synonym Integer = "(node)Integer"
-type_synonym Node =    "(node,node)val"
+type_synonym Node =    "(node,node option option)val"
 
 
 instantiation node :: object
 begin
-
-definition oid_of_def:
-   "oid_of x = (case x of Node oid _ _ \<Rightarrow> oid)"
-
-instance ..
-
+   definition oid_of_def: "oid_of x = (case x of Node oid _ _ \<Rightarrow> oid)"
+   instance ..
 end
 
-instantiation node::bot
-begin
-definition node_bot_def: "bot \<equiv> BOT"
-instance proof show "\<exists>x\<Colon>node. x \<noteq> bot"
-                 by(rule_tac x="NULL" in exI, simp add:node_bot_def)
-         qed
+
+instantiation   option  :: (object)object
+begin 
+   definition oid_of_option_def: "oid_of x = oid_of (the x)"
+   instance ..
 end
 
-instantiation node::null
-begin
-definition node_null_def: "null \<equiv> NULL"
-instance   proof show "(null::node) \<noteq> bot"
-                 by(simp add:node_null_def node_bot_def)
-           qed
-end
 
 section{* Instantiation of the generic strict equality *}
 text{* Should be generated entirely from a class-diagram. *}
 
-defs   StrictRefEq_node : 
-       "(x::Node) \<doteq> y \<equiv> gen_ref_eq x y"
+defs   StrictRefEq_node : "(x::Node) \<doteq> y \<equiv> gen_ref_eq x y"
 
 lemmas strict_eq_node =
-    cp_gen_ref_eq_object[of "x::(node,node)val" 
-                            "y::(node,node)val" 
-                            \<tau>, 
+    cp_gen_ref_eq_object[of "x::Node" "y::Node" "\<tau>", 
                          simplified StrictRefEq_node[symmetric]]
-
-    cp_intro(9)         [of "P::(node,node)val \<Rightarrow>(node,node)val"
-                            "Q::(node,node)val \<Rightarrow>(node,node)val",
+    cp_intro(9)         [of "P::Node \<Rightarrow>Node""Q::Node \<Rightarrow>Node",
                          simplified StrictRefEq_node[symmetric] ]
-    gen_ref_eq_def      [of "x::(node,node)val" 
-                            "y::(node,node)val", 
+    gen_ref_eq_def      [of "x::Node" "y::Node", 
                          simplified StrictRefEq_node[symmetric]]
-    gen_ref_eq_defargs  [of _
-                            "x::(node,node)val" 
-                            "y::(node,node)val", 
+    gen_ref_eq_defargs  [of _ "x::Node" "y::Node", 
                          simplified StrictRefEq_node[symmetric]]
     gen_ref_eq_object_strict1 
-                        [of "x::(node,node)val",
+                        [of "x::Node",
                          simplified StrictRefEq_node[symmetric]]
     gen_ref_eq_object_strict2 
-                        [of "x::(node,node)val",
+                        [of "x::Node",
                          simplified StrictRefEq_node[symmetric]]
     gen_ref_eq_object_strict3 
-                        [of "x::(node,node)val",
+                        [of "x::Node",
                          simplified StrictRefEq_node[symmetric]]
     gen_ref_eq_object_strict3 
-                        [of "x::(node,node)val",
+                        [of "x::Node",
                          simplified StrictRefEq_node[symmetric]]
     gen_ref_eq_object_strict4 
-                        [of "x::(node,node)val",
+                        [of "x::Node",
                          simplified StrictRefEq_node[symmetric]]
 
 
@@ -91,7 +70,7 @@ text{* Should be generated entirely from a class-diagram. *}
 fun dot_next:: "Node \<Rightarrow> Node"  ("(1(_).next)" 50)
   where "(X).next = (\<lambda> \<tau>. case X \<tau> of
                None \<Rightarrow> None
-          | \<lfloor> None \<rfloor> \<Rightarrow> None
+          | \<lfloor>  None \<rfloor> \<Rightarrow> None
           | \<lfloor>\<lfloor> Node oid i next \<rfloor>\<rfloor> \<Rightarrow> if next \<in> dom (snd \<tau>)
                                          then \<lfloor> (snd \<tau>) next \<rfloor>
                                          else None)"
@@ -99,7 +78,7 @@ fun dot_next:: "Node \<Rightarrow> Node"  ("(1(_).next)" 50)
 fun dot_i:: "Node \<Rightarrow> Integer"  ("(1(_).i)" 50)
   where "(X).i = (\<lambda> \<tau>. case X \<tau> of
                None \<Rightarrow> None
-          | \<lfloor> None \<rfloor> \<Rightarrow> None
+          | \<lfloor>  None \<rfloor> \<Rightarrow> None
           | \<lfloor>\<lfloor> Node oid i next \<rfloor>\<rfloor> \<Rightarrow> 
                       if oid \<in> dom (snd \<tau>)
                       then (case (snd \<tau>) oid of
@@ -109,17 +88,16 @@ fun dot_i:: "Node \<Rightarrow> Integer"  ("(1(_).i)" 50)
 
 fun dot_next_at_pre:: "Node \<Rightarrow> Node"  ("(1(_).next@pre)" 50)
   where "(X).next@pre = (\<lambda> \<tau>. case X \<tau> of
-                        None \<Rightarrow> None
+                          None \<Rightarrow> None
                       | \<lfloor> None \<rfloor> \<Rightarrow> None
-                      | \<lfloor>\<lfloor> Node oid i next  \<rfloor>\<rfloor> \<Rightarrow> if next \<in> dom (fst \<tau>)
-                                                       then \<lfloor> (fst \<tau>) next \<rfloor>
-                                                       else None)"
-
+                      | \<lfloor>\<lfloor>Node oid i next\<rfloor>\<rfloor> \<Rightarrow> if next \<in> dom (fst \<tau>)
+                                              then \<lfloor> (fst \<tau>) next \<rfloor>
+                                              else None)"
 
 fun dot_i_at_pre:: "Node \<Rightarrow> Integer"  ("(1(_).i@pre)" 50)
 where "(X).i@pre = (\<lambda> \<tau>. case X \<tau> of
-               None \<Rightarrow> None
-          | \<lfloor> None \<rfloor> \<Rightarrow> None
+              None \<Rightarrow> None
+          | \<lfloor>  None \<rfloor> \<Rightarrow> None
           | \<lfloor>\<lfloor> Node oid i next \<rfloor>\<rfloor> \<Rightarrow> 
                       if oid \<in> dom (fst \<tau>)
                       then (case (fst \<tau>) oid of
@@ -147,16 +125,16 @@ lemmas cp_dot_nextI_at_pre [simp, intro!]=
                           of "\<lambda> X _. X" "\<lambda> _ \<tau>. \<tau>", THEN cpI1]
 
 lemma dot_next_nullstrict [simp]: "(null).next = invalid"
-by(rule ext, simp add: null_def invalid_def)
+by(rule ext, simp add: null_fun_def null_option_def bot_option_def null_def invalid_def)
 
 lemma dot_next_at_pre_nullstrict [simp] : "(null).next@pre = invalid"
-by(rule ext, simp add: null_def invalid_def)
+by(rule ext, simp add: null_fun_def null_option_def bot_option_def null_def invalid_def)
 
 lemma dot_next_strict[simp] : "(invalid).next = invalid"
-by(rule ext, simp add: null_def invalid_def)
+by(rule ext, simp add: null_fun_def null_option_def bot_option_def null_def invalid_def)
 
 lemma dot_nextATpre_strict[simp] : "(invalid).next@pre = invalid"
-by(rule ext, simp add: null_def invalid_def)
+by(rule ext, simp add: null_fun_def null_option_def bot_option_def null_def invalid_def)
 
 section{* Standard State Infrastructure *}
 text{* These definitions should be generated --- again --- from the class
