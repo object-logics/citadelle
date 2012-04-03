@@ -370,6 +370,7 @@ where     "OclForall S P = (\<lambda> \<tau>. if (\<delta> S) \<tau> = true \<ta
                                            then false \<tau>
                                            else \<bottom>
                                  else \<bottom>)"
+ 
 
 definition OclExists     :: "[('\<AA>,'\<alpha>::null) Set,('\<AA>,'\<alpha>)val\<Rightarrow>('\<AA>)Boolean] \<Rightarrow> '\<AA> Boolean"
 where     "OclExists S P = not(OclForall S (\<lambda> X. not (P X)))"
