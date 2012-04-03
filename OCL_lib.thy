@@ -2,8 +2,6 @@ theory OCL_lib
 imports OCL_core
 begin
 
-
-
 section{* Simple, Basic Types like Boolean and Integer *}
 
 text{* Since Integer is again a basic type, we define its semantic domain
@@ -361,6 +359,22 @@ definition OclNotEmpty   :: "('\<AA>,'\<alpha>::null) Set \<Rightarrow> '\<AA> B
 where     "OclNotEmpty x =  not(OclIsEmpty x)"
 
 
+definition OclForall     :: "[('\<AA>,'\<alpha>::null)Set,('\<AA>,'\<alpha>)val\<Rightarrow>('\<AA>)Boolean] \<Rightarrow> '\<AA> Boolean"
+where     "OclForall S P = (\<lambda> \<tau>. if (\<delta> S) \<tau> = true \<tau> 
+                                 then if (\<forall>x\<in>\<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>. P (\<lambda> _. x) \<tau> = true \<tau>)
+                                      then true \<tau>
+                                      else if (\<forall>x\<in>\<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>. P(\<lambda> _. x) \<tau> = true \<tau> \<or>
+                                                                      P(\<lambda> _. x) \<tau> = false \<tau>)
+                                           then false \<tau>
+                                           else bot \<tau>
+                                 else bot \<tau>)"
+
+
+definition OclExists     :: "[('\<AA>,'\<alpha>::null) Set,('\<AA>,'\<alpha>)val\<Rightarrow>('\<AA>)Boolean] \<Rightarrow> '\<AA> Boolean"
+where     "OclExists S P = not(OclForall S (\<lambda> X. not (P X)))"
+
+
+
 consts (* abstract set collection operations *)
  (* OclSize        :: " ('\<AA>,'\<alpha>::null) Set \<Rightarrow> '\<AA> Integer"      *) 
  (* OclIncludes    :: "[('\<AA>,'\<alpha>::null) Set,('\<AA>,'\<alpha>) val'] \<Rightarrow> '\<AA> Boolean"    *)
@@ -376,7 +390,6 @@ consts (* abstract set collection operations *)
     OclComplement  :: " ('\<AA>,'\<alpha>::null) Set \<Rightarrow> ('\<AA>,'\<alpha>) Set"
     OclSum         :: " ('\<AA>,'\<alpha>::null) Set \<Rightarrow> '\<AA> Integer"
     OclCount       :: "[('\<AA>,'\<alpha>::null) Set,('\<AA>,'\<alpha>) Set] \<Rightarrow> '\<AA> Integer"    
-
   
 notation  (* standard ascii syntax *)
     OclSize        ("_->size'(')" [66])

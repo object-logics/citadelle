@@ -14,10 +14,10 @@ datatype node = Node oid (* the oid to the node itself *)
                      int (* the attribute i *) 
                      oid (* the attribute "next" *)
 
-type_synonym Boolean = "(node)Boolean"
-type_synonym Integer = "(node)Integer"
-type_synonym Node =    "(node,node option option)val"
-
+type_synonym Boolean     = "(node)Boolean"
+type_synonym Integer     = "(node)Integer"
+type_synonym Node        = "(node,node option option)val"
+type_synonym Set_Integer = "(node,int option option)Set"
 
 instantiation node :: object
 begin
@@ -168,6 +168,20 @@ coinductive inv :: " Node \<Rightarrow> (node)st \<Rightarrow> bool" where
                      ( (inv(self .next))\<tau> )))
                      \<Longrightarrow> ( inv self \<tau>)"
 
+text{* The original specification of a recursive query :
+\begin{verbatim}
+context Node::contents():Set(Integer)
+post:  result = if self.next = null 
+                then Set{i}
+                else self.next.contents()->including(i)
+\end{verbatim} *}
+
+find_theorems "Eps"
+
+definition dot_contents :: "Node \<Rightarrow> Set_Integer"  ("(1(_).contents'('))" 50)
+where     "((X).contents()) = (\<lambda> \<tau>. SOME REC. (if (\<delta> X) \<tau> = true \<tau> 
+                                             then undefined
+                                             else (\<tau> \<Turnstile> ((REC X) \<triangleq> invalid))))"
 
 fun contents_contract :: "('a state \<Rightarrow> ('a oid option) \<Rightarrow> int set) \<Rightarrow> 'a state \<Rightarrow> ('a oid option) \<Rightarrow> bool" where
   "contents_contract f st None = True" 
