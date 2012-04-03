@@ -218,6 +218,8 @@ where "x \<preceq> y \<equiv> \<lambda> \<tau>. if (\<delta> x) \<tau> = true \<
 
 subsection {* Example: The Set-Collection Type on the Abstract Interface *}
 
+no_notation None ("\<bottom>")
+notation bot ("\<bottom>")
 
 
 text{* For the semantic construction of the collection types, we have two goals:
@@ -329,24 +331,24 @@ that the cardinality of the set is actually a defined integer. *}
 definition OclSize     :: "('\<AA>,'\<alpha>::null)Set \<Rightarrow> '\<AA> Integer"    
 where     "OclSize x = (\<lambda> \<tau>. if (\<delta> x) \<tau> = true \<tau> \<and> finite(\<lceil>\<lceil>Rep_Set_0 (x \<tau>)\<rceil>\<rceil>)
                              then \<lfloor>\<lfloor> int(card \<lceil>\<lceil>Rep_Set_0 (x \<tau>)\<rceil>\<rceil>) \<rfloor>\<rfloor>
-                             else bot )"
+                             else \<bottom> )"
 
 
 definition OclIncluding   :: "[('\<AA>,'\<alpha>::null) Set,('\<AA>,'\<alpha>) val] \<Rightarrow> ('\<AA>,'\<alpha>) Set"
 where     "OclIncluding x y = (\<lambda> \<tau>. if (\<delta> x) \<tau> = true \<tau> \<and> (\<upsilon> y) \<tau> = true \<tau>
                                     then Abs_Set_0 \<lfloor>\<lfloor> \<lceil>\<lceil>Rep_Set_0 (x \<tau>)\<rceil>\<rceil>  \<union> {y \<tau>} \<rfloor>\<rfloor> 
-                                    else bot )"
+                                    else \<bottom> )"
 
 
 definition OclIncludes   :: "[('\<AA>,'\<alpha>::null) Set,('\<AA>,'\<alpha>) val] \<Rightarrow> '\<AA> Boolean"
 where     "OclIncludes x y = (\<lambda> \<tau>.   if (\<delta> x) \<tau> = true \<tau> \<and> (\<upsilon> y) \<tau> = true \<tau> 
                                      then \<lfloor>\<lfloor>(y \<tau>) \<in> \<lceil>\<lceil>Rep_Set_0 (x \<tau>)\<rceil>\<rceil> \<rfloor>\<rfloor>
-                                     else bot  )"
+                                     else \<bottom>  )"
 
 definition OclExcluding   :: "[('\<AA>,'\<alpha>::null) Set,('\<AA>,'\<alpha>) val] \<Rightarrow> ('\<AA>,'\<alpha>) Set"
 where     "OclExcluding x y = (\<lambda> \<tau>.  if (\<delta> x) \<tau> = true \<tau> \<and> (\<upsilon> y) \<tau> = true \<tau>
                                      then Abs_Set_0 \<lfloor>\<lfloor> \<lceil>\<lceil>Rep_Set_0 (x \<tau>)\<rceil>\<rceil> - {y \<tau>} \<rfloor>\<rfloor> 
-                                     else bot )"
+                                     else \<bottom> )"
 
 definition OclExcludes   :: "[('\<AA>,'\<alpha>::null) Set,('\<AA>,'\<alpha>) val] \<Rightarrow> '\<AA> Boolean"
 where     "OclExcludes x y = (not(OclIncludes x y))"
@@ -366,13 +368,21 @@ where     "OclForall S P = (\<lambda> \<tau>. if (\<delta> S) \<tau> = true \<ta
                                       else if (\<forall>x\<in>\<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>. P(\<lambda> _. x) \<tau> = true \<tau> \<or>
                                                                       P(\<lambda> _. x) \<tau> = false \<tau>)
                                            then false \<tau>
-                                           else bot \<tau>
-                                 else bot \<tau>)"
-
+                                           else \<bottom>
+                                 else \<bottom>)"
 
 definition OclExists     :: "[('\<AA>,'\<alpha>::null) Set,('\<AA>,'\<alpha>)val\<Rightarrow>('\<AA>)Boolean] \<Rightarrow> '\<AA> Boolean"
 where     "OclExists S P = not(OclForall S (\<lambda> X. not (P X)))"
 
+syntax
+  "_OclForall" :: "[('\<AA>,'\<alpha>::null) Set,id,('\<AA>)Boolean] \<Rightarrow> '\<AA> Boolean"    ("(_)->forall'(_|_')")
+translations
+  "X->forall(x | P)" == "CONST OclForall X (%x. P)"
+
+syntax
+  "_OclExist" :: "[('\<AA>,'\<alpha>::null) Set,id,('\<AA>)Boolean] \<Rightarrow> '\<AA> Boolean"    ("(_)->exists'(_|_')")
+translations
+  "X->exists(x | P)" == "CONST OclExists X (%x. P)"
 
 
 consts (* abstract set collection operations *)
@@ -445,8 +455,6 @@ lemmas cp_intro''[simp,intro!] =
        cp_OclIncluding [THEN allI[THEN allI[THEN allI[THEN cp'I2]], of "OclIncluding"]]
 *)
 
-no_notation None ("\<bottom>")
-notation bot ("\<bottom>")
 
 lemma including_strict1[simp]:"(\<bottom>->including(x)) = \<bottom>"
 by(simp add: bot_fun_def OclIncluding_def defined_def valid_def false_def true_def)
@@ -462,8 +470,8 @@ by(simp add: OclIncluding_def bot_fun_def defined_def valid_def false_def true_d
 lemma including_valid_args_valid: 
 "(\<tau> \<Turnstile> \<delta>(X->including(x))) = ((\<tau> \<Turnstile>(\<delta> X)) \<and> (\<tau> \<Turnstile>(\<upsilon> x)))"
 proof -
- have A : "bot \<in> Set_0" by(simp add: Set_0_def bot_option_def)
- have B : "\<lfloor>bot\<rfloor> \<in> Set_0" by(simp add: Set_0_def null_option_def bot_option_def)
+ have A : "\<bottom> \<in> Set_0" by(simp add: Set_0_def bot_option_def)
+ have B : "\<lfloor>\<bottom>\<rfloor> \<in> Set_0" by(simp add: Set_0_def null_option_def bot_option_def)
  have C : "(\<tau> \<Turnstile>(\<delta> X)) \<Longrightarrow> (\<tau> \<Turnstile>(\<upsilon> x)) \<Longrightarrow> \<lfloor>\<lfloor>insert (x \<tau>) \<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil>\<rfloor>\<rfloor> \<in> Set_0"
           apply(frule Set_inv_lemma) 
           apply(simp add: Set_0_def bot_option_def null_Set_0_def null_fun_def 
@@ -515,8 +523,8 @@ assumes def_X:"\<tau> \<Turnstile> (\<delta> X)"
 assumes val_x:"\<tau> \<Turnstile> (\<upsilon> x)"
 shows         "\<tau> \<Turnstile> (X->including(x)->includes(x))"
 proof -
- have A : "bot \<in> Set_0" by(simp add: Set_0_def bot_option_def)
- have B : "\<lfloor>bot\<rfloor> \<in> Set_0" by(simp add: Set_0_def null_option_def bot_option_def)
+ have A : "\<bottom> \<in> Set_0" by(simp add: Set_0_def bot_option_def)
+ have B : "\<lfloor>\<bottom>\<rfloor> \<in> Set_0" by(simp add: Set_0_def null_option_def bot_option_def)
  have C : "\<lfloor>\<lfloor>insert (x \<tau>) \<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil>\<rfloor>\<rfloor> \<in> Set_0"
           apply(insert def_X[THEN foundation17] val_x[THEN foundation19] Set_inv_lemma[OF def_X])
           apply(simp add: Set_0_def bot_option_def null_Set_0_def null_fun_def) 
@@ -539,8 +547,8 @@ and     val_y:"\<tau> \<Turnstile> (\<upsilon> y)"
 and     neq  :"\<tau> \<Turnstile> not(x \<triangleq> y)" 
 shows         "\<tau> \<Turnstile> (X->including(x)->includes(y)) \<triangleq> (X->includes(y))"
 proof -
- have A : "bot \<in> Set_0" by(simp add: Set_0_def bot_option_def)
- have B : "\<lfloor>bot\<rfloor> \<in> Set_0" by(simp add: Set_0_def null_option_def bot_option_def)
+ have A : "\<bottom> \<in> Set_0" by(simp add: Set_0_def bot_option_def)
+ have B : "\<lfloor>\<bottom>\<rfloor> \<in> Set_0" by(simp add: Set_0_def null_option_def bot_option_def)
  have C : "\<lfloor>\<lfloor>insert (x \<tau>) \<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil>\<rfloor>\<rfloor> \<in> Set_0"
           apply(insert def_X[THEN foundation17] val_x[THEN foundation19] Set_inv_lemma[OF def_X])
           apply(simp add: Set_0_def bot_option_def null_Set_0_def null_fun_def) 
