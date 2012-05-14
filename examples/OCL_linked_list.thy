@@ -16,6 +16,7 @@ datatype node = Node oid (* the oid to the node itself *)
 
 type_synonym Boolean     = "(node)Boolean"
 type_synonym Integer     = "(node)Integer"
+type_synonym Void        = "(node)Void"
 type_synonym Node        = "(node,node option option)val"
 type_synonym Set_Integer = "(node,int option option)Set"
 
@@ -168,42 +169,67 @@ coinductive inv :: " Node \<Rightarrow> (node)st \<Rightarrow> bool" where
                      ( (inv(self .next))\<tau> )))
                      \<Longrightarrow> ( inv self \<tau>)"
 
+
+section{* The contract of a recursive query : *}
 text{* The original specification of a recursive query :
 \begin{verbatim}
 context Node::contents():Set(Integer)
 post:  result = if self.next = null 
                 then Set{i}
                 else self.next.contents()->including(i)
+                endif
 \end{verbatim} *}
 
-find_theorems "Eps"
 
-definition dot_contents :: "Node \<Rightarrow> Set_Integer"  ("(1(_).contents'('))" 50)
-where     "((X).contents()) = (\<lambda> \<tau>. SOME REC. (if (\<delta> X) \<tau> = true \<tau> 
-                                             then undefined
-                                             else (\<tau> \<Turnstile> ((REC X) \<triangleq> invalid))))"
+consts dot_contents :: "Node \<Rightarrow> Set_Integer"  ("(1(_).contents'('))" 50)
+ 
+axiomatization dot_contents_def where
+"(\<tau> \<Turnstile> ((self).contents() \<triangleq> result)) =
+ (if (\<delta> self) \<tau> = true \<tau> 
+  then ((\<tau> \<Turnstile> true) \<and>  
+        (\<tau> \<Turnstile> (result \<triangleq> if (self .next \<doteq> null) 
+                        then (Set{self .i}) 
+                        else (self .next .contents()->including(self .i))
+                        endif)))
+  else \<tau> \<Turnstile> result \<triangleq> invalid)"
 
-fun contents_contract :: "('a state \<Rightarrow> ('a oid option) \<Rightarrow> int set) \<Rightarrow> 'a state \<Rightarrow> ('a oid option) \<Rightarrow> bool" where
-  "contents_contract f st None = True" 
-| "contents_contract f st (Some s) = 
-      (case st s of 
-          None \<Rightarrow> True 
-        | Some (Node i next) \<Rightarrow> f st (Some s) = (case next of None \<Rightarrow> {i} | Some n \<Rightarrow> f st (Some n) \<union> {i}))"
 
-definition contents :: "'a state \<Rightarrow> ('a oid option) \<Rightarrow> int set" where
-  contents_post: "contents = (SOME f . \<forall> st s . contents_contract f st s)"
+consts dot_contents_AT_pre :: "Node \<Rightarrow> Set_Integer"  ("(1(_).contents@pre'('))" 50)
+ 
+axiomatization dot_contents_AT_pre_def where
+"(\<tau> \<Turnstile> ((self).contents@pre() \<triangleq> result)) =
+ (if (\<delta> self) \<tau> = true \<tau> 
+  then ((\<tau> \<Turnstile> true) \<and>                                (* pre *)
+        (\<tau> \<Turnstile> (result \<triangleq> if (self .next@pre \<doteq> null)   (* post *)
+                        then (Set{self .i@pre}) 
+                        else (self .next@pre .contents@pre()->including(self .i@pre))
+                        endif)))
+  else \<tau> \<Turnstile> result \<triangleq> invalid)"
 
-definition contents_at_pre :: "'a state \<Rightarrow> ('a oid option) \<Rightarrow> int set" where
-  contents_post2: "contents_at_pre = (SOME f . \<forall> st s . contents_contract f st s)"
+text{* Note that these @pre variants on methods are only available on queries, i.e.
+operations without side-effect. *}
+(* TODO: Should be rephased by conservative means... *)
 
-lemma contents_def: "contents_at_pre st (Some s) = (case st s of None \<Rightarrow> undefined
-  | Some (Node i next) \<Rightarrow> (case next of None \<Rightarrow> {i} | Some n \<Rightarrow> contents_at_pre st (Some n) \<union> {i}))"
-apply(auto simp: contents_post2)
-apply(case_tac "st s", simp_all)
-prefer 2
-apply(case_tac "a", simp_all)
-apply(case_tac "option", simp_all)
-sorry
+section{* The contract of a method. *}
+text{*
+The specification in high-level OCL input syntax reads as follows:
+\begin{verbatim}
+context Node::insert(x:Integer) 
+post: contents():Set(Integer)= contents@pre()->including(x)
+\end{verbatim}
+*}
+
+consts dot_insert :: "Node \<Rightarrow> Boolean"  ("(1(_).insert'(_'))" 50)
+
+axiomatization dot_insert_def where
+"(\<tau> \<Turnstile> (((self).insert(x)) \<triangleq> result)) =
+ (if ((\<delta> self) \<tau> = true \<tau>) \<and> ((\<upsilon> x) \<tau> = true \<tau>)  
+  then ((\<tau> \<Turnstile> true) \<and>  
+        (\<tau> \<Turnstile> ((self .contents()) \<triangleq> ((self .contents@pre())->including(x)))))
+  else \<tau> \<Turnstile> (result \<triangleq> result))"
+
+
+(* Old stuff by Matthias Diss - will not really work any longer in this context: 
 
 declare OO_List.inv.simps [testgen_OO_eqs]
 declare contents_def [testgen_OO_eqs]
@@ -235,5 +261,6 @@ lemma "(x::int) = id x"
 (* apply(tactic "EqSubst.eqsubst_tac @{context} [1] [@{thm rewr}] 1") *)
 apply(tactic "bounded_unfold_tac @{context} 3 @{thm rewr} 1")
 oops
+*)
 
 end

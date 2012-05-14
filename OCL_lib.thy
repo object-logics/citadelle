@@ -2,11 +2,17 @@ theory OCL_lib
 imports OCL_core
 begin
 
-section{* Simple, Basic Types like Boolean and Integer *}
+section{* Simple, Basic Types like Void, Boolean and Integer *}
 
 text{* Since Integer is again a basic type, we define its semantic domain
 as the valuations over {@typ "int option option"}*}
 type_synonym ('\<AA>)Integer = "('\<AA>,int option option)  val"
+
+type_synonym ('\<AA>)Void = "('\<AA>,unit option) val"
+text {* Note that this \emph{minimal} OCL type contains only two elements:
+undefined and null. *}
+
+section{* Strict equalities. *}
 
 text{* Note that the strict equality on basic types (actually on all types) 
 must be exceptionally defined on null --- otherwise the entire concept of 
