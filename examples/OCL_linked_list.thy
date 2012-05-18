@@ -196,14 +196,14 @@ axiomatization dot_contents_def where
 
 consts dot_contents_AT_pre :: "Node \<Rightarrow> Set_Integer"  ("(1(_).contents@pre'('))" 50)
  
-axiomatization dot_contents_AT_pre_def where
-"(\<tau> \<Turnstile> ((self).contents@pre() \<triangleq> result)) =
+axiomatization where dot_contents_AT_pre_def:
+"(\<tau> \<Turnstile> (self).contents@pre() \<triangleq> result) =
  (if (\<delta> self) \<tau> = true \<tau> 
-  then ((\<tau> \<Turnstile> true) \<and>                                (* pre *)
-        (\<tau> \<Turnstile> (result \<triangleq> if (self .next@pre \<doteq> null)   (* post *)
-                        then (Set{self .i@pre}) 
-                        else (self .next@pre .contents@pre()->including(self .i@pre))
-                        endif)))
+  then \<tau> \<Turnstile> true \<and>                                (* pre *)
+        \<tau> \<Turnstile> (result \<triangleq> if (self).next@pre \<doteq> null  (* post *)
+                        then Set{(self).i@pre}
+                        else (self).next@pre .contents@pre()->including(self .i@pre)
+                        endif)
   else \<tau> \<Turnstile> result \<triangleq> invalid)"
 
 text{* Note that these @pre variants on methods are only available on queries, i.e.
@@ -215,19 +215,21 @@ text{*
 The specification in high-level OCL input syntax reads as follows:
 \begin{verbatim}
 context Node::insert(x:Integer) 
-post: contents():Set(Integer)= contents@pre()->including(x)
+post: contents():Set(Integer)
+contents() = contents@pre()->including(x)
 \end{verbatim}
 *}
 
-consts dot_insert :: "Node \<Rightarrow> Boolean"  ("(1(_).insert'(_'))" 50)
+consts dot_insert :: "Node \<Rightarrow> Integer \<Rightarrow> Void"  ("(1(_).insert'(_'))" 50)
 
-axiomatization dot_insert_def where
-"(\<tau> \<Turnstile> (((self).insert(x)) \<triangleq> result)) =
- (if ((\<delta> self) \<tau> = true \<tau>) \<and> ((\<upsilon> x) \<tau> = true \<tau>)  
-  then ((\<tau> \<Turnstile> true) \<and>  
-        (\<tau> \<Turnstile> ((self .contents()) \<triangleq> ((self .contents@pre())->including(x)))))
-  else \<tau> \<Turnstile> (result \<triangleq> result))"
+axiomatization where dot_insert_def:
+"(\<tau> \<Turnstile> (self).insert(x) \<triangleq> result) =
+ (if (\<delta> self) \<tau> = true \<tau> \<and> (\<upsilon> x) \<tau> = true \<tau>  
+  then \<tau> \<Turnstile> true \<and>  
+       \<tau> \<Turnstile> (self).contents() \<triangleq> (self).contents@pre()->including(x)
+  else \<tau> \<Turnstile> (self).insert(x) \<triangleq> invalid)"
 
+thm dot_insert_def
 
 (* Old stuff by Matthias Diss - will not really work any longer in this context: 
 

@@ -169,7 +169,7 @@ text{* Valuations are now functions from a state pair (built upon
 data universe {@typ "'\<AA>"}) to an arbitrary null-type (i.e. containing
 at least a destinguished {@text "null"} and {@text "invalid"} element. *}
 
-type_synonym ('\<AA>,'\<alpha>) val = "'\<AA> st \<Rightarrow> '\<alpha>::null"
+type_synonym ('\<AA>,'\<alpha>) val = "'\<AA> st \<Rightarrow> '\<alpha>"
 
 text{* All OCL expressions \emph{denote} functions that map the underlying *}
 
@@ -180,7 +180,7 @@ have the two semantic constants {@text "invalid"} (for exceptional, aborted
 computation) and {@text "null"}; the latter, however is either defined
  *}
 
-definition invalid :: "('\<AA>,'\<alpha>::null) val" 
+definition invalid :: "('\<AA>,'\<alpha>::bot) val" 
 where     "invalid \<equiv> \<lambda> \<tau>. bot"
 
 text {* The definition : 
@@ -340,9 +340,11 @@ by(simp add: defined_def)
 
 
 subsection{*  Fundamental Predicates II: Logical (Strong) Equality *}
-
-definition StrongEq::"[('\<AA>,'\<alpha>)val,('\<AA>,'\<alpha>)val] \<Rightarrow> ('\<AA>)Boolean"  (infixl "\<triangleq>" 30)
+text{* Note that we define strong equality extremely generic, even for types that contain
+an null or \<bottom> element:*}
+definition StrongEq::"['\<AA> st \<Rightarrow> '\<alpha>,'\<AA> st \<Rightarrow> '\<alpha>] \<Rightarrow> ('\<AA>)Boolean"  (infixl "\<triangleq>" 30)
 where     "X \<triangleq> Y \<equiv>  \<lambda> \<tau>. \<lfloor>\<lfloor>X \<tau> = Y \<tau> \<rfloor>\<rfloor>"
+
 
 text{* Equality reasoning in OCL is not humpty dumpty. While strong equality
 is clearly an equivalence: *}

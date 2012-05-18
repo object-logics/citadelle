@@ -6,11 +6,11 @@ section{* Simple, Basic Types like Void, Boolean and Integer *}
 
 text{* Since Integer is again a basic type, we define its semantic domain
 as the valuations over {@typ "int option option"}*}
-type_synonym ('\<AA>)Integer = "('\<AA>,int option option)  val"
+type_synonym ('\<AA>)Integer = "('\<AA>,int option option) val"
 
 type_synonym ('\<AA>)Void = "('\<AA>,unit option) val"
 text {* Note that this \emph{minimal} OCL type contains only two elements:
-undefined and null. *}
+undefined and null. For technical reasons, he does not contain to the null-class yet.*}
 
 section{* Strict equalities. *}
 
