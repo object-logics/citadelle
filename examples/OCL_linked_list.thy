@@ -229,6 +229,8 @@ axiomatization where dot_insert_def:
        \<tau> \<Turnstile> (self).contents() \<triangleq> (self).contents@pre()->including(x)
   else \<tau> \<Turnstile> (self).insert(x) \<triangleq> invalid)"
 
+lemma H : "(\<tau> \<Turnstile> (self).insert(x) \<triangleq> result)"
+ nitpick
 thm dot_insert_def
 
 (* Old stuff by Matthias Diss - will not really work any longer in this context: 
