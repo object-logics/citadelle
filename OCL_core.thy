@@ -64,7 +64,7 @@ text {* In order to have the possibility to nest collection types,
 such that we can give semantics to expressions like @{text "Set{Set{\<two>},null}"},
 it is necessary to introduce a uniform interface for types having
 the @{text "invalid"} (= bottom) element. The reason is that we impose
-a data-invariant on raw-collection types_code which assures
+a data-invariant on raw-collection \verb|types_code| which assures
 that the @{text "invalid"} element is not allowed inside the collection;
 all raw-collections of this form were identified with the @{text "invalid"} element
 itself. The construction requires that the new collection type is
@@ -166,8 +166,8 @@ abstract and concrete versions of null are the same on base types
 subsection{* The Semantic Space of OCL Types: Valuations. *}
 
 text{* Valuations are now functions from a state pair (built upon 
-data universe {@typ "'\<AA>"}) to an arbitrary null-type (i.e. containing
-at least a destinguished {@text "null"} and {@text "invalid"} element. *}
+data universe @{typ "'\<AA>"}) to an arbitrary null-type (i.e. containing
+at least a destinguished @{text "null"} and @{text "invalid"} element. *}
 
 type_synonym ('\<AA>,'\<alpha>) val = "'\<AA> st \<Rightarrow> '\<alpha>"
 
@@ -176,19 +176,20 @@ text{* All OCL expressions \emph{denote} functions that map the underlying *}
 type_synonym ('\<AA>,'\<alpha>) val' = "'\<AA> st \<Rightarrow> '\<alpha> option option"
 
 text{* As a consequence of semantic domain definition, any OCL type will
-have the two semantic constants {@text "invalid"} (for exceptional, aborted
-computation) and {@text "null"}; the latter, however is either defined
+have the two semantic constants @{text "invalid"} (for exceptional, aborted
+computation) and @{text "null"}; the latter, however is either defined
  *}
 
 definition invalid :: "('\<AA>,'\<alpha>::bot) val" 
 where     "invalid \<equiv> \<lambda> \<tau>. bot"
 
 text {* The definition : 
+\begin{verbatim}
 definition null    :: "('\<AA>,'\<alpha>::null) val" 
 where     "null    \<equiv> \<lambda> \<tau>. null"
-
+\end{verbatim}
 is not  necessary since we defined the entire function space over null types
-again as null-types; the crucial definition is {@thm "null_fun_def"}.
+again as null-types; the crucial definition is @{thm "null_fun_def"}.
 *}
 
 
@@ -224,7 +225,7 @@ section{* The OCL Base Type Boolean. *}
 section{* Boolean Type and Logic *}
 
 text{* The semantic domain of the (basic) boolean type is now defined as standard:
-the space of valuation to {@typ "bool option option"}:*}
+the space of valuation to @{typ "bool option option"}:*}
 
 type_synonym ('\<AA>)Boolean = "('\<AA>,bool option option) val"
 
@@ -341,7 +342,7 @@ by(simp add: defined_def)
 
 subsection{*  Fundamental Predicates II: Logical (Strong) Equality *}
 text{* Note that we define strong equality extremely generic, even for types that contain
-an null or \<bottom> element:*}
+an @{text "null"} or @{text "\<bottom>"} element:*}
 definition StrongEq::"['\<AA> st \<Rightarrow> '\<alpha>,'\<AA> st \<Rightarrow> '\<alpha>] \<Rightarrow> ('\<AA>)Boolean"  (infixl "\<triangleq>" 30)
 where     "X \<triangleq> Y \<equiv>  \<lambda> \<tau>. \<lfloor>\<lfloor>X \<tau> = Y \<tau> \<rfloor>\<rfloor>"
 
@@ -450,8 +451,8 @@ for a smooth transition to a two-valued representation of the specification
 amenable to fast standard SMT-solvers, for example. 
 
 Thus, our representation of the OCL is merely a 4-valued Kleene-Logics with
-{@term "invalid"} as least, {@term "null"} as middle and {@term "true"} resp.
-{@term "false"} as unrelated top-elements.
+@{term "invalid"} as least, @{term "null"} as middle and @{term "true"} resp.
+@{term "false"} as unrelated top-elements.
 *}
 
 
@@ -461,9 +462,9 @@ where     "not X \<equiv>  \<lambda> \<tau> . case X \<tau> of
                            | \<lfloor> \<bottom> \<rfloor>   \<Rightarrow> \<lfloor> \<bottom> \<rfloor>  
                            | \<lfloor>\<lfloor> x \<rfloor>\<rfloor>  \<Rightarrow> \<lfloor>\<lfloor> \<not> x \<rfloor>\<rfloor>"
 
-text{*Note that {@term "not"} is \emph{not} defined as a strict function; proximity to
-lattice laws implies that we \emph{need} a definition of {@term "not"} that satisfies
-{@text "not(not(x))=x"}. *}
+text{*Note that @{term "not"} is \emph{not} defined as a strict function; proximity to
+lattice laws implies that we \emph{need} a definition of @{term "not"} that satisfies
+@{text "not(not(x))=x"}. *}
 
 lemma cp_not: "(not X)\<tau> = (not (\<lambda> _. X \<tau>)) \<tau>"
 by(simp add: not_def)
@@ -804,7 +805,7 @@ by(simp add: foundation18 foundation16)
  (\<tau> \<Turnstile> (gen_ref_eq x y)) = (\<tau> \<Turnstile> (x \<triangleq> y))"
 apply(auto simp: gen_ref_eq_def OclValid_def WFF_def StrongEq_def true_def)
 sorry
-text{* WFF and ref_eq must be defined strong enough defined that this can be proven! *}
+text{* WFF and ref\_eq must be defined strong enough defined that this can be proven! *}
 
 section{* Local Judgements and Strong Equality *}
 
