@@ -37,5 +37,5 @@
 
 quick_and_dirty := true;
 
-use_thys ["OCL_main"];
+use_thys ["OCL_main","examples/OCL_linked_list"];
 
