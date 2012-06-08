@@ -7,7 +7,8 @@ begin
 section{* Example Data-Universe *}
 text{* Should be generated entirely from a class-diagram. *}
 
-text{* Our data universe @{text "'\<AA>"} consists in the 
+(* @{text "'\<AA>"} -- \mathfrak{A} *)
+text{* Our data universe  consists in the 
        concrete class diagram just of node's. *}
 
 datatype node = Node oid (* the oid to the node itself *)
@@ -232,7 +233,7 @@ axiomatization where dot_insert_def:
 lemma H : "(\<tau> \<Turnstile> (self).insert(x) \<triangleq> result)"
  nitpick
 thm dot_insert_def
-
+oops
 (* Old stuff by Matthias Diss - will not really work any longer in this context: 
 
 declare OO_List.inv.simps [testgen_OO_eqs]
