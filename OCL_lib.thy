@@ -20,15 +20,15 @@ null in the language does not make much sense. This is an important exception
 from the general rule that null arguments --- especially if passed as "self"-argument ---
 lead to invalid results. *}
  
-defs   StrictRefEq_int : "(x::('\<AA>)Integer) \<doteq> y \<equiv>
-                             \<lambda> \<tau>. if (\<upsilon> x) \<tau> = true \<tau> \<and> (\<upsilon> y) \<tau> = true \<tau>
-                                  then (x \<triangleq> y)\<tau>
-                                  else invalid \<tau>"
+defs   StrictRefEq_int[code_unfold] : 
+      "(x::('\<AA>)Integer) \<doteq> y \<equiv> \<lambda> \<tau>. if (\<upsilon> x) \<tau> = true \<tau> \<and> (\<upsilon> y) \<tau> = true \<tau>
+                                    then (x \<triangleq> y)\<tau>
+                                    else invalid \<tau>"
 
-defs   StrictRefEq_bool : "(x::('\<AA>)Boolean) \<doteq> y \<equiv>
-                             \<lambda> \<tau>. if (\<upsilon> x) \<tau> = true \<tau> \<and> (\<upsilon> y) \<tau> = true \<tau>
-                                  then (x \<triangleq> y)\<tau>
-                                  else invalid \<tau>"
+defs   StrictRefEq_bool[code_unfold] : 
+      "(x::('\<AA>)Boolean) \<doteq> y \<equiv> \<lambda> \<tau>. if (\<upsilon> x) \<tau> = true \<tau> \<and> (\<upsilon> y) \<tau> = true \<tau>
+                                    then (x \<triangleq> y)\<tau>
+                                    else invalid \<tau>"
 
 lemma StrictRefEq_int_strict1[simp] : "((x::('\<AA>)Integer) \<doteq> invalid) = invalid"
 by(rule ext, simp add: StrictRefEq_int true_def false_def)
@@ -168,6 +168,23 @@ where      "\<one>\<zero> = (\<lambda> _ . \<lfloor>\<lfloor>10::int\<rfloor>\<r
 text{* Here is a way to cast in standard operators 
 via the type class system of Isabelle. *}
 
+text{* Here follows a list of code-examples, that explain the meanings 
+of the above definitions by compilation to code and execution to "True".*}
+
+value "\<tau>\<^isub>0 \<Turnstile> \<upsilon>(\<four>)"
+value "\<tau>\<^isub>0 \<Turnstile> \<delta>(\<four>)"
+value "\<tau>\<^isub>0 \<Turnstile> (invalid \<triangleq> invalid )" 
+value "\<tau>\<^isub>0 \<Turnstile> (null \<triangleq> null )" 
+value "\<tau>\<^isub>0 \<Turnstile> (\<four> \<triangleq> \<four>)"
+value "\<not>(\<tau>\<^isub>0 \<Turnstile> (\<nine> \<triangleq> \<one>\<zero> ))"     
+value "\<not>(\<tau>\<^isub>0 \<Turnstile> (invalid \<triangleq> \<one>\<zero> ))" 
+value "\<not>(\<tau>\<^isub>0 \<Turnstile> (null \<triangleq> \<one>\<zero> ))"    
+value "\<not>(\<tau>\<^isub>0 \<Turnstile> (invalid \<doteq> (invalid::('\<AA>)Integer)))" (* Without typeconstraint not executable.*)
+value "\<not>(\<tau>\<^isub>0 \<Turnstile> (null \<doteq> (null::('\<AA>)Integer) ))" (* Without typeconstraint not executable.*)
+value "\<tau>\<^isub>0 \<Turnstile> (\<four> \<doteq> \<four>)"
+value "\<not>(\<tau>\<^isub>0 \<Turnstile> (\<four> \<doteq> \<one>\<zero> ))"
+
+
 lemma  "\<delta> null = false" by simp (* recall *)
 lemma  "\<upsilon> null = true"  by simp (* recall *)
 
@@ -212,6 +229,16 @@ done
 
 text{* Here is a common case of a built-in operation on built-in types.
 Note that the arguments must be both defined (non-null, non-bot). *}
+text{* Note that we can not follow the lexis of standard OCL for Isabelle-
+technical reasons; these operators are heavily overloaded in the library
+that a further overloading would lead to heavy technical buzz in this 
+document... *}
+definition ocl_add_int ::"('\<AA>)Integer \<Rightarrow> ('\<AA>)Integer \<Rightarrow> ('\<AA>)Integer" (infix "\<oplus>" 40) 
+where "x \<oplus> y \<equiv> \<lambda> \<tau>. if (\<delta> x) \<tau> = true \<tau> \<and> (\<delta> y) \<tau> = true \<tau>
+                then \<lfloor>\<lfloor>\<lceil>\<lceil>x \<tau>\<rceil>\<rceil> + \<lceil>\<lceil>y \<tau>\<rceil>\<rceil>\<rfloor>\<rfloor>
+                else invalid \<tau> "   
+
+
 definition ocl_less_int ::"('\<AA>)Integer \<Rightarrow> ('\<AA>)Integer \<Rightarrow> ('\<AA>)Boolean" (infix "\<prec>" 40) 
 where "x \<prec> y \<equiv> \<lambda> \<tau>. if (\<delta> x) \<tau> = true \<tau> \<and> (\<delta> y) \<tau> = true \<tau>
                 then \<lfloor>\<lfloor>\<lceil>\<lceil>x \<tau>\<rceil>\<rceil> < \<lceil>\<lceil>y \<tau>\<rceil>\<rceil>\<rfloor>\<rfloor>
@@ -221,6 +248,14 @@ definition ocl_le_int ::"('\<AA>)Integer \<Rightarrow> ('\<AA>)Integer \<Rightar
 where "x \<preceq> y \<equiv> \<lambda> \<tau>. if (\<delta> x) \<tau> = true \<tau> \<and> (\<delta> y) \<tau> = true \<tau>
                 then \<lfloor>\<lfloor>\<lceil>\<lceil>x \<tau>\<rceil>\<rceil> \<le> \<lceil>\<lceil>y \<tau>\<rceil>\<rceil>\<rfloor>\<rfloor>
                 else invalid \<tau> "   
+
+text{* Here follows a list of code-examples, that explain the meanings 
+of the above definitions by compilation to code and execution to "True".*}
+
+value "\<tau>\<^isub>0 \<Turnstile> (\<nine> \<preceq> \<one>\<zero> )"     
+value "\<tau>\<^isub>0 \<Turnstile> (( \<four> \<oplus> \<four> ) \<preceq> \<one>\<zero> )"     
+value "\<not>(\<tau>\<^isub>0 \<Turnstile> ((\<four> \<oplus>( \<four> \<oplus> \<four> )) \<prec> \<one>\<zero> ))"     
+
 
 subsection {* Example: The Set-Collection Type on the Abstract Interface *}
 
@@ -513,6 +548,20 @@ by(simp add: OclExcluding_def bot_fun_def defined_def valid_def false_def true_d
 (* and many more *) 
 
 subsection{* Some computational laws:*}
+thm Abs_Set_0_inject
+lemma excluding_charn0[simp]:
+assumes val_x:"\<tau> \<Turnstile> (\<upsilon> x)"
+shows         "\<tau> \<Turnstile> (Set{}->excluding(x))  \<triangleq>  Set{}"
+proof -
+  have A : "\<lfloor>None\<rfloor> \<in> Set_0" by(simp add: Set_0_def null_option_def bot_option_def)
+  have B : "\<lfloor>\<lfloor>{}\<rfloor>\<rfloor> \<in> Set_0" by(simp add: Set_0_def bot_option_def)
+  show ?thesis using val_x
+    apply(auto simp: OclValid_def OclIncludes_def not_def false_def true_def StrongEq_def 
+                     OclExcluding_def mtSet_def defined_def bot_fun_def null_fun_def null_Set_0_def)
+    apply(auto simp: mtSet_def Set_0_def  OCL_lib.Set_0.Abs_Set_0_inverse 
+                     OCL_lib.Set_0.Abs_Set_0_inject[OF B, OF A])
+  done
+qed
 
 lemma including_charn0[simp]:
 assumes val_x:"\<tau> \<Turnstile> (\<upsilon> x)"

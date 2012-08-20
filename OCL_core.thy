@@ -47,6 +47,9 @@ type_synonym ('\<AA>)state = "oid \<rightharpoonup> '\<AA> "
 
 type_synonym ('\<AA>)st = "'\<AA> state \<times> '\<AA> state"
 
+definition \<tau>\<^isub>0 :: "('\<AA>)st"
+where     "\<tau>\<^isub>0 \<equiv> (Map.empty,Map.empty)"
+
 text{* In certain contexts, we will require that the elements of the object universe have 
 a particular structure; more precisely, we will require that there is a function that
 reconstructs the oid of an object in the state (we will settle the question how to define
@@ -559,7 +562,7 @@ lemma ocl_and8[simp]: "(null and invalid) = invalid"
   by(rule ext,simp add: ocl_and_def null_def invalid_def true_def false_def bot_option_def
                         null_fun_def null_option_def)
 
-lemma ocl_and9[simp]: "(false and true) = false"
+lemma ocl_and9[simp]: "(false and true) = false" 
   by(rule ext,simp add: ocl_and_def null_def invalid_def true_def false_def)
 lemma ocl_and10[simp]: "(false and false) = false"
   by(rule ext,simp add: ocl_and_def null_def invalid_def true_def false_def)
