@@ -171,6 +171,20 @@ via the type class system of Isabelle. *}
 text{* Here follows a list of code-examples, that explain the meanings 
 of the above definitions by compilation to code and execution to "True".*}
 
+text{* Elementary computations on Booleans *}
+value "\<tau>\<^isub>0 \<Turnstile> \<upsilon>(true)"
+value "\<tau>\<^isub>0 \<Turnstile> \<delta>(false)"
+value "\<not>(\<tau>\<^isub>0 \<Turnstile> \<delta>(null))"
+value "\<not>(\<tau>\<^isub>0 \<Turnstile> \<delta>(invalid))"
+value "\<tau>\<^isub>0 \<Turnstile> (true and true \<triangleq> true)"     
+value "\<tau>\<^isub>0 \<Turnstile> ((null or null) \<triangleq> null)"     
+value "\<tau>\<^isub>0 \<Turnstile> ((null or null) \<doteq> null)"     
+value "\<tau>\<^isub>0 \<Turnstile> ((true \<triangleq> false) \<triangleq> false)"     
+value "\<tau>\<^isub>0 \<Turnstile> ((invalid \<triangleq> false) \<triangleq> false)"     
+value "\<tau>\<^isub>0 \<Turnstile> ((invalid \<doteq> false) \<triangleq> invalid)"     
+
+
+text{* Elementary computations on Integer *}
 value "\<tau>\<^isub>0 \<Turnstile> \<upsilon>(\<four>)"
 value "\<tau>\<^isub>0 \<Turnstile> \<delta>(\<four>)"
 value "\<tau>\<^isub>0 \<Turnstile> (invalid \<triangleq> invalid )" 
