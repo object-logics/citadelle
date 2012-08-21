@@ -176,6 +176,9 @@ value "\<tau>\<^isub>0 \<Turnstile> \<upsilon>(true)"
 value "\<tau>\<^isub>0 \<Turnstile> \<delta>(false)"
 value "\<not>(\<tau>\<^isub>0 \<Turnstile> \<delta>(null))"
 value "\<not>(\<tau>\<^isub>0 \<Turnstile> \<delta>(invalid))"
+value "\<tau>\<^isub>0 \<Turnstile> \<upsilon>((null::('\<AA>)Boolean))"
+value "\<not>(\<tau>\<^isub>0 \<Turnstile> \<upsilon>(invalid))"
+value "\<tau>\<^isub>0 \<Turnstile> (true and true)"     
 value "\<tau>\<^isub>0 \<Turnstile> (true and true \<triangleq> true)"     
 value "\<tau>\<^isub>0 \<Turnstile> ((null or null) \<triangleq> null)"     
 value "\<tau>\<^isub>0 \<Turnstile> ((null or null) \<doteq> null)"     
@@ -187,6 +190,7 @@ value "\<tau>\<^isub>0 \<Turnstile> ((invalid \<doteq> false) \<triangleq> inval
 text{* Elementary computations on Integer *}
 value "\<tau>\<^isub>0 \<Turnstile> \<upsilon>(\<four>)"
 value "\<tau>\<^isub>0 \<Turnstile> \<delta>(\<four>)"
+value "\<tau>\<^isub>0 \<Turnstile> \<upsilon>((null::('\<AA>)Integer))"
 value "\<tau>\<^isub>0 \<Turnstile> (invalid \<triangleq> invalid )" 
 value "\<tau>\<^isub>0 \<Turnstile> (null \<triangleq> null )" 
 value "\<tau>\<^isub>0 \<Turnstile> (\<four> \<triangleq> \<four>)"
@@ -194,7 +198,8 @@ value "\<not>(\<tau>\<^isub>0 \<Turnstile> (\<nine> \<triangleq> \<one>\<zero> )
 value "\<not>(\<tau>\<^isub>0 \<Turnstile> (invalid \<triangleq> \<one>\<zero> ))" 
 value "\<not>(\<tau>\<^isub>0 \<Turnstile> (null \<triangleq> \<one>\<zero> ))"    
 value "\<not>(\<tau>\<^isub>0 \<Turnstile> (invalid \<doteq> (invalid::('\<AA>)Integer)))" (* Without typeconstraint not executable.*)
-value "\<not>(\<tau>\<^isub>0 \<Turnstile> (null \<doteq> (null::('\<AA>)Integer) ))" (* Without typeconstraint not executable.*)
+value "\<tau>\<^isub>0 \<Turnstile> (null \<doteq> (null::('\<AA>)Integer) )" (* Without typeconstraint not executable.*)
+value "\<tau>\<^isub>0 \<Turnstile> (null \<doteq> (null::('\<AA>)Integer) )" (* Without typeconstraint not executable.*)
 value "\<tau>\<^isub>0 \<Turnstile> (\<four> \<doteq> \<four>)"
 value "\<not>(\<tau>\<^isub>0 \<Turnstile> (\<four> \<doteq> \<one>\<zero> ))"
 
