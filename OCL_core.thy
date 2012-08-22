@@ -901,16 +901,16 @@ where "(if C then B\<^isub>1 else B\<^isub>2 endif) = (\<lambda> \<tau>. if (\<d
                                                 else B\<^isub>2 \<tau>)
                                            else invalid \<tau>)"
 
-lemma if_ocl_invalid : "(if invalid then B\<^isub>1 else B\<^isub>2 endif) = invalid"
+lemma if_ocl_invalid [simp]: "(if invalid then B\<^isub>1 else B\<^isub>2 endif) = invalid"
 by(rule ext, auto simp: if_ocl_def)
 
-lemma if_ocl_null : "(if null then B\<^isub>1 else B\<^isub>2 endif) = invalid"
+lemma if_ocl_null [simp]: "(if null then B\<^isub>1 else B\<^isub>2 endif) = invalid"
 by(rule ext, auto simp: if_ocl_def)
 
-lemma if_ocl_true : "(if true then B\<^isub>1 else B\<^isub>2 endif) = B\<^isub>1"
+lemma if_ocl_true [simp]: "(if true then B\<^isub>1 else B\<^isub>2 endif) = B\<^isub>1"
 by(rule ext, auto simp: if_ocl_def)
 
-lemma if_ocl_false : "(if false then B\<^isub>1 else B\<^isub>2 endif) = B\<^isub>2"
+lemma if_ocl_false [simp]: "(if false then B\<^isub>1 else B\<^isub>2 endif) = B\<^isub>2"
 by(rule ext, auto simp: if_ocl_def)
 
 
