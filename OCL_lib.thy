@@ -856,6 +856,7 @@ and     F_cp:     "\<And> x y \<tau>. F x y \<tau> = F (\<lambda> _. x \<tau>) (
 shows   "(OclIterate\<^isub>S\<^isub>e\<^isub>t (S->including(a)) A F) = F a (OclIterate\<^isub>S\<^isub>e\<^isub>t (S->excluding(a)) A F)"
 sorry
 
+text{* Elementary cxomputations on Sets.*}
 value "\<not> (\<tau>\<^isub>0 \<Turnstile> \<upsilon>(invalid::('\<AA>,'\<alpha>::null) Set))"
 value "\<tau>\<^isub>0 \<Turnstile> \<upsilon>(null::('\<AA>,'\<alpha>::null) Set)"
 value "\<not> (\<tau>\<^isub>0 \<Turnstile> \<delta>(null::('\<AA>,'\<alpha>::null) Set))"
