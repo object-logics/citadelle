@@ -623,6 +623,7 @@ lemma ocl_and_assoc: "(X and (Y and Z)) = (X and Y and Z)"
                     bool.split bool.split_asm)
 done
 
+
 lemma ocl_or_idem[simp]: "(X or X) = X"
   by(simp add: ocl_or_def)
 
@@ -660,6 +661,9 @@ section{* Global vs. Local Judgements*}
 lemma transform1: "P = true \<Longrightarrow> \<tau> \<Turnstile> P"
 by(simp add: OclValid_def)
 
+
+lemma transform1_rev: "\<forall> \<tau>. \<tau> \<Turnstile> P \<Longrightarrow> P = true"
+by(rule ext, auto simp: OclValid_def true_def)
 
 lemma transform2: "(P = Q) \<Longrightarrow> ((\<tau> \<Turnstile> P) = (\<tau> \<Turnstile> Q))"
 by(auto simp: OclValid_def)
@@ -803,6 +807,29 @@ lemmas foundation19 = foundation18[THEN iffD1,standard]
 
 lemma foundation20 : "\<tau> \<Turnstile> (\<delta> X) \<Longrightarrow> \<tau> \<Turnstile> \<upsilon> X"
 by(simp add: foundation18 foundation16) 
+
+lemma defined_not_I : "\<tau> \<Turnstile> \<delta> (x) \<Longrightarrow> \<tau> \<Turnstile> \<delta> (not x)" 
+  by(auto simp: not_def null_def invalid_def defined_def valid_def OclValid_def
+                  true_def false_def bot_option_def null_option_def null_fun_def bot_fun_def
+             split: option.split_asm HOL.split_if_asm)
+
+lemma valid_not_I : "\<tau> \<Turnstile> \<upsilon> (x) \<Longrightarrow> \<tau> \<Turnstile> \<upsilon> (not x)" 
+  by(auto simp: not_def null_def invalid_def defined_def valid_def OclValid_def
+                  true_def false_def bot_option_def null_option_def null_fun_def bot_fun_def
+          split: option.split_asm option.split HOL.split_if_asm)
+
+lemma defined_and_I : "\<tau> \<Turnstile> \<delta> (x) \<Longrightarrow>  \<tau> \<Turnstile> \<delta> (y) \<Longrightarrow> \<tau> \<Turnstile> \<delta> (x and y)" 
+  apply(simp add: ocl_and_def null_def invalid_def defined_def valid_def OclValid_def
+                  true_def false_def bot_option_def null_option_def null_fun_def bot_fun_def
+             split: option.split_asm HOL.split_if_asm)
+  apply(auto simp: null_option_def split: bool.split)
+  by(case_tac "ya",simp_all)
+
+lemma valid_and_I :   "\<tau> \<Turnstile> \<upsilon> (x) \<Longrightarrow>  \<tau> \<Turnstile> \<upsilon> (y) \<Longrightarrow> \<tau> \<Turnstile> \<upsilon> (x and y)" 
+  apply(simp add: ocl_and_def null_def invalid_def defined_def valid_def OclValid_def
+                  true_def false_def bot_option_def null_option_def null_fun_def bot_fun_def
+             split: option.split_asm HOL.split_if_asm)
+  by(auto simp: null_option_def split: option.split bool.split)
 
 
 (* wannabe *)theorem strictEqGen_vs_strongEq: 
