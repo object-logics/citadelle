@@ -939,8 +939,8 @@ text{* In particular, this does hold for A = null. *}
 
 lemma OclIterate\<^isub>S\<^isub>e\<^isub>t_including:
 assumes S_finite: "\<tau> \<Turnstile> \<delta>(S->size())"
-and     F_strict1:"\<And> x. F x \<bottom> = \<bottom>"
-and     F_strict2:"\<And> x. F \<bottom> x = \<bottom>"
+and     F_strict1:"\<And> x. F x invalid = invalid"
+and     F_strict2:"\<And> x. F invalid x = invalid_def"
 and     F_commute:"\<And> x y. F y \<circ> F x = F x \<circ> F y"
 and     F_cp:     "\<And> x y \<tau>. F x y \<tau> = F (\<lambda> _. x \<tau>) (\<lambda> _. y \<tau>) \<tau>"
 shows   "(OclIterate\<^isub>S\<^isub>e\<^isub>t (S->including(a)) A F) = F a (OclIterate\<^isub>S\<^isub>e\<^isub>t (S->excluding(a)) A F)"
