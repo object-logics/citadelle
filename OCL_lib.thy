@@ -1007,16 +1007,30 @@ lemma OclIterate\<^isub>S\<^isub>e\<^isub>t_empty: "(Set{})->iterate(a; x = A | 
 oops
 text{* In particular, this does hold for A = null. *}
 
+find_theorems fold
 
 lemma OclIterate\<^isub>S\<^isub>e\<^isub>t_including:
 assumes S_finite: "\<tau> \<Turnstile> \<delta>(S->size())"
 and     F_strict1:"\<And> x. F x invalid = invalid"
-and     F_strict2:"\<And> x. F invalid x = invalid_def"
+and     F_strict2:"\<And> x. F invalid x = invalid"
 and     F_commute:"\<And> x y. F y \<circ> F x = F x \<circ> F y"
 and     F_cp:     "\<And> x y \<tau>. F x y \<tau> = F (\<lambda> _. x \<tau>) (\<lambda> _. y \<tau>) \<tau>"
-shows   "(S->including(a))->iterate(a; x = A | F a x) = 
-         F a ((S->excluding(a))->iterate(a; x = A | F a x))"
+shows   "((S->including(a))->iterate(a; x = A | F a x)) \<tau> = 
+          (F a ((S->excluding(a))->iterate(a; x = A | F a x))) \<tau>"
 sorry
+
+
+(*
+Sequence{6,8}->iterate(i;r1:Sequence(Integer)=Sequence{9}|
+  r1->iterate(j;r2:Sequence(Integer)=r1|
+    r2->including(0)->including(i)->including(j)))
+*)
+
+lemma GogollasChallenge_on_sets: 
+      "\<tau> \<Turnstile> (Set{\<six>,\<eight>}->iterate(i;r1=Set{\<nine>}| 
+                        r1->iterate(j;r2=r1| 
+                                    r2->including(\<zero>)->including(i)->including(j))) \<doteq> Set{\<zero>, \<six>, \<eight>, \<nine>})"
+apply(subst OclIterate\<^isub>S\<^isub>e\<^isub>t_including)
 
 text{* Elementary computations on Sets.*}
 value "\<not> (\<tau>\<^isub>0 \<Turnstile> \<upsilon>(invalid::('\<AA>,'\<alpha>::null) Set))"
