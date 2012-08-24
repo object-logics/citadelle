@@ -982,41 +982,44 @@ syntax
 translations
   "X->iterate(a; x = A | P)" == "CONST OclIterate\<^isub>S\<^isub>e\<^isub>t X A (%a. (% x. P))"
 
-lemma OclIterate\<^isub>S\<^isub>e\<^isub>t_strict1[simp]:"invalid->iterate(a; x = A | P) = invalid"
+lemma OclIterate\<^isub>S\<^isub>e\<^isub>t_strict1[simp]:"invalid->iterate(a; x = A | P a x) = invalid"
 by(simp add: bot_fun_def invalid_def OclIterate\<^isub>S\<^isub>e\<^isub>t_def defined_def valid_def false_def true_def)
 
-lemma OclIterate\<^isub>S\<^isub>e\<^isub>t_null1[simp]:"null->iterate(a; x = A | P) = invalid"
+lemma OclIterate\<^isub>S\<^isub>e\<^isub>t_null1[simp]:"null->iterate(a; x = A | P a x) = invalid"
 by(simp add: bot_fun_def invalid_def OclIterate\<^isub>S\<^isub>e\<^isub>t_def defined_def valid_def false_def true_def)
 
 
-lemma OclIterate\<^isub>S\<^isub>e\<^isub>t_strict2[simp]:"S->iterate(a; x = invalid | P) = invalid"
+lemma OclIterate\<^isub>S\<^isub>e\<^isub>t_strict2[simp]:"S->iterate(a; x = invalid | P a x) = invalid"
 by(simp add: bot_fun_def invalid_def OclIterate\<^isub>S\<^isub>e\<^isub>t_def defined_def valid_def false_def true_def)
 
 text{* An open question is this ... *}
-lemma OclIterate\<^isub>S\<^isub>e\<^isub>t_null2[simp]:"S->iterate(a; x = null | P) = invalid"
+lemma OclIterate\<^isub>S\<^isub>e\<^isub>t_null2[simp]:"S->iterate(a; x = null | P a x) = invalid"
 oops  
 text{* In the definition above, this does not hold in general. 
        And I believe, this is how it should be ... *}
 
 lemma OclIterate\<^isub>S\<^isub>e\<^isub>t_infinite:
 assumes non_finite: "\<tau> \<Turnstile> not(\<delta>(S->size()))"
-shows "(OclIterate\<^isub>S\<^isub>e\<^isub>t S A F) = invalid"
+shows "(OclIterate\<^isub>S\<^isub>e\<^isub>t S A F) \<tau> = invalid \<tau>"
 sorry
 
-lemma OclIterate\<^isub>S\<^isub>e\<^isub>t_empty: "(Set{})->iterate(a; x = A | P) = A"
-oops
+lemma OclIterate\<^isub>S\<^isub>e\<^isub>t_empty[simp]: "((Set{})->iterate(a; x = A | P a x)) = A"
+sorry
+
 text{* In particular, this does hold for A = null. *}
 
-find_theorems fold
 
 lemma OclIterate\<^isub>S\<^isub>e\<^isub>t_including:
 assumes S_finite: "\<tau> \<Turnstile> \<delta>(S->size())"
+(*
 and     F_strict1:"\<And> x. F x invalid = invalid"
 and     F_strict2:"\<And> x. F invalid x = invalid"
+
 and     F_commute:"\<And> x y. F y \<circ> F x = F x \<circ> F y"
 and     F_cp:     "\<And> x y \<tau>. F x y \<tau> = F (\<lambda> _. x \<tau>) (\<lambda> _. y \<tau>) \<tau>"
+*)
 shows   "((S->including(a))->iterate(a; x = A | F a x)) \<tau> = 
-          (F a ((S->excluding(a))->iterate(a; x = A | F a x))) \<tau>"
+          ( ((S->excluding(a))->iterate(a; x = F a A | F a x))) \<tau>"
 sorry
 
 
@@ -1026,11 +1029,25 @@ Sequence{6,8}->iterate(i;r1:Sequence(Integer)=Sequence{9}|
     r2->including(0)->including(i)->including(j)))
 *)
 
+lemma short_cut[simp]: "x \<Turnstile> \<delta> S->size()"
+sorry
+
+lemma short_cut'[simp]: "(\<eight> \<doteq> \<six>)  = false"
+sorry
+
+lemma [simp]: "\<upsilon> \<six> = true" sorry
+lemma [simp]: "\<upsilon> \<eight> = true" sorry
+lemma [simp]: "\<upsilon> \<nine> = true" sorry
+
+
 lemma GogollasChallenge_on_sets: 
-      "\<tau> \<Turnstile> (Set{\<six>,\<eight>}->iterate(i;r1=Set{\<nine>}| 
+      "(Set{ \<six>,\<eight> }->iterate(i;r1=Set{\<nine>}| 
                         r1->iterate(j;r2=r1| 
-                                    r2->including(\<zero>)->including(i)->including(j))) \<doteq> Set{\<zero>, \<six>, \<eight>, \<nine>})"
-apply(subst OclIterate\<^isub>S\<^isub>e\<^isub>t_including)
+                                    r2->including(\<zero>)->including(i)->including(j))) =  Set{\<zero>,  \<six>, \<nine>})"
+apply(rule ext,
+      simp add: excluding_charn_exec OclIterate\<^isub>S\<^isub>e\<^isub>t_including excluding_charn0_exec)
+sorry
+
 
 text{* Elementary computations on Sets.*}
 value "\<not> (\<tau>\<^isub>0 \<Turnstile> \<upsilon>(invalid::('\<AA>,'\<alpha>::null) Set))"
