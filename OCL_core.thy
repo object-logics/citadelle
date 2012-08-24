@@ -732,6 +732,11 @@ lemma foundation7[simp]:
 by(simp add: not_def OclValid_def true_def false_def defined_def
              split: option.split option.split_asm)
 
+lemma foundation7'[simp]: 
+"(\<tau> \<Turnstile> not (\<upsilon> x)) = (\<not> (\<tau> \<Turnstile> \<upsilon> x))"
+by(simp add: not_def OclValid_def true_def false_def valid_def
+             split: option.split option.split_asm)
+
 text{* Key theorem for the Delta-closure: either an expression
 is defined, or it can be replaced (substituted via \verb+StrongEq_L_subst2+; see
 below) by invalid or null. Strictness-reduction rules will usually 
@@ -797,8 +802,12 @@ by(auto simp: OclValid_def defined_def false_def true_def  bot_fun_def null_fun_
 
 lemmas foundation17 = foundation16[THEN iffD1,standard]
 
+lemma foundation18: "\<tau> \<Turnstile> (\<upsilon> X) = (X \<tau> \<noteq> invalid \<tau>)"
+by(auto simp: OclValid_def valid_def false_def true_def bot_fun_def invalid_def
+        split:split_if_asm)
 
-lemma foundation18: "\<tau> \<Turnstile> (\<upsilon> X) = (X \<tau> \<noteq> bot)"
+(*legacy*)
+lemma foundation18': "\<tau> \<Turnstile> (\<upsilon> X) = (X \<tau> \<noteq> bot)"
 by(auto simp: OclValid_def valid_def false_def true_def bot_fun_def
         split:split_if_asm)
 
@@ -806,7 +815,12 @@ by(auto simp: OclValid_def valid_def false_def true_def bot_fun_def
 lemmas foundation19 = foundation18[THEN iffD1,standard]
 
 lemma foundation20 : "\<tau> \<Turnstile> (\<delta> X) \<Longrightarrow> \<tau> \<Turnstile> \<upsilon> X"
-by(simp add: foundation18 foundation16) 
+by(simp add: foundation18 foundation16 invalid_def) 
+
+lemma foundation21: "(not A \<triangleq> not B) = (A \<triangleq> B)"
+by(rule ext, auto simp: not_def StrongEq_def
+                     split: bool.split_asm HOL.split_if_asm option.split)
+
 
 lemma defined_not_I : "\<tau> \<Turnstile> \<delta> (x) \<Longrightarrow> \<tau> \<Turnstile> \<delta> (not x)" 
   by(auto simp: not_def null_def invalid_def defined_def valid_def OclValid_def
@@ -927,6 +941,12 @@ where "(if C then B\<^isub>1 else B\<^isub>2 endif) = (\<lambda> \<tau>. if (\<d
                                                 then B\<^isub>1 \<tau> 
                                                 else B\<^isub>2 \<tau>)
                                            else invalid \<tau>)"
+
+
+lemma cp_if_ocl:"((if C then B\<^isub>1 else B\<^isub>2 endif) \<tau> = 
+                  (if (\<lambda> _. C \<tau>) then (\<lambda> _. B\<^isub>1 \<tau>) else (\<lambda> _. B\<^isub>2 \<tau>) endif) \<tau>)"
+by(simp only: if_ocl_def, subst cp_defined, rule refl)
+
 
 lemma if_ocl_invalid [simp]: "(if invalid then B\<^isub>1 else B\<^isub>2 endif) = invalid"
 by(rule ext, auto simp: if_ocl_def)
