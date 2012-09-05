@@ -8,6 +8,7 @@ text{* Since Integer is again a basic type, we define its semantic domain
 as the valuations over @{typ "int option option"}*}
 type_synonym ('\<AA>)Integer = "('\<AA>,int option option) val"
 
+
 type_synonym ('\<AA>)Void = "('\<AA>,unit option) val"
 text {* Note that this \emph{minimal} OCL type contains only two elements:
 undefined and null. For technical reasons, he does not contain to the null-class yet.*}
@@ -972,7 +973,7 @@ by(simp add:includes_execute)
 definition OclIterate\<^isub>S\<^isub>e\<^isub>t :: "[('\<AA>,'\<alpha>::null) Set,('\<AA>,'\<beta>::null)val,
                              ('\<AA>,'\<alpha>)val\<Rightarrow>('\<AA>,'\<beta>)val\<Rightarrow>('\<AA>,'\<beta>)val] \<Rightarrow> ('\<AA>,'\<beta>)val"
 where "OclIterate\<^isub>S\<^isub>e\<^isub>t S A F = (\<lambda> \<tau>. if (\<delta> S) \<tau> = true \<tau> \<and> (\<upsilon> A) \<tau> = true \<tau> \<and> finite\<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>
-                                  then (fold F A ((\<lambda>a \<tau>. a) ` \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>))\<tau>
+                                  then (Finite_Set.fold (F) (A) ((\<lambda>a \<tau>. a) ` \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>))\<tau>
                                   else \<bottom>)"
 
 
