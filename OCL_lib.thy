@@ -20,6 +20,13 @@ must be exceptionally defined on null --- otherwise the entire concept of
 null in the language does not make much sense. This is an important exception
 from the general rule that null arguments --- especially if passed as "self"-argument ---
 lead to invalid results. *}
+
+consts StrictRefEq :: "[('\<AA>,'a)val,('\<AA>,'a)val] \<Rightarrow> ('\<AA>)Boolean" (infixl "\<doteq>" 30)
+
+syntax
+  "notequal"        :: "('\<AA>)Boolean \<Rightarrow> ('\<AA>)Boolean \<Rightarrow> ('\<AA>)Boolean"   (infix "<>" 40)
+translations
+  "a <> b" == "CONST not( a \<doteq> b)"
  
 defs   StrictRefEq_int[code_unfold] : 
       "(x::('\<AA>)Integer) \<doteq> y \<equiv> \<lambda> \<tau>. if (\<upsilon> x) \<tau> = true \<tau> \<and> (\<upsilon> y) \<tau> = true \<tau>
@@ -83,11 +90,6 @@ by(auto simp: StrictRefEq_int OclValid_def true_def valid_def false_def StrongEq
                  defined_def invalid_def bot_fun_def bot_option_def
         split: bool.split_asm HOL.split_if_asm option.split)
 
-lemma gen_ref_eq_defargs: 
-"\<tau> \<Turnstile> (gen_ref_eq x (y::('\<AA>,'a::{null,object})val))\<Longrightarrow> (\<tau> \<Turnstile>(\<delta> x)) \<and> (\<tau> \<Turnstile>(\<delta> y))"
-by(simp add: gen_ref_eq_def OclValid_def true_def invalid_def
-             defined_def invalid_def bot_fun_def bot_option_def
-        split: bool.split_asm HOL.split_if_asm)
 
 (* Probably not very useful *)
 lemma StrictRefEq_int_strict :
@@ -356,7 +358,8 @@ end
 text{* ...  and lifting this type to the format of a valuation gives us:*}
 type_synonym    ('\<AA>,'\<alpha>) Set  = "('\<AA>, '\<alpha> Set_0) val"
 
-lemma Set_inv_lemma: "\<tau> \<Turnstile> (\<delta> X) \<Longrightarrow> (X \<tau> = Abs_Set_0 \<lfloor>bot\<rfloor>) \<or> (\<forall>x\<in>\<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil>. x \<noteq> bot)"
+lemma Set_inv_lemma: "\<tau> \<Turnstile> (\<delta> X) \<Longrightarrow> (X \<tau> = Abs_Set_0 \<lfloor>bot\<rfloor>) 
+                                     \<or> (\<forall>x\<in>\<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil>. x \<noteq> bot)"
 apply(insert OCL_lib.Set_0.Rep_Set_0 [of "X \<tau>"], simp add:Set_0_def)
 apply(auto simp: OclValid_def defined_def false_def true_def cp_def 
                  bot_fun_def bot_Set_0_def null_Set_0_def null_fun_def

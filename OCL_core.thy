@@ -18,28 +18,15 @@ the presentation more "textbook"-like:*}
 notation Some ("\<lfloor>(_)\<rfloor>")
 notation None ("\<bottom>")
 
-(*
-syntax
-  "lift"        :: "'\<alpha> \<Rightarrow> '\<alpha> option"   ("\<lfloor>(_)\<rfloor>")
-translations
-  "\<lfloor>a\<rfloor>" == "CONST Some a"
-
-
-syntax
-  "bottom"      :: "'\<alpha> option"   ("\<bottom>")
-translations
-  "\<bottom>" == "CONST None"
-*)
 
 fun    drop :: "'\<alpha> option \<Rightarrow> '\<alpha>" ("\<lceil>(_)\<rceil>")
 where  drop_lift[simp]: "\<lceil>\<lfloor>v\<rfloor>\<rceil> = v"
 
-subsection{* State, State Transitions, Well-formed States *}
+subsection{* Minimal Notions of State and State Transitions *}
 text{* Next we will introduce the foundational concept of an object id (oid), 
 which is just some infinite set.  *}
 
 type_synonym oid = ind
-
 
 text{* States are just a partial map from oid's to elements of an object universe @{text "'\<AA>"},
 and state transitions pairs of states...  *}
@@ -47,19 +34,6 @@ type_synonym ('\<AA>)state = "oid \<rightharpoonup> '\<AA> "
 
 type_synonym ('\<AA>)st = "'\<AA> state \<times> '\<AA> state"
 
-definition \<tau>\<^isub>0 :: "('\<AA>)st"
-where     "\<tau>\<^isub>0 \<equiv> (Map.empty,Map.empty)"
-
-text{* In certain contexts, we will require that the elements of the object universe have 
-a particular structure; more precisely, we will require that there is a function that
-reconstructs the oid of an object in the state (we will settle the question how to define
-this function later). *}
-class object =
-  fixes oid_of :: "'a \<Rightarrow> oid"
-
-text{* Thus, if needed, we can constrain the object universe to objects by adding
-the following type class constraint:*}
-typ "'\<AA> :: object"
 
 subsection {* Prerequisite: An Abstract Interface for OCL Types *}
 
@@ -97,12 +71,6 @@ class   bot =
    fixes  bot :: "'a"
    assumes nonEmpty : "\<exists> x. x \<noteq> bot"
 
-
-(*
-begin
-   notation (xsymbols)  bot ("\<bottom>")
-end
-*)
 
 class      null = bot +
    fixes   null :: "'a"
@@ -196,33 +164,6 @@ again as null-types; the crucial definition is @{thm "null_fun_def"}.
 *}
 
 
-subsection{* Further requirements on States*}
-text{* A key-concept for linking strict referential equality to
-       logical equality: in well-formed states (i.e. those
-       states where the self (oid-of) field contains the pointer
-       to which the object is associated to in the state), 
-       referential equality coincides with logical equality. *}
-
-definition WFF :: "('\<AA>::object)st \<Rightarrow> bool"
-where "WFF \<tau> = ((\<forall> x \<in> dom(fst \<tau>). x = oid_of(the(fst \<tau> x))) \<and>
-                (\<forall> x \<in> dom(snd \<tau>). x = oid_of(the(snd \<tau> x))))"
-
-text{* This is a generic definition of referential equality:
-Equality on objects in a state is reduced to equality on the
-references to these objects. As in HOL-OCL, we will store
-the reference of an object inside the object in a (ghost) field.
-By establishing certain invariants ("consistent state"), it can
-be assured that there is a "one-to-one-correspondance" of objects
-to their references --- and therefore the definition below
-behaves as we expect. *}
-text{* Generic Referential Equality enjoys the usual properties:
-(quasi) reflexivity, symmetry, transitivity, substitutivity for
-defined values. For type-technical reasons, for each concrete
-object type, the equality @{text "\<doteq>"} is defined by generic referential
-equality. *}
-
-
-section{* The OCL Base Type Boolean. *}
 
 
 section{* Boolean Type and Logic *}
@@ -243,6 +184,7 @@ by(simp add: null_fun_def null_option_def bot_option_def)
 definition true :: "('\<AA>)Boolean"
 where     "true \<equiv> \<lambda> \<tau>. \<lfloor>\<lfloor>True\<rfloor>\<rfloor>"
 
+
 definition false :: "('\<AA>)Boolean"
 where     "false \<equiv>  \<lambda> \<tau>. \<lfloor>\<lfloor>False\<rfloor>\<rfloor>"
 
@@ -255,12 +197,27 @@ apply(case_tac "aa",simp)
 apply auto
 done
 
-
 lemma [simp]: "false (a, b) = \<lfloor>\<lfloor>False\<rfloor>\<rfloor>"
 by(simp add:false_def)
 
 lemma [simp]: "true (a, b) = \<lfloor>\<lfloor>True\<rfloor>\<rfloor>"
 by(simp add:true_def)
+
+text{* The definitions above for the constants @{const true} and @{const false}
+are geared towards a format that Isabelle can check to be a "conservative" 
+(i.e. logically safe) axiomatic definition. By introducing an explicit 
+interpretation function (which happens to be defined just as the identity
+since we are using a shallow embedding of OCL into HOL), all these definions
+can be rewritten into the conventional semantic "textbook" format  as follows: *}
+
+definition Sem :: "'a \<Rightarrow> 'a" ("I\<lbrakk>_\<rbrakk>")
+where "I\<lbrakk>x\<rbrakk> \<equiv> x"
+
+lemma textbook_true: "I\<lbrakk>true\<rbrakk> \<tau> = \<lfloor>\<lfloor>True\<rfloor>\<rfloor>"
+by(simp add: Sem_def true_def)
+
+lemma textbook_false: "I\<lbrakk>false\<rbrakk> \<tau> = \<lfloor>\<lfloor>False\<rfloor>\<rfloor>"
+by(simp add: Sem_def false_def)
 
 subsection{* Fundamental Predicates I: Validity and Definedness *}
 
@@ -342,6 +299,19 @@ lemma valid6[simp]: "\<upsilon> \<delta> X = true"
 lemma cp_defined:"(\<delta> X)\<tau> = (\<delta> (\<lambda> _. X \<tau>)) \<tau>"
 by(simp add: defined_def)
 
+text{* The definitions above for the constants @{const defined} and @{const valid}
+can be rewritten into the conventional semantic "textbook" format  as follows: *}
+
+lemma textbook_defined: "I\<lbrakk>\<delta>(X)\<rbrakk> \<tau> = (if I\<lbrakk>X\<rbrakk> \<tau> = I\<lbrakk>bot\<rbrakk> \<tau>  \<or> I\<lbrakk>X\<rbrakk> \<tau> = I\<lbrakk>null\<rbrakk> \<tau> 
+                                     then I\<lbrakk>false\<rbrakk> \<tau> 
+                                     else I\<lbrakk>true\<rbrakk> \<tau>)"
+by(simp add: Sem_def defined_def)
+
+lemma textbook_valid: "I\<lbrakk>\<upsilon>(X)\<rbrakk> \<tau> = (if I\<lbrakk>X\<rbrakk> \<tau> = I\<lbrakk>bot\<rbrakk> \<tau>  
+                                   then I\<lbrakk>false\<rbrakk> \<tau> 
+                                   else I\<lbrakk>true\<rbrakk> \<tau>)"
+by(simp add: Sem_def valid_def)
+
 
 subsection{*  Fundamental Predicates II: Logical (Strong) Equality *}
 text{* Note that we define strong equality extremely generic, even for types that contain
@@ -386,43 +356,7 @@ lemma StrongEq_subst :
   apply(subst cp[of Y])
   by simp
 
-subsection{*  Fundamental Predicates III: (Generic) Referential Strict Equality *}
-
-text{* Construction by overloading: for each base type, there is an equality.*}
-
-consts StrictRefEq :: "[('\<AA>,'a)val,('\<AA>,'a)val] \<Rightarrow> ('\<AA>)Boolean" (infixl "\<doteq>" 30)
-
-
-text{* Generic referential equality - to be used for instantiations
- with concrete object types ... *}
-definition  gen_ref_eq :: "('\<AA>,'a::{object,null})val \<Rightarrow> ('\<AA>,'a)val \<Rightarrow> ('\<AA>)Boolean" 
-where       "gen_ref_eq x y
-             \<equiv> \<lambda> \<tau>. if (\<delta> x) \<tau> = true \<tau> \<and> (\<delta> y) \<tau> = true \<tau>
-                    then if x \<tau> = null \<or> y \<tau> = null
-                         then \<lfloor>\<lfloor>x \<tau> = null \<and> y \<tau> = null\<rfloor>\<rfloor>
-                         else \<lfloor>\<lfloor>(oid_of (x \<tau>)) = (oid_of (y \<tau>)) \<rfloor>\<rfloor>
-                    else invalid \<tau>"
-
-
-lemma gen_ref_eq_object_strict1[simp] : 
-"(gen_ref_eq x invalid) = invalid"
-by(rule ext, simp add: gen_ref_eq_def true_def false_def)
-
-lemma gen_ref_eq_object_strict2[simp] : 
-"(gen_ref_eq invalid x) = invalid"
-by(rule ext, simp add: gen_ref_eq_def true_def false_def)
-
-lemma gen_ref_eq_object_strict3[simp] : 
-"(gen_ref_eq x null) = invalid"
-by(rule ext, simp add: gen_ref_eq_def true_def false_def)
-
-lemma gen_ref_eq_object_strict4[simp] : 
-"(gen_ref_eq null x) = invalid"
-by(rule ext, simp add: gen_ref_eq_def true_def false_def)
-
-lemma cp_gen_ref_eq_object: 
-"(gen_ref_eq x y \<tau>) = (gen_ref_eq (\<lambda>_. x \<tau>) (\<lambda>_. y \<tau>)) \<tau>"
-by(auto simp: gen_ref_eq_def StrongEq_def invalid_def  cp_defined[symmetric])
+subsection{*  Fundamental Predicates III *}
 
 
 text{* And, last but not least, *}
@@ -439,6 +373,11 @@ lemma valid5[simp]: "\<upsilon> (X \<triangleq> Y) = true"
 
 lemma cp_StrongEq: "(X \<triangleq> Y) \<tau> = ((\<lambda> _. X \<tau>) \<triangleq> (\<lambda> _. Y \<tau>)) \<tau>"
 by(simp add: StrongEq_def)
+
+text{* The semantics of strict equality of OCL is constructed by overloading: 
+for each base type, there is an equality.*}
+
+
 
 subsection{* Logical Connectives and their Universal Properties *}
 text{* It is a design goal to give OCL a semantics that is as closely as
@@ -467,9 +406,6 @@ where     "not X \<equiv>  \<lambda> \<tau> . case X \<tau> of
                            | \<lfloor> \<bottom> \<rfloor>   \<Rightarrow> \<lfloor> \<bottom> \<rfloor>  
                            | \<lfloor>\<lfloor> x \<rfloor>\<rfloor>  \<Rightarrow> \<lfloor>\<lfloor> \<not> x \<rfloor>\<rfloor>"
 
-text{*Note that @{term "not"} is \emph{not} defined as a strict function; proximity to
-lattice laws implies that we \emph{need} a definition of @{term "not"} that satisfies
-@{text "not(not(x))=x"}. *}
 
 lemma cp_not: "(not X)\<tau> = (not (\<lambda> _. X \<tau>)) \<tau>"
 by(simp add: not_def)
@@ -494,10 +430,6 @@ lemma not_not[simp]: "not (not X) = X"
   apply(case_tac "a", simp_all)
   done
 
-syntax
-  "notequal"        :: "('\<AA>)Boolean \<Rightarrow> ('\<AA>)Boolean \<Rightarrow> ('\<AA>)Boolean"   (infix "<>" 40)
-translations
-  "a <> b" == "CONST not( a \<doteq> b)"
 
 definition ocl_and :: "[('\<AA>)Boolean, ('\<AA>)Boolean] \<Rightarrow> ('\<AA>)Boolean" (infixl "and" 30)
 where     "X and Y \<equiv>  (\<lambda> \<tau> . case X \<tau> of
@@ -516,6 +448,40 @@ where     "X and Y \<equiv>  (\<lambda> \<tau> . case X \<tau> of
                                           | \<lfloor>\<bottom>\<rfloor> \<Rightarrow> \<lfloor>\<bottom>\<rfloor>
                                           | \<lfloor>\<lfloor>y\<rfloor>\<rfloor> \<Rightarrow>  \<lfloor>\<lfloor>y\<rfloor>\<rfloor>)
                         | \<lfloor>\<lfloor>False\<rfloor>\<rfloor> \<Rightarrow>  \<lfloor>\<lfloor> False \<rfloor>\<rfloor>)"
+
+
+text{*Note that @{term "not"} is \emph{not} defined as a strict function; proximity to
+lattice laws implies that we \emph{need} a definition of @{term "not"} that satisfies
+@{text "not(not(x))=x"}. *}
+
+text{* In textbook notation, the logical core constructs @{const "not"} and
+@{const "ocl_and"} were represented as follows: *}
+
+lemma textbook_not: 
+     "I\<lbrakk>not(X)\<rbrakk> \<tau> =  (case I\<lbrakk>X\<rbrakk> \<tau> of   \<bottom>   \<Rightarrow> \<bottom>
+                                 |  \<lfloor> \<bottom> \<rfloor> \<Rightarrow> \<lfloor> \<bottom> \<rfloor>  
+                                 | \<lfloor>\<lfloor> x \<rfloor>\<rfloor> \<Rightarrow> \<lfloor>\<lfloor> \<not> x \<rfloor>\<rfloor>)"
+by(simp add: Sem_def not_def)
+
+lemma textbook_and: 
+     "I\<lbrakk>X and Y\<rbrakk> \<tau> = (case I\<lbrakk>X\<rbrakk> \<tau> of
+                            \<bottom>  \<Rightarrow> (case I\<lbrakk>Y\<rbrakk> \<tau> of
+                                             \<bottom> \<Rightarrow>  \<bottom>
+                                          | \<lfloor>\<bottom>\<rfloor> \<Rightarrow> \<bottom>
+                                          | \<lfloor>\<lfloor>True\<rfloor>\<rfloor> \<Rightarrow>  \<bottom>
+                                          | \<lfloor>\<lfloor>False\<rfloor>\<rfloor> \<Rightarrow>  \<lfloor>\<lfloor>False\<rfloor>\<rfloor>)
+                        | \<lfloor> \<bottom> \<rfloor> \<Rightarrow> (case I\<lbrakk>Y\<rbrakk> \<tau> of
+                                             \<bottom> \<Rightarrow>  \<bottom>
+                                          | \<lfloor>\<bottom>\<rfloor> \<Rightarrow> \<lfloor>\<bottom>\<rfloor>
+                                          | \<lfloor>\<lfloor>True\<rfloor>\<rfloor> \<Rightarrow> \<lfloor>\<bottom>\<rfloor>
+                                          | \<lfloor>\<lfloor>False\<rfloor>\<rfloor> \<Rightarrow>  \<lfloor>\<lfloor>False\<rfloor>\<rfloor>)
+                        | \<lfloor>\<lfloor>True\<rfloor>\<rfloor> \<Rightarrow> (case I\<lbrakk>Y\<rbrakk> \<tau> of
+                                             \<bottom> \<Rightarrow>  \<bottom>
+                                          | \<lfloor>\<bottom>\<rfloor> \<Rightarrow> \<lfloor>\<bottom>\<rfloor>
+                                          | \<lfloor>\<lfloor>y\<rfloor>\<rfloor> \<Rightarrow>  \<lfloor>\<lfloor>y\<rfloor>\<rfloor>)
+                        | \<lfloor>\<lfloor>False\<rfloor>\<rfloor> \<Rightarrow>  \<lfloor>\<lfloor> False \<rfloor>\<rfloor>)"
+by(simp add: Sem_def ocl_and_def split: option.split   )
+
 
 
 definition ocl_or :: "[('\<AA>)Boolean, ('\<AA>)Boolean] \<Rightarrow> ('\<AA>)Boolean"
@@ -845,14 +811,6 @@ lemma valid_and_I :   "\<tau> \<Turnstile> \<upsilon> (x) \<Longrightarrow>  \<t
              split: option.split_asm HOL.split_if_asm)
   by(auto simp: null_option_def split: option.split bool.split)
 
-
-(* wannabe *)theorem strictEqGen_vs_strongEq: 
-"WFF \<tau> \<Longrightarrow> \<tau> \<Turnstile>(\<delta> x) \<Longrightarrow> \<tau> \<Turnstile>(\<delta> y) \<Longrightarrow> 
- (\<tau> \<Turnstile> (gen_ref_eq x y)) = (\<tau> \<Turnstile> (x \<triangleq> y))"
-apply(auto simp: gen_ref_eq_def OclValid_def WFF_def StrongEq_def true_def)
-sorry
-text{* WFF and ref\_eq must be defined strong enough defined that this can be proven! *}
-
 section{* Local Judgements and Strong Equality *}
 
 lemma StrongEq_L_refl: "\<tau> \<Turnstile> (x \<triangleq> x)"
@@ -916,8 +874,6 @@ lemmas cp_intro[simp,intro!] =
        cp_ocl_implies[THEN allI[THEN allI[THEN allI[THEN cpI2]], of "op implies"]]
        cp_StrongEq[THEN allI[THEN allI[THEN allI[THEN cpI2]], 
              of "StrongEq"]]
-       cp_gen_ref_eq_object[THEN allI[THEN allI[THEN allI[THEN cpI2]], 
-             of "gen_ref_eq"]]
 
 section{* Laws to Establish Definedness (Delta-Closure) *}
 

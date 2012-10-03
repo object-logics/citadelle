@@ -11,9 +11,16 @@ text{* Should be generated entirely from a class-diagram. *}
 text{* Our data universe  consists in the 
        concrete class diagram just of node's. *}
 
-datatype node = Node oid (* the oid to the node itself *)
-                     int (* the attribute i *) 
-                     oid (* the attribute "next" *)
+datatype node =  Node   oid (* the oid to the node itself *)
+                        int (* the attribute i *) 
+                        oid (* the attribute "next" *)
+datatype object= Object oid (* the oid to the object itself *)
+                       "(int \<times> oid) option" (* the extensions to "node";
+                                                used to denote objects of actual type
+                                                "node" casted to "object"; in case of
+                                                existence of several subclasses of object,
+                                                sums of extensions have to be provided. *)
+
 
 type_synonym Boolean     = "(node)Boolean"
 type_synonym Integer     = "(node)Integer"
@@ -137,6 +144,19 @@ by(rule ext, simp add: null_fun_def null_option_def bot_option_def null_def inva
 
 lemma dot_nextATpre_strict[simp] : "(invalid).next@pre = invalid"
 by(rule ext, simp add: null_fun_def null_option_def bot_option_def null_def invalid_def)
+
+(* MISSING: 
+The instances for 
+
+consts allinstances
+consts allinstancesATpre 
+consts oclisnew 
+consts oclismodified 
+consts oclastype 
+consts oclistype
+consts ocliskind
+
+*)
 
 section{* Standard State Infrastructure *}
 text{* These definitions should be generated --- again --- from the class
