@@ -8,32 +8,50 @@ section{* Example Data-Universe *}
 text{* Should be generated entirely from a class-diagram. *}
 
 (* @{text "'\<AA>"} -- \mathfrak{A} *)
-text{* Our data universe  consists in the 
-       concrete class diagram just of node's. *}
+text{* Our data universe  consists in the concrete class diagram just of node's, 
+and implicitly of the class object. Each class implies the existence of a class 
+type defined for the corresponding object representations as follows: *}
 
 datatype node =  Node   oid (* the oid to the node itself *)
-                        int (* the attribute i *) 
-                        oid (* the attribute "next" *)
+                        "int option" (* the attribute "i" or null *) 
+                        "oid option" (* the attribute "next" or null *)
 datatype object= Object oid (* the oid to the object itself *)
-                       "(int \<times> oid) option" (* the extensions to "node";
-                                                used to denote objects of actual type
-                                                "node" casted to "object"; in case of
-                                                existence of several subclasses of object,
-                                                sums of extensions have to be provided. *)
+                       "(int option \<times> oid option) option" 
+                       (* the extensions to "node"; used to denote objects of actual type
+                          "node" casted to "object"; in case of existence of several subclasses 
+                          of object,sums of extensions have to be provided. *)
 
+text{* Now, we construct the "universe of object types" by injection into a 
+sum type containing the class types. *}
+datatype \<AA> = mk\<^isub>n\<^isub>o\<^isub>d\<^isub>e node | mk\<^isub>o\<^isub>b\<^isub>j\<^isub>e\<^isub>c\<^isub>t object
 
-type_synonym Boolean     = "(node)Boolean"
-type_synonym Integer     = "(node)Integer"
-type_synonym Void        = "(node)Void"
-type_synonym Node        = "(node,node option option)val"
-type_synonym Set_Integer = "(node,int option option)Set"
+type_synonym Boolean     = "(\<AA>)Boolean"
+type_synonym Integer     = "(\<AA>)Integer"
+type_synonym Void        = "(\<AA>)Void"
+type_synonym Node        = "(\<AA>,node option option)val"
+type_synonym Set_Integer = "(\<AA>,int option option)Set"
+
+typ "Boolean"
 
 instantiation node :: object
 begin
-   definition oid_of_def: "oid_of x = (case x of Node oid _ _ \<Rightarrow> oid)"
+   definition oid_of_node_def: "oid_of x = (case x of Node oid _ _ \<Rightarrow> oid)"
    instance ..
 end
 
+instantiation object :: object
+begin
+   definition oid_of_object_def: "oid_of x = (case x of Object oid _ \<Rightarrow> oid)"
+   instance ..
+end
+
+instantiation \<AA> :: object
+begin
+   definition oid_of_\<AA>_def: "oid_of x = (case x of 
+                                             mk\<^isub>n\<^isub>o\<^isub>d\<^isub>e node \<Rightarrow> oid_of node
+                                           | mk\<^isub>o\<^isub>b\<^isub>j\<^isub>e\<^isub>c\<^isub>t obj \<Rightarrow> oid_of obj)"
+   instance ..
+end
 
 instantiation   option  :: (object)object
 begin 
@@ -76,55 +94,59 @@ lemmas strict_eq_node =
 section{* Selector Definition *}
 text{* Should be generated entirely from a class-diagram. *}
 
+typ "Node \<Rightarrow> Node"
 fun dot_next:: "Node \<Rightarrow> Node"  ("(1(_).next)" 50)
   where "(X).next = (\<lambda> \<tau>. case X \<tau> of
-               None \<Rightarrow> None
-          | \<lfloor>  None \<rfloor> \<Rightarrow> None
-          | \<lfloor>\<lfloor> Node oid i next \<rfloor>\<rfloor> \<Rightarrow> if next \<in> dom (snd \<tau>)
-                                         then \<lfloor> (snd \<tau>) next \<rfloor>
-                                         else None)"
+               \<bottom> \<Rightarrow> invalid \<tau>           (* undefined pointer *)
+          | \<lfloor>  \<bottom> \<rfloor> \<Rightarrow> invalid \<tau>         (* dereferencing null pointer *)
+          | \<lfloor>\<lfloor> Node oid i \<bottom> \<rfloor>\<rfloor> \<Rightarrow> null \<tau>(* object contains null pointer *)
+          | \<lfloor>\<lfloor> Node oid i \<lfloor>next\<rfloor> \<rfloor>\<rfloor> \<Rightarrow>   (* We assume here that oid is indeed 'the' oid of the Node,
+                                           ie. we assume that  \<tau> is well-formed. *)
+                    case (snd \<tau>) next of
+                       \<bottom> \<Rightarrow> invalid \<tau> 
+                    |  \<lfloor>mk\<^isub>n\<^isub>o\<^isub>d\<^isub>e (Node a b c)\<rfloor> \<Rightarrow> \<lfloor>\<lfloor>Node a b c \<rfloor>\<rfloor>
+                    | \<lfloor> _ \<rfloor>\<Rightarrow> invalid \<tau>)" (* illtyped state, not occuring in 
+                                             well-formed, typed states *)
 
 fun dot_i:: "Node \<Rightarrow> Integer"  ("(1(_).i)" 50)
   where "(X).i = (\<lambda> \<tau>. case X \<tau> of
-               None \<Rightarrow> None
-          | \<lfloor>  None \<rfloor> \<Rightarrow> None
-          | \<lfloor>\<lfloor> Node oid i next \<rfloor>\<rfloor> \<Rightarrow> 
-                      if oid \<in> dom (snd \<tau>)
-                      then (case (snd \<tau>) oid of
-                                 None \<Rightarrow> None
-                            | \<lfloor> Node oid i next \<rfloor> \<Rightarrow> \<lfloor>\<lfloor> i \<rfloor>\<rfloor>)
-                      else None)"
+               \<bottom> \<Rightarrow> invalid \<tau> 
+          | \<lfloor>  \<bottom> \<rfloor> \<Rightarrow> invalid \<tau> 
+          | \<lfloor>\<lfloor> Node oid \<bottom> _ \<rfloor>\<rfloor> \<Rightarrow>  null \<tau>
+          | \<lfloor>\<lfloor> Node oid \<lfloor>i\<rfloor> _ \<rfloor>\<rfloor> \<Rightarrow>  \<lfloor>\<lfloor> i \<rfloor>\<rfloor>)"
 
 fun dot_next_at_pre:: "Node \<Rightarrow> Node"  ("(1(_).next@pre)" 50)
   where "(X).next@pre = (\<lambda> \<tau>. case X \<tau> of
-                          None \<Rightarrow> None
-                      | \<lfloor> None \<rfloor> \<Rightarrow> None
-                      | \<lfloor>\<lfloor>Node oid i next\<rfloor>\<rfloor> \<Rightarrow> if next \<in> dom (fst \<tau>)
-                                              then \<lfloor> (fst \<tau>) next \<rfloor>
-                                              else None)"
+               \<bottom> \<Rightarrow> invalid \<tau>  
+          | \<lfloor>  \<bottom> \<rfloor> \<Rightarrow> invalid \<tau> 
+          | \<lfloor>\<lfloor> Node oid i \<bottom> \<rfloor>\<rfloor> \<Rightarrow> null \<tau>(* object contains null pointer. REALLY ? *)
+          | \<lfloor>\<lfloor> Node oid i \<lfloor>next\<rfloor> \<rfloor>\<rfloor> \<Rightarrow> (* We assume here that oid is indeed 'the' oid of the Node,
+                                        ie. we assume that  \<tau> is well-formed. *)
+                 (case (fst \<tau>) next of
+                        \<bottom> \<Rightarrow> invalid \<tau> 
+                     | \<lfloor>mk\<^isub>n\<^isub>o\<^isub>d\<^isub>e (Node a b c)\<rfloor> \<Rightarrow> \<lfloor>\<lfloor>Node a b c \<rfloor>\<rfloor>
+                     | \<lfloor> _ \<rfloor>\<Rightarrow> invalid \<tau>))"
 
 fun dot_i_at_pre:: "Node \<Rightarrow> Integer"  ("(1(_).i@pre)" 50)
 where "(X).i@pre = (\<lambda> \<tau>. case X \<tau> of
-              None \<Rightarrow> None
-          | \<lfloor>  None \<rfloor> \<Rightarrow> None
-          | \<lfloor>\<lfloor> Node oid i next \<rfloor>\<rfloor> \<Rightarrow> 
+              \<bottom> \<Rightarrow> invalid \<tau>
+          | \<lfloor>  \<bottom> \<rfloor> \<Rightarrow> invalid \<tau>
+          | \<lfloor>\<lfloor> Node oid _ _ \<rfloor>\<rfloor> \<Rightarrow> 
                       if oid \<in> dom (fst \<tau>)
                       then (case (fst \<tau>) oid of
-                                None \<Rightarrow> None
-                            | \<lfloor> Node oid i next \<rfloor> \<Rightarrow> \<lfloor>\<lfloor> i \<rfloor>\<rfloor>)
+                                \<bottom> \<Rightarrow> invalid \<tau>
+                            | \<lfloor>mk\<^isub>n\<^isub>o\<^isub>d\<^isub>e (Node oid \<bottom> next) \<rfloor> \<Rightarrow> null \<tau>
+                            | \<lfloor>mk\<^isub>n\<^isub>o\<^isub>d\<^isub>e (Node oid \<lfloor>i\<rfloor>next) \<rfloor> \<Rightarrow> \<lfloor>\<lfloor> i \<rfloor>\<rfloor>
+                            | \<lfloor> _ \<rfloor>\<Rightarrow> invalid \<tau>)
                       else None)"
 
-lemma cp_dot_next:
-"((X).next) \<tau> = ((\<lambda>_. X \<tau>).next) \<tau>" by(simp)
+lemma cp_dot_next: "((X).next) \<tau> = ((\<lambda>_. X \<tau>).next) \<tau>" by(simp)
 
-lemma cp_dot_i:
-"((X).i) \<tau> = ((\<lambda>_. X \<tau>).i) \<tau>" by(simp)
+lemma cp_dot_i: "((X).i) \<tau> = ((\<lambda>_. X \<tau>).i) \<tau>" by(simp)
 
-lemma cp_dot_next_at_pre:
-"((X).next@pre) \<tau> = ((\<lambda>_. X \<tau>).next@pre) \<tau>" by(simp)
+lemma cp_dot_next_at_pre: "((X).next@pre) \<tau> = ((\<lambda>_. X \<tau>).next@pre) \<tau>" by(simp)
 
-lemma cp_dot_i_pre:
-"((X).i@pre) \<tau> = ((\<lambda>_. X \<tau>).i@pre) \<tau>" by(simp)
+lemma cp_dot_i_pre: "((X).i@pre) \<tau> = ((\<lambda>_. X \<tau>).i@pre) \<tau>" by(simp)
 
 lemmas cp_dot_nextI [simp, intro!]= 
        cp_dot_next[THEN allI[THEN allI], of "\<lambda> X _. X" "\<lambda> _ \<tau>. \<tau>", THEN cpI1]
