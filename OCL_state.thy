@@ -121,12 +121,12 @@ as "argument" of allInstances --- we use the inverses of the injection functions
 universes; we show that this is sufficient "characterization". *}
 
 definition allinstances :: "('\<AA> \<Rightarrow> '\<alpha>) \<Rightarrow> ('\<AA>::object,'\<alpha> option option) Set" 
-                           ("_ ::oclAllInstances'(')")
-where  "(H ::oclAllInstances()) \<tau> = Abs_Set_0 \<lfloor>\<lfloor>(Some o Some o H) ` (ran(snd \<tau>)) \<rfloor>\<rfloor> "
+                           ("_ .oclAllInstances'(')")
+where  "((H).oclAllInstances()) \<tau> = Abs_Set_0 \<lfloor>\<lfloor>(Some o Some o H) ` (ran(snd \<tau>)) \<rfloor>\<rfloor> "
 
 definition allinstancesATpre :: "('\<AA> \<Rightarrow> '\<alpha>) \<Rightarrow> ('\<AA>::object,'\<alpha> option option) Set" 
-                           ("_ ::oclAllInstances@pre'(')")
-where  "(H ::oclAllInstances@pre()) \<tau> = Abs_Set_0 \<lfloor>\<lfloor>(Some o Some o H) ` (ran(fst \<tau>)) \<rfloor>\<rfloor> "
+                           ("_ .oclAllInstances@pre'(')")
+where  "((H).oclAllInstances@pre()) \<tau> = Abs_Set_0 \<lfloor>\<lfloor>(Some o Some o H) ` (ran(fst \<tau>)) \<rfloor>\<rfloor> "
 
 
 consts oclisnew :: "('\<AA>::object,'\<alpha>)val \<Rightarrow> '\<AA> Boolean" ("_.oclIsNew'(')")
