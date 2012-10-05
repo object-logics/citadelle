@@ -116,9 +116,18 @@ where     "\<tau>\<^isub>0 \<equiv> (Map.empty,Map.empty)"
 
 section{* Generic Operations on States *}
 
-consts allinstances :: "('\<AA>::object,'\<alpha>) Set" ("oclAllInstances'(')")
+text{* In order to denote OCL-types occuring in OCL expressions syntactically --- as, for example, 
+as "argument" of allInstances --- we use the inverses of the injection functions into the object
+universes; we show that this is sufficient "characterization". *}
 
-consts allinstancesATpre :: "('\<AA>::object,'\<alpha>) Set" ("oclAllInstances@pre'(')")
+definition allinstances :: "('\<AA> \<Rightarrow> '\<alpha>) \<Rightarrow> ('\<AA>::object,'\<alpha> option option) Set" 
+                           ("_ ::oclAllInstances'(')")
+where  "(H ::oclAllInstances()) \<tau> = Abs_Set_0 \<lfloor>\<lfloor>(Some o Some o H) ` (ran(snd \<tau>)) \<rfloor>\<rfloor> "
+
+definition allinstancesATpre :: "('\<AA> \<Rightarrow> '\<alpha>) \<Rightarrow> ('\<AA>::object,'\<alpha> option option) Set" 
+                           ("_ ::oclAllInstances@pre'(')")
+where  "(H ::oclAllInstances@pre()) \<tau> = Abs_Set_0 \<lfloor>\<lfloor>(Some o Some o H) ` (ran(fst \<tau>)) \<rfloor>\<rfloor> "
+
 
 consts oclisnew :: "('\<AA>::object,'\<alpha>)val \<Rightarrow> '\<AA> Boolean" ("_.oclIsNew'(')")
 

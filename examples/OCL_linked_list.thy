@@ -4,6 +4,20 @@ imports
   "../OCL_main" (* Testing *)
 begin
 
+section{* Introduction *}
+text{* For certain concepts like Classes and Class-types, only a generic definition for its resulting
+semantics can be given. Generic means, there is a function outside HOL that "compiles" a concrete,
+closed-world class diagram into a "theory" of this data model, consisting of a bunch of definitions
+for classes, accessors, method, casts, and tests for actual types, as well as proofs for the 
+fundamental properties of these operations in this concrete data model. *}
+
+text{* Such generic function or "compiler" can be implemented in Isabelle on the ML level. 
+This has been done, for a semantics following the open-world assumption, for UML 2.0 in
+\cite{Jar-IMP-Paper}. In this paper, we follow another approach: we define the concepts
+of the compilation informally, an present a concrete example which is verified in Isabelle/HOL. *}
+
+section{* Outlining the Example *}
+
 section{* Example Data-Universe *}
 text{* Should be generated entirely from a class-diagram. *}
 
@@ -12,36 +26,58 @@ text{* Our data universe  consists in the concrete class diagram just of node's,
 and implicitly of the class object. Each class implies the existence of a class 
 type defined for the corresponding object representations as follows: *}
 
-datatype node =  Node   oid (* the oid to the node itself *)
-                        "int option" (* the attribute "i" or null *) 
-                        "oid option" (* the attribute "next" or null *)
-datatype object= Object oid (* the oid to the object itself *)
-                       "(int option \<times> oid option) option" 
-                       (* the extensions to "node"; used to denote objects of actual type
-                          "node" casted to "object"; in case of existence of several subclasses 
-                          of object,sums of extensions have to be provided. *)
+datatype node =  mk_Node   oid (* the oid to the node itself *)
+                           "int option" (* the attribute "i" or null *) 
+                           "oid option" (* the attribute "next" or null *)
 
-text{* Now, we construct the "universe of object types" by injection into a 
-sum type containing the class types. *}
+
+datatype object= mk_Object oid (* the oid to the object itself *)
+                           "(int option \<times> oid option) option" 
+                           (* the extensions to "node"; used to denote objects of actual type
+                             "node" casted to "object"; in case of existence of several subclasses 
+                             of object,sums of extensions have to be provided. *)
+
+text{* Now, we construct a concrete "universe of object types" by injection into a 
+sum type containing the class types. This type of objects will be used as instance
+for all resp. type-variables ...*}
 datatype \<AA> = mk\<^isub>n\<^isub>o\<^isub>d\<^isub>e node | mk\<^isub>o\<^isub>b\<^isub>j\<^isub>e\<^isub>c\<^isub>t object
 
+text{* Recall that in order to denote OCL-types occuring in OCL expressions syntactically 
+--- as, for example,  as "argument" of allInstances --- we use the inverses of the injection 
+functions into the object universes; we show that this is sufficient "characterization". *}
+definition Node :: "\<AA> \<Rightarrow> node"
+where     "Node \<equiv> (the_inv mk\<^isub>n\<^isub>o\<^isub>d\<^isub>e)"
+
+definition Object :: "\<AA> \<Rightarrow> object"
+where     "Object \<equiv> (the_inv mk\<^isub>o\<^isub>b\<^isub>j\<^isub>e\<^isub>c\<^isub>t)"
+
+
+text{* Having fixed the object universe, we can introduce type synonyms that exactly correspond
+to OCL types. Again, we exploit that our representation of OCL is a "shallow embedding" with a
+one-to-one correspondance of OCL-types to types of the meta-language HOL. *}
 type_synonym Boolean     = "(\<AA>)Boolean"
 type_synonym Integer     = "(\<AA>)Integer"
 type_synonym Void        = "(\<AA>)Void"
-type_synonym Node        = "(\<AA>,node option option)val"
-type_synonym Set_Integer = "(\<AA>,int option option)Set"
+type_synonym Object      = "(\<AA>,object option option) val"
+type_synonym Node        = "(\<AA>, node option option)val"
+type_synonym Set_Integer = "(\<AA>, int option option)Set"
+type_synonym Set_Node    = "(\<AA>, node option option)Set"
 
+text{* Just a little check: *}
 typ "Boolean"
 
+text{* In order to reuse key-elements of the library like referential equality, we have
+to show that the object universe belongs to the type class "object", i.e. each class type
+has to provide a function @{term oid_of} yielding the object id (oid) of the object. *}
 instantiation node :: object
 begin
-   definition oid_of_node_def: "oid_of x = (case x of Node oid _ _ \<Rightarrow> oid)"
+   definition oid_of_node_def: "oid_of x = (case x of mk_Node oid _ _ \<Rightarrow> oid)"
    instance ..
 end
 
 instantiation object :: object
 begin
-   definition oid_of_object_def: "oid_of x = (case x of Object oid _ \<Rightarrow> oid)"
+   definition oid_of_object_def: "oid_of x = (case x of mk_Object oid _ \<Rightarrow> oid)"
    instance ..
 end
 
@@ -99,12 +135,12 @@ fun dot_next:: "Node \<Rightarrow> Node"  ("(1(_).next)" 50)
   where "(X).next = (\<lambda> \<tau>. case X \<tau> of
                \<bottom> \<Rightarrow> invalid \<tau>           (* undefined pointer *)
           | \<lfloor>  \<bottom> \<rfloor> \<Rightarrow> invalid \<tau>         (* dereferencing null pointer *)
-          | \<lfloor>\<lfloor> Node oid i \<bottom> \<rfloor>\<rfloor> \<Rightarrow> null \<tau>(* object contains null pointer *)
-          | \<lfloor>\<lfloor> Node oid i \<lfloor>next\<rfloor> \<rfloor>\<rfloor> \<Rightarrow>   (* We assume here that oid is indeed 'the' oid of the Node,
+          | \<lfloor>\<lfloor> mk_Node oid i \<bottom> \<rfloor>\<rfloor> \<Rightarrow> null \<tau>(* object contains null pointer *)
+          | \<lfloor>\<lfloor> mk_Node oid i \<lfloor>next\<rfloor> \<rfloor>\<rfloor> \<Rightarrow>   (* We assume here that oid is indeed 'the' oid of the Node,
                                            ie. we assume that  \<tau> is well-formed. *)
                     case (snd \<tau>) next of
                        \<bottom> \<Rightarrow> invalid \<tau> 
-                    |  \<lfloor>mk\<^isub>n\<^isub>o\<^isub>d\<^isub>e (Node a b c)\<rfloor> \<Rightarrow> \<lfloor>\<lfloor>Node a b c \<rfloor>\<rfloor>
+                    |  \<lfloor>mk\<^isub>n\<^isub>o\<^isub>d\<^isub>e (mk_Node a b c)\<rfloor> \<Rightarrow> \<lfloor>\<lfloor>mk_Node a b c \<rfloor>\<rfloor>
                     | \<lfloor> _ \<rfloor>\<Rightarrow> invalid \<tau>)" (* illtyped state, not occuring in 
                                              well-formed, typed states *)
 
@@ -112,31 +148,32 @@ fun dot_i:: "Node \<Rightarrow> Integer"  ("(1(_).i)" 50)
   where "(X).i = (\<lambda> \<tau>. case X \<tau> of
                \<bottom> \<Rightarrow> invalid \<tau> 
           | \<lfloor>  \<bottom> \<rfloor> \<Rightarrow> invalid \<tau> 
-          | \<lfloor>\<lfloor> Node oid \<bottom> _ \<rfloor>\<rfloor> \<Rightarrow>  null \<tau>
-          | \<lfloor>\<lfloor> Node oid \<lfloor>i\<rfloor> _ \<rfloor>\<rfloor> \<Rightarrow>  \<lfloor>\<lfloor> i \<rfloor>\<rfloor>)"
+          | \<lfloor>\<lfloor> mk_Node oid \<bottom> _ \<rfloor>\<rfloor> \<Rightarrow>  null \<tau>
+          | \<lfloor>\<lfloor> mk_Node oid \<lfloor>i\<rfloor> _ \<rfloor>\<rfloor> \<Rightarrow>  \<lfloor>\<lfloor> i \<rfloor>\<rfloor>)"
 
 fun dot_next_at_pre:: "Node \<Rightarrow> Node"  ("(1(_).next@pre)" 50)
   where "(X).next@pre = (\<lambda> \<tau>. case X \<tau> of
                \<bottom> \<Rightarrow> invalid \<tau>  
           | \<lfloor>  \<bottom> \<rfloor> \<Rightarrow> invalid \<tau> 
-          | \<lfloor>\<lfloor> Node oid i \<bottom> \<rfloor>\<rfloor> \<Rightarrow> null \<tau>(* object contains null pointer. REALLY ? *)
-          | \<lfloor>\<lfloor> Node oid i \<lfloor>next\<rfloor> \<rfloor>\<rfloor> \<Rightarrow> (* We assume here that oid is indeed 'the' oid of the Node,
+          | \<lfloor>\<lfloor> mk_Node oid i \<bottom> \<rfloor>\<rfloor> \<Rightarrow> null \<tau>(* object contains null pointer. REALLY ? 
+                                          And if this pointer was defined in the pre-state ?*)
+          | \<lfloor>\<lfloor> mk_Node oid i \<lfloor>next\<rfloor> \<rfloor>\<rfloor> \<Rightarrow> (* We assume here that oid is indeed 'the' oid of the Node,
                                         ie. we assume that  \<tau> is well-formed. *)
                  (case (fst \<tau>) next of
                         \<bottom> \<Rightarrow> invalid \<tau> 
-                     | \<lfloor>mk\<^isub>n\<^isub>o\<^isub>d\<^isub>e (Node a b c)\<rfloor> \<Rightarrow> \<lfloor>\<lfloor>Node a b c \<rfloor>\<rfloor>
+                     | \<lfloor>mk\<^isub>n\<^isub>o\<^isub>d\<^isub>e (mk_Node a b c)\<rfloor> \<Rightarrow> \<lfloor>\<lfloor>mk_Node a b c \<rfloor>\<rfloor>
                      | \<lfloor> _ \<rfloor>\<Rightarrow> invalid \<tau>))"
 
 fun dot_i_at_pre:: "Node \<Rightarrow> Integer"  ("(1(_).i@pre)" 50)
 where "(X).i@pre = (\<lambda> \<tau>. case X \<tau> of
               \<bottom> \<Rightarrow> invalid \<tau>
           | \<lfloor>  \<bottom> \<rfloor> \<Rightarrow> invalid \<tau>
-          | \<lfloor>\<lfloor> Node oid _ _ \<rfloor>\<rfloor> \<Rightarrow> 
+          | \<lfloor>\<lfloor> mk_Node oid _ _ \<rfloor>\<rfloor> \<Rightarrow> 
                       if oid \<in> dom (fst \<tau>)
                       then (case (fst \<tau>) oid of
                                 \<bottom> \<Rightarrow> invalid \<tau>
-                            | \<lfloor>mk\<^isub>n\<^isub>o\<^isub>d\<^isub>e (Node oid \<bottom> next) \<rfloor> \<Rightarrow> null \<tau>
-                            | \<lfloor>mk\<^isub>n\<^isub>o\<^isub>d\<^isub>e (Node oid \<lfloor>i\<rfloor>next) \<rfloor> \<Rightarrow> \<lfloor>\<lfloor> i \<rfloor>\<rfloor>
+                            | \<lfloor>mk\<^isub>n\<^isub>o\<^isub>d\<^isub>e (mk_Node oid \<bottom> next) \<rfloor> \<Rightarrow> null \<tau>
+                            | \<lfloor>mk\<^isub>n\<^isub>o\<^isub>d\<^isub>e (mk_Node oid \<lfloor>i\<rfloor>next) \<rfloor> \<Rightarrow> \<lfloor>\<lfloor> i \<rfloor>\<rfloor>
                             | \<lfloor> _ \<rfloor>\<Rightarrow> invalid \<tau>)
                       else None)"
 
@@ -167,11 +204,39 @@ by(rule ext, simp add: null_fun_def null_option_def bot_option_def null_def inva
 lemma dot_nextATpre_strict[simp] : "(invalid).next@pre = invalid"
 by(rule ext, simp add: null_fun_def null_option_def bot_option_def null_def invalid_def)
 
+
+(* IS THIS WHAT WE WANT ? THIS DEFINITION FILTERS OBJECTS THAT ARE BOOKED UNDER
+THEIR APPARENT (STATIC) TYPE INTO THE CONTEXT, NOT BY THEIR ACTUAL (DYNAMIC) TYPE. *)
+lemma "(Node ::oclAllInstances()) = 
+             (\<lambda>\<tau>.  Abs_Set_0 \<lfloor>\<lfloor>(Some \<circ> Some \<circ> (the_inv mk\<^isub>n\<^isub>o\<^isub>d\<^isub>e))`(ran(snd \<tau>)) \<rfloor>\<rfloor>) "
+by(rule ext, simp add:allinstances_def Node_def)
+
+lemma "(Object ::oclAllInstances@pre()) = 
+             (\<lambda>\<tau>.  Abs_Set_0 \<lfloor>\<lfloor>(Some \<circ> Some \<circ> (the_inv mk\<^isub>o\<^isub>b\<^isub>j\<^isub>e\<^isub>c\<^isub>t))`(ran(fst \<tau>)) \<rfloor>\<rfloor>) "
+by(rule ext, simp add:allinstancesATpre_def Object_def)
+
+
+text{* For each Class \emph{C}, we will have an casting operation \verb+.oclAsType(+\emph{C}\verb+)+,
+   a test on the actual type \verb+.oclIsTypeOf(+\emph{C}\verb+)+ as well as its relaxed form
+   \verb+.oclIsKindOf(+\emph{C}\verb+)+ (corresponding exactly to Java's \verb+instanceof+-operator. 
+*}
+text{* Thus, since we have two class-types in our concrete class hierarchy, we have
+two operations to declare and and to provide two overloading definitions for the two static types.
+*}
+
+consts oclastype\<^isub>o\<^isub>b\<^isub>j\<^isub>e\<^isub>c\<^isub>t :: "'\<alpha> \<Rightarrow> Boolean" ("(_).oclAsType'(Object')")
+consts oclastype\<^isub>n\<^isub>o\<^isub>d\<^isub>e   :: "'\<alpha> \<Rightarrow> Boolean" ("(_).oclAsType'(Node')")
+
+definition oclastype\<^isub>o\<^isub>b\<^isub>j\<^isub>e\<^isub>c\<^isub>t :: "Object \<Rightarrow> Boolean"
+where "X .oclAsType(Object) \<equiv> true"
+
 (* MISSING: 
 The instances for 
+consts oclastype 
+consts oclistype
+consts ocliskind
 
-consts allinstances
-consts allinstancesATpre 
+
 consts oclisnew 
 consts oclismodified 
 consts oclastype 
@@ -181,8 +246,7 @@ consts ocliskind
 *)
 
 section{* Standard State Infrastructure *}
-text{* These definitions should be generated --- again --- from the class
-diagram. *}
+text{* These definitions should be generated --- again --- from the class diagram. *}
 
 section{* Invariant *}
 text{* These recursive predicates can be defined conservatively 
@@ -206,7 +270,7 @@ where B : "(\<tau> \<Turnstile> (\<delta> self)) \<longrightarrow>
 
 text{* A very first attempt to characterize the axiomatization by an inductive
 definition - this can not be the last word since too weak (should be equality!) *}
-coinductive inv :: " Node \<Rightarrow> (node)st \<Rightarrow> bool" where 
+coinductive inv :: "Node \<Rightarrow> (\<AA>)st \<Rightarrow> bool" where 
  "(\<tau> \<Turnstile> (\<delta> self)) \<Longrightarrow> ((\<tau> \<Turnstile> (self .next \<doteq> null)) \<or> 
                       (\<tau> \<Turnstile> (self .next <> null) \<and> (\<tau> \<Turnstile> (self .next .i \<prec> self .i))  \<and> 
                      ( (inv(self .next))\<tau> )))
