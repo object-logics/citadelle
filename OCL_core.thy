@@ -18,7 +18,8 @@ the presentation more "textbook"-like:*}
 notation Some ("\<lfloor>(_)\<rfloor>")
 notation None ("\<bottom>")
 
-
+text{* The following function (corresponding to @{term the} in the Isabelle/HOL library) 
+is defined as the inverse of the injection @{term Some}. *}
 fun    drop :: "'\<alpha> option \<Rightarrow> '\<alpha>" ("\<lceil>(_)\<rceil>")
 where  drop_lift[simp]: "\<lceil>\<lfloor>v\<rfloor>\<rceil> = v"
 

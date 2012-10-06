@@ -13,7 +13,7 @@ fundamental properties of these operations in this concrete data model. *}
 
 text{* Such generic function or "compiler" can be implemented in Isabelle on the ML level. 
 This has been done, for a semantics following the open-world assumption, for UML 2.0 in
-\cite{Jar-IMP-Paper}. In this paper, we follow another approach: we define the concepts
+\cite{Jar-IMP-Paper}. In this paper, we follow another approach for UML 2.4: we define the concepts
 of the compilation informally, an present a concrete example which is verified in Isabelle/HOL. *}
 
 section{* Outlining the Example *}
@@ -40,6 +40,7 @@ datatype object= mk\<^isub>o\<^isub>b\<^isub>j\<^isub>e\<^isub>c\<^isub>t oid (*
 text{* Now, we construct a concrete "universe of object types" by injection into a 
 sum type containing the class types. This type of objects will be used as instance
 for all resp. type-variables ...*}
+
 datatype \<AA> = in\<^isub>n\<^isub>o\<^isub>d\<^isub>e node | in\<^isub>o\<^isub>b\<^isub>j\<^isub>e\<^isub>c\<^isub>t object
 
 text{* Recall that in order to denote OCL-types occuring in OCL expressions syntactically 
@@ -320,6 +321,8 @@ defs (overloaded) oclistypeof\<^isub>n\<^isub>o\<^isub>d\<^isub>e_Node:
 (* MISSING:  Construction for  ocliskind *)
 
 section{* Other operations on states. *}
+
+
 (*
 consts oclisnew 
 consts oclismodified 
