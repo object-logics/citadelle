@@ -79,11 +79,11 @@ text{* A key-concept for linking strict referential equality to
        logical equality: in well-formed states (i.e. those
        states where the self (oid-of) field contains the pointer
        to which the object is associated to in the state), 
-       referential equality coincides with logical equality. *}
+       referential equality coincides with logical equality. \<lceil>(_)\<rceil> *}
 
 definition WFF :: "('\<AA>::object)st \<Rightarrow> bool"
-where "WFF \<tau> = ((\<forall> x \<in> dom(fst \<tau>). x = oid_of(the(fst \<tau> x))) \<and>
-                (\<forall> x \<in> dom(snd \<tau>). x = oid_of(the(snd \<tau> x))))"
+where "WFF \<tau> = ((\<forall> x \<in> ran(fst \<tau>). \<lceil>fst \<tau> (oid_of x)\<rceil> = x) \<and>
+                (\<forall> x \<in> ran(snd \<tau>). \<lceil>snd \<tau> (oid_of x)\<rceil> = x))"
 
 text{* This is a generic definition of referential equality:
 Equality on objects in a state is reduced to equality on the
@@ -99,14 +99,18 @@ defined values. For type-technical reasons, for each concrete
 object type, the equality @{text "\<doteq>"} is defined by generic referential
 equality. *}
 
-
-(* wannabe *)theorem strictEqGen_vs_strongEq: 
+theorem strictEqGen_vs_strongEq: 
 "WFF \<tau> \<Longrightarrow> \<tau> \<Turnstile>(\<delta> x) \<Longrightarrow> \<tau> \<Turnstile>(\<delta> y) \<Longrightarrow> 
-          (\<tau> \<Turnstile> (gen_ref_eq x y)) = (\<tau> \<Turnstile> (x \<triangleq> y))"
-apply(auto simp: gen_ref_eq_def OclValid_def WFF_def StrongEq_def true_def)
-sorry
-text{* WFF and ref\_eq must be defined strong enough defined that this can be proven! *}
+           (x \<tau> \<in> ran (fst \<tau>) \<and> y \<tau> \<in> ran (fst \<tau>)) \<and>
+           (x \<tau> \<in> ran (snd \<tau>) \<and> y \<tau> \<in> ran (snd \<tau>)) \<Longrightarrow> (* x and y must be object representations
+                                                          that exist in either the pre or post state *) 
+           (\<tau> \<Turnstile> (gen_ref_eq x y)) = (\<tau> \<Turnstile> (x \<triangleq> y))"
+apply(auto simp: gen_ref_eq_def OclValid_def WFF_def StrongEq_def true_def Ball_def)
+apply(erule_tac x="x \<tau>" in allE', simp_all)
+done
 
+text{* So, if two object descriptions live in the same state (both pre or post), the referential
+equality on objects implies in a WFF state the logical equality. Uffz. *}
 
 section{* Miscillaneous: Initial States (for Testing and Code Generation) *}
 
@@ -128,11 +132,27 @@ definition allinstancesATpre :: "('\<AA> \<Rightarrow> '\<alpha>) \<Rightarrow> 
                            ("_ .oclAllInstances@pre'(')")
 where  "((H).oclAllInstances@pre()) \<tau> = Abs_Set_0 \<lfloor>\<lfloor>(Some o Some o H) ` (ran(fst \<tau>)) \<rfloor>\<rfloor> "
 
+definition oclisnew:: "('\<AA>, '\<alpha>::{null,object})val \<Rightarrow> ('\<AA>)Boolean"   ("(_).oclIsNew'(')")
+where "X .oclIsNew() \<equiv> (\<lambda>\<tau> . if (\<delta> X) \<tau> = true \<tau> 
+                              then \<lfloor>\<lfloor>oid_of (X \<tau>) \<notin> dom(fst \<tau>) \<and> oid_of (X \<tau>) \<in> dom(snd \<tau>)\<rfloor>\<rfloor>
+                              else invalid \<tau>)" 
 
-consts oclisnew :: "('\<AA>::object,'\<alpha>)val \<Rightarrow> '\<AA> Boolean" ("_.oclIsNew'(')")
+text{* The following predicate --- which is not part of the OCL standard descriptions ---
+provides a simple, but powerful means to describe framing conditions. For any formal
+approach, be it animation of OCL contracts, test-case generation or die-hard theorem
+proving, the specification of the part of a system transistion that DOES NOT CHANGE
+is of premordial importance. The following operator establishes the equality between
+old and new objects in the state (provided that they exist in both states), with the 
+exception of those objects 
+*}
 
-consts oclismodified ::"('\<AA>::object,'\<alpha>) Set \<Rightarrow> '\<AA> Boolean" ("_->oclIsModified'(')")
-
+definition oclismodified ::"('\<AA>::object,'\<alpha>::{null,object})Set \<Rightarrow> '\<AA> Boolean" 
+                        ("_->oclIsModifiedOnly'(')")
+where "X->oclIsModifiedOnly() \<equiv> (\<lambda>(\<sigma>,\<sigma>').  let  X' = (oid_of ` \<lceil>\<lceil>Rep_Set_0(X(\<sigma>,\<sigma>'))\<rceil>\<rceil>);
+                                                 S = ((dom \<sigma> \<inter> dom \<sigma>') - X')
+                                            in if (\<delta> X) (\<sigma>,\<sigma>') = true (\<sigma>,\<sigma>') 
+                                               then \<lfloor>\<lfloor>\<forall> x \<in> S. \<sigma> x = \<sigma>' x\<rfloor>\<rfloor>
+                                               else invalid (\<sigma>,\<sigma>'))"
 
 
 section{* Generic Operations on Objects *}
