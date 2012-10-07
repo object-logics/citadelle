@@ -126,11 +126,13 @@ universes; we show that this is sufficient "characterization". *}
 
 definition allinstances :: "('\<AA> \<Rightarrow> '\<alpha>) \<Rightarrow> ('\<AA>::object,'\<alpha> option option) Set" 
                            ("_ .oclAllInstances'(')")
-where  "((H).oclAllInstances()) \<tau> = Abs_Set_0 \<lfloor>\<lfloor>(Some o Some o H) ` (ran(snd \<tau>)) \<rfloor>\<rfloor> "
+where  "((H).oclAllInstances()) \<tau> = 
+                 Abs_Set_0 \<lfloor>\<lfloor>(Some o Some o H) ` (ran(snd \<tau>) \<inter> {x. \<exists> y. y=H x}) \<rfloor>\<rfloor> "
 
 definition allinstancesATpre :: "('\<AA> \<Rightarrow> '\<alpha>) \<Rightarrow> ('\<AA>::object,'\<alpha> option option) Set" 
                            ("_ .oclAllInstances@pre'(')")
-where  "((H).oclAllInstances@pre()) \<tau> = Abs_Set_0 \<lfloor>\<lfloor>(Some o Some o H) ` (ran(fst \<tau>)) \<rfloor>\<rfloor> "
+where  "((H).oclAllInstances@pre()) \<tau> = 
+                 Abs_Set_0 \<lfloor>\<lfloor>(Some o Some o H) ` (ran(fst \<tau>) \<inter> {x. \<exists> y. y=H x}) \<rfloor>\<rfloor> "
 
 definition oclisnew:: "('\<AA>, '\<alpha>::{null,object})val \<Rightarrow> ('\<AA>)Boolean"   ("(_).oclIsNew'(')")
 where "X .oclIsNew() \<equiv> (\<lambda>\<tau> . if (\<delta> X) \<tau> = true \<tau> 
@@ -155,20 +157,22 @@ where "X->oclIsModifiedOnly() \<equiv> (\<lambda>(\<sigma>,\<sigma>').  let  X' 
                                                else invalid (\<sigma>,\<sigma>'))"
 
 
-section{* Generic Operations on Objects *}
+definition atSelf :: "('\<AA>::object,'\<alpha>::{null,object})val \<Rightarrow>
+                      ('\<AA> \<Rightarrow> '\<alpha>) \<Rightarrow>
+                      ('\<AA>::object,'\<alpha>::{null,object})val" ("(_)@pre(_)")
+where "x @pre H = (\<lambda>\<tau> . if (\<delta> x) \<tau> = true \<tau> 
+                        then if oid_of (x \<tau>) \<in> dom(fst \<tau>) \<and> oid_of (x \<tau>) \<in> dom(snd \<tau>)
+                             then  H \<lceil>(fst \<tau>)(oid_of (x \<tau>))\<rceil>
+                             else invalid \<tau>
+                        else invalid \<tau>)"
 
-text{* The overloaded function of type casts in OCL. 
-       We assume for each type-argument a set in HOL that contains
-       exactly all object-representations of this types; this set is used
-       to denote this type. *}
-consts oclastype :: "('\<AA>::object,'\<alpha>)val \<Rightarrow> '\<beta> set \<Rightarrow> 
-                     ('\<AA>::object,'\<beta>)val" ("_.oclAsType'(_')")
 
-consts oclistype :: "('\<AA>::object,'\<alpha>)val \<Rightarrow> '\<beta> set \<Rightarrow>
-                      '\<AA> Boolean" ("_.oclIsType'(_')")
-
-consts ocliskind :: "('\<AA>::object,'\<alpha>)val \<Rightarrow> '\<beta> set \<Rightarrow>
-                      '\<AA> Boolean" ("_.oclIsType'(_')")
+lemma oclismodified_eq:
+      assumes modifiesclause:"\<tau> \<Turnstile> (X->excluding(x))->oclIsModifiedOnly()"
+      and    represented_x: "\<tau> \<Turnstile> \<delta>(x @pre H)"
+      and    H_is_typerepr: "inj H"
+      shows "\<tau> \<Turnstile> (x  \<triangleq>  (x @pre H))"
+sorry
 
 
 end

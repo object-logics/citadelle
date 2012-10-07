@@ -320,13 +320,6 @@ defs (overloaded) oclistypeof\<^isub>n\<^isub>o\<^isub>d\<^isub>e_Node:
 
 (* MISSING:  Construction for  ocliskind *)
 
-section{* Other operations on states. *}
-
-
-(*
-consts oclisnew 
-consts oclismodified 
-*)
 
 section{* Standard State Infrastructure *}
 text{* These definitions should be generated --- again --- from the class diagram. *}
