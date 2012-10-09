@@ -79,7 +79,7 @@ text{* A key-concept for linking strict referential equality to
        logical equality: in well-formed states (i.e. those
        states where the self (oid-of) field contains the pointer
        to which the object is associated to in the state), 
-       referential equality coincides with logical equality. \<lceil>(_)\<rceil> *}
+       referential equality coincides with logical equality. *}
 
 definition WFF :: "('\<AA>::object)st \<Rightarrow> bool"
 where "WFF \<tau> = ((\<forall> x \<in> ran(fst \<tau>). \<lceil>fst \<tau> (oid_of x)\<rceil> = x) \<and>

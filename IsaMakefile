@@ -41,7 +41,7 @@
 # $Id: IsaMakefile 8741 2010-02-06 23:40:52Z brucker $
 
 ## targets
-EXAMPLE = OCL_main
+EXAMPLE = FeatherweightOCL
 
 ifeq (,$(filter HOL-TestGen,$(shell $(ISABELLE_TOOL) findlogics)))
   MAIN=HOL
