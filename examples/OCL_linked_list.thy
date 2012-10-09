@@ -393,6 +393,8 @@ text{* Note that these @pre variants on methods are only available on queries, i
 operations without side-effect. *}
 (* TODO: Should be rephased by conservative means... *)
 
+(* Missing: Properties on Casts, type-tests, and equality vs. projections. *)
+
 section{* The contract of a method. *}
 text{*
 The specification in high-level OCL input syntax reads as follows:

@@ -134,6 +134,28 @@ definition allinstancesATpre :: "('\<AA> \<Rightarrow> '\<alpha>) \<Rightarrow> 
 where  "((H).oclAllInstances@pre()) \<tau> = 
                  Abs_Set_0 \<lfloor>\<lfloor>(Some o Some o H) ` (ran(fst \<tau>) \<inter> {x. \<exists> y. y=H x}) \<rfloor>\<rfloor> "
 
+lemma "\<tau>\<^isub>0 \<Turnstile> H .oclAllInstances() \<triangleq> Set{}"
+sorry
+
+
+lemma "\<tau>\<^isub>0 \<Turnstile> H .oclAllInstances@pre() \<triangleq> Set{}"
+sorry
+
+theorem state_update_vs_allInstances: 
+assumes "oid\<notin>dom \<sigma>'"
+and     "cp P" 
+shows   "((\<sigma>, \<sigma>'(oid\<mapsto>Object)) \<Turnstile> (P(Type .oclAllInstances()))) =  
+          ((\<sigma>, \<sigma>') \<Turnstile> (P((Type .oclAllInstances())->including(\<lambda> _. Some(Some((the_inv Type) Object)))))) "
+sorry
+
+theorem state_update_vs_allInstancesATpre: 
+assumes "oid\<notin>dom \<sigma>"
+and     "cp P" 
+shows   "((\<sigma>(oid\<mapsto>Object), \<sigma>') \<Turnstile> (P(Type .oclAllInstances@pre()))) =  
+          ((\<sigma>, \<sigma>') \<Turnstile> (P((Type .oclAllInstances@pre())->including(\<lambda> _. Some(Some((the_inv Type) Object)))))) "
+sorry
+
+
 definition oclisnew:: "('\<AA>, '\<alpha>::{null,object})val \<Rightarrow> ('\<AA>)Boolean"   ("(_).oclIsNew'(')")
 where "X .oclIsNew() \<equiv> (\<lambda>\<tau> . if (\<delta> X) \<tau> = true \<tau> 
                               then \<lfloor>\<lfloor>oid_of (X \<tau>) \<notin> dom(fst \<tau>) \<and> oid_of (X \<tau>) \<in> dom(snd \<tau>)\<rfloor>\<rfloor>
@@ -167,7 +189,7 @@ where "x @pre H = (\<lambda>\<tau> . if (\<delta> x) \<tau> = true \<tau>
                         else invalid \<tau>)"
 
 
-lemma oclismodified_eq:
+theorem framing:
       assumes modifiesclause:"\<tau> \<Turnstile> (X->excluding(x))->oclIsModifiedOnly()"
       and    represented_x: "\<tau> \<Turnstile> \<delta>(x @pre H)"
       and    H_is_typerepr: "inj H"
