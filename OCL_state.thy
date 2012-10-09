@@ -1,8 +1,10 @@
+header{* OCL State Operations *}
+
 theory OCL_state
 imports OCL_lib
 begin
 
-section{* Recall: The generic structure of States*}
+subsection{* Recall: The generic structure of States*}
 
 text{* Next we will introduce the foundational concept of an object id (oid), 
 which is just some infinite set.  *}
@@ -28,7 +30,7 @@ the following type class constraint:*}
 typ "'\<AA> :: object"
 
 
-section{* Referential Object Equality in States*}
+subsection{* Referential Object Equality in States*}
 
 text{* Generic referential equality - to be used for instantiations
  with concrete object types ... *}
@@ -74,7 +76,7 @@ by(simp add: gen_ref_eq_def OclValid_def true_def invalid_def
         split: bool.split_asm HOL.split_if_asm)
 
 
-section{* Further requirements on States*}
+subsection{* Further requirements on States*}
 text{* A key-concept for linking strict referential equality to
        logical equality: in well-formed states (i.e. those
        states where the self (oid-of) field contains the pointer
@@ -118,7 +120,7 @@ definition \<tau>\<^isub>0 :: "('\<AA>)st"
 where     "\<tau>\<^isub>0 \<equiv> (Map.empty,Map.empty)"
 
 
-section{* Generic Operations on States *}
+subsection{* Generic Operations on States *}
 
 text{* In order to denote OCL-types occuring in OCL expressions syntactically --- as, for example, 
 as "argument" of allInstances --- we use the inverses of the injection functions into the object

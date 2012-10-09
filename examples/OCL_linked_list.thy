@@ -1,10 +1,13 @@
+header{* OCL Data Universes: Generic Definition and an Example *}
+
+
 theory 
   OCL_linked_list
 imports
   "../OCL_main" (* Testing *)
 begin
 
-section{* Introduction *}
+subsection{* Introduction *}
 text{* For certain concepts like Classes and Class-types, only a generic definition for its resulting
 semantics can be given. Generic means, there is a function outside HOL that "compiles" a concrete,
 closed-world class diagram into a "theory" of this data model, consisting of a bunch of definitions
@@ -16,9 +19,9 @@ This has been done, for a semantics following the open-world assumption, for UML
 \cite{Jar-IMP-Paper}. In this paper, we follow another approach for UML 2.4: we define the concepts
 of the compilation informally, an present a concrete example which is verified in Isabelle/HOL. *}
 
-section{* Outlining the Example *}
+subsection{* Outlining the Example *}
 
-section{* Example Data-Universe and its Infrastructure *}
+subsection{* Example Data-Universe and its Infrastructure *}
 text{* Should be generated entirely from a class-diagram. *}
 
 (* @{text "'\<AA>"} -- \mathfrak{A} *)
@@ -131,7 +134,7 @@ lemmas strict_eq_node =
 
 (* TODO: Analogue for object. *)
 
-section{* AllInstances *}
+subsection{* AllInstances *}
 
 (* IS THIS WHAT WE WANT ? THIS DEFINITION FILTERS OBJECTS THAT ARE BOOKED UNDER
 THEIR APPARENT (STATIC) TYPE INTO THE CONTEXT, NOT BY THEIR ACTUAL (DYNAMIC) TYPE. *)
@@ -238,7 +241,7 @@ lemma dot_nextATpre_strict'[simp] : "(null).next@pre = invalid"
 by(rule ext, simp add: null_fun_def null_option_def bot_option_def null_def invalid_def)
 
 
-section{* Casts *}
+subsection{* Casts *}
 
 consts oclastype\<^isub>o\<^isub>b\<^isub>j\<^isub>e\<^isub>c\<^isub>t :: "'\<alpha> \<Rightarrow> Object" ("(_).oclAsType'(Object')")
 consts oclastype\<^isub>n\<^isub>o\<^isub>d\<^isub>e   :: "'\<alpha> \<Rightarrow> Node" ("(_).oclAsType'(Node')")
