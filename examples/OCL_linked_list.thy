@@ -132,6 +132,7 @@ lemmas strict_eq_node =
                         [of "x::Node",
                          simplified StrictRefEq\<^isub>n\<^isub>o\<^isub>d\<^isub>e[symmetric]]
 
+thm strict_eq_node
 (* TODO: Analogue for object. *)
 
 subsection{* AllInstances *}
