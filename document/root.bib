@@ -1,0 +1,700 @@
+
+@PREAMBLE{ {\providecommand{\ac}[1]{\textsc{#1}} } 
+	 # {\providecommand{\acs}[1]{\textsc{#1}} } 
+	 # {\providecommand{\acf}[1]{\textsc{#1}} } 
+	 # {\providecommand{\TAP}{T\kern-.1em\lower-.5ex\hbox{A}\kern-.1em P} } 
+	 # {\providecommand{\leanTAP}{\mbox{\sf lean\it\TAP}} } 
+	 # {\providecommand{\holz}{\textsc{hol-z}} } 
+	 # {\providecommand{\holocl}{\textsc{hol-ocl}} } 
+	 # {\providecommand{\isbn}{\textsc{isbn}} } 
+	 # {\providecommand{\Cpp}{C++} } 
+	 # {\providecommand{\Specsharp}{Spec\#} } 
+	 # {\providecommand{\doi}[1]{\href{http://dx.doi.org/#1}{doi:
+	   {\urlstyle{rm}\nolinkurl{#1}}}}} }
+@STRING{omg	= {Object Management Group} }
+@STRING{pub-springer={Springer-Verlag} }
+@STRING{pub-springer:adr={Heidelberg} }
+@STRING{s-lncs	= "Lecture Notes in Computer Science" }
+
+@PhDThesis{	  richters:precise:2002,
+  author	= {Mark Richters},
+  title		= {A Precise Approach to Validating {\acs{uml}} Models and
+		  {\acs{ocl}} Constraints},
+  school	= {Universit{\"a}t Bremen},
+  year		= 2002,
+  address	= {Logos Verlag, Berlin, \acs{biss} Monographs, No. 14},
+  isbn		= {3-89722-842-4},
+  abstract	= {We present a precise approach that allows an analysis and
+		  validation of \acs{uml} models and OCL constraints. We
+		  focus on models and constraints specified in the analysis
+		  and early design stage of a software development process.
+		  For this purpose, a suitable subset of \acs{uml}
+		  corresponding to information that is usually represented in
+		  class diagrams is identified and formally defined. This
+		  basic modeling language provides a context for all OCL
+		  constraints. We define a formal syntax and semantics of OCL
+		  types, operations, expressions, invariants, and
+		  pre-/postconditions. We also give solutions for problems
+		  with the current OCL definition and discuss possible
+		  extensions. A metamodel for OCL is introduced that defines
+		  the abstract syntax of OCL expressions and the structure of
+		  types and values. The metamodel approach allows a seamless
+		  integration with the \acs{uml} metamodeling architecture
+		  and makes the benefits of a precise OCL definition easier
+		  accessible. The OCL metamodel also allows to define
+		  context-sensitive conditions for well-formed OCL
+		  expressions more precisely. These conditions can now be
+		  specified with OCL whereas they previously were specified
+		  only informally. In order to demonstrate the practical
+		  applicability of our work, we have realized substantial
+		  parts of it in a tool supporting the validation of models
+		  and constraints. Design specifications can be ``executed''
+		  and animated thus providing early feedback in an iterative
+		  development process. Our approach offers novel ways for
+		  checking user data against specifications, for automating
+		  test procedures, and for checking CASE tools for standards
+		  conformance. Therefore, this work contributes to the goal
+		  of improving the overall quality of software systems by
+		  combining theoretical and practical techniques.},
+  acknowledgement={brucker, 2007-04-23}
+}
+
+@InProceedings{	  krieger.ea:generative:2010,
+  author	= {Matthias P. Krieger and Alexander Knapp and Burkhart
+		  Wolff},
+  title		= {Generative Programming and Component Engineering},
+  booktitle	= {International Conference on Generative Programming and
+		  Component Engineering (GPCE 2010)},
+  month		= oct,
+  location	= {Eindhoven, The Netherlands, October 10-13, 2010},
+  year		= 2010,
+  pages		= {53--62},
+  ee		= {http://doi.acm.org/10.1145/1868294.1868303},
+  editor	= {Eelco Visser and Jaakko J{\"a}rvi},
+  publisher	= {ACM},
+  isbn		= {978-1-4503-0154-1},
+  abstract	= {Operation contracts consisting of pre- and postconditions
+		  are a well-known means of specifying operations. In this
+		  paper we deal with the problem of operation contract
+		  simulation, i.e., determining operation results satisfying
+		  the postconditions based on input data supplied by the
+		  user; simulating operation contracts is an important
+		  technique for requirements validation and prototyping.
+		  Current approaches to operation contract simulation exhibit
+		  poor performance for large sets of input data or require
+		  additional guidance from the user. We show how these
+		  problems can be alleviated and describe an efficient as
+		  well as fully automatic approach. It is implemented in our
+		  tool OCLexec that generates from UML/OCL operation
+		  contracts corresponding Java implementations which call a
+		  constraint solver at runtime. The generated code can serve
+		  as a prototype. A case study demonstrates that our approach
+		  can handle problem instances of considerable size.}
+}
+
+@InProceedings{	  blanchette.ea:nitpick:2010,
+  author	= {Jasmin Christian Blanchette and Tobias Nipkow},
+  title		= {Nitpick: A Counterexample Generator for Higher-Order Logic
+		  Based on a Relational Model Finder},
+  booktitle	= {ITP},
+  year		= 2010,
+  pages		= {131--146},
+  doi		= {10.1007/978-3-642-14052-5_11},
+  crossref	= {kaufmann.ea:interactive:2010}
+}
+
+@Proceedings{	  kaufmann.ea:interactive:2010,
+  editor	= {Matt Kaufmann and Lawrence C. Paulson},
+  title		= {Interactive Theorem Proving, First International
+		  Conference, ITP 2010, Edinburgh, UK, July 11-14, 2010.
+		  Proceedings},
+  booktitle	= {ITP},
+  publisher	= pub-springer,
+  series	= s-lncs,
+  volume	= 6172,
+  year		= 2010,
+  isbn		= {978-3-642-14051-8},
+  doi		= {10.1007/978-3-642-14052-5}
+}
+@PREAMBLE{ {\providecommand{\ac}[1]{\textsc{#1}} } 
+	 # {\providecommand{\acs}[1]{\textsc{#1}} } 
+	 # {\providecommand{\acf}[1]{\textsc{#1}} } 
+	 # {\providecommand{\TAP}{T\kern-.1em\lower-.5ex\hbox{A}\kern-.1em P} } 
+	 # {\providecommand{\leanTAP}{\mbox{\sf lean\it\TAP}} } 
+	 # {\providecommand{\holz}{\textsc{hol-z}} } 
+	 # {\providecommand{\holocl}{\textsc{hol-ocl}} } 
+	 # {\providecommand{\isbn}{\textsc{isbn}} } 
+	 # {\providecommand{\Cpp}{C++} } 
+	 # {\providecommand{\Specsharp}{Spec\#} } 
+	 # {\providecommand{\doi}[1]{\href{http://dx.doi.org/#1}{doi:
+	   {\urlstyle{rm}\nolinkurl{#1}}}}} }
+@PREAMBLE{ {\providecommand{\ac}[1]{\textsc{#1}} } 
+	 # {\providecommand{\acs}[1]{\textsc{#1}} } 
+	 # {\providecommand{\acf}[1]{\textsc{#1}} } 
+	 # {\providecommand{\TAP}{T\kern-.1em\lower-.5ex\hbox{A}\kern-.1em P} } 
+	 # {\providecommand{\leanTAP}{\mbox{\sf lean\it\TAP}} } 
+	 # {\providecommand{\holz}{\textsc{hol-z}} } 
+	 # {\providecommand{\holocl}{\textsc{hol-ocl}} } 
+	 # {\providecommand{\isbn}{\textsc{isbn}} } 
+	 # {\providecommand{\Cpp}{C++} } 
+	 # {\providecommand{\Specsharp}{Spec\#} } 
+	 # {\providecommand{\doi}[1]{\href{http://dx.doi.org/#1}{doi:
+	   {\urlstyle{rm}\nolinkurl{#1}}}}} }
+@STRING{j-acta-informatica="Acta Informatica" }
+@STRING{j-ar	= "Journal of Automated Reasoning" }
+@STRING{omg	= {Object Management Group} }
+@STRING{pub-springer={Springer-Verlag} }
+@STRING{pub-springer:adr={Heidelberg} }
+@STRING{s-lncs	= "Lecture Notes in Computer Science" }
+
+@InProceedings{	  brucker.ea:featherweight:2012,
+  abstract	= {At its origins, OCL was conceived as a strict semantics
+		  for undefinedness, with the exception of the logical
+		  connectives of type Boolean that constitute a three-valued
+		  propositional logic. Recent versions of the OCL standard
+		  added a second exception element, which, similar to the
+		  null references in object-oriented programming languages,
+		  is given a non-strict semantics.\\\\In this paper, we
+		  report on our results in formalizing the core of OCL in
+		  HOL. This formalization revealed several inconsistencies
+		  and contradictions in the current version of the OCL
+		  standard. These inconsistencies and contradictions are
+		  reflected in the challenge to define and implement
+		  interpreters, code-generators, specification animators and
+		  theorem provers for OCL in a uniform manner and resulting
+		  incompatibilities of various tools.},
+  author	= {Achim D. Brucker and Burkhart Wolff},
+  booktitle	= {Workshop on OCL and Textual Modelling (OCL 2012)},
+  title		= {Featherweight OCL: A study for the consistent semantics of
+		  OCL 2.3 in HOL},
+  url		= {http://www.brucker.ch/bibliography/abstract/brucker.ea-featherweight-2012}
+		  ,
+  year		= {2012}
+}
+
+@Book{		  nipkow.ea:isabelle:2002,
+  author	= {Tobias Nipkow and Lawrence C. Paulson and Markus Wenzel},
+  title		= {Isabelle/\acs{hol}---A Proof Assistant for Higher-Order
+		  Logic},
+  publisher	= pub-springer,
+  address	= pub-springer:adr,
+  series	= s-lncs,
+  volume	= 2283,
+  doi		= {10.1007/3-540-45949-9},
+  abstract	= {This book is a self-contained introduction to interactive
+		  proof in higher-order logic (\acs{hol}), using the proof
+		  assistant Isabelle2002. It is a tutorial for potential
+		  users rather than a monograph for researchers. The book has
+		  three parts.
+		  
+		  1. Elementary Techniques shows how to model functional
+		  programs in higher-order logic. Early examples involve
+		  lists and the natural numbers. Most proofs are two steps
+		  long, consisting of induction on a chosen variable followed
+		  by the auto tactic. But even this elementary part covers
+		  such advanced topics as nested and mutual recursion. 2.
+		  Logic and Sets presents a collection of lower-level tactics
+		  that you can use to apply rules selectively. It also
+		  describes Isabelle/\acs{hol}'s treatment of sets, functions
+		  and relations and explains how to define sets inductively.
+		  One of the examples concerns the theory of model checking,
+		  and another is drawn from a classic textbook on formal
+		  languages. 3. Advanced Material describes a variety of
+		  other topics. Among these are the real numbers, records and
+		  overloading. Advanced techniques are described involving
+		  induction and recursion. A whole chapter is devoted to an
+		  extended example: the verification of a security protocol. },
+  year		= 2002,
+  acknowledgement={brucker, 2007-02-19},
+  bibkey	= {nipkow.ea:isabelle:2002},
+  tags		= {noTAG},
+  clearance	= {unclassified},
+  timestap	= {2008-05-26}
+}
+
+@Booklet{	  omg:ocl:1997,
+  bibkey	= {omg:ocl:1997},
+  key		= omg,
+  abstract	= {This document introduces and defines the Object Constraint
+		  Language (\acs{ocl}), a formal language to express side
+		  effect-free constraints. Users of the Unified Modeling
+		  Language and other languages can use \acs{ocl} to specify
+		  constraints and other expressions attached to their models.
+		  \acs{ocl} was used in the \acs{uml} Semantics document to
+		  specify the well-formedness rules of the \acs{uml}
+		  metamodel. Each well-formedness rule in the static
+		  semantics sections in the \acs{uml} Semantics document
+		  contains an \acs{ocl} expression, which is an invariant for
+		  the involved class. The grammar for \acs{ocl} is specified
+		  at the end of this document. A parser generated from this
+		  grammar has correctly parsed all the constraints in the
+		  \acs{uml} Semantics document, a process which improved the
+		  correctness of the specifications for \acs{ocl} and \acs{uml}.},
+  institution	= omg,
+  language	= {USenglish},
+  month		= sep,
+  note		= {Available as \acs{omg} document
+		  \href{http://www.omg.org/cgi-bin/doc?ad/97-08-08}
+		  {ad/97-08-08}},
+  keywords	= {\acs{uml}, OCL},
+  topic		= {formalism},
+  public	= {yes},
+  title		= {Object Constraint Language Specification (Version 1.1)},
+  year		= 1997,
+  acknowledgement={brucker, 2007-04-23}
+}
+
+@Booklet{	  omg:ocl:2006,
+  bibkey	= {omg:ocl:2006},
+  key		= omg,
+  abstract	= {This document introduces and defines the Object Constraint
+		  Language (OCL), a formal language to express side
+		  effect-free constraints. Users of the Unified Modeling
+		  Language and other languages can use OCL to specify
+		  constraints and other expressions attached to their models.
+		  OCL was used in the \acs{uml} Semantics document to specify
+		  the well-formedness rules of the \acs{uml} metamodel. Each
+		  well-formedness rule in the static semantics sections in
+		  the \acs{uml} Semantics document contains an OCL
+		  expression, which is an invariant for the involved class.
+		  The grammar for OCL is specified at the end of this
+		  document. A parser generated from this grammar has
+		  correctly parsed all the constraints in the \acs{uml}
+		  Semantics document, a process which improved the
+		  correctness of the specifications for OCL and \acs{uml}.},
+  publisher	= omg,
+  language	= {USenglish},
+  month		= apr,
+  keywords	= {\acs{uml}, OCL},
+  topic		= {formalism},
+  note		= {Available as \acs{omg} document
+		  \href{http://www.omg.org/cgi-bin/doc?formal/06-05-01}
+		  {formal/06-05-01}},
+  public	= {yes},
+  title		= {\acs{uml} 2.0 \acs{ocl} Specification},
+  year		= 2006,
+  acknowledgement={brucker, 2007-04-23}
+}
+
+@InProceedings{	  moura.ea:z3:2008,
+  author	= {Leonardo Mendon\c{c}a de Moura and Nikolaj Bj{\o}rner},
+  title		= {Z3: An Efficient \acs{smt} Solver},
+  booktitle	= {TACAS},
+  year		= 2008,
+  pages		= {337--340},
+  doi		= {10.1007/978-3-540-78800-3_24},
+  abstract	= {Satisfiability Modulo Theories (SMT) problem is a decision
+		  problem for logical first order formulas with respect to
+		  combinations of background theories such as: arithmetic,
+		  bit-vectors, arrays, and uninterpreted functions. Z3 is a
+		  new and efficient SMT Solver freely available from
+		  Microsoft Research. It is used in various software
+		  verification and analysis applications. },
+  crossref	= {ramakrishnan.ea:tools:2008}
+}
+
+@Proceedings{	  ramakrishnan.ea:tools:2008,
+  editor	= {C. R. Ramakrishnan and Jakob Rehof},
+  title		= {Tools and Algorithms for the Construction and Analysis of
+		  Systems, 14th International Conference, TACAS 2008, Held as
+		  Part of the Joint European Conferences on Theory and
+		  Practice of Software, ETAPS 2008, Budapest, Hungary, March
+		  29-April 6, 2008. Proceedings},
+  booktitle	= {TACAS},
+  publisher	= pub-springer,
+  address	= pub-springer:adr,
+  series	= s-lncs,
+  volume	= 4963,
+  year		= 2008,
+  isbn		= {978-3-540-78799-0}
+}
+
+@InProceedings{	  torlak.ea:kodkod:2007,
+  author	= {Emina Torlak and Daniel Jackson},
+  title		= {Kodkod: A Relational Model Finder},
+  booktitle	= {TACAS},
+  year		= 2007,
+  pages		= {632--647},
+  doi		= {10.1007/978-3-540-71209-1_49},
+  crossref	= {grumberg.ea:tools:2007},
+  abstract	= {The key design challenges in the construction of a
+		  SAT-based relational model finder are described, and novel
+		  techniques are proposed to address them. An efficient model
+		  finder must have a mechanism for specifying partial
+		  solutions, an effective symmetry detection and breaking
+		  scheme, and an economical translation from relational to
+		  boolean logic. These desiderata are addressed with three
+		  new techniques: a symmetry detection algorithm that works
+		  in the presence of partial solutions, a sparse-matrix
+		  representation of relations, and a compact representation
+		  of boolean formulas inspired by boolean expression diagrams
+		  and reduced boolean circuits. The presented techniques have
+		  been implemented and evaluated, with promising results.}
+}
+
+@Proceedings{	  grumberg.ea:tools:2007,
+  editor	= {Orna Grumberg and Michael Huth},
+  title		= {Tools and Algorithms for the Construction and Analysis of
+		  Systems, 13th International Conference, TACAS 2007, Held as
+		  Part of the Joint European Conferences on Theory and
+		  Practice of Software, ETAPS 2007 Braga, Portugal, March 24
+		  - April 1, 2007, Proceedings},
+  booktitle	= {TACAS},
+  publisher	= pub-springer,
+  address	= pub-springer:adr,
+  series	= s-lncs,
+  volume	= 4424,
+  year		= 2007,
+  isbn		= {978-3-540-71208-4}
+}
+
+@Booklet{	  omg:ocl:2012,
+  bibkey	= {omg:ocl:2012},
+  key		= omg,
+  abstract	= {This document introduces and defines the Object Constraint
+		  Language (OCL), a formal language to express side
+		  effect-free constraints. Users of the Unified Modeling
+		  Language and other languages can use OCL to specify
+		  constraints and other expressions attached to their models.
+		  OCL was used in the \acs{uml} Semantics document to specify
+		  the well-formedness rules of the \acs{uml} metamodel. Each
+		  well-formedness rule in the static semantics sections in
+		  the \acs{uml} Semantics document contains an OCL
+		  expression, which is an invariant for the involved class.
+		  The grammar for OCL is specified at the end of this
+		  document. A parser generated from this grammar has
+		  correctly parsed all the constraints in the \acs{uml}
+		  Semantics document, a process which improved the
+		  correctness of the specifications for OCL and \acs{uml}.},
+  publisher	= omg,
+  language	= {USenglish},
+  month		= feb,
+  keywords	= {\acs{uml}, OCL},
+  topic		= {formalism},
+  note		= {Available as \acs{omg} document
+		  \href{http://www.omg.org/cgi-bin/doc?formal/2012-01-01}
+		  {formal/2012-01-01}},
+  public	= {yes},
+  title		= {\acs{uml} 2.3.1 \acs{ocl} Specification},
+  year		= 2012,
+  acknowledgement={brucker, 2012-08-01}
+}
+
+@PhDThesis{	  brucker:interactive:2007,
+  author	= {Achim D. Brucker},
+  title		= {An Interactive Proof Environment for Object-oriented
+		  Specifications},
+  school	= {\acs{eth} Zurich},
+  year		= 2007,
+  public	= {yes},
+  month		= mar,
+  classification= {thesis},
+  areas		= {formal methods, software},
+  categories	= {holocl},
+  keywords	= {\acs{ocl}, \acs{uml}, formal semantics, theorem proving,
+		  Isabelle, \holocl},
+  note		= {\acs{eth} Dissertation No. 17097.},
+  abstract	= {We present a semantic framework for object-oriented
+		  specification languages. We develop this framework as a
+		  conservative shallow embedding in Isabelle/\acs{hol}. Using
+		  only conservative extensions guarantees by construction the
+		  consistency of our formalization. Moreover, we show how our
+		  framework can be used to build an interactive proof
+		  environment, called \holocl, for object-oriented
+		  specifications in general and for \acs{uml}/\acs{ocl} in
+		  particular.
+		  
+		  Our main contributions are an extensible encoding of
+		  object-oriented data structures in \acs{hol}, a datatype
+		  package for object-oriented specifications, and the
+		  development of several equational and tableaux calculi for
+		  object-oriented specifications. Further, we show that our
+		  formal framework can be the basis of a formal
+		  machine-checked semantics for \acs{ocl} that is compliant
+		  to the \acs{ocl} 2.0 standard. },
+  abstract_de	= {In dieser Arbeit wird ein semantisches Rahmenwerk f{\"u}r
+		  objektorientierte Spezifikationen vorgestellt. Das
+		  Rahmenwerk ist als konservative, flache Einbettung in
+		  Isabelle/\acs{hol} realisiert. Durch die Beschr{\"a}nkung
+		  auf konservative Erweiterungen kann die logische Konsistenz
+		  der Einbettung garantiert werden. Das semantische
+		  Rahmenwerk wird verwendet, um das interaktives Beweissystem
+		  \holocl f{\"u}r objektorientierte Spezifikationen im
+		  Allgemeinen und insbesondere f{\"u}r \acs{uml}/\acs{ocl} zu
+		  entwickeln.
+		  
+		  Die Hauptbeitr{\"a}ge dieser Arbeit sind die Entwicklung
+		  einer erweiterbaren Kodierung objektorientierter
+		  Datenstrukturen in \acs{hol}, ein Datentyp-Paket f{\"u}r
+		  objektorientierte Spezifikationen und die Entwicklung
+		  verschiedener Kalk{\"u}le f{\"u}r objektorientierte
+		  Spezifikationen. Zudem zeigen wir, wie das formale
+		  Rahmenwerk verwendet werden kann, um eine formale,
+		  maschinell gepr{\"u}fte Semantik f{\"u}r \acs{ocl}
+		  anzugeben, die konform zum Standard f{\"u}r \acs{ocl} 2.0 ist.},
+  pdf		= {http://www.brucker.ch/bibliography/download/2007/brucker-interactive-2007.pdf}
+		  ,
+  url		= {http://www.brucker.ch/bibliography/abstract/brucker-interactive-2007}
+		  
+}
+
+@InCollection{	  brucker.ea:hol-ocl:2008,
+  abstract	= {We present the theorem proving environment \holocl that is
+		  integrated in a \acs{mde} framework. \holocl allows to
+		  reason over UMLclass models annotated with \acs{ocl}
+		  specifications. Thus, \holocl strengthens a crucial part of
+		  the \acs{uml} to an object-oriented formal method. \holocl
+		  provides several derived proof calculi that allow for
+		  formal derivations establishing the validity of
+		  \acs{uml}/\acs{ocl} formulae. These formulae arise
+		  naturally when checking the consistency of class models,
+		  when formally refining abstract models to more concrete
+		  ones or when discharging side-conditions from
+		  model-transformations.},
+  keywords	= {\holocl, \acs{uml}, \acs{ocl}, Formal Methods, Theorem
+		  Proving, Refinement},
+  location	= {Budapest, Hungary},
+  author	= {Achim D. Brucker and Burkhart Wolff},
+  booktitle	= {Fundamental Approaches to Software Engineering
+		  {(\acs{fase08})}},
+  language	= {USenglish},
+  publisher	= pub-springer,
+  series	= s-lncs,
+  number	= 4961,
+  doi		= {10.1007/978-3-540-78743-3_8},
+  pages		= {97--100},
+  editor	= {Jos{\'e} Fiadeiro and Paola Inverardi},
+  title		= {{\holocl} -- {A Formal Proof Environment for
+		  {\acs{uml}}/{\acs{ocl}}}},
+  categories	= {holocl},
+  classification= {conference},
+  areas		= {formal methods, software},
+  year		= 2008,
+  pdf		= {http://www.brucker.ch/bibliography/download/2008/brucker.ea-hol-ocl-2008.pdf}
+		  ,
+  public	= {yes},
+  url		= {http://www.brucker.ch/bibliography/abstract/brucker.ea-hol-ocl-2008}
+		  
+}
+
+@Article{	  brucker.ea:extensible:2008-b,
+  abstract	= {We present an extensible encoding of object-oriented data
+		  models into \acs{hol}. Our encoding is supported by a
+		  datatype package that leverages the use of the shallow
+		  embedding technique to object-oriented specification and
+		  programming languages. The package incrementally compiles
+		  an object-oriented data model, i.e., a class model, to a
+		  theory containing object-universes, constructors, accessor
+		  functions, coercions (casts) between dynamic and static
+		  types, characteristic sets, and co-inductive class
+		  invariants. The package is conservative, i.e., all
+		  properties are derived entirely from constant definitions,
+		  including the constraints over object structures. As an
+		  application, we use the package for an object-oriented
+		  core-language called \impoo, for which we formally prove
+		  the correctness of a Hoare-Logic with respect to a
+		  denotational semantics.},
+  author	= {Achim D. Brucker and Burkhart Wolff},
+  language	= {USenglish},
+  public	= {yes},
+  classification= {journal},
+  areas		= {formal methods, software},
+  keywords	= {object-oriented data models, \acs{hol}, theorem proving,
+		  verification},
+  title		= {An Extensible Encoding of Object-oriented Data Models in
+		  \acs{hol}},
+  year		= 2008,
+  journal	= j-ar,
+  volume	= 41,
+  issue		= 3,
+  pages		= {219--249},
+  issn		= {0168-7433},
+  doi		= {10.1007/s10817-008-9108-3},
+  categories	= {holocl},
+  publisher	= pub-springer,
+  pdf		= {http://www.brucker.ch/bibliography/download/2008/brucker.ea-extensible-2008-b.pdf}
+		  ,
+  url		= {http://www.brucker.ch/bibliography/abstract/brucker.ea-extensible-2008-b}
+		  
+}
+
+@Article{	  brucker.ea:semantics:2009,
+  author	= {Achim D. Brucker and Burkhart Wolff},
+  title		= {Semantics, Calculi, and Analysis for Object-oriented
+		  Specifications},
+  journal	= j-acta-informatica,
+  classification= {journal},
+  areas		= {formal methods, software},
+  keywords	= {\acs{uml}, \acs{ocl}, object-oriented specification,
+		  refinement, formal methods},
+  abstract	= {We present a formal semantics for an object-oriented
+		  specification language. The formal semantics is presented
+		  as a conservative shallow embedding in Isabelle/\acs{hol}
+		  and the language is oriented towards \acs{ocl} formulae in
+		  the context of \acs{uml} class diagrams. On this basis, we
+		  formally derive several equational and tableaux calculi,
+		  which form the basis of an integrated proof environment
+		  including automatic proof support and support for the
+		  analysis of this type of specifications.
+		  
+		  We show applications of our proof environment to data
+		  refinement based on an adapted standard refinement notion.
+		  Thus, we provide an integrated formal method for
+		  refinement-based object-oriented development.},
+  year		= 2009,
+  language	= {USenglish},
+  public	= {yes},
+  issn		= {0001-5903},
+  doi		= {10.1007/s00236-009-0093-8},
+  categories	= {holocl},
+  pages		= {255--284},
+  month		= jul,
+  volume	= 46,
+  number	= 4,
+  publisher	= pub-springer,
+  pdf		= {http://www.brucker.ch/bibliography/download/2009/brucker.ea-semantics-2009.pdf}
+		  ,
+  url		= {http://www.brucker.ch/bibliography/abstract/brucker.ea-semantics-2009}
+		  
+}
+
+@InCollection{	  brucker.ea:hol-testgen:2009,
+  abstract	= {We present \testgen, an extensible test environment for
+		  specification-based testing build upon the proof assistant
+		  Isabelle. \testgen leverages the semi-automated generation
+		  of test theorems (a form of a partition), and their
+		  refinement to concrete test data, as well as the automatic
+		  generation of a test driver for the execution and test
+		  result verification.
+		  
+		  \testgen can also be understood as a unifying technical and
+		  conceptual framework for presenting and investigating the
+		  variety of unit and sequence test techniques in a logically
+		  consistent way. },
+  keywords	= {symbolic test case generations, black box testing, white
+		  box testing, theorem proving, interactive testing},
+  location	= {York, \acs{uk}},
+  author	= {Achim D. Brucker and Burkhart Wolff},
+  booktitle	= {Fundamental Approaches to Software Engineering
+		  {(\acs{fase09})}},
+  language	= {USenglish},
+  publisher	= pub-springer,
+  series	= s-lncs,
+  number	= 5503,
+  doi		= {10.1007/978-3-642-00593-0_28},
+  pages		= {417--420},
+  editor	= {Marsha Chechik and Martin Wirsing},
+  title		= {{\testgen}: An Interactive Test-case Generation Framework},
+  categories	= {holtestgen},
+  classification= {conference},
+  areas		= {formal methods, software},
+  year		= 2009,
+  pdf		= {http://www.brucker.ch/bibliography/download/2009/brucker.ea-hol-testgen-2009.pdf}
+		  ,
+  public	= {yes},
+  url		= {http://www.brucker.ch/bibliography/abstract/brucker.ea-hol-testgen-2009}
+		  
+}
+
+@InCollection{	  brucker.ea:ocl-null:2009,
+  author	= {Achim D. Brucker and Matthias P. Krieger and Burkhart
+		  Wolff},
+  wsbooktitle	= {The Pragmatics of \acs{ocl} and Other Textual
+		  Specification Languages},
+  note		= {Selected best papers from all satellite events of the
+		  MoDELS 2009 conference.},
+  booktitle	= {Models in Software Engineering},
+  publisher	= pub-springer,
+  series	= s-lncs,
+  number	= 6002,
+  editor	= {Sudipto Gosh},
+  pages		= {261--275},
+  doi		= {10.1007/978-3-642-12261-3_25},
+  language	= {USenglish},
+  title		= {Extending \acs{ocl} with Null-References},
+  year		= 2009,
+  classification= {workshop},
+  categories	= {holocl},
+  location	= {Denver, Colorado, \acs{usa}},
+  areas		= {formal methods, software},
+  public	= {yes},
+  abstract	= {From its beginnings, \acs{ocl} is based on a strict
+		  semantics for undefinedness, with the exception of the
+		  logical connectives of type Boolean that constitute a
+		  three-valued propositional logic. Recent versions of the
+		  \acs{ocl} standard added a second exception element, which,
+		  similar to the null references in object-oriented
+		  programming languages, is given a non-strict semantics.
+		  Unfortunately, this extension has been done in an ad hoc
+		  manner, which results in several inconsistencies and
+		  contradictions.
+		  
+		  In this paper, we present a consistent formal semantics
+		  (based on our \holocl approach) that includes such a
+		  non-strict exception element. We discuss the possible
+		  consequences concerning class diagram semantics as well as
+		  deduction rules. The benefits of our approach for the
+		  specification-pragmatics of design level operation
+		  contracts are demonstrated with a small case-study.},
+  bibkey	= {brucker.ea:ocl-null:2009},
+  pdf		= {http://www.brucker.ch/bibliography/download/2009/brucker.ea-ocl-null-2009.pdf}
+		  ,
+  keywords	= {\holocl, \acs{uml}, \acs{ocl}, null reference, formal
+		  semantics},
+  url		= {http://www.brucker.ch/bibliography/abstract/brucker.ea-ocl-null-2009}
+		  
+}
+
+@InCollection{	  brucker.ea:ocl-testing:2010,
+  abstract	= {Automated test data generation is an important method for
+		  the verification and validation of \acs{uml}/\acs{ocl}
+		  specifications. In this paper, we present an extension of
+		  \acs{dnf-}based test case generation methods to cyclic
+		  class-diagrams and recursive query operations on them. A
+		  key feature of our approach is a implicit representation of
+		  object graphs avoiding a representation based on
+		  object-id's; thus, our approach avoids the generation of
+		  isomorphic object graphs by using a concise and still
+		  human-readable symbolic representation.},
+  author	= {Achim D. Brucker and Matthias P. Krieger and Delphine
+		  Longuet and Burkhart Wolff},
+  booktitle	= {MoDELS Workshops},
+  language	= {USenglish},
+  public	= {yes},
+  publisher	= pub-springer,
+  series	= s-lncs,
+  number	= 6627,
+  classification= workshop,
+  areas		= {formal methods, software},
+  year		= 2010,
+  note		= {Selected best papers from all satellite events of the
+		  MoDELS 2010 conference. Workshop on \acs{ocl} and Textual
+		  Modelling.},
+  categories	= {holocl,holtestgen},
+  keywords	= {\acs{ocl}, \acs{uml}, test case generation,
+		  specification-based testing},
+  pages		= {334--348},
+  title		= {A Specification-based Test Case Generation Method for
+		  {\acs{uml}}/{\acs{ocl}}},
+  editor	= {J{\"u}rgen Dingel and Arnor Solberg},
+  isbn		= {978-3-642-21209-3},
+  url		= {http://www.brucker.ch/bibliography/abstract/brucker.ea-ocl-testing-2010}
+		  ,
+  pdf		= {http://www.brucker.ch/bibliography/download/2010/brucker.ea-ocl-testing-2010.pdf}
+		  ,
+  doi		= {10.1007/978-3-642-21210-9_33}
+}
+
+@TechReport{ brucker.ea:hol-ocl-book:2006,
+	abstract	= 	{HOL-OCL is an interactive proof environment for the Object Constraint Language (OCL). It is implemented as a shallow embedding of OCL into the Higher-order Logic (HOL) instance of the interactive theorem prover Isabelle. HOL-OCL defines a machine-checked formalization of the semantics as described in the standard for OCL 2.0. This conservative, shallow embedding of UML/OCL into Isabelle/HOL includes support for typed, extensible UML data models supporting inheritance and subtyping inside the typed lambda-calculus with parametric polymorphism. As a consequence of conservativity with respect to higher-order logic (HOL), we can guarantee the consistency of the semantic model. Moreover, HOL-OCL provides several derived calculi for UML/OCL that allow for formal derivations establishing the validity of UML/OCL formulae. Elementary automated support for such proofs is also provided top},
+	author	= 	{Achim D. Brucker and Burkhart Wolff},
+	bibkey	= 	{brucker.ea:hol-ocl-book:2006},
+	institution	= 	{ETH Zurich},
+	keywords	= 	{security, SecureUML, UML, OCL, HOL-OCL, model-transformation},
+	language	= 	{USenglish},
+	number	= 	{525},
+	pdf	= 	{http://www.brucker.ch/bibliography/download/2006/brucker.ea-hol-ocl-book-2006.pdf},
+	title	= 	{The {HOL-OCL} Book},
+	url	= 	{http://www.brucker.ch/bibliography/abstract/brucker.ea-hol-ocl-book-2006},
+	year	= 	{2006},
+} 

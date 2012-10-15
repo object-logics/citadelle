@@ -1,0 +1,243 @@
+\RequirePackage{ifthen}
+\newboolean{fmdeacro@sc}
+\setboolean{fmdeacro@sc}{false}
+\DeclareOption{sc}{\setboolean{fmdeacro@sc}{true}}
+
+\ProcessOptions\relax
+
+\newcommand{\fmdeacro}[3]{%
+  \ifthenelse{\boolean{fmdeacro@sc}}{%
+    \ifthenelse{\equal{#2}{}}{\acro{#1}{#3}}{\acro{#1}[#2]{#3}}% 
+  }{%
+    \ifthenelse{\equal{#2}{}}{\acro{#1}[\uppercase{#1}]{#3}}{\acro{#1}[#2]{#3}}%
+  }%
+}
+
+\newcommand{\listofacronyms}[1]{%
+  \begin{acronym}[#1]
+   \fmdeacro{abe}{}{Attribute-based Encryption}
+  \fmdeacro{ibe}{}{Identity-based Encryption}
+ \fmdeacro{acm}{}{Association for Computing Machinery}%
+  \fmdeacro{apsec}{}{Asia Pacific Conference in Software Engineering}% 
+  \fmdeacro{atool}{}{Application specific object-oriented theory}%
+  \fmdeacro{bt}{}{}%
+  \fmdeacro{entcs}{}{}%
+  \fmdeacro{ac}{}{access control}%
+  \fmdeacro{btg}{}{Break-the-Glass}%
+  \fmdeacro{acsac}{}{}%
+  \fmdeacro{bgp}{}{}%
+  \fmdeacro{html}{}{}%
+  \fmdeacro{ibm}{}{}%
+  \fmdeacro{mbt}{}{}%
+  \fmdeacro{ares}{}{}%
+  \fmdeacro{api}{}{Application Programming Interface}
+  \fmdeacro{bgrbac}{BG-RBAC}{Breaking Glass \acs{RBAC}}
+  \fmdeacro{ca}{}{Certification Authority}
+  \fmdeacro{cade}{}{Automated Deduction}%
+  \fmdeacro{case}{}{Computer Aided Software Engineering}%
+  \fmdeacro{cassis}{}{Construction and Analysis of Safe, Secure, and
+    Interoperable Smart Devices}
+  \fmdeacro{cav}{}{Computer Aided Verification}
+  \fmdeacro{ccs}{}{A Calculus of Communicating Systems}
+  \fmdeacro{cnf}{}{conjunctive normal form}
+  \fmdeacro{colog}{}{International Conference on Computer Logic}
+  \fmdeacro{csl}{}{Conference on Computer Science Logic}
+  \fmdeacro{ctl}{}{Computational Tree Logic}
+  \fmdeacro{csp}{}{Communicating Sequential Processes}
+  \fmdeacro{cool}{}{}
+  \fmdeacro{biss}{}{}
+  \fmdeacro{saml}{}{Security Assertion Markup Language}
+  \fmdeacro{bpmn}{}{Business Process Modeling and Notation}
+  \fmdeacro{bpm}{}{Business Process Modeling}
+ \fmdeacro{tpm}{}{Trusted Platform Module}
+  \fmdeacro{rts}{}{root of trust for storage}
+  \fmdeacro{rtr}{}{root of trust for reporting}
+  \fmdeacro{pin}{}{Personal Identification Number}
+  \fmdeacro{tetra}{}{TErrestrial Trunked RAdio}
+  \fmdeacro{dsl}{}{}
+  \fmdeacro{esc}{}{}
+  \fmdeacro{tgv}{}{}
+  \fmdeacro{sdl}{}{}
+  \fmdeacro{jpf}{}{}
+  \fmdeacro{sat}{}{}
+  \fmdeacro{mdt}{}{}
+  \fmdeacro{nhs}{}{National Health Service}
+  \fmdeacro{lotos}{}{}
+  \fmdeacro{leirios}{}{}
+  \fmdeacro{nema}{}{}
+  \fmdeacro{icst}{}{}
+  \fmdeacro{nbe}{}{normalization by evaluation}
+  \fmdeacro{cocir}{}{}
+  \fmdeacro{jira}{}{}
+  \fmdeacro{cse}{}{}
+  \fmdeacro{spc}{}{}
+   \fmdeacro{policy}{}{}
+  \fmdeacro{sacmat}{}{}
+  \fmdeacro{sac}{}{}
+  \fmdeacro{us}{}{}
+  \fmdeacro{upf}{}{Unified Policy Framework}
+  \fmdeacro{fast}{}{}
+  \fmdeacro{csws}{}{}
+  \fmdeacro{kp-abe}{}{key-policy attribute-based encryption}
+  \fmdeacro{cp-abe}{}{ciphertext-policy attribute-based encryption}
+  \fmdeacro{nist}{}{}
+  \fmdeacro{cbms}{}{}
+  \fmdeacro{cpo}{}{complete partial order}
+  \fmdeacro{pspt}{}{}
+  \fmdeacro{cscw}{}{}
+  \fmdeacro{gps}{}{}
+  \fmdeacro{adm}{}{Assisted Delegation Manager}
+  \fmdeacro{adi}{}{Assisted Delegation Interface}
+  \fmdeacro{atem}{}{}
+  \fmdeacro{sme}{}{Small and Medium-sized Enterprises}
+  \fmdeacro{dmz}{}{demilitarized zone}
+  \fmdeacro{dmis}{}{disaster management information system}
+  \fmdeacro{dnf}{}{disjunctive normal form}
+  \fmdeacro{eal}{}{Evaluation Assurance Level}
+  \fmdeacro{easst}{}{European Association of Software Science and Technology}
+  \fmdeacro{ecoop}{}{}
+  \fmdeacro{ebnf}{}{Extended Backus-Naur Form}
+  \fmdeacro{epfl}{}{Eole Polytechnique Fédérale de Lausanne}
+  \fmdeacro{eth}{}{Eidgenössische Technische Hochschule}
+  \fmdeacro{emf}{}{}
+  \fmdeacro{erp}{}{enterprise resource planning}
+  \fmdeacro{crm}{}{customer relationship management}
+  \fmdeacro{epal}{}{Enterprise Privacy Authorization Language}
+  \fmdeacro{el}{}{Emergency Level}
+  \fmdeacro{fase08}{}{Fundamental Approaches to Software Engineering}
+  \fmdeacro{fase}{}{Fundamental Approaches to Software Engineering}
+  \fmdeacro{fase09}{}{Fundamental Approaches to Software Engineering}
+  \fmdeacro{fates}{}{Fundamental Approaches to Software Engineering}
+  \fmdeacro{fme}{}{Formal Methods Europe}
+  \fmdeacro{fol}{}{first-order logic}
+  \fmdeacro{ftp}{}{file transfer protocol}  
+  \fmdeacro{fxp}{}{Functional \acs{xml} Parser}
+  \fmdeacro{gec}{}{Global Equational Calculus}
+  \fmdeacro{gj}{}{}
+  \fmdeacro{grc}{}{Governance, Risk Management, and Compliance}
+  \fmdeacro{hcnf}{}{Horn-clause normal form}
+  \fmdeacro{hoas}{}{higher-order abstract syntax}
+  \fmdeacro{hol}{}{higher-order logic}
+  \fmdeacro{holcf}{}{\acs{hol} + \acs{lcf}}
+  \fmdeacro{hool}{}{An object-oriented specification and verification environment.}
+  \fmdeacro{hor}{}{higher-order rewriting}
+  \fmdeacro{hug}{}{Higher-Order Logic User's Group}  
+   \fmdeacro{ictac}{}{International Colloquium on Theoretical Aspects of
+     Computing}
+   \fmdeacro{ict}{}{Information and Communications Technologies}
+   \fmdeacro{icse}{}{International Conference on Software Engineering}
+  \fmdeacro{ieee}{}{Institute of Electrical and Electronic Engineers}
+  \fmdeacro{ifip}{}{International Federation for Information Processing}
+  \fmdeacro{ijcar}{}{International Joint Conference on Automated Reasoning}
+  \fmdeacro{imp}{}{A simple imperative programming language}
+  \fmdeacro{ip}{}{Information Technology}
+  \fmdeacro{jar}{}{Journal of Automated Reasoning}
+  \fmdeacro{isar}{\mbox{\normalsize Isar}}{Intelligible semi-automated reasoning}
+  \fmdeacro{ismvl}{}{International Symposium on Multiple-Valued Logics}
+  \fmdeacro{isss}{}{Software Security---Theories and Systems}
+   \fmdeacro{it}{}{Information Technology}
+  \fmdeacro{jml}{}{Java Modeling Language}
+  \fmdeacro{jvm}{}{Java virtual machine}
+  \fmdeacro{jpf-se}{}{}
+  \fmdeacro{lcf}{}{Logic for Computable Functions}
+  \fmdeacro{le}{}{Local (Formula) Equivalence}
+  \fmdeacro{lec}{}{Local Equational Calculus}
+  \fmdeacro{lje}{}{Local Judgement Equivalence}
+  \fmdeacro{loop}{}{Logic of Object-Oriented Programming}
+  \fmdeacro{ltc}{}{Local Tableaux Calculus}
+  \fmdeacro{ltl}{}{Linear Temporal Logic}
+  \fmdeacro{lisp}{}{}
+  \fmdeacro{lncs}{}{}
+  \fmdeacro{sbp}{}{}
+  \fmdeacro{lnbip}{}{}
+  \fmdeacro{mda}{}{Model-driven Architecture}
+  \fmdeacro{mls}{}{Multi-level Security}
+  \fmdeacro{mde}{}{Model-driven Engineering}
+  \fmdeacro{mds}{}{Model-driven Security}
+  \fmdeacro{mit}{}{Massachusetts Institute of Technology} 
+  \fmdeacro{ml}{}{Meta Language}
+  \fmdeacro{models}{\textsc{MoDELS}}{Model Driven Engineering Languages and Systems}
+  \fmdeacro{mof}{}{}
+  \fmdeacro{moin}{}{}
+  \fmdeacro{nat}{}{network address translation}
+  \fmdeacro{pat}{}{port address translation}
+  \fmdeacro{nato}{}{North Atlantic Treaty Organization}
+  \fmdeacro{nj}{}{New Jersey}
+  \fmdeacro{ny}{}{New York}
+  \fmdeacro{ocl}{}{Object Constraint Language}
+  \fmdeacro{ocle}{}{Object Constraint Language Environment}
+  \fmdeacro{oclvp}{oclvp}{Object Constraint Language Verification
+    Platform}
+   \fmdeacro{omg}{}{Object Management Group}
+  \fmdeacro{oopsla}{}{International Conference on Object-oriented
+    Programming Systems, Languages and Applications}
+  
+  \fmdeacro{pep}{}{Policy Enforcement Point}
+  \fmdeacro{pip}{}{Policy Information Point}
+  \fmdeacro{pdp}{}{Policy Decision Point}
+  \fmdeacro{gui}{}{Graphical User Interface}
+  \fmdeacro{ui}{}{User Interface}
+  \fmdeacro{permis}{}{}
+  
+  \fmdeacro{pldi}{}{Programming Language Design and
+                  Implementation}
+  \fmdeacro{popl}{}{Symposium on Principles of Programming Languages } 
+  \fmdeacro{pvs}{}{\acs{pvs} Verification System}
+  \fmdeacro{qvt}{}{Query/View/Transformation}
+  \fmdeacro{rbac}{}{role-based access control}
+  \fmdeacro{SecureUml}{SecureUML}{A modeling language designed to integrate 
+    information relevant to access control into 
+    application models defined with the \acs{uml}}
+  \fmdeacro{sap}{}{}
+  \fmdeacro{sb}{}{}
+  \fmdeacro{skl}{}{Strong Kleene Logic}
+  \fmdeacro{sml}{}{Standard Meta Language}
+  \fmdeacro{smt}{}{}
+  \fmdeacro{smlnj}{sml/NJ}{\acs{sml} of New Jersey}
+  \fmdeacro{polyml}{Poly/ML}{}
+  \fmdeacro{ram}{}{}
+  \fmdeacro{ejb}{}{} 
+  \fmdeacro{amd}{}{}
+  \fmdeacro{soa}{}{service-oriented architecture}
+  \fmdeacro{soknos}{SoKNOS}{Service-orientierte ArchiteKturen zur Unterstützung von Netzwerken im Rahmen Oeffentlicher Sicherheit
+(Service-Oriented ArchiteCtures Supporting Networks of Public Security)}
+\fmdeacro{sox}{}{Sarbanes-Oxley Act}
+  \fmdeacro{su4sml}{\mbox{\normalsize su4sml}}{SecureUML for \acs{sml}}
+  \fmdeacro{sut}{}{system under test}
+  \fmdeacro{svv}{}{Workshop on Software Verification and Validation}
+  \fmdeacro{tap}{}{}
+  \fmdeacro{tacas}{}{Tools and Algorithms for the Construction and Analysis of
+                  Systems}
+  \fmdeacro{tcp}{}{Information Technology}
+  \fmdeacro{tnf}{}{testing normal form}
+  \fmdeacro{ts}{}{}
+  \fmdeacro{tc}{}{}
+  \fmdeacro{td}{}{}
+  \fmdeacro{tphols}{}{Theorem Proving in Higher Order Logics}
+  \fmdeacro{types}{}{Types for Proofs and Programs}
+  \fmdeacro{uc}{}{Universal (Formula) Congruence}
+  \fmdeacro{uec}{}{Universal Equational Calculus}
+  \fmdeacro{uje}{}{Universal Judgement Equivalence}  
+  \fmdeacro{uml}{}{Unified Modeling Language}
+  \fmdeacro{usa}{}{United States of America} 
+  \fmdeacro{use}{}{\acs{uml} Specification Environment}
+  \fmdeacro{usenix}{}{}
+  \fmdeacro{vcg}{}{}
+  \fmdeacro{xacml}{}{eXtensible Access Control Markup Language}
+  \fmdeacro{url}{}{}
+  \fmdeacro{wsdl}{Web Service Description Language}{}
+  \fmdeacro{verify}{}{Verification Workshop}
+  \fmdeacro{vdm}{}{Vienna Development Method}
+  \fmdeacro{voip}{VoIP}{Voice over \acs{ip}}
+  \fmdeacro{xmi}{}{\acs{xml} Metadata Interchange}
+  \fmdeacro{xml}{}{Extensible Markup Language}
+  \fmdeacro{zf}{}{Zermelo-Fraenkel}
+  \fmdeacro{hipaa}{}{Health Insurance Portability and Accountability Act}
+\end{acronym}}
+%%% Local Variables:
+%%% fill-column:80
+%%% x-symbol-8bits:nil
+%%% mode: latex
+%%% ispell-local-dictionary: "american"
+%%% TeX-master: "../brucker-interactive-2007"
+%%% End:

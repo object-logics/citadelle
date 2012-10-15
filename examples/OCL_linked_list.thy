@@ -15,8 +15,8 @@ for classes, accessors, method, casts, and tests for actual types, as well as pr
 fundamental properties of these operations in this concrete data model. *}
 
 text{* Such generic function or "compiler" can be implemented in Isabelle on the ML level. 
-This has been done, for a semantics following the open-world assumption, for UML 2.0 in
-\cite{Jar-IMP-Paper}. In this paper, we follow another approach for UML 2.4: we define the concepts
+This has been done, for a semantics following the open-world assumption, for UML 2.0 
+in~\cite{brucker.ea:extensible:2008-b}. In this paper, we follow another approach for UML 2.4: we define the concepts
 of the compilation informally, an present a concrete example which is verified in Isabelle/HOL. *}
 
 subsection{* Outlining the Example *}

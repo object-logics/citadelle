@@ -57,14 +57,14 @@ SRC = $(ISABELLE_HOME)/src
 OUT = $(ISABELLE_OUTPUT)
 LOG = $(OUT)/log
 
-USEDIR = $(ISABELLE_TOOL) usedir -q 0 -t true -b -v true -i false -d pdf
+USEDIR = $(ISABELLE_TOOL) usedir -q 0 -t true -b -v true -i false -d pdf -D generated
 
 export LOG OUT
 ## IMP
 
 $(EXAMPLE): *.thy ROOT.ML $(LOG)/$(MAIN)-$(EXAMPLE).gz 
 
-$(LOG)/$(MAIN)-$(EXAMPLE).gz: ROOT.ML *.thy
+$(LOG)/$(MAIN)-$(EXAMPLE).gz: ROOT.ML *.thy document/*
 	@$(USEDIR) $(MAIN) $(MAIN)-$(EXAMPLE) 
 
 
