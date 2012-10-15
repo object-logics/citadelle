@@ -1,4 +1,4 @@
-\documentclass[11pt,a4paper]{article}
+\documentclass[11pt,a4paper]{scrartcl}
 \usepackage{isabelle,isabellesym}
 
 % further packages required for unusual symbols (see also
@@ -36,11 +36,47 @@
 
 \begin{document}
 
-\title{Essential OCL - A Study for a Consistent Semantics of UML/OCL 2.2 in HOL.}
-\author{Burkhart Wolff}
+\title{Essential OCL}
+\subtitle{A Study for a Consistent Semantics of UML/OCL 2.3 in HOL}
+\subject{Extended Version}
+\author{Achim D. Brucker \and Burkhart Wolff}
+\begin{abstract}
+  At its origins, \OCL was conceived as a strict semantics for
+  undefinedness, with the exception of the logical connectives of type
+  \inlineocl{Boolean} that constitute a three-valued propositional
+  logic.  Recent versions of the \OCL standard added a second
+  exception element, which, similar to the null references in
+  programming languages, is given a non-strict semantics.
+
+  In this paper, we report on our results in formalizing the core of
+  \acs{ocl} in \acf{hol}. This formalization revealed several
+  inconsistencies and contradictions in the current version of the
+  \acs{ocl} standard.  These inconsistencies and contradictions are
+  reflected in the challenge to define and implement \OCL tools in a
+  uniform manner.
+\end{abstract}
+
+
 \maketitle
 
 \tableofcontents
+
+
+\section{Introduction}
+At its origins~\cite{richters:precise:2002,omg:ocl:1997}, \OCL was
+conceived as a strict semantics for undefinedness, with the exception
+of the logical connectives of type \inlineocl{Boolean} that constitute
+a three-valued propositional logic.  Recent versions of the \OCL
+standard~\cite{omg:ocl:2006,omg:ocl:2012} added a second exception
+element, which is given a non-strict semantics.  Unfortunately, this
+extension results in several inconsistencies and contradictions. These
+problems are reflected in difficulties to define interpreters,
+code-generators, specification animators or theorem provers for \OCL
+in a uniform manner and resulting incompatibilities of various
+tools. For the \OCL community, this results in the challenge to define
+a new formal semantics definition \OCL that could replace the ``Annex
+A'' of the \acs{ocl} standard~\cite{omg:ocl:2012}.
+
 
 % sane default for proof documents
 \parindent 0pt\parskip 0.5ex
