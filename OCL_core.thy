@@ -326,7 +326,7 @@ is clearly an equivalence: *}
 lemma StrongEq_refl [simp]: "(X \<triangleq> X) = true"
 by(rule ext, simp add: null_def invalid_def true_def false_def StrongEq_def)
 
-lemma StrongEq_sym [simp]: "(X \<triangleq> Y) = (Y \<triangleq> X)"
+lemma StrongEq_sym: "(X \<triangleq> Y) = (Y \<triangleq> X)"
 by(rule ext, simp add: eq_sym_conv invalid_def true_def false_def StrongEq_def)
 
 lemma StrongEq_trans_strong [simp]:
@@ -481,7 +481,7 @@ lemma textbook_and:
                                           | \<lfloor>\<bottom>\<rfloor> \<Rightarrow> \<lfloor>\<bottom>\<rfloor>
                                           | \<lfloor>\<lfloor>y\<rfloor>\<rfloor> \<Rightarrow>  \<lfloor>\<lfloor>y\<rfloor>\<rfloor>)
                         | \<lfloor>\<lfloor>False\<rfloor>\<rfloor> \<Rightarrow>  \<lfloor>\<lfloor> False \<rfloor>\<rfloor>)"
-by(simp add: Sem_def ocl_and_def split: option.split   )
+by(simp add: Sem_def ocl_and_def split: option.split)
 
 
 
@@ -704,6 +704,7 @@ lemma foundation7'[simp]:
 by(simp add: not_def OclValid_def true_def false_def valid_def
              split: option.split option.split_asm)
 
+
 text{* Key theorem for the Delta-closure: either an expression
 is defined, or it can be replaced (substituted via \verb+StrongEq_L_subst2+; see
 below) by invalid or null. Strictness-reduction rules will usually 
@@ -788,6 +789,9 @@ lemma foundation21: "(not A \<triangleq> not B) = (A \<triangleq> B)"
 by(rule ext, auto simp: not_def StrongEq_def
                      split: bool.split_asm HOL.split_if_asm option.split)
 
+lemma foundation22: "(\<tau> \<Turnstile> (X \<triangleq> Y)) = (X \<tau> = Y \<tau>)"
+by(auto simp: StrongEq_def OclValid_def true_def) 
+
 
 lemma defined_not_I : "\<tau> \<Turnstile> \<delta> (x) \<Longrightarrow> \<tau> \<Turnstile> \<delta> (not x)" 
   by(auto simp: not_def null_def invalid_def defined_def valid_def OclValid_def
@@ -819,7 +823,7 @@ by(simp add: OclValid_def StrongEq_def)
 
 
 lemma StrongEq_L_sym: "\<tau> \<Turnstile> (x \<triangleq> y) \<Longrightarrow> \<tau> \<Turnstile> (y \<triangleq> x)"
-by(simp add: OclValid_def StrongEq_def)
+by(simp add: StrongEq_sym)
 
 lemma StrongEq_L_trans: "\<tau> \<Turnstile> (x \<triangleq> y) \<Longrightarrow> \<tau> \<Turnstile> (y \<triangleq> z) \<Longrightarrow> \<tau> \<Turnstile> (x \<triangleq> z)"
 by(simp add: OclValid_def StrongEq_def true_def)
@@ -861,7 +865,7 @@ by(erule_tac x="P X" in allE, auto)
 lemma cp_const : "cp(\<lambda>_. c)"
   by (simp add: cp_def, fast)
 
-lemma cp_id :    "cp(\<lambda>X. X)"
+lemma cp_id :     "cp(\<lambda>X. X)"
   by (simp add: cp_def, fast)
 
 lemmas cp_intro[simp,intro!] = 
@@ -914,7 +918,23 @@ by(rule ext, auto simp: if_ocl_def)
 lemma if_ocl_true [simp]: "(if true then B\<^isub>1 else B\<^isub>2 endif) = B\<^isub>1"
 by(rule ext, auto simp: if_ocl_def)
 
+lemma if_ocl_true' [simp]: "\<tau> \<Turnstile> P \<Longrightarrow> (if P then B\<^isub>1 else B\<^isub>2 endif)\<tau> = B\<^isub>1 \<tau>"
+apply(subst cp_if_ocl,auto simp: OclValid_def)
+by(simp add:cp_if_ocl[symmetric])
+
 lemma if_ocl_false [simp]: "(if false then B\<^isub>1 else B\<^isub>2 endif) = B\<^isub>2"
+by(rule ext, auto simp: if_ocl_def)
+
+lemma if_ocl_false' [simp]: "\<tau> \<Turnstile> not P \<Longrightarrow> (if P then B\<^isub>1 else B\<^isub>2 endif)\<tau> = B\<^isub>2 \<tau>"
+apply(subst cp_if_ocl)
+apply(auto simp: foundation14[symmetric] foundation22)
+by(auto simp: cp_if_ocl[symmetric])
+
+
+lemma if_ocl_idem1[simp]:"(if \<delta> X then A else A endif) = A" 
+by(rule ext, auto simp: if_ocl_def)
+
+lemma if_ocl_idem2[simp]:"(if \<upsilon> X then A else A endif) = A" 
 by(rule ext, auto simp: if_ocl_def)
 
 

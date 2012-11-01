@@ -244,8 +244,8 @@ by(rule ext, simp add: null_fun_def null_option_def bot_option_def null_def inva
 
 subsection{* Casts *}
 
-consts oclastype\<^isub>o\<^isub>b\<^isub>j\<^isub>e\<^isub>c\<^isub>t :: "'\<alpha> \<Rightarrow> Object" ("(_).oclAsType'(Object')")
-consts oclastype\<^isub>n\<^isub>o\<^isub>d\<^isub>e   :: "'\<alpha> \<Rightarrow> Node" ("(_).oclAsType'(Node')")
+consts oclastype\<^isub>o\<^isub>b\<^isub>j\<^isub>e\<^isub>c\<^isub>t :: "'\<alpha> \<Rightarrow> Object" ("(_) .oclAsType'(Object')")
+consts oclastype\<^isub>n\<^isub>o\<^isub>d\<^isub>e   :: "'\<alpha> \<Rightarrow> Node" ("(_) .oclAsType'(Node')")
 
 defs (overloaded) oclastype\<^isub>o\<^isub>b\<^isub>j\<^isub>e\<^isub>c\<^isub>t_Object: 
         "(X::Object) .oclAsType(Object) \<equiv> 
@@ -284,6 +284,14 @@ by(rule ext, simp add: null_fun_def null_option_def bot_option_def null_def inva
 lemma oclastype\<^isub>o\<^isub>b\<^isub>j\<^isub>e\<^isub>c\<^isub>t_Object_nullstrict[simp] : "(null::Object) .oclAsType(Object) = invalid" 
 by(rule ext, simp add: null_fun_def null_option_def bot_option_def null_def invalid_def
                        oclastype\<^isub>o\<^isub>b\<^isub>j\<^isub>e\<^isub>c\<^isub>t_Object)
+
+lemma oclastype\<^isub>n\<^isub>o\<^isub>d\<^isub>e_Object_strict[simp] : "(invalid::Node) .oclAsType(Object) = invalid" 
+by(rule ext, simp add: null_fun_def null_option_def bot_option_def null_def invalid_def
+                       oclastype\<^isub>o\<^isub>b\<^isub>j\<^isub>e\<^isub>c\<^isub>t_Node bot_Boolean_def)
+
+lemma oclastype\<^isub>n\<^isub>o\<^isub>d\<^isub>e_Object_nullstrict[simp] : "(null::Node) .oclAsType(Object) = invalid" 
+by(rule ext, simp add: null_fun_def null_option_def bot_option_def null_def invalid_def
+                       oclastype\<^isub>o\<^isub>b\<^isub>j\<^isub>e\<^isub>c\<^isub>t_Node)
 
 (* TODO: Missing strictness for other defs, + cp's.*)
 section{* Tests for Actual Types *}

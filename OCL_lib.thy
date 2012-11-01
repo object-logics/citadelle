@@ -703,18 +703,15 @@ proof -
   have A: "\<And> \<tau>. (Set{}->includes(invalid)) \<tau> = (if (\<upsilon> invalid) then false else invalid endif) \<tau>"
           by simp
   have B: "\<And> \<tau> x. \<tau> \<Turnstile> (\<upsilon> x) \<Longrightarrow> (Set{}->includes(x)) \<tau> = (if \<upsilon> x then false else invalid endif) \<tau>"
-          apply(frule including_charn0, simp add: OclValid_def, subst cp_if_ocl, 
-                simp, simp only:cp_if_ocl[symmetric], simp add: StrongEq_def)
+          apply(frule including_charn0, simp add: OclValid_def)
           apply(rule foundation21[THEN fun_cong, simplified StrongEq_def,simplified, 
                      THEN iffD1, of _ _ "false"])
           by simp
   show ?thesis
-    apply(rule ext)
-    apply(case_tac "xa \<Turnstile> (\<upsilon> x)")
-    apply(simp add: B)
-    apply(simp add: foundation18)
-    apply(subst cp_if_ocl, subst cp_OclIncludes, subst cp_valid, simp)
-    apply(simp add: cp_if_ocl[symmetric] cp_OclIncludes[symmetric] cp_valid[symmetric] A)
+    apply(rule ext, rename_tac \<tau>)
+    apply(case_tac "\<tau> \<Turnstile> (\<upsilon> x)")
+    apply(simp_all add: B foundation18)
+    apply(subst cp_OclIncludes, simp add: cp_OclIncludes[symmetric] A)
   done
 qed
 
@@ -777,8 +774,77 @@ lemma includes_execute[code_unfold]:
                                                else X->includes(y)
                                                endif
                                           else invalid endif)"
-sorry
+sorry 
+(* this does not hold in general, only for concrete type instances
+for Boolean, Integer, and Sets thereof... *)
 
+(* here is a proof for an instance ... Solution: Generic Theorem, instances 
+with definitions of strict equality.*)
+lemma includes_execute_integer[code_unfold]:
+"(X->including(x::('\<AA>)Integer)->includes(y)) = 
+ (if \<delta> X then if x \<doteq> y then true else X->includes(y) endif else invalid endif)"
+proof -
+  have A: "\<And>\<tau>. \<tau> \<Turnstile> (X \<triangleq> invalid) \<Longrightarrow>
+            (X->including(x)->includes(y)) \<tau> = invalid \<tau>"
+            apply(subst cp_OclIncludes, subst cp_OclIncluding)
+            apply(drule foundation22[THEN iffD1], simp)
+            apply(simp only: cp_OclIncluding[symmetric] cp_OclIncludes[symmetric])
+            by simp 
+  have B: "\<And>\<tau>. \<tau> \<Turnstile> (X \<triangleq> null) \<Longrightarrow>
+            (X->including(x)->includes(y)) \<tau> = invalid  \<tau>" 
+            apply(subst cp_OclIncludes, subst cp_OclIncluding)
+            apply(drule foundation22[THEN iffD1], simp)
+            apply(simp only: cp_OclIncluding[symmetric] cp_OclIncludes[symmetric])
+            by simp 
+  have C: "\<And>\<tau>. \<tau> \<Turnstile> (x \<triangleq> invalid) \<Longrightarrow> 
+           (X->including(x)->includes(y)) \<tau> = 
+           (if x \<doteq> y then true else X->includes(y) endif) \<tau>" 
+            apply(subst cp_if_ocl, subst cp_StrictRefEq_int) 
+            apply(subst cp_OclIncludes, subst cp_OclIncluding)
+            apply(drule foundation22[THEN iffD1], simp)
+            apply(simp only: cp_if_ocl[symmetric] cp_OclIncluding[symmetric] 
+                             cp_StrictRefEq_int[symmetric] cp_OclIncludes[symmetric] )
+            by simp 
+  have D:"\<And>\<tau>. \<tau> \<Turnstile> (y \<triangleq> invalid) \<Longrightarrow> 
+           (X->including(x)->includes(y)) \<tau> = 
+           (if x \<doteq> y then true else X->includes(y) endif) \<tau>" 
+            apply(subst cp_if_ocl, subst cp_StrictRefEq_int) 
+            apply(subst cp_OclIncludes, subst cp_OclIncluding)
+            apply(drule foundation22[THEN iffD1], simp)
+            apply(simp only: cp_if_ocl[symmetric] cp_OclIncluding[symmetric] 
+                             cp_StrictRefEq_int[symmetric] cp_OclIncludes[symmetric])
+            by simp
+  have E: "\<And>\<tau>. \<tau> \<Turnstile> not(x \<triangleq> y) \<Longrightarrow> \<tau> \<Turnstile> not(x \<doteq> y)" sorry
+  have F: "\<And>\<tau>. \<tau> \<Turnstile> (x \<triangleq> y) \<Longrightarrow>
+               (X->including(x)->includes(y)) \<tau> = (X->including(x)->includes(x)) \<tau>" 
+           apply(subst cp_OclIncludes) 
+           apply(drule foundation22[THEN iffD1], drule sym, simp)
+           by(simp add:cp_OclIncludes[symmetric])
+  have G: "\<And>\<tau>. \<tau> \<Turnstile> (x \<triangleq> y) \<Longrightarrow>
+               (if x \<doteq> y then true else X->includes(y) endif) \<tau>  = 
+               (if x \<doteq> x then true else X->includes(x) endif) \<tau> " 
+           apply(subst cp_if_ocl, subst cp_StrictRefEq_int, subst cp_OclIncludes) 
+           apply(drule foundation22[THEN iffD1], drule sym, simp only:)
+           apply(simp only: cp_StrictRefEq_int[symmetric] cp_valid[symmetric])
+           by(simp add:cp_valid[symmetric] cp_StrictRefEq_int[symmetric] 
+                          cp_if_ocl[symmetric] cp_OclIncludes[symmetric])
+  show ?thesis
+    apply(rule ext, rename_tac "\<tau>") 
+    apply(case_tac "\<not> (\<tau> \<Turnstile> (\<delta> X))", simp add:def_split_local,elim disjE A B)
+    apply(case_tac "\<not> (\<tau> \<Turnstile> (\<upsilon> x))", 
+          simp add:foundation18 foundation22[symmetric],
+          drule StrongEq_L_sym)
+    apply(simp add: foundation22 C)
+    apply(case_tac "\<not> (\<tau> \<Turnstile> (\<upsilon> y))", 
+          simp add:foundation18 foundation22[symmetric],
+          drule StrongEq_L_sym, simp add: foundation22 D, simp)
+    apply(case_tac "\<tau> \<Turnstile> not(x \<triangleq> y)")
+    apply(simp add: including_charn2[simplified foundation22]  E)
+    apply(simp add: foundation9 F G
+                    including_charn1[THEN foundation13[THEN iffD2], THEN foundation22[THEN iffD1]])
+    apply(subst cp_if_ocl,simp, simp add:cp_if_ocl[symmetric])
+  done
+qed
 
 lemma excluding_charn0[simp]:
 assumes val_x:"\<tau> \<Turnstile> (\<upsilon> x)"
@@ -801,15 +867,13 @@ proof -
   have A: "\<And> \<tau>. (Set{}->excluding(invalid)) \<tau> = (if (\<upsilon> invalid) then Set{} else invalid endif) \<tau>"
           by simp
   have B: "\<And> \<tau> x. \<tau> \<Turnstile> (\<upsilon> x) \<Longrightarrow> (Set{}->excluding(x)) \<tau> = (if (\<upsilon> x) then Set{} else invalid endif) \<tau>"
-          apply(frule excluding_charn0, simp add: OclValid_def, subst cp_if_ocl, 
-                simp, simp only:cp_if_ocl[symmetric], simp add: StrongEq_def)
-          by(simp add:  true_def)
+          by(simp add: excluding_charn0[THEN foundation22[THEN iffD1]])
   show ?thesis
-    apply(rule ext)
-    apply(case_tac "xa \<Turnstile> (\<upsilon> x)")
+    apply(rule ext, rename_tac \<tau>)
+    apply(case_tac "\<tau> \<Turnstile> (\<upsilon> x)")
       apply(simp add: B) 
       apply(simp add: foundation18)
-      apply(subst cp_if_ocl, subst cp_OclExcluding, subst cp_valid, simp)
+      apply( subst cp_OclExcluding, simp)
       apply(simp add: cp_if_ocl[symmetric] cp_OclExcluding[symmetric] cp_valid[symmetric] A)
    done
 qed
@@ -857,7 +921,6 @@ proof -
                     invalid_def defined_def valid_def bot_Set_0_def null_fun_def null_Set_0_def 
                     StrongEq_def)
    apply(subst cp_OclExcluding) back
-   apply(simp add:true_def)
    apply(auto simp:OclExcluding_def)
    apply(simp add: Abs_Set_0_inverse[OF C])
    apply(simp_all add: false_def true_def defined_def valid_def 
