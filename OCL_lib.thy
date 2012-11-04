@@ -60,12 +60,18 @@ by(rule ext, simp add: StrictRefEq_bool true_def false_def)
 
 
 lemma strictEqBool_vs_strongEq: 
-"\<tau> \<Turnstile>(\<upsilon> x) \<Longrightarrow> \<tau> \<Turnstile>(\<upsilon> y) \<Longrightarrow> (\<tau> \<Turnstile> ((x::('\<AA>)Boolean) \<doteq> y)) = (\<tau> \<Turnstile> (x \<triangleq> y))"
-by(simp add: StrictRefEq_bool OclValid_def)
+"\<tau> \<Turnstile>(\<upsilon> x) \<Longrightarrow> \<tau> \<Turnstile>(\<upsilon> y) \<Longrightarrow> (\<tau> \<Turnstile> (((x::('\<AA>)Boolean) \<doteq> y) \<triangleq> (x \<triangleq> y)))"
+apply(simp add: StrictRefEq_bool OclValid_def)
+apply(subst cp_StrongEq)back
+by simp
+
 
 lemma strictEqInt_vs_strongEq: 
-"\<tau> \<Turnstile>(\<upsilon> x) \<Longrightarrow> \<tau> \<Turnstile>(\<upsilon> y) \<Longrightarrow> (\<tau> \<Turnstile> ((x::('\<AA>)Integer) \<doteq> y)) = (\<tau> \<Turnstile> (x \<triangleq> y))"
-by(simp add: StrictRefEq_int OclValid_def)
+"\<tau> \<Turnstile>(\<upsilon> x) \<Longrightarrow> \<tau> \<Turnstile>(\<upsilon> y) \<Longrightarrow> (\<tau> \<Turnstile> (((x::('\<AA>)Integer) \<doteq> y) \<triangleq> (x \<triangleq> y)))"
+apply(simp add: StrictRefEq_int OclValid_def)
+apply(subst cp_StrongEq)back
+by simp
+
 
 lemma strictEqBool_defargs:
 "\<tau> \<Turnstile> ((x::('\<AA>)Boolean) \<doteq> y) \<Longrightarrow> (\<tau> \<Turnstile> (\<upsilon> x)) \<and> (\<tau> \<Turnstile>(\<upsilon> y))"
@@ -79,15 +85,15 @@ by(simp add: StrictRefEq_int OclValid_def true_def invalid_def valid_def bot_opt
            split: bool.split_asm HOL.split_if_asm)
 
 lemma strictEqBool_valid_args_valid: 
-"(\<tau> \<Turnstile> \<upsilon>((x::('\<AA>)Boolean) \<doteq> y)) = ((\<tau> \<Turnstile>(\<upsilon> x)) \<and> (\<tau> \<Turnstile>(\<upsilon> y)))"
+"(\<tau> \<Turnstile> \<delta>((x::('\<AA>)Boolean) \<doteq> y)) = ((\<tau> \<Turnstile>(\<upsilon> x)) \<and> (\<tau> \<Turnstile>(\<upsilon> y)))"
 by(auto simp: StrictRefEq_bool OclValid_def true_def valid_def false_def StrongEq_def 
-                 defined_def invalid_def valid_def bot_option_def bot_fun_def
+              defined_def invalid_def null_fun_def bot_fun_def null_option_def bot_option_def
         split: bool.split_asm HOL.split_if_asm option.split)
 
 lemma strictEqInt_valid_args_valid: 
-"(\<tau> \<Turnstile> \<upsilon>((x::('\<AA>)Integer) \<doteq> y)) = ((\<tau> \<Turnstile>(\<upsilon> x)) \<and> (\<tau> \<Turnstile>(\<upsilon> y)))"
+"(\<tau> \<Turnstile> \<delta>((x::('\<AA>)Integer) \<doteq> y)) = ((\<tau> \<Turnstile>(\<upsilon> x)) \<and> (\<tau> \<Turnstile>(\<upsilon> y)))"
 by(auto simp: StrictRefEq_int OclValid_def true_def valid_def false_def StrongEq_def 
-                 defined_def invalid_def bot_fun_def bot_option_def
+              defined_def invalid_def null_fun_def bot_fun_def null_option_def bot_option_def
         split: bool.split_asm HOL.split_if_asm option.split)
 
 
@@ -116,10 +122,10 @@ lemma StrictRefEq_int_strict' :
   apply(simp_all add: true_def invalid_def bot_fun_def)
   done
 
-lemma StrictRefEq_int_strict'' : "\<upsilon> ((x::('\<AA>)Integer) \<doteq> y) = (\<upsilon>(x) and \<upsilon>(y))"
+lemma StrictRefEq_int_strict'' : "\<delta> ((x::('\<AA>)Integer) \<doteq> y) = (\<upsilon>(x) and \<upsilon>(y))"
 by(auto intro!: transform2_rev defined_and_I simp:foundation10 strictEqInt_valid_args_valid)
 
-lemma StrictRefEq_bool_strict'' : "\<upsilon> ((x::('\<AA>)Boolean) \<doteq> y) = (\<upsilon>(x) and \<upsilon>(y))"
+lemma StrictRefEq_bool_strict'' : "\<delta> ((x::('\<AA>)Boolean) \<doteq> y) = (\<upsilon>(x) and \<upsilon>(y))"
 by(auto intro!: transform2_rev defined_and_I simp:foundation10 strictEqBool_valid_args_valid)
 
 
@@ -780,6 +786,8 @@ for Boolean, Integer, and Sets thereof... *)
 
 (* here is a proof for an instance ... Solution: Generic Theorem, instances 
 with definitions of strict equality.*)
+
+
 lemma includes_execute_integer[code_unfold]:
 "(X->including(x::('\<AA>)Integer)->includes(y)) = 
  (if \<delta> X then if x \<doteq> y then true else X->includes(y) endif else invalid endif)"
@@ -814,20 +822,17 @@ proof -
             apply(simp only: cp_if_ocl[symmetric] cp_OclIncluding[symmetric] 
                              cp_StrictRefEq_int[symmetric] cp_OclIncludes[symmetric])
             by simp
-  have E: "\<And>\<tau>. \<tau> \<Turnstile> not(x \<triangleq> y) \<Longrightarrow> \<tau> \<Turnstile> not(x \<doteq> y)" sorry
+  have E: "\<And>\<tau>. \<tau> \<Turnstile> \<upsilon> x \<Longrightarrow> \<tau> \<Turnstile> \<upsilon> y \<Longrightarrow>
+              (if x \<doteq> y then true else X->includes(y) endif) \<tau> = 
+              (if x \<triangleq> y then true else X->includes(y) endif) \<tau>" 
+           apply(subst cp_if_ocl)
+           apply(subst strictEqInt_vs_strongEq[THEN foundation22[THEN iffD1]])
+           by(simp_all add: cp_if_ocl[symmetric])
   have F: "\<And>\<tau>. \<tau> \<Turnstile> (x \<triangleq> y) \<Longrightarrow>
                (X->including(x)->includes(y)) \<tau> = (X->including(x)->includes(x)) \<tau>" 
            apply(subst cp_OclIncludes) 
            apply(drule foundation22[THEN iffD1], drule sym, simp)
            by(simp add:cp_OclIncludes[symmetric])
-  have G: "\<And>\<tau>. \<tau> \<Turnstile> (x \<triangleq> y) \<Longrightarrow>
-               (if x \<doteq> y then true else X->includes(y) endif) \<tau>  = 
-               (if x \<doteq> x then true else X->includes(x) endif) \<tau> " 
-           apply(subst cp_if_ocl, subst cp_StrictRefEq_int, subst cp_OclIncludes) 
-           apply(drule foundation22[THEN iffD1], drule sym, simp only:)
-           apply(simp only: cp_StrictRefEq_int[symmetric] cp_valid[symmetric])
-           by(simp add:cp_valid[symmetric] cp_StrictRefEq_int[symmetric] 
-                          cp_if_ocl[symmetric] cp_OclIncludes[symmetric])
   show ?thesis
     apply(rule ext, rename_tac "\<tau>") 
     apply(case_tac "\<not> (\<tau> \<Turnstile> (\<delta> X))", simp add:def_split_local,elim disjE A B)
@@ -838,13 +843,107 @@ proof -
     apply(case_tac "\<not> (\<tau> \<Turnstile> (\<upsilon> y))", 
           simp add:foundation18 foundation22[symmetric],
           drule StrongEq_L_sym, simp add: foundation22 D, simp)
+    apply(subst E,simp_all)
     apply(case_tac "\<tau> \<Turnstile> not(x \<triangleq> y)")
-    apply(simp add: including_charn2[simplified foundation22]  E)
-    apply(simp add: foundation9 F G
-                    including_charn1[THEN foundation13[THEN iffD2], THEN foundation22[THEN iffD1]])
-    apply(subst cp_if_ocl,simp, simp add:cp_if_ocl[symmetric])
+    apply(simp add: including_charn2[simplified foundation22])
+    apply(simp add: foundation9 F 
+                    including_charn1[THEN foundation13[THEN iffD2], 
+                                     THEN foundation22[THEN iffD1]])
   done
 qed
+
+text{* The computational law \verb+includes_execute+ becomes generic since it
+uses strict equality which in itself is generic. It is possible to prove
+the following generic theorem and instantiate it if a number of properties
+that link the polymorphic logical, Strong Equality with the concrete instance 
+of strict quality.*}
+lemma includes_execute_generic:
+assumes strict1: "(x \<doteq> invalid) = invalid" 
+and     strict2: "(invalid \<doteq> y) = invalid"
+and     strictEq_valid_args_valid: "\<And> (x::('\<AA>,'a::null)val) y \<tau>. 
+                                      (\<tau> \<Turnstile> \<delta> (x \<doteq> y)) = ((\<tau> \<Turnstile> (\<upsilon> x)) \<and> (\<tau> \<Turnstile> \<upsilon> y))"
+and     cp_StrictRefEq: "\<And> (X::('\<AA>,'a::null)val) Y \<tau>. (X \<doteq> Y) \<tau> = ((\<lambda>_. X \<tau>) \<doteq> (\<lambda>_. Y \<tau>)) \<tau>"
+and     strictEq_vs_strongEq: "\<And> (x::('\<AA>,'a::null)val) y \<tau>.
+                                      \<tau> \<Turnstile> \<upsilon> x \<Longrightarrow> \<tau> \<Turnstile> \<upsilon> y \<Longrightarrow> (\<tau> \<Turnstile> ((x \<doteq> y) \<triangleq> (x \<triangleq> y)))" 
+shows   
+      "(X->including(x::('\<AA>,'a::null)val)->includes(y)) = 
+       (if \<delta> X then if x \<doteq> y then true else X->includes(y) endif else invalid endif)"
+proof -
+  have A: "\<And>\<tau>. \<tau> \<Turnstile> (X \<triangleq> invalid) \<Longrightarrow>
+            (X->including(x)->includes(y)) \<tau> = invalid \<tau>"
+            apply(subst cp_OclIncludes, subst cp_OclIncluding)
+            apply(drule foundation22[THEN iffD1], simp)
+            apply(simp only: cp_OclIncluding[symmetric] cp_OclIncludes[symmetric])
+            by simp 
+  have B: "\<And>\<tau>. \<tau> \<Turnstile> (X \<triangleq> null) \<Longrightarrow>
+            (X->including(x)->includes(y)) \<tau> = invalid  \<tau>" 
+            apply(subst cp_OclIncludes, subst cp_OclIncluding)
+            apply(drule foundation22[THEN iffD1], simp)
+            apply(simp only: cp_OclIncluding[symmetric] cp_OclIncludes[symmetric])
+            by simp 
+  have C: "\<And>\<tau>. \<tau> \<Turnstile> (x \<triangleq> invalid) \<Longrightarrow> 
+           (X->including(x)->includes(y)) \<tau> = 
+           (if x \<doteq> y then true else X->includes(y) endif) \<tau>" 
+            apply(subst cp_if_ocl,subst cp_StrictRefEq) 
+            apply(subst cp_OclIncludes, subst cp_OclIncluding)
+            apply(drule foundation22[THEN iffD1], simp)
+            apply(simp only: cp_if_ocl[symmetric] cp_OclIncluding[symmetric] 
+                             cp_StrictRefEq[symmetric] cp_OclIncludes[symmetric] )
+            by (simp add: strict2) 
+  have D:"\<And>\<tau>. \<tau> \<Turnstile> (y \<triangleq> invalid) \<Longrightarrow> 
+           (X->including(x)->includes(y)) \<tau> = 
+           (if x \<doteq> y then true else X->includes(y) endif) \<tau>" 
+            apply(subst cp_if_ocl, subst cp_StrictRefEq) 
+            apply(subst cp_OclIncludes, subst cp_OclIncluding)
+            apply(drule foundation22[THEN iffD1], simp)
+            apply(simp only: cp_if_ocl[symmetric] cp_OclIncluding[symmetric] 
+                             cp_StrictRefEq[symmetric] cp_OclIncludes[symmetric])
+            by (simp add: strict1)
+  have E: "\<And>\<tau>. \<tau> \<Turnstile> \<upsilon> x \<Longrightarrow> \<tau> \<Turnstile> \<upsilon> y \<Longrightarrow>
+              (if x \<doteq> y then true else X->includes(y) endif) \<tau> = 
+              (if x \<triangleq> y then true else X->includes(y) endif) \<tau>" 
+           apply(subst cp_if_ocl)
+           apply(subst strictEq_vs_strongEq[THEN foundation22[THEN iffD1]])
+           by(simp_all add: cp_if_ocl[symmetric])
+  have F: "\<And>\<tau>. \<tau> \<Turnstile> (x \<triangleq> y) \<Longrightarrow>
+               (X->including(x)->includes(y)) \<tau> = (X->including(x)->includes(x)) \<tau>" 
+           apply(subst cp_OclIncludes) 
+           apply(drule foundation22[THEN iffD1], drule sym, simp)
+           by(simp add:cp_OclIncludes[symmetric])
+  show ?thesis
+    apply(rule ext, rename_tac "\<tau>") 
+    apply(case_tac "\<not> (\<tau> \<Turnstile> (\<delta> X))", simp add:def_split_local,elim disjE A B)
+    apply(case_tac "\<not> (\<tau> \<Turnstile> (\<upsilon> x))", 
+          simp add:foundation18 foundation22[symmetric],
+          drule StrongEq_L_sym)
+    apply(simp add: foundation22 C)
+    apply(case_tac "\<not> (\<tau> \<Turnstile> (\<upsilon> y))", 
+          simp add:foundation18 foundation22[symmetric],
+          drule StrongEq_L_sym, simp add: foundation22 D, simp)
+    apply(subst E,simp_all)
+    apply(case_tac "\<tau> \<Turnstile> not(x \<triangleq> y)")
+    apply(simp add: including_charn2[simplified foundation22]  E)
+    apply(simp add: foundation9 F 
+                    including_charn1[THEN foundation13[THEN iffD2], 
+                                     THEN foundation22[THEN iffD1]])
+  done
+qed
+
+lemmas H = includes_execute_generic[OF StrictRefEq_int_strict1 StrictRefEq_int_strict2 
+                                strictEqInt_valid_args_valid
+                                cp_StrictRefEq_int
+                                strictEqInt_vs_strongEq
+                             ]
+thm H[simplified]
+(* Nearly. Unfortunately, [simplified] does not do enough here. *)
+
+lemmas I = includes_execute_generic[OF StrictRefEq_bool_strict1 StrictRefEq_bool_strict2 
+                                strictEqBool_valid_args_valid
+                                cp_StrictRefEq_bool
+                                strictEqBool_vs_strongEq
+                             ]
+thm I[simplified]
+
 
 lemma excluding_charn0[simp]:
 assumes val_x:"\<tau> \<Turnstile> (\<upsilon> x)"
@@ -873,7 +972,7 @@ proof -
     apply(case_tac "\<tau> \<Turnstile> (\<upsilon> x)")
       apply(simp add: B) 
       apply(simp add: foundation18)
-      apply( subst cp_OclExcluding, simp)
+      apply(subst cp_OclExcluding, simp)
       apply(simp add: cp_if_ocl[symmetric] cp_OclExcluding[symmetric] cp_valid[symmetric] A)
    done
 qed

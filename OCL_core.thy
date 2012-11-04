@@ -792,6 +792,10 @@ by(rule ext, auto simp: not_def StrongEq_def
 lemma foundation22: "(\<tau> \<Turnstile> (X \<triangleq> Y)) = (X \<tau> = Y \<tau>)"
 by(auto simp: StrongEq_def OclValid_def true_def) 
 
+lemma foundation23: "(\<tau> \<Turnstile> P) = (\<tau> \<Turnstile> (\<lambda> _ . P \<tau>))"
+by(auto simp: OclValid_def true_def) 
+
+lemmas cp_validity=foundation23
 
 lemma defined_not_I : "\<tau> \<Turnstile> \<delta> (x) \<Longrightarrow> \<tau> \<Turnstile> \<delta> (not x)" 
   by(auto simp: not_def null_def invalid_def defined_def valid_def OclValid_def
