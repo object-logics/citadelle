@@ -293,7 +293,7 @@ lemma oclastype\<^isub>n\<^isub>o\<^isub>d\<^isub>e_Object_nullstrict[simp] : "(
 by(rule ext, simp add: null_fun_def null_option_def bot_option_def null_def invalid_def
                        oclastype\<^isub>o\<^isub>b\<^isub>j\<^isub>e\<^isub>c\<^isub>t_Node)
 
-(* TODO: Missing strictness for other defs, + cp's.*)
+
 section{* Tests for Actual Types *}
 
 consts oclistypeof\<^isub>o\<^isub>b\<^isub>j\<^isub>e\<^isub>c\<^isub>t :: "'\<alpha> \<Rightarrow> Boolean" ("(_).oclIsTypeOf'(Object')")
@@ -328,7 +328,69 @@ defs (overloaded) oclistypeof\<^isub>n\<^isub>o\<^isub>d\<^isub>e_Node:
                               \<bottom>   \<Rightarrow> invalid \<tau>
                             | \<lfloor>\<bottom>\<rfloor> \<Rightarrow> invalid \<tau>  
                             | \<lfloor>\<lfloor> _ \<rfloor>\<rfloor> \<Rightarrow> true \<tau>)"  (* must have actual type Node otherwise  *)
+
+(* TODO: Missing cp's.*)
+
    
+lemma oclistypeof\<^isub>o\<^isub>b\<^isub>j\<^isub>e\<^isub>c\<^isub>t_Object_strict1[simp]: 
+     "(invalid::Object) .oclIsTypeOf(Object) = invalid"
+by(rule ext, simp add: null_fun_def null_option_def bot_option_def null_def invalid_def
+                       oclistypeof\<^isub>o\<^isub>b\<^isub>j\<^isub>e\<^isub>c\<^isub>t_Object)
+lemma oclistypeof\<^isub>o\<^isub>b\<^isub>j\<^isub>e\<^isub>c\<^isub>t_Object_strict2[simp]: 
+     "(null::Object) .oclIsTypeOf(Object) = invalid"
+by(rule ext, simp add: null_fun_def null_option_def bot_option_def null_def invalid_def
+                       oclistypeof\<^isub>o\<^isub>b\<^isub>j\<^isub>e\<^isub>c\<^isub>t_Object)
+lemma oclistypeof\<^isub>o\<^isub>b\<^isub>j\<^isub>e\<^isub>c\<^isub>t_Node_strict1[simp]: 
+     "(invalid::Node) .oclIsTypeOf(Object) = invalid"
+by(rule ext, simp add: null_fun_def null_option_def bot_option_def null_def invalid_def
+                       oclistypeof\<^isub>o\<^isub>b\<^isub>j\<^isub>e\<^isub>c\<^isub>t_Node)
+lemma oclistypeof\<^isub>o\<^isub>b\<^isub>j\<^isub>e\<^isub>c\<^isub>t_Node_strict2[simp]: 
+     "(null::Node) .oclIsTypeOf(Object) = invalid"
+by(rule ext, simp add: null_fun_def null_option_def bot_option_def null_def invalid_def
+                       oclistypeof\<^isub>o\<^isub>b\<^isub>j\<^isub>e\<^isub>c\<^isub>t_Node)
+lemma oclistypeof\<^isub>n\<^isub>o\<^isub>d\<^isub>e_Object_strict1[simp]: 
+     "(invalid::Object) .oclIsTypeOf(Node) = invalid"
+by(rule ext, simp add: null_fun_def null_option_def bot_option_def null_def invalid_def
+                       oclistypeof\<^isub>n\<^isub>o\<^isub>d\<^isub>e_Object)
+lemma oclistypeof\<^isub>n\<^isub>o\<^isub>d\<^isub>e_Object_strict2[simp]: 
+     "(null::Object) .oclIsTypeOf(Node) = invalid"
+by(rule ext, simp add: null_fun_def null_option_def bot_option_def null_def invalid_def
+                       oclistypeof\<^isub>n\<^isub>o\<^isub>d\<^isub>e_Object)
+lemma oclistypeof\<^isub>n\<^isub>o\<^isub>d\<^isub>e_Node_strict1[simp]: 
+     "(invalid::Node) .oclIsTypeOf(Node) = invalid"
+by(rule ext, simp add: null_fun_def null_option_def bot_option_def null_def invalid_def
+                       oclistypeof\<^isub>n\<^isub>o\<^isub>d\<^isub>e_Node)
+lemma oclistypeof\<^isub>n\<^isub>o\<^isub>d\<^isub>e_Node_strict2[simp]: 
+     "(null::Node) .oclIsTypeOf(Node) = invalid"
+by(rule ext, simp add: null_fun_def null_option_def bot_option_def null_def invalid_def
+                       oclistypeof\<^isub>n\<^isub>o\<^isub>d\<^isub>e_Node)
+
+
+
+lemma actualType_larger_staticType:
+assumes isdef: "\<tau> \<Turnstile> (\<delta> X)"
+shows          "\<tau> \<Turnstile> (X::Node) .oclIsTypeOf(Object) \<triangleq> false"
+using isdef
+by(auto simp : bot_fun_def null_fun_def null_option_def bot_option_def null_def invalid_def
+                  oclistypeof\<^isub>o\<^isub>b\<^isub>j\<^isub>e\<^isub>c\<^isub>t_Node foundation22 foundation16
+           split: option.split object.split node.split)
+
+lemma down_cast: 
+assumes isObject: "\<tau> \<Turnstile> (X::Object) .oclIsTypeOf(Object)"
+shows             "\<tau> \<Turnstile> (X .oclAsType(Node)) \<triangleq> invalid" 
+using isObject
+apply(auto simp : bot_fun_def null_fun_def null_option_def bot_option_def null_def invalid_def
+                  oclastype\<^isub>o\<^isub>b\<^isub>j\<^isub>e\<^isub>c\<^isub>t_Node oclastype\<^isub>n\<^isub>o\<^isub>d\<^isub>e_Object foundation22 foundation16
+           split: option.split object.split node.split)
+by(simp add: oclistypeof\<^isub>o\<^isub>b\<^isub>j\<^isub>e\<^isub>c\<^isub>t_Object  OclValid_def false_def true_def)
+
+lemma up_down_cast : 
+assumes isdef: "\<tau> \<Turnstile> (\<delta> X)"
+shows "\<tau> \<Turnstile> ((X::Node) .oclAsType(Object) .oclAsType(Node) \<triangleq> X)" 
+using isdef
+by(auto simp : null_fun_def null_option_def bot_option_def null_def invalid_def
+               oclastype\<^isub>o\<^isub>b\<^isub>j\<^isub>e\<^isub>c\<^isub>t_Node oclastype\<^isub>n\<^isub>o\<^isub>d\<^isub>e_Object foundation22 foundation16
+        split: option.split node.split)
 
 (* MISSING:  Construction for  ocliskind *)
 
@@ -420,11 +482,11 @@ contents() = contents@pre()->including(x)
 consts dot_insert :: "Node \<Rightarrow> Integer \<Rightarrow> Void"  ("(1(_).insert'(_'))" 50)
 
 axiomatization where dot_insert_def:
-"(\<tau> \<Turnstile> (self).insert(x) \<triangleq> result) =
+"(\<tau> \<Turnstile> ((self).insert(x) \<triangleq> result)) =
  (if (\<delta> self) \<tau> = true \<tau> \<and> (\<upsilon> x) \<tau> = true \<tau>  
   then \<tau> \<Turnstile> true \<and>  
-       \<tau> \<Turnstile> (self).contents() \<triangleq> (self).contents@pre()->including(x)
-  else \<tau> \<Turnstile> (self).insert(x) \<triangleq> invalid)"
+       \<tau> \<Turnstile> ((self).contents() \<triangleq> (self).contents@pre()->including(x))
+  else \<tau> \<Turnstile> ((self).insert(x) \<triangleq> invalid))"
 
 lemma H : "(\<tau> \<Turnstile> (self).insert(x) \<triangleq> result)"
  nitpick
