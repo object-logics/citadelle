@@ -244,6 +244,19 @@ lemma [simp,code_unfold]:"\<upsilon> \<two> = true"
 by(simp add:ocl_two_def valid_def true_def 
                bot_fun_def bot_option_def null_fun_def null_option_def)
 
+(* ecclectic proofs to make examples executable *)
+lemma [simp,code_unfold]: "\<upsilon> \<six> = true" 
+by(simp add:ocl_six_def valid_def true_def 
+               bot_fun_def bot_option_def null_fun_def null_option_def)
+
+lemma [simp,code_unfold]: "\<upsilon> \<eight> = true" 
+by(simp add:ocl_eight_def valid_def true_def 
+               bot_fun_def bot_option_def null_fun_def null_option_def)
+
+lemma [simp,code_unfold]: "\<upsilon> \<nine> = true" 
+by(simp add:ocl_nine_def valid_def true_def 
+               bot_fun_def bot_option_def null_fun_def null_option_def)
+
 
 lemma zero_non_null [simp]: "(\<zero> \<doteq> null) = false"
 by(rule ext,auto simp:ocl_zero_def  null_def StrictRefEq_int valid_def invalid_def 
@@ -426,6 +439,32 @@ defs   StrictRefEq_set :
                                     then (x \<triangleq> y)\<tau>
                                     else invalid \<tau>"
 
+(* XXX *)
+lemma StrictRefEq_set_strict1: "((x::('\<AA>,'\<alpha>::null)Set) \<doteq> invalid)= invalid"
+by(simp add:StrictRefEq_set false_def true_def)
+
+lemma StrictRefEq_set_strict2: "(invalid \<doteq> (y::('\<AA>,'\<alpha>::null)Set))= invalid"
+by(simp add:StrictRefEq_set false_def true_def)
+
+lemma StrictRefEq_set_strictEq_valid_args_valid:
+"(\<tau> \<Turnstile> \<delta> ((x::('\<AA>,'\<alpha>::null)Set) \<doteq> y)) = ((\<tau> \<Turnstile> (\<upsilon> x)) \<and> (\<tau> \<Turnstile> \<upsilon> y))"
+apply auto
+prefer 3
+apply(simp add: StrictRefEq_set)
+sorry
+
+
+lemma cp_StrictRefEq_set:"((X::('\<AA>,'\<alpha>::null)Set) \<doteq> Y) \<tau> = ((\<lambda>_. X \<tau>) \<doteq> (\<lambda>_. Y \<tau>)) \<tau>"
+by(simp add:StrictRefEq_set cp_StrongEq[symmetric] cp_valid[symmetric])
+
+
+lemma strictRefEq_set_vs_strongEq:
+"\<tau> \<Turnstile> \<upsilon> x \<Longrightarrow> \<tau> \<Turnstile> \<upsilon> y \<Longrightarrow> (\<tau> \<Turnstile> (((x::('\<AA>,'\<alpha>::null)Set) \<doteq> y) \<triangleq> (x \<triangleq> y)))"
+apply(drule foundation13[THEN iffD2],drule foundation13[THEN iffD2])
+by(simp add:StrictRefEq_set foundation22)
+
+
+
 text{* One might object here that for the case of objects, this is an empty definition.
 The answer is no, we will restrain later on states and objects such that any object
 has its id stored inside the object (so the ref, under which an object can be referenced
@@ -471,9 +510,13 @@ where     "OclExcluding x y = (\<lambda> \<tau>.  if (\<delta> x) \<tau> = true 
 definition OclExcludes   :: "[('\<AA>,'\<alpha>::null) Set,('\<AA>,'\<alpha>) val] \<Rightarrow> '\<AA> Boolean"
 where     "OclExcludes x y = (not(OclIncludes x y))"
 
-
+text{* The following definition follows the requirement of the
+standard to treat null as neutral element of sets. It is
+a well-documented exception from the general strictness
+rule and the rule that the distinguished argument self should
+be non-null. *}
 definition OclIsEmpty   :: "('\<AA>,'\<alpha>::null) Set \<Rightarrow> '\<AA> Boolean"
-where     "OclIsEmpty x =  ((OclSize x) \<doteq> \<zero>)"
+where     "OclIsEmpty x =  ((x \<doteq> null) or ((OclSize x) \<doteq> \<zero>))"
 
 definition OclNotEmpty   :: "('\<AA>,'\<alpha>::null) Set \<Rightarrow> '\<AA> Boolean"
 where     "OclNotEmpty x =  not(OclIsEmpty x)"
@@ -673,21 +716,108 @@ by(auto intro!: transform2_rev simp:including_valid_args_valid foundation10 defi
 
 
 
+lemma excluding_defined_args_valid: 
+"(\<tau> \<Turnstile> \<delta>(X->excluding(x))) = ((\<tau> \<Turnstile>(\<delta> X)) \<and> (\<tau> \<Turnstile>(\<upsilon> x)))"
+proof -
+ have A : "\<bottom> \<in> Set_0" by(simp add: Set_0_def bot_option_def)
+ have B : "\<lfloor>\<bottom>\<rfloor> \<in> Set_0" by(simp add: Set_0_def null_option_def bot_option_def)
+ have C : "(\<tau> \<Turnstile>(\<delta> X)) \<Longrightarrow> (\<tau> \<Turnstile>(\<upsilon> x)) \<Longrightarrow> \<lfloor>\<lfloor>\<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil> - {x \<tau>} \<rfloor>\<rfloor> \<in> Set_0"
+          apply(frule Set_inv_lemma) 
+          apply(simp add: Set_0_def bot_option_def null_Set_0_def null_fun_def 
+                          foundation18 foundation16 invalid_def) 
+          done
+ have D: "(\<tau> \<Turnstile> \<delta>(X->excluding(x))) \<Longrightarrow> ((\<tau> \<Turnstile>(\<delta> X)) \<and> (\<tau> \<Turnstile>(\<upsilon> x)))" 
+          by(auto simp: OclExcluding_def OclValid_def true_def valid_def false_def StrongEq_def 
+                        defined_def invalid_def bot_fun_def null_fun_def
+                  split: bool.split_asm HOL.split_if_asm option.split)
+ have E: "(\<tau> \<Turnstile>(\<delta> X)) \<Longrightarrow> (\<tau> \<Turnstile>(\<upsilon> x)) \<Longrightarrow> (\<tau> \<Turnstile> \<delta>(X->excluding(x)))" 
+          apply(frule C, simp)
+          apply(auto simp: OclExcluding_def OclValid_def true_def false_def StrongEq_def 
+                           defined_def invalid_def valid_def bot_fun_def null_fun_def
+                     split: bool.split_asm HOL.split_if_asm option.split)
+          apply(simp_all add: null_Set_0_def bot_Set_0_def bot_option_def)
+          apply(simp_all add: Abs_Set_0_inject A B bot_option_def[symmetric], 
+                simp_all add: bot_option_def)
+          done
+show ?thesis by(auto dest:D intro:E)
+qed
+
+
+lemma excluding_valid_args_valid: 
+"(\<tau> \<Turnstile> \<upsilon>(X->excluding(x))) = ((\<tau> \<Turnstile>(\<delta> X)) \<and> (\<tau> \<Turnstile>(\<upsilon> x)))"
+proof -
+ have A : "\<bottom> \<in> Set_0" by(simp add: Set_0_def bot_option_def)
+ have B : "\<lfloor>\<bottom>\<rfloor> \<in> Set_0" by(simp add: Set_0_def null_option_def bot_option_def)
+ have C : "(\<tau> \<Turnstile>(\<delta> X)) \<Longrightarrow> (\<tau> \<Turnstile>(\<upsilon> x)) \<Longrightarrow> \<lfloor>\<lfloor>\<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil> - {x \<tau>} \<rfloor>\<rfloor> \<in> Set_0"
+          apply(frule Set_inv_lemma) 
+          apply(simp add: Set_0_def bot_option_def null_Set_0_def null_fun_def 
+                          foundation18 foundation16 invalid_def) 
+          done
+ have D: "(\<tau> \<Turnstile> \<upsilon>(X->excluding(x))) \<Longrightarrow> ((\<tau> \<Turnstile>(\<delta> X)) \<and> (\<tau> \<Turnstile>(\<upsilon> x)))" 
+          by(auto simp: OclExcluding_def OclValid_def true_def valid_def false_def StrongEq_def 
+                        defined_def invalid_def bot_fun_def null_fun_def
+                  split: bool.split_asm HOL.split_if_asm option.split)
+ have E: "(\<tau> \<Turnstile>(\<delta> X)) \<Longrightarrow> (\<tau> \<Turnstile>(\<upsilon> x)) \<Longrightarrow> (\<tau> \<Turnstile> \<upsilon>(X->excluding(x)))" 
+          apply(frule C, simp)
+          apply(auto simp: OclExcluding_def OclValid_def true_def false_def StrongEq_def 
+                           defined_def invalid_def valid_def bot_fun_def null_fun_def
+                     split: bool.split_asm HOL.split_if_asm option.split)
+          apply(simp_all add: null_Set_0_def bot_Set_0_def bot_option_def)
+          apply(simp_all add: Abs_Set_0_inject A B bot_option_def[symmetric], 
+                simp_all add: bot_option_def)
+          done
+show ?thesis by(auto dest:D intro:E)
+qed
+
+
 lemma excluding_valid_args_valid'[simp,code_unfold]: 
 "\<delta>(X->excluding(x)) = ((\<delta> X) and (\<upsilon> x))"
-sorry
+by(auto intro!: transform2_rev simp:excluding_defined_args_valid foundation10 defined_and_I)
+
 
 lemma excluding_valid_args_valid''[simp,code_unfold]: 
 "\<upsilon>(X->excluding(x)) = ((\<delta> X) and (\<upsilon> x))"
-sorry
+by(auto intro!: transform2_rev simp:excluding_valid_args_valid foundation10 defined_and_I)
+
+
+
+lemma includes_defined_args_valid: 
+"(\<tau> \<Turnstile> \<delta>(X->includes(x))) = ((\<tau> \<Turnstile>(\<delta> X)) \<and> (\<tau> \<Turnstile>(\<upsilon> x)))"
+proof -
+ have A: "(\<tau> \<Turnstile> \<delta>(X->includes(x))) \<Longrightarrow> ((\<tau> \<Turnstile>(\<delta> X)) \<and> (\<tau> \<Turnstile>(\<upsilon> x)))" 
+          by(auto simp: OclIncludes_def OclValid_def true_def valid_def false_def StrongEq_def 
+                        defined_def invalid_def bot_fun_def null_fun_def
+                  split: bool.split_asm HOL.split_if_asm option.split)
+ have B: "(\<tau> \<Turnstile>(\<delta> X)) \<Longrightarrow> (\<tau> \<Turnstile>(\<upsilon> x)) \<Longrightarrow> (\<tau> \<Turnstile> \<delta>(X->includes(x)))" 
+          by(auto simp: OclIncludes_def OclValid_def true_def false_def StrongEq_def 
+                           defined_def invalid_def valid_def bot_fun_def null_fun_def
+                           bot_option_def null_option_def
+                     split: bool.split_asm HOL.split_if_asm option.split)
+show ?thesis by(auto dest:A intro:B)
+qed
+
+lemma includes_valid_args_valid: 
+"(\<tau> \<Turnstile> \<upsilon>(X->includes(x))) = ((\<tau> \<Turnstile>(\<delta> X)) \<and> (\<tau> \<Turnstile>(\<upsilon> x)))"
+proof -
+ have A: "(\<tau> \<Turnstile> \<upsilon>(X->includes(x))) \<Longrightarrow> ((\<tau> \<Turnstile>(\<delta> X)) \<and> (\<tau> \<Turnstile>(\<upsilon> x)))" 
+          by(auto simp: OclIncludes_def OclValid_def true_def valid_def false_def StrongEq_def 
+                        defined_def invalid_def bot_fun_def null_fun_def
+                  split: bool.split_asm HOL.split_if_asm option.split)
+ have B: "(\<tau> \<Turnstile>(\<delta> X)) \<Longrightarrow> (\<tau> \<Turnstile>(\<upsilon> x)) \<Longrightarrow> (\<tau> \<Turnstile> \<upsilon>(X->includes(x)))" 
+          by(auto simp: OclIncludes_def OclValid_def true_def false_def StrongEq_def 
+                           defined_def invalid_def valid_def bot_fun_def null_fun_def
+                           bot_option_def null_option_def
+                     split: bool.split_asm HOL.split_if_asm option.split)
+show ?thesis by(auto dest:A intro:B)
+qed
 
 lemma includes_valid_args_valid'[simp,code_unfold]: 
 "\<delta>(X->includes(x)) = ((\<delta> X) and (\<upsilon> x))"
-sorry
+by(auto intro!: transform2_rev simp:includes_defined_args_valid foundation10 defined_and_I)
 
 lemma includes_valid_args_valid''[simp,code_unfold]: 
 "\<upsilon>(X->includes(x)) = ((\<delta> X) and (\<upsilon> x))"
-sorry
+by(auto intro!: transform2_rev simp:includes_valid_args_valid foundation10 defined_and_I)
 
 
 (* and many more *) 
@@ -937,12 +1067,12 @@ lemmas H = includes_execute_generic[OF StrictRefEq_int_strict1 StrictRefEq_int_s
 thm H[simplified]
 (* Nearly. Unfortunately, [simplified] does not do enough here. *)
 
-lemmas I = includes_execute_generic[OF StrictRefEq_bool_strict1 StrictRefEq_bool_strict2 
+lemmas I' = includes_execute_generic[OF StrictRefEq_bool_strict1 StrictRefEq_bool_strict2 
                                 strictEqBool_valid_args_valid
                                 cp_StrictRefEq_bool
                                 strictEqBool_vs_strongEq
                              ]
-thm I[simplified]
+thm I'[simplified]
 
 
 lemma excluding_charn0[simp]:
@@ -1076,9 +1206,6 @@ lemmas validD = foundation19
 lemmas valid_implies_defined = foundation20
  end legacy *)
 
-find_theorems name:"core""\<upsilon> _"
-(* \<upsilon> null = true ;
-   \<upsilon> x and not \<delta> y ==> y = null *)
 
 
 
