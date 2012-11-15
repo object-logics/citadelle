@@ -1,4 +1,4 @@
-header{* OCL State Operations *}
+header{* Part II: State Operations and Objects *}
 
 theory OCL_state
 imports OCL_lib

@@ -2,7 +2,7 @@ theory OCL_lib
 imports OCL_core
 begin
 
-section{* Simple, Basic Types like Void, Boolean and Integer *}
+subsection{* Simple, Basic Types like Void, Boolean and Integer *}
 
 text{* Since Integer is again a basic type, we define its semantic domain
 as the valuations over @{typ "int option option"}*}
@@ -13,7 +13,7 @@ type_synonym ('\<AA>)Void = "('\<AA>,unit option) val"
 text {* Note that this \emph{minimal} OCL type contains only two elements:
 undefined and null. For technical reasons, he does not contain to the null-class yet.*}
 
-section{* Strict equalities. *}
+subsection{* Strict equalities. *}
 
 text{* Note that the strict equality on basic types (actually on all types) 
 must be exceptionally defined on null --- otherwise the entire concept of 
@@ -832,7 +832,7 @@ by(auto intro!: transform2_rev simp:includes_valid_args_valid foundation10 defin
 
 (* and many more *) 
 
-subsection{* Some computational laws:*}
+subsubsection{* Some computational laws:*}
 
 lemma including_charn0[simp]:
 assumes val_x:"\<tau> \<Turnstile> (\<upsilon> x)"
@@ -914,8 +914,8 @@ proof -
   done
 qed
 
-text{* One would like a genericv theorem of the form:
-\begin{vebatim}
+text{* One would like a generic theorem of the form:
+\begin{verbatim}
 lemma includes_execute[code_unfold]:
 "(X->including(x)->includes(y)) = (if \<delta> X then if x \<doteq> y
                                                then true

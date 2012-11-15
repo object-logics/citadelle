@@ -1,5 +1,5 @@
 
-header{* OCL Core Definitions *}
+header{* Part I: Core Definitions and Library *}
 
 theory 
   OCL_core
@@ -7,9 +7,9 @@ imports
   Main (* Testing *)
 begin
 
-section{* Foundational Notations *}
+subsection{* Foundational Notations *}
 
-subsection{* Notations for the option type *}
+subsubsection{* Notations for the option type *}
 
 text{*First of all, we will use a more compact notation for the library 
 option type which occur all over in our definitions and which will make
@@ -23,7 +23,7 @@ is defined as the inverse of the injection @{term Some}. *}
 fun    drop :: "'\<alpha> option \<Rightarrow> '\<alpha>" ("\<lceil>(_)\<rceil>")
 where  drop_lift[simp]: "\<lceil>\<lfloor>v\<rfloor>\<rceil> = v"
 
-subsection{* Minimal Notions of State and State Transitions *}
+subsubsection{* Minimal Notions of State and State Transitions *}
 text{* Next we will introduce the foundational concept of an object id (oid), 
 which is just some infinite set.  *}
 
@@ -36,7 +36,7 @@ type_synonym ('\<AA>)state = "oid \<rightharpoonup> '\<AA> "
 type_synonym ('\<AA>)st = "'\<AA> state \<times> '\<AA> state"
 
 
-subsection {* Prerequisite: An Abstract Interface for OCL Types *}
+subsubsection{* Prerequisite: An Abstract Interface for OCL Types *}
 
 text {* In order to have the possibility to nest collection types,
 such that we can give semantics to expressions like @{text "Set{Set{\<two>},null}"},
@@ -78,7 +78,7 @@ class      null = bot +
    assumes null_is_valid : "null \<noteq> bot"
 
 
-subsection {* Accomodation of Basic Types to the Abstract Interface *}
+subsubsection{* Accomodation of Basic Types to the Abstract Interface *}
 
 text{* In the following it is shown that the option-option type type is
 in fact in the @{text null} class and that function spaces over these 
@@ -135,7 +135,7 @@ text{* A trivial consequence of this adaption of the interface is that
 abstract and concrete versions of null are the same on base types
 (as could be expected). *}
 
-subsection{* The Semantic Space of OCL Types: Valuations. *}
+subsubsection{* The Semantic Space of OCL Types: Valuations. *}
 
 text{* Valuations are now functions from a state pair (built upon 
 data universe @{typ "'\<AA>"}) to an arbitrary null-type (i.e. containing
@@ -167,14 +167,14 @@ again as null-types; the crucial definition is @{thm "null_fun_def"}.
 
 
 
-section{* Boolean Type and Logic *}
+subsection{* Boolean Type and Logic *}
 
 text{* The semantic domain of the (basic) boolean type is now defined as standard:
 the space of valuation to @{typ "bool option option"}:*}
 
 type_synonym ('\<AA>)Boolean = "('\<AA>,bool option option) val"
 
-subsection{* Basic Constants *}
+subsubsection{* Basic Constants *}
 
 lemma bot_Boolean_def : "(bot::('\<AA>)Boolean) = (\<lambda> \<tau>. \<bottom>)"
 by(simp add: bot_fun_def bot_option_def) 
@@ -220,7 +220,7 @@ by(simp add: Sem_def true_def)
 lemma textbook_false: "I\<lbrakk>false\<rbrakk> \<tau> = \<lfloor>\<lfloor>False\<rfloor>\<rfloor>"
 by(simp add: Sem_def false_def)
 
-subsection{* Fundamental Predicates I: Validity and Definedness *}
+subsubsection{* Fundamental Predicates I: Validity and Definedness *}
 
 text{* However, this has also the consequence that core concepts like definedness, 
 validness and even cp have to be redefined on this type class:*}
@@ -314,7 +314,7 @@ lemma textbook_valid: "I\<lbrakk>\<upsilon>(X)\<rbrakk> \<tau> = (if I\<lbrakk>X
 by(simp add: Sem_def valid_def)
 
 
-subsection{*  Fundamental Predicates II: Logical (Strong) Equality *}
+subsubsection{*  Fundamental Predicates II: Logical (Strong) Equality *}
 text{* Note that we define strong equality extremely generic, even for types that contain
 an @{text "null"} or @{text "\<bottom>"} element:*}
 definition StrongEq::"['\<AA> st \<Rightarrow> '\<alpha>,'\<AA> st \<Rightarrow> '\<alpha>] \<Rightarrow> ('\<AA>)Boolean"  (infixl "\<triangleq>" 30)
@@ -357,7 +357,7 @@ lemma StrongEq_subst :
   apply(subst cp[of Y])
   by simp
 
-subsection{*  Fundamental Predicates III *}
+subsubsection{*  Fundamental Predicates III *}
 
 
 text{* And, last but not least, *}
@@ -380,7 +380,7 @@ for each base type, there is an equality.*}
 
 
 
-subsection{* Logical Connectives and their Universal Properties *}
+subsubsection{* Logical Connectives and their Universal Properties *}
 text{* It is a design goal to give OCL a semantics that is as closely as
 possible to a "logical system" in a known sense; a specification logic
 where the logical connectives can not be understood other that having
@@ -619,12 +619,12 @@ lemma deMorgan2: "not(X or Y) = ((not X) and (not Y))"
   by(simp add: ocl_or_def)
  
 
-subsection{* A Standard Logical Calculus for OCL *}
+subsubsection{* A Standard Logical Calculus for OCL *}
 text{* Besides the need for algebraic laws for OCL in order to normalize *}
 definition OclValid  :: "[('\<AA>)st, ('\<AA>)Boolean] \<Rightarrow> bool" ("(1(_)/ \<Turnstile> (_))" 50)
 where     "\<tau> \<Turnstile> P \<equiv> ((P \<tau>) = true \<tau>)"
 
-section{* Global vs. Local Judgements*}
+subsection{* Global vs. Local Judgements*}
 lemma transform1: "P = true \<Longrightarrow> \<tau> \<Turnstile> P"
 by(simp add: OclValid_def)
 
@@ -820,7 +820,7 @@ lemma valid_and_I :   "\<tau> \<Turnstile> \<upsilon> (x) \<Longrightarrow>  \<t
              split: option.split_asm HOL.split_if_asm)
   by(auto simp: null_option_def split: option.split bool.split)
 
-section{* Local Judgements and Strong Equality *}
+subsection{* Local Judgements and Strong Equality *}
 
 lemma StrongEq_L_refl: "\<tau> \<Turnstile> (x \<triangleq> x)"
 by(simp add: OclValid_def StrongEq_def)
@@ -884,7 +884,7 @@ lemmas cp_intro[simp,intro!] =
        cp_StrongEq[THEN allI[THEN allI[THEN allI[THEN cpI2]], 
              of "StrongEq"]]
 
-section{* Laws to Establish Definedness (Delta-Closure) *}
+subsection{* Laws to Establish Definedness (Delta-Closure) *}
 
 text{* For the logical connectives, we have --- beyond
 @{thm foundation6} --- the following facts:  *}
@@ -896,7 +896,7 @@ by(auto simp: not_def OclValid_def true_def invalid_def defined_def false_def
 
 text{* So far, we have only one strict Boolean predicate (-family): The strict equality. *}
 
-section{*Miscellaneous: OCL's if then else endif *}
+subsection{*Miscellaneous: OCL's if then else endif *}
 
 
 definition if_ocl :: "[('\<AA>)Boolean , ('\<AA>,'\<alpha>::null) val, ('\<AA>,'\<alpha>) val] \<Rightarrow> ('\<AA>,'\<alpha>) val"

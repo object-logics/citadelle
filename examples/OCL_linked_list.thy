@@ -1,5 +1,7 @@
-header{* OCL Data Universes: Generic Definition and an Example *}
+header{* Part III: OCL Contracts and an Example *}
 
+(* This example is nbot yet balancved. Some parts of should go to 
+   Part II : State and Objects. *)
 
 theory 
   OCL_linked_list
@@ -488,10 +490,13 @@ axiomatization where dot_insert_def:
        \<tau> \<Turnstile> ((self).contents() \<triangleq> (self).contents@pre()->including(x))
   else \<tau> \<Turnstile> ((self).insert(x) \<triangleq> invalid))"
 
+(*
 lemma H : "(\<tau> \<Turnstile> (self).insert(x) \<triangleq> result)"
  nitpick
 thm dot_insert_def
 oops
+takes too long...
+*) 
 (* Old stuff by Matthias Diss - will not really work any longer in this context: 
 
 declare OO_List.inv.simps [testgen_OO_eqs]
