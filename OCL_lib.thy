@@ -2,7 +2,7 @@ theory OCL_lib
 imports OCL_core
 begin
 
-subsection{* Simple, Basic Types like Void, Boolean and Integer *}
+section{* Basic Types like Void, Boolean and Integer *}
 
 text{* Since Integer is again a basic type, we define its semantic domain
 as the valuations over @{typ "int option option"}*}
@@ -13,7 +13,7 @@ type_synonym ('\<AA>)Void = "('\<AA>,unit option) val"
 text {* Note that this \emph{minimal} OCL type contains only two elements:
 undefined and null. For technical reasons, he does not contain to the null-class yet.*}
 
-subsection{* Strict equalities. *}
+subsection{* Strict equalities on Basic Types. *}
 
 text{* Note that the strict equality on basic types (actually on all types) 
 must be exceptionally defined on null --- otherwise the entire concept of 
@@ -37,6 +37,9 @@ defs   StrictRefEq_bool[code_unfold] :
       "(x::('\<AA>)Boolean) \<doteq> y \<equiv> \<lambda> \<tau>. if (\<upsilon> x) \<tau> = true \<tau> \<and> (\<upsilon> y) \<tau> = true \<tau>
                                     then (x \<triangleq> y)\<tau>
                                     else invalid \<tau>"
+
+
+subsection{* Logic and algebraic layer  on Basic Types. *}
 
 lemma RefEq_int_refl[simp,code_unfold] : 
 "((x::('\<AA>)Integer) \<doteq> x) = (if (\<upsilon> x) then true else invalid endif)"
@@ -184,6 +187,8 @@ via the type class system of Isabelle. *}
 text{* Here follows a list of code-examples, that explain the meanings 
 of the above definitions by compilation to code and execution to "True".*}
 
+subsection{* Test Statements on Basic Types. *}
+
 text{* Elementary computations on Booleans *}
 value "\<tau>\<^isub>0 \<Turnstile> \<upsilon>(true)"
 value "\<tau>\<^isub>0 \<Turnstile> \<delta>(false)"
@@ -220,6 +225,7 @@ value "\<not>(\<tau>\<^isub>0 \<Turnstile> (\<four> \<doteq> \<one>\<zero> ))"
 lemma  "\<delta>(null::('\<AA>)Integer) = false" by simp (* recall *)
 lemma  "\<upsilon>(null::('\<AA>)Integer) = true"  by simp (* recall *)
 
+subsection{* More algebraic and logical layer on basic types*}
 
 lemma [simp,code_unfold]:"\<upsilon> \<zero> = true" 
 by(simp add:ocl_zero_def valid_def true_def 
@@ -309,11 +315,12 @@ value "\<tau>\<^isub>0 \<Turnstile> (( \<four> \<oplus> \<four> ) \<preceq> \<on
 value "\<not>(\<tau>\<^isub>0 \<Turnstile> ((\<four> \<oplus>( \<four> \<oplus> \<four> )) \<prec> \<one>\<zero> ))"     
 
 
-subsection {* Example: The Set-Collection Type on the Abstract Interface *}
+section {* Example for Complex Types: The Set-Collection Type *}
 
 no_notation None ("\<bottom>")
 notation bot ("\<bottom>")
 
+subsection {* The construction of the Set-Collection Type *}
 
 text{* For the semantic construction of the collection types, we have two goals:
 \begin{enumerate}
@@ -406,7 +413,7 @@ corresponding exactly to Set(Set(Integer)) in OCL notation. Note that the parame
 in the object universe makes it possible to study (and prove) its properties 
 independently from a concrete class diagram. *}
 
-
+subsection{* Constants on Sets *}
 definition mtSet::"('\<AA>,'\<alpha>::null) Set"  ("Set{}")
 where "Set{} \<equiv> (\<lambda> \<tau>.  Abs_Set_0 \<lfloor>\<lfloor>{}::'\<alpha> set\<rfloor>\<rfloor> )"
 
@@ -425,6 +432,8 @@ done
 
 text{* Note that the collection types in OCL allow for null to be included;
   however, there is the null-collection into which inclusion yields invalid. *}
+
+subsection{* Strict Equality on Sets *}
 
 text{* This section of foundational operations on sets is closed with a paragraph
 on equality. Strong Equality is inherited from the OCL core, but we have to consider
@@ -473,7 +482,7 @@ lemma strictRefEq_set_vs_strongEq:
 apply(drule foundation13[THEN iffD2],drule foundation13[THEN iffD2])
 by(simp add:StrictRefEq_set foundation22)
 
-
+subsection{* Algebraic Properties on Strict Equality on Sets *}
 
 text{* One might object here that for the case of objects, this is an empty definition.
 The answer is no, we will restrain later on states and objects such that any object
@@ -494,6 +503,8 @@ text{* The case of the size definition is somewhat special, we admit
 explicitly in Essential OCL the possibility of infinite sets. For
 the size definition, this requires an extra condition that assures
 that the cardinality of the set is actually a defined integer. *}
+
+subsection{* Library Operations on Sets *}
 
 definition OclSize     :: "('\<AA>,'\<alpha>::null)Set \<Rightarrow> '\<AA> Integer"    
 where     "OclSize x = (\<lambda> \<tau>. if (\<delta> x) \<tau> = true \<tau> \<and> finite(\<lceil>\<lceil>Rep_Set_0 (x \<tau>)\<rceil>\<rceil>)
@@ -629,6 +640,7 @@ lemmas cp_intro''[simp,intro!] =
        cp_OclIncluding [THEN allI[THEN allI[THEN allI[THEN cp'I2]], of "OclIncluding"]]
 *)
 
+subsection{* Logic and Algebraic Layer on Set Operations*}
 
 lemma including_strict1[simp,code_unfold]:"(invalid->including(x)) = invalid"
 by(simp add: bot_fun_def OclIncluding_def invalid_def defined_def valid_def false_def true_def)
@@ -1308,6 +1320,7 @@ sorry (* simple and straight-forward *)
 lemma [simp]: "\<delta> ((X ->including(x)) ->size()) = (\<delta>(X) and \<upsilon>(x))"
 sorry (* simple and straight-forward *)
 
+subsection{* Test Statements *}
 
 lemma short_cut'[simp]: "(\<eight> \<doteq> \<six>) = false"
 sorry (* simple and straight-forward *)

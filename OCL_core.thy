@@ -7,9 +7,9 @@ imports
   Main (* Testing *)
 begin
 
-subsection{* Foundational Notations *}
+section{* Foundational Notations *}
 
-subsubsection{* Notations for the option type *}
+subsection{* Notations for the option type *}
 
 text{*First of all, we will use a more compact notation for the library 
 option type which occur all over in our definitions and which will make
@@ -23,7 +23,7 @@ is defined as the inverse of the injection @{term Some}. *}
 fun    drop :: "'\<alpha> option \<Rightarrow> '\<alpha>" ("\<lceil>(_)\<rceil>")
 where  drop_lift[simp]: "\<lceil>\<lfloor>v\<rfloor>\<rceil> = v"
 
-subsubsection{* Minimal Notions of State and State Transitions *}
+subsection{* Minimal Notions of State and State Transitions *}
 text{* Next we will introduce the foundational concept of an object id (oid), 
 which is just some infinite set.  *}
 
@@ -36,7 +36,7 @@ type_synonym ('\<AA>)state = "oid \<rightharpoonup> '\<AA> "
 type_synonym ('\<AA>)st = "'\<AA> state \<times> '\<AA> state"
 
 
-subsubsection{* Prerequisite: An Abstract Interface for OCL Types *}
+subsection{* Prerequisite: An Abstract Interface for OCL Types *}
 
 text {* In order to have the possibility to nest collection types,
 such that we can give semantics to expressions like @{text "Set{Set{\<two>},null}"},
@@ -78,7 +78,7 @@ class      null = bot +
    assumes null_is_valid : "null \<noteq> bot"
 
 
-subsubsection{* Accomodation of Basic Types to the Abstract Interface *}
+subsection{* Accomodation of Basic Types to the Abstract Interface *}
 
 text{* In the following it is shown that the option-option type type is
 in fact in the @{text null} class and that function spaces over these 
@@ -135,17 +135,23 @@ text{* A trivial consequence of this adaption of the interface is that
 abstract and concrete versions of null are the same on base types
 (as could be expected). *}
 
-subsubsection{* The Semantic Space of OCL Types: Valuations. *}
+section{* The Semantic Space of OCL Types: Valuations. *}
 
 text{* Valuations are now functions from a state pair (built upon 
 data universe @{typ "'\<AA>"}) to an arbitrary null-type (i.e. containing
 at least a destinguished @{text "null"} and @{text "invalid"} element. *}
 
-type_synonym ('\<AA>,'\<alpha>) val = "'\<AA> st \<Rightarrow> '\<alpha>"
+type_synonym ('\<AA>,'\<alpha>) val = "'\<AA> st \<Rightarrow> '\<alpha>::null"
 
-text{* All OCL expressions \emph{denote} functions that map the underlying *}
+text{* The definitions for the constants and operations based on valuations 
+will be geared towards a format that Isabelle can check to be a "conservative" 
+(i.e. logically safe) axiomatic definition. By introducing an explicit 
+interpretation function (which happens to be defined just as the identity
+since we are using a shallow embedding of OCL into HOL), all these definions
+can be rewritten into the conventional semantic "textbook" format  as follows: *}
 
-type_synonym ('\<AA>,'\<alpha>) val' = "'\<AA> st \<Rightarrow> '\<alpha> option option"
+definition Sem :: "'a \<Rightarrow> 'a" ("I\<lbrakk>_\<rbrakk>")
+where "I\<lbrakk>x\<rbrakk> \<equiv> x"
 
 text{* As a consequence of semantic domain definition, any OCL type will
 have the two semantic constants @{text "invalid"} (for exceptional, aborted
@@ -155,26 +161,33 @@ computation) and @{text "null"}; the latter, however is either defined
 definition invalid :: "('\<AA>,'\<alpha>::bot) val" 
 where     "invalid \<equiv> \<lambda> \<tau>. bot"
 
-text {* The definition : 
+text{* This conservative Isabelle definition of the polymorphic constant
+@{const invalid} is equivalent with the textbook definition: *}
+
+lemma invalid_def_textbook: "I\<lbrakk>invalid\<rbrakk>\<tau> = bot"
+by(simp add: invalid_def Sem_def)
+
+
+text {* Note that the definition : 
 \begin{verbatim}
 definition null    :: "('\<AA>,'\<alpha>::null) val" 
 where     "null    \<equiv> \<lambda> \<tau>. null"
 \end{verbatim}
 is not  necessary since we defined the entire function space over null types
-again as null-types; the crucial definition is @{thm "null_fun_def"}.
+again as null-types; the crucial definition is @{thm "null_fun_def"}. 
+Thus, the polymporhic constant @{const null} is simply the result of
+a general type class construction.
 *}
 
 
-
-
-subsection{* Boolean Type and Logic *}
+section{* Boolean Type and Logic *}
 
 text{* The semantic domain of the (basic) boolean type is now defined as standard:
 the space of valuation to @{typ "bool option option"}:*}
 
 type_synonym ('\<AA>)Boolean = "('\<AA>,bool option option) val"
 
-subsubsection{* Basic Constants *}
+subsection{* Basic Constants *}
 
 lemma bot_Boolean_def : "(bot::('\<AA>)Boolean) = (\<lambda> \<tau>. \<bottom>)"
 by(simp add: bot_fun_def bot_option_def) 
@@ -198,29 +211,43 @@ apply(case_tac "aa",simp)
 apply auto
 done
 
+
+
 lemma [simp]: "false (a, b) = \<lfloor>\<lfloor>False\<rfloor>\<rfloor>"
 by(simp add:false_def)
 
 lemma [simp]: "true (a, b) = \<lfloor>\<lfloor>True\<rfloor>\<rfloor>"
 by(simp add:true_def)
 
-text{* The definitions above for the constants @{const true} and @{const false}
-are geared towards a format that Isabelle can check to be a "conservative" 
-(i.e. logically safe) axiomatic definition. By introducing an explicit 
-interpretation function (which happens to be defined just as the identity
-since we are using a shallow embedding of OCL into HOL), all these definions
-can be rewritten into the conventional semantic "textbook" format  as follows: *}
-
-definition Sem :: "'a \<Rightarrow> 'a" ("I\<lbrakk>_\<rbrakk>")
-where "I\<lbrakk>x\<rbrakk> \<equiv> x"
-
-lemma textbook_true: "I\<lbrakk>true\<rbrakk> \<tau> = \<lfloor>\<lfloor>True\<rfloor>\<rfloor>"
+lemma true_def_textbook: "I\<lbrakk>true\<rbrakk> \<tau> = \<lfloor>\<lfloor>True\<rfloor>\<rfloor>"
 by(simp add: Sem_def true_def)
 
-lemma textbook_false: "I\<lbrakk>false\<rbrakk> \<tau> = \<lfloor>\<lfloor>False\<rfloor>\<rfloor>"
+lemma false_def_textbook: "I\<lbrakk>false\<rbrakk> \<tau> = \<lfloor>\<lfloor>False\<rfloor>\<rfloor>"
 by(simp add: Sem_def false_def)
 
-subsubsection{* Fundamental Predicates I: Validity and Definedness *}
+(* This following para contains a cool technique to generate documentation
+   with formal content. We should use it everywhere for documentation. *)
+text{* 
+\begin{table}[htbp]
+   \centering
+   \begin{tabular}{ll} % Column formatting
+      \toprule
+      Name & Theorem \\
+      \midrule
+      @{thm [source] invalid_def_textbook}  & @{thm  invalid_def_textbook} \\
+      @{thm [source] true_def_textbook}   & @{thm [display=false,margin=55,indent=20] true_def_textbook} \\
+      @{thm [source] false_def_textbook} & @{thm false_def_textbook} \\
+      \bottomrule
+   \end{tabular}
+   \caption{Basic semantic constant definitions of the logic (except @{term null})}
+   \label{tab:booktabs}
+\end{table}
+ % unfortunately, the margin indent construction does not work inside a table.
+ % ask IsabelleUsers? Or Makarius ?
+
+*}
+
+subsection{* Fundamental Predicates I: Validity and Definedness *}
 
 text{* However, this has also the consequence that core concepts like definedness, 
 validness and even cp have to be redefined on this type class:*}
@@ -314,7 +341,7 @@ lemma textbook_valid: "I\<lbrakk>\<upsilon>(X)\<rbrakk> \<tau> = (if I\<lbrakk>X
 by(simp add: Sem_def valid_def)
 
 
-subsubsection{*  Fundamental Predicates II: Logical (Strong) Equality *}
+subsection{*  Fundamental Predicates II: Logical (Strong) Equality *}
 text{* Note that we define strong equality extremely generic, even for types that contain
 an @{text "null"} or @{text "\<bottom>"} element:*}
 definition StrongEq::"['\<AA> st \<Rightarrow> '\<alpha>,'\<AA> st \<Rightarrow> '\<alpha>] \<Rightarrow> ('\<AA>)Boolean"  (infixl "\<triangleq>" 30)
@@ -357,7 +384,7 @@ lemma StrongEq_subst :
   apply(subst cp[of Y])
   by simp
 
-subsubsection{*  Fundamental Predicates III *}
+subsection{*  Fundamental Predicates III *}
 
 
 text{* And, last but not least, *}
@@ -380,7 +407,7 @@ for each base type, there is an equality.*}
 
 
 
-subsubsection{* Logical Connectives and their Universal Properties *}
+subsection{* Logical Connectives and their Universal Properties *}
 text{* It is a design goal to give OCL a semantics that is as closely as
 possible to a "logical system" in a known sense; a specification logic
 where the logical connectives can not be understood other that having
@@ -619,7 +646,7 @@ lemma deMorgan2: "not(X or Y) = ((not X) and (not Y))"
   by(simp add: ocl_or_def)
  
 
-subsubsection{* A Standard Logical Calculus for OCL *}
+section{* A Standard Logical Calculus for OCL *}
 text{* Besides the need for algebraic laws for OCL in order to normalize *}
 definition OclValid  :: "[('\<AA>)st, ('\<AA>)Boolean] \<Rightarrow> bool" ("(1(_)/ \<Turnstile> (_))" 50)
 where     "\<tau> \<Turnstile> P \<equiv> ((P \<tau>) = true \<tau>)"
@@ -657,7 +684,7 @@ apply(rule H[THEN fun_cong])
 apply(rule ext)
 oops
 
-subsubsection{* Local Validity and Meta-logic*}
+subsection{* Local Validity and Meta-logic*}
 
 lemma foundation1[simp]: "\<tau> \<Turnstile> true"
 by(auto simp: OclValid_def)
@@ -896,8 +923,7 @@ by(auto simp: not_def OclValid_def true_def invalid_def defined_def false_def
 
 text{* So far, we have only one strict Boolean predicate (-family): The strict equality. *}
 
-subsection{*Miscellaneous: OCL's if then else endif *}
-
+section{*Miscellaneous: OCL's if then else endif *}
 
 definition if_ocl :: "[('\<AA>)Boolean , ('\<AA>,'\<alpha>::null) val, ('\<AA>,'\<alpha>) val] \<Rightarrow> ('\<AA>,'\<alpha>) val"
                      ("if (_) then (_) else (_) endif" [10,10,10]50)

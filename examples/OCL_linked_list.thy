@@ -1,6 +1,6 @@
 header{* Part III: OCL Contracts and an Example *}
 
-(* This example is nbot yet balancved. Some parts of should go to 
+(* This example is not yet balanced. Some parts of should go to 
    Part II : State and Objects. *)
 
 theory 
@@ -221,7 +221,7 @@ lemmas cp_dot_nextI [simp, intro!]=
        cp_dot_next[THEN allI[THEN allI], of "\<lambda> X _. X" "\<lambda> _ \<tau>. \<tau>", THEN cpI1]
 
 lemmas cp_dot_nextI_at_pre [simp, intro!]= 
-       cp_dot_next_at_pre[THEN allI[THEN allI], 
+       cp_dot_next_at_pre[THEN allI[THEN allI],  
                           of "\<lambda> X _. X" "\<lambda> _ \<tau>. \<tau>", THEN cpI1]
 
 lemma dot_next_nullstrict [simp]: "(null).next = invalid"
