@@ -176,8 +176,13 @@ where     "null    \<equiv> \<lambda> \<tau>. null"
 is not  necessary since we defined the entire function space over null types
 again as null-types; the crucial definition is @{thm "null_fun_def"}. 
 Thus, the polymporhic constant @{const null} is simply the result of
-a general type class construction.
+a general type class construction. Nevertheless, we can derive the
+semantic textbook definition for the OCL null constant based on the
+abstract null: 
 *}
+
+lemma null_def_textbook: "I\<lbrakk>null::('\<AA>,'\<alpha>::null) val\<rbrakk> \<tau> = (null::'\<alpha>::null)"
+by(simp add: null_fun_def Sem_def)
 
 
 section{* Boolean Type and Logic *}
@@ -227,7 +232,7 @@ by(simp add: Sem_def false_def)
 
 (* This following para contains a cool technique to generate documentation
    with formal content. We should use it everywhere for documentation. *)
-text{* 
+text{* \textbf{Summary}:
 \begin{table}[htbp]
    \centering
    \begin{tabular}{ll} % Column formatting
@@ -235,12 +240,13 @@ text{*
       Name & Theorem \\
       \midrule
       @{thm [source] invalid_def_textbook}  & @{thm  invalid_def_textbook} \\
+      @{thm [source] null_def_textbook}  & @{thm  null_def_textbook} \\
       @{thm [source] true_def_textbook}   & @{thm [display=false,margin=55,indent=20] true_def_textbook} \\
       @{thm [source] false_def_textbook} & @{thm false_def_textbook} \\
       \bottomrule
    \end{tabular}
    \caption{Basic semantic constant definitions of the logic (except @{term null})}
-   \label{tab:booktabs}
+   \label{tab:sem_basic_constants}
 \end{table}
  % unfortunately, the margin indent construction does not work inside a table.
  % ask IsabelleUsers? Or Makarius ?
@@ -330,16 +336,52 @@ by(simp add: defined_def)
 text{* The definitions above for the constants @{const defined} and @{const valid}
 can be rewritten into the conventional semantic "textbook" format  as follows: *}
 
-lemma textbook_defined: "I\<lbrakk>\<delta>(X)\<rbrakk> \<tau> = (if I\<lbrakk>X\<rbrakk> \<tau> = I\<lbrakk>bot\<rbrakk> \<tau>  \<or> I\<lbrakk>X\<rbrakk> \<tau> = I\<lbrakk>null\<rbrakk> \<tau> 
+lemma defined_def_textbook: "I\<lbrakk>\<delta>(X)\<rbrakk> \<tau> = (if I\<lbrakk>X\<rbrakk> \<tau> = I\<lbrakk>bot\<rbrakk> \<tau>  \<or> I\<lbrakk>X\<rbrakk> \<tau> = I\<lbrakk>null\<rbrakk> \<tau> 
                                      then I\<lbrakk>false\<rbrakk> \<tau> 
                                      else I\<lbrakk>true\<rbrakk> \<tau>)"
 by(simp add: Sem_def defined_def)
 
-lemma textbook_valid: "I\<lbrakk>\<upsilon>(X)\<rbrakk> \<tau> = (if I\<lbrakk>X\<rbrakk> \<tau> = I\<lbrakk>bot\<rbrakk> \<tau>  
+lemma valid_def_textbook: "I\<lbrakk>\<upsilon>(X)\<rbrakk> \<tau> = (if I\<lbrakk>X\<rbrakk> \<tau> = I\<lbrakk>bot\<rbrakk> \<tau>  
                                    then I\<lbrakk>false\<rbrakk> \<tau> 
                                    else I\<lbrakk>true\<rbrakk> \<tau>)"
 by(simp add: Sem_def valid_def)
 
+text{* \textbf{Summary}:
+\begin{table}[htbp]
+   \centering
+   \begin{tabular}{ll} % Column formatting
+      \toprule
+      Name & Theorem \\
+      \midrule
+      @{thm [source] defined_def_textbook}  & @{thm  defined_def_textbook} \\
+      @{thm [source] valid_def_textbook}   & @{thm [display=false,margin=55,indent=20] valid_def_textbook} \\
+      \bottomrule
+   \end{tabular}
+   \caption{Basic predicate definitions of the logic.)}
+   \label{tab:sem_definedness}
+\end{table}
+ % unfortunately, the margin indent construction does not work inside a table.
+ % ask IsabelleUsers? Or Makarius ?
+These definitions lead quite directly to the algebraic laws on these predicates: 
+\begin{table}[htbp]
+   \centering
+   \begin{tabular}{ll} % Column formatting
+      \toprule
+      Name & Theorem \\
+      \midrule
+      @{thm [source] defined1}  & @{thm  defined1} \\
+      @{thm [source] defined2}   & @{thm [display=false,margin=55,indent=20] defined2} \\
+      @{thm [source] defined3}   & @{thm [display=false,margin=55,indent=20] defined3} \\
+      @{thm [source] defined4}   & @{thm [display=false,margin=55,indent=20] defined4} \\
+      @{thm [source] defined5}   & @{thm [display=false,margin=55,indent=20] defined5} \\
+      @{thm [source] defined6}   & @{thm [display=false,margin=55,indent=20] defined6} \\
+      @{thm [source] defined7}   & @{thm [display=false,margin=55,indent=20] defined7} \\
+      \bottomrule
+   \end{tabular}
+   \caption{Laws of the basic predicates of the logic.)}
+   \label{tab:alglaws_definedness}
+\end{table}
+*}
 
 subsection{*  Fundamental Predicates II: Logical (Strong) Equality *}
 text{* Note that we define strong equality extremely generic, even for types that contain
