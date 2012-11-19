@@ -1,52 +1,67 @@
-\documentclass[11pt,a4paper]{scrartcl}
+\documentclass[11pt,a4paper,openright]{scrreprt}
 \usepackage{isabelle,isabellesym}
 \usepackage[nocolortable, noaclist]{hol-ocl-isar}
 \usepackage{fmde-acronyms}
 \usepackage{paralist}
-
 \usepackage{booktabs}
-
-% further packages required for unusual symbols (see also
-% isabellesym.sty), use only when needed
-
 \usepackage{amssymb}
-  %for \<leadsto>, \<box>, \<diamond>, \<sqsupset>, \<mho>, \<Join>,
-  %\<lhd>, \<lesssim>, \<greatersim>, \<lessapprox>, \<greaterapprox>,
-  %\<triangleq>, \<yen>, \<lozenge>
+\usepackage[numbers, sort&compress, sectionbib]{natbib}
+\usepackage[caption=false]{subfig}
+\usepackage{lstisar}
+\usepackage{paralist}
+\usepackage[]{mathtools}
+\usepackage[pdfpagelabels, pageanchor=false, plainpages=false]{hyperref}
 
-%\usepackage[greek,english]{babel}
-  %option greek for \<euro>
-  %option english (default language) for \<guillemotleft>, \<guillemotright>
 
-%\usepackage[latin1]{inputenc}
-  %for \<onesuperior>, \<onequarter>, \<twosuperior>, \<onehalf>,
-  %\<threesuperior>, \<threequarters>, \<degree>
+\renewcommand{\HolTrue}{\mathrm{true}} 
+\renewcommand{\HolFalse}{\mathrm{false}}
 
-%\usepackage[only,bigsqcap]{stmaryrd}
-  %for \<Sqinter>
 
-%\usepackage{eufrak}
-  %for \<AA> ... \<ZZ>, \<aa> ... \<zz> (also included in amssymb)
+\newcommand{\testgen}{\acs{hol}-TestGen\xspace} 
+\DeclareMathOperator{\vars}{\mathit{vars}}
+\renewcommand{\to}{\Rightarrow}
+\newcommand{\HolRef}{\mathrm{ref}}
+\newcommand{\HolOption}{\mathrm{option}}
+\newcommand{\term}{\mathrm{term}}
+\newcommand{\ran}{\mathrm{ran}}
+\newcommand{\dom}{\mathrm{dom}} 
+\newcommand{\ind}{\mathrm{ind}}
+\newcommand{\order}{\mathrm{order}}
+\newcommand{\types}{\mathrm{types}}
+\newcommand{\typedef}{\mathrm{typedef}}
+\DeclareMathOperator{\upCase}{upCase}
+\DeclareMathOperator{\optionCase}{optionCase}
+\DeclareMathOperator{\image}{image}
+\DeclareMathOperator{\fix}{fix}
 
-%\usepackage{textcomp}
-  %for \<cent>, \<currency>
+\newcommand{\mi}[1]{\,\text{#1}}
+\newcommand{\state}[1]{\ifthenelse{\equal{}{#1}}%
+  {\operatorname{state}}%
+  {\operatorname{\mathit{state}}(#1)}%
+}
 
-% this should be the last package used
-\usepackage{pdfsetup}
+\renewcommand{\ofType}{\mathbin{::}}
+\newcommand{\mocl}[1]{\text{\inlineocl{#1}}}
+\DeclareMathOperator{\TCnull}{null}
+\DeclareMathOperator{\HolNull}{null}
+\DeclareMathOperator{\HolBot}{bot}
+
+
+\newtheorem{example}{Example}
+
 
 % urls in roman style, theory text in math-similar italics
 \urlstyle{rm}
 \isabellestyle{it}
 \newcommand{\ie}{i.\,e.\xspace}
 \newcommand{\eg}{e.\,g.\xspace}
-\renewcommand{\isamarkupheader}[1]{}
-\renewcommand{\isamarkupsection}[1]{\subsection{#1}}
-\renewcommand{\isamarkupsubsection}[1]{\subsubsection{#1}}
-\renewcommand{\isamarkupsubsubsection}[1]{\paragraph{#1}}
-\renewcommand{\isamarkupsect}[1]{\subsection{#1}}
-\renewcommand{\isamarkupsubsect}[1]{\subsubsection{#1}}
-\renewcommand{\isamarkupsubsubsect}[1]{\paragraph{#1}}
-\newcommand{\testgen}{HOL-TestGen}
+\renewcommand{\isamarkupheader}[1]{\chapter{#1}}
+\renewcommand{\isamarkupsection}[1]{\section{#1}}
+\renewcommand{\isamarkupsubsection}[1]{\subsection{#1}}
+\renewcommand{\isamarkupsubsubsection}[1]{\subsubsection{#1}}
+\renewcommand{\isamarkupsect}[1]{\section{#1}}
+\renewcommand{\isamarkupsubsect}[1]{\susubsection{#1}}
+\renewcommand{\isamarkupsubsubsect}[1]{\subsubsection{#1}}
 
 \begin{document}
 
@@ -54,6 +69,7 @@
 \subtitle{A Study for a Consistent Semantics of UML/OCL 2.3 in HOL}
 \subject{Extended Version}
 \author{Achim D. Brucker \and Burkhart Wolff}
+
 
 \maketitle
 
@@ -73,7 +89,7 @@
   uniform manner.
 
   \noindent{\textbf{Further readings:}} This theory extends the paper
-  ``Featherweight OCL: A study for the consistent semantics of OCL 2.3
+  ``Featherweight OCL: A study for the consistent semantics of \OCL 2.3
   in \HOL''~\cite{brucker.ea:featherweight:2012} that is published as
   part of the proceedings of the \OCL workshop 2012.
 \end{abstract}
@@ -82,8 +98,8 @@
 
 \tableofcontents
 
-
-\section{Introduction}
+\part{Introduction}
+\chapter{Motivation}
 At its origins~\cite{richters:precise:2002,omg:ocl:1997}, \OCL was
 conceived as a strict semantics for undefinedness, with the exception
 of the logical connectives of type \inlineocl{Boolean} that constitute
@@ -120,7 +136,68 @@ iterators and key operators.
 % sane default for proof documents
 \parindent 0pt\parskip 0.5ex
 
-\section{Featherweight OCL}
+
+\chapter{Background}
+
+\section{Formal Foundation}
+%\subsection{Higher-order Logic and Isabelle}\label{sec:higher-order-logic}
+Higher-order Logic
+(\acs{hol})~\cite{church:types:1940,andrews:introduction:2002} is a
+classical logic with equality enriched by total polymorphic
+higher-order functions. It is more expressive than first-order logic,
+\eg, induction schemes can be expressed inside the
+logic. Pragmatically, \HOL can be viewed as ``Haskell with
+Quantifiers.''
+
+\HOL is based on the typed $\lambda$-calculus, \ie, the \emph{terms} of \HOL are
+$\lambda$-expressions.  Types of terms may be built from \emph{type
+  variables}\index{type variables} (like $\alpha$, $\beta$, \ldots, optionally
+annotated by Haskell-like \emph{type classes}\index{type class} as in
+$\alpha::order$ or $\alpha::\Bot$) or \emph{type constructors}\index{type
+  constructor}. Type constructors may have arguments (as in $\HolList{\alpha}$
+or $\HolSet{\alpha}$). The type constructor for the function space
+$\isasymRightarrow$ is written infix: $\alpha \isasymRightarrow \beta$; multiple
+applications like
+$\tau_1\isasymRightarrow(\ldots\isasymRightarrow(\tau_n\isasymRightarrow\tau_{n+1})\ldots)$
+have the alternative syntax $[\tau_1, \ldots, \tau_n] \isasymRightarrow
+\tau_{n+1}$. \HOL is centered around the extensional logical equality $\_=\_$
+with type $[\alpha, \alpha] \isasymRightarrow \HolBoolean$, where $\HolBoolean$
+is the fundamental logical type.  We use infix notation: instead of
+$(\_=\_)~E_1~E_2$ we write $E_1=E_2$. The logical connectives $\_\isasymand\_$,
+$\_\isasymor\_$, $\_\to\_$ of \HOL have type $[\HolBoolean, \HolBoolean]
+\isasymRightarrow \HolBoolean$, $\isasymnot\_$ has type $\HolBoolean
+\isasymRightarrow \HolBoolean$. The quantifiers $\isasymforall\_.\_$ and
+$\isasymexists\_.\_$ have type $[\alpha \isasymRightarrow \HolBoolean]
+\isasymRightarrow \HolBoolean$. The quantifiers may range over types of higher
+order, \ie, functions or sets. 
+The definition of the element-hood $\_\isasymin\_$, the set comprehension
+$\{\_.\_\}$, as well as $\_\isasymunion\_$ and $\_\isasyminter\_$ are standard.
+
+Isabelle is a theorem is generic interactive theorem proving system;
+Isabelle/\HOL is an instance of the former with \HOL.  The
+Isabelle/\HOL library contains formal definitions and theorems for a
+wide range of mathematical concepts used in computer science,
+including typed set theory, well-founded recursion theory, number
+theory and theories for data-structures like Cartesian products
+$\alpha \times \beta$ and disjoint type sums $\alpha + \beta$.  The
+library also includes the type constructor $\up{\tau} := \isasymbottom
+~ | ~ \lift{\_} : \alpha$ that assigns to each type $\tau$ a type
+$\up{\tau}$ \emph{disjointly extended} by the exceptional element
+$\isasymbottom$\index{undefinedness lifting}. The function $\drop{\_}
+: \up{\alpha} \to \alpha$ is the inverse of $\lift{\_}$ (unspecified
+for $\isasymbottom$). Partial functions $\alpha \isasymrightharpoonup
+\beta$ are defined as functions $\alpha \isasymRightarrow \up{\beta}$
+supporting the usual concepts of domain ($\dom\;\_$) and range
+($\ran\;\_$).  The library is built entirely by logically safe,
+conservative definitions and derived rules.  This methodology is also
+applied to \holocl~\cite{brucker.ea:hol-ocl:2008} and Featherweight
+\OCL.
+
+% For Journal - or long- version
+%\subsection{Specification Constructs in Isabelle/\HOL}\label{sec:spec-constructs}
+
+
+\section{Featherweight OCL: Design Goals}
 % generated text of all theories
 Featherweight \acs{ocl} is a formalization of the core of \acs{ocl}
 aiming at formally investigation the relationship between the
@@ -180,12 +257,12 @@ Featherweight \OCL is based on the following principles:
 \end{compactenum}
 
 
-
-
-
-
+\part{A Formal Semantics of OCL 2.3 in Isabelle/HOL}
 \input{session}
 
+\part{Conclusion}
+
+\chapter{Conclusion}
 
 \section{Lessons Learned}
 While our paper and pencil arguments, given
