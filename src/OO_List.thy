@@ -1,1 +1,0 @@
-../examples/OO_List.thy

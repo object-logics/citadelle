@@ -66,7 +66,7 @@ $(EXAMPLE): *.thy ROOT.ML $(LOG)/$(MAIN)-$(EXAMPLE).gz
 
 $(LOG)/$(MAIN)-$(EXAMPLE).gz: ROOT.ML *.thy document/*
 	@$(USEDIR) $(MAIN) $(MAIN)-$(EXAMPLE) 
-	@$(CP) $(ISABELLE_BROWSER_INFO)/$(MAIN)/$(MAIN)-$(EXAMPLE)/*.pdf ../doc
+	@cp $(ISABELLE_BROWSER_INFO)/$(MAIN)/$(MAIN)-$(EXAMPLE)/*.pdf ../doc
 
 ## clean
 

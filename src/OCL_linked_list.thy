@@ -1,1 +1,0 @@
-../examples/OCL_linked_list.thy
