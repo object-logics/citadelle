@@ -1,0 +1,159 @@
+\part{Introduction}
+\chapter{Motivation}
+At its origins~\cite{richters:precise:2002,omg:ocl:1997}, \OCL was
+conceived as a strict semantics for undefinedness, with the exception
+of the logical connectives of type \inlineocl{Boolean} that constitute
+a three-valued propositional logic.  Recent versions of the \OCL
+standard~\cite{omg:ocl:2006,omg:ocl:2012} added a second exception
+element, which is given a non-strict semantics.  Unfortunately, this
+extension results in several inconsistencies and contradictions. These
+problems are reflected in difficulties to define interpreters,
+code-generators, specification animators or theorem provers for \OCL
+in a uniform manner and resulting incompatibilities of various
+tools. For the \OCL community, this results in the challenge to define
+a new formal semantics definition \OCL that could replace the ``Annex
+A'' of the \acs{ocl} standard~\cite{omg:ocl:2012}.
+
+In the paper ``Extending \OCL with
+Null-References''~\cite{brucker.ea:ocl-null:2009} we explored---based
+on mathematical arguments and paper and pencil proofs---a consistent
+formal semantics that comprises two exception elements:
+\inlineocl{invalid} (``bottom'' in semantics terminology) and
+\inlineocl{null} (for ``non-existing element'').
+
+This short paper is based on a formalization
+of~\cite{brucker.ea:ocl-null:2009}, called ``Featherweight \OCL,'' in
+Isabelle/\acs{hol}~\cite{nipkow.ea:isabelle:2002}.  This formalization
+is in its present form merely a semantical study and a proof of
+technology than a real tool. It focuses on the formalization of the
+key semantical constructions, \ie, the type \inlineocl{Boolean} and
+the logic, the type \inlineocl{Integer} and a standard strict operator
+library, and the collection type \inlineocl{Set(A)} with quantifiers,
+iterators and key operators.
+
+
+
+% sane default for proof documents
+\parindent 0pt\parskip 0.5ex
+
+
+\chapter{Background}
+
+\section{Formal Foundation}
+%\subsection{Higher-order Logic and Isabelle}\label{sec:higher-order-logic}
+Higher-order Logic
+(\acs{hol})~\cite{church:types:1940,andrews:introduction:2002} is a
+classical logic with equality enriched by total polymorphic
+higher-order functions. It is more expressive than first-order logic,
+\eg, induction schemes can be expressed inside the
+logic. Pragmatically, \HOL can be viewed as ``Haskell with
+Quantifiers.''
+
+\HOL is based on the typed $\lambda$-calculus, \ie, the \emph{terms} of \HOL are
+$\lambda$-expressions.  Types of terms may be built from \emph{type
+  variables}\index{type variables} (like $\alpha$, $\beta$, \ldots, optionally
+annotated by Haskell-like \emph{type classes}\index{type class} as in
+$\alpha::order$ or $\alpha::\Bot$) or \emph{type constructors}\index{type
+  constructor}. Type constructors may have arguments (as in $\HolList{\alpha}$
+or $\HolSet{\alpha}$). The type constructor for the function space
+$\isasymRightarrow$ is written infix: $\alpha \isasymRightarrow \beta$; multiple
+applications like
+$\tau_1\isasymRightarrow(\ldots\isasymRightarrow(\tau_n\isasymRightarrow\tau_{n+1})\ldots)$
+have the alternative syntax $[\tau_1, \ldots, \tau_n] \isasymRightarrow
+\tau_{n+1}$. \HOL is centered around the extensional logical equality $\_=\_$
+with type $[\alpha, \alpha] \isasymRightarrow \HolBoolean$, where $\HolBoolean$
+is the fundamental logical type.  We use infix notation: instead of
+$(\_=\_)~E_1~E_2$ we write $E_1=E_2$. The logical connectives $\_\isasymand\_$,
+$\_\isasymor\_$, $\_\to\_$ of \HOL have type $[\HolBoolean, \HolBoolean]
+\isasymRightarrow \HolBoolean$, $\isasymnot\_$ has type $\HolBoolean
+\isasymRightarrow \HolBoolean$. The quantifiers $\isasymforall\_.\_$ and
+$\isasymexists\_.\_$ have type $[\alpha \isasymRightarrow \HolBoolean]
+\isasymRightarrow \HolBoolean$. The quantifiers may range over types of higher
+order, \ie, functions or sets. 
+The definition of the element-hood $\_\isasymin\_$, the set comprehension
+$\{\_.\_\}$, as well as $\_\isasymunion\_$ and $\_\isasyminter\_$ are standard.
+
+Isabelle is a theorem is generic interactive theorem proving system;
+Isabelle/\HOL is an instance of the former with \HOL.  The
+Isabelle/\HOL library contains formal definitions and theorems for a
+wide range of mathematical concepts used in computer science,
+including typed set theory, well-founded recursion theory, number
+theory and theories for data-structures like Cartesian products
+$\alpha \times \beta$ and disjoint type sums $\alpha + \beta$.  The
+library also includes the type constructor $\up{\tau} := \isasymbottom
+~ | ~ \lift{\_} : \alpha$ that assigns to each type $\tau$ a type
+$\up{\tau}$ \emph{disjointly extended} by the exceptional element
+$\isasymbottom$\index{undefinedness lifting}. The function $\drop{\_}
+: \up{\alpha} \to \alpha$ is the inverse of $\lift{\_}$ (unspecified
+for $\isasymbottom$). Partial functions $\alpha \isasymrightharpoonup
+\beta$ are defined as functions $\alpha \isasymRightarrow \up{\beta}$
+supporting the usual concepts of domain ($\dom\;\_$) and range
+($\ran\;\_$).  The library is built entirely by logically safe,
+conservative definitions and derived rules.  This methodology is also
+applied to \holocl~\cite{brucker.ea:hol-ocl:2008} and Featherweight
+\OCL.
+
+% For Journal - or long- version
+%\subsection{Specification Constructs in Isabelle/\HOL}\label{sec:spec-constructs}
+
+
+\section{Featherweight OCL: Design Goals}
+% generated text of all theories
+Featherweight \acs{ocl} is a formalization of the core of \acs{ocl}
+aiming at formally investigation the relationship between the
+different notions of ``undefinedness,'' \ie, \inlineocl{invalid} and
+
+\inlineocl{null}. As such, it does not attempt to define the complete
+\acs{ocl} library. Instead, it concentrates on the core concepts of
+\acs{ocl} as well as the types \inlineocl{Boolean},
+\inlineocl{Integer}, and typed sets (\inlineocl|Set(T)|).  Following
+the tradition of
+\holocl~\cite{brucker.ea:hol-ocl:2008,brucker.ea:hol-ocl-book:2006},
+Featherweight \OCL is based on the following principles:
+\begin{compactenum}
+\item It is an embedding into a powerful semantic meta-language and
+  environment, namely
+  Isabelle/\acs{hol}~\cite{nipkow.ea:isabelle:2002}.
+\item It is a \emph{shallow embedding} in \acs{hol}; types
+  in \OCL were injectively mapped to types in Featherweight
+  \OCL. Ill-typed \OCL specifications cannot be represented in
+  Featherweight \OCL and a type in Featherweight \OCL contains exactly
+  the values that are possible in \OCL. Thus, sets may contain
+  \inlineocl{null} (\inlineocl|Set{null}| is a defined set) but not
+  \inlineocl{invalid} (\inlineocl|Set{invalid}| is just
+  \inlineocl{invalid}).
+\item Any Featherweight \OCL type contains at least
+  \inlineocl{invalid} and \inlineocl{null} (the type \inlineocl{Void}
+  contains only these instances). The logic is consequently
+  four-valued, and there is a \inlineocl{null}-element in the type
+  \inlineocl{Set(A)}.
+\item It is a strongly typed language in the Hindley-Milner tradition.
+  We assume that a pre-process eliminates all implicit conversions due
+  to subtyping by introducing explicit casts (\eg,
+  \inlineocl{oclAsType()}). The details of such a pre-processing are
+  described in~\cite{brucker:interactive:2007}.  Casts are semantic
+  functions, typically injections, that may convert data between the
+  different Featherweight \OCL types.
+\item All objects are represented in an object universe in the \holocl
+  tradition~\cite{brucker.ea:extensible:2008-b} the universe
+  construction also gives semantics to type casts, dynamic type
+  tests, as well as functions such as \inlineocl{oclAllInstances()},
+  or \inlineocl{isNewInState()}.
+\item Featherweight \OCL types may be arbitrarily nested:
+  \inlineocl|Set{Set{1,2}} = Set{Set{2,1}}| is legal and true.
+\item For demonstration purposes, the set-type in Featherweight \OCL
+  may be infinite, allowing infinite quantification and a constant
+  that contains the set of all Integers.  Arithmetic laws like
+  commutativity may therefore expressed in \OCL itself.  The
+  iterator is only defined on finite sets.
+\item It supports equational reasoning and congruence reasoning, but
+  this requires a differentiation of the different equalities like
+  strict equality, strong equality, meta-equality (\acs{hol}). Strict
+  equality and strong equality require a subcalculus, ``cp'' (a
+  detailed discussion of the different equalities as well the
+  subcalculus ``cp''---for three-valued \acs{ocl} 2.0---is given
+  in~\cite{brucker.ea:semantics:2009}), which is nasty but can be
+  hidden from the user inside tools.
+\end{compactenum}
+
+
