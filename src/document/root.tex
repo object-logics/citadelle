@@ -12,10 +12,68 @@
 \usepackage{paralist}
 \usepackage[]{mathtools}
 \usepackage[pdfpagelabels, pageanchor=false, plainpages=false]{hyperref}
-
+\usepackage{prooftree}
 
 \renewcommand{\HolTrue}{\mathrm{true}} 
 \renewcommand{\HolFalse}{\mathrm{false}}
+
+\newcommand{\ptmi}[1]{\using{\mi{#1}}}
+
+
+\newcommand{\Lemma}[1]{{\color{BrickRed}%
+    \mathbf{\operatorname{lemma}}}~\text{#1:}\quad}
+\newcommand{\testspec}[1]{{\color{BrickRed}%
+    \mathbf{\operatorname{testspec}}}~\text{#1:}\quad}
+
+%% end prof mode
+\newcommand{\done}{{\color{OliveGreen}\operatorname{done}}}
+\newcommand{\by}[1]{{\color{OliveGreen}%
+    \operatorname{by}}(\text{#1})}
+
+%% regular commands
+\newcommand{\primrec}{{\holoclthykeywordstyle\operatorname{primrec}}}
+\newcommand{\shows}{{\holoclthykeywordstyle%
+    \operatorname{shows}}\enspace}
+\newcommand{\recdef}{{\holoclthykeywordstyle%
+    \operatorname{recdef}}\enspace}
+\newcommand{\have}[1]{{\holoclthykeywordstyle%
+    \operatorname{have}}~\text{#1:}\enspace}
+\newcommand{\Show}[1]{{\holoclthykeywordstyle%
+    \operatorname{show}}~\text{#1}\enspace}
+\newcommand{\Proof}{{\holoclthykeywordstyle%
+    \operatorname{proof}}}
+\newcommand{\assumes}[1]{{\holoclthykeywordstyle%
+    \operatorname{assumes}}~\text{#1:}\enspace}
+\newcommand{\storeTestThm}[1]{{\holoclthykeywordstyle%
+    \operatorname{store\_test\_thm}}~\text{#1}}
+\newcommand{\apply}[1]{{\holoclthykeywordstyle%
+    \operatorname{apply}}(\text{#1})}
+\newcommand{\testgenParams}[1]{{\holoclthykeywordstyle%
+    \operatorname{testgen\_params}}\;[\text{#1}]}
+\newcommand{\genTestData}[1]{{\holoclthykeywordstyle%
+    \operatorname{gen\_test\_data}}~\text{#1}}
+
+\newcommand{\genTestScript}[4]{{\holoclthykeywordstyle%
+    \operatorname{gen\_test\_script}}~\text{\texttt{#1}}
+  {~\text{#2}}
+  {~#3}
+  {~{\mathtt{#4}}}
+}
+\newcommand{\consts} {{\holoclthykeywordstyle\operatorname{consts}}}
+\newcommand{\constdefs} {{\holoclthykeywordstyle\operatorname{constdefs}}}
+\newcommand{\defs} {{\holoclthykeywordstyle\operatorname{defs}}}
+\newcommand{\fun} {{\holoclthykeywordstyle\operatorname{fun}}}
+\newcommand{\definitionS} {{\holoclthykeywordstyle\operatorname{definition}}}
+\newcommand{\where} {{\holoclthykeywordstyle\operatorname{where}}}
+\newcommand{\datatype} {{\holoclthykeywordstyle\operatorname{datatype}}}
+\newcommand{\intros} {{\holoclthykeywordstyle\operatorname{intros}}}
+\newcommand{\inductive}[1]{{\holoclthykeywordstyle\operatorname{inductive}}~\operatorname{#1}}
+\newcommand{\types} {{\holoclthykeywordstyle\operatorname{types}}}
+\newcommand{\pglabel}[1]{\text{#1}}
+% \newcommand{\primrec}{\operatorname{\holoclthykeywordstyle primrec}}
+% \newcommand{\consts} {\operatorname{\holoclthykeywordstyle consts}}
+
+
 
 
 
@@ -75,7 +133,6 @@
 \newcommand{\dom}{\mathrm{dom}} 
 \newcommand{\ind}{\mathrm{ind}}
 \newcommand{\order}{\mathrm{order}}
-\newcommand{\types}{\mathrm{types}}
 \newcommand{\typedef}{\mathrm{typedef}}
 \DeclareMathOperator{\upCase}{upCase}
 \DeclareMathOperator{\optionCase}{optionCase}

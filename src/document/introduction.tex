@@ -40,7 +40,233 @@ iterators and key operators.
 \chapter{Background}
 
 \section{Formal Foundation}
-%\subsection{Higher-order Logic and Isabelle}\label{sec:higher-order-logic}
+
+
+\subsection{Isabelle}
+Isabelle~\cite{nipkow.ea:isabelle:2002} is a \emph{generic} theorem
+prover. New object logics can be introduced by specifying their syntax
+and natural deduction inference rules. Among other logics, Isabelle
+supports first-order logic, Zermelo-Fraenkel set theory and the
+instance for Church's higher-order logic \acs{hol}, which we choose as
+basis for \testgen and which is introduced in the subsequent section.
+
+Isabelle's inference rules are based on the built-in meta-level
+implication $\_ \Implies \_$ allowing to form constructs like $A_1
+\Implies \cdots \Implies A_n \Implies A_{n+1}$, which are viewed as a
+\emph{rule} of the form ``from assumptions $A_1$ to $A_n$, infer
+conclusion $A_{n+1}$'' and which is written in Isabelle as
+\begin{gather}
+  \semantics{A_1 ; \ldots; A_n}\Implies A_{n+1}
+  \qquad
+  \text{or, in mathematical notation,}
+  \qquad
+  \begin{prooftree}
+    A_1 \qquad \cdots \qquad A_n
+    \justifies
+    A_{n+1}
+    \ptmi{.}
+  \end{prooftree}
+\end{gather}
+The built-in meta-level quantification $\Forall x\spot  x$ captures
+the usual side-constraints ``$x$ must not occur free in the
+assumptions'' for quantifier rules; meta-quantified variables can be
+considered as ``fresh'' free variables. Meta-level quantification
+leads to a generalization of Horn-clauses of the form:
+\begin{gather}
+\Forall x_1, \ldots, x_m\spot \semantics{A_1 ; \ldots; A_n}\Implies
+A_{n+1}\mi{.}
+\end{gather}
+
+Isabelle supports forward- and backward reasoning on rules.  For
+backward-reasoning, a \emph{proof-state} can be initialized and
+further transformed into others. For example, a proof of $\phi$, using
+the Isar~\cite{wenzel:isabelleisar:2002} language, will look as
+follows in Isabelle:
+\begin{gather}
+  \begin{array}{l}
+    \Lemma{label} \phi\\
+    \quad\apply{case\_tac}\\
+    \quad\apply{simp\_all}\\
+  \done
+  \end{array}    
+\end{gather}
+This proof script instructs Isabelle to prove $\phi$ by case
+distinction followed by a simplification of the resulting proof state.
+Such a proof state is an implicitly conjoint sequence of generalized
+Horn-clauses (called \emph{subgoals}) $\phi_1$, \ldots,$\phi_n$ and a
+\emph{goal} $\phi$. Proof states were usually denoted by:
+\begin{gather}
+\begin{array}{rl}
+\pglabel{label}:& \phi \\
+ 1.& \phi_1 \\
+    &\vdots \\
+ n.& \phi_n\\
+\end{array}
+\end{gather}
+Subgoals and goals may be extracted from the proof state into theorems
+of the form $\semantics{\phi_1 ; \ldots; \phi_n}\Implies \phi$ at any
+time; this mechanism helps to generate test theorems.  Further,
+Isabelle supports meta-variables (written $\meta{x}, \meta{y},
+\ldots$), which can be seen as ``holes in a term'' that can still be
+substituted. Meta-variables are instantiated by Isabelle's built-in
+higher-order unification.
+
+\subsection{Higher-order logic}
+\emph{Higher-order logic}
+(\HOL)~\cite{church:types:1940,andrews:introduction:2002} is a
+classical logic based on a simple type system.  It provides the usual
+logical connectives like $\_ \land \_$, $\_ \implies\_$, $\lnot \_ $
+as well as the object-logical quantifiers $\forall x\spot P\ap x$ and
+$\exists x\spot P\ap x$; in contrast to first-order logic, quantifiers
+my range over arbitrary types, including total functions
+$f\ofType\alpha \Rightarrow \beta$. \HOL is centered around
+extensional equality $\_ = \_ \ofType \alpha \Rightarrow \alpha
+\Rightarrow \text{bool}$.  \HOL is more expressive than first-order
+logic, since, \eg, induction schemes can be expressed inside the
+logic. Being based on some polymorphically typed $\lambda$-calculus,
+\acs{hol} can be viewed as a combination of a programming language
+like \acs{sml} or Haskell and a specification language providing
+powerful logical quantifiers ranging over elementary and function
+types.
+
+Isabelle/\HOL is a logical embedding of \HOL into Isabelle.  The
+(original) simple-type system underlying \HOL has been extended by
+Hindley/Milner style polymorphism with type-classes similar to
+Haskell.  While Isabelle/\HOL is usually seen as proof assistant, we
+use it as symbolic computation environment. Implementations on top of
+Isabelle/\HOL can re-use existing powerful deduction mechanisms such
+as higher-order resolution, tableaux-based reasoners, rewriting
+procedures, Presburger Arithmetic, and via various integration
+mechanisms, also external provers such as Vampire and the
+\acs{smt}-solver Z3.
+
+Isabelle/\HOL offers support for a particular methodology to extend
+given theories in a logically safe way: A theory-extension is
+\emph{conservative} if the extended theory is consistent provided that
+the original theory was consistent.  Conservative extensions can be
+\emph{constant definitions}, \emph{type definitions}, \emph{datatype
+  definitions}, \emph{primitive recursive definitions} and
+\emph{wellfounded recursive definitions}.
+
+For example, typed sets were built in the Isabelle libraries
+conservatively on top of the kernel of \HOL as functions to
+$\HolBoolean$; consequently, the constant definitions for membership
+is as follows:\footnote{To increase readability, we use a slightly
+  simplified presentation.}
+\begin{gather}
+  \begin{array}{lrll}
+    \types& \alpha \HolSet            &= \alpha \Rightarrow \HolBoolean\\[.5ex]
+    \definitionS &\operatorname{Collect}&\ofType (\alpha \Rightarrow
+     \HolBoolean) \Rightarrow \HolSet{\alpha}  &\qquad\text{--- set comprehension}\\
+    \where &\operatorname{Collect}\ap S      &\equiv S\\[.5ex]
+     \definitionS &\operatorname{member}           &\ofType \alpha \Rightarrow
+     \alpha \Rightarrow \HolBoolean &\qquad\text{---
+       membership test}\\ 
+     \where &\operatorname{member}\ap s\ap S &\equiv S s\\
+  \end{array}    
+\end{gather}
+Isabelle's powerful syntax engine is instructed to accept the notation
+$\{x \mid P\}$ for $\operatorname{Collect}\ap\lambda x\spot P$ and the
+notation $s \in S$ for $\operatorname{member}\ap s\ap S$. As can be
+inferred from the example, constant definitions are axioms that
+introduce a fresh constant symbol by some closed, non-recursive
+expressions; this type of axiom is logically safe since it works
+like an abbreviation. The syntactic side-conditions of this axiom are
+mechanically checked, of course. It is straight-forward to express the
+usual operations on sets like $\_ \cup \_,
+\_\cap\_\ofType\HolSet{\alpha} \Rightarrow \HolSet{\alpha} \Rightarrow
+\HolSet{\alpha}$ as conservative extensions, too, while the rules of
+typed set-theory were derived by proofs from these definitions.
+
+Similarly, a logical compiler is invoked for the following statements introducing
+the types option and list:
+\begin{gather}
+  \begin{array}{lrll}
+    \datatype & \HolOption       &= \HolNone \mid \HolSome{\alpha}\\[.5ex]
+    \datatype & \HolList{\alpha} &= \operatorname{Nil} \mid
+    \operatorname{Cons}\ap a\ap l
+  \end{array}
+\end{gather}
+Here, $[]$ or $a\#l$ are an alternative syntax for $\operatorname{Nil}$
+or $\operatorname{Cons}\ap a ~l$; moreover, $[a, b, c]$ is defined as
+alternative syntax for $a\#b\#c\#[]$. These (recursive) statements
+were internally represented in by internal type- and constant
+definitions. Besides the \emph{constructors} $\HolNone$, $\HolSome$,
+$[]$ and $\operatorname{Cons}$, there is the match-operation
+$\HolCase\ap x\ap\HolOf~\HolNone \isasymRightarrow F\ap \mid
+\HolSome{a} \isasymRightarrow G\ap a$ respectively $\HolCase\ap
+x\ap\HolOf~[] \isasymRightarrow F\ap \mid \operatorname{Cons}\ap a\ap
+r \isasymRightarrow G\ap a\ap r$.  From the internal definitions (not
+shown here) a number and properties were automatically derived. We
+show only the case for lists:
+\begin{gather}\label{eq:datatype-rules}
+  \begin{array}{ll}
+    (\HolCase\ap[]\ap\HolOf\ap[] \Rightarrow F  \ap | \ap  (a\#r) \Rightarrow
+    G\ap a\ap r) = F &\\
+    (\HolCase \ap  b\#t  \ap \HolOf  \ap [] \Rightarrow F  \ap  | \ap
+    (a\#r) \Rightarrow G\ap a\ap r) = G~b~t &\\ %
+    \mbox{}[] \neq a\#t    &\text{-- distinctness} \\
+    \semantics{ a = [] \implies P ; \exists~x~t\spot  a = x\#t \implies P } \Longrightarrow P &\text{-- exhaust} \\
+    \semantics{ P [] ; \forall~at\spot  P t \implies P (a\#t) } \Longrightarrow P x      &\text{-- induct}    
+  \end{array}
+\end{gather}
+Finally, there is a compiler for primitive and well-founded recursive
+function definitions. For example, we may define the
+$\operatorname{sort}$-operation of our running test example by:
+\begin{gather}\label{eq:sortdef}
+  \begin{array}{lll}
+    \fun
+    &\enspace\operatorname{ins} & \ofType
+    [\alpha\ofType\mathrm{linorder}, \HolList{\alpha}] 
+    \Rightarrow
+    \HolList{\alpha}\\
+    \where
+    &\enspace \operatorname{ins}\ap x \ap  [\;] &= [x]\\ 
+    &\enspace \operatorname{ins}\ap x \ap (y\#\mathit{ys})&=
+    \HolIf x < y 
+    \HolThen x\#  y \# ys
+    \HolElse y\#(\operatorname{ins} \ap x \ap ys)
+ \end{array}\\
+  \begin{array}{lll}
+    \fun
+    &\enspace\operatorname{sort} & \ofType
+    \HolList{(\alpha\ofType\mathrm{linorder})}
+    \Rightarrow
+    \HolList{\alpha}\\
+    \where
+    &\enspace \operatorname{sort}\ap [\;] &= [\;]\\ 
+    &\enspace \operatorname{sort} (x\#\mathit{xs})&=
+    \operatorname{ins}\ap x\ap (\operatorname{sort}\ap xs)
+   \end{array}
+\end{gather}
+The internal (non-recursive) constant definition for these operations
+is quite involved; however, the logical compiler will finally derive
+all the equations in the statements above from this definition and
+make them available for automated simplification.
+
+Thus, Isabelle/\HOL also provides a large collection of theories like
+sets, lists, multisets, orderings, and various arithmetic theories
+which only contain rules derived from conservative definitions. In
+particular, Isabelle manages a set of \emph{executable types and
+  operators}, \ie, types and operators for which a compilation to
+\acs{sml}, OCaml or Haskell is possible. Setups for arithmetic types
+such as $\text{int}$ have been done; moreover any datatype and any
+recursive function were included in this executable set (providing
+that they only consist of executable operators). Similarly, Isabelle
+manages a large set of (higher-order) rewrite rules into which
+recursive function definitions were included. Provided that this
+rule-set represents a terminating and confluent rewrite-system, the
+Isabelle simplifier provides also a highly potent decision procedure
+for many fragments of theories underlying the constraints to be
+processed when constructing test-theorems.
+
+
+
+
+
+
+
+\subsection{Higher-order Logic and Isabelle}\label{sec:higher-order-logic}
 Higher-order Logic
 (\acs{hol})~\cite{church:types:1940,andrews:introduction:2002} is a
 classical logic with equality enriched by total polymorphic
@@ -94,7 +320,7 @@ applied to \holocl~\cite{brucker.ea:hol-ocl:2008} and Featherweight
 \OCL.
 
 % For Journal - or long- version
-%\subsection{Specification Constructs in Isabelle/\HOL}\label{sec:spec-constructs}
+\subsection{Specification Constructs in Isabelle/\HOL}\label{sec:spec-constructs}
 
 
 \section{Featherweight OCL: Design Goals}
