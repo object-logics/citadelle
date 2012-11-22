@@ -1,2 +1,581 @@
 \part{A Formal Semantics of OCL 2.3 in Isabelle/HOL}
+\section{Formal and Technical Background}
+\subsection{Validity and Evaluations}
+The topmost goal of the formal semantics is to define the
+\emph{validity statement}:
+\begin{equation*}
+   (\sigma, \sigma') \isasymMathOclValid P\mi{,}
+\end{equation*}
+where $\sigma$ is the pre-state and $\sigma'$ the post-state of the
+underlying system and $P$ is a Boolean expression (a
+\emph{formula}). The assertion language of $P$ is composed of
+\begin{inparaenum}[1)]
+\item operators on built-in data structures such as Boolean or set,
+\item operators of the user-defined data-model such as accessors,
+  type-casts and tests, and
+\item user-defined, side-effect-free methods.
+\end{inparaenum}
+Informally, a formula $P$ is valid if and only if its evaluation in
+the context $(\sigma, \sigma')$ yields true. As all types in \holocl
+are extended by the special element $\isasymbottom$ denoting
+undefinedness, we define formally:
+\begin{equation*}
+(\sigma, \sigma') \isasymMathOclValid P \equiv \bigl(P(\sigma, \sigma') =
+\lift{\HolTrue}\bigr)\mi{.}  
+\end{equation*}
+Since all operators of the assertion language depend on the context $(\sigma,
+\sigma')$ and result in values that can be $\isasymbottom$, all expressions can
+be viewed as \emph{evaluations} from $(\sigma, \sigma')$ to a type $\up{\tau}$.
+All types of expressions are of a form captured by
+ \begin{equation*}
+ \V{}{\alpha} \defeq \state{} \times \state{} \to \up{\alpha}  \mi{,}
+ \end{equation*}
+where $\state{}$ stands for the system state and $\state{} \times
+\state{}$ describes the pair of pre-state and post-state and
+$\_\defeq\_$ denotes the type abbreviation.
+
+The \OCL semantics~\cite[Annex A]{omg:ocl:2003} uses different interpretation
+functions for invariants and pre-conditions; we achieve their semantic effect by
+a syntactic transformation $\__\text{pre}$ which replaces all accessor functions
+$\getAttrib{\_}{a}$ by their counterparts
+$\getAttrib{\_}{a\isasymOclATpre}$. For example, $(\getAttrib{\self}{a} >
+5)_\text{pre}$ is just $(\getAttrib{\self}{a\isasymOclATpre} > 5)$.
+
+\subsection{Strict Operations}%
+\label{sec:strict-ops}%
+\enlargethispage{1em}
+An operation is called strict if it returns $\isasymbottom$ if one of its
+arguments is $\isasymbottom$. Most \acs{ocl} operations are strict, \eg, the
+Boolean negation is formally presented as:
+\begin{align*}
+I\semantics{\isasymOclNot X}\tau & \equiv
+  \begin{cases}
+    \lift{\lnot \drop{I\semantics{X} \tau}}
+    &\text{if $I\semantics{X}\tau\isasymnoteq\isasymbottom$}, \\
+     \isasymbottom & \text{otherwise}\,.
+   \end{cases}
+\end{align*}
+where $\tau = (\sigma, \sigma')$ and $I\semantics{\_}$ is a notation marking the
+\holocl constructs to be defined. This notation is motivated by the definitions
+in the \acs{ocl} standard~\cite{omg:ocl:2003}. In our case, $I\semantics{\_}$ is
+just the identity, \ie, $I\semantics{X}\equiv X$.  These constructs, \ie,
+$\isasymOclNot \_$ are \HOL functions (in this case of \HOL type
+$\V{}{\HolBoolean} \to \V{}{\HolBoolean}$) that can be viewed as
+\emph{transformers on evaluations}.
+
+The binary case of the integer addition is analogous:
+\begin{align*}
+I\semantics{X \isasymMathOclPlus Y}\ap \tau & \equiv
+  \begin{cases}
+    \lift{\drop{I\semantics{X}\ap \tau }+\drop{I\semantics{Y}\ap \tau}}
+    &\text{if $I\semantics{X}\ap\tau\isasymnoteq\isasymbottom$ 
+    and $I\semantics{Y}\ap\tau\isasymnoteq\isasymbottom$}, \\
+     \isasymbottom & \text{otherwise}\mi{.}
+   \end{cases}
+\end{align*}
+Here, the operator $\_+\_$ on the right refers to the integer
+\acs{hol} operation with type $[\HolInteger, \HolInteger] \to
+\HolInteger$.  The type of the corresponding strict \holocl operator
+$\_\isasymMathOclPlus\_$ is $[\V{}{\HolInteger}, \V{}{\HolInteger}]
+\to \V{}{\HolInteger}$.
+%
+A slight variation of this definition scheme is used for
+the operators on collection types such as \holocl sets or sequences:
+\begin{align*}
+I\semantics{X\isasymOclUnion\oP Y\cP} \tau & \equiv
+  \begin{cases}
+    S\lift{\drop{I\semantics{X}
+\tau}\isasymunion\drop{I\semantics{Y} \tau}}
+&\text{if $I\semantics{X}\tau\isasymnoteq\isasymbottom$
+   and $I\semantics{Y}\tau\isasymnoteq\isasymbottom$,} \\
+     \isasymbottom & \text{otherwise.}
+   \end{cases}
+\end{align*}
+Here, $S$ (``smash'') is a function that maps a lifted set $\lift{X}$
+to $\bottom$ if and only if $\bottom \in X$ and to the identity
+otherwise. Smashedness of collection types is the natural extension of
+the strictness principle for data structures.
+
+Intuitively, the type expression $\V{}{\tau}$ is a representation of
+the type that corresponds to the \holocl type $\tau$.
+We introduce the following type abbreviations:
+\begin{align*}
+  \OclBoolean[]                  &\defeq \V{}{\HolBoolean}\mi{,}
+  &   \OclSet[]{\alpha}      &\defeq \V{}{\HolSet{\alpha}}\mi{,}\\
+  \OclInteger[]                  &\defeq \V{}{\HolInteger}\mi{, and}
+  & \OclSequence[]{\alpha} &\defeq \V{}{\HolList{\alpha}}\mi{.} 
+\end{align*}
+The mapping of an expression \inlineocl+E+ of
+\holocl type \inlineocl+T+ to a \acs{hol} expression $E$ of \acs{hol} type $T$
+is injective and preserves well-typedness.
+
+\subsection{Boolean Operators}
+There is a small number of explicitly stated exceptions from the general rule
+that \holocl operators are strict: the strong equality, the definedness operator
+and the logical connectives.  As a prerequisite, we define the logical constants
+for truth, absurdity and undefinedness.  We write these definitions as follows:
+\begin{align*}
+ I\semantics{\OclTrue} \tau \equiv \lift{\HolTrue}\mi{,} & \qquad
+ I\semantics{\OclFalse}\tau \equiv \lift{\HolFalse}\mi{, and} & \quad
+ I\semantics{\OclUndef}\tau \equiv \bottom\mi{.}
+\end{align*}
+
+\holocl has a \emph{strict equality} $\_ \isasymMathOclStrictEq \_$. On the
+primitive types, it is defined similarly to the integer addition; the case for
+objects is discussed later. For logical purposes, we introduce also a
+\emph{strong equality} $\_ \isasymMathOclStrongEq \_$ which is defined as
+follows:
+\begin{align*}
+  I\semantics{X \isasymMathOclStrongEq Y}\ap\tau \equiv  (I\semantics{X}\ap\tau =
+  I\semantics{Y}\ap \tau)\mi{,}
+\end{align*}
+where the $\_ = \_$ operator on the right denotes the logical equality of
+\acs{hol}. The undefinedness test is defined by $X\isasymOclIsInvalid \equiv
+(X \isasymMathOclStrongEq \OclUndef)$. The strong equality can be
+used to state reduction rules like: $\tau \isasymMathOclValid (\OclUndef
+\isasymMathOclStrictEq X) \isasymMathOclStrongEq \OclUndef$.  The \acs{ocl}
+standard requires a \acl{skl}. In particular:
+\begin{align*}
+  I\semantics{X \isasymOclAnd~Y}\tau & \equiv
+  \begin{cases}
+    \lift{\drop{x}\land\drop{y}} &\text{if
+      $x\isasymnoteq\isasymbottom$
+      and $y \isasymnoteq\isasymbottom$}, \\
+    \lift{\HolFalse}&\text{if $x = \lift{\HolFalse}$ or $y
+      = \lift{\HolFalse}$}, \\
+     \isasymbottom & \text{otherwise}\mi{.}
+  \end{cases}
+\end{align*}
+where $x = I\semantics{X}\tau $ and $y = I\semantics{Y}\tau$.
+The other Boolean connectives were
+just shortcuts: $X \isasymOclOr Y \equiv \isasymOclNot (\isasymOclNot X
+\isasymOclAnd\; \isasymOclNot Y)$ and $X \isasymOclImplies Y \equiv \isasymOclNot
+X \isasymOclOr Y$.
+
+
+\subsection{Object-oriented Data Structures}%
+Now we turn to several families of operations that the user implicitly defines
+when stating a class model as logical context of a specification. This is the
+part of the language where object-oriented features such as type casts, accessor
+functions, and tests for dynamic types come into play. Syntactically, a class
+model provides a collection of classes $C$, an inheritance relation $\_ < \_$ on
+classes and a collection of attributes $A$ associated to classes.  Semantically,
+a class model means a collection of accessor functions (denoted $\_\text{.a}::A
+\rightarrow B$ and $\getAttrib{\_}{a\isasymOclATpre}::A \rightarrow B$ for
+$\text{a}\in A$ and $A,B\in C$), type casts that can change the static type of
+an object of a class (denoted $\typeCast{\_}{C}$ of type $A \rightarrow C$) and
+dynamic type tests (denoted $\isType{C}{\_}$).  A precise formal definition 
+can be found in~\cite{brucker.ea:semantics:2009}.
+
+\subsubsection{Class models: A simplified semantics.}
+In this section, we will have to clarify the notions of \emph{object
+  identifiers}, \emph{object representations}, \emph{class types} and
+\emph{state}. We will give a formal model for this, that will satisfy all
+properties discussed in the subsequent section except one
+(see~\cite{brucker.ea:extensible:2008-b} for the complete model).
+
+First, object identifiers are captured by an abstract type $\oid$ comprising
+countably many elements and a special element $\nullid$.
+%
+Second, object representations model ``a piece of typed memory,'' \ie, a kind of
+record comprising administration information and the information for all
+attributes of an object; here, the primitive types as well as collections over
+them are stored directly in the object representations, class types and
+collections over them are represented by $\oid$'s (respectively lifted
+collections over them). 
+%
+Third, the class type $C$ will be the type of such an object representation: $C
+\defeq (\oid \times \Tag{C} \times A_1 \times \cdots \times A_k )$ where a
+unique tag-type $\Tag{C}$ (ensuring type-safety) is created for each class type,
+where the types $A_1$, \ldots, $A_k$ are the attribute types (including
+inherited attributes) with class types substituted by $\oid$. The function
+$\HolOclOidOf$ projects the first component, the $\oid$, out of an object
+representation.
+%
+Fourth,
+for a  class model $M$ with the classes $C_1$, \ldots, $C_n$, we
+define states as partial functions from $\oid$'s to object representations
+satisfying a \emph{state invariant} $\inv_\sigma$:
+\begin{gather*}
+  \state{} \defeq \{ f :: \oid \isasymrightharpoonup (C_1 + \ldots +
+  C_n) \ap|\ap \inv_\sigma(f) \}
+\end{gather*}
+where $\inv_\sigma(f)$ states two conditions:
+\begin{inparaenum}[1)]
+\item there is no object representation for $\nullid$: $\nullid \notin (\dom\ap f)$.
+\item there is a``one-to-one'' correspondence between object representations and
+  $\oid$'s: $\forall \mathit{oid} \in \dom\ap f\spot oid = \HolOclOidOf\ap
+  \drop{f(\mathit{oid})}$.
+\end{inparaenum}
+The latter condition is also mentioned in~\cite[Annex A]{omg:ocl:2003} and
+goes back to Mark Richters~\cite{richters:precise:2002}.
+
+\subsection{The Accessors}
+On states built over object universes, we can now define accessors, casts, and
+type tests of an object model. We consider the case of an attribute $\mathrm{a}$
+of class $C$ which has the simple class type $D$ (not a primitive type, not a
+collection):
+\begin{gather*}
+  I\semantics{\getAttrib[]{\self}{a}} (\sigma, \sigma')   \equiv 
+  \begin{cases}
+\bottom & \text{if $O = \bottom \lor \HolOclOidOf\ap\drop{O}\notin \dom~\sigma'$} \\    
+    \getType[]{D} \mathit{u}
+    & \text{if $\sigma' (\getAttrib[0]{\getType[]{C}\drop{\sigma'(\HolOclOidOf\ap\drop{O})}}{a})
+      = \lift{\mathit{u}}$,}\\
+\bottom & \text{otherwise.}
+\end{cases}
+\end{gather*}
+\begin{gather*}
+I\semantics{\getAttrib[]{\self}{a@pre}} (\sigma, \sigma')   \equiv 
+  \begin{cases}
+   \bottom & \text{if $O = \bottom\lor \HolOclOidOf\ap\drop{O}\notin \dom~\sigma$} \\    
+    \getType[]{D} \mathit{u}
+    & \text{if $\sigma (\getAttrib[]{\getType[]{C}\drop{\sigma(\HolOclOidOf\ap\drop{O})}}{a})
+      = \lift{\mathit{u}}$,}\\
+\bottom & \text{otherwise.}
+  \end{cases} 
+\end{gather*}
+where $O = I\semantics{\self}(\sigma, \sigma')$.  Here, $\getType[]{D}$ is the
+projection function from the object universe to $\up{D}$, and
+$\getAttrib[]{x}{a}$ is the projection of the attribute from the class type (the
+Cartesian product). For simple class types, we have to evaluate expression
+$\self$, get an object representation (or undefined), project the attribute,
+de-reference it in the pre or post state and project the class object from the
+object universe ($\getType[]{D}$ may yield $\bottom$ if the element in the
+universe does not correspond to a $D$ object representation.)  In the case for a
+primitive type attribute, the de-referentiation step is left out, and in the
+case of a collection over class types, the elements of the collection have to be
+point-wise de-referenced and smashed.
+
+In our model accessors always yield (type-safe) object representations; not
+$\oid$'s. Thus, a dangling reference, \ie, one that is \emph{not} in $\dom~
+\sigma$, results in $\isasymOclUndefined$ (this is a subtle
+difference to~\cite[Annex A]{omg:ocl:2003} where the undefinedness is detected
+one de-referentiation step later). The strict equality $\_
+\isasymMathOclStrictEq \_$ must be defined via $\HolOclOidOf$ when applied to
+objects. It satisfies $(\isasymOclInvalid \isasymMathOclStrictEq X)
+\isasymMathOclStrongEq \isasymOclInvalid$.
+
+The definitions of casts and type tests can be found
+in~\cite{brucker.ea:extensible:2008-b}, together with other details of the
+construction above and its automation in \holocl.
+
+\section{A Proposal for an OCL 2.1 Semantics}\label{sec:hol-ocl2-semantics}
+In this section, we describe our \OCL 2.1 semantics proposal as an increment to
+the \OCL 2.0 semantics (underlying \holocl and essentially formalizing
+\cite[Annex A]{omg:ocl:2003}). In later versions of the
+standard~\cite{omg:ocl:2006} the formal semantics appendix reappears although
+being incompatible with the normative parts of the standard.  Not all rules
+shown here are formally proven; technically, these are informal proofs ``with a
+glance'' on the formal proofs shown in the previous section.
+
+\subsection{Revised Operations on Primitive Types}
+In \UML, and since~\cite{omg:ocl:2006} in \OCL, all primitive types comprise the
+$\Null{}$-element, modeling the possibility to be non-existent. From a
+functional language perspective, this corresponds to the view that each basic
+value is a type like \inlinesml{int option} as in \acs{sml}. Technically, this
+results in lifting any primitive type twice:
+\begin{gather*}
+  \OclInteger[]  \defeq \V{}{\up{\HolInteger}}\mi{, etc.}
+\end{gather*}
+and basic operations have to take the null elements into account. The
+distinguishable undefined and null-elements were defined as follows:
+\begin{align*}
+ I\semantics{\OclUndef}\tau \equiv \bottom  &\mi{ and}  \quad
+ I\semantics{\Null{\OclInteger[]}}\tau \equiv \lift{\bottom}\mi{.} 
+\end{align*}
+
+An interpretation (consistent with~\cite{omg:ocl:2006}) is that
+$\Null{\OclInteger[]} + 3 = \isasymOclInvalid$, and due to commutativity, we
+postulate $3 + \Null{\OclInteger[]} = \isasymOclInvalid$, too.  The necessary
+modification of the semantic interpretation looks as follows:
+
+\begin{align*}
+I\semantics{X \isasymMathOclPlus Y}\ap \tau & \equiv
+  \begin{cases}
+    \lift{\lift{\drop{\drop{x}}+\drop{\drop{y}}}}
+    &\text{if $x\isasymnoteq\isasymbottom$, $y\isasymnoteq\isasymbottom$, $\drop{x}\isasymnoteq\isasymbottom$ and $\drop{y}\isasymnoteq\isasymbottom$}\\
+     \isasymbottom & \text{otherwise}\mi{.}
+   \end{cases}
+\end{align*}
+where $x = I\semantics{X}\ap \tau$ and $y = I\semantics{Y}\ap \tau$. The
+resulting principle here is that operations on the primitive types Boolean,
+Integer, Real, and String treat null as invalid (except $\_
+\isasymMathOclStrictEq \_ $, $\_\isasymOclIsInvalid$, $\_\isasymOclIsUndefined$,
+casts between the different representations of $\isasymOclNull$, and type-tests).
+\enlargethispage{1em}
+
+This principle is motivated by our intuition that invalid represents known
+errors, and null-arguments of operations for Boolean, Integer, Real, and String
+belong to this class. Thus, we must also modify the logical operators such that
+$\Null{\OclBoolean[]}~\isasymOclAnd~\isasymOclFalse \isasymMathOclStrongEq
+\isasymOclFalse$ and $\Null{\OclBoolean[]}~\isasymOclAnd~\isasymOclTrue
+\isasymMathOclStrongEq \isasymMathOclUndefined$.
+
+With respect to definedness reasoning, there is a price to pay. For most basic
+operations we have the rule:
+\begin{multline*}
+  \isasymOclNot (X+Y)\isasymOclIsInvalid \isasymMathOclStrongEq
+  (\isasymOclNot X\isasymOclIsUndefined)\\
+\isasymOclAnd~
+(\isasymOclNot Y\isasymOclIsUndefined)  
+\end{multline*}
+where the test $x\isasymOclIsUndefined$ covers  two cases:
+$x\isasymOclIsInvalid$ and $x \isasymMathOclStrictEq \isasymOclNull$ (\ie, $x$
+is $\isasymOclInvalid$ or $\isasymOclNull$).  As a consequence, for the inverse
+case $(X+Y)\isasymOclIsInvalid$\footnote{The same holds for
+  $(X+Y)\isasymOclIsUndefined$.} there are four possible cases for the failure
+instead of two in the semantics described in~\cite{omg:ocl:2003}: each
+expression can be an erroneous $\isasymOclNull{}$, or report an error. However,
+since all built-in \OCL operations yield non-null elements (\eg, we have the rule
+$\isasymOclNot (X + Y \isasymMathOclStrictEq \Null{\OclInteger[]})$), a
+pre-computation can drastically reduce the number of cases occurring in
+expressions except for the base case of variables (\eg, parameters of operations
+and $\self$ in invariants). For these cases, it is desirable that implicit
+pre-conditions were generated as default, ruling out the $\Null{}$ case. A
+convenient place for this are the multiplicities, which can be set to
+\inlineocl{1} (\ie, \inlineocl{1..1}) and will be interpreted as being non-null
+(see discussion in \autoref{sec:multiplicities} for more details).
+
+Besides, the case for collection types is analogous: in addition to the invalid
+collection, there is a $\Null{Set(T)}$ collection as well as collections that
+contain null values (such as $\text{Set}\{\Null{T}\}$) but never
+$\isasymOclUndefined$.
+
+\subsection{Null in Class Types}
+It is a viable option to rule out undefinedness in object-graphs \emph{as such}.
+The essential source for such undefinedness are $\oid$'s which do not occur in
+the state, \ie, which represent ``dangling references.'' Ruling out
+undefinedness as result of object accessors would correspond to a world where an
+accessor is always set explicitly to $\Null{}$ or to a defined object; in a
+programming language without explicit deletion and where constructors always
+initialize their arguments (\eg, \Specsharp~\cite{barnett.ea:spec:2004}), this
+may suffice. Semantically, this can be modeled by strengthening the state
+invariant $\inv_\sigma$ by adding clauses that state that in each object
+representation all $\oid$'s are either $\nullid$ or element of the domain of the
+state.
+
+We deliberately decided against this option for the following reasons:
+\begin{compactenum}
+\item \emph{methodologically} we do not like to constrain the semantics of \OCL
+  without clear reason; in particular, ``dangling references'' exist in C and
+  \Cpp{} programs and it might be necessary to write contracts for them, and
+\item \emph{semantically}, the condition ``no dangling references'' can only be
+  formulated with the complete knowledge of all classes and their layout in
+  form of object representations.  This restricts the \OCL semantics to a closed
+  world model.\footnote{In our presentation, the definition of \inlineocl+state+
+    in \autoref{sec:hol-ocl-semantics} assumes a closed world. This limitation
+    can be easily overcome by leaving ``polymorphic holes'' in our object
+    representation universe, \ie, by extending the type sum in the state
+    definition to $C_1 + \cdots + C_n + \alpha$.  The details of the management
+    of universe extensions are involved, but implemented in \holocl
+    (see~\cite{brucker.ea:extensible:2008-b} for details). However, these
+    constructions exclude knowing the set of sub-$\oid$'s in advance.}
+\end{compactenum} We can model $\Null{}$-elements as object-representations
+with $\nullid$ as their $\oid$:
+\begin{definition}[Representation of $\Null{}$-Elements] 
+  Let $C_i$ be a class type with the attributes $A_1, \ldots, A_n$. Then we
+  define its null object representation by:
+  \begin{gather*}
+    I\semantics{\Null{Ci}}\tau \equiv \lift{(\nullid, \Tag{arb}, a_1, \ldots,
+    a_n )} 
+  \end{gather*}
+  where the $a_i$ are $\bottom$ for primitive types and collection
+  types, and $\nullid$ for simple class types. $\Tag{arb}$ is an arbitrary
+  underspecified constant of the tag-type.
+\end{definition}
+
+Due to the outermost lifting, the null object representation is a defined value,
+and due to its special reference $\nullid$ and the state invariant, it is a
+typed value not ``living'' in the state.  The $\Null{T}$-elements are not equal,
+but isomorphic: Each type, has its own unique $\Null{T}$-element; they can be
+mapped, \ie, casted, isomorphic to each other. In \holocl, we can overload
+constants by parametrized polymorphism which allows us to drop the index in this
+environment.
+
+The referential strict equality allows us to write $\self
+\isasymMathOclStrictEq \isasymOclNull$ in \OCL. Recall that $\_ \isasymMathOclStrictEq \_$
+is based on the projection $\HolOclOidOf$ from object-representations.
+
+\subsection{Revised Accessors}
+%Having introduced $\Null{}$-elements,
+The modification of the accessor functions
+is now straight-forward:
+\begin{gather*}
+  I\semantics{\getAttrib[]{\obj}{a}} (\sigma, \sigma')   \equiv 
+  \begin{cases}
+\bottom & \text{if $I\semantics{\obj}  (\sigma, \sigma') = \bottom \!\lor\! \HolOclOidOf\drop{ I\semantics{\obj}  (\sigma, \sigma')}\notin \dom\;\sigma'$} \\    
+\Null{D} & \text{if $\getAttrib[0]{\getType[]{C}\drop{\sigma'(\HolOclOidOf\drop{I\semantics{\obj}  (\sigma, \sigma')})}}{a} = \nullid$} \\    
+    \getType[]{D} \mathit{u}
+    & \text{if $\sigma' (\getAttrib[0]{\getType[]{C}\drop{\sigma'(\HolOclOidOf\drop{ I\semantics{\obj}  (\sigma, \sigma')})}}{a})  = \lift{\mathit{u}}$,}\\
+\bottom & \text{otherwise.}
+  \end{cases} 
+\end{gather*}
+
+The definitions for type-cast and dynamic type test---which are not explicitly
+shown in this paper, see~\cite{brucker.ea:extensible:2008-b} for details---can
+be generalized accordingly. In the sequel, we will discuss the resulting
+properties of these modified accessors.
+
+\clearpage
+All functions of the induced signature are strict.  This means that this holds
+for accessors, casts and tests, too:
+\begin{multline*} 
+  \getAttrib{\isasymOclUndefined}{a} \isasymMathOclStrongEq \isasymOclUndefined
+  \qquad
+  \typeCast{\isasymOclUndefined}{C} \isasymMathOclStrongEq \isasymOclUndefined 
+  \\
+  \isType{C}{\isasymOclUndefined} \isasymMathOclStrongEq \isasymOclUndefined
+\end{multline*}
+Casts on $\Null{}$ are always valid, since they have an
+individual dynamic type and can be casted to any other null-element due to their
+isomorphism.
+\begin{multline*}
+  \getAttrib{\Null{A}}{a} \isasymMathOclStrongEq \isasymOclUndefined
+  \qquad
+  \typeCast{\Null{A}}{B} \isasymMathOclStrongEq \Null{B} 
+  \\%quad
+  \isType{A}{\Null{A}} \isasymMathOclStrongEq \isasymOclTrue
+\end{multline*}
+for all attributes $a$ and classes $A$, $B$, $C$ where $C<B<A$. These rules are
+further exceptions from the standard's general rule that $\Null{}$ may never be
+passed as first (``$\self$'') argument.
+
+\subsection{Other Operations on States}
+Defining $\_\isasymOclAllInstances$ 
+is straight-forward; the only difference is the property
+$T\isasymOclAllInstances\isasymOclExcludes(\isasymOclNull)$ which is a
+consequence of the fact that $\Null{}$'s are values and do not ``live'' in the
+state.  In our semantics which admits states with ``dangling references,'' it is
+possible to define a counterpart to \inlineocl+_.oclIsNew()+ called
+\inlineocl+_.oclIsDeleted()+ which asks if an object id (represented by an object
+representation) is contained in the pre-state, but not the post-state.
+
+\OCL does not guarantee that an operation only modifies the path-expressions
+mentioned in the postcondition, \ie, it allows arbitrary relations from
+pre-states to post-states.  This framing problem is well-known (one of the
+suggested solutions is~\cite{kosiuczenko:specification:2006}). We define
+\begin{ocl}
+ (S:Set(OclAny))->modifiedOnly():Boolean
+\end{ocl}
+where \inlineocl|S| is a set of object representations, encoding
+a set of $\oid$'s. The semantics of this operator is defined such that
+for any object whose $\oid$ is \emph{not }represented in \inlineocl|S|
+and that is defined in pre and post state, the corresponding object representation will not change
+in the state transition:
+\begin{gather*}
+I\semantics{X\isasymMathOclModifiedOnly} (\sigma, \sigma')  \equiv
+  \begin{cases}
+    \isasymbottom & \text{if $X' = \bottom$}  \\
+     \lift{\isasymforall i \isasymin M\spot 
+        \sigma~i = \sigma'~i} & \text{otherwise}\mi{.}
+   \end{cases}
+\end{gather*}
+where $X' = I\semantics{X} (\sigma, \sigma')$ and $M=
+(\dom~\sigma\cap\dom~\sigma') - \{ \HolOclOidOf x |~x \in\drop{X'}\}$.  Thus, if
+we require in a postcondition \inlineocl|Set{}->modifiedOnly()| and exclude via
+\inlineocl+_.oclIsNew()+ and \inlineocl+_.oclIsDeleted()+ the existence of new
+or deleted objects, the operation is a query in the sense of the \OCL standard, \ie,
+the \inlineocl|isQuery| property is true. So, whenever we have $ \tau
+\isasymMathOclValid X\isasymMathOclModifiedOnly$ and $ \tau
+\isasymMathOclValid X\isasymOclExcludes(s.a)$, we can infer that $\tau
+\isasymMathOclValid s.a = s.a\isasymOclATpre$ (if they are valid).
+
+\section{Attribute Values}\label{sec:multiplicities}
+Depending on the specified multiplicity, the evaluation of an attribute can
+yield a value or a collection of values. A multiplicity defines a lower bound as
+well as a possibly infinite upper bound on the cardinality of the attribute's
+values.
+
+\subsection{Single-Valued Attributes}\label{subsec:single-valued-properties}
+If the upper bound specified by the attribute's multiplicity is one, then an
+evaluation of the attribute yields a single value. Thus, the evaluation result
+is not a collection. If the lower bound specified by the multiplicity is zero,
+the evaluation is not required to yield a non-null value. In this case an
+evaluation of the attribute can return $\isasymOclNull$ to indicate an
+absence of value.
+
+To facilitate accessing attributes with multiplicity \inlineocl{0..1}, the \OCL
+standard states that single values can be used as sets by calling collection
+operations on them. This implicit conversion of a value to a
+\inlineocl{Set} is not defined by the standard. We argue that the resulting set
+cannot be constructed the same way as when evaluating a \inlineocl{Set}
+literal. Otherwise, $\isasymOclNull$ would be mapped to the singleton set
+containing $\isasymOclNull$, but the standard demands that
+the resulting set is empty in this case. The conversion should instead
+be defined as follows:
+\begin{ocl}
+context OclAny::asSet():T
+  post: if self $\isasymMathOclStrictEq$ null then result $\isasymMathOclStrictEq$ Set{} 
+        else result $\isasymMathOclStrictEq$ Set{self} endif
+\end{ocl}
+% Changed self.isTypeOf(OCLVoid) to self = null to make it easier for the superficial reader
+
+\subsection{Collection-Valued Attributes}\label{subsec:collection-valued-properties}
+If the upper bound specified by the attribute's multiplicity is larger than one,
+then an evaluation of the attribute yields a collection of values.  This raises
+the question whether $\isasymOclNull$ can belong to this collection. The \OCL
+standard states that $\isasymOclNull$ can be owned by collections. However, if
+an attribute can evaluate to a collection containing $\isasymOclNull$, it is not
+clear how multiplicity constraints should be interpreted for this attribute. The
+question arises whether the $\isasymOclNull$ element should be counted or not
+when determining the cardinality of the collection. Recall that $\isasymOclNull$
+denotes the absence of value in the case of a cardinality upper bound of one, so
+we would assume that $\isasymOclNull$ is not counted. On the other hand, the
+operation \inlineocl{size} defined for collections in \OCL does count
+$\isasymOclNull$.
+
+We propose to resolve this dilemma by regarding multiplicities as optional. This
+point of view complies with the \UML standard, that does not require lower and
+upper bounds to be defined for multiplicities.\footnote{We are however aware
+  that a well-formedness rule of the \UML standard does define a default bound
+  of one in case a lower or upper bound is not specified.} In case a
+multiplicity is specified for an attribute, \ie, a lower and an upper bound
+are provided, we require any collection the attribute evaluates to to not
+contain $\isasymOclNull$. This allows for a straightforward interpretation of
+the multiplicity constraint. If bounds are not provided for an attribute, we
+consider the attribute values to not be restricted in any way. Because in
+particular the cardinality of the attribute's values is not bounded, the result
+of an evaluation of the attribute is of collection type. As the range of values
+that the attribute can assume is not restricted, the attribute can evaluate to a
+collection containing $\isasymOclNull$. The attribute can also evaluate to
+$\isasymOclInvalid$. Allowing multiplicities to be optional in this way gives
+the modeler the freedom to define attributes that can assume the full ranges of
+values provided by their types. However, we do not permit the omission of
+multiplicities for association ends, since the values of association ends are
+not only restricted by multiplicities, but also by other constraints enforcing
+the semantics of associations. Hence, the values of association ends cannot be
+completely unrestricted.
+
+\subsection{The Precise Meaning of Multiplicity Constraints}
+We are now ready to define the meaning of multiplicity constraints by giving
+equivalent invariants written in \OCL. Let \inlineocl{a} be an attribute of a
+class \inlineocl{C} with a multiplicity specifying a lower bound $m$ and an
+upper bound $n$. Then we can define the multiplicity constraint on the values of
+attribute \inlineocl{a} to be equivalent to the following invariants written in
+\OCL:
+\begin{ocl}
+context C inv lowerBound: a->size() >= m
+          inv upperBound: a->size() <= n
+          inv notNull: not a->includes(null)
+\end{ocl}
+If the upper bound $n$ is infinite, the second invariant is omitted. For the
+definition of these invariants we are making use of the conversion of single
+values to sets described in \autoref{subsec:single-valued-properties}. If $n
+\leq 1$, the attribute \inlineocl{a} evaluates to a single value, which is then
+converted to a \inlineocl{Set} on which the \inlineocl{size} operation is
+called.
+
+If a value of the attribute \inlineocl{a} includes a reference to a non-existent
+object, the attribute call evaluates to $\isasymOclInvalid$. As a result, the
+entire expressions evaluate to $\isasymOclInvalid$, and the invariants are not
+satisfied. Thus, references to non-existent objects are ruled out by these
+invariants. We believe that this result is appropriate, since we argue that the
+presence of such references in a system state is usually not intended and likely
+to be the result of an error. If the modeler wishes to allow references to
+non-existent objects, she can make use of the possibility described above to
+omit the multiplicity.
+
+
+
 \input{session}
