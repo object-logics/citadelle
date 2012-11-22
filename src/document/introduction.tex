@@ -156,4 +156,517 @@ Featherweight \OCL is based on the following principles:
   hidden from the user inside tools.
 \end{compactenum}
 
+\section{The Theory Organization}
+The semantic theory is organized in a quite conventional manner in
+three layers. The first layer, called the \emph{denotational
+  semantics} comprises a set of definitions of the operators of the
+language.  Presented as \emph{definitional axioms} inside
+Isabelle/\HOL, this part assures the logically consistency of the
+overall construction. The second layer, called \emph{logical layer},
+is derived from the former and centered around the notion of validity
+of an \OCL formula $P$ for a state-transition from pre-state $\sigma$
+to post-state $\sigma'$, validity statements were written $(\sigma,
+\sigma') \models P$.  The third layer, called \emph{algebraic layer},
+also derived from the former layers, tries to establish a number of
+algebraic laws of the form $P = P'$; such laws are amenable to
+equational reasoning and also help for automated reasoning and
+code-generation.
 
+For space reasons, we will restrict ourselves in this paper to a few
+operators and make a traversal through all three layers in order to
+give a high-level description of our formalization.  Especially, the
+details of the semantic construction for sets and the handling of
+objects and object universes were excluded from a presentation here.
+
+\subsection{Denotational Semantics}
+ \OCL is composed of
+ \begin{inparaenum}[1)]
+ \item operators on built-in data structures such as Boolean, Integer or Set(A),
+ \item operators of the user-defined data-model such as accessors,
+   type-casts and tests, and
+ \item user-defined, side-effect-free methods.
+ \end{inparaenum}
+ Conceptually, an \OCL expression in general and Boolean expressions in
+ particular (\ie, \emph{formulae}) that depends on the pair $(\sigma,
+ \sigma')$ of pre-and post-state.  The precise form of states is
+ irrelevant for this paper (compare~\cite{brucker.ea:ocl-null:2009})
+ and will be left abstract in this presentation. We construct in
+ Isabelle a type-class $\TCnull$ that contains two distinguishable
+ elements $\HolBot$ and $\HolNull$. Any type of the form
+ $\up{(\up{\alpha})}$ is an instance of this type-class with $\HolBot
+ \equiv \isasymbottom$ and $\HolNull \equiv \lift{\isasymbottom}$.
+ %\fixme{we need this para. bu}
+Now, any \OCL type can be represented by an \HOL type of the form:
+\begin{equation*}
+  \V{}{\alpha} \defeq \state{} \times \state{} \to \alpha \ofType \TCnull \mi{.}
+\end{equation*}
+On this basis, we define $\V{}{\up{(\up{\HolBoolean })}}$ as the \HOL
+type for the \OCL type $\mocl{Boolean}$ by and define:
+\begin{gather*}
+\begin{alignedat}{3}
+I\semantics{\mocl{invalid}\ofType V(\alpha)} \tau &\equiv \HolBot &  
+I\semantics{\mocl{null}\ofType V(\alpha)}  \tau    &\equiv \HolNull\\
+I\semantics{\mocl{true}\ofType\mocl{Boolean}} \tau &=\lfloor\lfloor
+\HolTrue\rfloor\rfloor &
+I\semantics{\mocl{false}} \tau &= \lfloor\lfloor\HolFalse\rfloor\rfloor\\
+\end{alignedat}
+\end{gather*}\vspace{-.5cm}
+\begin{multline*}
+I\semantics{X\mocl{.oclIsUndefined()}} \tau =\\ 
+    (\HolIf I\semantics{X}\tau \in \{\HolBot, \HolNull\} \HolThen I\semantics{\mocl{true}}\tau \HolElse I\semantics{\mocl{false}}\tau)\\
+\end{multline*}\vspace{-1.2cm}
+\begin{multline*}
+ I\semantics{X\mocl{.oclIsInvalid()}} \tau =\\ 
+    (\HolIf I\semantics{X}\tau = \HolBot \HolThen I\semantics{\mocl{true}}\tau \HolElse I\semantics{\mocl{false}}\tau)
+\end{multline*}
+where $I\semantics{E}$ is the semantic interpretation function
+commonly used in mathematical textbooks and $\tau$ stands for pairs of
+pre- and post state $(\sigma, \sigma')$. Due to the used style of
+semantic representation (a shallow embedding) $I$ is in fact
+superfluous and defined semantically as the identity; in Isabelle
+theories, it is usually left out in definitions to pave the way for
+Isabelle to checks that the underlying equations are axiomatic
+definitions and therefore logically safe. For reasons of conciseness,
+we will write $\delta~X$ for $\mocl{not}\;X\mocl{.oclIsUndefined()}$
+and $\upsilon~X$ for $\mocl{not}\;X\mocl{.oclIsInvalid()}$ throughout
+this paper.
+
+
+On this basis, one can define the core logical operators $\mocl{not}$
+and $\mocl{and}$ as follows:
+\begin{gather*}
+  \begin{array}{ll}
+    I\semantics{\mocl{not}\; X}  \tau
+    &=  (\HolCase I\semantics{X} \tau  \HolOf\\
+    &\quad\begin{array}{ll}
+                     ~ \bottom                    &\Rightarrow  \bottom \\
+                     | \lfloor  \bottom  \rfloor  &\Rightarrow  \lfloor  \bottom  \rfloor  \\
+                     | \lfloor \lfloor  x \rfloor \rfloor  &\Rightarrow  \lfloor \lfloor  \lnot  x \rfloor \rfloor )\\
+                   \end{array}\\
+   I\semantics{X\;\mocl{and}\; Y}  \tau
+    &=  (\HolCase I\semantics{X} \tau  \HolOf\\
+    &\quad\begin{array}{ll}
+      ~ \bottom                    &\Rightarrow
+      (\HolCase I\semantics{Y} \tau  \HolOf\\
+      &\quad\begin{array}{ll}
+                     ~ \bottom                    &\Rightarrow  \bottom \\
+                     | \lfloor  \bottom  \rfloor  &\Rightarrow  \bottom  \\
+                     | \lfloor \lfloor  \HolTrue \rfloor \rfloor
+                     &\Rightarrow  \bottom\\
+                     | \lfloor \lfloor  \HolFalse \rfloor \rfloor
+                     &\Rightarrow  \lfloor \lfloor  \HolFalse \rfloor \rfloor )\\
+                   \end{array}
+      \\
+                     | \lfloor  \bottom  \rfloor  &\Rightarrow    
+      (\HolCase I\semantics{Y} \tau  \HolOf\\
+      &\quad\begin{array}{ll}
+                     ~ \bottom                    &\Rightarrow
+                     \bottom \\
+                     | \lfloor  \bottom  \rfloor  &\Rightarrow  \lfloor
+                     \bottom \rfloor \\
+                     | \lfloor \lfloor  \HolTrue \rfloor \rfloor
+                     &\Rightarrow  \lfloor \bottom\rfloor\\
+                     | \lfloor \lfloor  \HolFalse \rfloor \rfloor
+                     &\Rightarrow  \lfloor \lfloor  \HolFalse \rfloor \rfloor )\\
+                   \end{array}
+      \\
+                     | \lfloor \lfloor  \HolTrue \rfloor \rfloor  &\Rightarrow 
+      (\HolCase I\semantics{Y} \tau  \HolOf\\
+      &\quad\begin{array}{ll}
+                     ~ \bottom                    &\Rightarrow
+                     \bottom \\
+                     | \lfloor  \bottom  \rfloor  &\Rightarrow  \lfloor
+                     \bottom \rfloor \\
+                     | \lfloor \lfloor y \rfloor \rfloor
+                     &\Rightarrow  \lfloor \lfloor  y \rfloor \rfloor )\\
+                   \end{array}
+      \\
+                     | \lfloor \lfloor  \HolFalse \rfloor \rfloor
+                     &\Rightarrow   \lfloor \lfloor  \HolFalse \rfloor
+                     \rfloor )\\
+                   \end{array}\\
+  \end{array}
+\end{gather*}
+These non-strict operations were used to define the other logical connectives in the
+usual classical way: $X\; \mocl{or}\; Y \equiv (\mocl{not}\; X)\;
+\mocl{and}\; (\mocl{not}\; Y)$ or  
+$X\;\mocl{implies}\;Y \equiv (\mocl{not}\; X)\;\mocl{or}\; Y$. 
+
+The default semantics for an \OCL library operator is strict
+semantics; this means that the result of an operation $f$ is
+\inlineisar+invalid+ if one of its arguments is \inlineisar+invalid+.
+For a semantics comprising \inlineisar+null+, we suggest to stay
+conform to the standard and define the addition for integers as
+follows: 
+ \begin{gather*}
+   \begin{array}{rl}
+   I\semantics{x \mocl{+} y}\tau  = &\HolIf I\semantics{\delta ~ x}\tau =\lfloor \lfloor \HolTrue\rfloor \rfloor  \land   I\semantics{\delta  ~ y}\tau =\lfloor \lfloor \HolTrue\rfloor \rfloor \\
+                &\HolThen \lfloor \lfloor \lceil \lceil I\semantics{x}\tau \rceil \rceil  + \lceil \lceil I\semantics{y}\tau \rceil \rceil \rfloor \rfloor\\ 
+                &\HolElse \bottom     
+   \end{array}
+ \end{gather*}
+ where the operator ``\mocl{+}'' on the left-hand
+ side of the equation denotes the \OCL addition of type
+ $[\V{}{\up{(\up{\HolInteger})}}, \V{}{\up{(\up{\HolInteger})}}] \Rightarrow
+ \V{}{\up{(\up{\HolInteger})}}$ while the ``$+$'' on the right-hand side of
+ the equation of type $[\HolInteger,\HolInteger]\Rightarrow
+ \HolInteger$ denotes the integer-addition from the \HOL library.
+
+\subsection{Logical Layer}
+The topmost goal of the logic for \OCL is to define the \emph{validity statement}:
+\begin{equation*}
+   (\sigma, \sigma') \isasymMathOclValid P\mi{,}
+\end{equation*}
+where $\sigma$ is the pre-state and $\sigma'$ the post-state of the
+underlying system and $P$ is a formula. 
+Informally, a formula $P$ is valid if and only if its evaluation in
+$(\sigma, \sigma')$ (\ie, $\tau$ for short) yields true. Formally this means:
+\begin{equation*}
+\tau \isasymMathOclValid P \equiv \bigl(I\semantics{P} \tau =  \lfloor \lfloor \HolTrue  \rfloor \rfloor \bigr)\mi{.}  
+\end{equation*} 
+On this basis, classical, two-valued inference rules can be established for
+reasoning over the logical connective, the different notions of equality,
+definedness and validity. Generally speaking, rules over logical validity can      
+relate bits and pieces in various \OCL terms and allow---via strong
+logical equality discussed below---the replacement
+of semantically equivalent sub-expressions. The core inference rules are:
+\begin{gather*}
+  \begin{array}{lccr}
+  \tau \models \mocl{true}&
+  \lnot(\tau \models \mocl{false})&
+  \lnot(\tau \models \mocl{invalid})&
+  \lnot(\tau \models \mocl{null})
+\end{array}\\
+  \tau \models \mocl{not}\; P \Longrightarrow \tau \lnot \models P\\ 
+\begin{array}{lcr}
+  \tau \models P \;\mocl{and}\; Q \Longrightarrow \tau \models P&\quad&
+  \tau \models P \;\mocl{and}\; Q \Longrightarrow \tau \models Q
+  \end{array}\\
+  \tau \models P \Longrightarrow
+     (\mocl{if}\; P \;\mocl{then}\; B_1 \;\mocl{else}\; B_2 \;\mocl{endif})\tau = B_1 \tau\\
+  \tau \models \mocl{not}\; P \Longrightarrow
+       (\mocl{if}\; P \;\mocl{then}\; B_1 \;\mocl{else}\; B_2 \;\mocl{endif})\tau = B_2 \tau\\
+       \begin{array}[lcr]{lcr}
+  \tau \models P \Longrightarrow \tau \models \delta P &\qquad&
+  \tau \models (\delta X) \Longrightarrow \tau \models \upsilon X         
+       \end{array}
+\end{gather*}
+By the latter two properties it can be inferred that any valid
+property $P$ (so for example: a valid invariant) is actually defined,
+which allows to infer for terms composed by strict operations that
+their arguments and finally the variables occurring in it are valid or
+defined.
+
+We propose to distinguish the \emph{strong logical equality} (written
+$\_ \isasymMathOclStrongEq \_$), which follows the general principle
+that ``equals can be replaced by equals,'' from the \emph{strict
+  referential equality} (written $\_ \isasymMathOclStrictEq \_$),
+which is an object-oriented concept that attempts to approximate and
+to implement the former.  Strict referential equality, which is the
+default in the \OCL language and is written simply \inlineocl|_ = _|
+in the standard, is an overloaded concept and has to be defined for
+each \OCL type individually; for objects resulting from class
+definitions, it is implemented by simply comparing the references to
+the objects. In contrast, strong logical equality is a polymorphic
+concept which is defined once and for all by:
+\begin{gather*}
+  I\semantics{X \triangleq  Y}  \tau  \equiv  \lfloor \lfloor
+  I\semantics{X}  \tau= 
+  I\semantics{Y} \tau  \rfloor \rfloor 
+\shortintertext{It enjoys nearly the laws of a congruence:}
+\tau \models (x \triangleq x)\\
+\tau \models (x \triangleq y) \Longrightarrow \tau \models (y \triangleq x)\\
+\tau \models (x \triangleq y) \Longrightarrow \tau \models (y \triangleq z) \Longrightarrow \tau \models (x \triangleq z)\\
+\HolOclCp P \Longrightarrow \tau \models (x \triangleq y) \Longrightarrow \tau \models (P\ap x) \Longrightarrow \tau \models (P\ap y)
+\end{gather*}
+where the predicate $\HolOclCp$ stands for \emph{context-passing}, a
+property that is characterized by $P(X)$ equals $\lambda \tau\spot
+P(\lambda \_\spot X \tau) \tau$. It means that the state tuple $\tau =
+(\sigma, \sigma')$ is passed unchanged from surrounding expressions to
+sub-expressions. it is true for all pure \OCL expressions (but not
+arbitrary mixtures of \OCL and \HOL) in Featherweight \OCL.  The
+necessary side-calculus for establishing $\HolOclCp$ can be fully
+automated.
+
+The logical layer of the Featherweight \OCL rules gives also a means
+to convert an \OCL formula living in its for-valued world into a
+representation that is classically two-valued and can be processed by
+standard \acs{smt} solvers such as
+\acs{cvc3}~\cite{barrett.ea:cvc3:2007} or
+Z3~\cite{moura.ea:z3:2008}. Delta-closure rules for all logical
+connectives have the following format, \eg:
+\begin{gather*}
+\tau \models \delta x \Longrightarrow (\tau \models \ap\mocl{not}\ap x) = (\lnot (\tau \models x))\\
+\tau \models \delta x \Longrightarrow \tau \models \delta y \Longrightarrow (\tau \models x \ap\mocl{and}\ap y) = ( \tau \models x \land \tau \models y)\\
+\begin{multlined}
+\tau \models \delta x \Longrightarrow  \tau \models \delta y \\
+\Longrightarrow (\tau \models (x \ap\mocl{implies}\ap y)) = ( (\tau \models x) \longrightarrow (\tau \models y))  
+\end{multlined}
+\end{gather*}
+Together with the general case-distinction 
+\begin{gather*}
+    \tau \models \delta x \lor \tau \models x \triangleq \mocl{invalid} \lor \tau \models x \triangleq \mocl{null} \mi{,}
+\end{gather*}
+which is possible for any \OCL type, a case distinction on the variables in a formula can be performed; due
+to strictness rules, formulae
+containing somewhere a variable $x$ that is known to be
+$\mocl{invalid}$ or $\mocl{null}$ reduce usually quickly to
+contradictions.  For example, we can infer from an invariant $\tau
+\models x \isasymMathOclStrictEq y \mocl{-} 3$ that we have actually
+$\tau \models x \isasymMathOclStrictEq y \mocl{-} 3 \land \tau \models
+\delta x \land \tau \models \delta y$.  We call the latter formula the
+$\delta$-closure of the former.  Now, we can convert a formula like
+$\tau \models x \mocl{>} 0 ~\text{or} 3 \mocl{*} y \mocl{>} x\mocl{*}x$ into
+the equivalent formula $\tau \models x > 0 \lor \tau \models 3
+\mocl{*} y \mocl{>} x\mocl{*}x$ and thus internalize the \OCL-logic
+into a classical (and more tool-conform) logic. This works---for the
+price of a potential, but due to the usually ``rich'' $\delta$-closures
+of invariants rare---exponential blow-up of the formula for all \OCL
+formulas.
+
+\subsection{Algebraic Layer}
+Based on the logical layer, we build a system with simpler rules which
+are amenable to automated reasoning. We restrict ourselves to pure
+equations on \OCL expressions, where the used equality is the
+meta-(\HOL-)equality.
+
+Our denotational definitions on \inlineocl+not+ and \inlineocl+and+
+can be re-formulated in the following ground equations:
+\begin{gather*}
+  \begin{aligned}
+  \upsilon\; \mocl{invalid} &= \mocl{false}&
+  \upsilon\; \mocl{null} &= \mocl{true}\\
+  \upsilon\; \mocl{true} &= \mocl{true}&  
+  \upsilon\; \mocl{false} &= \mocl{true}\\
+\end{aligned}\\[.04\baselineskip]
+\begin{aligned}  
+  % 
+  \delta\; \mocl{invalid} &= \mocl{false}&
+  \delta\; \mocl{null} &= \mocl{false}\\
+  \delta\; \mocl{true} &= \mocl{true}&
+  \delta\; \mocl{false} &= \mocl{true}\\
+\end{aligned}\\[.04\baselineskip]
+\begin{aligned}  
+  %
+  \mocl{not}\; \mocl{invalid} &= \mocl{invalid}&
+  \mocl{not}\; \mocl{null} &= \mocl{null}\\
+  \mocl{not}\; \mocl{true} &= \mocl{false}&
+  \mocl{not}\; \mocl{false} &= \mocl{true}\\
+\end{aligned}\\[.04\baselineskip]
+\begin{aligned}  
+  %
+  (\mocl{null} \;\mocl{and}\; \mocl{true}) &= \mocl{null}&
+  (\mocl{null} \;\mocl{and}\; \mocl{false}) &= \mocl{false}\\
+  (\mocl{null} \;\mocl{and}\; \mocl{null}) &= \mocl{null}&
+  (\mocl{null} \;\mocl{and}\; \mocl{invalid}) &= \mocl{invalid}\\
+\end{aligned}\\[.04\baselineskip]
+\begin{aligned}  
+  %
+  (\mocl{false} \;\mocl{and}\; \mocl{true}) &= \mocl{false}&
+  (\mocl{false} \;\mocl{and}\; \mocl{false}) &= \mocl{false}\\
+  (\mocl{false} \;\mocl{and}\; \mocl{null}) &= \mocl{false}&
+  (\mocl{false} \;\mocl{and}\; \mocl{invalid}) &= \mocl{false}\\
+\end{aligned}\\[.04\baselineskip]
+\begin{aligned}  
+  % 
+  (\mocl{true} \;\mocl{and}\; \mocl{true}) &= \mocl{true}&
+  (\mocl{true} \;\mocl{and}\; \mocl{false}) &= \mocl{false}\\
+  (\mocl{true} \;\mocl{and}\; \mocl{null}) &= \mocl{null}&
+  (\mocl{true} \;\mocl{and}\; \mocl{invalid}) &= \mocl{invalid}
+\end{aligned}\\[.04\baselineskip]
+\begin{aligned}  
+  (\mocl{invalid} \;\mocl{and}\; \mocl{true}) &= \mocl{invalid} \\
+  (\mocl{invalid} \;\mocl{and}\; \mocl{false}) &= \mocl{false}\\
+  (\mocl{invalid} \;\mocl{and}\; \mocl{null}) &= \mocl{invalid} \\
+  (\mocl{invalid} \;\mocl{and}\; \mocl{invalid}) &= \mocl{invalid}\\
+\end{aligned}
+\shortintertext{On this core, the structure of a conventional lattice arises:}
+  \begin{aligned}
+    X \;\mocl{and}\; X &= X        &     X \;\mocl{and}\; Y &= Y \;\mocl{and}\; X    
+  \end{aligned}\\
+  \begin{aligned}
+    \mocl{false} \;\mocl{and}\; X &= \mocl{false} &
+    X \;\mocl{and}\; \mocl{false} &= \mocl{false}  \\
+    \mocl{true} \;\mocl{and}\; X  &= X &
+    X \;\mocl{and}\; \mocl{true} &= X   
+  \end{aligned}\\
+  \begin{aligned}
+             X \;\mocl{and}\; (Y \;\mocl{and}\; Z) &= X \;\mocl{and}\; Y \;\mocl{and}\; Z    
+  \end{aligned}
+\end{gather*}
+as well as the dual equalities for \inlineocl{or} and the De Morgan
+rules.  This wealth of algebraic properties makes the understanding of
+the logic easier as well as automated analysis possible: it allows
+for, for example, computing a \acs{dnf} of invariant systems (by
+clever term-rewriting techniques) which are a prerequisite for
+$\delta$-closures.
+
+The above equations explain the behavior for the most-important
+non-strict operations. The clarification of the exceptional behaviors
+is of key-importance for a semantic definition the standard and the
+major deviation point from
+\holocl~\cite{brucker.ea:hol-ocl:2008,brucker.ea:hol-ocl-book:2006},
+to Featherweight \OCL as presented here.  The
+standard expresses at many places that most operations are strict,
+\ie, enjoy the properties (exemplary for \inlineocl{_ + _}):
+\begin{gather*}
+  \begin{aligned}
+  \mocl{invalid}\;\mocl{+}\; x &= \mocl{invalid}&
+  \mocl{x} \;\mocl{+}\; \mocl{invalid} &= \mocl{invalid}\\
+  x \;\mocl{+}\; \mocl{null} &= \mocl{invalid}&
+  \mocl{null} \;\mocl{+}\; x &= \mocl{invalid}    
+  \end{aligned}\\
+  \mocl{null.asType(}X\mocl{)} = \mocl{invalid}
+\shortintertext{besides ``classical'' exceptional behavior:}
+  \begin{aligned}
+    \mocl{1 / 0} &= \mocl{invalid} \quad &\quad  \mocl{1 / null} &= \mocl{invalid}     
+  \end{aligned}\\
+    \mocl{null->isEmpty()}=\mocl{true}    
+\end{gather*}
+
+Moreover, there is also the proposal to use \inlineocl+null+ as a kind
+of ``don't know'' value for all strict operations, not only in the
+semantics of the logical connectives.  Expressed in algebraic
+equations, this semantic alternative (this is \emph{not} 
+Featherweight \OCL at present) would boil down to:
+\begin{gather*}
+  \begin{aligned}
+    \mocl{invalid} \;\mocl{+}\; x &= \mocl{invalid} &
+    x \;\mocl{+}\; \mocl{invalid} &= \mocl{invalid}\\
+    x \;\mocl{+}\; \mocl{null} &= \mocl{null}&
+    \mocl{null} \;\mocl{+}\; x &= \mocl{null}\\
+    1 / 0 &= \mocl{invalid}&
+    1 / \mocl{null} &= \mocl{null}
+  \end{aligned}\\
+  \begin{aligned}
+    \mocl{null->isEmpty()}&=\mocl{null}&
+    \mocl{null.asType(}X\mocl{)} &= \mocl{null}
+\end{aligned}
+\end{gather*}
+
+While this is logically perfectly possible, while it can be argued
+that this semantics is ``intuitive,'' and although we do not expect a
+too heavy cost in deduction when computing $\delta$-closures, we
+object that there are other, also ``intuitive'' interpretations that
+are even more wide-spread: In classical spreadsheet programs, for
+example, the semantics tend to interpret \inlineocl+null+
+(representing empty cells in a sheet) as the neutral element of the
+type, so \inlineocl{0} or the empty string, for example.\footnote{In
+  spreadsheet programs the interpretation of \inlineisar+null+ varies
+  from operation to operation; \eg, the \inlineocl+average+
+  function treats \inlineocl+null+ as non-existing value and not as
+  \inlineocl{0}.}  This semantic alternative (this is
+\emph{not} Featherweight \OCL at present) would yield:
+\begin{gather*}
+  \begin{aligned}
+    \mocl{invalid} \;\mocl{+}\; x &= \mocl{invalid} &
+    x \;\mocl{+}\; \mocl{invalid} &= \mocl{invalid}\\
+    x \;\mocl{+}\; \mocl{null} &= x&
+    \mocl{null} \;\mocl{+}\; x &= x\\
+    1 / 0 &= \mocl{invalid}&
+    1 / \mocl{null} &= \mocl{invalid}
+  \end{aligned}\\
+  \begin{aligned}
+    \mocl{null->isEmpty()}&=\mocl{true}&
+    \mocl{null.asType(}X\mocl{)} &= \mocl{invalid}
+\end{aligned}
+\end{gather*}
+
+Algebraic rules are also the key for execution and compilation
+of Featherweight \OCL expressions. We derived, \eg:
+\begin{gather*}
+\delta\; \mocl{Set\{\}} = \mocl{true}\\
+\delta\; (X\mocl{->including(}x\mocl{)}) = \delta X \;\mocl{and}\;
+\delta x\\
+\begin{aligned}
+\mocl{Set\{\}->includes(}x\mocl{)} = (\mocl{if}\; \upsilon\; x\; &\mocl{then false}\\
+&\mocl{else invalid endif})  
+\end{aligned}\\
+\begin{multlined}
+  {(X\mocl{->including(}x\mocl{)->includes(}y\mocl{)})=}\\
+  \mbox{\hspace{3.2cm}}\qquad{\begin{aligned}
+   (&\mocl{if}\; \delta\; X\\
+  &\mocl{then}\;
+\begin{array}[t]{l}
+\mocl{if}\; x \doteq y\\
+\mocl{then true} \\
+\mocl{else} X\mocl{->includes(}y\mocl{)}\\
+\mocl{endif}
+  \end{array}\\
+&\mocl{else invalid} \\
+         &\mocl{endif})
+  \end{aligned}}
+\end{multlined}
+\end{gather*}
+As \inlineocl+Set{1,2}+ is only syntactic sugar for
+\begin{ocl}
+  Set{}->including(1)->including(2)  
+\end{ocl}
+an expression like \inlineocl+Set{1,2}->includes(null)+ becomes
+automatically decidable in Featherweight \OCL by a combination of
+rewriting and code-generation and execution. The generated
+documentation from the theory files can thus be enriched by numerous
+``test-statements'' like:
+\begin{isar}[mathescape]
+value  "\<tau> \<Turnstile> ($\mathtt{Set\{Set\{2,null\}\}}$ \<doteq> $\;\mathtt{Set\{Set\{null,2\}\}}$)"
+\end{isar}
+which have been machine-checked and which present a high-level and in
+our opinion fairly readable information for \OCL tool manufactures and
+users.
+
+
+
+
+
+\section{A Machine-checked Annex A}
+\begin{figure*}[tb]
+  \mbox{}\hfill
+  \subfloat%
+  [The Isabelle jEdit environment. ]%
+  {\label{fig:jedit} \includegraphics[height=5.5cm]{jedit}}%
+  \hfill%
+  \hfill%
+    \subfloat[The generated formal document.]%
+    {\label{fig:pdf} \includegraphics[height=5.5cm]{pdf}}
+    \hfill\mbox{}
+  \caption{Generating documents with guaranteed  syntactical and
+    semantical consistency.}
+  \label{fig:gener-docum-where}
+\end{figure*}
+Isabelle, as a framework for building formal
+tools~\cite{wenzel.ea:building:2007}, provides the means for
+generating \emph{formal documents}.
+With formal documents we refer to documents that are machine-generated
+and ensure certain formal guarantees. In particular, all formal
+content (\eg, definitions, formulae, types) are checked for
+consistency during the document generation.
+
+For writing documents, Isabelle supports the embedding of informal
+texts using a \LaTeX-based markup language within the theory files. To
+ensure the consistency, Isabelle supports to use, within these
+informal texts, \emph{antiquotations} that refer to the formal parts and
+that are checked while generating the actual document as
+\acs{pdf}. For example, in an informal text, the antiquotation
+\inlineisar|@{$\text{thm}$ "not_not"}| will instruct Isabelle to lock-up the
+(formally proven) theorem of name \inlineisar"ocl_not_not" and to replace
+the antiquotation with the actual theorem, \ie,
+\inlineocl{not (not x) $=$ x}.
+
+\autoref{fig:gener-docum-where}
+illustrates this approach: \autoref{fig:jedit} shows the jEdit-based
+development environment of Isabelle with an excerpt of one of the core
+theories of Featherweight \OCL. \autoref{fig:pdf} shows the generated
+\acs{pdf} document where all antiquotations are replaced. Moreover,
+the document generation tools allows for defining syntactic sugar as
+well as skipping technical details of the formalization.
+
+
+Thus, applying the Featherweight \OCL approach to writing an updated
+Annex A that provides a formal semantics of the most fundamental
+concepts of \OCL would ensure
+\begin{inparaenum}
+\item that all formal context is syntactically correct and well-typed,
+  and
+\item all formal definitions and the derived logical rules are
+  semantically consistent.
+\end{inparaenum}
