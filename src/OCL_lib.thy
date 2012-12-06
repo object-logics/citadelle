@@ -343,7 +343,7 @@ text{* The core of an own type construction is done via a type definition which
 provides the raw-type @{text "'\<alpha> Set_0"}. it is shown that this type "fits" indeed
 into the abstract type interface discussed in the previous section. *}
 
-typedef  '\<alpha> Set_0 = "{X::('\<alpha>\<Colon>null) set option option.
+typedef '\<alpha> Set_0 ="{X::('\<alpha>\<Colon>null) set option option.
                       X = bot \<or> X = null \<or> (\<forall>x\<in>\<lceil>\<lceil>X\<rceil>\<rceil>. x \<noteq> bot)}"
           by (rule_tac x="bot" in exI, simp)
 

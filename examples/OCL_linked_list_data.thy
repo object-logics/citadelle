@@ -9,6 +9,8 @@ imports
   "../src/OCL_main" (* Testing *)
 begin
 
+
+
 subsection{* Introduction *}
 text{* For certain concepts like Classes and Class-types, only a generic definition for its resulting
 semantics can be given. Generic means, there is a function outside HOL that "compiles" a concrete,
@@ -35,6 +37,7 @@ datatype node =  mk\<^isub>n\<^isub>o\<^isub>d\<^isub>e   oid          (* the oi
                          "int option" (* the attribute "i" or null *) 
                          "oid option" (* the attribute "next" or null *)
 
+term "mk\<^isub>n\<^isub>o\<^isub>d\<^isub>e   (0::nat)"
 
 datatype object= mk\<^isub>o\<^isub>b\<^isub>j\<^isub>e\<^isub>c\<^isub>t oid (* the oid to the object itself *)
                            "(int option \<times> oid option) option" 
@@ -137,16 +140,17 @@ lemmas strict_eq_node =
 thm strict_eq_node
 (* TODO: Analogue for object. *)
 
+
 subsection{* AllInstances *}
 
 (* IS THIS WHAT WE WANT ? THIS DEFINITION FILTERS OBJECTS THAT ARE BOOKED UNDER
 THEIR APPARENT (STATIC) TYPE INTO THE CONTEXT, NOT BY THEIR ACTUAL (DYNAMIC) TYPE. *)
 lemma "(Node .oclAllInstances()) = 
-             (\<lambda>\<tau>.  Abs_Set_0 \<lfloor>\<lfloor>(Some \<circ> Some \<circ> (the_inv in\<^isub>n\<^isub>o\<^isub>d\<^isub>e))`(ran(snd \<tau>)) \<rfloor>\<rfloor>) "
+             (\<lambda>\<tau>.  Abs_Set_0 \<lfloor>\<lfloor>(Some \<circ> Some \<circ> (the_inv in\<^isub>n\<^isub>o\<^isub>d\<^isub>e))`(ran(heap(snd \<tau>))) \<rfloor>\<rfloor>) "
 by(rule ext, simp add:allinstances_def Node_def)
 
 lemma "(Object .oclAllInstances@pre()) = 
-             (\<lambda>\<tau>.  Abs_Set_0 \<lfloor>\<lfloor>(Some \<circ> Some \<circ> (the_inv in\<^isub>o\<^isub>b\<^isub>j\<^isub>e\<^isub>c\<^isub>t))`(ran(fst \<tau>)) \<rfloor>\<rfloor>) "
+             (\<lambda>\<tau>.  Abs_Set_0 \<lfloor>\<lfloor>(Some \<circ> Some \<circ> (the_inv in\<^isub>o\<^isub>b\<^isub>j\<^isub>e\<^isub>c\<^isub>t))`(ran(heap(fst \<tau>))) \<rfloor>\<rfloor>) "
 by(rule ext, simp add:allinstancesATpre_def Object_def)
 
 
@@ -165,12 +169,12 @@ text{* Should be generated entirely from a class-diagram. *}
 typ "Node \<Rightarrow> Node"
 fun dot_next:: "Node \<Rightarrow> Node"  ("(1(_).next)" 50)
   where "(X).next = (\<lambda> \<tau>. case X \<tau> of
-               \<bottom> \<Rightarrow> invalid \<tau>           (* undefined pointer *)
-          | \<lfloor>  \<bottom> \<rfloor> \<Rightarrow> invalid \<tau>         (* dereferencing null pointer *)
-          | \<lfloor>\<lfloor> mk\<^isub>n\<^isub>o\<^isub>d\<^isub>e oid i \<bottom> \<rfloor>\<rfloor> \<Rightarrow> null \<tau>(* object contains null pointer *)
-          | \<lfloor>\<lfloor> mk\<^isub>n\<^isub>o\<^isub>d\<^isub>e oid i \<lfloor>next\<rfloor> \<rfloor>\<rfloor> \<Rightarrow>   (* We assume here that oid is indeed 'the' oid of the Node,
-                                           ie. we assume that  \<tau> is well-formed. *)
-                    case (snd \<tau>) next of
+               \<bottom> \<Rightarrow> invalid \<tau>             (* undefined pointer *)
+          | \<lfloor>  \<bottom> \<rfloor> \<Rightarrow> invalid \<tau>           (* dereferencing null pointer *)
+          | \<lfloor>\<lfloor> mk\<^isub>n\<^isub>o\<^isub>d\<^isub>e oid i \<bottom> \<rfloor>\<rfloor> \<Rightarrow> null \<tau> (* object contains null pointer *)
+          | \<lfloor>\<lfloor> mk\<^isub>n\<^isub>o\<^isub>d\<^isub>e oid i \<lfloor>next\<rfloor> \<rfloor>\<rfloor> \<Rightarrow>    (* We assume here that oid is indeed 'the' oid of the Node,
+                                             ie. we assume that  \<tau> is well-formed. *)
+                    case (heap (snd \<tau>)) next of
                        \<bottom> \<Rightarrow> invalid \<tau> 
                     | \<lfloor>in\<^isub>n\<^isub>o\<^isub>d\<^isub>e (mk\<^isub>n\<^isub>o\<^isub>d\<^isub>e a b c)\<rfloor> \<Rightarrow> \<lfloor>\<lfloor>mk\<^isub>n\<^isub>o\<^isub>d\<^isub>e a b c \<rfloor>\<rfloor>
                     | \<lfloor> _ \<rfloor>\<Rightarrow> invalid \<tau>)" (* illtyped state, not occuring in 
@@ -191,7 +195,7 @@ fun dot_next_at_pre:: "Node \<Rightarrow> Node"  ("(1(_).next@pre)" 50)
                                           And if this pointer was defined in the pre-state ?*)
           | \<lfloor>\<lfloor> mk\<^isub>n\<^isub>o\<^isub>d\<^isub>e oid i \<lfloor>next\<rfloor> \<rfloor>\<rfloor> \<Rightarrow> (* We assume here that oid is indeed 'the' oid of the Node,
                                         ie. we assume that  \<tau> is well-formed. *)
-                 (case (fst \<tau>) next of
+                 (case (heap (fst \<tau>)) next of
                         \<bottom> \<Rightarrow> invalid \<tau> 
                      | \<lfloor>in\<^isub>n\<^isub>o\<^isub>d\<^isub>e (mk\<^isub>n\<^isub>o\<^isub>d\<^isub>e a b c)\<rfloor> \<Rightarrow> \<lfloor>\<lfloor>mk\<^isub>n\<^isub>o\<^isub>d\<^isub>e a b c \<rfloor>\<rfloor>
                      | \<lfloor> _ \<rfloor>\<Rightarrow> invalid \<tau>))"
@@ -201,8 +205,8 @@ where "(X).i@pre = (\<lambda> \<tau>. case X \<tau> of
               \<bottom> \<Rightarrow> invalid \<tau>
           | \<lfloor>  \<bottom> \<rfloor> \<Rightarrow> invalid \<tau>
           | \<lfloor>\<lfloor> mk\<^isub>n\<^isub>o\<^isub>d\<^isub>e oid _ _ \<rfloor>\<rfloor> \<Rightarrow> 
-                      if oid \<in> dom (fst \<tau>)
-                      then (case (fst \<tau>) oid of
+                      if oid \<in> dom (heap(fst \<tau>))
+                      then (case (heap (fst \<tau>)) oid of
                                 \<bottom> \<Rightarrow> invalid \<tau>
                             | \<lfloor>in\<^isub>n\<^isub>o\<^isub>d\<^isub>e (mk\<^isub>n\<^isub>o\<^isub>d\<^isub>e oid \<bottom> next) \<rfloor> \<Rightarrow> null \<tau>
                             | \<lfloor>in\<^isub>n\<^isub>o\<^isub>d\<^isub>e (mk\<^isub>n\<^isub>o\<^isub>d\<^isub>e oid \<lfloor>i\<rfloor>next) \<rfloor> \<Rightarrow> \<lfloor>\<lfloor> i \<rfloor>\<rfloor>
@@ -242,6 +246,34 @@ by(rule ext, simp add: null_fun_def null_option_def bot_option_def null_def inva
 
 lemma dot_nextATpre_strict'[simp] : "(null).next@pre = invalid"
 by(rule ext, simp add: null_fun_def null_option_def bot_option_def null_def invalid_def)
+
+
+subsection{* A little infra-structure on example states.*}
+
+definition oid\<^isub>1::oid where "oid\<^isub>1 \<equiv> (0::nat)"
+definition oid\<^isub>2::oid where "oid\<^isub>2 \<equiv> (1::nat)"
+definition oid\<^isub>3::oid where "oid\<^isub>3 \<equiv> (2::nat)"
+
+definition \<sigma>\<^isub>1 :: "\<AA> state"
+where "\<sigma>\<^isub>1  \<equiv> \<lparr> heap = empty(oid\<^isub>1 \<mapsto> (in\<^isub>n\<^isub>o\<^isub>d\<^isub>e(mk\<^isub>n\<^isub>o\<^isub>d\<^isub>e oid\<^isub>1 \<lfloor>1\<rfloor> \<lfloor>oid\<^isub>2\<rfloor>)))
+                          (oid\<^isub>2 \<mapsto> (in\<^isub>n\<^isub>o\<^isub>d\<^isub>e(mk\<^isub>n\<^isub>o\<^isub>d\<^isub>e oid\<^isub>2 \<lfloor>3\<rfloor>  None))),
+               assocs = empty\<rparr>"
+
+definition \<sigma>\<^isub>1' :: "\<AA> state"
+where "\<sigma>\<^isub>1' \<equiv> \<lparr> heap = empty(oid\<^isub>1 \<mapsto> (in\<^isub>n\<^isub>o\<^isub>d\<^isub>e(mk\<^isub>n\<^isub>o\<^isub>d\<^isub>e oid\<^isub>1 \<lfloor>2\<rfloor> \<lfloor>oid\<^isub>2\<rfloor>)))
+                           (oid\<^isub>2 \<mapsto> (in\<^isub>n\<^isub>o\<^isub>d\<^isub>e(mk\<^isub>n\<^isub>o\<^isub>d\<^isub>e oid\<^isub>2 \<lfloor>5\<rfloor> \<lfloor>oid\<^isub>2\<rfloor>))),
+               assocs = empty\<rparr>"
+
+lemma basic_\<tau>_wff: "WFF(\<sigma>\<^isub>1,\<sigma>\<^isub>1')"
+by(auto simp: WFF_def \<sigma>\<^isub>1_def \<sigma>\<^isub>1'_def oid\<^isub>1_def oid\<^isub>2_def oid\<^isub>3_def oid_of_\<AA>_def oid_of_node_def)
+
+definition Self :: Node
+where "Self \<equiv> (\<lambda> _ .\<lfloor>\<lfloor>mk\<^isub>n\<^isub>o\<^isub>d\<^isub>e oid\<^isub>1 \<lfloor>1\<rfloor> \<lfloor>oid\<^isub>2\<rfloor> \<rfloor>\<rfloor>)"
+
+value "(\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile> ((Self .i)  \<doteq> \<one> )"
+value "(\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile> ((Self .i)  \<doteq> \<two> )"
+(* value "(\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile> ((X .i@pre)  \<doteq> \<one> )" *)
+value "(\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile> ((Self .i)  \<doteq> \<two> )"
 
 
 subsection{* Casts *}

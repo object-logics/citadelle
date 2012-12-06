@@ -6,9 +6,7 @@ theory
 imports
   Main (* Testing *)
 begin
-
-section{* Foundational Notations *}
-
+ 
 subsection{* Notations for the option type *}
 
 text{*First of all, we will use a more compact notation for the library 
@@ -18,23 +16,33 @@ the presentation more "textbook"-like:*}
 notation Some ("\<lfloor>(_)\<rfloor>")
 notation None ("\<bottom>")
 
-text{* The following function (corresponding to @{term the} in the Isabelle/HOL library) 
+text{* The following function (correspon ding to @{term the} in the Isabelle/HOL library) 
 is defined as the inverse of the injection @{term Some}. *}
 fun    drop :: "'\<alpha> option \<Rightarrow> '\<alpha>" ("\<lceil>(_)\<rceil>")
 where  drop_lift[simp]: "\<lceil>\<lfloor>v\<rfloor>\<rceil> = v"
 
 subsection{* Minimal Notions of State and State Transitions *}
 text{* Next we will introduce the foundational concept of an object id (oid), 
-which is just some infinite set.  *}
+which is just some infinite set. *}
 
+text{* In order to assure executability of as much as possible formulas, we fixed the
+type of object id's to just natural numbers.*}
+type_synonym oid = nat
+
+text{* We refrained from the alternative: 
+\begin{isar}
 type_synonym oid = ind
+\end{isar}
+which is slightly more abstract but non-executable.
+*}
 
 text{* States are just a partial map from oid's to elements of an object universe @{text "'\<AA>"},
 and state transitions pairs of states...  *}
-type_synonym ('\<AA>)state = "oid \<rightharpoonup> '\<AA> "
-
+record ('\<AA>)state = 
+             heap   :: "oid \<rightharpoonup> '\<AA> "
+             assocs :: "oid  \<rightharpoonup> (oid \<times> oid) list"
+  
 type_synonym ('\<AA>)st = "'\<AA> state \<times> '\<AA> state"
-
 
 subsection{* Prerequisite: An Abstract Interface for OCL Types *}
 
@@ -235,13 +243,13 @@ by(simp add: Sem_def false_def)
 text{* \textbf{Summary}:
 \begin{table}[htbp]
    \centering
-   \begin{tabular}{ll} % Column formatting
+   \begin{tabular}{lp{10cm}} % Column formatting
       \toprule
       Name & Theorem \\
       \midrule
       @{thm [source] invalid_def_textbook}  & @{thm  invalid_def_textbook} \\
       @{thm [source] null_def_textbook}  & @{thm  null_def_textbook} \\
-      @{thm [source] true_def_textbook}   & @{thm [display=false,margin=55,indent=20] true_def_textbook} \\
+      @{thm [source] true_def_textbook}   & @{thm [display=true,margin=35] true_def_textbook} \\
       @{thm [source] false_def_textbook} & @{thm false_def_textbook} \\
       \bottomrule
    \end{tabular}
@@ -353,8 +361,8 @@ text{* \textbf{Summary}:
       \toprule
       Name & Theorem \\
       \midrule
-      @{thm [source] defined_def_textbook}  & @{thm  defined_def_textbook} \\
-      @{thm [source] valid_def_textbook}   & @{thm [display=false,margin=55,indent=20] valid_def_textbook} \\
+      @{thm [source] defined_def_textbook}  & @{thm [show_question_marks=false,display=false,margin=35] defined_def_textbook} \\
+      @{thm [source] valid_def_textbook}   & @{thm [show_question_marks=false,display=false,margin=35] valid_def_textbook} \\
       \bottomrule
    \end{tabular}
    \caption{Basic predicate definitions of the logic.)}
@@ -365,17 +373,17 @@ text{* \textbf{Summary}:
 These definitions lead quite directly to the algebraic laws on these predicates: 
 \begin{table}[htbp]
    \centering
-   \begin{tabular}{ll} % Column formatting
+   \begin{tabular}{lp{10cm}} % Column formatting
       \toprule
       Name & Theorem \\
       \midrule
       @{thm [source] defined1}  & @{thm  defined1} \\
-      @{thm [source] defined2}   & @{thm [display=false,margin=55,indent=20] defined2} \\
-      @{thm [source] defined3}   & @{thm [display=false,margin=55,indent=20] defined3} \\
-      @{thm [source] defined4}   & @{thm [display=false,margin=55,indent=20] defined4} \\
-      @{thm [source] defined5}   & @{thm [display=false,margin=55,indent=20] defined5} \\
-      @{thm [source] defined6}   & @{thm [display=false,margin=55,indent=20] defined6} \\
-      @{thm [source] defined7}   & @{thm [display=false,margin=55,indent=20] defined7} \\
+      @{thm [source] defined2}   & @{thm [display=false,margin=35] defined2} \\
+      @{thm [source] defined3}   & @{thm [display=false,margin=35] defined3} \\
+      @{thm [source] defined4}   & @{thm [display=false,margin=35] defined4} \\
+      @{thm [source] defined5}   & @{thm [display=false,margin=35] defined5} \\
+      @{thm [source] defined6}   & @{thm [display=false,margin=35] defined6} \\
+      @{thm [source] defined7}   & @{thm [display=false,margin=35] defined7} \\
       \bottomrule
    \end{tabular}
    \caption{Laws of the basic predicates of the logic.)}

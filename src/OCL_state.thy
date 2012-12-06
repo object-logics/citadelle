@@ -9,13 +9,22 @@ subsection{* Recall: The generic structure of States*}
 text{* Next we will introduce the foundational concept of an object id (oid), 
 which is just some infinite set.  *}
 
-type_synonym oid = ind
+type_synonym oid = nat
 
-text{* States are just a partial map from oid's to elements of an object universe @{text "'\<AA>"},
-and state transitions pairs of states...  *}
-type_synonym ('\<AA>)state = "oid \<rightharpoonup> '\<AA> "
+text{* States are pair of a partial map from oid's to elements of an object universe @{text "'\<AA>"}
+--- the heap --- and a map to relations of objects. The relations were encoded as lists of
+pairs in order to leave the possibility to have Bags, OrderedSets or Sequences as association
+ends.  *}
+text{* Recall:
+\begin{isar}
+record ('\<AA>)state = 
+             heap   :: "oid \<rightharpoonup> '\<AA> "
+             assocs :: "oid  \<rightharpoonup> (oid \<times> oid) list"
+\end{isar}
+*}
 
 type_synonym ('\<AA>)st = "'\<AA> state \<times> '\<AA> state"
+
 
 text{* Now we refine our state-interface.
 In certain contexts, we will require that the elements of the object universe have 
@@ -84,8 +93,8 @@ text{* A key-concept for linking strict referential equality to
        referential equality coincides with logical equality. *}
 
 definition WFF :: "('\<AA>::object)st \<Rightarrow> bool"
-where "WFF \<tau> = ((\<forall> x \<in> ran(fst \<tau>). \<lceil>fst \<tau> (oid_of x)\<rceil> = x) \<and>
-                (\<forall> x \<in> ran(snd \<tau>). \<lceil>snd \<tau> (oid_of x)\<rceil> = x))"
+where "WFF \<tau> = ((\<forall> x \<in> ran(heap(fst \<tau>)). \<lceil>heap(fst \<tau>) (oid_of x)\<rceil> = x) \<and>
+                (\<forall> x \<in> ran(heap(snd \<tau>)). \<lceil>heap(snd \<tau>) (oid_of x)\<rceil> = x))"
 
 text{* This is a generic definition of referential equality:
 Equality on objects in a state is reduced to equality on the
@@ -103,8 +112,8 @@ equality. *}
 
 theorem strictEqGen_vs_strongEq: 
 "WFF \<tau> \<Longrightarrow> \<tau> \<Turnstile>(\<delta> x) \<Longrightarrow> \<tau> \<Turnstile>(\<delta> y) \<Longrightarrow> 
-           (x \<tau> \<in> ran (fst \<tau>) \<and> y \<tau> \<in> ran (fst \<tau>)) \<and>
-           (x \<tau> \<in> ran (snd \<tau>) \<and> y \<tau> \<in> ran (snd \<tau>)) \<Longrightarrow> (* x and y must be object representations
+(x \<tau> \<in> ran (heap(fst \<tau>)) \<and> y \<tau> \<in> ran (heap(fst \<tau>))) \<and>
+(x \<tau> \<in> ran (heap(snd \<tau>)) \<and> y \<tau> \<in> ran (heap(snd \<tau>))) \<Longrightarrow> (* x and y must be object representations
                                                           that exist in either the pre or post state *) 
            (\<tau> \<Turnstile> (gen_ref_eq x y)) = (\<tau> \<Turnstile> (x \<triangleq> y))"
 apply(auto simp: gen_ref_eq_def OclValid_def WFF_def StrongEq_def true_def Ball_def)
@@ -117,7 +126,8 @@ equality on objects implies in a WFF state the logical equality. Uffz. *}
 section{* Miscillaneous: Initial States (for Testing and Code Generation) *}
 
 definition \<tau>\<^isub>0 :: "('\<AA>)st"
-where     "\<tau>\<^isub>0 \<equiv> (Map.empty,Map.empty)"
+where     "\<tau>\<^isub>0 \<equiv> (\<lparr>heap=Map.empty, assocs= Map.empty\<rparr>,
+                 \<lparr>heap=Map.empty, assocs= Map.empty\<rparr>)"
 
 
 subsection{* Generic Operations on States *}
@@ -129,12 +139,12 @@ universes; we show that this is sufficient "characterization". *}
 definition allinstances :: "('\<AA> \<Rightarrow> '\<alpha>) \<Rightarrow> ('\<AA>::object,'\<alpha> option option) Set" 
                            ("_ .oclAllInstances'(')")
 where  "((H).oclAllInstances()) \<tau> = 
-                 Abs_Set_0 \<lfloor>\<lfloor>(Some o Some o H) ` (ran(snd \<tau>) \<inter> {x. \<exists> y. y=H x}) \<rfloor>\<rfloor> "
+                 Abs_Set_0 \<lfloor>\<lfloor>(Some o Some o H) ` (ran(heap(snd \<tau>)) \<inter> {x. \<exists> y. y=H x}) \<rfloor>\<rfloor> "
 
 definition allinstancesATpre :: "('\<AA> \<Rightarrow> '\<alpha>) \<Rightarrow> ('\<AA>::object,'\<alpha> option option) Set" 
                            ("_ .oclAllInstances@pre'(')")
 where  "((H).oclAllInstances@pre()) \<tau> = 
-                 Abs_Set_0 \<lfloor>\<lfloor>(Some o Some o H) ` (ran(fst \<tau>) \<inter> {x. \<exists> y. y=H x}) \<rfloor>\<rfloor> "
+                 Abs_Set_0 \<lfloor>\<lfloor>(Some o Some o H) ` (ran(heap(fst \<tau>)) \<inter> {x. \<exists> y. y=H x}) \<rfloor>\<rfloor> "
 
 lemma "\<tau>\<^isub>0 \<Turnstile> H .oclAllInstances() \<triangleq> Set{}"
 sorry
@@ -146,21 +156,22 @@ sorry
 theorem state_update_vs_allInstances: 
 assumes "oid\<notin>dom \<sigma>'"
 and     "cp P" 
-shows   "((\<sigma>, \<sigma>'(oid\<mapsto>Object)) \<Turnstile> (P(Type .oclAllInstances()))) =  
-          ((\<sigma>, \<sigma>') \<Turnstile> (P((Type .oclAllInstances())->including(\<lambda> _. Some(Some((the_inv Type) Object)))))) "
+shows   "((\<sigma>, \<lparr>heap=\<sigma>'(oid\<mapsto>Object), assocs=A\<rparr>) \<Turnstile> (P(Type .oclAllInstances()))) =  
+          ((\<sigma>, \<lparr>heap=\<sigma>', assocs=A\<rparr>) \<Turnstile> (P((Type .oclAllInstances())->including(\<lambda> _. Some(Some((the_inv Type) Object)))))) "
 sorry
 
 theorem state_update_vs_allInstancesATpre: 
 assumes "oid\<notin>dom \<sigma>"
 and     "cp P" 
-shows   "((\<sigma>(oid\<mapsto>Object), \<sigma>') \<Turnstile> (P(Type .oclAllInstances@pre()))) =  
-          ((\<sigma>, \<sigma>') \<Turnstile> (P((Type .oclAllInstances@pre())->including(\<lambda> _. Some(Some((the_inv Type) Object)))))) "
+shows   "((\<lparr>heap=\<sigma>(oid\<mapsto>Object), assocs=A\<rparr>, \<sigma>') \<Turnstile> (P(Type .oclAllInstances@pre()))) =  
+          ((\<lparr>heap=\<sigma>, assocs=A\<rparr>, \<sigma>') \<Turnstile> (P((Type .oclAllInstances@pre())->including(\<lambda> _. Some(Some((the_inv Type) Object)))))) "
 sorry
 
 
 definition oclisnew:: "('\<AA>, '\<alpha>::{null,object})val \<Rightarrow> ('\<AA>)Boolean"   ("(_).oclIsNew'(')")
 where "X .oclIsNew() \<equiv> (\<lambda>\<tau> . if (\<delta> X) \<tau> = true \<tau> 
-                              then \<lfloor>\<lfloor>oid_of (X \<tau>) \<notin> dom(fst \<tau>) \<and> oid_of (X \<tau>) \<in> dom(snd \<tau>)\<rfloor>\<rfloor>
+                              then \<lfloor>\<lfloor>oid_of (X \<tau>) \<notin> dom(heap(fst \<tau>)) \<and> 
+                                     oid_of (X \<tau>) \<in> dom(heap(snd \<tau>))\<rfloor>\<rfloor>
                               else invalid \<tau>)" 
 
 text{* The following predicate --- which is not part of the OCL standard descriptions ---
@@ -175,9 +186,9 @@ exception of those objects
 definition oclismodified ::"('\<AA>::object,'\<alpha>::{null,object})Set \<Rightarrow> '\<AA> Boolean" 
                         ("_->oclIsModifiedOnly'(')")
 where "X->oclIsModifiedOnly() \<equiv> (\<lambda>(\<sigma>,\<sigma>').  let  X' = (oid_of ` \<lceil>\<lceil>Rep_Set_0(X(\<sigma>,\<sigma>'))\<rceil>\<rceil>);
-                                                 S = ((dom \<sigma> \<inter> dom \<sigma>') - X')
+                                                 S = ((dom (heap \<sigma>) \<inter> dom (heap \<sigma>')) - X')
                                             in if (\<delta> X) (\<sigma>,\<sigma>') = true (\<sigma>,\<sigma>') 
-                                               then \<lfloor>\<lfloor>\<forall> x \<in> S. \<sigma> x = \<sigma>' x\<rfloor>\<rfloor>
+                                               then \<lfloor>\<lfloor>\<forall> x \<in> S. (heap \<sigma>) x = (heap \<sigma>') x\<rfloor>\<rfloor>
                                                else invalid (\<sigma>,\<sigma>'))"
 
 
@@ -185,8 +196,8 @@ definition atSelf :: "('\<AA>::object,'\<alpha>::{null,object})val \<Rightarrow>
                       ('\<AA> \<Rightarrow> '\<alpha>) \<Rightarrow>
                       ('\<AA>::object,'\<alpha>::{null,object})val" ("(_)@pre(_)")
 where "x @pre H = (\<lambda>\<tau> . if (\<delta> x) \<tau> = true \<tau> 
-                        then if oid_of (x \<tau>) \<in> dom(fst \<tau>) \<and> oid_of (x \<tau>) \<in> dom(snd \<tau>)
-                             then  H \<lceil>(fst \<tau>)(oid_of (x \<tau>))\<rceil>
+                        then if oid_of (x \<tau>) \<in> dom(heap(fst \<tau>)) \<and> oid_of (x \<tau>) \<in> dom(heap (snd \<tau>))
+                             then  H \<lceil>(heap(fst \<tau>))(oid_of (x \<tau>))\<rceil>
                              else invalid \<tau>
                         else invalid \<tau>)"
 
