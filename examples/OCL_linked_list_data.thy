@@ -267,13 +267,20 @@ where "\<sigma>\<^isub>1' \<equiv> \<lparr> heap = empty(oid\<^isub>1 \<mapsto> 
 lemma basic_\<tau>_wff: "WFF(\<sigma>\<^isub>1,\<sigma>\<^isub>1')"
 by(auto simp: WFF_def \<sigma>\<^isub>1_def \<sigma>\<^isub>1'_def oid\<^isub>1_def oid\<^isub>2_def oid\<^isub>3_def oid_of_\<AA>_def oid_of_node_def)
 
-definition Self :: Node
-where "Self \<equiv> (\<lambda> _ .\<lfloor>\<lfloor>mk\<^isub>n\<^isub>o\<^isub>d\<^isub>e oid\<^isub>1 \<lfloor>1\<rfloor> \<lfloor>oid\<^isub>2\<rfloor> \<rfloor>\<rfloor>)"
+lemma [simp,code_unfold]: "dom (heap \<sigma>\<^isub>1) = {oid\<^isub>1,oid\<^isub>2}"
+by(auto simp: \<sigma>\<^isub>1_def)
 
-value "(\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile> ((Self .i)  \<doteq> \<one> )"
-value "(\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile> ((Self .i)  \<doteq> \<two> )"
-(* value "(\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile> ((X .i@pre)  \<doteq> \<one> )" *)
-value "(\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile> ((Self .i)  \<doteq> \<two> )"
+lemma [code_unfold]: "dom (heap \<sigma>\<^isub>1') = {oid\<^isub>1,oid\<^isub>2}"
+by(auto simp: \<sigma>\<^isub>1'_def)
+
+
+definition X\<^isub>N\<^isub>o\<^isub>d\<^isub>e :: Node
+where "X\<^isub>N\<^isub>o\<^isub>d\<^isub>e \<equiv> (\<lambda> _ .\<lfloor>\<lfloor>mk\<^isub>n\<^isub>o\<^isub>d\<^isub>e oid\<^isub>1 \<lfloor>1\<rfloor> \<lfloor>oid\<^isub>2\<rfloor> \<rfloor>\<rfloor>)"
+
+value "  (\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile> ((X\<^isub>N\<^isub>o\<^isub>d\<^isub>e .i)      \<doteq> \<one> )"
+value "\<not>((\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile> ((X\<^isub>N\<^isub>o\<^isub>d\<^isub>e .i)    \<doteq> \<two> ))"
+value "(\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile> ((X\<^isub>N\<^isub>o\<^isub>d\<^isub>e .i@pre)  \<doteq> \<one> )" 
+value "(\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile> ((X\<^isub>N\<^isub>o\<^isub>d\<^isub>e .i@pre)  \<doteq> \<two> )"
 
 
 subsection{* Casts *}
