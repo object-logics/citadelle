@@ -4,8 +4,7 @@ header{* Part III: OCL Contracts and an Example *}
    Part II : State and Objects. *)
 
 theory 
-  OCL_linked_list_data
-  (* Employee_DesignModel_UMLPart *)
+  Employee_DesignModel_UMLPart
 imports
   "../src/OCL_main" (* Testing *)
 begin

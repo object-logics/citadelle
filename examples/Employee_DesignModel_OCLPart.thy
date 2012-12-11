@@ -4,9 +4,9 @@ header{* Part III: OCL Contracts and an Example *}
    Part II : State and Objects. *)
 
 theory 
-  OCL_linked_list_ops
+  Employee_DesignModel_OCLPart
 imports
-  OCL_linked_list_data (* Testing *)
+  Employee_DesignModel_UMLPart (* Testing *)
 begin
 
 section{* Standard State Infrastructure *}
@@ -17,63 +17,63 @@ text{* These recursive predicates can be defined conservatively
 by greatest fix-point constructions - automatically. See HOL-OCL Book
 for details. For the purpose of this example, we state them as axioms
 here.*}
-axiomatization inv_Node :: "Node \<Rightarrow> Boolean"
+axiomatization inv_Person :: "Person \<Rightarrow> Boolean"
 where A : "(\<tau> \<Turnstile> (\<delta> self)) \<longrightarrow> 
-               (\<tau> \<Turnstile> inv_Node(self)) =
-                   ((\<tau> \<Turnstile> (self .next \<doteq> null)) \<or> 
-                    ( \<tau> \<Turnstile> (self .next <> null) \<and> (\<tau> \<Turnstile> (self .next .i \<prec> self .i))  \<and> 
-                     (\<tau> \<Turnstile> (inv_Node(self .next))))) "
+               (\<tau> \<Turnstile> inv_Person(self)) =
+                   ((\<tau> \<Turnstile> (self .boss \<doteq> null)) \<or> 
+                    ( \<tau> \<Turnstile> (self .boss <> null) \<and> (\<tau> \<Turnstile> (self .boss .age \<prec> self .age))  \<and> 
+                     (\<tau> \<Turnstile> (inv_Person(self .boss))))) "
 
 
-axiomatization inv_Node_at_pre :: "Node \<Rightarrow> Boolean"
+axiomatization inv_Person_at_pre :: "Person \<Rightarrow> Boolean"
 where B : "(\<tau> \<Turnstile> (\<delta> self)) \<longrightarrow> 
-               (\<tau> \<Turnstile> inv_Node_at_pre(self)) =
-                   ((\<tau> \<Turnstile> (self .next@pre \<doteq> null)) \<or> 
-                    ( \<tau> \<Turnstile> (self .next@pre <> null) \<and> (\<tau> \<Turnstile> (self .next@pre .i@pre \<prec> self .i@pre))  \<and> 
-                     (\<tau> \<Turnstile> (inv_Node_at_pre(self .next@pre))))) "
+               (\<tau> \<Turnstile> inv_Person_at_pre(self)) =
+                   ((\<tau> \<Turnstile> (self .boss@pre \<doteq> null)) \<or> 
+                    ( \<tau> \<Turnstile> (self .boss@pre <> null) \<and> (\<tau> \<Turnstile> (self .boss@pre .age@pre \<prec> self .age@pre))  \<and> 
+                     (\<tau> \<Turnstile> (inv_Person_at_pre(self .boss@pre))))) "
 
 text{* A very first attempt to characterize the axiomatization by an inductive
 definition - this can not be the last word since too weak (should be equality!) *}
-coinductive inv :: "Node \<Rightarrow> (\<AA>)st \<Rightarrow> bool" where 
- "(\<tau> \<Turnstile> (\<delta> self)) \<Longrightarrow> ((\<tau> \<Turnstile> (self .next \<doteq> null)) \<or> 
-                      (\<tau> \<Turnstile> (self .next <> null) \<and> (\<tau> \<Turnstile> (self .next .i \<prec> self .i))  \<and> 
-                     ( (inv(self .next))\<tau> )))
+coinductive inv :: "Person \<Rightarrow> (\<AA>)st \<Rightarrow> bool" where 
+ "(\<tau> \<Turnstile> (\<delta> self)) \<Longrightarrow> ((\<tau> \<Turnstile> (self .boss \<doteq> null)) \<or> 
+                      (\<tau> \<Turnstile> (self .boss <> null) \<and> (\<tau> \<Turnstile> (self .boss .age \<prec> self .age))  \<and> 
+                     ( (inv(self .boss))\<tau> )))
                      \<Longrightarrow> ( inv self \<tau>)"
 
 
 section{* The contract of a recursive query : *}
 text{* The original specification of a recursive query :
 \begin{verbatim}
-context Node::contents():Set(Integer)
-post:  result = if self.next = null 
+context Person::contents():Set(Integer)
+post:  result = if self.boss = null 
                 then Set{i}
-                else self.next.contents()->including(i)
+                else self.boss.contents()->including(i)
                 endif
 \end{verbatim} *}
 
 
-consts dot_contents :: "Node \<Rightarrow> Set_Integer"  ("(1(_).contents'('))" 50)
+consts dot_contents :: "Person \<Rightarrow> Set_Integer"  ("(1(_).contents'('))" 50)
  
 axiomatization dot_contents_def where
 "(\<tau> \<Turnstile> ((self).contents() \<triangleq> result)) =
  (if (\<delta> self) \<tau> = true \<tau> 
   then ((\<tau> \<Turnstile> true) \<and>  
-        (\<tau> \<Turnstile> (result \<triangleq> if (self .next \<doteq> null) 
-                        then (Set{self .i}) 
-                        else (self .next .contents()->including(self .i))
+        (\<tau> \<Turnstile> (result \<triangleq> if (self .boss \<doteq> null) 
+                        then (Set{self .age}) 
+                        else (self .boss .contents()->including(self .age))
                         endif)))
   else \<tau> \<Turnstile> result \<triangleq> invalid)"
 
 
-consts dot_contents_AT_pre :: "Node \<Rightarrow> Set_Integer"  ("(1(_).contents@pre'('))" 50)
+consts dot_contents_AT_pre :: "Person \<Rightarrow> Set_Integer"  ("(1(_).contents@pre'('))" 50)
  
 axiomatization where dot_contents_AT_pre_def:
 "(\<tau> \<Turnstile> (self).contents@pre() \<triangleq> result) =
  (if (\<delta> self) \<tau> = true \<tau> 
   then \<tau> \<Turnstile> true \<and>                                (* pre *)
-        \<tau> \<Turnstile> (result \<triangleq> if (self).next@pre \<doteq> null  (* post *)
-                        then Set{(self).i@pre}
-                        else (self).next@pre .contents@pre()->including(self .i@pre)
+        \<tau> \<Turnstile> (result \<triangleq> if (self).boss@pre \<doteq> null  (* post *)
+                        then Set{(self).age@pre}
+                        else (self).boss@pre .contents@pre()->including(self .age@pre)
                         endif)
   else \<tau> \<Turnstile> result \<triangleq> invalid)"
 
@@ -87,13 +87,13 @@ section{* The contract of a method. *}
 text{*
 The specification in high-level OCL input syntax reads as follows:
 \begin{verbatim}
-context Node::insert(x:Integer) 
+context Person::insert(x:Integer) 
 post: contents():Set(Integer)
 contents() = contents@pre()->including(x)
 \end{verbatim}
 *}
 
-consts dot_insert :: "Node \<Rightarrow> Integer \<Rightarrow> Void"  ("(1(_).insert'(_'))" 50)
+consts dot_insert :: "Person \<Rightarrow> Integer \<Rightarrow> Void"  ("(1(_).insert'(_'))" 50)
 
 axiomatization where dot_insert_def:
 "(\<tau> \<Turnstile> ((self).insert(x) \<triangleq> result)) =
