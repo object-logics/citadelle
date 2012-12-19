@@ -77,9 +77,9 @@ type_synonym Boolean     = "(\<AA>)Boolean"
 type_synonym Integer     = "(\<AA>)Integer"
 type_synonym Void        = "(\<AA>)Void"
 type_synonym OclAny      = "(\<AA>,oclany option option) val"
-type_synonym Person        = "(\<AA>, person option option)val"
+type_synonym Person      = "(\<AA>, person option option)val"
 type_synonym Set_Integer = "(\<AA>, int option option)Set"
-type_synonym Set_Person    = "(\<AA>, person option option)Set"
+type_synonym Set_Person  = "(\<AA>, person option option)Set"
 
 text{* Just a little check: *}
 typ "Boolean"
@@ -118,8 +118,8 @@ end
 section{* Instantiation of the generic strict equality. We instantiate the referential equality
 on @{text "Person"} and @{text "OclAny"} *}
 
-defs(overloaded)   StrictRefEq\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n   :  "(x::Person) \<doteq> y    \<equiv> gen_ref_eq x y"
-defs(overloaded)   StrictRefEq\<^isub>o\<^isub>c\<^isub>l\<^isub>a\<^isub>n\<^isub>y  : "(x::OclAny) \<doteq> y  \<equiv> gen_ref_eq x y"
+defs(overloaded)   StrictRefEq\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n   : "(x::Person) \<doteq> y  \<equiv> gen_ref_eq x y"
+defs(overloaded)   StrictRefEq\<^isub>o\<^isub>c\<^isub>l\<^isub>a\<^isub>n\<^isub>y   : "(x::OclAny) \<doteq> y  \<equiv> gen_ref_eq x y"
 
 lemmas strict_eq_person =
     cp_gen_ref_eq_object[of "x::Person" "y::Person" "\<tau>", 
@@ -270,7 +270,8 @@ where "\<sigma>\<^isub>1  \<equiv> \<lparr> heap = empty(oid\<^isub>1 \<mapsto> 
 
 definition \<sigma>\<^isub>1' :: "\<AA> state"
 where "\<sigma>\<^isub>1' \<equiv> \<lparr> heap = empty(oid\<^isub>1 \<mapsto> (in\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n(mk\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n oid\<^isub>1 \<lfloor>2\<rfloor> \<lfloor>oid\<^isub>2\<rfloor>)))
-                           (oid\<^isub>2 \<mapsto> (in\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n(mk\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n oid\<^isub>2 \<lfloor>5\<rfloor> \<lfloor>oid\<^isub>2\<rfloor>))),
+                           (oid\<^isub>2 \<mapsto> (in\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n(mk\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n oid\<^isub>2 \<lfloor>5\<rfloor> \<lfloor>oid\<^isub>2\<rfloor>)))
+                           (oid\<^isub>3 \<mapsto> (in\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n(mk\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n oid\<^isub>3 None None))),
                assocs = empty\<rparr>"
  
 lemma basic_\<tau>_wff: "WFF(\<sigma>\<^isub>1,\<sigma>\<^isub>1')"
@@ -279,12 +280,12 @@ by(auto simp: WFF_def \<sigma>\<^isub>1_def \<sigma>\<^isub>1'_def oid\<^isub>1_
 lemma [simp,code_unfold]: "dom (heap \<sigma>\<^isub>1) = {oid\<^isub>1,oid\<^isub>2}"
 by(auto simp: \<sigma>\<^isub>1_def)
 
-lemma [code_unfold]: "dom (heap \<sigma>\<^isub>1') = {oid\<^isub>1,oid\<^isub>2}"
+lemma [code_unfold]: "dom (heap \<sigma>\<^isub>1') = {oid\<^isub>1,oid\<^isub>2,oid\<^isub>3}"
 by(auto simp: \<sigma>\<^isub>1'_def)
 
 
 definition X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n :: Person
-where "X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n \<equiv> (\<lambda> _ .\<lfloor>\<lfloor>mk\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n oid\<^isub>1 \<lfloor>1\<rfloor> \<lfloor>oid\<^isub>2\<rfloor> \<rfloor>\<rfloor>)"
+where "X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n \<equiv> (\<lambda> _ .\<lfloor>\<lfloor>mk\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n oid\<^isub>1 \<lfloor>2\<rfloor> \<lfloor>oid\<^isub>2\<rfloor> \<rfloor>\<rfloor>)"
 
 lemma [code_unfold]: "(X).age@pre = (\<lambda> \<tau>. case X \<tau> of
               \<bottom> \<Rightarrow> invalid \<tau>
@@ -300,18 +301,27 @@ lemma [code_unfold]: "(X).age@pre = (\<lambda> \<tau>. case X \<tau> of
 sorry (* incorrect in general, but works for the given special case 
 where $\tau$ is $(\sigma_1,\sigma_1')$ ... *)
 
+lemma " ((\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile> ((X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n .boss@pre .boss@pre)   \<triangleq>  null ))"
+by(simp add: X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n_def foundation22  \<sigma>\<^isub>1_def)
+
+lemma " ((\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile> ((X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n .boss .boss)   \<triangleq>  X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n ))"
+apply(simp add: X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n_def foundation22  \<sigma>\<^isub>1_def \<sigma>\<^isub>1'_def)
+
+
 value "  (\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile> ((X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n .age)    \<doteq> \<one> )"
 value "\<not>((\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile> ((X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n .age)   \<doteq> \<two> ))"
 value " ((\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile> ((X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n .boss .age)  \<doteq> \<five> ))"
 value "\<not>((\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile> ((X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n .boss@pre .age)  \<doteq> \<five> ))"
+value "  (\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile> ((X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n .boss@pre .age@pre)  \<doteq> \<three> )"
+value " ((\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile> ((X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n .boss@pre .boss@pre)  \<doteq> null ))" (* oops ??? *)
+value " ((\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile> ((X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n .boss .boss)  \<doteq> X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n ))" 
 value "\<not>((\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile> ((X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n .boss@pre .age@pre)  \<doteq> \<five> ))"
-value "((\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile> ((X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n .boss@pre .boss@pre)  \<doteq> null ))" (* oops ??? *)
-value "\<not>((\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile> ((X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n .boss@pre .age@pre)  \<doteq> \<five> ))"
-value " ((\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile> ((X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n .boss .age)  \<doteq> \<five> ))"
-value "\<not>((\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile> ((X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n .age)    \<doteq> \<two> ))"
-value "\<not>((\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile> ((X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n .age)    \<doteq> \<two> ))"
-value "  (\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile> ((X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n .age@pre)  \<doteq> \<one>)" 
-value "\<not>((\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile> ((X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n .age@pre)  \<doteq> \<two> ))"
+value " ((\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile> ((X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n .boss .age)   \<doteq> \<five> ))"
+value " ((\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile> ((X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n .boss@pre .boss@pre)  \<doteq> null ))"
+value "\<not>((\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile> ((X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n .age)         \<doteq> \<two> ))"
+value "\<not>((\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile> ((X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n .age)         \<doteq> \<two> ))"
+value "  (\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile> ((X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n .age@pre)     \<doteq> \<one>)" 
+value "\<not>((\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile> ((X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n .age@pre)     \<doteq> \<two> ))"
 
 
 subsection{* Casts *}
@@ -369,7 +379,7 @@ by(rule ext, simp add: null_fun_def null_option_def bot_option_def null_def inva
 section{* Tests for Actual Types *}
 
 consts oclistypeof\<^isub>o\<^isub>c\<^isub>l\<^isub>a\<^isub>n\<^isub>y :: "'\<alpha> \<Rightarrow> Boolean" ("(_).oclIsTypeOf'(OclAny')")
-consts oclistypeof\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n   :: "'\<alpha> \<Rightarrow> Boolean" ("(_).oclIsTypeOf'(Person')")
+consts oclistypeof\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n :: "'\<alpha> \<Rightarrow> Boolean" ("(_).oclIsTypeOf'(Person')")
 
 defs (overloaded) oclistypeof\<^isub>o\<^isub>c\<^isub>l\<^isub>a\<^isub>n\<^isub>y_OclAny: 
         "(X::OclAny) .oclIsTypeOf(OclAny) \<equiv> 
@@ -465,5 +475,24 @@ by(auto simp : null_fun_def null_option_def bot_option_def null_def invalid_def
         split: option.split person.split)
 
 (* MISSING:  Construction for  ocliskind *)
+
+consts ocliskindof\<^isub>o\<^isub>c\<^isub>l\<^isub>a\<^isub>n\<^isub>y :: "'\<alpha> \<Rightarrow> Boolean" ("(_).oclIsKindOf'(OclAny')")
+consts ocliskinfof\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n :: "'\<alpha> \<Rightarrow> Boolean" ("(_).oclIsKindOf'(Person')")
+
+defs (overloaded) ocliskindof\<^isub>o\<^isub>c\<^isub>l\<^isub>a\<^isub>n\<^isub>y_OclAny: 
+        "(X::OclAny) .oclIsKindOf(OclAny) \<equiv> 
+                   (\<lambda>\<tau>. case X \<tau> of 
+                              \<bottom>   \<Rightarrow> invalid \<tau>
+                            | \<lfloor>\<bottom>\<rfloor> \<Rightarrow> invalid \<tau>  
+                            | \<lfloor>\<lfloor>mk\<^isub>o\<^isub>c\<^isub>l\<^isub>a\<^isub>n\<^isub>y oid \<bottom> \<rfloor>\<rfloor> \<Rightarrow> true \<tau>
+                            | \<lfloor>\<lfloor>mk\<^isub>o\<^isub>c\<^isub>l\<^isub>a\<^isub>n\<^isub>y oid \<lfloor>_\<rfloor> \<rfloor>\<rfloor> \<Rightarrow> false \<tau>)" 
+
+defs (overloaded) oclistypeof\<^isub>o\<^isub>c\<^isub>l\<^isub>a\<^isub>n\<^isub>y_Person: 
+        "(X::Person) .oclIsTypeOf(OclAny) \<equiv> 
+                   (\<lambda>\<tau>. case X \<tau> of 
+                              \<bottom>   \<Rightarrow> invalid \<tau>
+                            | \<lfloor>\<bottom>\<rfloor> \<Rightarrow> invalid \<tau>  
+                            | \<lfloor>\<lfloor> _ \<rfloor>\<rfloor> \<Rightarrow> false \<tau>)"  (* must have actual type Person otherwise  *)
+
 
 end
