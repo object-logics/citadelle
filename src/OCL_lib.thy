@@ -1216,19 +1216,22 @@ sorry  (* requires new logical level lemmas couvering extensionality principle o
 
 lemma forall_set_null_exec[simp,code_unfold] : 
 "(null->forall(z| P(z))) = invalid"
-sorry (* simple and routine *)
+by(simp add: OclForall_def invalid_def false_def true_def)
 
 lemma forall_set_mt_exec[simp,code_unfold] : 
 "((Set{})->forall(z| P(z))) = true"
-sorry (* simple and routine *)
+apply(simp add: OclForall_def, simp add: mtSet_def)
+apply(subst Abs_Set_0_inverse)
+apply(simp_all add: Set_0_def true_def)
+done
 
 lemma exists_set_null_exec[simp,code_unfold] : 
 "(null->exists(z | P(z))) = invalid"
-sorry (* simple and routine *)
+by(simp add: OclExists_def)
 
 lemma exists_set_mt_exec[simp,code_unfold] : 
 "((Set{})->exists(z | P(z))) = false"
-sorry (* simple and routine *)
+by(simp add: OclExists_def)
 
 lemma forall_set_including_exec[simp,code_unfold] : 
 "((S->including(x))->forall(z | P(z))) = (if (\<delta> S) and (\<upsilon> x) 
@@ -1283,13 +1286,42 @@ oops
 text{* In the definition above, this does not hold in general. 
        And I believe, this is how it should be ... *}
 
+
+lemma OclSize_infinite: 
+assumes non_finite:"\<tau> \<Turnstile> not(\<delta>(S->size()))"
+shows   "(\<tau> \<Turnstile> not(\<delta>(S))) \<or> \<not> finite \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>"
+apply(insert non_finite, simp)
+apply(rule impI)
+apply(simp add: OclSize_def OclValid_def defined_def)
+apply(case_tac "finite \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>", 
+      simp_all add:null_fun_def null_option_def bot_fun_def bot_option_def)
+done
+
 lemma OclIterate\<^isub>S\<^isub>e\<^isub>t_infinite:
 assumes non_finite: "\<tau> \<Turnstile> not(\<delta>(S->size()))"
 shows "(OclIterate\<^isub>S\<^isub>e\<^isub>t S A F) \<tau> = invalid \<tau>"
-sorry (* simple and routine *)
+apply(insert non_finite [THEN OclSize_infinite])
+apply(erule disjE)
+apply(simp_all add: OclIterate\<^isub>S\<^isub>e\<^isub>t_def invalid_def)
+apply(erule contrapos_np)
+apply(simp add: OclValid_def)
+done
 
 lemma OclIterate\<^isub>S\<^isub>e\<^isub>t_empty[simp]: "((Set{})->iterate(a; x = A | P a x)) = A"
-sorry (* simple and routine *)
+proof -
+ have A1 : "\<lfloor>\<lfloor>{}\<rfloor>\<rfloor> \<in> Set_0" by(simp add: Set_0_def)
+ have A2 : "None \<in> Set_0"  by(simp add: Set_0_def bot_option_def)
+ have A3 : "\<lfloor>None\<rfloor> \<in> Set_0" by(simp add: Set_0_def bot_option_def null_option_def)
+ have C : "\<And> \<tau>. (\<delta> (\<lambda>\<tau>. Abs_Set_0 \<lfloor>\<lfloor>{}\<rfloor>\<rfloor>)) \<tau> = true \<tau>" 
+             by(simp add: defined_def  bot_Set_0_def null_Set_0_def
+                          bot_fun_def null_fun_def A1 A2 A3 Abs_Set_0_inject)
+ show ?thesis
+      apply(simp add: OclIterate\<^isub>S\<^isub>e\<^isub>t_def mtSet_def Abs_Set_0_inverse Set_0_def valid_def C)
+      apply(rule ext)
+      apply(case_tac "A \<tau> = \<bottom> \<tau>", simp_all, simp add:true_def false_def bot_fun_def)
+      apply(simp add: A1 Abs_Set_0_inverse)
+ done
+qed
 
 text{* In particular, this does hold for A = null. *}
 
