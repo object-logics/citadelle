@@ -314,27 +314,24 @@ lemma defined4[simp]: "\<delta> false = true"
                         null_fun_def invalid_def true_def false_def)
 
 
-
 lemma defined5[simp]: "\<delta> \<delta> X = true"
-  by(rule ext,auto simp: defined_def   true_def false_def 
-                         bot_fun_def bot_option_def null_option_def null_fun_def)
-
-
+  by(rule ext,
+     auto simp:           defined_def true_def false_def
+                bot_fun_def bot_option_def null_option_def null_fun_def)
 
 lemma defined6[simp]: "\<delta> \<upsilon> X = true"
   by(rule ext,
-     auto simp: valid_def  defined_def true_def false_def 
+     auto simp: valid_def defined_def true_def false_def
                 bot_fun_def bot_option_def null_option_def null_fun_def)
 
-
-lemma defined7[simp]: "\<delta> \<delta> X = true"
+lemma valid5[simp]: "\<upsilon> \<upsilon> X = true"
   by(rule ext,
-     auto simp: valid_def  defined_def true_def false_def 
-                bot_fun_def bot_option_def null_option_def null_fun_def ) 
+     auto simp: valid_def             true_def false_def
+                bot_fun_def bot_option_def null_option_def null_fun_def)
 
 lemma valid6[simp]: "\<upsilon> \<delta> X = true"
   by(rule ext,
-     auto simp: valid_def  defined_def true_def false_def 
+     auto simp: valid_def defined_def true_def false_def
                 bot_fun_def bot_option_def null_option_def null_fun_def)
 
 
@@ -383,7 +380,6 @@ These definitions lead quite directly to the algebraic laws on these predicates:
       @{thm [source] defined4}   & @{thm [display=false,margin=35] defined4} \\
       @{thm [source] defined5}   & @{thm [display=false,margin=35] defined5} \\
       @{thm [source] defined6}   & @{thm [display=false,margin=35] defined6} \\
-      @{thm [source] defined7}   & @{thm [display=false,margin=35] defined7} \\
       \bottomrule
    \end{tabular}
    \caption{Laws of the basic predicates of the logic.)}
@@ -438,15 +434,14 @@ subsection{*  Fundamental Predicates III *}
 
 
 text{* And, last but not least, *}
-lemma defined8[simp]: "\<delta> (X \<triangleq> Y) = true"
+lemma defined7[simp]: "\<delta> (X \<triangleq> Y) = true"
   by(rule ext,
-     auto simp: valid_def  defined_def true_def false_def StrongEq_def
+     auto simp: defined_def           true_def false_def StrongEq_def
                 bot_fun_def bot_option_def null_option_def null_fun_def)
 
-
-lemma valid5[simp]: "\<upsilon> (X \<triangleq> Y) = true"
+lemma valid7[simp]: "\<upsilon> (X \<triangleq> Y) = true"
   by(rule ext,
-     auto simp: valid_def  true_def false_def StrongEq_def
+     auto simp:             valid_def true_def false_def StrongEq_def
                 bot_fun_def bot_option_def null_option_def null_fun_def)
 
 lemma cp_StrongEq: "(X \<triangleq> Y) \<tau> = ((\<lambda> _. X \<tau>) \<triangleq> (\<lambda> _. Y \<tau>)) \<tau>"
