@@ -1324,7 +1324,12 @@ sorry (* deep and relatively hard. *)
 
 lemma not_if[simp]:
 "not(if P then C else E endif) = (if P then not C else not E endif)" 
-sorry(* non-trivial but elementary *)
+  (* non-trivial but elementary *)
+  apply(rule not_inject, simp)
+  apply(rule ext)
+  apply(subst cp_not, simp add: if_ocl_def)
+  apply(subst cp_not[symmetric] not_not)+
+by simp
 
 lemma exists_set_including_exec[simp,code_unfold] : 
 "((S->including(x))->exists(z | P(z))) = (if (\<delta> S) and (\<upsilon> x) 

@@ -503,6 +503,8 @@ lemma not_not[simp]: "not (not X) = X"
   apply(case_tac "a", simp_all)
   done
 
+lemma not_inject: "\<And> x y. not x = not y \<Longrightarrow> x = y" 
+  by(subst not_not[THEN sym], simp)
 
 definition ocl_and :: "[('\<AA>)Boolean, ('\<AA>)Boolean] \<Rightarrow> ('\<AA>)Boolean" (infixl "and" 30)
 where     "X and Y \<equiv>  (\<lambda> \<tau> . case X \<tau> of
