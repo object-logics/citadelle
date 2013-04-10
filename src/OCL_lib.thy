@@ -1143,14 +1143,98 @@ proof -
 qed
 
 lemma excluding_charn_exec[code_unfold]:
-"(X->including(x)->excluding(y)) = (if \<delta> X then if x \<doteq> y
+ assumes strict1: "(x \<doteq> invalid) = invalid"
+ and     strict2: "(invalid \<doteq> y) = invalid"
+ and     strictEq_valid_args_valid: "\<And> (x::('\<AA>,'a::null)val) y \<tau>.
+                                     (\<tau> \<Turnstile> \<delta> (x \<doteq> y)) = ((\<tau> \<Turnstile> (\<upsilon> x)) \<and> (\<tau> \<Turnstile> \<upsilon> y))"
+ and     cp_StrictRefEq: "\<And> (X::('\<AA>,'a::null)val) Y \<tau>. (X \<doteq> Y) \<tau> = ((\<lambda>_. X \<tau>) \<doteq> (\<lambda>_. Y \<tau>)) \<tau>"
+ and     strictEq_vs_strongEq: "\<And> (x::('\<AA>,'a::null)val) y \<tau>.
+                                      \<tau> \<Turnstile> \<upsilon> x \<Longrightarrow> \<tau> \<Turnstile> \<upsilon> y \<Longrightarrow> (\<tau> \<Turnstile> ((x \<doteq> y) \<triangleq> (x \<triangleq> y)))"
+ shows "(X->including(x::('\<AA>,'a::null)val)->excluding(y)) = 
+        (if \<delta> X then if x \<doteq> y
                                                then X->excluding(y)
                                                else X->excluding(y)->including(x)
                                                endif
                                           else invalid endif)"
-sorry (* Lifting theorems, largely analogous includes_execute_generic,
+proof -
+ (* Lifting theorems, largely analogous includes_execute_generic,
          with the same problems wrt. strict equality. *)
+ have A1: "\<And>\<tau>. \<tau> \<Turnstile> (X \<triangleq> invalid) \<Longrightarrow>
+            (X->including(x)->includes(y)) \<tau> = invalid \<tau>"
+            apply(subst cp_OclIncludes, subst cp_OclIncluding)
+            apply(drule foundation22[THEN iffD1], simp)
+            apply(simp only: cp_OclIncluding[symmetric] cp_OclIncludes[symmetric])
+            by simp
 
+ have B1: "\<And>\<tau>. \<tau> \<Turnstile> (X \<triangleq> null) \<Longrightarrow>
+            (X->including(x)->includes(y)) \<tau> = invalid  \<tau>"
+            apply(subst cp_OclIncludes, subst cp_OclIncluding)
+            apply(drule foundation22[THEN iffD1], simp)
+            apply(simp only: cp_OclIncluding[symmetric] cp_OclIncludes[symmetric])
+            by simp
+
+ have A2: "\<And>\<tau>. \<tau> \<Turnstile> (X \<triangleq> invalid) \<Longrightarrow> X->including(x)->excluding(y) \<tau> = invalid \<tau>"
+            apply(subst cp_OclExcluding, subst cp_OclIncluding)
+            apply(drule foundation22[THEN iffD1], simp)
+            apply(simp only: cp_OclIncluding[symmetric] cp_OclExcluding[symmetric])
+            by simp
+
+ have B2: "\<And>\<tau>. \<tau> \<Turnstile> (X \<triangleq> null) \<Longrightarrow> X->including(x)->excluding(y) \<tau> = invalid \<tau>"
+            apply(subst cp_OclExcluding, subst cp_OclIncluding)
+            apply(drule foundation22[THEN iffD1], simp)
+            apply(simp only: cp_OclIncluding[symmetric] cp_OclExcluding[symmetric])
+            by simp
+
+ have C: "\<And>\<tau>. \<tau> \<Turnstile> (x \<triangleq> invalid) \<Longrightarrow>
+           (X->including(x)->excluding(y)) \<tau> =
+           (if x \<doteq> y then X->excluding(y) else X->excluding(y)->including(x) endif) \<tau>"
+            apply(subst cp_if_ocl, subst cp_StrictRefEq)
+            apply(subst cp_OclIncluding, subst cp_OclExcluding, subst cp_OclIncluding)
+            apply(drule foundation22[THEN iffD1], simp)
+            apply(simp only: cp_if_ocl[symmetric] cp_OclIncluding[symmetric]
+                             cp_StrictRefEq[symmetric] cp_OclExcluding[symmetric] )
+            by (simp add: strict2)
+            
+ have D: "\<And>\<tau>. \<tau> \<Turnstile> (y \<triangleq> invalid) \<Longrightarrow>
+           (X->including(x)->excluding(y)) \<tau> =
+           (if x \<doteq> y then X->excluding(y) else X->excluding(y)->including(x) endif) \<tau>"
+            apply(subst cp_if_ocl, subst cp_StrictRefEq)
+            apply(subst cp_OclIncluding, subst cp_OclExcluding, subst cp_OclIncluding)
+            apply(drule foundation22[THEN iffD1], simp)
+            apply(simp only: cp_if_ocl[symmetric] cp_OclIncluding[symmetric]
+                             cp_StrictRefEq[symmetric] cp_OclExcluding[symmetric] )
+            by (simp add: strict1)
+
+ have E: "\<And>\<tau>. \<tau> \<Turnstile> \<upsilon> x \<Longrightarrow> \<tau> \<Turnstile> \<upsilon> y \<Longrightarrow>
+              (if x \<doteq> y then X->excluding(y) else X->excluding(y)->including(x) endif) \<tau> =
+              (if x \<triangleq> y then X->excluding(y) else X->excluding(y)->including(x) endif) \<tau>"
+           apply(subst cp_if_ocl)
+           apply(subst strictEq_vs_strongEq[THEN foundation22[THEN iffD1]])
+           by(simp_all add: cp_if_ocl[symmetric])
+
+ have F: "\<And>\<tau>. \<tau> \<Turnstile> \<delta> X \<Longrightarrow> \<tau> \<Turnstile> \<upsilon> x \<Longrightarrow> \<tau> \<Turnstile> (x \<triangleq> y) \<Longrightarrow> 
+           (X->including(x)->excluding(y) \<tau>) = (X->excluding(y) \<tau>)"
+           apply(simp add: cp_OclExcluding[of "X->including(x)"] cp_OclExcluding[of X])
+           apply(drule foundation22[THEN iffD1], drule sym, simp)
+           by(simp add: cp_OclExcluding[symmetric] excluding_charn2[simplified foundation22])
+
+ show ?thesis
+    apply(rule ext, rename_tac "\<tau>")
+    apply(case_tac "\<not> (\<tau> \<Turnstile> (\<delta> X))", simp add:def_split_local,elim disjE A1 B1 A2 B2)
+    apply(case_tac "\<not> (\<tau> \<Turnstile> (\<upsilon> x))",
+          simp add:foundation18 foundation22[symmetric],
+          drule StrongEq_L_sym)
+    apply(simp add: foundation22 C)
+    apply(case_tac "\<not> (\<tau> \<Turnstile> (\<upsilon> y))",
+          simp add:foundation18 foundation22[symmetric],
+          drule StrongEq_L_sym, simp add: foundation22 D, simp)
+    apply(subst E,simp_all)
+    apply(case_tac "\<tau> \<Turnstile> not (x \<triangleq> y)")
+    apply(simp add: excluding_charn1[simplified foundation22]
+                    excluding_charn2[simplified foundation22])
+    apply(simp add: foundation9 F)
+ done
+qed
 
 syntax
   "_OclFinset" :: "args => ('\<AA>,'a::null) Set"    ("Set{(_)}")
