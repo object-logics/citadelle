@@ -1152,10 +1152,10 @@ lemma excluding_charn_exec[code_unfold]:
                                       \<tau> \<Turnstile> \<upsilon> x \<Longrightarrow> \<tau> \<Turnstile> \<upsilon> y \<Longrightarrow> (\<tau> \<Turnstile> ((x \<doteq> y) \<triangleq> (x \<triangleq> y)))"
  shows "(X->including(x::('\<AA>,'a::null)val)->excluding(y)) = 
         (if \<delta> X then if x \<doteq> y
-                                               then X->excluding(y)
-                                               else X->excluding(y)->including(x)
-                                               endif
-                                          else invalid endif)"
+                     then X->excluding(y)
+                     else X->excluding(y)->including(x)
+                     endif
+                else invalid endif)"
 proof -
  (* Lifting theorems, largely analogous includes_execute_generic,
          with the same problems wrt. strict equality. *)
