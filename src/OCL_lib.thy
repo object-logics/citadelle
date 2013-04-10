@@ -951,8 +951,6 @@ of strict quality.*}
 lemma includes_execute_generic:
 assumes strict1: "(x \<doteq> invalid) = invalid" 
 and     strict2: "(invalid \<doteq> y) = invalid"
-and     strictEq_valid_args_valid: "\<And> (x::('\<AA>,'a::null)val) y \<tau>. 
-                                      (\<tau> \<Turnstile> \<delta> (x \<doteq> y)) = ((\<tau> \<Turnstile> (\<upsilon> x)) \<and> (\<tau> \<Turnstile> \<upsilon> y))"
 and     cp_StrictRefEq: "\<And> (X::('\<AA>,'a::null)val) Y \<tau>. (X \<doteq> Y) \<tau> = ((\<lambda>_. X \<tau>) \<doteq> (\<lambda>_. Y \<tau>)) \<tau>"
 and     strictEq_vs_strongEq: "\<And> (x::('\<AA>,'a::null)val) y \<tau>.
                                       \<tau> \<Turnstile> \<upsilon> x \<Longrightarrow> \<tau> \<Turnstile> \<upsilon> y \<Longrightarrow> (\<tau> \<Turnstile> ((x \<doteq> y) \<triangleq> (x \<triangleq> y)))" 
@@ -1013,7 +1011,7 @@ proof -
           drule StrongEq_L_sym, simp add: foundation22 D, simp)
     apply(subst E,simp_all)
     apply(case_tac "\<tau> \<Turnstile> not(x \<triangleq> y)")
-    apply(simp add: including_charn2[simplified foundation22]  E)
+    apply(simp add: including_charn2[simplified foundation22])
     apply(simp add: foundation9 F 
                     including_charn1[THEN foundation13[THEN iffD2], 
                                      THEN foundation22[THEN iffD1]])
@@ -1023,19 +1021,19 @@ qed
 (* Hack to work around OF-Bug *)
 schematic_lemma includes_execute_int[code_unfold]: "?X"
 by(rule includes_execute_generic[OF StrictRefEq_int_strict1 StrictRefEq_int_strict2 
-                                strictEqInt_valid_args_valid cp_StrictRefEq_int
-                                strictEqInt_vs_strongEq], simp_all)
+                                 cp_StrictRefEq_int
+                                    strictEqInt_vs_strongEq], simp_all)
 
 
 schematic_lemma includes_execute_bool[code_unfold]: "?X"
 by(rule includes_execute_generic[OF StrictRefEq_bool_strict1 StrictRefEq_bool_strict2 
-                                strictEqBool_valid_args_valid cp_StrictRefEq_bool
-                                strictEqBool_vs_strongEq], simp_all)
+                                 cp_StrictRefEq_bool
+                                    strictEqBool_vs_strongEq], simp_all)
 
 
 schematic_lemma includes_execute_set[code_unfold]: "?X"
 by(rule includes_execute_generic[OF StrictRefEq_set_strict1 StrictRefEq_set_strict2
-                                    StrictRefEq_set_strictEq_valid_args_valid cp_StrictRefEq_set
+                                 cp_StrictRefEq_set
                                     strictRefEq_set_vs_strongEq], simp_all)
 
 
