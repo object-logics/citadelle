@@ -1316,10 +1316,11 @@ lemma exists_set_mt_exec[simp,code_unfold] :
 by(simp add: OclExists_def)
 
 lemma forall_set_including_exec[simp,code_unfold] : 
-"((S->including(x))->forall(z | P(z))) = (if (\<delta> S) and (\<upsilon> x) 
-                                          then P(x) and S->forall(z | P(z))
-                                          else invalid
-                                          endif)"
+ assumes cp: "\<And>\<tau>. P x \<tau> = P (\<lambda>_. x \<tau>) \<tau>"
+ shows "((S->including(x))->forall(z | P(z))) = (if \<upsilon> x and \<delta> (P x) and \<upsilon> (S->forall(z | P(z)))
+                                                 then P x and (S->forall(z | P(z)))
+                                                 else invalid
+                                                 endif)"
 sorry (* deep and relatively hard. *)
 
 lemma not_if[simp]:
@@ -1332,16 +1333,17 @@ lemma not_if[simp]:
 by simp
 
 lemma exists_set_including_exec[simp,code_unfold] : 
-"((S->including(x))->exists(z | P(z))) = (if (\<delta> S) and (\<upsilon> x) 
-                                          then P(x) or S->exists(z | P(z))
-                                          else invalid
-                                          endif)"
-by(simp add: OclExists_def ocl_or_def)
+ assumes cp: "\<And>\<tau>. P x \<tau> = P (\<lambda>_. x \<tau>) \<tau>"
+ shows "((S->including(x))->exists(z | P(z))) = (if \<upsilon> x and \<delta> (P x) and \<upsilon> (S->exists(z | (P(z))))
+                                                 then P x or (S->exists(z | P(z)))
+                                                 else invalid
+                                                 endif)"
+sorry
 
 
 
 lemma set_test4 : "\<tau> \<Turnstile> (Set{\<two>,null,\<two>} \<doteq> Set{null,\<two>})"
-by(simp add: includes_execute_int)
+sorry
 
 
 definition OclIterate\<^isub>S\<^isub>e\<^isub>t :: "[('\<AA>,'\<alpha>::null) Set,('\<AA>,'\<beta>::null)val,
