@@ -1763,7 +1763,18 @@ Sequence{6,8}->iterate(i;r1:Sequence(Integer)=Sequence{9}|
 *)
 
 lemma [simp]: "\<delta> (Set{} ->size()) = true"
-sorry (* simple and straight-forward *)
+proof -
+ have A1 : "\<lfloor>\<lfloor>{}\<rfloor>\<rfloor> \<in> Set_0" by(simp add: Set_0_def)
+ have A2 : "None \<in> Set_0"  by(simp add: Set_0_def bot_option_def)
+ have A3 : "\<lfloor>None\<rfloor> \<in> Set_0" by(simp add: Set_0_def bot_option_def null_option_def)
+ show ?thesis
+  apply(rule ext)
+  apply(simp add: defined_def mtSet_def OclSize_def
+                  bot_Set_0_def bot_fun_def
+                  null_Set_0_def null_fun_def)
+  apply(subst Abs_Set_0_inject, simp_all add: A1 A2 A3) +
+ by(simp add: A1 Abs_Set_0_inverse bot_fun_def bot_option_def null_fun_def null_option_def)
+qed
 
 lemma [simp]: "\<delta> ((X ->including(x)) ->size()) = (\<delta>(X) and \<upsilon>(x))"
 sorry (* simple and straight-forward *)
