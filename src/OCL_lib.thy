@@ -1892,7 +1892,11 @@ by(simp add: size_defined[OF X_finite])
 subsection{* Test Statements *}
 
 lemma short_cut'[simp]: "(\<eight> \<doteq> \<six>) = false"
-sorry (* simple and straight-forward *)
+ apply(rule ext)
+ apply(simp add: StrictRefEq_int StrongEq_def ocl_eight_def ocl_six_def true_def false_def invalid_def bot_option_def)
+ apply(simp only: ocl_eight_def[THEN sym] ocl_six_def[THEN sym])
+ apply(simp add: true_def)
+done
 
 
 
