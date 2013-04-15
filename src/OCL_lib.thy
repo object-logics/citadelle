@@ -1776,7 +1776,9 @@ proof -
  by(simp add: A1 Abs_Set_0_inverse bot_fun_def bot_option_def null_fun_def null_option_def)
 qed
 
-lemma [simp]: "\<delta> ((X ->including(x)) ->size()) = (\<delta>(X) and \<upsilon>(x))"
+lemma [simp]: 
+ assumes X_finite: "\<And>\<tau>. finite \<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil>"
+ shows "\<delta> ((X ->including(x)) ->size()) = (\<delta>(X) and \<upsilon>(x))"
 sorry (* simple and straight-forward *)
 
 subsection{* Test Statements *}
