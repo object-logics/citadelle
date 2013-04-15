@@ -1743,16 +1743,12 @@ text{* In particular, this does hold for A = null. *}
 
 
 lemma OclIterate\<^isub>S\<^isub>e\<^isub>t_including:
-assumes S_finite: "\<tau> \<Turnstile> \<delta>(S->size())"
-(*
-and     F_strict1:"\<And> x. F x invalid = invalid"
-and     F_strict2:"\<And> x. F invalid x = invalid"
-
-and     F_commute:"\<And> x y. F y \<circ> F x = F x \<circ> F y"
-and     F_cp:     "\<And> x y \<tau>. F x y \<tau> = F (\<lambda> _. x \<tau>) (\<lambda> _. y \<tau>) \<tau>"
-*)
-shows   "((S->including(a))->iterate(a; x = A | F a x)) \<tau> = 
-          ( ((S->excluding(a))->iterate(a; x = F a A | F a x))) \<tau>"
+assumes S_finite:    "\<tau> \<Turnstile> \<delta>(S->size())"
+and     F_valid_arg: "(\<upsilon> A) \<tau> = (\<upsilon> (F a A)) \<tau>"
+and     F_commute:   "comp_fun_commute F"
+and     F_cp:        "\<And> x y \<tau>. F x y \<tau> = F (\<lambda> _. x \<tau>) y \<tau>"
+shows   "((S->including(a))->iterate(a; x = A     | F a x)) \<tau> =
+         ((S->excluding(a))->iterate(a; x = F a A | F a x)) \<tau>"
 sorry (* Very hard. *)
 
 
