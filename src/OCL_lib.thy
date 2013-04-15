@@ -1321,7 +1321,309 @@ lemma forall_set_including_exec[simp,code_unfold] :
                                                  then P x and (S->forall(z | P(z)))
                                                  else invalid
                                                  endif)"
-sorry (* deep and relatively hard. *)
+proof -
+
+ have defined_inject_true : "\<And>xa P. (\<delta> P) xa \<noteq> true xa \<Longrightarrow> (\<delta> P) xa = false xa"
+  apply(simp add: defined_def true_def false_def
+                  bot_fun_def bot_option_def
+                  null_fun_def null_option_def)
+ by (case_tac " P xa = \<bottom> \<or> P xa = null", simp_all add: true_def)
+
+ have valid_inject_true : "\<And>xa P. (\<upsilon> P) xa \<noteq> true xa \<Longrightarrow> (\<upsilon> P) xa = false xa"
+  apply(simp add: valid_def true_def false_def
+                  bot_fun_def bot_option_def
+                  null_fun_def null_option_def)
+ by (case_tac " P xa = \<bottom>", simp_all add: true_def)
+
+ have insert_in_Set_0 : "\<And>\<tau>. (\<tau> \<Turnstile>(\<delta> S)) \<Longrightarrow> (\<tau> \<Turnstile>(\<upsilon> x)) \<Longrightarrow> \<lfloor>\<lfloor>insert (x \<tau>) \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>\<rfloor>\<rfloor> \<in> Set_0"
+  apply(frule Set_inv_lemma)
+  apply(simp add: Set_0_def bot_option_def null_Set_0_def null_fun_def
+                  foundation18 foundation16 invalid_def)
+ done
+
+ have d_and_v_destruct_defined : "\<And>S x xa. (\<delta> S and \<upsilon> x) xa = true xa \<Longrightarrow> xa \<Turnstile> \<delta> S"
+  apply(rule foundation5[THEN conjunct1])
+  apply(simp add: OclValid_def)
+ done
+
+ have d_and_v_destruct_valid  :"\<And>S x xa. (\<delta> S and \<upsilon> x) xa = true xa \<Longrightarrow> xa \<Turnstile> \<upsilon> x"
+  apply(rule foundation5[THEN conjunct2])
+  apply(simp add: OclValid_def)
+ done
+
+ have forall_including_invert : "\<And> f xa. (f x xa = f (\<lambda> _. x xa) xa) \<Longrightarrow> 
+                                          (\<delta> S and \<upsilon> x) xa = true xa \<Longrightarrow>
+                                          (\<forall>x\<in>\<lceil>\<lceil>Rep_Set_0 (S->including(x) xa)\<rceil>\<rceil>. f (\<lambda>_. x) xa) =
+                                          (f x xa \<and> (\<forall>x\<in>\<lceil>\<lceil>Rep_Set_0 (S xa)\<rceil>\<rceil>. f (\<lambda>_. x) xa))"
+  apply(simp add: OclIncluding_def)
+  apply(subst Abs_Set_0_inverse)
+  apply(rule insert_in_Set_0)
+  apply(rule d_and_v_destruct_defined, assumption)
+  apply(rule d_and_v_destruct_valid, assumption)
+  apply(simp add: d_and_v_destruct_defined d_and_v_destruct_valid)
+  apply(frule d_and_v_destruct_defined, drule d_and_v_destruct_valid)
+  apply(simp add: OclValid_def)
+ done
+
+ have exists_including_invert : "\<And> f xa. (f x xa = f (\<lambda> _. x xa) xa) \<Longrightarrow> 
+                                          (\<delta> S and \<upsilon> x) xa = true xa \<Longrightarrow>
+                                          (\<exists>x\<in>\<lceil>\<lceil>Rep_Set_0 (S->including(x) xa)\<rceil>\<rceil>. f (\<lambda>_. x) xa) =
+                                          (f x xa \<or> (\<exists>x\<in>\<lceil>\<lceil>Rep_Set_0 (S xa)\<rceil>\<rceil>. f (\<lambda>_. x) xa))"
+  apply(subst arg_cong[where f = "\<lambda>x. \<not>x",
+                       OF forall_including_invert[where f = "\<lambda>x xa. \<not> (f x xa)"],
+                       simplified])
+ by simp_all
+
+ have cp_true : "\<And>xa. (P x xa = true xa) = (P (\<lambda>_. x xa) xa = true xa)"
+ by(subst cp, simp)
+
+ have cp_not_true : "\<And>xa. (P x xa \<noteq> true xa) = (P (\<lambda>_. x xa) xa \<noteq> true xa)"
+ by(subst cp, simp)
+
+ have cp_true_or_false : "\<And>xa. (P x xa = true xa \<or> P x xa = false xa) = (P (\<lambda>_. x xa) xa = true xa \<or> P (\<lambda>_. x xa) xa = false xa)"
+  apply(subst cp)
+  apply(subst disj_commute)
+  apply(subst cp)
+  apply(subst disj_commute)
+ by(simp)
+
+ have cp_not_true_and_not_false : "\<And>xa. (P x xa \<noteq> true xa \<and> P x xa \<noteq> false xa) = (P (\<lambda>_. x xa) xa \<noteq> true xa \<and> P (\<lambda>_. x xa) xa \<noteq> false xa)"
+  apply(subst cp)
+  apply(subst conj_commute)
+  apply(subst cp)
+  apply(subst conj_commute)
+ by(simp)
+
+ have recurse_to_false : "\<And>xa.
+   (\<delta> S and \<upsilon> x) xa = true xa \<Longrightarrow>
+   \<exists>x\<in>\<lceil>\<lceil>Rep_Set_0 (S->including(x) xa)\<rceil>\<rceil>. P (\<lambda>_. x) xa \<noteq> true xa \<Longrightarrow>
+   \<forall>x\<in>\<lceil>\<lceil>Rep_Set_0 (S->including(x) xa)\<rceil>\<rceil>. P (\<lambda>_. x) xa = true xa \<or> P (\<lambda>_. x) xa = false xa \<Longrightarrow>
+   false xa = (P x and OclForall S P) xa"
+  apply(frule exists_including_invert[where f = "\<lambda>g xa. P g xa \<noteq> true xa", OF cp_not_true], simp)
+  apply(frule forall_including_invert[where f = "\<lambda>g xa. P g xa = true xa \<or> P g xa = false xa", OF cp_true_or_false], simp)
+  apply(erule conjE)
+  apply(drule disjE)
+  prefer 3
+  apply(assumption)
+  defer
+  apply(simp only: cp_ocl_and[of "P x"])
+  apply(simp add: cp_ocl_and[of "false", THEN sym])
+
+  apply(drule mp, simp)
+  apply(simp only: cp_ocl_and[of "P x"])
+  apply(simp add: OclForall_def d_and_v_destruct_defined[simplified OclValid_def])
+  apply(simp add: cp_ocl_and[of "true", THEN sym])
+ by (simp add: false_def true_def)
+
+ have foundation6': "\<And>\<tau> P. \<tau> \<Turnstile> P \<Longrightarrow> (\<tau> \<Turnstile> \<delta> P) \<and> (\<tau> \<Turnstile> P)"
+  apply(rule conjI)
+  apply(simp add: foundation6)
+ by simp
+
+ have foundation10': "\<And>\<tau> x y. (\<tau> \<Turnstile> x) \<and> (\<tau> \<Turnstile> y) \<Longrightarrow> \<tau> \<Turnstile> (x and y)"
+  apply(erule conjE)
+  apply(subst foundation10)
+  apply(rule foundation6, simp)
+  apply(rule foundation6, simp)
+ by simp
+
+ have recurse_to_true : "\<And>xa. (\<delta> S and \<upsilon> x) xa = true xa \<Longrightarrow>
+   \<forall>x\<in>\<lceil>\<lceil>Rep_Set_0 (S->including(x) xa)\<rceil>\<rceil>. P (\<lambda>_. x) xa = true xa \<Longrightarrow>
+   true xa = (P x and OclForall S P) xa"
+  apply(frule forall_including_invert[where f = "\<lambda>g xa. P g xa = true xa", OF cp_true], simp)
+  apply(rule foundation10'[simplified OclValid_def, THEN sym], simp add: OclForall_def)
+  apply(rule impI, drule defined_inject_true)
+  apply(simp add: d_and_v_destruct_defined[simplified OclValid_def] false_def true_def)
+ done
+
+ have contradict_Rep_Set_0: "\<And>xa S f.
+         \<forall>x\<in>\<lceil>\<lceil>Rep_Set_0 S\<rceil>\<rceil>. f (\<lambda>_. x) xa \<Longrightarrow>
+         \<exists>x\<in>\<lceil>\<lceil>Rep_Set_0 S\<rceil>\<rceil>. \<not> (f (\<lambda>_. x) xa) \<Longrightarrow>
+         False"
+  apply(drule bexE[where Q = False])
+  apply(drule bspec)
+  apply(assumption)
+ by(simp)
+
+ have recurse_to_absurde : "\<And>xa.
+         (\<upsilon> OclForall S P) xa = true xa \<Longrightarrow>
+         \<exists>x\<in>\<lceil>\<lceil>Rep_Set_0 (S xa)\<rceil>\<rceil>. P (\<lambda>_. x) xa \<noteq> true xa \<and> P (\<lambda>_. x) xa \<noteq> false xa \<Longrightarrow>
+         False"
+  apply(simp add: cp_valid[of "OclForall S P"])
+  apply(simp add: OclForall_def)
+  apply(case_tac "(\<delta> S) xa = true xa", simp)
+  apply(case_tac "\<forall>x\<in>\<lceil>\<lceil>Rep_Set_0 (S xa)\<rceil>\<rceil>. P (\<lambda>_. x) xa = true xa")
+  apply(split split_if_asm, simp)
+  apply(drule bexE) apply(simp)+
+  apply(split split_if_asm)
+  apply(drule contradict_Rep_Set_0) apply(simp)+
+  apply(simp add: valid_def true_def bot_option_def bot_fun_def false_def)
+
+  apply(drule defined_inject_true, simp)
+  apply(simp add: valid_def true_def bot_option_def bot_fun_def false_def)
+ done
+
+ have invert_3and : "\<And>xa. ((\<upsilon> x and \<delta> P x) and \<upsilon> OclForall S P) xa \<noteq> true xa \<Longrightarrow>
+                           ((\<upsilon> x) xa = false xa) \<or>
+                            ((\<delta> P x) xa = false xa) \<or>
+                            ((\<upsilon> OclForall S P) xa = false xa)"
+  apply(simp add: ocl_and_def)
+  apply(case_tac "(\<upsilon> x) xa = true xa", simp add: true_def)
+  apply(case_tac "(\<delta> P x) xa = true xa", simp add: true_def)
+  apply(case_tac "(\<upsilon> OclForall S P) xa = true xa", simp add: true_def)
+  apply(simp add: valid_inject_true false_def)
+  apply(drule valid_inject_true, simp add: false_def)
+  apply(drule defined_inject_true, simp add: false_def)
+  apply(drule valid_inject_true, simp add: false_def)
+ done
+
+ have case_not_defined : "\<And>xa. (\<delta> P x) xa = false xa \<Longrightarrow>
+                                (P x xa = true xa \<or> P x xa = false xa) \<Longrightarrow>
+                                False"
+  apply(simp add: defined_def bot_option_def null_option_def bot_fun_def null_fun_def true_def false_def)
+  apply(split split_if_asm)
+  apply(simp add: defined_def bot_option_def null_option_def bot_fun_def null_fun_def true_def false_def)
+  apply(erule disjE)+ apply(simp_all)
+  apply(simp add: true_def false_def)
+ done
+
+ show ?thesis
+
+  apply(rule ext)
+  apply(simp add: if_ocl_def)
+  apply(simp add: cp_defined[of "\<upsilon> x and \<delta> P x and \<upsilon> OclForall S P"])
+  apply(simp add: cp_defined[THEN sym])
+  apply(rule conjI, rule impI)
+  apply(drule foundation5[simplified OclValid_def], erule conjE)+
+  apply(subgoal_tac "(\<delta> S) xa = true xa")
+
+  apply(simp only: cp_ocl_and[of "P x"])
+
+  apply(subst OclForall_def)
+  apply(simp only: cp_ocl_and[THEN sym])
+
+  apply(simp)
+  apply(subgoal_tac "(\<delta> S and \<upsilon> x) xa = true xa", simp)
+  apply(case_tac "\<forall>x\<in>\<lceil>\<lceil>Rep_Set_0 (S->including(x) xa)\<rceil>\<rceil>. P (\<lambda>_. x) xa = true xa", simp)
+  apply(rule recurse_to_true) apply(simp)+
+
+
+  apply(case_tac "\<forall>x\<in>\<lceil>\<lceil>Rep_Set_0 (S->including(x) xa)\<rceil>\<rceil>. P (\<lambda>_. x) xa = true xa \<or> P (\<lambda>_. x) xa = false xa") apply(simp)
+
+  apply(rule conjI, rule impI, simp)
+  apply(rule conjI)
+  apply(rule recurse_to_false) apply(simp)+
+
+  apply(rule impI, rule conjI, rule impI, simp)
+
+  apply(drule contradict_Rep_Set_0) apply(simp)+
+  apply(rule conjI, rule impI)
+  apply(drule contradict_Rep_Set_0) apply(simp)+
+  apply(rule conjI, rule impI)
+  apply(drule contradict_Rep_Set_0) apply(simp)+
+
+  apply(drule bexE) apply(assumption)
+  apply(drule exists_including_invert[where f = "\<lambda>g xa. P g xa \<noteq> true xa \<and> P g xa \<noteq> false xa", OF cp_not_true_and_not_false], simp)
+  apply(simp add: cp_ocl_and[of "P x"])
+  apply(erule disjE)
+  apply(simp only: def_split_local[simplified OclValid_def, of "P x" ])
+  apply(subgoal_tac "P x xa = invalid xa \<or> P x xa = null xa \<or> P x xa = true xa \<or> P x xa = false xa ")
+  apply(erule conjE)
+  apply(simp add: true_def false_def bot_fun_def bot_option_def null_fun_def null_option_def StrongEq_def invalid_def null_def)
+  apply(rule bool_split)
+
+  apply(drule recurse_to_absurde) apply(simp)+
+
+  apply(subst conjI[THEN foundation10'[simplified OclValid_def], of "\<delta> S" xa "\<upsilon> x"]) apply(simp) apply(simp) apply(simp)
+
+  apply(simp add: cp_valid[of "OclForall S P"])
+  apply(simp add: OclForall_def)
+
+  apply(case_tac "(\<delta> S) xa = true xa", simp)
+  apply(simp add: valid_def true_def false_def bot_fun_def bot_option_def null_fun_def null_option_def)
+  apply(rule impI, drule invert_3and)
+  apply(erule disjE)
+  apply(subst OclForall_def)
+  apply(case_tac "(\<delta> (S->including(x))) xa = true xa")
+  apply(simp)
+
+  apply(simp add: cp_ocl_and[of "\<delta> S" "\<upsilon> x"])
+  apply(simp add: cp_ocl_and[THEN sym])
+  apply(simp add: false_def true_def)
+  apply(simp)
+
+  apply(simp add: invalid_def)
+  apply(erule disjE)
+
+  apply(subst OclForall_def)
+
+  apply(case_tac "(\<delta> (S->including(x))) xa = true xa", simp)
+  apply(case_tac "(\<forall>x\<in>\<lceil>\<lceil>Rep_Set_0 (S->including(x) xa)\<rceil>\<rceil>.
+                P (\<lambda>_. x) xa = true xa \<or> P (\<lambda>_. x) xa = false xa)", simp)
+  apply(frule forall_including_invert[where f = "\<lambda>g xa. P g xa = true xa \<or> P g xa = false xa", OF cp_true_or_false], simp)
+  apply(drule case_not_defined)
+  apply(simp)+
+
+  apply(simp add: invalid_def)
+  apply(rule conjI, rule impI)
+  apply(drule contradict_Rep_Set_0) apply(simp)+
+  apply(rule impI)
+
+  apply(frule exists_including_invert[where f = "\<lambda>g xa. P g xa = true xa \<or> P g xa = false xa", OF cp_true_or_false], simp)
+
+  apply(simp add: invalid_def)
+
+  apply(simp add: cp_valid[of "OclForall S P"])
+  apply(simp add: OclForall_def[of S])
+
+  apply(case_tac "(\<delta> S) xa = true xa", simp)
+  apply(case_tac "(\<forall>x\<in>\<lceil>\<lceil>Rep_Set_0 (S xa)\<rceil>\<rceil>.
+                P (\<lambda>_. x) xa = true xa)", simp)
+  apply(simp add: valid_def true_def false_def bot_fun_def bot_option_def null_fun_def null_option_def)
+  apply(split split_if_asm, simp)
+  apply(case_tac "(\<forall>x\<in>\<lceil>\<lceil>Rep_Set_0 (S xa)\<rceil>\<rceil>.
+                P (\<lambda>_. x) xa = true xa \<or> P (\<lambda>_. x) xa = false xa)", simp)
+  apply(simp add: valid_def true_def false_def bot_fun_def bot_option_def null_fun_def null_option_def)
+  apply(split split_if_asm, simp)
+  apply(simp add: valid_def true_def false_def bot_fun_def bot_option_def null_fun_def null_option_def)
+
+  apply(subst OclForall_def)
+  apply(case_tac "(\<upsilon> x) xa = true xa")
+  apply(subgoal_tac "(\<delta> S and \<upsilon> x) xa = true xa")
+  apply(simp)
+
+  apply(rule conjI,rule impI)
+  apply(frule forall_including_invert[where f = "\<lambda>g xa. P g xa = true xa \<or> P g xa = false xa", OF cp_true_or_false], simp)
+
+  apply(drule contradict_Rep_Set_0)
+  apply(erule conjE)
+  apply(simp add: false_def true_def)
+  apply(drule contradict_Rep_Set_0) apply(simp)+
+
+  apply(rule impI, rule conjI, rule impI)
+  apply(frule forall_including_invert[where f = "\<lambda>g xa. P g xa = true xa", OF cp_true], simp)
+  apply(simp add: invalid_def)
+  apply(rule foundation10'[simplified OclValid_def])
+  apply(simp add: true_def)
+
+  apply(drule valid_inject_true)
+
+  apply(case_tac "(\<delta> (S->including(x))) xa = true xa", simp)
+  apply(simp only: cp_ocl_and[of "\<delta> S"])
+  apply(simp add: false_def true_def ocl_and_def)
+  apply(simp add: invalid_def)
+
+  apply(simp add: valid_inject_true valid_def)
+  apply(drule defined_inject_true)
+  apply(simp add: OclForall_def invalid_def)
+  apply(subgoal_tac "(\<delta> S and \<upsilon> x) xa = false xa")
+  apply(simp add: true_def false_def bot_option_def bot_fun_def null_option_def null_fun_def)
+
+  apply(simp only: cp_ocl_and[of "\<delta> S"])
+  apply(simp add: cp_ocl_and[THEN sym])
+
+ done
+qed
 
 lemma not_if[simp]:
 "not(if P then C else E endif) = (if P then not C else not E endif)" 
