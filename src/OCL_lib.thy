@@ -1640,7 +1640,32 @@ lemma exists_set_including_exec[simp,code_unfold] :
                                                  then P x or (S->exists(z | P(z)))
                                                  else invalid
                                                  endif)"
-sorry
+  apply(simp add: OclExists_def ocl_or_def)
+
+  apply(rule not_inject)
+  apply(subst not_not)
+  apply(simp add: OclExists_def ocl_or_def)
+  apply(subst forall_set_including_exec)
+  apply(rule sym, subst cp_not, rule sym)
+  apply(simp only: cp[THEN sym] cp_not[THEN sym])
+
+  apply(rule ext)
+  apply(simp add: cp_if_ocl[of "\<upsilon> x and \<delta> (not (P x)) and \<upsilon> (S->forall(z|not (P z)))"])
+  apply(simp add: cp_if_ocl[of "\<upsilon> x and \<delta> (P x) and \<upsilon> (not (S->forall(z|not (P z))))"])
+  apply(simp add: cp_ocl_and[of "\<upsilon> x and \<delta> (not (P x))"])
+  apply(simp add: cp_ocl_and[of "\<upsilon> x and \<delta> (P x)"])
+  apply(simp add: cp_ocl_and[of "\<upsilon> x"])
+
+  apply(subgoal_tac "(\<delta> not (P x)) xa = (\<delta> P x) xa \<and> (\<upsilon> (S->forall(z|not (P z)))) xa = (\<upsilon> (not (S->forall(X|not (P X))))) xa", simp)
+  apply(rule conjI)
+  apply(auto simp: not_def null_def invalid_def defined_def valid_def OclValid_def
+                  true_def false_def bot_option_def null_option_def null_fun_def bot_fun_def
+             split: option.split_asm HOL.split_if_asm)
+
+  apply(auto simp: not_def null_def invalid_def defined_def valid_def OclValid_def
+                  true_def false_def bot_option_def null_option_def null_fun_def bot_fun_def
+          split: option.split_asm option.split HOL.split_if_asm)
+done
 
 
 
