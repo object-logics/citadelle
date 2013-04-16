@@ -1291,8 +1291,242 @@ lemma StrictRefEq_set_exec[simp,code_unfold] :
               else invalid
               endif
          endif)"
-sorry  (* requires new logical level lemmas couvering extensionality principle on
-         OCL sets. Hard.*)
+proof -
+
+ have defined_inject_true : "\<And>xa P. (\<delta> P) xa \<noteq> true xa \<Longrightarrow> (\<delta> P) xa = false xa"
+  apply(simp add: defined_def true_def false_def
+                  bot_fun_def bot_option_def
+                  null_fun_def null_option_def)
+ by (case_tac " P xa = \<bottom> \<or> P xa = null", simp_all add: true_def)
+
+ have valid_inject_true : "\<And>xa P. (\<upsilon> P) xa \<noteq> true xa \<Longrightarrow> (\<upsilon> P) xa = false xa"
+  apply(simp add: valid_def true_def false_def
+                  bot_fun_def bot_option_def
+                  null_fun_def null_option_def)
+ by (case_tac " P xa = \<bottom>", simp_all add: true_def)
+
+ have valid_inject_defined : "\<And>xa P. (\<upsilon> P) xa \<noteq> true xa \<Longrightarrow> (\<delta> P) xa = false xa"
+  apply(simp add: valid_def defined_def true_def false_def
+                  bot_fun_def bot_option_def
+                  null_fun_def null_option_def)
+ by (case_tac " P xa = \<bottom>", simp_all add: true_def)
+
+ have null_simp : "\<And>xa y. (\<upsilon> y) xa = true xa \<Longrightarrow> (\<delta> y) xa = false xa \<Longrightarrow> y xa = null xa"
+  apply(simp add: valid_def defined_def)
+  apply(split split_if_asm, simp add: false_def true_def)+
+  apply(simp add: false_def true_def)
+ done
+
+ have bot_in_set_0 : "\<lfloor>\<bottom>\<rfloor> \<in> Set_0" by(simp add: Set_0_def null_option_def bot_option_def)
+
+ have forall_exec_true : "\<And>xa x y. (\<delta> x) xa = true xa \<Longrightarrow>
+                          (\<delta> y) xa = true xa \<Longrightarrow>
+                     (OclForall x (OclIncludes y) xa = true xa) = (\<lceil>\<lceil>Rep_Set_0 (x xa)\<rceil>\<rceil> \<subseteq> \<lceil>\<lceil>Rep_Set_0 (y xa)\<rceil>\<rceil>)"
+
+  apply(subst OclForall_def, simp)
+  apply(rule conjI) apply(rule impI)+
+  apply(rule conjI, rule impI)
+  apply(simp add: OclIncludes_def)
+  apply(rule subsetI)
+  apply(drule bspec)
+  apply(assumption)
+  apply(split split_if_asm)
+  apply(drule_tac f = "\<lambda>x. \<lceil>\<lceil>x\<rceil>\<rceil>" in arg_cong)+
+  apply(simp add: true_def)
+  apply(simp add: bot_option_def true_def)
+
+  apply(rule impI)
+  apply(simp add: true_def false_def)
+  apply(rule notI)
+  apply(drule_tac Q = False in bexE) prefer 2 apply(assumption)
+  apply(drule_tac Q = False and x = xb in ballE) prefer 3 apply(assumption) prefer 2 apply(simp)
+  apply(drule_tac R = False in disjE) apply(simp) prefer 2 apply(simp)
+  apply(drule_tac c = xb in subsetD)
+  apply(simp)
+  apply(simp add: OclIncludes_def true_def)
+  apply(split split_if_asm, simp)
+  apply(simp add: bot_option_def)
+
+  apply(rule impI, rule conjI)
+  apply(blast)
+
+
+  apply(simp add: bot_option_def true_def false_def, rule impI)
+
+  apply(rule notI)
+  apply(frule_tac Q = False in bexE) prefer 2 apply(assumption)
+  apply(drule_tac c = xb in subsetD)
+  apply(simp)
+  apply(simp add: OclIncludes_def true_def)
+  apply(case_tac "(\<upsilon> (\<lambda>_. xb)) xa = \<lfloor>\<lfloor>True\<rfloor>\<rfloor>", simp)
+  apply(simp add: valid_def)
+  apply(frule Set_inv_lemma[simplified OclValid_def true_def])
+  apply(erule disjE)
+  apply(simp)
+  apply(simp add: Abs_Set_0_inverse[OF bot_in_set_0])
+  apply(split split_if_asm)
+  apply(simp add: cp_defined[of x])
+  apply(simp add: defined_def bot_option_def null_fun_def null_Set_0_def false_def)
+
+  apply(simp add: bot_fun_def false_def true_def)
+ done
+
+ have forall_exec_false : "\<And>xa x y. (\<delta> x) xa = true xa \<Longrightarrow>
+                          (\<delta> y) xa = true xa \<Longrightarrow>
+                     (OclForall x (OclIncludes y) xa = false xa) = (\<not> \<lceil>\<lceil>Rep_Set_0 (x xa)\<rceil>\<rceil> \<subseteq> \<lceil>\<lceil>Rep_Set_0 (y xa)\<rceil>\<rceil>)"
+
+  apply(subgoal_tac "\<not> (OclForall x (OclIncludes y) xa = false xa) = (\<not> (\<not> \<lceil>\<lceil>Rep_Set_0 (x xa)\<rceil>\<rceil> \<subseteq> \<lceil>\<lceil>Rep_Set_0 (y xa)\<rceil>\<rceil>))")
+  apply(simp)
+  apply(subst forall_exec_true[symmetric]) apply(simp)+
+  apply(simp add: OclForall_def false_def true_def bot_option_def)
+  apply(rule impI)
+
+  apply(frule Set_inv_lemma[simplified OclValid_def true_def])
+  apply(erule disjE)
+  apply(simp)
+  apply(simp add: Abs_Set_0_inverse[OF bot_in_set_0])
+  apply(rule ballI)
+  apply(simp add: defined_def bot_option_def null_fun_def null_Set_0_def false_def)
+
+  apply(drule_tac Q = False in bexE)
+  apply(drule_tac Q = False and x = xb in ballE)
+  apply(simp add: OclIncludes_def valid_def bot_fun_def true_def)
+  apply(simp)+
+ done
+
+ have strongeq_true : "\<And> xa x y. (\<lfloor>\<lfloor>x xa = y xa\<rfloor>\<rfloor> = true xa) = (x xa = y xa)"
+ by(simp add: foundation22[simplified OclValid_def StrongEq_def] )
+
+ have strongeq_false : "\<And> xa x y. (\<lfloor>\<lfloor>x xa = y xa\<rfloor>\<rfloor> = false xa) = (x xa \<noteq> y xa)"
+  apply(case_tac "x xa \<noteq> y xa", simp add: false_def)
+  apply(simp add: false_def true_def)
+ done
+
+ have rep_set_inj : "\<And>xa. (\<delta> x) xa = true xa \<Longrightarrow>
+                         (\<delta> y) xa = true xa \<Longrightarrow>
+                          x xa \<noteq> y xa \<Longrightarrow>
+                          \<lceil>\<lceil>Rep_Set_0 (y xa)\<rceil>\<rceil> \<noteq> \<lceil>\<lceil>Rep_Set_0 (x xa)\<rceil>\<rceil>"
+  apply(simp add: defined_def)
+  apply(split split_if_asm, simp add: false_def true_def)+
+  apply(simp add: null_fun_def null_Set_0_def bot_fun_def bot_Set_0_def)
+
+  apply(case_tac "x xa")
+  apply(case_tac "ya", simp_all)
+  apply(case_tac "a", simp_all)
+
+  apply(case_tac "y xa")
+  apply(case_tac "yaa", simp_all)
+  apply(case_tac "ab", simp_all)
+
+  apply(simp add: Abs_Set_0_inverse)
+
+  apply(blast)
+ done
+
+ show ?thesis
+  apply(rule ext)
+
+  apply(simp add: cp_if_ocl[of "\<delta> x"])
+  apply(case_tac "(\<upsilon> x) xa \<noteq> true xa")
+  apply(simp add: valid_inject_defined[of "x"])
+  apply(simp add: cp_if_ocl[symmetric])
+  apply(simp add: cp_if_ocl[of "\<upsilon> x"])
+  apply(subst valid_inject_true[of "x"])
+  apply(simp)
+  apply(simp add: cp_if_ocl[symmetric])
+  apply(simp add: valid_def)
+  apply(case_tac "x xa = \<bottom> xa")
+  apply(simp add: valid_def)
+  apply(simp add: cp_StrictRefEq_set[of "x"])
+  apply(simp add: cp_StrictRefEq_set[symmetric])
+  apply(simp add: invalid_def)
+  apply(simp add: fun_cong[OF StrictRefEq_set_strict2[simplified invalid_def, of y]] bot_fun_def)
+  apply(simp)
+
+  apply(case_tac "(\<delta> x) xa \<noteq> true xa")
+
+  apply(subgoal_tac "(\<delta> x) xa = false xa")
+   prefer 2
+   apply(rule defined_inject_true)
+   apply(simp)
+  apply(simp add: cp_if_ocl[symmetric])
+  apply(simp add: cp_if_ocl[of "\<upsilon> x"])
+  apply(simp add: cp_if_ocl[symmetric])
+  apply(simp add: StrictRefEq_set)
+  apply(simp add: cp_if_ocl[of "\<upsilon> y"])
+  apply(case_tac "(\<upsilon> y) xa \<noteq> true xa")
+  apply(simp add: valid_inject_true)
+  apply(simp add: cp_if_ocl[symmetric])
+  apply(simp add: cp_if_ocl[symmetric])
+  apply(simp add: cp_not[of "\<delta> y"])
+  apply(case_tac "(\<delta> y) xa = true xa")
+  apply(simp add: cp_not[symmetric])
+  apply(simp add: valid_def defined_def false_def true_def bot_fun_def bot_option_def null_fun_def null_option_def StrongEq_def)
+  apply(split split_if_asm, simp add: false_def true_def bot_fun_def bot_option_def null_fun_def null_option_def )+
+  apply(subgoal_tac "y xa \<noteq> null")
+  apply(simp)+
+  apply(simp add: defined_inject_true)
+  apply(simp add: cp_not[symmetric])
+  apply(drule defined_inject_true)
+  apply(simp add: null_simp[of x] null_simp[of y] StrongEq_def true_def)
+
+  apply(simp add: cp_if_ocl[symmetric])
+  apply(simp add: cp_if_ocl[of "\<delta> y"])
+  apply(case_tac "(\<upsilon> y) xa \<noteq> true xa")
+  apply(frule valid_inject_true)
+  apply(simp add: valid_inject_defined)
+  apply(simp add: cp_if_ocl[symmetric])
+  apply(simp add: cp_if_ocl[of "\<upsilon> y"])
+  apply(simp add: cp_if_ocl[symmetric])
+  apply(simp add: StrictRefEq_set)
+
+  apply(case_tac "(\<delta> y) xa \<noteq> true xa")
+  apply(drule defined_inject_true, simp)
+  apply(simp add: cp_if_ocl[symmetric])
+  apply(simp add: cp_if_ocl[of "\<upsilon> y"])
+  apply(simp add: cp_if_ocl[symmetric])
+
+
+  apply(simp add: null_simp[of y] StrictRefEq_set StrongEq_def false_def)
+  apply(simp add: valid_def[of x] defined_def[of x])
+  apply(split split_if_asm, simp add: false_def true_def)+
+  apply(blast)
+
+  apply(simp)
+  apply(simp add: cp_if_ocl[symmetric])
+  apply(simp add: StrictRefEq_set StrongEq_def)
+
+  (* ************************* *)
+  apply(subgoal_tac "\<lfloor>\<lfloor>x xa = y xa\<rfloor>\<rfloor> = true xa \<or> \<lfloor>\<lfloor>x xa = y xa\<rfloor>\<rfloor> = false xa")
+   prefer 2
+   apply(case_tac "x xa = y xa")
+   apply(rule disjI1, simp add: true_def)
+   apply(rule disjI2, simp add: false_def)
+  (* *)
+  apply(erule disjE)
+  apply(simp add: strongeq_true)
+
+  apply(subgoal_tac "OclForall x (OclIncludes y) xa = true xa \<and> OclForall y (OclIncludes x) xa = true xa")
+  apply(simp add: cp_ocl_and true_def)
+  apply(simp add: forall_exec_true)
+
+  (* *)
+  apply(simp add: strongeq_false)
+
+  apply(subgoal_tac "OclForall x (OclIncludes y) xa = false xa \<or> OclForall y (OclIncludes x) xa = false xa")
+  apply(simp add: cp_ocl_and[of "OclForall x (OclIncludes y)"] false_def)
+  apply(erule disjE)
+   apply(simp)
+   apply(subst cp_ocl_and[symmetric])
+   apply(simp only: ocl_and_false1[simplified false_def])
+
+   apply(simp)
+   apply(subst cp_ocl_and[symmetric])
+   apply(simp only: ocl_and_false2[simplified false_def])
+
+  apply(simp add: forall_exec_false rep_set_inj)
+ done
+qed
 
 
 
