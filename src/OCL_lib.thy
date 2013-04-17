@@ -2291,12 +2291,24 @@ done
 
 
 lemma GogollasChallenge_on_sets:
-      "(Set{ \<six>,\<eight> } ->iterate(i;r1=Set{\<nine>}|
+      "\<tau> \<Turnstile> (Set{ \<six>,\<eight> } ->iterate(i;r1=Set{\<nine>}|
                         r1->iterate(j;r2=r1|
-                                    r2->including(\<zero>)->including(i)->including(j))) =  Set{\<zero>,  \<six>, \<nine>})"
-apply(rule ext,
-      simp add: excluding_charn_exec OclIterate\<^isub>S\<^isub>e\<^isub>t_including excluding_charn0_exec)
-sorry (* should be simple to fix this. *)
+                                    r2->including(\<zero>)->including(i)->including(j))) \<doteq> Set{\<zero>, \<six>, \<eight>, \<nine>})"
+proof -
+
+ have GogollasChallenge : 
+            "Set{ \<six>,\<eight> } ->iterate(i;r1=Set{\<nine>}|
+                        r1->iterate(j;r2=r1|
+                                    r2->including(\<zero>)->including(i)->including(j))) = Set{\<zero>, \<eight>, \<zero>, \<six>, \<eight>, \<zero>, \<nine>, \<eight>, \<zero>, \<nine>, \<six>, \<zero>, \<nine>}"
+  apply(rule ext,
+        simp add: excluding_charn_exec OclIterate\<^isub>S\<^isub>e\<^isub>t_including excluding_charn0_exec)
+ sorry
+
+ show ?thesis
+  apply(simp add: GogollasChallenge)
+
+ sorry (* should be simple to fix this. *)
+qed
 
 
 text{* Elementary computations on Sets.*}
