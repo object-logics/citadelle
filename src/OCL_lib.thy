@@ -1904,7 +1904,68 @@ done
 
 
 lemma set_test4 : "\<tau> \<Turnstile> (Set{\<two>,null,\<two>} \<doteq> Set{null,\<two>})"
-sorry
+proof -
+
+ have cp_1: "\<And>x \<tau>. (if null \<doteq> x then true else if \<two> \<doteq> x then true else if \<upsilon> x then false else invalid endif endif endif) \<tau> =
+                 (if null \<doteq> (\<lambda>_. x \<tau>) then true else if \<two> \<doteq> (\<lambda>_. x \<tau>) then true else if \<upsilon> (\<lambda>_. x \<tau>) then false else invalid endif endif endif) \<tau>"
+  apply(subgoal_tac "(null \<doteq> x) \<tau> = (null \<doteq> (\<lambda>_. x \<tau>)) \<tau> \<and> (\<two> \<doteq> x) \<tau> = (\<two> \<doteq> (\<lambda>_. x \<tau>)) \<tau> \<and> (\<upsilon> x) \<tau> = (\<upsilon> (\<lambda>_. x \<tau>)) \<tau>")
+  apply(subst cp_if_ocl[of "null \<doteq> x"])
+  apply(subst cp_if_ocl[of "\<two> \<doteq> x"])
+  apply(subst cp_if_ocl[of "\<upsilon> x"])
+  apply(simp)
+
+  apply(subst if_ocl_def)
+  apply(rule sym, subst if_ocl_def)
+
+  apply(simp only: cp_if_ocl[symmetric])
+  apply(subgoal_tac "(\<delta> (null \<doteq> (\<lambda>_. x \<tau>))) \<tau> = (\<delta> (\<lambda>_. (null \<doteq> (\<lambda>_. x \<tau>)) \<tau>)) \<tau>")
+  apply(simp only:)
+  apply(rule cp_defined)
+
+  apply(subst cp_StrictRefEq_int[of null x])
+  apply(simp add: null_fun_def)
+
+  apply(subst cp_StrictRefEq_int[of \<two> ])
+  apply(simp add: ocl_two_def)
+
+  apply(rule cp_valid)
+ done
+
+ have cp_2: "(\<And>x \<tau>. (if \<two> \<doteq> x then true else if null \<doteq> x then true else if \<two> \<doteq> x then true else if \<upsilon> x then false else invalid endif endif endif endif) \<tau> =
+                 (if \<two> \<doteq> (\<lambda>_. x \<tau>) then true else if null \<doteq> (\<lambda>_. x \<tau>) then true else 
+                                                     if \<two> \<doteq> (\<lambda>_. x \<tau>) then true else if \<upsilon> (\<lambda>_. x \<tau>) then false else invalid endif endif endif endif) \<tau>)"
+  apply(subgoal_tac "(null \<doteq> x) \<tau> = (null \<doteq> (\<lambda>_. x \<tau>)) \<tau> \<and> (\<two> \<doteq> x) \<tau> = (\<two> \<doteq> (\<lambda>_. x \<tau>)) \<tau> \<and> (\<upsilon> x) \<tau> = (\<upsilon> (\<lambda>_. x \<tau>)) \<tau>")
+  apply(subst cp_if_ocl[of "\<two> \<doteq> x"])
+  apply(subst cp_if_ocl[of "null \<doteq> x"])
+  apply(subst cp_if_ocl[of "\<two> \<doteq> x"])
+  apply(subst cp_if_ocl[of "\<upsilon> x"])
+  apply(simp)
+
+  apply(subst if_ocl_def)
+  apply(rule sym, subst if_ocl_def)
+
+  apply(simp only: cp_if_ocl[symmetric])
+  apply(subgoal_tac "(\<delta> (\<two> \<doteq> (\<lambda>_. x \<tau>))) \<tau> = (\<delta> (\<lambda>_. (\<two> \<doteq> (\<lambda>_. x \<tau>)) \<tau>)) \<tau>")
+  apply(simp only:)
+  apply(rule cp_defined)
+
+  apply(subst cp_StrictRefEq_int[of null x])
+  apply(simp add: null_fun_def)
+
+  apply(subst cp_StrictRefEq_int[of \<two> ])
+  apply(simp add: ocl_two_def)
+
+  apply(rule cp_valid)
+ done
+
+ show ?thesis
+  apply(simp add: includes_execute_int)
+  apply(simp add: forall_set_including_exec[where P = "\<lambda>z. if null \<doteq> z then true else if \<two> \<doteq> z then true else if \<upsilon> z then false else invalid endif endif endif", 
+                                            OF cp_1])
+  apply(simp add: forall_set_including_exec[where P = "\<lambda>z. if \<two> \<doteq> z then true else if null \<doteq> z then true else if \<two> \<doteq> z then true else if \<upsilon> z then false else invalid endif endif endif endif", 
+                                            OF cp_2])
+ done
+qed
 
 
 definition OclIterate\<^isub>S\<^isub>e\<^isub>t :: "[('\<AA>,'\<alpha>::null) Set,('\<AA>,'\<beta>::null)val,
