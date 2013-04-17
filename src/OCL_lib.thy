@@ -55,12 +55,45 @@ by(rule ext, simp add: StrictRefEq_int true_def false_def)
 lemma StrictRefEq_int_strict2[simp] : "(invalid \<doteq> (x::('\<AA>)Integer)) = invalid"
 by(rule ext, simp add: StrictRefEq_int true_def false_def)
 
+lemma StrictRefEq_int_strictEq_valid_args_valid:
+"(\<tau> \<Turnstile> \<delta> ((x::('\<AA>)Integer) \<doteq> y)) = ((\<tau> \<Turnstile> (\<upsilon> x)) \<and> (\<tau> \<Turnstile> \<upsilon> y))"
+proof -
+   have A: "\<tau> \<Turnstile> \<delta> (x \<doteq> y) \<Longrightarrow> \<tau> \<Turnstile> \<upsilon> x \<and> \<tau> \<Turnstile> \<upsilon> y"
+           apply(simp add: StrictRefEq_int valid_def OclValid_def defined_def)
+           apply(simp add: invalid_def bot_fun_def split: split_if_asm)
+           done
+   have B: "(\<tau> \<Turnstile> \<upsilon> x) \<and> (\<tau> \<Turnstile> \<upsilon> y) \<Longrightarrow> \<tau> \<Turnstile> \<delta> (x \<doteq> y)"
+           apply(simp add: StrictRefEq_int, elim conjE)
+           apply(drule foundation13[THEN iffD2],drule foundation13[THEN iffD2])
+           apply(rule cp_validity[THEN iffD2])
+           apply(subst cp_defined, simp add: foundation22)
+           apply(simp add: cp_defined[symmetric] cp_validity[symmetric])
+           done
+   show ?thesis by(auto intro!: A B)
+qed
+
 lemma StrictRefEq_bool_strict1[simp] : "((x::('\<AA>)Boolean) \<doteq> invalid) = invalid"
 by(rule ext, simp add: StrictRefEq_bool true_def false_def)
 
 lemma StrictRefEq_bool_strict2[simp] : "(invalid \<doteq> (x::('\<AA>)Boolean)) = invalid"
 by(rule ext, simp add: StrictRefEq_bool true_def false_def)
 
+lemma StrictRefEq_bool_strictEq_valid_args_valid:
+"(\<tau> \<Turnstile> \<delta> ((x::('\<AA>)Boolean) \<doteq> y)) = ((\<tau> \<Turnstile> (\<upsilon> x)) \<and> (\<tau> \<Turnstile> \<upsilon> y))"
+proof -
+   have A: "\<tau> \<Turnstile> \<delta> (x \<doteq> y) \<Longrightarrow> \<tau> \<Turnstile> \<upsilon> x \<and> \<tau> \<Turnstile> \<upsilon> y"
+           apply(simp add: StrictRefEq_bool valid_def OclValid_def defined_def)
+           apply(simp add: invalid_def bot_fun_def split: split_if_asm)
+           done
+   have B: "(\<tau> \<Turnstile> \<upsilon> x) \<and> (\<tau> \<Turnstile> \<upsilon> y) \<Longrightarrow> \<tau> \<Turnstile> \<delta> (x \<doteq> y)"
+           apply(simp add: StrictRefEq_bool, elim conjE)
+           apply(drule foundation13[THEN iffD2],drule foundation13[THEN iffD2])
+           apply(rule cp_validity[THEN iffD2])
+           apply(subst cp_defined, simp add: foundation22)
+           apply(simp add: cp_defined[symmetric] cp_validity[symmetric])
+           done
+   show ?thesis by(auto intro!: A B)
+qed
 
 lemma strictEqBool_vs_strongEq:
 "\<tau> \<Turnstile>(\<upsilon> x) \<Longrightarrow> \<tau> \<Turnstile>(\<upsilon> y) \<Longrightarrow> (\<tau> \<Turnstile> (((x::('\<AA>)Boolean) \<doteq> y) \<triangleq> (x \<triangleq> y)))"
@@ -1235,6 +1268,22 @@ proof -
     apply(simp add: foundation9 F)
  done
 qed
+
+(* Hack to work around OF-Bug *)
+schematic_lemma excluding_charn_exec_int[code_unfold]: "?X"
+by(rule excluding_charn_exec[OF StrictRefEq_int_strict1 StrictRefEq_int_strict2
+                                StrictRefEq_int_strictEq_valid_args_valid
+                             cp_StrictRefEq_int strictEqInt_vs_strongEq], simp_all)
+
+schematic_lemma excluding_charn_exec_bool[code_unfold]: "?X"
+by(rule excluding_charn_exec[OF StrictRefEq_bool_strict1 StrictRefEq_bool_strict2
+                                StrictRefEq_bool_strictEq_valid_args_valid
+                             cp_StrictRefEq_bool strictEqBool_vs_strongEq], simp_all)
+
+schematic_lemma excluding_charn_exec_set[code_unfold]: "?X"
+by(rule excluding_charn_exec[OF StrictRefEq_set_strict1 StrictRefEq_set_strict2
+                                StrictRefEq_set_strictEq_valid_args_valid
+                             cp_StrictRefEq_set strictRefEq_set_vs_strongEq], simp_all)
 
 syntax
   "_OclFinset" :: "args => ('\<AA>,'a::null) Set"    ("Set{(_)}")
