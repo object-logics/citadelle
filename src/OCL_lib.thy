@@ -2311,6 +2311,99 @@ proof -
  done
 qed
 
+lemma excluding_size_defined[simp]: "\<delta> ((X ->excluding(x)) ->size()) = (\<delta>(X->size()) and \<upsilon>(x))"
+proof -
+
+ have defined_inject_true : "\<And>xa P. (\<delta> P) xa \<noteq> true xa \<Longrightarrow> (\<delta> P) xa = false xa"
+  apply(simp add: defined_def true_def false_def
+                  bot_fun_def bot_option_def
+                  null_fun_def null_option_def)
+ by (case_tac " P xa = \<bottom> \<or> P xa = null", simp_all add: true_def)
+
+ have valid_inject_true : "\<And>xa P. (\<upsilon> P) xa \<noteq> true xa \<Longrightarrow> (\<upsilon> P) xa = false xa"
+  apply(simp add: valid_def true_def false_def
+                  bot_fun_def bot_option_def
+                  null_fun_def null_option_def)
+ by (case_tac "P xa = \<bottom>", simp_all add: true_def)
+
+ have finite_excluding_exec : "\<And>xa. (\<delta> X and \<upsilon> x) xa = true xa \<Longrightarrow>
+                 finite \<lceil>\<lceil>Rep_Set_0 (X->excluding(x) xa)\<rceil>\<rceil> = finite \<lceil>\<lceil>Rep_Set_0 (X xa)\<rceil>\<rceil>"
+  apply(simp add: OclExcluding_def)
+  apply(subst Abs_Set_0_inverse)
+  apply(simp add: Set_0_def)
+  apply(rule disjI2)+
+  (* *)
+  apply(rule disjE[OF Set_inv_lemma[OF foundation5[of _ "\<delta> X" "\<upsilon> x", THEN conjunct1]]])
+  apply(simp add: OclValid_def cp_ocl_and[THEN sym])
+
+  apply(simp only: cp_ocl_and[of "\<delta> X" "\<upsilon> x"])
+  apply(simp add: cp_defined[of x] defined_def)
+  apply(split split_if_asm)
+  apply(simp only: cp_ocl_and[of _ "\<upsilon> x", THEN sym])
+  apply(simp)
+  apply(simp add: false_def true_def)
+
+  apply(simp add: bot_option_def null_Set_0_def null_fun_def)
+  apply(rule ballI)
+  apply(drule_tac Q = "xb \<noteq> \<bottom>" and x = xb in ballE)
+  apply(assumption)
+  apply(simp)
+
+  apply(simp)
+  apply(case_tac "(\<delta> X) xa = true xa", simp)
+  apply(simp only: cp_ocl_and[of "\<delta> X" "\<upsilon> x"])
+  apply(simp add: cp_ocl_and[of _ "\<upsilon> x", THEN sym])
+  apply(drule defined_inject_true[of X _])
+  apply(simp only: cp_ocl_and[of "\<delta> X" "\<upsilon> x"])
+  apply(simp add: cp_ocl_and[of _ "\<upsilon> x", THEN sym])
+  apply(simp add: false_def true_def)
+ done
+
+ have card_excluding_exec : "\<And>xa. (\<delta> (\<lambda>_. \<lfloor>\<lfloor>int (card \<lceil>\<lceil>Rep_Set_0 (X->excluding(x) xa)\<rceil>\<rceil>)\<rfloor>\<rfloor>)) xa = (\<delta> (\<lambda>_. \<lfloor>\<lfloor>int (card \<lceil>\<lceil>Rep_Set_0 (X xa)\<rceil>\<rceil>)\<rfloor>\<rfloor>)) xa"
+  apply(simp add: defined_def bot_fun_def bot_option_def null_fun_def null_option_def)
+ done
+
+ show ?thesis
+
+  apply(rule ext)
+  apply(case_tac "(\<delta> (X->excluding(x)->size())) xa = true xa", simp)
+  apply(subst cp_ocl_and)
+  apply(subst cp_defined)
+  apply(simp only: cp_defined[of "X->excluding(x)->size()"])
+  apply(simp add: OclSize_def)
+  apply(case_tac "((\<delta> X and \<upsilon> x) xa = true xa \<and> finite \<lceil>\<lceil>Rep_Set_0 (X->excluding(x) xa)\<rceil>\<rceil>)", simp)
+  prefer 2
+  apply(simp)
+  apply(simp add: defined_def true_def false_def bot_fun_def bot_option_def)
+  apply(erule conjE)
+  apply(simp add: finite_excluding_exec card_excluding_exec
+                  cp_ocl_and[of "\<delta> X" "\<upsilon> x"]
+                  cp_ocl_and[of "true", THEN sym])
+  apply(subgoal_tac "(\<delta> X) xa = true xa \<and> (\<upsilon> x) xa = true xa", simp)
+  apply(rule foundation5[of _ "\<delta> X" "\<upsilon> x", simplified OclValid_def], simp only: cp_ocl_and[THEN sym])
+
+  apply(drule defined_inject_true[of "X->excluding(x)->size()"], simp)
+  apply(simp only: cp_ocl_and[of "\<delta> (X->size())" "\<upsilon> x"])
+  apply(simp add: cp_defined[of "X->excluding(x)->size()" ] cp_defined[of "X->size()" ])
+  apply(simp add: OclSize_def finite_excluding_exec card_excluding_exec)
+  apply(case_tac "(\<delta> X and \<upsilon> x) xa = true xa \<and> finite \<lceil>\<lceil>Rep_Set_0 (X xa)\<rceil>\<rceil>",
+        simp add: finite_excluding_exec card_excluding_exec)
+  apply(simp only: cp_ocl_and[THEN sym])
+  apply(simp add: defined_def bot_fun_def)
+
+  apply(split split_if_asm)
+  apply(simp add: finite_excluding_exec)
+  apply(simp add: finite_excluding_exec card_excluding_exec)
+  apply(simp only: cp_ocl_and[THEN sym])
+  apply(simp)
+  apply(rule impI)
+  apply(erule conjE)
+  apply(case_tac "(\<upsilon> x) xa = true xa", simp add: cp_ocl_and[of "\<delta> X" "\<upsilon> x"])
+  apply(drule valid_inject_true[of "x"], simp add: cp_ocl_and[of _ "\<upsilon> x"])
+  apply(simp add: cp_ocl_and[THEN sym])
+ done
+qed
+
 lemma size_defined:
  assumes X_finite: "\<And>xa. finite \<lceil>\<lceil>Rep_Set_0 (X xa)\<rceil>\<rceil>"
  shows "\<delta> (X->size()) = \<delta> X"
