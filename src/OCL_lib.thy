@@ -2234,18 +2234,38 @@ proof -
                       null_fun_def null_option_def)
       by (case_tac "P xa = \<bottom>", simp_all add: true_def)
 
+(* example by bu ... *)
+
  have C : "\<And>\<tau>. (\<tau> \<Turnstile>(\<delta> X)) \<Longrightarrow> (\<tau> \<Turnstile>(\<upsilon> x)) \<Longrightarrow> \<lfloor>\<lfloor>insert (x \<tau>) \<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil>\<rfloor>\<rfloor> \<in> Set_0"
           apply(frule Set_inv_lemma)
           apply(simp add: Set_0_def bot_option_def null_Set_0_def null_fun_def
                           foundation18 foundation16 invalid_def)
           done
-(* example bu *)
-have finite_including_exec' : "\<And>\<tau>. (\<tau> \<Turnstile>(\<delta> X)) \<Longrightarrow> (\<tau> \<Turnstile>(\<upsilon> x)) \<Longrightarrow>
+
+(* example by bu cont ... *)
+have finite_including_exec' : 
+    "\<And>\<tau>. (\<tau> \<Turnstile>(\<delta> X)) \<Longrightarrow> (\<tau> \<Turnstile>(\<upsilon> x)) \<Longrightarrow>
                  finite \<lceil>\<lceil>Rep_Set_0 (X->including(x) \<tau>)\<rceil>\<rceil> = finite \<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil>"
   apply(simp add: OclIncluding_def Abs_Set_0_inverse C)
   apply(drule foundation13[THEN iffD2, THEN foundation22[THEN iffD1]], simp)+
   done
 
+(* ... and even more succinct : *)
+have finite_including_exec'' : 
+     "\<And>\<tau>. (\<tau> \<Turnstile>(\<delta> X)) \<Longrightarrow> (\<tau> \<Turnstile>(\<upsilon> x)) \<Longrightarrow>
+                 finite \<lceil>\<lceil>Rep_Set_0 (X->including(x) \<tau>)\<rceil>\<rceil> = finite \<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil>"
+  by(auto simp: OclIncluding_def Abs_Set_0_inverse C
+          dest: foundation13[THEN iffD2, THEN foundation22[THEN iffD1]])
+ 
+(* just equivalence, to show that this premise corresponds to the final statement in the logical 
+chain ...*)
+have "\<And>xa. (\<delta> X and \<upsilon> x) xa = true xa" sorry
+have "\<And>\<tau>. (\<delta> X and \<upsilon> x) \<tau> = true \<tau> "   sorry
+have "\<And>\<tau>. \<tau> \<Turnstile> (\<delta> X and \<upsilon> x) \<triangleq> true"   sorry
+have "\<And>\<tau>. \<tau> \<Turnstile> (\<delta> X and \<upsilon> x)  "        sorry
+have "\<And>\<tau>. \<tau> \<Turnstile> (\<delta> X) \<and> \<tau> \<Turnstile>(\<upsilon> x)  "    sorry
+
+(* and now compare to your original proof *)
  have finite_including_exec : "\<And>xa. (\<delta> X and \<upsilon> x) xa = true xa \<Longrightarrow>
                  finite \<lceil>\<lceil>Rep_Set_0 (X->including(x) xa)\<rceil>\<rceil> = finite \<lceil>\<lceil>Rep_Set_0 (X xa)\<rceil>\<rceil>"
   apply(simp add: OclIncluding_def)
