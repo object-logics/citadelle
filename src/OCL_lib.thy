@@ -1760,6 +1760,11 @@ proof -
   apply(drule valid_inject_true, simp add: false_def)
  done
 
+ have "\<And>\<tau>. (\<delta> P x) \<tau> = false \<tau>" sorry
+ have "\<And>\<tau>. \<tau> \<Turnstile> (\<delta> P x) \<triangleq> false " sorry
+
+ have "\<And>\<tau>. \<not> \<tau> \<Turnstile> (\<delta> P x)" sorry  (* are all equivalent !!! *)
+
  have case_not_defined : "\<And>xa. (\<delta> P x) xa = false xa \<Longrightarrow>
                                 (P x xa = true xa \<or> P x xa = false xa) \<Longrightarrow>
                                 False"
@@ -2215,20 +2220,31 @@ proof -
  by(simp add: A1 Abs_Set_0_inverse bot_fun_def bot_option_def null_fun_def null_option_def)
 qed
 
+
 lemma including_size_defined[simp]: "\<delta> ((X ->including(x)) ->size()) = (\<delta>(X->size()) and \<upsilon>(x))"
 proof -
 
  have defined_inject_true : "\<And>xa P. (\<delta> P) xa \<noteq> true xa \<Longrightarrow> (\<delta> P) xa = false xa"
-  apply(simp add: defined_def true_def false_def
-                  bot_fun_def bot_option_def
-                  null_fun_def null_option_def)
- by (case_tac " P xa = \<bottom> \<or> P xa = null", simp_all add: true_def)
+      apply(simp add: defined_def true_def false_def bot_fun_def bot_option_def
+                      null_fun_def null_option_def)
+      by (case_tac " P xa = \<bottom> \<or> P xa = null", simp_all add: true_def)
 
  have valid_inject_true : "\<And>xa P. (\<upsilon> P) xa \<noteq> true xa \<Longrightarrow> (\<upsilon> P) xa = false xa"
-  apply(simp add: valid_def true_def false_def
-                  bot_fun_def bot_option_def
-                  null_fun_def null_option_def)
- by (case_tac "P xa = \<bottom>", simp_all add: true_def)
+      apply(simp add: valid_def true_def false_def bot_fun_def bot_option_def
+                      null_fun_def null_option_def)
+      by (case_tac "P xa = \<bottom>", simp_all add: true_def)
+
+ have C : "\<And>\<tau>. (\<tau> \<Turnstile>(\<delta> X)) \<Longrightarrow> (\<tau> \<Turnstile>(\<upsilon> x)) \<Longrightarrow> \<lfloor>\<lfloor>insert (x \<tau>) \<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil>\<rfloor>\<rfloor> \<in> Set_0"
+          apply(frule Set_inv_lemma)
+          apply(simp add: Set_0_def bot_option_def null_Set_0_def null_fun_def
+                          foundation18 foundation16 invalid_def)
+          done
+(* example bu *)
+have finite_including_exec' : "\<And>\<tau>. (\<tau> \<Turnstile>(\<delta> X)) \<Longrightarrow> (\<tau> \<Turnstile>(\<upsilon> x)) \<Longrightarrow>
+                 finite \<lceil>\<lceil>Rep_Set_0 (X->including(x) \<tau>)\<rceil>\<rceil> = finite \<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil>"
+  apply(simp add: OclIncluding_def Abs_Set_0_inverse C)
+  apply(drule foundation13[THEN iffD2, THEN foundation22[THEN iffD1]], simp)+
+  done
 
  have finite_including_exec : "\<And>xa. (\<delta> X and \<upsilon> x) xa = true xa \<Longrightarrow>
                  finite \<lceil>\<lceil>Rep_Set_0 (X->including(x) xa)\<rceil>\<rceil> = finite \<lceil>\<lceil>Rep_Set_0 (X xa)\<rceil>\<rceil>"
@@ -2315,19 +2331,19 @@ lemma excluding_size_defined[simp]: "\<delta> ((X ->excluding(x)) ->size()) = (\
 proof -
 
  have defined_inject_true : "\<And>xa P. (\<delta> P) xa \<noteq> true xa \<Longrightarrow> (\<delta> P) xa = false xa"
-  apply(simp add: defined_def true_def false_def
-                  bot_fun_def bot_option_def
-                  null_fun_def null_option_def)
- by (case_tac " P xa = \<bottom> \<or> P xa = null", simp_all add: true_def)
+      apply(simp add: defined_def true_def false_def bot_fun_def 
+                      bot_option_def null_fun_def null_option_def)
+      by (case_tac " P xa = \<bottom> \<or> P xa = null", simp_all add: true_def)
 
  have valid_inject_true : "\<And>xa P. (\<upsilon> P) xa \<noteq> true xa \<Longrightarrow> (\<upsilon> P) xa = false xa"
-  apply(simp add: valid_def true_def false_def
-                  bot_fun_def bot_option_def
-                  null_fun_def null_option_def)
- by (case_tac "P xa = \<bottom>", simp_all add: true_def)
+      apply(simp add: valid_def true_def false_def bot_fun_def bot_option_def
+                      null_fun_def null_option_def)
+      by(case_tac "P xa = \<bottom>", simp_all add: true_def)
+
 
  have finite_excluding_exec : "\<And>xa. (\<delta> X and \<upsilon> x) xa = true xa \<Longrightarrow>
-                 finite \<lceil>\<lceil>Rep_Set_0 (X->excluding(x) xa)\<rceil>\<rceil> = finite \<lceil>\<lceil>Rep_Set_0 (X xa)\<rceil>\<rceil>"
+                                     finite \<lceil>\<lceil>Rep_Set_0 (X->excluding(x) xa)\<rceil>\<rceil> = 
+                                     finite \<lceil>\<lceil>Rep_Set_0 (X xa)\<rceil>\<rceil>"
   apply(simp add: OclExcluding_def)
   apply(subst Abs_Set_0_inverse)
   apply(simp add: Set_0_def)
@@ -2359,7 +2375,8 @@ proof -
   apply(simp add: false_def true_def)
  done
 
- have card_excluding_exec : "\<And>xa. (\<delta> (\<lambda>_. \<lfloor>\<lfloor>int (card \<lceil>\<lceil>Rep_Set_0 (X->excluding(x) xa)\<rceil>\<rceil>)\<rfloor>\<rfloor>)) xa = (\<delta> (\<lambda>_. \<lfloor>\<lfloor>int (card \<lceil>\<lceil>Rep_Set_0 (X xa)\<rceil>\<rceil>)\<rfloor>\<rfloor>)) xa"
+ have card_excluding_exec : "\<And>xa. (\<delta> (\<lambda>_. \<lfloor>\<lfloor>int (card \<lceil>\<lceil>Rep_Set_0 (X->excluding(x) xa)\<rceil>\<rceil>)\<rfloor>\<rfloor>)) xa = 
+                                   (\<delta> (\<lambda>_. \<lfloor>\<lfloor>int (card \<lceil>\<lceil>Rep_Set_0 (X xa)\<rceil>\<rceil>)\<rfloor>\<rfloor>)) xa"
   apply(simp add: defined_def bot_fun_def bot_option_def null_fun_def null_option_def)
  done
 
@@ -2407,13 +2424,8 @@ qed
 lemma size_defined:
  assumes X_finite: "\<And>xa. finite \<lceil>\<lceil>Rep_Set_0 (X xa)\<rceil>\<rceil>"
  shows "\<delta> (X->size()) = \<delta> X"
-
- apply(rule ext)
- apply(simp add: cp_defined[of "X->size()"])
- apply(simp add: OclSize_def)
- apply(simp add: defined_def bot_option_def bot_fun_def null_option_def null_fun_def)
-
- apply(insert X_finite, simp)
+ apply(rule ext, simp add: cp_defined[of "X->size()"] OclSize_def)
+ apply(simp add: defined_def bot_option_def bot_fun_def null_option_def null_fun_def X_finite)
 done
 
 lemma [simp]:
@@ -2425,7 +2437,8 @@ subsection{* Test Statements *}
 
 lemma short_cut'[simp]: "(\<eight> \<doteq> \<six>) = false"
  apply(rule ext)
- apply(simp add: StrictRefEq_int StrongEq_def ocl_eight_def ocl_six_def true_def false_def invalid_def bot_option_def)
+ apply(simp add: StrictRefEq_int StrongEq_def ocl_eight_def ocl_six_def 
+                 true_def false_def invalid_def bot_option_def)
  apply(simp only: ocl_eight_def[THEN sym] ocl_six_def[THEN sym])
  apply(simp add: true_def)
 done
