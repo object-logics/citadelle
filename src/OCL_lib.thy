@@ -586,6 +586,17 @@ where     "OclForall S P = (\<lambda> \<tau>. if (\<delta> S) \<tau> = true \<ta
                                            else \<bottom>
                                  else \<bottom>)"
 
+definition OclForall2     :: "[('\<AA>,'\<alpha>::null)Set,('\<AA>,'\<alpha>)val\<Rightarrow>('\<AA>)Boolean] \<Rightarrow> '\<AA> Boolean"
+where     "OclForall2 S P = (\<lambda> \<tau>. if (\<delta> S) \<tau> = true \<tau>
+                                 then if (\<forall>x\<in>\<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>. P (\<lambda> _. x) \<tau> = true \<tau>)
+                                      then true \<tau>
+                                      else if (\<exists>x\<in>\<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>. P(\<lambda> _. x) \<tau> = false \<tau>)
+                                           then false \<tau>
+                                           else if (\<exists>x\<in>\<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>. P(\<lambda> _. x) \<tau> = null \<tau>) 
+                                                then null \<tau>
+                                                else \<bottom>
+                                 else \<bottom>)"
+
 
 definition OclExists     :: "[('\<AA>,'\<alpha>::null) Set,('\<AA>,'\<alpha>)val\<Rightarrow>('\<AA>)Boolean] \<Rightarrow> '\<AA> Boolean"
 where     "OclExists S P = not(OclForall S (\<lambda> X. not (P X)))"
@@ -662,6 +673,10 @@ lemma cp_OclIncludes:
 by(auto simp: OclIncludes_def StrongEq_def invalid_def
                  cp_defined[symmetric] cp_valid[symmetric])
 
+lemma cp_OclForall:
+"(X->forall(x | P x)) \<tau> = ((\<lambda> _. X \<tau>)->forall(x | P (\<lambda> _. x \<tau>))) \<tau>"
+by(simp add: OclForall_def cp_defined[symmetric])
+
 (* Why does this not work syntactically ???
    lemma cp_OclIncludes: "(X->includes(x)) \<tau> = (((\<lambda> _. X \<tau>)->includes( \<lambda> _. x \<tau>)) \<tau>)" *)
 
@@ -705,7 +720,7 @@ by(simp add: OclIncludes_def invalid_def bot_fun_def defined_def valid_def false
 lemma includes_strict3[simp,code_unfold]:"(null->includes(x)) = invalid"
 by(simp add: OclIncludes_def invalid_def bot_fun_def defined_def valid_def false_def true_def)
 
-
+(*  forall ? exists ?*)
 
 lemma including_defined_args_valid:
 "(\<tau> \<Turnstile> \<delta>(X->including(x))) = ((\<tau> \<Turnstile>(\<delta> X)) \<and> (\<tau> \<Turnstile>(\<upsilon> x)))"
@@ -875,7 +890,7 @@ lemma includes_valid_args_valid''[simp,code_unfold]:
 by(auto intro!: transform2_rev simp:includes_valid_args_valid foundation10 defined_and_I)
 
 
-(* and many more *)
+(* and many more, forall exists. *)
 
 subsubsection{* Some computational laws:*}
 
@@ -2475,8 +2490,8 @@ proof -
             "Set{ \<six>,\<eight> } ->iterate(i;r1=Set{\<nine>}|
                         r1->iterate(j;r2=r1|
                                     r2->including(\<zero>)->including(i)->including(j))) = Set{\<zero>, \<eight>, \<zero>, \<six>, \<eight>, \<zero>, \<nine>, \<eight>, \<zero>, \<nine>, \<six>, \<zero>, \<nine>}"
-  apply(rule ext,
-        simp add: excluding_charn_exec OclIterate\<^isub>S\<^isub>e\<^isub>t_including excluding_charn0_exec)
+(*  apply(rule ext,
+        simp add: excluding_charn_exec OclIterate\<^isub>S\<^isub>e\<^isub>t_including excluding_charn0_exec)*)
  sorry
 
  show ?thesis
@@ -2497,6 +2512,7 @@ value    "\<tau>\<^isub>0 \<Turnstile> (Set{\<two>,\<one>}->includes(\<one>))"
 value "\<not> (\<tau>\<^isub>0 \<Turnstile> (Set{\<two>}->includes(\<one>)))"
 value "\<not> (\<tau>\<^isub>0 \<Turnstile> (Set{\<two>,\<one>}->includes(null)))"
 value    "\<tau>\<^isub>0 \<Turnstile> (Set{\<two>,null}->includes(null))"
+(*
 value    "\<tau> \<Turnstile> ((Set{\<two>,\<one>})->forall(z | \<zero> \<prec> z))"
 value "\<not> (\<tau> \<Turnstile> ((Set{\<two>,\<one>})->exists(z | z \<prec> \<zero> )))"
 
@@ -2508,5 +2524,5 @@ value    "\<tau> \<Turnstile> (Set{\<one>,null,\<two>} <> Set{null,\<two>})"
 
 value    "\<tau> \<Turnstile> (Set{Set{\<two>,null}} \<doteq> Set{Set{null,\<two>}})"
 value    "\<tau> \<Turnstile> (Set{Set{\<two>,null}} <> Set{Set{null,\<two>},null})"
-
+*)
 end
