@@ -41,7 +41,7 @@
  ******************************************************************************)
 (* $Id:$ *)
 
-header{* Part I: Core Definitions and Library *}
+header{* Part I: Core Definitions *}
 
 theory 
   OCL_core
@@ -49,6 +49,7 @@ imports
   Main (* Testing *)
 begin
  
+section{* Preliminaries *}
 subsection{* Notations for the option type *}
 
 text{*First of all, we will use a more compact notation for the library 
@@ -185,7 +186,7 @@ text{* A trivial consequence of this adaption of the interface is that
 abstract and concrete versions of null are the same on base types
 (as could be expected). *}
 
-section{* The Semantic Space of OCL Types: Valuations. *}
+subsection{* The Semantic Space of OCL Types: Valuations. *}
 
 text{* Valuations are now functions from a state pair (built upon 
 data universe @{typ "'\<AA>"}) to an arbitrary null-type (i.e. containing

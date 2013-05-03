@@ -41,7 +41,7 @@
  ******************************************************************************)
 (* $Id:$ *)
 
-header{* Part II: State Operations and Objects *}
+header{* Part III: State Operations and Objects *}
 
 theory OCL_state
 imports OCL_lib
