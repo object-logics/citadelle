@@ -551,21 +551,15 @@ lemma not_inject: "\<And> x y. not x = not y \<Longrightarrow> x = y"
 
 definition ocl_and :: "[('\<AA>)Boolean, ('\<AA>)Boolean] \<Rightarrow> ('\<AA>)Boolean" (infixl "and" 30)
 where     "X and Y \<equiv>  (\<lambda> \<tau> . case X \<tau> of
-                            \<bottom>  \<Rightarrow> (case Y \<tau> of
-                                             \<bottom> \<Rightarrow>  \<bottom>
-                                          | \<lfloor>\<bottom>\<rfloor> \<Rightarrow> \<bottom>
-                                          | \<lfloor>\<lfloor>True\<rfloor>\<rfloor> \<Rightarrow>  \<bottom>
-                                          | \<lfloor>\<lfloor>False\<rfloor>\<rfloor> \<Rightarrow>  \<lfloor>\<lfloor>False\<rfloor>\<rfloor>)
-                        | \<lfloor> \<bottom> \<rfloor> \<Rightarrow> (case Y \<tau> of
-                                             \<bottom> \<Rightarrow>  \<bottom>
-                                          | \<lfloor>\<bottom>\<rfloor> \<Rightarrow> \<lfloor>\<bottom>\<rfloor>
-                                          | \<lfloor>\<lfloor>True\<rfloor>\<rfloor> \<Rightarrow> \<lfloor>\<bottom>\<rfloor>
-                                          | \<lfloor>\<lfloor>False\<rfloor>\<rfloor> \<Rightarrow>  \<lfloor>\<lfloor>False\<rfloor>\<rfloor>)
-                        | \<lfloor>\<lfloor>True\<rfloor>\<rfloor> \<Rightarrow> (case Y \<tau> of
-                                             \<bottom> \<Rightarrow>  \<bottom>
-                                          | \<lfloor>\<bottom>\<rfloor> \<Rightarrow> \<lfloor>\<bottom>\<rfloor>
-                                          | \<lfloor>\<lfloor>y\<rfloor>\<rfloor> \<Rightarrow>  \<lfloor>\<lfloor>y\<rfloor>\<rfloor>)
-                        | \<lfloor>\<lfloor>False\<rfloor>\<rfloor> \<Rightarrow>  \<lfloor>\<lfloor> False \<rfloor>\<rfloor>)"
+                          \<lfloor>\<lfloor>False\<rfloor>\<rfloor> \<Rightarrow>               \<lfloor>\<lfloor>False\<rfloor>\<rfloor>
+                        | \<bottom>        \<Rightarrow> (case Y \<tau> of
+                                        \<lfloor>\<lfloor>False\<rfloor>\<rfloor> \<Rightarrow> \<lfloor>\<lfloor>False\<rfloor>\<rfloor>
+                                      | _        \<Rightarrow> \<bottom>)
+                        | \<lfloor>\<bottom>\<rfloor>      \<Rightarrow> (case Y \<tau> of
+                                        \<lfloor>\<lfloor>False\<rfloor>\<rfloor> \<Rightarrow> \<lfloor>\<lfloor>False\<rfloor>\<rfloor>
+                                      | \<bottom>        \<Rightarrow> \<bottom>
+                                      | _        \<Rightarrow> \<lfloor>\<bottom>\<rfloor>)
+                        | \<lfloor>\<lfloor>True\<rfloor>\<rfloor>  \<Rightarrow>               Y \<tau>)"
 
 
 text{*Note that @{term "not"} is \emph{not} defined as a strict function; proximity to
@@ -598,9 +592,12 @@ lemma textbook_and:
                                           | \<lfloor>\<bottom>\<rfloor> \<Rightarrow> \<lfloor>\<bottom>\<rfloor>
                                           | \<lfloor>\<lfloor>y\<rfloor>\<rfloor> \<Rightarrow>  \<lfloor>\<lfloor>y\<rfloor>\<rfloor>)
                         | \<lfloor>\<lfloor>False\<rfloor>\<rfloor> \<Rightarrow>  \<lfloor>\<lfloor> False \<rfloor>\<rfloor>)"
-by(simp add: Sem_def ocl_and_def split: option.split)
-
-
+ apply(simp add: ocl_and_def)
+ apply(subst Sem_def)+
+ apply(split option.split, simp)
+ apply(subgoal_tac "Y \<tau> = (case Y \<tau> of \<bottom> \<Rightarrow> \<bottom> | \<lfloor>\<bottom>\<rfloor> \<Rightarrow> \<lfloor>\<bottom>\<rfloor> | \<lfloor>\<lfloor>y\<rfloor>\<rfloor> \<Rightarrow> \<lfloor>\<lfloor>y\<rfloor>\<rfloor>)")
+ apply metis
+by (metis not_Some_eq option.simps(4) option.simps(5))
 
 definition ocl_or :: "[('\<AA>)Boolean, ('\<AA>)Boolean] \<Rightarrow> ('\<AA>)Boolean"
                                                          (infixl "or" 25)
