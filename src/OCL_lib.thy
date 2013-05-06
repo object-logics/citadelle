@@ -1845,10 +1845,10 @@ proof -
   apply(drule valid_inject_true, simp add: false_def)
  done
 
- have "\<And>\<tau>. (\<delta> P x) \<tau> = false \<tau>" sorry
- have "\<And>\<tau>. \<tau> \<Turnstile> (\<delta> P x) \<triangleq> false " sorry
+ term "\<And>\<tau>. (\<delta> P x) \<tau> = false \<tau>"
+ term "\<And>\<tau>. \<tau> \<Turnstile> (\<delta> P x) \<triangleq> false " 
 
- have "\<And>\<tau>. \<not> \<tau> \<Turnstile> (\<delta> P x)" sorry  (* are all equivalent !!! *)
+ term "\<And>\<tau>. \<not> \<tau> \<Turnstile> (\<delta> P x)"   (* are all equivalent !!! *)
 
  have case_not_defined : "\<And>\<tau>. (\<delta> P x) \<tau> = false \<tau> \<Longrightarrow>
                                 (P x \<tau> = true \<tau> \<or> P x \<tau> = false \<tau>) \<Longrightarrow>
@@ -2313,11 +2313,11 @@ have finite_including_exec'' :
  
 (* just equivalence, to show that this premise corresponds to the final statement in the logical 
 chain ...*)
-have "\<And>xa. (\<delta> X and \<upsilon> x) xa = true xa" sorry
-have "\<And>\<tau>. (\<delta> X and \<upsilon> x) \<tau> = true \<tau> "   sorry
-have "\<And>\<tau>. \<tau> \<Turnstile> (\<delta> X and \<upsilon> x) \<triangleq> true"   sorry
-have "\<And>\<tau>. \<tau> \<Turnstile> (\<delta> X and \<upsilon> x)  "        sorry
-have "\<And>\<tau>. \<tau> \<Turnstile> (\<delta> X) \<and> \<tau> \<Turnstile>(\<upsilon> x)  "    sorry
+term "\<And>xa. (\<delta> X and \<upsilon> x) xa = true xa" 
+term "\<And>\<tau>. (\<delta> X and \<upsilon> x) \<tau> = true \<tau> "   
+term "\<And>\<tau>. \<tau> \<Turnstile> (\<delta> X and \<upsilon> x) \<triangleq> true"   
+term "\<And>\<tau>. \<tau> \<Turnstile> (\<delta> X and \<upsilon> x)  "        
+term "\<And>\<tau>. \<tau> \<Turnstile> (\<delta> X) \<and> \<tau> \<Turnstile>(\<upsilon> x)  "    
 
 (* and now compare to your original proof *)
  have finite_including_exec : "\<And>\<tau>. (\<delta> X and \<upsilon> x) \<tau> = true \<tau> \<Longrightarrow>
