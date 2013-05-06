@@ -697,6 +697,24 @@ lemma ocl_and_true1[simp]: "(true and X) = X"
 lemma ocl_and_true2[simp]: "(X and true) = X"
   by(simp add: ocl_and_commute) 
 
+lemma ocl_and_bot1[simp]: "\<And>\<tau>. X \<tau> \<noteq> false \<tau> \<Longrightarrow> (bot and X) \<tau> = bot \<tau>"
+  apply(simp add: ocl_and_def)
+  apply(auto simp:true_def false_def bot_fun_def bot_option_def 
+             split: option.split option.split_asm)
+done
+
+lemma ocl_and_bot2[simp]: "\<And>\<tau>. X \<tau> \<noteq> false \<tau> \<Longrightarrow> (X and bot) \<tau> = bot \<tau>"
+  by(simp add: ocl_and_commute) 
+
+lemma ocl_and_null1[simp]: "\<And>\<tau>. X \<tau> \<noteq> false \<tau> \<Longrightarrow> X \<tau> \<noteq> bot \<tau> \<Longrightarrow> (null and X) \<tau> = null \<tau>"
+  apply(simp add: ocl_and_def)
+  apply(auto simp:true_def false_def bot_fun_def bot_option_def null_fun_def null_option_def 
+             split: option.split option.split_asm)
+done
+
+lemma ocl_and_null2[simp]: "\<And>\<tau>. X \<tau> \<noteq> false \<tau> \<Longrightarrow> X \<tau> \<noteq> bot \<tau> \<Longrightarrow> (X and null) \<tau> = null \<tau>"
+  by(simp add: ocl_and_commute) 
+
 lemma ocl_and_assoc: "(X and (Y and Z)) = (X and Y and Z)"
   apply(rule ext, simp add: ocl_and_def) 
   apply(auto simp:true_def false_def null_def invalid_def 
