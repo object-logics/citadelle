@@ -2048,12 +2048,6 @@ proof -
 qed
 
 
-(*
-Sequence{6,8}->iterate(i;r1:Sequence(Integer)=Sequence{9}|
-  r1->iterate(j;r2:Sequence(Integer)=r1|
-    r2->including(0)->including(i)->including(j)))
-*)
-
 lemma [simp]: "\<delta> (Set{} ->size()) = true"
 proof -
  have A1 : "\<lfloor>\<lfloor>{}\<rfloor>\<rfloor> \<in> Set_0" by(simp add: Set_0_def)
@@ -2301,18 +2295,13 @@ lemma [simp]:
  shows "\<delta> ((X ->including(x)) ->size()) = (\<delta>(X) and \<upsilon>(x))"
 by(simp add: size_defined[OF X_finite])
 
-subsection{* Test Statements *}
+subsection{* Gogolla's Challenge on Sets *}
 
-lemma short_cut'[simp]: "(\<eight> \<doteq> \<six>) = false"
- apply(rule ext)
- apply(simp add: StrictRefEq_int StrongEq_def ocl_eight_def ocl_six_def 
-                 true_def false_def invalid_def bot_option_def)
- apply(simp only: ocl_eight_def[THEN sym] ocl_six_def[THEN sym])
- apply(simp add: true_def)
-done
-
-
-
+(*
+Sequence{6,8}->iterate(i;r1:Sequence(Integer)=Sequence{9}|
+  r1->iterate(j;r2:Sequence(Integer)=r1|
+    r2->including(0)->including(i)->including(j)))
+*)
 lemma GogollasChallenge_on_sets:
       "\<tau> \<Turnstile> (Set{ \<six>,\<eight> } ->iterate(i;r1=Set{\<nine>}|
                         r1->iterate(j;r2=r1|
@@ -2333,6 +2322,16 @@ proof -
  sorry (* should be simple to fix this. *)
 qed
 
+
+subsection{* Test Statements *}
+
+lemma short_cut'[simp]: "(\<eight> \<doteq> \<six>) = false"
+ apply(rule ext)
+ apply(simp add: StrictRefEq_int StrongEq_def ocl_eight_def ocl_six_def 
+                 true_def false_def invalid_def bot_option_def)
+ apply(simp only: ocl_eight_def[THEN sym] ocl_six_def[THEN sym])
+ apply(simp add: true_def)
+done
 
 text{* Elementary computations on Sets.*}
 value "\<not> (\<tau>\<^isub>0 \<Turnstile> \<upsilon>(invalid::('\<AA>,'\<alpha>::null) Set))"
