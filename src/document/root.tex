@@ -180,20 +180,36 @@
 \maketitle
 
 \begin{abstract}
-  At its origins, \OCL was conceived as a strict semantics for
-  undefinedness, with the exception of the logical connectives of type
-  \inlineocl{Boolean} that constitute a three-valued propositional
-  logic.  Recent versions of the \OCL standard added a second
-  exception element, which, similar to the null references in
-  programming languages, is given a non-strict semantics.
+  UML/\OCL is one of the few modeling languages that is widely used in industry.
+  Besides numerous diagrams describing various aspects of models, the core of the UML, 
+  the language \OCL,   
+  is a textual annotation language that turns it into a formal language.
+  Unfortunately the semantics of this specification language, captured in the ``Appendix A''
+  of the \OCL standard lead to different interpretations of corner cases and had been subject
+  to formal analysis earlier. %% TODO: add ocl papers
+  The situation complicated when with version 2.3 the \OCL was aligned with the UML; this 
+  lead to the extension of the 3 valued logic by a second exception element, called ``null''.
+  While the first exception element, ``undefined'', has a strict semantics, ``null'' has a non strict semantic
+  interpretation. This semantic difficulties lead to remarkable confusion for implementors 
+  of \OCL compilers and interpreters. %% TODO add references to compiler bugs: Achim
 
-  In this paper, we report on our results in formalizing the core of
-  \acs{ocl} in \acf{hol}. This formalization revealed several
+  In this paper, we provide a formalization of the core of
+  \acs{ocl} in \acf{hol}. It provides denotational definitions, a logical calculus
+  and operational rules that allows for the execution of \OCL expressions by a mixture of
+  term rewriting and code compilation. 
+  Our formalization revealed several
   inconsistencies and contradictions in the current version of the
-  \acs{ocl} standard.  These inconsistencies and contradictions are
-  reflected in the challenge to define and implement \OCL tools in a
+  \acs{ocl} standard.  They reflect a challenge to define and implement \OCL tools in a
   uniform manner.
-
+  This document is intended to provide the basis for a machine-checked text
+  ``Appendix A'' of the UML standard targeting at tool implementors.
+  
+%  At its origins, \OCL was conceived as a strict semantics for
+%  undefinedness, with the exception of the logical connectives of type
+%  \inlineocl{Boolean} that constitute a three-valued propositional
+%  logic.  Recent versions of the \OCL standard added a second
+%  exception element, which, similar to the null references in
+%  programming languages, is given a non-strict semantics.
 
   
   \vspace{1cm}\noindent{\textbf{Further readings:}} This theory extends the paper
