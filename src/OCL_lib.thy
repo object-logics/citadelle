@@ -3037,26 +3037,47 @@ proof -
 qed
 
 lemma including_id : "\<And>(S :: 'a state \<times> 'a state \<Rightarrow> int option option Set_0) x.
-                      \<tau> \<Turnstile> \<delta> S \<Longrightarrow>
+                      all_defined \<tau> S \<Longrightarrow>
                       \<tau> \<Turnstile> \<upsilon> (\<lambda>\<tau>. x) \<Longrightarrow>
                       x \<in> \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil> \<Longrightarrow>
                       \<tau> \<Turnstile> (S->including(\<lambda>\<tau>. x) \<doteq> S)"
 proof -
- have inj_rep : "inj Rep_Set_0" by (metis (hide_lams, no_types) Rep_Set_0_inverse injI)
- have discr_inj : "\<And>f x y. inj f \<Longrightarrow> x \<noteq> y \<Longrightarrow> f x \<noteq> f y" by (metis inj_eq)
+ have discr_eq_invalid_true : "\<And>\<tau>. (invalid \<tau> = true \<tau>) = False" by (metis bot_option_def invalid_def option.simps(2) true_def)
+ have discr_eq_false_true : "\<And>\<tau>. (false \<tau> = true \<tau>) = False" by (metis OclValid_def foundation2)
+
+ have abs_rep_simp : "\<And>(S :: 'a state \<times> 'a state \<Rightarrow> int option option Set_0).
+                      all_defined \<tau> S \<Longrightarrow> Abs_Set_0 \<lfloor>\<lfloor>\<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>\<rfloor>\<rfloor> = S \<tau>"
+  apply(simp add: all_defined_def all_defined_set_def OclValid_def defined_def)
+  apply(rule mp[OF Abs_Set_0_induct[where P = "\<lambda>S. (if S = \<bottom> \<tau> \<or> S = null \<tau> then false \<tau> else true \<tau>) = true \<tau> \<and>
+          finite \<lceil>\<lceil>Rep_Set_0 S\<rceil>\<rceil> \<and>
+          (\<forall>x\<in>\<lceil>\<lceil>Rep_Set_0 S\<rceil>\<rceil>. (if x = \<bottom> \<tau> \<or> x = null \<tau> then false \<tau> else true \<tau>) = true \<tau>) \<longrightarrow> Abs_Set_0 \<lfloor>\<lfloor>\<lceil>\<lceil>Rep_Set_0 S\<rceil>\<rceil>\<rfloor>\<rfloor> = S"]])
+  apply(simp add: Abs_Set_0_inverse discr_eq_false_true)
+  apply(case_tac y, simp)
+  apply(simp add: bot_fun_def bot_Set_0_def)
+  apply(case_tac a, simp)
+  apply(simp add: null_fun_def null_Set_0_def)
+  apply(simp)
+  apply(simp)
+ done
+
+ have all_defined1 : "\<And>r2. all_defined \<tau> r2 \<Longrightarrow> \<tau> \<Turnstile> \<delta> r2" by(simp add: all_defined_def)
 
  show "\<And>S x.
-                      \<tau> \<Turnstile> \<delta> S \<Longrightarrow>
+                      all_defined \<tau> S \<Longrightarrow>
                       \<tau> \<Turnstile> \<upsilon> (\<lambda>\<tau>. x) \<Longrightarrow>
                       x \<in> \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil> \<Longrightarrow>
                       ?thesis S x"
-  apply(simp add: OclIncluding_def OclValid_def del: StrictRefEq_set_exec)
+  apply(subst OclValid_def)
+  apply(simp add: OclIncluding_def all_defined1 del: StrictRefEq_set_exec)
 
-  apply(subst cp_StrictRefEq_set, simp del: StrictRefEq_set_exec)
+  apply(subst cp_StrictRefEq_set, simp add: insert_absorb del: StrictRefEq_set_exec)
   apply(subst StrictRefEq_set)
-  apply(simp add: StrongEq_def)
-  apply(simp add: insert_absorb)
- sorry
+  apply(simp add: StrongEq_def discr_eq_invalid_true del: StrictRefEq_set_exec)
+
+  apply(simp add: abs_rep_simp discr_eq_invalid_true all_defined1[simplified OclValid_def] del: StrictRefEq_set_exec)
+  apply(simp add: cp_valid[symmetric] OclValid_def all_defined1[simplified OclValid_def] foundation20[simplified OclValid_def] true_def)
+ done
+ apply_end(simp_all)
 qed
 
 lemma iterate_including_id :
