@@ -434,7 +434,7 @@ begin
                   apply(rule_tac x="Abs_Set_0 \<lfloor>None\<rfloor>" in exI)
                   apply(simp add:bot_Set_0_def)
                   apply(subst Abs_Set_0_inject)
-                  apply(simp_all add: Set_0_def bot_Set_0_def
+                  apply(simp_all add: bot_Set_0_def
                                       null_option_def bot_option_def)
                   done
             qed
@@ -449,7 +449,7 @@ begin
    instance proof show "(null::('a::null) Set_0) \<noteq> bot"
                   apply(simp add:null_Set_0_def bot_Set_0_def)
                   apply(subst Abs_Set_0_inject)
-                  apply(simp_all add: Set_0_def bot_Set_0_def
+                  apply(simp_all add: bot_Set_0_def
                                       null_option_def bot_option_def)
                   done
             qed
@@ -461,17 +461,15 @@ type_synonym    ('\<AA>,'\<alpha>) Set  = "('\<AA>, '\<alpha> Set_0) val"
 
 lemma Set_inv_lemma: "\<tau> \<Turnstile> (\<delta> X) \<Longrightarrow> (X \<tau> = Abs_Set_0 \<lfloor>bot\<rfloor>)
                                      \<or> (\<forall>x\<in>\<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil>. x \<noteq> bot)"
-apply(insert OCL_lib.Set_0.Rep_Set_0 [of "X \<tau>"], simp add:Set_0_def)
+apply(insert OCL_lib.Set_0.Rep_Set_0 [of "X \<tau>"], simp)
 apply(auto simp: OclValid_def defined_def false_def true_def cp_def
                  bot_fun_def bot_Set_0_def null_Set_0_def null_fun_def
            split:split_if_asm)
 apply(erule contrapos_pp [of "Rep_Set_0 (X \<tau>) = bot"])
-apply(subst Abs_Set_0_inject[symmetric], simp add:Rep_Set_0)
-apply(simp add: Set_0_def)
+apply(subst Abs_Set_0_inject[symmetric], rule Rep_Set_0, simp)
 apply(simp add: Rep_Set_0_inverse bot_Set_0_def bot_option_def)
 apply(erule contrapos_pp [of "Rep_Set_0 (X \<tau>) = null"])
-apply(subst Abs_Set_0_inject[symmetric], simp add:Rep_Set_0)
-apply(simp add: Set_0_def)
+apply(subst Abs_Set_0_inject[symmetric], rule Rep_Set_0, simp)
 apply(simp add: Rep_Set_0_inverse  null_option_def)
 done
 
@@ -482,7 +480,7 @@ lemma invalid_set_valid [simp,code_unfold]:"\<upsilon>(invalid::('\<AA>,'\<alpha
 by simp
 lemma null_set_valid [simp,code_unfold]:"\<upsilon>(null::('\<AA>,'\<alpha>::null) Set) = true"
 apply(simp add: valid_def null_fun_def bot_fun_def bot_Set_0_def null_Set_0_def)
-apply(subst Abs_Set_0_inject,simp_all add: Set_0_def null_option_def bot_option_def)
+apply(subst Abs_Set_0_inject,simp_all add: null_option_def bot_option_def)
 done
 
 text{* ... which means that we can have a type @{text "('\<AA>,('\<AA>,('\<AA>) Integer) Set) Set"}
@@ -499,13 +497,13 @@ where "Set{} \<equiv> (\<lambda> \<tau>.  Abs_Set_0 \<lfloor>\<lfloor>{}::'\<alp
 lemma mtSet_defined[simp,code_unfold]:"\<delta>(Set{}) = true"
 apply(rule ext, auto simp: mtSet_def defined_def null_Set_0_def
                            bot_Set_0_def bot_fun_def null_fun_def)
-apply(simp_all add: Abs_Set_0_inject Set_0_def bot_option_def null_Set_0_def null_option_def)
+apply(simp_all add: Abs_Set_0_inject bot_option_def null_Set_0_def null_option_def)
 done
 
 lemma mtSet_valid[simp,code_unfold]:"\<upsilon>(Set{}) = true"
 apply(rule ext,auto simp: mtSet_def valid_def null_Set_0_def
                           bot_Set_0_def bot_fun_def null_fun_def)
-apply(simp_all add: Abs_Set_0_inject Set_0_def bot_option_def null_Set_0_def null_option_def)
+apply(simp_all add: Abs_Set_0_inject bot_option_def null_Set_0_def null_option_def)
 done
 
 text{* Note that the collection types in OCL allow for null to be included;
@@ -711,26 +709,28 @@ by(simp add: OclIncludes_def invalid_def bot_fun_def defined_def valid_def false
 lemma including_defined_args_valid:
 "(\<tau> \<Turnstile> \<delta>(X->including(x))) = ((\<tau> \<Turnstile>(\<delta> X)) \<and> (\<tau> \<Turnstile>(\<upsilon> x)))"
 proof -
- have A : "\<bottom> \<in> Set_0" by(simp add: Set_0_def bot_option_def)
- have B : "\<lfloor>\<bottom>\<rfloor> \<in> Set_0" by(simp add: Set_0_def null_option_def bot_option_def)
- have C : "(\<tau> \<Turnstile>(\<delta> X)) \<Longrightarrow> (\<tau> \<Turnstile>(\<upsilon> x)) \<Longrightarrow> \<lfloor>\<lfloor>insert (x \<tau>) \<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil>\<rfloor>\<rfloor> \<in> Set_0"
+ have A : "\<bottom> \<in> {X. X = bot \<or> X = null \<or> (\<forall>x\<in>\<lceil>\<lceil>X\<rceil>\<rceil>. x \<noteq> bot)}" by(simp add: bot_option_def)
+ have B : "\<lfloor>\<bottom>\<rfloor> \<in> {X. X = bot \<or> X = null \<or> (\<forall>x\<in>\<lceil>\<lceil>X\<rceil>\<rceil>. x \<noteq> bot)}" by(simp add: null_option_def bot_option_def)
+ have C : "(\<tau> \<Turnstile>(\<delta> X)) \<Longrightarrow> (\<tau> \<Turnstile>(\<upsilon> x)) \<Longrightarrow> \<lfloor>\<lfloor>insert (x \<tau>) \<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil>\<rfloor>\<rfloor> \<in> {X. X = bot \<or> X = null \<or> (\<forall>x\<in>\<lceil>\<lceil>X\<rceil>\<rceil>. x \<noteq> bot)}"
           apply(frule Set_inv_lemma)
-          apply(simp add: Set_0_def bot_option_def null_Set_0_def null_fun_def
+          apply(simp add: bot_option_def null_Set_0_def null_fun_def
                           foundation18 foundation16 invalid_def)
           done
  have D: "(\<tau> \<Turnstile> \<delta>(X->including(x))) \<Longrightarrow> ((\<tau> \<Turnstile>(\<delta> X)) \<and> (\<tau> \<Turnstile>(\<upsilon> x)))"
           by(auto simp: OclIncluding_def OclValid_def true_def valid_def false_def StrongEq_def
                         defined_def invalid_def bot_fun_def null_fun_def
                   split: bool.split_asm HOL.split_if_asm option.split)
+ have discr_eq_false_true : "\<And>\<tau>. (false \<tau> = true \<tau>) = False" by (metis OclValid_def foundation2)
+ have discr_neq_bot_bot : "\<And>\<tau>. (\<bottom> \<noteq> \<bottom> \<tau>) = False" by (metis OCL_core.bot_fun_def)
  have E: "(\<tau> \<Turnstile>(\<delta> X)) \<Longrightarrow> (\<tau> \<Turnstile>(\<upsilon> x)) \<Longrightarrow> (\<tau> \<Turnstile> \<delta>(X->including(x)))"
           apply(frule C, simp)
-          apply(auto simp: OclIncluding_def OclValid_def true_def false_def StrongEq_def
-                           defined_def invalid_def valid_def bot_fun_def null_fun_def
-                     split: bool.split_asm HOL.split_if_asm option.split)
-          apply(simp_all add: null_Set_0_def bot_Set_0_def bot_option_def)
-          apply(simp_all add: Abs_Set_0_inject A B bot_option_def[symmetric],
-                simp_all add: bot_option_def)
-          done
+          apply(subst OclIncluding_def, subst OclValid_def, subst defined_def, simp add: discr_neq_bot_bot discr_eq_false_true)
+          apply(simp add: OclValid_def)
+          apply(subgoal_tac "Abs_Set_0 \<lfloor>\<lfloor>insert (x \<tau>) \<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil>\<rfloor>\<rfloor> \<noteq> Abs_Set_0 None \<and> Abs_Set_0 \<lfloor>\<lfloor>insert (x \<tau>) \<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil>\<rfloor>\<rfloor> \<noteq> Abs_Set_0 \<lfloor>None\<rfloor>")
+          apply(simp add: OCL_core.bot_fun_def bot_Set_0_def null_Set_0_def null_fun_def)
+          apply(subgoal_tac "\<lfloor>\<lfloor>insert (x \<tau>) \<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil>\<rfloor>\<rfloor> \<noteq> None \<and> \<lfloor>\<lfloor>insert (x \<tau>) \<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil>\<rfloor>\<rfloor> \<noteq> \<lfloor>None\<rfloor>")
+          apply(simp add: A Abs_Set_0_inject B C OclValid_def Rep_Set_0_cases Rep_Set_0_inverse bot_Set_0_def bot_option_def insert_compr insert_def not_Some_eq null_Set_0_def null_option_def)
+          by (metis (hide_lams, no_types) option.distinct(1) option.inject)
 show ?thesis by(auto dest:D intro:E)
 qed
 
@@ -739,26 +739,12 @@ qed
 lemma including_valid_args_valid:
 "(\<tau> \<Turnstile> \<upsilon>(X->including(x))) = ((\<tau> \<Turnstile>(\<delta> X)) \<and> (\<tau> \<Turnstile>(\<upsilon> x)))"
 proof -
- have A : "\<bottom> \<in> Set_0" by(simp add: Set_0_def bot_option_def)
- have B : "\<lfloor>\<bottom>\<rfloor> \<in> Set_0" by(simp add: Set_0_def null_option_def bot_option_def)
- have C : "(\<tau> \<Turnstile>(\<delta> X)) \<Longrightarrow> (\<tau> \<Turnstile>(\<upsilon> x)) \<Longrightarrow> \<lfloor>\<lfloor>insert (x \<tau>) \<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil>\<rfloor>\<rfloor> \<in> Set_0"
-          apply(frule Set_inv_lemma)
-          apply(simp add: Set_0_def bot_option_def null_Set_0_def null_fun_def
-                          foundation18 foundation16 invalid_def)
-          done
  have D: "(\<tau> \<Turnstile> \<upsilon>(X->including(x))) \<Longrightarrow> ((\<tau> \<Turnstile>(\<delta> X)) \<and> (\<tau> \<Turnstile>(\<upsilon> x)))"
           by(auto simp: OclIncluding_def OclValid_def true_def valid_def false_def StrongEq_def
                         defined_def invalid_def bot_fun_def null_fun_def
                   split: bool.split_asm HOL.split_if_asm option.split)
  have E: "(\<tau> \<Turnstile>(\<delta> X)) \<Longrightarrow> (\<tau> \<Turnstile>(\<upsilon> x)) \<Longrightarrow> (\<tau> \<Turnstile> \<upsilon>(X->including(x)))"
-          apply(frule C, simp)
-          apply(auto simp: OclIncluding_def OclValid_def true_def false_def StrongEq_def
-                           defined_def invalid_def valid_def bot_fun_def null_fun_def
-                     split: bool.split_asm HOL.split_if_asm option.split)
-          apply(simp_all add: null_Set_0_def bot_Set_0_def bot_option_def)
-          apply(simp_all add: Abs_Set_0_inject A B bot_option_def[symmetric],
-                simp_all add: bot_option_def)
-          done
+          by(simp add: foundation20 including_defined_args_valid)
 show ?thesis by(auto dest:D intro:E)
 qed
 
@@ -775,26 +761,28 @@ by(auto intro!: transform2_rev simp:including_valid_args_valid foundation10 defi
 lemma excluding_defined_args_valid:
 "(\<tau> \<Turnstile> \<delta>(X->excluding(x))) = ((\<tau> \<Turnstile>(\<delta> X)) \<and> (\<tau> \<Turnstile>(\<upsilon> x)))"
 proof -
- have A : "\<bottom> \<in> Set_0" by(simp add: Set_0_def bot_option_def)
- have B : "\<lfloor>\<bottom>\<rfloor> \<in> Set_0" by(simp add: Set_0_def null_option_def bot_option_def)
- have C : "(\<tau> \<Turnstile>(\<delta> X)) \<Longrightarrow> (\<tau> \<Turnstile>(\<upsilon> x)) \<Longrightarrow> \<lfloor>\<lfloor>\<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil> - {x \<tau>} \<rfloor>\<rfloor> \<in> Set_0"
+ have A : "\<bottom> \<in> {X. X = bot \<or> X = null \<or> (\<forall>x\<in>\<lceil>\<lceil>X\<rceil>\<rceil>. x \<noteq> bot)}" by(simp add: bot_option_def)
+ have B : "\<lfloor>\<bottom>\<rfloor> \<in> {X. X = bot \<or> X = null \<or> (\<forall>x\<in>\<lceil>\<lceil>X\<rceil>\<rceil>. x \<noteq> bot)}" by(simp add: null_option_def bot_option_def)
+ have C : "(\<tau> \<Turnstile>(\<delta> X)) \<Longrightarrow> (\<tau> \<Turnstile>(\<upsilon> x)) \<Longrightarrow> \<lfloor>\<lfloor>\<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil> - {x \<tau>}\<rfloor>\<rfloor> \<in> {X. X = bot \<or> X = null \<or> (\<forall>x\<in>\<lceil>\<lceil>X\<rceil>\<rceil>. x \<noteq> bot)}"
           apply(frule Set_inv_lemma)
-          apply(simp add: Set_0_def bot_option_def null_Set_0_def null_fun_def
+          apply(simp add: bot_option_def null_Set_0_def null_fun_def
                           foundation18 foundation16 invalid_def)
           done
  have D: "(\<tau> \<Turnstile> \<delta>(X->excluding(x))) \<Longrightarrow> ((\<tau> \<Turnstile>(\<delta> X)) \<and> (\<tau> \<Turnstile>(\<upsilon> x)))"
           by(auto simp: OclExcluding_def OclValid_def true_def valid_def false_def StrongEq_def
                         defined_def invalid_def bot_fun_def null_fun_def
                   split: bool.split_asm HOL.split_if_asm option.split)
+ have discr_eq_false_true : "\<And>\<tau>. (false \<tau> = true \<tau>) = False" by (metis OclValid_def foundation2)
+ have discr_neq_bot_bot : "\<And>\<tau>. (\<bottom> \<noteq> \<bottom> \<tau>) = False" by (metis OCL_core.bot_fun_def)
  have E: "(\<tau> \<Turnstile>(\<delta> X)) \<Longrightarrow> (\<tau> \<Turnstile>(\<upsilon> x)) \<Longrightarrow> (\<tau> \<Turnstile> \<delta>(X->excluding(x)))"
           apply(frule C, simp)
-          apply(auto simp: OclExcluding_def OclValid_def true_def false_def StrongEq_def
-                           defined_def invalid_def valid_def bot_fun_def null_fun_def
-                     split: bool.split_asm HOL.split_if_asm option.split)
-          apply(simp_all add: null_Set_0_def bot_Set_0_def bot_option_def)
-          apply(simp_all add: Abs_Set_0_inject A B bot_option_def[symmetric],
-                simp_all add: bot_option_def)
-          done
+          apply(subst OclExcluding_def, subst OclValid_def, subst defined_def, simp add: discr_neq_bot_bot discr_eq_false_true)
+          apply(simp add: OclValid_def)
+          apply(subgoal_tac "Abs_Set_0 \<lfloor>\<lfloor>\<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil> - {x \<tau>}\<rfloor>\<rfloor> \<noteq> Abs_Set_0 None \<and> Abs_Set_0 \<lfloor>\<lfloor>\<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil> - {x \<tau>}\<rfloor>\<rfloor> \<noteq> Abs_Set_0 \<lfloor>None\<rfloor>")
+          apply(simp add: OCL_core.bot_fun_def bot_Set_0_def null_Set_0_def null_fun_def)
+          apply(subgoal_tac "\<lfloor>\<lfloor>\<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil> - {x \<tau>}\<rfloor>\<rfloor> \<noteq> None \<and> \<lfloor>\<lfloor>\<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil> - {x \<tau>}\<rfloor>\<rfloor> \<noteq> \<lfloor>None\<rfloor>")
+          apply(simp add: A Abs_Set_0_inject Abs_Set_0_inverse B C OclExcluding_def OclValid_def Option.set.simps(2) Rep_Set_0_inverse bot_Set_0_def bot_option_def null_Set_0_def null_option_def option.distinct(1))
+          by (metis (hide_lams, no_types) option.distinct(1) option.inject)
 show ?thesis by(auto dest:D intro:E)
 qed
 
@@ -802,26 +790,12 @@ qed
 lemma excluding_valid_args_valid:
 "(\<tau> \<Turnstile> \<upsilon>(X->excluding(x))) = ((\<tau> \<Turnstile>(\<delta> X)) \<and> (\<tau> \<Turnstile>(\<upsilon> x)))"
 proof -
- have A : "\<bottom> \<in> Set_0" by(simp add: Set_0_def bot_option_def)
- have B : "\<lfloor>\<bottom>\<rfloor> \<in> Set_0" by(simp add: Set_0_def null_option_def bot_option_def)
- have C : "(\<tau> \<Turnstile>(\<delta> X)) \<Longrightarrow> (\<tau> \<Turnstile>(\<upsilon> x)) \<Longrightarrow> \<lfloor>\<lfloor>\<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil> - {x \<tau>} \<rfloor>\<rfloor> \<in> Set_0"
-          apply(frule Set_inv_lemma)
-          apply(simp add: Set_0_def bot_option_def null_Set_0_def null_fun_def
-                          foundation18 foundation16 invalid_def)
-          done
  have D: "(\<tau> \<Turnstile> \<upsilon>(X->excluding(x))) \<Longrightarrow> ((\<tau> \<Turnstile>(\<delta> X)) \<and> (\<tau> \<Turnstile>(\<upsilon> x)))"
           by(auto simp: OclExcluding_def OclValid_def true_def valid_def false_def StrongEq_def
                         defined_def invalid_def bot_fun_def null_fun_def
                   split: bool.split_asm HOL.split_if_asm option.split)
  have E: "(\<tau> \<Turnstile>(\<delta> X)) \<Longrightarrow> (\<tau> \<Turnstile>(\<upsilon> x)) \<Longrightarrow> (\<tau> \<Turnstile> \<upsilon>(X->excluding(x)))"
-          apply(frule C, simp)
-          apply(auto simp: OclExcluding_def OclValid_def true_def false_def StrongEq_def
-                           defined_def invalid_def valid_def bot_fun_def null_fun_def
-                     split: bool.split_asm HOL.split_if_asm option.split)
-          apply(simp_all add: null_Set_0_def bot_Set_0_def bot_option_def)
-          apply(simp_all add: Abs_Set_0_inject A B bot_option_def[symmetric],
-                simp_all add: bot_option_def)
-          done
+          by(simp add: foundation20 excluding_defined_args_valid)
 show ?thesis by(auto dest:D intro:E)
 qed
 
@@ -885,7 +859,7 @@ assumes val_x:"\<tau> \<Turnstile> (\<upsilon> x)"
 shows         "\<tau> \<Turnstile> not(Set{}->includes(x))"
 using val_x
 apply(auto simp: OclValid_def OclIncludes_def not_def false_def true_def)
-apply(auto simp: mtSet_def OCL_lib.Set_0.Abs_Set_0_inverse Set_0_def)
+apply(auto simp: mtSet_def OCL_lib.Set_0.Abs_Set_0_inverse)
 done
 
 
@@ -913,20 +887,14 @@ assumes def_X:"\<tau> \<Turnstile> (\<delta> X)"
 assumes val_x:"\<tau> \<Turnstile> (\<upsilon> x)"
 shows         "\<tau> \<Turnstile> (X->including(x)->includes(x))"
 proof -
- have A : "\<bottom> \<in> Set_0" by(simp add: Set_0_def bot_option_def)
- have B : "\<lfloor>\<bottom>\<rfloor> \<in> Set_0" by(simp add: Set_0_def null_option_def bot_option_def)
- have C : "\<lfloor>\<lfloor>insert (x \<tau>) \<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil>\<rfloor>\<rfloor> \<in> Set_0"
+ have C : "\<lfloor>\<lfloor>insert (x \<tau>) \<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil>\<rfloor>\<rfloor> \<in> {X. X = bot \<or> X = null \<or> (\<forall>x\<in>\<lceil>\<lceil>X\<rceil>\<rceil>. x \<noteq> bot)}"
           apply(insert def_X[THEN foundation17] val_x[THEN foundation19] Set_inv_lemma[OF def_X])
-          apply(simp add: Set_0_def bot_option_def null_Set_0_def null_fun_def invalid_def)
+          apply(simp add: bot_option_def null_Set_0_def null_fun_def invalid_def)
           done
  show ?thesis
-   apply(insert def_X[THEN foundation17] val_x[THEN foundation19])
-   apply(auto simp: OclValid_def bot_fun_def OclIncluding_def OclIncludes_def false_def true_def
-                    invalid_def defined_def valid_def
-                    bot_Set_0_def null_fun_def null_Set_0_def bot_option_def)
-   apply(simp_all add: Abs_Set_0_inject A B C bot_option_def[symmetric],
-         simp_all add: bot_option_def Abs_Set_0_inverse C)
-   done
+  apply(subst OclIncludes_def, simp add: def_X[simplified OclValid_def] val_x[simplified OclValid_def] foundation10[simplified OclValid_def] OclValid_def)
+  apply(simp add: OclIncluding_def def_X[simplified OclValid_def] val_x[simplified OclValid_def] Abs_Set_0_inverse[OF C] true_def)
+ done
 qed
 
 
@@ -938,26 +906,14 @@ and     val_y:"\<tau> \<Turnstile> (\<upsilon> y)"
 and     neq  :"\<tau> \<Turnstile> not(x \<triangleq> y)"
 shows         "\<tau> \<Turnstile> (X->including(x)->includes(y)) \<triangleq> (X->includes(y))"
 proof -
- have A : "\<bottom> \<in> Set_0" by(simp add: Set_0_def bot_option_def)
- have B : "\<lfloor>\<bottom>\<rfloor> \<in> Set_0" by(simp add: Set_0_def null_option_def bot_option_def)
- have C : "\<lfloor>\<lfloor>insert (x \<tau>) \<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil>\<rfloor>\<rfloor> \<in> Set_0"
+ have C : "\<lfloor>\<lfloor>insert (x \<tau>) \<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil>\<rfloor>\<rfloor> \<in> {X. X = bot \<or> X = null \<or> (\<forall>x\<in>\<lceil>\<lceil>X\<rceil>\<rceil>. x \<noteq> bot)}"
           apply(insert def_X[THEN foundation17] val_x[THEN foundation19] Set_inv_lemma[OF def_X])
-          apply(simp add: Set_0_def bot_option_def null_Set_0_def null_fun_def invalid_def)
+          apply(simp add: bot_option_def null_Set_0_def null_fun_def invalid_def)
           done
- have D : "y \<tau> \<noteq> x \<tau>"
-          apply(insert neq)
-          by(auto simp: OclValid_def bot_fun_def OclIncluding_def OclIncludes_def
-                        false_def true_def defined_def valid_def bot_Set_0_def
-                        null_fun_def null_Set_0_def StrongEq_def not_def)
  show ?thesis
-  apply(insert def_X[THEN foundation17] val_x[THEN foundation19])
-  apply(auto simp: OclValid_def bot_fun_def OclIncluding_def OclIncludes_def false_def true_def
-                   invalid_def defined_def valid_def bot_Set_0_def null_fun_def null_Set_0_def
-                   StrongEq_def)
-  apply(simp_all add: Abs_Set_0_inject Abs_Set_0_inverse A B C D)
-  apply(simp_all add: Abs_Set_0_inject A B C bot_option_def[symmetric],
-        simp_all add: bot_option_def Abs_Set_0_inverse C)
-  done
+  apply(subst OclIncludes_def, simp add: def_X[simplified OclValid_def] val_x[simplified OclValid_def] val_y[simplified OclValid_def] foundation10[simplified OclValid_def] OclValid_def StrongEq_def)
+  apply(simp add: OclIncluding_def OclIncludes_def def_X[simplified OclValid_def] val_x[simplified OclValid_def] val_y[simplified OclValid_def] Abs_Set_0_inverse[OF C] true_def)
+ by(metis foundation22 foundation6 foundation9 neq)
 qed
 
 text{* One would like a generic theorem of the form:
@@ -1147,13 +1103,14 @@ lemma excluding_charn0[simp]:
 assumes val_x:"\<tau> \<Turnstile> (\<upsilon> x)"
 shows         "\<tau> \<Turnstile> ((Set{}->excluding(x))  \<triangleq>  Set{})"
 proof -
-  have A : "\<lfloor>None\<rfloor> \<in> Set_0" by(simp add: Set_0_def null_option_def bot_option_def)
-  have B : "\<lfloor>\<lfloor>{}\<rfloor>\<rfloor> \<in> Set_0" by(simp add: Set_0_def bot_option_def)
+  have A : "\<lfloor>None\<rfloor> \<in> {X. X = bot \<or> X = null \<or> (\<forall>x\<in>\<lceil>\<lceil>X\<rceil>\<rceil>. x \<noteq> bot)}" by(simp add: null_option_def bot_option_def)
+  have B : "\<lfloor>\<lfloor>{}\<rfloor>\<rfloor> \<in> {X. X = bot \<or> X = null \<or> (\<forall>x\<in>\<lceil>\<lceil>X\<rceil>\<rceil>. x \<noteq> bot)}" by(simp add: mtSet_def)
+
   show ?thesis using val_x
     apply(auto simp: OclValid_def OclIncludes_def not_def false_def true_def StrongEq_def
                      OclExcluding_def mtSet_def defined_def bot_fun_def null_fun_def null_Set_0_def)
-    apply(auto simp: mtSet_def Set_0_def  OCL_lib.Set_0.Abs_Set_0_inverse
-                     OCL_lib.Set_0.Abs_Set_0_inject[OF B, OF A])
+    apply(auto simp: mtSet_def OCL_lib.Set_0.Abs_Set_0_inverse
+                     OCL_lib.Set_0.Abs_Set_0_inject[OF B A])
   done
 qed
 
@@ -1182,31 +1139,50 @@ and     val_y:"\<tau> \<Turnstile> (\<upsilon> y)"
 and     neq  :"\<tau> \<Turnstile> not(x \<triangleq> y)"
 shows         "\<tau> \<Turnstile> ((X->including(x))->excluding(y)) \<triangleq> ((X->excluding(y))->including(x))"
 proof -
- have A : "\<bottom> \<in> Set_0" by(simp add: Set_0_def bot_option_def)
- have B : "\<lfloor>\<bottom>\<rfloor> \<in> Set_0" by(simp add: Set_0_def null_option_def bot_option_def)
- have C : "\<lfloor>\<lfloor>insert (x \<tau>) \<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil>\<rfloor>\<rfloor> \<in> Set_0"
+ have A : "\<bottom> \<in> {X. X = bot \<or> X = null \<or> (\<forall>x\<in>\<lceil>\<lceil>X\<rceil>\<rceil>. x \<noteq> bot)}" by(simp add: bot_option_def)
+ have B : "\<lfloor>\<bottom>\<rfloor> \<in> {X. X = bot \<or> X = null \<or> (\<forall>x\<in>\<lceil>\<lceil>X\<rceil>\<rceil>. x \<noteq> bot)}" by(simp add: null_option_def bot_option_def)
+ have C : "\<lfloor>\<lfloor>insert (x \<tau>) \<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil>\<rfloor>\<rfloor> \<in> {X. X = bot \<or> X = null \<or> (\<forall>x\<in>\<lceil>\<lceil>X\<rceil>\<rceil>. x \<noteq> bot)}"
           apply(insert def_X[THEN foundation17] val_x[THEN foundation19] Set_inv_lemma[OF def_X])
-          apply(simp add: Set_0_def bot_option_def null_Set_0_def null_fun_def invalid_def)
+          apply(simp add: bot_option_def null_Set_0_def null_fun_def invalid_def)
           done
- have D: "\<lfloor>\<lfloor>\<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil> - {y \<tau>}\<rfloor>\<rfloor> \<in> Set_0"
+ have D : "\<lfloor>\<lfloor>\<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil> - {y \<tau>}\<rfloor>\<rfloor> \<in> {X. X = bot \<or> X = null \<or> (\<forall>x\<in>\<lceil>\<lceil>X\<rceil>\<rceil>. x \<noteq> bot)}"
           apply(insert def_X[THEN foundation17] val_x[THEN foundation19] Set_inv_lemma[OF def_X])
-          apply(simp add: Set_0_def bot_option_def null_Set_0_def null_fun_def invalid_def)
+          apply(simp add: bot_option_def null_Set_0_def null_fun_def invalid_def)
           done
  have E : "x \<tau> \<noteq> y \<tau>"
           apply(insert neq)
           by(auto simp: OclValid_def bot_fun_def OclIncluding_def OclIncludes_def
                         false_def true_def defined_def valid_def bot_Set_0_def
                         null_fun_def null_Set_0_def StrongEq_def not_def)
+
+ have G1 : "Abs_Set_0 \<lfloor>\<lfloor>insert (x \<tau>) \<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil>\<rfloor>\<rfloor> \<noteq> Abs_Set_0 None"
+          apply(insert C, simp)
+          apply(simp add:  def_X val_x A Abs_Set_0_inject B C OclValid_def Rep_Set_0_cases Rep_Set_0_inverse bot_Set_0_def bot_option_def insert_compr insert_def not_Some_eq null_Set_0_def null_option_def)
+ done
+ have G2 : "Abs_Set_0 \<lfloor>\<lfloor>insert (x \<tau>) \<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil>\<rfloor>\<rfloor> \<noteq> Abs_Set_0 \<lfloor>None\<rfloor>"
+          apply(insert C, simp)
+          apply(simp add:  def_X val_x A Abs_Set_0_inject B C OclValid_def Rep_Set_0_cases Rep_Set_0_inverse bot_Set_0_def bot_option_def insert_compr insert_def not_Some_eq null_Set_0_def null_option_def)
+ done
+
  have G : "(\<delta> (\<lambda>_. Abs_Set_0 \<lfloor>\<lfloor>insert (x \<tau>) \<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil>\<rfloor>\<rfloor>)) \<tau> = true \<tau>"
           apply(auto simp: OclValid_def false_def true_def defined_def
-                           bot_fun_def bot_Set_0_def null_fun_def null_Set_0_def  )
-          by(simp_all add: Abs_Set_0_inject A B C bot_option_def[symmetric],
-             simp_all add: bot_option_def)
+                           bot_fun_def bot_Set_0_def null_fun_def null_Set_0_def G1 G2)
+ done
+ have discr_eq_false_true : "\<And>\<tau>. (false \<tau> = true \<tau>) = False" by (metis OclValid_def foundation2)
+
+ have H1 : "Abs_Set_0 \<lfloor>\<lfloor>\<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil> - {y \<tau>}\<rfloor>\<rfloor> \<noteq> Abs_Set_0 None"
+          apply(insert D, simp)
+          apply(simp add: A Abs_Set_0_inject Abs_Set_0_inverse B C OclExcluding_def OclValid_def Option.set.simps(2) Rep_Set_0_inverse bot_Set_0_def bot_option_def null_Set_0_def null_option_def option.distinct(1))
+ done
+ have H2 : "Abs_Set_0 \<lfloor>\<lfloor>\<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil> - {y \<tau>}\<rfloor>\<rfloor> \<noteq> Abs_Set_0 \<lfloor>None\<rfloor>"
+          apply(insert D, simp)
+          apply(simp add: A Abs_Set_0_inject Abs_Set_0_inverse B C OclExcluding_def OclValid_def Option.set.simps(2) Rep_Set_0_inverse bot_Set_0_def bot_option_def null_Set_0_def null_option_def option.distinct(1))
+ done
  have H : "(\<delta> (\<lambda>_. Abs_Set_0 \<lfloor>\<lfloor>\<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil> - {y \<tau>}\<rfloor>\<rfloor>)) \<tau> = true \<tau>"
           apply(auto simp: OclValid_def false_def true_def defined_def
-                           bot_fun_def bot_Set_0_def null_fun_def null_Set_0_def  )
-          by(simp_all add: Abs_Set_0_inject A B D bot_option_def[symmetric],
-             simp_all add: bot_option_def)
+                           bot_fun_def bot_Set_0_def null_fun_def null_Set_0_def H1 H2)
+ done
+
  have Z:"insert (x \<tau>) \<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil> - {y \<tau>} = insert (x \<tau>) (\<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil> - {y \<tau>})"
          by(auto simp: E)
  show ?thesis
@@ -1225,12 +1201,20 @@ assumes def_X:"\<tau> \<Turnstile> (\<delta> X)"
 and     val_x:"\<tau> \<Turnstile> (\<upsilon> x)"
 shows         "\<tau> \<Turnstile> (((X->including(x))->excluding(x)) \<triangleq> (X->excluding(x)))"
 proof -
- have A : "\<bottom> \<in> Set_0" by(simp add: Set_0_def bot_option_def)
- have B : "\<lfloor>\<bottom>\<rfloor> \<in> Set_0" by(simp add: Set_0_def null_option_def bot_option_def)
- have C : "\<lfloor>\<lfloor>insert (x \<tau>) \<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil>\<rfloor>\<rfloor> \<in> Set_0 "
+ have A : "\<bottom> \<in> {X. X = bot \<or> X = null \<or> (\<forall>x\<in>\<lceil>\<lceil>X\<rceil>\<rceil>. x \<noteq> bot)}" by(simp add: bot_option_def)
+ have B : "\<lfloor>\<bottom>\<rfloor> \<in> {X. X = bot \<or> X = null \<or> (\<forall>x\<in>\<lceil>\<lceil>X\<rceil>\<rceil>. x \<noteq> bot)}" by(simp add: null_option_def bot_option_def)
+ have C : "\<lfloor>\<lfloor>insert (x \<tau>) \<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil>\<rfloor>\<rfloor> \<in> {X. X = bot \<or> X = null \<or> (\<forall>x\<in>\<lceil>\<lceil>X\<rceil>\<rceil>. x \<noteq> bot)}"
           apply(insert def_X[THEN foundation17] val_x[THEN foundation19] Set_inv_lemma[OF def_X])
-          apply(simp add: Set_0_def bot_option_def null_Set_0_def null_fun_def invalid_def)
+          apply(simp add: bot_option_def null_Set_0_def null_fun_def invalid_def)
           done
+ have G1 : "Abs_Set_0 \<lfloor>\<lfloor>insert (x \<tau>) \<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil>\<rfloor>\<rfloor> \<noteq> Abs_Set_0 None"
+          apply(insert C, simp)
+          apply(simp add:  def_X val_x A Abs_Set_0_inject B C OclValid_def Rep_Set_0_cases Rep_Set_0_inverse bot_Set_0_def bot_option_def insert_compr insert_def not_Some_eq null_Set_0_def null_option_def)
+ done
+ have G2 : "Abs_Set_0 \<lfloor>\<lfloor>insert (x \<tau>) \<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil>\<rfloor>\<rfloor> \<noteq> Abs_Set_0 \<lfloor>None\<rfloor>"
+          apply(insert C, simp)
+          apply(simp add:  def_X val_x A Abs_Set_0_inject B C OclValid_def Rep_Set_0_cases Rep_Set_0_inverse bot_Set_0_def bot_option_def insert_compr insert_def not_Some_eq null_Set_0_def null_option_def)
+ done
  show ?thesis
    apply(insert def_X[THEN foundation17] val_x[THEN foundation19])
    apply(auto simp: OclValid_def bot_fun_def OclIncluding_def OclIncludes_def false_def true_def
@@ -1242,8 +1226,7 @@ proof -
    apply(simp_all add: false_def true_def defined_def valid_def
                        null_fun_def bot_fun_def null_Set_0_def bot_Set_0_def
                   split: bool.split_asm HOL.split_if_asm option.split)
-   apply(simp_all add: Abs_Set_0_inject A B C bot_option_def[symmetric],
-         simp_all add: bot_option_def Abs_Set_0_inverse C)
+   apply(auto simp: G1 G2)
   done
 qed
 
@@ -1426,7 +1409,7 @@ proof -
  have null_simp : "\<And>\<tau> y. \<tau> \<Turnstile> \<upsilon> y \<Longrightarrow> \<not> (\<tau> \<Turnstile> \<delta> y) \<Longrightarrow> y \<tau> = null \<tau>"
  by (simp add: foundation16 foundation18' null_fun_def)
 
- have bot_in_set_0 : "\<lfloor>\<bottom>\<rfloor> \<in> Set_0" by(simp add: Set_0_def null_option_def bot_option_def)
+ have bot_in_set_0 : "\<lfloor>\<bottom>\<rfloor> \<in> {X. X = bot \<or> X = null \<or> (\<forall>x\<in>\<lceil>\<lceil>X\<rceil>\<rceil>. x \<noteq> bot)}" by(simp add: null_option_def bot_option_def)
 
  have discr_eq_false_true : "\<And>\<tau>. (false \<tau> = true \<tau>) = False" by (metis OclValid_def foundation2)
  have discr_eq_null_false : "\<And>\<tau>. (null \<tau> = false \<tau>) = False" by (metis defined4 foundation1 foundation16 null_fun_def)
@@ -1658,7 +1641,7 @@ lemma forall_set_mt_exec[simp,code_unfold] :
 "((Set{})->forall(z| P(z))) = true"
 apply(simp add: OclForall_def)
 apply(subst mtSet_def)+
-apply(subst Abs_Set_0_inverse, simp_all add: Set_0_def true_def)+
+apply(subst Abs_Set_0_inverse, simp_all add: true_def)+
 done
 
 lemma exists_set_null_exec[simp,code_unfold] :
@@ -1677,11 +1660,11 @@ lemma forall_set_including_exec[simp,code_unfold] :
                                                  endif)"
 proof -
 
- have insert_in_Set_0 : "\<And>\<tau>. \<tau> \<Turnstile> \<delta> S \<Longrightarrow> \<tau> \<Turnstile> \<upsilon> x \<Longrightarrow> \<lfloor>\<lfloor>insert (x \<tau>) \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>\<rfloor>\<rfloor> \<in> Set_0"
-  apply(frule Set_inv_lemma)
-  apply(simp add: Set_0_def bot_option_def null_Set_0_def null_fun_def
-                  foundation18 foundation16 invalid_def)
- done
+ have insert_in_Set_0 : "\<And>\<tau>. (\<tau> \<Turnstile>(\<delta> S)) \<Longrightarrow> (\<tau> \<Turnstile>(\<upsilon> x)) \<Longrightarrow> \<lfloor>\<lfloor>insert (x \<tau>) \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>\<rfloor>\<rfloor> \<in> {X. X = bot \<or> X = null \<or> (\<forall>x\<in>\<lceil>\<lceil>X\<rceil>\<rceil>. x \<noteq> bot)}"
+          apply(frule Set_inv_lemma)
+          apply(simp add: bot_option_def null_Set_0_def null_fun_def
+                          foundation18 foundation16 invalid_def)
+          done
 
  have d_and_v_destruct_defined : "\<And>\<tau> S x. \<tau> \<Turnstile> (\<delta> S and \<upsilon> x) \<Longrightarrow> \<tau> \<Turnstile> \<delta> S"
   by (simp add: foundation5[THEN conjunct1])
@@ -1927,14 +1910,11 @@ done
 
 lemma OclIterate\<^isub>S\<^isub>e\<^isub>t_empty[simp]: "((Set{})->iterate(a; x = A | P a x)) = A"
 proof -
- have A1 : "\<lfloor>\<lfloor>{}\<rfloor>\<rfloor> \<in> Set_0" by(simp add: Set_0_def)
- have A2 : "None \<in> Set_0"  by(simp add: Set_0_def bot_option_def)
- have A3 : "\<lfloor>None\<rfloor> \<in> Set_0" by(simp add: Set_0_def bot_option_def null_option_def)
+ have A1 : "\<lfloor>\<lfloor>{}\<rfloor>\<rfloor> \<in> {X. X = bot \<or> X = null \<or> (\<forall>x\<in>\<lceil>\<lceil>X\<rceil>\<rceil>. x \<noteq> bot)}" by(simp add: mtSet_def)
  have C : "\<And> \<tau>. (\<delta> (\<lambda>\<tau>. Abs_Set_0 \<lfloor>\<lfloor>{}\<rfloor>\<rfloor>)) \<tau> = true \<tau>"
-             by(simp add: defined_def  bot_Set_0_def null_Set_0_def
-                          bot_fun_def null_fun_def A1 A2 A3 Abs_Set_0_inject)
+ by (metis A1 Abs_Set_0_cases Abs_Set_0_inverse cp_defined defined_def false_def mtSet_def mtSet_defined null_fun_def null_option_def null_set_not_defined true_def)
  show ?thesis
-      apply(simp add: OclIterate\<^isub>S\<^isub>e\<^isub>t_def mtSet_def Abs_Set_0_inverse Set_0_def valid_def C)
+      apply(simp add: OclIterate\<^isub>S\<^isub>e\<^isub>t_def mtSet_def Abs_Set_0_inverse valid_def C)
       apply(rule ext)
       apply(case_tac "A \<tau> = \<bottom> \<tau>", simp_all, simp add:true_def false_def bot_fun_def)
       apply(simp add: A1 Abs_Set_0_inverse)
@@ -1953,7 +1933,7 @@ assumes S_finite:    "\<tau> \<Turnstile> \<delta>(S->size())"
 and     F_valid_arg: "(\<upsilon> A) \<tau> = (\<upsilon> (F a A)) \<tau>"
 and     F_commute:   "comp_fun_commute F"
 and     F_cp:        "\<And> x y \<tau>. F x y \<tau> = F (\<lambda> _. x \<tau>) y \<tau>"
-shows   "((S->including(a))->iterate(a; x = A     | F a x)) \<tau> =
+shows   "((S->including(a))->iterate(a; x =     A | F a x)) \<tau> =
          ((S->excluding(a))->iterate(a; x = F a A | F a x)) \<tau>"
 proof -
 
@@ -1963,29 +1943,29 @@ proof -
                   null_fun_def null_option_def)
  by (case_tac " P \<tau> = \<bottom>", simp_all add: true_def)
 
- have insert_in_Set_0 : "\<And>\<tau>. (\<tau> \<Turnstile>(\<delta> S)) \<Longrightarrow> (\<tau> \<Turnstile>(\<upsilon> a)) \<Longrightarrow> \<lfloor>\<lfloor>insert (a \<tau>) \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>\<rfloor>\<rfloor> \<in> Set_0"
-  apply(frule Set_inv_lemma)
-  apply(simp add: Set_0_def bot_option_def null_Set_0_def null_fun_def
-                  foundation18 foundation16 invalid_def)
- done
+ have insert_in_Set_0 : "\<And>\<tau>. (\<tau> \<Turnstile>(\<delta> S)) \<Longrightarrow> (\<tau> \<Turnstile>(\<upsilon> a)) \<Longrightarrow> \<lfloor>\<lfloor>insert (a \<tau>) \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>\<rfloor>\<rfloor> \<in> {X. X = bot \<or> X = null \<or> (\<forall>x\<in>\<lceil>\<lceil>X\<rceil>\<rceil>. x \<noteq> bot)}"
+          apply(frule Set_inv_lemma)
+          apply(simp add: bot_option_def null_Set_0_def null_fun_def
+                          foundation18 foundation16 invalid_def)
+          done
 
  have insert_defined : "\<And>\<tau>. (\<tau> \<Turnstile>(\<delta> S)) \<Longrightarrow> (\<tau> \<Turnstile>(\<upsilon> a)) \<Longrightarrow>
             (\<delta> (\<lambda>_. Abs_Set_0 \<lfloor>\<lfloor>insert (a \<tau>) \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>\<rfloor>\<rfloor>)) \<tau> = true \<tau>"
   apply(subst defined_def)
   apply(simp add: bot_fun_def bot_option_def bot_Set_0_def null_Set_0_def null_option_def null_fun_def false_def true_def)
   apply(subst Abs_Set_0_inject)
-  apply(rule insert_in_Set_0, simp_all add: Set_0_def bot_option_def)
+  apply(rule insert_in_Set_0, simp_all add: bot_option_def)
 
   apply(subst Abs_Set_0_inject)
-  apply(rule insert_in_Set_0, simp_all add: Set_0_def null_option_def bot_option_def)
+  apply(rule insert_in_Set_0, simp_all add: null_option_def bot_option_def)
  done
 
  have remove_finite : "finite \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil> \<Longrightarrow> finite ((\<lambda>a \<tau>. a) ` (\<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil> - {a \<tau>}))"
- by(simp add: Set_0_def)
+ by(simp)
 
- have remove_in_Set_0 : "\<And>\<tau>. (\<tau> \<Turnstile>(\<delta> S)) \<Longrightarrow> (\<tau> \<Turnstile>(\<upsilon> a)) \<Longrightarrow> \<lfloor>\<lfloor>\<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil> - {a \<tau>}\<rfloor>\<rfloor> \<in> Set_0"
+ have remove_in_Set_0 : "\<And>\<tau>. (\<tau> \<Turnstile>(\<delta> S)) \<Longrightarrow> (\<tau> \<Turnstile>(\<upsilon> a)) \<Longrightarrow> \<lfloor>\<lfloor>\<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil> - {a \<tau>}\<rfloor>\<rfloor> \<in> {X. X = bot \<or> X = null \<or> (\<forall>x\<in>\<lceil>\<lceil>X\<rceil>\<rceil>. x \<noteq> bot)}"
   apply(frule Set_inv_lemma)
-  apply(simp add: Set_0_def bot_option_def null_Set_0_def null_fun_def
+  apply(simp add: bot_option_def null_Set_0_def null_fun_def
                   foundation18 foundation16 invalid_def)
  done
 
@@ -1994,13 +1974,13 @@ proof -
   apply(subst defined_def)
   apply(simp add: bot_fun_def bot_option_def bot_Set_0_def null_Set_0_def null_option_def null_fun_def false_def true_def)
   apply(subst Abs_Set_0_inject)
-  apply(rule remove_in_Set_0, simp_all add: Set_0_def bot_option_def)
+  apply(rule remove_in_Set_0, simp_all add: bot_option_def)
 
   apply(subst Abs_Set_0_inject)
-  apply(rule remove_in_Set_0, simp_all add: Set_0_def null_option_def bot_option_def)
+  apply(rule remove_in_Set_0, simp_all add: null_option_def bot_option_def)
  done
 
- have abs_rep: "\<And>x. \<lfloor>\<lfloor>x\<rfloor>\<rfloor> \<in> Set_0 \<Longrightarrow> \<lceil>\<lceil>Rep_Set_0 (Abs_Set_0 \<lfloor>\<lfloor>x\<rfloor>\<rfloor>)\<rceil>\<rceil> = x"
+ have abs_rep: "\<And>x. \<lfloor>\<lfloor>x\<rfloor>\<rfloor> \<in> {X. X = bot \<or> X = null \<or> (\<forall>x\<in>\<lceil>\<lceil>X\<rceil>\<rceil>. x \<noteq> bot)} \<Longrightarrow> \<lceil>\<lceil>Rep_Set_0 (Abs_Set_0 \<lfloor>\<lfloor>x\<rfloor>\<rfloor>)\<rceil>\<rceil> = x"
  by(subst Abs_Set_0_inverse, simp_all)
 
  have inject : "inj (\<lambda>a \<tau>. a)"
@@ -2055,15 +2035,15 @@ qed
 
 lemma [simp]: "\<delta> (Set{} ->size()) = true"
 proof -
- have A1 : "\<lfloor>\<lfloor>{}\<rfloor>\<rfloor> \<in> Set_0" by(simp add: Set_0_def)
- have A2 : "None \<in> Set_0"  by(simp add: Set_0_def bot_option_def)
- have A3 : "\<lfloor>None\<rfloor> \<in> Set_0" by(simp add: Set_0_def bot_option_def null_option_def)
+ have A1 : "\<lfloor>\<lfloor>{}\<rfloor>\<rfloor> \<in> {X. X = bot \<or> X = null \<or> (\<forall>x\<in>\<lceil>\<lceil>X\<rceil>\<rceil>. x \<noteq> bot)}" by(simp add: mtSet_def)
+ have A2 : "None \<in> {X. X = bot \<or> X = null \<or> (\<forall>x\<in>\<lceil>\<lceil>X\<rceil>\<rceil>. x \<noteq> bot)}"  by(simp add: bot_option_def)
+ have A3 : "\<lfloor>None\<rfloor> \<in> {X. X = bot \<or> X = null \<or> (\<forall>x\<in>\<lceil>\<lceil>X\<rceil>\<rceil>. x \<noteq> bot)}" by(simp add: bot_option_def null_option_def)
  show ?thesis
   apply(rule ext)
   apply(simp add: defined_def mtSet_def OclSize_def
                   bot_Set_0_def bot_fun_def
                   null_Set_0_def null_fun_def)
-  apply(subst Abs_Set_0_inject, simp_all add: A1 A2 A3) +
+  apply(subst Abs_Set_0_inject, simp_all add: A1 A2 A3 bot_option_def null_option_def) +
  by(simp add: A1 Abs_Set_0_inverse bot_fun_def bot_option_def null_fun_def null_option_def)
 qed
 
@@ -2083,27 +2063,27 @@ proof -
 
 (* example by bu ... *)
 
- have C : "\<And>\<tau>. (\<tau> \<Turnstile>(\<delta> X)) \<Longrightarrow> (\<tau> \<Turnstile>(\<upsilon> x)) \<Longrightarrow> \<lfloor>\<lfloor>insert (x \<tau>) \<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil>\<rfloor>\<rfloor> \<in> Set_0"
+ have C : "\<And>\<tau>. (\<tau> \<Turnstile>(\<delta> X)) \<Longrightarrow> (\<tau> \<Turnstile>(\<upsilon> x)) \<Longrightarrow> \<lfloor>\<lfloor>insert (x \<tau>) \<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil>\<rfloor>\<rfloor> \<in> {X. X = bot \<or> X = null \<or> (\<forall>x\<in>\<lceil>\<lceil>X\<rceil>\<rceil>. x \<noteq> bot)}"
           apply(frule Set_inv_lemma)
-          apply(simp add: Set_0_def bot_option_def null_Set_0_def null_fun_def
+          apply(simp add: bot_option_def null_Set_0_def null_fun_def
                           foundation18 foundation16 invalid_def)
           done
 
 (* example by bu cont ... *)
-have finite_including_exec' :
+term (*have finite_including_exec' :*)
     "\<And>\<tau>. (\<tau> \<Turnstile>(\<delta> X)) \<Longrightarrow> (\<tau> \<Turnstile>(\<upsilon> x)) \<Longrightarrow>
                  finite \<lceil>\<lceil>Rep_Set_0 (X->including(x) \<tau>)\<rceil>\<rceil> = finite \<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil>"
-  apply(simp add: OclIncluding_def Abs_Set_0_inverse C)
+(*  apply(simp add: OclIncluding_def Abs_Set_0_inverse C)
   apply(drule foundation13[THEN iffD2, THEN foundation22[THEN iffD1]], simp)+
   done
-
+*)
 (* ... and even more succinct : *)
-have finite_including_exec'' :
+term (*finite_including_exec'' :*)
      "\<And>\<tau>. (\<tau> \<Turnstile>(\<delta> X)) \<Longrightarrow> (\<tau> \<Turnstile>(\<upsilon> x)) \<Longrightarrow>
                  finite \<lceil>\<lceil>Rep_Set_0 (X->including(x) \<tau>)\<rceil>\<rceil> = finite \<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil>"
-  by(auto simp: OclIncluding_def Abs_Set_0_inverse C
+(*  by(auto simp: OclIncluding_def Abs_Set_0_inverse C
           dest: foundation13[THEN iffD2, THEN foundation22[THEN iffD1]])
-
+*)
 (* just equivalence, to show that this premise corresponds to the final statement in the logical
 chain ...*)
 term "\<And>xa. (\<delta> X and \<upsilon> x) xa = true xa"
@@ -2117,7 +2097,7 @@ term "\<And>\<tau>. \<tau> \<Turnstile> (\<delta> X) \<and> \<tau> \<Turnstile>(
                  finite \<lceil>\<lceil>Rep_Set_0 (X->including(x) \<tau>)\<rceil>\<rceil> = finite \<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil>"
   apply(simp add: OclIncluding_def)
   apply(subst Abs_Set_0_inverse)
-  apply(simp add: Set_0_def)
+  apply(simp)
   apply(rule disjI2)+
   apply(rule conjI)
   apply(simp add: cp_ocl_and[of "\<delta> X" "\<upsilon> x"])
@@ -2213,7 +2193,7 @@ proof -
                                      finite \<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil>"
   apply(simp add: OclExcluding_def)
   apply(subst Abs_Set_0_inverse)
-  apply(simp add: Set_0_def)
+  apply(simp)
   apply(rule disjI2)+
   (* *)
   apply(rule disjE[OF Set_inv_lemma[OF foundation5[of _ "\<delta> X" "\<upsilon> x", THEN conjunct1]]])
@@ -2504,7 +2484,7 @@ proof -
  have discr_neq_invalid_true : "\<And>\<tau>. (invalid \<tau> \<noteq> true \<tau>) = True" by (metis discr_eq_bot2_true invalid_def)
  have discr_neq_invalid_bot : "\<And>\<tau>. (invalid \<tau> \<noteq> \<bottom> \<tau>) = False" by (metis bot_fun_def invalid_def)
 
- have bot_in_set_0 : "\<lfloor>\<bottom>\<rfloor> \<in> Set_0" by(simp add: Set_0_def null_option_def bot_option_def)
+ have bot_in_set_0 : "\<lfloor>\<bottom>\<rfloor> \<in> {X. X = bot \<or> X = null \<or> (\<forall>x\<in>\<lceil>\<lceil>X\<rceil>\<rceil>. x \<noteq> bot)}" by(simp add: null_option_def bot_option_def)
 
  have not_bot_in_set : "\<And>\<tau> x e. (\<tau> \<Turnstile> \<delta> x) \<Longrightarrow> \<not> (\<tau> \<Turnstile> \<upsilon> (\<lambda>_. e)) \<Longrightarrow> e \<in> \<lceil>\<lceil>Rep_Set_0 (x \<tau>)\<rceil>\<rceil> \<Longrightarrow> False"
   apply(frule Set_inv_lemma)
@@ -2910,7 +2890,7 @@ proof -
  done
 
  have inject : "inj (\<lambda>a \<tau>. a)" by(rule inj_fun, simp)
- have bot_in_set_0 : "\<lfloor>\<bottom>\<rfloor> \<in> Set_0" by(simp add: Set_0_def null_option_def bot_option_def)
+ have bot_in_set_0 : "\<lfloor>\<bottom>\<rfloor> \<in> {X. X = bot \<or> X = null \<or> (\<forall>x\<in>\<lceil>\<lceil>X\<rceil>\<rceil>. x \<noteq> bot)}" by(simp add: null_option_def bot_option_def)
 
  have not_bot_in_set : "\<And>\<tau> x e. (\<tau> \<Turnstile> \<delta> x) \<Longrightarrow> \<not> (\<tau> \<Turnstile> \<upsilon> (\<lambda>_. e)) \<Longrightarrow> e \<in> \<lceil>\<lceil>Rep_Set_0 (x \<tau>)\<rceil>\<rceil> \<Longrightarrow> False"
   apply(frule Set_inv_lemma)
@@ -3112,18 +3092,15 @@ proof -
  done
 
  have discr_eq_invalid_true : "\<And>\<tau>. (invalid \<tau> = true \<tau>) = False" by (metis bot_option_def invalid_def option.simps(2) true_def)
- have invert_set_0 : "\<And>x F. \<lfloor>\<lfloor>insert x F\<rfloor>\<rfloor> \<in> Set_0 \<Longrightarrow> \<lfloor>\<lfloor>F\<rfloor>\<rfloor> \<in> Set_0"
-  apply(simp add: Set_0_def)
-  apply(auto)
-  apply(simp add: bot_option_def null_option_def)+
- done
+ have invert_set_0 : "\<And>x F. \<lfloor>\<lfloor>insert x F\<rfloor>\<rfloor> \<in> {X. X = bot \<or> X = null \<or> (\<forall>x\<in>\<lceil>\<lceil>X\<rceil>\<rceil>. x \<noteq> bot)} \<Longrightarrow> \<lfloor>\<lfloor>F\<rfloor>\<rfloor> \<in> {X. X = bot \<or> X = null \<or> (\<forall>x\<in>\<lceil>\<lceil>X\<rceil>\<rceil>. x \<noteq> bot)}"
+ by(auto simp: bot_option_def null_option_def)
 
  have invert_all_def_set : "\<And>x F. all_defined_set \<tau> (insert x F) \<Longrightarrow> all_defined_set \<tau> F"
   apply(simp add: all_defined_set_def)
  done
 
- have A : "\<bottom> \<in> Set_0" by(simp add: Set_0_def bot_option_def)
- have B : "\<lfloor>\<bottom>\<rfloor> \<in> Set_0" by(simp add: Set_0_def null_option_def bot_option_def)
+ have A : "\<bottom> \<in> {X. X = bot \<or> X = null \<or> (\<forall>x\<in>\<lceil>\<lceil>X\<rceil>\<rceil>. x \<noteq> bot)}" by(simp add: bot_option_def)
+ have B : "\<lfloor>\<bottom>\<rfloor> \<in> {X. X = bot \<or> X = null \<or> (\<forall>x\<in>\<lceil>\<lceil>X\<rceil>\<rceil>. x \<noteq> bot)}" by(simp add: null_option_def bot_option_def)
 
  have commute :  "EQ_comp_fun_commute (\<lambda>j r2. r2->including(j))" sorry
  have def_preserved : "\<And>acc xa. (\<tau> \<Turnstile> \<delta> xa) \<Longrightarrow> all_defined \<tau> acc \<Longrightarrow> all_defined \<tau> acc->including(xa)" sorry
@@ -3155,7 +3132,7 @@ proof -
   apply(subgoal_tac "\<And>s. \<lceil>\<lceil>Rep_Set_0 (s \<tau>)\<rceil>\<rceil> = \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil> \<Longrightarrow> all_defined \<tau> s \<Longrightarrow> \<tau> \<Turnstile> (Finite_Set.fold (\<lambda>j r2. r2->including(j)) s ((\<lambda>a \<tau>. a) ` \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>) \<doteq> s)")
   apply(simp add: OclValid_def del: StrictRefEq_set_exec)
 
-  apply(subst finite_induct[where P = "\<lambda>set. all_defined_set \<tau> set \<and> \<lfloor>\<lfloor>set\<rfloor>\<rfloor> \<in> Set_0 \<longrightarrow>
+  apply(subst finite_induct[where P = "\<lambda>set. all_defined_set \<tau> set \<and> \<lfloor>\<lfloor>set\<rfloor>\<rfloor> \<in> {X. X = bot \<or> X = null \<or> (\<forall>x\<in>\<lceil>\<lceil>X\<rceil>\<rceil>. x \<noteq> bot)} \<longrightarrow>
                                              (\<forall>s. all_defined \<tau> s \<longrightarrow> all_defined \<tau> (Finite_Set.fold (\<lambda>j r2. (r2->including(j))) s ((\<lambda>a \<tau>. a) ` set))) \<and>
                                              (\<forall>s. all_defined \<tau> s \<and>
                                                set \<subseteq> \<lceil>\<lceil>Rep_Set_0 (s \<tau>)\<rceil>\<rceil> \<longrightarrow>
@@ -3165,7 +3142,7 @@ proof -
   apply(simp add: all_defined_set_def all_defined_def)
   apply(simp add: foundation20[simplified OclValid_def] OclValid_def)
   defer
-  apply(simp add: Set_0_def all_defined_def) apply(rule disjI2)+
+  apply(simp add: all_defined_def) apply(rule disjI2)+
   apply(simp add: all_defined_def all_defined_set_def)
    apply(rule ballI, erule conjE)
    apply(drule_tac x = x and Q = "x\<noteq>bot" in ballE)
