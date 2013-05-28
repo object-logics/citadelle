@@ -2289,177 +2289,42 @@ Sequence{6,8}->iterate(i;r1:Sequence(Integer)=Sequence{9}|
 *)
 
 text{* @{term OclIterate\<^isub>S\<^isub>e\<^isub>t} is defined with the function @{term Finite_Set.fold}.
-So when proving properties where the term @{term OclIterate\<^isub>S\<^isub>e\<^isub>t} appears at some point, 
+So when proving properties where the term @{term OclIterate\<^isub>S\<^isub>e\<^isub>t} appears at some point,
 most lemmas defined in
 the library @{theory Finite_Set} could be helpful for the proof.
  However, for some part of the Gogolla's Challenge proof, it is required
-to have this statement @{thm (concl) comp_fun_commute.fold_insert} 
+to have this statement @{thm (concl) comp_fun_commute.fold_insert}
 (coming from @{text comp_fun_commute.fold_insert}),
-but @{text comp_fun_commute.fold_insert} contains as hypothesis @{text comp_fun_commute},
-defined with the ``@{text "="}'' operator.
-Because comparing with the ``@{text "="}'' operator might be a too strong result to establish 
-on two arbitrary OCL terms,
-we would like to reason with a weaken operator, for instance ``@{text "\<doteq>"}''.
-Then the following part develops a small library similar as @{theory Finite_Set}, but
-the commutation function becomes this simple definition
-@{term "\<tau> \<Turnstile> ((f y (f x z)) \<doteq> (f x (f y z)))"}. *}
+but @{text comp_fun_commute.fold_insert} requires @{text comp_fun_commute},
+which is not trivial to prove on two OCL terms without extra hypothesis
+(like finiteness on sets).
+Thus, we overload here this @{text comp_fun_commute}. *}
 
-locale EQ_comp_fun_commute =
-  fixes f :: "'a \<Rightarrow> ('b state \<times> 'b state \<Rightarrow> int option option Set_0) \<Rightarrow> ('b state \<times> 'b state \<Rightarrow> int option option Set_0)"
-  assumes preserved_valid: "\<And>y. (*\<tau> \<Turnstile> \<upsilon> x \<Longrightarrow>*) \<tau> \<Turnstile> \<upsilon> y \<Longrightarrow> \<tau> \<Turnstile> \<upsilon> (f x y)"
-  assumes comp_fun_commute: "\<tau> \<Turnstile> ((f y (f x z)) \<doteq> (f x (f y z)))"
-begin end
+definition all_defined_set_def :
+ "all_defined_set \<tau> S \<equiv> finite S \<and> (\<forall>x\<in>S. (\<tau> \<Turnstile> (\<delta> (\<lambda>_. x))))"
 
-lemma EQ_sym : "(x::'b state \<times> 'b state \<Rightarrow> int option option Set_0) = y \<Longrightarrow> \<tau> \<Turnstile> \<upsilon> x \<Longrightarrow> \<tau> \<Turnstile> (x \<doteq> y)"
-  apply(simp add: OclValid_def)
-done
+definition all_defined_def :
+ "all_defined \<tau> S \<equiv> \<tau> \<Turnstile> \<delta> S \<and> all_defined_set \<tau> \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>"
 
-lemma StrictRefEq_set_L_subst1_bool : "cp P \<Longrightarrow> (\<And>x. \<tau> \<Turnstile> \<upsilon> x \<Longrightarrow> \<tau> \<Turnstile> \<upsilon> P x) \<Longrightarrow> \<tau> \<Turnstile> (x::('\<AA>,'\<alpha>::null)Set) \<doteq> y \<Longrightarrow> \<tau> \<Turnstile> (P x ::('\<AA>)Boolean) \<doteq> P y"
- apply(simp only: StrictRefEq_set StrictRefEq_bool OclValid_def)
- apply(split split_if_asm)
- apply(simp add: StrongEq_L_subst1[simplified OclValid_def])
-by (simp add: invalid_def bot_option_def true_def)
-
-lemma StrictRefEq_set_L_subst2_bool : "cp P \<Longrightarrow> (\<And>x. \<tau> \<Turnstile> \<upsilon> x \<Longrightarrow> \<tau> \<Turnstile> \<upsilon> P x) \<Longrightarrow> \<tau> \<Turnstile> (x::('\<AA>,'\<alpha>::null)Set) \<doteq> y \<Longrightarrow> \<tau> \<Turnstile> (P x ::('\<AA>)Boolean) \<Longrightarrow> \<tau> \<Turnstile> P y"
- apply(drule_tac \<tau> = \<tau> and x = x and y = y in StrictRefEq_set_L_subst1_bool)
- apply(simp) apply(simp)
-by (metis OclValid_def StrictRefEq_bool foundation22 strictEqBool_defargs)
+locale EQ_comp_fun_commute = comp_fun_commute +
+  assumes all_def : "\<tau> \<Turnstile> \<delta> x \<Longrightarrow> all_defined \<tau> y \<Longrightarrow> all_defined \<tau> (f x y)"
 
 context EQ_comp_fun_commute
 begin
-lemma EQ_fold_graph_insertE_aux:
-  "fold_graph f z A y \<Longrightarrow> a \<in> A \<Longrightarrow> \<tau> \<Turnstile> \<upsilon> y \<Longrightarrow> \<exists>y'. (\<tau> \<Turnstile> (y \<doteq> f a y')) \<and> fold_graph f z (A - {a}) y'"
-proof (induct set: fold_graph)
-  case (insertI x A y) show ?case
-  proof (cases "x = a")
-    assume "x = a" with insertI show ?case
-     apply(rule_tac x = y in exI)
-     apply(simp only: EQ_sym)
-    by (auto)
-  next
-    assume "x \<noteq> a"
-    then obtain y' where y: "\<tau> \<Turnstile> y \<doteq> f a y'" and y': "fold_graph f z (A - {a}) y'"
-      using insertI sorry (* by auto *)
-    have "\<tau> \<Turnstile> f x y \<doteq> f a (f x y')"
-      unfolding y sorry (* by (rule comp_fun_commute) *)
-    moreover have "fold_graph f z (insert x A - {a}) (f x y')"
-      using y' and `x \<noteq> a` and `x \<notin> A`
-      by (simp add: insert_Diff_if fold_graph.insertI)
-    ultimately show ?case by fast
-  qed
-qed fast
-
-lemma fold_graph_insertE:
-  assumes "fold_graph f z (insert x A) v" and "x \<notin> A"
-  obtains y where "\<tau> \<Turnstile> v \<doteq> f x y" and "fold_graph f z A y"
-using assms sorry (*by (auto dest: fold_graph_insertE_aux [OF _ insertI1])*)
-
-thm empty_fold_graphE
-lemma EQ_empty_fold_graphE: "fold_graph f z {} x \<Longrightarrow> (\<tau> \<Turnstile> x \<doteq> z \<Longrightarrow> P) \<Longrightarrow> P " sorry
-
-lemma fold_graph_determ:
-  "fold_graph f z A x \<Longrightarrow> fold_graph f z A y \<Longrightarrow> \<tau> \<Turnstile> \<upsilon> y \<Longrightarrow> \<tau> \<Turnstile> y \<doteq> x"
-proof (induct arbitrary: y set: fold_graph)
-  case (insertI x A y v)
-  from `fold_graph f z (insert x A) v` and `x \<notin> A`
-  obtain y' where "\<tau> \<Turnstile> v \<doteq> f x y'" and "fold_graph f z A y'"
-    by (rule fold_graph_insertE)
-  from `fold_graph f z A y'` have "\<tau> \<Turnstile> y' \<doteq> y" sorry (* by (rule insertI)*)
-  with `\<tau> \<Turnstile> v \<doteq> f x y'` show "\<tau> \<Turnstile> v \<doteq> f x y" sorry (*by simp*)
-  apply_end (elim empty_fold_graphE)
-  apply_end(rule EQ_sym, simp_all)
-qed
-
-lemma fold_equality:
-  "fold_graph f z A y \<Longrightarrow> \<tau> \<Turnstile> \<upsilon> y \<Longrightarrow> \<tau> \<Turnstile> Finite_Set.fold f z A \<doteq> y"
-sorry
-(*by (unfold Finite_Set.fold_def) (blast intro: fold_graph_determ)*)
-
-lemma fold_graph_fold:
-  assumes "finite A"
-  shows "fold_graph f z A (Finite_Set.fold f z A)"
-proof -
-  from assms have "\<exists>x. fold_graph f z A x" by (rule finite_imp_fold_graph)
-  moreover note fold_graph_determ
-  ultimately have "\<exists>!x. fold_graph f z A x" sorry (* by (rule ex_ex1I) *)
-  then have "fold_graph f z A (The (fold_graph f z A))" by (rule theI')
-  then show ?thesis by (unfold Finite_Set.fold_def)
-qed
-
-lemma fold_insert [simp]:
-  assumes "finite A" and "x \<notin> A" and "\<tau> \<Turnstile> \<upsilon> (Finite_Set.fold f z A)"
-  shows "\<tau> \<Turnstile> Finite_Set.fold f z (insert x A) \<doteq> f x (Finite_Set.fold f z A)"
-proof (rule fold_equality)
-  from `finite A` have "fold_graph f z A (Finite_Set.fold f z A)" by (rule fold_graph_fold)
-  with `x \<notin> A`show "fold_graph f z (insert x A) (f x (Finite_Set.fold f z A))" by (rule fold_graph.insertI)
-  apply_end (rule preserved_valid)
-  apply_end (rule assms)
-qed
-
-text{* Note that in this @{text "fold_insert"} 
-the same result with the ``@{text "="}'' operator may not be proved 
-(compare with @{text "comp_fun_commute.fold_insert"}). *}
-
-lemma finite_fold_insert :
-  assumes "finite A" and "x \<notin> A" and "\<tau> \<Turnstile> \<upsilon> (Finite_Set.fold f z A)"
-  shows "finite \<lceil>\<lceil>Rep_Set_0 (Finite_Set.fold f z (insert x A) \<tau>)\<rceil>\<rceil> = finite \<lceil>\<lceil>Rep_Set_0 (f x (Finite_Set.fold f z A) \<tau>)\<rceil>\<rceil>"
-proof -
- have discr_eq_invalid_true : "\<And>\<tau>. (invalid \<tau> = true \<tau>) = False" by (metis bot_option_def invalid_def option.simps(2) true_def)
-
- have discr_eq_false_true : "\<And>\<tau>. (false \<tau> = true \<tau>) = False" by (metis OclValid_def foundation2)
- have cp_finite : "cp (\<lambda>x \<tau>. \<lfloor>\<lfloor>finite \<lceil>\<lceil>Rep_Set_0 (x \<tau>)\<rceil>\<rceil>\<rfloor>\<rfloor>)" by(simp add: cp_def, auto)
- have valid_finite : "\<And>x. \<tau> \<Turnstile> \<upsilon> x \<Longrightarrow> \<tau> \<Turnstile> \<upsilon> (\<lambda>\<tau>. \<lfloor>\<lfloor>finite \<lceil>\<lceil>Rep_Set_0 (x \<tau>)\<rceil>\<rceil>\<rfloor>\<rfloor>)"
-  apply(simp add: valid_def)
-  apply(case_tac "x \<tau> = \<bottom> \<tau>")
-  apply(simp add: bot_fun_def bot_option_def)
-  apply(simp add: OclValid_def discr_eq_false_true)
- by (metis (hide_lams, mono_tags) OCL_core.bot_fun_def false_def foundation1 foundation18' true_def valid1 valid5 valid_def)
-
- show ?thesis
-  apply(subgoal_tac "\<tau> \<Turnstile> ((\<lambda>\<tau>. \<lfloor>\<lfloor>finite \<lceil>\<lceil>Rep_Set_0 (Finite_Set.fold f z (insert x A) \<tau>)\<rceil>\<rceil>\<rfloor>\<rfloor>) \<doteq> (\<lambda>\<tau>. \<lfloor>\<lfloor>finite \<lceil>\<lceil>Rep_Set_0 (f x (Finite_Set.fold f z A) \<tau>)\<rceil>\<rceil>\<rfloor>\<rfloor>))")
-  apply(simp add:StrictRefEq_bool StrongEq_def OclValid_def)
-  apply(split split_if_asm)
-  apply(simp add:StrongEq_def true_def)
-  apply(simp add: discr_eq_invalid_true)
-
-  apply(rule StrictRefEq_set_L_subst1_bool)
-  apply(simp add: cp_finite)
-  apply(simp add: valid_finite)
-  apply(rule fold_insert)
-  apply(simp_all add: assms)
+ lemma fold_insert :
+   assumes "finite A" and "x \<notin> A"
+   shows "Finite_Set.fold f z (insert x A) = f x (Finite_Set.fold f z A)"
+   apply(rule fold_insert, simp_all add: assms)
  done
-qed
 
+ lemma finite_fold_insert :
+   assumes "finite A" and "x \<notin> A"
+   shows "finite \<lceil>\<lceil>Rep_Set_0 (Finite_Set.fold f z (insert x A) \<tau>)\<rceil>\<rceil> = finite \<lceil>\<lceil>Rep_Set_0 (f x (Finite_Set.fold f z A) \<tau>)\<rceil>\<rceil>"
+   apply(subst fold_insert, simp_all add: assms)
+ done
 end
 
-
-lemma StrictRefEq_set_sym : "\<tau> \<Turnstile> ((s::('\<AA>,'\<alpha>::null)Set) \<doteq> t) \<Longrightarrow> \<tau> \<Turnstile> (t \<doteq> s)"
- apply(simp only: StrictRefEq_set OclValid_def)
-by (metis StrongEq_sym)
-
-lemma StrictRefEq_set_trans : "\<tau> \<Turnstile> ((r::('\<AA>,'\<alpha>::null)Set) \<doteq> s) \<Longrightarrow> \<tau> \<Turnstile> (s \<doteq> t) \<Longrightarrow> \<tau> \<Turnstile> (r \<doteq> t)"
- apply(simp only: StrictRefEq_set OclValid_def)
-by (metis (hide_lams, no_types) OclValid_def bot_option_def foundation22 invalid_def option.simps(3) true_def)
-
-lemma StrictRefEq_set_L_subst1 : "cp P \<Longrightarrow> \<tau> \<Turnstile> \<upsilon> x \<Longrightarrow> \<tau> \<Turnstile> \<upsilon> y \<Longrightarrow> \<tau> \<Turnstile> \<upsilon> P x \<Longrightarrow> \<tau> \<Turnstile> \<upsilon> P y \<Longrightarrow> \<tau> \<Turnstile> (x::('\<AA>,'\<alpha>::null)Set) \<doteq> y \<Longrightarrow> \<tau> \<Turnstile> (P x ::('\<AA>,'\<alpha>::null)Set) \<doteq> P y"
- apply(simp only: StrictRefEq_set OclValid_def)
- apply(split split_if_asm)
- apply(simp add: StrongEq_L_subst1[simplified OclValid_def])
-by (simp add: invalid_def bot_option_def true_def)
-
-lemma StrictRefEq_set_L_subst1_ : "cp P \<Longrightarrow> (\<And>x. \<upsilon> x = \<upsilon> P x) \<Longrightarrow> \<tau> \<Turnstile> (x::('\<AA>,'\<alpha>::null)Set) \<doteq> y \<Longrightarrow> \<tau> \<Turnstile> (P x ::('\<AA>,'\<alpha>::null)Set) \<doteq> P y"
- apply(simp only: StrictRefEq_set OclValid_def)
- apply(split split_if_asm)
- apply(simp add: StrongEq_L_subst1[simplified OclValid_def])
-by (simp add: invalid_def bot_option_def true_def)
-
-lemma StrictRefEq_set_L_subst2 : "cp P \<Longrightarrow> \<tau> \<Turnstile> (x::('\<AA>,'\<alpha>::null)Set) \<doteq> y \<Longrightarrow> \<tau> \<Turnstile> P x \<Longrightarrow> \<tau> \<Turnstile> P y"
- apply(simp only: StrictRefEq_set OclValid_def)
- apply(case_tac "(\<upsilon> x) \<tau> = true \<tau> \<and> (\<upsilon> y) \<tau> = true \<tau>", simp)
- apply(rule StrongEq_L_subst2[simplified OclValid_def, where P = P and x = x], simp_all)
-by (simp add: invalid_def bot_option_def true_def)
-
-lemma including_swap : "\<tau> \<Turnstile> \<delta> S \<Longrightarrow> \<tau> \<Turnstile> \<upsilon> i \<Longrightarrow> \<tau> \<Turnstile> \<upsilon> j \<Longrightarrow> \<tau> \<Turnstile> ((S :: 'a state \<times> 'a state \<Rightarrow> int option option Set_0)->including(i)->including(j) \<doteq> (S->including(j)->including(i)))"
+lemma including_swap_ : "\<tau> \<Turnstile> \<delta> S \<Longrightarrow> \<tau> \<Turnstile> \<upsilon> i \<Longrightarrow> \<tau> \<Turnstile> \<upsilon> j \<Longrightarrow> \<tau> \<Turnstile> ((S :: 'a state \<times> 'a state \<Rightarrow> int option option Set_0)->including(i)->including(j) \<doteq> (S->including(j)->including(i)))"
 proof -
 
  have ocl_and_true : "\<And>a b. \<tau> \<Turnstile> a \<Longrightarrow> \<tau> \<Turnstile> b \<Longrightarrow> \<tau> \<Turnstile> a and b"
@@ -2631,21 +2496,24 @@ proof -
  done
 qed
 
-lemma including_out0 : "\<tau> \<Turnstile> ((S :: 'a state \<times> 'a state \<Rightarrow> int option option Set_0)->iterate(x;acc=Set{a} | acc->including(x)) \<doteq> (S->including(a)))"
+lemma including_swap : "\<tau> \<Turnstile> \<delta> S \<Longrightarrow> \<tau> \<Turnstile> \<upsilon> i \<Longrightarrow> \<tau> \<Turnstile> \<upsilon> j \<Longrightarrow> ((S :: 'a state \<times> 'a state \<Rightarrow> int option option Set_0)->including(i)->including(j) \<tau> = (S->including(j)->including(i)) \<tau>)"
+ apply(frule including_swap_[where i = i and j = j], simp_all del: StrictRefEq_set_exec)
+ apply(simp add: StrictRefEq_set OclValid_def del: StrictRefEq_set_exec)
+ apply(subgoal_tac "(\<delta> S and \<upsilon> i and \<upsilon> j) \<tau> = true \<tau> \<and> (\<delta> S and \<upsilon> j and \<upsilon> i) \<tau> = true \<tau>")
+  prefer 2
+  apply(metis OclValid_def foundation3)
+ apply(simp add: StrongEq_def true_def)
+done
+
+lemma including_out0 : "((S :: 'a state \<times> 'a state \<Rightarrow> int option option Set_0)->iterate(x;acc=Set{a} | acc->including(x))) \<tau> = (S->including(a)) \<tau>"
 sorry
 
-lemma including_out1 : "\<tau> \<Turnstile> ((S :: 'a state \<times> 'a state \<Rightarrow> int option option Set_0)->iterate(x;acc=A | acc->including(x)->including(i)) \<doteq> (S->iterate(x;acc=A | acc->including(x))->including(i)))"
+lemma including_out1 : "((S :: 'a state \<times> 'a state \<Rightarrow> int option option Set_0)->iterate(x;acc=A | acc->including(x)->including(i))) \<tau> = (S->iterate(x;acc=A | acc->including(x))->including(i)) \<tau>"
 sorry
 
-lemma including_out2 : "\<tau> \<Turnstile> ((S :: 'a state \<times> 'a state \<Rightarrow> int option option Set_0)->iterate(x;acc=A | acc->including(x0)->including(x)->including(i)) \<doteq>
-                            (S->iterate(x;acc=A | acc->including(x0)->including(x))->including(i)))"
+lemma including_out2 : "((S :: 'a state \<times> 'a state \<Rightarrow> int option option Set_0)->iterate(x;acc=A | acc->including(x0)->including(x)->including(i))) \<tau> =
+                            (S->iterate(x;acc=A | acc->including(x0)->including(x))->including(i)) \<tau>"
 sorry
-
-definition all_defined_set_def :
- "all_defined_set \<tau> S \<equiv> finite S \<and> (\<forall>x\<in>S. (\<tau> \<Turnstile> (\<delta> (\<lambda>_. x))))"
-
-definition all_defined_def :
- "all_defined \<tau> S \<equiv> \<tau> \<Turnstile> \<delta> S \<and> all_defined_set \<tau> \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>"
 
 lemma iterate_subst_set_rec :
 assumes F_commute : "EQ_comp_fun_commute F"
@@ -2656,10 +2524,6 @@ assumes F_commute : "EQ_comp_fun_commute F"
                        all_defined \<tau> (Finite_Set.fold F A ((\<lambda>a \<tau>. a) ` Fa)) \<Longrightarrow>
                        all_defined \<tau> (Finite_Set.fold F A (insert (\<lambda>\<tau>. x) ((\<lambda>a \<tau>. a) ` Fa)))"
 proof -
- have CP_d : "cp defined"
-  apply(simp add: cp_def, subst cp_defined)
- by(rule_tac x = "\<lambda> xab ab. (\<delta> (\<lambda>_. xab)) ab" in exI, simp)
-
  have image_cong: "\<And>x Fa f. inj f \<Longrightarrow> x \<notin> Fa \<Longrightarrow> f x \<notin> f ` Fa"
   apply(simp add: image_def)
   apply(rule ballI)
@@ -2676,83 +2540,13 @@ proof -
                        x \<notin> Fa \<Longrightarrow>
                        all_defined_set \<tau> (insert x Fa) \<Longrightarrow>
                        all_defined \<tau> (Finite_Set.fold F A ((\<lambda>a \<tau>. a) ` Fa)) \<Longrightarrow> ?thesis x Fa"
-  apply(subst all_defined_def, subst all_defined_set_def)
-  apply(rule conjI)
-  proof -
-   fix x Fa
-   show "finite Fa \<Longrightarrow>
-         x \<notin> Fa \<Longrightarrow>
-         all_defined_set \<tau> (insert x Fa) \<Longrightarrow>
-         all_defined \<tau> (Finite_Set.fold F A ((\<lambda>a \<tau>. a) ` Fa)) \<Longrightarrow>
-         \<tau> \<Turnstile> \<delta> Finite_Set.fold F A (insert (\<lambda>\<tau>. x) ((\<lambda>a \<tau>. a) ` Fa))"
-    apply(rule StrictRefEq_set_L_subst2[OF CP_d, where x = "F (\<lambda>\<tau>. x) (Finite_Set.fold F A ((\<lambda>a \<tau>. a) ` Fa))"])
-    apply(rule StrictRefEq_set_sym)
-    apply(rule EQ_comp_fun_commute.fold_insert[where f = F and z = A and A = "((\<lambda>a \<tau>. a) ` Fa)" and x = "(\<lambda>\<tau>. x)", OF F_commute])
-    apply(simp)
-    apply(rule image_cong)
-    apply(rule inject)
-    apply(simp)
-    apply(simp add: foundation20 all_defined1)
-    apply(subgoal_tac "all_defined \<tau> (F (\<lambda>\<tau>. x) (Finite_Set.fold F A ((\<lambda>a \<tau>. a) ` Fa)))")
-    apply(simp add: foundation20 all_defined1 del: StrictRefEq_set_exec)+
-    apply(rule fold_F, simp_all)
-    apply(simp add: all_defined_set_def)
-   done
-   apply_end(simp_all)
-   apply_end(rule conjI)
-   fix x Fa
-   show "finite Fa \<Longrightarrow>
-        x \<notin> Fa \<Longrightarrow>
-        all_defined_set \<tau> (insert x Fa) \<Longrightarrow>
-        all_defined \<tau> (Finite_Set.fold F A ((\<lambda>a \<tau>. a) ` Fa)) \<Longrightarrow>
-        finite \<lceil>\<lceil>Rep_Set_0 (Finite_Set.fold F A (insert (\<lambda>\<tau>. x) ((\<lambda>a \<tau>. a) ` Fa)) \<tau>)\<rceil>\<rceil>"
-
-    apply(simp add: all_defined_def all_defined_set_def)
-    apply(subst EQ_comp_fun_commute.finite_fold_insert[OF F_commute])
-    apply(simp)
-    apply(rule image_cong)
-    apply(rule inject)
-    apply(simp)
-    apply(simp add: foundation20)
-    apply(rule fold_F[simplified all_defined_def all_defined_set_def, THEN conjunct2, THEN conjunct1], simp)
-    apply(simp)
-   done
-   apply_end(simp_all)
-   apply_end(simp add: all_defined_def all_defined_set_def)
-   apply_end(subgoal_tac "\<tau> \<Turnstile> \<lambda>\<tau>. \<lfloor>\<lfloor>\<forall>x\<in>\<lceil>\<lceil>Rep_Set_0 (Finite_Set.fold F A (insert (\<lambda>\<tau>. x) ((\<lambda>a \<tau>. a) ` Fa)) \<tau>)\<rceil>\<rceil>. \<tau> \<Turnstile> \<delta> (\<lambda>_. x)\<rfloor>\<rfloor>")
-   apply_end(simp add: OclValid_def true_def)
-   fix x Fa
-
-   have cp: "cp (\<lambda>y \<tau>. \<lfloor>\<lfloor>\<forall>x\<in>\<lceil>\<lceil>Rep_Set_0 (y \<tau>)\<rceil>\<rceil>. \<tau> \<Turnstile> \<delta> (\<lambda>_. x)\<rfloor>\<rfloor>)"
-    apply(simp add: cp_def)
-   by(rule_tac x = "\<lambda> xab ab. \<lfloor>\<lfloor>\<forall>x\<in>\<lceil>\<lceil>Rep_Set_0 xab\<rceil>\<rceil>. ab \<Turnstile> \<delta> (\<lambda>_. x)\<rfloor>\<rfloor>" in exI, simp)
-
-   show "finite Fa \<Longrightarrow>
-            x \<notin> Fa \<Longrightarrow>
-            \<tau> \<Turnstile> \<delta> (\<lambda>_. x) \<and> (\<forall>x\<in>Fa. \<tau> \<Turnstile> \<delta> (\<lambda>_. x)) \<Longrightarrow>
-            \<tau> \<Turnstile> \<delta> Finite_Set.fold F A ((\<lambda>a \<tau>. a) ` Fa) \<and>
-            finite \<lceil>\<lceil>Rep_Set_0 (Finite_Set.fold F A ((\<lambda>a \<tau>. a) ` Fa) \<tau>)\<rceil>\<rceil> \<and> (\<forall>x\<in>\<lceil>\<lceil>Rep_Set_0 (Finite_Set.fold F A ((\<lambda>a \<tau>. a) ` Fa) \<tau>)\<rceil>\<rceil>. \<tau> \<Turnstile> \<delta> (\<lambda>_. x)) \<Longrightarrow>
-            \<tau> \<Turnstile> \<lambda>\<tau>. \<lfloor>\<lfloor>\<forall>x\<in>\<lceil>\<lceil>Rep_Set_0 (Finite_Set.fold F A (insert (\<lambda>\<tau>. x) ((\<lambda>a \<tau>. a) ` Fa)) \<tau>)\<rceil>\<rceil>. \<tau> \<Turnstile> \<delta> (\<lambda>_. x)\<rfloor>\<rfloor>"
-    apply(rule StrictRefEq_set_L_subst2_bool[where \<tau> = \<tau>
-        and P = "\<lambda>y \<tau>. \<lfloor>\<lfloor> \<forall>x\<in>\<lceil>\<lceil>Rep_Set_0 (y \<tau>)\<rceil>\<rceil>. (\<tau> \<Turnstile> \<delta> (\<lambda>_. x)) \<rfloor>\<rfloor>"
-        and y = "Finite_Set.fold F A (insert (\<lambda>\<tau>. x) ((\<lambda>a \<tau>. a) ` Fa))" ])
-    apply(rule cp)
-    apply(simp add: valid_def bot_fun_def bot_option_def)
-     apply(rule StrictRefEq_set_sym)
-     apply(rule EQ_comp_fun_commute.fold_insert[where f = F and z = A and A = "((\<lambda>a \<tau>. a) ` Fa)" and x = "(\<lambda>\<tau>. x)", OF F_commute])
-     apply(simp)
-     apply(rule image_cong)
-     apply(rule inject)
-     apply(simp)
-     apply(simp add: foundation20 all_defined1)
-     apply(subgoal_tac "\<forall>x\<in>\<lceil>\<lceil>Rep_Set_0 (F (\<lambda>\<tau>. x) (Finite_Set.fold F A ((\<lambda>a \<tau>. a) ` Fa)) \<tau>)\<rceil>\<rceil>. \<tau> \<Turnstile> \<delta> (\<lambda>_. x)")
-      apply(simp add: OclValid_def true_def)
-     apply(rule fold_F[simplified all_defined_def all_defined_set_def, THEN conjunct2, THEN conjunct2])
-     apply(simp_all)
-   done
-   apply_end(simp_all)
-  qed
-  apply_end(simp_all)
+  apply(subst EQ_comp_fun_commute.fold_insert[OF F_commute])
+  apply(simp)
+  apply(rule image_cong)
+  apply(rule inject)
+  apply(simp)
+  apply(simp add: foundation20 all_defined1 fold_F all_defined_set_def)
+ done
 qed
 
 lemma iterate_subst_set :
@@ -2763,8 +2557,8 @@ assumes S_all_def : "all_defined \<tau> (S :: 'a state \<times> 'a state \<Right
     and F_cp : "\<And>x. cp (F (\<lambda>\<tau>. x))"
     and fold_F  : "\<And>x acc. \<tau> \<Turnstile> \<delta> x \<Longrightarrow> all_defined \<tau> acc \<Longrightarrow> all_defined \<tau> (F x acc)"
     and fold_G  : "\<And>x acc. \<tau> \<Turnstile> \<delta> x \<Longrightarrow> all_defined \<tau> acc \<Longrightarrow> all_defined \<tau> (G x acc)"
-    and fold_eq : "\<And>x acc. \<tau> \<Turnstile> \<delta> x \<Longrightarrow> all_defined \<tau> acc \<Longrightarrow> \<tau> \<Turnstile> (F x acc \<doteq> G x acc)"
-shows "\<tau> \<Turnstile> (S->iterate(x;acc=A|F x acc) \<doteq> S->iterate(x;acc=A|G x acc))"
+    and fold_eq : "\<And>x acc. \<tau> \<Turnstile> \<delta> x \<Longrightarrow> all_defined \<tau> acc \<Longrightarrow> F x acc \<tau> = G x acc \<tau>"
+shows "(S->iterate(x;acc=A|F x acc)) \<tau> = (S->iterate(x;acc=A|G x acc)) \<tau>"
 proof -
  have S_finite : "finite \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>"
  by(simp add: S_all_def[simplified all_defined_def all_defined_set_def])
@@ -2785,19 +2579,15 @@ proof -
  have all_defined1 : "\<And>r2. all_defined \<tau> r2 \<Longrightarrow> \<tau> \<Turnstile> \<delta> r2" by(simp add: all_defined_def)
 
  show ?thesis
-  apply(subst OclValid_def)
-  apply(simp only: cp_StrictRefEq_set[of "OclIterate\<^isub>S\<^isub>e\<^isub>t S A F"])
   apply(simp only: OclIterate\<^isub>S\<^isub>e\<^isub>t_def)
   apply(simp add: S_all_def[simplified all_defined_def all_defined_set_def OclValid_def]
                   A_all_def[simplified all_defined_def OclValid_def]
                   foundation20[OF A_defined, simplified OclValid_def]
              del: StrictRefEq_set_exec)
-  apply(simp add: cp_StrictRefEq_set[symmetric]
-             del: StrictRefEq_set_exec)
   apply(subst conjunct2[OF mp[OF finite_induct[where P = "\<lambda>set. all_defined_set \<tau> set \<longrightarrow>
                                                all_defined \<tau> (Finite_Set.fold F A ((\<lambda>a \<tau>. a) ` set)) \<and>
                                                all_defined \<tau> (Finite_Set.fold G A ((\<lambda>a \<tau>. a) ` set)) \<and>
-                                               (Finite_Set.fold F A ((\<lambda>a \<tau>. a) ` set) \<doteq> Finite_Set.fold G A ((\<lambda>a \<tau>. a) ` set)) \<tau> = true \<tau>"
+                                               Finite_Set.fold F A ((\<lambda>a \<tau>. a) ` set) \<tau> = Finite_Set.fold G A ((\<lambda>a \<tau>. a) ` set) \<tau>"
                               and F = "\<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>"]]])
    apply(simp add: S_finite)
    apply(insert A_all_def, simp add: all_defined_set_def all_defined_def foundation20)
@@ -2812,215 +2602,39 @@ proof -
   apply(rule conjI, rule iterate_subst_set_rec[OF G_commute, OF fold_G], simp_all del: StrictRefEq_set_exec)
 
   (* *)
-  apply(subgoal_tac "\<tau> \<Turnstile> (Finite_Set.fold F A (insert (\<lambda>\<tau>. x) ((\<lambda>a \<tau>. a) ` Fa)) \<doteq> Finite_Set.fold G A (insert (\<lambda>\<tau>. x) ((\<lambda>a \<tau>. a) ` Fa)))", simp add: OclValid_def)
-  apply(rule_tac s = "F (\<lambda>\<tau>. x) (Finite_Set.fold F A ((\<lambda>a \<tau>. a) ` Fa))" in StrictRefEq_set_trans)
-  apply(rule EQ_comp_fun_commute.fold_insert[OF F_commute])
+  apply(subst EQ_comp_fun_commute.fold_insert[OF F_commute])
    apply(simp)
    apply(rule image_cong)
    apply(rule inject)
    apply(simp)
-  apply(simp add: foundation20 all_defined1)
-   (* *)
-  apply(rule_tac s = "G (\<lambda>\<tau>. x) (Finite_Set.fold G A ((\<lambda>a \<tau>. a) ` Fa))" in StrictRefEq_set_trans)
-   prefer 2
-  apply(rule StrictRefEq_set_sym)
-  apply(rule EQ_comp_fun_commute.fold_insert[OF G_commute])
+  apply(subst EQ_comp_fun_commute.fold_insert[OF G_commute])
    apply(simp)
    apply(rule image_cong)
    apply(rule inject)
    apply(simp)
-   apply(simp add: foundation20 all_defined1)
-   (* *)
-  proof -
-   fix x Fa
-   show "all_defined_set \<tau> (insert x Fa) \<Longrightarrow>
-         all_defined \<tau> (Finite_Set.fold F A ((\<lambda>a \<tau>. a) ` Fa)) \<and>
-         all_defined \<tau> (Finite_Set.fold G A ((\<lambda>a \<tau>. a) ` Fa)) \<and>
-         \<tau> \<Turnstile> (Finite_Set.fold F A ((\<lambda>a \<tau>. a) ` Fa) \<doteq> Finite_Set.fold G A ((\<lambda>a \<tau>. a) ` Fa)) \<Longrightarrow>
-         \<tau> \<Turnstile> F (\<lambda>\<tau>. x) (Finite_Set.fold F A ((\<lambda>a \<tau>. a) ` Fa)) \<doteq> G (\<lambda>\<tau>. x) (Finite_Set.fold G A ((\<lambda>a \<tau>. a) ` Fa))"
-    apply(rule StrictRefEq_set_trans[where s = "F (\<lambda>\<tau>. x) (Finite_Set.fold G A ((\<lambda>a \<tau>. a) ` Fa))"])
-    apply(rule StrictRefEq_set_L_subst1[where P = "F (\<lambda>\<tau>. x)"])
-    apply(rule F_cp)
-    apply(simp add: foundation20 all_defined1 del: StrictRefEq_set_exec)+
-     (* *)
-    apply(subgoal_tac "all_defined \<tau> (F (\<lambda>\<tau>. x) (Finite_Set.fold F A ((\<lambda>a \<tau>. a) ` Fa)))")
-    apply(simp add: foundation20 all_defined1 del: StrictRefEq_set_exec)+
-    apply(rule fold_F) apply(simp add: all_defined_set_def, simp)
-     (* *)
-    apply(subgoal_tac "all_defined \<tau> (F (\<lambda>\<tau>. x) (Finite_Set.fold G A ((\<lambda>a \<tau>. a) ` Fa)))")
-    apply(simp add: foundation20 all_defined1 del: StrictRefEq_set_exec)+
-    apply(rule fold_F) apply(simp add: all_defined_set_def, simp)
-
-    apply(simp)
-
-    apply(rule fold_eq)
-    apply(simp add: all_defined_set_def, simp)
-   done
-
-   apply_end(simp_all add: OclValid_def del: StrictRefEq_set_exec)
-  qed
-qed
-
-text{* Note that @{text iterate_subst_set} could be proved
- with a stronger assumption about commutation. *}
-(* Historically, this stronger proof was defined before @{text iterate_subst_set}. 
-Note: it does not use @{text all_defined}.
-*)
-lemma
-assumes S_defined : "\<tau> \<Turnstile> \<delta> (S :: 'a state \<times> 'a state \<Rightarrow> int option option Set_0)"
-    and S_finite : "finite \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>"
-    and S_elt_valid : "\<forall>x\<in>\<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>. (\<delta> (\<lambda>_. x)) \<tau> = (\<upsilon> (\<lambda>_. x)) \<tau>"
-    and A_defined : "\<tau> \<Turnstile> \<delta> (A :: 'a state \<times> 'a state \<Rightarrow> int option option Set_0)"
-    and A_finite : "finite \<lceil>\<lceil>Rep_Set_0 (A \<tau>)\<rceil>\<rceil>"
-    and F_commute : "comp_fun_commute F"
-    and F_cp : "\<And>x. cp (F (\<lambda>\<tau>. x))"
-    and F_valid : "\<And>e x. \<upsilon> x = \<upsilon> F (\<lambda>\<tau>. e) x"
-    and G_defined : "\<And>e x. \<delta> x = \<delta> G (\<lambda>\<tau>. e) x"
-    and G_commute : "comp_fun_commute G"
-    and fold_finite : "\<And>x acc. finite \<lceil>\<lceil>Rep_Set_0 (acc \<tau>)\<rceil>\<rceil> \<Longrightarrow> finite \<lceil>\<lceil>Rep_Set_0 (G x acc \<tau>)\<rceil>\<rceil>"
-    and fold_eq : "\<And>x acc. \<tau> \<Turnstile> \<delta> x \<Longrightarrow> \<tau> \<Turnstile> \<delta> acc \<Longrightarrow> finite \<lceil>\<lceil>Rep_Set_0 (acc \<tau>)\<rceil>\<rceil> \<Longrightarrow> \<tau> \<Turnstile> (F x acc \<doteq> G x acc)"
-shows "\<tau> \<Turnstile> (S->iterate(x;acc=A|F x acc) \<doteq> S->iterate(x;acc=A|G x acc))"
-proof -
- have image_cong: "\<And>x Fa f. inj f \<Longrightarrow> x \<notin> Fa \<Longrightarrow> f x \<notin> f ` Fa"
-  apply(simp add: image_def)
-  apply(rule ballI)
-  apply(case_tac "x = xa", simp)
-  apply(simp add: inj_on_def)
-  apply(blast)
- done
-
- have inject : "inj (\<lambda>a \<tau>. a)" by(rule inj_fun, simp)
- have bot_in_set_0 : "\<lfloor>\<bottom>\<rfloor> \<in> {X. X = bot \<or> X = null \<or> (\<forall>x\<in>\<lceil>\<lceil>X\<rceil>\<rceil>. x \<noteq> bot)}" by(simp add: null_option_def bot_option_def)
-
- have not_bot_in_set : "\<And>\<tau> x e. (\<tau> \<Turnstile> \<delta> x) \<Longrightarrow> \<not> (\<tau> \<Turnstile> \<upsilon> (\<lambda>_. e)) \<Longrightarrow> e \<in> \<lceil>\<lceil>Rep_Set_0 (x \<tau>)\<rceil>\<rceil> \<Longrightarrow> False"
-  apply(frule Set_inv_lemma)
-  apply(erule disjE)
-  apply(simp add: OclValid_def valid_def)
-  apply(simp add: Abs_Set_0_inverse[OF bot_in_set_0])
-  apply(split split_if_asm)
-  apply(simp add: cp_defined[of x])
-  apply(simp add: defined_def bot_option_def null_fun_def null_Set_0_def false_def true_def)
-  apply(simp)
-
-  apply(drule_tac Q = False and x = e in ballE, simp_all add: OclValid_def valid_def bot_fun_def)
- done
-
- show ?thesis
-  apply(subst OclValid_def)
-  apply(simp only: cp_StrictRefEq_set[of "OclIterate\<^isub>S\<^isub>e\<^isub>t S A F"])
-  apply(simp only: OclIterate\<^isub>S\<^isub>e\<^isub>t_def)
-  apply(case_tac "(\<delta> S) \<tau> = true \<tau> \<and> (\<upsilon> A) \<tau> = true \<tau> \<and> finite \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>", simp del: StrictRefEq_set_exec)
-  apply(simp only: cp_StrictRefEq_set[symmetric])
-  apply(erule conjE)+
-  apply(subgoal_tac "\<forall>x\<in>\<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>. (\<tau> \<Turnstile> \<delta> (\<lambda>_. x))")
-  prefer 2
-  apply(subgoal_tac "\<forall>x\<in>\<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>. (\<tau> \<Turnstile> \<upsilon> (\<lambda>_. x))")
-  prefer 2
-  apply(rule ballI)
-  apply(rule_tac Q = False in contrapos_np, simp)
-  apply(rule_tac e = x and x = S in not_bot_in_set) apply(simp add: OclValid_def) apply(simp) apply(simp)
-  apply(rule ballI)
-  apply(drule_tac x = x in ballE) prefer 3 apply(assumption)
-  apply(insert S_elt_valid)
-  apply(drule_tac x = x in ballE) prefer 3 apply(assumption)
+  apply(subst fold_eq[symmetric])
+   apply(simp add: all_defined_set_def)+
+  apply(simp add: foundation22[symmetric])
   apply(simp add: OclValid_def)
-  apply(simp) apply(simp)
-
-  apply(subst conjunct2[OF mp[ OF mp[OF finite_induct[where P = "\<lambda>set. finite set \<longrightarrow>
-                                              (\<forall>x\<in>set. (\<tau> \<Turnstile> \<delta> (\<lambda>_. x))) \<longrightarrow>
-                                              (\<tau> \<Turnstile> (\<delta> (Finite_Set.fold G A ((\<lambda>a \<tau>. a) ` set))) \<and>
-                                               finite \<lceil>\<lceil>Rep_Set_0 (Finite_Set.fold G A ((\<lambda>a \<tau>. a) ` set) \<tau>)\<rceil>\<rceil> \<and>
-                                               (Finite_Set.fold F A ((\<lambda>a \<tau>. a) ` set) \<doteq> Finite_Set.fold G A ((\<lambda>a \<tau>. a) ` set)) \<tau> = true \<tau>)"
-                              and F = "\<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>"]]]])
-   apply(simp)
-   apply(simp del: StrictRefEq_set_exec)
-   apply(simp add: cp_if_ocl[of "\<upsilon> A"]) apply(simp add: cp_if_ocl[symmetric])
-   apply(simp add: A_defined A_finite)
-   defer
-   apply(simp)
-   apply(simp)
-   apply(simp del: StrictRefEq_set_exec)
-   apply(rule conjI) apply(blast)
-   apply(rule conjI) apply(blast)
-   apply(simp add: OclValid_def S_finite)
-
-   apply(insert A_defined[THEN foundation20] A_defined[simplified OclValid_def] S_defined[simplified OclValid_def])
-   apply(simp add: OclValid_def del: StrictRefEq_set_exec)
-
-
-  apply(simp del: StrictRefEq_set_exec)
-  apply(rule impI, erule conjE, rule conjI)
-  (* *)
-
-  apply(subst comp_fun_commute.fold_insert[where f = G and z = A and A = "((\<lambda>a \<tau>. a) ` Fa)" and x = "(\<lambda>\<tau>. x)", OF G_commute])
-   apply(simp)
-   apply(rule image_cong)
-   apply(rule inject)
-   apply(simp)
-   apply(simp add: G_defined[symmetric])
-  (* *)
-  apply(rule conjI)
-  apply(subst comp_fun_commute.fold_insert[where f = G and z = A and A = "((\<lambda>a \<tau>. a) ` Fa)" and x = "(\<lambda>\<tau>. x)", OF G_commute])
-   apply(simp)
-   apply(rule image_cong)
-   apply(rule inject)
-   apply(simp)
-   apply(simp add: fold_finite)
-  (* *)
-  apply(subst comp_fun_commute.fold_insert[where f = F and z = A and A = "((\<lambda>a \<tau>. a) ` Fa)" and x = "(\<lambda>\<tau>. x)", OF F_commute])
-   apply(simp)
-   apply(rule image_cong)
-   apply(rule inject)
-   apply(simp)
-   apply(simp add: fold_finite del: StrictRefEq_set_exec)
-   (* *)
-  apply(subst comp_fun_commute.fold_insert[where f = G and z = A and A = "((\<lambda>a \<tau>. a) ` Fa)" and x = "(\<lambda>\<tau>. x)", OF G_commute])
-   apply(simp)
-   apply(rule image_cong)
-   apply(rule inject)
-   apply(simp)
-
+  apply(rule_tac P = "F (\<lambda>\<tau>. x)" in StrongEq_subst)
   proof -
-   fix x
-   fix Fa
-   show "\<tau> \<Turnstile> \<delta> Finite_Set.fold G A ((\<lambda>a \<tau>. a) ` Fa) \<and>
-         finite \<lceil>\<lceil>Rep_Set_0 (Finite_Set.fold G A ((\<lambda>a \<tau>. a) ` Fa) \<tau>)\<rceil>\<rceil> \<and>
-         (Finite_Set.fold F A ((\<lambda>a \<tau>. a) ` Fa) \<doteq> Finite_Set.fold G A ((\<lambda>a \<tau>. a) ` Fa)) \<tau> = true \<tau> \<Longrightarrow>
-         \<tau> \<Turnstile> \<delta> (\<lambda>_. x) \<Longrightarrow>
-         \<forall>x\<in>Fa. \<tau> \<Turnstile> \<delta> (\<lambda>_. x) \<Longrightarrow>
-         (F (\<lambda>\<tau>. x) (Finite_Set.fold F A ((\<lambda>a \<tau>. a) ` Fa)) \<doteq> G (\<lambda>\<tau>. x) (Finite_Set.fold G A ((\<lambda>a \<tau>. a) ` Fa))) \<tau> =
-              true \<tau>"
-    apply(rule StrictRefEq_set_trans[simplified OclValid_def, where s = "F (\<lambda>\<tau>. x) (Finite_Set.fold G A ((\<lambda>a \<tau>. a) ` Fa))"])
-    apply(subst StrictRefEq_set_L_subst1_[simplified OclValid_def, where P = "F (\<lambda>\<tau>. x)"], simp_all del: StrictRefEq_set_exec)
-    apply(rule F_cp)
-    apply(rule F_valid)
-    apply(rule fold_eq[simplified OclValid_def])
-    apply(simp add: OclValid_def del: StrictRefEq_set_exec)+
-   done
-  qed
+   fix x X
+   show "F (\<lambda>\<tau>. x) X \<tau> = F (\<lambda>\<tau>. x) (\<lambda>_. X \<tau>) \<tau>"
+    apply(insert F_cp[simplified cp_def, of x])
+    apply(drule exE) prefer 2 apply(assumption)
+   by metis
+  apply_end (simp)
+ qed
 qed
 
-
-lemma including_subst_set :
-shows "\<tau> \<Turnstile> \<delta> s \<Longrightarrow> \<tau> \<Turnstile> \<delta> t \<Longrightarrow> \<tau> \<Turnstile> \<upsilon> x \<Longrightarrow> \<tau> \<Turnstile> ((s::('\<AA>,'a::null)Set) \<doteq> t) \<Longrightarrow> \<tau> \<Turnstile> (s->including(x) \<doteq> (t->including(x)))"
-proof -
- have cp: "cp (\<lambda>s. (s->including(x)))"
-  apply(simp add: cp_def, subst cp_OclIncluding)
- by (rule_tac x = "(\<lambda>xab ab. ((\<lambda>_. xab)->including(\<lambda>_. x ab)) ab)" in exI, simp)
-
- show "\<tau> \<Turnstile> \<delta> s \<Longrightarrow> \<tau> \<Turnstile> \<delta> t \<Longrightarrow> \<tau> \<Turnstile> \<upsilon> x \<Longrightarrow> \<tau> \<Turnstile> (s \<doteq> t) \<Longrightarrow> ?thesis"
-  apply(rule_tac P = "\<lambda>s. (s->including(x))" in StrictRefEq_set_L_subst1)
-  apply(rule cp)
-  apply(simp add: foundation20) apply(simp add: foundation20)
-  apply (simp add: foundation10 foundation6)+
- done
-qed
+lemma including_subst_set : "(s::('\<AA>,'a::null)Set) \<tau> = t \<tau> \<Longrightarrow> s->including(x) \<tau> = (t->including(x)) \<tau>"
+by(simp add: cp_OclIncluding[of s] cp_OclIncluding[of t])
 
 lemma including_id : "\<And>(S :: 'a state \<times> 'a state \<Rightarrow> int option option Set_0) x.
                       all_defined \<tau> S \<Longrightarrow>
                       \<tau> \<Turnstile> \<upsilon> (\<lambda>\<tau>. x) \<Longrightarrow>
                       x \<in> \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil> \<Longrightarrow>
-                      \<tau> \<Turnstile> (S->including(\<lambda>\<tau>. x) \<doteq> S)"
+                      S->including(\<lambda>\<tau>. x) \<tau> = S \<tau>"
 proof -
  have discr_eq_invalid_true : "\<And>\<tau>. (invalid \<tau> = true \<tau>) = False" by (metis bot_option_def invalid_def option.simps(2) true_def)
  have discr_eq_false_true : "\<And>\<tau>. (false \<tau> = true \<tau>) = False" by (metis OclValid_def foundation2)
@@ -3047,22 +2661,13 @@ proof -
                       \<tau> \<Turnstile> \<upsilon> (\<lambda>\<tau>. x) \<Longrightarrow>
                       x \<in> \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil> \<Longrightarrow>
                       ?thesis S x"
-  apply(subst OclValid_def)
-  apply(simp add: OclIncluding_def all_defined1 del: StrictRefEq_set_exec)
-
-  apply(subst cp_StrictRefEq_set, simp add: insert_absorb del: StrictRefEq_set_exec)
-  apply(subst StrictRefEq_set)
-  apply(simp add: StrongEq_def discr_eq_invalid_true del: StrictRefEq_set_exec)
-
-  apply(simp add: abs_rep_simp discr_eq_invalid_true all_defined1[simplified OclValid_def] del: StrictRefEq_set_exec)
-  apply(simp add: cp_valid[symmetric] OclValid_def all_defined1[simplified OclValid_def] foundation20[simplified OclValid_def] true_def)
+  apply(simp add: OclIncluding_def all_defined1[simplified OclValid_def] OclValid_def insert_absorb abs_rep_simp del: StrictRefEq_set_exec)
  done
- apply_end(simp_all)
 qed
 
 lemma iterate_including_id :
    assumes S_all_def : "all_defined \<tau> (S :: 'a state \<times> 'a state \<Rightarrow> int option option Set_0)"
-   shows "all_defined \<tau> S \<Longrightarrow> \<tau> \<Turnstile> (S ->iterate(j;r2=S | r2->including(j)) \<doteq> S)"
+   shows "all_defined \<tau> S \<Longrightarrow> (S ->iterate(j;r2=S | r2->including(j))) \<tau> = S \<tau>"
 proof -
 
  have rep_set_inj : "\<And>x y \<tau>. (\<delta> x) \<tau> = true \<tau> \<Longrightarrow>
@@ -3118,25 +2723,16 @@ proof -
  have inject : "inj (\<lambda>a \<tau>. a)" by(rule inj_fun, simp)
  have all_defined1 : "\<And>r2. all_defined \<tau> r2 \<Longrightarrow> \<tau> \<Turnstile> \<delta> r2" by(simp add: all_defined_def)
 
- show "all_defined \<tau> S \<Longrightarrow> ?thesis"
-  apply(simp add: OclIterate\<^isub>S\<^isub>e\<^isub>t_def OclValid_def del: StrictRefEq_set_exec)
-  apply(subst cp_StrictRefEq_set)
-  apply(subgoal_tac "(\<delta> S) \<tau> = true \<tau> \<and> (\<upsilon> S) \<tau> = true \<tau> \<and> finite \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>", simp del: StrictRefEq_set_exec)
-   prefer 2
-   apply(simp add: all_defined_def all_defined_set_def OclValid_def foundation20[simplified OclValid_def])
-  apply(simp add: cp_StrictRefEq_set[symmetric]
-             del: StrictRefEq_set_exec)
-  apply(case_tac "\<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil> = {}", simp)
-  apply(simp add: all_defined_def foundation20)
-
-  apply(subgoal_tac "\<And>s. \<lceil>\<lceil>Rep_Set_0 (s \<tau>)\<rceil>\<rceil> = \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil> \<Longrightarrow> all_defined \<tau> s \<Longrightarrow> \<tau> \<Turnstile> (Finite_Set.fold (\<lambda>j r2. r2->including(j)) s ((\<lambda>a \<tau>. a) ` \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>) \<doteq> s)")
-  apply(simp add: OclValid_def del: StrictRefEq_set_exec)
+ have i_including_id : "\<And>s. all_defined \<tau> S \<Longrightarrow>
+        (\<delta> S) \<tau> = true \<tau> \<and> (\<upsilon> S) \<tau> = true \<tau> \<and> finite \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil> \<Longrightarrow>
+        \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil> \<noteq> {} \<Longrightarrow>
+        \<lceil>\<lceil>Rep_Set_0 (s \<tau>)\<rceil>\<rceil> = \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil> \<Longrightarrow> all_defined \<tau> s \<Longrightarrow> (Finite_Set.fold (\<lambda>j r2. r2->including(j)) s ((\<lambda>a \<tau>. a) ` \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>)) \<tau> = s \<tau>"
 
   apply(subst finite_induct[where P = "\<lambda>set. all_defined_set \<tau> set \<and> \<lfloor>\<lfloor>set\<rfloor>\<rfloor> \<in> {X. X = bot \<or> X = null \<or> (\<forall>x\<in>\<lceil>\<lceil>X\<rceil>\<rceil>. x \<noteq> bot)} \<longrightarrow>
                                              (\<forall>s. all_defined \<tau> s \<longrightarrow> all_defined \<tau> (Finite_Set.fold (\<lambda>j r2. (r2->including(j))) s ((\<lambda>a \<tau>. a) ` set))) \<and>
                                              (\<forall>s. all_defined \<tau> s \<and>
-                                               set \<subseteq> \<lceil>\<lceil>Rep_Set_0 (s \<tau>)\<rceil>\<rceil> \<longrightarrow>
-                                               \<tau> \<Turnstile> (Finite_Set.fold (\<lambda>j r2. (r2->including(j))) s ((\<lambda>a \<tau>. a) ` set) \<doteq> s))"
+                                                  set \<subseteq> \<lceil>\<lceil>Rep_Set_0 (s \<tau>)\<rceil>\<rceil> \<longrightarrow>
+                                                  (Finite_Set.fold (\<lambda>j r2. (r2->including(j))) s ((\<lambda>a \<tau>. a) ` set)) \<tau> = s \<tau>)"
                               and F = "\<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>"])
   apply(simp)
   apply(simp add: all_defined_set_def all_defined_def)
@@ -3149,7 +2745,7 @@ proof -
    apply (metis (no_types) foundation17)
    apply(simp) apply(simp) apply(simp add: all_defined_set_def all_defined_def) apply(simp)
   apply(rule impI) apply(erule conjE)+
-  apply(drule invert_set_0, simp del: StrictRefEq_set_exec)
+  apply(drule invert_set_0[simplified], simp del: StrictRefEq_set_exec)
   apply(frule invert_all_def_set, simp del: StrictRefEq_set_exec)
   apply(erule conjE)+
 
@@ -3165,59 +2761,42 @@ proof -
   apply(simp)
   apply(drule invert_all_def_set, simp del: StrictRefEq_set_exec)
   (* *)
-  apply(rule allI, rename_tac SS, rule impI)
-  apply(erule conjE)+
-  apply(rule_tac s = "Finite_Set.fold (\<lambda>j r2. r2->including(j)) SS ((\<lambda>a \<tau>. a) ` F)->including(\<lambda>\<tau>. x)" in StrictRefEq_set_trans)
-  apply(rule EQ_comp_fun_commute.fold_insert[where f = "(\<lambda>j r2. r2->including(j))", OF commute])
+  apply(subst EQ_comp_fun_commute.fold_insert[where f = "(\<lambda>j r2. r2->including(j))", OF commute])
   apply(simp)
    apply(rule image_cong)
    apply(rule inject)
    apply(simp)
-  apply(simp add: foundation20 all_defined1)
 
-  apply(subgoal_tac " \<tau> \<Turnstile> (\<upsilon> (\<lambda>\<tau>. x))")
-   prefer 2
-   apply(simp only: all_defined_def all_defined_set_def foundation20)
-  apply(subgoal_tac "\<tau> \<Turnstile> (\<delta> SS)")
-   prefer 2
-   apply(simp add: all_defined_def)
-  apply(rule_tac s = "SS->including(\<lambda>\<tau>. x)" in StrictRefEq_set_trans)
-  apply(rule_tac P = "\<lambda>S. S->including(\<lambda>\<tau>. x)" in StrictRefEq_set_L_subst1)
-  apply(rule cp)
-  apply(simp add: foundation20 all_defined1)
-  apply(simp add: foundation20 all_defined1)
-  apply(rule foundation20)
-  apply(subgoal_tac "\<And>v. v = Finite_Set.fold (\<lambda>j r2. r2->including(j)) SS ((\<lambda>a \<tau>. a) ` F) \<Longrightarrow> (\<tau> \<Turnstile> (\<delta> v->including(\<lambda>\<tau>. x)))", simp add: Let_def)
-  apply(simp add: OclValid_def del: StrictRefEq_set_exec)
-  apply(subst cp_ocl_and)
-  apply(subgoal_tac "\<tau> \<Turnstile> \<delta> Finite_Set.fold (\<lambda>j r2. r2->including(j)) SS ((\<lambda>a \<tau>. a) ` F) \<and> \<tau> \<Turnstile> (\<upsilon> (\<lambda>\<tau>. x))")
-  apply (metis OclValid_def ocl_and_idem)
-  apply(rule conjI)
-  apply(simp add: all_defined1)
-  apply(simp add: OclValid_def)
-  apply(simp add: all_defined_def all_defined1 del: StrictRefEq_set_exec)
-  apply (simp add: foundation10 foundation6)
+  apply(rule allI, rename_tac SS, rule impI)
+  apply(erule conjE)+
+  apply(rule_tac s = "SS->including(\<lambda>\<tau>. x) \<tau>" in trans)
+  apply(subst cp_OclIncluding, rule sym, subst cp_OclIncluding, rule sym)
+  apply(rule_tac f = "\<lambda>S. S->including(\<lambda>\<tau>. x) \<tau>" in arg_cong, rule ext)
   apply(simp)
+
   (* *)
-  apply(rule including_id, simp_all)
+  apply(rule including_id)
+   apply(simp)
+   apply (metis (no_types) all_defined_def all_defined_set_def foundation20)
+   apply(simp)
  done
- apply_end(simp_all)
+
+ show "all_defined \<tau> S \<Longrightarrow> ?thesis"
+  apply(simp add: OclIterate\<^isub>S\<^isub>e\<^isub>t_def OclValid_def del: StrictRefEq_set_exec)
+  apply(subgoal_tac "(\<delta> S) \<tau> = true \<tau> \<and> (\<upsilon> S) \<tau> = true \<tau> \<and> finite \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>", simp del: StrictRefEq_set_exec)
+   prefer 2
+   apply(simp add: all_defined_def all_defined_set_def OclValid_def foundation20[simplified OclValid_def])
+  apply(case_tac "\<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil> = {}", simp)
+
+  apply(rule i_including_id, simp_all)
+ done
 qed
 
 lemma GogollasChallenge_on_sets:
-      "\<tau> \<Turnstile> (Set{ \<six>,\<eight> } ->iterate(i;r1=Set{\<nine>}|
+      "(Set{ \<six>,\<eight> } ->iterate(i;r1=Set{\<nine>}|
                         r1->iterate(j;r2=r1|
-                                    r2->including(\<zero>)->including(i)->including(j))) \<doteq> Set{\<zero>, \<six>, \<eight>, \<nine>})"
+                                    r2->including(\<zero>)->including(i)->including(j)))) \<tau> = Set{\<zero>, \<six>, \<eight>, \<nine>} \<tau>"
 proof -
-
- have CP : "cp (\<lambda>a. a \<doteq> Set{\<zero>, \<six>, \<eight>, \<nine>})"
-  apply(simp add: cp_def del: StrictRefEq_set_exec)
-  apply(subst cp_StrictRefEq_set)
-  apply(auto)
- done
-
- have def_including : "\<And> (S :: 'a state \<times> 'a state \<Rightarrow> int option option Set_0) a. \<tau> \<Turnstile> \<delta> S \<Longrightarrow> \<tau> \<Turnstile> \<delta> S->including(a)" sorry
-
  have all_defined_68 : "all_defined \<tau> Set{\<six>, \<eight>}" sorry
  have all_defined_9 : "all_defined \<tau> Set{\<nine>}" sorry
 
@@ -3238,14 +2817,14 @@ proof -
  have commute13: "EQ_comp_fun_commute (\<lambda>x acc. acc->including(x)->including(\<zero>))" apply(simp add:EQ_comp_fun_commute_def del: StrictRefEq_set_exec) sorry
  have commute14: "EQ_comp_fun_commute (\<lambda>x acc. acc->including(\<zero>)->including(x))" apply(simp add:EQ_comp_fun_commute_def del: StrictRefEq_set_exec) sorry
 
- have cp1: "\<And>i. cp (\<lambda>acc. acc ->iterate(j;r2=acc | r2->including(\<zero>)->including(j)->including(\<lambda>\<tau>. i)))" sorry
- have cp2: "\<And>i j. cp (\<lambda>acc. acc->including(\<zero>)->including(\<lambda>\<tau>. j)->including(i))" sorry
- have cp3: "\<And>i. cp (\<lambda>acc. acc ->iterate(j;r2=acc | r2->including(\<zero>)->including(j))->including(\<lambda>\<tau>. i))" sorry
- have cp4: "\<And>i. cp (\<lambda>acc. acc ->iterate(j;r2=acc | r2->including(j)->including(\<zero>))->including(\<lambda>\<tau>. i))" sorry
- have cp5: "\<And>j. cp (\<lambda>acc. acc->including(\<lambda>\<tau>. j)->including(\<zero>))" sorry
- have cp6: "\<And>i. cp (\<lambda>acc. acc ->iterate(j;r2=acc | r2->including(j))->including(\<zero>)->including(\<lambda>\<tau>. i))" sorry
- have cp7: "\<And>i. cp (\<lambda>acc. acc->including(\<zero>)->including(\<lambda>\<tau>. i))" sorry
- have cp8: "\<And>i. cp (\<lambda>acc. acc->including(\<lambda>\<tau>. i)->including(\<zero>))" sorry
+ have cp1: "\<And>x. cp (\<lambda>r1. r1 ->iterate(j;r2=r1 | r2->including(\<zero>)->including(\<lambda>\<tau>. x)->including(j)))" sorry
+ have cp2: "\<And>x acc j. \<tau> \<Turnstile> \<delta> x \<Longrightarrow> all_defined \<tau> acc \<Longrightarrow> cp (\<lambda>acc. acc->including(\<zero>)->including(x)->including(\<lambda>\<tau>. j))" sorry
+ have cp3: "\<And>x. cp (\<lambda>acc. acc ->iterate(j;r2=acc | r2->including(\<zero>)->including(j)->including(\<lambda>\<tau>. x)))" sorry
+ have cp4: "\<And>x. cp (\<lambda>acc. acc ->iterate(j;r2=acc | r2->including(\<zero>)->including(j))->including(\<lambda>\<tau>. x))" sorry
+ have cp5: "\<And>x acc j. \<tau> \<Turnstile> \<delta> x \<Longrightarrow> all_defined \<tau> acc \<Longrightarrow> cp (\<lambda>acc. acc->including(\<zero>)->including(\<lambda>\<tau>. j))" sorry
+ have cp6: "\<And>x. cp (\<lambda>acc. acc ->iterate(j;r2=acc | r2->including(j)->including(\<zero>))->including(\<lambda>\<tau>. x))" sorry
+ have cp7: "\<And>x. cp (\<lambda>acc. acc ->iterate(j;r2=acc | r2->including(j))->including(\<zero>)->including(\<lambda>\<tau>. x))" sorry
+ have cp8: "\<And>x. cp (\<lambda>acc. acc->including(\<zero>)->including(\<lambda>\<tau>. x))" sorry
 
  have all_def_1 : "\<And>i r1. \<tau> \<Turnstile> \<delta> i \<Longrightarrow> all_defined \<tau> r1 \<Longrightarrow> all_defined \<tau> (r1 ->iterate(j;r2=r1 | r2->including(\<zero>)->including(j)->including(i)))" sorry
  have all_def_2 : "\<And>i r1. \<tau> \<Turnstile> \<delta> i \<Longrightarrow> all_defined \<tau> r1 \<Longrightarrow> all_defined \<tau> (r1 ->iterate(j;r2=r1 | r2->including(\<zero>)->including(i)->including(j)))" sorry
@@ -3263,83 +2842,58 @@ proof -
  have all_def_14: "\<And>i r1. \<tau> \<Turnstile> \<delta> i \<Longrightarrow> all_defined \<tau> r1 \<Longrightarrow> all_defined \<tau> r1->including(i)->including(\<zero>)" sorry
  have all_def_15 : "\<And>i r1. \<tau> \<Turnstile> \<delta> i \<Longrightarrow> all_defined \<tau> r1 \<Longrightarrow> all_defined \<tau> r1->including(\<zero>)->including(i)" sorry
 
- have all_incl1 : "\<And>i r1. \<tau> \<Turnstile> \<delta> i \<Longrightarrow> all_defined \<tau> r1 \<Longrightarrow> \<tau> \<Turnstile> \<delta> (r1 ->iterate(j;r2=r1 | r2->including(j)->including(\<zero>)))" sorry
- have all_incl2 : "\<And>i r1. \<tau> \<Turnstile> \<delta> i \<Longrightarrow> all_defined \<tau> r1 \<Longrightarrow> \<tau> \<Turnstile> \<delta> (r1 ->iterate(j;r2=r1 | r2->including(\<zero>)->including(j)))" sorry
- have all_incl3 : "\<And>i r1. \<tau> \<Turnstile> \<delta> i \<Longrightarrow> all_defined \<tau> r1 \<Longrightarrow> \<tau> \<Turnstile> \<delta> (r1 ->iterate(j;r2=r1 | r2->including(j)))" sorry
- have all_incl4 : "\<tau> \<Turnstile> \<delta> (Set{\<six>, \<eight>} ->iterate(i;r1=Set{\<nine>} | r1->including(i)))" sorry
-
  show ?thesis
   (* *)
-  apply(rule StrictRefEq_set_L_subst2[OF CP, where y = "Set{\<six>, \<eight>} ->iterate(i;r1=Set{\<nine>} | r1 ->iterate(j;r2=r1 | r2->including(\<zero>)->including(i)->including(j)))"
-                                               and x = "Set{\<six>, \<eight>} ->iterate(i;r1=Set{\<nine>} | r1 ->iterate(j;r2=r1 | r2->including(\<zero>)->including(j)->including(i)))"])
-
-  apply(rule iterate_subst_set) apply(simp add: all_defined_68 all_defined_9 commute1 commute2 cp1 all_def_1 all_def_2
+  apply(subst iterate_subst_set[where G = "\<lambda>i r1. r1 ->iterate(j;r2=r1 | r2->including(\<zero>)->including(j)->including(i))"])
+   apply(simp add: all_defined_68 all_defined_9 commute1 commute2 cp1 all_def_1 all_def_2
                                             del: StrictRefEq_set_exec)+
   apply(rule iterate_subst_set) apply(simp add: commute3 commute4 cp2 all_def_3
                                             del: StrictRefEq_set_exec)+
-  apply(rule including_swap[OF def_including]) apply(simp add: all_defined1) apply(simp only: foundation20)+
+  apply(rule including_swap) apply(simp add: all_defined1) apply(simp only: foundation20)+
   (* *)
-  apply(rule StrictRefEq_set_L_subst2[OF CP, where y = "Set{\<six>, \<eight>} ->iterate(i;r1=Set{\<nine>} | r1 ->iterate(j;r2=r1 | r2->including(\<zero>)->including(j)->including(i)))"
-                                               and x = "Set{\<six>, \<eight>} ->iterate(i;r1=Set{\<nine>} | r1 ->iterate(j;r2=r1 | r2->including(\<zero>)->including(j))->including(i))"])
-  apply(rule iterate_subst_set) apply(simp add: all_defined_68 all_defined_9 commute5 commute1 cp3 all_def_4 all_def_5
+  apply(subst iterate_subst_set[where G = "\<lambda>i r1. r1 ->iterate(j;r2=r1 | r2->including(\<zero>)->including(j))->including(i)"])
+   apply(simp add: all_defined_68 all_defined_9 commute5 commute1 cp3 all_def_4 all_def_5
                                             del: StrictRefEq_set_exec)+
-
-  apply(rule StrictRefEq_set_sym)
   apply(rule including_out2)
   (* *)
-  apply(rule StrictRefEq_set_L_subst2[OF CP, where y = "Set{\<six>, \<eight>} ->iterate(i;r1=Set{\<nine>} | r1 ->iterate(j;r2=r1 | r2->including(\<zero>)->including(j))->including(i))"
-                                               and x = "Set{\<six>, \<eight>} ->iterate(i;r1=Set{\<nine>} | r1 ->iterate(j;r2=r1 | r2->including(j)->including(\<zero>))->including(i))"])
-  apply(rule iterate_subst_set) apply(simp add: all_defined_68 all_defined_9 commute6 commute5 cp4 all_def_6 all_def_7
+  apply(subst iterate_subst_set[where G = "\<lambda>i r1. r1 ->iterate(j;r2=r1 | r2->including(j)->including(\<zero>))->including(i)"])
+   apply(simp add: all_defined_68 all_defined_9 commute6 commute5 cp4 all_def_6 all_def_7
                                             del: StrictRefEq_set_exec)+
-  apply(rule including_subst_set) apply(simp add: all_incl1 all_incl2 foundation20 del: StrictRefEq_set_exec)+
+  apply(rule including_subst_set)
   apply(rule iterate_subst_set) apply(simp add: commute8 commute7 cp5 all_def_8 all_def_9
                                             del: StrictRefEq_set_exec)+
-  apply(rule including_swap) apply(simp add: all_defined1) apply(simp only: foundation20)+ apply(simp)
+  apply(rule including_swap) apply(simp add: all_defined1) apply(simp) apply(simp only: foundation20)+
   (* *)
-  apply(rule StrictRefEq_set_L_subst2[OF CP, where y = "Set{\<six>, \<eight>} ->iterate(i;r1=Set{\<nine>} | r1 ->iterate(j;r2=r1 | r2->including(j)->including(\<zero>))->including(i))"
-                                               and x = "Set{\<six>, \<eight>} ->iterate(i;r1=Set{\<nine>} | r1 ->iterate(j;r2=r1 | r2->including(j))->including(\<zero>)->including(i))"])
-  apply(rule iterate_subst_set)+ apply(simp add: all_defined_68 all_defined_9 commute9 commute10 cp6 all_def_10 all_def_11
+  apply(subst iterate_subst_set[where G = "\<lambda>i r1. r1 ->iterate(j;r2=r1 | r2->including(j))->including(\<zero>)->including(i)"])
+   apply(simp add: all_defined_68 all_defined_9 commute9 commute10 cp6 all_def_10 all_def_11
                                             del: StrictRefEq_set_exec)+
-  apply(rule StrictRefEq_set_sym)
-  apply(rule including_subst_set) apply(simp add: all_incl1 all_incl3 foundation20 del: StrictRefEq_set_exec)+
+  apply(rule including_subst_set)
   apply(rule including_out1)
   (* *)
-  apply(rule StrictRefEq_set_L_subst2[OF CP, where y = "Set{\<six>, \<eight>} ->iterate(i;r1=Set{\<nine>} | r1 ->iterate(j;r2=r1 | r2->including(j))->including(\<zero>)->including(i))"
-                                               and x = "Set{\<six>, \<eight>} ->iterate(i;r1=Set{\<nine>} | r1->including(\<zero>)->including(i))"])
-  apply(rule iterate_subst_set)+ apply(simp add: all_defined_68 all_defined_9 commute11 commute12 cp7 all_def_12 all_def_13
+  apply(subst iterate_subst_set[where G = "\<lambda>i r1. r1->including(\<zero>)->including(i)"])
+   apply(simp add: all_defined_68 all_defined_9 commute11 commute12 cp7 all_def_12 all_def_13
                                             del: StrictRefEq_set_exec)+
-  apply(rule including_subst_set) apply(simp add: all_incl1 all_incl3 foundation20 all_defined1 del: StrictRefEq_set_exec)+
-  apply(rule including_subst_set) apply(simp add: all_incl1 all_incl3 foundation20 all_defined1 del: StrictRefEq_set_exec)+
-  apply(rule StrictRefEq_set_sym)
+  apply(rule including_subst_set)+
   apply(rule iterate_including_id) apply(simp del: StrictRefEq_set_exec)+
   (* *)
-  apply(rule StrictRefEq_set_L_subst2[OF CP, where y = "Set{\<six>, \<eight>} ->iterate(i;r1=Set{\<nine>} | r1->including(\<zero>)->including(i))"
-                                               and x = "Set{\<six>, \<eight>} ->iterate(i;r1=Set{\<nine>} | r1->including(i)->including(\<zero>))"])
-  apply(rule iterate_subst_set)+ apply(simp add: all_defined_68 all_defined_9 commute13 commute14 cp8 all_def_14 all_def_15
+  apply(subst iterate_subst_set[where G = "\<lambda>i r1. r1->including(i)->including(\<zero>)"])
+   apply(simp add: all_defined_68 all_defined_9 commute13 commute14 cp8 all_def_14 all_def_15
                                             del: StrictRefEq_set_exec)+
-  apply(rule including_swap) apply(simp add: all_defined1) apply(simp only: foundation20)+ apply(simp)
+  apply(rule including_swap) apply(simp add: all_defined1) apply(simp) apply(simp only: foundation20)+
   (* *)
-  apply(rule StrictRefEq_set_L_subst2[OF CP, where y = "Set{\<six>, \<eight>} ->iterate(i;r1=Set{\<nine>} | r1->including(i)->including(\<zero>))"
-                                               and x = "Set{\<six>, \<eight>} ->iterate(i;r1=Set{\<nine>} | r1->including(i))->including(\<zero>)"])
-  apply(rule StrictRefEq_set_sym)
-  apply(rule including_out1)
+  apply(simp add: including_out1)
   (* *)
-  apply(rule StrictRefEq_set_L_subst2[OF CP, where y = "Set{\<six>, \<eight>} ->iterate(i;r1=Set{\<nine>} | r1->including(i))->including(\<zero>)"
-                                               and x = "Set{\<six>, \<eight>} ->including(\<nine>)->including(\<zero>)"])
-  apply(rule including_subst_set) apply(simp add: all_incl1 all_incl4 all_incl3 foundation20 all_defined1 del: StrictRefEq_set_exec)+
-  apply(rule StrictRefEq_set_sym)
-  apply(rule including_out0)
+  apply(rule including_subst_set)
   (* *)
-  apply(rule StrictRefEq_set_L_subst2[OF CP, where y = "Set{\<zero>, \<nine>, \<six>, \<eight>}"
-                                               and x = "Set{\<zero>, \<six>, \<nine>, \<eight>}"])
-  apply(rule including_subst_set) apply(simp add: all_incl1 all_incl4 all_incl3 foundation20 all_defined1 del: StrictRefEq_set_exec)+
-  apply(rule including_swap) apply(simp del: StrictRefEq_set_exec)+
+  apply(subst including_out0)
   (* *)
-  apply(rule including_subst_set) apply(simp add: all_incl1 all_incl4 all_incl3 foundation20 all_defined1 del: StrictRefEq_set_exec)+
+  apply(subst including_swap)
+  apply(simp)+
   (* *)
-  apply(rule including_subst_set) apply(simp add: all_incl1 all_incl4 all_incl3 foundation20 all_defined1 del: StrictRefEq_set_exec)+
+  apply(rule including_subst_set)
   (* *)
-  apply(rule including_swap) apply(simp del: StrictRefEq_set_exec)+
+  apply(subst including_swap)
+  apply(simp)+
  done
 qed
 
