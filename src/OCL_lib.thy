@@ -2070,20 +2070,20 @@ proof -
           done
 
 (* example by bu cont ... *)
-term (*have finite_including_exec' :*)
+ have finite_including_exec' :
     "\<And>\<tau>. (\<tau> \<Turnstile>(\<delta> X)) \<Longrightarrow> (\<tau> \<Turnstile>(\<upsilon> x)) \<Longrightarrow>
                  finite \<lceil>\<lceil>Rep_Set_0 (X->including(x) \<tau>)\<rceil>\<rceil> = finite \<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil>"
-(*  apply(simp add: OclIncluding_def Abs_Set_0_inverse C)
+  apply(simp add: OclIncluding_def Abs_Set_0_inverse[OF C])
   apply(drule foundation13[THEN iffD2, THEN foundation22[THEN iffD1]], simp)+
   done
-*)
+
 (* ... and even more succinct : *)
-term (*finite_including_exec'' :*)
+ have finite_including_exec'' :
      "\<And>\<tau>. (\<tau> \<Turnstile>(\<delta> X)) \<Longrightarrow> (\<tau> \<Turnstile>(\<upsilon> x)) \<Longrightarrow>
                  finite \<lceil>\<lceil>Rep_Set_0 (X->including(x) \<tau>)\<rceil>\<rceil> = finite \<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil>"
-(*  by(auto simp: OclIncluding_def Abs_Set_0_inverse C
+  by(auto simp: OclIncluding_def Abs_Set_0_inverse[OF C]
           dest: foundation13[THEN iffD2, THEN foundation22[THEN iffD1]])
-*)
+
 (* just equivalence, to show that this premise corresponds to the final statement in the logical
 chain ...*)
 term "\<And>xa. (\<delta> X and \<upsilon> x) xa = true xa"
