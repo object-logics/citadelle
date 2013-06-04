@@ -2047,6 +2047,37 @@ proof -
  by(simp add: A1 Abs_Set_0_inverse bot_fun_def bot_option_def null_fun_def null_option_def)
 qed
 
+lemma finite_including_exec :
+  assumes X_def : "\<tau> \<Turnstile> \<delta> X"
+      and x_val : "\<tau> \<Turnstile> \<upsilon> x"
+    shows "finite \<lceil>\<lceil>Rep_Set_0 (X->including(x) \<tau>)\<rceil>\<rceil> = finite \<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil>"
+ proof -
+  have C : "\<lfloor>\<lfloor>insert (x \<tau>) \<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil>\<rfloor>\<rfloor> \<in> {X. X = bot \<or> X = null \<or> (\<forall>x\<in>\<lceil>\<lceil>X\<rceil>\<rceil>. x \<noteq> bot)}"
+          apply(insert X_def x_val, frule Set_inv_lemma)
+          apply(simp add: bot_option_def null_Set_0_def null_fun_def
+                          foundation18 foundation16 invalid_def)
+          done
+ show "?thesis"
+  by(insert X_def x_val, 
+     auto simp: OclIncluding_def Abs_Set_0_inverse[OF C]
+          dest: foundation13[THEN iffD2, THEN foundation22[THEN iffD1]])
+qed
+
+lemma finite_excluding_exec :
+  assumes X_def : "\<tau> \<Turnstile> \<delta> X"
+      and x_val : "\<tau> \<Turnstile> \<upsilon> x"
+    shows "finite \<lceil>\<lceil>Rep_Set_0 (X->excluding(x) \<tau>)\<rceil>\<rceil> = finite \<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil>"
+ proof -
+  have C : "\<lfloor>\<lfloor>\<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil> - {x \<tau>}\<rfloor>\<rfloor> \<in> {X. X = bot \<or> X = null \<or> (\<forall>x\<in>\<lceil>\<lceil>X\<rceil>\<rceil>. x \<noteq> bot)}"
+          apply(insert X_def x_val, frule Set_inv_lemma)
+          apply(simp add: bot_option_def null_Set_0_def null_fun_def
+                          foundation18 foundation16 invalid_def)
+          done
+ show "?thesis"
+  by(insert X_def x_val, 
+     auto simp: OclExcluding_def Abs_Set_0_inverse[OF C]
+          dest: foundation13[THEN iffD2, THEN foundation22[THEN iffD1]])
+qed
 
 lemma including_size_defined[simp]: "\<delta> ((X ->including(x)) ->size()) = (\<delta>(X->size()) and \<upsilon>(x))"
 proof -
@@ -2061,72 +2092,10 @@ proof -
                       null_fun_def null_option_def)
       by (case_tac "P \<tau> = \<bottom>", simp_all add: true_def)
 
-(* example by bu ... *)
-
- have C : "\<And>\<tau>. (\<tau> \<Turnstile>(\<delta> X)) \<Longrightarrow> (\<tau> \<Turnstile>(\<upsilon> x)) \<Longrightarrow> \<lfloor>\<lfloor>insert (x \<tau>) \<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil>\<rfloor>\<rfloor> \<in> {X. X = bot \<or> X = null \<or> (\<forall>x\<in>\<lceil>\<lceil>X\<rceil>\<rceil>. x \<noteq> bot)}"
-          apply(frule Set_inv_lemma)
-          apply(simp add: bot_option_def null_Set_0_def null_fun_def
-                          foundation18 foundation16 invalid_def)
-          done
-
-(* example by bu cont ... *)
- have finite_including_exec' :
-    "\<And>\<tau>. (\<tau> \<Turnstile>(\<delta> X)) \<Longrightarrow> (\<tau> \<Turnstile>(\<upsilon> x)) \<Longrightarrow>
-                 finite \<lceil>\<lceil>Rep_Set_0 (X->including(x) \<tau>)\<rceil>\<rceil> = finite \<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil>"
-  apply(simp add: OclIncluding_def Abs_Set_0_inverse[OF C])
-  apply(drule foundation13[THEN iffD2, THEN foundation22[THEN iffD1]], simp)+
-  done
-
-(* ... and even more succinct : *)
- have finite_including_exec'' :
-     "\<And>\<tau>. (\<tau> \<Turnstile>(\<delta> X)) \<Longrightarrow> (\<tau> \<Turnstile>(\<upsilon> x)) \<Longrightarrow>
-                 finite \<lceil>\<lceil>Rep_Set_0 (X->including(x) \<tau>)\<rceil>\<rceil> = finite \<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil>"
-  by(auto simp: OclIncluding_def Abs_Set_0_inverse[OF C]
-          dest: foundation13[THEN iffD2, THEN foundation22[THEN iffD1]])
-
-(* just equivalence, to show that this premise corresponds to the final statement in the logical
-chain ...*)
-term "\<And>xa. (\<delta> X and \<upsilon> x) xa = true xa"
-term "\<And>\<tau>. (\<delta> X and \<upsilon> x) \<tau> = true \<tau> "
-term "\<And>\<tau>. \<tau> \<Turnstile> (\<delta> X and \<upsilon> x) \<triangleq> true"
-term "\<And>\<tau>. \<tau> \<Turnstile> (\<delta> X and \<upsilon> x)  "
-term "\<And>\<tau>. \<tau> \<Turnstile> (\<delta> X) \<and> \<tau> \<Turnstile>(\<upsilon> x)  "
-
-(* and now compare to your original proof *)
  have finite_including_exec : "\<And>\<tau>. (\<delta> X and \<upsilon> x) \<tau> = true \<tau> \<Longrightarrow>
                  finite \<lceil>\<lceil>Rep_Set_0 (X->including(x) \<tau>)\<rceil>\<rceil> = finite \<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil>"
-  apply(simp add: OclIncluding_def)
-  apply(subst Abs_Set_0_inverse)
-  apply(simp)
-  apply(rule disjI2)+
-  apply(rule conjI)
-  apply(simp add: cp_ocl_and[of "\<delta> X" "\<upsilon> x"])
-  apply(simp add: cp_valid[of x] valid_def)
-  apply(rule notI, simp add: bot_fun_def )
-  apply(simp add: cp_ocl_and[THEN sym])
-  apply(simp add: false_def true_def)
-
-  apply(rule disjE[OF Set_inv_lemma[OF foundation5[of _ "\<delta> X" "\<upsilon> x", THEN conjunct1]]])
-  apply(simp add: OclValid_def cp_ocl_and[THEN sym])
-
-  apply(simp only: cp_ocl_and[of "\<delta> X" "\<upsilon> x"])
-  apply(simp add: cp_defined[of x] defined_def)
-  apply(split split_if_asm)
-  apply(simp only: cp_ocl_and[of _ "\<upsilon> x", THEN sym])
-  apply(simp)
-  apply(simp add: false_def true_def)
-
-  apply(simp add: bot_option_def null_Set_0_def null_fun_def)
-  apply(assumption)
-
-  apply(simp)
-  apply(case_tac "(\<delta> X) \<tau> = true \<tau>", simp)
-  apply(simp only: cp_ocl_and[of "\<delta> X" "\<upsilon> x"])
-  apply(simp add: cp_ocl_and[of _ "\<upsilon> x", THEN sym])
-  apply(drule defined_inject_true[of X _])
-  apply(simp only: cp_ocl_and[of "\<delta> X" "\<upsilon> x"])
-  apply(simp add: cp_ocl_and[of _ "\<upsilon> x", THEN sym])
-  apply(simp add: false_def true_def)
+  apply(rule finite_including_exec)
+  apply(metis OclValid_def foundation5)+
  done
 
  have card_including_exec : "\<And>\<tau>. (\<delta> (\<lambda>_. \<lfloor>\<lfloor>int (card \<lceil>\<lceil>Rep_Set_0 (X->including(x) \<tau>)\<rceil>\<rceil>)\<rfloor>\<rfloor>)) \<tau> = (\<delta> (\<lambda>_. \<lfloor>\<lfloor>int (card \<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil>)\<rfloor>\<rfloor>)) \<tau>"
@@ -2191,35 +2160,8 @@ proof -
  have finite_excluding_exec : "\<And>\<tau>. (\<delta> X and \<upsilon> x) \<tau> = true \<tau> \<Longrightarrow>
                                      finite \<lceil>\<lceil>Rep_Set_0 (X->excluding(x) \<tau>)\<rceil>\<rceil> =
                                      finite \<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil>"
-  apply(simp add: OclExcluding_def)
-  apply(subst Abs_Set_0_inverse)
-  apply(simp)
-  apply(rule disjI2)+
-  (* *)
-  apply(rule disjE[OF Set_inv_lemma[OF foundation5[of _ "\<delta> X" "\<upsilon> x", THEN conjunct1]]])
-  apply(simp add: OclValid_def cp_ocl_and[THEN sym])
-
-  apply(simp only: cp_ocl_and[of "\<delta> X" "\<upsilon> x"])
-  apply(simp add: cp_defined[of x] defined_def)
-  apply(split split_if_asm)
-  apply(simp only: cp_ocl_and[of _ "\<upsilon> x", THEN sym])
-  apply(simp)
-  apply(simp add: false_def true_def)
-
-  apply(simp add: bot_option_def null_Set_0_def null_fun_def)
-  apply(rule ballI)
-  apply(drule_tac Q = "xa \<noteq> \<bottom>" and x = xa in ballE)
-  apply(assumption)
-  apply(simp)
-
-  apply(simp)
-  apply(case_tac "(\<delta> X) \<tau> = true \<tau>", simp)
-  apply(simp only: cp_ocl_and[of "\<delta> X" "\<upsilon> x"])
-  apply(simp add: cp_ocl_and[of _ "\<upsilon> x", THEN sym])
-  apply(drule defined_inject_true[of X _])
-  apply(simp only: cp_ocl_and[of "\<delta> X" "\<upsilon> x"])
-  apply(simp add: cp_ocl_and[of _ "\<upsilon> x", THEN sym])
-  apply(simp add: false_def true_def)
+  apply(rule finite_excluding_exec)
+  apply(metis OclValid_def foundation5)+
  done
 
  have card_excluding_exec : "\<And>\<tau>. (\<delta> (\<lambda>_. \<lfloor>\<lfloor>int (card \<lceil>\<lceil>Rep_Set_0 (X->excluding(x) \<tau>)\<rceil>\<rceil>)\<rfloor>\<rfloor>)) \<tau> =
