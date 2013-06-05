@@ -2058,7 +2058,7 @@ lemma finite_including_exec :
                           foundation18 foundation16 invalid_def)
           done
  show "?thesis"
-  by(insert X_def x_val, 
+  by(insert X_def x_val,
      auto simp: OclIncluding_def Abs_Set_0_inverse[OF C]
           dest: foundation13[THEN iffD2, THEN foundation22[THEN iffD1]])
 qed
@@ -2074,7 +2074,7 @@ lemma finite_excluding_exec :
                           foundation18 foundation16 invalid_def)
           done
  show "?thesis"
-  by(insert X_def x_val, 
+  by(insert X_def x_val,
      auto simp: OclExcluding_def Abs_Set_0_inverse[OF C]
           dest: foundation13[THEN iffD2, THEN foundation22[THEN iffD1]])
 qed
@@ -2115,7 +2115,7 @@ proof -
   apply(simp)
   apply(simp add: defined_def true_def false_def bot_fun_def bot_option_def)
   apply(erule conjE)
-  apply(simp add: finite_including_exec card_including_exec
+  apply(simp add: finite_including_exec[simplified OclValid_def] card_including_exec
                   cp_ocl_and[of "\<delta> X" "\<upsilon> x"]
                   cp_ocl_and[of "true", THEN sym])
   apply(subgoal_tac "(\<delta> X) \<tau> = true \<tau> \<and> (\<upsilon> x) \<tau> = true \<tau>", simp)
@@ -2124,15 +2124,15 @@ proof -
   apply(drule defined_inject_true[of "X->including(x)->size()"], simp)
   apply(simp only: cp_ocl_and[of "\<delta> (X->size())" "\<upsilon> x"])
   apply(simp add: cp_defined[of "X->including(x)->size()" ] cp_defined[of "X->size()" ])
-  apply(simp add: OclSize_def finite_including_exec card_including_exec)
+  apply(simp add: OclSize_def card_including_exec)
   apply(case_tac "(\<delta> X and \<upsilon> x) \<tau> = true \<tau> \<and> finite \<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil>",
-        simp add: finite_including_exec card_including_exec)
+        simp add: finite_including_exec[simplified OclValid_def] card_including_exec)
   apply(simp only: cp_ocl_and[THEN sym])
   apply(simp add: defined_def bot_fun_def)
 
   apply(split split_if_asm)
-  apply(simp add: finite_including_exec)
-  apply(simp add: finite_including_exec card_including_exec)
+  apply(simp add: finite_including_exec[simplified OclValid_def])
+  apply(simp add: finite_including_exec[simplified OclValid_def] card_including_exec)
   apply(simp only: cp_ocl_and[THEN sym])
   apply(simp)
   apply(rule impI)
@@ -2447,16 +2447,6 @@ lemma including_swap : "\<tau> \<Turnstile> \<delta> S \<Longrightarrow> \<tau> 
  apply(simp add: StrongEq_def true_def)
 done
 
-lemma including_out0 : "((S :: 'a state \<times> 'a state \<Rightarrow> int option option Set_0)->iterate(x;acc=Set{a} | acc->including(x))) \<tau> = (S->including(a)) \<tau>"
-sorry
-
-lemma including_out1 : "((S :: 'a state \<times> 'a state \<Rightarrow> int option option Set_0)->iterate(x;acc=A | acc->including(x)->including(i))) \<tau> = (S->iterate(x;acc=A | acc->including(x))->including(i)) \<tau>"
-sorry
-
-lemma including_out2 : "((S :: 'a state \<times> 'a state \<Rightarrow> int option option Set_0)->iterate(x;acc=A | acc->including(x0)->including(x)->including(i))) \<tau> =
-                            (S->iterate(x;acc=A | acc->including(x0)->including(x))->including(i)) \<tau>"
-sorry
-
 lemma iterate_subst_set_rec :
 assumes F_commute : "EQ_comp_fun_commute F"
     and fold_F : "\<And>x acc. \<tau> \<Turnstile> \<delta> x \<Longrightarrow> all_defined \<tau> acc \<Longrightarrow> all_defined \<tau> (F x acc)"
@@ -2733,6 +2723,17 @@ proof -
   apply(rule i_including_id, simp_all)
  done
 qed
+
+lemma including_out1 : "((S :: 'a state \<times> 'a state \<Rightarrow> int option option Set_0)->iterate(x;acc=A | acc->including(x)->including(i))) \<tau> = (S->iterate(x;acc=A | acc->including(x))->including(i)) \<tau>"
+sorry
+
+lemma including_out0 : "((S :: 'a state \<times> 'a state \<Rightarrow> int option option Set_0)->iterate(x;acc=Set{a} | acc->including(x))) \<tau> = (S->including(a)) \<tau>"
+sorry
+
+lemma including_out2 : "((S :: 'a state \<times> 'a state \<Rightarrow> int option option Set_0)->iterate(x;acc=A | acc->including(x0)->including(x)->including(i))) \<tau> =
+                            (S->iterate(x;acc=A | acc->including(x0)->including(x))->including(i)) \<tau>"
+sorry
+
 
 lemma GogollasChallenge_on_sets:
       "(Set{ \<six>,\<eight> } ->iterate(i;r1=Set{\<nine>}|
