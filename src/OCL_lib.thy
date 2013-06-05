@@ -2597,9 +2597,10 @@ proof -
  done
 qed
 
-lemma iterate_including_id :
-   assumes S_all_def : "all_defined \<tau> (S :: 'a state \<times> 'a state \<Rightarrow> int option option Set_0)"
-   shows "all_defined \<tau> S \<Longrightarrow> (S ->iterate(j;r2=S | r2->including(j))) \<tau> = S \<tau>"
+lemma i_including_id : "\<And>(s :: 'a state \<times> 'a state \<Rightarrow> int option option Set_0). all_defined \<tau> S \<Longrightarrow>
+        (\<delta> S) \<tau> = true \<tau> \<and> (\<upsilon> S) \<tau> = true \<tau> \<and> finite \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil> \<Longrightarrow>
+        \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil> \<noteq> {} \<Longrightarrow>
+        \<lceil>\<lceil>Rep_Set_0 (s \<tau>)\<rceil>\<rceil> = \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil> \<Longrightarrow> all_defined \<tau> s \<Longrightarrow> (Finite_Set.fold (\<lambda>j r2. r2->including(j)) s ((\<lambda>a \<tau>. a) ` \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>)) \<tau> = s \<tau>"
 proof -
 
  have rep_set_inj : "\<And>x y \<tau>. (\<delta> x) \<tau> = true \<tau> \<Longrightarrow>
@@ -2655,10 +2656,10 @@ proof -
  have inject : "inj (\<lambda>a \<tau>. a)" by(rule inj_fun, simp)
  have all_defined1 : "\<And>r2. all_defined \<tau> r2 \<Longrightarrow> \<tau> \<Turnstile> \<delta> r2" by(simp add: all_defined_def)
 
- have i_including_id : "\<And>s. all_defined \<tau> S \<Longrightarrow>
+ show "\<And>s. all_defined \<tau> S \<Longrightarrow>
         (\<delta> S) \<tau> = true \<tau> \<and> (\<upsilon> S) \<tau> = true \<tau> \<and> finite \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil> \<Longrightarrow>
         \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil> \<noteq> {} \<Longrightarrow>
-        \<lceil>\<lceil>Rep_Set_0 (s \<tau>)\<rceil>\<rceil> = \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil> \<Longrightarrow> all_defined \<tau> s \<Longrightarrow> (Finite_Set.fold (\<lambda>j r2. r2->including(j)) s ((\<lambda>a \<tau>. a) ` \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>)) \<tau> = s \<tau>"
+        \<lceil>\<lceil>Rep_Set_0 (s \<tau>)\<rceil>\<rceil> = \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil> \<Longrightarrow> all_defined \<tau> s \<Longrightarrow> ?thesis s"
 
   apply(subst finite_induct[where P = "\<lambda>set. all_defined_set \<tau> set \<and> \<lfloor>\<lfloor>set\<rfloor>\<rfloor> \<in> {X. X = bot \<or> X = null \<or> (\<forall>x\<in>\<lceil>\<lceil>X\<rceil>\<rceil>. x \<noteq> bot)} \<longrightarrow>
                                              (\<forall>s. all_defined \<tau> s \<longrightarrow> all_defined \<tau> (Finite_Set.fold (\<lambda>j r2. (r2->including(j))) s ((\<lambda>a \<tau>. a) ` set))) \<and>
@@ -2712,8 +2713,11 @@ proof -
    apply (metis (no_types) all_defined_def all_defined_set_def foundation20)
    apply(simp)
  done
+qed
 
- show "all_defined \<tau> S \<Longrightarrow> ?thesis"
+lemma iterate_including_id :
+   assumes S_all_def : "all_defined \<tau> (S :: 'a state \<times> 'a state \<Rightarrow> int option option Set_0)"
+   shows "all_defined \<tau> S \<Longrightarrow> (S ->iterate(j;r2=S | r2->including(j))) \<tau> = S \<tau>"
   apply(simp add: OclIterate\<^isub>S\<^isub>e\<^isub>t_def OclValid_def del: StrictRefEq_set_exec)
   apply(subgoal_tac "(\<delta> S) \<tau> = true \<tau> \<and> (\<upsilon> S) \<tau> = true \<tau> \<and> finite \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>", simp del: StrictRefEq_set_exec)
    prefer 2
@@ -2721,8 +2725,7 @@ proof -
   apply(case_tac "\<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil> = {}", simp)
 
   apply(rule i_including_id, simp_all)
- done
-qed
+done
 
 lemma including_out1 : "((S :: 'a state \<times> 'a state \<Rightarrow> int option option Set_0)->iterate(x;acc=A | acc->including(x)->including(i))) \<tau> = (S->iterate(x;acc=A | acc->including(x))->including(i)) \<tau>"
 sorry
