@@ -360,6 +360,12 @@ lemma null_non_two [simp]: "(null \<doteq> \<two>) = false"
 by(rule ext,auto simp:ocl_two_def  null_def StrictRefEq_int valid_def invalid_def
                          bot_fun_def bot_option_def null_fun_def null_option_def StrongEq_def)
 
+lemma nine_non_null [simp]: "(\<nine> \<doteq> null) = false"
+by(rule ext,auto simp:ocl_nine_def  null_def StrictRefEq_int valid_def invalid_def
+                         bot_fun_def bot_option_def null_fun_def null_option_def StrongEq_def)
+lemma null_non_nine [simp]: "(null \<doteq> \<nine>) = false"
+by(rule ext,auto simp:ocl_nine_def  null_def StrictRefEq_int valid_def invalid_def
+                         bot_fun_def bot_option_def null_fun_def null_option_def StrongEq_def)
 
 (* plus all the others ...*)
 
@@ -3095,6 +3101,16 @@ proof -
  by (metis OCL_core.bot_fun_def valid_def)
 qed
 
+lemma iterate_subst_set'' :
+ assumes S_all_def : "\<And>\<tau>. all_defined \<tau> (S :: 'a state \<times> 'a state \<Rightarrow> int option option Set_0)"
+     and A_all_def : "\<And>\<tau>. all_defined \<tau> (A :: 'a state \<times> 'a state \<Rightarrow> int option option Set_0)"
+     and A_notempty : "\<And>\<tau>. \<lceil>\<lceil>Rep_Set_0 (A \<tau>)\<rceil>\<rceil> \<noteq> {}"
+     and F_commute : "EQ_comp_fun_commute F"
+     and G_commute : "EQ_comp_fun_commute G"
+     and fold_eq : "\<And>x acc. is_int x \<Longrightarrow> (\<forall>\<tau>. all_defined \<tau> acc) \<Longrightarrow> (\<And>\<tau>. \<lceil>\<lceil>Rep_Set_0 (acc \<tau>)\<rceil>\<rceil> \<noteq> {}) \<Longrightarrow> F x acc = G x acc"
+   shows "(S->iterate(x;acc=A|F x acc)) = (S->iterate(x;acc=A|G x acc))"
+sorry
+
 lemma including_subst_set : "(s::('\<AA>,'a::null)Set) = t \<Longrightarrow> s->including(x) = (t->including(x))"
 by(simp)
 
@@ -3688,7 +3704,7 @@ lemma destruct_int : "\<And>i. is_int i \<Longrightarrow> \<exists>! j. i = (\<l
  apply_end(simp)
 qed
 
-lemma including_out1' :
+lemma including_out1 :
  assumes S_all_def : "\<And>\<tau>. all_defined \<tau> (S :: 'a state \<times> 'a state \<Rightarrow> int option option Set_0)"
      and A_all_def : "\<And>\<tau>. all_defined \<tau> (A :: 'a state \<times> 'a state \<Rightarrow> int option option Set_0)"
      and S_notempty : "\<And>\<tau>. \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil> \<noteq> {}"
@@ -3878,7 +3894,7 @@ proof -
  done
 qed
 
-lemma including_out2' :
+lemma including_out2 :
  assumes S_all_def : "\<And>\<tau>. all_defined \<tau> (S :: 'a state \<times> 'a state \<Rightarrow> int option option Set_0)"
      and A_all_def : "\<And>\<tau>. all_defined \<tau> (A :: 'a state \<times> 'a state \<Rightarrow> int option option Set_0)"
      and S_notempty : "\<And>\<tau>. \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil> \<noteq> {}"
@@ -3899,7 +3915,7 @@ proof -
 
  have init_out2 : "(S->iterate(x;acc=A | acc->including(x0)->including(x))->including(i)) = (S->iterate(x;acc=A | acc->including(x))->including(x0)->including(i))"
   apply(rule including_subst_set)
-  apply(simp add: including_out1'[OF S_all_def A_all_def S_notempty x0_int, symmetric])
+  apply(simp add: including_out1[OF S_all_def A_all_def S_notempty x0_int, symmetric])
   apply(rule iterate_subst_set[OF S_all_def A_all_def including_commute3 including_commute2])
   apply(simp add: x0_int)+
   apply(rule including_swap)
@@ -4375,7 +4391,7 @@ proof -
  done
 qed
 
-lemma including_out0' :
+lemma including_out0 :
    assumes S_all_def : "\<And>\<tau>. all_defined \<tau> (S :: 'a state \<times> 'a state \<Rightarrow> int option option Set_0)"
        and S_include : "\<And>\<tau> \<tau>'. S \<tau> = S \<tau>'"
        and S_notempty : "\<And>\<tau>. \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil> \<noteq> {}"
@@ -4442,17 +4458,6 @@ proof -
  apply_end simp_all
 qed
 
-lemma including_out1 : "((S :: 'a state \<times> 'a state \<Rightarrow> int option option Set_0)->iterate(x;acc=A | acc->including(x)->including(i))) = (S->iterate(x;acc=A | acc->including(x))->including(i))"
-sorry
-
-lemma including_out0 : "((S :: 'a state \<times> 'a state \<Rightarrow> int option option Set_0)->iterate(x;acc=Set{a} | acc->including(x))) = (S->including(a))"
-sorry
-
-lemma including_out2 : "((S :: 'a state \<times> 'a state \<Rightarrow> int option option Set_0)->iterate(x;acc=A | acc->including(x0)->including(x)->including(i))) =
-                            (S->iterate(x;acc=A | acc->including(x0)->including(x))->including(i))"
-sorry
-
-
 lemma GogollasChallenge_on_sets:
       "(Set{ \<six>,\<eight> } ->iterate(i;r1=Set{\<nine>}|
                         r1->iterate(j;r2=r1|
@@ -4462,6 +4467,9 @@ proof -
  have all_defined_9 : "\<And>\<tau>. all_defined \<tau> Set{\<nine>}" sorry
 
  have all_defined1 : "\<And>r2 \<tau>. all_defined \<tau> r2 \<Longrightarrow> \<tau> \<Turnstile> \<delta> r2" by(simp add: all_defined_def)
+
+ have zero_int : "is_int \<zero>" by (metis StrictRefEq_int_strict' foundation1 is_int_def null_non_zero ocl_zero_def valid4)
+ have nine_int : "is_int \<nine>" by (metis StrictRefEq_int_strict' foundation1 is_int_def null_non_nine ocl_nine_def valid4)
 
  have commute1: "EQ_comp_fun_commute (\<lambda>x acc. acc ->iterate(j;r2=acc | r2->including(\<zero>)->including(j)->including(x)))" sorry
  have commute2: "EQ_comp_fun_commute (\<lambda>x acc. acc ->iterate(j;r2=acc | r2->including(\<zero>)->including(x)->including(j)))" sorry
@@ -4505,6 +4513,10 @@ proof -
 
  have all_def_subset : "\<And>acc \<tau> \<tau>'. \<forall>\<tau>. all_defined \<tau> acc \<Longrightarrow> \<lceil>\<lceil>Rep_Set_0 (acc \<tau>)\<rceil>\<rceil> \<subseteq> \<lceil>\<lceil>Rep_Set_0 (acc \<tau>')\<rceil>\<rceil>" sorry
 
+ have set68_notempty : "\<And>(\<tau>:: 'a state \<times> 'a state). \<lceil>\<lceil>Rep_Set_0 (Set{\<six>, \<eight>} \<tau>)\<rceil>\<rceil> \<noteq> {}" sorry
+ have set68_cp : "\<And>(\<tau>:: 'a state \<times> 'a state) (\<tau>':: 'a state \<times> 'a state). Set{\<six>, \<eight>} \<tau> = Set{\<six>, \<eight>} \<tau>'" sorry
+ have set9_notempty : "\<And>(\<tau>:: 'a state \<times> 'a state). \<lceil>\<lceil>Rep_Set_0 (Set{\<nine>} \<tau>)\<rceil>\<rceil> \<noteq> {}" sorry
+
  show ?thesis
   (* *)
   apply(subst iterate_subst_set[where G = "\<lambda>i r1. r1 ->iterate(j;r2=r1 | r2->including(\<zero>)->including(j)->including(i))"])
@@ -4518,12 +4530,17 @@ proof -
   apply(rule including_swap) apply (metis (hide_lams, mono_tags) StrictRefEq_int_strict' all_defined_def including_defined_args_valid' null_non_zero ocl_and_true1 transform1_rev valid4)
    apply(simp only: foundation20, simp)+
   (* *)
-  apply(subst iterate_subst_set[where G = "\<lambda>i r1. r1 ->iterate(j;r2=r1 | r2->including(\<zero>)->including(j))->including(i)"])
+  apply(subst iterate_subst_set''[where G = "\<lambda>i r1. r1 ->iterate(j;r2=r1 | r2->including(\<zero>)->including(j))->including(i)"])
    apply(simp add: all_defined_68 all_defined_9 commute5 commute1 cp3 all_def_4 all_def_5 del: StrictRefEq_set_exec)
    apply(simp add: all_defined_68 all_defined_9 commute5 commute1 cp3 all_def_4 all_def_5 del: StrictRefEq_set_exec)
+   apply(simp add: set9_notempty)
    apply(simp add: all_defined_68 all_defined_9 commute5 commute1 cp3 all_def_4 all_def_5 del: StrictRefEq_set_exec)
    apply(simp add: all_defined_68 all_defined_9 commute5 commute1 cp3 all_def_4 all_def_5 del: StrictRefEq_set_exec)
   apply(rule including_out2)
+  apply(blast) apply(blast) apply(blast)
+  apply(simp)
+  apply(simp add: zero_int)
+
   (* *)
   apply(subst iterate_subst_set[where G = "\<lambda>i r1. r1 ->iterate(j;r2=r1 | r2->including(j)->including(\<zero>))->including(i)"])
    apply(simp add: all_defined_68 all_defined_9 commute6 commute5 cp4 all_def_6 all_def_7 del: StrictRefEq_set_exec)
@@ -4536,13 +4553,16 @@ proof -
    apply(simp add: commute8 commute7 cp5 all_def_8 all_def_9 del: StrictRefEq_set_exec)
   apply(rule including_swap) apply(simp add: all_defined1) apply(simp) apply(simp only: foundation20, simp)
   (* *)
-  apply(subst iterate_subst_set[where G = "\<lambda>i r1. r1 ->iterate(j;r2=r1 | r2->including(j))->including(\<zero>)->including(i)"])
+  apply(subst iterate_subst_set''[where G = "\<lambda>i r1. r1 ->iterate(j;r2=r1 | r2->including(j))->including(\<zero>)->including(i)"])
    apply(simp add: all_defined_68 all_defined_9 commute9 commute10 cp6 all_def_10 all_def_11 del: StrictRefEq_set_exec)
    apply(simp add: all_defined_68 all_defined_9 commute9 commute10 cp6 all_def_10 all_def_11 del: StrictRefEq_set_exec)
+   apply(simp add: set9_notempty)
    apply(simp add: all_defined_68 all_defined_9 commute9 commute10 cp6 all_def_10 all_def_11 del: StrictRefEq_set_exec)
    apply(simp add: all_defined_68 all_defined_9 commute9 commute10 cp6 all_def_10 all_def_11 del: StrictRefEq_set_exec)
   apply(rule including_subst_set)
   apply(rule including_out1)
+  apply(blast) apply(blast) apply(blast)
+  apply(simp add: zero_int)
   (* *)
   apply(subst iterate_subst_set[where G = "\<lambda>i r1. r1->including(\<zero>)->including(i)"])
    apply(simp add: all_defined_68 all_defined_9 commute11 commute12 cp7 all_def_12 all_def_13 del: StrictRefEq_set_exec)
@@ -4559,23 +4579,28 @@ proof -
    apply(simp add: all_defined_68 all_defined_9 commute13 commute14 cp8 all_def_14 all_def_15 del: StrictRefEq_set_exec)
   apply(rule including_swap) apply(simp add: all_defined1) apply(simp) apply(simp only: foundation20, simp)
   (* *)
-  apply(simp add: including_out1)
+  apply(subst including_out1)
+   apply(simp add: all_defined_68)
+   apply(simp add: all_defined_9)
+   apply(simp add: set68_notempty)
+   apply(simp add: zero_int)
   (* *)
   apply(rule including_subst_set)
   (* *)
   apply(subst including_out0)
+   apply(simp add: all_defined_68)
+   apply(simp add: set68_cp)
+   apply(simp add: set68_notempty)
+   apply(simp add: nine_int)
   (* *)
-  apply(subst including_swap)
+  apply(subst including_swap[where i = \<six>])
   apply(simp)+
   (* *)
-(*
   apply(rule including_subst_set)
   (* *)
   apply(subst including_swap)
   apply(simp)+
  done
-*)
- by (metis (lifting, no_types) OclIterate\<^isub>S\<^isub>e\<^isub>t_empty including_out1)
 qed
 
 
