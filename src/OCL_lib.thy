@@ -2242,7 +2242,7 @@ which is not trivial to prove on two OCL terms without extra hypothesis
 (like finiteness on sets).
 Thus, we overload here this @{text comp_fun_commute}. *}
 
-definition "is_int x \<equiv> \<forall> \<tau>. x \<tau> \<noteq> \<bottom> \<and> (\<forall>\<tau>0. x \<tau> = x \<tau>0)"
+definition "is_int x \<equiv> \<forall> \<tau>. \<tau> \<Turnstile> \<upsilon> x \<and> (\<forall>\<tau>0. x \<tau> = x \<tau>0)"
 
 lemma int_is_valid : "\<And>x. is_int x \<Longrightarrow> \<tau> \<Turnstile> \<upsilon> x"
 by (metis foundation18' is_int_def)
@@ -2734,7 +2734,6 @@ proof -
 
   apply(rule fold_F)
   apply(drule invert_int, simp add: is_int_def) apply (metis (no_types) foundation18')
-  apply(simp)
  done
 qed
 
@@ -2765,7 +2764,7 @@ proof -
  have all_def_to_all_int : "\<And>\<tau>. all_defined \<tau> (S :: 'a state \<times> 'a state \<Rightarrow> int option option Set_0) \<Longrightarrow>
                                 all_int_set ((\<lambda>a \<tau>. a) ` \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>)"
   apply(simp add: all_defined_def all_defined_set_def all_int_set_def is_int_def defined_def OclValid_def)
- by (metis (no_types) OclValid_def foundation18')
+ by (metis (no_types) OclValid_def foundation18' true_def)
 
  have S_all_int : "\<And>\<tau>. all_int_set ((\<lambda>a \<tau>. a) ` \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>)"
  by(rule all_def_to_all_int, simp add: assms)
@@ -3325,6 +3324,7 @@ lemma destruct_int : "\<And>i. is_int i \<Longrightarrow> \<exists>! j. i = (\<l
  proof - fix \<tau> show "\<And>i. is_int i \<Longrightarrow> ?thesis i"
   apply(rule_tac a = "i \<tau>" in ex1I)
   apply(rule ext, simp add: is_int_def)
+  apply (metis surj_pair)
   apply(simp)
  done
  apply_end(simp)
@@ -3492,7 +3492,6 @@ proof -
   apply(rule allI)
   apply(simp add: i_valid foundation20)
   apply(simp add: is_int_def)
-  apply(metis (no_types) foundation18')
   apply(insert destruct_int[OF i_int])
   apply(frule ex1E) prefer 2 apply assumption
   apply(rename_tac i')
