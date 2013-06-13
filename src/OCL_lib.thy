@@ -2481,6 +2481,44 @@ begin
    apply_end (simp add: all_int_set_def x_int A_int[simplified all_int_set_def])
  qed
 
+ lemma all_int_induct:
+   assumes "all_int_set (F:: ('a state \<times> 'a state \<Rightarrow> int option option) set)"
+   assumes "P {}"
+     and insert: "\<And>x F. all_int_set F \<Longrightarrow> is_int x \<Longrightarrow> x \<notin> F \<Longrightarrow> P F \<Longrightarrow> P (insert x F)"
+   shows "P F"
+ proof -
+  have invert_all_int_set : "\<And>x S. all_int_set (insert x S) \<Longrightarrow>
+                                   all_int_set S"
+  by(simp add: all_int_set_def)
+  have invert_int : "\<And>x S. all_int_set (insert x S) \<Longrightarrow>
+                            is_int x"
+  by(simp add: all_int_set_def)
+
+  from `all_int_set F` have "finite F" by (simp add: all_int_set_def)
+  show "?thesis"
+  using `finite F` and `all_int_set F`
+  proof induct
+    show "P {}" by fact
+    fix x F show "finite F \<Longrightarrow> x \<notin> F \<Longrightarrow> (all_int_set F \<Longrightarrow> P F) \<Longrightarrow> all_int_set (insert x F) \<Longrightarrow> P (insert x F)"
+    apply(frule invert_int)
+    apply(simp add: invert_all_int_set)
+    apply(drule invert_all_int_set)
+    proof -
+    assume x_int: "is_int x" and F_all : "all_int_set F" and F: "finite F" and P: "P F"
+    show "P (insert x F)"
+    proof cases
+      assume "x \<in> F"
+      hence "insert x F = F" by (rule insert_absorb)
+      with P show ?thesis by (simp only:)
+    next
+      assume "x \<notin> F"
+      from F_all x_int this P show ?thesis thm insert by (rule insert)
+    qed
+  qed
+  apply_end(simp_all)
+  qed
+ qed
+
  lemma finite_fold_insert :
   assumes z_defined : "\<forall>\<tau>. all_defined \<tau> z"
       and A_int : "all_int_set A"
@@ -2490,6 +2528,16 @@ begin
    apply(subst fold_insert, simp_all add: assms)
  done
 end
+
+lemma EQ_OclIterate\<^isub>S\<^isub>e\<^isub>t_including:
+ assumes S_all_int: "\<And>(\<tau>::'a state \<times> 'a state). all_int_set ((\<lambda> a (\<tau>:: 'a state \<times> 'a state). a) ` \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>)"
+ assumes S_all_def:    "\<And>\<tau>. all_defined \<tau> (S:: 'a state \<times> 'a state \<Rightarrow> int option option Set_0)"
+ and     A_all_def:    "\<And>\<tau>. all_defined \<tau> A"
+ and     F_commute:   "EQ_comp_fun_commute F"
+ and     a_int : "is_int a"
+ shows   "((S->including(a))->iterate(a; x =     A | F a x)) =
+          ((S->excluding(a))->iterate(a; x = F a A | F a x))"
+sorry
 
 lemma StrictRefEq_set_L_subst1 : "cp P \<Longrightarrow> \<tau> \<Turnstile> \<upsilon> x \<Longrightarrow> \<tau> \<Turnstile> \<upsilon> y \<Longrightarrow> \<tau> \<Turnstile> \<upsilon> P x \<Longrightarrow> \<tau> \<Turnstile> \<upsilon> P y \<Longrightarrow> \<tau> \<Turnstile> (x::('\<AA>,'\<alpha>::null)Set) \<doteq> y \<Longrightarrow> \<tau> \<Turnstile> (P x ::('\<AA>,'\<alpha>::null)Set) \<doteq> P y"
  apply(simp only: StrictRefEq_set OclValid_def)
@@ -2855,6 +2903,26 @@ proof -
  qed
 qed
 
+lemma abs_rep_simp :
+ assumes S_all_def : "all_defined \<tau> (S :: 'a state \<times> 'a state \<Rightarrow> int option option Set_0)"
+   shows "Abs_Set_0 \<lfloor>\<lfloor>\<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>\<rfloor>\<rfloor> = S \<tau>"
+proof -
+ have discr_eq_false_true : "\<And>\<tau>. (false \<tau> = true \<tau>) = False" by (metis OclValid_def foundation2)
+ show ?thesis
+  apply(insert S_all_def, simp add: all_defined_def all_defined_set_def OclValid_def defined_def)
+  apply(rule mp[OF Abs_Set_0_induct[where P = "\<lambda>S. (if S = \<bottom> \<tau> \<or> S = null \<tau> then false \<tau> else true \<tau>) = true \<tau> \<and>
+          finite \<lceil>\<lceil>Rep_Set_0 S\<rceil>\<rceil> \<and>
+          (\<forall>x\<in>\<lceil>\<lceil>Rep_Set_0 S\<rceil>\<rceil>. (if x = \<bottom> \<tau> then false \<tau> else true \<tau>) = true \<tau>) \<longrightarrow> Abs_Set_0 \<lfloor>\<lfloor>\<lceil>\<lceil>Rep_Set_0 S\<rceil>\<rceil>\<rfloor>\<rfloor> = S"]])
+  apply(simp add: Abs_Set_0_inverse discr_eq_false_true)
+  apply(case_tac y, simp)
+  apply(simp add: bot_fun_def bot_Set_0_def)
+  apply(case_tac a, simp)
+  apply(simp add: null_fun_def null_Set_0_def)
+  apply(simp)
+  apply(simp)
+ by (metis OCL_core.bot_fun_def valid_def)
+qed
+
 lemma including_subst_set : "(s::('\<AA>,'a::null)Set) = t \<Longrightarrow> s->including(x) = (t->including(x))"
 by(simp)
 
@@ -2967,6 +3035,60 @@ proof -
  apply_end(simp)
 qed
 
+lemma excluding_id :
+ assumes S_all_def : "\<And>\<tau>. all_defined \<tau> (S :: 'a state \<times> 'a state \<Rightarrow> int option option Set_0)"
+     and x_int : "is_int (\<lambda>(\<tau>:: 'a state \<times> 'a state). x)"
+   shows "            \<forall>\<tau>. x \<notin> \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil> \<Longrightarrow>
+                      S->excluding(\<lambda>\<tau>. x) = S"
+proof -
+
+ have S_incl : "\<forall>(x :: 'a state \<times> 'a state \<Rightarrow> int option option Set_0). (\<forall>\<tau>. all_defined \<tau> x) \<longrightarrow> (\<forall>\<tau>. \<lceil>\<lceil>Rep_Set_0 (x \<tau>)\<rceil>\<rceil> = {}) \<longrightarrow> Set{} = x"
+  apply(rule allI) apply(rule impI)+
+  apply(rule ext, rename_tac \<tau>)
+  apply(drule_tac x = \<tau> in allE) prefer 2 apply assumption
+  apply(drule_tac x = \<tau> in allE) prefer 2 apply assumption
+  apply(simp add: mtSet_def)
+ by (metis abs_rep_simp)
+
+ have discr_eq_invalid_true : "\<And>\<tau>. (invalid \<tau> = true \<tau>) = False" by (metis bot_option_def invalid_def option.simps(2) true_def)
+ have discr_eq_false_true : "\<And>\<tau>. (false \<tau> = true \<tau>) = False" by (metis OclValid_def foundation2)
+
+ have all_defined1 : "\<And>r2 \<tau>. all_defined \<tau> r2 \<Longrightarrow> \<tau> \<Turnstile> \<delta> r2" by(simp add: all_defined_def)
+
+ show "               (\<forall>\<tau>. x \<notin> \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>) \<Longrightarrow>
+                      ?thesis"
+  apply(rule ext, rename_tac \<tau>', simp add: OclExcluding_def S_all_def[simplified all_defined_def OclValid_def] int_is_valid[OF x_int, simplified OclValid_def])
+
+  proof - fix \<tau>' show "\<forall>a b. x \<notin> \<lceil>\<lceil>Rep_Set_0 (S (a, b))\<rceil>\<rceil> \<Longrightarrow> Abs_Set_0 \<lfloor>\<lfloor>\<lceil>\<lceil>Rep_Set_0 (S \<tau>')\<rceil>\<rceil> - {x}\<rfloor>\<rfloor> = S \<tau>'"
+
+  apply(subst finite_induct[where P = "\<lambda>set. x \<notin> set \<longrightarrow> (\<forall>set'. all_defined \<tau>' set' \<longrightarrow> set = \<lceil>\<lceil>Rep_Set_0 (set' \<tau>')\<rceil>\<rceil> \<longrightarrow> Abs_Set_0 \<lfloor>\<lfloor>set - {x}\<rfloor>\<rfloor> = set' \<tau>')", THEN mp, THEN spec, THEN mp])
+  apply(simp add: S_all_def[simplified all_defined_def all_defined_set_def])
+  apply(simp)
+  apply(rule allI, rename_tac S') apply(rule impI)+
+  apply(drule_tac f = "\<lambda>x. Abs_Set_0 \<lfloor>\<lfloor>x\<rfloor>\<rfloor>" in arg_cong)
+  apply(simp)
+
+  apply(subst abs_rep_simp, simp)
+  apply(simp)
+  apply(rename_tac x' F)
+  apply(rule impI, rule allI, rename_tac S') apply(rule impI)+
+  proof - fix x' F S' show "\<forall>a b. x \<notin> \<lceil>\<lceil>Rep_Set_0 (S (a, b))\<rceil>\<rceil> \<Longrightarrow>
+                finite F \<Longrightarrow>
+                x' \<notin> F \<Longrightarrow>
+                x \<notin> F \<longrightarrow> (\<forall>xa. all_defined \<tau>' xa \<longrightarrow> F = \<lceil>\<lceil>Rep_Set_0 (xa \<tau>')\<rceil>\<rceil> \<longrightarrow> Abs_Set_0 \<lfloor>\<lfloor>F - {x}\<rfloor>\<rfloor> = xa \<tau>') \<Longrightarrow>
+                x \<notin> insert x' F \<Longrightarrow> all_defined \<tau>' S' \<Longrightarrow> insert x' F = \<lceil>\<lceil>Rep_Set_0 (S' \<tau>')\<rceil>\<rceil> \<Longrightarrow> Abs_Set_0 \<lfloor>\<lfloor>insert x' F - {x}\<rfloor>\<rfloor> = S' \<tau>'"
+   apply(subgoal_tac "x \<notin> F", simp)
+   apply(rule abs_rep_simp, simp)
+  by (metis insertCI)
+  apply_end(simp)+
+  apply_end(metis surj_pair)
+  prefer 3
+  apply_end(rule refl)
+  apply_end(simp add: S_all_def, simp)
+  qed
+ qed
+qed
+
 lemma including_cp : "cp (\<lambda>r2. (r2->including(x)))"
  apply(unfold cp_def)
  apply(subst cp_OclIncluding[of _ x])
@@ -3038,6 +3160,71 @@ proof -
                 S_all_def[simplified all_defined_def, of \<tau>]
                 x_val[of \<tau>], simp)
    apply(simp add: cp_defined[of "\<lambda>\<tau>. Abs_Set_0 \<lfloor>\<lfloor>insert (x \<tau>) \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>\<rfloor>\<rfloor>"])
+   apply(simp add: all_defined_set_def OclValid_def)
+   apply(simp add: cp_valid[symmetric] x_val[simplified OclValid_def])
+   apply(rule G)
+ done
+qed
+
+lemma cons_all_def_e :
+  assumes S_all_def : "\<And>\<tau>. all_defined \<tau> (S :: 'a state \<times> 'a state \<Rightarrow> int option option Set_0)"
+  assumes x_val : "\<And>\<tau>. \<tau> \<Turnstile> \<upsilon> (x :: 'a state \<times> 'a state \<Rightarrow> int option option)"
+    shows "\<And>\<tau>. all_defined \<tau> S->excluding(x)"
+proof -
+
+ have discr_eq_false_true : "\<And>\<tau>. (false \<tau> = true \<tau>) = False" by (metis OclValid_def foundation2)
+
+ have all_defined1 : "\<And>r2 \<tau>. all_defined \<tau> r2 \<Longrightarrow> \<tau> \<Turnstile> \<delta> r2" by(simp add: all_defined_def)
+
+ have A : "\<bottom> \<in> {X. X = bot \<or> X = null \<or> (\<forall>x\<in>\<lceil>\<lceil>X\<rceil>\<rceil>. x \<noteq> bot)}" by(simp add: bot_option_def)
+ have B : "\<lfloor>\<bottom>\<rfloor> \<in> {X. X = bot \<or> X = null \<or> (\<forall>x\<in>\<lceil>\<lceil>X\<rceil>\<rceil>. x \<noteq> bot)}" by(simp add: null_option_def bot_option_def)
+
+ have C : "\<And>\<tau>. \<lfloor>\<lfloor>\<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil> - {x \<tau>}\<rfloor>\<rfloor> \<in> {X. X = bot \<or> X = null \<or> (\<forall>x\<in>\<lceil>\<lceil>X\<rceil>\<rceil>. x \<noteq> bot)}"
+  proof - fix \<tau> show "?thesis \<tau>"
+
+          apply(insert S_all_def[simplified all_defined_def, THEN conjunct1, of \<tau>, THEN foundation17]
+                       x_val[of \<tau>, THEN foundation19] Set_inv_lemma[OF S_all_def[simplified all_defined_def, THEN conjunct1, of \<tau>]])
+          apply(simp add: bot_option_def null_Set_0_def null_fun_def invalid_def)
+          done
+  qed
+
+ have G1 : "\<And>\<tau>. Abs_Set_0 \<lfloor>\<lfloor>\<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil> - {x \<tau>}\<rfloor>\<rfloor> \<noteq> Abs_Set_0 None"
+  proof - fix \<tau> show "?thesis \<tau>"
+          apply(insert C[of \<tau>], simp)
+          apply(simp add: Abs_Set_0_inject bot_option_def)
+  done
+ qed
+
+ have G2 : "\<And>\<tau>. Abs_Set_0 \<lfloor>\<lfloor>\<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil> - {x \<tau>}\<rfloor>\<rfloor> \<noteq> Abs_Set_0 \<lfloor>None\<rfloor>"
+  proof - fix \<tau> show "?thesis \<tau>"
+          apply(insert C[of \<tau>], simp)
+          apply(simp add: Abs_Set_0_inject bot_option_def null_option_def)
+  done
+ qed
+
+ have G : "\<And>\<tau>. (\<delta> (\<lambda>_. Abs_Set_0 \<lfloor>\<lfloor>\<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil> - {x \<tau>}\<rfloor>\<rfloor>)) \<tau> = true \<tau>"
+  proof - fix \<tau> show "?thesis \<tau>"
+          apply(auto simp: OclValid_def false_def true_def defined_def
+                           bot_fun_def bot_Set_0_def null_fun_def null_Set_0_def G1 G2)
+  done
+ qed
+
+ have invert_all_defined_aux : "\<And>
+   (S :: 'a state \<times> 'a state \<Rightarrow> int option option Set_0)
+   (x :: 'a state \<times> 'a state \<Rightarrow> int option option) \<tau>. (\<tau> \<Turnstile>(\<delta> S)) \<Longrightarrow> (\<tau> \<Turnstile>(\<upsilon> x)) \<Longrightarrow> \<lfloor>\<lfloor>\<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil> - {x \<tau>}\<rfloor>\<rfloor> \<in> {X. X = bot \<or> X = null \<or> (\<forall>x\<in>\<lceil>\<lceil>X\<rceil>\<rceil>. x \<noteq> bot)}"
+          apply(frule Set_inv_lemma)
+          apply(simp add: bot_option_def null_Set_0_def null_fun_def
+                          foundation18 foundation16 invalid_def)
+          done
+  fix \<tau>
+  show "?thesis \<tau>"
+   apply(subgoal_tac "\<tau> \<Turnstile> \<upsilon> x") prefer 2 apply(simp add: x_val)
+   apply(simp add: all_defined_def OclExcluding_def OclValid_def)
+   apply(simp add: x_val[simplified OclValid_def] S_all_def[simplified all_defined_def OclValid_def])
+   apply(insert Abs_Set_0_inverse[OF invert_all_defined_aux[where S = S and x = x and \<tau> = \<tau>]]
+                S_all_def[simplified all_defined_def, of \<tau>]
+                x_val[of \<tau>], simp)
+   apply(simp add: cp_defined[of "\<lambda>\<tau>. Abs_Set_0 \<lfloor>\<lfloor>\<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil> - {x \<tau>}\<rfloor>\<rfloor>"])
    apply(simp add: all_defined_set_def OclValid_def)
    apply(simp add: cp_valid[symmetric] x_val[simplified OclValid_def])
    apply(rule G)
@@ -3135,6 +3322,14 @@ lemma invert_all_defined : "\<And>
    apply(metis OclValid_def foundation5)
    apply(metis OclValid_def foundation5)
   done
+qed
+
+lemma mtSet_all_def : "\<And>\<tau>. all_defined \<tau> Set{}"
+proof -
+ have B : "\<lfloor>\<lfloor>{}\<rfloor>\<rfloor> \<in> {X. X = bot \<or> X = null \<or> (\<forall>x\<in>\<lceil>\<lceil>X\<rceil>\<rceil>. x \<noteq> bot)}" by(simp add: mtSet_def)
+ show "\<And>\<tau>. ?thesis \<tau>"
+  apply(simp add: all_defined_def all_defined_set_def mtSet_def Abs_Set_0_inverse B)
+ by (metis (no_types) foundation16 mtSet_def mtSet_defined transform1)
 qed
 
 lemma including_commute : "EQ_comp_fun_commute (\<lambda>j r2. (r2->including(j)))"
@@ -3758,6 +3953,316 @@ proof -
  done
 qed
 
+lemma Ocl_insert_Diff :
+ assumes S_all_def : "\<And>\<tau>. all_defined \<tau> (S :: 'a state \<times> 'a state \<Rightarrow> int option option Set_0)"
+     and x_mem : "\<And>\<tau>. x \<in> (\<lambda>a (\<tau>:: 'a state \<times> 'a state). a) ` \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>"
+     and x_int : "is_int x"
+   shows "S->excluding(x)->including(x) = S"
+proof -
+ have all_defined1 : "\<And>r2 \<tau>. all_defined \<tau> r2 \<Longrightarrow> \<tau> \<Turnstile> \<delta> r2" by(simp add: all_defined_def)
+
+ have remove_in_Set_0 : "\<And>\<tau>. (\<tau> \<Turnstile>(\<delta> S)) \<Longrightarrow> (\<tau> \<Turnstile>(\<upsilon> x)) \<Longrightarrow> \<lfloor>\<lfloor>\<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil> - {x \<tau>}\<rfloor>\<rfloor> \<in> {X. X = bot \<or> X = null \<or> (\<forall>x\<in>\<lceil>\<lceil>X\<rceil>\<rceil>. x \<noteq> bot)}"
+  apply(frule Set_inv_lemma)
+  apply(simp add: bot_option_def null_Set_0_def null_fun_def
+                  foundation18 foundation16 invalid_def)
+ done
+ have remove_in_Set_0 : "\<And>\<tau>. ?this \<tau>"
+  apply(rule remove_in_Set_0)
+ by(simp add: S_all_def[simplified all_defined_def] int_is_valid[OF x_int])+
+ have inject : "inj (\<lambda>a \<tau>. a)" by(rule inj_fun, simp)
+
+ show ?thesis
+
+  apply(rule ext, rename_tac \<tau>)
+  apply(subgoal_tac "\<tau> \<Turnstile> \<delta> (S->excluding(x))")
+   prefer 2
+   apply(simp add: foundation10 all_defined1[OF S_all_def] int_is_valid[OF x_int])
+  apply(simp add: OclExcluding_def OclIncluding_def all_defined1[OF S_all_def, simplified OclValid_def] Abs_Set_0_inverse[OF remove_in_Set_0] int_is_valid[OF x_int, simplified OclValid_def] OclValid_def)
+  proof - fix \<tau> show " Abs_Set_0 \<lfloor>\<lfloor>insert (x \<tau>) \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>\<rfloor>\<rfloor> = S \<tau>"
+  apply(rule ex1E[OF destruct_int[OF x_int]], rename_tac x', simp)
+  apply(subgoal_tac "x' \<in> \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>")
+  apply(drule insert_Diff[symmetric], simp)
+  apply(simp add: abs_rep_simp[OF S_all_def[where \<tau> = \<tau>]])
+  apply(insert x_mem[of \<tau>], simp)
+  apply(rule inj_image_mem_iff[THEN iffD1]) prefer 2 apply assumption
+  apply(simp add: inject)
+  done
+ qed
+qed
+
+lemma excluding_unfold :
+  assumes S_all_def : "\<And>\<tau>. all_defined \<tau> (S :: 'a state \<times> 'a state \<Rightarrow> int option option Set_0)"
+      and x_val : "\<And>\<tau>. \<tau> \<Turnstile> \<upsilon> x"
+    shows "\<lceil>\<lceil>Rep_Set_0 (S->excluding(x) \<tau>)\<rceil>\<rceil> = \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil> - {x \<tau>}"
+proof -
+ have all_defined1 : "\<And>r2 \<tau>. all_defined \<tau> r2 \<Longrightarrow> \<tau> \<Turnstile> \<delta> r2" by(simp add: all_defined_def)
+
+ have C : "\<And>\<tau>. \<lfloor>\<lfloor>\<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil> - {x \<tau>}\<rfloor>\<rfloor> \<in> {X. X = bot \<or> X = null \<or> (\<forall>x\<in>\<lceil>\<lceil>X\<rceil>\<rceil>. x \<noteq> bot)}"
+  proof - fix \<tau> show "?thesis \<tau>"
+          apply(insert S_all_def[simplified all_defined_def, THEN conjunct1, of \<tau>, THEN foundation17]
+                       x_val[of \<tau>, THEN foundation19] Set_inv_lemma[OF S_all_def[simplified all_defined_def, THEN conjunct1, of \<tau>]])
+          apply(simp add: bot_option_def null_Set_0_def null_fun_def invalid_def)
+          done
+  qed
+ show ?thesis
+  apply(simp add: OclExcluding_def all_defined1[OF S_all_def, simplified OclValid_def] x_val[simplified OclValid_def] Abs_Set_0_inverse[OF C])
+ done
+qed
+
+lemma i_including_id00 :
+ assumes S_all_int : "\<And>\<tau>. all_int_set ((\<lambda>a (\<tau>:: 'a state \<times> 'a state). a) ` \<lceil>\<lceil>Rep_Set_0 ((S :: 'a state \<times> 'a state \<Rightarrow> int option option Set_0) \<tau>)\<rceil>\<rceil>)"
+   shows "\<And>\<tau>. \<forall>S'. (\<forall>\<tau>. all_defined \<tau> S') \<longrightarrow> (let img = image (\<lambda>a (\<tau>:: 'a state \<times> 'a state). a) ; set' = img \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil> ; f = (\<lambda>x. x) in
+              (\<forall>\<tau>. f ` set' = img \<lceil>\<lceil>Rep_Set_0 (S' \<tau>)\<rceil>\<rceil>) \<longrightarrow>
+              (Finite_Set.fold (\<lambda>(j:: 'a state \<times> 'a state \<Rightarrow> _) r2.
+                (r2->including((f:: ('a state \<times> 'a state \<Rightarrow> int option option)
+                                     \<Rightarrow> 'a state \<times> 'a state \<Rightarrow> int option option) j))) Set{} set') = S')"
+proof -
+ have S_incl : "\<forall>(x :: 'a state \<times> 'a state \<Rightarrow> int option option Set_0). (\<forall>\<tau>. all_defined \<tau> x) \<longrightarrow> (\<forall>\<tau>. \<lceil>\<lceil>Rep_Set_0 (x \<tau>)\<rceil>\<rceil> = {}) \<longrightarrow> Set{} = x"
+  apply(rule allI) apply(rule impI)+
+  apply(rule ext, rename_tac \<tau>)
+  apply(drule_tac x = \<tau> in allE) prefer 2 apply assumption
+  apply(drule_tac x = \<tau> in allE) prefer 2 apply assumption
+  apply(simp add: mtSet_def)
+ by (metis abs_rep_simp)
+
+ have invert_set_0 : "\<And>x F. \<lfloor>\<lfloor>insert x F\<rfloor>\<rfloor> \<in> {X. X = bot \<or> X = null \<or> (\<forall>x\<in>\<lceil>\<lceil>X\<rceil>\<rceil>. x \<noteq> bot)} \<Longrightarrow> \<lfloor>\<lfloor>F\<rfloor>\<rfloor> \<in> {X. X = bot \<or> X = null \<or> (\<forall>x\<in>\<lceil>\<lceil>X\<rceil>\<rceil>. x \<noteq> bot)}"
+ by(auto simp: bot_option_def null_option_def)
+
+ have invert_all_def_set : "\<And>x F \<tau>. all_defined_set \<tau> (insert x F) \<Longrightarrow> all_defined_set \<tau> F"
+  apply(simp add: all_defined_set_def)
+ done
+
+ have all_def_to_all_int_ : "\<And>set \<tau>. all_defined_set \<tau> set \<Longrightarrow> all_int_set ((\<lambda>a \<tau>. a) ` set)"
+  apply(simp add: all_defined_set_def all_int_set_def is_int_def)
+ by (metis foundation18')
+
+ have invert_int : "\<And>x S. all_int_set (insert x S) \<Longrightarrow>
+                           is_int x"
+ by(simp add: all_int_set_def)
+
+ have inject : "inj (\<lambda>a \<tau>. a)"
+ by(rule inj_fun, simp)
+
+ have image_cong: "\<And>x Fa f. inj f \<Longrightarrow> x \<notin> Fa \<Longrightarrow> f x \<notin> f ` Fa"
+  apply(simp add: image_def)
+  apply(rule ballI)
+  apply(case_tac "x = xa", simp)
+  apply(simp add: inj_on_def)
+  apply(blast)
+ done
+
+ have rec : "\<And>(x:: 'a state \<times> 'a state \<Rightarrow> int option option) (F:: ('a state \<times> 'a state \<Rightarrow> int option option) set). all_int_set F \<Longrightarrow>
+            is_int x \<Longrightarrow>
+            x \<notin> F \<Longrightarrow>
+            \<forall>x. (\<forall>\<tau>. all_defined \<tau> x) \<longrightarrow>
+                (let img = op ` (\<lambda>a \<tau>. a); set' = F; f = \<lambda>x. x
+                 in (\<forall>\<tau>. f ` set' = img \<lceil>\<lceil>Rep_Set_0 (x \<tau>)\<rceil>\<rceil>) \<longrightarrow> Finite_Set.fold (\<lambda>j r2. r2->including(f j)) Set{} set' = x) \<Longrightarrow>
+            \<forall>xa. (\<forall>\<tau>. all_defined \<tau> xa) \<longrightarrow>
+                 (let img = op ` (\<lambda>a \<tau>. a); set' = insert x F; f = \<lambda>x. x
+                  in (\<forall>\<tau>. f ` set' = img \<lceil>\<lceil>Rep_Set_0 (xa \<tau>)\<rceil>\<rceil>) \<longrightarrow> Finite_Set.fold (\<lambda>j r2. r2->including(f j)) Set{} set' = xa)"
+  apply(simp only: Let_def image_ident)
+
+  proof - fix \<tau> fix x:: "'a state \<times> 'a state \<Rightarrow> int option option" fix F:: "('a state \<times> 'a state \<Rightarrow> int option option) set"
+   show "all_int_set F \<Longrightarrow>
+            is_int x \<Longrightarrow>
+            x \<notin> F \<Longrightarrow>
+            \<forall>x. (\<forall>\<tau>. all_defined \<tau> x) \<longrightarrow> (\<forall>\<tau>. F = (\<lambda>a \<tau>. a) ` \<lceil>\<lceil>Rep_Set_0 (x \<tau>)\<rceil>\<rceil>) \<longrightarrow> Finite_Set.fold (\<lambda>j r2. r2->including(j)) Set{} F = x \<Longrightarrow>
+            \<forall>xa. (\<forall>\<tau>. all_defined \<tau> xa) \<longrightarrow> (\<forall>\<tau>. insert x F = (\<lambda>a \<tau>. a) ` \<lceil>\<lceil>Rep_Set_0 (xa \<tau>)\<rceil>\<rceil>) \<longrightarrow> Finite_Set.fold (\<lambda>j r2. r2->including(j)) Set{} (insert x F) = xa"
+  apply(rule allI, rename_tac S) apply(rule impI)+
+  apply(subst sym[of "insert x F"], blast)
+  apply(drule_tac x = "S->excluding(x)" in allE) prefer 2 apply assumption
+  apply(subgoal_tac "\<And>\<tau>. (\<lambda>a \<tau>. a) ` \<lceil>\<lceil>Rep_Set_0 (S->excluding(x) \<tau>)\<rceil>\<rceil> = ((\<lambda>a \<tau>. a) ` \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>) - {x}", simp only:)
+  apply(subgoal_tac "(\<forall>\<tau>. all_defined \<tau> S->excluding(x))")
+   prefer 2
+   apply(rule allI)
+   apply(rule cons_all_def_e, metis)
+   apply(rule int_is_valid, simp)
+  apply(simp)
+  apply(subst EQ_comp_fun_commute.fold_insert[OF including_commute]) prefer 5
+  apply(drule arg_cong[where f = "\<lambda>S. (S->including(x))"], simp)
+  apply(rule Ocl_insert_Diff)
+   apply(metis surj_pair)
+   apply(subst sym[of "insert x F"], metis surj_pair)
+   apply(simp)+
+   apply(subst mtSet_all_def)
+   apply(simp)+
+  apply(subst excluding_unfold)
+  apply(metis surj_pair)
+  apply(rule int_is_valid, simp)
+  apply(subst image_set_diff, simp add: inject)
+  apply(simp)
+  apply(drule destruct_int)
+    apply(frule_tac P = "\<lambda>j. x = (\<lambda>_. j)" in ex1E) prefer 2 apply assumption
+  apply(blast)
+  done
+ qed
+
+ fix \<tau>
+ show "\<forall>S'.  (\<forall>\<tau>. all_defined \<tau> S') \<longrightarrow> (let img = image (\<lambda>a (\<tau>:: 'a state \<times> 'a state). a); set' = img \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil> ; f = (\<lambda>x. x)  in
+              (\<forall>\<tau>. f ` set' = img \<lceil>\<lceil>Rep_Set_0 (S' \<tau>)\<rceil>\<rceil>) \<longrightarrow>
+              (Finite_Set.fold (\<lambda>(j:: 'a state \<times> 'a state \<Rightarrow> _) r2.
+                (r2->including((f:: ('a state \<times> 'a state \<Rightarrow> int option option)
+                                     \<Rightarrow> 'a state \<times> 'a state \<Rightarrow> int option option) j))) Set{} set') = S')"
+  apply(rule allI)
+  proof - fix S' :: "'a state \<times> 'a state \<Rightarrow> int option option Set_0" show "(\<forall>\<tau>. all_defined \<tau> S') \<longrightarrow> (let img = op ` (\<lambda>a \<tau>. a); set' = img \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>; f = \<lambda>x. x
+           in (\<forall>\<tau>. f ` set' = img \<lceil>\<lceil>Rep_Set_0 (S' \<tau>)\<rceil>\<rceil>) \<longrightarrow> Finite_Set.fold (\<lambda>j r2. r2->including(f j)) Set{} set' = S')"
+   apply(simp add: Let_def, rule impI)
+   apply(subgoal_tac "(let img = op ` (\<lambda>a \<tau>. a); set' = (\<lambda>a \<tau>. a) ` \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>; f = \<lambda>x. x
+    in (\<forall>\<tau>. f ` set' = img \<lceil>\<lceil>Rep_Set_0 (S' \<tau>)\<rceil>\<rceil>) \<longrightarrow> Finite_Set.fold (\<lambda>j r2. r2->including(f j)) Set{} set' = S')") prefer 2
+
+   apply(subst EQ_comp_fun_commute.all_int_induct[where P = "\<lambda>set.
+   \<forall>S'. (\<forall>\<tau>. all_defined \<tau> S') \<longrightarrow> (let img = image (\<lambda>a (\<tau>:: 'a state \<times> 'a state). a)
+     ; set' = set ; f = (\<lambda>x. x) in
+                 (\<forall>\<tau>. f ` set' = img \<lceil>\<lceil>Rep_Set_0 (S' \<tau>)\<rceil>\<rceil>) \<longrightarrow>
+                 (Finite_Set.fold (\<lambda>(j:: 'a state \<times> 'a state \<Rightarrow> _) r2.
+                   (r2->including((f:: ('a state \<times> 'a state \<Rightarrow> int option option)
+                                        \<Rightarrow> 'a state \<times> 'a state \<Rightarrow> int option option) j))) Set{} set') = S')"
+                                 and F = "(\<lambda>a (\<tau>:: 'a state \<times> 'a state). a) ` \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>", OF including_commute, THEN spec, of S'])
+   apply(simp add: S_all_int)
+   apply(simp add: S_incl)
+   apply(rule rec)
+   apply(simp) apply(simp) apply(simp) apply(simp)
+   apply (metis pair_collapse)
+   apply(blast)
+
+   apply(simp add: Let_def)
+
+  done
+ qed
+qed
+
+lemma iterate_including_id00 :
+   assumes S_all_def : "\<And>\<tau>. all_defined \<tau> (S :: 'a state \<times> 'a state \<Rightarrow> int option option Set_0)"
+       and S_incl : "\<And>\<tau> \<tau>'. S \<tau> = S \<tau>'"
+     shows "(S->iterate(j;r2=Set{} | r2->including(j))) = S"
+ apply(simp add: OclIterate\<^isub>S\<^isub>e\<^isub>t_def OclValid_def del: StrictRefEq_set_exec, rule ext)
+ apply(subgoal_tac "(\<delta> S) \<tau> = true \<tau> \<and> (\<upsilon> S) \<tau> = true \<tau> \<and> finite \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>", simp del: StrictRefEq_set_exec)
+ prefer 2
+  proof -
+   have all_def_to_all_int : "\<And>\<tau>. all_defined \<tau> (S :: 'a state \<times> 'a state \<Rightarrow> int option option Set_0) \<Longrightarrow>
+                                  all_int_set ((\<lambda>a \<tau>. a) ` \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>)"
+    apply(simp add: all_defined_def all_defined_set_def all_int_set_def is_int_def defined_def OclValid_def)
+   by (metis (no_types) OclValid_def foundation18' true_def)
+
+   have S_all_int : "\<And>\<tau>. all_int_set ((\<lambda>a \<tau>. a) ` \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>)"
+   by(rule all_def_to_all_int, simp add: assms)
+
+   fix \<tau>
+   show "(\<delta> S) \<tau> = true \<tau> \<and> (\<upsilon> S) \<tau> = true \<tau> \<and> finite \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>"
+     apply(simp add: S_all_def[of \<tau>, simplified all_defined_def OclValid_def all_defined_set_def]
+                     foundation20[simplified OclValid_def])
+  done
+ fix \<tau> show "(\<delta> S) \<tau> = true \<tau> \<and> (\<upsilon> S) \<tau> = true \<tau> \<and> finite \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil> \<Longrightarrow> Finite_Set.fold (\<lambda>j r2. r2->including(j)) Set{} ((\<lambda>a \<tau>. a) ` \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>) \<tau> = S \<tau>"
+  apply(subst i_including_id00[simplified Let_def image_ident, where S = S and \<tau> = \<tau>])
+   prefer 4
+   apply(rule refl)
+   apply(simp add: S_all_int S_all_def)+
+ by (metis S_incl)
+qed
+
+lemma flatten_int' :
+  assumes a_all_def : "\<And>\<tau>. all_defined \<tau> Set{\<lambda>(\<tau>:: 'a state \<times> 'a state). a}"
+      and a_int : "is_int (\<lambda>(\<tau>:: 'a state \<times> 'a state). a)"
+    shows "let a = \<lambda>(\<tau>:: 'a state \<times> 'a state). (a :: int option option) in Set{a,a} = Set{a}"
+proof -
+ have B : "\<lfloor>\<lfloor>{}\<rfloor>\<rfloor> \<in> {X. X = bot \<or> X = null \<or> (\<forall>x\<in>\<lceil>\<lceil>X\<rceil>\<rceil>. x \<noteq> bot)}" by(simp add: mtSet_def)
+ have B' : "\<lfloor>\<lfloor>{a}\<rfloor>\<rfloor> \<in> {X. X = bot \<or> X = null \<or> (\<forall>x\<in>\<lceil>\<lceil>X\<rceil>\<rceil>. x \<noteq> bot)}"
+  apply(simp) apply(rule disjI2)+ apply(insert int_is_valid[OF a_int]) by (metis foundation18')
+ have C : "\<And> \<tau>. (\<delta> (\<lambda>\<tau>. Abs_Set_0 \<lfloor>\<lfloor>{}\<rfloor>\<rfloor>)) \<tau> = true \<tau>"
+ by (metis B Abs_Set_0_cases Abs_Set_0_inverse cp_defined defined_def false_def mtSet_def mtSet_defined null_fun_def null_option_def null_set_not_defined true_def)
+
+ show ?thesis
+  apply(simp add: Let_def)
+  apply(rule including_id, simp add: a_all_def)
+  apply(rule allI, simp add: OclIncluding_def int_is_valid[OF a_int, simplified OclValid_def] mtSet_def Abs_Set_0_inverse[OF B] C Abs_Set_0_inverse[OF B'])
+ done
+qed
+
+lemma flatten_int :
+  assumes a_int : "is_int (a :: 'a state \<times> 'a state \<Rightarrow> int option option)"
+  shows "Set{a,a} = Set{a}"
+proof -
+ have all_def : "\<And>\<tau>. all_defined \<tau> Set{a}"
+  apply(rule cons_all_def)
+  apply(simp add: mtSet_all_def int_is_valid[OF a_int])+
+ done
+
+ show ?thesis
+  apply(insert a_int, drule destruct_int)
+  apply(drule ex1E) prefer 2 apply assumption
+  apply(simp)
+  apply(rule flatten_int'[simplified Let_def])
+  apply(insert all_def, simp)
+  apply(insert a_int, simp)
+ done
+qed
+
+lemma including_out0' :
+   assumes S_all_def : "\<And>\<tau>. all_defined \<tau> (S :: 'a state \<times> 'a state \<Rightarrow> int option option Set_0)"
+       and S_include : "\<And>\<tau> \<tau>'. S \<tau> = S \<tau>'"
+       and S_notempty : "\<And>\<tau>. \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil> \<noteq> {}"
+       and a_int : "is_int a"
+     shows "(S->iterate(x;acc=Set{a} | acc->including(x))) = (S->including(a))"
+
+ apply(rule ex1E[OF destruct_int[OF a_int]], rename_tac a', simp)
+ apply(case_tac "\<forall>\<tau>. a' \<in> \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>")
+proof -
+ have all_def_to_all_int : "\<And>\<tau>. all_defined \<tau> (S :: 'a state \<times> 'a state \<Rightarrow> int option option Set_0) \<Longrightarrow>
+                                all_int_set ((\<lambda>a \<tau>. a) ` \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>)"
+  apply(simp add: all_defined_def all_defined_set_def all_int_set_def is_int_def defined_def OclValid_def)
+ by (metis (no_types) OclValid_def foundation18' true_def)
+
+ have S_all_int : "\<And>\<tau>. all_int_set ((\<lambda>a \<tau>. a) ` \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>)"
+ by(rule all_def_to_all_int, simp add: assms)
+
+ have a_all_def : "\<And>\<tau>. all_defined \<tau> Set{a}"
+ by(rule cons_all_def, rule mtSet_all_def, simp add: int_is_valid[OF a_int])
+
+ have all_defined1 : "\<And>r2 \<tau>. all_defined \<tau> r2 \<Longrightarrow> \<tau> \<Turnstile> \<delta> r2" by(simp add: all_defined_def)
+
+ have Sa_include : "\<And>a' \<tau> \<tau>'. (\<lambda>_. a') = a \<Longrightarrow> S->including(a) \<tau> = S->including(a) \<tau>'"
+ apply(simp add: cp_OclIncluding[of _ a])
+ apply(drule sym[of _ a], simp add: cp_OclIncluding[symmetric])
+  proof - fix a' \<tau> \<tau>' show "a = (\<lambda>_. a') \<Longrightarrow> \<lambda>_. S \<tau>->including(\<lambda>_. a') \<tau> = \<lambda>_. S \<tau>'->including(\<lambda>_. a') \<tau>'"
+   apply(simp add: OclIncluding_def)
+   apply(drule sym[of a])
+   apply(simp add: cp_defined[symmetric])
+   apply(simp add: all_defined1[OF S_all_def, simplified OclValid_def] int_is_valid[OF a_int, simplified OclValid_def])
+   apply(subst S_include[of \<tau> \<tau>'], simp)
+  done
+ qed
+
+ have gen_all : "\<And>a. \<exists> \<tau>. a \<notin> \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil> \<Longrightarrow> \<forall> \<tau>. a \<notin> \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>"
+  apply(rule allI)
+  apply(drule exE) prefer 2 apply assumption
+ by(subst S_include, simp)
+
+ fix a' show "a = (\<lambda>_. a') \<Longrightarrow> \<forall>\<tau>. a' \<in> \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil> \<Longrightarrow> (S ->iterate(x;acc=Set{\<lambda>_. a'} | acc->including(x))) = S->including(\<lambda>_. a')"
+  apply(subst including_id[OF S_all_def, symmetric], simp)
+  apply(drule sym[of a], simp)
+  apply(subst EQ_OclIterate\<^isub>S\<^isub>e\<^isub>t_including[where a = a and A = "Set{a}" and F = "\<lambda>a A. (A->including(a))", simplified flatten_int[OF a_int], OF S_all_int S_all_def a_all_def including_commute a_int])
+  apply(subst EQ_OclIterate\<^isub>S\<^isub>e\<^isub>t_including[where a = a and A = "Set{}" and F = "\<lambda>a A. (A->including(a))", symmetric, OF S_all_int S_all_def mtSet_all_def including_commute a_int])
+  apply(rule iterate_including_id00)
+  apply(rule cons_all_def, simp_all add: S_all_def int_is_valid[OF a_int])
+  apply(simp add: Sa_include)
+ done
+ apply_end simp_all
+
+ fix a'
+ show "a = (\<lambda>_. a') \<Longrightarrow>
+         \<forall>y. (\<lambda>_. a') = (\<lambda>_. y) \<longrightarrow> y = a' \<Longrightarrow> \<exists>a b. a' \<notin> \<lceil>\<lceil>Rep_Set_0 (S (a, b))\<rceil>\<rceil> \<Longrightarrow> (S ->iterate(x;acc=Set{\<lambda>_. a'} | acc->including(x))) = S->including(\<lambda>_. a')"
+  apply(drule gen_all[simplified])
+  apply(subst excluding_id[OF S_all_def, symmetric])
+  prefer 2 apply (simp)
+  apply(drule sym[of a], simp add: a_int)
+  apply(drule sym[of a], simp)
+  apply(subst EQ_OclIterate\<^isub>S\<^isub>e\<^isub>t_including[where a = a and A = "Set{}" and F = "\<lambda>a A. (A->including(a))", symmetric, OF S_all_int S_all_def mtSet_all_def including_commute a_int])
+  apply(rule iterate_including_id00)
+  apply(rule cons_all_def, simp_all add: S_all_def int_is_valid[OF a_int])
+  apply(simp add: Sa_include)
+ done
+ apply_end simp_all
+qed
 
 lemma including_out1 : "((S :: 'a state \<times> 'a state \<Rightarrow> int option option Set_0)->iterate(x;acc=A | acc->including(x)->including(i))) = (S->iterate(x;acc=A | acc->including(x))->including(i))"
 sorry
