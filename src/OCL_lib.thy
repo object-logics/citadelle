@@ -4471,20 +4471,15 @@ proof -
  have zero_int : "is_int \<zero>" by (metis StrictRefEq_int_strict' foundation1 is_int_def null_non_zero ocl_zero_def valid4)
  have nine_int : "is_int \<nine>" by (metis StrictRefEq_int_strict' foundation1 is_int_def null_non_nine ocl_nine_def valid4)
 
+ have commute8: "EQ_comp_fun_commute (\<lambda>x acc. acc->including(\<zero>)->including(x))" sorry
+ have commute7: "EQ_comp_fun_commute (\<lambda>x acc. acc->including(x)->including(\<zero>))" sorry
+ have commute4: "\<And>x acc. \<forall>\<tau>. \<tau> \<Turnstile> \<upsilon> x \<Longrightarrow> EQ_comp_fun_commute (\<lambda>xa acc. acc->including(\<zero>)->including(xa)->including(x))" sorry
+ have commute3: "\<And>x acc. \<forall>\<tau>. \<tau> \<Turnstile> \<upsilon> x \<Longrightarrow> EQ_comp_fun_commute (\<lambda>xa acc. acc->including(\<zero>)->including(x)->including(xa))" sorry
  have commute1: "EQ_comp_fun_commute (\<lambda>x acc. acc ->iterate(j;r2=acc | r2->including(\<zero>)->including(j)->including(x)))" sorry
  have commute2: "EQ_comp_fun_commute (\<lambda>x acc. acc ->iterate(j;r2=acc | r2->including(\<zero>)->including(x)->including(j)))" sorry
- have commute3: "\<And>x acc. \<forall>\<tau>. \<tau> \<Turnstile> \<upsilon> x \<Longrightarrow> EQ_comp_fun_commute (\<lambda>xa acc. acc->including(\<zero>)->including(x)->including(xa))" sorry
- have commute4: "\<And>x acc. \<forall>\<tau>. \<tau> \<Turnstile> \<upsilon> x \<Longrightarrow> EQ_comp_fun_commute (\<lambda>xa acc. acc->including(\<zero>)->including(xa)->including(x))" sorry
  have commute5: "EQ_comp_fun_commute (\<lambda>x acc. acc ->iterate(j;r2=acc | r2->including(\<zero>)->including(j))->including(x))" sorry
  have commute6: "EQ_comp_fun_commute (\<lambda>x acc. acc ->iterate(j;r2=acc | r2->including(j)->including(\<zero>))->including(x))" sorry
- have commute7: "EQ_comp_fun_commute (\<lambda>x acc. acc->including(x)->including(\<zero>))" sorry
- have commute8: "EQ_comp_fun_commute (\<lambda>x acc. acc->including(\<zero>)->including(x))" sorry
  have commute9: "EQ_comp_fun_commute (\<lambda>x acc. acc ->iterate(j;r2=acc | r2->including(j))->including(\<zero>)->including(x))" sorry
- have commute10: "EQ_comp_fun_commute (\<lambda>x acc. acc ->iterate(j;r2=acc | r2->including(j)->including(\<zero>))->including(x))" sorry
- have commute11: "EQ_comp_fun_commute (\<lambda>x acc. acc->including(\<zero>)->including(x))" sorry
- have commute12: "EQ_comp_fun_commute (\<lambda>x acc. acc ->iterate(j;r2=acc | r2->including(j))->including(\<zero>)->including(x))" sorry
- have commute13: "EQ_comp_fun_commute (\<lambda>x acc. acc->including(x)->including(\<zero>))" apply(simp add:EQ_comp_fun_commute_def del: StrictRefEq_set_exec) sorry
- have commute14: "EQ_comp_fun_commute (\<lambda>x acc. acc->including(\<zero>)->including(x))" apply(simp add:EQ_comp_fun_commute_def del: StrictRefEq_set_exec) sorry
 
  have cp1: "\<And>x. cp (\<lambda>r1. r1 ->iterate(j;r2=r1 | r2->including(\<zero>)->including(\<lambda>\<tau>. x)->including(j)))" sorry
  have cp2: "\<And>x acc j. \<tau> \<Turnstile> \<upsilon> x \<Longrightarrow> all_defined \<tau> acc \<Longrightarrow> cp (\<lambda>acc. acc->including(\<zero>)->including(x)->including(\<lambda>\<tau>. j))" sorry
@@ -4554,29 +4549,29 @@ proof -
   apply(rule including_swap) apply(simp add: all_defined1) apply(simp) apply(simp only: foundation20, simp)
   (* *)
   apply(subst iterate_subst_set''[where G = "\<lambda>i r1. r1 ->iterate(j;r2=r1 | r2->including(j))->including(\<zero>)->including(i)"])
-   apply(simp add: all_defined_68 all_defined_9 commute9 commute10 cp6 all_def_10 all_def_11 del: StrictRefEq_set_exec)
-   apply(simp add: all_defined_68 all_defined_9 commute9 commute10 cp6 all_def_10 all_def_11 del: StrictRefEq_set_exec)
+   apply(simp add: all_defined_68 all_defined_9 commute9 commute6 cp6 all_def_10 all_def_11 del: StrictRefEq_set_exec)
+   apply(simp add: all_defined_68 all_defined_9 commute9 commute6 cp6 all_def_10 all_def_11 del: StrictRefEq_set_exec)
    apply(simp add: set9_notempty)
-   apply(simp add: all_defined_68 all_defined_9 commute9 commute10 cp6 all_def_10 all_def_11 del: StrictRefEq_set_exec)
-   apply(simp add: all_defined_68 all_defined_9 commute9 commute10 cp6 all_def_10 all_def_11 del: StrictRefEq_set_exec)
+   apply(simp add: all_defined_68 all_defined_9 commute9 commute6 cp6 all_def_10 all_def_11 del: StrictRefEq_set_exec)
+   apply(simp add: all_defined_68 all_defined_9 commute9 commute6 cp6 all_def_10 all_def_11 del: StrictRefEq_set_exec)
   apply(rule including_subst_set)
   apply(rule including_out1)
   apply(blast) apply(blast) apply(blast)
   apply(simp add: zero_int)
   (* *)
   apply(subst iterate_subst_set[where G = "\<lambda>i r1. r1->including(\<zero>)->including(i)"])
-   apply(simp add: all_defined_68 all_defined_9 commute11 commute12 cp7 all_def_12 all_def_13 del: StrictRefEq_set_exec)
-   apply(simp add: all_defined_68 all_defined_9 commute11 commute12 cp7 all_def_12 all_def_13 del: StrictRefEq_set_exec)
-   apply(simp add: all_defined_68 all_defined_9 commute11 commute12 cp7 all_def_12 all_def_13 del: StrictRefEq_set_exec)
-   apply(simp add: all_defined_68 all_defined_9 commute11 commute12 cp7 all_def_12 all_def_13 del: StrictRefEq_set_exec)
+   apply(simp add: all_defined_68 all_defined_9 commute8 commute9 cp7 all_def_12 all_def_13 del: StrictRefEq_set_exec)
+   apply(simp add: all_defined_68 all_defined_9 commute8 commute9 cp7 all_def_12 all_def_13 del: StrictRefEq_set_exec)
+   apply(simp add: all_defined_68 all_defined_9 commute8 commute9 cp7 all_def_12 all_def_13 del: StrictRefEq_set_exec)
+   apply(simp add: all_defined_68 all_defined_9 commute8 commute9 cp7 all_def_12 all_def_13 del: StrictRefEq_set_exec)
   apply(rule including_subst_set)+
   apply(rule iterate_including_id) apply(blast)+ apply(simp add: all_def_subset)
   (* *)
   apply(subst iterate_subst_set[where G = "\<lambda>i r1. r1->including(i)->including(\<zero>)"])
-   apply(simp add: all_defined_68 all_defined_9 commute13 commute14 cp8 all_def_14 all_def_15 del: StrictRefEq_set_exec)
-   apply(simp add: all_defined_68 all_defined_9 commute13 commute14 cp8 all_def_14 all_def_15 del: StrictRefEq_set_exec)
-   apply(simp add: all_defined_68 all_defined_9 commute13 commute14 cp8 all_def_14 all_def_15 del: StrictRefEq_set_exec)
-   apply(simp add: all_defined_68 all_defined_9 commute13 commute14 cp8 all_def_14 all_def_15 del: StrictRefEq_set_exec)
+   apply(simp add: all_defined_68 all_defined_9 commute7 commute8 cp8 all_def_14 all_def_15 del: StrictRefEq_set_exec)
+   apply(simp add: all_defined_68 all_defined_9 commute7 commute8 cp8 all_def_14 all_def_15 del: StrictRefEq_set_exec)
+   apply(simp add: all_defined_68 all_defined_9 commute7 commute8 cp8 all_def_14 all_def_15 del: StrictRefEq_set_exec)
+   apply(simp add: all_defined_68 all_defined_9 commute7 commute8 cp8 all_def_14 all_def_15 del: StrictRefEq_set_exec)
   apply(rule including_swap) apply(simp add: all_defined1) apply(simp) apply(simp only: foundation20, simp)
   (* *)
   apply(subst including_out1)
