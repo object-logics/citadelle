@@ -3149,7 +3149,7 @@ proof -
                                 all_int_set ((\<lambda>a \<tau>. a) ` \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>)"
   apply(simp add: all_defined_def all_defined_set_def all_int_set_def is_int_def defined_def OclValid_def)
  by (metis (no_types) OclValid_def foundation18' true_def)
- 
+
 
  have S_all_int : "\<And>\<tau>. all_int_set ((\<lambda>a \<tau>. a) ` \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>)"
  by(rule all_def_to_all_int, simp add: assms)
@@ -3249,7 +3249,7 @@ proof -
    apply(subgoal_tac "all_defined \<tau>2 (Finite_Set.fold G A ((\<lambda>a \<tau>. a) ` Fa))") prefer 2 apply(metis surj_pair)
    apply(simp add: all_defined_def all_defined_set_def)
    apply (metis (no_types) foundation16 foundation18')
-   apply(simp) 
+   apply(simp)
 
   apply(rule conjI, rule allI)
   apply(erule conjE)+
@@ -3312,7 +3312,7 @@ proof -
                                 all_int_set ((\<lambda>a \<tau>. a) ` \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>)"
   apply(simp add: all_defined_def all_defined_set_def all_int_set_def is_int_def defined_def OclValid_def)
  by (metis (no_types) OclValid_def foundation18' true_def)
- 
+
 
  have S_all_int : "\<And>\<tau>. all_int_set ((\<lambda>a \<tau>. a) ` \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>)"
  by(rule all_def_to_all_int, simp add: assms)
@@ -3584,6 +3584,13 @@ proof -
  qed
 qed
 
+lemma including_cp_gen : "cp f \<Longrightarrow> cp (\<lambda>r2. ((f r2)->including(x)))"
+ apply(unfold cp_def)
+ apply(subst cp_OclIncluding[of _ x])
+ apply(drule exE) prefer 2 apply assumption
+ apply(rule_tac x = "\<lambda> X_\<tau> \<tau>. ((\<lambda>_. fa X_\<tau> \<tau>)->including(\<lambda>_. x \<tau>)) \<tau>" in exI, simp)
+done
+
 lemma including_cp : "cp (\<lambda>r2. (r2->including(x)))"
  apply(unfold cp_def)
  apply(subst cp_OclIncluding[of _ x])
@@ -3596,11 +3603,17 @@ lemma including_cp' : "cp (OclIncluding S)"
  apply(rule_tac x = "\<lambda> X_\<tau> \<tau>. ((\<lambda>_. S \<tau>)->including(\<lambda>_. X_\<tau>)) \<tau>" in exI, simp)
 done
 
-lemma including_cp2 : "cp (\<lambda>r2. (r2->including(x))->including(y))"
+lemma including_cp''' : "cp (OclIncluding S->including(i)->including(j))"
  apply(unfold cp_def)
- apply(subst cp_OclIncluding[of _ y], subst cp_OclIncluding[of _ x])
- apply(rule_tac x = "\<lambda> X_\<tau> \<tau>. ((\<lambda>_. ((\<lambda>_. X_\<tau>)->including(\<lambda>_. x \<tau>)) \<tau>)->including(\<lambda>_. y \<tau>) \<tau>)" in exI, simp)
+ apply(subst cp_OclIncluding)
+ apply(rule_tac x = "\<lambda> X_\<tau> \<tau>. ((\<lambda>_. S->including(i)->including(j) \<tau>)->including(\<lambda>_. X_\<tau>)) \<tau>" in exI, simp)
 done
+
+lemma including_cp2 : "cp (\<lambda>r2. (r2->including(x))->including(y))"
+by(rule including_cp_gen, simp add: including_cp)
+
+lemma including_cp3 : "cp (\<lambda>r2. ((r2->including(x))->including(y))->including(z))"
+by(rule including_cp_gen, simp add: including_cp2)
 
 lemma cons_all_def :
   assumes S_all_def : "\<And>\<tau>. all_defined \<tau> (S :: 'a state \<times> 'a state \<Rightarrow> int option option Set_0)"
@@ -3788,6 +3801,14 @@ proof -
  done
 qed
 
+lemma mtSet_all_def : "\<And>\<tau>. all_defined \<tau> Set{}"
+proof -
+ have B : "\<lfloor>\<lfloor>{}\<rfloor>\<rfloor> \<in> {X. X = bot \<or> X = null \<or> (\<forall>x\<in>\<lceil>\<lceil>X\<rceil>\<rceil>. x \<noteq> bot)}" by(simp add: mtSet_def)
+ show "\<And>\<tau>. ?thesis \<tau>"
+  apply(simp add: all_defined_def all_defined_set_def mtSet_def Abs_Set_0_inverse B)
+ by (metis (no_types) foundation16 mtSet_def mtSet_defined transform1)
+qed
+
 lemma invert_all_defined : "\<And>
    (S :: 'a state \<times> 'a state \<Rightarrow> int option option Set_0)
    (x :: 'a state \<times> 'a state \<Rightarrow> int option option) \<tau>.
@@ -3825,38 +3846,321 @@ lemma invert_all_defined : "\<And>
   done
 qed
 
-lemma mtSet_all_def : "\<And>\<tau>. all_defined \<tau> Set{}"
+lemma including_cp_all :
+ assumes x_int : "is_int x"
+     and S_def : "\<And>\<tau>. \<tau> \<Turnstile> \<delta> S"
+     and S_incl : "S \<tau>1 = S \<tau>2"
+   shows  "S->including(x) \<tau>1 = S->including(x) \<tau>2"
 proof -
- have B : "\<lfloor>\<lfloor>{}\<rfloor>\<rfloor> \<in> {X. X = bot \<or> X = null \<or> (\<forall>x\<in>\<lceil>\<lceil>X\<rceil>\<rceil>. x \<noteq> bot)}" by(simp add: mtSet_def)
- show "\<And>\<tau>. ?thesis \<tau>"
-  apply(simp add: all_defined_def all_defined_set_def mtSet_def Abs_Set_0_inverse B)
- by (metis (no_types) foundation16 mtSet_def mtSet_defined transform1)
+ have all_defined1 : "\<And>r2 \<tau>. all_defined \<tau> r2 \<Longrightarrow> \<tau> \<Turnstile> \<delta> r2" by(simp add: all_defined_def)
+ show ?thesis
+  apply(unfold OclIncluding_def)
+  apply(simp add:  S_def[simplified OclValid_def] int_is_valid[OF x_int, simplified OclValid_def] S_incl)
+  apply(subgoal_tac "x \<tau>1 = x \<tau>2", simp)
+  apply(insert x_int[simplified is_int_def, THEN spec, of \<tau>1, THEN conjunct2, THEN spec], simp)
+ done
+qed
+
+lemma including_notempty :
+  assumes S_def : "\<tau> \<Turnstile> \<delta> S"
+      and x_val : "\<tau> \<Turnstile> \<upsilon> x"
+      and S_notempty : "\<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil> \<noteq> {}"
+    shows "\<lceil>\<lceil>Rep_Set_0 (S->including(x) \<tau>)\<rceil>\<rceil> \<noteq> {}"
+proof -
+ have insert_in_Set_0 : "\<And>\<tau>. (\<tau> \<Turnstile>(\<delta> S)) \<Longrightarrow> (\<tau> \<Turnstile>(\<upsilon> x)) \<Longrightarrow> \<lfloor>\<lfloor>insert (x \<tau>) \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>\<rfloor>\<rfloor> \<in> {X. X = bot \<or> X = null \<or> (\<forall>x\<in>\<lceil>\<lceil>X\<rceil>\<rceil>. x \<noteq> bot)}"
+          apply(frule Set_inv_lemma)
+          apply(simp add: bot_option_def null_Set_0_def null_fun_def
+                          foundation18 foundation16 invalid_def)
+          done
+ show ?thesis
+  apply(unfold OclIncluding_def)
+  apply(simp add: S_def[simplified OclValid_def] x_val[simplified OclValid_def] Abs_Set_0_inverse[OF insert_in_Set_0[OF S_def x_val]])
+ done
+qed
+
+lemma including_notempty' :
+  assumes x_val : "\<tau> \<Turnstile> \<upsilon> x"
+    shows "\<lceil>\<lceil>Rep_Set_0 (Set{x} \<tau>)\<rceil>\<rceil> \<noteq> {}"
+proof -
+ have insert_in_Set_0 : "\<And>S \<tau>. (\<tau> \<Turnstile>(\<delta> S)) \<Longrightarrow> (\<tau> \<Turnstile>(\<upsilon> x)) \<Longrightarrow> \<lfloor>\<lfloor>insert (x \<tau>) \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>\<rfloor>\<rfloor> \<in> {X. X = bot \<or> X = null \<or> (\<forall>x\<in>\<lceil>\<lceil>X\<rceil>\<rceil>. x \<noteq> bot)}"
+          apply(frule Set_inv_lemma)
+          apply(simp add: bot_option_def null_Set_0_def null_fun_def
+                          foundation18 foundation16 invalid_def)
+          done
+ show ?thesis
+  apply(unfold OclIncluding_def)
+  apply(simp add: x_val[simplified OclValid_def])
+  apply(subst Abs_Set_0_inverse)
+  apply(rule insert_in_Set_0)
+  apply(simp add: mtSet_all_def)
+  apply(simp_all add: x_val)
+ done
+qed
+
+lemma including_commute_gen_var :
+  assumes f_comm : "EQ_comp_fun_commute F"
+      and f_out : "\<And>x y S \<tau>. \<tau> \<Turnstile> \<delta> S \<Longrightarrow> \<tau> \<Turnstile> \<upsilon> x \<Longrightarrow> \<tau> \<Turnstile> \<upsilon> y \<Longrightarrow> F x (S->including(y)) \<tau> = (F x S)->including(y) \<tau>"
+      and a_int : "is_int a"
+    shows "EQ_comp_fun_commute (\<lambda>j r2. ((F j r2)->including(a)))"
+proof -
+ interpret EQ_comp_fun_commute F by (rule f_comm)
+
+ have f_cp : "\<And>x y \<tau>. F x y \<tau> = F (\<lambda>_. x \<tau>) (\<lambda>_. y \<tau>) \<tau>"
+ by (metis F_cp F_cp_set)
+
+ have all_defined1 : "\<And>r2 \<tau>. all_defined \<tau> r2 \<Longrightarrow> \<tau> \<Turnstile> \<delta> r2" by(simp add: all_defined_def)
+
+ show ?thesis
+  apply(simp only: EQ_comp_fun_commute_def)
+  apply(rule conjI)+
+  apply(rule allI)
+
+  proof - fix x show "cp (\<lambda>r2. ((F x r2)->including(a)))"
+  apply(simp only: cp_def)
+  apply(simp only: cp_OclIncluding[of _ a] f_cp[of x])
+  apply(rule_tac x = "\<lambda> X_\<tau> \<tau>. (\<lambda>_. (F (\<lambda>_. x \<tau>) (\<lambda>_. X_\<tau>) \<tau>)->including(\<lambda>_. a \<tau>)) \<tau>" in exI, simp)
+  done
+  apply_end(rule conjI)+ apply_end(rule allI)
+
+  fix S show "cp (\<lambda>x. (F x S)->including(a))"
+  apply(simp only: cp_def)
+  apply(subst cp_OclIncluding, subst f_cp)
+  apply(rule_tac x = "\<lambda> X_\<tau> \<tau>. (\<lambda>_. F (\<lambda>_. X_\<tau>) (\<lambda>_. S \<tau>) \<tau>->including(\<lambda>_. a \<tau>)) \<tau>" in exI, simp)
+  done
+  apply_end(rule allI)+ apply_end(rule impI)+
+  fix x :: "'a state \<times> 'a state \<Rightarrow> int option option" fix S :: "'a state \<times> 'a state \<Rightarrow> int option option Set_0" fix \<tau>1 \<tau>2
+  show "is_int x \<Longrightarrow> \<forall>\<tau>. all_defined \<tau> S \<Longrightarrow> S \<tau>1 = S \<tau>2 \<Longrightarrow> ((F x S)->including(a)) \<tau>1 = ((F x S)->including(a)) \<tau>2"
+   apply(subgoal_tac "x \<tau>1 = x \<tau>2") prefer 2 apply (simp add: is_int_def) apply(metis surj_pair)
+   apply(subgoal_tac "\<And>\<tau>. all_defined \<tau> (F x S)") prefer 2 apply(rule all_def[THEN iffD2], simp only: int_is_valid, blast)
+   apply(subst including_cp_all[of _ _ \<tau>1 \<tau>2]) apply(simp add: a_int) apply(rule all_defined1, blast)
+   apply(rule cp_gen, simp, blast, simp)
+   apply(simp)
+  done
+  apply_end(simp) apply_end(simp) apply_end(simp) apply_end(rule conjI)
+  apply_end(rule allI)+ apply_end(rule impI)+
+
+  apply_end(rule including_notempty)
+  apply_end(rule all_defined1)
+  apply_end(simp add: all_def, metis surj_pair, simp)
+  apply_end(simp add: int_is_valid[OF a_int])
+  apply_end(rule notempty, blast, simp, simp)
+
+  apply_end(rule conjI) apply_end(rule allI)+
+  apply_end(rule iffI)
+  apply_end(drule invert_all_defined, simp add: all_def)
+  apply_end(rule cons_all_def', simp add: all_def)
+  apply_end(simp add: int_is_valid[OF a_int])
+
+  apply_end(rule allI)+ apply_end(rule impI)+
+
+  fix x y S \<tau> show "\<tau> \<Turnstile> \<upsilon> x \<Longrightarrow> \<tau> \<Turnstile> \<upsilon> y \<Longrightarrow> all_defined \<tau> S \<Longrightarrow>
+  (F y ((F x S)->including(a)))->including(a) \<tau> =
+  (F x ((F y S)->including(a)))->including(a) \<tau>"
+   apply(rule including_subst_set'')
+   apply(rule all_defined1)
+   apply(simp add: all_def, rule cons_all_def', simp add: all_def)
+   apply(simp add: int_is_valid[OF a_int])
+   apply(rule all_defined1)
+   apply(simp add: all_def, rule cons_all_def', simp add: all_def)
+   apply(simp add: int_is_valid[OF a_int])+
+   apply(subst f_out)
+   apply(rule all_defined1, simp add: all_def, simp)
+   apply(simp add: int_is_valid[OF a_int])
+   apply(subst cp_OclIncluding)
+   apply(subst commute, simp_all add: cp_OclIncluding[symmetric] f_out[symmetric])
+   apply(subst f_out[symmetric])
+   apply(rule all_defined1, simp add: all_def, simp)
+   apply(simp add: int_is_valid[OF a_int])
+   apply(simp)
+  done
+  apply_end(simp)+
+ qed
 qed
 
 lemma including_commute : "EQ_comp_fun_commute (\<lambda>j r2. (r2->including(j)))"
-sorry
+proof -
+ have all_defined1 : "\<And>r2 \<tau>. all_defined \<tau> r2 \<Longrightarrow> \<tau> \<Turnstile> \<delta> r2" by(simp add: all_defined_def)
+ show ?thesis
+  apply(simp only: EQ_comp_fun_commute_def including_cp including_cp')
+  apply(rule conjI, rule conjI, simp) apply(rule conjI, simp) apply(rule allI)+
+  apply(rule impI)+
+  apply(rule including_cp_all) apply(simp) apply(rule all_defined1, blast) apply(simp)
+  apply(rule conjI) apply(rule allI)+
+  apply(rule impI)+ apply(rule including_notempty) apply(rule all_defined1, blast) apply(simp) apply(simp)
+  apply(rule conjI) apply(rule allI)+
+  apply(rule iff[THEN mp, THEN mp], rule impI)
+  apply(rule invert_all_defined, simp)
+  apply(rule impI, rule cons_all_def') apply(simp) apply(simp)
+  apply(rule allI)+ apply(rule impI)+
+  apply(rule including_swap', simp_all add: all_defined_def)
+ done
+qed
 
 lemma including_commute2 :
  assumes i_int : "is_int i"
    shows "EQ_comp_fun_commute (\<lambda>x acc. ((acc->including(x))->including(i)))"
-sorry
+ apply(rule including_commute_gen_var)
+ apply(rule including_commute)
+ apply(rule including_swap', simp_all add: i_int)
+done
 
 lemma including_commute3 :
  assumes i_int : "is_int i"
    shows "EQ_comp_fun_commute (\<lambda>x acc. acc->including(i)->including(x))"
-sorry
+proof -
+ have all_defined1 : "\<And>r2 \<tau>. all_defined \<tau> r2 \<Longrightarrow> \<tau> \<Turnstile> \<delta> r2" by(simp add: all_defined_def)
+ have i_val : "\<And>\<tau>. \<tau> \<Turnstile> \<upsilon> i" by (simp add: int_is_valid[OF i_int])
+ show ?thesis
+  apply(simp only: EQ_comp_fun_commute_def including_cp2 including_cp')
+  apply(rule conjI, rule conjI, simp) apply(rule conjI, simp) apply(rule allI)+
+  apply(rule impI)+
+  apply(rule including_cp_all) apply(simp) apply (metis (hide_lams, no_types) all_defined1 foundation10 foundation6 i_val including_defined_args_valid')
+  apply(rule including_cp_all) apply(simp add: i_int) apply(rule all_defined1, blast) apply(simp)
+  apply(rule conjI) apply(rule allI)+
+
+  apply(rule impI)+
+  apply(rule including_notempty) apply (metis (hide_lams, no_types) all_defined1 foundation10 foundation6 i_val including_defined_args_valid') apply(simp)
+  apply(rule including_notempty) apply(rule all_defined1, blast) apply(simp add: i_val) apply(simp)
+  apply(rule conjI) apply(rule allI)+
+
+  apply(rule iff[THEN mp, THEN mp], rule impI)
+  apply(drule invert_all_defined, drule conjE) prefer 2 apply assumption
+  apply(drule invert_all_defined, drule conjE) prefer 2 apply assumption
+  apply(simp)
+
+  apply(rule impI, rule cons_all_def', rule cons_all_def') apply(simp) apply(simp add: i_val) apply(simp)
+  apply(rule allI)+ apply(rule impI)+
+  apply(subst including_swap')
+   apply(metis (hide_lams, no_types) all_defined1 cons_all_def' i_val)
+   apply(simp add: i_val)
+   apply(simp)
+  apply(rule sym)
+  apply(subst including_swap')
+   apply(metis (hide_lams, no_types) all_defined1 cons_all_def' i_val)
+   apply(simp add: i_val)
+   apply(simp)
+
+  apply(rule including_subst_set'')
+   apply(rule all_defined1)
+   apply(rule cons_all_def')+ apply(simp_all add: i_val)
+   apply(insert i_val) apply (metis (hide_lams, no_types) all_defined1 foundation10 foundation6)
+  apply(subst including_swap')
+  apply(metis (hide_lams, no_types) all_defined1 cons_all_def')
+  apply(simp)+
+ done
+qed
 
 lemma including_commute4 :
  assumes i_int : "is_int i"
      and j_int : "is_int j"
    shows "EQ_comp_fun_commute (\<lambda>x acc. acc->including(i)->including(x)->including(j))"
-sorry
+proof -
+ have all_defined1 : "\<And>r2 \<tau>. all_defined \<tau> r2 \<Longrightarrow> \<tau> \<Turnstile> \<delta> r2" by(simp add: all_defined_def)
+ have i_val : "\<And>\<tau>. \<tau> \<Turnstile> \<upsilon> i" by (simp add: int_is_valid[OF i_int])
+ have j_val : "\<And>\<tau>. \<tau> \<Turnstile> \<upsilon> j" by (simp add: int_is_valid[OF j_int])
+ show ?thesis
+  apply(rule including_commute_gen_var)
+  apply(rule including_commute3)
+  apply(simp_all add: i_int j_int)
+  apply(subgoal_tac " S->including(y)->including(i)->including(x) \<tau> = S->including(i)->including(y)->including(x) \<tau>")
+  prefer 2
+  apply(rule including_subst_set'')
+  apply (metis (hide_lams, no_types) foundation10 foundation6 i_val including_defined_args_valid')+
+  apply(rule including_swap', simp_all add: i_val)
+  apply(rule including_swap')
+  apply (metis (hide_lams, no_types) foundation10 foundation6 i_val including_defined_args_valid')+
+ done
+qed
 
 lemma including_commute5 :
  assumes i_int : "is_int i"
      and j_int : "is_int j"
    shows "EQ_comp_fun_commute (\<lambda>x acc. acc->including(x)->including(j)->including(i))"
-sorry
+proof -
+ have all_defined1 : "\<And>r2 \<tau>. all_defined \<tau> r2 \<Longrightarrow> \<tau> \<Turnstile> \<delta> r2" by(simp add: all_defined_def)
+ have i_val : "\<And>\<tau>. \<tau> \<Turnstile> \<upsilon> i" by (simp add: int_is_valid[OF i_int])
+ have j_val : "\<And>\<tau>. \<tau> \<Turnstile> \<upsilon> j" by (simp add: int_is_valid[OF j_int])
+ show ?thesis
+  apply(rule including_commute_gen_var)+
+  apply(simp add: including_commute)
+  apply(rule including_swap', simp_all add: i_int j_int)
+  apply(subgoal_tac " S->including(y)->including(x)->including(j) \<tau> = S->including(x)->including(y)->including(j) \<tau>")
+  prefer 2
+  apply(rule including_subst_set'')
+  apply (metis (hide_lams, no_types) foundation10 foundation6 j_val including_defined_args_valid')+
+  apply(rule including_swap', simp_all)
+  apply(rule including_swap')
+  apply (metis (hide_lams, no_types) foundation10 foundation6 j_val including_defined_args_valid')+
+ done
+qed
+
+lemma including_commute6 :
+ assumes i_int : "is_int i"
+     and j_int : "is_int j"
+   shows "EQ_comp_fun_commute (\<lambda>x acc. acc->including(i)->including(j)->including(x))"
+proof -
+ have all_defined1 : "\<And>r2 \<tau>. all_defined \<tau> r2 \<Longrightarrow> \<tau> \<Turnstile> \<delta> r2" by(simp add: all_defined_def)
+ have i_val : "\<And>\<tau>. \<tau> \<Turnstile> \<upsilon> i" by (simp add: int_is_valid[OF i_int])
+ have j_val : "\<And>\<tau>. \<tau> \<Turnstile> \<upsilon> j" by (simp add: int_is_valid[OF j_int])
+ show ?thesis
+  apply(simp only: EQ_comp_fun_commute_def including_cp3 including_cp''')
+  apply(rule conjI, rule conjI, simp) apply(rule conjI, simp) apply(rule allI)+
+  apply(rule impI)+
+  apply(rule including_cp_all) apply(simp) apply (metis (hide_lams, no_types) all_defined1 cons_all_def i_val j_val)
+  apply(rule including_cp_all) apply(simp) apply(simp add: j_int)  apply (metis (hide_lams, no_types) all_defined1 cons_all_def i_val)
+  apply(rule including_cp_all) apply(simp) apply(simp add: i_int) apply(rule all_defined1, blast) apply(simp)
+  apply(rule conjI) apply(rule allI)+
+
+  apply(rule impI)+
+  apply(rule including_notempty)  apply (metis (hide_lams, no_types) all_defined1 cons_all_def i_val j_val) apply(simp)
+  apply(rule including_notempty)  apply (metis (hide_lams, no_types) all_defined1 cons_all_def i_val)  apply(simp add: j_val)
+  apply(rule including_notempty) apply(rule all_defined1, blast) apply(simp add: i_val) apply(simp)
+  apply(rule conjI) apply(rule allI)+
+
+  apply(rule iff[THEN mp, THEN mp], rule impI)
+  apply(drule invert_all_defined, drule conjE) prefer 2 apply assumption
+  apply(drule invert_all_defined, drule conjE) prefer 2 apply assumption
+  apply(drule invert_all_defined, drule conjE) prefer 2 apply assumption
+  apply(simp)
+
+  apply(rule impI, rule cons_all_def', rule cons_all_def', rule cons_all_def') apply(simp) apply(simp add: i_val) apply(simp add: j_val) apply(simp)
+  apply(rule allI)+ apply(rule impI)+
+
+  apply(subst including_swap')
+   apply(metis (hide_lams, no_types) all_defined1 cons_all_def' i_val j_val)
+   apply(simp add: j_val)
+   apply(simp)
+  apply(rule sym)
+  apply(subst including_swap')
+   apply(metis (hide_lams, no_types) all_defined1 cons_all_def' i_val j_val)
+   apply(simp add: j_val)
+   apply(simp)
+
+  apply(rule including_subst_set'')
+   apply(rule all_defined1)
+   apply(rule cons_all_def')+ apply(simp_all add: i_val j_val)
+   apply(insert i_val j_val) apply (metis (hide_lams, no_types) all_defined1 foundation10 foundation6)
+
+  apply(subst including_swap')
+   apply(metis (hide_lams, no_types) all_defined1 cons_all_def' i_val)
+   apply(simp add: i_val)
+   apply(simp)
+  apply(rule sym)
+  apply(subst including_swap')
+   apply(metis (hide_lams, no_types) all_defined1 cons_all_def' i_val)
+   apply(simp add: i_val)
+   apply(simp)
+
+  apply(rule including_subst_set'')
+   apply(rule all_defined1)
+   apply(rule cons_all_def')+ apply(simp_all add: i_val j_val)
+   apply(insert i_val j_val) apply (metis (hide_lams, no_types) all_defined1 foundation10 foundation6)
+
+  apply(subst including_swap')
+  apply(metis (hide_lams, no_types) all_defined1 cons_all_def')
+  apply(simp)+
+ done
+qed
 
 lemma i_including_id :
  assumes S_all_def : "\<And>\<tau>. all_defined \<tau> (S :: 'a state \<times> 'a state \<Rightarrow> int option option Set_0)"
@@ -4781,20 +5085,32 @@ proof -
  have eight_int : "is_int \<eight>" by (metis StrictRefEq_int_strict' foundation1 is_int_def null_non_eight ocl_eight_def valid4)
  have nine_int : "is_int \<nine>" by (metis StrictRefEq_int_strict' foundation1 is_int_def null_non_nine ocl_nine_def valid4)
 
- have commute8: "EQ_comp_fun_commute (\<lambda>x acc. acc->including(\<zero>)->including(x))" sorry
- have commute7: "EQ_comp_fun_commute (\<lambda>x acc. acc->including(x)->including(\<zero>))" sorry
- have commute4: "\<And>x acc. is_int x \<Longrightarrow> EQ_comp_fun_commute (\<lambda>xa acc. acc->including(\<zero>)->including(xa)->including(x))" sorry
- have commute3: "\<And>x acc. is_int x \<Longrightarrow> EQ_comp_fun_commute (\<lambda>xa acc. acc->including(\<zero>)->including(x)->including(xa))" sorry
+ have commute8: "EQ_comp_fun_commute (\<lambda>x acc. acc->including(\<zero>)->including(x))" apply(rule including_commute3) by (simp add: zero_int)
+ have commute7: "EQ_comp_fun_commute (\<lambda>x acc. acc->including(x)->including(\<zero>))" apply(rule including_commute2) by (simp add: zero_int)
+ have commute4: "\<And>x acc. is_int x \<Longrightarrow> EQ_comp_fun_commute (\<lambda>xa acc. acc->including(\<zero>)->including(xa)->including(x))" apply(rule including_commute4) by(simp add: zero_int, blast)
+ have commute3: "\<And>x acc. is_int x \<Longrightarrow> EQ_comp_fun_commute (\<lambda>xa acc. acc->including(\<zero>)->including(x)->including(xa))" apply(rule including_commute6) by(simp add: zero_int, blast)
  have commute1: "EQ_comp_fun_commute (\<lambda>x acc. acc ->iterate(j;r2=acc | r2->including(\<zero>)->including(j)->including(x)))" sorry
  have commute2: "EQ_comp_fun_commute (\<lambda>x acc. acc ->iterate(j;r2=acc | r2->including(\<zero>)->including(x)->including(j)))" sorry
  have commute5: "EQ_comp_fun_commute (\<lambda>x acc. acc ->iterate(j;r2=acc | r2->including(\<zero>)->including(j))->including(x))" sorry
  have commute6: "EQ_comp_fun_commute (\<lambda>x acc. acc ->iterate(j;r2=acc | r2->including(j)->including(\<zero>))->including(x))" sorry
  have commute9: "EQ_comp_fun_commute (\<lambda>x acc. acc ->iterate(j;r2=acc | r2->including(j))->including(\<zero>)->including(x))" sorry
 
- have set68_notempty : "\<And>(\<tau>:: 'a state \<times> 'a state). \<lceil>\<lceil>Rep_Set_0 (Set{\<six>, \<eight>} \<tau>)\<rceil>\<rceil> \<noteq> {}" sorry
- have set9_notempty : "\<And>(\<tau>:: 'a state \<times> 'a state). \<lceil>\<lceil>Rep_Set_0 (Set{\<nine>} \<tau>)\<rceil>\<rceil> \<noteq> {}" sorry
- have set68_cp : "\<And>(\<tau>:: 'a state \<times> 'a state) (\<tau>':: 'a state \<times> 'a state). Set{\<six>, \<eight>} \<tau> = Set{\<six>, \<eight>} \<tau>'" sorry
- have set9_cp : "\<And>(\<tau>1:: 'a state \<times> 'a state) (\<tau>2:: 'a state \<times> 'a state). Set{\<nine>} \<tau>1 = Set{\<nine>} \<tau>2" sorry
+ have set68_notempty : "\<And>(\<tau>:: 'a state \<times> 'a state). \<lceil>\<lceil>Rep_Set_0 (Set{\<six>, \<eight>} \<tau>)\<rceil>\<rceil> \<noteq> {}"
+  apply(rule including_notempty)
+  apply(simp add: mtSet_all_def)
+  apply(simp add: int_is_valid)
+  apply(rule including_notempty')
+ by(simp add: int_is_valid)
+ have set9_notempty : "\<And>(\<tau>:: 'a state \<times> 'a state). \<lceil>\<lceil>Rep_Set_0 (Set{\<nine>} \<tau>)\<rceil>\<rceil> \<noteq> {}"
+  apply(rule including_notempty')
+ by(simp add: int_is_valid)
+ have set68_cp : "\<And>(\<tau>:: 'a state \<times> 'a state) (\<tau>':: 'a state \<times> 'a state). Set{\<six>, \<eight>} \<tau> = Set{\<six>, \<eight>} \<tau>'"
+  apply(rule including_cp_all) apply(simp add: six_int) apply(simp add: mtSet_all_def)
+  apply(rule including_cp_all) apply(simp add: eight_int) apply(simp add: mtSet_all_def)
+ by (simp add: mtSet_def)
+ have set9_cp : "\<And>(\<tau>1:: 'a state \<times> 'a state) (\<tau>2:: 'a state \<times> 'a state). Set{\<nine>} \<tau>1 = Set{\<nine>} \<tau>2"
+  apply(rule including_cp_all) apply(simp add: nine_int) apply(simp add: mtSet_all_def)
+ by (simp add: mtSet_def)
 
  show ?thesis
   (* *)
