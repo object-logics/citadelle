@@ -118,7 +118,7 @@ classical logic based on a simple type system.  It provides the usual
 logical connectives like $\_ \land \_$, $\_ \implies\_$, $\lnot \_ $
 as well as the object-logical quantifiers $\forall x\spot P\ap x$ and
 $\exists x\spot P\ap x$; in contrast to first-order logic, quantifiers
-my range over arbitrary types, including total functions
+may range over arbitrary types, including total functions
 $f\ofType\alpha \Rightarrow \beta$. \HOL is centered around
 extensional equality $\_ = \_ \ofType \alpha \Rightarrow \alpha
 \Rightarrow \text{bool}$.  \HOL is more expressive than first-order
@@ -131,12 +131,12 @@ types.
 
 Isabelle/\HOL is a logical embedding of \HOL into Isabelle.  The
 (original) simple-type system underlying \HOL has been extended by
-Hindley/Milner style polymorphism with type-classes similar to
+Hindley-Milner style polymorphism with type-classes similar to
 Haskell.  While Isabelle/\HOL is usually seen as proof assistant, we
 use it as symbolic computation environment. Implementations on top of
 Isabelle/\HOL can re-use existing powerful deduction mechanisms such
 as higher-order resolution, tableaux-based reasoners, rewriting
-procedures, Presburger Arithmetic, and via various integration
+procedures, Presburger arithmetic, and via various integration
 mechanisms, also external provers such as Vampire and the
 \acs{smt}-solver Z3.
 
@@ -148,11 +148,21 @@ the original theory was consistent.  Conservative extensions can be
   definitions}, \emph{primitive recursive definitions} and
 \emph{wellfounded recursive definitions}.
 
-For example, typed sets were built in the Isabelle libraries
-conservatively on top of the kernel of \HOL as functions to
-$\HolBoolean$; consequently, the constant definitions for membership
-is as follows:\footnote{To increase readability, we use a slightly
-  simplified presentation.}
+For instance, the library includes the type constructor $\up{\tau} :=
+\isasymbottom ~ | ~ \lift{\_} : \alpha$ that assigns to each type
+$\tau$ a type $\up{\tau}$ \emph{disjointly extended} by the
+exceptional element $\isasymbottom$\index{undefinedness lifting}. The
+function $\drop{\_} : \up{\alpha} \to \alpha$ is the inverse of
+$\lift{\_}$ (unspecified for $\isasymbottom$). Partial functions
+$\alpha \isasymrightharpoonup \beta$ are defined as functions $\alpha
+\isasymRightarrow \up{\beta}$ supporting the usual concepts of domain
+($\dom\;\_$) and range ($\ran\;\_$).
+
+As another example of a conservative extension, typed sets were built
+in the Isabelle libraries conservatively on top of the kernel of \HOL
+as functions to $\HolBoolean$; consequently, the constant definitions
+for membership is as follows:\footnote{To increase readability, we use
+  a slightly simplified presentation.}
 \begin{gather}
   \begin{array}{lrll}
     \types& \alpha \HolSet            &= \alpha \Rightarrow \HolBoolean\\[.5ex]
@@ -171,12 +181,12 @@ notation $s \in S$ for $\operatorname{member}\ap s\ap S$. As can be
 inferred from the example, constant definitions are axioms that
 introduce a fresh constant symbol by some closed, non-recursive
 expressions; this type of axiom is logically safe since it works
-like an abbreviation. The syntactic side-conditions of this axiom are
-mechanically checked, of course. It is straight-forward to express the
+like an abbreviation. The syntactic side conditions of this axiom are
+mechanically checked, of course. It is straightforward to express the
 usual operations on sets like $\_ \cup \_,
 \_\cap\_\ofType\HolSet{\alpha} \Rightarrow \HolSet{\alpha} \Rightarrow
 \HolSet{\alpha}$ as conservative extensions, too, while the rules of
-typed set-theory were derived by proofs from these definitions.
+typed set theory were derived by proofs from these definitions.
 
 Similarly, a logical compiler is invoked for the following statements introducing
 the types option and list:
@@ -190,15 +200,20 @@ the types option and list:
 Here, $[]$ or $a\#l$ are an alternative syntax for $\operatorname{Nil}$
 or $\operatorname{Cons}\ap a ~l$; moreover, $[a, b, c]$ is defined as
 alternative syntax for $a\#b\#c\#[]$. These (recursive) statements
-were internally represented in by internal type- and constant
+were internally represented in by internal type and constant
 definitions. Besides the \emph{constructors} $\HolNone$, $\HolSome$,
-$[]$ and $\operatorname{Cons}$, there is the match-operation
-$\HolCase\ap x\ap\HolOf~\HolNone \isasymRightarrow F\ap \mid
-\HolSome{a} \isasymRightarrow G\ap a$ respectively $\HolCase\ap
-x\ap\HolOf~[] \isasymRightarrow F\ap \mid \operatorname{Cons}\ap a\ap
-r \isasymRightarrow G\ap a\ap r$.  From the internal definitions (not
-shown here) a number and properties were automatically derived. We
-show only the case for lists:
+$[]$ and $\operatorname{Cons}$, there is the match operation
+\begin{gather}
+\HolCase\ap x\ap\HolOf~\HolNone \isasymRightarrow F\ap \mid
+\HolSome{a} \isasymRightarrow G\ap a
+\end{gather}
+respectively
+\begin{gather}
+\HolCase\ap x\ap\HolOf~[] \isasymRightarrow F\ap \mid \operatorname{Cons}\ap a\ap
+r \isasymRightarrow G\ap a\ap r\mi{.}
+\end{gather} 
+From the internal definitions (not shown here) a number of properties
+were automatically derived. We show only the case for lists:
 \begin{gather}\label{eq:datatype-rules}
   \begin{array}{ll}
     (\HolCase\ap[]\ap\HolOf\ap[] \Rightarrow F  \ap | \ap  (a\#r) \Rightarrow
@@ -210,9 +225,9 @@ show only the case for lists:
     \semantics{ P [] ; \forall~at\spot  P t \implies P (a\#t) } \Longrightarrow P x      &\text{-- induct}    
   \end{array}
 \end{gather}
-Finally, there is a compiler for primitive and well-founded recursive
+Finally, there is a compiler for primitive and wellfounded recursive
 function definitions. For example, we may define the
-$\operatorname{sort}$-operation of our running test example by:
+$\operatorname{sort}$ operation of our running test example by:
 \begin{gather}\label{eq:sortdef}
   \begin{array}{lll}
     \fun
@@ -255,10 +270,10 @@ recursive function were included in this executable set (providing
 that they only consist of executable operators). Similarly, Isabelle
 manages a large set of (higher-order) rewrite rules into which
 recursive function definitions were included. Provided that this
-rule-set represents a terminating and confluent rewrite-system, the
+rule set represents a terminating and confluent rewrite system, the
 Isabelle simplifier provides also a highly potent decision procedure
 for many fragments of theories underlying the constraints to be
-processed when constructing test-theorems.
+processed when constructing test theorems.
 
 
 
@@ -266,58 +281,59 @@ processed when constructing test-theorems.
 
 
 
-\subsection{Higher-order Logic and Isabelle}\label{sec:higher-order-logic}
-Higher-order Logic
-(\acs{hol})~\cite{church:types:1940,andrews:introduction:2002} is a
-classical logic with equality enriched by total polymorphic
-higher-order functions. It is more expressive than first-order logic,
-\eg, induction schemes can be expressed inside the
-logic. Pragmatically, \HOL can be viewed as ``Haskell with
-Quantifiers.''
+% \subsection{Higher-order Logic and Isabelle}\label{sec:higher-order-logic}
+% Higher-order Logic
+% (\acs{hol})~\cite{church:types:1940,andrews:introduction:2002} is a
+% classical logic with equality enriched by total polymorphic
+% higher-order functions. It is more expressive than first-order logic,
+% \eg, induction schemes can be expressed inside the
+% logic. Pragmatically, \HOL can be viewed as ``Haskell with
+% Quantifiers.''
 
-\HOL is based on the typed $\lambda$-calculus, \ie, the \emph{terms} of \HOL are
-$\lambda$-expressions.  Types of terms may be built from \emph{type
-  variables}\index{type variables} (like $\alpha$, $\beta$, \ldots, optionally
-annotated by Haskell-like \emph{type classes}\index{type class} as in
-$\alpha::order$ or $\alpha::\Bot$) or \emph{type constructors}\index{type
-  constructor}. Type constructors may have arguments (as in $\HolList{\alpha}$
-or $\HolSet{\alpha}$). The type constructor for the function space
-$\isasymRightarrow$ is written infix: $\alpha \isasymRightarrow \beta$; multiple
-applications like
-$\tau_1\isasymRightarrow(\ldots\isasymRightarrow(\tau_n\isasymRightarrow\tau_{n+1})\ldots)$
-have the alternative syntax $[\tau_1, \ldots, \tau_n] \isasymRightarrow
-\tau_{n+1}$. \HOL is centered around the extensional logical equality $\_=\_$
-with type $[\alpha, \alpha] \isasymRightarrow \HolBoolean$, where $\HolBoolean$
-is the fundamental logical type.  We use infix notation: instead of
-$(\_=\_)~E_1~E_2$ we write $E_1=E_2$. The logical connectives $\_\isasymand\_$,
-$\_\isasymor\_$, $\_\to\_$ of \HOL have type $[\HolBoolean, \HolBoolean]
-\isasymRightarrow \HolBoolean$, $\isasymnot\_$ has type $\HolBoolean
-\isasymRightarrow \HolBoolean$. The quantifiers $\isasymforall\_.\_$ and
-$\isasymexists\_.\_$ have type $[\alpha \isasymRightarrow \HolBoolean]
-\isasymRightarrow \HolBoolean$. The quantifiers may range over types of higher
-order, \ie, functions or sets. 
-The definition of the element-hood $\_\isasymin\_$, the set comprehension
-$\{\_.\_\}$, as well as $\_\isasymunion\_$ and $\_\isasyminter\_$ are standard.
+% \HOL is based on the typed $\lambda$-calculus, \ie, the \emph{terms} of \HOL are
+% $\lambda$-expressions.  Types of terms may be built from \emph{type
+%   variables}\index{type variables} (like $\alpha$, $\beta$, \ldots, optionally
+% annotated by Haskell-like \emph{type classes}\index{type class} as in
+% $\alpha::order$ or $\alpha::\Bot$) or \emph{type constructors}\index{type
+%   constructor}. Type constructors may have arguments (as in $\HolList{\alpha}$
+% or $\HolSet{\alpha}$). The type constructor for the function space
+% $\isasymRightarrow$ is written infix: $\alpha \isasymRightarrow \beta$; multiple
+% applications like
+% $\tau_1\isasymRightarrow(\ldots\isasymRightarrow(\tau_n\isasymRightarrow\tau_{n+1})\ldots)$
+% have the alternative syntax $[\tau_1, \ldots, \tau_n] \isasymRightarrow
+% \tau_{n+1}$. \HOL is centered around the extensional logical equality $\_=\_$
+% with type $[\alpha, \alpha] \isasymRightarrow \HolBoolean$, where $\HolBoolean$
+% is the fundamental logical type.  We use infix notation: instead of
+% $(\_=\_)~E_1~E_2$ we write $E_1=E_2$. The logical connectives $\_\isasymand\_$,
+% $\_\isasymor\_$, $\_\to\_$ of \HOL have type $[\HolBoolean, \HolBoolean]
+% \isasymRightarrow \HolBoolean$, $\isasymnot\_$ has type $\HolBoolean
+% \isasymRightarrow \HolBoolean$. The quantifiers $\isasymforall\_.\_$ and
+% $\isasymexists\_.\_$ have type $[\alpha \isasymRightarrow \HolBoolean]
+% \isasymRightarrow \HolBoolean$. The quantifiers may range over types of higher
+% order, \ie, functions or sets. 
+% The definition of the element-hood $\_\isasymin\_$, the set comprehension
+% $\{\_.\_\}$, as well as $\_\isasymunion\_$ and $\_\isasyminter\_$ are standard.
 
-Isabelle is a theorem is generic interactive theorem proving system;
-Isabelle/\HOL is an instance of the former with \HOL.  The
-Isabelle/\HOL library contains formal definitions and theorems for a
-wide range of mathematical concepts used in computer science,
-including typed set theory, well-founded recursion theory, number
-theory and theories for data-structures like Cartesian products
-$\alpha \times \beta$ and disjoint type sums $\alpha + \beta$.  The
-library also includes the type constructor $\up{\tau} := \isasymbottom
-~ | ~ \lift{\_} : \alpha$ that assigns to each type $\tau$ a type
-$\up{\tau}$ \emph{disjointly extended} by the exceptional element
-$\isasymbottom$\index{undefinedness lifting}. The function $\drop{\_}
-: \up{\alpha} \to \alpha$ is the inverse of $\lift{\_}$ (unspecified
-for $\isasymbottom$). Partial functions $\alpha \isasymrightharpoonup
-\beta$ are defined as functions $\alpha \isasymRightarrow \up{\beta}$
-supporting the usual concepts of domain ($\dom\;\_$) and range
-($\ran\;\_$).  The library is built entirely by logically safe,
-conservative definitions and derived rules.  This methodology is also
-applied to \holocl~\cite{brucker.ea:hol-ocl:2008} and Featherweight
-\OCL.
+% Isabelle is a theorem is generic interactive theorem proving system;
+% Isabelle/\HOL is an instance of the former with \HOL.  The
+% Isabelle/\HOL library contains formal definitions and theorems for a
+% wide range of mathematical concepts used in computer science,
+% including typed set theory, well-founded recursion theory, number
+% theory and theories for data-structures like Cartesian products
+% $\alpha \times \beta$ and disjoint type sums $\alpha + \beta$.  
+% The library also includes the type constructor $\up{\tau} := \isasymbottom
+% ~ | ~ \lift{\_} : \alpha$ that assigns to each type $\tau$ a type
+% $\up{\tau}$ \emph{disjointly extended} by the exceptional element
+% $\isasymbottom$\index{undefinedness lifting}. The function $\drop{\_}
+% : \up{\alpha} \to \alpha$ is the inverse of $\lift{\_}$ (unspecified
+% for $\isasymbottom$). Partial functions $\alpha \isasymrightharpoonup
+% \beta$ are defined as functions $\alpha \isasymRightarrow \up{\beta}$
+% supporting the usual concepts of domain ($\dom\;\_$) and range
+% ($\ran\;\_$).
+% The library is built entirely by logically safe,
+% conservative definitions and derived rules.  This methodology is also
+% applied to \holocl~\cite{brucker.ea:hol-ocl:2008} and Featherweight
+% \OCL.
 
 % For Journal - or long- version
 \subsection{Specification Constructs in Isabelle/\HOL}\label{sec:spec-constructs}
@@ -326,7 +342,7 @@ applied to \holocl~\cite{brucker.ea:hol-ocl:2008} and Featherweight
 \section{Featherweight OCL: Design Goals}
 % generated text of all theories
 Featherweight \acs{ocl} is a formalization of the core of \acs{ocl}
-aiming at formally investigation the relationship between the
+aiming at formally investigating the relationship between the
 different notions of ``undefinedness,'' \ie, \inlineocl{invalid} and
 
 \inlineocl{null}. As such, it does not attempt to define the complete
@@ -361,22 +377,22 @@ Featherweight \OCL is based on the following principles:
   functions, typically injections, that may convert data between the
   different Featherweight \OCL types.
 \item All objects are represented in an object universe in the \holocl
-  tradition~\cite{brucker.ea:extensible:2008-b} the universe
+  tradition~\cite{brucker.ea:extensible:2008-b}. The universe
   construction also gives semantics to type casts, dynamic type
   tests, as well as functions such as \inlineocl{oclAllInstances()},
   or \inlineocl{isNewInState()}.
 \item Featherweight \OCL types may be arbitrarily nested:
   \inlineocl|Set{Set{1,2}} = Set{Set{2,1}}| is legal and true.
-\item For demonstration purposes, the set-type in Featherweight \OCL
+\item For demonstration purposes, the set type in Featherweight \OCL
   may be infinite, allowing infinite quantification and a constant
   that contains the set of all Integers.  Arithmetic laws like
-  commutativity may therefore expressed in \OCL itself.  The
+  commutativity may therefore be expressed in \OCL itself.  The
   iterator is only defined on finite sets.
 \item It supports equational reasoning and congruence reasoning, but
   this requires a differentiation of the different equalities like
   strict equality, strong equality, meta-equality (\acs{hol}). Strict
   equality and strong equality require a subcalculus, ``cp'' (a
-  detailed discussion of the different equalities as well the
+  detailed discussion of the different equalities as well as the
   subcalculus ``cp''---for three-valued \acs{ocl} 2.0---is given
   in~\cite{brucker.ea:semantics:2009}), which is nasty but can be
   hidden from the user inside tools.

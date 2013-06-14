@@ -698,3 +698,172 @@
 	url	= 	{http://www.brucker.ch/bibliography/abstract/brucker.ea-hol-ocl-book-2006},
 	year	= 	{2006},
 } 
+
+@PhDThesis{	  wenzel:isabelleisar:2002,
+  author	= {Markus M. Wenzel},
+  title		= {Isabelle/Isar --- a versatile environment for
+		  human-readable formal proof documents},
+  school	= {TU M{\"u}nchen},
+  year		= 2002,
+  url		= {http://tumb1.biblio.tu-muenchen.de/publ/diss/in/2002/wenzel.html}
+		  ,
+  abstract	= {The basic motivation of this work is to make formal theory
+		  developments with machine-checked proofs accessible to a
+		  broader audience. Our particular approach is centered
+		  around the Isar formal proof language that is intended to
+		  support adequate composition of proof documents that are
+		  suitable for human consumption. Such primary proofs written
+		  in Isar may be both checked by the machine and read by
+		  human-beings; final presentation merely involves trivial
+		  pretty printing of the sources. Sound logical foundations
+		  of Isar are achieved by interpretation within the generic
+		  Natural Deduction framework of Isabelle, reducing all
+		  high-level reasoning steps to primitive inferences.
+		  
+		  The resulting Isabelle/Isar system is generic with respect
+		  to object-logics and proof tools, just as pure Isabelle
+		  itself. The full Isar language emerges from a small core by
+		  means of several derived elements, which may be combined
+		  freely with existing ones. This results in a very rich
+		  space of expressions of formal reasoning, supporting many
+		  viable proof techniques. The general paradigms of Natural
+		  Deduction and Calculational Reasoning are both covered
+		  particularly well. Concrete examples from logic,
+		  mathematics, and computer-science demonstrate that the Isar
+		  concepts are indeed sufficiently versatile to cover a broad
+		  range of applications.},
+  address	= {M{\"u}nchen},
+  month		= feb,
+  acknowledgement={none},
+  bibkey	= {wenzel:isabelleisar:2002}
+}
+
+@Article{	  church:types:1940,
+  author	= {Church, Alonzo},
+  title		= {A formulation of the simple theory of types},
+  journal	= j-sl,
+  year		= 1940,
+  volume	= 5,
+  number	= 2,
+  month		= jun,
+  pages		= {56--68},
+  acknowledgement={brucker, 2007-04-23},
+  bibkey	= {church:types:1940}
+}
+
+@Book{		  andrews:introduction:2002,
+  author	= {Peter B. Andrews},
+  title		= {Introduction to Mathematical Logic and Type Theory: To
+		  Truth through Proof},
+  year		= 2002,
+  isbn		= {1-402-00763-9},
+  edition	= {2nd},
+  publisher	= pub-kluwer,
+  address	= pub-kluwer:adr,
+  acknowledgement={brucker, 2007-04-23},
+  bibkey	= {andrews:introduction:2002}
+}
+
+@InCollection{	  wenzel.ea:building:2007,
+  abstract	= {We present the generic system framework of
+		  Isabelle/Isarunderlying recent versions of Isabelle. Among
+		  other things, Isar provides an infrastructure for Isabelle
+		  plug-ins, comprising extensible state components and
+		  extensible syntax that can be bound to tactical ML
+		  programs. Thus the Isabelle/Isar architecture may be
+		  understood as an extension and refinement of the
+		  traditional LCF approach, with explicit infrastructure for
+		  building derivative systems. To demonstrate the technical
+		  potential of the framework, we apply it to a concrete
+		  formalmethods tool: the HOL-Z 3.0 environment, which is
+		  geared towards the analysis of Z specifications and formal
+		  proof of forward-refinements.},
+  author	= {Makarius Wenzel and Burkhart Wolff},
+  booktitle	= {\acs{tphols} 2007},
+  editor	= {Klaus Schneider and Jens Brandt},
+  language	= {USenglish},
+  acknowledgement={none},
+  pages		= {352--367},
+  publisher	= pub-springer,
+  address	= pub-springer:adr,
+  number	= 4732,
+  series	= s-lncs,
+  title		= {Building Formal Method Tools in the {Isabelle}/{Isar}
+		  Framework},
+  doi		= {10.1007/978-3-540-74591-4_26},
+  year		= 2007
+}
+
+@Booklet{	  omg:ocl:2003,
+  bibkey	= {omg:ocl:2003},
+  key		= omg,
+  abstract	= {This document introduces and defines the Object Constraint
+		  Language (OCL), a formal language to express side
+		  effect-free constraints. Users of the Unified Modeling
+		  Language and other languages can use OCL to specify
+		  constraints and other expressions attached to their models.
+		  OCL was used in the \acs{uml} Semantics document to specify
+		  the well-formedness rules of the \acs{uml} metamodel. Each
+		  well-formedness rule in the static semantics sections in
+		  the \acs{uml} Semantics document contains an OCL
+		  expression, which is an invariant for the involved class.
+		  The grammar for OCL is specified at the end of this
+		  document. A parser generated from this grammar has
+		  correctly parsed all the constraints in the \acs{uml}
+		  Semantics document, a process which improved the
+		  correctness of the specifications for OCL and \acs{uml}.},
+  publisher	= omg,
+  language	= {USenglish},
+  month		= oct,
+  keywords	= {\acs{uml}, OCL},
+  topic		= {formalism},
+  public	= {yes},
+  note		= {Available as \acs{omg} document
+		  \href{http://www.omg.org/cgi-bin/doc?ptc/03-10-14}
+		  {ptc/03-10-14}},
+  title		= {\acs{uml} 2.0 \acs{ocl} Specification},
+  year		= 2003,
+  acknowledgement={brucker, 2007-04-23}
+}
+
+@InProceedings{	  barnett.ea:spec:2004,
+  author	= {Mike Barnett and K. Rustan M. Leino and Wolfram Schulte},
+  abstract	= "Spec# is the latest in a long line of work on programming
+		  languages and systems aimed at improving the development of
+		  correct software. This paper describes the goals and
+		  architecture of the Spec# programming system, consisting of
+		  the object-oriented Spec# programming language, the Spec#
+		  compiler, and the Boogie static program verifier. The
+		  language includes constructs for writing specifications
+		  that capture programmer intentions about how methods and
+		  data are to be used, the compiler emits run-time checks to
+		  enforce these specifications, and the verifier can check
+		  the consistency between a program and its specifications.",
+  language	= {USenglish},
+  title		= {The {\Specsharp} programming system: An overview},
+  pages		= {49--69},
+  bibkey	= {barnett.ea:spec:2004},
+  doi		= {10.1007/b105030},
+  acknowledgement={brucker, 2007-02-19},
+  month		= may # {~25}
+} crossref	= {barthe.ea:construction:2005},
+
+
+@InProceedings{	  kosiuczenko:specification:2006,
+  author	= {Piotr Kosiuczenko},
+  title		= {Specification of Invariability in \acs{ocl}},
+  pages		= {676--691},
+  doi		= {10.1007/11880240_47},
+  abstract	= {The paradigm of contractual specification provides a
+		  transparent way of specifying systems. It clearly
+		  distinguishes between client and implementer obligations.
+		  One of the best known languages used for this purpose is
+		  OCL. Nevertheless, OCL does not provide primitives for a
+		  compact specification of what remains unchanged when a
+		  method is executed. In this paper, problems with specifying
+		  invariability are listed and some weaknesses of existing
+		  solutions are pointed out. The question of specifying
+		  invariability in OCL is studied and a simple but expressive
+		  and flexible extension is proposed. It is shown that this
+		  extension has a simple OCL based semantics.}
+} crossref	= {nierstrasz.ea:model:2006},
