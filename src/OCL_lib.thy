@@ -47,18 +47,124 @@ theory OCL_lib
 imports OCL_core
 begin
 
-section{* Basic Types like Void, Boolean and Integer *}
-
-text{* Since Integer is again a basic type, we define its semantic domain
-as the valuations over @{typ "int option option"}*}
-type_synonym ('\<AA>)Integer = "('\<AA>,int option option) val"
-
-
+section{* Basic Types: Void and Integer *}
+subsection{* Void *} 
+(* subsection{* Basic Constants *} *)
 type_synonym ('\<AA>)Void = "('\<AA>,unit option) val"
 text {* Note that this \emph{minimal} OCL type contains only two elements:
 undefined and null. For technical reasons, he does not contain to the null-class yet.*}
 
-subsection{* Strict equalities on Basic Types. *}
+subsection{* Integer *} 
+text{* Since Integer is again a basic type, we define its semantic domain
+as the valuations over @{typ "int option option"}*}
+type_synonym ('\<AA>)Integer = "('\<AA>,int option option) val"
+
+definition ocl_zero ::"('\<AA>)Integer" ("\<zero>")
+where      "\<zero> = (\<lambda> _ . \<lfloor>\<lfloor>0::int\<rfloor>\<rfloor>)"
+
+definition ocl_one ::"('\<AA>)Integer" ("\<one> ")
+where      "\<one>  = (\<lambda> _ . \<lfloor>\<lfloor>1::int\<rfloor>\<rfloor>)"
+
+definition ocl_two ::"('\<AA>)Integer" ("\<two>")
+where      "\<two> = (\<lambda> _ . \<lfloor>\<lfloor>2::int\<rfloor>\<rfloor>)"
+
+definition ocl_three ::"('\<AA>)Integer" ("\<three>")
+where      "\<three> = (\<lambda> _ . \<lfloor>\<lfloor>3::int\<rfloor>\<rfloor>)"
+
+definition ocl_four ::"('\<AA>)Integer" ("\<four>")
+where      "\<four> = (\<lambda> _ . \<lfloor>\<lfloor>4::int\<rfloor>\<rfloor>)"
+
+definition ocl_five ::"('\<AA>)Integer" ("\<five>")
+where      "\<five> = (\<lambda> _ . \<lfloor>\<lfloor>5::int\<rfloor>\<rfloor>)"
+
+definition ocl_six ::"('\<AA>)Integer" ("\<six>")
+where      "\<six> = (\<lambda> _ . \<lfloor>\<lfloor>6::int\<rfloor>\<rfloor>)"
+
+definition ocl_seven ::"('\<AA>)Integer" ("\<seven>")
+where      "\<seven> = (\<lambda> _ . \<lfloor>\<lfloor>7::int\<rfloor>\<rfloor>)"
+
+definition ocl_eight ::"('\<AA>)Integer" ("\<eight>")
+where      "\<eight> = (\<lambda> _ . \<lfloor>\<lfloor>8::int\<rfloor>\<rfloor>)"
+
+definition ocl_nine ::"('\<AA>)Integer" ("\<nine>")
+where      "\<nine> = (\<lambda> _ . \<lfloor>\<lfloor>9::int\<rfloor>\<rfloor>)"
+
+definition ocl_ten ::"('\<AA>)Integer" ("\<one>\<zero>")
+where      "\<one>\<zero> = (\<lambda> _ . \<lfloor>\<lfloor>10::int\<rfloor>\<rfloor>)"
+
+text{* Here is a way to cast in standard operators
+via the type class system of Isabelle. *}
+
+subsection{* Validity and Definedness *}
+
+lemma [simp,code_unfold]:"\<upsilon> \<zero> = true"
+by(simp add:ocl_zero_def valid_def true_def
+               bot_fun_def bot_option_def null_fun_def null_option_def)
+
+lemma [simp,code_unfold]:"\<delta> \<one> = true"
+by(simp add:ocl_one_def defined_def true_def
+               bot_fun_def bot_option_def null_fun_def null_option_def)
+
+lemma [simp,code_unfold]:"\<upsilon> \<one> = true"
+by(simp add:ocl_one_def valid_def true_def
+               bot_fun_def bot_option_def null_fun_def null_option_def)
+
+lemma [simp,code_unfold]:"\<delta> \<two> = true"
+by(simp add:ocl_two_def defined_def true_def
+               bot_fun_def bot_option_def null_fun_def null_option_def)
+
+lemma [simp,code_unfold]:"\<upsilon> \<two> = true"
+by(simp add:ocl_two_def valid_def true_def
+               bot_fun_def bot_option_def null_fun_def null_option_def)
+
+(* ecclectic proofs to make examples executable *)
+lemma [simp,code_unfold]: "\<upsilon> \<six> = true"
+by(simp add:ocl_six_def valid_def true_def
+               bot_fun_def bot_option_def null_fun_def null_option_def)
+
+lemma [simp,code_unfold]: "\<upsilon> \<eight> = true"
+by(simp add:ocl_eight_def valid_def true_def
+               bot_fun_def bot_option_def null_fun_def null_option_def)
+
+lemma [simp,code_unfold]: "\<upsilon> \<nine> = true"
+by(simp add:ocl_nine_def valid_def true_def
+               bot_fun_def bot_option_def null_fun_def null_option_def)
+
+subsection{* Arithmetical Operations on Integer *}
+
+text{* Here is a common case of a built-in operation on built-in types.
+Note that the arguments must be both defined (non-null, non-bot). *}
+text{* Note that we can not follow the lexis of standard OCL for Isabelle-
+technical reasons; these operators are heavily overloaded in the library
+that a further overloading would lead to heavy technical buzz in this
+document... *}
+definition ocl_add_int ::"('\<AA>)Integer \<Rightarrow> ('\<AA>)Integer \<Rightarrow> ('\<AA>)Integer" (infix "\<oplus>" 40)
+where "x \<oplus> y \<equiv> \<lambda> \<tau>. if (\<delta> x) \<tau> = true \<tau> \<and> (\<delta> y) \<tau> = true \<tau>
+                then \<lfloor>\<lfloor>\<lceil>\<lceil>x \<tau>\<rceil>\<rceil> + \<lceil>\<lceil>y \<tau>\<rceil>\<rceil>\<rfloor>\<rfloor>
+                else invalid \<tau> "
+
+
+definition ocl_less_int ::"('\<AA>)Integer \<Rightarrow> ('\<AA>)Integer \<Rightarrow> ('\<AA>)Boolean" (infix "\<prec>" 40)
+where "x \<prec> y \<equiv> \<lambda> \<tau>. if (\<delta> x) \<tau> = true \<tau> \<and> (\<delta> y) \<tau> = true \<tau>
+                then \<lfloor>\<lfloor>\<lceil>\<lceil>x \<tau>\<rceil>\<rceil> < \<lceil>\<lceil>y \<tau>\<rceil>\<rceil>\<rfloor>\<rfloor>
+                else invalid \<tau> "
+
+definition ocl_le_int ::"('\<AA>)Integer \<Rightarrow> ('\<AA>)Integer \<Rightarrow> ('\<AA>)Boolean" (infix "\<preceq>" 40)
+where "x \<preceq> y \<equiv> \<lambda> \<tau>. if (\<delta> x) \<tau> = true \<tau> \<and> (\<delta> y) \<tau> = true \<tau>
+                then \<lfloor>\<lfloor>\<lceil>\<lceil>x \<tau>\<rceil>\<rceil> \<le> \<lceil>\<lceil>y \<tau>\<rceil>\<rceil>\<rfloor>\<rfloor>
+                else invalid \<tau> "
+
+text{* Here follows a list of code-examples, that explain the meanings
+of the above definitions by compilation to code and execution to "True".*}
+
+value "\<tau>\<^isub>0 \<Turnstile> (\<nine> \<preceq> \<one>\<zero> )"
+value "\<tau>\<^isub>0 \<Turnstile> (( \<four> \<oplus> \<four> ) \<preceq> \<one>\<zero> )"
+value "\<not>(\<tau>\<^isub>0 \<Turnstile> ((\<four> \<oplus>( \<four> \<oplus> \<four> )) \<prec> \<one>\<zero> ))"
+
+
+section{* Fundamental Predicates : Strict Equality *}
+
+subsection{* Definition *}
 
 text{* Note that the strict equality on basic types (actually on all types)
 must be exceptionally defined on null --- otherwise the entire concept of
@@ -84,7 +190,7 @@ defs   StrictRefEq_bool[code_unfold] :
                                     else invalid \<tau>"
 
 
-subsection{* Logic and algebraic layer  on Basic Types. *}
+subsection{* Logic and Algebraic Layer on Basic Types *}
 
 lemma RefEq_int_refl[simp,code_unfold] :
 "((x::('\<AA>)Integer) \<doteq> x) = (if (\<upsilon> x) then true else invalid endif)"
@@ -100,6 +206,7 @@ by(rule ext, simp add: StrictRefEq_int true_def false_def)
 lemma StrictRefEq_int_strict2[simp] : "(invalid \<doteq> (x::('\<AA>)Integer)) = invalid"
 by(rule ext, simp add: StrictRefEq_int true_def false_def)
 
+text{* WARNING: same definition as strictEqInt_valid_args_valid ? *}
 lemma StrictRefEq_int_strictEq_valid_args_valid:
 "(\<tau> \<Turnstile> \<delta> ((x::('\<AA>)Integer) \<doteq> y)) = ((\<tau> \<Turnstile> (\<upsilon> x)) \<and> (\<tau> \<Turnstile> \<upsilon> y))"
 proof -
@@ -226,46 +333,10 @@ lemmas cp_intro[simp,intro!] =
 
 
 
-definition ocl_zero ::"('\<AA>)Integer" ("\<zero>")
-where      "\<zero> = (\<lambda> _ . \<lfloor>\<lfloor>0::int\<rfloor>\<rfloor>)"
-
-definition ocl_one ::"('\<AA>)Integer" ("\<one> ")
-where      "\<one>  = (\<lambda> _ . \<lfloor>\<lfloor>1::int\<rfloor>\<rfloor>)"
-
-definition ocl_two ::"('\<AA>)Integer" ("\<two>")
-where      "\<two> = (\<lambda> _ . \<lfloor>\<lfloor>2::int\<rfloor>\<rfloor>)"
-
-definition ocl_three ::"('\<AA>)Integer" ("\<three>")
-where      "\<three> = (\<lambda> _ . \<lfloor>\<lfloor>3::int\<rfloor>\<rfloor>)"
-
-definition ocl_four ::"('\<AA>)Integer" ("\<four>")
-where      "\<four> = (\<lambda> _ . \<lfloor>\<lfloor>4::int\<rfloor>\<rfloor>)"
-
-definition ocl_five ::"('\<AA>)Integer" ("\<five>")
-where      "\<five> = (\<lambda> _ . \<lfloor>\<lfloor>5::int\<rfloor>\<rfloor>)"
-
-definition ocl_six ::"('\<AA>)Integer" ("\<six>")
-where      "\<six> = (\<lambda> _ . \<lfloor>\<lfloor>6::int\<rfloor>\<rfloor>)"
-
-definition ocl_seven ::"('\<AA>)Integer" ("\<seven>")
-where      "\<seven> = (\<lambda> _ . \<lfloor>\<lfloor>7::int\<rfloor>\<rfloor>)"
-
-definition ocl_eight ::"('\<AA>)Integer" ("\<eight>")
-where      "\<eight> = (\<lambda> _ . \<lfloor>\<lfloor>8::int\<rfloor>\<rfloor>)"
-
-definition ocl_nine ::"('\<AA>)Integer" ("\<nine>")
-where      "\<nine> = (\<lambda> _ . \<lfloor>\<lfloor>9::int\<rfloor>\<rfloor>)"
-
-definition ocl_ten ::"('\<AA>)Integer" ("\<one>\<zero>")
-where      "\<one>\<zero> = (\<lambda> _ . \<lfloor>\<lfloor>10::int\<rfloor>\<rfloor>)"
-
-text{* Here is a way to cast in standard operators
-via the type class system of Isabelle. *}
+subsection{* Test Statements on Basic Types. *}
 
 text{* Here follows a list of code-examples, that explain the meanings
 of the above definitions by compilation to code and execution to "True".*}
-
-subsection{* Test Statements on Basic Types. *}
 
 text{* Elementary computations on Booleans *}
 value "\<tau>\<^isub>0 \<Turnstile> \<upsilon>(true)"
@@ -304,40 +375,6 @@ lemma  "\<delta>(null::('\<AA>)Integer) = false" by simp (* recall *)
 lemma  "\<upsilon>(null::('\<AA>)Integer) = true"  by simp (* recall *)
 
 subsection{* More algebraic and logical layer on basic types*}
-
-lemma [simp,code_unfold]:"\<upsilon> \<zero> = true"
-by(simp add:ocl_zero_def valid_def true_def
-               bot_fun_def bot_option_def null_fun_def null_option_def)
-
-lemma [simp,code_unfold]:"\<delta> \<one> = true"
-by(simp add:ocl_one_def defined_def true_def
-               bot_fun_def bot_option_def null_fun_def null_option_def)
-
-lemma [simp,code_unfold]:"\<upsilon> \<one> = true"
-by(simp add:ocl_one_def valid_def true_def
-               bot_fun_def bot_option_def null_fun_def null_option_def)
-
-lemma [simp,code_unfold]:"\<delta> \<two> = true"
-by(simp add:ocl_two_def defined_def true_def
-               bot_fun_def bot_option_def null_fun_def null_option_def)
-
-lemma [simp,code_unfold]:"\<upsilon> \<two> = true"
-by(simp add:ocl_two_def valid_def true_def
-               bot_fun_def bot_option_def null_fun_def null_option_def)
-
-(* ecclectic proofs to make examples executable *)
-lemma [simp,code_unfold]: "\<upsilon> \<six> = true"
-by(simp add:ocl_six_def valid_def true_def
-               bot_fun_def bot_option_def null_fun_def null_option_def)
-
-lemma [simp,code_unfold]: "\<upsilon> \<eight> = true"
-by(simp add:ocl_eight_def valid_def true_def
-               bot_fun_def bot_option_def null_fun_def null_option_def)
-
-lemma [simp,code_unfold]: "\<upsilon> \<nine> = true"
-by(simp add:ocl_nine_def valid_def true_def
-               bot_fun_def bot_option_def null_fun_def null_option_def)
-
 
 lemma zero_non_null [simp]: "(\<zero> \<doteq> null) = false"
 by(rule ext,auto simp:ocl_zero_def  null_def StrictRefEq_int valid_def invalid_def
@@ -383,37 +420,9 @@ by(rule ext,auto simp:ocl_nine_def  null_def StrictRefEq_int valid_def invalid_d
 
 (* plus all the others ...*)
 
-text{* Here is a common case of a built-in operation on built-in types.
-Note that the arguments must be both defined (non-null, non-bot). *}
-text{* Note that we can not follow the lexis of standard OCL for Isabelle-
-technical reasons; these operators are heavily overloaded in the library
-that a further overloading would lead to heavy technical buzz in this
-document... *}
-definition ocl_add_int ::"('\<AA>)Integer \<Rightarrow> ('\<AA>)Integer \<Rightarrow> ('\<AA>)Integer" (infix "\<oplus>" 40)
-where "x \<oplus> y \<equiv> \<lambda> \<tau>. if (\<delta> x) \<tau> = true \<tau> \<and> (\<delta> y) \<tau> = true \<tau>
-                then \<lfloor>\<lfloor>\<lceil>\<lceil>x \<tau>\<rceil>\<rceil> + \<lceil>\<lceil>y \<tau>\<rceil>\<rceil>\<rfloor>\<rfloor>
-                else invalid \<tau> "
 
 
-definition ocl_less_int ::"('\<AA>)Integer \<Rightarrow> ('\<AA>)Integer \<Rightarrow> ('\<AA>)Boolean" (infix "\<prec>" 40)
-where "x \<prec> y \<equiv> \<lambda> \<tau>. if (\<delta> x) \<tau> = true \<tau> \<and> (\<delta> y) \<tau> = true \<tau>
-                then \<lfloor>\<lfloor>\<lceil>\<lceil>x \<tau>\<rceil>\<rceil> < \<lceil>\<lceil>y \<tau>\<rceil>\<rceil>\<rfloor>\<rfloor>
-                else invalid \<tau> "
-
-definition ocl_le_int ::"('\<AA>)Integer \<Rightarrow> ('\<AA>)Integer \<Rightarrow> ('\<AA>)Boolean" (infix "\<preceq>" 40)
-where "x \<preceq> y \<equiv> \<lambda> \<tau>. if (\<delta> x) \<tau> = true \<tau> \<and> (\<delta> y) \<tau> = true \<tau>
-                then \<lfloor>\<lfloor>\<lceil>\<lceil>x \<tau>\<rceil>\<rceil> \<le> \<lceil>\<lceil>y \<tau>\<rceil>\<rceil>\<rfloor>\<rfloor>
-                else invalid \<tau> "
-
-text{* Here follows a list of code-examples, that explain the meanings
-of the above definitions by compilation to code and execution to "True".*}
-
-value "\<tau>\<^isub>0 \<Turnstile> (\<nine> \<preceq> \<one>\<zero> )"
-value "\<tau>\<^isub>0 \<Turnstile> (( \<four> \<oplus> \<four> ) \<preceq> \<one>\<zero> )"
-value "\<not>(\<tau>\<^isub>0 \<Turnstile> ((\<four> \<oplus>( \<four> \<oplus> \<four> )) \<prec> \<one>\<zero> ))"
-
-
-section {* Example for Complex Types: The Set-Collection Type *}
+section {* Complex Types: The Set-Collection Type *}
 
 no_notation None ("\<bottom>")
 notation bot ("\<bottom>")
@@ -423,9 +432,9 @@ subsection {* The construction of the Set-Collection Type *}
 text{* For the semantic construction of the collection types, we have two goals:
 \begin{enumerate}
 \item we want the types to be \emph{fully abstract}, i.e. the type should not
-      contain junk-elements that are not representable by OCL expressions.
-\item We want a possibility to nest collection types (so, we want the
-      potential to talking about @{text "Set(Set(Sequences(Pairs(X,Y))))"}), and
+      contain junk-elements that are not representable by OCL expressions, and
+\item we want a possibility to nest collection types (so, we want the
+      potential to talking about @{text "Set(Set(Sequences(Pairs(X,Y))))"}).
 \end{enumerate}
 The former principe rules out the option to define @{text "'\<alpha> Set"} just by
  @{text "('\<AA>, ('\<alpha> option option) set) val"}. This would allow sets to contain
@@ -531,6 +540,8 @@ text{* Note that the collection types in OCL allow for null to be included;
 
 subsection{* Library Operations on Sets *}
 
+subsubsection{* Future Operator to be defined *}
+
 consts (* abstract set collection operations *)
  (* OclSize        :: " ('\<AA>,'\<alpha>::null) Set \<Rightarrow> '\<AA> Integer"      *)
  (* OclIncludes    :: "[('\<AA>,'\<alpha>::null) Set,('\<AA>,'\<alpha>) val'] \<Rightarrow> '\<AA> Boolean"    *)
@@ -561,6 +572,9 @@ notation
     OclUnion       ("_->union'(_')"          [66,65]65)
 notation
     OclIntersection("_->intersection'(_')"   [71,70]70)
+
+
+subsubsection{* Some definitions *}
 
 definition OclSize     :: "('\<AA>,'\<alpha>::null)Set \<Rightarrow> '\<AA> Integer"
 where     "OclSize x = (\<lambda> \<tau>. if (\<delta> x) \<tau> = true \<tau> \<and> finite(\<lceil>\<lceil>Rep_Set_0 (x \<tau>)\<rceil>\<rceil>)
@@ -616,22 +630,6 @@ translations
   "X->iterate(a; x = A | P)" == "CONST OclIterate\<^isub>S\<^isub>e\<^isub>t X A (%a. (% x. P))"
 
 
-lemma OclIterate\<^isub>S\<^isub>e\<^isub>t_strict1[simp]:"invalid->iterate(a; x = A | P a x) = invalid"
-by(simp add: bot_fun_def invalid_def OclIterate\<^isub>S\<^isub>e\<^isub>t_def defined_def valid_def false_def true_def)
-
-lemma OclIterate\<^isub>S\<^isub>e\<^isub>t_null1[simp]:"null->iterate(a; x = A | P a x) = invalid"
-by(simp add: bot_fun_def invalid_def OclIterate\<^isub>S\<^isub>e\<^isub>t_def defined_def valid_def false_def true_def)
-
-
-lemma OclIterate\<^isub>S\<^isub>e\<^isub>t_strict2[simp]:"S->iterate(a; x = invalid | P a x) = invalid"
-by(simp add: bot_fun_def invalid_def OclIterate\<^isub>S\<^isub>e\<^isub>t_def defined_def valid_def false_def true_def)
-
-text{* An open question is this ... *}
-lemma OclIterate\<^isub>S\<^isub>e\<^isub>t_null2[simp]:"S->iterate(a; x = null | P a x) = invalid"
-oops
-text{* In the definition above, this does not hold in general.
-       And I believe, this is how it should be ... *}
-
 definition OclForall     :: "[('\<AA>,'\<alpha>::null)Set,('\<AA>,'\<alpha>)val\<Rightarrow>('\<AA>)Boolean] \<Rightarrow> '\<AA> Boolean"
 where     "OclForall S P = (\<lambda> \<tau>. if (\<delta> S) \<tau> = true \<tau>
                                  then if (\<exists>x\<in>\<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>. P(\<lambda> _. x) \<tau> = false \<tau>)
@@ -656,6 +654,7 @@ syntax
 translations
   "X->exists(x | P)" == "CONST OclExists X (%x. P)"
 
+subsubsection{* Context Passing *}
 
 lemma cp_OclIncluding:
 "(X->including(x)) \<tau> = ((\<lambda> _. X \<tau>)->including(\<lambda> _. x \<tau>)) \<tau>"
@@ -692,39 +691,7 @@ lemmas cp_intro''[simp,intro!] =
        cp_OclIncluding [THEN allI[THEN allI[THEN allI[THEN cp'I2]], of "OclIncluding"]]
 *)
 
-subsection{* Logic and Algebraic Layer on Set Operations*}
-
-lemma including_strict1[simp,code_unfold]:"(invalid->including(x)) = invalid"
-by(simp add: bot_fun_def OclIncluding_def invalid_def defined_def valid_def false_def true_def)
-
-lemma including_strict2[simp,code_unfold]:"(X->including(invalid)) = invalid"
-by(simp add: OclIncluding_def invalid_def bot_fun_def defined_def valid_def false_def true_def)
-
-lemma including_strict3[simp,code_unfold]:"(null->including(x)) = invalid"
-by(simp add: OclIncluding_def invalid_def bot_fun_def defined_def valid_def false_def true_def)
-
-
-lemma excluding_strict1[simp,code_unfold]:"(invalid->excluding(x)) = invalid"
-by(simp add: bot_fun_def OclExcluding_def invalid_def defined_def valid_def false_def true_def)
-
-lemma excluding_strict2[simp,code_unfold]:"(X->excluding(invalid)) = invalid"
-by(simp add: OclExcluding_def invalid_def bot_fun_def defined_def valid_def false_def true_def)
-
-lemma excluding_strict3[simp,code_unfold]:"(null->excluding(x)) = invalid"
-by(simp add: OclExcluding_def invalid_def bot_fun_def defined_def valid_def false_def true_def)
-
-
-
-lemma includes_strict1[simp,code_unfold]:"(invalid->includes(x)) = invalid"
-by(simp add: bot_fun_def OclIncludes_def invalid_def defined_def valid_def false_def true_def)
-
-lemma includes_strict2[simp,code_unfold]:"(X->includes(invalid)) = invalid"
-by(simp add: OclIncludes_def invalid_def bot_fun_def defined_def valid_def false_def true_def)
-
-lemma includes_strict3[simp,code_unfold]:"(null->includes(x)) = invalid"
-by(simp add: OclIncludes_def invalid_def bot_fun_def defined_def valid_def false_def true_def)
-
-(*  forall ? exists ?*)
+subsection{* Fundamental Predicates: Validity and Definedness *}
 
 lemma including_defined_args_valid:
 "(\<tau> \<Turnstile> \<delta>(X->including(x))) = ((\<tau> \<Turnstile>(\<delta> X)) \<and> (\<tau> \<Turnstile>(\<upsilon> x)))"
@@ -871,6 +838,67 @@ by(auto intro!: transform2_rev simp:includes_valid_args_valid foundation10 defin
 
 
 (* and many more, forall exists. *)
+
+
+
+
+
+subsection{* Fundamental Predicates : execution I *}
+
+subsubsection{* OclIterate *}
+
+lemma OclIterate\<^isub>S\<^isub>e\<^isub>t_strict1[simp]:"invalid->iterate(a; x = A | P a x) = invalid"
+by(simp add: bot_fun_def invalid_def OclIterate\<^isub>S\<^isub>e\<^isub>t_def defined_def valid_def false_def true_def)
+
+lemma OclIterate\<^isub>S\<^isub>e\<^isub>t_null1[simp]:"null->iterate(a; x = A | P a x) = invalid"
+by(simp add: bot_fun_def invalid_def OclIterate\<^isub>S\<^isub>e\<^isub>t_def defined_def valid_def false_def true_def)
+
+
+lemma OclIterate\<^isub>S\<^isub>e\<^isub>t_strict2[simp]:"S->iterate(a; x = invalid | P a x) = invalid"
+by(simp add: bot_fun_def invalid_def OclIterate\<^isub>S\<^isub>e\<^isub>t_def defined_def valid_def false_def true_def)
+
+text{* An open question is this ... *}
+lemma (*OclIterate\<^isub>S\<^isub>e\<^isub>t_null2[simp]:*) "S->iterate(a; x = null | P a x) = invalid"
+oops
+text{* In the definition above, this does not hold in general.
+       And I believe, this is how it should be ... *}
+
+subsubsection{* OclIncluding and OclExcluding *}
+
+lemma including_strict1[simp,code_unfold]:"(invalid->including(x)) = invalid"
+by(simp add: bot_fun_def OclIncluding_def invalid_def defined_def valid_def false_def true_def)
+
+lemma including_strict2[simp,code_unfold]:"(X->including(invalid)) = invalid"
+by(simp add: OclIncluding_def invalid_def bot_fun_def defined_def valid_def false_def true_def)
+
+lemma including_strict3[simp,code_unfold]:"(null->including(x)) = invalid"
+by(simp add: OclIncluding_def invalid_def bot_fun_def defined_def valid_def false_def true_def)
+
+subsubsection{* OclExcluding *}
+
+lemma excluding_strict1[simp,code_unfold]:"(invalid->excluding(x)) = invalid"
+by(simp add: bot_fun_def OclExcluding_def invalid_def defined_def valid_def false_def true_def)
+
+lemma excluding_strict2[simp,code_unfold]:"(X->excluding(invalid)) = invalid"
+by(simp add: OclExcluding_def invalid_def bot_fun_def defined_def valid_def false_def true_def)
+
+lemma excluding_strict3[simp,code_unfold]:"(null->excluding(x)) = invalid"
+by(simp add: OclExcluding_def invalid_def bot_fun_def defined_def valid_def false_def true_def)
+
+subsubsection{* OclIncludes *}
+
+lemma includes_strict1[simp,code_unfold]:"(invalid->includes(x)) = invalid"
+by(simp add: bot_fun_def OclIncludes_def invalid_def defined_def valid_def false_def true_def)
+
+lemma includes_strict2[simp,code_unfold]:"(X->includes(invalid)) = invalid"
+by(simp add: OclIncludes_def invalid_def bot_fun_def defined_def valid_def false_def true_def)
+
+lemma includes_strict3[simp,code_unfold]:"(null->includes(x)) = invalid"
+by(simp add: OclIncludes_def invalid_def bot_fun_def defined_def valid_def false_def true_def)
+
+(*  forall ? exists ?*)
+
+subsection{* Fundamental Predicates : execution II *}
 
 subsubsection{* Some computational laws:*}
 
