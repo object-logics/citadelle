@@ -162,7 +162,7 @@ value "\<tau>\<^isub>0 \<Turnstile> (( \<four> \<oplus> \<four> ) \<preceq> \<on
 value "\<not>(\<tau>\<^isub>0 \<Turnstile> ((\<four> \<oplus>( \<four> \<oplus> \<four> )) \<prec> \<one>\<zero> ))"
 
 
-section{* Fundamental Predicates : Strict Equality on Boolean and Integer *}
+section{* Fundamental Predicates on Boolean and Integer : Strict Equality *}
 
 subsection{* Definition *}
 
@@ -668,7 +668,10 @@ lemmas cp_intro''[simp,intro!] =
        cp_OclIncluding [THEN allI[THEN allI[THEN allI[THEN cp'I2]], of "OclIncluding"]]
 *)
 
-subsection{* Fundamental Predicates: Validity and Definedness *}
+section{* Fundamental Predicates on Set *}
+subsection{* Validity and Definedness *}
+
+subsubsection{* OclIncluding *}
 
 lemma including_defined_args_valid:
 "(\<tau> \<Turnstile> \<delta>(X->including(x))) = ((\<tau> \<Turnstile>(\<delta> X)) \<and> (\<tau> \<Turnstile>(\<upsilon> x)))"
@@ -721,6 +724,7 @@ lemma including_valid_args_valid''[simp,code_unfold]:
 by(auto intro!: transform2_rev simp:including_valid_args_valid foundation10 defined_and_I)
 
 
+subsubsection{* OclExcluding *}
 
 lemma excluding_defined_args_valid:
 "(\<tau> \<Turnstile> \<delta>(X->excluding(x))) = ((\<tau> \<Turnstile>(\<delta> X)) \<and> (\<tau> \<Turnstile>(\<upsilon> x)))"
@@ -773,7 +777,7 @@ lemma excluding_valid_args_valid''[simp,code_unfold]:
 "\<upsilon>(X->excluding(x)) = ((\<delta> X) and (\<upsilon> x))"
 by(auto intro!: transform2_rev simp:excluding_valid_args_valid foundation10 defined_and_I)
 
-
+subsubsection{* OclIncludes *}
 
 lemma includes_defined_args_valid:
 "(\<tau> \<Turnstile> \<delta>(X->includes(x))) = ((\<tau> \<Turnstile>(\<delta> X)) \<and> (\<tau> \<Turnstile>(\<upsilon> x)))"
@@ -820,7 +824,7 @@ by(auto intro!: transform2_rev simp:includes_valid_args_valid foundation10 defin
 
 
 
-subsection{* Fundamental Predicates : execution I *}
+subsection{* Execution (I) *}
 
 subsubsection{* OclIterate *}
 
@@ -840,7 +844,7 @@ oops
 text{* In the definition above, this does not hold in general.
        And I believe, this is how it should be ... *}
 
-subsubsection{* OclIncluding and OclExcluding *}
+subsubsection{* OclIncluding *}
 
 lemma including_strict1[simp,code_unfold]:"(invalid->including(x)) = invalid"
 by(simp add: bot_fun_def OclIncluding_def invalid_def defined_def valid_def false_def true_def)
@@ -875,9 +879,9 @@ by(simp add: OclIncludes_def invalid_def bot_fun_def defined_def valid_def false
 
 (*  forall ? exists ?*)
 
-subsection{* Fundamental Predicates : execution II *}
+subsection{* Execution (II) Some computational laws *}
 
-subsubsection{* Some computational laws:*}
+subsubsection{* OclIncluding and OclIncludes *}
 
 lemma including_charn0[simp]:
 assumes val_x:"\<tau> \<Turnstile> (\<upsilon> x)"
@@ -1033,7 +1037,7 @@ proof -
   done
 qed
 
-subsection{* Strict Equality on Sets *}
+subsection{* Strict Equality *}
 
 text{* This section of foundational operations on sets is closed with a paragraph
 on equality. Strong Equality is inherited from the OCL core, but we have to consider
@@ -1082,7 +1086,7 @@ lemma strictRefEq_set_vs_strongEq:
 apply(drule foundation13[THEN iffD2],drule foundation13[THEN iffD2])
 by(simp add:StrictRefEq_set foundation22)
 
-subsection{* Algebraic Properties on Strict Equality on Sets *}
+subsection{* Algebraic Properties on Strict Equality *}
 
 text{* One might object here that for the case of objects, this is an empty definition.
 The answer is no, we will restrain later on states and objects such that any object
@@ -2247,6 +2251,7 @@ lemma [simp]:
  shows "\<delta> ((X ->including(x)) ->size()) = (\<delta>(X) and \<upsilon>(x))"
 by(simp add: size_defined[OF X_finite])
 
+section{* Example *}
 subsection{* Gogolla's Challenge on Sets *}
 
 (*
