@@ -206,23 +206,11 @@ by(rule ext, simp add: StrictRefEq_int true_def false_def)
 lemma StrictRefEq_int_strict2[simp] : "(invalid \<doteq> (x::('\<AA>)Integer)) = invalid"
 by(rule ext, simp add: StrictRefEq_int true_def false_def)
 
-text{* WARNING: same definition as strictEqInt_valid_args_valid ? *}
-lemma StrictRefEq_int_strictEq_valid_args_valid:
-"(\<tau> \<Turnstile> \<delta> ((x::('\<AA>)Integer) \<doteq> y)) = ((\<tau> \<Turnstile> (\<upsilon> x)) \<and> (\<tau> \<Turnstile> \<upsilon> y))"
-proof -
-   have A: "\<tau> \<Turnstile> \<delta> (x \<doteq> y) \<Longrightarrow> \<tau> \<Turnstile> \<upsilon> x \<and> \<tau> \<Turnstile> \<upsilon> y"
-           apply(simp add: StrictRefEq_int valid_def OclValid_def defined_def)
-           apply(simp add: invalid_def bot_fun_def split: split_if_asm)
-           done
-   have B: "(\<tau> \<Turnstile> \<upsilon> x) \<and> (\<tau> \<Turnstile> \<upsilon> y) \<Longrightarrow> \<tau> \<Turnstile> \<delta> (x \<doteq> y)"
-           apply(simp add: StrictRefEq_int, elim conjE)
-           apply(drule foundation13[THEN iffD2],drule foundation13[THEN iffD2])
-           apply(rule cp_validity[THEN iffD2])
-           apply(subst cp_defined, simp add: foundation22)
-           apply(simp add: cp_defined[symmetric] cp_validity[symmetric])
-           done
-   show ?thesis by(auto intro!: A B)
-qed
+lemma StrictRefEq_int_defined_args_valid:
+"(\<tau> \<Turnstile> \<delta>((x::('\<AA>)Integer) \<doteq> y)) = ((\<tau> \<Turnstile>(\<upsilon> x)) \<and> (\<tau> \<Turnstile>(\<upsilon> y)))"
+by(auto simp: StrictRefEq_int OclValid_def true_def valid_def false_def StrongEq_def
+              defined_def invalid_def null_fun_def bot_fun_def null_option_def bot_option_def
+        split: bool.split_asm HOL.split_if_asm option.split)
 
 lemma StrictRefEq_bool_strict1[simp] : "((x::('\<AA>)Boolean) \<doteq> invalid) = invalid"
 by(rule ext, simp add: StrictRefEq_bool true_def false_def)
@@ -230,22 +218,11 @@ by(rule ext, simp add: StrictRefEq_bool true_def false_def)
 lemma StrictRefEq_bool_strict2[simp] : "(invalid \<doteq> (x::('\<AA>)Boolean)) = invalid"
 by(rule ext, simp add: StrictRefEq_bool true_def false_def)
 
-lemma StrictRefEq_bool_strictEq_valid_args_valid:
-"(\<tau> \<Turnstile> \<delta> ((x::('\<AA>)Boolean) \<doteq> y)) = ((\<tau> \<Turnstile> (\<upsilon> x)) \<and> (\<tau> \<Turnstile> \<upsilon> y))"
-proof -
-   have A: "\<tau> \<Turnstile> \<delta> (x \<doteq> y) \<Longrightarrow> \<tau> \<Turnstile> \<upsilon> x \<and> \<tau> \<Turnstile> \<upsilon> y"
-           apply(simp add: StrictRefEq_bool valid_def OclValid_def defined_def)
-           apply(simp add: invalid_def bot_fun_def split: split_if_asm)
-           done
-   have B: "(\<tau> \<Turnstile> \<upsilon> x) \<and> (\<tau> \<Turnstile> \<upsilon> y) \<Longrightarrow> \<tau> \<Turnstile> \<delta> (x \<doteq> y)"
-           apply(simp add: StrictRefEq_bool, elim conjE)
-           apply(drule foundation13[THEN iffD2],drule foundation13[THEN iffD2])
-           apply(rule cp_validity[THEN iffD2])
-           apply(subst cp_defined, simp add: foundation22)
-           apply(simp add: cp_defined[symmetric] cp_validity[symmetric])
-           done
-   show ?thesis by(auto intro!: A B)
-qed
+lemma StrictRefEq_bool_defined_args_valid:
+"(\<tau> \<Turnstile> \<delta>((x::('\<AA>)Boolean) \<doteq> y)) = ((\<tau> \<Turnstile>(\<upsilon> x)) \<and> (\<tau> \<Turnstile>(\<upsilon> y)))"
+by(auto simp: StrictRefEq_bool OclValid_def true_def valid_def false_def StrongEq_def
+              defined_def invalid_def null_fun_def bot_fun_def null_option_def bot_option_def
+        split: bool.split_asm HOL.split_if_asm option.split)
 
 lemma StrictRefEq_bool_vs_strongEq:
 "\<tau> \<Turnstile>(\<upsilon> x) \<Longrightarrow> \<tau> \<Turnstile>(\<upsilon> y) \<Longrightarrow> (\<tau> \<Turnstile> (((x::('\<AA>)Boolean) \<doteq> y) \<triangleq> (x \<triangleq> y)))"
@@ -272,17 +249,7 @@ lemma StrictRefEq_int_defargs:
 by(simp add: StrictRefEq_int OclValid_def true_def invalid_def valid_def bot_option_def
            split: bool.split_asm HOL.split_if_asm)
 
-lemma StrictRefEq_bool_valid_args_valid:
-"(\<tau> \<Turnstile> \<delta>((x::('\<AA>)Boolean) \<doteq> y)) = ((\<tau> \<Turnstile>(\<upsilon> x)) \<and> (\<tau> \<Turnstile>(\<upsilon> y)))"
-by(auto simp: StrictRefEq_bool OclValid_def true_def valid_def false_def StrongEq_def
-              defined_def invalid_def null_fun_def bot_fun_def null_option_def bot_option_def
-        split: bool.split_asm HOL.split_if_asm option.split)
 
-lemma StrictRefEq_int_valid_args_valid:
-"(\<tau> \<Turnstile> \<delta>((x::('\<AA>)Integer) \<doteq> y)) = ((\<tau> \<Turnstile>(\<upsilon> x)) \<and> (\<tau> \<Turnstile>(\<upsilon> y)))"
-by(auto simp: StrictRefEq_int OclValid_def true_def valid_def false_def StrongEq_def
-              defined_def invalid_def null_fun_def bot_fun_def null_option_def bot_option_def
-        split: bool.split_asm HOL.split_if_asm option.split)
 
 
 (* Probably not very useful *)
@@ -311,10 +278,10 @@ lemma StrictRefEq_int_strict' :
   done
 
 lemma StrictRefEq_int_strict'' : "\<delta> ((x::('\<AA>)Integer) \<doteq> y) = (\<upsilon>(x) and \<upsilon>(y))"
-by(auto intro!: transform2_rev defined_and_I simp:foundation10 StrictRefEq_int_valid_args_valid)
+by(auto intro!: transform2_rev defined_and_I simp:foundation10 StrictRefEq_int_defined_args_valid)
 
 lemma StrictRefEq_bool_strict'' : "\<delta> ((x::('\<AA>)Boolean) \<doteq> y) = (\<upsilon>(x) and \<upsilon>(y))"
-by(auto intro!: transform2_rev defined_and_I simp:foundation10 StrictRefEq_bool_valid_args_valid)
+by(auto intro!: transform2_rev defined_and_I simp:foundation10 StrictRefEq_bool_defined_args_valid)
 
 
 lemma cp_StrictRefEq_bool:
@@ -2829,7 +2796,7 @@ proof -
    apply(simp add: OclIncludes_def OclValid_def)
    apply (metis discr_eq_bot2_true)
   apply(simp add: cp_if_ocl[of "\<delta> S"] OclValid_def if_ocl_def discr_neq_invalid_true discr_eq_invalid_true)
- by(metis OclValid_def StrictRefEq_int_valid_args_valid)
+ by(metis OclValid_def StrictRefEq_int_defined_args_valid)
 
  have forall_includes2 : "\<And>a b. \<tau> \<Turnstile> \<upsilon> a \<Longrightarrow> \<tau> \<Turnstile> \<upsilon> b \<Longrightarrow> \<tau> \<Turnstile> \<delta> S \<Longrightarrow> \<tau> \<Turnstile> (OclForall S (OclIncludes (S->including(a)->including(b))))"
  proof -
@@ -2885,7 +2852,7 @@ proof -
    apply (metis OclValid_def foundation10 foundation6)
   apply(simp add: cp_if_ocl[symmetric])
   apply(simp add: if_ocl_def discr_eq_invalid_true)
-  apply (metis OclValid_def StrictRefEq_int_valid_args_valid)
+  apply (metis OclValid_def StrictRefEq_int_defined_args_valid)
   (* *)
   apply(subst forall_set_including_exec)
   apply(simp add: cp_OclIncludes1[where x = i])
@@ -2920,7 +2887,7 @@ proof -
    apply (metis OclValid_def foundation10 foundation6)
   apply(simp add: cp_if_ocl[symmetric])
   apply(simp add: if_ocl_def discr_eq_invalid_true)
-  apply (metis OclValid_def StrictRefEq_int_valid_args_valid)
+  apply (metis OclValid_def StrictRefEq_int_defined_args_valid)
   (* *)
   apply(subst forall_set_including_exec)
   apply(simp add: cp_OclIncludes1[where x = j])
