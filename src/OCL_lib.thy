@@ -162,7 +162,7 @@ value "\<tau>\<^isub>0 \<Turnstile> (( \<four> \<oplus> \<four> ) \<preceq> \<on
 value "\<not>(\<tau>\<^isub>0 \<Turnstile> ((\<four> \<oplus>( \<four> \<oplus> \<four> )) \<prec> \<one>\<zero> ))"
 
 
-section{* Fundamental Predicates : Strict Equality *}
+section{* Fundamental Predicates : Strict Equality on Boolean and Integer *}
 
 subsection{* Definition *}
 
@@ -179,32 +179,25 @@ syntax
 translations
   "a <> b" == "CONST not( a \<doteq> b)"
 
-defs   StrictRefEq_int[code_unfold] :
-      "(x::('\<AA>)Integer) \<doteq> y \<equiv> \<lambda> \<tau>. if (\<upsilon> x) \<tau> = true \<tau> \<and> (\<upsilon> y) \<tau> = true \<tau>
-                                    then (x \<triangleq> y) \<tau>
-                                    else invalid \<tau>"
-
 defs   StrictRefEq_bool[code_unfold] :
       "(x::('\<AA>)Boolean) \<doteq> y \<equiv> \<lambda> \<tau>. if (\<upsilon> x) \<tau> = true \<tau> \<and> (\<upsilon> y) \<tau> = true \<tau>
                                     then (x \<triangleq> y)\<tau>
                                     else invalid \<tau>"
 
+defs   StrictRefEq_int[code_unfold] :
+      "(x::('\<AA>)Integer) \<doteq> y \<equiv> \<lambda> \<tau>. if (\<upsilon> x) \<tau> = true \<tau> \<and> (\<upsilon> y) \<tau> = true \<tau>
+                                    then (x \<triangleq> y) \<tau>
+                                    else invalid \<tau>"
 
 subsection{* Logic and Algebraic Layer on Basic Types *}
 
-lemma StrictRefEq_int_refl[simp,code_unfold] :
-"((x::('\<AA>)Integer) \<doteq> x) = (if (\<upsilon> x) then true else invalid endif)"
-by(rule ext, simp add: StrictRefEq_int if_ocl_def)
+subsubsection{* Validity and Definedness (I) *}
 
-lemma StrictRefEq_bool_refl[simp,code_unfold] :
-"((x::('\<AA>)Boolean) \<doteq> x) = (if (\<upsilon> x) then true else invalid endif)"
-by(rule ext, simp add: StrictRefEq_bool if_ocl_def)
-
-lemma StrictRefEq_int_strict1[simp] : "((x::('\<AA>)Integer) \<doteq> invalid) = invalid"
-by(rule ext, simp add: StrictRefEq_int true_def false_def)
-
-lemma StrictRefEq_int_strict2[simp] : "(invalid \<doteq> (x::('\<AA>)Integer)) = invalid"
-by(rule ext, simp add: StrictRefEq_int true_def false_def)
+lemma StrictRefEq_bool_defined_args_valid:
+"(\<tau> \<Turnstile> \<delta>((x::('\<AA>)Boolean) \<doteq> y)) = ((\<tau> \<Turnstile>(\<upsilon> x)) \<and> (\<tau> \<Turnstile>(\<upsilon> y)))"
+by(auto simp: StrictRefEq_bool OclValid_def true_def valid_def false_def StrongEq_def
+              defined_def invalid_def null_fun_def bot_fun_def null_option_def bot_option_def
+        split: bool.split_asm HOL.split_if_asm option.split)
 
 lemma StrictRefEq_int_defined_args_valid:
 "(\<tau> \<Turnstile> \<delta>((x::('\<AA>)Integer) \<doteq> y)) = ((\<tau> \<Turnstile>(\<upsilon> x)) \<and> (\<tau> \<Turnstile>(\<upsilon> y)))"
@@ -212,17 +205,44 @@ by(auto simp: StrictRefEq_int OclValid_def true_def valid_def false_def StrongEq
               defined_def invalid_def null_fun_def bot_fun_def null_option_def bot_option_def
         split: bool.split_asm HOL.split_if_asm option.split)
 
+subsubsection{* Validity and Definedness (II) *}
+
+lemma StrictRefEq_bool_defargs:
+"\<tau> \<Turnstile> ((x::('\<AA>)Boolean) \<doteq> y) \<Longrightarrow> (\<tau> \<Turnstile> (\<upsilon> x)) \<and> (\<tau> \<Turnstile>(\<upsilon> y))"
+by(simp add: StrictRefEq_bool OclValid_def true_def invalid_def
+             bot_option_def
+        split: bool.split_asm HOL.split_if_asm)
+
+lemma StrictRefEq_int_defargs:
+"\<tau> \<Turnstile> ((x::('\<AA>)Integer) \<doteq> y) \<Longrightarrow> (\<tau> \<Turnstile> (\<upsilon> x)) \<and> (\<tau> \<Turnstile> (\<upsilon> y))"
+by(simp add: StrictRefEq_int OclValid_def true_def invalid_def valid_def bot_option_def
+           split: bool.split_asm HOL.split_if_asm)
+
+subsubsection{* Reflexivity *}
+
+lemma StrictRefEq_bool_refl[simp,code_unfold] :
+"((x::('\<AA>)Boolean) \<doteq> x) = (if (\<upsilon> x) then true else invalid endif)"
+by(rule ext, simp add: StrictRefEq_bool if_ocl_def)
+
+lemma StrictRefEq_int_refl[simp,code_unfold] :
+"((x::('\<AA>)Integer) \<doteq> x) = (if (\<upsilon> x) then true else invalid endif)"
+by(rule ext, simp add: StrictRefEq_int if_ocl_def)
+
+subsubsection{* Execution with invalid as argument *}
+
 lemma StrictRefEq_bool_strict1[simp] : "((x::('\<AA>)Boolean) \<doteq> invalid) = invalid"
 by(rule ext, simp add: StrictRefEq_bool true_def false_def)
 
 lemma StrictRefEq_bool_strict2[simp] : "(invalid \<doteq> (x::('\<AA>)Boolean)) = invalid"
 by(rule ext, simp add: StrictRefEq_bool true_def false_def)
 
-lemma StrictRefEq_bool_defined_args_valid:
-"(\<tau> \<Turnstile> \<delta>((x::('\<AA>)Boolean) \<doteq> y)) = ((\<tau> \<Turnstile>(\<upsilon> x)) \<and> (\<tau> \<Turnstile>(\<upsilon> y)))"
-by(auto simp: StrictRefEq_bool OclValid_def true_def valid_def false_def StrongEq_def
-              defined_def invalid_def null_fun_def bot_fun_def null_option_def bot_option_def
-        split: bool.split_asm HOL.split_if_asm option.split)
+lemma StrictRefEq_int_strict1[simp] : "((x::('\<AA>)Integer) \<doteq> invalid) = invalid"
+by(rule ext, simp add: StrictRefEq_int true_def false_def)
+
+lemma StrictRefEq_int_strict2[simp] : "(invalid \<doteq> (x::('\<AA>)Integer)) = invalid"
+by(rule ext, simp add: StrictRefEq_int true_def false_def)
+
+subsubsection{* Behavior vs StrongEq *}
 
 lemma StrictRefEq_bool_vs_strongEq:
 "\<tau> \<Turnstile>(\<upsilon> x) \<Longrightarrow> \<tau> \<Turnstile>(\<upsilon> y) \<Longrightarrow> (\<tau> \<Turnstile> (((x::('\<AA>)Boolean) \<doteq> y) \<triangleq> (x \<triangleq> y)))"
@@ -237,20 +257,13 @@ apply(simp add: StrictRefEq_int OclValid_def)
 apply(subst cp_StrongEq)back
 by simp
 
+subsubsection{* Miscellaneous *}
 
-lemma StrictRefEq_bool_defargs:
-"\<tau> \<Turnstile> ((x::('\<AA>)Boolean) \<doteq> y) \<Longrightarrow> (\<tau> \<Turnstile> (\<upsilon> x)) \<and> (\<tau> \<Turnstile>(\<upsilon> y))"
-by(simp add: StrictRefEq_bool OclValid_def true_def invalid_def
-             bot_option_def
-        split: bool.split_asm HOL.split_if_asm)
+lemma StrictRefEq_bool_strict'' : "\<delta> ((x::('\<AA>)Boolean) \<doteq> y) = (\<upsilon>(x) and \<upsilon>(y))"
+by(auto intro!: transform2_rev defined_and_I simp:foundation10 StrictRefEq_bool_defined_args_valid)
 
-lemma StrictRefEq_int_defargs:
-"\<tau> \<Turnstile> ((x::('\<AA>)Integer) \<doteq> y) \<Longrightarrow> (\<tau> \<Turnstile> (\<upsilon> x)) \<and> (\<tau> \<Turnstile> (\<upsilon> y))"
-by(simp add: StrictRefEq_int OclValid_def true_def invalid_def valid_def bot_option_def
-           split: bool.split_asm HOL.split_if_asm)
-
-
-
+lemma StrictRefEq_int_strict'' : "\<delta> ((x::('\<AA>)Integer) \<doteq> y) = (\<upsilon>(x) and \<upsilon>(y))"
+by(auto intro!: transform2_rev defined_and_I simp:foundation10 StrictRefEq_int_defined_args_valid)
 
 (* Probably not very useful *)
 lemma StrictRefEq_int_strict :
@@ -277,12 +290,7 @@ lemma StrictRefEq_int_strict' :
   apply(simp_all add: true_def invalid_def bot_fun_def)
   done
 
-lemma StrictRefEq_int_strict'' : "\<delta> ((x::('\<AA>)Integer) \<doteq> y) = (\<upsilon>(x) and \<upsilon>(y))"
-by(auto intro!: transform2_rev defined_and_I simp:foundation10 StrictRefEq_int_defined_args_valid)
-
-lemma StrictRefEq_bool_strict'' : "\<delta> ((x::('\<AA>)Boolean) \<doteq> y) = (\<upsilon>(x) and \<upsilon>(y))"
-by(auto intro!: transform2_rev defined_and_I simp:foundation10 StrictRefEq_bool_defined_args_valid)
-
+subsubsection{* Context Passing *}
 
 lemma cp_StrictRefEq_bool:
 "((X::('\<AA>)Boolean) \<doteq> Y) \<tau> = ((\<lambda> _. X \<tau>) \<doteq> (\<lambda> _. Y \<tau>)) \<tau>"
@@ -342,6 +350,8 @@ lemma  "\<delta>(null::('\<AA>)Integer) = false" by simp (* recall *)
 lemma  "\<upsilon>(null::('\<AA>)Integer) = true"  by simp (* recall *)
 
 subsection{* More algebraic and logical layer on basic types*}
+
+subsubsection{* Execution with Integer as argument *}
 
 lemma zero_non_null [simp]: "(\<zero> \<doteq> null) = false"
 by(rule ext,auto simp:ocl_zero_def  null_def StrictRefEq_int valid_def invalid_def
@@ -1342,12 +1352,12 @@ qed
 (* Hack to work around OF-Bug *)
 schematic_lemma excluding_charn_exec_int[code_unfold]: "?X"
 by(rule excluding_charn_exec[OF StrictRefEq_int_strict1 StrictRefEq_int_strict2
-                                StrictRefEq_int_strictEq_valid_args_valid
+                                StrictRefEq_int_defined_args_valid
                              cp_StrictRefEq_int StrictRefEq_int_vs_strongEq], simp_all)
 
 schematic_lemma excluding_charn_exec_bool[code_unfold]: "?X"
 by(rule excluding_charn_exec[OF StrictRefEq_bool_strict1 StrictRefEq_bool_strict2
-                                StrictRefEq_bool_strictEq_valid_args_valid
+                                StrictRefEq_bool_defined_args_valid
                              cp_StrictRefEq_bool StrictRefEq_bool_vs_strongEq], simp_all)
 
 schematic_lemma excluding_charn_exec_set[code_unfold]: "?X"
