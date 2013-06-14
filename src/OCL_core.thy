@@ -59,7 +59,7 @@ the presentation more "textbook"-like:*}
 notation Some ("\<lfloor>(_)\<rfloor>")
 notation None ("\<bottom>")
 
-text{* The following function (correspon ding to @{term the} in the Isabelle/HOL library) 
+text{* The following function (corresponding to @{term the} in the Isabelle/HOL library) 
 is defined as the inverse of the injection @{term Some}. *}
 fun    drop :: "'\<alpha> option \<Rightarrow> '\<alpha>" ("\<lceil>(_)\<rceil>")
 where  drop_lift[simp]: "\<lceil>\<lfloor>v\<rfloor>\<rceil> = v"
@@ -98,7 +98,7 @@ that the @{text "invalid"} element is not allowed inside the collection;
 all raw-collections of this form were identified with the @{text "invalid"} element
 itself. The construction requires that the new collection type is
 un-comparable with the raw-types (consisting of nested option type constructions),
-such that the data-invariant mussed be expressed in terms of the interface.
+such that the data-invariant must be expressed in terms of the interface.
 In a second step, our base-types will be shown to be instances of this interface.
  *}
 
