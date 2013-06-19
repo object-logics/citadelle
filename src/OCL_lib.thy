@@ -5099,11 +5099,11 @@ proof -
  have commute7: "EQ_comp_fun_commute (\<lambda>x acc. acc->including(x)->including(\<zero>))" apply(rule including_commute2) by (simp add: zero_int)
  have commute4: "\<And>x acc. is_int x \<Longrightarrow> EQ_comp_fun_commute (\<lambda>xa acc. acc->including(\<zero>)->including(xa)->including(x))" apply(rule including_commute4) by(simp add: zero_int, blast)
  have commute3: "\<And>x acc. is_int x \<Longrightarrow> EQ_comp_fun_commute (\<lambda>xa acc. acc->including(\<zero>)->including(x)->including(xa))" apply(rule including_commute6) by(simp add: zero_int, blast)
- have commute1: "EQ_comp_fun_commute (\<lambda>x acc. acc ->iterate(j;r2=acc | r2->including(\<zero>)->including(j)->including(x)))" sorry
- have commute2: "EQ_comp_fun_commute (\<lambda>x acc. acc ->iterate(j;r2=acc | r2->including(\<zero>)->including(x)->including(j)))" sorry
  have commute5: "EQ_comp_fun_commute (\<lambda>x acc. acc ->iterate(j;r2=acc | r2->including(\<zero>)->including(j))->including(x))" sorry
  have commute6: "EQ_comp_fun_commute (\<lambda>x acc. acc ->iterate(j;r2=acc | r2->including(j)->including(\<zero>))->including(x))" sorry
  have commute9: "EQ_comp_fun_commute (\<lambda>x acc. acc ->iterate(j;r2=acc | r2->including(j))->including(\<zero>)->including(x))" sorry
+ have commute1: "EQ_comp_fun_commute (\<lambda>x acc. acc ->iterate(j;r2=acc | r2->including(\<zero>)->including(j)->including(x)))" sorry
+ have commute2: "EQ_comp_fun_commute (\<lambda>x acc. acc ->iterate(j;r2=acc | r2->including(\<zero>)->including(x)->including(j)))" sorry
 
  have set68_notempty : "\<And>(\<tau>:: 'a state \<times> 'a state). \<lceil>\<lceil>Rep_Set_0 (Set{\<six>, \<eight>} \<tau>)\<rceil>\<rceil> \<noteq> {}"
   apply(rule including_notempty)
