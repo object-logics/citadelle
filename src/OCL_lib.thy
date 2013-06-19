@@ -2290,8 +2290,8 @@ locale EQ_comp_fun_commute =
   fixes f :: "('a state \<times> 'a state \<Rightarrow> int option option)
               \<Rightarrow> ('a state \<times> 'a state \<Rightarrow> int option option Set_0)
               \<Rightarrow> ('a state \<times> 'a state \<Rightarrow> int option option Set_0)"
-  assumes cp_S : "\<And>x. cp (f x)"
-  assumes cp_x : "\<And>S. cp (\<lambda>x. f x S)"
+  assumes cp_x : "\<And>x S \<tau>. f x S \<tau> = f (\<lambda>_. x \<tau>) S \<tau>"
+  assumes cp_set : "\<And>x S \<tau>. f x S \<tau> = f x (\<lambda>_. S \<tau>) \<tau>"
   assumes cp_gen : "\<And>x S \<tau>1 \<tau>2. is_int x \<Longrightarrow> (\<And>\<tau>. all_defined \<tau> S) \<Longrightarrow> S \<tau>1 = S \<tau>2 \<Longrightarrow> f x S \<tau>1 = f x S \<tau>2"
   assumes notempty : "\<And>x S \<tau>. (\<And>\<tau>. all_defined \<tau> S) \<Longrightarrow> \<tau> \<Turnstile> \<upsilon> x \<Longrightarrow> \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil> \<noteq> {} \<Longrightarrow> \<lceil>\<lceil>Rep_Set_0 (f x S \<tau>)\<rceil>\<rceil> \<noteq> {}"
   assumes all_def: "\<And>(x:: 'a state \<times> 'a state \<Rightarrow> int option option) y. all_defined \<tau> (f x y) = (\<tau> \<Turnstile> \<upsilon> x \<and> all_defined \<tau> y)"
@@ -2349,7 +2349,7 @@ locale EQ_comp_fun_commute0 =
   fixes f :: "int option option
               \<Rightarrow> ('a state \<times> 'a state \<Rightarrow> int option option Set_0)
               \<Rightarrow> ('a state \<times> 'a state \<Rightarrow> int option option Set_0)"
-  assumes cp_S : "\<And>x. cp (f x)"
+  assumes cp_set : "\<And>x S \<tau>. f x S \<tau> = f x (\<lambda>_. S \<tau>) \<tau>"
   assumes cp_gen' : "\<And>x S \<tau>1 \<tau>2. is_int (\<lambda>(_::'a state \<times> 'a state). x) \<Longrightarrow> \<forall>\<tau>. all_defined \<tau> S \<Longrightarrow> S \<tau>1 = S \<tau>2 \<Longrightarrow> f x S \<tau>1 = f x S \<tau>2"
   assumes notempty' : "\<And>x S \<tau>. \<forall>\<tau>. all_defined \<tau> S \<Longrightarrow> is_int (\<lambda>(_::'a state \<times> 'a state). x) \<Longrightarrow> \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil> \<noteq> {} \<Longrightarrow> \<lceil>\<lceil>Rep_Set_0 (f x S \<tau>)\<rceil>\<rceil> \<noteq> {}"
   assumes all_def: "\<And>x y. (\<forall>\<tau>. all_defined \<tau> (f x y)) = (is_int (\<lambda>(_::'a state \<times> 'a state). x) \<and> (\<forall>\<tau>. all_defined \<tau> y))"
@@ -2376,7 +2376,7 @@ locale EQ_comp_fun_commute0' =
   fixes f :: "int option
               \<Rightarrow> ('a state \<times> 'a state \<Rightarrow> int option option Set_0)
               \<Rightarrow> ('a state \<times> 'a state \<Rightarrow> int option option Set_0)"
-  assumes cp_S : "\<And>x. cp (f x)"
+  assumes cp_set : "\<And>x S \<tau>. f x S \<tau> = f x (\<lambda>_. S \<tau>) \<tau>"
   assumes cp_gen' : "\<And>x S \<tau>1 \<tau>2. is_int (\<lambda>(_::'a state \<times> 'a state). \<lfloor>x\<rfloor>) \<Longrightarrow> \<forall>\<tau>. all_defined \<tau> S \<Longrightarrow> S \<tau>1 = S \<tau>2 \<Longrightarrow> f x S \<tau>1 = f x S \<tau>2"
   assumes notempty' : "\<And>x S \<tau>. \<forall>\<tau>. all_defined \<tau> S \<Longrightarrow> is_int (\<lambda>(_::'a state \<times> 'a state). \<lfloor>x\<rfloor>) \<Longrightarrow> \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil> \<noteq> {} \<Longrightarrow> \<lceil>\<lceil>Rep_Set_0 (f x S \<tau>)\<rceil>\<rceil> \<noteq> {}"
   assumes all_def: "\<And>x y. (\<forall>\<tau>. all_defined \<tau> (f x y)) = (is_int (\<lambda>(_::'a state \<times> 'a state). \<lfloor>x\<rfloor>) \<and> (\<forall>\<tau>. all_defined \<tau> y))"
@@ -2402,11 +2402,8 @@ by(insert assms, simp only: EQ_comp_fun_commute0'_def EQ_comp_fun_commute0_def, 
 context EQ_comp_fun_commute
 begin
 
- lemma F_cp : "f x S \<tau> = f (\<lambda>_. x \<tau>) S \<tau>"
- by (metis cp_x StrongEq_L_subst1 foundation22)
-
- lemma F_cp_set : "f x y \<tau> = f x (\<lambda>_. y \<tau>) \<tau>"
- by (metis cp_S StrongEq_L_subst1 foundation22)
+ lemmas F_cp = cp_x
+ lemmas F_cp_set = cp_set
 
  lemma insertI_bis : "x \<notin> A \<Longrightarrow> \<tau> \<Turnstile> \<delta> x \<Longrightarrow> fold_graph f z A y \<Longrightarrow> fold_graph f z (insert x A) (f x y)"
   apply(rule insertI, simp_all)
@@ -2691,10 +2688,8 @@ proof -
  have all_defined1 : "\<And>r2 \<tau>. all_defined \<tau> r2 \<Longrightarrow> \<tau> \<Turnstile> \<delta> r2" by(simp add: all_defined_def)
 
  have F_cp : "\<And> x y \<tau>. F x y \<tau> = F (\<lambda> _. x \<tau>) y \<tau>"
-  proof - fix x y \<tau> show "F x y \<tau> = F (\<lambda> _. x \<tau>) y \<tau>"
-   apply(insert F_commute[simplified EQ_comp_fun_commute_def, THEN conjunct1, THEN conjunct2, THEN conjunct1, THEN spec, of y])
-   apply(unfold cp_def)
-  by metis
+  proof - interpret EQ_comp_fun_commute F by (rule F_commute) fix x y \<tau> show "F x y \<tau> = F (\<lambda> _. x \<tau>) y \<tau>"
+   by(rule F_cp)
  qed
 
  have F_val : "\<And>\<tau>. \<tau> \<Turnstile> \<upsilon> (F a A)"
@@ -3055,9 +3050,6 @@ lemma iterate_subst_set :
    shows "(S->iterate(x;acc=A|F x acc)) = (S->iterate(x;acc=A|G x acc))"
 proof -
 
- have F_cp : "\<And>x. (\<forall>\<tau>. (\<tau> \<Turnstile> \<delta> x)) \<Longrightarrow> cp (F x)"
- by(simp add: F_commute[simplified EQ_comp_fun_commute_def])
-
  have fold_F  : "\<And>x acc. (\<forall>\<tau>. (\<tau> \<Turnstile> \<upsilon> x)) \<Longrightarrow> (\<forall>\<tau>. all_defined \<tau> acc) \<Longrightarrow> \<forall>\<tau>. all_defined \<tau> (F x acc)"
   apply(rule allI) apply(erule_tac x = \<tau> in allE)+
  by(simp add: F_commute[simplified EQ_comp_fun_commute_def])
@@ -3193,9 +3185,6 @@ lemma iterate_subst_set' :
      and fold_eq : "\<And>x acc. is_int x \<Longrightarrow> (\<forall>\<tau>. all_defined \<tau> acc) \<Longrightarrow> \<forall>\<tau> \<tau>'. acc \<tau> = acc \<tau>' \<Longrightarrow> F x acc = G x acc"
    shows "(S->iterate(x;acc=A|F x acc)) = (S->iterate(x;acc=A|G x acc))"
 proof -
-
- have F_cp : "\<And>x. (\<forall>\<tau>. (\<tau> \<Turnstile> \<delta> x)) \<Longrightarrow> cp (F x)"
- by(simp add: F_commute[simplified EQ_comp_fun_commute_def])
 
  have fold_F  : "\<And>x acc. (\<forall>\<tau>. (\<tau> \<Turnstile> \<upsilon> x)) \<Longrightarrow> (\<forall>\<tau>. all_defined \<tau> acc) \<Longrightarrow> \<forall>\<tau>. all_defined \<tau> (F x acc)"
   apply(rule allI) apply(erule_tac x = \<tau> in allE)+
@@ -3356,9 +3345,6 @@ lemma iterate_subst_set'' :
      and fold_eq : "\<And>x acc. is_int x \<Longrightarrow> (\<forall>\<tau>. all_defined \<tau> acc) \<Longrightarrow> (\<And>\<tau>. \<lceil>\<lceil>Rep_Set_0 (acc \<tau>)\<rceil>\<rceil> \<noteq> {}) \<Longrightarrow> F x acc = G x acc"
    shows "(S->iterate(x;acc=A|F x acc)) = (S->iterate(x;acc=A|G x acc))"
 proof -
-
- have F_cp : "\<And>x. (\<forall>\<tau>. (\<tau> \<Turnstile> \<delta> x)) \<Longrightarrow> cp (F x)"
- by(simp add: F_commute[simplified EQ_comp_fun_commute_def])
 
  have fold_F  : "\<And>x acc. (\<forall>\<tau>. (\<tau> \<Turnstile> \<upsilon> x)) \<Longrightarrow> (\<forall>\<tau>. all_defined \<tau> acc) \<Longrightarrow> \<forall>\<tau>. all_defined \<tau> (F x acc)"
   apply(rule allI) apply(erule_tac x = \<tau> in allE)+
@@ -4006,21 +3992,18 @@ proof -
  show ?thesis
   apply(simp only: EQ_comp_fun_commute_def)
   apply(rule conjI)+
-  apply(rule allI)
+  apply(rule allI)+
 
-  proof - fix x show "cp (\<lambda>r2. ((F x r2)->including(a)))"
-  apply(simp only: cp_def)
-  apply(simp only: cp_OclIncluding[of _ a] f_cp[of x])
-  apply(rule_tac x = "\<lambda> X_\<tau> \<tau>. (\<lambda>_. (F (\<lambda>_. x \<tau>) (\<lambda>_. X_\<tau>) \<tau>)->including(\<lambda>_. a \<tau>)) \<tau>" in exI, simp)
-  done
-  apply_end(rule conjI)+ apply_end(rule allI)
+  proof - fix x S \<tau> show "(F x S)->including(a) \<tau> = (F (\<lambda>_. x \<tau>) S)->including(a) \<tau>"
+  by(subst (1 2) cp_OclIncluding, subst F_cp, simp)
 
-  fix S show "cp (\<lambda>x. (F x S)->including(a))"
-  apply(simp only: cp_def)
-  apply(subst cp_OclIncluding, subst f_cp)
-  apply(rule_tac x = "\<lambda> X_\<tau> \<tau>. (\<lambda>_. F (\<lambda>_. X_\<tau>) (\<lambda>_. S \<tau>) \<tau>->including(\<lambda>_. a \<tau>)) \<tau>" in exI, simp)
-  done
+  apply_end(rule conjI)+ apply_end(rule allI)+
+
+  fix x S \<tau> show "(F x S)->including(a) \<tau> = (F x (\<lambda>_. S \<tau>))->including(a) \<tau>"
+  by(subst (1 2) cp_OclIncluding, subst F_cp_set, simp)
+
   apply_end(rule allI)+ apply_end(rule impI)+
+
   fix x :: "'a state \<times> 'a state \<Rightarrow> int option option" fix S :: "'a state \<times> 'a state \<Rightarrow> int option option Set_0" fix \<tau>1 \<tau>2
   show "is_int x \<Longrightarrow> \<forall>\<tau>. all_defined \<tau> S \<Longrightarrow> S \<tau>1 = S \<tau>2 \<Longrightarrow> ((F x S)->including(a)) \<tau>1 = ((F x S)->including(a)) \<tau>2"
    apply(subgoal_tac "x \<tau>1 = x \<tau>2") prefer 2 apply (simp add: is_int_def) apply(metis surj_pair)
@@ -4075,7 +4058,7 @@ proof -
  have all_defined1 : "\<And>r2 \<tau>. all_defined \<tau> r2 \<Longrightarrow> \<tau> \<Turnstile> \<delta> r2" by(simp add: all_defined_def)
  show ?thesis
   apply(simp only: EQ_comp_fun_commute_def including_cp including_cp')
-  apply(rule conjI, rule conjI, simp) apply(rule conjI, simp) apply(rule allI)+
+  apply(rule conjI, rule conjI) apply(subst (1 2) cp_OclIncluding, simp) apply(rule conjI) apply(subst (1 2) cp_OclIncluding, simp) apply(rule allI)+
   apply(rule impI)+
   apply(rule including_cp_all) apply(simp) apply(rule all_defined1, blast) apply(simp)
   apply(rule conjI) apply(rule allI)+
@@ -4105,7 +4088,7 @@ proof -
  have i_val : "\<And>\<tau>. \<tau> \<Turnstile> \<upsilon> i" by (simp add: int_is_valid[OF i_int])
  show ?thesis
   apply(simp only: EQ_comp_fun_commute_def including_cp2 including_cp')
-  apply(rule conjI, rule conjI, simp) apply(rule conjI, simp) apply(rule allI)+
+  apply(rule conjI, rule conjI) apply(subst (1 2) cp_OclIncluding, simp) apply(rule conjI) apply(subst (1 2) cp_OclIncluding, subst (1 3) cp_OclIncluding, simp) apply(rule allI)+
   apply(rule impI)+
   apply(rule including_cp_all) apply(simp) apply (metis (hide_lams, no_types) all_defined1 foundation10 foundation6 i_val including_defined_args_valid')
   apply(rule including_cp_all) apply(simp add: i_int) apply(rule all_defined1, blast) apply(simp)
@@ -4197,7 +4180,8 @@ proof -
  have j_val : "\<And>\<tau>. \<tau> \<Turnstile> \<upsilon> j" by (simp add: int_is_valid[OF j_int])
  show ?thesis
   apply(simp only: EQ_comp_fun_commute_def including_cp3 including_cp''')
-  apply(rule conjI, rule conjI, simp) apply(rule conjI, simp) apply(rule allI)+
+  apply(rule conjI, rule conjI) apply(subst (1 2) cp_OclIncluding, simp)
+  apply(rule conjI) apply(subst (1 2) cp_OclIncluding, subst (1 3) cp_OclIncluding, subst (1 4) cp_OclIncluding, simp) apply(rule allI)+
   apply(rule impI)+
   apply(rule including_cp_all) apply(simp) apply (metis (hide_lams, no_types) all_defined1 cons_all_def i_val j_val)
   apply(rule including_cp_all) apply(simp) apply(simp add: j_int)  apply (metis (hide_lams, no_types) all_defined1 cons_all_def i_val)
