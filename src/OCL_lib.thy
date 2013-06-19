@@ -2345,6 +2345,60 @@ thm EQ_insertI
 inductive_cases EQ_empty_fold_graphE [elim!]: "EQ_fold_graph f z {} x"
 *)
 
+locale EQ_comp_fun_commute0 =
+  fixes f :: "int option option
+              \<Rightarrow> ('a state \<times> 'a state \<Rightarrow> int option option Set_0)
+              \<Rightarrow> ('a state \<times> 'a state \<Rightarrow> int option option Set_0)"
+  assumes cp_S : "\<And>x. cp (f x)"
+  assumes cp_gen' : "\<And>x S \<tau>1 \<tau>2. is_int (\<lambda>(_::'a state \<times> 'a state). x) \<Longrightarrow> \<forall>\<tau>. all_defined \<tau> S \<Longrightarrow> S \<tau>1 = S \<tau>2 \<Longrightarrow> f x S \<tau>1 = f x S \<tau>2"
+  assumes notempty' : "\<And>x S \<tau>. \<forall>\<tau>. all_defined \<tau> S \<Longrightarrow> is_int (\<lambda>(_::'a state \<times> 'a state). x) \<Longrightarrow> \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil> \<noteq> {} \<Longrightarrow> \<lceil>\<lceil>Rep_Set_0 (f x S \<tau>)\<rceil>\<rceil> \<noteq> {}"
+  assumes all_def: "\<And>x y. (\<forall>\<tau>. all_defined \<tau> (f x y)) = (is_int (\<lambda>(_::'a state \<times> 'a state). x) \<and> (\<forall>\<tau>. all_defined \<tau> y))"
+  assumes commute: "\<And>x y.
+                             is_int (\<lambda>(_::'a state \<times> 'a state). x) \<Longrightarrow>
+                             is_int (\<lambda>(_::'a state \<times> 'a state). y) \<Longrightarrow>
+                             (\<And>\<tau>. all_defined \<tau> S) \<Longrightarrow>
+                             f y (f x S) = f x (f y S)"
+begin
+ lemma fun_left_comm: 
+                            "is_int (\<lambda>(_::'a state \<times> 'a state). x) \<Longrightarrow>
+                             is_int (\<lambda>(_::'a state \<times> 'a state). y) \<Longrightarrow>
+                             (\<And>\<tau>. all_defined \<tau> S) \<Longrightarrow>
+                             f y (f x S) = f x (f y S)"
+ by(rule commute, simp_all add: all_def)
+end
+
+lemma c0_of_c : 
+ assumes f_comm : "EQ_comp_fun_commute f"
+   shows "EQ_comp_fun_commute0 (\<lambda>x. f (\<lambda>_. x))"
+sorry
+
+locale EQ_comp_fun_commute0' =
+  fixes f :: "int option
+              \<Rightarrow> ('a state \<times> 'a state \<Rightarrow> int option option Set_0)
+              \<Rightarrow> ('a state \<times> 'a state \<Rightarrow> int option option Set_0)"
+  assumes cp_S : "\<And>x. cp (f x)"
+  assumes cp_gen' : "\<And>x S \<tau>1 \<tau>2. is_int (\<lambda>(_::'a state \<times> 'a state). \<lfloor>x\<rfloor>) \<Longrightarrow> \<forall>\<tau>. all_defined \<tau> S \<Longrightarrow> S \<tau>1 = S \<tau>2 \<Longrightarrow> f x S \<tau>1 = f x S \<tau>2"
+  assumes notempty' : "\<And>x S \<tau>. \<forall>\<tau>. all_defined \<tau> S \<Longrightarrow> is_int (\<lambda>(_::'a state \<times> 'a state). \<lfloor>x\<rfloor>) \<Longrightarrow> \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil> \<noteq> {} \<Longrightarrow> \<lceil>\<lceil>Rep_Set_0 (f x S \<tau>)\<rceil>\<rceil> \<noteq> {}"
+  assumes all_def: "\<And>x y. (\<forall>\<tau>. all_defined \<tau> (f x y)) = (is_int (\<lambda>(_::'a state \<times> 'a state). \<lfloor>x\<rfloor>) \<and> (\<forall>\<tau>. all_defined \<tau> y))"
+  assumes commute: "\<And>x y.
+                             is_int (\<lambda>(_::'a state \<times> 'a state). \<lfloor>x\<rfloor>) \<Longrightarrow>
+                             is_int (\<lambda>(_::'a state \<times> 'a state). \<lfloor>y\<rfloor>) \<Longrightarrow>
+                             (\<And>\<tau>. all_defined \<tau> S) \<Longrightarrow>
+                             f y (f x S) = f x (f y S)"
+begin
+ lemma fun_left_comm: "
+                             is_int (\<lambda>(_::'a state \<times> 'a state). \<lfloor>x\<rfloor>) \<Longrightarrow>
+                             is_int (\<lambda>(_::'a state \<times> 'a state). \<lfloor>y\<rfloor>) \<Longrightarrow>
+                             (\<And>\<tau>. all_defined \<tau> S) \<Longrightarrow>
+                             f y (f x S) = f x (f y S)"
+ by(rule commute, simp_all add: all_def)
+end
+
+lemma c0'_of_c0 :
+ assumes "EQ_comp_fun_commute0 (\<lambda>x. f (\<lambda>_. x))"
+   shows "EQ_comp_fun_commute0' (\<lambda>x. f (\<lambda>_. \<lfloor>x\<rfloor>))"
+by(insert assms, simp only: EQ_comp_fun_commute0'_def EQ_comp_fun_commute0_def, blast)
+
 context EQ_comp_fun_commute
 begin
 
@@ -3428,6 +3482,35 @@ proof -
  qed
 qed
 
+lemma iterate_subst_set'0 :
+ assumes S_all_def : "\<And>\<tau>. all_defined \<tau> (S :: 'a state \<times> 'a state \<Rightarrow> int option option Set_0)"
+     and A_all_def : "\<And>\<tau>. all_defined \<tau> (A :: 'a state \<times> 'a state \<Rightarrow> int option option Set_0)"
+     and A_include : "\<And>\<tau>1 \<tau>2. A \<tau>1 = A \<tau>2"
+     and F_commute : "EQ_comp_fun_commute0 (\<lambda>x. F (\<lambda>_. x))"
+     and G_commute : "EQ_comp_fun_commute0 (\<lambda>x. G (\<lambda>_. x))"
+     and fold_eq : "\<And>x acc \<tau>. is_int (\<lambda>(_::'a state \<times> 'a state). x) \<Longrightarrow> (\<forall>\<tau>. all_defined \<tau> acc) \<Longrightarrow> \<forall>\<tau> \<tau>'. acc \<tau> = acc \<tau>' \<Longrightarrow> F (\<lambda>_. x) acc = G (\<lambda>_. x) acc"
+   shows "(S->iterate(x;acc=A|F x acc)) = (S->iterate(x;acc=A|G x acc))"
+sorry
+
+lemma iterate_subst_set''0 :
+ assumes S_all_def : "\<And>\<tau>. all_defined \<tau> (S :: 'a state \<times> 'a state \<Rightarrow> int option option Set_0)"
+     and A_all_def : "\<And>\<tau>. all_defined \<tau> (A :: 'a state \<times> 'a state \<Rightarrow> int option option Set_0)"
+     and F_commute : "EQ_comp_fun_commute0 (\<lambda>x. F (\<lambda>_. x))"
+     and G_commute : "EQ_comp_fun_commute0 (\<lambda>x. G (\<lambda>_. x))"
+     and fold_eq : "\<And>x acc. is_int (\<lambda>(_::'a state \<times> 'a state). x) \<Longrightarrow> (\<forall>\<tau>. all_defined \<tau> acc) \<Longrightarrow> \<lceil>\<lceil>Rep_Set_0 (acc \<tau>)\<rceil>\<rceil> \<noteq> {} \<Longrightarrow> F (\<lambda>_. x) acc \<tau> = G (\<lambda>_. x) acc \<tau>"
+   shows "\<lceil>\<lceil>Rep_Set_0 (A \<tau>)\<rceil>\<rceil> \<noteq> {} \<Longrightarrow> (S->iterate(x;acc=A|F x acc)) \<tau> = (S->iterate(x;acc=A|G x acc)) \<tau>"
+sorry
+
+lemma iterate_subst_set___ :
+ assumes S_all_def : "\<And>\<tau>. all_defined \<tau> (S :: 'a state \<times> 'a state \<Rightarrow> int option option Set_0)"
+     and A_all_def : "\<And>\<tau>. all_defined \<tau> (A :: 'a state \<times> 'a state \<Rightarrow> int option option Set_0)"
+     and A_include : "\<And>\<tau>1 \<tau>2. A \<tau>1 = A \<tau>2"
+     and F_commute : "EQ_comp_fun_commute0' (\<lambda>x. F (\<lambda>_. \<lfloor>x\<rfloor>))"
+     and G_commute : "EQ_comp_fun_commute0' (\<lambda>x. G (\<lambda>_. \<lfloor>x\<rfloor>))"
+     and fold_eq : "\<And>x acc. is_int (\<lambda>(_::'a state \<times> 'a state). \<lfloor>x\<rfloor>) \<Longrightarrow> (\<forall>\<tau>. all_defined \<tau> acc) \<Longrightarrow> \<forall>\<tau> \<tau>'. acc \<tau> = acc \<tau>' \<Longrightarrow> \<lceil>\<lceil>Rep_Set_0 (acc \<tau>)\<rceil>\<rceil> \<noteq> {} \<Longrightarrow> F (\<lambda>_. \<lfloor>x\<rfloor>) acc \<tau> = G (\<lambda>_. \<lfloor>x\<rfloor>) acc \<tau>"
+   shows "\<lceil>\<lceil>Rep_Set_0 (A \<tau>)\<rceil>\<rceil> \<noteq> {} \<Longrightarrow> (S->iterate(x;acc=A|F x acc)) \<tau> = (S->iterate(x;acc=A|G x acc)) \<tau>"
+sorry
+
 lemma including_subst_set : "(s::('\<AA>,'a::null)Set) = t \<Longrightarrow> s->including(x) = (t->including(x))"
 by(simp)
 
@@ -4172,6 +4255,12 @@ proof -
  done
 qed
 
+lemma i_cons_all_def :
+ assumes F_commute : "EQ_comp_fun_commute0 (\<lambda>x. F (\<lambda>_. x))"
+     and A_all_def : "\<And>\<tau>. all_defined \<tau> S"
+   shows "all_defined \<tau> (OclIterate\<^isub>S\<^isub>e\<^isub>t S S F)"
+sorry
+
 lemma i_including_id :
  assumes S_all_def : "\<And>\<tau>. all_defined \<tau> (S :: 'a state \<times> 'a state \<Rightarrow> int option option Set_0)"
  assumes S_include : "\<And>\<tau> \<tau>'. \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil> \<subseteq> \<lceil>\<lceil>Rep_Set_0 (S \<tau>')\<rceil>\<rceil>"
@@ -4319,6 +4408,14 @@ lemma destruct_int : "\<And>i. is_int i \<Longrightarrow> \<exists>! j. i = (\<l
 qed
 
 lemma including_out1 :
+ assumes S_all_def : "\<And>\<tau>. all_defined \<tau> (S :: 'a state \<times> 'a state \<Rightarrow> int option option Set_0)"
+     and A_all_def : "\<And>\<tau>. all_defined \<tau> (A :: 'a state \<times> 'a state \<Rightarrow> int option option Set_0)"
+     and i_int : "is_int i"
+     shows "\<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil> \<noteq> {} \<Longrightarrow>
+            ((S :: 'a state \<times> 'a state \<Rightarrow> int option option Set_0)->iterate(x;acc=A | acc->including(x)->including(i))) \<tau> = (S->iterate(x;acc=A | acc->including(x))->including(i)) \<tau>"
+sorry
+
+lemma (*including_out1 :*)
  assumes S_all_def : "\<And>\<tau>. all_defined \<tau> (S :: 'a state \<times> 'a state \<Rightarrow> int option option Set_0)"
      and A_all_def : "\<And>\<tau>. all_defined \<tau> (A :: 'a state \<times> 'a state \<Rightarrow> int option option Set_0)"
      and S_notempty : "\<And>\<tau>. \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil> \<noteq> {}"
@@ -4511,6 +4608,14 @@ qed
 lemma including_out2 :
  assumes S_all_def : "\<And>\<tau>. all_defined \<tau> (S :: 'a state \<times> 'a state \<Rightarrow> int option option Set_0)"
      and A_all_def : "\<And>\<tau>. all_defined \<tau> (A :: 'a state \<times> 'a state \<Rightarrow> int option option Set_0)"
+     and i_int : "is_int i"
+     and x0_int : "is_int x0"
+     shows "\<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil> \<noteq> {} \<Longrightarrow> ((S :: 'a state \<times> 'a state \<Rightarrow> int option option Set_0)->iterate(x;acc=A | acc->including(x0)->including(x)->including(i))) \<tau> = (S->iterate(x;acc=A | acc->including(x0)->including(x))->including(i)) \<tau>"
+sorry
+
+lemma (*including_out2 :*)
+ assumes S_all_def : "\<And>\<tau>. all_defined \<tau> (S :: 'a state \<times> 'a state \<Rightarrow> int option option Set_0)"
+     and A_all_def : "\<And>\<tau>. all_defined \<tau> (A :: 'a state \<times> 'a state \<Rightarrow> int option option Set_0)"
      and S_notempty : "\<And>\<tau>. \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil> \<noteq> {}"
      and i_int : "is_int i"
      and x0_int : "is_int x0"
@@ -4529,12 +4634,13 @@ proof -
 
  have init_out2 : "(S->iterate(x;acc=A | acc->including(x0)->including(x))->including(i)) = (S->iterate(x;acc=A | acc->including(x))->including(x0)->including(i))"
   apply(rule including_subst_set)
+  sorry (*
   apply(simp add: including_out1[OF S_all_def A_all_def S_notempty x0_int, symmetric])
   apply(rule iterate_subst_set[OF S_all_def A_all_def including_commute3 including_commute2])
   apply(simp add: x0_int)+
   apply(rule including_swap)
   apply(simp add: all_defined_def x0_val)+
- done
+ done*)
 
  have i_valid : "\<forall>\<tau>. \<tau> \<Turnstile> \<upsilon> i"
  by (metis i_int int_is_valid)
@@ -5099,11 +5205,11 @@ proof -
  have commute7: "EQ_comp_fun_commute (\<lambda>x acc. acc->including(x)->including(\<zero>))" apply(rule including_commute2) by (simp add: zero_int)
  have commute4: "\<And>x acc. is_int x \<Longrightarrow> EQ_comp_fun_commute (\<lambda>xa acc. acc->including(\<zero>)->including(xa)->including(x))" apply(rule including_commute4) by(simp add: zero_int, blast)
  have commute3: "\<And>x acc. is_int x \<Longrightarrow> EQ_comp_fun_commute (\<lambda>xa acc. acc->including(\<zero>)->including(x)->including(xa))" apply(rule including_commute6) by(simp add: zero_int, blast)
- have commute5: "EQ_comp_fun_commute (\<lambda>x acc. acc ->iterate(j;r2=acc | r2->including(\<zero>)->including(j))->including(x))" sorry
- have commute6: "EQ_comp_fun_commute (\<lambda>x acc. acc ->iterate(j;r2=acc | r2->including(j)->including(\<zero>))->including(x))" sorry
- have commute9: "EQ_comp_fun_commute (\<lambda>x acc. acc ->iterate(j;r2=acc | r2->including(j))->including(\<zero>)->including(x))" sorry
- have commute1: "EQ_comp_fun_commute (\<lambda>x acc. acc ->iterate(j;r2=acc | r2->including(\<zero>)->including(j)->including(x)))" sorry
- have commute2: "EQ_comp_fun_commute (\<lambda>x acc. acc ->iterate(j;r2=acc | r2->including(\<zero>)->including(x)->including(j)))" sorry
+ have commute5: "EQ_comp_fun_commute0 (\<lambda>x r1. r1 ->iterate(j;r2=r1 | r2->including(\<zero>)->including(j))->including(\<lambda>(_:: 'a state \<times> 'a state). x))" sorry
+ have commute6: "EQ_comp_fun_commute0 (\<lambda>x r1. r1 ->iterate(j;r2=r1 | r2->including(j)->including(\<zero>))->including(\<lambda>(_:: 'a state \<times> 'a state). x))" sorry
+ have commute9: "EQ_comp_fun_commute0 (\<lambda>x r1. r1 ->iterate(j;r2=r1 | r2->including(j))->including(\<zero>)->including(\<lambda>_. x))" sorry
+ have commute1: "EQ_comp_fun_commute0' (\<lambda>x r1. r1 ->iterate(j;r2=r1 | r2->including(\<zero>)->including(\<lambda>(_:: 'a state \<times> 'a state). \<lfloor>x\<rfloor>)->including(j)))" sorry
+ have commute2: "EQ_comp_fun_commute0' (\<lambda>x r1. r1 ->iterate(j;r2=r1 | r2->including(\<zero>)->including(j)->including(\<lambda>(_:: 'a state \<times> 'a state). \<lfloor>x\<rfloor>)))" sorry
 
  have set68_notempty : "\<And>(\<tau>:: 'a state \<times> 'a state). \<lceil>\<lceil>Rep_Set_0 (Set{\<six>, \<eight>} \<tau>)\<rceil>\<rceil> \<noteq> {}"
   apply(rule including_notempty)
@@ -5124,60 +5230,57 @@ proof -
 
  show ?thesis
   (* *)
-  apply(subst iterate_subst_set'[where G = "\<lambda>i r1. r1 ->iterate(j;r2=r1 | r2->including(\<zero>)->including(j)->including(i))"])
-   apply(simp add: all_defined_68 all_defined_9 commute1 commute2 del: StrictRefEq_set_exec)
-   apply(simp add: all_defined_68 all_defined_9 commute1 commute2 del: StrictRefEq_set_exec)
-   apply(simp add: set9_cp)
-   apply(simp add: all_defined_68 all_defined_9 commute1 commute2 del: StrictRefEq_set_exec)
-   apply(simp add: all_defined_68 all_defined_9 commute1 commute2 del: StrictRefEq_set_exec)
-  apply(rule iterate_subst_set) apply(blast)+
-   apply(simp add: commute3 commute4 del: StrictRefEq_set_exec)
-   apply(simp add: commute3 commute4 del: StrictRefEq_set_exec)
+  apply(rule ext, rename_tac \<tau>)
+  apply(subst iterate_subst_set___[where G = "\<lambda>i r1. r1 ->iterate(j;r2=r1 | r2->including(\<zero>)->including(j)->including(i))"])
+   apply(simp add: all_defined_68, simp add: all_defined_9, simp add: set9_cp, simp add: commute1, simp add: commute2)
+  apply(subst iterate_subst_set[where G = "\<lambda>j r2. r2->including(\<zero>)->including(j)->including(\<lambda>_. \<lfloor>x\<rfloor>)"]) apply(blast)+
+   apply(simp add: commute3, simp add: commute4)
   apply(rule including_swap) apply (metis (hide_lams, mono_tags) StrictRefEq_int_strict' all_defined_def including_defined_args_valid' null_non_zero ocl_and_true1 transform1_rev valid4)
   apply(simp add: int_is_valid)+
+  apply(simp add: set9_notempty)
   (* *)
-  apply(subst iterate_subst_set''[where G = "\<lambda>i r1. r1 ->iterate(j;r2=r1 | r2->including(\<zero>)->including(j))->including(i)"])
-   apply(simp add: all_defined_68 all_defined_9 commute5 commute1 del: StrictRefEq_set_exec)
-   apply(simp add: all_defined_68 all_defined_9 commute5 commute1 del: StrictRefEq_set_exec)
-   apply(simp add: set9_notempty)
-   apply(simp add: all_defined_68 all_defined_9 commute5 commute1 del: StrictRefEq_set_exec)
-   apply(simp add: all_defined_68 all_defined_9 commute5 commute1 del: StrictRefEq_set_exec)
+  apply(subst iterate_subst_set___[where G = "\<lambda>i r1. r1 ->iterate(j;r2=r1 | r2->including(\<zero>)->including(j))->including(i)"])
+   apply(simp add: all_defined_68, simp add: all_defined_9, simp add: set9_cp, simp add: commute2, simp add: commute5[THEN c0'_of_c0])
   apply(rule including_out2)
   apply(blast) apply(blast) apply(blast)
+  apply(simp add: zero_int)
   apply(simp)
-  apply(simp add: zero_int)
-
+  apply(simp add: set9_notempty)
   (* *)
-  apply(subst iterate_subst_set[where G = "\<lambda>i r1. r1 ->iterate(j;r2=r1 | r2->including(j)->including(\<zero>))->including(i)"])
-   apply(simp add: all_defined_68 all_defined_9 commute6 commute5 del: StrictRefEq_set_exec)
-   apply(simp add: all_defined_68 all_defined_9 commute6 commute5 del: StrictRefEq_set_exec)
-   apply(simp add: all_defined_68 all_defined_9 commute6 commute5 del: StrictRefEq_set_exec)
-   apply(simp add: all_defined_68 all_defined_9 commute6 commute5 del: StrictRefEq_set_exec)
-  apply(rule including_subst_set)
-  apply(rule iterate_subst_set) apply(blast)+
-   apply(simp add: commute8 commute7 del: StrictRefEq_set_exec)
-   apply(simp add: commute8 commute7 del: StrictRefEq_set_exec)
+  apply(subst iterate_subst_set___[where G = "\<lambda>i r1. r1 ->iterate(j;r2=r1 | r2->including(j)->including(\<zero>))->including(i)"])
+   apply(simp add: all_defined_68, simp add: all_defined_9, simp add: set9_cp, simp add: commute5[THEN c0'_of_c0], simp add: commute6[THEN c0'_of_c0])
+  apply(rule including_subst_set'')
+   apply(rule all_defined1, rule i_cons_all_def, rule including_commute3[THEN c0_of_c], simp add: zero_int, blast) 
+   apply(rule all_defined1, rule i_cons_all_def, rule including_commute2[THEN c0_of_c], simp add: zero_int, blast) 
+   apply(simp add: int_is_valid)
+  apply(subst iterate_subst_set[where G = "\<lambda>j r2. r2->including(j)->including(\<zero>)"]) apply(blast)+
+   apply(simp add: commute8, simp add: commute7)
   apply(rule including_swap) apply(simp add: all_defined1) apply(simp) apply(simp only: foundation20, simp)
+  apply(simp)
+  apply(simp add: set9_notempty)
   (* *)
-  apply(subst iterate_subst_set''[where G = "\<lambda>i r1. r1 ->iterate(j;r2=r1 | r2->including(j))->including(\<zero>)->including(i)"])
+  apply(subst iterate_subst_set''0[where G = "\<lambda>i r1. r1 ->iterate(j;r2=r1 | r2->including(j))->including(\<zero>)->including(i)"])
    apply(simp add: all_defined_68 all_defined_9 commute9 commute6 del: StrictRefEq_set_exec)
    apply(simp add: all_defined_68 all_defined_9 commute9 commute6 del: StrictRefEq_set_exec)
-   apply(simp add: set9_notempty)
    apply(simp add: all_defined_68 all_defined_9 commute9 commute6 del: StrictRefEq_set_exec)
    apply(simp add: all_defined_68 all_defined_9 commute9 commute6 del: StrictRefEq_set_exec)
-  apply(rule including_subst_set)
+  apply(rule including_subst_set'')
+   apply(rule all_defined1) apply(rule i_cons_all_def, rule including_commute2[THEN c0_of_c], simp add: zero_int, blast)
+   apply(rule all_defined1) apply(rule cons_all_def, rule i_cons_all_def, rule including_commute[THEN c0_of_c], blast, simp, simp add: int_is_valid)
   apply(rule including_out1)
-  apply(blast) apply(blast) apply(blast)
+  apply(blast) apply(blast)
   apply(simp add: zero_int)
+  apply(simp)
+  apply(simp add: set9_notempty)
   (* *)
-  apply(subst iterate_subst_set'[where G = "\<lambda>i r1. r1->including(\<zero>)->including(i)"])
-   apply(simp add: all_defined_68 all_defined_9 commute8 commute9 del: StrictRefEq_set_exec)
-   apply(simp add: all_defined_68 all_defined_9 commute8 commute9 del: StrictRefEq_set_exec)
+  apply(subst iterate_subst_set'0[where G = "\<lambda>i r1. r1->including(\<zero>)->including(i)"])
+   apply(simp add: all_defined_68 all_defined_9 commute8[THEN c0_of_c] commute9 del: StrictRefEq_set_exec)
+   apply(simp add: all_defined_68 all_defined_9 commute8[THEN c0_of_c] commute9 del: StrictRefEq_set_exec)
    apply(simp add: set9_cp)
-   apply(simp add: all_defined_68 all_defined_9 commute8 commute9 del: StrictRefEq_set_exec)
-   apply(simp add: all_defined_68 all_defined_9 commute8 commute9 del: StrictRefEq_set_exec)
+   apply(simp add: all_defined_68 all_defined_9 commute8[THEN c0_of_c] commute9 del: StrictRefEq_set_exec)
+   apply(simp add: all_defined_68 all_defined_9 commute8[THEN c0_of_c] commute9 del: StrictRefEq_set_exec)
   apply(rule including_subst_set)+
-  apply(rule iterate_including_id) apply(blast)+ apply (metis order_refl)
+  apply(rule iterate_including_id) apply(blast)+ defer
   (* *)
   apply(subst iterate_subst_set[where G = "\<lambda>i r1. r1->including(i)->including(\<zero>)"])
    apply(simp add: all_defined_68 all_defined_9 commute7 commute8 del: StrictRefEq_set_exec)
@@ -5189,10 +5292,12 @@ proof -
   apply(subst including_out1)
    apply(simp add: all_defined_68)
    apply(simp add: all_defined_9)
-   apply(simp add: set68_notempty)
    apply(simp add: zero_int)
+   apply(simp add: set68_notempty)
   (* *)
-  apply(rule including_subst_set)
+  apply(rule including_subst_set'') defer 
+   apply (metis (hide_lams, no_types) all_defined1 all_defined_68 all_defined_9 including_defined_args_valid)
+   apply(simp)
   (* *)
   apply(subst including_out0)
    apply(simp add: all_defined_68)
@@ -5203,11 +5308,9 @@ proof -
   apply(subst including_swap[where i = \<six>])
   apply(simp)+
   (* *)
-  apply(rule including_subst_set)
-  (* *)
   apply(subst including_swap)
   apply(simp)+
- done
+ sorry
 qed
 
 
