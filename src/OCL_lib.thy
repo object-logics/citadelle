@@ -301,8 +301,8 @@ lemma cp_StrictRefEq_int:
 by(auto simp: StrictRefEq_int StrongEq_def valid_def  cp_defined[symmetric])
 
 
-lemmas cp_intro[simp,intro!] =
-       cp_intro
+lemmas cp_intro'[simp,intro!] =
+       cp_intro'
        cp_StrictRefEq_bool[THEN allI[THEN allI[THEN allI[THEN cpI2]], of "StrictRefEq"]]
        cp_StrictRefEq_int[THEN allI[THEN allI[THEN allI[THEN cpI2]],  of "StrictRefEq"]]
 
@@ -478,6 +478,9 @@ apply(erule contrapos_pp [of "Rep_Set_0 (X \<tau>) = null"])
 apply(subst Abs_Set_0_inject[symmetric], rule Rep_Set_0, simp)
 apply(simp add: Rep_Set_0_inverse  null_option_def)
 done
+
+lemma Set_inv_lemma2 : " (\<tau> \<Turnstile> \<delta> X) \<Longrightarrow> \<tau> \<Turnstile> \<upsilon> (\<lambda>_. e) \<Longrightarrow>  e \<in> \<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil>"
+sorry
 
 lemma invalid_set_not_defined [simp,code_unfold]:"\<delta>(invalid::('\<AA>,'\<alpha>::null) Set) = false" by simp
 lemma null_set_not_defined [simp,code_unfold]:"\<delta>(null::('\<AA>,'\<alpha>::null) Set) = false"
@@ -660,13 +663,12 @@ by(simp add: OclForall_def cp_defined[symmetric])
 (* Why does this not work syntactically ???
    lemma cp_OclIncludes: "(X->includes(x)) \<tau> = (((\<lambda> _. X \<tau>)->includes( \<lambda> _. x \<tau>)) \<tau>)" *)
 
-
-(* TODO later
 lemmas cp_intro''[simp,intro!] =
        cp_intro'
-       cp_OclIncludes  [THEN allI[THEN allI[THEN allI[THEN cp'I2]], of "OclIncludes"]]
-       cp_OclIncluding [THEN allI[THEN allI[THEN allI[THEN cp'I2]], of "OclIncluding"]]
-*)
+       cp_OclIncludes  [THEN allI[THEN allI[THEN allI[THEN cpI2]], of "OclIncludes"]]
+       cp_OclIncluding [THEN allI[THEN allI[THEN allI[THEN cpI2]], of "OclIncluding"]]
+       cp_OclExcluding [THEN allI[THEN allI[THEN allI[THEN cpI2]], of "OclExcluding"]]
+
 
 section{* Fundamental Predicates on Set *}
 subsection{* Validity and Definedness *}
@@ -1278,48 +1280,36 @@ proof -
          with the same problems wrt. strict equality. *)
  have A1: "\<And>\<tau>. \<tau> \<Turnstile> (X \<triangleq> invalid) \<Longrightarrow>
             (X->including(x)->includes(y)) \<tau> = invalid \<tau>"
-            apply(subst cp_OclIncludes, subst cp_OclIncluding)
-            apply(drule foundation22[THEN iffD1], simp)
-            apply(simp only: cp_OclIncluding[symmetric] cp_OclIncludes[symmetric])
-            by simp
+            apply(rule foundation22[THEN iffD1])
+            by(erule StrongEq_L_subst2_rev, simp,simp)
 
  have B1: "\<And>\<tau>. \<tau> \<Turnstile> (X \<triangleq> null) \<Longrightarrow>
             (X->including(x)->includes(y)) \<tau> = invalid  \<tau>"
-            apply(subst cp_OclIncludes, subst cp_OclIncluding)
-            apply(drule foundation22[THEN iffD1], simp)
-            apply(simp only: cp_OclIncluding[symmetric] cp_OclIncludes[symmetric])
-            by simp
+            apply(rule foundation22[THEN iffD1])
+            by(erule StrongEq_L_subst2_rev, simp,simp)
 
  have A2: "\<And>\<tau>. \<tau> \<Turnstile> (X \<triangleq> invalid) \<Longrightarrow> X->including(x)->excluding(y) \<tau> = invalid \<tau>"
-            apply(subst cp_OclExcluding, subst cp_OclIncluding)
-            apply(drule foundation22[THEN iffD1], simp)
-            apply(simp only: cp_OclIncluding[symmetric] cp_OclExcluding[symmetric])
-            by simp
+            apply(rule foundation22[THEN iffD1])
+            by(erule StrongEq_L_subst2_rev, simp,simp)
 
  have B2: "\<And>\<tau>. \<tau> \<Turnstile> (X \<triangleq> null) \<Longrightarrow> X->including(x)->excluding(y) \<tau> = invalid \<tau>"
-            apply(subst cp_OclExcluding, subst cp_OclIncluding)
-            apply(drule foundation22[THEN iffD1], simp)
-            apply(simp only: cp_OclIncluding[symmetric] cp_OclExcluding[symmetric])
-            by simp
+            apply(rule foundation22[THEN iffD1])
+            by(erule StrongEq_L_subst2_rev, simp,simp)
+
+ note [simp] = cp_StrictRefEq [THEN allI[THEN allI[THEN allI[THEN cpI2]], of "StrictRefEq"]]
 
  have C: "\<And>\<tau>. \<tau> \<Turnstile> (x \<triangleq> invalid) \<Longrightarrow>
            (X->including(x)->excluding(y)) \<tau> =
            (if x \<doteq> y then X->excluding(y) else X->excluding(y)->including(x) endif) \<tau>"
-            apply(subst cp_if_ocl, subst cp_StrictRefEq)
-            apply(subst cp_OclIncluding, subst cp_OclExcluding, subst cp_OclIncluding)
-            apply(drule foundation22[THEN iffD1], simp)
-            apply(simp only: cp_if_ocl[symmetric] cp_OclIncluding[symmetric]
-                             cp_StrictRefEq[symmetric] cp_OclExcluding[symmetric] )
-            by (simp add: strict2)
+            apply(rule foundation22[THEN iffD1])
+            apply(erule StrongEq_L_subst2_rev,simp,simp)
+            by(simp add: strict2)
 
  have D: "\<And>\<tau>. \<tau> \<Turnstile> (y \<triangleq> invalid) \<Longrightarrow>
            (X->including(x)->excluding(y)) \<tau> =
            (if x \<doteq> y then X->excluding(y) else X->excluding(y)->including(x) endif) \<tau>"
-            apply(subst cp_if_ocl, subst cp_StrictRefEq)
-            apply(subst cp_OclIncluding, subst cp_OclExcluding, subst cp_OclIncluding)
-            apply(drule foundation22[THEN iffD1], simp)
-            apply(simp only: cp_if_ocl[symmetric] cp_OclIncluding[symmetric]
-                             cp_StrictRefEq[symmetric] cp_OclExcluding[symmetric] )
+            apply(rule foundation22[THEN iffD1])
+            apply(erule StrongEq_L_subst2_rev,simp,simp)
             by (simp add: strict1)
 
  have E: "\<And>\<tau>. \<tau> \<Turnstile> \<upsilon> x \<Longrightarrow> \<tau> \<Turnstile> \<upsilon> y \<Longrightarrow>
@@ -1331,9 +1321,10 @@ proof -
 
  have F: "\<And>\<tau>. \<tau> \<Turnstile> \<delta> X \<Longrightarrow> \<tau> \<Turnstile> \<upsilon> x \<Longrightarrow> \<tau> \<Turnstile> (x \<triangleq> y) \<Longrightarrow>
            (X->including(x)->excluding(y) \<tau>) = (X->excluding(y) \<tau>)"
-           apply(simp add: cp_OclExcluding[of "X->including(x)"] cp_OclExcluding[of X])
-           apply(drule foundation22[THEN iffD1], drule sym, simp)
-           by(simp add: cp_OclExcluding[symmetric] excluding_charn2[simplified foundation22])
+           apply(drule StrongEq_L_sym)
+           apply(rule foundation22[THEN iffD1])
+           apply(erule StrongEq_L_subst2_rev,simp)
+           by(simp add: excluding_charn2)
 
  show ?thesis
     apply(rule ext, rename_tac "\<tau>")
@@ -1451,6 +1442,7 @@ proof -
  have discr_neq_true_false : "\<And>\<tau>. (true \<tau> \<noteq> false \<tau>) = True" by (metis discr_eq_false_true)
 
  have not_bot_in_set : "\<And>\<tau> x e. (\<tau> \<Turnstile> \<delta> x) \<Longrightarrow> \<not> (\<tau> \<Turnstile> \<upsilon> (\<lambda>_. e)) \<Longrightarrow> e \<in> \<lceil>\<lceil>Rep_Set_0 (x \<tau>)\<rceil>\<rceil> \<Longrightarrow> False"
+ (* use Set_inv_lemma2 *)
   apply(frule Set_inv_lemma)
   apply(erule disjE)
   apply(simp add: OclValid_def valid_def)
@@ -1466,6 +1458,7 @@ proof -
  have forall_exec_true : "\<And>\<tau> x y. \<tau> \<Turnstile> \<delta> x \<Longrightarrow>
                                   \<tau> \<Turnstile> \<delta> y \<Longrightarrow>
                      (\<tau> \<Turnstile> OclForall x (OclIncludes y)) = (\<lceil>\<lceil>Rep_Set_0 (x \<tau>)\<rceil>\<rceil> \<subseteq> \<lceil>\<lceil>Rep_Set_0 (y \<tau>)\<rceil>\<rceil>)"
+ (* global ! et structurer ! bu *)
   apply(case_tac "\<tau> \<Turnstile> OclForall x (OclIncludes y)")
   (* *)
   apply(simp add: OclValid_def OclForall_def)

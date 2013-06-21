@@ -984,6 +984,24 @@ lemma StrongEq_L_subst2:
 "\<And> \<tau>.  cp P \<Longrightarrow> \<tau> \<Turnstile> (x \<triangleq> y) \<Longrightarrow> \<tau> \<Turnstile> (P x) \<Longrightarrow> \<tau> \<Turnstile> (P y)"
 by(auto simp: OclValid_def StrongEq_def true_def cp_def)
 
+lemma StrongEq_L_subst2_rev: "\<tau> \<Turnstile> y \<triangleq> x \<Longrightarrow> cp P \<Longrightarrow> \<tau> \<Turnstile> P x \<Longrightarrow> \<tau> \<Turnstile> P y"
+apply(erule StrongEq_L_subst2)
+apply(erule StrongEq_L_sym)
+by assumption
+(* for an automated version of ocl_subst *)
+ML{* (* just a fist sketch *)
+fun ocl_subst_tac subst = 
+          let val foundation22_THEN_iffD1 = @{thm foundation22} RS @{thm iffD1}
+              val StrongEq_L_subst2_rev_ = @{thm StrongEq_L_subst2_rev}
+              val the_context = @{context} (* Hack of bu : will not work in general *)
+          in  EVERY[rtac foundation22_THEN_iffD1 1,
+                    eres_inst_tac the_context [(("P",0),subst)] StrongEq_L_subst2_rev_ 1,
+                    simp_tac (simpset_of the_context) 1,
+                    simp_tac (simpset_of the_context) 1]
+          end
+                    
+ *}
+
 lemma cpI1:
 "(\<forall> X \<tau>. f X \<tau> = f(\<lambda>_. X \<tau>) \<tau>) \<Longrightarrow> cp P \<Longrightarrow> cp(\<lambda>X. f (P X))"
 apply(auto simp: true_def cp_def)
@@ -997,6 +1015,19 @@ apply(auto simp: true_def cp_def)
 apply(rule exI, (rule allI)+)
 by(erule_tac x="P X" in allE, auto)
 
+lemma cpI3:
+"(\<forall> X Y Z \<tau>. f X Y Z \<tau> = f(\<lambda>_. X \<tau>)(\<lambda>_. Y \<tau>)(\<lambda>_. Z \<tau>) \<tau>) \<Longrightarrow> 
+ cp P \<Longrightarrow> cp Q \<Longrightarrow> cp R \<Longrightarrow> cp(\<lambda>X. f (P X) (Q X) (R X))"
+apply(auto simp: true_def cp_def)
+apply(rule exI, (rule allI)+)
+by(erule_tac x="P X" in allE, auto)
+
+lemma cpI4:
+"(\<forall> W X Y Z \<tau>. f W X Y Z \<tau> = f(\<lambda>_. W \<tau>)(\<lambda>_. X \<tau>)(\<lambda>_. Y \<tau>)(\<lambda>_. Z \<tau>) \<tau>) \<Longrightarrow> 
+ cp P \<Longrightarrow> cp Q \<Longrightarrow> cp R \<Longrightarrow> cp S \<Longrightarrow> cp(\<lambda>X. f (P X) (Q X) (R X) (S X))"
+apply(auto simp: true_def cp_def)
+apply(rule exI, (rule allI)+)
+by(erule_tac x="P X" in allE, auto)
 
 lemma cp_const : "cp(\<lambda>_. c)"
   by (simp add: cp_def, fast)
@@ -1043,6 +1074,9 @@ lemma cp_if_ocl:"((if C then B\<^isub>1 else B\<^isub>2 endif) \<tau> =
                   (if (\<lambda> _. C \<tau>) then (\<lambda> _. B\<^isub>1 \<tau>) else (\<lambda> _. B\<^isub>2 \<tau>) endif) \<tau>)"
 by(simp only: if_ocl_def, subst cp_defined, rule refl)
 
+lemmas cp_intro'[simp,intro!] =
+       cp_intro
+       cp_if_ocl[THEN allI[THEN allI[THEN allI[THEN allI[THEN cpI3]]], of "if_ocl"]]
 
 lemma if_ocl_invalid [simp]: "(if invalid then B\<^isub>1 else B\<^isub>2 endif) = invalid"
 by(rule ext, auto simp: if_ocl_def)
