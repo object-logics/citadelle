@@ -592,19 +592,12 @@ lemma textbook_and:
                                           | \<lfloor>\<bottom>\<rfloor> \<Rightarrow> \<lfloor>\<bottom>\<rfloor>
                                           | \<lfloor>\<lfloor>y\<rfloor>\<rfloor> \<Rightarrow>  \<lfloor>\<lfloor>y\<rfloor>\<rfloor>)
                         | \<lfloor>\<lfloor>False\<rfloor>\<rfloor> \<Rightarrow>  \<lfloor>\<lfloor> False \<rfloor>\<rfloor>)"
- apply(simp add: ocl_and_def)
- apply(subst Sem_def)+
- apply(split option.split, simp)
- apply(subgoal_tac "Y \<tau> = (case Y \<tau> of \<bottom> \<Rightarrow> \<bottom> | \<lfloor>\<bottom>\<rfloor> \<Rightarrow> \<lfloor>\<bottom>\<rfloor> | \<lfloor>\<lfloor>y\<rfloor>\<rfloor> \<Rightarrow> \<lfloor>\<lfloor>y\<rfloor>\<rfloor>)")
- apply metis
-by (metis not_Some_eq option.simps(4) option.simps(5))
+by(simp add: ocl_and_def Sem_def split: option.split bool.split)
 
-definition ocl_or :: "[('\<AA>)Boolean, ('\<AA>)Boolean] \<Rightarrow> ('\<AA>)Boolean"
-                                                         (infixl "or" 25)
+definition ocl_or :: "[('\<AA>)Boolean, ('\<AA>)Boolean] \<Rightarrow> ('\<AA>)Boolean"            (infixl "or" 25)
 where    "X or Y \<equiv> not(not X and not Y)"
 
-definition ocl_implies :: "[('\<AA>)Boolean, ('\<AA>)Boolean] \<Rightarrow> ('\<AA>)Boolean"
-                                                         (infixl "implies" 25)
+definition ocl_implies :: "[('\<AA>)Boolean, ('\<AA>)Boolean] \<Rightarrow> ('\<AA>)Boolean"       (infixl "implies" 25)
 where    "X implies Y \<equiv> not X or Y"
 
 lemma cp_ocl_and:"(X and Y) \<tau> = ((\<lambda> _. X \<tau>) and (\<lambda> _. Y \<tau>)) \<tau>"
