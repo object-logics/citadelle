@@ -2373,7 +2373,7 @@ locale EQ_comp_fun_commute0 =
   fixes f :: "int option option
               \<Rightarrow> ('a state \<times> 'a state \<Rightarrow> int option option Set_0)
               \<Rightarrow> ('a state \<times> 'a state \<Rightarrow> int option option Set_0)"
-  assumes cp_set : "\<And>x S \<tau>. f x S \<tau> = f x (\<lambda>_. S \<tau>) \<tau>"
+  assumes cp_set : "\<And>x S \<tau>. \<forall>\<tau>. all_defined \<tau> S \<Longrightarrow> f x S \<tau> = f x (\<lambda>_. S \<tau>) \<tau>"
   assumes cp_gen' : "\<And>x S \<tau>1 \<tau>2. is_int (\<lambda>(_::'a state \<times> 'a state). x) \<Longrightarrow> \<forall>\<tau>. all_defined \<tau> S \<Longrightarrow> S \<tau>1 = S \<tau>2 \<Longrightarrow> f x S \<tau>1 = f x S \<tau>2"
   assumes notempty' : "\<And>x S \<tau>. \<forall>\<tau>. all_defined \<tau> S \<Longrightarrow> is_int (\<lambda>(_::'a state \<times> 'a state). x) \<Longrightarrow> \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil> \<noteq> {} \<Longrightarrow> \<lceil>\<lceil>Rep_Set_0 (f x S \<tau>)\<rceil>\<rceil> \<noteq> {}"
   assumes all_def: "\<And>x y. (\<forall>\<tau>. all_defined \<tau> (f x y)) = (is_int (\<lambda>(_::'a state \<times> 'a state). x) \<and> (\<forall>\<tau>. all_defined \<tau> y))"
@@ -2396,7 +2396,7 @@ lemma c0_of_c :
    shows "EQ_comp_fun_commute0 (\<lambda>x. f (\<lambda>_. x))"
 proof - interpret EQ_comp_fun_commute f by (rule f_comm) show ?thesis thm all_def[THEN iffD1]
  apply(simp only: EQ_comp_fun_commute0_def)
- apply(rule conjI)+ apply(rule allI)+
+ apply(rule conjI)+ apply(rule allI)+ apply(rule impI)+
  apply(rule cp_set)
  apply(rule allI)+ apply(rule impI)+
  apply(subst cp_gen, simp, blast, simp, simp)
@@ -2416,7 +2416,7 @@ locale EQ_comp_fun_commute0' =
   fixes f :: "int option
               \<Rightarrow> ('a state \<times> 'a state \<Rightarrow> int option option Set_0)
               \<Rightarrow> ('a state \<times> 'a state \<Rightarrow> int option option Set_0)"
-  assumes cp_set : "\<And>x S \<tau>. f x S \<tau> = f x (\<lambda>_. S \<tau>) \<tau>"
+  assumes cp_set : "\<And>x S \<tau>. \<forall>\<tau>. all_defined \<tau> S \<Longrightarrow> f x S \<tau> = f x (\<lambda>_. S \<tau>) \<tau>"
   assumes cp_gen' : "\<And>x S \<tau>1 \<tau>2. is_int (\<lambda>(_::'a state \<times> 'a state). \<lfloor>x\<rfloor>) \<Longrightarrow> \<forall>\<tau>. all_defined \<tau> S \<Longrightarrow> S \<tau>1 = S \<tau>2 \<Longrightarrow> f x S \<tau>1 = f x S \<tau>2"
   assumes notempty' : "\<And>x S \<tau>. \<forall>\<tau>. all_defined \<tau> S \<Longrightarrow> is_int (\<lambda>(_::'a state \<times> 'a state). \<lfloor>x\<rfloor>) \<Longrightarrow> \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil> \<noteq> {} \<Longrightarrow> \<lceil>\<lceil>Rep_Set_0 (f x S \<tau>)\<rceil>\<rceil> \<noteq> {}"
   assumes all_def: "\<And>x y. (\<forall>\<tau>. all_defined \<tau> (f x y)) = (is_int (\<lambda>(_::'a state \<times> 'a state). \<lfloor>x\<rfloor>) \<and> (\<forall>\<tau>. all_defined \<tau> y))"
@@ -2437,19 +2437,57 @@ end
 lemma c0'_of_c0 :
  assumes "EQ_comp_fun_commute0 (\<lambda>x. f (\<lambda>_. x))"
    shows "EQ_comp_fun_commute0' (\<lambda>x. f (\<lambda>_. \<lfloor>x\<rfloor>))"
-by(insert assms, simp only: EQ_comp_fun_commute0'_def EQ_comp_fun_commute0_def, blast)
+proof -
+ interpret EQ_comp_fun_commute0 "\<lambda>x. f (\<lambda>_. x)" by (rule assms)
+show ?thesis
+apply(simp only: EQ_comp_fun_commute0'_def)
+apply(rule conjI)+ apply(rule allI)+ apply(rule impI)+
+apply(rule cp_set, simp)
+apply(rule allI)+ apply(rule impI)+
+apply(rule cp_gen', simp, simp, simp)
+apply(rule conjI)+ apply(rule allI)+ apply(rule impI)+
+apply(rule notempty', simp, simp, simp)
+apply(rule conjI)+ apply(rule allI)+
+apply(rule all_def)
+apply(rule allI)+ apply(rule impI)+
+apply(rule commute) apply(blast)+
+done
+qed
 
 lemma int_trivial : "\<And>a. is_int (\<lambda>_. \<lfloor>a\<rfloor>)" by(simp add: is_int_def OclValid_def valid_def bot_fun_def bot_option_def)
 
 lemma c000_of_c0 : 
  assumes f_comm : "EQ_comp_fun_commute0 (\<lambda>x. f (\<lambda>_. x))"
    shows "EQ_comp_fun_commute000 f"
-sorry
+proof - interpret EQ_comp_fun_commute0 "\<lambda>x. f (\<lambda>_. x)" by (rule f_comm)
+ show ?thesis
+ apply(simp only: EQ_comp_fun_commute000_def)
+ apply(rule conjI)+ apply(rule allI)+ apply(rule impI)+
+ apply(rule cp_set, simp)
+ apply(rule conjI)+ apply(rule allI)+
+ apply(rule all_def)
+ apply(rule allI)+ apply(rule impI)+
+ apply(rule commute)
+ apply(blast)+
+done
+qed
 
 lemma c000'_of_c0' : 
  assumes f_comm : "EQ_comp_fun_commute0' (\<lambda>x. f (\<lambda>_. \<lfloor>x\<rfloor>))"
    shows "EQ_comp_fun_commute000' f"
-sorry
+proof - interpret EQ_comp_fun_commute0' "\<lambda>x. f (\<lambda>_. \<lfloor>x\<rfloor>)" by (rule f_comm)
+ show ?thesis
+ apply(simp only: EQ_comp_fun_commute000'_def)
+ apply(rule conjI)+ apply(rule allI)+ apply(rule impI)+
+ apply(rule cp_set, simp)
+ apply(rule conjI)+ apply(rule allI)+
+ apply(subst all_def, simp only: is_int_def valid_def OclValid_def bot_fun_def false_def true_def, blast)
+ apply(rule allI)+ apply(rule impI)+
+ apply(rule commute)
+ apply(simp add: int_trivial)+
+ apply(metis surj_pair)
+done
+qed
 
 context EQ_comp_fun_commute
 begin
@@ -4098,6 +4136,7 @@ proof -
     apply(simp add: invert_int)
     apply(simp)
     apply(simp)
+  apply(simp)
 
   apply(rule invert_all_int_set, simp)
   apply(simp add: fini)
@@ -4597,57 +4636,66 @@ lemma cp_OclIterate\<^isub>S\<^isub>e\<^isub>t1:
      and A_all_def : "\<And>\<tau>. all_defined \<tau> A"
    shows "(X->iterate(a; x = A | f a x)) \<tau> =
                 ((\<lambda> _. X \<tau>)->iterate(a; x = (\<lambda>_. A \<tau>) | f a x)) \<tau>"
-sorry (*
 proof -
  interpret EQ_comp_fun_commute0' "\<lambda>x. f (\<lambda>_. \<lfloor>x\<rfloor>)" by (rule f_comm)
  have B : "\<lfloor>\<bottom>\<rfloor> \<in> {X. X = bot \<or> X = null \<or> (\<forall>x\<in>\<lceil>\<lceil>X\<rceil>\<rceil>. x \<noteq> bot)}" by(simp add: null_option_def bot_option_def)
- have all_defined2 : "\<tau> \<Turnstile> (\<delta> X) \<Longrightarrow> finite \<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil> \<Longrightarrow> all_defined \<tau> X"
-  apply(simp add: OclValid_def)
-  apply(frule Set_inv_lemma[simplified OclValid_def])
-  apply(drule disjE) prefer 3 apply assumption
-  apply(simp add: defined_def bot_Set_0_def null_Set_0_def null_fun_def bot_fun_def bot_option_def false_def true_def)
-  apply(simp add: all_defined_def all_defined_set_def OclValid_def)
- by (metis OCL_core.bot_fun_def valid_def)
-
+ have A_all_def' : "\<And>\<tau> \<tau>'. all_defined \<tau> (\<lambda>a. A \<tau>')" by(subst cp_all_def[symmetric], simp add: A_all_def)
  show ?thesis
-  apply(subst cp_OclIterate\<^isub>S\<^isub>e\<^isub>t[symmetric])
-  apply(simp add: OclIterate\<^isub>S\<^isub>e\<^isub>t_def cp_valid[symmetric])
-  apply(case_tac "\<not>((\<delta> X) \<tau> = true \<tau> \<and> (\<upsilon> X) \<tau> = true \<tau> \<and> finite \<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil>)", blast)
-  apply(simp)
+ apply(subst cp_OclIterate\<^isub>S\<^isub>e\<^isub>t[symmetric])
+ apply(simp add: OclIterate\<^isub>S\<^isub>e\<^isub>t_def cp_valid[symmetric])
+ apply(case_tac "\<not>((\<delta> X) \<tau> = true \<tau> \<and> (\<upsilon> A) \<tau> = true \<tau> \<and> finite \<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil>)", blast)
+ apply(simp)
+ apply(erule conjE)+
+ apply(frule Set_inv_lemma[simplified OclValid_def])
+ apply(drule disjE) prefer 3 apply assumption
+ apply(simp add: Abs_Set_0_inverse[OF B])
+ apply(simp add: defined_def bot_Set_0_def null_Set_0_def null_fun_def bot_fun_def bot_option_def false_def true_def)
+
+ apply(rule iterate_induct'[where P = "\<lambda>set'. 
+                            (\<forall>\<tau>. all_defined \<tau> (Finite_Set.fold f A set')) \<and>
+                            (\<forall>\<tau>'. all_defined \<tau>' (Finite_Set.fold f (\<lambda>_. A \<tau>) set')) \<and>
+                            Finite_Set.fold f A set' \<tau> = Finite_Set.fold f (\<lambda>_. A \<tau>) set' \<tau>"
+                          , simplified Let_def, THEN conjunct2, THEN conjunct2])
+ apply(simp add: all_defined_def all_defined_set_def)
+ apply (metis (no_types) OclValid_def foundation18')
+ apply(simp add: A_all_def)
+ apply(subst cp_all_def[symmetric], simp add: A_all_def)
+ apply(rule impI)+
+
+  apply(rule conjI, rule allI)
   apply(erule conjE)+
-  apply(drule all_defined2[simplified OclValid_def], simp)
+  apply(subst img_fold'[OF f_comm], simp add: A_all_def, simp)
+  apply(rule iterate_subst_set_rec0'[OF A_all_def[THEN allI] f_comm, THEN spec], simp, simp, simp add: A_all_def, simp)
+  apply(subst img_fold'[where G = f, OF f_comm, symmetric], simp add: A_all_def, simp, simp)
 
-  apply(rule iterate_induct'[where P = "\<lambda>set'. Finite_Set.fold f X set' \<tau> = Finite_Set.fold f (\<lambda>_. X \<tau>) set' \<tau>"
-                           , simplified Let_def])
-  apply(simp)
-  apply(simp add: all_defined_def all_defined_set_def)
+  apply(rule conjI, rule allI)
+  apply(erule conjE)+
+  apply(subst img_fold'[OF f_comm], simp add: A_all_def', simp)
+  apply(rule iterate_subst_set_rec0'[OF A_all_def'[THEN allI] f_comm, THEN spec], simp, simp, simp add: A_all_def', simp)
+  apply(subst img_fold'[where G = f, OF f_comm, symmetric], simp add: A_all_def', simp, simp)
 
-  apply(rule impI)+
-   apply(subst img_fold''[OF f_comm], simp, simp)
-
-   apply(subst EQ_comp_fun_commute0'.fold_insert'[OF f_comm])
+  apply(subst img_fold'[OF f_comm], simp add: A_all_def, simp)
+  apply(subst EQ_comp_fun_commute0'.fold_insert[OF f_comm])
+  apply(simp add: A_all_def)
+   apply(simp add: all_int_set_def all_defined_set'_def int_is_valid)
    apply(simp)
-    apply(simp add: all_int_set_def all_defined_set'_def int_is_valid)
-    apply(simp)
-    apply(simp)
+   apply(simp)
 
-   apply(subst img_fold''[OF f_comm], subst cp_all_def[symmetric], simp, simp)
-   apply(subst EQ_comp_fun_commute0'.fold_insert'[OF f_comm])
-   apply(subst cp_all_def[symmetric], simp, simp)
-    apply(simp add: all_int_set_def all_defined_set'_def int_is_valid)
-    apply(simp)
-    apply(simp)
+  apply(subst img_fold'[OF f_comm], subst cp_all_def[symmetric], simp add: A_all_def, simp)
+  apply(subst EQ_comp_fun_commute0'.fold_insert[OF f_comm])
+  apply(subst cp_all_def[symmetric], simp add: A_all_def, simp)
+   apply(simp add: all_int_set_def all_defined_set'_def int_is_valid)
+   apply(simp)
+   apply(simp)
 
-  apply(subst (1 2) cp_set)
-  apply(subst img_fold''[where G = f, OF f_comm, symmetric], simp, simp)
-  apply(subst img_fold''[where G = f, OF f_comm, symmetric])
-   apply(subst cp_all_def[symmetric], simp, simp)
+ apply(subst img_fold'[where G = f, OF f_comm, symmetric], simp add: A_all_def, simp)
+ apply(subst img_fold'[where G = f, OF f_comm, symmetric])
+  apply(subst cp_all_def[symmetric], simp add: A_all_def, simp)
 
-  apply(subst (1 2) cp_set)
-  apply(simp)
- done
+ apply(subst (1 2) cp_set)
+ apply(simp)+
+done
 qed
-*)
 
 lemma iterate_subst_set0 :
  assumes S_all_def : "\<And>\<tau>. all_defined \<tau> (S :: 'a state \<times> 'a state \<Rightarrow> int option option Set_0)"
@@ -4820,9 +4868,9 @@ proof -
   apply(simp add: mtSet_def)
  by (metis abs_rep_simp)
 
- have G_cp : "\<And>x y \<tau>. G (\<lambda>_. x) y \<tau> = G (\<lambda>_. x) (\<lambda>_. y \<tau>) \<tau>"
+ have G_cp : "\<And>x y \<tau>. \<forall>\<tau>. all_defined \<tau> y \<Longrightarrow> G (\<lambda>_. x) y \<tau> = G (\<lambda>_. x) (\<lambda>_. y \<tau>) \<tau>"
  proof - fix x y \<tau> 
-  interpret EQ_comp_fun_commute0 "(\<lambda>x. G (\<lambda>_. x))" by (rule G_commute) show "G (\<lambda>_. x) y \<tau> = G (\<lambda>_. x) (\<lambda>_. y \<tau>) \<tau>"
+  interpret EQ_comp_fun_commute0 "(\<lambda>x. G (\<lambda>_. x))" by (rule G_commute) show "\<forall>\<tau>. all_defined \<tau> y \<Longrightarrow> G (\<lambda>_. x) y \<tau> = G (\<lambda>_. x) (\<lambda>_. y \<tau>) \<tau>"
   by (metis cp_set)
  qed
 
@@ -4876,7 +4924,7 @@ proof -
    apply(subst img_fold[where G = G, OF G_commute, symmetric], simp add: A_all_def, simp, rule invert_all_int_set, simp)
    apply(subst img_fold[where G = G, OF G_commute, symmetric], simp add: A_all_def, simp, rule invert_all_int_set, simp)
    apply(rule allI)
-   apply(subst G_cp[of "x"], rule sym, subst G_cp[of "x"], rule sym)
+   apply(subst (1 2) G_cp, simp)
    apply(drule_tac x = \<tau>1 in allE) prefer 2 apply assumption
    apply(drule_tac P = "\<lambda>\<tau>2. Finite_Set.fold G A ((\<lambda>a \<tau>. a) ` Fa) \<tau>1 = Finite_Set.fold G A ((\<lambda>a \<tau>. a) ` Fa) \<tau>2" and x = \<tau>2 in allE) prefer 2 apply assumption
    apply(simp)
@@ -4980,6 +5028,12 @@ proof -
                            is_int x"
  by(simp add: all_int_set_def)
 
+ have F_cp : "\<And>x y \<tau>. \<forall>\<tau>. all_defined \<tau> y \<Longrightarrow> F (\<lambda>_. x) y \<tau> = F (\<lambda>_. x) (\<lambda>_. y \<tau>) \<tau>"
+ proof - fix x y \<tau> 
+  interpret EQ_comp_fun_commute0 "(\<lambda>x. F (\<lambda>_. x))" by (rule F_commute) show "\<forall>\<tau>. all_defined \<tau> y \<Longrightarrow> F (\<lambda>_. x) y \<tau> = F (\<lambda>_. x) (\<lambda>_. y \<tau>) \<tau>"
+  by (metis cp_set)
+ qed
+
  interpret EQ_comp_fun_commute0 "\<lambda>x. G (\<lambda>_. x)" by (rule G_commute)
  show "\<lceil>\<lceil>Rep_Set_0 (A \<tau>)\<rceil>\<rceil> \<noteq> {} \<Longrightarrow> ?thesis"
   apply(simp only: OclIterate\<^isub>S\<^isub>e\<^isub>t_def)
@@ -5055,15 +5109,10 @@ proof -
 
   apply(subst img_fold[where G = F, OF F_commute, symmetric], simp add: A_all_def, simp, rule invert_all_int_set, simp)
   apply(subst img_fold[where G = G, OF G_commute, symmetric], simp add: A_all_def, simp, rule invert_all_int_set, simp)
-  proof - 
-  interpret EQ_comp_fun_commute0 "\<lambda>x. F (\<lambda>_. x)" by (rule F_commute)
-  fix Fa x show "Finite_Set.fold F A ((\<lambda>a \<tau>. a) ` Fa) \<tau> = Finite_Set.fold G A ((\<lambda>a \<tau>. a) ` Fa) \<tau> \<Longrightarrow>
-           F (\<lambda>_. x) (Finite_Set.fold F A ((\<lambda>a \<tau>. a) ` Fa)) \<tau> = F (\<lambda>_. x) (Finite_Set.fold G A ((\<lambda>a \<tau>. a) ` Fa)) \<tau>"
-  apply(subst cp_set, simp add:cp_set[symmetric])
-  done
-  apply_end(simp_all)
- qed 
-qed
+
+  apply(subst (1 2) F_cp, simp_all)
+ done
+qed 
 
 lemma iterate_subst_set___ :
  assumes S_all_def : "\<And>\<tau>. all_defined \<tau> (S :: 'a state \<times> 'a state \<Rightarrow> int option option Set_0)"
@@ -5093,10 +5142,16 @@ proof -
                            is_int x"
  by(simp add: all_int_set_def)
 
- have G_cp : "\<And>x y \<tau>. G (\<lambda>_. \<lfloor>x\<rfloor>) y \<tau> = G (\<lambda>_. \<lfloor>x\<rfloor>) (\<lambda>_. y \<tau>) \<tau>"
+ have F_cp : "\<And>x y \<tau>. \<forall>\<tau>. all_defined \<tau> y \<Longrightarrow> F (\<lambda>_. \<lfloor>x\<rfloor>) y \<tau> = F (\<lambda>_. \<lfloor>x\<rfloor>) (\<lambda>_. y \<tau>) \<tau>"
  proof - fix x y \<tau> 
-  interpret EQ_comp_fun_commute0' "(\<lambda>x. G (\<lambda>_. \<lfloor>x\<rfloor>))" by (rule G_commute) show "G (\<lambda>_. \<lfloor>x\<rfloor>) y \<tau> = G (\<lambda>_. \<lfloor>x\<rfloor>) (\<lambda>_. y \<tau>) \<tau>"
-  by (metis cp_set)
+  interpret EQ_comp_fun_commute0' "(\<lambda>x. F (\<lambda>_. \<lfloor>x\<rfloor>))" by (rule F_commute) show "\<forall>\<tau>. all_defined \<tau> y \<Longrightarrow> F (\<lambda>_. \<lfloor>x\<rfloor>) y \<tau> = F (\<lambda>_. \<lfloor>x\<rfloor>) (\<lambda>_. y \<tau>) \<tau>"
+  by (rule cp_set)
+ qed
+
+ have G_cp : "\<And>x y \<tau>. \<forall>\<tau>. all_defined \<tau> y \<Longrightarrow> G (\<lambda>_. \<lfloor>x\<rfloor>) y \<tau> = G (\<lambda>_. \<lfloor>x\<rfloor>) (\<lambda>_. y \<tau>) \<tau>"
+ proof - fix x y \<tau> 
+  interpret EQ_comp_fun_commute0' "(\<lambda>x. G (\<lambda>_. \<lfloor>x\<rfloor>))" by (rule G_commute) show "\<forall>\<tau>. all_defined \<tau> y \<Longrightarrow> G (\<lambda>_. \<lfloor>x\<rfloor>) y \<tau> = G (\<lambda>_. \<lfloor>x\<rfloor>) (\<lambda>_. y \<tau>) \<tau>"
+  by (rule cp_set)
  qed
 
  interpret EQ_comp_fun_commute0' "\<lambda>x. G (\<lambda>_. \<lfloor>x\<rfloor>)" by (rule G_commute)
@@ -5134,7 +5189,7 @@ proof -
    apply(subst img_fold'[where G = G, OF G_commute, symmetric], simp add: A_all_def, simp)
    apply(subst img_fold'[where G = G, OF G_commute, symmetric], simp add: A_all_def, simp)
    apply(rule allI)
-   apply(subst G_cp[of "x"], rule sym, subst G_cp[of "x"], rule sym)
+   apply(subst (1 2) G_cp, simp)
    apply(drule_tac x = \<tau>1 in allE) prefer 2 apply assumption
    apply(drule_tac P = "\<lambda>\<tau>2. Finite_Set.fold G A ((\<lambda>a \<tau>. \<lfloor>a\<rfloor>) ` Fa) \<tau>1 = Finite_Set.fold G A ((\<lambda>a \<tau>. \<lfloor>a\<rfloor>) ` Fa) \<tau>2" and x = \<tau>2 in allE) prefer 2 apply assumption
    apply(simp)
@@ -5196,14 +5251,9 @@ proof -
   apply(subst img_fold'[where G = G, OF G_commute, symmetric], simp add: A_all_def, simp, simp)
   apply(subst img_fold'[where G = F, OF F_commute, symmetric], simp add: A_all_def, simp)
   apply(subst img_fold'[where G = G, OF G_commute, symmetric], simp add: A_all_def, simp)
-  proof - 
-  interpret EQ_comp_fun_commute0' "\<lambda>x. F (\<lambda>_. \<lfloor>x\<rfloor>)" by (rule F_commute)
-  fix Fa x show "Finite_Set.fold F A ((\<lambda>a \<tau>. \<lfloor>a\<rfloor>) ` Fa) \<tau> = Finite_Set.fold G A ((\<lambda>a \<tau>. \<lfloor>a\<rfloor>) ` Fa) \<tau> \<Longrightarrow>
-           F (\<lambda>_. \<lfloor>x\<rfloor>) (Finite_Set.fold F A ((\<lambda>a \<tau>. \<lfloor>a\<rfloor>) ` Fa)) \<tau> = F (\<lambda>_. \<lfloor>x\<rfloor>) (Finite_Set.fold G A ((\<lambda>a \<tau>. \<lfloor>a\<rfloor>) ` Fa)) \<tau>"
-  apply(subst cp_set , simp add:cp_set[symmetric])
-  done
-  apply_end(simp)
- qed 
+
+  apply(subst (1 2) F_cp, simp_all)
+ done
 qed
 
 lemma including_subst_set : "(s::('\<AA>,'a::null)Set) = t \<Longrightarrow> s->including(x) = (t->including(x))"
@@ -6262,6 +6312,66 @@ proof -
  done
 qed
 
+lemma i_cons_all_def''cp :
+ assumes F_commute : "EQ_comp_fun_commute0' (\<lambda>x. F (\<lambda>_. \<lfloor>x\<rfloor>))"
+     and S_all_def : "\<And>\<tau>. all_defined \<tau> S"
+     and A_all_def : "\<And>\<tau>. all_defined \<tau> A"
+   shows "all_defined \<tau> (\<lambda>\<tau>. OclIterate\<^isub>S\<^isub>e\<^isub>t (\<lambda>_. S \<tau>) (\<lambda>_. A \<tau>) F \<tau>)"
+proof -
+ have all_def_to_all_int : "\<And>\<tau>. all_defined \<tau> (S :: 'a state \<times> 'a state \<Rightarrow> int option option Set_0) \<Longrightarrow>
+                                all_int_set ((\<lambda>a \<tau>. a) ` \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>)"
+  apply(simp add: all_defined_def all_defined_set_def all_int_set_def is_int_def defined_def OclValid_def)
+ by (metis (no_types) OclValid_def foundation18' true_def)
+
+ have A_all_def' : "\<forall>\<tau>. all_int_set ((\<lambda>a (\<tau>:: 'a state \<times> 'a state). a) ` \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>)"
+  apply(rule allI, rule all_def_to_all_int, simp add: S_all_def)
+ done
+
+ have A_all_def_ : "\<And>\<tau>' \<tau>. all_defined \<tau>' (\<lambda>_. A \<tau>)"
+ by(subst cp_all_def[symmetric], simp add: A_all_def)
+
+ have invert_all_int_set : "\<And>x S. all_int_set (insert x S) \<Longrightarrow>
+                                  all_int_set S"
+ by(simp add: all_int_set_def)
+
+ have invert_int : "\<And>x S. all_int_set (insert x S) \<Longrightarrow>
+                           is_int x"
+ by(simp add: all_int_set_def)
+
+ interpret EQ_comp_fun_commute0' "\<lambda>x. F (\<lambda>_. \<lfloor>x\<rfloor>)" by (rule F_commute)
+
+ have F_cp : "\<And> x P. all_defined \<tau> (\<lambda>_. F (\<lambda>_. \<lfloor>x\<rfloor>) (P \<tau>) \<tau>) = all_defined \<tau> (F (\<lambda>_. \<lfloor>x\<rfloor>) (P \<tau>))"
+  apply(subst (2) cp_all_def[where \<tau>' = \<tau>], simp)
+ done
+
+ show ?thesis
+  apply(unfold OclIterate\<^isub>S\<^isub>e\<^isub>t_def)
+  apply(subst cp_defined[symmetric], subst cp_valid[symmetric])
+  apply(simp add: S_all_def[simplified all_defined_def OclValid_def]
+                  S_all_def[simplified all_defined_def all_defined_set_def]
+                  A_all_def[simplified all_defined_def, THEN conjunct1, THEN foundation20, simplified OclValid_def]
+                  )
+  apply(subst cp_all_def[where \<tau>' = \<tau>])
+  apply(rule iterate_induct[where P = "\<lambda>set'.
+                                      (\<forall>\<tau>'. all_defined \<tau>' (Finite_Set.fold F (\<lambda>_. A \<tau>) set')) \<and>
+                                      (all_defined \<tau> (\<lambda>_. Finite_Set.fold F (\<lambda>_. A \<tau>) set' \<tau>))"
+                           , simplified Let_def, THEN conjunct2])
+  apply(simp add: S_all_def)
+  apply(simp add: A_all_def_)
+  apply(rule impI)+ apply(erule conjE)+
+
+  apply(rule conjI)
+
+    apply(subst img_fold'[OF F_commute], simp add: A_all_def_, simp)
+    apply(rule iterate_subst_set_rec0'[OF _ F_commute], simp add: A_all_def_, simp, simp, simp add: A_all_def_, simp)
+    apply(subst img_fold'[where G = F, OF F_commute, symmetric], simp add: A_all_def_, simp, simp)
+
+  apply(subst EQ_comp_fun_commute000'.fold_insert'[OF F_commute[THEN c000'_of_c0'[where f = F]]], simp add: A_all_def_, simp, simp, simp)
+  apply(subst F_cp)
+  apply(rule all_def[THEN iffD2, THEN spec], simp)
+ done
+qed
+
 lemma i_cons_all_def' :
  assumes F_commute : "EQ_comp_fun_commute0' (\<lambda>x. F (\<lambda>_. \<lfloor>x\<rfloor>))"
      and A_all_def : "\<And>\<tau>. all_defined \<tau> S"
@@ -6445,6 +6555,9 @@ proof -
  apply_end(simp)
 qed
 
+lemma cp_mtSet : "\<And>x. Set{} = (\<lambda>_. Set{} x)"
+by (metis (hide_lams, no_types) mtSet_def)
+
 lemma iterate_commute' :
  assumes f_comm : "\<And>a. EQ_comp_fun_commute0' (\<lambda>x. (F:: int option \<Rightarrow> ('a state \<times> 'a state \<Rightarrow> int option option)
    \<Rightarrow> ('a state \<times> 'a state \<Rightarrow> int option option Set_0)
@@ -6458,11 +6571,10 @@ lemma iterate_commute' :
             OclIterate\<^isub>S\<^isub>e\<^isub>t (OclIterate\<^isub>S\<^isub>e\<^isub>t S S (F y)) (OclIterate\<^isub>S\<^isub>e\<^isub>t S S (F y)) (F x) \<tau>"
 
  shows "EQ_comp_fun_commute0' (\<lambda>x S. S ->iterate(j;S=S | F x j S))"
-sorry (*
  proof - interpret EQ_comp_fun_commute0' "\<lambda>x. F a (\<lambda>_. \<lfloor>x\<rfloor>)" by (rule f_comm)
  apply_end(simp only: EQ_comp_fun_commute0'_def)
- apply_end(rule conjI)+
- apply_end(subst cp_OclIterate\<^isub>S\<^isub>e\<^isub>t1'[OF f_comm], simp)
+ apply_end(rule conjI)+ apply_end(rule allI)+ apply_end(rule impI)+
+ apply_end(subst cp_OclIterate\<^isub>S\<^isub>e\<^isub>t1[OF f_comm], blast, simp)
  apply_end(rule allI)+ apply_end(rule impI)+
  apply_end(subst iterate_cp_all', simp add: f_comm, simp, simp, simp)
 
@@ -6499,21 +6611,32 @@ sorry (*
   apply(metis abs_rep_simp)
   apply(simp add: mtSet_def)
 
-  apply(subst (1 2) cp_OclIterate\<^isub>S\<^isub>e\<^isub>t1'[OF f_comm])
-  apply(subst (1 2 3 4 5 6) cp_OclIterate\<^isub>S\<^isub>e\<^isub>t1'[OF f_comm])
+  apply(subst (1 2) cp_OclIterate\<^isub>S\<^isub>e\<^isub>t1[OF f_comm]) apply(rule i_cons_all_def'[OF f_comm], blast)+
+  apply(subst (1 2 3 4 5 6) cp_OclIterate\<^isub>S\<^isub>e\<^isub>t1[OF f_comm])
+   apply(subst cp_all_def[symmetric])  apply(rule i_cons_all_def'[OF f_comm], blast) apply(blast)
+   apply(subst cp_all_def[symmetric])  apply(rule i_cons_all_def'[OF f_comm], blast)
   apply(simp)
-  apply(subst (1 2 3 4 5 6) cp_OclIterate\<^isub>S\<^isub>e\<^isub>t1'[OF f_comm, symmetric])
-  apply(simp)
+  apply(subst (1 2 3 4 5 6) cp_OclIterate\<^isub>S\<^isub>e\<^isub>t1[OF f_comm, symmetric])
+   apply(subst (1 2) cp_mtSet[symmetric]) 
+    apply(rule i_cons_all_def'[OF f_comm]) apply(simp add: mtSet_all_def)+
+   apply(subst (1 2) cp_mtSet[symmetric]) 
+    apply(rule i_cons_all_def'[OF f_comm]) apply(simp add: mtSet_all_def)+
 
-
-  apply(subst (1 2) cp_OclIterate\<^isub>S\<^isub>e\<^isub>t1'[OF f_comm])
-  apply(subst (1 2 3 4 5 6) cp_OclIterate\<^isub>S\<^isub>e\<^isub>t1'[OF f_comm])
-  apply(subst (1 2 3 4 5 6) cp_OclIterate\<^isub>S\<^isub>e\<^isub>t1'[OF f_comm, symmetric])
+  apply(subst (1 2) cp_OclIterate\<^isub>S\<^isub>e\<^isub>t1[OF f_comm])
+   apply(rule i_cons_all_def'[OF f_comm], metis surj_pair)
+   apply(rule i_cons_all_def'[OF f_comm], metis surj_pair)
+  apply(subst (1 2 3 4 5 6) cp_OclIterate\<^isub>S\<^isub>e\<^isub>t1[OF f_comm])
+   apply(subst cp_all_def[symmetric])  apply(rule i_cons_all_def'[OF f_comm]) apply(metis surj_pair)+
+   apply(subst cp_all_def[symmetric])  apply(rule i_cons_all_def'[OF f_comm]) apply(metis surj_pair)+
+  apply(subst (1 2 3 4 5 6) cp_OclIterate\<^isub>S\<^isub>e\<^isub>t1[OF f_comm, symmetric])
+   apply(rule i_cons_all_def''cp[OF f_comm]) apply(metis surj_pair) apply(metis surj_pair) apply(metis surj_pair) 
+   apply(rule i_cons_all_def''cp[OF f_comm]) apply(metis surj_pair) apply(metis surj_pair)
+  
   apply(rule f_notempty, simp_all)
 
  done
 qed
-*)
+
 lemma i_including_id' :
  assumes S_all_def : "\<And>\<tau>. all_defined \<tau> (S :: 'a state \<times> 'a state \<Rightarrow> int option option Set_0)"
    shows "(Finite_Set.fold (\<lambda>j r2. r2->including(j)) S ((\<lambda>a \<tau>. a) ` \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>)) \<tau> = S \<tau>"
@@ -6636,6 +6759,14 @@ proof -
  by (metis (no_types) foundation18')
 qed
 
+lemma cp_singleton :
+assumes x_int : "is_int (\<lambda>(_:: 'a state \<times> 'a state). x)"
+ shows "(\<lambda>_. Set{\<lambda>(_:: 'a state \<times> 'a state). x} \<tau>) = Set{\<lambda>(_:: 'a state \<times> 'a state). x}"
+apply(rule ext, rename_tac \<tau>')
+apply(rule including_cp_all, simp add: x_int, simp)
+apply(subst (1 2) cp_mtSet, simp)
+done
+
 lemma iterate_including_commute :
  assumes f_comm : "EQ_comp_fun_commute0 (\<lambda>x. F (\<lambda>_. x))"
      and f_empty : "\<And>x y.
@@ -6651,15 +6782,14 @@ lemma iterate_including_commute :
                 (OclIterate\<^isub>S\<^isub>e\<^isub>t ((OclIterate\<^isub>S\<^isub>e\<^isub>t S S F)->including(\<lambda>(_:: 'a state \<times> 'a state). x)) ((OclIterate\<^isub>S\<^isub>e\<^isub>t S S F)->including(\<lambda>(_:: 'a state \<times> 'a state). x)) F)->including(\<lambda>(_:: 'a state \<times> 'a state). y) \<tau> =
                 (OclIterate\<^isub>S\<^isub>e\<^isub>t ((OclIterate\<^isub>S\<^isub>e\<^isub>t S S F)->including(\<lambda>(_:: 'a state \<times> 'a state). y)) ((OclIterate\<^isub>S\<^isub>e\<^isub>t S S F)->including(\<lambda>(_:: 'a state \<times> 'a state). y)) F)->including(\<lambda>(_:: 'a state \<times> 'a state). x) \<tau> "
    shows "EQ_comp_fun_commute0 (\<lambda>x r1. r1 ->iterate(j;r2=r1 | F j r2)->including(\<lambda>(_:: 'a state \<times> 'a state). x))"
-sorry (*
 proof -
  have all_defined1 : "\<And>r2 \<tau>. all_defined \<tau> r2 \<Longrightarrow> \<tau> \<Turnstile> \<delta> r2" by(simp add: all_defined_def)
 
 
  show ?thesis
   apply(simp only: EQ_comp_fun_commute0_def)
-  apply(rule conjI)+ apply(rule allI)+
-  apply(subst cp_OclIncluding, subst cp_OclIterate\<^isub>S\<^isub>e\<^isub>t1'[OF f_comm[THEN c0'_of_c0]], subst cp_OclIncluding[symmetric], simp)
+  apply(rule conjI)+ apply(rule allI)+ apply(rule impI)+
+  apply(subst (1 2) cp_OclIncluding, subst cp_OclIterate\<^isub>S\<^isub>e\<^isub>t1[OF f_comm[THEN c0'_of_c0]], blast, simp)
   apply(rule allI)+ apply(rule impI)+
   apply(rule including_cp_all, simp, rule all_defined1, rule i_cons_all_def, simp add: f_comm, blast)
   apply(rule iterate_cp_all, simp add: f_comm, simp, simp)
@@ -6684,18 +6814,23 @@ proof -
   apply(simp add: mtSet_def)
 
   apply(subst (1 2) cp_OclIncluding)
-  apply(subst (1 2) cp_OclIterate\<^isub>S\<^isub>e\<^isub>t1'[OF f_comm[THEN c0'_of_c0]])
+  apply(subst (1 2) cp_OclIterate\<^isub>S\<^isub>e\<^isub>t1[OF f_comm[THEN c0'_of_c0]])
+   apply(rule cons_all_def') apply(rule i_cons_all_def'[where F = F, OF f_comm[THEN c0'_of_c0]], blast)+ apply(simp add: int_is_valid)
+   apply(rule cons_all_def') apply(rule i_cons_all_def'[where F = F, OF f_comm[THEN c0'_of_c0]], blast)+ apply(simp add: int_is_valid)
   apply(subst (1 2 3 4 5 6) cp_OclIncluding)
-  apply(subst (1 2 3 4 5 6) cp_OclIterate\<^isub>S\<^isub>e\<^isub>t1'[OF f_comm[THEN c0'_of_c0]])
+  apply(subst (1 2 4 5) cp_OclIterate\<^isub>S\<^isub>e\<^isub>t1[OF f_comm[THEN c0'_of_c0]], blast)
   apply(simp)
-  apply(subst (1 2 3 4 5 6) cp_OclIterate\<^isub>S\<^isub>e\<^isub>t1'[OF f_comm[THEN c0'_of_c0], symmetric], simp)
-  apply(subst (1 2 3 4 5 6) cp_OclIncluding[symmetric])
+  apply(subst (1 2 4 5) cp_OclIterate\<^isub>S\<^isub>e\<^isub>t1[OF f_comm[THEN c0'_of_c0], symmetric], simp add: mtSet_all_def)
+  apply(simp)
+  apply(subst (1 2 4 5) cp_OclIncluding[symmetric])
+  apply(subst (1 2 3 4) cp_singleton, simp, simp)
+  apply(subst (1 2) cp_OclIncluding[symmetric])
   apply(subst f_empty, simp_all)
 
   apply(rule com, simp_all)
  done
 qed
-*)
+
 lemma destruct_int : "\<And>i. is_int i \<Longrightarrow> \<exists>! j. i = (\<lambda>_. j)"
  proof - fix \<tau> show "\<And>i. is_int i \<Longrightarrow> ?thesis i"
   apply(rule_tac a = "i \<tau>" in ex1I)
@@ -6705,6 +6840,16 @@ lemma destruct_int : "\<And>i. is_int i \<Longrightarrow> \<exists>! j. i = (\<l
  done
  apply_end(simp)
 qed
+
+lemma cp_doubleton :
+ assumes x_int : "is_int (\<lambda>(_:: 'a state \<times> 'a state). x)"
+     and a_int : "is_int a"
+   shows "(\<lambda>_. Set{\<lambda>(_:: 'a state \<times> 'a state). x, a} \<tau>) = Set{\<lambda>(_:: 'a state \<times> 'a state). x, a}"
+ apply(rule ext, rename_tac \<tau>')
+ apply(rule including_cp_all, simp add: x_int, simp add: a_int int_is_valid)
+ apply(rule including_cp_all, simp add: a_int, simp)
+ apply(subst (1 2) cp_mtSet, simp)
+done
 
 lemma iterate_including_commute_var :
  assumes f_comm : "EQ_comp_fun_commute0 (\<lambda>x. F (\<lambda>_. x))"
@@ -6722,13 +6867,12 @@ lemma iterate_including_commute_var :
                 (OclIterate\<^isub>S\<^isub>e\<^isub>t (((OclIterate\<^isub>S\<^isub>e\<^isub>t S S F)->including(a))->including(\<lambda>(_:: 'a state \<times> 'a state). y)) (((OclIterate\<^isub>S\<^isub>e\<^isub>t S S F)->including(a))->including(\<lambda>(_:: 'a state \<times> 'a state). y)) F)->including(\<lambda>(_:: 'a state \<times> 'a state). x) \<tau> "
      and a_int : "is_int a"
    shows "EQ_comp_fun_commute0 (\<lambda>x r1. (((r1 ->iterate(j;r2=r1 | F j r2))->including(a))->including(\<lambda>(_:: 'a state \<times> 'a state). x)))"
-sorry (*
 proof -
  have all_defined1 : "\<And>r2 \<tau>. all_defined \<tau> r2 \<Longrightarrow> \<tau> \<Turnstile> \<delta> r2" by(simp add: all_defined_def)
  show ?thesis
   apply(simp only: EQ_comp_fun_commute0_def)
-  apply(rule conjI)+ apply(rule allI)+
-  apply(subst (1 2) cp_OclIncluding, subst (1 2 3 4) cp_OclIncluding, subst cp_OclIterate\<^isub>S\<^isub>e\<^isub>t1'[OF f_comm[THEN c0'_of_c0]], simp)
+  apply(rule conjI)+ apply(rule allI)+ apply(rule impI)+
+  apply(subst (1 2) cp_OclIncluding, subst (1 2 3 4) cp_OclIncluding, subst cp_OclIterate\<^isub>S\<^isub>e\<^isub>t1[OF f_comm[THEN c0'_of_c0]], blast, simp)
   apply(rule allI)+ apply(rule impI)+
   apply(rule including_cp_all, simp, rule all_defined1, rule cons_all_def, rule i_cons_all_def, simp add: f_comm, blast, simp add: a_int int_is_valid)
   apply(rule including_cp_all, simp add: a_int, rule all_defined1, rule i_cons_all_def, simp add: f_comm, blast, simp add: a_int int_is_valid)
@@ -6759,13 +6903,19 @@ proof -
 
   apply(subst (1 2) cp_OclIncluding)
   apply(subst (1 2 3 4) cp_OclIncluding)
-  apply(subst (1 2) cp_OclIterate\<^isub>S\<^isub>e\<^isub>t1'[OF f_comm[THEN c0'_of_c0]])
+  apply(subst (1 2) cp_OclIterate\<^isub>S\<^isub>e\<^isub>t1[OF f_comm[THEN c0'_of_c0]])
+   apply(rule cons_all_def')+ apply(rule i_cons_all_def'[where F = F, OF f_comm[THEN c0'_of_c0]], metis surj_pair) apply(simp add: a_int int_is_valid)+
+   apply(rule cons_all_def')+ apply(rule i_cons_all_def'[where F = F, OF f_comm[THEN c0'_of_c0]], metis surj_pair) apply(simp add: a_int int_is_valid)+
   apply(subst (1 2 3 4 5 6 7 8) cp_OclIncluding)
   apply(subst (1 2 3 4 5 6 7 8 9 10 11 12) cp_OclIncluding)
-  apply(subst (1 2 3 4 5 6) cp_OclIterate\<^isub>S\<^isub>e\<^isub>t1'[OF f_comm[THEN c0'_of_c0]])
+
+  apply(subst (1 2 4 5) cp_OclIterate\<^isub>S\<^isub>e\<^isub>t1[OF f_comm[THEN c0'_of_c0]], metis surj_pair)
   apply(simp)
-  apply(subst (1 2 3 4 5 6) cp_OclIterate\<^isub>S\<^isub>e\<^isub>t1'[OF f_comm[THEN c0'_of_c0], symmetric], simp)
-  apply(subst (1 2 3 4 5 6 7 8 9 10 11 12) cp_OclIncluding[symmetric])
+  apply(subst (1 2 4 5) cp_OclIterate\<^isub>S\<^isub>e\<^isub>t1[OF f_comm[THEN c0'_of_c0], symmetric], simp add: mtSet_all_def)
+  apply(simp)
+  apply(subst (1 2 3 4 7 8 9 10) cp_OclIncluding[symmetric])
+  apply(subst (1 2 3 4) cp_doubleton, simp, simp add: a_int, simp)
+  apply(subst (1 2 3 4) cp_OclIncluding[symmetric])
 
   apply(subst (3 6) including_swap)
   apply(rule allI, rule all_defined1, rule i_cons_all_def, simp add: f_comm) apply(rule cons_all_def)+ apply(rule mtSet_all_def) apply(simp add: int_is_valid a_int) apply(simp add: int_is_valid a_int) apply(simp add: int_is_valid a_int) apply(simp add: int_is_valid a_int)
@@ -6786,7 +6936,7 @@ proof -
   apply(rule com, simp_all)
  done
 qed
-*)
+
 lemma including_out1 :
  assumes S_all_def : "\<And>\<tau>. all_defined \<tau> (S :: 'a state \<times> 'a state \<Rightarrow> int option option Set_0)"
      and A_all_def : "\<And>\<tau>. all_defined \<tau> (A :: 'a state \<times> 'a state \<Rightarrow> int option option Set_0)"
@@ -7650,7 +7800,6 @@ proof -
  done
 
  have commute5: "EQ_comp_fun_commute0 (\<lambda>x r1. r1 ->iterate(j;r2=r1 | r2->including(\<zero>)->including(j))->including(\<lambda>(_:: 'a state \<times> 'a state). x))"
-sorry (*
   apply(rule iterate_including_commute, rule commute8[THEN c0_of_c])
   apply(rule ext, rename_tac \<tau>)
   apply(subst (1 2) cp_OclIncluding)
@@ -7675,10 +7824,13 @@ sorry (*
     apply(simp)
    apply(subst (1 2) cp_OclIncluding[symmetric])
    apply(rule including_swap')
-   apply(simp add: int_is_valid)+
+   apply(simp add: int_is_valid) apply(simp add: int_is_valid) apply(simp add: int_is_valid)
+
   (* *)
   apply(subst (1 2) cp_OclIncluding)
-  apply(subst (1 2) cp_OclIterate\<^isub>S\<^isub>e\<^isub>t1'[OF including_commute3[THEN c0_of_c, THEN c0'_of_c0]], simp add: zero_int)
+  apply(subst (1 2) cp_OclIterate\<^isub>S\<^isub>e\<^isub>t1[OF including_commute3[THEN c0_of_c, THEN c0'_of_c0]], simp add: zero_int)
+   apply(rule cons_all_def') apply(rule i_cons_all_def) apply(rule including_commute3[THEN c0_of_c], simp add: zero_int, blast, simp add: int_is_valid)
+   apply(rule cons_all_def') apply(rule i_cons_all_def) apply(rule including_commute3[THEN c0_of_c], simp add: zero_int, blast, simp add: int_is_valid)
   apply(subst (1 2 3 4 5 6) cp_OclIncluding)
 
   apply(subst (1 2 3 4 5) iterate_including_id_out)
@@ -7698,9 +7850,8 @@ sorry (*
   apply(subst (1 2 3 4 5 6 7 8) cp_OclIncluding[symmetric])
   apply(subst swap1, simp_all)
  done
-*)
+
  have commute6: "EQ_comp_fun_commute0 (\<lambda>x r1. r1 ->iterate(j;r2=r1 | r2->including(j)->including(\<zero>))->including(\<lambda>(_:: 'a state \<times> 'a state). x))"
-sorry (*
   apply(rule iterate_including_commute, rule commute7[THEN c0_of_c])
   apply(rule ext, rename_tac \<tau>)
   apply(subst (1 2) cp_OclIncluding)
@@ -7725,10 +7876,12 @@ sorry (*
     apply(simp)
    apply(subst (1 2) cp_OclIncluding[symmetric])
    apply(rule including_swap')
-   apply(simp add: int_is_valid)+
+   apply(simp add: int_is_valid) apply(simp add: int_is_valid) apply(simp add: int_is_valid)
   (* *)
   apply(subst (1 2) cp_OclIncluding)
-  apply(subst (1 2) cp_OclIterate\<^isub>S\<^isub>e\<^isub>t1'[OF including_commute2[THEN c0_of_c, THEN c0'_of_c0]], simp add: zero_int)
+  apply(subst (1 2) cp_OclIterate\<^isub>S\<^isub>e\<^isub>t1[OF including_commute2[THEN c0_of_c, THEN c0'_of_c0]], simp add: zero_int)
+   apply(rule cons_all_def') apply(rule i_cons_all_def) apply(rule including_commute2[THEN c0_of_c], simp add: zero_int, blast, simp add: int_is_valid)
+   apply(rule cons_all_def') apply(rule i_cons_all_def) apply(rule including_commute2[THEN c0_of_c], simp add: zero_int, blast, simp add: int_is_valid)
   apply(subst (1 2 3 4 5 6) cp_OclIncluding)
 
   apply(subst (1 2 3 4 5) iterate_including_id_out')
@@ -7748,9 +7901,8 @@ sorry (*
   apply(subst (1 2 3 4 5 6 7 8) cp_OclIncluding[symmetric])
   apply(subst swap1, simp_all)
  done
-*)
+
  have commute9: "EQ_comp_fun_commute0 (\<lambda>x r1. r1 ->iterate(j;r2=r1 | r2->including(j))->including(\<zero>)->including(\<lambda>_. x))"
-sorry (*
   apply(rule iterate_including_commute_var, rule including_commute[THEN c0_of_c])
   apply(rule ext, rename_tac \<tau>)
   apply(subst (1 2) cp_OclIncluding)
@@ -7761,10 +7913,15 @@ sorry (*
     apply(subst (1 2) cp_OclIncluding[symmetric])
     apply(rule including_swap')
     apply (metis (hide_lams, no_types) all_defined1 including_defined_args_valid int_is_valid mtSet_all_def zero_int)
-     apply(simp add: int_is_valid)+
-
+     apply(simp add: int_is_valid) apply(simp add: int_is_valid)
+  (* *)
   apply(subst (1 2) cp_OclIncluding)
-  apply(subst (1 2) cp_OclIterate\<^isub>S\<^isub>e\<^isub>t1', rule including_commute[THEN c0_of_c, THEN c0'_of_c0])
+  apply(subst (1 2) cp_OclIterate\<^isub>S\<^isub>e\<^isub>t1, rule including_commute[THEN c0_of_c, THEN c0'_of_c0])
+   apply(rule cons_all_def')+ apply(rule i_cons_all_def) apply(rule including_commute[THEN c0_of_c], blast, simp, simp add: int_is_valid)
+   apply(rule cons_all_def')+ apply(rule i_cons_all_def) apply(rule including_commute[THEN c0_of_c], blast, simp, simp add: int_is_valid)
+  apply(subst (1 2 3 4 5 6) cp_OclIncluding)
+
+
   apply(subst (1 2 3 4 5 6) cp_OclIncluding)
   apply(subst (1 2 3 4 5 6 7 8 9 10) cp_OclIncluding)
   apply(subst (1 2 3 4 5) iterate_including_id)
@@ -7779,14 +7936,13 @@ sorry (*
   apply(subst (1 2 3 4 5 6) cp_OclIncluding[symmetric])
   apply(rule including_swap') apply(rule all_defined1, rule cons_all_def, metis surj_pair) apply(simp add: int_is_valid zero_int)+
  done
-*)
+
  have commute1: "EQ_comp_fun_commute0' (\<lambda>x r1. r1 ->iterate(j;r2=r1 | r2->including(\<zero>)->including(\<lambda>(_:: 'a state \<times> 'a state). \<lfloor>x\<rfloor>)->including(j)))"
-sorry (*
   apply(rule iterate_commute')
    apply(rule including_commute6[THEN c0_of_c, THEN c0'_of_c0], simp add: zero_int, simp add: int_trivial)
-  apply(subst (1 2) cp_OclIterate\<^isub>S\<^isub>e\<^isub>t1')
-   apply(rule including_commute6[THEN c0_of_c, THEN c0'_of_c0], simp add: zero_int, simp)
-   apply(rule including_commute6[THEN c0_of_c, THEN c0'_of_c0], simp add: zero_int, simp)
+  apply(subst (1 2) cp_OclIterate\<^isub>S\<^isub>e\<^isub>t1)
+   apply(rule including_commute6[THEN c0_of_c, THEN c0'_of_c0], simp add: zero_int, simp) apply(rule i_cons_all_def) apply(rule including_commute6[THEN c0_of_c], simp add: zero_int, simp, blast)
+   apply(rule including_commute6[THEN c0_of_c, THEN c0'_of_c0], simp add: zero_int, simp) apply(rule i_cons_all_def) apply(rule including_commute6[THEN c0_of_c], simp add: zero_int, simp, blast)
   apply(subst (1 2 3 4 5) iterate_including_id_out''')
   apply(simp_all add: zero_int)
   apply(metis surj_pair)
@@ -7816,13 +7972,13 @@ sorry (*
   apply(subst (1 2 3 4 5 6 7 8) cp_OclIncluding[symmetric])
   apply(subst swap1, simp_all)
  done
-*)
+
  have commute2: "EQ_comp_fun_commute0' (\<lambda>x r1. r1 ->iterate(j;r2=r1 | r2->including(\<zero>)->including(j)->including(\<lambda>(_:: 'a state \<times> 'a state). \<lfloor>x\<rfloor>)))"
-sorry (*  apply(rule iterate_commute')
+  apply(rule iterate_commute')
    apply(rule including_commute4[THEN c0_of_c, THEN c0'_of_c0], simp add: zero_int, simp add: int_trivial)
-  apply(subst (1 2) cp_OclIterate\<^isub>S\<^isub>e\<^isub>t1')
-   apply(rule including_commute4[THEN c0_of_c, THEN c0'_of_c0], simp add: zero_int, simp)
-   apply(rule including_commute4[THEN c0_of_c, THEN c0'_of_c0], simp add: zero_int, simp)
+  apply(subst (1 2) cp_OclIterate\<^isub>S\<^isub>e\<^isub>t1)
+   apply(rule including_commute4[THEN c0_of_c, THEN c0'_of_c0], simp add: zero_int, simp) apply(rule i_cons_all_def) apply(rule including_commute4[THEN c0_of_c], simp add: zero_int, simp, blast)
+   apply(rule including_commute4[THEN c0_of_c, THEN c0'_of_c0], simp add: zero_int, simp) apply(rule i_cons_all_def) apply(rule including_commute4[THEN c0_of_c], simp add: zero_int, simp, blast)
   apply(subst (1 2 3 4 5) iterate_including_id_out'''')
   apply(simp_all add: zero_int)
   apply(metis surj_pair)
@@ -7852,7 +8008,7 @@ sorry (*  apply(rule iterate_commute')
   apply(subst (1 2 3 4 5 6 7 8) cp_OclIncluding[symmetric])
   apply(subst swap1, simp_all)
  done
-*)
+
  have set68_notempty : "\<And>(\<tau>:: 'a state \<times> 'a state). \<lceil>\<lceil>Rep_Set_0 (Set{\<six>, \<eight>} \<tau>)\<rceil>\<rceil> \<noteq> {}"
   apply(rule including_notempty)
   apply(simp add: mtSet_all_def)
