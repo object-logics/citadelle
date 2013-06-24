@@ -478,10 +478,10 @@ apply(erule contrapos_pp [of "Rep_Set_0 (X \<tau>) = null"])
 apply(subst Abs_Set_0_inject[symmetric], rule Rep_Set_0, simp)
 apply(simp add: Rep_Set_0_inverse  null_option_def)
 done
-
+(*
 lemma Set_inv_lemma2 : " (\<tau> \<Turnstile> \<delta> X) \<Longrightarrow> \<tau> \<Turnstile> \<upsilon> (\<lambda>_. e) \<Longrightarrow>  e \<in> \<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil>"
 sorry
-
+*)
 lemma invalid_set_not_defined [simp,code_unfold]:"\<delta>(invalid::('\<AA>,'\<alpha>::null) Set) = false" by simp
 lemma null_set_not_defined [simp,code_unfold]:"\<delta>(null::('\<AA>,'\<alpha>::null) Set) = false"
 by(simp add: defined_def null_fun_def)
