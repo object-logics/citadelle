@@ -2284,7 +2284,7 @@ locale EQ_comp_fun_commute000' =
   fixes f :: "('a state \<times> 'a state \<Rightarrow> int option option)
               \<Rightarrow> ('a state \<times> 'a state \<Rightarrow> int option option Set_0)
               \<Rightarrow> ('a state \<times> 'a state \<Rightarrow> int option option Set_0)"
-  assumes cp_set : "\<And>x S \<tau>. f (\<lambda>_. \<lfloor>x\<rfloor>) S \<tau> = f (\<lambda>_. \<lfloor>x\<rfloor>) (\<lambda>_. S \<tau>) \<tau>"
+  assumes cp_set : "\<And>x S \<tau>. \<forall>\<tau>. all_defined \<tau> S \<Longrightarrow> f (\<lambda>_. \<lfloor>x\<rfloor>) S \<tau> = f (\<lambda>_. \<lfloor>x\<rfloor>) (\<lambda>_. S \<tau>) \<tau>"
   assumes all_def: "\<And>(x:: int option) y. (\<forall>(\<tau> :: 'a state \<times> 'a state). all_defined \<tau> (f (\<lambda>(_ :: 'a state \<times> 'a state). \<lfloor>x\<rfloor>) y)) = (\<tau> \<Turnstile> \<upsilon> (\<lambda>(_ :: 'a state \<times> 'a state). \<lfloor>x\<rfloor>) \<and> (\<forall>(\<tau> :: 'a state \<times> 'a state). all_defined \<tau> y))"
   assumes commute: "
                              \<tau> \<Turnstile> \<upsilon> (\<lambda>_. \<lfloor>x\<rfloor>) \<Longrightarrow>
@@ -2299,7 +2299,7 @@ locale EQ_comp_fun_commute000 =
   fixes f :: "('a state \<times> 'a state \<Rightarrow> int option option)
               \<Rightarrow> ('a state \<times> 'a state \<Rightarrow> int option option Set_0)
               \<Rightarrow> ('a state \<times> 'a state \<Rightarrow> int option option Set_0)"
-  assumes cp_set : "\<And>x S \<tau>. f (\<lambda>(_::'a state \<times> 'a state). x) S \<tau> = f (\<lambda>(_::'a state \<times> 'a state). x) (\<lambda>_. S \<tau>) \<tau>"
+  assumes cp_set : "\<And>x S \<tau>. \<forall>\<tau>. all_defined \<tau> S \<Longrightarrow> f (\<lambda>(_::'a state \<times> 'a state). x) S \<tau> = f (\<lambda>(_::'a state \<times> 'a state). x) (\<lambda>_. S \<tau>) \<tau>"
   assumes all_def: "\<And>x y. (\<forall>\<tau>. all_defined \<tau> (f (\<lambda>(_::'a state \<times> 'a state). x) y)) = (is_int (\<lambda>(_ :: 'a state \<times> 'a state). x) \<and> (\<forall>\<tau>. all_defined \<tau> y))"
   assumes commute: "\<And>x y.
                              is_int (\<lambda>(_::'a state \<times> 'a state). x) \<Longrightarrow>
@@ -3411,23 +3411,6 @@ begin
    apply_end (simp add: all_defined_set'_def int_is_valid[OF x_int] A_int[simplified all_defined_set'_def])
  qed
 
- lemma fold_insert':
-   assumes z_defined : "all_defined (\<tau> :: 'a state \<times> 'a state) z"
-       and A_int : "all_defined_set' (\<tau> :: 'a state \<times> 'a state) A"
-       and x_int : "is_int (\<lambda>(_ :: 'a state \<times> 'a state). \<lfloor>x\<rfloor>)"
-       and "x \<notin> A"
-   shows "Finite_Set.fold f z (insert x A) \<tau> = f x (Finite_Set.fold f z A) \<tau>"
- sorry
-
- lemma fold_insert_':
-   assumes z_defined : "all_defined (\<tau> :: 'a state \<times> 'a state) z"
-       and A_int : "all_defined_set' (\<tau> :: 'a state \<times> 'a state) A"
-       and x_int : "is_int (\<lambda>(_ :: 'a state \<times> 'a state). \<lfloor>x\<rfloor>)"
-       and "x \<notin> A"
-   shows "Finite_Set.fold F z (insert (\<lambda>(_ :: 'a state \<times> 'a state). \<lfloor>x\<rfloor>) ((\<lambda>a _. \<lfloor>a\<rfloor>) ` A)) \<tau> =
-          F (\<lambda>(_ :: 'a state \<times> 'a state). \<lfloor>x\<rfloor>) (Finite_Set.fold F z ((\<lambda>a _. \<lfloor>a\<rfloor>) ` A)) \<tau>"
- sorry
-
 end
 
 lemma EQ_OclIterate\<^isub>S\<^isub>e\<^isub>t_including:
@@ -4121,52 +4104,6 @@ proof -
  done
 qed
 
-lemma img_fold'' :
- assumes g_comm : "EQ_comp_fun_commute0' (\<lambda>x. G (\<lambda>_. \<lfloor>x\<rfloor>))"
-     and a_def : "all_defined \<tau> A"
-     and fini : "all_int_set ((\<lambda>a (\<tau> :: 'a state \<times> 'a state). \<lfloor>a\<rfloor>) ` Fa)"
-   shows  "Finite_Set.fold (G :: ('a state \<times> 'a state \<Rightarrow> int option option)
-                                  \<Rightarrow> ('a state \<times> 'a state \<Rightarrow> int option option Set_0)
-                                  \<Rightarrow> 'a state \<times> 'a state \<Rightarrow> int option option Set_0) A ((\<lambda>a \<tau>. \<lfloor>a\<rfloor>) ` Fa) \<tau> =
-           Finite_Set.fold (\<lambda>x. G (\<lambda>_. \<lfloor>x\<rfloor>)) A Fa \<tau>"
-proof -
- have invert_all_int_set : "\<And>x S. all_int_set (insert x S) \<Longrightarrow>
-                                  all_int_set S"
- by(simp add: all_int_set_def)
- have invert_int : "\<And>x S. all_int_set (insert x S) \<Longrightarrow>
-                           is_int x"
- by(simp add: all_int_set_def)
- have inject : "inj (\<lambda>a \<tau>. a)" by(rule inj_fun, simp)
-
- interpret EQ_comp_fun_commute0' "\<lambda>x. G (\<lambda>_. \<lfloor>x\<rfloor>)" by (rule g_comm)
- show ?thesis
-  apply(rule finite_induct[where P = "\<lambda>set. let set' = (\<lambda>a \<tau>. \<lfloor>a\<rfloor>) ` set in
-                                               all_int_set set' \<longrightarrow>
-                                               Finite_Set.fold G A set' \<tau> = Finite_Set.fold (\<lambda>x. G (\<lambda>_. \<lfloor>x\<rfloor>)) A set \<tau>"
-                  and F = Fa, simplified Let_def, THEN mp])
-  apply(insert fini[simplified all_int_set_def, THEN conjunct1], rule finite_imageD, assumption)
-  apply (metis (lifting) inj_on_def option.inject)
-  apply(simp)
-  apply(rule impI)+
-
-  apply(subgoal_tac "all_int_set ((\<lambda>a (\<tau>:: 'a state \<times> 'a state). \<lfloor>a\<rfloor>) ` F)", simp)
-
-  apply(subst EQ_comp_fun_commute0'.fold_insert'[OF g_comm])
-   apply(simp add: a_def)
-
-   apply(drule invert_all_int_set, simp add: all_int_set_def all_defined_set'_def int_is_valid)
-   apply(simp add: invert_int)
-   apply(simp)
-   apply(subst EQ_comp_fun_commute0'.fold_insert_'[OF g_comm a_def],simp add: all_int_set_def all_defined_set'_def int_is_valid)
-    apply(simp add: invert_int)
-    apply(simp)
-  apply(subst cp_set, simp, subst cp_set[symmetric], simp)
-
-  apply(rule invert_all_int_set, simp)
-  apply(simp add: fini)
- done
-qed
-
 lemma abs_rep_simp :
  assumes S_all_def : "all_defined \<tau> (S :: 'a state \<times> 'a state \<Rightarrow> int option option Set_0)"
    shows "Abs_Set_0 \<lfloor>\<lfloor>\<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>\<rfloor>\<rfloor> = S \<tau>"
@@ -4655,10 +4592,12 @@ proof -
  done
 qed
 
-lemma cp_OclIterate\<^isub>S\<^isub>e\<^isub>t1':
+lemma cp_OclIterate\<^isub>S\<^isub>e\<^isub>t1: 
  assumes f_comm : "EQ_comp_fun_commute0' (\<lambda>x. f (\<lambda>_. \<lfloor>x\<rfloor>))"
-   shows "(X->iterate(a; x = X | f a x)) \<tau> =
-                ((\<lambda> _. X \<tau>)->iterate(a; x = (\<lambda>_. X \<tau>) | f a x)) \<tau>"
+     and A_all_def : "\<And>\<tau>. all_defined \<tau> A"
+   shows "(X->iterate(a; x = A | f a x)) \<tau> =
+                ((\<lambda> _. X \<tau>)->iterate(a; x = (\<lambda>_. A \<tau>) | f a x)) \<tau>"
+sorry (*
 proof -
  interpret EQ_comp_fun_commute0' "\<lambda>x. f (\<lambda>_. \<lfloor>x\<rfloor>)" by (rule f_comm)
  have B : "\<lfloor>\<bottom>\<rfloor> \<in> {X. X = bot \<or> X = null \<or> (\<forall>x\<in>\<lceil>\<lceil>X\<rceil>\<rceil>. x \<noteq> bot)}" by(simp add: null_option_def bot_option_def)
@@ -4708,6 +4647,7 @@ proof -
   apply(simp)
  done
 qed
+*)
 
 lemma iterate_subst_set0 :
  assumes S_all_def : "\<And>\<tau>. all_defined \<tau> (S :: 'a state \<times> 'a state \<Rightarrow> int option option Set_0)"
@@ -6518,6 +6458,7 @@ lemma iterate_commute' :
             OclIterate\<^isub>S\<^isub>e\<^isub>t (OclIterate\<^isub>S\<^isub>e\<^isub>t S S (F y)) (OclIterate\<^isub>S\<^isub>e\<^isub>t S S (F y)) (F x) \<tau>"
 
  shows "EQ_comp_fun_commute0' (\<lambda>x S. S ->iterate(j;S=S | F x j S))"
+sorry (*
  proof - interpret EQ_comp_fun_commute0' "\<lambda>x. F a (\<lambda>_. \<lfloor>x\<rfloor>)" by (rule f_comm)
  apply_end(simp only: EQ_comp_fun_commute0'_def)
  apply_end(rule conjI)+
@@ -6572,7 +6513,7 @@ lemma iterate_commute' :
 
  done
 qed
-
+*)
 lemma i_including_id' :
  assumes S_all_def : "\<And>\<tau>. all_defined \<tau> (S :: 'a state \<times> 'a state \<Rightarrow> int option option Set_0)"
    shows "(Finite_Set.fold (\<lambda>j r2. r2->including(j)) S ((\<lambda>a \<tau>. a) ` \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>)) \<tau> = S \<tau>"
@@ -6710,6 +6651,7 @@ lemma iterate_including_commute :
                 (OclIterate\<^isub>S\<^isub>e\<^isub>t ((OclIterate\<^isub>S\<^isub>e\<^isub>t S S F)->including(\<lambda>(_:: 'a state \<times> 'a state). x)) ((OclIterate\<^isub>S\<^isub>e\<^isub>t S S F)->including(\<lambda>(_:: 'a state \<times> 'a state). x)) F)->including(\<lambda>(_:: 'a state \<times> 'a state). y) \<tau> =
                 (OclIterate\<^isub>S\<^isub>e\<^isub>t ((OclIterate\<^isub>S\<^isub>e\<^isub>t S S F)->including(\<lambda>(_:: 'a state \<times> 'a state). y)) ((OclIterate\<^isub>S\<^isub>e\<^isub>t S S F)->including(\<lambda>(_:: 'a state \<times> 'a state). y)) F)->including(\<lambda>(_:: 'a state \<times> 'a state). x) \<tau> "
    shows "EQ_comp_fun_commute0 (\<lambda>x r1. r1 ->iterate(j;r2=r1 | F j r2)->including(\<lambda>(_:: 'a state \<times> 'a state). x))"
+sorry (*
 proof -
  have all_defined1 : "\<And>r2 \<tau>. all_defined \<tau> r2 \<Longrightarrow> \<tau> \<Turnstile> \<delta> r2" by(simp add: all_defined_def)
 
@@ -6753,7 +6695,7 @@ proof -
   apply(rule com, simp_all)
  done
 qed
-
+*)
 lemma destruct_int : "\<And>i. is_int i \<Longrightarrow> \<exists>! j. i = (\<lambda>_. j)"
  proof - fix \<tau> show "\<And>i. is_int i \<Longrightarrow> ?thesis i"
   apply(rule_tac a = "i \<tau>" in ex1I)
@@ -6780,6 +6722,7 @@ lemma iterate_including_commute_var :
                 (OclIterate\<^isub>S\<^isub>e\<^isub>t (((OclIterate\<^isub>S\<^isub>e\<^isub>t S S F)->including(a))->including(\<lambda>(_:: 'a state \<times> 'a state). y)) (((OclIterate\<^isub>S\<^isub>e\<^isub>t S S F)->including(a))->including(\<lambda>(_:: 'a state \<times> 'a state). y)) F)->including(\<lambda>(_:: 'a state \<times> 'a state). x) \<tau> "
      and a_int : "is_int a"
    shows "EQ_comp_fun_commute0 (\<lambda>x r1. (((r1 ->iterate(j;r2=r1 | F j r2))->including(a))->including(\<lambda>(_:: 'a state \<times> 'a state). x)))"
+sorry (*
 proof -
  have all_defined1 : "\<And>r2 \<tau>. all_defined \<tau> r2 \<Longrightarrow> \<tau> \<Turnstile> \<delta> r2" by(simp add: all_defined_def)
  show ?thesis
@@ -6843,7 +6786,7 @@ proof -
   apply(rule com, simp_all)
  done
 qed
-
+*)
 lemma including_out1 :
  assumes S_all_def : "\<And>\<tau>. all_defined \<tau> (S :: 'a state \<times> 'a state \<Rightarrow> int option option Set_0)"
      and A_all_def : "\<And>\<tau>. all_defined \<tau> (A :: 'a state \<times> 'a state \<Rightarrow> int option option Set_0)"
@@ -7707,6 +7650,7 @@ proof -
  done
 
  have commute5: "EQ_comp_fun_commute0 (\<lambda>x r1. r1 ->iterate(j;r2=r1 | r2->including(\<zero>)->including(j))->including(\<lambda>(_:: 'a state \<times> 'a state). x))"
+sorry (*
   apply(rule iterate_including_commute, rule commute8[THEN c0_of_c])
   apply(rule ext, rename_tac \<tau>)
   apply(subst (1 2) cp_OclIncluding)
@@ -7754,8 +7698,9 @@ proof -
   apply(subst (1 2 3 4 5 6 7 8) cp_OclIncluding[symmetric])
   apply(subst swap1, simp_all)
  done
-
+*)
  have commute6: "EQ_comp_fun_commute0 (\<lambda>x r1. r1 ->iterate(j;r2=r1 | r2->including(j)->including(\<zero>))->including(\<lambda>(_:: 'a state \<times> 'a state). x))"
+sorry (*
   apply(rule iterate_including_commute, rule commute7[THEN c0_of_c])
   apply(rule ext, rename_tac \<tau>)
   apply(subst (1 2) cp_OclIncluding)
@@ -7803,8 +7748,9 @@ proof -
   apply(subst (1 2 3 4 5 6 7 8) cp_OclIncluding[symmetric])
   apply(subst swap1, simp_all)
  done
-
+*)
  have commute9: "EQ_comp_fun_commute0 (\<lambda>x r1. r1 ->iterate(j;r2=r1 | r2->including(j))->including(\<zero>)->including(\<lambda>_. x))"
+sorry (*
   apply(rule iterate_including_commute_var, rule including_commute[THEN c0_of_c])
   apply(rule ext, rename_tac \<tau>)
   apply(subst (1 2) cp_OclIncluding)
@@ -7833,8 +7779,9 @@ proof -
   apply(subst (1 2 3 4 5 6) cp_OclIncluding[symmetric])
   apply(rule including_swap') apply(rule all_defined1, rule cons_all_def, metis surj_pair) apply(simp add: int_is_valid zero_int)+
  done
-
+*)
  have commute1: "EQ_comp_fun_commute0' (\<lambda>x r1. r1 ->iterate(j;r2=r1 | r2->including(\<zero>)->including(\<lambda>(_:: 'a state \<times> 'a state). \<lfloor>x\<rfloor>)->including(j)))"
+sorry (*
   apply(rule iterate_commute')
    apply(rule including_commute6[THEN c0_of_c, THEN c0'_of_c0], simp add: zero_int, simp add: int_trivial)
   apply(subst (1 2) cp_OclIterate\<^isub>S\<^isub>e\<^isub>t1')
@@ -7869,9 +7816,9 @@ proof -
   apply(subst (1 2 3 4 5 6 7 8) cp_OclIncluding[symmetric])
   apply(subst swap1, simp_all)
  done
-
+*)
  have commute2: "EQ_comp_fun_commute0' (\<lambda>x r1. r1 ->iterate(j;r2=r1 | r2->including(\<zero>)->including(j)->including(\<lambda>(_:: 'a state \<times> 'a state). \<lfloor>x\<rfloor>)))"
-  apply(rule iterate_commute')
+sorry (*  apply(rule iterate_commute')
    apply(rule including_commute4[THEN c0_of_c, THEN c0'_of_c0], simp add: zero_int, simp add: int_trivial)
   apply(subst (1 2) cp_OclIterate\<^isub>S\<^isub>e\<^isub>t1')
    apply(rule including_commute4[THEN c0_of_c, THEN c0'_of_c0], simp add: zero_int, simp)
@@ -7905,7 +7852,7 @@ proof -
   apply(subst (1 2 3 4 5 6 7 8) cp_OclIncluding[symmetric])
   apply(subst swap1, simp_all)
  done
-
+*)
  have set68_notempty : "\<And>(\<tau>:: 'a state \<times> 'a state). \<lceil>\<lceil>Rep_Set_0 (Set{\<six>, \<eight>} \<tau>)\<rceil>\<rceil> \<noteq> {}"
   apply(rule including_notempty)
   apply(simp add: mtSet_all_def)
