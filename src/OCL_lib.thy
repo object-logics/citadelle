@@ -2727,8 +2727,226 @@ begin
  done
 end
 
+ inductive EQ_fold_graph :: "(('a state \<times> 'a state \<Rightarrow> int option option)
+                              \<Rightarrow> ('a state \<times> 'a state \<Rightarrow> int option option Set_0)
+                              \<Rightarrow> ('a state \<times> 'a state \<Rightarrow> int option option Set_0))
+                            \<Rightarrow> ('a state \<times> 'a state \<Rightarrow> int option option Set_0)
+                            \<Rightarrow> ('a state \<times> 'a state \<Rightarrow> int option option) set
+                            \<Rightarrow> ('a state \<times> 'a state \<Rightarrow> int option option Set_0)
+                            \<Rightarrow> bool"
+  for F and z where
+  EQ_emptyI [intro]: "EQ_fold_graph F z {} z" |
+  EQ_insertI [intro]: "(\<lambda>(_ :: 'a state \<times> 'a state). x) \<notin> A \<Longrightarrow>
+                       EQ_fold_graph F z A y \<Longrightarrow>
+                       EQ_fold_graph F z (insert (\<lambda>(_ :: 'a state \<times> 'a state). x) A) (F (\<lambda>(_ :: 'a state \<times> 'a state). x) y)"
+
+ inductive_cases EQ_empty_fold_graphE [elim!]: "EQ_fold_graph f z {} x"
+ definition fold1 where "fold1 f z A = (THE y. EQ_fold_graph f z A y)"
+
+ inductive EQ_fold_graph2 :: "(('a state \<times> 'a state \<Rightarrow> int option option)
+                              \<Rightarrow> ('a state \<times> 'a state \<Rightarrow> int option option Set_0)
+                              \<Rightarrow> ('a state \<times> 'a state \<Rightarrow> int option option Set_0))
+                            \<Rightarrow> ('a state \<times> 'a state \<Rightarrow> int option option Set_0)
+                            \<Rightarrow> ('a state \<times> 'a state \<Rightarrow> int option option) set
+                            \<Rightarrow> ('a state \<times> 'a state \<Rightarrow> int option option Set_0)
+                            \<Rightarrow> bool"
+  for F and z where
+  EQ_emptyI2 [intro]: "EQ_fold_graph2 F z {} z" |
+  EQ_insertI2 [intro]: "(\<lambda>(_ :: 'a state \<times> 'a state). \<lfloor>x\<rfloor>) \<notin> A \<Longrightarrow>
+                       EQ_fold_graph2 F z A y \<Longrightarrow>
+                       EQ_fold_graph2 F z (insert (\<lambda>(_ :: 'a state \<times> 'a state). \<lfloor>x\<rfloor>) A) (F (\<lambda>(_ :: 'a state \<times> 'a state). \<lfloor>x\<rfloor>) y)"
+
+ inductive_cases EQ_empty_fold_graph2E [elim!]: "EQ_fold_graph2 f z {} x"
+ definition fold2 where "fold2 f z A = (THE y. EQ_fold_graph2 f z A y)"
+
+lemma eq_fold_of_fold :
+ assumes fold_g : "fold_graph F z ((\<lambda>a (\<tau> :: 'a state \<times> 'a state). (a::int option option)) ` A) y"
+   shows "EQ_fold_graph F z ((\<lambda>a (\<tau> :: 'a state \<times> 'a state). (a::int option option)) ` A) y"
+  apply(insert fold_g)
+  apply(subgoal_tac "\<And>A'. fold_graph F z A' y \<Longrightarrow> A' \<subseteq> (\<lambda>a (\<tau> :: 'a state \<times> 'a state). a) ` A \<Longrightarrow> EQ_fold_graph F z A' y")
+  apply(simp)
+  proof - fix A' show "fold_graph F z A' y \<Longrightarrow> A' \<subseteq> (\<lambda>a \<tau>. a) ` A (*\<Longrightarrow> \<forall>\<tau>. all_defined \<tau> y*) \<Longrightarrow> EQ_fold_graph F z A' y"
+  apply(induction set: fold_graph)
+  apply(rule EQ_emptyI)
+  apply(simp, erule conjE)
+  apply(drule imageE) prefer 2 apply assumption
+  apply(simp)
+  apply(rule EQ_insertI, simp, simp)
+ done
+qed
+
+lemma fold_of_eq_fold :
+ assumes fold_g : "EQ_fold_graph F z (A:: ('a state \<times> 'a state \<Rightarrow> int option option) set) y"
+   shows "fold_graph F z (A:: ('a state \<times> 'a state \<Rightarrow> int option option) set) y"
+ apply(insert fold_g)
+ apply(induction set: EQ_fold_graph)
+ apply(rule emptyI)
+ apply(simp add: insertI)
+done
+
+lemma eq_fold2_of_fold :
+ assumes fold_g : "fold_graph F z ((\<lambda>a (\<tau> :: 'a state \<times> 'a state). (\<lfloor>a\<rfloor>::int option option)) ` A) y"
+   shows "EQ_fold_graph2 F z ((\<lambda>a (\<tau> :: 'a state \<times> 'a state). (\<lfloor>a\<rfloor>::int option option)) ` A) y"
+  apply(insert fold_g)
+  apply(subgoal_tac "\<And>A'. fold_graph F z A' y \<Longrightarrow> A' \<subseteq> (\<lambda>a (\<tau> :: 'a state \<times> 'a state). \<lfloor>a\<rfloor>) ` A \<Longrightarrow> EQ_fold_graph2 F z A' y")
+  apply(simp)
+  proof - fix A' show "fold_graph F z A' y \<Longrightarrow> A' \<subseteq> (\<lambda>a \<tau>. \<lfloor>a\<rfloor>) ` A \<Longrightarrow> EQ_fold_graph2 F z A' y"
+  apply(induction set: fold_graph)
+  apply(rule EQ_emptyI2)
+  apply(simp, erule conjE)
+  apply(drule imageE) prefer 2 apply assumption
+  apply(simp)
+  apply(rule EQ_insertI2, simp, simp)
+ done
+qed
+
+lemma fold_of_eq_fold2 :
+ assumes fold_g : "EQ_fold_graph2 F z (A:: ('a state \<times> 'a state \<Rightarrow> int option option) set) y"
+   shows "fold_graph F z (A:: ('a state \<times> 'a state \<Rightarrow> int option option) set) y"
+ apply(insert fold_g)
+ apply(induction set: EQ_fold_graph2)
+ apply(rule emptyI)
+ apply(simp add: insertI)
+done
+
 context EQ_comp_fun_commute000
 begin
+
+ lemmas F_cp_set = cp_set
+
+ lemma insertI_bis : "x \<notin> A \<Longrightarrow> \<tau> \<Turnstile> \<delta> x \<Longrightarrow> fold_graph f z A y \<Longrightarrow> fold_graph f z (insert x A) (f x y)"
+  apply(rule insertI, simp_all)
+ done
+
+ lemma fold_graph_insertE_aux:
+   assumes y_defined : "\<And>\<tau>. all_defined \<tau> y"
+   assumes a_valid : "is_int (\<lambda>(_::'a state \<times> 'a state). a)"
+   shows
+   "EQ_fold_graph f z A y \<Longrightarrow> (\<lambda>(_::'a state \<times> 'a state). a) \<in> A \<Longrightarrow> \<exists>y'. y = f (\<lambda>(_::'a state \<times> 'a state). a) y' \<and> (\<forall>\<tau>. all_defined \<tau> y') \<and> EQ_fold_graph f z (A - {(\<lambda>(_::'a state \<times> 'a state). a)}) y'"
+ apply(insert y_defined)
+ proof (induct set: EQ_fold_graph)
+   case (EQ_insertI x A y)
+   assume "\<And>\<tau>. all_defined \<tau> (f (\<lambda>(_::'a state \<times> 'a state). x) y)"
+   then show "is_int (\<lambda>(_::'a state \<times> 'a state). x) \<Longrightarrow> (\<And>\<tau>. all_defined \<tau> y) \<Longrightarrow> ?case"
+   proof (cases "x = a") assume "x = a" with EQ_insertI show "(\<And>\<tau>. all_defined \<tau> y) \<Longrightarrow> ?case" by (metis Diff_insert_absorb all_def)
+   next apply_end(simp)
+
+     assume "x \<noteq> a \<and> (\<forall>\<tau>. all_defined \<tau> y)"
+     then obtain y' where y: "y = f (\<lambda>(_::'a state \<times> 'a state). a) y'" and "(\<forall>\<tau>. all_defined \<tau> y')" and y': "EQ_fold_graph f z (A - {(\<lambda>(_::'a state \<times> 'a state). a)}) y'"
+      using EQ_insertI by (metis OCL_core.drop.simps insert_iff)
+     have "(\<And>\<tau>. all_defined \<tau> y) \<Longrightarrow> (\<And>\<tau>. all_defined \<tau> y')"
+       apply(subgoal_tac "is_int (\<lambda>(_::'a state \<times> 'a state). a) \<and> (\<forall>\<tau>. all_defined \<tau> y')") apply(simp only:)
+       apply(simp only: all_def[where x = a and y = y', symmetric])
+       unfolding y
+       apply(simp add: cp_defined[symmetric])
+     done
+     moreover have "is_int (\<lambda>(_::'a state \<times> 'a state). x) \<Longrightarrow> is_int (\<lambda>(_::'a state \<times> 'a state). a) \<Longrightarrow> (\<And>\<tau>. all_defined \<tau> y') \<Longrightarrow> f (\<lambda>(_::'a state \<times> 'a state). x) y = f (\<lambda>(_::'a state \<times> 'a state). a) (f (\<lambda>(_::'a state \<times> 'a state). x) y')"
+       unfolding y
+     by(rule fun_left_comm, simp_all)
+     moreover have "EQ_fold_graph f z (insert (\<lambda>(_::'a state \<times> 'a state). x) A - {(\<lambda>(_::'a state \<times> 'a state). a)}) (f (\<lambda>(_::'a state \<times> 'a state). x) y')"
+       using y' and `x \<noteq> a \<and> (\<forall>\<tau>. all_defined \<tau> y)` and `(\<lambda>(_::'a state \<times> 'a state). x) \<notin> A`
+       apply (simp add: insert_Diff_if OCL_lib.EQ_insertI)
+       by (metis option.inject)
+     apply_end(subgoal_tac "x \<noteq> a \<and> (\<forall>\<tau>. all_defined \<tau> y) \<Longrightarrow> \<exists>y'. f (\<lambda>(_::'a state \<times> 'a state). x) y = f (\<lambda>(_::'a state \<times> 'a state). a) y' \<and> (\<forall>\<tau>. all_defined \<tau> y') \<and> EQ_fold_graph f z (insert (\<lambda>(_::'a state \<times> 'a state). x) A - {(\<lambda>(_::'a state \<times> 'a state). a)}) y'", blast)
+     ultimately show "is_int (\<lambda>(_::'a state \<times> 'a state). x) \<and> x \<noteq> a \<and> (\<forall>\<tau>. all_defined \<tau> y) \<Longrightarrow> ?case" apply(auto simp: a_valid)
+    by (metis `\<forall>\<tau>. all_defined \<tau> y'` all_def)
+    apply_end(blast)
+   qed
+  apply_end simp
+
+  fix x :: "int option option" and y :: "'a state \<times> 'a state \<Rightarrow> int option option Set_0"
+  show "(\<And>\<tau>. all_defined \<tau> (f (\<lambda>(_ :: 'a state \<times> 'a state). x) y)) \<Longrightarrow> is_int (\<lambda>(_ :: 'a state \<times> 'a state). x)"
+   apply(rule all_def[where x = x and y = y, THEN iffD1, THEN conjunct1], simp) done
+  apply_end blast
+  fix x :: "int option option" and y :: "'a state \<times> 'a state \<Rightarrow> int option option Set_0" and \<tau> :: "'a state \<times> 'a state"
+  show "(\<And>\<tau>. all_defined \<tau> (f (\<lambda>(_ :: 'a state \<times> 'a state). x) y)) \<Longrightarrow> all_defined \<tau> y"
+   apply(rule all_def[where x = x, THEN iffD1, THEN conjunct2, THEN spec], simp) done
+  apply_end blast
+ qed
+
+ lemma fold_graph_insertE:
+   assumes v_defined : "\<And>\<tau>. all_defined \<tau> v"
+       and x_valid : "is_int (\<lambda>(_ :: 'a state \<times> 'a state). x)"
+       and "EQ_fold_graph f z (insert (\<lambda>(_ :: 'a state \<times> 'a state). x) A) v" and "(\<lambda>(_ :: 'a state \<times> 'a state). x) \<notin> A"
+   obtains y where "v = f (\<lambda>(_ :: 'a state \<times> 'a state). x) y" and "is_int (\<lambda>(_ :: 'a state \<times> 'a state). x)" and "\<And>\<tau>. all_defined \<tau> y" and "EQ_fold_graph f z A y"
+  apply(insert fold_graph_insertE_aux[OF v_defined x_valid `EQ_fold_graph f z (insert (\<lambda>(_ :: 'a state \<times> 'a state). x) A) v` insertI1] x_valid `(\<lambda>(_ :: 'a state \<times> 'a state). x) \<notin> A`)
+  apply(drule exE) prefer 2 apply assumption
+  apply(drule Diff_insert_absorb, simp only:)
+ done
+
+ lemma fold_graph_determ:
+  assumes x_defined : "\<And>\<tau>. all_defined \<tau> x"
+      and y_defined : "\<And>\<tau>. all_defined \<tau> y"
+    shows "EQ_fold_graph f z A x \<Longrightarrow> EQ_fold_graph f z A y \<Longrightarrow> y = x"
+ apply(insert x_defined y_defined)
+ proof (induct arbitrary: y set: EQ_fold_graph)
+   case (EQ_insertI x A y v)
+   from `\<And>\<tau>. all_defined \<tau> (f (\<lambda>(_ :: 'a state \<times> 'a state). x) y)`
+   have "is_int (\<lambda>(_ :: 'a state \<times> 'a state). x)" by(metis all_def)
+   from `\<And>\<tau>. all_defined \<tau> v` and `is_int (\<lambda>(_ :: 'a state \<times> 'a state). x)` and `EQ_fold_graph f z (insert (\<lambda>(_ :: 'a state \<times> 'a state). x) A) v` and `(\<lambda>(_ :: 'a state \<times> 'a state). x) \<notin> A`
+   obtain y' where "v = f (\<lambda>(_ :: 'a state \<times> 'a state). x) y'" and "\<And>\<tau>. all_defined \<tau> y'" and "EQ_fold_graph f z A y'"
+     by (rule fold_graph_insertE, simp)
+   from EQ_insertI have "\<And>\<tau>. all_defined \<tau> y" by (metis all_def)
+   from `\<And>\<tau>. all_defined \<tau> y` and `\<And>\<tau>. all_defined \<tau> y'` and `EQ_fold_graph f z A y'` have "y' = y" by (metis EQ_insertI.hyps(3))
+   with `v = f (\<lambda>(_ :: 'a state \<times> 'a state). x) y'` show "v = f (\<lambda>(_ :: 'a state \<times> 'a state). x) y" by (simp)
+   apply_end(rule_tac f = f in EQ_empty_fold_graphE, auto)
+ qed
+
+ lemma det_init2 :
+   assumes z_defined : "\<forall>(\<tau> :: 'a state \<times> 'a state). all_defined \<tau> z"
+       and A_int : "all_int_set A"
+     shows "EQ_fold_graph f z A x \<Longrightarrow> \<forall>\<tau>. all_defined \<tau> x"
+  apply(insert z_defined A_int)
+  proof (induct set: EQ_fold_graph)
+   apply_end(simp)
+   apply_end(subst all_def, simp add: all_int_set_def int_is_valid)
+ qed
+
+ lemma fold_graph_determ3 : (* WARNING \<forall> \<tau> is implicit *)
+   assumes z_defined : "\<And>\<tau>. all_defined \<tau> z"
+       and A_int : "all_int_set A"
+     shows "EQ_fold_graph f z A x \<Longrightarrow> EQ_fold_graph f z A y \<Longrightarrow> y = x"
+  apply(insert z_defined A_int)
+  apply(rule fold_graph_determ)
+  apply(rule det_init2[THEN spec]) apply(blast)+
+  apply(rule det_init2[THEN spec]) apply(blast)+
+ done
+
+ lemma fold_graph_fold:
+   assumes z_defined : "\<And>\<tau>. all_defined \<tau> z"
+       and A_int : "all_int_set ((\<lambda>a (\<tau> :: 'a state \<times> 'a state). a) ` A)"
+     shows "EQ_fold_graph f z ((\<lambda>a (\<tau> :: 'a state \<times> 'a state). a) ` A) (fold1 f z ((\<lambda>a (\<tau> :: 'a state \<times> 'a state). a) ` A))"
+ proof -
+   have "finite ((\<lambda>a (\<tau> :: 'a state \<times> 'a state). a) ` A)" by(insert A_int, simp add: all_int_set_def)
+   then have "\<exists>x. fold_graph f z ((\<lambda>a \<tau>. a) ` A) x" by (rule finite_imp_fold_graph)
+   then have "\<exists>x. EQ_fold_graph f z ((\<lambda>a \<tau>. a) ` A) x" by (metis eq_fold_of_fold)
+   moreover note fold_graph_determ3[OF z_defined A_int]
+   ultimately have "\<exists>!x. EQ_fold_graph f z ((\<lambda>a (\<tau> :: 'a state \<times> 'a state). a) ` A) x" by (rule ex_ex1I)
+   then have "EQ_fold_graph f z ((\<lambda>a (\<tau> :: 'a state \<times> 'a state). a) ` A) (The (EQ_fold_graph f z ((\<lambda>a (\<tau> :: 'a state \<times> 'a state). a) ` A)))" by (rule theI')
+   then show ?thesis by (unfold fold1_def)
+ qed
+
+ lemma fold_equality:
+   assumes z_defined : "\<And>\<tau>. all_defined \<tau> z"
+       and A_int : "all_int_set ((\<lambda>a (\<tau> :: 'a state \<times> 'a state). a) ` A)"
+     shows "EQ_fold_graph f z ((\<lambda>a (\<tau> :: 'a state \<times> 'a state). a) ` A) y \<Longrightarrow> fold1 f z ((\<lambda>a (\<tau> :: 'a state \<times> 'a state). a) ` A) = y"
+  apply(rule fold_graph_determ3[OF z_defined A_int], simp)
+  apply(rule fold_graph_fold[OF z_defined A_int])
+ done
+
+
+ lemma fold_insert:
+   assumes z_defined : "\<And>\<tau>. all_defined \<tau> z"
+       and A_int : "all_int_set ((\<lambda>a (\<tau> :: 'a state \<times> 'a state). a) ` A)"
+       and x_int : "is_int (\<lambda>(_ :: 'a state \<times> 'a state). x)"
+       and x_nA : "(\<lambda>(_ :: 'a state \<times> 'a state). x) \<notin> (\<lambda>a (\<tau> :: 'a state \<times> 'a state). a) ` A"
+   shows "fold1 f z ((\<lambda>a (\<tau> :: 'a state \<times> 'a state). a) ` (insert x A)) = f (\<lambda>(_ :: 'a state \<times> 'a state). x) (fold1 f z ((\<lambda>a (\<tau> :: 'a state \<times> 'a state). a) ` A))"
+ proof (rule fold_equality)
+   have "EQ_fold_graph f z ((\<lambda>a (\<tau> :: 'a state \<times> 'a state). a) `A) (fold1 f z ((\<lambda>a (\<tau> :: 'a state \<times> 'a state). a) `A))" by (rule fold_graph_fold[OF z_defined A_int])
+   with x_nA show "EQ_fold_graph f z ((\<lambda>a (\<tau> :: 'a state \<times> 'a state). a) `(insert x A)) (f (\<lambda>(_ :: 'a state \<times> 'a state). x) (fold1 f z ((\<lambda>a (\<tau> :: 'a state \<times> 'a state). a) `A)))" apply(simp add: image_insert) by(rule EQ_insertI, simp, simp)
+   apply_end (simp add: z_defined)
+   apply_end (simp add: all_int_set_def int_is_valid[OF x_int] A_int[simplified all_int_set_def] x_int)
+ qed
 
  lemma fold_insert':
   assumes z_defined : "\<And>\<tau>. all_defined \<tau> z"
@@ -2736,12 +2954,163 @@ begin
       and x_int : "is_int (\<lambda>(_ :: 'a state \<times> 'a state). x)"
       and x_nA : "x \<notin> A"
     shows "Finite_Set.fold f z ((\<lambda>a (\<tau> :: 'a state \<times> 'a state). a) ` (insert x A)) = f (\<lambda>(_ :: 'a state \<times> 'a state). x) (Finite_Set.fold f z ((\<lambda>a (\<tau> :: 'a state \<times> 'a state). a) ` A))"
- sorry
+  proof - 
+   have eq_f : "\<And>A. Finite_Set.fold f z ((\<lambda>a (\<tau> :: 'a state \<times> 'a state). a) ` A) = fold1 f z ((\<lambda>a (\<tau> :: 'a state \<times> 'a state). a) ` A)"
+    apply(simp add: Finite_Set.fold_def fold1_def)
+   by (metis eq_fold_of_fold fold_of_eq_fold)
+
+  have x_nA : "(\<lambda>(_ :: 'a state \<times> 'a state). x) \<notin> (\<lambda>a (\<tau> :: 'a state \<times> 'a state). a) ` A"
+   apply(insert x_nA)
+   apply(rule contrapos_pp[where Q = "x \<notin> A"], simp, simp)
+   apply(simp add: image_iff)
+   apply(drule bexE) prefer 2 apply assumption
+   apply(drule fun_cong)
+  by (metis OCL_core.drop.simps)
+
+  have "fold1 f z ((\<lambda>a (\<tau> :: 'a state \<times> 'a state). a) ` (insert x A)) = f (\<lambda>(_ :: 'a state \<times> 'a state). x) (fold1 f z ((\<lambda>a (\<tau> :: 'a state \<times> 'a state). a) ` A))" 
+   apply(rule fold_insert) apply(simp add: assms x_nA)+
+  done
+
+  thus ?thesis by (subst (1 2) eq_f, simp)
+ qed
 
 end
 
 context EQ_comp_fun_commute000'
 begin
+
+ lemmas F_cp_set = cp_set
+
+ lemma insertI_bis : "x \<notin> A \<Longrightarrow> \<tau> \<Turnstile> \<delta> x \<Longrightarrow> fold_graph f z A y \<Longrightarrow> fold_graph f z (insert x A) (f x y)"
+  apply(rule insertI, simp_all)
+ done
+
+ lemma fold_graph_insertE_aux:
+   assumes y_defined : "\<And>\<tau>. all_defined \<tau> y"
+   assumes a_valid : "\<tau> \<Turnstile> \<upsilon> (\<lambda>(_::'a state \<times> 'a state). \<lfloor>a\<rfloor>)"
+   shows
+   "EQ_fold_graph2 f z A y \<Longrightarrow> (\<lambda>(_::'a state \<times> 'a state). \<lfloor>a\<rfloor>) \<in> A \<Longrightarrow> \<exists>y'. y = f (\<lambda>(_::'a state \<times> 'a state). \<lfloor>a\<rfloor>) y' \<and> (\<forall>\<tau>. all_defined \<tau> y') \<and> EQ_fold_graph2 f z (A - {(\<lambda>(_::'a state \<times> 'a state). \<lfloor>a\<rfloor>)}) y'"
+ apply(insert y_defined)
+ proof (induct set: EQ_fold_graph2)
+   case (EQ_insertI2 x A y)
+   assume "\<And>\<tau>. all_defined \<tau> (f (\<lambda>(_::'a state \<times> 'a state). \<lfloor>x\<rfloor>) y)"
+   then show "\<tau> \<Turnstile> \<upsilon> (\<lambda>(_::'a state \<times> 'a state). \<lfloor>x\<rfloor>) \<Longrightarrow> (\<And>\<tau>. all_defined \<tau> y) \<Longrightarrow> ?case"
+   proof (cases "x = a") assume "x = a" with EQ_insertI2 show "(\<And>\<tau>. all_defined \<tau> y) \<Longrightarrow> ?case" by (metis Diff_insert_absorb all_def)
+   next apply_end(simp)
+
+     assume "x \<noteq> a \<and> (\<forall>\<tau>. all_defined \<tau> y)"
+     then obtain y' where y: "y = f (\<lambda>(_::'a state \<times> 'a state). \<lfloor>a\<rfloor>) y'" and "(\<forall>\<tau>. all_defined \<tau> y')" and y': "EQ_fold_graph2 f z (A - {(\<lambda>(_::'a state \<times> 'a state). \<lfloor>a\<rfloor>)}) y'"
+      using EQ_insertI2 by (metis OCL_core.drop.simps insert_iff)
+     have "(\<And>\<tau>. all_defined \<tau> y) \<Longrightarrow> (\<And>\<tau>. all_defined \<tau> y')"
+       apply(subgoal_tac "\<tau> \<Turnstile> \<upsilon> (\<lambda>(_::'a state \<times> 'a state). \<lfloor>a\<rfloor>) \<and> (\<forall>\<tau>. all_defined \<tau> y')") apply(simp only:)
+       apply(simp only: all_def[where x = a and y = y', symmetric])
+       unfolding y
+       apply(simp add: cp_defined[symmetric])
+     done
+     moreover have "\<tau> \<Turnstile> \<upsilon> (\<lambda>(_::'a state \<times> 'a state). \<lfloor>x\<rfloor>) \<Longrightarrow> \<tau> \<Turnstile> \<upsilon> (\<lambda>(_::'a state \<times> 'a state). \<lfloor>a\<rfloor>) \<Longrightarrow> (\<And>\<tau>. all_defined \<tau> y') \<Longrightarrow> f (\<lambda>(_::'a state \<times> 'a state). \<lfloor>x\<rfloor>) y = f (\<lambda>(_::'a state \<times> 'a state). \<lfloor>a\<rfloor>) (f (\<lambda>(_::'a state \<times> 'a state). \<lfloor>x\<rfloor>) y')"
+       unfolding y
+     by(rule fun_left_comm, simp_all)
+     moreover have "EQ_fold_graph2 f z (insert (\<lambda>(_::'a state \<times> 'a state). \<lfloor>x\<rfloor>) A - {(\<lambda>(_::'a state \<times> 'a state). \<lfloor>a\<rfloor>)}) (f (\<lambda>(_::'a state \<times> 'a state). \<lfloor>x\<rfloor>) y')"
+       using y' and `x \<noteq> a \<and> (\<forall>\<tau>. all_defined \<tau> y)` and `(\<lambda>(_::'a state \<times> 'a state). \<lfloor>x\<rfloor>) \<notin> A`
+       apply (simp add: insert_Diff_if OCL_lib.EQ_insertI2)
+       by (metis option.inject)
+     apply_end(subgoal_tac "x \<noteq> a \<and> (\<forall>\<tau>. all_defined \<tau> y) \<Longrightarrow> \<exists>y'. f (\<lambda>(_::'a state \<times> 'a state). \<lfloor>x\<rfloor>) y = f (\<lambda>(_::'a state \<times> 'a state). \<lfloor>a\<rfloor>) y' \<and> (\<forall>\<tau>. all_defined \<tau> y') \<and> EQ_fold_graph2 f z (insert (\<lambda>(_::'a state \<times> 'a state). \<lfloor>x\<rfloor>) A - {(\<lambda>(_::'a state \<times> 'a state). \<lfloor>a\<rfloor>)}) y'", blast)
+     ultimately show "\<tau> \<Turnstile> \<upsilon> (\<lambda>(_::'a state \<times> 'a state). \<lfloor>x\<rfloor>) \<and> x \<noteq> a \<and> (\<forall>\<tau>. all_defined \<tau> y) \<Longrightarrow> ?case" apply(auto simp: a_valid)
+    by (metis `\<forall>\<tau>. all_defined \<tau> y'` all_def)
+    apply_end(blast)
+   qed
+  apply_end simp
+  fix x :: "int option" show "\<tau> \<Turnstile> \<upsilon> (\<lambda>_. \<lfloor>x\<rfloor>)" apply(simp add: valid_def OclValid_def bot_fun_def bot_option_def) done
+  fix x :: "int option" and y :: "'a state \<times> 'a state \<Rightarrow> int option option Set_0" and \<tau> :: "'a state \<times> 'a state"
+  show "(\<And>\<tau>. all_defined \<tau> (f (\<lambda>(_ :: 'a state \<times> 'a state). \<lfloor>x\<rfloor>) y)) \<Longrightarrow> all_defined \<tau> y"
+  apply(rule all_def[where x = x, THEN iffD1, THEN conjunct2, THEN spec], simp)
+  done
+ qed
+
+ lemma fold_graph_insertE:
+   assumes v_defined : "\<And>\<tau>. all_defined \<tau> v"
+       and x_valid : "\<tau> \<Turnstile> \<upsilon> (\<lambda>(_ :: 'a state \<times> 'a state). \<lfloor>x\<rfloor>)"
+       and "EQ_fold_graph2 f z (insert (\<lambda>(_ :: 'a state \<times> 'a state). \<lfloor>x\<rfloor>) A) v" and "(\<lambda>(_ :: 'a state \<times> 'a state). \<lfloor>x\<rfloor>) \<notin> A"
+   obtains y where "v = f (\<lambda>(_ :: 'a state \<times> 'a state). \<lfloor>x\<rfloor>) y" and "\<tau> \<Turnstile> \<upsilon> (\<lambda>(_ :: 'a state \<times> 'a state). \<lfloor>x\<rfloor>)" and "\<And>\<tau>. all_defined \<tau> y" and "EQ_fold_graph2 f z A y"
+  apply(insert fold_graph_insertE_aux[OF v_defined x_valid `EQ_fold_graph2 f z (insert (\<lambda>(_ :: 'a state \<times> 'a state). \<lfloor>x\<rfloor>) A) v` insertI1] x_valid `(\<lambda>(_ :: 'a state \<times> 'a state). \<lfloor>x\<rfloor>) \<notin> A`)
+  apply(drule exE) prefer 2 apply assumption
+  apply(drule Diff_insert_absorb, simp only:)
+ done
+
+
+ lemma fold_graph_determ:
+  assumes x_defined : "\<And>\<tau>. all_defined \<tau> x"
+      and y_defined : "\<And>\<tau>. all_defined \<tau> y"
+    shows "EQ_fold_graph2 f z A x \<Longrightarrow> EQ_fold_graph2 f z A y \<Longrightarrow> y = x"
+ apply(insert x_defined y_defined)
+ proof (induct arbitrary: y set: EQ_fold_graph2)
+   case (EQ_insertI2 x A y v)
+   from `\<And>\<tau>. all_defined \<tau> (f (\<lambda>(_ :: 'a state \<times> 'a state). \<lfloor>x\<rfloor>) y)`
+   have "\<tau> \<Turnstile> \<upsilon> (\<lambda>(_ :: 'a state \<times> 'a state). \<lfloor>x\<rfloor>)" by(metis all_def)
+   from `\<And>\<tau>. all_defined \<tau> v` and `\<tau> \<Turnstile> \<upsilon> (\<lambda>(_ :: 'a state \<times> 'a state). \<lfloor>x\<rfloor>)` and `EQ_fold_graph2 f z (insert (\<lambda>(_ :: 'a state \<times> 'a state). \<lfloor>x\<rfloor>) A) v` and `(\<lambda>(_ :: 'a state \<times> 'a state). \<lfloor>x\<rfloor>) \<notin> A`
+   obtain y' where "v = f (\<lambda>(_ :: 'a state \<times> 'a state). \<lfloor>x\<rfloor>) y'" and "\<And>\<tau>. all_defined \<tau> y'" and "EQ_fold_graph2 f z A y'"
+     by (rule fold_graph_insertE, simp)
+   from EQ_insertI2 have "\<And>\<tau>. all_defined \<tau> y" by (metis all_def)
+   from `\<And>\<tau>. all_defined \<tau> y` and `\<And>\<tau>. all_defined \<tau> y'` and `EQ_fold_graph2 f z A y'` have "y' = y" by (metis EQ_insertI2.hyps(3))
+   with `v = f (\<lambda>(_ :: 'a state \<times> 'a state). \<lfloor>x\<rfloor>) y'` show "v = f (\<lambda>(_ :: 'a state \<times> 'a state). \<lfloor>x\<rfloor>) y" by(simp)
+   apply_end(rule_tac f = f in EQ_empty_fold_graph2E, auto)
+ qed
+
+ lemma det_init2 :
+   assumes z_defined : "\<forall>(\<tau> :: 'a state \<times> 'a state). all_defined \<tau> z"
+       and A_int : "all_int_set A"
+     shows "EQ_fold_graph2 f z A x \<Longrightarrow> \<forall>\<tau>. all_defined \<tau> x"
+  apply(insert z_defined A_int)
+  proof (induct set: EQ_fold_graph2)
+   apply_end(simp)
+   apply_end(subst all_def[where \<tau> = \<tau>], simp add: all_int_set_def int_is_valid)
+ qed
+
+ lemma fold_graph_determ3 : (* WARNING \<forall> \<tau> is implicit *)
+   assumes z_defined : "\<And>\<tau>. all_defined \<tau> z"
+       and A_int : "all_int_set A"
+     shows "EQ_fold_graph2 f z A x \<Longrightarrow> EQ_fold_graph2 f z A y \<Longrightarrow> y = x"
+  apply(insert z_defined A_int)
+  apply(rule fold_graph_determ)
+  apply(rule det_init2[THEN spec]) apply(blast)+
+  apply(rule det_init2[THEN spec]) apply(blast)+
+ done
+
+ lemma fold_graph_fold:
+   assumes z_defined : "\<And>\<tau>. all_defined \<tau> z"
+       and A_int : "all_int_set ((\<lambda>a (\<tau> :: 'a state \<times> 'a state). \<lfloor>a\<rfloor>) ` A)"
+     shows "EQ_fold_graph2 f z ((\<lambda>a (\<tau> :: 'a state \<times> 'a state). \<lfloor>a\<rfloor>) ` A) (fold2 f z ((\<lambda>a (\<tau> :: 'a state \<times> 'a state). \<lfloor>a\<rfloor>) ` A))"
+ proof -
+   have "finite ((\<lambda>a (\<tau> :: 'a state \<times> 'a state). \<lfloor>a\<rfloor>) ` A)" by(insert A_int, simp add: all_int_set_def)
+   then have "\<exists>x. fold_graph f z ((\<lambda>a \<tau>. \<lfloor>a\<rfloor>) ` A) x" by (rule finite_imp_fold_graph)
+   then have "\<exists>x. EQ_fold_graph2 f z ((\<lambda>a \<tau>. \<lfloor>a\<rfloor>) ` A) x" by (metis eq_fold2_of_fold)
+   moreover note fold_graph_determ3[OF z_defined A_int]
+   ultimately have "\<exists>!x. EQ_fold_graph2 f z ((\<lambda>a (\<tau> :: 'a state \<times> 'a state). \<lfloor>a\<rfloor>) ` A) x" by (rule ex_ex1I)
+   then have "EQ_fold_graph2 f z ((\<lambda>a (\<tau> :: 'a state \<times> 'a state). \<lfloor>a\<rfloor>) ` A) (The (EQ_fold_graph2 f z ((\<lambda>a (\<tau> :: 'a state \<times> 'a state). \<lfloor>a\<rfloor>) ` A)))" by (rule theI')
+   then show ?thesis by (unfold fold2_def)
+ qed
+
+ lemma fold_equality:
+   assumes z_defined : "\<And>\<tau>. all_defined \<tau> z"
+       and A_int : "all_int_set ((\<lambda>a (\<tau> :: 'a state \<times> 'a state). \<lfloor>a\<rfloor>) ` A)"
+     shows "EQ_fold_graph2 f z ((\<lambda>a (\<tau> :: 'a state \<times> 'a state). \<lfloor>a\<rfloor>) ` A) y \<Longrightarrow> fold2 f z ((\<lambda>a (\<tau> :: 'a state \<times> 'a state). \<lfloor>a\<rfloor>) ` A) = y"
+  apply(rule fold_graph_determ3[OF z_defined A_int], simp)
+  apply(rule fold_graph_fold[OF z_defined A_int])
+ done
+
+
+ lemma fold_insert:
+   assumes z_defined : "\<And>\<tau>. all_defined \<tau> z"
+       and A_int : "all_int_set ((\<lambda>a (\<tau> :: 'a state \<times> 'a state). \<lfloor>a\<rfloor>) ` A)"
+       and x_int : "is_int (\<lambda>(_ :: 'a state \<times> 'a state). \<lfloor>x\<rfloor>)"
+       and x_nA : "(\<lambda>(_ :: 'a state \<times> 'a state). \<lfloor>x\<rfloor>) \<notin> (\<lambda>a (\<tau> :: 'a state \<times> 'a state). \<lfloor>a\<rfloor>) ` A"
+   shows "fold2 f z ((\<lambda>a (\<tau> :: 'a state \<times> 'a state). \<lfloor>a\<rfloor>) ` (insert x A)) = f (\<lambda>(_ :: 'a state \<times> 'a state). \<lfloor>x\<rfloor>) (fold2 f z ((\<lambda>a (\<tau> :: 'a state \<times> 'a state). \<lfloor>a\<rfloor>) ` A))"
+ proof (rule fold_equality)
+   have "EQ_fold_graph2 f z ((\<lambda>a (\<tau> :: 'a state \<times> 'a state). \<lfloor>a\<rfloor>) `A) (fold2 f z ((\<lambda>a (\<tau> :: 'a state \<times> 'a state). \<lfloor>a\<rfloor>) `A))" by (rule fold_graph_fold[OF z_defined A_int])
+   with x_nA show "EQ_fold_graph2 f z ((\<lambda>a (\<tau> :: 'a state \<times> 'a state). \<lfloor>a\<rfloor>) `(insert x A)) (f (\<lambda>(_ :: 'a state \<times> 'a state). \<lfloor>x\<rfloor>) (fold2 f z ((\<lambda>a (\<tau> :: 'a state \<times> 'a state). \<lfloor>a\<rfloor>) `A)))" apply(simp add: image_insert) by(rule EQ_insertI2, simp, simp)
+   apply_end (simp add: z_defined)
+   apply_end (simp add: all_int_set_def int_is_valid[OF x_int] A_int[simplified all_int_set_def] int_trivial)
+ qed
 
  lemma fold_insert':
   assumes z_defined : "\<And>\<tau>. all_defined \<tau> z"
@@ -2749,7 +3118,25 @@ begin
       and x_int : "is_int (\<lambda>(_ :: 'a state \<times> 'a state). \<lfloor>x\<rfloor>)"
       and x_nA : "x \<notin> A"
     shows "Finite_Set.fold f z ((\<lambda>a (\<tau> :: 'a state \<times> 'a state). \<lfloor>a\<rfloor>) ` (insert x A)) = f (\<lambda>(_ :: 'a state \<times> 'a state). \<lfloor>x\<rfloor>) (Finite_Set.fold f z ((\<lambda>a (\<tau> :: 'a state \<times> 'a state). \<lfloor>a\<rfloor>) ` A))"
- sorry
+  proof - 
+   have eq_f : "\<And>A. Finite_Set.fold f z ((\<lambda>a (\<tau> :: 'a state \<times> 'a state). \<lfloor>a\<rfloor>) ` A) = fold2 f z ((\<lambda>a (\<tau> :: 'a state \<times> 'a state). \<lfloor>a\<rfloor>) ` A)"
+    apply(simp add: Finite_Set.fold_def fold2_def)
+   by (metis eq_fold2_of_fold fold_of_eq_fold2)
+
+  have x_nA : "(\<lambda>(_ :: 'a state \<times> 'a state). \<lfloor>x\<rfloor>) \<notin> (\<lambda>a (\<tau> :: 'a state \<times> 'a state). \<lfloor>a\<rfloor>) ` A"
+   apply(insert x_nA)
+   apply(rule contrapos_pp[where Q = "x \<notin> A"], simp, simp)
+   apply(simp add: image_iff)
+   apply(drule bexE) prefer 2 apply assumption
+   apply(drule fun_cong)
+  by (metis OCL_core.drop.simps)
+
+  have "fold2 f z ((\<lambda>a (\<tau> :: 'a state \<times> 'a state). \<lfloor>a\<rfloor>) ` (insert x A)) = f (\<lambda>(_ :: 'a state \<times> 'a state). \<lfloor>x\<rfloor>) (fold2 f z ((\<lambda>a (\<tau> :: 'a state \<times> 'a state). \<lfloor>a\<rfloor>) ` A))" 
+   apply(rule fold_insert) apply(simp add: assms x_nA)+
+  done
+
+  thus ?thesis by (subst (1 2) eq_f, simp)
+ qed
 
 end
 
