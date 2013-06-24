@@ -2280,6 +2280,36 @@ term "all_defined \<tau> (f \<zero> Set{\<zero>}) = (all_defined \<tau> Set{\<ze
  (* we check here that all_defined could at least be applied to some useful value
     (i.e. we examine the type of all_defined) *)
 
+locale EQ_comp_fun_commute000' =
+  fixes f :: "('a state \<times> 'a state \<Rightarrow> int option option)
+              \<Rightarrow> ('a state \<times> 'a state \<Rightarrow> int option option Set_0)
+              \<Rightarrow> ('a state \<times> 'a state \<Rightarrow> int option option Set_0)"
+  assumes cp_set : "\<And>x S \<tau>. f (\<lambda>_. \<lfloor>x\<rfloor>) S \<tau> = f (\<lambda>_. \<lfloor>x\<rfloor>) (\<lambda>_. S \<tau>) \<tau>"
+  assumes all_def: "\<And>(x:: int option) y. (\<forall>(\<tau> :: 'a state \<times> 'a state). all_defined \<tau> (f (\<lambda>(_ :: 'a state \<times> 'a state). \<lfloor>x\<rfloor>) y)) = (\<tau> \<Turnstile> \<upsilon> (\<lambda>(_ :: 'a state \<times> 'a state). \<lfloor>x\<rfloor>) \<and> (\<forall>(\<tau> :: 'a state \<times> 'a state). all_defined \<tau> y))"
+  assumes commute: "
+                             \<tau> \<Turnstile> \<upsilon> (\<lambda>_. \<lfloor>x\<rfloor>) \<Longrightarrow>
+                             \<tau> \<Turnstile> \<upsilon> (\<lambda>_. \<lfloor>y\<rfloor>) \<Longrightarrow>
+                             (\<And>\<tau>. all_defined \<tau> S) \<Longrightarrow>
+                             f (\<lambda>_. \<lfloor>y\<rfloor>) (f (\<lambda>_. \<lfloor>x\<rfloor>) S) = f (\<lambda>_. \<lfloor>x\<rfloor>) (f (\<lambda>_. \<lfloor>y\<rfloor>) S)"
+begin
+ lemmas fun_left_comm = commute
+end
+
+locale EQ_comp_fun_commute000 =
+  fixes f :: "('a state \<times> 'a state \<Rightarrow> int option option)
+              \<Rightarrow> ('a state \<times> 'a state \<Rightarrow> int option option Set_0)
+              \<Rightarrow> ('a state \<times> 'a state \<Rightarrow> int option option Set_0)"
+  assumes cp_set : "\<And>x S \<tau>. f (\<lambda>(_::'a state \<times> 'a state). x) S \<tau> = f (\<lambda>(_::'a state \<times> 'a state). x) (\<lambda>_. S \<tau>) \<tau>"
+  assumes all_def: "\<And>x y. (\<forall>\<tau>. all_defined \<tau> (f (\<lambda>(_::'a state \<times> 'a state). x) y)) = (is_int (\<lambda>(_ :: 'a state \<times> 'a state). x) \<and> (\<forall>\<tau>. all_defined \<tau> y))"
+  assumes commute: "\<And>x y.
+                             is_int (\<lambda>(_::'a state \<times> 'a state). x) \<Longrightarrow>
+                             is_int (\<lambda>(_::'a state \<times> 'a state). y) \<Longrightarrow>
+                             (\<And>\<tau>. all_defined \<tau> S) \<Longrightarrow>
+                             f (\<lambda>(_::'a state \<times> 'a state). y) (f (\<lambda>(_::'a state \<times> 'a state). x) S) = f (\<lambda>(_::'a state \<times> 'a state). x) (f (\<lambda>(_::'a state \<times> 'a state). y) S)"
+begin
+ lemmas fun_left_comm = commute
+end
+
 locale EQ_comp_fun_commute =
   fixes f :: "('a state \<times> 'a state \<Rightarrow> int option option)
               \<Rightarrow> ('a state \<times> 'a state \<Rightarrow> int option option Set_0)
@@ -2408,6 +2438,18 @@ lemma c0'_of_c0 :
  assumes "EQ_comp_fun_commute0 (\<lambda>x. f (\<lambda>_. x))"
    shows "EQ_comp_fun_commute0' (\<lambda>x. f (\<lambda>_. \<lfloor>x\<rfloor>))"
 by(insert assms, simp only: EQ_comp_fun_commute0'_def EQ_comp_fun_commute0_def, blast)
+
+lemma int_trivial : "\<And>a. is_int (\<lambda>_. \<lfloor>a\<rfloor>)" by(simp add: is_int_def OclValid_def valid_def bot_fun_def bot_option_def)
+
+lemma c000_of_c0 : 
+ assumes f_comm : "EQ_comp_fun_commute0 (\<lambda>x. f (\<lambda>_. x))"
+   shows "EQ_comp_fun_commute000 f"
+sorry
+
+lemma c000'_of_c0' : 
+ assumes f_comm : "EQ_comp_fun_commute0' (\<lambda>x. f (\<lambda>_. \<lfloor>x\<rfloor>))"
+   shows "EQ_comp_fun_commute000' f"
+sorry
 
 context EQ_comp_fun_commute
 begin
@@ -2685,6 +2727,32 @@ begin
  done
 end
 
+context EQ_comp_fun_commute000
+begin
+
+ lemma fold_insert':
+  assumes z_defined : "\<And>\<tau>. all_defined \<tau> z"
+      and A_int : "all_int_set ((\<lambda>a (\<tau> :: 'a state \<times> 'a state). a) ` A)"
+      and x_int : "is_int (\<lambda>(_ :: 'a state \<times> 'a state). x)"
+      and x_nA : "x \<notin> A"
+    shows "Finite_Set.fold f z ((\<lambda>a (\<tau> :: 'a state \<times> 'a state). a) ` (insert x A)) = f (\<lambda>(_ :: 'a state \<times> 'a state). x) (Finite_Set.fold f z ((\<lambda>a (\<tau> :: 'a state \<times> 'a state). a) ` A))"
+ sorry
+
+end
+
+context EQ_comp_fun_commute000'
+begin
+
+ lemma fold_insert':
+  assumes z_defined : "\<And>\<tau>. all_defined \<tau> z"
+      and A_int : "all_int_set ((\<lambda>a (\<tau> :: 'a state \<times> 'a state). \<lfloor>a\<rfloor>) ` A)"
+      and x_int : "is_int (\<lambda>(_ :: 'a state \<times> 'a state). \<lfloor>x\<rfloor>)"
+      and x_nA : "x \<notin> A"
+    shows "Finite_Set.fold f z ((\<lambda>a (\<tau> :: 'a state \<times> 'a state). \<lfloor>a\<rfloor>) ` (insert x A)) = f (\<lambda>(_ :: 'a state \<times> 'a state). \<lfloor>x\<rfloor>) (Finite_Set.fold f z ((\<lambda>a (\<tau> :: 'a state \<times> 'a state). \<lfloor>a\<rfloor>) ` A))"
+ sorry
+
+end
+
 context EQ_comp_fun_commute0
 begin
 
@@ -2818,14 +2886,6 @@ begin
    apply_end (simp add: all_defined_set_def int_is_valid[OF x_int] A_int[simplified all_defined_set_def])
  qed
 
- lemma fold_insert_:
-   assumes z_defined : "\<forall>(\<tau> :: 'a state \<times> 'a state). all_defined \<tau> z"
-       and A_int : "\<forall>(\<tau> :: 'a state \<times> 'a state). all_defined_set \<tau> A"
-       and x_int : "is_int (\<lambda>(_ :: 'a state \<times> 'a state). x)"
-       and "x \<notin> A"
-   shows "Finite_Set.fold F z (insert (\<lambda>(_ :: 'a state \<times> 'a state). x) ((\<lambda>a _. a) ` A)) =
-          F (\<lambda>(_ :: 'a state \<times> 'a state). x) (Finite_Set.fold F z ((\<lambda>a _. a) ` A))"
- sorry
 end
 
 context EQ_comp_fun_commute0'
@@ -2970,15 +3030,6 @@ begin
        and x_int : "is_int (\<lambda>(_ :: 'a state \<times> 'a state). \<lfloor>x\<rfloor>)"
        and "x \<notin> A"
    shows "Finite_Set.fold f z (insert x A) \<tau> = f x (Finite_Set.fold f z A) \<tau>"
- sorry
-
- lemma fold_insert_:
-   assumes z_defined : "\<forall>(\<tau> :: 'a state \<times> 'a state). all_defined \<tau> z"
-       and A_int : "\<forall>(\<tau> :: 'a state \<times> 'a state). all_defined_set' \<tau> A"
-       and x_int : "is_int (\<lambda>(_ :: 'a state \<times> 'a state). \<lfloor>x\<rfloor>)"
-       and "x \<notin> A"
-   shows "Finite_Set.fold F z (insert (\<lambda>(_ :: 'a state \<times> 'a state). \<lfloor>x\<rfloor>) ((\<lambda>a _. \<lfloor>a\<rfloor>) ` A)) =
-          F (\<lambda>(_ :: 'a state \<times> 'a state). \<lfloor>x\<rfloor>) (Finite_Set.fold F z ((\<lambda>a _. \<lfloor>a\<rfloor>) ` A))"
  sorry
 
  lemma fold_insert_':
@@ -3626,7 +3677,7 @@ proof -
    apply(simp add: invert_int)
    apply(simp)
    apply(drule sym, simp only:)
-   apply(subst EQ_comp_fun_commute0.fold_insert_[OF g_comm a_def],simp add: all_int_set_def all_defined_set_def int_is_valid)
+   apply(subst EQ_comp_fun_commute000.fold_insert'[OF g_comm[THEN c000_of_c0[where f = G]], simplified], simp add: a_def, simp)
     apply(simp add: invert_int)
     apply(simp)
   apply(simp)
@@ -3673,10 +3724,10 @@ proof -
    apply(simp add: invert_int)
    apply(simp)
    apply(drule sym, simp only:)
-   apply(subst EQ_comp_fun_commute0'.fold_insert_[OF g_comm a_def],simp add: all_int_set_def all_defined_set'_def int_is_valid)
+   apply(subst EQ_comp_fun_commute000'.fold_insert'[OF g_comm[THEN c000'_of_c0'[where f = G]], simplified], simp add: a_def, simp)
     apply(simp add: invert_int)
     apply(simp)
-  apply(simp)
+    apply(simp)
 
   apply(rule invert_all_int_set, simp)
   apply(simp add: fini)
@@ -5353,11 +5404,9 @@ proof -
 
   apply(simp)
   apply(frule invert_all_int_set)
-  apply(subst EQ_comp_fun_commute0.fold_insert_[OF F_commute], simp add: A_all_def)
-   apply (metis (mono_tags) all_defined_set_def all_int_set_def imageI is_int_def)
+  apply(subst EQ_comp_fun_commute000.fold_insert'[OF F_commute[THEN c000_of_c0[where f = F]], simplified], simp add: A_all_def, simp)
    apply(rule invert_int, simp, simp)
-  apply(subst EQ_comp_fun_commute0.fold_insert_[OF F_commute], simp add: A_all_def)
-   apply (metis (mono_tags) all_defined_set_def all_int_set_def imageI is_int_def)
+  apply(subst EQ_comp_fun_commute000.fold_insert'[OF F_commute[THEN c000_of_c0[where f = F]], simplified], simp add: A_all_def, simp)
    apply(rule invert_int, simp, simp)
 
   apply(rule cp_gen')
@@ -5407,12 +5456,8 @@ proof -
     apply(subst img_fold'[where G = F, OF F_commute, symmetric], simp add: A_all_def, simp, simp)
 
   apply(simp)
-  apply(subst EQ_comp_fun_commute0'.fold_insert_[OF F_commute], simp add: A_all_def)
-   apply (metis (mono_tags) all_defined_set'_def all_int_set_def imageI is_int_def)
-   apply(rule invert_int, simp, simp)
-  apply(subst EQ_comp_fun_commute0'.fold_insert_[OF F_commute], simp add: A_all_def)
-   apply (metis (mono_tags) all_defined_set'_def all_int_set_def imageI is_int_def)
-   apply(rule invert_int, simp, simp)
+  apply(subst EQ_comp_fun_commute000'.fold_insert'[OF F_commute[THEN c000'_of_c0'[where f = F]], simplified], simp add: A_all_def, simp, simp, simp)
+  apply(subst EQ_comp_fun_commute000'.fold_insert'[OF F_commute[THEN c000'_of_c0'[where f = F]], simplified], simp add: A_all_def, simp, simp, simp)
 
   apply(rule cp_gen')
    apply(rule invert_int, simp, simp)
@@ -5471,8 +5516,7 @@ proof -
 
   apply(simp)
   apply(frule invert_all_int_set)
-  apply(subst EQ_comp_fun_commute0.fold_insert_[OF F_commute], simp add: A_all_def)
-   apply (metis (mono_tags) all_defined_set_def all_int_set_def imageI is_int_def)
+  apply(subst EQ_comp_fun_commute000.fold_insert'[OF F_commute[THEN c000_of_c0[where f = F]], simplified], simp add: A_all_def, simp)
    apply(rule invert_int, simp, simp)
 
   apply(rule notempty')
@@ -5532,9 +5576,7 @@ proof -
 
   apply(simp)
   apply(frule invert_all_int_set)
-  apply(subst EQ_comp_fun_commute0'.fold_insert_[OF F_commute], simp add: A_all_def)
-   apply (metis (mono_tags) all_defined_set'_def all_int_set_def imageI is_int_def)
-   apply(rule invert_int, simp, simp)
+  apply(subst EQ_comp_fun_commute000'.fold_insert'[OF F_commute[THEN c000'_of_c0'[where f = F]], simplified], simp add: A_all_def, simp, simp, simp)
 
   apply(rule notempty')
   apply(simp add: A_all_def)
@@ -7251,7 +7293,6 @@ proof -
  done
 
  have all_defined1 : "\<And>r2 \<tau>. all_defined \<tau> r2 \<Longrightarrow> \<tau> \<Turnstile> \<delta> r2" by(simp add: all_defined_def)
- have int_trivial : "\<And>a. is_int (\<lambda>_. \<lfloor>a\<rfloor>)" by(simp add: is_int_def OclValid_def valid_def bot_fun_def bot_option_def)
 
  have zero_int : "is_int \<zero>" by (metis StrictRefEq_int_strict' foundation1 is_int_def null_non_zero ocl_zero_def valid4)
  have six_int : "is_int \<six>" by (metis StrictRefEq_int_strict' foundation1 is_int_def null_non_six ocl_six_def valid4)
