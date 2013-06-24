@@ -7757,9 +7757,9 @@ done
 qed
 
 lemma GogollasChallenge_on_sets:
-      "(Set{ \<six>,\<eight> } ->iterate(i;r1=Set{\<nine>}|
+      "\<tau> \<Turnstile> (Set{ \<six>,\<eight> } ->iterate(i;r1=Set{\<nine>}|
                         r1->iterate(j;r2=r1|
-                                    r2->including(\<zero>)->including(i)->including(j)))) = Set{\<zero>, \<six>, \<eight>, \<nine>}"
+                                    r2->including(\<zero>)->including(i)->including(j)))) \<doteq> Set{\<zero>, \<six>, \<eight>, \<nine>}"
 proof -
  have all_defined_68 : "\<And>\<tau>. all_defined \<tau> Set{\<six>, \<eight>}"
    apply(rule cons_all_def)+
@@ -8026,9 +8026,11 @@ proof -
   apply(rule including_cp_all) apply(simp add: nine_int) apply(simp add: mtSet_all_def)
  by (simp add: mtSet_def)
 
- show ?thesis
+ have GogollasChallenge_on_sets:
+      "(Set{ \<six>,\<eight> } ->iterate(i;r1=Set{\<nine>}|
+                        r1->iterate(j;r2=r1|
+                                    r2->including(\<zero>)->including(i)->including(j)))) \<tau> = Set{\<zero>, \<six>, \<eight>, \<nine>} \<tau>"
   (* *)
-  apply(rule ext, rename_tac \<tau>)
   apply(subst iterate_subst_set___[where G = "\<lambda>i r1. r1 ->iterate(j;r2=r1 | r2->including(\<zero>)->including(j)->including(i))"])
    apply(simp add: all_defined_68, simp add: all_defined_9, simp add: set9_cp, simp add: commute1, simp add: commute2)
   apply(subst iterate_subst_set[where G = "\<lambda>j r2. r2->including(\<zero>)->including(j)->including(\<lambda>_. \<lfloor>x\<rfloor>)"]) apply(blast)+
@@ -8109,6 +8111,21 @@ proof -
   (* *)
   apply(subst including_swap)
   apply(simp)+
+ done
+
+ have valid_1 : "\<tau> \<Turnstile> \<upsilon> (Set{ \<six>,\<eight> } ->iterate(i;r1=Set{\<nine>}|
+                        r1->iterate(j;r2=r1|
+                                    r2->including(\<zero>)->including(i)->including(j))))"
+ by(rule foundation20, rule all_defined1, rule i_cons_all_def'', rule commute1, rule all_defined_68, rule all_defined_9)
+
+ have valid_2 : "\<tau> \<Turnstile> \<upsilon> Set{\<zero>, \<six>, \<eight>, \<nine>}"
+  apply(rule foundation20, rule all_defined1) apply(rule cons_all_def)+
+  apply(simp_all add: mtSet_all_def)
+ done
+
+ show ?thesis
+  apply(simp only: StrictRefEq_set OclValid_def StrongEq_def valid_1[simplified OclValid_def] valid_2[simplified OclValid_def])
+  apply(simp add: GogollasChallenge_on_sets true_def)
  done
 qed
 
