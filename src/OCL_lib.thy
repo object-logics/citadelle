@@ -1048,10 +1048,6 @@ defs   StrictRefEq_set :
                                          then (x \<triangleq> y)\<tau>
                                          else invalid \<tau>"
 
-lemma RefEq_set_refl[simp,code_unfold]:
-"((x::('\<AA>,'\<alpha>::null)Set) \<doteq> x) = (if (\<upsilon> x) then true else invalid endif)"
-by(rule ext, simp add: StrictRefEq_set if_ocl_def)
-
 
 lemma StrictRefEq_set_strict1: "((x::('\<AA>,'\<alpha>::null)Set) \<doteq> invalid)= invalid"
 by(simp add:StrictRefEq_set false_def true_def)
