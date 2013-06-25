@@ -95,9 +95,6 @@ where      "\<nine> = (\<lambda> _ . \<lfloor>\<lfloor>9::int\<rfloor>\<rfloor>)
 definition ocl_ten ::"('\<AA>)Integer" ("\<one>\<zero>")
 where      "\<one>\<zero> = (\<lambda> _ . \<lfloor>\<lfloor>10::int\<rfloor>\<rfloor>)"
 
-text{* Here is a way to cast in standard operators
-via the type class system of Isabelle. *}
-
 subsection{* Validity and Definedness *}
 
 lemma [simp,code_unfold]:"\<upsilon> \<zero> = true"
