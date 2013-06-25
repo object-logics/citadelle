@@ -926,7 +926,7 @@ subsubsection{* Reflexivity *}
 
 text{* To become operational, we derive: *}
 
-lemma StrictRefEq_set_refl (* [simp,code_unfold] *) :
+lemma StrictRefEq_set_refl[simp,code_unfold]:
 "((x::('\<AA>,'\<alpha>::null)Set) \<doteq> x) = (if (\<upsilon> x) then true else invalid endif)"
 by(rule ext, simp add: StrictRefEq_set if_ocl_def)
 
