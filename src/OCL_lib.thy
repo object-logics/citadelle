@@ -231,7 +231,7 @@ lemma StrictRefEq_int_refl[simp,code_unfold] :
 "((x::('\<AA>)Integer) \<doteq> x) = (if (\<upsilon> x) then true else invalid endif)"
 by(rule ext, simp add: StrictRefEq_int if_ocl_def)
 
-subsubsection{* Execution with invalid as argument *}
+subsubsection{* Execution with invalid or null as argument *}
 
 lemma StrictRefEq_bool_strict1[simp] : "((x::('\<AA>)Boolean) \<doteq> invalid) = invalid"
 by(rule ext, simp add: StrictRefEq_bool true_def false_def)
@@ -244,6 +244,51 @@ by(rule ext, simp add: StrictRefEq_int true_def false_def)
 
 lemma StrictRefEq_int_strict2[simp] : "(invalid \<doteq> (x::('\<AA>)Integer)) = invalid"
 by(rule ext, simp add: StrictRefEq_int true_def false_def)
+
+lemma zero_non_null [simp]: "(\<zero> \<doteq> null) = false"
+by(rule ext,auto simp:ocl_zero_def  null_def StrictRefEq_int valid_def invalid_def
+                         bot_fun_def bot_option_def null_fun_def null_option_def StrongEq_def)
+lemma null_non_zero [simp]: "(null \<doteq> \<zero>) = false"
+by(rule ext,auto simp:ocl_zero_def  null_def StrictRefEq_int valid_def invalid_def
+                         bot_fun_def bot_option_def null_fun_def null_option_def StrongEq_def)
+
+lemma one_non_null [simp]: "(\<one> \<doteq> null) = false"
+by(rule ext,auto simp:ocl_one_def  null_def StrictRefEq_int valid_def invalid_def
+                         bot_fun_def bot_option_def null_fun_def null_option_def StrongEq_def)
+lemma null_non_one [simp]: "(null \<doteq> \<one>) = false"
+by(rule ext,auto simp:ocl_one_def  null_def StrictRefEq_int valid_def invalid_def
+                         bot_fun_def bot_option_def null_fun_def null_option_def StrongEq_def)
+
+lemma two_non_null [simp]: "(\<two> \<doteq> null) = false"
+by(rule ext,auto simp:ocl_two_def  null_def StrictRefEq_int valid_def invalid_def
+                         bot_fun_def bot_option_def null_fun_def null_option_def StrongEq_def)
+lemma null_non_two [simp]: "(null \<doteq> \<two>) = false"
+by(rule ext,auto simp:ocl_two_def  null_def StrictRefEq_int valid_def invalid_def
+                         bot_fun_def bot_option_def null_fun_def null_option_def StrongEq_def)
+
+lemma six_non_null [simp]: "(\<six> \<doteq> null) = false"
+by(rule ext,auto simp:ocl_six_def  null_def StrictRefEq_int valid_def invalid_def
+                         bot_fun_def bot_option_def null_fun_def null_option_def StrongEq_def)
+lemma null_non_six [simp]: "(null \<doteq> \<six>) = false"
+by(rule ext,auto simp:ocl_six_def  null_def StrictRefEq_int valid_def invalid_def
+                         bot_fun_def bot_option_def null_fun_def null_option_def StrongEq_def)
+
+lemma eight_non_null [simp]: "(\<eight> \<doteq> null) = false"
+by(rule ext,auto simp:ocl_eight_def  null_def StrictRefEq_int valid_def invalid_def
+                         bot_fun_def bot_option_def null_fun_def null_option_def StrongEq_def)
+lemma null_non_eight [simp]: "(null \<doteq> \<eight>) = false"
+by(rule ext,auto simp:ocl_eight_def  null_def StrictRefEq_int valid_def invalid_def
+                         bot_fun_def bot_option_def null_fun_def null_option_def StrongEq_def)
+
+lemma nine_non_null [simp]: "(\<nine> \<doteq> null) = false"
+by(rule ext,auto simp:ocl_nine_def  null_def StrictRefEq_int valid_def invalid_def
+                         bot_fun_def bot_option_def null_fun_def null_option_def StrongEq_def)
+lemma null_non_nine [simp]: "(null \<doteq> \<nine>) = false"
+by(rule ext,auto simp:ocl_nine_def  null_def StrictRefEq_int valid_def invalid_def
+                         bot_fun_def bot_option_def null_fun_def null_option_def StrongEq_def)
+
+(* plus all the others ...*)
+
 
 subsubsection{* Behavior vs StrongEq *}
 
@@ -351,54 +396,6 @@ value "\<not>(\<tau>\<^isub>0 \<Turnstile> (\<four> \<doteq> \<one>\<zero> ))"
 
 lemma  "\<delta>(null::('\<AA>)Integer) = false" by simp (* recall *)
 lemma  "\<upsilon>(null::('\<AA>)Integer) = true"  by simp (* recall *)
-
-subsection{* More algebraic and logical layer on basic types*}
-
-subsubsection{* Execution with Integer as argument *}
-
-lemma zero_non_null [simp]: "(\<zero> \<doteq> null) = false"
-by(rule ext,auto simp:ocl_zero_def  null_def StrictRefEq_int valid_def invalid_def
-                         bot_fun_def bot_option_def null_fun_def null_option_def StrongEq_def)
-lemma null_non_zero [simp]: "(null \<doteq> \<zero>) = false"
-by(rule ext,auto simp:ocl_zero_def  null_def StrictRefEq_int valid_def invalid_def
-                         bot_fun_def bot_option_def null_fun_def null_option_def StrongEq_def)
-
-lemma one_non_null [simp]: "(\<one> \<doteq> null) = false"
-by(rule ext,auto simp:ocl_one_def  null_def StrictRefEq_int valid_def invalid_def
-                         bot_fun_def bot_option_def null_fun_def null_option_def StrongEq_def)
-lemma null_non_one [simp]: "(null \<doteq> \<one>) = false"
-by(rule ext,auto simp:ocl_one_def  null_def StrictRefEq_int valid_def invalid_def
-                         bot_fun_def bot_option_def null_fun_def null_option_def StrongEq_def)
-
-lemma two_non_null [simp]: "(\<two> \<doteq> null) = false"
-by(rule ext,auto simp:ocl_two_def  null_def StrictRefEq_int valid_def invalid_def
-                         bot_fun_def bot_option_def null_fun_def null_option_def StrongEq_def)
-lemma null_non_two [simp]: "(null \<doteq> \<two>) = false"
-by(rule ext,auto simp:ocl_two_def  null_def StrictRefEq_int valid_def invalid_def
-                         bot_fun_def bot_option_def null_fun_def null_option_def StrongEq_def)
-
-lemma six_non_null [simp]: "(\<six> \<doteq> null) = false"
-by(rule ext,auto simp:ocl_six_def  null_def StrictRefEq_int valid_def invalid_def
-                         bot_fun_def bot_option_def null_fun_def null_option_def StrongEq_def)
-lemma null_non_six [simp]: "(null \<doteq> \<six>) = false"
-by(rule ext,auto simp:ocl_six_def  null_def StrictRefEq_int valid_def invalid_def
-                         bot_fun_def bot_option_def null_fun_def null_option_def StrongEq_def)
-
-lemma eight_non_null [simp]: "(\<eight> \<doteq> null) = false"
-by(rule ext,auto simp:ocl_eight_def  null_def StrictRefEq_int valid_def invalid_def
-                         bot_fun_def bot_option_def null_fun_def null_option_def StrongEq_def)
-lemma null_non_eight [simp]: "(null \<doteq> \<eight>) = false"
-by(rule ext,auto simp:ocl_eight_def  null_def StrictRefEq_int valid_def invalid_def
-                         bot_fun_def bot_option_def null_fun_def null_option_def StrongEq_def)
-
-lemma nine_non_null [simp]: "(\<nine> \<doteq> null) = false"
-by(rule ext,auto simp:ocl_nine_def  null_def StrictRefEq_int valid_def invalid_def
-                         bot_fun_def bot_option_def null_fun_def null_option_def StrongEq_def)
-lemma null_non_nine [simp]: "(null \<doteq> \<nine>) = false"
-by(rule ext,auto simp:ocl_nine_def  null_def StrictRefEq_int valid_def invalid_def
-                         bot_fun_def bot_option_def null_fun_def null_option_def StrongEq_def)
-
-(* plus all the others ...*)
 
 
 
