@@ -569,17 +569,17 @@ where     "OclIncluding x y = (\<lambda> \<tau>. if (\<delta> x) \<tau> = true \
                                     else \<bottom> )"
 notation   OclIncluding   ("_->including'(_')")
 
-definition OclIncludes   :: "[('\<AA>,'\<alpha>::null) Set,('\<AA>,'\<alpha>) val] \<Rightarrow> '\<AA> Boolean"
-where     "OclIncludes x y = (\<lambda> \<tau>.   if (\<delta> x) \<tau> = true \<tau> \<and> (\<upsilon> y) \<tau> = true \<tau>
-                                     then \<lfloor>\<lfloor>(y \<tau>) \<in> \<lceil>\<lceil>Rep_Set_0 (x \<tau>)\<rceil>\<rceil> \<rfloor>\<rfloor>
-                                     else \<bottom>  )"
-notation   OclIncludes    ("_->includes'(_')" [66,65]65)
-
 definition OclExcluding   :: "[('\<AA>,'\<alpha>::null) Set,('\<AA>,'\<alpha>) val] \<Rightarrow> ('\<AA>,'\<alpha>) Set"
 where     "OclExcluding x y = (\<lambda> \<tau>.  if (\<delta> x) \<tau> = true \<tau> \<and> (\<upsilon> y) \<tau> = true \<tau>
                                      then Abs_Set_0 \<lfloor>\<lfloor> \<lceil>\<lceil>Rep_Set_0 (x \<tau>)\<rceil>\<rceil> - {y \<tau>} \<rfloor>\<rfloor>
                                      else \<bottom> )"
 notation   OclExcluding   ("_->excluding'(_')")
+
+definition OclIncludes   :: "[('\<AA>,'\<alpha>::null) Set,('\<AA>,'\<alpha>) val] \<Rightarrow> '\<AA> Boolean"
+where     "OclIncludes x y = (\<lambda> \<tau>.   if (\<delta> x) \<tau> = true \<tau> \<and> (\<upsilon> y) \<tau> = true \<tau>
+                                     then \<lfloor>\<lfloor>(y \<tau>) \<in> \<lceil>\<lceil>Rep_Set_0 (x \<tau>)\<rceil>\<rceil> \<rfloor>\<rfloor>
+                                     else \<bottom>  )"
+notation   OclIncludes    ("_->includes'(_')" [66,65]65)
 
 definition OclExcludes   :: "[('\<AA>,'\<alpha>::null) Set,('\<AA>,'\<alpha>) val] \<Rightarrow> '\<AA> Boolean"
 where     "OclExcludes x y = (not(OclIncludes x y))"
@@ -828,24 +828,6 @@ by(auto intro!: transform2_rev simp:includes_valid_args_valid foundation10 defin
 
 subsection{* Execution (I) *}
 
-subsubsection{* OclIterate *}
-
-lemma OclIterate\<^isub>S\<^isub>e\<^isub>t_strict1[simp]:"invalid->iterate(a; x = A | P a x) = invalid"
-by(simp add: bot_fun_def invalid_def OclIterate\<^isub>S\<^isub>e\<^isub>t_def defined_def valid_def false_def true_def)
-
-lemma OclIterate\<^isub>S\<^isub>e\<^isub>t_null1[simp]:"null->iterate(a; x = A | P a x) = invalid"
-by(simp add: bot_fun_def invalid_def OclIterate\<^isub>S\<^isub>e\<^isub>t_def defined_def valid_def false_def true_def)
-
-
-lemma OclIterate\<^isub>S\<^isub>e\<^isub>t_strict2[simp]:"S->iterate(a; x = invalid | P a x) = invalid"
-by(simp add: bot_fun_def invalid_def OclIterate\<^isub>S\<^isub>e\<^isub>t_def defined_def valid_def false_def true_def)
-
-text{* An open question is this ... *}
-lemma (*OclIterate\<^isub>S\<^isub>e\<^isub>t_null2[simp]:*) "S->iterate(a; x = null | P a x) = invalid"
-oops
-text{* In the definition above, this does not hold in general.
-       And I believe, this is how it should be ... *}
-
 subsubsection{* OclIncluding *}
 
 lemma including_strict1[simp,code_unfold]:"(invalid->including(x)) = invalid"
@@ -880,6 +862,24 @@ lemma includes_strict3[simp,code_unfold]:"(null->includes(x)) = invalid"
 by(simp add: OclIncludes_def invalid_def bot_fun_def defined_def valid_def false_def true_def)
 
 (*  forall ? exists ?*)
+
+subsubsection{* OclIterate *}
+
+lemma OclIterate\<^isub>S\<^isub>e\<^isub>t_strict1[simp]:"invalid->iterate(a; x = A | P a x) = invalid"
+by(simp add: bot_fun_def invalid_def OclIterate\<^isub>S\<^isub>e\<^isub>t_def defined_def valid_def false_def true_def)
+
+lemma OclIterate\<^isub>S\<^isub>e\<^isub>t_null1[simp]:"null->iterate(a; x = A | P a x) = invalid"
+by(simp add: bot_fun_def invalid_def OclIterate\<^isub>S\<^isub>e\<^isub>t_def defined_def valid_def false_def true_def)
+
+
+lemma OclIterate\<^isub>S\<^isub>e\<^isub>t_strict2[simp]:"S->iterate(a; x = invalid | P a x) = invalid"
+by(simp add: bot_fun_def invalid_def OclIterate\<^isub>S\<^isub>e\<^isub>t_def defined_def valid_def false_def true_def)
+
+text{* An open question is this ... *}
+lemma (*OclIterate\<^isub>S\<^isub>e\<^isub>t_null2[simp]:*) "S->iterate(a; x = null | P a x) = invalid"
+oops
+text{* In the definition above, this does not hold in general.
+       And I believe, this is how it should be ... *}
 
 subsection{* Execution (II) Some computational laws *}
 
