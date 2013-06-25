@@ -51,8 +51,11 @@ section{* Basic Types: Void and Integer *}
 subsection{* Void *}
 (* subsection{* Basic Constants *} *)
 type_synonym ('\<AA>)Void = "('\<AA>,unit option) val"
+(* For technical reasons, he does not contain to the null-class yet. *)
 text {* Note that this \emph{minimal} OCL type contains only two elements:
-undefined and null. For technical reasons, he does not contain to the null-class yet.*}
+undefined and null. Void could initially be defined as @{typ "unit option option"},
+however the cardinal of this type is more than two, so it would require to identify
+ @{text "Some None"} and @{text "Some (Some ())"} everywhere.*}
 
 subsection{* Integer *}
 text{* Since Integer is again a basic type, we define its semantic domain
@@ -6460,9 +6463,9 @@ proof -
 
  show "\<forall>\<tau>. \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil> \<noteq> {} \<Longrightarrow> Finite_Set.fold (\<lambda>j r2. r2->including(j)) S ((\<lambda>a \<tau>. a) ` \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>) = S"
   apply(subst finite_induct[where P = "\<lambda>set. all_defined_set \<tau> set \<and> \<lfloor>\<lfloor>set\<rfloor>\<rfloor> \<in> {X. X = bot \<or> X = null \<or> (\<forall>x\<in>\<lceil>\<lceil>X\<rceil>\<rceil>. x \<noteq> bot)} \<longrightarrow>
-                                             (\<forall>(s :: ('\<AA>, _) val). (\<forall>\<tau>. all_defined \<tau> s) \<longrightarrow>
+                                             (\<forall>(s :: ('\<AA>, _) Set). (\<forall>\<tau>. all_defined \<tau> s) \<longrightarrow>
                                                   (\<forall>\<tau>. all_defined \<tau> (Finite_Set.fold (\<lambda>j r2. (r2->including(j))) s ((\<lambda>a \<tau>. a) ` set)))) \<and>
-                                             (\<forall>(s :: ('\<AA>, _) val). (\<forall>\<tau>. all_defined \<tau> s) \<and> (\<forall>\<tau>. set \<subseteq> \<lceil>\<lceil>Rep_Set_0 (s \<tau>)\<rceil>\<rceil>) \<longrightarrow>
+                                             (\<forall>s. (\<forall>\<tau>. all_defined \<tau> s) \<and> (\<forall>\<tau>. set \<subseteq> \<lceil>\<lceil>Rep_Set_0 (s \<tau>)\<rceil>\<rceil>) \<longrightarrow>
                                                   (Finite_Set.fold (\<lambda>j r2. (r2->including(j))) s ((\<lambda>a \<tau>. a) ` set)) = s)"
                               and F = "\<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>"])
   apply(simp add: S_all_def[simplified all_defined_def all_defined_set_def])
@@ -6619,9 +6622,9 @@ proof -
  done
  show "Finite_Set.fold (\<lambda>j r2. r2->including(j)) S ((\<lambda>a \<tau>. a) ` \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>) \<tau> = S \<tau>"
   apply(subst finite_induct[where P = "\<lambda>set. all_defined_set \<tau> set \<and> \<lfloor>\<lfloor>set\<rfloor>\<rfloor> \<in> {X. X = bot \<or> X = null \<or> (\<forall>x\<in>\<lceil>\<lceil>X\<rceil>\<rceil>. x \<noteq> bot)} \<longrightarrow>
-                                             (\<forall>(s :: ('\<AA>, _) val). (\<forall>\<tau>. all_defined \<tau> s) \<longrightarrow>
+                                             (\<forall>(s :: ('\<AA>, _) Set). (\<forall>\<tau>. all_defined \<tau> s) \<longrightarrow>
                                                   (\<forall>\<tau>. all_defined \<tau> (Finite_Set.fold (\<lambda>j r2. (r2->including(j))) s ((\<lambda>a \<tau>. a) ` set)))) \<and>
-                                             (\<forall>(s :: ('\<AA>, _) val). (\<forall>\<tau>. all_defined \<tau> s) \<and> (set \<subseteq> \<lceil>\<lceil>Rep_Set_0 (s \<tau>)\<rceil>\<rceil>) \<longrightarrow>
+                                             (\<forall>s. (\<forall>\<tau>. all_defined \<tau> s) \<and> (set \<subseteq> \<lceil>\<lceil>Rep_Set_0 (s \<tau>)\<rceil>\<rceil>) \<longrightarrow>
                                                   (Finite_Set.fold (\<lambda>j r2. (r2->including(j))) s ((\<lambda>a \<tau>. a) ` set)) \<tau> = s \<tau>)"
                               and F = "\<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>"])
   apply(simp add: S_all_def[simplified all_defined_def all_defined_set_def])
