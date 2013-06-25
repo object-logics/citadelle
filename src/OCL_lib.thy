@@ -97,6 +97,9 @@ where      "\<one>\<zero> = (\<lambda> _ . \<lfloor>\<lfloor>10::int\<rfloor>\<r
 
 subsection{* Validity and Definedness Properties *}
 
+lemma  "\<delta>(null::('\<AA>)Integer) = false" by simp
+lemma  "\<upsilon>(null::('\<AA>)Integer) = true"  by simp
+
 lemma [simp,code_unfold]:"\<upsilon> \<zero> = true"
 by(simp add:ocl_zero_def valid_def true_def
                bot_fun_def bot_option_def null_fun_def null_option_def)
@@ -392,10 +395,6 @@ value "\<tau>\<^isub>0 \<Turnstile> (null \<doteq> (null::('\<AA>)Integer) )" (*
 value "\<tau>\<^isub>0 \<Turnstile> (null \<doteq> (null::('\<AA>)Integer) )" (* Without typeconstraint not executable.*)
 value "\<tau>\<^isub>0 \<Turnstile> (\<four> \<doteq> \<four>)"
 value "\<not>(\<tau>\<^isub>0 \<Turnstile> (\<four> \<doteq> \<one>\<zero> ))"
-
-
-lemma  "\<delta>(null::('\<AA>)Integer) = false" by simp (* recall *)
-lemma  "\<upsilon>(null::('\<AA>)Integer) = true"  by simp (* recall *)
 
 
 
