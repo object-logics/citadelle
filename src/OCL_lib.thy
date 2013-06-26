@@ -1061,33 +1061,26 @@ shows
 proof -
   have A: "\<And>\<tau>. \<tau> \<Turnstile> (X \<triangleq> invalid) \<Longrightarrow>
             (X->including(x)->includes(y)) \<tau> = invalid \<tau>"
-            apply(subst cp_OclIncludes, subst cp_OclIncluding)
-            apply(drule foundation22[THEN iffD1], simp)
-            apply(simp only: cp_OclIncluding[symmetric] cp_OclIncludes[symmetric])
-            by simp
+            apply(rule foundation22[THEN iffD1])
+            by(erule StrongEq_L_subst2_rev,simp,simp)
   have B: "\<And>\<tau>. \<tau> \<Turnstile> (X \<triangleq> null) \<Longrightarrow>
             (X->including(x)->includes(y)) \<tau> = invalid  \<tau>"
-            apply(subst cp_OclIncludes, subst cp_OclIncluding)
-            apply(drule foundation22[THEN iffD1], simp)
-            apply(simp only: cp_OclIncluding[symmetric] cp_OclIncludes[symmetric])
-            by simp
+            apply(rule foundation22[THEN iffD1])
+            by(erule StrongEq_L_subst2_rev,simp,simp)
+
+  note [simp] = cp_StrictRefEq [THEN allI[THEN allI[THEN allI[THEN cpI2]], of "StrictRefEq"]]
+
   have C: "\<And>\<tau>. \<tau> \<Turnstile> (x \<triangleq> invalid) \<Longrightarrow>
            (X->including(x)->includes(y)) \<tau> =
            (if x \<doteq> y then true else X->includes(y) endif) \<tau>"
-            apply(subst cp_if_ocl,subst cp_StrictRefEq)
-            apply(subst cp_OclIncludes, subst cp_OclIncluding)
-            apply(drule foundation22[THEN iffD1], simp)
-            apply(simp only: cp_if_ocl[symmetric] cp_OclIncluding[symmetric]
-                             cp_StrictRefEq[symmetric] cp_OclIncludes[symmetric] )
+            apply(rule foundation22[THEN iffD1])
+            apply(erule StrongEq_L_subst2_rev,simp,simp)
             by (simp add: strict2)
   have D:"\<And>\<tau>. \<tau> \<Turnstile> (y \<triangleq> invalid) \<Longrightarrow>
            (X->including(x)->includes(y)) \<tau> =
            (if x \<doteq> y then true else X->includes(y) endif) \<tau>"
-            apply(subst cp_if_ocl, subst cp_StrictRefEq)
-            apply(subst cp_OclIncludes, subst cp_OclIncluding)
-            apply(drule foundation22[THEN iffD1], simp)
-            apply(simp only: cp_if_ocl[symmetric] cp_OclIncluding[symmetric]
-                             cp_StrictRefEq[symmetric] cp_OclIncludes[symmetric])
+            apply(rule foundation22[THEN iffD1])
+            apply(erule StrongEq_L_subst2_rev,simp,simp)
             by (simp add: strict1)
   have E: "\<And>\<tau>. \<tau> \<Turnstile> \<upsilon> x \<Longrightarrow> \<tau> \<Turnstile> \<upsilon> y \<Longrightarrow>
               (if x \<doteq> y then true else X->includes(y) endif) \<tau> =
@@ -1097,9 +1090,8 @@ proof -
            by(simp_all add: cp_if_ocl[symmetric])
   have F: "\<And>\<tau>. \<tau> \<Turnstile> (x \<triangleq> y) \<Longrightarrow>
                (X->including(x)->includes(y)) \<tau> = (X->including(x)->includes(x)) \<tau>"
-           apply(subst cp_OclIncludes)
-           apply(drule foundation22[THEN iffD1], drule sym, simp)
-           by(simp add:cp_OclIncludes[symmetric])
+           apply(rule foundation22[THEN iffD1])
+           by(erule StrongEq_L_subst2_rev,simp, simp)
   show ?thesis
     apply(rule ext, rename_tac "\<tau>")
     apply(case_tac "\<not> (\<tau> \<Turnstile> (\<delta> X))", simp add:def_split_local,elim disjE A B)
