@@ -666,17 +666,12 @@ proof -
           by(auto simp: OclIncluding_def OclValid_def true_def valid_def false_def StrongEq_def
                         defined_def invalid_def bot_fun_def null_fun_def
                   split: bool.split_asm HOL.split_if_asm option.split)
- have discr_eq_false_true : "\<And>\<tau>. (false \<tau> = true \<tau>) = False" by (metis OclValid_def foundation2)
- have discr_neq_bot_bot : "\<And>\<tau>. (\<bottom> \<noteq> \<bottom> \<tau>) = False" by (metis OCL_core.bot_fun_def)
  have E: "(\<tau> \<Turnstile>(\<delta> X)) \<Longrightarrow> (\<tau> \<Turnstile>(\<upsilon> x)) \<Longrightarrow> (\<tau> \<Turnstile> \<delta>(X->including(x)))"
-          apply(frule C, simp)
-          apply(subst OclIncluding_def, subst OclValid_def, subst defined_def, simp add: discr_neq_bot_bot discr_eq_false_true)
-          apply(simp add: OclValid_def)
-          apply(subgoal_tac "Abs_Set_0 \<lfloor>\<lfloor>insert (x \<tau>) \<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil>\<rfloor>\<rfloor> \<noteq> Abs_Set_0 None \<and> Abs_Set_0 \<lfloor>\<lfloor>insert (x \<tau>) \<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil>\<rfloor>\<rfloor> \<noteq> Abs_Set_0 \<lfloor>None\<rfloor>")
-          apply(simp add: OCL_core.bot_fun_def bot_Set_0_def null_Set_0_def null_fun_def)
-          apply(subgoal_tac "\<lfloor>\<lfloor>insert (x \<tau>) \<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil>\<rfloor>\<rfloor> \<noteq> None \<and> \<lfloor>\<lfloor>insert (x \<tau>) \<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil>\<rfloor>\<rfloor> \<noteq> \<lfloor>None\<rfloor>")
-          apply(simp add: A Abs_Set_0_inject B C OclValid_def Rep_Set_0_cases Rep_Set_0_inverse bot_Set_0_def bot_option_def insert_compr insert_def not_Some_eq null_Set_0_def null_option_def)
-          by (metis (hide_lams, no_types) option.distinct(1) option.inject)
+          apply(subst OclIncluding_def, subst OclValid_def, subst defined_def)
+          apply(auto simp: OclValid_def null_Set_0_def bot_Set_0_def null_fun_def bot_fun_def)
+          apply(frule Abs_Set_0_inject[OF C A, simplified OclValid_def, THEN iffD1], simp_all add: bot_option_def)
+          apply(frule Abs_Set_0_inject[OF C B, simplified OclValid_def, THEN iffD1], simp_all add: bot_option_def)
+          done
 show ?thesis by(auto dest:D intro:E)
 qed
 
@@ -719,17 +714,12 @@ proof -
           by(auto simp: OclExcluding_def OclValid_def true_def valid_def false_def StrongEq_def
                         defined_def invalid_def bot_fun_def null_fun_def
                   split: bool.split_asm HOL.split_if_asm option.split)
- have discr_eq_false_true : "\<And>\<tau>. (false \<tau> = true \<tau>) = False" by (metis OclValid_def foundation2)
- have discr_neq_bot_bot : "\<And>\<tau>. (\<bottom> \<noteq> \<bottom> \<tau>) = False" by (metis OCL_core.bot_fun_def)
  have E: "(\<tau> \<Turnstile>(\<delta> X)) \<Longrightarrow> (\<tau> \<Turnstile>(\<upsilon> x)) \<Longrightarrow> (\<tau> \<Turnstile> \<delta>(X->excluding(x)))"
-          apply(frule C, simp)
-          apply(subst OclExcluding_def, subst OclValid_def, subst defined_def, simp add: discr_neq_bot_bot discr_eq_false_true)
-          apply(simp add: OclValid_def)
-          apply(subgoal_tac "Abs_Set_0 \<lfloor>\<lfloor>\<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil> - {x \<tau>}\<rfloor>\<rfloor> \<noteq> Abs_Set_0 None \<and> Abs_Set_0 \<lfloor>\<lfloor>\<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil> - {x \<tau>}\<rfloor>\<rfloor> \<noteq> Abs_Set_0 \<lfloor>None\<rfloor>")
-          apply(simp add: OCL_core.bot_fun_def bot_Set_0_def null_Set_0_def null_fun_def)
-          apply(subgoal_tac "\<lfloor>\<lfloor>\<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil> - {x \<tau>}\<rfloor>\<rfloor> \<noteq> None \<and> \<lfloor>\<lfloor>\<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil> - {x \<tau>}\<rfloor>\<rfloor> \<noteq> \<lfloor>None\<rfloor>")
-          apply(simp add: A Abs_Set_0_inject Abs_Set_0_inverse B C OclExcluding_def OclValid_def Option.set.simps(2) Rep_Set_0_inverse bot_Set_0_def bot_option_def null_Set_0_def null_option_def option.distinct(1))
-          by (metis (hide_lams, no_types) option.distinct(1) option.inject)
+          apply(subst OclExcluding_def, subst OclValid_def, subst defined_def)
+          apply(auto simp: OclValid_def null_Set_0_def bot_Set_0_def null_fun_def bot_fun_def)
+          apply(frule Abs_Set_0_inject[OF C A, simplified OclValid_def, THEN iffD1], simp_all add: bot_option_def)
+          apply(frule Abs_Set_0_inject[OF C B, simplified OclValid_def, THEN iffD1], simp_all add: bot_option_def)
+          done
 show ?thesis by(auto dest:D intro:E)
 qed
 
