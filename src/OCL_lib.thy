@@ -7906,91 +7906,71 @@ proof -
   apply(rule including_cp_all) apply(simp add: nine_int) apply(simp add: mtSet_all_def)
  by (simp add: mtSet_def)
 
+ note iterate_subst_set___ = iterate_subst_set___[OF all_defined_68 all_defined_9 set9_cp _ _ _ set9_notempty]
+ note iterate_subst_set''0 = iterate_subst_set''0[OF all_defined_68 all_defined_9 _ _ _ set9_notempty]
+ note iterate_subst_set'0 = iterate_subst_set'0[OF all_defined_68 all_defined_9 set9_cp]
+
  have GogollasChallenge_on_sets:
       "(Set{ \<six>,\<eight> } ->iterate(i;r1=Set{\<nine>}|
                         r1->iterate(j;r2=r1|
                                     r2->including(\<zero>)->including(i)->including(j)))) \<tau> = Set{\<zero>, \<six>, \<eight>, \<nine>} \<tau>"
   (* *)
   apply(subst iterate_subst_set___[where G = "\<lambda>i r1. r1 ->iterate(j;r2=r1 | r2->including(\<zero>)->including(j)->including(i))"])
-   apply(simp add: all_defined_68, simp add: all_defined_9, simp add: set9_cp, simp add: commute1, simp add: commute2)
+   apply(simp add: commute1, simp add: commute2)
   apply(subst iterate_subst_set[where G = "\<lambda>j r2. r2->including(\<zero>)->including(j)->including(\<lambda>_. \<lfloor>x\<rfloor>)"]) apply(blast)+
    apply(simp add: commute3, simp add: commute4)
-  apply(rule including_swap) apply (metis (hide_lams, mono_tags) StrictRefEq_int_strict' all_defined_def including_defined_args_valid' null_non_zero ocl_and_true1 transform1_rev valid4)
-  apply(simp add: int_is_valid)+
-  apply(simp add: set9_notempty)
+  apply(rule including_swap)
+   apply (metis (hide_lams, mono_tags) StrictRefEq_int_strict' all_defined_def including_defined_args_valid' null_non_zero ocl_and_true1 transform1_rev valid4)
+   apply(simp add: int_is_valid)+
   (* *)
   apply(subst iterate_subst_set___[where G = "\<lambda>i r1. r1 ->iterate(j;r2=r1 | r2->including(\<zero>)->including(j))->including(i)"])
-   apply(simp add: all_defined_68, simp add: all_defined_9, simp add: set9_cp, simp add: commute2, simp add: commute5[THEN c0'_of_c0])
+   apply(simp add: commute2, simp add: commute5[THEN c0'_of_c0])
   apply(rule including_out2)
-  apply(blast) apply(blast) apply(blast)
-  apply(simp add: zero_int)
-  apply(simp)
-  apply(simp add: set9_notempty)
+   apply(blast) apply(blast) apply(blast) apply(simp add: zero_int) apply(simp)
   (* *)
   apply(subst iterate_subst_set___[where G = "\<lambda>i r1. r1 ->iterate(j;r2=r1 | r2->including(j)->including(\<zero>))->including(i)"])
-   apply(simp add: all_defined_68, simp add: all_defined_9, simp add: set9_cp, simp add: commute5[THEN c0'_of_c0], simp add: commute6[THEN c0'_of_c0])
+   apply(simp add: commute5[THEN c0'_of_c0], simp add: commute6[THEN c0'_of_c0])
   apply(rule including_subst_set'')
    apply(rule all_defined1, rule i_cons_all_def, rule including_commute3[THEN c0_of_c], simp add: zero_int, blast)
    apply(rule all_defined1, rule i_cons_all_def, rule including_commute2[THEN c0_of_c], simp add: zero_int, blast)
    apply(simp add: int_is_valid)
   apply(subst iterate_subst_set[where G = "\<lambda>j r2. r2->including(j)->including(\<zero>)"]) apply(blast)+
    apply(simp add: commute8, simp add: commute7)
-  apply(rule including_swap) apply(simp add: all_defined1) apply(simp) apply(simp only: foundation20, simp)
-  apply(simp)
-  apply(simp add: set9_notempty)
+  apply(rule including_swap)
+   apply(simp add: all_defined1) apply(simp) apply(simp only: foundation20, simp) apply(simp)
   (* *)
   apply(subst iterate_subst_set''0[where G = "\<lambda>i r1. r1 ->iterate(j;r2=r1 | r2->including(j))->including(\<zero>)->including(i)"])
-   apply(simp add: all_defined_68 all_defined_9 commute9 commute6 del: StrictRefEq_set_exec)
-   apply(simp add: all_defined_68 all_defined_9 commute9 commute6 del: StrictRefEq_set_exec)
-   apply(simp add: all_defined_68 all_defined_9 commute9 commute6 del: StrictRefEq_set_exec)
-   apply(simp add: all_defined_68 all_defined_9 commute9 commute6 del: StrictRefEq_set_exec)
+   apply(simp add: commute6, simp add: commute9)
   apply(rule including_subst_set'')
    apply(rule all_defined1) apply(rule i_cons_all_def, rule including_commute2[THEN c0_of_c], simp add: zero_int, blast)
    apply(rule all_defined1) apply(rule cons_all_def, rule i_cons_all_def, rule including_commute[THEN c0_of_c], blast, simp, simp add: int_is_valid)
   apply(rule including_out1)
-  apply(blast) apply(blast)
-  apply(simp add: zero_int)
-  apply(simp)
-  apply(simp add: set9_notempty)
+   apply(blast) apply(blast) apply(simp add: zero_int) apply(simp)
   (* *)
   apply(subst iterate_subst_set'0[where G = "\<lambda>i r1. r1->including(\<zero>)->including(i)"])
-   apply(simp add: all_defined_68 all_defined_9 commute8[THEN c0_of_c] commute9 del: StrictRefEq_set_exec)
-   apply(simp add: all_defined_68 all_defined_9 commute8[THEN c0_of_c] commute9 del: StrictRefEq_set_exec)
-   apply(simp add: set9_cp)
-   apply(simp add: all_defined_68 all_defined_9 commute8[THEN c0_of_c] commute9 del: StrictRefEq_set_exec)
-   apply(simp add: all_defined_68 all_defined_9 commute8[THEN c0_of_c] commute9 del: StrictRefEq_set_exec)
+   apply(simp add: commute9, simp add: commute8[THEN c0_of_c])
   apply(rule including_subst_set)+
   apply(rule iterate_including_id) apply(blast)+
   (* *)
   apply(subst iterate_subst_set[where G = "\<lambda>i r1. r1->including(i)->including(\<zero>)"])
-   apply(simp add: all_defined_68 all_defined_9 commute7 commute8 del: StrictRefEq_set_exec)
-   apply(simp add: all_defined_68 all_defined_9 commute7 commute8 del: StrictRefEq_set_exec)
-   apply(simp add: all_defined_68 all_defined_9 commute7 commute8 del: StrictRefEq_set_exec)
-   apply(simp add: all_defined_68 all_defined_9 commute7 commute8 del: StrictRefEq_set_exec)
-  apply(rule including_swap) apply(simp add: all_defined1) apply(simp) apply(simp only: foundation20, simp)
+   apply(simp add: all_defined_68, simp add: all_defined_9, simp add: commute8, simp add: commute7)
+  apply(rule including_swap)
+   apply(simp add: all_defined1) apply(simp) apply(simp only: foundation20, simp)
   (* *)
-  apply(subst including_out1)
-   apply(simp add: all_defined_68)
-   apply(simp add: all_defined_9)
-   apply(simp add: zero_int)
-   apply(simp add: set68_notempty)
+  apply(subst including_out1[OF all_defined_68 all_defined_9 zero_int set68_notempty])
   (* *)
   apply(rule including_subst_set'')
    apply(rule all_defined1, rule i_cons_all_def'', rule including_commute[THEN c0_of_c, THEN c0'_of_c0], simp add: all_defined_68, simp add: all_defined_9)
    apply (metis (hide_lams, no_types) all_defined1 all_defined_68 all_defined_9 including_defined_args_valid)
    apply(simp)
   (* *)
-  apply(subst including_out0)
-   apply(simp add: all_defined_68)
-   apply(simp add: set68_cp)
-   apply(simp add: set68_notempty)
-   apply(simp add: nine_int)
+  apply(subst including_out0[OF all_defined_68 set68_cp set68_notempty nine_int])
   (* *)
   apply(subst including_swap[where i = \<six>])
-  apply(simp)+
+   apply(simp)+
   (* *)
   apply(subst including_swap)
-  apply(simp)+
+   apply(simp)+
  done
 
  have valid_1 : "\<tau> \<Turnstile> \<upsilon> (Set{ \<six>,\<eight> } ->iterate(i;r1=Set{\<nine>}|
