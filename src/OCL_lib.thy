@@ -2252,6 +2252,270 @@ thm EQ_insertI
 inductive_cases EQ_empty_fold_graphE [elim!]: "EQ_fold_graph f z {} x"
 *)
 
+locale EQ_comp_fun_commute0_gen0_bis' = 
+  fixes f000 :: "'b \<Rightarrow> 'c"
+  fixes is_i :: "'\<AA> st \<Rightarrow> 'c \<Rightarrow> bool"
+  fixes is_i' :: "'\<AA> st \<Rightarrow> 'c \<Rightarrow> bool"
+  fixes all_i_set :: "'c set \<Rightarrow> bool"
+
+  fixes f :: "'c
+              \<Rightarrow> ('\<AA>, 'a option option) Set
+              \<Rightarrow> ('\<AA>, 'a option option) Set"
+  assumes i_set : "\<And>x A. all_i_set (insert x A) \<Longrightarrow> ((\<forall>\<tau>. is_i \<tau> x) \<and> all_i_set A)"
+  assumes i_set' : "\<And>x A. ((\<forall>\<tau>. is_i \<tau> (f000 x)) \<and> all_i_set A) \<Longrightarrow> all_i_set (insert (f000 x) A)"
+  assumes i_set_finite : "all_i_set A \<Longrightarrow> finite A"
+  assumes i_val : "\<And>x \<tau>. is_i \<tau> x \<Longrightarrow> is_i' \<tau> x"
+  assumes f000_inj : "\<And>x y. x \<noteq> y \<Longrightarrow> f000 x \<noteq> f000 y"
+
+  assumes cp_set : "\<And>x S \<tau>. \<forall>\<tau>. all_defined \<tau> S \<Longrightarrow> f (f000 x) S \<tau> = f (f000 x) (\<lambda>_. S \<tau>) \<tau>"
+  assumes all_def: "\<And>x y. (\<forall>\<tau>. all_defined \<tau> (f (f000 x) y)) = ((\<forall>\<tau>. is_i' \<tau> (f000 x)) \<and> (\<forall>\<tau>. all_defined \<tau> y))"
+  assumes commute: "\<And>x y S (\<tau> :: '\<AA> st).
+                             \<forall>\<tau>. is_i' \<tau> (f000 x) \<Longrightarrow>
+                             \<forall>\<tau>. is_i' \<tau> (f000 y) \<Longrightarrow>
+                             (\<And>\<tau>. all_defined \<tau> S) \<Longrightarrow>
+                             f (f000 y) (f (f000 x) S) = f (f000 x) (f (f000 y) S)"
+
+ inductive EQG_fold_graph :: "('b \<Rightarrow> 'c)
+                            \<Rightarrow> ('c
+                              \<Rightarrow> ('\<AA>, 'a) Set
+                              \<Rightarrow> ('\<AA>, 'a) Set)
+                            \<Rightarrow> ('\<AA>, 'a) Set
+                            \<Rightarrow> 'c set
+                            \<Rightarrow> ('\<AA>, 'a) Set
+                            \<Rightarrow> bool"
+  for is_i and F and z where
+  EQG_emptyI [intro]: "EQG_fold_graph is_i F z {} z" |
+  EQG_insertI [intro]: "is_i x \<notin> A \<Longrightarrow>
+                       EQG_fold_graph is_i F z A y \<Longrightarrow>
+                       EQG_fold_graph is_i F z (insert (is_i x) A) (F (is_i x) y)"
+
+ inductive_cases EQG_empty_fold_graphE [elim!]: "EQG_fold_graph is_i f z {} x"
+ definition "foldG is_i f z A = (THE y. EQG_fold_graph is_i f z A y)"
+
+lemma eqg_fold_of_fold : 
+ assumes fold_g : "fold_graph F z (f000 ` A) y"
+   shows "EQG_fold_graph f000 F z (f000 ` A) y"
+  apply(insert fold_g)
+  apply(subgoal_tac "\<And>A'. fold_graph F z A' y \<Longrightarrow> A' \<subseteq> f000 ` A \<Longrightarrow> EQG_fold_graph f000 F z A' y")
+  apply(simp)
+  proof - fix A' show "fold_graph F z A' y \<Longrightarrow> A' \<subseteq> f000 ` A \<Longrightarrow> EQG_fold_graph f000 F z A' y"
+  apply(induction set: fold_graph)
+  apply(rule EQG_emptyI)
+  apply(simp, erule conjE)
+  apply(drule imageE) prefer 2 apply assumption
+  apply(simp)
+  apply(rule EQG_insertI, simp, simp)
+ done
+qed
+
+lemma fold_of_eqg_fold :
+ assumes fold_g : "EQG_fold_graph f000 F z A y"
+   shows "fold_graph F z A y"
+ apply(insert fold_g)
+ apply(induction set: EQG_fold_graph)
+ apply(rule emptyI)
+ apply(simp add: insertI)
+done
+
+lemma cp_all_def : "all_defined \<tau> f = all_defined \<tau>' (\<lambda>_. f \<tau>)"
+  apply(simp add: all_defined_def all_defined_set_def OclValid_def)
+  apply(subst cp_defined)
+ by (metis (no_types) OclValid_def cp_defined cp_valid defined2 defined_def foundation1 foundation16 foundation17 foundation18' foundation6 foundation9 not3 ocl_and_true1 ocl_and_true2 transform1_rev valid_def)
+
+context EQ_comp_fun_commute0_gen0_bis'
+begin
+
+ lemma fold_graph_insertE_aux:
+   assumes y_defined : "\<And>\<tau>. all_defined \<tau> y"
+   assumes a_valid : "\<forall>\<tau>. is_i' \<tau> (f000 a)"
+   shows
+   "EQG_fold_graph f000 f z A y \<Longrightarrow> (f000 a) \<in> A \<Longrightarrow> \<exists>y'. y = f (f000 a) y' \<and> (\<forall>\<tau>. all_defined \<tau> y') \<and> EQG_fold_graph f000 f z (A - {(f000 a)}) y'"
+ apply(insert y_defined)
+ proof (induct set: EQG_fold_graph)
+   case (EQG_insertI x A y)
+   assume "\<And>\<tau>. all_defined \<tau> (f (f000 x) y)"
+   then show "\<forall>\<tau>. is_i' \<tau> (f000 x) \<Longrightarrow> (\<And>\<tau>. all_defined \<tau> y) \<Longrightarrow> ?case"
+   proof (cases "x = a") assume "x = a" with EQG_insertI show "(\<And>\<tau>. all_defined \<tau> y) \<Longrightarrow> ?case" by (metis Diff_insert_absorb all_def)
+   next apply_end(simp)
+
+     assume "f000 x \<noteq> f000 a \<and> (\<forall>\<tau>. all_defined \<tau> y)"
+     then obtain y' where y: "y = f (f000 a) y'" and "(\<forall>\<tau>. all_defined \<tau> y')" and y': "EQG_fold_graph f000 f z (A - {(f000 a)}) y'"
+      using EQG_insertI by (metis OCL_core.drop.simps insert_iff)
+     have "(\<And>\<tau>. all_defined \<tau> y) \<Longrightarrow> (\<And>\<tau>. all_defined \<tau> y')"
+       apply(subgoal_tac "\<forall>\<tau>. is_i' \<tau> (f000 a) \<and> (\<forall>\<tau>. all_defined \<tau> y')") apply(simp only:)
+       apply(subst (asm) cp_all_def) unfolding y apply(subst (asm) cp_all_def[symmetric])
+       apply(insert all_def[where x = "a" and y = y', THEN iffD1], blast)
+     done
+     moreover have "\<forall>\<tau>. is_i' \<tau> (f000 x) \<Longrightarrow> \<forall>\<tau>. is_i' \<tau> (f000 a) \<Longrightarrow> (\<And>\<tau>. all_defined \<tau> y') \<Longrightarrow> f (f000 x) y = f (f000 a) (f (f000 x) y')"
+       unfolding y
+     by(rule commute, simp_all)
+     moreover have "EQG_fold_graph f000 f z (insert (f000 x) A - {f000 a}) (f (f000 x) y')"
+       using y' and `f000 x \<noteq> f000 a \<and> (\<forall>\<tau>. all_defined \<tau> y)` and `f000 x \<notin> A`
+       apply (simp add: insert_Diff_if OCL_lib.EQG_insertI)
+     done
+     apply_end(subgoal_tac "f000 x \<noteq> f000 a \<and> (\<forall>\<tau>. all_defined \<tau> y) \<Longrightarrow> \<exists>y'. f (f000 x) y = f (f000 a) y' \<and> (\<forall>\<tau>. all_defined \<tau> y') \<and> EQG_fold_graph f000 f z (insert (f000 x) A - {(f000 a)}) y'")
+     ultimately show "(\<forall>\<tau>. is_i' \<tau> (f000 x)) \<and> f000 x \<noteq> f000 a \<and> (\<forall>\<tau>. all_defined \<tau> y) \<Longrightarrow> ?case" apply(auto simp: a_valid)
+     by (metis (mono_tags) `\<And>\<tau>. all_defined \<tau> (f (f000 x) y)` all_def)
+    apply_end(drule f000_inj, blast)+
+   qed
+  apply_end simp
+
+  fix x y
+  show "(\<And>\<tau>. all_defined \<tau> (f (f000 x) y)) \<Longrightarrow> \<forall>\<tau>. is_i' \<tau> (f000 x)"
+   apply(rule all_def[where x = x and y = y, THEN iffD1, THEN conjunct1], simp) done
+  apply_end blast
+  fix x y \<tau>
+  show "(\<And>\<tau>. all_defined \<tau> (f (f000 x) y)) \<Longrightarrow> all_defined \<tau> y"
+   apply(rule all_def[where x = x, THEN iffD1, THEN conjunct2, THEN spec], simp) done
+  apply_end blast
+ qed
+
+ lemma fold_graph_insertE:
+   assumes v_defined : "\<And>\<tau>. all_defined \<tau> v"
+       and x_valid : "\<forall>\<tau>. is_i' \<tau> (f000 x)"
+       and "EQG_fold_graph f000 f z (insert (f000 x) A) v" and "(f000 x) \<notin> A"
+   obtains y where "v = f (f000 x) y" and "is_i' \<tau> (f000 x)" and "\<And>\<tau>. all_defined \<tau> y" and "EQG_fold_graph f000 f z A y"
+  apply(insert fold_graph_insertE_aux[OF v_defined x_valid `EQG_fold_graph f000 f z (insert (f000 x) A) v` insertI1] x_valid `(f000 x) \<notin> A`)
+  apply(drule exE) prefer 2 apply assumption
+  apply(drule Diff_insert_absorb, simp only:)
+ done
+
+ lemma fold_graph_determ:
+  assumes x_defined : "\<And>\<tau>. all_defined \<tau> x"
+      and y_defined : "\<And>\<tau>. all_defined \<tau> y"
+    shows "EQG_fold_graph f000 f z A x \<Longrightarrow> EQG_fold_graph f000 f z A y \<Longrightarrow> y = x"
+ apply(insert x_defined y_defined)
+ proof (induct arbitrary: y set: EQG_fold_graph)
+   case (EQG_insertI x A y v)
+   from `\<And>\<tau>. all_defined \<tau> (f (f000 x) y)`
+   have "\<forall>\<tau>. is_i' \<tau> (f000 x)" by(metis all_def)
+   from `\<And>\<tau>. all_defined \<tau> v` and `\<forall>\<tau>. is_i' \<tau> (f000 x)` and `EQG_fold_graph f000 f z (insert (f000 x) A) v` and `(f000 x) \<notin> A`
+   obtain y' where "v = f (f000 x) y'" and "\<And>\<tau>. all_defined \<tau> y'" and "EQG_fold_graph f000 f z A y'"
+     by (rule fold_graph_insertE, simp)
+   from EQG_insertI have "\<And>\<tau>. all_defined \<tau> y" by (metis all_def)
+   from `\<And>\<tau>. all_defined \<tau> y` and `\<And>\<tau>. all_defined \<tau> y'` and `EQG_fold_graph f000 f z A y'` have "y' = y" by (metis EQG_insertI.hyps(3))
+   with `v = f (f000 x) y'` show "v = f (f000 x) y" by (simp)
+   apply_end(rule_tac f = f in EQG_empty_fold_graphE, auto)
+ qed
+
+ lemma det_init2 :
+   assumes z_defined : "\<forall>(\<tau> :: '\<AA> st). all_defined \<tau> z"
+       and A_int : "all_i_set A"
+     shows "EQG_fold_graph f000 f z A x \<Longrightarrow> \<forall>\<tau>. all_defined \<tau> x"
+  apply(insert z_defined A_int)
+  proof (induct set: EQG_fold_graph)
+   apply_end(simp)
+   apply_end(subst all_def, drule i_set, auto, rule i_val, blast)
+ qed
+
+ lemma fold_graph_determ3 : (* WARNING \<forall> \<tau> is implicit *)
+   assumes z_defined : "\<And>\<tau>. all_defined \<tau> z"
+       and A_int : "all_i_set A"
+     shows "EQG_fold_graph f000 f z A x \<Longrightarrow> EQG_fold_graph f000 f z A y \<Longrightarrow> y = x"
+  apply(insert z_defined A_int)
+  apply(rule fold_graph_determ)
+  apply(rule det_init2[THEN spec]) apply(blast)+
+  apply(rule det_init2[THEN spec]) apply(blast)+
+ done
+
+ lemma fold_graph_fold:
+  assumes z_int : "\<And>\<tau>. all_defined \<tau> z"
+      and A_int : "all_i_set (f000 ` A)"
+  shows "EQG_fold_graph f000 f z (f000 ` A) (foldG f000 f z (f000 ` A))"
+ proof -
+  from A_int have "finite (f000 ` A)" by (simp add: i_set_finite)
+  then have "\<exists>x. fold_graph f z (f000 ` A) x" by (rule finite_imp_fold_graph)
+  then have "\<exists>x. EQG_fold_graph f000 f z (f000 ` A) x" by (metis eqg_fold_of_fold)
+  moreover note fold_graph_determ3[OF z_int A_int]
+  ultimately have "\<exists>!x. EQG_fold_graph f000 f z (f000 ` A) x" by(rule ex_ex1I)
+  then have "EQG_fold_graph f000 f z (f000 ` A) (The (EQG_fold_graph f000 f z (f000 ` A)))" by (rule theI')
+  then show ?thesis by(unfold foldG_def)
+ qed
+ 
+ lemma fold_equality:
+   assumes z_defined : "\<And>\<tau>. all_defined \<tau> z"
+      and A_int : "all_i_set (f000 ` A)"
+     shows "EQG_fold_graph f000 f z (f000 ` A) y \<Longrightarrow> foldG f000 f z (f000 ` A) = y"
+  apply(rule fold_graph_determ3[OF z_defined A_int], simp)
+  apply(rule fold_graph_fold[OF z_defined A_int])
+ done
+
+ lemma fold_insert:
+   assumes z_defined : "\<And>\<tau>. all_defined \<tau> z"
+       and A_int : "all_i_set (f000 ` A)"
+       and x_int : "\<forall>\<tau>. is_i \<tau> (f000 x)"
+       and x_nA : "f000 x \<notin> f000 ` A"
+   shows "foldG f000 f z (f000 ` (insert x A)) = f (f000 x) (foldG f000 f z (f000 ` A))"
+ proof (rule fold_equality)
+   have "EQG_fold_graph f000 f z (f000 `A) (foldG f000 f z (f000 `A))" by (rule fold_graph_fold[OF z_defined A_int])
+   with x_nA show "EQG_fold_graph f000 f z (f000 `(insert x A)) (f (f000 x) (foldG f000 f z (f000 `A)))" apply(simp add: image_insert) by(rule EQG_insertI, simp, simp)
+   apply_end (simp add: z_defined)
+   apply_end (simp only: image_insert)
+   apply_end(rule i_set', simp add: x_int A_int)
+ qed
+
+ lemma fold_insert':
+  assumes z_defined : "\<And>\<tau>. all_defined \<tau> z"
+      and A_int : "all_i_set (f000 ` A)"
+      and x_int : "\<forall>\<tau>. is_i \<tau> (f000 x)"
+      and x_nA : "x \<notin> A"
+    shows "Finite_Set.fold f z (f000 ` insert x A) = f (f000 x) (Finite_Set.fold f z (f000 ` A))"
+  proof -
+   have eq_f : "\<And>A. Finite_Set.fold f z (f000 ` A) = foldG f000 f z (f000 ` A)"
+    apply(simp add: Finite_Set.fold_def foldG_def)
+   by (metis eqg_fold_of_fold fold_of_eqg_fold)
+
+  have x_nA : "f000 x \<notin> f000 ` A"
+   apply(simp add: image_iff)
+  by (metis x_nA f000_inj)
+
+  have "foldG f000 f z (f000 ` insert x A) = f (f000 x) (foldG f000 f z (f000 ` A))"
+   apply(rule fold_insert) apply(simp add: assms x_nA)+
+  done
+
+  thus ?thesis by (subst (1 2) eq_f, simp)
+ qed
+
+ lemma all_int_induct:
+   assumes i_fin : "all_i_set F"
+   assumes "P {}"
+     and insert: "\<And>x F. all_i_set F \<Longrightarrow> is_i \<tau> x \<Longrightarrow> x \<notin> F \<Longrightarrow> P F \<Longrightarrow> P (insert x F)"
+   shows "P F"
+ proof -
+  have invert_all_int_set : "\<And>x S. all_i_set (insert x S) \<Longrightarrow>
+                                   all_i_set S"
+  by(simp add: i_set)
+  have invert_int : "\<And>x S. all_i_set (insert x S) \<Longrightarrow>
+                            is_i \<tau> x"
+  by(simp add: i_set)
+
+  from `all_i_set F` have "finite F" by (simp add: i_set_finite)
+  show "?thesis"
+  using `finite F` and `all_i_set F`
+  proof induct
+    show "P {}" by fact
+    fix x F show "finite F \<Longrightarrow> x \<notin> F \<Longrightarrow> (all_i_set F \<Longrightarrow> P F) \<Longrightarrow> all_i_set (insert x F) \<Longrightarrow> P (insert x F)"
+    apply(frule invert_int)
+    apply(simp add: invert_all_int_set)
+    apply(drule invert_all_int_set)
+    proof -
+    assume x_int: "is_i \<tau> x" and F_all : "all_i_set F" and F: "finite F" and P: "P F"
+    show "P (insert x F)"
+    proof cases
+      assume "x \<in> F"
+      hence "insert x F = F" by (rule insert_absorb)
+      with P show ?thesis by (simp only:)
+    next
+      assume "x \<notin> F"
+      from F_all x_int this P show ?thesis by (rule insert)
+    qed
+  qed
+  apply_end(simp_all)
+  qed
+ qed
+
+end
+
 locale EQ_comp_fun_commute =
   fixes f :: "('\<AA>, 'a option option) val
               \<Rightarrow> ('\<AA>, 'a option option) Set
@@ -2304,29 +2568,6 @@ sublocale EQ_comp_fun_commute < EQ_comp_fun_commute0_gen0_bis "\<lambda>x. x" "\
  apply(rule allI)+ apply(rule impI)+
  apply(rule commute, simp_all)
 done
-
-locale EQ_comp_fun_commute0_gen0_bis' = 
-  fixes f000 :: "'b \<Rightarrow> 'c"
-  fixes is_i :: "'\<AA> st \<Rightarrow> 'c \<Rightarrow> bool"
-  fixes is_i' :: "'\<AA> st \<Rightarrow> 'c \<Rightarrow> bool"
-  fixes all_i_set :: "'c set \<Rightarrow> bool"
-
-  fixes f :: "'c
-              \<Rightarrow> ('\<AA>, 'a option option) Set
-              \<Rightarrow> ('\<AA>, 'a option option) Set"
-  assumes i_set : "\<And>x A. all_i_set (insert x A) \<Longrightarrow> ((\<forall>\<tau>. is_i \<tau> x) \<and> all_i_set A)"
-  assumes i_set' : "\<And>x A. ((\<forall>\<tau>. is_i \<tau> (f000 x)) \<and> all_i_set A) \<Longrightarrow> all_i_set (insert (f000 x) A)"
-  assumes i_set_finite : "all_i_set A \<Longrightarrow> finite A"
-  assumes i_val : "\<And>x \<tau>. is_i \<tau> x \<Longrightarrow> is_i' \<tau> x"
-  assumes f000_inj : "\<And>x y. x \<noteq> y \<Longrightarrow> f000 x \<noteq> f000 y"
-
-  assumes cp_set : "\<And>x S \<tau>. \<forall>\<tau>. all_defined \<tau> S \<Longrightarrow> f (f000 x) S \<tau> = f (f000 x) (\<lambda>_. S \<tau>) \<tau>"
-  assumes all_def: "\<And>x y. (\<forall>\<tau>. all_defined \<tau> (f (f000 x) y)) = ((\<forall>\<tau>. is_i' \<tau> (f000 x)) \<and> (\<forall>\<tau>. all_defined \<tau> y))"
-  assumes commute: "\<And>x y S (\<tau> :: '\<AA> st).
-                             \<forall>\<tau>. is_i' \<tau> (f000 x) \<Longrightarrow>
-                             \<forall>\<tau>. is_i' \<tau> (f000 y) \<Longrightarrow>
-                             (\<And>\<tau>. all_defined \<tau> S) \<Longrightarrow>
-                             f (f000 y) (f (f000 x) S) = f (f000 x) (f (f000 y) S)"
 
 sublocale EQ_comp_fun_commute0_gen0_bis < EQ_comp_fun_commute0_gen0_bis'
  apply(simp only: EQ_comp_fun_commute0_gen0_bis'_def)
@@ -2577,247 +2818,6 @@ proof - interpret EQ_comp_fun_commute0' "\<lambda>x. f (\<lambda>_. \<lfloor>x\<
  apply(metis surj_pair)
  done
 qed
-
- inductive EQG_fold_graph :: "('b \<Rightarrow> 'c)
-                            \<Rightarrow> ('c
-                              \<Rightarrow> ('\<AA>, 'a) Set
-                              \<Rightarrow> ('\<AA>, 'a) Set)
-                            \<Rightarrow> ('\<AA>, 'a) Set
-                            \<Rightarrow> 'c set
-                            \<Rightarrow> ('\<AA>, 'a) Set
-                            \<Rightarrow> bool"
-  for is_i and F and z where
-  EQG_emptyI [intro]: "EQG_fold_graph is_i F z {} z" |
-  EQG_insertI [intro]: "is_i x \<notin> A \<Longrightarrow>
-                       EQG_fold_graph is_i F z A y \<Longrightarrow>
-                       EQG_fold_graph is_i F z (insert (is_i x) A) (F (is_i x) y)"
-
- inductive_cases EQG_empty_fold_graphE [elim!]: "EQG_fold_graph is_i f z {} x"
- definition "foldG is_i f z A = (THE y. EQG_fold_graph is_i f z A y)"
-
-lemma eqg_fold_of_fold : 
- assumes fold_g : "fold_graph F z (f000 ` A) y"
-   shows "EQG_fold_graph f000 F z (f000 ` A) y"
-  apply(insert fold_g)
-  apply(subgoal_tac "\<And>A'. fold_graph F z A' y \<Longrightarrow> A' \<subseteq> f000 ` A \<Longrightarrow> EQG_fold_graph f000 F z A' y")
-  apply(simp)
-  proof - fix A' show "fold_graph F z A' y \<Longrightarrow> A' \<subseteq> f000 ` A \<Longrightarrow> EQG_fold_graph f000 F z A' y"
-  apply(induction set: fold_graph)
-  apply(rule EQG_emptyI)
-  apply(simp, erule conjE)
-  apply(drule imageE) prefer 2 apply assumption
-  apply(simp)
-  apply(rule EQG_insertI, simp, simp)
- done
-qed
-
-lemma fold_of_eqg_fold :
- assumes fold_g : "EQG_fold_graph f000 F z A y"
-   shows "fold_graph F z A y"
- apply(insert fold_g)
- apply(induction set: EQG_fold_graph)
- apply(rule emptyI)
- apply(simp add: insertI)
-done
-
-lemma cp_all_def : "all_defined \<tau> f = all_defined \<tau>' (\<lambda>_. f \<tau>)"
-  apply(simp add: all_defined_def all_defined_set_def OclValid_def)
-  apply(subst cp_defined)
- by (metis (no_types) OclValid_def cp_defined cp_valid defined2 defined_def foundation1 foundation16 foundation17 foundation18' foundation6 foundation9 not3 ocl_and_true1 ocl_and_true2 transform1_rev valid_def)
-
-context EQ_comp_fun_commute0_gen0_bis'
-begin
-
- lemma fold_graph_insertE_aux:
-   assumes y_defined : "\<And>\<tau>. all_defined \<tau> y"
-   assumes a_valid : "\<forall>\<tau>. is_i' \<tau> (f000 a)"
-   shows
-   "EQG_fold_graph f000 f z A y \<Longrightarrow> (f000 a) \<in> A \<Longrightarrow> \<exists>y'. y = f (f000 a) y' \<and> (\<forall>\<tau>. all_defined \<tau> y') \<and> EQG_fold_graph f000 f z (A - {(f000 a)}) y'"
- apply(insert y_defined)
- proof (induct set: EQG_fold_graph)
-   case (EQG_insertI x A y)
-   assume "\<And>\<tau>. all_defined \<tau> (f (f000 x) y)"
-   then show "\<forall>\<tau>. is_i' \<tau> (f000 x) \<Longrightarrow> (\<And>\<tau>. all_defined \<tau> y) \<Longrightarrow> ?case"
-   proof (cases "x = a") assume "x = a" with EQG_insertI show "(\<And>\<tau>. all_defined \<tau> y) \<Longrightarrow> ?case" by (metis Diff_insert_absorb all_def)
-   next apply_end(simp)
-
-     assume "f000 x \<noteq> f000 a \<and> (\<forall>\<tau>. all_defined \<tau> y)"
-     then obtain y' where y: "y = f (f000 a) y'" and "(\<forall>\<tau>. all_defined \<tau> y')" and y': "EQG_fold_graph f000 f z (A - {(f000 a)}) y'"
-      using EQG_insertI by (metis OCL_core.drop.simps insert_iff)
-     have "(\<And>\<tau>. all_defined \<tau> y) \<Longrightarrow> (\<And>\<tau>. all_defined \<tau> y')"
-       apply(subgoal_tac "\<forall>\<tau>. is_i' \<tau> (f000 a) \<and> (\<forall>\<tau>. all_defined \<tau> y')") apply(simp only:)
-       apply(subst (asm) cp_all_def) unfolding y apply(subst (asm) cp_all_def[symmetric])
-       apply(insert all_def[where x = "a" and y = y', THEN iffD1], blast)
-     done
-     moreover have "\<forall>\<tau>. is_i' \<tau> (f000 x) \<Longrightarrow> \<forall>\<tau>. is_i' \<tau> (f000 a) \<Longrightarrow> (\<And>\<tau>. all_defined \<tau> y') \<Longrightarrow> f (f000 x) y = f (f000 a) (f (f000 x) y')"
-       unfolding y
-     by(rule commute, simp_all)
-     moreover have "EQG_fold_graph f000 f z (insert (f000 x) A - {f000 a}) (f (f000 x) y')"
-       using y' and `f000 x \<noteq> f000 a \<and> (\<forall>\<tau>. all_defined \<tau> y)` and `f000 x \<notin> A`
-       apply (simp add: insert_Diff_if OCL_lib.EQG_insertI)
-     done
-     apply_end(subgoal_tac "f000 x \<noteq> f000 a \<and> (\<forall>\<tau>. all_defined \<tau> y) \<Longrightarrow> \<exists>y'. f (f000 x) y = f (f000 a) y' \<and> (\<forall>\<tau>. all_defined \<tau> y') \<and> EQG_fold_graph f000 f z (insert (f000 x) A - {(f000 a)}) y'")
-     ultimately show "(\<forall>\<tau>. is_i' \<tau> (f000 x)) \<and> f000 x \<noteq> f000 a \<and> (\<forall>\<tau>. all_defined \<tau> y) \<Longrightarrow> ?case" apply(auto simp: a_valid)
-     by (metis (mono_tags) `\<And>\<tau>. all_defined \<tau> (f (f000 x) y)` all_def)
-    apply_end(drule f000_inj, blast)+
-   qed
-  apply_end simp
-
-  fix x y
-  show "(\<And>\<tau>. all_defined \<tau> (f (f000 x) y)) \<Longrightarrow> \<forall>\<tau>. is_i' \<tau> (f000 x)"
-   apply(rule all_def[where x = x and y = y, THEN iffD1, THEN conjunct1], simp) done
-  apply_end blast
-  fix x y \<tau>
-  show "(\<And>\<tau>. all_defined \<tau> (f (f000 x) y)) \<Longrightarrow> all_defined \<tau> y"
-   apply(rule all_def[where x = x, THEN iffD1, THEN conjunct2, THEN spec], simp) done
-  apply_end blast
- qed
-
- lemma fold_graph_insertE:
-   assumes v_defined : "\<And>\<tau>. all_defined \<tau> v"
-       and x_valid : "\<forall>\<tau>. is_i' \<tau> (f000 x)"
-       and "EQG_fold_graph f000 f z (insert (f000 x) A) v" and "(f000 x) \<notin> A"
-   obtains y where "v = f (f000 x) y" and "is_i' \<tau> (f000 x)" and "\<And>\<tau>. all_defined \<tau> y" and "EQG_fold_graph f000 f z A y"
-  apply(insert fold_graph_insertE_aux[OF v_defined x_valid `EQG_fold_graph f000 f z (insert (f000 x) A) v` insertI1] x_valid `(f000 x) \<notin> A`)
-  apply(drule exE) prefer 2 apply assumption
-  apply(drule Diff_insert_absorb, simp only:)
- done
-
- lemma fold_graph_determ:
-  assumes x_defined : "\<And>\<tau>. all_defined \<tau> x"
-      and y_defined : "\<And>\<tau>. all_defined \<tau> y"
-    shows "EQG_fold_graph f000 f z A x \<Longrightarrow> EQG_fold_graph f000 f z A y \<Longrightarrow> y = x"
- apply(insert x_defined y_defined)
- proof (induct arbitrary: y set: EQG_fold_graph)
-   case (EQG_insertI x A y v)
-   from `\<And>\<tau>. all_defined \<tau> (f (f000 x) y)`
-   have "\<forall>\<tau>. is_i' \<tau> (f000 x)" by(metis all_def)
-   from `\<And>\<tau>. all_defined \<tau> v` and `\<forall>\<tau>. is_i' \<tau> (f000 x)` and `EQG_fold_graph f000 f z (insert (f000 x) A) v` and `(f000 x) \<notin> A`
-   obtain y' where "v = f (f000 x) y'" and "\<And>\<tau>. all_defined \<tau> y'" and "EQG_fold_graph f000 f z A y'"
-     by (rule fold_graph_insertE, simp)
-   from EQG_insertI have "\<And>\<tau>. all_defined \<tau> y" by (metis all_def)
-   from `\<And>\<tau>. all_defined \<tau> y` and `\<And>\<tau>. all_defined \<tau> y'` and `EQG_fold_graph f000 f z A y'` have "y' = y" by (metis EQG_insertI.hyps(3))
-   with `v = f (f000 x) y'` show "v = f (f000 x) y" by (simp)
-   apply_end(rule_tac f = f in EQG_empty_fold_graphE, auto)
- qed
-
- lemma det_init2 :
-   assumes z_defined : "\<forall>(\<tau> :: '\<AA> st). all_defined \<tau> z"
-       and A_int : "all_i_set A"
-     shows "EQG_fold_graph f000 f z A x \<Longrightarrow> \<forall>\<tau>. all_defined \<tau> x"
-  apply(insert z_defined A_int)
-  proof (induct set: EQG_fold_graph)
-   apply_end(simp)
-   apply_end(subst all_def, drule i_set, auto, rule i_val, blast)
- qed
-
- lemma fold_graph_determ3 : (* WARNING \<forall> \<tau> is implicit *)
-   assumes z_defined : "\<And>\<tau>. all_defined \<tau> z"
-       and A_int : "all_i_set A"
-     shows "EQG_fold_graph f000 f z A x \<Longrightarrow> EQG_fold_graph f000 f z A y \<Longrightarrow> y = x"
-  apply(insert z_defined A_int)
-  apply(rule fold_graph_determ)
-  apply(rule det_init2[THEN spec]) apply(blast)+
-  apply(rule det_init2[THEN spec]) apply(blast)+
- done
-
- lemma fold_graph_fold:
-  assumes z_int : "\<And>\<tau>. all_defined \<tau> z"
-      and A_int : "all_i_set (f000 ` A)"
-  shows "EQG_fold_graph f000 f z (f000 ` A) (foldG f000 f z (f000 ` A))"
- proof -
-  from A_int have "finite (f000 ` A)" by (simp add: i_set_finite)
-  then have "\<exists>x. fold_graph f z (f000 ` A) x" by (rule finite_imp_fold_graph)
-  then have "\<exists>x. EQG_fold_graph f000 f z (f000 ` A) x" by (metis eqg_fold_of_fold)
-  moreover note fold_graph_determ3[OF z_int A_int]
-  ultimately have "\<exists>!x. EQG_fold_graph f000 f z (f000 ` A) x" by(rule ex_ex1I)
-  then have "EQG_fold_graph f000 f z (f000 ` A) (The (EQG_fold_graph f000 f z (f000 ` A)))" by (rule theI')
-  then show ?thesis by(unfold foldG_def)
- qed
- 
- lemma fold_equality:
-   assumes z_defined : "\<And>\<tau>. all_defined \<tau> z"
-      and A_int : "all_i_set (f000 ` A)"
-     shows "EQG_fold_graph f000 f z (f000 ` A) y \<Longrightarrow> foldG f000 f z (f000 ` A) = y"
-  apply(rule fold_graph_determ3[OF z_defined A_int], simp)
-  apply(rule fold_graph_fold[OF z_defined A_int])
- done
-
- lemma fold_insert:
-   assumes z_defined : "\<And>\<tau>. all_defined \<tau> z"
-       and A_int : "all_i_set (f000 ` A)"
-       and x_int : "\<forall>\<tau>. is_i \<tau> (f000 x)"
-       and x_nA : "f000 x \<notin> f000 ` A"
-   shows "foldG f000 f z (f000 ` (insert x A)) = f (f000 x) (foldG f000 f z (f000 ` A))"
- proof (rule fold_equality)
-   have "EQG_fold_graph f000 f z (f000 `A) (foldG f000 f z (f000 `A))" by (rule fold_graph_fold[OF z_defined A_int])
-   with x_nA show "EQG_fold_graph f000 f z (f000 `(insert x A)) (f (f000 x) (foldG f000 f z (f000 `A)))" apply(simp add: image_insert) by(rule EQG_insertI, simp, simp)
-   apply_end (simp add: z_defined)
-   apply_end (simp only: image_insert)
-   apply_end(rule i_set', simp add: x_int A_int)
- qed
-
- lemma fold_insert':
-  assumes z_defined : "\<And>\<tau>. all_defined \<tau> z"
-      and A_int : "all_i_set (f000 ` A)"
-      and x_int : "\<forall>\<tau>. is_i \<tau> (f000 x)"
-      and x_nA : "x \<notin> A"
-    shows "Finite_Set.fold f z (f000 ` insert x A) = f (f000 x) (Finite_Set.fold f z (f000 ` A))"
-  proof -
-   have eq_f : "\<And>A. Finite_Set.fold f z (f000 ` A) = foldG f000 f z (f000 ` A)"
-    apply(simp add: Finite_Set.fold_def foldG_def)
-   by (metis eqg_fold_of_fold fold_of_eqg_fold)
-
-  have x_nA : "f000 x \<notin> f000 ` A"
-   apply(simp add: image_iff)
-  by (metis x_nA f000_inj)
-
-  have "foldG f000 f z (f000 ` insert x A) = f (f000 x) (foldG f000 f z (f000 ` A))"
-   apply(rule fold_insert) apply(simp add: assms x_nA)+
-  done
-
-  thus ?thesis by (subst (1 2) eq_f, simp)
- qed
-
- lemma all_int_induct:
-   assumes i_fin : "all_i_set F"
-   assumes "P {}"
-     and insert: "\<And>x F. all_i_set F \<Longrightarrow> is_i \<tau> x \<Longrightarrow> x \<notin> F \<Longrightarrow> P F \<Longrightarrow> P (insert x F)"
-   shows "P F"
- proof -
-  have invert_all_int_set : "\<And>x S. all_i_set (insert x S) \<Longrightarrow>
-                                   all_i_set S"
-  by(simp add: i_set)
-  have invert_int : "\<And>x S. all_i_set (insert x S) \<Longrightarrow>
-                            is_i \<tau> x"
-  by(simp add: i_set)
-
-  from `all_i_set F` have "finite F" by (simp add: i_set_finite)
-  show "?thesis"
-  using `finite F` and `all_i_set F`
-  proof induct
-    show "P {}" by fact
-    fix x F show "finite F \<Longrightarrow> x \<notin> F \<Longrightarrow> (all_i_set F \<Longrightarrow> P F) \<Longrightarrow> all_i_set (insert x F) \<Longrightarrow> P (insert x F)"
-    apply(frule invert_int)
-    apply(simp add: invert_all_int_set)
-    apply(drule invert_all_int_set)
-    proof -
-    assume x_int: "is_i \<tau> x" and F_all : "all_i_set F" and F: "finite F" and P: "P F"
-    show "P (insert x F)"
-    proof cases
-      assume "x \<in> F"
-      hence "insert x F = F" by (rule insert_absorb)
-      with P show ?thesis by (simp only:)
-    next
-      assume "x \<notin> F"
-      from F_all x_int this P show ?thesis by (rule insert)
-    qed
-  qed
-  apply_end(simp_all)
-  qed
- qed
-
-end
 
 context EQ_comp_fun_commute
 begin
