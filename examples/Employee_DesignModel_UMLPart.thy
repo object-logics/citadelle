@@ -7,6 +7,7 @@
  * This file is part of HOL-TestGen.
  *
  * Copyright (c) 2012-2013 Université Paris-Sud, France
+ *               2013      IRT SystemX, France
  *
  * All rights reserved.
  *
@@ -43,7 +44,7 @@
 header{* Part III: OCL Contracts and an Example *}
 
 (* This example is not yet balanced. Some parts of should go to 
-   Part II : State and Objects. *)
+   Part III : State Operations and Objects *)
 
 theory 
   Employee_DesignModel_UMLPart
@@ -356,10 +357,10 @@ value " ((\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile> ((X\<^isub>P\<^isub
 value "\<not>((\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile> ((X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n .boss@pre .age)  \<doteq> \<five> ))"
 value "  (\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile> ((X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n .boss@pre .age@pre)  \<doteq> \<three> )"
 value " ((\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile> ((X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n .boss@pre .boss@pre)  \<doteq> null ))" (* oops ??? *)
-value " ((\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile> ((X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n .boss .boss)  \<doteq> X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n ))" 
+value " ((\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile> ((X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n .boss .boss)  \<doteq> X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n ))" (* oops ??? *)
 value "\<not>((\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile> ((X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n .boss@pre .age@pre)  \<doteq> \<five> ))"
 value " ((\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile> ((X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n .boss .age)   \<doteq> \<five> ))"
-value " ((\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile> ((X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n .boss@pre .boss@pre)  \<doteq> null ))"
+value " ((\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile> ((X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n .boss@pre .boss@pre)  \<doteq> null ))" (* oops ??? *)
 value "\<not>((\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile> ((X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n .age)         \<doteq> \<two> ))"
 value "\<not>((\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile> ((X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n .age)         \<doteq> \<two> ))"
 value "  (\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile> ((X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n .age@pre)     \<doteq> \<one>)" 
