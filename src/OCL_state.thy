@@ -115,8 +115,8 @@ lemma cp_gen_ref_eq_object:
 "(gen_ref_eq x y \<tau>) = (gen_ref_eq (\<lambda>_. x \<tau>) (\<lambda>_. y \<tau>)) \<tau>"
 by(auto simp: gen_ref_eq_def StrongEq_def invalid_def  cp_defined[symmetric])
 
-lemmas cp_intro[simp,intro!] = 
-       OCL_core.cp_intro
+lemmas cp_intro''[simp,intro!] = 
+       cp_intro''
        cp_gen_ref_eq_object[THEN allI[THEN allI[THEN allI[THEN cpI2]], 
              of "gen_ref_eq"]]
 
@@ -190,11 +190,11 @@ where  "((H).oclAllInstances@pre()) \<tau> =
                  Abs_Set_0 \<lfloor>\<lfloor>(Some o Some o H) ` (ran(heap(fst \<tau>)) \<inter> {x. \<exists> y. y=H x}) \<rfloor>\<rfloor> "
 
 lemma "\<tau>\<^isub>0 \<Turnstile> H .oclAllInstances() \<triangleq> Set{}"
-sorry
+by(simp add: StrongEq_def allinstances_def OclValid_def \<tau>\<^isub>0_def mtSet_def)
 
 
 lemma "\<tau>\<^isub>0 \<Turnstile> H .oclAllInstances@pre() \<triangleq> Set{}"
-sorry
+by(simp add: StrongEq_def allinstancesATpre_def OclValid_def \<tau>\<^isub>0_def mtSet_def)
 
 theorem state_update_vs_allInstances: 
 assumes "oid\<notin>dom \<sigma>'"
