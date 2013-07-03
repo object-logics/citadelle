@@ -3019,109 +3019,6 @@ proof -
 qed
 
 subsection{* OclIterate *}
-subsubsection{* Induction scheme *}
-
-lemma iterate_induct :
- assumes S_all_def : "\<And>\<tau>. all_defined \<tau> S"
-     and P_0 : "P {}"
-     and P_rec : "\<And>x F. let f_set = (\<lambda>x. (\<lambda>a (_ :: '\<AA> st). \<lfloor>a\<rfloor>) ` x) in
-      (finite F \<longrightarrow>
-       x \<notin> F \<longrightarrow>
-       is_int (\<lambda>(_ :: '\<AA> st). \<lfloor>x\<rfloor>) \<longrightarrow>
-       all_int_set (f_set F) \<longrightarrow>
-       all_int_set (f_set (insert x F)) \<longrightarrow>
-       P (f_set F) \<longrightarrow> P (f_set (insert x F)))"
-   shows "P ((\<lambda>a _. a) ` \<lceil>\<lceil>Rep_Set_0 (S (\<tau> :: '\<AA> st))\<rceil>\<rceil>)"
-proof -
- have S_finite : "\<And>\<tau>. finite \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>"
- by(simp add: S_all_def[simplified all_defined_def all_defined_set_def])
-
- have all_def_to_all_int : "\<And>\<tau>. all_defined \<tau> S \<Longrightarrow>
-                                all_int_set ((\<lambda>a \<tau>. a) ` \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>)"
-  apply(simp add: all_defined_def all_defined_set_def all_int_set_def is_int_def defined_def OclValid_def)
- by (metis (no_types) OclValid_def foundation18' true_def)
-
- have S_all_int : "\<And>\<tau>. all_int_set ((\<lambda>a \<tau>. a) ` \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>)"
- by(rule all_def_to_all_int, simp add: assms)
-
- have invert_all_int_set : "\<And>x S. all_int_set (insert x S) \<Longrightarrow>
-                                  all_int_set S"
- by(simp add: all_int_set_def)
-
- have invert_int : "\<And>x S. all_int_set (insert x S) \<Longrightarrow>
-                           is_int x"
- by(simp add: all_int_set_def)
-
- show ?thesis
-  apply(rule S_lift[THEN exE, OF S_all_def[of \<tau>]], rename_tac S', simp)
-  apply(subst finite_induct[where P = "\<lambda>set.
-                                               let set' = (\<lambda>a \<tau>. \<lfloor>a\<rfloor>) ` set in
-                                               all_int_set set' \<longrightarrow>
-                                               P set'"
-                              and F = S', simplified Let_def, THEN mp])
-   apply(cut_tac S_finite[where \<tau> = \<tau>, THEN finite_imageI[where h = "(\<lambda>a (_::'\<AA> st). a)"]], simp)
-   apply(rule finite_imageD, assumption, metis (mono_tags) OCL_core.drop.simps inj_onI)
-   apply(simp add: P_0)
-   apply(rule impI)+
-   apply(rule P_rec[simplified Let_def, THEN mp, THEN mp, THEN mp, THEN mp, THEN mp, THEN mp])
-    apply(simp) apply(simp) apply(rule invert_int, simp) apply(rule invert_all_int_set, simp) apply(simp)
-    apply(simp)
-    apply(drule invert_all_int_set, simp)
-   apply(drule sym, simp add: S_all_int)
-   apply(simp)
- done
-qed
-
-lemma iterate_induct' :
- assumes S_all_def : "all_defined \<tau> S"
-     and P_0 : "P {}"
-     and P_rec : "\<And>x F. let f_set = (\<lambda>x. (\<lambda>a (_ :: '\<AA> st). \<lfloor>a\<rfloor>) ` x) in
-      (finite F \<longrightarrow>
-       x \<notin> F \<longrightarrow>
-       is_int (\<lambda>(_ :: '\<AA> st). \<lfloor>x\<rfloor>) \<longrightarrow>
-       all_int_set (f_set F) \<longrightarrow>
-       all_int_set (f_set (insert x F)) \<longrightarrow>
-       P (f_set F) \<longrightarrow> P (f_set (insert x F)))"
-   shows "P ((\<lambda>a _. a) ` \<lceil>\<lceil>Rep_Set_0 (S (\<tau> :: '\<AA> st))\<rceil>\<rceil>)"
-proof -
- have S_finite : "finite \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>"
- by(simp add: S_all_def[simplified all_defined_def all_defined_set_def])
-
- have all_def_to_all_int : "all_defined \<tau> S \<Longrightarrow>
-                                all_int_set ((\<lambda>a \<tau>. a) ` \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>)"
-  apply(simp add: all_defined_def all_defined_set_def all_int_set_def is_int_def defined_def OclValid_def)
- by (metis (no_types) OclValid_def foundation18' true_def)
-
- have S_all_int : "all_int_set ((\<lambda>a \<tau>. a) ` \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>)"
- by(rule all_def_to_all_int, simp add: assms)
-
- have invert_all_int_set : "\<And>x S. all_int_set (insert x S) \<Longrightarrow>
-                                  all_int_set S"
- by(simp add: all_int_set_def)
-
- have invert_int : "\<And>x S. all_int_set (insert x S) \<Longrightarrow>
-                           is_int x"
- by(simp add: all_int_set_def)
-
- show ?thesis
-   apply(rule S_lift[THEN exE, OF S_all_def], rename_tac S', simp)
-   apply(subst finite_induct[where P = "\<lambda>set.
-                                                 let set' = (\<lambda>a \<tau>. \<lfloor>a\<rfloor>) ` set in
-                                                 all_int_set set' \<longrightarrow>
-                                                 P set'"
-                                and F = S', simplified Let_def, THEN mp])
-   apply(cut_tac S_finite[THEN finite_imageI[where h = "(\<lambda>a (_::'\<AA> st). a)"]], simp)
-   apply(rule finite_imageD, assumption, metis (mono_tags) OCL_core.drop.simps inj_onI)
-   apply(simp add: P_0)
-   apply(rule impI)+
-   apply(rule P_rec[simplified Let_def, THEN mp, THEN mp, THEN mp, THEN mp, THEN mp, THEN mp])
-    apply(simp) apply(simp) apply(rule invert_int, simp) apply(rule invert_all_int_set, simp) apply(simp)
-    apply(simp)
-    apply(drule invert_all_int_set, simp)
-   apply(drule sym, simp add: S_all_int)
-   apply(simp)
- done
-qed
 
 subsubsection{* all_defined (inversion) *}
 
@@ -3544,6 +3441,45 @@ begin
  lemma downgrade_up : "EQ_comp_fun_commute0_gen0_bis'' f000 is_i is_i' all_i_set f" by default
  lemma downgrade : "EQ_comp_fun_commute0_gen0_bis' f000 is_i is_i' all_i_set f" by default
 end
+
+ lemma fold_cong''' :
+  assumes f_comm : "EQ_comp_fun_commute0_gen0_bis' f000 is_i is_i' all_i_set f"
+      and g_comm : "EQ_comp_fun_commute0_gen0_bis' f000 is_i is_i' all_i_set g"
+      and a_def : "all_i_set (f000 ` A)"
+      and s_def : "\<And>\<tau>. all_defined \<tau> s"
+      and t_def : "\<And>\<tau>. all_defined \<tau> t"
+      and cong : "(\<And>x s. \<forall>\<tau>. is_i \<tau> (f000 x) \<Longrightarrow> P s \<tau> \<Longrightarrow> f (f000 x) s \<tau> = g (f000 x) s \<tau>)"
+      and ab : "A = B"
+      and st : "s \<tau> = t \<tau>'"
+      and P0 : "P s \<tau>"
+      and Prec : "\<And>x F.
+        all_i_set (f000 ` F) \<Longrightarrow>
+        \<forall>\<tau>. is_i \<tau> (f000 x) \<Longrightarrow>
+        x \<notin> F \<Longrightarrow>
+        P (Finite_Set.fold f s (f000 ` F)) \<tau> \<Longrightarrow> P (Finite_Set.fold f s (f000 ` insert x F)) \<tau>"
+    shows "Finite_Set.fold f s (f000 ` A) \<tau> = Finite_Set.fold g t (f000 ` B) \<tau>'"
+ proof -
+  interpret EQ_comp_fun_commute0_gen0_bis' f000 is_i is_i' all_i_set f by (rule f_comm)
+  note g_comm_down = g_comm[THEN EQ_comp_fun_commute0_gen0_bis'.downgrade_up]
+  note g_fold_insert' = EQ_comp_fun_commute0_gen0_bis''.fold_insert'[OF g_comm_down]
+  note g_cp_set = EQ_comp_fun_commute0_gen0_bis''.cp_set[OF g_comm_down]
+  note g_fold_def = EQ_comp_fun_commute0_gen0_bis''.fold_def[OF g_comm_down]
+  note g_cp_gen = EQ_comp_fun_commute0_gen0_bis'.cp_gen[OF g_comm]
+  have "Finite_Set.fold f s (f000 ` A) \<tau> = Finite_Set.fold g t (f000 ` A) \<tau>'"
+   apply(rule all_int_induct[OF a_def], simp add: st)
+   apply(subst fold_insert', simp add: s_def, simp, simp, simp)
+   apply(subst g_fold_insert', simp add: t_def, simp, simp, simp)
+   apply(subst g_cp_set, rule allI, rule g_fold_def, simp add: t_def, simp)
+   apply(drule sym, simp)
+   apply(subst g_cp_gen[of _ _ _ \<tau>], simp, subst cp_all_def[where \<tau>' = \<tau>], subst cp_all_def[symmetric], rule fold_def, simp add: s_def, simp, simp)
+   apply(subst g_cp_set[symmetric], rule allI, rule fold_def, simp add: s_def, simp)
+   apply(rule cong, simp)
+   (* *)
+   apply(rule all_int_induct, simp, simp add: P0, simp add: st[symmetric] P0)
+   apply(rule Prec[simplified], simp_all)
+  done
+  thus ?thesis by (simp add: st[symmetric] ab[symmetric])
+ qed
 
  lemma fold_cong'' :
   assumes f_comm : "EQ_comp_fun_commute0_gen0_bis' f000 is_i is_i' all_i_set f"
@@ -3980,22 +3916,6 @@ qed
 context EQ_comp_fun_commute0_gen0 begin lemma downgrade' : "EQ_comp_fun_commute0_gen0 f000 all_def_set f" by default end
 context EQ_comp_fun_commute0 begin lemmas downgrade' = downgrade' end
 context EQ_comp_fun_commute0' begin lemmas downgrade' = downgrade' end
-
-lemma img_fold' :
- assumes g_comm : "EQ_comp_fun_commute0' (\<lambda>x. G (\<lambda>_. \<lfloor>x\<rfloor>))"
-     and a_def : "\<forall>\<tau>. all_defined \<tau> A"
-     and fini : "all_int_set ((\<lambda>a (\<tau> :: '\<AA> st). \<lfloor>a\<rfloor>) ` Fa)"
-   shows  "Finite_Set.fold (G :: ('\<AA>, _) val
-                                  \<Rightarrow> ('\<AA>, _) Set
-                                  \<Rightarrow> ('\<AA>, _) Set) A ((\<lambda>a \<tau>. \<lfloor>a\<rfloor>) ` Fa) =
-           Finite_Set.fold (\<lambda>x. G (\<lambda>_. \<lfloor>x\<rfloor>)) A Fa"
-proof -
- interpret EQ_comp_fun_commute0' "\<lambda>x. G (\<lambda>_. \<lfloor>x\<rfloor>)" by (rule g_comm)
- show ?thesis
-  apply(rule img_fold[OF downgrade' a_def fini])
-  apply(subst EQ_comp_fun_commute000'.fold_insert'[OF g_comm[THEN c000'_of_c0'[where f = G]], simplified], simp add: a_def, simp+)
- done
-qed
 
 subsection{* comp_fun_commute OclIncluding *}
 subsubsection{* Preservation of comp_fun_commute (main) *}
@@ -4567,15 +4487,23 @@ qed
 
 subsubsection{* Context passing *}
 
-lemma cp_OclIterate\<^isub>S\<^isub>e\<^isub>t1:
- assumes f_comm : "EQ_comp_fun_commute0' (\<lambda>x. f (\<lambda>_. \<lfloor>x\<rfloor>))"
+lemma cp_OclIterate\<^isub>S\<^isub>e\<^isub>t1_gen:
+ assumes f_comm : "EQ_comp_fun_commute0_gen0 f000 all_def_set (\<lambda>x. f (f000 x))"
      and A_all_def : "\<And>\<tau>. all_defined \<tau> A"
+     and f_fold_insert : "\<And>x S A. (\<And>\<tau>. all_defined \<tau> A) \<Longrightarrow> x \<notin> S \<Longrightarrow> is_int (f000 x) \<Longrightarrow> all_int_set (f000 ` S) \<Longrightarrow> Finite_Set.fold f A (insert (f000 x) (f000 ` S)) = f (f000 x) (Finite_Set.fold f A (f000 ` S))"
+     and S_lift : "all_defined \<tau> X \<Longrightarrow> \<exists>S'. (\<lambda>a \<tau>. a) ` \<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil> = f000 ` S'"
    shows "(X->iterate(a; x = A | f a x)) \<tau> =
                 ((\<lambda> _. X \<tau>)->iterate(a; x = (\<lambda>_. A \<tau>) | f a x)) \<tau>"
 proof -
- interpret EQ_comp_fun_commute0' "\<lambda>x. f (\<lambda>_. \<lfloor>x\<rfloor>)" by (rule f_comm)
+ have all_def_to_all_int : "\<And>\<tau>. all_defined \<tau> X \<Longrightarrow>
+                                all_int_set ((\<lambda>a \<tau>. a) ` \<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil>)"
+  apply(simp add: all_defined_def all_defined_set_def all_int_set_def is_int_def defined_def OclValid_def)
+ by (metis (no_types) OclValid_def foundation18' true_def)
+
  have B : "\<lfloor>\<bottom>\<rfloor> \<in> {X. X = bot \<or> X = null \<or> (\<forall>x\<in>\<lceil>\<lceil>X\<rceil>\<rceil>. x \<noteq> bot)}" by(simp add: null_option_def bot_option_def)
  have A_all_def' : "\<And>\<tau> \<tau>'. all_defined \<tau> (\<lambda>a. A \<tau>')" by(subst cp_all_def[symmetric], simp add: A_all_def)
+
+ interpret EQ_comp_fun_commute0_gen0 f000 all_def_set "\<lambda>x. f (f000 x)" by (rule f_comm)
  show ?thesis
  apply(subst cp_OclIterate\<^isub>S\<^isub>e\<^isub>t[symmetric])
  apply(simp add: OclIterate\<^isub>S\<^isub>e\<^isub>t_def cp_valid[symmetric])
@@ -4586,51 +4514,35 @@ proof -
  apply(drule disjE) prefer 3 apply assumption
  apply(simp add: Abs_Set_0_inverse[OF B])
  apply(simp add: defined_def bot_Set_0_def null_Set_0_def null_fun_def bot_fun_def bot_option_def false_def true_def)
+ proof -
+ assume "(\<delta> X) \<tau> = true \<tau>"
+    "finite \<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil>"
+    "\<forall>x\<in>\<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil>. x \<noteq> \<bottom>"
+ then have X_def : "all_defined \<tau> X" by (metis (lifting, no_types) OclValid_def all_defined_def all_defined_set_def foundation18')
+ show "Finite_Set.fold f A ((\<lambda>a \<tau>. a) ` \<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil>) \<tau> = Finite_Set.fold f (\<lambda>_. A \<tau>) ((\<lambda>a \<tau>. a) ` \<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil>) \<tau>"
+  apply(rule S_lift[OF X_def, THEN exE], simp)
+  apply(subst (1 2) img_fold[OF f_comm], simp add: A_all_def', drule sym, simp add: all_def_to_all_int[OF X_def])
+  apply(rule f_fold_insert, simp_all add: A_all_def' A_all_def)+
+  apply(rule fold_cong'''[where P = "\<lambda>_ _. True", OF downgrade downgrade, simplified image_ident])
+  apply(rule all_i_set_to_def)
+  apply(drule sym, simp add: all_def_to_all_int[OF X_def], simp add: A_all_def) apply(subst cp_all_def[symmetric], simp add: A_all_def)
+  apply(blast+)
+ done
+ qed
+qed
 
- apply(rule iterate_induct'[where P = "\<lambda>set'.
-                            (\<forall>\<tau>. all_defined \<tau> (Finite_Set.fold f A set')) \<and>
-                            (\<forall>\<tau>'. all_defined \<tau>' (Finite_Set.fold f (\<lambda>_. A \<tau>) set')) \<and>
-                            Finite_Set.fold f A set' \<tau> = Finite_Set.fold f (\<lambda>_. A \<tau>) set' \<tau>"
-                          , simplified Let_def, THEN conjunct2, THEN conjunct2])
- apply(simp add: all_defined_def all_defined_set_def)
- apply (metis (no_types) OclValid_def foundation18')
- apply(simp add: A_all_def)
- apply(subst cp_all_def[symmetric], simp add: A_all_def)
- apply(rule impI)+
-
-  apply(rule conjI, rule allI)
-  apply(erule conjE)+
-  apply(subst img_fold'[OF f_comm], simp add: A_all_def, simp)
-  apply(rule iterate_subst_set_rec0'[OF f_comm, THEN spec], simp, simp, simp add: A_all_def, simp)
-  apply(subst img_fold'[where G = f, OF f_comm, symmetric], simp add: A_all_def, simp, simp)
-
-  apply(rule conjI, rule allI)
-  apply(erule conjE)+
-  apply(subst img_fold'[OF f_comm], simp add: A_all_def', simp)
-  apply(rule iterate_subst_set_rec0'[OF f_comm, THEN spec], simp, simp, simp add: A_all_def', simp)
-  apply(subst img_fold'[where G = f, OF f_comm, symmetric], simp add: A_all_def', simp, simp)
-
-  apply(subst img_fold'[OF f_comm], simp add: A_all_def, simp)
-  apply(subst EQ_comp_fun_commute0'.fold_insert[OF f_comm])
-  apply(simp add: A_all_def)
-   apply(simp add: all_int_set_def all_defined_set'_def int_is_valid)
-   apply(simp)
-   apply(simp)
-
-  apply(subst img_fold'[OF f_comm], subst cp_all_def[symmetric], simp add: A_all_def, simp)
-  apply(subst EQ_comp_fun_commute0'.fold_insert[OF f_comm])
-  apply(subst cp_all_def[symmetric], simp add: A_all_def, simp)
-   apply(simp add: all_int_set_def all_defined_set'_def int_is_valid)
-   apply(simp)
-   apply(simp)
-
- apply(subst img_fold'[where G = f, OF f_comm, symmetric], simp add: A_all_def, simp)
- apply(subst img_fold'[where G = f, OF f_comm, symmetric])
-  apply(subst cp_all_def[symmetric], simp add: A_all_def, simp)
-
- apply(subst (1 2) cp_set)
- apply(simp)+
-done
+lemma cp_OclIterate\<^isub>S\<^isub>e\<^isub>t1:
+ assumes f_comm : "EQ_comp_fun_commute0' (\<lambda>x. f (\<lambda>_. \<lfloor>x\<rfloor>))"
+     and A_all_def : "\<And>\<tau>. all_defined \<tau> A"
+   shows "(X->iterate(a; x = A | f a x)) \<tau> =
+                ((\<lambda> _. X \<tau>)->iterate(a; x = (\<lambda>_. A \<tau>) | f a x)) \<tau>"
+proof -
+ interpret EQ_comp_fun_commute0' "\<lambda>x. f (\<lambda>_. \<lfloor>x\<rfloor>)" by (rule f_comm)
+ show ?thesis
+  apply(rule cp_OclIterate\<^isub>S\<^isub>e\<^isub>t1_gen[OF downgrade' A_all_def])
+  apply(subst EQ_comp_fun_commute000'.fold_insert'[OF f_comm[THEN c000'_of_c0'[where f = f]], simplified], simp_all)
+  apply(rule S_lift, simp)
+ done
 qed
 
 subsubsection{* all_defined (construction) *}
