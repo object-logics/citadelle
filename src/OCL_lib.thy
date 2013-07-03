@@ -487,6 +487,49 @@ lemma Set_inv_lemma' :
  apply (metis foundation18')
 by (metis e_mem)
 
+lemma abs_rep_simp' :
+ assumes S_all_def : "\<tau> \<Turnstile> \<delta> (S :: ('\<AA>, 'a option option) Set)"
+   shows "Abs_Set_0 \<lfloor>\<lfloor>\<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>\<rfloor>\<rfloor> = S \<tau>"
+proof -
+ have discr_eq_false_true : "\<And>\<tau>. (false \<tau> = true \<tau>) = False" by (metis OclValid_def foundation2)
+ show ?thesis
+  apply(insert S_all_def, simp add: OclValid_def defined_def)
+  apply(rule mp[OF Abs_Set_0_induct[where P = "\<lambda>S. (if S = \<bottom> \<tau> \<or> S = null \<tau> then false \<tau> else true \<tau>) = true \<tau> \<longrightarrow> Abs_Set_0 \<lfloor>\<lfloor>\<lceil>\<lceil>Rep_Set_0 S\<rceil>\<rceil>\<rfloor>\<rfloor> = S"]])
+  apply(simp add: Abs_Set_0_inverse discr_eq_false_true)
+  apply(case_tac y) apply(simp add: bot_fun_def bot_Set_0_def)+
+  apply(case_tac a) apply(simp add: null_fun_def null_Set_0_def)+
+ done
+qed
+
+lemma S_lift' :
+ assumes S_all_def : "(\<tau> :: '\<AA> st) \<Turnstile> \<delta> S"
+   shows "\<exists>S'. (\<lambda>a (_::'\<AA> st). a) ` \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil> = (\<lambda>a (_::'\<AA> st). \<lfloor>a\<rfloor>) ` S'"
+  apply(rule_tac x = "(\<lambda>a. \<lceil>a\<rceil>) ` \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>" in exI)
+  apply(simp only: image_comp[symmetric])
+  apply(simp add: comp_def)
+  apply(subgoal_tac "\<forall>x\<in> \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>. \<lfloor>\<lceil>x\<rceil>\<rfloor> = x")
+  apply(rule equalityI)
+  (* *)
+  apply(rule subsetI)
+  apply(drule imageE) prefer 2 apply assumption
+  apply(drule_tac x = a in ballE) prefer 3 apply assumption
+  apply(drule_tac f = "\<lambda>x \<tau>. \<lfloor>\<lceil>x\<rceil>\<rfloor>" in imageI)
+  apply(simp)
+  apply(simp)
+  (* *)
+  apply(rule subsetI)
+  apply(drule imageE) prefer 2 apply assumption
+  apply(drule_tac x = xa in ballE) prefer 3 apply assumption
+  apply(drule_tac f = "\<lambda>x \<tau>. x" in imageI)
+  apply(simp)
+  apply(simp)
+  (* *)
+  apply(rule ballI)
+  apply(drule Set_inv_lemma'[OF S_all_def])
+  apply(case_tac x, simp add: bot_option_def foundation18')
+  apply(simp)
+done
+
 lemma invalid_set_not_defined [simp,code_unfold]:"\<delta>(invalid::('\<AA>,'\<alpha>::null) Set) = false" by simp
 lemma null_set_not_defined [simp,code_unfold]:"\<delta>(null::('\<AA>,'\<alpha>::null) Set) = false"
 by(simp add: defined_def null_fun_def)
@@ -2182,7 +2225,13 @@ definition "all_int_set S \<equiv> finite S \<and> (\<forall>x\<in>S. is_int x)"
 definition "all_int \<tau> S \<equiv> (\<tau> \<Turnstile> \<delta> S) \<and> all_int_set \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>"
 definition "all_defined_set \<tau> S \<equiv> finite S \<and> (\<forall>x\<in>S. (\<tau> \<Turnstile> \<upsilon> (\<lambda>_. x)))"
 definition "all_defined_set' \<tau> S \<equiv> finite S"
-definition "all_defined \<tau> S \<equiv> (\<tau> \<Turnstile> \<delta> S) \<and> all_defined_set \<tau> \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>"
+definition "all_defined \<tau> S \<equiv> (\<tau> \<Turnstile> \<delta> S) \<and> all_defined_set' \<tau> \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>"
+
+lemma all_def_to_all_int : "\<And>\<tau>. all_defined \<tau> S \<Longrightarrow>
+                                all_int_set ((\<lambda>a \<tau>. a) ` \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>)"
+ apply(simp add: all_defined_def, erule conjE, frule Set_inv_lemma)
+ apply(simp add: all_defined_def all_defined_set'_def all_int_set_def is_int_def defined_def OclValid_def)
+by (metis (no_types) OclValid_def foundation18' true_def Set_inv_lemma')
 
 term "all_defined \<tau> (f \<zero> Set{\<zero>}) = (all_defined \<tau> Set{\<zero>})"
  (* we check here that all_defined could at least be applied to some useful value
@@ -2203,27 +2252,12 @@ by (simp add: invalid_def bot_option_def true_def)
 lemma abs_rep_simp :
  assumes S_all_def : "all_defined \<tau> (S :: ('\<AA>, 'a option option) Set)"
    shows "Abs_Set_0 \<lfloor>\<lfloor>\<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>\<rfloor>\<rfloor> = S \<tau>"
-proof -
- have discr_eq_false_true : "\<And>\<tau>. (false \<tau> = true \<tau>) = False" by (metis OclValid_def foundation2)
- show ?thesis
-  apply(insert S_all_def, simp add: all_defined_def all_defined_set_def OclValid_def defined_def)
-  apply(rule mp[OF Abs_Set_0_induct[where P = "\<lambda>S. (if S = \<bottom> \<tau> \<or> S = null \<tau> then false \<tau> else true \<tau>) = true \<tau> \<and>
-          finite \<lceil>\<lceil>Rep_Set_0 S\<rceil>\<rceil> \<and>
-          (\<forall>x\<in>\<lceil>\<lceil>Rep_Set_0 S\<rceil>\<rceil>. (if x = \<bottom> \<tau> then false \<tau> else true \<tau>) = true \<tau>) \<longrightarrow> Abs_Set_0 \<lfloor>\<lfloor>\<lceil>\<lceil>Rep_Set_0 S\<rceil>\<rceil>\<rfloor>\<rfloor> = S"]])
-  apply(simp add: Abs_Set_0_inverse discr_eq_false_true)
-  apply(case_tac y, simp)
-  apply(simp add: bot_fun_def bot_Set_0_def)
-  apply(case_tac a, simp)
-  apply(simp add: null_fun_def null_Set_0_def)
-  apply(simp)
-  apply(simp)
- by (metis OCL_core.bot_fun_def valid_def)
-qed
+by(rule abs_rep_simp', simp add: assms[simplified all_defined_def])
 
 lemma cp_all_def : "all_defined \<tau> f = all_defined \<tau>' (\<lambda>_. f \<tau>)"
-  apply(simp add: all_defined_def all_defined_set_def OclValid_def)
+  apply(simp add: all_defined_def all_defined_set'_def OclValid_def)
   apply(subst cp_defined)
- by (metis (no_types) OclValid_def cp_defined cp_valid defined2 defined_def foundation1 foundation16 foundation17 foundation18' foundation6 foundation9 not3 ocl_and_true1 ocl_and_true2 transform1_rev valid_def)
+by (metis (no_types) OclValid_def cp_defined cp_valid defined2 defined_def foundation1 foundation16 foundation17 foundation18' foundation6 foundation9 not3 ocl_and_true1 ocl_and_true2 transform1_rev valid_def)
 
 lemma cp_all_def' : "(\<forall>\<tau>. all_defined \<tau> f) = (\<forall>\<tau> \<tau>'. all_defined \<tau>' (\<lambda>_. f \<tau>))"
  apply(rule iffI)
@@ -2235,35 +2269,7 @@ done
 lemma S_lift :
  assumes S_all_def : "all_defined (\<tau> :: '\<AA> st) S"
    shows "\<exists>S'. (\<lambda>a (_::'\<AA> st). a) ` \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil> = (\<lambda>a (_::'\<AA> st). \<lfloor>a\<rfloor>) ` S'"
-  apply(rule_tac x = "(\<lambda>a. \<lceil>a\<rceil>) ` \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>" in exI)
-  apply(simp only: image_comp[symmetric])
-  apply(simp add: comp_def)
-  apply(subgoal_tac "\<forall>x\<in> \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>. \<lfloor>\<lceil>x\<rceil>\<rfloor> = x")
-  apply(rule equalityI)
-  (* *)
-  apply(rule subsetI)
-  apply(drule imageE) prefer 2 apply assumption
-  apply(drule_tac x = a in ballE) prefer 3 apply assumption
-  apply(drule_tac f = "\<lambda>x \<tau>. \<lfloor>\<lceil>x\<rceil>\<rfloor>" in imageI)
-  apply(simp)
-  apply(simp)
-  (* *)
-  apply(rule subsetI)
-  apply(drule imageE) prefer 2 apply assumption
-  apply(drule_tac x = xa in ballE) prefer 3 apply assumption
-  apply(drule_tac f = "\<lambda>x \<tau>. x" in imageI)
-  apply(simp)
-  apply(simp)
-  (* *)
-  apply(rule ballI)
-
-  apply(insert S_all_def[simplified all_defined_def all_defined_set_def, THEN conjunct2, THEN conjunct2])
-  apply(drule_tac x = x in ballE) prefer 3 apply assumption
-  apply(case_tac x)
-  apply (metis bot_option_def foundation18')
-  apply(simp)
-  apply(simp)
-done
+by(rule S_lift', simp add: assms[simplified all_defined_def])
 
 lemma destruct_int : "is_int i \<Longrightarrow> \<exists>! j. i = (\<lambda>_. j)"
  proof - fix \<tau> show "is_int i \<Longrightarrow> ?thesis"
@@ -2281,7 +2287,7 @@ lemma mtSet_all_def : "all_defined \<tau> Set{}"
 proof -
  have B : "\<lfloor>\<lfloor>{}\<rfloor>\<rfloor> \<in> {X. X = bot \<or> X = null \<or> (\<forall>x\<in>\<lceil>\<lceil>X\<rceil>\<rceil>. x \<noteq> bot)}" by(simp add: mtSet_def)
  show ?thesis
-  apply(simp add: all_defined_def all_defined_set_def mtSet_def Abs_Set_0_inverse B)
+  apply(simp add: all_defined_def all_defined_set'_def mtSet_def Abs_Set_0_inverse B)
  by (metis (no_types) foundation16 mtSet_def mtSet_defined transform1)
 qed
 
@@ -2303,8 +2309,8 @@ proof -
  show "               all_defined \<tau> S \<Longrightarrow>
                       x \<in> \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil> \<Longrightarrow>
                       ?thesis"
-  apply(simp add: OclIncluding_def all_defined1[simplified OclValid_def] OclValid_def insert_absorb abs_rep_simp del: StrictRefEq_set_exec)
- by (metis OCL_core.bot_fun_def all_defined_def all_defined_set_def foundation18' valid_def)
+  apply(simp add: OclIncluding_def all_defined1[simplified OclValid_def] OclValid_def insert_absorb abs_rep_simp del: StrictRefEq_set_exec) 
+ by (metis OCL_core.bot_fun_def all_defined_def foundation18' valid_def Set_inv_lemma')
 qed
 
 lemma including_id :
@@ -2318,7 +2324,7 @@ proof -
                \<tau> \<Turnstile> \<upsilon> (\<lambda>\<tau>. x)"
   apply(insert S_all_def)
   apply(simp add: all_defined_def all_defined_set_def)
- by (metis (no_types) foundation18')
+ by (metis (no_types) foundation18' Set_inv_lemma')
 
  show "               (\<forall>\<tau>. x \<in> \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>) \<Longrightarrow>
                       ?thesis"
@@ -2576,7 +2582,7 @@ proof -
                 S_all_def[simplified all_defined_def, of \<tau>]
                 x_val[of \<tau>], simp)
    apply(simp add: cp_defined[of "\<lambda>\<tau>. Abs_Set_0 \<lfloor>\<lfloor>insert (x \<tau>) \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>\<rfloor>\<rfloor>"])
-   apply(simp add: all_defined_set_def OclValid_def)
+   apply(simp add: all_defined_set'_def OclValid_def)
    apply(simp add: cp_valid[symmetric] x_val[simplified OclValid_def])
    apply(rule G)
  done
@@ -2628,7 +2634,7 @@ proof -
                 S_all_def[simplified all_defined_def]
                 x_val, simp)
    apply(simp add: cp_defined[of "\<lambda>\<tau>. if (\<delta> S) \<tau> = true \<tau> \<and> (\<upsilon> x) \<tau> = true \<tau> then Abs_Set_0 \<lfloor>\<lfloor>\<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil> \<union> {x \<tau>}\<rfloor>\<rfloor> else \<bottom>"])
-   apply(simp add: all_defined_set_def OclValid_def)
+   apply(simp add: all_defined_set'_def OclValid_def)
    apply(simp add: cp_valid[symmetric] x_val[simplified OclValid_def])
    apply(rule G)
  done
@@ -2650,20 +2656,9 @@ lemma invert_all_defined : "all_defined \<tau> (S->including(x)) \<Longrightarro
  done
 
   show "all_defined \<tau> (S->including(x)) \<Longrightarrow> ?thesis"
-   apply(simp add: all_defined_def all_defined_set_def)
+   apply(simp add: all_defined_def all_defined_set'_def)
    apply(erule conjE, frule finite_including_exec[of \<tau> S x], simp)
-   apply(rule conjI, metis foundation5)+
-   apply(rule ballI, erule conjE, rename_tac x')
-   apply(unfold OclIncluding_def)
-   apply(drule_tac x = x' in ballE) prefer 3 apply assumption
-   apply(simp)
-   apply(subgoal_tac False, simp)
-   apply(subgoal_tac "(\<delta> S) \<tau> = true \<tau>", simp)
-   apply(rename_tac x', subgoal_tac "(\<upsilon> x) \<tau> = true \<tau>", simp)
-   apply(insert Abs_Set_0_inverse[OF invert_all_defined_aux, simplified OclValid_def], simp)
-   apply(metis OclValid_def foundation5)
-   apply(metis OclValid_def foundation5)
-  done
+  by (metis foundation5)
 qed
 
 lemma invert_all_defined' : "(\<forall>\<tau>. all_defined \<tau> (S->including(\<lambda>(_:: '\<AA> st). x))) \<Longrightarrow> is_int (\<lambda> (_:: '\<AA> st). x) \<and> (\<forall>\<tau>. all_defined \<tau> S)"
@@ -2849,7 +2844,7 @@ proof -
   proof - fix \<tau>' show "\<forall>a b. x \<notin> \<lceil>\<lceil>Rep_Set_0 (S (a, b))\<rceil>\<rceil> \<Longrightarrow> Abs_Set_0 \<lfloor>\<lfloor>\<lceil>\<lceil>Rep_Set_0 (S \<tau>')\<rceil>\<rceil> - {x}\<rfloor>\<rfloor> = S \<tau>'"
 
   apply(subst finite_induct[where P = "\<lambda>set. x \<notin> set \<longrightarrow> (\<forall>set'. all_defined \<tau>' set' \<longrightarrow> set = \<lceil>\<lceil>Rep_Set_0 (set' \<tau>')\<rceil>\<rceil> \<longrightarrow> Abs_Set_0 \<lfloor>\<lfloor>set - {x}\<rfloor>\<rfloor> = set' \<tau>')", THEN mp, THEN spec, THEN mp])
-  apply(simp add: S_all_def[simplified all_defined_def all_defined_set_def])
+  apply(simp add: S_all_def[simplified all_defined_def all_defined_set'_def])
   apply(simp)
   apply(rule allI, rename_tac S') apply(rule impI)+
   apply(drule_tac f = "\<lambda>x. Abs_Set_0 \<lfloor>\<lfloor>x\<rfloor>\<rfloor>" in arg_cong)
@@ -2933,7 +2928,7 @@ proof -
                 S_all_def[simplified all_defined_def, of \<tau>]
                 x_val[of \<tau>], simp)
    apply(simp add: cp_defined[of "\<lambda>\<tau>. Abs_Set_0 \<lfloor>\<lfloor>\<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil> - {x \<tau>}\<rfloor>\<rfloor>"])
-   apply(simp add: all_defined_set_def OclValid_def)
+   apply(simp add: all_defined_set'_def OclValid_def)
    apply(simp add: cp_valid[symmetric] x_val[simplified OclValid_def])
    apply(rule G)
  done
@@ -3018,20 +3013,9 @@ proof -
   proof - fix \<tau> show "\<not> all_defined \<tau> S \<Longrightarrow> \<not> all_defined \<tau> (OclIterate\<^isub>S\<^isub>e\<^isub>t S S F)"
    apply(unfold OclIterate\<^isub>S\<^isub>e\<^isub>t_def)
    apply(case_tac "\<tau> \<Turnstile> (\<delta> S) \<and> \<tau> \<Turnstile> (\<upsilon> S) \<and> finite \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>", simp add: OclValid_def all_defined_def)
-   apply(simp add: all_defined_set_def )
-   apply(case_tac "S \<tau>", simp)
-   apply(erule disjE, simp add: bot_option_def)
-   apply (metis (hide_lams, no_types) OclValid_def bot_Set_0_def foundation18')
-   apply(erule disjE, simp add: null_option_def Abs_Set_0_inverse[OF B] bot_option_def Abs_Set_0_inverse[OF C])
-   apply (metis OclValid_def foundation17 null_Set_0_def null_option_def)
-   apply(subgoal_tac "Rep_Set_0 (Abs_Set_0 y) = y", simp add: valid_def OclValid_def bot_option_def bot_fun_def false_def true_def)
-   apply (metis (no_types) OclValid_def Set_inv_lemma')
-   
-   apply(subst all_defined_def)
-   apply(subst defined_def)
-   apply(simp only: OclValid_def)
-   apply(simp)
-  by (metis OCL_core.bot_fun_def OclValid_def foundation2 null_fun_def)
+   apply(simp add: all_defined_set'_def)
+   apply(simp add: all_defined_def all_defined_set'_def defined_def OclValid_def false_def true_def bot_fun_def)
+  done
  qed
 qed
 
@@ -4223,10 +4207,6 @@ lemma iterate_subst_set_gen :
              is_int x \<Longrightarrow> x \<notin> Fa \<Longrightarrow> \<forall>\<tau>. all_defined \<tau> (Finite_Set.fold F A Fa) \<Longrightarrow> P (Finite_Set.fold F A Fa) \<Longrightarrow> P (F x (Finite_Set.fold F A Fa))"
    shows "(S->iterate(x;acc=A|F x acc)) = (S->iterate(x;acc=A|G x acc))"
 proof -
- have all_def_to_all_int : "\<And>\<tau>. all_defined \<tau> S \<Longrightarrow>
-                                all_int_set ((\<lambda>a \<tau>. a) ` \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>)"
-  apply(simp add: all_defined_def all_defined_set_def all_int_set_def is_int_def defined_def OclValid_def)
- by (metis (no_types) OclValid_def foundation18' true_def)
 
  have S_all_int : "\<And>\<tau>. all_int_set ((\<lambda>a \<tau>. a) ` \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>)"
  by(rule all_def_to_all_int, simp add: assms)
@@ -4326,17 +4306,12 @@ lemma iterate_subst_set_gen0 :
      and S_lift : "all_defined \<tau> S \<Longrightarrow> \<exists>S'. (\<lambda>a \<tau>. a) ` \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil> = f000 ` S'"
    shows "(S->iterate(x;acc=A|F x acc)) \<tau> = (S->iterate(x;acc=A|G x acc)) \<tau>"
 proof -
- have all_def_to_all_int : "\<And>\<tau>. all_defined \<tau> S \<Longrightarrow>
-                                all_int_set ((\<lambda>a \<tau>. a) ` \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>)"
-  apply(simp add: all_defined_def all_defined_set_def all_int_set_def is_int_def defined_def OclValid_def)
- by (metis (no_types) OclValid_def foundation18' true_def)
-
  have S_all_int : "\<And>\<tau>. all_int_set ((\<lambda>a \<tau>. a) ` \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>)"
  by(rule all_def_to_all_int, simp add: assms)
 
- have S_all_def' : "\<And>\<tau> \<tau>'. all_defined_set \<tau>' \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>"
+ have S_all_def' : "\<And>\<tau> \<tau>'. all_defined_set' \<tau>' \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>"
   apply(insert S_all_def)
-  apply(subst (asm) cp_all_def, simp add: all_defined_def all_defined_set_def, blast)
+  apply(subst (asm) cp_all_def, simp add: all_defined_def all_defined_set'_def, blast)
  done
 
  have A_defined : "\<forall>\<tau>. \<tau> \<Turnstile> \<delta> A"
@@ -4348,7 +4323,7 @@ proof -
   proof -
   show "(if (\<delta> S) \<tau> = true \<tau> \<and> (\<upsilon> A) \<tau> = true \<tau> \<and> finite \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil> then Finite_Set.fold F A ((\<lambda>a \<tau>. a) ` \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>) \<tau> else \<bottom>) =
         (if (\<delta> S) \<tau> = true \<tau> \<and> (\<upsilon> A) \<tau> = true \<tau> \<and> finite \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil> then Finite_Set.fold G A ((\<lambda>a \<tau>. a) ` \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>) \<tau> else \<bottom>)"
-  apply(simp add: S_all_def[simplified all_defined_def all_defined_set_def OclValid_def]
+  apply(simp add: S_all_def[simplified all_defined_def all_defined_set'_def OclValid_def]
                   A_all_def[simplified all_defined_def OclValid_def]
                   foundation20[OF A_defined[THEN spec, of \<tau>], simplified OclValid_def]
              del: StrictRefEq_set_exec)
@@ -4476,11 +4451,6 @@ lemma cp_OclIterate\<^isub>S\<^isub>e\<^isub>t1_gen:
    shows "(X->iterate(a; x = A | f a x)) \<tau> =
                 ((\<lambda> _. X \<tau>)->iterate(a; x = (\<lambda>_. A \<tau>) | f a x)) \<tau>"
 proof -
- have all_def_to_all_int : "\<And>\<tau>. all_defined \<tau> X \<Longrightarrow>
-                                all_int_set ((\<lambda>a \<tau>. a) ` \<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil>)"
-  apply(simp add: all_defined_def all_defined_set_def all_int_set_def is_int_def defined_def OclValid_def)
- by (metis (no_types) OclValid_def foundation18' true_def)
-
  have B : "\<lfloor>\<bottom>\<rfloor> \<in> {X. X = bot \<or> X = null \<or> (\<forall>x\<in>\<lceil>\<lceil>X\<rceil>\<rceil>. x \<noteq> bot)}" by(simp add: null_option_def bot_option_def)
  have A_all_def' : "\<And>\<tau> \<tau>'. all_defined \<tau> (\<lambda>a. A \<tau>')" by(subst cp_all_def[symmetric], simp add: A_all_def)
 
@@ -4496,7 +4466,7 @@ proof -
  assume "(\<delta> X) \<tau> = true \<tau>"
     "finite \<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil>"
     "\<forall>x\<in>\<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil>. x \<noteq> \<bottom>"
- then have X_def : "all_defined \<tau> X" by (metis (lifting, no_types) OclValid_def all_defined_def all_defined_set_def foundation18')
+ then have X_def : "all_defined \<tau> X" by (metis (lifting, no_types) OclValid_def all_defined_def all_defined_set'_def foundation18')
  show "Finite_Set.fold f A ((\<lambda>a \<tau>. a) ` \<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil>) \<tau> = Finite_Set.fold f (\<lambda>_. A \<tau>) ((\<lambda>a \<tau>. a) ` \<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil>) \<tau>"
   apply(rule S_lift[OF X_def, THEN exE], simp)
   apply(subst (1 2) img_fold[OF f_comm], simp add: A_all_def', drule sym, simp add: all_def_to_all_int[OF X_def])
@@ -4532,11 +4502,6 @@ lemma i_cons_all_def :
      and A_all_def : "\<And>\<tau>. all_defined \<tau> S"
    shows "all_defined \<tau> (OclIterate\<^isub>S\<^isub>e\<^isub>t S S F)"
 proof -
- have all_def_to_all_int : "\<And>\<tau>. all_defined \<tau> S \<Longrightarrow>
-                                all_int_set ((\<lambda>a \<tau>. a) ` \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>)"
-  apply(simp add: all_defined_def all_defined_set_def all_int_set_def is_int_def defined_def OclValid_def)
- by (metis (no_types) OclValid_def foundation18' true_def)
-
  have A_all_def' : "\<forall>\<tau>. all_int_set ((\<lambda>a (\<tau>:: '\<AA> st). a) ` \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>)"
   apply(rule allI, rule all_def_to_all_int, simp add: A_all_def)
  done
@@ -4544,7 +4509,7 @@ proof -
  show ?thesis
   apply(unfold OclIterate\<^isub>S\<^isub>e\<^isub>t_def)
   apply(simp add: A_all_def[simplified all_defined_def OclValid_def]
-                  A_all_def[simplified all_defined_def all_defined_set_def]
+                  A_all_def[simplified all_defined_def all_defined_set'_def]
                   A_all_def[simplified all_defined_def, THEN conjunct1, THEN foundation20, simplified OclValid_def]
                   )
   apply(subgoal_tac "\<forall>\<tau>'. all_defined \<tau>' (Finite_Set.fold F S ((\<lambda>a \<tau>. a) ` \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>))", metis (lifting, no_types) foundation16 all_defined_def)
@@ -4558,11 +4523,6 @@ lemma i_cons_all_def'' :
      and A_all_def : "\<And>\<tau>. all_defined \<tau> A"
    shows "all_defined \<tau> (OclIterate\<^isub>S\<^isub>e\<^isub>t S A F)"
 proof -
- have all_def_to_all_int : "\<And>\<tau>. all_defined \<tau> S \<Longrightarrow>
-                                all_int_set ((\<lambda>a \<tau>. a) ` \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>)"
-  apply(simp add: all_defined_def all_defined_set_def all_int_set_def is_int_def defined_def OclValid_def)
- by (metis (no_types) OclValid_def foundation18' true_def)
-
  have A_all_def' : "\<forall>\<tau>. all_int_set ((\<lambda>a (\<tau>:: '\<AA> st). a) ` \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>)"
   apply(rule allI, rule all_def_to_all_int, simp add: S_all_def)
  done
@@ -4570,7 +4530,7 @@ proof -
  show ?thesis
   apply(unfold OclIterate\<^isub>S\<^isub>e\<^isub>t_def)
   apply(simp add: S_all_def[simplified all_defined_def OclValid_def]
-                  S_all_def[simplified all_defined_def all_defined_set_def]
+                  S_all_def[simplified all_defined_def all_defined_set'_def]
                   A_all_def[simplified all_defined_def, THEN conjunct1, THEN foundation20, simplified OclValid_def]
                   )
   apply(subgoal_tac "\<forall>\<tau>'. all_defined \<tau>' (Finite_Set.fold F A ((\<lambda>a \<tau>. a) ` \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>))", metis (lifting, no_types) foundation16 all_defined_def)
@@ -4604,21 +4564,15 @@ lemma iterate_cp_all_gen :
      and S_lift : "all_defined \<tau>2 S \<Longrightarrow> \<exists>S'. (\<lambda>a \<tau>. a) ` \<lceil>\<lceil>Rep_Set_0 (S \<tau>2)\<rceil>\<rceil> = f000 ` S'"
    shows "OclIterate\<^isub>S\<^isub>e\<^isub>t S S F \<tau>1 = OclIterate\<^isub>S\<^isub>e\<^isub>t S S F \<tau>2"
 proof -
- interpret EQ_comp_fun_commute0_gen0 f000 all_def_set "\<lambda>x. F (f000 x)" by (rule F_commute)
-
- have all_def_to_all_int : "\<And>\<tau>. all_defined \<tau> S \<Longrightarrow>
-                                all_int_set ((\<lambda>a \<tau>. a) ` \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>)"
-  apply(simp add: all_defined_def all_defined_set_def all_int_set_def is_int_def defined_def OclValid_def)
- by (metis (no_types) OclValid_def foundation18' true_def)
-
  have A_all_def' : "\<forall>\<tau>. all_int_set ((\<lambda>a (\<tau>:: '\<AA> st). a) ` \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>)"
   apply(rule allI, rule all_def_to_all_int, simp add: A_all_def)
  done
 
+ interpret EQ_comp_fun_commute0_gen0 f000 all_def_set "\<lambda>x. F (f000 x)" by (rule F_commute)
  show ?thesis
   apply(unfold OclIterate\<^isub>S\<^isub>e\<^isub>t_def)
   apply(simp add: A_all_def[THEN spec, simplified all_defined_def OclValid_def]
-                  A_all_def[THEN spec, simplified all_defined_def all_defined_set_def]
+                  A_all_def[THEN spec, simplified all_defined_def all_defined_set'_def]
                   A_all_def[THEN spec, simplified all_defined_def, THEN conjunct1, THEN foundation20, simplified OclValid_def]
                   S_cp)
   apply(rule S_lift[OF A_all_def[THEN spec], THEN exE], simp)
@@ -4662,11 +4616,6 @@ lemma iterate_notempty_gen :
      and S_lift : "all_defined \<tau> S \<Longrightarrow> \<exists>S'. (\<lambda>a \<tau>. a) ` \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil> = f000 ` S'"
    shows "\<lceil>\<lceil>Rep_Set_0 (OclIterate\<^isub>S\<^isub>e\<^isub>t S S F \<tau>)\<rceil>\<rceil> \<noteq> {}"
 proof -
- have all_def_to_all_int : "\<And>\<tau>. all_defined \<tau> S \<Longrightarrow>
-                                all_int_set ((\<lambda>a \<tau>. a) ` \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>)"
-  apply(simp add: all_defined_def all_defined_set_def all_int_set_def is_int_def defined_def OclValid_def)
- by (metis (no_types) OclValid_def foundation18' true_def)
-
  have A_all_def' : "\<forall>\<tau>. all_int_set ((\<lambda>a (\<tau>:: '\<AA> st). a) ` \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>)"
   apply(rule allI, rule all_def_to_all_int, simp add: A_all_def)
  done
@@ -4675,7 +4624,7 @@ proof -
  show ?thesis
   apply(unfold OclIterate\<^isub>S\<^isub>e\<^isub>t_def)
   apply(simp add: A_all_def[THEN spec, simplified all_defined_def OclValid_def]
-                  A_all_def[THEN spec, simplified all_defined_def all_defined_set_def]
+                  A_all_def[THEN spec, simplified all_defined_def all_defined_set'_def]
                   A_all_def[THEN spec, simplified all_defined_def, THEN conjunct1, THEN foundation20, simplified OclValid_def]
                   )
   apply(insert S_notempty)
@@ -4835,13 +4784,11 @@ proof -
                                              (\<forall>s. (\<forall>\<tau>. all_defined \<tau> s) \<and> (\<forall>\<tau>. set \<subseteq> \<lceil>\<lceil>Rep_Set_0 (s \<tau>)\<rceil>\<rceil>) \<longrightarrow>
                                                   (Finite_Set.fold (\<lambda>j r2. (r2->including(j))) s ((\<lambda>a \<tau>. a) ` set)) = s)"
                               and F = "\<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>"])
-  apply(simp add: S_all_def[simplified all_defined_def all_defined_set_def])
+  apply(simp add: S_all_def[simplified all_defined_def all_defined_set'_def])
   apply(simp)
   defer
-  apply(insert S_all_def[simplified all_defined_def all_defined_set_def, where \<tau> = \<tau>])
-  apply(simp add: S_all_def[simplified all_defined_def all_defined_set_def] all_defined_set_def) apply(rule disjI2)+
-  apply(insert S_all_def[simplified all_defined_def all_defined_set_def, where \<tau> = \<tau>])
-  apply(metis (mono_tags) foundation18')
+  apply(insert S_all_def[simplified all_defined_def, THEN conjunct1, of \<tau>], frule Set_inv_lemma)
+  apply(simp add: foundation18 all_defined_set_def invalid_def S_all_def[simplified all_defined_def all_defined_set'_def])
   apply(metis S_all_def S_include)
   apply(simp)
 
@@ -4914,13 +4861,11 @@ proof -
                                              (\<forall>s. (\<forall>\<tau>. all_defined \<tau> s) \<and> (set \<subseteq> \<lceil>\<lceil>Rep_Set_0 (s \<tau>)\<rceil>\<rceil>) \<longrightarrow>
                                                   (Finite_Set.fold (\<lambda>j r2. (r2->including(j))) s ((\<lambda>a \<tau>. a) ` set)) \<tau> = s \<tau>)"
                               and F = "\<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>"])
-  apply(simp add: S_all_def[simplified all_defined_def all_defined_set_def])
+  apply(simp add: S_all_def[simplified all_defined_def all_defined_set'_def])
   apply(simp)
   defer
-  apply(insert S_all_def[simplified all_defined_def all_defined_set_def, where \<tau> = \<tau>])
-  apply(simp add: S_all_def[simplified all_defined_def all_defined_set_def] all_defined_set_def) apply(rule disjI2)+
-  apply(insert S_all_def[simplified all_defined_def all_defined_set_def, where \<tau> = \<tau>])
-  apply(metis (mono_tags) foundation18')
+  apply(insert S_all_def[simplified all_defined_def, THEN conjunct1, of \<tau>], frule Set_inv_lemma)
+  apply(simp add: foundation18 all_defined_set_def invalid_def S_all_def[simplified all_defined_def all_defined_set'_def])
   apply (metis assms order_refl)
   apply(simp)
 
@@ -4965,7 +4910,7 @@ lemma iterate_including_id :
    proof -
    fix \<tau>
    show "(\<delta> S) \<tau> = true \<tau> \<and> (\<upsilon> S) \<tau> = true \<tau> \<and> finite \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>"
-   apply(simp add: S_all_def[of \<tau>, simplified all_defined_def OclValid_def all_defined_set_def]
+   apply(simp add: S_all_def[of \<tau>, simplified all_defined_def OclValid_def all_defined_set'_def]
                    foundation20[simplified OclValid_def])
    done
   apply_end(subst i_including_id', simp_all add: S_all_def)
@@ -5095,17 +5040,12 @@ lemma iterate_including_id00 :
  apply(subgoal_tac "(\<delta> S) \<tau> = true \<tau> \<and> (\<upsilon> S) \<tau> = true \<tau> \<and> finite \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>", simp del: StrictRefEq_set_exec)
  prefer 2
   proof -
-   have all_def_to_all_int : "\<And>\<tau>. all_defined \<tau> S \<Longrightarrow>
-                                  all_int_set ((\<lambda>a \<tau>. a) ` \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>)"
-    apply(simp add: all_defined_def all_defined_set_def all_int_set_def is_int_def defined_def OclValid_def)
-   by (metis (no_types) OclValid_def foundation18' true_def)
-
    have S_all_int : "\<And>\<tau>. all_int_set ((\<lambda>a \<tau>. a) ` \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>)"
    by(rule all_def_to_all_int, simp add: assms)
 
    fix \<tau>
    show "(\<delta> S) \<tau> = true \<tau> \<and> (\<upsilon> S) \<tau> = true \<tau> \<and> finite \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>"
-     apply(simp add: S_all_def[of \<tau>, simplified all_defined_def OclValid_def all_defined_set_def]
+     apply(simp add: S_all_def[of \<tau>, simplified all_defined_def OclValid_def all_defined_set'_def]
                      foundation20[simplified OclValid_def])
   done
  fix \<tau> show "(\<delta> S) \<tau> = true \<tau> \<and> (\<upsilon> S) \<tau> = true \<tau> \<and> finite \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil> \<Longrightarrow> Finite_Set.fold (\<lambda>j r2. r2->including(j)) Set{} ((\<lambda>a \<tau>. a) ` \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>) \<tau> = S \<tau>"
@@ -5134,7 +5074,7 @@ proof -
                                                 all_int_set set' \<longrightarrow>
                                                 (\<forall>\<tau>'. all_defined \<tau>' (Finite_Set.fold (\<lambda>x acc. (acc->including(x))) A set'))"
                                and F = "\<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>", simplified Let_def, THEN mp])
-  apply(simp add: S_all_def[where \<tau> = \<tau>, simplified all_defined_def all_defined_set_def])
+  apply(simp add: S_all_def[where \<tau> = \<tau>, simplified all_defined_def all_defined_set'_def])
   apply(simp add: A_all_def)
   apply(rule impI, simp only: image_insert, rule iterate_subst_set_rec[simplified Let_def, THEN mp, THEN mp, THEN mp])
   apply(simp add: A_all_def)
@@ -5143,8 +5083,8 @@ proof -
   apply(simp)
   apply(drule invert_all_int_set, simp)
 
-  apply(simp add: all_int_set_def is_int_def, insert S_all_def[simplified all_defined_def all_defined_set_def], simp)
- by (metis (no_types) foundation18')
+  apply(rule all_def_to_all_int[OF S_all_def])
+ done
 qed
 
 subsubsection{* Preservation of comp_fun_commute (main) *}
@@ -5435,7 +5375,7 @@ proof -
  have all_defined1 : "\<And>r2 \<tau>. all_defined \<tau> r2 \<Longrightarrow> \<tau> \<Turnstile> \<delta> r2" by(simp add: all_defined_def)
 
  have S_finite : "\<And>\<tau>. finite \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>"
- by(simp add: S_all_def[simplified all_defined_def all_defined_set_def])
+ by(simp add: S_all_def[simplified all_defined_def all_defined_set'_def])
 
  have all_def_to_all_int_ : "\<And>set \<tau>. all_defined_set \<tau> set \<Longrightarrow> all_int_set ((\<lambda>a \<tau>. a) ` set)"
   apply(simp add: all_defined_set_def all_int_set_def is_int_def)
@@ -5542,7 +5482,7 @@ proof -
   apply(simp add: A_all_def)
   apply(simp)
 
-  apply(rule all_def_to_all_int_[where \<tau> = \<tau>]) apply(simp add: S_all_def[simplified all_defined_def])
+  apply(rule all_def_to_all_int, simp add: S_all_def)
   apply(simp add: cp_OclIncluding[of _ i])
 
   (* *)
@@ -5603,7 +5543,7 @@ proof -
 
  show "\<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil> \<noteq> {} \<Longrightarrow> ?thesis"
   apply(simp add: OclIterate\<^isub>S\<^isub>e\<^isub>t_def)
-  apply(simp add: S_all_def[simplified all_defined_def all_defined_set_def] all_defined1[OF S_all_def, simplified OclValid_def] all_defined1[OF A_all_def, THEN foundation20, simplified OclValid_def])
+  apply(simp add: S_all_def[simplified all_defined_def all_defined_set'_def] all_defined1[OF S_all_def, simplified OclValid_def] all_defined1[OF A_all_def, THEN foundation20, simplified OclValid_def])
   apply(drule i_out1)
   apply(simp add: cp_OclIncluding[of _ i])
  done
@@ -5650,7 +5590,7 @@ proof -
 
 
  have S_finite : "\<And>\<tau>. finite \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>"
- by(simp add: S_all_def[simplified all_defined_def all_defined_set_def])
+ by(simp add: S_all_def[simplified all_defined_def all_defined_set'_def])
 
  have all_def_to_all_int_ : "\<And>set \<tau>. all_defined_set \<tau> set \<Longrightarrow> all_int_set ((\<lambda>a \<tau>. a) ` set)"
   apply(simp add: all_defined_set_def all_int_set_def is_int_def)
@@ -5760,7 +5700,7 @@ proof -
   apply(simp add: A_all_def)
   apply(simp)
 
-  apply(rule all_def_to_all_int_[where \<tau> = \<tau>]) apply(simp add: S_all_def[simplified all_defined_def])
+  apply(rule all_def_to_all_int, simp add: S_all_def)
   apply(simp add: cp_OclIncluding[of _ i])
 
   (* *)
@@ -5861,7 +5801,7 @@ proof -
  show "\<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil> \<noteq> {} \<Longrightarrow> ?thesis"
   apply(simp only: init_out1, subst init_out2, simp)
   apply(simp add: OclIterate\<^isub>S\<^isub>e\<^isub>t_def)
-  apply(simp add: S_all_def[simplified all_defined_def all_defined_set_def] all_defined1[OF S_all_def, simplified OclValid_def] all_defined1[OF A_all_def, THEN foundation20, simplified OclValid_def])
+  apply(simp add: S_all_def[simplified all_defined_def all_defined_set'_def] all_defined1[OF S_all_def, simplified OclValid_def] all_defined1[OF A_all_def, THEN foundation20, simplified OclValid_def])
   apply(simp add: i_out1)
   apply(simp add: cp_OclIncluding[of _ i] cp_OclIncluding[of _ x0])
  done
@@ -5878,11 +5818,6 @@ lemma including_out0 :
  apply(rule ex1E[OF destruct_int[OF a_int]], rename_tac a', simp)
  apply(case_tac "\<forall>\<tau>. a' \<in> \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>")
 proof -
- have all_def_to_all_int : "\<And>\<tau>. all_defined \<tau> S \<Longrightarrow>
-                                all_int_set ((\<lambda>a \<tau>. a) ` \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>)"
-  apply(simp add: all_defined_def all_defined_set_def all_int_set_def is_int_def defined_def OclValid_def)
- by (metis (no_types) OclValid_def foundation18' true_def)
-
  have S_all_int : "\<And>\<tau>. all_int_set ((\<lambda>a \<tau>. a) ` \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>)"
  by(rule all_def_to_all_int, simp add: assms)
 
@@ -6008,12 +5943,12 @@ lemma GogollasChallenge_on_sets:
 proof -
  have all_defined_68 : "\<And>\<tau>. all_defined \<tau> Set{\<six>, \<eight>}"
    apply(rule cons_all_def)+
-   apply(simp add: all_defined_def all_defined_set_def mtSet_def Abs_Set_0_inverse mtSet_defined[simplified mtSet_def])
+   apply(simp add: all_defined_def all_defined_set'_def mtSet_def Abs_Set_0_inverse mtSet_defined[simplified mtSet_def])
    apply(simp)+
  done
  have all_defined_9 : "\<And>\<tau>. all_defined \<tau> Set{\<nine>}"
    apply(rule cons_all_def)+
-   apply(simp add: all_defined_def all_defined_set_def mtSet_def Abs_Set_0_inverse mtSet_defined[simplified mtSet_def])
+   apply(simp add: all_defined_def all_defined_set'_def mtSet_def Abs_Set_0_inverse mtSet_defined[simplified mtSet_def])
    apply(simp)+
  done
 
