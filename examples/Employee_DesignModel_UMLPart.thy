@@ -330,7 +330,22 @@ by(auto simp: \<sigma>\<^isub>1'_def)
 definition X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n :: Person
 where "X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n \<equiv> (\<lambda> _ .\<lfloor>\<lfloor>mk\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n oid\<^isub>1 \<lfloor>2\<rfloor> \<lfloor>oid\<^isub>2\<rfloor> \<rfloor>\<rfloor>)"
 
-lemma [code_unfold]: "(X).age@pre = (\<lambda> \<tau>. case X \<tau> of
+lemma [code_unfold] : "(((X).age@pre) (\<sigma>\<^isub>1,\<sigma>\<^isub>1')) = ((\<lambda> \<tau>. case X \<tau> of
+              \<bottom> \<Rightarrow> invalid \<tau>
+          | \<lfloor>  \<bottom> \<rfloor> \<Rightarrow> invalid \<tau>
+          | \<lfloor>\<lfloor> mk\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n oid _ _ \<rfloor>\<rfloor> \<Rightarrow> 
+                      if oid \<in> {oid\<^isub>1,oid\<^isub>2}
+                      then (case (heap (fst \<tau>)) oid of
+                                \<bottom> \<Rightarrow> invalid \<tau>
+                            | \<lfloor>in\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n (mk\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n oid \<bottom> boss) \<rfloor> \<Rightarrow> null \<tau>
+                            | \<lfloor>in\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n (mk\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n oid \<lfloor>i\<rfloor>boss) \<rfloor> \<Rightarrow> \<lfloor>\<lfloor> i \<rfloor>\<rfloor>
+                            | \<lfloor> _ \<rfloor>\<Rightarrow> invalid \<tau>)
+                      else invalid \<tau>) (\<sigma>\<^isub>1,\<sigma>\<^isub>1'))"
+ apply(simp add: atSelf_def)
+ apply(case_tac "X (\<sigma>\<^isub>1,\<sigma>\<^isub>1')", simp+)
+ apply(case_tac a, simp+)
+ apply(case_tac aa, simp)
+done lemma [code_unfold]: "(X).age@pre = (\<lambda> \<tau>. case X \<tau> of
               \<bottom> \<Rightarrow> invalid \<tau>
           | \<lfloor>  \<bottom> \<rfloor> \<Rightarrow> invalid \<tau>
           | \<lfloor>\<lfloor> mk\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n oid _ _ \<rfloor>\<rfloor> \<Rightarrow> 
