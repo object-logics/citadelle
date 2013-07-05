@@ -52,21 +52,25 @@ subsection{* The construction of the Void Type *}
 (* subsection{* Basic Constants *} *)
 type_synonym ('\<AA>)Void = "('\<AA>,unit option) val"
 (* For technical reasons, he does not contain to the null-class yet. *)
-text {* Note that this \emph{minimal} OCL type contains only two elements:
-undefined and null. Void could initially be defined as @{typ "unit option option"},
-however the cardinal of this type is more than two, so it would require to identify
- @{text "Some None"} and @{text "Some (Some ())"} everywhere.*}
+text {* This \emph{minimal} OCL type contains only two elements:
+@{term "undefined"} and @{term "null"}. 
+@{term "Void"} could initially be defined as @{typ "unit option option"},
+however the cardinal of this type is more than two, so it would have the cost to consider
+ @{text "Some None"} and @{text "Some (Some ())"} seemingly everywhere.*}
 
 subsection{* The construction of the Integer Type *}
-text{* Since Integer is again a basic type, we define its semantic domain
-as the valuations over @{typ "int option option"}*}
+text{* Since @{term "Integer"} is again a basic type, we define its semantic domain
+as the valuations over @{typ "int option option"}. *}
 type_synonym ('\<AA>)Integer = "('\<AA>,int option option) val"
+
+text{* Although the remaining part of this library reasons about 
+integers abstractly, we provide here some shortcuts to some usual integers. *}
 
 definition ocl_zero ::"('\<AA>)Integer" ("\<zero>")
 where      "\<zero> = (\<lambda> _ . \<lfloor>\<lfloor>0::int\<rfloor>\<rfloor>)"
 
-definition ocl_one ::"('\<AA>)Integer" ("\<one> ")
-where      "\<one>  = (\<lambda> _ . \<lfloor>\<lfloor>1::int\<rfloor>\<rfloor>)"
+definition ocl_one ::"('\<AA>)Integer" ("\<one>")
+where      "\<one> = (\<lambda> _ . \<lfloor>\<lfloor>1::int\<rfloor>\<rfloor>)"
 
 definition ocl_two ::"('\<AA>)Integer" ("\<two>")
 where      "\<two> = (\<lambda> _ . \<lfloor>\<lfloor>2::int\<rfloor>\<rfloor>)"
@@ -100,38 +104,23 @@ subsection{* Validity and Definedness Properties *}
 lemma  "\<delta>(null::('\<AA>)Integer) = false" by simp
 lemma  "\<upsilon>(null::('\<AA>)Integer) = true"  by simp
 
-lemma [simp,code_unfold]:"\<upsilon> \<zero> = true"
-by(simp add:ocl_zero_def valid_def true_def
+lemma [simp,code_unfold]: "\<delta> (\<lambda>_. \<lfloor>\<lfloor>n\<rfloor>\<rfloor>) = true"
+by(simp add:defined_def true_def
                bot_fun_def bot_option_def null_fun_def null_option_def)
 
-lemma [simp,code_unfold]:"\<delta> \<one> = true"
-by(simp add:ocl_one_def defined_def true_def
-               bot_fun_def bot_option_def null_fun_def null_option_def)
-
-lemma [simp,code_unfold]:"\<upsilon> \<one> = true"
-by(simp add:ocl_one_def valid_def true_def
-               bot_fun_def bot_option_def null_fun_def null_option_def)
-
-lemma [simp,code_unfold]:"\<delta> \<two> = true"
-by(simp add:ocl_two_def defined_def true_def
-               bot_fun_def bot_option_def null_fun_def null_option_def)
-
-lemma [simp,code_unfold]:"\<upsilon> \<two> = true"
-by(simp add:ocl_two_def valid_def true_def
-               bot_fun_def bot_option_def null_fun_def null_option_def)
+lemma [simp,code_unfold]: "\<upsilon> (\<lambda>_. \<lfloor>\<lfloor>n\<rfloor>\<rfloor>) = true"
+by(simp add:valid_def true_def
+               bot_fun_def bot_option_def)
 
 (* ecclectic proofs to make examples executable *)
-lemma [simp,code_unfold]: "\<upsilon> \<six> = true"
-by(simp add:ocl_six_def valid_def true_def
-               bot_fun_def bot_option_def null_fun_def null_option_def)
-
-lemma [simp,code_unfold]: "\<upsilon> \<eight> = true"
-by(simp add:ocl_eight_def valid_def true_def
-               bot_fun_def bot_option_def null_fun_def null_option_def)
-
-lemma [simp,code_unfold]: "\<upsilon> \<nine> = true"
-by(simp add:ocl_nine_def valid_def true_def
-               bot_fun_def bot_option_def null_fun_def null_option_def)
+lemma [simp,code_unfold]:"\<upsilon> \<zero> = true" by(simp add:ocl_zero_def)
+lemma [simp,code_unfold]:"\<delta> \<one> = true" by(simp add:ocl_one_def)
+lemma [simp,code_unfold]:"\<upsilon> \<one> = true" by(simp add:ocl_one_def)
+lemma [simp,code_unfold]:"\<delta> \<two> = true" by(simp add:ocl_two_def)
+lemma [simp,code_unfold]:"\<upsilon> \<two> = true" by(simp add:ocl_two_def)
+lemma [simp,code_unfold]: "\<upsilon> \<six> = true" by(simp add:ocl_six_def)
+lemma [simp,code_unfold]: "\<upsilon> \<eight> = true" by(simp add:ocl_eight_def)
+lemma [simp,code_unfold]: "\<upsilon> \<nine> = true" by(simp add:ocl_nine_def)
 
 subsection{* Arithmetical Operations on Integer *}
 
@@ -160,7 +149,7 @@ where "x \<preceq> y \<equiv> \<lambda> \<tau>. if (\<delta> x) \<tau> = true \<
 
 subsubsection{* Test Statements *}
 text{* Here follows a list of code-examples, that explain the meanings
-of the above definitions by compilation to code and execution to "True".*}
+of the above definitions by compilation to code and execution to @{term "True"}.*}
 
 value "\<tau>\<^isub>0 \<Turnstile> (\<nine> \<preceq> \<one>\<zero> )"
 value "\<tau>\<^isub>0 \<Turnstile> (( \<four> \<oplus> \<four> ) \<preceq> \<one>\<zero> )"
@@ -171,8 +160,8 @@ section{* Fundamental Predicates on Boolean and Integer: Strict Equality *}
 
 subsection{* Definition *}
 
-text{* Note that the strict equality on basic types (actually on all types)
-must be exceptionally defined on null --- otherwise the entire concept of
+text{* The strict equality on basic types (actually on all types)
+must be exceptionally defined on @{term "null"} --- otherwise the entire concept of
 null in the language does not make much sense. This is an important exception
 from the general rule that null arguments --- especially if passed as "self"-argument ---
 lead to invalid results. *}
@@ -280,47 +269,26 @@ by(rule ext, simp add: StrictRefEq_int true_def false_def)
 lemma StrictRefEq_int_strict2[simp] : "(invalid \<doteq> (x::('\<AA>)Integer)) = invalid"
 by(rule ext, simp add: StrictRefEq_int true_def false_def)
 
-lemma zero_non_null [simp]: "(\<zero> \<doteq> null) = false"
-by(rule ext,auto simp:ocl_zero_def  null_def StrictRefEq_int valid_def invalid_def
-                         bot_fun_def bot_option_def null_fun_def null_option_def StrongEq_def)
-lemma null_non_zero [simp]: "(null \<doteq> \<zero>) = false"
-by(rule ext,auto simp:ocl_zero_def  null_def StrictRefEq_int valid_def invalid_def
+lemma integer_non_null [simp]: "((\<lambda>_. \<lfloor>\<lfloor>n\<rfloor>\<rfloor>) \<doteq> (null::('\<AA>)Integer)) = false"
+by(rule ext,auto simp: StrictRefEq_int valid_def 
                          bot_fun_def bot_option_def null_fun_def null_option_def StrongEq_def)
 
-lemma one_non_null [simp]: "(\<one> \<doteq> null) = false"
-by(rule ext,auto simp:ocl_one_def  null_def StrictRefEq_int valid_def invalid_def
-                         bot_fun_def bot_option_def null_fun_def null_option_def StrongEq_def)
-lemma null_non_one [simp]: "(null \<doteq> \<one>) = false"
-by(rule ext,auto simp:ocl_one_def  null_def StrictRefEq_int valid_def invalid_def
+lemma null_non_integer [simp]: "((null::('\<AA>)Integer) \<doteq> (\<lambda>_. \<lfloor>\<lfloor>n\<rfloor>\<rfloor>)) = false"
+by(rule ext,auto simp: StrictRefEq_int valid_def 
                          bot_fun_def bot_option_def null_fun_def null_option_def StrongEq_def)
 
-lemma two_non_null [simp]: "(\<two> \<doteq> null) = false"
-by(rule ext,auto simp:ocl_two_def  null_def StrictRefEq_int valid_def invalid_def
-                         bot_fun_def bot_option_def null_fun_def null_option_def StrongEq_def)
-lemma null_non_two [simp]: "(null \<doteq> \<two>) = false"
-by(rule ext,auto simp:ocl_two_def  null_def StrictRefEq_int valid_def invalid_def
-                         bot_fun_def bot_option_def null_fun_def null_option_def StrongEq_def)
-
-lemma six_non_null [simp]: "(\<six> \<doteq> null) = false"
-by(rule ext,auto simp:ocl_six_def  null_def StrictRefEq_int valid_def invalid_def
-                         bot_fun_def bot_option_def null_fun_def null_option_def StrongEq_def)
-lemma null_non_six [simp]: "(null \<doteq> \<six>) = false"
-by(rule ext,auto simp:ocl_six_def  null_def StrictRefEq_int valid_def invalid_def
-                         bot_fun_def bot_option_def null_fun_def null_option_def StrongEq_def)
-
-lemma eight_non_null [simp]: "(\<eight> \<doteq> null) = false"
-by(rule ext,auto simp:ocl_eight_def  null_def StrictRefEq_int valid_def invalid_def
-                         bot_fun_def bot_option_def null_fun_def null_option_def StrongEq_def)
-lemma null_non_eight [simp]: "(null \<doteq> \<eight>) = false"
-by(rule ext,auto simp:ocl_eight_def  null_def StrictRefEq_int valid_def invalid_def
-                         bot_fun_def bot_option_def null_fun_def null_option_def StrongEq_def)
-
-lemma nine_non_null [simp]: "(\<nine> \<doteq> null) = false"
-by(rule ext,auto simp:ocl_nine_def  null_def StrictRefEq_int valid_def invalid_def
-                         bot_fun_def bot_option_def null_fun_def null_option_def StrongEq_def)
-lemma null_non_nine [simp]: "(null \<doteq> \<nine>) = false"
-by(rule ext,auto simp:ocl_nine_def  null_def StrictRefEq_int valid_def invalid_def
-                         bot_fun_def bot_option_def null_fun_def null_option_def StrongEq_def)
+lemma zero_non_null [simp]: "(\<zero> \<doteq> null) = false" by(simp add: ocl_zero_def)
+lemma null_non_zero [simp]: "(null \<doteq> \<zero>) = false" by(simp add: ocl_zero_def)
+lemma one_non_null [simp]: "(\<one> \<doteq> null) = false" by(simp add: ocl_one_def)
+lemma null_non_one [simp]: "(null \<doteq> \<one>) = false" by(simp add: ocl_one_def)
+lemma two_non_null [simp]: "(\<two> \<doteq> null) = false" by(simp add: ocl_two_def)
+lemma null_non_two [simp]: "(null \<doteq> \<two>) = false" by(simp add: ocl_two_def)
+lemma six_non_null [simp]: "(\<six> \<doteq> null) = false" by(simp add: ocl_six_def)
+lemma null_non_six [simp]: "(null \<doteq> \<six>) = false" by(simp add: ocl_six_def)
+lemma eight_non_null [simp]: "(\<eight> \<doteq> null) = false" by(simp add: ocl_eight_def)
+lemma null_non_eight [simp]: "(null \<doteq> \<eight>) = false" by(simp add: ocl_eight_def)
+lemma nine_non_null [simp]: "(\<nine> \<doteq> null) = false" by(simp add: ocl_nine_def)
+lemma null_non_nine [simp]: "(null \<doteq> \<nine>) = false" by(simp add: ocl_nine_def)
 
 (* plus all the others ...*)
 
@@ -362,7 +330,7 @@ lemmas cp_intro'[simp,intro!] =
 subsection{* Test Statements on Basic Types. *}
 
 text{* Here follows a list of code-examples, that explain the meanings
-of the above definitions by compilation to code and execution to "True".*}
+of the above definitions by compilation to code and execution to @{term "True"}.*}
 
 text{* Elementary computations on Booleans *}
 value "\<tau>\<^isub>0 \<Turnstile> \<upsilon>(true)"
@@ -466,6 +434,8 @@ type_synonym    ('\<AA>,'\<alpha>) Set  = "('\<AA>, '\<alpha> Set_0) val"
 
 subsection{* Validity and Definedness Properties *}
 
+text{* Every element in a defined set is valid. *}
+
 lemma Set_inv_lemma: "\<tau> \<Turnstile> (\<delta> X) \<Longrightarrow> \<forall>x\<in>\<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil>. x \<noteq> bot"
 apply(insert OCL_lib.Set_0.Rep_Set_0 [of "X \<tau>"], simp)
 apply(auto simp: OclValid_def defined_def false_def true_def cp_def
@@ -568,16 +538,11 @@ text{* Note that the collection types in OCL allow for null to be included;
 
 section{* Complex Types: The Set-Collection Type (II) *}
 
+text{* This part provides a collection of operators for the Set type. *}
+
 subsection{* Computational Operations on Set *}
 
 subsubsection{* Definition *}
-
-text{* The key for an operational definition if OclForall given below. *}
-
-text{* The case of the size definition is somewhat special, we admit
-explicitly in Essential OCL the possibility of infinite sets. For
-the size definition, this requires an extra condition that assures
-that the cardinality of the set is actually a defined integer. *}
 
 definition OclIncluding   :: "[('\<AA>,'\<alpha>::null) Set,('\<AA>,'\<alpha>) val] \<Rightarrow> ('\<AA>,'\<alpha>) Set"
 where     "OclIncluding x y = (\<lambda> \<tau>. if (\<delta> x) \<tau> = true \<tau> \<and> (\<upsilon> y) \<tau> = true \<tau>
@@ -607,6 +572,11 @@ definition OclExcludes   :: "[('\<AA>,'\<alpha>::null) Set,('\<AA>,'\<alpha>) va
 where     "OclExcludes x y = (not(OclIncludes x y))"
 notation   OclExcludes    ("_->excludes'(_')" [66,65]65)
 
+text{* The case of the size definition is somewhat special, we admit
+explicitly in Featherweight OCL the possibility of infinite sets. For
+the size definition, this requires an extra condition that assures
+that the cardinality of the set is actually a defined integer. *}
+
 definition OclSize     :: "('\<AA>,'\<alpha>::null)Set \<Rightarrow> '\<AA> Integer"
 where     "OclSize x = (\<lambda> \<tau>. if (\<delta> x) \<tau> = true \<tau> \<and> finite(\<lceil>\<lceil>Rep_Set_0 (x \<tau>)\<rceil>\<rceil>)
                              then \<lfloor>\<lfloor> int(card \<lceil>\<lceil>Rep_Set_0 (x \<tau>)\<rceil>\<rceil>) \<rfloor>\<rfloor>
@@ -627,6 +597,8 @@ definition OclNotEmpty   :: "('\<AA>,'\<alpha>::null) Set \<Rightarrow> '\<AA> B
 where     "OclNotEmpty x =  not(OclIsEmpty x)"
 notation   OclNotEmpty    ("_->notEmpty'(')" [66])
 
+text{* The definition of OclForall mimics the one of @{term "ocl_and"}: 
+OclForall is not a strict operation. *}
 definition OclForall     :: "[('\<AA>,'\<alpha>::null)Set,('\<AA>,'\<alpha>)val\<Rightarrow>('\<AA>)Boolean] \<Rightarrow> '\<AA> Boolean"
 where     "OclForall S P = (\<lambda> \<tau>. if (\<delta> S) \<tau> = true \<tau>
                                  then if (\<exists>x\<in>\<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>. P(\<lambda> _. x) \<tau> = false \<tau>)
@@ -642,7 +614,7 @@ syntax
 translations
   "X->forall(x | P)" == "CONST OclForall X (%x. P)"
 
-
+text{* Like OclForall, OclExists is also not strict. *}
 definition OclExists     :: "[('\<AA>,'\<alpha>::null) Set,('\<AA>,'\<alpha>)val\<Rightarrow>('\<AA>)Boolean] \<Rightarrow> '\<AA> Boolean"
 where     "OclExists S P = not(OclForall S (\<lambda> X. not (P X)))"
 
@@ -888,8 +860,8 @@ by(simp add: bot_fun_def invalid_def OclIterate\<^isub>S\<^isub>e\<^isub>t_def d
 text{* An open question is this ... *}
 lemma (*OclIterate\<^isub>S\<^isub>e\<^isub>t_null2[simp]:*) "S->iterate(a; x = null | P a x) = invalid"
 oops
-text{* In the definition above, this does not hold in general.
-       And I believe, this is how it should be ... *}
+(* In the definition above, this does not hold in general.
+       And I believe, this is how it should be ... *)
 
 
 
@@ -940,8 +912,8 @@ section{* Fundamental Predicates on Set: Strict Equality *}
 
 subsection{* Definition *}
 
-text{* This section of foundational operations on sets is closed with a paragraph
-on equality. Strong Equality is inherited from the OCL core, but we have to consider
+text{* After the part of foundational operations on sets, we detail here equality on sets.
+Strong Equality is inherited from the OCL core, but we have to consider
 the case of the strict equality. We decide to overload strict equality in the
 same way we do for other value's in OCL:*}
 
@@ -950,14 +922,14 @@ defs   StrictRefEq_set :
                                          then (x \<triangleq> y)\<tau>
                                          else invalid \<tau>"
 
-subsection{* Logic and Algebraic Layer on Set *}
-
 text{* One might object here that for the case of objects, this is an empty definition.
 The answer is no, we will restrain later on states and objects such that any object
 has its id stored inside the object (so the ref, under which an object can be referenced
 in the store will represented in the object itself). For such well-formed stores that satisfy
 this invariant (the WFF - invariant), the referential equality and the strong equality ---
 and therefore the strict equality on sets in the sense above) coincides.*}
+
+subsection{* Logic and Algebraic Layer on Set *}
 
 subsubsection{* Reflexivity *}
 
@@ -1550,7 +1522,6 @@ proof -
   apply(erule conjE)
   apply(case_tac "(\<upsilon> x) \<tau> = true \<tau>", simp add: cp_ocl_and[of "\<delta> X" "\<upsilon> x"])
   apply(drule valid_inject_true[of "x"], simp add: cp_ocl_and[of _ "\<upsilon> x"])
-  apply(simp add: cp_ocl_and[THEN sym])
  done
 qed
 
@@ -1617,7 +1588,6 @@ proof -
   apply(erule conjE)
   apply(case_tac "(\<upsilon> x) \<tau> = true \<tau>", simp add: cp_ocl_and[of "\<delta> X" "\<upsilon> x"])
   apply(drule valid_inject_true[of "x"], simp add: cp_ocl_and[of _ "\<upsilon> x"])
-  apply(simp add: cp_ocl_and[THEN sym])
  done
 qed
 
@@ -6392,8 +6362,6 @@ lemma short_cut'[simp]: "(\<eight> \<doteq> \<six>) = false"
  apply(rule ext)
  apply(simp add: StrictRefEq_int StrongEq_def ocl_eight_def ocl_six_def
                  true_def false_def invalid_def bot_option_def)
- apply(simp only: ocl_eight_def[THEN sym] ocl_six_def[THEN sym])
- apply(simp add: true_def)
 done
 
 text{* Elementary computations on Sets.*}
