@@ -1908,7 +1908,7 @@ lemma exists_set_including_exec[simp,code_unfold] :
   apply(simp only: cp[symmetric] cp_not[symmetric])
 done
 
-subsection{* OclIterate\<^isub>S\<^isub>e\<^isub>t *}
+subsection{* OclIterate *}
 
 lemma OclIterate\<^isub>S\<^isub>e\<^isub>t_infinite:
 assumes non_finite: "\<tau> \<Turnstile> not(\<delta>(S->size()))"
@@ -2525,7 +2525,7 @@ lemma including_subst_set'' : "\<tau> \<Turnstile> \<delta> s \<Longrightarrow> 
 by (metis cp_OclIncluding)
 
 
-subsubsection{* all_defined (construction) *}
+subsubsection{* all defined (construction) *}
 
 lemma cons_all_def :
   assumes S_all_def : "\<And>\<tau>. all_defined \<tau> S"
@@ -2640,7 +2640,7 @@ proof -
  done
 qed
 
-subsubsection{* all_defined (inversion) *}
+subsubsection{* all defined (inversion) *}
 
 lemma invert_all_defined : "all_defined \<tau> (S->including(x)) \<Longrightarrow> \<tau> \<Turnstile> \<upsilon> x \<and> all_defined \<tau> S"
  proof -
@@ -2871,7 +2871,7 @@ proof -
  qed
 qed
 
-subsubsection{* all_defined (construction) *}
+subsubsection{* all defined (construction) *}
 
 lemma cons_all_def_e :
   assumes S_all_def : "\<And>\<tau>. all_defined \<tau> S"
@@ -2996,7 +2996,7 @@ qed
 
 subsection{* OclIterate *}
 
-subsubsection{* all_defined (inversion) *}
+subsubsection{* all defined (inversion) *}
 
 lemma i_invert_all_defined_not :
  assumes A_all_def : "\<exists>\<tau>. \<not> all_defined \<tau> S"
@@ -3029,7 +3029,7 @@ lemma i_invert_all_defined' :
    shows "\<forall>\<tau>. all_defined \<tau> S"
 by (metis A_all_def i_invert_all_defined)
 
-subsection{* comp_fun_commute *}
+subsection{* comp fun commute *}
 subsubsection{* Main *}
 
 text{* TODO add some comment on comparison with inductively constructed OCL term *}
@@ -3882,8 +3882,8 @@ context EQ_comp_fun_commute0_gen0 begin lemma downgrade' : "EQ_comp_fun_commute0
 context EQ_comp_fun_commute0 begin lemmas downgrade' = downgrade' end
 context EQ_comp_fun_commute0' begin lemmas downgrade' = downgrade' end
 
-subsection{* comp_fun_commute OclIncluding *}
-subsubsection{* Preservation of comp_fun_commute (main) *}
+subsection{* comp fun commute OclIncluding *}
+subsubsection{* Preservation of comp fun commute (main) *}
 
 lemma including_commute_gen_var :
   assumes f_comm : "EQ_comp_fun_commute F"
@@ -3962,7 +3962,7 @@ proof -
  qed
 qed
 
-subsubsection{* Preservation of comp_fun_commute (instance) *}
+subsubsection{* Preservation of comp fun commute (instance) *}
 
 lemma including_commute : "EQ_comp_fun_commute (\<lambda>j (r2 :: ('\<AA>, int option option) Set). (r2->including(j)))"
 proof -
@@ -4150,7 +4150,7 @@ proof -
  done
 qed
 
-subsection{* comp_fun_commute OclIterate *}
+subsection{* comp fun commute OclIterate *}
 subsubsection{* Congruence *}
 
 lemma iterate_subst_set_rec :
@@ -4493,7 +4493,7 @@ proof -
  done
 qed
 
-subsubsection{* all_defined (construction) *}
+subsubsection{* all defined (construction) *}
 
 lemma i_cons_all_def :
  assumes F_commute : "EQ_comp_fun_commute0 (\<lambda>x. (F :: ('\<AA>, _) val
@@ -4662,7 +4662,7 @@ lemma iterate_notempty' :
  apply(rule S_lift, simp)
 done
 
-subsubsection{* Preservation of comp_fun_commute (main) *}
+subsubsection{* Preservation of comp fun commute (main) *}
 
 lemma iterate_commute' :
  assumes f_comm : "\<And>a. EQ_comp_fun_commute0' (\<lambda>x. F a (\<lambda>_. \<lfloor>x\<rfloor>))"
@@ -4741,7 +4741,7 @@ lemma iterate_commute' :
  done
 qed
 
-subsection{* comp_fun_commute OclIterate and OclIncluding *}
+subsection{* comp fun commute OclIterate and OclIncluding *}
 subsubsection{* Identity *}
 
 lemma i_including_id :
@@ -5056,7 +5056,7 @@ lemma iterate_including_id00 :
  by (metis S_incl)
 qed
 
-subsubsection{* all_defined (construction) *}
+subsubsection{* all defined (construction) *}
 
 lemma preserved_defined :
  assumes S_all_def : "\<And>\<tau>. all_defined \<tau> (S :: ('\<AA>, int option option) Set)"
@@ -5087,7 +5087,7 @@ proof -
  done
 qed
 
-subsubsection{* Preservation of comp_fun_commute (main) *}
+subsubsection{* Preservation of comp fun commute (main) *}
 
 lemma iterate_including_commute :
  assumes f_comm : "EQ_comp_fun_commute0 (\<lambda>x. F (\<lambda>_. x))"
