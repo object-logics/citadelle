@@ -64,7 +64,7 @@ fundamental properties of these operations in this concrete data model. *}
 text{* Such generic function or "compiler" can be implemented in Isabelle on the ML level. 
 This has been done, for a semantics following the open-world assumption, for UML 2.0 
 in~\cite{brucker.ea:extensible:2008-b}. In this paper, we follow another approach for UML 2.4: we define the concepts
-of the compilation informally, an present a concrete example which is verified in Isabelle/HOL. *}
+of the compilation informally, and present a concrete example which is verified in Isabelle/HOL. *}
 
 subsection{* Outlining the Example *}
 
@@ -206,12 +206,12 @@ lemma "(OclAny .oclAllInstances@pre()) =
 by(rule ext, simp add:allinstancesATpre_def OclAny_def)
 
 
-text{* For each Class \emph{C}, we will have an casting operation \verb+.oclAsType(+\emph{C}\verb+)+,
+text{* For each Class \emph{C}, we will have a casting operation \verb+.oclAsType(+\emph{C}\verb+)+,
    a test on the actual type \verb+.oclIsTypeOf(+\emph{C}\verb+)+ as well as its relaxed form
    \verb+.oclIsKindOf(+\emph{C}\verb+)+ (corresponding exactly to Java's \verb+instanceof+-operator. 
 *}
 text{* Thus, since we have two class-types in our concrete class hierarchy, we have
-two operations to declare and and to provide two overloading definitions for the two static types.
+two operations to declare and to provide two overloading definitions for the two static types.
 *}
 
 
@@ -327,8 +327,11 @@ lemma [code_unfold]: "dom (heap \<sigma>\<^isub>1') = {oid\<^isub>1,oid\<^isub>2
 by(auto simp: \<sigma>\<^isub>1'_def)
 
 
-definition X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n :: Person
-where "X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n \<equiv> (\<lambda> _ .\<lfloor>\<lfloor>mk\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n oid\<^isub>1 \<lfloor>2\<rfloor> \<lfloor>oid\<^isub>2\<rfloor> \<rfloor>\<rfloor>)"
+definition X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n1 :: Person
+where "X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n1 \<equiv> (\<lambda> _ .\<lfloor>\<lfloor>mk\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n oid\<^isub>1 \<lfloor>2\<rfloor> \<lfloor>oid\<^isub>2\<rfloor> \<rfloor>\<rfloor>)"
+
+definition X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n2 :: Person
+where "X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n2 \<equiv> (\<lambda> _ .\<lfloor>\<lfloor>mk\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n oid\<^isub>2 \<lfloor>5\<rfloor> \<lfloor>oid\<^isub>2\<rfloor> \<rfloor>\<rfloor>)"
 
 lemma [code_unfold] : "(((X).age@pre) (\<sigma>\<^isub>1,\<sigma>\<^isub>1')) = ((\<lambda> \<tau>. case X \<tau> of
               \<bottom> \<Rightarrow> invalid \<tau>
@@ -359,30 +362,34 @@ done lemma [code_unfold]: "(X).age@pre = (\<lambda> \<tau>. case X \<tau> of
 sorry (* incorrect in general, but works for the given special case 
 where $\tau$ is $(\sigma_1,\sigma_1')$ ... *)
 
-lemma " ((\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile> ((X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n .boss@pre .boss@pre)   \<triangleq>  null ))"
-by(simp add: X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n_def foundation22  \<sigma>\<^isub>1_def)
+lemma " ((\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile> ((X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n1 .boss@pre .boss@pre)   \<triangleq>  null ))"
+by(simp add: X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n1_def foundation22  \<sigma>\<^isub>1_def)
 
-lemma " ((\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile> ((X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n .boss .boss)   \<triangleq>  X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n ))"
-apply(simp add: X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n_def foundation22  \<sigma>\<^isub>1_def \<sigma>\<^isub>1'_def)
+lemma " ((\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile> ((X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n1 .boss .boss)   \<triangleq>  X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n1 ))"
+apply(simp add: X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n1_def foundation22  \<sigma>\<^isub>1_def \<sigma>\<^isub>1'_def)
 oops
 
 lemma [code_unfold]: "((x::Person) \<doteq> y) = gen_ref_eq x y" by(simp only: StrictRefEq\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n)
 
-value "  (\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile> ((X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n .age)    \<doteq> \<one> )"
-value "\<not>((\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile> ((X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n .age)   \<doteq> \<two> ))"
-value " ((\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile> ((X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n .boss .age)  \<doteq> \<five> ))"
-value "\<not>((\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile> ((X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n .boss@pre .age)  \<doteq> \<five> ))"
-value "  (\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile> ((X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n .boss@pre .age@pre)  \<doteq> \<three> )"
-value " ((\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile> ((X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n .boss@pre .boss@pre)  \<doteq> null ))"
-value " ((\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile> ((X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n .boss .boss)  \<doteq> X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n ))"
-value "\<not>((\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile> ((X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n .boss@pre .age@pre)  \<doteq> \<five> ))"
-value " ((\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile> ((X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n .boss .age)   \<doteq> \<five> ))"
-value " ((\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile> ((X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n .boss@pre .boss@pre)  \<doteq> null ))"
-value "\<not>((\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile> ((X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n .age)         \<doteq> \<two> ))"
-value "\<not>((\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile> ((X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n .age)         \<doteq> \<two> ))"
-value "  (\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile> ((X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n .age@pre)     \<doteq> \<one>)" 
-value "\<not>((\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile> ((X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n .age@pre)     \<doteq> \<two> ))"
+value "  (\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile> ((X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n1 .age)    \<doteq> \<one> )" (*f*)
+value "\<not>((\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile> ((X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n1 .age)    \<doteq> \<two> ))" (*f*)
+value "  (\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile> ((X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n1 .age@pre)     \<doteq> \<one>)" 
+value "\<not>((\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile> ((X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n1 .age@pre)     \<doteq> \<two> ))"
+value "\<not>((\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile> ((X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n1 .age)    \<doteq> \<one> ))"
+value " ((\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile> ((X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n1 .age)    \<doteq> \<two> ))"
 
+value " ((\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile> ((X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n1 .boss .age)   \<doteq> \<five> ))"
+value " ((\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile> ((X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n1 .boss .boss)  \<doteq> X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n1 ))" (*f*)
+value "\<not>((\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile> ((X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n1 .boss@pre .age)  \<doteq> \<five> ))"
+value "  (\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile> ((X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n1 .boss@pre .age@pre)  \<doteq> \<three> )"
+value "\<not>((\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile> ((X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n1 .boss@pre .age@pre)  \<doteq> \<five> ))"
+value " ((\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile> ((X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n1 .boss@pre .boss)  \<doteq> null ))" (*f*)
+value " ((\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile> ((X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n1 .boss@pre .boss@pre)  \<doteq> null ))" (*f*)
+value " ((\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile> ((X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n1 .boss@pre .boss@pre .boss@pre) \<doteq> null ))" (*f*)
+
+value "  (\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile> ((X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n2 .boss@pre)  \<doteq> null )" (*f*)
+value "  (\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile> ((X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n2 .boss@pre)  \<doteq> X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n2)"
+value "  (\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile> ((X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n2 .boss)      \<doteq> X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n2)"
 
 subsection{* Casts *}
 
