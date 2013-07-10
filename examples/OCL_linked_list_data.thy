@@ -286,19 +286,11 @@ by(rule ext, simp add: null_fun_def null_option_def bot_option_def null_def inva
 lemma dot_boss_at_pre_nullstrict [simp] : "(null).boss@pre = invalid"
 by(rule ext, simp add: null_fun_def null_option_def bot_option_def null_def invalid_def)
 
-lemma dot_boss_strict[simp] : "(invalid).boss = invalid" 
+lemma dot_boss_strict [simp] : "(invalid).boss = invalid" 
 by(rule ext, simp add: null_fun_def null_option_def bot_option_def null_def invalid_def)
 
-lemma dot_boss_strict'[simp] : "(null).boss = invalid"
+lemma dot_boss_at_pre_strict [simp] : "(invalid).boss@pre = invalid"
 by(rule ext, simp add: null_fun_def null_option_def bot_option_def null_def invalid_def)
-
-
-lemma dot_bossATpre_strict[simp] : "(invalid).boss@pre = invalid"
-by(rule ext, simp add: null_fun_def null_option_def bot_option_def null_def invalid_def)
-
-lemma dot_bossATpre_strict'[simp] : "(null).boss@pre = invalid"
-by(rule ext, simp add: null_fun_def null_option_def bot_option_def null_def invalid_def)
-
 
 subsection{* A little infra-structure on example states.*}
 

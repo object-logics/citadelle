@@ -272,19 +272,11 @@ by(rule ext, simp add: null_fun_def null_option_def bot_option_def null_def inva
 lemma dot_next_at_pre_nullstrict [simp] : "(null).next@pre = invalid"
 by(rule ext, simp add: null_fun_def null_option_def bot_option_def null_def invalid_def)
 
-lemma dot_next_strict[simp] : "(invalid).next = invalid" 
+lemma dot_next_strict [simp] : "(invalid).next = invalid" 
 by(rule ext, simp add: null_fun_def null_option_def bot_option_def null_def invalid_def)
 
-lemma dot_next_strict'[simp] : "(null).next = invalid"
+lemma dot_next_at_pre_strict [simp] : "(invalid).next@pre = invalid"
 by(rule ext, simp add: null_fun_def null_option_def bot_option_def null_def invalid_def)
-
-
-lemma dot_nextATpre_strict[simp] : "(invalid).next@pre = invalid"
-by(rule ext, simp add: null_fun_def null_option_def bot_option_def null_def invalid_def)
-
-lemma dot_nextATpre_strict'[simp] : "(null).next@pre = invalid"
-by(rule ext, simp add: null_fun_def null_option_def bot_option_def null_def invalid_def)
-
 
 subsection{* Casts *}
 
