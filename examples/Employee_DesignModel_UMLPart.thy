@@ -248,13 +248,11 @@ where "(X).age@pre = (\<lambda> \<tau>. case X \<tau> of
               \<bottom> \<Rightarrow> invalid \<tau>
           | \<lfloor>  \<bottom> \<rfloor> \<Rightarrow> invalid \<tau>
           | \<lfloor>\<lfloor> mk\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n oid _ _ \<rfloor>\<rfloor> \<Rightarrow> 
-                      if oid \<in> dom (heap(fst \<tau>))
-                      then (case (heap (fst \<tau>)) oid of
+                      case (heap (fst \<tau>)) oid of
                                 \<bottom> \<Rightarrow> invalid \<tau>
                             | \<lfloor>in\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n (mk\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n oid \<bottom> boss) \<rfloor> \<Rightarrow> null \<tau>
                             | \<lfloor>in\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n (mk\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n oid \<lfloor>i\<rfloor>boss) \<rfloor> \<Rightarrow> \<lfloor>\<lfloor> i \<rfloor>\<rfloor>
-                            | \<lfloor> _ \<rfloor>\<Rightarrow> invalid \<tau>)
-                      else invalid \<tau>)"
+                            | \<lfloor> _ \<rfloor>\<Rightarrow> invalid \<tau>)"
 
 lemma cp_dot_boss: "((X).boss) \<tau> = ((\<lambda>_. X \<tau>).boss) \<tau>" by(simp)
 
@@ -320,28 +318,21 @@ lemma [code_unfold] : "(((X).age@pre) (\<sigma>\<^isub>1,\<sigma>\<^isub>1')) = 
               \<bottom> \<Rightarrow> invalid \<tau>
           | \<lfloor>  \<bottom> \<rfloor> \<Rightarrow> invalid \<tau>
           | \<lfloor>\<lfloor> mk\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n oid _ _ \<rfloor>\<rfloor> \<Rightarrow> 
-                      if oid \<in> {oid\<^isub>1,oid\<^isub>2}
-                      then (case (heap (fst \<tau>)) oid of
+                      case (heap (fst \<tau>)) oid of
                                 \<bottom> \<Rightarrow> invalid \<tau>
                             | \<lfloor>in\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n (mk\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n oid \<bottom> boss) \<rfloor> \<Rightarrow> null \<tau>
                             | \<lfloor>in\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n (mk\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n oid \<lfloor>i\<rfloor>boss) \<rfloor> \<Rightarrow> \<lfloor>\<lfloor> i \<rfloor>\<rfloor>
-                            | \<lfloor> _ \<rfloor>\<Rightarrow> invalid \<tau>)
-                      else invalid \<tau>) (\<sigma>\<^isub>1,\<sigma>\<^isub>1'))"
+                            | \<lfloor> _ \<rfloor>\<Rightarrow> invalid \<tau>) (\<sigma>\<^isub>1,\<sigma>\<^isub>1'))"
  apply(simp add: atSelf_def)
- apply(case_tac "X (\<sigma>\<^isub>1,\<sigma>\<^isub>1')", simp+)
- apply(case_tac a, simp+)
- apply(case_tac aa, simp)
 done lemma [code_unfold]: "(X).age@pre = (\<lambda> \<tau>. case X \<tau> of
               \<bottom> \<Rightarrow> invalid \<tau>
           | \<lfloor>  \<bottom> \<rfloor> \<Rightarrow> invalid \<tau>
           | \<lfloor>\<lfloor> mk\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n oid _ _ \<rfloor>\<rfloor> \<Rightarrow> 
-                      if oid \<in> {oid\<^isub>1,oid\<^isub>2}
-                      then (case (heap (fst \<tau>)) oid of
+                      case (heap (fst \<tau>)) oid of
                                 \<bottom> \<Rightarrow> invalid \<tau>
                             | \<lfloor>in\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n (mk\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n oid \<bottom> boss) \<rfloor> \<Rightarrow> null \<tau>
                             | \<lfloor>in\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n (mk\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n oid \<lfloor>i\<rfloor>boss) \<rfloor> \<Rightarrow> \<lfloor>\<lfloor> i \<rfloor>\<rfloor>
-                            | \<lfloor> _ \<rfloor>\<Rightarrow> invalid \<tau>)
-                      else invalid \<tau>)"
+                            | \<lfloor> _ \<rfloor>\<Rightarrow> invalid \<tau>)"
 sorry (* incorrect in general, but works for the given special case 
 where $\tau$ is $(\sigma_1,\sigma_1')$ ... *)
 
