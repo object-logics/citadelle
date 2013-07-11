@@ -63,7 +63,7 @@ axiomatization inv_Person :: "Person \<Rightarrow> Boolean"
 where A : "(\<tau> \<Turnstile> (\<delta> self)) \<longrightarrow> 
                (\<tau> \<Turnstile> inv_Person(self)) =
                    ((\<tau> \<Turnstile> (self .boss \<doteq> null)) \<or> 
-                    ( \<tau> \<Turnstile> (self .boss <> null) \<and> (\<tau> \<Turnstile> (self .boss .age \<prec> self .age))  \<and> 
+                    ( \<tau> \<Turnstile> (self .boss <> null) \<and> (\<tau> \<Turnstile> ((self .age)  \<prec>  (self .boss .age)))  \<and> 
                      (\<tau> \<Turnstile> (inv_Person(self .boss))))) "
 
 

@@ -392,14 +392,14 @@ defs (overloaded) oclastype\<^isub>o\<^isub>c\<^isub>l\<^isub>a\<^isub>n\<^isub>
         "(X::OclAny) .oclAsType(OclAny) \<equiv> 
                    (\<lambda>\<tau>. case X \<tau> of 
                               \<bottom>   \<Rightarrow> invalid \<tau>
-                            | \<lfloor>\<bottom>\<rfloor> \<Rightarrow> invalid \<tau>   (* to avoid: null .oclAsType(OclAny) = null ? *)
+                            | \<lfloor>\<bottom>\<rfloor> \<Rightarrow> null \<tau>   (* to avoid: null .oclAsType(OclAny) = null ? *)
                             | \<lfloor>\<lfloor>mk\<^isub>o\<^isub>c\<^isub>l\<^isub>a\<^isub>n\<^isub>y oid a \<rfloor>\<rfloor> \<Rightarrow>  \<lfloor>\<lfloor>mk\<^isub>o\<^isub>c\<^isub>l\<^isub>a\<^isub>n\<^isub>y oid a \<rfloor>\<rfloor>)"  (* identity *)
 
 defs (overloaded) oclastype\<^isub>o\<^isub>c\<^isub>l\<^isub>a\<^isub>n\<^isub>y_Person:  
         "(X::Person) .oclAsType(OclAny) \<equiv> 
                    (\<lambda>\<tau>. case X \<tau> of 
                               \<bottom>   \<Rightarrow> invalid \<tau>
-                            | \<lfloor>\<bottom>\<rfloor> \<Rightarrow> invalid \<tau>    (* OTHER POSSIBILITY : null ??? Really excluded 
+                            | \<lfloor>\<bottom>\<rfloor> \<Rightarrow> null \<tau>    (* OTHER POSSIBILITY : null ??? Really excluded 
                                                      by standard *)
                             | \<lfloor>\<lfloor>mk\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n oid a b \<rfloor>\<rfloor> \<Rightarrow>  \<lfloor>\<lfloor>  (mk\<^isub>o\<^isub>c\<^isub>l\<^isub>a\<^isub>n\<^isub>y oid \<lfloor>(a,b)\<rfloor>) \<rfloor>\<rfloor>)"
 
@@ -407,7 +407,7 @@ defs (overloaded) oclastype\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>
         "(X::OclAny) .oclAsType(Person) \<equiv> 
                    (\<lambda>\<tau>. case X \<tau> of 
                               \<bottom>   \<Rightarrow> invalid \<tau>
-                            | \<lfloor>\<bottom>\<rfloor> \<Rightarrow> invalid \<tau>   
+                            | \<lfloor>\<bottom>\<rfloor> \<Rightarrow> null \<tau>   
                             | \<lfloor>\<lfloor>mk\<^isub>o\<^isub>c\<^isub>l\<^isub>a\<^isub>n\<^isub>y oid \<bottom> \<rfloor>\<rfloor> \<Rightarrow>  invalid \<tau>   (* down-cast exception *)
                             | \<lfloor>\<lfloor>mk\<^isub>o\<^isub>c\<^isub>l\<^isub>a\<^isub>n\<^isub>y oid \<lfloor>(a,b)\<rfloor> \<rfloor>\<rfloor> \<Rightarrow>  \<lfloor>\<lfloor>mk\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n oid a b \<rfloor>\<rfloor>)" 
 
@@ -415,14 +415,14 @@ defs (overloaded) oclastype\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>
         "(X::Person) .oclAsType(Person) \<equiv> 
                    (\<lambda>\<tau>. case X \<tau> of 
                               \<bottom>   \<Rightarrow> invalid \<tau>
-                            | \<lfloor>\<bottom>\<rfloor> \<Rightarrow> invalid \<tau>   (* to avoid: null .oclAsType(OclAny) = null ? *)
+                            | \<lfloor>\<bottom>\<rfloor> \<Rightarrow> null \<tau>   (* to avoid: null .oclAsType(OclAny) = null ? *)
                             | \<lfloor>\<lfloor>mk\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n oid a b \<rfloor>\<rfloor> \<Rightarrow>  \<lfloor>\<lfloor>mk\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n oid a b\<rfloor>\<rfloor>)"  (* identity *)
 
 lemma oclastype\<^isub>o\<^isub>c\<^isub>l\<^isub>a\<^isub>n\<^isub>y_OclAny_strict[simp] : "(invalid::OclAny) .oclAsType(OclAny) = invalid" 
 by(rule ext, simp add: null_fun_def null_option_def bot_option_def null_def invalid_def
                        oclastype\<^isub>o\<^isub>c\<^isub>l\<^isub>a\<^isub>n\<^isub>y_OclAny)
 
-lemma oclastype\<^isub>o\<^isub>c\<^isub>l\<^isub>a\<^isub>n\<^isub>y_OclAny_nullstrict[simp] : "(null::OclAny) .oclAsType(OclAny) = invalid" 
+lemma oclastype\<^isub>o\<^isub>c\<^isub>l\<^isub>a\<^isub>n\<^isub>y_OclAny_nullstrict[simp] : "(null::OclAny) .oclAsType(OclAny) = null" 
 by(rule ext, simp add: null_fun_def null_option_def bot_option_def null_def invalid_def
                        oclastype\<^isub>o\<^isub>c\<^isub>l\<^isub>a\<^isub>n\<^isub>y_OclAny)
 
@@ -430,7 +430,7 @@ lemma oclastype\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n_OclAny_str
 by(rule ext, simp add: null_fun_def null_option_def bot_option_def null_def invalid_def
                        oclastype\<^isub>o\<^isub>c\<^isub>l\<^isub>a\<^isub>n\<^isub>y_Person bot_Boolean_def)
 
-lemma oclastype\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n_OclAny_nullstrict[simp] : "(null::Person) .oclAsType(OclAny) = invalid" 
+lemma oclastype\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n_OclAny_nullstrict[simp] : "(null::Person) .oclAsType(OclAny) = null" 
 by(rule ext, simp add: null_fun_def null_option_def bot_option_def null_def invalid_def
                        oclastype\<^isub>o\<^isub>c\<^isub>l\<^isub>a\<^isub>n\<^isub>y_Person)
 
@@ -444,7 +444,7 @@ defs (overloaded) oclistypeof\<^isub>o\<^isub>c\<^isub>l\<^isub>a\<^isub>n\<^isu
         "(X::OclAny) .oclIsTypeOf(OclAny) \<equiv> 
                    (\<lambda>\<tau>. case X \<tau> of 
                               \<bottom>   \<Rightarrow> invalid \<tau>
-                            | \<lfloor>\<bottom>\<rfloor> \<Rightarrow> invalid \<tau>  
+                            | \<lfloor>\<bottom>\<rfloor> \<Rightarrow> true \<tau>  (* invalid ?? *)
                             | \<lfloor>\<lfloor>mk\<^isub>o\<^isub>c\<^isub>l\<^isub>a\<^isub>n\<^isub>y oid \<bottom> \<rfloor>\<rfloor> \<Rightarrow> true \<tau>
                             | \<lfloor>\<lfloor>mk\<^isub>o\<^isub>c\<^isub>l\<^isub>a\<^isub>n\<^isub>y oid \<lfloor>_\<rfloor> \<rfloor>\<rfloor> \<Rightarrow> false \<tau>)" 
 
@@ -452,7 +452,7 @@ defs (overloaded) oclistypeof\<^isub>o\<^isub>c\<^isub>l\<^isub>a\<^isub>n\<^isu
         "(X::Person) .oclIsTypeOf(OclAny) \<equiv> 
                    (\<lambda>\<tau>. case X \<tau> of 
                               \<bottom>   \<Rightarrow> invalid \<tau>
-                            | \<lfloor>\<bottom>\<rfloor> \<Rightarrow> invalid \<tau>  
+                            | \<lfloor>\<bottom>\<rfloor> \<Rightarrow> true \<tau>    (* invalid ?? *)
                             | \<lfloor>\<lfloor> _ \<rfloor>\<rfloor> \<Rightarrow> false \<tau>)"  (* must have actual type Person otherwise  *)
 
 defs (overloaded) oclistypeof\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n_OclAny: 
@@ -478,7 +478,7 @@ lemma oclistypeof\<^isub>o\<^isub>c\<^isub>l\<^isub>a\<^isub>n\<^isub>y_OclAny_s
 by(rule ext, simp add: null_fun_def null_option_def bot_option_def null_def invalid_def
                        oclistypeof\<^isub>o\<^isub>c\<^isub>l\<^isub>a\<^isub>n\<^isub>y_OclAny)
 lemma oclistypeof\<^isub>o\<^isub>c\<^isub>l\<^isub>a\<^isub>n\<^isub>y_OclAny_strict2[simp]: 
-     "(null::OclAny) .oclIsTypeOf(OclAny) = invalid"
+     "(null::OclAny) .oclIsTypeOf(OclAny) = true"
 by(rule ext, simp add: null_fun_def null_option_def bot_option_def null_def invalid_def
                        oclistypeof\<^isub>o\<^isub>c\<^isub>l\<^isub>a\<^isub>n\<^isub>y_OclAny)
 lemma oclistypeof\<^isub>o\<^isub>c\<^isub>l\<^isub>a\<^isub>n\<^isub>y_Person_strict1[simp]: 
@@ -486,7 +486,7 @@ lemma oclistypeof\<^isub>o\<^isub>c\<^isub>l\<^isub>a\<^isub>n\<^isub>y_Person_s
 by(rule ext, simp add: null_fun_def null_option_def bot_option_def null_def invalid_def
                        oclistypeof\<^isub>o\<^isub>c\<^isub>l\<^isub>a\<^isub>n\<^isub>y_Person)
 lemma oclistypeof\<^isub>o\<^isub>c\<^isub>l\<^isub>a\<^isub>n\<^isub>y_Person_strict2[simp]: 
-     "(null::Person) .oclIsTypeOf(OclAny) = invalid"
+     "(null::Person) .oclIsTypeOf(OclAny) = true"
 by(rule ext, simp add: null_fun_def null_option_def bot_option_def null_def invalid_def
                        oclistypeof\<^isub>o\<^isub>c\<^isub>l\<^isub>a\<^isub>n\<^isub>y_Person)
 lemma oclistypeof\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n_OclAny_strict1[simp]: 
@@ -518,10 +518,11 @@ by(auto simp : bot_fun_def null_fun_def null_option_def bot_option_def null_def 
 
 lemma down_cast: 
 assumes isOclAny: "\<tau> \<Turnstile> (X::OclAny) .oclIsTypeOf(OclAny)"
+and     non_null: "\<tau> \<Turnstile> (\<delta> X)"
 shows             "\<tau> \<Turnstile> (X .oclAsType(Person)) \<triangleq> invalid" 
-using isOclAny
+using isOclAny non_null
 apply(auto simp : bot_fun_def null_fun_def null_option_def bot_option_def null_def invalid_def
-                  oclastype\<^isub>o\<^isub>c\<^isub>l\<^isub>a\<^isub>n\<^isub>y_Person oclastype\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n_OclAny foundation22 foundation16
+                  oclastype\<^isub>o\<^isub>c\<^isub>l\<^isub>a\<^isub>n\<^isub>y_Person oclastype\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n_OclAny foundation22 foundation16 
            split: option.split oclany.split person.split)
 by(simp add: oclistypeof\<^isub>o\<^isub>c\<^isub>l\<^isub>a\<^isub>n\<^isub>y_OclAny  OclValid_def false_def true_def)
 
