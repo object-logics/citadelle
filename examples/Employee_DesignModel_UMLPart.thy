@@ -210,49 +210,48 @@ section{* Selector Definition *}
 text{* Should be generated entirely from a class-diagram. *}
 
 typ "Person \<Rightarrow> Person"
-fun dot_boss:: "Person \<Rightarrow> Person"  ("(1(_).boss)" 50)
-  where "(X).boss = (\<lambda> \<tau>. case X \<tau> of
-               \<bottom> \<Rightarrow> invalid \<tau>             (* undefined pointer *)
-          | \<lfloor>  \<bottom> \<rfloor> \<Rightarrow> invalid \<tau>           (* dereferencing null pointer *)
-          | \<lfloor>\<lfloor> mk\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n oid i \<bottom> \<rfloor>\<rfloor> \<Rightarrow> null \<tau> (* object contains null pointer *)
-          | \<lfloor>\<lfloor> mk\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n oid i \<lfloor>boss\<rfloor> \<rfloor>\<rfloor> \<Rightarrow>    (* We assume here that oid is indeed 'the' oid of the 
+
+definition "access fst_snd X f = (\<lambda> \<tau>. case X \<tau> of
+               \<bottom> \<Rightarrow> invalid \<tau> (* undefined pointer *)
+          | \<lfloor>  \<bottom> \<rfloor> \<Rightarrow> invalid \<tau> (* dereferencing null pointer *)
+          | \<lfloor>\<lfloor> mk\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n oid _ _ \<rfloor>\<rfloor> \<Rightarrow> 
+                    case (heap (fst_snd \<tau>)) oid of (* We assume here that oid is indeed 'the' oid of the 
                                                Person, ie. we assume that  \<tau> is well-formed. *)
-                    case (heap (snd \<tau>)) boss of
-                       \<bottom> \<Rightarrow> invalid \<tau> 
-                    | \<lfloor>in\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n (mk\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n a b c)\<rfloor> \<Rightarrow> \<lfloor>\<lfloor>mk\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n a b c \<rfloor>\<rfloor>
-                    | \<lfloor> _ \<rfloor>\<Rightarrow> invalid \<tau>)" (* illtyped state, not occuring in 
+                       \<lfloor>in\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n p\<rfloor> \<Rightarrow> f p \<tau>
+                     | _ \<Rightarrow> invalid \<tau>)"
+
+definition "access_to_boss fst_snd = (\<lambda> X \<tau>. case X of 
+                     mk\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n _ _ \<bottom> \<Rightarrow> null \<tau> (* object contains null pointer *)
+                   | mk\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n _ _ \<lfloor>boss\<rfloor> \<Rightarrow> case (heap (fst_snd \<tau>)) boss of
+                       \<lfloor>in\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n (mk\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n a b c) \<rfloor> \<Rightarrow> \<lfloor>\<lfloor> mk\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n a b c \<rfloor>\<rfloor>
+                     | _ \<Rightarrow> invalid \<tau>)" (* illtyped state, not occuring in 
                                              well-formed, typed states *)
 
+definition "access_to_age = (\<lambda> X _. case X of mk\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n _ i _ \<Rightarrow> \<lfloor>i\<rfloor>)"
+
+definition "at_pre = fst"
+definition "at_post = snd"
+
+lemmas [simp] =
+ at_pre_def at_post_def 
+ access_def
+ access_def[of at_pre] access_def[of at_post]
+ access_to_boss_def
+ access_to_age_def
+
+fun dot_boss:: "Person \<Rightarrow> Person"  ("(1(_).boss)" 50)
+  where "(X).boss = access at_post X (access_to_boss at_post)"
+
 fun dot_age:: "Person \<Rightarrow> Integer"  ("(1(_).age)" 50)
-  where "(X).age = (\<lambda> \<tau>. case X \<tau> of
-               \<bottom> \<Rightarrow> invalid \<tau> 
-          | \<lfloor>  \<bottom> \<rfloor> \<Rightarrow> invalid \<tau> 
-          | \<lfloor>\<lfloor> mk\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n oid \<bottom> _ \<rfloor>\<rfloor> \<Rightarrow>  null \<tau>
-          | \<lfloor>\<lfloor> mk\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n oid \<lfloor>i\<rfloor> _ \<rfloor>\<rfloor> \<Rightarrow>  \<lfloor>\<lfloor> i \<rfloor>\<rfloor>)"
+  where "(X).age = access at_post X access_to_age"
 
 fun dot_boss_at_pre:: "Person \<Rightarrow> Person"  ("(1(_).boss@pre)" 50)
-  where "(X).boss@pre = (\<lambda> \<tau>. case X \<tau> of
-               \<bottom> \<Rightarrow> invalid \<tau>  
-          | \<lfloor>  \<bottom> \<rfloor> \<Rightarrow> invalid \<tau> 
-          | \<lfloor>\<lfloor> mk\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n oid i \<bottom> \<rfloor>\<rfloor> \<Rightarrow> null \<tau>(* object contains null pointer. REALLY ? 
-                                          And if this pointer was defined in the pre-state ?*)
-          | \<lfloor>\<lfloor> mk\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n oid i \<lfloor>boss\<rfloor> \<rfloor>\<rfloor> \<Rightarrow> (* We assume here that oid is indeed 'the' oid of the Person,
-                                        ie. we assume that  \<tau> is well-formed. *)
-                 (case (heap (fst \<tau>)) boss of
-                        \<bottom> \<Rightarrow> invalid \<tau> 
-                     | \<lfloor>in\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n (mk\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n a b c)\<rfloor> \<Rightarrow> \<lfloor>\<lfloor>mk\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n a b c \<rfloor>\<rfloor>
-                     | \<lfloor> _ \<rfloor>\<Rightarrow> invalid \<tau>))"
+  where "(X).boss@pre = access at_pre X (access_to_boss at_pre)"
+  (* | \<lfloor>\<lfloor> mk\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n oid i \<bottom> \<rfloor>\<rfloor> \<Rightarrow> null \<tau>(* object contains null pointer. REALLY ? 
+                                          And if this pointer was defined in the pre-state ?*) *)
 
 fun dot_age_at_pre:: "Person \<Rightarrow> Integer"  ("(1(_).age@pre)" 50)
-where "(X).age@pre = (\<lambda> \<tau>. case X \<tau> of
-              \<bottom> \<Rightarrow> invalid \<tau>
-          | \<lfloor>  \<bottom> \<rfloor> \<Rightarrow> invalid \<tau>
-          | \<lfloor>\<lfloor> mk\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n oid _ _ \<rfloor>\<rfloor> \<Rightarrow> 
-                      case (heap (fst \<tau>)) oid of
-                                \<bottom> \<Rightarrow> invalid \<tau>
-                            | \<lfloor>in\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n (mk\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n oid \<bottom> boss) \<rfloor> \<Rightarrow> null \<tau>
-                            | \<lfloor>in\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n (mk\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n oid \<lfloor>i\<rfloor>boss) \<rfloor> \<Rightarrow> \<lfloor>\<lfloor> i \<rfloor>\<rfloor>
-                            | \<lfloor> _ \<rfloor>\<Rightarrow> invalid \<tau>)"
+  where "(X).age@pre = access at_pre X access_to_age"
 
 lemma cp_dot_boss: "((X).boss) \<tau> = ((\<lambda>_. X \<tau>).boss) \<tau>" by(simp)
 
@@ -287,19 +286,23 @@ definition oid\<^isub>1::oid where "oid\<^isub>1 \<equiv> (0::nat)"
 definition oid\<^isub>2::oid where "oid\<^isub>2 \<equiv> (1::nat)"
 definition oid\<^isub>3::oid where "oid\<^isub>3 \<equiv> (2::nat)"
 
+definition "person1 \<equiv> mk\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n oid\<^isub>1 \<lfloor>2\<rfloor> \<lfloor>oid\<^isub>2\<rfloor>"
+definition "person2 \<equiv> mk\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n oid\<^isub>2 \<lfloor>5\<rfloor> \<lfloor>oid\<^isub>2\<rfloor>"
+
 definition \<sigma>\<^isub>1 :: "\<AA> state"
 where "\<sigma>\<^isub>1  \<equiv> \<lparr> heap = empty(oid\<^isub>1 \<mapsto> (in\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n(mk\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n oid\<^isub>1 \<lfloor>1\<rfloor> \<lfloor>oid\<^isub>2\<rfloor>)))
                            (oid\<^isub>2 \<mapsto> (in\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n(mk\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n oid\<^isub>2 \<lfloor>3\<rfloor>  None))),
                assocs = empty\<rparr>"
 
 definition \<sigma>\<^isub>1' :: "\<AA> state"
-where "\<sigma>\<^isub>1' \<equiv> \<lparr> heap = empty(oid\<^isub>1 \<mapsto> (in\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n(mk\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n oid\<^isub>1 \<lfloor>2\<rfloor> \<lfloor>oid\<^isub>2\<rfloor>)))
-                           (oid\<^isub>2 \<mapsto> (in\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n(mk\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n oid\<^isub>2 \<lfloor>5\<rfloor> \<lfloor>oid\<^isub>2\<rfloor>)))
+where "\<sigma>\<^isub>1' \<equiv> \<lparr> heap = empty(oid\<^isub>1 \<mapsto> (in\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n person1))
+                           (oid\<^isub>2 \<mapsto> (in\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n person2))
                            (oid\<^isub>3 \<mapsto> (in\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n(mk\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n oid\<^isub>3 None None))),
                assocs = empty\<rparr>"
  
 lemma basic_\<tau>_wff: "WFF(\<sigma>\<^isub>1,\<sigma>\<^isub>1')"
-by(auto simp: WFF_def \<sigma>\<^isub>1_def \<sigma>\<^isub>1'_def oid\<^isub>1_def oid\<^isub>2_def oid\<^isub>3_def oid_of_\<AA>_def oid_of_person_def)
+by(auto simp: WFF_def \<sigma>\<^isub>1_def \<sigma>\<^isub>1'_def oid\<^isub>1_def oid\<^isub>2_def oid\<^isub>3_def oid_of_\<AA>_def oid_of_person_def
+              person1_def person2_def)
 
 lemma [simp,code_unfold]: "dom (heap \<sigma>\<^isub>1) = {oid\<^isub>1,oid\<^isub>2}"
 by(auto simp: \<sigma>\<^isub>1_def)
@@ -307,41 +310,26 @@ by(auto simp: \<sigma>\<^isub>1_def)
 lemma [code_unfold]: "dom (heap \<sigma>\<^isub>1') = {oid\<^isub>1,oid\<^isub>2,oid\<^isub>3}"
 by(auto simp: \<sigma>\<^isub>1'_def)
 
-
-definition X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n1 :: Person
-where "X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n1 \<equiv> (\<lambda> _ .\<lfloor>\<lfloor>mk\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n oid\<^isub>1 \<lfloor>2\<rfloor> \<lfloor>oid\<^isub>2\<rfloor> \<rfloor>\<rfloor>)"
-
-definition X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n2 :: Person
-where "X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n2 \<equiv> (\<lambda> _ .\<lfloor>\<lfloor>mk\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n oid\<^isub>2 \<lfloor>5\<rfloor> \<lfloor>oid\<^isub>2\<rfloor> \<rfloor>\<rfloor>)"
+definition "X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n1 \<equiv> \<lambda> _ .\<lfloor>\<lfloor> person1 \<rfloor>\<rfloor>"
+definition "X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n2 \<equiv> \<lambda> _ .\<lfloor>\<lfloor> person2 \<rfloor>\<rfloor>"
 
 lemma [code_unfold] : "(((X).age@pre) (\<sigma>\<^isub>1,\<sigma>\<^isub>1')) = ((\<lambda> \<tau>. case X \<tau> of
               \<bottom> \<Rightarrow> invalid \<tau>
           | \<lfloor>  \<bottom> \<rfloor> \<Rightarrow> invalid \<tau>
           | \<lfloor>\<lfloor> mk\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n oid _ _ \<rfloor>\<rfloor> \<Rightarrow> 
                       case (heap (fst \<tau>)) oid of
-                                \<bottom> \<Rightarrow> invalid \<tau>
-                            | \<lfloor>in\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n (mk\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n oid \<bottom> boss) \<rfloor> \<Rightarrow> null \<tau>
-                            | \<lfloor>in\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n (mk\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n oid \<lfloor>i\<rfloor>boss) \<rfloor> \<Rightarrow> \<lfloor>\<lfloor> i \<rfloor>\<rfloor>
-                            | \<lfloor> _ \<rfloor>\<Rightarrow> invalid \<tau>) (\<sigma>\<^isub>1,\<sigma>\<^isub>1'))"
+                              \<lfloor>in\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n (mk\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n oid i boss) \<rfloor> \<Rightarrow> \<lfloor>i\<rfloor>
+                            |  _ \<Rightarrow> invalid \<tau>) (\<sigma>\<^isub>1,\<sigma>\<^isub>1'))"
  apply(simp add: atSelf_def)
 done lemma [code_unfold]: "(X).age@pre = (\<lambda> \<tau>. case X \<tau> of
               \<bottom> \<Rightarrow> invalid \<tau>
           | \<lfloor>  \<bottom> \<rfloor> \<Rightarrow> invalid \<tau>
           | \<lfloor>\<lfloor> mk\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n oid _ _ \<rfloor>\<rfloor> \<Rightarrow> 
                       case (heap (fst \<tau>)) oid of
-                                \<bottom> \<Rightarrow> invalid \<tau>
-                            | \<lfloor>in\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n (mk\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n oid \<bottom> boss) \<rfloor> \<Rightarrow> null \<tau>
-                            | \<lfloor>in\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n (mk\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n oid \<lfloor>i\<rfloor>boss) \<rfloor> \<Rightarrow> \<lfloor>\<lfloor> i \<rfloor>\<rfloor>
-                            | \<lfloor> _ \<rfloor>\<Rightarrow> invalid \<tau>)"
+                              \<lfloor>in\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n (mk\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n oid i boss) \<rfloor> \<Rightarrow> \<lfloor>i\<rfloor>
+                            | _ \<Rightarrow> invalid \<tau>)"
 sorry (* incorrect in general, but works for the given special case 
 where $\tau$ is $(\sigma_1,\sigma_1')$ ... *)
-
-lemma " ((\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile> ((X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n1 .boss@pre .boss@pre)   \<triangleq>  null ))"
-by(simp add: X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n1_def foundation22  \<sigma>\<^isub>1_def)
-
-lemma " ((\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile> ((X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n1 .boss .boss)   \<triangleq>  X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n1 ))"
-apply(simp add: X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n1_def foundation22  \<sigma>\<^isub>1_def \<sigma>\<^isub>1'_def)
-oops
 
 lemma [code_unfold]: "((x::Person) \<doteq> y) = gen_ref_eq x y" by(simp only: StrictRefEq\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n)
 
@@ -354,15 +342,16 @@ value " ((\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile> ((X\<^isub>P\<^isub
 
 value " ((\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile> ((X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n1 .boss .age)   \<doteq> \<five> ))"
 value " ((\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile> ((X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n1 .boss .boss)  \<doteq> X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n1 ))" (*f*)
-value "\<not>((\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile> ((X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n1 .boss@pre .age)  \<doteq> \<five> ))"
+value "\<not>((\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile> ((X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n1 .boss@pre .age)  \<doteq> \<five> ))" (*f*)
 value "  (\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile> ((X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n1 .boss@pre .age@pre)  \<doteq> \<three> )"
 value "\<not>((\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile> ((X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n1 .boss@pre .age@pre)  \<doteq> \<five> ))"
-value " ((\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile> ((X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n1 .boss@pre .boss)  \<doteq> null ))"
+value " ((\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile> ((X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n1 .boss@pre .boss)  \<doteq> X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n2 ))"
 value " ((\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile> ((X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n1 .boss@pre .boss@pre)  \<doteq> null ))"
-value " ((\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile> ((X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n1 .boss@pre .boss@pre .boss@pre) \<doteq> null ))" (*f*)
+value "              (X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n1 .boss@pre .boss@pre .boss    ) (\<sigma>\<^isub>1,\<sigma>\<^isub>1')"
+value "              (X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n1 .boss@pre .boss@pre .boss@pre) (\<sigma>\<^isub>1,\<sigma>\<^isub>1')"
 
-value "  (\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile> ((X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n2 .boss@pre)  \<doteq> null )" (*f*)
-value "  (\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile> ((X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n2 .boss@pre)  \<doteq> X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n2)"
+value "  (\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile> ((X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n2 .boss@pre)  \<doteq> null )"
+value "  (\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile> ((X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n2 .boss@pre)  \<doteq> X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n2)" (*f*)
 value "  (\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile> ((X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n2 .boss)      \<doteq> X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n2)"
 
 subsection{* Casts *}
