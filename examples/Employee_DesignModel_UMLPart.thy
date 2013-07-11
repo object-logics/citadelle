@@ -179,15 +179,6 @@ lemmas strict_eq_person =
     gen_ref_eq_object_strict2 
                         [of "x::Person",
                          simplified StrictRefEq\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n[symmetric]]
-    gen_ref_eq_object_strict3 
-                        [of "x::Person",
-                         simplified StrictRefEq\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n[symmetric]]
-    gen_ref_eq_object_strict3 
-                        [of "x::Person",
-                         simplified StrictRefEq\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n[symmetric]]
-    gen_ref_eq_object_strict4 
-                        [of "x::Person",
-                         simplified StrictRefEq\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n[symmetric]]
 
 thm strict_eq_person
 (* TODO: Analogue for object. *)
@@ -375,8 +366,8 @@ value " ((\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile> ((X\<^isub>P\<^isub
 value "\<not>((\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile> ((X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n1 .boss@pre .age)  \<doteq> \<five> ))"
 value "  (\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile> ((X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n1 .boss@pre .age@pre)  \<doteq> \<three> )"
 value "\<not>((\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile> ((X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n1 .boss@pre .age@pre)  \<doteq> \<five> ))"
-value " ((\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile> ((X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n1 .boss@pre .boss)  \<doteq> null ))" (*f*)
-value " ((\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile> ((X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n1 .boss@pre .boss@pre)  \<doteq> null ))" (*f*)
+value " ((\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile> ((X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n1 .boss@pre .boss)  \<doteq> null ))"
+value " ((\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile> ((X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n1 .boss@pre .boss@pre)  \<doteq> null ))"
 value " ((\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile> ((X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n1 .boss@pre .boss@pre .boss@pre) \<doteq> null ))" (*f*)
 
 value "  (\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile> ((X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n2 .boss@pre)  \<doteq> null )" (*f*)

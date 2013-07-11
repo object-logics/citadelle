@@ -88,7 +88,7 @@ text{* Generic referential equality - to be used for instantiations
  with concrete object types ... *}
 definition  gen_ref_eq :: "('\<AA>,'a::{object,null})val \<Rightarrow> ('\<AA>,'a)val \<Rightarrow> ('\<AA>)Boolean" 
 where      "gen_ref_eq x y
-            \<equiv> \<lambda> \<tau>. if (\<delta> x) \<tau> = true \<tau> \<and> (\<delta> y) \<tau> = true \<tau>
+            \<equiv> \<lambda> \<tau>. if (\<upsilon> x) \<tau> = true \<tau> \<and> (\<upsilon> y) \<tau> = true \<tau>
                     then if x \<tau> = null \<or> y \<tau> = null
                          then \<lfloor>\<lfloor>x \<tau> = null \<and> y \<tau> = null\<rfloor>\<rfloor>
                          else \<lfloor>\<lfloor>(oid_of (x \<tau>)) = (oid_of (y \<tau>)) \<rfloor>\<rfloor>
@@ -103,17 +103,9 @@ lemma gen_ref_eq_object_strict2[simp] :
 "(gen_ref_eq invalid x) = invalid"
 by(rule ext, simp add: gen_ref_eq_def true_def false_def)
 
-lemma gen_ref_eq_object_strict3[simp] : 
-"(gen_ref_eq x null) = invalid"
-by(rule ext, simp add: gen_ref_eq_def true_def false_def)
-
-lemma gen_ref_eq_object_strict4[simp] : 
-"(gen_ref_eq null x) = invalid"
-by(rule ext, simp add: gen_ref_eq_def true_def false_def)
-
 lemma cp_gen_ref_eq_object: 
 "(gen_ref_eq x y \<tau>) = (gen_ref_eq (\<lambda>_. x \<tau>) (\<lambda>_. y \<tau>)) \<tau>"
-by(auto simp: gen_ref_eq_def StrongEq_def invalid_def  cp_defined[symmetric])
+by(auto simp: gen_ref_eq_def cp_valid[symmetric])
 
 lemmas cp_intro''[simp,intro!] = 
        cp_intro''
@@ -122,9 +114,8 @@ lemmas cp_intro''[simp,intro!] =
 
 text{* Finally, we derive the usual laws on definedness for (generic) object equality:*}
 lemma gen_ref_eq_defargs: 
-"\<tau> \<Turnstile> (gen_ref_eq x (y::('\<AA>,'a::{null,object})val))\<Longrightarrow> (\<tau> \<Turnstile>(\<delta> x)) \<and> (\<tau> \<Turnstile>(\<delta> y))"
-by(simp add: gen_ref_eq_def OclValid_def true_def invalid_def
-             defined_def invalid_def bot_fun_def bot_option_def
+"\<tau> \<Turnstile> (gen_ref_eq x (y::('\<AA>,'a::{null,object})val))\<Longrightarrow> (\<tau> \<Turnstile>(\<upsilon> x)) \<and> (\<tau> \<Turnstile>(\<upsilon> y))"
+by(simp add: gen_ref_eq_def OclValid_def true_def invalid_def bot_option_def
         split: bool.split_asm HOL.split_if_asm)
 
 
@@ -154,7 +145,7 @@ object type, the equality @{text "\<doteq>"} is defined by generic referential
 equality. *}
 
 theorem strictEqGen_vs_strongEq: 
-"WFF \<tau> \<Longrightarrow> \<tau> \<Turnstile>(\<delta> x) \<Longrightarrow> \<tau> \<Turnstile>(\<delta> y) \<Longrightarrow> 
+"WFF \<tau> \<Longrightarrow> \<tau> \<Turnstile>(\<upsilon> x) \<Longrightarrow> \<tau> \<Turnstile>(\<upsilon> y) \<Longrightarrow> 
 (x \<tau> \<in> ran (heap(fst \<tau>)) \<and> y \<tau> \<in> ran (heap(fst \<tau>))) \<and>
 (x \<tau> \<in> ran (heap(snd \<tau>)) \<and> y \<tau> \<in> ran (heap(snd \<tau>))) \<Longrightarrow> (* x and y must be object representations
                                                           that exist in either the pre or post state *) 
