@@ -82,7 +82,6 @@ coinductive inv :: "Person \<Rightarrow> (\<AA>)st \<Rightarrow> bool" where
                      ( (inv(self .boss))\<tau> )))
                      \<Longrightarrow> ( inv self \<tau>)"
 
-
 section{* The contract of a recursive query : *}
 text{* The original specification of a recursive query :
 \begin{verbatim}
