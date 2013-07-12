@@ -333,24 +333,6 @@ definition "X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n4 \<equiv> \<
 definition "X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n5 \<equiv> \<lambda> _ .\<lfloor>\<lfloor> person5 \<rfloor>\<rfloor>"
 definition "X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n6 \<equiv> \<lambda> _ .\<lfloor>\<lfloor> person6 \<rfloor>\<rfloor>"
 
-lemma [code_unfold] : "(((X).age@pre) (\<sigma>\<^isub>1,\<sigma>\<^isub>1')) = ((\<lambda> \<tau>. case X \<tau> of
-              \<bottom> \<Rightarrow> invalid \<tau>
-          | \<lfloor>  \<bottom> \<rfloor> \<Rightarrow> invalid \<tau>
-          | \<lfloor>\<lfloor> mk\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n oid _ _ \<rfloor>\<rfloor> \<Rightarrow> 
-                      case (heap (fst \<tau>)) oid of
-                              \<lfloor>in\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n (mk\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n oid i boss) \<rfloor> \<Rightarrow> \<lfloor>i\<rfloor>
-                            |  _ \<Rightarrow> invalid \<tau>) (\<sigma>\<^isub>1,\<sigma>\<^isub>1'))"
- apply(simp add: atSelf_def)
-done lemma [code_unfold]: "(X).age@pre = (\<lambda> \<tau>. case X \<tau> of
-              \<bottom> \<Rightarrow> invalid \<tau>
-          | \<lfloor>  \<bottom> \<rfloor> \<Rightarrow> invalid \<tau>
-          | \<lfloor>\<lfloor> mk\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n oid _ _ \<rfloor>\<rfloor> \<Rightarrow> 
-                      case (heap (fst \<tau>)) oid of
-                              \<lfloor>in\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n (mk\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n oid i boss) \<rfloor> \<Rightarrow> \<lfloor>i\<rfloor>
-                            | _ \<Rightarrow> invalid \<tau>)"
-sorry (* incorrect in general, but works for the given special case 
-where $\tau$ is $(\sigma_1,\sigma_1')$ ... *)
-
 lemma [code_unfold]: "((x::Person) \<doteq> y) = gen_ref_eq x y" by(simp only: StrictRefEq\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n)
 
 value "  (\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile> ((X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n1 .age)    \<doteq> \<one> )" (*f*)
