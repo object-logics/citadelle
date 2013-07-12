@@ -212,13 +212,20 @@ text{* Should be generated entirely from a class-diagram. *}
 typ "Person \<Rightarrow> Person"
 
 definition "access fst_snd X f = (\<lambda> \<tau>. case X \<tau> of
-               \<bottom> \<Rightarrow> invalid \<tau> (* undefined pointer *)
+               \<bottom> \<Rightarrow> invalid \<tau> (* exception propagation *)
           | \<lfloor>  \<bottom> \<rfloor> \<Rightarrow> invalid \<tau> (* dereferencing null pointer *)
           | \<lfloor>\<lfloor> mk\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n oid _ _ \<rfloor>\<rfloor> \<Rightarrow> 
                     case (heap (fst_snd \<tau>)) oid of (* We assume here that oid is indeed 'the' oid of the 
                                                Person, ie. we assume that  \<tau> is well-formed. *)
                        \<lfloor>in\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n p\<rfloor> \<Rightarrow> f p \<tau>
                      | _ \<Rightarrow> invalid \<tau>)"
+
+(*
+definition "(access2 X f) =
+               (\<lambda>(\<sigma>,\<sigma>'). (let Ob = (I\<lbrakk>X\<rbrakk>(\<sigma>,\<sigma>')) in
+                            if (Ob=\<bottom>) \<or> (Ob=\<lfloor>\<bottom>\<rfloor>) \<or> (oid_of \<lceil>\<lceil>Ob\<rceil>\<rceil>) \<in> (dom \<sigma>') then invalid(\<sigma>,\<sigma>')
+                            else undefined))"
+*)
 
 definition "access_to_boss fst_snd = (\<lambda> X \<tau>. case X of 
                      mk\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n _ _ \<bottom> \<Rightarrow> null \<tau> (* object contains null pointer *)
@@ -349,12 +356,14 @@ value "  (\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile>     ((X\<^isub>P\<^
 value "  (\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile>     ((X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n1 .boss@pre .boss@pre)  \<doteq> null )"
 value "  (\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile> not(\<upsilon>(X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n1 .boss@pre .boss@pre .boss@pre))"
 
+
 value "  (\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile>     ((X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n2 .age)       \<doteq> \<five>)" 
 value "  (\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile>     ((X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n2 .age@pre)   \<doteq> \<three>)" 
 value "  (\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile>     ((X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n2 .boss)      \<doteq> X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n2)"
 value "  (\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile>     ((X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n2 .boss@pre)  \<doteq> null )"
 value "\<not>((\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile>     ((X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n2 .boss@pre)  \<doteq> X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n2))" 
 value "\<not>((\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile>     ((X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n2 .boss@pre)  \<doteq> (X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n2 .boss)))" 
+
 
 value "  (\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile>     ((X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n3 .age)       \<doteq> null)"
 value "  (\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile> not(\<upsilon>(X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n3 .age@pre))"
@@ -403,6 +412,7 @@ defs (overloaded) oclastype\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>
                               \<bottom>   \<Rightarrow> invalid \<tau>
                             | \<lfloor>\<bottom>\<rfloor> \<Rightarrow> null \<tau>   (* to avoid: null .oclAsType(OclAny) = null ? *)
                             | \<lfloor>\<lfloor>mk\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n oid a b \<rfloor>\<rfloor> \<Rightarrow>  \<lfloor>\<lfloor>mk\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n oid a b\<rfloor>\<rfloor>)"  (* identity *)
+
 
 lemma cp_oclastype\<^isub>o\<^isub>c\<^isub>l\<^isub>a\<^isub>n\<^isub>y_Person_Person: "cp P \<Longrightarrow> cp(\<lambda>X. (P (X::Person) :: Person) .oclAsType(OclAny))"
 by(rule_tac f = "\<lambda>x. (x .oclAsType(OclAny))" in cpI1, simp_all add: oclastype\<^isub>o\<^isub>c\<^isub>l\<^isub>a\<^isub>n\<^isub>y_Person)
@@ -510,6 +520,7 @@ by(rule_tac f = "\<lambda>x. (x .oclIsTypeOf(Person))" in cpI1, simp_all add: oc
 lemma cp_oclistypeof\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n_OclAny_OclAny: "cp P \<Longrightarrow> cp(\<lambda>X. (P (X::OclAny) :: OclAny) .oclIsTypeOf(Person))"
 by(rule_tac f = "\<lambda>x. (x .oclIsTypeOf(Person))" in cpI1, simp_all add: oclistypeof\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n_OclAny)
 
+
 lemma cp_oclistypeof\<^isub>o\<^isub>c\<^isub>l\<^isub>a\<^isub>n\<^isub>y_Person_OclAny: "cp P \<Longrightarrow> cp(\<lambda>X. (P (X::Person) :: OclAny) .oclIsTypeOf(OclAny))"
 by(rule_tac f = "\<lambda>x. (x .oclIsTypeOf(OclAny))" in cpI1, simp_all add: oclistypeof\<^isub>o\<^isub>c\<^isub>l\<^isub>a\<^isub>n\<^isub>y_OclAny)
 lemma cp_oclistypeof\<^isub>o\<^isub>c\<^isub>l\<^isub>a\<^isub>n\<^isub>y_OclAny_Person: "cp P \<Longrightarrow> cp(\<lambda>X. (P (X::OclAny) :: Person) .oclIsTypeOf(OclAny))"
@@ -590,6 +601,7 @@ using isdef
 by(auto simp : null_fun_def null_option_def bot_option_def null_def invalid_def
                oclastype\<^isub>o\<^isub>c\<^isub>l\<^isub>a\<^isub>n\<^isub>y_Person oclastype\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n_OclAny foundation22 foundation16
         split: option.split person.split)
+
 
 lemma up_down_cast2 [simp]: 
 shows "((X::Person) .oclAsType(OclAny) .oclAsType(Person) = X)" 
