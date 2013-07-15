@@ -116,9 +116,9 @@ where     "OclAny \<equiv> (the_inv in\<^isub>o\<^isub>c\<^isub>l\<^isub>a\<^isu
 text{* Having fixed the object universe, we can introduce type synonyms that exactly correspond
 to OCL types. Again, we exploit that our representation of OCL is a "shallow embedding" with a
 one-to-one correspondance of OCL-types to types of the meta-language HOL. *}
-type_synonym Boolean     = "(\<AA>)Boolean"
-type_synonym Integer     = "(\<AA>)Integer"
-type_synonym Void        = "(\<AA>)Void"
+type_synonym Boolean     = " \<AA> Boolean"
+type_synonym Integer     = " \<AA> Integer"
+type_synonym Void        = " \<AA> Void"
 type_synonym OclAny      = "(\<AA>,oclany option option) val"
 type_synonym Person      = "(\<AA>, person option option)val"
 type_synonym Set_Integer = "(\<AA>, int option option)Set"
@@ -188,12 +188,20 @@ subsection{* AllInstances *}
 
 (* IS THIS WHAT WE WANT ? THIS DEFINITION FILTERS OBJECTS THAT ARE BOOKED UNDER
 THEIR APPARENT (STATIC) TYPE INTO THE CONTEXT, NOT BY THEIR ACTUAL (DYNAMIC) TYPE. *)
-lemma "(Person .oclAllInstances()) = 
-             (\<lambda>\<tau>.  Abs_Set_0 \<lfloor>\<lfloor>(Some \<circ> Some \<circ> (the_inv in\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n))`(ran(heap(snd \<tau>))) \<rfloor>\<rfloor>) "
+lemma "Person .oclAllInstances() = 
+             (\<lambda>\<tau>.  Abs_Set_0 \<lfloor>\<lfloor>(Some \<circ> Some \<circ> the_inv in\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n)`(ran(heap(snd \<tau>))) \<rfloor>\<rfloor>) "
 by(rule ext, simp add:allinstances_def Person_def)
 
-lemma "(OclAny .oclAllInstances@pre()) = 
-             (\<lambda>\<tau>.  Abs_Set_0 \<lfloor>\<lfloor>(Some \<circ> Some \<circ> (the_inv in\<^isub>o\<^isub>c\<^isub>l\<^isub>a\<^isub>n\<^isub>y))`(ran(heap(fst \<tau>))) \<rfloor>\<rfloor>) "
+lemma "Person .oclAllInstances@pre() = 
+             (\<lambda>\<tau>.  Abs_Set_0 \<lfloor>\<lfloor>(Some \<circ> Some \<circ> the_inv in\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n)`(ran(heap(fst \<tau>))) \<rfloor>\<rfloor>) "
+by(rule ext, simp add:allinstancesATpre_def Person_def)
+
+lemma "OclAny .oclAllInstances() = 
+             (\<lambda>\<tau>.  Abs_Set_0 \<lfloor>\<lfloor>(Some \<circ> Some \<circ> the_inv in\<^isub>o\<^isub>c\<^isub>l\<^isub>a\<^isub>n\<^isub>y)`(ran(heap(snd \<tau>))) \<rfloor>\<rfloor>) "
+by(rule ext, simp add:allinstances_def OclAny_def)
+
+lemma "OclAny .oclAllInstances@pre() = 
+             (\<lambda>\<tau>.  Abs_Set_0 \<lfloor>\<lfloor>(Some \<circ> Some \<circ> the_inv in\<^isub>o\<^isub>c\<^isub>l\<^isub>a\<^isub>n\<^isub>y)`(ran(heap(fst \<tau>))) \<rfloor>\<rfloor>) "
 by(rule ext, simp add:allinstancesATpre_def OclAny_def)
 
 
@@ -214,14 +222,14 @@ typ "Person \<Rightarrow> Person"
 definition "access fst_snd X f = (\<lambda> \<tau>. case X \<tau> of
                \<bottom> \<Rightarrow> invalid \<tau> (* exception propagation *)
           | \<lfloor>  \<bottom> \<rfloor> \<Rightarrow> invalid \<tau> (* dereferencing null pointer *)
-          | \<lfloor>\<lfloor> mk\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n oid _ _ \<rfloor>\<rfloor> \<Rightarrow> 
-                    case (heap (fst_snd \<tau>)) oid of (* We assume here that oid is indeed 'the' oid of the 
+          | \<lfloor>\<lfloor> obj \<rfloor>\<rfloor> \<Rightarrow> case (heap (fst_snd \<tau>)) (oid_of obj) of (* We assume here that oid is indeed 'the' oid of the 
                                                Person, ie. we assume that  \<tau> is well-formed. *)
                        \<lfloor>in\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n p\<rfloor> \<Rightarrow> f p \<tau>
+                     (*| \<lfloor>in\<^isub>o\<^isub>c\<^isub>l\<^isub>a\<^isub>n\<^isub>y p\<rfloor> \<Rightarrow> f p \<tau>*)
                      | _ \<Rightarrow> invalid \<tau>)"
 
 (*
-definition "(access2 X f) =
+definition "access2 X f =
                (\<lambda>(\<sigma>,\<sigma>'). (let Ob = (I\<lbrakk>X\<rbrakk>(\<sigma>,\<sigma>')) in
                             if (Ob=\<bottom>) \<or> (Ob=\<lfloor>\<bottom>\<rfloor>) \<or> (oid_of \<lceil>\<lceil>Ob\<rceil>\<rceil>) \<in> (dom \<sigma>') then invalid(\<sigma>,\<sigma>')
                             else undefined))"
@@ -230,7 +238,7 @@ definition "(access2 X f) =
 definition "access_to_boss fst_snd = (\<lambda> X \<tau>. case X of 
                      mk\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n _ _ \<bottom> \<Rightarrow> null \<tau> (* object contains null pointer *)
                    | mk\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n _ _ \<lfloor>boss\<rfloor> \<Rightarrow> case (heap (fst_snd \<tau>)) boss of
-                       \<lfloor>in\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n (mk\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n a b c) \<rfloor> \<Rightarrow> \<lfloor>\<lfloor> mk\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n a b c \<rfloor>\<rfloor>
+                       \<lfloor>in\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n p \<rfloor> \<Rightarrow> \<lfloor>\<lfloor> p \<rfloor>\<rfloor>
                      | _ \<Rightarrow> invalid \<tau>)" (* illtyped state, not occuring in 
                                              well-formed, typed states *)
 
@@ -384,11 +392,7 @@ consts oclastype\<^isub>o\<^isub>c\<^isub>l\<^isub>a\<^isub>n\<^isub>y :: "'\<al
 consts oclastype\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n :: "'\<alpha> \<Rightarrow> Person" ("(_) .oclAsType'(Person')")
 
 defs (overloaded) oclastype\<^isub>o\<^isub>c\<^isub>l\<^isub>a\<^isub>n\<^isub>y_OclAny: 
-        "(X::OclAny) .oclAsType(OclAny) \<equiv> 
-                   (\<lambda>\<tau>. case X \<tau> of 
-                              \<bottom>   \<Rightarrow> invalid \<tau>
-                            | \<lfloor>\<bottom>\<rfloor> \<Rightarrow> null \<tau>   (* to avoid: null .oclAsType(OclAny) = null ? *)
-                            | \<lfloor>\<lfloor>mk\<^isub>o\<^isub>c\<^isub>l\<^isub>a\<^isub>n\<^isub>y oid a \<rfloor>\<rfloor> \<Rightarrow>  \<lfloor>\<lfloor>mk\<^isub>o\<^isub>c\<^isub>l\<^isub>a\<^isub>n\<^isub>y oid a \<rfloor>\<rfloor>)"  (* identity *)
+        "(X::OclAny) .oclAsType(OclAny) \<equiv> X" (* to avoid identity for null ? *)
 
 defs (overloaded) oclastype\<^isub>o\<^isub>c\<^isub>l\<^isub>a\<^isub>n\<^isub>y_Person:  
         "(X::Person) .oclAsType(OclAny) \<equiv> 
@@ -407,11 +411,7 @@ defs (overloaded) oclastype\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>
                             | \<lfloor>\<lfloor>mk\<^isub>o\<^isub>c\<^isub>l\<^isub>a\<^isub>n\<^isub>y oid \<lfloor>(a,b)\<rfloor> \<rfloor>\<rfloor> \<Rightarrow>  \<lfloor>\<lfloor>mk\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n oid a b \<rfloor>\<rfloor>)" 
 
 defs (overloaded) oclastype\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n_Person: 
-        "(X::Person) .oclAsType(Person) \<equiv> 
-                   (\<lambda>\<tau>. case X \<tau> of 
-                              \<bottom>   \<Rightarrow> invalid \<tau>
-                            | \<lfloor>\<bottom>\<rfloor> \<Rightarrow> null \<tau>   (* to avoid: null .oclAsType(OclAny) = null ? *)
-                            | \<lfloor>\<lfloor>mk\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n oid a b \<rfloor>\<rfloor> \<Rightarrow>  \<lfloor>\<lfloor>mk\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n oid a b\<rfloor>\<rfloor>)"  (* identity *)
+        "(X::Person) .oclAsType(Person) \<equiv> X "  (* to avoid identity for null ? *)
 
 
 lemma cp_oclastype\<^isub>o\<^isub>c\<^isub>l\<^isub>a\<^isub>n\<^isub>y_Person_Person: "cp P \<Longrightarrow> cp(\<lambda>X. (P (X::Person) :: Person) .oclAsType(OclAny))"
@@ -443,37 +443,37 @@ lemmas [simp] =
  cp_oclastype\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n_Person_OclAny
  cp_oclastype\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n_OclAny_Person
 
-lemma oclastype\<^isub>o\<^isub>c\<^isub>l\<^isub>a\<^isub>n\<^isub>y_OclAny_strict[simp] : "(invalid::OclAny) .oclAsType(OclAny) = invalid" 
-by(rule ext, simp add: null_fun_def null_option_def bot_option_def null_def invalid_def
-                       oclastype\<^isub>o\<^isub>c\<^isub>l\<^isub>a\<^isub>n\<^isub>y_OclAny)
+lemmas [simp] = oclastype\<^isub>o\<^isub>c\<^isub>l\<^isub>a\<^isub>n\<^isub>y_OclAny
 
-lemma oclastype\<^isub>o\<^isub>c\<^isub>l\<^isub>a\<^isub>n\<^isub>y_OclAny_nullstrict[simp] : "(null::OclAny) .oclAsType(OclAny) = null" 
-by(rule ext, simp add: null_fun_def null_option_def bot_option_def null_def invalid_def
-                       oclastype\<^isub>o\<^isub>c\<^isub>l\<^isub>a\<^isub>n\<^isub>y_OclAny)
+lemma oclastype\<^isub>o\<^isub>c\<^isub>l\<^isub>a\<^isub>n\<^isub>y_OclAny_strict : "(invalid::OclAny) .oclAsType(OclAny) = invalid" 
+by(simp)
+
+lemma oclastype\<^isub>o\<^isub>c\<^isub>l\<^isub>a\<^isub>n\<^isub>y_OclAny_nullstrict : "(null::OclAny) .oclAsType(OclAny) = null" 
+by(simp)
 
 lemma oclastype\<^isub>o\<^isub>c\<^isub>l\<^isub>a\<^isub>n\<^isub>y_Person_strict[simp] : "(invalid::Person) .oclAsType(OclAny) = invalid" 
-by(rule ext, simp add: null_fun_def null_option_def bot_option_def null_def invalid_def
-                       oclastype\<^isub>o\<^isub>c\<^isub>l\<^isub>a\<^isub>n\<^isub>y_Person bot_Boolean_def)
+by(rule ext, simp add: bot_option_def invalid_def
+                       oclastype\<^isub>o\<^isub>c\<^isub>l\<^isub>a\<^isub>n\<^isub>y_Person)
 
 lemma oclastype\<^isub>o\<^isub>c\<^isub>l\<^isub>a\<^isub>n\<^isub>y_Person_nullstrict[simp] : "(null::Person) .oclAsType(OclAny) = null" 
-by(rule ext, simp add: null_fun_def null_option_def bot_option_def null_def invalid_def
+by(rule ext, simp add: null_fun_def null_option_def bot_option_def
                        oclastype\<^isub>o\<^isub>c\<^isub>l\<^isub>a\<^isub>n\<^isub>y_Person)
 
 lemma oclastype\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n_OclAny_strict[simp] : "(invalid::OclAny) .oclAsType(Person) = invalid" 
-by(rule ext, simp add: null_fun_def null_option_def bot_option_def null_def invalid_def
+by(rule ext, simp add: bot_option_def invalid_def
                        oclastype\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n_OclAny)
 
 lemma oclastype\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n_OclAny_nullstrict[simp] : "(null::OclAny) .oclAsType(Person) = null" 
-by(rule ext, simp add: null_fun_def null_option_def bot_option_def null_def invalid_def
+by(rule ext, simp add: null_fun_def null_option_def bot_option_def
                        oclastype\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n_OclAny)
 
-lemma oclastype\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n_Person_strict[simp] : "(invalid::Person) .oclAsType(Person) = invalid" 
-by(rule ext, simp add: null_fun_def null_option_def bot_option_def null_def invalid_def
-                       oclastype\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n_Person bot_Boolean_def)
+lemmas [simp] = oclastype\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n_Person
 
-lemma oclastype\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n_Person_nullstrict[simp] : "(null::Person) .oclAsType(Person) = null" 
-by(rule ext, simp add: null_fun_def null_option_def bot_option_def null_def invalid_def
-                       oclastype\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n_Person)
+lemma oclastype\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n_Person_strict : "(invalid::Person) .oclAsType(Person) = invalid" 
+by(simp)
+
+lemma oclastype\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n_Person_nullstrict : "(null::Person) .oclAsType(Person) = null" 
+by(simp)
 
 
 section{* Tests for Actual Types *}
@@ -621,16 +621,13 @@ defs (overloaded) ocliskindof\<^isub>o\<^isub>c\<^isub>l\<^isub>a\<^isub>n\<^isu
         "(X::OclAny) .oclIsKindOf(OclAny) \<equiv> 
                    (\<lambda>\<tau>. case X \<tau> of 
                               \<bottom>   \<Rightarrow> invalid \<tau>
-                            | \<lfloor>\<bottom>\<rfloor> \<Rightarrow> true \<tau>  
-                            | \<lfloor>\<lfloor>mk\<^isub>o\<^isub>c\<^isub>l\<^isub>a\<^isub>n\<^isub>y oid \<bottom> \<rfloor>\<rfloor> \<Rightarrow> true \<tau>
-                            | \<lfloor>\<lfloor>mk\<^isub>o\<^isub>c\<^isub>l\<^isub>a\<^isub>n\<^isub>y oid \<lfloor>_\<rfloor> \<rfloor>\<rfloor> \<Rightarrow> true \<tau>)" 
+                            | _ \<Rightarrow> true \<tau>)" 
 
 defs (overloaded) ocliskindof\<^isub>o\<^isub>c\<^isub>l\<^isub>a\<^isub>n\<^isub>y_Person: 
         "(X::Person) .oclIsKindOf(OclAny) \<equiv> 
                    (\<lambda>\<tau>. case X \<tau> of 
                               \<bottom>   \<Rightarrow> invalid \<tau>
-                            | \<lfloor>\<bottom>\<rfloor> \<Rightarrow> true \<tau>  
-                            | \<lfloor>\<lfloor>mk\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n e oid _ \<rfloor>\<rfloor> \<Rightarrow> true \<tau>)"  (* must have actual type Person otherwise  *)
+                            | _ \<Rightarrow> true \<tau>)"  (* for (* \<lfloor>\<lfloor>mk\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n e oid _ \<rfloor>\<rfloor> \<Rightarrow> true \<tau> *) :  must have actual type Person otherwise  *)
 (* Unchecked; or better directly on the OCL - level ??? *)
 
 (* stricness, null-ness, cp, reduction-rules. *)
