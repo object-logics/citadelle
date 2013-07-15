@@ -498,7 +498,8 @@ definition "select\<^isub>b\<^isub>o\<^isub>s\<^isub>s f = (\<lambda> X. case X 
 
 
 definition "select\<^isub>s\<^isub>a\<^isub>l\<^isub>a\<^isub>r\<^isub>y f = (\<lambda> X. case X of
-                     (mk\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n _ i _) \<Rightarrow> f (\<lambda>x _. \<lfloor>x\<rfloor>) i)"
+                     (mk\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n _ \<bottom> _) \<Rightarrow> null
+                   | (mk\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n _ \<lfloor>i\<rfloor> _) \<Rightarrow> f (\<lambda>x _. \<lfloor>\<lfloor>x\<rfloor>\<rfloor>) i)" 
 
 
 definition "in_pre_state = fst"
