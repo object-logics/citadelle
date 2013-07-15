@@ -63,7 +63,7 @@ axiomatization inv_Person :: "Person \<Rightarrow> Boolean"
 where A : "(\<tau> \<Turnstile> (\<delta> self)) \<longrightarrow> 
                (\<tau> \<Turnstile> inv_Person(self)) =
                    ((\<tau> \<Turnstile> (self .boss \<doteq> null)) \<or> 
-                    ( \<tau> \<Turnstile> (self .boss <> null) \<and> (\<tau> \<Turnstile> ((self .age)  \<prec>  (self .boss .age)))  \<and> 
+                    ( \<tau> \<Turnstile> (self .boss <> null) \<and> (\<tau> \<Turnstile> ((self .salary)  \<prec>  (self .boss .salary)))  \<and> 
                      (\<tau> \<Turnstile> (inv_Person(self .boss))))) "
 
 
@@ -71,14 +71,14 @@ axiomatization inv_Person_at_pre :: "Person \<Rightarrow> Boolean"
 where B : "(\<tau> \<Turnstile> (\<delta> self)) \<longrightarrow> 
                (\<tau> \<Turnstile> inv_Person_at_pre(self)) =
                    ((\<tau> \<Turnstile> (self .boss@pre \<doteq> null)) \<or> 
-                    ( \<tau> \<Turnstile> (self .boss@pre <> null) \<and> (\<tau> \<Turnstile> (self .boss@pre .age@pre \<prec> self .age@pre))  \<and> 
+                    ( \<tau> \<Turnstile> (self .boss@pre <> null) \<and> (\<tau> \<Turnstile> (self .boss@pre .salary@pre \<prec> self .salary@pre))  \<and> 
                      (\<tau> \<Turnstile> (inv_Person_at_pre(self .boss@pre))))) "
 
 text{* A very first attempt to characterize the axiomatization by an inductive
 definition - this can not be the last word since too weak (should be equality!) *}
 coinductive inv :: "Person \<Rightarrow> (\<AA>)st \<Rightarrow> bool" where 
  "(\<tau> \<Turnstile> (\<delta> self)) \<Longrightarrow> ((\<tau> \<Turnstile> (self .boss \<doteq> null)) \<or> 
-                      (\<tau> \<Turnstile> (self .boss <> null) \<and> (\<tau> \<Turnstile> (self .boss .age \<prec> self .age))  \<and> 
+                      (\<tau> \<Turnstile> (self .boss <> null) \<and> (\<tau> \<Turnstile> (self .boss .salary \<prec> self .salary))  \<and> 
                      ( (inv(self .boss))\<tau> )))
                      \<Longrightarrow> ( inv self \<tau>)"
 
@@ -100,8 +100,8 @@ axiomatization dot_contents_def where
  (if (\<delta> self) \<tau> = true \<tau> 
   then ((\<tau> \<Turnstile> true) \<and>  
         (\<tau> \<Turnstile> (result \<triangleq> if (self .boss \<doteq> null) 
-                        then (Set{self .age}) 
-                        else (self .boss .contents()->including(self .age))
+                        then (Set{self .salary}) 
+                        else (self .boss .contents()->including(self .salary))
                         endif)))
   else \<tau> \<Turnstile> result \<triangleq> invalid)"
 
@@ -113,8 +113,8 @@ axiomatization where dot_contents_AT_pre_def:
  (if (\<delta> self) \<tau> = true \<tau> 
   then \<tau> \<Turnstile> true \<and>                                (* pre *)
         \<tau> \<Turnstile> (result \<triangleq> if (self).boss@pre \<doteq> null  (* post *)
-                        then Set{(self).age@pre}
-                        else (self).boss@pre .contents@pre()->including(self .age@pre)
+                        then Set{(self).salary@pre}
+                        else (self).boss@pre .contents@pre()->including(self .salary@pre)
                         endif)
   else \<tau> \<Turnstile> result \<triangleq> invalid)"
 
