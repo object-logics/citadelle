@@ -315,6 +315,8 @@ by(simp)
 
 subsection{* Tests for Actual Types *}
 
+subsubsection{* istypeof *}
+
 consts oclistypeof\<^isub>o\<^isub>c\<^isub>l\<^isub>a\<^isub>n\<^isub>y :: "'\<alpha> \<Rightarrow> Boolean" ("(_).oclIsTypeOf'(OclAny')")
 consts oclistypeof\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n :: "'\<alpha> \<Rightarrow> Boolean" ("(_).oclIsTypeOf'(Person')")
 
@@ -449,7 +451,7 @@ shows "((X::Person) .oclAsType(OclAny) .oclAsType(Person) = X)"
  apply(erule StrongEq_L_subst2_rev, simp, simp)+
 done
 
-(* MISSING:  Construction for  ocliskind *)
+subsubsection{* iskindof *}
 
 consts ocliskindof\<^isub>o\<^isub>c\<^isub>l\<^isub>a\<^isub>n\<^isub>y :: "'\<alpha> \<Rightarrow> Boolean" ("(_).oclIsKindOf'(OclAny')")
 consts ocliskinfof\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n :: "'\<alpha> \<Rightarrow> Boolean" ("(_).oclIsKindOf'(Person')")
