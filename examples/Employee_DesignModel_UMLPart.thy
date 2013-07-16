@@ -598,7 +598,8 @@ definition
                           (*oid\<^isub>3*)
                            (oid\<^isub>4 \<mapsto> in\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n(mk\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n oid\<^isub>4 \<lfloor>2600\<rfloor> \<lfloor>oid\<^isub>5\<rfloor>))
                            (oid\<^isub>5 \<mapsto> in\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n person5)
-                           (oid\<^isub>6 \<mapsto> in\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n(mk\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n oid\<^isub>6 \<lfloor>2300\<rfloor> \<lfloor>oid\<^isub>4\<rfloor>)),
+                           (oid\<^isub>6 \<mapsto> in\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n(mk\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n oid\<^isub>6 \<lfloor>2300\<rfloor> \<lfloor>oid\<^isub>4\<rfloor>))
+                          (*oid\<^isub>7*),
                assocs = empty\<rparr>"
 
 definition 
@@ -640,70 +641,101 @@ lemmas [code_unfold, simp] =
  oclastype\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n_OclAny
  oclastype\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n_Person
 
-value "\<not>((\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile>     ((X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n1 .salary)    \<doteq> \<one>\<zero>\<zero>\<zero> ))"
-value "  (\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile>     ((X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n1 .salary)    \<doteq> \<one>\<three>\<zero>\<zero> )"
-value "  (\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile>     ((X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n1 .salary@pre)     \<doteq> \<one>\<zero>\<zero>\<zero> )" 
-value "\<not>((\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile>     ((X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n1 .salary@pre)     \<doteq> \<one>\<three>\<zero>\<zero> ))"
-value "\<not>((\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile>     ((X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n1 .boss )  \<doteq> X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n1 ))"
-value "  (\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile>     ((X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n1 .boss .salary)   \<doteq> \<one>\<eight>\<zero>\<zero> )"
-value "\<not>((\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile>     ((X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n1 .boss .boss)  \<doteq> X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n1 ))" 
-value "  (\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile>     ((X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n1 .boss .boss)  \<doteq> X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n2 )" 
-value "  (\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile>     ((X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n1 .boss@pre .salary)  \<doteq> \<one>\<eight>\<zero>\<zero> )"
-value "  (\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile>     ((X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n1 .boss@pre .salary@pre)  \<doteq> \<one>\<two>\<zero>\<zero> )"
-value "\<not>((\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile>     ((X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n1 .boss@pre .salary@pre)  \<doteq> \<one>\<eight>\<zero>\<zero> ))"
-value "  (\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile>     ((X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n1 .boss@pre)  \<doteq> X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n2 )"
-value "  (\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile>     ((X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n1 .boss@pre .boss)  \<doteq> X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n2 )"
-value "  (\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile>     ((X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n1 .boss@pre .boss@pre)  \<doteq> null )"
+value "\<not>((\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile>      (X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n1 .salary    \<doteq> \<one>\<zero>\<zero>\<zero> ))"
+value "  (\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile>      (X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n1 .salary    \<doteq> \<one>\<three>\<zero>\<zero> )"
+value "  (\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile>      (X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n1 .salary@pre     \<doteq> \<one>\<zero>\<zero>\<zero> )" 
+value "\<not>((\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile>      (X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n1 .salary@pre     \<doteq> \<one>\<three>\<zero>\<zero> ))"
+value "\<not>((\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile>      (X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n1 .boss   \<doteq> X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n1 ))"
+value "  (\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile>      (X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n1 .boss .salary   \<doteq> \<one>\<eight>\<zero>\<zero> )"
+value "\<not>((\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile>      (X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n1 .boss .boss  \<doteq> X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n1 ))" 
+value "  (\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile>      (X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n1 .boss .boss  \<doteq> X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n2 )" 
+value "  (\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile>      (X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n1 .boss@pre .salary  \<doteq> \<one>\<eight>\<zero>\<zero> )"
+value "  (\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile>      (X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n1 .boss@pre .salary@pre  \<doteq> \<one>\<two>\<zero>\<zero> )"
+value "\<not>((\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile>      (X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n1 .boss@pre .salary@pre  \<doteq> \<one>\<eight>\<zero>\<zero> ))"
+value "  (\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile>      (X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n1 .boss@pre  \<doteq> X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n2 )"
+value "  (\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile>      (X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n1 .boss@pre .boss  \<doteq> X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n2 )"
+value "  (\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile>      (X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n1 .boss@pre .boss@pre  \<doteq> null )"
 value "  (\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile> not(\<upsilon>(X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n1 .boss@pre .boss@pre .boss@pre))"
+lemma "  (\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile>      (X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n1 .oclIsEverywhere())"
+by(simp add: OclValid_def ocliseverywhere_def 
+             \<sigma>\<^isub>1_def \<sigma>\<^isub>1'_def
+             X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n1_def person1_def
+             oid\<^isub>1_def oid\<^isub>2_def oid\<^isub>3_def oid\<^isub>4_def oid\<^isub>5_def oid\<^isub>6_def oid\<^isub>7_def
+             oid_of_option_def oid_of_person_def)
 
 
-value "  (\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile>     ((X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n2 .salary)       \<doteq> \<one>\<eight>\<zero>\<zero> )" 
-value "  (\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile>     ((X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n2 .salary@pre)   \<doteq> \<one>\<two>\<zero>\<zero> )" 
-value "  (\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile>     ((X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n2 .boss)      \<doteq> X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n2)"
-value "  (\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile>     ((X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n2 .boss@pre)  \<doteq> null )"
-value "\<not>((\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile>     ((X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n2 .boss@pre)  \<doteq> X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n2))" 
-value "\<not>((\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile>     ((X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n2 .boss@pre)  \<doteq> (X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n2 .boss)))" 
+value "  (\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile>      (X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n2 .salary       \<doteq> \<one>\<eight>\<zero>\<zero> )" 
+value "  (\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile>      (X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n2 .salary@pre   \<doteq> \<one>\<two>\<zero>\<zero> )" 
+value "  (\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile>      (X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n2 .boss      \<doteq> X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n2)"
+value "  (\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile>      (X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n2 .boss@pre  \<doteq> null )"
+value "\<not>((\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile>      (X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n2 .boss@pre  \<doteq> X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n2))" 
+value "\<not>((\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile>      (X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n2 .boss@pre  \<doteq> (X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n2 .boss)))" 
 value "  (\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile> not(\<upsilon>(X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n2 .boss@pre .boss))"
 value "  (\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile> not(\<upsilon>(X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n2 .boss@pre .salary@pre))"
+lemma "  (\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile>      (X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n2 .oclIsEverywhere())"
+by(simp add: OclValid_def ocliseverywhere_def 
+             \<sigma>\<^isub>1_def \<sigma>\<^isub>1'_def
+             X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n2_def person2_def
+             oid\<^isub>1_def oid\<^isub>2_def oid\<^isub>3_def oid\<^isub>4_def oid\<^isub>5_def oid\<^isub>6_def oid\<^isub>7_def
+             oid_of_option_def oid_of_person_def)
 
 
-value "  (\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile>     ((X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n3 .salary)       \<doteq> null)"
+value "  (\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile>      (X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n3 .salary       \<doteq> null)"
 value "  (\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile> not(\<upsilon>(X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n3 .salary@pre))"
-value "\<not>((\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile>     ((X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n3 .salary@pre)   \<doteq> null))"
+value "\<not>((\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile>      (X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n3 .salary@pre   \<doteq> null))"
 value "  (\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile>      (X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n3 .boss       \<doteq> null)"
 value "  (\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile> not(\<upsilon>(X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n3 .boss .salary))"
 value "  (\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile> not(\<upsilon>(X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n3 .boss@pre))"
+lemma "  (\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile>      (X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n3 .oclIsNew())"
+by(simp add: OclValid_def oclisnew_def 
+             \<sigma>\<^isub>1_def \<sigma>\<^isub>1'_def
+             X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n3_def person3_def
+             oid\<^isub>1_def oid\<^isub>2_def oid\<^isub>3_def oid\<^isub>4_def oid\<^isub>5_def oid\<^isub>6_def oid\<^isub>7_def
+             oid_of_option_def oid_of_person_def)
 
 
-value "  (\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile>     ((X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n4 .boss@pre)   \<doteq> X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n5 )"
+value "  (\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile>      (X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n4 .boss@pre   \<doteq> X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n5 )"
 value "  (\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile> not(\<upsilon>(X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n4 .boss@pre .salary))" 
-value "  (\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile>     ((X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n4 .boss@pre .salary@pre)   \<doteq> \<three>\<five>\<zero>\<zero> )"
-lemma "  (\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile>   not(X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n4 .oclIsNew() )"
-by(simp add: not_def OclValid_def oclisnew_def 
+value "  (\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile>      (X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n4 .boss@pre .salary@pre   \<doteq> \<three>\<five>\<zero>\<zero> )"
+lemma "  (\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile>      (X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n4 .oclIsEverywhere())"
+by(simp add: OclValid_def ocliseverywhere_def 
              \<sigma>\<^isub>1_def \<sigma>\<^isub>1'_def
              X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n4_def person4_def
              oid\<^isub>1_def oid\<^isub>2_def oid\<^isub>3_def oid\<^isub>4_def oid\<^isub>5_def oid\<^isub>6_def oid\<^isub>7_def
              oid_of_option_def oid_of_person_def)
 
 
-value "\<not>((\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile>     ((X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n5 .salary)   \<doteq> \<three>\<five>\<zero>\<zero> ))"
-value "  (\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile>     ((X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n5 .salary@pre)   \<doteq> \<three>\<five>\<zero>\<zero> )"
+value "  (\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile> not(\<upsilon>(X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n5 .salary))"
+value "  (\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile>      (X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n5 .salary@pre   \<doteq> \<three>\<five>\<zero>\<zero> )"
+value "  (\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile> not(\<upsilon>(X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n5 .boss))"
+lemma "  (\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile>      (X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n5 .oclIsOld())"
+by(simp add: not_def OclValid_def oclisold_def 
+             \<sigma>\<^isub>1_def \<sigma>\<^isub>1'_def
+             X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n5_def person5_def
+             oid\<^isub>1_def oid\<^isub>2_def oid\<^isub>3_def oid\<^isub>4_def oid\<^isub>5_def oid\<^isub>6_def oid\<^isub>7_def
+             oid_of_option_def oid_of_person_def)
 
 
 (* (* access to an oclany object not yet supported *) value "  (\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile>     ((X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n6 .boss .salary)   \<doteq> \<three>\<two>\<zero>\<zero> )"*)
 value "  (\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile> not(\<upsilon>(X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n6 .boss .salary@pre))" 
-value "  (\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile>     ((X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n6 .boss@pre)   \<doteq> X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n4 )"
-value "  (\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile>     ((X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n6 .boss@pre .salary)   \<doteq> \<two>\<nine>\<zero>\<zero> )"
-value "  (\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile>     ((X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n6 .boss@pre .salary@pre)   \<doteq> \<two>\<six>\<zero>\<zero> )"
+value "  (\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile>      (X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n6 .boss@pre   \<doteq> X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n4 )"
+value "  (\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile>      (X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n6 .boss@pre .salary   \<doteq> \<two>\<nine>\<zero>\<zero> )"
+value "  (\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile>      (X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n6 .boss@pre .salary@pre   \<doteq> \<two>\<six>\<zero>\<zero> )"
+lemma "  (\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile>      (X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n6 .oclIsEverywhere())"
+by(simp add: OclValid_def ocliseverywhere_def 
+             \<sigma>\<^isub>1_def \<sigma>\<^isub>1'_def
+             X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n6_def person6_def
+             oid\<^isub>1_def oid\<^isub>2_def oid\<^isub>3_def oid\<^isub>4_def oid\<^isub>5_def oid\<^isub>6_def oid\<^isub>7_def
+             oid_of_option_def oid_of_person_def)
 
 
 (* (* access to an oclany object not yet supported *) value "  (\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile>     ((X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n7 .oclAsType(Person)   \<doteq>  (X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n6 .boss)))" *)
 (* (* access to an oclany object not yet supported *) value "  (\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile>     ((X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n7 .oclAsType(Person) .boss)   \<doteq> (X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n7 .oclAsType(Person)) )" *)
 (* (* access to an oclany object not yet supported *) value "  (\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile>     ((X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n7 .oclAsType(Person) .boss .salary)   \<doteq> \<three>\<two>\<zero>\<zero> )" *)
 value "  (\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile> not(\<upsilon>(X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n7 .oclAsType(Person) .boss@pre))"
-value "  (\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile>     ((X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n7 .oclAsType(Person) .oclAsType(OclAny) .oclAsType(Person) )  
+value "  (\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile>     ( X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n7 .oclAsType(Person) .oclAsType(OclAny) .oclAsType(Person)
                           \<doteq> (X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n7 .oclAsType(Person)) )"
-lemma "  (\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile>      (X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n7 .oclIsNew() )"
+lemma "  (\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile>      (X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n7 .oclIsNew())"
 by(simp add: OclValid_def oclisnew_def 
              \<sigma>\<^isub>1_def \<sigma>\<^isub>1'_def
              X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n7_def person7_def

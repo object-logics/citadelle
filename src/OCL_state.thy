@@ -208,6 +208,36 @@ where "X .oclIsNew() \<equiv> (\<lambda>\<tau> . if (\<delta> X) \<tau> = true \
                                      oid_of (X \<tau>) \<in> dom(heap(snd \<tau>))\<rfloor>\<rfloor>
                               else invalid \<tau>)" 
 
+text{* The following predicates --- which are not part of the OCL standard descriptions ---
+complete the goal of oclIsNew() by describing where an object belongs.
+*}
+
+definition oclisold:: "('\<AA>, '\<alpha>::{null,object})val \<Rightarrow> ('\<AA>)Boolean"   ("(_).oclIsOld'(')")
+where "X .oclIsOld() \<equiv> (\<lambda>\<tau> . if (\<delta> X) \<tau> = true \<tau> 
+                              then \<lfloor>\<lfloor>oid_of (X \<tau>) \<in> dom(heap(fst \<tau>)) \<and> 
+                                     oid_of (X \<tau>) \<notin> dom(heap(snd \<tau>))\<rfloor>\<rfloor>
+                              else invalid \<tau>)" 
+
+definition ocliseverywhere:: "('\<AA>, '\<alpha>::{null,object})val \<Rightarrow> ('\<AA>)Boolean"   ("(_).oclIsEverywhere'(')")
+where "X .oclIsEverywhere() \<equiv> (\<lambda>\<tau> . if (\<delta> X) \<tau> = true \<tau> 
+                              then \<lfloor>\<lfloor>oid_of (X \<tau>) \<in> dom(heap(fst \<tau>)) \<and>
+                                     oid_of (X \<tau>) \<in> dom(heap(snd \<tau>))\<rfloor>\<rfloor>
+                              else invalid \<tau>)" 
+
+definition oclisabsent:: "('\<AA>, '\<alpha>::{null,object})val \<Rightarrow> ('\<AA>)Boolean"   ("(_).oclIsAbsent'(')")
+where "X .oclIsAbsent() \<equiv> (\<lambda>\<tau> . if (\<delta> X) \<tau> = true \<tau> 
+                              then \<lfloor>\<lfloor>oid_of (X \<tau>) \<notin> dom(heap(fst \<tau>)) \<and>
+                                     oid_of (X \<tau>) \<notin> dom(heap(snd \<tau>))\<rfloor>\<rfloor>
+                              else invalid \<tau>)" 
+
+lemma state_split : "\<tau> \<Turnstile> \<delta> X \<Longrightarrow> \<tau> \<Turnstile> (X .oclIsNew()) \<or> \<tau> \<Turnstile> (X .oclIsOld()) \<or> \<tau> \<Turnstile> (X .oclIsEverywhere()) \<or> \<tau> \<Turnstile> (X .oclIsAbsent())"
+by(simp add: oclisold_def oclisnew_def ocliseverywhere_def oclisabsent_def
+             OclValid_def true_def, blast)
+
+lemma notNew_vs_others : "\<tau> \<Turnstile> \<delta> X \<Longrightarrow> (\<not> \<tau> \<Turnstile> (X .oclIsNew())) = (\<tau> \<Turnstile> (X .oclIsOld()) \<or> \<tau> \<Turnstile> (X .oclIsEverywhere()) \<or> \<tau> \<Turnstile> (X .oclIsAbsent()))"
+by(simp add: oclisold_def oclisnew_def ocliseverywhere_def oclisabsent_def
+                not_def OclValid_def true_def, blast)
+
 text{* The following predicate --- which is not part of the OCL standard descriptions ---
 provides a simple, but powerful means to describe framing conditions. For any formal
 approach, be it animation of OCL contracts, test-case generation or die-hard theorem
