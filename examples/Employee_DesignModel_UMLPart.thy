@@ -217,7 +217,7 @@ lemma "let \<sigma>\<^isub>1' = \<lparr> heap = empty(oid \<mapsto> in\<^isub>o\
  apply(subst Abs_Set_0_inject) apply(simp add: bot_option_def)+
 done
 
-lemma down_cast_allinstances_are_onebody :
+lemma down_cast_allinstances_not_constructive :
  assumes           "ran H = in\<^isub>o\<^isub>c\<^isub>l\<^isub>a\<^isub>n\<^isub>y ` S"
      and           "S \<noteq> {}"
      and S_finite: "finite S"
@@ -237,8 +237,8 @@ proof -
   apply(rule conjI)
   apply(rule impI)
 
- apply(subst Abs_Set_0_inject)
- apply(simp add: bot_option_def)+
+  apply(subst Abs_Set_0_inject)
+  apply(simp add: bot_option_def)+
   apply(subst (asm) Abs_Set_0_inject)
   apply(simp add: bot_option_def)+
   apply(rule conjI)
@@ -286,6 +286,77 @@ proof -
   apply(blast)
  done
 qed
+
+lemma up_cast_allinstances_not_constructive :
+ assumes           "ran H = in\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n ` S"
+     and           "S \<noteq> {}"
+     and S_finite: "finite S"
+ shows "let \<sigma>\<^isub>1' = \<lparr> heap = H , assocs = A \<rparr> in
+       (OclAny .oclAllInstances()) (\<sigma>\<^isub>1,\<sigma>\<^isub>1') = Set{\<lambda>_. \<lfloor>\<lfloor>THE _. False\<rfloor>\<rfloor>} (\<sigma>\<^isub>1,\<sigma>\<^isub>1')"
+proof -
+
+ have inj: "\<And>x y. \<lfloor>\<lfloor>x\<rfloor>\<rfloor> = \<lfloor>\<lfloor>y\<rfloor>\<rfloor> \<Longrightarrow> x = y"
+ by (metis option.inject)
+
+ have simp_singl: "\<And>P a. {y. P y} = {a} \<Longrightarrow> P a"
+ by (metis (full_types) mem_Collect_eq singleton_iff)
+
+ show ?thesis
+  apply(simp add: Let_def)
+  apply(simp add: mtSet_def the_inv_into_def OclIncluding_def defined_def bot_Set_0_def null_Set_0_def bot_fun_def OclValid_def)
+  apply(rule conjI)
+  apply(rule impI)
+
+  apply(subst Abs_Set_0_inject)
+  apply(simp add: bot_option_def)+
+  apply(subst (asm) Abs_Set_0_inject)
+  apply(simp add: bot_option_def)+
+  apply(rule conjI)
+  apply(simp add: null_fun_def null_Set_0_def)
+  apply(subst Abs_Set_0_inject)
+  apply(simp add: null_option_def bot_option_def)+
+  apply(rule impI)
+
+  apply(subst Abs_Set_0_inverse, simp+)
+  apply(subst assms, simp add: image_def)
+  apply(rule finite_ne_induct[where P = "\<lambda>S. Abs_Set_0 \<lfloor>\<lfloor>{y. \<exists>x. (\<exists>xa\<in>S. x = in\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n xa) \<and> y = \<lfloor>\<lfloor>THE y. in\<^isub>o\<^isub>c\<^isub>l\<^isub>a\<^isub>n\<^isub>y y = x\<rfloor>\<rfloor>}\<rfloor>\<rfloor> =
+      Abs_Set_0 \<lfloor>\<lfloor>{\<lfloor>\<lfloor>THE _. False\<rfloor>\<rfloor>}\<rfloor>\<rfloor>" , OF S_finite])
+  apply(simp add: assms)
+  apply(simp)
+  apply(simp)
+  apply(subst (asm) Abs_Set_0_inject) apply(simp add: bot_option_def)+
+  apply(subst (asm) Abs_Set_0_inject) apply(simp add: bot_option_def)+
+  apply(rule disjI2)
+  apply(rule allI, rule impI)
+  apply(drule exE) prefer 2 apply assumption
+  apply(drule conjE) prefer 2 apply assumption
+  apply(drule bexE) prefer 2 apply assumption
+  apply(simp)
+  apply(simp)
+  apply(rule disjI2)+ apply(simp add: bot_option_def)
+  apply(subgoal_tac "{y. \<exists>x. (\<exists>xa\<in>F. x = in\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n xa) \<and> y = \<lfloor>\<lfloor>THE y. in\<^isub>o\<^isub>c\<^isub>l\<^isub>a\<^isub>n\<^isub>y y = x\<rfloor>\<rfloor>} = {\<lfloor>\<lfloor>THE _. False\<rfloor>\<rfloor>}")
+  prefer 2
+  apply(rule inj, simp)
+
+  apply(drule simp_singl, simp)
+
+  apply(drule exE) prefer 2 apply assumption
+  apply(subst Abs_Set_0_inject, simp add: bot_option_def null_option_def)
+  apply(blast)
+  apply(simp add: bot_option_def)
+  apply(rule_tac f = "\<lambda>x. \<lfloor>\<lfloor>x\<rfloor>\<rfloor>" in arg_cong)
+  apply(rule equalityI)
+  apply(rule subsetI)
+  apply(simp)
+
+  apply(drule exE) prefer 2 apply assumption
+  apply(simp)
+  apply (metis \<AA>.distinct(1))
+
+  apply(blast)
+ done
+qed
+
 
 text{* For each Class \emph{C}, we will have a casting operation \verb+.oclAsType(+\emph{C}\verb+)+,
    a test on the actual type \verb+.oclIsTypeOf(+\emph{C}\verb+)+ as well as its relaxed form
@@ -520,6 +591,36 @@ shows "((X::Person) .oclAsType(OclAny) .oclAsType(Person) = X)"
  apply(simp add: def_split_local, elim disjE)
  apply(erule StrongEq_L_subst2_rev, simp, simp)+
 done
+
+lemma 
+ assumes           "ran H = in\<^isub>o\<^isub>c\<^isub>l\<^isub>a\<^isub>n\<^isub>y ` S"
+     and           "S \<noteq> {}"
+     and S_finite: "finite S"
+ shows "let \<sigma>\<^isub>1' = \<lparr> heap = H , assocs = A \<rparr> in
+        ((\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile> (((\<lambda>_. \<lfloor>\<lfloor>THE _. False\<rfloor>\<rfloor>) :: Person) .oclIsTypeOf(Person)))"
+by(simp add: OclValid_def oclistypeof\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n_Person)
+
+lemma down_cast_allinstances_not_constructive' :
+ assumes           "ran H = in\<^isub>o\<^isub>c\<^isub>l\<^isub>a\<^isub>n\<^isub>y ` (\<lambda>x. case x of mk\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n oid a b \<Rightarrow> mk\<^isub>o\<^isub>c\<^isub>l\<^isub>a\<^isub>n\<^isub>y oid (\<lfloor>(a, b)\<rfloor>)) ` S"
+     and           "S \<noteq> {}"
+     and S_finite: "finite S"
+ shows "let \<sigma>\<^isub>1' = \<lparr> heap = H , assocs = A \<rparr> in
+       (Person .oclAllInstances()) (\<sigma>\<^isub>1,\<sigma>\<^isub>1') = Set{\<lambda>_. \<lfloor>\<lfloor>THE _. False\<rfloor>\<rfloor>} (\<sigma>\<^isub>1,\<sigma>\<^isub>1')"
+ apply(rule down_cast_allinstances_not_constructive)
+ apply(simp add: assms)
+ apply (metis assms(2) empty_is_image)
+by (metis S_finite finite_imageI)
+
+lemma up_cast_allinstances_not_constructive' :
+ assumes           "ran H = in\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n ` (\<lambda>x. case x of mk\<^isub>o\<^isub>c\<^isub>l\<^isub>a\<^isub>n\<^isub>y oid (\<lfloor>(a, b)\<rfloor>) \<Rightarrow> mk\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n oid a b) ` S"
+     and           "S \<noteq> {}"
+     and S_finite: "finite S"
+ shows "let \<sigma>\<^isub>1' = \<lparr> heap = H , assocs = A \<rparr> in
+       (OclAny .oclAllInstances()) (\<sigma>\<^isub>1,\<sigma>\<^isub>1') = Set{\<lambda>_. \<lfloor>\<lfloor>THE _. False\<rfloor>\<rfloor>} (\<sigma>\<^isub>1,\<sigma>\<^isub>1')"
+ apply(rule up_cast_allinstances_not_constructive)
+ apply(simp add: assms)
+ apply (metis assms(2) empty_is_image)
+by (metis S_finite finite_imageI)
 
 subsubsection{* iskindof *}
 
