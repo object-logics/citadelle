@@ -236,8 +236,7 @@ defs (overloaded) oclastype\<^isub>o\<^isub>c\<^isub>l\<^isub>a\<^isub>n\<^isub>
         "(X::Person) .oclAsType(OclAny) \<equiv> 
                    (\<lambda>\<tau>. case X \<tau> of 
                               \<bottom>   \<Rightarrow> invalid \<tau>
-                            | \<lfloor>\<bottom>\<rfloor> \<Rightarrow> null \<tau>    (* OTHER POSSIBILITY : null ??? Really excluded 
-                                                     by standard *)
+                            | \<lfloor>\<bottom>\<rfloor> \<Rightarrow> null \<tau>    
                             | \<lfloor>\<lfloor>mk\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n oid a b \<rfloor>\<rfloor> \<Rightarrow>  \<lfloor>\<lfloor>  (mk\<^isub>o\<^isub>c\<^isub>l\<^isub>a\<^isub>n\<^isub>y oid \<lfloor>(a,b)\<rfloor>) \<rfloor>\<rfloor>)"
 
 defs (overloaded) oclastype\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n_OclAny: 
@@ -440,7 +439,7 @@ by(auto simp : null_fun_def null_option_def bot_option_def null_def invalid_def
         split: option.split person.split)
 
 
-lemma up_down_cast2 [simp]: 
+lemma up_down_cast_Person_OclAny_Person [simp]: 
 shows "((X::Person) .oclAsType(OclAny) .oclAsType(Person) = X)" 
  apply(rule ext, rename_tac \<tau>)
  apply(rule foundation22[THEN iffD1])
