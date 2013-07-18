@@ -739,8 +739,6 @@ subsection{* dot boss, dot salary *}
 
 text{* Should be generated entirely from a class-diagram. *}
 
-typ "Person \<Rightarrow> Person"
-
 definition "eval_extract X f = (\<lambda> \<tau>. case X \<tau> of
                                     \<bottom> \<Rightarrow> invalid \<tau>   (* exception propagation *)
                                | \<lfloor>  \<bottom> \<rfloor> \<Rightarrow> invalid \<tau> (* dereferencing null pointer *)
@@ -748,7 +746,7 @@ definition "eval_extract X f = (\<lambda> \<tau>. case X \<tau> of
 
 
 definition "deref\<^isub>o\<^isub>i\<^isub>d fst_snd f oid = (\<lambda>\<tau>. case (heap (fst_snd \<tau>)) oid of
-                       \<lfloor> in\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n obj \<rfloor> \<Rightarrow> f ( obj) \<tau>
+                       \<lfloor> in\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n obj \<rfloor> \<Rightarrow> f obj \<tau>
                      | _       \<Rightarrow> invalid \<tau>)"
 text{* pointer undefined in state or not referencing a type conform object representation *}
 
@@ -764,7 +762,7 @@ definition "select\<^isub>b\<^isub>o\<^isub>s\<^isub>s f = (\<lambda> X. case X 
 
 definition "select\<^isub>s\<^isub>a\<^isub>l\<^isub>a\<^isub>r\<^isub>y f = (\<lambda> X. case X of
                      (mk\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n _ \<bottom> _) \<Rightarrow> null
-                   | (mk\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n _ \<lfloor>i\<rfloor> _) \<Rightarrow> f (\<lambda>x _. \<lfloor>\<lfloor>x\<rfloor>\<rfloor>) i)" 
+                   | (mk\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n _ \<lfloor>salary\<rfloor> _) \<Rightarrow> f (\<lambda>x _. \<lfloor>\<lfloor>x\<rfloor>\<rfloor>) salary)" 
 
 
 definition "in_pre_state = fst"
@@ -772,19 +770,19 @@ definition "in_post_state = snd"
 
 definition "reconst_basetype = (\<lambda> convert x. convert x)"
 
-fun dot_boss:: "Person \<Rightarrow> Person"  ("(1(_).boss)" 50)
+fun dot\<^isub>b\<^isub>o\<^isub>s\<^isub>s :: "Person \<Rightarrow> Person"  ("(1(_).boss)" 50)
   where "(X).boss = eval_extract X 
                       (deref\<^isub>o\<^isub>i\<^isub>d in_post_state 
                          (select\<^isub>b\<^isub>o\<^isub>s\<^isub>s 
                             (deref\<^isub>o\<^isub>i\<^isub>d in_post_state)))"
 
-fun dot_salary:: "Person \<Rightarrow> Integer"  ("(1(_).salary)" 50)
+fun dot\<^isub>s\<^isub>a\<^isub>l\<^isub>a\<^isub>r\<^isub>y :: "Person \<Rightarrow> Integer"  ("(1(_).salary)" 50)
   where "(X).salary = eval_extract X 
                        (deref\<^isub>o\<^isub>i\<^isub>d in_post_state 
                           (select\<^isub>s\<^isub>a\<^isub>l\<^isub>a\<^isub>r\<^isub>y 
                              reconst_basetype))"
 
-fun dot_boss_at_pre:: "Person \<Rightarrow> Person"  ("(1(_).boss@pre)" 50)
+fun dot\<^isub>b\<^isub>o\<^isub>s\<^isub>s_at_pre:: "Person \<Rightarrow> Person"  ("(1(_).boss@pre)" 50)
   where "(X).boss@pre = eval_extract X 
                          (deref\<^isub>o\<^isub>i\<^isub>d in_pre_state 
                             (select\<^isub>b\<^isub>o\<^isub>s\<^isub>s 
@@ -792,42 +790,62 @@ fun dot_boss_at_pre:: "Person \<Rightarrow> Person"  ("(1(_).boss@pre)" 50)
   (* | \<lfloor>\<lfloor> mk\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n _ _ \<bottom> \<rfloor>\<rfloor> \<Rightarrow> null (* object contains null pointer. REALLY ? 
                                      And if this pointer was defined in the pre-state ?*) *)
 
-fun dot_salary_at_pre:: "Person \<Rightarrow> Integer"  ("(1(_).salary@pre)" 50)
+fun dot\<^isub>s\<^isub>a\<^isub>l\<^isub>a\<^isub>r\<^isub>y_at_pre:: "Person \<Rightarrow> Integer"  ("(1(_).salary@pre)" 50)
   where "(X).salary@pre = eval_extract X 
                             (deref\<^isub>o\<^isub>i\<^isub>d in_pre_state 
                                (select\<^isub>s\<^isub>a\<^isub>l\<^isub>a\<^isub>r\<^isub>y 
                                    reconst_basetype))"
 
 
-lemma cp_dot_boss: "((X).boss) \<tau> = ((\<lambda>_. X \<tau>).boss) \<tau>" by(simp add: eval_extract_def)
+lemma cp_dot\<^isub>b\<^isub>o\<^isub>s\<^isub>s: "((X).boss) \<tau> = ((\<lambda>_. X \<tau>).boss) \<tau>" by(simp add: eval_extract_def)
 
-lemma cp_dot_salary: "((X).salary) \<tau> = ((\<lambda>_. X \<tau>).salary) \<tau>" by(simp add: eval_extract_def)
+lemma cp_dot\<^isub>s\<^isub>a\<^isub>l\<^isub>a\<^isub>r\<^isub>y: "((X).salary) \<tau> = ((\<lambda>_. X \<tau>).salary) \<tau>" by(simp add: eval_extract_def)
 
-lemma cp_dot_boss_at_pre: "((X).boss@pre) \<tau> = ((\<lambda>_. X \<tau>).boss@pre) \<tau>" by(simp add: eval_extract_def)
+lemma cp_dot\<^isub>b\<^isub>o\<^isub>s\<^isub>s_at_pre: "((X).boss@pre) \<tau> = ((\<lambda>_. X \<tau>).boss@pre) \<tau>" by(simp add: eval_extract_def)
 
-lemma cp_dot_boss_pre: "((X).salary@pre) \<tau> = ((\<lambda>_. X \<tau>).salary@pre) \<tau>" by(simp add: eval_extract_def)
+lemma cp_dot\<^isub>s\<^isub>a\<^isub>l\<^isub>a\<^isub>r\<^isub>y_at_pre: "((X).salary@pre) \<tau> = ((\<lambda>_. X \<tau>).salary@pre) \<tau>" by(simp add: eval_extract_def)
 
-lemmas cp_dot_bossI [simp, intro!]= 
-       cp_dot_boss[THEN allI[THEN allI], of "\<lambda> X _. X" "\<lambda> _ \<tau>. \<tau>", THEN cpI1]
+lemmas cp_dot\<^isub>b\<^isub>o\<^isub>s\<^isub>s_I [simp, intro!]= 
+       cp_dot\<^isub>b\<^isub>o\<^isub>s\<^isub>s[THEN allI[THEN allI], 
+                          of "\<lambda> X _. X" "\<lambda> _ \<tau>. \<tau>", THEN cpI1]
 
-lemmas cp_dot_bossI_at_pre [simp, intro!]= 
-       cp_dot_boss_at_pre[THEN allI[THEN allI],  
+lemmas cp_dot\<^isub>b\<^isub>o\<^isub>s\<^isub>s_at_pre_I [simp, intro!]= 
+       cp_dot\<^isub>b\<^isub>o\<^isub>s\<^isub>s_at_pre[THEN allI[THEN allI],  
+                          of "\<lambda> X _. X" "\<lambda> _ \<tau>. \<tau>", THEN cpI1]
+
+lemmas cp_dot\<^isub>s\<^isub>a\<^isub>l\<^isub>a\<^isub>r\<^isub>y_I [simp, intro!]= 
+       cp_dot\<^isub>s\<^isub>a\<^isub>l\<^isub>a\<^isub>r\<^isub>y[THEN allI[THEN allI], 
+                          of "\<lambda> X _. X" "\<lambda> _ \<tau>. \<tau>", THEN cpI1]
+
+lemmas cp_dot\<^isub>s\<^isub>a\<^isub>l\<^isub>a\<^isub>r\<^isub>y_at_pre_I [simp, intro!]= 
+       cp_dot\<^isub>s\<^isub>a\<^isub>l\<^isub>a\<^isub>r\<^isub>y_at_pre[THEN allI[THEN allI],  
                           of "\<lambda> X _. X" "\<lambda> _ \<tau>. \<tau>", THEN cpI1]
 
 
-
-lemma dot_boss_nullstrict [simp]: "(null).boss = invalid"
+lemma dot\<^isub>b\<^isub>o\<^isub>s\<^isub>s_nullstrict [simp]: "(null).boss = invalid"
 by(rule ext, simp add: null_fun_def null_option_def bot_option_def null_def invalid_def eval_extract_def)
 
-lemma dot_boss_at_pre_nullstrict [simp] : "(null).boss@pre = invalid"
+lemma dot\<^isub>b\<^isub>o\<^isub>s\<^isub>s_at_pre_nullstrict [simp] : "(null).boss@pre = invalid"
 by(rule ext, simp add: null_fun_def null_option_def bot_option_def null_def invalid_def eval_extract_def)
 
-lemma dot_boss_strict [simp] : "(invalid).boss = invalid" 
+lemma dot\<^isub>b\<^isub>o\<^isub>s\<^isub>s_strict [simp] : "(invalid).boss = invalid" 
 by(rule ext, simp add: null_fun_def null_option_def bot_option_def null_def invalid_def eval_extract_def)
 
-lemma dot_boss_at_pre_strict [simp] : "(invalid).boss@pre = invalid"
+lemma dot\<^isub>b\<^isub>o\<^isub>s\<^isub>s_at_pre_strict [simp] : "(invalid).boss@pre = invalid"
 by(rule ext, simp add: null_fun_def null_option_def bot_option_def null_def invalid_def eval_extract_def)
 
+
+lemma dot\<^isub>s\<^isub>a\<^isub>l\<^isub>a\<^isub>r\<^isub>y_nullstrict [simp]: "(null).salary = invalid"
+by(rule ext, simp add: null_fun_def null_option_def bot_option_def null_def invalid_def eval_extract_def)
+
+lemma dot\<^isub>s\<^isub>a\<^isub>l\<^isub>a\<^isub>r\<^isub>y_at_pre_nullstrict [simp] : "(null).salary@pre = invalid"
+by(rule ext, simp add: null_fun_def null_option_def bot_option_def null_def invalid_def eval_extract_def)
+
+lemma dot\<^isub>s\<^isub>a\<^isub>l\<^isub>a\<^isub>r\<^isub>y_strict [simp] : "(invalid).salary = invalid" 
+by(rule ext, simp add: null_fun_def null_option_def bot_option_def null_def invalid_def eval_extract_def)
+
+lemma dot\<^isub>s\<^isub>a\<^isub>l\<^isub>a\<^isub>r\<^isub>y_at_pre_strict [simp] : "(invalid).salary@pre = invalid"
+by(rule ext, simp add: null_fun_def null_option_def bot_option_def null_def invalid_def eval_extract_def)
 
 
 subsection{* A little infra-structure on example states.*}
