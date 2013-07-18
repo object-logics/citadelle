@@ -748,12 +748,23 @@ definition "eval_extract X f = (\<lambda> \<tau>. case X \<tau> of
 definition "deref\<^isub>o\<^isub>i\<^isub>d fst_snd f oid = (\<lambda>\<tau>. case (heap (fst_snd \<tau>)) oid of
                        \<lfloor> in\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n obj \<rfloor> \<Rightarrow> f obj \<tau>
                      | _       \<Rightarrow> invalid \<tau>)"
+
+definition "deref'\<^isub>o\<^isub>i\<^isub>d fst_snd f oid = (\<lambda>\<tau>. case (heap (fst_snd \<tau>)) oid of
+                       \<lfloor> in\<^isub>o\<^isub>c\<^isub>l\<^isub>a\<^isub>n\<^isub>y obj \<rfloor> \<Rightarrow> f obj \<tau>
+                     | _       \<Rightarrow> invalid \<tau>)"
+
 text{* pointer undefined in state or not referencing a type conform object representation *}
 
 (*
 definition "oclastype\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n_\<AA> u = (case u of in\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n p \<Rightarrow>  p 
                                           | in\<^isub>o\<^isub>c\<^isub>l\<^isub>a\<^isub>n\<^isub>y (mk\<^isub>o\<^isub>c\<^isub>l\<^isub>a\<^isub>n\<^isub>y oid \<lfloor>(a,b)\<rfloor>) \<Rightarrow> (mk\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n oid a b))"
 *)
+
+
+definition "select\<^isub>a\<^isub>n\<^isub>y f = (\<lambda> X. case X of 
+                     (mk\<^isub>o\<^isub>c\<^isub>l\<^isub>a\<^isub>n\<^isub>y _ \<bottom>) \<Rightarrow> null  (* object contains null pointer *)
+                   | (mk\<^isub>o\<^isub>c\<^isub>l\<^isub>a\<^isub>n\<^isub>y _ \<lfloor>oclany\<rfloor>) \<Rightarrow> f (\<lambda>x _. \<lfloor>\<lfloor>x\<rfloor>\<rfloor>) oclany)"
+
 
 definition "select\<^isub>b\<^isub>o\<^isub>s\<^isub>s f = (\<lambda> X. case X of 
                      (mk\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n _ _ \<bottom>) \<Rightarrow> null  (* object contains null pointer *)
@@ -770,6 +781,12 @@ definition "in_post_state = snd"
 
 definition "reconst_basetype = (\<lambda> convert x. convert x)"
 
+fun dot\<^isub>a\<^isub>n\<^isub>y :: "OclAny \<Rightarrow> _"  ("(1(_).oclany)" 50)
+  where "(X).oclany = eval_extract X 
+                       (deref'\<^isub>o\<^isub>i\<^isub>d in_post_state 
+                          (select\<^isub>a\<^isub>n\<^isub>y 
+                             reconst_basetype))"
+
 fun dot\<^isub>b\<^isub>o\<^isub>s\<^isub>s :: "Person \<Rightarrow> Person"  ("(1(_).boss)" 50)
   where "(X).boss = eval_extract X 
                       (deref\<^isub>o\<^isub>i\<^isub>d in_post_state 
@@ -780,6 +797,12 @@ fun dot\<^isub>s\<^isub>a\<^isub>l\<^isub>a\<^isub>r\<^isub>y :: "Person \<Right
   where "(X).salary = eval_extract X 
                        (deref\<^isub>o\<^isub>i\<^isub>d in_post_state 
                           (select\<^isub>s\<^isub>a\<^isub>l\<^isub>a\<^isub>r\<^isub>y 
+                             reconst_basetype))"
+
+fun dot\<^isub>a\<^isub>n\<^isub>y_at_pre :: "OclAny \<Rightarrow> _"  ("(1(_).oclany@pre)" 50)
+  where "(X).oclany@pre = eval_extract X 
+                       (deref'\<^isub>o\<^isub>i\<^isub>d in_pre_state 
+                          (select\<^isub>a\<^isub>n\<^isub>y 
                              reconst_basetype))"
 
 fun dot\<^isub>b\<^isub>o\<^isub>s\<^isub>s_at_pre:: "Person \<Rightarrow> Person"  ("(1(_).boss@pre)" 50)
