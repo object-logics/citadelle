@@ -66,37 +66,37 @@ type_synonym ('\<AA>)Integer = "('\<AA>,int option option) val"
 text{* Although the remaining part of this library reasons about 
 integers abstractly, we provide here some shortcuts to some usual integers. *}
 
-definition ocl_zero ::"('\<AA>)Integer" ("\<zero>")
+definition OclInt0 ::"('\<AA>)Integer" ("\<zero>")
 where      "\<zero> = (\<lambda> _ . \<lfloor>\<lfloor>0::int\<rfloor>\<rfloor>)"
 
-definition ocl_one ::"('\<AA>)Integer" ("\<one>")
+definition OclInt1 ::"('\<AA>)Integer" ("\<one>")
 where      "\<one> = (\<lambda> _ . \<lfloor>\<lfloor>1::int\<rfloor>\<rfloor>)"
 
-definition ocl_two ::"('\<AA>)Integer" ("\<two>")
+definition OclInt2 ::"('\<AA>)Integer" ("\<two>")
 where      "\<two> = (\<lambda> _ . \<lfloor>\<lfloor>2::int\<rfloor>\<rfloor>)"
 
-definition ocl_three ::"('\<AA>)Integer" ("\<three>")
+definition OclInt3 ::"('\<AA>)Integer" ("\<three>")
 where      "\<three> = (\<lambda> _ . \<lfloor>\<lfloor>3::int\<rfloor>\<rfloor>)"
 
-definition ocl_four ::"('\<AA>)Integer" ("\<four>")
+definition OclInt4 ::"('\<AA>)Integer" ("\<four>")
 where      "\<four> = (\<lambda> _ . \<lfloor>\<lfloor>4::int\<rfloor>\<rfloor>)"
 
-definition ocl_five ::"('\<AA>)Integer" ("\<five>")
+definition OclInt5 ::"('\<AA>)Integer" ("\<five>")
 where      "\<five> = (\<lambda> _ . \<lfloor>\<lfloor>5::int\<rfloor>\<rfloor>)"
 
-definition ocl_six ::"('\<AA>)Integer" ("\<six>")
+definition OclInt6 ::"('\<AA>)Integer" ("\<six>")
 where      "\<six> = (\<lambda> _ . \<lfloor>\<lfloor>6::int\<rfloor>\<rfloor>)"
 
-definition ocl_seven ::"('\<AA>)Integer" ("\<seven>")
+definition OclInt7 ::"('\<AA>)Integer" ("\<seven>")
 where      "\<seven> = (\<lambda> _ . \<lfloor>\<lfloor>7::int\<rfloor>\<rfloor>)"
 
-definition ocl_eight ::"('\<AA>)Integer" ("\<eight>")
+definition OclInt8 ::"('\<AA>)Integer" ("\<eight>")
 where      "\<eight> = (\<lambda> _ . \<lfloor>\<lfloor>8::int\<rfloor>\<rfloor>)"
 
-definition ocl_nine ::"('\<AA>)Integer" ("\<nine>")
+definition OclInt9 ::"('\<AA>)Integer" ("\<nine>")
 where      "\<nine> = (\<lambda> _ . \<lfloor>\<lfloor>9::int\<rfloor>\<rfloor>)"
 
-definition ocl_ten ::"('\<AA>)Integer" ("\<one>\<zero>")
+definition OclInt10 ::"('\<AA>)Integer" ("\<one>\<zero>")
 where      "\<one>\<zero> = (\<lambda> _ . \<lfloor>\<lfloor>10::int\<rfloor>\<rfloor>)"
 
 subsection{* Validity and Definedness Properties *}
@@ -113,14 +113,14 @@ by(simp add:valid_def true_def
                bot_fun_def bot_option_def)
 
 (* ecclectic proofs to make examples executable *)
-lemma [simp,code_unfold]:"\<upsilon> \<zero> = true" by(simp add:ocl_zero_def)
-lemma [simp,code_unfold]:"\<delta> \<one> = true" by(simp add:ocl_one_def)
-lemma [simp,code_unfold]:"\<upsilon> \<one> = true" by(simp add:ocl_one_def)
-lemma [simp,code_unfold]:"\<delta> \<two> = true" by(simp add:ocl_two_def)
-lemma [simp,code_unfold]:"\<upsilon> \<two> = true" by(simp add:ocl_two_def)
-lemma [simp,code_unfold]: "\<upsilon> \<six> = true" by(simp add:ocl_six_def)
-lemma [simp,code_unfold]: "\<upsilon> \<eight> = true" by(simp add:ocl_eight_def)
-lemma [simp,code_unfold]: "\<upsilon> \<nine> = true" by(simp add:ocl_nine_def)
+lemma [simp,code_unfold]:"\<upsilon> \<zero> = true" by(simp add:OclInt0_def)
+lemma [simp,code_unfold]:"\<delta> \<one> = true" by(simp add:OclInt1_def)
+lemma [simp,code_unfold]:"\<upsilon> \<one> = true" by(simp add:OclInt1_def)
+lemma [simp,code_unfold]:"\<delta> \<two> = true" by(simp add:OclInt2_def)
+lemma [simp,code_unfold]:"\<upsilon> \<two> = true" by(simp add:OclInt2_def)
+lemma [simp,code_unfold]: "\<upsilon> \<six> = true" by(simp add:OclInt6_def)
+lemma [simp,code_unfold]: "\<upsilon> \<eight> = true" by(simp add:OclInt8_def)
+lemma [simp,code_unfold]: "\<upsilon> \<nine> = true" by(simp add:OclInt9_def)
 
 subsection{* Arithmetical Operations on Integer *}
 
@@ -277,18 +277,18 @@ lemma null_non_integer [simp]: "((null::('\<AA>)Integer) \<doteq> (\<lambda>_. \
 by(rule ext,auto simp: StrictRefEq\<^isub>i\<^isub>n\<^isub>t valid_def 
                          bot_fun_def bot_option_def null_fun_def null_option_def StrongEq_def)
 
-lemma zero_non_null [simp]: "(\<zero> \<doteq> null) = false" by(simp add: ocl_zero_def)
-lemma null_non_zero [simp]: "(null \<doteq> \<zero>) = false" by(simp add: ocl_zero_def)
-lemma one_non_null [simp]: "(\<one> \<doteq> null) = false" by(simp add: ocl_one_def)
-lemma null_non_one [simp]: "(null \<doteq> \<one>) = false" by(simp add: ocl_one_def)
-lemma two_non_null [simp]: "(\<two> \<doteq> null) = false" by(simp add: ocl_two_def)
-lemma null_non_two [simp]: "(null \<doteq> \<two>) = false" by(simp add: ocl_two_def)
-lemma six_non_null [simp]: "(\<six> \<doteq> null) = false" by(simp add: ocl_six_def)
-lemma null_non_six [simp]: "(null \<doteq> \<six>) = false" by(simp add: ocl_six_def)
-lemma eight_non_null [simp]: "(\<eight> \<doteq> null) = false" by(simp add: ocl_eight_def)
-lemma null_non_eight [simp]: "(null \<doteq> \<eight>) = false" by(simp add: ocl_eight_def)
-lemma nine_non_null [simp]: "(\<nine> \<doteq> null) = false" by(simp add: ocl_nine_def)
-lemma null_non_nine [simp]: "(null \<doteq> \<nine>) = false" by(simp add: ocl_nine_def)
+lemma OclInt0_non_null [simp]: "(\<zero> \<doteq> null) = false" by(simp add: OclInt0_def)
+lemma null_non_OclInt0 [simp]: "(null \<doteq> \<zero>) = false" by(simp add: OclInt0_def)
+lemma OclInt1_non_null [simp]: "(\<one> \<doteq> null) = false" by(simp add: OclInt1_def)
+lemma null_non_OclInt1 [simp]: "(null \<doteq> \<one>) = false" by(simp add: OclInt1_def)
+lemma OclInt2_non_null [simp]: "(\<two> \<doteq> null) = false" by(simp add: OclInt2_def)
+lemma null_non_OclInt2 [simp]: "(null \<doteq> \<two>) = false" by(simp add: OclInt2_def)
+lemma OclInt6_non_null [simp]: "(\<six> \<doteq> null) = false" by(simp add: OclInt6_def)
+lemma null_non_OclInt6 [simp]: "(null \<doteq> \<six>) = false" by(simp add: OclInt6_def)
+lemma OclInt8_non_null [simp]: "(\<eight> \<doteq> null) = false" by(simp add: OclInt8_def)
+lemma null_non_OclInt8 [simp]: "(null \<doteq> \<eight>) = false" by(simp add: OclInt8_def)
+lemma OclInt9_non_null [simp]: "(\<nine> \<doteq> null) = false" by(simp add: OclInt9_def)
+lemma null_non_OclInt9 [simp]: "(null \<doteq> \<nine>) = false" by(simp add: OclInt9_def)
 
 (* plus all the others ...*)
 
@@ -5843,15 +5843,15 @@ proof -
 
  have all_defined1 : "\<And>r2 \<tau>. all_defined \<tau> r2 \<Longrightarrow> \<tau> \<Turnstile> \<delta> r2" by(simp add: all_defined_def)
 
- have zero_int : "is_int \<zero>" by (metis StrictRefEq\<^isub>i\<^isub>n\<^isub>t_strict' foundation1 is_int_def null_non_zero ocl_zero_def valid4)
- have six_int : "is_int \<six>" by (metis StrictRefEq\<^isub>i\<^isub>n\<^isub>t_strict' foundation1 is_int_def null_non_six ocl_six_def valid4)
- have eight_int : "is_int \<eight>" by (metis StrictRefEq\<^isub>i\<^isub>n\<^isub>t_strict' foundation1 is_int_def null_non_eight ocl_eight_def valid4)
- have nine_int : "is_int \<nine>" by (metis StrictRefEq\<^isub>i\<^isub>n\<^isub>t_strict' foundation1 is_int_def null_non_nine ocl_nine_def valid4)
+ have OclInt0_int : "is_int \<zero>" by (metis StrictRefEq\<^isub>i\<^isub>n\<^isub>t_strict' foundation1 is_int_def null_non_OclInt0 OclInt0_def valid4)
+ have OclInt6_int : "is_int \<six>" by (metis StrictRefEq\<^isub>i\<^isub>n\<^isub>t_strict' foundation1 is_int_def null_non_OclInt6 OclInt6_def valid4)
+ have OclInt8_int : "is_int \<eight>" by (metis StrictRefEq\<^isub>i\<^isub>n\<^isub>t_strict' foundation1 is_int_def null_non_OclInt8 OclInt8_def valid4)
+ have OclInt9_int : "is_int \<nine>" by (metis StrictRefEq\<^isub>i\<^isub>n\<^isub>t_strict' foundation1 is_int_def null_non_OclInt9 OclInt9_def valid4)
 
- have commute8: "EQ_comp_fun_commute (\<lambda>x acc. acc->including(\<zero>)->including(x))" apply(rule including_commute3) by (simp add: zero_int)
- have commute7: "EQ_comp_fun_commute (\<lambda>x acc. acc->including(x)->including(\<zero>))" apply(rule including_commute2) by (simp add: zero_int)
- have commute4: "\<And>x acc. is_int x \<Longrightarrow> EQ_comp_fun_commute (\<lambda>xa acc. acc->including(\<zero>)->including(xa)->including(x))" apply(rule including_commute4) by(simp add: zero_int, blast)
- have commute3: "\<And>x acc. is_int x \<Longrightarrow> EQ_comp_fun_commute (\<lambda>xa acc. acc->including(\<zero>)->including(x)->including(xa))" apply(rule including_commute6) by(simp add: zero_int, blast)
+ have commute8: "EQ_comp_fun_commute (\<lambda>x acc. acc->including(\<zero>)->including(x))" apply(rule including_commute3) by (simp add: OclInt0_int)
+ have commute7: "EQ_comp_fun_commute (\<lambda>x acc. acc->including(x)->including(\<zero>))" apply(rule including_commute2) by (simp add: OclInt0_int)
+ have commute4: "\<And>x acc. is_int x \<Longrightarrow> EQ_comp_fun_commute (\<lambda>xa acc. acc->including(\<zero>)->including(xa)->including(x))" apply(rule including_commute4) by(simp add: OclInt0_int, blast)
+ have commute3: "\<And>x acc. is_int x \<Longrightarrow> EQ_comp_fun_commute (\<lambda>xa acc. acc->including(\<zero>)->including(x)->including(xa))" apply(rule including_commute6) by(simp add: OclInt0_int, blast)
 
  have swap1 : "\<And>(S:: ('\<AA>, _) Set) y x.
               is_int x \<Longrightarrow>
@@ -5874,12 +5874,12 @@ proof -
   apply(subst (1 2) cp_OclIncluding)
   apply(subst iterate_including_id_out)
    apply (metis cons_all_def' is_int_def mtSet_all_def)
-   apply(simp add: zero_int)
+   apply(simp add: OclInt0_int)
    apply (metis including_notempty' is_int_def)
   apply(rule sym, subst cp_OclIncluding)
   apply(subst iterate_including_id_out)
    apply (metis cons_all_def' is_int_def mtSet_all_def)
-   apply(simp add: zero_int)
+   apply(simp add: OclInt0_int)
    apply (metis including_notempty' is_int_def)
   (* *)
    apply(subst including_swap)
@@ -5897,23 +5897,23 @@ proof -
 
   (* *)
   apply(subst (1 2) cp_OclIncluding)
-  apply(subst (1 2) cp_OclIterate\<^isub>S\<^isub>e\<^isub>t1[OF including_commute3[THEN c0_of_c, THEN c0'_of_c0]], simp add: zero_int)
-   apply(rule cons_all_def') apply(rule i_cons_all_def) apply(rule including_commute3[THEN c0_of_c], simp add: zero_int, blast, simp add: int_is_valid)
-   apply(rule cons_all_def') apply(rule i_cons_all_def) apply(rule including_commute3[THEN c0_of_c], simp add: zero_int, blast, simp add: int_is_valid)
+  apply(subst (1 2) cp_OclIterate\<^isub>S\<^isub>e\<^isub>t1[OF including_commute3[THEN c0_of_c, THEN c0'_of_c0]], simp add: OclInt0_int)
+   apply(rule cons_all_def') apply(rule i_cons_all_def) apply(rule including_commute3[THEN c0_of_c], simp add: OclInt0_int, blast, simp add: int_is_valid)
+   apply(rule cons_all_def') apply(rule i_cons_all_def) apply(rule including_commute3[THEN c0_of_c], simp add: OclInt0_int, blast, simp add: int_is_valid)
   apply(subst (1 2 3 4 5 6) cp_OclIncluding)
 
   apply(subst (1 2 3 4 5) iterate_including_id_out)
 
-  apply(metis surj_pair, simp add: zero_int, simp)
+  apply(metis surj_pair, simp add: OclInt0_int, simp)
   apply(subst cp_OclIncluding[symmetric], rule cp_all_def[THEN iffD1])
-  apply(rule cons_all_def', rule i_cons_all_def, rule commute8[THEN c0_of_c], metis surj_pair, simp add: int_is_valid, simp add: zero_int)
+  apply(rule cons_all_def', rule i_cons_all_def, rule commute8[THEN c0_of_c], metis surj_pair, simp add: int_is_valid, simp add: OclInt0_int)
 
   apply(rule including_notempty)
-  apply(rule all_defined1, rule cp_all_def[THEN iffD1], rule i_cons_all_def, rule commute8[THEN c0_of_c], metis surj_pair, simp add: int_is_valid, simp add: zero_int)
-  apply(rule iterate_notempty, rule commute8[THEN c0_of_c], metis surj_pair, simp add: int_is_valid, simp add: zero_int)
-  apply(subst cp_OclIncluding[symmetric], rule cp_all_def[THEN iffD1]) apply(rule cons_all_def)+ apply(metis surj_pair, simp add: zero_int, simp add: int_is_valid)
-  apply(rule including_notempty, rule all_defined1, rule cp_all_def[THEN iffD1]) apply(rule cons_all_def)+ apply(metis surj_pair, simp add: zero_int, simp add: int_is_valid)
-  apply(rule including_notempty, rule all_defined1) apply(metis surj_pair, simp add: zero_int, simp add: int_is_valid)
+  apply(rule all_defined1, rule cp_all_def[THEN iffD1], rule i_cons_all_def, rule commute8[THEN c0_of_c], metis surj_pair, simp add: int_is_valid, simp add: OclInt0_int)
+  apply(rule iterate_notempty, rule commute8[THEN c0_of_c], metis surj_pair, simp add: int_is_valid, simp add: OclInt0_int)
+  apply(subst cp_OclIncluding[symmetric], rule cp_all_def[THEN iffD1]) apply(rule cons_all_def)+ apply(metis surj_pair, simp add: OclInt0_int, simp add: int_is_valid)
+  apply(rule including_notempty, rule all_defined1, rule cp_all_def[THEN iffD1]) apply(rule cons_all_def)+ apply(metis surj_pair, simp add: OclInt0_int, simp add: int_is_valid)
+  apply(rule including_notempty, rule all_defined1) apply(metis surj_pair, simp add: OclInt0_int, simp add: int_is_valid)
 
   apply(subst (1 2 3 4 5 6 7 8) cp_OclIncluding)
   apply(subst (1 2 3 4 5 6 7 8) cp_OclIncluding[symmetric])
@@ -5926,12 +5926,12 @@ proof -
   apply(subst (1 2) cp_OclIncluding)
   apply(subst iterate_including_id_out')
    apply (metis cons_all_def' is_int_def mtSet_all_def)
-   apply(simp add: zero_int)
+   apply(simp add: OclInt0_int)
    apply (metis including_notempty' is_int_def)
   apply(rule sym, subst cp_OclIncluding)
   apply(subst iterate_including_id_out')
    apply (metis cons_all_def' is_int_def mtSet_all_def)
-   apply(simp add: zero_int)
+   apply(simp add: OclInt0_int)
    apply (metis including_notempty' is_int_def)
   (* *)
    apply(subst including_swap)
@@ -5948,23 +5948,23 @@ proof -
    apply(simp add: int_is_valid) apply(simp add: int_is_valid) apply(simp add: int_is_valid)
   (* *)
   apply(subst (1 2) cp_OclIncluding)
-  apply(subst (1 2) cp_OclIterate\<^isub>S\<^isub>e\<^isub>t1[OF including_commute2[THEN c0_of_c, THEN c0'_of_c0]], simp add: zero_int)
-   apply(rule cons_all_def') apply(rule i_cons_all_def) apply(rule including_commute2[THEN c0_of_c], simp add: zero_int, blast, simp add: int_is_valid)
-   apply(rule cons_all_def') apply(rule i_cons_all_def) apply(rule including_commute2[THEN c0_of_c], simp add: zero_int, blast, simp add: int_is_valid)
+  apply(subst (1 2) cp_OclIterate\<^isub>S\<^isub>e\<^isub>t1[OF including_commute2[THEN c0_of_c, THEN c0'_of_c0]], simp add: OclInt0_int)
+   apply(rule cons_all_def') apply(rule i_cons_all_def) apply(rule including_commute2[THEN c0_of_c], simp add: OclInt0_int, blast, simp add: int_is_valid)
+   apply(rule cons_all_def') apply(rule i_cons_all_def) apply(rule including_commute2[THEN c0_of_c], simp add: OclInt0_int, blast, simp add: int_is_valid)
   apply(subst (1 2 3 4 5 6) cp_OclIncluding)
 
   apply(subst (1 2 3 4 5) iterate_including_id_out')
 
-  apply(metis surj_pair, simp add: zero_int, simp)
+  apply(metis surj_pair, simp add: OclInt0_int, simp)
   apply(subst cp_OclIncluding[symmetric], rule cp_all_def[THEN iffD1])
-  apply(rule cons_all_def', rule i_cons_all_def, rule commute7[THEN c0_of_c], metis surj_pair, simp add: int_is_valid, simp add: zero_int)
+  apply(rule cons_all_def', rule i_cons_all_def, rule commute7[THEN c0_of_c], metis surj_pair, simp add: int_is_valid, simp add: OclInt0_int)
 
   apply(rule including_notempty)
-  apply(rule all_defined1, rule cp_all_def[THEN iffD1], rule i_cons_all_def, rule commute7[THEN c0_of_c], metis surj_pair, simp add: int_is_valid, simp add: zero_int)
-  apply(rule iterate_notempty, rule commute7[THEN c0_of_c], metis surj_pair, simp add: int_is_valid, simp add: zero_int)
-  apply(subst cp_OclIncluding[symmetric], rule cp_all_def[THEN iffD1]) apply(rule cons_all_def)+ apply(metis surj_pair, simp add: zero_int, simp add: int_is_valid)
-  apply(rule including_notempty, rule all_defined1, rule cp_all_def[THEN iffD1]) apply(rule cons_all_def)+ apply(metis surj_pair, simp add: zero_int, simp add: int_is_valid)
-  apply(rule including_notempty, rule all_defined1) apply(metis surj_pair, simp add: zero_int, simp add: int_is_valid)
+  apply(rule all_defined1, rule cp_all_def[THEN iffD1], rule i_cons_all_def, rule commute7[THEN c0_of_c], metis surj_pair, simp add: int_is_valid, simp add: OclInt0_int)
+  apply(rule iterate_notempty, rule commute7[THEN c0_of_c], metis surj_pair, simp add: int_is_valid, simp add: OclInt0_int)
+  apply(subst cp_OclIncluding[symmetric], rule cp_all_def[THEN iffD1]) apply(rule cons_all_def)+ apply(metis surj_pair, simp add: OclInt0_int, simp add: int_is_valid)
+  apply(rule including_notempty, rule all_defined1, rule cp_all_def[THEN iffD1]) apply(rule cons_all_def)+ apply(metis surj_pair, simp add: OclInt0_int, simp add: int_is_valid)
+  apply(rule including_notempty, rule all_defined1) apply(metis surj_pair, simp add: OclInt0_int, simp add: int_is_valid)
 
   apply(subst (1 2 3 4 5 6 7 8) cp_OclIncluding)
   apply(subst (1 2 3 4 5 6 7 8) cp_OclIncluding[symmetric])
@@ -5976,12 +5976,12 @@ proof -
   apply(rule ext, rename_tac \<tau>)
   apply(subst (1 2) cp_OclIncluding)
   apply(subst (1 2) iterate_including_id)
-   apply (metis StrictRefEq\<^isub>i\<^isub>n\<^isub>t_strict' cons_all_def' foundation1 is_int_def mtSet_all_def null_non_zero valid4)
-   apply (metis StrictRefEq\<^isub>i\<^isub>n\<^isub>t_strict' cons_all_def' foundation1 is_int_def mtSet_all_def null_non_zero valid4)
+   apply (metis StrictRefEq\<^isub>i\<^isub>n\<^isub>t_strict' cons_all_def' foundation1 is_int_def mtSet_all_def null_non_OclInt0 valid4)
+   apply (metis StrictRefEq\<^isub>i\<^isub>n\<^isub>t_strict' cons_all_def' foundation1 is_int_def mtSet_all_def null_non_OclInt0 valid4)
 
     apply(subst (1 2) cp_OclIncluding[symmetric])
     apply(rule including_swap')
-    apply (metis (hide_lams, no_types) all_defined1 including_defined_args_valid int_is_valid mtSet_all_def zero_int)
+    apply (metis (hide_lams, no_types) all_defined1 including_defined_args_valid int_is_valid mtSet_all_def OclInt0_int)
      apply(simp add: int_is_valid) apply(simp add: int_is_valid)
   (* *)
   apply(subst (1 2) cp_OclIncluding)
@@ -6003,24 +6003,24 @@ proof -
 
   apply(subst (1 2 3 4 5 6) cp_OclIncluding)
   apply(subst (1 2 3 4 5 6) cp_OclIncluding[symmetric])
-  apply(rule including_swap') apply(rule all_defined1, rule cons_all_def, metis surj_pair) apply(simp add: int_is_valid zero_int)+
+  apply(rule including_swap') apply(rule all_defined1, rule cons_all_def, metis surj_pair) apply(simp add: int_is_valid OclInt0_int)+
  done
 
  have commute1: "EQ_comp_fun_commute0' (\<lambda>x r1. r1 ->iterate(j;r2=r1 | r2->including(\<zero>)->including(\<lambda>(_:: '\<AA> st). \<lfloor>x\<rfloor>)->including(j)))"
   apply(rule iterate_commute')
-   apply(rule including_commute6[THEN c0_of_c, THEN c0'_of_c0], simp add: zero_int, simp add: int_trivial)
+   apply(rule including_commute6[THEN c0_of_c, THEN c0'_of_c0], simp add: OclInt0_int, simp add: int_trivial)
   apply(subst (1 2) cp_OclIterate\<^isub>S\<^isub>e\<^isub>t1)
-   apply(rule including_commute6[THEN c0_of_c, THEN c0'_of_c0], simp add: zero_int, simp) apply(rule i_cons_all_def) apply(rule including_commute6[THEN c0_of_c], simp add: zero_int, simp, blast)
-   apply(rule including_commute6[THEN c0_of_c, THEN c0'_of_c0], simp add: zero_int, simp) apply(rule i_cons_all_def) apply(rule including_commute6[THEN c0_of_c], simp add: zero_int, simp, blast)
+   apply(rule including_commute6[THEN c0_of_c, THEN c0'_of_c0], simp add: OclInt0_int, simp) apply(rule i_cons_all_def) apply(rule including_commute6[THEN c0_of_c], simp add: OclInt0_int, simp, blast)
+   apply(rule including_commute6[THEN c0_of_c, THEN c0'_of_c0], simp add: OclInt0_int, simp) apply(rule i_cons_all_def) apply(rule including_commute6[THEN c0_of_c], simp add: OclInt0_int, simp, blast)
   apply(subst (1 2 3 4 5) iterate_including_id_out''')
-  apply(simp_all add: zero_int)
+  apply(simp_all add: OclInt0_int)
   apply(metis surj_pair)
   apply(subst cp_all_def[symmetric])
   apply(rule i_cons_all_def)
-   apply(rule including_commute6[THEN c0_of_c], simp add: zero_int, simp)
+   apply(rule including_commute6[THEN c0_of_c], simp add: OclInt0_int, simp)
    apply(metis surj_pair)
   apply(rule iterate_notempty)
-   apply(rule including_commute6[THEN c0_of_c], simp add: zero_int, simp)
+   apply(rule including_commute6[THEN c0_of_c], simp add: OclInt0_int, simp)
    apply(metis surj_pair)
    apply(simp)
   apply(subst cp_all_def[symmetric])
@@ -6044,19 +6044,19 @@ proof -
 
  have commute2: "EQ_comp_fun_commute0' (\<lambda>x r1. r1 ->iterate(j;r2=r1 | r2->including(\<zero>)->including(j)->including(\<lambda>(_:: '\<AA> st). \<lfloor>x\<rfloor>)))"
   apply(rule iterate_commute')
-   apply(rule including_commute4[THEN c0_of_c, THEN c0'_of_c0], simp add: zero_int, simp add: int_trivial)
+   apply(rule including_commute4[THEN c0_of_c, THEN c0'_of_c0], simp add: OclInt0_int, simp add: int_trivial)
   apply(subst (1 2) cp_OclIterate\<^isub>S\<^isub>e\<^isub>t1)
-   apply(rule including_commute4[THEN c0_of_c, THEN c0'_of_c0], simp add: zero_int, simp) apply(rule i_cons_all_def) apply(rule including_commute4[THEN c0_of_c], simp add: zero_int, simp, blast)
-   apply(rule including_commute4[THEN c0_of_c, THEN c0'_of_c0], simp add: zero_int, simp) apply(rule i_cons_all_def) apply(rule including_commute4[THEN c0_of_c], simp add: zero_int, simp, blast)
+   apply(rule including_commute4[THEN c0_of_c, THEN c0'_of_c0], simp add: OclInt0_int, simp) apply(rule i_cons_all_def) apply(rule including_commute4[THEN c0_of_c], simp add: OclInt0_int, simp, blast)
+   apply(rule including_commute4[THEN c0_of_c, THEN c0'_of_c0], simp add: OclInt0_int, simp) apply(rule i_cons_all_def) apply(rule including_commute4[THEN c0_of_c], simp add: OclInt0_int, simp, blast)
   apply(subst (1 2 3 4 5) iterate_including_id_out'''')
-  apply(simp_all add: zero_int)
+  apply(simp_all add: OclInt0_int)
   apply(metis surj_pair)
   apply(subst cp_all_def[symmetric])
   apply(rule i_cons_all_def)
-   apply(rule including_commute4[THEN c0_of_c], simp add: zero_int, simp)
+   apply(rule including_commute4[THEN c0_of_c], simp add: OclInt0_int, simp)
    apply(metis surj_pair)
   apply(rule iterate_notempty)
-   apply(rule including_commute4[THEN c0_of_c], simp add: zero_int, simp)
+   apply(rule including_commute4[THEN c0_of_c], simp add: OclInt0_int, simp)
    apply(metis surj_pair)
    apply(simp)
   apply(subst cp_all_def[symmetric])
@@ -6088,11 +6088,11 @@ proof -
   apply(rule including_notempty')
  by(simp add: int_is_valid)
  have set68_cp : "\<And>(\<tau>:: '\<AA> st) (\<tau>':: '\<AA> st). Set{\<six>, \<eight>} \<tau> = Set{\<six>, \<eight>} \<tau>'"
-  apply(rule including_cp_all) apply(simp add: six_int) apply(simp add: mtSet_all_def)
-  apply(rule including_cp_all) apply(simp add: eight_int) apply(simp add: mtSet_all_def)
+  apply(rule including_cp_all) apply(simp add: OclInt6_int) apply(simp add: mtSet_all_def)
+  apply(rule including_cp_all) apply(simp add: OclInt8_int) apply(simp add: mtSet_all_def)
  by (simp add: mtSet_def)
  have set9_cp : "\<And>(\<tau>1:: '\<AA> st) (\<tau>2:: '\<AA> st). Set{\<nine>} \<tau>1 = Set{\<nine>} \<tau>2"
-  apply(rule including_cp_all) apply(simp add: nine_int) apply(simp add: mtSet_all_def)
+  apply(rule including_cp_all) apply(simp add: OclInt9_int) apply(simp add: mtSet_all_def)
  by (simp add: mtSet_def)
 
  note iterate_subst_set___ = iterate_subst_set___[OF all_defined_68 all_defined_9 set9_cp _ _ _ set9_notempty]
@@ -6109,19 +6109,19 @@ proof -
   apply(subst iterate_subst_set[where G = "\<lambda>j r2. r2->including(\<zero>)->including(j)->including(\<lambda>_. \<lfloor>x\<rfloor>)"]) apply(blast)+
    apply(simp add: commute3, simp add: commute4)
   apply(rule including_swap)
-   apply (metis (hide_lams, mono_tags) StrictRefEq\<^isub>i\<^isub>n\<^isub>t_strict' all_defined_def including_defined_args_valid' null_non_zero ocl_and_true1 transform1_rev valid4)
+   apply (metis (hide_lams, mono_tags) StrictRefEq\<^isub>i\<^isub>n\<^isub>t_strict' all_defined_def including_defined_args_valid' null_non_OclInt0 ocl_and_true1 transform1_rev valid4)
    apply(simp add: int_is_valid)+
   (* *)
   apply(subst iterate_subst_set___[where G = "\<lambda>i r1. r1 ->iterate(j;r2=r1 | r2->including(\<zero>)->including(j))->including(i)"])
    apply(simp add: commute2, simp add: commute5[THEN c0'_of_c0])
   apply(rule including_out2)
-   apply(blast) apply(blast) apply(blast) apply(simp add: zero_int) apply(simp)
+   apply(blast) apply(blast) apply(blast) apply(simp add: OclInt0_int) apply(simp)
   (* *)
   apply(subst iterate_subst_set___[where G = "\<lambda>i r1. r1 ->iterate(j;r2=r1 | r2->including(j)->including(\<zero>))->including(i)"])
    apply(simp add: commute5[THEN c0'_of_c0], simp add: commute6[THEN c0'_of_c0])
   apply(rule including_subst_set'')
-   apply(rule all_defined1, rule i_cons_all_def, rule including_commute3[THEN c0_of_c], simp add: zero_int, blast)
-   apply(rule all_defined1, rule i_cons_all_def, rule including_commute2[THEN c0_of_c], simp add: zero_int, blast)
+   apply(rule all_defined1, rule i_cons_all_def, rule including_commute3[THEN c0_of_c], simp add: OclInt0_int, blast)
+   apply(rule all_defined1, rule i_cons_all_def, rule including_commute2[THEN c0_of_c], simp add: OclInt0_int, blast)
    apply(simp add: int_is_valid)
   apply(subst iterate_subst_set[where G = "\<lambda>j r2. r2->including(j)->including(\<zero>)"]) apply(blast)+
    apply(simp add: commute8, simp add: commute7)
@@ -6131,10 +6131,10 @@ proof -
   apply(subst iterate_subst_set''0[where G = "\<lambda>i r1. r1 ->iterate(j;r2=r1 | r2->including(j))->including(\<zero>)->including(i)"])
    apply(simp add: commute6, simp add: commute9)
   apply(rule including_subst_set'')
-   apply(rule all_defined1) apply(rule i_cons_all_def, rule including_commute2[THEN c0_of_c], simp add: zero_int, blast)
+   apply(rule all_defined1) apply(rule i_cons_all_def, rule including_commute2[THEN c0_of_c], simp add: OclInt0_int, blast)
    apply(rule all_defined1) apply(rule cons_all_def, rule i_cons_all_def, rule including_commute[THEN c0_of_c], blast, simp, simp add: int_is_valid)
   apply(rule including_out1)
-   apply(blast) apply(blast) apply(simp add: zero_int) apply(simp)
+   apply(blast) apply(blast) apply(simp add: OclInt0_int) apply(simp)
   (* *)
   apply(subst iterate_subst_set'0[where G = "\<lambda>i r1. r1->including(\<zero>)->including(i)"])
    apply(simp add: commute9, simp add: commute8[THEN c0_of_c])
@@ -6146,14 +6146,14 @@ proof -
   apply(rule including_swap)
    apply(simp add: all_defined1) apply(simp) apply(simp only: foundation20, simp)
   (* *)
-  apply(subst including_out1[OF all_defined_68 all_defined_9 zero_int set68_notempty])
+  apply(subst including_out1[OF all_defined_68 all_defined_9 OclInt0_int set68_notempty])
   (* *)
   apply(rule including_subst_set'')
    apply(rule all_defined1, rule i_cons_all_def'', rule including_commute[THEN c0_of_c, THEN c0'_of_c0], simp add: all_defined_68, simp add: all_defined_9)
    apply (metis (hide_lams, no_types) all_defined1 all_defined_68 all_defined_9 including_defined_args_valid)
    apply(simp)
   (* *)
-  apply(subst including_out0[OF all_defined_68 set68_cp set68_notempty nine_int])
+  apply(subst including_out0[OF all_defined_68 set68_cp set68_notempty OclInt9_int])
   (* *)
   apply(subst including_swap[where i = \<six>])
    apply(simp)+
@@ -6236,7 +6236,7 @@ proof -
   apply(simp add: null_fun_def)
 
   apply(subst cp_StrictRefEq\<^isub>i\<^isub>n\<^isub>t[of \<two> ])
-  apply(simp add: ocl_two_def)
+  apply(simp add: OclInt2_def)
 
   apply(rule cp_valid)
  done
@@ -6263,7 +6263,7 @@ proof -
   apply(simp add: null_fun_def)
 
   apply(subst cp_StrictRefEq\<^isub>i\<^isub>n\<^isub>t[of \<two> ])
-  apply(simp add: ocl_two_def)
+  apply(simp add: OclInt2_def)
 
   apply(rule cp_valid)
  done
@@ -6279,7 +6279,7 @@ qed
 
 lemma short_cut'[simp]: "(\<eight> \<doteq> \<six>) = false"
  apply(rule ext)
- apply(simp add: StrictRefEq\<^isub>i\<^isub>n\<^isub>t StrongEq_def ocl_eight_def ocl_six_def
+ apply(simp add: StrictRefEq\<^isub>i\<^isub>n\<^isub>t StrongEq_def OclInt8_def OclInt6_def
                  true_def false_def invalid_def bot_option_def)
 done
 
