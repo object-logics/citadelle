@@ -226,7 +226,7 @@ where     "null    \<equiv> \<lambda> \<tau>. null"
 \end{verbatim}
 is not  necessary since we defined the entire function space over null types
 again as null-types; the crucial definition is @{thm "null_fun_def"}. 
-Thus, the polymporhic constant @{const null} is simply the result of
+Thus, the polymorphic constant @{const null} is simply the result of
 a general type class construction. Nevertheless, we can derive the
 semantic textbook definition for the OCL null constant based on the
 abstract null: 
