@@ -152,10 +152,10 @@ one-to-one correspondance of OCL-types to types of the meta-language HOL. *}
 type_synonym Boolean     = " \<AA> Boolean"
 type_synonym Integer     = " \<AA> Integer"
 type_synonym Void        = " \<AA> Void"
-type_synonym OclAny      = "(\<AA>,oclany option option) val"
-type_synonym Person      = "(\<AA>, person option option)val"
-type_synonym Set_Integer = "(\<AA>, int option option)Set"
-type_synonym Set_Person  = "(\<AA>, person option option)Set"
+type_synonym OclAny      = "(\<AA>, oclany option option) val"
+type_synonym Person      = "(\<AA>, person option option) val"
+type_synonym Set_Integer = "(\<AA>, int option option) Set"
+type_synonym Set_Person  = "(\<AA>, person option option) Set"
 
 text{* Just a little check: *}
 typ "Boolean"

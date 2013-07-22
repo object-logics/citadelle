@@ -366,7 +366,7 @@ value "\<not>(\<tau>\<^isub>0 \<Turnstile> (\<four> \<doteq> \<one>\<zero> ))"
 
 
 
-section{* Complex Types: The Set-Collection Type (I) *}
+section{* Complex Types: The Set-Collection Type (I) Core *}
 
 subsection{* The construction of the Set Type *}
 
@@ -536,7 +536,7 @@ done
 text{* Note that the collection types in OCL allow for null to be included;
   however, there is the null-collection into which inclusion yields invalid. *}
 
-section{* Complex Types: The Set-Collection Type (II) *}
+section{* Complex Types: The Set-Collection Type (II) Library *}
 
 text{* This part provides a collection of operators for the Set type. *}
 
