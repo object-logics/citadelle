@@ -89,8 +89,8 @@ subsection{* Definition *}
 
 text{* Generic referential equality - to be used for instantiations
  with concrete object types ... *}
-definition  gen_ref_eq :: "('\<AA>,'a::{object,null})val \<Rightarrow> ('\<AA>,'a)val \<Rightarrow> ('\<AA>)Boolean" 
-where      "gen_ref_eq x y
+definition  StrictRefEq\<^isub>g\<^isub>e\<^isub>n :: "('\<AA>,'a::{object,null})val \<Rightarrow> ('\<AA>,'a)val \<Rightarrow> ('\<AA>)Boolean" 
+where      "StrictRefEq\<^isub>g\<^isub>e\<^isub>n x y
             \<equiv> \<lambda> \<tau>. if (\<upsilon> x) \<tau> = true \<tau> \<and> (\<upsilon> y) \<tau> = true \<tau>
                     then if x \<tau> = null \<or> y \<tau> = null
                          then \<lfloor>\<lfloor>x \<tau> = null \<and> y \<tau> = null\<rfloor>\<rfloor>
@@ -101,37 +101,37 @@ subsection{* Logic and Algebraic Layer on Object *}
 subsubsection{* Validity and Definedness Properties *}
 
 text{* We derive the usual laws on definedness for (generic) object equality:*}
-lemma gen_ref_eq_defargs: 
-"\<tau> \<Turnstile> (gen_ref_eq x (y::('\<AA>,'a::{null,object})val))\<Longrightarrow> (\<tau> \<Turnstile>(\<upsilon> x)) \<and> (\<tau> \<Turnstile>(\<upsilon> y))"
-by(simp add: gen_ref_eq_def OclValid_def true_def invalid_def bot_option_def
+lemma StrictRefEq\<^isub>g\<^isub>e\<^isub>n_defargs: 
+"\<tau> \<Turnstile> (StrictRefEq\<^isub>g\<^isub>e\<^isub>n x (y::('\<AA>,'a::{null,object})val))\<Longrightarrow> (\<tau> \<Turnstile>(\<upsilon> x)) \<and> (\<tau> \<Turnstile>(\<upsilon> y))"
+by(simp add: StrictRefEq\<^isub>g\<^isub>e\<^isub>n_def OclValid_def true_def invalid_def bot_option_def
         split: bool.split_asm HOL.split_if_asm)
 
 
 subsubsection{* Symmetry *}
 
-lemma gen_ref_eq_sym : assumes x_val : "\<tau> \<Turnstile> \<upsilon> x" shows "\<tau> \<Turnstile> gen_ref_eq x x"
-by(simp add: gen_ref_eq_def true_def OclValid_def x_val[simplified OclValid_def])
+lemma StrictRefEq\<^isub>g\<^isub>e\<^isub>n_sym : assumes x_val : "\<tau> \<Turnstile> \<upsilon> x" shows "\<tau> \<Turnstile> StrictRefEq\<^isub>g\<^isub>e\<^isub>n x x"
+by(simp add: StrictRefEq\<^isub>g\<^isub>e\<^isub>n_def true_def OclValid_def x_val[simplified OclValid_def])
 
 subsubsection{* Execution with invalid or null as argument *}
 
-lemma gen_ref_eq_object_strict1[simp] : 
-"(gen_ref_eq x invalid) = invalid"
-by(rule ext, simp add: gen_ref_eq_def true_def false_def)
+lemma StrictRefEq\<^isub>g\<^isub>e\<^isub>n_strict1[simp] : 
+"(StrictRefEq\<^isub>g\<^isub>e\<^isub>n x invalid) = invalid"
+by(rule ext, simp add: StrictRefEq\<^isub>g\<^isub>e\<^isub>n_def true_def false_def)
 
-lemma gen_ref_eq_object_strict2[simp] : 
-"(gen_ref_eq invalid x) = invalid"
-by(rule ext, simp add: gen_ref_eq_def true_def false_def)
+lemma StrictRefEq\<^isub>g\<^isub>e\<^isub>n_strict2[simp] : 
+"(StrictRefEq\<^isub>g\<^isub>e\<^isub>n invalid x) = invalid"
+by(rule ext, simp add: StrictRefEq\<^isub>g\<^isub>e\<^isub>n_def true_def false_def)
 
 subsubsection{* Context Passing *}
 
-lemma cp_gen_ref_eq_object: 
-"(gen_ref_eq x y \<tau>) = (gen_ref_eq (\<lambda>_. x \<tau>) (\<lambda>_. y \<tau>)) \<tau>"
-by(auto simp: gen_ref_eq_def cp_valid[symmetric])
+lemma cp_StrictRefEq\<^isub>g\<^isub>e\<^isub>n: 
+"(StrictRefEq\<^isub>g\<^isub>e\<^isub>n x y \<tau>) = (StrictRefEq\<^isub>g\<^isub>e\<^isub>n (\<lambda>_. x \<tau>) (\<lambda>_. y \<tau>)) \<tau>"
+by(auto simp: StrictRefEq\<^isub>g\<^isub>e\<^isub>n_def cp_valid[symmetric])
 
 lemmas cp_intro''[simp,intro!] = 
        cp_intro''
-       cp_gen_ref_eq_object[THEN allI[THEN allI[THEN allI[THEN cpI2]], 
-             of "gen_ref_eq"]]
+       cp_StrictRefEq\<^isub>g\<^isub>e\<^isub>n[THEN allI[THEN allI[THEN allI[THEN cpI2]], 
+             of "StrictRefEq\<^isub>g\<^isub>e\<^isub>n"]]
 
 subsubsection{* Behavior vs StrongEq *}
 
@@ -159,13 +159,13 @@ defined values. For type-technical reasons, for each concrete
 object type, the equality @{text "\<doteq>"} is defined by generic referential
 equality. *}
 
-theorem strictEqGen_vs_strongEq: 
+theorem StrictRefEq\<^isub>g\<^isub>e\<^isub>n_vs_StrongEq: 
 "WFF \<tau> \<Longrightarrow> \<tau> \<Turnstile>(\<upsilon> x) \<Longrightarrow> \<tau> \<Turnstile>(\<upsilon> y) \<Longrightarrow> 
 (x \<tau> \<in> ran (heap(fst \<tau>)) \<and> y \<tau> \<in> ran (heap(fst \<tau>))) \<and>
 (x \<tau> \<in> ran (heap(snd \<tau>)) \<and> y \<tau> \<in> ran (heap(snd \<tau>))) \<Longrightarrow> (* x and y must be object representations
                                                           that exist in either the pre or post state *) 
-           (\<tau> \<Turnstile> (gen_ref_eq x y)) = (\<tau> \<Turnstile> (x \<triangleq> y))"
-apply(auto simp: gen_ref_eq_def OclValid_def WFF_def StrongEq_def true_def Ball_def)
+           (\<tau> \<Turnstile> (StrictRefEq\<^isub>g\<^isub>e\<^isub>n x y)) = (\<tau> \<Turnstile> (x \<triangleq> y))"
+apply(auto simp: StrictRefEq\<^isub>g\<^isub>e\<^isub>n_def OclValid_def WFF_def StrongEq_def true_def Ball_def)
 apply(erule_tac x="x \<tau>" in allE', simp_all)
 done
 

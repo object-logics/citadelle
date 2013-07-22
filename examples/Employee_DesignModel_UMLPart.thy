@@ -194,26 +194,26 @@ end
 section{* Instantiation of the generic strict equality. We instantiate the referential equality
 on @{text "Person"} and @{text "OclAny"} *}
 
-defs(overloaded)   StrictRefEq\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n   : "(x::Person) \<doteq> y  \<equiv> gen_ref_eq x y"
-defs(overloaded)   StrictRefEq\<^isub>o\<^isub>c\<^isub>l\<^isub>a\<^isub>n\<^isub>y   : "(x::OclAny) \<doteq> y  \<equiv> gen_ref_eq x y"
+defs(overloaded)   StrictRefEq\<^isub>g\<^isub>e\<^isub>n_\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n   : "(x::Person) \<doteq> y  \<equiv> StrictRefEq\<^isub>g\<^isub>e\<^isub>n x y"
+defs(overloaded)   StrictRefEq\<^isub>g\<^isub>e\<^isub>n_\<^isub>o\<^isub>c\<^isub>l\<^isub>a\<^isub>n\<^isub>y   : "(x::OclAny) \<doteq> y  \<equiv> StrictRefEq\<^isub>g\<^isub>e\<^isub>n x y"
 
-lemmas strict_eq_person =
-    cp_gen_ref_eq_object[of "x::Person" "y::Person" "\<tau>", 
-                         simplified StrictRefEq\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n[symmetric]]
+lemmas StrictRefEq\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n =
+    cp_StrictRefEq\<^isub>g\<^isub>e\<^isub>n[of "x::Person" "y::Person" "\<tau>", 
+                         simplified StrictRefEq\<^isub>g\<^isub>e\<^isub>n_\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n[symmetric]]
     cp_intro(9)         [of "P::Person \<Rightarrow>Person""Q::Person \<Rightarrow>Person",
-                         simplified StrictRefEq\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n[symmetric] ]
-    gen_ref_eq_def      [of "x::Person" "y::Person", 
-                         simplified StrictRefEq\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n[symmetric]]
-    gen_ref_eq_defargs  [of _ "x::Person" "y::Person", 
-                         simplified StrictRefEq\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n[symmetric]]
-    gen_ref_eq_object_strict1 
+                         simplified StrictRefEq\<^isub>g\<^isub>e\<^isub>n_\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n[symmetric] ]
+    StrictRefEq\<^isub>g\<^isub>e\<^isub>n_def      [of "x::Person" "y::Person", 
+                         simplified StrictRefEq\<^isub>g\<^isub>e\<^isub>n_\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n[symmetric]]
+    StrictRefEq\<^isub>g\<^isub>e\<^isub>n_defargs  [of _ "x::Person" "y::Person", 
+                         simplified StrictRefEq\<^isub>g\<^isub>e\<^isub>n_\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n[symmetric]]
+    StrictRefEq\<^isub>g\<^isub>e\<^isub>n_strict1 
                         [of "x::Person",
-                         simplified StrictRefEq\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n[symmetric]]
-    gen_ref_eq_object_strict2 
+                         simplified StrictRefEq\<^isub>g\<^isub>e\<^isub>n_\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n[symmetric]]
+    StrictRefEq\<^isub>g\<^isub>e\<^isub>n_strict2 
                         [of "x::Person",
-                         simplified StrictRefEq\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n[symmetric]]
+                         simplified StrictRefEq\<^isub>g\<^isub>e\<^isub>n_\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n[symmetric]]
 
-thm strict_eq_person
+thm StrictRefEq\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n
 (* TODO: Analogue for object. *)
 
 
@@ -493,8 +493,8 @@ done
 
 lemma up_down_cast_Person_OclAny_Person': assumes "\<tau> \<Turnstile> \<upsilon> X"
 shows "\<tau> \<Turnstile> (((X :: Person) .oclAsType(OclAny) .oclAsType(Person)) \<doteq> X)"
- apply(simp only: up_down_cast_Person_OclAny_Person StrictRefEq\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n)
-by(rule gen_ref_eq_sym, simp add: assms)
+ apply(simp only: up_down_cast_Person_OclAny_Person StrictRefEq\<^isub>g\<^isub>e\<^isub>n_\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n)
+by(rule StrictRefEq\<^isub>g\<^isub>e\<^isub>n_sym, simp add: assms)
 
 
 subsubsection{* iskindof *}
@@ -818,7 +818,7 @@ definition "X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n6 :: Person \
 definition "X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n7 :: OclAny \<equiv> \<lambda> _ .\<lfloor>\<lfloor> person7 \<rfloor>\<rfloor>"
 definition "X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n8 :: OclAny \<equiv> \<lambda> _ .\<lfloor>\<lfloor> person8 \<rfloor>\<rfloor>"
 
-lemma [code_unfold]: "((x::Person) \<doteq> y) = gen_ref_eq x y" by(simp only: StrictRefEq\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n)
+lemma [code_unfold]: "((x::Person) \<doteq> y) = StrictRefEq\<^isub>g\<^isub>e\<^isub>n x y" by(simp only: StrictRefEq\<^isub>g\<^isub>e\<^isub>n_\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n)
 
 lemmas [code_unfold, simp] =
  oclastype\<^isub>o\<^isub>c\<^isub>l\<^isub>a\<^isub>n\<^isub>y_OclAny
@@ -1014,7 +1014,7 @@ proof -
  by (metis (no_types) foundation1 foundation16 mtSet_defined)
 
  show "?thesis \<sigma>\<^isub>1"
-  apply(simp only: StrictRefEq_set StrongEq_def true_def OclValid_def)
+  apply(simp only: StrictRefEq\<^isub>s\<^isub>e\<^isub>t StrongEq_def true_def OclValid_def)
   apply(subst cp_valid)
   apply(subst (1 2) eq)
   apply(subst cp_valid[symmetric])
@@ -1095,7 +1095,7 @@ proof -
  by (metis (no_types) foundation1 foundation16 mtSet_defined)
 
  show "?thesis \<sigma>\<^isub>1"
-  apply(simp only: StrictRefEq_set StrongEq_def true_def OclValid_def)
+  apply(simp only: StrictRefEq\<^isub>s\<^isub>e\<^isub>t StrongEq_def true_def OclValid_def)
   apply(subst cp_valid)
   apply(subst (1 2) eq)
   apply(subst cp_valid[symmetric])
@@ -1176,7 +1176,7 @@ proof -
  by (metis (no_types) foundation1 foundation16 mtSet_defined)
 
  show "?thesis \<sigma>\<^isub>1"
-  apply(simp only: StrictRefEq_set StrongEq_def true_def OclValid_def)
+  apply(simp only: StrictRefEq\<^isub>s\<^isub>e\<^isub>t StrongEq_def true_def OclValid_def)
   apply(subst cp_valid)
   apply(subst (1 2) eq)
   apply(subst cp_valid[symmetric])
