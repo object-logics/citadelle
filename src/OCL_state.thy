@@ -177,6 +177,10 @@ definition allinstances :: "('\<AA> \<Rightarrow> '\<alpha>) \<Rightarrow> ('\<A
 where  "((H).oclAllInstances()) \<tau> = 
                  Abs_Set_0 \<lfloor>\<lfloor>(Some o Some o H) ` (ran(heap(snd \<tau>)) \<inter> {x. \<exists> y. y=H x}) \<rfloor>\<rfloor> "
 
+definition allinstances' :: "('\<AA> \<Rightarrow> '\<alpha> option) \<Rightarrow> ('\<AA> :: object, '\<alpha> option option) Set"
+where  "allinstances' H \<tau> =
+                 Abs_Set_0 \<lfloor>\<lfloor> Some ` ((H ` ran (heap (snd \<tau>))) - { None }) \<rfloor>\<rfloor>"
+
 definition allinstancesATpre :: "('\<AA> \<Rightarrow> '\<alpha>) \<Rightarrow> ('\<AA>::object,'\<alpha> option option) Set" 
                            ("_ .oclAllInstances@pre'(')")
 where  "((H).oclAllInstances@pre()) \<tau> = 
@@ -249,6 +253,124 @@ proof -
   apply(subst (1 3) Abs_Set_0_inject)
  by(simp add: bot_option_def null_option_def)+
 qed
+
+
+lemma state_update_vs_allInstances'_rec0:
+shows   "(allinstances' Type)
+         (\<sigma>, \<lparr>heap=empty, assocs=A\<rparr>)
+         =
+         Set{}
+         (\<sigma>, \<lparr>heap=empty, assocs=A\<rparr>)"
+by(simp add: allinstances'_def[simplified] mtSet_def)
+
+lemma state_update_vs_allInstances'_rec':
+assumes "\<And>x. \<sigma>' oid = Some x \<Longrightarrow> x = Object"
+    and "Type Object \<noteq> None"
+  shows "(allinstances' Type)
+         (\<sigma>, \<lparr>heap=\<sigma>'(oid\<mapsto>Object), assocs=A\<rparr>)
+         =
+         ((allinstances' Type)->including(\<lambda> _. \<lfloor>\<lfloor> drop (Type Object) \<rfloor>\<rfloor>))
+         (\<sigma>, \<lparr>heap=\<sigma>', assocs=A\<rparr>)"
+proof -
+ have allinst_def : "(\<sigma>, \<lparr>heap = \<sigma>', assocs = A\<rparr>) \<Turnstile> (\<delta> (allinstances' Type))"
+  apply(simp add: defined_def OclValid_def bot_fun_def null_fun_def bot_Set_0_def null_Set_0_def allinstances'_def[simplified])
+  apply(subst (1 2) Abs_Set_0_inject)
+ by(simp add: bot_option_def null_option_def)+
+
+ have drop_none : "\<And>x. x \<noteq> None \<Longrightarrow> \<lfloor>\<lceil>x\<rceil>\<rfloor> = x"
+ by(case_tac x, simp+)
+
+ have insert_diff : "\<And>x S. insert \<lfloor>x\<rfloor> (S - {None}) = (insert \<lfloor>x\<rfloor> S) - {None}"
+ by (metis insert_Diff_if option.distinct(1) singletonE)
+
+ show ?thesis
+  apply(simp add: OclIncluding_def allinst_def[simplified OclValid_def] allinstances'_def[simplified])
+  apply(subst Abs_Set_0_inverse, simp add: bot_option_def, simp add: comp_def)
+  apply(subst image_insert[symmetric])
+  apply(subst drop_none, simp add: assms)
+  apply(case_tac "Type Object", simp add: assms, simp only:)
+  apply(subst insert_diff, drule sym, simp)
+  apply(subgoal_tac "ran (\<sigma>'(oid \<mapsto> Object)) = insert Object (ran \<sigma>')", simp)
+  apply(case_tac "\<not> (\<exists>x. \<sigma>' oid = Some x)")
+  apply(rule ran_map_upd, simp)
+  apply(simp, erule exE, frule assms, simp)
+  apply(subgoal_tac "Object \<in> ran \<sigma>'") prefer 2
+  apply(rule ranI, simp)
+  apply(subst insert_absorb, simp)
+ by (metis fun_upd_apply)
+qed
+
+
+lemma state_update_vs_allInstances'_rec:
+assumes "\<And>x. \<sigma>' oid = Some x \<Longrightarrow> x = Object"
+    and "Type Object \<noteq> None"
+shows   "(allinstances' Type)
+         (\<sigma>, \<lparr>heap=\<sigma>'(oid\<mapsto>Object), assocs=A\<rparr>)
+         =
+         ((\<lambda>_. (allinstances' Type) (\<sigma>, \<lparr>heap=\<sigma>', assocs=A\<rparr>))->including(\<lambda> _. \<lfloor>\<lfloor> drop (Type Object) \<rfloor>\<rfloor>))
+         (\<sigma>, \<lparr>heap=\<sigma>'(oid\<mapsto>Object), assocs=A\<rparr>)"
+proof -
+ have allinst_def : "(\<sigma>, \<lparr>heap = \<sigma>', assocs = A\<rparr>) \<Turnstile> (\<delta> (allinstances' Type))"
+  apply(simp add: defined_def OclValid_def bot_fun_def null_fun_def bot_Set_0_def null_Set_0_def allinstances'_def[simplified])
+  apply(subst (1 2) Abs_Set_0_inject)
+ by(simp add: bot_option_def null_option_def)+
+
+ show ?thesis
+
+  apply(subst state_update_vs_allInstances'_rec', (simp add: assms)+)
+  apply(subst cp_OclIncluding)
+  apply(simp add: OclIncluding_def)
+  apply(subst (1 3) cp_defined[symmetric], simp add: allinst_def[simplified OclValid_def])
+
+  apply(simp add: defined_def OclValid_def bot_fun_def null_fun_def bot_Set_0_def null_Set_0_def allinstances'_def[simplified])
+  apply(subst (1 3) Abs_Set_0_inject)
+ by(simp add: bot_option_def null_option_def)+
+qed
+
+
+
+lemma state_update_vs_allInstances'_rec'none:
+assumes "\<And>x. \<sigma>' oid = Some x \<Longrightarrow> x = Object"
+    and "Type Object = None"
+  shows "(allinstances' Type)
+         (\<sigma>, \<lparr>heap=\<sigma>'(oid\<mapsto>Object), assocs=A\<rparr>)
+         =
+         (allinstances' Type)
+         (\<sigma>, \<lparr>heap=\<sigma>', assocs=A\<rparr>)"
+proof -
+ have allinst_def : "(\<sigma>, \<lparr>heap = \<sigma>', assocs = A\<rparr>) \<Turnstile> (\<delta> (allinstances' Type))"
+  apply(simp add: defined_def OclValid_def bot_fun_def null_fun_def bot_Set_0_def null_Set_0_def allinstances'_def[simplified])
+  apply(subst (1 2) Abs_Set_0_inject)
+ by(simp add: bot_option_def null_option_def)+
+
+ have drop_none : "\<And>x. x \<noteq> None \<Longrightarrow> \<lfloor>\<lceil>x\<rceil>\<rfloor> = x"
+ by(case_tac x, simp+)
+
+ have insert_diff : "\<And>x S. insert \<lfloor>x\<rfloor> (S - {None}) = (insert \<lfloor>x\<rfloor> S) - {None}"
+ by (metis insert_Diff_if option.distinct(1) singletonE)
+
+ show ?thesis
+  apply(simp add: OclIncluding_def allinst_def[simplified OclValid_def] allinstances'_def[simplified])
+  apply(subgoal_tac "ran (\<sigma>'(oid \<mapsto> Object)) = insert Object (ran \<sigma>')", simp add: assms)
+  apply(case_tac "\<not> (\<exists>x. \<sigma>' oid = Some x)")
+  apply(rule ran_map_upd, simp)
+  apply(simp, erule exE, frule assms, simp)
+  apply(subgoal_tac "Object \<in> ran \<sigma>'") prefer 2
+  apply(rule ranI, simp)
+  apply(subst insert_absorb, simp)
+ by (metis fun_upd_apply)
+qed
+
+
+lemma state_update_vs_allInstances'_recnone:
+assumes "\<And>x. \<sigma>' oid = Some x \<Longrightarrow> x = Object"
+    and "Type Object = None"
+shows   "(allinstances' Type)
+         (\<sigma>, \<lparr>heap=\<sigma>'(oid\<mapsto>Object), assocs=A\<rparr>)
+         =
+         (\<lambda>_. (allinstances' Type) (\<sigma>, \<lparr>heap=\<sigma>', assocs=A\<rparr>))
+         (\<sigma>, \<lparr>heap=\<sigma>'(oid\<mapsto>Object), assocs=A\<rparr>)"
+by(subst state_update_vs_allInstances'_rec'none, (simp add: assms)+)
 
 theorem state_update_vs_allInstances: 
 assumes "oid\<notin>dom \<sigma>'"
