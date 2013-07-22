@@ -77,7 +77,7 @@ by the attribute  \verb+boss+ and the operation \verb+employees+ (to be discusse
 captured by the subsequent theory).
 *}
 
-subsection{* Example Data-Universe and its Infrastructure *}
+section{* Example Data-Universe and its Infrastructure *}
 text{* Should be generated entirely from a class-diagram. *}
 
 (* @{text "'\<AA>"} -- \mathfrak{A} *)
@@ -216,8 +216,7 @@ lemmas StrictRefEq\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n =
 thm StrictRefEq\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n
 (* TODO: Analogue for object. *)
 
-
-subsection{* AllInstances *}
+section{* OclAllInstances *}
 
 (* IS THIS WHAT WE WANT ? THIS DEFINITION FILTERS OBJECTS THAT ARE BOOKED UNDER
 THEIR APPARENT (STATIC) TYPE INTO THE CONTEXT, NOT BY THEIR ACTUAL (DYNAMIC) TYPE. *)
@@ -266,8 +265,8 @@ two operations to declare and to provide two overloading definitions for the two
 *}
 
 
-section{* Selector Definition *}
-subsection{* OclAsType *}
+section{* OclAsType *}
+subsection{* Definition *}
 
 consts OclAsType\<^isub>o\<^isub>c\<^isub>l\<^isub>a\<^isub>n\<^isub>y :: "'\<alpha> \<Rightarrow> OclAny" ("(_) .oclAsType'(OclAny')")
 consts OclAsType\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n :: "'\<alpha> \<Rightarrow> Person" ("(_) .oclAsType'(Person')")
@@ -298,6 +297,8 @@ lemmas [simp] =
  OclAsType\<^isub>o\<^isub>c\<^isub>l\<^isub>a\<^isub>n\<^isub>y_OclAny
  OclAsType\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n_Person
 
+subsection{* Context Passing *}
+
 lemma cp_OclAsType\<^isub>o\<^isub>c\<^isub>l\<^isub>a\<^isub>n\<^isub>y_Person_Person: "cp P \<Longrightarrow> cp(\<lambda>X. (P (X::Person) :: Person) .oclAsType(OclAny))"
 by(rule cpI1, simp_all add: OclAsType\<^isub>o\<^isub>c\<^isub>l\<^isub>a\<^isub>n\<^isub>y_Person)
 lemma cp_OclAsType\<^isub>o\<^isub>c\<^isub>l\<^isub>a\<^isub>n\<^isub>y_OclAny_OclAny: "cp P \<Longrightarrow> cp(\<lambda>X. (P (X::OclAny) :: OclAny) .oclAsType(OclAny))"
@@ -327,6 +328,8 @@ lemmas [simp] =
  cp_OclAsType\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n_Person_OclAny
  cp_OclAsType\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n_OclAny_Person
 
+subsection{* Execution with invalid or null as argument *}
+
 lemma OclAsType\<^isub>o\<^isub>c\<^isub>l\<^isub>a\<^isub>n\<^isub>y_OclAny_strict : "(invalid::OclAny) .oclAsType(OclAny) = invalid" 
 by(simp)
 
@@ -354,7 +357,8 @@ by(simp)
 lemma OclAsType\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n_Person_nullstrict : "(null::Person) .oclAsType(Person) = null" 
 by(simp)
 
-subsection{* OclIsTypeOf *}
+section{* OclIsTypeOf *}
+subsection{* Definition *}
 
 consts OclIsTypeOf\<^isub>o\<^isub>c\<^isub>l\<^isub>a\<^isub>n\<^isub>y :: "'\<alpha> \<Rightarrow> Boolean" ("(_).oclIsTypeOf'(OclAny')")
 consts OclIsTypeOf\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n :: "'\<alpha> \<Rightarrow> Boolean" ("(_).oclIsTypeOf'(Person')")
@@ -389,6 +393,8 @@ defs (overloaded) OclIsTypeOf\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isu
                               \<bottom> \<Rightarrow> invalid \<tau>
                             | _ \<Rightarrow> true \<tau>)" (* for (* \<lfloor>\<lfloor> _ \<rfloor>\<rfloor> \<Rightarrow> true \<tau> *) : must have actual type Node otherwise  *)
 
+subsection{* Context Passing *}
+
 lemma cp_OclIsTypeOf\<^isub>o\<^isub>c\<^isub>l\<^isub>a\<^isub>n\<^isub>y_Person_Person: "cp P \<Longrightarrow> cp(\<lambda>X. (P (X::Person) :: Person) .oclIsTypeOf(OclAny))"
 by(rule cpI1, simp_all add: OclIsTypeOf\<^isub>o\<^isub>c\<^isub>l\<^isub>a\<^isub>n\<^isub>y_Person)
 lemma cp_OclIsTypeOf\<^isub>o\<^isub>c\<^isub>l\<^isub>a\<^isub>n\<^isub>y_OclAny_OclAny: "cp P \<Longrightarrow> cp(\<lambda>X. (P (X::OclAny) :: OclAny) .oclIsTypeOf(OclAny))"
@@ -418,6 +424,8 @@ lemmas [simp] =
  cp_OclIsTypeOf\<^isub>o\<^isub>c\<^isub>l\<^isub>a\<^isub>n\<^isub>y_OclAny_Person
  cp_OclIsTypeOf\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n_Person_OclAny
  cp_OclIsTypeOf\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n_OclAny_Person
+
+subsection{* Execution with invalid or null as argument *}
 
 lemma OclIsTypeOf\<^isub>o\<^isub>c\<^isub>l\<^isub>a\<^isub>n\<^isub>y_OclAny_strict1[simp]: 
      "(invalid::OclAny) .oclIsTypeOf(OclAny) = invalid"
@@ -452,7 +460,7 @@ lemma OclIsTypeOf\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n_Person_s
 by(rule ext, simp add: null_fun_def null_option_def bot_option_def null_def invalid_def
                        OclIsTypeOf\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n_Person)
 
-
+subsection{* up down cast *}
 
 lemma actualType_larger_staticType:
 assumes isdef: "\<tau> \<Turnstile> (\<delta> X)"
@@ -495,7 +503,8 @@ shows "\<tau> \<Turnstile> (((X :: Person) .oclAsType(OclAny) .oclAsType(Person)
 by(rule StrictRefEq\<^isub>g\<^isub>e\<^isub>n_sym, simp add: assms)
 
 
-subsection{* OclIsKindOf *}
+section{* OclIsKindOf *}
+subsection{* Definition *}
 
 consts OclIsKindOf\<^isub>o\<^isub>c\<^isub>l\<^isub>a\<^isub>n\<^isub>y :: "'\<alpha> \<Rightarrow> Boolean" ("(_).oclIsKindOf'(OclAny')")
 consts OclIsKindOf\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n :: "'\<alpha> \<Rightarrow> Boolean" ("(_).oclIsKindOf'(Person')")
@@ -528,6 +537,7 @@ defs (overloaded) OclIsKindOf\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isu
                               \<bottom> \<Rightarrow> invalid \<tau>
                             | _ \<Rightarrow> true \<tau>)"
 
+subsection{* Context Passing *}
 
 lemma cp_OclIsKindOf\<^isub>o\<^isub>c\<^isub>l\<^isub>a\<^isub>n\<^isub>y_Person_Person: "cp P \<Longrightarrow> cp(\<lambda>X. (P (X::Person) :: Person) .oclIsKindOf(OclAny))"
 by(rule cpI1, simp_all add: OclIsKindOf\<^isub>o\<^isub>c\<^isub>l\<^isub>a\<^isub>n\<^isub>y_Person)
@@ -557,6 +567,8 @@ lemmas [simp] =
  cp_OclIsKindOf\<^isub>o\<^isub>c\<^isub>l\<^isub>a\<^isub>n\<^isub>y_OclAny_Person
  cp_OclIsKindOf\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n_Person_OclAny
  cp_OclIsKindOf\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n_OclAny_Person
+
+subsection{* Execution with invalid or null as argument *}
 
 lemma OclIsKindOf\<^isub>o\<^isub>c\<^isub>l\<^isub>a\<^isub>n\<^isub>y_OclAny_strict1[simp] : "(invalid::OclAny) .oclIsKindOf(OclAny) = invalid" 
 by(rule ext, simp add: invalid_def bot_option_def
@@ -590,6 +602,8 @@ lemma OclIsKindOf\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n_Person_s
 by(rule ext, simp add: null_fun_def null_option_def bot_option_def null_def invalid_def
                        OclIsKindOf\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n_Person)
 
+subsection{* up down cast *}
+
 lemma actualKind_larger_staticKind:
 assumes isdef: "\<tau> \<Turnstile> (\<delta> X)"
 shows          "\<tau> \<Turnstile> (X::Person) .oclIsKindOf(OclAny) \<triangleq> true"
@@ -608,8 +622,8 @@ apply(auto simp : bot_fun_def null_fun_def null_option_def bot_option_def null_d
 by(simp add: OclIsKindOf\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n_OclAny  OclValid_def false_def true_def)
 
 
-subsection{* dot boss, dot salary *}
-
+section{* dot boss, dot salary *}
+subsection{* Definition *}
 text{* Should be generated entirely from a class-diagram. *}
 
 definition "eval_extract X f = (\<lambda> \<tau>. case X \<tau> of
@@ -692,6 +706,7 @@ fun dot\<^isub>s\<^isub>a\<^isub>l\<^isub>a\<^isub>r\<^isub>y_at_pre:: "Person \
                                (select\<^isub>s\<^isub>a\<^isub>l\<^isub>a\<^isub>r\<^isub>y 
                                    reconst_basetype))"
 
+subsection{* Context Passing *}
 
 lemma cp_dot\<^isub>b\<^isub>o\<^isub>s\<^isub>s: "((X).boss) \<tau> = ((\<lambda>_. X \<tau>).boss) \<tau>" by(simp add: eval_extract_def)
 
@@ -717,6 +732,7 @@ lemmas cp_dot\<^isub>s\<^isub>a\<^isub>l\<^isub>a\<^isub>r\<^isub>y_at_pre_I [si
        cp_dot\<^isub>s\<^isub>a\<^isub>l\<^isub>a\<^isub>r\<^isub>y_at_pre[THEN allI[THEN allI],  
                           of "\<lambda> X _. X" "\<lambda> _ \<tau>. \<tau>", THEN cpI1]
 
+subsection{* Execution with invalid or null as argument *}
 
 lemma dot\<^isub>b\<^isub>o\<^isub>s\<^isub>s_nullstrict [simp]: "(null).boss = invalid"
 by(rule ext, simp add: null_fun_def null_option_def bot_option_def null_def invalid_def eval_extract_def)
@@ -744,7 +760,7 @@ lemma dot\<^isub>s\<^isub>a\<^isub>l\<^isub>a\<^isub>r\<^isub>y_at_pre_strict [s
 by(rule ext, simp add: null_fun_def null_option_def bot_option_def null_def invalid_def eval_extract_def)
 
 
-subsection{* A little infra-structure on example states.*}
+section{* A little infra-structure on example states.*}
 
 definition OclInt1000 ("\<one>\<zero>\<zero>\<zero>") where "OclInt1000 = (\<lambda> _ . \<lfloor>\<lfloor>1000\<rfloor>\<rfloor>)"
 definition OclInt1200 ("\<one>\<two>\<zero>\<zero>") where "OclInt1200 = (\<lambda> _ . \<lfloor>\<lfloor>1200\<rfloor>\<rfloor>)"
