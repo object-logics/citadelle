@@ -221,25 +221,25 @@ subsection{* AllInstances *}
 
 (* IS THIS WHAT WE WANT ? THIS DEFINITION FILTERS OBJECTS THAT ARE BOOKED UNDER
 THEIR APPARENT (STATIC) TYPE INTO THE CONTEXT, NOT BY THEIR ACTUAL (DYNAMIC) TYPE. *)
-lemma "Person .oclAllInstances() =
+lemma "Person .allInstances() =
              (\<lambda>\<tau>.  Abs_Set_0 \<lfloor>\<lfloor>(Some \<circ> Some \<circ> Person_sumC)`(ran(heap(snd \<tau>))) \<rfloor>\<rfloor>) "
-by(rule ext, simp add:allinstances_def Person_def)
+by(rule ext, simp add:OclAllInstances_def Person_def)
 
-lemma "allinstances' Person' =
+lemma "OclAllInstances' Person' =
              (\<lambda>\<tau>.  Abs_Set_0  \<lfloor>\<lfloor>Some ` (Person' ` ran (heap (snd \<tau>)) - {None})\<rfloor>\<rfloor>) "
-by(rule ext, simp add:allinstances'_def)
+by(rule ext, simp add:OclAllInstances'_def)
 
-lemma "Person .oclAllInstances@pre() = 
+lemma "Person .allInstances@pre() = 
              (\<lambda>\<tau>.  Abs_Set_0 \<lfloor>\<lfloor>(Some \<circ> Some \<circ> Person_sumC)`(ran(heap(fst \<tau>))) \<rfloor>\<rfloor>) "
-by(rule ext, simp add:allinstancesATpre_def Person_def)
+by(rule ext, simp add:OclAllInstances_at_pre_def Person_def)
 
-lemma "OclAny .oclAllInstances() =
+lemma "OclAny .allInstances() =
              (\<lambda>\<tau>.  Abs_Set_0 \<lfloor>\<lfloor>(Some \<circ> Some \<circ> OclAny_sumC)`(ran(heap(snd \<tau>))) \<rfloor>\<rfloor>) "
-by(rule ext, simp add:allinstances_def OclAny_def)
+by(rule ext, simp add:OclAllInstances_def OclAny_def)
 
-lemma "allinstances' OclAny' =
+lemma "OclAllInstances' OclAny' =
              (\<lambda>\<tau>.  Abs_Set_0  \<lfloor>\<lfloor> Some ` OclAny' ` ran (heap (snd \<tau>)) \<rfloor>\<rfloor>) "
- apply(rule ext, simp add: allinstances'_def)
+ apply(rule ext, simp add: OclAllInstances'_def)
  apply(subgoal_tac " (OclAny' ` ran (heap (snd \<tau>)) - {None}) = (OclAny' ` ran (heap (snd \<tau>)))", simp)
  apply(simp add: image_def)
  apply(rule equalityI)
@@ -252,9 +252,9 @@ lemma "allinstances' OclAny' =
  apply(blast)
 done
 
-lemma "OclAny .oclAllInstances@pre() = 
+lemma "OclAny .allInstances@pre() = 
              (\<lambda>\<tau>.  Abs_Set_0 \<lfloor>\<lfloor>(Some \<circ> Some \<circ> OclAny_sumC)`(ran(heap(fst \<tau>))) \<rfloor>\<rfloor>) "
-by(rule ext, simp add:allinstancesATpre_def OclAny_def)
+by(rule ext, simp add:OclAllInstances_at_pre_def OclAny_def)
 
 
 text{* For each Class \emph{C}, we will have a casting operation \verb+.oclAsType(+\emph{C}\verb+)+,
@@ -853,7 +853,7 @@ value "        (\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile>      (X\<^isu
 value "\<And>\<sigma>\<^isub>1'.   (\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile>      (X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n1 .boss@pre .boss@pre  \<doteq> null )"
 value "\<And>\<sigma>\<^isub>1'.   (\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile> not(\<upsilon>(X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n1 .boss@pre .boss@pre .boss@pre))"
 lemma "        (\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile>      (X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n1 .oclIsEverywhere())"
-by(simp add: OclValid_def ocliseverywhere_def 
+by(simp add: OclValid_def OclIsEverywhere_def 
              \<sigma>\<^isub>1_def \<sigma>\<^isub>1'_def
              X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n1_def person1_def
              oid\<^isub>1_def oid\<^isub>2_def oid\<^isub>3_def oid\<^isub>4_def oid\<^isub>5_def oid\<^isub>6_def oid\<^isub>7_def
@@ -876,7 +876,7 @@ value "      \<not>((\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile>      (X\
 value "\<And>\<sigma>\<^isub>1'.   (\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile> not(\<upsilon>(X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n2 .boss@pre .boss))"
 value "\<And>\<sigma>\<^isub>1'.   (\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile> not(\<upsilon>(X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n2 .boss@pre .salary@pre))"
 lemma "        (\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile>      (X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n2 .oclIsEverywhere())"
-by(simp add: OclValid_def ocliseverywhere_def 
+by(simp add: OclValid_def OclIsEverywhere_def 
              \<sigma>\<^isub>1_def \<sigma>\<^isub>1'_def
              X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n2_def person2_def
              oid\<^isub>1_def oid\<^isub>2_def oid\<^isub>3_def oid\<^isub>4_def oid\<^isub>5_def oid\<^isub>6_def oid\<^isub>7_def
@@ -890,7 +890,7 @@ value "\<And>\<sigma>\<^isub>1 .   (\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turn
 value "\<And>\<sigma>\<^isub>1 .   (\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile> not(\<upsilon>(X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n3 .boss .salary))"
 value "\<And>\<sigma>\<^isub>1'.   (\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile> not(\<upsilon>(X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n3 .boss@pre))"
 lemma "        (\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile>      (X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n3 .oclIsNew())"
-by(simp add: OclValid_def oclisnew_def 
+by(simp add: OclValid_def OclIsNew_def 
              \<sigma>\<^isub>1_def \<sigma>\<^isub>1'_def
              X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n3_def person3_def
              oid\<^isub>1_def oid\<^isub>2_def oid\<^isub>3_def oid\<^isub>4_def oid\<^isub>5_def oid\<^isub>6_def oid\<^isub>7_def
@@ -901,7 +901,7 @@ value "\<And>\<sigma>\<^isub>1'.   (\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turn
 value "        (\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile> not(\<upsilon>(X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n4 .boss@pre .salary))" 
 value "\<And>\<sigma>\<^isub>1'.   (\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile>      (X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n4 .boss@pre .salary@pre   \<doteq> \<three>\<five>\<zero>\<zero> )"
 lemma "        (\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile>      (X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n4 .oclIsEverywhere())"
-by(simp add: OclValid_def ocliseverywhere_def 
+by(simp add: OclValid_def OclIsEverywhere_def 
              \<sigma>\<^isub>1_def \<sigma>\<^isub>1'_def
              X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n4_def person4_def
              oid\<^isub>1_def oid\<^isub>2_def oid\<^isub>3_def oid\<^isub>4_def oid\<^isub>5_def oid\<^isub>6_def oid\<^isub>7_def
@@ -912,7 +912,7 @@ value "\<And>\<sigma>\<^isub>1 .   (\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turn
 value "\<And>\<sigma>\<^isub>1'.   (\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile>      (X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n5 .salary@pre   \<doteq> \<three>\<five>\<zero>\<zero> )"
 value "\<And>\<sigma>\<^isub>1 .   (\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile> not(\<upsilon>(X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n5 .boss))"
 lemma "        (\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile>      (X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n5 .oclIsOld())"
-by(simp add: not_def OclValid_def oclisold_def 
+by(simp add: not_def OclValid_def OclIsOld_def 
              \<sigma>\<^isub>1_def \<sigma>\<^isub>1'_def
              X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n5_def person5_def
              oid\<^isub>1_def oid\<^isub>2_def oid\<^isub>3_def oid\<^isub>4_def oid\<^isub>5_def oid\<^isub>6_def oid\<^isub>7_def oid\<^isub>8_def
@@ -925,7 +925,7 @@ value "\<And>\<sigma>\<^isub>1'.   (\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turn
 value "        (\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile>      (X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n6 .boss@pre .salary   \<doteq> \<two>\<nine>\<zero>\<zero> )"
 value "\<And>\<sigma>\<^isub>1'.   (\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile>      (X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n6 .boss@pre .salary@pre   \<doteq> \<two>\<six>\<zero>\<zero> )"
 lemma "        (\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile>      (X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n6 .oclIsEverywhere())"
-by(simp add: OclValid_def ocliseverywhere_def 
+by(simp add: OclValid_def OclIsEverywhere_def 
              \<sigma>\<^isub>1_def \<sigma>\<^isub>1'_def
              X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n6_def person6_def
              oid\<^isub>1_def oid\<^isub>2_def oid\<^isub>3_def oid\<^isub>4_def oid\<^isub>5_def oid\<^isub>6_def oid\<^isub>7_def
@@ -941,7 +941,7 @@ lemma "\<And>\<sigma>\<^isub>1 \<sigma>\<^isub>1'. (\<sigma>\<^isub>1,\<sigma>\<
                                  \<doteq> (X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n7 .oclAsType(Person)) )"
 by(rule up_down_cast_Person_OclAny_Person', simp add: X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n7_def OclValid_def valid_def person7_def)
 lemma "        (\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile>       (X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n7 .oclIsNew())"
-by(simp add: OclValid_def oclisnew_def 
+by(simp add: OclValid_def OclIsNew_def 
              \<sigma>\<^isub>1_def \<sigma>\<^isub>1'_def
              X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n7_def person7_def
              oid\<^isub>1_def oid\<^isub>2_def oid\<^isub>3_def oid\<^isub>4_def oid\<^isub>5_def oid\<^isub>6_def oid\<^isub>7_def
@@ -955,7 +955,7 @@ value "\<And>\<sigma>\<^isub>1 \<sigma>\<^isub>1'. (\<sigma>\<^isub>1,\<sigma>\<
 value "\<And>\<sigma>\<^isub>1 \<sigma>\<^isub>1'. (\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile>      (X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n8 .oclIsKindOf(OclAny))"
 
 
-lemma "\<And>\<sigma>\<^isub>1.    (\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile>      (Person .oclAllInstances() \<doteq> Set{ X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n1, X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n2, X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n3, X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n4(*, X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n5*), X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n6, X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n7 .oclAsType(Person), \<lambda>_. \<lfloor>\<lfloor>Person (in\<^isub>o\<^isub>c\<^isub>l\<^isub>a\<^isub>n\<^isub>y person8)\<rfloor>\<rfloor> })"
+lemma "\<And>\<sigma>\<^isub>1.    (\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile>      (Person .allInstances() \<doteq> Set{ X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n1, X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n2, X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n3, X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n4(*, X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n5*), X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n6, X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n7 .oclAsType(Person), \<lambda>_. \<lfloor>\<lfloor>Person (in\<^isub>o\<^isub>c\<^isub>l\<^isub>a\<^isub>n\<^isub>y person8)\<rfloor>\<rfloor> })"
 proof -
  have p0 : "\<And>S oid\<^isub>8 oid\<^isub>7 person8 person7. oid\<^isub>8 \<noteq> oid\<^isub>7 \<Longrightarrow>
             S (oid\<^isub>8 \<mapsto> person8) (oid\<^isub>7 \<mapsto> person7) = S (oid\<^isub>7 \<mapsto> person7) (oid\<^isub>8 \<mapsto> person8)"
@@ -982,7 +982,7 @@ proof -
  by(simp)
 
  fix \<sigma>\<^isub>1
- have eq : "Person .oclAllInstances() (\<sigma>\<^isub>1,\<sigma>\<^isub>1') =
+ have eq : "Person .allInstances() (\<sigma>\<^isub>1,\<sigma>\<^isub>1') =
        Set{X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n1, X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n2, X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n3, X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n4(*, X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n5*), X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n6, X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n7 .oclAsType(Person), \<lambda>_. \<lfloor>\<lfloor>Person (in\<^isub>o\<^isub>c\<^isub>l\<^isub>a\<^isub>n\<^isub>y person8)\<rfloor>\<rfloor>} (\<sigma>\<^isub>1,\<sigma>\<^isub>1')"
   apply(simp only: perm)
   apply(simp add: oid\<^isub>1_def oid\<^isub>2_def oid\<^isub>3_def oid\<^isub>4_def oid\<^isub>5_def oid\<^isub>6_def oid\<^isub>7_def oid\<^isub>8_def
@@ -1023,7 +1023,7 @@ proof -
  done
 qed
 
-lemma "\<And>\<sigma>\<^isub>1.    (\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile>      (allinstances' Person' \<doteq> Set{ X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n1, X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n2, X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n3, X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n4(*, X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n5*), X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n6, X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n7 .oclAsType(Person) })"
+lemma "\<And>\<sigma>\<^isub>1.    (\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile>      (OclAllInstances' Person' \<doteq> Set{ X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n1, X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n2, X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n3, X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n4(*, X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n5*), X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n6, X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n7 .oclAsType(Person) })"
 proof -
  have p0 : "\<And>S oid\<^isub>8 oid\<^isub>7 person8 person7. oid\<^isub>8 \<noteq> oid\<^isub>7 \<Longrightarrow>
             S (oid\<^isub>8 \<mapsto> person8) (oid\<^isub>7 \<mapsto> person7) = S (oid\<^isub>7 \<mapsto> person7) (oid\<^isub>8 \<mapsto> person8)"
@@ -1050,7 +1050,7 @@ proof -
  by(simp)
 
  fix \<sigma>\<^isub>1
- have eq : "allinstances' Person' (\<sigma>\<^isub>1,\<sigma>\<^isub>1') =
+ have eq : "OclAllInstances' Person' (\<sigma>\<^isub>1,\<sigma>\<^isub>1') =
        Set{X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n1, X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n2, X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n3, X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n4(*, X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n5*), X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n6, X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n7 .oclAsType(Person)} (\<sigma>\<^isub>1,\<sigma>\<^isub>1')"
   apply(simp only: perm)
   apply(simp add: oid\<^isub>1_def oid\<^isub>2_def oid\<^isub>3_def oid\<^isub>4_def oid\<^isub>5_def oid\<^isub>6_def oid\<^isub>7_def oid\<^isub>8_def
@@ -1104,7 +1104,7 @@ proof -
  done
 qed
 
-lemma "\<And>\<sigma>\<^isub>1.    (\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile>      (allinstances' OclAny' \<doteq> Set{ X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n1 .oclAsType(OclAny), X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n2 .oclAsType(OclAny), X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n3 .oclAsType(OclAny), X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n4 .oclAsType(OclAny)(*, X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n5*), X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n6 .oclAsType(OclAny), X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n7, X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n8 })"
+lemma "\<And>\<sigma>\<^isub>1.    (\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile>      (OclAllInstances' OclAny' \<doteq> Set{ X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n1 .oclAsType(OclAny), X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n2 .oclAsType(OclAny), X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n3 .oclAsType(OclAny), X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n4 .oclAsType(OclAny)(*, X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n5*), X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n6 .oclAsType(OclAny), X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n7, X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n8 })"
 proof -
  have p0 : "\<And>S oid\<^isub>8 oid\<^isub>7 person8 person7. oid\<^isub>8 \<noteq> oid\<^isub>7 \<Longrightarrow>
             S (oid\<^isub>8 \<mapsto> person8) (oid\<^isub>7 \<mapsto> person7) = S (oid\<^isub>7 \<mapsto> person7) (oid\<^isub>8 \<mapsto> person8)"
@@ -1131,7 +1131,7 @@ proof -
  by(simp)
 
  fix \<sigma>\<^isub>1
- have eq : "allinstances' OclAny' (\<sigma>\<^isub>1,\<sigma>\<^isub>1') =
+ have eq : "OclAllInstances' OclAny' (\<sigma>\<^isub>1,\<sigma>\<^isub>1') =
        Set{ X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n1 .oclAsType(OclAny), X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n2 .oclAsType(OclAny), X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n3 .oclAsType(OclAny), X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n4 .oclAsType(OclAny)(*, X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n5*), X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n6 .oclAsType(OclAny), X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n7, X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n8 } (\<sigma>\<^isub>1,\<sigma>\<^isub>1')"
   apply(simp only: perm)
   apply(simp add: oid\<^isub>1_def oid\<^isub>2_def oid\<^isub>3_def oid\<^isub>4_def oid\<^isub>5_def oid\<^isub>6_def oid\<^isub>7_def oid\<^isub>8_def
@@ -1202,7 +1202,7 @@ lemma
  defines "X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n0 \<equiv> (\<lambda>_. \<lfloor>\<lfloor> person0 \<rfloor>\<rfloor>)"
  defines "X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n1 \<equiv> (\<lambda>_. \<lfloor>\<lfloor> person1 \<rfloor>\<rfloor>)"
  defines "X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n2 :: Person \<equiv> (\<lambda>_. \<lfloor>\<lfloor> person2 \<rfloor>\<rfloor>)"
- shows "(OclAny .oclAllInstances()) (\<sigma>\<^isub>1,\<sigma>\<^isub>1') = Set{X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n0, X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n1, X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n2 .oclAsType(OclAny)} (\<sigma>\<^isub>1,\<sigma>\<^isub>1')"
+ shows "(OclAny .allInstances()) (\<sigma>\<^isub>1,\<sigma>\<^isub>1') = Set{X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n0, X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n1, X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n2 .oclAsType(OclAny)} (\<sigma>\<^isub>1,\<sigma>\<^isub>1')"
 proof -
  have perm : "\<sigma>\<^isub>1' = \<lparr> heap = empty(2 \<mapsto> in\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n person2)
                                  (1 \<mapsto> in\<^isub>o\<^isub>c\<^isub>l\<^isub>a\<^isub>n\<^isub>y person1)

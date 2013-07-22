@@ -610,9 +610,9 @@ where     "OclForall S P = (\<lambda> \<tau>. if (\<delta> S) \<tau> = true \<ta
                                                 else true \<tau>
                                  else \<bottom>)"
 syntax
-  "_OclForall" :: "[('\<AA>,'\<alpha>::null) Set,id,('\<AA>)Boolean] \<Rightarrow> '\<AA> Boolean"    ("(_)->forall'(_|_')")
+  "_OclForall" :: "[('\<AA>,'\<alpha>::null) Set,id,('\<AA>)Boolean] \<Rightarrow> '\<AA> Boolean"    ("(_)->forAll'(_|_')")
 translations
-  "X->forall(x | P)" == "CONST OclForall X (%x. P)"
+  "X->forAll(x | P)" == "CONST OclForall X (%x. P)"
 
 text{* Like OclForall, OclExists is also not strict. *}
 definition OclExists     :: "[('\<AA>,'\<alpha>::null) Set,('\<AA>,'\<alpha>)val\<Rightarrow>('\<AA>)Boolean] \<Rightarrow> '\<AA> Boolean"
@@ -891,7 +891,7 @@ lemma cp_OclSize: "X->size() \<tau> = (\<lambda>_. X \<tau>)->size() \<tau>"
 by(simp add: OclSize_def cp_defined[symmetric])
 
 lemma cp_OclForall:
-"(X->forall(x | P x)) \<tau> = ((\<lambda> _. X \<tau>)->forall(x | P (\<lambda> _. x \<tau>))) \<tau>"
+"(X->forAll(x | P x)) \<tau> = ((\<lambda> _. X \<tau>)->forAll(x | P (\<lambda> _. x \<tau>))) \<tau>"
 by(simp add: OclForall_def cp_defined[symmetric])
 
 lemma cp_OclIterate\<^isub>S\<^isub>e\<^isub>t: "(X->iterate(a; x = A | P a x)) \<tau> =
@@ -1608,11 +1608,11 @@ by(simp add: size_defined[OF X_finite])
 subsection{* OclForall *}
 
 lemma forall_set_null_exec[simp,code_unfold] :
-"(null->forall(z| P(z))) = invalid"
+"(null->forAll(z| P(z))) = invalid"
 by(simp add: OclForall_def invalid_def false_def true_def)
 
 lemma forall_set_mt_exec[simp,code_unfold] :
-"((Set{})->forall(z| P(z))) = true"
+"((Set{})->forAll(z| P(z))) = true"
 apply(simp add: OclForall_def)
 apply(subst mtSet_def)+
 apply(subst Abs_Set_0_inverse, simp_all add: true_def)+
@@ -1620,8 +1620,8 @@ done
 
 lemma forall_set_including_exec[simp,code_unfold] :
  assumes cp: "\<And>\<tau>. P x \<tau> = P (\<lambda>_. x \<tau>) \<tau>"
- shows "((S->including(x))->forall(z | P(z))) = (if \<delta> S and \<upsilon> x
-                                                 then P x and (S->forall(z | P(z)))
+ shows "((S->including(x))->forAll(z | P(z))) = (if \<delta> S and \<upsilon> x
+                                                 then P x and (S->forAll(z | P(z)))
                                                  else invalid
                                                  endif)"
 proof -
@@ -2013,7 +2013,7 @@ subsection{* Strict Equality *}
 lemma StrictRefEq_set_exec[simp,code_unfold] :
 "((x::('\<AA>,'\<alpha>::null)Set) \<doteq> y) =
   (if \<delta> x then (if \<delta> y
-                then ((x->forall(z| y->includes(z)) and (y->forall(z| x->includes(z)))))
+                then ((x->forAll(z| y->includes(z)) and (y->forAll(z| x->includes(z)))))
                 else if \<upsilon> y
                       then false (* x'->includes = null *)
                       else invalid
@@ -6295,10 +6295,10 @@ value "\<not> (\<tau>\<^isub>0 \<Turnstile> (Set{\<two>}->includes(\<one>)))"
 value "\<not> (\<tau>\<^isub>0 \<Turnstile> (Set{\<two>,\<one>}->includes(null)))"
 value    "\<tau>\<^isub>0 \<Turnstile> (Set{\<two>,null}->includes(null))"
 (*
-value    "\<tau> \<Turnstile> ((Set{\<two>,\<one>})->forall(z | \<zero> \<prec> z))"
+value    "\<tau> \<Turnstile> ((Set{\<two>,\<one>})->forAll(z | \<zero> \<prec> z))"
 value "\<not> (\<tau> \<Turnstile> ((Set{\<two>,\<one>})->exists(z | z \<prec> \<zero> )))"
 
-value "\<not> (\<tau> \<Turnstile> ((Set{\<two>,null})->forall(z | \<zero> \<prec> z)))"
+value "\<not> (\<tau> \<Turnstile> ((Set{\<two>,null})->forAll(z | \<zero> \<prec> z)))"
 value    "\<tau> \<Turnstile> ((Set{\<two>,null})->exists(z | \<zero> \<prec> z))"
 
 value    "\<tau> \<Turnstile> (Set{\<two>,null,\<two>} \<doteq> Set{null,\<two>})"
