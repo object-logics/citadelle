@@ -489,4 +489,53 @@ proof -
  done
 qed
 
+
+
+definition "atSelf' x H fst_snd = (\<lambda>\<tau> . if (\<delta> x) \<tau> = true \<tau>
+                        then if oid_of (x \<tau>) \<in> dom(heap(fst \<tau>)) \<and> oid_of (x \<tau>) \<in> dom(heap (snd \<tau>))
+                             then case H \<lceil>(heap(fst_snd \<tau>))(oid_of (x \<tau>))\<rceil> of None \<Rightarrow> null \<tau> | \<lfloor>x\<rfloor> \<Rightarrow> x
+                             else invalid \<tau>
+                        else invalid \<tau>)"
+lemmas [simp] = atSelf'_def
+
+definition atpre_Self' :: "('\<AA>::object,'\<alpha>::{null,object})val \<Rightarrow>
+                      ('\<AA> \<Rightarrow> '\<alpha> option) \<Rightarrow>
+                      ('\<AA>::object,'\<alpha>::{null,object})val"
+where "atpre_Self' x H = atSelf' x H fst"
+
+definition atpost_Self' :: "('\<AA>::object,'\<alpha>::{null,object})val \<Rightarrow>
+                      ('\<AA> \<Rightarrow> '\<alpha> option) \<Rightarrow>
+                      ('\<AA>::object,'\<alpha>::{null,object})val"
+where "atpost_Self' x H = atSelf' x H snd"
+
+theorem framing':
+      assumes modifiesclause:"\<tau> \<Turnstile> (X->excluding(x :: ('\<AA>::object,'\<alpha>::{null,object})val))->oclIsModifiedOnly()"
+      and    represented_x: "\<tau> \<Turnstile> \<delta>(atpre_Self' x (H::('\<AA> \<Rightarrow> '\<alpha> option)))"
+      and oid_is_typerepr : "inj (oid_of :: '\<alpha> \<Rightarrow> _)"
+      shows "\<tau> \<Turnstile> (atpre_Self' x H  \<triangleq>  (atpost_Self' x H))"
+proof -
+ have def_x : "\<tau> \<Turnstile> \<delta> x"
+ by(insert represented_x, simp add: defined_def OclValid_def null_fun_def bot_fun_def false_def true_def atpre_Self'_def invalid_def split: split_if_asm)
+ show ?thesis
+  apply(simp add:StrongEq_def OclValid_def true_def atpre_Self'_def atpost_Self'_def def_x[simplified OclValid_def])
+  apply(rule conjI, rule impI)
+  apply(rule_tac f = "\<lambda>xt. case H \<lceil>xt\<rceil> of None \<Rightarrow> null \<tau> | \<lfloor>x\<rfloor> \<Rightarrow> x" in arg_cong)
+  apply(insert modifiesclause[simplified oclismodified_def OclValid_def])
+  apply(case_tac \<tau>, rename_tac \<sigma> \<sigma>', simp split: split_if_asm)
+  apply(simp add: OclExcluding_def)
+  apply(drule foundation5[simplified OclValid_def true_def], simp)
+  apply(subst (asm) Abs_Set_0_inverse, simp)
+  apply(rule disjI2)+
+  apply (metis (hide_lams, no_types) DiffD1 OclValid_def Set_inv_lemma def_x foundation16 foundation18')
+  apply(simp)
+  apply(erule_tac x = "oid_of (x (\<sigma>, \<sigma>'))" in ballE) apply simp
+  apply(subst (asm) image_set_diff, simp add: oid_is_typerepr)
+  apply(simp)
+  apply(simp add: invalid_def bot_option_def)
+
+  apply(blast)
+ done
+qed
+
+
 end
