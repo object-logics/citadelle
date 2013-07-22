@@ -131,19 +131,19 @@ text{* Note that we can not follow the lexis of standard OCL for Isabelle-
 technical reasons; these operators are heavily overloaded in the library
 that a further overloading would lead to heavy technical buzz in this
 document... *}
-definition ocl_add_int ::"('\<AA>)Integer \<Rightarrow> ('\<AA>)Integer \<Rightarrow> ('\<AA>)Integer" (infix "\<oplus>" 40)
-where "x \<oplus> y \<equiv> \<lambda> \<tau>. if (\<delta> x) \<tau> = true \<tau> \<and> (\<delta> y) \<tau> = true \<tau>
+definition OclAdd\<^isub>i\<^isub>n\<^isub>t ::"('\<AA>)Integer \<Rightarrow> ('\<AA>)Integer \<Rightarrow> ('\<AA>)Integer" (infix "+\<^isub>i\<^isub>n\<^isub>t" 40)
+where "x +\<^isub>i\<^isub>n\<^isub>t y \<equiv> \<lambda> \<tau>. if (\<delta> x) \<tau> = true \<tau> \<and> (\<delta> y) \<tau> = true \<tau>
                 then \<lfloor>\<lfloor>\<lceil>\<lceil>x \<tau>\<rceil>\<rceil> + \<lceil>\<lceil>y \<tau>\<rceil>\<rceil>\<rfloor>\<rfloor>
                 else invalid \<tau> "
 
 
-definition ocl_less_int ::"('\<AA>)Integer \<Rightarrow> ('\<AA>)Integer \<Rightarrow> ('\<AA>)Boolean" (infix "\<prec>" 40)
-where "x \<prec> y \<equiv> \<lambda> \<tau>. if (\<delta> x) \<tau> = true \<tau> \<and> (\<delta> y) \<tau> = true \<tau>
+definition OclLess\<^isub>i\<^isub>n\<^isub>t ::"('\<AA>)Integer \<Rightarrow> ('\<AA>)Integer \<Rightarrow> ('\<AA>)Boolean" (infix "<\<^isub>i\<^isub>n\<^isub>t" 40)
+where "x <\<^isub>i\<^isub>n\<^isub>t y \<equiv> \<lambda> \<tau>. if (\<delta> x) \<tau> = true \<tau> \<and> (\<delta> y) \<tau> = true \<tau>
                 then \<lfloor>\<lfloor>\<lceil>\<lceil>x \<tau>\<rceil>\<rceil> < \<lceil>\<lceil>y \<tau>\<rceil>\<rceil>\<rfloor>\<rfloor>
                 else invalid \<tau> "
 
-definition ocl_le_int ::"('\<AA>)Integer \<Rightarrow> ('\<AA>)Integer \<Rightarrow> ('\<AA>)Boolean" (infix "\<preceq>" 40)
-where "x \<preceq> y \<equiv> \<lambda> \<tau>. if (\<delta> x) \<tau> = true \<tau> \<and> (\<delta> y) \<tau> = true \<tau>
+definition OclLe\<^isub>i\<^isub>n\<^isub>t ::"('\<AA>)Integer \<Rightarrow> ('\<AA>)Integer \<Rightarrow> ('\<AA>)Boolean" (infix "\<le>\<^isub>i\<^isub>n\<^isub>t" 40)
+where "x \<le>\<^isub>i\<^isub>n\<^isub>t y \<equiv> \<lambda> \<tau>. if (\<delta> x) \<tau> = true \<tau> \<and> (\<delta> y) \<tau> = true \<tau>
                 then \<lfloor>\<lfloor>\<lceil>\<lceil>x \<tau>\<rceil>\<rceil> \<le> \<lceil>\<lceil>y \<tau>\<rceil>\<rceil>\<rfloor>\<rfloor>
                 else invalid \<tau> "
 
@@ -151,9 +151,9 @@ subsubsection{* Test Statements *}
 text{* Here follows a list of code-examples, that explain the meanings
 of the above definitions by compilation to code and execution to @{term "True"}.*}
 
-value "\<tau>\<^isub>0 \<Turnstile> (\<nine> \<preceq> \<one>\<zero> )"
-value "\<tau>\<^isub>0 \<Turnstile> (( \<four> \<oplus> \<four> ) \<preceq> \<one>\<zero> )"
-value "\<not>(\<tau>\<^isub>0 \<Turnstile> ((\<four> \<oplus>( \<four> \<oplus> \<four> )) \<prec> \<one>\<zero> ))"
+value "  \<tau>\<^isub>0 \<Turnstile> ( \<nine> \<le>\<^isub>i\<^isub>n\<^isub>t \<one>\<zero> )"
+value "  \<tau>\<^isub>0 \<Turnstile> (( \<four> +\<^isub>i\<^isub>n\<^isub>t \<four> ) \<le>\<^isub>i\<^isub>n\<^isub>t \<one>\<zero> )"
+value "\<not>(\<tau>\<^isub>0 \<Turnstile> (( \<four> +\<^isub>i\<^isub>n\<^isub>t ( \<four> +\<^isub>i\<^isub>n\<^isub>t \<four> )) <\<^isub>i\<^isub>n\<^isub>t \<one>\<zero> ))"
 
 
 section{* Fundamental Predicates on Boolean and Integer: Strict Equality *}
