@@ -94,6 +94,8 @@ where      "gen_ref_eq x y
                          else \<lfloor>\<lfloor>(oid_of (x \<tau>)) = (oid_of (y \<tau>)) \<rfloor>\<rfloor>
                     else invalid \<tau>"
 
+lemma gen_ref_eq_sym : assumes x_val : "\<tau> \<Turnstile> \<upsilon> x" shows "\<tau> \<Turnstile> gen_ref_eq x x"
+by(simp add: gen_ref_eq_def true_def OclValid_def x_val[simplified OclValid_def])
 
 lemma gen_ref_eq_object_strict1[simp] : 
 "(gen_ref_eq x invalid) = invalid"
