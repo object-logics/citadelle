@@ -1099,5 +1099,13 @@ by(rule ext, auto simp: OclIf_def)
 lemma OclIf_idem2[simp]:"(if \<upsilon> X then A else A endif) = A" 
 by(rule ext, auto simp: OclIf_def)
 
+lemma OclNot_if[simp]:
+"not(if P then C else E endif) = (if P then not C else not E endif)"
+  (* non-trivial but elementary *)
+  apply(rule OclNot_inject, simp)
+  apply(rule ext)
+  apply(subst cp_OclNot, simp add: OclIf_def)
+  apply(subst cp_OclNot[symmetric])+
+by simp
 
 end

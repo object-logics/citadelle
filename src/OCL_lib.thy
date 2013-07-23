@@ -1854,15 +1854,6 @@ lemma exists_set_mt_exec[simp,code_unfold] :
 "((Set{})->exists(z | P(z))) = false"
 by(simp add: OclExists_def)
 
-lemma OclNot_if[simp]:
-"not(if P then C else E endif) = (if P then not C else not E endif)"
-  (* non-trivial but elementary *)
-  apply(rule OclNot_inject, simp)
-  apply(rule ext)
-  apply(subst cp_OclNot, simp add: OclIf_def)
-  apply(subst cp_OclNot[symmetric])+
-by simp
-
 lemma exists_set_including_exec[simp,code_unfold] :
  assumes cp: "\<And>\<tau>. P x \<tau> = P (\<lambda>_. x \<tau>) \<tau>"
  shows "((S->including(x))->exists(z | P(z))) = (if \<delta> S and \<upsilon> x
