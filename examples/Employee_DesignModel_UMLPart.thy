@@ -631,26 +631,29 @@ definition "eval_extract X f = (\<lambda> \<tau>. case X \<tau> of
                                | \<lfloor>  \<bottom> \<rfloor> \<Rightarrow> invalid \<tau> (* dereferencing null pointer *)
                                | \<lfloor>\<lfloor> obj \<rfloor>\<rfloor> \<Rightarrow> f (oid_of obj) \<tau>)"
 
-
+(*
+definition "OclAsType\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n_\<AA> u = (case u of in\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n p \<Rightarrow>  p 
+                                          | in\<^isub>o\<^isub>c\<^isub>l\<^isub>a\<^isub>n\<^isub>y (mk\<^isub>o\<^isub>c\<^isub>l\<^isub>a\<^isub>n\<^isub>y oid \<lfloor>(a,b)\<rfloor>) \<Rightarrow> (mk\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n oid a b))" *)
+(*
 definition "deref\<^isub>o\<^isub>i\<^isub>d fst_snd f oid = (\<lambda>\<tau>. case (heap (fst_snd \<tau>)) oid of
+                       \<lfloor> in\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n obj \<rfloor> \<Rightarrow> f obj \<tau>
+                     | \<lfloor> in\<^isub>o\<^isub>c\<^isub>l\<^isub>a\<^isub>n\<^isub>y obj \<rfloor> \<Rightarrow> f obj \<tau>
+                     | _       \<Rightarrow> invalid \<tau>)" *)
+
+definition "deref\<^isub>o\<^isub>i\<^isub>d_\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n fst_snd f oid = (\<lambda>\<tau>. case (heap (fst_snd \<tau>)) oid of
                        \<lfloor> in\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n obj \<rfloor> \<Rightarrow> f obj \<tau>
                      | _       \<Rightarrow> invalid \<tau>)"
 
-definition "deref'\<^isub>o\<^isub>i\<^isub>d fst_snd f oid = (\<lambda>\<tau>. case (heap (fst_snd \<tau>)) oid of
+definition "deref\<^isub>o\<^isub>i\<^isub>d_\<^isub>o\<^isub>c\<^isub>l\<^isub>a\<^isub>n\<^isub>y fst_snd f oid = (\<lambda>\<tau>. case (heap (fst_snd \<tau>)) oid of
                        \<lfloor> in\<^isub>o\<^isub>c\<^isub>l\<^isub>a\<^isub>n\<^isub>y obj \<rfloor> \<Rightarrow> f obj \<tau>
                      | _       \<Rightarrow> invalid \<tau>)"
 
 text{* pointer undefined in state or not referencing a type conform object representation *}
 
-(*
-definition "OclAsType\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n_\<AA> u = (case u of in\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n p \<Rightarrow>  p 
-                                          | in\<^isub>o\<^isub>c\<^isub>l\<^isub>a\<^isub>n\<^isub>y (mk\<^isub>o\<^isub>c\<^isub>l\<^isub>a\<^isub>n\<^isub>y oid \<lfloor>(a,b)\<rfloor>) \<Rightarrow> (mk\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n oid a b))"
-*)
-
 
 definition "select\<^isub>a\<^isub>n\<^isub>y f = (\<lambda> X. case X of 
-                     (mk\<^isub>o\<^isub>c\<^isub>l\<^isub>a\<^isub>n\<^isub>y _ \<bottom>) \<Rightarrow> null  (* object contains null pointer *)
-                   | (mk\<^isub>o\<^isub>c\<^isub>l\<^isub>a\<^isub>n\<^isub>y _ \<lfloor>oclany\<rfloor>) \<Rightarrow> f (\<lambda>x _. \<lfloor>\<lfloor>x\<rfloor>\<rfloor>) oclany)"
+                     (mk\<^isub>o\<^isub>c\<^isub>l\<^isub>a\<^isub>n\<^isub>y _ \<bottom>) \<Rightarrow> null
+                   | (mk\<^isub>o\<^isub>c\<^isub>l\<^isub>a\<^isub>n\<^isub>y _ \<lfloor>any\<rfloor>) \<Rightarrow> f (\<lambda>x _. \<lfloor>\<lfloor>x\<rfloor>\<rfloor>) any)"
 
 
 definition "select\<^isub>b\<^isub>o\<^isub>s\<^isub>s f = (\<lambda> X. case X of 
@@ -668,58 +671,64 @@ definition "in_post_state = snd"
 
 definition "reconst_basetype = (\<lambda> convert x. convert x)"
 
-fun dot\<^isub>a\<^isub>n\<^isub>y :: "OclAny \<Rightarrow> _"  ("(1(_).oclany)" 50)
-  where "(X).oclany = eval_extract X 
-                       (deref'\<^isub>o\<^isub>i\<^isub>d in_post_state 
+fun dot\<^isub>a\<^isub>n\<^isub>y :: "OclAny \<Rightarrow> _"  ("(1(_).any)" 50)
+  where "(X).any = eval_extract X 
+                       (deref\<^isub>o\<^isub>i\<^isub>d_\<^isub>o\<^isub>c\<^isub>l\<^isub>a\<^isub>n\<^isub>y in_post_state 
                           (select\<^isub>a\<^isub>n\<^isub>y 
                              reconst_basetype))"
 
 fun dot\<^isub>b\<^isub>o\<^isub>s\<^isub>s :: "Person \<Rightarrow> Person"  ("(1(_).boss)" 50)
   where "(X).boss = eval_extract X 
-                      (deref\<^isub>o\<^isub>i\<^isub>d in_post_state 
+                      (deref\<^isub>o\<^isub>i\<^isub>d_\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n in_post_state 
                          (select\<^isub>b\<^isub>o\<^isub>s\<^isub>s 
-                            (deref\<^isub>o\<^isub>i\<^isub>d in_post_state)))"
+                            (deref\<^isub>o\<^isub>i\<^isub>d_\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n in_post_state)))"
 
 fun dot\<^isub>s\<^isub>a\<^isub>l\<^isub>a\<^isub>r\<^isub>y :: "Person \<Rightarrow> Integer"  ("(1(_).salary)" 50)
   where "(X).salary = eval_extract X 
-                       (deref\<^isub>o\<^isub>i\<^isub>d in_post_state 
+                       (deref\<^isub>o\<^isub>i\<^isub>d_\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n in_post_state 
                           (select\<^isub>s\<^isub>a\<^isub>l\<^isub>a\<^isub>r\<^isub>y 
                              reconst_basetype))"
 
-fun dot\<^isub>a\<^isub>n\<^isub>y_at_pre :: "OclAny \<Rightarrow> _"  ("(1(_).oclany@pre)" 50)
-  where "(X).oclany@pre = eval_extract X 
-                       (deref'\<^isub>o\<^isub>i\<^isub>d in_pre_state 
+fun dot\<^isub>a\<^isub>n\<^isub>y_at_pre :: "OclAny \<Rightarrow> _"  ("(1(_).any@pre)" 50)
+  where "(X).any@pre = eval_extract X 
+                       (deref\<^isub>o\<^isub>i\<^isub>d_\<^isub>o\<^isub>c\<^isub>l\<^isub>a\<^isub>n\<^isub>y in_pre_state 
                           (select\<^isub>a\<^isub>n\<^isub>y 
                              reconst_basetype))"
 
 fun dot\<^isub>b\<^isub>o\<^isub>s\<^isub>s_at_pre:: "Person \<Rightarrow> Person"  ("(1(_).boss@pre)" 50)
   where "(X).boss@pre = eval_extract X 
-                         (deref\<^isub>o\<^isub>i\<^isub>d in_pre_state 
+                         (deref\<^isub>o\<^isub>i\<^isub>d_\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n in_pre_state 
                             (select\<^isub>b\<^isub>o\<^isub>s\<^isub>s 
-                               (deref\<^isub>o\<^isub>i\<^isub>d in_pre_state)))"
+                               (deref\<^isub>o\<^isub>i\<^isub>d_\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n in_pre_state)))"
   (* | \<lfloor>\<lfloor> mk\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n _ _ \<bottom> \<rfloor>\<rfloor> \<Rightarrow> null (* object contains null pointer. REALLY ? 
                                      And if this pointer was defined in the pre-state ?*) *)
 
 fun dot\<^isub>s\<^isub>a\<^isub>l\<^isub>a\<^isub>r\<^isub>y_at_pre:: "Person \<Rightarrow> Integer"  ("(1(_).salary@pre)" 50)
   where "(X).salary@pre = eval_extract X 
-                            (deref\<^isub>o\<^isub>i\<^isub>d in_pre_state 
+                            (deref\<^isub>o\<^isub>i\<^isub>d_\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n in_pre_state 
                                (select\<^isub>s\<^isub>a\<^isub>l\<^isub>a\<^isub>r\<^isub>y 
                                    reconst_basetype))"
 
 subsection{* Context Passing *}
 
+lemma cp_dot\<^isub>a\<^isub>n\<^isub>y: "((X).any) \<tau> = ((\<lambda>_. X \<tau>).any) \<tau>" by(simp add: eval_extract_def)
 lemma cp_dot\<^isub>b\<^isub>o\<^isub>s\<^isub>s: "((X).boss) \<tau> = ((\<lambda>_. X \<tau>).boss) \<tau>" by(simp add: eval_extract_def)
-
 lemma cp_dot\<^isub>s\<^isub>a\<^isub>l\<^isub>a\<^isub>r\<^isub>y: "((X).salary) \<tau> = ((\<lambda>_. X \<tau>).salary) \<tau>" by(simp add: eval_extract_def)
 
+lemma cp_dot\<^isub>a\<^isub>n\<^isub>y_at_pre: "((X).any@pre) \<tau> = ((\<lambda>_. X \<tau>).any@pre) \<tau>" by(simp add: eval_extract_def)
 lemma cp_dot\<^isub>b\<^isub>o\<^isub>s\<^isub>s_at_pre: "((X).boss@pre) \<tau> = ((\<lambda>_. X \<tau>).boss@pre) \<tau>" by(simp add: eval_extract_def)
-
 lemma cp_dot\<^isub>s\<^isub>a\<^isub>l\<^isub>a\<^isub>r\<^isub>y_at_pre: "((X).salary@pre) \<tau> = ((\<lambda>_. X \<tau>).salary@pre) \<tau>" by(simp add: eval_extract_def)
+
+lemmas cp_dot\<^isub>a\<^isub>n\<^isub>y_I [simp, intro!]= 
+       cp_dot\<^isub>a\<^isub>n\<^isub>y[THEN allI[THEN allI], 
+                          of "\<lambda> X _. X" "\<lambda> _ \<tau>. \<tau>", THEN cpI1]
+lemmas cp_dot\<^isub>a\<^isub>n\<^isub>y_at_pre_I [simp, intro!]= 
+       cp_dot\<^isub>a\<^isub>n\<^isub>y_at_pre[THEN allI[THEN allI],  
+                          of "\<lambda> X _. X" "\<lambda> _ \<tau>. \<tau>", THEN cpI1]
 
 lemmas cp_dot\<^isub>b\<^isub>o\<^isub>s\<^isub>s_I [simp, intro!]= 
        cp_dot\<^isub>b\<^isub>o\<^isub>s\<^isub>s[THEN allI[THEN allI], 
                           of "\<lambda> X _. X" "\<lambda> _ \<tau>. \<tau>", THEN cpI1]
-
 lemmas cp_dot\<^isub>b\<^isub>o\<^isub>s\<^isub>s_at_pre_I [simp, intro!]= 
        cp_dot\<^isub>b\<^isub>o\<^isub>s\<^isub>s_at_pre[THEN allI[THEN allI],  
                           of "\<lambda> X _. X" "\<lambda> _ \<tau>. \<tau>", THEN cpI1]
@@ -727,35 +736,38 @@ lemmas cp_dot\<^isub>b\<^isub>o\<^isub>s\<^isub>s_at_pre_I [simp, intro!]=
 lemmas cp_dot\<^isub>s\<^isub>a\<^isub>l\<^isub>a\<^isub>r\<^isub>y_I [simp, intro!]= 
        cp_dot\<^isub>s\<^isub>a\<^isub>l\<^isub>a\<^isub>r\<^isub>y[THEN allI[THEN allI], 
                           of "\<lambda> X _. X" "\<lambda> _ \<tau>. \<tau>", THEN cpI1]
-
 lemmas cp_dot\<^isub>s\<^isub>a\<^isub>l\<^isub>a\<^isub>r\<^isub>y_at_pre_I [simp, intro!]= 
        cp_dot\<^isub>s\<^isub>a\<^isub>l\<^isub>a\<^isub>r\<^isub>y_at_pre[THEN allI[THEN allI],  
                           of "\<lambda> X _. X" "\<lambda> _ \<tau>. \<tau>", THEN cpI1]
 
 subsection{* Execution with invalid or null as argument *}
 
+lemma dot\<^isub>a\<^isub>n\<^isub>y_nullstrict [simp]: "(null).any = invalid"
+by(rule ext, simp add: null_fun_def null_option_def bot_option_def null_def invalid_def eval_extract_def)
+lemma dot\<^isub>a\<^isub>n\<^isub>y_at_pre_nullstrict [simp] : "(null).any@pre = invalid"
+by(rule ext, simp add: null_fun_def null_option_def bot_option_def null_def invalid_def eval_extract_def)
+lemma dot\<^isub>a\<^isub>n\<^isub>y_strict [simp] : "(invalid).any = invalid" 
+by(rule ext, simp add: null_fun_def null_option_def bot_option_def null_def invalid_def eval_extract_def)
+lemma dot\<^isub>a\<^isub>n\<^isub>y_at_pre_strict [simp] : "(invalid).any@pre = invalid"
+by(rule ext, simp add: null_fun_def null_option_def bot_option_def null_def invalid_def eval_extract_def)
+
+
 lemma dot\<^isub>b\<^isub>o\<^isub>s\<^isub>s_nullstrict [simp]: "(null).boss = invalid"
 by(rule ext, simp add: null_fun_def null_option_def bot_option_def null_def invalid_def eval_extract_def)
-
 lemma dot\<^isub>b\<^isub>o\<^isub>s\<^isub>s_at_pre_nullstrict [simp] : "(null).boss@pre = invalid"
 by(rule ext, simp add: null_fun_def null_option_def bot_option_def null_def invalid_def eval_extract_def)
-
 lemma dot\<^isub>b\<^isub>o\<^isub>s\<^isub>s_strict [simp] : "(invalid).boss = invalid" 
 by(rule ext, simp add: null_fun_def null_option_def bot_option_def null_def invalid_def eval_extract_def)
-
 lemma dot\<^isub>b\<^isub>o\<^isub>s\<^isub>s_at_pre_strict [simp] : "(invalid).boss@pre = invalid"
 by(rule ext, simp add: null_fun_def null_option_def bot_option_def null_def invalid_def eval_extract_def)
 
 
 lemma dot\<^isub>s\<^isub>a\<^isub>l\<^isub>a\<^isub>r\<^isub>y_nullstrict [simp]: "(null).salary = invalid"
 by(rule ext, simp add: null_fun_def null_option_def bot_option_def null_def invalid_def eval_extract_def)
-
 lemma dot\<^isub>s\<^isub>a\<^isub>l\<^isub>a\<^isub>r\<^isub>y_at_pre_nullstrict [simp] : "(null).salary@pre = invalid"
 by(rule ext, simp add: null_fun_def null_option_def bot_option_def null_def invalid_def eval_extract_def)
-
 lemma dot\<^isub>s\<^isub>a\<^isub>l\<^isub>a\<^isub>r\<^isub>y_strict [simp] : "(invalid).salary = invalid" 
 by(rule ext, simp add: null_fun_def null_option_def bot_option_def null_def invalid_def eval_extract_def)
-
 lemma dot\<^isub>s\<^isub>a\<^isub>l\<^isub>a\<^isub>r\<^isub>y_at_pre_strict [simp] : "(invalid).salary@pre = invalid"
 by(rule ext, simp add: null_fun_def null_option_def bot_option_def null_def invalid_def eval_extract_def)
 
@@ -833,6 +845,7 @@ definition "X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n7 :: OclAny \
 definition "X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n8 :: OclAny \<equiv> \<lambda> _ .\<lfloor>\<lfloor> person8 \<rfloor>\<rfloor>"
 
 lemma [code_unfold]: "((x::Person) \<doteq> y) = StrictRefEq\<^isub>g\<^isub>e\<^isub>n x y" by(simp only: StrictRefEq\<^isub>g\<^isub>e\<^isub>n_\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n)
+lemma [code_unfold]: "((x::OclAny) \<doteq> y) = StrictRefEq\<^isub>g\<^isub>e\<^isub>n x y" by(simp only: StrictRefEq\<^isub>g\<^isub>e\<^isub>n_\<^isub>o\<^isub>c\<^isub>l\<^isub>a\<^isub>n\<^isub>y)
 
 lemmas [code_unfold, simp] =
  OclAsType\<^isub>o\<^isub>c\<^isub>l\<^isub>a\<^isub>n\<^isub>y_OclAny
@@ -962,11 +975,12 @@ by(simp add: OclValid_def OclIsNew_def
              oid_of_option_def oid_of_oclany_def)
 
 
-value "\<And>\<sigma>\<^isub>1 \<sigma>\<^isub>1'. (\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile> not(\<upsilon>(X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n8 .oclAsType(Person)))"
-value "\<And>\<sigma>\<^isub>1 \<sigma>\<^isub>1'. (\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile>      (X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n8 .oclIsTypeOf(OclAny))"
-value "\<And>\<sigma>\<^isub>1 \<sigma>\<^isub>1'. (\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile>   not(X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n8 .oclIsTypeOf(Person))"
-value "\<And>\<sigma>\<^isub>1 \<sigma>\<^isub>1'. (\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile>   not(X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n8 .oclIsKindOf(Person))"
-value "\<And>\<sigma>\<^isub>1 \<sigma>\<^isub>1'. (\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile>      (X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n8 .oclIsKindOf(OclAny))"
+value "\<And>\<sigma>\<^isub>1 \<sigma>\<^isub>1'. \<not>((\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile>      (X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n8  \<doteq> X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n7 ))"
+value "\<And>\<sigma>\<^isub>1 \<sigma>\<^isub>1'.   (\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile> not(\<upsilon>(X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n8 .oclAsType(Person)))"
+value "\<And>\<sigma>\<^isub>1 \<sigma>\<^isub>1'.   (\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile>      (X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n8 .oclIsTypeOf(OclAny))"
+value "\<And>\<sigma>\<^isub>1 \<sigma>\<^isub>1'.   (\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile>   not(X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n8 .oclIsTypeOf(Person))"
+value "\<And>\<sigma>\<^isub>1 \<sigma>\<^isub>1'.   (\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile>   not(X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n8 .oclIsKindOf(Person))"
+value "\<And>\<sigma>\<^isub>1 \<sigma>\<^isub>1'.   (\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile>      (X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n8 .oclIsKindOf(OclAny))"
 
 
 lemma "\<And>\<sigma>\<^isub>1.    (\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile>      (Person .allInstances() \<doteq> Set{ X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n1, X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n2, X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n3, X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n4(*, X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n5*), X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n6, X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n7 .oclAsType(Person), \<lambda>_. \<lfloor>\<lfloor>Person (in\<^isub>o\<^isub>c\<^isub>l\<^isub>a\<^isub>n\<^isub>y person8)\<rfloor>\<rfloor> })"
