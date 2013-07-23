@@ -926,7 +926,7 @@ value "\<And>\<sigma>\<^isub>1 .   (\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turn
 value "\<And>\<sigma>\<^isub>1'.   (\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile>      (X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n5 .salary@pre   \<doteq> \<three>\<five>\<zero>\<zero> )"
 value "\<And>\<sigma>\<^isub>1 .   (\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile> not(\<upsilon>(X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n5 .boss))"
 lemma "        (\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile>      (X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n5 .oclIsOld())"
-by(simp add: not_def OclValid_def OclIsOld_def 
+by(simp add: OclNot_def OclValid_def OclIsOld_def 
              \<sigma>\<^isub>1_def \<sigma>\<^isub>1'_def
              X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n5_def person5_def
              oid\<^isub>1_def oid\<^isub>2_def oid\<^isub>3_def oid\<^isub>4_def oid\<^isub>5_def oid\<^isub>6_def oid\<^isub>7_def oid\<^isub>8_def

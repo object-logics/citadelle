@@ -438,7 +438,7 @@ by(simp add: OclIsOld_def OclIsNew_def OclIsEverywhere_def OclIsAbsent_def
 
 lemma notNew_vs_others : "\<tau> \<Turnstile> \<delta> X \<Longrightarrow> (\<not> \<tau> \<Turnstile> (X .oclIsNew())) = (\<tau> \<Turnstile> (X .oclIsOld()) \<or> \<tau> \<Turnstile> (X .oclIsEverywhere()) \<or> \<tau> \<Turnstile> (X .oclIsAbsent()))"
 by(simp add: OclIsOld_def OclIsNew_def OclIsEverywhere_def OclIsAbsent_def
-                not_def OclValid_def true_def, blast)
+                OclNot_def OclValid_def true_def, blast)
 
 subsection{* OclIsModifiedOnly *}
 
