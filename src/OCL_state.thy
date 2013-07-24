@@ -505,4 +505,7 @@ proof -
  done
 qed
 
+lemma framing_same_state: "(\<sigma>, \<sigma>) \<Turnstile> (x @pre H  \<triangleq>  (x @post H))"
+by(simp add: OclSelf_at_pre_def OclSelf_at_post_def OclValid_def StrongEq_def)
+
 end
