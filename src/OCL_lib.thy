@@ -533,6 +533,10 @@ apply(rule ext,auto simp: mtSet_def valid_def null_Set_0_def
 apply(simp_all add: Abs_Set_0_inject bot_option_def null_Set_0_def null_option_def)
 done
 
+lemma mtSet_exec: "\<lceil>\<lceil>Rep_Set_0 (Set{} \<tau>)\<rceil>\<rceil> = {}"
+ apply(simp add: mtSet_def, subst Abs_Set_0_inverse)
+by(simp add: bot_option_def)+
+
 text{* Note that the collection types in OCL allow for null to be included;
   however, there is the null-collection into which inclusion yields invalid. *}
 
@@ -1191,6 +1195,14 @@ show ?thesis
  by (metis OclValid_def S_incl StrictRefEq\<^isub>i\<^isub>n\<^isub>t_strict'' a_val foundation10 foundation6 x_val)
 qed
 
+lemma including_exec: 
+ assumes S_def: "\<tau> \<Turnstile> \<delta> S"
+   shows "\<lceil>\<lceil>Rep_Set_0 (S->including(\<lambda>_. \<lfloor>\<lfloor>x\<rfloor>\<rfloor>) \<tau>)\<rceil>\<rceil> = insert \<lfloor>\<lfloor>x\<rfloor>\<rfloor> \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>"
+ apply(simp add: OclIncluding_def S_def[simplified OclValid_def])
+ apply(subst Abs_Set_0_inverse, simp add: bot_option_def null_option_def)
+ apply(insert Set_inv_lemma[OF S_def], metis bot_option_def not_Some_eq)
+by(simp)
+
 subsection{* OclExcluding *}
 
 lemma excluding_charn0[simp]:
@@ -1435,6 +1447,14 @@ lemma finite_excluding_exec :
      auto simp: OclExcluding_def Abs_Set_0_inverse[OF C]
           dest: foundation13[THEN iffD2, THEN foundation22[THEN iffD1]])
 qed
+
+lemma excluding_exec: 
+ assumes S_def: "\<tau> \<Turnstile> \<delta> S"
+   shows "\<lceil>\<lceil>Rep_Set_0 (S->excluding(\<lambda>_. \<lfloor>\<lfloor>x\<rfloor>\<rfloor>) \<tau>)\<rceil>\<rceil> = \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil> - {\<lfloor>\<lfloor>x\<rfloor>\<rfloor>}"
+ apply(simp add: OclExcluding_def S_def[simplified OclValid_def])
+ apply(subst Abs_Set_0_inverse, simp add: bot_option_def null_option_def)
+ apply(insert Set_inv_lemma[OF S_def], metis Diff_iff bot_option_def not_None_eq)
+by(simp)
 
 subsection{* OclSize *}
 

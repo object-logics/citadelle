@@ -83,6 +83,11 @@ text{* Thus, if needed, we can constrain the object universe to objects by addin
 the following type class constraint:*}
 typ "'\<AA> :: object"
 
+instantiation   option  :: (object)object
+begin 
+   definition oid_of_option_def: "oid_of x = oid_of (the x)"
+   instance ..
+end
 
 section{* Fundamental Predicates on Object: Strict Equality *}
 subsection{* Definition *}
@@ -195,6 +200,20 @@ where  "OclAllInstances_at_post H \<tau> = OclAllInstances snd H \<tau>"
 definition OclAllInstances_at_pre :: "('\<AA> \<Rightarrow> '\<alpha> option) \<Rightarrow> ('\<AA> ::object, '\<alpha> option option) Set" 
                            ("_ .allInstances@pre'(')")
 where  "OclAllInstances_at_pre H \<tau> = OclAllInstances fst H \<tau>"
+
+lemma OclAllInstances_defined: "\<tau> \<Turnstile> \<delta> (X .allInstances())"
+ apply(simp add: defined_def OclValid_def OclAllInstances_at_post_def bot_fun_def bot_Set_0_def null_fun_def null_Set_0_def false_def true_def)
+ apply(rule conjI)
+ apply(rule notI, subst (asm) Abs_Set_0_inject, simp)
+ apply(rule disjI2)+
+  apply (metis bot_option_def option.distinct(1))
+ apply(simp add: bot_option_def)+
+
+ apply(rule notI, subst (asm) Abs_Set_0_inject, simp)
+ apply(rule disjI2)+
+  apply (metis bot_option_def option.distinct(1))
+ apply(simp add: bot_option_def null_option_def)+
+done
 
 lemma "\<tau>\<^isub>0 \<Turnstile> H .allInstances() \<triangleq> Set{}"
 by(simp add: StrongEq_def OclAllInstances_at_post_def OclValid_def \<tau>\<^isub>0_def mtSet_def)
@@ -394,12 +413,14 @@ where "X->oclIsModifiedOnly() \<equiv> (\<lambda>(\<sigma>,\<sigma>').  let  X' 
                                                then \<lfloor>\<lfloor>\<forall> x \<in> S. (heap \<sigma>) x = (heap \<sigma>') x\<rfloor>\<rfloor>
                                                else invalid (\<sigma>,\<sigma>'))"
 
-definition "OclSelf x H fst_snd = (\<lambda>\<tau> . if (\<delta> x) \<tau> = true \<tau>
+lemma cp_OclIsModifiedOnly : "X->oclIsModifiedOnly() \<tau> = (\<lambda>_. X \<tau>)->oclIsModifiedOnly() \<tau>"
+by(simp only: OclIsModifiedOnly_def, case_tac \<tau>, simp only:, subst cp_defined, simp)
+
+definition [simp]: "OclSelf x H fst_snd = (\<lambda>\<tau> . if (\<delta> x) \<tau> = true \<tau>
                         then if oid_of (x \<tau>) \<in> dom(heap(fst \<tau>)) \<and> oid_of (x \<tau>) \<in> dom(heap (snd \<tau>))
                              then  H \<lceil>(heap(fst_snd \<tau>))(oid_of (x \<tau>))\<rceil>
                              else invalid \<tau>
                         else invalid \<tau>)"
-lemmas [simp] = OclSelf_def
 
 definition OclSelf_at_pre :: "('\<AA>::object,'\<alpha>::{null,object})val \<Rightarrow>
                       ('\<AA> \<Rightarrow> '\<alpha>) \<Rightarrow>
@@ -414,7 +435,7 @@ where "x @post H = OclSelf x H snd"
 theorem framing:
       assumes modifiesclause:"\<tau> \<Turnstile> (X->excluding(x :: ('\<AA>::object,'\<alpha>::{null,object})val))->oclIsModifiedOnly()"
       and    represented_x: "\<tau> \<Turnstile> \<delta>(x @pre (H::('\<AA> \<Rightarrow> '\<alpha>)))"
-      and oid_is_typerepr : "inj (oid_of :: '\<alpha> \<Rightarrow> _)"
+      and oid_is_typerepr : "inj_on (oid_of :: '\<alpha> \<Rightarrow> _) (insert (x \<tau>) \<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil>)"
       shows "\<tau> \<Turnstile> (x @pre H  \<triangleq>  (x @post H))"
 proof -
  have def_x : "\<tau> \<Turnstile> \<delta> x"
@@ -432,9 +453,10 @@ proof -
   apply (metis (hide_lams, no_types) DiffD1 OclValid_def Set_inv_lemma def_x foundation16 foundation18')
   apply(simp)
   apply(erule_tac x = "oid_of (x (\<sigma>, \<sigma>'))" in ballE) apply simp
-  apply(subst (asm) image_set_diff, simp add: oid_is_typerepr)
-  apply(simp)
-  apply(simp add: invalid_def bot_option_def)
+  apply(subst (asm) inj_on_image_set_diff[where C = "insert (x (\<sigma>, \<sigma>')) \<lceil>\<lceil>Rep_Set_0 (X (\<sigma>, \<sigma>'))\<rceil>\<rceil>"], simp add: oid_is_typerepr)
+  apply (metis (hide_lams, no_types) inj_on_insert oid_is_typerepr)
+  apply (metis subset_insertI)
+  apply(simp add: invalid_def bot_option_def)+
 
   apply(blast)
  done
