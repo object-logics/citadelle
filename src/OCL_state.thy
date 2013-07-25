@@ -462,6 +462,37 @@ proof -
  done
 qed
 
+
+lemma pre_post_new: "\<tau> \<Turnstile> (x .oclIsNew()) \<Longrightarrow> \<not> (\<tau> \<Turnstile> \<upsilon>(x @pre H1)) \<and> \<not> (\<tau> \<Turnstile> \<upsilon>(x @post H2))"
+by(simp add: OclIsNew_def OclSelf_at_pre_def OclSelf_at_post_def
+             OclValid_def StrongEq_def true_def false_def
+             bot_option_def invalid_def bot_fun_def valid_def
+      split: split_if_asm)
+
+lemma pre_post_old: "\<tau> \<Turnstile> (x .oclIsOld()) \<Longrightarrow> \<not> (\<tau> \<Turnstile> \<upsilon>(x @pre H1)) \<and> \<not> (\<tau> \<Turnstile> \<upsilon>(x @post H2))"
+by(simp add: OclIsOld_def OclSelf_at_pre_def OclSelf_at_post_def
+             OclValid_def StrongEq_def true_def false_def
+             bot_option_def invalid_def bot_fun_def valid_def
+      split: split_if_asm)
+
+lemma pre_post_absent: "\<tau> \<Turnstile> (x .oclIsAbsent()) \<Longrightarrow> \<not> (\<tau> \<Turnstile> \<upsilon>(x @pre H1)) \<and> \<not> (\<tau> \<Turnstile> \<upsilon>(x @post H2))"
+by(simp add: OclIsAbsent_def OclSelf_at_pre_def OclSelf_at_post_def
+             OclValid_def StrongEq_def true_def false_def
+             bot_option_def invalid_def bot_fun_def valid_def
+      split: split_if_asm)
+
+lemma pre_post_everywhere: "(\<tau> \<Turnstile> \<upsilon>(x @pre H1) \<or> \<tau> \<Turnstile> \<upsilon>(x @post H2)) \<Longrightarrow> \<tau> \<Turnstile> (x .oclIsEverywhere())"
+by(simp add: OclIsEverywhere_def OclSelf_at_pre_def OclSelf_at_post_def
+             OclValid_def StrongEq_def true_def false_def
+             bot_option_def invalid_def bot_fun_def valid_def
+      split: split_if_asm)
+
+lemma pre_post_everywhere': "\<tau> \<Turnstile> (x .oclIsEverywhere()) \<Longrightarrow> (\<tau> \<Turnstile> \<upsilon>(x @pre (Some o H1)) \<and> \<tau> \<Turnstile> \<upsilon>(x @post (Some o H2)))"
+by(simp add: OclIsEverywhere_def OclSelf_at_pre_def OclSelf_at_post_def
+             OclValid_def StrongEq_def true_def false_def
+             bot_option_def invalid_def bot_fun_def valid_def
+      split: split_if_asm)
+
 lemma framing_same_state: "(\<sigma>, \<sigma>) \<Turnstile> (x @pre H  \<triangleq>  (x @post H))"
 by(simp add: OclSelf_at_pre_def OclSelf_at_post_def OclValid_def StrongEq_def)
 
