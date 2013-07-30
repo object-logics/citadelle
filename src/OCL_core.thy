@@ -215,7 +215,7 @@ where     "invalid \<equiv> \<lambda> \<tau>. bot"
 text{* This conservative Isabelle definition of the polymorphic constant
 @{const invalid} is equivalent with the textbook definition: *}
 
-lemma invalid_def_textbook: "I\<lbrakk>invalid\<rbrakk>\<tau> = bot"
+lemma textbook_invalid: "I\<lbrakk>invalid\<rbrakk>\<tau> = bot"
 by(simp add: invalid_def Sem_def)
 
 
@@ -232,7 +232,7 @@ semantic textbook definition for the OCL null constant based on the
 abstract null: 
 *}
 
-lemma null_def_textbook: "I\<lbrakk>null::('\<AA>,'\<alpha>::null) val\<rbrakk> \<tau> = (null::'\<alpha>::null)"
+lemma textbook_null_fun: "I\<lbrakk>null::('\<AA>,'\<alpha>::null) val\<rbrakk> \<tau> = (null::'\<alpha>::null)"
 by(simp add: null_fun_def Sem_def)
 
 
@@ -275,10 +275,10 @@ by(simp add:false_def)
 lemma [simp]: "true (a, b) = \<lfloor>\<lfloor>True\<rfloor>\<rfloor>"
 by(simp add:true_def)
 
-lemma true_def_textbook: "I\<lbrakk>true\<rbrakk> \<tau> = \<lfloor>\<lfloor>True\<rfloor>\<rfloor>"
+lemma textbook_true: "I\<lbrakk>true\<rbrakk> \<tau> = \<lfloor>\<lfloor>True\<rfloor>\<rfloor>"
 by(simp add: Sem_def true_def)
 
-lemma false_def_textbook: "I\<lbrakk>false\<rbrakk> \<tau> = \<lfloor>\<lfloor>False\<rfloor>\<rfloor>"
+lemma textbook_false: "I\<lbrakk>false\<rbrakk> \<tau> = \<lfloor>\<lfloor>False\<rfloor>\<rfloor>"
 by(simp add: Sem_def false_def)
 
 (* This following para contains a cool technique to generate documentation
@@ -290,10 +290,10 @@ text{* \textbf{Summary}:
       \toprule
       Name & Theorem \\
       \midrule
-      @{thm [source] invalid_def_textbook}  & @{thm  invalid_def_textbook} \\
-      @{thm [source] null_def_textbook}  & @{thm  null_def_textbook} \\
-      @{thm [source] true_def_textbook}   & @{thm [display=true,margin=35] true_def_textbook} \\
-      @{thm [source] false_def_textbook} & @{thm false_def_textbook} \\
+      @{thm [source] textbook_invalid}  & @{thm  textbook_invalid} \\
+      @{thm [source] textbook_null_fun}  & @{thm  textbook_null_fun} \\
+      @{thm [source] textbook_true}   & @{thm [display=true,margin=35] textbook_true} \\
+      @{thm [source] textbook_false} & @{thm textbook_false} \\
       \bottomrule
    \end{tabular}
    \caption{Basic semantic constant definitions of the logic (except @{term null})}
@@ -384,12 +384,12 @@ by(simp add: defined_def)
 text{* The definitions above for the constants @{const defined} and @{const valid}
 can be rewritten into the conventional semantic "textbook" format  as follows: *}
 
-lemma defined_def_textbook: "I\<lbrakk>\<delta>(X)\<rbrakk> \<tau> = (if I\<lbrakk>X\<rbrakk> \<tau> = I\<lbrakk>bot\<rbrakk> \<tau>  \<or> I\<lbrakk>X\<rbrakk> \<tau> = I\<lbrakk>null\<rbrakk> \<tau> 
+lemma textbook_defined: "I\<lbrakk>\<delta>(X)\<rbrakk> \<tau> = (if I\<lbrakk>X\<rbrakk> \<tau> = I\<lbrakk>bot\<rbrakk> \<tau>  \<or> I\<lbrakk>X\<rbrakk> \<tau> = I\<lbrakk>null\<rbrakk> \<tau> 
                                      then I\<lbrakk>false\<rbrakk> \<tau> 
                                      else I\<lbrakk>true\<rbrakk> \<tau>)"
 by(simp add: Sem_def defined_def)
 
-lemma valid_def_textbook: "I\<lbrakk>\<upsilon>(X)\<rbrakk> \<tau> = (if I\<lbrakk>X\<rbrakk> \<tau> = I\<lbrakk>bot\<rbrakk> \<tau>  
+lemma textbook_valid: "I\<lbrakk>\<upsilon>(X)\<rbrakk> \<tau> = (if I\<lbrakk>X\<rbrakk> \<tau> = I\<lbrakk>bot\<rbrakk> \<tau>  
                                    then I\<lbrakk>false\<rbrakk> \<tau> 
                                    else I\<lbrakk>true\<rbrakk> \<tau>)"
 by(simp add: Sem_def valid_def)
@@ -401,8 +401,8 @@ text{* \textbf{Summary}:
       \toprule
       Name & Theorem \\
       \midrule
-      @{thm [source] defined_def_textbook}  & @{thm [show_question_marks=false,display=false,margin=35] defined_def_textbook} \\
-      @{thm [source] valid_def_textbook}   & @{thm [show_question_marks=false,display=false,margin=35] valid_def_textbook} \\
+      @{thm [source] textbook_defined}  & @{thm [show_question_marks=false,display=false,margin=35] textbook_defined} \\
+      @{thm [source] textbook_valid}   & @{thm [show_question_marks=false,display=false,margin=35] textbook_valid} \\
       \bottomrule
    \end{tabular}
    \caption{Basic predicate definitions of the logic.)}
@@ -569,13 +569,13 @@ lattice laws implies that we \emph{need} a definition of @{term "not"} that sati
 text{* In textbook notation, the logical core constructs @{const "OclNot"} and
 @{const "OclAnd"} were represented as follows: *}
 
-lemma textbook_not: 
+lemma textbook_OclNot: 
      "I\<lbrakk>not(X)\<rbrakk> \<tau> =  (case I\<lbrakk>X\<rbrakk> \<tau> of   \<bottom>   \<Rightarrow> \<bottom>
                                  |  \<lfloor> \<bottom> \<rfloor> \<Rightarrow> \<lfloor> \<bottom> \<rfloor>  
                                  | \<lfloor>\<lfloor> x \<rfloor>\<rfloor> \<Rightarrow> \<lfloor>\<lfloor> \<not> x \<rfloor>\<rfloor>)"
 by(simp add: Sem_def OclNot_def)
 
-lemma textbook_and: 
+lemma textbook_OclAnd: 
      "I\<lbrakk>X and Y\<rbrakk> \<tau> = (case I\<lbrakk>X\<rbrakk> \<tau> of
                             \<bottom>  \<Rightarrow> (case I\<lbrakk>Y\<rbrakk> \<tau> of
                                              \<bottom> \<Rightarrow>  \<bottom>
@@ -1055,7 +1055,7 @@ by(auto simp: OclNot_def OclValid_def true_def invalid_def defined_def false_def
 
 text{* So far, we have only one strict Boolean predicate (-family): The strict equality. *}
 
-section{*Miscellaneous: OCL's if then else endif *}
+section{* Miscellaneous: OCL's if then else endif *}
 
 definition OclIf :: "[('\<AA>)Boolean , ('\<AA>,'\<alpha>::null) val, ('\<AA>,'\<alpha>) val] \<Rightarrow> ('\<AA>,'\<alpha>) val"
                      ("if (_) then (_) else (_) endif" [10,10,10]50)
