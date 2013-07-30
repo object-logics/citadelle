@@ -207,7 +207,7 @@ section{* OclAllInstances *}
 
 (* IS THIS WHAT WE WANT ? THIS DEFINITION FILTERS OBJECTS THAT ARE BOOKED UNDER
 THEIR APPARENT (STATIC) TYPE INTO THE CONTEXT, NOT BY THEIR ACTUAL (DYNAMIC) TYPE. *)
-lemma "Person .allInstances() =
+lemma OclAllInstances\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n_exec: "Person .allInstances() =
              (\<lambda>\<tau>.  Abs_Set_0  \<lfloor>\<lfloor>Some ` (Person ` ran (heap (snd \<tau>)) - {None})\<rfloor>\<rfloor>) "
 by(rule ext, simp add:OclAllInstances_at_post_def)
 
@@ -215,7 +215,7 @@ lemma "Person .allInstances@pre() =
              (\<lambda>\<tau>.  Abs_Set_0  \<lfloor>\<lfloor>Some ` (Person ` ran (heap (fst \<tau>)) - {None})\<rfloor>\<rfloor>) "
 by(rule ext, simp add:OclAllInstances_at_pre_def)
 
-lemma "OclAny .allInstances() =
+lemma OclAllInstances\<^isub>o\<^isub>c\<^isub>l\<^isub>a\<^isub>n\<^isub>y_exec: "OclAny .allInstances() =
              (\<lambda>\<tau>.  Abs_Set_0  \<lfloor>\<lfloor> Some ` OclAny ` ran (heap (snd \<tau>)) \<rfloor>\<rfloor>) "
  apply(rule ext, simp add: OclAllInstances_at_post_def)
  apply(subgoal_tac " (OclAny ` ran (heap (snd \<tau>)) - {None}) = (OclAny ` ran (heap (snd \<tau>)))", simp)
@@ -476,6 +476,12 @@ apply(auto simp : bot_fun_def null_fun_def null_option_def bot_option_def null_d
            split: option.split oclany.split person.split)
 by(simp add: OclIsTypeOf\<^isub>o\<^isub>c\<^isub>l\<^isub>a\<^isub>n\<^isub>y_OclAny  OclValid_def false_def true_def)
 
+lemma down_cast_type':
+assumes isOclAny: "\<tau> \<Turnstile> (X::OclAny) .oclIsTypeOf(OclAny)"
+and     non_null: "\<tau> \<Turnstile> (\<delta> X)"
+shows             "\<tau> \<Turnstile> not (\<upsilon> (X .oclAsType(Person)))"
+by(rule foundation15[THEN iffD1], simp add: down_cast_type[OF assms])
+
 lemma up_down_cast :
 assumes isdef: "\<tau> \<Turnstile> (\<delta> X)"
 shows "\<tau> \<Turnstile> ((X::Person) .oclAsType(OclAny) .oclAsType(Person) \<triangleq> X)"
@@ -499,6 +505,36 @@ shows "\<tau> \<Turnstile> (((X :: Person) .oclAsType(OclAny) .oclAsType(Person)
  apply(simp only: up_down_cast_Person_OclAny_Person StrictRefEq\<^isub>g\<^isub>e\<^isub>n_\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n)
 by(rule StrictRefEq\<^isub>g\<^isub>e\<^isub>n_sym, simp add: assms)
 
+lemma up_down_cast_Person_OclAny_Person'': assumes "\<tau> \<Turnstile> \<upsilon> (X :: Person)"
+shows "\<tau> \<Turnstile> (X .oclIsTypeOf(Person) implies (X .oclAsType(OclAny) .oclAsType(Person)) \<doteq> X)"
+ apply(simp add: OclValid_def)
+ apply(subst cp_OclImplies)
+ apply(simp add: StrictRefEq\<^isub>g\<^isub>e\<^isub>n_\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n StrictRefEq\<^isub>g\<^isub>e\<^isub>n_sym[OF assms, simplified OclValid_def])
+ apply(subst cp_OclImplies[symmetric])
+by (simp add: OclImplies_true)
+
+lemma OclAny_allInstances_type\<^isub>o\<^isub>c\<^isub>l\<^isub>a\<^isub>n\<^isub>y1: "\<exists>\<tau>. (\<tau> \<Turnstile>     (OclAny .allInstances()->forAll(X|X .oclIsTypeOf(OclAny))))"
+ apply(rule_tac x = \<tau>\<^isub>0 in exI, simp add: \<tau>\<^isub>0_def OclValid_def)
+ apply(simp only: OclForall_def OclAllInstances_defined[simplified OclValid_def] refl if_True)
+ apply(simp only: OclAllInstances\<^isub>o\<^isub>c\<^isub>l\<^isub>a\<^isub>n\<^isub>y_exec)
+ apply(subst (1 2 3) Abs_Set_0_inverse, simp add: bot_option_def)
+by(simp add: OclIsTypeOf\<^isub>o\<^isub>c\<^isub>l\<^isub>a\<^isub>n\<^isub>y_OclAny)
+
+lemma OclAny_allInstances_type\<^isub>o\<^isub>c\<^isub>l\<^isub>a\<^isub>n\<^isub>y2: "\<exists>\<tau>. (\<tau> \<Turnstile> not (OclAny .allInstances()->forAll(X|X .oclIsTypeOf(OclAny))))"
+proof - fix oid a show ?thesis
+ apply(rule_tac x = "(fst \<tau>\<^isub>0, \<lparr>heap = empty(oid \<mapsto> in\<^isub>o\<^isub>c\<^isub>l\<^isub>a\<^isub>n\<^isub>y (mk\<^isub>o\<^isub>c\<^isub>l\<^isub>a\<^isub>n\<^isub>y oid \<lfloor>a\<rfloor>)), assocs = empty\<rparr>)" in exI, simp add: OclValid_def)
+ apply(simp only: OclForall_def OclAllInstances_defined[simplified OclValid_def] refl if_True)
+ apply(simp only: OclAllInstances\<^isub>o\<^isub>c\<^isub>l\<^isub>a\<^isub>n\<^isub>y_exec)
+ apply(subst (1 2 3) Abs_Set_0_inverse, simp add: bot_option_def)
+ by(simp add: OclIsTypeOf\<^isub>o\<^isub>c\<^isub>l\<^isub>a\<^isub>n\<^isub>y_OclAny OclNot_def OclAny_def)
+qed
+
+lemma Person_allInstances_type\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n: "\<tau> \<Turnstile> (Person .allInstances()->forAll(X|X .oclIsTypeOf(Person)))"
+ apply(simp add: OclValid_def)
+ apply(simp only: OclForall_def OclAllInstances_defined[simplified OclValid_def] refl if_True)
+ apply(simp only: OclAllInstances\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n_exec)
+ apply(subst (1 2 3) Abs_Set_0_inverse, simp add: bot_option_def)
+by(simp add: OclIsTypeOf\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n_Person)
 
 section{* OclIsKindOf *}
 subsection{* Definition *}
@@ -618,6 +654,26 @@ apply(auto simp : bot_fun_def null_fun_def null_option_def bot_option_def null_d
            split: option.split oclany.split person.split)
 by(simp add: OclIsKindOf\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n_OclAny  OclValid_def false_def true_def)
 
+lemma OclAny_allInstances_kind\<^isub>o\<^isub>c\<^isub>l\<^isub>a\<^isub>n\<^isub>y: "\<tau> \<Turnstile> (OclAny .allInstances()->forAll(X|X .oclIsKindOf(OclAny)))"
+ apply(simp add: OclValid_def)
+ apply(simp only: OclForall_def OclAllInstances_defined[simplified OclValid_def] refl if_True)
+ apply(simp only: OclAllInstances\<^isub>o\<^isub>c\<^isub>l\<^isub>a\<^isub>n\<^isub>y_exec)
+ apply(subst (1 2 3) Abs_Set_0_inverse, simp add: bot_option_def)
+by(simp add: OclIsKindOf\<^isub>o\<^isub>c\<^isub>l\<^isub>a\<^isub>n\<^isub>y_OclAny)
+
+lemma Person_allInstances_kind\<^isub>o\<^isub>c\<^isub>l\<^isub>a\<^isub>n\<^isub>y: "\<tau> \<Turnstile> (Person .allInstances()->forAll(X|X .oclIsKindOf(OclAny)))"
+ apply(simp add: OclValid_def)
+ apply(simp only: OclForall_def OclAllInstances_defined[simplified OclValid_def] refl if_True)
+ apply(simp only: OclAllInstances\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n_exec)
+ apply(subst (1 2 3) Abs_Set_0_inverse, simp add: bot_option_def)
+by(simp add: OclIsKindOf\<^isub>o\<^isub>c\<^isub>l\<^isub>a\<^isub>n\<^isub>y_Person)
+
+lemma Person_allInstances_kind\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n: "\<tau> \<Turnstile> (Person .allInstances()->forAll(X|X .oclIsKindOf(Person)))"
+ apply(simp add: OclValid_def)
+ apply(simp only: OclForall_def OclAllInstances_defined[simplified OclValid_def] refl if_True)
+ apply(simp only: OclAllInstances\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n_exec)
+ apply(subst (1 2 3) Abs_Set_0_inverse, simp add: bot_option_def)
+by(simp add: OclIsKindOf\<^isub>p\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n_Person)
 
 section{* dot boss, dot salary *}
 subsection{* Definition *}

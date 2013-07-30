@@ -737,6 +737,9 @@ lemma OclOr_true2: "(Y or true) = true"
 lemma OclOr_assoc: "(X or (Y or Z)) = (X or Y or Z)"
   by(simp add: OclOr_def OclAnd_assoc)
 
+lemma OclImplies_true: "(X implies true) = true"
+  by (simp add: OclImplies_def OclOr_true2)
+
 lemma deMorgan1: "not(X and Y) = ((not X) or (not Y))"
   by(simp add: OclOr_def)
 
