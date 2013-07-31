@@ -505,10 +505,15 @@ value "\<not>(\<tau>\<^isub>0 \<Turnstile> (\<nine> \<triangleq> \<one>\<zero> )
 value "\<not>(\<tau>\<^isub>0 \<Turnstile> (invalid \<triangleq> \<one>\<zero> ))"
 value "\<not>(\<tau>\<^isub>0 \<Turnstile> (null \<triangleq> \<one>\<zero> ))"
 value "\<not>(\<tau>\<^isub>0 \<Turnstile> (invalid \<doteq> (invalid::('\<AA>)Integer)))" (* Without typeconstraint not executable.*)
+value "\<not>(\<tau>\<^isub>0 \<Turnstile> \<upsilon>(invalid \<doteq> (invalid::('\<AA>)Integer)))" (* Without typeconstraint not executable.*)
+value "\<not>(\<tau>\<^isub>0 \<Turnstile> (invalid <> (invalid::('\<AA>)Integer)))" (* Without typeconstraint not executable.*)
+value "\<not>(\<tau>\<^isub>0 \<Turnstile> \<upsilon>(invalid <> (invalid::('\<AA>)Integer)))" (* Without typeconstraint not executable.*)
 value "\<tau>\<^isub>0 \<Turnstile> (null \<doteq> (null::('\<AA>)Integer) )" (* Without typeconstraint not executable.*)
 value "\<tau>\<^isub>0 \<Turnstile> (null \<doteq> (null::('\<AA>)Integer) )" (* Without typeconstraint not executable.*)
-value "\<tau>\<^isub>0 \<Turnstile> (\<four> \<doteq> \<four>)"
+value "  \<tau>\<^isub>0 \<Turnstile> (\<four> \<doteq> \<four>)"
+value "\<not>(\<tau>\<^isub>0 \<Turnstile> (\<four> <> \<four>))"
 value "\<not>(\<tau>\<^isub>0 \<Turnstile> (\<four> \<doteq> \<one>\<zero> ))"
+value " (\<tau>\<^isub>0 \<Turnstile> (\<four> <> \<one>\<zero> ))"
 
 
 
