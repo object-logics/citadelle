@@ -102,41 +102,6 @@ for all resp. type-variables ...*}
 
 datatype \<AA> = in\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n type\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n | in\<^isub>O\<^isub>c\<^isub>l\<^isub>A\<^isub>n\<^isub>y type\<^isub>O\<^isub>c\<^isub>l\<^isub>A\<^isub>n\<^isub>y
 
-text{* Recall that in order to denote OCL-types occuring in OCL expressions syntactically
---- as, for example,  as "argument" of allInstances --- we use the inverses of the injection
-functions into the object universes; we show that this is sufficient "characterization". *}
-
-
-(* The following definition gives ``isTypeOf semantics'' for allInstances; however, we want
-   ``isTypeOf semantics'', thus we will need an internal object conversion ...
-definition Person :: "\<AA> \<Rightarrow> type\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n"
-where     "Person \<equiv> (the_inv in\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n)"
-
-definition OclAny :: "\<AA> \<Rightarrow> type\<^isub>O\<^isub>c\<^isub>l\<^isub>A\<^isub>n\<^isub>y"
-where     "OclAny \<equiv> (the_inv in\<^isub>O\<^isub>c\<^isub>l\<^isub>A\<^isub>n\<^isub>y)"
-*)
-
-definition    Person :: "\<AA> \<Rightarrow> type\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n option"
-where "Person = (\<lambda>x. case x of
-      in\<^isub>O\<^isub>c\<^isub>l\<^isub>A\<^isub>n\<^isub>y (mk\<^isub>O\<^isub>c\<^isub>l\<^isub>A\<^isub>n\<^isub>y oid \<lfloor>(a,b)\<rfloor>) \<Rightarrow> \<lfloor>mk\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n oid a b\<rfloor>
-    | in\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n (mk\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n oid a b) \<Rightarrow> \<lfloor>mk\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n oid a b\<rfloor>
-    | _ \<Rightarrow> None)"
-
-definition    OclAny :: "\<AA> \<Rightarrow> type\<^isub>O\<^isub>c\<^isub>l\<^isub>A\<^isub>n\<^isub>y option"
-where "OclAny = (\<lambda>x. case x of
-      in\<^isub>O\<^isub>c\<^isub>l\<^isub>A\<^isub>n\<^isub>y X \<Rightarrow> \<lfloor>X\<rfloor>
-    | in\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n (mk\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n oid a b) \<Rightarrow> \<lfloor>mk\<^isub>O\<^isub>c\<^isub>l\<^isub>A\<^isub>n\<^isub>y oid \<lfloor>(a,b)\<rfloor>\<rfloor>)"
-
-lemma OclAny_some: "OclAny x \<noteq> None"
- apply(simp add: OclAny_def)
- apply(case_tac x, simp_all)
- apply(case_tac type\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n, simp_all)
-done
-
-(* PROBLEM: THIS CONSTRUCTION IS NO LONGER injective, thus invertible ...
-   Maybe this causes BIG PROBLEMS for our entire construction of allInstances ... bu *)
-
-
 text{* Having fixed the object universe, we can introduce type synonyms that exactly correspond
 to OCL types. Again, we exploit that our representation of OCL is a "shallow embedding" with a
 one-to-one correspondance of OCL-types to types of the meta-language HOL. *}
@@ -217,8 +182,11 @@ subsection{* Definition *}
 consts OclAsType\<^isub>O\<^isub>c\<^isub>l\<^isub>A\<^isub>n\<^isub>y :: "'\<alpha> \<Rightarrow> OclAny" ("(_) .oclAsType'(OclAny')")
 consts OclAsType\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n :: "'\<alpha> \<Rightarrow> Person" ("(_) .oclAsType'(Person')")
 
-definition "OclAsType\<^isub>O\<^isub>c\<^isub>l\<^isub>A\<^isub>n\<^isub>y_\<AA> u = \<lfloor>case u of in\<^isub>O\<^isub>c\<^isub>l\<^isub>A\<^isub>n\<^isub>y a \<Rightarrow> a
-                                          | in\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n (mk\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n oid a b) \<Rightarrow> mk\<^isub>O\<^isub>c\<^isub>l\<^isub>A\<^isub>n\<^isub>y oid \<lfloor>(a,b)\<rfloor>\<rfloor>"
+definition "OclAsType\<^isub>O\<^isub>c\<^isub>l\<^isub>A\<^isub>n\<^isub>y_\<AA> = (\<lambda>u. \<lfloor>case u of in\<^isub>O\<^isub>c\<^isub>l\<^isub>A\<^isub>n\<^isub>y a \<Rightarrow> a
+                                            | in\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n (mk\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n oid a b) \<Rightarrow> mk\<^isub>O\<^isub>c\<^isub>l\<^isub>A\<^isub>n\<^isub>y oid \<lfloor>(a,b)\<rfloor>\<rfloor>)"
+
+lemma OclAsType\<^isub>O\<^isub>c\<^isub>l\<^isub>A\<^isub>n\<^isub>y_\<AA>_some: "OclAsType\<^isub>O\<^isub>c\<^isub>l\<^isub>A\<^isub>n\<^isub>y_\<AA> x \<noteq> None"
+by(simp add: OclAsType\<^isub>O\<^isub>c\<^isub>l\<^isub>A\<^isub>n\<^isub>y_\<AA>_def)
 
 defs (overloaded) OclAsType\<^isub>O\<^isub>c\<^isub>l\<^isub>A\<^isub>n\<^isub>y_OclAny:
         "(X::OclAny) .oclAsType(OclAny) \<equiv> X"
@@ -230,7 +198,7 @@ defs (overloaded) OclAsType\<^isub>O\<^isub>c\<^isub>l\<^isub>A\<^isub>n\<^isub>
                             | \<lfloor>\<bottom>\<rfloor> \<Rightarrow> null \<tau>
                             | \<lfloor>\<lfloor>mk\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n oid a b \<rfloor>\<rfloor> \<Rightarrow>  \<lfloor>\<lfloor>  (mk\<^isub>O\<^isub>c\<^isub>l\<^isub>A\<^isub>n\<^isub>y oid \<lfloor>(a,b)\<rfloor>) \<rfloor>\<rfloor>)"
 
-definition "OclAsType\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n_\<AA> u = (case u of in\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n p \<Rightarrow> \<lfloor>p\<rfloor>
+definition "OclAsType\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n_\<AA> = (\<lambda>u. case u of in\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n p \<Rightarrow> \<lfloor>p\<rfloor>
                                           | in\<^isub>O\<^isub>c\<^isub>l\<^isub>A\<^isub>n\<^isub>y (mk\<^isub>O\<^isub>c\<^isub>l\<^isub>A\<^isub>n\<^isub>y oid \<lfloor>(a,b)\<rfloor>) \<Rightarrow> \<lfloor>mk\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n oid a b\<rfloor>
                                           | _ \<Rightarrow> None)"
 
@@ -590,15 +558,13 @@ by(simp add: OclIsKindOf\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n_O
 
 section{* OclAllInstances *}
 
-(* IS THIS WHAT WE WANT ? THIS DEFINITION FILTERS OBJECTS THAT ARE BOOKED UNDER
-THEIR APPARENT (STATIC) TYPE INTO THE CONTEXT, NOT BY THEIR ACTUAL (DYNAMIC) TYPE. *)
-lemma OclAllInstances\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n_exec: "Person .allInstances() =
-             (\<lambda>\<tau>.  Abs_Set_0  \<lfloor>\<lfloor>Some ` (Person ` ran (heap (snd \<tau>)) - {None})\<rfloor>\<rfloor>) "
-by(rule ext, simp add:OclAllInstances_at_post_def)
+text{* Recall that in order to denote OCL-types occuring in OCL expressions syntactically
+--- as, for example,  as "argument" of allInstances --- we use the inverses of the injection
+functions into the object universes; we show that this is sufficient "characterization". *}
 
-lemma "Person .allInstances@pre() =
-             (\<lambda>\<tau>.  Abs_Set_0  \<lfloor>\<lfloor>Some ` (Person ` ran (heap (fst \<tau>)) - {None})\<rfloor>\<rfloor>) "
-by(rule ext, simp add:OclAllInstances_at_pre_def)
+definition "Person \<equiv> OclAsType\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n_\<AA>"
+definition "OclAny \<equiv> OclAsType\<^isub>O\<^isub>c\<^isub>l\<^isub>A\<^isub>n\<^isub>y_\<AA>"
+lemmas [simp] = Person_def OclAny_def
 
 lemma OclAllInstances\<^isub>O\<^isub>c\<^isub>l\<^isub>A\<^isub>n\<^isub>y_exec: "OclAny .allInstances() =
              (\<lambda>\<tau>.  Abs_Set_0  \<lfloor>\<lfloor> Some ` OclAny ` ran (heap (snd \<tau>)) \<rfloor>\<rfloor>) "
@@ -611,7 +577,7 @@ lemma OclAllInstances\<^isub>O\<^isub>c\<^isub>l\<^isub>A\<^isub>n\<^isub>y_exec
  apply(rule subsetI)
  apply(simp)
  apply(drule bexE) prefer 2 apply assumption
- apply(case_tac x, metis OclAny_some)
+ apply(case_tac x, metis OclAsType\<^isub>O\<^isub>c\<^isub>l\<^isub>A\<^isub>n\<^isub>y_\<AA>_some)
  apply(blast)
 done
 
@@ -626,7 +592,7 @@ lemma "OclAny .allInstances@pre() =
  apply(rule subsetI)
  apply(simp)
  apply(drule bexE) prefer 2 apply assumption
- apply(case_tac x, metis OclAny_some)
+ apply(case_tac x, metis OclAsType\<^isub>O\<^isub>c\<^isub>l\<^isub>A\<^isub>n\<^isub>y_\<AA>_some)
  apply(blast)
 done
 
@@ -635,7 +601,7 @@ subsection{* IsTypeOf *}
 lemma OclAny_allInstances_IsTypeOf\<^isub>O\<^isub>c\<^isub>l\<^isub>A\<^isub>n\<^isub>y1: "\<exists>\<tau>. (\<tau> \<Turnstile>     (OclAny .allInstances()->forAll(X|X .oclIsTypeOf(OclAny))))"
  apply(rule_tac x = \<tau>\<^isub>0 in exI, simp add: \<tau>\<^isub>0_def OclValid_def)
  apply(simp only: OclForall_def OclAllInstances_defined[simplified OclValid_def] refl if_True)
- apply(simp only: OclAllInstances\<^isub>O\<^isub>c\<^isub>l\<^isub>A\<^isub>n\<^isub>y_exec)
+ apply(simp only: OclAllInstances_at_post_def OclAllInstances_def)
  apply(subst (1 2 3) Abs_Set_0_inverse, simp add: bot_option_def)
 by(simp add: OclIsTypeOf\<^isub>O\<^isub>c\<^isub>l\<^isub>A\<^isub>n\<^isub>y_OclAny)
 
@@ -643,7 +609,7 @@ lemma OclAny_allInstances_IsTypeOf\<^isub>O\<^isub>c\<^isub>l\<^isub>A\<^isub>n\
 proof - fix oid a show ?thesis
  apply(rule_tac x = "(fst \<tau>\<^isub>0, \<lparr>heap = empty(oid \<mapsto> in\<^isub>O\<^isub>c\<^isub>l\<^isub>A\<^isub>n\<^isub>y (mk\<^isub>O\<^isub>c\<^isub>l\<^isub>A\<^isub>n\<^isub>y oid \<lfloor>a\<rfloor>)), assocs = empty\<rparr>)" in exI, simp add: OclValid_def)
  apply(simp only: OclForall_def OclAllInstances_defined[simplified OclValid_def] refl if_True)
- apply(simp only: OclAllInstances\<^isub>O\<^isub>c\<^isub>l\<^isub>A\<^isub>n\<^isub>y_exec)
+ apply(simp only: OclAllInstances_at_post_def OclAllInstances_def OclAsType\<^isub>O\<^isub>c\<^isub>l\<^isub>A\<^isub>n\<^isub>y_\<AA>_def)
  apply(subst (1 2 3) Abs_Set_0_inverse, simp add: bot_option_def)
  by(simp add: OclIsTypeOf\<^isub>O\<^isub>c\<^isub>l\<^isub>A\<^isub>n\<^isub>y_OclAny OclNot_def OclAny_def)
 qed
@@ -651,7 +617,7 @@ qed
 lemma Person_allInstances_IsTypeOf\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n: "\<tau> \<Turnstile> (Person .allInstances()->forAll(X|X .oclIsTypeOf(Person)))"
  apply(simp add: OclValid_def)
  apply(simp only: OclForall_def OclAllInstances_defined[simplified OclValid_def] refl if_True)
- apply(simp only: OclAllInstances\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n_exec)
+ apply(simp only: OclAllInstances_at_post_def OclAllInstances_def)
  apply(subst (1 2 3) Abs_Set_0_inverse, simp add: bot_option_def)
 by(simp add: OclIsTypeOf\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n_Person)
 
@@ -659,21 +625,21 @@ subsection{* IsKindOf *}
 lemma OclAny_allInstances_IsKindOf\<^isub>O\<^isub>c\<^isub>l\<^isub>A\<^isub>n\<^isub>y: "\<tau> \<Turnstile> (OclAny .allInstances()->forAll(X|X .oclIsKindOf(OclAny)))"
  apply(simp add: OclValid_def)
  apply(simp only: OclForall_def OclAllInstances_defined[simplified OclValid_def] refl if_True)
- apply(simp only: OclAllInstances\<^isub>O\<^isub>c\<^isub>l\<^isub>A\<^isub>n\<^isub>y_exec)
+ apply(simp only: OclAllInstances_at_post_def OclAllInstances_def)
  apply(subst (1 2 3) Abs_Set_0_inverse, simp add: bot_option_def)
 by(simp add: OclIsKindOf\<^isub>O\<^isub>c\<^isub>l\<^isub>A\<^isub>n\<^isub>y_OclAny)
 
 lemma Person_allInstances_IsKindOf\<^isub>O\<^isub>c\<^isub>l\<^isub>A\<^isub>n\<^isub>y: "\<tau> \<Turnstile> (Person .allInstances()->forAll(X|X .oclIsKindOf(OclAny)))"
  apply(simp add: OclValid_def)
  apply(simp only: OclForall_def OclAllInstances_defined[simplified OclValid_def] refl if_True)
- apply(simp only: OclAllInstances\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n_exec)
+ apply(simp only: OclAllInstances_at_post_def OclAllInstances_def)
  apply(subst (1 2 3) Abs_Set_0_inverse, simp add: bot_option_def)
 by(simp add: OclIsKindOf\<^isub>O\<^isub>c\<^isub>l\<^isub>A\<^isub>n\<^isub>y_Person)
 
 lemma Person_allInstances_IsKindOf\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n: "\<tau> \<Turnstile> (Person .allInstances()->forAll(X|X .oclIsKindOf(Person)))"
  apply(simp add: OclValid_def)
  apply(simp only: OclForall_def OclAllInstances_defined[simplified OclValid_def] refl if_True)
- apply(simp only: OclAllInstances\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n_exec)
+ apply(simp only: OclAllInstances_at_post_def OclAllInstances_def)
  apply(subst (1 2 3) Abs_Set_0_inverse, simp add: bot_option_def)
 by(simp add: OclIsKindOf\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n_Person)
 
@@ -1155,21 +1121,21 @@ proof -
   apply(simp only: perm_\<sigma>\<^isub>1')
   apply(simp add: oid0_def oid1_def oid2_def oid3_def oid4_def oid5_def oid6_def oid7_def oid8_def
                   X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n1_def X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n2_def X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n3_def X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n4_def X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n5_def X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n6_def X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n7_def X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n8_def X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n9_def)
-  apply(subst state_update_vs_allInstances_including, simp, simp add: Person_def
+  apply(subst state_update_vs_allInstances_including, simp, simp add: OclAsType\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n_\<AA>_def
    person1_def person2_def person3_def person4_def person5_def person6_def person7_def person8_def person9_def)
-  apply(subst state_update_vs_allInstances_including, simp, simp add: Person_def
+  apply(subst state_update_vs_allInstances_including, simp, simp add: OclAsType\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n_\<AA>_def
    person1_def person2_def person3_def person4_def person5_def person6_def person7_def person8_def person9_def)
-  apply(subst state_update_vs_allInstances_including, simp, simp add: Person_def
+  apply(subst state_update_vs_allInstances_including, simp, simp add: OclAsType\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n_\<AA>_def
    person1_def person2_def person3_def person4_def person5_def person6_def person7_def person8_def person9_def)
-  apply(subst state_update_vs_allInstances_including, simp, simp add: Person_def
+  apply(subst state_update_vs_allInstances_including, simp, simp add: OclAsType\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n_\<AA>_def
    person1_def person2_def person3_def person4_def person5_def person6_def person7_def person8_def person9_def)
-  apply(subst state_update_vs_allInstances_including, simp, simp add: Person_def
+  apply(subst state_update_vs_allInstances_including, simp, simp add: OclAsType\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n_\<AA>_def
    person1_def person2_def person3_def person4_def person5_def person6_def person7_def person8_def person9_def)
-  apply(subst state_update_vs_allInstances_including, simp, simp add: Person_def
+  apply(subst state_update_vs_allInstances_including, simp, simp add: OclAsType\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n_\<AA>_def
    person1_def person2_def person3_def person4_def person5_def person6_def person7_def person8_def person9_def)
-  apply(subst state_update_vs_allInstances_noincluding, simp, simp add: Person_def
+  apply(subst state_update_vs_allInstances_noincluding, simp, simp add: OclAsType\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n_\<AA>_def
    person1_def person2_def person3_def person4_def person5_def person6_def person7_def person8_def person9_def)
-  apply(subst state_update_vs_allInstances_including, simp, simp add: Person_def
+  apply(subst state_update_vs_allInstances_including, simp, simp add: OclAsType\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n_\<AA>_def
    person1_def person2_def person3_def person4_def person5_def person6_def person7_def person8_def person9_def)
   apply(subst state_update_vs_allInstances_empty)
 
@@ -1192,7 +1158,7 @@ proof -
   apply(subst including_cp_all[of _ _ _ "(\<sigma>\<^isub>1, \<lparr>heap = [8 \<mapsto> in\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n person9, 7 \<mapsto> in\<^isub>O\<^isub>c\<^isub>l\<^isub>A\<^isub>n\<^isub>y person8, 6 \<mapsto> in\<^isub>O\<^isub>c\<^isub>l\<^isub>A\<^isub>n\<^isub>y person7, 5 \<mapsto> in\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n person6, 3 \<mapsto> in\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n person4, 2 \<mapsto> in\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n person3, Suc 0 \<mapsto> in\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n person2, 0 \<mapsto> in\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n person1],
                     assocs = Map.empty\<rparr>)"]) prefer 4 apply(subst cp_OclIncluding[symmetric])
 
-  apply(simp add: Person_def person1_def person2_def person3_def person4_def person5_def person6_def person7_def person8_def person9_def)
+  apply(simp add: OclAsType\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n_\<AA>_def person1_def person2_def person3_def person4_def person5_def person6_def person7_def person8_def person9_def)
   apply(simp_all add: is_int_def)
   apply((rule including_cp_all, simp_all add: is_int_def)+, simp add: mtSet_def)+
   apply(simp add: mtSet_def) apply(simp add: mtSet_def) apply(simp add: mtSet_def)
@@ -1216,21 +1182,21 @@ proof -
   apply(simp only: perm_\<sigma>\<^isub>1')
   apply(simp add: oid0_def oid1_def oid2_def oid3_def oid4_def oid5_def oid6_def oid7_def oid8_def
                   X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n1_def X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n2_def X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n3_def X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n4_def X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n5_def X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n6_def X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n7_def X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n8_def X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n9_def)
-  apply(subst state_update_vs_allInstances_including, simp, simp add: OclAny_def
+  apply(subst state_update_vs_allInstances_including, simp, simp add: OclAsType\<^isub>O\<^isub>c\<^isub>l\<^isub>A\<^isub>n\<^isub>y_\<AA>_def
    person1_def person2_def person3_def person4_def person5_def person6_def person7_def person8_def person9_def)
-  apply(subst state_update_vs_allInstances_including, simp, simp add: OclAny_def
+  apply(subst state_update_vs_allInstances_including, simp, simp add: OclAsType\<^isub>O\<^isub>c\<^isub>l\<^isub>A\<^isub>n\<^isub>y_\<AA>_def
    person1_def person2_def person3_def person4_def person5_def person6_def person7_def person8_def person9_def)
-  apply(subst state_update_vs_allInstances_including, simp, simp add: OclAny_def
+  apply(subst state_update_vs_allInstances_including, simp, simp add: OclAsType\<^isub>O\<^isub>c\<^isub>l\<^isub>A\<^isub>n\<^isub>y_\<AA>_def
    person1_def person2_def person3_def person4_def person5_def person6_def person7_def person8_def person9_def)
-  apply(subst state_update_vs_allInstances_including, simp, simp add: OclAny_def
+  apply(subst state_update_vs_allInstances_including, simp, simp add: OclAsType\<^isub>O\<^isub>c\<^isub>l\<^isub>A\<^isub>n\<^isub>y_\<AA>_def
    person1_def person2_def person3_def person4_def person5_def person6_def person7_def person8_def person9_def)
-  apply(subst state_update_vs_allInstances_including, simp, simp add: OclAny_def
+  apply(subst state_update_vs_allInstances_including, simp, simp add: OclAsType\<^isub>O\<^isub>c\<^isub>l\<^isub>A\<^isub>n\<^isub>y_\<AA>_def
    person1_def person2_def person3_def person4_def person5_def person6_def person7_def person8_def person9_def)
-  apply(subst state_update_vs_allInstances_including, simp, simp add: OclAny_def
+  apply(subst state_update_vs_allInstances_including, simp, simp add: OclAsType\<^isub>O\<^isub>c\<^isub>l\<^isub>A\<^isub>n\<^isub>y_\<AA>_def
    person1_def person2_def person3_def person4_def person5_def person6_def person7_def person8_def person9_def)
-  apply(subst state_update_vs_allInstances_including, simp, simp add: OclAny_def
+  apply(subst state_update_vs_allInstances_including, simp, simp add: OclAsType\<^isub>O\<^isub>c\<^isub>l\<^isub>A\<^isub>n\<^isub>y_\<AA>_def
    person1_def person2_def person3_def person4_def person5_def person6_def person7_def person8_def person9_def)
-  apply(subst state_update_vs_allInstances_including, simp, simp add: OclAny_def
+  apply(subst state_update_vs_allInstances_including, simp, simp add: OclAsType\<^isub>O\<^isub>c\<^isub>l\<^isub>A\<^isub>n\<^isub>y_\<AA>_def
    person1_def person2_def person3_def person4_def person5_def person6_def person7_def person8_def person9_def)
   apply(subst state_update_vs_allInstances_empty)
 
@@ -1253,7 +1219,7 @@ proof -
   apply(subst including_cp_all[of _ _ _ "(\<sigma>\<^isub>1, \<lparr>heap = [8 \<mapsto> in\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n person9, 7 \<mapsto> in\<^isub>O\<^isub>c\<^isub>l\<^isub>A\<^isub>n\<^isub>y person8, 6 \<mapsto> in\<^isub>O\<^isub>c\<^isub>l\<^isub>A\<^isub>n\<^isub>y person7, 5 \<mapsto> in\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n person6, 3 \<mapsto> in\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n person4, 2 \<mapsto> in\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n person3, Suc 0 \<mapsto> in\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n person2, 0 \<mapsto> in\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n person1],
                     assocs = Map.empty\<rparr>)"]) prefer 4 apply(subst cp_OclIncluding[symmetric])
 
-  apply(simp add: OclAny_def person1_def person2_def person3_def person4_def person5_def person6_def person7_def person8_def person9_def)
+  apply(simp add: OclAsType\<^isub>O\<^isub>c\<^isub>l\<^isub>A\<^isub>n\<^isub>y_\<AA>_def person1_def person2_def person3_def person4_def person5_def person6_def person7_def person8_def person9_def)
   apply(simp_all add: is_int_def)
   apply((rule including_cp_all, simp_all add: is_int_def)+, simp add: mtSet_def)+
   apply(simp add: mtSet_def) apply(simp add: mtSet_def)
