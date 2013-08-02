@@ -147,6 +147,10 @@ where "x \<le>\<^isub>o\<^isub>c\<^isub>l y \<equiv> \<lambda> \<tau>. if (\<del
                 then \<lfloor>\<lfloor>\<lceil>\<lceil>x \<tau>\<rceil>\<rceil> \<le> \<lceil>\<lceil>y \<tau>\<rceil>\<rceil>\<rfloor>\<rfloor>
                 else invalid \<tau> "
 
+abbreviation OclAdd_\<^isub>I\<^isub>n\<^isub>t\<^isub>e\<^isub>g\<^isub>e\<^isub>r (infix "+\<^isub>I" 40) where "x +\<^isub>I y \<equiv> x +\<^isub>o\<^isub>c\<^isub>l y"
+abbreviation OclLess_\<^isub>I\<^isub>n\<^isub>t\<^isub>e\<^isub>g\<^isub>e\<^isub>r (infix "<\<^isub>I" 40) where "x <\<^isub>I y \<equiv> x <\<^isub>o\<^isub>c\<^isub>l y"
+abbreviation OclLe_\<^isub>I\<^isub>n\<^isub>t\<^isub>e\<^isub>g\<^isub>e\<^isub>r (infix "\<le>\<^isub>I" 40) where "x \<le>\<^isub>I y \<equiv> x \<le>\<^isub>o\<^isub>c\<^isub>l y"
+
 subsubsection{* Test Statements *}
 text{* Here follows a list of code-examples, that explain the meanings
 of the above definitions by compilation to code and execution to @{term "True"}.*}
@@ -214,41 +218,56 @@ lemma (*limitedNatural*)[simp]: "\<mu> infinity = false"
   by(rule ext, simp add: limitedNatural_def) 
 
 type_synonym ('\<AA>)UnlimitedNatural = "('\<AA>, nat option option option) val'"
-
 locale OclUnlimitedNatural
+
+definition OclNat0 ::"('\<AA>)UnlimitedNatural" (*"\<zero>"*)
+where      "OclNat0(*\<zero>*) = (\<lambda> _ . \<lfloor>\<lfloor>\<lfloor>0::nat\<rfloor>\<rfloor>\<rfloor>)"
+
+definition OclNat1 ::"('\<AA>)UnlimitedNatural" (*"\<one>"*)
+where      "OclNat1(*\<one>*) = (\<lambda> _ . \<lfloor>\<lfloor>\<lfloor>1::nat\<rfloor>\<rfloor>\<rfloor>)"
+
+definition OclNat2 ::"('\<AA>)UnlimitedNatural" (*"\<two>"*)
+where      "OclNat2(*\<two>*) = (\<lambda> _ . \<lfloor>\<lfloor>\<lfloor>2::nat\<rfloor>\<rfloor>\<rfloor>)"
+
+definition OclNat3 ::"('\<AA>)UnlimitedNatural" (*"\<three>"*)
+where      "OclNat3(*\<three>*) = (\<lambda> _ . \<lfloor>\<lfloor>\<lfloor>3::nat\<rfloor>\<rfloor>\<rfloor>)"
+
+definition OclNat4 ::"('\<AA>)UnlimitedNatural" (*"\<four>"*)
+where      "OclNat4(*\<four>*) = (\<lambda> _ . \<lfloor>\<lfloor>\<lfloor>4::nat\<rfloor>\<rfloor>\<rfloor>)"
+
+definition OclNat5 ::"('\<AA>)UnlimitedNatural" (*"\<five>"*)
+where      "OclNat5(*\<five>*) = (\<lambda> _ . \<lfloor>\<lfloor>\<lfloor>5::nat\<rfloor>\<rfloor>\<rfloor>)"
+
+definition OclNat6 ::"('\<AA>)UnlimitedNatural" (*"\<six>"*)
+where      "OclNat6(*\<six>*) = (\<lambda> _ . \<lfloor>\<lfloor>\<lfloor>6::nat\<rfloor>\<rfloor>\<rfloor>)"
+
+definition OclNat7 ::"('\<AA>)UnlimitedNatural" (*"\<seven>"*)
+where      "OclNat7(*\<seven>*) = (\<lambda> _ . \<lfloor>\<lfloor>\<lfloor>7::nat\<rfloor>\<rfloor>\<rfloor>)"
+
+definition OclNat8 ::"('\<AA>)UnlimitedNatural" (*"\<eight>"*)
+where      "OclNat8(*\<eight>*) = (\<lambda> _ . \<lfloor>\<lfloor>\<lfloor>8::nat\<rfloor>\<rfloor>\<rfloor>)"
+
+definition OclNat9 ::"('\<AA>)UnlimitedNatural" (*"\<nine>"*)
+where      "OclNat9(*\<nine>*) = (\<lambda> _ . \<lfloor>\<lfloor>\<lfloor>9::nat\<rfloor>\<rfloor>\<rfloor>)"
+
+definition OclNat10 ::"('\<AA>)UnlimitedNatural" (*"\<one>\<zero>"*)
+where      "OclNat10(*\<one>\<zero>*) = (\<lambda> _ . \<lfloor>\<lfloor>\<lfloor>10::nat\<rfloor>\<rfloor>\<rfloor>)"
+
+context OclUnlimitedNatural
 begin
-definition OclNat0 ::"('\<AA>)UnlimitedNatural" ("\<zero>")
-where      "\<zero> = (\<lambda> _ . \<lfloor>\<lfloor>\<lfloor>0::nat\<rfloor>\<rfloor>\<rfloor>)"
 
-definition OclNat1 ::"('\<AA>)UnlimitedNatural" ("\<one>")
-where      "\<one> = (\<lambda> _ . \<lfloor>\<lfloor>\<lfloor>1::nat\<rfloor>\<rfloor>\<rfloor>)"
+abbreviation OclNat_0 ("\<zero>") where "\<zero> \<equiv> OclNat0"
+abbreviation OclNat_1 ("\<one>") where "\<one> \<equiv> OclNat1"
+abbreviation OclNat_2 ("\<two>") where "\<two> \<equiv> OclNat2"
+abbreviation OclNat_3 ("\<three>") where "\<three> \<equiv> OclNat3"
+abbreviation OclNat_4 ("\<four>") where "\<four> \<equiv> OclNat4"
+abbreviation OclNat_5 ("\<five>") where "\<five> \<equiv> OclNat5"
+abbreviation OclNat_6 ("\<six>") where "\<six> \<equiv> OclNat6"
+abbreviation OclNat_7 ("\<seven>") where "\<seven> \<equiv> OclNat7"
+abbreviation OclNat_8 ("\<eight>") where "\<eight> \<equiv> OclNat8"
+abbreviation OclNat_9 ("\<nine>") where "\<nine> \<equiv> OclNat9"
+abbreviation OclNat_10 ("\<one>\<zero>") where "\<one>\<zero> \<equiv> OclNat10"
 
-definition OclNat2 ::"('\<AA>)UnlimitedNatural" ("\<two>")
-where      "\<two> = (\<lambda> _ . \<lfloor>\<lfloor>\<lfloor>2::nat\<rfloor>\<rfloor>\<rfloor>)"
-
-definition OclNat3 ::"('\<AA>)UnlimitedNatural" ("\<three>")
-where      "\<three> = (\<lambda> _ . \<lfloor>\<lfloor>\<lfloor>3::nat\<rfloor>\<rfloor>\<rfloor>)"
-
-definition OclNat4 ::"('\<AA>)UnlimitedNatural" ("\<four>")
-where      "\<four> = (\<lambda> _ . \<lfloor>\<lfloor>\<lfloor>4::nat\<rfloor>\<rfloor>\<rfloor>)"
-
-definition OclNat5 ::"('\<AA>)UnlimitedNatural" ("\<five>")
-where      "\<five> = (\<lambda> _ . \<lfloor>\<lfloor>\<lfloor>5::nat\<rfloor>\<rfloor>\<rfloor>)"
-
-definition OclNat6 ::"('\<AA>)UnlimitedNatural" ("\<six>")
-where      "\<six> = (\<lambda> _ . \<lfloor>\<lfloor>\<lfloor>6::nat\<rfloor>\<rfloor>\<rfloor>)"
-
-definition OclNat7 ::"('\<AA>)UnlimitedNatural" ("\<seven>")
-where      "\<seven> = (\<lambda> _ . \<lfloor>\<lfloor>\<lfloor>7::nat\<rfloor>\<rfloor>\<rfloor>)"
-
-definition OclNat8 ::"('\<AA>)UnlimitedNatural" ("\<eight>")
-where      "\<eight> = (\<lambda> _ . \<lfloor>\<lfloor>\<lfloor>8::nat\<rfloor>\<rfloor>\<rfloor>)"
-
-definition OclNat9 ::"('\<AA>)UnlimitedNatural" ("\<nine>")
-where      "\<nine> = (\<lambda> _ . \<lfloor>\<lfloor>\<lfloor>9::nat\<rfloor>\<rfloor>\<rfloor>)"
-
-definition OclNat10 ::"('\<AA>)UnlimitedNatural" ("\<one>\<zero>")
-where      "\<one>\<zero> = (\<lambda> _ . \<lfloor>\<lfloor>\<lfloor>10::nat\<rfloor>\<rfloor>\<rfloor>)"
 end
 
 definition OclNat_infinity :: "('\<AA>)UnlimitedNatural" ("\<infinity>")
@@ -291,6 +310,10 @@ where "x \<le>\<^isub>o\<^isub>c\<^isub>l y \<equiv> \<lambda> \<tau>. if (\<mu>
                 else if (\<delta> x) \<tau> = true \<tau> \<and> (\<delta> y) \<tau> = true \<tau>
                 then not (\<mu> y) \<tau>
                 else invalid \<tau>"
+
+abbreviation OclAdd_\<^isub>U\<^isub>n\<^isub>l\<^isub>i\<^isub>m\<^isub>i\<^isub>t\<^isub>e\<^isub>d\<^isub>N\<^isub>a\<^isub>t\<^isub>u\<^isub>r\<^isub>a\<^isub>l (infix "+\<^isub>U\<^isub>N" 40) where "x +\<^isub>U\<^isub>N y \<equiv> OclAdd\<^isub>U\<^isub>n\<^isub>l\<^isub>i\<^isub>m\<^isub>i\<^isub>t\<^isub>e\<^isub>d\<^isub>N\<^isub>a\<^isub>t\<^isub>u\<^isub>r\<^isub>a\<^isub>l x y"
+abbreviation OclLess_\<^isub>U\<^isub>n\<^isub>l\<^isub>i\<^isub>m\<^isub>i\<^isub>t\<^isub>e\<^isub>d\<^isub>N\<^isub>a\<^isub>t\<^isub>u\<^isub>r\<^isub>a\<^isub>l (infix "<\<^isub>U\<^isub>N" 40) where "x <\<^isub>U\<^isub>N y \<equiv> OclLess\<^isub>U\<^isub>n\<^isub>l\<^isub>i\<^isub>m\<^isub>i\<^isub>t\<^isub>e\<^isub>d\<^isub>N\<^isub>a\<^isub>t\<^isub>u\<^isub>r\<^isub>a\<^isub>l x y"
+abbreviation OclLe_\<^isub>U\<^isub>n\<^isub>l\<^isub>i\<^isub>m\<^isub>i\<^isub>t\<^isub>e\<^isub>d\<^isub>N\<^isub>a\<^isub>t\<^isub>u\<^isub>r\<^isub>a\<^isub>l (infix "\<le>\<^isub>U\<^isub>N" 40) where "x \<le>\<^isub>U\<^isub>N y \<equiv> OclLe\<^isub>U\<^isub>n\<^isub>l\<^isub>i\<^isub>m\<^isub>i\<^isub>t\<^isub>e\<^isub>d\<^isub>N\<^isub>a\<^isub>t\<^isub>u\<^isub>r\<^isub>a\<^isub>l x y"
 
 subsubsection{* Test Statements *}
 text{* Here follows a list of code-examples, that explain the meanings
