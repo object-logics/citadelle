@@ -158,6 +158,7 @@ of the above definitions by compilation to code and execution to @{term "True"}.
 value "  \<tau>\<^isub>0 \<Turnstile> ( \<nine> \<le>\<^isub>o\<^isub>c\<^isub>l \<one>\<zero> )"
 value "  \<tau>\<^isub>0 \<Turnstile> (( \<four> +\<^isub>o\<^isub>c\<^isub>l \<four> ) \<le>\<^isub>o\<^isub>c\<^isub>l \<one>\<zero> )"
 value "\<not>(\<tau>\<^isub>0 \<Turnstile> (( \<four> +\<^isub>o\<^isub>c\<^isub>l ( \<four> +\<^isub>o\<^isub>c\<^isub>l \<four> )) <\<^isub>o\<^isub>c\<^isub>l \<one>\<zero> ))"
+value "  \<tau>\<^isub>0 \<Turnstile> not (\<upsilon> (null +\<^isub>o\<^isub>c\<^isub>l \<one>)) "
 
 subsection{* The construction of the UnlimitedNatural Type *}
 
@@ -319,11 +320,23 @@ subsubsection{* Test Statements *}
 text{* Here follows a list of code-examples, that explain the meanings
 of the above definitions by compilation to code and execution to @{term "True"}.*}
 
-value "  \<tau>\<^isub>0 \<Turnstile> not (\<upsilon> (invalid \<le>\<^isub>o\<^isub>c\<^isub>l \<infinity>)) "
-value "  \<tau>\<^isub>0 \<Turnstile> not (\<upsilon> (null \<le>\<^isub>o\<^isub>c\<^isub>l \<infinity>)) "
-value "  \<tau>\<^isub>0 \<Turnstile>      \<upsilon> \<infinity> "
-value "  \<tau>\<^isub>0 \<Turnstile>      \<delta> \<infinity> "
-value "  \<tau>\<^isub>0 \<Turnstile> not (\<mu> \<infinity>) "
+context OclUnlimitedNatural
+begin
+value "  \<tau>\<^isub>0 \<Turnstile> ( \<nine> \<le>\<^isub>U\<^isub>N \<one>\<zero> )"
+value "  \<tau>\<^isub>0 \<Turnstile> (( \<four> +\<^isub>U\<^isub>N \<four> ) \<le>\<^isub>U\<^isub>N \<one>\<zero> )"
+value "\<not>(\<tau>\<^isub>0 \<Turnstile> (( \<four> +\<^isub>U\<^isub>N ( \<four> +\<^isub>U\<^isub>N \<four> )) <\<^isub>U\<^isub>N \<one>\<zero> ))"
+value "  \<tau>\<^isub>0 \<Turnstile> (\<zero> \<le>\<^isub>o\<^isub>c\<^isub>l \<infinity>)"
+value "  \<tau>\<^isub>0 \<Turnstile> not (\<upsilon> (null +\<^isub>U\<^isub>N \<one>))"
+value "  \<tau>\<^isub>0 \<Turnstile> not (\<upsilon> (\<infinity> +\<^isub>o\<^isub>c\<^isub>l \<zero>))"
+value "  \<tau>\<^isub>0 \<Turnstile>      \<mu> \<one>"
+end
+value "  \<tau>\<^isub>0 \<Turnstile> not (\<upsilon> (null +\<^isub>o\<^isub>c\<^isub>l \<infinity>))"
+value "  \<tau>\<^isub>0 \<Turnstile> not (\<infinity> <\<^isub>o\<^isub>c\<^isub>l \<infinity>)"
+value "  \<tau>\<^isub>0 \<Turnstile> not (\<upsilon> (invalid \<le>\<^isub>o\<^isub>c\<^isub>l \<infinity>))"
+value "  \<tau>\<^isub>0 \<Turnstile> not (\<upsilon> (null \<le>\<^isub>o\<^isub>c\<^isub>l \<infinity>))"
+value "  \<tau>\<^isub>0 \<Turnstile>      \<upsilon> \<infinity>"
+value "  \<tau>\<^isub>0 \<Turnstile>      \<delta> \<infinity>"
+value "  \<tau>\<^isub>0 \<Turnstile> not (\<mu> \<infinity>)"
 
 section{* Fundamental Predicates on Boolean and Integer: Strict Equality *}
 
