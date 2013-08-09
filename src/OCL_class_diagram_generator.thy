@@ -47,6 +47,10 @@ theory OCL_class_diagram_generator
 imports Main
 begin
 
+definition "bug_ocaml_extraction = id" 
+  (* In this theory, this identifier can be removed everywhere it is used.
+     However without this, there is a syntax error when the code is extracted to OCaml. *)
+
 section{* ... *}
 
 type_synonym str = "char list"
@@ -206,7 +210,7 @@ fun print_datatype_class where
         @ [(isub_name datatype_ext_constr_name, map (\<lambda>(_, x). Opt (str_of_ty x)) l_attr)] )
     , Datatype
         (isub_name datatype_name)
-        [ (isub_name datatype_constr_name, [ Raw (str_of_ty object)
+        [ (isub_name datatype_constr_name, [ bug_ocaml_extraction (Raw (str_of_ty object))
                                            , Raw (isub_name datatype_ext_name) ] ) ] ])))"
 
 definition "print_datatype_universe = 
@@ -339,14 +343,14 @@ definition "print_astype_lemma_cp =
   (map (\<lambda>name1. map (\<lambda>name2. map (\<lambda>name3. 
     Lemma_by
       (concat (''cp_'' # const_oclastype # isub_of_str name1 # ''_'' # name3 # ''_'' # name2 # []))
-      (let var_p = ''p''; var_x = ''x'' in
+      (bug_ocaml_extraction (let var_p = ''p''; var_x = ''x'' in
        map
          (\<lambda>x. Expr_apply ''cp'' [x])
          [ Expr_basic [var_p]
          , Expr_lambda var_x
              (Expr_warning_parenthesis (Expr_postunary
                (Expr_annot (Expr_apply var_p [Expr_annot (Expr_basic [var_x]) name3]) name2)
-               (Expr_basic [dot_astype name1])))])
+               (Expr_basic [dot_astype name1])))]))
       [Tac_rule ''cpI1'', if name1 = name2 then Tac_simp_all
                           else Tac_simp_all_add (concat (const_oclastype # isub_of_str name1 # ''_'' # name2 # []))]
   ) l_hierarchy) l_hierarchy) l_hierarchy)))"
@@ -472,14 +476,14 @@ definition "print_istypeof_lemma_cp =
   (map (\<lambda>name1. map (\<lambda>name2. map (\<lambda>name3. 
     Lemma_by
       (concat (''cp_'' # const_oclistypeof # isub_of_str name1 # ''_'' # name3 # ''_'' # name2 # []))
-      (let var_p = ''p''; var_x = ''x'' in
+      (bug_ocaml_extraction (let var_p = ''p''; var_x = ''x'' in
        map
          (\<lambda>x. Expr_apply ''cp'' [x])
          [ Expr_basic [var_p]
          , Expr_lambda var_x
              (Expr_warning_parenthesis (Expr_postunary
                (Expr_annot (Expr_apply var_p [Expr_annot (Expr_basic [var_x]) name3]) name2)
-               (Expr_basic [dot_istypeof name1])))])
+               (Expr_basic [dot_istypeof name1])))]))
       [Tac_rule ''cpI1'', (*if name1 = name2 then Tac_simp_all
                           else*) Tac_simp_all_add (concat (const_oclistypeof # isub_of_str name1 # ''_'' # name2 # []))]
   ) l_hierarchy) l_hierarchy) l_hierarchy)))"
@@ -587,14 +591,14 @@ definition "print_iskindof_lemma_cp =
   (map (\<lambda>name1. map (\<lambda>name2. map (\<lambda>name3. 
     Lemma_by
       (concat (''cp_'' # const_ocliskindof # isub_of_str name1 # ''_'' # name3 # ''_'' # name2 # []))
-      (let var_p = ''p''; var_x = ''x'' in
+      (bug_ocaml_extraction (let var_p = ''p''; var_x = ''x'' in
        map
          (\<lambda>x. Expr_apply ''cp'' [x])
          [ Expr_basic [var_p]
          , Expr_lambda var_x
              (Expr_warning_parenthesis (Expr_postunary
                (Expr_annot (Expr_apply var_p [Expr_annot (Expr_basic [var_x]) name3]) name2)
-               (Expr_basic [dot_iskindof name1])))])
+               (Expr_basic [dot_iskindof name1])))]))
       [Tac_rule ''cpI1'', (*if name1 = name2 then Tac_simp_all
                           else*) Tac_simp_all_add (concat (const_ocliskindof # isub_of_str name1 # ''_'' # name2 # []))]
   ) l_hierarchy) l_hierarchy) l_hierarchy)))"
@@ -637,7 +641,8 @@ definition "print_iskindof_lemmas_strict =
 subsection{* ... *}
 
 definition "print_eval_extract =
-  [ let var_x = ''x''
+  [ bug_ocaml_extraction
+    (let var_x = ''x''
       ; var_f = ''f''
       ; var_tau = unicode_tau
       ; some_some = (\<lambda>x. Expr_some (Expr_some x))
@@ -649,7 +654,7 @@ definition "print_eval_extract =
                      var_tau
                      (Expr_case (Expr_basic [var_x, var_tau])
                      [ (some_some (Expr_basic [var_obj]), Expr_apply var_f [Expr_apply ''oid_of'' [Expr_basic [var_obj]], Expr_basic [var_tau]])
-                     , (Expr_basic [wildcard], Expr_basic [''invalid'', var_tau])])))
+                     , (Expr_basic [wildcard], Expr_basic [''invalid'', var_tau])]))))
   , Definition (Expr_rewrite (Expr_basic [var_in_pre_state]) ''='' (Expr_basic [''fst'']))
   , Definition (Expr_rewrite (Expr_basic [var_in_post_state]) ''='' (Expr_basic [''snd'']))
   , Definition (Expr_rewrite (Expr_basic [var_reconst_basetype]) ''='' (let var1 = ''convert'' ; var2 = ''x'' in
@@ -697,8 +702,9 @@ definition "print_select =
                                                        , rhs))
                               [ ( Expr_basic [unicode_bottom], Expr_basic [''null''] )
                               , ( Expr_some (Expr_basic [var_attr])
-                                , Expr_apply var_f [ let var_x = ''x'' in
-                                                       Expr_lambdas [var_x, wildcard] (Expr_some (Expr_some (Expr_basic [var_x])))
+                                , Expr_apply var_f [ bug_ocaml_extraction 
+                                                     (let var_x = ''x'' in
+                                                        Expr_lambdas [var_x, wildcard] (Expr_some (Expr_some (Expr_basic [var_x]))))
                                                    , Expr_basic [var_attr]]) ]) # [(wildc, Expr_basic [''invalid''])] # []))))) # l_acc))
       ([], map (\<lambda>_. wildc) (tl l_attr), [])
       l_attr) in
