@@ -684,31 +684,31 @@ definition "in_post_state = snd"
 
 definition "reconst_basetype = (\<lambda> convert x. convert x)"
 
-fun dot\<^isub>O\<^isub>c\<^isub>l\<^isub>A\<^isub>n\<^isub>y\<^isup>a\<^isup>n\<^isup>y :: "OclAny \<Rightarrow> _"  ("(1(_).any)" 50)
+definition dot\<^isub>O\<^isub>c\<^isub>l\<^isub>A\<^isub>n\<^isub>y\<^isup>a\<^isup>n\<^isup>y :: "OclAny \<Rightarrow> _"  ("(1(_).any)" 50)
   where "(X).any = eval_extract X
                        (deref_oid\<^isub>O\<^isub>c\<^isub>l\<^isub>A\<^isub>n\<^isub>y in_post_state
                           (select\<^isub>O\<^isub>c\<^isub>l\<^isub>A\<^isub>n\<^isub>y\<^isup>a\<^isup>n\<^isup>y
                              reconst_basetype))"
 
-fun dot\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n\<^isup>b\<^isup>o\<^isup>s\<^isup>s :: "Person \<Rightarrow> Person"  ("(1(_).boss)" 50)
+definition dot\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n\<^isup>b\<^isup>o\<^isup>s\<^isup>s :: "Person \<Rightarrow> Person"  ("(1(_).boss)" 50)
   where "(X).boss = eval_extract X
                       (deref_oid\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n in_post_state
                          (select\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n\<^isup>b\<^isup>o\<^isup>s\<^isup>s
                             (deref_oid\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n in_post_state)))"
 
-fun dot\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n\<^isup>s\<^isup>a\<^isup>l\<^isup>a\<^isup>r\<^isup>y :: "Person \<Rightarrow> Integer"  ("(1(_).salary)" 50)
+definition dot\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n\<^isup>s\<^isup>a\<^isup>l\<^isup>a\<^isup>r\<^isup>y :: "Person \<Rightarrow> Integer"  ("(1(_).salary)" 50)
   where "(X).salary = eval_extract X
                        (deref_oid\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n in_post_state
                           (select\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n\<^isup>s\<^isup>a\<^isup>l\<^isup>a\<^isup>r\<^isup>y
                              reconst_basetype))"
 
-fun dot\<^isub>O\<^isub>c\<^isub>l\<^isub>A\<^isub>n\<^isub>y\<^isup>a\<^isup>n\<^isup>y_at_pre :: "OclAny \<Rightarrow> _"  ("(1(_).any@pre)" 50)
+definition dot\<^isub>O\<^isub>c\<^isub>l\<^isub>A\<^isub>n\<^isub>y\<^isup>a\<^isup>n\<^isup>y_at_pre :: "OclAny \<Rightarrow> _"  ("(1(_).any@pre)" 50)
   where "(X).any@pre = eval_extract X
                        (deref_oid\<^isub>O\<^isub>c\<^isub>l\<^isub>A\<^isub>n\<^isub>y in_pre_state
                           (select\<^isub>O\<^isub>c\<^isub>l\<^isub>A\<^isub>n\<^isub>y\<^isup>a\<^isup>n\<^isup>y
                              reconst_basetype))"
 
-fun dot\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n\<^isup>b\<^isup>o\<^isup>s\<^isup>s_at_pre:: "Person \<Rightarrow> Person"  ("(1(_).boss@pre)" 50)
+definition dot\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n\<^isup>b\<^isup>o\<^isup>s\<^isup>s_at_pre:: "Person \<Rightarrow> Person"  ("(1(_).boss@pre)" 50)
   where "(X).boss@pre = eval_extract X
                          (deref_oid\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n in_pre_state
                             (select\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n\<^isup>b\<^isup>o\<^isup>s\<^isup>s
@@ -716,11 +716,19 @@ fun dot\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n\<^isup>b\<^isup>o\
   (* | \<lfloor>\<lfloor> mk\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n _ _ \<bottom> \<rfloor>\<rfloor> \<Rightarrow> null (* object contains null pointer. REALLY ?
                                      And if this pointer was defined in the pre-state ?*) *)
 
-fun dot\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n\<^isup>s\<^isup>a\<^isup>l\<^isup>a\<^isup>r\<^isup>y_at_pre:: "Person \<Rightarrow> Integer"  ("(1(_).salary@pre)" 50)
+definition dot\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n\<^isup>s\<^isup>a\<^isup>l\<^isup>a\<^isup>r\<^isup>y_at_pre:: "Person \<Rightarrow> Integer"  ("(1(_).salary@pre)" 50)
   where "(X).salary@pre = eval_extract X
                             (deref_oid\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n in_pre_state
                                (select\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n\<^isup>s\<^isup>a\<^isup>l\<^isup>a\<^isup>r\<^isup>y
                                    reconst_basetype))"
+
+lemmas [simp] =
+  dot\<^isub>O\<^isub>c\<^isub>l\<^isub>A\<^isub>n\<^isub>y\<^isup>a\<^isup>n\<^isup>y_def
+  dot\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n\<^isup>b\<^isup>o\<^isup>s\<^isup>s_def
+  dot\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n\<^isup>s\<^isup>a\<^isup>l\<^isup>a\<^isup>r\<^isup>y_def
+  dot\<^isub>O\<^isub>c\<^isub>l\<^isub>A\<^isub>n\<^isub>y\<^isup>a\<^isup>n\<^isup>y_at_pre_def
+  dot\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n\<^isup>b\<^isup>o\<^isup>s\<^isup>s_at_pre_def
+  dot\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n\<^isup>s\<^isup>a\<^isup>l\<^isup>a\<^isup>r\<^isup>y_at_pre_def
 
 subsection{* Context Passing *}
 
