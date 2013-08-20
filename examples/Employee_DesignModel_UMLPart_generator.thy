@@ -113,45 +113,63 @@ definition "deref_oid = print_deref_oid exemple"
 definition "select = print_select exemple"
 definition "dot = print_dot exemple"
 
-export_code datatype_class
-            datatype_universe
-            type_synonym_class
-            instantiation_class
-            instantiation_universe
-            def_strictrefeq
+definition "file_out = STR ''Employee_DesignModel_UMLPart_generated''"
 
-            astype_consts
-            astype_from_universe
-            astype_class
-            astype_lemmas_id
-            astype_lemma_cp
-            astype_lemmas_cp
-            astype_lemma_strict
-            astype_lemmas_strict
+definition "app f l =
+  String_concat (STR [Char Nibble0 NibbleA]) (rev (foldl (\<lambda>acc x. f x # acc) [] l))"
 
-            istypeof_consts
-            istypeof_from_universe
-            istypeof_class
-            istypeof_lemmas_id
-            istypeof_lemma_cp
-            istypeof_lemmas_cp
-            istypeof_lemma_strict
-            istypeof_lemmas_strict
+definition "main l = (case filter Sys_is_directory l
+ of dir # _ \<Rightarrow> out_file1 (\<lambda>fprintf1.
+   List_iter (fprintf1 (STR ''%s
+''))
+     (List_flatten
+        [ [ sprintf1 (STR ''theory %s imports \"../src/OCL_main\" begin'') file_out ]
+        , List_flatten (List_mapi (\<lambda>i s. [ STR '''', sprintf1 (STR ''(* %d *********************************** *)'') (To_i (Suc i)), s ])
+            [ app s_of_datatype datatype_class
+            , app s_of_datatype datatype_universe
+            , app s_of_tsynonym type_synonym_class
+            , app s_of_instantiation instantiation_class
+            , app s_of_instantiation instantiation_universe
+            , app s_of_defs_overloaded def_strictrefeq
 
-            iskindof_consts
-            iskindof_from_universe
-            iskindof_class
-            iskindof_lemmas_id
-            iskindof_lemma_cp
-            iskindof_lemmas_cp
-            iskindof_lemma_strict
-            iskindof_lemmas_strict
+            , app s_of_consts_class astype_consts
+            , app s_of_definition_hol astype_from_universe
+            , app s_of_defs_overloaded astype_class
+            , app s_of_lemmas_simp astype_lemmas_id
+            , app s_of_lemma_by astype_lemma_cp
+            , app s_of_lemmas_simp astype_lemmas_cp
+            , app s_of_lemma_by astype_lemma_strict
+            , app s_of_lemmas_simp astype_lemmas_strict
 
-            eval_extract
-            deref_oid
-            select
-            dot
+            , app s_of_consts_class istypeof_consts
+            (*, app s_of_definition_hol istypeof_from_universe*)
+            , app s_of_defs_overloaded istypeof_class
+            , app s_of_lemmas_simp istypeof_lemmas_id
+            , app s_of_lemma_by istypeof_lemma_cp
+            , app s_of_lemmas_simp istypeof_lemmas_cp
+            , app s_of_lemma_by istypeof_lemma_strict
+            , app s_of_lemmas_simp istypeof_lemmas_strict
 
+            , app s_of_consts_class iskindof_consts
+            (*, app s_of_definition_hol iskindof_from_universe*)
+            , app s_of_defs_overloaded iskindof_class
+            , app s_of_lemmas_simp iskindof_lemmas_id
+            (*, app s_of_lemma_by iskindof_lemma_cp
+            , app s_of_lemmas_simp iskindof_lemmas_cp
+            , app s_of_lemma_by iskindof_lemma_strict
+            , app s_of_lemmas_simp iskindof_lemmas_strict
+            *)
+
+            , app s_of_definition_hol eval_extract
+            , app s_of_definition_hol deref_oid
+            , app s_of_definition_hol select
+            , app s_of_definition_hol dot ])
+        , [ STR '''', STR ''end'' ] ])
+  ) (sprintf2 (STR ''%s/%s.thy'') dir file_out)
+  | _ \<Rightarrow> eprintf0 (STR ''No directory in argument''))"
+
+export_code main
+            escapeNatRec
   in OCaml module_name M file "Employee_DesignModel_UMLPart_generator.ml" (no_signatures)
 
 end
