@@ -56,7 +56,7 @@ section{* ... *}
 type_synonym str = "char list"
 
 datatype oclTy = OclTy_base str | OclTy_object str
-definition "str_of_ty = (\<lambda>object. case object of OclTy_base x \<Rightarrow> x | OclTy_object x \<Rightarrow> x)"
+definition "str_of_ty = (\<lambda> OclTy_base x \<Rightarrow> x | OclTy_object x \<Rightarrow> x)"
 
 datatype univ =
  Mk_univ
@@ -109,6 +109,7 @@ datatype expr = Expr_case expr (* value *)
               | Expr_annot expr str (* type *)
               | Expr_lambda str (* lambda var *) expr
               | Expr_lambdas "str list" expr
+              | Expr_function "(expr (* pattern *) \<times> expr (* to return *)) list"
               | Expr_apply str "expr list"
               | Expr_some expr (* with annotation \<lfloor> ... \<rfloor> *)
               | Expr_postunary expr expr (* no parenthesis and separated with one space *)
@@ -193,7 +194,7 @@ definition "add_hierarchy' f x = (\<lambda>isub_name name _. f isub_name name ((
 definition "map_class_gen_h f x = map_class_gen (add_hierarchy f x) x"
 definition "map_class_gen_h' f x = map_class_gen (add_hierarchy' f x) x"
 definition "map_class_h f x = map_class (add_hierarchy f x) x"
-definition "map_class_arg_only f = map_class_gen (\<lambda> isub_name name l. case l of [] \<Rightarrow> [] | _ \<Rightarrow> f isub_name name l)"
+definition "map_class_arg_only f = map_class_gen (\<lambda> isub_name name. \<lambda> [] \<Rightarrow> [] | l \<Rightarrow> f isub_name name l)"
 definition "get_hierarchy f x = f (map fst (get_class_hierarchy x))"
 
 subsection{* ... *}
@@ -228,11 +229,10 @@ definition "print_instantiation_class =
     Instantiation
       (isub_name datatype_name)
       oid_of
-      (let var_x = ''x'' in
-       Expr_rewrite
-        (Expr_basic [oid_of, var_x])
+      (Expr_rewrite
+        (Expr_basic [oid_of])
         ''=''
-        (Expr_case (Expr_basic [var_x])
+        (Expr_function
                    [ let oid = ''oid'' in
                      (Expr_basic [isub_name datatype_constr_name, oid, wildcard], Expr_basic [oid])])))"
 
@@ -262,15 +262,13 @@ definition "print_astype_consts =
 
 definition "print_astype_from_universe =
   map_class_h (\<lambda>isub_name name l_hierarchy.
-    let const_astype = concat (const_oclastype # isub_of_str name # ''_'' # unicode_AA # [])
-      ; var_u = ''u'' in
-    Definition (Expr_rewrite (Expr_basic [const_astype]) ''='' (Expr_lambda var_u
-
+    let const_astype = concat (const_oclastype # isub_of_str name # ''_'' # unicode_AA # []) in
+    Definition (Expr_rewrite (Expr_basic [const_astype]) ''='' 
    (let ((finish_with_some1, finish_with_some2), last_case_none) =
      let (f, r) = (if hd l_hierarchy = name then (id, []) else (flip, [(Expr_basic [wildcard], Expr_basic [''None''])])) in
      (f (id, Expr_some), r) in
    finish_with_some2
-   (Expr_case (Expr_basic [var_u]) (concat (map
+   (Expr_function (concat (map
    (\<lambda>h_name.
      let isub_h = (\<lambda> s. s @ isub_of_str h_name)
        ; var_oid = ''oid''
@@ -290,7 +288,7 @@ definition "print_astype_from_universe =
              of Some GT \<Rightarrow> case_branch (pattern_complex h_name name) (pattern_simple name)
               | Some EQ \<Rightarrow> let n = Expr_basic [name] in case_branch n n
               | Some LT \<Rightarrow> case_branch (pattern_simple h_name) (pattern_complex name h_name)) l_hierarchy
-   # [last_case_none])))))))"
+   # [last_case_none]))))))"
 
 definition "print_astype_class =
   map_class_gen_h (\<lambda>isub_name name l_hierarchy.
@@ -641,6 +639,7 @@ definition "print_iskindof_lemmas_strict =
 subsection{* ... *}
 
 definition "print_eval_extract =
+  (let lets = (\<lambda>var def. Definition (Expr_rewrite (Expr_basic [var]) ''='' (Expr_basic [def]))) in
   [ bug_ocaml_extraction
     (let var_x = ''x''
       ; var_f = ''f''
@@ -655,10 +654,9 @@ definition "print_eval_extract =
                      (Expr_case (Expr_basic [var_x, var_tau])
                      [ (some_some (Expr_basic [var_obj]), Expr_apply var_f [Expr_apply ''oid_of'' [Expr_basic [var_obj]], Expr_basic [var_tau]])
                      , (Expr_basic [wildcard], Expr_basic [''invalid'', var_tau])]))))
-  , Definition (Expr_rewrite (Expr_basic [var_in_pre_state]) ''='' (Expr_basic [''fst'']))
-  , Definition (Expr_rewrite (Expr_basic [var_in_post_state]) ''='' (Expr_basic [''snd'']))
-  , Definition (Expr_rewrite (Expr_basic [var_reconst_basetype]) ''='' (let var1 = ''convert'' ; var2 = ''x'' in
-                                                                        Expr_lambdas [var1, var2] (Expr_apply var1 [Expr_basic [var2]]))) ]"
+  , lets var_in_pre_state ''fst''
+  , lets var_in_post_state ''snd''
+  , lets var_reconst_basetype ''id'' ])"
 
 definition "print_deref_oid =
   map_class (\<lambda>isub_name _ _.
@@ -688,24 +686,20 @@ definition "print_select =
         , Definition (Expr_rewrite
                        (Expr_basic [isup_attr (isub_name var_select), var_f])
                        ''=''
-                       (let var_x = ''x''
-                          ; var_attr = attr in
-                        Expr_lambda
-                          var_x
-                          (Expr_case
-                            (Expr_basic [var_x])
-                            (concat ((map (\<lambda>(lhs,rhs). ( Expr_apply
-                                                           (isub_name datatype_constr_name)
-                                                           [ wildc
-                                                           , Expr_apply (isub_name datatype_ext_constr_name)
-                                                                        (concat (l_wildl # [lhs] # l_wildr # []))]
-                                                       , rhs))
-                              [ ( Expr_basic [unicode_bottom], Expr_basic [''null''] )
-                              , ( Expr_some (Expr_basic [var_attr])
-                                , Expr_apply var_f [ bug_ocaml_extraction
-                                                     (let var_x = ''x'' in
-                                                        Expr_lambdas [var_x, wildcard] (Expr_some (Expr_some (Expr_basic [var_x]))))
-                                                   , Expr_basic [var_attr]]) ]) # [(wildc, Expr_basic [''invalid''])] # []))))) # l_acc))
+                       (let var_attr = attr in
+                        Expr_function
+                          (concat ((map (\<lambda>(lhs,rhs). ( Expr_apply
+                                                         (isub_name datatype_constr_name)
+                                                         [ wildc
+                                                         , Expr_apply (isub_name datatype_ext_constr_name)
+                                                                      (concat (l_wildl # [lhs] # l_wildr # []))]
+                                                     , rhs))
+                            [ ( Expr_basic [unicode_bottom], Expr_basic [''null''] )
+                            , ( Expr_some (Expr_basic [var_attr])
+                              , Expr_apply var_f [ bug_ocaml_extraction
+                                                   (let var_x = ''x'' in
+                                                      Expr_lambdas [var_x, wildcard] (Expr_some (Expr_some (Expr_basic [var_x]))))
+                                                 , Expr_basic [var_attr]]) ]) # [(wildc, Expr_basic [''invalid''])] # [])))) # l_acc))
       ([], map (\<lambda>_. wildc) (tl l_attr), [])
       l_attr) in
     rev l)"
@@ -899,7 +893,8 @@ fun s_of_rawty where "s_of_rawty rawty = (case rawty of
 definition "s_of_tsynonym = (\<lambda> Type_synonym n l \<Rightarrow> 
     sprintf2 (STR ''type_synonym %s = \"%s\"'') (To_s n) (s_of_rawty l))"
 
-fun s_of_expr where "s_of_expr expr = (case expr of
+fun s_of_expr where "s_of_expr expr = (
+  case expr of
     Expr_case e l \<Rightarrow> sprintf2 (STR ''(case %s of %s)'') (s_of_expr e) (String_concat (STR ''
     | '') (map (\<lambda> (s1, s2) \<Rightarrow> sprintf3 (STR ''%s %s %s'') (s_of_expr s1) Unicode_u_Rightarrow (s_of_expr s2)) l))
   | Expr_rewrite e1 symb e2 \<Rightarrow> sprintf3 (STR ''%s %s %s'') (s_of_expr e1) (To_s symb) (s_of_expr e2)
@@ -908,8 +903,12 @@ fun s_of_expr where "s_of_expr expr = (case expr of
   | Expr_annot e s \<Rightarrow> sprintf2 (STR ''(%s::%s)'') (s_of_expr e) (To_s s)
   | Expr_lambda s e \<Rightarrow> sprintf3 (STR ''(%s%s. %s)'') Unicode_u_lambda (To_s s) (s_of_expr e)
   | Expr_lambdas l e \<Rightarrow> sprintf3 (STR ''(%s%s. %s)'') Unicode_u_lambda (String_concat (STR '' '') (map To_s l)) (s_of_expr e)
+  | Expr_function l \<Rightarrow> sprintf2 (STR ''(%s %s)'') Unicode_u_lambda (String_concat (STR ''
+    | '') (map (\<lambda> (s1, s2) \<Rightarrow> sprintf3 (STR ''%s %s %s'') (s_of_expr s1) Unicode_u_Rightarrow (s_of_expr s2)) l))
   (*| Expr_apply s [e] \<Rightarrow> sprintf2 (STR ''(%s %s)'') (To_s s) (s_of_expr e)*)
   | Expr_apply s l \<Rightarrow> sprintf2 (STR ''(%s %s)'') (To_s s) (String_concat (STR '' '') (map (\<lambda> e \<Rightarrow> sprintf1 (STR ''(%s)'') (s_of_expr e)) l))
+  | Expr_some (Expr_function l) \<Rightarrow> sprintf4 (STR ''%s%s %s%s'') Unicode_u_lfloor Unicode_u_lambda (String_concat (STR ''
+    | '') (map (\<lambda> (s1, s2) \<Rightarrow> sprintf3 (STR ''%s %s %s'') (s_of_expr s1) Unicode_u_Rightarrow (s_of_expr s2)) l)) Unicode_u_rfloor
   | Expr_some e \<Rightarrow> sprintf3 (STR ''%s%s%s'') Unicode_u_lfloor (s_of_expr e) Unicode_u_rfloor
   | Expr_postunary e1 e2 \<Rightarrow> sprintf2 (STR ''%s %s'') (s_of_expr e1) (s_of_expr e2)
   | Expr_warning_parenthesis e \<Rightarrow> sprintf1 (STR ''(%s)'') (s_of_expr e)
