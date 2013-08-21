@@ -894,7 +894,7 @@ definition "Unicode_u_Longrightarrow = Unicode_mk_u (STR ''Longrightarrow'')"
 
 subsubsection{* module s_of *}
 
-definition "s_of_datatype = (\<lambda> Datatype n l \<Rightarrow>
+definition "s_of_dataty = (\<lambda> Datatype n l \<Rightarrow>
   sprintf2 (STR ''datatype %s = %s'')
     (To_s n)
     (String_concat (STR ''
@@ -915,7 +915,7 @@ fun s_of_rawty where "s_of_rawty rawty = (case rawty of
                                                  case l of [_] \<Rightarrow> s | _ \<Rightarrow> sprintf1 (STR ''(%s)'') s)
                                                 (s_of_rawty name))"
 
-definition "s_of_tsynonym = (\<lambda> Type_synonym n l \<Rightarrow>
+definition "s_of_ty_synonym = (\<lambda> Type_synonym n l \<Rightarrow>
     sprintf2 (STR ''type_synonym %s = \"%s\"'') (To_s n) (s_of_rawty l))"
 
 fun s_of_expr where "s_of_expr expr = (
@@ -939,7 +939,7 @@ fun s_of_expr where "s_of_expr expr = (
   | Expr_warning_parenthesis e \<Rightarrow> sprintf1 (STR ''(%s)'') (s_of_expr e)
   | Expr_parenthesis e \<Rightarrow> sprintf1 (STR ''(%s)'') (s_of_expr e))"
 
-definition "s_of_instantiation = (\<lambda> Instantiation n n_def expr \<Rightarrow>
+definition "s_of_instantiation_class = (\<lambda> Instantiation n n_def expr \<Rightarrow>
     let name = To_s n in
     sprintf4 (STR ''instantiation %s :: object
 begin
@@ -981,9 +981,9 @@ by(%s)'')
       (String_concat (STR '', '') (map s_of_tactic l_apply)))"
 
 definition "s_of_thy =
-            (\<lambda> Thy_dataty dataty \<Rightarrow> s_of_datatype dataty
-             | Thy_ty_synonym ty_synonym \<Rightarrow> s_of_tsynonym ty_synonym
-             | Thy_instantiation_class instantiation_class \<Rightarrow> s_of_instantiation instantiation_class
+            (\<lambda> Thy_dataty dataty \<Rightarrow> s_of_dataty dataty
+             | Thy_ty_synonym ty_synonym \<Rightarrow> s_of_ty_synonym ty_synonym
+             | Thy_instantiation_class instantiation_class \<Rightarrow> s_of_instantiation_class instantiation_class
              | Thy_defs_overloaded defs_overloaded \<Rightarrow> s_of_defs_overloaded defs_overloaded
              | Thy_consts_class consts_class \<Rightarrow> s_of_consts_class consts_class
              | Thy_definition_hol definition_hol \<Rightarrow> s_of_definition_hol definition_hol
