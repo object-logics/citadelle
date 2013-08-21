@@ -125,6 +125,6 @@ definition "main = (let file_out = STR ''Employee_DesignModel_UMLPart_generated'
    | _ \<Rightarrow> eprintf0 (STR ''No directory in argument''))"
 
 export_code main
-  in OCaml module_name M file "Employee_DesignModel_UMLPart_generator.ml" (no_signatures)
+  in OCaml module_name M file "Employee_DesignModel_UMLPart_generator.ml"
 
 end

@@ -768,6 +768,13 @@ code_const sprintf6 (OCaml "CodeConst.Printf.sprintf")
 consts eprintf0 :: "ml_string \<Rightarrow> unit"
 code_const eprintf0 (OCaml "CodeConst.Printf.eprintf")
 
+(* Monomorph *)
+
+consts sprintf1s :: "ml_string \<Rightarrow> ml_string \<Rightarrow> ml_string"
+code_const sprintf1s (OCaml "CodeConst.Printf.sprintf")
+consts sprintf2ss :: "ml_string \<Rightarrow> ml_string \<Rightarrow> ml_string \<Rightarrow> ml_string"
+code_const sprintf2ss (OCaml "CodeConst.Printf.sprintf")
+
 subsubsection{* module String *}
 
 consts String_concat :: "ml_string \<Rightarrow> ml_string list \<Rightarrow> ml_string"
@@ -836,6 +843,13 @@ module To = struct
 
 end
 
+module CodeType = struct
+  module Cancel_rec = struct
+    type i = int
+  end
+  type int = Cancel_rec.i
+end
+
 module CodeConst = struct
   (* here contain functions using characters
      not allowed in a Isabelle 'code_const' expr
@@ -862,6 +876,9 @@ end
 datatype ml_nat = ML_nat
 datatype ml_nibble = ML_nibble
 datatype ml_char = ML_char
+datatype ml_int = ML_int
+
+code_type ml_int (OCaml "CodeType.int")
 
 (* *)
 
@@ -880,7 +897,7 @@ definition "To_string = ToString nibble_rec char_rec"
 (* *)
 
 consts ToNat :: "(ml_nat \<Rightarrow> (nat \<Rightarrow> ml_nat \<Rightarrow> ml_nat) \<Rightarrow> nat \<Rightarrow> ml_nat) \<Rightarrow> 
-                 nat \<Rightarrow> ml_string"
+                 nat \<Rightarrow> ml_int"
 code_const ToNat (OCaml "CodeConst.To.nat")
 definition "To_nat = ToNat nat_rec"
 
@@ -894,7 +911,7 @@ code_const Sys_argv (OCaml "CodeConst.Sys.argv")
 
 subsubsection{* module Unicode *}
 
-definition "Unicode_mk_u = sprintf1 (STR (Char Nibble5 NibbleC # ''<%s>''))"
+definition "Unicode_mk_u = sprintf1s (STR (Char Nibble5 NibbleC # ''<%s>''))"
 definition "Unicode_u_Rightarrow = Unicode_mk_u (STR ''Rightarrow'')"
 definition "Unicode_u_alpha = Unicode_mk_u (STR ''alpha'')"
 definition "Unicode_u_lambda = Unicode_mk_u (STR ''lambda'')"
@@ -1002,7 +1019,7 @@ definition "s_of_thy =
 
 definition "s_of_thy_list name fic_import l_thy = 
   List_flatten
-        [ [ sprintf2 (STR ''theory %s imports \"%s\" begin'') name fic_import ]
+        [ [ sprintf2ss (STR ''theory %s imports \"%s\" begin'') name fic_import ]
         , List_flatten (List_mapi (\<lambda>i l. 
             ( STR ''''
             # sprintf1 (STR ''(* %d *********************************** *)'') (To_nat (Suc i))
