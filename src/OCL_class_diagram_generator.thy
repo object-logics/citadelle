@@ -996,7 +996,7 @@ definition "s_of_thy_list name fic_import l_thy =
         , List_flatten (List_mapi (\<lambda>i l. 
             ( STR ''''
             # sprintf1 (STR ''(* %d *********************************** *)'') (To_i nat_rec (Suc i))
-            # List_flatten (map (\<lambda>s. (*STR [Char Nibble0 NibbleA] #*) [ s_of_thy s ]) l) )) l_thy)
+            # map s_of_thy l )) l_thy)
         , [ STR '''', STR ''end'' ] ]"
 
 end
