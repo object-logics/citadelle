@@ -74,11 +74,10 @@ definition "datatype_universe = [ Datatype unicode_AA (print_datatype_universe e
 definition "type_synonym_class = Type_synonym ty_boolean (Ty_apply (Ty_base ty_boolean) [Ty_base unicode_AA]) # print_type_synonym_class exemple"
 definition "instantiation_class = print_instantiation_class exemple"
 definition "instantiation_universe = [ let oid_of = ''oid_of'' in Instantiation unicode_AA oid_of
-  (let var_x = ''x'' in
-       Expr_rewrite
-        (Expr_basic [oid_of, var_x])
+  (    Expr_rewrite
+        (Expr_basic [oid_of])
         ''=''
-        (Expr_case (Expr_basic [var_x]) (print_instantiation_universe oid_of exemple))) ]"
+        (Expr_function (print_instantiation_universe oid_of exemple))) ]"
 definition "def_strictrefeq = print_def_strictrefeq exemple"
 
 definition "astype_consts = print_astype_consts exemple"
