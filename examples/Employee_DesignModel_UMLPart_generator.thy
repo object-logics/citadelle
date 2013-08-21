@@ -67,104 +67,64 @@ definition "Employee_DesignModel_UMLPart' =
 
 subsection{* Raw *}
 
-definition "exemple = (case True of True \<Rightarrow> Employee_DesignModel_UMLPart
-                                  | False \<Rightarrow> Employee_DesignModel_UMLPart')"
-definition "datatype_class = print_datatype_class exemple"
-definition "datatype_universe = print_datatype_universe exemple"
-definition "type_synonym_class = print_type_synonym_class exemple"
-definition "instantiation_class = print_instantiation_class exemple"
-definition "instantiation_universe = print_instantiation_universe exemple"
-definition "def_strictrefeq = print_def_strictrefeq exemple"
+definition "thy_object =
+            [ print_datatype_class
+            , print_datatype_universe
+            , print_type_synonym_class
+            , print_instantiation_class
+            , print_instantiation_universe
+            , print_def_strictrefeq
 
-definition "astype_consts = print_astype_consts exemple"
-definition "astype_from_universe = print_astype_from_universe exemple"
-definition "astype_class = print_astype_class exemple"
-definition "astype_lemmas_id = print_astype_lemmas_id exemple"
-definition "astype_lemma_cp = print_astype_lemma_cp exemple"
-definition "astype_lemmas_cp = print_astype_lemmas_cp exemple"
-definition "astype_lemma_strict = print_astype_lemma_strict exemple"
-definition "astype_lemmas_strict = print_astype_lemmas_strict exemple"
+            , print_astype_consts
+            , print_astype_from_universe
+            , print_astype_class
+            , print_astype_lemmas_id
+            , print_astype_lemma_cp
+            , print_astype_lemmas_cp
+            , print_astype_lemma_strict
+            , print_astype_lemmas_strict
 
-definition "istypeof_consts = print_istypeof_consts exemple"
-definition "istypeof_from_universe = print_istypeof_from_universe exemple"
-definition "istypeof_class = print_istypeof_class exemple"
-definition "istypeof_lemmas_id = print_istypeof_lemmas_id exemple"
-definition "istypeof_lemma_cp = print_istypeof_lemma_cp exemple"
-definition "istypeof_lemmas_cp = print_istypeof_lemmas_cp exemple"
-definition "istypeof_lemma_strict = print_istypeof_lemma_strict exemple"
-definition "istypeof_lemmas_strict = print_istypeof_lemmas_strict exemple"
+            , print_istypeof_consts
+            (*, print_istypeof_from_universe*)
+            , print_istypeof_class
+            , print_istypeof_lemmas_id
+            , print_istypeof_lemma_cp
+            , print_istypeof_lemmas_cp
+            , print_istypeof_lemma_strict
+            , print_istypeof_lemmas_strict
 
-definition "iskindof_consts = print_iskindof_consts exemple"
-definition "iskindof_from_universe = print_iskindof_from_universe exemple"
-definition "iskindof_class = print_iskindof_class exemple"
-definition "iskindof_lemmas_id = print_iskindof_lemmas_id exemple"
-definition "iskindof_lemma_cp = print_iskindof_lemma_cp exemple"
-definition "iskindof_lemmas_cp = print_iskindof_lemmas_cp exemple"
-definition "iskindof_lemma_strict = print_iskindof_lemma_strict exemple"
-definition "iskindof_lemmas_strict = print_iskindof_lemmas_strict exemple"
-
-definition "eval_extract = print_eval_extract exemple"
-definition "deref_oid = print_deref_oid exemple"
-definition "select = print_select exemple"
-definition "dot = print_dot exemple"
-
-definition "file_out = STR ''Employee_DesignModel_UMLPart_generated''"
-
-definition "app f l =
-  String_concat (STR [Char Nibble0 NibbleA]) (rev (foldl (\<lambda>acc x. f x # acc) [] l))"
-
-definition "main = (case filter Sys_is_directory Sys_argv
- of dir # _ \<Rightarrow> out_file1 (\<lambda>fprintf1.
-   List_iter (fprintf1 (STR ''%s
-''))
-     (List_flatten
-        [ [ sprintf1 (STR ''theory %s imports \"../src/OCL_main\" begin'') file_out ]
-        , List_flatten (List_mapi (\<lambda>i s. [ STR '''', sprintf1 (STR ''(* %d *********************************** *)'') (To_i (Suc i)), s ])
-            [ app s_of_datatype datatype_class
-            , app s_of_datatype datatype_universe
-            , app s_of_tsynonym type_synonym_class
-            , app s_of_instantiation instantiation_class
-            , app s_of_instantiation instantiation_universe
-            , app s_of_defs_overloaded def_strictrefeq
-
-            , app s_of_consts_class astype_consts
-            , app s_of_definition_hol astype_from_universe
-            , app s_of_defs_overloaded astype_class
-            , app s_of_lemmas_simp astype_lemmas_id
-            , app s_of_lemma_by astype_lemma_cp
-            , app s_of_lemmas_simp astype_lemmas_cp
-            , app s_of_lemma_by astype_lemma_strict
-            , app s_of_lemmas_simp astype_lemmas_strict
-
-            , app s_of_consts_class istypeof_consts
-            (*, app s_of_definition_hol istypeof_from_universe*)
-            , app s_of_defs_overloaded istypeof_class
-            , app s_of_lemmas_simp istypeof_lemmas_id
-            , app s_of_lemma_by istypeof_lemma_cp
-            , app s_of_lemmas_simp istypeof_lemmas_cp
-            , app s_of_lemma_by istypeof_lemma_strict
-            , app s_of_lemmas_simp istypeof_lemmas_strict
-
-            , app s_of_consts_class iskindof_consts
-            (*, app s_of_definition_hol iskindof_from_universe*)
-            , app s_of_defs_overloaded iskindof_class
-            , app s_of_lemmas_simp iskindof_lemmas_id
-            (*, app s_of_lemma_by iskindof_lemma_cp
-            , app s_of_lemmas_simp iskindof_lemmas_cp
-            , app s_of_lemma_by iskindof_lemma_strict
-            , app s_of_lemmas_simp iskindof_lemmas_strict
+            , print_iskindof_consts
+            (*, print_iskindof_from_universe*)
+            , print_iskindof_class
+            , print_iskindof_lemmas_id
+            (*, print_iskindof_lemma_cp
+            , print_iskindof_lemmas_cp
+            , print_iskindof_lemma_strict
+            , print_iskindof_lemmas_strict
             *)
 
-            , app s_of_definition_hol eval_extract
-            , app s_of_definition_hol deref_oid
-            , app s_of_definition_hol select
-            , app s_of_definition_hol dot ])
-        , [ STR '''', STR ''end'' ] ])
-  ) (sprintf2 (STR ''%s/%s.thy'') dir file_out)
-  | _ \<Rightarrow> eprintf0 (STR ''No directory in argument''))"
+            , print_eval_extract
+            , print_deref_oid
+            , print_select
+            , print_dot ]"
+
+definition "main = (let file_out = STR ''Employee_DesignModel_UMLPart_generated''
+                      ; exemple = (case True of True \<Rightarrow> Employee_DesignModel_UMLPart
+                                  | False \<Rightarrow> Employee_DesignModel_UMLPart') in
+  case filter Sys_is_directory Sys_argv
+  of dir # _ \<Rightarrow>
+    out_file1
+      (\<lambda>fprintf1.
+        List_iter (fprintf1 (STR ''%s
+''))
+                  (s_of_thy_list
+                     file_out
+                     (STR ''../src/OCL_main'')
+                     (map (\<lambda>f. f exemple) thy_object)))
+      (sprintf2 (STR ''%s/%s.thy'') dir file_out)
+   | _ \<Rightarrow> eprintf0 (STR ''No directory in argument''))"
 
 export_code main
-            escapeNatRec
   in OCaml module_name M file "Employee_DesignModel_UMLPart_generator.ml" (no_signatures)
 
 end

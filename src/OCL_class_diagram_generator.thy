@@ -133,6 +133,15 @@ datatype tactic = Tac_rule str | Tac_simp | Tac_simp_add "str list" | Tac_simp_a
 
 datatype lemma_by = Lemma_by str (* name *) "expr list" (* specification *) "tactic list" (* tactic separator : ',' *)
 
+datatype thy = Thy_dataty dataty
+             | Thy_ty_synonym ty_synonym
+             | Thy_instantiation_class instantiation_class
+             | Thy_defs_overloaded defs_overloaded
+             | Thy_consts_class consts_class
+             | Thy_definition_hol definition_hol
+             | Thy_lemmas_simp lemmas_simp
+             | Thy_lemma_by lemma_by
+
 subsection{* ... *}
 
 definition "wildcard = ''_''"
@@ -213,20 +222,20 @@ fun print_datatype_class_aux where
         (isub_name datatype_name)
         [ (isub_name datatype_constr_name, [ bug_ocaml_extraction (Raw (str_of_ty object))
                                            , Raw (isub_name datatype_ext_name) ] ) ] ])))"
-definition "print_datatype_class = snd o print_datatype_class_aux"
+definition "print_datatype_class = map Thy_dataty o snd o print_datatype_class_aux"
 
-definition "print_datatype_universe expr =
+definition "print_datatype_universe expr = map Thy_dataty
   [ Datatype unicode_AA
       (map_class (\<lambda>isub_name _ _. (isub_name datatype_in, [Raw (isub_name datatype_name)])) expr) ]"
 
-definition "print_type_synonym_class expr =
-  Type_synonym ty_boolean (Ty_apply (Ty_base ty_boolean) [Ty_base unicode_AA]) # 
-  (map_class (\<lambda>isub_name name _.
-    Type_synonym name (Ty_apply (Ty_base ''val'') [Ty_base unicode_AA,
-    let option = (\<lambda>x. Ty_apply (Ty_base ''option'') [x]) in
-    option (option (Ty_base (isub_name datatype_name))) ])) expr)"
+definition "print_type_synonym_class expr = map Thy_ty_synonym
+  (Type_synonym ty_boolean (Ty_apply (Ty_base ty_boolean) [Ty_base unicode_AA]) #
+   (map_class (\<lambda>isub_name name _.
+     Type_synonym name (Ty_apply (Ty_base ''val'') [Ty_base unicode_AA,
+     let option = (\<lambda>x. Ty_apply (Ty_base ''option'') [x]) in
+     option (option (Ty_base (isub_name datatype_name))) ])) expr))"
 
-definition "print_instantiation_class =
+definition "print_instantiation_class = map Thy_instantiation_class o
   map_class (\<lambda>isub_name _ _.
     let oid_of = ''oid_of'' in
     Instantiation
@@ -239,7 +248,7 @@ definition "print_instantiation_class =
                    [ let oid = ''oid'' in
                      (Expr_basic [isub_name datatype_constr_name, oid, wildcard], Expr_basic [oid])])))"
 
-definition "print_instantiation_universe expr =
+definition "print_instantiation_universe expr = map Thy_instantiation_class
   [ let oid_of = ''oid_of'' in
     Instantiation unicode_AA oid_of
       (Expr_rewrite
@@ -250,7 +259,7 @@ definition "print_instantiation_universe expr =
     (esc (isub_name datatype_in), esc oid_of)) expr))) ]"
 
 
-definition "print_def_strictrefeq =
+definition "print_def_strictrefeq = map Thy_defs_overloaded o
   map_class (\<lambda>isub_name name _.
     let mk_strict = (\<lambda>l. concat (''StrictRefEq'' # isub_of_str ''Object'' # l))
       ; s_strict = mk_strict [''_'', isub_of_str name]
@@ -264,14 +273,14 @@ definition "print_def_strictrefeq =
 
 subsection{* AsType *}
 
-definition "print_astype_consts =
+definition "print_astype_consts = map Thy_consts_class o
   map_class (\<lambda>isub_name name _.
     Consts (isub_name const_oclastype) name dot_oclastype name)"
 
-definition "print_astype_from_universe =
+definition "print_astype_from_universe = map Thy_definition_hol o
   map_class_h (\<lambda>isub_name name l_hierarchy.
     let const_astype = concat (const_oclastype # isub_of_str name # ''_'' # unicode_AA # []) in
-    Definition (Expr_rewrite (Expr_basic [const_astype]) ''='' 
+    Definition (Expr_rewrite (Expr_basic [const_astype]) ''=''
    (let ((finish_with_some1, finish_with_some2), last_case_none) =
      let (f, r) = (if hd l_hierarchy = name then (id, []) else (flip, [(Expr_basic [wildcard], Expr_basic [''None''])])) in
      (f (id, Expr_some), r) in
@@ -298,7 +307,7 @@ definition "print_astype_from_universe =
               | Some LT \<Rightarrow> case_branch (pattern_simple h_name) (pattern_complex name h_name)) l_hierarchy
    # [last_case_none]))))))"
 
-definition "print_astype_class =
+definition "print_astype_class = map Thy_defs_overloaded o
   map_class_gen_h (\<lambda>isub_name name l_hierarchy.
     map
       (\<lambda> h_name.
@@ -339,11 +348,11 @@ definition "print_astype_class =
                          , (Expr_basic [wildcard], val_invalid) ]) ) ))) )
       l_hierarchy)"
 
-definition "print_astype_lemmas_id expr =
+definition "print_astype_lemmas_id expr = map Thy_lemmas_simp
   [ Lemmas_simp (map_class (\<lambda>isub_name name _.
     concat (isub_name const_oclastype # ''_'' # name # []) ) expr) ]"
 
-definition "print_astype_lemma_cp =
+definition "print_astype_lemma_cp = map Thy_lemma_by o
   get_hierarchy (\<lambda>l_hierarchy.
   concat (concat
   (map (\<lambda>name1. map (\<lambda>name2. map (\<lambda>name3.
@@ -361,7 +370,7 @@ definition "print_astype_lemma_cp =
                           else Tac_simp_all_add (concat (const_oclastype # isub_of_str name1 # ''_'' # name2 # []))]
   ) l_hierarchy) l_hierarchy) l_hierarchy)))"
 
-definition "print_astype_lemmas_cp =
+definition "print_astype_lemmas_cp = map Thy_lemmas_simp o
   get_hierarchy (\<lambda>l_hierarchy.
     [Lemmas_simp
       (concat (concat
@@ -369,7 +378,7 @@ definition "print_astype_lemmas_cp =
           (concat (''cp_'' # const_oclastype # isub_of_str name1 # ''_'' # name3 # ''_'' # name2 # []))
         ) l_hierarchy) l_hierarchy) l_hierarchy)))])"
 
-definition "print_astype_lemma_strict =
+definition "print_astype_lemma_strict = map Thy_lemma_by o
   get_hierarchy (\<lambda>l_hierarchy.
   concat (concat
   (map (\<lambda>name1. map (\<lambda>name2. map (\<lambda>name3.
@@ -388,7 +397,7 @@ definition "print_astype_lemma_strict =
                                                else [''null_fun_def'',''null_option_def'']))])
   ) l_hierarchy) [''invalid'',''null'']) l_hierarchy)))"
 
-definition "print_astype_lemmas_strict =
+definition "print_astype_lemmas_strict = map Thy_lemmas_simp o
   get_hierarchy (\<lambda>l_hierarchy.
   [ Lemmas_simp
       (concat (concat
@@ -398,11 +407,11 @@ definition "print_astype_lemmas_strict =
 
 subsection{* IsTypeOf *}
 
-definition "print_istypeof_consts =
+definition "print_istypeof_consts = map Thy_consts_class o
   map_class (\<lambda>isub_name name _.
     Consts (isub_name const_oclistypeof) ty_boolean dot_oclistypeof name)"
 
-definition "print_istypeof_from_universe =
+definition "print_istypeof_from_universe = map Thy_definition_hol o
   map_class_h (\<lambda>isub_name name l_hierarchy.
     let const_istypeof = concat (const_oclistypeof # isub_of_str name # ''_'' # unicode_AA # [])
       ; var_u = ''u'' in
@@ -434,7 +443,7 @@ definition "print_istypeof_from_universe =
               | Some LT \<Rightarrow> case_branch (pattern_simple h_name) (pattern_complex name h_name)) l_hierarchy
    # [last_case_none])))))))"
 
-definition "print_istypeof_class =
+definition "print_istypeof_class = map Thy_defs_overloaded o
   map_class_gen_h' (\<lambda>isub_name name l_hierarchy.
     map
       (\<lambda> (h_name, l_attr).
@@ -472,11 +481,11 @@ definition "print_istypeof_class =
                          l_false) ) ))) )
       l_hierarchy)"
 
-definition "print_istypeof_lemmas_id expr =
+definition "print_istypeof_lemmas_id expr = map Thy_lemmas_simp
   [ Lemmas_simp (map_class (\<lambda>isub_name name _.
     concat (isub_name const_oclistypeof # ''_'' # name # []) ) expr) ]"
 
-definition "print_istypeof_lemma_cp =
+definition "print_istypeof_lemma_cp = map Thy_lemma_by o
   get_hierarchy (\<lambda>l_hierarchy.
   concat (concat
   (map (\<lambda>name1. map (\<lambda>name2. map (\<lambda>name3.
@@ -494,7 +503,7 @@ definition "print_istypeof_lemma_cp =
                           else*) Tac_simp_all_add (concat (const_oclistypeof # isub_of_str name1 # ''_'' # name2 # []))]
   ) l_hierarchy) l_hierarchy) l_hierarchy)))"
 
-definition "print_istypeof_lemmas_cp =
+definition "print_istypeof_lemmas_cp = map Thy_lemmas_simp o
   get_hierarchy (\<lambda>l_hierarchy.
     [Lemmas_simp
   (concat (concat
@@ -502,7 +511,7 @@ definition "print_istypeof_lemmas_cp =
       (concat (''cp_'' # const_oclistypeof # isub_of_str name1 # ''_'' # name3 # ''_'' # name2 # []))
   ) l_hierarchy) l_hierarchy) l_hierarchy)))])"
 
-definition "print_istypeof_lemma_strict =
+definition "print_istypeof_lemma_strict = map Thy_lemma_by o
   get_hierarchy (\<lambda>l_hierarchy.
   concat (concat
   (map (\<lambda>name1. map (\<lambda>(name2,name2'). map (\<lambda>name3.
@@ -521,7 +530,7 @@ definition "print_istypeof_lemma_strict =
                                                else [''null_fun_def'',''null_option_def'']))])
   ) l_hierarchy) [(''invalid'',''invalid''),(''null'',''true'')]) l_hierarchy)))"
 
-definition "print_istypeof_lemmas_strict =
+definition "print_istypeof_lemmas_strict = map Thy_lemmas_simp o
   get_hierarchy (\<lambda>l_hierarchy.
   [ Lemmas_simp
   (concat (concat
@@ -531,11 +540,11 @@ definition "print_istypeof_lemmas_strict =
 
 subsection{* IsKindOf *}
 
-definition "print_iskindof_consts =
+definition "print_iskindof_consts = map Thy_consts_class o
   map_class (\<lambda>isub_name name _.
     Consts (isub_name const_ocliskindof) ty_boolean dot_ocliskindof name)"
 
-definition "print_iskindof_from_universe =
+definition "print_iskindof_from_universe = map Thy_definition_hol o
   map_class_h (\<lambda>isub_name name l_hierarchy.
     let const_iskindof = concat (const_ocliskindof # isub_of_str name # ''_'' # unicode_AA # [])
       ; var_u = ''u'' in
@@ -585,13 +594,13 @@ fun print_iskindof_class_aux where
                               | Some name_past \<Rightarrow> Expr_binop (isof dot_istypeof name) ''or'' (isof dot_iskindof name_past))))
      l_hierarchy
     )))"
-definition "print_iskindof_class = (\<lambda> x. snd (print_iskindof_class_aux (map fst (get_class_hierarchy x)) x))"
+definition "print_iskindof_class = map Thy_defs_overloaded o (\<lambda> x. snd (print_iskindof_class_aux (map fst (get_class_hierarchy x)) x))"
 
-definition "print_iskindof_lemmas_id expr =
+definition "print_iskindof_lemmas_id expr = map Thy_lemmas_simp
   [ Lemmas_simp (map_class (\<lambda>isub_name name _.
     concat (isub_name const_ocliskindof # ''_'' # name # []) ) expr) ]"
 
-definition "print_iskindof_lemma_cp =
+definition "print_iskindof_lemma_cp = map Thy_lemma_by o
   get_hierarchy (\<lambda>l_hierarchy.
   concat (concat
   (map (\<lambda>name1. map (\<lambda>name2. map (\<lambda>name3.
@@ -609,7 +618,7 @@ definition "print_iskindof_lemma_cp =
                           else*) Tac_simp_all_add (concat (const_ocliskindof # isub_of_str name1 # ''_'' # name2 # []))]
   ) l_hierarchy) l_hierarchy) l_hierarchy)))"
 
-definition "print_iskindof_lemmas_cp =
+definition "print_iskindof_lemmas_cp = map Thy_lemmas_simp o
   get_hierarchy (\<lambda>l_hierarchy.
     [Lemmas_simp
   (concat (concat
@@ -617,7 +626,7 @@ definition "print_iskindof_lemmas_cp =
       (concat (''cp_'' # const_ocliskindof # isub_of_str name1 # ''_'' # name3 # ''_'' # name2 # []))
   ) l_hierarchy) l_hierarchy) l_hierarchy)))])"
 
-definition "print_iskindof_lemma_strict =
+definition "print_iskindof_lemma_strict = map Thy_lemma_by o
   get_hierarchy (\<lambda>l_hierarchy.
   concat (concat
   (map (\<lambda>name1. map (\<lambda>(name2,name2'). map (\<lambda>name3.
@@ -636,7 +645,7 @@ definition "print_iskindof_lemma_strict =
                                                else [''null_fun_def'',''null_option_def'']))])
   ) l_hierarchy) [(''invalid'',''invalid''),(''null'',''true'')]) l_hierarchy)))"
 
-definition "print_iskindof_lemmas_strict =
+definition "print_iskindof_lemmas_strict = map Thy_lemmas_simp o
   get_hierarchy (\<lambda>l_hierarchy.
   [ Lemmas_simp
   (concat (concat
@@ -646,7 +655,7 @@ definition "print_iskindof_lemmas_strict =
 
 subsection{* ... *}
 
-definition "print_eval_extract _ =
+definition "print_eval_extract _ = map Thy_definition_hol
   (let lets = (\<lambda>var def. Definition (Expr_rewrite (Expr_basic [var]) ''='' (Expr_basic [def]))) in
   [ bug_ocaml_extraction
     (let var_x = ''x''
@@ -666,7 +675,7 @@ definition "print_eval_extract _ =
   , lets var_in_post_state ''snd''
   , lets var_reconst_basetype ''id'' ])"
 
-definition "print_deref_oid =
+definition "print_deref_oid = map Thy_definition_hol o
   map_class (\<lambda>isub_name _ _.
     let var_fs = ''fst_snd''
       ; var_f = ''f''
@@ -682,7 +691,7 @@ definition "print_deref_oid =
                      [ (Expr_some (Expr_basic [isub_name datatype_in, var_obj]), Expr_basic [var_f, var_obj, var_tau])
                      , (Expr_basic [wildcard], Expr_basic [''invalid'', var_tau]) ]))))"
 
-definition "print_select =
+definition "print_select = map Thy_definition_hol o
   map_class_arg_only (\<lambda>isub_name name l_attr.
     let var_f = ''f''
       ; wildc = Expr_basic [wildcard] in
@@ -712,7 +721,7 @@ definition "print_select =
       l_attr) in
     rev l)"
 
-definition "print_dot =
+definition "print_dot = map Thy_definition_hol o
   map_class_arg_only (\<lambda>isub_name name l_attr.
     concat (concat (
     map (\<lambda>(var_in_when_state, dot_at_when, attr_when).
@@ -849,8 +858,6 @@ code_const out_file1 (OCaml "(fun f file ->
   let () = f (Printf.fprintf oc) in
   Escape.Pervasives.closeOut oc)")
 
-definition "escapeNatRec = nat_rec" 
-
 consts To_s :: "string \<Rightarrow> sl"
 code_const To_s (OCaml "(fun s ->
   let ofN = function
@@ -860,8 +867,11 @@ code_const To_s (OCaml "(fun s ->
   let ofC = function Char (c1, c2) -> `Char (ofN c1, ofN c2) in
   To.s (List.map ofC s))")
 
-consts To_i :: "nat \<Rightarrow> sl"
-code_const To_i (OCaml "(let (<<) = Escape.comp in
+datatype variant_nat = V
+code_type variant_nat (OCaml "Variant.nat")
+
+consts To_i :: "(variant_nat \<Rightarrow> (nat \<Rightarrow> variant_nat \<Rightarrow> variant_nat) \<Rightarrow> nat \<Rightarrow> variant_nat) \<Rightarrow> nat \<Rightarrow> sl"
+code_const To_i (OCaml "(fun escapeNatRec -> let (<<) = Escape.comp in
   To.n (* REMARK [Obj.magic] ? *) << escapeNatRec `ZeroNat (Escape.forget (fun x -> `Suc x)))")
 
 subsubsection{* module Sys *}
@@ -905,7 +915,7 @@ fun s_of_rawty where "s_of_rawty rawty = (case rawty of
                                                  case l of [_] \<Rightarrow> s | _ \<Rightarrow> sprintf1 (STR ''(%s)'') s)
                                                 (s_of_rawty name))"
 
-definition "s_of_tsynonym = (\<lambda> Type_synonym n l \<Rightarrow> 
+definition "s_of_tsynonym = (\<lambda> Type_synonym n l \<Rightarrow>
     sprintf2 (STR ''type_synonym %s = \"%s\"'') (To_s n) (s_of_rawty l))"
 
 fun s_of_expr where "s_of_expr expr = (
@@ -950,7 +960,7 @@ definition "s_of_consts_class = (\<lambda> Consts n ty_out symb1 symb2 \<Rightar
 definition "s_of_definition_hol = (\<lambda>
     Definition e \<Rightarrow> sprintf1 (STR ''definition \"%s\"'') (s_of_expr e)
   | Definition_abbrev name (abbrev, prio) e \<Rightarrow> sprintf4 (STR ''definition %s (\"(1%s)\" %d)
-  where \"%s\"'') (To_s name) (s_of_expr abbrev) (To_i prio) (s_of_expr e))"
+  where \"%s\"'') (To_s name) (s_of_expr abbrev) (To_i nat_rec prio) (s_of_expr e))"
 
 definition "s_of_lemmas_simp = (\<lambda> Lemmas_simp l \<Rightarrow>
     sprintf1 (STR ''lemmas [simp] = %s'') (String_concat (STR ''
@@ -969,5 +979,24 @@ by(%s)'')
       (To_s n)
       (String_concat (sprintf1 (STR '' %s '') Unicode_u_Longrightarrow) (map s_of_expr l_spec))
       (String_concat (STR '', '') (map s_of_tactic l_apply)))"
+
+definition "s_of_thy =
+            (\<lambda> Thy_dataty dataty \<Rightarrow> s_of_datatype dataty
+             | Thy_ty_synonym ty_synonym \<Rightarrow> s_of_tsynonym ty_synonym
+             | Thy_instantiation_class instantiation_class \<Rightarrow> s_of_instantiation instantiation_class
+             | Thy_defs_overloaded defs_overloaded \<Rightarrow> s_of_defs_overloaded defs_overloaded
+             | Thy_consts_class consts_class \<Rightarrow> s_of_consts_class consts_class
+             | Thy_definition_hol definition_hol \<Rightarrow> s_of_definition_hol definition_hol
+             | Thy_lemmas_simp lemmas_simp \<Rightarrow> s_of_lemmas_simp lemmas_simp
+             | Thy_lemma_by lemma_by \<Rightarrow> s_of_lemma_by lemma_by)"
+
+definition "s_of_thy_list name fic_import l_thy = 
+  List_flatten
+        [ [ sprintf2 (STR ''theory %s imports \"%s\" begin'') name fic_import ]
+        , List_flatten (List_mapi (\<lambda>i l. 
+            ( STR ''''
+            # sprintf1 (STR ''(* %d *********************************** *)'') (To_i nat_rec (Suc i))
+            # List_flatten (map (\<lambda>s. (*STR [Char Nibble0 NibbleA] #*) [ s_of_thy s ]) l) )) l_thy)
+        , [ STR '''', STR ''end'' ] ]"
 
 end
