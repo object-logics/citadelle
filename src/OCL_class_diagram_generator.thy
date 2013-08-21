@@ -862,7 +862,7 @@ consts Sys_is_directory :: "sl \<Rightarrow> bool"
 code_const Sys_is_directory (OCaml "Escape.Sys.isDirectory")
 
 consts Sys_argv :: "sl list"
-code_const Sys_argv (OCaml "Escape.Array.toList Sys.argv")
+code_const Sys_argv (OCaml "(Escape.Array.toList Sys.argv)")
 
 subsubsection{* module Unicode *}
 
