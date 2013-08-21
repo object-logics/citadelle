@@ -208,6 +208,8 @@ definition "get_hierarchy f x = f (map fst (get_class_hierarchy x))"
 
 subsection{* ... *}
 
+definition "activate_simp_optimization = True"
+
 fun print_datatype_class_aux where
    "print_datatype_class_aux (Mk_univ name l_attr dataty) =
   (let (l_cons, v) = (case dataty of None \<Rightarrow> ([],[]) | Some dataty \<Rightarrow> print_datatype_class_aux dataty) in
@@ -348,12 +350,22 @@ definition "print_astype_class = map Thy_defs_overloaded o
                          , (Expr_basic [wildcard], val_invalid) ]) ) ))) )
       l_hierarchy)"
 
-definition "print_astype_lemmas_id expr = map Thy_lemmas_simp
-  [ Lemmas_simp (map_class (\<lambda>isub_name name _.
-    concat (isub_name const_oclastype # ''_'' # name # []) ) expr) ]"
+definition "print_astype_lemma_cp_set =
+  (if activate_simp_optimization then
+    map_class (\<lambda>isub_name name _. ((isub_name, name), name))
+   else (\<lambda>_. []))"
 
-definition "print_astype_lemma_cp = map Thy_lemma_by o
+definition "print_astype_lemmas_id expr =
+  (let name_set = print_astype_lemma_cp_set expr in
+   case name_set of [] \<Rightarrow> [] | _ \<Rightarrow> map Thy_lemmas_simp
+  [ Lemmas_simp (map (\<lambda>((isub_name, _), name).
+    concat (isub_name const_oclastype # ''_'' # name # []) ) name_set) ])"
+
+definition "print_astype_lemma_cp expr = (map Thy_lemma_by o
   get_hierarchy (\<lambda>l_hierarchy.
+  let check_opt =
+    let set = print_astype_lemma_cp_set expr in
+    (\<lambda>n1 n2. list_ex (\<lambda>((_, name1), name2). name1 = n1 & name2 = n2) set) in
   concat (concat
   (map (\<lambda>name1. map (\<lambda>name2. map (\<lambda>name3.
     Lemma_by
@@ -366,20 +378,25 @@ definition "print_astype_lemma_cp = map Thy_lemma_by o
              (Expr_warning_parenthesis (Expr_postunary
                (Expr_annot (Expr_apply var_p [Expr_annot (Expr_basic [var_x]) name3]) name2)
                (Expr_basic [dot_astype name1])))]))
-      [Tac_rule ''cpI1'', if name1 = name2 then Tac_simp_all
+      [Tac_rule ''cpI1'', if check_opt name1 name2 then Tac_simp_all
                           else Tac_simp_all_add (concat (const_oclastype # isub_of_str name1 # ''_'' # name2 # []))]
-  ) l_hierarchy) l_hierarchy) l_hierarchy)))"
+  ) l_hierarchy) l_hierarchy) l_hierarchy)))) expr"
 
-definition "print_astype_lemmas_cp = map Thy_lemmas_simp o
+definition "print_astype_lemmas_cp =
+ (if activate_simp_optimization then map Thy_lemmas_simp o
   get_hierarchy (\<lambda>l_hierarchy.
     [Lemmas_simp
       (concat (concat
         (map (\<lambda>name1. map (\<lambda>name2. map (\<lambda>name3.
           (concat (''cp_'' # const_oclastype # isub_of_str name1 # ''_'' # name3 # ''_'' # name2 # []))
-        ) l_hierarchy) l_hierarchy) l_hierarchy)))])"
+        ) l_hierarchy) l_hierarchy) l_hierarchy)))])
+  else (\<lambda>_. []))"
 
-definition "print_astype_lemma_strict = map Thy_lemma_by o
+definition "print_astype_lemma_strict expr = (map Thy_lemma_by o
   get_hierarchy (\<lambda>l_hierarchy.
+  let check_opt =
+    let set = print_astype_lemma_cp_set expr in
+    (\<lambda>n1 n2. list_ex (\<lambda>((_, name1), name2). name1 = n1 & name2 = n2) set) in
   concat (concat
   (map (\<lambda>name1. map (\<lambda>name2. map (\<lambda>name3.
     Lemma_by
@@ -390,20 +407,22 @@ definition "print_astype_lemma_strict = map Thy_lemma_by o
                (Expr_basic [dot_astype name1])))
              ''=''
              (Expr_basic [name2])]
-      (if name1 = name3 then [Tac_simp]
+      (if check_opt name1 name3 then [Tac_simp]
        else [Tac_rule ''ext'', Tac_simp_add (concat (const_oclastype # isub_of_str name1 # ''_'' # name3 # [])
                                             # ''bot_option_def''
                                             # (if name2 = ''invalid'' then [''invalid_def'']
                                                else [''null_fun_def'',''null_option_def'']))])
-  ) l_hierarchy) [''invalid'',''null'']) l_hierarchy)))"
+  ) l_hierarchy) [''invalid'',''null'']) l_hierarchy)))) expr"
 
-definition "print_astype_lemmas_strict = map Thy_lemmas_simp o
+definition "print_astype_lemmas_strict =
+ (if activate_simp_optimization then map Thy_lemmas_simp o
   get_hierarchy (\<lambda>l_hierarchy.
   [ Lemmas_simp
       (concat (concat
       (map (\<lambda>name1. map (\<lambda>name2. map (\<lambda>name3.
         (concat (const_oclastype # isub_of_str name1 # ''_'' # name3 # ''_'' # name2 # []))
-      ) l_hierarchy) [''invalid'',''null'']) l_hierarchy)))])"
+      ) l_hierarchy) [''invalid'',''null'']) l_hierarchy)))])
+  else (\<lambda>_. []))"
 
 subsection{* IsTypeOf *}
 
@@ -481,12 +500,22 @@ definition "print_istypeof_class = map Thy_defs_overloaded o
                          l_false) ) ))) )
       l_hierarchy)"
 
-definition "print_istypeof_lemmas_id expr = map Thy_lemmas_simp
-  [ Lemmas_simp (map_class (\<lambda>isub_name name _.
-    concat (isub_name const_oclistypeof # ''_'' # name # []) ) expr) ]"
+definition "print_istypeof_lemma_cp_set =
+  (if activate_simp_optimization then
+    map_class (\<lambda>isub_name name _. ((isub_name, name), name))
+   else (\<lambda>_. []))"
 
-definition "print_istypeof_lemma_cp = map Thy_lemma_by o
+definition "print_istypeof_lemmas_id expr =
+  (let name_set = print_istypeof_lemma_cp_set expr in
+   case name_set of [] \<Rightarrow> [] | _ \<Rightarrow> map Thy_lemmas_simp
+  [ Lemmas_simp (map_class (\<lambda>isub_name name _.
+    concat (isub_name const_oclistypeof # ''_'' # name # []) ) expr) ])"
+
+definition "print_istypeof_lemma_cp expr = (map Thy_lemma_by o
   get_hierarchy (\<lambda>l_hierarchy.
+  let check_opt =
+    let set = print_istypeof_lemma_cp_set expr in
+    (\<lambda>n1 n2. list_ex (\<lambda>((_, name1), name2). name1 = n1 & name2 = n2) set) in
   concat (concat
   (map (\<lambda>name1. map (\<lambda>name2. map (\<lambda>name3.
     Lemma_by
@@ -499,20 +528,25 @@ definition "print_istypeof_lemma_cp = map Thy_lemma_by o
              (Expr_warning_parenthesis (Expr_postunary
                (Expr_annot (Expr_apply var_p [Expr_annot (Expr_basic [var_x]) name3]) name2)
                (Expr_basic [dot_istypeof name1])))]))
-      [Tac_rule ''cpI1'', (*if name1 = name2 then Tac_simp_all
-                          else*) Tac_simp_all_add (concat (const_oclistypeof # isub_of_str name1 # ''_'' # name2 # []))]
-  ) l_hierarchy) l_hierarchy) l_hierarchy)))"
+      [Tac_rule ''cpI1'', if check_opt name1 name2 then Tac_simp_all
+                          else Tac_simp_all_add (concat (const_oclistypeof # isub_of_str name1 # ''_'' # name2 # []))]
+  ) l_hierarchy) l_hierarchy) l_hierarchy)))) expr"
 
-definition "print_istypeof_lemmas_cp = map Thy_lemmas_simp o
+definition "print_istypeof_lemmas_cp =
+ (if activate_simp_optimization then map Thy_lemmas_simp o
   get_hierarchy (\<lambda>l_hierarchy.
     [Lemmas_simp
   (concat (concat
   (map (\<lambda>name1. map (\<lambda>name2. map (\<lambda>name3.
       (concat (''cp_'' # const_oclistypeof # isub_of_str name1 # ''_'' # name3 # ''_'' # name2 # []))
-  ) l_hierarchy) l_hierarchy) l_hierarchy)))])"
+  ) l_hierarchy) l_hierarchy) l_hierarchy)))])
+  else (\<lambda>_. []))"
 
-definition "print_istypeof_lemma_strict = map Thy_lemma_by o
+definition "print_istypeof_lemma_strict expr = (map Thy_lemma_by o
   get_hierarchy (\<lambda>l_hierarchy.
+  let check_opt =
+    let set = print_istypeof_lemma_cp_set expr in
+    (\<lambda>n1 n2. list_ex (\<lambda>((_, name1), name2). name1 = n1 & name2 = n2) set) in
   concat (concat
   (map (\<lambda>name1. map (\<lambda>(name2,name2'). map (\<lambda>name3.
     Lemma_by
@@ -523,20 +557,22 @@ definition "print_istypeof_lemma_strict = map Thy_lemma_by o
                (Expr_basic [dot_istypeof name1])))
              ''=''
              (Expr_basic [name2'])]
-      ((*if name1 = name3 then [Tac_simp]
-       else*) [Tac_rule ''ext'', Tac_simp_add (concat (const_oclistypeof # isub_of_str name1 # ''_'' # name3 # [])
-                                            # ''bot_option_def''
-                                            # (if name2 = ''invalid'' then [''invalid_def'']
-                                               else [''null_fun_def'',''null_option_def'']))])
-  ) l_hierarchy) [(''invalid'',''invalid''),(''null'',''true'')]) l_hierarchy)))"
+      (let l = ''bot_option_def''
+             # (if name2 = ''invalid'' then [''invalid_def'']
+                else [''null_fun_def'',''null_option_def'']) in
+       [Tac_rule ''ext'', Tac_simp_add (if check_opt name1 name3 then l
+                                        else concat (const_oclistypeof # isub_of_str name1 # ''_'' # name3 # []) # l)])
+  ) l_hierarchy) [(''invalid'',''invalid''),(''null'',''true'')]) l_hierarchy)))) expr"
 
-definition "print_istypeof_lemmas_strict = map Thy_lemmas_simp o
+definition "print_istypeof_lemmas_strict =
+ (if activate_simp_optimization then map Thy_lemmas_simp o
   get_hierarchy (\<lambda>l_hierarchy.
   [ Lemmas_simp
   (concat (concat
   (map (\<lambda>name1. map (\<lambda>name2. map (\<lambda>name3.
       (concat (const_oclistypeof # isub_of_str name1 # ''_'' # name3 # ''_'' # name2 # []))
-  ) l_hierarchy) [''invalid'',''null'']) l_hierarchy)))])"
+  ) l_hierarchy) [''invalid'',''null'']) l_hierarchy)))])
+  else (\<lambda>_. []))"
 
 subsection{* IsKindOf *}
 
@@ -596,12 +632,22 @@ fun print_iskindof_class_aux where
     )))"
 definition "print_iskindof_class = map Thy_defs_overloaded o (\<lambda> x. snd (print_iskindof_class_aux (map fst (get_class_hierarchy x)) x))"
 
-definition "print_iskindof_lemmas_id expr = map Thy_lemmas_simp
-  [ Lemmas_simp (map_class (\<lambda>isub_name name _.
-    concat (isub_name const_ocliskindof # ''_'' # name # []) ) expr) ]"
+definition "print_iskindof_lemma_cp_set =
+  (if activate_simp_optimization then
+    map_class (\<lambda>isub_name name _. ((isub_name, name), name))
+   else (\<lambda>_. []))"
 
-definition "print_iskindof_lemma_cp = map Thy_lemma_by o
+definition "print_iskindof_lemmas_id expr =
+  (let name_set = print_iskindof_lemma_cp_set expr in
+   case name_set of [] \<Rightarrow> [] | _ \<Rightarrow> map Thy_lemmas_simp
+  [ Lemmas_simp (map_class (\<lambda>isub_name name _.
+    concat (isub_name const_ocliskindof # ''_'' # name # []) ) expr) ])"
+
+definition "print_iskindof_lemma_cp expr = (map Thy_lemma_by o
   get_hierarchy (\<lambda>l_hierarchy.
+  let check_opt =
+    let set = print_istypeof_lemma_cp_set expr in
+    (\<lambda>n1 n2. list_ex (\<lambda>((_, name1), name2). name1 = n1 & name2 = n2) set) in
   concat (concat
   (map (\<lambda>name1. map (\<lambda>name2. map (\<lambda>name3.
     Lemma_by
@@ -614,20 +660,25 @@ definition "print_iskindof_lemma_cp = map Thy_lemma_by o
              (Expr_warning_parenthesis (Expr_postunary
                (Expr_annot (Expr_apply var_p [Expr_annot (Expr_basic [var_x]) name3]) name2)
                (Expr_basic [dot_iskindof name1])))]))
-      [Tac_rule ''cpI1'', (*if name1 = name2 then Tac_simp_all
-                          else*) Tac_simp_all_add (concat (const_ocliskindof # isub_of_str name1 # ''_'' # name2 # []))]
-  ) l_hierarchy) l_hierarchy) l_hierarchy)))"
+      [Tac_rule ''cpI1'', if check_opt name1 name2 then Tac_simp_all
+                          else Tac_simp_all_add (concat (const_ocliskindof # isub_of_str name1 # ''_'' # name2 # []))]
+  ) l_hierarchy) l_hierarchy) l_hierarchy)))) expr"
 
-definition "print_iskindof_lemmas_cp = map Thy_lemmas_simp o
+definition "print_iskindof_lemmas_cp =
+ (if activate_simp_optimization then map Thy_lemmas_simp o
   get_hierarchy (\<lambda>l_hierarchy.
     [Lemmas_simp
   (concat (concat
   (map (\<lambda>name1. map (\<lambda>name2. map (\<lambda>name3.
       (concat (''cp_'' # const_ocliskindof # isub_of_str name1 # ''_'' # name3 # ''_'' # name2 # []))
-  ) l_hierarchy) l_hierarchy) l_hierarchy)))])"
+  ) l_hierarchy) l_hierarchy) l_hierarchy)))])
+  else (\<lambda>_. []))"
 
-definition "print_iskindof_lemma_strict = map Thy_lemma_by o
+definition "print_iskindof_lemma_strict expr = (map Thy_lemma_by o
   get_hierarchy (\<lambda>l_hierarchy.
+  let check_opt =
+    let set = print_istypeof_lemma_cp_set expr in
+    (\<lambda>n1 n2. list_ex (\<lambda>((_, name1), name2). name1 = n1 & name2 = n2) set) in
   concat (concat
   (map (\<lambda>name1. map (\<lambda>(name2,name2'). map (\<lambda>name3.
     Lemma_by
@@ -638,20 +689,22 @@ definition "print_iskindof_lemma_strict = map Thy_lemma_by o
                (Expr_basic [dot_iskindof name1])))
              ''=''
              (Expr_basic [name2'])]
-      ((*if name1 = name3 then [Tac_simp]
-       else*) [Tac_rule ''ext'', Tac_simp_add (concat (const_ocliskindof # isub_of_str name1 # ''_'' # name3 # [])
-                                            # ''bot_option_def''
-                                            # (if name2 = ''invalid'' then [''invalid_def'']
-                                               else [''null_fun_def'',''null_option_def'']))])
-  ) l_hierarchy) [(''invalid'',''invalid''),(''null'',''true'')]) l_hierarchy)))"
+      (let l = ''bot_option_def''
+             # (if name2 = ''invalid'' then [''invalid_def'']
+                else [''null_fun_def'',''null_option_def'']) in
+       [Tac_rule ''ext'', Tac_simp_add (if check_opt name1 name3 then l
+                                        else concat (const_ocliskindof # isub_of_str name1 # ''_'' # name3 # []) # l)])
+  ) l_hierarchy) [(''invalid'',''invalid''),(''null'',''true'')]) l_hierarchy)))) expr"
 
-definition "print_iskindof_lemmas_strict = map Thy_lemmas_simp o
+definition "print_iskindof_lemmas_strict =
+ (if activate_simp_optimization then map Thy_lemmas_simp o
   get_hierarchy (\<lambda>l_hierarchy.
   [ Lemmas_simp
   (concat (concat
   (map (\<lambda>name1. map (\<lambda>name2. map (\<lambda>name3.
       (concat (const_ocliskindof # isub_of_str name1 # ''_'' # name3 # ''_'' # name2 # []))
-  ) l_hierarchy) [''invalid'',''null'']) l_hierarchy)))])"
+  ) l_hierarchy) [''invalid'',''null'']) l_hierarchy)))])
+  else (\<lambda>_. []))"
 
 subsection{* ... *}
 
@@ -785,11 +838,11 @@ module To = struct
       | Pos n -> to_num n
       | Neg n -> - (to_num n)
   *)
-    let to_nat = 
+    let to_nat =
       let rec aux n = function Zero_nat -> n | Suc xs -> aux (succ n) xs in
       aux 0
   end
-  
+
   let string nibble_rec char_rec =
     let ofN = nibble_rec
       Nibble0 Nibble1 Nibble2 Nibble3 Nibble4 Nibble5
@@ -858,7 +911,7 @@ consts ToString :: "(ml_nibble \<Rightarrow> ml_nibble \<Rightarrow> ml_nibble \
 code_const ToString (OCaml "CodeConst.To.string")
 definition "To_string = ToString nibble_rec char_rec"
 
-consts ToNat :: "(ml_nat \<Rightarrow> (nat \<Rightarrow> ml_nat \<Rightarrow> ml_nat) \<Rightarrow> nat \<Rightarrow> ml_nat) \<Rightarrow> 
+consts ToNat :: "(ml_nat \<Rightarrow> (nat \<Rightarrow> ml_nat \<Rightarrow> ml_nat) \<Rightarrow> nat \<Rightarrow> ml_nat) \<Rightarrow>
                  nat \<Rightarrow> ml_int"
 code_const ToNat (OCaml "CodeConst.To.nat")
 definition "To_nat = ToNat nat_rec"
@@ -1018,10 +1071,10 @@ definition "s_of_thy =
              | Thy_lemmas_simp lemmas_simp \<Rightarrow> s_of_lemmas_simp lemmas_simp
              | Thy_lemma_by lemma_by \<Rightarrow> s_of_lemma_by lemma_by)"
 
-definition "s_of_thy_list name fic_import l_thy = 
+definition "s_of_thy_list name fic_import l_thy =
   List_flatten
         [ [ sprintf2ss (STR ''theory %s imports \"%s\" begin'') name fic_import ]
-        , List_flatten (List_mapi (\<lambda>i l. 
+        , List_flatten (List_mapi (\<lambda>i l.
             ( STR ''''
             # sprintf1 (STR ''(* %d *********************************** *)'') (To_nat (Suc i))
             # map s_of_thy l )) l_thy)
