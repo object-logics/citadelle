@@ -199,9 +199,9 @@ definition "get_hierarchy f x = f (map fst (get_class_hierarchy x))"
 
 subsection{* ... *}
 
-fun print_datatype_class where
-   "print_datatype_class (Mk_univ name l_attr dataty) =
-  (let (l_cons, v) = (case dataty of None \<Rightarrow> ([],[]) | Some dataty \<Rightarrow> print_datatype_class dataty) in
+fun print_datatype_class_aux where
+   "print_datatype_class_aux (Mk_univ name l_attr dataty) =
+  (let (l_cons, v) = (case dataty of None \<Rightarrow> ([],[]) | Some dataty \<Rightarrow> print_datatype_class_aux dataty) in
    (name # l_cons,
     v @
     (let isub_name = (\<lambda>s. s @ isub_of_str name) in
@@ -213,15 +213,18 @@ fun print_datatype_class where
         (isub_name datatype_name)
         [ (isub_name datatype_constr_name, [ bug_ocaml_extraction (Raw (str_of_ty object))
                                            , Raw (isub_name datatype_ext_name) ] ) ] ])))"
+definition "print_datatype_class = snd o print_datatype_class_aux"
 
-definition "print_datatype_universe =
-  map_class (\<lambda>isub_name _ _. (isub_name datatype_in, [Raw (isub_name datatype_name)]))"
+definition "print_datatype_universe expr =
+  [ Datatype unicode_AA
+      (map_class (\<lambda>isub_name _ _. (isub_name datatype_in, [Raw (isub_name datatype_name)])) expr) ]"
 
-definition "print_type_synonym_class =
-  map_class (\<lambda>isub_name name _.
+definition "print_type_synonym_class expr =
+  Type_synonym ty_boolean (Ty_apply (Ty_base ty_boolean) [Ty_base unicode_AA]) # 
+  (map_class (\<lambda>isub_name name _.
     Type_synonym name (Ty_apply (Ty_base ''val'') [Ty_base unicode_AA,
     let option = (\<lambda>x. Ty_apply (Ty_base ''option'') [x]) in
-    option (option (Ty_base (isub_name datatype_name))) ]))"
+    option (option (Ty_base (isub_name datatype_name))) ])) expr)"
 
 definition "print_instantiation_class =
   map_class (\<lambda>isub_name _ _.
@@ -236,10 +239,15 @@ definition "print_instantiation_class =
                    [ let oid = ''oid'' in
                      (Expr_basic [isub_name datatype_constr_name, oid, wildcard], Expr_basic [oid])])))"
 
-definition "print_instantiation_universe oid_of =
-  map_class (\<lambda>isub_name name _.
+definition "print_instantiation_universe expr =
+  [ let oid_of = ''oid_of'' in
+    Instantiation unicode_AA oid_of
+      (Expr_rewrite
+        (Expr_basic [oid_of])
+        ''=''
+        (Expr_function (map_class (\<lambda>isub_name name _.
     let esc = (\<lambda>h. Expr_basic (h # [name])) in
-    (esc (isub_name datatype_in), esc oid_of))"
+    (esc (isub_name datatype_in), esc oid_of)) expr))) ]"
 
 
 definition "print_def_strictrefeq =
@@ -331,9 +339,9 @@ definition "print_astype_class =
                          , (Expr_basic [wildcard], val_invalid) ]) ) ))) )
       l_hierarchy)"
 
-definition "print_astype_lemmas_id =
-  map_class (\<lambda>isub_name name _.
-    concat (isub_name const_oclastype # ''_'' # name # []) )"
+definition "print_astype_lemmas_id expr =
+  [ Lemmas_simp (map_class (\<lambda>isub_name name _.
+    concat (isub_name const_oclastype # ''_'' # name # []) ) expr) ]"
 
 definition "print_astype_lemma_cp =
   get_hierarchy (\<lambda>l_hierarchy.
@@ -464,9 +472,9 @@ definition "print_istypeof_class =
                          l_false) ) ))) )
       l_hierarchy)"
 
-definition "print_istypeof_lemmas_id =
-  map_class (\<lambda>isub_name name _.
-    concat (isub_name const_oclistypeof # ''_'' # name # []) )"
+definition "print_istypeof_lemmas_id expr =
+  [ Lemmas_simp (map_class (\<lambda>isub_name name _.
+    concat (isub_name const_oclistypeof # ''_'' # name # []) ) expr) ]"
 
 definition "print_istypeof_lemma_cp =
   get_hierarchy (\<lambda>l_hierarchy.
@@ -579,9 +587,9 @@ fun print_iskindof_class_aux where
     )))"
 definition "print_iskindof_class = (\<lambda> x. snd (print_iskindof_class_aux (map fst (get_class_hierarchy x)) x))"
 
-definition "print_iskindof_lemmas_id =
-  map_class (\<lambda>isub_name name _.
-    concat (isub_name const_ocliskindof # ''_'' # name # []) )"
+definition "print_iskindof_lemmas_id expr =
+  [ Lemmas_simp (map_class (\<lambda>isub_name name _.
+    concat (isub_name const_ocliskindof # ''_'' # name # []) ) expr) ]"
 
 definition "print_iskindof_lemma_cp =
   get_hierarchy (\<lambda>l_hierarchy.
@@ -638,7 +646,7 @@ definition "print_iskindof_lemmas_strict =
 
 subsection{* ... *}
 
-definition "print_eval_extract =
+definition "print_eval_extract _ =
   (let lets = (\<lambda>var def. Definition (Expr_rewrite (Expr_basic [var]) ''='' (Expr_basic [def]))) in
   [ bug_ocaml_extraction
     (let var_x = ''x''
