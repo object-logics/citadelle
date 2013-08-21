@@ -744,49 +744,8 @@ definition "print_dot = map Thy_definition_hol o
         [ (var_in_post_state, '''', '''')
         , (var_in_pre_state, ''_at_pre'', ''@pre'')])))"
 
-subsection{* OCaml *}
-type_synonym ml_string = String.literal
-
-subsubsection{* module Printf *}
-
-consts sprintf0 :: "ml_string \<Rightarrow> ml_string"
-consts sprintf1 :: "ml_string \<Rightarrow> '\<alpha>1 \<Rightarrow> ml_string"
-consts sprintf2 :: "ml_string \<Rightarrow> '\<alpha>1 \<Rightarrow> '\<alpha>2 \<Rightarrow> ml_string"
-consts sprintf3 :: "ml_string \<Rightarrow> '\<alpha>1 \<Rightarrow> '\<alpha>2 \<Rightarrow> '\<alpha>3 \<Rightarrow> ml_string"
-consts sprintf4 :: "ml_string \<Rightarrow> '\<alpha>1 \<Rightarrow> '\<alpha>2 \<Rightarrow> '\<alpha>3 \<Rightarrow> '\<alpha>4 \<Rightarrow> ml_string"
-consts sprintf5 :: "ml_string \<Rightarrow> '\<alpha>1 \<Rightarrow> '\<alpha>2 \<Rightarrow> '\<alpha>3 \<Rightarrow> '\<alpha>4 \<Rightarrow> '\<alpha>5 \<Rightarrow> ml_string"
-consts sprintf6 :: "ml_string \<Rightarrow> '\<alpha>1 \<Rightarrow> '\<alpha>2 \<Rightarrow> '\<alpha>3 \<Rightarrow> '\<alpha>4 \<Rightarrow> '\<alpha>5 \<Rightarrow> '\<alpha>6 \<Rightarrow> ml_string"
-
-code_const sprintf0 (OCaml "CodeConst.Printf.sprintf")
-code_const sprintf1 (OCaml "CodeConst.Printf.sprintf")
-code_const sprintf2 (OCaml "CodeConst.Printf.sprintf")
-code_const sprintf3 (OCaml "CodeConst.Printf.sprintf")
-code_const sprintf4 (OCaml "CodeConst.Printf.sprintf")
-code_const sprintf5 (OCaml "CodeConst.Printf.sprintf")
-code_const sprintf6 (OCaml "CodeConst.Printf.sprintf")
-
-consts eprintf0 :: "ml_string \<Rightarrow> unit"
-code_const eprintf0 (OCaml "CodeConst.Printf.eprintf")
-
-(* Monomorph *)
-
-consts sprintf1s :: "ml_string \<Rightarrow> ml_string \<Rightarrow> ml_string"
-code_const sprintf1s (OCaml "CodeConst.Printf.sprintf")
-consts sprintf2ss :: "ml_string \<Rightarrow> ml_string \<Rightarrow> ml_string \<Rightarrow> ml_string"
-code_const sprintf2ss (OCaml "CodeConst.Printf.sprintf")
-
-subsubsection{* module String *}
-
-consts String_concat :: "ml_string \<Rightarrow> ml_string list \<Rightarrow> ml_string"
-code_const String_concat (OCaml "CodeConst.String.concat")
-
-subsubsection{* module List *}
-
-definition "List_iter f = foldl (\<lambda>_. f) ()"
-definition "List_flatten l = foldl (\<lambda>acc l. foldl (\<lambda>acc x. x # acc) acc (rev l)) [] (rev l)"
-definition "List_mapi f l = (let (l, _) = foldl (\<lambda>(acc, n) x. (f n x # acc, Suc n)) ([], 0) l in rev l)"
-
-subsubsection{* beginning *}
+section{* OCaml *}
+subsection{* beginning *}
 
 code_include OCaml "" {*
 
@@ -873,6 +832,9 @@ end
 
 *}
 
+subsection{* ML type *}
+
+type_synonym ml_string = String.literal
 datatype ml_nat = ML_nat
 datatype ml_nibble = ML_nibble
 datatype ml_char = ML_char
@@ -880,13 +842,15 @@ datatype ml_int = ML_int
 
 code_type ml_int (OCaml "CodeType.int")
 
-(* *)
+subsection{* ML code const *}
+
+text{* ... *}
 
 consts out_file0 :: "((ml_string \<Rightarrow> unit) (* fprintf *) \<Rightarrow> unit) \<Rightarrow> ml_string \<Rightarrow> unit"
 consts out_file1 :: "((ml_string \<Rightarrow> '\<alpha>1 \<Rightarrow> unit) (* fprintf *) \<Rightarrow> unit) \<Rightarrow> ml_string \<Rightarrow> unit"
 code_const out_file1 (OCaml "CodeConst.outFile1")
 
-(* *)
+text{* module To *}
 
 consts ToString :: "(ml_nibble \<Rightarrow> ml_nibble \<Rightarrow> ml_nibble \<Rightarrow> ml_nibble \<Rightarrow> ml_nibble \<Rightarrow> ml_nibble \<Rightarrow> ml_nibble \<Rightarrow> ml_nibble \<Rightarrow> ml_nibble \<Rightarrow> ml_nibble \<Rightarrow> ml_nibble \<Rightarrow> ml_nibble \<Rightarrow> ml_nibble \<Rightarrow> ml_nibble \<Rightarrow> ml_nibble \<Rightarrow> ml_nibble \<Rightarrow> nibble \<Rightarrow> ml_nibble) \<Rightarrow>
                     ((nibble \<Rightarrow> nibble \<Rightarrow> ml_char) \<Rightarrow> char \<Rightarrow> ml_char) \<Rightarrow>
@@ -894,14 +858,51 @@ consts ToString :: "(ml_nibble \<Rightarrow> ml_nibble \<Rightarrow> ml_nibble \
 code_const ToString (OCaml "CodeConst.To.string")
 definition "To_string = ToString nibble_rec char_rec"
 
-(* *)
-
 consts ToNat :: "(ml_nat \<Rightarrow> (nat \<Rightarrow> ml_nat \<Rightarrow> ml_nat) \<Rightarrow> nat \<Rightarrow> ml_nat) \<Rightarrow> 
                  nat \<Rightarrow> ml_int"
 code_const ToNat (OCaml "CodeConst.To.nat")
 definition "To_nat = ToNat nat_rec"
 
-subsubsection{* module Sys *}
+text{* module Printf *}
+
+consts sprintf0 :: "ml_string \<Rightarrow> ml_string"
+consts sprintf1 :: "ml_string \<Rightarrow> '\<alpha>1 \<Rightarrow> ml_string"
+consts sprintf2 :: "ml_string \<Rightarrow> '\<alpha>1 \<Rightarrow> '\<alpha>2 \<Rightarrow> ml_string"
+consts sprintf3 :: "ml_string \<Rightarrow> '\<alpha>1 \<Rightarrow> '\<alpha>2 \<Rightarrow> '\<alpha>3 \<Rightarrow> ml_string"
+consts sprintf4 :: "ml_string \<Rightarrow> '\<alpha>1 \<Rightarrow> '\<alpha>2 \<Rightarrow> '\<alpha>3 \<Rightarrow> '\<alpha>4 \<Rightarrow> ml_string"
+consts sprintf5 :: "ml_string \<Rightarrow> '\<alpha>1 \<Rightarrow> '\<alpha>2 \<Rightarrow> '\<alpha>3 \<Rightarrow> '\<alpha>4 \<Rightarrow> '\<alpha>5 \<Rightarrow> ml_string"
+consts sprintf6 :: "ml_string \<Rightarrow> '\<alpha>1 \<Rightarrow> '\<alpha>2 \<Rightarrow> '\<alpha>3 \<Rightarrow> '\<alpha>4 \<Rightarrow> '\<alpha>5 \<Rightarrow> '\<alpha>6 \<Rightarrow> ml_string"
+
+code_const sprintf0 (OCaml "CodeConst.Printf.sprintf")
+code_const sprintf1 (OCaml "CodeConst.Printf.sprintf")
+code_const sprintf2 (OCaml "CodeConst.Printf.sprintf")
+code_const sprintf3 (OCaml "CodeConst.Printf.sprintf")
+code_const sprintf4 (OCaml "CodeConst.Printf.sprintf")
+code_const sprintf5 (OCaml "CodeConst.Printf.sprintf")
+code_const sprintf6 (OCaml "CodeConst.Printf.sprintf")
+
+consts eprintf0 :: "ml_string \<Rightarrow> unit"
+code_const eprintf0 (OCaml "CodeConst.Printf.eprintf")
+
+(* Monomorph *)
+
+consts sprintf1s :: "ml_string \<Rightarrow> ml_string \<Rightarrow> ml_string"
+code_const sprintf1s (OCaml "CodeConst.Printf.sprintf")
+consts sprintf2ss :: "ml_string \<Rightarrow> ml_string \<Rightarrow> ml_string \<Rightarrow> ml_string"
+code_const sprintf2ss (OCaml "CodeConst.Printf.sprintf")
+
+text{* module String *}
+
+consts String_concat :: "ml_string \<Rightarrow> ml_string list \<Rightarrow> ml_string"
+code_const String_concat (OCaml "CodeConst.String.concat")
+
+text{* module List *}
+
+definition "List_iter f = foldl (\<lambda>_. f) ()"
+definition "List_flatten l = foldl (\<lambda>acc l. foldl (\<lambda>acc x. x # acc) acc (rev l)) [] (rev l)"
+definition "List_mapi f l = (let (l, _) = foldl (\<lambda>(acc, n) x. (f n x # acc, Suc n)) ([], 0) l in rev l)"
+
+text{* module Sys *}
 
 consts Sys_is_directory :: "ml_string \<Rightarrow> bool"
 code_const Sys_is_directory (OCaml "CodeConst.Sys.isDirectory")
@@ -909,7 +910,7 @@ code_const Sys_is_directory (OCaml "CodeConst.Sys.isDirectory")
 consts Sys_argv :: "ml_string list"
 code_const Sys_argv (OCaml "CodeConst.Sys.argv")
 
-subsubsection{* module Unicode *}
+text{* module Unicode *}
 
 definition "Unicode_mk_u = sprintf1s (STR (Char Nibble5 NibbleC # ''<%s>''))"
 definition "Unicode_u_Rightarrow = Unicode_mk_u (STR ''Rightarrow'')"
@@ -919,7 +920,7 @@ definition "Unicode_u_lfloor = Unicode_mk_u (STR ''lfloor'')"
 definition "Unicode_u_rfloor = Unicode_mk_u (STR ''rfloor'')"
 definition "Unicode_u_Longrightarrow = Unicode_mk_u (STR ''Longrightarrow'')"
 
-subsubsection{* module s_of *}
+section{* s_of ... *}
 
 definition "s_of_dataty = (\<lambda> Datatype n l \<Rightarrow>
   sprintf2 (STR ''datatype %s = %s'')
