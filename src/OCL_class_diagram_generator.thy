@@ -745,33 +745,33 @@ definition "print_dot = map Thy_definition_hol o
         , (var_in_pre_state, ''_at_pre'', ''@pre'')])))"
 
 subsection{* OCaml *}
-type_synonym sl = String.literal
+type_synonym ml_string = String.literal
 
 subsubsection{* module Printf *}
 
-consts sprintf0 :: "sl \<Rightarrow> sl"
-consts sprintf1 :: "sl \<Rightarrow> '\<alpha>1 \<Rightarrow> sl"
-consts sprintf2 :: "sl \<Rightarrow> '\<alpha>1 \<Rightarrow> '\<alpha>2 \<Rightarrow> sl"
-consts sprintf3 :: "sl \<Rightarrow> '\<alpha>1 \<Rightarrow> '\<alpha>2 \<Rightarrow> '\<alpha>3 \<Rightarrow> sl"
-consts sprintf4 :: "sl \<Rightarrow> '\<alpha>1 \<Rightarrow> '\<alpha>2 \<Rightarrow> '\<alpha>3 \<Rightarrow> '\<alpha>4 \<Rightarrow> sl"
-consts sprintf5 :: "sl \<Rightarrow> '\<alpha>1 \<Rightarrow> '\<alpha>2 \<Rightarrow> '\<alpha>3 \<Rightarrow> '\<alpha>4 \<Rightarrow> '\<alpha>5 \<Rightarrow> sl"
-consts sprintf6 :: "sl \<Rightarrow> '\<alpha>1 \<Rightarrow> '\<alpha>2 \<Rightarrow> '\<alpha>3 \<Rightarrow> '\<alpha>4 \<Rightarrow> '\<alpha>5 \<Rightarrow> '\<alpha>6 \<Rightarrow> sl"
+consts sprintf0 :: "ml_string \<Rightarrow> ml_string"
+consts sprintf1 :: "ml_string \<Rightarrow> '\<alpha>1 \<Rightarrow> ml_string"
+consts sprintf2 :: "ml_string \<Rightarrow> '\<alpha>1 \<Rightarrow> '\<alpha>2 \<Rightarrow> ml_string"
+consts sprintf3 :: "ml_string \<Rightarrow> '\<alpha>1 \<Rightarrow> '\<alpha>2 \<Rightarrow> '\<alpha>3 \<Rightarrow> ml_string"
+consts sprintf4 :: "ml_string \<Rightarrow> '\<alpha>1 \<Rightarrow> '\<alpha>2 \<Rightarrow> '\<alpha>3 \<Rightarrow> '\<alpha>4 \<Rightarrow> ml_string"
+consts sprintf5 :: "ml_string \<Rightarrow> '\<alpha>1 \<Rightarrow> '\<alpha>2 \<Rightarrow> '\<alpha>3 \<Rightarrow> '\<alpha>4 \<Rightarrow> '\<alpha>5 \<Rightarrow> ml_string"
+consts sprintf6 :: "ml_string \<Rightarrow> '\<alpha>1 \<Rightarrow> '\<alpha>2 \<Rightarrow> '\<alpha>3 \<Rightarrow> '\<alpha>4 \<Rightarrow> '\<alpha>5 \<Rightarrow> '\<alpha>6 \<Rightarrow> ml_string"
 
-code_const sprintf0 (OCaml "Printf.sprintf")
-code_const sprintf1 (OCaml "Printf.sprintf")
-code_const sprintf2 (OCaml "Printf.sprintf")
-code_const sprintf3 (OCaml "Printf.sprintf")
-code_const sprintf4 (OCaml "Printf.sprintf")
-code_const sprintf5 (OCaml "Printf.sprintf")
-code_const sprintf6 (OCaml "Printf.sprintf")
+code_const sprintf0 (OCaml "CodeConst.Printf.sprintf")
+code_const sprintf1 (OCaml "CodeConst.Printf.sprintf")
+code_const sprintf2 (OCaml "CodeConst.Printf.sprintf")
+code_const sprintf3 (OCaml "CodeConst.Printf.sprintf")
+code_const sprintf4 (OCaml "CodeConst.Printf.sprintf")
+code_const sprintf5 (OCaml "CodeConst.Printf.sprintf")
+code_const sprintf6 (OCaml "CodeConst.Printf.sprintf")
 
-consts eprintf0 :: "sl \<Rightarrow> unit"
-code_const eprintf0 (OCaml "Printf.eprintf")
+consts eprintf0 :: "ml_string \<Rightarrow> unit"
+code_const eprintf0 (OCaml "CodeConst.Printf.eprintf")
 
 subsubsection{* module String *}
 
-consts String_concat :: "sl \<Rightarrow> sl list \<Rightarrow> sl"
-code_const String_concat (OCaml "String.concat")
+consts String_concat :: "ml_string \<Rightarrow> ml_string list \<Rightarrow> ml_string"
+code_const String_concat (OCaml "CodeConst.String.concat")
 
 subsubsection{* module List *}
 
@@ -783,104 +783,114 @@ subsubsection{* beginning *}
 
 code_include OCaml "" {*
 
-module Variant = struct
-  type nat = [ `ZeroNat | `Suc of nat ]
-
-  type nibble = [ `Nibble0 | `Nibble1 | `Nibble2 | `Nibble3 | `Nibble4 | `Nibble5 |
-    `Nibble6 | `Nibble7 | `Nibble8 | `Nibble9 | `NibbleA | `NibbleB | `NibbleC | `NibbleD
-    | `NibbleE | `NibbleF ]
-
-  type char = [ `Char of nibble * nibble ]
-end
+let (<<) f g x = f (g x)
 
 module To = struct
+  type nat = Zero_nat | Suc of nat
+
+  type nibble = Nibble0 | Nibble1 | Nibble2 | Nibble3 | Nibble4 | Nibble5 |
+    Nibble6 | Nibble7 | Nibble8 | Nibble9 | NibbleA | NibbleB | NibbleC | NibbleD
+    | NibbleE | NibbleF
+
+  type char = Char of nibble * nibble
+
   module M = struct
-    let to_n = function
-      `Nibble0 -> 0x0 | `Nibble1 -> 0x1 | `Nibble2 -> 0x2 | `Nibble3 -> 0x3 | `Nibble4 -> 0x4 | `Nibble5 -> 0x5 |
-       `Nibble6 -> 0x6 | `Nibble7 -> 0x7 | `Nibble8 -> 0x8 | `Nibble9 -> 0x9 | `NibbleA -> 0xA | `NibbleB -> 0xB | `NibbleC -> 0xC | `NibbleD -> 0xD
-      | `NibbleE -> 0xE | `NibbleF -> 0xF
+    let to_nibble = function
+      Nibble0 -> 0x0 | Nibble1 -> 0x1 | Nibble2 -> 0x2 | Nibble3 -> 0x3 | Nibble4 -> 0x4 | Nibble5 -> 0x5 |
+       Nibble6 -> 0x6 | Nibble7 -> 0x7 | Nibble8 -> 0x8 | Nibble9 -> 0x9 | NibbleA -> 0xA | NibbleB -> 0xB | NibbleC -> 0xC | NibbleD -> 0xD
+      | NibbleE -> 0xE | NibbleF -> 0xF
 
-    let to_c = function `Char (n1, n2) -> char_of_int (to_n n1 lsl 4 + to_n n2)
+    let to_char = function Char (n1, n2) -> char_of_int (to_nibble n1 lsl 4 + to_nibble n2)
 
-    let to_s l = (String.concat "" (List.map (fun c -> String.make 1 (to_c c)) l))
+    let to_string l = (String.concat "" (List.map (fun c -> String.make 1 (to_char c)) l))
   (*
     let to_num =
       let rec aux mot n = function
-        | `Bit0 p -> aux mot (succ n) p
+        | Bit0 p -> aux mot (succ n) p
         | bit ->
           let mot = mot + (1 lsl n) in
           match bit with
-          | `Bit1 p -> aux mot (succ n) p
+          | Bit1 p -> aux mot (succ n) p
           | _ -> mot in
       aux 0 0
 
-    let to_i = function
-      | `ZeroInt -> 0
-      | `Pos n -> to_num n
-      | `Neg n -> - (to_num n)
+    let to_int = function
+      | ZeroInt -> 0
+      | Pos n -> to_num n
+      | Neg n -> - (to_num n)
   *)
-    let rec to_nat = function `ZeroNat -> 0 | `Suc n -> succ (to_nat n)
+    let to_nat = 
+      let rec aux n = function Zero_nat -> n | Suc xs -> aux (succ n) xs in
+      aux 0
   end
-  let s = M.to_s
-  let n = M.to_nat
+  
+  let string nibble_rec char_rec =
+    let ofN = nibble_rec
+      Nibble0 Nibble1 Nibble2 Nibble3 Nibble4 Nibble5
+      Nibble6 Nibble7 Nibble8 Nibble9 NibbleA NibbleB
+      NibbleC NibbleD NibbleE NibbleF in
+    M.to_string << List.map (char_rec (fun c1 c2 -> Char (ofN c1, ofN c2)))
+
+  let nat nat_rec =
+    M.to_nat << nat_rec Zero_nat (fun _ x -> Suc x)
+
 end
 
-module Escape = struct
-  (* here contain functions using the '_' character
-     (that is not allowed in a Isabelle 'code_const' expr) *)
+module CodeConst = struct
+  (* here contain functions using characters
+     not allowed in a Isabelle 'code_const' expr
+     (e.g. '_', '"', ...) *)
+
+  let outFile1 f file =
+    let () = if Sys.file_exists file then Printf.eprintf "File exists %s\n" file else () in
+    let oc = open_out file in
+    let () = f (Printf.fprintf oc) in
+    close_out oc
 
   module Sys = struct open Sys
-    let fileExists = file_exists
     let isDirectory = is_directory
+    let argv = Array.to_list argv
   end
 
-  module Array = struct open Array
-    let toList = to_list
-  end
-
-  module Pervasives = struct
-    let openOut = open_out
-    let closeOut = close_out
-  end
-
-  let comp f g x = f (g x)
-  let forget g _ = g
-  let err = Printf.eprintf "File exists %s\n"
+  module Printf = Printf
+  module String = String
+  module To = To
 end
 
 *}
 
-consts out_file0 :: "((sl \<Rightarrow> unit) (* fprintf *) \<Rightarrow> unit) \<Rightarrow> sl \<Rightarrow> unit"
-consts out_file1 :: "((sl \<Rightarrow> '\<alpha>1 \<Rightarrow> unit) (* fprintf *) \<Rightarrow> unit) \<Rightarrow> sl \<Rightarrow> unit"
-code_const out_file1 (OCaml "(fun f file ->
-  let () = if Escape.Sys.fileExists file then Escape.err file else () in
-  let oc = Escape.Pervasives.openOut file in
-  let () = f (Printf.fprintf oc) in
-  Escape.Pervasives.closeOut oc)")
+datatype ml_nat = ML_nat
+datatype ml_nibble = ML_nibble
+datatype ml_char = ML_char
 
-consts To_s :: "string \<Rightarrow> sl"
-code_const To_s (OCaml "(fun s ->
-  let ofN = function
-    Nibble0 -> `Nibble0 | Nibble1 -> `Nibble1 | Nibble2 -> `Nibble2 | Nibble3 -> `Nibble3 | Nibble4 -> `Nibble4 | Nibble5 -> `Nibble5 |
-    Nibble6 -> `Nibble6 | Nibble7 -> `Nibble7 | Nibble8 -> `Nibble8 | Nibble9 -> `Nibble9 | NibbleA -> `NibbleA | NibbleB -> `NibbleB |
-    NibbleC -> `NibbleC | NibbleD -> `NibbleD | NibbleE -> `NibbleE | NibbleF -> `NibbleF in
-  let ofC = function Char (c1, c2) -> `Char (ofN c1, ofN c2) in
-  To.s (List.map ofC s))")
+(* *)
 
-datatype variant_nat = V
-code_type variant_nat (OCaml "Variant.nat")
+consts out_file0 :: "((ml_string \<Rightarrow> unit) (* fprintf *) \<Rightarrow> unit) \<Rightarrow> ml_string \<Rightarrow> unit"
+consts out_file1 :: "((ml_string \<Rightarrow> '\<alpha>1 \<Rightarrow> unit) (* fprintf *) \<Rightarrow> unit) \<Rightarrow> ml_string \<Rightarrow> unit"
+code_const out_file1 (OCaml "CodeConst.outFile1")
 
-consts To_i :: "(variant_nat \<Rightarrow> (nat \<Rightarrow> variant_nat \<Rightarrow> variant_nat) \<Rightarrow> nat \<Rightarrow> variant_nat) \<Rightarrow> nat \<Rightarrow> sl"
-code_const To_i (OCaml "(fun escapeNatRec -> let (<<) = Escape.comp in
-  To.n (* REMARK [Obj.magic] ? *) << escapeNatRec `ZeroNat (Escape.forget (fun x -> `Suc x)))")
+(* *)
+
+consts ToString :: "(ml_nibble \<Rightarrow> ml_nibble \<Rightarrow> ml_nibble \<Rightarrow> ml_nibble \<Rightarrow> ml_nibble \<Rightarrow> ml_nibble \<Rightarrow> ml_nibble \<Rightarrow> ml_nibble \<Rightarrow> ml_nibble \<Rightarrow> ml_nibble \<Rightarrow> ml_nibble \<Rightarrow> ml_nibble \<Rightarrow> ml_nibble \<Rightarrow> ml_nibble \<Rightarrow> ml_nibble \<Rightarrow> ml_nibble \<Rightarrow> nibble \<Rightarrow> ml_nibble) \<Rightarrow>
+                    ((nibble \<Rightarrow> nibble \<Rightarrow> ml_char) \<Rightarrow> char \<Rightarrow> ml_char) \<Rightarrow>
+                    string \<Rightarrow> ml_string"
+code_const ToString (OCaml "CodeConst.To.string")
+definition "To_string = ToString nibble_rec char_rec"
+
+(* *)
+
+consts ToNat :: "(ml_nat \<Rightarrow> (nat \<Rightarrow> ml_nat \<Rightarrow> ml_nat) \<Rightarrow> nat \<Rightarrow> ml_nat) \<Rightarrow> 
+                 nat \<Rightarrow> ml_string"
+code_const ToNat (OCaml "CodeConst.To.nat")
+definition "To_nat = ToNat nat_rec"
 
 subsubsection{* module Sys *}
 
-consts Sys_is_directory :: "sl \<Rightarrow> bool"
-code_const Sys_is_directory (OCaml "Escape.Sys.isDirectory")
+consts Sys_is_directory :: "ml_string \<Rightarrow> bool"
+code_const Sys_is_directory (OCaml "CodeConst.Sys.isDirectory")
 
-consts Sys_argv :: "sl list"
-code_const Sys_argv (OCaml "(Escape.Array.toList Sys.argv)")
+consts Sys_argv :: "ml_string list"
+code_const Sys_argv (OCaml "CodeConst.Sys.argv")
 
 subsubsection{* module Unicode *}
 
@@ -896,42 +906,42 @@ subsubsection{* module s_of *}
 
 definition "s_of_dataty = (\<lambda> Datatype n l \<Rightarrow>
   sprintf2 (STR ''datatype %s = %s'')
-    (To_s n)
+    (To_string n)
     (String_concat (STR ''
                         | '')
       (map
         (\<lambda>(n,l).
          sprintf2 (STR ''%s %s'')
-           (To_s n)
+           (To_string n)
            (String_concat (STR '' '')
             (map
-              (\<lambda> Opt o_ \<Rightarrow> sprintf1 (STR ''\"%s option\"'') (To_s o_)
-               | Raw o_ \<Rightarrow> sprintf1 (STR ''%s'') (To_s o_))
+              (\<lambda> Opt o_ \<Rightarrow> sprintf1 (STR ''\"%s option\"'') (To_string o_)
+               | Raw o_ \<Rightarrow> sprintf1 (STR ''%s'') (To_string o_))
               l))) l) ))"
 
 fun s_of_rawty where "s_of_rawty rawty = (case rawty of
-    Ty_base s \<Rightarrow> To_s s
+    Ty_base s \<Rightarrow> To_string s
   | Ty_apply name l \<Rightarrow> sprintf2 (STR ''%s %s'') (let s = String_concat (STR '', '') (map s_of_rawty l) in
                                                  case l of [_] \<Rightarrow> s | _ \<Rightarrow> sprintf1 (STR ''(%s)'') s)
                                                 (s_of_rawty name))"
 
 definition "s_of_ty_synonym = (\<lambda> Type_synonym n l \<Rightarrow>
-    sprintf2 (STR ''type_synonym %s = \"%s\"'') (To_s n) (s_of_rawty l))"
+    sprintf2 (STR ''type_synonym %s = \"%s\"'') (To_string n) (s_of_rawty l))"
 
 fun s_of_expr where "s_of_expr expr = (
   case expr of
     Expr_case e l \<Rightarrow> sprintf2 (STR ''(case %s of %s)'') (s_of_expr e) (String_concat (STR ''
     | '') (map (\<lambda> (s1, s2) \<Rightarrow> sprintf3 (STR ''%s %s %s'') (s_of_expr s1) Unicode_u_Rightarrow (s_of_expr s2)) l))
-  | Expr_rewrite e1 symb e2 \<Rightarrow> sprintf3 (STR ''%s %s %s'') (s_of_expr e1) (To_s symb) (s_of_expr e2)
-  | Expr_basic l \<Rightarrow> sprintf1 (STR ''%s'') (String_concat (STR '' '') (map To_s l))
+  | Expr_rewrite e1 symb e2 \<Rightarrow> sprintf3 (STR ''%s %s %s'') (s_of_expr e1) (To_string symb) (s_of_expr e2)
+  | Expr_basic l \<Rightarrow> sprintf1 (STR ''%s'') (String_concat (STR '' '') (map To_string l))
   | Expr_binop e1 s e2 \<Rightarrow> sprintf3 (STR ''%s %s %s'') (s_of_expr e1) (s_of_expr (Expr_basic [s])) (s_of_expr e2)
-  | Expr_annot e s \<Rightarrow> sprintf2 (STR ''(%s::%s)'') (s_of_expr e) (To_s s)
-  | Expr_lambda s e \<Rightarrow> sprintf3 (STR ''(%s%s. %s)'') Unicode_u_lambda (To_s s) (s_of_expr e)
-  | Expr_lambdas l e \<Rightarrow> sprintf3 (STR ''(%s%s. %s)'') Unicode_u_lambda (String_concat (STR '' '') (map To_s l)) (s_of_expr e)
+  | Expr_annot e s \<Rightarrow> sprintf2 (STR ''(%s::%s)'') (s_of_expr e) (To_string s)
+  | Expr_lambda s e \<Rightarrow> sprintf3 (STR ''(%s%s. %s)'') Unicode_u_lambda (To_string s) (s_of_expr e)
+  | Expr_lambdas l e \<Rightarrow> sprintf3 (STR ''(%s%s. %s)'') Unicode_u_lambda (String_concat (STR '' '') (map To_string l)) (s_of_expr e)
   | Expr_function l \<Rightarrow> sprintf2 (STR ''(%s %s)'') Unicode_u_lambda (String_concat (STR ''
     | '') (map (\<lambda> (s1, s2) \<Rightarrow> sprintf3 (STR ''%s %s %s'') (s_of_expr s1) Unicode_u_Rightarrow (s_of_expr s2)) l))
-  (*| Expr_apply s [e] \<Rightarrow> sprintf2 (STR ''(%s %s)'') (To_s s) (s_of_expr e)*)
-  | Expr_apply s l \<Rightarrow> sprintf2 (STR ''(%s %s)'') (To_s s) (String_concat (STR '' '') (map (\<lambda> e \<Rightarrow> sprintf1 (STR ''(%s)'') (s_of_expr e)) l))
+  (*| Expr_apply s [e] \<Rightarrow> sprintf2 (STR ''(%s %s)'') (To_string s) (s_of_expr e)*)
+  | Expr_apply s l \<Rightarrow> sprintf2 (STR ''(%s %s)'') (To_string s) (String_concat (STR '' '') (map (\<lambda> e \<Rightarrow> sprintf1 (STR ''(%s)'') (s_of_expr e)) l))
   | Expr_some (Expr_function l) \<Rightarrow> sprintf4 (STR ''%s%s %s%s'') Unicode_u_lfloor Unicode_u_lambda (String_concat (STR ''
     | '') (map (\<lambda> (s1, s2) \<Rightarrow> sprintf3 (STR ''%s %s %s'') (s_of_expr s1) Unicode_u_Rightarrow (s_of_expr s2)) l)) Unicode_u_rfloor
   | Expr_some e \<Rightarrow> sprintf3 (STR ''%s%s%s'') Unicode_u_lfloor (s_of_expr e) Unicode_u_rfloor
@@ -940,43 +950,43 @@ fun s_of_expr where "s_of_expr expr = (
   | Expr_parenthesis e \<Rightarrow> sprintf1 (STR ''(%s)'') (s_of_expr e))"
 
 definition "s_of_instantiation_class = (\<lambda> Instantiation n n_def expr \<Rightarrow>
-    let name = To_s n in
+    let name = To_string n in
     sprintf4 (STR ''instantiation %s :: object
 begin
   definition %s_%s_def : \"%s\"
   instance ..
 end'')
       name
-      (To_s n_def)
+      (To_string n_def)
       name
       (s_of_expr expr))"
 
 definition "s_of_defs_overloaded = (\<lambda> Defs_overloaded n e \<Rightarrow>
-    sprintf2 (STR ''defs(overloaded) %s : \"%s\"'') (To_s n) (s_of_expr e))"
+    sprintf2 (STR ''defs(overloaded) %s : \"%s\"'') (To_string n) (s_of_expr e))"
 
 definition "s_of_consts_class = (\<lambda> Consts n ty_out symb1 symb2 \<Rightarrow>
-    sprintf6 (STR ''consts %s :: \"'%s %s %s\" (\"(_) %s'(%s')\")'') (To_s n) Unicode_u_alpha Unicode_u_Rightarrow (To_s ty_out) (To_s symb1) (To_s symb2))"
+    sprintf6 (STR ''consts %s :: \"'%s %s %s\" (\"(_) %s'(%s')\")'') (To_string n) Unicode_u_alpha Unicode_u_Rightarrow (To_string ty_out) (To_string symb1) (To_string symb2))"
 
 definition "s_of_definition_hol = (\<lambda>
     Definition e \<Rightarrow> sprintf1 (STR ''definition \"%s\"'') (s_of_expr e)
   | Definition_abbrev name (abbrev, prio) e \<Rightarrow> sprintf4 (STR ''definition %s (\"(1%s)\" %d)
-  where \"%s\"'') (To_s name) (s_of_expr abbrev) (To_i nat_rec prio) (s_of_expr e))"
+  where \"%s\"'') (To_string name) (s_of_expr abbrev) (To_nat prio) (s_of_expr e))"
 
 definition "s_of_lemmas_simp = (\<lambda> Lemmas_simp l \<Rightarrow>
     sprintf1 (STR ''lemmas [simp] = %s'') (String_concat (STR ''
-                '') (map (To_s) l)))"
+                '') (map (To_string) l)))"
 
 definition "s_of_tactic = (\<lambda>
-    Tac_rule s \<Rightarrow> sprintf1 (STR ''rule %s'') (To_s s)
+    Tac_rule s \<Rightarrow> sprintf1 (STR ''rule %s'') (To_string s)
   | Tac_simp \<Rightarrow> sprintf0 (STR ''simp'')
-  | Tac_simp_add l \<Rightarrow> sprintf1 (STR ''simp add: %s'') (String_concat (STR '' '') (map To_s l))
+  | Tac_simp_add l \<Rightarrow> sprintf1 (STR ''simp add: %s'') (String_concat (STR '' '') (map To_string l))
   | Tac_simp_all \<Rightarrow> sprintf0 (STR ''simp_all'')
-  | Tac_simp_all_add s \<Rightarrow> sprintf1 (STR ''simp_all add: %s'') (To_s s))"
+  | Tac_simp_all_add s \<Rightarrow> sprintf1 (STR ''simp_all add: %s'') (To_string s))"
 
 definition "s_of_lemma_by = (\<lambda> Lemma_by n l_spec l_apply \<Rightarrow>
     sprintf3 (STR ''lemma %s : \"%s\"
 by(%s)'')
-      (To_s n)
+      (To_string n)
       (String_concat (sprintf1 (STR '' %s '') Unicode_u_Longrightarrow) (map s_of_expr l_spec))
       (String_concat (STR '', '') (map s_of_tactic l_apply)))"
 
@@ -995,7 +1005,7 @@ definition "s_of_thy_list name fic_import l_thy =
         [ [ sprintf2 (STR ''theory %s imports \"%s\" begin'') name fic_import ]
         , List_flatten (List_mapi (\<lambda>i l. 
             ( STR ''''
-            # sprintf1 (STR ''(* %d *********************************** *)'') (To_i nat_rec (Suc i))
+            # sprintf1 (STR ''(* %d *********************************** *)'') (To_nat (Suc i))
             # map s_of_thy l )) l_thy)
         , [ STR '''', STR ''end'' ] ]"
 
