@@ -508,8 +508,8 @@ definition "print_istypeof_lemma_cp_set =
 definition "print_istypeof_lemmas_id expr =
   (let name_set = print_istypeof_lemma_cp_set expr in
    case name_set of [] \<Rightarrow> [] | _ \<Rightarrow> map Thy_lemmas_simp
-  [ Lemmas_simp (map_class (\<lambda>isub_name name _.
-    concat (isub_name const_oclistypeof # ''_'' # name # []) ) expr) ])"
+  [ Lemmas_simp (map (\<lambda>((isub_name, _), name).
+    concat (isub_name const_oclistypeof # ''_'' # name # []) ) name_set) ])"
 
 definition "print_istypeof_lemma_cp expr = (map Thy_lemma_by o
   get_hierarchy (\<lambda>l_hierarchy.
@@ -640,13 +640,13 @@ definition "print_iskindof_lemma_cp_set =
 definition "print_iskindof_lemmas_id expr =
   (let name_set = print_iskindof_lemma_cp_set expr in
    case name_set of [] \<Rightarrow> [] | _ \<Rightarrow> map Thy_lemmas_simp
-  [ Lemmas_simp (map_class (\<lambda>isub_name name _.
-    concat (isub_name const_ocliskindof # ''_'' # name # []) ) expr) ])"
+  [ Lemmas_simp (map (\<lambda>((isub_name, _), name).
+    concat (isub_name const_ocliskindof # ''_'' # name # []) ) name_set) ])"
 
 definition "print_iskindof_lemma_cp expr = (map Thy_lemma_by o
   get_hierarchy (\<lambda>l_hierarchy.
   let check_opt =
-    let set = print_istypeof_lemma_cp_set expr in
+    let set = print_iskindof_lemma_cp_set expr in
     (\<lambda>n1 n2. list_ex (\<lambda>((_, name1), name2). name1 = n1 & name2 = n2) set) in
   concat (concat
   (map (\<lambda>name1. map (\<lambda>name2. map (\<lambda>name3.
@@ -677,7 +677,7 @@ definition "print_iskindof_lemmas_cp =
 definition "print_iskindof_lemma_strict expr = (map Thy_lemma_by o
   get_hierarchy (\<lambda>l_hierarchy.
   let check_opt =
-    let set = print_istypeof_lemma_cp_set expr in
+    let set = print_iskindof_lemma_cp_set expr in
     (\<lambda>n1 n2. list_ex (\<lambda>((_, name1), name2). name1 = n1 & name2 = n2) set) in
   concat (concat
   (map (\<lambda>name1. map (\<lambda>(name2,name2'). map (\<lambda>name3.
