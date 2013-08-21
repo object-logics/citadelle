@@ -758,7 +758,7 @@ code_const String_concat (OCaml "String.concat")
 
 subsubsection{* module List *}
 
-definition "List_iter f l = foldl (\<lambda>_. f) () l"
+definition "List_iter f = foldl (\<lambda>_. f) ()"
 definition "List_flatten l = foldl (\<lambda>acc l. foldl (\<lambda>acc x. x # acc) acc (rev l)) [] (rev l)"
 definition "List_mapi f l = (let (l, _) = foldl (\<lambda>(acc, n) x. (f n x # acc, Suc n)) ([], 0) l in rev l)"
 
@@ -817,6 +817,10 @@ module Escape = struct
     let isDirectory = is_directory
   end
 
+  module Array = struct open Array
+    let toList = to_list
+  end
+
   module Pervasives = struct
     let openOut = open_out
     let closeOut = close_out
@@ -856,6 +860,9 @@ subsubsection{* module Sys *}
 
 consts Sys_is_directory :: "sl \<Rightarrow> bool"
 code_const Sys_is_directory (OCaml "Escape.Sys.isDirectory")
+
+consts Sys_argv :: "sl list"
+code_const Sys_argv (OCaml "Escape.Array.toList Sys.argv")
 
 subsubsection{* module Unicode *}
 

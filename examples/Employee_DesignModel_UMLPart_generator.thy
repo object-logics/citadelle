@@ -117,7 +117,7 @@ definition "file_out = STR ''Employee_DesignModel_UMLPart_generated''"
 definition "app f l =
   String_concat (STR [Char Nibble0 NibbleA]) (rev (foldl (\<lambda>acc x. f x # acc) [] l))"
 
-definition "main l = (case filter Sys_is_directory l
+definition "main = (case filter Sys_is_directory Sys_argv
  of dir # _ \<Rightarrow> out_file1 (\<lambda>fprintf1.
    List_iter (fprintf1 (STR ''%s
 ''))
