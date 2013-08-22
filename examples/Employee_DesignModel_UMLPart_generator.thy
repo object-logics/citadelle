@@ -86,7 +86,7 @@ definition "thy_object =
 
             , print_istypeof_consts
             , print_istypeof_class
-            (*, print_istypeof_from_universe*)
+            , print_istypeof_from_universe
             , print_istypeof_lemmas_id
             , print_istypeof_lemma_cp
             , print_istypeof_lemmas_cp

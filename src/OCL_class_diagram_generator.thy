@@ -199,6 +199,7 @@ definition "add_hierarchy' f x = (\<lambda>isub_name name _. f isub_name name ((
 definition "map_class_gen_h f x = map_class_gen (add_hierarchy f x) x"
 definition "map_class_gen_h' f x = map_class_gen (add_hierarchy' f x) x"
 definition "map_class_h f x = map_class (add_hierarchy f x) x"
+definition "map_class_h' f x = map_class (add_hierarchy' f x) x"
 definition "map_class_arg_only f = map_class_gen (\<lambda> isub_name name. \<lambda> [] \<Rightarrow> [] | l \<Rightarrow> f isub_name name l)"
 definition "get_hierarchy f x = f (map fst (get_class_hierarchy x))"
 
@@ -460,36 +461,25 @@ definition "print_istypeof_class = map Thy_defs_overloaded o
       l_hierarchy)"
 
 definition "print_istypeof_from_universe = map Thy_definition_hol o
-  map_class_h (\<lambda>isub_name name l_hierarchy.
-    let const_istypeof = concat (const_oclistypeof # isub_of_str name # ''_'' # unicode_AA # [])
-      ; var_u = ''u'' in
-    Definition (Expr_rewrite (Expr_basic [const_istypeof]) ''='' (Expr_lambda var_u
-
-   (let ((finish_with_some1, finish_with_some2), last_case_none) =
-     let (f, r) = (if hd l_hierarchy = name then (id, []) else (flip, [(Expr_basic [wildcard], Expr_basic [''None''])])) in
-     (f (id, Expr_some), r) in
-   finish_with_some2
-   (Expr_case (Expr_basic [var_u]) (concat (map
-   (\<lambda>h_name.
-     let isub_h = (\<lambda> s. s @ isub_of_str h_name)
-       ; var_oid = ''oid''
-       ; pattern_complex = (\<lambda>h_name name.
-                            let isub_h = (\<lambda> s. s @ isub_of_str h_name)
-                              ; isub_name = (\<lambda>s. s @ isub_of_str name)
-                              ; isub_n = (\<lambda>s. isub_name (concat (s # ''_'' # [])))
-                              ; var_name = name in
-                             Expr_apply (isub_h datatype_constr_name)
-                                        [Expr_basic [var_oid], Expr_apply (isub_n (isub_h datatype_ext_constr_name)) [Expr_basic [var_name]]])
-       ; pattern_simple = (\<lambda> name.
-                            let isub_name = (\<lambda>s. s @ isub_of_str name)
-                              ; var_name = name in
-                             Expr_basic [isub_name datatype_constr_name, var_oid, var_name])
-       ; case_branch = (\<lambda>pat res. (Expr_apply (isub_h datatype_in) [pat], finish_with_some1 res)) in
+  map_class_h' (\<lambda>isub_name name l_hierarchy.
+    let const_istypeof = concat (const_oclistypeof # isub_of_str name # ''_'' # unicode_AA # []) in
+    Definition (Expr_rewrite (Expr_basic [const_istypeof]) ''='' 
+   (
+   (Expr_function (concat ((concat (map
+   (let l_hierarchy = map fst l_hierarchy in
+    (\<lambda>(h_name, l_attr).
+     let pattern_complex_gen = (\<lambda>f1 f2.
+                            let isub_h = (\<lambda> s. s @ isub_of_str h_name) in
+                            [ (Expr_apply (isub_h datatype_in)
+                                [Expr_apply (isub_h datatype_constr_name)
+                                            [ Expr_basic [wildcard]
+                                            , Expr_apply (f2 (\<lambda>s. isub_name (concat (s # ''_'' # []))) (isub_h datatype_ext_constr_name))
+                                                         f1]], Expr_basic [''true''])]) in
              case compare_hierarchy l_hierarchy h_name name
-             of GT \<Rightarrow> case_branch (pattern_complex h_name name) (pattern_simple name)
-              | EQ \<Rightarrow> let n = Expr_basic [name] in case_branch n n
-              | LT \<Rightarrow> case_branch (pattern_simple h_name) (pattern_complex name h_name)) l_hierarchy
-   # [last_case_none])))))))"
+             of EQ \<Rightarrow> pattern_complex_gen (map (\<lambda>_. Expr_basic [wildcard]) l_attr) (\<lambda>_. id)
+              | GT \<Rightarrow> pattern_complex_gen [Expr_basic [wildcard]] id
+              | _ \<Rightarrow> [])) l_hierarchy))
+   # [[(Expr_basic [wildcard], Expr_basic [''false''])]]))))))"
 
 definition "print_istypeof_lemma_cp_set =
   (if activate_simp_optimization then
