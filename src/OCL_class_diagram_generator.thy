@@ -107,6 +107,7 @@ datatype expr = Expr_case expr (* value *)
               | Expr_lambdas "str list" expr
               | Expr_function "(expr (* pattern *) \<times> expr (* to return *)) list"
               | Expr_apply str "expr list"
+              | Expr_applys expr "expr list"
               | Expr_some expr (* with annotation \<lfloor> ... \<rfloor> *)
               | Expr_postunary expr expr (* no parenthesis and separated with one space *)
               | Expr_warning_parenthesis expr (* optional parenthesis that can be removed but a warning will be raised *)
@@ -320,6 +321,20 @@ definition "print_astype_class = map Thy_defs_overloaded o
 definition "print_astype_from_universe = map Thy_definition_hol o
   map_class_h (\<lambda>isub_name name l_hierarchy.
     let const_astype = concat (const_oclastype # isub_of_str name # ''_'' # unicode_AA # []) in
+    Definition (Expr_rewrite (Expr_basic [const_astype]) ''='' 
+   (
+   (Expr_function (map (\<lambda>h_name. 
+     let isub_h = (\<lambda> s. s @ isub_of_str h_name) in
+     ( Expr_apply (isub_h datatype_in) [Expr_basic [h_name]]
+     , Expr_warning_parenthesis
+       (Expr_postunary (Expr_annot (Expr_applys (bug_ocaml_extraction (let var_x = ''x'' in
+                                                      Expr_lambdas [var_x, wildcard] (Expr_some (Expr_some (Expr_basic [var_x]))))) [Expr_basic [h_name]])
+                                   h_name)
+                       (Expr_basic [dot_astype name])))) l_hierarchy)))))"
+
+definition "print_astype_from_universe' = map Thy_definition_hol o
+  map_class_h (\<lambda>isub_name name l_hierarchy.
+    let const_astype = concat (const_oclastype # isub_of_str name # ''_'' # unicode_AA # []) in
     Definition (Expr_rewrite (Expr_basic [const_astype]) ''=''
    (let ((finish_with_some1, finish_with_some2), last_case_none) =
      let (f, r) = (if hd l_hierarchy = name then (id, []) else (flip, [(Expr_basic [wildcard], Expr_basic [''None''])])) in
@@ -461,6 +476,20 @@ definition "print_istypeof_class = map Thy_defs_overloaded o
       l_hierarchy)"
 
 definition "print_istypeof_from_universe = map Thy_definition_hol o
+  map_class_h (\<lambda>isub_name name l_hierarchy.
+    let const_istypeof = concat (const_oclistypeof # isub_of_str name # ''_'' # unicode_AA # []) in
+    Definition (Expr_rewrite (Expr_basic [const_istypeof]) ''='' 
+   (
+   (Expr_function (map (\<lambda>h_name. 
+     let isub_h = (\<lambda> s. s @ isub_of_str h_name) in
+     ( Expr_apply (isub_h datatype_in) [Expr_basic [h_name]]
+     , Expr_warning_parenthesis
+       (Expr_postunary (Expr_annot (Expr_applys (bug_ocaml_extraction (let var_x = ''x'' in
+                                                      Expr_lambdas [var_x, wildcard] (Expr_some (Expr_some (Expr_basic [var_x]))))) [Expr_basic [h_name]])
+                                   h_name)
+                       (Expr_basic [dot_istypeof name])))) l_hierarchy)))))"
+
+definition "print_istypeof_from_universe' = map Thy_definition_hol o
   map_class_h' (\<lambda>isub_name name l_hierarchy.
     let const_istypeof = concat (const_oclistypeof # isub_of_str name # ''_'' # unicode_AA # []) in
     Definition (Expr_rewrite (Expr_basic [const_istypeof]) ''='' 
@@ -583,35 +612,17 @@ definition "print_iskindof_class = map Thy_defs_overloaded o (\<lambda> x. snd (
 
 definition "print_iskindof_from_universe = map Thy_definition_hol o
   map_class_h (\<lambda>isub_name name l_hierarchy.
-    let const_iskindof = concat (const_ocliskindof # isub_of_str name # ''_'' # unicode_AA # [])
-      ; var_u = ''u'' in
-    Definition (Expr_rewrite (Expr_basic [const_iskindof]) ''='' (Expr_lambda var_u
-
-   (let ((finish_with_some1, finish_with_some2), last_case_none) =
-     let (f, r) = (if hd l_hierarchy = name then (id, []) else (flip, [(Expr_basic [wildcard], Expr_basic [''None''])])) in
-     (f (id, Expr_some), r) in
-   finish_with_some2
-   (Expr_case (Expr_basic [var_u]) (concat (map
-   (\<lambda>h_name.
-     let isub_h = (\<lambda> s. s @ isub_of_str h_name)
-       ; var_oid = ''oid''
-       ; pattern_complex = (\<lambda>h_name name.
-                            let isub_h = (\<lambda> s. s @ isub_of_str h_name)
-                              ; isub_name = (\<lambda>s. s @ isub_of_str name)
-                              ; isub_n = (\<lambda>s. isub_name (concat (s # ''_'' # [])))
-                              ; var_name = name in
-                             Expr_apply (isub_h datatype_constr_name)
-                                        [Expr_basic [var_oid], Expr_apply (isub_n (isub_h datatype_ext_constr_name)) [Expr_basic [var_name]]])
-       ; pattern_simple = (\<lambda> name.
-                            let isub_name = (\<lambda>s. s @ isub_of_str name)
-                              ; var_name = name in
-                             Expr_basic [isub_name datatype_constr_name, var_oid, var_name])
-       ; case_branch = (\<lambda>pat res. (Expr_apply (isub_h datatype_in) [pat], finish_with_some1 res)) in
-             case compare_hierarchy l_hierarchy h_name name
-             of GT \<Rightarrow> case_branch (pattern_complex h_name name) (pattern_simple name)
-              | EQ \<Rightarrow> let n = Expr_basic [name] in case_branch n n
-              | LT \<Rightarrow> case_branch (pattern_simple h_name) (pattern_complex name h_name)) l_hierarchy
-   # [last_case_none])))))))"
+    let const_iskindof = concat (const_ocliskindof # isub_of_str name # ''_'' # unicode_AA # []) in
+    Definition (Expr_rewrite (Expr_basic [const_iskindof]) ''='' 
+   (
+   (Expr_function (map (\<lambda>h_name. 
+     let isub_h = (\<lambda> s. s @ isub_of_str h_name) in
+     ( Expr_apply (isub_h datatype_in) [Expr_basic [h_name]]
+     , Expr_warning_parenthesis
+       (Expr_postunary (Expr_annot (Expr_applys (bug_ocaml_extraction (let var_x = ''x'' in
+                                                      Expr_lambdas [var_x, wildcard] (Expr_some (Expr_some (Expr_basic [var_x]))))) [Expr_basic [h_name]])
+                                   h_name)
+                       (Expr_basic [dot_iskindof name])))) l_hierarchy)))))"
 
 definition "print_iskindof_lemma_cp_set =
   (if activate_simp_optimization then
@@ -994,6 +1005,7 @@ fun s_of_expr where "s_of_expr expr = (
     | '') (map (\<lambda> (s1, s2) \<Rightarrow> sprintf3 (STR ''%s %s %s'') (s_of_expr s1) Unicode_u_Rightarrow (s_of_expr s2)) l))
   (*| Expr_apply s [e] \<Rightarrow> sprintf2 (STR ''(%s %s)'') (To_string s) (s_of_expr e)*)
   | Expr_apply s l \<Rightarrow> sprintf2 (STR ''(%s %s)'') (To_string s) (String_concat (STR '' '') (map (\<lambda> e \<Rightarrow> sprintf1 (STR ''(%s)'') (s_of_expr e)) l))
+  | Expr_applys e l \<Rightarrow> sprintf2 (STR ''((%s) %s)'') (s_of_expr e) (String_concat (STR '' '') (map (\<lambda> e \<Rightarrow> sprintf1 (STR ''(%s)'') (s_of_expr e)) l))
   | Expr_some (Expr_function l) \<Rightarrow> sprintf4 (STR ''%s%s %s%s'') Unicode_u_lfloor Unicode_u_lambda (String_concat (STR ''
     | '') (map (\<lambda> (s1, s2) \<Rightarrow> sprintf3 (STR ''%s %s %s'') (s_of_expr s1) Unicode_u_Rightarrow (s_of_expr s2)) l)) Unicode_u_rfloor
   | Expr_some e \<Rightarrow> sprintf3 (STR ''%s%s%s'') Unicode_u_lfloor (s_of_expr e) Unicode_u_rfloor

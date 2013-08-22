@@ -77,7 +77,7 @@ definition "thy_object =
 
             , print_astype_consts
             , print_astype_class
-            , print_astype_from_universe
+            (*, print_astype_from_universe*), print_astype_from_universe'
             , print_astype_lemmas_id
             , print_astype_lemma_cp
             , print_astype_lemmas_cp
@@ -86,7 +86,7 @@ definition "thy_object =
 
             , print_istypeof_consts
             , print_istypeof_class
-            , print_istypeof_from_universe
+            , print_istypeof_from_universe(*, print_istypeof_from_universe'*)
             , print_istypeof_lemmas_id
             , print_istypeof_lemma_cp
             , print_istypeof_lemmas_cp
@@ -95,7 +95,7 @@ definition "thy_object =
 
             , print_iskindof_consts
             , print_iskindof_class
-            (*, print_iskindof_from_universe*)
+            , print_iskindof_from_universe(*, print_iskindof_from_universe'*)
             , print_iskindof_lemmas_id
             (*, print_iskindof_lemma_cp
             , print_iskindof_lemmas_cp
