@@ -97,9 +97,9 @@ definition "thy_object =
             , print_iskindof_class
             , print_iskindof_from_universe(*, print_iskindof_from_universe'*)
             , print_iskindof_lemmas_id
-            (*, print_iskindof_lemma_cp
+            , print_iskindof_lemma_cp
             , print_iskindof_lemmas_cp
-            , print_iskindof_lemma_strict
+            (*, print_iskindof_lemma_strict
             , print_iskindof_lemmas_strict
             *)
 
