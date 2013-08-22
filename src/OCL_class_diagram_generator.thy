@@ -390,8 +390,8 @@ definition "print_astype_lemma_cp expr = (map Thy_lemma_by o
              (Expr_warning_parenthesis (Expr_postunary
                (Expr_annot (Expr_apply var_p [Expr_annot (Expr_basic [var_x]) name3]) name2)
                (Expr_basic [dot_astype name1])))]))
-      [Tac_rule ''cpI1'', if check_opt name1 name2 then Tac_simp_all
-                          else Tac_simp_all_add (concat (const_oclastype # isub_of_str name1 # ''_'' # name2 # []))]
+      [Tac_rule ''cpI1'', if check_opt name1 name2 then Tac_simp
+                          else Tac_simp_add [concat (const_oclastype # isub_of_str name1 # ''_'' # name2 # [])]]
   ) l_hierarchy) l_hierarchy) l_hierarchy)))) expr"
 
 definition "print_astype_lemmas_cp =
@@ -538,8 +538,8 @@ definition "print_istypeof_lemma_cp expr = (map Thy_lemma_by o
              (Expr_warning_parenthesis (Expr_postunary
                (Expr_annot (Expr_apply var_p [Expr_annot (Expr_basic [var_x]) name3]) name2)
                (Expr_basic [dot_istypeof name1])))]))
-      [Tac_rule ''cpI1'', if check_opt name1 name2 then Tac_simp_all
-                          else Tac_simp_all_add (concat (const_oclistypeof # isub_of_str name1 # ''_'' # name2 # []))]
+      [Tac_rule ''cpI1'', if check_opt name1 name2 then Tac_simp
+                          else Tac_simp_add [concat (const_oclistypeof # isub_of_str name1 # ''_'' # name2 # [])]]
   ) l_hierarchy) l_hierarchy) l_hierarchy)))) expr"
 
 definition "print_istypeof_lemmas_cp =
