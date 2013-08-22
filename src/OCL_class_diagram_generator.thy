@@ -72,15 +72,11 @@ datatype position = EQ | LT | GT
 
 fun less_than_hierarchy where
   "less_than_hierarchy l item1 item2 =
-    (case l of [] \<Rightarrow> None
-             | x # xs \<Rightarrow>
-               if x = item1 then
-                 Some GT
-               else if x = item2 then
-                 Some LT
-               else
-                 less_than_hierarchy xs item1 item2)"
-definition "compare_hierarchy = (\<lambda>l x1 x2. if x1 = x2 then Some EQ else less_than_hierarchy l x1 x2)"
+    (case l of x # xs \<Rightarrow>
+               if x = item1 then GT
+               else if x = item2 then LT
+               else less_than_hierarchy xs item1 item2)"
+definition "compare_hierarchy = (\<lambda>l x1 x2. if x1 = x2 then EQ else less_than_hierarchy l x1 x2)"
 
 
 fun flip where "flip (a,b) = (b,a)"
@@ -289,10 +285,10 @@ definition "print_astype_class = map Thy_defs_overloaded o
            Expr_rewrite
              (Expr_postunary (Expr_annot (Expr_basic [var_x]) h_name) (Expr_basic [dot_astype name]))
              unicode_equiv
-             (let x = compare_hierarchy l_hierarchy h_name name in
-              if x = Some EQ then
+             (case compare_hierarchy l_hierarchy h_name name
+              of EQ \<Rightarrow>
                 Expr_basic [var_x]
-              else
+              | x \<Rightarrow>
                 let var_tau = unicode_tau
                   ; val_invalid = Expr_apply ''invalid'' [Expr_basic [var_tau]] in
                 Expr_lambda var_tau
@@ -313,7 +309,7 @@ definition "print_astype_class = map Thy_defs_overloaded o
                               ; var_name = name in
                              Expr_basic [isub_name datatype_constr_name, var_oid, var_name])
                          ; some_some = (\<lambda>x. Expr_some (Expr_some x)) in
-                       if x = Some LT then
+                       if x = LT then
                          [ (some_some (pattern_simple h_name), some_some (pattern_complex name h_name)) ]
                        else
                          [ (some_some (pattern_complex h_name name), some_some (pattern_simple name))
@@ -345,9 +341,9 @@ definition "print_astype_from_universe = map Thy_definition_hol o
                              Expr_basic [isub_name datatype_constr_name, var_oid, var_name])
        ; case_branch = (\<lambda>pat res. (Expr_apply (isub_h datatype_in) [pat], finish_with_some1 res)) in
              case compare_hierarchy l_hierarchy h_name name
-             of Some GT \<Rightarrow> case_branch (pattern_complex h_name name) (pattern_simple name)
-              | Some EQ \<Rightarrow> let n = Expr_basic [name] in case_branch n n
-              | Some LT \<Rightarrow> case_branch (pattern_simple h_name) (pattern_complex name h_name)) l_hierarchy
+             of GT \<Rightarrow> case_branch (pattern_complex h_name name) (pattern_simple name)
+              | EQ \<Rightarrow> let n = Expr_basic [name] in case_branch n n
+              | LT \<Rightarrow> case_branch (pattern_simple h_name) (pattern_complex name h_name)) l_hierarchy
    # [last_case_none]))))))"
 
 definition "print_astype_lemma_cp_set =
@@ -460,9 +456,9 @@ definition "print_istypeof_class = map Thy_defs_overloaded o
                        let l_false = [(Expr_basic [wildcard], ocl_tau ''false'')]
                          ; ret_true = (\<lambda>x. (some_some x, ocl_tau ''true'') # (if h_name = hd (rev_map fst l_hierarchy) then [] else l_false))
                          ; x = compare_hierarchy (map fst l_hierarchy) h_name name in
-                       if x = Some EQ then
+                       if x = EQ then
                          ret_true (pattern_complex_gen (\<lambda>_. map (\<lambda>_. Expr_basic [wildcard]) l_attr) (\<lambda>_ x. x) name h_name)
-                       else if x = Some GT then
+                       else if x = GT then
                          ret_true (pattern_complex h_name name)
                        else
                          l_false) ) ))) )
@@ -495,9 +491,9 @@ definition "print_istypeof_from_universe = map Thy_definition_hol o
                              Expr_basic [isub_name datatype_constr_name, var_oid, var_name])
        ; case_branch = (\<lambda>pat res. (Expr_apply (isub_h datatype_in) [pat], finish_with_some1 res)) in
              case compare_hierarchy l_hierarchy h_name name
-             of Some GT \<Rightarrow> case_branch (pattern_complex h_name name) (pattern_simple name)
-              | Some EQ \<Rightarrow> let n = Expr_basic [name] in case_branch n n
-              | Some LT \<Rightarrow> case_branch (pattern_simple h_name) (pattern_complex name h_name)) l_hierarchy
+             of GT \<Rightarrow> case_branch (pattern_complex h_name name) (pattern_simple name)
+              | EQ \<Rightarrow> let n = Expr_basic [name] in case_branch n n
+              | LT \<Rightarrow> case_branch (pattern_simple h_name) (pattern_complex name h_name)) l_hierarchy
    # [last_case_none])))))))"
 
 definition "print_istypeof_lemma_cp_set =
@@ -627,9 +623,9 @@ definition "print_iskindof_from_universe = map Thy_definition_hol o
                              Expr_basic [isub_name datatype_constr_name, var_oid, var_name])
        ; case_branch = (\<lambda>pat res. (Expr_apply (isub_h datatype_in) [pat], finish_with_some1 res)) in
              case compare_hierarchy l_hierarchy h_name name
-             of Some GT \<Rightarrow> case_branch (pattern_complex h_name name) (pattern_simple name)
-              | Some EQ \<Rightarrow> let n = Expr_basic [name] in case_branch n n
-              | Some LT \<Rightarrow> case_branch (pattern_simple h_name) (pattern_complex name h_name)) l_hierarchy
+             of GT \<Rightarrow> case_branch (pattern_complex h_name name) (pattern_simple name)
+              | EQ \<Rightarrow> let n = Expr_basic [name] in case_branch n n
+              | LT \<Rightarrow> case_branch (pattern_simple h_name) (pattern_complex name h_name)) l_hierarchy
    # [last_case_none])))))))"
 
 definition "print_iskindof_lemma_cp_set =
