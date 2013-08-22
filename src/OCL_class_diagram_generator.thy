@@ -429,6 +429,7 @@ definition "print_istypeof_consts = map Thy_consts_class o
 definition "print_istypeof_class = map Thy_defs_overloaded o
   map_class_gen_h' (\<lambda>isub_name name l_hierarchy.
     map
+      (let l_hierarchy = map fst l_hierarchy in
       (\<lambda> (h_name, l_attr).
         Defs_overloaded
           (concat (isub_name const_oclistypeof # ''_'' # h_name # []))
@@ -443,25 +444,19 @@ definition "print_istypeof_class = map Thy_defs_overloaded o
                     (ocl_tau var_x)
                     ( (Expr_basic [unicode_bottom], ocl_tau ''invalid'')
                     # (Expr_some (Expr_basic [unicode_bottom]), ocl_tau ''true'')
-                    # (let var_oid = wildcard
-                         ; pattern_complex_gen = (\<lambda>f1 f2 h_name name.
-                            let isub_h = (\<lambda> s. s @ isub_of_str h_name)
-                              ; isub_name = (\<lambda>s. s @ isub_of_str name)
-                              ; isub_n = (\<lambda>s. isub_name (concat (s # ''_'' # [])))
-                              ; var_name = name in
-                             Expr_apply (isub_h datatype_constr_name)
-                                        [Expr_basic [var_oid], Expr_apply (f2 isub_n (isub_h datatype_ext_constr_name)) (f1 var_name)])
-                         ; pattern_complex = pattern_complex_gen (\<lambda>x. [Expr_basic [wildcard]]) (\<lambda> f x. f x)
-                         ; some_some = (\<lambda>x. Expr_some (Expr_some x)) in
-                       let l_false = [(Expr_basic [wildcard], ocl_tau ''false'')]
-                         ; ret_true = (\<lambda>x. (some_some x, ocl_tau ''true'') # (if h_name = hd (rev_map fst l_hierarchy) then [] else l_false))
-                         ; x = compare_hierarchy (map fst l_hierarchy) h_name name in
-                       if x = EQ then
-                         ret_true (pattern_complex_gen (\<lambda>_. map (\<lambda>_. Expr_basic [wildcard]) l_attr) (\<lambda>_ x. x) name h_name)
-                       else if x = GT then
-                         ret_true (pattern_complex h_name name)
-                       else
-                         l_false) ) ))) )
+                    # (let l_false = [(Expr_basic [wildcard], ocl_tau ''false'')]
+                         ; pattern_complex_gen = (\<lambda>f1 f2.
+                            let isub_h = (\<lambda> s. s @ isub_of_str h_name) in
+                             (Expr_some (Expr_some 
+                               (Expr_apply (isub_h datatype_constr_name)
+                                           [ Expr_basic [wildcard]
+                                           , Expr_apply (f2 (\<lambda>s. isub_name (concat (s # ''_'' # []))) (isub_h datatype_ext_constr_name))
+                                                        f1])), ocl_tau ''true'')
+                             # (if h_name = last l_hierarchy then [] else l_false)) in
+                       case compare_hierarchy l_hierarchy h_name name
+                       of EQ \<Rightarrow> pattern_complex_gen (map (\<lambda>_. Expr_basic [wildcard]) l_attr) (\<lambda>_. id)
+                        | GT \<Rightarrow> pattern_complex_gen [Expr_basic [wildcard]] id
+                        | _ \<Rightarrow> l_false) ) ))) ))
       l_hierarchy)"
 
 definition "print_istypeof_from_universe = map Thy_definition_hol o
