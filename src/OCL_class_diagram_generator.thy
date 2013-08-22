@@ -129,7 +129,7 @@ datatype lemmas_simp = Lemmas_simp "str list"
 datatype tactic = Tac_rule str
                 | Tac_rule_where str "(str \<times> expr) list (* where clause *)"
                 | Tac_plus tactic
-                | Tac_simp | Tac_simp_add "str list" | Tac_simp_only str
+                | Tac_simp | Tac_simp_add "str list" | Tac_simp_only "str list"
                 | Tac_simp_all | Tac_simp_all_add str
 
 datatype lemma_by = Lemma_by str (* name *) "expr list" (* specification to prove *)
@@ -583,15 +583,21 @@ definition "print_istypeof_lemma_strict expr = (map Thy_lemma_by o
                                         else concat (const_oclistypeof # isub_of_str name1 # ''_'' # name3 # []) # l)]))
   ) l_hierarchy) [(''invalid'',''invalid''),(''null'',''true'')]) l_hierarchy)))) expr"
 
-definition "print_istypeof_lemmas_strict =
- (if activate_simp_optimization then map Thy_lemmas_simp o
-  get_hierarchy (\<lambda>l_hierarchy.
-  [ Lemmas_simp
-  (concat (concat
-  (map (\<lambda>name1. map (\<lambda>name2. map (\<lambda>name3.
-      (concat (const_oclistypeof # isub_of_str name1 # ''_'' # name3 # ''_'' # name2 # []))
-  ) l_hierarchy) [''invalid'',''null'']) l_hierarchy)))])
-  else (\<lambda>_. []))"
+definition "print_istypeof_lemmas_strict_set =
+  (if activate_simp_optimization then
+    get_hierarchy (\<lambda>l_hierarchy. 
+    concat (concat (map (\<lambda>name1. map (\<lambda>name2. map (\<lambda>name3.
+      (name1, name3, name2)
+  ) l_hierarchy) [''invalid'',''null'']) l_hierarchy)))
+   else (\<lambda>_. []))"
+
+definition "print_istypeof_lemmas_strict expr = map Thy_lemmas_simp 
+  (case print_istypeof_lemmas_strict_set expr
+   of [] \<Rightarrow> []
+    | l \<Rightarrow> [ Lemmas_simp (map
+      (\<lambda>(name1, name3, name2).
+        (concat (const_oclistypeof # isub_of_str name1 # ''_'' # name3 # ''_'' # name2 # [])))
+      l) ])"
 
 subsection{* IsKindOf *}
 
@@ -656,8 +662,8 @@ definition "print_iskindof_lemma_cp expr = (map Thy_lemma_by o
              (Expr_warning_parenthesis (Expr_postunary
                (Expr_annot (Expr_apply var_p [Expr_annot (Expr_basic [var_x]) name3]) name2)
                (Expr_basic [dot_iskindof name1])))]
-      ; lem_simp1 = Tac_simp_only (concat (const_ocliskindof # isub_of_str name1 # ''_'' # name2 # []))
-      ; lem_simp2 = Tac_simp_only (concat (''cp_'' # const_oclistypeof # isub_of_str name1 # ''_'' # name3 # ''_'' # name2 # [])) in
+      ; lem_simp1 = Tac_simp_only [concat (const_ocliskindof # isub_of_str name1 # ''_'' # name2 # [])]
+      ; lem_simp2 = Tac_simp_only [concat (''cp_'' # const_oclistypeof # isub_of_str name1 # ''_'' # name3 # ''_'' # name2 # [])] in
     let (tac1, tac2) = case name1_previous
     of None \<Rightarrow> ([], Some [ lem_simp1 , lem_simp2 ])
      | Some name1_previous \<Rightarrow>
@@ -666,7 +672,7 @@ definition "print_iskindof_lemma_cp expr = (map Thy_lemma_by o
                                              Expr_lambdas [var_x, var_y] (Expr_binop (Expr_basic [var_x]) ''or'' (Expr_basic [var_y])))]
           , Tac_plus (Tac_rule ''allI'')
           , Tac_rule ''cp_OclOr'' ] ]
-      , Some [ lem_simp2 , Tac_simp_only (concat (''cp_'' # const_ocliskindof # isub_of_str name1_previous # ''_'' # name3 # ''_'' # name2 # [])) ])
+      , Some [ lem_simp2 , Tac_simp_only [concat (''cp_'' # const_ocliskindof # isub_of_str name1_previous # ''_'' # name3 # ''_'' # name2 # [])] ])
     in Lemma_by lemma_name lemma_spec tac1 tac2
   ) l_hierarchy) (rev l_hierarchy) # l1)) (None, []) (rev l_hierarchy) in rev l)))) expr"
 
@@ -682,11 +688,8 @@ definition "print_iskindof_lemmas_cp =
 
 definition "print_iskindof_lemma_strict expr = (map Thy_lemma_by o
   get_hierarchy (\<lambda>l_hierarchy.
-  let check_opt =
-    let set = print_iskindof_lemma_cp_set expr in
-    (\<lambda>n1 n2. list_ex (\<lambda>((_, name1), name2). name1 = n1 & name2 = n2) set) in
   concat (concat
-  (map (\<lambda>name1. map (\<lambda>(name2,name2'). map (\<lambda>name3.
+  (let (_, l) = foldl (\<lambda>(name1_previous, l) name1. (Some name1, map (\<lambda>(name2,name2'). map (\<lambda>name3.
     Lemma_by
       (concat (const_ocliskindof # isub_of_str name1 # ''_'' # name3 # ''_'' # name2 # []))
       [ Expr_rewrite
@@ -696,11 +699,16 @@ definition "print_iskindof_lemma_strict expr = (map Thy_lemma_by o
              ''=''
              (Expr_basic [name2'])]
       []
-      (Some (let l = ''bot_option_def'' # (if name2 = ''invalid'' then [''invalid_def'']
-                                           else [''null_fun_def'',''null_option_def'']) in
-       [Tac_rule ''ext'', Tac_simp_add (if check_opt name1 name3 then l
-                                        else concat (const_ocliskindof # isub_of_str name1 # ''_'' # name3 # []) # l)]))
-  ) l_hierarchy) [(''invalid'',''invalid''),(''null'',''true'')]) l_hierarchy)))) expr"
+      (Some 
+        ( Tac_simp_only 
+            (concat 
+              [ [concat (const_ocliskindof # isub_of_str name1 # ''_'' # name3 # [])]
+              , [concat (const_oclistypeof # isub_of_str name1 # ''_'' # name3 # ''_'' # name2 # [])]
+              , case name1_previous
+                of None \<Rightarrow> []
+                 | Some name1_previous \<Rightarrow> [concat (const_ocliskindof # isub_of_str name1_previous # ''_'' # name3 # ''_'' # name2 # [])] ])
+        # (if name1_previous = None then [] else [Tac_simp])) )
+  ) l_hierarchy) [(''invalid'',''invalid''),(''null'',''true'')] # l)) (None, []) (rev l_hierarchy) in rev l)))) expr"
 
 definition "print_iskindof_lemmas_strict =
  (if activate_simp_optimization then map Thy_lemmas_simp o
@@ -1064,7 +1072,7 @@ fun s_of_tactic where "s_of_tactic expr = (\<lambda>
   | Tac_plus t \<Rightarrow> sprintf1 (STR ''(%s)+'') (s_of_tactic t)
   | Tac_simp \<Rightarrow> sprintf0 (STR ''simp'')
   | Tac_simp_add l \<Rightarrow> sprintf1 (STR ''simp add: %s'') (String_concat (STR '' '') (map To_string l))
-  | Tac_simp_only l \<Rightarrow> sprintf1 (STR ''simp only: %s'') (String_concat (STR '' '') (map To_string [l]))
+  | Tac_simp_only l \<Rightarrow> sprintf1 (STR ''simp only: %s'') (String_concat (STR '' '') (map To_string l))
   | Tac_simp_all \<Rightarrow> sprintf0 (STR ''simp_all'')
   | Tac_simp_all_add s \<Rightarrow> sprintf1 (STR ''simp_all add: %s'') (To_string s)) expr"
 

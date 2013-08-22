@@ -99,9 +99,8 @@ definition "thy_object =
             , print_iskindof_lemmas_id
             , print_iskindof_lemma_cp
             , print_iskindof_lemmas_cp
-            (*, print_iskindof_lemma_strict
+            , print_iskindof_lemma_strict
             , print_iskindof_lemmas_strict
-            *)
 
             , print_eval_extract
             , print_deref_oid

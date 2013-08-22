@@ -716,6 +716,29 @@ lemma OclAnd_assoc: "(X and (Y and Z)) = (X and Y and Z)"
 done
 
 
+lemma OclOr1[simp]: "(invalid or true) = true"
+  by(rule ext,simp add: OclOr_def OclNot_def OclAnd_def null_def invalid_def true_def false_def bot_option_def)
+lemma OclOr2[simp]: "(invalid or false) = invalid"
+  by(rule ext,simp add: OclOr_def OclNot_def OclAnd_def null_def invalid_def true_def false_def bot_option_def)
+lemma OclOr3[simp]: "(invalid or null) = invalid"
+  by(rule ext,simp add: OclOr_def OclNot_def OclAnd_def null_def invalid_def true_def false_def bot_option_def 
+                        null_fun_def null_option_def)
+lemma OclOr4[simp]: "(invalid or invalid) = invalid"
+  by(rule ext,simp add: OclOr_def OclNot_def OclAnd_def null_def invalid_def true_def false_def bot_option_def)
+
+lemma OclOr5[simp]: "(null or true) = true"
+  by(rule ext,simp add: OclOr_def OclNot_def OclAnd_def null_def invalid_def true_def false_def bot_option_def
+                        null_fun_def null_option_def)
+lemma OclOr6[simp]: "(null or false) = null"
+  by(rule ext,simp add: OclOr_def OclNot_def OclAnd_def null_def invalid_def true_def false_def bot_option_def
+                        null_fun_def null_option_def)
+lemma OclOr7[simp]: "(null or null) = null"
+  by(rule ext,simp add: OclOr_def OclNot_def OclAnd_def null_def invalid_def true_def false_def bot_option_def
+                        null_fun_def null_option_def)
+lemma OclOr8[simp]: "(null or invalid) = invalid"
+  by(rule ext,simp add: OclOr_def OclNot_def OclAnd_def null_def invalid_def true_def false_def bot_option_def
+                        null_fun_def null_option_def)
+
 lemma OclOr_idem[simp]: "(X or X) = X"
   by(simp add: OclOr_def)
 
@@ -733,6 +756,25 @@ lemma OclOr_true1[simp]: "(true or Y) = true"
 
 lemma OclOr_true2: "(Y or true) = true"
   by(simp add: OclOr_def)
+
+lemma OclOr_bot1[simp]: "\<And>\<tau>. X \<tau> \<noteq> true \<tau> \<Longrightarrow> (bot or X) \<tau> = bot \<tau>"
+  apply(simp add: OclOr_def OclAnd_def OclNot_def)
+  apply(auto simp:true_def false_def bot_fun_def bot_option_def 
+             split: option.split option.split_asm)
+done
+
+lemma OclOr_bot2[simp]: "\<And>\<tau>. X \<tau> \<noteq> true \<tau> \<Longrightarrow> (X or bot) \<tau> = bot \<tau>"
+  by(simp add: OclOr_commute) 
+
+lemma OclOr_null1[simp]: "\<And>\<tau>. X \<tau> \<noteq> true \<tau> \<Longrightarrow> X \<tau> \<noteq> bot \<tau> \<Longrightarrow> (null or X) \<tau> = null \<tau>"
+  apply(simp add: OclOr_def OclAnd_def OclNot_def)
+  apply(auto simp:true_def false_def bot_fun_def bot_option_def null_fun_def null_option_def 
+             split: option.split option.split_asm)
+  apply (metis (full_types) bool.simps(3) bot_option_def null_is_valid null_option_def)
+by (metis (full_types) bool.simps(3) option.distinct(1) the.simps)
+
+lemma OclOr_null2[simp]: "\<And>\<tau>. X \<tau> \<noteq> true \<tau> \<Longrightarrow> X \<tau> \<noteq> bot \<tau> \<Longrightarrow> (X or null) \<tau> = null \<tau>"
+  by(simp add: OclOr_commute) 
 
 lemma OclOr_assoc: "(X or (Y or Z)) = (X or Y or Z)"
   by(simp add: OclOr_def OclAnd_assoc)
