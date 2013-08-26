@@ -105,7 +105,9 @@ definition "thy_object =
             , print_eval_extract
             , print_deref_oid
             , print_select
-            , print_dot ]"
+            , print_select_inherited
+            , print_dot
+            , print_dot_inherited ]"
 
 definition "main = (let file_out = STR ''Employee_DesignModel_UMLPart_generated''
                       ; exemple = (case True of True \<Rightarrow> Employee_DesignModel_UMLPart
