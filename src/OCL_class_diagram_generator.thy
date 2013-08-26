@@ -197,39 +197,38 @@ definition "var_select = ''select''"
 section{* Model of OCL classes *}
 
 fun map_class_gen_aux where
-   "map_class_gen_aux l_inherited l_res f (Mk_univ name l_attr dataty) = (
-      let l_res = f (\<lambda>s. s @ isub_of_str name) name l_attr l_inherited (dataty = None) # l_res in
+   "map_class_gen_aux l_inherited l_res l_cons f (Mk_univ name l_attr dataty) = (
+      let l_cons = tl l_cons
+        ; l_res = f (\<lambda>s. s @ isub_of_str name) name l_attr l_inherited l_cons (dataty = None) # l_res in
       case dataty
       of None \<Rightarrow> concat l_res
-       | Some dataty \<Rightarrow> map_class_gen_aux (l_attr # l_inherited) l_res f dataty)"
-definition "map_class_gen = map_class_gen_aux [] []"
+       | Some dataty \<Rightarrow> map_class_gen_aux (l_attr # l_inherited) l_res l_cons f dataty)"
+definition "map_class_gen f expr = map_class_gen_aux [] [] (map fst (get_class_hierarchy expr)) f expr"
 
-definition "map_class f = map_class_gen (\<lambda>isub_name name l_attr l_inherited l_cons. [f isub_name name l_attr l_inherited l_cons])"
-definition "add_hierarchy f x = (\<lambda>isub_name name _ _ _. f isub_name name (map fst (get_class_hierarchy x)))"
-definition "add_hierarchy' f x = (\<lambda>isub_name name _ _ _. f isub_name name ((get_class_hierarchy x)))"
-definition "add_hierarchy'' f x = (\<lambda>isub_name name l_attr _ _. f isub_name name ((get_class_hierarchy x)) l_attr)"
-definition "add_hierarchy''' f x = (\<lambda>isub_name name l_attr l_hierarchy _. f isub_name name ((get_class_hierarchy x)) l_attr l_hierarchy)"
+definition "add_hierarchy f x = (\<lambda>isub_name name _ _ _ _. f isub_name name (map fst (get_class_hierarchy x)))"
+definition "add_hierarchy' f x = (\<lambda>isub_name name _ _ _ _. f isub_name name (get_class_hierarchy x))"
+definition "add_hierarchy'' f x = (\<lambda>isub_name name l_attr _ _ _. f isub_name name (get_class_hierarchy x) l_attr)"
+definition "add_hierarchy''' f x = (\<lambda>isub_name name l_attr l_hierarchy _ last_dataty. f isub_name name (get_class_hierarchy x) l_attr l_hierarchy last_dataty)"
+definition "add_hierarchy'''' f x = (\<lambda>isub_name name l_attr l_inherited l_cons _. f isub_name name (get_class_hierarchy x) l_attr l_inherited l_cons)"
+definition "map_class f = map_class_gen (\<lambda>isub_name name l_attr l_inherited l_cons last_dataty. [f isub_name name l_attr l_inherited l_cons last_dataty])"
 definition "map_class_gen_h f x = map_class_gen (add_hierarchy f x) x"
 definition "map_class_gen_h' f x = map_class_gen (add_hierarchy' f x) x"
 definition "map_class_gen_h'' f x = map_class_gen (add_hierarchy'' f x) x"
 definition "map_class_gen_h''' f x = map_class_gen (add_hierarchy''' f x) x"
+definition "map_class_gen_h'''' f x = map_class_gen (add_hierarchy'''' f x) x"
 definition "map_class_h f x = map_class (add_hierarchy f x) x"
 definition "map_class_h' f x = map_class (add_hierarchy' f x) x"
 definition "map_class_h'' f x = map_class (add_hierarchy'' f x) x"
-definition "map_class_arg_only f = map_class_gen (\<lambda> isub_name name l_attr _ _. case l_attr of [] \<Rightarrow> [] | l \<Rightarrow> f isub_name name l)"
-definition "map_class_arg_only' f = map_class_gen (\<lambda> isub_name name l_attr l_inherited l_cons. case concat l_inherited of [] \<Rightarrow> [] | l \<Rightarrow> f isub_name name l_attr l l_cons)"
+definition "map_class_arg_only f = map_class_gen (\<lambda> isub_name name l_attr _ _ _. case l_attr of [] \<Rightarrow> [] | l \<Rightarrow> f isub_name name l)"
+definition "map_class_arg_only' f = map_class_gen (\<lambda> isub_name name l_attr l_inherited _ last_dataty. case concat l_inherited of [] \<Rightarrow> [] | l \<Rightarrow> f isub_name name l_attr l last_dataty)"
 definition "get_hierarchy f x = f (map fst (get_class_hierarchy x))"
 
 subsection{* ... *}
 
 definition "activate_simp_optimization = True"
 
-fun print_datatype_class_aux where
-   "print_datatype_class_aux l_inherited (Mk_univ name l_attr dataty) =
-  (let (l_cons, v) = (case dataty of None \<Rightarrow> ([],[]) | Some dataty \<Rightarrow> print_datatype_class_aux (l_attr # l_inherited) dataty) in
-   (name # l_cons,
-    v @
-    (let isub_name = (\<lambda>s. s @ isub_of_str name) in
+definition "print_datatype_class = map Thy_dataty o map_class_gen_h'''' 
+  (\<lambda>isub_name name _ l_attr l_inherited l_cons.
     [ Datatype
         (isub_name datatype_ext_name)
         ( (rev_map (\<lambda>x. (datatype_ext_constr_name @ mk_constr_name name x, [Raw (datatype_name @ isub_of_str x)])) l_cons)
@@ -237,26 +236,21 @@ fun print_datatype_class_aux where
     , Datatype
         (isub_name datatype_name)
         [ (isub_name datatype_constr_name, concat [ [ Raw (isub_name datatype_ext_name) ]
-                                                  , map (\<lambda>(_, x). Opt (str_of_ty x)) l_attr ] ) ] ])))"
-definition "print_datatype_class = map Thy_dataty o snd o print_datatype_class_aux []"
+                                                  , map (\<lambda>(_, x). Opt (str_of_ty x)) l_attr ] ) ] ])"
 
 definition "print_datatype_universe expr = map Thy_dataty
   [ Datatype unicode_AA
-      (map_class (\<lambda>isub_name _ _ _ _. (isub_name datatype_in, [Raw (isub_name datatype_name)])) expr) ]"
+      (map_class (\<lambda>isub_name _ _ _ _ _. (isub_name datatype_in, [Raw (isub_name datatype_name)])) expr) ]"
 
 definition "print_type_synonym_class expr = map Thy_ty_synonym
   (Type_synonym ty_boolean (Ty_apply (Ty_base ty_boolean) [Ty_base unicode_AA]) #
-   (map_class (\<lambda>isub_name name _ _ _.
+   (map_class (\<lambda>isub_name name _ _ _ _.
      Type_synonym name (Ty_apply (Ty_base ''val'') [Ty_base unicode_AA,
      let option = (\<lambda>x. Ty_apply (Ty_base ''option'') [x]) in
      option (option (Ty_base (isub_name datatype_name))) ])) expr))"
 
-fun print_instantiation_class_aux where
-   "print_instantiation_class_aux l_inherited (Mk_univ name l_attr dataty) =
-  (let (l_cons, v) = (case dataty of None \<Rightarrow> ([],[]) | Some dataty \<Rightarrow> print_instantiation_class_aux (l_attr # l_inherited) dataty) in
-   (name # l_cons,
-    v @
-    (let isub_name = (\<lambda>s. s @ isub_of_str name) in
+definition "print_instantiation_class = map Thy_instantiation_class o map_class_gen_h'''' 
+  (\<lambda>isub_name name _ l_attr l_inherited l_cons.  
     let oid_of = ''oid_of'' in
     [Instantiation
       (isub_name datatype_name)
@@ -272,8 +266,7 @@ fun print_instantiation_class_aux where
                          ( ((Expr_apply (isub_name datatype_ext_constr_name) (Expr_basic [var_oid] # concat (map (map (\<lambda>_. Expr_basic [wildcard])) l_inherited))), Expr_basic [var_oid])
                          # map (\<lambda>x. ( Expr_apply (datatype_ext_constr_name @ mk_constr_name name x) [Expr_basic [var_oid]]
                                     , Expr_apply oid_of [Expr_basic [var_oid]])) l_cons))]))
-    ])))"
-definition "print_instantiation_class = map Thy_instantiation_class o snd o print_instantiation_class_aux []"
+    ])"
 
 definition "print_instantiation_universe expr = map Thy_instantiation_class
   [ let oid_of = ''oid_of'' in
@@ -281,13 +274,13 @@ definition "print_instantiation_universe expr = map Thy_instantiation_class
       (Expr_rewrite
         (Expr_basic [oid_of])
         ''=''
-        (Expr_function (map_class (\<lambda>isub_name name _ _ _.
+        (Expr_function (map_class (\<lambda>isub_name name _ _ _ _.
     let esc = (\<lambda>h. Expr_basic (h # [name])) in
     (esc (isub_name datatype_in), esc oid_of)) expr))) ]"
 
 
 definition "print_def_strictrefeq = map Thy_defs_overloaded o
-  map_class (\<lambda>isub_name name _ _ _.
+  map_class (\<lambda>isub_name name _ _ _ _.
     let mk_strict = (\<lambda>l. concat (''StrictRefEq'' # isub_of_str ''Object'' # l))
       ; s_strict = mk_strict [''_'', isub_of_str name]
       ; var_x = ''x''
@@ -301,7 +294,7 @@ definition "print_def_strictrefeq = map Thy_defs_overloaded o
 subsection{* AsType *}
 
 definition "print_astype_consts = map Thy_consts_class o
-  map_class (\<lambda>isub_name name _ _ _.
+  map_class (\<lambda>isub_name name _ _ _ _.
     Consts (isub_name const_oclastype) name dot_oclastype name)"
 
 definition "print_astype_class = map Thy_defs_overloaded o
@@ -391,7 +384,7 @@ definition "print_astype_from_universe' = map Thy_definition_hol o
 
 definition "print_astype_lemma_cp_set =
   (if activate_simp_optimization then
-    map_class (\<lambda>isub_name name _ _ _. ((isub_name, name), name))
+    map_class (\<lambda>isub_name name _ _ _ _. ((isub_name, name), name))
    else (\<lambda>_. []))"
 
 definition "print_astype_lemmas_id expr =
@@ -468,11 +461,11 @@ definition "print_astype_lemmas_strict =
 subsection{* IsTypeOf *}
 
 definition "print_istypeof_consts = map Thy_consts_class o
-  map_class (\<lambda>isub_name name _ _ _.
+  map_class (\<lambda>isub_name name _ _ _ _.
     Consts (isub_name const_oclistypeof) ty_boolean dot_oclistypeof name)"
 
 definition "print_istypeof_class = map Thy_defs_overloaded o
-  map_class_gen_h''' (\<lambda>isub_name name l_hierarchy _ l_inh.
+  map_class_gen_h''' (\<lambda>isub_name name l_hierarchy _ l_inh _.
     map
       (let l_hierarchy = map fst l_hierarchy in
       (\<lambda> (h_name, hl_attr).
@@ -541,7 +534,7 @@ definition "print_istypeof_from_universe' = map Thy_definition_hol o
 
 definition "print_istypeof_lemma_cp_set =
   (if activate_simp_optimization then
-    map_class (\<lambda>isub_name name _ _ _. ((isub_name, name), name))
+    map_class (\<lambda>isub_name name _ _ _ _. ((isub_name, name), name))
    else (\<lambda>_. []))"
 
 definition "print_istypeof_lemmas_id expr =
@@ -623,16 +616,11 @@ definition "print_istypeof_lemmas_strict expr = map Thy_lemmas_simp
 subsection{* IsKindOf *}
 
 definition "print_iskindof_consts = map Thy_consts_class o
-  map_class (\<lambda>isub_name name _ _ _.
+  map_class (\<lambda>isub_name name _ _ _ _.
     Consts (isub_name const_ocliskindof) ty_boolean dot_ocliskindof name)"
 
-fun print_iskindof_class_aux where
-   "print_iskindof_class_aux l_hierarchy (Mk_univ name _ dataty) =
-  (let (name_past, v) = (case dataty of None \<Rightarrow> (None, []) | Some dataty \<Rightarrow> print_iskindof_class_aux l_hierarchy dataty) in
-   (Some name,
-   v @
-   (let isub_name = (\<lambda>s. s @ isub_of_str name) in
-   map (\<lambda> h_name.
+definition "print_iskindof_class = map Thy_defs_overloaded o map_class_gen_h'''' 
+  (\<lambda>isub_name name l_hierarchy l_attr l_inherited l_cons. map (\<lambda> (h_name, _).
     Defs_overloaded
           (concat (isub_name const_ocliskindof # ''_'' # h_name # []))
           (let var_x = ''x'' in
@@ -640,11 +628,9 @@ fun print_iskindof_class_aux where
              (Expr_postunary (Expr_annot (Expr_basic [var_x]) h_name) (Expr_basic [dot_iskindof name]))
              unicode_equiv
              (let isof = (\<lambda>f name. Expr_warning_parenthesis (Expr_postunary (Expr_basic [var_x]) (Expr_basic [f name]))) in
-              case name_past of None \<Rightarrow> isof dot_istypeof name
-                              | Some name_past \<Rightarrow> Expr_binop (isof dot_istypeof name) ''or'' (isof dot_iskindof name_past))))
-     l_hierarchy
-    )))"
-definition "print_iskindof_class = map Thy_defs_overloaded o (\<lambda> x. snd (print_iskindof_class_aux (map fst (get_class_hierarchy x)) x))"
+              case l_cons of [] \<Rightarrow> isof dot_istypeof name
+                           | name_past # _ \<Rightarrow> Expr_binop (isof dot_istypeof name) ''or'' (isof dot_iskindof name_past))))
+     l_hierarchy)"
 
 definition "print_iskindof_from_universe = map Thy_definition_hol o
   map_class_h (\<lambda>isub_name name l_hierarchy.
@@ -662,7 +648,7 @@ definition "print_iskindof_from_universe = map Thy_definition_hol o
 
 definition "print_iskindof_lemma_cp_set =
   (if activate_simp_optimization then
-    map_class (\<lambda>isub_name name _ _ _. ((isub_name, name), name))
+    map_class (\<lambda>isub_name name _ _ _ _. ((isub_name, name), name))
    else (\<lambda>_. []))"
 
 definition "print_iskindof_lemmas_id expr =
@@ -763,7 +749,7 @@ definition "print_eval_extract _ = map Thy_definition_hol
   , lets var_reconst_basetype ''id'' ])"
 
 definition "print_deref_oid = map Thy_definition_hol o
-  map_class (\<lambda>isub_name _ _ _ _.
+  map_class (\<lambda>isub_name _ _ _ _ _.
     let var_fs = ''fst_snd''
       ; var_f = ''f''
       ; var_oid = ''oid''
