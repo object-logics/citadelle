@@ -109,6 +109,7 @@ datatype expr = Expr_case expr (* value *)
               | Expr_apply str "expr list"
               | Expr_applys expr "expr list"
               | Expr_some expr (* with annotation \<lfloor> ... \<rfloor> *)
+              | Expr_preunary expr expr (* no parenthesis and separated with one space *)
               | Expr_postunary expr expr (* no parenthesis and separated with one space *)
               | Expr_warning_parenthesis expr (* optional parenthesis that can be removed but a warning will be raised *)
               | Expr_parenthesis expr (* mandatory parenthesis *)
@@ -668,8 +669,7 @@ definition "print_iskindof_lemma_cp expr = (map Thy_lemma_by o
     of None \<Rightarrow> ([], Some [ lem_simp1 , lem_simp2 ])
      | Some name1_previous \<Rightarrow>
       ( [ [ lem_simp1 ]
-        , [ Tac_rule_where ''cpI2'' [(''f'', let var_x = ''x'' ; var_y = ''y'' in
-                                             Expr_lambdas [var_x, var_y] (Expr_binop (Expr_basic [var_x]) ''or'' (Expr_basic [var_y])))]
+        , [ Tac_rule_where ''cpI2'' [(''f'', Expr_preunary (Expr_basic [''op'']) (Expr_basic [''or'']))]
           , Tac_plus (Tac_rule ''allI'')
           , Tac_rule ''cp_OclOr'' ] ]
       , Some [ lem_simp2 , Tac_simp_only [concat (''cp_'' # const_ocliskindof # isub_of_str name1_previous # ''_'' # name3 # ''_'' # name2 # [])] ])
@@ -1032,6 +1032,7 @@ fun s_of_expr where "s_of_expr expr = (
     | '') (map (\<lambda> (s1, s2) \<Rightarrow> sprintf3 (STR ''%s %s %s'') (s_of_expr s1) Unicode_u_Rightarrow (s_of_expr s2)) l)) Unicode_u_rfloor
   | Expr_some e \<Rightarrow> sprintf3 (STR ''%s%s%s'') Unicode_u_lfloor (s_of_expr e) Unicode_u_rfloor
   | Expr_postunary e1 e2 \<Rightarrow> sprintf2 (STR ''%s %s'') (s_of_expr e1) (s_of_expr e2)
+  | Expr_preunary e1 e2 \<Rightarrow> sprintf2 (STR ''%s %s'') (s_of_expr e1) (s_of_expr e2)
   | Expr_warning_parenthesis e \<Rightarrow> sprintf1 (STR ''(%s)'') (s_of_expr e)
   | Expr_parenthesis e \<Rightarrow> sprintf1 (STR ''(%s)'') (s_of_expr e))"
 
