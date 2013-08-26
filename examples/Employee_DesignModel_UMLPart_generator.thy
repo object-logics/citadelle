@@ -52,13 +52,11 @@ section{* Code generation *}
 subsection{* Instance *}
 
 definition "Employee_DesignModel_UMLPart =
-  Mk_univ ''OclAny'' [] (Some (
-  Mk_univ ''Person'' [ (''salary'', OclTy_base ''int''), (''boss'', object) ] (Some (
-  Mk_univ ''Void'' [] (Some (
-  Mk_univ ''Invalid'' [] None
-  ))
-  ))
-  ))"
+         Mk_univ ''OclAny'' []
+  (Some (Mk_univ ''Galaxy'' [(''sound'', OclTy_base ''unit''), (''moving'', OclTy_base ''bool'')]
+  (Some (Mk_univ ''Planet'' [(''weight'', OclTy_base ''nat'')]
+  (Some (Mk_univ ''Person'' [(''salary'', OclTy_base ''int''), (''boss'', object)]
+   None )) )) ))"
 
 definition "Employee_DesignModel_UMLPart' =
   Mk_univ ''OclAny'' [] (Some (
