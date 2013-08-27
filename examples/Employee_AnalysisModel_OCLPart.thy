@@ -46,9 +46,9 @@ header{* Part III: OCL Contracts and an Example *}
    Part II : State and Objects. *)
 
 theory 
-  Employee_DesignModel_OCLPart
+  Employee_AnalysisModel_OCLPart
 imports
-  Employee_DesignModel_UMLPart (* Testing *)
+  Employee_AnalysisModel_UMLPart (* Testing *)
 begin
 
 section{* Standard State Infrastructure *}

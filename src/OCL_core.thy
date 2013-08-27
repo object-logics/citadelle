@@ -484,16 +484,17 @@ lemma defined7[simp]: "\<delta> (X \<triangleq> Y) = true"
 
 lemma valid7[simp]: "\<upsilon> (X \<triangleq> Y) = true"
   by(rule ext,
-     auto simp:             valid_def true_def false_def StrongEq_def
+     auto simp: valid_def true_def false_def StrongEq_def
                 bot_fun_def bot_option_def null_option_def null_fun_def)
 
 lemma cp_StrongEq: "(X \<triangleq> Y) \<tau> = ((\<lambda> _. X \<tau>) \<triangleq> (\<lambda> _. Y \<tau>)) \<tau>"
 by(simp add: StrongEq_def)
 
 text{* The semantics of strict equality of OCL is constructed by overloading: 
-for each base type, there is an equality.*}
+for each base type, there is an equality.
+*}
 
-
+find_theorems (120) name: "commute"
 
 subsection{* Logical Connectives and their Universal Properties *}
 text{* It is a design goal to give OCL a semantics that is as closely as
