@@ -51,6 +51,135 @@ definition "bug_ocaml_extraction = id"
   (* In this theory, this identifier can be removed everywhere it is used.
      However without this, there is a syntax error when the code is extracted to OCaml. *)
 
+section{* On the Semantics of Object-oriented Data Structures and Path Expressions *}
+
+subsection{* Basic modelization of attributes *}
+
+datatype oid = Oid
+datatype attr_own = Attr_own
+datatype attr_inh = Attr_inh
+datatype '\<alpha> recurse = R nat '\<alpha>
+
+subsection{* Datatype definition of the class type and class type extension (version 1) *}
+
+datatype t1_ext = T1_ext attr_own "(t1_ext recurse) option"
+datatype t1 = T1 oid attr_own attr_inh "(t1_ext recurse) option"
+
+subsection{* Datatype definition of the class type and class type extension (version 2) *}
+
+datatype t2_ext = T2_ext_oid oid attr_inh
+                | T2_ext_rec "t2 recurse"
+     and t2 = T2 t2_ext attr_own
+
+fun get_oid where
+   "get_oid v = (\<lambda> T2 (T2_ext_oid oid _) _ \<Rightarrow> oid
+                 | T2 (T2_ext_rec (R _ t)) _ \<Rightarrow> get_oid t) v"
+
+fun get_inh where
+   "get_inh v = (\<lambda> T2 (T2_ext_oid _ inh) _ \<Rightarrow> inh
+                 | T2 (T2_ext_rec (R _ t)) _ \<Rightarrow> get_inh t) v"
+
+subsection{* Conversion t2 of t1 *}
+
+fun m2_of_m1_ext where
+   "m2_of_m1_ext oid attr_inh m1 = (\<lambda> T1_ext attr_own opt \<Rightarrow> T2 (case opt
+      of None \<Rightarrow> T2_ext_oid oid attr_inh
+       | Some (R ide m1) \<Rightarrow> T2_ext_rec (R ide (m2_of_m1_ext oid attr_inh m1))) attr_own) m1"
+
+definition "m2_of_m1 = (\<lambda> T1 oid attr_own attr_inh opt \<Rightarrow> T2 (case opt
+   of None \<Rightarrow> T2_ext_oid oid attr_inh
+    | Some (R ide m1) \<Rightarrow> T2_ext_rec (R ide (m2_of_m1_ext oid attr_inh m1))) attr_own)"
+
+subsection{* Conversion t1 of t2 *}
+
+fun m1_ext_of_m2 where
+   "m1_ext_of_m2 m2 =
+  (\<lambda> T2 (T2_ext_oid _ _) attr_own \<Rightarrow> T1_ext attr_own None
+   | T2 (T2_ext_rec (R ide m2)) attr_own \<Rightarrow> T1_ext attr_own (Some (R ide (m1_ext_of_m2 m2)))) m2"
+
+definition "m1_of_m2 =
+  (\<lambda> T2 (T2_ext_oid oid attr_inh) attr_own \<Rightarrow> T1 oid attr_own attr_inh None
+   | T2 (T2_ext_rec (R ide m2)) attr_own \<Rightarrow> T1 (get_oid m2) attr_own (get_inh m2) (Some (R ide (m1_ext_of_m2 m2))))"
+
+subsection{* Bijectivity proofs *}
+
+lemma "m1_of_m2 (m2_of_m1 X) = X"
+ apply(case_tac X, simp)
+ proof -
+
+ have id_get_oid : "\<And>oid inh m1. get_oid (m2_of_m1_ext oid inh m1) = oid"
+ by (metis (full_types) oid.exhaust)
+
+ have id_get_inh : "\<And>oid inh m1. get_inh (m2_of_m1_ext oid inh m1) = inh"
+ by (metis (full_types) attr_inh.exhaust)
+
+ have id_rec : "\<And>oid inh m1. m1_ext_of_m2 (m2_of_m1_ext oid inh m1) = m1"
+  apply(case_tac m1, simp only:)
+  proof -
+  fix oid inh attr_own option
+  def P \<equiv> "\<lambda>m1. m1_ext_of_m2 (m2_of_m1_ext oid inh m1) = m1"
+  show "m1_ext_of_m2 (m2_of_m1_ext oid inh (T1_ext attr_own option)) = T1_ext attr_own option"
+   apply(rule t1_ext.induct[ of "\<lambda>option. \<forall>oid attr_own attr_inh. P (T1_ext attr_own option)"
+                                "\<lambda>t1_ext. \<forall>nat oid attr_own attr_inh. P (T1_ext attr_own (Some (R nat t1_ext)))"
+                                "\<lambda>recurse. \<forall>oid attr_own attr_inh. P (T1_ext attr_own (Some recurse))"
+                           , THEN conjunct2, THEN conjunct1, THEN spec, THEN spec, THEN spec, simplified Let_def P_def])
+  by auto
+ qed
+
+ fix oid attr_own attr_inh option
+ def P \<equiv> "\<lambda>X. m1_of_m2 (m2_of_m1 X) = X"
+ show "m1_of_m2 (m2_of_m1 (T1 oid attr_own attr_inh option)) = T1 oid attr_own attr_inh option"
+  apply(rule t1_ext.induct[ of "\<lambda>option. \<forall>oid attr_own attr_inh. P (T1 oid attr_own attr_inh option)"
+                               "\<lambda>t1_ext. \<forall>nat oid attr_own attr_inh. P (T1 oid attr_own attr_inh (Some (R nat t1_ext)))"
+                               "\<lambda>recurse. \<forall>oid attr_own attr_inh. P (T1 oid attr_own attr_inh (Some recurse))"
+                          , THEN conjunct2, THEN conjunct1, THEN spec, THEN spec, THEN spec, simplified Let_def P_def])
+  apply(auto)
+  apply(subst m2_of_m1_def, subst m1_of_m2_def, auto)
+  apply (metis (no_types) get_oid.simps id_get_oid m2_of_m1_ext.simps t1_ext.cases t2.cases)
+  apply (metis (no_types) get_inh.simps id_get_inh m2_of_m1_ext.simps t1_ext.cases t2.cases)
+  apply (metis (mono_tags) id_rec m1_ext_of_m2.simps m2_of_m1_ext.simps t1_ext.cases t2.cases)
+
+  apply(simp add: m2_of_m1_def m1_of_m2_def)
+ done
+qed
+
+lemma "m2_of_m1 (m1_of_m2 X) = X"
+ apply(case_tac X, simp)
+ proof -
+  fix t2_ext attr_own
+  def P \<equiv> "\<lambda>X. m2_of_m1 (m1_of_m2 X) = X"
+  show "m2_of_m1 (m1_of_m2 (T2 t2_ext attr_own)) = T2 t2_ext attr_own"
+   apply(rule t2_ext_t2.induct[ of "\<lambda>t2_ext. \<forall>attr_own. P (T2 t2_ext attr_own)"
+                                   "\<lambda>recurse. \<forall>attr_own. P (T2 (T2_ext_rec recurse) attr_own)"
+                                   "\<lambda>option. \<forall>nat attr_own. P (T2 (T2_ext_rec (R nat option)) attr_own)"
+                              , THEN conjunct1, THEN spec, simplified Let_def P_def])
+   apply(auto)
+   apply(subst m1_of_m2_def, subst m2_of_m1_def, auto)+
+
+   apply(subgoal_tac "(
+    let oid = case t2_ext of T2_ext_oid oid _ \<Rightarrow> oid | T2_ext_rec (R _ xb) \<Rightarrow> get_oid xb
+      ; inh = case t2_ext of T2_ext_oid _ inh \<Rightarrow> inh | T2_ext_rec (R _ xb) \<Rightarrow> get_inh xb in
+
+    T2 (case t2_ext of T2_ext_oid _ _ \<Rightarrow> T2_ext_oid oid inh | T2_ext_rec (R ide m2) \<Rightarrow> T2_ext_rec (R ide (m2_of_m1_ext oid inh (m1_ext_of_m2 m2))) ) x) =
+           T2 t2_ext x")
+   apply(simp add: Let_def) apply(case_tac t2_ext, simp, simp) apply(case_tac recurse, simp)
+
+   apply(case_tac t2_ext, simp, simp)
+   apply(subst (asm) m2_of_m1_def, subst (asm) m1_of_m2_def, simp)
+   proof -
+   def P \<equiv> "\<lambda>recurse. (case recurse of R ide m2 \<Rightarrow> T2_ext_rec (R ide (m2_of_m1_ext (case recurse of R xa x \<Rightarrow> get_oid x) (case recurse of R xa x \<Rightarrow> get_inh x) (m1_ext_of_m2 m2)))) =
+          T2_ext_rec recurse"
+   fix recurse
+   show "P recurse"
+   apply(rule t2_ext_t2.induct[ of "\<lambda>t2_ext. \<forall>nat attr_own. P (R nat (T2 t2_ext attr_own))"
+                                   "\<lambda>recurse. P recurse"
+                                   "\<lambda>t2. \<forall>nat attr_own. P (R nat t2)"
+                              , THEN conjunct2, THEN conjunct2], simp_all add: P_def)
+   apply(case_tac recurse, simp)
+  done
+ qed
+qed
+
 section{* ... *}
 
 type_synonym str = "char list"
