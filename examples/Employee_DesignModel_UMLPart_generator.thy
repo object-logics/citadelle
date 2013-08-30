@@ -59,9 +59,9 @@ definition "Employee_DesignModel_UMLPart =
    None )) )) ))"
 
 definition "Employee_DesignModel_UMLPart' =
-  Mk_univ ''OclAny'' [] (Some (
-  Mk_univ ''Person'' [ (''salary'', OclTy_base ''int''), (''boss'', object) ] None
-  ))"
+         Mk_univ ''OclAny'' []
+  (Some (Mk_univ ''Person'' [(''salary'', OclTy_base ''int''), (''boss'', object)]
+   None ))"
 
 subsection{* Raw *}
 

@@ -356,8 +356,7 @@ definition "map_class_h f x = map_class (add_hierarchy f x) x"
 definition "map_class_h' f x = map_class (add_hierarchy' f x) x"
 definition "map_class_h'' f x = map_class (add_hierarchy'' f x) x"
 definition "map_class_arg_only f = map_class_gen (\<lambda> isub_name name l_attr _ _ _. case l_attr of [] \<Rightarrow> [] | l \<Rightarrow> f isub_name name l)"
-definition "map_class_arg_only' f = map_class_gen (\<lambda> isub_name name l_attr l_inherited _ last_dataty. case flatten l_inherited of [] \<Rightarrow> [] | l \<Rightarrow> f isub_name name l_attr l last_dataty)"
-definition "get_hierarchy f x = flatten (flatten (f (List_map fst (get_class_hierarchy x))))"
+definition "map_class_arg_only' f = map_class_gen (\<lambda> isub_name name l_attr l_inherited l_cons _. case flatten l_inherited of [] \<Rightarrow> [] | l \<Rightarrow> f isub_name name l_attr l l_cons)"
 definition "get_hierarchy_fold f f_l x = flatten (flatten (
   let (l1, l2, l3) = f_l (List_map fst (get_class_hierarchy x)) in
   let (_, l) = foldl (\<lambda> (name1_last, l1) name1. (Some name1, List_map (\<lambda>name2. List_map (\<lambda>name3.
@@ -914,7 +913,7 @@ definition "print_select = List_map Thy_definition_hol o
     rev l)"
 
 definition "print_select_inherited = List_map Thy_definition_hol o
-  map_class_arg_only' (\<lambda>isub_name name l_attr l_inherited l_end.
+  map_class_arg_only' (\<lambda>isub_name name l_attr l_inherited l_cons.
     let var_f = ''f''
       ; wildc = Expr_basic [wildcard] in
     let (_, _, l) = (foldl
@@ -939,7 +938,13 @@ definition "print_select_inherited = List_map Thy_definition_hol o
                                                    (let var_x = ''x'' in
                                                       Expr_lambdas [var_x, wildcard] (Expr_some (Expr_some (Expr_basic [var_x]))))
                                                  , Expr_basic [var_attr]]) ]
-                            # (if l_end then [] else [(wildc, Expr_basic [''invalid''])])
+                            # (List_map (\<lambda>x. let var_x = x in
+                                             (Expr_apply
+                                                         (isub_name datatype_constr_name)
+                                                         ( Expr_apply (datatype_ext_constr_name @@ mk_constr_name name x)
+                                                             [Expr_basic [var_x]]
+                                                         # List_map (\<lambda>_. wildc) l_attr), (Expr_apply (isup_attr (var_select @@ isub_of_str x))
+                                                                                                     (List_map (\<lambda>x. Expr_basic [x]) [var_f, var_x]) ))) l_cons)
                             # [])))) # l_acc))
       ([], List_map (\<lambda>_. wildc) (tl l_inherited), [])
       l_inherited) in
