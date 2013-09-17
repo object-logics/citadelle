@@ -788,6 +788,14 @@ definition OclNotEmpty   :: "('\<AA>,'\<alpha>::null) Set \<Rightarrow> '\<AA> B
 where     "OclNotEmpty x =  not(OclIsEmpty x)"
 notation   OclNotEmpty    ("_->notEmpty'(')" [66])
 
+definition OclAny   :: "[('\<AA>,'\<alpha>::null) Set] \<Rightarrow> ('\<AA>,'\<alpha>) val"
+where     "OclAny x = (\<lambda> \<tau>. if (\<upsilon> x) \<tau> = true \<tau> 
+                            then if (\<delta> x) \<tau> = true \<tau> then SOME y. y \<in> \<lceil>\<lceil>Rep_Set_0 (x \<tau>)\<rceil>\<rceil> 
+                                 else  null \<tau>  
+                            else \<bottom> )"
+notation   OclAny   ("_->any'(')")
+
+
 text{* The definition of OclForall mimics the one of @{term "OclAnd"}: 
 OclForall is not a strict operation. *}
 definition OclForall     :: "[('\<AA>,'\<alpha>::null)Set,('\<AA>,'\<alpha>)val\<Rightarrow>('\<AA>)Boolean] \<Rightarrow> '\<AA> Boolean"
@@ -994,6 +1002,11 @@ lemma includes_valid_args_valid''[simp,code_unfold]:
 "\<upsilon>(X->includes(x)) = ((\<delta> X) and (\<upsilon> x))"
 by(auto intro!: transform2_rev simp:includes_valid_args_valid foundation10 defined_and_I)
 
+lemma any_valid_args_valid''[simp,code_unfold]:
+"\<upsilon>(X->any()) = (\<upsilon> X)"
+sorry
+
+
 
 (* and many more, forall exists. *)
 
@@ -1033,6 +1046,18 @@ by(simp add: OclIncludes_def invalid_def bot_fun_def defined_def valid_def false
 
 lemma includes_strict3[simp,code_unfold]:"(null->includes(x)) = invalid"
 by(simp add: OclIncludes_def invalid_def bot_fun_def defined_def valid_def false_def true_def)
+
+subsubsection{* OclAny *}
+
+lemma any_strict1[simp,code_unfold]:
+"(invalid->any()) = invalid"
+by(simp add: bot_fun_def OclAny_def invalid_def defined_def valid_def false_def true_def)
+
+lemma any_strict3[simp,code_unfold]:
+"(null->any()) = null"
+by(rule ext,
+   simp add: bot_fun_def null_fun_def null_is_valid OclAny_def 
+             invalid_def defined_def valid_def false_def true_def)
 
 (*  forall ? exists ?*)
 
@@ -1081,6 +1106,10 @@ by(auto simp: OclIncludes_def StrongEq_def invalid_def
 lemma cp_OclSize: "X->size() \<tau> = (\<lambda>_. X \<tau>)->size() \<tau>"
 by(simp add: OclSize_def cp_defined[symmetric])
 
+lemma cp_OclAny: "X->any() \<tau> = (\<lambda>_. X \<tau>)->any() \<tau>"
+by(simp add: OclAny_def cp_defined[symmetric] cp_valid[symmetric])
+
+
 lemma cp_OclForall:
 "(X->forAll(x | P x)) \<tau> = ((\<lambda> _. X \<tau>)->forAll(x | P (\<lambda> _. x \<tau>))) \<tau>"
 by(simp add: OclForall_def cp_defined[symmetric])
@@ -1098,6 +1127,7 @@ lemmas cp_intro''[simp,intro!] =
        cp_OclExcluding [THEN allI[THEN allI[THEN allI[THEN cpI2]], of "OclExcluding"]]
        cp_OclIncludes  [THEN allI[THEN allI[THEN allI[THEN cpI2]], of "OclIncludes"]]
        cp_OclSize      [THEN allI[THEN allI[THEN cpI1], of "OclSize"]]
+       cp_OclAny       [THEN allI[THEN allI[THEN cpI1], of "OclAny"]]
 
 section{* Fundamental Predicates on Set: Strict Equality *}
 
@@ -1635,6 +1665,7 @@ lemma finite_excluding_exec :
           dest: foundation13[THEN iffD2, THEN foundation22[THEN iffD1]])
 qed
 
+(* WRONG NAME: This is not an executable rule ! -- bu*)
 lemma excluding_exec: 
  assumes S_def: "\<tau> \<Turnstile> \<delta> S"
    shows "\<lceil>\<lceil>Rep_Set_0 (S->excluding(\<lambda>_. \<lfloor>\<lfloor>x\<rfloor>\<rfloor>) \<tau>)\<rceil>\<rceil> = \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil> - {\<lfloor>\<lfloor>x\<rfloor>\<rfloor>}"
@@ -1810,7 +1841,18 @@ lemma [simp]:
  shows "\<delta> ((X ->including(x)) ->size()) = (\<delta>(X) and \<upsilon>(x))"
 by(simp add: size_defined[OF X_finite])
 
+subsection{* OclAny *}
 
+lemma [simp,code_unfold]: "Set{}->any() = null"
+sorry
+
+lemma AnyExec[simp,code_unfold]: 
+      "(Set{}->including(a))->any() = a"
+sorry
+
+lemma AnyExecUnfold[simp,code_unfold]: 
+      "X->includes(X->any()) = (if \<upsilon>(X) then not(X->isEmpty()) else invalid endif)"
+sorry
 
 subsection{* OclForall *}
 
