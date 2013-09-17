@@ -788,12 +788,18 @@ definition OclNotEmpty   :: "('\<AA>,'\<alpha>::null) Set \<Rightarrow> '\<AA> B
 where     "OclNotEmpty x =  not(OclIsEmpty x)"
 notation   OclNotEmpty    ("_->notEmpty'(')" [66])
 
-definition OclAny   :: "[('\<AA>,'\<alpha>::null) Set] \<Rightarrow> ('\<AA>,'\<alpha>) val"
-where     "OclAny x = (\<lambda> \<tau>. if (\<upsilon> x) \<tau> = true \<tau> 
+(* Slight breach of naming convention in order to avoid naming conflict on constant.*)
+definition Ocl_Any   :: "[('\<AA>,'\<alpha>::null) Set] \<Rightarrow> ('\<AA>,'\<alpha>) val"
+where     "Ocl_Any x = (\<lambda> \<tau>. if (\<upsilon> x) \<tau> = true \<tau> 
                             then if (\<delta> x) \<tau> = true \<tau> then SOME y. y \<in> \<lceil>\<lceil>Rep_Set_0 (x \<tau>)\<rceil>\<rceil> 
                                  else  null \<tau>  
                             else \<bottom> )"
-notation   OclAny   ("_->any'(')")
+notation   Ocl_Any   ("_->any'(')")
+(* actually, this definition covers only: X->any(true) of the standard, which foresees
+a (totally correct) high-level definition 
+source->any(iterator | body) =
+source->select(iterator | body)->asSequence()->first(). Since we don't have sequences,
+we have to go for a direct --- restricted ---  definition. *)
 
 
 text{* The definition of OclForall mimics the one of @{term "OclAnd"}: 
@@ -1047,16 +1053,16 @@ by(simp add: OclIncludes_def invalid_def bot_fun_def defined_def valid_def false
 lemma includes_strict3[simp,code_unfold]:"(null->includes(x)) = invalid"
 by(simp add: OclIncludes_def invalid_def bot_fun_def defined_def valid_def false_def true_def)
 
-subsubsection{* OclAny *}
+subsubsection{* Ocl_Any *}
 
 lemma any_strict1[simp,code_unfold]:
 "(invalid->any()) = invalid"
-by(simp add: bot_fun_def OclAny_def invalid_def defined_def valid_def false_def true_def)
+by(simp add: bot_fun_def Ocl_Any_def invalid_def defined_def valid_def false_def true_def)
 
 lemma any_strict3[simp,code_unfold]:
 "(null->any()) = null"
 by(rule ext,
-   simp add: bot_fun_def null_fun_def null_is_valid OclAny_def 
+   simp add: bot_fun_def null_fun_def null_is_valid Ocl_Any_def 
              invalid_def defined_def valid_def false_def true_def)
 
 (*  forall ? exists ?*)
@@ -1106,8 +1112,8 @@ by(auto simp: OclIncludes_def StrongEq_def invalid_def
 lemma cp_OclSize: "X->size() \<tau> = (\<lambda>_. X \<tau>)->size() \<tau>"
 by(simp add: OclSize_def cp_defined[symmetric])
 
-lemma cp_OclAny: "X->any() \<tau> = (\<lambda>_. X \<tau>)->any() \<tau>"
-by(simp add: OclAny_def cp_defined[symmetric] cp_valid[symmetric])
+lemma cp_Ocl_Any: "X->any() \<tau> = (\<lambda>_. X \<tau>)->any() \<tau>"
+by(simp add: Ocl_Any_def cp_defined[symmetric] cp_valid[symmetric])
 
 
 lemma cp_OclForall:
@@ -1127,7 +1133,7 @@ lemmas cp_intro''[simp,intro!] =
        cp_OclExcluding [THEN allI[THEN allI[THEN allI[THEN cpI2]], of "OclExcluding"]]
        cp_OclIncludes  [THEN allI[THEN allI[THEN allI[THEN cpI2]], of "OclIncludes"]]
        cp_OclSize      [THEN allI[THEN allI[THEN cpI1], of "OclSize"]]
-       cp_OclAny       [THEN allI[THEN allI[THEN cpI1], of "OclAny"]]
+       cp_Ocl_Any       [THEN allI[THEN allI[THEN cpI1], of "Ocl_Any"]]
 
 section{* Fundamental Predicates on Set: Strict Equality *}
 
@@ -1841,7 +1847,7 @@ lemma [simp]:
  shows "\<delta> ((X ->including(x)) ->size()) = (\<delta>(X) and \<upsilon>(x))"
 by(simp add: size_defined[OF X_finite])
 
-subsection{* OclAny *}
+subsection{* Ocl_Any *}
 
 lemma [simp,code_unfold]: "Set{}->any() = null"
 sorry

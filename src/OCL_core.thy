@@ -83,7 +83,9 @@ text{* States are just a partial map from oid's to elements of an object univers
 and state transitions pairs of states...  *}
 record ('\<AA>)state = 
              heap   :: "oid \<rightharpoonup> '\<AA> "
-             assocs :: "oid  \<rightharpoonup> (oid \<times> oid) list"
+             assocs\<^isub>2 :: "oid  \<rightharpoonup> (oid \<times> oid) list"       (* binary associations *)
+             assocs\<^isub>3 :: "oid  \<rightharpoonup> (oid \<times> oid \<times> oid) list" (* ternary associations *)
+ 
   
 type_synonym ('\<AA>)st = "'\<AA> state \<times> '\<AA> state"
 
