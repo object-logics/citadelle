@@ -607,7 +607,7 @@ by(simp add: OclIsTypeOf\<^isub>O\<^isub>c\<^isub>l\<^isub>A\<^isub>n\<^isub>y_O
 
 lemma OclAny_allInstances_IsTypeOf\<^isub>O\<^isub>c\<^isub>l\<^isub>A\<^isub>n\<^isub>y2: "\<exists>\<tau>. (\<tau> \<Turnstile> not (OclAny .allInstances()->forAll(X|X .oclIsTypeOf(OclAny))))"
 proof - fix oid a show ?thesis
- apply(rule_tac x = "(fst \<tau>\<^isub>0, \<lparr>heap = empty(oid \<mapsto> in\<^isub>O\<^isub>c\<^isub>l\<^isub>A\<^isub>n\<^isub>y (mk\<^isub>O\<^isub>c\<^isub>l\<^isub>A\<^isub>n\<^isub>y oid \<lfloor>a\<rfloor>)), assocs = empty\<rparr>)" in exI, simp add: OclValid_def)
+ apply(rule_tac x = "(fst \<tau>\<^isub>0, \<lparr>heap = empty(oid \<mapsto> in\<^isub>O\<^isub>c\<^isub>l\<^isub>A\<^isub>n\<^isub>y (mk\<^isub>O\<^isub>c\<^isub>l\<^isub>A\<^isub>n\<^isub>y oid \<lfloor>a\<rfloor>)), assocs\<^isub>2 = empty, assocs\<^isub>3 = empty\<rparr>)" in exI, simp add: OclValid_def)
  apply(simp only: OclForall_def OclAllInstances_defined[simplified OclValid_def] refl if_True)
  apply(simp only: OclAllInstances_at_post_def OclAllInstances_def OclAsType\<^isub>O\<^isub>c\<^isub>l\<^isub>A\<^isub>n\<^isub>y_\<AA>_def)
  apply(subst (1 2 3) Abs_Set_0_inverse, simp add: bot_option_def)
@@ -834,7 +834,8 @@ definition
                           (*oid6*)
                           (*oid7*)
                            (oid8 \<mapsto> in\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n person9),
-               assocs = empty\<rparr>"
+               assocs\<^isub>2 = empty, 
+               assocs\<^isub>3 = empty \<rparr>"
 
 definition
       "\<sigma>\<^isub>1' \<equiv> \<lparr> heap = empty(oid0 \<mapsto> in\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n person1)
@@ -846,7 +847,8 @@ definition
                            (oid6 \<mapsto> in\<^isub>O\<^isub>c\<^isub>l\<^isub>A\<^isub>n\<^isub>y person7)
                            (oid7 \<mapsto> in\<^isub>O\<^isub>c\<^isub>l\<^isub>A\<^isub>n\<^isub>y person8)
                            (oid8 \<mapsto> in\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n person9),
-               assocs = empty\<rparr>"
+               assocs\<^isub>2 = empty, 
+               assocs\<^isub>3 = empty \<rparr>"
 
 lemma basic_\<tau>_wff: "WFF(\<sigma>\<^isub>1,\<sigma>\<^isub>1')"
 by(auto simp: WFF_def \<sigma>\<^isub>1_def \<sigma>\<^isub>1'_def
@@ -1105,7 +1107,8 @@ lemma perm_\<sigma>\<^isub>1' : "\<sigma>\<^isub>1' = \<lparr> heap = empty
                            (oid2 \<mapsto> in\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n person3)
                            (oid1 \<mapsto> in\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n person2)
                            (oid0 \<mapsto> in\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n person1)
-                , assocs = empty \<rparr>"
+                       , assocs\<^isub>2 = empty 
+                       , assocs\<^isub>3 = empty \<rparr>"
 proof -
  note p0 = perm0
  show ?thesis
@@ -1150,21 +1153,21 @@ proof -
   apply(subst including_cp_all
                                          ) prefer 4 apply(subst cp_OclIncluding[symmetric])
   apply(subst including_cp_all[of _ _ _ "(\<sigma>\<^isub>1, \<lparr>heap = [8 \<mapsto> in\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n person9],
-                    assocs = Map.empty\<rparr>)"]) prefer 4 apply(subst cp_OclIncluding[symmetric])
+                    assocs\<^isub>2 = empty, assocs\<^isub>3 = empty\<rparr>)"]) prefer 4 apply(subst cp_OclIncluding[symmetric])
   apply(subst including_cp_all[of _ _ _ "(\<sigma>\<^isub>1, \<lparr>heap = [8 \<mapsto> in\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n person9, 7 \<mapsto> in\<^isub>O\<^isub>c\<^isub>l\<^isub>A\<^isub>n\<^isub>y person8],
-                    assocs = Map.empty\<rparr>)"]) prefer 4 apply(subst cp_OclIncluding[symmetric])
+                    assocs\<^isub>2 = empty, assocs\<^isub>3 = empty\<rparr>)"]) prefer 4 apply(subst cp_OclIncluding[symmetric])
   apply(subst including_cp_all[of _ _ _ "(\<sigma>\<^isub>1, \<lparr>heap = [8 \<mapsto> in\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n person9, 7 \<mapsto> in\<^isub>O\<^isub>c\<^isub>l\<^isub>A\<^isub>n\<^isub>y person8, 6 \<mapsto> in\<^isub>O\<^isub>c\<^isub>l\<^isub>A\<^isub>n\<^isub>y person7],
-                    assocs = Map.empty\<rparr>)"]) prefer 4 apply(subst cp_OclIncluding[symmetric])
+                    assocs\<^isub>2 = empty, assocs\<^isub>3 = empty\<rparr>)"]) prefer 4 apply(subst cp_OclIncluding[symmetric])
   apply(subst including_cp_all[of _ _ _ "(\<sigma>\<^isub>1, \<lparr>heap = [8 \<mapsto> in\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n person9, 7 \<mapsto> in\<^isub>O\<^isub>c\<^isub>l\<^isub>A\<^isub>n\<^isub>y person8, 6 \<mapsto> in\<^isub>O\<^isub>c\<^isub>l\<^isub>A\<^isub>n\<^isub>y person7, 5 \<mapsto> in\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n person6],
-                    assocs = Map.empty\<rparr>)"]) prefer 4 apply(subst cp_OclIncluding[symmetric])
+                    assocs\<^isub>2 = empty, assocs\<^isub>3 = empty\<rparr>)"]) prefer 4 apply(subst cp_OclIncluding[symmetric])
   apply(subst including_cp_all[of _ _ _ "(\<sigma>\<^isub>1, \<lparr>heap = [8 \<mapsto> in\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n person9, 7 \<mapsto> in\<^isub>O\<^isub>c\<^isub>l\<^isub>A\<^isub>n\<^isub>y person8, 6 \<mapsto> in\<^isub>O\<^isub>c\<^isub>l\<^isub>A\<^isub>n\<^isub>y person7, 5 \<mapsto> in\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n person6, 3 \<mapsto> in\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n person4],
-                    assocs = Map.empty\<rparr>)"]) prefer 4 apply(subst cp_OclIncluding[symmetric])
+                    assocs\<^isub>2 = empty, assocs\<^isub>3 = empty\<rparr>)"]) prefer 4 apply(subst cp_OclIncluding[symmetric])
   apply(subst including_cp_all[of _ _ _ "(\<sigma>\<^isub>1, \<lparr>heap = [8 \<mapsto> in\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n person9, 7 \<mapsto> in\<^isub>O\<^isub>c\<^isub>l\<^isub>A\<^isub>n\<^isub>y person8, 6 \<mapsto> in\<^isub>O\<^isub>c\<^isub>l\<^isub>A\<^isub>n\<^isub>y person7, 5 \<mapsto> in\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n person6, 3 \<mapsto> in\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n person4, 2 \<mapsto> in\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n person3],
-                    assocs = Map.empty\<rparr>)"]) prefer 4 apply(subst cp_OclIncluding[symmetric])
+                    assocs\<^isub>2 = empty, assocs\<^isub>3 = empty\<rparr>)"]) prefer 4 apply(subst cp_OclIncluding[symmetric])
   apply(subst including_cp_all[of _ _ _ "(\<sigma>\<^isub>1, \<lparr>heap = [8 \<mapsto> in\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n person9, 7 \<mapsto> in\<^isub>O\<^isub>c\<^isub>l\<^isub>A\<^isub>n\<^isub>y person8, 6 \<mapsto> in\<^isub>O\<^isub>c\<^isub>l\<^isub>A\<^isub>n\<^isub>y person7, 5 \<mapsto> in\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n person6, 3 \<mapsto> in\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n person4, 2 \<mapsto> in\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n person3, Suc 0 \<mapsto> in\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n person2],
-                    assocs = Map.empty\<rparr>)"]) prefer 4 apply(subst cp_OclIncluding[symmetric])
+                    assocs\<^isub>2 = empty, assocs\<^isub>3 = empty\<rparr>)"]) prefer 4 apply(subst cp_OclIncluding[symmetric])
   apply(subst including_cp_all[of _ _ _ "(\<sigma>\<^isub>1, \<lparr>heap = [8 \<mapsto> in\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n person9, 7 \<mapsto> in\<^isub>O\<^isub>c\<^isub>l\<^isub>A\<^isub>n\<^isub>y person8, 6 \<mapsto> in\<^isub>O\<^isub>c\<^isub>l\<^isub>A\<^isub>n\<^isub>y person7, 5 \<mapsto> in\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n person6, 3 \<mapsto> in\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n person4, 2 \<mapsto> in\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n person3, Suc 0 \<mapsto> in\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n person2, 0 \<mapsto> in\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n person1],
-                    assocs = Map.empty\<rparr>)"]) prefer 4 apply(subst cp_OclIncluding[symmetric])
+                    assocs\<^isub>2 = empty, assocs\<^isub>3 = empty\<rparr>)"]) prefer 4 apply(subst cp_OclIncluding[symmetric])
 
   apply(simp add: OclAsType\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n_\<AA>_def person1_def person2_def person3_def person4_def person5_def person6_def person7_def person8_def person9_def)
   apply(simp_all add: is_int_def)
@@ -1211,21 +1214,21 @@ proof -
   apply(subst including_cp_all
                                          ) prefer 4 apply(subst cp_OclIncluding[symmetric])
   apply(subst including_cp_all[of _ _ _ "(\<sigma>\<^isub>1, \<lparr>heap = [8 \<mapsto> in\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n person9],
-                    assocs = Map.empty\<rparr>)"]) prefer 4 apply(subst cp_OclIncluding[symmetric])
+                    assocs\<^isub>2 = empty, assocs\<^isub>3 = empty\<rparr>)"]) prefer 4 apply(subst cp_OclIncluding[symmetric])
   apply(subst including_cp_all[of _ _ _ "(\<sigma>\<^isub>1, \<lparr>heap = [8 \<mapsto> in\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n person9, 7 \<mapsto> in\<^isub>O\<^isub>c\<^isub>l\<^isub>A\<^isub>n\<^isub>y person8],
-                    assocs = Map.empty\<rparr>)"]) prefer 4 apply(subst cp_OclIncluding[symmetric])
+                    assocs\<^isub>2 = empty, assocs\<^isub>3 = empty\<rparr>)"]) prefer 4 apply(subst cp_OclIncluding[symmetric])
   apply(subst including_cp_all[of _ _ _ "(\<sigma>\<^isub>1, \<lparr>heap = [8 \<mapsto> in\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n person9, 7 \<mapsto> in\<^isub>O\<^isub>c\<^isub>l\<^isub>A\<^isub>n\<^isub>y person8, 6 \<mapsto> in\<^isub>O\<^isub>c\<^isub>l\<^isub>A\<^isub>n\<^isub>y person7],
-                    assocs = Map.empty\<rparr>)"]) prefer 4 apply(subst cp_OclIncluding[symmetric])
+                    assocs\<^isub>2 = empty, assocs\<^isub>3 = empty\<rparr>)"]) prefer 4 apply(subst cp_OclIncluding[symmetric])
   apply(subst including_cp_all[of _ _ _ "(\<sigma>\<^isub>1, \<lparr>heap = [8 \<mapsto> in\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n person9, 7 \<mapsto> in\<^isub>O\<^isub>c\<^isub>l\<^isub>A\<^isub>n\<^isub>y person8, 6 \<mapsto> in\<^isub>O\<^isub>c\<^isub>l\<^isub>A\<^isub>n\<^isub>y person7, 5 \<mapsto> in\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n person6],
-                    assocs = Map.empty\<rparr>)"]) prefer 4 apply(subst cp_OclIncluding[symmetric])
+                    assocs\<^isub>2 = empty, assocs\<^isub>3 = empty\<rparr>)"]) prefer 4 apply(subst cp_OclIncluding[symmetric])
   apply(subst including_cp_all[of _ _ _ "(\<sigma>\<^isub>1, \<lparr>heap = [8 \<mapsto> in\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n person9, 7 \<mapsto> in\<^isub>O\<^isub>c\<^isub>l\<^isub>A\<^isub>n\<^isub>y person8, 6 \<mapsto> in\<^isub>O\<^isub>c\<^isub>l\<^isub>A\<^isub>n\<^isub>y person7, 5 \<mapsto> in\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n person6, 3 \<mapsto> in\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n person4],
-                    assocs = Map.empty\<rparr>)"]) prefer 4 apply(subst cp_OclIncluding[symmetric])
+                    assocs\<^isub>2 = empty, assocs\<^isub>3 = empty\<rparr>)"]) prefer 4 apply(subst cp_OclIncluding[symmetric])
   apply(subst including_cp_all[of _ _ _ "(\<sigma>\<^isub>1, \<lparr>heap = [8 \<mapsto> in\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n person9, 7 \<mapsto> in\<^isub>O\<^isub>c\<^isub>l\<^isub>A\<^isub>n\<^isub>y person8, 6 \<mapsto> in\<^isub>O\<^isub>c\<^isub>l\<^isub>A\<^isub>n\<^isub>y person7, 5 \<mapsto> in\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n person6, 3 \<mapsto> in\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n person4, 2 \<mapsto> in\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n person3],
-                    assocs = Map.empty\<rparr>)"]) prefer 4 apply(subst cp_OclIncluding[symmetric])
+                    assocs\<^isub>2 = empty, assocs\<^isub>3 = empty\<rparr>)"]) prefer 4 apply(subst cp_OclIncluding[symmetric])
   apply(subst including_cp_all[of _ _ _ "(\<sigma>\<^isub>1, \<lparr>heap = [8 \<mapsto> in\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n person9, 7 \<mapsto> in\<^isub>O\<^isub>c\<^isub>l\<^isub>A\<^isub>n\<^isub>y person8, 6 \<mapsto> in\<^isub>O\<^isub>c\<^isub>l\<^isub>A\<^isub>n\<^isub>y person7, 5 \<mapsto> in\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n person6, 3 \<mapsto> in\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n person4, 2 \<mapsto> in\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n person3, Suc 0 \<mapsto> in\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n person2],
-                    assocs = Map.empty\<rparr>)"]) prefer 4 apply(subst cp_OclIncluding[symmetric])
+                    assocs\<^isub>2 = empty, assocs\<^isub>3 = empty\<rparr>)"]) prefer 4 apply(subst cp_OclIncluding[symmetric])
   apply(subst including_cp_all[of _ _ _ "(\<sigma>\<^isub>1, \<lparr>heap = [8 \<mapsto> in\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n person9, 7 \<mapsto> in\<^isub>O\<^isub>c\<^isub>l\<^isub>A\<^isub>n\<^isub>y person8, 6 \<mapsto> in\<^isub>O\<^isub>c\<^isub>l\<^isub>A\<^isub>n\<^isub>y person7, 5 \<mapsto> in\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n person6, 3 \<mapsto> in\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n person4, 2 \<mapsto> in\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n person3, Suc 0 \<mapsto> in\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n person2, 0 \<mapsto> in\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n person1],
-                    assocs = Map.empty\<rparr>)"]) prefer 4 apply(subst cp_OclIncluding[symmetric])
+                    assocs\<^isub>2 = empty, assocs\<^isub>3 = empty\<rparr>)"]) prefer 4 apply(subst cp_OclIncluding[symmetric])
 
   apply(simp add: OclAsType\<^isub>O\<^isub>c\<^isub>l\<^isub>A\<^isub>n\<^isub>y_\<AA>_def person1_def person2_def person3_def person4_def person5_def person6_def person7_def person8_def person9_def)
   apply(simp_all add: is_int_def)
