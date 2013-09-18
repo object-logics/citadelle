@@ -112,6 +112,8 @@ type_synonym Person      = "(\<AA>, type\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^i
 type_synonym Set_Integer = "(\<AA>, int option option) Set"
 type_synonym Set_Person  = "(\<AA>, type\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n option option) Set"
 
+term "true"
+
 text{* Just a little check: *}
 typ "Boolean"
 
@@ -597,23 +599,27 @@ done
 
 subsection{* IsTypeOf *}
 
-lemma OclAny_allInstances_IsTypeOf\<^isub>O\<^isub>c\<^isub>l\<^isub>A\<^isub>n\<^isub>y1: "\<exists>\<tau>. (\<tau> \<Turnstile>     (OclAny .allInstances()->forAll(X|X .oclIsTypeOf(OclAny))))"
+lemma OclAny_allInstances_IsTypeOf\<^isub>O\<^isub>c\<^isub>l\<^isub>A\<^isub>n\<^isub>y1: 
+"\<exists>\<tau>. (\<tau> \<Turnstile>     (OclAny .allInstances()->forAll(X|X .oclIsTypeOf(OclAny))))"
  apply(rule_tac x = \<tau>\<^isub>0 in exI, simp add: \<tau>\<^isub>0_def OclValid_def)
  apply(simp only: OclForall_def OclAllInstances_defined[simplified OclValid_def] refl if_True)
  apply(simp only: OclAllInstances_at_post_def OclAllInstances_def)
  apply(subst (1 2 3) Abs_Set_0_inverse, simp add: bot_option_def)
 by(simp add: OclIsTypeOf\<^isub>O\<^isub>c\<^isub>l\<^isub>A\<^isub>n\<^isub>y_OclAny)
 
-lemma OclAny_allInstances_IsTypeOf\<^isub>O\<^isub>c\<^isub>l\<^isub>A\<^isub>n\<^isub>y2: "\<exists>\<tau>. (\<tau> \<Turnstile> not (OclAny .allInstances()->forAll(X|X .oclIsTypeOf(OclAny))))"
+lemma OclAny_allInstances_IsTypeOf\<^isub>O\<^isub>c\<^isub>l\<^isub>A\<^isub>n\<^isub>y2: 
+"\<exists>\<tau>. (\<tau> \<Turnstile> not (OclAny .allInstances()->forAll(X|X .oclIsTypeOf(OclAny))))"
 proof - fix oid a show ?thesis
- apply(rule_tac x = "(fst \<tau>\<^isub>0, \<lparr>heap = empty(oid \<mapsto> in\<^isub>O\<^isub>c\<^isub>l\<^isub>A\<^isub>n\<^isub>y (mk\<^isub>O\<^isub>c\<^isub>l\<^isub>A\<^isub>n\<^isub>y oid \<lfloor>a\<rfloor>)), assocs\<^isub>2 = empty, assocs\<^isub>3 = empty\<rparr>)" in exI, simp add: OclValid_def)
+ apply(rule_tac x = "(fst \<tau>\<^isub>0, \<lparr>heap = empty(oid \<mapsto> in\<^isub>O\<^isub>c\<^isub>l\<^isub>A\<^isub>n\<^isub>y (mk\<^isub>O\<^isub>c\<^isub>l\<^isub>A\<^isub>n\<^isub>y oid \<lfloor>a\<rfloor>)), 
+                              assocs\<^isub>2 = empty, assocs\<^isub>3 = empty\<rparr>)" in exI, simp add: OclValid_def)
  apply(simp only: OclForall_def OclAllInstances_defined[simplified OclValid_def] refl if_True)
  apply(simp only: OclAllInstances_at_post_def OclAllInstances_def OclAsType\<^isub>O\<^isub>c\<^isub>l\<^isub>A\<^isub>n\<^isub>y_\<AA>_def)
  apply(subst (1 2 3) Abs_Set_0_inverse, simp add: bot_option_def)
  by(simp add: OclIsTypeOf\<^isub>O\<^isub>c\<^isub>l\<^isub>A\<^isub>n\<^isub>y_OclAny OclNot_def OclAny_def)
 qed
 
-lemma Person_allInstances_IsTypeOf\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n: "\<tau> \<Turnstile> (Person .allInstances()->forAll(X|X .oclIsTypeOf(Person)))"
+lemma Person_allInstances_IsTypeOf\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n: 
+"\<tau> \<Turnstile> (Person .allInstances()->forAll(X|X .oclIsTypeOf(Person)))"
  apply(simp add: OclValid_def)
  apply(simp only: OclForall_def OclAllInstances_defined[simplified OclValid_def] refl if_True)
  apply(simp only: OclAllInstances_at_post_def OclAllInstances_def)
@@ -621,21 +627,24 @@ lemma Person_allInstances_IsTypeOf\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\
 by(simp add: OclIsTypeOf\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n_Person)
 
 subsection{* IsKindOf *}
-lemma OclAny_allInstances_IsKindOf\<^isub>O\<^isub>c\<^isub>l\<^isub>A\<^isub>n\<^isub>y: "\<tau> \<Turnstile> (OclAny .allInstances()->forAll(X|X .oclIsKindOf(OclAny)))"
+lemma OclAny_allInstances_IsKindOf\<^isub>O\<^isub>c\<^isub>l\<^isub>A\<^isub>n\<^isub>y: 
+"\<tau> \<Turnstile> (OclAny .allInstances()->forAll(X|X .oclIsKindOf(OclAny)))"
  apply(simp add: OclValid_def)
  apply(simp only: OclForall_def OclAllInstances_defined[simplified OclValid_def] refl if_True)
  apply(simp only: OclAllInstances_at_post_def OclAllInstances_def)
  apply(subst (1 2 3) Abs_Set_0_inverse, simp add: bot_option_def)
 by(simp add: OclIsKindOf\<^isub>O\<^isub>c\<^isub>l\<^isub>A\<^isub>n\<^isub>y_OclAny)
 
-lemma Person_allInstances_IsKindOf\<^isub>O\<^isub>c\<^isub>l\<^isub>A\<^isub>n\<^isub>y: "\<tau> \<Turnstile> (Person .allInstances()->forAll(X|X .oclIsKindOf(OclAny)))"
+lemma Person_allInstances_IsKindOf\<^isub>O\<^isub>c\<^isub>l\<^isub>A\<^isub>n\<^isub>y: 
+"\<tau> \<Turnstile> (Person .allInstances()->forAll(X|X .oclIsKindOf(OclAny)))"
  apply(simp add: OclValid_def)
  apply(simp only: OclForall_def OclAllInstances_defined[simplified OclValid_def] refl if_True)
  apply(simp only: OclAllInstances_at_post_def OclAllInstances_def)
  apply(subst (1 2 3) Abs_Set_0_inverse, simp add: bot_option_def)
 by(simp add: OclIsKindOf\<^isub>O\<^isub>c\<^isub>l\<^isub>A\<^isub>n\<^isub>y_Person)
 
-lemma Person_allInstances_IsKindOf\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n: "\<tau> \<Turnstile> (Person .allInstances()->forAll(X|X .oclIsKindOf(Person)))"
+lemma Person_allInstances_IsKindOf\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n: 
+"\<tau> \<Turnstile> (Person .allInstances()->forAll(X|X .oclIsKindOf(Person)))"
  apply(simp add: OclValid_def)
  apply(simp only: OclForall_def OclAllInstances_defined[simplified OclValid_def] refl if_True)
  apply(simp only: OclAllInstances_at_post_def OclAllInstances_def)
@@ -654,28 +663,68 @@ in presence of association classes to represent the association inside an object
 pretty much similar to the \verb+Employee_DesignModel_UMLPart+, where we stored
 an \verb+oid+ inside the class as "pointer". *}
 
-definition oid\<^isub>E\<^isub>B ::"oid" where "oid\<^isub>E\<^isub>B = 0"
+definition oid\<^isub>E\<^isub>B ::"oid" where "oid\<^isub>E\<^isub>B = 10"
 
 text{* From there on, we can already define an empty state which must contain
 for \verb+oid\<^isub>E\<^isub>B+ the empty relation (encoded as association list, since there are
 assiciations with a Sequence-like structure).*}
 
-definition "\<sigma>\<^isub>0 \<equiv> \<lparr> heap = empty, assocs\<^isub>2 = empty(oid\<^isub>E\<^isub>B \<mapsto> []), assocs\<^isub>3 = empty\<rparr>"
 
-
-
-definition "eval_extract X f = (\<lambda> \<tau>. case X \<tau> of
+definition  eval_extract :: "('\<AA>,('a::object) option option) val
+                             \<Rightarrow> (oid \<Rightarrow> ('\<AA>,'c::null) val) 
+                             \<Rightarrow> ('\<AA>,'c::null) val"
+where "eval_extract X f = (\<lambda> \<tau>. case X \<tau> of
                                     \<bottom> \<Rightarrow> invalid \<tau>   (* exception propagation *)
                                | \<lfloor>  \<bottom> \<rfloor> \<Rightarrow> invalid \<tau> (* dereferencing null pointer *)
                                | \<lfloor>\<lfloor> obj \<rfloor>\<rfloor> \<Rightarrow> f (oid_of obj) \<tau>)"
+(* TODO: rephrasing as if-then-else and shifting to OCL_state. *)
 
 
-definition "derefassocs\<^isub>2 fst_snd assoc_oid oid f  =
-                 (\<lambda>\<tau>. case (assocs\<^isub>2 (fst_snd \<tau>)) assoc_oid of
-                                 \<lfloor> S \<rfloor> \<Rightarrow> f (filter (\<lambda>(x,y). x=oid) S) oid \<tau>
-                                | _    \<Rightarrow> invalid \<tau>)"
 
-definition XXX   (* till here *)
+definition "filter_assocs\<^isub>2" :: "('\<AA> state \<times> '\<AA> state \<Rightarrow> '\<AA> state) 
+                              \<Rightarrow> (oid \<times> oid \<Rightarrow> oid \<times> oid)
+                              \<Rightarrow> oid 
+                              \<Rightarrow> oid 
+                              \<Rightarrow> (oid list \<Rightarrow> oid \<Rightarrow> ('\<AA>,'f)val)
+                              \<Rightarrow> ('\<AA>, 'f::null)val"
+where      "filter_assocs\<^isub>2 pre_post to_from assoc_oid oid f  =
+                 (\<lambda>\<tau>. case (assocs\<^isub>2 (pre_post \<tau>)) assoc_oid of
+                      \<lfloor> S \<rfloor> \<Rightarrow> f (map (snd \<circ> to_from) 
+                                     (filter (\<lambda> p. fst(to_from p)=oid) S)) 
+                                 oid \<tau>
+                     | _    \<Rightarrow> invalid \<tau>)"
+
+
+text{* The @{text pre_post}-parameter is configured with @{text fst} or 
+@{text snd}, the @{text to_from}-parameter either with the identity @{term id} or
+the following combinator @{text switch}: *}
+definition "switch = (\<lambda>(x,y). (y,x))"
+
+definition deref_oids  ::"  (('\<AA>, 'b::null)val)
+                         \<Rightarrow> (('\<AA>,'b)val \<Rightarrow> ('\<AA>,'c)val \<Rightarrow> ('\<AA>, 'b)val)
+                         \<Rightarrow> (('\<AA>, 'b)val \<Rightarrow> ('\<AA>, 'd)val) 
+                         \<Rightarrow> (oid \<Rightarrow> ('\<AA>,'c::null)val)
+                         \<Rightarrow> oid list 
+                         \<Rightarrow> oid
+                         \<Rightarrow> ('\<AA>, 'd)val"
+where  "deref_oids  mt incl smash deref l oid  = smash(foldl incl mt (map deref l))"
+
+text{* The continuation @{text f} is usually instantiated with a smashing
+function which is either the identity @{term id} or, for 0..1 cardinalities
+of associations, the @{term Ocl_Any} - selector which also handles the 
+@{term null}-cases appropriately. A standard use-case for this combinator
+is for example: *}                         
+term "(deref_oids mtSet OclIncluding Ocl_Any f  l oid )::('\<AA>, 'a::null)val"
+
+definition deref_oid\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n :: "(\<AA> state \<times> \<AA> state \<Rightarrow> \<AA> state)
+                             \<Rightarrow> (type\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n \<Rightarrow> (\<AA>, 'c::null)val) 
+                             \<Rightarrow> oid 
+                             \<Rightarrow> (\<AA>, 'c::null)val"
+where "deref_oid\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n fst_snd f oid = (\<lambda>\<tau>. case (heap (fst_snd \<tau>)) oid of
+                       \<lfloor> in\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n obj \<rfloor> \<Rightarrow> f obj \<tau>
+                     | _       \<Rightarrow> invalid \<tau>)"
+
+
 
 definition "deref_oid\<^isub>O\<^isub>c\<^isub>l\<^isub>A\<^isub>n\<^isub>y fst_snd f oid = (\<lambda>\<tau>. case (heap (fst_snd \<tau>)) oid of
                        \<lfloor> in\<^isub>O\<^isub>c\<^isub>l\<^isub>A\<^isub>n\<^isub>y obj \<rfloor> \<Rightarrow> f obj \<tau>
@@ -710,11 +759,14 @@ definition dot\<^isub>O\<^isub>c\<^isub>l\<^isub>A\<^isub>n\<^isub>y\<^isup>a\<^
                           (select\<^isub>O\<^isub>c\<^isub>l\<^isub>A\<^isub>n\<^isub>y\<^isup>a\<^isup>n\<^isup>y
                              reconst_basetype))"
 
+
+
 definition dot\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n\<^isup>b\<^isup>o\<^isup>s\<^isup>s :: "Person \<Rightarrow> Person"  ("(1(_).boss)" 50)
   where "(X).boss = eval_extract X
-                      (deref_oid\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n in_post_state
-                         (select\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n\<^isup>b\<^isup>o\<^isup>s\<^isup>s
-                            (deref_oid\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n in_post_state)))"
+                        (\<lambda> oid. filter_assocs\<^isub>2 in_post_state id oid\<^isub>E\<^isub>B oid 
+                                    (deref_oids  mtSet OclIncluding Ocl_Any 
+                                          (deref_oid\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n in_post_state (\<lambda> x y. \<lfloor>\<lfloor>x\<rfloor>\<rfloor>))))"
+
 
 definition dot\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n\<^isup>s\<^isup>a\<^isup>l\<^isup>a\<^isup>r\<^isup>y :: "Person \<Rightarrow> Integer"  ("(1(_).salary)" 50)
   where "(X).salary = eval_extract X
@@ -730,11 +782,9 @@ definition dot\<^isub>O\<^isub>c\<^isub>l\<^isub>A\<^isub>n\<^isub>y\<^isup>a\<^
 
 definition dot\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n\<^isup>b\<^isup>o\<^isup>s\<^isup>s_at_pre:: "Person \<Rightarrow> Person"  ("(1(_).boss@pre)" 50)
   where "(X).boss@pre = eval_extract X
-                         (deref_oid\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n in_pre_state
-                            (select\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n\<^isup>b\<^isup>o\<^isup>s\<^isup>s
-                               (deref_oid\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n in_pre_state)))"
-  (* | \<lfloor>\<lfloor> mk\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n _ _ \<bottom> \<rfloor>\<rfloor> \<Rightarrow> null (* object contains null pointer. REALLY ?
-                                     And if this pointer was defined in the pre-state ?*) *)
+                        (\<lambda> oid. filter_assocs\<^isub>2 in_pre_state id oid\<^isub>E\<^isub>B oid 
+                                    (deref_oids  mtSet OclIncluding Ocl_Any 
+                                          (deref_oid\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n in_post_state (\<lambda> x y. \<lfloor>\<lfloor>x\<rfloor>\<rfloor>))))"
 
 definition dot\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n\<^isup>s\<^isup>a\<^isup>l\<^isup>a\<^isup>r\<^isup>y_at_pre:: "Person \<Rightarrow> Integer"  ("(1(_).salary@pre)" 50)
   where "(X).salary@pre = eval_extract X
@@ -834,6 +884,32 @@ definition "oid6 \<equiv> 6"
 definition "oid7 \<equiv> 7"
 definition "oid8 \<equiv> 8"
 
+definition "person1 \<equiv> mk\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n oid0 \<lfloor>1300\<rfloor>"
+definition "person2 \<equiv> mk\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n oid1 \<lfloor>1800\<rfloor>"
+definition "person3 \<equiv> mk\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n oid2 None "
+definition "person4 \<equiv> mk\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n oid3 \<lfloor>2900\<rfloor>"
+definition "person5 \<equiv> mk\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n oid4 \<lfloor>3500\<rfloor>"
+definition "person6 \<equiv> mk\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n oid5 \<lfloor>2500\<rfloor>"
+definition "person7 \<equiv> mk\<^isub>O\<^isub>c\<^isub>l\<^isub>A\<^isub>n\<^isub>y oid6 \<lfloor>(\<lfloor>3200\<rfloor>)\<rfloor>"
+definition "person8 \<equiv> mk\<^isub>O\<^isub>c\<^isub>l\<^isub>A\<^isub>n\<^isub>y oid7 None"
+definition "person9 \<equiv> mk\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n oid8 \<lfloor>0\<rfloor>"
+
+definition
+      "\<sigma>\<^isub>1  \<equiv> \<lparr> heap = empty(oid0 \<mapsto> in\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n (mk\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n oid0 \<lfloor>1000\<rfloor>))
+                           (oid1 \<mapsto> in\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n (mk\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n oid1 \<lfloor>1200\<rfloor>))
+                          (*oid2*)
+                           (oid3 \<mapsto> in\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n (mk\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n oid3 \<lfloor>2600\<rfloor>))
+                           (oid4 \<mapsto> in\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n person5)
+                           (oid5 \<mapsto> in\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n (mk\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n oid5 \<lfloor>2300\<rfloor>))
+                          (*oid6*)
+                          (*oid7*)
+                           (oid8 \<mapsto> in\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n person9),
+               assocs\<^isub>2 = empty(oid\<^isub>E\<^isub>B \<mapsto> [(oid0,oid1),(oid3,oid4),(oid4,oid5),
+                                       (oid5,oid3),(oid8,oid8)]),
+               assocs\<^isub>3 = empty \<rparr>"
+
+(*
+
 definition "person1 \<equiv> mk\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n oid0 \<lfloor>1300\<rfloor> \<lfloor>oid1\<rfloor>"
 definition "person2 \<equiv> mk\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n oid1 \<lfloor>1800\<rfloor> \<lfloor>oid1\<rfloor>"
 definition "person3 \<equiv> mk\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n oid2 None None"
@@ -844,18 +920,7 @@ definition "person7 \<equiv> mk\<^isub>O\<^isub>c\<^isub>l\<^isub>A\<^isub>n\<^i
 definition "person8 \<equiv> mk\<^isub>O\<^isub>c\<^isub>l\<^isub>A\<^isub>n\<^isub>y oid7 None"
 definition "person9 \<equiv> mk\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n oid8 \<lfloor>0\<rfloor> None"
 
-definition
-      "\<sigma>\<^isub>1  \<equiv> \<lparr> heap = empty(oid0 \<mapsto> in\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n (mk\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n oid0 \<lfloor>1000\<rfloor> \<lfloor>oid1\<rfloor>))
-                           (oid1 \<mapsto> in\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n (mk\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n oid1 \<lfloor>1200\<rfloor>  None))
-                          (*oid2*)
-                           (oid3 \<mapsto> in\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n (mk\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n oid3 \<lfloor>2600\<rfloor> \<lfloor>oid4\<rfloor>))
-                           (oid4 \<mapsto> in\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n person5)
-                           (oid5 \<mapsto> in\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n (mk\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n oid5 \<lfloor>2300\<rfloor> \<lfloor>oid3\<rfloor>))
-                          (*oid6*)
-                          (*oid7*)
-                           (oid8 \<mapsto> in\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n person9),
-               assocs\<^isub>2 = empty, 
-               assocs\<^isub>3 = empty \<rparr>"
+*)
 
 definition
       "\<sigma>\<^isub>1' \<equiv> \<lparr> heap = empty(oid0 \<mapsto> in\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n person1)
@@ -867,8 +932,11 @@ definition
                            (oid6 \<mapsto> in\<^isub>O\<^isub>c\<^isub>l\<^isub>A\<^isub>n\<^isub>y person7)
                            (oid7 \<mapsto> in\<^isub>O\<^isub>c\<^isub>l\<^isub>A\<^isub>n\<^isub>y person8)
                            (oid8 \<mapsto> in\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n person9),
-               assocs\<^isub>2 = empty, 
+               assocs\<^isub>2 = empty(oid\<^isub>E\<^isub>B \<mapsto> [(oid0,oid1),(oid1,oid1),(oid5,oid6),(oid6,oid6)]),
                assocs\<^isub>3 = empty \<rparr>"
+
+definition "\<sigma>\<^isub>0 \<equiv> \<lparr> heap = empty,  assocs\<^isub>2 = empty, assocs\<^isub>3 = empty\<rparr>"
+
 
 lemma basic_\<tau>_wff: "WFF(\<sigma>\<^isub>1,\<sigma>\<^isub>1')"
 by(auto simp: WFF_def \<sigma>\<^isub>1_def \<sigma>\<^isub>1'_def
