@@ -1008,11 +1008,28 @@ lemma includes_valid_args_valid''[simp,code_unfold]:
 "\<upsilon>(X->includes(x)) = ((\<delta> X) and (\<upsilon> x))"
 by(auto intro!: transform2_rev simp:includes_valid_args_valid foundation10 defined_and_I)
 
+subsubsection{* Ocl_Any *}
+
+lemma any_valid_args_valid[simp,code_unfold]:
+"(\<tau> \<Turnstile> \<upsilon>(X->any())) = (\<tau> \<Turnstile> \<upsilon> X)"
+proof -
+ have A: "(\<tau> \<Turnstile> \<upsilon>(X->any())) \<Longrightarrow> ((\<tau> \<Turnstile>(\<upsilon> X)))"
+          by(auto simp: Ocl_Any_def OclValid_def true_def valid_def false_def StrongEq_def
+                        defined_def invalid_def bot_fun_def null_fun_def
+                  split: bool.split_asm HOL.split_if_asm option.split)
+ have B: "(\<tau> \<Turnstile>(\<upsilon> X)) \<Longrightarrow> (\<tau> \<Turnstile> \<upsilon>(X->any()))"
+          apply(auto simp: Ocl_Any_def OclValid_def true_def false_def StrongEq_def
+                           defined_def invalid_def valid_def bot_fun_def null_fun_def
+                           bot_option_def null_option_def null_is_valid
+                     split: bool.split_asm HOL.split_if_asm option.split)
+          apply(drule Set_inv_lemma[OF foundation16[THEN iffD2], OF conjI], simp)
+          sorry
+show ?thesis by(auto dest:A intro:B)
+qed
+
 lemma any_valid_args_valid''[simp,code_unfold]:
 "\<upsilon>(X->any()) = (\<upsilon> X)"
-sorry
-
-
+by(auto intro!: transform2_rev)
 
 (* and many more, forall exists. *)
 
@@ -1852,11 +1869,11 @@ subsection{* Ocl_Any *}
 lemma [simp,code_unfold]: "Set{}->any() = null"
 sorry
 
-lemma AnyExec[simp,code_unfold]: 
+lemma any_exec[simp,code_unfold]: 
       "(Set{}->including(a))->any() = a"
 sorry
 
-lemma AnyExecUnfold[simp,code_unfold]: 
+lemma any_exec_unfold[simp,code_unfold]: 
       "X->includes(X->any()) = (if \<upsilon>(X) then not(X->isEmpty()) else invalid endif)"
 sorry
 
