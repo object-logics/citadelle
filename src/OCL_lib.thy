@@ -162,7 +162,7 @@ value "  \<tau>\<^isub>0 \<Turnstile> not (\<upsilon> (null +\<^isub>o\<^isub>c\
 
 subsection{* The construction of the UnlimitedNatural Type *}
 
-text{* Unlike @{term "Integer"}, we should also include the \<infinity> value besides @{term "undefined"} and @{term "null"}. *}
+text{* Unlike @{term "Integer"}, we should also include the infinity value besides @{term "undefined"} and @{term "null"}. *}
 
 
 class      infinity = null +
@@ -1008,7 +1008,7 @@ lemma includes_valid_args_valid''[simp,code_unfold]:
 "\<upsilon>(X->includes(x)) = ((\<delta> X) and (\<upsilon> x))"
 by(auto intro!: transform2_rev simp:includes_valid_args_valid foundation10 defined_and_I)
 
-subsubsection{* Ocl_Any *}
+subsubsection{* Ocl Any *}
 
 lemma any_valid_args_valid[simp,code_unfold]:
 "(\<tau> \<Turnstile> \<upsilon>(X->any())) = (\<tau> \<Turnstile> \<upsilon> X)"
@@ -1070,7 +1070,7 @@ by(simp add: OclIncludes_def invalid_def bot_fun_def defined_def valid_def false
 lemma includes_strict3[simp,code_unfold]:"(null->includes(x)) = invalid"
 by(simp add: OclIncludes_def invalid_def bot_fun_def defined_def valid_def false_def true_def)
 
-subsubsection{* Ocl_Any *}
+subsubsection{* Ocl Any *}
 
 lemma any_strict1[simp,code_unfold]:
 "(invalid->any()) = invalid"
@@ -1864,7 +1864,7 @@ lemma [simp]:
  shows "\<delta> ((X ->including(x)) ->size()) = (\<delta>(X) and \<upsilon>(x))"
 by(simp add: size_defined[OF X_finite])
 
-subsection{* Ocl_Any *}
+subsection{* Ocl Any *}
 
 lemma [simp,code_unfold]: "Set{}->any() = null"
 sorry
