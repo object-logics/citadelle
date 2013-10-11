@@ -1313,10 +1313,10 @@ definition "select\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n\<^isup>
     | (mkoid\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n ((mk\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n (_) (_) (_) (\<lfloor>moving\<rfloor>))) (_) (_)) \<Rightarrow> (f ((\<lambda>x _. \<lfloor>\<lfloor>x\<rfloor>\<rfloor>)) (moving)))"
 definition "select\<^isub>P\<^isub>l\<^isub>a\<^isub>n\<^isub>e\<^isub>t\<^isup>s\<^isup>o\<^isup>u\<^isup>n\<^isup>d f = (\<lambda> (mkoid\<^isub>P\<^isub>l\<^isub>a\<^isub>n\<^isub>e\<^isub>t ((mk\<^isub>P\<^isub>l\<^isub>a\<^isub>n\<^isub>e\<^isub>t (_) (\<bottom>) (_))) (_)) \<Rightarrow> null
     | (mkoid\<^isub>P\<^isub>l\<^isub>a\<^isub>n\<^isub>e\<^isub>t ((mk\<^isub>P\<^isub>l\<^isub>a\<^isub>n\<^isub>e\<^isub>t (_) (\<lfloor>sound\<rfloor>) (_))) (_)) \<Rightarrow> (f ((\<lambda>x _. \<lfloor>\<lfloor>x\<rfloor>\<rfloor>)) (sound))
-    | _ \<Rightarrow> invalid)"
+    | (mkoid\<^isub>P\<^isub>l\<^isub>a\<^isub>n\<^isub>e\<^isub>t ((mk\<^isub>P\<^isub>l\<^isub>a\<^isub>n\<^isub>e\<^isub>t_\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n (Person))) (_)) \<Rightarrow> (select\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n\<^isup>s\<^isup>o\<^isup>u\<^isup>n\<^isup>d (f) (Person)))"
 definition "select\<^isub>P\<^isub>l\<^isub>a\<^isub>n\<^isub>e\<^isub>t\<^isup>m\<^isup>o\<^isup>v\<^isup>i\<^isup>n\<^isup>g f = (\<lambda> (mkoid\<^isub>P\<^isub>l\<^isub>a\<^isub>n\<^isub>e\<^isub>t ((mk\<^isub>P\<^isub>l\<^isub>a\<^isub>n\<^isub>e\<^isub>t (_) (_) (\<bottom>))) (_)) \<Rightarrow> null
     | (mkoid\<^isub>P\<^isub>l\<^isub>a\<^isub>n\<^isub>e\<^isub>t ((mk\<^isub>P\<^isub>l\<^isub>a\<^isub>n\<^isub>e\<^isub>t (_) (_) (\<lfloor>moving\<rfloor>))) (_)) \<Rightarrow> (f ((\<lambda>x _. \<lfloor>\<lfloor>x\<rfloor>\<rfloor>)) (moving))
-    | _ \<Rightarrow> invalid)"
+    | (mkoid\<^isub>P\<^isub>l\<^isub>a\<^isub>n\<^isub>e\<^isub>t ((mk\<^isub>P\<^isub>l\<^isub>a\<^isub>n\<^isub>e\<^isub>t_\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n (Person))) (_)) \<Rightarrow> (select\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n\<^isup>m\<^isup>o\<^isup>v\<^isup>i\<^isup>n\<^isup>g (f) (Person)))"
 
 (* 35 *********************************** *)
 definition dot\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n\<^isup>s\<^isup>a\<^isup>l\<^isup>a\<^isup>r\<^isup>y ("(1(_) .salary)" 50)
