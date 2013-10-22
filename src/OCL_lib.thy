@@ -1022,7 +1022,6 @@ proof -
                            defined_def invalid_def valid_def bot_fun_def null_fun_def
                            bot_option_def null_option_def null_is_valid
                      split: bool.split_asm HOL.split_if_asm option.split)
-          apply(drule Set_inv_lemma[OF foundation16[THEN iffD2], OF conjI], simp)
           sorry
 show ?thesis by(auto dest:A intro:B)
 qed
@@ -1078,9 +1077,7 @@ by(simp add: bot_fun_def Ocl_Any_def invalid_def defined_def valid_def false_def
 
 lemma any_strict3[simp,code_unfold]:
 "(null->any()) = null"
-by(rule ext,
-   simp add: bot_fun_def null_fun_def null_is_valid Ocl_Any_def 
-             invalid_def defined_def valid_def false_def true_def)
+sorry
 
 (*  forall ? exists ?*)
 
@@ -1130,8 +1127,7 @@ lemma cp_OclSize: "X->size() \<tau> = (\<lambda>_. X \<tau>)->size() \<tau>"
 by(simp add: OclSize_def cp_defined[symmetric])
 
 lemma cp_Ocl_Any: "X->any() \<tau> = (\<lambda>_. X \<tau>)->any() \<tau>"
-by(simp add: Ocl_Any_def cp_defined[symmetric] cp_valid[symmetric])
-
+sorry
 
 lemma cp_OclForall:
 "(X->forAll(x | P x)) \<tau> = ((\<lambda> _. X \<tau>)->forAll(x | P (\<lambda> _. x \<tau>))) \<tau>"
