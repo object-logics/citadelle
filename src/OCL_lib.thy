@@ -791,7 +791,7 @@ notation   OclNotEmpty    ("_->notEmpty'(')" [66])
 (* Slight breach of naming convention in order to avoid naming conflict on constant.*)
 definition Ocl_Any   :: "[('\<AA>,'\<alpha>::null) Set] \<Rightarrow> ('\<AA>,'\<alpha>) val"
 where     "Ocl_Any x = (\<lambda> \<tau>. if (\<upsilon> x) \<tau> = true \<tau> 
-                            then if (\<delta> x) \<tau> = true \<tau> then SOME y. y \<in> \<lceil>\<lceil>Rep_Set_0 (x \<tau>)\<rceil>\<rceil> 
+                            then if (\<delta> x and OclNotEmpty x) \<tau> = true \<tau> then SOME y. y \<in> \<lceil>\<lceil>Rep_Set_0 (x \<tau>)\<rceil>\<rceil>
                                  else  null \<tau>  
                             else \<bottom> )"
 notation   Ocl_Any   ("_->any'(')")
