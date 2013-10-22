@@ -2358,6 +2358,74 @@ proof -
  done
 qed
 
+lemma forall_exec:
+ assumes S_finite: "finite \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>"
+   shows "S->forAll(x | P x) \<tau> = (S->iterate(x; acc = true | acc and P x)) \<tau>"
+proof -
+ have and_comm : "comp_fun_commute (\<lambda>x acc. acc and P x)"
+  apply(simp add: comp_fun_commute_def comp_def)
+ by (metis OclAnd_assoc OclAnd_commute)
+
+ have ex_insert : "\<And>x F P. (\<exists>x\<in>insert x F. P x) = (P x \<or> (\<exists>x\<in>F. P x))"
+ by (metis insert_iff)
+
+ have destruct_ocl : "\<And>x \<tau>. x = true \<tau> \<or> x = false \<tau> \<or> x = null \<tau> \<or> x = \<bottom> \<tau>"
+  apply(case_tac x) apply (metis bot_Boolean_def)
+  apply(case_tac a) apply (metis null_Boolean_def)
+  apply(case_tac aa) apply (metis (full_types) true_def)
+ by (metis (full_types) false_def)
+
+ have disjE4 : "\<And> P1 P2 P3 P4 R.
+   (P1 \<or> P2 \<or> P3 \<or> P4) \<Longrightarrow> (P1 \<Longrightarrow> R) \<Longrightarrow> (P2 \<Longrightarrow> R) \<Longrightarrow> (P3 \<Longrightarrow> R) \<Longrightarrow> (P4 \<Longrightarrow> R) \<Longrightarrow> R"
+ by metis
+
+ show ?thesis
+  apply(simp only: OclForall_def OclIterate\<^isub>S\<^isub>e\<^isub>t_def)
+  apply(case_tac "\<tau> \<Turnstile> \<delta> S", simp only: OclValid_def)
+  apply(subgoal_tac "(if \<exists>x\<in>\<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>. P (\<lambda>_. x) \<tau> = false \<tau> then false \<tau>
+               else if \<exists>x\<in>\<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>. P (\<lambda>_. x) \<tau> = \<bottom> \<tau> then \<bottom> \<tau>
+                    else if \<exists>x\<in>\<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>. P (\<lambda>_. x) \<tau> = null \<tau> then null \<tau>
+                         else true \<tau>) = Finite_Set.fold (\<lambda>x acc. acc and P x) true ((\<lambda>a \<tau>. a) ` \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>) \<tau>",
+        simp add: S_finite)
+  apply(case_tac "\<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil> = {}", simp)
+  apply(rule finite_ne_induct[where P = "\<lambda>set. (if \<exists>x\<in>set. P (\<lambda>_. x) \<tau> = false \<tau> then false \<tau>
+      else if \<exists>x\<in>set. P (\<lambda>_. x) \<tau> = \<bottom> \<tau> then \<bottom> \<tau>
+           else if \<exists>x\<in>set. P (\<lambda>_. x) \<tau> = null \<tau> then null \<tau> else true \<tau>) =
+     Finite_Set.fold (\<lambda>x acc. acc and P x) true ((\<lambda>a \<tau>. a) ` set) \<tau>", OF S_finite])
+  apply(simp)
+  (* *)
+  apply(simp only: image_insert)
+  apply(subst comp_fun_commute.fold_insert[OF and_comm], simp)
+  apply (metis empty_iff image_empty)
+  apply(simp)
+  apply (metis OCL_core.bot_fun_def destruct_ocl null_fun_def)
+  (* *)
+  apply(simp only: image_insert)
+  apply(subst comp_fun_commute.fold_insert[OF and_comm], simp)
+  apply (metis (mono_tags) imageE)
+
+  (* *)
+  apply(subst cp_OclAnd) apply(drule sym, drule sym, simp only:)
+  apply(simp only: ex_insert)
+  apply(subgoal_tac "\<exists>x. x\<in>F") prefer 2
+  apply(metis all_not_in_conv)
+  proof - fix x F show "(\<delta> S) \<tau> = true \<tau> \<Longrightarrow> \<exists>x. x \<in> F \<Longrightarrow>
+           (if P (\<lambda>_. x) \<tau> = false \<tau> \<or> (\<exists>x\<in>F. P (\<lambda>_. x) \<tau> = false \<tau>) then false \<tau>
+            else if P (\<lambda>_. x) \<tau> = \<bottom> \<tau> \<or> (\<exists>x\<in>F. P (\<lambda>_. x) \<tau> = \<bottom> \<tau>) then \<bottom> \<tau>
+                 else if P (\<lambda>_. x) \<tau> = null \<tau> \<or> (\<exists>x\<in>F. P (\<lambda>_. x) \<tau> = null \<tau>) then null \<tau> else (\<delta> S) \<tau>) =
+           ((\<lambda>_. if \<exists>x\<in>F. P (\<lambda>_. x) \<tau> = false \<tau> then false \<tau>
+                 else if \<exists>x\<in>F. P (\<lambda>_. x) \<tau> = \<bottom> \<tau> then \<bottom> \<tau>
+                      else if \<exists>x\<in>F. P (\<lambda>_. x) \<tau> = null \<tau> then null \<tau> else (\<delta> S) \<tau>) and
+            (\<lambda>_. P (\<lambda>\<tau>. x) \<tau>))
+            \<tau>"
+   apply(cut_tac destruct_ocl[where x = "P (\<lambda>\<tau>. x) \<tau>" and \<tau> = \<tau>])
+   apply(erule disjE4)
+   apply(simp_all add: true_def false_def null_fun_def null_option_def bot_fun_def bot_option_def OclAnd_def)
+  by (metis (lifting) option.distinct(1))+
+  apply_end(simp add: OclValid_def)+
+ qed
+qed
+
 subsection{* OclExists *}
 
 lemma exists_set_null_exec[simp,code_unfold] :
