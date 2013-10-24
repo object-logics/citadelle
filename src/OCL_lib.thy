@@ -2874,24 +2874,57 @@ qed
 
 
 section{* Gogolla's Challenge on Sets *}
-subsection{* Introduction *}
 (*
 Sequence{6,8}->iterate(i;r1:Sequence(Integer)=Sequence{9}|
   r1->iterate(j;r2:Sequence(Integer)=r1|
     r2->including(0)->including(i)->including(j)))
 *)
+text{* In order to analyze the performance of the library,
+we propose in this section to execute and normalize a not trivial OCL expression.
+Consider for instance this ground term:
+@{term "Set{\<six>,\<eight>}->iterate(i;r1=Set{\<nine>}|
+  r1->iterate(j;r2=r1|
+    r2->including(\<zero>)->including(i)->including(j)))"}.
+Starting from a set of numbers, this complex expression finally involves only two combinators:
+1) @{term OclIterate\<^isub>S\<^isub>e\<^isub>t}, and
+2) @{term OclIncluding}.
 
-text{* @{term OclIterate\<^isub>S\<^isub>e\<^isub>t} is defined with the function @{term Finite_Set.fold}.
-So when proving properties where the term @{term OclIterate\<^isub>S\<^isub>e\<^isub>t} appears at some point,
-most lemmas defined in
-the library @{theory Finite_Set} could be helpful for the proof.
- However, for some part of the Gogolla's Challenge proof, it is required
-to have this statement @{thm (concl) comp_fun_commute.fold_insert}
-(coming from @{text comp_fun_commute.fold_insert}),
-but @{text comp_fun_commute.fold_insert} requires @{text comp_fun_commute},
-which is not trivial to prove on two OCL terms without extra hypothesis
-(like finiteness on sets).
-Thus, we overload here this @{text comp_fun_commute}. *}
+As there is no removing, we conjecture that the final result should be equal to the set
+containing all ground numbers appearing in the expression: that is @{term \<six>}, @{term \<eight>}, @{term \<nine>}, @{term \<zero>}. *} 
+(* text{*(modulo ordering and duplication for sequences)*} *)
+
+text{* The following part sets up the necessary requirement towards an automatic execution.
+The goal is to normalize a general term composed of a set of numbers applied to an arbitrary nesting of 
+@{term OclIterate\<^isub>S\<^isub>e\<^isub>t} and @{term OclIncluding}. 
+One solution is to rawly compute the initial term by following a call by value strategy or by need. 
+However for efficiency reasons, we present in the next subsections some algebraic properties on sets
+that would shortcut the number of reduction steps, by reaching optimaly a normal form. *}
+
+subsection{* Introduction *}
+
+text{* Besides the @{term invalid} exception element, the other important concept that
+characterizes OCL sets in our formalization is the finiteness property.
+Since the iteration could only be performed on finite sets, the definition of @{term OclIterate\<^isub>S\<^isub>e\<^isub>t}
+contains as prerequisite a check that the given argument is finite. If it is the case, 
+@{term Finite_Set.fold} is then called internally to execute the iteration. *}
+
+text{* Recall that our goal is to provide a generic solution to the Gogolla's challenge, 
+in the sense that we focus on an arbitrary list of nested @{term OclIterate\<^isub>S\<^isub>e\<^isub>t} combinators. 
+A naive approach for simplifying such huge expression would be to repeatedly rewrite with
+@{term OclIterate\<^isub>S\<^isub>e\<^isub>t_including}. 
+However, @{term OclIterate\<^isub>S\<^isub>e\<^isub>t_including} contains @{term "comp_fun_commute F"} as hypothesis 
+and this one is generally difficult to prove. Indeed, the easiest case would be when simplifying 
+the outermost @{term OclIterate\<^isub>S\<^isub>e\<^isub>t} since the overall expression is ground. But for the others inner nested 
+@{term OclIterate\<^isub>S\<^isub>e\<^isub>t}, the @{term "F"} function could have as free variable a set
+where its validity, definedness and finiteness are unknown --
+and the finiteness is precisely required for all sets occuring
+in a chain of @{term OclIterate\<^isub>S\<^isub>e\<^isub>t} nested term. *}
+
+text{* Thus we propose to write an Isabelle locale similar as the locale @{term "comp_fun_commute"}
+but containing the additional properties that sets should fulfill
+while traveling through the nested @{term OclIterate\<^isub>S\<^isub>e\<^isub>t}.
+For reusability, these properties will be abstractly regrouped in @{term "is_int"} (representing ground value in a set, like integer)
+and @{term "all_defined"} (representing ground sets). *}
 
 definition "is_int x \<equiv> \<forall> \<tau>. \<tau> \<Turnstile> \<upsilon> x \<and> (\<forall>\<tau>0. x \<tau> = x \<tau>0)"
 
