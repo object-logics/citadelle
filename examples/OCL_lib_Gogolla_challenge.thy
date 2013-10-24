@@ -41,7 +41,7 @@
  ******************************************************************************)
 (* $Id:$ *)
 
-header{* Gogolla's challenge *}
+header{* Gogolla's challenge on Sets *}
 
 theory
   OCL_lib_Gogolla_challenge
@@ -49,7 +49,6 @@ imports
   "../src/OCL_lib"
 begin
 
-section{* Gogolla's Challenge on Sets *}
 (*
 Sequence{6,8}->iterate(i;r1:Sequence(Integer)=Sequence{9}|
   r1->iterate(j;r2:Sequence(Integer)=r1|
@@ -66,31 +65,31 @@ Starting from a set of numbers, this complex expression finally involves only tw
 2) @{term OclIncluding}.
 
 As there is no removing, we conjecture that the final result should be equal to the set
-containing all ground numbers appearing in the expression: that is @{term \<six>}, @{term \<eight>}, @{term \<nine>}, @{term \<zero>}. *} 
+containing all ground numbers appearing in the expression: that is @{term \<six>}, @{term \<eight>}, @{term \<nine>}, @{term \<zero>}. *}
 (* text{*(modulo ordering and duplication for sequences)*} *)
 
 text{* The following part sets up the necessary requirement towards an automatic execution.
-The goal is to normalize a general term composed of a set of numbers applied to an arbitrary nesting of 
-@{term OclIterate\<^isub>S\<^isub>e\<^isub>t} and @{term OclIncluding}. 
-One solution is to rawly compute the initial term by following a call by value strategy or by need. 
+The goal is to normalize a general term composed of a set of numbers applied to an arbitrary nesting of
+@{term OclIterate\<^isub>S\<^isub>e\<^isub>t} and @{term OclIncluding}.
+One solution is to rawly compute the initial term by following a call by value strategy or by need.
 However for efficiency reasons, we present in the next subsections some algebraic properties on sets
 that would shortcut the number of reduction steps, by reaching optimaly a normal form. *}
 
-subsection{* Introduction *}
+section{* Introduction *}
 
 text{* Besides the @{term invalid} exception element, the other important concept that
 characterizes OCL sets in our formalization is the finiteness property.
 Since the iteration could only be performed on finite sets, the definition of @{term OclIterate\<^isub>S\<^isub>e\<^isub>t}
-contains as prerequisite a check that the given argument is finite. If it is the case, 
+contains as prerequisite a check that the given argument is finite. If it is the case,
 @{term Finite_Set.fold} is then called internally to execute the iteration. *}
 
-text{* Recall that our goal is to provide a generic solution to the Gogolla's challenge, 
-in the sense that we focus on an arbitrary list of nested @{term OclIterate\<^isub>S\<^isub>e\<^isub>t} combinators. 
+text{* Recall that our goal is to provide a generic solution to the Gogolla's challenge,
+in the sense that we focus on an arbitrary list of nested @{term OclIterate\<^isub>S\<^isub>e\<^isub>t} combinators.
 A naive approach for simplifying such huge expression would be to repeatedly rewrite with
-@{term OclIterate\<^isub>S\<^isub>e\<^isub>t_including}. 
-However, @{term OclIterate\<^isub>S\<^isub>e\<^isub>t_including} contains @{term "comp_fun_commute F"} as hypothesis 
-and this one is generally difficult to prove. Indeed, the easiest case would be when simplifying 
-the outermost @{term OclIterate\<^isub>S\<^isub>e\<^isub>t} since the overall expression is ground. But for the others inner nested 
+@{term OclIterate\<^isub>S\<^isub>e\<^isub>t_including}.
+However, @{term OclIterate\<^isub>S\<^isub>e\<^isub>t_including} contains @{term "comp_fun_commute F"} as hypothesis
+and this one is generally difficult to prove. Indeed, the easiest case would be when simplifying
+the outermost @{term OclIterate\<^isub>S\<^isub>e\<^isub>t} since the overall expression is ground. But for the others inner nested
 @{term OclIterate\<^isub>S\<^isub>e\<^isub>t}, the @{term "F"} function could have as free variable a set
 where its validity, definedness and finiteness are unknown --
 and the finiteness is precisely required for all sets occuring
@@ -167,7 +166,7 @@ lemma destruct_int : "is_int i \<Longrightarrow> \<exists>! j. i = (\<lambda>_. 
  apply_end(simp)
 qed
 
-subsection{* mtSet *}
+section{* mtSet *}
 
 lemma mtSet_all_def : "all_defined \<tau> Set{}"
 proof -
@@ -180,9 +179,9 @@ qed
 lemma cp_mtSet : "\<And>x. Set{} = (\<lambda>_. Set{} x)"
 by (metis (hide_lams, no_types) mtSet_def)
 
-subsection{* OclIncluding *}
+section{* OclIncluding *}
 
-subsubsection{* Identity *}
+subsection{* Identity *}
 
 lemma including_id' : "all_defined \<tau> (S:: ('\<AA>, 'a option option) Set) \<Longrightarrow>
                        x \<in> \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil> \<Longrightarrow>
@@ -226,7 +225,7 @@ proof -
  apply_end(simp)
 qed
 
-subsubsection{* Commutativity *}
+subsection{* Commutativity *}
 
 lemma including_swap_ :
  assumes S_def : "\<tau> \<Turnstile> \<delta> S"
@@ -384,7 +383,7 @@ lemma including_swap : "\<forall>\<tau>. \<tau> \<Turnstile> \<delta> S \<Longri
  apply(simp add: StrongEq_def true_def)
 done
 
-subsubsection{* Congruence *}
+subsection{* Congruence *}
 
 lemma including_subst_set : "(s::('\<AA>,'a::null)Set) = t \<Longrightarrow> s->including(x) = (t->including(x))"
 by(simp)
@@ -411,7 +410,7 @@ lemma including_subst_set'' : "\<tau> \<Turnstile> \<delta> s \<Longrightarrow> 
 by (metis cp_OclIncluding)
 
 
-subsubsection{* all defined (construction) *}
+subsection{* all defined (construction) *}
 
 lemma cons_all_def :
   assumes S_all_def : "\<And>\<tau>. all_defined \<tau> S"
@@ -526,7 +525,7 @@ proof -
  done
 qed
 
-subsubsection{* all defined (inversion) *}
+subsection{* all defined (inversion) *}
 
 lemma invert_all_defined : "all_defined \<tau> (S->including(x)) \<Longrightarrow> \<tau> \<Turnstile> \<upsilon> x \<and> all_defined \<tau> S"
  proof -
@@ -557,7 +556,7 @@ lemma invert_all_defined' : "(\<forall>\<tau>. all_defined \<tau> (S->including(
    apply(drule invert_all_defined, simp)
 done
 
-subsubsection{* Preservation of cp *}
+subsection{* Preservation of cp *}
 
 lemma including_cp_gen : "cp f \<Longrightarrow> cp (\<lambda>r2. ((f r2)->including(x)))"
  apply(unfold cp_def)
@@ -590,7 +589,7 @@ by(rule including_cp_gen, simp add: including_cp)
 lemma including_cp3 : "cp (\<lambda>r2. ((r2->including(x))->including(y))->including(z))"
 by(rule including_cp_gen, simp add: including_cp2)
 
-subsubsection{* Preservation of global judgment *}
+subsection{* Preservation of global judgment *}
 
 lemma including_cp_all :
  assumes x_int : "is_int x"
@@ -607,7 +606,7 @@ proof -
  done
 qed
 
-subsubsection{* Preservation of non-emptiness *}
+subsection{* Preservation of non-emptiness *}
 
 lemma including_notempty :
   assumes S_def : "\<tau> \<Turnstile> \<delta> S"
@@ -643,7 +642,7 @@ proof -
  done
 qed
 
-subsection{* Constant set *}
+section{* Constant set *}
 
 lemma cp_singleton :
 assumes x_int : "is_int (\<lambda>(_:: '\<AA> st). x)"
@@ -700,8 +699,8 @@ proof -
  done
 qed
 
-subsection{* OclExcluding *}
-subsubsection{* Identity *}
+section{* OclExcluding *}
+subsection{* Identity *}
 
 lemma excluding_id :
  assumes S_all_def : "\<And>\<tau>. all_defined \<tau> (S :: ('\<AA>, 'a option option) Set)"
@@ -757,7 +756,7 @@ proof -
  qed
 qed
 
-subsubsection{* all defined (construction) *}
+subsection{* all defined (construction) *}
 
 lemma cons_all_def_e :
   assumes S_all_def : "\<And>\<tau>. all_defined \<tau> S"
@@ -820,7 +819,7 @@ proof -
  done
 qed
 
-subsubsection{* Execution *}
+subsection{* Execution *}
 
 lemma excluding_unfold :
   assumes S_all_def : "\<And>\<tau>. all_defined \<tau> S"
@@ -841,8 +840,8 @@ proof -
  done
 qed
 
-subsection{* OclIncluding and OclExcluding *}
-subsubsection{* Identity *}
+section{* OclIncluding and OclExcluding *}
+subsection{* Identity *}
 
 lemma Ocl_insert_Diff :
  assumes S_all_def : "\<And>\<tau>. all_defined \<tau> (S :: ('\<AA>, 'a option option) Set)"
@@ -880,9 +879,9 @@ proof -
  qed
 qed
 
-subsection{* OclIterate *}
+section{* OclIterate *}
 
-subsubsection{* all defined (inversion) *}
+subsection{* all defined (inversion) *}
 
 lemma i_invert_all_defined_not :
  assumes A_all_def : "\<exists>\<tau>. \<not> all_defined \<tau> S"
@@ -915,8 +914,8 @@ lemma i_invert_all_defined' :
    shows "\<forall>\<tau>. all_defined \<tau> S"
 by (metis A_all_def i_invert_all_defined)
 
-subsection{* comp fun commute *}
-subsubsection{* Main *}
+section{* comp fun commute *}
+subsection{* Main *}
 
 text{* TODO add some comment on comparison with inductively constructed OCL term *}
 (*
@@ -1409,7 +1408,7 @@ end
  done
 
 
-subsubsection{* Sublocale *}
+subsection{* Sublocale *}
 
 locale EQ_comp_fun_commute =
   fixes f :: "('\<AA>, 'a option option) val
@@ -1718,7 +1717,7 @@ begin
  lemmas all_defined_fold_rec = all_defined_fold_rec[simplified image_ident]
 end
 
-subsubsection{* Misc *}
+subsection{* Misc *}
 
 lemma img_fold :
  assumes g_comm : "EQ_comp_fun_commute0_gen0 f000 all_def_set (\<lambda>x. G (f000 x))"
@@ -1768,8 +1767,8 @@ context EQ_comp_fun_commute0_gen0 begin lemma downgrade' : "EQ_comp_fun_commute0
 context EQ_comp_fun_commute0 begin lemmas downgrade' = downgrade' end
 context EQ_comp_fun_commute0' begin lemmas downgrade' = downgrade' end
 
-subsection{* comp fun commute OclIncluding *}
-subsubsection{* Preservation of comp fun commute (main) *}
+section{* comp fun commute OclIncluding *}
+subsection{* Preservation of comp fun commute (main) *}
 
 lemma including_commute_gen_var :
   assumes f_comm : "EQ_comp_fun_commute F"
@@ -1848,7 +1847,7 @@ proof -
  qed
 qed
 
-subsubsection{* Preservation of comp fun commute (instance) *}
+subsection{* Preservation of comp fun commute (instance) *}
 
 lemma including_commute : "EQ_comp_fun_commute (\<lambda>j (r2 :: ('\<AA>, int option option) Set). (r2->including(j)))"
 proof -
@@ -2036,8 +2035,8 @@ proof -
  done
 qed
 
-subsection{* comp fun commute OclIterate *}
-subsubsection{* Congruence *}
+section{* comp fun commute OclIterate *}
+subsection{* Congruence *}
 
 lemma iterate_subst_set_rec :
  assumes A_defined : "\<forall>\<tau>. all_defined \<tau> A"
@@ -2327,7 +2326,7 @@ proof -
  done
 qed
 
-subsubsection{* Context passing *}
+subsection{* Context passing *}
 
 lemma cp_OclIterate\<^isub>S\<^isub>e\<^isub>t1_gen:
  assumes f_comm : "EQ_comp_fun_commute0_gen0 f000 all_def_set (\<lambda>x. f (f000 x))"
@@ -2379,7 +2378,7 @@ proof -
  done
 qed
 
-subsubsection{* all defined (construction) *}
+subsection{* all defined (construction) *}
 
 lemma i_cons_all_def :
  assumes F_commute : "EQ_comp_fun_commute0 (\<lambda>x. (F :: ('\<AA>, _) val
@@ -2440,7 +2439,7 @@ lemma i_cons_all_def' :
    shows "all_defined \<tau> (OclIterate\<^isub>S\<^isub>e\<^isub>t S S F)"
 by(rule i_cons_all_def'', simp_all add: assms)
 
-subsubsection{* Preservation of global jugdment *}
+subsection{* Preservation of global jugdment *}
 
 lemma iterate_cp_all_gen :
  assumes F_commute : "EQ_comp_fun_commute0_gen0 f000 all_def_set (\<lambda>x. F (f000 x))"
@@ -2490,7 +2489,7 @@ lemma iterate_cp_all' :
  apply(rule S_lift, simp)
 done
 
-subsubsection{* Preservation of non-emptiness *}
+subsection{* Preservation of non-emptiness *}
 
 lemma iterate_notempty_gen :
  assumes F_commute : "EQ_comp_fun_commute0_gen0 f000 all_def_set (\<lambda>x. (F:: ('\<AA>, 'a option option) val
@@ -2548,7 +2547,7 @@ lemma iterate_notempty' :
  apply(rule S_lift, simp)
 done
 
-subsubsection{* Preservation of comp fun commute (main) *}
+subsection{* Preservation of comp fun commute (main) *}
 
 lemma iterate_commute' :
  assumes f_comm : "\<And>a. EQ_comp_fun_commute0' (\<lambda>x. F a (\<lambda>_. \<lfloor>x\<rfloor>))"
@@ -2627,8 +2626,8 @@ lemma iterate_commute' :
  done
 qed
 
-subsection{* comp fun commute OclIterate and OclIncluding *}
-subsubsection{* Identity *}
+section{* comp fun commute OclIterate and OclIncluding *}
+subsection{* Identity *}
 
 lemma i_including_id' :
  assumes S_all_def : "\<And>\<tau>. all_defined \<tau> (S :: ('\<AA>, int option option) Set)"
@@ -2861,7 +2860,7 @@ lemma iterate_including_id00 :
  by (metis S_incl)
 qed
 
-subsubsection{* all defined (construction) *}
+subsection{* all defined (construction) *}
 
 lemma preserved_defined :
  assumes S_all_def : "\<And>\<tau>. all_defined \<tau> (S :: ('\<AA>, int option option) Set)"
@@ -2892,7 +2891,7 @@ proof -
  done
 qed
 
-subsubsection{* Preservation of comp fun commute (main) *}
+subsection{* Preservation of comp fun commute (main) *}
 
 lemma iterate_including_commute :
  assumes f_comm : "EQ_comp_fun_commute0 (\<lambda>x. F (\<lambda>_. x))"
@@ -3046,7 +3045,7 @@ proof -
  done
 qed
 
-subsubsection{* Execution (OclIterate, OclIncluding to OclExcluding) *}
+subsection{* Execution (OclIterate, OclIncluding to OclExcluding) *}
 
 lemma EQ_OclIterate\<^isub>S\<^isub>e\<^isub>t_including:
  assumes S_all_int: "\<And>(\<tau>::'\<AA> st). all_int_set ((\<lambda> a (\<tau>:: '\<AA> st). a) ` \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>)"
@@ -3164,7 +3163,7 @@ proof -
  qed
 qed
 
-subsubsection{* Execution OclIncluding out of OclIterate (theorem) *}
+subsection{* Execution OclIncluding out of OclIterate (theorem) *}
 
 lemma including_out1 :
  assumes S_all_def : "\<And>\<tau>. all_defined \<tau> (S :: ('\<AA>, int option option) Set)"
@@ -3675,7 +3674,7 @@ proof -
  apply_end simp_all
 qed
 
-subsubsection{* Execution OclIncluding out of OclIterate (corollary) *}
+subsection{* Execution OclIncluding out of OclIterate (corollary) *}
 
 lemma iterate_including_id_out :
  assumes S_def : "\<And>\<tau>. all_defined \<tau> (S:: ('\<AA>, int option option) Set)"
@@ -3739,7 +3738,7 @@ show "\<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil> \<noteq> {} \<Longrig
 done
 qed
 
-subsection{* Conclusion *}
+section{* Conclusion *}
 
 lemma GogollasChallenge_on_sets:
       "\<tau> \<Turnstile> (Set{ \<six>,\<eight> } ->iterate(i;r1=Set{\<nine>}|
