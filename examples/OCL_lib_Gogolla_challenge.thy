@@ -166,7 +166,7 @@ lemma destruct_int : "is_int i \<Longrightarrow> \<exists>! j. i = (\<lambda>_. 
  apply_end(simp)
 qed
 
-section{* mtSet *}
+section{* Properties: mtSet *}
 
 lemma mtSet_all_def : "all_defined \<tau> Set{}"
 proof -
@@ -179,7 +179,7 @@ qed
 lemma cp_mtSet : "\<And>x. Set{} = (\<lambda>_. Set{} x)"
 by (metis (hide_lams, no_types) mtSet_def)
 
-section{* OclIncluding *}
+section{* Properties: OclIncluding *}
 
 subsection{* Identity *}
 
@@ -642,7 +642,7 @@ proof -
  done
 qed
 
-section{* Constant set *}
+section{* Properties: Constant set *}
 
 lemma cp_singleton :
 assumes x_int : "is_int (\<lambda>(_:: '\<AA> st). x)"
@@ -699,7 +699,7 @@ proof -
  done
 qed
 
-section{* OclExcluding *}
+section{* Properties: OclExcluding *}
 subsection{* Identity *}
 
 lemma excluding_id :
@@ -840,7 +840,7 @@ proof -
  done
 qed
 
-section{* OclIncluding and OclExcluding *}
+section{* Properties: OclIncluding and OclExcluding *}
 subsection{* Identity *}
 
 lemma Ocl_insert_Diff :
@@ -879,7 +879,7 @@ proof -
  qed
 qed
 
-section{* OclIterate *}
+section{* Properties: OclIterate *}
 
 subsection{* all defined (inversion) *}
 
@@ -914,7 +914,7 @@ lemma i_invert_all_defined' :
    shows "\<forall>\<tau>. all_defined \<tau> S"
 by (metis A_all_def i_invert_all_defined)
 
-section{* comp fun commute *}
+section{* Definition: comp fun commute *}
 subsection{* Main *}
 
 text{* TODO add some comment on comparison with inductively constructed OCL term *}
@@ -1767,7 +1767,7 @@ context EQ_comp_fun_commute0_gen0 begin lemma downgrade' : "EQ_comp_fun_commute0
 context EQ_comp_fun_commute0 begin lemmas downgrade' = downgrade' end
 context EQ_comp_fun_commute0' begin lemmas downgrade' = downgrade' end
 
-section{* comp fun commute OclIncluding *}
+section{* Properties: (with comp fun commute) OclIncluding *}
 subsection{* Preservation of comp fun commute (main) *}
 
 lemma including_commute_gen_var :
@@ -2035,7 +2035,7 @@ proof -
  done
 qed
 
-section{* comp fun commute OclIterate *}
+section{* Properties: (with comp fun commute) OclIterate *}
 subsection{* Congruence *}
 
 lemma iterate_subst_set_rec :
@@ -2626,7 +2626,7 @@ lemma iterate_commute' :
  done
 qed
 
-section{* comp fun commute OclIterate and OclIncluding *}
+section{* Properties: (with comp fun commute) OclIterate and OclIncluding *}
 subsection{* Identity *}
 
 lemma i_including_id' :
