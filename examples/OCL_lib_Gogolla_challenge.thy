@@ -915,9 +915,126 @@ lemma i_invert_all_defined' :
 by (metis A_all_def i_invert_all_defined)
 
 section{* Definition: comp fun commute *}
+
+text{* This part develops an Isabelle locale similar as @{term comp_fun_commute},
+but containing additional properties on arguments such as definedness, finiteness, non-emptiness... *}
+
 subsection{* Main *}
 
-text{* TODO add some comment on comparison with inductively constructed OCL term *}
+text{* The iteration with @{term OclIterate\<^isub>S\<^isub>e\<^isub>t} (performed internally through @{term Finite_Set.fold_graph})
+accepts any OCL expressions in its polymorphic arguments.
+However for @{term OclIterate\<^isub>S\<^isub>e\<^isub>t} to be a congruence where rewriting could cross 
+several nested @{term OclIterate\<^isub>S\<^isub>e\<^isub>t},
+we only focus on a particular class of OCL expressions: ground sets with well-defined properties
+like validity, not emptiness, finiteness...
+Since the first hypothesis of @{text comp_fun_commute.fold_insert} is too general, 
+in order to replace it by another weaker locale we have the choice between 
+reusing the @{term comp_fun_commute} locale or whether completely defining a new locale.
+Because elements occuring in the type of @{term Finite_Set.fold_graph} are represented in polymorphic form,
+the folding on a value-proposition couple would be possible in a type system with dependent types.
+But without the dependent typing facility, we choose to give the well-defined properties
+to each functions in a duplicated version of @{term comp_fun_commute}. *}
+
+text{* A first attempt for defining such locale would then be:
+\begin{verbatim}
+locale EQ_comp_fun_commute =
+  fixes f :: "('a state \<times> 'a state \<Rightarrow> int option option)
+              \<Rightarrow> ('a state \<times> 'a state \<Rightarrow> int option option Set_0)
+              \<Rightarrow> ('a state \<times> 'a state \<Rightarrow> int option option Set_0)"
+  assumes cp_S : "\<And>x. cp (f x)"
+  assumes cp_x : "\<And>S. cp (\<lambda>x. f x S)"
+  assumes cp_gen : "\<And>x S \<tau>1 \<tau>2. is_int x \<Longrightarrow> (\<And>\<tau>. all_defined \<tau> S) \<Longrightarrow> S \<tau>1 = S \<tau>2 \<Longrightarrow> f x S \<tau>1 = f x S \<tau>2"
+  assumes notempty : "\<And>x S \<tau>. (\<And>\<tau>. all_defined \<tau> S) \<Longrightarrow> \<tau> \<Turnstile> \<upsilon> x \<Longrightarrow> \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil> \<noteq> {} \<Longrightarrow> \<lceil>\<lceil>Rep_Set_0 (f x S \<tau>)\<rceil>\<rceil> \<noteq> {}"
+  assumes all_def: "\<And>(x:: 'a state \<times> 'a state \<Rightarrow> int option option) y. all_defined \<tau> (f x y) = (\<tau> \<Turnstile> \<upsilon> x \<and> all_defined \<tau> y)"
+  assumes commute: "
+                             \<tau> \<Turnstile> \<upsilon> x \<Longrightarrow>
+                             \<tau> \<Turnstile> \<upsilon> y \<Longrightarrow>
+                             all_defined \<tau> S \<Longrightarrow>
+                             f y (f x S) \<tau> = f x (f y S) \<tau>"
+\end{verbatim} % from r9710
+
+The important hypotheses are the last two.
+
+\begin{itemize}
+\item @{term commute} is the commutativity property similar as 
+@{thm comp_fun_commute.comp_fun_commute} (from @{text comp_fun_commute.comp_fun_commute}),
+except that the commuting relation is established on OCL terms 
+(the \verb|\<tau>| state being visible on both sides of the equality) and
+finally all arguments contain a preliminary check of validity or ground situation.
+
+\item @{term all_def} is precisely used for inverting an inductive term of the form @{term "fold_graph f z A y"}
+by following the same structure of the proof detailed in @{text comp_fun_commute.fold_graph_insertE_aux}.
+As a rewriting rule, @{term all_def} permits the inversion 
+to preserve the @{term all_defined} property on sets.
+\end{itemize}
+*}
+
+text{* The resolution of Gogolla's challenge is composed of two separate steps:
+\begin{enumerate}
+\item Finding the list of rewriting rules to apply from the initial OCL term to the normal form.
+\item Every rewriting rules that rewrite under a nested @{term "\<lambda>S A. OclIterate\<^isub>S\<^isub>e\<^isub>t S A F"} term (that rewrite in @{term F}) imply to have proved
+the associated @{term "EQ_comp_fun_commute F"} in order to preserve the well-defined properties
+while crossing @{term OclIterate\<^isub>S\<^isub>e\<^isub>t}
+(@{term F} may contain another @{term OclIterate\<^isub>S\<^isub>e\<^isub>t}). 
+So this part deals with the proof of every @{term "EQ_comp_fun_commute F"}
+appearing as precondition in every rewriting rule of the first step.
+\end{enumerate}
+More generally, every rewriting rules of step 1 can be decomposed into atomic rules. 
+By atomic rules, we mean rules where at most one @{term OclIterate\<^isub>S\<^isub>e\<^isub>t} exists
+in the left hand side (hence right hand side) of the equation.
+Ideally the closure of atomic rules would cover 
+the necessary space for solving an arbitrary nested @{term OclIterate\<^isub>S\<^isub>e\<^isub>t} expression.
+
+In step 2, for each rewriting rule of step 1, 
+there is an associated @{term "EQ_comp_fun_commute F"} lemma to prove.
+The @{term F} function is precisely the left hand side of
+the associated rewriting rule.
+So the architecture of this part 2 looks similar as the part 1. 
+In particular every @{term "EQ_comp_fun_commute"} lemmas could be decomposed into atomic lemmas of the form 
+@{term "EQ_comp_fun_commute F \<Longrightarrow> EQ_comp_fun_commute (g F)"}
+with @{term g} a function containing at most one @{term OclIterate\<^isub>S\<^isub>e\<^isub>t} combinator.
+
+However one corner case arises while proving this last formula.
+The naive definition of the @{term "EQ_comp_fun_commute"} locale
+we made earlier contains hypotheses where free variables are underspecified. 
+Indeed, when attempting to prove 
+@{term "\<And>x y \<tau>. all_defined \<tau> (f x y) \<Longrightarrow> (\<tau> \<Turnstile> \<upsilon> x \<and> all_defined \<tau> y)"}
+(that comes from @{term all_def}),
+we remark for instance that the validity of @{term x} could not be established directly.
+*}
+
+text{*
+As summary, by introducing @{term "EQ_comp_fun_commute"} 
+we have initially replaced @{term comp_fun_commute} in order to preserve 
+the well-defined properties across @{term OclIterate\<^isub>S\<^isub>e\<^isub>t}, 
+however here the same well-defined properties should also be preserved
+while proving @{term "EQ_comp_fun_commute"} atomic lemmas. 
+As solution we propose to refine every hypotheses of @{term "EQ_comp_fun_commute"}
+where variables appear.
+For instance, for @{term all_def} it means to suppose instead 
+@{term "\<And>x' y. (\<forall>\<tau>. all_defined \<tau> (f x' y)) = (is_int (\<lambda>(_::'a state \<times> 'a state). x') \<and> (\<forall>\<tau>. all_defined \<tau> y))"}.
+
+The curried form of the @{term x} variable ignoring its state implies to change the type of @{term f}:
+we have no more an OCL expression as first argument in @{term f}.
+
+The other difference between the previous @{term all_def} and the current is
+the scope of the \verb|\<tau>| quantification. 
+Indeed, @{text comp_fun_commute.fold_insert} depends on @{text comp_fun_commute.fold_graph_fold}
+but this last needs an equality of the form @{term "P = Q"}
+with @{term P} and @{term Q} two OCL expressions.
+Since OCL expressions are described as functions in our shallow embedding representation, 
+the previous equality can only be obtained under a particular assumption.
+For instance, this oops-unterminated lemma can not be proved: *}
+lemma assumes "P \<tau> = R \<tau>"
+      assumes "Q \<tau> = R \<tau>"
+        shows "P = Q" oops
+text{* whereas this one can be (using the extensionality rule): *}
+lemma assumes "\<forall>\<tau>. P \<tau> = R \<tau>"
+      assumes "\<forall>\<tau>. Q \<tau> = R \<tau>"
+        shows "P = Q" by (metis assms(1) assms(2) ext)
+
+(*
+(* TODO add some comment on comparison with inductively constructed OCL term *)
 (*
 inductive EQ1_fold_graph :: "(('\<AA>, _) val
    \<Rightarrow> ('\<AA>, _) Set
@@ -949,6 +1066,12 @@ thm EQ_insertI
 (*
 inductive_cases EQ_empty_fold_graphE [elim!]: "EQ_fold_graph f z {} x"
 *)
+*)
+
+text{* We can now propose a locale generic enough
+to represent both at the same time the previous @{term EQ_comp_fun_commute}
+and the curried form of variables
+(@{term f000} represents the parametrization): *}
 
 locale EQ_comp_fun_commute0_gen0_bis'' =
   fixes f000 :: "'b \<Rightarrow> 'c"
@@ -974,22 +1097,35 @@ locale EQ_comp_fun_commute0_gen0_bis'' =
                              (\<And>\<tau>. all_defined \<tau> S) \<Longrightarrow>
                              f (f000 y) (f (f000 x) S) = f (f000 x) (f (f000 y) S)"
 
- inductive EQG_fold_graph :: "('b \<Rightarrow> 'c)
-                            \<Rightarrow> ('c
-                              \<Rightarrow> ('\<AA>, 'a) Set
-                              \<Rightarrow> ('\<AA>, 'a) Set)
-                            \<Rightarrow> ('\<AA>, 'a) Set
-                            \<Rightarrow> 'c set
-                            \<Rightarrow> ('\<AA>, 'a) Set
-                            \<Rightarrow> bool"
-  for is_i and F and z where
-  EQG_emptyI [intro]: "EQG_fold_graph is_i F z {} z" |
-  EQG_insertI [intro]: "is_i x \<notin> A \<Longrightarrow>
-                       EQG_fold_graph is_i F z A y \<Longrightarrow>
-                       EQG_fold_graph is_i F z (insert (is_i x) A) (F (is_i x) y)"
+text{* In the previous definition of the @{term EQ_comp_fun_commute} Isabelle locale, 
+it would be possible to write the associated Isabelle context 
+by following the contents of @{term comp_fun_commute},
+and in particular there would be no need to change 
+the inductive definition of @{term fold_graph}.
 
- inductive_cases EQG_empty_fold_graphE [elim!]: "EQG_fold_graph is_i f z {} x"
- definition "foldG is_i f z A = (THE y. EQG_fold_graph is_i f z A y)"
+However in order to perform inversion proofs transparently under @{term f000},
+we replace now @{term fold_graph} by an other inductive definition 
+where @{term f000} appears as a protecting guard: *}
+
+inductive EQG_fold_graph :: "('b \<Rightarrow> 'c)
+                           \<Rightarrow> ('c
+                             \<Rightarrow> ('\<AA>, 'a) Set
+                             \<Rightarrow> ('\<AA>, 'a) Set)
+                           \<Rightarrow> ('\<AA>, 'a) Set
+                           \<Rightarrow> 'c set
+                           \<Rightarrow> ('\<AA>, 'a) Set
+                           \<Rightarrow> bool"
+ for is_i and F and z where
+ EQG_emptyI [intro]: "EQG_fold_graph is_i F z {} z" |
+ EQG_insertI [intro]: "is_i x \<notin> A \<Longrightarrow>
+                      EQG_fold_graph is_i F z A y \<Longrightarrow>
+                      EQG_fold_graph is_i F z (insert (is_i x) A) (F (is_i x) y)"
+
+inductive_cases EQG_empty_fold_graphE [elim!]: "EQG_fold_graph is_i f z {} x"
+definition "foldG is_i f z A = (THE y. EQG_fold_graph is_i f z A y)"
+
+text{* Then the conversion from a @{term fold_graph} expression
+ to a @{term EQG_fold_graph} expression always remembers its original image. *}
 
 lemma eqg_fold_of_fold :
  assumes fold_g : "fold_graph F z (f000 ` A) y"
@@ -1007,6 +1143,14 @@ lemma eqg_fold_of_fold :
  done
 qed
 
+text{* In particular, the identity function is used when there is no choice. *}
+lemma 
+ assumes fold_g : "fold_graph F z A y"
+   shows "EQG_fold_graph (\<lambda>x. x) F z A y"
+by (metis (mono_tags) eqg_fold_of_fold fold_g image_ident)
+
+text{* Going from @{term EQG_fold_graph} to @{term fold_graph} provides the bijectivity. *}
+
 lemma fold_of_eqg_fold :
  assumes fold_g : "EQG_fold_graph f000 F z A y"
    shows "fold_graph F z A y"
@@ -1015,6 +1159,9 @@ lemma fold_of_eqg_fold :
  apply(rule emptyI)
  apply(simp add: insertI)
 done
+
+text{* Finally, the entire definition of the @{term EQ_comp_fun_commute0_gen0_bis''} context
+could now depend uniquely on @{term EQG_fold_graph}. *}
 
 context EQ_comp_fun_commute0_gen0_bis''
 begin
