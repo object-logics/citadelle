@@ -21,7 +21,7 @@ are extended by the special element $\isasymbottom$ denoting
 undefinedness, we define formally:
 \begin{equation*}
 (\sigma, \sigma') \isasymMathOclValid P \equiv \bigl(P(\sigma, \sigma') =
-\lift{\HolTrue}\bigr)\mi{.}  
+\lift{\HolTrue}\bigr)\mi{.}
 \end{equation*}
 Since all operators of the assertion language depend on the context $(\sigma,
 \sigma')$ and result in values that can be $\isasymbottom$, all expressions can
@@ -68,7 +68,7 @@ The binary case of the integer addition is analogous:
 I\semantics{X \isasymMathOclPlus Y}\ap \tau & \equiv
   \begin{cases}
     \lift{\drop{I\semantics{X}\ap \tau }+\drop{I\semantics{Y}\ap \tau}}
-    &\text{if $I\semantics{X}\ap\tau\isasymnoteq\isasymbottom$ 
+    &\text{if $I\semantics{X}\ap\tau\isasymnoteq\isasymbottom$
     and $I\semantics{Y}\ap\tau\isasymnoteq\isasymbottom$}, \\
      \isasymbottom & \text{otherwise}\mi{.}
    \end{cases}
@@ -103,7 +103,7 @@ We introduce the following type abbreviations:
   \OclBoolean[]                  &\defeq \V{}{\HolBoolean}\mi{,}
   &   \OclSet[]{\alpha}      &\defeq \V{}{\HolSet{\alpha}}\mi{,}\\
   \OclInteger[]                  &\defeq \V{}{\HolInteger}\mi{, and}
-  & \OclSequence[]{\alpha} &\defeq \V{}{\HolList{\alpha}}\mi{.} 
+  & \OclSequence[]{\alpha} &\defeq \V{}{\HolList{\alpha}}\mi{.}
 \end{align*}
 The mapping of an expression \inlineocl+E+ of
 \holocl type \inlineocl+T+ to a \acs{hol} expression $E$ of \acs{hol} type $T$
@@ -158,14 +158,17 @@ Now we turn to several families of operations that the user implicitly defines
 when stating a class model as logical context of a specification. This is the
 part of the language where object-oriented features such as type casts, accessor
 functions, and tests for dynamic types come into play. Syntactically, a class
-model provides a collection of classes $C$, an inheritance relation $\_ < \_$ on
-classes and a collection of attributes $A$ associated to classes.  Semantically,
-a class model means a collection of accessor functions (denoted $\_\text{.a}::A
-\rightarrow B$ and $\getAttrib{\_}{a\isasymOclATpre}::A \rightarrow B$ for
-$\text{a}\in A$ and $A,B\in C$), type casts that can change the static type of
-an object of a class (denoted $\typeCast{\_}{C}$ of type $A \rightarrow C$) and
-dynamic type tests (denoted $\isType{C}{\_}$).  A precise formal definition 
-can be found in~\cite{brucker.ea:semantics:2009}.
+model provides a collection of classes ($C_1$, \ldots, $C_n$),
+an inheritance relation $\_ < \_$ on
+classes and a collection of attributes $A_{C_i}$ associated to classes.  Semantically,
+a class model means a collection of accessor functions (denoted $\_\text{.a}::C_i
+\rightarrow B$ and $\getAttrib{\_}{a\isasymOclATpre}::C_i \rightarrow B$ for
+$\text{a}\in A_{C_i}$ and $B\in \{\V{}{\up{\ldots}}, C_1, \ldots, C_n\}$),
+type casts that can change the static type of an object of a class
+(denoted $\typeCast{\_}{\text{$C_i$}}$ of type $C_j \rightarrow C_i$) and
+two dynamic type tests
+(denoted $\isType{\text{$C_i$}}{\_}$ and $\isKind{\text{$C_i$}}{\_}$ ).
+A precise formal definition can be found in~\cite{brucker.ea:semantics:2009}.
 
 \subsubsection{Class models: A simplified semantics.}
 In this section, we will have to clarify the notions of \emph{object
@@ -182,7 +185,7 @@ record comprising administration information and the information for all
 attributes of an object; here, the primitive types as well as collections over
 them are stored directly in the object representations, class types and
 collections over them are represented by $\oid$'s (respectively lifted
-collections over them). 
+collections over them).
 %
 Third, the class type $C$ will be the type of such an object representation: $C
 \defeq (\oid \times \Tag{C} \times A_1 \times \cdots \times A_k )$ where a
@@ -216,9 +219,9 @@ type tests of an object model. We consider the case of an attribute $\mathrm{a}$
 of class $C$ which has the simple class type $D$ (not a primitive type, not a
 collection):
 \begin{gather*}
-  I\semantics{\getAttrib[]{\self}{a}} (\sigma, \sigma')   \equiv 
+  I\semantics{\getAttrib[]{\self}{a}} (\sigma, \sigma')   \equiv
   \begin{cases}
-\bottom & \text{if $O = \bottom \lor \HolOclOidOf\ap\drop{O}\notin \dom~\sigma'$} \\    
+\bottom & \text{if $O = \bottom \lor \HolOclOidOf\ap\drop{O}\notin \dom~\sigma'$} \\
     \getType[]{D} \mathit{u}
     & \text{if $\sigma' (\getAttrib[0]{\getType[]{C}\drop{\sigma'(\HolOclOidOf\ap\drop{O})}}{a})
       = \lift{\mathit{u}}$,}\\
@@ -226,14 +229,14 @@ collection):
 \end{cases}
 \end{gather*}
 \begin{gather*}
-I\semantics{\getAttrib[]{\self}{a@pre}} (\sigma, \sigma')   \equiv 
+I\semantics{\getAttrib[]{\self}{a@pre}} (\sigma, \sigma')   \equiv
   \begin{cases}
-   \bottom & \text{if $O = \bottom\lor \HolOclOidOf\ap\drop{O}\notin \dom~\sigma$} \\    
+   \bottom & \text{if $O = \bottom\lor \HolOclOidOf\ap\drop{O}\notin \dom~\sigma$} \\
     \getType[]{D} \mathit{u}
     & \text{if $\sigma (\getAttrib[]{\getType[]{C}\drop{\sigma(\HolOclOidOf\ap\drop{O})}}{a})
       = \lift{\mathit{u}}$,}\\
 \bottom & \text{otherwise.}
-  \end{cases} 
+  \end{cases}
 \end{gather*}
 where $O = I\semantics{\self}(\sigma, \sigma')$.  Here, $\getType[]{D}$ is the
 projection function from the object universe to $\up{D}$, and
@@ -282,7 +285,7 @@ and basic operations have to take the null elements into account. The
 distinguishable undefined and null-elements were defined as follows:
 \begin{align*}
  I\semantics{\OclUndef}\tau \equiv \bottom  &\mi{ and}  \quad
- I\semantics{\Null{\OclInteger[]}}\tau \equiv \lift{\bottom}\mi{.} 
+ I\semantics{\Null{\OclInteger[]}}\tau \equiv \lift{\bottom}\mi{.}
 \end{align*}
 
 An interpretation (consistent with~\cite{omg:ocl:2006}) is that
@@ -318,7 +321,7 @@ operations we have the rule:
   \isasymOclNot (X+Y)\isasymOclIsInvalid \isasymMathOclStrongEq
   (\isasymOclNot X\isasymOclIsUndefined)\\
 \isasymOclAnd~
-(\isasymOclNot Y\isasymOclIsUndefined)  
+(\isasymOclNot Y\isasymOclIsUndefined)
 \end{multline*}
 where the test $x\isasymOclIsUndefined$ covers  two cases:
 $x\isasymOclIsInvalid$ and $x \isasymMathOclStrictEq \isasymOclNull$ (\ie, $x$
@@ -373,12 +376,12 @@ We deliberately decided against this option for the following reasons:
     constructions exclude knowing the set of sub-$\oid$'s in advance.}
 \end{compactenum} We can model $\Null{}$-elements as object-representations
 with $\nullid$ as their $\oid$:
-\begin{definition}[Representation of $\Null{}$-Elements] 
+\begin{definition}[Representation of $\Null{}$-Elements]
   Let $C_i$ be a class type with the attributes $A_1, \ldots, A_n$. Then we
   define its null object representation by:
   \begin{gather*}
     I\semantics{\Null{Ci}}\tau \equiv \lift{(\nullid, \Tag{arb}, a_1, \ldots,
-    a_n )} 
+    a_n )}
   \end{gather*}
   where the $a_i$ are $\bottom$ for primitive types and collection
   types, and $\nullid$ for simple class types. $\Tag{arb}$ is an arbitrary
@@ -402,14 +405,14 @@ is based on the projection $\HolOclOidOf$ from object-representations.
 The modification of the accessor functions
 is now straight-forward:
 \begin{gather*}
-  I\semantics{\getAttrib[]{\obj}{a}} (\sigma, \sigma')   \equiv 
+  I\semantics{\getAttrib[]{\obj}{a}} (\sigma, \sigma')   \equiv
   \begin{cases}
-\bottom & \text{if $I\semantics{\obj}  (\sigma, \sigma') = \bottom \!\lor\! \HolOclOidOf\drop{ I\semantics{\obj}  (\sigma, \sigma')}\notin \dom\;\sigma'$} \\    
-\Null{D} & \text{if $\getAttrib[0]{\getType[]{C}\drop{\sigma'(\HolOclOidOf\drop{I\semantics{\obj}  (\sigma, \sigma')})}}{a} = \nullid$} \\    
+\bottom & \text{if $I\semantics{\obj}  (\sigma, \sigma') = \bottom \!\lor\! \HolOclOidOf\drop{ I\semantics{\obj}  (\sigma, \sigma')}\notin \dom\;\sigma'$} \\
+\Null{D} & \text{if $\getAttrib[0]{\getType[]{C}\drop{\sigma'(\HolOclOidOf\drop{I\semantics{\obj}  (\sigma, \sigma')})}}{a} = \nullid$} \\
     \getType[]{D} \mathit{u}
     & \text{if $\sigma' (\getAttrib[0]{\getType[]{C}\drop{\sigma'(\HolOclOidOf\drop{ I\semantics{\obj}  (\sigma, \sigma')})}}{a})  = \lift{\mathit{u}}$,}\\
 \bottom & \text{otherwise.}
-  \end{cases} 
+  \end{cases}
 \end{gather*}
 
 The definitions for type-cast and dynamic type test---which are not explicitly
@@ -420,10 +423,10 @@ properties of these modified accessors.
 \clearpage
 All functions of the induced signature are strict.  This means that this holds
 for accessors, casts and tests, too:
-\begin{multline*} 
+\begin{multline*}
   \getAttrib{\isasymOclUndefined}{a} \isasymMathOclStrongEq \isasymOclUndefined
   \qquad
-  \typeCast{\isasymOclUndefined}{C} \isasymMathOclStrongEq \isasymOclUndefined 
+  \typeCast{\isasymOclUndefined}{C} \isasymMathOclStrongEq \isasymOclUndefined
   \\
   \isType{C}{\isasymOclUndefined} \isasymMathOclStrongEq \isasymOclUndefined
 \end{multline*}
@@ -433,7 +436,7 @@ isomorphism.
 \begin{multline*}
   \getAttrib{\Null{A}}{a} \isasymMathOclStrongEq \isasymOclUndefined
   \qquad
-  \typeCast{\Null{A}}{B} \isasymMathOclStrongEq \Null{B} 
+  \typeCast{\Null{A}}{B} \isasymMathOclStrongEq \Null{B}
   \\%quad
   \isType{A}{\Null{A}} \isasymMathOclStrongEq \isasymOclTrue
 \end{multline*}
@@ -442,7 +445,7 @@ further exceptions from the standard's general rule that $\Null{}$ may never be
 passed as first (``$\self$'') argument.
 
 \subsection{Other Operations on States}
-Defining $\_\isasymOclAllInstances$ 
+Defining $\_\isasymOclAllInstances$
 is straight-forward; the only difference is the property
 $T\isasymOclAllInstances\isasymOclExcludes(\isasymOclNull)$ which is a
 consequence of the fact that $\Null{}$'s are values and do not ``live'' in the
@@ -467,7 +470,7 @@ in the state transition:
 I\semantics{X\isasymMathOclModifiedOnly} (\sigma, \sigma')  \equiv
   \begin{cases}
     \isasymbottom & \text{if $X' = \bottom$}  \\
-     \lift{\isasymforall i \isasymin M\spot 
+     \lift{\isasymforall i \isasymin M\spot
         \sigma~i = \sigma'~i} & \text{otherwise}\mi{.}
    \end{cases}
 \end{gather*}
@@ -506,7 +509,7 @@ the resulting set is empty in this case. The conversion should instead
 be defined as follows:
 \begin{ocl}
 context OclAny::asSet():T
-  post: if self $\isasymMathOclStrictEq$ null then result $\isasymMathOclStrictEq$ Set{} 
+  post: if self $\isasymMathOclStrictEq$ null then result $\isasymMathOclStrictEq$ Set{}
         else result $\isasymMathOclStrictEq$ Set{self} endif
 \end{ocl}
 % Changed self.isTypeOf(OCLVoid) to self = null to make it easier for the superficial reader

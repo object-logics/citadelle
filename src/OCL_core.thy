@@ -878,7 +878,7 @@ by(simp add: OclNot_def OclValid_def true_def false_def valid_def
              split: option.split option.split_asm)
 
 
-text{* Key theorem for the Delta-closure: either an expression
+text{* Key theorem for the $\delta$-closure: either an expression
 is defined, or it can be replaced (substituted via \verb+StrongEq_L_subst2+; see
 below) by invalid or null. Strictness-reduction rules will usually 
 reduce these substituted terms drastically.  *}
@@ -1088,7 +1088,7 @@ lemmas cp_intro[simp,intro!] =
        cp_StrongEq[THEN allI[THEN allI[THEN allI[THEN cpI2]], 
              of "StrongEq"]]
 
-subsection{* Laws to Establish Definedness (Delta-Closure) *}
+subsection{* Laws to Establish Definedness ($\delta$-closure) *}
 
 text{* For the logical connectives, we have --- beyond
 @{thm foundation6} --- the following facts:  *}

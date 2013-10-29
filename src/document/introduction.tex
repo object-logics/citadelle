@@ -88,7 +88,7 @@ follows in Isabelle:
     \quad\apply{case\_tac}\\
     \quad\apply{simp\_all}\\
   \done
-  \end{array}    
+  \end{array}
 \end{gather}
 This proof script instructs Isabelle to prove $\phi$ by case
 distinction followed by a simplification of the resulting proof state.
@@ -171,9 +171,9 @@ for membership is as follows:\footnote{To increase readability, we use
     \where &\operatorname{Collect}\ap S      &\equiv S\\[.5ex]
      \definitionS &\operatorname{member}           &\ofType \alpha \Rightarrow
      \alpha \Rightarrow \HolBoolean &\qquad\text{---
-       membership test}\\ 
+       membership test}\\
      \where &\operatorname{member}\ap s\ap S &\equiv S s\\
-  \end{array}    
+  \end{array}
 \end{gather}
 Isabelle's powerful syntax engine is instructed to accept the notation
 $\{x \mid P\}$ for $\operatorname{Collect}\ap\lambda x\spot P$ and the
@@ -211,7 +211,7 @@ respectively
 \begin{gather}
 \HolCase\ap x\ap\HolOf~[] \isasymRightarrow F\ap \mid \operatorname{Cons}\ap a\ap
 r \isasymRightarrow G\ap a\ap r\mi{.}
-\end{gather} 
+\end{gather}
 From the internal definitions (not shown here) a number of properties
 were automatically derived. We show only the case for lists:
 \begin{gather}\label{eq:datatype-rules}
@@ -222,7 +222,7 @@ were automatically derived. We show only the case for lists:
     (a\#r) \Rightarrow G\ap a\ap r) = G~b~t &\\ %
     \mbox{}[] \neq a\#t    &\text{-- distinctness} \\
     \semantics{ a = [] \implies P ; \exists~x~t\spot  a = x\#t \implies P } \Longrightarrow P &\text{-- exhaust} \\
-    \semantics{ P [] ; \forall~at\spot  P t \implies P (a\#t) } \Longrightarrow P x      &\text{-- induct}    
+    \semantics{ P [] ; \forall~at\spot  P t \implies P (a\#t) } \Longrightarrow P x      &\text{-- induct}
   \end{array}
 \end{gather}
 Finally, there is a compiler for primitive and wellfounded recursive
@@ -232,13 +232,13 @@ $\operatorname{sort}$ operation of our running test example by:
   \begin{array}{lll}
     \fun
     &\enspace\operatorname{ins} & \ofType
-    [\alpha\ofType\mathrm{linorder}, \HolList{\alpha}] 
+    [\alpha\ofType\mathrm{linorder}, \HolList{\alpha}]
     \Rightarrow
     \HolList{\alpha}\\
     \where
-    &\enspace \operatorname{ins}\ap x \ap  [\;] &= [x]\\ 
+    &\enspace \operatorname{ins}\ap x \ap  [\;] &= [x]\\
     &\enspace \operatorname{ins}\ap x \ap (y\#\mathit{ys})&=
-    \HolIf x < y 
+    \HolIf x < y
     \HolThen x\#  y \# ys
     \HolElse y\#(\operatorname{ins} \ap x \ap ys)
  \end{array}\\
@@ -249,7 +249,7 @@ $\operatorname{sort}$ operation of our running test example by:
     \Rightarrow
     \HolList{\alpha}\\
     \where
-    &\enspace \operatorname{sort}\ap [\;] &= [\;]\\ 
+    &\enspace \operatorname{sort}\ap [\;] &= [\;]\\
     &\enspace \operatorname{sort} (x\#\mathit{xs})&=
     \operatorname{ins}\ap x\ap (\operatorname{sort}\ap xs)
    \end{array}
@@ -310,7 +310,7 @@ processed when constructing test theorems.
 % \isasymRightarrow \HolBoolean$. The quantifiers $\isasymforall\_.\_$ and
 % $\isasymexists\_.\_$ have type $[\alpha \isasymRightarrow \HolBoolean]
 % \isasymRightarrow \HolBoolean$. The quantifiers may range over types of higher
-% order, \ie, functions or sets. 
+% order, \ie, functions or sets.
 % The definition of the element-hood $\_\isasymin\_$, the set comprehension
 % $\{\_.\_\}$, as well as $\_\isasymunion\_$ and $\_\isasyminter\_$ are standard.
 
@@ -320,7 +320,7 @@ processed when constructing test theorems.
 % wide range of mathematical concepts used in computer science,
 % including typed set theory, well-founded recursion theory, number
 % theory and theories for data-structures like Cartesian products
-% $\alpha \times \beta$ and disjoint type sums $\alpha + \beta$.  
+% $\alpha \times \beta$ and disjoint type sums $\alpha + \beta$.
 % The library also includes the type constructor $\up{\tau} := \isasymbottom
 % ~ | ~ \lift{\_} : \alpha$ that assigns to each type $\tau$ a type
 % $\up{\tau}$ \emph{disjointly extended} by the exceptional element
@@ -380,7 +380,7 @@ Featherweight \OCL is based on the following principles:
   tradition~\cite{brucker.ea:extensible:2008-b}. The universe
   construction also gives semantics to type casts, dynamic type
   tests, as well as functions such as \inlineocl{oclAllInstances()},
-  or \inlineocl{isNewInState()}.
+  or \inlineocl{oclIsNew()}.
 \item Featherweight \OCL types may be arbitrarily nested:
   \inlineocl|Set{Set{1,2}} = Set{Set{2,1}}| is legal and true.
 \item For demonstration purposes, the set type in Featherweight \OCL
@@ -446,7 +446,7 @@ On this basis, we define $\V{}{\up{(\up{\HolBoolean })}}$ as the \HOL
 type for the \OCL type $\mocl{Boolean}$ by and define:
 \begin{gather*}
 \begin{alignedat}{3}
-I\semantics{\mocl{invalid}\ofType V(\alpha)} \tau &\equiv \HolBot &  
+I\semantics{\mocl{invalid}\ofType V(\alpha)} \tau &\equiv \HolBot &
 I\semantics{\mocl{null}\ofType V(\alpha)}  \tau    &\equiv \HolNull\\
 I\semantics{\mocl{true}\ofType\mocl{Boolean}} \tau &=\lfloor\lfloor
 \HolTrue\rfloor\rfloor &
@@ -454,11 +454,11 @@ I\semantics{\mocl{false}} \tau &= \lfloor\lfloor\HolFalse\rfloor\rfloor\\
 \end{alignedat}
 \end{gather*}\vspace{-.5cm}
 \begin{multline*}
-I\semantics{X\mocl{.oclIsUndefined()}} \tau =\\ 
+I\semantics{X\mocl{.oclIsUndefined()}} \tau =\\
     (\HolIf I\semantics{X}\tau \in \{\HolBot, \HolNull\} \HolThen I\semantics{\mocl{true}}\tau \HolElse I\semantics{\mocl{false}}\tau)\\
 \end{multline*}\vspace{-1.2cm}
 \begin{multline*}
- I\semantics{X\mocl{.oclIsInvalid()}} \tau =\\ 
+ I\semantics{X\mocl{.oclIsInvalid()}} \tau =\\
     (\HolIf I\semantics{X}\tau = \HolBot \HolThen I\semantics{\mocl{true}}\tau \HolElse I\semantics{\mocl{false}}\tau)
 \end{multline*}
 where $I\semantics{E}$ is the semantic interpretation function
@@ -499,7 +499,7 @@ and $\mocl{and}$ as follows:
                      &\Rightarrow  \lfloor \lfloor  \HolFalse \rfloor \rfloor )\\
                    \end{array}
       \\
-                     | \lfloor  \bottom  \rfloor  &\Rightarrow    
+                     | \lfloor  \bottom  \rfloor  &\Rightarrow
       (\HolCase I\semantics{Y} \tau  \HolOf\\
       &\quad\begin{array}{ll}
                      ~ \bottom                    &\Rightarrow
@@ -512,7 +512,7 @@ and $\mocl{and}$ as follows:
                      &\Rightarrow  \lfloor \lfloor  \HolFalse \rfloor \rfloor )\\
                    \end{array}
       \\
-                     | \lfloor \lfloor  \HolTrue \rfloor \rfloor  &\Rightarrow 
+                     | \lfloor \lfloor  \HolTrue \rfloor \rfloor  &\Rightarrow
       (\HolCase I\semantics{Y} \tau  \HolOf\\
       &\quad\begin{array}{ll}
                      ~ \bottom                    &\Rightarrow
@@ -531,20 +531,20 @@ and $\mocl{and}$ as follows:
 \end{gather*}
 These non-strict operations were used to define the other logical connectives in the
 usual classical way: $X\; \mocl{or}\; Y \equiv (\mocl{not}\; X)\;
-\mocl{and}\; (\mocl{not}\; Y)$ or  
-$X\;\mocl{implies}\;Y \equiv (\mocl{not}\; X)\;\mocl{or}\; Y$. 
+\mocl{and}\; (\mocl{not}\; Y)$ or
+$X\;\mocl{implies}\;Y \equiv (\mocl{not}\; X)\;\mocl{or}\; Y$.
 
 The default semantics for an \OCL library operator is strict
 semantics; this means that the result of an operation $f$ is
 \inlineisar+invalid+ if one of its arguments is \inlineisar+invalid+.
 For a semantics comprising \inlineisar+null+, we suggest to stay
 conform to the standard and define the addition for integers as
-follows: 
+follows:
  \begin{gather*}
    \begin{array}{rl}
    I\semantics{x \mocl{+} y}\tau  = &\HolIf I\semantics{\delta ~ x}\tau =\lfloor \lfloor \HolTrue\rfloor \rfloor  \land   I\semantics{\delta  ~ y}\tau =\lfloor \lfloor \HolTrue\rfloor \rfloor \\
-                &\HolThen \lfloor \lfloor \lceil \lceil I\semantics{x}\tau \rceil \rceil  + \lceil \lceil I\semantics{y}\tau \rceil \rceil \rfloor \rfloor\\ 
-                &\HolElse \bottom     
+                &\HolThen \lfloor \lfloor \lceil \lceil I\semantics{x}\tau \rceil \rceil  + \lceil \lceil I\semantics{y}\tau \rceil \rceil \rfloor \rfloor\\
+                &\HolElse \bottom
    \end{array}
  \end{gather*}
  where the operator ``\mocl{+}'' on the left-hand
@@ -560,15 +560,15 @@ The topmost goal of the logic for \OCL is to define the \emph{validity statement
    (\sigma, \sigma') \isasymMathOclValid P\mi{,}
 \end{equation*}
 where $\sigma$ is the pre-state and $\sigma'$ the post-state of the
-underlying system and $P$ is a formula. 
+underlying system and $P$ is a formula.
 Informally, a formula $P$ is valid if and only if its evaluation in
 $(\sigma, \sigma')$ (\ie, $\tau$ for short) yields true. Formally this means:
 \begin{equation*}
-\tau \isasymMathOclValid P \equiv \bigl(I\semantics{P} \tau =  \lfloor \lfloor \HolTrue  \rfloor \rfloor \bigr)\mi{.}  
-\end{equation*} 
+\tau \isasymMathOclValid P \equiv \bigl(I\semantics{P} \tau =  \lfloor \lfloor \HolTrue  \rfloor \rfloor \bigr)\mi{.}
+\end{equation*}
 On this basis, classical, two-valued inference rules can be established for
 reasoning over the logical connective, the different notions of equality,
-definedness and validity. Generally speaking, rules over logical validity can      
+definedness and validity. Generally speaking, rules over logical validity can
 relate bits and pieces in various \OCL terms and allow---via strong
 logical equality discussed below---the replacement
 of semantically equivalent sub-expressions. The core inference rules are:
@@ -579,7 +579,7 @@ of semantically equivalent sub-expressions. The core inference rules are:
   \lnot(\tau \models \mocl{invalid})&
   \lnot(\tau \models \mocl{null})
 \end{array}\\
-  \tau \models \mocl{not}\; P \Longrightarrow \tau \lnot \models P\\ 
+  \tau \models \mocl{not}\; P \Longrightarrow \tau \lnot \models P\\
 \begin{array}{lcr}
   \tau \models P \;\mocl{and}\; Q \Longrightarrow \tau \models P&\quad&
   \tau \models P \;\mocl{and}\; Q \Longrightarrow \tau \models Q
@@ -590,7 +590,7 @@ of semantically equivalent sub-expressions. The core inference rules are:
        (\mocl{if}\; P \;\mocl{then}\; B_1 \;\mocl{else}\; B_2 \;\mocl{endif})\tau = B_2 \tau\\
        \begin{array}[lcr]{lcr}
   \tau \models P \Longrightarrow \tau \models \delta P &\qquad&
-  \tau \models (\delta X) \Longrightarrow \tau \models \upsilon X         
+  \tau \models (\delta X) \Longrightarrow \tau \models \upsilon X
        \end{array}
 \end{gather*}
 By the latter two properties it can be inferred that any valid
@@ -613,8 +613,8 @@ the objects. In contrast, strong logical equality is a polymorphic
 concept which is defined once and for all by:
 \begin{gather*}
   I\semantics{X \triangleq  Y}  \tau  \equiv  \lfloor \lfloor
-  I\semantics{X}  \tau= 
-  I\semantics{Y} \tau  \rfloor \rfloor 
+  I\semantics{X}  \tau=
+  I\semantics{Y} \tau  \rfloor \rfloor
 \shortintertext{It enjoys nearly the laws of a congruence:}
 \tau \models (x \triangleq x)\\
 \tau \models (x \triangleq y) \Longrightarrow \tau \models (y \triangleq x)\\
@@ -635,17 +635,17 @@ to convert an \OCL formula living in its for-valued world into a
 representation that is classically two-valued and can be processed by
 standard \acs{smt} solvers such as
 \acs{cvc3}~\cite{barrett.ea:cvc3:2007} or
-Z3~\cite{moura.ea:z3:2008}. Delta-closure rules for all logical
+Z3~\cite{moura.ea:z3:2008}. $\delta$-closure rules for all logical
 connectives have the following format, \eg:
 \begin{gather*}
 \tau \models \delta x \Longrightarrow (\tau \models \ap\mocl{not}\ap x) = (\lnot (\tau \models x))\\
 \tau \models \delta x \Longrightarrow \tau \models \delta y \Longrightarrow (\tau \models x \ap\mocl{and}\ap y) = ( \tau \models x \land \tau \models y)\\
 \begin{multlined}
 \tau \models \delta x \Longrightarrow  \tau \models \delta y \\
-\Longrightarrow (\tau \models (x \ap\mocl{implies}\ap y)) = ( (\tau \models x) \longrightarrow (\tau \models y))  
+\Longrightarrow (\tau \models (x \ap\mocl{implies}\ap y)) = ( (\tau \models x) \longrightarrow (\tau \models y))
 \end{multlined}
 \end{gather*}
-Together with the general case-distinction 
+Together with the general case-distinction
 \begin{gather*}
     \tau \models \delta x \lor \tau \models x \triangleq \mocl{invalid} \lor \tau \models x \triangleq \mocl{null} \mi{,}
 \end{gather*}
@@ -678,45 +678,45 @@ can be re-formulated in the following ground equations:
   \begin{aligned}
   \upsilon\; \mocl{invalid} &= \mocl{false}&
   \upsilon\; \mocl{null} &= \mocl{true}\\
-  \upsilon\; \mocl{true} &= \mocl{true}&  
+  \upsilon\; \mocl{true} &= \mocl{true}&
   \upsilon\; \mocl{false} &= \mocl{true}\\
 \end{aligned}\\[.04\baselineskip]
-\begin{aligned}  
-  % 
+\begin{aligned}
+  %
   \delta\; \mocl{invalid} &= \mocl{false}&
   \delta\; \mocl{null} &= \mocl{false}\\
   \delta\; \mocl{true} &= \mocl{true}&
   \delta\; \mocl{false} &= \mocl{true}\\
 \end{aligned}\\[.04\baselineskip]
-\begin{aligned}  
+\begin{aligned}
   %
   \mocl{not}\; \mocl{invalid} &= \mocl{invalid}&
   \mocl{not}\; \mocl{null} &= \mocl{null}\\
   \mocl{not}\; \mocl{true} &= \mocl{false}&
   \mocl{not}\; \mocl{false} &= \mocl{true}\\
 \end{aligned}\\[.04\baselineskip]
-\begin{aligned}  
+\begin{aligned}
   %
   (\mocl{null} \;\mocl{and}\; \mocl{true}) &= \mocl{null}&
   (\mocl{null} \;\mocl{and}\; \mocl{false}) &= \mocl{false}\\
   (\mocl{null} \;\mocl{and}\; \mocl{null}) &= \mocl{null}&
   (\mocl{null} \;\mocl{and}\; \mocl{invalid}) &= \mocl{invalid}\\
 \end{aligned}\\[.04\baselineskip]
-\begin{aligned}  
+\begin{aligned}
   %
   (\mocl{false} \;\mocl{and}\; \mocl{true}) &= \mocl{false}&
   (\mocl{false} \;\mocl{and}\; \mocl{false}) &= \mocl{false}\\
   (\mocl{false} \;\mocl{and}\; \mocl{null}) &= \mocl{false}&
   (\mocl{false} \;\mocl{and}\; \mocl{invalid}) &= \mocl{false}\\
 \end{aligned}\\[.04\baselineskip]
-\begin{aligned}  
-  % 
+\begin{aligned}
+  %
   (\mocl{true} \;\mocl{and}\; \mocl{true}) &= \mocl{true}&
   (\mocl{true} \;\mocl{and}\; \mocl{false}) &= \mocl{false}\\
   (\mocl{true} \;\mocl{and}\; \mocl{null}) &= \mocl{null}&
   (\mocl{true} \;\mocl{and}\; \mocl{invalid}) &= \mocl{invalid}
 \end{aligned}\\[.04\baselineskip]
-\begin{aligned}  
+\begin{aligned}
   (\mocl{invalid} \;\mocl{and}\; \mocl{true}) &= \mocl{invalid} \\
   (\mocl{invalid} \;\mocl{and}\; \mocl{false}) &= \mocl{false}\\
   (\mocl{invalid} \;\mocl{and}\; \mocl{null}) &= \mocl{invalid} \\
@@ -724,16 +724,16 @@ can be re-formulated in the following ground equations:
 \end{aligned}
 \shortintertext{On this core, the structure of a conventional lattice arises:}
   \begin{aligned}
-    X \;\mocl{and}\; X &= X        &     X \;\mocl{and}\; Y &= Y \;\mocl{and}\; X    
+    X \;\mocl{and}\; X &= X        &     X \;\mocl{and}\; Y &= Y \;\mocl{and}\; X
   \end{aligned}\\
   \begin{aligned}
     \mocl{false} \;\mocl{and}\; X &= \mocl{false} &
     X \;\mocl{and}\; \mocl{false} &= \mocl{false}  \\
     \mocl{true} \;\mocl{and}\; X  &= X &
-    X \;\mocl{and}\; \mocl{true} &= X   
+    X \;\mocl{and}\; \mocl{true} &= X
   \end{aligned}\\
   \begin{aligned}
-             X \;\mocl{and}\; (Y \;\mocl{and}\; Z) &= X \;\mocl{and}\; Y \;\mocl{and}\; Z    
+             X \;\mocl{and}\; (Y \;\mocl{and}\; Z) &= X \;\mocl{and}\; Y \;\mocl{and}\; Z
   \end{aligned}
 \end{gather*}
 as well as the dual equalities for \inlineocl{or} and the De Morgan
@@ -756,20 +756,20 @@ standard expresses at many places that most operations are strict,
   \mocl{invalid}\;\mocl{+}\; x &= \mocl{invalid}&
   \mocl{x} \;\mocl{+}\; \mocl{invalid} &= \mocl{invalid}\\
   x \;\mocl{+}\; \mocl{null} &= \mocl{invalid}&
-  \mocl{null} \;\mocl{+}\; x &= \mocl{invalid}    
+  \mocl{null} \;\mocl{+}\; x &= \mocl{invalid}
   \end{aligned}\\
   \mocl{null.asType(}X\mocl{)} = \mocl{invalid}
 \shortintertext{besides ``classical'' exceptional behavior:}
   \begin{aligned}
-    \mocl{1 / 0} &= \mocl{invalid} \quad &\quad  \mocl{1 / null} &= \mocl{invalid}     
+    \mocl{1 / 0} &= \mocl{invalid} \quad &\quad  \mocl{1 / null} &= \mocl{invalid}
   \end{aligned}\\
-    \mocl{null->isEmpty()}=\mocl{true}    
+    \mocl{null->isEmpty()}=\mocl{true}
 \end{gather*}
 
 Moreover, there is also the proposal to use \inlineocl+null+ as a kind
 of ``don't know'' value for all strict operations, not only in the
 semantics of the logical connectives.  Expressed in algebraic
-equations, this semantic alternative (this is \emph{not} 
+equations, this semantic alternative (this is \emph{not}
 Featherweight \OCL at present) would boil down to:
 \begin{gather*}
   \begin{aligned}
@@ -791,7 +791,7 @@ that this semantics is ``intuitive,'' and although we do not expect a
 too heavy cost in deduction when computing $\delta$-closures, we
 object that there are other, also ``intuitive'' interpretations that
 are even more wide-spread: In classical spreadsheet programs, for
-example, the semantics tend to interpret \inlineocl+null+
+example, the semantics tends to interpret \inlineocl+null+
 (representing empty cells in a sheet) as the neutral element of the
 type, so \inlineocl{0} or the empty string, for example.\footnote{In
   spreadsheet programs the interpretation of \inlineisar+null+ varies
@@ -822,7 +822,7 @@ of Featherweight \OCL expressions. We derived, \eg:
 \delta x\\
 \begin{aligned}
 \mocl{Set\{\}->includes(}x\mocl{)} = (\mocl{if}\; \upsilon\; x\; &\mocl{then false}\\
-&\mocl{else invalid endif})  
+&\mocl{else invalid endif})
 \end{aligned}\\
 \begin{multlined}
   {(X\mocl{->including(}x\mocl{)->includes(}y\mocl{)})=}\\
@@ -842,7 +842,7 @@ of Featherweight \OCL expressions. We derived, \eg:
 \end{gather*}
 As \inlineocl+Set{1,2}+ is only syntactic sugar for
 \begin{ocl}
-  Set{}->including(1)->including(2)  
+  Set{}->including(1)->including(2)
 \end{ocl}
 an expression like \inlineocl+Set{1,2}->includes(null)+ becomes
 automatically decidable in Featherweight \OCL by a combination of
