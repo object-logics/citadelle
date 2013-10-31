@@ -113,13 +113,17 @@ by(simp add:valid_def true_def
                bot_fun_def bot_option_def)
 
 (* ecclectic proofs to make examples executable *)
+lemma [simp,code_unfold]:"\<delta> \<zero> = true" by(simp add:OclInt0_def)
 lemma [simp,code_unfold]:"\<upsilon> \<zero> = true" by(simp add:OclInt0_def)
 lemma [simp,code_unfold]:"\<delta> \<one> = true" by(simp add:OclInt1_def)
 lemma [simp,code_unfold]:"\<upsilon> \<one> = true" by(simp add:OclInt1_def)
 lemma [simp,code_unfold]:"\<delta> \<two> = true" by(simp add:OclInt2_def)
 lemma [simp,code_unfold]:"\<upsilon> \<two> = true" by(simp add:OclInt2_def)
+lemma [simp,code_unfold]: "\<delta> \<six> = true" by(simp add:OclInt6_def)
 lemma [simp,code_unfold]: "\<upsilon> \<six> = true" by(simp add:OclInt6_def)
+lemma [simp,code_unfold]: "\<delta> \<eight> = true" by(simp add:OclInt8_def)
 lemma [simp,code_unfold]: "\<upsilon> \<eight> = true" by(simp add:OclInt8_def)
+lemma [simp,code_unfold]: "\<delta> \<nine> = true" by(simp add:OclInt9_def)
 lemma [simp,code_unfold]: "\<upsilon> \<nine> = true" by(simp add:OclInt9_def)
 
 subsection{* Arithmetical Operations on Integer *}
@@ -839,7 +843,7 @@ syntax
 translations
   "X->iterate(a; x = A | P)" == "CONST OclIterate\<^isub>S\<^isub>e\<^isub>t X A (%a. (% x. P))"
 
-definition OclSelect\<^isub>s\<^isub>e\<^isub>t :: "[('\<AA>,'\<alpha>::null)Set,('\<AA>,'\<alpha>)val\<Rightarrow>('\<AA>)Boolean] \<Rightarrow> ('\<AA>,'\<alpha>::null)Set"
+definition OclSelect\<^isub>s\<^isub>e\<^isub>t :: "[('\<AA>,'\<alpha>::null)Set,('\<AA>,'\<alpha>)val\<Rightarrow>('\<AA>)Boolean] \<Rightarrow> ('\<AA>,'\<alpha>)Set"
 where "OclSelect\<^isub>s\<^isub>e\<^isub>t S P = (\<lambda>\<tau>. if (\<delta> S) \<tau> = true \<tau>
                               then if (\<exists>x\<in>\<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>. P(\<lambda> _. x) \<tau> = \<bottom> \<tau>)
                                    then \<bottom>
@@ -1807,7 +1811,7 @@ apply(case_tac "finite \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>",
       simp_all add:null_fun_def null_option_def bot_fun_def bot_option_def)
 done
 
-lemma [simp]: "Set{} ->size() = \<zero>"
+lemma [simp,code_unfold]: "Set{} ->size() = \<zero>"
 proof -
  have A1 : "\<lfloor>\<lfloor>{}\<rfloor>\<rfloor> \<in> {X. X = bot \<or> X = null \<or> (\<forall>x\<in>\<lceil>\<lceil>X\<rceil>\<rceil>. x \<noteq> bot)}" by(simp add: mtSet_def)
  have A2 : "None \<in> {X. X = bot \<or> X = null \<or> (\<forall>x\<in>\<lceil>\<lceil>X\<rceil>\<rceil>. x \<noteq> bot)}"  by(simp add: bot_option_def)
@@ -1822,9 +1826,9 @@ proof -
 qed
 
 lemma [simp]: "\<delta> (Set{} ->size()) = true"
-by(simp, metis OclNot3 OclValid_def Sem_def StrictRefEq\<^isub>I\<^isub>n\<^isub>t\<^isub>e\<^isub>g\<^isub>e\<^isub>r_strict' StrictRefEq\<^isub>I\<^isub>n\<^isub>t\<^isub>e\<^isub>g\<^isub>e\<^isub>r_vs_StrongEq foundation1 foundation15 foundation16 foundation2 foundation22 invalid_def null_fun_def null_non_OclInt0 transform1_rev valid2 valid4)
+by simp
 
-lemma including_size_defined[simp]: "\<delta> ((X ->including(x)) ->size()) = (\<delta>(X->size()) and \<upsilon>(x))"
+lemma including_size_defined[simp,code_unfold]: "\<delta> ((X ->including(x)) ->size()) = (\<delta>(X->size()) and \<upsilon>(x))"
 proof -
 
  have defined_inject_true : "\<And>\<tau> P. (\<delta> P) \<tau> \<noteq> true \<tau> \<Longrightarrow> (\<delta> P) \<tau> = false \<tau>"
@@ -1886,6 +1890,9 @@ proof -
   apply(drule valid_inject_true[of "x"], simp add: cp_OclAnd[of _ "\<upsilon> x"])
  done
 qed
+
+lemma including_size_exec[code_unfold]: "((X ->including(x)) ->size()) = (X ->size() +\<^isub>o\<^isub>c\<^isub>l \<one>)"
+sorry
 
 lemma excluding_size_defined[simp]: "\<delta> ((X ->excluding(x)) ->size()) = (\<delta>(X->size()) and \<upsilon>(x))"
 proof -
@@ -2376,7 +2383,7 @@ proof -
  done
 qed
 
-lemma forall_exec:
+lemma forall_iterate:
  assumes S_finite: "finite \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>"
    shows "S->forAll(x | P x) \<tau> = (S->iterate(x; acc = true | acc and P x)) \<tau>"
 proof -
@@ -2443,6 +2450,46 @@ proof -
   apply_end(simp add: OclValid_def)+
  qed
 qed
+
+lemma forall_exec[code_unfold]:
+"mtSet->forAll(x | P x) = true"
+sorry
+
+lemma exists_exec[code_unfold]:
+"mtSet->exists(x | P x) = false"
+sorry
+
+lemma forall_exec'[code_unfold]:
+"(X->including(y))->forAll(x | P x) =
+ (if  \<delta> X  then 
+   if  \<upsilon> y  then
+     if \<delta>(X->size()) then
+        if P y then (X)->forAll(x | P x)
+        else false (* ??? *)
+        endif 
+     else invalid
+     endif
+   else invalid
+   endif
+ else invalid
+endif)"
+sorry
+
+lemma exists_exec'[code_unfold]:
+"(X->including(y))->exists(x | P x) =
+ (if  \<delta> X  then 
+   if  \<upsilon> y  then
+     if \<delta>(X->size()) then
+        if P y then true 
+        else (X)->exists(x | P x) 
+        endif 
+     else invalid
+     endif
+   else invalid
+   endif
+ else invalid
+endif)"
+sorry
 
 subsection{* OclExists *}
 
@@ -2988,17 +3035,67 @@ value    "\<tau>\<^isub>0 \<Turnstile> (Set{\<two>,\<one>}->includes(\<one>))"
 value "\<not> (\<tau>\<^isub>0 \<Turnstile> (Set{\<two>}->includes(\<one>)))"
 value "\<not> (\<tau>\<^isub>0 \<Turnstile> (Set{\<two>,\<one>}->includes(null)))"
 value    "\<tau>\<^isub>0 \<Turnstile> (Set{\<two>,null}->includes(null))"
-(*
-value    "\<tau> \<Turnstile> ((Set{\<two>,\<one>})->forAll(z | \<zero> \<prec> z))"
-value "\<not> (\<tau> \<Turnstile> ((Set{\<two>,\<one>})->exists(z | z \<prec> \<zero> )))"
 
-value "\<not> (\<tau> \<Turnstile> ((Set{\<two>,null})->forAll(z | \<zero> \<prec> z)))"
-value    "\<tau> \<Turnstile> ((Set{\<two>,null})->exists(z | \<zero> \<prec> z))"
+value    "\<tau> \<Turnstile> ((Set{})->forAll(z | \<zero> <\<^isub>o\<^isub>c\<^isub>l z))"
+
+declare forall_exec[simp]
+declare forall_exec'[simp]
+
+value " \<tau> \<Turnstile> if \<zero> <\<^isub>I \<two> then if \<zero> <\<^isub>I \<one> then true else false endif else false endif"
+
+value   "\<tau> \<Turnstile> ((Set{\<two>,\<one>})->forAll(z | \<zero> <\<^isub>o\<^isub>c\<^isub>l z))"
+value "\<not> (\<tau> \<Turnstile> ((Set{\<two>,\<one>})->exists(z | z <\<^isub>o\<^isub>c\<^isub>l \<zero> )))"
 
 value    "\<tau> \<Turnstile> (Set{\<two>,null,\<two>} \<doteq> Set{null,\<two>})"
 value    "\<tau> \<Turnstile> (Set{\<one>,null,\<two>} <> Set{null,\<two>})"
 
+value "\<tau> \<Turnstile> \<zero> <\<^isub>o\<^isub>c\<^isub>l null "
+value "\<not> \<tau> \<Turnstile> \<delta>(\<zero> <\<^isub>o\<^isub>c\<^isub>l null) "
+value "\<not> (\<tau> \<Turnstile> \<delta>(Set{\<two>,null})->forAll(z | \<zero> <\<^isub>o\<^isub>c\<^isub>l z))"    
+value "\<not> (\<tau> \<Turnstile> ((Set{\<two>,null})->forAll(z | \<zero> <\<^isub>o\<^isub>c\<^isub>l z)))"    (* REALLY ??? *)
+value    "\<tau> \<Turnstile> ((Set{\<two>,null})->exists(z | \<zero> <\<^isub>o\<^isub>c\<^isub>l z))"
+
 value    "\<tau> \<Turnstile> (Set{Set{\<two>,null}} \<doteq> Set{Set{null,\<two>}})"
 value    "\<tau> \<Turnstile> (Set{Set{\<two>,null}} <> Set{Set{null,\<two>},null})"
-*)
+
+value "\<tau> \<Turnstile> (Set{null::'a Boolean} \<doteq> Set{})"
+value "\<tau> \<Turnstile> (Set{null::('a) Integer} \<doteq> Set{})"
+
+lemma select_exec'[code_unfold, simp]:
+ defines "F \<equiv> (\<lambda>P x acc. if \<upsilon> (P x) then if P x \<triangleq> false then acc else acc->including(x) endif else \<bottom> endif)"
+ assumes S_finite: "finite \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>"
+     and P_strict: "\<And>x. x \<tau> = \<bottom> \<Longrightarrow> (P x) \<tau> = \<bottom>"
+   shows "OclSelect\<^isub>s\<^isub>e\<^isub>t S P \<tau> = (S->iterate(x; acc = Set{} | F P x acc)) \<tau>"
+sorry
+lemma select_exec''[code_unfold, simp]:
+"OclSelect\<^isub>s\<^isub>e\<^isub>t mtSet P = mtSet"
+sorry
+lemma select_exec'''[code_unfold, simp]:
+"OclSelect\<^isub>s\<^isub>e\<^isub>t (X->including(y)) P =
+ (if  \<delta> X  then 
+   if  \<upsilon> y  then
+     if \<delta>(X->size()) then
+        if P y  then (OclSelect\<^isub>s\<^isub>e\<^isub>t X P)->including(y)
+        else (OclSelect\<^isub>s\<^isub>e\<^isub>t X P)
+        endif 
+     else invalid
+     endif
+   else invalid
+   endif
+ else invalid
+endif)"
+sorry
+
+
+lemma [simp,code_unfold]:"(null \<doteq> true) = false"
+sorry
+
+value "\<not>(\<tau> \<Turnstile> null \<doteq> true)"
+lemma "\<not>(\<tau> \<Turnstile> (Set{null}->select(x | not x) \<doteq> Set{null}))"
+by simp
+
+value "\<tau> \<Turnstile> (Set{null}->select(x | not x) \<doteq> Set{null})"
+(* un regle important est dans simp, mas pas dans code_unfold ...*)
+value "\<not>(\<tau> \<Turnstile> (Set{true,true} \<doteq> Set{false}))"
+
 end
