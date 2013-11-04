@@ -276,7 +276,7 @@ proof -
  qed
 
  show "\<tau> \<Turnstile> \<delta> S \<Longrightarrow> \<tau> \<Turnstile> \<upsilon> i \<Longrightarrow> \<tau> \<Turnstile> \<upsilon> j \<Longrightarrow> ?thesis"
-  apply(simp add:
+  apply(simp del:forall_exec' add:
    cp_OclIf[of "\<delta> S and \<upsilon> i and \<upsilon> j"]
    cp_OclIf[of "\<delta> S and \<upsilon> j and \<upsilon> i"]
    cp_OclNot[of "\<delta> S and \<upsilon> j and \<upsilon> i"])
@@ -286,17 +286,17 @@ proof -
   apply(subgoal_tac "\<tau> \<Turnstile> \<delta> S and \<upsilon> i and \<upsilon> j")
    prefer 2
    apply (metis foundation10 foundation6)
-  apply(simp add: OclValid_def)
+  apply(simp del:forall_exec' add: OclValid_def)
   apply(rule OclAnd_true[simplified OclValid_def])
   (* *)
   apply(subst forall_set_including_exec)
   apply(simp add: cp_OclIncludes1[where x = j])
-  apply(simp)
-  apply(simp add:
+  apply(simp del: forall_exec')
+  apply(simp del: forall_exec' add:
    cp_OclIf[of "\<delta> S and \<upsilon> i and \<upsilon> j"]
    cp_OclIf[of "\<delta> S and \<upsilon> j and \<upsilon> i"]
    cp_OclNot[of "\<delta> S and \<upsilon> j and \<upsilon> i"])
-  apply(simp add: cp_OclIf[symmetric])
+  apply(simp del: forall_exec' add: cp_OclIf[symmetric])
   apply(rule OclAnd_true[simplified OclValid_def])
   apply(simp add: includes_execute_int)
   apply(simp add: cp_OclIf[of "\<delta> S and \<upsilon> j"] cp_OclIf[of "i \<doteq> j"] cp_OclIf[of "\<delta> S"] cp_OclIf[of "if \<upsilon> j then true else invalid endif"] cp_OclIf[of "\<upsilon> j"])
@@ -327,11 +327,11 @@ proof -
   (* *)
   apply(subst forall_set_including_exec)
   apply(simp add: cp_OclIncludes1[where x = i])
-  apply(simp)
-  apply(simp add:
+  apply(simp del: forall_exec')
+  apply(simp del: forall_exec' add:
    cp_OclIf[of "\<delta> S and \<upsilon> i and \<upsilon> j"]
    cp_OclIf[of "\<delta> S and \<upsilon> j and \<upsilon> i"])
-  apply(simp add: cp_OclIf[symmetric])
+  apply(simp del: forall_exec' add: cp_OclIf[symmetric])
   apply(rule OclAnd_true[simplified OclValid_def])
   apply(simp add: includes_execute_int)
   apply(simp add: cp_OclIf[of "\<delta> S and \<upsilon> i"] cp_OclIf[of "j \<doteq> i"] cp_OclIf[of "\<delta> S"] cp_OclIf[of "if \<upsilon> i then true else invalid endif"] cp_OclIf[of "\<upsilon> i"])
