@@ -724,7 +724,7 @@ apply(rule ext,auto simp: mtSet_def valid_def null_Set_0_def
 apply(simp_all add: Abs_Set_0_inject bot_option_def null_Set_0_def null_option_def)
 done
 
-lemma mtSet_exec: "\<lceil>\<lceil>Rep_Set_0 (Set{} \<tau>)\<rceil>\<rceil> = {}"
+lemma mtSet_rep_set: "\<lceil>\<lceil>Rep_Set_0 (Set{} \<tau>)\<rceil>\<rceil> = {}"
  apply(simp add: mtSet_def, subst Abs_Set_0_inverse)
 by(simp add: bot_option_def)+
 
@@ -1493,7 +1493,7 @@ by(rule includes_execute_generic[OF StrictRefEq\<^isub>S\<^isub>e\<^isub>t_stric
                                  cp_StrictRefEq\<^isub>S\<^isub>e\<^isub>t
                                     StrictRefEq\<^isub>S\<^isub>e\<^isub>t_vs_StrongEq], simp_all)
 
-lemma finite_including_exec :
+lemma finite_including_rep_set :
   assumes X_def : "\<tau> \<Turnstile> \<delta> X"
       and x_val : "\<tau> \<Turnstile> \<upsilon> x"
     shows "finite \<lceil>\<lceil>Rep_Set_0 (X->including(x) \<tau>)\<rceil>\<rceil> = finite \<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil>"
@@ -1528,7 +1528,7 @@ show ?thesis
  by (metis OclValid_def S_incl StrictRefEq\<^isub>I\<^isub>n\<^isub>t\<^isub>e\<^isub>g\<^isub>e\<^isub>r_strict'' a_val foundation10 foundation6 x_val)
 qed
 
-lemma including_exec:
+lemma including_rep_set:
  assumes S_def: "\<tau> \<Turnstile> \<delta> S"
    shows "\<lceil>\<lceil>Rep_Set_0 (S->including(\<lambda>_. \<lfloor>\<lfloor>x\<rfloor>\<rfloor>) \<tau>)\<rceil>\<rceil> = insert \<lfloor>\<lfloor>x\<rfloor>\<rfloor> \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>"
  apply(simp add: OclIncluding_def S_def[simplified OclValid_def])
@@ -1536,7 +1536,7 @@ lemma including_exec:
  apply(insert Set_inv_lemma[OF S_def], metis bot_option_def not_Some_eq)
 by(simp)
 
-lemma including_notempty_exec:
+lemma including_notempty_rep_set:
 assumes X_def: "\<tau> \<Turnstile> \<delta> X"
     and a_val: "\<tau> \<Turnstile> \<upsilon> a"
   shows "\<lceil>\<lceil>Rep_Set_0 (X->including(a) \<tau>)\<rceil>\<rceil> \<noteq> {}"
@@ -1775,7 +1775,7 @@ by(rule excluding_charn_exec[OF StrictRefEq\<^isub>S\<^isub>e\<^isub>t_strict1 S
                              cp_StrictRefEq\<^isub>S\<^isub>e\<^isub>t StrictRefEq\<^isub>S\<^isub>e\<^isub>t_vs_StrongEq], simp_all)
 
 
-lemma finite_excluding_exec :
+lemma finite_excluding_rep_set :
   assumes X_def : "\<tau> \<Turnstile> \<delta> X"
       and x_val : "\<tau> \<Turnstile> \<upsilon> x"
     shows "finite \<lceil>\<lceil>Rep_Set_0 (X->excluding(x) \<tau>)\<rceil>\<rceil> = finite \<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil>"
@@ -1790,8 +1790,7 @@ lemma finite_excluding_exec :
           dest: foundation13[THEN iffD2, THEN foundation22[THEN iffD1]])
 qed
 
-(* WRONG NAME: This is not an executable rule ! -- bu*)
-lemma excluding_exec:
+lemma excluding_rep_set:
  assumes S_def: "\<tau> \<Turnstile> \<delta> S"
    shows "\<lceil>\<lceil>Rep_Set_0 (S->excluding(\<lambda>_. \<lfloor>\<lfloor>x\<rfloor>\<rfloor>) \<tau>)\<rceil>\<rceil> = \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil> - {\<lfloor>\<lfloor>x\<rfloor>\<rfloor>}"
  apply(simp add: OclExcluding_def S_def[simplified OclValid_def])
@@ -1841,9 +1840,9 @@ proof -
                       null_fun_def null_option_def)
       by (case_tac "P \<tau> = \<bottom>", simp_all add: true_def)
 
- have finite_including_exec : "\<And>\<tau>. (\<delta> X and \<upsilon> x) \<tau> = true \<tau> \<Longrightarrow>
+ have finite_including_rep_set : "\<And>\<tau>. (\<delta> X and \<upsilon> x) \<tau> = true \<tau> \<Longrightarrow>
                  finite \<lceil>\<lceil>Rep_Set_0 (X->including(x) \<tau>)\<rceil>\<rceil> = finite \<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil>"
-  apply(rule finite_including_exec)
+  apply(rule finite_including_rep_set)
   apply(metis OclValid_def foundation5)+
  done
 
@@ -1864,7 +1863,7 @@ proof -
   apply(simp)
   apply(simp add: defined_def true_def false_def bot_fun_def bot_option_def)
   apply(erule conjE)
-  apply(simp add: finite_including_exec[simplified OclValid_def] card_including_exec
+  apply(simp add: finite_including_rep_set[simplified OclValid_def] card_including_exec
                   cp_OclAnd[of "\<delta> X" "\<upsilon> x"]
                   cp_OclAnd[of "true", THEN sym])
   apply(subgoal_tac "(\<delta> X) \<tau> = true \<tau> \<and> (\<upsilon> x) \<tau> = true \<tau>", simp)
@@ -1875,13 +1874,13 @@ proof -
   apply(simp add: cp_defined[of "X->including(x)->size()" ] cp_defined[of "X->size()" ])
   apply(simp add: OclSize_def card_including_exec)
   apply(case_tac "(\<delta> X and \<upsilon> x) \<tau> = true \<tau> \<and> finite \<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil>",
-        simp add: finite_including_exec[simplified OclValid_def] card_including_exec)
+        simp add: finite_including_rep_set[simplified OclValid_def] card_including_exec)
   apply(simp only: cp_OclAnd[THEN sym])
   apply(simp add: defined_def bot_fun_def)
 
   apply(split split_if_asm)
-  apply(simp add: finite_including_exec[simplified OclValid_def])
-  apply(simp add: finite_including_exec[simplified OclValid_def] card_including_exec)
+  apply(simp add: finite_including_rep_set[simplified OclValid_def])
+  apply(simp add: finite_including_rep_set[simplified OclValid_def] card_including_exec)
   apply(simp only: cp_OclAnd[THEN sym])
   apply(simp)
   apply(rule impI)
@@ -1908,10 +1907,10 @@ proof -
       by(case_tac "P \<tau> = \<bottom>", simp_all add: true_def)
 
 
- have finite_excluding_exec : "\<And>\<tau>. (\<delta> X and \<upsilon> x) \<tau> = true \<tau> \<Longrightarrow>
+ have finite_excluding_rep_set : "\<And>\<tau>. (\<delta> X and \<upsilon> x) \<tau> = true \<tau> \<Longrightarrow>
                                      finite \<lceil>\<lceil>Rep_Set_0 (X->excluding(x) \<tau>)\<rceil>\<rceil> =
                                      finite \<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil>"
-  apply(rule finite_excluding_exec)
+  apply(rule finite_excluding_rep_set)
   apply(metis OclValid_def foundation5)+
  done
 
@@ -1933,7 +1932,7 @@ proof -
   apply(simp)
   apply(simp add: defined_def true_def false_def bot_fun_def bot_option_def)
   apply(erule conjE)
-  apply(simp add: finite_excluding_exec card_excluding_exec
+  apply(simp add: finite_excluding_rep_set card_excluding_exec
                   cp_OclAnd[of "\<delta> X" "\<upsilon> x"]
                   cp_OclAnd[of "true", THEN sym])
   apply(subgoal_tac "(\<delta> X) \<tau> = true \<tau> \<and> (\<upsilon> x) \<tau> = true \<tau>", simp)
@@ -1942,15 +1941,15 @@ proof -
   apply(drule defined_inject_true[of "X->excluding(x)->size()"], simp)
   apply(simp only: cp_OclAnd[of "\<delta> (X->size())" "\<upsilon> x"])
   apply(simp add: cp_defined[of "X->excluding(x)->size()" ] cp_defined[of "X->size()" ])
-  apply(simp add: OclSize_def finite_excluding_exec card_excluding_exec)
+  apply(simp add: OclSize_def finite_excluding_rep_set card_excluding_exec)
   apply(case_tac "(\<delta> X and \<upsilon> x) \<tau> = true \<tau> \<and> finite \<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil>",
-        simp add: finite_excluding_exec card_excluding_exec)
+        simp add: finite_excluding_rep_set card_excluding_exec)
   apply(simp only: cp_OclAnd[THEN sym])
   apply(simp add: defined_def bot_fun_def)
 
   apply(split split_if_asm)
-  apply(simp add: finite_excluding_exec)
-  apply(simp add: finite_excluding_exec card_excluding_exec)
+  apply(simp add: finite_excluding_rep_set)
+  apply(simp add: finite_excluding_rep_set card_excluding_exec)
   apply(simp only: cp_OclAnd[THEN sym])
   apply(simp)
   apply(rule impI)
@@ -2010,8 +2009,8 @@ proof -
   apply(rule B)
   apply(rule foundation20, simp)
   apply (metis (hide_lams, no_types) X_finite X_def a_val foundation10 foundation6 size_defined')
-  apply(simp add: OclSize_def finite_including_exec[OF X_def a_val] X_finite OclInt0_def)
- by (metis OclValid_def X_def a_val foundation10 foundation6 including_notempty_exec[OF X_def a_val])
+  apply(simp add: OclSize_def finite_including_rep_set[OF X_def a_val] X_finite OclInt0_def)
+ by (metis OclValid_def X_def a_val foundation10 foundation6 including_notempty_rep_set[OF X_def a_val])
 qed
 
 subsection{* OclNotEmpty *}
@@ -2040,11 +2039,11 @@ lemma any_exec[simp,code_unfold]:
       "(Set{}->including(a))->any() = a"
  apply(rule ext, rename_tac \<tau>, simp add: mtSet_def Ocl_Any_def)
  apply(case_tac "\<tau> \<Turnstile> \<upsilon> a")
- apply(simp add: OclValid_def mtSet_defined[simplified mtSet_def] mtSet_valid[simplified mtSet_def] mtSet_exec[simplified mtSet_def])
+ apply(simp add: OclValid_def mtSet_defined[simplified mtSet_def] mtSet_valid[simplified mtSet_def] mtSet_rep_set[simplified mtSet_def])
  apply(subst (1 2) cp_OclAnd,
        subst (1 2) including_notempty_true[where X = "Set{}", simplified mtSet_def])
  apply(simp add: mtSet_defined[simplified mtSet_def])
- apply(metis (hide_lams, no_types) finite.emptyI mtSet_def mtSet_exec)
+ apply(metis (hide_lams, no_types) finite.emptyI mtSet_def mtSet_rep_set)
  apply(simp add: OclValid_def)
  apply(simp add: OclIncluding_def)
  apply(rule conjI)
@@ -2120,7 +2119,7 @@ proof -
                   cp_OclNot[symmetric] cp_OclAnd[symmetric] cp_OclOr[symmetric])
   apply(frule notempty'[simplified OclValid_def], (simp add: mtSet_def Abs_Set_0_inverse OclInt0_def false_def)+)
   apply(drule notempty'[simplified OclValid_def], simp, simp)
-  apply (metis (hide_lams, no_types) empty_iff mtSet_exec)
+  apply (metis (hide_lams, no_types) empty_iff mtSet_rep_set)
   (* *)
   apply(frule B)
   apply(subst (1 2 3 4) cp_OclIf)
@@ -2648,7 +2647,7 @@ qed
 
 subsection{* OclSelect *}
 
-lemma select_exec:
+lemma select_iterate:
  defines "F \<equiv> (\<lambda>P x acc. if \<upsilon> (P x) then if P x \<triangleq> false then acc else acc->including(x) endif else \<bottom> endif)"
  assumes S_finite: "finite \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>"
      and P_strict: "\<And>x. x \<tau> = \<bottom> \<Longrightarrow> (P x) \<tau> = \<bottom>"
@@ -3061,16 +3060,16 @@ value    "\<tau> \<Turnstile> (Set{Set{\<two>,null}} <> Set{Set{null,\<two>},nul
 value "\<tau> \<Turnstile> (Set{null::'a Boolean} \<doteq> Set{})"
 value "\<tau> \<Turnstile> (Set{null::('a) Integer} \<doteq> Set{})"
 
-lemma select_exec'[code_unfold, simp]:
+lemma select_iterate'[code_unfold, simp]:
  defines "F \<equiv> (\<lambda>P x acc. if \<upsilon> (P x) then if P x \<triangleq> false then acc else acc->including(x) endif else \<bottom> endif)"
  assumes S_finite: "finite \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>"
      and P_strict: "\<And>x. x \<tau> = \<bottom> \<Longrightarrow> (P x) \<tau> = \<bottom>"
    shows "OclSelect\<^isub>s\<^isub>e\<^isub>t S P \<tau> = (S->iterate(x; acc = Set{} | F P x acc)) \<tau>"
 sorry
-lemma select_exec''[code_unfold, simp]:
+lemma select_set_mt_exec[code_unfold, simp]:
 "OclSelect\<^isub>s\<^isub>e\<^isub>t mtSet P = mtSet"
 sorry
-lemma select_exec'''[code_unfold, simp]:
+lemma select_set_including_exec[code_unfold, simp]:
 "OclSelect\<^isub>s\<^isub>e\<^isub>t (X->including(y)) P =
  (if  \<delta> X  then 
    if  \<upsilon> y  then
@@ -3094,7 +3093,7 @@ value "\<not>(\<tau> \<Turnstile> null \<doteq> true)"
 lemma "\<not>(\<tau> \<Turnstile> (Set{null}->select(x | not x) \<doteq> Set{null}))"
 by simp
 
-value "\<tau> \<Turnstile> (Set{null}->select(x | not x) \<doteq> Set{null})"
+(*value "\<tau> \<Turnstile> (Set{null}->select(x | not x) \<doteq> Set{null})"*)
 (* un regle important est dans simp, mas pas dans code_unfold ...*)
 value "\<not>(\<tau> \<Turnstile> (Set{true,true} \<doteq> Set{false}))"
 

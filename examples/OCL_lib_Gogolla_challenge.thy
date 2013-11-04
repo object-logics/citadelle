@@ -534,15 +534,15 @@ lemma invert_all_defined : "all_defined \<tau> (S->including(x)) \<Longrightarro
           apply(simp add: foundation18 invalid_def)
           done
 
- have finite_including_exec : "\<And>\<tau> X x. \<And>\<tau>. \<tau> \<Turnstile> (\<delta> X and \<upsilon> x) \<Longrightarrow>
+ have finite_including_rep_set : "\<And>\<tau> X x. \<And>\<tau>. \<tau> \<Turnstile> (\<delta> X and \<upsilon> x) \<Longrightarrow>
                  finite \<lceil>\<lceil>Rep_Set_0 (X->including(x) \<tau>)\<rceil>\<rceil> = finite \<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil>"
-  apply(rule finite_including_exec)
+  apply(rule finite_including_rep_set)
   apply(metis OclValid_def foundation5)+
  done
 
   show "all_defined \<tau> (S->including(x)) \<Longrightarrow> ?thesis"
    apply(simp add: all_defined_def all_defined_set'_def)
-   apply(erule conjE, frule finite_including_exec[of \<tau> S x], simp)
+   apply(erule conjE, frule finite_including_rep_set[of \<tau> S x], simp)
   by (metis foundation5)
 qed
 
