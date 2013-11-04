@@ -49,7 +49,8 @@ header{* Part III: OCL Contracts and an Example *}
 theory
   Employee_DesignModel_UMLPart
 imports
-  "../src/OCL_main" (* Testing *)
+  "../src/OCL_main"
+  OCL_lib_Gogolla_challenge
 begin
 
 
