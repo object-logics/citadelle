@@ -994,6 +994,8 @@ lemma valid_and_I :   "\<tau> \<Turnstile> \<upsilon> (x) \<Longrightarrow>  \<t
              split: option.split_asm HOL.split_if_asm)
   by(auto simp: null_option_def split: option.split bool.split)
 
+
+
 subsection{* Local Judgements and Strong Equality *}
 
 lemma StrongEq_L_refl: "\<tau> \<Turnstile> (x \<triangleq> x)"
@@ -1005,6 +1007,13 @@ by(simp add: StrongEq_sym)
 
 lemma StrongEq_L_trans: "\<tau> \<Turnstile> (x \<triangleq> y) \<Longrightarrow> \<tau> \<Turnstile> (y \<triangleq> z) \<Longrightarrow> \<tau> \<Turnstile> (x \<triangleq> z)"
 by(simp add: OclValid_def StrongEq_def true_def)
+
+lemma [simp, code_unfold]: "(true \<triangleq> false) = false"
+by(rule ext, auto simp: StrongEq_def)
+
+lemma [simp, code_unfold]: "(false  \<triangleq> true) = false"
+by(rule ext, auto simp: StrongEq_def)
+
 
 text{* In order to establish substitutivity (which does not
 hold in general HOL-formulas we introduce the following 
