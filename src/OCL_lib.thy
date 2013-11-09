@@ -419,6 +419,17 @@ defs   StrictRefEq\<^isub>I\<^isub>n\<^isub>t\<^isub>e\<^isub>g\<^isub>e\<^isub>
                                     then (x \<triangleq> y) \<tau>
                                     else invalid \<tau>"
 
+lemma [simp, code_unfold] : "(true \<doteq> false) = false"
+by(simp add:StrictRefEq\<^isub>B\<^isub>o\<^isub>o\<^isub>l\<^isub>e\<^isub>a\<^isub>n)
+lemma [simp, code_unfold] : "(false \<doteq> true) = false"
+by(simp add:StrictRefEq\<^isub>B\<^isub>o\<^isub>o\<^isub>l\<^isub>e\<^isub>a\<^isub>n)
+
+value "\<tau> \<Turnstile> \<one> <> \<two>"
+value "\<tau> \<Turnstile> \<two> <> \<one>"
+value "\<tau> \<Turnstile> \<two> \<doteq> \<two>"
+value "\<tau> \<Turnstile> true <> false"
+value "\<tau> \<Turnstile> false <> true "
+
 subsection{* Logic and Algebraic Layer on Basic Types *}
 
 subsubsection{* Validity and Definedness Properties (I) *}
@@ -564,7 +575,9 @@ lemmas cp_intro'[simp,intro!] =
        cp_intro'
        cp_StrictRefEq\<^isub>B\<^isub>o\<^isub>o\<^isub>l\<^isub>e\<^isub>a\<^isub>n[THEN allI[THEN allI[THEN allI[THEN cpI2]], of "StrictRefEq"]]
        cp_StrictRefEq\<^isub>I\<^isub>n\<^isub>t\<^isub>e\<^isub>g\<^isub>e\<^isub>r[THEN allI[THEN allI[THEN allI[THEN cpI2]],  of "StrictRefEq"]]
-
+       cp_OclAdd\<^isub>I\<^isub>n\<^isub>t\<^isub>e\<^isub>g\<^isub>e\<^isub>r[THEN allI[THEN allI[THEN allI[THEN cpI2]], of "OclAdd\<^isub>I\<^isub>n\<^isub>t\<^isub>e\<^isub>g\<^isub>e\<^isub>r"]]
+       cp_OclLess\<^isub>I\<^isub>n\<^isub>t\<^isub>e\<^isub>g\<^isub>e\<^isub>r[THEN allI[THEN allI[THEN allI[THEN cpI2]], of "OclLess\<^isub>I\<^isub>n\<^isub>t\<^isub>e\<^isub>g\<^isub>e\<^isub>r"]]
+       cp_OclLe\<^isub>I\<^isub>n\<^isub>t\<^isub>e\<^isub>g\<^isub>e\<^isub>r[THEN allI[THEN allI[THEN allI[THEN cpI2]], of "OclLe\<^isub>I\<^isub>n\<^isub>t\<^isub>e\<^isub>g\<^isub>e\<^isub>r"]]
 
 
 subsection{* Test Statements on Basic Types. *}
@@ -1530,7 +1543,7 @@ qed
 
 
 (* Hack to work around OF-Bug *)
-schematic_lemma includes_execute_int[code_unfold]: "?X"
+schematic_lemma includes_execute_int[simp,code_unfold]: "?X"
 by(rule includes_execute_generic[OF StrictRefEq\<^isub>I\<^isub>n\<^isub>t\<^isub>e\<^isub>g\<^isub>e\<^isub>r_strict1 StrictRefEq\<^isub>I\<^isub>n\<^isub>t\<^isub>e\<^isub>g\<^isub>e\<^isub>r_strict2
                                  cp_StrictRefEq\<^isub>I\<^isub>n\<^isub>t\<^isub>e\<^isub>g\<^isub>e\<^isub>r
                                     StrictRefEq\<^isub>I\<^isub>n\<^isub>t\<^isub>e\<^isub>g\<^isub>e\<^isub>r_vs_StrongEq], simp_all)
@@ -2309,12 +2322,14 @@ apply(subst Abs_Set_0_inverse, simp_all add: true_def)+
 done
 
 lemma forall_set_including_exec[simp,code_unfold] :
- assumes cp: "\<And>\<tau>. P x \<tau> = P (\<lambda>_. x \<tau>) \<tau>"
+ assumes cp0 : "cp P"
  shows "((S->including(x))->forAll(z | P(z))) = (if \<delta> S and \<upsilon> x
                                                  then P x and (S->forAll(z | P(z)))
                                                  else invalid
                                                  endif)"
 proof -
+ have cp: "\<And>\<tau>. P x \<tau> = P (\<lambda>_. x \<tau>) \<tau>" 
+    by(insert cp0, auto simp: cp_def)
 
  have insert_in_Set_0 : "\<And>\<tau>. (\<tau> \<Turnstile>(\<delta> S)) \<Longrightarrow> (\<tau> \<Turnstile>(\<upsilon> x)) \<Longrightarrow> \<lfloor>\<lfloor>insert (x \<tau>) \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>\<rfloor>\<rfloor> \<in> {X. X = bot \<or> X = null \<or> (\<forall>x\<in>\<lceil>\<lceil>X\<rceil>\<rceil>. x \<noteq> bot)}"
           apply(frule Set_inv_lemma)
@@ -2452,6 +2467,9 @@ proof -
   (* invalid *)
   by(metis OclForall_def including_defined_args_valid' invalid_def)
 qed
+
+
+
 
 lemma forall_includes :
  assumes x_def : "\<tau> \<Turnstile> \<delta> x"
@@ -2613,19 +2631,13 @@ lemma exists_set_mt_exec[simp,code_unfold] :
 by(simp add: OclExists_def)
 
 lemma exists_set_including_exec[simp,code_unfold] :
- assumes cp: "\<And>\<tau>. P x \<tau> = P (\<lambda>_. x \<tau>) \<tau>"
+ assumes cp: "cp P"
  shows "((S->including(x))->exists(z | P(z))) = (if \<delta> S and \<upsilon> x
                                                  then P x or (S->exists(z | P(z)))
                                                  else invalid
                                                  endif)"
-  apply(simp add: OclExists_def OclOr_def)
+ by(simp add: OclExists_def OclOr_def forall_set_including_exec cp OclNot_inject)
 
-  apply(rule OclNot_inject)
-  apply(simp)
-  apply(rule forall_set_including_exec)
-  apply(rule sym, subst cp_OclNot)
-  apply(simp only: cp[symmetric] cp_OclNot[symmetric])
-done
 
 subsection{* OclIterate *}
 
@@ -2768,6 +2780,25 @@ lemma select_set_mt_exec[code_unfold, simp]: "OclSelect\<^isub>s\<^isub>e\<^isub
  apply(simp add: null_option_def bot_option_def)+
 done
 
+lemma select_set_including_exec[code_unfold, simp]:
+"OclSelect\<^isub>s\<^isub>e\<^isub>t (X->including(y)) P =
+ (if  \<delta> X  then
+   if  \<upsilon> y  then
+     if \<delta>(X->size()) then
+        if P y  then (OclSelect\<^isub>s\<^isub>e\<^isub>t X P)->including(y)
+        else (OclSelect\<^isub>s\<^isub>e\<^isub>t X P)
+        endif
+     else invalid
+     endif
+   else invalid
+   endif
+ else invalid
+endif)"
+sorry
+
+
+
+
 definition "select_body \<equiv> (\<lambda>P x acc. if \<upsilon> (P x) then if P x \<triangleq> false then acc else acc->including(x) endif else \<bottom> endif)"
 
 lemma select_body_commute : "comp_fun_commute (select_body P)"
@@ -2885,17 +2916,9 @@ proof -
  qed
 qed
 
-lemma select_set_including_exec[code_unfold, simp]:
- "OclSelect\<^isub>s\<^isub>e\<^isub>t (X->including(y)) P =
- (if \<delta> X and \<upsilon> y and \<delta>(X->size()) then
-        if P y then (OclSelect\<^isub>s\<^isub>e\<^isub>t X P)->including(y)
-        else (OclSelect\<^isub>s\<^isub>e\<^isub>t X P)
-        endif
- else invalid
- endif)"
  thm OclIterate\<^isub>S\<^isub>e\<^isub>t_including[where A = "Set{}" and F = "select_body P"]
  thm select_iterate
-sorry
+
 
 subsection{* Strict Equality *}
 
@@ -3144,18 +3167,23 @@ proof -
   apply(rule cp_valid)
  done
 
- show ?thesis
-  apply(simp add: includes_execute_int)
-  apply(simp add: forall_set_including_exec[where P = "\<lambda>z. if null \<doteq> z then true else if \<two> \<doteq> z then true else if \<upsilon> z then false else invalid endif endif endif",
-                                            OF cp_1])
-  apply(simp add: forall_set_including_exec[where P = "\<lambda>z. if \<two> \<doteq> z then true else if null \<doteq> z then true else if \<two> \<doteq> z then true else if \<upsilon> z then false else invalid endif endif endif endif",
-                                            OF cp_2])
- done
+ show ?thesis by(simp add: includes_execute_int)
 qed
 
-lemma short_cut'[simp]: "(\<eight> \<doteq> \<six>) = false"
+lemma short_cut'[simp,code_unfold]: "(\<eight> \<doteq> \<six>) = false"
  apply(rule ext)
  apply(simp add: StrictRefEq\<^isub>I\<^isub>n\<^isub>t\<^isub>e\<^isub>g\<^isub>e\<^isub>r StrongEq_def OclInt8_def OclInt6_def
+                 true_def false_def invalid_def bot_option_def)
+done
+
+lemma short_cut''[simp,code_unfold]: "(\<two> \<doteq> \<one>) = false"
+ apply(rule ext)
+ apply(simp add: StrictRefEq\<^isub>I\<^isub>n\<^isub>t\<^isub>e\<^isub>g\<^isub>e\<^isub>r StrongEq_def OclInt2_def OclInt1_def
+                 true_def false_def invalid_def bot_option_def)
+done
+lemma short_cut'''[simp,code_unfold]: "(\<one> \<doteq> \<two>) = false"
+ apply(rule ext)
+ apply(simp add: StrictRefEq\<^isub>I\<^isub>n\<^isub>t\<^isub>e\<^isub>g\<^isub>e\<^isub>r StrongEq_def OclInt2_def OclInt1_def
                  true_def false_def invalid_def bot_option_def)
 done
 
@@ -3174,33 +3202,38 @@ value    "\<tau>\<^isub>0 \<Turnstile> (Set{\<two>,null}->includes(null))"
 value    "\<tau> \<Turnstile> ((Set{})->forAll(z | \<zero> <\<^isub>o\<^isub>c\<^isub>l z))"
 
 value " \<tau> \<Turnstile> if \<zero> <\<^isub>I \<two> then if \<zero> <\<^isub>I \<one> then true else false endif else false endif"
-(*
+
+declare cp_intro''[code_unfold]
 value   "\<tau> \<Turnstile> ((Set{\<two>,\<one>})->forAll(z | \<zero> <\<^isub>o\<^isub>c\<^isub>l z))"
 value "\<not> (\<tau> \<Turnstile> ((Set{\<two>,\<one>})->exists(z | z <\<^isub>o\<^isub>c\<^isub>l \<zero> )))"
+value "\<not> (\<tau> \<Turnstile> \<delta>(Set{\<two>,null})->forAll(z | \<zero> <\<^isub>o\<^isub>c\<^isub>l z))"
+value "\<not> (\<tau> \<Turnstile> ((Set{\<two>,null})->forAll(z | \<zero> <\<^isub>o\<^isub>c\<^isub>l z)))"
+value    "\<tau> \<Turnstile> ((Set{\<two>,null})->exists(z | \<zero> <\<^isub>o\<^isub>c\<^isub>l z))"
 
+lemma    "\<tau> \<Turnstile> (Set{\<two>,null,\<two>} \<doteq> Set{null,\<two>})"  by(simp)
+lemma    "\<tau> \<Turnstile> (Set{\<one>,null,\<two>} <> Set{null,\<two>})"  by(simp) 
+
+(* why does this not work ? ? ?
 value    "\<tau> \<Turnstile> (Set{\<two>,null,\<two>} \<doteq> Set{null,\<two>})"
 value    "\<tau> \<Turnstile> (Set{\<one>,null,\<two>} <> Set{null,\<two>})"
 *)
 value "\<tau> \<Turnstile> \<zero> <\<^isub>o\<^isub>c\<^isub>l null "
 value "\<not> (\<tau> \<Turnstile> \<delta>(\<zero> <\<^isub>o\<^isub>c\<^isub>l null))"
-(*
-value "\<not> (\<tau> \<Turnstile> \<delta>(Set{\<two>,null})->forAll(z | \<zero> <\<^isub>o\<^isub>c\<^isub>l z))"
-value "\<not> (\<tau> \<Turnstile> ((Set{\<two>,null})->forAll(z | \<zero> <\<^isub>o\<^isub>c\<^isub>l z)))"
-value    "\<tau> \<Turnstile> ((Set{\<two>,null})->exists(z | \<zero> <\<^isub>o\<^isub>c\<^isub>l z))"
 
+(* TO BE DONE
 value    "\<tau> \<Turnstile> (Set{Set{\<two>,null}} \<doteq> Set{Set{null,\<two>}})"
 value    "\<tau> \<Turnstile> (Set{Set{\<two>,null}} <> Set{Set{null,\<two>},null})"
 
+*)
 value "\<not> (\<tau> \<Turnstile> (Set{null::'a Boolean} \<doteq> Set{}))"
 value "\<not> (\<tau> \<Turnstile> (Set{null::('a) Integer} \<doteq> Set{}))"
 
-*)
-value "\<not>(\<tau> \<Turnstile> null \<doteq> true)"
-lemma "\<not>(\<tau> \<Turnstile> (Set{null}->select(x | not x) \<doteq> Set{null}))"
-by simp
-
-(*value "\<not> (\<tau> \<Turnstile> (Set{null}->select(x | not x) \<doteq> Set{null}))"*)
+lemma "\<not> (\<tau> \<Turnstile> (Set{null}->select(x | not x) \<doteq> Set{null}))" by simp
+(* why does this not work:
+  value "\<not> (\<tau> \<Turnstile> (Set{null}->select(x | not x) \<doteq> Set{null}))"*)
 (* un regle important est dans simp, mas pas dans code_unfold ...*)
+
+lemma "\<not>(\<tau> \<Turnstile> (Set{true,true} \<doteq> Set{false}))" by(simp add: includes_execute_bool)
 (*value "\<not>(\<tau> \<Turnstile> (Set{true,true} \<doteq> Set{false}))"*)
 
 end
