@@ -1069,14 +1069,14 @@ by(erule_tac x="P X" in allE, auto)
 lemma cpI3:
 "(\<forall> X Y Z \<tau>. f X Y Z \<tau> = f(\<lambda>_. X \<tau>)(\<lambda>_. Y \<tau>)(\<lambda>_. Z \<tau>) \<tau>) \<Longrightarrow> 
  cp P \<Longrightarrow> cp Q \<Longrightarrow> cp R \<Longrightarrow> cp(\<lambda>X. f (P X) (Q X) (R X))"
-apply(auto simp: true_def cp_def)
+apply(auto simp: cp_def)
 apply(rule exI, (rule allI)+)
 by(erule_tac x="P X" in allE, auto)
 
 lemma cpI4:
 "(\<forall> W X Y Z \<tau>. f W X Y Z \<tau> = f(\<lambda>_. W \<tau>)(\<lambda>_. X \<tau>)(\<lambda>_. Y \<tau>)(\<lambda>_. Z \<tau>) \<tau>) \<Longrightarrow> 
  cp P \<Longrightarrow> cp Q \<Longrightarrow> cp R \<Longrightarrow> cp S \<Longrightarrow> cp(\<lambda>X. f (P X) (Q X) (R X) (S X))"
-apply(auto simp: true_def cp_def)
+apply(auto simp: cp_def)
 apply(rule exI, (rule allI)+)
 by(erule_tac x="P X" in allE, auto)
 

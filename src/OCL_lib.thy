@@ -164,13 +164,13 @@ lemma OclAdd\<^isub>I\<^isub>n\<^isub>t\<^isub>e\<^isub>g\<^isub>e\<^isub>r_comm
 
 subsubsection{* Execution with invalid or null or zero as argument *}
 
-lemma OclAdd\<^isub>I\<^isub>n\<^isub>t\<^isub>e\<^isub>g\<^isub>e\<^isub>r_strict1[simp] : "(x +\<^isub>o\<^isub>c\<^isub>l invalid) = invalid"
+lemma OclAdd\<^isub>I\<^isub>n\<^isub>t\<^isub>e\<^isub>g\<^isub>e\<^isub>r_strict1[simp,code_unfold] : "(x +\<^isub>o\<^isub>c\<^isub>l invalid) = invalid"
 by(rule ext, simp add: OclAdd\<^isub>I\<^isub>n\<^isub>t\<^isub>e\<^isub>g\<^isub>e\<^isub>r_def true_def false_def)
 
-lemma OclAdd\<^isub>I\<^isub>n\<^isub>t\<^isub>e\<^isub>g\<^isub>e\<^isub>r_strict2[simp] : "(invalid +\<^isub>o\<^isub>c\<^isub>l x) = invalid"
+lemma OclAdd\<^isub>I\<^isub>n\<^isub>t\<^isub>e\<^isub>g\<^isub>e\<^isub>r_strict2[simp,code_unfold] : "(invalid +\<^isub>o\<^isub>c\<^isub>l x) = invalid"
 by(rule ext, simp add: OclAdd\<^isub>I\<^isub>n\<^isub>t\<^isub>e\<^isub>g\<^isub>e\<^isub>r_def true_def false_def)
 
-lemma OclAdd\<^isub>I\<^isub>n\<^isub>t\<^isub>e\<^isub>g\<^isub>e\<^isub>r_zero1[simp] : "(x +\<^isub>o\<^isub>c\<^isub>l \<zero>) = (if \<upsilon> x and not (\<delta> x) then invalid else x endif)"
+lemma OclAdd\<^isub>I\<^isub>n\<^isub>t\<^isub>e\<^isub>g\<^isub>e\<^isub>r_zero1[simp,code_unfold] : "(x +\<^isub>o\<^isub>c\<^isub>l \<zero>) = (if \<upsilon> x and not (\<delta> x) then invalid else x endif)"
  apply(rule ext, rename_tac \<tau>)
  proof - fix \<tau> show "(x +\<^isub>I \<zero>) \<tau> = (if \<upsilon> x and not (\<delta> x) then invalid else x endif) \<tau>"
   apply(case_tac "(\<upsilon> x and not (\<delta> x)) \<tau> = true \<tau>")
@@ -191,7 +191,7 @@ lemma OclAdd\<^isub>I\<^isub>n\<^isub>t\<^isub>e\<^isub>g\<^isub>e\<^isub>r_zero
  by (metis OclValid_def foundation10 foundation18' foundation6 foundation7 invalid_def)
 qed
 
-lemma OclAdd\<^isub>I\<^isub>n\<^isub>t\<^isub>e\<^isub>g\<^isub>e\<^isub>r_zero2[simp] : "(\<zero> +\<^isub>o\<^isub>c\<^isub>l x) = (if \<upsilon> x and not (\<delta> x) then invalid else x endif)"
+lemma OclAdd\<^isub>I\<^isub>n\<^isub>t\<^isub>e\<^isub>g\<^isub>e\<^isub>r_zero2[simp,code_unfold] : "(\<zero> +\<^isub>o\<^isub>c\<^isub>l x) = (if \<upsilon> x and not (\<delta> x) then invalid else x endif)"
 by(subst OclAdd\<^isub>I\<^isub>n\<^isub>t\<^isub>e\<^isub>g\<^isub>e\<^isub>r_commute, simp)
 
 subsubsection{* Context Passing *}
@@ -504,16 +504,16 @@ by(rule ext, simp add: StrictRefEq\<^isub>I\<^isub>n\<^isub>t\<^isub>e\<^isub>g\
 
 subsubsection{* Execution with invalid or null as argument *}
 
-lemma StrictRefEq\<^isub>B\<^isub>o\<^isub>o\<^isub>l\<^isub>e\<^isub>a\<^isub>n_strict1[simp] : "((x::('\<AA>)Boolean) \<doteq> invalid) = invalid"
+lemma StrictRefEq\<^isub>B\<^isub>o\<^isub>o\<^isub>l\<^isub>e\<^isub>a\<^isub>n_strict1[simp,code_unfold] : "((x::('\<AA>)Boolean) \<doteq> invalid) = invalid"
 by(rule ext, simp add: StrictRefEq\<^isub>B\<^isub>o\<^isub>o\<^isub>l\<^isub>e\<^isub>a\<^isub>n true_def false_def)
 
-lemma StrictRefEq\<^isub>B\<^isub>o\<^isub>o\<^isub>l\<^isub>e\<^isub>a\<^isub>n_strict2[simp] : "(invalid \<doteq> (x::('\<AA>)Boolean)) = invalid"
+lemma StrictRefEq\<^isub>B\<^isub>o\<^isub>o\<^isub>l\<^isub>e\<^isub>a\<^isub>n_strict2[simp,code_unfold] : "(invalid \<doteq> (x::('\<AA>)Boolean)) = invalid"
 by(rule ext, simp add: StrictRefEq\<^isub>B\<^isub>o\<^isub>o\<^isub>l\<^isub>e\<^isub>a\<^isub>n true_def false_def)
 
-lemma StrictRefEq\<^isub>I\<^isub>n\<^isub>t\<^isub>e\<^isub>g\<^isub>e\<^isub>r_strict1[simp] : "((x::('\<AA>)Integer) \<doteq> invalid) = invalid"
+lemma StrictRefEq\<^isub>I\<^isub>n\<^isub>t\<^isub>e\<^isub>g\<^isub>e\<^isub>r_strict1[simp,code_unfold] : "((x::('\<AA>)Integer) \<doteq> invalid) = invalid"
 by(rule ext, simp add: StrictRefEq\<^isub>I\<^isub>n\<^isub>t\<^isub>e\<^isub>g\<^isub>e\<^isub>r true_def false_def)
 
-lemma StrictRefEq\<^isub>I\<^isub>n\<^isub>t\<^isub>e\<^isub>g\<^isub>e\<^isub>r_strict2[simp] : "(invalid \<doteq> (x::('\<AA>)Integer)) = invalid"
+lemma StrictRefEq\<^isub>I\<^isub>n\<^isub>t\<^isub>e\<^isub>g\<^isub>e\<^isub>r_strict2[simp,code_unfold] : "(invalid \<doteq> (x::('\<AA>)Integer)) = invalid"
 by(rule ext, simp add: StrictRefEq\<^isub>I\<^isub>n\<^isub>t\<^isub>e\<^isub>g\<^isub>e\<^isub>r true_def false_def)
 
 lemma null_non_true [simp,code_unfold]:"(null \<doteq> true) = false"
@@ -528,18 +528,18 @@ lemma null_non_integer [simp]: "((null::('\<AA>)Integer) \<doteq> (\<lambda>_. \
 by(rule ext,auto simp: StrictRefEq\<^isub>I\<^isub>n\<^isub>t\<^isub>e\<^isub>g\<^isub>e\<^isub>r valid_def
                          bot_fun_def bot_option_def null_fun_def null_option_def StrongEq_def)
 
-lemma OclInt0_non_null [simp]: "(\<zero> \<doteq> null) = false" by(simp add: OclInt0_def)
-lemma null_non_OclInt0 [simp]: "(null \<doteq> \<zero>) = false" by(simp add: OclInt0_def)
-lemma OclInt1_non_null [simp]: "(\<one> \<doteq> null) = false" by(simp add: OclInt1_def)
-lemma null_non_OclInt1 [simp]: "(null \<doteq> \<one>) = false" by(simp add: OclInt1_def)
-lemma OclInt2_non_null [simp]: "(\<two> \<doteq> null) = false" by(simp add: OclInt2_def)
-lemma null_non_OclInt2 [simp]: "(null \<doteq> \<two>) = false" by(simp add: OclInt2_def)
-lemma OclInt6_non_null [simp]: "(\<six> \<doteq> null) = false" by(simp add: OclInt6_def)
-lemma null_non_OclInt6 [simp]: "(null \<doteq> \<six>) = false" by(simp add: OclInt6_def)
-lemma OclInt8_non_null [simp]: "(\<eight> \<doteq> null) = false" by(simp add: OclInt8_def)
-lemma null_non_OclInt8 [simp]: "(null \<doteq> \<eight>) = false" by(simp add: OclInt8_def)
-lemma OclInt9_non_null [simp]: "(\<nine> \<doteq> null) = false" by(simp add: OclInt9_def)
-lemma null_non_OclInt9 [simp]: "(null \<doteq> \<nine>) = false" by(simp add: OclInt9_def)
+lemma OclInt0_non_null [simp,code_unfold]: "(\<zero> \<doteq> null) = false" by(simp add: OclInt0_def)
+lemma null_non_OclInt0 [simp,code_unfold]: "(null \<doteq> \<zero>) = false" by(simp add: OclInt0_def)
+lemma OclInt1_non_null [simp,code_unfold]: "(\<one> \<doteq> null) = false" by(simp add: OclInt1_def)
+lemma null_non_OclInt1 [simp,code_unfold]: "(null \<doteq> \<one>) = false" by(simp add: OclInt1_def)
+lemma OclInt2_non_null [simp,code_unfold]: "(\<two> \<doteq> null) = false" by(simp add: OclInt2_def)
+lemma null_non_OclInt2 [simp,code_unfold]: "(null \<doteq> \<two>) = false" by(simp add: OclInt2_def)
+lemma OclInt6_non_null [simp,code_unfold]: "(\<six> \<doteq> null) = false" by(simp add: OclInt6_def)
+lemma null_non_OclInt6 [simp,code_unfold]: "(null \<doteq> \<six>) = false" by(simp add: OclInt6_def)
+lemma OclInt8_non_null [simp,code_unfold]: "(\<eight> \<doteq> null) = false" by(simp add: OclInt8_def)
+lemma null_non_OclInt8 [simp,code_unfold]: "(null \<doteq> \<eight>) = false" by(simp add: OclInt8_def)
+lemma OclInt9_non_null [simp,code_unfold]: "(\<nine> \<doteq> null) = false" by(simp add: OclInt9_def)
+lemma null_non_OclInt9 [simp,code_unfold]: "(null \<doteq> \<nine>) = false" by(simp add: OclInt9_def)
 
 (* plus all the others ...*)
 
@@ -1228,14 +1228,14 @@ by(simp add: Ocl_Any_def false_def true_def)
 
 subsubsection{* OclIterate *}
 
-lemma OclIterate\<^isub>S\<^isub>e\<^isub>t_strict1[simp]:"invalid->iterate(a; x = A | P a x) = invalid"
+lemma OclIterate\<^isub>S\<^isub>e\<^isub>t_strict1[simp,code_unfold]:"invalid->iterate(a; x = A | P a x) = invalid"
 by(simp add: bot_fun_def invalid_def OclIterate\<^isub>S\<^isub>e\<^isub>t_def defined_def valid_def false_def true_def)
 
-lemma OclIterate\<^isub>S\<^isub>e\<^isub>t_null1[simp]:"null->iterate(a; x = A | P a x) = invalid"
+lemma OclIterate\<^isub>S\<^isub>e\<^isub>t_null1[simp,code_unfold]:"null->iterate(a; x = A | P a x) = invalid"
 by(simp add: bot_fun_def invalid_def OclIterate\<^isub>S\<^isub>e\<^isub>t_def defined_def valid_def false_def true_def)
 
 
-lemma OclIterate\<^isub>S\<^isub>e\<^isub>t_strict2[simp]:"S->iterate(a; x = invalid | P a x) = invalid"
+lemma OclIterate\<^isub>S\<^isub>e\<^isub>t_strict2[simp,code_unfold]:"S->iterate(a; x = invalid | P a x) = invalid"
 by(simp add: bot_fun_def invalid_def OclIterate\<^isub>S\<^isub>e\<^isub>t_def defined_def valid_def false_def true_def)
 
 text{* An open question is this ... *}
@@ -1294,8 +1294,53 @@ lemma cp_Ocl_Any: "X->any() \<tau> = (\<lambda>_. X \<tau>)->any() \<tau>"
 done
 
 lemma cp_OclForall:
-"(X->forAll(x | P x)) \<tau> = ((\<lambda> _. X \<tau>)->forAll(x | P (\<lambda> _. x \<tau>))) \<tau>"
+"(S->forAll(x | P x)) \<tau> = ((\<lambda> _. S \<tau>)->forAll(x | P (\<lambda> _. x \<tau>))) \<tau>"
 by(simp add: OclForall_def cp_defined[symmetric])
+
+(* first-order version !*)
+lemma cp_forall1 [simp,intro!]:
+"cp S \<Longrightarrow> cp (\<lambda>X. ((S X)->forAll(x | P x)))"
+apply(simp add: cp_def)
+apply(erule exE, rule exI, rule allI, rule allI, rule allI)
+apply(erule_tac x=X in allE)
+apply(subst cp_OclForall)
+apply(simp)
+done
+
+lemma cp_forall2 [simp,intro!]:
+"cp (\<lambda>X St x. P (\<lambda>\<tau>. x) X St) \<Longrightarrow> cp S \<Longrightarrow> cp (\<lambda>X. (S X)->forAll(x|P x X)) "
+apply(simp only: cp_def)
+oops
+
+lemma cp_OclForall:
+"cp S \<Longrightarrow>
+ (\<And> x. cp(P x)) \<Longrightarrow> 
+ cp(\<lambda>X. ((S X)->forAll(x | P x X)))"
+oops
+
+(*
+
+lemma cp_forall2 [simp,intro!]:
+"\<lbrakk> cp (\<lambda> X St.(\<lambda>x. P (\<lambda>\<tau>. x) X St));
+   cp (S :: (('a,'c)VAL \<Rightarrow> ('a,('b::bot))Set)) \<rbrakk>
+ \<Longrightarrow> cp(\<lambda>X. \<MathOclForAll> Y \<in> S X \<bullet> P (Y\<Colon>'a \<Rightarrow> 'b) X) "
+apply(simp only: cp_def OclForAll_def)
+apply(erule exE)+
+apply(rule exI, rule allI, rule allI)
+apply (simp only:)
+apply(rule_tac t = "(\<lambda>x. P (\<lambda>\<tau>. x) X \<tau> )" and
+               s = "f (X \<tau> ) \<tau> " in subst)
+prefer 2
+ML{* Unify.search_bound:=1000; *}
+apply(rule refl)
+ML{* Unify.search_bound:=20; *}
+(* Miracle ! This works. Definitively a unification problem !!! *)
+apply simp
+done  (* temporary solution. *)
+      (* TODO: improve !!! *)
+
+*)
+
 
 lemma cp_OclIterate\<^isub>S\<^isub>e\<^isub>t: "(X->iterate(a; x = A | P a x)) \<tau> =
                 ((\<lambda> _. X \<tau>)->iterate(a; x = A | P a x)) \<tau>"
@@ -1907,7 +1952,7 @@ proof -
  by(simp add: A1 Abs_Set_0_inverse bot_fun_def bot_option_def null_fun_def null_option_def OclInt0_def)
 qed
 
-lemma [simp]: "\<delta> (Set{} ->size()) = true"
+lemma [simp,code_unfold]: "\<delta> (Set{} ->size()) = true"
 by simp
 
 
@@ -2058,7 +2103,7 @@ proof -
  qed
 qed
 
-lemma excluding_size_defined[simp]: "\<delta> ((X ->excluding(x)) ->size()) = (\<delta>(X->size()) and \<upsilon>(x))"
+lemma excluding_size_defined[simp,code_unfold]: "\<delta> ((X ->excluding(x)) ->size()) = (\<delta>(X->size()) and \<upsilon>(x))"
 proof -
 
  have defined_inject_true : "\<And>\<tau> P. (\<delta> P) \<tau> \<noteq> true \<tau> \<Longrightarrow> (\<delta> P) \<tau> = false \<tau>"
@@ -2148,7 +2193,7 @@ subsection{* OclIsEmpty *}
 lemma [simp,code_unfold]: "Set{}->isEmpty() = true"
 by(simp add: OclIsEmpty_def)
 
-lemma including_not_isempty [simp,code_unfold]:
+lemma including_not_isempty [simp]:
 assumes X_def: "\<tau> \<Turnstile> \<delta> X"
     and X_finite: "finite \<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil>"
     and a_val: "\<tau> \<Turnstile> \<upsilon> a"
@@ -2651,7 +2696,7 @@ apply(erule contrapos_np)
 apply(simp add: OclValid_def)
 done
 
-lemma OclIterate\<^isub>S\<^isub>e\<^isub>t_empty[simp]: "((Set{})->iterate(a; x = A | P a x)) = A"
+lemma OclIterate\<^isub>S\<^isub>e\<^isub>t_empty[simp,code_unfold]: "((Set{})->iterate(a; x = A | P a x)) = A"
 proof -
  have A1 : "\<lfloor>\<lfloor>{}\<rfloor>\<rfloor> \<in> {X. X = bot \<or> X = null \<or> (\<forall>x\<in>\<lceil>\<lceil>X\<rceil>\<rceil>. x \<noteq> bot)}" by(simp add: mtSet_def)
  have C : "\<And> \<tau>. (\<delta> (\<lambda>\<tau>. Abs_Set_0 \<lfloor>\<lfloor>{}\<rfloor>\<rfloor>)) \<tau> = true \<tau>"
@@ -2780,7 +2825,7 @@ lemma select_set_mt_exec[code_unfold, simp]: "OclSelect\<^isub>s\<^isub>e\<^isub
  apply(simp add: null_option_def bot_option_def)+
 done
 
-lemma select_set_including_exec[code_unfold, simp]:
+lemma select_set_including_exec[simp,code_unfold]:
 "OclSelect\<^isub>s\<^isub>e\<^isub>t (X->including(y)) P =
  (if  \<delta> X  then
    if  \<upsilon> y  then
@@ -3201,7 +3246,7 @@ value    "\<tau>\<^isub>0 \<Turnstile> (Set{\<two>,null}->includes(null))"
 
 value    "\<tau> \<Turnstile> ((Set{})->forAll(z | \<zero> <\<^isub>o\<^isub>c\<^isub>l z))"
 
-value " \<tau> \<Turnstile> if \<zero> <\<^isub>I \<two> then if \<zero> <\<^isub>I \<one> then true else false endif else false endif"
+value " \<tau> \<Turnstile> if \<zero> <\<^isub>I \<two> then if \<zero> <\<^isub>I \<one> then true else false  endif else false endif"
 
 declare cp_intro''[code_unfold]
 value   "\<tau> \<Turnstile> ((Set{\<two>,\<one>})->forAll(z | \<zero> <\<^isub>o\<^isub>c\<^isub>l z))"
@@ -3212,14 +3257,25 @@ value    "\<tau> \<Turnstile> ((Set{\<two>,null})->exists(z | \<zero> <\<^isub>o
 
 lemma    "\<tau> \<Turnstile> (Set{\<two>,null,\<two>} \<doteq> Set{null,\<two>})"  by(simp)
 lemma    "\<tau> \<Turnstile> (Set{\<one>,null,\<two>} <> Set{null,\<two>})"  by(simp) 
-
 (* why does this not work ? ? ?
 value    "\<tau> \<Turnstile> (Set{\<two>,null,\<two>} \<doteq> Set{null,\<two>})"
 value    "\<tau> \<Turnstile> (Set{\<one>,null,\<two>} <> Set{null,\<two>})"
 *)
-value "\<tau> \<Turnstile> \<zero> <\<^isub>o\<^isub>c\<^isub>l null "
-value "\<not> (\<tau> \<Turnstile> \<delta>(\<zero> <\<^isub>o\<^isub>c\<^isub>l null))"
+value "\<not> (\<tau> \<Turnstile> \<zero> <\<^isub>o\<^isub>c\<^isub>l null)"
+value "   \<tau> \<Turnstile> not(\<delta>(\<zero> <\<^isub>o\<^isub>c\<^isub>l null))"
 
+lemma    "\<tau> \<Turnstile> (Set{Set{\<two>,null}} \<doteq> Set{Set{null,\<two>}})"
+apply(simp add: OCL_lib.includes_execute_set forall_set_including_exec)
+apply(subst forall_set_including_exec)
+apply(subst OCL_lib.cp_intro'(10))
+apply simp_all
+apply(subst OCL_lib.cp_intro'(10))
+apply simp_all
+apply(subst OCL_core.cp_intro(6))
+apply simp_all
+find_theorems OclForall OclIncluding
+find_theorems OclIncludes OclIncluding
+find_theorems cp OclForall
 (* TO BE DONE
 value    "\<tau> \<Turnstile> (Set{Set{\<two>,null}} \<doteq> Set{Set{null,\<two>}})"
 value    "\<tau> \<Turnstile> (Set{Set{\<two>,null}} <> Set{Set{null,\<two>},null})"
