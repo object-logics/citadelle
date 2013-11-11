@@ -50,7 +50,7 @@ theory
   Employee_DesignModel_UMLPart
 imports
   "../src/OCL_main"
-  OCL_lib_Gogolla_challenge
+ (* OCL_lib_Gogolla_challenge *)
 begin
 
 
@@ -908,12 +908,14 @@ value "\<And>    s\<^isub>p\<^isub>o\<^isub>s\<^isub>t.   (\<sigma>\<^isub>1,s\<
 value "               (\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile>      (X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n1 .boss@pre .boss  \<doteq> X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n2)"
 value "\<And>    s\<^isub>p\<^isub>o\<^isub>s\<^isub>t.   (\<sigma>\<^isub>1,s\<^isub>p\<^isub>o\<^isub>s\<^isub>t) \<Turnstile>      (X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n1 .boss@pre .boss@pre  \<doteq> null)"
 value "\<And>    s\<^isub>p\<^isub>o\<^isub>s\<^isub>t.   (\<sigma>\<^isub>1,s\<^isub>p\<^isub>o\<^isub>s\<^isub>t) \<Turnstile> not(\<upsilon>(X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n1 .boss@pre .boss@pre .boss@pre))"
+
 lemma "               (\<sigma>\<^isub>1,\<sigma>\<^isub>1') \<Turnstile>      (X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n1 .oclIsEverywhere())"
 by(simp add: OclValid_def OclIsEverywhere_def
              \<sigma>\<^isub>1_def \<sigma>\<^isub>1'_def
              X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n1_def person1_def
              oid0_def oid1_def oid2_def oid3_def oid4_def oid5_def oid6_def
              oid_of_option_def oid_of_type\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n_def)
+
 lemma "\<And>s\<^isub>p\<^isub>r\<^isub>e s\<^isub>p\<^isub>o\<^isub>s\<^isub>t.   (s\<^isub>p\<^isub>r\<^isub>e,s\<^isub>p\<^isub>o\<^isub>s\<^isub>t) \<Turnstile>    ((X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n1 .oclAsType(OclAny) .oclAsType(Person)) \<doteq> X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n1)"
 by(rule up_down_cast_Person_OclAny_Person', simp add: X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n1_def)
 value "\<And>s\<^isub>p\<^isub>r\<^isub>e s\<^isub>p\<^isub>o\<^isub>s\<^isub>t.   (s\<^isub>p\<^isub>r\<^isub>e,s\<^isub>p\<^isub>o\<^isub>s\<^isub>t) \<Turnstile>     (X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n1 .oclIsTypeOf(Person))"
@@ -1130,7 +1132,7 @@ proof -
  fix \<sigma>\<^isub>1
  have eq : "Person .allInstances() (\<sigma>\<^isub>1,\<sigma>\<^isub>1') =
        Set{X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n1, X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n2, X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n3, X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n4(*, X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n5*), X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n6, X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n7 .oclAsType(Person)(*, X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n8*), X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n9} (\<sigma>\<^isub>1,\<sigma>\<^isub>1')"
-  apply(simp only: perm_\<sigma>\<^isub>1')
+  apply(simp only: perm_\<sigma>\<^isub>1') 
   apply(simp add: oid0_def oid1_def oid2_def oid3_def oid4_def oid5_def oid6_def oid7_def oid8_def
                   X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n1_def X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n2_def X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n3_def X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n4_def X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n5_def X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n6_def X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n7_def X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n8_def X\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n9_def)
   apply(subst state_update_vs_allInstances_including, simp, simp add: OclAsType\<^isub>P\<^isub>e\<^isub>r\<^isub>s\<^isub>o\<^isub>n_\<AA>_def
