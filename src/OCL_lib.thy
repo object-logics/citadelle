@@ -1298,7 +1298,7 @@ lemma cp_OclForall:
 by(simp add: OclForall_def cp_defined[symmetric])
 
 (* first-order version !*)
-lemma cp_forall1 [simp,intro!]:
+lemma cp_OclForall1 [simp,intro!]:
 "cp S \<Longrightarrow> cp (\<lambda>X. ((S X)->forAll(x | P x)))"
 apply(simp add: cp_def)
 apply(erule exE, rule exI, rule allI, rule allI, rule allI)
@@ -1307,7 +1307,7 @@ apply(subst cp_OclForall)
 apply(simp)
 done
 
-lemma cp_forall2 [simp,intro!]:
+lemma cp_OclForall2 [simp,intro!]:
 "cp (\<lambda>X St x. P (\<lambda>\<tau>. x) X St) \<Longrightarrow> cp S \<Longrightarrow> cp (\<lambda>X. (S X)->forAll(x|P x X)) "
 apply(simp only: cp_def)
 oops
@@ -1320,7 +1320,7 @@ oops
 
 (*
 
-lemma cp_forall2 [simp,intro!]:
+lemma cp_OclForall2 [simp,intro!]:
 "\<lbrakk> cp (\<lambda> X St.(\<lambda>x. P (\<lambda>\<tau>. x) X St));
    cp (S :: (('a,'c)VAL \<Rightarrow> ('a,('b::bot))Set)) \<rbrakk>
  \<Longrightarrow> cp(\<lambda>X. \<MathOclForAll> Y \<in> S X \<bullet> P (Y\<Colon>'a \<Rightarrow> 'b) X) "
@@ -2839,6 +2839,8 @@ lemma select_set_including_exec[simp,code_unfold]:
    endif
  else invalid
 endif)"
+(*thm OclIterate\<^isub>S\<^isub>e\<^isub>t_including[where A = "Set{}" and F = "select_body P"]
+thm select_iterate*)
 sorry
 
 
@@ -2961,8 +2963,6 @@ proof -
  qed
 qed
 
- thm OclIterate\<^isub>S\<^isub>e\<^isub>t_including[where A = "Set{}" and F = "select_body P"]
- thm select_iterate
 
 
 subsection{* Strict Equality *}
@@ -3128,13 +3128,6 @@ section{* Test Statements *}
 lemma syntax_test: "Set{\<two>,\<one>} = (Set{}->including(\<one>)->including(\<two>))"
 by (rule refl)
 
-lemma set_test1: "\<tau> \<Turnstile> (Set{\<two>,null}->includes(null))"
-by(simp add: includes_execute_int)
-
-lemma set_test2: "\<not>(\<tau> \<Turnstile> (Set{\<two>,\<one>}->includes(null)))"
-by(simp add: includes_execute_int)
-
-
 text{* Here is an example of a nested collection. Note that we have
 to use the abstract null (since we did not (yet) define a concrete
 constant @{term null} for the non-existing Sets) :*}
@@ -3143,12 +3136,6 @@ assumes H:"(Set{\<two>} \<doteq> null) = (false::('\<AA>)Boolean)"
 shows   "(\<tau>::('\<AA>)st) \<Turnstile> (Set{Set{\<two>},null}->includes(null))"
 by(simp add: includes_execute_set H)
 
-
-lemma semantic_test3: "\<tau> \<Turnstile> (Set{null,\<two>}->includes(null))"
-by(simp_all add: including_charn1 including_defined_args_valid)
-
-
-
 (* legacy --- still better names ?
 lemmas defined_charn = foundation16
 lemmas definedD = foundation17
@@ -3156,64 +3143,6 @@ lemmas valid_charn =
 lemmas validD = foundation19
 lemmas valid_implies_defined = foundation20
  end legacy *)
-
-lemma set_test4 : "\<tau> \<Turnstile> (Set{\<two>,null,\<two>} \<doteq> Set{null,\<two>})"
-proof -
-
- have cp_1: "\<And>x \<tau>. (if null \<doteq> x then true else if \<two> \<doteq> x then true else if \<upsilon> x then false else invalid endif endif endif) \<tau> =
-                 (if null \<doteq> (\<lambda>_. x \<tau>) then true else if \<two> \<doteq> (\<lambda>_. x \<tau>) then true else if \<upsilon> (\<lambda>_. x \<tau>) then false else invalid endif endif endif) \<tau>"
-  apply(subgoal_tac "(null \<doteq> x) \<tau> = (null \<doteq> (\<lambda>_. x \<tau>)) \<tau> \<and> (\<two> \<doteq> x) \<tau> = (\<two> \<doteq> (\<lambda>_. x \<tau>)) \<tau> \<and> (\<upsilon> x) \<tau> = (\<upsilon> (\<lambda>_. x \<tau>)) \<tau>")
-  apply(subst cp_OclIf[of "null \<doteq> x"])
-  apply(subst cp_OclIf[of "\<two> \<doteq> x"])
-  apply(subst cp_OclIf[of "\<upsilon> x"])
-  apply(simp)
-
-  apply(subst OclIf_def)
-  apply(rule sym, subst OclIf_def)
-
-  apply(simp only: cp_OclIf[symmetric])
-  apply(subgoal_tac "(\<delta> (null \<doteq> (\<lambda>_. x \<tau>))) \<tau> = (\<delta> (\<lambda>_. (null \<doteq> (\<lambda>_. x \<tau>)) \<tau>)) \<tau>")
-  apply(simp only:)
-  apply(rule cp_defined)
-
-  apply(subst cp_StrictRefEq\<^isub>I\<^isub>n\<^isub>t\<^isub>e\<^isub>g\<^isub>e\<^isub>r[of null x])
-  apply(simp add: null_fun_def)
-
-  apply(subst cp_StrictRefEq\<^isub>I\<^isub>n\<^isub>t\<^isub>e\<^isub>g\<^isub>e\<^isub>r[of \<two> ])
-  apply(simp add: OclInt2_def)
-
-  apply(rule cp_valid)
- done
-
- have cp_2: "(\<And>x \<tau>. (if \<two> \<doteq> x then true else if null \<doteq> x then true else if \<two> \<doteq> x then true else if \<upsilon> x then false else invalid endif endif endif endif) \<tau> =
-                 (if \<two> \<doteq> (\<lambda>_. x \<tau>) then true else if null \<doteq> (\<lambda>_. x \<tau>) then true else
-                                                     if \<two> \<doteq> (\<lambda>_. x \<tau>) then true else if \<upsilon> (\<lambda>_. x \<tau>) then false else invalid endif endif endif endif) \<tau>)"
-  apply(subgoal_tac "(null \<doteq> x) \<tau> = (null \<doteq> (\<lambda>_. x \<tau>)) \<tau> \<and> (\<two> \<doteq> x) \<tau> = (\<two> \<doteq> (\<lambda>_. x \<tau>)) \<tau> \<and> (\<upsilon> x) \<tau> = (\<upsilon> (\<lambda>_. x \<tau>)) \<tau>")
-  apply(subst cp_OclIf[of "\<two> \<doteq> x"])
-  apply(subst cp_OclIf[of "null \<doteq> x"])
-  apply(subst cp_OclIf[of "\<two> \<doteq> x"])
-  apply(subst cp_OclIf[of "\<upsilon> x"])
-  apply(simp)
-
-  apply(subst OclIf_def)
-  apply(rule sym, subst OclIf_def)
-
-  apply(simp only: cp_OclIf[symmetric])
-  apply(subgoal_tac "(\<delta> (\<two> \<doteq> (\<lambda>_. x \<tau>))) \<tau> = (\<delta> (\<lambda>_. (\<two> \<doteq> (\<lambda>_. x \<tau>)) \<tau>)) \<tau>")
-  apply(simp only:)
-  apply(rule cp_defined)
-
-  apply(subst cp_StrictRefEq\<^isub>I\<^isub>n\<^isub>t\<^isub>e\<^isub>g\<^isub>e\<^isub>r[of null x])
-  apply(simp add: null_fun_def)
-
-  apply(subst cp_StrictRefEq\<^isub>I\<^isub>n\<^isub>t\<^isub>e\<^isub>g\<^isub>e\<^isub>r[of \<two> ])
-  apply(simp add: OclInt2_def)
-
-  apply(rule cp_valid)
- done
-
- show ?thesis by(simp add: includes_execute_int)
-qed
 
 lemma short_cut'[simp,code_unfold]: "(\<eight> \<doteq> \<six>) = false"
  apply(rule ext)
@@ -3233,23 +3162,24 @@ lemma short_cut'''[simp,code_unfold]: "(\<one> \<doteq> \<two>) = false"
 done
 
 text{* Elementary computations on Sets.*}
-value "\<not> (\<tau>\<^isub>0 \<Turnstile> \<upsilon>(invalid::('\<AA>,'\<alpha>::null) Set))"
-value    "\<tau>\<^isub>0 \<Turnstile> \<upsilon>(null::('\<AA>,'\<alpha>::null) Set)"
-value "\<not> (\<tau>\<^isub>0 \<Turnstile> \<delta>(null::('\<AA>,'\<alpha>::null) Set))"
-value    "\<tau>\<^isub>0 \<Turnstile> \<upsilon>(Set{})"
-value    "\<tau>\<^isub>0 \<Turnstile> \<upsilon>(Set{Set{\<two>},null})"
-value    "\<tau>\<^isub>0 \<Turnstile> \<delta>(Set{Set{\<two>},null})"
-value    "\<tau>\<^isub>0 \<Turnstile> (Set{\<two>,\<one>}->includes(\<one>))"
-value "\<not> (\<tau>\<^isub>0 \<Turnstile> (Set{\<two>}->includes(\<one>)))"
-value "\<not> (\<tau>\<^isub>0 \<Turnstile> (Set{\<two>,\<one>}->includes(null)))"
-value    "\<tau>\<^isub>0 \<Turnstile> (Set{\<two>,null}->includes(null))"
+value "\<not> (\<tau> \<Turnstile> \<upsilon>(invalid::('\<AA>,'\<alpha>::null) Set))"
+value    "\<tau> \<Turnstile> \<upsilon>(null::('\<AA>,'\<alpha>::null) Set)"
+value "\<not> (\<tau> \<Turnstile> \<delta>(null::('\<AA>,'\<alpha>::null) Set))"
+value    "\<tau> \<Turnstile> \<upsilon>(Set{})"
+value    "\<tau> \<Turnstile> \<upsilon>(Set{Set{\<two>},null})"
+value    "\<tau> \<Turnstile> \<delta>(Set{Set{\<two>},null})"
+value    "\<tau> \<Turnstile> (Set{\<two>,\<one>}->includes(\<one>))"
+value "\<not> (\<tau> \<Turnstile> (Set{\<two>}->includes(\<one>)))"
+value "\<not> (\<tau> \<Turnstile> (Set{\<two>,\<one>}->includes(null)))"
+value    "\<tau> \<Turnstile> (Set{\<two>,null}->includes(null))"
+value    "\<tau> \<Turnstile> (Set{null,\<two>}->includes(null))"
 
 value    "\<tau> \<Turnstile> ((Set{})->forAll(z | \<zero> <\<^isub>o\<^isub>c\<^isub>l z))"
 
-value " \<tau> \<Turnstile> if \<zero> <\<^isub>I \<two> then if \<zero> <\<^isub>I \<one> then true else false  endif else false endif"
+value    "\<tau> \<Turnstile> if \<zero> <\<^isub>I \<two> then if \<zero> <\<^isub>I \<one> then true else false  endif else false endif"
 
 declare cp_intro''[code_unfold]
-value   "\<tau> \<Turnstile> ((Set{\<two>,\<one>})->forAll(z | \<zero> <\<^isub>o\<^isub>c\<^isub>l z))"
+value    "\<tau> \<Turnstile> ((Set{\<two>,\<one>})->forAll(z | \<zero> <\<^isub>o\<^isub>c\<^isub>l z))"
 value "\<not> (\<tau> \<Turnstile> ((Set{\<two>,\<one>})->exists(z | z <\<^isub>o\<^isub>c\<^isub>l \<zero> )))"
 value "\<not> (\<tau> \<Turnstile> \<delta>(Set{\<two>,null})->forAll(z | \<zero> <\<^isub>o\<^isub>c\<^isub>l z))"
 value "\<not> (\<tau> \<Turnstile> ((Set{\<two>,null})->forAll(z | \<zero> <\<^isub>o\<^isub>c\<^isub>l z)))"
