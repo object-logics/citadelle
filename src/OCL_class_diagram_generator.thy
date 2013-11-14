@@ -288,8 +288,8 @@ definition "wildcard = ''_''"
 
 definition "escape_unicode c = flatten [[Char Nibble5 NibbleC], ''<'', c, ''>'']"
 
-definition "isub_of_str str = flatten (List_map (\<lambda>c. escape_unicode ''^isub'' @@ [c]) str)"
-definition "isup_of_str str = flatten (List_map (\<lambda>c. escape_unicode ''^isup'' @@ [c]) str)"
+definition "isub_of_str str = flatten (List_map (\<lambda>c. escape_unicode ''^sub'' @@ [c]) str)"
+definition "isup_of_str str = flatten (List_map (\<lambda>c. escape_unicode [char_of_nat (nat_of_char c - 32)]) str)"
 
 definition "mk_constr_name name = (\<lambda> x. flatten [isub_of_str name, ''_'', isub_of_str x])"
 definition "mk_dot = (\<lambda>s1 s2. flatten [''.'', s1, s2])"
