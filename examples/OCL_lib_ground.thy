@@ -61,7 +61,7 @@ Consider for instance this ground term:
   r1->iterate(j;r2=r1|
     r2->including(\<zero>)->including(i)->including(j)))"}.
 Starting from a set of numbers, this complex expression finally involves only two combinators:
-1) @{term OclIterate\<^isub>S\<^isub>e\<^isub>t}, and
+1) @{term OclIterate\<^sub>S\<^sub>e\<^sub>t}, and
 2) @{term OclIncluding}.
 
 As there is no removing, we conjecture that the final result should be equal to the set
@@ -70,7 +70,7 @@ containing all ground numbers appearing in the expression: that is @{term \<six>
 
 text{* The following part sets up the necessary requirement towards an automatic execution.
 The goal is to normalize a general term composed of a set of numbers applied to an arbitrary nesting of
-@{term OclIterate\<^isub>S\<^isub>e\<^isub>t} and @{term OclIncluding}.
+@{term OclIterate\<^sub>S\<^sub>e\<^sub>t} and @{term OclIncluding}.
 One solution is to rawly compute the initial term by following a call by value strategy or by need.
 However for efficiency reasons, we present in the next subsections some algebraic properties on sets
 that would shortcut the number of reduction steps, by reaching optimaly a normal form. *}
@@ -79,25 +79,25 @@ section{* Introduction *}
 
 text{* Besides the @{term invalid} exception element, the other important concept that
 characterizes OCL sets in our formalization is the finiteness property.
-Since the iteration could only be performed on finite sets, the definition of @{term OclIterate\<^isub>S\<^isub>e\<^isub>t}
+Since the iteration could only be performed on finite sets, the definition of @{term OclIterate\<^sub>S\<^sub>e\<^sub>t}
 contains as prerequisite a check that the given argument is finite. If it is the case,
 @{term Finite_Set.fold} is then called internally to execute the iteration. *}
 
 text{* Recall that our goal is to provide a generic solution to the Gogolla's challenge,
-in the sense that we focus on an arbitrary list of nested @{term OclIterate\<^isub>S\<^isub>e\<^isub>t} combinators.
+in the sense that we focus on an arbitrary list of nested @{term OclIterate\<^sub>S\<^sub>e\<^sub>t} combinators.
 A naive approach for simplifying such huge expression would be to repeatedly rewrite with
-@{term OclIterate\<^isub>S\<^isub>e\<^isub>t_including}.
-However, @{term OclIterate\<^isub>S\<^isub>e\<^isub>t_including} contains @{term "comp_fun_commute F"} as hypothesis
+@{term OclIterate\<^sub>S\<^sub>e\<^sub>t_including}.
+However, @{term OclIterate\<^sub>S\<^sub>e\<^sub>t_including} contains @{term "comp_fun_commute F"} as hypothesis
 and this one is generally difficult to prove. Indeed, the easiest case would be when simplifying
-the outermost @{term OclIterate\<^isub>S\<^isub>e\<^isub>t} since the overall expression is ground. But for the others inner nested
-@{term OclIterate\<^isub>S\<^isub>e\<^isub>t}, the @{term "F"} function could have as free variable a set
+the outermost @{term OclIterate\<^sub>S\<^sub>e\<^sub>t} since the overall expression is ground. But for the others inner nested
+@{term OclIterate\<^sub>S\<^sub>e\<^sub>t}, the @{term "F"} function could have as free variable a set
 where its validity, definedness and finiteness are unknown --
 and the finiteness is precisely required for all sets occuring
-in a chain of @{term OclIterate\<^isub>S\<^isub>e\<^isub>t} nested term. *}
+in a chain of @{term OclIterate\<^sub>S\<^sub>e\<^sub>t} nested term. *}
 
 text{* Thus we propose to write an Isabelle locale similar as the locale @{term "comp_fun_commute"}
 but containing the additional properties that sets should fulfill
-while traveling through the nested @{term OclIterate\<^isub>S\<^isub>e\<^isub>t}.
+while traveling through the nested @{term OclIterate\<^sub>S\<^sub>e\<^sub>t}.
 For reusability, these properties will be abstractly regrouped in @{term "is_int"} (representing ground value in a set, like integer)
 and @{term "all_defined"} (representing ground sets). *}
 
@@ -128,8 +128,8 @@ lemma EQ_sym : "(x::(_, _) Set) = y \<Longrightarrow> \<tau> \<Turnstile> \<upsi
   apply(simp add: OclValid_def)
 done
 
-lemma StrictRefEq\<^isub>S\<^isub>e\<^isub>t_L_subst1 : "cp P \<Longrightarrow> \<tau> \<Turnstile> \<upsilon> x \<Longrightarrow> \<tau> \<Turnstile> \<upsilon> y \<Longrightarrow> \<tau> \<Turnstile> \<upsilon> P x \<Longrightarrow> \<tau> \<Turnstile> \<upsilon> P y \<Longrightarrow> \<tau> \<Turnstile> (x::('\<AA>,'\<alpha>::null)Set) \<doteq> y \<Longrightarrow> \<tau> \<Turnstile> (P x ::('\<AA>,'\<alpha>::null)Set) \<doteq> P y"
- apply(simp only: StrictRefEq\<^isub>S\<^isub>e\<^isub>t OclValid_def)
+lemma StrictRefEq\<^sub>S\<^sub>e\<^sub>t_L_subst1 : "cp P \<Longrightarrow> \<tau> \<Turnstile> \<upsilon> x \<Longrightarrow> \<tau> \<Turnstile> \<upsilon> y \<Longrightarrow> \<tau> \<Turnstile> \<upsilon> P x \<Longrightarrow> \<tau> \<Turnstile> \<upsilon> P y \<Longrightarrow> \<tau> \<Turnstile> (x::('\<AA>,'\<alpha>::null)Set) \<doteq> y \<Longrightarrow> \<tau> \<Turnstile> (P x ::('\<AA>,'\<alpha>::null)Set) \<doteq> P y"
+ apply(simp only: StrictRefEq\<^sub>S\<^sub>e\<^sub>t OclValid_def)
  apply(split split_if_asm)
  apply(simp add: StrongEq_L_subst1[simplified OclValid_def])
 by (simp add: invalid_def bot_option_def true_def)
@@ -194,7 +194,7 @@ proof -
  show "               all_defined \<tau> S \<Longrightarrow>
                       x \<in> \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil> \<Longrightarrow>
                       ?thesis"
-  apply(simp add: OclIncluding_def all_defined1[simplified OclValid_def] OclValid_def insert_absorb abs_rep_simp del: StrictRefEq\<^isub>S\<^isub>e\<^isub>t_exec)
+  apply(simp add: OclIncluding_def all_defined1[simplified OclValid_def] OclValid_def insert_absorb abs_rep_simp del: StrictRefEq\<^sub>S\<^sub>e\<^sub>t_exec)
  by (metis OCL_core.bot_fun_def all_defined_def foundation18' valid_def Set_inv_lemma')
 qed
 
@@ -237,10 +237,10 @@ proof -
  have OclAnd_true : "\<And>a b. \<tau> \<Turnstile> a \<Longrightarrow> \<tau> \<Turnstile> b \<Longrightarrow> \<tau> \<Turnstile> a and b"
  by (simp add: foundation10 foundation6)
 
- have OclIf_true'' : "\<And>P B\<^isub>1 B\<^isub>2. \<tau> \<Turnstile> P \<Longrightarrow> \<tau> \<Turnstile> B\<^isub>1 \<Longrightarrow> \<tau> \<Turnstile> if P then B\<^isub>1 else B\<^isub>2 endif"
+ have OclIf_true'' : "\<And>P B\<^sub>1 B\<^sub>2. \<tau> \<Turnstile> P \<Longrightarrow> \<tau> \<Turnstile> B\<^sub>1 \<Longrightarrow> \<tau> \<Turnstile> if P then B\<^sub>1 else B\<^sub>2 endif"
  by (metis OclIf_true' OclValid_def)
 
- have OclIf_false'' : "\<And>P B\<^isub>1 B\<^isub>2. \<tau> \<Turnstile> \<delta> P \<Longrightarrow> \<not> (\<tau> \<Turnstile> P) \<Longrightarrow> \<tau> \<Turnstile> B\<^isub>2 \<Longrightarrow> \<tau> \<Turnstile> if P then B\<^isub>1 else B\<^isub>2 endif"
+ have OclIf_false'' : "\<And>P B\<^sub>1 B\<^sub>2. \<tau> \<Turnstile> \<delta> P \<Longrightarrow> \<not> (\<tau> \<Turnstile> P) \<Longrightarrow> \<tau> \<Turnstile> B\<^sub>2 \<Longrightarrow> \<tau> \<Turnstile> if P then B\<^sub>1 else B\<^sub>2 endif"
  by (metis OclIf_def OclValid_def)
 
  have discr_eq_false_true : "\<And>\<tau>. (false \<tau> = true \<tau>) = False" by (metis OclValid_def foundation2)
@@ -266,7 +266,7 @@ proof -
  qed
 
  show "\<tau> \<Turnstile> \<delta> S \<Longrightarrow> \<tau> \<Turnstile> \<upsilon> i \<Longrightarrow> \<tau> \<Turnstile> \<upsilon> j \<Longrightarrow> ?thesis"
-  apply(simp only: StrictRefEq\<^isub>S\<^isub>e\<^isub>t_exec)
+  apply(simp only: StrictRefEq\<^sub>S\<^sub>e\<^sub>t_exec)
   (* *)
   apply(subst OclIf_true'', simp_all add: foundation10 foundation6 del: forall_set_including_exec)+
   apply(subst (1 2) forall_set_including_exec, simp add: cp_OclIncludes1, simp add: cp_OclIncludes1)+
@@ -277,7 +277,7 @@ proof -
   apply(subst OclIf_true'', simp_all add: foundation10 foundation6 del: forall_set_including_exec)
   apply(case_tac "\<tau> \<Turnstile> (i \<doteq> j)")
   apply(subst OclIf_true'', simp_all add: foundation10 foundation6 del: forall_set_including_exec)
-  apply(subst OclIf_false'', simp_all add: StrictRefEq\<^isub>I\<^isub>n\<^isub>t\<^isub>e\<^isub>g\<^isub>e\<^isub>r_defined_args_valid)
+  apply(subst OclIf_false'', simp_all add: StrictRefEq\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r_defined_args_valid)
   apply( subst OclAnd_true
        | subst OclIf_true'', simp_all add: foundation10 foundation6 del: forall_set_including_exec)+
   apply(simp add: forall_includes2)
@@ -287,7 +287,7 @@ proof -
   apply(subst OclIf_true'', simp_all add: foundation10 foundation6 del: forall_set_including_exec)
   apply(case_tac "\<tau> \<Turnstile> (j \<doteq> i)")
   apply(subst OclIf_true'', simp_all add: foundation10 foundation6 del: forall_set_including_exec)
-  apply(subst OclIf_false'', simp_all add: StrictRefEq\<^isub>I\<^isub>n\<^isub>t\<^isub>e\<^isub>g\<^isub>e\<^isub>r_defined_args_valid)
+  apply(subst OclIf_false'', simp_all add: StrictRefEq\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r_defined_args_valid)
   apply( subst OclAnd_true
        | subst OclIf_true'', simp_all add: foundation10 foundation6 del: forall_set_including_exec)+
   apply(simp add: forall_includes2)
@@ -296,8 +296,8 @@ proof -
 qed
 
 lemma including_swap' : "\<tau> \<Turnstile> \<delta> S \<Longrightarrow> \<tau> \<Turnstile> \<upsilon> i \<Longrightarrow> \<tau> \<Turnstile> \<upsilon> j \<Longrightarrow> ((S :: ('\<AA>, int option option) Set)->including(i)->including(j) \<tau> = (S->including(j)->including(i)) \<tau>)"
- apply(frule including_swap_[where i = i and j = j], simp_all del: StrictRefEq\<^isub>S\<^isub>e\<^isub>t_exec)
- apply(simp add: StrictRefEq\<^isub>S\<^isub>e\<^isub>t OclValid_def del: StrictRefEq\<^isub>S\<^isub>e\<^isub>t_exec)
+ apply(frule including_swap_[where i = i and j = j], simp_all del: StrictRefEq\<^sub>S\<^sub>e\<^sub>t_exec)
+ apply(simp add: StrictRefEq\<^sub>S\<^sub>e\<^sub>t OclValid_def del: StrictRefEq\<^sub>S\<^sub>e\<^sub>t_exec)
  apply(subgoal_tac "(\<delta> S and \<upsilon> i and \<upsilon> j) \<tau> = true \<tau> \<and> (\<delta> S and \<upsilon> j and \<upsilon> i) \<tau> = true \<tau>")
   prefer 2
   apply(metis OclValid_def foundation3)
@@ -307,8 +307,8 @@ done
 lemma including_swap : "\<forall>\<tau>. \<tau> \<Turnstile> \<delta> S \<Longrightarrow> \<forall>\<tau>. \<tau> \<Turnstile> \<upsilon> i \<Longrightarrow> \<forall>\<tau>. \<tau> \<Turnstile> \<upsilon> j \<Longrightarrow> ((S :: ('\<AA>, int option option) Set)->including(i)->including(j) = (S->including(j)->including(i)))"
  apply(rule ext, rename_tac \<tau>)
  apply(erule_tac x = \<tau> in allE)+
- apply(frule including_swap_[where i = i and j = j], simp_all del: StrictRefEq\<^isub>S\<^isub>e\<^isub>t_exec)
- apply(simp add: StrictRefEq\<^isub>S\<^isub>e\<^isub>t OclValid_def del: StrictRefEq\<^isub>S\<^isub>e\<^isub>t_exec)
+ apply(frule including_swap_[where i = i and j = j], simp_all del: StrictRefEq\<^sub>S\<^sub>e\<^sub>t_exec)
+ apply(simp add: StrictRefEq\<^sub>S\<^sub>e\<^sub>t OclValid_def del: StrictRefEq\<^sub>S\<^sub>e\<^sub>t_exec)
  apply(subgoal_tac "(\<delta> S and \<upsilon> i and \<upsilon> j) \<tau> = true \<tau> \<and> (\<delta> S and \<upsilon> j and \<upsilon> i) \<tau> = true \<tau>")
   prefer 2
   apply(metis OclValid_def foundation3)
@@ -328,7 +328,7 @@ proof -
  by (rule_tac x = "(\<lambda>xab ab. ((\<lambda>_. xab)->including(\<lambda>_. x ab)) ab)" in exI, simp)
 
  show "\<tau> \<Turnstile> \<delta> s \<Longrightarrow> \<tau> \<Turnstile> \<delta> t \<Longrightarrow> \<tau> \<Turnstile> \<upsilon> x \<Longrightarrow> \<tau> \<Turnstile> (s \<doteq> t) \<Longrightarrow> ?thesis"
-  apply(rule_tac P = "\<lambda>s. (s->including(x))" in StrictRefEq\<^isub>S\<^isub>e\<^isub>t_L_subst1)
+  apply(rule_tac P = "\<lambda>s. (s->including(x))" in StrictRefEq\<^sub>S\<^sub>e\<^sub>t_L_subst1)
   apply(rule cp)
   apply(simp add: foundation20) apply(simp add: foundation20)
   apply (simp add: foundation10 foundation6)+
@@ -336,8 +336,8 @@ proof -
 qed
 
 lemma including_subst_set'' : "\<tau> \<Turnstile> \<delta> s \<Longrightarrow> \<tau> \<Turnstile> \<delta> t \<Longrightarrow> \<tau> \<Turnstile> \<upsilon> x \<Longrightarrow> (s::('\<AA>,'a::null)Set) \<tau> = t \<tau> \<Longrightarrow> s->including(x) \<tau> = (t->including(x)) \<tau>"
- apply(frule including_subst_set'[where s = s and t = t and x = x], simp_all del: StrictRefEq\<^isub>S\<^isub>e\<^isub>t_exec)
- apply(simp add: StrictRefEq\<^isub>S\<^isub>e\<^isub>t OclValid_def del: StrictRefEq\<^isub>S\<^isub>e\<^isub>t_exec)
+ apply(frule including_subst_set'[where s = s and t = t and x = x], simp_all del: StrictRefEq\<^sub>S\<^sub>e\<^sub>t_exec)
+ apply(simp add: StrictRefEq\<^sub>S\<^sub>e\<^sub>t OclValid_def del: StrictRefEq\<^sub>S\<^sub>e\<^sub>t_exec)
  apply (metis (hide_lams, no_types) OclValid_def foundation20 foundation22)
 by (metis cp_OclIncluding)
 

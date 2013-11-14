@@ -1,5 +1,5 @@
 (*****************************************************************************
- * Featherweight-OCL --- A Formal Semantics for UML-OCL Version OCL 2.4 
+ * Featherweight-OCL --- A Formal Semantics for UML-OCL Version OCL 2.4
  *                       for the OMG Standard.
  *                       http://www.brucker.ch/projects/hol-testgen/
  *
@@ -50,8 +50,8 @@ begin
 section{* Complex Types: The Object Type (I) Core *}
 subsection{* Recall: The generic structure of States *}
 
-text{* Next we will introduce the foundational concept of an object id (oid), 
-which is just some infinite set.  
+text{* Next we will introduce the foundational concept of an object id (oid),
+which is just some infinite set.
 
 \begin{isar}
 type_synonym oid = nat
@@ -63,7 +63,7 @@ pairs in order to leave the possibility to have Bags, OrderedSets or Sequences a
 ends.  *}
 text{* Recall:
 \begin{isar}
-record ('\<AA>)state = 
+record ('\<AA>)state =
              heap   :: "oid \<rightharpoonup> '\<AA> "
              assocs :: "oid  \<rightharpoonup> (oid \<times> oid) list"
 
@@ -72,7 +72,7 @@ type_synonym ('\<AA>)st = "'\<AA> state \<times> '\<AA> state"
 \end{isar}
 
 Now we refine our state-interface.
-In certain contexts, we will require that the elements of the object universe have 
+In certain contexts, we will require that the elements of the object universe have
 a particular structure; more precisely, we will require that there is a function that
 reconstructs the oid of an object in the state (we will settle the question how to define
 this function later). *}
@@ -84,7 +84,7 @@ the following type class constraint:*}
 typ "'\<AA> :: object"
 
 instantiation   option  :: (object)object
-begin 
+begin
    definition oid_of_option_def: "oid_of x = oid_of (the x)"
    instance ..
 end
@@ -94,8 +94,8 @@ subsection{* Definition *}
 
 text{* Generic referential equality - to be used for instantiations
  with concrete object types ... *}
-definition  StrictRefEq\<^isub>O\<^isub>b\<^isub>j\<^isub>e\<^isub>c\<^isub>t :: "('\<AA>,'a::{object,null})val \<Rightarrow> ('\<AA>,'a)val \<Rightarrow> ('\<AA>)Boolean" 
-where      "StrictRefEq\<^isub>O\<^isub>b\<^isub>j\<^isub>e\<^isub>c\<^isub>t x y
+definition  StrictRefEq\<^sub>O\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t :: "('\<AA>,'a::{object,null})val \<Rightarrow> ('\<AA>,'a)val \<Rightarrow> ('\<AA>)Boolean"
+where      "StrictRefEq\<^sub>O\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t x y
             \<equiv> \<lambda> \<tau>. if (\<upsilon> x) \<tau> = true \<tau> \<and> (\<upsilon> y) \<tau> = true \<tau>
                     then if x \<tau> = null \<or> y \<tau> = null
                          then \<lfloor>\<lfloor>x \<tau> = null \<and> y \<tau> = null\<rfloor>\<rfloor>
@@ -106,44 +106,44 @@ subsection{* Logic and Algebraic Layer on Object *}
 subsubsection{* Validity and Definedness Properties *}
 
 text{* We derive the usual laws on definedness for (generic) object equality:*}
-lemma StrictRefEq\<^isub>O\<^isub>b\<^isub>j\<^isub>e\<^isub>c\<^isub>t_defargs: 
-"\<tau> \<Turnstile> (StrictRefEq\<^isub>O\<^isub>b\<^isub>j\<^isub>e\<^isub>c\<^isub>t x (y::('\<AA>,'a::{null,object})val))\<Longrightarrow> (\<tau> \<Turnstile>(\<upsilon> x)) \<and> (\<tau> \<Turnstile>(\<upsilon> y))"
-by(simp add: StrictRefEq\<^isub>O\<^isub>b\<^isub>j\<^isub>e\<^isub>c\<^isub>t_def OclValid_def true_def invalid_def bot_option_def
+lemma StrictRefEq\<^sub>O\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t_defargs:
+"\<tau> \<Turnstile> (StrictRefEq\<^sub>O\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t x (y::('\<AA>,'a::{null,object})val))\<Longrightarrow> (\<tau> \<Turnstile>(\<upsilon> x)) \<and> (\<tau> \<Turnstile>(\<upsilon> y))"
+by(simp add: StrictRefEq\<^sub>O\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t_def OclValid_def true_def invalid_def bot_option_def
         split: bool.split_asm HOL.split_if_asm)
 
 
 subsubsection{* Symmetry *}
 
-lemma StrictRefEq\<^isub>O\<^isub>b\<^isub>j\<^isub>e\<^isub>c\<^isub>t_sym : assumes x_val : "\<tau> \<Turnstile> \<upsilon> x" shows "\<tau> \<Turnstile> StrictRefEq\<^isub>O\<^isub>b\<^isub>j\<^isub>e\<^isub>c\<^isub>t x x"
-by(simp add: StrictRefEq\<^isub>O\<^isub>b\<^isub>j\<^isub>e\<^isub>c\<^isub>t_def true_def OclValid_def x_val[simplified OclValid_def])
+lemma StrictRefEq\<^sub>O\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t_sym : assumes x_val : "\<tau> \<Turnstile> \<upsilon> x" shows "\<tau> \<Turnstile> StrictRefEq\<^sub>O\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t x x"
+by(simp add: StrictRefEq\<^sub>O\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t_def true_def OclValid_def x_val[simplified OclValid_def])
 
 subsubsection{* Execution with invalid or null as argument *}
 
-lemma StrictRefEq\<^isub>O\<^isub>b\<^isub>j\<^isub>e\<^isub>c\<^isub>t_strict1[simp] : 
-"(StrictRefEq\<^isub>O\<^isub>b\<^isub>j\<^isub>e\<^isub>c\<^isub>t x invalid) = invalid"
-by(rule ext, simp add: StrictRefEq\<^isub>O\<^isub>b\<^isub>j\<^isub>e\<^isub>c\<^isub>t_def true_def false_def)
+lemma StrictRefEq\<^sub>O\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t_strict1[simp] :
+"(StrictRefEq\<^sub>O\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t x invalid) = invalid"
+by(rule ext, simp add: StrictRefEq\<^sub>O\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t_def true_def false_def)
 
-lemma StrictRefEq\<^isub>O\<^isub>b\<^isub>j\<^isub>e\<^isub>c\<^isub>t_strict2[simp] : 
-"(StrictRefEq\<^isub>O\<^isub>b\<^isub>j\<^isub>e\<^isub>c\<^isub>t invalid x) = invalid"
-by(rule ext, simp add: StrictRefEq\<^isub>O\<^isub>b\<^isub>j\<^isub>e\<^isub>c\<^isub>t_def true_def false_def)
+lemma StrictRefEq\<^sub>O\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t_strict2[simp] :
+"(StrictRefEq\<^sub>O\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t invalid x) = invalid"
+by(rule ext, simp add: StrictRefEq\<^sub>O\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t_def true_def false_def)
 
 subsubsection{* Context Passing *}
 
-lemma cp_StrictRefEq\<^isub>O\<^isub>b\<^isub>j\<^isub>e\<^isub>c\<^isub>t: 
-"(StrictRefEq\<^isub>O\<^isub>b\<^isub>j\<^isub>e\<^isub>c\<^isub>t x y \<tau>) = (StrictRefEq\<^isub>O\<^isub>b\<^isub>j\<^isub>e\<^isub>c\<^isub>t (\<lambda>_. x \<tau>) (\<lambda>_. y \<tau>)) \<tau>"
-by(auto simp: StrictRefEq\<^isub>O\<^isub>b\<^isub>j\<^isub>e\<^isub>c\<^isub>t_def cp_valid[symmetric])
+lemma cp_StrictRefEq\<^sub>O\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t:
+"(StrictRefEq\<^sub>O\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t x y \<tau>) = (StrictRefEq\<^sub>O\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t (\<lambda>_. x \<tau>) (\<lambda>_. y \<tau>)) \<tau>"
+by(auto simp: StrictRefEq\<^sub>O\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t_def cp_valid[symmetric])
 
-lemmas cp_intro''[simp,intro!] = 
+lemmas cp_intro''[simp,intro!] =
        cp_intro''
-       cp_StrictRefEq\<^isub>O\<^isub>b\<^isub>j\<^isub>e\<^isub>c\<^isub>t[THEN allI[THEN allI[THEN allI[THEN cpI2]], 
-             of "StrictRefEq\<^isub>O\<^isub>b\<^isub>j\<^isub>e\<^isub>c\<^isub>t"]]
+       cp_StrictRefEq\<^sub>O\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t[THEN allI[THEN allI[THEN allI[THEN cpI2]],
+             of "StrictRefEq\<^sub>O\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t"]]
 
 subsubsection{* Behavior vs StrongEq *}
 
 text{* A key-concept for linking strict referential equality to
        logical equality: in well-formed states (i.e. those
        states where the self (oid-of) field contains the pointer
-       to which the object is associated to in the state), 
+       to which the object is associated to in the state),
        referential equality coincides with logical equality. *}
 
 definition WFF :: "('\<AA>::object)st \<Rightarrow> bool"
@@ -164,13 +164,13 @@ defined values. For type-technical reasons, for each concrete
 object type, the equality @{text "\<doteq>"} is defined by generic referential
 equality. *}
 
-theorem StrictRefEq\<^isub>O\<^isub>b\<^isub>j\<^isub>e\<^isub>c\<^isub>t_vs_StrongEq: 
-"WFF \<tau> \<Longrightarrow> \<tau> \<Turnstile>(\<upsilon> x) \<Longrightarrow> \<tau> \<Turnstile>(\<upsilon> y) \<Longrightarrow> 
+theorem StrictRefEq\<^sub>O\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t_vs_StrongEq:
+"WFF \<tau> \<Longrightarrow> \<tau> \<Turnstile>(\<upsilon> x) \<Longrightarrow> \<tau> \<Turnstile>(\<upsilon> y) \<Longrightarrow>
 (x \<tau> \<in> ran (heap(fst \<tau>)) \<and> y \<tau> \<in> ran (heap(fst \<tau>))) \<and>
 (x \<tau> \<in> ran (heap(snd \<tau>)) \<and> y \<tau> \<in> ran (heap(snd \<tau>))) \<Longrightarrow> (* x and y must be object representations
-                                                          that exist in either the pre or post state *) 
-           (\<tau> \<Turnstile> (StrictRefEq\<^isub>O\<^isub>b\<^isub>j\<^isub>e\<^isub>c\<^isub>t x y)) = (\<tau> \<Turnstile> (x \<triangleq> y))"
-apply(auto simp: StrictRefEq\<^isub>O\<^isub>b\<^isub>j\<^isub>e\<^isub>c\<^isub>t_def OclValid_def WFF_def StrongEq_def true_def Ball_def)
+                                                          that exist in either the pre or post state *)
+           (\<tau> \<Turnstile> (StrictRefEq\<^sub>O\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t x y)) = (\<tau> \<Turnstile> (x \<triangleq> y))"
+apply(auto simp: StrictRefEq\<^sub>O\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t_def OclValid_def WFF_def StrongEq_def true_def Ball_def)
 apply(erule_tac x="x \<tau>" in allE', simp_all)
 done
 
@@ -180,13 +180,13 @@ equality on objects implies in a WFF state the logical equality. Uffz. *}
 section{* Complex Types: The Object Type (II) Library *}
 subsection{* Initial States (for Testing and Code Generation) *}
 
-definition \<tau>\<^isub>0 :: "('\<AA>)st"
-where     "\<tau>\<^isub>0 \<equiv> (\<lparr>heap=Map.empty, assocs\<^isub>2= Map.empty, assocs\<^isub>3= Map.empty\<rparr>,
-                 \<lparr>heap=Map.empty, assocs\<^isub>2= Map.empty, assocs\<^isub>3= Map.empty\<rparr>)"
+definition \<tau>\<^sub>0 :: "('\<AA>)st"
+where     "\<tau>\<^sub>0 \<equiv> (\<lparr>heap=Map.empty, assocs\<^sub>2= Map.empty, assocs\<^sub>3= Map.empty\<rparr>,
+                 \<lparr>heap=Map.empty, assocs\<^sub>2= Map.empty, assocs\<^sub>3= Map.empty\<rparr>)"
 
 subsection{* OclAllInstances *}
 
-text{* In order to denote OCL-types occuring in OCL expressions syntactically --- as, for example, 
+text{* In order to denote OCL-types occuring in OCL expressions syntactically --- as, for example,
 as "argument" of allInstances --- we use the inverses of the injection functions into the object
 universes; we show that this is sufficient "characterization". *}
 
@@ -197,7 +197,7 @@ definition OclAllInstances_at_post :: "('\<AA> \<Rightarrow> '\<alpha> option) \
                            ("_ .allInstances'(')")
 where  "OclAllInstances_at_post H \<tau> = OclAllInstances snd H \<tau>"
 
-definition OclAllInstances_at_pre :: "('\<AA> \<Rightarrow> '\<alpha> option) \<Rightarrow> ('\<AA> ::object, '\<alpha> option option) Set" 
+definition OclAllInstances_at_pre :: "('\<AA> \<Rightarrow> '\<alpha> option) \<Rightarrow> ('\<AA> ::object, '\<alpha> option option) Set"
                            ("_ .allInstances@pre'(')")
 where  "OclAllInstances_at_pre H \<tau> = OclAllInstances fst H \<tau>"
 
@@ -215,31 +215,31 @@ lemma OclAllInstances_defined: "\<tau> \<Turnstile> \<delta> (X .allInstances())
  apply(simp add: bot_option_def null_option_def)+
 done
 
-lemma "\<tau>\<^isub>0 \<Turnstile> H .allInstances() \<triangleq> Set{}"
-by(simp add: StrongEq_def OclAllInstances_at_post_def OclValid_def \<tau>\<^isub>0_def mtSet_def)
+lemma "\<tau>\<^sub>0 \<Turnstile> H .allInstances() \<triangleq> Set{}"
+by(simp add: StrongEq_def OclAllInstances_at_post_def OclValid_def \<tau>\<^sub>0_def mtSet_def)
 
 
-lemma "\<tau>\<^isub>0 \<Turnstile> H .allInstances@pre() \<triangleq> Set{}"
-by(simp add: StrongEq_def OclAllInstances_at_pre_def OclValid_def \<tau>\<^isub>0_def mtSet_def)
+lemma "\<tau>\<^sub>0 \<Turnstile> H .allInstances@pre() \<triangleq> Set{}"
+by(simp add: StrongEq_def OclAllInstances_at_pre_def OclValid_def \<tau>\<^sub>0_def mtSet_def)
 
 lemma state_update_vs_allInstances_empty:
 shows   "(Type .allInstances())
-         (\<sigma>, \<lparr>heap=empty, assocs\<^isub>2=A, assocs\<^isub>3=B\<rparr>)
+         (\<sigma>, \<lparr>heap=empty, assocs\<^sub>2=A, assocs\<^sub>3=B\<rparr>)
          =
          Set{}
-         (\<sigma>, \<lparr>heap=empty, assocs\<^isub>2=A, assocs\<^isub>3=B\<rparr>)"
+         (\<sigma>, \<lparr>heap=empty, assocs\<^sub>2=A, assocs\<^sub>3=B\<rparr>)"
 by(simp add: OclAllInstances_at_post_def mtSet_def)
 
 lemma state_update_vs_allInstances_including':
 assumes "\<And>x. \<sigma>' oid = Some x \<Longrightarrow> x = Object"
     and "Type Object \<noteq> None"
   shows "(Type .allInstances())
-         (\<sigma>, \<lparr>heap=\<sigma>'(oid\<mapsto>Object), assocs\<^isub>2=A, assocs\<^isub>3=B\<rparr>)
+         (\<sigma>, \<lparr>heap=\<sigma>'(oid\<mapsto>Object), assocs\<^sub>2=A, assocs\<^sub>3=B\<rparr>)
          =
          ((Type .allInstances())->including(\<lambda> _. \<lfloor>\<lfloor> drop (Type Object) \<rfloor>\<rfloor>))
-         (\<sigma>, \<lparr>heap=\<sigma>',assocs\<^isub>2=A, assocs\<^isub>3=B\<rparr>)"
+         (\<sigma>, \<lparr>heap=\<sigma>',assocs\<^sub>2=A, assocs\<^sub>3=B\<rparr>)"
 proof -
- have allinst_def : "(\<sigma>, \<lparr>heap = \<sigma>', assocs\<^isub>2=A, assocs\<^isub>3=B\<rparr>) \<Turnstile> (\<delta> (Type .allInstances()))"
+ have allinst_def : "(\<sigma>, \<lparr>heap = \<sigma>', assocs\<^sub>2=A, assocs\<^sub>3=B\<rparr>) \<Turnstile> (\<delta> (Type .allInstances()))"
   apply(simp add: defined_def OclValid_def bot_fun_def null_fun_def bot_Set_0_def null_Set_0_def OclAllInstances_at_post_def)
   apply(subst (1 2) Abs_Set_0_inject)
  by(simp add: bot_option_def null_option_def)+
@@ -272,12 +272,12 @@ lemma state_update_vs_allInstances_including:
 assumes "\<And>x. \<sigma>' oid = Some x \<Longrightarrow> x = Object"
     and "Type Object \<noteq> None"
 shows   "(Type .allInstances())
-         (\<sigma>, \<lparr>heap=\<sigma>'(oid\<mapsto>Object), assocs\<^isub>2=A, assocs\<^isub>3=B\<rparr>)
+         (\<sigma>, \<lparr>heap=\<sigma>'(oid\<mapsto>Object), assocs\<^sub>2=A, assocs\<^sub>3=B\<rparr>)
          =
-         ((\<lambda>_. (Type .allInstances()) (\<sigma>, \<lparr>heap=\<sigma>', assocs\<^isub>2=A, assocs\<^isub>3=B\<rparr>))->including(\<lambda> _. \<lfloor>\<lfloor> drop (Type Object) \<rfloor>\<rfloor>))
-         (\<sigma>, \<lparr>heap=\<sigma>'(oid\<mapsto>Object), assocs\<^isub>2=A, assocs\<^isub>3=B\<rparr>)"
+         ((\<lambda>_. (Type .allInstances()) (\<sigma>, \<lparr>heap=\<sigma>', assocs\<^sub>2=A, assocs\<^sub>3=B\<rparr>))->including(\<lambda> _. \<lfloor>\<lfloor> drop (Type Object) \<rfloor>\<rfloor>))
+         (\<sigma>, \<lparr>heap=\<sigma>'(oid\<mapsto>Object), assocs\<^sub>2=A, assocs\<^sub>3=B\<rparr>)"
 proof -
- have allinst_def : "(\<sigma>, \<lparr>heap = \<sigma>', assocs\<^isub>2=A, assocs\<^isub>3=B\<rparr>) \<Turnstile> (\<delta> (Type .allInstances()))"
+ have allinst_def : "(\<sigma>, \<lparr>heap = \<sigma>', assocs\<^sub>2=A, assocs\<^sub>3=B\<rparr>) \<Turnstile> (\<delta> (Type .allInstances()))"
   apply(simp add: defined_def OclValid_def bot_fun_def null_fun_def bot_Set_0_def null_Set_0_def OclAllInstances_at_post_def)
   apply(subst (1 2) Abs_Set_0_inject)
  by(simp add: bot_option_def null_option_def)+
@@ -300,12 +300,12 @@ lemma state_update_vs_allInstances_noincluding':
 assumes "\<And>x. \<sigma>' oid = Some x \<Longrightarrow> x = Object"
     and "Type Object = None"
   shows "(Type .allInstances())
-         (\<sigma>, \<lparr>heap=\<sigma>'(oid\<mapsto>Object), assocs\<^isub>2=A, assocs\<^isub>3=B\<rparr>)
+         (\<sigma>, \<lparr>heap=\<sigma>'(oid\<mapsto>Object), assocs\<^sub>2=A, assocs\<^sub>3=B\<rparr>)
          =
          (Type .allInstances())
-         (\<sigma>, \<lparr>heap=\<sigma>', assocs\<^isub>2=A, assocs\<^isub>3=B\<rparr>)"
+         (\<sigma>, \<lparr>heap=\<sigma>', assocs\<^sub>2=A, assocs\<^sub>3=B\<rparr>)"
 proof -
- have allinst_def : "(\<sigma>, \<lparr>heap = \<sigma>', assocs\<^isub>2=A, assocs\<^isub>3=B\<rparr>) \<Turnstile> (\<delta> (Type .allInstances()))"
+ have allinst_def : "(\<sigma>, \<lparr>heap = \<sigma>', assocs\<^sub>2=A, assocs\<^sub>3=B\<rparr>) \<Turnstile> (\<delta> (Type .allInstances()))"
   apply(simp add: defined_def OclValid_def bot_fun_def null_fun_def bot_Set_0_def null_Set_0_def OclAllInstances_at_post_def)
   apply(subst (1 2) Abs_Set_0_inject)
  by(simp add: bot_option_def null_option_def)+
@@ -333,58 +333,58 @@ lemma state_update_vs_allInstances_noincluding:
 assumes "\<And>x. \<sigma>' oid = Some x \<Longrightarrow> x = Object"
     and "Type Object = None"
 shows   "(Type .allInstances())
-         (\<sigma>, \<lparr>heap=\<sigma>'(oid\<mapsto>Object), assocs\<^isub>2=A, assocs\<^isub>3=B\<rparr>)
+         (\<sigma>, \<lparr>heap=\<sigma>'(oid\<mapsto>Object), assocs\<^sub>2=A, assocs\<^sub>3=B\<rparr>)
          =
-         (\<lambda>_. (Type .allInstances()) (\<sigma>, \<lparr>heap=\<sigma>', assocs\<^isub>2=A, assocs\<^isub>3=B\<rparr>))
-         (\<sigma>, \<lparr>heap=\<sigma>'(oid\<mapsto>Object), assocs\<^isub>2=A, assocs\<^isub>3=B\<rparr>)"
+         (\<lambda>_. (Type .allInstances()) (\<sigma>, \<lparr>heap=\<sigma>', assocs\<^sub>2=A, assocs\<^sub>3=B\<rparr>))
+         (\<sigma>, \<lparr>heap=\<sigma>'(oid\<mapsto>Object), assocs\<^sub>2=A, assocs\<^sub>3=B\<rparr>)"
 by(subst state_update_vs_allInstances_noincluding', (simp add: assms)+)
 
-theorem state_update_vs_allInstances: 
+theorem state_update_vs_allInstances:
 assumes "oid\<notin>dom \<sigma>'"
-and     "cp P" 
-shows   "((\<sigma>, \<lparr>heap=\<sigma>'(oid\<mapsto>Object), assocs\<^isub>2=A, assocs\<^isub>3=B\<rparr>) \<Turnstile> (P(Type .allInstances()))) =  
-         ((\<sigma>, \<lparr>heap=\<sigma>', assocs\<^isub>2=A, assocs\<^isub>3=B\<rparr>) \<Turnstile> (P((Type .allInstances())->including(\<lambda> _. \<lfloor>\<lfloor> drop (Type Object) \<rfloor>\<rfloor>)))) "
+and     "cp P"
+shows   "((\<sigma>, \<lparr>heap=\<sigma>'(oid\<mapsto>Object), assocs\<^sub>2=A, assocs\<^sub>3=B\<rparr>) \<Turnstile> (P(Type .allInstances()))) =
+         ((\<sigma>, \<lparr>heap=\<sigma>', assocs\<^sub>2=A, assocs\<^sub>3=B\<rparr>) \<Turnstile> (P((Type .allInstances())->including(\<lambda> _. \<lfloor>\<lfloor> drop (Type Object) \<rfloor>\<rfloor>)))) "
 proof -
  have P_cp : "\<And>x \<tau>. P x \<tau> = P (\<lambda>_. x \<tau>) \<tau>"
  by (metis (full_types) assms(2) cp_def)
 oops
 
-theorem state_update_vs_allInstances_at_pre: 
+theorem state_update_vs_allInstances_at_pre:
 assumes "oid\<notin>dom \<sigma>"
-and     "cp P" 
-shows   "((\<lparr>heap=\<sigma>(oid\<mapsto>Object), assocs\<^isub>2=A, assocs\<^isub>3=B\<rparr>, \<sigma>') \<Turnstile> (P(Type .allInstances@pre()))) =  
-          ((\<lparr>heap=\<sigma>, assocs\<^isub>2=A, assocs\<^isub>3=B\<rparr>, \<sigma>') \<Turnstile> (P((Type .allInstances@pre())->including(\<lambda> _. \<lfloor>\<lfloor>drop (Type Object)\<rfloor>\<rfloor>)))) "
+and     "cp P"
+shows   "((\<lparr>heap=\<sigma>(oid\<mapsto>Object), assocs\<^sub>2=A, assocs\<^sub>3=B\<rparr>, \<sigma>') \<Turnstile> (P(Type .allInstances@pre()))) =
+          ((\<lparr>heap=\<sigma>, assocs\<^sub>2=A, assocs\<^sub>3=B\<rparr>, \<sigma>') \<Turnstile> (P((Type .allInstances@pre())->including(\<lambda> _. \<lfloor>\<lfloor>drop (Type Object)\<rfloor>\<rfloor>)))) "
 oops
 
 subsection{* OclIsNew *}
 
 definition OclIsNew:: "('\<AA>, '\<alpha>::{null,object})val \<Rightarrow> ('\<AA>)Boolean"   ("(_).oclIsNew'(')")
-where "X .oclIsNew() \<equiv> (\<lambda>\<tau> . if (\<delta> X) \<tau> = true \<tau> 
-                              then \<lfloor>\<lfloor>oid_of (X \<tau>) \<notin> dom(heap(fst \<tau>)) \<and> 
+where "X .oclIsNew() \<equiv> (\<lambda>\<tau> . if (\<delta> X) \<tau> = true \<tau>
+                              then \<lfloor>\<lfloor>oid_of (X \<tau>) \<notin> dom(heap(fst \<tau>)) \<and>
                                      oid_of (X \<tau>) \<in> dom(heap(snd \<tau>))\<rfloor>\<rfloor>
-                              else invalid \<tau>)" 
+                              else invalid \<tau>)"
 
 text{* The following predicates --- which are not part of the OCL standard descriptions ---
 complete the goal of oclIsNew() by describing where an object belongs.
 *}
 
 definition OclIsOld:: "('\<AA>, '\<alpha>::{null,object})val \<Rightarrow> ('\<AA>)Boolean"   ("(_).oclIsOld'(')")
-where "X .oclIsOld() \<equiv> (\<lambda>\<tau> . if (\<delta> X) \<tau> = true \<tau> 
-                              then \<lfloor>\<lfloor>oid_of (X \<tau>) \<in> dom(heap(fst \<tau>)) \<and> 
+where "X .oclIsOld() \<equiv> (\<lambda>\<tau> . if (\<delta> X) \<tau> = true \<tau>
+                              then \<lfloor>\<lfloor>oid_of (X \<tau>) \<in> dom(heap(fst \<tau>)) \<and>
                                      oid_of (X \<tau>) \<notin> dom(heap(snd \<tau>))\<rfloor>\<rfloor>
-                              else invalid \<tau>)" 
+                              else invalid \<tau>)"
 
 definition OclIsEverywhere:: "('\<AA>, '\<alpha>::{null,object})val \<Rightarrow> ('\<AA>)Boolean"   ("(_).oclIsEverywhere'(')")
-where "X .oclIsEverywhere() \<equiv> (\<lambda>\<tau> . if (\<delta> X) \<tau> = true \<tau> 
+where "X .oclIsEverywhere() \<equiv> (\<lambda>\<tau> . if (\<delta> X) \<tau> = true \<tau>
                               then \<lfloor>\<lfloor>oid_of (X \<tau>) \<in> dom(heap(fst \<tau>)) \<and>
                                      oid_of (X \<tau>) \<in> dom(heap(snd \<tau>))\<rfloor>\<rfloor>
-                              else invalid \<tau>)" 
+                              else invalid \<tau>)"
 
 definition OclIsAbsent:: "('\<AA>, '\<alpha>::{null,object})val \<Rightarrow> ('\<AA>)Boolean"   ("(_).oclIsAbsent'(')")
-where "X .oclIsAbsent() \<equiv> (\<lambda>\<tau> . if (\<delta> X) \<tau> = true \<tau> 
+where "X .oclIsAbsent() \<equiv> (\<lambda>\<tau> . if (\<delta> X) \<tau> = true \<tau>
                               then \<lfloor>\<lfloor>oid_of (X \<tau>) \<notin> dom(heap(fst \<tau>)) \<and>
                                      oid_of (X \<tau>) \<notin> dom(heap(snd \<tau>))\<rfloor>\<rfloor>
-                              else invalid \<tau>)" 
+                              else invalid \<tau>)"
 
 lemma state_split : "\<tau> \<Turnstile> \<delta> X \<Longrightarrow> \<tau> \<Turnstile> (X .oclIsNew()) \<or> \<tau> \<Turnstile> (X .oclIsOld()) \<or> \<tau> \<Turnstile> (X .oclIsEverywhere()) \<or> \<tau> \<Turnstile> (X .oclIsAbsent())"
 by(simp add: OclIsOld_def OclIsNew_def OclIsEverywhere_def OclIsAbsent_def
@@ -401,15 +401,15 @@ provides a simple, but powerful means to describe framing conditions. For any fo
 approach, be it animation of OCL contracts, test-case generation or die-hard theorem
 proving, the specification of the part of a system transistion that DOES NOT CHANGE
 is of premordial importance. The following operator establishes the equality between
-old and new objects in the state (provided that they exist in both states), with the 
-exception of those objects 
+old and new objects in the state (provided that they exist in both states), with the
+exception of those objects
 *}
 
-definition OclIsModifiedOnly ::"('\<AA>::object,'\<alpha>::{null,object})Set \<Rightarrow> '\<AA> Boolean" 
+definition OclIsModifiedOnly ::"('\<AA>::object,'\<alpha>::{null,object})Set \<Rightarrow> '\<AA> Boolean"
                         ("_->oclIsModifiedOnly'(')")
 where "X->oclIsModifiedOnly() \<equiv> (\<lambda>(\<sigma>,\<sigma>').  let  X' = (oid_of ` \<lceil>\<lceil>Rep_Set_0(X(\<sigma>,\<sigma>'))\<rceil>\<rceil>);
                                                  S = ((dom (heap \<sigma>) \<inter> dom (heap \<sigma>')) - X')
-                                            in if (\<delta> X) (\<sigma>,\<sigma>') = true (\<sigma>,\<sigma>') 
+                                            in if (\<delta> X) (\<sigma>,\<sigma>') = true (\<sigma>,\<sigma>')
                                                then \<lfloor>\<lfloor>\<forall> x \<in> S. (heap \<sigma>) x = (heap \<sigma>') x\<rfloor>\<rfloor>
                                                else invalid (\<sigma>,\<sigma>'))"
 
