@@ -237,28 +237,18 @@ proof -
  have OclAnd_true : "\<And>a b. \<tau> \<Turnstile> a \<Longrightarrow> \<tau> \<Turnstile> b \<Longrightarrow> \<tau> \<Turnstile> a and b"
  by (simp add: foundation10 foundation6)
 
- have discr_eq_false_true :  "(false \<tau> = true \<tau>) = False" by (metis OclValid_def foundation2)
+ have OclIf_true'' : "\<And>P B\<^isub>1 B\<^isub>2. \<tau> \<Turnstile> P \<Longrightarrow> \<tau> \<Turnstile> B\<^isub>1 \<Longrightarrow> \<tau> \<Turnstile> if P then B\<^isub>1 else B\<^isub>2 endif" 
+ by (metis OclIf_true' OclValid_def)
+
+ have OclIf_false'' : "\<And>P B\<^isub>1 B\<^isub>2. \<tau> \<Turnstile> \<delta> P \<Longrightarrow> \<not> (\<tau> \<Turnstile> P) \<Longrightarrow> \<tau> \<Turnstile> B\<^isub>2 \<Longrightarrow> \<tau> \<Turnstile> if P then B\<^isub>1 else B\<^isub>2 endif" 
+ by (metis OclIf_def OclValid_def)
+
  have discr_eq_false_true : "\<And>\<tau>. (false \<tau> = true \<tau>) = False" by (metis OclValid_def foundation2)
- have discr_eq_false_bot : "\<And>\<tau>. (false \<tau> = bot \<tau>) = False" by (metis OCL_core.bot_fun_def bot_option_def false_def option.simps(2))
- have discr_eq_false_null : "\<And>\<tau>. (false \<tau> = null \<tau>) = False" by (metis defined4 foundation1 foundation17 null_fun_def)
- have discr_eq_invalid_true : "\<And>\<tau>. (invalid \<tau> = true \<tau>) = False" by (metis bot_option_def invalid_def option.simps(2) true_def)
- have discr_eq_null_false : "\<And>\<tau>. (null \<tau> = false \<tau>) = False" by (metis defined4 foundation1 foundation16 null_fun_def)
  have discr_eq_null_true : "\<And>\<tau>. (null \<tau> = true \<tau>) = False" by (metis OclValid_def foundation4)
  have discr_eq_bot1_true : "\<And>\<tau>. (\<bottom> \<tau> = true \<tau>) = False" by (metis defined3 defined_def discr_eq_false_true)
- have discr_eq_bot2_true : "\<And>\<tau>. (\<bottom> = true \<tau>) = False" by (metis bot_fun_def discr_eq_bot1_true)
- have discr_eq_bot1_false : "\<And>\<tau>. (\<bottom> \<tau> = false \<tau>) = False" by (metis OCL_core.bot_fun_def defined4 foundation1 foundation16)
- have discr_eq_bot2_false : "\<And>\<tau>. (\<bottom> = false \<tau>) = False" by (metis foundation1 foundation18' valid4)
- have discr_neq_false_true : "\<And>\<tau>. (false \<tau> \<noteq> true \<tau>) = True" by (metis discr_eq_false_true)
  have discr_neq_true_false : "\<And>\<tau>. (true \<tau> \<noteq> false \<tau>) = True" by (metis discr_eq_false_true)
- have discr_neq_true_bot : "\<And>\<tau>. (true \<tau> \<noteq> bot \<tau>) = True" by (metis OCL_core.bot_fun_def discr_eq_bot2_true)
+ have discr_neq_true_bot : "\<And>\<tau>. (true \<tau> \<noteq> bot \<tau>) = True" by (metis discr_eq_bot1_true)
  have discr_neq_true_null : "\<And>\<tau>. (true \<tau> \<noteq> null \<tau>) = True" by (metis discr_eq_null_true)
- have discr_neq_invalid_true : "\<And>\<tau>. (invalid \<tau> \<noteq> true \<tau>) = True" by (metis discr_eq_bot2_true invalid_def)
- have discr_neq_invalid_bot : "\<And>\<tau>. (invalid \<tau> \<noteq> \<bottom> \<tau>) = False" by (metis bot_fun_def invalid_def)
-
- have bot_in_set_0 : "\<lfloor>\<bottom>\<rfloor> \<in> {X. X = bot \<or> X = null \<or> (\<forall>x\<in>\<lceil>\<lceil>X\<rceil>\<rceil>. x \<noteq> bot)}" by(simp add: null_option_def bot_option_def)
-
- have forall_includes_id : "\<And>a b. \<tau> \<Turnstile> \<delta> S \<Longrightarrow> \<tau> \<Turnstile> (OclForall S (OclIncludes S))"
- by(simp add: forall_includes)
 
  have forall_includes2 : "\<And>a b. \<tau> \<Turnstile> \<upsilon> a \<Longrightarrow> \<tau> \<Turnstile> \<upsilon> b \<Longrightarrow> \<tau> \<Turnstile> \<delta> S \<Longrightarrow> \<tau> \<Turnstile> (OclForall S (OclIncludes (S->including(a)->including(b))))"
  proof -
@@ -269,96 +259,38 @@ proof -
    apply(subgoal_tac "\<forall>x\<in>\<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>. (S->including(a)->including(b)->includes((\<lambda>_. x))) \<tau> = true \<tau>")
    apply(simp add: discr_neq_true_null discr_neq_true_bot discr_neq_true_false)
    apply(rule ballI)
-   apply(rule including_includes[simplified OclValid_def], simp, rule consist, simp_all)+
+   apply(rule including_includes[simplified OclValid_def], simp, rule consist, simp, simp)+
    apply(frule Set_inv_lemma'[simplified OclValid_def]) apply assumption
    apply(simp add: OclIncludes_def true_def)
   done
  qed
 
  show "\<tau> \<Turnstile> \<delta> S \<Longrightarrow> \<tau> \<Turnstile> \<upsilon> i \<Longrightarrow> \<tau> \<Turnstile> \<upsilon> j \<Longrightarrow> ?thesis"
-  apply(simp add:
-   cp_OclIf[of "\<delta> S and \<upsilon> i and \<upsilon> j"]
-   cp_OclIf[of "\<delta> S and \<upsilon> j and \<upsilon> i"]
-   cp_OclNot[of "\<delta> S and \<upsilon> j and \<upsilon> i"])
-  apply(subgoal_tac "(\<delta> S and \<upsilon> i and \<upsilon> j) = (\<delta> S and \<upsilon> j and \<upsilon> i)")
-   prefer 2
-   apply (metis OclAnd_assoc OclAnd_commute)
-  apply(subgoal_tac "\<tau> \<Turnstile> \<delta> S and \<upsilon> i and \<upsilon> j")
-   prefer 2
-   apply (metis foundation10 foundation6)
-  apply(simp add: OclValid_def)
-  apply(rule OclAnd_true[simplified OclValid_def])
+  apply(simp only: StrictRefEq\<^isub>S\<^isub>e\<^isub>t_exec)
   (* *)
-  apply(subst forall_set_including_exec)
-  apply(simp add: cp_OclIncludes1[where x = j])
-  apply(simp)
-  apply(simp add:
-   cp_OclIf[of "\<delta> S and \<upsilon> i and \<upsilon> j"]
-   cp_OclIf[of "\<delta> S and \<upsilon> j and \<upsilon> i"]
-   cp_OclNot[of "\<delta> S and \<upsilon> j and \<upsilon> i"])
-  apply(simp add: cp_OclIf[symmetric])
-  apply(rule OclAnd_true[simplified OclValid_def])
-  apply(simp add: includes_execute_int)
-  apply(simp add: cp_OclIf[of "\<delta> S and \<upsilon> j"] cp_OclIf[of "i \<doteq> j"] cp_OclIf[of "\<delta> S"] cp_OclIf[of "if \<upsilon> j then true else invalid endif"] cp_OclIf[of "\<upsilon> j"])
-  apply(subgoal_tac "\<tau> \<Turnstile> (\<delta> S and \<upsilon> j)")
-   prefer 2
-   apply (metis OclValid_def foundation10 foundation6)
-  apply(simp add: cp_OclIf[symmetric])
-  apply(simp add: OclIf_def discr_eq_invalid_true)
-  apply (metis OclValid_def StrictRefEq\<^isub>I\<^isub>n\<^isub>t\<^isub>e\<^isub>g\<^isub>e\<^isub>r_defined_args_valid)
+  apply(subst OclIf_true'', simp_all add: foundation10 foundation6 del: forall_set_including_exec)+
+  apply(subst (1 2) forall_set_including_exec, simp add: cp_OclIncludes1, simp add: cp_OclIncludes1)+
+  apply(subst OclAnd_true)
   (* *)
-  apply(subst forall_set_including_exec)
-  apply(simp add: cp_OclIncludes1[where x = i])
-  apply(simp add:
-   cp_OclIf[of "\<delta> S and \<upsilon> i"])
-  apply(subgoal_tac "\<tau> \<Turnstile> (\<delta> S and \<upsilon> i)")
-   prefer 2
-   apply (metis OclValid_def foundation10 foundation6)
-  apply(simp add: cp_OclIf[symmetric])
-  apply(rule OclAnd_true[simplified OclValid_def])
-  apply(simp add: includes_execute_int)
-  apply(simp add: cp_OclIf[of "\<delta> S and \<upsilon> j"] cp_OclIf[of "i \<doteq> j"] cp_OclIf[of "\<delta> S"] cp_OclIf[of "if \<upsilon> i then true else invalid endif"] cp_OclIf[of "\<upsilon> i"])
-  apply(subgoal_tac "\<tau> \<Turnstile> (\<delta> S and \<upsilon> j)")
-   prefer 2
-   apply (metis OclValid_def foundation10 foundation6)
-  apply(simp add: cp_OclIf[symmetric])
+  apply(subst OclIf_true'', simp_all add: foundation10 foundation6 del: forall_set_including_exec)+
+  apply(subst OclAnd_true)
+  apply(subst OclIf_true'', simp_all add: foundation10 foundation6 del: forall_set_including_exec)
+  apply(case_tac "\<tau> \<Turnstile> (i \<doteq> j)")
+  apply(subst OclIf_true'', simp_all add: foundation10 foundation6 del: forall_set_including_exec)
+  apply(subst OclIf_false'', simp_all add: StrictRefEq\<^isub>I\<^isub>n\<^isub>t\<^isub>e\<^isub>g\<^isub>e\<^isub>r_defined_args_valid)
+  apply( subst OclAnd_true
+       | subst OclIf_true'', simp_all add: foundation10 foundation6 del: forall_set_including_exec)+
+  apply(simp add: forall_includes2)
   (* *)
-  apply(rule forall_includes2[simplified OclValid_def]) apply(simp) apply(simp) apply(simp)
-  (* *)
-  apply(subst forall_set_including_exec)
-  apply(simp add: cp_OclIncludes1[where x = i])
-  apply(simp)
-  apply(simp add:
-   cp_OclIf[of "\<delta> S and \<upsilon> i and \<upsilon> j"]
-   cp_OclIf[of "\<delta> S and \<upsilon> j and \<upsilon> i"])
-  apply(simp add: cp_OclIf[symmetric])
-  apply(rule OclAnd_true[simplified OclValid_def])
-  apply(simp add: includes_execute_int)
-  apply(simp add: cp_OclIf[of "\<delta> S and \<upsilon> i"] cp_OclIf[of "j \<doteq> i"] cp_OclIf[of "\<delta> S"] cp_OclIf[of "if \<upsilon> i then true else invalid endif"] cp_OclIf[of "\<upsilon> i"])
-  apply(subgoal_tac "\<tau> \<Turnstile> (\<delta> S and \<upsilon> i)")
-   prefer 2
-   apply (metis OclValid_def foundation10 foundation6)
-  apply(simp add: cp_OclIf[symmetric])
-  apply(simp add: OclIf_def discr_eq_invalid_true)
-  apply (metis OclValid_def StrictRefEq\<^isub>I\<^isub>n\<^isub>t\<^isub>e\<^isub>g\<^isub>e\<^isub>r_defined_args_valid)
-  (* *)
-  apply(subst forall_set_including_exec)
-  apply(simp add: cp_OclIncludes1[where x = j])
-  apply(simp add:
-   cp_OclIf[of "\<delta> S and \<upsilon> j"])
-  apply(subgoal_tac "\<tau> \<Turnstile> (\<delta> S and \<upsilon> j)")
-   prefer 2
-   apply (metis OclValid_def foundation10 foundation6)
-  apply(simp add: cp_OclIf[symmetric])
-  apply(rule OclAnd_true[simplified OclValid_def])
-  apply(simp add: includes_execute_int)
-  apply(simp add: cp_OclIf[of "\<delta> S and \<upsilon> i"] cp_OclIf[of "j \<doteq> i"] cp_OclIf[of "\<delta> S"] cp_OclIf[of "if \<upsilon> j then true else invalid endif"] cp_OclIf[of "\<upsilon> j"])
-  apply(subgoal_tac "\<tau> \<Turnstile> (\<delta> S and \<upsilon> i)")
-   prefer 2
-   apply (metis OclValid_def foundation10 foundation6)
-  apply(simp add: cp_OclIf[symmetric])
-  (* *)
-  apply(rule forall_includes2[simplified OclValid_def]) apply(simp) apply(simp) apply(simp)
+  apply(subst OclIf_true'', simp_all add: foundation10 foundation6 del: forall_set_including_exec)+
+  apply(subst OclAnd_true)
+  apply(subst OclIf_true'', simp_all add: foundation10 foundation6 del: forall_set_including_exec)
+  apply(case_tac "\<tau> \<Turnstile> (j \<doteq> i)")
+  apply(subst OclIf_true'', simp_all add: foundation10 foundation6 del: forall_set_including_exec)
+  apply(subst OclIf_false'', simp_all add: StrictRefEq\<^isub>I\<^isub>n\<^isub>t\<^isub>e\<^isub>g\<^isub>e\<^isub>r_defined_args_valid)
+  apply( subst OclAnd_true
+       | subst OclIf_true'', simp_all add: foundation10 foundation6 del: forall_set_including_exec)+
+  apply(simp add: forall_includes2)
  done
  apply_end(simp_all add: assms)
 qed
@@ -3401,7 +3333,7 @@ proof -
    apply(subgoal_tac "\<tau> \<Turnstile> \<upsilon> (\<lambda>_. i')")
     prefer 2
     apply(drule int_is_valid[where \<tau> = \<tau>], simp add: foundation20)
-   apply(simp)
+   apply(simp only:)
 
    apply(simp add: OclIncludes_def OclValid_def)
    apply(subgoal_tac "(\<delta> Finite_Set.fold (\<lambda>j r2. r2->including(j)) A ((\<lambda>a \<tau>. a) ` F) and \<upsilon> (\<lambda>\<tau>. x) and \<upsilon> (\<lambda>_. i')) \<tau> = true \<tau>")
@@ -3616,7 +3548,7 @@ proof -
    apply(subgoal_tac "\<tau> \<Turnstile> \<upsilon> (\<lambda>_. i')")
     prefer 2
     apply(drule int_is_valid[where \<tau> = \<tau>], simp add: foundation20)
-   apply(simp)
+   apply(simp only:)
 
    apply(simp add: OclIncludes_def OclValid_def)
    apply(subgoal_tac "(\<delta> Finite_Set.fold (\<lambda>j r2. r2->including(j)) A ((\<lambda>a \<tau>. a) ` F) and \<upsilon> (\<lambda>\<tau>. x) and \<upsilon> (\<lambda>_. i')) \<tau> = true \<tau>")
