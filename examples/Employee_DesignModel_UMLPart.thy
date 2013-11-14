@@ -50,7 +50,7 @@ theory
   Employee_DesignModel_UMLPart
 imports
   "../src/OCL_main"
- (* OCL_lib_Gogolla_challenge *)
+  OCL_lib_ground
 begin
 
 
