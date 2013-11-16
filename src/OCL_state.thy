@@ -489,13 +489,13 @@ by(simp add: OclIsAbsent_def OclSelf_at_pre_def OclSelf_at_post_def
              bot_option_def invalid_def bot_fun_def valid_def
       split: split_if_asm)
 
-lemma pre_post_everywhere: "(\<tau> \<Turnstile> \<upsilon>(x @pre H1) \<or> \<tau> \<Turnstile> \<upsilon>(x @post H2)) \<Longrightarrow> \<tau> \<Turnstile> (x .oclIsMaintained())"
+lemma pre_post_maintained: "(\<tau> \<Turnstile> \<upsilon>(x @pre H1) \<or> \<tau> \<Turnstile> \<upsilon>(x @post H2)) \<Longrightarrow> \<tau> \<Turnstile> (x .oclIsMaintained())"
 by(simp add: OclIsMaintained_def OclSelf_at_pre_def OclSelf_at_post_def
              OclValid_def StrongEq_def true_def false_def
              bot_option_def invalid_def bot_fun_def valid_def
       split: split_if_asm)
 
-lemma pre_post_everywhere': "\<tau> \<Turnstile> (x .oclIsMaintained()) \<Longrightarrow> (\<tau> \<Turnstile> \<upsilon>(x @pre (Some o H1)) \<and> \<tau> \<Turnstile> \<upsilon>(x @post (Some o H2)))"
+lemma pre_post_maintained': "\<tau> \<Turnstile> (x .oclIsMaintained()) \<Longrightarrow> (\<tau> \<Turnstile> \<upsilon>(x @pre (Some o H1)) \<and> \<tau> \<Turnstile> \<upsilon>(x @post (Some o H2)))"
 by(simp add: OclIsMaintained_def OclSelf_at_pre_def OclSelf_at_post_def
              OclValid_def StrongEq_def true_def false_def
              bot_option_def invalid_def bot_fun_def valid_def
