@@ -1086,7 +1086,7 @@ lemma cp_const : "cp(\<lambda>_. c)"
 lemma cp_id :     "cp(\<lambda>X. X)"
   by (simp add: cp_def, fast)
 
-lemmas cp_intro[simp,intro!] =
+lemmas cp_intro[simp,intro!,code_unfold] =
        cp_const
        cp_id
        cp_defined[THEN allI[THEN allI[THEN cpI1], of defined]]
@@ -1125,7 +1125,7 @@ lemma cp_OclIf:"((if C then B\<^sub>1 else B\<^sub>2 endif) \<tau> =
                   (if (\<lambda> _. C \<tau>) then (\<lambda> _. B\<^sub>1 \<tau>) else (\<lambda> _. B\<^sub>2 \<tau>) endif) \<tau>)"
 by(simp only: OclIf_def, subst cp_defined, rule refl)
 
-lemmas cp_intro'[simp,intro!] =
+lemmas cp_intro'[simp,intro!,code_unfold] =
        cp_intro
        cp_OclIf[THEN allI[THEN allI[THEN allI[THEN allI[THEN cpI3]]], of "OclIf"]]
 

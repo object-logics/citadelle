@@ -209,10 +209,10 @@ subsubsection{* Test Statements *}
 text{* Here follows a list of code-examples, that explain the meanings
 of the above definitions by compilation to code and execution to @{term "True"}.*}
 
-value "  \<tau>\<^sub>0 \<Turnstile> ( \<nine> \<le>\<^sub>o\<^sub>c\<^sub>l \<one>\<zero> )"
-value "  \<tau>\<^sub>0 \<Turnstile> (( \<four> +\<^sub>o\<^sub>c\<^sub>l \<four> ) \<le>\<^sub>o\<^sub>c\<^sub>l \<one>\<zero> )"
-value "\<not>(\<tau>\<^sub>0 \<Turnstile> (( \<four> +\<^sub>o\<^sub>c\<^sub>l ( \<four> +\<^sub>o\<^sub>c\<^sub>l \<four> )) <\<^sub>o\<^sub>c\<^sub>l \<one>\<zero> ))"
-value "  \<tau>\<^sub>0 \<Turnstile> not (\<upsilon> (null +\<^sub>o\<^sub>c\<^sub>l \<one>)) "
+value "  \<tau> \<Turnstile> ( \<nine> \<le>\<^sub>o\<^sub>c\<^sub>l \<one>\<zero> )"
+value "  \<tau> \<Turnstile> (( \<four> +\<^sub>o\<^sub>c\<^sub>l \<four> ) \<le>\<^sub>o\<^sub>c\<^sub>l \<one>\<zero> )"
+value "\<not>(\<tau> \<Turnstile> (( \<four> +\<^sub>o\<^sub>c\<^sub>l ( \<four> +\<^sub>o\<^sub>c\<^sub>l \<four> )) <\<^sub>o\<^sub>c\<^sub>l \<one>\<zero> ))"
+value "  \<tau> \<Turnstile> not (\<upsilon> (null +\<^sub>o\<^sub>c\<^sub>l \<one>)) "
 
 subsection{* The construction of the UnlimitedNatural Type *}
 
@@ -376,21 +376,21 @@ of the above definitions by compilation to code and execution to @{term "True"}.
 
 context OclUnlimitedNatural
 begin
-value "  \<tau>\<^sub>0 \<Turnstile> ( \<nine> \<le>\<^sub>U\<^sub>N \<one>\<zero> )"
-value "  \<tau>\<^sub>0 \<Turnstile> (( \<four> +\<^sub>U\<^sub>N \<four> ) \<le>\<^sub>U\<^sub>N \<one>\<zero> )"
-value "\<not>(\<tau>\<^sub>0 \<Turnstile> (( \<four> +\<^sub>U\<^sub>N ( \<four> +\<^sub>U\<^sub>N \<four> )) <\<^sub>U\<^sub>N \<one>\<zero> ))"
-value "  \<tau>\<^sub>0 \<Turnstile> (\<zero> \<le>\<^sub>o\<^sub>c\<^sub>l \<infinity>)"
-value "  \<tau>\<^sub>0 \<Turnstile> not (\<upsilon> (null +\<^sub>U\<^sub>N \<one>))"
-value "  \<tau>\<^sub>0 \<Turnstile> not (\<upsilon> (\<infinity> +\<^sub>o\<^sub>c\<^sub>l \<zero>))"
-value "  \<tau>\<^sub>0 \<Turnstile>      \<mu> \<one>"
+value "  \<tau> \<Turnstile> ( \<nine> \<le>\<^sub>U\<^sub>N \<one>\<zero> )"
+value "  \<tau> \<Turnstile> (( \<four> +\<^sub>U\<^sub>N \<four> ) \<le>\<^sub>U\<^sub>N \<one>\<zero> )"
+value "\<not>(\<tau> \<Turnstile> (( \<four> +\<^sub>U\<^sub>N ( \<four> +\<^sub>U\<^sub>N \<four> )) <\<^sub>U\<^sub>N \<one>\<zero> ))"
+value "  \<tau> \<Turnstile> (\<zero> \<le>\<^sub>o\<^sub>c\<^sub>l \<infinity>)"
+value "  \<tau> \<Turnstile> not (\<upsilon> (null +\<^sub>U\<^sub>N \<one>))"
+value "  \<tau> \<Turnstile> not (\<upsilon> (\<infinity> +\<^sub>o\<^sub>c\<^sub>l \<zero>))"
+value "  \<tau> \<Turnstile>      \<mu> \<one>"
 end
-value "  \<tau>\<^sub>0 \<Turnstile> not (\<upsilon> (null +\<^sub>o\<^sub>c\<^sub>l \<infinity>))"
-value "  \<tau>\<^sub>0 \<Turnstile> not (\<infinity> <\<^sub>o\<^sub>c\<^sub>l \<infinity>)"
-value "  \<tau>\<^sub>0 \<Turnstile> not (\<upsilon> (invalid \<le>\<^sub>o\<^sub>c\<^sub>l \<infinity>))"
-value "  \<tau>\<^sub>0 \<Turnstile> not (\<upsilon> (null \<le>\<^sub>o\<^sub>c\<^sub>l \<infinity>))"
-value "  \<tau>\<^sub>0 \<Turnstile>      \<upsilon> \<infinity>"
-value "  \<tau>\<^sub>0 \<Turnstile>      \<delta> \<infinity>"
-value "  \<tau>\<^sub>0 \<Turnstile> not (\<mu> \<infinity>)"
+value "  \<tau> \<Turnstile> not (\<upsilon> (null +\<^sub>o\<^sub>c\<^sub>l \<infinity>))"
+value "  \<tau> \<Turnstile> not (\<infinity> <\<^sub>o\<^sub>c\<^sub>l \<infinity>)"
+value "  \<tau> \<Turnstile> not (\<upsilon> (invalid \<le>\<^sub>o\<^sub>c\<^sub>l \<infinity>))"
+value "  \<tau> \<Turnstile> not (\<upsilon> (null \<le>\<^sub>o\<^sub>c\<^sub>l \<infinity>))"
+value "  \<tau> \<Turnstile>      \<upsilon> \<infinity>"
+value "  \<tau> \<Turnstile>      \<delta> \<infinity>"
+value "  \<tau> \<Turnstile> not (\<mu> \<infinity>)"
 
 section{* Fundamental Predicates on Boolean and Integer: Strict Equality *}
 
@@ -516,9 +516,21 @@ by(rule ext, simp add: StrictRefEq\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub
 lemma StrictRefEq\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r_strict2[simp,code_unfold] : "(invalid \<doteq> (x::('\<AA>)Integer)) = invalid"
 by(rule ext, simp add: StrictRefEq\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r true_def false_def)
 
+lemma true_non_null [simp,code_unfold]:"(true \<doteq> null) = false"
+ apply(rule ext, simp add: StrictRefEq\<^sub>B\<^sub>o\<^sub>o\<^sub>l\<^sub>e\<^sub>a\<^sub>n StrongEq_def false_def)
+by (metis defined3 foundation1 foundation16 null_fun_def)
+
 lemma null_non_true [simp,code_unfold]:"(null \<doteq> true) = false"
  apply(rule ext, simp add: StrictRefEq\<^sub>B\<^sub>o\<^sub>o\<^sub>l\<^sub>e\<^sub>a\<^sub>n StrongEq_def false_def)
 by (metis defined3 foundation1 foundation16 null_fun_def)
+
+lemma false_non_null [simp,code_unfold]:"(false \<doteq> null) = false"
+ apply(rule ext, simp add: StrictRefEq\<^sub>B\<^sub>o\<^sub>o\<^sub>l\<^sub>e\<^sub>a\<^sub>n StrongEq_def false_def)
+by (metis OCL_core.drop.simps null_Boolean_def option.distinct(1))
+
+lemma null_non_false [simp,code_unfold]:"(null \<doteq> false) = false"
+ apply(rule ext, simp add: StrictRefEq\<^sub>B\<^sub>o\<^sub>o\<^sub>l\<^sub>e\<^sub>a\<^sub>n StrongEq_def false_def)
+by (metis OCL_core.drop.simps null_Boolean_def option.distinct(1))
 
 lemma integer_non_null [simp]: "((\<lambda>_. \<lfloor>\<lfloor>n\<rfloor>\<rfloor>) \<doteq> (null::('\<AA>)Integer)) = false"
 by(rule ext,auto simp: StrictRefEq\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r valid_def
@@ -571,7 +583,7 @@ lemma cp_StrictRefEq\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r:
 by(auto simp: StrictRefEq\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r StrongEq_def valid_def  cp_defined[symmetric])
 
 
-lemmas cp_intro'[simp,intro!] =
+lemmas cp_intro'[simp,intro!,code_unfold] =
        cp_intro'
        cp_StrictRefEq\<^sub>B\<^sub>o\<^sub>o\<^sub>l\<^sub>e\<^sub>a\<^sub>n[THEN allI[THEN allI[THEN allI[THEN cpI2]], of "StrictRefEq"]]
        cp_StrictRefEq\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r[THEN allI[THEN allI[THEN allI[THEN cpI2]],  of "StrictRefEq"]]
@@ -586,42 +598,43 @@ text{* Here follows a list of code-examples, that explain the meanings
 of the above definitions by compilation to code and execution to @{term "True"}.*}
 
 text{* Elementary computations on Booleans *}
-value "\<tau>\<^sub>0 \<Turnstile> \<upsilon>(true)"
-value "\<tau>\<^sub>0 \<Turnstile> \<delta>(false)"
-value "\<not>(\<tau>\<^sub>0 \<Turnstile> \<delta>(null))"
-value "\<not>(\<tau>\<^sub>0 \<Turnstile> \<delta>(invalid))"
-value "\<tau>\<^sub>0 \<Turnstile> \<upsilon>((null::('\<AA>)Boolean))"
-value "\<not>(\<tau>\<^sub>0 \<Turnstile> \<upsilon>(invalid))"
-value "\<tau>\<^sub>0 \<Turnstile> (true and true)"
-value "\<tau>\<^sub>0 \<Turnstile> (true and true \<triangleq> true)"
-value "\<tau>\<^sub>0 \<Turnstile> ((null or null) \<triangleq> null)"
-value "\<tau>\<^sub>0 \<Turnstile> ((null or null) \<doteq> null)"
-value "\<tau>\<^sub>0 \<Turnstile> ((true \<triangleq> false) \<triangleq> false)"
-value "\<tau>\<^sub>0 \<Turnstile> ((invalid \<triangleq> false) \<triangleq> false)"
-value "\<tau>\<^sub>0 \<Turnstile> ((invalid \<doteq> false) \<triangleq> invalid)"
+value "\<tau> \<Turnstile> \<upsilon>(true)"
+value "\<tau> \<Turnstile> \<delta>(false)"
+value "\<not>(\<tau> \<Turnstile> \<delta>(null))"
+value "\<not>(\<tau> \<Turnstile> \<delta>(invalid))"
+value "\<tau> \<Turnstile> \<upsilon>((null::('\<AA>)Boolean))"
+value "\<not>(\<tau> \<Turnstile> \<upsilon>(invalid))"
+value "\<tau> \<Turnstile> (true and true)"
+value "\<tau> \<Turnstile> (true and true \<triangleq> true)"
+value "\<tau> \<Turnstile> ((null or null) \<triangleq> null)"
+value "\<tau> \<Turnstile> ((null or null) \<doteq> null)"
+value "\<tau> \<Turnstile> ((true \<triangleq> false) \<triangleq> false)"
+value "\<tau> \<Turnstile> ((invalid \<triangleq> false) \<triangleq> false)"
+value "\<tau> \<Turnstile> ((invalid \<doteq> false) \<triangleq> invalid)"
 
 
 text{* Elementary computations on Integer *}
-value "\<tau>\<^sub>0 \<Turnstile> \<upsilon>(\<four>)"
-value "\<tau>\<^sub>0 \<Turnstile> \<delta>(\<four>)"
-value "\<tau>\<^sub>0 \<Turnstile> \<upsilon>((null::('\<AA>)Integer))"
-value "\<tau>\<^sub>0 \<Turnstile> (invalid \<triangleq> invalid )"
-value "\<tau>\<^sub>0 \<Turnstile> (null \<triangleq> null )"
-value "\<tau>\<^sub>0 \<Turnstile> (\<four> \<triangleq> \<four>)"
-value "\<not>(\<tau>\<^sub>0 \<Turnstile> (\<nine> \<triangleq> \<one>\<zero> ))"
-value "\<not>(\<tau>\<^sub>0 \<Turnstile> (invalid \<triangleq> \<one>\<zero> ))"
-value "\<not>(\<tau>\<^sub>0 \<Turnstile> (null \<triangleq> \<one>\<zero> ))"
-value "\<not>(\<tau>\<^sub>0 \<Turnstile> (invalid \<doteq> (invalid::('\<AA>)Integer)))" (* Without typeconstraint not executable.*)
-value "\<not>(\<tau>\<^sub>0 \<Turnstile> \<upsilon>(invalid \<doteq> (invalid::('\<AA>)Integer)))" (* Without typeconstraint not executable.*)
-value "\<not>(\<tau>\<^sub>0 \<Turnstile> (invalid <> (invalid::('\<AA>)Integer)))" (* Without typeconstraint not executable.*)
-value "\<not>(\<tau>\<^sub>0 \<Turnstile> \<upsilon>(invalid <> (invalid::('\<AA>)Integer)))" (* Without typeconstraint not executable.*)
-value "\<tau>\<^sub>0 \<Turnstile> (null \<doteq> (null::('\<AA>)Integer) )" (* Without typeconstraint not executable.*)
-value "\<tau>\<^sub>0 \<Turnstile> (null \<doteq> (null::('\<AA>)Integer) )" (* Without typeconstraint not executable.*)
-value "  \<tau>\<^sub>0 \<Turnstile> (\<four> \<doteq> \<four>)"
-value "\<not>(\<tau>\<^sub>0 \<Turnstile> (\<four> <> \<four>))"
-value "\<not>(\<tau>\<^sub>0 \<Turnstile> (\<four> \<doteq> \<one>\<zero> ))"
-value " (\<tau>\<^sub>0 \<Turnstile> (\<four> <> \<one>\<zero> ))"
-
+value "  \<tau> \<Turnstile> \<upsilon> \<four>"
+value "  \<tau> \<Turnstile> \<delta> \<four>"
+value "  \<tau> \<Turnstile> \<upsilon> (null::('\<AA>)Integer)"
+value "  \<tau> \<Turnstile> (invalid \<triangleq> invalid)"
+value "  \<tau> \<Turnstile> (null \<triangleq> null)"
+value "  \<tau> \<Turnstile> (\<four> \<triangleq> \<four>)"
+value "\<not>(\<tau> \<Turnstile> (\<nine> \<triangleq> \<one>\<zero>))"
+value "\<not>(\<tau> \<Turnstile> (invalid \<triangleq> \<one>\<zero>))"
+value "\<not>(\<tau> \<Turnstile> (null \<triangleq> \<one>\<zero>))"
+value "\<not>(\<tau> \<Turnstile> (invalid \<doteq> (invalid::('\<AA>)Integer)))" (* Without typeconstraint not executable.*)
+value "\<not>(\<tau> \<Turnstile> \<upsilon> (invalid \<doteq> (invalid::('\<AA>)Integer)))" (* Without typeconstraint not executable.*)
+value "\<not>(\<tau> \<Turnstile> (invalid <> (invalid::('\<AA>)Integer)))" (* Without typeconstraint not executable.*)
+value "\<not>(\<tau> \<Turnstile> \<upsilon> (invalid <> (invalid::('\<AA>)Integer)))" (* Without typeconstraint not executable.*)
+value "  \<tau> \<Turnstile> (null \<doteq> (null::('\<AA>)Integer) )" (* Without typeconstraint not executable.*)
+value "  \<tau> \<Turnstile> (null \<doteq> (null::('\<AA>)Integer) )" (* Without typeconstraint not executable.*)
+value "  \<tau> \<Turnstile> (\<four> \<doteq> \<four>)"
+value "\<not>(\<tau> \<Turnstile> (\<four> <> \<four>))"
+value "\<not>(\<tau> \<Turnstile> (\<four> \<doteq> \<one>\<zero>))"
+value "  \<tau> \<Turnstile> (\<four> <> \<one>\<zero>)"
+value "\<not>(\<tau> \<Turnstile> (\<zero> <\<^sub>o\<^sub>c\<^sub>l null))"
+value "\<not>(\<tau> \<Turnstile> (\<delta> (\<zero> <\<^sub>o\<^sub>c\<^sub>l null)))"
 
 
 section{* Complex Types: The Set-Collection Type (I) Core *}
@@ -1349,7 +1362,7 @@ by(simp add: OclIterate\<^sub>S\<^sub>e\<^sub>t_def cp_defined[symmetric])
 (* Why does this not work syntactically ???
    lemma cp_OclIncludes: "(X->includes(x)) \<tau> = (((\<lambda> _. X \<tau>)->includes( \<lambda> _. x \<tau>)) \<tau>)" *)
 
-lemmas cp_intro''[simp,intro!] =
+lemmas cp_intro''[simp,intro!,code_unfold] =
        cp_intro'
        cp_OclIncluding [THEN allI[THEN allI[THEN allI[THEN cpI2]], of "OclIncluding"]]
        cp_OclExcluding [THEN allI[THEN allI[THEN allI[THEN cpI2]], of "OclExcluding"]]
@@ -3175,20 +3188,14 @@ value    "\<tau> \<Turnstile> (Set{null,\<two>}->includes(null))"
 
 value    "\<tau> \<Turnstile> ((Set{})->forAll(z | \<zero> <\<^sub>o\<^sub>c\<^sub>l z))"
 
-value    "\<tau> \<Turnstile> if \<zero> <\<^sub>I \<two> then if \<zero> <\<^sub>I \<one> then true else false endif else false endif"
-
-declare cp_intro''[code_unfold]
 value    "\<tau> \<Turnstile> ((Set{\<two>,\<one>})->forAll(z | \<zero> <\<^sub>o\<^sub>c\<^sub>l z))"
 value "\<not> (\<tau> \<Turnstile> ((Set{\<two>,\<one>})->exists(z | z <\<^sub>o\<^sub>c\<^sub>l \<zero> )))"
 value "\<not> (\<tau> \<Turnstile> \<delta>(Set{\<two>,null})->forAll(z | \<zero> <\<^sub>o\<^sub>c\<^sub>l z))"
 value "\<not> (\<tau> \<Turnstile> ((Set{\<two>,null})->forAll(z | \<zero> <\<^sub>o\<^sub>c\<^sub>l z)))"
 value    "\<tau> \<Turnstile> ((Set{\<two>,null})->exists(z | \<zero> <\<^sub>o\<^sub>c\<^sub>l z))"
 
-value "\<not> (\<tau> \<Turnstile> \<zero> <\<^sub>o\<^sub>c\<^sub>l null)"
-value    "\<tau> \<Turnstile> not(\<delta>(\<zero> <\<^sub>o\<^sub>c\<^sub>l null))"
-
+value "\<not> (\<tau> \<Turnstile> (Set{null} \<doteq> Set{}))"
 value "\<not> (\<tau> \<Turnstile> (Set{null::'a Boolean} \<doteq> Set{}))"
-value "\<not> (\<tau> \<Turnstile> (Set{null::'a Integer} \<doteq> Set{}))"
 
 value   "(\<tau> \<Turnstile> (Set{\<lambda>_. \<lfloor>\<lfloor>x\<rfloor>\<rfloor>} \<doteq> Set{\<lambda>_. \<lfloor>\<lfloor>x\<rfloor>\<rfloor>}))"
 value   "(\<tau> \<Turnstile> (Set{\<lambda>_. \<lfloor>x\<rfloor>} \<doteq> Set{\<lambda>_. \<lfloor>x\<rfloor>}))"

@@ -374,8 +374,8 @@ where "X .oclIsOld() \<equiv> (\<lambda>\<tau> . if (\<delta> X) \<tau> = true \
                                      oid_of (X \<tau>) \<notin> dom(heap(snd \<tau>))\<rfloor>\<rfloor>
                               else invalid \<tau>)"
 
-definition OclIsEverywhere:: "('\<AA>, '\<alpha>::{null,object})val \<Rightarrow> ('\<AA>)Boolean"   ("(_).oclIsEverywhere'(')")
-where "X .oclIsEverywhere() \<equiv> (\<lambda>\<tau> . if (\<delta> X) \<tau> = true \<tau>
+definition OclIsMaintained:: "('\<AA>, '\<alpha>::{null,object})val \<Rightarrow> ('\<AA>)Boolean"   ("(_).oclIsMaintained'(')")
+where "X .oclIsMaintained() \<equiv> (\<lambda>\<tau> . if (\<delta> X) \<tau> = true \<tau>
                               then \<lfloor>\<lfloor>oid_of (X \<tau>) \<in> dom(heap(fst \<tau>)) \<and>
                                      oid_of (X \<tau>) \<in> dom(heap(snd \<tau>))\<rfloor>\<rfloor>
                               else invalid \<tau>)"
@@ -386,12 +386,12 @@ where "X .oclIsAbsent() \<equiv> (\<lambda>\<tau> . if (\<delta> X) \<tau> = tru
                                      oid_of (X \<tau>) \<notin> dom(heap(snd \<tau>))\<rfloor>\<rfloor>
                               else invalid \<tau>)"
 
-lemma state_split : "\<tau> \<Turnstile> \<delta> X \<Longrightarrow> \<tau> \<Turnstile> (X .oclIsNew()) \<or> \<tau> \<Turnstile> (X .oclIsOld()) \<or> \<tau> \<Turnstile> (X .oclIsEverywhere()) \<or> \<tau> \<Turnstile> (X .oclIsAbsent())"
-by(simp add: OclIsOld_def OclIsNew_def OclIsEverywhere_def OclIsAbsent_def
+lemma state_split : "\<tau> \<Turnstile> \<delta> X \<Longrightarrow> \<tau> \<Turnstile> (X .oclIsNew()) \<or> \<tau> \<Turnstile> (X .oclIsOld()) \<or> \<tau> \<Turnstile> (X .oclIsMaintained()) \<or> \<tau> \<Turnstile> (X .oclIsAbsent())"
+by(simp add: OclIsOld_def OclIsNew_def OclIsMaintained_def OclIsAbsent_def
              OclValid_def true_def, blast)
 
-lemma notNew_vs_others : "\<tau> \<Turnstile> \<delta> X \<Longrightarrow> (\<not> \<tau> \<Turnstile> (X .oclIsNew())) = (\<tau> \<Turnstile> (X .oclIsOld()) \<or> \<tau> \<Turnstile> (X .oclIsEverywhere()) \<or> \<tau> \<Turnstile> (X .oclIsAbsent()))"
-by(simp add: OclIsOld_def OclIsNew_def OclIsEverywhere_def OclIsAbsent_def
+lemma notNew_vs_others : "\<tau> \<Turnstile> \<delta> X \<Longrightarrow> (\<not> \<tau> \<Turnstile> (X .oclIsNew())) = (\<tau> \<Turnstile> (X .oclIsOld()) \<or> \<tau> \<Turnstile> (X .oclIsMaintained()) \<or> \<tau> \<Turnstile> (X .oclIsAbsent()))"
+by(simp add: OclIsOld_def OclIsNew_def OclIsMaintained_def OclIsAbsent_def
                 OclNot_def OclValid_def true_def, blast)
 
 subsection{* OclIsModifiedOnly *}
@@ -461,8 +461,16 @@ proof -
   apply(blast)
  done
 qed
-
-
+(*
+theorem framing':
+      assumes modifiesclause:"\<tau> \<Turnstile> (X->excluding(x :: ('\<AA>::object,'\<alpha>::{null,object})val))->oclIsModifiedOnly()"
+      and    represented_x: "\<tau> \<Turnstile> \<delta>(x @pre (H::('\<AA> \<Rightarrow> '\<alpha>)))"
+      and oid_is_typerepr : "WFF \<tau>"
+      shows "\<tau> \<Turnstile> (x @pre H  \<triangleq>  (x @post H))"
+apply(rule framing[OF modifiesclause represented_x])
+apply(insert oid_is_typerepr, simp add: WFF_def)
+sorry
+*)
 lemma pre_post_new: "\<tau> \<Turnstile> (x .oclIsNew()) \<Longrightarrow> \<not> (\<tau> \<Turnstile> \<upsilon>(x @pre H1)) \<and> \<not> (\<tau> \<Turnstile> \<upsilon>(x @post H2))"
 by(simp add: OclIsNew_def OclSelf_at_pre_def OclSelf_at_post_def
              OclValid_def StrongEq_def true_def false_def
@@ -481,14 +489,14 @@ by(simp add: OclIsAbsent_def OclSelf_at_pre_def OclSelf_at_post_def
              bot_option_def invalid_def bot_fun_def valid_def
       split: split_if_asm)
 
-lemma pre_post_everywhere: "(\<tau> \<Turnstile> \<upsilon>(x @pre H1) \<or> \<tau> \<Turnstile> \<upsilon>(x @post H2)) \<Longrightarrow> \<tau> \<Turnstile> (x .oclIsEverywhere())"
-by(simp add: OclIsEverywhere_def OclSelf_at_pre_def OclSelf_at_post_def
+lemma pre_post_everywhere: "(\<tau> \<Turnstile> \<upsilon>(x @pre H1) \<or> \<tau> \<Turnstile> \<upsilon>(x @post H2)) \<Longrightarrow> \<tau> \<Turnstile> (x .oclIsMaintained())"
+by(simp add: OclIsMaintained_def OclSelf_at_pre_def OclSelf_at_post_def
              OclValid_def StrongEq_def true_def false_def
              bot_option_def invalid_def bot_fun_def valid_def
       split: split_if_asm)
 
-lemma pre_post_everywhere': "\<tau> \<Turnstile> (x .oclIsEverywhere()) \<Longrightarrow> (\<tau> \<Turnstile> \<upsilon>(x @pre (Some o H1)) \<and> \<tau> \<Turnstile> \<upsilon>(x @post (Some o H2)))"
-by(simp add: OclIsEverywhere_def OclSelf_at_pre_def OclSelf_at_post_def
+lemma pre_post_everywhere': "\<tau> \<Turnstile> (x .oclIsMaintained()) \<Longrightarrow> (\<tau> \<Turnstile> \<upsilon>(x @pre (Some o H1)) \<and> \<tau> \<Turnstile> \<upsilon>(x @post (Some o H2)))"
+by(simp add: OclIsMaintained_def OclSelf_at_pre_def OclSelf_at_post_def
              OclValid_def StrongEq_def true_def false_def
              bot_option_def invalid_def bot_fun_def valid_def
       split: split_if_asm)
