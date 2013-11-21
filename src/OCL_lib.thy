@@ -3194,8 +3194,8 @@ value "\<not> (\<tau> \<Turnstile> \<delta>(Set{\<two>,null})->forAll(z | \<zero
 value "\<not> (\<tau> \<Turnstile> ((Set{\<two>,null})->forAll(z | \<zero> <\<^sub>o\<^sub>c\<^sub>l z)))"
 value    "\<tau> \<Turnstile> ((Set{\<two>,null})->exists(z | \<zero> <\<^sub>o\<^sub>c\<^sub>l z))"
 
-value "\<not> (\<tau> \<Turnstile> (Set{null} \<doteq> Set{}))"
 value "\<not> (\<tau> \<Turnstile> (Set{null::'a Boolean} \<doteq> Set{}))"
+value "\<not> (\<tau> \<Turnstile> (Set{null::'a Integer} \<doteq> Set{}))"
 
 value   "(\<tau> \<Turnstile> (Set{\<lambda>_. \<lfloor>\<lfloor>x\<rfloor>\<rfloor>} \<doteq> Set{\<lambda>_. \<lfloor>\<lfloor>x\<rfloor>\<rfloor>}))"
 value   "(\<tau> \<Turnstile> (Set{\<lambda>_. \<lfloor>x\<rfloor>} \<doteq> Set{\<lambda>_. \<lfloor>x\<rfloor>}))"
