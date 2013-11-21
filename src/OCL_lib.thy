@@ -1409,10 +1409,10 @@ by(simp add: StrictRefEq\<^sub>S\<^sub>e\<^sub>t, subst StrongEq_sym, rule ext, 
 
 subsubsection{* Execution with invalid or null as argument *}
 
-lemma StrictRefEq\<^sub>S\<^sub>e\<^sub>t_strict1: "((x::('\<AA>,'\<alpha>::null)Set) \<doteq> invalid)= invalid"
+lemma StrictRefEq\<^sub>S\<^sub>e\<^sub>t_strict1[simp,code_unfold]: "((x::('\<AA>,'\<alpha>::null)Set) \<doteq> invalid)= invalid"
 by(simp add:StrictRefEq\<^sub>S\<^sub>e\<^sub>t false_def true_def)
 
-lemma StrictRefEq\<^sub>S\<^sub>e\<^sub>t_strict2: "(invalid \<doteq> (y::('\<AA>,'\<alpha>::null)Set))= invalid"
+lemma StrictRefEq\<^sub>S\<^sub>e\<^sub>t_strict2[simp,code_unfold]: "(invalid \<doteq> (y::('\<AA>,'\<alpha>::null)Set))= invalid"
 by(simp add:StrictRefEq\<^sub>S\<^sub>e\<^sub>t false_def true_def)
 
 lemma StrictRefEq\<^sub>S\<^sub>e\<^sub>t_strictEq_valid_args_valid:
