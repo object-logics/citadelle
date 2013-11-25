@@ -1633,11 +1633,14 @@ lemma finite_including_rep_set :
           dest: foundation13[THEN iffD2, THEN foundation22[THEN iffD1]])
 qed
 
-lemma including_includes :
- assumes a_val : "\<tau> \<Turnstile> \<upsilon> a"
+lemma including_includes_generic :
+ assumes includes_execute_generic [simp] : "\<And>X x y. (X->including(x::('\<AA>,'a::null)val)->includes(y)) =
+       (if \<delta> X then if x \<doteq> y then true else X->includes(y) endif else invalid endif)"
+     and StrictRefEq_strict'' : "\<And>x y. \<delta> ((x::('\<AA>,'a::null)val) \<doteq> y) = (\<upsilon>(x) and \<upsilon>(y))"
+     and a_val : "\<tau> \<Turnstile> \<upsilon> a"
      and x_val : "\<tau> \<Turnstile> \<upsilon> x"
-     and S_incl : "\<tau> \<Turnstile> (S :: ('\<AA>, int option option) Set)->includes(x)"
-   shows "\<tau> \<Turnstile> S->including(a)->includes(x)"
+     and S_incl : "\<tau> \<Turnstile> (S)->includes((x::('\<AA>,'a::null)val))"
+   shows "\<tau> \<Turnstile> S->including((a::('\<AA>,'a::null)val))->includes(x)"
 proof -
  have discr_eq_bot1_true : "\<And>\<tau>. (\<bottom> \<tau> = true \<tau>) = False" by (metis OCL_core.bot_fun_def foundation1 foundation18' valid3)
  have discr_eq_bot2_true : "\<And>\<tau>. (\<bottom> = true \<tau>) = False" by (metis bot_fun_def discr_eq_bot1_true)
@@ -1650,8 +1653,10 @@ show ?thesis
    apply(insert S_incl[simplified OclIncludes_def], simp add:  OclValid_def)
    apply(metis discr_eq_bot2_true)
   apply(simp add: cp_OclIf[of "\<delta> S"] OclValid_def OclIf_def discr_neq_invalid_true discr_eq_invalid_true x_val[simplified OclValid_def])
- by (metis OclValid_def S_incl StrictRefEq\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r_strict'' a_val foundation10 foundation6 x_val)
+ by (metis OclValid_def S_incl StrictRefEq_strict'' a_val foundation10 foundation6 x_val)
 qed
+
+lemmas including_includes = including_includes_generic[OF includes_execute_int StrictRefEq\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r_strict'']
 
 lemma including_rep_set:
  assumes S_def: "\<tau> \<Turnstile> \<delta> S"
