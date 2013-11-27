@@ -3627,9 +3627,9 @@ proof -
   apply(rule ext, rename_tac \<tau>)
   apply(subst (1 2) cp_OclIncluding)
   apply(subst (1 2) iterate_including_id)
-   apply (metis StrictRefEq\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r_strict' cons_all_def' foundation1 is_int_def mtSet_all_def null_non_OclInt0 valid4)
-   apply (metis StrictRefEq\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r_strict' cons_all_def' foundation1 is_int_def mtSet_all_def null_non_OclInt0 valid4)
-
+   apply (metis OclInt0_int cons_all_def' is_int_def mtSet_all_def)
+   apply (metis OclInt0_int cons_all_def' is_int_def mtSet_all_def)
+   
     apply(subst (1 2) cp_OclIncluding[symmetric])
     apply(rule including_swap')
     apply (metis (hide_lams, no_types) all_defined1 including_defined_args_valid int_is_valid mtSet_all_def OclInt0_int)
@@ -3760,7 +3760,7 @@ proof -
   apply(subst iterate_subst_set[where G = "\<lambda>j r2. r2->including(\<zero>)->including(j)->including(\<lambda>_. \<lfloor>x\<rfloor>)"]) apply(blast)+
    apply(simp add: commute3, simp add: commute4)
   apply(rule including_swap)
-   apply (metis (hide_lams, mono_tags) StrictRefEq\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r_strict' all_defined_def including_defined_args_valid' null_non_OclInt0 OclAnd_true1 transform1_rev valid4)
+   apply (metis (hide_lams, no_types) OclInt0_int all_defined1 including_defined_args_valid is_int_def)
    apply(simp add: int_is_valid)+
   (* *)
   apply(subst iterate_subst_set___[where G = "\<lambda>i r1. r1 ->iterate(j;r2=r1 | r2->including(\<zero>)->including(j))->including(i)"])
