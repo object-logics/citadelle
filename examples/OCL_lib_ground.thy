@@ -300,6 +300,58 @@ proof -
  apply_end(simp_all add: assms)
 qed
 
+lemma including_swap_0_generic :
+ assumes includes_execute_generic : "\<And>X x y. (X->including(x::('\<AA>,'a::null)val)->includes(y)) =
+       (if \<delta> X then if x \<doteq> y then true else X->includes(y) endif else invalid endif)"
+ assumes StrictRefEq_refl : "\<And>(x::('\<AA>,'a::null)val). (x \<doteq> x) = (if (\<upsilon> x) then true else invalid endif)"
+ assumes StrictRefEq_defined_args_valid : "\<And>(x::('\<AA>,'a::null)val) y \<tau>. (\<tau> \<Turnstile> \<delta> (x \<doteq> y)) = (\<tau> \<Turnstile> \<upsilon> x \<and> \<tau> \<Turnstile> \<upsilon> y)"
+ assumes including_includes: "\<And>(S :: ('\<AA>, 'a::null) Set) a x \<tau>. \<tau> \<Turnstile> \<upsilon> a \<Longrightarrow> \<tau> \<Turnstile> \<upsilon> x \<Longrightarrow> \<tau> \<Turnstile> S->includes(x) \<Longrightarrow> \<tau> \<Turnstile> S->including(a)->includes(x)"
+ shows "(S :: ('\<AA>, 'a) Set)->including(i)->including(j) = (S->including(j)->including(i))"
+proof -
+ have defined_inject_true : "\<And>\<tau> P. (\<delta> P) \<tau> \<noteq> true \<tau> \<Longrightarrow> (\<delta> P) \<tau> = false \<tau>"
+      apply(simp add: defined_def true_def false_def bot_fun_def bot_option_def
+                      null_fun_def null_option_def)
+      by (case_tac " P \<tau> = \<bottom> \<or> P \<tau> = null", simp_all add: true_def)
+ have valid_inject_true : "\<And>\<tau> P. (\<upsilon> P) \<tau> \<noteq> true \<tau> \<Longrightarrow> (\<upsilon> P) \<tau> = false \<tau>"
+      apply(simp add: valid_def true_def false_def bot_fun_def bot_option_def
+                      null_fun_def null_option_def)
+      by (case_tac "P \<tau> = \<bottom>", simp_all add: true_def)
+
+ show ?thesis
+  apply(rule ext, rename_tac \<tau>)
+  apply(case_tac "\<not> (\<tau> \<Turnstile> \<delta> S)", simp add: OclIncluding_def OclValid_def)
+  apply(drule defined_inject_true)
+  apply(subst (2 4 6 8 10) cp_defined)
+  apply(simp add: false_def true_def)
+  apply(rule conjI, rule impI)+
+  apply (metis foundation16 foundation18' foundation23 null_option_def)
+  apply (metis (lifting) OCL_core.bot_fun_def defined_def true_def valid_def)
+  apply (metis (lifting) OCL_core.bot_fun_def defined_def true_def valid_def)
+  (* *)
+  apply(case_tac "\<not> (\<tau> \<Turnstile> \<upsilon> i)", simp add: OclIncluding_def OclValid_def)
+  apply(drule valid_inject_true)
+  apply(subst (2) cp_defined)
+  apply(simp add: false_def true_def)
+  apply (metis (lifting) OCL_core.bot_fun_def OclValid_def defined_def foundation2 true_def)
+  (* *)
+  apply(case_tac "\<not> (\<tau> \<Turnstile> \<upsilon> j)", simp add: OclIncluding_def OclValid_def)
+  apply(drule valid_inject_true)
+  apply(subst (2) cp_defined)
+  apply(simp add: false_def true_def)
+  apply (metis (lifting) OCL_core.bot_fun_def OclValid_def defined_def foundation2 true_def)
+  (* *)
+  proof - fix \<tau> show "\<tau> \<Turnstile> \<delta> S \<Longrightarrow> \<tau> \<Turnstile> \<upsilon> i \<Longrightarrow> \<tau> \<Turnstile> \<upsilon> j \<Longrightarrow> S->including(i)->including(j) \<tau> = S->including(j)->including(i) \<tau>"
+   apply(insert including_swap__generic[OF includes_execute_generic StrictRefEq_refl StrictRefEq_defined_args_valid including_includes, of \<tau> S i j],
+         simp only: StrictRefEq\<^sub>S\<^sub>e\<^sub>t StrongEq_def)
+   apply(simp add: OclValid_def split: split_if_asm)
+   apply(subgoal_tac "(\<delta> S and \<upsilon> i and \<upsilon> j) \<tau> = true \<tau> \<and> (\<delta> S and \<upsilon> j and \<upsilon> i) \<tau> = true \<tau>")
+    prefer 2
+    apply (metis OclValid_def foundation3)
+  by(simp add: true_def)
+  apply_end(simp+)
+ qed
+qed
+
 lemma including_swap_ :
  assumes S_def : "\<tau> \<Turnstile> \<delta> S"
      and i_val : "\<tau> \<Turnstile> \<upsilon> i"
@@ -308,43 +360,20 @@ lemma including_swap_ :
 by(rule including_swap__generic[OF includes_execute_int StrictRefEq\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r_refl StrictRefEq\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r_defined_args_valid including_includes], simp_all add: assms)
 
 lemma including_swap'_generic :
- assumes including_swap_ : "\<And>(S:: ('\<AA>, 'a::null) Set) i j \<tau>. \<tau> \<Turnstile> \<delta> S \<Longrightarrow> \<tau> \<Turnstile> \<upsilon> i \<Longrightarrow> \<tau> \<Turnstile> \<upsilon> j \<Longrightarrow> \<tau> \<Turnstile> S->including(i)->including(j) \<doteq> S->including(j)->including(i)"
+ assumes including_swap_0 : "\<And>(S:: ('\<AA>, 'a::null) Set) i j. S->including(i)->including(j) = S->including(j)->including(i)"
  shows "\<tau> \<Turnstile> \<delta> S \<Longrightarrow> \<tau> \<Turnstile> \<upsilon> i \<Longrightarrow> \<tau> \<Turnstile> \<upsilon> j \<Longrightarrow> ((S :: ('\<AA>, 'a::null) Set)->including(i)->including(j) \<tau> = (S->including(j)->including(i)) \<tau>)"
- apply(frule including_swap_[where i = i and j = j], simp_all del: StrictRefEq\<^sub>S\<^sub>e\<^sub>t_exec)
- apply(simp add: StrictRefEq\<^sub>S\<^sub>e\<^sub>t OclValid_def del: StrictRefEq\<^sub>S\<^sub>e\<^sub>t_exec)
- apply(subgoal_tac "(\<delta> S and \<upsilon> i and \<upsilon> j) \<tau> = true \<tau> \<and> (\<delta> S and \<upsilon> j and \<upsilon> i) \<tau> = true \<tau>")
-  prefer 2
-  apply(metis OclValid_def foundation3)
- apply(simp add: StrongEq_def true_def)
-done
+by(simp add: including_swap_0)
 
 lemma including_swap' : "\<tau> \<Turnstile> \<delta> S \<Longrightarrow> \<tau> \<Turnstile> \<upsilon> i \<Longrightarrow> \<tau> \<Turnstile> \<upsilon> j \<Longrightarrow> ((S :: ('\<AA>, int option option) Set)->including(i)->including(j) \<tau> = (S->including(j)->including(i)) \<tau>)"
-by(rule including_swap'_generic[OF including_swap__generic[OF includes_execute_int StrictRefEq\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r_refl StrictRefEq\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r_defined_args_valid including_includes]])
+by(rule including_swap'_generic[OF including_swap_0_generic[OF includes_execute_int StrictRefEq\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r_refl StrictRefEq\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r_defined_args_valid including_includes]])
 
-lemma including_swap_generic : 
- assumes includes_execute_generic [simp] : "\<And>X x y. (X->including(x::('\<AA>,'a::null)val)->includes(y)) =
-       (if \<delta> X then if x \<doteq> y then true else X->includes(y) endif else invalid endif)"
- assumes StrictRefEq_refl [simp] : "\<And>(x::('\<AA>,'a::null)val). (x \<doteq> x) = (if (\<upsilon> x) then true else invalid endif)"
- assumes StrictRefEq_defined_args_valid : "\<And>(x::('\<AA>,'a::null)val) y \<tau>. (\<tau> \<Turnstile> \<delta> (x \<doteq> y)) = (\<tau> \<Turnstile> \<upsilon> x \<and> \<tau> \<Turnstile> \<upsilon> y)"
- assumes including_includes: "\<And>(S :: ('\<AA>, 'a::null) Set) a x \<tau>. \<tau> \<Turnstile> \<upsilon> a \<Longrightarrow> \<tau> \<Turnstile> \<upsilon> x \<Longrightarrow> \<tau> \<Turnstile> S->includes(x) \<Longrightarrow> \<tau> \<Turnstile> S->including(a)->includes(x)"
+lemma including_swap_generic :
+ assumes including_swap_0 : "\<And>(S:: ('\<AA>, 'a::null) Set) i j. S->including(i)->including(j) = S->including(j)->including(i)"
  shows "\<forall>\<tau>. \<tau> \<Turnstile> \<delta> S \<Longrightarrow> \<forall>\<tau>. \<tau> \<Turnstile> \<upsilon> i \<Longrightarrow> \<forall>\<tau>. \<tau> \<Turnstile> \<upsilon> j \<Longrightarrow> ((S :: ('\<AA>, 'a::null) Set)->including(i)->including(j) = (S->including(j)->including(i)))"
- proof -
-  have including_swap_ : "\<And>(S:: ('\<AA>, 'a::null) Set) i j \<tau>. \<tau> \<Turnstile> \<delta> S \<Longrightarrow> \<tau> \<Turnstile> \<upsilon> i \<Longrightarrow> \<tau> \<Turnstile> \<upsilon> j \<Longrightarrow> \<tau> \<Turnstile> S->including(i)->including(j) \<doteq> S->including(j)->including(i)"
-  by(rule including_swap__generic[OF includes_execute_generic StrictRefEq_refl StrictRefEq_defined_args_valid including_includes])
- show "\<forall>\<tau>. \<tau> \<Turnstile> \<delta> S \<Longrightarrow> \<forall>\<tau>. \<tau> \<Turnstile> \<upsilon> i \<Longrightarrow> \<forall>\<tau>. \<tau> \<Turnstile> \<upsilon> j \<Longrightarrow> ?thesis"
-  apply(rule ext, rename_tac \<tau>)
-  apply(erule_tac x = \<tau> in allE)+
-  apply(frule including_swap_[where i = i and j = j], simp_all del: StrictRefEq\<^sub>S\<^sub>e\<^sub>t_exec)
-  apply(simp add: StrictRefEq\<^sub>S\<^sub>e\<^sub>t OclValid_def del: StrictRefEq\<^sub>S\<^sub>e\<^sub>t_exec)
-  apply(subgoal_tac "(\<delta> S and \<upsilon> i and \<upsilon> j) \<tau> = true \<tau> \<and> (\<delta> S and \<upsilon> j and \<upsilon> i) \<tau> = true \<tau>")
-   prefer 2
-   apply(metis OclValid_def foundation3)
-  apply(simp add: StrongEq_def true_def)
- done
-qed
+by(simp add: including_swap_0)
 
 lemma including_swap : "\<forall>\<tau>. \<tau> \<Turnstile> \<delta> S \<Longrightarrow> \<forall>\<tau>. \<tau> \<Turnstile> \<upsilon> i \<Longrightarrow> \<forall>\<tau>. \<tau> \<Turnstile> \<upsilon> j \<Longrightarrow> ((S :: ('\<AA>, int option option) Set)->including(i)->including(j) = (S->including(j)->including(i)))"
-by(rule including_swap_generic[OF includes_execute_int StrictRefEq\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r_refl StrictRefEq\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r_defined_args_valid including_includes])
+by(rule including_swap_generic[OF including_swap_0_generic[OF includes_execute_int StrictRefEq\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r_refl StrictRefEq\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r_defined_args_valid including_includes]])
 
 subsection{* Congruence *}
 
