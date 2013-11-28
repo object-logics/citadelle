@@ -41,7 +41,7 @@
  ******************************************************************************)
 (* $Id:$ *)
 
-header{* Gogolla's challenge on Sets (1/2) *}
+header{* Gogolla's challenge on Sets *}
 
 theory
   OCL_lib_ground
@@ -352,28 +352,15 @@ proof -
  qed
 qed
 
-lemma including_swap_ :
- assumes S_def : "\<tau> \<Turnstile> \<delta> S"
-     and i_val : "\<tau> \<Turnstile> \<upsilon> i"
-     and j_val : "\<tau> \<Turnstile> \<upsilon> j"
-   shows "\<tau> \<Turnstile> ((S :: ('\<AA>, int option option) Set)->including(i)->including(j) \<doteq> (S->including(j)->including(i)))"
-by(rule including_swap__generic[OF includes_execute_int StrictRefEq\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r_refl StrictRefEq\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r_defined_args_valid including_includes], simp_all add: assms)
-
 lemma including_swap'_generic :
  assumes including_swap_0 : "\<And>(S:: ('\<AA>, 'a::null) Set) i j. S->including(i)->including(j) = S->including(j)->including(i)"
  shows "\<tau> \<Turnstile> \<delta> S \<Longrightarrow> \<tau> \<Turnstile> \<upsilon> i \<Longrightarrow> \<tau> \<Turnstile> \<upsilon> j \<Longrightarrow> ((S :: ('\<AA>, 'a::null) Set)->including(i)->including(j) \<tau> = (S->including(j)->including(i)) \<tau>)"
 by(simp add: including_swap_0)
 
-lemma including_swap' : "\<tau> \<Turnstile> \<delta> S \<Longrightarrow> \<tau> \<Turnstile> \<upsilon> i \<Longrightarrow> \<tau> \<Turnstile> \<upsilon> j \<Longrightarrow> ((S :: ('\<AA>, int option option) Set)->including(i)->including(j) \<tau> = (S->including(j)->including(i)) \<tau>)"
-by(rule including_swap'_generic[OF including_swap_0_generic[OF includes_execute_int StrictRefEq\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r_refl StrictRefEq\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r_defined_args_valid including_includes]])
-
 lemma including_swap_generic :
  assumes including_swap_0 : "\<And>(S:: ('\<AA>, 'a::null) Set) i j. S->including(i)->including(j) = S->including(j)->including(i)"
  shows "\<forall>\<tau>. \<tau> \<Turnstile> \<delta> S \<Longrightarrow> \<forall>\<tau>. \<tau> \<Turnstile> \<upsilon> i \<Longrightarrow> \<forall>\<tau>. \<tau> \<Turnstile> \<upsilon> j \<Longrightarrow> ((S :: ('\<AA>, 'a::null) Set)->including(i)->including(j) = (S->including(j)->including(i)))"
 by(simp add: including_swap_0)
-
-lemma including_swap : "\<forall>\<tau>. \<tau> \<Turnstile> \<delta> S \<Longrightarrow> \<forall>\<tau>. \<tau> \<Turnstile> \<upsilon> i \<Longrightarrow> \<forall>\<tau>. \<tau> \<Turnstile> \<upsilon> j \<Longrightarrow> ((S :: ('\<AA>, int option option) Set)->including(i)->including(j) = (S->including(j)->including(i)))"
-by(rule including_swap_generic[OF including_swap_0_generic[OF includes_execute_int StrictRefEq\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r_refl StrictRefEq\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r_defined_args_valid including_includes]])
 
 subsection{* Congruence *}
 
