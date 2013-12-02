@@ -683,10 +683,10 @@ where "eval_extract X f = (\<lambda> \<tau>. case X \<tau> of
 definition "filter_assocs\<^sub>2" :: "('\<AA> state \<times> '\<AA> state \<Rightarrow> '\<AA> state)
                               \<Rightarrow> (oid \<times> oid \<Rightarrow> oid \<times> oid)
                               \<Rightarrow> oid
-                              \<Rightarrow> oid
                               \<Rightarrow> (oid list \<Rightarrow> oid \<Rightarrow> ('\<AA>,'f)val)
+                              \<Rightarrow> oid
                               \<Rightarrow> ('\<AA>, 'f::null)val"
-where      "filter_assocs\<^sub>2 pre_post to_from assoc_oid oid f  =
+where      "filter_assocs\<^sub>2 pre_post to_from assoc_oid f oid =
                  (\<lambda>\<tau>. case (assocs\<^sub>2 (pre_post \<tau>)) assoc_oid of
                       \<lfloor> S \<rfloor> \<Rightarrow> f (map (snd \<circ> to_from)
                                      (filter (\<lambda> p. fst(to_from p)=oid) S))
@@ -762,7 +762,7 @@ definition dot\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y\<A>\<N>\<Y> :: "O
 
 definition dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<B>\<O>\<S>\<S> :: "Person \<Rightarrow> Person"  ("(1(_).boss)" 50)
   where "(X).boss = eval_extract X
-                        (\<lambda> oid. filter_assocs\<^sub>2 in_post_state id oid\<^sub>E\<^sub>B oid
+                        (filter_assocs\<^sub>2 in_post_state id oid\<^sub>E\<^sub>B 
                                     (deref_oids  mtSet OclIncluding Ocl_Any
                                           (deref_oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n in_post_state (\<lambda> x y. \<lfloor>\<lfloor>x\<rfloor>\<rfloor>))))"
 
@@ -781,7 +781,7 @@ definition dot\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y\<A>\<N>\<Y>_at_pr
 
 definition dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<B>\<O>\<S>\<S>_at_pre:: "Person \<Rightarrow> Person"  ("(1(_).boss@pre)" 50)
   where "(X).boss@pre = eval_extract X
-                        (\<lambda> oid. filter_assocs\<^sub>2 in_pre_state id oid\<^sub>E\<^sub>B oid
+                        (filter_assocs\<^sub>2 in_pre_state id oid\<^sub>E\<^sub>B
                                     (deref_oids  mtSet OclIncluding Ocl_Any
                                           (deref_oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n in_post_state (\<lambda> x y. \<lfloor>\<lfloor>x\<rfloor>\<rfloor>))))"
 
