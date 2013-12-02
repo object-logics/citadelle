@@ -1,6 +1,12 @@
-(* ******************************************************************** *
+(*****************************************************************************
+ * Featherweight-OCL --- A Formal Semantics for UML-OCL Version OCL 2.4
+ *                       for the OMG Standard.
+ *                       http://www.brucker.ch/projects/hol-testgen/
  *
- * Copyright (c) 2009 Université Paris-Sud, France
+ * This file is part of HOL-TestGen.
+ *
+ * Copyright (c) 2013      Université Paris-Sud, France
+ *               2013      IRT SystemX, France
  *
  * All rights reserved.
  *
@@ -32,11 +38,21 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ******************************************************************************)
-(* $Id: ROOT.ML 8591 2009-09-26 09:58:14Z brucker $ *)
+(* $Id:$ *)
 
+session "OCL" = HOL +
+  description {* HOL-TestGen *}
+  options [quick_and_dirty, document = pdf, document_variants="document:outline=/proof,/ML"]
+  theories
+    "OCL_main"
+  files
+    "document/root.tex"
 
-quick_and_dirty := true;
-
-(* use_thys ["OCL_main","../examples/OCL_linked_list"]; *)
- use_thys ["OCL_main"]; 
+session "OCL_ex" = HOL +
+  options [quick_and_dirty, document = pdf, document_variants="document:outline=/proof,/ML"]
+  theories
+    "../examples/Employee_AnalysisModel_UMLPart"
+    "../examples/Employee_DesignModel_UMLPart"
+  files
+    "document/root.tex"
 
