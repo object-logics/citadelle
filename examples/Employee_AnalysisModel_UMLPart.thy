@@ -773,9 +773,10 @@ definition dot\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y\<A>\<N>\<Y> :: "O
 
 definition dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<B>\<O>\<S>\<S> :: "Person \<Rightarrow> Person"  ("(1(_).boss)" 50)
   where "(X).boss = eval_extract X
-                        (filter_assocs\<^sub>2 in_post_state id oid\<^sub>E\<^sub>B 
+                       (deref_oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n in_post_state
+                           (\<lambda> mk\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n oid _ \<Rightarrow> filter_assocs\<^sub>2 in_post_state switch\<^sub>2_1 oid\<^sub>E\<^sub>B 
                                     (deref_oids  mtSet OclIncluding Ocl_Any
-                                          (deref_oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n in_post_state (\<lambda> x y. \<lfloor>\<lfloor>x\<rfloor>\<rfloor>))))"
+                                          (deref_oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n in_post_state (\<lambda> x y. \<lfloor>\<lfloor>x\<rfloor>\<rfloor>))) oid))"
 
 
 definition dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<S>\<A>\<L>\<A>\<R>\<Y> :: "Person \<Rightarrow> Integer"  ("(1(_).salary)" 50)
@@ -792,9 +793,10 @@ definition dot\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y\<A>\<N>\<Y>_at_pr
 
 definition dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<B>\<O>\<S>\<S>_at_pre:: "Person \<Rightarrow> Person"  ("(1(_).boss@pre)" 50)
   where "(X).boss@pre = eval_extract X
-                        (filter_assocs\<^sub>2 in_pre_state id oid\<^sub>E\<^sub>B
+                           (deref_oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n in_pre_state
+                              (\<lambda> mk\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n oid _ \<Rightarrow> filter_assocs\<^sub>2 in_pre_state switch\<^sub>2_1 oid\<^sub>E\<^sub>B
                                     (deref_oids  mtSet OclIncluding Ocl_Any
-                                          (deref_oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n in_pre_state (\<lambda> x y. \<lfloor>\<lfloor>x\<rfloor>\<rfloor>))))"
+                                          (deref_oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n in_pre_state (\<lambda> x y. \<lfloor>\<lfloor>x\<rfloor>\<rfloor>))) oid))"
 
 definition dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<S>\<A>\<L>\<A>\<R>\<Y>_at_pre:: "Person \<Rightarrow> Integer"  ("(1(_).salary@pre)" 50)
   where "(X).salary@pre = eval_extract X
