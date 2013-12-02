@@ -678,7 +678,11 @@ where "eval_extract X f = (\<lambda> \<tau>. case X \<tau> of
                                | \<lfloor>\<lfloor> obj \<rfloor>\<rfloor> \<Rightarrow> f (oid_of obj) \<tau>)"
 (* TODO: rephrasing as if-then-else and shifting to OCL_state. *)
 
-
+definition "choose\<^sub>2_1 = fst"
+definition "choose\<^sub>2_2 = snd"
+definition "choose\<^sub>3_1 = fst"
+definition "choose\<^sub>3_2 = fst o snd"
+definition "choose\<^sub>3_3 = snd o snd"
 
 definition "filter_assocs\<^sub>2" :: "('\<AA> state \<times> '\<AA> state \<Rightarrow> '\<AA> state)
                               \<Rightarrow> (oid \<times> oid \<Rightarrow> oid \<times> oid)
@@ -688,8 +692,8 @@ definition "filter_assocs\<^sub>2" :: "('\<AA> state \<times> '\<AA> state \<Rig
                               \<Rightarrow> ('\<AA>, 'f::null)val"
 where      "filter_assocs\<^sub>2 pre_post to_from assoc_oid f oid =
                  (\<lambda>\<tau>. case (assocs\<^sub>2 (pre_post \<tau>)) assoc_oid of
-                      \<lfloor> S \<rfloor> \<Rightarrow> f (map (snd \<circ> to_from)
-                                     (filter (\<lambda> p. fst(to_from p)=oid) S))
+                      \<lfloor> S \<rfloor> \<Rightarrow> f (map (choose\<^sub>2_2 \<circ> to_from)
+                                     (filter (\<lambda> p. choose\<^sub>2_1(to_from p)=oid) S))
                                  oid \<tau>
                      | _    \<Rightarrow> invalid \<tau>)"
 
@@ -697,7 +701,14 @@ where      "filter_assocs\<^sub>2 pre_post to_from assoc_oid f oid =
 text{* The @{text pre_post}-parameter is configured with @{text fst} or
 @{text snd}, the @{text to_from}-parameter either with the identity @{term id} or
 the following combinator @{text switch}: *}
-definition "switch = (\<lambda>(x,y). (y,x))"
+definition "switch\<^sub>2_1 = id"
+definition "switch\<^sub>2_2 = (\<lambda>(x,y). (y,x))"
+definition "switch\<^sub>3_1 = id"
+definition "switch\<^sub>3_2 = (\<lambda>(x,y,z). (x,z,y))"
+definition "switch\<^sub>3_3 = (\<lambda>(x,y,z). (y,x,z))"
+definition "switch\<^sub>3_4 = (\<lambda>(x,y,z). (y,z,x))"
+definition "switch\<^sub>3_5 = (\<lambda>(x,y,z). (z,x,y))"
+definition "switch\<^sub>3_6 = (\<lambda>(x,y,z). (z,y,x))"
 
 definition deref_oids  ::"  (('\<AA>, 'b::null)val)
                          \<Rightarrow> (('\<AA>,'b)val \<Rightarrow> ('\<AA>,'c)val \<Rightarrow> ('\<AA>, 'b)val)
