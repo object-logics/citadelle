@@ -783,7 +783,7 @@ definition dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<B>\<O>\<S>\<S>_a
   where "(X).boss@pre = eval_extract X
                         (filter_assocs\<^sub>2 in_pre_state id oid\<^sub>E\<^sub>B
                                     (deref_oids  mtSet OclIncluding Ocl_Any
-                                          (deref_oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n in_post_state (\<lambda> x y. \<lfloor>\<lfloor>x\<rfloor>\<rfloor>))))"
+                                          (deref_oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n in_pre_state (\<lambda> x y. \<lfloor>\<lfloor>x\<rfloor>\<rfloor>))))"
 
 definition dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<S>\<A>\<L>\<A>\<R>\<Y>_at_pre:: "Person \<Rightarrow> Integer"  ("(1(_).salary@pre)" 50)
   where "(X).salary@pre = eval_extract X
