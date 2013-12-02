@@ -656,7 +656,7 @@ section{* dot boss, dot salary *}
 text{* Should be generated entirely from a class-diagram. *}
 
 
-subsection{* Definition of the association \verb+Employee-Boss+*}
+subsection{* Definition of the association Employee-Boss *}
 
 text{* We start with a oid for the association; this oid can be used
 in presence of association classes to represent the association inside an object,
