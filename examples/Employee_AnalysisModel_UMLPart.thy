@@ -684,13 +684,13 @@ definition "choose\<^sub>3_1 = fst"
 definition "choose\<^sub>3_2 = fst o snd"
 definition "choose\<^sub>3_3 = snd o snd"
 
-definition "filter_assocs\<^sub>2" :: "('\<AA> state \<times> '\<AA> state \<Rightarrow> '\<AA> state)
+definition "deref_assocs\<^sub>2" :: "('\<AA> state \<times> '\<AA> state \<Rightarrow> '\<AA> state)
                               \<Rightarrow> (oid \<times> oid \<Rightarrow> oid \<times> oid)
                               \<Rightarrow> oid
                               \<Rightarrow> (oid list \<Rightarrow> oid \<Rightarrow> ('\<AA>,'f)val)
                               \<Rightarrow> oid
                               \<Rightarrow> ('\<AA>, 'f::null)val"
-where      "filter_assocs\<^sub>2 pre_post to_from assoc_oid f oid =
+where      "deref_assocs\<^sub>2 pre_post to_from assoc_oid f oid =
                  (\<lambda>\<tau>. case (assocs\<^sub>2 (pre_post \<tau>)) assoc_oid of
                       \<lfloor> S \<rfloor> \<Rightarrow> f (map (choose\<^sub>2_2 \<circ> to_from)
                                      (filter (\<lambda> p. choose\<^sub>2_1(to_from p)=oid) S))
@@ -710,21 +710,23 @@ definition "switch\<^sub>3_4 = (\<lambda>(x,y,z). (y,z,x))"
 definition "switch\<^sub>3_5 = (\<lambda>(x,y,z). (z,x,y))"
 definition "switch\<^sub>3_6 = (\<lambda>(x,y,z). (z,y,x))"
 
-definition deref_oids  ::"  (('\<AA>, 'b::null)val)
+definition select_object  ::"  (('\<AA>, 'b::null)val)
                          \<Rightarrow> (('\<AA>,'b)val \<Rightarrow> ('\<AA>,'c)val \<Rightarrow> ('\<AA>, 'b)val)
                          \<Rightarrow> (('\<AA>, 'b)val \<Rightarrow> ('\<AA>, 'd)val)
                          \<Rightarrow> (oid \<Rightarrow> ('\<AA>,'c::null)val)
                          \<Rightarrow> oid list
                          \<Rightarrow> oid
                          \<Rightarrow> ('\<AA>, 'd)val"
-where  "deref_oids  mt incl smash deref l oid  = smash(foldl incl mt (map deref l))"
+where  "select_object  mt incl smash deref l oid  = smash(foldl incl mt (map deref l))
+ (* smash returns null with mt in input (in this case, object contains null pointer) *)"
+
 
 text{* The continuation @{text f} is usually instantiated with a smashing
 function which is either the identity @{term id} or, for 0..1 cardinalities
 of associations, the @{term Ocl_Any} - selector which also handles the
 @{term null}-cases appropriately. A standard use-case for this combinator
 is for example: *}
-term "(deref_oids mtSet OclIncluding Ocl_Any f  l oid )::('\<AA>, 'a::null)val"
+term "(select_object mtSet OclIncluding Ocl_Any f  l oid )::('\<AA>, 'a::null)val"
 
 definition deref_oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n :: "(\<AA> state \<times> \<AA> state \<Rightarrow> \<AA> state)
                              \<Rightarrow> (type\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n \<Rightarrow> (\<AA>, 'c::null)val)
@@ -748,15 +750,15 @@ definition "select\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y\<A>\<N>\<Y> f
                    | (mk\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y _ \<lfloor>any\<rfloor>) \<Rightarrow> f (\<lambda>x _. \<lfloor>\<lfloor>x\<rfloor>\<rfloor>) any)"
 
 
-definition "select\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<B>\<O>\<S>\<S> f = (\<lambda> X. case X of
-                     (mk\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n _ \<bottom>) \<Rightarrow> null  (* object contains null pointer *)
-                   | (mk\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n _ \<lfloor>boss\<rfloor>) \<Rightarrow> f (\<lambda>x _. \<lfloor>\<lfloor>x\<rfloor>\<rfloor>) boss)"
+definition "select\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<B>\<O>\<S>\<S> f = select_object mtSet OclIncluding Ocl_Any (f (\<lambda>x _. \<lfloor>\<lfloor>x\<rfloor>\<rfloor>))"
 
 
 definition "select\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<S>\<A>\<L>\<A>\<R>\<Y> f = (\<lambda> X. case X of
                      (mk\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n _ \<bottom>) \<Rightarrow> null
                    | (mk\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n _ \<lfloor>salary\<rfloor>) \<Rightarrow> f (\<lambda>x _. \<lfloor>\<lfloor>x\<rfloor>\<rfloor>) salary)"
 
+
+definition "deref_assocs\<^sub>2\<B>\<O>\<S>\<S> fst_snd f = (\<lambda> mk\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n oid _ \<Rightarrow> deref_assocs\<^sub>2 fst_snd switch\<^sub>2_1 oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<B>\<O>\<S>\<S> f oid)"
 
 definition "in_pre_state = fst"
 definition "in_post_state = snd"
@@ -765,44 +767,41 @@ definition "reconst_basetype = (\<lambda> convert x. convert x)"
 
 definition dot\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y\<A>\<N>\<Y> :: "OclAny \<Rightarrow> _"  ("(1(_).any)" 50)
   where "(X).any = eval_extract X
-                       (deref_oid\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y in_post_state
-                          (select\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y\<A>\<N>\<Y>
-                             reconst_basetype))"
-
-
+                     (deref_oid\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y in_post_state
+                       (select\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y\<A>\<N>\<Y>
+                         reconst_basetype))"
 
 definition dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<B>\<O>\<S>\<S> :: "Person \<Rightarrow> Person"  ("(1(_).boss)" 50)
   where "(X).boss = eval_extract X
-                       (deref_oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n in_post_state
-                           (\<lambda> mk\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n oid _ \<Rightarrow> filter_assocs\<^sub>2 in_post_state switch\<^sub>2_1 oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<B>\<O>\<S>\<S>
-                                    (deref_oids  mtSet OclIncluding Ocl_Any
-                                          (deref_oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n in_post_state (\<lambda> x y. \<lfloor>\<lfloor>x\<rfloor>\<rfloor>))) oid))"
-
+                      (deref_oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n in_post_state
+                        (deref_assocs\<^sub>2\<B>\<O>\<S>\<S> in_post_state
+                          (select\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<B>\<O>\<S>\<S>
+                            (deref_oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n in_post_state))))"
 
 definition dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<S>\<A>\<L>\<A>\<R>\<Y> :: "Person \<Rightarrow> Integer"  ("(1(_).salary)" 50)
   where "(X).salary = eval_extract X
-                       (deref_oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n in_post_state
+                        (deref_oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n in_post_state
                           (select\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<S>\<A>\<L>\<A>\<R>\<Y>
-                             reconst_basetype))"
+                            reconst_basetype))"
 
 definition dot\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y\<A>\<N>\<Y>_at_pre :: "OclAny \<Rightarrow> _"  ("(1(_).any@pre)" 50)
   where "(X).any@pre = eval_extract X
-                       (deref_oid\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y in_pre_state
-                          (select\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y\<A>\<N>\<Y>
+                         (deref_oid\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y in_pre_state
+                           (select\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y\<A>\<N>\<Y>
                              reconst_basetype))"
 
 definition dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<B>\<O>\<S>\<S>_at_pre:: "Person \<Rightarrow> Person"  ("(1(_).boss@pre)" 50)
   where "(X).boss@pre = eval_extract X
-                           (deref_oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n in_pre_state
-                              (\<lambda> mk\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n oid _ \<Rightarrow> filter_assocs\<^sub>2 in_pre_state switch\<^sub>2_1 oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<B>\<O>\<S>\<S>
-                                    (deref_oids  mtSet OclIncluding Ocl_Any
-                                          (deref_oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n in_pre_state (\<lambda> x y. \<lfloor>\<lfloor>x\<rfloor>\<rfloor>))) oid))"
+                          (deref_oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n in_pre_state
+                            (deref_assocs\<^sub>2\<B>\<O>\<S>\<S> in_pre_state
+                              (select\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<B>\<O>\<S>\<S>
+                                (deref_oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n in_pre_state))))"
 
 definition dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<S>\<A>\<L>\<A>\<R>\<Y>_at_pre:: "Person \<Rightarrow> Integer"  ("(1(_).salary@pre)" 50)
   where "(X).salary@pre = eval_extract X
                             (deref_oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n in_pre_state
-                               (select\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<S>\<A>\<L>\<A>\<R>\<Y>
-                                   reconst_basetype))"
+                              (select\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<S>\<A>\<L>\<A>\<R>\<Y>
+                                reconst_basetype))"
 
 lemmas [simp] =
   dot\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y\<A>\<N>\<Y>_def
