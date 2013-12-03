@@ -41,10 +41,10 @@
  ******************************************************************************)
 (* $Id:$ *)
 
-header{* Part III: OCL Contracts and an Example *}
+header{* Part VI: OCL Contracts and an Example *}
 
 (* This example is not yet balanced. Some parts of should go to
-   Part III : State Operations and Objects *)
+   Part VI : State Operations and Objects *)
 
 theory
   Employee_DesignModel_UMLPart
