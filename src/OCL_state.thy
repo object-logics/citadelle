@@ -435,7 +435,7 @@ where "x @post H = OclSelf x H snd"
 theorem framing:
       assumes modifiesclause:"\<tau> \<Turnstile> (X->excluding(x :: ('\<AA>::object,'\<alpha>::{null,object})val))->oclIsModifiedOnly()"
       and    represented_x: "\<tau> \<Turnstile> \<delta>(x @pre (H::('\<AA> \<Rightarrow> '\<alpha>)))"
-      and oid_is_typerepr : "inj_on (oid_of :: '\<alpha> \<Rightarrow> _) (insert (x \<tau>) \<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil>)"
+      and oid_is_typerepr : "oid_of (x \<tau>) \<notin> oid_of ` \<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil>"
       shows "\<tau> \<Turnstile> (x @pre H  \<triangleq>  (x @post H))"
 proof -
  have def_x : "\<tau> \<Turnstile> \<delta> x"
@@ -452,25 +452,14 @@ proof -
   apply(rule disjI2)+
   apply (metis (hide_lams, no_types) DiffD1 OclValid_def Set_inv_lemma def_x foundation16 foundation18')
   apply(simp)
-  apply(erule_tac x = "oid_of (x (\<sigma>, \<sigma>'))" in ballE) apply simp
-  apply(subst (asm) inj_on_image_set_diff[where C = "insert (x (\<sigma>, \<sigma>')) \<lceil>\<lceil>Rep_Set_0 (X (\<sigma>, \<sigma>'))\<rceil>\<rceil>"], simp add: oid_is_typerepr)
-  apply (metis (hide_lams, no_types) inj_on_insert oid_is_typerepr)
-  apply (metis subset_insertI)
+  apply(erule_tac x = "oid_of (x (\<sigma>, \<sigma>'))" in ballE) apply simp+
+  apply (metis (hide_lams, no_types) DiffD1 image_iff image_insert insert_Diff_single insert_absorb oid_is_typerepr)
   apply(simp add: invalid_def bot_option_def)+
 
   apply(blast)
  done
 qed
-(*
-theorem framing':
-      assumes modifiesclause:"\<tau> \<Turnstile> (X->excluding(x :: ('\<AA>::object,'\<alpha>::{null,object})val))->oclIsModifiedOnly()"
-      and    represented_x: "\<tau> \<Turnstile> \<delta>(x @pre (H::('\<AA> \<Rightarrow> '\<alpha>)))"
-      and oid_is_typerepr : "WFF \<tau>"
-      shows "\<tau> \<Turnstile> (x @pre H  \<triangleq>  (x @post H))"
-apply(rule framing[OF modifiesclause represented_x])
-apply(insert oid_is_typerepr, simp add: WFF_def)
-sorry
-*)
+
 lemma pre_post_new: "\<tau> \<Turnstile> (x .oclIsNew()) \<Longrightarrow> \<not> (\<tau> \<Turnstile> \<upsilon>(x @pre H1)) \<and> \<not> (\<tau> \<Turnstile> \<upsilon>(x @post H2))"
 by(simp add: OclIsNew_def OclSelf_at_pre_def OclSelf_at_post_def
              OclValid_def StrongEq_def true_def false_def
