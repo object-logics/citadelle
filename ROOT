@@ -40,7 +40,7 @@
  ******************************************************************************)
 (* $Id:$ *)
 
-session "OCL" = HOL +
+session "OCL" in src = HOL +
   description {* HOL-TestGen *}
   options [quick_and_dirty, document = pdf, document_variants="document:outline=/proof,/ML"]
   theories
@@ -48,11 +48,11 @@ session "OCL" = HOL +
   files
     "document/root.tex"
 
-session "OCL_ex" = HOL +
+session "OCL_examples" in examples = HOL +
   options [quick_and_dirty, document = pdf, document_variants="document:outline=/proof,/ML"]
   theories
-    "../examples/Employee_AnalysisModel_UMLPart"
-    "../examples/Employee_DesignModel_UMLPart"
+    "Employee_AnalysisModel_UMLPart"
+    "Employee_DesignModel_UMLPart"
   files
-    "document/root.tex"
+    "../src/document/root.tex"
 
