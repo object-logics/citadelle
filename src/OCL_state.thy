@@ -413,8 +413,19 @@ where "X->oclIsModifiedOnly() \<equiv> (\<lambda>(\<sigma>,\<sigma>').  let  X' 
                                                then \<lfloor>\<lfloor>\<forall> x \<in> S. (heap \<sigma>) x = (heap \<sigma>') x\<rfloor>\<rfloor>
                                                else invalid (\<sigma>,\<sigma>'))"
 
+definition OclIsModifiedOnly2 ::"('\<AA>::object,'\<alpha>::{null,object})Set \<Rightarrow> '\<AA> Boolean"
+                        ("_->oclIsModifiedOnly2'(')")
+where "X->oclIsModifiedOnly2() \<equiv> (\<lambda>(\<sigma>,\<sigma>').  let  X' = (oid_of ` \<lceil>\<lceil>Rep_Set_0(X(\<sigma>,\<sigma>'))\<rceil>\<rceil>);
+                                                 S = ((dom (heap \<sigma>) \<inter> dom (heap \<sigma>')) - X')
+                                            in if (\<delta> X) (\<sigma>,\<sigma>') = true (\<sigma>,\<sigma>') \<and> (\<forall>x\<in>\<lceil>\<lceil>Rep_Set_0(X(\<sigma>,\<sigma>'))\<rceil>\<rceil>. x \<noteq> null)
+                                               then \<lfloor>\<lfloor>\<forall> x \<in> S. (heap \<sigma>) x = (heap \<sigma>') x\<rfloor>\<rfloor>
+                                               else invalid (\<sigma>,\<sigma>'))"
+
 lemma cp_OclIsModifiedOnly : "X->oclIsModifiedOnly() \<tau> = (\<lambda>_. X \<tau>)->oclIsModifiedOnly() \<tau>"
 by(simp only: OclIsModifiedOnly_def, case_tac \<tau>, simp only:, subst cp_defined, simp)
+
+lemma cp_OclIsModifiedOnly2 : "X->oclIsModifiedOnly2() \<tau> = (\<lambda>_. X \<tau>)->oclIsModifiedOnly2() \<tau>"
+by(simp only: OclIsModifiedOnly2_def, case_tac \<tau>, simp only:, subst cp_defined, simp)
 
 definition [simp]: "OclSelf x H fst_snd = (\<lambda>\<tau> . if (\<delta> x) \<tau> = true \<tau>
                         then if oid_of (x \<tau>) \<in> dom(heap(fst \<tau>)) \<and> oid_of (x \<tau>) \<in> dom(heap (snd \<tau>))
@@ -458,6 +469,128 @@ proof -
 
   apply(blast)
  done
+qed
+
+lemma all_oid_diff:
+ assumes def_x : "\<tau> \<Turnstile> \<delta> x"
+ assumes def_X : "\<tau> \<Turnstile> \<delta> X"
+ assumes def_X' : "\<And>x. x \<in> \<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil> \<Longrightarrow> x \<noteq> null"
+
+ defines "P \<equiv> (\<lambda>a. not (StrictRefEq\<^sub>O\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t x a))"
+ shows "(\<tau> \<Turnstile> X->forAll(a| P a)) = (oid_of (x \<tau>) \<notin> oid_of ` \<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil>)"
+proof -
+ have discr_eq_false_true : "\<And>\<tau>. (false \<tau> = true \<tau>) = False" by (metis OclValid_def foundation2)
+ have discr_eq_bot1_true : "\<And>\<tau>. (\<bottom> \<tau> = true \<tau>) = False" by (metis defined3 defined_def discr_eq_false_true)
+ have discr_eq_bot2_true : "\<And>\<tau>. (\<bottom> = true \<tau>) = False" by (metis bot_fun_def discr_eq_bot1_true)
+ have discr_eq_null_true : "\<And>\<tau>. (null \<tau> = true \<tau>) = False" by (metis OclValid_def foundation4)
+
+ have P_null: "\<not> (\<exists>x\<in>\<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil>. P (\<lambda>(_:: 'a state \<times> 'a state). x) \<tau> = null \<tau>)"
+  apply(simp, rule ballI)
+  apply(simp add: P_def StrictRefEq\<^sub>O\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t_def)
+  apply(subst cp_OclNot, simp)
+  apply(subgoal_tac "x \<tau> \<noteq> null \<and> xa \<noteq> null", simp)
+  apply(simp add: OclNot_def null_fun_def null_option_def bot_option_def invalid_def)
+ by (metis def_X' def_x foundation17)
+
+ have P_bot: "\<not> (\<exists>x\<in>\<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil>. P (\<lambda>(_:: 'a state \<times> 'a state). x) \<tau> = \<bottom> \<tau>)"
+  apply(simp, rule ballI)
+  apply(simp add: P_def StrictRefEq\<^sub>O\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t_def)
+  apply(subst cp_OclNot, simp)
+  apply(subgoal_tac "x \<tau> \<noteq> null \<and> xa \<noteq> null", simp)
+  apply(simp add: OclNot_def null_fun_def null_option_def bot_option_def bot_fun_def invalid_def)
+  apply (metis OCL_core.bot_fun_def OclValid_def Set_inv_lemma def_X def_x defined_def valid_def)
+ by (metis def_X' def_x foundation17)
+
+ have not_inj : "\<And>x y. ((not x) \<tau> = (not y) \<tau>) = (x \<tau> = y \<tau>)"
+ by (metis foundation21 foundation22)
+
+ have P_false : "\<exists>x\<in>\<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil>. P (\<lambda>_. x) \<tau> = false \<tau> \<Longrightarrow> oid_of (x \<tau>) \<in> oid_of ` \<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil>"
+  apply(erule bexE, rename_tac x')
+  apply(simp add: P_def)
+  apply(simp only: OclNot3[symmetric], simp only: not_inj)
+  apply(simp add: StrictRefEq\<^sub>O\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t_def split: split_if_asm)
+  apply(subgoal_tac "x \<tau> \<noteq> null \<and> x' \<noteq> null", simp)
+  apply (metis (mono_tags) OCL_core.drop.simps def_x foundation17 true_def)
+ by(simp add: invalid_def bot_option_def true_def)+
+ 
+ have P_true : "\<forall>x\<in>\<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil>. P (\<lambda>_. x) \<tau> = true \<tau> \<Longrightarrow> oid_of (x \<tau>) \<notin> oid_of ` \<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil>"
+  apply(subgoal_tac "\<forall>x'\<in>\<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil>. oid_of x' \<noteq> oid_of (x \<tau>)")
+  apply (metis imageE)
+  apply(rule ballI, drule_tac x = "x'" in ballE) prefer 3 apply assumption
+  apply(simp add: P_def)
+  apply(simp only: OclNot4[symmetric], simp only: not_inj)
+  apply(simp add: StrictRefEq\<^sub>O\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t_def false_def split: split_if_asm)
+  apply(subgoal_tac "x \<tau> \<noteq> null \<and> x' \<noteq> null", simp)
+  apply (metis def_X' def_x foundation17)
+ by(simp add: invalid_def bot_option_def false_def)+
+
+ have bool_split : "\<forall>x\<in>\<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil>. P (\<lambda>_. x) \<tau> \<noteq> null \<tau> \<Longrightarrow>
+                    \<forall>x\<in>\<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil>. P (\<lambda>_. x) \<tau> \<noteq> \<bottom> \<tau> \<Longrightarrow>
+                    \<forall>x\<in>\<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil>. P (\<lambda>_. x) \<tau> \<noteq> false \<tau> \<Longrightarrow>
+                    \<forall>x\<in>\<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil>. P (\<lambda>_. x) \<tau> = true \<tau>"
+  apply(rule ballI)
+  apply(drule_tac x = x in ballE) prefer 3 apply assumption
+  apply(drule_tac x = x in ballE) prefer 3 apply assumption
+  apply(drule_tac x = x in ballE) prefer 3 apply assumption
+  apply (metis (full_types) OCL_core.bot_fun_def OclNot4 OclValid_def foundation16 foundation18' foundation9 not_inj null_fun_def)
+ by(simp_all)
+
+ show ?thesis
+  apply(simp add: OclForall_def OclValid_def)
+  apply(simp_all add: discr_eq_false_true discr_eq_bot1_true discr_eq_null_true discr_eq_bot2_true)+
+  apply(simp add: P_null P_bot)
+  apply((rule impI)+ | (rule conjI)+)+
+  apply(rule P_false, simp)
+  (* *)
+  apply(rule impI, simp add: def_X[simplified OclValid_def])
+  apply(rule P_true)
+  apply(drule bool_split)
+ by simp
+qed
+
+theorem framing2:
+      assumes modifiesclause:"\<tau> \<Turnstile> (X->excluding(x :: ('\<AA>::object,'\<alpha>::{null,object})val))->oclIsModifiedOnly2()"
+      and    represented_x: "\<tau> \<Turnstile> \<delta>(x @pre (H::('\<AA> \<Rightarrow> '\<alpha>)))"
+      and oid_is_typerepr : "\<tau> \<Turnstile> X->forAll(a| not (StrictRefEq\<^sub>O\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t x a))"
+      shows "\<tau> \<Turnstile> (x @pre H  \<triangleq>  (x @post H))"
+proof -
+ have def_x : "\<tau> \<Turnstile> \<delta> x"
+ by(insert represented_x, simp add: defined_def OclValid_def null_fun_def bot_fun_def false_def true_def OclSelf_at_pre_def invalid_def split: split_if_asm)
+ have def_X : "\<tau> \<Turnstile> \<delta> X"
+  apply(insert oid_is_typerepr, simp add: OclForall_def OclValid_def split: split_if_asm)
+ by(simp add: bot_option_def true_def)
+ have def_X' : "\<And>x. x \<in> \<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil> \<Longrightarrow> x \<noteq> null"
+  apply(insert modifiesclause, simp add: OclIsModifiedOnly2_def OclValid_def split: split_if_asm)
+  apply(case_tac \<tau>, simp split: split_if_asm)
+  apply(simp add: OclExcluding_def split: split_if_asm)
+  apply(subst (asm) (2) Abs_Set_0_inverse)
+  apply(simp, (rule disjI2)+)
+  apply (metis (hide_lams, mono_tags) Diff_iff Set_inv_lemma def_X)
+  apply(simp)
+  apply(erule ballE[where P = "\<lambda>x. x \<noteq> null"]) apply(assumption)
+  apply(simp)
+  apply (metis (hide_lams, no_types) def_x foundation17)
+  apply (metis (hide_lams, no_types) OclValid_def def_X def_x excluding_valid_args_valid excluding_valid_args_valid'' foundation20)
+ by(simp add: invalid_def bot_option_def)
+ have oid_is_typerepr : "oid_of (x \<tau>) \<notin> oid_of ` \<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil>"
+ by(rule all_oid_diff[THEN iffD1, OF def_x def_X def_X' oid_is_typerepr])
+
+ show ?thesis
+  apply(simp add:StrongEq_def OclValid_def true_def OclSelf_at_pre_def OclSelf_at_post_def def_x[simplified OclValid_def])
+  apply(rule conjI, rule impI)
+  apply(rule_tac f = "\<lambda>x. H \<lceil>x\<rceil>" in arg_cong)
+  apply(insert modifiesclause[simplified OclIsModifiedOnly2_def OclValid_def])
+  apply(case_tac \<tau>, rename_tac \<sigma> \<sigma>', simp split: split_if_asm)
+  apply(subst (asm) (2) OclExcluding_def)
+  apply(drule foundation5[simplified OclValid_def true_def], simp)
+  apply(subst (asm) Abs_Set_0_inverse, simp)
+  apply(rule disjI2)+
+  apply (metis (hide_lams, no_types) DiffD1 OclValid_def Set_inv_lemma def_x foundation16 foundation18')
+  apply(simp)
+  apply(erule_tac x = "oid_of (x (\<sigma>, \<sigma>'))" in ballE) apply simp+
+  apply (metis (hide_lams, no_types) DiffD1 image_iff image_insert insert_Diff_single insert_absorb oid_is_typerepr)
+  apply(simp add: invalid_def bot_option_def)+
+ by blast
 qed
 
 lemma pre_post_new: "\<tau> \<Turnstile> (x .oclIsNew()) \<Longrightarrow> \<not> (\<tau> \<Turnstile> \<upsilon>(x @pre H1)) \<and> \<not> (\<tau> \<Turnstile> \<upsilon>(x @post H2))"
