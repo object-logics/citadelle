@@ -41,7 +41,7 @@
  ******************************************************************************)
 (* $Id:$ *)
 
-header{* Part IV: Library Definitions extended (e.g. for Gogolla's challenge on Sets) *}
+header{* Library Definitions extended (e.g. for Gogolla's challenge on Sets) *}
 
 theory
   OCL_lib_ground

@@ -41,7 +41,7 @@
  ******************************************************************************)
 (* $Id:$ *)
 
-header{* Part V: OCL Contracts and an Example *}
+header{* Part IV: OCL Contracts and an Example *}
 
 (* This example is not yet balanced. Some parts of should go to
    Part V : State Operations and Objects *)
@@ -50,7 +50,6 @@ theory
   Employee_AnalysisModel_UMLPart
 imports
   "../src/OCL_main"
-  OCL_lib_ground
 begin
 
 
@@ -1209,7 +1208,7 @@ proof -
   apply(subst (7) p0, simp) apply(subst (6) p0, simp) apply(subst (5) p0, simp) apply(subst (4) p0, simp) apply(subst (3) p0, simp) apply(subst (2) p0, simp) apply(subst (1) p0, simp)
  by(simp)
 qed
-
+(*
 lemma "\<And>\<sigma>\<^sub>1.    (\<sigma>\<^sub>1,\<sigma>\<^sub>1') \<Turnstile>      (Person .allInstances() \<doteq> Set{ X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n1, X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2, X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n3, X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n4(*, X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n5*), X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n6, X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n7 .oclAsType(Person)(*, X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n8*), X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n9 })"
 proof -
  fix \<sigma>\<^sub>1
@@ -1331,5 +1330,5 @@ proof -
                   person1_def person2_def person3_def person4_def person5_def person6_def person7_def person8_def person9_def)
  done
 qed
-
+*)
 end
