@@ -51,8 +51,8 @@ session "OCL" in src = HOL +
 session "OCL_examples" in examples = HOL +
   options [quick_and_dirty, document = pdf, document_variants="document:outline=/proof,/ML"]
   theories
-    "Employee_AnalysisModel_UMLPart"
-    "Employee_DesignModel_UMLPart"
+    "Employee_AnalysisModel_OCLPart"
+    "Employee_DesignModel_OCLPart"
   files
     "../src/document/root.tex"
 

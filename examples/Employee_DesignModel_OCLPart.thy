@@ -41,7 +41,7 @@
  ******************************************************************************)
 (* $Id:$ *)
 
-header{* Part III: OCL Contracts and an Example *}
+header{* Part V (bis): OCL Contracts and an Example *}
 
 (* This example is not yet balanced. Some parts of should go to
    Part II : State and Objects. *)
