@@ -409,23 +409,12 @@ definition OclIsModifiedOnly ::"('\<AA>::object,'\<alpha>::{null,object})Set \<R
                         ("_->oclIsModifiedOnly'(')")
 where "X->oclIsModifiedOnly() \<equiv> (\<lambda>(\<sigma>,\<sigma>').  let  X' = (oid_of ` \<lceil>\<lceil>Rep_Set_0(X(\<sigma>,\<sigma>'))\<rceil>\<rceil>);
                                                  S = ((dom (heap \<sigma>) \<inter> dom (heap \<sigma>')) - X')
-                                            in if (\<delta> X) (\<sigma>,\<sigma>') = true (\<sigma>,\<sigma>')
-                                               then \<lfloor>\<lfloor>\<forall> x \<in> S. (heap \<sigma>) x = (heap \<sigma>') x\<rfloor>\<rfloor>
-                                               else invalid (\<sigma>,\<sigma>'))"
-
-definition OclIsModifiedOnly2 ::"('\<AA>::object,'\<alpha>::{null,object})Set \<Rightarrow> '\<AA> Boolean"
-                        ("_->oclIsModifiedOnly2'(')")
-where "X->oclIsModifiedOnly2() \<equiv> (\<lambda>(\<sigma>,\<sigma>').  let  X' = (oid_of ` \<lceil>\<lceil>Rep_Set_0(X(\<sigma>,\<sigma>'))\<rceil>\<rceil>);
-                                                 S = ((dom (heap \<sigma>) \<inter> dom (heap \<sigma>')) - X')
                                             in if (\<delta> X) (\<sigma>,\<sigma>') = true (\<sigma>,\<sigma>') \<and> (\<forall>x\<in>\<lceil>\<lceil>Rep_Set_0(X(\<sigma>,\<sigma>'))\<rceil>\<rceil>. x \<noteq> null)
                                                then \<lfloor>\<lfloor>\<forall> x \<in> S. (heap \<sigma>) x = (heap \<sigma>') x\<rfloor>\<rfloor>
                                                else invalid (\<sigma>,\<sigma>'))"
 
 lemma cp_OclIsModifiedOnly : "X->oclIsModifiedOnly() \<tau> = (\<lambda>_. X \<tau>)->oclIsModifiedOnly() \<tau>"
 by(simp only: OclIsModifiedOnly_def, case_tac \<tau>, simp only:, subst cp_defined, simp)
-
-lemma cp_OclIsModifiedOnly2 : "X->oclIsModifiedOnly2() \<tau> = (\<lambda>_. X \<tau>)->oclIsModifiedOnly2() \<tau>"
-by(simp only: OclIsModifiedOnly2_def, case_tac \<tau>, simp only:, subst cp_defined, simp)
 
 definition [simp]: "OclSelf x H fst_snd = (\<lambda>\<tau> . if (\<delta> x) \<tau> = true \<tau>
                         then if oid_of (x \<tau>) \<in> dom(heap(fst \<tau>)) \<and> oid_of (x \<tau>) \<in> dom(heap (snd \<tau>))
@@ -442,34 +431,6 @@ definition OclSelf_at_post :: "('\<AA>::object,'\<alpha>::{null,object})val \<Ri
                       ('\<AA> \<Rightarrow> '\<alpha>) \<Rightarrow>
                       ('\<AA>::object,'\<alpha>::{null,object})val" ("(_)@post(_)")
 where "x @post H = OclSelf x H snd"
-
-theorem framing:
-      assumes modifiesclause:"\<tau> \<Turnstile> (X->excluding(x :: ('\<AA>::object,'\<alpha>::{null,object})val))->oclIsModifiedOnly()"
-      and    represented_x: "\<tau> \<Turnstile> \<delta>(x @pre (H::('\<AA> \<Rightarrow> '\<alpha>)))"
-      and oid_is_typerepr : "oid_of (x \<tau>) \<notin> oid_of ` \<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil>"
-      shows "\<tau> \<Turnstile> (x @pre H  \<triangleq>  (x @post H))"
-proof -
- have def_x : "\<tau> \<Turnstile> \<delta> x"
- by(insert represented_x, simp add: defined_def OclValid_def null_fun_def bot_fun_def false_def true_def OclSelf_at_pre_def invalid_def split: split_if_asm)
- show ?thesis
-  apply(simp add:StrongEq_def OclValid_def true_def OclSelf_at_pre_def OclSelf_at_post_def def_x[simplified OclValid_def])
-  apply(rule conjI, rule impI)
-  apply(rule_tac f = "\<lambda>x. H \<lceil>x\<rceil>" in arg_cong)
-  apply(insert modifiesclause[simplified OclIsModifiedOnly_def OclValid_def])
-  apply(case_tac \<tau>, rename_tac \<sigma> \<sigma>', simp split: split_if_asm)
-  apply(simp add: OclExcluding_def)
-  apply(drule foundation5[simplified OclValid_def true_def], simp)
-  apply(subst (asm) Abs_Set_0_inverse, simp)
-  apply(rule disjI2)+
-  apply (metis (hide_lams, no_types) DiffD1 OclValid_def Set_inv_lemma def_x foundation16 foundation18')
-  apply(simp)
-  apply(erule_tac x = "oid_of (x (\<sigma>, \<sigma>'))" in ballE) apply simp+
-  apply (metis (hide_lams, no_types) DiffD1 image_iff image_insert insert_Diff_single insert_absorb oid_is_typerepr)
-  apply(simp add: invalid_def bot_option_def)+
-
-  apply(blast)
- done
-qed
 
 lemma all_oid_diff:
  assumes def_x : "\<tau> \<Turnstile> \<delta> x"
@@ -548,8 +509,8 @@ proof -
  by simp
 qed
 
-theorem framing2:
-      assumes modifiesclause:"\<tau> \<Turnstile> (X->excluding(x :: ('\<AA>::object,'\<alpha>::{null,object})val))->oclIsModifiedOnly2()"
+theorem framing:
+      assumes modifiesclause:"\<tau> \<Turnstile> (X->excluding(x :: ('\<AA>::object,'\<alpha>::{null,object})val))->oclIsModifiedOnly()"
       and    represented_x: "\<tau> \<Turnstile> \<delta>(x @pre (H::('\<AA> \<Rightarrow> '\<alpha>)))"
       and oid_is_typerepr : "\<tau> \<Turnstile> X->forAll(a| not (StrictRefEq\<^sub>O\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t x a))"
       shows "\<tau> \<Turnstile> (x @pre H  \<triangleq>  (x @post H))"
@@ -560,7 +521,7 @@ proof -
   apply(insert oid_is_typerepr, simp add: OclForall_def OclValid_def split: split_if_asm)
  by(simp add: bot_option_def true_def)
  have def_X' : "\<And>x. x \<in> \<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil> \<Longrightarrow> x \<noteq> null"
-  apply(insert modifiesclause, simp add: OclIsModifiedOnly2_def OclValid_def split: split_if_asm)
+  apply(insert modifiesclause, simp add: OclIsModifiedOnly_def OclValid_def split: split_if_asm)
   apply(case_tac \<tau>, simp split: split_if_asm)
   apply(simp add: OclExcluding_def split: split_if_asm)
   apply(subst (asm) (2) Abs_Set_0_inverse)
@@ -579,7 +540,7 @@ proof -
   apply(simp add:StrongEq_def OclValid_def true_def OclSelf_at_pre_def OclSelf_at_post_def def_x[simplified OclValid_def])
   apply(rule conjI, rule impI)
   apply(rule_tac f = "\<lambda>x. H \<lceil>x\<rceil>" in arg_cong)
-  apply(insert modifiesclause[simplified OclIsModifiedOnly2_def OclValid_def])
+  apply(insert modifiesclause[simplified OclIsModifiedOnly_def OclValid_def])
   apply(case_tac \<tau>, rename_tac \<sigma> \<sigma>', simp split: split_if_asm)
   apply(subst (asm) (2) OclExcluding_def)
   apply(drule foundation5[simplified OclValid_def true_def], simp)
