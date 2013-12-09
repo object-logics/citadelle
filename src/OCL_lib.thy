@@ -932,7 +932,67 @@ lemma includes_valid_args_valid''[simp,code_unfold]:
 "\<upsilon>(X->includes(x)) = ((\<delta> X) and (\<upsilon> x))"
 by(auto intro!: transform2_rev simp:includes_valid_args_valid foundation10 defined_and_I)
 
+subsubsection{* OclExcludes *}
+
+lemma excludes_defined_args_valid:
+"(\<tau> \<Turnstile> \<delta>(X->excludes(x))) = ((\<tau> \<Turnstile>(\<delta> X)) \<and> (\<tau> \<Turnstile>(\<upsilon> x)))"
+by (metis (hide_lams, no_types) OclExcludes_def OclAnd_idem OclOr_def OclOr_idem defined_not_I includes_defined_args_valid)
+
+lemma excludes_valid_args_valid:
+"(\<tau> \<Turnstile> \<upsilon>(X->excludes(x))) = ((\<tau> \<Turnstile>(\<delta> X)) \<and> (\<tau> \<Turnstile>(\<upsilon> x)))"
+by (metis (hide_lams, no_types) OclExcludes_def OclAnd_idem OclOr_def OclOr_idem valid_not_I includes_valid_args_valid)
+
+lemma excludes_valid_args_valid'[simp,code_unfold]:
+"\<delta>(X->excludes(x)) = ((\<delta> X) and (\<upsilon> x))"
+by(auto intro!: transform2_rev simp:excludes_defined_args_valid foundation10 defined_and_I)
+
+lemma excludes_valid_args_valid''[simp,code_unfold]:
+"\<upsilon>(X->excludes(x)) = ((\<delta> X) and (\<upsilon> x))"
+by(auto intro!: transform2_rev simp:excludes_valid_args_valid foundation10 defined_and_I)
+
+subsubsection{* OclSize *}
+
+lemma size_defined_args_valid: "\<tau> \<Turnstile> \<delta> (X->size()) \<Longrightarrow> \<tau> \<Turnstile> \<delta> X"
+by(auto simp: OclSize_def OclValid_def true_def valid_def false_def StrongEq_def
+              defined_def invalid_def bot_fun_def null_fun_def
+        split: bool.split_asm HOL.split_if_asm option.split)
+
+lemma "\<tau> \<Turnstile> \<delta> X \<Longrightarrow> \<not> finite \<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil> \<Longrightarrow> \<not> \<tau> \<Turnstile> \<delta> (X->size())"
+by(simp add: OclSize_def OclValid_def defined_def bot_fun_def false_def true_def)
+
+subsubsection{* OclIsEmpty *}
+
+lemma isempty_defined_args_valid:"\<tau> \<Turnstile> \<delta> (X->isEmpty()) \<Longrightarrow> \<tau> \<Turnstile> \<upsilon> X"
+  apply(auto simp: OclIsEmpty_def OclValid_def defined_def valid_def false_def true_def bot_fun_def null_fun_def OclAnd_def OclOr_def OclNot_def
+             split: split_if_asm)
+  apply(case_tac "(X->size() \<doteq> \<zero>) \<tau>", simp add: bot_option_def, simp)
+  apply(case_tac a, simp add: null_option_def bot_option_def, simp)
+  apply(simp add: OclSize_def StrictRefEq\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r valid_def)
+by (metis (hide_lams, no_types) OCL_core.bot_fun_def OclValid_def defined_def foundation2 invalid_def)
+
+lemma "\<tau> \<Turnstile> \<delta> (null->isEmpty())"
+by(auto simp: OclIsEmpty_def OclValid_def defined_def valid_def false_def true_def bot_fun_def null_fun_def OclAnd_def OclOr_def OclNot_def null_is_valid
+             split: split_if_asm)
+
+lemma isempty_infinite: "\<tau> \<Turnstile> \<delta> X \<Longrightarrow> \<not> finite \<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil> \<Longrightarrow> \<not> \<tau> \<Turnstile> \<delta> (X->isEmpty())"
+  apply(auto simp: OclIsEmpty_def OclValid_def defined_def valid_def false_def true_def bot_fun_def null_fun_def OclAnd_def OclOr_def OclNot_def
+             split: split_if_asm)
+  apply(case_tac "(X->size() \<doteq> \<zero>) \<tau>", simp add: bot_option_def, simp)
+  apply(case_tac a, simp add: null_option_def bot_option_def, simp)
+by(simp add: OclSize_def StrictRefEq\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r valid_def bot_fun_def false_def true_def invalid_def)
+
 subsubsection{* OclNotEmpty *}
+
+lemma notempty_defined_args_valid:"\<tau> \<Turnstile> \<delta> (X->notEmpty()) \<Longrightarrow> \<tau> \<Turnstile> \<upsilon> X"
+by (metis (hide_lams, no_types) OclNotEmpty_def OclNot_defargs OclNot_not foundation6 foundation9 isempty_defined_args_valid)
+
+lemma "\<tau> \<Turnstile> \<delta> (null->notEmpty())"
+by (metis (hide_lams, no_types) OclNotEmpty_def OclAnd_false1 OclAnd_idem OclIsEmpty_def OclNot3 OclNot4 OclOr_def defined2 defined4 transform1 valid2)
+
+lemma notempty_infinite: "\<tau> \<Turnstile> \<delta> X \<Longrightarrow> \<not> finite \<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil> \<Longrightarrow> \<not> \<tau> \<Turnstile> \<delta> (X->notEmpty())"
+ apply(simp add: OclNotEmpty_def)
+ apply(drule isempty_infinite, simp)
+by (metis OclNot_defargs OclNot_not foundation6 foundation9)
 
 lemma notempty_has_elt : "\<tau> \<Turnstile> \<delta> X \<Longrightarrow>
                           \<tau> \<Turnstile> X->notEmpty() \<Longrightarrow>
@@ -948,7 +1008,18 @@ by (metis equals0I)
 
 subsubsection{* Ocl Any *}
 
-lemma any_valid_args_valid[simp,code_unfold]:
+lemma any_defined_args_valid: "\<tau> \<Turnstile> \<delta> (X->any()) \<Longrightarrow> \<tau> \<Turnstile> \<delta> X"
+by(auto simp: Ocl_Any_def OclValid_def true_def valid_def false_def StrongEq_def
+              defined_def invalid_def bot_fun_def null_fun_def OclAnd_def
+        split: bool.split_asm HOL.split_if_asm option.split)
+
+lemma "\<tau> \<Turnstile> \<delta> X \<Longrightarrow> \<tau> \<Turnstile> X->isEmpty() \<Longrightarrow> \<not> \<tau> \<Turnstile> \<delta> (X->any())"
+ apply(simp add: Ocl_Any_def OclValid_def)
+ apply(subst cp_defined, subst cp_OclAnd, simp add: OclNotEmpty_def, subst (1 2) cp_OclNot,
+       simp add: cp_OclNot[symmetric] cp_OclAnd[symmetric] cp_defined[symmetric], simp add: false_def true_def)
+by(drule foundation20[simplified OclValid_def true_def], simp)
+
+lemma any_valid_args_valid:
 "(\<tau> \<Turnstile> \<upsilon>(X->any())) = (\<tau> \<Turnstile> \<upsilon> X)"
 proof -
  have A: "(\<tau> \<Turnstile> \<upsilon>(X->any())) \<Longrightarrow> ((\<tau> \<Turnstile>(\<upsilon> X)))"
@@ -984,10 +1055,9 @@ qed
 
 lemma any_valid_args_valid''[simp,code_unfold]:
 "\<upsilon>(X->any()) = (\<upsilon> X)"
-by(auto intro!: transform2_rev)
+by(auto intro!: any_valid_args_valid transform2_rev)
 
-(* and many more, forall exists. *)
-
+(* and higher order ones : forall, exists, iterate, select, reject... *)
 
 subsection{* Execution with invalid or null as argument *}
 
@@ -1025,6 +1095,17 @@ by(simp add: OclIncludes_def invalid_def bot_fun_def defined_def valid_def false
 lemma includes_strict3[simp,code_unfold]:"(null->includes(x)) = invalid"
 by(simp add: OclIncludes_def invalid_def bot_fun_def defined_def valid_def false_def true_def)
 
+subsubsection{* OclExcludes *}
+
+lemma excludes_strict1[simp,code_unfold]:"(invalid->excludes(x)) = invalid"
+by(simp add: OclExcludes_def OclNot_def, simp add: invalid_def bot_option_def)
+
+lemma excludes_strict2[simp,code_unfold]:"(X->excludes(invalid)) = invalid"
+by(simp add: OclExcludes_def OclNot_def, simp add: invalid_def bot_option_def)
+
+lemma excludes_strict3[simp,code_unfold]:"(null->excludes(x)) = invalid"
+by(simp add: OclExcludes_def OclNot_def, simp add: invalid_def bot_option_def)
+
 subsubsection{* OclSize *}
 
 lemma size_strict1[simp,code_unfold]:"(invalid->size()) = invalid"
@@ -1059,7 +1140,21 @@ by(simp add: bot_fun_def Ocl_Any_def invalid_def defined_def valid_def false_def
 lemma any_strict3[simp,code_unfold]:"(null->any()) = null"
 by(simp add: Ocl_Any_def false_def true_def)
 
-(*  forall ? exists ?*)
+subsubsection{* OclForall *}
+
+lemma forall_strict1[simp,code_unfold]:"invalid->forAll(a| P a) = invalid"
+by(simp add: bot_fun_def invalid_def OclForall_def defined_def valid_def false_def true_def)
+
+lemma forall_strict3[simp,code_unfold]:"null->forAll(a | P a) = invalid"
+by(simp add: bot_fun_def invalid_def OclForall_def defined_def valid_def false_def true_def)
+
+subsubsection{* OclExists *}
+
+lemma exists_strict1[simp,code_unfold]:"invalid->exists(a| P a) = invalid"
+by(simp add: OclExists_def)
+
+lemma exists_strict3[simp,code_unfold]:"null->exists(a | P a) = invalid"
+by(simp add: OclExists_def)
 
 subsubsection{* OclIterate *}
 
@@ -1087,6 +1182,13 @@ by(simp add: bot_fun_def invalid_def OclSelect\<^sub>S\<^sub>e\<^sub>t_def defin
 lemma OclSelect\<^sub>S\<^sub>e\<^sub>t_null1[simp,code_unfold]:"null->select(a | P a) = invalid"
 by(simp add: bot_fun_def invalid_def OclSelect\<^sub>S\<^sub>e\<^sub>t_def defined_def valid_def false_def true_def)
 
+subsubsection{* OclReject *}
+
+lemma reject_strict1[simp,code_unfold]:"invalid->reject(a | P a) = invalid"
+by(simp add: OclReject\<^sub>S\<^sub>e\<^sub>t_def)
+
+lemma reject_strict3[simp,code_unfold]:"null->reject(a | P a) = invalid"
+by(simp add: OclReject\<^sub>S\<^sub>e\<^sub>t_def)
 
 subsection{* Context Passing *}
 
