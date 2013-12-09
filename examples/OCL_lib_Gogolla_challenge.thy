@@ -1520,12 +1520,12 @@ proof -
   apply(simp only: EQ_comp_fun_commute_def including_cp2 including_cp')
   apply(rule conjI, rule conjI) apply(subst (1 2) cp_OclIncluding, simp) apply(rule conjI) apply(subst (1 2) cp_OclIncluding, subst (1 3) cp_OclIncluding, simp) apply(rule allI)+
   apply(rule impI)+
-  apply(rule including_cp_all) apply(simp) apply (metis (hide_lams, no_types) all_defined1 foundation10 foundation6 i_val including_defined_args_valid')
+  apply(rule including_cp_all) apply(simp) apply (metis (hide_lams, no_types) all_defined1 foundation10 foundation6 i_val OclIncluding_defined_args_valid')
   apply(rule including_cp_all) apply(simp add: i_int) apply(rule all_defined1, blast) apply(simp)
   apply(rule conjI) apply(rule allI)+
 
   apply(rule impI)+
-  apply(rule including_notempty) apply (metis (hide_lams, no_types) all_defined1 foundation10 foundation6 i_val including_defined_args_valid') apply(simp)
+  apply(rule including_notempty) apply (metis (hide_lams, no_types) all_defined1 foundation10 foundation6 i_val OclIncluding_defined_args_valid') apply(simp)
   apply(rule including_notempty) apply(rule all_defined1, blast) apply(simp add: i_val) apply(simp)
   apply(rule conjI) apply(rule allI)+
 
@@ -1572,10 +1572,10 @@ proof -
   apply(subgoal_tac " S->including(y)->including(i)->including(x) \<tau> = S->including(i)->including(y)->including(x) \<tau>")
   prefer 2
   apply(rule including_subst_set'')
-  apply (metis (hide_lams, no_types) foundation10 foundation6 i_val including_defined_args_valid')+
+  apply (metis (hide_lams, no_types) foundation10 foundation6 i_val OclIncluding_defined_args_valid')+
   apply(rule including_swap', simp_all add: i_val)
   apply(rule including_swap')
-  apply (metis (hide_lams, no_types) foundation10 foundation6 i_val including_defined_args_valid')+
+  apply (metis (hide_lams, no_types) foundation10 foundation6 i_val OclIncluding_defined_args_valid')+
  done
 qed
 
@@ -1595,10 +1595,10 @@ proof -
   apply(subgoal_tac " S->including(y)->including(x)->including(j) \<tau> = S->including(x)->including(y)->including(j) \<tau>")
   prefer 2
   apply(rule including_subst_set'')
-  apply (metis (hide_lams, no_types) foundation10 foundation6 j_val including_defined_args_valid')+
+  apply (metis (hide_lams, no_types) foundation10 foundation6 j_val OclIncluding_defined_args_valid')+
   apply(rule including_swap', simp_all)
   apply(rule including_swap')
-  apply (metis (hide_lams, no_types) foundation10 foundation6 j_val including_defined_args_valid')+
+  apply (metis (hide_lams, no_types) foundation10 foundation6 j_val OclIncluding_defined_args_valid')+
  done
 qed
 
@@ -3647,7 +3647,7 @@ proof -
 
     apply(subst (1 2) cp_OclIncluding[symmetric])
     apply(rule including_swap')
-    apply (metis (hide_lams, no_types) all_defined1 including_defined_args_valid int_is_valid mtSet_all_def OclInt0_int)
+    apply (metis (hide_lams, no_types) all_defined1 OclIncluding_defined_args_valid int_is_valid mtSet_all_def OclInt0_int)
      apply(simp add: int_is_valid) apply(simp add: int_is_valid)
   (* *)
   apply(subst (1 2) cp_OclIncluding)
@@ -3775,7 +3775,7 @@ proof -
   apply(subst iterate_subst_set[where G = "\<lambda>j r2. r2->including(zero)->including(j)->including(\<lambda>_. \<lfloor>x\<rfloor>)"]) apply(blast)+
    apply(simp add: commute3, simp add: commute4)
   apply(rule including_swap)
-   apply (metis (hide_lams, no_types) OclInt0_int all_defined1 including_defined_args_valid is_int_def)
+   apply (metis (hide_lams, no_types) OclInt0_int all_defined1 OclIncluding_defined_args_valid is_int_def)
    apply(simp add: int_is_valid)+
   (* *)
   apply(subst iterate_subst_set___[where G = "\<lambda>i r1. r1 ->iterate(j;r2=r1 | r2->including(zero)->including(j))->including(i)"])
@@ -3816,7 +3816,7 @@ proof -
   (* *)
   apply(rule including_subst_set'')
    apply(rule all_defined1, rule i_cons_all_def'', rule including_commute[THEN c0_of_c, THEN c0'_of_c0], simp add: all_defined_68, simp add: all_defined_9)
-   apply (metis (hide_lams, no_types) all_defined1 all_defined_68 all_defined_9 including_defined_args_valid)
+   apply (metis (hide_lams, no_types) all_defined1 all_defined_68 all_defined_9 OclIncluding_defined_args_valid)
    apply(simp)
   (* *)
   apply(subst including_out0[OF all_defined_68 set68_cp set68_notempty OclInt9_int])
@@ -3865,7 +3865,7 @@ proof -
   apply(subst (1 2) cp_OclIf, subst cp_OclIncluding1)
   apply(simp)+
   apply(simp add: OclIf_def invalid_def bot_fun_def)+
- by (metis cp_OclIncluding1 including_strict1 invalid_def)
+ by (metis cp_OclIncluding1 OclIncluding_invalid invalid_def)
 qed
 
 lemma select_iterate:

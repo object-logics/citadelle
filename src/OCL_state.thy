@@ -531,7 +531,7 @@ proof -
   apply(erule ballE[where P = "\<lambda>x. x \<noteq> null"]) apply(assumption)
   apply(simp)
   apply (metis (hide_lams, no_types) def_x foundation17)
-  apply (metis (hide_lams, no_types) OclValid_def def_X def_x excluding_valid_args_valid excluding_valid_args_valid'' foundation20)
+  apply (metis (hide_lams, no_types) OclValid_def def_X def_x OclExcluding_valid_args_valid OclExcluding_valid_args_valid'' foundation20)
  by(simp add: invalid_def bot_option_def)
  have oid_is_typerepr : "oid_of (x \<tau>) \<notin> oid_of ` \<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil>"
  by(rule all_oid_diff[THEN iffD1, OF def_x def_X def_X' oid_is_typerepr])
