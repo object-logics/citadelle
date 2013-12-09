@@ -3876,7 +3876,7 @@ lemma select_iterate:
     \<Rightarrow> '\<AA> state \<times> '\<AA> state \<Rightarrow> bool option option)))"
  assumes S_finite: "finite \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>"
      and P_strict: "\<And>x. x \<tau> = \<bottom> \<Longrightarrow> (P x) \<tau> = \<bottom>"
-   shows "OclSelect\<^sub>s\<^sub>e\<^sub>t S P \<tau> = (S->iterate(x; acc = Set{} | select_body P x acc)) \<tau>"
+   shows "OclSelect\<^sub>S\<^sub>e\<^sub>t S P \<tau> = (S->iterate(x; acc = Set{} | select_body P x acc)) \<tau>"
 proof -
  have ex_insert : "\<And>x F P. (\<exists>x\<in>insert x F. P x) = (P x \<or> (\<exists>x\<in>F. P x))"
  by (metis insert_iff)
@@ -3902,7 +3902,7 @@ proof -
 
  show ?thesis
   apply(simp add: select_body_def)
-  apply(simp only: OclSelect\<^sub>s\<^sub>e\<^sub>t_def OclIterate\<^sub>S\<^sub>e\<^sub>t_def)
+  apply(simp only: OclSelect\<^sub>S\<^sub>e\<^sub>t_def OclIterate\<^sub>S\<^sub>e\<^sub>t_def)
   apply(case_tac "\<tau> \<Turnstile> \<delta> S", simp only: OclValid_def)
   apply(subgoal_tac "(if \<exists>x\<in>\<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>. P (\<lambda>_. x) \<tau> = \<bottom> \<tau> then \<bottom>
           else Abs_Set_0 \<lfloor>\<lfloor>{x \<in> \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>. P (\<lambda>_. x) \<tau> \<noteq> false \<tau>}\<rfloor>\<rfloor>) =

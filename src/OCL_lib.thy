@@ -745,8 +745,8 @@ syntax
 translations
   "X->iterate(a; x = A | P)" == "CONST OclIterate\<^sub>S\<^sub>e\<^sub>t X A (%a. (% x. P))"
 
-definition OclSelect\<^sub>s\<^sub>e\<^sub>t :: "[('\<AA>,'\<alpha>::null)Set,('\<AA>,'\<alpha>)val\<Rightarrow>('\<AA>)Boolean] \<Rightarrow> ('\<AA>,'\<alpha>)Set"
-where "OclSelect\<^sub>s\<^sub>e\<^sub>t S P = (\<lambda>\<tau>. if (\<delta> S) \<tau> = true \<tau>
+definition OclSelect\<^sub>S\<^sub>e\<^sub>t :: "[('\<AA>,'\<alpha>::null)Set,('\<AA>,'\<alpha>)val\<Rightarrow>('\<AA>)Boolean] \<Rightarrow> ('\<AA>,'\<alpha>)Set"
+where "OclSelect\<^sub>S\<^sub>e\<^sub>t S P = (\<lambda>\<tau>. if (\<delta> S) \<tau> = true \<tau>
                               then if (\<exists>x\<in>\<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>. P(\<lambda> _. x) \<tau> = \<bottom> \<tau>)
                                    then \<bottom>
                                    else Abs_Set_0 \<lfloor>\<lfloor> { x\<in>\<lceil>\<lceil> Rep_Set_0 (S \<tau>)\<rceil>\<rceil>. P (\<lambda>_. x) \<tau> \<noteq> false \<tau> } \<rfloor>\<rfloor>
@@ -754,14 +754,14 @@ where "OclSelect\<^sub>s\<^sub>e\<^sub>t S P = (\<lambda>\<tau>. if (\<delta> S)
 syntax
   "_OclSelect" :: "[('\<AA>,'\<alpha>::null) Set,id,('\<AA>)Boolean] \<Rightarrow> '\<AA> Boolean"    ("(_)->select'(_|_')")
 translations
-  "X->select(x | P)" == "CONST OclSelect\<^sub>s\<^sub>e\<^sub>t X (% x. P)"
+  "X->select(x | P)" == "CONST OclSelect\<^sub>S\<^sub>e\<^sub>t X (% x. P)"
 
-definition OclReject\<^sub>s\<^sub>e\<^sub>t :: "[('\<AA>,'\<alpha>::null)Set,('\<AA>,'\<alpha>)val\<Rightarrow>('\<AA>)Boolean] \<Rightarrow> ('\<AA>,'\<alpha>::null)Set"
-where "OclReject\<^sub>s\<^sub>e\<^sub>t S P = OclSelect\<^sub>s\<^sub>e\<^sub>t S (not o P)"
+definition OclReject\<^sub>S\<^sub>e\<^sub>t :: "[('\<AA>,'\<alpha>::null)Set,('\<AA>,'\<alpha>)val\<Rightarrow>('\<AA>)Boolean] \<Rightarrow> ('\<AA>,'\<alpha>::null)Set"
+where "OclReject\<^sub>S\<^sub>e\<^sub>t S P = OclSelect\<^sub>S\<^sub>e\<^sub>t S (not o P)"
 syntax
   "_OclReject" :: "[('\<AA>,'\<alpha>::null) Set,id,('\<AA>)Boolean] \<Rightarrow> '\<AA> Boolean"    ("(_)->reject'(_|_')")
 translations
-  "X->reject(x | P)" == "CONST OclReject\<^sub>s\<^sub>e\<^sub>t X (% x. P)"
+  "X->reject(x | P)" == "CONST OclReject\<^sub>S\<^sub>e\<^sub>t X (% x. P)"
 
 subsubsection{* Definition (futur operators) *}
 
@@ -2654,9 +2654,9 @@ qed
 
 subsection{* OclSelect *}
 
-lemma select_set_mt_exec[code_unfold, simp]: "OclSelect\<^sub>s\<^sub>e\<^sub>t mtSet P = mtSet"
+lemma select_set_mt_exec[code_unfold, simp]: "OclSelect\<^sub>S\<^sub>e\<^sub>t mtSet P = mtSet"
  apply(rule ext, rename_tac \<tau>)
- apply(simp add: OclSelect\<^sub>s\<^sub>e\<^sub>t_def mtSet_def defined_def false_def true_def bot_Set_0_def null_Set_0_def null_fun_def bot_fun_def)
+ apply(simp add: OclSelect\<^sub>S\<^sub>e\<^sub>t_def mtSet_def defined_def false_def true_def bot_Set_0_def null_Set_0_def null_fun_def bot_fun_def)
  apply(subst (1 2 3 4 5) Abs_Set_0_inverse)
  apply(simp add: null_option_def bot_option_def)+
  apply(subst Abs_Set_0_inject)
@@ -2664,12 +2664,12 @@ lemma select_set_mt_exec[code_unfold, simp]: "OclSelect\<^sub>s\<^sub>e\<^sub>t 
 done
 
 lemma select_set_including_exec[simp,code_unfold]:
-"OclSelect\<^sub>s\<^sub>e\<^sub>t (X->including(y)) P =
+"OclSelect\<^sub>S\<^sub>e\<^sub>t (X->including(y)) P =
  (if  \<delta> X  then
    if  \<upsilon> y  then
      if \<delta>(X->size()) then
-        if P y  then (OclSelect\<^sub>s\<^sub>e\<^sub>t X P)->including(y)
-        else (OclSelect\<^sub>s\<^sub>e\<^sub>t X P)
+        if P y  then (OclSelect\<^sub>S\<^sub>e\<^sub>t X P)->including(y)
+        else (OclSelect\<^sub>S\<^sub>e\<^sub>t X P)
         endif
      else invalid
      endif
