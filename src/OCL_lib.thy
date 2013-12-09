@@ -695,12 +695,12 @@ where     "OclNotEmpty x =  not(OclIsEmpty x)"
 notation   OclNotEmpty    ("_->notEmpty'(')" (*[66]*))
 
 (* Slight breach of naming convention in order to avoid naming conflict on constant.*)
-definition Ocl_Any   :: "[('\<AA>,'\<alpha>::null) Set] \<Rightarrow> ('\<AA>,'\<alpha>) val"
-where     "Ocl_Any x = (\<lambda> \<tau>. if (\<upsilon> x) \<tau> = true \<tau>
+definition OclANY   :: "[('\<AA>,'\<alpha>::null) Set] \<Rightarrow> ('\<AA>,'\<alpha>) val"
+where     "OclANY x = (\<lambda> \<tau>. if (\<upsilon> x) \<tau> = true \<tau>
                             then if (\<delta> x and OclNotEmpty x) \<tau> = true \<tau> then SOME y. y \<in> \<lceil>\<lceil>Rep_Set_0 (x \<tau>)\<rceil>\<rceil>
                                  else null \<tau>
                             else \<bottom> )"
-notation   Ocl_Any   ("_->any'(')")
+notation   OclANY   ("_->any'(')")
 (* actually, this definition covers only: X->any(true) of the standard, which foresees
 a (totally correct) high-level definition
 source->any(iterator | body) =
@@ -999,28 +999,28 @@ lemma OclNotEmpty_has_elt : "\<tau> \<Turnstile> \<delta> X \<Longrightarrow>
  apply(simp add: OclSize_def valid_def split: split_if_asm, simp_all add: false_def true_def bot_option_def bot_fun_def OclInt0_def)
 by (metis equals0I)
 
-subsubsection{* Ocl Any *}
+subsubsection{* OclANY *}
 
-lemma Ocl_Any_defined_args_valid: "\<tau> \<Turnstile> \<delta> (X->any()) \<Longrightarrow> \<tau> \<Turnstile> \<delta> X"
-by(auto simp: Ocl_Any_def OclValid_def true_def valid_def false_def StrongEq_def
+lemma OclANY_defined_args_valid: "\<tau> \<Turnstile> \<delta> (X->any()) \<Longrightarrow> \<tau> \<Turnstile> \<delta> X"
+by(auto simp: OclANY_def OclValid_def true_def valid_def false_def StrongEq_def
               defined_def invalid_def bot_fun_def null_fun_def OclAnd_def
         split: bool.split_asm HOL.split_if_asm option.split)
 
 lemma "\<tau> \<Turnstile> \<delta> X \<Longrightarrow> \<tau> \<Turnstile> X->isEmpty() \<Longrightarrow> \<not> \<tau> \<Turnstile> \<delta> (X->any())"
- apply(simp add: Ocl_Any_def OclValid_def)
+ apply(simp add: OclANY_def OclValid_def)
  apply(subst cp_defined, subst cp_OclAnd, simp add: OclNotEmpty_def, subst (1 2) cp_OclNot,
        simp add: cp_OclNot[symmetric] cp_OclAnd[symmetric] cp_defined[symmetric], simp add: false_def true_def)
 by(drule foundation20[simplified OclValid_def true_def], simp)
 
-lemma Ocl_Any_valid_args_valid:
+lemma OclANY_valid_args_valid:
 "(\<tau> \<Turnstile> \<upsilon>(X->any())) = (\<tau> \<Turnstile> \<upsilon> X)"
 proof -
  have A: "(\<tau> \<Turnstile> \<upsilon>(X->any())) \<Longrightarrow> ((\<tau> \<Turnstile>(\<upsilon> X)))"
-          by(auto simp: Ocl_Any_def OclValid_def true_def valid_def false_def StrongEq_def
+          by(auto simp: OclANY_def OclValid_def true_def valid_def false_def StrongEq_def
                         defined_def invalid_def bot_fun_def null_fun_def
                   split: bool.split_asm HOL.split_if_asm option.split)
  have B: "(\<tau> \<Turnstile>(\<upsilon> X)) \<Longrightarrow> (\<tau> \<Turnstile> \<upsilon>(X->any()))"
-           apply(auto simp: Ocl_Any_def OclValid_def true_def false_def StrongEq_def
+           apply(auto simp: OclANY_def OclValid_def true_def false_def StrongEq_def
                             defined_def invalid_def valid_def bot_fun_def null_fun_def
                             bot_option_def null_option_def null_is_valid
                             OclAnd_def
@@ -1046,9 +1046,9 @@ proof -
  show ?thesis by(auto dest:A intro:B)
 qed
 
-lemma Ocl_Any_valid_args_valid''[simp,code_unfold]:
+lemma OclANY_valid_args_valid''[simp,code_unfold]:
 "\<upsilon>(X->any()) = (\<upsilon> X)"
-by(auto intro!: Ocl_Any_valid_args_valid transform2_rev)
+by(auto intro!: OclANY_valid_args_valid transform2_rev)
 
 (* and higher order ones : forall, exists, iterate, select, reject... *)
 
@@ -1125,13 +1125,13 @@ by(simp add: OclNotEmpty_def)
 lemma OclNotEmpty_null[simp,code_unfold]:"(null->notEmpty()) = false"
 by(simp add: OclNotEmpty_def)
 
-subsubsection{* Ocl Any *}
+subsubsection{* OclANY *}
 
-lemma Ocl_Any_invalid[simp,code_unfold]:"(invalid->any()) = invalid"
-by(simp add: bot_fun_def Ocl_Any_def invalid_def defined_def valid_def false_def true_def)
+lemma OclANY_invalid[simp,code_unfold]:"(invalid->any()) = invalid"
+by(simp add: bot_fun_def OclANY_def invalid_def defined_def valid_def false_def true_def)
 
-lemma Ocl_Any_null[simp,code_unfold]:"(null->any()) = null"
-by(simp add: Ocl_Any_def false_def true_def)
+lemma OclANY_null[simp,code_unfold]:"(null->any()) = null"
+by(simp add: OclANY_def false_def true_def)
 
 subsubsection{* OclForall *}
 
@@ -1228,8 +1228,8 @@ lemma cp_OclNotEmpty: "X->notEmpty() \<tau> = ((\<lambda>_. X \<tau>)->notEmpty(
  apply(simp add: cp_OclNot[symmetric] cp_OclIsEmpty[symmetric])
 done
 
-lemma cp_Ocl_Any: "X->any() \<tau> = ((\<lambda>_. X \<tau>)->any()) \<tau>"
- apply(simp only: Ocl_Any_def)
+lemma cp_OclANY: "X->any() \<tau> = ((\<lambda>_. X \<tau>)->any()) \<tau>"
+ apply(simp only: OclANY_def)
  apply(subst (2) cp_OclAnd)
  apply(simp only: cp_OclAnd[symmetric] cp_defined[symmetric] cp_valid[symmetric] cp_OclNotEmpty[symmetric])
 done
@@ -1317,7 +1317,7 @@ lemmas cp_intro''[simp,intro!,code_unfold] =
        cp_OclSize      [THEN allI[THEN allI[THEN cpI1], of "OclSize"]]
        cp_OclIsEmpty   [THEN allI[THEN allI[THEN cpI1], of "OclIsEmpty"]]
        cp_OclNotEmpty  [THEN allI[THEN allI[THEN cpI1], of "OclNotEmpty"]]
-       cp_Ocl_Any      [THEN allI[THEN allI[THEN cpI1], of "Ocl_Any"]]
+       cp_OclANY      [THEN allI[THEN allI[THEN cpI1], of "OclANY"]]
 
 section{* Fundamental Predicates on Set: Strict Equality *}
 
@@ -2204,17 +2204,17 @@ shows "X->including(a)->notEmpty() \<tau> = true \<tau>"
  apply(subst cp_OclNot, subst including_not_isempty, simp_all add: assms)
 by (metis OclNot4 cp_OclNot)
 
-subsection{* Ocl Any *}
+subsection{* OclANY *}
 
 lemma [simp,code_unfold]: "Set{}->any() = null"
- apply(rule ext, simp add: Ocl_Any_def)
+ apply(rule ext, simp add: OclANY_def)
  apply(rule impI)
  apply(simp add: false_def true_def)
 done
 
 lemma any_exec[simp,code_unfold]:
       "(Set{}->including(a))->any() = a"
- apply(rule ext, rename_tac \<tau>, simp add: mtSet_def Ocl_Any_def)
+ apply(rule ext, rename_tac \<tau>, simp add: mtSet_def OclANY_def)
  apply(case_tac "\<tau> \<Turnstile> \<upsilon> a")
  apply(simp add: OclValid_def mtSet_defined[simplified mtSet_def] mtSet_valid[simplified mtSet_def] mtSet_rep_set[simplified mtSet_def])
  apply(subst (1 2) cp_OclAnd,
@@ -2274,7 +2274,7 @@ proof -
  by (metis OCL_core.bot_fun_def defined_def)
 
  show ?thesis
-  apply(rule ext, rename_tac \<tau>, simp only: OclIncludes_def Ocl_Any_def)
+  apply(rule ext, rename_tac \<tau>, simp only: OclIncludes_def OclANY_def)
   apply(subst cp_OclIf, subst (2) cp_valid)
   apply(case_tac "(\<delta> X) \<tau> = true \<tau>", simp only: foundation20[simplified OclValid_def] cp_OclIf[symmetric], simp,
         subst (1 2) cp_OclAnd, simp add: cp_OclAnd[symmetric])
