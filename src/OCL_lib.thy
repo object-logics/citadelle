@@ -663,11 +663,11 @@ definition OclIncludes   :: "[('\<AA>,'\<alpha>::null) Set,('\<AA>,'\<alpha>) va
 where     "OclIncludes x y = (\<lambda> \<tau>.   if (\<delta> x) \<tau> = true \<tau> \<and> (\<upsilon> y) \<tau> = true \<tau>
                                      then \<lfloor>\<lfloor>(y \<tau>) \<in> \<lceil>\<lceil>Rep_Set_0 (x \<tau>)\<rceil>\<rceil> \<rfloor>\<rfloor>
                                      else \<bottom>  )"
-notation   OclIncludes    ("_->includes'(_')" [66,65]65)
+notation   OclIncludes    ("_->includes'(_')" (*[66,65]65*))
 
 definition OclExcludes   :: "[('\<AA>,'\<alpha>::null) Set,('\<AA>,'\<alpha>) val] \<Rightarrow> '\<AA> Boolean"
 where     "OclExcludes x y = (not(OclIncludes x y))"
-notation   OclExcludes    ("_->excludes'(_')" [66,65]65)
+notation   OclExcludes    ("_->excludes'(_')" (*[66,65]65*))
 
 text{* The case of the size definition is somewhat special, we admit
 explicitly in Featherweight OCL the possibility of infinite sets. For
@@ -679,7 +679,7 @@ where     "OclSize x = (\<lambda> \<tau>. if (\<delta> x) \<tau> = true \<tau> \
                              then \<lfloor>\<lfloor> int(card \<lceil>\<lceil>Rep_Set_0 (x \<tau>)\<rceil>\<rceil>) \<rfloor>\<rfloor>
                              else \<bottom> )"
 notation  (* standard ascii syntax *)
-           OclSize        ("_->size'(')" [66])
+           OclSize        ("_->size'(')" (*[66]*))
 
 text{* The following definition follows the requirement of the
 standard to treat null as neutral element of sets. It is
@@ -688,11 +688,11 @@ rule and the rule that the distinguished argument self should
 be non-null. *}
 definition OclIsEmpty   :: "('\<AA>,'\<alpha>::null) Set \<Rightarrow> '\<AA> Boolean"
 where     "OclIsEmpty x =  ((\<upsilon> x and not (\<delta> x)) or ((OclSize x) \<doteq> \<zero>))"
-notation   OclIsEmpty     ("_->isEmpty'(')" [66])
+notation   OclIsEmpty     ("_->isEmpty'(')" (*[66]*))
 
 definition OclNotEmpty   :: "('\<AA>,'\<alpha>::null) Set \<Rightarrow> '\<AA> Boolean"
 where     "OclNotEmpty x =  not(OclIsEmpty x)"
-notation   OclNotEmpty    ("_->notEmpty'(')" [66])
+notation   OclNotEmpty    ("_->notEmpty'(')" (*[66]*))
 
 (* Slight breach of naming convention in order to avoid naming conflict on constant.*)
 definition Ocl_Any   :: "[('\<AA>,'\<alpha>::null) Set] \<Rightarrow> ('\<AA>,'\<alpha>) val"
@@ -741,7 +741,7 @@ where "OclIterate\<^sub>S\<^sub>e\<^sub>t S A F = (\<lambda> \<tau>. if (\<delta
                                   else \<bottom>)"
 syntax
   "_OclIterate"  :: "[('\<AA>,'\<alpha>::null) Set, idt, idt, '\<alpha>, '\<beta>] => ('\<AA>,'\<gamma>)val"
-                        ("_ ->iterate'(_;_=_ | _')" [71,100,70]50)
+                        ("_ ->iterate'(_;_=_ | _')" (*[71,100,70]50*))
 translations
   "X->iterate(a; x = A | P)" == "CONST OclIterate\<^sub>S\<^sub>e\<^sub>t X A (%a. (% x. P))"
 
@@ -766,35 +766,28 @@ translations
 subsubsection{* Definition (futur operators) *}
 
 consts (* abstract set collection operations *)
- (* OclSize        :: " ('\<AA>,'\<alpha>::null) Set \<Rightarrow> '\<AA> Integer"      *)
- (* OclIncludes    :: "[('\<AA>,'\<alpha>::null) Set,('\<AA>,'\<alpha>) val'] \<Rightarrow> '\<AA> Boolean"    *)
- (* OclExcludes    :: "[('\<AA>,'\<alpha>::null) Set,('\<AA>,'\<alpha>) val'] \<Rightarrow> '\<AA> Boolean"    *)
- (* OclIncluding   :: "[('\<AA>,'\<alpha>::null) Set,('\<AA>,'\<alpha>) val'] \<Rightarrow> ('\<AA>,'\<alpha>) Set"   *)
- (* OclExcluding   :: "[('\<AA>,'\<alpha>::null) Set,('\<AA>,'\<alpha>) val'] \<Rightarrow> ('\<AA>,'\<alpha>) Set"   *)
- (* OclIsEmpty     :: " ('\<AA>,'\<alpha>::null) Set \<Rightarrow> '\<AA> Boolean" *)
- (* OclNotEmpty    :: " ('\<AA>,'\<alpha>::null) Set \<Rightarrow> '\<AA> Boolean"*)
-    OclUnion       :: "[('\<AA>,'\<alpha>::null) Set,('\<AA>,'\<alpha>) Set] \<Rightarrow> ('\<AA>,'\<alpha>) Set"
-    OclIntersection:: "[('\<AA>,'\<alpha>::null) Set,('\<AA>,'\<alpha>) Set] \<Rightarrow> ('\<AA>,'\<alpha>) Set"
+    OclCount       :: "[('\<AA>,'\<alpha>::null) Set,('\<AA>,'\<alpha>) Set] \<Rightarrow> '\<AA> Integer"
+    OclSum         :: " ('\<AA>,'\<alpha>::null) Set \<Rightarrow> '\<AA> Integer"
     OclIncludesAll :: "[('\<AA>,'\<alpha>::null) Set,('\<AA>,'\<alpha>) Set] \<Rightarrow> '\<AA> Boolean"
     OclExcludesAll :: "[('\<AA>,'\<alpha>::null) Set,('\<AA>,'\<alpha>) Set] \<Rightarrow> '\<AA> Boolean"
     OclComplement  :: " ('\<AA>,'\<alpha>::null) Set \<Rightarrow> ('\<AA>,'\<alpha>) Set"
-    OclSum         :: " ('\<AA>,'\<alpha>::null) Set \<Rightarrow> '\<AA> Integer"
-    OclCount       :: "[('\<AA>,'\<alpha>::null) Set,('\<AA>,'\<alpha>) Set] \<Rightarrow> '\<AA> Integer"
+    OclUnion       :: "[('\<AA>,'\<alpha>::null) Set,('\<AA>,'\<alpha>) Set] \<Rightarrow> ('\<AA>,'\<alpha>) Set"
+    OclIntersection:: "[('\<AA>,'\<alpha>::null) Set,('\<AA>,'\<alpha>) Set] \<Rightarrow> ('\<AA>,'\<alpha>) Set"
 
 notation
-    OclCount       ("_->count'(_')" [66,65]65)
+    OclCount       ("_->count'(_')" (*[66,65]65*))
 notation
-    OclSum         ("_->sum'(')" [66])
+    OclSum         ("_->sum'(')" (*[66]*))
 notation
-    OclIncludesAll ("_->includesAll'(_')" [66,65]65)
+    OclIncludesAll ("_->includesAll'(_')" (*[66,65]65*))
 notation
-    OclExcludesAll ("_->excludesAll'(_')" [66,65]65)
+    OclExcludesAll ("_->excludesAll'(_')" (*[66,65]65*))
 notation
     OclComplement  ("_->complement'(')")
 notation
-    OclUnion       ("_->union'(_')"          [66,65]65)
+    OclUnion       ("_->union'(_')"          (*[66,65]65*))
 notation
-    OclIntersection("_->intersection'(_')"   [71,70]70)
+    OclIntersection("_->intersection'(_')"   (*[71,70]70*))
 
 subsection{* Validity and Definedness Properties *}
 
@@ -1203,25 +1196,23 @@ by(auto simp: OclExcluding_def StrongEq_def invalid_def
                  cp_defined[symmetric] cp_valid[symmetric])
 
 lemma cp_OclIncludes:
-"(X->includes(x)) \<tau> = (OclIncludes (\<lambda> _. X \<tau>) (\<lambda> _. x \<tau>) \<tau>)"
+"(X->includes(x)) \<tau> = ((\<lambda> _. X \<tau>)->includes(\<lambda> _. x \<tau>)) \<tau>"
 by(auto simp: OclIncludes_def StrongEq_def invalid_def
                  cp_defined[symmetric] cp_valid[symmetric])
-(* Why does this not work syntactically ???
-   lemma cp_OclIncludes: "(X->includes(x)) \<tau> = (((\<lambda> _. X \<tau>)->includes( \<lambda> _. x \<tau>)) \<tau>)" *)
 
 lemma cp_OclIncludes1:
-"(X->includes(x)) \<tau> = (OclIncludes X (\<lambda> _. x \<tau>) \<tau>)"
+"(X->includes(x)) \<tau> = (X->includes(\<lambda> _. x \<tau>)) \<tau>"
 by(auto simp: OclIncludes_def StrongEq_def invalid_def
                  cp_defined[symmetric] cp_valid[symmetric])
 
 lemma cp_OclExcludes:
-"(X->excludes(x)) \<tau> = (OclExcludes (\<lambda> _. X \<tau>) (\<lambda> _. x \<tau>) \<tau>)"
+"(X->excludes(x)) \<tau> = ((\<lambda> _. X \<tau>)->excludes(\<lambda> _. x \<tau>)) \<tau>"
 by(simp add: OclExcludes_def OclNot_def, subst cp_OclIncludes, simp)
 
-lemma cp_OclSize: "X->size() \<tau> = (\<lambda>_. X \<tau>)->size() \<tau>"
+lemma cp_OclSize: "X->size() \<tau> = ((\<lambda>_. X \<tau>)->size()) \<tau>"
 by(simp add: OclSize_def cp_defined[symmetric])
 
-lemma cp_OclIsEmpty: "X->isEmpty() \<tau> = (\<lambda>_. X \<tau>)->isEmpty() \<tau>"
+lemma cp_OclIsEmpty: "X->isEmpty() \<tau> = ((\<lambda>_. X \<tau>)->isEmpty()) \<tau>"
  apply(simp add: OclIsEmpty_def)
  apply(subst (2) cp_OclOr)
  apply(subst cp_OclAnd)
@@ -1231,13 +1222,13 @@ lemma cp_OclIsEmpty: "X->isEmpty() \<tau> = (\<lambda>_. X \<tau>)->isEmpty() \<
   cp_StrictRefEq\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r[symmetric] cp_OclSize[symmetric] cp_OclNot[symmetric] cp_OclAnd[symmetric] cp_OclOr[symmetric])
 done
 
-lemma cp_OclNotEmpty: "X->notEmpty() \<tau> = (\<lambda>_. X \<tau>)->notEmpty() \<tau>"
+lemma cp_OclNotEmpty: "X->notEmpty() \<tau> = ((\<lambda>_. X \<tau>)->notEmpty()) \<tau>"
  apply(simp add: OclNotEmpty_def)
  apply(subst (2) cp_OclNot)
  apply(simp add: cp_OclNot[symmetric] cp_OclIsEmpty[symmetric])
 done
 
-lemma cp_Ocl_Any: "X->any() \<tau> = (\<lambda>_. X \<tau>)->any() \<tau>"
+lemma cp_Ocl_Any: "X->any() \<tau> = ((\<lambda>_. X \<tau>)->any()) \<tau>"
  apply(simp only: Ocl_Any_def)
  apply(subst (2) cp_OclAnd)
  apply(simp only: cp_OclAnd[symmetric] cp_defined[symmetric] cp_valid[symmetric] cp_OclNotEmpty[symmetric])
