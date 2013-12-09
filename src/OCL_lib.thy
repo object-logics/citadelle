@@ -2794,9 +2794,12 @@ definition "select_body :: _ \<Rightarrow> _ \<Rightarrow> _ \<Rightarrow> ('\<A
            \<equiv> (\<lambda>P x acc. if \<upsilon> (P x) then if P x \<triangleq> false then acc else acc->including(x) endif else \<bottom> endif)"
 
 lemma select_set_including_exec:
- assumes P_cp : "\<And>y \<tau>. P y \<tau> = P (\<lambda>_. y \<tau>) \<tau>"
+ assumes P_cp : "cp P"
  shows "OclSelect\<^sub>S\<^sub>e\<^sub>t (X->including(y)) P = select_body P y (OclSelect\<^sub>S\<^sub>e\<^sub>t (X->excluding(y)) P)"
 proof -
+ have P_cp: "\<And>x \<tau>. P x \<tau> = P (\<lambda>_. x \<tau>) \<tau>"
+    by(insert P_cp, auto simp: cp_def)
+
  have ex_including : "\<And>f X y \<tau>. \<tau> \<Turnstile> \<delta> X \<Longrightarrow> \<tau> \<Turnstile> \<upsilon> y \<Longrightarrow> (\<exists>x\<in>\<lceil>\<lceil>Rep_Set_0 (X->including(y) \<tau>)\<rceil>\<rceil>. f (P (\<lambda>_. x)) \<tau>) = (f (P (\<lambda>_. y \<tau>)) \<tau> \<or> (\<exists>x\<in>\<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil>. f (P (\<lambda>_. x)) \<tau>))"
   apply(simp add: OclIncluding_def OclValid_def)
   apply(subst Abs_Set_0_inverse, simp, (rule disjI2)+)
@@ -2981,6 +2984,14 @@ proof -
   apply(simp add: OclSelect\<^sub>S\<^sub>e\<^sub>t_invalid[simplified invalid_def] select_body_strict1[simplified invalid_def])
  done
 qed
+
+subsection{* OclReject *}
+
+lemma reject_set_including_exec:
+ assumes P_cp : "cp P"
+ shows "OclReject\<^sub>S\<^sub>e\<^sub>t (X->including(y)) P = select_body (not o P) y (OclReject\<^sub>S\<^sub>e\<^sub>t (X->excluding(y)) P)"
+ apply(simp add: OclReject\<^sub>S\<^sub>e\<^sub>t_def comp_def, rule select_set_including_exec)
+by (metis assms cp_intro''(5))
 
 subsection{* Strict Equality *}
 
