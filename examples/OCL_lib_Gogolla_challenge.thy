@@ -3846,9 +3846,6 @@ qed
 
 section{* OCL_lib (continued) *}
 
-definition "select_body :: _ \<Rightarrow> _ \<Rightarrow> _ \<Rightarrow> ('\<AA>, 'a option option) Set
-           \<equiv> (\<lambda>P x acc. if \<upsilon> (P x) then if P x \<triangleq> false then acc else acc->including(x) endif else \<bottom> endif)"
-
 lemma select_body_commute :
  assumes including_swap_0 : "\<And>(S:: ('\<AA>, 'a option option) Set) i j. S->including(i)->including(j) = S->including(j)->including(i)"
  shows "comp_fun_commute (select_body (P::(('\<AA> state \<times> '\<AA> state \<Rightarrow> 'a option option)
