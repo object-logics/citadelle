@@ -1206,11 +1206,17 @@ lemma cp_OclIncludes:
 "(X->includes(x)) \<tau> = (OclIncludes (\<lambda> _. X \<tau>) (\<lambda> _. x \<tau>) \<tau>)"
 by(auto simp: OclIncludes_def StrongEq_def invalid_def
                  cp_defined[symmetric] cp_valid[symmetric])
+(* Why does this not work syntactically ???
+   lemma cp_OclIncludes: "(X->includes(x)) \<tau> = (((\<lambda> _. X \<tau>)->includes( \<lambda> _. x \<tau>)) \<tau>)" *)
 
 lemma cp_OclIncludes1:
 "(X->includes(x)) \<tau> = (OclIncludes X (\<lambda> _. x \<tau>) \<tau>)"
 by(auto simp: OclIncludes_def StrongEq_def invalid_def
                  cp_defined[symmetric] cp_valid[symmetric])
+
+lemma cp_OclExcludes:
+"(X->excludes(x)) \<tau> = (OclExcludes (\<lambda> _. X \<tau>) (\<lambda> _. x \<tau>) \<tau>)"
+by(simp add: OclExcludes_def OclNot_def, subst cp_OclIncludes, simp)
 
 lemma cp_OclSize: "X->size() \<tau> = (\<lambda>_. X \<tau>)->size() \<tau>"
 by(simp add: OclSize_def cp_defined[symmetric])
@@ -1251,12 +1257,12 @@ apply(subst cp_OclForall)
 apply(simp)
 done
 
-lemma cp_OclForall2 [simp,intro!]:
+lemma (*cp_OclForall2 [simp,intro!]:*)
 "cp (\<lambda>X St x. P (\<lambda>\<tau>. x) X St) \<Longrightarrow> cp S \<Longrightarrow> cp (\<lambda>X. (S X)->forAll(x|P x X)) "
 apply(simp only: cp_def)
 oops
 
-lemma cp_OclForall:
+lemma (*cp_OclForall:*)
 "cp S \<Longrightarrow>
  (\<And> x. cp(P x)) \<Longrightarrow>
  cp(\<lambda>X. ((S X)->forAll(x | P x X)))"
@@ -1285,25 +1291,42 @@ done  (* temporary solution. *)
 
 *)
 
+lemma cp_OclExists:
+"(S->exists(x | P x)) \<tau> = ((\<lambda> _. S \<tau>)->exists(x | P (\<lambda> _. x \<tau>))) \<tau>"
+by(simp add: OclExists_def OclNot_def, subst cp_OclForall, simp)
+
+(* first-order version !*)
+lemma cp_OclExists1 [simp,intro!]:
+"cp S \<Longrightarrow> cp (\<lambda>X. ((S X)->exists(x | P x)))"
+apply(simp add: cp_def)
+apply(erule exE, rule exI, rule allI, rule allI, rule allI)
+apply(erule_tac x=X in allE)
+apply(subst cp_OclExists)
+apply(simp)
+done
 
 lemma cp_OclIterate\<^sub>S\<^sub>e\<^sub>t: "(X->iterate(a; x = A | P a x)) \<tau> =
                 ((\<lambda> _. X \<tau>)->iterate(a; x = A | P a x)) \<tau>"
 by(simp add: OclIterate\<^sub>S\<^sub>e\<^sub>t_def cp_defined[symmetric])
 
-(* Why does this not work syntactically ???
-   lemma cp_OclIncludes: "(X->includes(x)) \<tau> = (((\<lambda> _. X \<tau>)->includes( \<lambda> _. x \<tau>)) \<tau>)" *)
-
 lemma cp_OclSelect\<^sub>S\<^sub>e\<^sub>t: "(X->select(a | P a)) \<tau> =
                 ((\<lambda> _. X \<tau>)->select(a | P a)) \<tau>"
 by(simp add: OclSelect\<^sub>S\<^sub>e\<^sub>t_def cp_defined[symmetric])
+
+lemma cp_OclReject\<^sub>S\<^sub>e\<^sub>t: "(X->reject(a | P a)) \<tau> =
+                ((\<lambda> _. X \<tau>)->reject(a | P a)) \<tau>"
+by(simp add: OclReject\<^sub>S\<^sub>e\<^sub>t_def, subst cp_OclSelect\<^sub>S\<^sub>e\<^sub>t, simp)
 
 lemmas cp_intro''[simp,intro!,code_unfold] =
        cp_intro'
        cp_OclIncluding [THEN allI[THEN allI[THEN allI[THEN cpI2]], of "OclIncluding"]]
        cp_OclExcluding [THEN allI[THEN allI[THEN allI[THEN cpI2]], of "OclExcluding"]]
        cp_OclIncludes  [THEN allI[THEN allI[THEN allI[THEN cpI2]], of "OclIncludes"]]
+       cp_OclExcludes  [THEN allI[THEN allI[THEN allI[THEN cpI2]], of "OclExcludes"]]
        cp_OclSize      [THEN allI[THEN allI[THEN cpI1], of "OclSize"]]
-       cp_Ocl_Any       [THEN allI[THEN allI[THEN cpI1], of "Ocl_Any"]]
+       cp_OclIsEmpty   [THEN allI[THEN allI[THEN cpI1], of "OclIsEmpty"]]
+       cp_OclNotEmpty  [THEN allI[THEN allI[THEN cpI1], of "OclNotEmpty"]]
+       cp_Ocl_Any      [THEN allI[THEN allI[THEN cpI1], of "Ocl_Any"]]
 
 section{* Fundamental Predicates on Set: Strict Equality *}
 
