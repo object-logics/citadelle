@@ -1431,7 +1431,7 @@ by(simp add:StrictRefEq\<^sub>S\<^sub>e\<^sub>t cp_StrongEq[symmetric] cp_valid[
 
 
 
-section{* Execution on Set's Operators *}
+section{* Execution on Set's Operators (with mtSet and recursive case as arguments) *}
 
 subsection{* OclIncluding *}
 
@@ -1947,73 +1947,6 @@ proof -
  by(simp add: A1 Abs_Set_0_inverse bot_fun_def bot_option_def null_fun_def null_option_def OclInt0_def)
 qed
 
-lemma [simp,code_unfold]: "\<delta> (Set{} ->size()) = true"
-by simp
-
-
-lemma including_size_defined[simp,code_unfold]: "\<delta> ((X ->including(x)) ->size()) = (\<delta>(X->size()) and \<upsilon>(x))"
-proof -
-
- have defined_inject_true : "\<And>\<tau> P. (\<delta> P) \<tau> \<noteq> true \<tau> \<Longrightarrow> (\<delta> P) \<tau> = false \<tau>"
-      apply(simp add: defined_def true_def false_def bot_fun_def bot_option_def
-                      null_fun_def null_option_def)
-      by (case_tac " P \<tau> = \<bottom> \<or> P \<tau> = null", simp_all add: true_def)
-
- have valid_inject_true : "\<And>\<tau> P. (\<upsilon> P) \<tau> \<noteq> true \<tau> \<Longrightarrow> (\<upsilon> P) \<tau> = false \<tau>"
-      apply(simp add: valid_def true_def false_def bot_fun_def bot_option_def
-                      null_fun_def null_option_def)
-      by (case_tac "P \<tau> = \<bottom>", simp_all add: true_def)
-
- have finite_including_rep_set : "\<And>\<tau>. (\<delta> X and \<upsilon> x) \<tau> = true \<tau> \<Longrightarrow>
-                 finite \<lceil>\<lceil>Rep_Set_0 (X->including(x) \<tau>)\<rceil>\<rceil> = finite \<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil>"
-  apply(rule finite_including_rep_set)
-  apply(metis OclValid_def foundation5)+
- done
-
- have card_including_exec : "\<And>\<tau>. (\<delta> (\<lambda>_. \<lfloor>\<lfloor>int (card \<lceil>\<lceil>Rep_Set_0 (X->including(x) \<tau>)\<rceil>\<rceil>)\<rfloor>\<rfloor>)) \<tau> = (\<delta> (\<lambda>_. \<lfloor>\<lfloor>int (card \<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil>)\<rfloor>\<rfloor>)) \<tau>"
-  apply(simp add: defined_def bot_fun_def bot_option_def null_fun_def null_option_def)
- done
-
- show ?thesis
-
-  apply(rule ext, rename_tac \<tau>)
-  apply(case_tac "(\<delta> (X->including(x)->size())) \<tau> = true \<tau>", simp)
-  apply(subst cp_OclAnd)
-  apply(subst cp_defined)
-  apply(simp only: cp_defined[of "X->including(x)->size()"])
-  apply(simp add: OclSize_def)
-  apply(case_tac "((\<delta> X and \<upsilon> x) \<tau> = true \<tau> \<and> finite \<lceil>\<lceil>Rep_Set_0 (X->including(x) \<tau>)\<rceil>\<rceil>)", simp)
-  prefer 2
-  apply(simp)
-  apply(simp add: defined_def true_def false_def bot_fun_def bot_option_def)
-  apply(erule conjE)
-  apply(simp add: finite_including_rep_set[simplified OclValid_def] card_including_exec
-                  cp_OclAnd[of "\<delta> X" "\<upsilon> x"]
-                  cp_OclAnd[of "true", THEN sym])
-  apply(subgoal_tac "(\<delta> X) \<tau> = true \<tau> \<and> (\<upsilon> x) \<tau> = true \<tau>", simp)
-  apply(rule foundation5[of _ "\<delta> X" "\<upsilon> x", simplified OclValid_def], simp only: cp_OclAnd[THEN sym])
-
-  apply(drule defined_inject_true[of "X->including(x)->size()"], simp)
-  apply(simp only: cp_OclAnd[of "\<delta> (X->size())" "\<upsilon> x"])
-  apply(simp add: cp_defined[of "X->including(x)->size()" ] cp_defined[of "X->size()" ])
-  apply(simp add: OclSize_def card_including_exec)
-  apply(case_tac "(\<delta> X and \<upsilon> x) \<tau> = true \<tau> \<and> finite \<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil>",
-        simp add: finite_including_rep_set[simplified OclValid_def] card_including_exec)
-  apply(simp only: cp_OclAnd[THEN sym])
-  apply(simp add: defined_def bot_fun_def)
-
-  apply(split split_if_asm)
-  apply(simp add: finite_including_rep_set[simplified OclValid_def])
-  apply(simp add: finite_including_rep_set[simplified OclValid_def] card_including_exec)
-  apply(simp only: cp_OclAnd[THEN sym])
-  apply(simp)
-  apply(rule impI)
-  apply(erule conjE)
-  apply(case_tac "(\<upsilon> x) \<tau> = true \<tau>", simp add: cp_OclAnd[of "\<delta> X" "\<upsilon> x"])
-  apply(drule valid_inject_true[of "x"], simp add: cp_OclAnd[of _ "\<upsilon> x"])
- done
-qed
-
 lemma including_size_exec[simp,code_unfold]:
  "((X ->including(x)) ->size()) = (if \<delta> X and \<upsilon> x then
                                      X ->size() +\<^sub>o\<^sub>c\<^sub>l if X ->includes(x) then \<zero> else \<one> endif
@@ -2098,77 +2031,6 @@ proof -
  qed
 qed
 
-lemma excluding_size_defined[simp,code_unfold]: "\<delta> ((X ->excluding(x)) ->size()) = (\<delta>(X->size()) and \<upsilon>(x))"
-proof -
-
- have defined_inject_true : "\<And>\<tau> P. (\<delta> P) \<tau> \<noteq> true \<tau> \<Longrightarrow> (\<delta> P) \<tau> = false \<tau>"
-      apply(simp add: defined_def true_def false_def bot_fun_def
-                      bot_option_def null_fun_def null_option_def)
-      by (case_tac " P \<tau> = \<bottom> \<or> P \<tau> = null", simp_all add: true_def)
-
- have valid_inject_true : "\<And>\<tau> P. (\<upsilon> P) \<tau> \<noteq> true \<tau> \<Longrightarrow> (\<upsilon> P) \<tau> = false \<tau>"
-      apply(simp add: valid_def true_def false_def bot_fun_def bot_option_def
-                      null_fun_def null_option_def)
-      by(case_tac "P \<tau> = \<bottom>", simp_all add: true_def)
-
-
- have finite_excluding_rep_set : "\<And>\<tau>. (\<delta> X and \<upsilon> x) \<tau> = true \<tau> \<Longrightarrow>
-                                     finite \<lceil>\<lceil>Rep_Set_0 (X->excluding(x) \<tau>)\<rceil>\<rceil> =
-                                     finite \<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil>"
-  apply(rule finite_excluding_rep_set)
-  apply(metis OclValid_def foundation5)+
- done
-
- have card_excluding_exec : "\<And>\<tau>. (\<delta> (\<lambda>_. \<lfloor>\<lfloor>int (card \<lceil>\<lceil>Rep_Set_0 (X->excluding(x) \<tau>)\<rceil>\<rceil>)\<rfloor>\<rfloor>)) \<tau> =
-                                   (\<delta> (\<lambda>_. \<lfloor>\<lfloor>int (card \<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil>)\<rfloor>\<rfloor>)) \<tau>"
-  apply(simp add: defined_def bot_fun_def bot_option_def null_fun_def null_option_def)
- done
-
- show ?thesis
-
-  apply(rule ext, rename_tac \<tau>)
-  apply(case_tac "(\<delta> (X->excluding(x)->size())) \<tau> = true \<tau>", simp)
-  apply(subst cp_OclAnd)
-  apply(subst cp_defined)
-  apply(simp only: cp_defined[of "X->excluding(x)->size()"])
-  apply(simp add: OclSize_def)
-  apply(case_tac "((\<delta> X and \<upsilon> x) \<tau> = true \<tau> \<and> finite \<lceil>\<lceil>Rep_Set_0 (X->excluding(x) \<tau>)\<rceil>\<rceil>)", simp)
-  prefer 2
-  apply(simp)
-  apply(simp add: defined_def true_def false_def bot_fun_def bot_option_def)
-  apply(erule conjE)
-  apply(simp add: finite_excluding_rep_set card_excluding_exec
-                  cp_OclAnd[of "\<delta> X" "\<upsilon> x"]
-                  cp_OclAnd[of "true", THEN sym])
-  apply(subgoal_tac "(\<delta> X) \<tau> = true \<tau> \<and> (\<upsilon> x) \<tau> = true \<tau>", simp)
-  apply(rule foundation5[of _ "\<delta> X" "\<upsilon> x", simplified OclValid_def], simp only: cp_OclAnd[THEN sym])
-
-  apply(drule defined_inject_true[of "X->excluding(x)->size()"], simp)
-  apply(simp only: cp_OclAnd[of "\<delta> (X->size())" "\<upsilon> x"])
-  apply(simp add: cp_defined[of "X->excluding(x)->size()" ] cp_defined[of "X->size()" ])
-  apply(simp add: OclSize_def finite_excluding_rep_set card_excluding_exec)
-  apply(case_tac "(\<delta> X and \<upsilon> x) \<tau> = true \<tau> \<and> finite \<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil>",
-        simp add: finite_excluding_rep_set card_excluding_exec)
-  apply(simp only: cp_OclAnd[THEN sym])
-  apply(simp add: defined_def bot_fun_def)
-
-  apply(split split_if_asm)
-  apply(simp add: finite_excluding_rep_set)
-  apply(simp add: finite_excluding_rep_set card_excluding_exec)
-  apply(simp only: cp_OclAnd[THEN sym])
-  apply(simp)
-  apply(rule impI)
-  apply(erule conjE)
-  apply(case_tac "(\<upsilon> x) \<tau> = true \<tau>", simp add: cp_OclAnd[of "\<delta> X" "\<upsilon> x"])
-  apply(drule valid_inject_true[of "x"], simp add: cp_OclAnd[of _ "\<upsilon> x"])
- done
-qed
-
-lemma [simp]:
- assumes X_finite: "\<And>\<tau>. finite \<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil>"
- shows "\<delta> ((X ->including(x)) ->size()) = (\<delta>(X) and \<upsilon>(x))"
-by(simp add: size_defined[OF X_finite] del: including_size_exec)
-
 subsection{* OclIsEmpty *}
 
 lemma [simp,code_unfold]: "Set{}->isEmpty() = true"
@@ -2197,9 +2059,9 @@ proof -
   apply(subst A1)
   apply(metis (hide_lams, no_types) defined_inject_true OclExcluding_valid_args_valid')
   apply(simp add: cp_OclOr[symmetric] del: including_size_exec)
-  apply(rule B)
-  apply(rule foundation20, simp del: including_size_exec)
-  apply (metis (hide_lams, no_types) X_finite X_def a_val foundation10 foundation6 size_defined')
+  apply(rule B,
+        rule foundation20,
+        metis (hide_lams, no_types) OclIncluding_defined_args_valid X_def X_finite a_val finite_including_rep_set size_defined')
   apply(simp add: OclSize_def finite_including_rep_set[OF X_def a_val] X_finite OclInt0_def)
  by (metis OclValid_def X_def a_val foundation10 foundation6 including_notempty_rep_set[OF X_def a_val])
 qed
@@ -3009,6 +2871,151 @@ lemma reject_set_including_exec:
  shows "OclReject\<^sub>S\<^sub>e\<^sub>t (X->including(y)) P = select_body (not o P) y (OclReject\<^sub>S\<^sub>e\<^sub>t (X->excluding(y)) P)"
  apply(simp add: OclReject\<^sub>S\<^sub>e\<^sub>t_def comp_def, rule select_set_including_exec)
 by (metis assms cp_intro''(5))
+
+section{* Execution on Set's Operators (higher composition) *}
+
+subsection{* OclSize *}
+
+lemma [simp,code_unfold]: "\<delta> (Set{} ->size()) = true"
+by simp
+
+
+lemma including_size_defined[simp,code_unfold]: "\<delta> ((X ->including(x)) ->size()) = (\<delta>(X->size()) and \<upsilon>(x))"
+proof -
+
+ have defined_inject_true : "\<And>\<tau> P. (\<delta> P) \<tau> \<noteq> true \<tau> \<Longrightarrow> (\<delta> P) \<tau> = false \<tau>"
+      apply(simp add: defined_def true_def false_def bot_fun_def bot_option_def
+                      null_fun_def null_option_def)
+      by (case_tac " P \<tau> = \<bottom> \<or> P \<tau> = null", simp_all add: true_def)
+
+ have valid_inject_true : "\<And>\<tau> P. (\<upsilon> P) \<tau> \<noteq> true \<tau> \<Longrightarrow> (\<upsilon> P) \<tau> = false \<tau>"
+      apply(simp add: valid_def true_def false_def bot_fun_def bot_option_def
+                      null_fun_def null_option_def)
+      by (case_tac "P \<tau> = \<bottom>", simp_all add: true_def)
+
+ have finite_including_rep_set : "\<And>\<tau>. (\<delta> X and \<upsilon> x) \<tau> = true \<tau> \<Longrightarrow>
+                 finite \<lceil>\<lceil>Rep_Set_0 (X->including(x) \<tau>)\<rceil>\<rceil> = finite \<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil>"
+  apply(rule finite_including_rep_set)
+  apply(metis OclValid_def foundation5)+
+ done
+
+ have card_including_exec : "\<And>\<tau>. (\<delta> (\<lambda>_. \<lfloor>\<lfloor>int (card \<lceil>\<lceil>Rep_Set_0 (X->including(x) \<tau>)\<rceil>\<rceil>)\<rfloor>\<rfloor>)) \<tau> = (\<delta> (\<lambda>_. \<lfloor>\<lfloor>int (card \<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil>)\<rfloor>\<rfloor>)) \<tau>"
+  apply(simp add: defined_def bot_fun_def bot_option_def null_fun_def null_option_def)
+ done
+
+ show ?thesis
+
+  apply(rule ext, rename_tac \<tau>)
+  apply(case_tac "(\<delta> (X->including(x)->size())) \<tau> = true \<tau>", simp del: including_size_exec)
+  apply(subst cp_OclAnd)
+  apply(subst cp_defined)
+  apply(simp only: cp_defined[of "X->including(x)->size()"])
+  apply(simp add: OclSize_def)
+  apply(case_tac "((\<delta> X and \<upsilon> x) \<tau> = true \<tau> \<and> finite \<lceil>\<lceil>Rep_Set_0 (X->including(x) \<tau>)\<rceil>\<rceil>)", simp)
+  prefer 2
+  apply(simp)
+  apply(simp add: defined_def true_def false_def bot_fun_def bot_option_def)
+  apply(erule conjE)
+  apply(simp add: finite_including_rep_set[simplified OclValid_def] card_including_exec
+                  cp_OclAnd[of "\<delta> X" "\<upsilon> x"]
+                  cp_OclAnd[of "true", THEN sym])
+  apply(subgoal_tac "(\<delta> X) \<tau> = true \<tau> \<and> (\<upsilon> x) \<tau> = true \<tau>", simp)
+  apply(rule foundation5[of _ "\<delta> X" "\<upsilon> x", simplified OclValid_def], simp only: cp_OclAnd[THEN sym])
+
+  apply(drule defined_inject_true[of "X->including(x)->size()"], simp del: including_size_exec)
+  apply(simp only: cp_OclAnd[of "\<delta> (X->size())" "\<upsilon> x"])
+  apply(simp add: cp_defined[of "X->including(x)->size()" ] cp_defined[of "X->size()" ]
+             del: including_size_exec)
+  apply(simp add: OclSize_def card_including_exec
+             del: including_size_exec)
+  apply(case_tac "(\<delta> X and \<upsilon> x) \<tau> = true \<tau> \<and> finite \<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil>",
+        simp add: finite_including_rep_set[simplified OclValid_def] card_including_exec)
+  apply(simp only: cp_OclAnd[THEN sym])
+  apply(simp add: defined_def bot_fun_def)
+
+  apply(split split_if_asm)
+  apply(simp add: finite_including_rep_set[simplified OclValid_def])
+  apply(simp add: finite_including_rep_set[simplified OclValid_def] card_including_exec)
+  apply(simp only: cp_OclAnd[THEN sym])
+  apply(simp)
+  apply(rule impI)
+  apply(erule conjE)
+  apply(case_tac "(\<upsilon> x) \<tau> = true \<tau>", simp add: cp_OclAnd[of "\<delta> X" "\<upsilon> x"])
+  apply(drule valid_inject_true[of "x"], simp add: cp_OclAnd[of _ "\<upsilon> x"])
+ done
+qed
+
+lemma excluding_size_defined[simp,code_unfold]: "\<delta> ((X ->excluding(x)) ->size()) = (\<delta>(X->size()) and \<upsilon>(x))"
+proof -
+
+ have defined_inject_true : "\<And>\<tau> P. (\<delta> P) \<tau> \<noteq> true \<tau> \<Longrightarrow> (\<delta> P) \<tau> = false \<tau>"
+      apply(simp add: defined_def true_def false_def bot_fun_def
+                      bot_option_def null_fun_def null_option_def)
+      by (case_tac " P \<tau> = \<bottom> \<or> P \<tau> = null", simp_all add: true_def)
+
+ have valid_inject_true : "\<And>\<tau> P. (\<upsilon> P) \<tau> \<noteq> true \<tau> \<Longrightarrow> (\<upsilon> P) \<tau> = false \<tau>"
+      apply(simp add: valid_def true_def false_def bot_fun_def bot_option_def
+                      null_fun_def null_option_def)
+      by(case_tac "P \<tau> = \<bottom>", simp_all add: true_def)
+
+
+ have finite_excluding_rep_set : "\<And>\<tau>. (\<delta> X and \<upsilon> x) \<tau> = true \<tau> \<Longrightarrow>
+                                     finite \<lceil>\<lceil>Rep_Set_0 (X->excluding(x) \<tau>)\<rceil>\<rceil> =
+                                     finite \<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil>"
+  apply(rule finite_excluding_rep_set)
+  apply(metis OclValid_def foundation5)+
+ done
+
+ have card_excluding_exec : "\<And>\<tau>. (\<delta> (\<lambda>_. \<lfloor>\<lfloor>int (card \<lceil>\<lceil>Rep_Set_0 (X->excluding(x) \<tau>)\<rceil>\<rceil>)\<rfloor>\<rfloor>)) \<tau> =
+                                   (\<delta> (\<lambda>_. \<lfloor>\<lfloor>int (card \<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil>)\<rfloor>\<rfloor>)) \<tau>"
+  apply(simp add: defined_def bot_fun_def bot_option_def null_fun_def null_option_def)
+ done
+
+ show ?thesis
+
+  apply(rule ext, rename_tac \<tau>)
+  apply(case_tac "(\<delta> (X->excluding(x)->size())) \<tau> = true \<tau>", simp)
+  apply(subst cp_OclAnd)
+  apply(subst cp_defined)
+  apply(simp only: cp_defined[of "X->excluding(x)->size()"])
+  apply(simp add: OclSize_def)
+  apply(case_tac "((\<delta> X and \<upsilon> x) \<tau> = true \<tau> \<and> finite \<lceil>\<lceil>Rep_Set_0 (X->excluding(x) \<tau>)\<rceil>\<rceil>)", simp)
+  prefer 2
+  apply(simp)
+  apply(simp add: defined_def true_def false_def bot_fun_def bot_option_def)
+  apply(erule conjE)
+  apply(simp add: finite_excluding_rep_set card_excluding_exec
+                  cp_OclAnd[of "\<delta> X" "\<upsilon> x"]
+                  cp_OclAnd[of "true", THEN sym])
+  apply(subgoal_tac "(\<delta> X) \<tau> = true \<tau> \<and> (\<upsilon> x) \<tau> = true \<tau>", simp)
+  apply(rule foundation5[of _ "\<delta> X" "\<upsilon> x", simplified OclValid_def], simp only: cp_OclAnd[THEN sym])
+
+  apply(drule defined_inject_true[of "X->excluding(x)->size()"], simp)
+  apply(simp only: cp_OclAnd[of "\<delta> (X->size())" "\<upsilon> x"])
+  apply(simp add: cp_defined[of "X->excluding(x)->size()" ] cp_defined[of "X->size()" ])
+  apply(simp add: OclSize_def finite_excluding_rep_set card_excluding_exec)
+  apply(case_tac "(\<delta> X and \<upsilon> x) \<tau> = true \<tau> \<and> finite \<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil>",
+        simp add: finite_excluding_rep_set card_excluding_exec)
+  apply(simp only: cp_OclAnd[THEN sym])
+  apply(simp add: defined_def bot_fun_def)
+
+  apply(split split_if_asm)
+  apply(simp add: finite_excluding_rep_set)
+  apply(simp add: finite_excluding_rep_set card_excluding_exec)
+  apply(simp only: cp_OclAnd[THEN sym])
+  apply(simp)
+  apply(rule impI)
+  apply(erule conjE)
+  apply(case_tac "(\<upsilon> x) \<tau> = true \<tau>", simp add: cp_OclAnd[of "\<delta> X" "\<upsilon> x"])
+  apply(drule valid_inject_true[of "x"], simp add: cp_OclAnd[of _ "\<upsilon> x"])
+ done
+qed
+
+lemma [simp]:
+ assumes X_finite: "\<And>\<tau>. finite \<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil>"
+ shows "\<delta> ((X ->including(x)) ->size()) = (\<delta>(X) and \<upsilon>(x))"
+by(simp add: size_defined[OF X_finite] del: including_size_exec)
+
 
 subsection{* Strict Equality *}
 
