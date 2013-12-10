@@ -2795,12 +2795,33 @@ lemma select_set_mt_exec[simp,code_unfold]: "OclSelect\<^sub>S\<^sub>e\<^sub>t m
 done
 
 definition "select_body :: _ \<Rightarrow> _ \<Rightarrow> _ \<Rightarrow> ('\<AA>, 'a option option) Set
-           \<equiv> (\<lambda>P x acc. if \<upsilon> (P x) then if P x \<triangleq> false then acc else acc->including(x) endif else \<bottom> endif)"
+           \<equiv> (\<lambda>P x acc. if P x \<doteq> false then acc else acc->including(x) endif)"
 
-lemma select_set_including_exec:
+lemma select_set_including_exec[simp,code_unfold]:
  assumes P_cp : "cp P"
  shows "OclSelect\<^sub>S\<^sub>e\<^sub>t (X->including(y)) P = select_body P y (OclSelect\<^sub>S\<^sub>e\<^sub>t (X->excluding(y)) P)"
 proof -
+
+ def select_body2
+     \<equiv> "(\<lambda>(P:: ('a state \<times> 'a state \<Rightarrow> 'b option option)
+   \<Rightarrow> 'a state \<times> 'a state \<Rightarrow> bool option option) x (acc :: (_, 'b option option) Set). if \<upsilon> (P x) then if P x \<triangleq> false then acc else acc->including(x) endif else \<bottom> endif)"
+ have select_change: "select_body = select_body2"
+  unfolding select_body2_def
+  apply((rule ext)+, rename_tac \<tau>)
+  apply(simp add: select_body_def)
+  apply(case_tac "\<tau> \<Turnstile> \<upsilon> (P x)", simp_all)
+  apply (metis (hide_lams, no_types) OCL_core.bot_fun_def OclIf_def OclIf_false' OclIf_true' OclValid_def StrictRefEq\<^sub>B\<^sub>o\<^sub>o\<^sub>l\<^sub>e\<^sub>a\<^sub>n StrictRefEq\<^sub>B\<^sub>o\<^sub>o\<^sub>l\<^sub>e\<^sub>a\<^sub>n_defined_args_valid StrictRefEq\<^sub>B\<^sub>o\<^sub>o\<^sub>l\<^sub>e\<^sub>a\<^sub>n_strict'' StrongEq_sym defined7 foundation1 foundation17 foundation6 foundation9 invalid_def valid3 valid4)
+ by (metis OCL_core.bot_fun_def OclANY_valid_args_valid'' OclIf_def OclIncluding_defined_args_valid OclIncluding_invalid OclIncluding_invalid_args OclIncluding_valid_args_valid OclValid_def StrictRefEq\<^sub>B\<^sub>o\<^sub>o\<^sub>l\<^sub>e\<^sub>a\<^sub>n_defined_args_valid foundation16 foundation18')
+
+ show ?thesis
+ apply(simp add: select_change)
+ proof -
+ def select_body \<equiv> select_body2
+ have select_body_def : "select_body = (\<lambda>P x acc. if \<upsilon> P x then if P x \<triangleq> false then acc else acc->including(x) endif else \<bottom> endif)"
+ by(simp add: select_body_def select_body2_def)
+ show "OclSelect\<^sub>S\<^sub>e\<^sub>t X->including(y) P = select_body P y (OclSelect\<^sub>S\<^sub>e\<^sub>t X->excluding(y) P)"
+ proof -
+
  have P_cp: "\<And>x \<tau>. P x \<tau> = P (\<lambda>_. x \<tau>) \<tau>"
     by(insert P_cp, auto simp: cp_def)
 
@@ -2987,7 +3008,7 @@ proof -
   apply(simp add: OclValid_def false_def true_def, rule conjI, blast)
   apply(simp add: OclSelect\<^sub>S\<^sub>e\<^sub>t_invalid[simplified invalid_def] select_body_strict1[simplified invalid_def])
  done
-qed
+qed qed qed
 
 subsection{* OclReject *}
 
@@ -3195,6 +3216,8 @@ done
 
 text{* Elementary computations on Sets.*}
 
+declare select_body_def [simp]
+
 value "\<not> (\<tau> \<Turnstile> \<upsilon>(invalid::('\<AA>,'\<alpha>::null) Set))"
 value    "\<tau> \<Turnstile> \<upsilon>(null::('\<AA>,'\<alpha>::null) Set)"
 value "\<not> (\<tau> \<Turnstile> \<delta>(null::('\<AA>,'\<alpha>::null) Set))"
@@ -3232,7 +3255,7 @@ lemma    "\<tau> \<Turnstile> (Set{\<two>,null,\<two>} \<doteq> Set{null,\<two>}
 lemma    "\<tau> \<Turnstile> (Set{\<one>,null,\<two>} <> Set{null,\<two>})" by simp
 lemma    "\<tau> \<Turnstile> (Set{Set{\<two>,null}} \<doteq> Set{Set{null,\<two>}})" by simp
 lemma    "\<tau> \<Turnstile> (Set{Set{\<two>,null}} <> Set{Set{null,\<two>},null})" by simp
-(*lemma "\<not> (\<tau> \<Turnstile> (Set{null}->select(x | not x) \<doteq> Set{null}))" by simp*)
+lemma    "\<tau> \<Turnstile> (Set{null}->select(x | not x) \<doteq> Set{null})" by simp
 (*
 value "\<not> (\<tau> \<Turnstile> (Set{true} \<doteq> Set{false}))"
 value "\<not> (\<tau> \<Turnstile> (Set{true,true} \<doteq> Set{false}))"
@@ -3241,6 +3264,6 @@ value    "\<tau> \<Turnstile> (Set{\<two>,null,\<two>} \<doteq> Set{null,\<two>}
 value    "\<tau> \<Turnstile> (Set{\<one>,null,\<two>} <> Set{null,\<two>})"
 value    "\<tau> \<Turnstile> (Set{Set{\<two>,null}} \<doteq> Set{Set{null,\<two>}})"
 value    "\<tau> \<Turnstile> (Set{Set{\<two>,null}} <> Set{Set{null,\<two>},null})"
-value "\<not> (\<tau> \<Turnstile> (Set{null}->select(x | not x) \<doteq> Set{null}))"
+value    "\<tau> \<Turnstile> (Set{null}->select(x | not x) \<doteq> Set{null})"
 *)
 end
