@@ -241,9 +241,9 @@ defs   StrictRefEq\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r[code_
                                     then (x \<triangleq> y) \<tau>
                                     else invalid \<tau>"
 
-lemma [simp, code_unfold] : "(true \<doteq> false) = false"
+lemma [simp,code_unfold] : "(true \<doteq> false) = false"
 by(simp add:StrictRefEq\<^sub>B\<^sub>o\<^sub>o\<^sub>l\<^sub>e\<^sub>a\<^sub>n)
-lemma [simp, code_unfold] : "(false \<doteq> true) = false"
+lemma [simp,code_unfold] : "(false \<doteq> true) = false"
 by(simp add:StrictRefEq\<^sub>B\<^sub>o\<^sub>o\<^sub>l\<^sub>e\<^sub>a\<^sub>n)
 
 value "\<tau> \<Turnstile> \<one> <> \<two>"
@@ -405,7 +405,7 @@ lemma cp_StrictRefEq\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r:
 by(auto simp: StrictRefEq\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r StrongEq_def valid_def  cp_defined[symmetric])
 
 
-lemmas cp_intro'[simp,intro!,code_unfold] =
+lemmas cp_intro'[intro!,simp,code_unfold] =
        cp_intro'
        cp_StrictRefEq\<^sub>B\<^sub>o\<^sub>o\<^sub>l\<^sub>e\<^sub>a\<^sub>n[THEN allI[THEN allI[THEN allI[THEN cpI2]], of "StrictRefEq"]]
        cp_StrictRefEq\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r[THEN allI[THEN allI[THEN allI[THEN cpI2]],  of "StrictRefEq"]]
@@ -1308,7 +1308,7 @@ lemma cp_OclReject\<^sub>S\<^sub>e\<^sub>t: "(X->reject(a | P a)) \<tau> =
                 ((\<lambda> _. X \<tau>)->reject(a | P a)) \<tau>"
 by(simp add: OclReject\<^sub>S\<^sub>e\<^sub>t_def, subst cp_OclSelect\<^sub>S\<^sub>e\<^sub>t, simp)
 
-lemmas cp_intro''[simp,intro!,code_unfold] =
+lemmas cp_intro''[intro!,simp,code_unfold] =
        cp_intro'
        cp_OclIncluding [THEN allI[THEN allI[THEN allI[THEN cpI2]], of "OclIncluding"]]
        cp_OclExcluding [THEN allI[THEN allI[THEN allI[THEN cpI2]], of "OclExcluding"]]
@@ -1466,7 +1466,7 @@ qed
 
 text{* One would like a generic theorem of the form:
 \begin{verbatim}
-lemma includes_execute[code_unfold]:
+lemma includes_execute:
 "(X->including(x)->includes(y)) = (if \<delta> X then if x \<doteq> y
                                                then true
                                                else X->includes(y)
@@ -1658,7 +1658,7 @@ proof -
 qed
 
 
-lemma excluding_charn0_exec[code_unfold]:
+lemma excluding_charn0_exec[simp,code_unfold]:
 "(Set{}->excluding(x)) = (if (\<upsilon> x) then Set{} else invalid endif)"
 proof -
   have A: "\<And> \<tau>. (Set{}->excluding(invalid)) \<tau> = (if (\<upsilon> invalid) then Set{} else invalid endif) \<tau>"
@@ -1986,7 +1986,7 @@ proof -
  done
 qed
 
-lemma including_size_exec[code_unfold]:
+lemma including_size_exec[simp,code_unfold]:
  "((X ->including(x)) ->size()) = (if \<delta> X and \<upsilon> x then
                                      X ->size() +\<^sub>o\<^sub>c\<^sub>l if X ->includes(x) then \<zero> else \<one> endif
                                    else
@@ -2153,7 +2153,7 @@ done
 lemma [simp]:
  assumes X_finite: "\<And>\<tau>. finite \<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil>"
  shows "\<delta> ((X ->including(x)) ->size()) = (\<delta>(X) and \<upsilon>(x))"
-by(simp add: size_defined[OF X_finite])
+by(simp add: size_defined[OF X_finite] del: including_size_exec)
 
 subsection{* OclIsEmpty *}
 
@@ -2178,13 +2178,13 @@ proof -
  by (metis OclAnd_true2 OclValid_def Sem_def StrictRefEq\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r StrictRefEq\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r_strict' StrictRefEq\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r_strict'' StrongEq_sym bool_split foundation16 foundation22 invalid_def null_fun_def null_non_OclInt0 valid4)
 
  show ?thesis
-  apply(simp add: OclIsEmpty_def)
+  apply(simp add: OclIsEmpty_def del: including_size_exec)
   apply(subst cp_OclOr)
   apply(subst A1)
   apply(metis (hide_lams, no_types) defined_inject_true OclExcluding_valid_args_valid')
-  apply(simp add: cp_OclOr[symmetric])
+  apply(simp add: cp_OclOr[symmetric] del: including_size_exec)
   apply(rule B)
-  apply(rule foundation20, simp)
+  apply(rule foundation20, simp del: including_size_exec)
   apply (metis (hide_lams, no_types) X_finite X_def a_val foundation10 foundation6 size_defined')
   apply(simp add: OclSize_def finite_including_rep_set[OF X_def a_val] X_finite OclInt0_def)
  by (metis OclValid_def X_def a_val foundation10 foundation6 including_notempty_rep_set[OF X_def a_val])
@@ -2781,7 +2781,7 @@ qed
 
 subsection{* OclSelect *}
 
-lemma select_set_mt_exec[code_unfold, simp]: "OclSelect\<^sub>S\<^sub>e\<^sub>t mtSet P = mtSet"
+lemma select_set_mt_exec[simp,code_unfold]: "OclSelect\<^sub>S\<^sub>e\<^sub>t mtSet P = mtSet"
  apply(rule ext, rename_tac \<tau>)
  apply(simp add: OclSelect\<^sub>S\<^sub>e\<^sub>t_def mtSet_def defined_def false_def true_def bot_Set_0_def null_Set_0_def null_fun_def bot_fun_def)
  apply(subst (1 2 3 4 5) Abs_Set_0_inverse)
