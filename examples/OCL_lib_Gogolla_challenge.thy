@@ -3856,16 +3856,10 @@ proof -
  show ?thesis
   apply(simp add: select_body_def)
   apply(rule if_commute_gen_var_gen)
-  apply(rule bot_commute)
-  apply(rule if_commute_gen_var_gen)
   apply(rule including_commute0_generic[OF including_swap_0])
   apply(simp add: comp_fun_commute_def)+
   apply(rule cp_OclIncluding1)
-  apply(simp)+
-  apply(subst (1 2) cp_OclIf, subst cp_OclIncluding1)
-  apply(simp)+
-  apply(simp add: OclIf_def invalid_def bot_fun_def)+
- by (metis cp_OclIncluding1 OclIncluding_invalid invalid_def)
+ by(simp)+
 qed
 
 lemma select_iterate:
@@ -3894,8 +3888,9 @@ proof -
                       null_fun_def null_option_def)
  by (case_tac " P \<tau> = \<bottom> \<or> P \<tau> = null", simp_all add: true_def)
 
- have not_strongeq : "\<And>P. \<not> \<tau> \<Turnstile> P \<triangleq> false \<Longrightarrow> (P \<triangleq> false) \<tau> = false \<tau>"
- by (metis OclNot2 OclValid_def StrongEq_sym bool_split cp_OclNot defined7 foundation1 foundation19 foundation9 valid7)
+ have not_strongeq : "\<And>P. P \<tau> \<noteq> \<bottom> \<tau> \<Longrightarrow> \<not> \<tau> \<Turnstile> P \<doteq> false \<Longrightarrow> (P \<doteq> false) \<tau> = false \<tau>"
+ by (metis (full_types) OclValid_def StrictRefEq\<^sub>B\<^sub>o\<^sub>o\<^sub>l\<^sub>e\<^sub>a\<^sub>n bool_split defined7 foundation16 invalid_def null_fun_def valid4 valid_def)
+ 
 
  show ?thesis
   apply(simp add: select_body_def)
@@ -3903,24 +3898,26 @@ proof -
   apply(case_tac "\<tau> \<Turnstile> \<delta> S", simp only: OclValid_def)
   apply(subgoal_tac "(if \<exists>x\<in>\<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>. P (\<lambda>_. x) \<tau> = \<bottom> \<tau> then \<bottom>
           else Abs_Set_0 \<lfloor>\<lfloor>{x \<in> \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>. P (\<lambda>_. x) \<tau> \<noteq> false \<tau>}\<rfloor>\<rfloor>) =
-          Finite_Set.fold (\<lambda>x acc. if \<upsilon> (P x) then if P x \<triangleq> false then acc else acc->including(x) endif else \<bottom> endif) Set{}
+          Finite_Set.fold (select_body P) Set{}
            ((\<lambda>a \<tau>. a) ` \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>) \<tau>",
         simp add: S_finite)
   apply(rule finite_induct[where P = "\<lambda>set. (if \<exists>x\<in>set. P (\<lambda>_. x) \<tau> = \<bottom> \<tau> then \<bottom>
      else Abs_Set_0 \<lfloor>\<lfloor>{x \<in> set. P (\<lambda>_. x) \<tau> \<noteq> false \<tau>}\<rfloor>\<rfloor>) =
-    Finite_Set.fold (\<lambda>x acc. if \<upsilon> (P x) then if P x \<triangleq> false then acc else acc->including(x) endif else \<bottom> endif) Set{}
+    Finite_Set.fold (select_body P) Set{}
      ((\<lambda>a \<tau>. a) ` set) \<tau>", OF S_finite])
   apply(simp add: mtSet_def)
   (* *)
   apply(simp only: image_insert)
-  apply(subst comp_fun_commute.fold_insert[OF select_body_commute[simplified select_body_def]], simp)
+  apply(subst comp_fun_commute.fold_insert[OF select_body_commute], simp)
   apply(rule inj, fast)
 
+  apply(simp only: select_body_def)
   apply(simp only: ex_insert)
   apply(subst cp_OclIf)
   apply(case_tac "\<not> ((\<upsilon> (P (\<lambda>_. x))) \<tau> = true \<tau>)")
   apply(drule valid_inject_true)
   apply(subgoal_tac "P (\<lambda>_. x) \<tau> = \<bottom> \<tau>", simp add: cp_OclIf[symmetric], simp add: bot_fun_def)
+  apply(simp add: OclIf_def StrictRefEq\<^sub>B\<^sub>o\<^sub>o\<^sub>l\<^sub>e\<^sub>a\<^sub>n false_def true_def invalid_def bot_option_def StrongEq_def defined_def bot_Boolean_def)
   apply (metis OCL_core.bot_fun_def OclValid_def foundation2 valid_def)
 
   apply(subst cp_OclIf)
@@ -3928,21 +3925,21 @@ proof -
   prefer 2
   apply (metis OCL_core.bot_fun_def OclValid_def foundation2 valid_def)
 
-  apply(case_tac "\<tau> \<Turnstile> (P (\<lambda>_. x) \<triangleq> false)")
-  apply(subst insert_set, metis foundation22)
+  apply(case_tac "\<tau> \<Turnstile> (P (\<lambda>_. x) \<doteq> false)")
+  apply(subst insert_set, simp add: StrictRefEq\<^sub>B\<^sub>o\<^sub>o\<^sub>l\<^sub>e\<^sub>a\<^sub>n OclValid_def, metis OclValid_def foundation22)
 
   apply(simp add: cp_OclIf[symmetric])
   (* *)
-  apply(subst not_strongeq, simp)
+  apply(subst not_strongeq, simp, simp)
 
   apply(simp add: cp_OclIf[symmetric])
   apply(drule sym, drule sym) (* SYM 1/2 *)
   apply(subst (1 2) cp_OclIncluding)
-  apply(subgoal_tac "((\<lambda>_. Finite_Set.fold (\<lambda>x acc. if \<upsilon> P x then if P x \<triangleq> false then acc else acc->including(x) endif else \<bottom> endif) Set{} ((\<lambda>a \<tau>. a) ` F) \<tau>)->including(\<lambda>\<tau>. x)) \<tau>
+  apply(subgoal_tac "((\<lambda>_. Finite_Set.fold (select_body P) Set{} ((\<lambda>a \<tau>. a) ` F) \<tau>)->including(\<lambda>\<tau>. x)) \<tau>
                      =
                      ((\<lambda>_. if \<exists>x\<in>F. P (\<lambda>_. x) \<tau> = \<bottom> \<tau> then \<bottom> else Abs_Set_0 \<lfloor>\<lfloor>{x \<in> F. P (\<lambda>_. x) \<tau> \<noteq> false \<tau>}\<rfloor>\<rfloor>)->including(\<lambda>\<tau>. x)) \<tau>")
    prefer 2
-   apply (metis (lifting))
+   apply(simp add: select_body_def)
   apply(simp add: )
 
   apply(rule conjI)
@@ -3967,7 +3964,8 @@ proof -
   apply_end(subgoal_tac "{xa. (xa = x \<or> xa \<in> F) \<and> P (\<lambda>_. xa) \<tau> \<noteq> \<lfloor>\<lfloor>False\<rfloor>\<rfloor>} = insert x {x \<in> F. P (\<lambda>_. x) \<tau> \<noteq> \<lfloor>\<lfloor>False\<rfloor>\<rfloor>}", simp)
   apply_end(rule equalityI)
   apply_end(rule subsetI, simp)
-  apply_end(rule subsetI, simp, metis foundation22)
+  apply_end(rule subsetI, simp, simp add: OclValid_def StrictRefEq\<^sub>B\<^sub>o\<^sub>o\<^sub>l\<^sub>e\<^sub>a\<^sub>n true_def StrongEq_def, blast)
+
 
   fix F
   show "\<forall>x\<in>F. P (\<lambda>_. x) \<tau> \<noteq> \<bottom> \<Longrightarrow> Abs_Set_0 \<lfloor>\<lfloor>{x \<in> F. P (\<lambda>_. x) \<tau> \<noteq> \<lfloor>\<lfloor>False\<rfloor>\<rfloor>}\<rfloor>\<rfloor> \<noteq> Abs_Set_0 None \<and> Abs_Set_0 \<lfloor>\<lfloor>{x \<in> F. P (\<lambda>_. x) \<tau> \<noteq> \<lfloor>\<lfloor>False\<rfloor>\<rfloor>}\<rfloor>\<rfloor> \<noteq> Abs_Set_0 \<lfloor>None\<rfloor>"
