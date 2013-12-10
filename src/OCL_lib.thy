@@ -950,8 +950,32 @@ by(auto simp: OclSize_def OclValid_def true_def valid_def false_def StrongEq_def
               defined_def invalid_def bot_fun_def null_fun_def
         split: bool.split_asm HOL.split_if_asm option.split)
 
+lemma OclSize_infinite:
+assumes non_finite:"\<tau> \<Turnstile> not(\<delta>(S->size()))"
+shows   "(\<tau> \<Turnstile> not(\<delta>(S))) \<or> \<not> finite \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>"
+apply(insert non_finite, simp)
+apply(rule impI)
+apply(simp add: OclSize_def OclValid_def defined_def)
+apply(case_tac "finite \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>",
+      simp_all add:null_fun_def null_option_def bot_fun_def bot_option_def)
+done
+
 lemma "\<tau> \<Turnstile> \<delta> X \<Longrightarrow> \<not> finite \<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil> \<Longrightarrow> \<not> \<tau> \<Turnstile> \<delta> (X->size())"
 by(simp add: OclSize_def OclValid_def defined_def bot_fun_def false_def true_def)
+
+lemma size_defined:
+ assumes X_finite: "\<And>\<tau>. finite \<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil>"
+ shows "\<delta> (X->size()) = \<delta> X"
+ apply(rule ext, simp add: cp_defined[of "X->size()"] OclSize_def)
+ apply(simp add: defined_def bot_option_def bot_fun_def null_option_def null_fun_def X_finite)
+done
+
+lemma size_defined':
+ assumes X_finite: "finite \<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil>"
+ shows "(\<tau> \<Turnstile> \<delta> (X->size())) = (\<tau> \<Turnstile> \<delta> X)"
+ apply(simp add: cp_defined[of "X->size()"] OclSize_def OclValid_def)
+ apply(simp add: defined_def bot_option_def bot_fun_def null_option_def null_fun_def X_finite)
+done
 
 subsubsection{* OclIsEmpty *}
 
@@ -1052,7 +1076,7 @@ by(auto intro!: OclANY_valid_args_valid transform2_rev)
 
 (* and higher order ones : forall, exists, iterate, select, reject... *)
 
-subsection{* Execution with invalid or null as argument *}
+subsection{* Execution with invalid or null or infinite set as argument *}
 
 
 subsubsection{* OclIncluding *}
@@ -1166,6 +1190,16 @@ lemma (*OclIterate\<^sub>S\<^sub>e\<^sub>t_null_args[simp,code_unfold]:*) "S->it
 oops
 (* In the definition above, this does not hold in general.
        And I believe, this is how it should be ... *)
+
+lemma OclIterate\<^sub>S\<^sub>e\<^sub>t_infinite:
+assumes non_finite: "\<tau> \<Turnstile> not(\<delta>(S->size()))"
+shows "(OclIterate\<^sub>S\<^sub>e\<^sub>t S A F) \<tau> = invalid \<tau>"
+apply(insert non_finite [THEN OclSize_infinite])
+apply(erule disjE)
+apply(simp_all add: OclIterate\<^sub>S\<^sub>e\<^sub>t_def invalid_def)
+apply(erule contrapos_np)
+apply(simp add: OclValid_def)
+done
 
 subsubsection{* OclSelect *}
 
@@ -1899,16 +1933,6 @@ subsection{* OclExcludes *}
 
 subsection{* OclSize *}
 
-lemma OclSize_infinite:
-assumes non_finite:"\<tau> \<Turnstile> not(\<delta>(S->size()))"
-shows   "(\<tau> \<Turnstile> not(\<delta>(S))) \<or> \<not> finite \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>"
-apply(insert non_finite, simp)
-apply(rule impI)
-apply(simp add: OclSize_def OclValid_def defined_def)
-apply(case_tac "finite \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>",
-      simp_all add:null_fun_def null_option_def bot_fun_def bot_option_def)
-done
-
 lemma [simp,code_unfold]: "Set{} ->size() = \<zero>"
 proof -
  have A1 : "\<lfloor>\<lfloor>{}\<rfloor>\<rfloor> \<in> {X. X = bot \<or> X = null \<or> (\<forall>x\<in>\<lceil>\<lceil>X\<rceil>\<rceil>. x \<noteq> bot)}" by(simp add: mtSet_def)
@@ -2140,20 +2164,6 @@ proof -
  done
 qed
 
-lemma size_defined:
- assumes X_finite: "\<And>\<tau>. finite \<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil>"
- shows "\<delta> (X->size()) = \<delta> X"
- apply(rule ext, simp add: cp_defined[of "X->size()"] OclSize_def)
- apply(simp add: defined_def bot_option_def bot_fun_def null_option_def null_fun_def X_finite)
-done
-
-lemma size_defined':
- assumes X_finite: "finite \<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil>"
- shows "(\<tau> \<Turnstile> \<delta> (X->size())) = (\<tau> \<Turnstile> \<delta> X)"
- apply(simp add: cp_defined[of "X->size()"] OclSize_def OclValid_def)
- apply(simp add: defined_def bot_option_def bot_fun_def null_option_def null_fun_def X_finite)
-done
-
 lemma [simp]:
  assumes X_finite: "\<And>\<tau>. finite \<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil>"
  shows "\<delta> ((X ->including(x)) ->size()) = (\<delta>(X) and \<upsilon>(x))"
@@ -2325,10 +2335,6 @@ proof -
 qed
 
 subsection{* OclForall *}
-
-lemma forall_set_null_exec[simp,code_unfold] :
-"(null->forAll(z| P(z))) = invalid"
-by(simp add: OclForall_def invalid_def false_def true_def)
 
 lemma forall_set_mt_exec[simp,code_unfold] :
 "((Set{})->forAll(z| P(z))) = true"
@@ -2638,10 +2644,6 @@ qed
 
 subsection{* OclExists *}
 
-lemma exists_set_null_exec[simp,code_unfold] :
-"(null->exists(z | P(z))) = invalid"
-by(simp add: OclExists_def)
-
 lemma exists_set_mt_exec[simp,code_unfold] :
 "((Set{})->exists(z | P(z))) = false"
 by(simp add: OclExists_def)
@@ -2656,16 +2658,6 @@ lemma exists_set_including_exec[simp,code_unfold] :
 
 
 subsection{* OclIterate *}
-
-lemma OclIterate\<^sub>S\<^sub>e\<^sub>t_infinite:
-assumes non_finite: "\<tau> \<Turnstile> not(\<delta>(S->size()))"
-shows "(OclIterate\<^sub>S\<^sub>e\<^sub>t S A F) \<tau> = invalid \<tau>"
-apply(insert non_finite [THEN OclSize_infinite])
-apply(erule disjE)
-apply(simp_all add: OclIterate\<^sub>S\<^sub>e\<^sub>t_def invalid_def)
-apply(erule contrapos_np)
-apply(simp add: OclValid_def)
-done
 
 lemma OclIterate\<^sub>S\<^sub>e\<^sub>t_empty[simp,code_unfold]: "((Set{})->iterate(a; x = A | P a x)) = A"
 proof -
