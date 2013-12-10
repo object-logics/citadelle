@@ -1399,6 +1399,8 @@ by(simp add:StrictRefEq\<^sub>S\<^sub>e\<^sub>t cp_StrongEq[symmetric] cp_valid[
 
 section{* Execution on Set's Operators *}
 
+subsection{* OclIncludes *}
+subsection{* OclExcludes *}
 subsection{* OclIncluding *}
 
 
