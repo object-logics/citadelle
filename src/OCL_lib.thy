@@ -729,19 +729,19 @@ syntax
 translations
   "X->exists(x | P)" == "CONST OclExists X (%x. P)"
 
-definition OclIterate\<^sub>S\<^sub>e\<^sub>t :: "[('\<AA>,'\<alpha>::null) Set,('\<AA>,'\<beta>::null)val,
+definition OclIterate :: "[('\<AA>,'\<alpha>::null) Set,('\<AA>,'\<beta>::null)val,
                              ('\<AA>,'\<alpha>)val\<Rightarrow>('\<AA>,'\<beta>)val\<Rightarrow>('\<AA>,'\<beta>)val] \<Rightarrow> ('\<AA>,'\<beta>)val"
-where "OclIterate\<^sub>S\<^sub>e\<^sub>t S A F = (\<lambda> \<tau>. if (\<delta> S) \<tau> = true \<tau> \<and> (\<upsilon> A) \<tau> = true \<tau> \<and> finite\<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>
+where "OclIterate S A F = (\<lambda> \<tau>. if (\<delta> S) \<tau> = true \<tau> \<and> (\<upsilon> A) \<tau> = true \<tau> \<and> finite\<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>
                                   then (Finite_Set.fold (F) (A) ((\<lambda>a \<tau>. a) ` \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>))\<tau>
                                   else \<bottom>)"
 syntax
   "_OclIterate"  :: "[('\<AA>,'\<alpha>::null) Set, idt, idt, '\<alpha>, '\<beta>] => ('\<AA>,'\<gamma>)val"
                         ("_ ->iterate'(_;_=_ | _')" (*[71,100,70]50*))
 translations
-  "X->iterate(a; x = A | P)" == "CONST OclIterate\<^sub>S\<^sub>e\<^sub>t X A (%a. (% x. P))"
+  "X->iterate(a; x = A | P)" == "CONST OclIterate X A (%a. (% x. P))"
 
-definition OclSelect\<^sub>S\<^sub>e\<^sub>t :: "[('\<AA>,'\<alpha>::null)Set,('\<AA>,'\<alpha>)val\<Rightarrow>('\<AA>)Boolean] \<Rightarrow> ('\<AA>,'\<alpha>)Set"
-where "OclSelect\<^sub>S\<^sub>e\<^sub>t S P = (\<lambda>\<tau>. if (\<delta> S) \<tau> = true \<tau>
+definition OclSelect :: "[('\<AA>,'\<alpha>::null)Set,('\<AA>,'\<alpha>)val\<Rightarrow>('\<AA>)Boolean] \<Rightarrow> ('\<AA>,'\<alpha>)Set"
+where "OclSelect S P = (\<lambda>\<tau>. if (\<delta> S) \<tau> = true \<tau>
                               then if (\<exists>x\<in>\<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>. P(\<lambda> _. x) \<tau> = \<bottom> \<tau>)
                                    then \<bottom>
                                    else Abs_Set_0 \<lfloor>\<lfloor> { x\<in>\<lceil>\<lceil> Rep_Set_0 (S \<tau>)\<rceil>\<rceil>. P (\<lambda>_. x) \<tau> \<noteq> false \<tau> } \<rfloor>\<rfloor>
@@ -749,14 +749,14 @@ where "OclSelect\<^sub>S\<^sub>e\<^sub>t S P = (\<lambda>\<tau>. if (\<delta> S)
 syntax
   "_OclSelect" :: "[('\<AA>,'\<alpha>::null) Set,id,('\<AA>)Boolean] \<Rightarrow> '\<AA> Boolean"    ("(_)->select'(_|_')")
 translations
-  "X->select(x | P)" == "CONST OclSelect\<^sub>S\<^sub>e\<^sub>t X (% x. P)"
+  "X->select(x | P)" == "CONST OclSelect X (% x. P)"
 
-definition OclReject\<^sub>S\<^sub>e\<^sub>t :: "[('\<AA>,'\<alpha>::null)Set,('\<AA>,'\<alpha>)val\<Rightarrow>('\<AA>)Boolean] \<Rightarrow> ('\<AA>,'\<alpha>::null)Set"
-where "OclReject\<^sub>S\<^sub>e\<^sub>t S P = OclSelect\<^sub>S\<^sub>e\<^sub>t S (not o P)"
+definition OclReject :: "[('\<AA>,'\<alpha>::null)Set,('\<AA>,'\<alpha>)val\<Rightarrow>('\<AA>)Boolean] \<Rightarrow> ('\<AA>,'\<alpha>::null)Set"
+where "OclReject S P = OclSelect S (not o P)"
 syntax
   "_OclReject" :: "[('\<AA>,'\<alpha>::null) Set,id,('\<AA>)Boolean] \<Rightarrow> '\<AA> Boolean"    ("(_)->reject'(_|_')")
 translations
-  "X->reject(x | P)" == "CONST OclReject\<^sub>S\<^sub>e\<^sub>t X (% x. P)"
+  "X->reject(x | P)" == "CONST OclReject X (% x. P)"
 
 subsubsection{* Definition (futur operators) *}
 
@@ -1170,47 +1170,47 @@ by(simp add: OclExists_def)
 
 subsubsection{* OclIterate *}
 
-lemma OclIterate\<^sub>S\<^sub>e\<^sub>t_invalid[simp,code_unfold]:"invalid->iterate(a; x = A | P a x) = invalid"
-by(simp add: bot_fun_def invalid_def OclIterate\<^sub>S\<^sub>e\<^sub>t_def defined_def valid_def false_def true_def)
+lemma OclIterate_invalid[simp,code_unfold]:"invalid->iterate(a; x = A | P a x) = invalid"
+by(simp add: bot_fun_def invalid_def OclIterate_def defined_def valid_def false_def true_def)
 
-lemma OclIterate\<^sub>S\<^sub>e\<^sub>t_null[simp,code_unfold]:"null->iterate(a; x = A | P a x) = invalid"
-by(simp add: bot_fun_def invalid_def OclIterate\<^sub>S\<^sub>e\<^sub>t_def defined_def valid_def false_def true_def)
+lemma OclIterate_null[simp,code_unfold]:"null->iterate(a; x = A | P a x) = invalid"
+by(simp add: bot_fun_def invalid_def OclIterate_def defined_def valid_def false_def true_def)
 
 
-lemma OclIterate\<^sub>S\<^sub>e\<^sub>t_invalid_args[simp,code_unfold]:"S->iterate(a; x = invalid | P a x) = invalid"
-by(simp add: bot_fun_def invalid_def OclIterate\<^sub>S\<^sub>e\<^sub>t_def defined_def valid_def false_def true_def)
+lemma OclIterate_invalid_args[simp,code_unfold]:"S->iterate(a; x = invalid | P a x) = invalid"
+by(simp add: bot_fun_def invalid_def OclIterate_def defined_def valid_def false_def true_def)
 
 text{* An open question is this ... *}
-lemma (*OclIterate\<^sub>S\<^sub>e\<^sub>t_null_args[simp,code_unfold]:*) "S->iterate(a; x = null | P a x) = invalid"
+lemma (*OclIterate_null_args[simp,code_unfold]:*) "S->iterate(a; x = null | P a x) = invalid"
 oops
 (* In the definition above, this does not hold in general.
        And I believe, this is how it should be ... *)
 
-lemma OclIterate\<^sub>S\<^sub>e\<^sub>t_infinite:
+lemma OclIterate_infinite:
 assumes non_finite: "\<tau> \<Turnstile> not(\<delta>(S->size()))"
-shows "(OclIterate\<^sub>S\<^sub>e\<^sub>t S A F) \<tau> = invalid \<tau>"
+shows "(OclIterate S A F) \<tau> = invalid \<tau>"
 apply(insert non_finite [THEN OclSize_infinite])
 apply(erule disjE)
-apply(simp_all add: OclIterate\<^sub>S\<^sub>e\<^sub>t_def invalid_def)
+apply(simp_all add: OclIterate_def invalid_def)
 apply(erule contrapos_np)
 apply(simp add: OclValid_def)
 done
 
 subsubsection{* OclSelect *}
 
-lemma OclSelect\<^sub>S\<^sub>e\<^sub>t_invalid[simp,code_unfold]:"invalid->select(a | P a) = invalid"
-by(simp add: bot_fun_def invalid_def OclSelect\<^sub>S\<^sub>e\<^sub>t_def defined_def valid_def false_def true_def)
+lemma OclSelect_invalid[simp,code_unfold]:"invalid->select(a | P a) = invalid"
+by(simp add: bot_fun_def invalid_def OclSelect_def defined_def valid_def false_def true_def)
 
-lemma OclSelect\<^sub>S\<^sub>e\<^sub>t_null[simp,code_unfold]:"null->select(a | P a) = invalid"
-by(simp add: bot_fun_def invalid_def OclSelect\<^sub>S\<^sub>e\<^sub>t_def defined_def valid_def false_def true_def)
+lemma OclSelect_null[simp,code_unfold]:"null->select(a | P a) = invalid"
+by(simp add: bot_fun_def invalid_def OclSelect_def defined_def valid_def false_def true_def)
 
 subsubsection{* OclReject *}
 
-lemma OclReject\<^sub>S\<^sub>e\<^sub>t_invalid[simp,code_unfold]:"invalid->reject(a | P a) = invalid"
-by(simp add: OclReject\<^sub>S\<^sub>e\<^sub>t_def)
+lemma OclReject_invalid[simp,code_unfold]:"invalid->reject(a | P a) = invalid"
+by(simp add: OclReject_def)
 
-lemma OclReject\<^sub>S\<^sub>e\<^sub>t_null[simp,code_unfold]:"null->reject(a | P a) = invalid"
-by(simp add: OclReject\<^sub>S\<^sub>e\<^sub>t_def)
+lemma OclReject_null[simp,code_unfold]:"null->reject(a | P a) = invalid"
+by(simp add: OclReject_def)
 
 subsection{* Context Passing *}
 
@@ -1325,17 +1325,17 @@ apply(subst cp_OclExists)
 apply(simp)
 done
 
-lemma cp_OclIterate\<^sub>S\<^sub>e\<^sub>t: "(X->iterate(a; x = A | P a x)) \<tau> =
+lemma cp_OclIterate: "(X->iterate(a; x = A | P a x)) \<tau> =
                 ((\<lambda> _. X \<tau>)->iterate(a; x = A | P a x)) \<tau>"
-by(simp add: OclIterate\<^sub>S\<^sub>e\<^sub>t_def cp_defined[symmetric])
+by(simp add: OclIterate_def cp_defined[symmetric])
 
-lemma cp_OclSelect\<^sub>S\<^sub>e\<^sub>t: "(X->select(a | P a)) \<tau> =
+lemma cp_OclSelect: "(X->select(a | P a)) \<tau> =
                 ((\<lambda> _. X \<tau>)->select(a | P a)) \<tau>"
-by(simp add: OclSelect\<^sub>S\<^sub>e\<^sub>t_def cp_defined[symmetric])
+by(simp add: OclSelect_def cp_defined[symmetric])
 
-lemma cp_OclReject\<^sub>S\<^sub>e\<^sub>t: "(X->reject(a | P a)) \<tau> =
+lemma cp_OclReject: "(X->reject(a | P a)) \<tau> =
                 ((\<lambda> _. X \<tau>)->reject(a | P a)) \<tau>"
-by(simp add: OclReject\<^sub>S\<^sub>e\<^sub>t_def, subst cp_OclSelect\<^sub>S\<^sub>e\<^sub>t, simp)
+by(simp add: OclReject_def, subst cp_OclSelect, simp)
 
 lemmas cp_intro''[intro!,simp,code_unfold] =
        cp_intro'
@@ -2453,7 +2453,7 @@ proof -
  by metis
 
  show ?thesis
-  apply(simp only: OclForall_def OclIterate\<^sub>S\<^sub>e\<^sub>t_def)
+  apply(simp only: OclForall_def OclIterate_def)
   apply(case_tac "\<tau> \<Turnstile> \<delta> S", simp only: OclValid_def)
   apply(subgoal_tac "(if \<exists>x\<in>\<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>. P (\<lambda>_. x) \<tau> = false \<tau> then false \<tau>
                else if \<exists>x\<in>\<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>. P (\<lambda>_. x) \<tau> = \<bottom> \<tau> then \<bottom> \<tau>
@@ -2516,13 +2516,13 @@ lemma exists_set_including_exec[simp,code_unfold] :
 
 subsection{* OclIterate *}
 
-lemma OclIterate\<^sub>S\<^sub>e\<^sub>t_empty[simp,code_unfold]: "((Set{})->iterate(a; x = A | P a x)) = A"
+lemma OclIterate_empty[simp,code_unfold]: "((Set{})->iterate(a; x = A | P a x)) = A"
 proof -
  have A1 : "\<lfloor>\<lfloor>{}\<rfloor>\<rfloor> \<in> {X. X = bot \<or> X = null \<or> (\<forall>x\<in>\<lceil>\<lceil>X\<rceil>\<rceil>. x \<noteq> bot)}" by(simp add: mtSet_def)
  have C : "\<And> \<tau>. (\<delta> (\<lambda>\<tau>. Abs_Set_0 \<lfloor>\<lfloor>{}\<rfloor>\<rfloor>)) \<tau> = true \<tau>"
  by (metis A1 Abs_Set_0_cases Abs_Set_0_inverse cp_defined defined_def false_def mtSet_def mtSet_defined null_fun_def null_option_def null_set_OclNot_defined true_def)
  show ?thesis
-      apply(simp add: OclIterate\<^sub>S\<^sub>e\<^sub>t_def mtSet_def Abs_Set_0_inverse valid_def C)
+      apply(simp add: OclIterate_def mtSet_def Abs_Set_0_inverse valid_def C)
       apply(rule ext)
       apply(case_tac "A \<tau> = \<bottom> \<tau>", simp_all, simp add:true_def false_def bot_fun_def)
       apply(simp add: A1 Abs_Set_0_inverse)
@@ -2531,7 +2531,7 @@ qed
 
 text{* In particular, this does hold for A = null. *}
 
-lemma OclIterate\<^sub>S\<^sub>e\<^sub>t_including:
+lemma OclIterate_including:
 assumes S_finite:    "\<tau> \<Turnstile> \<delta>(S->size())"
 and     F_valid_arg: "(\<upsilon> A) \<tau> = (\<upsilon> (F a A)) \<tau>"
 and     F_commute:   "comp_fun_commute F"
@@ -2588,27 +2588,27 @@ proof -
  by(rule inj_fun, simp)
 
  show ?thesis
-  apply(simp only: cp_OclIterate\<^sub>S\<^sub>e\<^sub>t[of "S->including(a)"] cp_OclIterate\<^sub>S\<^sub>e\<^sub>t[of "S->excluding(a)"])
+  apply(simp only: cp_OclIterate[of "S->including(a)"] cp_OclIterate[of "S->excluding(a)"])
   apply(subst OclIncluding_def, subst OclExcluding_def)
   apply(case_tac "\<not> ((\<delta> S) \<tau> = true \<tau> \<and> (\<upsilon> a) \<tau> = true \<tau>)", simp)
 
-  apply(subgoal_tac "OclIterate\<^sub>S\<^sub>e\<^sub>t (\<lambda>_. \<bottom>) A F \<tau> = OclIterate\<^sub>S\<^sub>e\<^sub>t (\<lambda>_. \<bottom>) (F a A) F \<tau>", simp)
+  apply(subgoal_tac "OclIterate (\<lambda>_. \<bottom>) A F \<tau> = OclIterate (\<lambda>_. \<bottom>) (F a A) F \<tau>", simp)
   apply(rule conjI)
   apply(blast)
   apply(blast)
   apply(auto)
 
-  apply(simp add: OclIterate\<^sub>S\<^sub>e\<^sub>t_def) apply(auto)
+  apply(simp add: OclIterate_def) apply(auto)
   apply(simp add: defined_def bot_option_def bot_fun_def false_def true_def)
   apply(simp add: defined_def bot_option_def bot_fun_def false_def true_def)
   apply(simp add: defined_def bot_option_def bot_fun_def false_def true_def)
 
-  apply(simp add: OclIterate\<^sub>S\<^sub>e\<^sub>t_def) apply(auto)
+  apply(simp add: OclIterate_def) apply(auto)
   apply(simp add: defined_def bot_option_def bot_fun_def false_def true_def)
   apply(simp add: defined_def bot_option_def bot_fun_def false_def true_def)
   apply(simp add: defined_def bot_option_def bot_fun_def false_def true_def)
 
-  apply(simp add: OclIterate\<^sub>S\<^sub>e\<^sub>t_def)
+  apply(simp add: OclIterate_def)
 
   apply(subst abs_rep[OF insert_in_Set_0[simplified OclValid_def], of \<tau>], simp_all)+
   apply(subst abs_rep[OF remove_in_Set_0[simplified OclValid_def], of \<tau>], simp_all)+
@@ -2634,9 +2634,9 @@ qed
 
 subsection{* OclSelect *}
 
-lemma select_set_mt_exec[simp,code_unfold]: "OclSelect\<^sub>S\<^sub>e\<^sub>t mtSet P = mtSet"
+lemma select_set_mt_exec[simp,code_unfold]: "OclSelect mtSet P = mtSet"
  apply(rule ext, rename_tac \<tau>)
- apply(simp add: OclSelect\<^sub>S\<^sub>e\<^sub>t_def mtSet_def defined_def false_def true_def bot_Set_0_def null_Set_0_def null_fun_def bot_fun_def)
+ apply(simp add: OclSelect_def mtSet_def defined_def false_def true_def bot_Set_0_def null_Set_0_def null_fun_def bot_fun_def)
  apply(subst (1 2 3 4 5) Abs_Set_0_inverse)
  apply(simp add: null_option_def bot_option_def)+
  apply(subst Abs_Set_0_inject)
@@ -2648,7 +2648,7 @@ definition "select_body :: _ \<Rightarrow> _ \<Rightarrow> _ \<Rightarrow> ('\<A
 
 lemma select_set_including_exec[simp,code_unfold]:
  assumes P_cp : "cp P"
- shows "OclSelect\<^sub>S\<^sub>e\<^sub>t (X->including(y)) P = select_body P y (OclSelect\<^sub>S\<^sub>e\<^sub>t (X->excluding(y)) P)"
+ shows "OclSelect (X->including(y)) P = select_body P y (OclSelect (X->excluding(y)) P)"
 proof -
 
  def select_body2
@@ -2668,7 +2668,7 @@ proof -
  def select_body \<equiv> select_body2
  have select_body_def : "select_body = (\<lambda>P x acc. if \<upsilon> P x then if P x \<triangleq> false then acc else acc->including(x) endif else \<bottom> endif)"
  by(simp add: select_body_def select_body2_def)
- show "OclSelect\<^sub>S\<^sub>e\<^sub>t X->including(y) P = select_body P y (OclSelect\<^sub>S\<^sub>e\<^sub>t X->excluding(y) P)"
+ show "OclSelect X->including(y) P = select_body P y (OclSelect X->excluding(y) P)"
  proof -
 
  have P_cp: "\<And>x \<tau>. P x \<tau> = P (\<lambda>_. x \<tau>) \<tau>"
@@ -2720,7 +2720,7 @@ proof -
   apply(simp add: bot_option_def null_option_def)+
  done
 
- have select_body_bot: "\<And>\<tau>. \<tau> \<Turnstile> \<delta> X \<Longrightarrow> \<tau> \<Turnstile> \<upsilon> y \<Longrightarrow> P y \<tau> \<noteq> \<bottom> \<Longrightarrow> (\<exists>x\<in>\<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil>. P (\<lambda>_. x) \<tau> = \<bottom>) \<Longrightarrow> \<bottom> = select_body P y (OclSelect\<^sub>S\<^sub>e\<^sub>t X->excluding(y) P) \<tau>"
+ have select_body_bot: "\<And>\<tau>. \<tau> \<Turnstile> \<delta> X \<Longrightarrow> \<tau> \<Turnstile> \<upsilon> y \<Longrightarrow> P y \<tau> \<noteq> \<bottom> \<Longrightarrow> (\<exists>x\<in>\<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil>. P (\<lambda>_. x) \<tau> = \<bottom>) \<Longrightarrow> \<bottom> = select_body P y (OclSelect X->excluding(y) P) \<tau>"
   apply(drule ex_excluding1[where X = X and y = y and f = "\<lambda>x \<tau>. x \<tau> = \<bottom>"], (simp add: P_cp[symmetric])+)
   apply(subst select_body_def)
   apply(subst if_same[where d = "\<bottom>"])
@@ -2730,16 +2730,16 @@ proof -
    apply (metis OCL_core.bot_fun_def foundation18')
   apply(subst if_same[where d = "\<bottom>"])
   apply (metis defined7 transform1)
-  apply(simp add: OclSelect\<^sub>S\<^sub>e\<^sub>t_def bot_option_def bot_fun_def)
+  apply(simp add: OclSelect_def bot_option_def bot_fun_def)
   apply(subst invert_including)
- by(simp add: OclSelect\<^sub>S\<^sub>e\<^sub>t_def bot_option_def bot_fun_def)+
+ by(simp add: OclSelect_def bot_option_def bot_fun_def)+
 
  have d_and_v_inject : "\<And>\<tau> X y. (\<delta> X and \<upsilon> y) \<tau> \<noteq> true \<tau> \<Longrightarrow> (\<delta> X and \<upsilon> y) \<tau> = false \<tau>"
  by (metis bool_split defined5 defined6 defined_and_I foundation16 invalid_def null_fun_def transform1)
 
- have select_body_bot': "\<And>\<tau>. (\<delta> X and \<upsilon> y) \<tau> \<noteq> true \<tau> \<Longrightarrow> \<bottom> = select_body P y (OclSelect\<^sub>S\<^sub>e\<^sub>t X->excluding(y) P) \<tau>"
+ have select_body_bot': "\<And>\<tau>. (\<delta> X and \<upsilon> y) \<tau> \<noteq> true \<tau> \<Longrightarrow> \<bottom> = select_body P y (OclSelect X->excluding(y) P) \<tau>"
   apply(drule d_and_v_inject)
-  apply(simp add: OclSelect\<^sub>S\<^sub>e\<^sub>t_def select_body_def)
+  apply(simp add: OclSelect_def select_body_def)
   apply(subst cp_OclIf, subst cp_OclIf, subst cp_OclIncluding, simp add: false_def true_def)
   apply(subst cp_OclIncluding[symmetric], simp add: OclIf_def cp_defined[symmetric] bot_fun_def)
  by (metis (no_types) invert_including)
@@ -2752,7 +2752,7 @@ proof -
                       null_fun_def null_option_def)
       by (case_tac " P \<tau> = \<bottom> \<or> P \<tau> = null", simp_all add: true_def)
 
- have cp_select_body : "\<And>\<tau>. select_body P y (OclSelect\<^sub>S\<^sub>e\<^sub>t X->excluding(y) P) \<tau> = select_body P y (\<lambda>_. OclSelect\<^sub>S\<^sub>e\<^sub>t X->excluding(y) P \<tau>) \<tau>"
+ have cp_select_body : "\<And>\<tau>. select_body P y (OclSelect X->excluding(y) P) \<tau> = select_body P y (\<lambda>_. OclSelect X->excluding(y) P \<tau>) \<tau>"
   apply(simp add: select_body_def)
  by(subst (1 2) cp_OclIf, subst (1 3) cp_OclIf, subst (1 2) cp_OclIncluding, blast)
 
@@ -2761,7 +2761,7 @@ proof -
 
  show ?thesis
   apply(rule ext, rename_tac \<tau>)
-  apply(subst OclSelect\<^sub>S\<^sub>e\<^sub>t_def)
+  apply(subst OclSelect_def)
   apply(case_tac "(\<delta> X->including(y)) \<tau> = true \<tau>", simp)
    apply(subst ex_including, metis OclValid_def foundation5, metis OclValid_def foundation5)
    apply(subst in_including, metis OclValid_def foundation5, metis OclValid_def foundation5)
@@ -2797,7 +2797,7 @@ proof -
   (* *)
   apply(subst (1 2) al_including, metis OclValid_def foundation5, metis OclValid_def foundation5)
   apply(simp add: P_cp[symmetric], subst (4) false_def, subst (4) bot_option_def, simp)
-  apply(simp add: OclSelect\<^sub>S\<^sub>e\<^sub>t_def select_body_def)
+  apply(simp add: OclSelect_def select_body_def)
   apply(subst (1 2 3 4) cp_OclIf,
         subst (1 2 3 4) foundation18'[THEN iffD2, simplified OclValid_def],
         simp,
@@ -2853,21 +2853,21 @@ proof -
   apply(subgoal_tac "\<not> (\<tau> \<Turnstile> \<delta> X) \<or> \<not> (\<tau> \<Turnstile> \<upsilon> y)")
    prefer 2
    apply (metis OCL_core.bot_fun_def OclValid_def foundation18' OclIncluding_defined_args_valid valid_def)
-  apply(subst cp_select_body, subst cp_OclSelect\<^sub>S\<^sub>e\<^sub>t, subst OclExcluding_def)
+  apply(subst cp_select_body, subst cp_OclSelect, subst OclExcluding_def)
   apply(simp add: OclValid_def false_def true_def, rule conjI, blast)
-  apply(simp add: OclSelect\<^sub>S\<^sub>e\<^sub>t_invalid[simplified invalid_def] select_body_strict1[simplified invalid_def])
+  apply(simp add: OclSelect_invalid[simplified invalid_def] select_body_strict1[simplified invalid_def])
  done
 qed qed qed
 
 subsection{* OclReject *}
 
-lemma reject_set_mt_exec[simp,code_unfold]: "OclReject\<^sub>S\<^sub>e\<^sub>t mtSet P = mtSet"
-by(simp add: OclReject\<^sub>S\<^sub>e\<^sub>t_def)
+lemma reject_set_mt_exec[simp,code_unfold]: "OclReject mtSet P = mtSet"
+by(simp add: OclReject_def)
 
 lemma reject_set_including_exec[simp,code_unfold]:
  assumes P_cp : "cp P"
- shows "OclReject\<^sub>S\<^sub>e\<^sub>t (X->including(y)) P = select_body (not o P) y (OclReject\<^sub>S\<^sub>e\<^sub>t (X->excluding(y)) P)"
- apply(simp add: OclReject\<^sub>S\<^sub>e\<^sub>t_def comp_def, rule select_set_including_exec)
+ shows "OclReject (X->including(y)) P = select_body (not o P) y (OclReject (X->excluding(y)) P)"
+ apply(simp add: OclReject_def comp_def, rule select_set_including_exec)
 by (metis assms cp_intro''(5))
 
 section{* Execution on Set's Operators (higher composition) *}

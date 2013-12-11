@@ -143,15 +143,15 @@ lemma iterate_including_commute_var :
      and f_empty : "\<And>x y.
             is_int (\<lambda>(_:: '\<AA> st). x) \<Longrightarrow>
             is_int (\<lambda>(_:: '\<AA> st). y) \<Longrightarrow>
-                OclIterate\<^sub>S\<^sub>e\<^sub>t Set{\<lambda>(_:: '\<AA> st). x, a} Set{\<lambda>(_:: '\<AA> st). x, a} F->including(\<lambda>(_:: '\<AA> st). y) =
-                OclIterate\<^sub>S\<^sub>e\<^sub>t Set{\<lambda>(_:: '\<AA> st). y, a} Set{\<lambda>(_:: '\<AA> st). y, a} F->including(\<lambda>(_:: '\<AA> st). x)"
+                OclIterate Set{\<lambda>(_:: '\<AA> st). x, a} Set{\<lambda>(_:: '\<AA> st). x, a} F->including(\<lambda>(_:: '\<AA> st). y) =
+                OclIterate Set{\<lambda>(_:: '\<AA> st). y, a} Set{\<lambda>(_:: '\<AA> st). y, a} F->including(\<lambda>(_:: '\<AA> st). x)"
      and com : "\<And>S x y \<tau>.
             is_int (\<lambda>(_:: '\<AA> st). x) \<Longrightarrow>
             is_int (\<lambda>(_:: '\<AA> st). y) \<Longrightarrow>
             \<forall>(\<tau> :: '\<AA> st). all_defined \<tau> S \<Longrightarrow>
             \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil> \<noteq> {} \<Longrightarrow>
-                (OclIterate\<^sub>S\<^sub>e\<^sub>t (((OclIterate\<^sub>S\<^sub>e\<^sub>t S S F)->including(a))->including(\<lambda>(_:: '\<AA> st). x)) (((OclIterate\<^sub>S\<^sub>e\<^sub>t S S F)->including(a))->including(\<lambda>(_:: '\<AA> st). x)) F)->including(\<lambda>(_:: '\<AA> st). y) \<tau> =
-                (OclIterate\<^sub>S\<^sub>e\<^sub>t (((OclIterate\<^sub>S\<^sub>e\<^sub>t S S F)->including(a))->including(\<lambda>(_:: '\<AA> st). y)) (((OclIterate\<^sub>S\<^sub>e\<^sub>t S S F)->including(a))->including(\<lambda>(_:: '\<AA> st). y)) F)->including(\<lambda>(_:: '\<AA> st). x) \<tau> "
+                (OclIterate (((OclIterate S S F)->including(a))->including(\<lambda>(_:: '\<AA> st). x)) (((OclIterate S S F)->including(a))->including(\<lambda>(_:: '\<AA> st). x)) F)->including(\<lambda>(_:: '\<AA> st). y) \<tau> =
+                (OclIterate (((OclIterate S S F)->including(a))->including(\<lambda>(_:: '\<AA> st). y)) (((OclIterate S S F)->including(a))->including(\<lambda>(_:: '\<AA> st). y)) F)->including(\<lambda>(_:: '\<AA> st). x) \<tau> "
      and a_int : "is_int a"
    shows "EQ_comp_fun_commute0 (\<lambda>x r1. (((r1 ->iterate(j;r2=r1 | F j r2))->including(a))->including(\<lambda>(_:: '\<AA> st). x)))"
 by(rule iterate_including_commute_var_generic[OF including_swap], simp_all add: assms)
