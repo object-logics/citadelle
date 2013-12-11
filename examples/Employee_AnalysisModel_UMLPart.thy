@@ -1113,7 +1113,7 @@ lemma \<sigma>_modifiedonly: "(\<sigma>\<^sub>1,\<sigma>\<^sub>1') \<Turnstile> 
                  X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n1_def X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2_def X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n3_def X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n4_def X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n5_def X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n6_def X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n7_def X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n8_def X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n9_def
                  person1_def person2_def person3_def person4_def person5_def person6_def person7_def person8_def person9_def
                  image_def)
- apply(simp add: including_rep_set mtSet_rep_set null_option_def bot_option_def)
+ apply(simp add: OclIncluding_rep_set mtSet_rep_set null_option_def bot_option_def)
  apply(simp add: oid_of_option_def oid_of_type\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_def, clarsimp)
  apply(simp add: \<sigma>\<^sub>1_def \<sigma>\<^sub>1'_def
                  oid0_def oid1_def oid2_def oid3_def oid4_def oid5_def oid6_def oid7_def oid8_def)
@@ -1134,7 +1134,7 @@ proof -
  have including4 : "\<And>a b c d \<tau>.
         Set{\<lambda>\<tau>. \<lfloor>\<lfloor>a\<rfloor>\<rfloor>, \<lambda>\<tau>. \<lfloor>\<lfloor>b\<rfloor>\<rfloor>, \<lambda>\<tau>. \<lfloor>\<lfloor>c\<rfloor>\<rfloor>, \<lambda>\<tau>. \<lfloor>\<lfloor>d\<rfloor>\<rfloor>} \<tau> = Abs_Set_0 \<lfloor>\<lfloor> {\<lfloor>\<lfloor>a\<rfloor>\<rfloor>, \<lfloor>\<lfloor>b\<rfloor>\<rfloor>, \<lfloor>\<lfloor>c\<rfloor>\<rfloor>, \<lfloor>\<lfloor>d\<rfloor>\<rfloor>} \<rfloor>\<rfloor>"
   apply(subst abs_rep_simp'[symmetric], simp)
- by(simp add: including_rep_set mtSet_rep_set)
+ by(simp add: OclIncluding_rep_set mtSet_rep_set)
 
  have excluding1: "\<And>S a b c d e \<tau>. (\<lambda>_. Abs_Set_0 \<lfloor>\<lfloor> {\<lfloor>\<lfloor>a\<rfloor>\<rfloor>, \<lfloor>\<lfloor>b\<rfloor>\<rfloor>, \<lfloor>\<lfloor>c\<rfloor>\<rfloor>, \<lfloor>\<lfloor>d\<rfloor>\<rfloor>} \<rfloor>\<rfloor>)->excluding(\<lambda>\<tau>. \<lfloor>\<lfloor>e\<rfloor>\<rfloor>) \<tau> = Abs_Set_0 \<lfloor>\<lfloor> {\<lfloor>\<lfloor>a\<rfloor>\<rfloor>, \<lfloor>\<lfloor>b\<rfloor>\<rfloor>, \<lfloor>\<lfloor>c\<rfloor>\<rfloor>, \<lfloor>\<lfloor>d\<rfloor>\<rfloor>} - {\<lfloor>\<lfloor>e\<rfloor>\<rfloor>} \<rfloor>\<rfloor>"
   apply(simp add: OclExcluding_def)
@@ -1171,7 +1171,7 @@ proof -
                   \<sigma>\<^sub>1_def OclAsType\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_\<AA>_def bot_fun_def null_fun_def bot_option_def null_option_def)
   apply(simp only: X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n1_def X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2_def X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n3_def X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n4_def X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n5_def X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n6_def X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n7_def X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n8_def X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n9_def
                    person1_def person2_def person3_def person4_def person5_def person6_def person7_def person8_def person9_def)
-  apply(simp add: including_rep_set mtSet_rep_set
+  apply(simp add: OclIncluding_rep_set mtSet_rep_set
                   oid0_def oid1_def oid2_def oid3_def oid4_def oid5_def oid6_def oid7_def oid8_def)
   apply(simp add: StrictRefEq\<^sub>O\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t_def null_option_def bot_option_def oid_of_option_def oid_of_type\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_def OclNot_def OclValid_def)
  done

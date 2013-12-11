@@ -2892,7 +2892,7 @@ proof -
   apply(rule allI)
   proof - fix \<tau> show "is_int i \<Longrightarrow> i = (\<lambda>_. i') \<Longrightarrow> is_int (\<lambda>(\<tau>:: '\<AA> st). x) \<Longrightarrow> \<forall>a b. all_defined (a, b) (Finite_Set.fold (\<lambda>x acc. acc->including(x)) A ((\<lambda>a \<tau>. a) ` F)) \<Longrightarrow>
                       i' \<in> \<lceil>\<lceil>Rep_Set_0 ((Finite_Set.fold (\<lambda>j r2. (r2->including(j))) A ((\<lambda>a \<tau>. a) ` F))->including(\<lambda>\<tau>. x)->including(\<lambda>_. i') \<tau>)\<rceil>\<rceil>"
-   apply(insert including_charn1[where X = "(Finite_Set.fold (\<lambda>j r2. (r2->including(j))) A ((\<lambda>a \<tau>. a) ` F))->including(\<lambda>\<tau>. x)" and x = "\<lambda>_. i'" and \<tau> = \<tau>])
+   apply(insert OclIncludes_charn1[where X = "(Finite_Set.fold (\<lambda>j r2. (r2->including(j))) A ((\<lambda>a \<tau>. a) ` F))->including(\<lambda>\<tau>. x)" and x = "\<lambda>_. i'" and \<tau> = \<tau>])
    apply(subgoal_tac "\<tau> \<Turnstile> \<delta> Finite_Set.fold (\<lambda>j r2. r2->including(j)) A ((\<lambda>a \<tau>. a) ` F)->including(\<lambda>\<tau>. x)")
     prefer 2
     apply(rule all_defined1, rule cons_all_def, metis surj_pair)
@@ -3119,7 +3119,7 @@ proof -
   apply(rule allI)
   proof - fix \<tau> show "is_int i \<Longrightarrow> i = (\<lambda>_. i') \<Longrightarrow> is_int (\<lambda>(\<tau>:: '\<AA> st). x) \<Longrightarrow> \<forall>a b. all_defined (a, b) (Finite_Set.fold (\<lambda>x acc. acc->including(x)) A ((\<lambda>a \<tau>. a) ` F)) \<Longrightarrow>
                       i' \<in> \<lceil>\<lceil>Rep_Set_0 ((Finite_Set.fold (\<lambda>j r2. (r2->including(j))) A ((\<lambda>a \<tau>. a) ` F))->including(\<lambda>\<tau>. x)->including(\<lambda>_. i') \<tau>)\<rceil>\<rceil>"
-   apply(insert including_charn1[where X = "(Finite_Set.fold (\<lambda>j r2. (r2->including(j))) A ((\<lambda>a \<tau>. a) ` F))->including(\<lambda>\<tau>. x)" and x = "\<lambda>_. i'" and \<tau> = \<tau>])
+   apply(insert OclIncludes_charn1[where X = "(Finite_Set.fold (\<lambda>j r2. (r2->including(j))) A ((\<lambda>a \<tau>. a) ` F))->including(\<lambda>\<tau>. x)" and x = "\<lambda>_. i'" and \<tau> = \<tau>])
    apply(subgoal_tac "\<tau> \<Turnstile> \<delta> Finite_Set.fold (\<lambda>j r2. r2->including(j)) A ((\<lambda>a \<tau>. a) ` F)->including(\<lambda>\<tau>. x)")
     prefer 2
     apply(rule all_defined1, rule cons_all_def, metis surj_pair)
@@ -3846,15 +3846,15 @@ qed
 
 section{* OCL_lib (continued) *}
 
-lemma select_body_commute :
+lemma OclSelect_body_commute :
  assumes including_swap_0 : "\<And>(S:: ('\<AA>, 'a option option) Set) i j. S->including(i)->including(j) = S->including(j)->including(i)"
- shows "comp_fun_commute (select_body (P::(('\<AA> state \<times> '\<AA> state \<Rightarrow> 'a option option)
+ shows "comp_fun_commute (OclSelect_body (P::(('\<AA> state \<times> '\<AA> state \<Rightarrow> 'a option option)
     \<Rightarrow> '\<AA> state \<times> '\<AA> state \<Rightarrow> bool option option)))"
 proof -
  have cp_OclIncluding1: "\<And>x S \<tau>. S->including(x) \<tau> = \<lambda>_. S \<tau>->including(x) \<tau>"
  by(simp only: OclIncluding_def, subst cp_defined, simp)
  show ?thesis
-  apply(simp add: select_body_def)
+  apply(simp add: OclSelect_body_def)
   apply(rule if_commute_gen_var_gen)
   apply(rule including_commute0_generic[OF including_swap_0])
   apply(simp add: comp_fun_commute_def)+
@@ -3863,11 +3863,11 @@ proof -
 qed
 
 lemma select_iterate:
- assumes select_body_commute : "comp_fun_commute (select_body (P::(('\<AA> state \<times> '\<AA> state \<Rightarrow> 'a option option)
+ assumes OclSelect_body_commute : "comp_fun_commute (OclSelect_body (P::(('\<AA> state \<times> '\<AA> state \<Rightarrow> 'a option option)
     \<Rightarrow> '\<AA> state \<times> '\<AA> state \<Rightarrow> bool option option)))"
  assumes S_finite: "finite \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>"
      and P_strict: "\<And>x. x \<tau> = \<bottom> \<Longrightarrow> (P x) \<tau> = \<bottom>"
-   shows "OclSelect S P \<tau> = (S->iterate(x; acc = Set{} | select_body P x acc)) \<tau>"
+   shows "OclSelect S P \<tau> = (S->iterate(x; acc = Set{} | OclSelect_body P x acc)) \<tau>"
 proof -
  have ex_insert : "\<And>x F P. (\<exists>x\<in>insert x F. P x) = (P x \<or> (\<exists>x\<in>F. P x))"
  by (metis insert_iff)
@@ -3893,25 +3893,25 @@ proof -
  
 
  show ?thesis
-  apply(simp add: select_body_def)
+  apply(simp add: OclSelect_body_def)
   apply(simp only: OclSelect_def OclIterate_def)
   apply(case_tac "\<tau> \<Turnstile> \<delta> S", simp only: OclValid_def)
   apply(subgoal_tac "(if \<exists>x\<in>\<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>. P (\<lambda>_. x) \<tau> = \<bottom> \<tau> then \<bottom>
           else Abs_Set_0 \<lfloor>\<lfloor>{x \<in> \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>. P (\<lambda>_. x) \<tau> \<noteq> false \<tau>}\<rfloor>\<rfloor>) =
-          Finite_Set.fold (select_body P) Set{}
+          Finite_Set.fold (OclSelect_body P) Set{}
            ((\<lambda>a \<tau>. a) ` \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>) \<tau>",
         simp add: S_finite)
   apply(rule finite_induct[where P = "\<lambda>set. (if \<exists>x\<in>set. P (\<lambda>_. x) \<tau> = \<bottom> \<tau> then \<bottom>
      else Abs_Set_0 \<lfloor>\<lfloor>{x \<in> set. P (\<lambda>_. x) \<tau> \<noteq> false \<tau>}\<rfloor>\<rfloor>) =
-    Finite_Set.fold (select_body P) Set{}
+    Finite_Set.fold (OclSelect_body P) Set{}
      ((\<lambda>a \<tau>. a) ` set) \<tau>", OF S_finite])
   apply(simp add: mtSet_def)
   (* *)
   apply(simp only: image_insert)
-  apply(subst comp_fun_commute.fold_insert[OF select_body_commute], simp)
+  apply(subst comp_fun_commute.fold_insert[OF OclSelect_body_commute], simp)
   apply(rule inj, fast)
 
-  apply(simp only: select_body_def)
+  apply(simp only: OclSelect_body_def)
   apply(simp only: ex_insert)
   apply(subst cp_OclIf)
   apply(case_tac "\<not> ((\<upsilon> (P (\<lambda>_. x))) \<tau> = true \<tau>)")
@@ -3935,11 +3935,11 @@ proof -
   apply(simp add: cp_OclIf[symmetric])
   apply(drule sym, drule sym) (* SYM 1/2 *)
   apply(subst (1 2) cp_OclIncluding)
-  apply(subgoal_tac "((\<lambda>_. Finite_Set.fold (select_body P) Set{} ((\<lambda>a \<tau>. a) ` F) \<tau>)->including(\<lambda>\<tau>. x)) \<tau>
+  apply(subgoal_tac "((\<lambda>_. Finite_Set.fold (OclSelect_body P) Set{} ((\<lambda>a \<tau>. a) ` F) \<tau>)->including(\<lambda>\<tau>. x)) \<tau>
                      =
                      ((\<lambda>_. if \<exists>x\<in>F. P (\<lambda>_. x) \<tau> = \<bottom> \<tau> then \<bottom> else Abs_Set_0 \<lfloor>\<lfloor>{x \<in> F. P (\<lambda>_. x) \<tau> \<noteq> false \<tau>}\<rfloor>\<rfloor>)->including(\<lambda>\<tau>. x)) \<tau>")
    prefer 2
-   apply(simp add: select_body_def)
+   apply(simp add: OclSelect_body_def)
   apply(simp add: )
 
   apply(rule conjI)

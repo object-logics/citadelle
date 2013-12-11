@@ -273,28 +273,28 @@ proof -
  show "\<tau> \<Turnstile> \<delta> S \<Longrightarrow> \<tau> \<Turnstile> \<upsilon> i \<Longrightarrow> \<tau> \<Turnstile> \<upsilon> j \<Longrightarrow> ?thesis"
   apply(simp only: StrictRefEq\<^sub>S\<^sub>e\<^sub>t_exec)
   (* *)
-  apply(subst OclIf_true'', simp_all add: foundation10 foundation6 del: forall_set_including_exec)+
-  apply(subst (1 2) forall_set_including_exec, simp add: cp_OclIncludes1, simp add: cp_OclIncludes1)+
+  apply(subst OclIf_true'', simp_all add: foundation10 foundation6 del: OclForall_including_exec)+
+  apply(subst (1 2) OclForall_including_exec, simp add: cp_OclIncludes1, simp add: cp_OclIncludes1)+
   apply(subst OclAnd_true)
   (* *)
-  apply(subst OclIf_true'', simp_all add: foundation10 foundation6 del: forall_set_including_exec)+
+  apply(subst OclIf_true'', simp_all add: foundation10 foundation6 del: OclForall_including_exec)+
   apply(subst OclAnd_true)
-  apply(subst OclIf_true'', simp_all add: foundation10 foundation6 del: forall_set_including_exec)
+  apply(subst OclIf_true'', simp_all add: foundation10 foundation6 del: OclForall_including_exec)
   apply(case_tac "\<tau> \<Turnstile> (i \<doteq> j)")
-  apply(subst OclIf_true'', simp_all add: foundation10 foundation6 del: forall_set_including_exec)
+  apply(subst OclIf_true'', simp_all add: foundation10 foundation6 del: OclForall_including_exec)
   apply(subst OclIf_false'', simp_all add: StrictRefEq_defined_args_valid)
   apply( subst OclAnd_true
-       | subst OclIf_true'', simp_all add: foundation10 foundation6 del: forall_set_including_exec)+
+       | subst OclIf_true'', simp_all add: foundation10 foundation6 del: OclForall_including_exec)+
   apply(simp add: forall_includes2)
   (* *)
-  apply(subst OclIf_true'', simp_all add: foundation10 foundation6 del: forall_set_including_exec)+
+  apply(subst OclIf_true'', simp_all add: foundation10 foundation6 del: OclForall_including_exec)+
   apply(subst OclAnd_true)
-  apply(subst OclIf_true'', simp_all add: foundation10 foundation6 del: forall_set_including_exec)
+  apply(subst OclIf_true'', simp_all add: foundation10 foundation6 del: OclForall_including_exec)
   apply(case_tac "\<tau> \<Turnstile> (j \<doteq> i)")
-  apply(subst OclIf_true'', simp_all add: foundation10 foundation6 del: forall_set_including_exec)
+  apply(subst OclIf_true'', simp_all add: foundation10 foundation6 del: OclForall_including_exec)
   apply(subst OclIf_false'', simp_all add: StrictRefEq_defined_args_valid)
   apply( subst OclAnd_true
-       | subst OclIf_true'', simp_all add: foundation10 foundation6 del: forall_set_including_exec)+
+       | subst OclIf_true'', simp_all add: foundation10 foundation6 del: OclForall_including_exec)+
   apply(simp add: forall_includes2)
  done
  apply_end(simp_all add: assms)
@@ -513,15 +513,15 @@ lemma invert_all_defined : "all_defined \<tau> (S->including(x)) \<Longrightarro
           apply(simp add: foundation18 invalid_def)
           done
 
- have finite_including_rep_set : "\<And>\<tau> X x. \<And>\<tau>. \<tau> \<Turnstile> (\<delta> X and \<upsilon> x) \<Longrightarrow>
+ have OclIncluding_finite_rep_set : "\<And>\<tau> X x. \<And>\<tau>. \<tau> \<Turnstile> (\<delta> X and \<upsilon> x) \<Longrightarrow>
                  finite \<lceil>\<lceil>Rep_Set_0 (X->including(x) \<tau>)\<rceil>\<rceil> = finite \<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil>"
-  apply(rule finite_including_rep_set)
+  apply(rule OclIncluding_finite_rep_set)
   apply(metis OclValid_def foundation5)+
  done
 
   show "all_defined \<tau> (S->including(x)) \<Longrightarrow> ?thesis"
    apply(simp add: all_defined_def all_defined_set'_def)
-   apply(erule conjE, frule finite_including_rep_set[of \<tau> S x], simp)
+   apply(erule conjE, frule OclIncluding_finite_rep_set[of \<tau> S x], simp)
   by (metis foundation5)
 qed
 
