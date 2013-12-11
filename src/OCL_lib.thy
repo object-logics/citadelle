@@ -1608,6 +1608,28 @@ proof -
   done
 qed
 
+text{* One would like a generic theorem of the form:
+\begin{verbatim}
+lemma OclExcluding_charn_exec:
+       "(X->including(x::('\<AA>,'a::null)val)->excluding(y)) =
+        (if \<delta> X then if x \<doteq> y
+                     then X->excluding(y)
+                     else X->excluding(y)->including(x)
+                     endif
+                else invalid endif)"
+\end{verbatim}
+Unfortunately, this does not hold in general, since referential equality is
+an overloaded concept and has to be defined for each type individually.
+Consequently, it is only valid for concrete  type instances for Boolean,
+Integer, and Sets thereof...
+*}
+
+
+text{* The computational law \verb+OclExcluding_charn_exec+ becomes generic since it
+uses strict equality which in itself is generic. It is possible to prove
+the following generic theorem and instantiate it if a number of properties
+that link the polymorphic logical, Strong Equality with the concrete instance
+of strict quality.*}
 lemma OclExcluding_charn_exec:
  assumes strict1: "(x \<doteq> invalid) = invalid"
  and     strict2: "(invalid \<doteq> y) = invalid"
@@ -1796,28 +1818,6 @@ proof -
  by(metis foundation22 foundation6 foundation9 neq)
 qed
 
-text{* One would like a generic theorem of the form:
-\begin{verbatim}
-lemma OclIncludes_execute:
-"(X->including(x)->includes(y)) = (if \<delta> X then if x \<doteq> y
-                                               then true
-                                               else X->includes(y)
-                                               endif
-                                          else invalid endif)"
-
-\end{verbatim}
-Unfortunately, this does not hold in general, since referential equality is
-an overloaded concept and has to be defined for each type individually.
-Consequently, it is only valid for concrete  type instances for Boolean,
-Integer, and Sets thereof...
-*}
-
-
-text{* The computational law \verb+includes_execute+ becomes generic since it
-uses strict equality which in itself is generic. It is possible to prove
-the following generic theorem and instantiate it if a number of properties
-that link the polymorphic logical, Strong Equality with the concrete instance
-of strict quality.*}
 lemma OclIncludes_execute_generic:
 assumes strict1: "(x \<doteq> invalid) = invalid"
 and     strict2: "(invalid \<doteq> y) = invalid"
