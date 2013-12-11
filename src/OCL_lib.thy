@@ -135,44 +135,39 @@ text{* Note that we can not follow the lexis of standard OCL for Isabelle-
 technical reasons; these operators are heavily overloaded in the library
 that a further overloading would lead to heavy technical buzz in this
 document... *}
-definition OclAdd\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r ::"('\<AA>)Integer \<Rightarrow> ('\<AA>)Integer \<Rightarrow> ('\<AA>)Integer" (infix "+\<^sub>o\<^sub>c\<^sub>l" 40)
-where "x +\<^sub>o\<^sub>c\<^sub>l y \<equiv> \<lambda> \<tau>. if (\<delta> x) \<tau> = true \<tau> \<and> (\<delta> y) \<tau> = true \<tau>
+definition OclAdd\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r ::"('\<AA>)Integer \<Rightarrow> ('\<AA>)Integer \<Rightarrow> ('\<AA>)Integer" (infix "`+" 40)
+where "x `+ y \<equiv> \<lambda> \<tau>. if (\<delta> x) \<tau> = true \<tau> \<and> (\<delta> y) \<tau> = true \<tau>
                 then \<lfloor>\<lfloor>\<lceil>\<lceil>x \<tau>\<rceil>\<rceil> + \<lceil>\<lceil>y \<tau>\<rceil>\<rceil>\<rfloor>\<rfloor>
                 else invalid \<tau> "
 
-
-definition OclLess\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r ::"('\<AA>)Integer \<Rightarrow> ('\<AA>)Integer \<Rightarrow> ('\<AA>)Boolean" (infix "<\<^sub>o\<^sub>c\<^sub>l" 40)
-where "x <\<^sub>o\<^sub>c\<^sub>l y \<equiv> \<lambda> \<tau>. if (\<delta> x) \<tau> = true \<tau> \<and> (\<delta> y) \<tau> = true \<tau>
+definition OclLess\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r ::"('\<AA>)Integer \<Rightarrow> ('\<AA>)Integer \<Rightarrow> ('\<AA>)Boolean" (infix "`<" 40)
+where "x `< y \<equiv> \<lambda> \<tau>. if (\<delta> x) \<tau> = true \<tau> \<and> (\<delta> y) \<tau> = true \<tau>
                 then \<lfloor>\<lfloor>\<lceil>\<lceil>x \<tau>\<rceil>\<rceil> < \<lceil>\<lceil>y \<tau>\<rceil>\<rceil>\<rfloor>\<rfloor>
                 else invalid \<tau> "
 
-definition OclLe\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r ::"('\<AA>)Integer \<Rightarrow> ('\<AA>)Integer \<Rightarrow> ('\<AA>)Boolean" (infix "\<le>\<^sub>o\<^sub>c\<^sub>l" 40)
-where "x \<le>\<^sub>o\<^sub>c\<^sub>l y \<equiv> \<lambda> \<tau>. if (\<delta> x) \<tau> = true \<tau> \<and> (\<delta> y) \<tau> = true \<tau>
+definition OclLe\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r ::"('\<AA>)Integer \<Rightarrow> ('\<AA>)Integer \<Rightarrow> ('\<AA>)Boolean" (infix "`\<le>" 40)
+where "x `\<le> y \<equiv> \<lambda> \<tau>. if (\<delta> x) \<tau> = true \<tau> \<and> (\<delta> y) \<tau> = true \<tau>
                 then \<lfloor>\<lfloor>\<lceil>\<lceil>x \<tau>\<rceil>\<rceil> \<le> \<lceil>\<lceil>y \<tau>\<rceil>\<rceil>\<rfloor>\<rfloor>
                 else invalid \<tau> "
 
-abbreviation OclAdd_\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r (infix "+\<^sub>I" 40) where "x +\<^sub>I y \<equiv> x +\<^sub>o\<^sub>c\<^sub>l y"
-abbreviation OclLess_\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r (infix "<\<^sub>I" 40) where "x <\<^sub>I y \<equiv> x <\<^sub>o\<^sub>c\<^sub>l y"
-abbreviation OclLe_\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r (infix "\<le>\<^sub>I" 40) where "x \<le>\<^sub>I y \<equiv> x \<le>\<^sub>o\<^sub>c\<^sub>l y"
-
 subsubsection{* Basic properties *}
 
-lemma OclAdd\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r_commute: "(X +\<^sub>o\<^sub>c\<^sub>l Y) = (Y +\<^sub>o\<^sub>c\<^sub>l X)"
+lemma OclAdd\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r_commute: "(X `+ Y) = (Y `+ X)"
   by(rule ext,auto simp:true_def false_def OclAdd\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r_def invalid_def
                    split: option.split option.split_asm
                           bool.split bool.split_asm)
 
 subsubsection{* Execution with invalid or null or zero as argument *}
 
-lemma OclAdd\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r_strict1[simp,code_unfold] : "(x +\<^sub>o\<^sub>c\<^sub>l invalid) = invalid"
+lemma OclAdd\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r_strict1[simp,code_unfold] : "(x `+ invalid) = invalid"
 by(rule ext, simp add: OclAdd\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r_def true_def false_def)
 
-lemma OclAdd\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r_strict2[simp,code_unfold] : "(invalid +\<^sub>o\<^sub>c\<^sub>l x) = invalid"
+lemma OclAdd\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r_strict2[simp,code_unfold] : "(invalid `+ x) = invalid"
 by(rule ext, simp add: OclAdd\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r_def true_def false_def)
 
-lemma OclAdd\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r_zero1[simp,code_unfold] : "(x +\<^sub>o\<^sub>c\<^sub>l \<zero>) = (if \<upsilon> x and not (\<delta> x) then invalid else x endif)"
+lemma OclAdd\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r_zero1[simp,code_unfold] : "(x `+ \<zero>) = (if \<upsilon> x and not (\<delta> x) then invalid else x endif)"
  apply(rule ext, rename_tac \<tau>)
- proof - fix \<tau> show "(x +\<^sub>I \<zero>) \<tau> = (if \<upsilon> x and not (\<delta> x) then invalid else x endif) \<tau>"
+ proof - fix \<tau> show "(x `+ \<zero>) \<tau> = (if \<upsilon> x and not (\<delta> x) then invalid else x endif) \<tau>"
   apply(case_tac "(\<upsilon> x and not (\<delta> x)) \<tau> = true \<tau>")
   apply(subst OclIf_true', simp add: OclValid_def)
   apply (metis OclAdd\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r_def OclNot_defargs OclValid_def foundation5 foundation9)
@@ -191,28 +186,28 @@ lemma OclAdd\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r_zero1[simp,
  by (metis OclValid_def foundation10 foundation18' foundation6 foundation7 invalid_def)
 qed
 
-lemma OclAdd\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r_zero2[simp,code_unfold] : "(\<zero> +\<^sub>o\<^sub>c\<^sub>l x) = (if \<upsilon> x and not (\<delta> x) then invalid else x endif)"
+lemma OclAdd\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r_zero2[simp,code_unfold] : "(\<zero> `+ x) = (if \<upsilon> x and not (\<delta> x) then invalid else x endif)"
 by(subst OclAdd\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r_commute, simp)
 
 subsubsection{* Context Passing *}
 
-lemma cp_OclAdd\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r:"(X +\<^sub>o\<^sub>c\<^sub>l Y) \<tau> = ((\<lambda> _. X \<tau>) +\<^sub>o\<^sub>c\<^sub>l (\<lambda> _. Y \<tau>)) \<tau>"
+lemma cp_OclAdd\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r:"(X `+ Y) \<tau> = ((\<lambda> _. X \<tau>) `+ (\<lambda> _. Y \<tau>)) \<tau>"
 by(simp add: OclAdd\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r_def cp_defined[symmetric])
 
-lemma cp_OclLess\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r:"(X <\<^sub>o\<^sub>c\<^sub>l Y) \<tau> = ((\<lambda> _. X \<tau>) <\<^sub>o\<^sub>c\<^sub>l (\<lambda> _. Y \<tau>)) \<tau>"
+lemma cp_OclLess\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r:"(X `< Y) \<tau> = ((\<lambda> _. X \<tau>) `< (\<lambda> _. Y \<tau>)) \<tau>"
 by(simp add: OclLess\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r_def cp_defined[symmetric])
 
-lemma cp_OclLe\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r:"(X \<le>\<^sub>o\<^sub>c\<^sub>l Y) \<tau> = ((\<lambda> _. X \<tau>) \<le>\<^sub>o\<^sub>c\<^sub>l (\<lambda> _. Y \<tau>)) \<tau>"
+lemma cp_OclLe\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r:"(X `\<le> Y) \<tau> = ((\<lambda> _. X \<tau>) `\<le> (\<lambda> _. Y \<tau>)) \<tau>"
 by(simp add: OclLe\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r_def cp_defined[symmetric])
 
 subsubsection{* Test Statements *}
 text{* Here follows a list of code-examples, that explain the meanings
 of the above definitions by compilation to code and execution to @{term "True"}.*}
 
-value "  \<tau> \<Turnstile> ( \<nine> \<le>\<^sub>o\<^sub>c\<^sub>l \<one>\<zero> )"
-value "  \<tau> \<Turnstile> (( \<four> +\<^sub>o\<^sub>c\<^sub>l \<four> ) \<le>\<^sub>o\<^sub>c\<^sub>l \<one>\<zero> )"
-value "\<not>(\<tau> \<Turnstile> (( \<four> +\<^sub>o\<^sub>c\<^sub>l ( \<four> +\<^sub>o\<^sub>c\<^sub>l \<four> )) <\<^sub>o\<^sub>c\<^sub>l \<one>\<zero> ))"
-value "  \<tau> \<Turnstile> not (\<upsilon> (null +\<^sub>o\<^sub>c\<^sub>l \<one>)) "
+value "  \<tau> \<Turnstile> ( \<nine> `\<le> \<one>\<zero> )"
+value "  \<tau> \<Turnstile> (( \<four> `+ \<four> ) `\<le> \<one>\<zero> )"
+value "\<not>(\<tau> \<Turnstile> (( \<four> `+ ( \<four> `+ \<four> )) `< \<one>\<zero> ))"
+value "  \<tau> \<Turnstile> not (\<upsilon> (null `+ \<one>)) "
 
 section{* Fundamental Predicates on Boolean and Integer: Strict Equality *}
 
@@ -455,8 +450,8 @@ value "  \<tau> \<Turnstile> (\<four> \<doteq> \<four>)"
 value "\<not>(\<tau> \<Turnstile> (\<four> <> \<four>))"
 value "\<not>(\<tau> \<Turnstile> (\<four> \<doteq> \<one>\<zero>))"
 value "  \<tau> \<Turnstile> (\<four> <> \<one>\<zero>)"
-value "\<not>(\<tau> \<Turnstile> (\<zero> <\<^sub>o\<^sub>c\<^sub>l null))"
-value "\<not>(\<tau> \<Turnstile> (\<delta> (\<zero> <\<^sub>o\<^sub>c\<^sub>l null)))"
+value "\<not>(\<tau> \<Turnstile> (\<zero> `< null))"
+value "\<not>(\<tau> \<Turnstile> (\<delta> (\<zero> `< null)))"
 
 
 section{* Complex Types: The Set-Collection Type (I) Core *}
@@ -1949,7 +1944,7 @@ qed
 
 lemma including_size_exec[simp,code_unfold]:
  "((X ->including(x)) ->size()) = (if \<delta> X and \<upsilon> x then
-                                     X ->size() +\<^sub>o\<^sub>c\<^sub>l if X ->includes(x) then \<zero> else \<one> endif
+                                     X ->size() `+ if X ->includes(x) then \<zero> else \<one> endif
                                    else
                                      invalid
                                    endif)"
@@ -1977,7 +1972,7 @@ proof -
   have includes_val: "\<tau> \<Turnstile> X->includes(x) \<Longrightarrow> \<tau> \<Turnstile> \<upsilon> x"
   by (metis (hide_lams, no_types) foundation6 OclIncludes_valid_args_valid' OclIncluding_valid_args_valid OclIncluding_valid_args_valid'')
 
-  show "X->including(x)->size() \<tau> = (if \<delta> X and \<upsilon> x then X->size() +\<^sub>I if X->includes(x) then \<zero> else \<one> endif else invalid endif) \<tau>"
+  show "X->including(x)->size() \<tau> = (if \<delta> X and \<upsilon> x then X->size() `+ if X->includes(x) then \<zero> else \<one> endif else invalid endif) \<tau>"
     apply(case_tac "\<tau> \<Turnstile> \<delta> X and \<upsilon> x")
     apply(simp)
     apply(subst cp_OclAdd\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r)
@@ -3232,13 +3227,13 @@ value "\<not> (\<tau> \<Turnstile> (Set{\<two>,\<one>}->includes(null)))"
 value    "\<tau> \<Turnstile> (Set{\<two>,null}->includes(null))"
 value    "\<tau> \<Turnstile> (Set{null,\<two>}->includes(null))"
 
-value    "\<tau> \<Turnstile> ((Set{})->forAll(z | \<zero> <\<^sub>o\<^sub>c\<^sub>l z))"
+value    "\<tau> \<Turnstile> ((Set{})->forAll(z | \<zero> `< z))"
 
-value    "\<tau> \<Turnstile> ((Set{\<two>,\<one>})->forAll(z | \<zero> <\<^sub>o\<^sub>c\<^sub>l z))"
-value "\<not> (\<tau> \<Turnstile> ((Set{\<two>,\<one>})->exists(z | z <\<^sub>o\<^sub>c\<^sub>l \<zero> )))"
-value "\<not> (\<tau> \<Turnstile> \<delta>(Set{\<two>,null})->forAll(z | \<zero> <\<^sub>o\<^sub>c\<^sub>l z))"
-value "\<not> (\<tau> \<Turnstile> ((Set{\<two>,null})->forAll(z | \<zero> <\<^sub>o\<^sub>c\<^sub>l z)))"
-value    "\<tau> \<Turnstile> ((Set{\<two>,null})->exists(z | \<zero> <\<^sub>o\<^sub>c\<^sub>l z))"
+value    "\<tau> \<Turnstile> ((Set{\<two>,\<one>})->forAll(z | \<zero> `< z))"
+value "\<not> (\<tau> \<Turnstile> ((Set{\<two>,\<one>})->exists(z | z `< \<zero> )))"
+value "\<not> (\<tau> \<Turnstile> \<delta>(Set{\<two>,null})->forAll(z | \<zero> `< z))"
+value "\<not> (\<tau> \<Turnstile> ((Set{\<two>,null})->forAll(z | \<zero> `< z)))"
+value    "\<tau> \<Turnstile> ((Set{\<two>,null})->exists(z | \<zero> `< z))"
 
 value "\<not> (\<tau> \<Turnstile> (Set{null::'a Boolean} \<doteq> Set{}))"
 value "\<not> (\<tau> \<Turnstile> (Set{null::'a Integer} \<doteq> Set{}))"
