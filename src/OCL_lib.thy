@@ -2866,7 +2866,10 @@ qed qed qed
 
 subsection{* OclReject *}
 
-lemma reject_set_including_exec:
+lemma reject_set_mt_exec[simp,code_unfold]: "OclReject\<^sub>S\<^sub>e\<^sub>t mtSet P = mtSet"
+by(simp add: OclReject\<^sub>S\<^sub>e\<^sub>t_def)
+
+lemma reject_set_including_exec[simp,code_unfold]:
  assumes P_cp : "cp P"
  shows "OclReject\<^sub>S\<^sub>e\<^sub>t (X->including(y)) P = select_body (not o P) y (OclReject\<^sub>S\<^sub>e\<^sub>t (X->excluding(y)) P)"
  apply(simp add: OclReject\<^sub>S\<^sub>e\<^sub>t_def comp_def, rule select_set_including_exec)
@@ -3255,6 +3258,7 @@ lemma    "\<tau> \<Turnstile> (Set{\<one>,null,\<two>} <> Set{null,\<two>})" by 
 lemma    "\<tau> \<Turnstile> (Set{Set{\<two>,null}} \<doteq> Set{Set{null,\<two>}})" by simp
 lemma    "\<tau> \<Turnstile> (Set{Set{\<two>,null}} <> Set{Set{null,\<two>},null})" by simp
 lemma    "\<tau> \<Turnstile> (Set{null}->select(x | not x) \<doteq> Set{null})" by simp
+lemma    "\<tau> \<Turnstile> (Set{null}->reject(x | not x) \<doteq> Set{null})" by simp
 (*
 value "\<not> (\<tau> \<Turnstile> (Set{true} \<doteq> Set{false}))"
 value "\<not> (\<tau> \<Turnstile> (Set{true,true} \<doteq> Set{false}))"
@@ -3264,5 +3268,6 @@ value    "\<tau> \<Turnstile> (Set{\<one>,null,\<two>} <> Set{null,\<two>})"
 value    "\<tau> \<Turnstile> (Set{Set{\<two>,null}} \<doteq> Set{Set{null,\<two>}})"
 value    "\<tau> \<Turnstile> (Set{Set{\<two>,null}} <> Set{Set{null,\<two>},null})"
 value    "\<tau> \<Turnstile> (Set{null}->select(x | not x) \<doteq> Set{null})"
-*) 
+value    "\<tau> \<Turnstile> (Set{null}->reject(x | not x) \<doteq> Set{null})"
+*)
 end
