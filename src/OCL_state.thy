@@ -47,7 +47,64 @@ theory OCL_state
 imports OCL_lib
 begin
 
-section{* Complex Types: The Object Type (I) Core *}
+section{* Introduction: States over Typed Object Universes *}
+text{* As mentioned earlier, 
+the \OCL is composed of
+ \begin{inparaenum}[1)]
+ \item operators on built-in data structures such as Boolean, Integer or Set(\_),
+ \item operators of the user-defined data model such as accessors,
+   type casts and tests, and
+ \item user-defined, side-effect-free methods.
+ \end{inparaenum}
+*}
+
+text{* In the following, we will refine the concepts of a user-defined
+data-model (implied by a class-diagram) as well as 
+the notion of $\state{}$ used in the
+previous section to much more detail.  In contrast to wide-spread
+opinions, \UML class diagrams represent in a compact and visual manner
+quite complex, object-oriented data-types with a surprisingly rich
+theory. It is part of our endeavor here to make this theory explicit
+and to point out corner cases.  A \UML class diagram---underlying a
+given \OCL formula---produces a number of implicit operations which
+become accessible via appropriate \OCL syntax:
+*}
+
+text{*
+\begin{compactenum}
+\item Classes and class names (written as $C_1$, \ldots, $C_n$), which
+  become types of data in \OCL\@. Class names declare two projector
+  functions to the set of all objects in a state:
+  $C_i$\inlineocl{.allInstances()} and
+  $C_i$\inlineocl{.allInstances}$\isasymOclATpre$\inlineocl{()},
+\item an inheritance relation $\_ < \_$ on classes and a collection of
+  attributes $A$ associated to classes,
+\item two families of accessors; for each attribute $a$ in a
+  class definition (denoted
+  $\getAttrib{X}{\text{$a$}}               :: C_i \rightarrow A $ and
+  $\getAttrib{X}{\text{$a$}\isasymOclATpre}:: C_i \rightarrow A $ for
+  $A\in \{\V{}{\up{\ldots}}, C_1, \ldots, C_n\}$),
+\item type casts that can change the static type of an object of a
+      class (denoted $\getAttrib{X}{\mocl{oclAsType(}\text{$C_i$}\mocl{)}}$ of type
+      $C_j \rightarrow C_i$)
+\item two dynamic type tests (denoted $\getAttrib{X}{\mocl{oclIsTypeOf(}\text{$C_i$}\mocl{)}}$ and
+      $\getAttrib{X}{\mocl{oclIsKindOf(}\text{$C_i$}\mocl{)}}$ ),
+\item and last but not least, for each class name $C_i$ there is an
+  instance of the overloaded referential equality (written $\_
+  \isasymMathOclStrictEq \_$).
+\end{compactenum}
+*}
+
+text{* Assuming a strong static type discipline in the sense of
+Hindley-Milner types, Featherweight \OCL has no ``syntactic subtyping''.
+ This does not mean that subtyping can not be expressed
+\emph{semantically} in Featherweight \OCL; by giving a formal
+semantics to type-casts, subtyping becomes an issue of the front-end
+that can make implicit type-coersions explicit by introducing explicit
+type-casts. Of cour 
+
+*}
+
 subsection{* Recall: The generic structure of States *}
 
 text{* Next we will introduce the foundational concept of an object id (oid),

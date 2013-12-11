@@ -48,11 +48,22 @@ session "OCL" in src = HOL +
   files
     "document/root.tex"
 
-session "OCL_examples" in examples = HOL +
+session "OCL-examples" in examples = OCL +
   options [quick_and_dirty, document = pdf, document_variants="document:outline=/proof,/ML"]
   theories
     "Employee_AnalysisModel_OCLPart"
     "Employee_DesignModel_OCLPart"
   files
     "../src/document/root.tex"
+
+session "OCL-AFP" in src = HOL +
+  description {* HOL-TestGen *}
+  options [quick_and_dirty, document = pdf, document_variants="document:outline=/proof,/ML"]
+  theories
+    "OCL_main"
+    "../examples/Employee_AnalysisModel_OCLPart"
+    "../examples/Employee_DesignModel_OCLPart"
+  files
+    "document/root.tex"
+
 

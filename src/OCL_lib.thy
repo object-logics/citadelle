@@ -3264,5 +3264,5 @@ value    "\<tau> \<Turnstile> (Set{\<one>,null,\<two>} <> Set{null,\<two>})"
 value    "\<tau> \<Turnstile> (Set{Set{\<two>,null}} \<doteq> Set{Set{null,\<two>}})"
 value    "\<tau> \<Turnstile> (Set{Set{\<two>,null}} <> Set{Set{null,\<two>},null})"
 value    "\<tau> \<Turnstile> (Set{null}->select(x | not x) \<doteq> Set{null})"
-*)
+*) 
 end
