@@ -142,7 +142,8 @@ end
 
 
 
-section{* Instantiation of the generic strict equality. We instantiate the referential equality
+section{* Instantiation of the generic strict equality. *}
+text{* We instantiate the referential equality
 on @{text "Person"} and @{text "OclAny"} *}
 
 defs(overloaded)   StrictRefEq\<^sub>O\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t_\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n   : "(x::Person) \<doteq> y  \<equiv> StrictRefEq\<^sub>O\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t x y"
