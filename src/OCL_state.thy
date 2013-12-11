@@ -234,7 +234,7 @@ done
 text{* So, if two object descriptions live in the same state (both pre or post), the referential
 equality on objects implies in a WFF state the logical equality. Uffz. *}
 
-section{* Complex Types: The Object Type (II) Library *}
+section{* Operations on Object *}
 subsection{* Initial States (for Testing and Code Generation) *}
 
 definition \<tau>\<^sub>0 :: "('\<AA>)st"
