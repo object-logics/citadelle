@@ -48,13 +48,13 @@ session "OCL" in src = HOL +
   files
     "document/root.tex"
 
-session "OCL-examples" in examples = OCL +
+session "OCL-examples" in src = OCL +
   options [quick_and_dirty, document = pdf, document_variants="document:outline=/proof,/ML"]
   theories
-    "Employee_AnalysisModel_OCLPart"
-    "Employee_DesignModel_OCLPart"
+    "../examples/Employee_AnalysisModel_OCLPart"
+    "../examples/Employee_DesignModel_OCLPart"
   files
-    "../src/document/root.tex"
+    "document/root.tex"
 
 session "OCL-AFP" in src = HOL +
   description {* HOL-TestGen *}
