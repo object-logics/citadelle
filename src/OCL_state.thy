@@ -101,9 +101,35 @@ Hindley-Milner types, Featherweight \OCL has no ``syntactic subtyping''.
 \emph{semantically} in Featherweight \OCL; by giving a formal
 semantics to type-casts, subtyping becomes an issue of the front-end
 that can make implicit type-coersions explicit by introducing explicit
-type-casts. Of cour 
-
+type-casts. Our perspective shifts the emphasis on the semantic
+properties of casting, and the necessary universe of object 
+representations (induced by a class model) that allows to esthablish them.
 *}
+
+subsection{* Onject Universes *}
+text{*
+It is natural to construct system states by a set of partial functions
+$f$ that map object identifiers $\oid$ to some representations of
+objects:
+\begin{gather}
+       \typedef \qquad \alpha~\state{} \defeq \{ \sigma :: 
+        \oid \isasymrightharpoonup \alpha \ap|\ap \inv_\sigma(\sigma) \}
+\end{gather}
+where $\inv_\sigma$ is a to be discussed invariant on states. 
+*}
+
+text{*
+The key
+point is that we need a common type $\alpha$ for the set of all
+possible \emph{object representations}.  Object representations model
+``a piece of typed memory,'' \ie, a kind of record comprising
+administration information and the information for all attributes of
+an object; here, the primitive types as well as collections over them
+are stored directly in the object representations, class types and
+collections over them are represented by $\oid$'s (respectively lifted
+collections over them).
+*}
+
 
 subsection{* Recall: The generic structure of States *}
 
