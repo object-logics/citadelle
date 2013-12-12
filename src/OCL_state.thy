@@ -130,6 +130,106 @@ collections over them are represented by $\oid$'s (respectively lifted
 collections over them).
 *}
 
+text{*
+In a shallow embedding which must represent
+\UML types injectively by \HOL types, there are two fundamentally
+different ways to construct such a set of object representations,
+which we call an \emph{object universe} $\mathfrak{A}$:
+\begin{compactenum}
+\item an object universe can be constructed for a given class model,
+  leading to \emph{closed world semantics}, and
+\item an object universe can be constructed for a given class model
+  \emph{and all its extensions by new classes added into the leaves of
+    the class hierarchy}, leading to an \emph{open world semantics}.
+\end{compactenum}
+For the sake of simplicity, we chose the first option for
+Featherweight \OCL, while \holocl~\cite{brucker.ea:extensible:2008-b}
+used an involved construction allowing the latter.
+
+*}
+
+text{*
+A na\"ive attempt to construct $\mathfrak{A}$ would look like this:
+the class type $C_i$ induced by a class will be the type of such an
+object representation: $C_i \defeq (\oid \times A_{i_1} \times \cdots
+\times A_{i_k} )$ where the types $A_{i_1}$, \ldots, $A_{i_k}$ are the
+attribute types (including inherited attributes) with class types
+substituted by $\oid$. The function $\HolOclOidOf$ projects the first
+component, the $\oid$, out of an object representation. Then the
+object universe will be constructed by the type definition:
+*}
+
+text{*
+$\mathfrak{A} := C_1 + \cdots +  C_n$.
+*}
+
+text{*
+It is possible to define constructors, accessors, and the referential
+equality on this object universe. However, the treatment of type casts
+and type tests cannot be faithful with common object-oriented
+semantics, be it in \UML or Java: casting up along the class hierarchy
+can only be implemented by loosing information, such that casting up
+and casting down will \emph{not} give the required identity:
+*}
+
+text{*
+\begin{gather}
+        X.\mocl{oclIsTypeOf(}C_k\mocl{)} ~ ~  \mocl{implies} ~ ~ X\mocl{.oclAsType(}C_i\mocl{)}\mocl{.oclAsType(}C_k\mocl{)} \isasymMathOclStrictEq
+   X \\
+   \qquad \qquad  \qquad \qquad  \qquad \qquad \text{whenever $C_k  < C_i$ and $X$ is valid.}
+\end{gather}
+*}
+
+text{*
+To overcome this limitation, we introduce an auxiliary type
+$C_{i\text{ext}}$ for \emph{class type extension}; together, they were
+inductively defined for a given class diagram:
+*}
+
+text{*
+Let $C_i$ be a class with a possibly empty set of subclasses
+$\{C_{j_{1}}, \ldots, C_{j_{m}}\}$.
+\begin{compactitem}
+\item Then the  \emph{class type extension} $C_{i\text{ext}}$
+        associated to $C_i$ is
+        $A_{i_{1}} \times \cdots \times A_{i_{n}} \times \up{(C_{j_{1}\text{ext}} + \cdots + C_{j_{m}\text{ext}})}$
+        where $A_{i_{k}}$ ranges over the local
+        attribute types of $C_i$ and $C_{j_{l}\text{ext}}$
+        ranges over all class type extensions of the subclass $C_{j}$ of $C_i$.
+\item Then the \emph{class type} for $C_i$ is
+        $oid \times A_{i_{1}} \times \cdots \times A_{i_{n}} \times \up{(C_{j_{1}\text{ext}} + \cdots + C_{j_{m}\text{ext}})}$
+        where $A_{i_{k}}$ ranges over the inherited \emph{and} local
+        attribute types of $C_i$ and $C_{j_{l}\text{ext}}$
+        ranges over all class type extensions of the subclass $C_{j}$ of $C_i$.
+\end{compactitem}
+*}
+
+text{*
+This construction can \emph{not} be done in \HOL itself since it
+involves quantifications and iterations over the ``set of class-types'';
+rather, it is a meta-level construction.  Technically, this means that
+we need a compiler to be done in \SML on the syntactic
+``meta-model''-level of a class model.
+*}
+
+text{* With respect to our semantic construction here, 
+which above all means is intended to be type-safe, this has the following consequences:
+\begin{itemize}
+\item there is a generic theory of states, which must be formulated independently
+      from a concete object universe, 
+\item there is a principle of translation (captured by the inductive scheme for
+      class type extensions and class types above) that converts a given class model
+      into an concrete object universe, 
+\item there are fixed principles that allow to derive the semantic theory of any
+      concrete object universe, called the \emph{object-oriented data type theory.}
+\end{itemize}
+We will work out concrete examples for the construction of the object-universes in
+Part IV and Part V \fixme{LaTeX : Cross-References ?} and the derivation of the
+respective data type theories. While an automatization is clearly possible and
+desirable for concrete applications of FeatherweightOCL, we consider this
+out of this paper which has a focus on the semantic construction and its presentation.
+*}
+
 
 subsection{* Recall: The generic structure of States *}
 
@@ -223,17 +323,32 @@ lemmas cp_intro''[intro!,simp,code_unfold] =
 
 subsubsection{* Behavior vs StrongEq *}
 
-text{* A key-concept for linking strict referential equality to
-       logical equality: in well-formed states (i.e. those
-       states where the self (oid-of) field contains the pointer
-       to which the object is associated to in the state),
-       referential equality coincides with logical equality. *}
+text{*
+It remains to clarify the role of the state invariant
+$\inv_\sigma(\sigma)$ mentioned above that states the condition that
+there is a ``one-to-one'' correspondence between object
+representations and $\oid$'s: $\forall \mathit{oid} \in \dom\ap
+\sigma\spot oid = \HolOclOidOf\ap \drop{\sigma(\mathit{oid})}$.  This
+condition is also mentioned in~\cite[Annex A]{omg:ocl:2012} and goes
+back to \citet{richters:precise:2002}; however, we state this
+condition as an invariant on states rather than a global axiom. It
+can, therefore, not be taken for granted that an $\oid$ makes sense
+both in pre- and post-states of \OCL expressions.
+*}
+
+text{* We capture this invariant in the predicate WFF :*}
 
 definition WFF :: "('\<AA>::object)st \<Rightarrow> bool"
 where "WFF \<tau> = ((\<forall> x \<in> ran(heap(fst \<tau>)). \<lceil>heap(fst \<tau>) (oid_of x)\<rceil> = x) \<and>
                 (\<forall> x \<in> ran(heap(snd \<tau>)). \<lceil>heap(snd \<tau>) (oid_of x)\<rceil> = x))"
 
-text{* This is a generic definition of referential equality:
+text{* It turns out that \verb+WFF+ is a key-concept for linking strict referential equality to
+logical equality: in well-formed states (i.e. those states where the self (oid-of) field contains 
+the pointer to which the object is associated to in the state), referential equality coincides 
+with logical equality. *}
+
+                
+text{* We turn now to the generic definition of referential equality on objects:
 Equality on objects in a state is reduced to equality on the
 references to these objects. As in HOL-OCL, we will store
 the reference of an object inside the object in a (ghost) field.
@@ -248,11 +363,16 @@ object type, the equality @{text "\<doteq>"} is defined by generic referential
 equality. *}
 
 theorem StrictRefEq\<^sub>O\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t_vs_StrongEq:
-"WFF \<tau> \<Longrightarrow> \<tau> \<Turnstile>(\<upsilon> x) \<Longrightarrow> \<tau> \<Turnstile>(\<upsilon> y) \<Longrightarrow>
-(x \<tau> \<in> ran (heap(fst \<tau>)) \<and> y \<tau> \<in> ran (heap(fst \<tau>))) \<and>
-(x \<tau> \<in> ran (heap(snd \<tau>)) \<and> y \<tau> \<in> ran (heap(snd \<tau>))) \<Longrightarrow> (* x and y must be object representations
-                                                          that exist in either the pre or post state *)
-           (\<tau> \<Turnstile> (StrictRefEq\<^sub>O\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t x y)) = (\<tau> \<Turnstile> (x \<triangleq> y))"
+assumes WFF: "WFF \<tau>"
+and valid_x: "\<tau> \<Turnstile>(\<upsilon> x)"
+and valid_y: "\<tau> \<Turnstile>(\<upsilon> y)"
+and x_presented_pre: "x \<tau> \<in> ran (heap(fst \<tau>))"
+and y_presented_pre: "y \<tau> \<in> ran (heap(fst \<tau>))"
+and x_presented_post:"x \<tau> \<in> ran (heap(snd \<tau>))"
+and y_presented_post:"y \<tau> \<in> ran (heap(snd \<tau>))"
+ (* x and y must be object representations that exist in either the pre or post state *)
+shows "(\<tau> \<Turnstile> (StrictRefEq\<^sub>O\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t x y)) = (\<tau> \<Turnstile> (x \<triangleq> y))"
+apply(insert WFF valid_x valid_y x_presented_pre y_presented_pre x_presented_post y_presented_post)
 apply(auto simp: StrictRefEq\<^sub>O\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t_def OclValid_def WFF_def StrongEq_def true_def Ball_def)
 apply(erule_tac x="x \<tau>" in allE', simp_all)
 done
