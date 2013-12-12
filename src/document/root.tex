@@ -13,6 +13,7 @@
 \usepackage[]{mathtools}
 \usepackage[pdfpagelabels, pageanchor=false, plainpages=false]{hyperref}
 \usepackage{prooftree}
+
 \usepackage[draft]{fixme}
 
 \renewcommand{\HolTrue}{\mathrm{true}}
@@ -71,7 +72,7 @@
 \newcommand{\inductive}[1]{{\holoclthykeywordstyle\operatorname{inductive}}~\operatorname{#1}}
 \newcommand{\types} {{\holoclthykeywordstyle\operatorname{types}}}
 \newcommand{\pglabel}[1]{\text{#1}}
-% \newcommand{\primrec}{\operatorname{\holoclthykeywordstyle primrec}}
+% \Newcommand{\primrec}{\operatorname{\holoclthykeywordstyle primrec}}
 % \newcommand{\consts} {\operatorname{\holoclthykeywordstyle consts}}
 
 
@@ -173,42 +174,58 @@
 \begin{document}
 
 \title{Featherweight OCL}
-\subtitle{A Study for a Consistent Semantics of UML/OCL 2.3 in HOL}
-\subject{Extended Version}
-\author{Achim D. Brucker \and Delphine Longuet \and Fr\'ed\'eric Tuong \and Burkhart Wolff}
+%\subtitle{A Study for a Consistent Semantics of UML/OCL 2.3 in HOL}
+\subtitle{Towards a Machine Checked Formal Semantics for OCL 2.5}
+\author{Achim D. Brucker\footnotemark[1] \and Delphine Longuet\footnotemark[2] \and 
+        Fr\'ed\'eric Tuong\footnotemark[4] \and Burkhart Wolff\footnotemark[2]}
+\publishers{% 
+  \footnotemark[1]~SAP AG, Vincenz-Priessnitz-Str. 1, 76131 Karlsruhe,
+  Germany \texorpdfstring{\\}{}
+  \href{mailto:"Achim D. Brucker"
+    <achim.brucker@sap.com>}{achim.brucker@sap.com}\\[2em]
+  %
+  \footnotemark[2]~Univ. Paris-Sud, Laboratoire LRI, UMR8623, 91405 Orsay, France\\
+  CNRS, 91405 Orsay, France\texorpdfstring{\\}{}
+  \{delphine.longuet, burkhart.wolff\}@lri.fr\\[2em]
+  %
+  \footnotemark[3]~Univ. Paris-Sud, IRT SystemX, 8 av. de la Vauve, 91120 Palaiseau, France\\
+  frederic.tuong@\{u-psud, irt-systemx\}.fr
+}
 
 
 \maketitle
 
 \begin{abstract}
-  \UML/\OCL is one of the few modeling languages that is widely used in industry.
-  Besides numerous diagrams describing various aspects of models, the core of the \UML,
-  the language \OCL,
-  is a textual annotation language that turns it into a formal language.
-  Unfortunately the semantics of this specification language, captured in the ``Annex A''
-  of the \OCL standard leads to different interpretations of corner cases and had been subject
-  to formal analysis earlier. %% TODO: add ocl papers
-  The situation complicated when with version 2.3 the \OCL was aligned with the \UML; this
-  led to the extension of the three-valued logic by a second exception element, called \mocl{null}.
-  While the first exception element \mocl{undefined} has a strict semantics, \mocl{null} has a non strict semantic
-  interpretation. These semantic difficulties lead to remarkable confusion for implementors
-  of \OCL compilers and interpreters. %% TODO add references to compiler bugs: Achim
+  The Unified Modeling Language (UML) is one of the few modeling
+  languages that is widely used in industry. While UML is mostly known
+  as diagrammatic modeling language (\eg, visualizing class models),
+  it also comprises a textual language, called OCL. OCL is a textual
+  annotation language, based on a three-valued logic, that turns UML
+  into a formal language.  Unfortunately the semantics of this
+  specification language, captured in the ``Annex A'' of the OCL
+  standard leads to different interpretations of corner cases.  Many
+  of these corner cases had been subject to formal analysis since more
+  than ten years.
 
-  In this paper, we provide a formalization of the core of
-  \OCL in \acf{hol}. It provides denotational definitions, a logical calculus
-  and operational rules that allow for the execution of \OCL expressions by a mixture of
-  term rewriting and code compilation.
-  Our formalization reveals several
-  inconsistencies and contradictions in the current version of the
-  \OCL standard.  They reflect a challenge to define and implement \OCL tools in a
-  uniform manner.
-  This document is intended to provide the basis for a machine-checked text
-  ``Annex A'' of the \UML standard targeting at tool implementors.
+  Since version 2.3 (released The situation complicated when with
+  version 2.3 the OCL was aligned with the latest version of UML: this
+  led to the extension of the three-valued logic by a second exception
+  element, called \mocl{null}.  While the first exception element
+  \mocl{undefined} has a strict semantics, \mocl{null} has a non
+  strict semantic interpretation. These semantic difficulties lead to
+  remarkable confusion for implementors of \OCL compilers and
+  interpreters.
 
-  \vspace{1cm}\noindent{\textbf{Further readings:}} This theory extends the paper
-  ``Featherweight OCL: A study for the consistent semantics of \OCL 2.3
-  in \HOL''~\cite{brucker.ea:featherweight:2012} that is published as
-  part of the proceedings of the \OCL workshop 2012.
+  In this paper, we provide a formalization of the core of OCL in
+  HOL. It provides denotational definitions, a logical calculus and
+  operational rules that allow for the execution of OCL expressions by
+  a mixture of term rewriting and code compilation.  Our formalization
+  reveals several inconsistencies and contradictions in the current
+  version of the OCL standard.  They reflect a challenge to define and
+  implement OCL tools in a uniform manner.  Overall, this document is
+  intended to provide the basis for a machine-checked text ``Annex A''
+  of the OCL standard targeting at tool implementors.
+
 \end{abstract}
 
 
