@@ -425,8 +425,8 @@ text{* The following predicates --- which are not part of the OCL standard descr
 complete the goal of oclIsNew() by describing where an object belongs.
 *}
 
-definition OclIsOld:: "('\<AA>, '\<alpha>::{null,object})val \<Rightarrow> ('\<AA>)Boolean"   ("(_).oclIsOld'(')")
-where "X .oclIsOld() \<equiv> (\<lambda>\<tau> . if (\<delta> X) \<tau> = true \<tau>
+definition OclIsDeleted:: "('\<AA>, '\<alpha>::{null,object})val \<Rightarrow> ('\<AA>)Boolean"   ("(_).oclIsDeleted'(')")
+where "X .oclIsDeleted() \<equiv> (\<lambda>\<tau> . if (\<delta> X) \<tau> = true \<tau>
                               then \<lfloor>\<lfloor>oid_of (X \<tau>) \<in> dom(heap(fst \<tau>)) \<and>
                                      oid_of (X \<tau>) \<notin> dom(heap(snd \<tau>))\<rfloor>\<rfloor>
                               else invalid \<tau>)"
@@ -443,12 +443,12 @@ where "X .oclIsAbsent() \<equiv> (\<lambda>\<tau> . if (\<delta> X) \<tau> = tru
                                      oid_of (X \<tau>) \<notin> dom(heap(snd \<tau>))\<rfloor>\<rfloor>
                               else invalid \<tau>)"
 
-lemma state_split : "\<tau> \<Turnstile> \<delta> X \<Longrightarrow> \<tau> \<Turnstile> (X .oclIsNew()) \<or> \<tau> \<Turnstile> (X .oclIsOld()) \<or> \<tau> \<Turnstile> (X .oclIsMaintained()) \<or> \<tau> \<Turnstile> (X .oclIsAbsent())"
-by(simp add: OclIsOld_def OclIsNew_def OclIsMaintained_def OclIsAbsent_def
+lemma state_split : "\<tau> \<Turnstile> \<delta> X \<Longrightarrow> \<tau> \<Turnstile> (X .oclIsNew()) \<or> \<tau> \<Turnstile> (X .oclIsDeleted()) \<or> \<tau> \<Turnstile> (X .oclIsMaintained()) \<or> \<tau> \<Turnstile> (X .oclIsAbsent())"
+by(simp add: OclIsDeleted_def OclIsNew_def OclIsMaintained_def OclIsAbsent_def
              OclValid_def true_def, blast)
 
-lemma notNew_vs_others : "\<tau> \<Turnstile> \<delta> X \<Longrightarrow> (\<not> \<tau> \<Turnstile> (X .oclIsNew())) = (\<tau> \<Turnstile> (X .oclIsOld()) \<or> \<tau> \<Turnstile> (X .oclIsMaintained()) \<or> \<tau> \<Turnstile> (X .oclIsAbsent()))"
-by(simp add: OclIsOld_def OclIsNew_def OclIsMaintained_def OclIsAbsent_def
+lemma notNew_vs_others : "\<tau> \<Turnstile> \<delta> X \<Longrightarrow> (\<not> \<tau> \<Turnstile> (X .oclIsNew())) = (\<tau> \<Turnstile> (X .oclIsDeleted()) \<or> \<tau> \<Turnstile> (X .oclIsMaintained()) \<or> \<tau> \<Turnstile> (X .oclIsAbsent()))"
+by(simp add: OclIsDeleted_def OclIsNew_def OclIsMaintained_def OclIsAbsent_def
                 OclNot_def OclValid_def true_def, blast)
 
 subsection{* OclIsModifiedOnly *}
@@ -617,8 +617,8 @@ by(simp add: OclIsNew_def OclSelf_at_pre_def OclSelf_at_post_def
              bot_option_def invalid_def bot_fun_def valid_def
       split: split_if_asm)
 
-lemma pre_post_old: "\<tau> \<Turnstile> (x .oclIsOld()) \<Longrightarrow> \<not> (\<tau> \<Turnstile> \<upsilon>(x @pre H1)) \<and> \<not> (\<tau> \<Turnstile> \<upsilon>(x @post H2))"
-by(simp add: OclIsOld_def OclSelf_at_pre_def OclSelf_at_post_def
+lemma pre_post_old: "\<tau> \<Turnstile> (x .oclIsDeleted()) \<Longrightarrow> \<not> (\<tau> \<Turnstile> \<upsilon>(x @pre H1)) \<and> \<not> (\<tau> \<Turnstile> \<upsilon>(x @post H2))"
+by(simp add: OclIsDeleted_def OclSelf_at_pre_def OclSelf_at_post_def
              OclValid_def StrongEq_def true_def false_def
              bot_option_def invalid_def bot_fun_def valid_def
       split: split_if_asm)
