@@ -459,7 +459,7 @@ mentioned in the postcondition, \ie, it allows arbitrary relations from
 pre-states to post-states.  This framing problem is well-known (one of the
 suggested solutions is~\cite{kosiuczenko:specification:2006}). We define
 \begin{ocl}
- (S:Set(OclAny))->modifiedOnly():Boolean
+ (S:Set(OclAny))->oclIsModifiedOnly():Boolean
 \end{ocl}
 where \inlineocl|S| is a set of object representations, encoding
 a set of $\oid$'s. The semantics of this operator is defined such that
@@ -467,7 +467,7 @@ for any object whose $\oid$ is \emph{not }represented in \inlineocl|S|
 and that is defined in pre and post state, the corresponding object representation will not change
 in the state transition:
 \begin{gather*}
-I\semantics{X\isasymMathOclModifiedOnly} (\sigma, \sigma')  \equiv
+I\semantics{X\isasymMathOclIsModifiedOnly} (\sigma, \sigma')  \equiv
   \begin{cases}
     \isasymbottom & \text{if $X' = \bottom$}  \\
      \lift{\isasymforall i \isasymin M\spot
@@ -476,11 +476,11 @@ I\semantics{X\isasymMathOclModifiedOnly} (\sigma, \sigma')  \equiv
 \end{gather*}
 where $X' = I\semantics{X} (\sigma, \sigma')$ and $M=
 (\dom~\sigma\cap\dom~\sigma') - \{ \HolOclOidOf x |~x \in\drop{X'}\}$.  Thus, if
-we require in a postcondition \inlineocl|Set{}->modifiedOnly()| and exclude via
+we require in a postcondition \inlineocl|Set{}->oclIsModifiedOnly()| and exclude via
 \inlineocl+_.oclIsNew()+ and \inlineocl+_.oclIsDeleted()+ the existence of new
 or deleted objects, the operation is a query in the sense of the \OCL standard, \ie,
 the \inlineocl|isQuery| property is true. So, whenever we have $ \tau
-\isasymMathOclValid X\isasymMathOclModifiedOnly$ and $ \tau
+\isasymMathOclValid X\isasymMathOclIsModifiedOnly$ and $ \tau
 \isasymMathOclValid X\isasymOclExcludes(s.a)$, we can infer that $\tau
 \isasymMathOclValid s.a = s.a\isasymOclATpre$ (if they are valid).
 

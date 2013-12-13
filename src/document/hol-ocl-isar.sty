@@ -44,7 +44,7 @@
 \renewcommand{\isasymlbrakk}{\isamath{\mathopen{\lsem}}}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% begin: old hol-ocl-ng style 
+%% begin: old hol-ocl-ng style
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \usepackage{xspace}
 %\usepackage{euscript}
@@ -57,8 +57,8 @@
 \RequirePackage[final]{listings}
 %%
 \newcommand{\ap}{\:}
-%% 
-%% 1.1) Define package options 
+%%
+%% 1.1) Define package options
 %% =========================
 %% 2) Color Definitions
 %% ======================
@@ -108,15 +108,15 @@
 \nc@colorlet{OclKeywordColor} {MidnightBlue}
 \newcommand{\OclKeywordColorName}{\textcolor{OclKeywordColor}{blue}\xspace}
 %
-% SML Keywords in \inlinesml{...} and \begin{sml}...\end{sml} 
+% SML Keywords in \inlinesml{...} and \begin{sml}...\end{sml}
 \nc@colorlet{SmlKeywordColor} {MidnightBlue}
 \newcommand{\SmlKeywordColorName}{\textcolor{SmlKeywordColor}{blue}\xspace}
 %
-% Java Keywords in \inlinejava{...} and \begin{java}...\end{java} 
+% Java Keywords in \inlinejava{...} and \begin{java}...\end{java}
 \nc@colorlet{JavaKeywordColor} {MidnightBlue}
 \newcommand{\JavaKeywordColorName}{\textcolor{JavaKeywordColor}{blue}\xspace}
 %
-% color for sections and boldface text 
+% color for sections and boldface text
 \nc@colorlet{SectionColor} {MidnightBlue}
 \newcommand{\SectionColorName}{\textcolor{SectionColor}{blue}\xspace}
 %
@@ -183,7 +183,7 @@
   numbers=left,numberstyle=\tiny,stepnumber=5,basicstyle=\small\smlfont,%
   backgroundcolor=\color{black!3},frame=lines,%xleftmargin=-8pt,xrightmargin=-8pt%
 }
-                   
+
 \lstdefinestyle{ocl}{basicstyle=\oclfont,%
                      commentstyle=\itshape,%
                      keywordstyle=\oclkeywordstyle,%
@@ -209,13 +209,13 @@
                 floatplacement={tbp},captionpos=b,framexleftmargin=10pt,
                 basicstyle=\small\javafont,backgroundcolor=\color{black!3},frame=lines}%
 
-                   
+
 \lstdefinestyle{displayocl}{style=ocl,
                 %floatplacement={tbp},captionpos=b,framexleftmargin=10pt,
-                floatplacement={tbp},captionpos=b, 
+                floatplacement={tbp},captionpos=b,
                 basicstyle=\small\oclfont,backgroundcolor=\color{black!3},frame=lines}%
 
-              
+
 \lstdefinestyle{holocl}{basicstyle=\holoclthyfont,%
                      commentstyle=\itshape,%
                      keywordstyle=\holoclthykeywordstyle,%
@@ -255,10 +255,10 @@
 {\sbox\oclpage{\emph{\small(\OCL Specification~\cite{#1}, %
                page #2)}}%
            % \begin{quote}}
-	       \begin{addmargin}[2em]{0pt}%
+               \begin{addmargin}[2em]{0pt}%
                  \begin{minipage}{\linewidth}%
                    \vspace{.6\baselineskip}
-	       \rule{\linewidth}{.5pt}}
+               \rule{\linewidth}{.5pt}}
 {\hspace*{\fill}\nolinebreak[1]%
  \quad\hspace*{\fill}%
  \finalhyphendemerits=0%
@@ -475,7 +475,7 @@
 \DeclareMathOperator{\HolOclCall}{\HolOcl{Call}}
 
 \DeclareMathOperator{\HolOclOidOf}{\HolOcl{OidOf}}
-\DeclareMathOperator{\HolOclModifiedOnly}{\HolOcl{modifiedOnly}}
+\DeclareMathOperator{\HolOclIsModifiedOnly}{\HolOcl{oclIsModifiedOnly}}
 
 
 \DeclareMathOperator{\HolOclPre}{pre}
@@ -654,7 +654,7 @@
 
 %%%
 %%%
-%%% 
+%%%
 
 \newcommand{\spot}{.\;}
 \newcommand{\DevelopmentSpot}{\textcolor{black!95}{\bullet}\;}
@@ -717,7 +717,7 @@
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% end: old hol-ocl-ng style 
+%% end: old hol-ocl-ng style
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
@@ -758,13 +758,13 @@
     \newHolOcl{DropRight}{\mathclose}{\urcorner}
  }{
    \newHolOcl{LiftLeft}{\mathopen}
-   	{\leavevmode\lower.6ex\hbox{$\llcorner$}\kern-.20em}
+        {\leavevmode\lower.6ex\hbox{$\llcorner$}\kern-.20em}
    \newHolOcl{LiftRight}{\mathclose}
-   	{\leavevmode\kern-.20em\lower.6ex\hbox{$\lrcorner$}}
+        {\leavevmode\kern-.20em\lower.6ex\hbox{$\lrcorner$}}
    \newHolOcl{DropLeft}{\mathopen}
-   	{\leavevmode\lower-.2ex\hbox{$\ulcorner$}\kern-.18em}
+        {\leavevmode\lower-.2ex\hbox{$\ulcorner$}\kern-.18em}
    \newHolOcl{DropRight}{\mathclose}
-   	{\leavevmode\kern-.18em\lower-.2ex\hbox{$\urcorner$}}
+        {\leavevmode\kern-.18em\lower-.2ex\hbox{$\urcorner$}}
 }
  % \newHolOcl{DropLeft}{\mathopen}{\ulcorner}
  % \newHolOcl{DropRight}{\mathclose}{\urcorner}
@@ -786,7 +786,7 @@
 %       \newMathOcl{AllInstances}{\mathbin}{\isasymOclAllInstances}
    %; ******************************
    %; * OCL Boolean                *
-   %; ****************************** 
+   %; ******************************
    \newMathOcl{Valid}{\mathrel}{\vDash}
        \newOcl{Valid}{\mathrel}{Valid}
        \newOcl{LocalValid}{\mathrel}{OclValid}
@@ -802,8 +802,8 @@
    \newMathOcl{False}{\mathord}{\mathocl{F}}
        \newOcl{False}{\mathord}{false}
    }
-   \newMathOcl{Not}{\mathop}{\lnot} 
-       \newOcl{Not}{\mathop}{not\ap} 
+   \newMathOcl{Not}{\mathop}{\lnot}
+       \newOcl{Not}{\mathop}{not\ap}
 
    \newMathOcl{And}{\mathbin}{\wedge}
        \newOcl{And}{\mathbin}{\ap and}
@@ -900,7 +900,7 @@
        \newMathOcl{ToUpper}{\mathop}{\isasymOclToUpper}
    \newOcl{ToLower}{\mathop}{.toLowert()}
        \newMathOcl{ToLower}{\mathop}{\isasymOclToLower}
- 
+
    %; ******************************
    %; * OCL Collection             *
    %; ******************************
@@ -952,7 +952,7 @@
    \newOcl{Iterate}{\mathbin}{\aarrow iterate}
        \newMathOcl{Iterate}{\mathop}{\isasymOclIterate}
    \newOcl{IsUnique}{\mathbin}{\aarrow isUnique}
-       \newMathOcl{IsUnique}{\mathbin}{\isasymOclIsUnique}  
+       \newMathOcl{IsUnique}{\mathbin}{\isasymOclIsUnique}
    \newOcl{One}{\mathbin}{\aarrow one}
        \newMathOcl{One}{\mathop}{\isasymOclOne}
    \newOcl{Any}{\mathbin}{\aarrow any}
@@ -970,7 +970,7 @@
 
    \newOcl{SortedBy}{\mathbin}{\aarrow sortedBy}
       \newMathOcl{SortedBy}{\mathbin}{\isasymOclSortedBy}
- 
+
 
    \newOcl{Sum}{\mathbin}{\aarrow sum()}
        \newMathOcl{Sum}{\mathop}{\isasymOclSum}
@@ -990,7 +990,7 @@
        \newOcl{Intersection}{\mathbin}{\aarrow intersection}
    \newMathOcl{Complement}{\mathop}{^{-1}}
        \newOcl{Complement}{\mathop}{\aarrow complement()}
- 
+
   \newMathOcl{At}{\mathop}{\natural}
        \newOcl{At}{\mathop}{\aarrow at}
   \newMathOcl{First}{\mathop}{\natural 1}
@@ -1009,7 +1009,7 @@
        \newMathOcl{SubOrderedSet}{\mathop}{\isasymOclSubOrderedSet}
    \newOcl{SubSequence}{\mathbin}{\aarrow subSequence}
        \newMathOcl{SubSequence}{\mathop}{\isasymOclSubSequence}
- 
+
 
 
    %; ******************************
@@ -1037,14 +1037,14 @@
        \newMathOcl{StrictEq}{\mathrel}{\doteq}
     \newOcl{StrongEq}{\mathrel}{=}
        \newMathOcl{StrongEq}{\mathrel}{\triangleq}
- 
+
     \newOcl{StrongNotEq}{\mathrel}{\not=}
        \newMathOcl{StrongNotEq}{\mathrel}{\not\triangleq}
-   
+
    \newOcl{StrictNotEq}{\mathrel}{<>}
        \newMathOcl{StrictNotEq}{\mathrel}{\not\doteq}
 
- 
+
    \newOcl{StrictValueEq}{\mathrel}{\ensuremath{\sim==}}
        \newMathOcl{StrictValueEq}{\mathrel}{\dot{\simeq}}
    \newOcl{StrongValueEq}{\mathrel}{\ensuremath{\sim=}}
@@ -1060,7 +1060,7 @@
       \newMathOcl{StrongDeepValueEq}{\mathrel}{\stackrel{\smalltriangleup}{\approxeq}}%
     }{%
       \newMathOcl{StrongDeepValueEq}{\mathrel}{\stackrel{\vartriangle}{\approxeq}}%
-    } 
+    }
    %\newOcl{RefEq}{\mathrel}{~=}
    %    \newMathOcl{RefEq}{\mathrel}{\simeq}
    %; ******************************
@@ -1070,17 +1070,17 @@
    % \newMathOcl{Iny/sNew}{}
    % \newMathOcl{IsKind}{}
    % \newMathOcl{AsType}{}
-   % \newMathOcl{InState}{} 
+   % \newMathOcl{InState}{}
    % \newMathOcl{AllInstances}{}
-   % \newMathOcl{MethodCall}{} 
+   % \newMathOcl{MethodCall}{}
    % \newMathOcl{FeatureCall}{}
 
-   \newOcl{ModifiedOnly}{\mathbin}{\aarrow modifiedOnly()}
-       \newMathOcl{ModifiedOnly}{\mathbin}{\isasymOclModifiedOnly}
+   \newOcl{IsModifiedOnly}{\mathbin}{\aarrow oclIsModifiedOnly()}
+       \newMathOcl{IsModifiedOnly}{\mathbin}{\isasymOclIsModifiedOnly}
 
    \newOcl{AllInstances}{\mathbin}{.allInstances()}
        \newMathOcl{AllInstances}{\mathbin}{\isasymOclAllInstances}
-   
+
    \newOcl{KindSetOf}{\mathbin}{::kindSetOf()}
        \newMathOcl{KindSetOf}{\mathbin}{\isasymOclKindSetOf}
 
@@ -1089,7 +1089,7 @@
 
    \newOcl{AllInstancesATpre}{\mathbin}{.allInstances@pre()}
        \newMathOcl{AllInstancesATpre}{\mathbin}{\isasymOclAllInstancesATpre}
-   
+
    \newOcl{ATpre}{\mathbin}{@pre}
        \newMathOcl{ATpre}{\mathbin}{\isasymOclATpre}
 
