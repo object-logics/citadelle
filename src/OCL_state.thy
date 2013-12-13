@@ -393,16 +393,19 @@ text{* In order to denote OCL-types occuring in OCL expressions syntactically --
 as "argument" of allInstances --- we use the inverses of the injection functions into the object
 universes; we show that this is sufficient "characterization". *}
 
-definition [simp]: "OclAllInstances = (\<lambda> fst_snd H \<tau>.
-                 Abs_Set_0 \<lfloor>\<lfloor> Some ` ((H ` ran (heap (fst_snd \<tau>))) - { None }) \<rfloor>\<rfloor>)"
+definition OclAllInstances_generic :: "(('\<AA>::object) st \<Rightarrow> '\<AA> state) \<Rightarrow> ('\<AA>::object \<rightharpoonup> '\<alpha>) \<Rightarrow> 
+                                       ('\<AA>, '\<alpha> option option) Set"
+where [simp]: "OclAllInstances_generic fst_snd H =  
+                    (\<lambda>\<tau>. Abs_Set_0 \<lfloor>\<lfloor> Some ` ((H ` ran (heap (fst_snd \<tau>))) - { None }) \<rfloor>\<rfloor>)"
 
-definition OclAllInstances_at_post :: "('\<AA> \<Rightarrow> '\<alpha> option) \<Rightarrow> ('\<AA> :: object, '\<alpha> option option) Set"
+
+definition OclAllInstances_at_post :: "('\<AA> :: object \<rightharpoonup> '\<alpha>) \<Rightarrow> ('\<AA>, '\<alpha> option option) Set"
                            ("_ .allInstances'(')")
-where  "OclAllInstances_at_post H \<tau> = OclAllInstances snd H \<tau>"
+where  "OclAllInstances_at_post H =  OclAllInstances_generic snd H "
 
-definition OclAllInstances_at_pre :: "('\<AA> \<Rightarrow> '\<alpha> option) \<Rightarrow> ('\<AA> ::object, '\<alpha> option option) Set"
+definition OclAllInstances_at_pre :: "('\<AA> :: object \<rightharpoonup> '\<alpha>) \<Rightarrow> ('\<AA>, '\<alpha> option option) Set"
                            ("_ .allInstances@pre'(')")
-where  "OclAllInstances_at_pre H \<tau> = OclAllInstances fst H \<tau>"
+where  "OclAllInstances_at_pre H = OclAllInstances_generic fst H "
 
 lemma OclAllInstances_defined: "\<tau> \<Turnstile> \<delta> (X .allInstances())"
  apply(simp add: defined_def OclValid_def OclAllInstances_at_post_def bot_fun_def bot_Set_0_def null_fun_def null_Set_0_def false_def true_def)
@@ -454,7 +457,8 @@ proof -
  by (metis insert_Diff_if option.distinct(1) singletonE)
 
  show ?thesis
-  apply(simp add: OclIncluding_def allinst_def[simplified OclValid_def] OclAllInstances_at_post_def)
+  apply(simp add: OclIncluding_def allinst_def[simplified OclValid_def],
+       simp add: OclAllInstances_at_post_def)
   apply(subst Abs_Set_0_inverse, simp add: bot_option_def, simp add: comp_def)
   apply(subst image_insert[symmetric])
   apply(subst drop_none, simp add: assms)
