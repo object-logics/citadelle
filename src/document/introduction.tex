@@ -1,5 +1,44 @@
 \part{Introduction}
 \chapter{Motivation}
+
+
+
+
+  The Unified Modeling Language (UML) is one of the few modeling
+  languages that is widely used in industry. While UML is mostly known
+  as diagrammatic modeling language (\eg, visualizing class models),
+  it also comprises a textual language, called OCL. OCL is a textual
+  annotation language, based on a three-valued logic, that turns UML
+  into a formal language.  Unfortunately the semantics of this
+  specification language, captured in the ``Annex A'' of the OCL
+  standard leads to different interpretations of corner cases.  Many
+  of these corner cases had been subject to formal analysis since more
+  than ten years.
+
+  Since version 2.3 (released The situation complicated when with
+  version 2.3 the OCL was aligned with the latest version of UML: this
+  led to the extension of the three-valued logic by a second exception
+  element, called \mocl{null}.  While the first exception element
+  \mocl{undefined} has a strict semantics, \mocl{null} has a non
+  strict semantic interpretation. These semantic difficulties lead to
+  remarkable confusion for implementors of \OCL compilers and
+  interpreters.
+
+  In this paper, we provide a formalization of the core of OCL in
+  HOL. It provides denotational definitions, a logical calculus and
+  operational rules that allow for the execution of OCL expressions by
+  a mixture of term rewriting and code compilation.  Our formalization
+  reveals several inconsistencies and contradictions in the current
+  version of the OCL standard.  They reflect a challenge to define and
+  implement OCL tools in a uniform manner.  Overall, this document is
+  intended to provide the basis for a machine-checked text ``Annex A''
+  of the OCL standard targeting at tool implementors.
+
+
+  \cite{brucker.ea:summary-aachen:2013}
+
+  \cite{brucker.ea:semantic:2006-b}
+
 At its origins~\cite{richters:precise:2002,omg:ocl:1997}, \OCL was
 conceived as a strict semantics for undefinedness, with the exception
 of the logical connectives of type \inlineocl{Boolean} that constitute
@@ -34,19 +73,147 @@ iterators and key operators.
 
 \fixme{to be introduced here somewhere. We need this later.}
  \OCL is composed of
- \begin{inparaenum}[1)]
+ \begin{enumerate}
  \item operators on built-in data structures such as Boolean, Integer or Set(\_),
  \item operators of the user-defined data model such as accessors,
    type casts and tests, and
  \item user-defined, side-effect-free methods.
- \end{inparaenum}
+ \end{enumerate}
 
 
-% sane default for proof documents
-\parindent 0pt\parskip 0.5ex
 
 
 \chapter{Background}
+
+
+\subsection{A guided tour through
+  \texorpdfstring{\acs{uml}/\acs{ocl}}{UML/OCL}}
+\label{sec:guidedtour}
+The \acf{uml} comprises a variety of model types for describing static
+(\eg, class models, object models) and dynamic (\eg, state-machines,
+activity graphs) system properties.
+\begin{figure*}
+  \centering\scalebox{.8
+  }{\includegraphics{figures/AbstractSimpleChair}}%
+  \caption{A simple \acs{uml} class model representing a conference
+    system for organizing conference sessions: persons can
+    participate, in different roles, in a session. \label{fig:uml}}
+\end{figure*}
+One of the more prominent model types of the \acs{uml} is the
+\emph{class model} (visualized as \emph{class diagram}) for modeling
+the underlying data model of a system in an object-oriented manner. As
+a running example, we model a part of a conference management
+system. Such a system usually supports the conference organizing
+process, \eg, creating a conference Website, reviewing submissions,
+registering attendees, organizing the different sessions and tracks,
+and indexing and producing the resulting proceedings. In this example,
+we constrain ourselves to the process of organizing conference
+sessions; \autoref{fig:uml} shows the class model.  We model the
+hierarchy of roles of our system as a hierarchy of classes (\eg,
+\inlineocl{Hearer}, \inlineocl{Speaker}, or \inlineocl{Chair}) using
+an \emph{inheritance} relation (also called \emph{generalization}). In
+particular, \emph{inheritance} establishes a \emph{subtyping}
+relationship, \ie, every \inlineocl{Speaker} (\emph{subclass}) is also
+a \inlineocl{Hearer} (\emph{superclass}).
+
+A class does not only describe a set of \emph{instances} (called
+\emph{objects}), \ie, record-like data consisting of \emph{attributes}
+such as \inlineocl{name} of class \inlineocl{Session}, but also
+\emph{operations} defined over them. For example, for the class
+\inlineocl{Session}, representing a conference session, we model an
+operation \inlineocl{findRole(p:Person):Role} that should return the
+role of a \inlineocl{Person} in the context of a specific session;
+later, we will describe the behavior of this operation in more detail
+using \acs{ocl}. In the following, the term object describes a
+(run-time) instance of a class or one of its subclasses.
+
+Relations between classes (called \emph{associations} in \acs{uml})
+can be represented in a class diagram by connecting lines, \eg,
+\inlineocl{Participant} and \inlineocl{Session} or \inlineocl{Person}
+and \inlineocl{Role}. Associations may be labelled by a particular
+constraint called \emph{multiplicity}, \eg, \inlineocl+0..*+ or
+\inlineocl+0..1+, which means that in a relation between participants
+and sessions, each \inlineocl{Participant} object is associated to at
+most one \inlineocl{Session} object, while each \inlineocl{Session}
+object may be associated to arbitrarily many \inlineocl{Participant}
+objects. Furthermore, associations may be labelled by projection
+functions like \inlineocl{person} and \inlineocl{role}; these implicit
+function definitions allow for \OCL-expressions like
+\inlineocl+self.person+, where \inlineocl+self+ is a variable of the
+class \inlineocl{Role}. The expression \inlineocl+self.person+ denotes
+persons being related to the a specific object \inlineocl{self} of
+type role. A particular feature of the \UML are \emph{association
+  classes} (\inlineocl{Participant} in our example) which represent a
+concrete tuple of the relation within a system state as an object;
+\ie, associations classes allow also for defining attributes and
+operations for such tuples. In a class diagram, association classes
+are represented by a dotted line connecting the class with the
+association. Associations classes can take part in other associations.
+Moreover, \acs{uml} supports also $n$-ary associations (not shown in
+our example).
+
+We refine this data model using the \acf{ocl} for specifying additional
+invariants, preconditions and postconditions of operations. For
+example, we specify that objects of the class \inlineocl{Person} are
+uniquely determined by the value of the \inlineocl{name} attribute and
+that the attribute \inlineocl{name} is not equal to the empty string
+(\inlineocl{''}):
+\begin{ocl}
+context Person
+  inv: name $\isasymMathOclStrictNotEq$ '' $\isasymMathOclAnd$
+       Person::allInstances()->isUnique(p:Person | p.name)
+\end{ocl}
+Moreover, we specify that every session has exactly one chair by the
+following invariant (called \inlineocl{onlyOneChair}) of the class
+\inlineocl{Session}:
+\begin{ocl}
+context Session
+  inv onlyOneChair:
+      self.participants->one( p:Participant | $\isType{Chair}{(\mathtt{p.role})}$)
+\end{ocl}
+where $\isType{Chair}{(\mathtt{p.role})}$ evaluates to true, if
+\inlineocl{p.role} is of \emph{dynamic type}
+\inlineocl{Chair}. Besides the usual \emph{static types} (\ie, the
+types inferred by a static type inference), objects in \acs{uml} and
+other object-oriented languages have a second \emph{dynamic} type
+concept.  This is a consequence of a family of \emph{casting
+  functions} (written $\typeCast{o}{C}$ for an object $o$ into another
+class type $C$) that allows for converting the static type of objects
+along the class hierarchy. The dynamic type of an object can be
+understood as its ``initial static type'' and is unchanged by casts
+(see \autoref{sec:semantics} for details). We complete our example by
+describing the behavior of the operation \inlineocl{findRole} as
+follows:
+\begin{ocl}
+context Session::findRole(person:Person):Role
+  pre:  person $\isasymMathOclIncludes$ self.participates.person
+  post: result=self.participants->one(p:Participant |
+                                p.person $\isasymMathOclStrictEq$ person ).role
+        $\isasymMathOclAnd$ self.participants $\isasymMathOclStrictEq$ self.participants@pre
+        $\isasymMathOclAnd$ self.name $\isasymMathOclStrictEq$ self.name@pre
+\end{ocl}
+where in post-conditions, the operator \inlineocl{@pre} allows for
+accessing the previous state.
+
+In \acs{uml}, classes can contain attributes of the type of the
+defining class.  Thus, \acs{uml} can represent (mutually) recursive
+datatypes. Moreover, \acs{ocl} introduces also recursively specified
+operations.
+
+A key idea of defining the semantics of \UML and extensions like
+SecureUML~\cite{brucker.ea:transformation:2006} is to translate the
+diagrammatic \acs{uml} features into a combination of more elementary
+features of \acs{uml} and \acs{ocl}
+expressions~\cite{gogolla.ea:expressing:2001}. For example,
+associations are usually represented by collection-valued class
+attributes together with \OCL constraints expressing the
+multiplicity. Thus, having a semantics for a subset of \UML and \OCL
+is tantamount for the foundation of the entire method.
+
+
+
+
+
 
 \section{Formal Foundation}
 
@@ -361,7 +528,7 @@ different notions of ``undefinedness,'' \ie, \inlineocl{invalid} and
 the tradition of
 \holocl~\cite{brucker.ea:hol-ocl:2008,brucker.ea:hol-ocl-book:2006},
 Featherweight \OCL is based on the following principles:
-\begin{compactenum}
+\begin{enumerate}
 \item It is an embedding into a powerful semantic meta-language and
   environment, namely
   Isabelle/\acs{hol}~\cite{nipkow.ea:isabelle:2002}.
@@ -405,7 +572,7 @@ Featherweight \OCL is based on the following principles:
   subcalculus ``cp''---for three-valued \acs{ocl} 2.0---is given
   in~\cite{brucker.ea:semantics:2009}), which is nasty but can be
   hidden from the user inside tools.
-\end{compactenum}
+\end{enumerate}
 
 \section{The Theory Organization}
 The semantic theory is organized in a quite conventional manner in
@@ -431,12 +598,12 @@ objects and object universes were excluded from a presentation here.
 
 \subsection{Denotational Semantics}
  \OCL is composed of
- \begin{inparaenum}[1)]
+ \begin{enumerate}
  \item operators on built-in data structures such as Boolean, Integer or Set(A),
  \item operators of the user-defined data-model such as accessors,
    type-casts and tests, and
  \item user-defined, side-effect-free methods.
- \end{inparaenum}
+ \end{enumerate}
  Conceptually, an \OCL expression in general and Boolean expressions in
  particular (\ie, \emph{formulae}) that depends on the pair $(\sigma,
  \sigma')$ of pre-and post-state.  The precise form of states is
@@ -915,9 +1082,9 @@ well as skipping technical details of the formalization.
 Thus, applying the Featherweight \OCL approach to writing an updated
 Annex A that provides a formal semantics of the most fundamental
 concepts of \OCL would ensure
-\begin{inparaenum}
+\begin{enumerate}
 \item that all formal context is syntactically correct and well-typed,
   and
 \item all formal definitions and the derived logical rules are
   semantically consistent.
-\end{inparaenum}
+\end{enumerate}

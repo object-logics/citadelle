@@ -47,6 +47,10 @@ session "OCL" in src = HOL +
     "OCL_main"
   files
     "document/root.tex"
+    "document/root.bib"
+    "document/conclusion.tex"  
+    "document/formalization.tex"  
+    "document/introduction.tex"
 
 session "OCL-examples" in src = OCL +
   options [quick_and_dirty, document = pdf, document_variants="document:outline=/proof,/ML"]
@@ -55,15 +59,21 @@ session "OCL-examples" in src = OCL +
     "../examples/Employee_DesignModel_OCLPart"
   files
     "document/root.tex"
+    "document/root.bib"
+    "document/conclusion.tex"  
+    "document/formalization.tex"  
+    "document/introduction.tex"
 
 session "OCL-AFP" in src = HOL +
   description {* HOL-TestGen *}
-  options [quick_and_dirty, document = pdf, document_variants="document:outline=/proof,/ML"]
+  options [quick_and_dirty, document = pdf, document_output=document_generated,document_variants="document:outline=/proof,/ML"]
   theories
     "OCL_main"
     "../examples/Employee_AnalysisModel_OCLPart"
     "../examples/Employee_DesignModel_OCLPart"
   files
     "document/root.tex"
-
-
+    "document/root.bib"
+    "document/conclusion.tex"  
+    "document/formalization.tex"  
+    "document/introduction.tex"

@@ -359,7 +359,7 @@ representation all $\oid$'s are either $\nullid$ or element of the domain of the
 state.
 
 We deliberately decided against this option for the following reasons:
-\begin{compactenum}
+\begin{enumerate}
 \item \emph{methodologically} we do not like to constrain the semantics of \OCL
   without clear reason; in particular, ``dangling references'' exist in C and
   \Cpp{} programs and it might be necessary to write contracts for them, and
@@ -374,7 +374,7 @@ We deliberately decided against this option for the following reasons:
     of universe extensions are involved, but implemented in \holocl
     (see~\cite{brucker.ea:extensible:2008-b} for details). However, these
     constructions exclude knowing the set of sub-$\oid$'s in advance.}
-\end{compactenum} We can model $\Null{}$-elements as object-representations
+\end{enumerate} We can model $\Null{}$-elements as object-representations
 with $\nullid$ as their $\oid$:
 \begin{definition}[Representation of $\Null{}$-Elements]
   Let $C_i$ be a class type with the attributes $A_1, \ldots, A_n$. Then we
