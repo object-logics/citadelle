@@ -971,6 +971,10 @@ by(auto simp: OclValid_def true_def)
 
 lemmas cp_validity=foundation23
 
+lemma foundation24:"(\<tau> \<Turnstile> not(X \<triangleq> Y)) = (X \<tau> \<noteq> Y \<tau>)"
+by(simp add: StrongEq_def  OclValid_def OclNot_def true_def)
+
+
 lemma defined_not_I : "\<tau> \<Turnstile> \<delta> (x) \<Longrightarrow> \<tau> \<Turnstile> \<delta> (not x)"
   by(auto simp: OclNot_def null_def invalid_def defined_def valid_def OclValid_def
                   true_def false_def bot_option_def null_option_def null_fun_def bot_fun_def
