@@ -49,7 +49,7 @@ begin
 
 section{* Introduction: States over Typed Object Universes *}
 text{* As mentioned earlier, 
-the \OCL is composed of
+the OCL is composed of
  \begin{inparaenum}[1)]
  \item operators on built-in data structures such as Boolean, Integer or Set(\_),
  \item operators of the user-defined data model such as accessors,
@@ -62,18 +62,18 @@ text{* In the following, we will refine the concepts of a user-defined
 data-model (implied by a class-diagram) as well as 
 the notion of $\state{}$ used in the
 previous section to much more detail.  In contrast to wide-spread
-opinions, \UML class diagrams represent in a compact and visual manner
+opinions, UML class diagrams represent in a compact and visual manner
 quite complex, object-oriented data-types with a surprisingly rich
 theory. It is part of our endeavor here to make this theory explicit
-and to point out corner cases.  A \UML class diagram---underlying a
-given \OCL formula---produces a number of implicit operations which
-become accessible via appropriate \OCL syntax:
+and to point out corner cases.  A UML class diagram---underlying a
+given OCL formula---produces a number of implicit operations which
+become accessible via appropriate OCL syntax:
 *}
 
 text{*
 \begin{compactenum}
 \item Classes and class names (written as $C_1$, \ldots, $C_n$), which
-  become types of data in \OCL\@. Class names declare two projector
+  become types of data in OCL\@. Class names declare two projector
   functions to the set of all objects in a state:
   $C_i$\inlineocl{.allInstances()} and
   $C_i$\inlineocl{.allInstances}$\isasymOclATpre$\inlineocl{()},
@@ -96,9 +96,9 @@ text{*
 *}
 
 text{* Assuming a strong static type discipline in the sense of
-Hindley-Milner types, Featherweight \OCL has no ``syntactic subtyping''.
+Hindley-Milner types, Featherweight OCL has no ``syntactic subtyping''.
  This does not mean that subtyping can not be expressed
-\emph{semantically} in Featherweight \OCL; by giving a formal
+\emph{semantically} in Featherweight OCL; by giving a formal
 semantics to type-casts, subtyping becomes an issue of the front-end
 that can make implicit type-coersions explicit by introducing explicit
 type-casts. Our perspective shifts the emphasis on the semantic
@@ -132,7 +132,7 @@ collections over them).
 
 text{*
 In a shallow embedding which must represent
-\UML types injectively by \HOL types, there are two fundamentally
+UML types injectively by HOL types, there are two fundamentally
 different ways to construct such a set of object representations,
 which we call an \emph{object universe} $\mathfrak{A}$:
 \begin{compactenum}
@@ -143,7 +143,7 @@ which we call an \emph{object universe} $\mathfrak{A}$:
     the class hierarchy}, leading to an \emph{open world semantics}.
 \end{compactenum}
 For the sake of simplicity, we chose the first option for
-Featherweight \OCL, while \holocl~\cite{brucker.ea:extensible:2008-b}
+Featherweight OCL, while \holocl~\cite{brucker.ea:extensible:2008-b}
 used an involved construction allowing the latter.
 
 *}
@@ -167,7 +167,7 @@ text{*
 It is possible to define constructors, accessors, and the referential
 equality on this object universe. However, the treatment of type casts
 and type tests cannot be faithful with common object-oriented
-semantics, be it in \UML or Java: casting up along the class hierarchy
+semantics, be it in UML or Java: casting up along the class hierarchy
 can only be implemented by loosing information, such that casting up
 and casting down will \emph{not} give the required identity:
 *}
@@ -205,10 +205,10 @@ $\{C_{j_{1}}, \ldots, C_{j_{m}}\}$.
 *}
 
 text{*
-This construction can \emph{not} be done in \HOL itself since it
+This construction can \emph{not} be done in HOL itself since it
 involves quantifications and iterations over the ``set of class-types'';
 rather, it is a meta-level construction.  Technically, this means that
-we need a compiler to be done in \SML on the syntactic
+we need a compiler to be done in SML on the syntactic
 ``meta-model''-level of a class model.
 *}
 
@@ -333,7 +333,7 @@ condition is also mentioned in~\cite[Annex A]{omg:ocl:2012} and goes
 back to \citet{richters:precise:2002}; however, we state this
 condition as an invariant on states rather than a global axiom. It
 can, therefore, not be taken for granted that an $\oid$ makes sense
-both in pre- and post-states of \OCL expressions.
+both in pre- and post-states of OCL expressions.
 *}
 
 text{* We capture this invariant in the predicate WFF :*}

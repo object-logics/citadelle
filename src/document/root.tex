@@ -1,7 +1,6 @@
 \documentclass[11pt,a4paper,openright,twoside,abstracton]{scrreprt}
 \usepackage{isabelle,isabellesym}
 \usepackage[nocolortable, noaclist]{hol-ocl-isar}
-\usepackage{fmde-acronyms}
 \usepackage{paralist}
 \usepackage{booktabs}
 \usepackage{graphicx}
@@ -125,7 +124,7 @@
 
 \newcommand{\obj}{\mathit{obj}}
 
-\newcommand{\testgen}{\acs{hol}-TestGen\xspace}
+\newcommand{\testgen}{HOL-TestGen\xspace}
 \DeclareMathOperator{\vars}{\mathit{vars}}
 \renewcommand{\to}{\Rightarrow}
 \newcommand{\HolRef}{\mathrm{ref}}
@@ -210,10 +209,10 @@
   Since version 2.3 (released The situation complicated when with
   version 2.3 the OCL was aligned with the latest version of UML: this
   led to the extension of the three-valued logic by a second exception
-  element, called \mocl{null}.  While the first exception element
-  \mocl{undefined} has a strict semantics, \mocl{null} has a non
+  element, called \inlineocl{null}.  While the first exception element
+  \inlineocl{undefined} has a strict semantics, \inlineocl{null} has a non
   strict semantic interpretation. These semantic difficulties lead to
-  remarkable confusion for implementors of \OCL compilers and
+  remarkable confusion for implementors of OCL compilers and
   interpreters.
 
   In this paper, we provide a formalization of the core of OCL in
@@ -239,7 +238,6 @@
 % optional bibliography
 \bibliographystyle{abbrv}
 \bibliography{root} %,fmde}
-\listofacronyms{}
 
 \end{document}
 

@@ -273,15 +273,15 @@ higher-order unification.
 
 \subsection{Higher-order logic}
 \emph{Higher-order logic}
-(\HOL)~\cite{church:types:1940,andrews:introduction:2002} is a
+(HOL)~\cite{church:types:1940,andrews:introduction:2002} is a
 classical logic based on a simple type system.  It provides the usual
 logical connectives like $\_ \land \_$, $\_ \implies\_$, $\lnot \_ $
 as well as the object-logical quantifiers $\forall x\spot P\ap x$ and
 $\exists x\spot P\ap x$; in contrast to first-order logic, quantifiers
 may range over arbitrary types, including total functions
-$f\ofType\alpha \Rightarrow \beta$. \HOL is centered around
+$f\ofType\alpha \Rightarrow \beta$. HOL is centered around
 extensional equality $\_ = \_ \ofType \alpha \Rightarrow \alpha
-\Rightarrow \text{bool}$.  \HOL is more expressive than first-order
+\Rightarrow \text{bool}$.  HOL is more expressive than first-order
 logic, since, \eg, induction schemes can be expressed inside the
 logic. Being based on some polymorphically typed $\lambda$-calculus,
 HOL can be viewed as a combination of a programming language
@@ -289,18 +289,18 @@ like SML or Haskell and a specification language providing
 powerful logical quantifiers ranging over elementary and function
 types.
 
-Isabelle/\HOL is a logical embedding of \HOL into Isabelle.  The
-(original) simple-type system underlying \HOL has been extended by
+Isabelle/HOL is a logical embedding of HOL into Isabelle.  The
+(original) simple-type system underlying HOL has been extended by
 Hindley-Milner style polymorphism with type-classes similar to
-Haskell.  While Isabelle/\HOL is usually seen as proof assistant, we
+Haskell.  While Isabelle/HOL is usually seen as proof assistant, we
 use it as symbolic computation environment. Implementations on top of
-Isabelle/\HOL can re-use existing powerful deduction mechanisms such
+Isabelle/HOL can re-use existing powerful deduction mechanisms such
 as higher-order resolution, tableaux-based reasoners, rewriting
 procedures, Presburger arithmetic, and via various integration
 mechanisms, also external provers such as Vampire and the
 SMT-solver Z3.
 
-Isabelle/\HOL offers support for a particular methodology to extend
+Isabelle/HOL offers support for a particular methodology to extend
 given theories in a logically safe way: A theory-extension is
 \emph{conservative} if the extended theory is consistent provided that
 the original theory was consistent.  Conservative extensions can be
@@ -319,7 +319,7 @@ $\alpha \isasymrightharpoonup \beta$ are defined as functions $\alpha
 ($\dom\;\_$) and range ($\ran\;\_$).
 
 As another example of a conservative extension, typed sets were built
-in the Isabelle libraries conservatively on top of the kernel of \HOL
+in the Isabelle libraries conservatively on top of the kernel of HOL
 as functions to $\HolBoolean$; consequently, the constant definitions
 for membership is as follows:\footnote{To increase readability, we use
   a slightly simplified presentation.}
@@ -419,7 +419,7 @@ is quite involved; however, the logical compiler will finally derive
 all the equations in the statements above from this definition and
 make them available for automated simplification.
 
-Thus, Isabelle/\HOL also provides a large collection of theories like
+Thus, Isabelle/HOL also provides a large collection of theories like
 sets, lists, multisets, orderings, and various arithmetic theories
 which only contain rules derived from conservative definitions. In
 particular, Isabelle manages a set of \emph{executable types and
@@ -447,10 +447,10 @@ processed when constructing test theorems.
 % classical logic with equality enriched by total polymorphic
 % higher-order functions. It is more expressive than first-order logic,
 % \eg, induction schemes can be expressed inside the
-% logic. Pragmatically, \HOL can be viewed as ``Haskell with
+% logic. Pragmatically, HOL can be viewed as ``Haskell with
 % Quantifiers.''
 
-% \HOL is based on the typed $\lambda$-calculus, \ie, the \emph{terms} of \HOL are
+% HOL is based on the typed $\lambda$-calculus, \ie, the \emph{terms} of HOL are
 % $\lambda$-expressions.  Types of terms may be built from \emph{type
 %   variables}\index{type variables} (like $\alpha$, $\beta$, \ldots, optionally
 % annotated by Haskell-like \emph{type classes}\index{type class} as in
@@ -461,11 +461,11 @@ processed when constructing test theorems.
 % applications like
 % $\tau_1\isasymRightarrow(\ldots\isasymRightarrow(\tau_n\isasymRightarrow\tau_{n+1})\ldots)$
 % have the alternative syntax $[\tau_1, \ldots, \tau_n] \isasymRightarrow
-% \tau_{n+1}$. \HOL is centered around the extensional logical equality $\_=\_$
+% \tau_{n+1}$. HOL is centered around the extensional logical equality $\_=\_$
 % with type $[\alpha, \alpha] \isasymRightarrow \HolBoolean$, where $\HolBoolean$
 % is the fundamental logical type.  We use infix notation: instead of
 % $(\_=\_)~E_1~E_2$ we write $E_1=E_2$. The logical connectives $\_\isasymand\_$,
-% $\_\isasymor\_$, $\_\to\_$ of \HOL have type $[\HolBoolean, \HolBoolean]
+% $\_\isasymor\_$, $\_\to\_$ of HOL have type $[\HolBoolean, \HolBoolean]
 % \isasymRightarrow \HolBoolean$, $\isasymnot\_$ has type $\HolBoolean
 % \isasymRightarrow \HolBoolean$. The quantifiers $\isasymforall\_.\_$ and
 % $\isasymexists\_.\_$ have type $[\alpha \isasymRightarrow \HolBoolean]
@@ -475,8 +475,8 @@ processed when constructing test theorems.
 % $\{\_.\_\}$, as well as $\_\isasymunion\_$ and $\_\isasyminter\_$ are standard.
 
 % Isabelle is a theorem is generic interactive theorem proving system;
-% Isabelle/\HOL is an instance of the former with \HOL.  The
-% Isabelle/\HOL library contains formal definitions and theorems for a
+% Isabelle/HOL is an instance of the former with HOL.  The
+% Isabelle/HOL library contains formal definitions and theorems for a
 % wide range of mathematical concepts used in computer science,
 % including typed set theory, well-founded recursion theory, number
 % theory and theories for data-structures like Cartesian products
@@ -562,7 +562,7 @@ The semantic theory is organized in a quite conventional manner in
 three layers. The first layer, called the \emph{denotational
   semantics} comprises a set of definitions of the operators of the
 language.  Presented as \emph{definitional axioms} inside
-Isabelle/\HOL, this part assures the logically consistency of the
+Isabelle/HOL, this part assures the logically consistency of the
 overall construction. The second layer, called \emph{logical layer},
 is derived from the former and centered around the notion of validity
 of an OCL formula $P$ for a state-transition from pre-state $\sigma$
@@ -596,11 +596,11 @@ objects and object universes were excluded from a presentation here.
  elements $\HolBot$ and $\HolNull$. Any type of the form
  $\up{(\up{\alpha})}$ is an instance of this type-class with $\HolBot
  \equiv \isasymbottom$ and $\HolNull \equiv \lift{\isasymbottom}$.
-Now, any OCL type can be represented by an \HOL type of the form:
+Now, any OCL type can be represented by an HOL type of the form:
 \begin{equation*}
   \V{}{\alpha} \defeq \state{} \times \state{} \to \alpha \ofType \TCnull \mi{.}
 \end{equation*}
-On this basis, we define $\V{}{\up{(\up{\HolBoolean })}}$ as the \HOL
+On this basis, we define $\V{}{\up{(\up{\HolBoolean })}}$ as the HOL
 type for the OCL type $\mocl{Boolean}$ by and define:
 \begin{gather*}
 \begin{alignedat}{3}
@@ -706,7 +706,7 @@ follows:
  $[\V{}{\up{(\up{\HolInteger})}}, \V{}{\up{(\up{\HolInteger})}}] \Rightarrow
  \V{}{\up{(\up{\HolInteger})}}$ while the ``$+$'' on the right-hand side of
  the equation of type $[\HolInteger,\HolInteger]\Rightarrow
- \HolInteger$ denotes the integer-addition from the \HOL library.
+ \HolInteger$ denotes the integer-addition from the HOL library.
 
 \subsection{Logical Layer}
 The topmost goal of the logic for OCL is to define the \emph{validity statement}:
@@ -780,7 +780,7 @@ property that is characterized by $P(X)$ equals $\lambda \tau\spot
 P(\lambda \_\spot X \tau) \tau$. It means that the state tuple $\tau =
 (\sigma, \sigma')$ is passed unchanged from surrounding expressions to
 sub-expressions. it is true for all pure OCL expressions (but not
-arbitrary mixtures of OCL and \HOL) in Featherweight OCL.  The
+arbitrary mixtures of OCL and HOL) in Featherweight OCL.  The
 necessary side-calculus for establishing $\HolOclCp$ can be fully
 automated.
 
@@ -823,7 +823,7 @@ formulas.
 Based on the logical layer, we build a system with simpler rules which
 are amenable to automated reasoning. We restrict ourselves to pure
 equations on OCL expressions, where the used equality is the
-meta-(\HOL-)equality.
+meta-(HOL-)equality.
 
 Our denotational definitions on \inlineocl+not+ and \inlineocl+and+
 can be re-formulated in the following ground equations:

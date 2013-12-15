@@ -34,7 +34,7 @@ where $\state{}$ stands for the system state and $\state{} \times
 \state{}$ describes the pair of pre-state and post-state and
 $\_\defeq\_$ denotes the type abbreviation.
 
-The \OCL semantics~\cite[Annex A]{omg:ocl:2003} uses different interpretation
+The OCL semantics~\cite[Annex A]{omg:ocl:2003} uses different interpretation
 functions for invariants and pre-conditions; we achieve their semantic effect by
 a syntactic transformation $\__\text{pre}$ which replaces all accessor functions
 $\getAttrib{\_}{a}$ by their counterparts
@@ -43,9 +43,8 @@ $\getAttrib{\_}{a\isasymOclATpre}$. For example, $(\getAttrib{\self}{a} >
 
 \subsection{Strict Operations}%
 \label{sec:strict-ops}%
-\enlargethispage{1em}
 An operation is called strict if it returns $\isasymbottom$ if one of its
-arguments is $\isasymbottom$. Most \acs{ocl} operations are strict, \eg, the
+arguments is $\isasymbottom$. Most {OCL} operations are strict, \eg, the
 Boolean negation is formally presented as:
 \begin{align*}
 I\semantics{\isasymOclNot X}\tau & \equiv
@@ -57,9 +56,9 @@ I\semantics{\isasymOclNot X}\tau & \equiv
 \end{align*}
 where $\tau = (\sigma, \sigma')$ and $I\semantics{\_}$ is a notation marking the
 \holocl constructs to be defined. This notation is motivated by the definitions
-in the \acs{ocl} standard~\cite{omg:ocl:2003}. In our case, $I\semantics{\_}$ is
+in the {OCL} standard~\cite{omg:ocl:2003}. In our case, $I\semantics{\_}$ is
 just the identity, \ie, $I\semantics{X}\equiv X$.  These constructs, \ie,
-$\isasymOclNot \_$ are \HOL functions (in this case of \HOL type
+$\isasymOclNot \_$ are HOL functions (in this case of HOL type
 $\V{}{\HolBoolean} \to \V{}{\HolBoolean}$) that can be viewed as
 \emph{transformers on evaluations}.
 
@@ -74,7 +73,7 @@ I\semantics{X \isasymMathOclPlus Y}\ap \tau & \equiv
    \end{cases}
 \end{align*}
 Here, the operator $\_+\_$ on the right refers to the integer
-\acs{hol} operation with type $[\HolInteger, \HolInteger] \to
+{HOL} operation with type $[\HolInteger, \HolInteger] \to
 \HolInteger$.  The type of the corresponding strict \holocl operator
 $\_\isasymMathOclPlus\_$ is $[\V{}{\HolInteger}, \V{}{\HolInteger}]
 \to \V{}{\HolInteger}$.
@@ -106,7 +105,7 @@ We introduce the following type abbreviations:
   & \OclSequence[]{\alpha} &\defeq \V{}{\HolList{\alpha}}\mi{.}
 \end{align*}
 The mapping of an expression \inlineocl+E+ of
-\holocl type \inlineocl+T+ to a \acs{hol} expression $E$ of \acs{hol} type $T$
+\holocl type \inlineocl+T+ to a {HOL} expression $E$ of {HOL} type $T$
 is injective and preserves well-typedness.
 
 \subsection{Boolean Operators}
@@ -130,11 +129,11 @@ follows:
   I\semantics{Y}\ap \tau)\mi{,}
 \end{align*}
 where the $\_ = \_$ operator on the right denotes the logical equality of
-\acs{hol}. The undefinedness test is defined by $X\isasymOclIsInvalid \equiv
+{HOL}. The undefinedness test is defined by $X\isasymOclIsInvalid \equiv
 (X \isasymMathOclStrongEq \OclUndef)$. The strong equality can be
 used to state reduction rules like: $\tau \isasymMathOclValid (\OclUndef
-\isasymMathOclStrictEq X) \isasymMathOclStrongEq \OclUndef$.  The \acs{ocl}
-standard requires a \acl{skl}. In particular:
+\isasymMathOclStrictEq X) \isasymMathOclStrongEq \OclUndef$.  The {OCL}
+standard requires a Strong Kleene Logic (SKL). In particular:
 \begin{align*}
   I\semantics{X \isasymOclAnd~Y}\tau & \equiv
   \begin{cases}
@@ -264,8 +263,8 @@ in~\cite{brucker.ea:extensible:2008-b}, together with other details of the
 construction above and its automation in \holocl.
 
 \section{A Proposal for an OCL 2.1 Semantics}\label{sec:hol-ocl2-semantics}
-In this section, we describe our \OCL 2.1 semantics proposal as an increment to
-the \OCL 2.0 semantics (underlying \holocl and essentially formalizing
+In this section, we describe our OCL 2.1 semantics proposal as an increment to
+the OCL 2.0 semantics (underlying \holocl and essentially formalizing
 \cite[Annex A]{omg:ocl:2003}). In later versions of the
 standard~\cite{omg:ocl:2006} the formal semantics appendix reappears although
 being incompatible with the normative parts of the standard.  Not all rules
@@ -273,10 +272,10 @@ shown here are formally proven; technically, these are informal proofs ``with a
 glance'' on the formal proofs shown in the previous section.
 
 \subsection{Revised Operations on Primitive Types}
-In \UML, and since~\cite{omg:ocl:2006} in \OCL, all primitive types comprise the
+In UML, and since~\cite{omg:ocl:2006} in OCL, all primitive types comprise the
 $\Null{}$-element, modeling the possibility to be non-existent. From a
 functional language perspective, this corresponds to the view that each basic
-value is a type like \inlinesml{int option} as in \acs{sml}. Technically, this
+value is a type like \inlinesml{int option} as in SML. Technically, this
 results in lifting any primitive type twice:
 \begin{gather*}
   \OclInteger[]  \defeq \V{}{\up{\HolInteger}}\mi{, etc.}
@@ -306,7 +305,6 @@ resulting principle here is that operations on the primitive types Boolean,
 Integer, Real, and String treat null as invalid (except $\_
 \isasymMathOclStrictEq \_ $, $\_\isasymOclIsInvalid$, $\_\isasymOclIsUndefined$,
 casts between the different representations of $\isasymOclNull$, and type-tests).
-\enlargethispage{1em}
 
 This principle is motivated by our intuition that invalid represents known
 errors, and null-arguments of operations for Boolean, Integer, Real, and String
@@ -330,7 +328,7 @@ case $(X+Y)\isasymOclIsInvalid$\footnote{The same holds for
   $(X+Y)\isasymOclIsUndefined$.} there are four possible cases for the failure
 instead of two in the semantics described in~\cite{omg:ocl:2003}: each
 expression can be an erroneous $\isasymOclNull{}$, or report an error. However,
-since all built-in \OCL operations yield non-null elements (\eg, we have the rule
+since all built-in OCL operations yield non-null elements (\eg, we have the rule
 $\isasymOclNot (X + Y \isasymMathOclStrictEq \Null{\OclInteger[]})$), a
 pre-computation can drastically reduce the number of cases occurring in
 expressions except for the base case of variables (\eg, parameters of operations
@@ -360,12 +358,12 @@ state.
 
 We deliberately decided against this option for the following reasons:
 \begin{enumerate}
-\item \emph{methodologically} we do not like to constrain the semantics of \OCL
+\item \emph{methodologically} we do not like to constrain the semantics of OCL
   without clear reason; in particular, ``dangling references'' exist in C and
   \Cpp{} programs and it might be necessary to write contracts for them, and
 \item \emph{semantically}, the condition ``no dangling references'' can only be
   formulated with the complete knowledge of all classes and their layout in
-  form of object representations.  This restricts the \OCL semantics to a closed
+  form of object representations.  This restricts the OCL semantics to a closed
   world model.\footnote{In our presentation, the definition of \inlineocl+state+
     in \autoref{sec:hol-ocl-semantics} assumes a closed world. This limitation
     can be easily overcome by leaving ``polymorphic holes'' in our object
@@ -397,7 +395,7 @@ constants by parametrized polymorphism which allows us to drop the index in this
 environment.
 
 The referential strict equality allows us to write $\self
-\isasymMathOclStrictEq \isasymOclNull$ in \OCL. Recall that $\_ \isasymMathOclStrictEq \_$
+\isasymMathOclStrictEq \isasymOclNull$ in OCL. Recall that $\_ \isasymMathOclStrictEq \_$
 is based on the projection $\HolOclOidOf$ from object-representations.
 
 \subsection{Revised Accessors}
@@ -454,7 +452,7 @@ possible to define a counterpart to \inlineocl+_.oclIsNew()+ called
 \inlineocl+_.oclIsDeleted()+ which asks if an object id (represented by an object
 representation) is contained in the pre-state, but not the post-state.
 
-\OCL does not guarantee that an operation only modifies the path-expressions
+OCL does not guarantee that an operation only modifies the path-expressions
 mentioned in the postcondition, \ie, it allows arbitrary relations from
 pre-states to post-states.  This framing problem is well-known (one of the
 suggested solutions is~\cite{kosiuczenko:specification:2006}). We define
@@ -478,7 +476,7 @@ where $X' = I\semantics{X} (\sigma, \sigma')$ and $M=
 (\dom~\sigma\cap\dom~\sigma') - \{ \HolOclOidOf x |~x \in\drop{X'}\}$.  Thus, if
 we require in a postcondition \inlineocl|Set{}->oclIsModifiedOnly()| and exclude via
 \inlineocl+_.oclIsNew()+ and \inlineocl+_.oclIsDeleted()+ the existence of new
-or deleted objects, the operation is a query in the sense of the \OCL standard, \ie,
+or deleted objects, the operation is a query in the sense of the OCL standard, \ie,
 the \inlineocl|isQuery| property is true. So, whenever we have $ \tau
 \isasymMathOclValid X\isasymMathOclIsModifiedOnly$ and $ \tau
 \isasymMathOclValid X\isasymOclExcludes(s.a)$, we can infer that $\tau
@@ -498,7 +496,7 @@ the evaluation is not required to yield a non-null value. In this case an
 evaluation of the attribute can return $\isasymOclNull$ to indicate an
 absence of value.
 
-To facilitate accessing attributes with multiplicity \inlineocl{0..1}, the \OCL
+To facilitate accessing attributes with multiplicity \inlineocl{0..1}, the OCL
 standard states that single values can be used as sets by calling collection
 operations on them. This implicit conversion of a value to a
 \inlineocl{Set} is not defined by the standard. We argue that the resulting set
@@ -517,7 +515,7 @@ context OclAny::asSet():T
 \subsection{Collection-Valued Attributes}\label{subsec:collection-valued-properties}
 If the upper bound specified by the attribute's multiplicity is larger than one,
 then an evaluation of the attribute yields a collection of values.  This raises
-the question whether $\isasymOclNull$ can belong to this collection. The \OCL
+the question whether $\isasymOclNull$ can belong to this collection. The OCL
 standard states that $\isasymOclNull$ can be owned by collections. However, if
 an attribute can evaluate to a collection containing $\isasymOclNull$, it is not
 clear how multiplicity constraints should be interpreted for this attribute. The
@@ -525,13 +523,13 @@ question arises whether the $\isasymOclNull$ element should be counted or not
 when determining the cardinality of the collection. Recall that $\isasymOclNull$
 denotes the absence of value in the case of a cardinality upper bound of one, so
 we would assume that $\isasymOclNull$ is not counted. On the other hand, the
-operation \inlineocl{size} defined for collections in \OCL does count
+operation \inlineocl{size} defined for collections in OCL does count
 $\isasymOclNull$.
 
 We propose to resolve this dilemma by regarding multiplicities as optional. This
-point of view complies with the \UML standard, that does not require lower and
+point of view complies with the UML standard, that does not require lower and
 upper bounds to be defined for multiplicities.\footnote{We are however aware
-  that a well-formedness rule of the \UML standard does define a default bound
+  that a well-formedness rule of the UML standard does define a default bound
   of one in case a lower or upper bound is not specified.} In case a
 multiplicity is specified for an attribute, \ie, a lower and an upper bound
 are provided, we require any collection the attribute evaluates to to not
@@ -552,11 +550,11 @@ completely unrestricted.
 
 \subsection{The Precise Meaning of Multiplicity Constraints}
 We are now ready to define the meaning of multiplicity constraints by giving
-equivalent invariants written in \OCL. Let \inlineocl{a} be an attribute of a
+equivalent invariants written in OCL. Let \inlineocl{a} be an attribute of a
 class \inlineocl{C} with a multiplicity specifying a lower bound $m$ and an
 upper bound $n$. Then we can define the multiplicity constraint on the values of
 attribute \inlineocl{a} to be equivalent to the following invariants written in
-\OCL:
+OCL:
 \begin{ocl}
 context C inv lowerBound: a->size() >= m
           inv upperBound: a->size() <= n
