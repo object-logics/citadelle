@@ -1,6 +1,6 @@
 \part{A Formal Semantics of OCL 2.3 in Isabelle/HOL}
-\section{Formal and Technical Background}
-\subsection{Validity and Evaluations}
+\chapter{Formal and Technical Background}
+\section{Validity and Evaluations}
 The topmost goal of the formal semantics is to define the
 \emph{validity statement}:
 \begin{equation*}
@@ -41,7 +41,7 @@ $\getAttrib{\_}{a}$ by their counterparts
 $\getAttrib{\_}{a\isasymOclATpre}$. For example, $(\getAttrib{\self}{a} >
 5)_\text{pre}$ is just $(\getAttrib{\self}{a\isasymOclATpre} > 5)$.
 
-\subsection{Strict Operations}%
+\section{Strict Operations}%
 \label{sec:strict-ops}%
 An operation is called strict if it returns $\isasymbottom$ if one of its
 arguments is $\isasymbottom$. Most {OCL} operations are strict, \eg, the
@@ -74,7 +74,7 @@ I\semantics{X \isasymMathOclPlus Y}\ap \tau & \equiv
 \end{align*}
 Here, the operator $\_+\_$ on the right refers to the integer
 {HOL} operation with type $[\HolInteger, \HolInteger] \to
-\HolInteger$.  The type of the corresponding strict \holocl operator
+\HolInteger$.  The type of the corresponding strict operator
 $\_\isasymMathOclPlus\_$ is $[\V{}{\HolInteger}, \V{}{\HolInteger}]
 \to \V{}{\HolInteger}$.
 %
@@ -108,7 +108,7 @@ The mapping of an expression \inlineocl+E+ of
 \holocl type \inlineocl+T+ to a {HOL} expression $E$ of {HOL} type $T$
 is injective and preserves well-typedness.
 
-\subsection{Boolean Operators}
+\section{Boolean Operators}
 There is a small number of explicitly stated exceptions from the general rule
 that \holocl operators are strict: the strong equality, the definedness operator
 and the logical connectives.  As a prerequisite, we define the logical constants
@@ -152,7 +152,7 @@ just shortcuts: $X \isasymOclOr Y \equiv \isasymOclNot (\isasymOclNot X
 X \isasymOclOr Y$.
 
 
-\subsection{Object-oriented Data Structures}%
+\section{Object-oriented Data Structures}%
 Now we turn to several families of operations that the user implicitly defines
 when stating a class model as logical context of a specification. This is the
 part of the language where object-oriented features such as type casts, accessor
@@ -169,7 +169,7 @@ two dynamic type tests
 (denoted $\isType{\text{$C_i$}}{\_}$ and $\isKind{\text{$C_i$}}{\_}$ ).
 A precise formal definition can be found in~\cite{brucker.ea:semantics:2009}.
 
-\subsubsection{Class models: A simplified semantics.}
+\subsection{Class models: A simplified semantics.}
 In this section, we will have to clarify the notions of \emph{object
   identifiers}, \emph{object representations}, \emph{class types} and
 \emph{state}. We will give a formal model for this, that will satisfy all
@@ -212,7 +212,7 @@ where $\inv_\sigma(f)$ states two conditions:
 The latter condition is also mentioned in~\cite[Annex A]{omg:ocl:2003} and
 goes back to Mark Richters~\cite{richters:precise:2002}.
 
-\subsection{The Accessors}
+\section{The Accessors}
 On states built over object universes, we can now define accessors, casts, and
 type tests of an object model. We consider the case of an attribute $\mathrm{a}$
 of class $C$ which has the simple class type $D$ (not a primitive type, not a
@@ -262,16 +262,16 @@ The definitions of casts and type tests can be found
 in~\cite{brucker.ea:extensible:2008-b}, together with other details of the
 construction above and its automation in \holocl.
 
-\section{A Proposal for an OCL 2.1 Semantics}\label{sec:hol-ocl2-semantics}
+\chapter{A Proposal for an OCL 2.3 Semantics}\label{sec:hol-ocl2-semantics}
 In this section, we describe our OCL 2.1 semantics proposal as an increment to
 the OCL 2.0 semantics (underlying \holocl and essentially formalizing
 \cite[Annex A]{omg:ocl:2003}). In later versions of the
-standard~\cite{omg:ocl:2006} the formal semantics appendix reappears although
+standard~\cite{omg:ocl:2006,omg:ocl:2012} the formal semantics appendix reappears although
 being incompatible with the normative parts of the standard.  Not all rules
 shown here are formally proven; technically, these are informal proofs ``with a
 glance'' on the formal proofs shown in the previous section.
 
-\subsection{Revised Operations on Primitive Types}
+\section{Revised Operations on Primitive Types}
 In UML, and since~\cite{omg:ocl:2006} in OCL, all primitive types comprise the
 $\Null{}$-element, modeling the possibility to be non-existent. From a
 functional language perspective, this corresponds to the view that each basic
@@ -323,8 +323,7 @@ operations we have the rule:
 \end{multline*}
 where the test $x\isasymOclIsUndefined$ covers  two cases:
 $x\isasymOclIsInvalid$ and $x \isasymMathOclStrictEq \isasymOclNull$ (\ie, $x$
-is $\isasymOclInvalid$ or $\isasymOclNull$).  As a consequence, for the inverse
-case $(X+Y)\isasymOclIsInvalid$\footnote{The same holds for
+is $\isasymOclInvalid$ or $\isasymOclNull$).  As a consequence, for  $(X+Y)\isasymOclIsInvalid$\footnote{The same holds for
   $(X+Y)\isasymOclIsUndefined$.} there are four possible cases for the failure
 instead of two in the semantics described in~\cite{omg:ocl:2003}: each
 expression can be an erroneous $\isasymOclNull{}$, or report an error. However,
@@ -343,7 +342,7 @@ collection, there is a $\Null{Set(T)}$ collection as well as collections that
 contain null values (such as $\text{Set}\{\Null{T}\}$) but never
 $\isasymOclUndefined$.
 
-\subsection{Null in Class Types}
+\section{Null in Class Types}
 It is a viable option to rule out undefinedness in object-graphs \emph{as such}.
 The essential source for such undefinedness are $\oid$'s which do not occur in
 the state, \ie, which represent ``dangling references.'' Ruling out
@@ -361,17 +360,19 @@ We deliberately decided against this option for the following reasons:
 \item \emph{methodologically} we do not like to constrain the semantics of OCL
   without clear reason; in particular, ``dangling references'' exist in C and
   \Cpp{} programs and it might be necessary to write contracts for them, and
-\item \emph{semantically}, the condition ``no dangling references'' can only be
-  formulated with the complete knowledge of all classes and their layout in
-  form of object representations.  This restricts the OCL semantics to a closed
-  world model.\footnote{In our presentation, the definition of \inlineocl+state+
-    in \autoref{sec:hol-ocl-semantics} assumes a closed world. This limitation
-    can be easily overcome by leaving ``polymorphic holes'' in our object
-    representation universe, \ie, by extending the type sum in the state
-    definition to $C_1 + \cdots + C_n + \alpha$.  The details of the management
-    of universe extensions are involved, but implemented in \holocl
-    (see~\cite{brucker.ea:extensible:2008-b} for details). However, these
-    constructions exclude knowing the set of sub-$\oid$'s in advance.}
+\item \emph{semantically}, the condition ``no dangling references''
+  can only be formulated with the complete knowledge of all classes
+  and their layout in form of object representations.  This restricts
+  the OCL semantics to a closed world model.\footnote{In our
+    presentation, the definition of \inlineocl+state+ assumes a closed
+    world. This limitation can be easily overcome by leaving
+    ``polymorphic holes'' in our object representation universe, \ie,
+    by extending the type sum in the state definition to $C_1 + \cdots
+    + C_n + \alpha$.  The details of the management of universe
+    extensions are involved, but implemented in \holocl
+    (see~\cite{brucker.ea:extensible:2008-b} for details). However,
+    these constructions exclude knowing the set of sub-$\oid$'s in
+    advance.}
 \end{enumerate} We can model $\Null{}$-elements as object-representations
 with $\nullid$ as their $\oid$:
 \begin{definition}[Representation of $\Null{}$-Elements]
@@ -398,7 +399,7 @@ The referential strict equality allows us to write $\self
 \isasymMathOclStrictEq \isasymOclNull$ in OCL. Recall that $\_ \isasymMathOclStrictEq \_$
 is based on the projection $\HolOclOidOf$ from object-representations.
 
-\subsection{Revised Accessors}
+\section{Revised Accessors}
 %Having introduced $\Null{}$-elements,
 The modification of the accessor functions
 is now straight-forward:
@@ -418,7 +419,6 @@ shown in this paper, see~\cite{brucker.ea:extensible:2008-b} for details---can
 be generalized accordingly. In the sequel, we will discuss the resulting
 properties of these modified accessors.
 
-\clearpage
 All functions of the induced signature are strict.  This means that this holds
 for accessors, casts and tests, too:
 \begin{multline*}
@@ -442,7 +442,7 @@ for all attributes $a$ and classes $A$, $B$, $C$ where $C<B<A$. These rules are
 further exceptions from the standard's general rule that $\Null{}$ may never be
 passed as first (``$\self$'') argument.
 
-\subsection{Other Operations on States}
+\section{Other Operations on States}
 Defining $\_\isasymOclAllInstances$
 is straight-forward; the only difference is the property
 $T\isasymOclAllInstances\isasymOclExcludes(\isasymOclNull)$ which is a
@@ -482,13 +482,13 @@ the \inlineocl|isQuery| property is true. So, whenever we have $ \tau
 \isasymMathOclValid X\isasymOclExcludes(s.a)$, we can infer that $\tau
 \isasymMathOclValid s.a = s.a\isasymOclATpre$ (if they are valid).
 
-\section{Attribute Values}\label{sec:multiplicities}
+\chapter{Attribute Values}\label{sec:multiplicities}
 Depending on the specified multiplicity, the evaluation of an attribute can
 yield a value or a collection of values. A multiplicity defines a lower bound as
 well as a possibly infinite upper bound on the cardinality of the attribute's
 values.
 
-\subsection{Single-Valued Attributes}\label{subsec:single-valued-properties}
+\section{Single-Valued Attributes}\label{sec:single-valued-properties}
 If the upper bound specified by the attribute's multiplicity is one, then an
 evaluation of the attribute yields a single value. Thus, the evaluation result
 is not a collection. If the lower bound specified by the multiplicity is zero,
@@ -512,7 +512,7 @@ context OclAny::asSet():T
 \end{ocl}
 % Changed self.isTypeOf(OCLVoid) to self = null to make it easier for the superficial reader
 
-\subsection{Collection-Valued Attributes}\label{subsec:collection-valued-properties}
+\section{Collection-Valued Attributes}\label{sec:collection-valued-properties}
 If the upper bound specified by the attribute's multiplicity is larger than one,
 then an evaluation of the attribute yields a collection of values.  This raises
 the question whether $\isasymOclNull$ can belong to this collection. The OCL
@@ -548,7 +548,7 @@ not only restricted by multiplicities, but also by other constraints enforcing
 the semantics of associations. Hence, the values of association ends cannot be
 completely unrestricted.
 
-\subsection{The Precise Meaning of Multiplicity Constraints}
+\section{The Precise Meaning of Multiplicity Constraints}
 We are now ready to define the meaning of multiplicity constraints by giving
 equivalent invariants written in OCL. Let \inlineocl{a} be an attribute of a
 class \inlineocl{C} with a multiplicity specifying a lower bound $m$ and an
@@ -562,7 +562,7 @@ context C inv lowerBound: a->size() >= m
 \end{ocl}
 If the upper bound $n$ is infinite, the second invariant is omitted. For the
 definition of these invariants we are making use of the conversion of single
-values to sets described in \autoref{subsec:single-valued-properties}. If $n
+values to sets described in \autoref{sec:single-valued-properties}. If $n
 \leq 1$, the attribute \inlineocl{a} evaluates to a single value, which is then
 converted to a \inlineocl{Set} on which the \inlineocl{size} operation is
 called.
@@ -580,7 +580,8 @@ omit the multiplicity.
 
 
 \input{session}
+
 %%% Local Variables: 
 %%% mode: latex
 %%% TeX-master: "root"
-
+%%% End:
