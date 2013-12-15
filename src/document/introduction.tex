@@ -1,105 +1,90 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% TODO: 
+%%%%%%%
+% 1) Motivation: Achim: Deadline Monday
+%   - motivation with respect to history/glitches
+%   - mention aachen meeting and RFP (Machine-generated document)
+%   - include intro to OCL introudctioin
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \part{Introduction}
 \chapter{Motivation}
+The Unified Modeling Language
+(UML)~\cite{omg:uml-infrastructure:2011,omg:uml-superstructure:2011}
+is one of the few modeling languages that is widely used in
+industry. While UML is mostly known as diagrammatic modeling language
+(\eg, visualizing class models), it also comprises a textual language,
+called Object Constraint Language (OCL)~\cite{omg:ocl:2012}. OCL is a
+textual annotation language, based on a three-valued logic, that turns
+UML into a formal language.  Unfortunately the semantics of this
+specification language, captured in the ``Annex A'' (originally, based
+on the work of Richters~\cite{richters:precise:2002}) of the OCL
+standard leads to different interpretations of corner cases.  Many of
+these corner cases had been subject to formal analysis since more than
+nearly fifteen years (see,
+\eg,~\cite{brucker.ea:semantic:2006-b,brucker.ea:proposal:2002,mandel.ea:ocl:1999,hamie.ea:reflections:1998,cook.ea::amsterdam:2002}).
 
-
-
-
-  The Unified Modeling Language (UML) is one of the few modeling
-  languages that is widely used in industry. While UML is mostly known
-  as diagrammatic modeling language (\eg, visualizing class models),
-  it also comprises a textual language, called OCL. OCL is a textual
-  annotation language, based on a three-valued logic, that turns UML
-  into a formal language.  Unfortunately the semantics of this
-  specification language, captured in the ``Annex A'' of the OCL
-  standard leads to different interpretations of corner cases.  Many
-  of these corner cases had been subject to formal analysis since more
-  than ten years.
-
-  Since version 2.3 (released The situation complicated when with
-  version 2.3 the OCL was aligned with the latest version of UML: this
-  led to the extension of the three-valued logic by a second exception
-  element, called \mocl{null}.  While the first exception element
-  \mocl{undefined} has a strict semantics, \mocl{null} has a non
-  strict semantic interpretation. These semantic difficulties lead to
-  remarkable confusion for implementors of \OCL compilers and
-  interpreters.
-
-  In this paper, we provide a formalization of the core of OCL in
-  HOL. It provides denotational definitions, a logical calculus and
-  operational rules that allow for the execution of OCL expressions by
-  a mixture of term rewriting and code compilation.  Our formalization
-  reveals several inconsistencies and contradictions in the current
-  version of the OCL standard.  They reflect a challenge to define and
-  implement OCL tools in a uniform manner.  Overall, this document is
-  intended to provide the basis for a machine-checked text ``Annex A''
-  of the OCL standard targeting at tool implementors.
-
-
-  \cite{brucker.ea:summary-aachen:2013}
-
-  \cite{brucker.ea:semantic:2006-b}
-
-At its origins~\cite{richters:precise:2002,omg:ocl:1997}, \OCL was
+At its origins~\cite{richters:precise:2002,omg:ocl:1997}, OCL was
 conceived as a strict semantics for undefinedness, with the exception
 of the logical connectives of type \inlineocl{Boolean} that constitute
-a three-valued propositional logic.  Recent versions of the \OCL
-standard~\cite{omg:ocl:2006,omg:ocl:2012} added a second exception
-element, which is given a non-strict semantics.  Unfortunately, this
-extension results in several inconsistencies and contradictions. These
-problems are reflected in difficulties to define interpreters,
-code-generators, specification animators or theorem provers for \OCL
-in a uniform manner and resulting incompatibilities of various
-tools. For the \OCL community, this results in the challenge to define
-a new formal semantics definition \OCL that could replace the ``Annex
-A'' of the \acs{ocl} standard~\cite{omg:ocl:2012}.
+a three-valued propositional logic. At its core, OCL comprises three
+layers: 
+\begin{enumerate}
+\item Operators (\eg, \inlineocl{_ and _}, \inlineocl{_ + _}) on
+  built-in data structures such as \inlineocl{Boolean},
+  \inlineocl{Integer}, or typed sets (\inlineocl{Set(_)}.
+\item Operators on the user-defined data model (\eg, defined in terms
+  of an UML class model) such as accessors, type casts and tests.
+\item Arbitrary, user-defined, side-effect-free methods.
+\end{enumerate}
 
-In the paper ``Extending \OCL with
-Null-References''~\cite{brucker.ea:ocl-null:2009} we explored---based
-on mathematical arguments and paper and pencil proofs---a consistent
-formal semantics that comprises two exception elements:
-\inlineocl{invalid} (``bottom'' in semantics terminology) and
-\inlineocl{null} (for ``non-existing element'').
+Motivated by the need for aligning OCL closer with UML, recent
+versions of the OCL standard~\cite{omg:ocl:2006,omg:ocl:2012} added a
+second exception element.  While the first exception element
+\mocl{undefined} has a strict semantics, \mocl{null} has a non strict
+semantic interpretation.  Unfortunately, this extension results in
+several inconsistencies and contradictions. These problems are
+reflected in difficulties to define interpreters, code-generators,
+specification animators or theorem provers for OCL in a uniform
+manner and resulting incompatibilities of various tools.
 
-This short paper is based on a formalization
-of~\cite{brucker.ea:ocl-null:2009}, called ``Featherweight \OCL,'' in
-Isabelle/\acs{hol}~\cite{nipkow.ea:isabelle:2002}.  This formalization
-is in its present form merely a semantical study and a proof of
-technology than a real tool. It focuses on the formalization of the
-key semantical constructions, \ie, the type \inlineocl{Boolean} and
-the logic, the type \inlineocl{Integer} and a standard strict operator
-library, and the collection type \inlineocl{Set(A)} with quantifiers,
-iterators and key operators.
+For the OCL community, this results in the challenge to define a
+consistent version of the OCL standard that is well aligned with the
+recent developments of the UML. A syntactical and semantical
+consistent standard requires a major revision of both the informal and
+formal parts of the standards. To discuss the future directions of the
+standard, a number of OCL experts decided to meet in November 2013 in
+Aachen for two days to discuss possible short term improvements of OCL
+for an upcoming OMG meeting and to envision possible future long-term
+developments of the
+language~\cite{brucker.ea:summary-aachen:2013}. During this meeting,
+the Request for Proposals (RFP) for OCL 2.5 was finalized. This RFP,
+in particular, demands that the OCL 2.5 standard document shall be
+generated from a machine-checked source. This will ensure 
+\begin{itemize}
+\item the absence of syntax errors and
+\item the consistency of the formal semantics. 
+\end{itemize}
 
-
-\fixme{to be introduced here somewhere. We need this later.}
- \OCL is composed of
- \begin{enumerate}
- \item operators on built-in data structures such as Boolean, Integer or Set(\_),
- \item operators of the user-defined data model such as accessors,
-   type casts and tests, and
- \item user-defined, side-effect-free methods.
- \end{enumerate}
-
-
+In this document, we present a formalization, using
+Isabelle/HOL~\cite{nipkow.ea:isabelle:2002} of the core language of
+OCL, called Featherweight OCL. This formal semantics definition OCL
+could, during the standardization process of OCL 2.5, replace the
+``Annex A'' of the OCL standard~\cite{omg:ocl:2012}.
 
 
 \chapter{Background}
-
-
-\subsection{A guided tour through
-  \texorpdfstring{\acs{uml}/\acs{ocl}}{UML/OCL}}
+\section{A guided tour through UML/OCL}
 \label{sec:guidedtour}
-The \acf{uml} comprises a variety of model types for describing static
-(\eg, class models, object models) and dynamic (\eg, state-machines,
-activity graphs) system properties.
+The Unified Modeling Language (UML) comprises a variety of model types
+for describing static (\eg, class models, object models) and dynamic
+(\eg, state-machines, activity graphs) system properties.
 \begin{figure*}
-  \centering\scalebox{.8
-  }{\includegraphics{figures/AbstractSimpleChair}}%
-  \caption{A simple \acs{uml} class model representing a conference
+  \centering\scalebox{1}{\includegraphics{figures/AbstractSimpleChair}}%
+  \caption{A simple UML class model representing a conference
     system for organizing conference sessions: persons can
     participate, in different roles, in a session. \label{fig:uml}}
 \end{figure*}
-One of the more prominent model types of the \acs{uml} is the
+One of the more prominent model types of the UML is the
 \emph{class model} (visualized as \emph{class diagram}) for modeling
 the underlying data model of a system in an object-oriented manner. As
 a running example, we model a part of a conference management
@@ -124,40 +109,40 @@ such as \inlineocl{name} of class \inlineocl{Session}, but also
 operation \inlineocl{findRole(p:Person):Role} that should return the
 role of a \inlineocl{Person} in the context of a specific session;
 later, we will describe the behavior of this operation in more detail
-using \acs{ocl}. In the following, the term object describes a
+using UML. In the following, the term object describes a
 (run-time) instance of a class or one of its subclasses.
 
-Relations between classes (called \emph{associations} in \acs{uml})
+Relations between classes (called \emph{associations} in UML)
 can be represented in a class diagram by connecting lines, \eg,
 \inlineocl{Participant} and \inlineocl{Session} or \inlineocl{Person}
-and \inlineocl{Role}. Associations may be labelled by a particular
+and \inlineocl{Role}. Associations may be labeled by a particular
 constraint called \emph{multiplicity}, \eg, \inlineocl+0..*+ or
 \inlineocl+0..1+, which means that in a relation between participants
 and sessions, each \inlineocl{Participant} object is associated to at
 most one \inlineocl{Session} object, while each \inlineocl{Session}
 object may be associated to arbitrarily many \inlineocl{Participant}
-objects. Furthermore, associations may be labelled by projection
+objects. Furthermore, associations may be labeled by projection
 functions like \inlineocl{person} and \inlineocl{role}; these implicit
-function definitions allow for \OCL-expressions like
+function definitions allow for OCL-expressions like
 \inlineocl+self.person+, where \inlineocl+self+ is a variable of the
 class \inlineocl{Role}. The expression \inlineocl+self.person+ denotes
 persons being related to the a specific object \inlineocl{self} of
-type role. A particular feature of the \UML are \emph{association
+type role. A particular feature of the UML are \emph{association
   classes} (\inlineocl{Participant} in our example) which represent a
 concrete tuple of the relation within a system state as an object;
 \ie, associations classes allow also for defining attributes and
 operations for such tuples. In a class diagram, association classes
 are represented by a dotted line connecting the class with the
 association. Associations classes can take part in other associations.
-Moreover, \acs{uml} supports also $n$-ary associations (not shown in
+Moreover, UML supports also $n$-ary associations (not shown in
 our example).
 
-We refine this data model using the \acf{ocl} for specifying additional
-invariants, preconditions and postconditions of operations. For
-example, we specify that objects of the class \inlineocl{Person} are
-uniquely determined by the value of the \inlineocl{name} attribute and
-that the attribute \inlineocl{name} is not equal to the empty string
-(\inlineocl{''}):
+We refine this data model using the Object Constraint Language (OCL)
+for specifying additional invariants, preconditions and postconditions
+of operations. For example, we specify that objects of the class
+\inlineocl{Person} are uniquely determined by the value of the
+\inlineocl{name} attribute and that the attribute \inlineocl{name} is
+not equal to the empty string (\inlineocl{''}):
 \begin{ocl}
 context Person
   inv: name $\isasymMathOclStrictNotEq$ '' $\isasymMathOclAnd$
@@ -174,16 +159,15 @@ context Session
 where $\isType{Chair}{(\mathtt{p.role})}$ evaluates to true, if
 \inlineocl{p.role} is of \emph{dynamic type}
 \inlineocl{Chair}. Besides the usual \emph{static types} (\ie, the
-types inferred by a static type inference), objects in \acs{uml} and
-other object-oriented languages have a second \emph{dynamic} type
-concept.  This is a consequence of a family of \emph{casting
-  functions} (written $\typeCast{o}{C}$ for an object $o$ into another
-class type $C$) that allows for converting the static type of objects
-along the class hierarchy. The dynamic type of an object can be
-understood as its ``initial static type'' and is unchanged by casts
-(see \autoref{sec:semantics} for details). We complete our example by
-describing the behavior of the operation \inlineocl{findRole} as
-follows:
+types inferred by a static type inference), objects in UML and other
+object-oriented languages have a second \emph{dynamic} type concept.
+This is a consequence of a family of \emph{casting functions} (written
+$\typeCast{o}{C}$ for an object $o$ into another class type $C$) that
+allows for converting the static type of objects along the class
+hierarchy. The dynamic type of an object can be understood as its
+``initial static type'' and is unchanged by casts. We complete our
+example by describing the behavior of the operation
+\inlineocl{findRole} as follows:
 \begin{ocl}
 context Session::findRole(person:Person):Role
   pre:  person $\isasymMathOclIncludes$ self.participates.person
@@ -195,20 +179,20 @@ context Session::findRole(person:Person):Role
 where in post-conditions, the operator \inlineocl{@pre} allows for
 accessing the previous state.
 
-In \acs{uml}, classes can contain attributes of the type of the
-defining class.  Thus, \acs{uml} can represent (mutually) recursive
-datatypes. Moreover, \acs{ocl} introduces also recursively specified
+In UML, classes can contain attributes of the type of the
+defining class.  Thus, UML can represent (mutually) recursive
+datatypes. Moreover, OCL introduces also recursively specified
 operations.
 
-A key idea of defining the semantics of \UML and extensions like
+A key idea of defining the semantics of UML and extensions like
 SecureUML~\cite{brucker.ea:transformation:2006} is to translate the
-diagrammatic \acs{uml} features into a combination of more elementary
-features of \acs{uml} and \acs{ocl}
+diagrammatic UML features into a combination of more elementary
+features of UML and OCL
 expressions~\cite{gogolla.ea:expressing:2001}. For example,
 associations are usually represented by collection-valued class
-attributes together with \OCL constraints expressing the
-multiplicity. Thus, having a semantics for a subset of \UML and \OCL
-is tantamount for the foundation of the entire method.
+attributes together with OCL constraints expressing the
+multiplicity. Thus, having a semantics for a subset of UML and OCL is
+tantamount for the foundation of the entire method.
 
 
 
@@ -223,7 +207,7 @@ Isabelle~\cite{nipkow.ea:isabelle:2002} is a \emph{generic} theorem
 prover. New object logics can be introduced by specifying their syntax
 and natural deduction inference rules. Among other logics, Isabelle
 supports first-order logic, Zermelo-Fraenkel set theory and the
-instance for Church's higher-order logic \acs{hol}, which we choose as
+instance for Church's higher-order logic (HOL), which we choose as
 basis for \testgen and which is introduced in the subsequent section.
 
 Isabelle's inference rules are based on the built-in meta-level
@@ -300,8 +284,8 @@ extensional equality $\_ = \_ \ofType \alpha \Rightarrow \alpha
 \Rightarrow \text{bool}$.  \HOL is more expressive than first-order
 logic, since, \eg, induction schemes can be expressed inside the
 logic. Being based on some polymorphically typed $\lambda$-calculus,
-\acs{hol} can be viewed as a combination of a programming language
-like \acs{sml} or Haskell and a specification language providing
+HOL can be viewed as a combination of a programming language
+like SML or Haskell and a specification language providing
 powerful logical quantifiers ranging over elementary and function
 types.
 
@@ -314,7 +298,7 @@ Isabelle/\HOL can re-use existing powerful deduction mechanisms such
 as higher-order resolution, tableaux-based reasoners, rewriting
 procedures, Presburger arithmetic, and via various integration
 mechanisms, also external provers such as Vampire and the
-\acs{smt}-solver Z3.
+SMT-solver Z3.
 
 Isabelle/\HOL offers support for a particular methodology to extend
 given theories in a logically safe way: A theory-extension is
@@ -351,7 +335,7 @@ for membership is as follows:\footnote{To increase readability, we use
      \where &\operatorname{member}\ap s\ap S &\equiv S s\\
   \end{array}
 \end{gather}
-Isabelle's powerful syntax engine is instructed to accept the notation
+Isabelle's syntax engine is instructed to accept the notation
 $\{x \mid P\}$ for $\operatorname{Collect}\ap\lambda x\spot P$ and the
 notation $s \in S$ for $\operatorname{member}\ap s\ap S$. As can be
 inferred from the example, constant definitions are axioms that
@@ -440,7 +424,7 @@ sets, lists, multisets, orderings, and various arithmetic theories
 which only contain rules derived from conservative definitions. In
 particular, Isabelle manages a set of \emph{executable types and
   operators}, \ie, types and operators for which a compilation to
-\acs{sml}, OCaml or Haskell is possible. Setups for arithmetic types
+SML, OCaml or Haskell is possible. Setups for arithmetic types
 such as $\text{int}$ have been done; moreover any datatype and any
 recursive function were included in this executable set (providing
 that they only consist of executable operators). Similarly, Isabelle
@@ -509,38 +493,37 @@ processed when constructing test theorems.
 % The library is built entirely by logically safe,
 % conservative definitions and derived rules.  This methodology is also
 % applied to \holocl~\cite{brucker.ea:hol-ocl:2008} and Featherweight
-% \OCL.
+% OCL.
 
 % For Journal - or long- version
-\subsection{Specification Constructs in Isabelle/\HOL}\label{sec:spec-constructs}
 
 
 \section{Featherweight OCL: Design Goals}
 % generated text of all theories
-Featherweight \acs{ocl} is a formalization of the core of \acs{ocl}
+Featherweight OCL is a formalization of the core of OCL
 aiming at formally investigating the relationship between the
 different notions of ``undefinedness,'' \ie, \inlineocl{invalid} and
 
 \inlineocl{null}. As such, it does not attempt to define the complete
-\acs{ocl} library. Instead, it concentrates on the core concepts of
-\acs{ocl} as well as the types \inlineocl{Boolean},
+OCL library. Instead, it concentrates on the core concepts of
+OCL as well as the types \inlineocl{Boolean},
 \inlineocl{Integer}, and typed sets (\inlineocl|Set(T)|).  Following
 the tradition of
 \holocl~\cite{brucker.ea:hol-ocl:2008,brucker.ea:hol-ocl-book:2006},
-Featherweight \OCL is based on the following principles:
+Featherweight OCL is based on the following principles:
 \begin{enumerate}
 \item It is an embedding into a powerful semantic meta-language and
   environment, namely
-  Isabelle/\acs{hol}~\cite{nipkow.ea:isabelle:2002}.
-\item It is a \emph{shallow embedding} in \acs{hol}; types
-  in \OCL were injectively mapped to types in Featherweight
-  \OCL. Ill-typed \OCL specifications cannot be represented in
-  Featherweight \OCL and a type in Featherweight \OCL contains exactly
-  the values that are possible in \OCL. Thus, sets may contain
+  Isabelle/HOL~\cite{nipkow.ea:isabelle:2002}.
+\item It is a \emph{shallow embedding} in HOL; types
+  in OCL were injectively mapped to types in Featherweight
+  OCL. Ill-typed OCL specifications cannot be represented in
+  Featherweight OCL and a type in Featherweight OCL contains exactly
+  the values that are possible in OCL. Thus, sets may contain
   \inlineocl{null} (\inlineocl|Set{null}| is a defined set) but not
   \inlineocl{invalid} (\inlineocl|Set{invalid}| is just
   \inlineocl{invalid}).
-\item Any Featherweight \OCL type contains at least
+\item Any Featherweight OCL type contains at least
   \inlineocl{invalid} and \inlineocl{null} (the type \inlineocl{Void}
   contains only these instances). The logic is consequently
   four-valued, and there is a \inlineocl{null}-element in the type
@@ -551,25 +534,25 @@ Featherweight \OCL is based on the following principles:
   \inlineocl{oclAsType()}). The details of such a pre-processing are
   described in~\cite{brucker:interactive:2007}.  Casts are semantic
   functions, typically injections, that may convert data between the
-  different Featherweight \OCL types.
+  different Featherweight OCL types.
 \item All objects are represented in an object universe in the \holocl
   tradition~\cite{brucker.ea:extensible:2008-b}. The universe
   construction also gives semantics to type casts, dynamic type
   tests, as well as functions such as \inlineocl{oclAllInstances()},
   or \inlineocl{oclIsNew()}.
-\item Featherweight \OCL types may be arbitrarily nested:
+\item Featherweight OCL types may be arbitrarily nested:
   \inlineocl|Set{Set{1,2}} = Set{Set{2,1}}| is legal and true.
-\item For demonstration purposes, the set type in Featherweight \OCL
+\item For demonstration purposes, the set type in Featherweight OCL
   may be infinite, allowing infinite quantification and a constant
   that contains the set of all Integers.  Arithmetic laws like
-  commutativity may therefore be expressed in \OCL itself.  The
+  commutativity may therefore be expressed in OCL itself.  The
   iterator is only defined on finite sets.
 \item It supports equational reasoning and congruence reasoning, but
   this requires a differentiation of the different equalities like
-  strict equality, strong equality, meta-equality (\acs{hol}). Strict
+  strict equality, strong equality, meta-equality (HOL). Strict
   equality and strong equality require a subcalculus, ``cp'' (a
   detailed discussion of the different equalities as well as the
-  subcalculus ``cp''---for three-valued \acs{ocl} 2.0---is given
+  subcalculus ``cp''---for three-valued OCL 2.0---is given
   in~\cite{brucker.ea:semantics:2009}), which is nasty but can be
   hidden from the user inside tools.
 \end{enumerate}
@@ -582,7 +565,7 @@ language.  Presented as \emph{definitional axioms} inside
 Isabelle/\HOL, this part assures the logically consistency of the
 overall construction. The second layer, called \emph{logical layer},
 is derived from the former and centered around the notion of validity
-of an \OCL formula $P$ for a state-transition from pre-state $\sigma$
+of an OCL formula $P$ for a state-transition from pre-state $\sigma$
 to post-state $\sigma'$, validity statements were written $(\sigma,
 \sigma') \models P$.  The third layer, called \emph{algebraic layer},
 also derived from the former layers, tries to establish a number of
@@ -597,14 +580,14 @@ details of the semantic construction for sets and the handling of
 objects and object universes were excluded from a presentation here.
 
 \subsection{Denotational Semantics}
- \OCL is composed of
+ OCL is composed of
  \begin{enumerate}
  \item operators on built-in data structures such as Boolean, Integer or Set(A),
  \item operators of the user-defined data-model such as accessors,
    type-casts and tests, and
  \item user-defined, side-effect-free methods.
  \end{enumerate}
- Conceptually, an \OCL expression in general and Boolean expressions in
+ Conceptually, an OCL expression in general and Boolean expressions in
  particular (\ie, \emph{formulae}) that depends on the pair $(\sigma,
  \sigma')$ of pre-and post-state.  The precise form of states is
  irrelevant for this paper (compare~\cite{brucker.ea:ocl-null:2009})
@@ -613,13 +596,12 @@ objects and object universes were excluded from a presentation here.
  elements $\HolBot$ and $\HolNull$. Any type of the form
  $\up{(\up{\alpha})}$ is an instance of this type-class with $\HolBot
  \equiv \isasymbottom$ and $\HolNull \equiv \lift{\isasymbottom}$.
- %\fixme{we need this para. bu}
-Now, any \OCL type can be represented by an \HOL type of the form:
+Now, any OCL type can be represented by an \HOL type of the form:
 \begin{equation*}
   \V{}{\alpha} \defeq \state{} \times \state{} \to \alpha \ofType \TCnull \mi{.}
 \end{equation*}
 On this basis, we define $\V{}{\up{(\up{\HolBoolean })}}$ as the \HOL
-type for the \OCL type $\mocl{Boolean}$ by and define:
+type for the OCL type $\mocl{Boolean}$ by and define:
 \begin{gather*}
 \begin{alignedat}{3}
 I\semantics{\mocl{invalid}\ofType V(\alpha)} \tau &\equiv \HolBot &
@@ -627,16 +609,12 @@ I\semantics{\mocl{null}\ofType V(\alpha)}  \tau    &\equiv \HolNull\\
 I\semantics{\mocl{true}\ofType\mocl{Boolean}} \tau &=\lfloor\lfloor
 \HolTrue\rfloor\rfloor &
 I\semantics{\mocl{false}} \tau &= \lfloor\lfloor\HolFalse\rfloor\rfloor\\
-\end{alignedat}
-\end{gather*}\vspace{-.5cm}
-\begin{multline*}
-I\semantics{X\mocl{.oclIsUndefined()}} \tau =\\
+\end{alignedat}\\
+I\semantics{X\mocl{.oclIsUndefined()}} \tau =
     (\HolIf I\semantics{X}\tau \in \{\HolBot, \HolNull\} \HolThen I\semantics{\mocl{true}}\tau \HolElse I\semantics{\mocl{false}}\tau)\\
-\end{multline*}\vspace{-1.2cm}
-\begin{multline*}
- I\semantics{X\mocl{.oclIsInvalid()}} \tau =\\
+ I\semantics{X\mocl{.oclIsInvalid()}} \tau =
     (\HolIf I\semantics{X}\tau = \HolBot \HolThen I\semantics{\mocl{true}}\tau \HolElse I\semantics{\mocl{false}}\tau)
-\end{multline*}
+\end{gather*}
 where $I\semantics{E}$ is the semantic interpretation function
 commonly used in mathematical textbooks and $\tau$ stands for pairs of
 pre- and post state $(\sigma, \sigma')$. Due to the used style of
@@ -710,7 +688,7 @@ usual classical way: $X\; \mocl{or}\; Y \equiv (\mocl{not}\; X)\;
 \mocl{and}\; (\mocl{not}\; Y)$ or
 $X\;\mocl{implies}\;Y \equiv (\mocl{not}\; X)\;\mocl{or}\; Y$.
 
-The default semantics for an \OCL library operator is strict
+The default semantics for an OCL library operator is strict
 semantics; this means that the result of an operation $f$ is
 \inlineisar+invalid+ if one of its arguments is \inlineisar+invalid+.
 For a semantics comprising \inlineisar+null+, we suggest to stay
@@ -724,14 +702,14 @@ follows:
    \end{array}
  \end{gather*}
  where the operator ``\mocl{+}'' on the left-hand
- side of the equation denotes the \OCL addition of type
+ side of the equation denotes the OCL addition of type
  $[\V{}{\up{(\up{\HolInteger})}}, \V{}{\up{(\up{\HolInteger})}}] \Rightarrow
  \V{}{\up{(\up{\HolInteger})}}$ while the ``$+$'' on the right-hand side of
  the equation of type $[\HolInteger,\HolInteger]\Rightarrow
  \HolInteger$ denotes the integer-addition from the \HOL library.
 
 \subsection{Logical Layer}
-The topmost goal of the logic for \OCL is to define the \emph{validity statement}:
+The topmost goal of the logic for OCL is to define the \emph{validity statement}:
 \begin{equation*}
    (\sigma, \sigma') \isasymMathOclValid P\mi{,}
 \end{equation*}
@@ -745,7 +723,7 @@ $(\sigma, \sigma')$ (\ie, $\tau$ for short) yields true. Formally this means:
 On this basis, classical, two-valued inference rules can be established for
 reasoning over the logical connective, the different notions of equality,
 definedness and validity. Generally speaking, rules over logical validity can
-relate bits and pieces in various \OCL terms and allow---via strong
+relate bits and pieces in various OCL terms and allow---via strong
 logical equality discussed below---the replacement
 of semantically equivalent sub-expressions. The core inference rules are:
 \begin{gather*}
@@ -781,9 +759,9 @@ that ``equals can be replaced by equals,'' from the \emph{strict
   referential equality} (written $\_ \isasymMathOclStrictEq \_$),
 which is an object-oriented concept that attempts to approximate and
 to implement the former.  Strict referential equality, which is the
-default in the \OCL language and is written simply \inlineocl|_ = _|
+default in the OCL language and is written simply \inlineocl|_ = _|
 in the standard, is an overloaded concept and has to be defined for
-each \OCL type individually; for objects resulting from class
+each OCL type individually; for objects resulting from class
 definitions, it is implemented by simply comparing the references to
 the objects. In contrast, strong logical equality is a polymorphic
 concept which is defined once and for all by:
@@ -801,16 +779,15 @@ where the predicate $\HolOclCp$ stands for \emph{context-passing}, a
 property that is characterized by $P(X)$ equals $\lambda \tau\spot
 P(\lambda \_\spot X \tau) \tau$. It means that the state tuple $\tau =
 (\sigma, \sigma')$ is passed unchanged from surrounding expressions to
-sub-expressions. it is true for all pure \OCL expressions (but not
-arbitrary mixtures of \OCL and \HOL) in Featherweight \OCL.  The
+sub-expressions. it is true for all pure OCL expressions (but not
+arbitrary mixtures of OCL and \HOL) in Featherweight OCL.  The
 necessary side-calculus for establishing $\HolOclCp$ can be fully
 automated.
 
-The logical layer of the Featherweight \OCL rules gives also a means
-to convert an \OCL formula living in its for-valued world into a
+The logical layer of the Featherweight OCL rules gives also a means
+to convert an OCL formula living in its for-valued world into a
 representation that is classically two-valued and can be processed by
-standard \acs{smt} solvers such as
-\acs{cvc3}~\cite{barrett.ea:cvc3:2007} or
+standard SMT solvers such as CVC3~\cite{barrett.ea:cvc3:2007} or
 Z3~\cite{moura.ea:z3:2008}. $\delta$-closure rules for all logical
 connectives have the following format, \eg:
 \begin{gather*}
@@ -825,7 +802,7 @@ Together with the general case-distinction
 \begin{gather*}
     \tau \models \delta x \lor \tau \models x \triangleq \mocl{invalid} \lor \tau \models x \triangleq \mocl{null} \mi{,}
 \end{gather*}
-which is possible for any \OCL type, a case distinction on the variables in a formula can be performed; due
+which is possible for any OCL type, a case distinction on the variables in a formula can be performed; due
 to strictness rules, formulae
 containing somewhere a variable $x$ that is known to be
 $\mocl{invalid}$ or $\mocl{null}$ reduce usually quickly to
@@ -836,16 +813,16 @@ $\tau \models x \isasymMathOclStrictEq y \mocl{-} 3 \land \tau \models
 $\delta$-closure of the former.  Now, we can convert a formula like
 $\tau \models x \mocl{>} 0 ~\text{or} 3 \mocl{*} y \mocl{>} x\mocl{*}x$ into
 the equivalent formula $\tau \models x > 0 \lor \tau \models 3
-\mocl{*} y \mocl{>} x\mocl{*}x$ and thus internalize the \OCL-logic
+\mocl{*} y \mocl{>} x\mocl{*}x$ and thus internalize the OCL-logic
 into a classical (and more tool-conform) logic. This works---for the
 price of a potential, but due to the usually ``rich'' $\delta$-closures
-of invariants rare---exponential blow-up of the formula for all \OCL
+of invariants rare---exponential blow-up of the formula for all OCL
 formulas.
 
 \subsection{Algebraic Layer}
 Based on the logical layer, we build a system with simpler rules which
 are amenable to automated reasoning. We restrict ourselves to pure
-equations on \OCL expressions, where the used equality is the
+equations on OCL expressions, where the used equality is the
 meta-(\HOL-)equality.
 
 Our denotational definitions on \inlineocl+not+ and \inlineocl+and+
@@ -915,7 +892,7 @@ can be re-formulated in the following ground equations:
 as well as the dual equalities for \inlineocl{or} and the De Morgan
 rules.  This wealth of algebraic properties makes the understanding of
 the logic easier as well as automated analysis possible: it allows
-for, for example, computing a \acs{dnf} of invariant systems (by
+for, for example, computing a DNF of invariant systems (by
 clever term-rewriting techniques) which are a prerequisite for
 $\delta$-closures.
 
@@ -924,7 +901,7 @@ non-strict operations. The clarification of the exceptional behaviors
 is of key-importance for a semantic definition the standard and the
 major deviation point from
 \holocl~\cite{brucker.ea:hol-ocl:2008,brucker.ea:hol-ocl-book:2006},
-to Featherweight \OCL as presented here.  The
+to Featherweight OCL as presented here.  The
 standard expresses at many places that most operations are strict,
 \ie, enjoy the properties (exemplary for \inlineocl{_ + _}):
 \begin{gather*}
@@ -946,7 +923,7 @@ Moreover, there is also the proposal to use \inlineocl+null+ as a kind
 of ``don't know'' value for all strict operations, not only in the
 semantics of the logical connectives.  Expressed in algebraic
 equations, this semantic alternative (this is \emph{not}
-Featherweight \OCL at present) would boil down to:
+Featherweight OCL at present) would boil down to:
 \begin{gather*}
   \begin{aligned}
     \mocl{invalid} \;\mocl{+}\; x &= \mocl{invalid} &
@@ -974,7 +951,7 @@ type, so \inlineocl{0} or the empty string, for example.\footnote{In
   from operation to operation; \eg, the \inlineocl+average+
   function treats \inlineocl+null+ as non-existing value and not as
   \inlineocl{0}.}  This semantic alternative (this is
-\emph{not} Featherweight \OCL at present) would yield:
+\emph{not} Featherweight OCL at present) would yield:
 \begin{gather*}
   \begin{aligned}
     \mocl{invalid} \;\mocl{+}\; x &= \mocl{invalid} &
@@ -991,7 +968,7 @@ type, so \inlineocl{0} or the empty string, for example.\footnote{In
 \end{gather*}
 
 Algebraic rules are also the key for execution and compilation
-of Featherweight \OCL expressions. We derived, \eg:
+of Featherweight OCL expressions. We derived, \eg:
 \begin{gather*}
 \delta\; \mocl{Set\{\}} = \mocl{true}\\
 \delta\; (X\mocl{->including(}x\mocl{)}) = \delta X \;\mocl{and}\;
@@ -1021,7 +998,7 @@ As \inlineocl+Set{1,2}+ is only syntactic sugar for
   Set{}->including(1)->including(2)
 \end{ocl}
 an expression like \inlineocl+Set{1,2}->includes(null)+ becomes
-automatically decidable in Featherweight \OCL by a combination of
+automatically decidable in Featherweight OCL by a combination of
 rewriting and code-generation and execution. The generated
 documentation from the theory files can thus be enriched by numerous
 ``test-statements'' like:
@@ -1029,7 +1006,7 @@ documentation from the theory files can thus be enriched by numerous
 value  "\<tau> \<Turnstile> ($\mathtt{Set\{Set\{2,null\}\}}$ \<doteq> $\;\mathtt{Set\{Set\{null,2\}\}}$)"
 \end{isar}
 which have been machine-checked and which present a high-level and in
-our opinion fairly readable information for \OCL tool manufactures and
+our opinion fairly readable information for OCL tool manufactures and
 users.
 
 
@@ -1041,11 +1018,11 @@ users.
   \mbox{}\hfill
   \subfloat%
   [The Isabelle jEdit environment. ]%
-  {\label{fig:jedit} \includegraphics[height=5.5cm]{jedit}}%
+  {\label{fig:jedit} \includegraphics[height=6.2cm]{jedit}}%
   \hfill%
   \hfill%
     \subfloat[The generated formal document.]%
-    {\label{fig:pdf} \includegraphics[height=5.5cm]{pdf}}
+    {\label{fig:pdf} \includegraphics[height=6.2cm]{pdf}}
     \hfill\mbox{}
   \caption{Generating documents with guaranteed  syntactical and
     semantical consistency.}
@@ -1053,10 +1030,10 @@ users.
 \end{figure*}
 Isabelle, as a framework for building formal
 tools~\cite{wenzel.ea:building:2007}, provides the means for
-generating \emph{formal documents}.
-With formal documents we refer to documents that are machine-generated
-and ensure certain formal guarantees. In particular, all formal
-content (\eg, definitions, formulae, types) are checked for
+generating \emph{formal documents}.  With formal documents (such as
+the one you are currently reading) we refer to documents that are
+machine-generated and ensure certain formal guarantees. In particular,
+all formal content (\eg, definitions, formulae, types) are checked for
 consistency during the document generation.
 
 For writing documents, Isabelle supports the embedding of informal
@@ -1064,7 +1041,7 @@ texts using a \LaTeX-based markup language within the theory files. To
 ensure the consistency, Isabelle supports to use, within these
 informal texts, \emph{antiquotations} that refer to the formal parts and
 that are checked while generating the actual document as
-\acs{pdf}. For example, in an informal text, the antiquotation
+PDF. For example, in an informal text, the antiquotation
 \inlineisar|@{$\text{thm}$ "not_not"}| will instruct Isabelle to lock-up the
 (formally proven) theorem of name \inlineisar"ocl_not_not" and to replace
 the antiquotation with the actual theorem, \ie,
@@ -1073,18 +1050,26 @@ the antiquotation with the actual theorem, \ie,
 \autoref{fig:gener-docum-where}
 illustrates this approach: \autoref{fig:jedit} shows the jEdit-based
 development environment of Isabelle with an excerpt of one of the core
-theories of Featherweight \OCL. \autoref{fig:pdf} shows the generated
-\acs{pdf} document where all antiquotations are replaced. Moreover,
+theories of Featherweight OCL. \autoref{fig:pdf} shows the generated
+PDF document where all antiquotations are replaced. Moreover,
 the document generation tools allows for defining syntactic sugar as
 well as skipping technical details of the formalization.
 
 
-Thus, applying the Featherweight \OCL approach to writing an updated
+Thus, applying the Featherweight OCL approach to writing an updated
 Annex A that provides a formal semantics of the most fundamental
-concepts of \OCL would ensure
+concepts of OCL would ensure
 \begin{enumerate}
 \item that all formal context is syntactically correct and well-typed,
   and
 \item all formal definitions and the derived logical rules are
   semantically consistent.
 \end{enumerate}
+Overall, this would contribute to one of the main goals of the OCL 2.5
+RFP, as discussed at the OCL meeting in
+Aachen~\cite{brucker.ea:summary-aachen:2013}.
+ 
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: "root"
+%%% End:
