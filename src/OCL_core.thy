@@ -41,7 +41,7 @@
  ******************************************************************************)
 (* $Id:$ *)
 
-header{* Part I: Core Definitions *}
+header{* Formalization I: Core Definitions *}
 
 theory
   OCL_core
@@ -400,12 +400,12 @@ by(simp add: Sem_def valid_def)
 text{* \textbf{Summary}:
 \begin{table}[htbp]
    \centering
-   \begin{tabular}{ll} % Column formatting
+   \begin{tabular}{lp{10cm}} % Column formatting
       \toprule
       Name & Theorem \\
       \midrule
       @{thm [source] textbook_defined}  & @{thm [show_question_marks=false,display=false,margin=35] textbook_defined} \\
-      @{thm [source] textbook_valid}   & @{thm [show_question_marks=false,display=false,margin=35] textbook_valid} \\
+      @{thm [source] textbook_valid}   & @{thm [show_question_marks=false,display=false,margin=15] textbook_valid} \\
       \bottomrule
    \end{tabular}
    \caption{Basic predicate definitions of the logic.)}

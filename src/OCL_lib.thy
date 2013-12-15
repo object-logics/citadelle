@@ -41,7 +41,7 @@
  ******************************************************************************)
 (* $Id:$ *)
 
-header{* Part II: Library Definitions *}
+header{* Formalization II: Library Definitions *}
 
 theory OCL_lib
 imports OCL_core

@@ -41,7 +41,7 @@
  ******************************************************************************)
 (* $Id:$ *)
 
-header{* Part V (bis): OCL Contracts and an Example *}
+header{* Formalization V: OCL Contracts and an Example *}
 
 (* This example is not yet balanced. Some parts of should go to
    Part II : State and Objects. *)
@@ -51,7 +51,7 @@ theory
 imports
   Employee_DesignModel_UMLPart (* Testing *)
 begin
-
+text {* \label{PartV} *}
 section{* Standard State Infrastructure *}
 text{* These definitions should be generated --- again --- from the class diagram. *}
 

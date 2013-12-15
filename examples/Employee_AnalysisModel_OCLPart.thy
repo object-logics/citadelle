@@ -41,7 +41,7 @@
  ******************************************************************************)
 (* $Id:$ *)
 
-header{* Part IV (bis): OCL Contracts and an Example *}
+header{* Formalization IV: OCL Contracts and an Example *}
 
 (* This example is not yet balanced. Some parts of should go to
    Part II : State and Objects. *)
@@ -51,7 +51,7 @@ theory
 imports
   Employee_AnalysisModel_UMLPart (* Testing *)
 begin
-
+text {* \label{PartIV} *}
 section{* Standard State Infrastructure *}
 text{* These definitions should be generated --- again --- from the class diagram. *}
 

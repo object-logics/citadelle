@@ -41,7 +41,7 @@
  ******************************************************************************)
 (* $Id:$ *)
 
-header{* Part III: State Operations and Objects *}
+header{* Formalization III:  State Operations and Objects *}
 
 theory OCL_state
 imports OCL_lib
@@ -85,9 +85,9 @@ text{*
   $\getAttrib{X}{\text{$a$}\isasymOclATpre}:: C_i \rightarrow A $ for
   $A\in \{\V{}{\up{\ldots}}, C_1, \ldots, C_n\}$),
 \item type casts that can change the static type of an object of a
-      class (denoted $\getAttrib{X}{\mocl{oclAsType(}\text{$C_i$}\mocl{)}}$ of type
+      class ($\getAttrib{X}{\mocl{oclAsType(}\text{$C_i$}\mocl{)}}$ of type
       $C_j \rightarrow C_i$)
-\item two dynamic type tests (denoted $\getAttrib{X}{\mocl{oclIsTypeOf(}\text{$C_i$}\mocl{)}}$ and
+\item two dynamic type tests ($\getAttrib{X}{\mocl{oclIsTypeOf(}\text{$C_i$}\mocl{)}}$ and
       $\getAttrib{X}{\mocl{oclIsKindOf(}\text{$C_i$}\mocl{)}}$ ),
 \item and last but not least, for each class name $C_i$ there is an
   instance of the overloaded referential equality (written $\_
@@ -224,7 +224,7 @@ which above all means is intended to be type-safe, this has the following conseq
       concrete object universe, called the \emph{object-oriented data type theory.}
 \end{itemize}
 We will work out concrete examples for the construction of the object-universes in
-\autoref{Part IV} and \autoref{Part V} and the derivation of the
+\autoref{PartIV} and \autoref{PartV} and the derivation of the
 respective data type theories. While an automatization is clearly possible and
 desirable for concrete applications of FeatherweightOCL, we consider this
 out of the scope of this paper which has a focus on the semantic construction and its presentation.
