@@ -224,7 +224,7 @@ which above all means is intended to be type-safe, this has the following conseq
       concrete object universe, called the \emph{object-oriented data type theory.}
 \end{itemize}
 We will work out concrete examples for the construction of the object-universes in
-Part IV and Part V \fixme{LaTeX : Cross-References ?} and the derivation of the
+\autoref{Part IV} and \autoref{Part V} and the derivation of the
 respective data type theories. While an automatization is clearly possible and
 desirable for concrete applications of FeatherweightOCL, we consider this
 out of the scope of this paper which has a focus on the semantic construction and its presentation.
