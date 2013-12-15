@@ -50,12 +50,12 @@ begin
 section{* Introduction: States over Typed Object Universes *}
 text{* As mentioned earlier, 
 the OCL is composed of
- \begin{inparaenum}[1)]
+ \begin{enumerate}
  \item operators on built-in data structures such as Boolean, Integer or Set(\_),
  \item operators of the user-defined data model such as accessors,
    type casts and tests, and
  \item user-defined, side-effect-free methods.
- \end{inparaenum}
+ \end{enumerate}
 *}
 
 text{* In the following, we will refine the concepts of a user-defined
@@ -71,7 +71,7 @@ become accessible via appropriate OCL syntax:
 *}
 
 text{*
-\begin{compactenum}
+\begin{enumerate}
 \item Classes and class names (written as $C_1$, \ldots, $C_n$), which
   become types of data in OCL\@. Class names declare two projector
   functions to the set of all objects in a state:
@@ -92,7 +92,7 @@ text{*
 \item and last but not least, for each class name $C_i$ there is an
   instance of the overloaded referential equality (written $\_
   \isasymMathOclStrictEq \_$).
-\end{compactenum}
+\end{enumerate}
 *}
 
 text{* Assuming a strong static type discipline in the sense of
@@ -135,13 +135,13 @@ In a shallow embedding which must represent
 UML types injectively by HOL types, there are two fundamentally
 different ways to construct such a set of object representations,
 which we call an \emph{object universe} $\mathfrak{A}$:
-\begin{compactenum}
+\begin{enumerate}
 \item an object universe can be constructed for a given class model,
   leading to \emph{closed world semantics}, and
 \item an object universe can be constructed for a given class model
   \emph{and all its extensions by new classes added into the leaves of
     the class hierarchy}, leading to an \emph{open world semantics}.
-\end{compactenum}
+\end{enumerate}
 For the sake of simplicity, we chose the first option for
 Featherweight OCL, while \holocl~\cite{brucker.ea:extensible:2008-b}
 used an involved construction allowing the latter.
@@ -189,7 +189,7 @@ inductively defined for a given class diagram:
 text{*
 Let $C_i$ be a class with a possibly empty set of subclasses
 $\{C_{j_{1}}, \ldots, C_{j_{m}}\}$.
-\begin{compactitem}
+\begin{itemize}
 \item Then the  \emph{class type extension} $C_{i\text{ext}}$
         associated to $C_i$ is
         $A_{i_{1}} \times \cdots \times A_{i_{n}} \times \up{(C_{j_{1}\text{ext}} + \cdots + C_{j_{m}\text{ext}})}$
@@ -201,7 +201,7 @@ $\{C_{j_{1}}, \ldots, C_{j_{m}}\}$.
         where $A_{i_{k}}$ ranges over the inherited \emph{and} local
         attribute types of $C_i$ and $C_{j_{l}\text{ext}}$
         ranges over all class type extensions of the subclass $C_{j}$ of $C_i$.
-\end{compactitem}
+\end{itemize}
 *}
 
 text{*

@@ -9,12 +9,12 @@ The topmost goal of the formal semantics is to define the
 where $\sigma$ is the pre-state and $\sigma'$ the post-state of the
 underlying system and $P$ is a Boolean expression (a
 \emph{formula}). The assertion language of $P$ is composed of
-\begin{inparaenum}[1)]
+\begin{enumerate}
 \item operators on built-in data structures such as Boolean or set,
 \item operators of the user-defined data-model such as accessors,
   type-casts and tests, and
 \item user-defined, side-effect-free methods.
-\end{inparaenum}
+\end{enumerate}
 Informally, a formula $P$ is valid if and only if its evaluation in
 the context $(\sigma, \sigma')$ yields true. As all types in \holocl
 are extended by the special element $\isasymbottom$ denoting
@@ -203,12 +203,12 @@ satisfying a \emph{state invariant} $\inv_\sigma$:
   C_n) \ap|\ap \inv_\sigma(f) \}
 \end{gather*}
 where $\inv_\sigma(f)$ states two conditions:
-\begin{inparaenum}[1)]
+\begin{enumerate}
 \item there is no object representation for $\nullid$: $\nullid \notin (\dom\ap f)$.
 \item there is a``one-to-one'' correspondence between object representations and
   $\oid$'s: $\forall \mathit{oid} \in \dom\ap f\spot oid = \HolOclOidOf\ap
   \drop{f(\mathit{oid})}$.
-\end{inparaenum}
+\end{enumerate}
 The latter condition is also mentioned in~\cite[Annex A]{omg:ocl:2003} and
 goes back to Mark Richters~\cite{richters:precise:2002}.
 
