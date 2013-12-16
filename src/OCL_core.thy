@@ -1043,6 +1043,17 @@ lemma StrongEq_L_subst2_rev: "\<tau> \<Turnstile> y \<triangleq> x \<Longrightar
 apply(erule StrongEq_L_subst2)
 apply(erule StrongEq_L_sym)
 by assumption
+
+lemma  StrongEq_L_subst3:
+assumes cp: "cp P"
+and     eq: "\<tau> \<Turnstile> x \<triangleq> y"
+shows       "(\<tau> \<Turnstile> P x) = (\<tau> \<Turnstile> P y)"
+apply(rule iffI)
+apply(rule OCL_core.StrongEq_L_subst2[OF cp,OF eq],simp)
+apply(rule OCL_core.StrongEq_L_subst2[OF cp,OF eq[THEN StrongEq_L_sym]],simp)
+done
+
+
 (* for an automated version of ocl_subst *)
 ML{* (* just a fist sketch *)
 fun ocl_subst_tac subst =
