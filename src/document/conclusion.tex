@@ -2,7 +2,7 @@
 
 \chapter{Conclusion}
 
-\section{Lessons Learned and Contributions}\fixme{raw input by bu}
+\section{Lessons Learned and Contributions}\fixme{input by bu}
 We provided a typed and type-safe shallow embedding 
 of the core of the UML and OCL-language. Shallow-embedding means
 that types of OCL were injectively,\ie{} mapped by the embedding
@@ -22,7 +22,7 @@ type-safe (which would be an issue, if we had chosen
   set theory as an alternative approach to subtyping.).
 In more detail, our theory gives answers and concrete
 solutions to a number of open major issues for the UML/OCL standardization:
-\begin{enumerat}
+\begin{enumerate}
 \item the role of the two exception elements \inlineisar+invalid+
       and \inlineisar+null+, the former usually assuming strict evaluation
       while the latter ruled by non-strict evaluation.
@@ -60,7 +60,7 @@ solutions to a number of open major issues for the UML/OCL standardization:
       been considered desirable in the Aachen Meeting \fixme{ add ref.}).
 \end{enumerate}      
 Moreover, we managed to make our theory in large parts executable, which allowed
-us to include mechanically checked \inlineisar+value+-statements in our theory
+us to include mechanically checked \inlineisar+value+-statements 
 that capture numerous corner-cases relevant for OCL implementors. Among many minor
 issues, we thus pin-pointed the behavior of \inlineisar+null+ in collections as
 well as in casts and the desired \inlineisar+isKindOf+-semantics of 
