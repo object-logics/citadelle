@@ -429,10 +429,16 @@ lemma "\<tau>\<^sub>0 \<Turnstile> H .allInstances@pre() \<triangleq> Set{}"
 by(simp add: StrongEq_def OclAllInstances_at_pre_def OclValid_def \<tau>\<^sub>0_def mtSet_def)
 
 lemma state_update_vs_allInstances_empty:
-shows   "(Type .allInstances()) (\<sigma>, \<lparr>heap=empty, assocs\<^sub>2=A, assocs\<^sub>3=B\<rparr>) =
-         Set{} (\<sigma>, \<lparr>heap=empty, assocs\<^sub>2=A, assocs\<^sub>3=B\<rparr>)"
-by(simp add: OclAllInstances_at_post_def mtSet_def)
-
+shows   "(\<sigma>, \<lparr>heap=empty, assocs\<^sub>2=A, assocs\<^sub>3=B\<rparr>) \<Turnstile> Type .allInstances() \<doteq> Set{}"
+proof - 
+ have state_update_vs_allInstances_empty: "(Type .allInstances()) (\<sigma>, \<lparr>heap=empty, assocs\<^sub>2=A, assocs\<^sub>3=B\<rparr>) =
+                                           Set{} (\<sigma>, \<lparr>heap=empty, assocs\<^sub>2=A, assocs\<^sub>3=B\<rparr>)"
+ by(simp add: OclAllInstances_at_post_def mtSet_def)
+ show ?thesis
+  apply(simp only: OclValid_def, subst cp_StrictRefEq\<^sub>S\<^sub>e\<^sub>t, simp add: state_update_vs_allInstances_empty)
+  apply(simp add: OclIf_def valid_def mtSet_def defined_def bot_fun_def bot_option_def null_fun_def null_option_def invalid_def bot_Set_0_def)
+ by(subst Abs_Set_0_inject, (simp add: bot_option_def)+)
+qed
 
 text{* Here comes a couple of operational rules that allow to infer the value
 of \inlineisar+allInstances+ from the context $\tau$. These rules are a special-case
@@ -541,18 +547,6 @@ proof -
  by (metis fun_upd_apply)
 qed
 
-(* really necessary ? *)
-lemma state_update_vs_allInstances_noincluding:
-assumes "\<And>x. \<sigma>' oid = Some x \<Longrightarrow> x = Object"
-    and "Type Object = None"
-shows   "(Type .allInstances())
-         (\<sigma>, \<lparr>heap=\<sigma>'(oid\<mapsto>Object), assocs\<^sub>2=A, assocs\<^sub>3=B\<rparr>)
-         =
-         (\<lambda>_. (Type .allInstances()) (\<sigma>, \<lparr>heap=\<sigma>', assocs\<^sub>2=A, assocs\<^sub>3=B\<rparr>))
-         (\<sigma>, \<lparr>heap=\<sigma>'(oid\<mapsto>Object), assocs\<^sub>2=A, assocs\<^sub>3=B\<rparr>)"
-by(subst state_update_vs_allInstances_noincluding', (simp add: assms)+)
-
-
 theorem state_update_vs_allInstances_ntc:
 assumes oid_def:   "oid\<notin>dom \<sigma>'"
 and  non_type_conform: "Type Object = None "
@@ -614,7 +608,6 @@ proof -
  have        "Type .allInstances() ?\<tau> = 
               \<lambda>_. Type .allInstances() ?\<tau>'->including(\<lambda>_.\<lfloor>\<lfloor>\<lceil>Type Object\<rceil>\<rfloor>\<rfloor>) ?\<tau>"
              apply(rule state_update_vs_allInstances_including)
-             thm state_update_vs_allInstances_including'
              by(insert oid_def, auto simp: type_conform)
  also have   "... = ((\<lambda>_. Type .allInstances() ?\<tau>')->including(\<lambda>_. (\<lambda>_.\<lfloor>\<lfloor>\<lceil>Type Object\<rceil>\<rfloor>\<rfloor>) ?\<tau>') ?\<tau>')"
              by(rule includes_const_inv)
@@ -885,5 +878,126 @@ by(simp add: OclIsMaintained_def OclSelf_at_pre_def OclSelf_at_post_def
 
 lemma framing_same_state: "(\<sigma>, \<sigma>) \<Turnstile> (x @pre H  \<triangleq>  (x @post H))"
 by(simp add: OclSelf_at_pre_def OclSelf_at_post_def OclValid_def StrongEq_def)
+
+section{* Miscellaneous : Propagation of "constant contexts P" *}
+
+lemma true_cp_all : "true \<tau>1 = true \<tau>2"
+by(simp add: true_def)
+
+lemma false_cp_all : "false \<tau>1 = false \<tau>2"
+by(simp add: false_def)
+
+lemma null_cp_all : "null \<tau>1 = null \<tau>2"
+by(simp add: null_fun_def)
+
+lemma invalid_cp_all : "invalid \<tau>1 = invalid \<tau>2"
+by(simp add: invalid_def)
+
+lemma bot_cp_all : "\<bottom> \<tau>1 = \<bottom> \<tau>2"
+by(simp add: bot_fun_def)
+
+lemma defined_cp_all :
+ assumes "X \<tau>1 = X \<tau>2"
+ shows "(\<delta> X) \<tau>1 = (\<delta> X) \<tau>2"
+by(simp add: defined_def false_def true_def bot_fun_def null_fun_def assms)
+
+lemma valid_cp_all :
+ assumes "X \<tau>1 = X \<tau>2"
+ shows "(\<upsilon> X) \<tau>1 = (\<upsilon> X) \<tau>2"
+by(simp add: valid_def false_def true_def bot_fun_def null_fun_def assms)
+
+lemma OclAnd_cp_all :
+  assumes "X \<tau>1 = X \<tau>2"
+  assumes "X' \<tau>1 = X' \<tau>2"
+  shows "(X and X') \<tau>1 = (X and X') \<tau>2"
+by(subst (1 2) cp_OclAnd, simp add: assms OclAnd_def)
+
+lemma OclIf_cp_all :
+  assumes "B \<tau>1 = B \<tau>2"
+  assumes "C1 \<tau>1 = C1 \<tau>2"
+  assumes "C2 \<tau>1 = C2 \<tau>2"
+  shows "(if B then C1 else C2 endif) \<tau>1 = (if B then C1 else C2 endif) \<tau>2"
+ apply(subst (1 2) cp_OclIf, simp only: OclIf_def cp_defined[symmetric])
+by(simp add: defined_cp_all[OF assms(1)] true_cp_all assms invalid_cp_all)
+
+lemma OclIncluding_cp_all :
+ assumes x_int : "\<And>\<tau>. \<tau> \<Turnstile> \<upsilon> x"
+     and x_incl : "x \<tau>1 = x \<tau>2"
+     and S_def : "\<And>\<tau>. \<tau> \<Turnstile> \<delta> S"
+     and S_incl : "S \<tau>1 = S \<tau>2"
+   shows  "S->including(x) \<tau>1 = S->including(x) \<tau>2"
+ apply(unfold OclIncluding_def)
+ apply(simp add: S_def[simplified OclValid_def] x_int[simplified OclValid_def] S_incl)
+ apply(simp add: x_incl)
+done
+
+lemma OclForall_cp_all :
+  assumes "X \<tau>1 = X \<tau>2"
+  assumes "\<And>x. x \<tau>1 = x \<tau>2 \<Longrightarrow> X' x \<tau>1 = X' x \<tau>2"
+  shows "OclForall X X' \<tau>1 = OclForall X X' \<tau>2"
+ apply(subst (1 2) cp_OclForall, simp only: OclForall_def cp_defined[symmetric])
+by(simp only: defined_cp_all[OF assms(1)] true_cp_all[of \<tau>1 \<tau>2] false_cp_all[of \<tau>1 \<tau>2] null_cp_all[of \<tau>1 \<tau>2] bot_cp_all[of \<tau>1 \<tau>2] assms)
+
+lemma OclIncludes_cp_all :
+  assumes "X \<tau>1 = X \<tau>2"
+  assumes "X' \<tau>1 = X' \<tau>2"
+  shows "OclIncludes X X' \<tau>1 = OclIncludes X X' \<tau>2"
+ apply(subst (1 2) cp_OclIncludes, simp only: OclIncludes_def cp_defined[symmetric] cp_valid[symmetric])
+by(simp add: defined_cp_all[OF assms(1)] valid_cp_all[OF assms(2)] true_cp_all assms)
+
+lemma OclNot_cp_all :
+  assumes "X \<tau>1 = X \<tau>2"
+  shows "not X \<tau>1 = not X \<tau>2"
+by(simp add: OclNot_def assms)
+
+lemma StrictEq_cp_all :
+  assumes "(X :: (_,_::null) Set) \<tau>1 = X \<tau>2"
+  assumes "X' \<tau>1 = X' \<tau>2"
+  shows "(X \<doteq> X') \<tau>1 = (X \<doteq> X') \<tau>2"
+ apply(simp add: StrictRefEq\<^sub>S\<^sub>e\<^sub>t)
+ apply(rule OclIf_cp_all)
+ apply(rule defined_cp_all, simp add: assms)
+ apply(rule OclIf_cp_all)
+ apply(rule defined_cp_all, simp add: assms)
+ apply(rule OclAnd_cp_all)
+ apply(rule OclForall_cp_all, simp add: assms)
+ apply(rule OclIncludes_cp_all, simp add: assms, simp)
+ apply(rule OclForall_cp_all, simp add: assms)
+ apply(rule OclIncludes_cp_all, simp add: assms, simp)
+ apply(rule OclIf_cp_all)
+ apply(rule valid_cp_all, simp add: assms)
+ apply(simp add: false_def, simp add: invalid_def)
+ apply(rule OclIf_cp_all)
+ apply(rule valid_cp_all, simp add: assms)
+ apply(rule OclIf_cp_all)
+ apply(rule valid_cp_all, simp add: assms)
+ apply(rule OclNot_cp_all)
+ apply(rule defined_cp_all, simp add: assms)
+ apply(simp add: invalid_def)+
+done
+
+lemma mtSet_cp_all : "Set{} \<tau>1 = Set{} \<tau>2"
+by(simp add: mtSet_def)
+
+lemma StrictRefEq\<^sub>S\<^sub>e\<^sub>t_L_subst1 : "cp P \<Longrightarrow> \<tau> \<Turnstile> \<upsilon> x \<Longrightarrow> \<tau> \<Turnstile> \<upsilon> y \<Longrightarrow> \<tau> \<Turnstile> \<upsilon> P x \<Longrightarrow> \<tau> \<Turnstile> \<upsilon> P y \<Longrightarrow> \<tau> \<Turnstile> (x::('\<AA>,'\<alpha>::null)Set) \<doteq> y \<Longrightarrow> \<tau> \<Turnstile> (P x ::('\<AA>,'\<alpha>::null)Set) \<doteq> P y"
+ apply(simp only: StrictRefEq\<^sub>S\<^sub>e\<^sub>t OclValid_def)
+ apply(split split_if_asm)
+ apply(simp add: StrongEq_L_subst1[simplified OclValid_def])
+by (simp add: invalid_def bot_option_def true_def)
+
+lemma including_subst_set' :
+shows "\<tau> \<Turnstile> \<delta> s \<Longrightarrow> \<tau> \<Turnstile> \<delta> t \<Longrightarrow> \<tau> \<Turnstile> \<upsilon> x \<Longrightarrow> \<tau> \<Turnstile> ((s::('\<AA>,'a::null)Set) \<doteq> t) \<Longrightarrow> \<tau> \<Turnstile> (s->including(x) \<doteq> (t->including(x)))"
+proof -
+ have cp: "cp (\<lambda>s. (s->including(x)))"
+  apply(simp add: cp_def, subst cp_OclIncluding)
+ by (rule_tac x = "(\<lambda>xab ab. ((\<lambda>_. xab)->including(\<lambda>_. x ab)) ab)" in exI, simp)
+
+ show "\<tau> \<Turnstile> \<delta> s \<Longrightarrow> \<tau> \<Turnstile> \<delta> t \<Longrightarrow> \<tau> \<Turnstile> \<upsilon> x \<Longrightarrow> \<tau> \<Turnstile> (s \<doteq> t) \<Longrightarrow> ?thesis"
+  apply(rule_tac P = "\<lambda>s. (s->including(x))" in StrictRefEq\<^sub>S\<^sub>e\<^sub>t_L_subst1)
+  apply(rule cp)
+  apply(simp add: foundation20) apply(simp add: foundation20)
+  apply (simp add: foundation10 foundation6)+
+ done
+qed
 
 end
