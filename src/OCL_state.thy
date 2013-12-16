@@ -557,7 +557,7 @@ theorem state_update_vs_allInstances_ntc:
 assumes oid_def:   "oid\<notin>dom \<sigma>'"
 and  non_type_conform: "Type Object = None "
 and  cp_ctxt:      "cp P"
-and  const_ctxt:   "\<forall> X. \<forall>\<tau> \<tau>'. P X \<tau> =  P X \<tau>' "
+and  const_ctxt:   "\<forall> X. \<forall>\<tau> \<tau>'. X \<tau> = X \<tau>' \<longrightarrow> P X \<tau> =  P X \<tau>' "
 shows   "((\<sigma>, \<lparr>heap=\<sigma>'(oid\<mapsto>Object),assocs\<^sub>2=A,assocs\<^sub>3=B\<rparr>) \<Turnstile> (P(Type .allInstances()))) =
          ((\<sigma>, \<lparr>heap=\<sigma>', assocs\<^sub>2=A, assocs\<^sub>3=B\<rparr>)            \<Turnstile> (P(Type .allInstances())))"
          (is "(?\<tau> \<Turnstile> P ?\<phi>) = (?\<tau>' \<Turnstile> P ?\<phi>)") 
@@ -574,7 +574,7 @@ proof -
  also have  "... = (?\<tau>' \<Turnstile> \<lambda>_. P (\<lambda>_. ?\<phi> ?\<tau>)  ?\<tau>')"
              apply(simp add: OclValid_def)
              apply(subst const_ctxt[THEN spec,of"(\<lambda>_. ?\<phi> ?\<tau>)",THEN spec,of"?\<tau>",THEN spec,of"?\<tau>'"])
-             by simp
+             by simp+
  finally have X: "(?\<tau> \<Turnstile> P ?\<phi>) = (?\<tau>' \<Turnstile> \<lambda>_. P (\<lambda>_. ?\<phi> ?\<tau>)  ?\<tau>')"
              by simp         
  show ?thesis
@@ -589,7 +589,7 @@ theorem state_update_vs_allInstances_tc:
 assumes oid_def:   "oid\<notin>dom \<sigma>'"
 and  type_conform: "Type Object \<noteq> None "
 and  cp_ctxt:      "cp P"
-and  const_ctxt:   "\<forall> X. \<forall>\<tau> \<tau>'. P X \<tau> =  P X \<tau>' "
+and  const_ctxt:   "\<forall> X. \<forall>\<tau> \<tau>'. X \<tau> = X \<tau>' \<longrightarrow> P X \<tau> =  P X \<tau>' "
 shows   "((\<sigma>, \<lparr>heap=\<sigma>'(oid\<mapsto>Object),assocs\<^sub>2=A,assocs\<^sub>3=B\<rparr>) \<Turnstile> (P(Type .allInstances()))) =
          ((\<sigma>, \<lparr>heap=\<sigma>', assocs\<^sub>2=A, assocs\<^sub>3=B\<rparr>)            \<Turnstile> (P((Type .allInstances())
                                                                ->including(\<lambda> _. \<lfloor>(Type Object)\<rfloor>))))"
@@ -608,7 +608,7 @@ proof -
  also have  "... = (?\<tau>' \<Turnstile> \<lambda>_. P (\<lambda>_. ?\<phi> ?\<tau>)  ?\<tau>')"
              apply(simp add: OclValid_def)
              apply(subst const_ctxt[THEN spec,of"(\<lambda>_. ?\<phi> ?\<tau>)",THEN spec,of"?\<tau>",THEN spec,of"?\<tau>'"])
-             by simp
+             by simp+
  finally have X: "(?\<tau> \<Turnstile> P ?\<phi>) = (?\<tau>' \<Turnstile> \<lambda>_. P (\<lambda>_. ?\<phi> ?\<tau>)  ?\<tau>')"
              by simp
  have        "Type .allInstances() ?\<tau> = 
@@ -637,7 +637,7 @@ theorem state_update_vs_allInstances_tc_at_pre:
 assumes oid_def:      "oid\<notin>dom \<sigma>"
 and     type_conform: "Type Object \<noteq> None "
 and     cp_ctxt:      "cp P"
-and     const_ctxt:   "\<forall> X. \<forall>\<tau> \<tau>'. P X \<tau> =  P X \<tau>' "
+and  const_ctxt:   "\<forall> X. \<forall>\<tau> \<tau>'. X \<tau> = X \<tau>' \<longrightarrow> P X \<tau> =  P X \<tau>' "
 shows   "((\<lparr>heap=\<sigma>(oid\<mapsto>Object), assocs\<^sub>2=A, assocs\<^sub>3=B\<rparr>, \<sigma>') \<Turnstile> (P(Type .allInstances@pre()))) =
          ((\<lparr>heap=\<sigma>, assocs\<^sub>2=A, assocs\<^sub>3=B\<rparr>, \<sigma>') \<Turnstile> (P((Type .allInstances@pre())
                                                  ->including(\<lambda> _. \<lfloor>\<lfloor>drop (Type Object)\<rfloor>\<rfloor>)))) "
@@ -648,7 +648,7 @@ theorem state_update_vs_allInstances_ntc_at_pre:
 assumes oid_def:      "oid\<notin>dom \<sigma>"
 and     type_conform: "Type Object = None "
 and     cp_ctxt:      "cp P"
-and     const_ctxt:   "\<forall> X. \<forall>\<tau> \<tau>'. P X \<tau> =  P X \<tau>' "
+and  const_ctxt:   "\<forall> X. \<forall>\<tau> \<tau>'. X \<tau> = X \<tau>' \<longrightarrow> P X \<tau> =  P X \<tau>' "
 shows   "((\<lparr>heap=\<sigma>(oid\<mapsto>Object), assocs\<^sub>2=A, assocs\<^sub>3=B\<rparr>, \<sigma>') \<Turnstile> (P(Type .allInstances@pre()))) =
           ((\<lparr>heap=\<sigma>, assocs\<^sub>2=A, assocs\<^sub>3=B\<rparr>, \<sigma>')             \<Turnstile> (P(Type .allInstances@pre()))) "
 (* analogously *)
