@@ -14,8 +14,8 @@ is one of the few modeling languages that is widely used in
 industry. While UML is mostly known as diagrammatic modeling language
 (\eg, visualizing class models), it also comprises a textual language,
 called Object Constraint Language (OCL)~\cite{omg:ocl:2012}. OCL is a
-textual annotation language, based on a three-valued logic, that turns
-UML into a formal language.  Unfortunately the semantics of this
+textual annotation language, originally based on a three-valued logic, that 
+turns substantial parts of UML into a formal language.  Unfortunately the semantics of this
 specification language, captured in the ``Annex A'' (originally, based
 on the work of Richters~\cite{richters:precise:2002}) of the OCL
 standard leads to different interpretations of corner cases.  Many of
@@ -47,29 +47,43 @@ reflected in difficulties to define interpreters, code-generators,
 specification animators or theorem provers for OCL in a uniform
 manner and resulting incompatibilities of various tools.
 
-For the OCL community, this results in the challenge to define a
+For the OCL community, the \mocl{undefined}/\mocl{null} and many related
+issues results in the challenge to define a
 consistent version of the OCL standard that is well aligned with the
 recent developments of the UML. A syntactical and semantical
 consistent standard requires a major revision of both the informal and
-formal parts of the standards. To discuss the future directions of the
-standard, a number of OCL experts decided to meet in November 2013 in
-Aachen for two days to discuss possible short term improvements of OCL
-for an upcoming OMG meeting and to envision possible future long-term
-developments of the
+formal parts of the standard. To discuss the future directions of the
+standard, a number of OCL experts met in November 2013 in
+Aachen to discuss possible mid-term term improvements of OCL,
+strategies of standardization of OCL within the OMG  
+and a vision for possible long-term developments of the
 language~\cite{brucker.ea:summary-aachen:2013}. During this meeting,
-the Request for Proposals (RFP) for OCL 2.5 was finalized. This RFP,
-in particular, demands that the OCL 2.5 standard document shall be
-generated from a machine-checked source. This will ensure 
+a Request for Proposals (RFP) for OCL 2.5 was finalized and meanwhile
+prosed. In particular, this RFP requires that the future OCL 2.5 standard 
+document shall be generated from a machine-checked source. This will ensure 
 \begin{itemize}
 \item the absence of syntax errors and
-\item the consistency of the formal semantics. 
+\item the consistency of the formal semantics,
+\item a suite of corner-cases relevant for OCL tool implementors.
 \end{itemize}
 
-In this document, we present a formalization, using
-Isabelle/HOL~\cite{nipkow.ea:isabelle:2002} of the core language of
-OCL, called Featherweight OCL. This formal semantics definition OCL
-could, during the standardization process of OCL 2.5, replace the
-``Annex A'' of the OCL standard~\cite{omg:ocl:2012}.
+In this document, we present a formalization using
+Isabelle/HOL~\cite{nipkow.ea:isabelle:2002} of a core language of
+OCL. The semantic theory, based on a so-called ``shallow embedding'',
+is called \emph{Featherweight OCL}, since it focusses on a formal treatment
+of the key-elements of the language (rather than a full treatment
+  of all operators and thus, a ``complete'' implementation). In contrast to  full OCL,
+it comprises just the logic captured in \verb+Boolean+,  
+the basic data type \verb+Integer+, the collection type \verb+Set+, 
+as well as the generic construction principle of Class Models,
+which is instantiated and demonstrated for two examples
+(an automated support for this type-safe construction is again out of the
+  scope of Featherweight OCL).
+This formal semantics definition
+is intended to be a proposal for the standardization process of 
+OCL 2.5, which should ultimately replace parts of the mandatory
+part of the standard as well as replace completely
+the informative ``Annex A'' of the OCL standard~\cite{omg:ocl:2012}.
 
 
 \chapter{Background}
@@ -143,6 +157,7 @@ of operations. For example, we specify that objects of the class
 \inlineocl{Person} are uniquely determined by the value of the
 \inlineocl{name} attribute and that the attribute \inlineocl{name} is
 not equal to the empty string (\inlineocl{''}):
+\fixme{notation: should we use our notation or the notation of the standard ?}
 \begin{ocl}
 context Person
   inv: name $\isasymMathOclStrictNotEq$ '' $\isasymMathOclAnd$
