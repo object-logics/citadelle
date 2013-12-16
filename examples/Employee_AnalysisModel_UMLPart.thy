@@ -41,7 +41,7 @@
  ******************************************************************************)
 (* $Id:$ *)
 
-header{* Formalization IV: OCL Contracts and an Example *}
+header{* Formalization IV: The Employee Analysis Model(1) *}
 
 (* This example is not yet balanced. Some parts of should go to
    Part V : State Operations and Objects *)
@@ -52,9 +52,9 @@ imports
   "../src/OCL_main"
 begin
 
-text {* \label{PartIV-UML} *}
+text {* \label{PartIV-UML} \label{chap:eam1} *}
 
-subsection{* Introduction *}
+section{* Introduction *}
 text{* For certain concepts like Classes and Class-types, only a generic definition for its resulting
 semantics can be given. Generic means, there is a function outside HOL that "compiles" a concrete,
 closed-world class diagram into a "theory" of this data model, consisting of a bunch of definitions
@@ -68,10 +68,20 @@ of the compilation informally, and present a concrete example which is verified 
 
 subsection{* Outlining the Example *}
 
-text{* We are presenting here a design-model of the (slightly modified) example Figure 7.3,
-page 20 of the \cite{Standard}. To be precise, this theory contains the formalization of
-the DATA-part covered by the UML diagram: ...
-This means that the association (attached to the association class
+text{* We are presenting here an ``analysis-model'' of the (slightly modified) example Figure 7.3,
+page 20 of the \cite{Standard}. Here, analysis model means that associations were really represented
+as relation on objects on the state --- as is intended by the Standard --- rather by pointers 
+between objects as is done in our ``design model'' \autoref{edm1}.
+To be precise, this theory contains the formalization of the DATA-part covered by the UML diagram:*}
+text{*
+\begin{figure}
+  \centering\scalebox{1}{\includegraphics{figures/person.png}}%
+  \caption{A simple UML class model drawn from Figure 7.3,
+  page 20 of the \cite{Standard}. \label{fig:person}}
+\end{figure}
+*}
+
+text{* This means that the association (attached to the association class
 \emph{EmployeeRanking}) with the association ends \verb+boss+ and \verb+employees+ is implemented
 by the attribute  \verb+boss+ and the operation \verb+employees+ (to be discussed in the OCL part
 captured by the subsequent theory).
@@ -650,8 +660,8 @@ lemma Person_allInstances_IsKindOf\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub
  apply(subst (1 2 3) Abs_Set_0_inverse, simp add: bot_option_def)
 by(simp add: OclIsKindOf\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_Person)
 
-section{* dot boss, dot salary *}
-
+section{* The Accessors dot boss, dot salary *}
+text{*\label{sec:eam-accessors}*}
 text{* Should be generated entirely from a class-diagram. *}
 
 

@@ -106,7 +106,7 @@ properties of casting, and the necessary universe of object
 representations (induced by a class model) that allows to esthablish them.
 *}
 
-subsection{* Onject Universes *}
+subsection{* Object Universes *}
 text{*
 It is natural to construct system states by a set of partial functions
 $f$ that map object identifiers $\oid$ to some representations of
@@ -204,6 +204,9 @@ $\{C_{j_{1}}, \ldots, C_{j_{m}}\}$.
 \end{itemize}
 *}
 
+text{* Example instances of this scheme --- outlining a compiler ---
+can be found in \autoref{chap:eam1} and  \autoref{chap:edm1}.*}
+
 text{*
 This construction can \emph{not} be done in HOL itself since it
 involves quantifications and iterations over the ``set of class-types'';
@@ -230,31 +233,33 @@ desirable for concrete applications of FeatherweightOCL, we consider this
 out of the scope of this paper which has a focus on the semantic construction and its presentation.
 *}
 
+subsection{* Accessors on Objects *}
+
+text{* MORE TO COME. *}
 
 subsection{* Recall: The generic structure of States *}
 
-text{* Next we will introduce the foundational concept of an object id (oid),
-which is just some infinite set.
+text{* Recall the foundational concept of an object id (oid),
+which is just some infinite set.*}
 
-\begin{isar}
-type_synonym oid = nat
-\end{isar}
+text{* \inlineisar+type_synonym oid = nat+ *}
 
- States are pair of a partial map from oid's to elements of an object universe @{text "'\<AA>"}
---- the heap --- and a map to relations of objects. The relations were encoded as lists of
-pairs in order to leave the possibility to have Bags, OrderedSets or Sequences as association
-ends.  *}
-text{* Recall:
+text{*, Further, recall that states are pair of a partial map from oid's to elements of an 
+object universe @{text "'\<AA>"} --- the heap --- and a map to relations of objects. 
+The relations were encoded as lists of pairs in order to leave the possibility to have Bags, 
+OrderedSets or Sequences as association ends.  *}
+text{* This lead to the definitions:
 \begin{isar}
 record ('\<AA>)state =
              heap   :: "oid \<rightharpoonup> '\<AA> "
-             assocs :: "oid  \<rightharpoonup> (oid \<times> oid) list"
-
+             assocs\<^sub>2 :: "oid  \<rightharpoonup> (oid \<times> oid) list"
+             assocs\<^sub>3 :: "oid  \<rightharpoonup> (oid \<times> oid \<times> oid) list"
 
 type_synonym ('\<AA>)st = "'\<AA> state \<times> '\<AA> state"
 \end{isar}
+*}
 
-Now we refine our state-interface.
+text{* Now we refine our state-interface.
 In certain contexts, we will require that the elements of the object universe have
 a particular structure; more precisely, we will require that there is a function that
 reconstructs the oid of an object in the state (we will settle the question how to define
@@ -266,6 +271,8 @@ text{* Thus, if needed, we can constrain the object universe to objects by addin
 the following type class constraint:*}
 typ "'\<AA> :: object"
 
+text{* The major instance needed are instances constructed over options: So, once an object,
+options of objects are also objects... *}
 instantiation   option  :: (object)object
 begin
    definition oid_of_option_def: "oid_of x = oid_of (the x)"
@@ -611,7 +618,7 @@ proof -
              by(insert oid_def, auto simp: type_conform)
  also have   "... = ((\<lambda>_. Type .allInstances() ?\<tau>')->including(\<lambda>_. (\<lambda>_.\<lfloor>\<lfloor>\<lceil>Type Object\<rceil>\<rfloor>\<rfloor>) ?\<tau>') ?\<tau>')"
              by(rule includes_const_inv)
- also have Y: "... = ((Type .allInstances())->including(\<lambda> _. \<lfloor>(Type Object)\<rfloor>)?\<tau>')"
+ also have   "... = ((Type .allInstances())->including(\<lambda> _. \<lfloor>(Type Object)\<rfloor>)?\<tau>')"
              apply(subst OCL_lib.cp_OclIncluding[symmetric])
              by(insert type_conform, auto)
  finally have Y : "Type .allInstances() ?\<tau> = 

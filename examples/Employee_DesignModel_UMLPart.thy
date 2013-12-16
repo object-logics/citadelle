@@ -41,7 +41,7 @@
  ******************************************************************************)
 (* $Id:$ *)
 
-header{* Formalization V: OCL Contracts and an Example *}
+header{* Formalization V: The Employee Design Model(1) *}
 
 (* This example is not yet balanced. Some parts of should go to
    Part VI : State Operations and Objects *)
@@ -52,9 +52,9 @@ imports
   "../src/OCL_main"
 begin
 
-text {* \label{PartV-UML} *}
+text {* \label{PartV-UML} \label{chap:edm1} *}
 
-subsection{* Introduction *}
+section{* Introduction *}
 text{* For certain concepts like Classes and Class-types, only a generic definition for its resulting
 semantics can be given. Generic means, there is a function outside HOL that "compiles" a concrete,
 closed-world class diagram into a "theory" of this data model, consisting of a bunch of definitions
@@ -70,7 +70,13 @@ subsection{* Outlining the Example *}
 
 text{* We are presenting here a design-model of the (slightly modified) example Figure 7.3,
 page 20 of the \cite{Standard}. To be precise, this theory contains the formalization of
-the DATA-part covered by the UML diagram: ...
+the DATA-part covered by the UML diagram: 
+\begin{figure}
+  \centering\scalebox{1}{\includegraphics{figures/person.png}}%
+  \caption{A simple UML class model drawn from Figure 7.3,
+  page 20 of the \cite{Standard}. \label{fig:person}}
+\end{figure}
+
 This means that the association (attached to the association class
 \emph{EmployeeRanking}) with the association ends \verb+boss+ and \verb+employees+ is implemented
 by the attribute  \verb+boss+ and the operation \verb+employees+ (to be discussed in the OCL part
@@ -85,16 +91,17 @@ text{* Our data universe  consists in the concrete class diagram just of node's,
 and implicitly of the class object. Each class implies the existence of a class
 type defined for the corresponding object representations as follows: *}
 
-datatype type\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n = mk\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n oid (* the oid to the person itself *)
+datatype type\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n = mk\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n oid          (* the oid to the person itself *)
                             "int option" (* the attribute "salary" or null *)
                             "oid option" (* the attribute "boss" or null *)
 
 
-datatype type\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y = mk\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y oid (* the oid to the oclany itself *)
+datatype type\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y = mk\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y oid          (* the oid to the oclany itself *)
                             "(int option \<times> oid option) option"
-                             (* the extensions to "person"; used to denote objects of actual type
-                               "person" casted to "oclany"; in case of existence of several subclasses
-                                of oclany, sums of extensions have to be provided. *)
+                                         (* the extensions to "person"; used to denote 
+                                            objects of actual type "person" casted to "oclany"; 
+                                            in case of existence of several subclasses
+                                            of oclany, sums of extensions have to be provided. *)
 
 text{* Now, we construct a concrete "universe of oclany types" by injection into a
 sum type containing the class types. This type of oclanys will be used as instance
@@ -651,8 +658,8 @@ lemma Person_allInstances_IsKindOf\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub
  apply(subst (1 2 3) Abs_Set_0_inverse, simp add: bot_option_def)
 by(simp add: OclIsKindOf\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_Person)
 
-section{* dot boss, dot salary *}
-
+section{* The Accessors dot boss, dot salary *}
+text{*\label{sec:edm-accessors}*}
 text{* Should be generated entirely from a class-diagram. *}
 
 
