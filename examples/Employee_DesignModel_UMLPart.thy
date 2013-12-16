@@ -41,7 +41,7 @@
  ******************************************************************************)
 (* $Id:$ *)
 
-header{* Part V: OCL Contracts and an Example *}
+header{* Formalization V: OCL Contracts and an Example *}
 
 (* This example is not yet balanced. Some parts of should go to
    Part VI : State Operations and Objects *)
@@ -52,7 +52,7 @@ imports
   "../src/OCL_main"
 begin
 
-
+text {* \label{PartV-UML} *}
 
 subsection{* Introduction *}
 text{* For certain concepts like Classes and Class-types, only a generic definition for its resulting
