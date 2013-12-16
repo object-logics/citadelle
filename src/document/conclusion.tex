@@ -2,7 +2,72 @@
 
 \chapter{Conclusion}
 
-\section{Lessons Learned}
+\section{Lessons Learned and Contributions}\fixme{raw input by bu}
+We provided a typed and type-safe shallow embedding 
+of the core of the UML and OCL-language. Shallow-embedding means
+that types of OCL were injectively,\ie{} mapped by the embedding
+one-to-one to types in \HOL. We followed the usual methodology to
+build up the theory uniquely by conservative extensions
+of all operators in a denotational style 
+and to derive logical and algebraic (execution) rules
+from them; thus, we can guarantee the logical consistency 
+of the library and instances of the class model construction,
+  \ie{} closed-world object-oriented data-type theories,
+  as long as it follows the described methodology.
+(Our two examples of \inlineisar+Employee_DesignModel+ sketch
+  how this construction can be captured by an automated process).
+Moreover, all derived execution rules are by construction
+type-safe (which would be an issue, if we had chosen
+  to use an object universe construction in Zermelo-Fraenkel
+  set theory as an alternative approach to subtyping.).
+In more detail, our theory gives answers and concrete
+solutions to a number of open major issues for the UML/OCL standardization:
+\begin{enumerat}
+\item the role of the two exception elements \inlineisar+invalid+
+      and \inlineisar+null+, the former usually assuming strict evaluation
+      while the latter ruled by non-strict evaluation.
+\item the functioning of the resulting four-valued logic,
+      together with safe rules (for example \inlineisar+foundation9+ - 
+      \inlineisar+foundation12+) that allow a reduction
+      to two-valued reasoning as required for many automated
+      provers. The resulting logic still enjoys the rules of a 
+      strong Kleene Logic in the spirit of the Amsterdam Manifesto.
+      \fixme{add ref here.}
+\item the complicated life resulting from the two necessary equalities:
+      the standard's "strict weak referential equality" as default 
+      (written \inlineisar+\<doteq>+ throughout this document) and
+      the strong equality (written \inlineisar+\<triangleq>+), which follows
+      the logical Leipnitz principle that "equals can be replaced by equals".
+      (which is not necessarily the case if \inlineisar+invalid+ 
+       or objects of different states are involved).
+\item a type-safe representation of objects and a clarification of
+      the old idea of a "one-to-one correspondance" between object
+      representations and object-id's, which became a state invariant.
+\item a simple concept of state-framing via the novel operator 
+      \inlineisar+->modifiesOnly()+ and its consequences for strong 
+      and weak equality.
+\item a semantic view on subtyping clarifying the role of static and dynamic type
+      (aka \emph{apparent} and \emph{actual} type in Java terminology), and its 
+      consequences for casts, dynamic type-tests, and static types.
+\item a semantic view on path expressions, that clarify the role of
+      \inlineisar+invalid+ and \inlineisar+null+ as well as the tricky 
+      issues related to de-referentiation in pre- and post state.
+\item an optional extension of the OCL semantics by \emph{infinite} sets
+      that provide means to represent "the set of potential objects or values"
+      to state properties over them (this will be an important feature if
+      OCL is intended to become a full-blown code annotation language in
+      the spirit of JML for semi-automated code verification, and has
+      been considered desirable in the Aachen Meeting \fixme{ add ref.}).
+\end{enumerate}      
+Moreover, we managed to make our theory in large parts executable, which allowed
+us to include mechanically checked \inlineisar+value+-statements in our theory
+that capture numerous corner-cases relevant for OCL implementors. Among many minor
+issues, we thus pin-pointed the behavior of \inlineisar+null+ in collections as
+well as in casts and the desired \inlineisar+isKindOf+-semantics of 
+\inlineisar+allInstances()+.
+
+
+\section{Lessons Learned}\fixme{outdated ?}
 While our paper and pencil arguments, given
 in~\cite{brucker.ea:ocl-null:2009}, turned out to be essentially
 correct, there had also been a lesson to be learned: If the logic is
@@ -37,7 +102,7 @@ ready for interpretation in SMT solvers
 (see~\cite{brucker.ea:ocl-testing:2010} for details) are valid in
 Featherweight OCL.
 
-\section{Conclusion and Future Work}
+\section{Conclusion and Future Work}\fixme{just last para ?}
 Featherweight OCL concentrates on formalizing the semantics of a core
 subset of OCL in general and in particular on formalizing the
 consequences of a four-valued logic (\ie, OCL versions that support,
@@ -111,18 +176,6 @@ for the editor of the standard that helps to check the consistency of
 the whole standard after each and every modifications can be of great
 value as well.
 
-
-\begin{verbatim}
-Conlcusion   (Burkhart provides verbose itemize list,  Achim next round)
-  - equalities
-    Dresden implements strong equality
-    Eclipse OCL: weak equality        
-   - modifiesOnly() / Framing and equality
-   - null
-   - invalid
-   - OO data universes  (casts, typing, actual type / apparent type -
-   check Aachen paper )
-\end{verbatim}
 
 %%% Local Variables: 
 %%% mode: latex
