@@ -233,9 +233,143 @@ desirable for concrete applications of FeatherweightOCL, we consider this
 out of the scope of this paper which has a focus on the semantic construction and its presentation.
 *}
 
-subsection{* Accessors on Objects *}
+subsection{* Accessors on Objects and Associations. *}
 
-text{* MORE TO COME. *}
+text{*
+Our choice to use a shallow embedding of \OCL in \HOL and, thus having
+an injective mapping from \OCL types to \HOL types, results in
+type-safety of Featherweight \OCL. Arguments and results of accessors
+are based on type-safe object representations and \emph{not} $\oid$'s.
+This implies the following scheme for an accessor:
+\begin{itemize}
+\item The \emph{evaluation and extraction} phase. If the argument
+  evaluation results in an object representation, the $\oid$ is
+  extracted, if not, exceptional cases like \inlineocl{invalid} are
+  reported.
+\item The \emph{dereferentiation} phase. The $\oid$ is interpreted in
+  the pre- or post-state, %(depending on the suffix of accessor),
+  the resulting object is casted to the expected format.  The
+  exceptional case of nonexistence in this state must be treated.
+\item The \emph{selection} phase. The corresponding attribute is
+  extracted from the object representation.
+\item The \emph{re-construction} phase.  The resulting value has to be
+  embedded in the adequate \HOL type.  If an attribute has the type of
+  an object (not value), it is represented by an optional (set of)
+  $\oid$, which must be converted via dereferentiation in one of the
+  states in order to produce an object representation again. The
+  exceptional case of nonexistence in this state must be treated.
+\end{itemize}
+*}
+
+text{*
+The first phase directly translates into the following formalization:
+\begin{multline}
+  \shoveleft{\definitionS}\quad\\
+  \begin{array}{rllr}
+ \operatorname{eval\_extract} X\ap f = (\lambda \tau\spot \HolCase
+ X\ap
+ \tau \HolOf & \bottom &\Rightarrow
+ \mocl{invalid}\ap\tau&\text{exception}\\
+ |& \lift{\bottom} &\Rightarrow
+ \mocl{invalid}\ap\tau&\text{deref. null}\\
+ |& \lift{\lift{\mathit{obj}}} &\Rightarrow f\ap (\operatorname{oid\_of} \ap \mathit{obj})\ap\tau)&
+  \end{array}
+\end{multline}
+*}
+
+
+text{*
+For each class $C$, we introduce the dereferentiation phase of this
+form:
+\begin{multline}
+  \definitionS \ap
+  \operatorname{deref\_oid}_C \ap \mathit{fst\_snd}\ap f\ap \mathit{oid} =
+                     (\lambda \tau\spot \HolCase\ap (\operatorname{heap}\ap
+                     (\mathit{fst\_snd}\ap \tau))\ap \mathit{oid}\ap
+                     \HolOf\\
+  \begin{array}{ll}
+           \phantom{|}\ap \lift{\operatorname{in}_C obj} &\Rightarrow f\ap
+                     \mathit{obj} \ap \tau\\
+                     |\ap \_ &\Rightarrow \mocl{invalid}\ap \tau)
+      \end{array}
+   \end{multline}
+*}
+
+text{*
+The operation yields undefined if the $\oid$ is uninterpretable in the
+state or referencing an object representation not conforming to the
+expected type.
+*}
+text{*
+We turn to the selection phase: for each class $C$ in the class model
+with at least one attribute,
+and each attribute $a$ in this class,
+we introduce the selection phase of this form:
+\begin{gather}
+  \begin{array}{rlcll}
+  \definitionS \ap
+    \operatorname{select}_a \ap f = (\lambda &
+                  \operatorname{mk}_C \ap oid & \cdots \bottom \cdots & C_{X\text{ext}} & \Rightarrow \mocl{null}\\
+                  |& \operatorname{mk}_C \ap oid & \cdots \lift{a} \cdots & C_{X\text{ext}}
+                    &\Rightarrow f\ap (\lambda \ap x \ap \_\spot
+                   \lift{\lift{x}})\ap a)
+  \end{array}
+\end{gather}
+*}
+
+text{*
+
+This works for definitions of basic values as well as for object
+references in which the $a$ is of type $\oid$.  To increase
+readability, we introduce the functions:
+\begin{gather}
+\begin{array}{llrlr}
+\qquad\qquad&\definitionS\enspace&\operatorname{in\_pre\_state}    &= \operatorname{fst} & \qquad \text{first component}\\
+\qquad\qquad&\definitionS\enspace&\operatorname{in\_post\_state}   &= \operatorname{snd} & \qquad \text{second component} \\
+\qquad\qquad&\definitionS\enspace&\operatorname{reconst\_basetype} &= \operatorname{id} & \qquad \text{identity function}
+\end{array}
+\end{gather}
+*}
+
+text{*
+Let \_\inlineocl{.getBase} be an accessor of class $C$ yielding a
+value of base-type $A_{base}$. Then its definition is of the form:
+\begin{gather}
+  \begin{array}{lll}
+\definitionS&\_\mocl{.getBase} &\ofType \ap C \Rightarrow A_{base}\\
+\where\enspace&X\mocl{.getBase} &= \operatorname{eval\_extract}\ap X\ap
+                       (\operatorname{deref\_oid}_C\ap \operatorname{in\_post\_state}\ap\\
+              &          &\quad   (\operatorname{select}_\text{getBase}\ap \operatorname{reconst\_basetype}))
+                           \end{array}
+\end{gather}
+*}
+text{*
+Let \_\inlineocl{.getObject} be an accessor of class $C$ yielding a
+value of object-type $A_{object}$. Then its definition is of the form:
+\begin{gather}
+  \begin{array}{lll}
+\definitionS&\_\mocl{.getObject} &\ofType \ap C \Rightarrow A_{object}\\
+\where\enspace&X\mocl{.getObject} &= \operatorname{eval\_extract}\ap X\ap
+                        (\operatorname{deref\_oid}_C\ap \operatorname{in\_post\_state}\ap\\
+     &                    &\quad (\operatorname{select}_\text{getObject}\ap
+                          (\operatorname{deref\_oid}_C\ap\operatorname{in\_post\_state})))
+                           \end{array}
+\end{gather}
+The variant for an accessor yielding a collection is omitted here; its
+construction follows by the application of the principles of the
+former two.  The respective variants
+$\getAttrib{\_}{\text{$a$}\isasymOclATpre}$ were produced when
+\inlineisar+in_post_state+ is replaced by
+$\operatorname{in\_pre\_state}$.
+
+*}
+
+text{* Examples for the construction of accessors via associations can be found in 
+\autoref{sec:eam-accessors}, the construction of accessors via attributes in 
+\autoref{sec:edm-accessors}. The construction of casts and type tests \verb+->oclIstypeOf()+ and 
+\verb+->oclIsKindOf()+ is similarly.
+*}
+
 
 subsection{* Recall: The generic structure of States *}
 
