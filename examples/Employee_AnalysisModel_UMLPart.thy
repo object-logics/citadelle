@@ -611,7 +611,7 @@ subsection{* IsTypeOf *}
 lemma OclAny_allInstances_IsTypeOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y1:
 "\<exists>\<tau>. (\<tau> \<Turnstile>     (OclAny .allInstances()->forAll(X|X .oclIsTypeOf(OclAny))))"
  apply(rule_tac x = \<tau>\<^sub>0 in exI, simp add: \<tau>\<^sub>0_def OclValid_def)
- apply(simp only: OclForall_def OclAllInstances_defined[simplified OclValid_def] refl if_True)
+ apply(simp only: OclForall_def OclAllInstances_at_post_defined[simplified OclValid_def] refl if_True)
  apply(simp only: OclAllInstances_at_post_def OclAllInstances_generic_def)
  apply(subst (1 2 3) Abs_Set_0_inverse, simp add: bot_option_def)
 by(simp add: OclIsTypeOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_OclAny)
@@ -621,7 +621,7 @@ lemma OclAny_allInstances_IsTypeOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub
 proof - fix oid a show ?thesis
  apply(rule_tac x = "(fst \<tau>\<^sub>0, \<lparr>heap = empty(oid \<mapsto> in\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y (mk\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y oid \<lfloor>a\<rfloor>)),
                               assocs\<^sub>2 = empty, assocs\<^sub>3 = empty\<rparr>)" in exI, simp add: OclValid_def)
- apply(simp only: OclForall_def OclAllInstances_defined[simplified OclValid_def] refl if_True)
+ apply(simp only: OclForall_def OclAllInstances_at_post_defined[simplified OclValid_def] refl if_True)
  apply(simp only: OclAllInstances_at_post_def OclAllInstances_generic_def OclAsType\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_\<AA>_def)
  apply(subst (1 2 3) Abs_Set_0_inverse, simp add: bot_option_def)
  by(simp add: OclIsTypeOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_OclAny OclNot_def OclAny_def)
@@ -630,7 +630,7 @@ qed
 lemma Person_allInstances_IsTypeOf\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n:
 "\<tau> \<Turnstile> (Person .allInstances()->forAll(X|X .oclIsTypeOf(Person)))"
  apply(simp add: OclValid_def)
- apply(simp only: OclForall_def OclAllInstances_defined[simplified OclValid_def] refl if_True)
+ apply(simp only: OclForall_def OclAllInstances_at_post_defined[simplified OclValid_def] refl if_True)
  apply(simp only: OclAllInstances_at_post_def OclAllInstances_generic_def)
  apply(subst (1 2 3) Abs_Set_0_inverse, simp add: bot_option_def)
 by(simp add: OclIsTypeOf\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_Person)
@@ -639,7 +639,7 @@ subsection{* IsKindOf *}
 lemma OclAny_allInstances_IsKindOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y:
 "\<tau> \<Turnstile> (OclAny .allInstances()->forAll(X|X .oclIsKindOf(OclAny)))"
  apply(simp add: OclValid_def)
- apply(simp only: OclForall_def OclAllInstances_defined[simplified OclValid_def] refl if_True)
+ apply(simp only: OclForall_def OclAllInstances_at_post_defined[simplified OclValid_def] refl if_True)
  apply(simp only: OclAllInstances_at_post_def OclAllInstances_generic_def)
  apply(subst (1 2 3) Abs_Set_0_inverse, simp add: bot_option_def)
 by(simp add: OclIsKindOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_OclAny)
@@ -647,7 +647,7 @@ by(simp add: OclIsKindOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_OclAny)
 lemma Person_allInstances_IsKindOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y:
 "\<tau> \<Turnstile> (Person .allInstances()->forAll(X|X .oclIsKindOf(OclAny)))"
  apply(simp add: OclValid_def)
- apply(simp only: OclForall_def OclAllInstances_defined[simplified OclValid_def] refl if_True)
+ apply(simp only: OclForall_def OclAllInstances_at_post_defined[simplified OclValid_def] refl if_True)
  apply(simp only: OclAllInstances_at_post_def OclAllInstances_generic_def)
  apply(subst (1 2 3) Abs_Set_0_inverse, simp add: bot_option_def)
 by(simp add: OclIsKindOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_Person)
@@ -655,7 +655,7 @@ by(simp add: OclIsKindOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_Person)
 lemma Person_allInstances_IsKindOf\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n:
 "\<tau> \<Turnstile> (Person .allInstances()->forAll(X|X .oclIsKindOf(Person)))"
  apply(simp add: OclValid_def)
- apply(simp only: OclForall_def OclAllInstances_defined[simplified OclValid_def] refl if_True)
+ apply(simp only: OclForall_def OclAllInstances_at_post_defined[simplified OclValid_def] refl if_True)
  apply(simp only: OclAllInstances_at_post_def OclAllInstances_generic_def)
  apply(subst (1 2 3) Abs_Set_0_inverse, simp add: bot_option_def)
 by(simp add: OclIsKindOf\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_Person)
@@ -1288,17 +1288,17 @@ proof -
   apply(simp only: oid0_def oid1_def oid2_def oid3_def oid4_def oid5_def oid6_def oid7_def oid8_def
                    X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n1_def X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2_def X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n3_def X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n4_def X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n5_def X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n6_def X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n7_def X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n8_def X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n9_def
                    person7_def)
-  apply(subst state_update_vs_allInstances_tc, simp, simp add: OclAsType\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_\<AA>_def, simp, rule cp_1[simplified p7_def], rule including_subst_set, simp, simp)
-  apply(subst state_update_vs_allInstances_tc, simp, simp add: OclAsType\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_\<AA>_def, simp, rule cp_2[simplified p7_def], rule including_subst_set, simp, simp)
-  apply(subst state_update_vs_allInstances_tc, simp, simp add: OclAsType\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_\<AA>_def, simp, rule cp_3[simplified p7_def], rule including_subst_set, simp, simp)
-  apply(subst state_update_vs_allInstances_tc, simp, simp add: OclAsType\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_\<AA>_def, simp, rule cp_4[simplified p7_def], rule including_subst_set, simp, simp)
-  apply(subst state_update_vs_allInstances_tc, simp, simp add: OclAsType\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_\<AA>_def, simp, rule cp_6[simplified p7_def], rule including_subst_set, simp, simp)
-  apply(subst state_update_vs_allInstances_tc, simp, simp add: OclAsType\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_\<AA>_def
+  apply(subst state_update_vs_allInstances_at_post_tc, simp, simp add: OclAsType\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_\<AA>_def, simp, rule cp_1[simplified p7_def], rule including_subst_set, simp, simp)
+  apply(subst state_update_vs_allInstances_at_post_tc, simp, simp add: OclAsType\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_\<AA>_def, simp, rule cp_2[simplified p7_def], rule including_subst_set, simp, simp)
+  apply(subst state_update_vs_allInstances_at_post_tc, simp, simp add: OclAsType\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_\<AA>_def, simp, rule cp_3[simplified p7_def], rule including_subst_set, simp, simp)
+  apply(subst state_update_vs_allInstances_at_post_tc, simp, simp add: OclAsType\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_\<AA>_def, simp, rule cp_4[simplified p7_def], rule including_subst_set, simp, simp)
+  apply(subst state_update_vs_allInstances_at_post_tc, simp, simp add: OclAsType\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_\<AA>_def, simp, rule cp_6[simplified p7_def], rule including_subst_set, simp, simp)
+  apply(subst state_update_vs_allInstances_at_post_tc, simp, simp add: OclAsType\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_\<AA>_def
                                                                         person7_def, simp, rule cp_7[simplified p7_def], rule including_subst_set, simp, simp)
-  apply(subst state_update_vs_allInstances_ntc, simp, simp add: OclAsType\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_\<AA>_def
+  apply(subst state_update_vs_allInstances_at_post_ntc, simp, simp add: OclAsType\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_\<AA>_def
                                                                         person8_def, simp, rule cp_9)
-  apply(subst state_update_vs_allInstances_tc, simp, simp add: OclAsType\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_\<AA>_def, simp, rule cp_9[simplified p7_def], rule including_subst_set, simp, simp)
-  apply(rule state_update_vs_allInstances_empty)
+  apply(subst state_update_vs_allInstances_at_post_tc, simp, simp add: OclAsType\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_\<AA>_def, simp, rule cp_9[simplified p7_def], rule including_subst_set, simp, simp)
+  apply(rule state_update_vs_allInstances_at_post_empty)
  by(simp_all add: OclAsType\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_\<AA>_def)
 qed
 (*

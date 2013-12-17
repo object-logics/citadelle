@@ -539,16 +539,13 @@ definition OclAllInstances_generic :: "(('\<AA>::object) st \<Rightarrow> '\<AA>
 where [simp]: "OclAllInstances_generic fst_snd H =  
                     (\<lambda>\<tau>. Abs_Set_0 \<lfloor>\<lfloor> Some ` ((H ` ran (heap (fst_snd \<tau>))) - { None }) \<rfloor>\<rfloor>)"
 
+subsubsection{* OclAllInstances AT POST *}
 
 definition OclAllInstances_at_post :: "('\<AA> :: object \<rightharpoonup> '\<alpha>) \<Rightarrow> ('\<AA>, '\<alpha> option option) Set"
                            ("_ .allInstances'(')")
 where  "OclAllInstances_at_post H =  OclAllInstances_generic snd H "
 
-definition OclAllInstances_at_pre :: "('\<AA> :: object \<rightharpoonup> '\<alpha>) \<Rightarrow> ('\<AA>, '\<alpha> option option) Set"
-                           ("_ .allInstances@pre'(')")
-where  "OclAllInstances_at_pre H = OclAllInstances_generic fst H "
-
-lemma OclAllInstances_defined: "\<tau> \<Turnstile> \<delta> (X .allInstances())"
+lemma OclAllInstances_at_post_defined: "\<tau> \<Turnstile> \<delta> (X .allInstances())"
  apply(simp add: defined_def OclValid_def OclAllInstances_at_post_def bot_fun_def bot_Set_0_def null_fun_def null_Set_0_def false_def true_def)
  apply(rule conjI)
  apply(rule notI, subst (asm) Abs_Set_0_inject, simp)
@@ -566,10 +563,7 @@ lemma "\<tau>\<^sub>0 \<Turnstile> H .allInstances() \<triangleq> Set{}"
 by(simp add: StrongEq_def OclAllInstances_at_post_def OclValid_def \<tau>\<^sub>0_def mtSet_def)
 
 
-lemma "\<tau>\<^sub>0 \<Turnstile> H .allInstances@pre() \<triangleq> Set{}"
-by(simp add: StrongEq_def OclAllInstances_at_pre_def OclValid_def \<tau>\<^sub>0_def mtSet_def)
-
-lemma state_update_vs_allInstances_empty:
+lemma state_update_vs_allInstances_at_post_empty:
 shows   "(\<sigma>, \<lparr>heap=empty, assocs\<^sub>2=A, assocs\<^sub>3=B\<rparr>) \<Turnstile> Type .allInstances() \<doteq> Set{}"
 proof - 
  have state_update_vs_allInstances_empty: "(Type .allInstances()) (\<sigma>, \<lparr>heap=empty, assocs\<^sub>2=A, assocs\<^sub>3=B\<rparr>) =
@@ -589,7 +583,7 @@ $\tau$'s. For that reason, new concepts like "constant contexts P" are necessary
  in examples, we will prove resulting constraints straight forward by hand.) *}
 
  
-lemma state_update_vs_allInstances_including':
+lemma state_update_vs_allInstances_at_post_including':
 assumes "\<And>x. \<sigma>' oid = Some x \<Longrightarrow> x = Object"
     and "Type Object \<noteq> None"
   shows "(Type .allInstances())
@@ -628,7 +622,7 @@ proof -
 qed
 
 
-lemma state_update_vs_allInstances_including:
+lemma state_update_vs_allInstances_at_post_including:
 assumes "\<And>x. \<sigma>' oid = Some x \<Longrightarrow> x = Object"
     and "Type Object \<noteq> None"
 shows   "(Type .allInstances())
@@ -644,7 +638,7 @@ proof -
 
  show ?thesis
 
-  apply(subst state_update_vs_allInstances_including', (simp add: assms)+)
+  apply(subst state_update_vs_allInstances_at_post_including', (simp add: assms)+)
   apply(subst cp_OclIncluding)
   apply(simp add: OclIncluding_def)
   apply(subst (1 3) cp_defined[symmetric], simp add: allinst_def[simplified OclValid_def])
@@ -656,7 +650,7 @@ qed
 
 
 
-lemma state_update_vs_allInstances_noincluding':
+lemma state_update_vs_allInstances_at_post_noincluding':
 assumes "\<And>x. \<sigma>' oid = Some x \<Longrightarrow> x = Object"
     and "Type Object = None"
   shows "(Type .allInstances())
@@ -688,7 +682,7 @@ proof -
  by (metis fun_upd_apply)
 qed
 
-theorem state_update_vs_allInstances_ntc:
+theorem state_update_vs_allInstances_at_post_ntc:
 assumes oid_def:   "oid\<notin>dom \<sigma>'"
 and  non_type_conform: "Type Object = None "
 and  cp_ctxt:      "cp P"
@@ -716,11 +710,11 @@ proof -
  apply(subst X) apply(subst OCL_core.cp_validity[symmetric])
  apply(rule StrongEq_L_subst3[OF cp_ctxt])
  apply(simp add: OclValid_def StrongEq_def )
- apply(rule state_update_vs_allInstances_noincluding')
+ apply(rule state_update_vs_allInstances_at_post_noincluding')
  by(insert oid_def, auto simp: non_type_conform)
 qed
 
-theorem state_update_vs_allInstances_tc:
+theorem state_update_vs_allInstances_at_post_tc:
 assumes oid_def:   "oid\<notin>dom \<sigma>'"
 and  type_conform: "Type Object \<noteq> None "
 and  cp_ctxt:      "cp P"
@@ -748,7 +742,7 @@ proof -
              by simp
  have        "Type .allInstances() ?\<tau> = 
               \<lambda>_. Type .allInstances() ?\<tau>'->including(\<lambda>_.\<lfloor>\<lfloor>\<lceil>Type Object\<rceil>\<rfloor>\<rfloor>) ?\<tau>"
-             apply(rule state_update_vs_allInstances_including)
+             apply(rule state_update_vs_allInstances_at_post_including)
              by(insert oid_def, auto simp: type_conform)
  also have   "... = ((\<lambda>_. Type .allInstances() ?\<tau>')->including(\<lambda>_. (\<lambda>_.\<lfloor>\<lfloor>\<lceil>Type Object\<rceil>\<rfloor>\<rfloor>) ?\<tau>') ?\<tau>')"
              by(rule includes_const_inv)
@@ -765,28 +759,217 @@ proof -
  done
 qed
 
+subsubsection{* OclAllInstances AT PRE *}
+
+definition OclAllInstances_at_pre :: "('\<AA> :: object \<rightharpoonup> '\<alpha>) \<Rightarrow> ('\<AA>, '\<alpha> option option) Set"
+                           ("_ .allInstances@pre'(')")
+where  "OclAllInstances_at_pre H = OclAllInstances_generic fst H "
+
+lemma OclAllInstances_at_pre_defined: "\<tau> \<Turnstile> \<delta> (X .allInstances@pre())"
+ apply(simp add: defined_def OclValid_def OclAllInstances_at_pre_def bot_fun_def bot_Set_0_def null_fun_def null_Set_0_def false_def true_def)
+ apply(rule conjI)
+ apply(rule notI, subst (asm) Abs_Set_0_inject, simp)
+ apply(rule disjI2)+
+  apply (metis bot_option_def option.distinct(1))
+ apply(simp add: bot_option_def)+
+
+ apply(rule notI, subst (asm) Abs_Set_0_inject, simp)
+ apply(rule disjI2)+
+  apply (metis bot_option_def option.distinct(1))
+ apply(simp add: bot_option_def null_option_def)+
+done
+
+lemma "\<tau>\<^sub>0 \<Turnstile> H .allInstances@pre() \<triangleq> Set{}"
+by(simp add: StrongEq_def OclAllInstances_at_pre_def OclValid_def \<tau>\<^sub>0_def mtSet_def)
 
 
-theorem state_update_vs_allInstances_tc_at_pre:
-assumes oid_def:      "oid\<notin>dom \<sigma>"
-and     type_conform: "Type Object \<noteq> None "
-and     cp_ctxt:      "cp P"
+lemma state_update_vs_allInstances_at_pre_empty:
+shows   "(\<lparr>heap=empty, assocs\<^sub>2=A, assocs\<^sub>3=B\<rparr>, \<sigma>) \<Turnstile> Type .allInstances@pre() \<doteq> Set{}"
+proof - 
+ have state_update_vs_allInstances_empty: "(Type .allInstances@pre()) (\<lparr>heap=empty, assocs\<^sub>2=A, assocs\<^sub>3=B\<rparr>, \<sigma>) =
+                                           Set{} (\<lparr>heap=empty, assocs\<^sub>2=A, assocs\<^sub>3=B\<rparr>, \<sigma>)"
+ by(simp add: OclAllInstances_at_pre_def mtSet_def)
+ show ?thesis
+  apply(simp only: OclValid_def, subst cp_StrictRefEq\<^sub>S\<^sub>e\<^sub>t, simp add: state_update_vs_allInstances_empty)
+  apply(simp add: OclIf_def valid_def mtSet_def defined_def bot_fun_def bot_option_def null_fun_def null_option_def invalid_def bot_Set_0_def)
+ by(subst Abs_Set_0_inject, (simp add: bot_option_def)+)
+qed
+
+lemma state_update_vs_allInstances_at_pre_including':
+assumes "\<And>x. \<sigma>' oid = Some x \<Longrightarrow> x = Object"
+    and "Type Object \<noteq> None"
+  shows "(Type .allInstances@pre())
+         (\<lparr>heap=\<sigma>'(oid\<mapsto>Object), assocs\<^sub>2=A, assocs\<^sub>3=B\<rparr>, \<sigma>)
+         =
+         ((Type .allInstances@pre())->including(\<lambda> _. \<lfloor>\<lfloor> drop (Type Object) \<rfloor>\<rfloor>))
+         (\<lparr>heap=\<sigma>',assocs\<^sub>2=A, assocs\<^sub>3=B\<rparr>, \<sigma>)"
+proof -
+ have allinst_def : "(\<lparr>heap = \<sigma>', assocs\<^sub>2=A, assocs\<^sub>3=B\<rparr>, \<sigma>) \<Turnstile> (\<delta> (Type .allInstances@pre()))"
+  apply(simp add: defined_def OclValid_def bot_fun_def null_fun_def bot_Set_0_def null_Set_0_def OclAllInstances_at_pre_def)
+  apply(subst (1 2) Abs_Set_0_inject)
+ by(simp add: bot_option_def null_option_def)+
+
+ have drop_none : "\<And>x. x \<noteq> None \<Longrightarrow> \<lfloor>\<lceil>x\<rceil>\<rfloor> = x"
+ by(case_tac x, simp+)
+
+ have insert_diff : "\<And>x S. insert \<lfloor>x\<rfloor> (S - {None}) = (insert \<lfloor>x\<rfloor> S) - {None}"
+ by (metis insert_Diff_if option.distinct(1) singletonE)
+
+ show ?thesis
+  apply(simp add: OclIncluding_def allinst_def[simplified OclValid_def],
+       simp add: OclAllInstances_at_pre_def)
+  apply(subst Abs_Set_0_inverse, simp add: bot_option_def, simp add: comp_def)
+  apply(subst image_insert[symmetric])
+  apply(subst drop_none, simp add: assms)
+  apply(case_tac "Type Object", simp add: assms, simp only:)
+  apply(subst insert_diff, drule sym, simp)
+  apply(subgoal_tac "ran (\<sigma>'(oid \<mapsto> Object)) = insert Object (ran \<sigma>')", simp)
+  apply(case_tac "\<not> (\<exists>x. \<sigma>' oid = Some x)")
+  apply(rule ran_map_upd, simp)
+  apply(simp, erule exE, frule assms, simp)
+  apply(subgoal_tac "Object \<in> ran \<sigma>'") prefer 2
+  apply(rule ranI, simp)
+  apply(subst insert_absorb, simp)
+ by (metis fun_upd_apply)
+qed
+
+
+lemma state_update_vs_allInstances_at_pre_including:
+assumes "\<And>x. \<sigma>' oid = Some x \<Longrightarrow> x = Object"
+    and "Type Object \<noteq> None"
+shows   "(Type .allInstances@pre())
+         (\<lparr>heap=\<sigma>'(oid\<mapsto>Object), assocs\<^sub>2=A, assocs\<^sub>3=B\<rparr>, \<sigma>)
+         =
+         ((\<lambda>_. (Type .allInstances@pre()) (\<lparr>heap=\<sigma>', assocs\<^sub>2=A, assocs\<^sub>3=B\<rparr>, \<sigma>))->including(\<lambda> _. \<lfloor>\<lfloor> drop (Type Object) \<rfloor>\<rfloor>))
+         (\<lparr>heap=\<sigma>'(oid\<mapsto>Object), assocs\<^sub>2=A, assocs\<^sub>3=B\<rparr>, \<sigma>)"
+proof -
+ have allinst_def : "(\<lparr>heap = \<sigma>', assocs\<^sub>2=A, assocs\<^sub>3=B\<rparr>, \<sigma>) \<Turnstile> (\<delta> (Type .allInstances@pre()))"
+  apply(simp add: defined_def OclValid_def bot_fun_def null_fun_def bot_Set_0_def null_Set_0_def OclAllInstances_at_pre_def)
+  apply(subst (1 2) Abs_Set_0_inject)
+ by(simp add: bot_option_def null_option_def)+
+
+ show ?thesis
+
+  apply(subst state_update_vs_allInstances_at_pre_including', (simp add: assms)+)
+  apply(subst cp_OclIncluding)
+  apply(simp add: OclIncluding_def)
+  apply(subst (1 3) cp_defined[symmetric], simp add: allinst_def[simplified OclValid_def])
+
+  apply(simp add: defined_def OclValid_def bot_fun_def null_fun_def bot_Set_0_def null_Set_0_def OclAllInstances_at_pre_def)
+  apply(subst (1 3) Abs_Set_0_inject)
+ by(simp add: bot_option_def null_option_def)+
+qed
+
+
+
+lemma state_update_vs_allInstances_at_pre_noincluding':
+assumes "\<And>x. \<sigma>' oid = Some x \<Longrightarrow> x = Object"
+    and "Type Object = None"
+  shows "(Type .allInstances@pre())
+         (\<lparr>heap=\<sigma>'(oid\<mapsto>Object), assocs\<^sub>2=A, assocs\<^sub>3=B\<rparr>, \<sigma>)
+         =
+         (Type .allInstances@pre())
+         (\<lparr>heap=\<sigma>', assocs\<^sub>2=A, assocs\<^sub>3=B\<rparr>, \<sigma>)"
+proof -
+ have allinst_def : "(\<lparr>heap = \<sigma>', assocs\<^sub>2=A, assocs\<^sub>3=B\<rparr>, \<sigma>) \<Turnstile> (\<delta> (Type .allInstances@pre()))"
+  apply(simp add: defined_def OclValid_def bot_fun_def null_fun_def bot_Set_0_def null_Set_0_def OclAllInstances_at_pre_def)
+  apply(subst (1 2) Abs_Set_0_inject)
+ by(simp add: bot_option_def null_option_def)+
+
+ have drop_none : "\<And>x. x \<noteq> None \<Longrightarrow> \<lfloor>\<lceil>x\<rceil>\<rfloor> = x"
+ by(case_tac x, simp+)
+
+ have insert_diff : "\<And>x S. insert \<lfloor>x\<rfloor> (S - {None}) = (insert \<lfloor>x\<rfloor> S) - {None}"
+ by (metis insert_Diff_if option.distinct(1) singletonE)
+
+ show ?thesis
+  apply(simp add: OclIncluding_def allinst_def[simplified OclValid_def] OclAllInstances_at_pre_def)
+  apply(subgoal_tac "ran (\<sigma>'(oid \<mapsto> Object)) = insert Object (ran \<sigma>')", simp add: assms)
+  apply(case_tac "\<not> (\<exists>x. \<sigma>' oid = Some x)")
+  apply(rule ran_map_upd, simp)
+  apply(simp, erule exE, frule assms, simp)
+  apply(subgoal_tac "Object \<in> ran \<sigma>'") prefer 2
+  apply(rule ranI, simp)
+  apply(subst insert_absorb, simp)
+ by (metis fun_upd_apply)
+qed
+
+theorem state_update_vs_allInstances_at_pre_ntc:
+assumes oid_def:   "oid\<notin>dom \<sigma>'"
+and  non_type_conform: "Type Object = None "
+and  cp_ctxt:      "cp P"
 and  const_ctxt:   "\<forall> X. \<forall>\<tau> \<tau>'. X \<tau> = X \<tau>' \<longrightarrow> P X \<tau> =  P X \<tau>' "
-shows   "((\<lparr>heap=\<sigma>(oid\<mapsto>Object), assocs\<^sub>2=A, assocs\<^sub>3=B\<rparr>, \<sigma>') \<Turnstile> (P(Type .allInstances@pre()))) =
-         ((\<lparr>heap=\<sigma>, assocs\<^sub>2=A, assocs\<^sub>3=B\<rparr>, \<sigma>') \<Turnstile> (P((Type .allInstances@pre())
-                                                 ->including(\<lambda> _. \<lfloor>\<lfloor>drop (Type Object)\<rfloor>\<rfloor>)))) "
-(* analogously *)
-oops
+shows   "((\<lparr>heap=\<sigma>'(oid\<mapsto>Object),assocs\<^sub>2=A,assocs\<^sub>3=B\<rparr>, \<sigma>) \<Turnstile> (P(Type .allInstances@pre()))) =
+         ((\<lparr>heap=\<sigma>', assocs\<^sub>2=A, assocs\<^sub>3=B\<rparr>, \<sigma>)            \<Turnstile> (P(Type .allInstances@pre())))"
+         (is "(?\<tau> \<Turnstile> P ?\<phi>) = (?\<tau>' \<Turnstile> P ?\<phi>)") 
+proof -
+ have P_cp  : "\<And>x \<tau>. P x \<tau> = P (\<lambda>_. x \<tau>) \<tau>" 
+             by (metis (full_types) cp_ctxt cp_def) 
+ have includes_const_inv: "\<And>x S \<tau> \<tau>'. (\<lambda>_. S)->including(\<lambda>_. x) \<tau> = ((\<lambda>_. S)->including(\<lambda>_. x) \<tau>')"
+             by(simp add: OclIncluding_def defined_def valid_def 
+                          bot_fun_def null_fun_def true_def false_def)
+ have       "(?\<tau> \<Turnstile> P ?\<phi>) = (?\<tau> \<Turnstile> \<lambda>_. P ?\<phi> ?\<tau>)"
+             by(subst OCL_core.cp_validity, rule refl)
+ also have  "... = (?\<tau> \<Turnstile> \<lambda>_. P (\<lambda>_. ?\<phi> ?\<tau>)  ?\<tau>)"
+             by(subst P_cp, rule refl)
+ also have  "... = (?\<tau>' \<Turnstile> \<lambda>_. P (\<lambda>_. ?\<phi> ?\<tau>)  ?\<tau>')"
+             apply(simp add: OclValid_def)
+             apply(subst const_ctxt[THEN spec,of"(\<lambda>_. ?\<phi> ?\<tau>)",THEN spec,of"?\<tau>",THEN spec,of"?\<tau>'"])
+             by simp+
+ finally have X: "(?\<tau> \<Turnstile> P ?\<phi>) = (?\<tau>' \<Turnstile> \<lambda>_. P (\<lambda>_. ?\<phi> ?\<tau>)  ?\<tau>')"
+             by simp         
+ show ?thesis
+ apply(subst X) apply(subst OCL_core.cp_validity[symmetric])
+ apply(rule StrongEq_L_subst3[OF cp_ctxt])
+ apply(simp add: OclValid_def StrongEq_def )
+ apply(rule state_update_vs_allInstances_at_pre_noincluding')
+ by(insert oid_def, auto simp: non_type_conform)
+qed
 
-theorem state_update_vs_allInstances_ntc_at_pre:
-assumes oid_def:      "oid\<notin>dom \<sigma>"
-and     type_conform: "Type Object = None "
-and     cp_ctxt:      "cp P"
+theorem state_update_vs_allInstances_at_pre_tc:
+assumes oid_def:   "oid\<notin>dom \<sigma>'"
+and  type_conform: "Type Object \<noteq> None "
+and  cp_ctxt:      "cp P"
 and  const_ctxt:   "\<forall> X. \<forall>\<tau> \<tau>'. X \<tau> = X \<tau>' \<longrightarrow> P X \<tau> =  P X \<tau>' "
-shows   "((\<lparr>heap=\<sigma>(oid\<mapsto>Object), assocs\<^sub>2=A, assocs\<^sub>3=B\<rparr>, \<sigma>') \<Turnstile> (P(Type .allInstances@pre()))) =
-          ((\<lparr>heap=\<sigma>, assocs\<^sub>2=A, assocs\<^sub>3=B\<rparr>, \<sigma>')             \<Turnstile> (P(Type .allInstances@pre()))) "
-(* analogously *)
-oops
+shows   "((\<lparr>heap=\<sigma>'(oid\<mapsto>Object),assocs\<^sub>2=A,assocs\<^sub>3=B\<rparr>, \<sigma>) \<Turnstile> (P(Type .allInstances@pre()))) =
+         ((\<lparr>heap=\<sigma>', assocs\<^sub>2=A, assocs\<^sub>3=B\<rparr>, \<sigma>)            \<Turnstile> (P((Type .allInstances@pre())
+                                                               ->including(\<lambda> _. \<lfloor>(Type Object)\<rfloor>))))"
+         (is "(?\<tau> \<Turnstile> P ?\<phi>) = (?\<tau>' \<Turnstile> P ?\<phi>')") 
+                                                           
+proof -
+ have P_cp  : "\<And>x \<tau>. P x \<tau> = P (\<lambda>_. x \<tau>) \<tau>" 
+             by (metis (full_types) cp_ctxt cp_def) 
+ have includes_const_inv: "\<And>x S \<tau> \<tau>'. (\<lambda>_. S)->including(\<lambda>_. x) \<tau> = ((\<lambda>_. S)->including(\<lambda>_. x) \<tau>')"
+             by(simp add: OclIncluding_def defined_def valid_def 
+                          bot_fun_def null_fun_def true_def false_def)
+ have       "(?\<tau> \<Turnstile> P ?\<phi>) = (?\<tau> \<Turnstile> \<lambda>_. P ?\<phi> ?\<tau>)"
+             by(subst OCL_core.cp_validity, rule refl)
+ also have  "... = (?\<tau> \<Turnstile> \<lambda>_. P (\<lambda>_. ?\<phi> ?\<tau>)  ?\<tau>)"
+             by(subst P_cp, rule refl)
+ also have  "... = (?\<tau>' \<Turnstile> \<lambda>_. P (\<lambda>_. ?\<phi> ?\<tau>)  ?\<tau>')"
+             apply(simp add: OclValid_def)
+             apply(subst const_ctxt[THEN spec,of"(\<lambda>_. ?\<phi> ?\<tau>)",THEN spec,of"?\<tau>",THEN spec,of"?\<tau>'"])
+             by simp+
+ finally have X: "(?\<tau> \<Turnstile> P ?\<phi>) = (?\<tau>' \<Turnstile> \<lambda>_. P (\<lambda>_. ?\<phi> ?\<tau>)  ?\<tau>')"
+             by simp
+ have        "Type .allInstances@pre() ?\<tau> = 
+              \<lambda>_. Type .allInstances@pre() ?\<tau>'->including(\<lambda>_.\<lfloor>\<lfloor>\<lceil>Type Object\<rceil>\<rfloor>\<rfloor>) ?\<tau>"
+             apply(rule state_update_vs_allInstances_at_pre_including)
+             by(insert oid_def, auto simp: type_conform)
+ also have   "... = ((\<lambda>_. Type .allInstances@pre() ?\<tau>')->including(\<lambda>_. (\<lambda>_.\<lfloor>\<lfloor>\<lceil>Type Object\<rceil>\<rfloor>\<rfloor>) ?\<tau>') ?\<tau>')"
+             by(rule includes_const_inv)
+ also have   "... = ((Type .allInstances@pre())->including(\<lambda> _. \<lfloor>(Type Object)\<rfloor>)?\<tau>')"
+             apply(subst OCL_lib.cp_OclIncluding[symmetric])
+             by(insert type_conform, auto)
+ finally have Y : "Type .allInstances@pre() ?\<tau> = 
+                   ((Type .allInstances@pre())->including(\<lambda> _. \<lfloor>(Type Object)\<rfloor>) ?\<tau>')"
+             by auto
+ show ?thesis
+      apply(subst X) apply(subst OCL_core.cp_validity[symmetric])
+      apply(rule StrongEq_L_subst3[OF cp_ctxt])
+      apply(simp add: OclValid_def StrongEq_def Y)
+ done
+qed
 
 subsection{* OclIsNew *}
 
