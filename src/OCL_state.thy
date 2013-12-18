@@ -525,7 +525,7 @@ theorem StrictRefEq\<^sub>O\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t_vs_StrongEq'
 assumes WFF: "WFF \<tau>"
 and valid_x: "\<tau> \<Turnstile>(\<upsilon> (x :: ('\<AA>::object,'\<alpha>::{null,object})val))"
 and valid_y: "\<tau> \<Turnstile>(\<upsilon> y)"
-and oid_preserve: "\<And>x. oid_of (H x) = oid_of x"
+and oid_preserve: "\<And>x. H x \<noteq> \<bottom> \<Longrightarrow> oid_of (H x) = oid_of x"
 and xy_together: "x \<tau> \<in> H ` ran (heap(fst \<tau>)) \<and> y \<tau> \<in> H ` ran (heap(fst \<tau>)) \<or>
                   x \<tau> \<in> H ` ran (heap(snd \<tau>)) \<and> y \<tau> \<in> H ` ran (heap(snd \<tau>))"
  (* x and y must be object representations that exist in either the pre or post state *)
@@ -533,7 +533,7 @@ shows "(\<tau> \<Turnstile> (StrictRefEq\<^sub>O\<^sub>b\<^sub>j\<^sub>e\<^sub>c
  apply(insert WFF valid_x valid_y xy_together)
  apply(simp add: WFF_def)
  apply(auto simp: StrictRefEq\<^sub>O\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t_def OclValid_def WFF_def StrongEq_def true_def Ball_def)
-by (metis oid_preserve)+
+by (metis foundation18' oid_preserve valid_x valid_y)+
 
 text{* So, if two object descriptions live in the same state (both pre or post), the referential
 equality on objects implies in a WFF state the logical equality. Uffz. *}
@@ -1100,6 +1100,53 @@ proof -
       apply(subst X) apply(subst OCL_core.cp_validity[symmetric])
       apply(rule StrongEq_L_subst3[OF cp_ctxt])
       apply(simp add: OclValid_def StrongEq_def Y)
+ done
+qed
+
+subsubsection{* AT POST or AT PRE *}
+
+theorem StrictRefEq\<^sub>O\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t_vs_StrongEq'':
+assumes WFF: "WFF \<tau>"
+and valid_x: "\<tau> \<Turnstile>(\<upsilon> (x :: ('\<AA>::object,'\<alpha>::object option option)val))"
+and valid_y: "\<tau> \<Turnstile>(\<upsilon> y)"
+and oid_preserve: "\<And>x. oid_of (H x) = oid_of x"
+and xy_together: "\<tau> \<Turnstile> ((H .allInstances()->includes(x) and (H .allInstances()->includes(y))) or
+                       (H .allInstances@pre()->includes(x) and (H .allInstances@pre()->includes(y))))"
+ (* x and y must be object representations that exist in either the pre or post state *)
+shows "(\<tau> \<Turnstile> (StrictRefEq\<^sub>O\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t x y)) = (\<tau> \<Turnstile> (x \<triangleq> y))"
+proof -
+   have at_post_def : "\<And>x. \<tau> \<Turnstile> \<upsilon> x \<Longrightarrow> \<tau> \<Turnstile> \<delta> (H .allInstances()->includes(x))"
+    apply(simp add: OclIncludes_def OclValid_def OclAllInstances_at_post_defined[simplified OclValid_def])
+   by(subst cp_defined, simp)
+   have at_pre_def : "\<And>x. \<tau> \<Turnstile> \<upsilon> x \<Longrightarrow> \<tau> \<Turnstile> \<delta> (H .allInstances@pre()->includes(x))"
+    apply(simp add: OclIncludes_def OclValid_def OclAllInstances_at_pre_defined[simplified OclValid_def])
+   by(subst cp_defined, simp)
+   have F: "Rep_Set_0 (Abs_Set_0 \<lfloor>\<lfloor>Some ` (H ` ran (heap (fst \<tau>)) - {None})\<rfloor>\<rfloor>) =
+            \<lfloor>\<lfloor>Some ` (H ` ran (heap (fst \<tau>)) - {None})\<rfloor>\<rfloor>" 
+           by(subst OCL_lib.Set_0.Abs_Set_0_inverse,simp_all add: bot_option_def) 
+   have F': "Rep_Set_0 (Abs_Set_0 \<lfloor>\<lfloor>Some ` (H ` ran (heap (snd \<tau>)) - {None})\<rfloor>\<rfloor>) =
+            \<lfloor>\<lfloor>Some ` (H ` ran (heap (snd \<tau>)) - {None})\<rfloor>\<rfloor>" 
+           by(subst OCL_lib.Set_0.Abs_Set_0_inverse,simp_all add: bot_option_def) 
+ show ?thesis
+  apply(rule StrictRefEq\<^sub>O\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t_vs_StrongEq'[OF WFF valid_x valid_y, where H = "Some o H"])
+  apply(subst oid_preserve[symmetric], simp, simp add: oid_of_option_def)
+  apply(insert xy_together)
+  apply(subst (asm) foundation11)
+  apply (metis at_post_def defined_and_I valid_x valid_y)
+  apply (metis at_pre_def defined_and_I valid_x valid_y)
+  apply(erule disjE)
+  (* *)
+  apply(drule foundation5, 
+        simp add: OclAllInstances_at_post_def OclValid_def OclIncludes_def true_def F F'
+                  valid_x[simplified OclValid_def] valid_y[simplified OclValid_def] bot_option_def
+             split: split_if_asm)
+  apply(simp add: comp_def image_def, fastforce)
+  (* *)
+  apply(drule foundation5, 
+        simp add: OclAllInstances_at_pre_def OclValid_def OclIncludes_def true_def F F'
+                  valid_x[simplified OclValid_def] valid_y[simplified OclValid_def] bot_option_def
+             split: split_if_asm)
+  apply(simp add: comp_def image_def, fastforce)
  done
 qed
 
