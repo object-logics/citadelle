@@ -521,6 +521,19 @@ apply(auto simp: StrictRefEq\<^sub>O\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t_def
 apply(erule_tac x="x \<tau>" in allE', simp_all)
 done
 
+theorem StrictRefEq\<^sub>O\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t_vs_StrongEq':
+assumes WFF: "WFF \<tau>"
+and valid_x: "\<tau> \<Turnstile>(\<upsilon> (x :: ('\<AA>::object,'\<alpha>::{null,object})val))"
+and valid_y: "\<tau> \<Turnstile>(\<upsilon> y)"
+and oid_preserve: "\<And>x. oid_of (H x) = oid_of x"
+and xy_together: "x \<tau> \<in> H ` ran (heap(fst \<tau>)) \<and> y \<tau> \<in> H ` ran (heap(fst \<tau>)) \<or>
+                  x \<tau> \<in> H ` ran (heap(snd \<tau>)) \<and> y \<tau> \<in> H ` ran (heap(snd \<tau>))"
+ (* x and y must be object representations that exist in either the pre or post state *)
+shows "(\<tau> \<Turnstile> (StrictRefEq\<^sub>O\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t x y)) = (\<tau> \<Turnstile> (x \<triangleq> y))"
+ apply(insert WFF valid_x valid_y xy_together)
+ apply(simp add: WFF_def)
+ apply(auto simp: StrictRefEq\<^sub>O\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t_def OclValid_def WFF_def StrongEq_def true_def Ball_def)
+by (metis oid_preserve)+
 
 text{* So, if two object descriptions live in the same state (both pre or post), the referential
 equality on objects implies in a WFF state the logical equality. Uffz. *}
@@ -598,6 +611,31 @@ apply(insert  A[THEN OCL_core.foundation6,
 apply(simp add: OCL_core.foundation16 OCL_core.foundation18 invalid_def, erule conjE)
 apply(insert A[THEN represented_at_post_objects_nonnull])
 by(simp add: foundation24 null_fun_def)
+
+
+text{* One way to establish the actual presence of an object representation in a state is:*}
+
+lemma 
+assumes A: "\<tau> \<Turnstile> H .allInstances()->includes(x)"
+shows      "x \<tau> \<in> (Some o H) ` ran (heap(snd \<tau>))"
+proof -
+   have B: "(\<delta> H .allInstances()) \<tau> = true \<tau>" 
+           by(simp add: OCL_core.OclValid_def[symmetric] OclAllInstances_at_post_defined)
+   have C: "(\<upsilon> x) \<tau> = true \<tau>"  
+           by(insert  A[THEN OCL_core.foundation6, 
+                           simplified OCL_lib.OclIncludes_defined_args_valid], 
+                 auto simp: OclValid_def)
+   have F: "Rep_Set_0 (Abs_Set_0 \<lfloor>\<lfloor>Some ` (H ` ran (heap (snd \<tau>)) - {None})\<rfloor>\<rfloor>) =
+            \<lfloor>\<lfloor>Some ` (H ` ran (heap (snd \<tau>)) - {None})\<rfloor>\<rfloor>" 
+           by(subst OCL_lib.Set_0.Abs_Set_0_inverse,simp_all add: bot_option_def) 
+   show ?thesis
+    apply(insert A)
+    apply(simp add: OclIncludes_def OclValid_def ran_def B C image_def true_def)
+    apply(simp add: OclAllInstances_at_post_def)
+    apply(simp add: F)
+    apply(simp add: ran_def)
+   by(fastforce)
+qed
 
 
 lemma state_update_vs_allInstances_at_post_empty:
@@ -850,6 +888,31 @@ apply(insert  A[THEN OCL_core.foundation6,
 apply(simp add: OCL_core.foundation16 OCL_core.foundation18 invalid_def, erule conjE)
 apply(insert A[THEN represented_at_pre_objects_nonnull])
 by(simp add: foundation24 null_fun_def)
+
+
+text{* One way to establish the actual presence of an object representation in a state is:*}
+
+lemma 
+assumes A: "\<tau> \<Turnstile> H .allInstances@pre()->includes(x)"
+shows      "x \<tau> \<in> (Some o H) ` ran (heap(fst \<tau>))"
+proof -
+   have B: "(\<delta> H .allInstances@pre()) \<tau> = true \<tau>" 
+           by(simp add: OCL_core.OclValid_def[symmetric] OclAllInstances_at_pre_defined)
+   have C: "(\<upsilon> x) \<tau> = true \<tau>"  
+           by(insert  A[THEN OCL_core.foundation6, 
+                           simplified OCL_lib.OclIncludes_defined_args_valid], 
+                 auto simp: OclValid_def)
+   have F: "Rep_Set_0 (Abs_Set_0 \<lfloor>\<lfloor>Some ` (H ` ran (heap (fst \<tau>)) - {None})\<rfloor>\<rfloor>) =
+            \<lfloor>\<lfloor>Some ` (H ` ran (heap (fst \<tau>)) - {None})\<rfloor>\<rfloor>" 
+           by(subst OCL_lib.Set_0.Abs_Set_0_inverse,simp_all add: bot_option_def) 
+   show ?thesis
+    apply(insert A)
+    apply(simp add: OclIncludes_def OclValid_def ran_def B C image_def true_def)
+    apply(simp add: OclAllInstances_at_pre_def)
+    apply(simp add: F)
+    apply(simp add: ran_def)
+   by(fastforce)
+qed
 
 
 lemma state_update_vs_allInstances_at_pre_empty:
