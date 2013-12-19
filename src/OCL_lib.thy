@@ -126,6 +126,15 @@ lemma [simp,code_unfold]: "\<upsilon> \<eight> = true" by(simp add:OclInt8_def)
 lemma [simp,code_unfold]: "\<delta> \<nine> = true" by(simp add:OclInt9_def)
 lemma [simp,code_unfold]: "\<upsilon> \<nine> = true" by(simp add:OclInt9_def)
 
+text{* The last basic operation belonging to the fundamental infrastructure
+of a value-type in OCl is the weak equality, which is defined similar 
+to the @{typ "('\<AA>)Boolean"}-case as strict extension of the strong equality:*}
+defs   StrictRefEq\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r[code_unfold] :
+      "(x::('\<AA>)Integer) \<doteq> y \<equiv> \<lambda> \<tau>. if (\<upsilon> x) \<tau> = true \<tau> \<and> (\<upsilon> y) \<tau> = true \<tau>
+                                    then (x \<triangleq> y) \<tau>
+                                    else invalid \<tau>"
+
+
 subsection{* Arithmetical Operations on Integer *}
 
 subsubsection{* Definition *}
@@ -219,27 +228,6 @@ null in the language does not make much sense. This is an important exception
 from the general rule that null arguments --- especially if passed as "self"-argument ---
 lead to invalid results. *}
 
-consts StrictRefEq :: "[('\<AA>,'a)val,('\<AA>,'a)val] \<Rightarrow> ('\<AA>)Boolean" (infixl "\<doteq>" 30)
-
-syntax
-  "notequal"        :: "('\<AA>)Boolean \<Rightarrow> ('\<AA>)Boolean \<Rightarrow> ('\<AA>)Boolean"   (infix "<>" 40)
-translations
-  "a <> b" == "CONST OclNot( a \<doteq> b)"
-
-defs   StrictRefEq\<^sub>B\<^sub>o\<^sub>o\<^sub>l\<^sub>e\<^sub>a\<^sub>n[code_unfold] :
-      "(x::('\<AA>)Boolean) \<doteq> y \<equiv> \<lambda> \<tau>. if (\<upsilon> x) \<tau> = true \<tau> \<and> (\<upsilon> y) \<tau> = true \<tau>
-                                    then (x \<triangleq> y)\<tau>
-                                    else invalid \<tau>"
-
-defs   StrictRefEq\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r[code_unfold] :
-      "(x::('\<AA>)Integer) \<doteq> y \<equiv> \<lambda> \<tau>. if (\<upsilon> x) \<tau> = true \<tau> \<and> (\<upsilon> y) \<tau> = true \<tau>
-                                    then (x \<triangleq> y) \<tau>
-                                    else invalid \<tau>"
-
-lemma [simp,code_unfold] : "(true \<doteq> false) = false"
-by(simp add:StrictRefEq\<^sub>B\<^sub>o\<^sub>o\<^sub>l\<^sub>e\<^sub>a\<^sub>n)
-lemma [simp,code_unfold] : "(false \<doteq> true) = false"
-by(simp add:StrictRefEq\<^sub>B\<^sub>o\<^sub>o\<^sub>l\<^sub>e\<^sub>a\<^sub>n)
 
 value "\<tau> \<Turnstile> \<one> <> \<two>"
 value "\<tau> \<Turnstile> \<two> <> \<one>"
