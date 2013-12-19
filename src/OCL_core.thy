@@ -544,6 +544,20 @@ by(simp add:StrictRefEq\<^sub>B\<^sub>o\<^sub>o\<^sub>l\<^sub>e\<^sub>a\<^sub>n)
 lemma [simp,code_unfold] : "(false \<doteq> true) = false"
 by(simp add:StrictRefEq\<^sub>B\<^sub>o\<^sub>o\<^sub>l\<^sub>e\<^sub>a\<^sub>n)
 
+lemma [simp,code_unfold] : "(invalid \<doteq> false) = invalid"
+by(simp add:StrictRefEq\<^sub>B\<^sub>o\<^sub>o\<^sub>l\<^sub>e\<^sub>a\<^sub>n false_def true_def)
+lemma [simp,code_unfold] : "(invalid \<doteq> true) = invalid"
+by(simp add:StrictRefEq\<^sub>B\<^sub>o\<^sub>o\<^sub>l\<^sub>e\<^sub>a\<^sub>n false_def true_def)
+
+lemma [simp,code_unfold] : "(false  \<doteq> invalid) = invalid"
+by(simp add:StrictRefEq\<^sub>B\<^sub>o\<^sub>o\<^sub>l\<^sub>e\<^sub>a\<^sub>n false_def true_def)
+lemma [simp,code_unfold] : "(true \<doteq>invalid ) = invalid"
+by(simp add:StrictRefEq\<^sub>B\<^sub>o\<^sub>o\<^sub>l\<^sub>e\<^sub>a\<^sub>n false_def true_def)
+
+lemma [simp,code_unfold] : "((invalid::('\<AA>)Boolean) \<doteq> invalid) = invalid"
+by(simp add:StrictRefEq\<^sub>B\<^sub>o\<^sub>o\<^sub>l\<^sub>e\<^sub>a\<^sub>n false_def true_def)
+text{* Thus, the weak equality is \emph{not} reflexive. *}
+
 text{* Equality reasoning in OCL is not humpty dumpty. While strong equality
 is clearly an equivalence: *}
 lemma StrongEq_refl [simp]: "(X \<triangleq> X) = true"
@@ -601,7 +615,6 @@ text{* The semantics of strict equality of OCL is constructed by overloading:
 for each base type, there is an equality.
 *}
 
-find_theorems (120) name: "commute"
 
 subsection{* Logical Connectives and their Universal Properties *}
 text{* It is a design goal to give OCL a semantics that is as closely as
@@ -1187,7 +1200,7 @@ lemma cpI2:
 apply(auto simp: true_def cp_def)
 apply(rule exI, (rule allI)+)
 by(erule_tac x="P X" in allE, auto)
-
+ 
 lemma cpI3:
 "(\<forall> X Y Z \<tau>. f X Y Z \<tau> = f(\<lambda>_. X \<tau>)(\<lambda>_. Y \<tau>)(\<lambda>_. Z \<tau>) \<tau>) \<Longrightarrow>
  cp P \<Longrightarrow> cp Q \<Longrightarrow> cp R \<Longrightarrow> cp(\<lambda>X. f (P X) (Q X) (R X))"

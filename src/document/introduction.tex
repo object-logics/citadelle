@@ -14,7 +14,7 @@ is one of the few modeling languages that is widely used in
 industry. While UML is mostly known as diagrammatic modeling language
 (\eg, visualizing class models), it also comprises a textual language,
 called Object Constraint Language (OCL)~\cite{omg:ocl:2012}. OCL is a
-textual annotation language, originally based on a three-valued logic, that 
+textual annotation language, originally conceived as a three-valued logic, that 
 turns substantial parts of UML into a formal language.  Unfortunately the semantics of this
 specification language, captured in the ``Annex A'' (originally, based
 on the work of Richters~\cite{richters:precise:2002}) of the OCL
@@ -27,7 +27,7 @@ hamie.ea:reflections:1998,cook.ea::amsterdam:2002}).
 At its origins~\cite{richters:precise:2002,omg:ocl:1997}, OCL was
 conceived as a strict semantics for undefinedness, with the exception
 of the logical connectives of type \inlineocl{Boolean} that constitute
-a three-valued propositional logic. At its core, OCL comprises three
+a three-valued propositional logic. At its core, OCL comprises four
 layers: 
 \begin{enumerate}
 \item Operators (\eg, \inlineocl{_ and _}, \inlineocl{_ + _}) on
@@ -35,7 +35,9 @@ layers:
   \inlineocl{Integer}, or typed sets (\inlineocl{Set(_)}.
 \item Operators on the user-defined data model (\eg, defined in terms
   of an UML class model) such as accessors, type casts and tests.
-\item Arbitrary, user-defined, side-effect-free methods.
+\item Arbitrary, user-defined, side-effect-free methods,
+\item Specification for invariants on states and contracts
+      for operations to be specified via pre- and post-conditions.
 \end{enumerate}
 
 Motivated by the need for aligning OCL closer with UML, recent
@@ -518,9 +520,7 @@ processed when constructing test theorems.
 % generated text of all theories
 Featherweight OCL is a formalization of the core of OCL
 aiming at formally investigating the relationship between the
-different notions of ``undefinedness,'' \ie, \inlineocl{invalid} and
-
-\inlineocl{null}. As such, it does not attempt to define the complete
+various concepts. At present, it does not attempt to define the complete
 OCL library. Instead, it concentrates on the core concepts of
 OCL as well as the types \inlineocl{Boolean},
 \inlineocl{Integer}, and typed sets (\inlineocl|Set(T)|).  Following
@@ -611,7 +611,7 @@ objects and object universes were excluded from a presentation here.
  Isabelle a type-class $\TCnull$ that contains two distinguishable
  elements $\HolBot$ and $\HolNull$. Any type of the form
  $\up{(\up{\alpha})}$ is an instance of this type-class with $\HolBot
- \equiv \isasymbottom$ and $\HolNull \equiv \lift{\isasymbottom}$.
+ \equiv \isasymbottom$ and $\HolNull \equiv \lfloor \isasymbottom \rfloor$.
 Now, any OCL type can be represented by an HOL type of the form:
 \begin{equation*}
   \V{}{\alpha} \defeq \state{} \times \state{} \to \alpha \ofType \TCnull \mi{.}
@@ -633,15 +633,47 @@ I\semantics{X\mocl{.oclIsUndefined()}} \tau =
 \end{gather*}
 where $I\semantics{E}$ is the semantic interpretation function
 commonly used in mathematical textbooks and $\tau$ stands for pairs of
-pre- and post state $(\sigma, \sigma')$. Due to the used style of
-semantic representation (a shallow embedding) $I$ is in fact
-superfluous and defined semantically as the identity; in Isabelle
-theories, it is usually left out in definitions to pave the way for
-Isabelle to checks that the underlying equations are axiomatic
-definitions and therefore logically safe. For reasons of conciseness,
+pre- and post state $(\sigma, \sigma')$. For reasons of conciseness,
 we will write $\delta~X$ for $\mocl{not}\;X\mocl{.oclIsUndefined()}$
 and $\upsilon~X$ for $\mocl{not}\;X\mocl{.oclIsInvalid()}$ throughout
 this paper.
+
+Due to the used style of
+semantic representation (a shallow embedding) $I$ is in fact
+superfluous and defined semantically as the identity; instead of:
+\[
+I\semantics{\mocl{true}\ofType\mocl{Boolean}} \tau =\lfloor\lfloor \HolTrue\rfloor\rfloor
+\]
+we can therefore write:
+\[
+\mocl{true}\ofType\mocl{Boolean}  = \lambda \tau. \lfloor\lfloor
+\HolTrue\rfloor\rfloor
+\]
+In Isabelle theories, this particular presentation of definitions 
+paves the way for an automatic check that the underlying equation
+has the form of an \emph{axiomatic
+definition} and is therefore logically safe. 
+Since all operators of the assertion language depend on the context $\tau$ = $(\sigma,
+\sigma')$ and result in values that can be $\isasymbottom$, all expressions can
+be viewed as \emph{evaluations} from $(\sigma, \sigma')$ to a type $\alpha$
+which must posses a $\bottom$ and a $\text{null}$-element. Given that such
+constraints can be expressed in Isabelle/\HOL via \emph{type classes} (written: $\alpha::\kappa$),
+all types for OCL-expressions are of a form captured by
+ \begin{equation*}
+ \V{}{\alpha} \defeq \state{} \times \state{} \to \alpha::\{bot,null\}  \mi{,}
+ \end{equation*}
+where $\state{}$ stands for the system state and $\state{} \times
+\state{}$ describes the pair of pre-state and post-state and
+$\_\defeq\_$ denotes the type abbreviation.
+
+Note that the current OCL semantics~\cite[Annex A]{omg:ocl:2003} uses different interpretation
+functions for invariants and pre-conditions; we achieve their semantic effect by
+a syntactic transformation $\__\text{pre}$ which replaces, for example, all accessor functions
+$\getAttrib{\_}{a}$ by their counterparts
+$\getAttrib{\_}{a\isasymOclATpre}$. For example, $(\getAttrib{\self}{a} >
+5)_\text{pre}$ is just $(\getAttrib{\self}{a\isasymOclATpre} > 5)$. This way, 
+also invariants and pre-conditions can be interpreted by the same interpretation
+function and have the same type of an evaluation $\V{}{\alpha}$.
 
 
 On this basis, one can define the core logical operators $\mocl{not}$
@@ -653,8 +685,13 @@ and $\mocl{and}$ as follows:
     &\quad\begin{array}{ll}
                      ~ \bottom                    &\Rightarrow  \bottom \\
                      | \lfloor  \bottom  \rfloor  &\Rightarrow  \lfloor  \bottom  \rfloor  \\
-                     | \lfloor \lfloor  x \rfloor \rfloor  &\Rightarrow  \lfloor \lfloor  \lnot  x \rfloor \rfloor )\\
-                   \end{array}\\
+                     | \lfloor \lfloor  x \rfloor \rfloor  &\Rightarrow  \lfloor \lfloor  \lnot  x \rfloor \rfloor )
+          \end{array}
+  \end{array}
+\end{gather*}  
+
+\begin{gather*}
+  \begin{array}{ll}  
    I\semantics{X\;\mocl{and}\; Y}  \tau
     &=  (\HolCase I\semantics{X} \tau  \HolOf\\
     &\quad\begin{array}{ll}
@@ -697,7 +734,7 @@ and $\mocl{and}$ as follows:
                      &\Rightarrow   \lfloor \lfloor  \HolFalse \rfloor
                      \rfloor )\\
                    \end{array}\\
-  \end{array}
+\end{array}
 \end{gather*}
 These non-strict operations were used to define the other logical connectives in the
 usual classical way: $X\; \mocl{or}\; Y \equiv (\mocl{not}\; X)\;
@@ -743,7 +780,7 @@ relate bits and pieces in various OCL terms and allow---via strong
 logical equality discussed below---the replacement
 of semantically equivalent sub-expressions. The core inference rules are:
 \begin{gather*}
-  \begin{array}{lccr}
+\begin{array}{lccr}
   \tau \models \mocl{true}&
   \lnot(\tau \models \mocl{false})&
   \lnot(\tau \models \mocl{invalid})&
@@ -753,15 +790,15 @@ of semantically equivalent sub-expressions. The core inference rules are:
 \begin{array}{lcr}
   \tau \models P \;\mocl{and}\; Q \Longrightarrow \tau \models P&\quad&
   \tau \models P \;\mocl{and}\; Q \Longrightarrow \tau \models Q
-  \end{array}\\
+\end{array}\\
   \tau \models P \Longrightarrow
      (\mocl{if}\; P \;\mocl{then}\; B_1 \;\mocl{else}\; B_2 \;\mocl{endif})\tau = B_1 \tau\\
   \tau \models \mocl{not}\; P \Longrightarrow
        (\mocl{if}\; P \;\mocl{then}\; B_1 \;\mocl{else}\; B_2 \;\mocl{endif})\tau = B_2 \tau\\
-       \begin{array}[lcr]{lcr}
+\begin{array}[lcr]{lcr}
   \tau \models P \Longrightarrow \tau \models \delta P &\qquad&
   \tau \models (\delta X) \Longrightarrow \tau \models \upsilon X
-       \end{array}
+\end{array}
 \end{gather*}
 By the latter two properties it can be inferred that any valid
 property $P$ (so for example: a valid invariant) is actually defined,
