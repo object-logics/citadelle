@@ -67,7 +67,7 @@ well as in casts and the desired \inlineisar+isKindOf+-semantics of
 \inlineisar+allInstances()+.
 
 
-\section{Lessons Learned}\fixme{outdated ?}
+\section{Lessons Learned}
 While our paper and pencil arguments, given
 in~\cite{brucker.ea:ocl-null:2009}, turned out to be essentially
 correct, there had also been a lesson to be learned: If the logic is
@@ -91,11 +91,17 @@ organization, where \inlineocl{null} represents ``more information''
 than \inlineocl{invalid} and the logical operators are monotone with
 respect to this semantical ``information ordering.''
 
-Featherweight OCL makes these two deviations from the standard,
-builds all logical operators on Kleene-\inlineocl{not} and
-Kleene-\inlineocl{and}, and shows that the entire construction of our
-paper ``Extending OCL with
-Null-References''~\cite{brucker.ea:ocl-null:2009} is then correct, and
+A similar experience with prior paper and pencil arguments was our investigation
+of the object-oriented data-models, in particular path-expressions
+~\cite{DBLP:conf/models/BruckerLTW13}. The final presentation is again
+essentially correct, but the technical details concerning exception
+handling lead finally to a continuation-passing style of the
+(in future generated) definitions for accessors, casts and tests.
+Apparently, OCL semantics (as many other ``real'' programming and specification languages)
+is meanwhile too complex to be treated by informal arguments solely.
+
+Featherweight OCL makes several minor deviations from the standard and showed
+how the previous constructions can be made correct and consistent, and
 the DNF-normaliation as well as $\delta$-closure laws (necessary
 for a transition into a two-valued presentation of OCL specifications
 ready for interpretation in SMT solvers
@@ -150,7 +156,7 @@ essentially five extensions necessary:
   specifications for testing arbitrary .net-based applications.
 \end{itemize}
 The first two extensions are sufficient to provide a formal proof
-environment for OCL 2.3 similar to \holocl while the remaining
+environment for OCL 2.5 similar to \holocl while the remaining
 extensions are geared towards increasing the degree of proof
 automation and usability as well as providing a tool-supported test
 methodology for {UML}/{OCL}.
