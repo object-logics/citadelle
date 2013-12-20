@@ -58,6 +58,7 @@ text {* This \emph{minimal} OCL type contains only two elements:
 however the cardinal of this type is more than two, so it would have the cost to consider
  @{text "Some None"} and @{text "Some (Some ())"} seemingly everywhere.*}
 
+
 subsection{* The construction of the Integer Type *}
 text{* Since @{term "Integer"} is again a basic type, we define its semantic domain
 as the valuations over @{typ "int option option"}. *}
