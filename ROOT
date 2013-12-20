@@ -42,7 +42,7 @@
 
 session "OCL" in src = HOL +
   description {* HOL-TestGen *}
-  options [quick_and_dirty, document = pdf, document_variants="document:outline=/proof,/ML"]
+  options [document = pdf, document_variants="document:outline=/proof,/ML"]
   theories
     "OCL_main"
   files
@@ -66,7 +66,7 @@ session "OCL-examples" in src = OCL +
 
 session "OCL-AFP" in src = HOL +
   description {* HOL-TestGen *}
-  options [quick_and_dirty, document = pdf, document_output=document_generated,document_variants="document:outline=/proof,/ML"]
+  options [document = pdf, document_output=document_generated,document_variants="document:outline=/proof,/ML"]
   theories
     "OCL_main"
     "../examples/Employee_AnalysisModel_OCLPart"
