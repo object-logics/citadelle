@@ -1077,6 +1077,7 @@ lemma framing_same_state: "(\<sigma>, \<sigma>) \<Turnstile> (x @pre H  \<triang
 by(simp add: OclSelf_at_pre_def OclSelf_at_post_def OclValid_def StrongEq_def)
 
 section{* Miscellaneous : Propagation of "constant contexts P" *}
+subsection{* *}
 
 lemma true_cp_all : "true \<tau>1 = true \<tau>2"
 by(simp add: true_def)
@@ -1167,6 +1168,144 @@ by(subst valid_cp_all[OF assms(1)],
 
 lemma mtSet_cp_all : "Set{} \<tau>1 = Set{} \<tau>2"
 by(simp add: mtSet_def)
+
+subsection{* *}
+
+definition "const X \<equiv> \<forall> \<tau> \<tau>'. X \<tau> = X \<tau>'"
+
+lemma const_imply2 :
+ assumes "\<And>\<tau>1 \<tau>2. P \<tau>1 = P \<tau>2 \<Longrightarrow> Q \<tau>1 = Q \<tau>2"
+ shows "const P \<Longrightarrow> const Q"
+by(simp add: const_def, insert assms, blast)
+
+lemma const_imply3 :
+ assumes "\<And>\<tau>1 \<tau>2. P \<tau>1 = P \<tau>2 \<Longrightarrow> Q \<tau>1 = Q \<tau>2 \<Longrightarrow> R \<tau>1 = R \<tau>2"
+ shows "const P \<Longrightarrow> const Q \<Longrightarrow> const R"
+by(simp add: const_def, insert assms, blast)
+
+lemma const_imply4 :
+ assumes "\<And>\<tau>1 \<tau>2. P \<tau>1 = P \<tau>2 \<Longrightarrow> Q \<tau>1 = Q \<tau>2 \<Longrightarrow> R \<tau>1 = R \<tau>2 \<Longrightarrow> S \<tau>1 = S \<tau>2"
+ shows "const P \<Longrightarrow> const Q \<Longrightarrow> const R \<Longrightarrow> const S"
+by(simp add: const_def, insert assms, blast)
+
+lemma const_lam : "const (\<lambda>_. e)"
+by(simp add: const_def)
+
+(* *)
+
+lemma const_true : "const true"
+by(simp add: const_def true_def)
+(*
+lemma const_false : "const false"
+by(simp add: const_def false_def)
+
+lemma const_null : "const null"
+by(simp add: const_def null_fun_def)
+*)
+lemma const_invalid : "const invalid"
+by(simp add: const_def invalid_def)
+(*
+lemma const_bot : "const \<bottom>"
+by(simp add: const_def bot_fun_def)
+*)
+
+lemma const_defined :
+ assumes "const X"
+ shows "const (\<delta> X)"
+by(rule const_imply2[OF _ assms], simp add: defined_def false_def true_def bot_fun_def bot_option_def null_fun_def null_option_def)
+
+lemma const_valid :
+ assumes "const X"
+ shows "const (\<upsilon> X)"
+by(rule const_imply2[OF _ assms], simp add: valid_def false_def true_def bot_fun_def null_fun_def assms)
+(*
+lemma const_OclAnd :
+  assumes "const X"
+  assumes "const X'"
+  shows "const (X and X')"
+by(rule const_imply3[OF _ assms], subst (1 2) cp_OclAnd, simp add: assms OclAnd_def)
+
+lemma const_OclIf :
+  assumes "const B"
+  assumes "const C1"
+  assumes "const C2"
+  shows "const (if B then C1 else C2 endif)"
+ apply(rule const_imply4[OF _ assms], subst (1 2) cp_OclIf, simp only: OclIf_def cp_defined[symmetric])
+ apply(simp add: const_defined[OF assms(1), simplified const_def, THEN spec, THEN spec]
+                 const_true[simplified const_def, THEN spec, THEN spec]
+                 assms[simplified const_def, THEN spec, THEN spec]
+                 const_invalid[simplified const_def, THEN spec, THEN spec])
+by (metis (no_types) OCL_core.bot_fun_def OclValid_def const_def const_true defined_def foundation17 null_fun_def)
+*)
+lemma const_OclIncluding :
+ assumes x_int : "\<And>\<tau>. \<tau> \<Turnstile> \<upsilon> x"
+     and x_incl : "const x"
+     and S_def : "\<And>\<tau>. \<tau> \<Turnstile> \<delta> S"
+     and S_incl : "const S"
+   shows  "const (S->including(x))"
+ apply(rule const_imply3[OF _ assms(2) assms(4)], unfold OclIncluding_def)
+by(simp add: S_def[simplified OclValid_def] x_int[simplified OclValid_def] S_incl)
+(*
+lemma const_OclForall :
+  assumes "const X"
+  assumes "\<And>x \<tau>1 \<tau>2. x \<tau>1 = x \<tau>2 \<Longrightarrow> X' x \<tau>1 = X' x \<tau>2"
+  shows "const (OclForall X X')"
+ apply(simp only: const_def, intro allI)
+ proof - fix \<tau>1 \<tau>2 show "OclForall X X' \<tau>1 = OclForall X X' \<tau>2"
+  apply(subst (1 2) cp_OclForall, simp only: OclForall_def cp_defined[symmetric])
+ by(simp only: const_defined[OF assms(1), simplified const_def, THEN spec, THEN spec, of \<tau>1 \<tau>2]
+                  const_true[simplified const_def, THEN spec, THEN spec, of \<tau>1 \<tau>2]
+                  const_false[simplified const_def, THEN spec, THEN spec, of \<tau>1 \<tau>2]
+                  const_null[simplified const_def, THEN spec, THEN spec, of \<tau>1 \<tau>2]
+                  const_bot[simplified const_def, THEN spec, THEN spec, of \<tau>1 \<tau>2]
+                  assms(1)[simplified const_def, THEN spec, THEN spec, of \<tau>1 \<tau>2]
+                  assms(2)[of _ \<tau>1 \<tau>2])
+qed
+
+lemma const_OclIncludes :
+  assumes "const X"
+  assumes "const X'"
+  shows "const (OclIncludes X X')"
+ apply(rule const_imply3[OF _ assms], subst (1 2) cp_OclIncludes, simp only: OclIncludes_def cp_defined[symmetric] cp_valid[symmetric])
+ apply(simp add:
+  const_defined[OF assms(1), simplified const_def, THEN spec, THEN spec]
+  const_valid[OF assms(2), simplified const_def, THEN spec, THEN spec]
+  const_true[simplified const_def, THEN spec, THEN spec] assms[simplified const_def]
+  bot_option_def)
+by (metis (no_types) const_def const_defined const_true const_valid cp_defined cp_valid)
+
+lemma const_OclNot :
+  assumes "const X"
+  shows "const (not X)"
+by(rule const_imply2[OF _ assms], simp add: OclNot_def)
+*)
+lemma const_StrongEq :
+  assumes "const (X :: (_,_::null) Set)"
+  assumes "const X'"
+  shows "const (X \<triangleq> X')"
+ apply(rule const_imply3[OF _ assms])
+by(simp add: StrongEq_def assms)
+
+lemma const_StrictEq :
+  assumes "const (X :: (_,_::null) Set)"
+  assumes "const X'"
+  shows "const (X \<doteq> X')"
+ apply(simp only: const_def, intro allI)
+ proof -
+ fix \<tau>1 \<tau>2 show "(X \<doteq> X') \<tau>1 = (X \<doteq> X') \<tau>2"
+  apply(simp only: StrictRefEq\<^sub>S\<^sub>e\<^sub>t)
+ by(simp add: const_valid[OF assms(1), simplified const_def, THEN spec, THEN spec, of \<tau>1 \<tau>2]
+              const_valid[OF assms(2), simplified const_def, THEN spec, THEN spec, of \<tau>1 \<tau>2]
+              const_true[simplified const_def, THEN spec, THEN spec, of \<tau>1 \<tau>2]
+              const_invalid[simplified const_def, THEN spec, THEN spec, of \<tau>1 \<tau>2]
+              const_StrongEq[OF assms, simplified const_def, THEN spec, THEN spec])
+qed
+
+
+lemma const_mtSet : "const Set{}"
+by(simp add: const_def mtSet_def)
+
+subsection{* *}
 
 lemma StrictRefEq\<^sub>S\<^sub>e\<^sub>t_L_subst1 : "cp P \<Longrightarrow> \<tau> \<Turnstile> \<upsilon> x \<Longrightarrow> \<tau> \<Turnstile> \<upsilon> y \<Longrightarrow> \<tau> \<Turnstile> \<upsilon> P x \<Longrightarrow> \<tau> \<Turnstile> \<upsilon> P y \<Longrightarrow> \<tau> \<Turnstile> (x::('\<AA>,'\<alpha>::null)Set) \<doteq> y \<Longrightarrow> \<tau> \<Turnstile> (P x ::('\<AA>,'\<alpha>::null)Set) \<doteq> P y"
  apply(simp only: StrictRefEq\<^sub>S\<^sub>e\<^sub>t OclValid_def)

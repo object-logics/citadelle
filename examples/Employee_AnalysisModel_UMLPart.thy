@@ -1038,7 +1038,6 @@ by(simp add: OclValid_def OclIsMaintained_def
 
 value "\<And>s\<^sub>p\<^sub>r\<^sub>e     .   (s\<^sub>p\<^sub>r\<^sub>e,\<sigma>\<^sub>1') \<Turnstile>      (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n3 .salary       \<doteq> null)"
 value "\<And>    s\<^sub>p\<^sub>o\<^sub>s\<^sub>t.   (\<sigma>\<^sub>1,s\<^sub>p\<^sub>o\<^sub>s\<^sub>t) \<Turnstile> not(\<upsilon>(X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n3 .salary@pre))"
-value "\<And>    s\<^sub>p\<^sub>o\<^sub>s\<^sub>t.   (\<sigma>\<^sub>1,s\<^sub>p\<^sub>o\<^sub>s\<^sub>t) \<Turnstile>      (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n3 .salary@pre   <> null)"
 (*value "\<And>s\<^sub>p\<^sub>r\<^sub>e     .   (s\<^sub>p\<^sub>r\<^sub>e,\<sigma>\<^sub>1') \<Turnstile>      (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n3 .boss       \<doteq> null)"
 value "\<And>s\<^sub>p\<^sub>r\<^sub>e     .   (s\<^sub>p\<^sub>r\<^sub>e,\<sigma>\<^sub>1') \<Turnstile> not(\<upsilon>(X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n3 .boss .salary))"
 value "\<And>    s\<^sub>p\<^sub>o\<^sub>s\<^sub>t.   (\<sigma>\<^sub>1,s\<^sub>p\<^sub>o\<^sub>s\<^sub>t) \<Turnstile> not(\<upsilon>(X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n3 .boss@pre))"
@@ -1188,11 +1187,6 @@ proof -
  done
 qed
 
-
-lemma perm0 : "\<And>S oid7 oid6 person8 person7. oid7 \<noteq> oid6 \<Longrightarrow>
-            S (oid7 \<mapsto> person8) (oid6 \<mapsto> person7) = S (oid6 \<mapsto> person7) (oid7 \<mapsto> person8)"
-by (metis fun_upd_twist)
-
 lemma perm_\<sigma>\<^sub>1' : "\<sigma>\<^sub>1' = \<lparr> heap = empty
                            (oid8 \<mapsto> in\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n person9)
                            (oid7 \<mapsto> in\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y person8)
@@ -1206,17 +1200,17 @@ lemma perm_\<sigma>\<^sub>1' : "\<sigma>\<^sub>1' = \<lparr> heap = empty
                        , assocs\<^sub>2 = assocs\<^sub>2 \<sigma>\<^sub>1'
                        , assocs\<^sub>3 = assocs\<^sub>3 \<sigma>\<^sub>1' \<rparr>"
 proof -
- note p0 = perm0
+ note P = fun_upd_twist
  show ?thesis
   apply(simp add: \<sigma>\<^sub>1'_def
                   oid0_def oid1_def oid2_def oid3_def oid4_def oid5_def oid6_def oid7_def oid8_def)
-  apply(subst (1) p0, simp)
-  apply(subst (2) p0, simp) apply(subst (1) p0, simp)
-  apply(subst (3) p0, simp) apply(subst (2) p0, simp) apply(subst (1) p0, simp)
-  apply(subst (4) p0, simp) apply(subst (3) p0, simp) apply(subst (2) p0, simp) apply(subst (1) p0, simp)
-  apply(subst (5) p0, simp) apply(subst (4) p0, simp) apply(subst (3) p0, simp) apply(subst (2) p0, simp) apply(subst (1) p0, simp)
-  apply(subst (6) p0, simp) apply(subst (5) p0, simp) apply(subst (4) p0, simp) apply(subst (3) p0, simp) apply(subst (2) p0, simp) apply(subst (1) p0, simp)
-  apply(subst (7) p0, simp) apply(subst (6) p0, simp) apply(subst (5) p0, simp) apply(subst (4) p0, simp) apply(subst (3) p0, simp) apply(subst (2) p0, simp) apply(subst (1) p0, simp)
+  apply(subst (1) P, simp)
+  apply(subst (2) P, simp) apply(subst (1) P, simp)
+  apply(subst (3) P, simp) apply(subst (2) P, simp) apply(subst (1) P, simp)
+  apply(subst (4) P, simp) apply(subst (3) P, simp) apply(subst (2) P, simp) apply(subst (1) P, simp)
+  apply(subst (5) P, simp) apply(subst (4) P, simp) apply(subst (3) P, simp) apply(subst (2) P, simp) apply(subst (1) P, simp)
+  apply(subst (6) P, simp) apply(subst (5) P, simp) apply(subst (4) P, simp) apply(subst (3) P, simp) apply(subst (2) P, simp) apply(subst (1) P, simp)
+  apply(subst (7) P, simp) apply(subst (6) P, simp) apply(subst (5) P, simp) apply(subst (4) P, simp) apply(subst (3) P, simp) apply(subst (2) P, simp) apply(subst (1) P, simp)
  by(simp)
 qed
 
