@@ -886,6 +886,16 @@ by(rule ext, simp add: null_fun_def null_option_def bot_option_def null_def inva
 
 section{* A little infra-structure on example states.*}
 
+text{*
+The example we are defining in this section comes from the figure~\ref{fig:eam1_system-states}.
+\begin{figure}
+\includegraphics[width=\textwidth]{figures/pre-post.pdf}
+\caption{(a) pre-state $\sigma_1$ and
+  (b) post-state $\sigma_1'$.}
+\label{fig:eam1_system-states}
+\end{figure}
+*}
+
 definition OclInt1000 ("\<one>\<zero>\<zero>\<zero>") where "OclInt1000 = (\<lambda> _ . \<lfloor>\<lfloor>1000\<rfloor>\<rfloor>)"
 definition OclInt1200 ("\<one>\<two>\<zero>\<zero>") where "OclInt1200 = (\<lambda> _ . \<lfloor>\<lfloor>1200\<rfloor>\<rfloor>)"
 definition OclInt1300 ("\<one>\<three>\<zero>\<zero>") where "OclInt1300 = (\<lambda> _ . \<lfloor>\<lfloor>1300\<rfloor>\<rfloor>)"
