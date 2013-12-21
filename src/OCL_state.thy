@@ -1080,19 +1080,19 @@ section{* Miscellaneous : Propagation of "constant contexts P" *}
 
 lemma true_cp_all : "true \<tau>1 = true \<tau>2"
 by(simp add: true_def)
-
+(*
 lemma false_cp_all : "false \<tau>1 = false \<tau>2"
 by(simp add: false_def)
 
 lemma null_cp_all : "null \<tau>1 = null \<tau>2"
 by(simp add: null_fun_def)
-
+*)
 lemma invalid_cp_all : "invalid \<tau>1 = invalid \<tau>2"
 by(simp add: invalid_def)
-
+(*
 lemma bot_cp_all : "\<bottom> \<tau>1 = \<bottom> \<tau>2"
 by(simp add: bot_fun_def)
-
+*)
 lemma defined_cp_all :
  assumes "X \<tau>1 = X \<tau>2"
  shows "(\<delta> X) \<tau>1 = (\<delta> X) \<tau>2"
@@ -1102,7 +1102,7 @@ lemma valid_cp_all :
  assumes "X \<tau>1 = X \<tau>2"
  shows "(\<upsilon> X) \<tau>1 = (\<upsilon> X) \<tau>2"
 by(simp add: valid_def false_def true_def bot_fun_def null_fun_def assms)
-
+(*
 lemma OclAnd_cp_all :
   assumes "X \<tau>1 = X \<tau>2"
   assumes "X' \<tau>1 = X' \<tau>2"
@@ -1116,7 +1116,7 @@ lemma OclIf_cp_all :
   shows "(if B then C1 else C2 endif) \<tau>1 = (if B then C1 else C2 endif) \<tau>2"
  apply(subst (1 2) cp_OclIf, simp only: OclIf_def cp_defined[symmetric])
 by(simp add: defined_cp_all[OF assms(1)] true_cp_all assms invalid_cp_all)
-
+*)
 lemma OclIncluding_cp_all :
  assumes x_int : "\<And>\<tau>. \<tau> \<Turnstile> \<upsilon> x"
      and x_incl : "x \<tau>1 = x \<tau>2"
@@ -1127,7 +1127,7 @@ lemma OclIncluding_cp_all :
  apply(simp add: S_def[simplified OclValid_def] x_int[simplified OclValid_def] S_incl)
  apply(simp add: x_incl)
 done
-
+(*
 lemma OclForall_cp_all :
   assumes "X \<tau>1 = X \<tau>2"
   assumes "\<And>x. x \<tau>1 = x \<tau>2 \<Longrightarrow> X' x \<tau>1 = X' x \<tau>2"
@@ -1146,32 +1146,24 @@ lemma OclNot_cp_all :
   assumes "X \<tau>1 = X \<tau>2"
   shows "not X \<tau>1 = not X \<tau>2"
 by(simp add: OclNot_def assms)
+*)
+lemma StrongEq_cp_all :
+  assumes "X \<tau>1 = X \<tau>2"
+  assumes "X' \<tau>1 = X' \<tau>2"
+  shows "(X \<triangleq> X') \<tau>1 = (X \<triangleq> X') \<tau>2"
+by(simp add: StrongEq_def assms)
 
 lemma StrictEq_cp_all :
   assumes "(X :: (_,_::null) Set) \<tau>1 = X \<tau>2"
   assumes "X' \<tau>1 = X' \<tau>2"
   shows "(X \<doteq> X') \<tau>1 = (X \<doteq> X') \<tau>2"
- apply(simp add: StrictRefEq\<^sub>S\<^sub>e\<^sub>t)
- apply(rule OclIf_cp_all)
- apply(rule defined_cp_all, simp add: assms)
- apply(rule OclIf_cp_all)
- apply(rule defined_cp_all, simp add: assms)
- apply(rule OclAnd_cp_all)
- apply(rule OclForall_cp_all, simp add: assms)
- apply(rule OclIncludes_cp_all, simp add: assms, simp)
- apply(rule OclForall_cp_all, simp add: assms)
- apply(rule OclIncludes_cp_all, simp add: assms, simp)
- apply(rule OclIf_cp_all)
- apply(rule valid_cp_all, simp add: assms)
- apply(simp add: false_def, simp add: invalid_def)
- apply(rule OclIf_cp_all)
- apply(rule valid_cp_all, simp add: assms)
- apply(rule OclIf_cp_all)
- apply(rule valid_cp_all, simp add: assms)
- apply(rule OclNot_cp_all)
- apply(rule defined_cp_all, simp add: assms)
- apply(simp add: invalid_def)+
-done
+ apply(simp only: StrictRefEq\<^sub>S\<^sub>e\<^sub>t)
+by(subst valid_cp_all[OF assms(1)],
+   subst valid_cp_all[OF assms(2)],
+   subst (1 2) true_cp_all[of \<tau>1 \<tau>2],
+   subst invalid_cp_all[of \<tau>1 \<tau>2],
+   subst StrongEq_cp_all[OF assms],
+   simp)
 
 lemma mtSet_cp_all : "Set{} \<tau>1 = Set{} \<tau>2"
 by(simp add: mtSet_def)
