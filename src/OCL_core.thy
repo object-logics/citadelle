@@ -480,7 +480,7 @@ and a fundamental one.
     which you hope are easier to evaluate. In a typed language,
     strong equality exists uniformly over all types, it is “polymorphic” 
     $\_ = \_ :: \alpha * \alpha \rightarrow bool$ --- this is the way
-    that equality is defined in \HOL itself. 
+    that equality is defined in HOL itself. 
     We can express Leipnitz principle as one logical rule of surprising simplicity and beauty:
     \begin{gather}
         s = t \Longrightarrow P(s) = P(t)
