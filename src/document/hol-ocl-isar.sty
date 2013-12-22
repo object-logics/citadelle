@@ -134,12 +134,7 @@
 \newcommand{\HolOclEmail}{\href{mailto:hol-ocl@brucker.ch}{hol-ocl@brucker.ch}}
 \newcommand{\HolOclWebsite}{\url{http://www.brucker.ch/research/hol-ocl/}}
 \newcommand{\HolOclLogo}{}
-\ifthenelse{\boolean{holocl@scf}}{%
-  \newcommand{\holocl}{\texorpdfstring{\mbox{\textsc{hol-ocl}}}{HOL-OCL}\xspace}%
-}{%
-%\newcommand{\holocl}{\texorpdfstring{\textsmaller{HOL-OCL}}{HOL-OCL}\xpsace}%
-  \newcommand{\holocl}{\texorpdfstring{\mbox{\textsmaller{HOL-OCL}}}{HOL-OCL}\xspace}%
-}
+\newcommand{\holocl}{HOL-OCL\xspace}
 %%
 %% 3.2) Environments for plain SML and OCL code
 %% --------------------------------------------
@@ -554,105 +549,6 @@
 
 
 %%
-%% Handling of acronyms
-%% --------------------
-\ifthenelse{\boolean{holocl@scf}}{%
-  \ifthenelse{\boolean{holocl@noaclist}}{%
-    \RequirePackage[printonlyused,nolist,nohyperlinks]{acronym}%
-  }{%
-    \RequirePackage[printonlyused]{acronym}%
-  }
-  \renewcommand{\acsfont}[1]{\textsc{#1}}
-}{%
-  \RequirePackage{relsize}
-  \ifthenelse{\boolean{holocl@noaclist}}{%
-    \RequirePackage[nolist,printonlyused,smaller,nohyperlinks]{acronym}%
-  }{%
-    \RequirePackage[printonlyused,smaller]{acronym}%
-  }
-}
-\DeclareRobustCommand*\textSC[1]{%
-\if b\expandafter\@car\f@series\@nil%
-% we're using a bold font
-\textscale{.75}{\MakeUppercase{#1}}%
-\else\MakeLowercase{\scshape #1}%
-\fi}
-%\renewcommand{\acffont}[1]{#1}
-%\renewcommand{\acfsfont}[1]{#1}
-
-\ifthenelse{\boolean{isar@mnsymbol}}{%
-  \DeclareRobustCommand{\Csharp}{C\raisebox{0.3ex}{\#}\xspace}%
-  \DeclareRobustCommand{\Specsharp}{Spec\raisebox{0.05ex}{\#}\xspace}%
-}{%
-  \DeclareRobustCommand{\Csharp}{C\raisebox{0.3ex}{\#}\xspace}%
-  \DeclareRobustCommand{\Specsharp}{Spec\raisebox{0.3ex}{\#}\xspace}%
-}
-\DeclareRobustCommand{\Cpp}
-{\valign{\vfil\hbox{##}\vfil\cr
-    \textrm{C\kern-.1em}\cr
-    $\hbox{\fontsize{\sf@size}{0}\textbf{+\kern-0.05em+}}$\cr}%
-}
-\ifthenelse{\boolean{holocl@scf}}{%
-  \DeclareRobustCommand{\IMPOO}%
-  {\texorpdfstring{\valign{\vfil\hbox{##}\vfil\cr%
-        \textrm{\acs{imp}\kern-.1em}\cr%
-        $\hbox{\fontsize{\sf@size}{0}{+\kern-0.05em+}}$\cr}%
-    }{IMP++}}
-}{%
-  \DeclareRobustCommand{\IMPOO}%
-  {\texorpdfstring{\valign{\vfil\hbox{##}\vfil\cr%
-        \textrm{\textsmaller{IMP}\kern-.1em}\cr%
-        $\hbox{\fontsize{\sf@size}{0}\textbf{+\kern-0.05em+}}$\cr}%
-    }{IMP++}}
-}
-
-\ifthenelse{\boolean{holocl@scf}}{%
-  \DeclareRobustCommand{\VDMpp}%
-  {\texorpdfstring{\valign{\vfil\hbox{##}\vfil\cr%
-        \textrm{\acs{vdm}\kern-.1em}\cr%
-        $\hbox{\fontsize{\sf@size}{0}{+\kern-0.05em+}}$\cr}%
-    }{VDM++}}
-}{%
-  \DeclareRobustCommand{\VDMpp}%
-  {\texorpdfstring{\valign{\vfil\hbox{##}\vfil\cr%
-        \textrm{\textsmaller{VDM}\kern-.1em}\cr%
-        $\hbox{\fontsize{\sf@size}{0}\textbf{+\kern-0.05em+}}$\cr}%
-    }{VDM++}}
-}
-
-\newcommand{\OCLlight}{$\textrm{OCL}_{\textit{light}}$}
-%\newcommand{\Cpp}{C\nolinebreak\hspace{-.05em}\raisebox{.4ex}{\tiny\bf +}%
-%                   \nolinebreak\hspace{-.10em}\raisebox{.4ex}{\tiny\bf +}}
-%\newcommand{\VDMpp}{\acs{vdm}\nolinebreak\hspace{-.05em}\raisebox{.4ex}{\tiny\bf +}%
-%                       \nolinebreak\hspace{-.10em}\raisebox{.4ex}{\tiny\bf +}}
-%\DeclareRobustCommand\acronym[1]{\textsmaller{\TextUpperCase{#1}}\@}
-%\DeclareRobustCommand\acronym[1]{\ac{#1}}
-\newcommand{\OCL}{\acs{ocl}\xspace}
-\newcommand{\CSP}{\acs{csp}\xspace}
-\newcommand{\UML}{\acs{uml}\xspace}
-\newcommand{\OO}{\acs{oo}\xspace}
-\newcommand{\OMG}{\acs{omg}\xspace}
-\newcommand{\HOL}{\acs{hol}\xspace}
-\newcommand{\VDM}{\acs{vdm}\xspace}
-\newcommand{\DNF}{\acs{dnf}\xspace}
-\newcommand{\TNF}{\acs{tnf}\xspace}
-\newcommand{\SML}{\acs{sml}\xspace}
-\newcommand{\CNF}{\acs{cnf}\xspace}
-\newcommand{\HCNF}{\acs{hcnf}\xspace}
-\newcommand{\SKL}{\acs{skl}\xspace}
-\newcommand{\XMI}{\acs{xmi}\xspace}
-\newcommand{\XML}{\acs{xml}\xspace}
-\newcommand{\CASE}{\acs{case}}
-\newcommand{\ArgoUML}{ArgoUML\xspace}
-\ifthenelse{\boolean{holocl@scf}}{%
-\newcommand{\holz}{{\textsc{hol-z}}\xspace}%
-}{%
-\newcommand{\holz}{{\textsmaller{HOL-Z}}\xspace}%
-}
-
-
-
-%%%
 %%%
 %%%
 

@@ -13,150 +13,50 @@
 \usepackage[pdfpagelabels, pageanchor=false, plainpages=false]{hyperref}
 \usepackage[draft]{fixme}
 
+% MathOCl expressions
+\colorlet{MathOclColor}{Black}
+\colorlet{HolOclColor}{Black}
+\colorlet{OclColor}{Black}
+%
+
+
+
+\graphicspath{{data/},{figures/}}
 \allowdisplaybreaks
 
 \renewcommand{\HolTrue}{\mathrm{true}}
 \renewcommand{\HolFalse}{\mathrm{false}}
-
 \newcommand{\ptmi}[1]{\using{\mi{#1}}}
-
-\renewcommand{\holocl}{HOL-OCL\xspace}
-
 \newcommand{\Lemma}[1]{{\color{BrickRed}%
     \mathbf{\operatorname{lemma}}}~\text{#1:}\quad}
-\newcommand{\testspec}[1]{{\color{BrickRed}%
-    \mathbf{\operatorname{testspec}}}~\text{#1:}\quad}
-
-%% end prof mode
 \newcommand{\done}{{\color{OliveGreen}\operatorname{done}}}
-\newcommand{\by}[1]{{\color{OliveGreen}%
-    \operatorname{by}}(\text{#1})}
-
-%% regular commands
-\newcommand{\primrec}{{\holoclthykeywordstyle\operatorname{primrec}}}
-\newcommand{\shows}{{\holoclthykeywordstyle%
-    \operatorname{shows}}\enspace}
-\newcommand{\recdef}{{\holoclthykeywordstyle%
-    \operatorname{recdef}}\enspace}
-\newcommand{\have}[1]{{\holoclthykeywordstyle%
-    \operatorname{have}}~\text{#1:}\enspace}
-\newcommand{\Show}[1]{{\holoclthykeywordstyle%
-    \operatorname{show}}~\text{#1}\enspace}
-\newcommand{\Proof}{{\holoclthykeywordstyle%
-    \operatorname{proof}}}
-\newcommand{\assumes}[1]{{\holoclthykeywordstyle%
-    \operatorname{assumes}}~\text{#1:}\enspace}
-\newcommand{\storeTestThm}[1]{{\holoclthykeywordstyle%
-    \operatorname{store\_test\_thm}}~\text{#1}}
 \newcommand{\apply}[1]{{\holoclthykeywordstyle%
     \operatorname{apply}}(\text{#1})}
-\newcommand{\testgenParams}[1]{{\holoclthykeywordstyle%
-    \operatorname{testgen\_params}}\;[\text{#1}]}
-\newcommand{\genTestData}[1]{{\holoclthykeywordstyle%
-    \operatorname{gen\_test\_data}}~\text{#1}}
-
-\newcommand{\genTestScript}[4]{{\holoclthykeywordstyle%
-    \operatorname{gen\_test\_script}}~\text{\texttt{#1}}
-  {~\text{#2}}
-  {~#3}
-  {~{\mathtt{#4}}}
-}
-\newcommand{\consts} {{\holoclthykeywordstyle\operatorname{consts}}}
-\newcommand{\constdefs} {{\holoclthykeywordstyle\operatorname{constdefs}}}
-\newcommand{\defs} {{\holoclthykeywordstyle\operatorname{defs}}}
 \newcommand{\fun} {{\holoclthykeywordstyle\operatorname{fun}}}
 \newcommand{\definitionS} {{\holoclthykeywordstyle\operatorname{definition}}}
 \newcommand{\where} {{\holoclthykeywordstyle\operatorname{where}}}
 \newcommand{\datatype} {{\holoclthykeywordstyle\operatorname{datatype}}}
-\newcommand{\intros} {{\holoclthykeywordstyle\operatorname{intros}}}
-\newcommand{\inductive}[1]{{\holoclthykeywordstyle\operatorname{inductive}}~\operatorname{#1}}
 \newcommand{\types} {{\holoclthykeywordstyle\operatorname{types}}}
 \newcommand{\pglabel}[1]{\text{#1}}
-% \Newcommand{\primrec}{\operatorname{\holoclthykeywordstyle primrec}}
-% \newcommand{\consts} {\operatorname{\holoclthykeywordstyle consts}}
-
-
-
-
-
-\newMathOcl{Plus}{\mathbin}{+}
-\newMathOcl{Minus}{\mathbin}{-}
-\newMathOcl{Divide}{\mathbin}{/}
-\newMathOcl{Neg}{\mathop}{-}
-\newMathOcl{Mult}{\mathbin}{\cdot}
-\newMathOcl{Zero}{\mathord}{\mathocl{0}}
-\newMathOcl{DigitOne}{\mathord}{\mathocl{1}}
-\newMathOcl{Two}{\mathord}{\mathocl{2}}
-\newMathOcl{Three}{\mathord}{\mathocl{3}}
-\newMathOcl{Four}{\mathord}{\mathocl{4}}
-\newMathOcl{Five}{\mathord}{\mathocl{5}}
-\newMathOcl{Six}{\mathord}{\mathocl{6}}
-\newMathOcl{Seven}{\mathord}{\mathocl{7}}
-\newMathOcl{Eight}{\mathord}{\mathocl{8}}
-\newMathOcl{Nine}{\mathord}{\mathocl{9}}
-
-\renewcommand{\OclFalse}{\mathtt{false}}
-\renewcommand{\OclTrue}{\mathtt{true}}
-\renewcommand{\OclUndef}{\mathtt{invalid}}
-
-\newOcl{IsInvalid}{\mathop}{.oclIsInvalid()}
 \renewcommand{\isasymOclUndefined}{\ensuremath{\mathtt{invalid}}}
 \newcommand{\isasymOclNull}{\ensuremath{\mathtt{null}}}
 \newcommand{\isasymOclInvalid}{\isasymOclUndefined}
-\newcommand{\nullid}{\ensuremath{\mathtt{nullid}}}
-\newcommand{\Tag}[1]{\ensuremath{\mathrm{#1}_{\text{t}}}}
-\newcommand{\CM}{\mathit{CM}}
-\DeclareMathOperator{\pre}{pre}
-\DeclareMathOperator{\post}{post}
-\DeclareMathOperator{\prog}{prog}
-\DeclareMathOperator{\spec}{spec}
 \DeclareMathOperator{\inv}{inv}
-
-\newcommand{\eqPre}{\mathbin{\stackrel{\text{pre}}{=}}}
-\newcommand{\eqPost}{\mathbin{\stackrel{\text{post}}{=}}}
-\newcommand{\modelsPre}{\mathbin{\isasymMathOclValid_\text{pre}}}
-\newcommand{\modelsPost}{\mathbin{\isasymMathOclValid_\text{post}}}
-%%
-
 \newcommand{\Null}[1]{{\ensuremath{\mathtt{null}_\text{{#1}}}}}
-\newcommand{\isdef}[1]{#1\isasymOclIsDefined}
-
-\newtheorem{definition}{}
-
-\newcommand{\obj}{\mathit{obj}}
-
 \newcommand{\testgen}{HOL-TestGen\xspace}
-\DeclareMathOperator{\vars}{\mathit{vars}}
-\renewcommand{\to}{\Rightarrow}
-\newcommand{\HolRef}{\mathrm{ref}}
 \newcommand{\HolOption}{\mathrm{option}}
-\newcommand{\term}{\mathrm{term}}
 \newcommand{\ran}{\mathrm{ran}}
 \newcommand{\dom}{\mathrm{dom}}
-\newcommand{\ind}{\mathrm{ind}}
-\newcommand{\order}{\mathrm{order}}
 \newcommand{\typedef}{\mathrm{typedef}}
-\DeclareMathOperator{\upCase}{upCase}
-\DeclareMathOperator{\optionCase}{optionCase}
-\DeclareMathOperator{\image}{image}
-\DeclareMathOperator{\fix}{fix}
-
-
 \newcommand{\mi}[1]{\,\text{#1}}
 \newcommand{\state}[1]{\ifthenelse{\equal{}{#1}}%
   {\operatorname{state}}%
   {\operatorname{\mathit{state}}(#1)}%
 }
-
-\renewcommand{\ofType}{\mathbin{::}}
 \newcommand{\mocl}[1]{\text{\inlineocl{#1}}}
 \DeclareMathOperator{\TCnull}{null}
 \DeclareMathOperator{\HolNull}{null}
 \DeclareMathOperator{\HolBot}{bot}
-
-\graphicspath{{data/},{figures/}}
-
-\newtheorem{example}{Example}
 
 
 % urls in roman style, theory text in math-similar italics
@@ -173,22 +73,31 @@
 \renewcommand{\isamarkupsubsubsect}[1]{\subsubsection{#1}}
 
 \begin{document}
+\renewcommand{\subsubsectionautorefname}{Section}
+\renewcommand{\subsectionautorefname}{Section}
+\renewcommand{\sectionautorefname}{Section}
+\renewcommand{\chapterautorefname}{Chapter}
+\newcommand{\subtableautorefname}{\tableautorefname}
+\newcommand{\subfigureautorefname}{\figureautorefname}
 
 \title{Featherweight OCL}
-%\subtitle{A Study for a Consistent Semantics of UML/OCL 2.3 in HOL}
-\subtitle{Towards a Machine Checked Formal Semantics for OCL 2.5}
-\author{Achim D. Brucker\footnotemark[1] \and  Fr\'ed\'eric Tuong\footnotemark[3] \and Burkhart Wolff\footnotemark[2]}
+\subtitle{A Proposal for a Machine Checked Formal Semantics for OCL 2.5}
+\author{%
+  \href{http://www.brucker.ch/}{Achim D. Brucker}\footnotemark[1]
+  \and
+  Fr\'ed\'eric Tuong\footnotemark[3]
+  \and
+  \href{https://www.lri.fr/~wolff/}{Burkhart Wolff}\footnotemark[2]}
 \publishers{%
   \footnotemark[1]~SAP AG, Vincenz-Priessnitz-Str. 1, 76131 Karlsruhe,
-  Germany \texorpdfstring{\\}{}
-  \href{mailto:"Achim D. Brucker"
+  Germany \texorpdfstring{\\}{} \href{mailto:"Achim D. Brucker"
     <achim.brucker@sap.com>}{achim.brucker@sap.com}\\[2em]
   %
   \footnotemark[2]~Univ. Paris-Sud, Laboratoire LRI, UMR8623, 91405 Orsay, France\\
   CNRS, 91405 Orsay, France\texorpdfstring{\\}{}
-  \{delphine.longuet, burkhart.wolff\}@lri.fr\\[2em]
+  \href{mailto:"Burkhart Wolff" <burkhart.wolff@lri.fr>}{burkhart.wolff@lri.fr}\\[2em]
   %
-  \footnotemark[3]~Univ. Paris-Sud, IRT SystemX, 8 av. de la Vauve, 91120 Palaiseau, France\\
+  \footnotemark[3]~Univ. Paris-Sud, IRT SystemX, 8 av.~de la Vauve, 91120 Palaiseau, France\\
   frederic.tuong@\{u-psud, irt-systemx\}.fr
 }
 
@@ -199,7 +108,7 @@
   The Unified Modeling Language (UML) is one of the few modeling
   languages that is widely used in industry. While UML is mostly known
   as diagrammatic modeling language (\eg, visualizing class models),
-  it also comprises a textual language, called OCL. OCL is a textual
+  it also comprises a textual language, called OCL\@. OCL is a textual
   annotation language, based on a three-valued logic, that turns UML
   into a formal language.  Unfortunately the semantics of this
   specification language, captured in the ``Annex A'' of the OCL
@@ -217,7 +126,7 @@
   interpreters.
 
   In this paper, we provide a formalization of the core of OCL in
-  HOL. It provides denotational definitions, a logical calculus and
+  HOL\@. It provides denotational definitions, a logical calculus and
   operational rules that allow for the execution of OCL expressions by
   a mixture of term rewriting and code compilation.  Our formalization
   reveals several inconsistencies and contradictions in the current
@@ -228,15 +137,10 @@
 
 \end{abstract}
 
-
-
 \tableofcontents
-
 \include{introduction}
 \include{formalization}
 \include{conclusion}
-
-% optional bibliography
 \bibliographystyle{abbrv}
 \bibliography{root} %,fmde}
 
@@ -246,3 +150,5 @@
 %%% mode: latex
 %%% TeX-master: t
 %%% End:
+
+%  LocalWords:  implementors denotational OCL UML
