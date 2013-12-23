@@ -340,7 +340,7 @@ qed
 text{* Here comes a couple of operational rules that allow to infer the value
 of \inlineisar+allInstances+ from the context $\tau$. These rules are a special-case
 in the sense that they are the only rules that relate statements with \emph{different}
-$\tau$'s. For that reason, new concepts like "constant contexts P" are necessary
+$\tau$'s. For that reason, new concepts like ``constant contexts P'' are necessary
 (for which we do not elaborate an own theory for reasons of space limitations;
  in examples, we will prove resulting constraints straight forward by hand.) *}
 
@@ -521,7 +521,7 @@ proof -
  done
 qed
 
-subsubsection{* OclAllInstances AT PRE *}
+subsubsection{* OclAllInstances@pre *}
 
 definition OclAllInstances_at_pre :: "('\<AA> :: object \<rightharpoonup> '\<alpha>) \<Rightarrow> ('\<AA>, '\<alpha> option option) Set"
                            ("_ .allInstances@pre'(')")
@@ -790,7 +790,7 @@ proof -
  done
 qed
 
-subsubsection{* AT POST or AT PRE *}
+subsubsection{* @post or @pre *}
 
 theorem StrictRefEq\<^sub>O\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t_vs_StrongEq'':
 assumes WFF: "WFF \<tau>"
@@ -881,14 +881,14 @@ by(simp add: OclIsDeleted_def OclIsNew_def OclIsMaintained_def OclIsAbsent_def
 
 subsection{* OclIsModifiedOnly *}
 
-text{* The following predicate --- which is not part of the OCL standard descriptions ---
-provides a simple, but powerful means to describe framing conditions. For any formal
-approach, be it animation of OCL contracts, test-case generation or die-hard theorem
-proving, the specification of the part of a system transistion that DOES NOT CHANGE
-is of premordial importance. The following operator establishes the equality between
-old and new objects in the state (provided that they exist in both states), with the
-exception of those objects
-*}
+text{* The following predicate---which is not part of the OCL
+standard---provides a simple, but powerful means to describe framing
+conditions. For any formal approach, be it animation of OCL contracts,
+test-case generation or die-hard theorem proving, the specification of
+the part of a system transition that \emph{does not change} is of
+primordial importance. The following operator establishes the equality
+between old and new objects in the state (provided that they exist in
+both states), with the exception of those objects. *}
 
 definition OclIsModifiedOnly ::"('\<AA>::object,'\<alpha>::{null,object})Set \<Rightarrow> '\<AA> Boolean"
                         ("_->oclIsModifiedOnly'(')")
