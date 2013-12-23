@@ -81,7 +81,7 @@
 \newcommand{\subfigureautorefname}{\figureautorefname}
 
 \title{Featherweight OCL}
-\subtitle{A Proposal for a Machine Checked Formal Semantics for OCL 2.5}
+\subtitle{A Proposal for a Machine-Checked Formal Semantics for OCL 2.5}
 \author{%
   \href{http://www.brucker.ch/}{Achim D. Brucker}\footnotemark[1]
   \and
@@ -93,41 +93,37 @@
   Germany \texorpdfstring{\\}{} \href{mailto:"Achim D. Brucker"
     <achim.brucker@sap.com>}{achim.brucker@sap.com}\\[2em]
   %
+  \footnotemark[3]~Univ. Paris-Sud, IRT SystemX, 8 av.~de la Vauve, \\
+  91120 Palaiseau, France\\
+  frederic.tuong@\{u-psud, irt-systemx\}.fr\\[2em]
+  %
   \footnotemark[2]~Univ. Paris-Sud, Laboratoire LRI, UMR8623, 91405 Orsay, France\\
   CNRS, 91405 Orsay, France\texorpdfstring{\\}{}
-  \href{mailto:"Burkhart Wolff" <burkhart.wolff@lri.fr>}{burkhart.wolff@lri.fr}\\[2em]
-  %
-  \footnotemark[3]~Univ. Paris-Sud, IRT SystemX, 8 av.~de la Vauve, 91120 Palaiseau, France\\
-  frederic.tuong@\{u-psud, irt-systemx\}.fr
+  \href{mailto:"Burkhart Wolff" <burkhart.wolff@lri.fr>}{burkhart.wolff@lri.fr}
 }
 
 
 \maketitle
 
 \begin{abstract}
-  The Unified Modeling Language
-  (UML)
-  is one of the few modeling languages that is widely used in
-  industry. While UML is mostly known as diagrammatic modeling language
-  (\eg, visualizing class models), it also comprises a textual language,
-  called Object Constraint Language (OCL). OCL is a
-  textual annotation language, originally conceived as a three-valued
-  logic, that turns substantial parts of UML into a formal language.
+  The Unified Modeling Language (UML) is one of the few modeling
+  languages that is widely used in industry. While UML is mostly known
+  as diagrammatic modeling language (\eg, visualizing class models),
+  it is complemented by a textual language, called Object Constraint
+  Language (OCL). OCL is a textual annotation language, based on a
+  three-valued logic, that turns UML into a formal language.
   Unfortunately the semantics of this specification language, captured
-  in the ``Annex A''
-  of the OCL standard leads to
-  different interpretations of corner cases.  Many of these corner cases
-  had been subject to formal analysis since more than nearly fifteen
-  years.
+  in the ``Annex A'' of the OCL standard, leads to different
+  interpretations of corner cases.  Many of these corner cases had
+  been subject to formal analysis since more than ten years.
 
-  %Since version 2.3 (released
-  The situation complicated when with
-  version 2.3 the OCL was aligned with the latest version of UML: this
-  led to the extension of the three-valued logic by a second exception
-  element, called \inlineocl{null}.  While the first exception element
-  \inlineocl{undefined} has a strict semantics, \inlineocl{null} has a non
-  strict semantic interpretation. These semantic difficulties lead to
-  remarkable confusion for implementors of OCL compilers and
+  The situation complicated when with version 2.3 the OCL was aligned
+  with the latest version of UML: this led to the extension of the
+  three-valued logic by a second exception element, called
+  \inlineocl{null}.  While the first exception element
+  \inlineocl{invalid} has a strict semantics, \inlineocl{null} has a
+  non strict semantic interpretation. These semantic difficulties lead
+  to remarkable confusion for implementors of OCL compilers and
   interpreters.
 
   In this paper, we provide a formalization of the core of OCL in
@@ -146,8 +142,8 @@
 \include{introduction}
 \include{formalization}
 \include{conclusion}
-\bibliographystyle{abbrv}
-\bibliography{root} %,fmde}
+\bibliographystyle{abbrvnat}
+\bibliography{root} 
 
 \end{document}
 

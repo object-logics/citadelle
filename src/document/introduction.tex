@@ -3,25 +3,28 @@
 The Unified Modeling Language
 (UML)~\cite{omg:uml-infrastructure:2011,omg:uml-superstructure:2011}
 is one of the few modeling languages that is widely used in
-industry. While UML is mostly known as diagrammatic modeling language
-(\eg, visualizing class models), it also comprises a textual language,
-called Object Constraint Language (OCL)~\cite{omg:ocl:2012}. OCL is a
-textual annotation language, originally conceived as a three-valued
-logic, that turns substantial parts of UML into a formal language.
-Unfortunately the semantics of this specification language, captured
-in the ``Annex A'' (originally, based on the work of
-Richters~\cite{richters:precise:2002}) of the OCL standard leads to
-different interpretations of corner cases.  Many of these corner cases
-had been subject to formal analysis since more than nearly fifteen
-years (see,
+industry. UML is defined, in an open process, by the Object Management
+Group (OMG), \ie, an industry consortium.  While UML is mostly known
+as diagrammatic modeling language (\eg, visualizing class models), it
+also comprises a textual language, called Object Constraint Language
+(OCL)~\cite{omg:ocl:2012}. OCL is a textual annotation language,
+originally conceived as a three-valued logic, that turns substantial
+parts of UML into a formal language.  Unfortunately the semantics of
+this specification language, captured in the ``Annex A'' (originally,
+based on the work of \citet{richters:precise:2002}) of the OCL
+standard leads to different interpretations of corner cases.  Many of
+these corner cases had been subject to formal analysis since more than
+nearly fifteen years (see,
 \eg,~\cite{brucker.ea:semantic:2006-b,brucker.ea:proposal:2002,mandel.ea:ocl:1999,
   hamie.ea:reflections:1998,cook.ea::amsterdam:2002}).
 
 At its origins~\cite{richters:precise:2002,omg:ocl:1997}, OCL was
-conceived as a strict semantics for undefinedness, with the exception
-of the logical connectives of type \inlineocl{Boolean} that constitute
-a three-valued propositional logic. At its core, OCL comprises four
-layers:
+conceived as a strict semantics for undefinedness (\eg, denoted by the
+element \inlineocl{invalid}\footnote{In earlier versions of the OCL
+  standard, this element was called \inlineocl{OclUndefined}.}), with
+the exception of the logical connectives of type \inlineocl{Boolean}
+that constitute a three-valued propositional logic. At its core, OCL
+comprises four layers:
 \begin{enumerate}
 \item Operators (\eg, \inlineocl{_ and _}, \inlineocl{_ + _}) on
   built-in data structures such as \inlineocl{Boolean},
@@ -36,22 +39,23 @@ layers:
 Motivated by the need for aligning OCL closer with UML, recent
 versions of the OCL standard~\cite{omg:ocl:2006,omg:ocl:2012} added a
 second exception element.  While the first exception element
-\mocl{undefined} has a strict semantics, \mocl{null} has a non strict
-semantic interpretation.  Unfortunately, this extension results in
-several inconsistencies and contradictions. These problems are
+\inlineocl{invalid} has a strict semantics, \inlineocl{null} has a non
+strict semantic interpretation.  Unfortunately, this extension results
+in several inconsistencies and contradictions. These problems are
 reflected in difficulties to define interpreters, code-generators,
 specification animators or theorem provers for OCL in a uniform manner
 and resulting incompatibilities of various tools.
 
-For the OCL community, the \mocl{undefined}/\mocl{null} and many
-related issues results in the challenge to define a consistent version
-of the OCL standard that is well aligned with the recent developments
-of the UML\@. A syntactical and semantical consistent standard
-requires a major revision of both the informal and formal parts of the
-standard. To discuss the future directions of the standard, several
-OCL experts met in November 2013 in Aachen to discuss possible
-mid-term improvements of OCL, strategies of standardization of OCL
-within the OMG and a vision for possible long-term developments of the
+For the OCL community, the semantics of \inlineocl{invalid} and
+\inlineocl{null} as well as many related issues resulted in the
+challenge to define a consistent version of the OCL standard that is
+well aligned with the recent developments of the UML\@. A syntactical
+and semantical consistent standard requires a major revision of both
+the informal and formal parts of the standard. To discuss the future
+directions of the standard, several OCL experts met in November 2013
+in Aachen to discuss possible mid-term improvements of OCL, strategies
+of standardization of OCL within the OMG, and a vision for possible
+long-term developments of the
 language~\cite{brucker.ea:summary-aachen:2013}. During this meeting, a
 Request for Proposals (RFP) for OCL 2.5 was finalized and meanwhile
 proposed. In particular, this RFP requires that the future OCL 2.5
@@ -84,9 +88,11 @@ replace completely its informative ``Annex A.''
 \chapter{Background}
 \section{A Guided Tour Through UML/OCL}
 \label{sec:guidedtour}
-The Unified Modeling Language (UML) comprises a variety of model types
-for describing static (\eg, class models, object models) and dynamic
-(\eg, state-machines, activity graphs) system properties.
+The Unified Modeling Language
+(UML)~\cite{omg:uml-infrastructure:2011,omg:uml-superstructure:2011}
+comprises a variety of model types for describing static (\eg, class
+models, object models) and dynamic (\eg, state-machines, activity
+graphs) system properties.
 \begin{figure*}
   \centering\scalebox{1}{\includegraphics{figures/AbstractSimpleChair}}%
   \caption{A simple UML class model representing a conference
@@ -151,7 +157,7 @@ for specifying additional invariants, preconditions and postconditions
 of operations. For example, we specify that objects of the class
 \inlineocl{Person} are uniquely determined by the value of the
 \inlineocl{name} attribute and that the attribute \inlineocl{name} is
-not equal to the empty string (\inlineocl{''}):
+not equal to the empty string (denoted by \inlineocl{''}):
 \begin{ocl}
 context Person
   inv: name <> '' and 
@@ -302,11 +308,12 @@ Isabelle/HOL is a logical embedding of HOL into Isabelle.  The
 Hindley-Milner style polymorphism with type-classes similar to
 Haskell.  While Isabelle/HOL is usually seen as proof assistant, we
 use it as symbolic computation environment. Implementations on top of
-Isabelle/HOL can re-use existing powerful deduction mechanisms such
-as higher-order resolution, tableaux-based reasoners, rewriting
+Isabelle/HOL can re-use existing powerful deduction mechanisms such as
+higher-order resolution, tableaux-based reasoners, rewriting
 procedures, Presburger arithmetic, and via various integration
-mechanisms, also external provers such as Vampire and the
-SMT-solver Z3~\cite{moura.ea:z3:2008}.
+mechanisms, also external provers such as
+Vampire~\cite{riazanov.ea:vampire:1999} and the SMT-solver
+Z3~\cite{moura.ea:z3:2008}.
 
 Isabelle/HOL offers support for a particular methodology to extend
 given theories in a logically safe way: A theory-extension is
@@ -319,12 +326,12 @@ the original theory was consistent.  Conservative extensions can be
 For instance, the library includes the type constructor $\up{\tau} :=
 \isasymbottom ~ | ~ \lift{\_} : \alpha$ that assigns to each type
 $\tau$ a type $\up{\tau}$ \emph{disjointly extended} by the
-exceptional element $\isasymbottom$\index{undefinedness lifting}. The
-function $\drop{\_} : \up{\alpha} \to \alpha$ is the inverse of
-$\lift{\_}$ (unspecified for $\isasymbottom$). Partial functions
-$\alpha \isasymrightharpoonup \beta$ are defined as functions $\alpha
-\isasymRightarrow \up{\beta}$ supporting the usual concepts of domain
-($\dom\;\_$) and range ($\ran\;\_$).
+exceptional element $\isasymbottom$. The function $\drop{\_} :
+\up{\alpha} \to \alpha$ is the inverse of $\lift{\_}$ (unspecified for
+$\isasymbottom$). Partial functions $\alpha \isasymrightharpoonup
+\beta$ are defined as functions $\alpha \isasymRightarrow \up{\beta}$
+supporting the usual concepts of domain ($\dom\;\_$) and range
+($\ran\;\_$).
 
 As another example of a conservative extension, typed sets were built
 in the Isabelle libraries conservatively on top of the kernel of HOL
@@ -548,7 +555,7 @@ type for the OCL type $\mocl{Boolean}$ by and define:
 \begin{gather*}
 \begin{alignedat}{3}
 I\semantics{\mocl{invalid}\ofType V(\alpha)} \tau &\equiv \HolBot &
-I\semantics{\mocl{null}\ofType V(\alpha)}  \tau    &\equiv \HolNull\\
+\qquad I\semantics{\mocl{null}\ofType V(\alpha)}  \tau    &\equiv \HolNull\\
 I\semantics{\mocl{true}\ofType\mocl{Boolean}} \tau &=\lfloor\lfloor
 \HolTrue\rfloor\rfloor &
 I\semantics{\mocl{false}} \tau &= \lfloor\lfloor\HolFalse\rfloor\rfloor\\
@@ -708,14 +715,14 @@ logical equality discussed below---the replacement
 of semantically equivalent sub-expressions. The core inference rules are:
 \begin{gather*}
 \begin{array}{lccr}
-  \tau \models \mocl{true}&
-  \lnot(\tau \models \mocl{false})&
-  \lnot(\tau \models \mocl{invalid})&
+  \tau \models \mocl{true} &\quad
+  \lnot(\tau \models \mocl{false})&\quad
+  \lnot(\tau \models \mocl{invalid})&\quad
   \lnot(\tau \models \mocl{null})
 \end{array}\\
   \tau \models \mocl{not}\; P \Longrightarrow \tau \lnot \models P\\
 \begin{array}{lcr}
-  \tau \models P \;\mocl{and}\; Q \Longrightarrow \tau \models P&\quad&
+  \tau \models P \;\mocl{and}\; Q \Longrightarrow \tau \models P&\qquad&
   \tau \models P \;\mocl{and}\; Q \Longrightarrow \tau \models Q
 \end{array}\\
   \tau \models P \Longrightarrow
@@ -809,44 +816,44 @@ Our denotational definitions on \inlineocl+not+ and \inlineocl+and+
 can be re-formulated in the following ground equations:
 \begin{gather*}
   \begin{aligned}
-  \upsilon\; \mocl{invalid} &= \mocl{false}&
+  \upsilon\; \mocl{invalid} &= \mocl{false}&\qquad
   \upsilon\; \mocl{null} &= \mocl{true}\\
-  \upsilon\; \mocl{true} &= \mocl{true}&
+  \upsilon\; \mocl{true} &= \mocl{true}&\qquad
   \upsilon\; \mocl{false} &= \mocl{true}\\
 \end{aligned}\\[.04\baselineskip]
 \begin{aligned}
   %
-  \delta\; \mocl{invalid} &= \mocl{false}&
+  \delta\; \mocl{invalid} &= \mocl{false}&\qquad
   \delta\; \mocl{null} &= \mocl{false}\\
-  \delta\; \mocl{true} &= \mocl{true}&
+  \delta\; \mocl{true} &= \mocl{true}&\qquad
   \delta\; \mocl{false} &= \mocl{true}\\
 \end{aligned}\\[.04\baselineskip]
 \begin{aligned}
   %
-  \mocl{not}\; \mocl{invalid} &= \mocl{invalid}&
+  \mocl{not}\; \mocl{invalid} &= \mocl{invalid}&\qquad
   \mocl{not}\; \mocl{null} &= \mocl{null}\\
-  \mocl{not}\; \mocl{true} &= \mocl{false}&
+  \mocl{not}\; \mocl{true} &= \mocl{false}&\qquad
   \mocl{not}\; \mocl{false} &= \mocl{true}\\
 \end{aligned}\\[.04\baselineskip]
 \begin{aligned}
   %
-  (\mocl{null} \;\mocl{and}\; \mocl{true}) &= \mocl{null}&
+  (\mocl{null} \;\mocl{and}\; \mocl{true}) &= \mocl{null}&\qquad
   (\mocl{null} \;\mocl{and}\; \mocl{false}) &= \mocl{false}\\
-  (\mocl{null} \;\mocl{and}\; \mocl{null}) &= \mocl{null}&
+  (\mocl{null} \;\mocl{and}\; \mocl{null}) &= \mocl{null}&\qquad
   (\mocl{null} \;\mocl{and}\; \mocl{invalid}) &= \mocl{invalid}\\
 \end{aligned}\\[.04\baselineskip]
 \begin{aligned}
   %
-  (\mocl{false} \;\mocl{and}\; \mocl{true}) &= \mocl{false}&
+  (\mocl{false} \;\mocl{and}\; \mocl{true}) &= \mocl{false}&\qquad
   (\mocl{false} \;\mocl{and}\; \mocl{false}) &= \mocl{false}\\
-  (\mocl{false} \;\mocl{and}\; \mocl{null}) &= \mocl{false}&
+  (\mocl{false} \;\mocl{and}\; \mocl{null}) &= \mocl{false}&\qquad
   (\mocl{false} \;\mocl{and}\; \mocl{invalid}) &= \mocl{false}\\
 \end{aligned}\\[.04\baselineskip]
 \begin{aligned}
   %
-  (\mocl{true} \;\mocl{and}\; \mocl{true}) &= \mocl{true}&
+  (\mocl{true} \;\mocl{and}\; \mocl{true}) &= \mocl{true}&\qquad
   (\mocl{true} \;\mocl{and}\; \mocl{false}) &= \mocl{false}\\
-  (\mocl{true} \;\mocl{and}\; \mocl{null}) &= \mocl{null}&
+  (\mocl{true} \;\mocl{and}\; \mocl{null}) &= \mocl{null}&\qquad
   (\mocl{true} \;\mocl{and}\; \mocl{invalid}) &= \mocl{invalid}
 \end{aligned}\\[.04\baselineskip]
 \begin{aligned}
@@ -857,12 +864,12 @@ can be re-formulated in the following ground equations:
 \end{aligned}
 \shortintertext{On this core, the structure of a conventional lattice arises:}
   \begin{aligned}
-    X \;\mocl{and}\; X &= X        &     X \;\mocl{and}\; Y &= Y \;\mocl{and}\; X
+    X \;\mocl{and}\; X &= X        &\qquad     X \;\mocl{and}\; Y &= Y \;\mocl{and}\; X
   \end{aligned}\\
   \begin{aligned}
-    \mocl{false} \;\mocl{and}\; X &= \mocl{false} &
+    \mocl{false} \;\mocl{and}\; X &= \mocl{false} &\qquad
     X \;\mocl{and}\; \mocl{false} &= \mocl{false}  \\
-    \mocl{true} \;\mocl{and}\; X  &= X &
+    \mocl{true} \;\mocl{and}\; X  &= X &\qquad
     X \;\mocl{and}\; \mocl{true} &= X
   \end{aligned}\\
   \begin{aligned}
@@ -886,9 +893,9 @@ standard expresses at many places that most operations are strict,
 \ie, enjoy the properties (exemplary for \inlineocl{_ + _}):
 \begin{gather*}
   \begin{aligned}
-  \mocl{invalid}\;\mocl{+}\; x &= \mocl{invalid}&
+  \mocl{invalid}\;\mocl{+}\; x &= \mocl{invalid}&\qquad
   \mocl{x} \;\mocl{+}\; \mocl{invalid} &= \mocl{invalid}\\
-  x \;\mocl{+}\; \mocl{null} &= \mocl{invalid}&
+  x \;\mocl{+}\; \mocl{null} &= \mocl{invalid}&\qquad
   \mocl{null} \;\mocl{+}\; x &= \mocl{invalid}
   \end{aligned}\\
   \mocl{null.asType(}X\mocl{)} = \mocl{invalid}
@@ -906,15 +913,15 @@ equations, this semantic alternative (this is \emph{not}
 Featherweight OCL at present) would boil down to:
 \begin{gather*}
   \begin{aligned}
-    \mocl{invalid} \;\mocl{+}\; x &= \mocl{invalid} &
+    \mocl{invalid} \;\mocl{+}\; x &= \mocl{invalid} &\qquad
     x \;\mocl{+}\; \mocl{invalid} &= \mocl{invalid}\\
-    x \;\mocl{+}\; \mocl{null} &= \mocl{null}&
+    x \;\mocl{+}\; \mocl{null} &= \mocl{null}&\qquad
     \mocl{null} \;\mocl{+}\; x &= \mocl{null}\\
     1 / 0 &= \mocl{invalid}&
     1 / \mocl{null} &= \mocl{null}
   \end{aligned}\\
   \begin{aligned}
-    \mocl{null->isEmpty()}&=\mocl{null}&
+    \mocl{null->isEmpty()}&=\mocl{null}&\qquad
     \mocl{null.asType(}X\mocl{)} &= \mocl{null}
 \end{aligned}
 \end{gather*}
@@ -934,15 +941,15 @@ type, so \inlineocl{0} or the empty string, for example.\footnote{In
 \emph{not} Featherweight OCL at present) would yield:
 \begin{gather*}
   \begin{aligned}
-    \mocl{invalid} \;\mocl{+}\; x &= \mocl{invalid} &
+    \mocl{invalid} \;\mocl{+}\; x &= \mocl{invalid} &\qquad
     x \;\mocl{+}\; \mocl{invalid} &= \mocl{invalid}\\
-    x \;\mocl{+}\; \mocl{null} &= x&
+    x \;\mocl{+}\; \mocl{null} &= x&\qquad
     \mocl{null} \;\mocl{+}\; x &= x\\
     1 / 0 &= \mocl{invalid}&
     1 / \mocl{null} &= \mocl{invalid}
   \end{aligned}\\
   \begin{aligned}
-    \mocl{null->isEmpty()}&=\mocl{true}&
+    \mocl{null->isEmpty()}&=\mocl{true}&\qquad
     \mocl{null.asType(}X\mocl{)} &= \mocl{invalid}
 \end{aligned}
 \end{gather*}
@@ -1478,4 +1485,4 @@ Aachen~\cite{brucker.ea:summary-aachen:2013}.
 %%% End:
 
 %  LocalWords:  UML OCL implementors RFP OMG provers invariants
-%  LocalWords:  wellfounded Denotational
+%  LocalWords:  wellfounded Denotational equalities

@@ -52,15 +52,18 @@ begin
 section{* Preliminaries *}
 subsection{* Notations for the option type *}
 
-text{*First of all, we will use a more compact notation for the library
-option type which occur all over in our definitions and which will make
-the presentation more "textbook"-like:*}
-
+text{*
+  First of all, we will use a more compact notation for the library
+  option type which occur all over in our definitions and which will make
+  the presentation more like a textbook:
+*}
 notation Some ("\<lfloor>(_)\<rfloor>")
 notation None ("\<bottom>")
 
-text{* The following function (corresponding to @{term the} in the Isabelle/HOL library)
-is defined as the inverse of the injection @{term Some}. *}
+text{*
+  The following function (corresponding to @{term the} in the Isabelle/HOL library)
+  is defined as the inverse of the injection @{term Some}.
+*}
 fun    drop :: "'\<alpha> option \<Rightarrow> '\<alpha>" ("\<lceil>(_)\<rceil>")
 where  drop_lift[simp]: "\<lceil>\<lfloor>v\<rfloor>\<rceil> = v"
 
@@ -74,14 +77,17 @@ type of object id's to just natural numbers.*}
 type_synonym oid = nat
 
 text{* We refrained from the alternative:
-\begin{isar}
-type_synonym oid = ind
+\begin{isar}[mathescape]
+\text{textbf{type-synonym}} $\mathit{oid = ind}$
 \end{isar}
 which is slightly more abstract but non-executable.
 *}
 
-text{* States are just a partial map from oid's to elements of an object universe @{text "'\<AA>"},
-and state transitions pairs of states...  *}
+text{*
+  States are just a partial map from oid's to elements of an object
+  universe @{text "'\<AA>"}, and state transitions pairs of states
+  \ldots
+*}
 record ('\<AA>)state =
              heap   :: "oid \<rightharpoonup> '\<AA> "
              assocs\<^sub>2 :: "oid  \<rightharpoonup> (oid \<times> oid) list"       (* binary associations *)
@@ -92,32 +98,35 @@ type_synonym ('\<AA>)st = "'\<AA> state \<times> '\<AA> state"
 
 subsection{* Prerequisite: An Abstract Interface for OCL Types *}
 
-text {* In order to have the possibility to nest collection types,
-such that we can give semantics to expressions like @{text "Set{Set{\<two>},null}"},
-it is necessary to introduce a uniform interface for types having
-the @{text "invalid"} (= bottom) element. The reason is that we impose
-a data-invariant on raw-collection \verb|types_code| which assures
-that the @{text "invalid"} element is not allowed inside the collection;
-all raw-collections of this form were identified with the @{text "invalid"} element
-itself. The construction requires that the new collection type is
-un-comparable with the raw-types (consisting of nested option type constructions),
-such that the data-invariant must be expressed in terms of the interface.
-In a second step, our base-types will be shown to be instances of this interface.
+text {*
+  To have the possibility to nest collection types,
+  such that we can give semantics to expressions like @{text "Set{Set{\<two>},null}"},
+  it is necessary to introduce a uniform interface for types having
+  the @{text "invalid"} (= bottom) element. The reason is that we impose
+  a data-invariant on raw-collection \inlineisar|types_code| which assures
+  that the @{text "invalid"} element is not allowed inside the collection;
+  all raw-collections of this form were identified with the @{text "invalid"} element
+  itself. The construction requires that the new collection type is
+  not comparable with the raw-types (consisting of nested option type constructions),
+  such that the data-invariant must be expressed in terms of the interface.
+  In a second step, our base-types will be shown to be instances of this interface.
  *}
 
-text{* This uniform interface consists in a type class requiring the existence
-of a bot and a null element. The construction proceeds by
- abstracting the null (which is defined by @{text "\<lfloor> \<bottom> \<rfloor>"} on
-@{text "'a option option"} to a null - element, which may
-have an abritrary semantic structure, and an undefinedness element @{text "\<bottom> "}
-to an abstract undefinedness element @{text "bot"} (also written
-@{text "\<bottom> "} whenever no confusion arises). As a consequence, it is necessary
-to redefine the notions of invalid, defined, valuation etc.
-on top of this interface. *}
+text{*
+  This uniform interface consists in a type class requiring the existence
+  of a bot and a null element. The construction proceeds by
+  abstracting the null (defined by @{text "\<lfloor> \<bottom> \<rfloor>"} on
+  @{text "'a option option"} to a null-element, which may
+  have an arbitrary semantic structure, and an undefinedness element @{text "\<bottom> "}
+  to an abstract undefinedness element @{text "bot"} (also written
+  @{text "\<bottom> "} whenever no confusion arises). As a consequence, it is necessary
+  to redefine the notions of invalid, defined, valuation etc.
+  on top of this interface. *}
 
-text{* This interface consists in two abstract type classes @{text bot}
-and @{text null} for the class of all types comprising a bot and a
-distinct null element.  *}
+text{*
+  This interface consists in two abstract type classes @{text bot}
+  and @{text null} for the class of all types comprising a bot and a
+  distinct null element.  *}
 
 instance option   :: (plus) plus  by intro_classes
 instance "fun"    :: (type, plus) plus by intro_classes
@@ -132,12 +141,15 @@ class      null = bot +
    assumes null_is_valid : "null \<noteq> bot"
 
 
-subsection{* Accomodation of Basic Types to the Abstract Interface *}
+subsection{* Accommodation of Basic Types to the Abstract Interface *}
 
-text{* In the following it is shown that the option-option type type is
-in fact in the @{text null} class and that function spaces over these
-classes again "live" in these classes. This motivates the default construction
-of the semantic domain for the basic types (Boolean, Integer, Reals, ...). *}
+text{*
+  In the following it is shown that the ``option-option'' type is
+  in fact in the @{text null} class and that function spaces over these
+  classes again ``live'' in these classes. This motivates the default construction
+  of the semantic domain for the basic types (\inlineocl{Boolean},
+  \inlineocl{Integer}, \inlineocl{Real}, \ldots).
+*}
 
 instantiation   option  :: (type)bot
 begin
@@ -192,17 +204,17 @@ abstract and concrete versions of null are the same on base types
 subsection{* The Semantic Space of OCL Types: Valuations. *}
 
 text{* Valuations are now functions from a state pair (built upon
-data universe @{typ "'\<AA>"}) to an arbitrary null-type (i.e. containing
+data universe @{typ "'\<AA>"}) to an arbitrary null-type (\ie, containing
 at least a destinguished @{text "null"} and @{text "invalid"} element. *}
 
 type_synonym ('\<AA>,'\<alpha>) val = "'\<AA> st \<Rightarrow> '\<alpha>::null"
 
 text{* The definitions for the constants and operations based on valuations
-will be geared towards a format that Isabelle can check to be a "conservative"
-(i.e. logically safe) axiomatic definition. By introducing an explicit
+will be geared towards a format that Isabelle can check to be a ``conservative''
+(\ie, logically safe) axiomatic definition. By introducing an explicit
 interpretation function (which happens to be defined just as the identity
-since we are using a shallow embedding of OCL into HOL), all these definions
-can be rewritten into the conventional semantic "textbook" format  as follows: *}
+since we are using a shallow embedding of OCL into HOL), all these definitions
+can be rewritten into the conventional semantic textbook format  as follows: *}
 
 definition Sem :: "'a \<Rightarrow> 'a" ("I\<lbrakk>_\<rbrakk>")
 where "I\<lbrakk>x\<rbrakk> \<equiv> x"
@@ -223,11 +235,12 @@ by(simp add: invalid_def Sem_def)
 
 
 text {* Note that the definition :
-\begin{verbatim}
-definition null    :: "('\<AA>,'\<alpha>::null) val"
+{\small
+\begin{isar}[mathescape]
+definition null    :: "('$\mathfrak{A}$,'\<alpha>::null) val"
 where     "null    \<equiv> \<lambda> \<tau>. null"
-\end{verbatim}
-is not  necessary since we defined the entire function space over null types
+\end{isar}
+} is not  necessary since we defined the entire function space over null types
 again as null-types; the crucial definition is @{thm "null_fun_def"}.
 Thus, the polymorphic constant @{const null} is simply the result of
 a general type class construction. Nevertheless, we can derive the
@@ -286,25 +299,22 @@ by(simp add: Sem_def false_def)
 
 (* This following para contains a cool technique to generate documentation
    with formal content. We should use it everywhere for documentation. *)
-text{* \textbf{Summary}:
+text {*
 \begin{table}[htbp]
    \centering
-   \begin{tabular}{lp{10cm}} % Column formatting
+   \begin{tabular}{lc} % Column formatting
       \toprule
       Name & Theorem \\
       \midrule
       @{thm [source] textbook_invalid}  & @{thm  textbook_invalid} \\
       @{thm [source] textbook_null_fun}  & @{thm  textbook_null_fun} \\
-      @{thm [source] textbook_true}   & @{thm [display=true,margin=35] textbook_true} \\
+      @{thm [source] textbook_true}   & @{thm  textbook_true} \\
       @{thm [source] textbook_false} & @{thm textbook_false} \\
       \bottomrule
    \end{tabular}
    \caption{Basic semantic constant definitions of the logic (except @{term null})}
    \label{tab:sem_basic_constants}
 \end{table}
- % unfortunately, the margin indent construction does not work inside a table.
- % ask IsabelleUsers? Or Makarius ?
-
 *}
 
 subsection{* Validity and Definedness *}
@@ -397,26 +407,26 @@ lemma textbook_valid: "I\<lbrakk>\<upsilon>(X)\<rbrakk> \<tau> = (if I\<lbrakk>X
                                    else I\<lbrakk>true\<rbrakk> \<tau>)"
 by(simp add: Sem_def valid_def)
 
-text{* \textbf{Summary}:
+
+text {* 
+\autoref{tab:sem_definedness} and \autoref{tab:alglaws_definedness}
+summarize the results of this section. 
 \begin{table}[htbp]
    \centering
-   \begin{tabular}{lp{10cm}} % Column formatting
+   \begin{tabular}{lp{9cm}} % Column formatting
       \toprule
       Name & Theorem \\
       \midrule
       @{thm [source] textbook_defined}  & @{thm [show_question_marks=false,display=false,margin=35] textbook_defined} \\
-      @{thm [source] textbook_valid}   & @{thm [show_question_marks=false,display=false,margin=15] textbook_valid} \\
+      @{thm [source] textbook_valid}   & @{thm [show_question_marks=false,display=false,margin=35] textbook_valid} \\
       \bottomrule
    \end{tabular}
-   \caption{Basic predicate definitions of the logic.)}
+   \caption{Basic predicate definitions of the logic.}
    \label{tab:sem_definedness}
 \end{table}
- % unfortunately, the margin indent construction does not work inside a table.
- % ask IsabelleUsers? Or Makarius ?
-These definitions lead quite directly to the algebraic laws on these predicates:
 \begin{table}[htbp]
    \centering
-   \begin{tabular}{lp{10cm}} % Column formatting
+   \begin{tabular}{lc} % Column formatting
       \toprule
       Name & Theorem \\
       \midrule
@@ -428,14 +438,14 @@ These definitions lead quite directly to the algebraic laws on these predicates:
       @{thm [source] defined6}   & @{thm [display=false,margin=35] defined6} \\
       \bottomrule
    \end{tabular}
-   \caption{Laws of the basic predicates of the logic.)}
+   \caption{Laws of the basic predicates of the logic.}
    \label{tab:alglaws_definedness}
 \end{table}
 *}
 
 section{*  The Equalities of OCL *}
 text{* The OCL contains a particular version of equality, written in Standard documents
-\verb+_ = _+ and  \verb+_ <> _+ for its negation, which is referred as
+\inlineocl+_ = _+ and  \inlineocl+_ <> _+ for its negation, which is referred as
 \emph{weak referential equality} hereafter and for which we use the symbol 
 \inlineisar+ \<doteq> + throughout the formal part of this document. Its semantics
 is motivated by the desire of fast execution, and similarity to languages
@@ -443,8 +453,8 @@ like Java and C, but does not satisfy the needs of logical reasoning over
 OCL expressions and specifications. We therefore introduce a second equality,
 referred as \emph{strong equality} or \emph{logical equality} and written
 \inlineisar+  \<triangleq>  + which is not present in the current standard but was 
-discussed in prior texts on OCL like the Amsterdam Manifesto and was identified
-as desirable extension of OCL in the Aachen Meeting
+discussed in prior texts on OCL like the Amsterdam Manifesto~\cite{cook.ea::amsterdam:2002} and was identified
+as desirable extension of OCL in the Aachen Meeting~\cite{brucker.ea:summary-aachen:2013}
 in the future 2.5 OCL Standard. The purpose of strong equality is to define 
 and reason over OCL. It is therefore a natural task in Featherweight OCL to 
 formally investigate the somewhat quite complex relationship between these two.
@@ -472,14 +482,14 @@ and a fundamental one.
 \item The fundamental reason goes as follows: whatever you do 
     to reason consistently over a language, you need the
     concept of equality: you need to know what expressions
-    can be replaced by others because they MEAN THE SAME THING.
-    People call this also ``Leibniz Equality'' because this philosopher 
+    can be replaced by others because they \emph{mean the same thing.}
+    People call this also ``Leipnitz Equality'' because this philosopher 
     brought this principle first explicitly to paper and shed some
     light over it. It is the theoretic foundation of what you do in 
-    an optimizing compiler: you replace expressions by EQUAL ones,
+    an optimizing compiler: you replace expressions by \em,ph{equal} ones,
     which you hope are easier to evaluate. In a typed language,
     strong equality exists uniformly over all types, it is ``polymorphic'' 
-    $\_ = \_ :: \alpha * \alpha \rightarrow bool$ --- this is the way
+    $\_ = \_ :: \alpha * \alpha \rightarrow bool$---this is the way
     that equality is defined in HOL itself. 
     We can express Leibniz principle as one logical rule of surprising simplicity and beauty:
     \begin{gather}
@@ -597,8 +607,8 @@ text{* ... it is only in a limited sense a congruence, at least from the point o
 of this semantic theory. The point is that it is only a congruence on OCL- expressions,
 not arbitrary HOL expressions (with which we can mix Essential OCL expressions. A semantic
  --- not syntactic --- characterization of OCL-expressions is that they are \emph{context-passing}
-or \emph{context-invariant}, i.e. the context of an entire OCL expression, i.e. the pre-and
-poststate it referes to, is passed constantly and unmodified to the sub-expressions, i.e. all
+or \emph{context-invariant}, \ie, the context of an entire OCL expression, \ie, the pre-and
+poststate it referes to, is passed constantly and unmodified to the sub-expressions, \ie, all
 sub-expressions inside an OCL expression refer to the same context. Expressed formally, this
 boils down to: *}
 
@@ -1156,7 +1166,7 @@ where     "cp P \<equiv> (\<exists> f. \<forall> X \<tau>. P X \<tau> = f (X \<t
 
 
 text{* The rule of substitutivity in HOL-OCL holds only
-for context-passing expressions - i.e. those, that pass
+for context-passing expressions, \ie, those, that pass
 the context @{text "\<tau>"} without changing it. Fortunately, all
 operators of the OCL language satisfy this property
 (but not all HOL operators).*}
