@@ -55,40 +55,51 @@ begin
 text {* \label{PartIV-UML} \label{chap:eam1} *}
 
 section{* Introduction *}
-text{* For certain concepts like Classes and Class-types, only a generic definition for its resulting
-semantics can be given. Generic means, there is a function outside HOL that "compiles" a concrete,
-closed-world class diagram into a "theory" of this data model, consisting of a bunch of definitions
-for classes, accessors, method, casts, and tests for actual types, as well as proofs for the
-fundamental properties of these operations in this concrete data model. *}
+text{* 
+  For certain concepts like Classes and Class-types, only a generic
+  definition for its resulting semantics can be given. Generic means,
+  there is a function outside HOL that ``compiles'' a concrete,
+  closed-world class diagram into a ``theory'' of this data model,
+  consisting of a bunch of definitions for classes, accessors, method,
+  casts, and tests for actual types, as well as proofs for the
+  fundamental properties of these operations in this concrete data
+  model. *}
 
-text{* Such generic function or "compiler" can be implemented in Isabelle on the ML level.
-This has been done, for a semantics following the open-world assumption, for UML 2.0
-in~\cite{brucker.ea:extensible:2008-b}. In this paper, we follow another approach for UML 2.4: we define the concepts
-of the compilation informally, and present a concrete example which is verified in Isabelle/HOL. *}
+text{* Such generic function or ``compiler'' can be implemented in
+  Isabelle on the ML level.  This has been done, for a semantics
+  following the open-world assumption, for UML 2.0
+  in~\cite{brucker.ea:extensible:2008-b, brucker:interactive:2007}. In
+  this paper, we follow another approach for UML 2.4: we define the
+  concepts of the compilation informally, and present a concrete
+  example which is verified in Isabelle/HOL. *}
 
 subsection{* Outlining the Example *}
 
-text{* We are presenting here an ``analysis-model'' of the (slightly modified) example Figure 7.3,
-page 20 of the \cite{Standard}. Here, analysis model means that associations were really represented
-as relation on objects on the state --- as is intended by the Standard --- rather by pointers 
-between objects as is done in our ``design model'' \autoref{edm1}.
-To be precise, this theory contains the formalization of the DATA-part covered by the UML diagram:*}
+text{* We are presenting here an ``analysis-model'' of the (slightly
+modified) example Figure 7.3, page 20 of
+the~\cite{omg:ocl:2012}. Here, analysis model means that associations
+were really represented as relation on objects on the state---as is
+intended by the standard---rather by pointers between objects as is
+done in our ``design model'' (see \autoref{chap:edm1}).  To be
+precise, this theory contains the formalization of the data-part
+covered by the UML class model (see \autoref{fig:person}):*}
+
 text{*
 \begin{figure}
-  \centering\scalebox{1}{\includegraphics{figures/person.png}}%
+  \centering\scalebox{.3}{\includegraphics{figures/person.png}}%
   \caption{A simple UML class model drawn from Figure 7.3,
-  page 20 of the \cite{Standard}. \label{fig:person}}
+  page 20 of the \cite{omg:ocl:2012}. \label{fig:person}}
 \end{figure}
 *}
 
 text{* This means that the association (attached to the association class
-\emph{EmployeeRanking}) with the association ends \verb+boss+ and \verb+employees+ is implemented
-by the attribute  \verb+boss+ and the operation \verb+employees+ (to be discussed in the OCL part
+\inlineocl{EmployeeRanking}) with the association ends \inlineocl+boss+ and \inlineocl+employees+ is implemented
+by the attribute  \inlineocl+boss+ and the operation \inlineocl+employees+ (to be discussed in the OCL part
 captured by the subsequent theory).
 *}
 
 section{* Example Data-Universe and its Infrastructure *}
-text{* Should be generated entirely from a class-diagram. *}
+text{* Ideally, the following is generated automatically from a UML class model.  *}
 
 (* @{text "'\<AA>"} -- \mathfrak{A} *)
 text{* Our data universe  consists in the concrete class diagram just of node's,
@@ -105,14 +116,14 @@ datatype type\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y = mk\<^sub>O\<^sub
                                "person" casted to "oclany"; in case of existence of several subclasses
                                 of oclany, sums of extensions have to be provided. *)
 
-text{* Now, we construct a concrete "universe of oclany types" by injection into a
-sum type containing the class types. This type of oclanys will be used as instance
-for all resp. type-variables ...*}
+text{* Now, we construct a concrete ``universe of OclAny types'' by injection into a
+sum type containing the class types. This type of OclAny will be used as instance
+for all respective type-variables. *}
 
 datatype \<AA> = in\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n type\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n | in\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y type\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y
 
 text{* Having fixed the object universe, we can introduce type synonyms that exactly correspond
-to OCL types. Again, we exploit that our representation of OCL is a "shallow embedding" with a
+to OCL types. Again, we exploit that our representation of OCL is a ``shallow embedding'' with a
 one-to-one correspondance of OCL-types to types of the meta-language HOL. *}
 type_synonym Boolean     = " \<AA> Boolean"
 type_synonym Integer     = " \<AA> Integer"
@@ -126,7 +137,7 @@ text{* Just a little check: *}
 typ "Boolean"
 
 text{* In order to reuse key-elements of the library like referential equality, we have
-to show that the object universe belongs to the type class "oclany", i.e. each class type
+to show that the object universe belongs to the type class ``oclany,'' \ie, each class type
 has to provide a function @{term oid_of} yielding the object id (oid) of the object. *}
 instantiation type\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n :: object
 begin
@@ -568,9 +579,9 @@ by(simp add: OclIsKindOf\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_OclAny 
 
 section{* OclAllInstances *}
 
-text{* Recall that in order to denote OCL-types occuring in OCL expressions syntactically
---- as, for example,  as "argument" of allInstances --- we use the inverses of the injection
-functions into the object universes; we show that this is sufficient "characterization". *}
+text{* To denote OCL-types occuring in OCL expressions syntactically---as, for example,  as 
+``argument'' of \inlineisar{oclAllInstances()}---we use the inverses of the injection
+functions into the object universes; we show that this is sufficient ``characterization.'' *}
 
 definition "Person \<equiv> OclAsType\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_\<AA>"
 definition "OclAny \<equiv> OclAsType\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_\<AA>"
@@ -669,14 +680,14 @@ subsection{* Definition (of the association Employee-Boss) *}
 
 text{* We start with a oid for the association; this oid can be used
 in presence of association classes to represent the association inside an object,
-pretty much similar to the \verb+Employee_DesignModel_UMLPart+, where we stored
-an \verb+oid+ inside the class as "pointer". *}
+pretty much similar to the \inlineisar+Employee_DesignModel_UMLPart+, where we stored
+an \verb+oid+ inside the class as ``pointer.'' *}
 
 definition oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<B>\<O>\<S>\<S> ::"oid" where "oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<B>\<O>\<S>\<S> = 10"
 
 text{* From there on, we can already define an empty state which must contain
-for \verb+oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<B>\<O>\<S>\<S>+ the empty relation (encoded as association list, since there are
-assiciations with a Sequence-like structure).*}
+for $\mathit{oid}_{Person}\mathcal{BOSS}$ the empty relation (encoded as association list, since there are
+associations with a Sequence-like structure).*}
 
 
 definition  eval_extract :: "('\<AA>,('a::object) option option) val
@@ -732,8 +743,8 @@ where  "select_object  mt incl smash deref l oid  = smash(foldl incl mt (map der
 
 
 text{* The continuation @{text f} is usually instantiated with a smashing
-function which is either the identity @{term id} or, for 0..1 cardinalities
-of associations, the @{term OclANY} - selector which also handles the
+function which is either the identity @{term id} or, for \inlineocl{0..1} cardinalities
+of associations, the @{term OclANY}-selector which also handles the
 @{term null}-cases appropriately. A standard use-case for this combinator
 is for example: *}
 term "(select_object mtSet OclIncluding OclANY f  l oid )::('\<AA>, 'a::null)val"
