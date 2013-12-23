@@ -537,7 +537,9 @@ text{*
 definition StrongEq::"['\<AA> st \<Rightarrow> '\<alpha>,'\<AA> st \<Rightarrow> '\<alpha>] \<Rightarrow> ('\<AA>)Boolean"  (infixl "\<triangleq>" 30)
 where     "X \<triangleq> Y \<equiv>  \<lambda> \<tau>. \<lfloor>\<lfloor>X \<tau> = Y \<tau> \<rfloor>\<rfloor>"
 
-text{* From this follow already elementary properties like:*}
+text{*
+  From this follow already elementary properties like:
+*}
 lemma [simp,code_unfold]: "(true \<triangleq> false) = false"
 by(rule ext, auto simp: StrongEq_def)
 
@@ -545,23 +547,28 @@ lemma [simp,code_unfold]: "(false \<triangleq> true) = false"
 by(rule ext, auto simp: StrongEq_def)
 
 
-text{* In contrast, referential equality behaves differently for all types ---
-on value types, it is basically strong equality for defined values, but on
-object types it will compare references --- we introduce it as an \emph{overloaded}
-concept and will handle it for each type instance individually. *}
+text{*
+  In contrast, referential equality behaves differently for all
+  types---on value types, it is basically strong equality for defined
+  values, but on object types it will compare references---we
+  introduce it as an \emph{overloaded} concept and will handle it for
+  each type instance individually.
+*}
 consts StrictRefEq :: "[('\<AA>,'a)val,('\<AA>,'a)val] \<Rightarrow> ('\<AA>)Boolean" (infixl "\<doteq>" 30)
 
 
-text{* Here is a first instance of a definition of weak equality --- for the special
-case of the type @{typ "('\<AA>)Boolean"}, it is just the strict extension of the logical
-equality:*}
-
+text{*
+  Here is a first instance of a definition of weak equality---for
+  the special case of the type @{typ "('\<AA>)Boolean"}, it is just
+  the strict extension of the logical
+  equality:
+*}
 defs   StrictRefEq\<^sub>B\<^sub>o\<^sub>o\<^sub>l\<^sub>e\<^sub>a\<^sub>n[code_unfold] :
       "(x::('\<AA>)Boolean) \<doteq> y \<equiv> \<lambda> \<tau>. if (\<upsilon> x) \<tau> = true \<tau> \<and> (\<upsilon> y) \<tau> = true \<tau>
                                     then (x \<triangleq> y)\<tau>
                                     else invalid \<tau>"
 
-text{* ... which implies elementary properties like: *}                                    
+text{* which implies elementary properties like: *}                                    
 lemma [simp,code_unfold] : "(true \<doteq> false) = false"
 by(simp add:StrictRefEq\<^sub>B\<^sub>o\<^sub>o\<^sub>l\<^sub>e\<^sub>a\<^sub>n)
 lemma [simp,code_unfold] : "(false \<doteq> true) = false"
@@ -616,15 +623,19 @@ lemma StrongEq_trans_strong [simp]:
   apply(drule_tac x=x in fun_cong)+
   by auto
 
-text{* ... it is only in a limited sense a congruence, at least from the point of view
-of this semantic theory. The point is that it is only a congruence on OCL- expressions,
-not arbitrary HOL expressions (with which we can mix Essential OCL expressions. A semantic
- --- not syntactic --- characterization of OCL-expressions is that they are \emph{context-passing}
-or \emph{context-invariant}, \ie, the context of an entire OCL expression, \ie, the pre-and
-poststate it referes to, is passed constantly and unmodified to the sub-expressions, \ie, all
-sub-expressions inside an OCL expression refer to the same context. Expressed formally, this
-boils down to: *}
-
+text{*
+    it is only in a limited sense a congruence, at least from the
+    point of view of this semantic theory. The point is that it is
+    only a congruence on OCL-expressions, not arbitrary HOL
+    expressions (with which we can mix Essential OCL expressions. A
+    semantic---not syntactic---characterization of OCL-expressions is
+    that they are \emph{context-passing} or \emph{context-invariant},
+    \ie, the context of an entire OCL expression, \ie, the pre-and
+    poststate it referes to, is passed constantly and unmodified to
+    the sub-expressions, \ie, all sub-expressions inside an OCL
+    expression refer to the same context. Expressed formally, this
+    boils down to:
+*}
 lemma StrongEq_subst :
   assumes cp: "\<And>X. P(X)\<tau> = P(\<lambda> _. X \<tau>)\<tau>"
   and     eq: "(X \<triangleq> Y)\<tau> = true \<tau>"
@@ -649,23 +660,27 @@ lemma cp_StrongEq: "(X \<triangleq> Y) \<tau> = ((\<lambda> _. X \<tau>) \<trian
 by(simp add: StrongEq_def)
 
 section{* Logical Connectives and their Universal Properties *}
-text{* It is a design goal to give OCL a semantics that is as closely as
-possible to a "logical system" in a known sense; a specification logic
-where the logical connectives can not be understood other that having
-the truth-table aside when reading fails its purpose in our view.
+text{*
+  It is a design goal to give OCL a semantics that is as closely as
+  possible to a ``logical system'' in a known sense; a specification
+  logic where the logical connectives can not be understood other that
+  having the truth-table aside when reading fails its purpose in our
+  view.
 
-Practically, this means that we want to give a definition to the core
-operations to be as close as possible to the lattice laws; this makes
-also powerful symbolic normalizations of OCL specifications possible
-as a pre-requisite for automated theorem provers. For example, it is
-still possible to compute without any definedness- and validity reasoning
-the DNF of an OCL specification; be it for test-case generations or
-for a smooth transition to a two-valued representation of the specification
-amenable to fast standard SMT-solvers, for example.
+  Practically, this means that we want to give a definition to the
+  core operations to be as close as possible to the lattice laws; this
+  makes also powerful symbolic normalization of OCL specifications
+  possible as a pre-requisite for automated theorem provers. For
+  example, it is still possible to compute without any definedness
+  and validity reasoning the DNF of an OCL specification; be it for
+  test-case generations or for a smooth transition to a two-valued
+  representation of the specification amenable to fast standard
+  SMT-solvers, for example.
 
-Thus, our representation of the OCL is merely a 4-valued Kleene-Logics with
-@{term "invalid"} as least, @{term "null"} as middle and @{term "true"} resp.
-@{term "false"} as unrelated top-elements.
+  Thus, our representation of the OCL is merely a 4-valued
+  Kleene-Logics with @{term "invalid"} as least, @{term "null"} as
+  middle and @{term "true"} resp.  @{term "false"} as unrelated
+  top-elements.
 *}
 
 
