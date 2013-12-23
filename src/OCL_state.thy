@@ -49,36 +49,35 @@ begin
 
 section{* Introduction: States over Typed Object Universes *}
 
-text{* In the following, we will refine the concepts of a user-defined
-data-model (implied by a class-diagram) as well as 
-the notion of $\state{}$ used in the
-previous section to much more detail. 
-Surprisingly, even without a concrete notion of an objects and a universe
-of object representation, the generic infrastructure of state-related
-operations is fairly rich.
+text{* 
+  In the following, we will refine the concepts of a user-defined
+  qdata-model (implied by a class-diagram) as well as the notion of
+  $\state{}$ used in the previous section to much more detail.
+  Surprisingly, even without a concrete notion of an objects and a
+  universe of object representation, the generic infrastructure of
+  state-related operations is fairly rich.  
 *}
 
 
 
 subsection{* Recall: The generic structure of States *}
-
 text{* Recall the foundational concept of an object id (oid),
 which is just some infinite set.*}
 
 text{* \inlineisar+type_synonym oid = nat+ *}
 
 text{* Further, recall that states are pair of a partial map from oid's to elements of an 
-object universe @{text "'\<AA>"} --- the heap --- and a map to relations of objects. 
-The relations were encoded as lists of pairs in order to leave the possibility to have Bags, 
+object universe @{text "'\<AA>"}---the heap---and a map to relations of objects. 
+The relations were encoded as lists of pairs  to leave the possibility to have Bags, 
 OrderedSets or Sequences as association ends.  *}
-text{* This lead to the definitions:
-\begin{isar}
+text{* This leads to the definitions:
+\begin{isar}[mathescape]
 record ('\<AA>)state =
              heap   :: "oid \<rightharpoonup> '\<AA> "
              assocs\<^sub>2 :: "oid  \<rightharpoonup> (oid \<times> oid) list"
              assocs\<^sub>3 :: "oid  \<rightharpoonup> (oid \<times> oid \<times> oid) list"
 
-type_synonym ('\<AA>)st = "'\<AA> state \<times> '\<AA> state"
+$\text{\textbf{type-synonym}}$ ('\<AA>)st = "'\<AA> state \<times> '\<AA> state"
 \end{isar}
 *}
 
@@ -95,7 +94,7 @@ the following type class constraint:*}
 typ "'\<AA> :: object"
 
 text{* The major instance needed are instances constructed over options: So, once an object,
-options of objects are also objects... *}
+options of objects are also objects. *}
 instantiation   option  :: (object)object
 begin
    definition oid_of_option_def: "oid_of x = oid_of (the x)"
@@ -103,7 +102,7 @@ begin
 end
 
 section{* Fundamental Predicates on Object: Strict Equality *}
-subsection{* Definition *}
+subsubsection{* Definition *}
 
 text{* Generic referential equality - to be used for instantiations
  with concrete object types ... *}
@@ -174,7 +173,7 @@ definition WFF :: "('\<AA>::object)st \<Rightarrow> bool"
 where "WFF \<tau> = ((\<forall> x \<in> ran(heap(fst \<tau>)). \<lceil>heap(fst \<tau>) (oid_of x)\<rceil> = x) \<and>
                 (\<forall> x \<in> ran(heap(snd \<tau>)). \<lceil>heap(snd \<tau>) (oid_of x)\<rceil> = x))"
 
-text{* It turns out that \verb+WFF+ is a key-concept for linking strict referential equality to
+text{* It turns out that WFF is a key-concept for linking strict referential equality to
 logical equality: in well-formed states (i.e. those states where the self (oid-of) field contains 
 the pointer to which the object is associated to in the state), referential equality coincides 
 with logical equality. *}
@@ -182,11 +181,11 @@ with logical equality. *}
                 
 text{* We turn now to the generic definition of referential equality on objects:
 Equality on objects in a state is reduced to equality on the
-references to these objects. As in HOL-OCL, we will store
-the reference of an object inside the object in a (ghost) field.
-By establishing certain invariants ("consistent state"), it can
-be assured that there is a "one-to-one-correspondance" of objects
-to their references --- and therefore the definition below
+references to these objects. As in HOL-OCL~\cite{brucker.ea:hol-ocl:2008,brucker.ea:hol-ocl-book:2006}, 
+we will store the reference of an object inside the object in a (ghost) field.
+By establishing certain invariants (``consistent state''), it can
+be assured that there is a ``one-to-one-correspondence'' of objects
+to their references---and therefore the definition below
 behaves as we expect. *}
 text{* Generic Referential Equality enjoys the usual properties:
 (quasi) reflexivity, symmetry, transitivity, substitutivity for
@@ -224,7 +223,7 @@ shows "(\<tau> \<Turnstile> (StrictRefEq\<^sub>O\<^sub>b\<^sub>j\<^sub>e\<^sub>c
 by (metis foundation18' oid_preserve valid_x valid_y)+
 
 text{* So, if two object descriptions live in the same state (both pre or post), the referential
-equality on objects implies in a WFF state the logical equality. Uffz. *}
+equality on objects implies in a WFF state the logical equality.  *}
 
 section{* Operations on Object *}
 subsection{* Initial States (for Testing and Code Generation) *}
@@ -235,9 +234,9 @@ where     "\<tau>\<^sub>0 \<equiv> (\<lparr>heap=Map.empty, assocs\<^sub>2= Map.
 
 subsection{* OclAllInstances *}
 
-text{* In order to denote OCL-types occuring in OCL expressions syntactically --- as, for example,
-as "argument" of allInstances --- we use the inverses of the injection functions into the object
-universes; we show that this is sufficient "characterization". *}
+text{* To denote OCL types occurring in OCL expressions syntactically---as, for example,
+as ``argument'' of \inlineocl{oclAllInstances()}---we use the inverses of the injection functions into the object
+universes; we show that this is sufficient ``characterization.'' *}
 
 definition OclAllInstances_generic :: "(('\<AA>::object) st \<Rightarrow> '\<AA> state) \<Rightarrow> ('\<AA>::object \<rightharpoonup> '\<alpha>) \<Rightarrow> 
                                        ('\<AA>, '\<alpha> option option) Set"
