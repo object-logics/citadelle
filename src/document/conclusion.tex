@@ -2,10 +2,10 @@
 
 \chapter{Conclusion}
 
-\section{Lessons Learned and Contributions}\fixme{input by bu}
+\section{Lessons Learned and Contributions}
 We provided a typed and type-safe shallow embedding
 of the core of the UML and OCL-language. Shallow-embedding means
-that types of OCL were injectively,\ie{} mapped by the embedding
+that types of OCL were injectively,\ie, mapped by the embedding
 one-to-one to types in HOL. We followed the usual methodology to
 build up the theory uniquely by conservative extensions
 of all operators in a denotational style
@@ -31,8 +31,7 @@ solutions to a number of open major issues for the UML/OCL standardization:
       \inlineisar+foundation12+) that allow a reduction
       to two-valued reasoning as required for many automated
       provers. The resulting logic still enjoys the rules of a
-      strong Kleene Logic in the spirit of the Amsterdam Manifesto.
-      \fixme{add ref here.}
+      strong Kleene Logic in the spirit of the Amsterdam Manifesto~\cite{cook.ea::amsterdam:2002}.
 \item the complicated life resulting from the two necessary equalities:
       the standard's "strict weak referential equality" as default
       (written \inlineisar+\<doteq>+ throughout this document) and
@@ -57,7 +56,7 @@ solutions to a number of open major issues for the UML/OCL standardization:
       to state properties over them (this will be an important feature if
       OCL is intended to become a full-blown code annotation language in
       the spirit of JML for semi-automated code verification, and has
-      been considered desirable in the Aachen Meeting \fixme{ add ref.}).
+      been considered desirable in the Aachen Meeting~\cite{brucker.ea:summary-aachen:2013}).
 \end{enumerate}
 Moreover, we managed to make our theory in large parts executable, which allowed
 us to include mechanically checked \inlineisar+value+-statements
@@ -108,7 +107,7 @@ ready for interpretation in SMT solvers
 (see~\cite{brucker.ea:ocl-testing:2010} for details)) are valid in
 Featherweight OCL.
 
-\section{Conclusion and Future Work}\fixme{just last para ?}
+\section{Conclusion and Future Work}
 Featherweight OCL concentrates on formalizing the semantics of a core
 subset of OCL in general and in particular on formalizing the
 consequences of a four-valued logic (\ie, OCL versions that support,
