@@ -3,14 +3,14 @@
 \chapter{Conclusion}
 
 \section{Lessons Learned and Contributions}\fixme{input by bu}
-We provided a typed and type-safe shallow embedding 
+We provided a typed and type-safe shallow embedding
 of the core of the UML and OCL-language. Shallow-embedding means
 that types of OCL were injectively,\ie{} mapped by the embedding
 one-to-one to types in HOL. We followed the usual methodology to
 build up the theory uniquely by conservative extensions
-of all operators in a denotational style 
+of all operators in a denotational style
 and to derive logical and algebraic (execution) rules
-from them; thus, we can guarantee the logical consistency 
+from them; thus, we can guarantee the logical consistency
 of the library and instances of the class model construction,
   \ie{} closed-world object-oriented data-type theories,
   as long as it follows the described methodology.
@@ -27,30 +27,30 @@ solutions to a number of open major issues for the UML/OCL standardization:
       and \inlineisar+null+, the former usually assuming strict evaluation
       while the latter ruled by non-strict evaluation.
 \item the functioning of the resulting four-valued logic,
-      together with safe rules (for example \inlineisar+foundation9+ - 
+      together with safe rules (for example \inlineisar+foundation9+ -
       \inlineisar+foundation12+) that allow a reduction
       to two-valued reasoning as required for many automated
-      provers. The resulting logic still enjoys the rules of a 
+      provers. The resulting logic still enjoys the rules of a
       strong Kleene Logic in the spirit of the Amsterdam Manifesto.
       \fixme{add ref here.}
 \item the complicated life resulting from the two necessary equalities:
-      the standard's "strict weak referential equality" as default 
+      the standard's "strict weak referential equality" as default
       (written \inlineisar+\<doteq>+ throughout this document) and
       the strong equality (written \inlineisar+\<triangleq>+), which follows
-      the logical Leipnitz principle that "equals can be replaced by equals".
-      (which is not necessarily the case if \inlineisar+invalid+ 
+      the logical Leibniz principle that "equals can be replaced by equals".
+      (which is not necessarily the case if \inlineisar+invalid+
        or objects of different states are involved).
 \item a type-safe representation of objects and a clarification of
       the old idea of a "one-to-one correspondance" between object
       representations and object-id's, which became a state invariant.
-\item a simple concept of state-framing via the novel operator 
-      \inlineisar+->modifiesOnly()+ and its consequences for strong 
+\item a simple concept of state-framing via the novel operator
+      \inlineisar+->modifiesOnly()+ and its consequences for strong
       and weak equality.
 \item a semantic view on subtyping clarifying the role of static and dynamic type
-      (aka \emph{apparent} and \emph{actual} type in Java terminology), and its 
+      (aka \emph{apparent} and \emph{actual} type in Java terminology), and its
       consequences for casts, dynamic type-tests, and static types.
 \item a semantic view on path expressions, that clarify the role of
-      \inlineisar+invalid+ and \inlineisar+null+ as well as the tricky 
+      \inlineisar+invalid+ and \inlineisar+null+ as well as the tricky
       issues related to de-referentiation in pre- and post state.
 \item an optional extension of the OCL semantics by \emph{infinite} sets
       that provide means to represent "the set of potential objects or values"
@@ -58,12 +58,12 @@ solutions to a number of open major issues for the UML/OCL standardization:
       OCL is intended to become a full-blown code annotation language in
       the spirit of JML for semi-automated code verification, and has
       been considered desirable in the Aachen Meeting \fixme{ add ref.}).
-\end{enumerate}      
+\end{enumerate}
 Moreover, we managed to make our theory in large parts executable, which allowed
-us to include mechanically checked \inlineisar+value+-statements 
+us to include mechanically checked \inlineisar+value+-statements
 that capture numerous corner-cases relevant for OCL implementors. Among many minor
 issues, we thus pin-pointed the behavior of \inlineisar+null+ in collections as
-well as in casts and the desired \inlineisar+isKindOf+-semantics of 
+well as in casts and the desired \inlineisar+isKindOf+-semantics of
 \inlineisar+allInstances()+.
 
 
@@ -77,13 +77,13 @@ which makes reasoning in OCL inherent messy and a semantically clean
 compilation of OCL formulae to a two-valued presentation, that is
 amenable to animators like KodKod~\cite{torlak.ea:kodkod:2007} or
 SMT-solvers like Z3~\cite{moura.ea:z3:2008} completely
-impractical. Concretely, if the expression \inlineocl{not(null)} 
+impractical. Concretely, if the expression \inlineocl{not(null)}
 is defined \inlineocl{invalid} (as is the case in the
 present standard~\cite{omg:ocl:2012}), than standard involution does
 not hold, \ie, \inlineocl{not(not(A))} = \inlineocl{A} does not hold
 universally. Similarly, if
 % \begin{ocl}
-%      null and null  
+%      null and null
 % \end{ocl}
 \inlineocl{null and null} is \inlineocl{invalid}, then not even
 idempotence \inlineocl{X and X} = \inlineocl{X} holds. We strongly argue in favor of a lattice-like
@@ -183,7 +183,7 @@ the whole standard after each and every modifications can be of great
 value as well.
 
 
-%%% Local Variables: 
+%%% Local Variables:
 %%% mode: latex
 %%% TeX-master: "root"
 

@@ -239,7 +239,7 @@ lemma textbook_null_fun: "I\<lbrakk>null::('\<AA>,'\<alpha>::null) val\<rbrakk> 
 by(simp add: null_fun_def Sem_def)
 
 
-section{* Boolean Type and Logic *}
+section{* Definition of the Boolean Type *}
 
 text{* The semantic domain of the (basic) boolean type is now defined as standard:
 the space of valuation to @{typ "bool option option"}:*}
@@ -307,7 +307,7 @@ text{* \textbf{Summary}:
 
 *}
 
-subsection{* Fundamental Predicates I: Validity and Definedness *}
+subsection{* Validity and Definedness *}
 
 text{* However, this has also the consequence that core concepts like definedness,
 validness and even cp have to be redefined on this type class:*}
@@ -433,7 +433,7 @@ These definitions lead quite directly to the algebraic laws on these predicates:
 \end{table}
 *}
 
-subsection{*  Fundamental Predicates II: The Equalities of OCL *}
+section{*  The Equalities of OCL *}
 text{* The OCL contains a particular version of equality, written in Standard documents
 \verb+_ = _+ and  \verb+_ <> _+ for its negation, which is referred as
 \emph{weak referential equality} hereafter and for which we use the symbol 
@@ -452,41 +452,41 @@ formally investigate the somewhat quite complex relationship between these two.
 text{* Strong equality has two motivations: a pragmatic one
 and a fundamental one. 
 \begin{enumerate}
-\item The pragmatic reason is fairly simple: Users of object-oriented languages want 
-      something like a “shallow object value equality”:
-      You will want to say:
-      \inlineisar+ a.next \<triangleq>  b.next@pre +
-      Instead of
+\item The pragmatic reason is fairly simple: users of object-oriented languages want 
+      something like a ``shallow object value equality''.
+      You will want to say
+      \inlineisar+ a.boss \<triangleq>  b.boss@pre +
+      instead of
       \begin{isar}
-          a.next \<doteq> b.next@pre and  (* just the pointers are equal!*)
-          a.next.name \<doteq> b.next@pre.name@pre and
-          a.next.age \<doteq> b.next@pre.age@pre
+          a.boss \<doteq> b.boss@pre and  (* just the pointers are equal! *)
+          a.boss.name \<doteq> b.boss@pre.name@pre and
+          a.boss.age \<doteq> b.boss@pre.age@pre
       \end{isar}
      Breaking a shallow-object equality down to referential equality of attributes
      is cumbersome, error-prone, and makes specifications
-     difficult to extend (add, for example, an attribute sex to your class and check in you OCL
-     spec everywhere that you did it right with your simulation of strong equality ...)
+     difficult to extend (add for example an attribute sex to your class, and check in your OCL
+     specification everywhere that you did it right with your simulation of strong equality...).
      Therefore, languages like Java offer facilities to handle two different equalities,
      and it is problematic even in an execution oriented specification language to 
      ignore shallow object equality because it is so common in the code.
-\item The fundamental reason goes as follows: Whatever you do 
+\item The fundamental reason goes as follows: whatever you do 
     to reason consistently over a language, you need the
     concept of equality: you need to know what expressions
     can be replaced by others because they MEAN THE SAME THING.
-    People call this also “Leipnitz Equality” because this philosopher 
+    People call this also ``Leibniz Equality'' because this philosopher 
     brought this principle first explicitly to paper and shed some
     light over it. It is the theoretic foundation of what you do in 
     an optimizing compiler: you replace expressions by EQUAL ones,
     which you hope are easier to evaluate. In a typed language,
-    strong equality exists uniformly over all types, it is “polymorphic” 
+    strong equality exists uniformly over all types, it is ``polymorphic'' 
     $\_ = \_ :: \alpha * \alpha \rightarrow bool$ --- this is the way
     that equality is defined in HOL itself. 
-    We can express Leipnitz principle as one logical rule of surprising simplicity and beauty:
+    We can express Leibniz principle as one logical rule of surprising simplicity and beauty:
     \begin{gather}
         s = t \Longrightarrow P(s) = P(t)
     \end{gather}
-   “whenever we know, that s is equal to t, we can replace the sub-expression
-    s in a term P by t and with have that the replacements is equal to the original”.
+    ``Whenever we know, that $s$ is equal to $t$, we can replace the sub-expression
+    $s$ in a term $P$ by $t$ and we have that the replacement is equal to the original.''
 \end{enumerate}
 *}
 text{*
@@ -509,12 +509,12 @@ lead to invalid results. *}
 
 
 text{* Note that we define strong equality extremely generic, even for types that contain
-an @{text "null"} or @{text "\<bottom>"} element. Strong equality is simply polymorhic in Featherweight
+an @{text "null"} or @{text "\<bottom>"} element. Strong equality is simply polymorphic in Featherweight
 OCL, \ie{} is defined identical for all types in OCL and HOL.*}
 definition StrongEq::"['\<AA> st \<Rightarrow> '\<alpha>,'\<AA> st \<Rightarrow> '\<alpha>] \<Rightarrow> ('\<AA>)Boolean"  (infixl "\<triangleq>" 30)
 where     "X \<triangleq> Y \<equiv>  \<lambda> \<tau>. \<lfloor>\<lfloor>X \<tau> = Y \<tau> \<rfloor>\<rfloor>"
 
-text{* From this follow alread elementary properties like:*}
+text{* From this follow already elementary properties like:*}
 lemma [simp,code_unfold]: "(true \<triangleq> false) = false"
 by(rule ext, auto simp: StrongEq_def)
 
@@ -524,7 +524,7 @@ by(rule ext, auto simp: StrongEq_def)
 
 text{* In contrast, referential equality behaves differently for all types ---
 on value types, it is basically strong equality for defined values, but on
-object types it will compare references --- we introduce it as \emph{overloaded}
+object types it will compare references --- we introduce it as an \emph{overloaded}
 concept and will handle it for each type instance individually. *}
 consts StrictRefEq :: "[('\<AA>,'a)val,('\<AA>,'a)val] \<Rightarrow> ('\<AA>)Boolean" (infixl "\<doteq>" 30)
 
@@ -549,14 +549,32 @@ by(simp add:StrictRefEq\<^sub>B\<^sub>o\<^sub>o\<^sub>l\<^sub>e\<^sub>a\<^sub>n 
 lemma [simp,code_unfold] : "(invalid \<doteq> true) = invalid"
 by(simp add:StrictRefEq\<^sub>B\<^sub>o\<^sub>o\<^sub>l\<^sub>e\<^sub>a\<^sub>n false_def true_def)
 
-lemma [simp,code_unfold] : "(false  \<doteq> invalid) = invalid"
+lemma [simp,code_unfold] : "(false \<doteq> invalid) = invalid"
 by(simp add:StrictRefEq\<^sub>B\<^sub>o\<^sub>o\<^sub>l\<^sub>e\<^sub>a\<^sub>n false_def true_def)
-lemma [simp,code_unfold] : "(true \<doteq>invalid ) = invalid"
+lemma [simp,code_unfold] : "(true \<doteq> invalid) = invalid"
 by(simp add:StrictRefEq\<^sub>B\<^sub>o\<^sub>o\<^sub>l\<^sub>e\<^sub>a\<^sub>n false_def true_def)
 
 lemma [simp,code_unfold] : "((invalid::('\<AA>)Boolean) \<doteq> invalid) = invalid"
 by(simp add:StrictRefEq\<^sub>B\<^sub>o\<^sub>o\<^sub>l\<^sub>e\<^sub>a\<^sub>n false_def true_def)
 text{* Thus, the weak equality is \emph{not} reflexive. *}
+
+lemma null_non_false [simp,code_unfold]:"(null \<doteq> false) = false"
+ apply(rule ext, simp add: StrictRefEq\<^sub>B\<^sub>o\<^sub>o\<^sub>l\<^sub>e\<^sub>a\<^sub>n StrongEq_def false_def)
+by (metis OCL_core.drop.simps bot_option_def cp_valid false_def is_none_code(2) is_none_def null_fun_def null_option_def valid4)
+
+lemma null_non_true [simp,code_unfold]:"(null \<doteq> true) = false"
+ apply(rule ext, simp add: StrictRefEq\<^sub>B\<^sub>o\<^sub>o\<^sub>l\<^sub>e\<^sub>a\<^sub>n StrongEq_def false_def)
+by (metis OCL_core.drop.simps bot_option_def null_fun_def null_option_def option.distinct(1) true_def)
+
+lemma false_non_null [simp,code_unfold]:"(false \<doteq> null) = false"
+ apply(rule ext, simp add: StrictRefEq\<^sub>B\<^sub>o\<^sub>o\<^sub>l\<^sub>e\<^sub>a\<^sub>n StrongEq_def false_def)
+by (metis OCL_core.drop.simps bot_option_def cp_valid false_def is_none_code(2) is_none_def null_fun_def null_option_def valid4)
+
+lemma true_non_null [simp,code_unfold]:"(true \<doteq> null) = false"
+ apply(rule ext, simp add: StrictRefEq\<^sub>B\<^sub>o\<^sub>o\<^sub>l\<^sub>e\<^sub>a\<^sub>n StrongEq_def false_def)
+by (metis OCL_core.drop.simps bot_option_def null_fun_def null_option_def option.distinct(1) true_def)
+
+subsection{* Fundamental Predicates on Strong Equality *}
 
 text{* Equality reasoning in OCL is not humpty dumpty. While strong equality
 is clearly an equivalence: *}
@@ -594,10 +612,6 @@ lemma StrongEq_subst :
   apply(subst cp[of Y])
   by simp
 
-subsection{*  Fundamental Predicates III *}
-
-
-text{* And, last but not least, *}
 lemma defined7[simp]: "\<delta> (X \<triangleq> Y) = true"
   by(rule ext,
      auto simp: defined_def           true_def false_def StrongEq_def
@@ -611,12 +625,7 @@ lemma valid7[simp]: "\<upsilon> (X \<triangleq> Y) = true"
 lemma cp_StrongEq: "(X \<triangleq> Y) \<tau> = ((\<lambda> _. X \<tau>) \<triangleq> (\<lambda> _. Y \<tau>)) \<tau>"
 by(simp add: StrongEq_def)
 
-text{* The semantics of strict equality of OCL is constructed by overloading:
-for each base type, there is an equality.
-*}
-
-
-subsection{* Logical Connectives and their Universal Properties *}
+section{* Logical Connectives and their Universal Properties *}
 text{* It is a design goal to give OCL a semantics that is as closely as
 possible to a "logical system" in a known sense; a specification logic
 where the logical connectives can not be understood other that having

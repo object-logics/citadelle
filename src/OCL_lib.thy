@@ -127,14 +127,6 @@ lemma [simp,code_unfold]: "\<upsilon> \<eight> = true" by(simp add:OclInt8_def)
 lemma [simp,code_unfold]: "\<delta> \<nine> = true" by(simp add:OclInt9_def)
 lemma [simp,code_unfold]: "\<upsilon> \<nine> = true" by(simp add:OclInt9_def)
 
-text{* The last basic operation belonging to the fundamental infrastructure
-of a value-type in OCl is the weak equality, which is defined similar 
-to the @{typ "('\<AA>)Boolean"}-case as strict extension of the strong equality:*}
-defs   StrictRefEq\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r[code_unfold] :
-      "(x::('\<AA>)Integer) \<doteq> y \<equiv> \<lambda> \<tau>. if (\<upsilon> x) \<tau> = true \<tau> \<and> (\<upsilon> y) \<tau> = true \<tau>
-                                    then (x \<triangleq> y) \<tau>
-                                    else invalid \<tau>"
-
 
 subsection{* Arithmetical Operations on Integer *}
 
@@ -219,16 +211,17 @@ value "  \<tau> \<Turnstile> (( \<four> `+ \<four> ) `\<le> \<one>\<zero> )"
 value "\<not>(\<tau> \<Turnstile> (( \<four> `+ ( \<four> `+ \<four> )) `< \<one>\<zero> ))"
 value "  \<tau> \<Turnstile> not (\<upsilon> (null `+ \<one>)) "
 
-section{* Fundamental Predicates on Boolean and Integer: Strict Equality *}
+section{* Fundamental Predicates on Basic Types: Strict Equality *}
 
 subsection{* Definition *}
 
-text{* The strict equality on basic types (actually on all types)
-must be exceptionally defined on @{term "null"} --- otherwise the entire concept of
-null in the language does not make much sense. This is an important exception
-from the general rule that null arguments --- especially if passed as "self"-argument ---
-lead to invalid results. *}
-
+text{* The last basic operation belonging to the fundamental infrastructure
+of a value-type in OCL is the weak equality, which is defined similar 
+to the @{typ "('\<AA>)Boolean"}-case as strict extension of the strong equality:*}
+defs   StrictRefEq\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r[code_unfold] :
+      "(x::('\<AA>)Integer) \<doteq> y \<equiv> \<lambda> \<tau>. if (\<upsilon> x) \<tau> = true \<tau> \<and> (\<upsilon> y) \<tau> = true \<tau>
+                                    then (x \<triangleq> y) \<tau>
+                                    else invalid \<tau>"
 
 value "\<tau> \<Turnstile> \<one> <> \<two>"
 value "\<tau> \<Turnstile> \<two> <> \<one>"
@@ -321,22 +314,6 @@ by(rule ext, simp add: StrictRefEq\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub
 
 lemma StrictRefEq\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r_strict2[simp,code_unfold] : "(invalid \<doteq> (x::('\<AA>)Integer)) = invalid"
 by(rule ext, simp add: StrictRefEq\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r true_def false_def)
-
-lemma true_non_null [simp,code_unfold]:"(true \<doteq> null) = false"
- apply(rule ext, simp add: StrictRefEq\<^sub>B\<^sub>o\<^sub>o\<^sub>l\<^sub>e\<^sub>a\<^sub>n StrongEq_def false_def)
-by (metis defined3 foundation1 foundation16 null_fun_def)
-
-lemma null_non_true [simp,code_unfold]:"(null \<doteq> true) = false"
- apply(rule ext, simp add: StrictRefEq\<^sub>B\<^sub>o\<^sub>o\<^sub>l\<^sub>e\<^sub>a\<^sub>n StrongEq_def false_def)
-by (metis defined3 foundation1 foundation16 null_fun_def)
-
-lemma false_non_null [simp,code_unfold]:"(false \<doteq> null) = false"
- apply(rule ext, simp add: StrictRefEq\<^sub>B\<^sub>o\<^sub>o\<^sub>l\<^sub>e\<^sub>a\<^sub>n StrongEq_def false_def)
-by (metis OCL_core.drop.simps null_Boolean_def option.distinct(1))
-
-lemma null_non_false [simp,code_unfold]:"(null \<doteq> false) = false"
- apply(rule ext, simp add: StrictRefEq\<^sub>B\<^sub>o\<^sub>o\<^sub>l\<^sub>e\<^sub>a\<^sub>n StrongEq_def false_def)
-by (metis OCL_core.drop.simps null_Boolean_def option.distinct(1))
 
 lemma integer_non_null [simp]: "((\<lambda>_. \<lfloor>\<lfloor>n\<rfloor>\<rfloor>) \<doteq> (null::('\<AA>)Integer)) = false"
 by(rule ext,auto simp: StrictRefEq\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r valid_def
