@@ -50,13 +50,14 @@ imports
 begin
 text {* \label{PartIV} \label{chap:eam2} *}
 section{* Standard State Infrastructure *}
-text{* These definitions should be generated --- again --- from the class diagram. *}
+text{* Ideally, these definitions are automatically generated from the class model. *}
 
 section{* Invariant *}
 text{* These recursive predicates can be defined conservatively
-by greatest fix-point constructions - automatically. See HOL-OCL Book
+by greatest fix-point
+constructions---automatically. See~\cite{brucker.ea:hol-ocl-book:2006,brucker:interactive:2007}
 for details. For the purpose of this example, we state them as axioms
-here.*}
+here. *}
 axiomatization inv_Person :: "Person \<Rightarrow> Boolean"
 where A : "(\<tau> \<Turnstile> (\<delta> self)) \<longrightarrow>
                (\<tau> \<Turnstile> inv_Person(self)) =
@@ -83,13 +84,13 @@ coinductive inv :: "Person \<Rightarrow> (\<AA>)st \<Rightarrow> bool" where
 
 section{* The contract of a recursive query : *}
 text{* The original specification of a recursive query :
-\begin{verbatim}
+\begin{ocl}
 context Person::contents():Set(Integer)
 post:  result = if self.boss = null
                 then Set{i}
                 else self.boss.contents()->including(i)
                 endif
-\end{verbatim} *}
+\end{ocl} *}
 
 
 consts dot_contents :: "Person \<Rightarrow> Set_Integer"  ("(1(_).contents'('))" 50)
@@ -126,11 +127,11 @@ operations without side-effect. *}
 section{* The contract of a method. *}
 text{*
 The specification in high-level OCL input syntax reads as follows:
-\begin{verbatim}
+\begin{ocl}
 context Person::insert(x:Integer)
 post: contents():Set(Integer)
 contents() = contents@pre()->including(x)
-\end{verbatim}
+\end{ocl}
 *}
 
 consts dot_insert :: "Person \<Rightarrow> Integer \<Rightarrow> Void"  ("(1(_).insert'(_'))" 50)
