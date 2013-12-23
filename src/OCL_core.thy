@@ -443,84 +443,97 @@ summarize the results of this section.
 \end{table}
 *}
 
-section{*  The Equalities of OCL *}
-text{* The OCL contains a particular version of equality, written in Standard documents
-\inlineocl+_ = _+ and  \inlineocl+_ <> _+ for its negation, which is referred as
-\emph{weak referential equality} hereafter and for which we use the symbol 
-\inlineisar+ \<doteq> + throughout the formal part of this document. Its semantics
-is motivated by the desire of fast execution, and similarity to languages
-like Java and C, but does not satisfy the needs of logical reasoning over
-OCL expressions and specifications. We therefore introduce a second equality,
-referred as \emph{strong equality} or \emph{logical equality} and written
-\inlineisar+  \<triangleq>  + which is not present in the current standard but was 
-discussed in prior texts on OCL like the Amsterdam Manifesto~\cite{cook.ea::amsterdam:2002} and was identified
-as desirable extension of OCL in the Aachen Meeting~\cite{brucker.ea:summary-aachen:2013}
-in the future 2.5 OCL Standard. The purpose of strong equality is to define 
-and reason over OCL. It is therefore a natural task in Featherweight OCL to 
-formally investigate the somewhat quite complex relationship between these two.
-*}
-text{* Strong equality has two motivations: a pragmatic one
-and a fundamental one. 
-\begin{enumerate}
-\item The pragmatic reason is fairly simple: users of object-oriented languages want 
-      something like a ``shallow object value equality''.
-      You will want to say
-      \inlineisar+ a.boss \<triangleq>  b.boss@pre +
-      instead of
-      \begin{isar}
-          a.boss \<doteq> b.boss@pre and  (* just the pointers are equal! *)
-          a.boss.name \<doteq> b.boss@pre.name@pre and
-          a.boss.age \<doteq> b.boss@pre.age@pre
-      \end{isar}
-     Breaking a shallow-object equality down to referential equality of attributes
-     is cumbersome, error-prone, and makes specifications
-     difficult to extend (add for example an attribute sex to your class, and check in your OCL
-     specification everywhere that you did it right with your simulation of strong equality...).
-     Therefore, languages like Java offer facilities to handle two different equalities,
-     and it is problematic even in an execution oriented specification language to 
-     ignore shallow object equality because it is so common in the code.
-\item The fundamental reason goes as follows: whatever you do 
-    to reason consistently over a language, you need the
-    concept of equality: you need to know what expressions
-    can be replaced by others because they \emph{mean the same thing.}
-    People call this also ``Leipnitz Equality'' because this philosopher 
-    brought this principle first explicitly to paper and shed some
-    light over it. It is the theoretic foundation of what you do in 
-    an optimizing compiler: you replace expressions by \em,ph{equal} ones,
-    which you hope are easier to evaluate. In a typed language,
-    strong equality exists uniformly over all types, it is ``polymorphic'' 
-    $\_ = \_ :: \alpha * \alpha \rightarrow bool$---this is the way
-    that equality is defined in HOL itself. 
-    We can express Leibniz principle as one logical rule of surprising simplicity and beauty:
+section{* The Equalities of OCL *}
+text{*
+  The OCL contains a particular version of equality, written in
+  Standard documents \inlineocl+_ = _+ and \inlineocl+_ <> _+ for its
+  negation, which is referred as \emph{weak referential equality}
+  hereafter and for which we use the symbol \inlineisar+_ \<doteq> _+
+  throughout the formal part of this document. Its semantics is
+  motivated by the desire of fast execution, and similarity to
+  languages like Java and C, but does not satisfy the needs of logical
+  reasoning over OCL expressions and specifications. We therefore
+  introduce a second equality, referred as \emph{strong equality} or
+  \emph{logical equality} and written \inlineisar+_ \<triangleq> _+
+  which is not present in the current standard but was discussed in
+  prior texts on OCL like the Amsterdam
+  Manifesto~\cite{cook.ea::amsterdam:2002} and was identified as
+  desirable extension of OCL in the Aachen
+  Meeting~\cite{brucker.ea:summary-aachen:2013} in the future 2.5 OCL
+  Standard. The purpose of strong equality is to define and reason
+  over OCL. It is therefore a natural task in Featherweight OCL to
+  formally investigate the somewhat quite complex relationship between
+  these two.  *} text{* Strong equality has two motivations: a
+  pragmatic one and a fundamental one.
+  \begin{enumerate}
+  \item The pragmatic reason is fairly simple: users of object-oriented languages want 
+    something like a ``shallow object value equality''.
+    You will want to say
+    \inlineisar+ a.boss \<triangleq>  b.boss@pre +
+    instead of
+\begin{isar}
+  a.boss \<doteq> b.boss@pre and  (* just the pointers are equal! *)
+  a.boss.name \<doteq> b.boss@pre.name@pre and
+  a.boss.age \<doteq> b.boss@pre.age@pre
+\end{isar}
+      Breaking a shallow-object equality down to referential equality
+      of attributes is cumbersome, error-prone, and makes
+      specifications difficult to extend (add for example an attribute
+      sex to your class, and check in your OCL specification
+      everywhere that you did it right with your simulation of strong
+      equality).  Therefore, languages like Java offer facilities
+      to handle two different equalities, and it is problematic even
+      in an execution oriented specification language to ignore
+      shallow object equality because it is so common in the code.
+    \item The fundamental reason goes as follows: whatever you do to
+      reason consistently over a language, you need the concept of
+      equality: you need to know what expressions can be replaced by
+      others because they \emph{mean the same thing.}  People call
+      this also ``Leipnitz Equality'' because this philosopher brought
+      this principle first explicitly to paper and shed some light
+      over it. It is the theoretic foundation of what you do in an
+      optimizing compiler: you replace expressions by \emph{equal}
+      ones, which you hope are easier to evaluate. In a typed
+      language, strong equality exists uniformly over all types, it is
+      ``polymorphic'' $\_ = \_ :: \alpha * \alpha \rightarrow
+      bool$---this is the way that equality is defined in HOL itself.
+      We can express Leibniz principle as one logical rule of
+      surprising simplicity and beauty:
     \begin{gather}
         s = t \Longrightarrow P(s) = P(t)
     \end{gather}
-    ``Whenever we know, that $s$ is equal to $t$, we can replace the sub-expression
-    $s$ in a term $P$ by $t$ and we have that the replacement is equal to the original.''
+    ``Whenever we know, that $s$ is equal to $t$, we can replace the
+    sub-expression $s$ in a term $P$ by $t$ and we have that the
+    replacement is equal to the original.''
 \end{enumerate}
 *}
 text{*
-    While weak referential equality is defined to be strict in the OCL standard,
-    we will define strong equality as non-strict. 
-    It is quite nasty (but not impossible) to define the logical equality in 
-    a strict way (the substitutivity rule above would look more complex), however,
-    whenever references were used, strong equality is needed since references
-    refer to particular states (pre-or post), and that they mean the same thing 
-    can therefore not be taken for granted. 
+  While weak referential equality is defined to be strict in the OCL
+  standard, we will define strong equality as non-strict.  It is quite
+  nasty (but not impossible) to define the logical equality in a
+  strict way (the substitutivity rule above would look more complex),
+  however, whenever references were used, strong equality is needed
+  since references refer to particular states (pre-or post), and that
+  they mean the same thing can therefore not be taken for granted.
 *}
 
 subsection{* Definition *}
+text{*
+  The strict equality on basic types (actually on all types) must be
+  exceptionally defined on @{term "null"}---otherwise the entire
+  concept of null in the language does not make much sense. This is an
+  important exception from the general rule that null
+  arguments---especially if passed as ``self''-argument---lead to
+  invalid results.
+*}
 
-text{* The strict equality on basic types (actually on all types)
-must be exceptionally defined on @{term "null"} --- otherwise the entire concept of
-null in the language does not make much sense. This is an important exception
-from the general rule that null arguments --- especially if passed as "self"-argument ---
-lead to invalid results. *}
 
-
-text{* Note that we define strong equality extremely generic, even for types that contain
-an @{text "null"} or @{text "\<bottom>"} element. Strong equality is simply polymorphic in Featherweight
-OCL, \ie{} is defined identical for all types in OCL and HOL.*}
+text{*
+  We define strong equality extremely generic, even for types that
+  contain an @{text "null"} or @{text "\<bottom>"} element. Strong
+  equality is simply polymorphic in Featherweight OCL, \ie, is
+  defined identical for all types in OCL and HOL.
+*}
 definition StrongEq::"['\<AA> st \<Rightarrow> '\<alpha>,'\<AA> st \<Rightarrow> '\<alpha>] \<Rightarrow> ('\<AA>)Boolean"  (infixl "\<triangleq>" 30)
 where     "X \<triangleq> Y \<equiv>  \<lambda> \<tau>. \<lfloor>\<lfloor>X \<tau> = Y \<tau> \<rfloor>\<rfloor>"
 
