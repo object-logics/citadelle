@@ -62,14 +62,14 @@ proposed. In particular, this RFP requires that the future OCL 2.5
 standard document shall be generated from a machine-checked
 source. This will ensure
 \begin{itemize}
-\item the absence of syntax errors and
+\item the absence of syntax errors,
 \item the consistency of the formal semantics,
 \item a suite of corner-cases relevant for OCL tool implementors.
 \end{itemize}
 
 In this document, we present a formalization using
 Isabelle/HOL~\cite{nipkow.ea:isabelle:2002} of a core language of
-OCL\@. The semantic theory, based on a ``shallow embedding,'' is
+OCL\@. The semantic theory, based on a ``shallow embedding'', is
 called \emph{Featherweight OCL}, since it focuses on a formal
 treatment of the key-elements of the language (rather than a full
 treatment of all operators and thus, a ``complete''
@@ -141,7 +141,7 @@ functions like \inlineocl{person} and \inlineocl{role}; these implicit
 function definitions allow for OCL-expressions like
 \inlineocl+self.person+, where \inlineocl+self+ is a variable of the
 class \inlineocl{Role}. The expression \inlineocl+self.person+ denotes
-persons being related to the a specific object \inlineocl{self} of
+persons being related to the specific object \inlineocl{self} of
 type role. A particular feature of the UML are \emph{association
   classes} (\inlineocl{Participant} in our example) which represent a
 concrete tuple of the relation within a system state as an object;
@@ -160,7 +160,7 @@ of operations. For example, we specify that objects of the class
 not equal to the empty string (denoted by \inlineocl{''}):
 \begin{ocl}
 context Person
-  inv: name <> '' and 
+  inv: name <> '' and
        Person::allInstances()->isUnique(p:Person | p.name)
 \end{ocl}
 Moreover, we specify that every session has exactly one chair by the
@@ -490,7 +490,7 @@ Featherweight OCL is based on the following principles:
   tests, as well as functions such as \inlineocl{oclAllInstances()},
   or \inlineocl{oclIsNew()}.
 \item Featherweight OCL types may be arbitrarily nested. For example,
-  the expression 
+  the expression
   \inlineocl|Set{Set{1,2}} = Set{Set{2,1}}| is legal and true.
 \item For demonstration purposes, the set type in Featherweight OCL
   may be infinite, allowing infinite quantification and a constant
@@ -538,7 +538,7 @@ object universes were excluded from a presentation here.
  \item user-defined, side-effect-free methods.
  \end{enumerate}
  Conceptually, an OCL expression in general and Boolean expressions in
- particular (\ie, \emph{formulae}) that depends on the pair $(\sigma,
+ particular (\ie, \emph{formulae}) depends on the pair $(\sigma,
  \sigma')$ of pre-and post-state.  The precise form of states is
  irrelevant for this paper (compare~\cite{brucker.ea:ocl-null:2009})
  and will be left abstract in this presentation. We construct in
@@ -551,7 +551,7 @@ Now, any OCL type can be represented by an HOL type of the form:
   \V{}{\alpha} \defeq \state{} \times \state{} \to \alpha \ofType \TCnull \mi{.}
 \end{equation*}
 On this basis, we define $\V{}{\up{(\up{\HolBoolean })}}$ as the HOL
-type for the OCL type $\mocl{Boolean}$ by and define:
+type for the OCL type $\mocl{Boolean}$ and define:
 \begin{gather*}
 \begin{alignedat}{3}
 I\semantics{\mocl{invalid}\ofType V(\alpha)} \tau &\equiv \HolBot &
@@ -576,15 +576,15 @@ Due to the used style of
 semantic representation (a shallow embedding) $I$ is in fact
 superfluous and defined semantically as the identity; instead of:
 \begin{gather*}
-I\semantics{\mocl{true}\ofType\mocl{Boolean}} \tau =\lfloor\lfloor \HolTrue\rfloor\rfloor  
+I\semantics{\mocl{true}\ofType\mocl{Boolean}} \tau =\lfloor\lfloor \HolTrue\rfloor\rfloor
 \shortintertext{we can therefore write:}
 \mocl{true}\ofType\mocl{Boolean}  = \lambda \tau. \lfloor\lfloor
 \HolTrue\rfloor\rfloor
 \end{gather*}
-In Isabelle theories, this particular presentation of definitions 
+In Isabelle theories, this particular presentation of definitions
 paves the way for an automatic check that the underlying equation
 has the form of an \emph{axiomatic
-definition} and is therefore logically safe. 
+definition} and is therefore logically safe.
 Since all operators of the assertion language depend on the context $\tau$ = $(\sigma,
 \sigma')$ and result in values that can be $\isasymbottom$, all expressions can
 be viewed as \emph{evaluations} from $(\sigma, \sigma')$ to a type $\alpha$
@@ -622,10 +622,10 @@ and $\mocl{and}$ as follows:
                      | \lfloor \lfloor  x \rfloor \rfloor  &\Rightarrow  \lfloor \lfloor  \lnot  x \rfloor \rfloor )
           \end{array}
   \end{array}
-\end{gather*}  
+\end{gather*}
 
 \begin{gather*}
-  \begin{array}{ll}  
+  \begin{array}{ll}
    I\semantics{X\;\mocl{and}\; Y}  \tau
     &=  (\HolCase I\semantics{X} \tau  \HolOf\\
     &\quad\begin{array}{ll}
@@ -683,7 +683,7 @@ conform to the standard and define the addition for integers as
 follows:
  \begin{gather*}
    \begin{array}{rl}
-   I\semantics{x \mocl{+} y}\tau  = &\HolIf I\semantics{\delta ~ x}\tau =\lfloor \lfloor \HolTrue\rfloor \rfloor  \land   I\semantics{\delta  ~ y}\tau =\lfloor \lfloor \HolTrue\rfloor \rfloor \\
+   I\semantics{x \;\mocl{+}\; y}\tau  = &\HolIf I\semantics{\delta ~ x}\tau =\lfloor \lfloor \HolTrue\rfloor \rfloor  \land   I\semantics{\delta  ~ y}\tau =\lfloor \lfloor \HolTrue\rfloor \rfloor \\
                 &\HolThen \lfloor \lfloor \lceil \lceil I\semantics{x}\tau \rceil \rceil  + \lceil \lceil I\semantics{y}\tau \rceil \rceil \rfloor \rfloor\\
                 &\HolElse \bottom
    \end{array}
@@ -720,18 +720,18 @@ of semantically equivalent sub-expressions. The core inference rules are:
   \lnot(\tau \models \mocl{invalid})&\quad
   \lnot(\tau \models \mocl{null})
 \end{array}\\
-  \tau \models \mocl{not}\; P \Longrightarrow \tau \lnot \models P\\
+  \tau \models \mocl{not}\; P \Longrightarrow \lnot (\tau \models P)\\
 \begin{array}{lcr}
   \tau \models P \;\mocl{and}\; Q \Longrightarrow \tau \models P&\qquad&
   \tau \models P \;\mocl{and}\; Q \Longrightarrow \tau \models Q
 \end{array}\\
   \tau \models P \Longrightarrow
-     (\mocl{if}\; P \;\mocl{then}\; B_1 \;\mocl{else}\; B_2 \;\mocl{endif})\tau = B_1 \tau\\
+     (\mocl{if}\; P \;\mocl{then}\; B_1 \;\mocl{else}\; B_2 \;\mocl{endif})\tau = B_1\ap \tau\\
   \tau \models \mocl{not}\; P \Longrightarrow
-       (\mocl{if}\; P \;\mocl{then}\; B_1 \;\mocl{else}\; B_2 \;\mocl{endif})\tau = B_2 \tau\\
+       (\mocl{if}\; P \;\mocl{then}\; B_1 \;\mocl{else}\; B_2 \;\mocl{endif})\tau = B_2\ap \tau\\
 \begin{array}[lcr]{lcr}
-  \tau \models P \Longrightarrow \tau \models \delta P &\qquad&
-  \tau \models (\delta X) \Longrightarrow \tau \models \upsilon X
+  \tau \models P \Longrightarrow \tau \models \delta \ap P &\qquad&
+  \tau \models \delta \ap X \Longrightarrow \tau \models \upsilon \ap X
 \end{array}
 \end{gather*}
 By the latter two properties it can be inferred that any valid
@@ -772,35 +772,36 @@ necessary side-calculus for establishing $\HolOclCp$ can be fully
 automated.
 
 The logical layer of the Featherweight OCL rules gives also a means
-to convert an OCL formula living in its for-valued world into a
+to convert an OCL formula living in its four-valued world into a
 representation that is classically two-valued and can be processed by
 standard SMT solvers such as CVC3~\cite{barrett.ea:cvc3:2007} or
 Z3~\cite{moura.ea:z3:2008}. $\delta$-closure rules for all logical
 connectives have the following format, \eg:
 \begin{gather*}
-\tau \models \delta x \Longrightarrow (\tau \models \ap\mocl{not}\ap x) = (\lnot (\tau \models x))\\
-\tau \models \delta x \Longrightarrow \tau \models \delta y \Longrightarrow (\tau \models x \ap\mocl{and}\ap y) = ( \tau \models x \land \tau \models y)\\
+\tau \models \delta \ap x \Longrightarrow (\tau \models \ap\mocl{not}\ap x) = (\lnot (\tau \models x))\\
+\tau \models \delta \ap x \Longrightarrow \tau \models \delta \ap y \Longrightarrow (\tau \models x \ap\mocl{and}\ap y) = ( \tau \models x \land \tau \models y)\\
 \begin{multlined}
-\tau \models \delta x \Longrightarrow  \tau \models \delta y \\
+\tau \models \delta \ap x \Longrightarrow  \tau \models \delta \ap y \\
 \Longrightarrow (\tau \models (x \ap\mocl{implies}\ap y)) = ( (\tau \models x) \longrightarrow (\tau \models y))
 \end{multlined}
 \end{gather*}
 Together with the general case-distinction
 \begin{gather*}
-    \tau \models \delta x \lor \tau \models x \triangleq \mocl{invalid} \lor \tau \models x \triangleq \mocl{null} \mi{,}
+    \tau \models \delta \ap x \lor \tau \models x \triangleq \mocl{invalid} \lor \tau \models x \triangleq \mocl{null} \mi{,}
 \end{gather*}
 which is possible for any OCL type, a case distinction on the
 variables in a formula can be performed; due to strictness rules,
 formulae containing somewhere a variable $x$ that is known to be
 $\mocl{invalid}$ or $\mocl{null}$ reduce usually quickly to
 contradictions.  For example, we can infer from an invariant $\tau
-\models x \isasymMathOclStrictEq y \mocl{-} 3$ that we have $\tau
-\models x \isasymMathOclStrictEq y \mocl{-} 3 \land \tau \models
-\delta x \land \tau \models \delta y$.  We call the latter formula the
+\models x \isasymMathOclStrictEq y \;\mocl{-}\; \mocl{3}$ that we have $\tau
+\models x \isasymMathOclStrictEq y \;\mocl{-}\; \mocl{3} \land \tau \models
+\delta \ap x \land \tau \models \delta \ap y$.  We call the latter formula the
 $\delta$-closure of the former.  Now, we can convert a formula like
-$\tau \models x \mocl{>} 0 ~\text{or} 3 \mocl{*} y \mocl{>}
-x\mocl{*}x$ into the equivalent formula $\tau \models x > 0 \lor \tau
-\models 3 \mocl{*} y \mocl{>} x\mocl{*}x$ and thus internalize the
+$\tau \models x \;\mocl{>}\; \mocl{0} \ap\mocl{or}\ap \mocl{3} \;\mocl{*}\; y \;\mocl{>}\;
+x \;\mocl{*}\; x$ into the equivalent formula
+$\tau \models x \;\mocl{>}\; \mocl{0} \lor \tau
+\models \mocl{3} \;\mocl{*}\; y \;\mocl{>}\; x \;\mocl{*}\; x$ and thus internalize the
 OCL-logic into a classical (and more tool-conform) logic. This
 works---for the price of a potential, but due to the usually ``rich''
 $\delta$-closures of invariants rare---exponential blow-up of the
@@ -893,15 +894,16 @@ standard expresses at many places that most operations are strict,
 \ie, enjoy the properties (exemplary for \inlineocl{_ + _}):
 \begin{gather*}
   \begin{aligned}
-  \mocl{invalid}\;\mocl{+}\; x &= \mocl{invalid}&\qquad
-  \mocl{x} \;\mocl{+}\; \mocl{invalid} &= \mocl{invalid}\\
-  x \;\mocl{+}\; \mocl{null} &= \mocl{invalid}&\qquad
-  \mocl{null} \;\mocl{+}\; x &= \mocl{invalid}
+  \mocl{invalid}\;\mocl{+}\; X &= \mocl{invalid}&\qquad
+  X \;\mocl{+}\; \mocl{invalid} &= \mocl{invalid}\\
+  X \;\mocl{+}\; \mocl{null} &= \mocl{invalid}&\qquad
+  \mocl{null} \;\mocl{+}\; X &= \mocl{invalid}
   \end{aligned}\\
-  \mocl{null.asType(}X\mocl{)} = \mocl{invalid}
+  \mocl{null.oclAsType(}X\mocl{)} = \mocl{invalid}
 \shortintertext{besides ``classical'' exceptional behavior:}
   \begin{aligned}
-    \mocl{1 / 0} &= \mocl{invalid} \quad &\quad  \mocl{1 / null} &= \mocl{invalid}
+    \mocl{1} \;\mocl{/}\; \mocl{0} &= \mocl{invalid} \quad &\quad
+    \mocl{1} \;\mocl{/}\; \mocl{null} &= \mocl{invalid}
   \end{aligned}\\
     \mocl{null->isEmpty()}=\mocl{true}
 \end{gather*}
@@ -913,21 +915,21 @@ equations, this semantic alternative (this is \emph{not}
 Featherweight OCL at present) would boil down to:
 \begin{gather*}
   \begin{aligned}
-    \mocl{invalid} \;\mocl{+}\; x &= \mocl{invalid} &\qquad
-    x \;\mocl{+}\; \mocl{invalid} &= \mocl{invalid}\\
-    x \;\mocl{+}\; \mocl{null} &= \mocl{null}&\qquad
-    \mocl{null} \;\mocl{+}\; x &= \mocl{null}\\
-    1 / 0 &= \mocl{invalid}&
-    1 / \mocl{null} &= \mocl{null}
+    \mocl{invalid} \;\mocl{+}\; X &= \mocl{invalid} &\qquad
+    X \;\mocl{+}\; \mocl{invalid} &= \mocl{invalid}\\
+    X \;\mocl{+}\; \mocl{null} &= \mocl{null}&\qquad
+    \mocl{null} \;\mocl{+}\; X &= \mocl{null}
   \end{aligned}\\
+    \mocl{null.oclAsType(}X\mocl{)} = \mocl{null}\\
   \begin{aligned}
-    \mocl{null->isEmpty()}&=\mocl{null}&\qquad
-    \mocl{null.asType(}X\mocl{)} &= \mocl{null}
-\end{aligned}
+    \mocl{1} \;\mocl{/}\; \mocl{0} &= \mocl{invalid} \quad &\quad
+    \mocl{1} \;\mocl{/}\; \mocl{null} &= \mocl{null}
+  \end{aligned}\\
+    \mocl{null->isEmpty()}=\mocl{null}
 \end{gather*}
 
 While this is logically perfectly possible, while it can be argued
-that this semantics is ``intuitive,'' and although we do not expect a
+that this semantics is ``intuitive'', and although we do not expect a
 too heavy cost in deduction when computing $\delta$-closures, we
 object that there are other, also ``intuitive'' interpretations that
 are even more wide-spread: In classical spreadsheet programs, for
@@ -941,25 +943,25 @@ type, so \inlineocl{0} or the empty string, for example.\footnote{In
 \emph{not} Featherweight OCL at present) would yield:
 \begin{gather*}
   \begin{aligned}
-    \mocl{invalid} \;\mocl{+}\; x &= \mocl{invalid} &\qquad
-    x \;\mocl{+}\; \mocl{invalid} &= \mocl{invalid}\\
-    x \;\mocl{+}\; \mocl{null} &= x&\qquad
-    \mocl{null} \;\mocl{+}\; x &= x\\
-    1 / 0 &= \mocl{invalid}&
-    1 / \mocl{null} &= \mocl{invalid}
+    \mocl{invalid} \;\mocl{+}\; X &= \mocl{invalid} &\qquad
+    X \;\mocl{+}\; \mocl{invalid} &= \mocl{invalid}\\
+    X \;\mocl{+}\; \mocl{null} &= X&\qquad
+    \mocl{null} \;\mocl{+}\; X &= X
   \end{aligned}\\
+    \mocl{null.oclAsType(}X\mocl{)} = \mocl{invalid}\\
   \begin{aligned}
-    \mocl{null->isEmpty()}&=\mocl{true}&\qquad
-    \mocl{null.asType(}X\mocl{)} &= \mocl{invalid}
-\end{aligned}
+    \mocl{1} \;\mocl{/}\; \mocl{0} &= \mocl{invalid} \quad &\quad
+    \mocl{1} \;\mocl{/}\; \mocl{null} &= \mocl{invalid}
+\end{aligned}\\
+    \mocl{null->isEmpty()}=\mocl{true}
 \end{gather*}
 
 Algebraic rules are also the key for execution and compilation
 of Featherweight OCL expressions. We derived, \eg:
 \begin{gather*}
 \delta\; \mocl{Set\{\}} = \mocl{true}\\
-\delta\; (X\mocl{->including(}x\mocl{)}) = \delta X \;\mocl{and}\;
-\delta x\\
+\delta\; (X\mocl{->including(}x\mocl{)}) = \delta \ap X \;\mocl{and}\;
+\delta \ap x\\
 \begin{aligned}
 \mocl{Set\{\}->includes(}x\mocl{)} = (\mocl{if}\; \upsilon\; x\; &\mocl{then false}\\
 &\mocl{else invalid endif})
@@ -971,8 +973,8 @@ of Featherweight OCL expressions. We derived, \eg:
   &\mocl{then}\;
 \begin{array}[t]{l}
 \mocl{if}\; x \doteq y\\
-\mocl{then true} \\
-\mocl{else} X\mocl{->includes(}y\mocl{)}\\
+\mocl{then}\ap \mocl{true} \\
+\mocl{else}\ap X\mocl{->includes(}y\mocl{)}\\
 \mocl{endif}
   \end{array}\\
 &\mocl{else invalid} \\
@@ -1001,13 +1003,13 @@ users.
 As mentioned earlier, the OCL is composed of
 \begin{enumerate}
 \item operators on built-in data structures such as Boolean, Integer or Set(\_),
-      as discussed before, and
+      and
 \item operators of the user-defined data model such as accessors,
       type casts and tests.
 \end{enumerate}
 
 In the following, we will refine the concepts of a user-defined
-data-model (implied by a \emph{class-model}, visualized by a class-diagram) 
+data-model (implied by a \emph{class-model}, visualized by a class-diagram)
 as well as the notion of $\state{}$ used in the
 previous section to much more detail.  In contrast to wide-spread
 opinions, UML class diagrams represent in a compact and visual manner
@@ -1059,10 +1061,10 @@ It is natural to construct system states by a set of partial functions
 $f$ that map object identifiers $\oid$ to some representations of
 objects:
 \begin{gather}
-       \typedef \qquad \alpha~\state{} \defeq \{ \sigma :: 
+       \typedef \qquad \alpha~\state{} \defeq \{ \sigma ::
         \oid \isasymrightharpoonup \alpha \ap|\ap \inv_\sigma(\sigma) \}
 \end{gather}
-where $\inv_\sigma$ is a to be discussed invariant on states. 
+where $\inv_\sigma$ is a to be discussed invariant on states.
 
 The key point is that we need a common type $\alpha$ for the set of all
 possible \emph{object representations}.  Object representations model
@@ -1097,7 +1099,7 @@ substituted by $\oid$. The function $\HolOclOidOf$ projects the first
 component, the $\oid$, out of an object representation. Then the
 object universe will be constructed by the type definition:
 \begin{gather}
-\mathfrak{A} := C_1 + \cdots +  C_n\mi{.}  
+\mathfrak{A} := C_1 + \cdots +  C_n\mi{.}
 \end{gather}
 It is possible to define constructors, accessors, and the referential
 equality on this object universe. However, the treatment of type casts
@@ -1142,14 +1144,14 @@ rather, it is a meta-level construction.  Technically, this means that
 we need a compiler to be done in SML on the syntactic
 ``meta-model''-level of a class model.
 
-With respect to our semantic construction here, 
+With respect to our semantic construction here,
 which above all means is intended to be type-safe, this has the following consequences:
 \begin{itemize}
 \item there is a generic theory of states, which must be formulated independently
-      from a concrete object universe, 
+      from a concrete object universe,
 \item there is a principle of translation (captured by the inductive scheme for
       class type extensions and class types above) that converts a given class model
-      into an concrete object universe, 
+      into an concrete object universe,
 \item there are fixed principles that allow to derive the semantic theory of any
       concrete object universe, called the \emph{object-oriented datatype theory.}
 \end{itemize}
@@ -1276,24 +1278,24 @@ $\getAttrib{\_}{\text{$a$}\isasymOclATpre}$ were produced when
 \inlineisar+in_post_state+ is replaced by
 $\operatorname{in\_pre\_state}$.
 
-Examples for the construction of accessors via associations can be found in 
-\autoref{sec:eam-accessors}, the construction of accessors via attributes in 
-\autoref{sec:edm-accessors}. The construction of casts and type tests \verb+->oclIstypeOf()+ and 
+Examples for the construction of accessors via associations can be found in
+\autoref{sec:eam-accessors}, the construction of accessors via attributes in
+\autoref{sec:edm-accessors}. The construction of casts and type tests \verb+->oclIsTypeOf()+ and
 \verb+->oclIsKindOf()+ is similarly.
 
 In the following, we discuss the role of multiplicities on the types of the
 accessors.
 Depending on the specified multiplicity, the evaluation of an attribute can
-yield a just a value (multiplicity \inlineocl{0..1} or \inlineocl{1})
-or a collection type like Set or Sequence of values (otherwise). 
-A multiplicity defines a lower bound as well as a possibly infinite upper 
+yield just a value (multiplicity \inlineocl{0..1} or \inlineocl{1})
+or a collection type like Set or Sequence of values (otherwise).
+A multiplicity defines a lower bound as well as a possibly infinite upper
 bound on the cardinality of the attribute's values.
 
 
 \subsubsection{Single-Valued Attributes}\label{sec:single-valued-properties}
-If the upper bound specified by the attribute's multiplicity is one, 
+If the upper bound specified by the attribute's multiplicity is one,
 then an evaluation of the attribute yields a single value.
-Thus, the evaluation result is \emph{not} a collection. If the lower bound specified by the 
+Thus, the evaluation result is \emph{not} a collection. If the lower bound specified by the
 multiplicity is zero, the evaluation is not required to yield a non-null value. In this case an
 evaluation of the attribute can return $\isasymOclNull$ to indicate an
 absence of value.
@@ -1334,7 +1336,7 @@ upper bounds to be defined for multiplicities.\footnote{We are however aware
   that a well-formedness rule of the UML standard does define a default bound
   of one in case a lower or upper bound is not specified.} In case a
 multiplicity is specified for an attribute, \ie, a lower and an upper bound
-are provided, we require any collection the attribute evaluates to to not
+are provided, we require any collection the attribute evaluates to not
 contain $\isasymOclNull$. This allows for a straightforward interpretation of
 the multiplicity constraint. If bounds are not provided for an attribute, we
 consider the attribute values to not be restricted in any way. Because in
@@ -1416,9 +1418,9 @@ we require in a postcondition \inlineocl|Set{}->oclIsModifiedOnly()| and exclude
 \inlineocl+_.oclIsNew()+ and \inlineocl+_.oclIsDeleted()+ the existence of new
 or deleted objects, the operation is a query in the sense of the OCL standard, \ie,
 the \inlineocl|isQuery| property is true. So, whenever we have $ \tau
-\isasymMathOclValid X\isasymMathOclIsModifiedOnly$ and $ \tau
-\isasymMathOclValid X\isasymOclExcludes(s.a)$, we can infer that $\tau
-\isasymMathOclValid s.a = s.a\isasymOclATpre$ (if they are valid).
+\isasymMathOclValid X\isasymOclExcluding(s.a)\isasymMathOclIsModifiedOnly$ and $ \tau
+\isasymMathOclValid X\mocl{->forAll(}x\mocl{|not}(x \doteq s.a) \mocl{)}$, we can infer that $\tau
+\isasymMathOclValid s.a \triangleq s.a\isasymOclATpre$.
 
 
 
@@ -1478,8 +1480,8 @@ concepts of OCL would ensure
 Overall, this would contribute to one of the main goals of the OCL 2.5
 RFP, as discussed at the OCL meeting in
 Aachen~\cite{brucker.ea:summary-aachen:2013}.
- 
-%%% Local Variables: 
+
+%%% Local Variables:
 %%% mode: latex
 %%% TeX-master: "root"
 %%% End:
