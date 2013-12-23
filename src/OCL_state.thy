@@ -67,7 +67,7 @@ which is just some infinite set.*}
 
 text{* \inlineisar+type_synonym oid = nat+ *}
 
-text{*, Further, recall that states are pair of a partial map from oid's to elements of an 
+text{* Further, recall that states are pair of a partial map from oid's to elements of an 
 object universe @{text "'\<AA>"} --- the heap --- and a map to relations of objects. 
 The relations were encoded as lists of pairs in order to leave the possibility to have Bags, 
 OrderedSets or Sequences as association ends.  *}
