@@ -53,11 +53,11 @@ imports
 begin
 text {* \label{PartV} \label{chap:edm2} *}
 section{* Standard State Infrastructure *}
-text{* These definitions should be generated --- again --- from the class diagram. *}
+text{* These definitions should be generated automatically. *}
 
 section{* Invariant *}
 text{* These recursive predicates can be defined conservatively
-by greatest fix-point constructions - automatically. See HOL-OCL Book
+by greatest fix-point constructions - automatically. See~\cite{brucker.ea:hol-ocl-book:2006,brucker:interactive:2007}
 for details. For the purpose of this example, we state them as axioms
 here.*}
 axiomatization inv_Person :: "Person \<Rightarrow> Boolean"
@@ -86,13 +86,13 @@ coinductive inv :: "Person \<Rightarrow> (\<AA>)st \<Rightarrow> bool" where
 
 section{* The contract of a recursive query : *}
 text{* The original specification of a recursive query :
-\begin{verbatim}
+\begin{ocl}
 context Person::contents():Set(Integer)
 post:  result = if self.boss = null
                 then Set{i}
                 else self.boss.contents()->including(i)
                 endif
-\end{verbatim} *}
+\end{ocl} *}
 
 
 consts dot_contents :: "Person \<Rightarrow> Set_Integer"  ("(1(_).contents'('))" 50)
@@ -120,7 +120,7 @@ axiomatization where dot_contents_AT_pre_def:
                         endif)
   else \<tau> \<Turnstile> result \<triangleq> invalid)"
 
-text{* Note that these @pre variants on methods are only available on queries, i.e.
+text{* These \inlineocl{@pre} variants on methods are only available on queries, \ie,
 operations without side-effect. *}
 (* TODO: Should be rephased by conservative means... *)
 
@@ -129,11 +129,11 @@ operations without side-effect. *}
 section{* The contract of a method. *}
 text{*
 The specification in high-level OCL input syntax reads as follows:
-\begin{verbatim}
+\begin{ocl}
 context Person::insert(x:Integer)
 post: contents():Set(Integer)
 contents() = contents@pre()->including(x)
-\end{verbatim}
+\end{ocl}
 *}
 
 consts dot_insert :: "Person \<Rightarrow> Integer \<Rightarrow> Void"  ("(1(_).insert'(_'))" 50)
