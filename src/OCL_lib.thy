@@ -47,11 +47,16 @@ theory OCL_lib
 imports OCL_core
 begin
 
-section{* Basic Types: Void, Integer *}
+text {*
+The structure of this chapter roughly follows the structure of Chapter
+10 of the OCL standard~\cite{omg:ocl:2012}, which introduces the OCL
+Library. 
+  *}
+
+section{* Basic Types: Void and Integer *}
 subsection{* The construction of the Void Type *}
-(* subsection{* Basic Constants *} *)
 type_synonym ('\<AA>)Void = "('\<AA>,unit option) val"
-(* For technical reasons, he does not contain to the null-class yet. *)
+(* For technical reasons, the type does not contain to the null-class yet. *)
 text {* This \emph{minimal} OCL type contains only two elements:
 @{term "undefined"} and @{term "null"}.
 @{term "Void"} could initially be defined as @{typ "unit option option"},
@@ -136,7 +141,8 @@ Note that the arguments must be both defined (non-null, non-bot). *}
 text{* Note that we can not follow the lexis of standard OCL for Isabelle-
 technical reasons; these operators are heavily overloaded in the library
 that a further overloading would lead to heavy technical buzz in this
-document... *}
+document
+*}
 definition OclAdd\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r ::"('\<AA>)Integer \<Rightarrow> ('\<AA>)Integer \<Rightarrow> ('\<AA>)Integer" (infix "`+" 40)
 where "x `+ y \<equiv> \<lambda> \<tau>. if (\<delta> x) \<tau> = true \<tau> \<and> (\<delta> y) \<tau> = true \<tau>
                 then \<lfloor>\<lfloor>\<lceil>\<lceil>x \<tau>\<rceil>\<rceil> + \<lceil>\<lceil>y \<tau>\<rceil>\<rceil>\<rfloor>\<rfloor>
@@ -429,12 +435,12 @@ notation bot ("\<bottom>")
 
 text{* For the semantic construction of the collection types, we have two goals:
 \begin{enumerate}
-\item we want the types to be \emph{fully abstract}, i.e. the type should not
+\item we want the types to be \emph{fully abstract}, \ie, the type should not
       contain junk-elements that are not representable by OCL expressions, and
 \item we want a possibility to nest collection types (so, we want the
       potential to talking about @{text "Set(Set(Sequences(Pairs(X,Y))))"}).
 \end{enumerate}
-The former principe rules out the option to define @{text "'\<alpha> Set"} just by
+The former principle rules out the option to define @{text "'\<alpha> Set"} just by
  @{text "('\<AA>, ('\<alpha> option option) set) val"}. This would allow sets to contain
 junk elements such as @{text "{\<bottom>}"} which we need to identify with undefinedness
 itself. Abandoning fully abstractness of rules would later on produce all sorts
@@ -444,9 +450,10 @@ in order to have nested types: arguments of type-constructors must conform to ou
 abstract interface, and the result type too.
 *}
 
-text{* The core of an own type construction is done via a type definition which
-provides the raw-type @{text "'\<alpha> Set_0"}. it is shown that this type "fits" indeed
-into the abstract type interface discussed in the previous section. *}
+text{* The core of an own type construction is done via a type
+  definition which provides the raw-type @{text "'\<alpha> Set_0"}. it
+  is shown that this type ``fits'' indeed into the abstract type
+  interface discussed in the previous section. *}
 
 typedef '\<alpha> Set_0 ="{X::('\<alpha>\<Colon>null) set option option.
                       X = bot \<or> X = null \<or> (\<forall>x\<in>\<lceil>\<lceil>X\<rceil>\<rceil>. x \<noteq> bot)}"
