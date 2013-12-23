@@ -1054,10 +1054,12 @@ by(simp add: OclNot_def OclValid_def true_def false_def valid_def
              split: option.split option.split_asm)
 
 
-text{* Key theorem for the $\delta$-closure: either an expression
-is defined, or it can be replaced (substituted via \verb+StrongEq_L_subst2+; see
-below) by invalid or null. Strictness-reduction rules will usually
-reduce these substituted terms drastically.  *}
+text{*
+  Key theorem for the $\delta$-closure: either an expression is
+  defined, or it can be replaced (substituted via StrongEq-L-subst2+;
+  see below) by invalid or null. Strictness-reduction rules will
+  usually reduce these substituted terms drastically.
+*}
 lemma foundation8:
 "(\<tau> \<Turnstile> \<delta> x) \<or> (\<tau> \<Turnstile> (x \<triangleq> invalid)) \<or> (\<tau> \<Turnstile> (x \<triangleq> null))"
 proof -
