@@ -738,13 +738,16 @@ where     "X and Y \<equiv>  (\<lambda> \<tau> . case X \<tau> of
                         | \<lfloor>\<lfloor>True\<rfloor>\<rfloor>  \<Rightarrow>               Y \<tau>)"
 
 
-text{*Note that @{term "not"} is \emph{not} defined as a strict function; proximity to
-lattice laws implies that we \emph{need} a definition of @{term "not"} that satisfies
-@{text "not(not(x))=x"}. *}
+text{*
+  Note that @{term "not"} is \emph{not} defined as a strict function;
+  proximity to lattice laws implies that we \emph{need} a definition
+  of @{term "not"} that satisfies @{text "not(not(x))=x"}.
+*}
 
-text{* In textbook notation, the logical core constructs @{const "OclNot"} and
-@{const "OclAnd"} were represented as follows: *}
-
+text{*
+  In textbook notation, the logical core constructs @{const
+    "OclNot"} and @{const "OclAnd"} were represented as follows:
+*}
 lemma textbook_OclNot:
      "I\<lbrakk>not(X)\<rbrakk> \<tau> =  (case I\<lbrakk>X\<rbrakk> \<tau> of   \<bottom>   \<Rightarrow> \<bottom>
                                  |  \<lfloor> \<bottom> \<rfloor> \<Rightarrow> \<lfloor> \<bottom> \<rfloor>
