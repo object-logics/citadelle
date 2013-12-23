@@ -673,7 +673,7 @@ notation   OclANY   ("_->any'(')")
 a (totally correct) high-level definition
 source->any(iterator | body) =
 source->select(iterator | body)->asSequence()->first(). Since we don't have sequences,
-we have to go for a direct --- restricted ---  definition. *)
+we have to go for a direct---restricted---definition. *)
 
 
 text{* The definition of OclForall mimics the one of @{term "OclAnd"}:
@@ -991,7 +991,7 @@ lemma OclNotEmpty_has_elt : "\<tau> \<Turnstile> \<delta> X \<Longrightarrow>
  apply(simp add: OclSize_def valid_def split: split_if_asm, simp_all add: false_def true_def bot_option_def bot_fun_def OclInt0_def)
 by (metis equals0I)
 
-subsubsection{* OclANY *}
+subsubsection{* OclAny *}
 
 lemma OclANY_defined_args_valid: "\<tau> \<Turnstile> \<delta> (X->any()) \<Longrightarrow> \<tau> \<Turnstile> \<delta> X"
 by(auto simp: OclANY_def OclValid_def true_def valid_def false_def StrongEq_def
@@ -1339,8 +1339,8 @@ text{* One might object here that for the case of objects, this is an empty defi
 The answer is no, we will restrain later on states and objects such that any object
 has its id stored inside the object (so the ref, under which an object can be referenced
 in the store will represented in the object itself). For such well-formed stores that satisfy
-this invariant (the WFF - invariant), the referential equality and the strong equality ---
-and therefore the strict equality on sets in the sense above) coincides.*}
+this invariant (the WFF-invariant), the referential equality and the
+strong equality---and therefore the strict equality on sets in the sense above) coincides.*}
 
 subsection{* Logic and Algebraic Layer on Set *}
 
@@ -3160,7 +3160,7 @@ assumes H:"(Set{\<two>} \<doteq> null) = (false::('\<AA>)Boolean)"
 shows   "(\<tau>::('\<AA>)st) \<Turnstile> (Set{Set{\<two>},null}->includes(null))"
 by(simp add: OclIncludes_execute\<^sub>S\<^sub>e\<^sub>t H)
 
-(* legacy --- still better names ?
+(* legacy---still better names ?
 lemmas defined_charn = foundation16
 lemmas definedD = foundation17
 lemmas valid_charn =
