@@ -78,7 +78,7 @@ type_synonym oid = nat
 
 text{* We refrained from the alternative:
 \begin{isar}[mathescape]
-\text{textbf{type-synonym}} $\mathit{oid = ind}$
+$\text{\textbf{type-synonym}}$ $\mathit{oid = ind}$
 \end{isar}
 which is slightly more abstract but non-executable.
 *}
