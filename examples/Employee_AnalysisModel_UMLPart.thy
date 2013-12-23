@@ -82,13 +82,13 @@ were really represented as relation on objects on the state---as is
 intended by the standard---rather by pointers between objects as is
 done in our ``design model'' (see \autoref{chap:edm1}).  To be
 precise, this theory contains the formalization of the data-part
-covered by the UML class model (see \autoref{fig:person}):*}
+covered by the UML class model (see \autoref{fig:person-ana}):*}
 
 text{*
 \begin{figure}
   \centering\scalebox{.3}{\includegraphics{figures/person.png}}%
   \caption{A simple UML class model drawn from Figure 7.3,
-  page 20 of the \cite{omg:ocl:2012}. \label{fig:person}}
+  page 20 of the \cite{omg:ocl:2012}. \label{fig:person-ana}}
 \end{figure}
 *}
 
