@@ -44,7 +44,7 @@ solutions to a number of open major issues for the UML/OCL standardization:
       the old idea of a "one-to-one correspondance" between object
       representations and object-id's, which became a state invariant.
 \item a simple concept of state-framing via the novel operator
-      \inlineisar+->modifiesOnly()+ and its consequences for strong
+      \inlineisar+->oclIsModifiedOnly()+ and its consequences for strong
       and weak equality.
 \item a semantic view on subtyping clarifying the role of static and dynamic type
       (aka \emph{apparent} and \emph{actual} type in Java terminology), and its
@@ -102,10 +102,10 @@ is meanwhile too complex to be treated by informal arguments solely.
 
 Featherweight OCL makes several minor deviations from the standard and showed
 how the previous constructions can be made correct and consistent, and
-the DNF-normaliation as well as $\delta$-closure laws (necessary
+the DNF-normalization as well as $\delta$-closure laws (necessary
 for a transition into a two-valued presentation of OCL specifications
 ready for interpretation in SMT solvers
-(see~\cite{brucker.ea:ocl-testing:2010} for details) are valid in
+(see~\cite{brucker.ea:ocl-testing:2010} for details)) are valid in
 Featherweight OCL.
 
 \section{Conclusion and Future Work}\fixme{just last para ?}

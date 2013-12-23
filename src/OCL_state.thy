@@ -53,7 +53,7 @@ text{* In the following, we will refine the concepts of a user-defined
 data-model (implied by a class-diagram) as well as 
 the notion of $\state{}$ used in the
 previous section to much more detail. 
-Surprisingly, even without a concrete notion of an objects and and a universe
+Surprisingly, even without a concrete notion of an objects and a universe
 of object representation, the generic infrastructure of state-related
 operations is fairly rich.
 *}
