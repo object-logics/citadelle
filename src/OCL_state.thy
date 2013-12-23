@@ -998,16 +998,15 @@ qed
 
 theorem framing:
       assumes modifiesclause:"\<tau> \<Turnstile> (X->excluding(x :: ('\<AA>::object,'\<alpha>::{null,object})val))->oclIsModifiedOnly()"
-      and    represented_x: "\<tau> \<Turnstile> \<delta>(x @pre (H::('\<AA> \<Rightarrow> '\<alpha>)))"
       and oid_is_typerepr : "\<tau> \<Turnstile> X->forAll(a| not (StrictRefEq\<^sub>O\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t x a))"
       shows "\<tau> \<Turnstile> (x @pre H  \<triangleq>  (x @post H))"
-proof -
- have def_x : "\<tau> \<Turnstile> \<delta> x"
- by(insert represented_x, simp add: defined_def OclValid_def null_fun_def bot_fun_def false_def
-                                    true_def OclSelf_at_pre_def invalid_def split: split_if_asm)
+ apply(case_tac "\<tau> \<Turnstile> \<delta> x")
+ proof - show "\<tau> \<Turnstile> \<delta> x \<Longrightarrow> ?thesis" proof - assume def_x : "\<tau> \<Turnstile> \<delta> x" show ?thesis proof -
+
  have def_X : "\<tau> \<Turnstile> \<delta> X"
   apply(insert oid_is_typerepr, simp add: OclForall_def OclValid_def split: split_if_asm)
  by(simp add: bot_option_def true_def)
+
  have def_X' : "\<And>x. x \<in> \<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil> \<Longrightarrow> x \<noteq> null"
   apply(insert modifiesclause, simp add: OclIsModifiedOnly_def OclValid_def split: split_if_asm)
   apply(case_tac \<tau>, simp split: split_if_asm)
@@ -1021,6 +1020,7 @@ proof -
   apply (metis (hide_lams, no_types) def_x foundation17)
   apply (metis (hide_lams, no_types) OclValid_def def_X def_x OclExcluding_valid_args_valid OclExcluding_valid_args_valid'' foundation20)
  by(simp add: invalid_def bot_option_def)
+
  have oid_is_typerepr : "oid_of (x \<tau>) \<notin> oid_of ` \<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil>"
  by(rule all_oid_diff[THEN iffD1, OF def_x def_X def_X' oid_is_typerepr])
 
@@ -1040,7 +1040,10 @@ proof -
   apply (metis (hide_lams, no_types) DiffD1 image_iff image_insert insert_Diff_single insert_absorb oid_is_typerepr)
   apply(simp add: invalid_def bot_option_def)+
  by blast
+ qed qed
+ apply_end(simp add: OclSelf_at_post_def OclSelf_at_pre_def OclValid_def StrongEq_def true_def)+
 qed
+
 
 lemma pre_post_new: "\<tau> \<Turnstile> (x .oclIsNew()) \<Longrightarrow> \<not> (\<tau> \<Turnstile> \<upsilon>(x @pre H1)) \<and> \<not> (\<tau> \<Turnstile> \<upsilon>(x @post H2))"
 by(simp add: OclIsNew_def OclSelf_at_pre_def OclSelf_at_post_def
