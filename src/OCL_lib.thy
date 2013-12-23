@@ -1582,15 +1582,15 @@ proof -
 qed
 
 text{* One would like a generic theorem of the form:
-\begin{verbatim}
+\begin{isar}[mathescape]
 lemma OclExcluding_charn_exec:
-       "(X->including(x::('\<AA>,'a::null)val)->excluding(y)) =
+       "(X->including(x::('$\mathfrak{A}$,'a::null)val)->excluding(y)) =
         (if \<delta> X then if x \<doteq> y
                      then X->excluding(y)
                      else X->excluding(y)->including(x)
                      endif
                 else invalid endif)"
-\end{verbatim}
+\end{isar}
 Unfortunately, this does not hold in general, since referential equality is
 an overloaded concept and has to be defined for each type individually.
 Consequently, it is only valid for concrete  type instances for Boolean,
@@ -1598,7 +1598,7 @@ Integer, and Sets thereof...
 *}
 
 
-text{* The computational law \verb+OclExcluding_charn_exec+ becomes generic since it
+text{* The computational law \emph{OclExcluding-charn-exec} becomes generic since it
 uses strict equality which in itself is generic. It is possible to prove
 the following generic theorem and instantiate it if a number of properties
 that link the polymorphic logical, Strong Equality with the concrete instance
