@@ -118,7 +118,7 @@ axiomatization where dot_contents_AT_pre_def:
                         endif)
   else \<tau> \<Turnstile> result \<triangleq> invalid)"
 
-text{* Note that these @pre variants on methods are only available on queries, i.e.
+text{* These \inlineocl{@pre} variants on methods are only available on queries, \ie,
 operations without side-effect. *}
 (* TODO: Should be rephased by conservative means... *)
 

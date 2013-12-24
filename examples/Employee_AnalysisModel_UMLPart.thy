@@ -56,7 +56,7 @@ text {* \label{ex:employee-analysis:uml} *}
 
 section{* Introduction *}
 text{* 
-  For certain concepts like Classes and Class-types, only a generic
+  For certain concepts like classes and class-types, only a generic
   definition for its resulting semantics can be given. Generic means,
   there is a function outside HOL that ``compiles'' a concrete,
   closed-world class diagram into a ``theory'' of this data model,
@@ -77,7 +77,8 @@ subsection{* Outlining the Example *}
 
 text{* We are presenting here an ``analysis-model'' of the (slightly
 modified) example Figure 7.3, page 20 of
-the~\cite{omg:ocl:2012}. Here, analysis model means that associations
+the OCL standard~\cite{omg:ocl:2012}. 
+Here, analysis model means that associations
 were really represented as relation on objects on the state---as is
 intended by the standard---rather by pointers between objects as is
 done in our ``design model'' (see \autoref{ex:employee-design:uml}). 
@@ -88,7 +89,7 @@ text{*
 \begin{figure}
   \centering\scalebox{.3}{\includegraphics{figures/person.png}}%
   \caption{A simple UML class model drawn from Figure 7.3,
-  page 20 of the \cite{omg:ocl:2012}. \label{fig:person-ana}}
+  page 20 of~\cite{omg:ocl:2012}. \label{fig:person-ana}}
 \end{figure}
 *}
 
@@ -112,8 +113,9 @@ datatype type\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n = mk\<^sub>P\<^sub
 
 datatype type\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y = mk\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y oid (* the oid to the oclany itself *)
                             "(int option) option"
-                             (* the extensions to "person"; used to denote objects of actual type
-                               "person" casted to "oclany"; in case of existence of several subclasses
+                                         (* the extensions to "person"; used to denote 
+                                            objects of actual type "person" casted to "oclany"; 
+                                            in case of existence of several subclasses
                                 of oclany, sums of extensions have to be provided. *)
 
 text{* Now, we construct a concrete ``universe of OclAny types'' by injection into a
@@ -136,9 +138,9 @@ type_synonym Set_Person  = "(\<AA>, type\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o
 text{* Just a little check: *}
 typ "Boolean"
 
-text{* In order to reuse key-elements of the library like referential equality, we have
-to show that the object universe belongs to the type class ``oclany,'' \ie, each class type
-has to provide a function @{term oid_of} yielding the object id (oid) of the object. *}
+text{* To reuse key-elements of the library like referential equality, we have
+to show that the object universe belongs to the type class ``oclany,'' \ie,
+ each class type has to provide a function @{term oid_of} yielding the object id (oid) of the object. *}
 instantiation type\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n :: object
 begin
    definition oid_of_type\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_def: "oid_of x = (case x of mk\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n oid _ \<Rightarrow> oid)"
@@ -188,9 +190,9 @@ lemmas
 (* TODO: Analogue for object. *)
 
 
-text{* For each Class \emph{C}, we will have a casting operation \verb+.oclAsType(+\emph{C}\verb+)+,
-   a test on the actual type \verb+.oclIsTypeOf(+\emph{C}\verb+)+ as well as its relaxed form
-   \verb+.oclIsKindOf(+\emph{C}\verb+)+ (corresponding exactly to Java's \verb+instanceof+-operator.
+text{* For each Class \emph{C}, we will have a casting operation \inlineocl{.oclAsType($C$)},
+   a test on the actual type \inlineocl{.oclIsTypeOf($C$)} as well as its relaxed form
+   \inlineocl{.oclIsKindOf($C$)} (corresponding exactly to Java's \verb+instanceof+-operator.
 *}
 text{* Thus, since we have two class-types in our concrete class hierarchy, we have
 two operations to declare and to provide two overloading definitions for the two static types.

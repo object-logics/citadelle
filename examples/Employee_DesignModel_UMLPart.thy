@@ -55,36 +55,47 @@ begin
 text {* \label{ex:employee-design:uml} *}
 
 section{* Introduction *}
-text{* For certain concepts like classes and class-types, only a generic definition for its resulting
-semantics can be given. Generic means, there is a function outside HOL that ``compiles'' a concrete,
-closed-world class diagram into a ``theory'' of this data model, consisting of a bunch of definitions
-for classes, accessors, method, casts, and tests for actual types, as well as proofs for the
-fundamental properties of these operations in this concrete data model. *}
+text{* 
+  For certain concepts like classes and class-types, only a generic
+  definition for its resulting semantics can be given. Generic means,
+  there is a function outside HOL that ``compiles'' a concrete,
+  closed-world class diagram into a ``theory'' of this data model,
+  consisting of a bunch of definitions for classes, accessors, method,
+  casts, and tests for actual types, as well as proofs for the
+  fundamental properties of these operations in this concrete data
+  model. *}
 
-text{* Such generic function or ``compiler'' can be implemented in Isabelle on the ML level.
-This has been done, for a semantics following the open-world assumption, for UML 2.0
-in~\cite{brucker.ea:extensible:2008-b}. In this paper, we follow another approach for UML 2.4: we define the concepts
-of the compilation informally, and present a concrete example which is verified in Isabelle/HOL. *}
+text{* Such generic function or ``compiler'' can be implemented in
+  Isabelle on the ML level.  This has been done, for a semantics
+  following the open-world assumption, for UML 2.0
+  in~\cite{brucker.ea:extensible:2008-b, brucker:interactive:2007}. In
+  this paper, we follow another approach for UML 2.4: we define the
+  concepts of the compilation informally, and present a concrete
+  example which is verified in Isabelle/HOL. *}
 
 subsection{* Outlining the Example *}
 
-text{* We are presenting here a design-model of the (slightly modified) example Figure 7.3,
-page 20 of the OCL standard~\cite{omg:ocl:2012}. To be precise, this theory contains the formalization of
-the data-part covered by the UML data model (see \autoref{fig:person}). 
+text{* We are presenting here a ``design-model'' of the (slightly
+modified) example Figure 7.3, page 20 of
+the OCL standard~\cite{omg:ocl:2012}. To be precise, this theory contains the formalization of
+the data-part covered by the UML class model (see \autoref{fig:person}):*}
+
+text{*
 \begin{figure}
   \centering\scalebox{.3}{\includegraphics{figures/person.png}}%
   \caption{A simple UML class model drawn from Figure 7.3,
   page 20 of~\cite{omg:ocl:2012}. \label{fig:person}}
 \end{figure}
+*}
 
-This means that the association (attached to the association class
+text{* This means that the association (attached to the association class
 \inlineocl{EmployeeRanking}) with the association ends \inlineocl+boss+ and \inlineocl+employees+ is implemented
 by the attribute  \inlineocl+boss+ and the operation \inlineocl+employees+ (to be discussed in the OCL part
 captured by the subsequent theory).
 *}
 
 section{* Example Data-Universe and its Infrastructure *}
-text{* Ideally, the formalization disucssed in this section is generated automatically. *}
+text{* Ideally, the following is generated automatically from a UML class model.  *}
 
 (* @{text "'\<AA>"} -- \mathfrak{A} *)
 text{* Our data universe  consists in the concrete class diagram just of node's,
@@ -103,9 +114,9 @@ datatype type\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y = mk\<^sub>O\<^sub
                                             in case of existence of several subclasses
                                             of oclany, sums of extensions have to be provided. *)
 
-text{* Now, we construct a concrete ``universe of oclany types'' by injection into a
-sum type containing the class types. This type of oclanys will be used as instance
-for all resp. type-variables.*}
+text{* Now, we construct a concrete ``universe of OclAny types'' by injection into a
+sum type containing the class types. This type of OclAny will be used as instance
+for all respective type-variables. *}
 
 datatype \<AA> = in\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n type\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n | in\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y type\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y
 
@@ -566,9 +577,9 @@ by(simp add: OclIsKindOf\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_OclAny 
 
 section{* OclAllInstances *}
 
-text{* Recall that in order to denote OCL-types occuring in OCL expressions syntactically---as, 
-for example,  as 11argument'' of \inlineocl{allInstances}---we use the inverses of the injection
-functions into the object universes; we show that this is sufficient "characterization". *}
+text{* To denote OCL-types occuring in OCL expressions syntactically---as, for example,  as 
+``argument'' of \inlineisar{oclAllInstances()}---we use the inverses of the injection
+functions into the object universes; we show that this is sufficient ``characterization.'' *}
 
 definition "Person \<equiv> OclAsType\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_\<AA>"
 definition "OclAny \<equiv> OclAsType\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_\<AA>"

@@ -43,9 +43,6 @@
 
 header{* The Employee Design Model (OCL) *}
 
-(* This example is not yet balanced. Some parts of should go to
-   Part II : State and Objects. *)
-
 theory
   Employee_DesignModel_OCLPart
 imports
@@ -53,13 +50,14 @@ imports
 begin
 text {* \label{ex:employee-design:ocl} *}
 section{* Standard State Infrastructure *}
-text{* These definitions should be generated automatically. *}
+text{* Ideally, these definitions are automatically generated from the class model. *}
 
 section{* Invariant *}
 text{* These recursive predicates can be defined conservatively
-by greatest fix-point constructions - automatically. See~\cite{brucker.ea:hol-ocl-book:2006,brucker:interactive:2007}
+by greatest fix-point
+constructions---automatically. See~\cite{brucker.ea:hol-ocl-book:2006,brucker:interactive:2007}
 for details. For the purpose of this example, we state them as axioms
-here.*}
+here. *}
 axiomatization inv_Person :: "Person \<Rightarrow> Boolean"
 where A : "(\<tau> \<Turnstile> (\<delta> self)) \<longrightarrow>
                (\<tau> \<Turnstile> inv_Person(self)) =
