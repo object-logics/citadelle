@@ -1007,6 +1007,7 @@ apply(rule ext)
 oops
 
 subsection{* Local Validity and Meta-logic*}
+text{* \label{sec:localVal} *}
 
 lemma foundation1[simp]: "\<tau> \<Turnstile> true"
 by(auto simp: OclValid_def)
