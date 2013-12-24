@@ -58,7 +58,7 @@ subsection{* The construction of the Void Type *}
 type_synonym ('\<AA>)Void = "('\<AA>,unit option) val"
 (* For technical reasons, the type does not contain to the null-class yet. *)
 text {* This \emph{minimal} OCL type contains only two elements:
-@{term "undefined"} and @{term "null"}.
+@{term "invalid"} and @{term "null"}.
 @{term "Void"} could initially be defined as @{typ "unit option option"},
 however the cardinal of this type is more than two, so it would have the cost to consider
  @{text "Some None"} and @{text "Some (Some ())"} seemingly everywhere.*}
@@ -70,7 +70,7 @@ as the valuations over @{typ "int option option"}. *}
 type_synonym ('\<AA>)Integer = "('\<AA>,int option option) val"
 
 text{* Although the remaining part of this library reasons about
-integers abstractly, we provide here some shortcuts to some usual integers. *}
+integers abstractly, we provide here as example some convenient shortcuts. *}
 
 definition OclInt0 ::"('\<AA>)Integer" ("\<zero>")
 where      "\<zero> = (\<lambda> _ . \<lfloor>\<lfloor>0::int\<rfloor>\<rfloor>)"
@@ -138,10 +138,10 @@ subsection{* Arithmetical Operations on Integer *}
 subsubsection{* Definition *}
 text{* Here is a common case of a built-in operation on built-in types.
 Note that the arguments must be both defined (non-null, non-bot). *}
-text{* Note that we can not follow the lexis of standard OCL for Isabelle-
-technical reasons; these operators are heavily overloaded in the library
+text{* Note that we can not follow the lexis of the OCL Standard for Isabelle
+technical reasons; these operators are heavily overloaded in the HOL library
 that a further overloading would lead to heavy technical buzz in this
-document
+document.
 *}
 definition OclAdd\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r ::"('\<AA>)Integer \<Rightarrow> ('\<AA>)Integer \<Rightarrow> ('\<AA>)Integer" (infix "`+" 40)
 where "x `+ y \<equiv> \<lambda> \<tau>. if (\<delta> x) \<tau> = true \<tau> \<and> (\<delta> y) \<tau> = true \<tau>
@@ -171,6 +171,12 @@ lemma OclAdd\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r_strict1[sim
 by(rule ext, simp add: OclAdd\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r_def true_def false_def)
 
 lemma OclAdd\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r_strict2[simp,code_unfold] : "(invalid `+ x) = invalid"
+by(rule ext, simp add: OclAdd\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r_def true_def false_def)
+
+lemma [simp,code_unfold] : "(x `+ null) = invalid"
+by(rule ext, simp add: OclAdd\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r_def true_def false_def)
+
+lemma [simp,code_unfold] : "(null `+ x) = invalid"
 by(rule ext, simp add: OclAdd\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r_def true_def false_def)
 
 lemma OclAdd\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r_zero1[simp,code_unfold] : "(x `+ \<zero>) = (if \<upsilon> x and not (\<delta> x) then invalid else x endif)"
@@ -232,8 +238,6 @@ defs   StrictRefEq\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r[code_
 value "\<tau> \<Turnstile> \<one> <> \<two>"
 value "\<tau> \<Turnstile> \<two> <> \<one>"
 value "\<tau> \<Turnstile> \<two> \<doteq> \<two>"
-value "\<tau> \<Turnstile> true <> false"
-value "\<tau> \<Turnstile> false <> true "
 
 subsection{* Logic and Algebraic Layer on Basic Types *}
 
@@ -451,7 +455,7 @@ abstract interface, and the result type too.
 *}
 
 text{* The core of an own type construction is done via a type
-  definition which provides the raw-type @{text "'\<alpha> Set_0"}. it
+  definition which provides the raw-type @{text "'\<alpha> Set_0"}. It
   is shown that this type ``fits'' indeed into the abstract type
   interface discussed in the previous section. *}
 
@@ -573,7 +577,7 @@ done
 
 text{* ... which means that we can have a type @{text "('\<AA>,('\<AA>,('\<AA>) Integer) Set) Set"}
 corresponding exactly to Set(Set(Integer)) in OCL notation. Note that the parameter
-@{text "\<AA>"} still refers to the object universe; making the OCL semantics entirely parametric
+@{text "'\<AA>"} still refers to the object universe; making the OCL semantics entirely parametric
 in the object universe makes it possible to study (and prove) its properties
 independently from a concrete class diagram. *}
 
@@ -991,7 +995,7 @@ lemma OclNotEmpty_has_elt : "\<tau> \<Turnstile> \<delta> X \<Longrightarrow>
  apply(simp add: OclSize_def valid_def split: split_if_asm, simp_all add: false_def true_def bot_option_def bot_fun_def OclInt0_def)
 by (metis equals0I)
 
-subsubsection{* OclAny *}
+subsubsection{* OclANY *}
 
 lemma OclANY_defined_args_valid: "\<tau> \<Turnstile> \<delta> (X->any()) \<Longrightarrow> \<tau> \<Turnstile> \<delta> X"
 by(auto simp: OclANY_def OclValid_def true_def valid_def false_def StrongEq_def
@@ -1326,7 +1330,7 @@ section{* Fundamental Predicates on Set: Strict Equality *}
 subsection{* Definition *}
 
 text{* After the part of foundational operations on sets, we detail here equality on sets.
-Strong Equality is inherited from the OCL core, but we have to consider
+Strong equality is inherited from the OCL core, but we have to consider
 the case of the strict equality. We decide to overload strict equality in the
 same way we do for other value's in OCL:*}
 
@@ -1337,10 +1341,10 @@ defs   StrictRefEq\<^sub>S\<^sub>e\<^sub>t :
 
 text{* One might object here that for the case of objects, this is an empty definition.
 The answer is no, we will restrain later on states and objects such that any object
-has its id stored inside the object (so the ref, under which an object can be referenced
+has its oid stored inside the object (so the ref, under which an object can be referenced
 in the store will represented in the object itself). For such well-formed stores that satisfy
 this invariant (the WFF-invariant), the referential equality and the
-strong equality---and therefore the strict equality on sets in the sense above) coincides.*}
+strong equality---and therefore the strict equality on sets in the sense above---coincides.*}
 
 subsection{* Logic and Algebraic Layer on Set *}
 
@@ -1600,9 +1604,9 @@ Integer, and Sets thereof...
 
 text{* The computational law \emph{OclExcluding-charn-exec} becomes generic since it
 uses strict equality which in itself is generic. It is possible to prove
-the following generic theorem and instantiate it if a number of properties
-that link the polymorphic logical, Strong Equality with the concrete instance
-of strict quality.*}
+the following generic theorem and instantiate it later (using properties
+that link the polymorphic logical strong equality with the concrete instance
+of strict quality).*}
 lemma OclExcluding_charn_exec:
  assumes strict1: "(x \<doteq> invalid) = invalid"
  and     strict2: "(invalid \<doteq> y) = invalid"
@@ -1790,6 +1794,8 @@ proof -
   apply(simp add: OclIncluding_def OclIncludes_def def_X[simplified OclValid_def] val_x[simplified OclValid_def] val_y[simplified OclValid_def] Abs_Set_0_inverse[OF C] true_def)
  by(metis foundation22 foundation6 foundation9 neq)
 qed
+
+text{* Here is again a generic theorem similar as above. *}
 
 lemma OclIncludes_execute_generic:
 assumes strict1: "(x \<doteq> invalid) = invalid"

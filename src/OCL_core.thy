@@ -116,7 +116,7 @@ text{*
   This uniform interface consists in a type class requiring the existence
   of a bot and a null element. The construction proceeds by
   abstracting the null (defined by @{text "\<lfloor> \<bottom> \<rfloor>"} on
-  @{text "'a option option"} to a null-element, which may
+  @{text "'a option option"}) to a @{text null} element, which may
   have an arbitrary semantic structure, and an undefinedness element @{text "\<bottom> "}
   to an abstract undefinedness element @{text "bot"} (also written
   @{text "\<bottom> "} whenever no confusion arises). As a consequence, it is necessary
@@ -127,10 +127,10 @@ text{*
   This interface consists in two abstract type classes @{text bot}
   and @{text null} for the class of all types comprising a bot and a
   distinct null element.  *}
-
+(*
 instance option   :: (plus) plus  by intro_classes
 instance "fun"    :: (type, plus) plus by intro_classes
-
+*)
 class   bot =
    fixes  bot :: "'a"
    assumes nonEmpty : "\<exists> x. x \<noteq> bot"
@@ -205,7 +205,7 @@ subsection{* The Semantic Space of OCL Types: Valuations. *}
 
 text{* Valuations are now functions from a state pair (built upon
 data universe @{typ "'\<AA>"}) to an arbitrary null-type (\ie, containing
-at least a destinguished @{text "null"} and @{text "invalid"} element. *}
+at least a destinguished @{text "null"} and @{text "invalid"} element). *}
 
 type_synonym ('\<AA>,'\<alpha>) val = "'\<AA> st \<Rightarrow> '\<alpha>::null"
 
@@ -221,7 +221,7 @@ where "I\<lbrakk>x\<rbrakk> \<equiv> x"
 
 text{* As a consequence of semantic domain definition, any OCL type will
 have the two semantic constants @{text "invalid"} (for exceptional, aborted
-computation) and @{text "null"}; the latter, however is either defined
+computation) and @{text "null"}:
  *}
 
 definition invalid :: "('\<AA>,'\<alpha>::bot) val"
@@ -254,7 +254,7 @@ by(simp add: null_fun_def Sem_def)
 
 section{* Definition of the Boolean Type *}
 
-text{* The semantic domain of the (basic) boolean type is now defined as standard:
+text{* The semantic domain of the (basic) boolean type is now defined as the Standard:
 the space of valuation to @{typ "bool option option"}:*}
 
 type_synonym ('\<AA>)Boolean = "('\<AA>,bool option option) val"
@@ -489,7 +489,7 @@ text{*
       reason consistently over a language, you need the concept of
       equality: you need to know what expressions can be replaced by
       others because they \emph{mean the same thing.}  People call
-      this also ``Leipnitz Equality'' because this philosopher brought
+      this also ``Leibniz Equality'' because this philosopher brought
       this principle first explicitly to paper and shed some light
       over it. It is the theoretic foundation of what you do in an
       optimizing compiler: you replace expressions by \emph{equal}
@@ -513,7 +513,7 @@ text{*
   nasty (but not impossible) to define the logical equality in a
   strict way (the substitutivity rule above would look more complex),
   however, whenever references were used, strong equality is needed
-  since references refer to particular states (pre-or post), and that
+  since references refer to particular states (pre or post), and that
   they mean the same thing can therefore not be taken for granted.
 *}
 
@@ -530,7 +530,7 @@ text{*
 
 text{*
   We define strong equality extremely generic, even for types that
-  contain an @{text "null"} or @{text "\<bottom>"} element. Strong
+  contain a @{text "null"} or @{text "\<bottom>"} element. Strong
   equality is simply polymorphic in Featherweight OCL, \ie, is
   defined identical for all types in OCL and HOL.
 *}
@@ -626,12 +626,12 @@ lemma StrongEq_trans_strong [simp]:
 text{*
     it is only in a limited sense a congruence, at least from the
     point of view of this semantic theory. The point is that it is
-    only a congruence on OCL-expressions, not arbitrary HOL
-    expressions (with which we can mix Essential OCL expressions. A
-    semantic---not syntactic---characterization of OCL-expressions is
+    only a congruence on OCL expressions, not arbitrary HOL
+    expressions (with which we can mix Featherweight OCL expressions). A
+    semantic---not syntactic---characterization of OCL expressions is
     that they are \emph{context-passing} or \emph{context-invariant},
-    \ie, the context of an entire OCL expression, \ie, the pre-and
-    poststate it referes to, is passed constantly and unmodified to
+    \ie, the context of an entire OCL expression, \ie the pre and
+    post state it referes to, is passed constantly and unmodified to
     the sub-expressions, \ie, all sub-expressions inside an OCL
     expression refer to the same context. Expressed formally, this
     boils down to:
@@ -969,9 +969,12 @@ lemma deMorgan2: "not(X or Y) = ((not X) and (not Y))"
 
 
 section{* A Standard Logical Calculus for OCL *}
-text{* Besides the need for algebraic laws for OCL in order to normalize *}
+(* Besides the need for algebraic laws for OCL in order to normalize *)
 definition OclValid  :: "[('\<AA>)st, ('\<AA>)Boolean] \<Rightarrow> bool" ("(1(_)/ \<Turnstile> (_))" 50)
 where     "\<tau> \<Turnstile> P \<equiv> ((P \<tau>) = true \<tau>)"
+
+value "\<tau> \<Turnstile> true <> false"
+value "\<tau> \<Turnstile> false <> true"
 
 subsection{* Global vs. Local Judgements*}
 lemma transform1: "P = true \<Longrightarrow> \<tau> \<Turnstile> P"
@@ -998,7 +1001,7 @@ text{* However, certain properties (like transitivity) can not
        be \emph{transformed} from the global level to the local one,
        they have to be re-proven on the local level. *}
 
-lemma transform3:
+lemma (*transform3:*)
 assumes H : "P = true \<Longrightarrow> Q = true"
 shows "\<tau> \<Turnstile> P \<Longrightarrow> \<tau> \<Turnstile> Q"
 apply(simp add: OclValid_def)
@@ -1057,8 +1060,8 @@ by(simp add: OclNot_def OclValid_def true_def false_def valid_def
 
 text{*
   Key theorem for the $\delta$-closure: either an expression is
-  defined, or it can be replaced (substituted via StrongEq-L-subst2+;
-  see below) by invalid or null. Strictness-reduction rules will
+  defined, or it can be replaced (substituted via @{text "StrongEq_L_subst2"};
+  see below) by @{text invalid} or @{text null}. Strictness-reduction rules will
   usually reduce these substituted terms drastically.
 *}
 lemma foundation8:
@@ -1193,14 +1196,14 @@ by(simp add: OclValid_def StrongEq_def true_def)
 
 
 text{* In order to establish substitutivity (which does not
-hold in general HOL-formulas we introduce the following
+hold in general HOL formulas) we introduce the following
 predicate that allows for a calculus of the necessary side-conditions.*}
 definition cp   :: "(('\<AA>,'\<alpha>) val \<Rightarrow> ('\<AA>,'\<beta>) val) \<Rightarrow> bool"
 where     "cp P \<equiv> (\<exists> f. \<forall> X \<tau>. P X \<tau> = f (X \<tau>) \<tau>)"
 
 
-text{* The rule of substitutivity in HOL-OCL holds only
-for context-passing expressions, \ie, those, that pass
+text{* The rule of substitutivity in Featherweight OCL holds only
+for context-passing expressions, \ie those that pass
 the context @{text "\<tau>"} without changing it. Fortunately, all
 operators of the OCL language satisfy this property
 (but not all HOL operators).*}
@@ -1296,7 +1299,7 @@ by(auto simp: OclNot_def OclValid_def true_def invalid_def defined_def false_def
                  bot_fun_def bot_option_def null_fun_def null_option_def
         split: bool.split_asm HOL.split_if_asm option.split option.split_asm)
 
-text{* So far, we have only one strict Boolean predicate (-family): The strict equality. *}
+text{* So far, we have only one strict Boolean predicate (-family): the strict equality. *}
 
 section{* Miscellaneous: OCL's if then else endif *}
 
