@@ -41,7 +41,7 @@
  ******************************************************************************)
 (* $Id:$ *)
 
-header{* Formalization V: The Employee Design Model(2) *}
+header{* The Employee Design Model (OCL) *}
 
 (* This example is not yet balanced. Some parts of should go to
    Part II : State and Objects. *)
@@ -51,7 +51,7 @@ theory
 imports
   Employee_DesignModel_UMLPart (* Testing *)
 begin
-text {* \label{PartV} \label{chap:edm2} *}
+text {* \label{ex:employee-design:ocl} *}
 section{* Standard State Infrastructure *}
 text{* These definitions should be generated automatically. *}
 

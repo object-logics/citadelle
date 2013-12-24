@@ -41,7 +41,7 @@
  ******************************************************************************)
 (* $Id:$ *)
 
-header{* Formalization IV: The Employee Analysis Model(1) *}
+header{* The Employee Analysis Model (UML) *}
 
 (* This example is not yet balanced. Some parts of should go to
    Part V : State Operations and Objects *)
@@ -52,7 +52,7 @@ imports
   "../src/OCL_main"
 begin
 
-text {* \label{PartIV-UML} \label{chap:eam1} *}
+text {* \label{ex:employee-analysis:uml} *}
 
 section{* Introduction *}
 text{* 
@@ -80,8 +80,8 @@ modified) example Figure 7.3, page 20 of
 the~\cite{omg:ocl:2012}. Here, analysis model means that associations
 were really represented as relation on objects on the state---as is
 intended by the standard---rather by pointers between objects as is
-done in our ``design model'' (see \autoref{chap:edm1}).  To be
-precise, this theory contains the formalization of the data-part
+done in our ``design model'' (see \autoref{ex:employee-design:uml}). 
+To be precise, this theory contains the formalization of the data-part
 covered by the UML class model (see \autoref{fig:person-ana}):*}
 
 text{*

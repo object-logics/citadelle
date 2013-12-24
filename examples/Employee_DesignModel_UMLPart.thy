@@ -41,7 +41,7 @@
  ******************************************************************************)
 (* $Id:$ *)
 
-header{* Formalization V: The Employee Design Model(1) *}
+header{* The Employee Design Model (UML) *}
 
 (* This example is not yet balanced. Some parts of should go to
    Part VI : State Operations and Objects *)
@@ -52,7 +52,7 @@ imports
   "../src/OCL_main"
 begin
 
-text {* \label{PartV-UML} \label{chap:edm1} *}
+text {* \label{ex:employee-design:uml} *}
 
 section{* Introduction *}
 text{* For certain concepts like classes and class-types, only a generic definition for its resulting

@@ -14,14 +14,17 @@ algebraic (execution) rules from them; thus, we can guarantee the
 logical consistency of the library and instances of the class model
 construction, \ie, closed-world object-oriented datatype theories, as
 long as it follows the described methodology.\footnote{Our two
-  examples of \inlineisar+Employee_DesignModel+ (see \autoref{} and
-  \autoref{}) sketch how this construction can be captured by an
-  automated process.}  Moreover, all derived execution rules are by
-construction type-safe (which would be an issue, if we had chosen to
-use an object universe construction in Zermelo-Fraenkel set theory as
-an alternative approach to subtyping.).  In more detail, our theory
-gives answers and concrete solutions to a number of open major issues
-for the UML/OCL standardization:
+  examples of \inlineisar+Employee_DesignModel+ (see
+  \autoref{ex:employee-analysis:uml} and
+  \autoref{ex:employee-analysis:ocl} as well as
+  \autoref{ex:employee-design:uml} and
+  \autoref{ex:employee-design:ocl} )sketch how this construction can
+  be captured by an automated process.}  Moreover, all derived
+execution rules are by construction type-safe (which would be an
+issue, if we had chosen to use an object universe construction in
+Zermelo-Fraenkel set theory as an alternative approach to subtyping.).
+In more detail, our theory gives answers and concrete solutions to a
+number of open major issues for the UML/OCL standardization:
 \begin{enumerate}
 \item the role of the two exception elements \inlineisar+invalid+ and
   \inlineisar+null+, the former usually assuming strict evaluation

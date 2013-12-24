@@ -41,14 +41,14 @@
  ******************************************************************************)
 (* $Id:$ *)
 
-header{* Formalization IV: The Employee Analysis Model(2) *}
+header{* The Employee Analysis Model (OCL) *}
  
 theory
   Employee_AnalysisModel_OCLPart
 imports
   Employee_AnalysisModel_UMLPart (* Testing *)
 begin
-text {* \label{PartIV} \label{chap:eam2} *}
+text {*  \label{ex:employee-analysis:ocl} *}
 section{* Standard State Infrastructure *}
 text{* Ideally, these definitions are automatically generated from the class model. *}
 
