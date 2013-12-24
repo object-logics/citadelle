@@ -12,7 +12,7 @@ methodology to build up the theory uniquely by conservative extensions
 of all operators in a denotational style and to derive logical and
 algebraic (execution) rules from them; thus, we can guarantee the
 logical consistency of the library and instances of the class model
-construction, \ie, closed-world object-oriented data-type theories, as
+construction, \ie, closed-world object-oriented datatype theories, as
 long as it follows the described methodology.\footnote{Our two
   examples of \inlineisar+Employee_DesignModel+ (see \autoref{} and
   \autoref{}) sketch how this construction can be captured by an
@@ -35,8 +35,8 @@ for the UML/OCL standardization:
   Manifesto~\cite{cook.ea::amsterdam:2002}.
 \item the complicated life resulting from the two necessary
   equalities: the standard's ``strict weak referential equality'' as
-  default (written \inlineisar+\<doteq>+ throughout this document) and
-  the strong equality (written \inlineisar+\<triangleq>+), which
+  default (written \inlineisar+_ \<doteq> _+ throughout this document) and
+  the strong equality (written \inlineisar+_ \<triangleq> _+), which
   follows the logical Leibniz principle that ``equals can be replaced
   by equals.''  Which is not necessarily the case if
   \inlineisar+invalid+ or objects of different states are involved.
@@ -44,7 +44,7 @@ for the UML/OCL standardization:
   old idea of a one-to-one correspondence between object
   representations and object-id's, which became a state invariant.
 \item a simple concept of state-framing via the novel operator
-  \inlineocl+->oclIsModifiedOnly()+ and its consequences for strong
+  \inlineocl+_->oclIsModifiedOnly()+ and its consequences for strong
   and weak equality.
 \item a semantic view on subtyping clarifying the role of static and
   dynamic type (aka \emph{apparent} and \emph{actual} type in Java
@@ -57,16 +57,17 @@ for the UML/OCL standardization:
   sets that provide means to represent ``the set of potential objects
   or values'' to state properties over them (this will be an important
   feature if OCL is intended to become a full-blown code annotation
-  language in the spirit of JML for semi-automated code verification,
+  language in the spirit of JML~\cite{levens.ea:jml:2007} for semi-automated code verification,
   and has been considered desirable in the Aachen
   Meeting~\cite{brucker.ea:summary-aachen:2013}).
 \end{enumerate}
-Moreover, we managed to make our theory in large parts executable, which allowed
-us to include mechanically checked \inlineisar+value+-statements
-that capture numerous corner-cases relevant for OCL implementors. Among many minor
-issues, we thus pin-pointed the behavior of \inlineisar+null+ in collections as
-well as in casts and the desired \inlineisar+isKindOf+-semantics of
-\inlineisar+allInstances()+.
+Moreover, we managed to make our theory in large parts executable,
+which allowed us to include mechanically checked
+\inlineisar+value+-statements that capture numerous corner-cases
+relevant for OCL implementors. Among many minor issues, we thus
+pin-pointed the behavior of \inlineocl+null+ in collections as well
+as in casts and the desired \inlineocl+isKindOf+-semantics of
+\inlineocl+allInstances()+.
 
 
 \section{Lessons Learned}
@@ -90,20 +91,21 @@ organization, where \inlineocl{null} represents ``more information''
 than \inlineocl{invalid} and the logical operators are monotone with
 respect to this semantical ``information ordering.''
 
-A similar experience with prior paper and pencil arguments was our investigation
-of the object-oriented data-models, in particular path-expressions
-~\cite{DBLP:conf/models/BruckerLTW13}. The final presentation is again
-essentially correct, but the technical details concerning exception
-handling lead finally to a continuation-passing style of the
-(in future generated) definitions for accessors, casts and tests.
-Apparently, OCL semantics (as many other ``real'' programming and specification languages)
-is meanwhile too complex to be treated by informal arguments solely.
+A similar experience with prior paper and pencil arguments was our
+investigation of the object-oriented data-models, in particular
+path-expressions ~\cite{DBLP:conf/models/BruckerLTW13}. The final
+presentation is again essentially correct, but the technical details
+concerning exception handling lead finally to a continuation-passing
+style of the (in future generated) definitions for accessors, casts
+and tests.  Apparently, OCL semantics (as many other ``real''
+programming and specification languages) is meanwhile too complex to
+be treated by informal arguments solely.
 
-Featherweight OCL makes several minor deviations from the standard and showed
-how the previous constructions can be made correct and consistent, and
-the DNF-normalization as well as $\delta$-closure laws (necessary
-for a transition into a two-valued presentation of OCL specifications
-ready for interpretation in SMT solvers
+Featherweight OCL makes several minor deviations from the standard and
+showed how the previous constructions can be made correct and
+consistent, and the DNF-normalization as well as $\delta$-closure laws
+(necessary for a transition into a two-valued presentation of OCL
+specifications ready for interpretation in SMT solvers
 (see~\cite{brucker.ea:ocl-testing:2010} for details)) are valid in
 Featherweight OCL.
 
@@ -120,14 +122,12 @@ Featherweight OCL into a fully fledged tool for OCL, \eg, similar to
 {HOL}-TestGen~\cite{brucker.ea:hol-testgen:2009}.  There are
 essentially five extensions necessary:
 \begin{itemize}
-\item extension of  the library to support all OCL data types, \eg,
-  \inlineocl{Sequence(T)}, \inlineocl{OrderedSet(T)}. % This is
-  % essentially a student-project given the sample proofs already there,
-  % that have to be adapted to similar types.
-  This formalization of the OCL standard library can be used for
-  checking the consistency of the formal semantics (known as ``Annex
-  A'') with the informal and semi-formal requirements in the normative
-  part of the OCL standard.
+\item extension of the library to support all OCL data types, \eg,
+  \inlineocl{OrderedSet(T)} or \inlineocl{Sequence(T)}.  This
+  formalization of the OCL standard library can be used for checking
+  the consistency of the formal semantics (known as ``Annex A'') with
+  the informal and semi-formal requirements in the normative part of
+  the OCL standard.
 \item development of a compiler that compiles a textual or CASE
   tool representation (\eg, using XMI or the textual syntax of
   the USE tool~\cite{richters:precise:2002}) of class
@@ -164,22 +164,21 @@ methodology for {UML}/{OCL}.
 Our work shows that developing a machine-checked formal semantics of
 recent {OCL} standards still reveals significant
 inconsistencies---even though this type of research is not new. In
-fact, we started our work already with the 1.x series of
-{OCL}. The reasons for this ongoing consistency problems of
-{OCL} standard are manifold. For example, the consequences of
-adding an additional exception value to OCL 2.2 are widespread across
-the whole language and many of them are also quite subtle. Here, a
-machine-checked formal semantics is of great value, as one is forced
-to formalize all details and subtleties.  Moreover, the
-standardization process of the {OMG}, in which standards (\eg, the
-{UML} infrastructure and the {OCL} standard) that need to be
-aligned closely are developed quite independently, are prone to ad-hoc
-changes that attempt to align these standards. And, even worse,
-updating a standard document by voting on the acceptance (or
-rejection) of isolated text changes does not help either. Here, a tool
-for the editor of the standard that helps to check the consistency of
-the whole standard after each and every modifications can be of great
-value as well.
+fact, we started our work already with the 1.x series of {OCL}. The
+reasons for this ongoing consistency problems of {OCL} standard are
+manifold. For example, the consequences of adding an additional
+exception value to OCL 2.2 are widespread across the whole language
+and many of them are also quite subtle. Here, a machine-checked formal
+semantics is of great value, as one is forced to formalize all details
+and subtleties.  Moreover, the standardization process of the {OMG},
+in which standards (\eg, the {UML} infrastructure and the {OCL}
+standard) that need to be aligned closely are developed quite
+independently, are prone to ad-hoc changes that attempt to align these
+standards. And, even worse, updating a standard document by voting on
+the acceptance (or rejection) of isolated text changes does not help
+either. Here, a tool for the editor of the standard that helps to
+check the consistency of the whole standard after each and every
+modifications can be of great value as well.
 
 
 %%% Local Variables:
