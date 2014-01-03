@@ -354,14 +354,14 @@ subsubsection{* Behavior vs StrongEq *}
 lemma StrictRefEq\<^sub>B\<^sub>o\<^sub>o\<^sub>l\<^sub>e\<^sub>a\<^sub>n_vs_StrongEq:
 "\<tau> \<Turnstile>(\<upsilon> x) \<Longrightarrow> \<tau> \<Turnstile>(\<upsilon> y) \<Longrightarrow> (\<tau> \<Turnstile> (((x::('\<AA>)Boolean) \<doteq> y) \<triangleq> (x \<triangleq> y)))"
 apply(simp add: StrictRefEq\<^sub>B\<^sub>o\<^sub>o\<^sub>l\<^sub>e\<^sub>a\<^sub>n OclValid_def)
-apply(subst cp_StrongEq)back
+apply(subst cp_StrongEq[of _ "(x \<triangleq> y)"])
 by simp
 
 
 lemma StrictRefEq\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r_vs_StrongEq:
 "\<tau> \<Turnstile>(\<upsilon> x) \<Longrightarrow> \<tau> \<Turnstile>(\<upsilon> y) \<Longrightarrow> (\<tau> \<Turnstile> (((x::('\<AA>)Integer) \<doteq> y) \<triangleq> (x \<triangleq> y)))"
 apply(simp add: StrictRefEq\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r OclValid_def)
-apply(subst cp_StrongEq)back
+apply(subst cp_StrongEq[of _ "(x \<triangleq> y)"])
 by simp
 
 
@@ -1575,7 +1575,7 @@ proof -
    apply(auto simp: OclValid_def bot_fun_def OclIncluding_def OclIncludes_def false_def true_def
                     invalid_def defined_def valid_def bot_Set_0_def null_fun_def null_Set_0_def
                     StrongEq_def)
-   apply(subst cp_OclExcluding) back
+   apply(subst cp_OclExcluding)
    apply(auto simp:OclExcluding_def)
    apply(simp add: Abs_Set_0_inverse[OF C])
    apply(simp_all add: false_def true_def defined_def valid_def
