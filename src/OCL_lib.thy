@@ -193,7 +193,7 @@ lemma OclAdd\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r_zero1[simp,
   apply(case_tac "x \<tau>")
   apply (metis OCL_core.bot_fun_def OCL_core.drop.simps bot_option_def defined_def false_def true_def)
   apply(simp)
-  apply(case_tac a)
+  apply(rename_tac x', case_tac x')
   apply(simp)
   apply (metis OclValid_def bot_option_def foundation17 null_option_def)
   apply(simp)
@@ -292,12 +292,12 @@ lemma StrictRefEq\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r_strict
   assumes A: "\<upsilon> (((x::('\<AA>)Integer)) \<doteq> y) = true"
   shows      "\<upsilon> x = true \<and> \<upsilon> y = true"
   apply(insert A, rule conjI)
-  apply(rule ext, drule_tac x=xa in fun_cong)
+  apply(rule ext, rename_tac \<tau>, drule_tac x=\<tau> in fun_cong)
   prefer 2
-  apply(rule ext, drule_tac x=xa in fun_cong)
+  apply(rule ext, rename_tac \<tau>, drule_tac x=\<tau> in fun_cong)
   apply(simp_all add: StrongEq_def StrictRefEq\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r
                             false_def true_def valid_def defined_def)
-  apply(case_tac "y xa", auto)
+  apply(case_tac "y \<tau>", auto)
   apply(simp_all add: true_def invalid_def bot_fun_def)
   done
 
@@ -529,10 +529,11 @@ proof -
  have discr_eq_false_true : "\<And>\<tau>. (false \<tau> = true \<tau>) = False" by (metis OclValid_def foundation2)
  show ?thesis
   apply(insert S_all_def, simp add: OclValid_def defined_def)
-  apply(rule mp[OF Abs_Set_0_induct[where P = "\<lambda>S. (if S = \<bottom> \<tau> \<or> S = null \<tau> then false \<tau> else true \<tau>) = true \<tau> \<longrightarrow> Abs_Set_0 \<lfloor>\<lfloor>\<lceil>\<lceil>Rep_Set_0 S\<rceil>\<rceil>\<rfloor>\<rfloor> = S"]])
+  apply(rule mp[OF Abs_Set_0_induct[where P = "\<lambda>S. (if S = \<bottom> \<tau> \<or> S = null \<tau> then false \<tau> else true \<tau>) = true \<tau> \<longrightarrow> Abs_Set_0 \<lfloor>\<lfloor>\<lceil>\<lceil>Rep_Set_0 S\<rceil>\<rceil>\<rfloor>\<rfloor> = S"]],
+        rename_tac S')
   apply(simp add: Abs_Set_0_inverse discr_eq_false_true)
-  apply(case_tac y) apply(simp add: bot_fun_def bot_Set_0_def)+
-  apply(case_tac a) apply(simp add: null_fun_def null_Set_0_def)+
+  apply(case_tac S') apply(simp add: bot_fun_def bot_Set_0_def)+
+  apply(rename_tac S'', case_tac S'') apply(simp add: null_fun_def null_Set_0_def)+
  done
 qed
 
@@ -546,20 +547,20 @@ lemma S_lift' :
   apply(rule equalityI)
   (* *)
   apply(rule subsetI)
-  apply(drule imageE) prefer 2 apply assumption
-  apply(drule_tac x = a in ballE) prefer 3 apply assumption
+  apply(drule imageE, rename_tac x') prefer 2 apply assumption
+  apply(drule_tac x = x' in ballE) prefer 3 apply assumption
   apply(drule_tac f = "\<lambda>x \<tau>. \<lfloor>\<lceil>x\<rceil>\<rfloor>" in imageI)
   apply(simp)
   apply(simp)
   (* *)
   apply(rule subsetI)
-  apply(drule imageE) prefer 2 apply assumption
-  apply(drule_tac x = xa in ballE) prefer 3 apply assumption
+  apply(drule imageE, rename_tac x') prefer 2 apply assumption
+  apply(drule_tac x = x' in ballE) prefer 3 apply assumption
   apply(drule_tac f = "\<lambda>x \<tau>. x" in imageI)
   apply(simp)
   apply(simp)
   (* *)
-  apply(rule ballI)
+  apply(rule ballI, rename_tac x)
   apply(drule Set_inv_lemma'[OF S_all_def])
   apply(case_tac x, simp add: bot_option_def foundation18')
   apply(simp)
@@ -954,8 +955,8 @@ subsubsection{* OclIsEmpty *}
 lemma OclIsEmpty_defined_args_valid:"\<tau> \<Turnstile> \<delta> (X->isEmpty()) \<Longrightarrow> \<tau> \<Turnstile> \<upsilon> X"
   apply(auto simp: OclIsEmpty_def OclValid_def defined_def valid_def false_def true_def bot_fun_def null_fun_def OclAnd_def OclOr_def OclNot_def
              split: split_if_asm)
-  apply(case_tac "(X->size() \<doteq> \<zero>) \<tau>", simp add: bot_option_def, simp)
-  apply(case_tac a, simp add: null_option_def bot_option_def, simp)
+  apply(case_tac "(X->size() \<doteq> \<zero>) \<tau>", simp add: bot_option_def, simp, rename_tac x)
+  apply(case_tac x, simp add: null_option_def bot_option_def, simp)
   apply(simp add: OclSize_def StrictRefEq\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r valid_def)
 by (metis (hide_lams, no_types) OCL_core.bot_fun_def OclValid_def defined_def foundation2 invalid_def)
 
@@ -966,8 +967,8 @@ by(auto simp: OclIsEmpty_def OclValid_def defined_def valid_def false_def true_d
 lemma OclIsEmpty_infinite: "\<tau> \<Turnstile> \<delta> X \<Longrightarrow> \<not> finite \<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil> \<Longrightarrow> \<not> \<tau> \<Turnstile> \<delta> (X->isEmpty())"
   apply(auto simp: OclIsEmpty_def OclValid_def defined_def valid_def false_def true_def bot_fun_def null_fun_def OclAnd_def OclOr_def OclNot_def
              split: split_if_asm)
-  apply(case_tac "(X->size() \<doteq> \<zero>) \<tau>", simp add: bot_option_def, simp)
-  apply(case_tac a, simp add: null_option_def bot_option_def, simp)
+  apply(case_tac "(X->size() \<doteq> \<zero>) \<tau>", simp add: bot_option_def, simp, rename_tac x)
+  apply(case_tac x, simp add: null_option_def bot_option_def, simp)
 by(simp add: OclSize_def StrictRefEq\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r valid_def bot_fun_def false_def true_def invalid_def)
 
 subsubsection{* OclNotEmpty *}
@@ -2925,8 +2926,8 @@ proof -
 
  have destruct_ocl : "\<And>x \<tau>. x = true \<tau> \<or> x = false \<tau> \<or> x = null \<tau> \<or> x = \<bottom> \<tau>"
   apply(case_tac x) apply (metis bot_Boolean_def)
-  apply(case_tac a) apply (metis null_Boolean_def)
-  apply(case_tac aa) apply (metis (full_types) true_def)
+  apply(rename_tac x', case_tac x') apply (metis null_Boolean_def)
+  apply(rename_tac x'', case_tac x'') apply (metis (full_types) true_def)
  by (metis (full_types) false_def)
 
  have disjE4 : "\<And> P1 P2 P3 P4 R.
@@ -3029,13 +3030,13 @@ proof -
   apply(split split_if_asm, simp add: false_def true_def)+
   apply(simp add: null_fun_def null_Set_0_def bot_fun_def bot_Set_0_def)
 
-  apply(case_tac "x \<tau>")
-  apply(case_tac "ya", simp_all)
-  apply(case_tac "a", simp_all)
+  apply(case_tac "x \<tau>", rename_tac x')
+  apply(case_tac x', simp_all, rename_tac x'')
+  apply(case_tac x'', simp_all)
 
-  apply(case_tac "y \<tau>")
-  apply(case_tac "yaa", simp_all)
-  apply(case_tac "ab", simp_all)
+  apply(case_tac "y \<tau>", rename_tac y')
+  apply(case_tac y', simp_all, rename_tac y'')
+  apply(case_tac y'', simp_all)
 
   apply(simp add: Abs_Set_0_inverse)
 
