@@ -2393,28 +2393,8 @@ definition "OclSelect_body :: _ \<Rightarrow> _ \<Rightarrow> _ \<Rightarrow> ('
 lemma OclSelect_including_exec[simp,code_unfold]:
  assumes P_cp : "cp P"
  shows "OclSelect (X->including(y)) P = OclSelect_body P y (OclSelect (X->excluding(y)) P)"
+ (is "_ = ?select")
 proof -
-
- def OclSelect_body2
-     \<equiv> "(\<lambda>(P:: ('a state \<times> 'a state \<Rightarrow> 'b option option)
-   \<Rightarrow> 'a state \<times> 'a state \<Rightarrow> bool option option) x (acc :: (_, 'b option option) Set). if \<upsilon> (P x) then if P x \<triangleq> false then acc else acc->including(x) endif else \<bottom> endif)"
- have select_change: "OclSelect_body = OclSelect_body2"
-  unfolding OclSelect_body2_def
-  apply((rule ext)+, rename_tac \<tau>)
-  apply(simp add: OclSelect_body_def)
-  apply(case_tac "\<tau> \<Turnstile> \<upsilon> (P x)", simp_all)
-  apply (metis (hide_lams, no_types) OCL_core.bot_fun_def OclIf_def OclIf_false' OclIf_true' OclValid_def StrictRefEq\<^sub>B\<^sub>o\<^sub>o\<^sub>l\<^sub>e\<^sub>a\<^sub>n StrictRefEq\<^sub>B\<^sub>o\<^sub>o\<^sub>l\<^sub>e\<^sub>a\<^sub>n_defined_args_valid StrictRefEq\<^sub>B\<^sub>o\<^sub>o\<^sub>l\<^sub>e\<^sub>a\<^sub>n_strict'' StrongEq_sym defined7 foundation1 foundation17 foundation6 foundation9 invalid_def valid3 valid4)
- by (metis OCL_core.bot_fun_def OclANY_valid_args_valid'' OclIf_def OclIncluding_defined_args_valid OclIncluding_invalid OclIncluding_invalid_args OclIncluding_valid_args_valid OclValid_def StrictRefEq\<^sub>B\<^sub>o\<^sub>o\<^sub>l\<^sub>e\<^sub>a\<^sub>n_defined_args_valid foundation16 foundation18')
-
- show ?thesis
- apply(simp add: select_change)
- proof -
- def OclSelect_body \<equiv> OclSelect_body2
- have OclSelect_body_def : "OclSelect_body = (\<lambda>P x acc. if \<upsilon> P x then if P x \<triangleq> false then acc else acc->including(x) endif else \<bottom> endif)"
- by(simp add: OclSelect_body_def OclSelect_body2_def)
- show "OclSelect X->including(y) P = OclSelect_body P y (OclSelect X->excluding(y) P)"
- proof -
-
  have P_cp: "\<And>x \<tau>. P x \<tau> = P (\<lambda>_. x \<tau>) \<tau>"
     by(insert P_cp, auto simp: cp_def)
 
@@ -2464,11 +2444,17 @@ proof -
   apply(simp add: bot_option_def null_option_def)+
  done
 
- have OclSelect_body_bot: "\<And>\<tau>. \<tau> \<Turnstile> \<delta> X \<Longrightarrow> \<tau> \<Turnstile> \<upsilon> y \<Longrightarrow> P y \<tau> \<noteq> \<bottom> \<Longrightarrow> (\<exists>x\<in>\<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil>. P (\<lambda>_. x) \<tau> = \<bottom>) \<Longrightarrow> \<bottom> = OclSelect_body P y (OclSelect X->excluding(y) P) \<tau>"
+ have if_eq : "\<And>x A B \<tau>. \<tau> \<Turnstile> \<upsilon> x \<Longrightarrow> \<tau> \<Turnstile> (if x \<doteq> false then A else B endif) \<triangleq> (if x \<triangleq> false then A else B endif)"
+  apply(simp add: StrictRefEq\<^sub>B\<^sub>o\<^sub>o\<^sub>l\<^sub>e\<^sub>a\<^sub>n OclValid_def)
+  apply(subst (2) StrongEq_def)
+ by(subst cp_OclIf, simp add: cp_OclIf[symmetric] true_def)
+
+ have OclSelect_body_bot: "\<And>\<tau>. \<tau> \<Turnstile> \<delta> X \<Longrightarrow> \<tau> \<Turnstile> \<upsilon> y \<Longrightarrow> P y \<tau> \<noteq> \<bottom> \<Longrightarrow> (\<exists>x\<in>\<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil>. P (\<lambda>_. x) \<tau> = \<bottom>) \<Longrightarrow> \<bottom> = ?select \<tau>"
   apply(drule ex_excluding1[where X = X and y = y and f = "\<lambda>x \<tau>. x \<tau> = \<bottom>"], (simp add: P_cp[symmetric])+)
-  apply(subst OclSelect_body_def)
-  apply(subst if_same[where d = "\<bottom>"])
-  apply (metis defined6 foundation1)
+  apply(subgoal_tac "\<tau> \<Turnstile> (\<bottom> \<triangleq> ?select)", simp add: OclValid_def StrongEq_def true_def bot_fun_def)  
+  apply(simp add: OclSelect_body_def)
+  apply(subst StrongEq_L_subst3[OF _ if_eq], simp, metis foundation18')
+  apply(simp add: OclValid_def, subst StrongEq_def, subst true_def, simp)
   apply(subgoal_tac "\<exists>x\<in>\<lceil>\<lceil>Rep_Set_0 (X->excluding(y) \<tau>)\<rceil>\<rceil>. P (\<lambda>_. x) \<tau> = \<bottom> \<tau>")
    prefer 2
    apply (metis OCL_core.bot_fun_def foundation18')
@@ -2481,12 +2467,12 @@ proof -
  have d_and_v_inject : "\<And>\<tau> X y. (\<delta> X and \<upsilon> y) \<tau> \<noteq> true \<tau> \<Longrightarrow> (\<delta> X and \<upsilon> y) \<tau> = false \<tau>"
  by (metis bool_split defined5 defined6 defined_and_I foundation16 invalid_def null_fun_def transform1)
 
- have OclSelect_body_bot': "\<And>\<tau>. (\<delta> X and \<upsilon> y) \<tau> \<noteq> true \<tau> \<Longrightarrow> \<bottom> = OclSelect_body P y (OclSelect X->excluding(y) P) \<tau>"
+ have OclSelect_body_bot': "\<And>\<tau>. (\<delta> X and \<upsilon> y) \<tau> \<noteq> true \<tau> \<Longrightarrow> \<bottom> = ?select \<tau>"
   apply(drule d_and_v_inject)
   apply(simp add: OclSelect_def OclSelect_body_def)
-  apply(subst cp_OclIf, subst cp_OclIf, subst cp_OclIncluding, simp add: false_def true_def)
-  apply(subst cp_OclIncluding[symmetric], simp add: OclIf_def cp_defined[symmetric] bot_fun_def)
- by (metis (no_types) invert_including)
+  apply(subst cp_OclIf, subst cp_OclIncluding, simp add: false_def true_def)
+  apply(subst cp_OclIf[symmetric], subst cp_OclIncluding[symmetric])
+ by (metis (lifting, no_types) OclIf_def foundation18 foundation18' invert_including)
 
  have conj_split2 : "\<And>a b c \<tau>. ((a \<triangleq> false) \<tau> = false \<tau> \<longrightarrow> b) \<and> ((a \<triangleq> false) \<tau> = true \<tau> \<longrightarrow> c) \<Longrightarrow> (a \<tau> \<noteq> false \<tau> \<longrightarrow> b) \<and> (a \<tau> = false \<tau> \<longrightarrow> c)"
  by (metis OclValid_def defined7 foundation14 foundation22 foundation9)
@@ -2496,12 +2482,18 @@ proof -
                       null_fun_def null_option_def)
       by (case_tac " P \<tau> = \<bottom> \<or> P \<tau> = null", simp_all add: true_def)
 
- have cp_OclSelect_body : "\<And>\<tau>. OclSelect_body P y (OclSelect X->excluding(y) P) \<tau> = OclSelect_body P y (\<lambda>_. OclSelect X->excluding(y) P \<tau>) \<tau>"
+ have cp_OclSelect_body : "\<And>\<tau>. ?select \<tau> = OclSelect_body P y (\<lambda>_. OclSelect X->excluding(y) P \<tau>) \<tau>"
   apply(simp add: OclSelect_body_def)
- by(subst (1 2) cp_OclIf, subst (1 3) cp_OclIf, subst (1 2) cp_OclIncluding, blast)
+ by(subst (1 2) cp_OclIf, subst (1 2) cp_OclIncluding, blast)
 
  have OclSelect_body_strict1 : "OclSelect_body P y invalid = invalid"
- by(simp add: OclSelect_body_def, simp add: OclIf_def invalid_def bot_option_def bot_fun_def)
+ by(rule ext, simp add: OclSelect_body_def OclIf_def)
+
+ have bool_invalid: "\<And>(x::('\<AA>)Boolean) y \<tau>. \<not> (\<tau> \<Turnstile> \<upsilon> x) \<Longrightarrow> \<tau> \<Turnstile> (x \<doteq> y) \<triangleq> invalid"
+ by(simp add: StrictRefEq\<^sub>B\<^sub>o\<^sub>o\<^sub>l\<^sub>e\<^sub>a\<^sub>n OclValid_def StrongEq_def true_def)
+
+ have conj_comm : "\<And>p q r. (p \<and> q \<and> r) = ((p \<and> q) \<and> r)"
+ by blast
 
  show ?thesis
   apply(rule ext, rename_tac \<tau>)
@@ -2519,17 +2511,10 @@ proof -
    apply (metis (hide_lams, no_types) foundation1 foundation18' valid4)
   apply(simp)
   (* *)
-  apply(rule conjI)
-  apply(subst OclSelect_body_def)
-  apply(rule impI)
-  apply(subgoal_tac "(\<upsilon> P y) \<tau> = false \<tau>")
-   prefer 2
-   apply (metis OCL_core.bot_fun_def valid_def)
-  apply(subst cp_OclIf, simp add: cp_OclIf[symmetric], simp add: bot_fun_def)
-  (* *)
-  apply(rule conjI)
-  apply(subst OclSelect_body_def)
-  apply(subst cp_OclIf, simp add: cp_OclIf[symmetric], simp add: bot_fun_def)
+  apply(subst conj_comm, rule conjI)
+  apply(drule_tac y = false in bool_invalid)
+  apply(simp only: OclSelect_body_def, 
+        metis OCL_core.bot_fun_def OclIf_def OclValid_def defined_def foundation2 foundation22 invalid_def)
   (* *)
   apply(subst al_including)
    apply (metis OclValid_def foundation5)
@@ -2541,12 +2526,12 @@ proof -
   (* *)
   apply(subst (1 2) al_including, metis OclValid_def foundation5, metis OclValid_def foundation5)
   apply(simp add: P_cp[symmetric], subst (4) false_def, subst (4) bot_option_def, simp)
-  apply(simp add: OclSelect_def OclSelect_body_def)
+  apply(simp add: OclSelect_def OclSelect_body_def StrictRefEq\<^sub>B\<^sub>o\<^sub>o\<^sub>l\<^sub>e\<^sub>a\<^sub>n)
   apply(subst (1 2 3 4) cp_OclIf,
         subst (1 2 3 4) foundation18'[THEN iffD2, simplified OclValid_def],
         simp,
-        simp add: cp_OclIf[symmetric])
-  apply(subst (1 2 3 4) cp_OclIf, subst (1 2) cp_OclIncluding, rule conj_split2, simp add: cp_OclIf[symmetric])
+        simp only: cp_OclIf[symmetric] refl if_True)
+  apply(subst (1 2) cp_OclIncluding, rule conj_split2, simp add: cp_OclIf[symmetric])
   apply(subst (1 2 3 4 5 6 7 8) cp_OclIf[symmetric], simp)
   apply(subst ex_excluding1[symmetric], metis OclValid_def foundation5, metis OclValid_def foundation5, simp add: P_cp[symmetric] bot_fun_def)
 
@@ -2601,7 +2586,7 @@ proof -
   apply(simp add: OclValid_def false_def true_def, rule conjI, blast)
   apply(simp add: OclSelect_invalid[simplified invalid_def] OclSelect_body_strict1[simplified invalid_def])
  done
-qed qed qed
+qed
 
 subsection{* OclReject *}
 
