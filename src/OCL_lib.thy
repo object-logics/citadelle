@@ -2982,45 +2982,12 @@ qed
 
 subsection{* Strict Equality *}
 
-lemma StrictRefEq\<^sub>S\<^sub>e\<^sub>t_exec[simp,code_unfold] :
-"((x::('\<AA>,'\<alpha>::null)Set) \<doteq> y) =
-  (if \<delta> x then (if \<delta> y
-                then ((x->forAll(z| y->includes(z)) and (y->forAll(z| x->includes(z)))))
-                else if \<upsilon> y
-                      then false (* x'->includes = null *)
-                      else invalid
-                      endif
-                endif)
-         else if \<upsilon> x (* null = ??? *)
-              then if \<upsilon> y then not(\<delta> y) else invalid endif
-              else invalid
-              endif
-         endif)"
+lemma StrictRefEq\<^sub>S\<^sub>e\<^sub>t_defined :
+ assumes x_def: "\<tau> \<Turnstile> \<delta> x"
+ assumes y_def: "\<tau> \<Turnstile> \<delta> y"
+ shows "((x::('\<AA>,'\<alpha>::null)Set) \<doteq> y) \<tau> =
+                (x->forAll(z| y->includes(z)) and (y->forAll(z| x->includes(z)))) \<tau>"
 proof -
-
- have defined_inject_true : "\<And>\<tau> P. \<not> (\<tau> \<Turnstile> \<delta> P) \<Longrightarrow> (\<delta> P) \<tau> = false \<tau>"
- by(metis bot_fun_def defined_def foundation16 null_fun_def)
-
- have valid_inject_true : "\<And>\<tau> P. \<not> (\<tau> \<Turnstile> \<upsilon> P) \<Longrightarrow> (\<upsilon> P) \<tau> = false \<tau>"
- by(metis bot_fun_def foundation18' valid_def)
-
- have valid_inject_defined : "\<And>\<tau> P. \<not> (\<tau> \<Turnstile> \<upsilon> P) \<Longrightarrow> \<not> (\<tau> \<Turnstile> \<delta> P)"
- by(metis foundation20)
-
- have null_simp : "\<And>\<tau> y. \<tau> \<Turnstile> \<upsilon> y \<Longrightarrow> \<not> (\<tau> \<Turnstile> \<delta> y) \<Longrightarrow> y \<tau> = null \<tau>"
- by (simp add: foundation16 foundation18' null_fun_def)
-
- have discr_eq_false_true : "\<And>\<tau>. (false \<tau> = true \<tau>) = False" by (metis OclValid_def foundation2)
- have discr_neq_true_false : "\<And>\<tau>. (true \<tau> \<noteq> false \<tau>) = True" by (metis discr_eq_false_true)
-
- have strongeq_true : "\<And> \<tau> x y. (\<lfloor>\<lfloor>x \<tau> = y \<tau>\<rfloor>\<rfloor> = true \<tau>) = (x \<tau> = y \<tau>)"
- by(simp add: foundation22[simplified OclValid_def StrongEq_def])
-
- have strongeq_false : "\<And> \<tau> x y. (\<lfloor>\<lfloor>x \<tau> = y \<tau>\<rfloor>\<rfloor> = false \<tau>) = (x \<tau> \<noteq> y \<tau>)"
-  apply(case_tac "x \<tau> \<noteq> y \<tau>", simp add: false_def)
-  apply(simp add: false_def true_def)
- done
-
  have rep_set_inj : "\<And>\<tau>. (\<delta> x) \<tau> = true \<tau> \<Longrightarrow>
                          (\<delta> y) \<tau> = true \<tau> \<Longrightarrow>
                           x \<tau> \<noteq> y \<tau> \<Longrightarrow>
@@ -3038,102 +3005,65 @@ proof -
   apply(case_tac y'', simp_all)
 
   apply(simp add: Abs_Set_0_inverse)
+ by(blast)
 
-  apply(blast)
- done
+ show ?thesis
+  apply(simp add: StrictRefEq\<^sub>S\<^sub>e\<^sub>t StrongEq_def
+    foundation20[OF x_def, simplified OclValid_def]
+    foundation20[OF y_def, simplified OclValid_def])
+  apply(subgoal_tac "\<lfloor>\<lfloor>x \<tau> = y \<tau>\<rfloor>\<rfloor> = true \<tau> \<or> \<lfloor>\<lfloor>x \<tau> = y \<tau>\<rfloor>\<rfloor> = false \<tau>")
+   prefer 2
+   apply(simp add: false_def true_def)
+  (* *)
+  apply(erule disjE)
+  apply(simp add: true_def)
 
+  apply(subgoal_tac "(\<tau> \<Turnstile> OclForall x (OclIncludes y)) \<and> (\<tau> \<Turnstile> OclForall y (OclIncludes x))")
+  apply(subst cp_OclAnd, simp add: true_def OclValid_def)
+  apply(simp add: OclForall_includes[OF x_def y_def]
+                  OclForall_includes[OF y_def x_def])
+
+  (* *)
+  apply(simp)
+
+  apply(subgoal_tac "OclForall x (OclIncludes y) \<tau> = false \<tau> \<or> OclForall y (OclIncludes x) \<tau> = false \<tau>")
+  apply(subst cp_OclAnd, metis OclAnd_false1 OclAnd_false2 cp_OclAnd)
+  apply(simp only: OclForall_not_includes[OF x_def y_def, simplified OclValid_def]
+                   OclForall_not_includes[OF y_def x_def, simplified OclValid_def],
+        simp add: false_def)
+ by (metis OclValid_def rep_set_inj subset_antisym x_def y_def)
+qed
+
+lemma StrictRefEq\<^sub>S\<^sub>e\<^sub>t_exec[simp,code_unfold] :
+"((x::('\<AA>,'\<alpha>::null)Set) \<doteq> y) =
+  (if \<delta> x then (if \<delta> y
+                then ((x->forAll(z| y->includes(z)) and (y->forAll(z| x->includes(z)))))
+                else if \<upsilon> y
+                      then false (* x'->includes = null *)
+                      else invalid
+                      endif
+                endif)
+         else if \<upsilon> x (* null = ??? *)
+              then if \<upsilon> y then not(\<delta> y) else invalid endif
+              else invalid
+              endif
+         endif)"
+proof -
+ have defined_inject_true : "\<And>\<tau> P. (\<not> (\<tau> \<Turnstile> \<delta> P)) = ((\<delta> P) \<tau> = false \<tau>)"
+ by (metis OCL_core.bot_fun_def OclValid_def defined_def foundation16 null_fun_def)
+
+ have valid_inject_true : "\<And>\<tau> P. (\<not> (\<tau> \<Turnstile> \<upsilon> P)) = ((\<upsilon> P) \<tau> = false \<tau>)"
+ by (metis OCL_core.bot_fun_def OclIf_true' OclIncludes_charn0 OclIncludes_charn0' OclValid_def foundation6 foundation9 valid_def)
  show ?thesis
   apply(rule ext, rename_tac \<tau>)
   (* *)
-  apply(simp add: cp_OclIf[of "\<delta> x"])
-  apply(case_tac "\<not> (\<tau> \<Turnstile> \<upsilon> x)")
-  apply(subgoal_tac "\<not> (\<tau> \<Turnstile> \<delta> x)")
-   prefer 2
-   apply(metis foundation20)
-  apply(simp add: defined_inject_true)
-  apply(simp add: cp_OclIf[symmetric] OclValid_def StrictRefEq\<^sub>S\<^sub>e\<^sub>t)
-
-  apply(simp)
-  (* *)
-  apply(case_tac "\<not> (\<tau> \<Turnstile> \<upsilon> y)")
-  apply(subgoal_tac "\<not> (\<tau> \<Turnstile> \<delta> y)")
-   prefer 2
-   apply(metis foundation20)
-  apply(simp add: defined_inject_true)
-  apply(simp add: cp_OclIf[symmetric] OclValid_def StrictRefEq\<^sub>S\<^sub>e\<^sub>t)
-
-  apply(simp)
-  (* *)
-  apply(simp add: cp_OclIf[of "\<delta> y"])
-  apply(simp add: cp_OclIf[symmetric])
-
-  (* *)
-  apply(simp add: cp_OclIf[of "\<delta> x"])
-  apply(case_tac "\<not> (\<tau> \<Turnstile> \<delta> x)")
-  apply(simp add: defined_inject_true)
-  apply(simp add: cp_OclIf[symmetric])
-  apply(simp add: cp_OclNot[of "\<delta> y"])
-  apply(case_tac "\<not> (\<tau> \<Turnstile> \<delta> y)")
-  apply(simp add: defined_inject_true)
-  apply(simp add: cp_OclNot[symmetric])
-  apply(metis (hide_lams, no_types) OclValid_def StrongEq_sym foundation22 null_fun_def null_simp StrictRefEq\<^sub>S\<^sub>e\<^sub>t_vs_StrongEq true_def)
-  apply(simp add: OclValid_def cp_OclNot[symmetric])
-
-  apply(simp add: null_simp[simplified OclValid_def, of x] StrictRefEq\<^sub>S\<^sub>e\<^sub>t StrongEq_def false_def)
-  apply(simp add: defined_def[of y])
-  apply(metis discr_neq_true_false)
-  (* *)
-  apply(simp)
-  apply(simp add: OclValid_def)
-  apply(simp add: cp_OclIf[of "\<delta> y"])
-  apply(case_tac "\<not> (\<tau> \<Turnstile> \<delta> y)")
-  apply(simp add: defined_inject_true)
-  apply(simp add: cp_OclIf[symmetric])
-
-  apply(drule null_simp[simplified OclValid_def, of y])
-  apply(simp add: OclValid_def)
-  apply(simp add: cp_StrictRefEq\<^sub>S\<^sub>e\<^sub>t[of x])
-  apply(simp add: cp_StrictRefEq\<^sub>S\<^sub>e\<^sub>t[symmetric])
-  apply(simp add: null_simp[simplified OclValid_def, of y] StrictRefEq\<^sub>S\<^sub>e\<^sub>t StrongEq_def false_def)
-  apply(simp add: defined_def[of x])
-  apply (metis discr_neq_true_false)
-
-  (* *)
-  apply(simp add: OclValid_def)
-
-
-  apply(simp add: StrictRefEq\<^sub>S\<^sub>e\<^sub>t StrongEq_def)
-
-  (* ************************* *)
-  apply(subgoal_tac "\<lfloor>\<lfloor>x \<tau> = y \<tau>\<rfloor>\<rfloor> = true \<tau> \<or> \<lfloor>\<lfloor>x \<tau> = y \<tau>\<rfloor>\<rfloor> = false \<tau>")
-   prefer 2
-   apply(case_tac "x \<tau> = y \<tau>")
-   apply(rule disjI1, simp add: true_def)
-   apply(rule disjI2, simp add: false_def)
-  (* *)
-  apply(erule disjE)
-  apply(simp add: strongeq_true)
-
-  apply(subgoal_tac "(\<tau> \<Turnstile> OclForall x (OclIncludes y)) \<and> (\<tau> \<Turnstile> OclForall y (OclIncludes x))")
-  apply(simp add: cp_OclAnd[of "OclForall x (OclIncludes y)"] true_def OclValid_def)
-  apply(simp add: OclValid_def)
-  apply(simp add: OclForall_includes[simplified OclValid_def])
-
-  (* *)
-  apply(simp add: strongeq_false)
-
-  apply(subgoal_tac "OclForall x (OclIncludes y) \<tau> = false \<tau> \<or> OclForall y (OclIncludes x) \<tau> = false \<tau>")
-  apply(simp add: cp_OclAnd[of "OclForall x (OclIncludes y)"] false_def)
-  apply(erule disjE)
-   apply(simp)
-   apply(subst cp_OclAnd[symmetric])
-   apply(simp only: OclAnd_false1[simplified false_def])
-
-   apply(simp)
-   apply(subst cp_OclAnd[symmetric])
-   apply(simp only: OclAnd_false2[simplified false_def])
-  apply(simp add: OclForall_not_includes[simplified OclValid_def] rep_set_inj)
- done
+  apply(simp add: OclIf_def
+                  defined_inject_true[simplified OclValid_def]
+                  valid_inject_true[simplified OclValid_def],
+        subst false_def, subst true_def, simp)
+  apply(subst (1 2) cp_OclNot, simp, simp add: cp_OclNot[symmetric])
+  apply(simp add: StrictRefEq\<^sub>S\<^sub>e\<^sub>t_defined[simplified OclValid_def])
+ by(simp add: StrictRefEq\<^sub>S\<^sub>e\<^sub>t StrongEq_def false_def true_def valid_def defined_def)
 qed
 
 
