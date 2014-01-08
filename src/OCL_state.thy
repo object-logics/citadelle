@@ -64,7 +64,7 @@ subsection{* Recall: The generic structure of States *}
 text{* Recall the foundational concept of an object id (oid),
 which is just some infinite set.*}
 
-text{* 
+text{*
 \begin{isar}[mathescape]
 $\text{\textbf{type-synonym}}$ $\mathit{oid = nat}$
 \end{isar}
@@ -1045,6 +1045,46 @@ theorem framing:
  by blast
  qed qed
  apply_end(simp add: OclSelf_at_post_def OclSelf_at_pre_def OclValid_def StrongEq_def true_def)+
+qed
+
+
+theorem framing':
+      assumes wff : "WFF \<tau>"
+      assumes modifiesclause:"\<tau> \<Turnstile> (X->excluding(x :: ('\<AA>::object,'\<alpha>::object option option)val))->oclIsModifiedOnly()"
+      and oid_is_typerepr : "\<tau> \<Turnstile> X->forAll(a| not (x \<triangleq> a))"
+      and oid_preserve: "\<And>x. oid_of (Hh x) = oid_of x"
+      and xy_together: "\<tau> \<Turnstile> X->forAll(y | ((Hh .allInstances()->includes(x) and (Hh .allInstances()->includes(y))) or
+                             (Hh .allInstances@pre()->includes(x) and (Hh .allInstances@pre()->includes(y)))) )"
+      shows "\<tau> \<Turnstile> (x @pre H  \<triangleq>  (x @post H))"
+proof -
+ have def_X : "\<tau> \<Turnstile> \<delta> X"
+  apply(insert oid_is_typerepr, simp add: OclForall_def OclValid_def split: split_if_asm)
+ by(simp add: bot_option_def true_def)
+ show ?thesis
+ apply(case_tac "\<tau> \<Turnstile> \<delta> x")
+ proof - show "\<tau> \<Turnstile> \<delta> x \<Longrightarrow> ?thesis" proof - assume def_x : "\<tau> \<Turnstile> \<delta> x" show ?thesis proof -
+
+ have change_not : "\<And>a b. (not a \<tau> = b \<tau>) = (a \<tau> = not b \<tau>)"
+ by (metis OclNot_not cp_OclNot)
+
+ have contrapos_not: "\<And>A B. \<tau> \<Turnstile> \<delta> A \<Longrightarrow> (\<tau> \<Turnstile> A \<Longrightarrow> \<tau> \<Turnstile> B) \<Longrightarrow> \<tau> \<Turnstile> not B \<Longrightarrow> \<tau> \<Turnstile> not A"
+  apply(simp add: OclValid_def, subst change_not, subst (asm) change_not)
+  apply(simp add: OclNot_def true_def)
+ by (metis OCL_core.bot_fun_def OclValid_def bool_split defined_def false_def foundation2 invalid_def true_def)
+
+ have val_x: "\<tau> \<Turnstile> \<upsilon> x"
+ by(rule foundation20[OF def_x])
+
+ show ?thesis
+  apply(rule framing[OF modifiesclause])
+  apply(rule OclForall_cong'[OF _ oid_is_typerepr xy_together], rename_tac y)
+  apply(cut_tac Set_inv_lemma'[OF def_X]) prefer 2 apply assumption
+  apply(rule contrapos_not, simp add: StrictRefEq\<^sub>O\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t_def)
+  apply(simp add: OclValid_def, subst cp_defined, simp add: val_x[simplified OclValid_def])
+ by(rule StrictRefEq\<^sub>O\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t_vs_StrongEq''[THEN iffD1, OF wff val_x _ oid_preserve])
+ qed qed
+ apply_end(simp add: OclSelf_at_post_def OclSelf_at_pre_def OclValid_def StrongEq_def true_def)+
+ qed
 qed
 
 
