@@ -814,6 +814,22 @@ where "X->oclIsModifiedOnly() \<equiv> (\<lambda>(\<sigma>,\<sigma>').  let  X' 
                                                then \<lfloor>\<lfloor>\<forall> x \<in> S. (heap \<sigma>) x = (heap \<sigma>') x\<rfloor>\<rfloor>
                                                else invalid (\<sigma>,\<sigma>'))"
 
+subsubsection{* Execution with invalid or null or null element as argument *}
+
+lemma "invalid->oclIsModifiedOnly() = invalid"
+by(simp add: OclIsModifiedOnly_def)
+
+lemma "null->oclIsModifiedOnly() = invalid"
+by(simp add: OclIsModifiedOnly_def)
+
+lemma
+ assumes X_null : "\<tau> \<Turnstile> X->includes(null)"
+ shows "\<tau> \<Turnstile> X->oclIsModifiedOnly() \<triangleq> invalid"
+ apply(insert X_null, simp add : OclIncludes_def OclIsModifiedOnly_def StrongEq_def OclValid_def true_def)
+ apply(case_tac \<tau>, simp)
+ apply(simp split: split_if_asm)
+by(simp add: null_fun_def, blast)
+
 subsubsection{* Context Passing *}
 
 lemma cp_OclIsModifiedOnly : "X->oclIsModifiedOnly() \<tau> = (\<lambda>_. X \<tau>)->oclIsModifiedOnly() \<tau>"
