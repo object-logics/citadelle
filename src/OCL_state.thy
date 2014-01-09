@@ -889,7 +889,7 @@ proof -
  by(fast+)
 
  show ?thesis
-  apply(subst OclForall_rep_set[OF def_X], simp add: OclValid_def)
+  apply(subst OclForall_rep_set_true[OF def_X], simp add: OclValid_def)
   apply(rule iffI, simp add: P_true)
  by (metis P_false P_null_bot bool_split)
 qed

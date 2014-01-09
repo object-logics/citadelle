@@ -2700,7 +2700,12 @@ by(simp add: size_defined[OF X_finite] del: OclSize_including_exec)
 
 subsection{* OclForall *}
 
-lemma OclForall_rep_set:
+lemma OclForall_rep_set_false:
+ assumes "\<tau> \<Turnstile> \<delta> X"
+ shows "(OclForall X P \<tau> = false \<tau>) = (\<exists>x \<in> \<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil>. P (\<lambda>\<tau>. x) \<tau> = false \<tau>)"
+by(insert assms, simp add: OclForall_def OclValid_def false_def true_def bot_fun_def bot_option_def null_fun_def null_option_def)
+
+lemma OclForall_rep_set_true:
  assumes "\<tau> \<Turnstile> \<delta> X"
  shows "(\<tau> \<Turnstile> OclForall X P) = (\<forall>x \<in> \<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil>. \<tau> \<Turnstile> P (\<lambda>\<tau>. x))"
 proof -
@@ -2733,7 +2738,7 @@ lemma OclForall_includes :
  assumes x_def : "\<tau> \<Turnstile> \<delta> x"
      and y_def : "\<tau> \<Turnstile> \<delta> y"
    shows "(\<tau> \<Turnstile> OclForall x (OclIncludes y)) = (\<lceil>\<lceil>Rep_Set_0 (x \<tau>)\<rceil>\<rceil> \<subseteq> \<lceil>\<lceil>Rep_Set_0 (y \<tau>)\<rceil>\<rceil>)"
- apply(simp add: OclForall_rep_set[OF x_def], simp add: OclIncludes_def OclValid_def y_def[simplified OclValid_def])
+ apply(simp add: OclForall_rep_set_true[OF x_def], simp add: OclIncludes_def OclValid_def y_def[simplified OclValid_def])
  apply(insert Set_inv_lemma[OF x_def], simp add: valid_def false_def true_def bot_fun_def)
 by(rule iffI, simp add: subsetI, simp add: subsetD)
 
@@ -2741,39 +2746,9 @@ lemma OclForall_not_includes :
  assumes x_def : "\<tau> \<Turnstile> \<delta> x"
      and y_def : "\<tau> \<Turnstile> \<delta> y"
    shows "(OclForall x (OclIncludes y) \<tau> = false \<tau>) = (\<not> \<lceil>\<lceil>Rep_Set_0 (x \<tau>)\<rceil>\<rceil> \<subseteq> \<lceil>\<lceil>Rep_Set_0 (y \<tau>)\<rceil>\<rceil>)"
-proof -
- have discr_eq_false_true : "\<And>\<tau>. (false \<tau> = true \<tau>) = False" by (metis OclValid_def foundation2)
- have discr_eq_null_true : "\<And>\<tau>. (null \<tau> = true \<tau>) = False" by (metis OclValid_def foundation4)
- have discr_eq_null_false : "\<And>\<tau>. (null \<tau> = false \<tau>) = False" by (metis defined4 foundation1 foundation16 null_fun_def)
- have discr_neq_false_true : "\<And>\<tau>. (false \<tau> \<noteq> true \<tau>) = True" by (metis discr_eq_false_true)
- have discr_neq_true_false : "\<And>\<tau>. (true \<tau> \<noteq> false \<tau>) = True" by (metis discr_eq_false_true)
- have discr_eq_bot1_true : "\<And>\<tau>. (\<bottom> \<tau> = true \<tau>) = False" by (metis defined3 defined_def discr_eq_false_true)
- have discr_eq_bot2_true : "\<And>\<tau>. (\<bottom> = true \<tau>) = False" by (metis bot_fun_def discr_eq_bot1_true)
- have discr_eq_bot1_false : "\<And>\<tau>. (\<bottom> \<tau> = false \<tau>) = False" by (metis OCL_core.bot_fun_def defined4 foundation1 foundation16)
- have discr_eq_bot2_false : "\<And>\<tau>. (\<bottom> = false \<tau>) = False" by (metis foundation1 foundation18' valid4)
- show ?thesis
-  apply(subgoal_tac "\<not> (OclForall x (OclIncludes y) \<tau> = false \<tau>) = (\<not> (\<not> \<lceil>\<lceil>Rep_Set_0 (x \<tau>)\<rceil>\<rceil> \<subseteq> \<lceil>\<lceil>Rep_Set_0 (y \<tau>)\<rceil>\<rceil>))", simp,
-        subst OclForall_includes[symmetric], simp add: x_def, simp add: y_def,
-        subst OclValid_def)
-  apply(simp add: OclForall_def
-                  discr_neq_false_true
-                  discr_neq_true_false
-                  discr_eq_bot1_false
-                  discr_eq_bot2_false
-                  discr_eq_bot1_true
-                  discr_eq_bot2_true
-                  discr_eq_null_false
-                  discr_eq_null_true,
-        simp add: x_def[simplified OclValid_def])
-  apply(subgoal_tac "(\<forall>x\<in>\<lceil>\<lceil>Rep_Set_0 (x \<tau>)\<rceil>\<rceil>. ((y->includes((\<lambda>_. x))) \<tau> = true \<tau> \<or> (y->includes((\<lambda>_. x))) \<tau> = false \<tau>))")
-  apply(metis bot_fun_def discr_eq_bot2_true discr_eq_null_true null_fun_def)
-  apply(rule ballI, rename_tac e)
-  apply(simp add: OclIncludes_def, rule conjI)
-  apply (metis (full_types) false_def true_def)
-
-  apply(simp add: y_def[simplified OclValid_def], rule impI)
- by(drule contrapos_nn[OF _ Set_inv_lemma'[OF x_def], simplified OclValid_def], blast +)
-qed
+ apply(simp add: OclForall_rep_set_false[OF x_def], simp add: OclIncludes_def OclValid_def y_def[simplified OclValid_def])
+ apply(insert Set_inv_lemma[OF x_def], simp add: valid_def false_def true_def bot_fun_def)
+by(rule iffI, metis set_rev_mp, metis subsetI)
 
 lemma OclForall_iterate:
  assumes S_finite: "finite \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>"
@@ -2845,7 +2820,7 @@ proof -
  by(insert P, simp add: OclForall_def OclValid_def bot_option_def true_def split: split_if_asm)
  show ?thesis
   apply(insert P)
-  apply(subst (asm) OclForall_rep_set[OF def_X], subst OclForall_rep_set[OF def_X])
+  apply(subst (asm) OclForall_rep_set_true[OF def_X], subst OclForall_rep_set_true[OF def_X])
  by (simp add: assms)
 qed
 
@@ -2859,7 +2834,7 @@ proof -
  by(insert P, simp add: OclForall_def OclValid_def bot_option_def true_def split: split_if_asm)
  show ?thesis
   apply(insert P Q)
-  apply(subst (asm) (1 2) OclForall_rep_set[OF def_X], subst OclForall_rep_set[OF def_X])
+  apply(subst (asm) (1 2) OclForall_rep_set_true[OF def_X], subst OclForall_rep_set_true[OF def_X])
  by (simp add: assms)
 qed
 
