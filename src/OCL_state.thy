@@ -261,6 +261,11 @@ lemma OclAllInstances_generic_defined: "\<tau> \<Turnstile> \<delta> (OclAllInst
  apply(simp add: bot_option_def null_option_def)+
 done
 
+lemma OclAllInstances_generic_init_empty:
+ assumes [simp]: "\<And>x. pre_post (x, x) = x"
+ shows "\<tau>\<^sub>0 \<Turnstile> OclAllInstances_generic pre_post H \<triangleq> Set{}"
+by(simp add: StrongEq_def OclAllInstances_generic_def OclValid_def \<tau>\<^sub>0_def mtSet_def)
+
 lemma represented_generic_objects_nonnull:
 assumes A: "\<tau> \<Turnstile> ((OclAllInstances_generic pre_post (H::('\<AA>::object \<rightharpoonup> '\<alpha>))) ->includes(x))"
 shows      "\<tau> \<Turnstile> not(x \<triangleq> null)"
@@ -534,7 +539,8 @@ unfolding OclAllInstances_at_post_def
 by(rule OclAllInstances_generic_defined)
 
 lemma "\<tau>\<^sub>0 \<Turnstile> H .allInstances() \<triangleq> Set{}"
-by(simp add: StrongEq_def OclAllInstances_at_post_def OclValid_def \<tau>\<^sub>0_def mtSet_def)
+unfolding OclAllInstances_at_post_def
+by(rule OclAllInstances_generic_init_empty, simp)
 
 
 lemma represented_at_post_objects_nonnull:
@@ -638,7 +644,8 @@ lemma OclAllInstances_at_pre_defined: "\<tau> \<Turnstile> \<delta> (H .allInsta
 by(rule OclAllInstances_generic_defined)
 
 lemma "\<tau>\<^sub>0 \<Turnstile> H .allInstances@pre() \<triangleq> Set{}"
-by(simp add: StrongEq_def OclAllInstances_at_pre_def OclValid_def \<tau>\<^sub>0_def mtSet_def)
+unfolding OclAllInstances_at_pre_def
+by(rule OclAllInstances_generic_init_empty, simp)
 
 
 lemma represented_at_pre_objects_nonnull:
