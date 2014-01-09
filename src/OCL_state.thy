@@ -752,7 +752,7 @@ proof -
     simp add: comp_def image_def, fastforce)+
 qed
 
-subsection{* OclIsNew *}
+subsection{* OclIsNew, OclIsDeleted, OclIsMaintained, OclIsAbsent *}
 
 definition OclIsNew:: "('\<AA>, '\<alpha>::{null,object})val \<Rightarrow> ('\<AA>)Boolean"   ("(_).oclIsNew'(')")
 where "X .oclIsNew() \<equiv> (\<lambda>\<tau> . if (\<delta> X) \<tau> = true \<tau>
@@ -795,6 +795,7 @@ by(simp add: OclIsDeleted_def OclIsNew_def OclIsMaintained_def OclIsAbsent_def
                 OclNot_def OclValid_def true_def, blast)
 
 subsection{* OclIsModifiedOnly *}
+subsubsection{* Definition *}
 
 text{* The following predicate---which is not part of the OCL
 standard---provides a simple, but powerful means to describe framing
@@ -813,8 +814,12 @@ where "X->oclIsModifiedOnly() \<equiv> (\<lambda>(\<sigma>,\<sigma>').  let  X' 
                                                then \<lfloor>\<lfloor>\<forall> x \<in> S. (heap \<sigma>) x = (heap \<sigma>') x\<rfloor>\<rfloor>
                                                else invalid (\<sigma>,\<sigma>'))"
 
+subsubsection{* Context Passing *}
+
 lemma cp_OclIsModifiedOnly : "X->oclIsModifiedOnly() \<tau> = (\<lambda>_. X \<tau>)->oclIsModifiedOnly() \<tau>"
 by(simp only: OclIsModifiedOnly_def, case_tac \<tau>, simp only:, subst cp_defined, simp)
+
+subsection{* OclSelf *}
 
 definition [simp]: "OclSelf x H fst_snd = (\<lambda>\<tau> . if (\<delta> x) \<tau> = true \<tau>
                         then if oid_of (x \<tau>) \<in> dom(heap(fst \<tau>)) \<and> oid_of (x \<tau>) \<in> dom(heap (snd \<tau>))
@@ -831,6 +836,8 @@ definition OclSelf_at_post :: "('\<AA>::object,'\<alpha>::{null,object})val \<Ri
                       ('\<AA> \<Rightarrow> '\<alpha>) \<Rightarrow>
                       ('\<AA>::object,'\<alpha>::{null,object})val" ("(_)@post(_)")
 where "x @post H = OclSelf x H snd"
+
+subsection{* Framing Theorem *}
 
 lemma all_oid_diff:
  assumes def_x : "\<tau> \<Turnstile> \<delta> x"
@@ -982,6 +989,7 @@ proof -
  qed
 qed
 
+subsection{* Miscellaneous *}
 
 lemma pre_post_new: "\<tau> \<Turnstile> (x .oclIsNew()) \<Longrightarrow> \<not> (\<tau> \<Turnstile> \<upsilon>(x @pre H1)) \<and> \<not> (\<tau> \<Turnstile> \<upsilon>(x @post H2))"
 by(simp add: OclIsNew_def OclSelf_at_pre_def OclSelf_at_post_def
