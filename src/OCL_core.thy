@@ -590,19 +590,21 @@ text{* Thus, the weak equality is \emph{not} reflexive. *}
 
 lemma null_non_false [simp,code_unfold]:"(null \<doteq> false) = false"
  apply(rule ext, simp add: StrictRefEq\<^sub>B\<^sub>o\<^sub>o\<^sub>l\<^sub>e\<^sub>a\<^sub>n StrongEq_def false_def)
-by (metis OCL_core.drop.simps bot_option_def cp_valid false_def is_none_code(2) is_none_def null_fun_def null_option_def valid4)
+by (metis OCL_core.drop.simps cp_valid false_def is_none_code(2) is_none_def valid4
+          bot_option_def null_fun_def null_option_def)
 
 lemma null_non_true [simp,code_unfold]:"(null \<doteq> true) = false"
  apply(rule ext, simp add: StrictRefEq\<^sub>B\<^sub>o\<^sub>o\<^sub>l\<^sub>e\<^sub>a\<^sub>n StrongEq_def false_def)
-by (metis OCL_core.drop.simps bot_option_def null_fun_def null_option_def option.distinct(1) true_def)
+by(simp add: true_def bot_option_def null_fun_def null_option_def)
 
 lemma false_non_null [simp,code_unfold]:"(false \<doteq> null) = false"
  apply(rule ext, simp add: StrictRefEq\<^sub>B\<^sub>o\<^sub>o\<^sub>l\<^sub>e\<^sub>a\<^sub>n StrongEq_def false_def)
-by (metis OCL_core.drop.simps bot_option_def cp_valid false_def is_none_code(2) is_none_def null_fun_def null_option_def valid4)
+by (metis OCL_core.drop.simps cp_valid false_def is_none_code(2) is_none_def valid4
+          bot_option_def null_fun_def null_option_def )
 
 lemma true_non_null [simp,code_unfold]:"(true \<doteq> null) = false"
  apply(rule ext, simp add: StrictRefEq\<^sub>B\<^sub>o\<^sub>o\<^sub>l\<^sub>e\<^sub>a\<^sub>n StrongEq_def false_def)
-by (metis OCL_core.drop.simps bot_option_def null_fun_def null_option_def option.distinct(1) true_def)
+by(simp add: true_def bot_option_def null_fun_def null_option_def)
 
 subsection{* Fundamental Predicates on Strong Equality *}
 
@@ -896,27 +898,30 @@ done
 
 
 lemma OclOr1[simp]: "(invalid or true) = true"
-  by(rule ext,simp add: OclOr_def OclNot_def OclAnd_def null_def invalid_def true_def false_def bot_option_def)
+by(rule ext, simp add: OclOr_def OclNot_def OclAnd_def null_def invalid_def true_def false_def
+                       bot_option_def)
 lemma OclOr2[simp]: "(invalid or false) = invalid"
-  by(rule ext,simp add: OclOr_def OclNot_def OclAnd_def null_def invalid_def true_def false_def bot_option_def)
+by(rule ext, simp add: OclOr_def OclNot_def OclAnd_def null_def invalid_def true_def false_def
+                       bot_option_def)
 lemma OclOr3[simp]: "(invalid or null) = invalid"
-  by(rule ext,simp add: OclOr_def OclNot_def OclAnd_def null_def invalid_def true_def false_def bot_option_def
-                        null_fun_def null_option_def)
+by(rule ext, simp add: OclOr_def OclNot_def OclAnd_def null_def invalid_def true_def false_def
+                       bot_option_def null_fun_def null_option_def)
 lemma OclOr4[simp]: "(invalid or invalid) = invalid"
-  by(rule ext,simp add: OclOr_def OclNot_def OclAnd_def null_def invalid_def true_def false_def bot_option_def)
+by(rule ext, simp add: OclOr_def OclNot_def OclAnd_def null_def invalid_def true_def false_def
+                       bot_option_def)
 
 lemma OclOr5[simp]: "(null or true) = true"
-  by(rule ext,simp add: OclOr_def OclNot_def OclAnd_def null_def invalid_def true_def false_def bot_option_def
-                        null_fun_def null_option_def)
+by(rule ext, simp add: OclOr_def OclNot_def OclAnd_def null_def invalid_def true_def false_def
+                       bot_option_def null_fun_def null_option_def)
 lemma OclOr6[simp]: "(null or false) = null"
-  by(rule ext,simp add: OclOr_def OclNot_def OclAnd_def null_def invalid_def true_def false_def bot_option_def
-                        null_fun_def null_option_def)
+by(rule ext, simp add: OclOr_def OclNot_def OclAnd_def null_def invalid_def true_def false_def
+                       bot_option_def null_fun_def null_option_def)
 lemma OclOr7[simp]: "(null or null) = null"
-  by(rule ext,simp add: OclOr_def OclNot_def OclAnd_def null_def invalid_def true_def false_def bot_option_def
-                        null_fun_def null_option_def)
+by(rule ext, simp add: OclOr_def OclNot_def OclAnd_def null_def invalid_def true_def false_def
+                       bot_option_def null_fun_def null_option_def)
 lemma OclOr8[simp]: "(null or invalid) = invalid"
-  by(rule ext,simp add: OclOr_def OclNot_def OclAnd_def null_def invalid_def true_def false_def bot_option_def
-                        null_fun_def null_option_def)
+by(rule ext, simp add: OclOr_def OclNot_def OclAnd_def null_def invalid_def true_def false_def 
+                       bot_option_def null_fun_def null_option_def)
 
 lemma OclOr_idem[simp]: "(X or X) = X"
   by(simp add: OclOr_def)
@@ -1113,9 +1118,9 @@ by(auto simp: OclNot_def  OclValid_def invalid_def false_def true_def null_def S
         split:bool.split_asm bool.split option.split)
 
 lemma foundation15:"(\<tau> \<Turnstile> A \<triangleq> invalid) = (\<tau> \<Turnstile> not(\<upsilon> A))"
-by(auto simp: OclNot_def  OclValid_def valid_def invalid_def false_def true_def null_def
-                 StrongEq_def bot_option_def null_fun_def null_option_def bot_option_def bot_fun_def
-         split:bool.split_asm bool.split option.split)
+by(auto simp: OclNot_def OclValid_def valid_def invalid_def false_def true_def null_def
+              StrongEq_def bot_option_def null_fun_def null_option_def bot_option_def bot_fun_def
+        split:bool.split_asm bool.split option.split)
 
 
 (* ... and the usual rules on strictness, definedness propoagation, and cp ... *)
