@@ -366,11 +366,11 @@ proof -
         subst insert_diff, drule sym, simp)
   apply(subgoal_tac "ran (\<sigma>'(oid \<mapsto> Object)) = insert Object (ran \<sigma>')", simp)
   apply(case_tac "\<not> (\<exists>x. \<sigma>' oid = Some x)")
-  apply(rule ran_map_upd, simp)
+   apply(rule ran_map_upd, simp)
   apply(simp, erule exE, frule assms, simp)
   apply(subgoal_tac "Object \<in> ran \<sigma>'") prefer 2
-  apply(rule ranI, simp)
-  by(subst insert_absorb, simp, metis fun_upd_apply)
+   apply(rule ranI, simp)
+ by(subst insert_absorb, simp, metis fun_upd_apply)
 qed
 
 
@@ -414,10 +414,10 @@ proof -
   apply(simp add: OclIncluding_def OclAllInstances_generic_defined[simplified OclValid_def] OclAllInstances_generic_def)
   apply(subgoal_tac "ran (\<sigma>'(oid \<mapsto> Object)) = insert Object (ran \<sigma>')", simp add: assms)
   apply(case_tac "\<not> (\<exists>x. \<sigma>' oid = Some x)")
-  apply(rule ran_map_upd, simp)
+   apply(rule ran_map_upd, simp)
   apply(simp, erule exE, frule assms, simp)
   apply(subgoal_tac "Object \<in> ran \<sigma>'") prefer 2
-  apply(rule ranI, simp)
+   apply(rule ranI, simp)
   apply(subst insert_absorb, simp)
  by (metis fun_upd_apply)
 qed
@@ -866,14 +866,14 @@ proof -
  have P_null_bot: "\<And>b. b = null \<or> b = \<bottom> \<Longrightarrow> 
                         \<not> (\<exists>x\<in>\<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil>. P (\<lambda>(_:: 'a state \<times> 'a state). x) \<tau> = b \<tau>)"
   apply(erule disjE)
-  apply(simp, rule ballI,
-        simp add: P_def StrictRefEq\<^sub>O\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t_def, rename_tac x',
-        subst cp_OclNot, simp,
-        subgoal_tac "x \<tau> \<noteq> null \<and> x' \<noteq> null", simp,
-        simp add: OclNot_def null_fun_def null_option_def bot_option_def bot_fun_def invalid_def,
-        ( metis def_X' def_x foundation17
-        | (metis OCL_core.bot_fun_def OclValid_def Set_inv_lemma def_X def_x defined_def valid_def,
-           metis def_X' def_x foundation17)))+
+   apply(simp, rule ballI,
+         simp add: P_def StrictRefEq\<^sub>O\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t_def, rename_tac x',
+         subst cp_OclNot, simp,
+         subgoal_tac "x \<tau> \<noteq> null \<and> x' \<noteq> null", simp,
+         simp add: OclNot_def null_fun_def null_option_def bot_option_def bot_fun_def invalid_def,
+         ( metis def_X' def_x foundation17
+         | (metis OCL_core.bot_fun_def OclValid_def Set_inv_lemma def_X def_x defined_def valid_def,
+            metis def_X' def_x foundation17)))+
  done
 
  have not_inj : "\<And>x y. ((not x) \<tau> = (not y) \<tau>) = (x \<tau> = y \<tau>)"
@@ -884,19 +884,19 @@ proof -
   apply(simp add: P_def)
   apply(simp only: OclNot3[symmetric], simp only: not_inj)
   apply(simp add: StrictRefEq\<^sub>O\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t_def split: split_if_asm)
-  apply(subgoal_tac "x \<tau> \<noteq> null \<and> x' \<noteq> null", simp)
-  apply (metis (mono_tags) OCL_core.drop.simps def_x foundation17 true_def)
+    apply(subgoal_tac "x \<tau> \<noteq> null \<and> x' \<noteq> null", simp)
+    apply (metis (mono_tags) OCL_core.drop.simps def_x foundation17 true_def)
  by(simp add: invalid_def bot_option_def true_def)+
 
  have P_true : "\<forall>x\<in>\<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil>. P (\<lambda>_. x) \<tau> = true \<tau> \<Longrightarrow> oid_of (x \<tau>) \<notin> oid_of ` \<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil>"
   apply(subgoal_tac "\<forall>x'\<in>\<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil>. oid_of x' \<noteq> oid_of (x \<tau>)")
-  apply (metis imageE)
+   apply (metis imageE)
   apply(rule ballI, drule_tac x = "x'" in ballE) prefer 3 apply assumption
-  apply(simp add: P_def)
-  apply(simp only: OclNot4[symmetric], simp only: not_inj)
-  apply(simp add: StrictRefEq\<^sub>O\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t_def false_def split: split_if_asm)
-  apply(subgoal_tac "x \<tau> \<noteq> null \<and> x' \<noteq> null", simp)
-  apply (metis def_X' def_x foundation17)
+   apply(simp add: P_def)
+   apply(simp only: OclNot4[symmetric], simp only: not_inj)
+   apply(simp add: StrictRefEq\<^sub>O\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t_def false_def split: split_if_asm)
+    apply(subgoal_tac "x \<tau> \<noteq> null \<and> x' \<noteq> null", simp)
+    apply (metis def_X' def_x foundation17)
  by(simp add: invalid_def bot_option_def false_def)+
 
  have bool_split : "\<forall>x\<in>\<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil>. P (\<lambda>_. x) \<tau> \<noteq> null \<tau> \<Longrightarrow>
@@ -905,10 +905,10 @@ proof -
                     \<forall>x\<in>\<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil>. P (\<lambda>_. x) \<tau> = true \<tau>"
   apply(rule ballI)
   apply(drule_tac x = x in ballE) prefer 3 apply assumption
-  apply(drule_tac x = x in ballE) prefer 3 apply assumption
-  apply(drule_tac x = x in ballE) prefer 3 apply assumption
-  apply (metis (full_types) OCL_core.bot_fun_def OclNot4 OclValid_def foundation16 foundation18'
-                            foundation9 not_inj null_fun_def)
+   apply(drule_tac x = x in ballE) prefer 3 apply assumption
+    apply(drule_tac x = x in ballE) prefer 3 apply assumption
+     apply (metis (full_types) OCL_core.bot_fun_def OclNot4 OclValid_def foundation16 foundation18'
+                               foundation9 not_inj null_fun_def)
  by(fast+)
 
  show ?thesis
@@ -931,15 +931,15 @@ theorem framing:
  have def_X' : "\<And>x. x \<in> \<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil> \<Longrightarrow> x \<noteq> null"
   apply(insert modifiesclause, simp add: OclIsModifiedOnly_def OclValid_def split: split_if_asm)
   apply(case_tac \<tau>, simp split: split_if_asm)
-  apply(simp add: OclExcluding_def split: split_if_asm)
-  apply(subst (asm) (2) Abs_Set_0_inverse)
-  apply(simp, (rule disjI2)+)
-  apply (metis (hide_lams, mono_tags) Diff_iff Set_inv_lemma def_X)
-  apply(simp)
-  apply(erule ballE[where P = "\<lambda>x. x \<noteq> null"]) apply(assumption)
-  apply(simp)
-  apply (metis (hide_lams, no_types) def_x foundation17)
-  apply (metis (hide_lams, no_types) OclValid_def def_X def_x OclExcluding_valid_args_valid OclExcluding_valid_args_valid'' foundation20)
+   apply(simp add: OclExcluding_def split: split_if_asm)
+    apply(subst (asm) (2) Abs_Set_0_inverse)
+     apply(simp, (rule disjI2)+)
+     apply (metis (hide_lams, mono_tags) Diff_iff Set_inv_lemma def_X)
+    apply(simp)
+    apply(erule ballE[where P = "\<lambda>x. x \<noteq> null"]) apply(assumption)
+    apply(simp)
+    apply (metis (hide_lams, no_types) def_x foundation17)
+   apply (metis (hide_lams, no_types) OclValid_def def_X def_x OclExcluding_valid_args_valid OclExcluding_valid_args_valid'' foundation20)
  by(simp add: invalid_def bot_option_def)
 
  have oid_is_typerepr : "oid_of (x \<tau>) \<notin> oid_of ` \<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil>"
@@ -948,18 +948,18 @@ theorem framing:
  show ?thesis
   apply(simp add:StrongEq_def OclValid_def true_def OclSelf_at_pre_def OclSelf_at_post_def def_x[simplified OclValid_def])
   apply(rule conjI, rule impI)
-  apply(rule_tac f = "\<lambda>x. H \<lceil>x\<rceil>" in arg_cong)
-  apply(insert modifiesclause[simplified OclIsModifiedOnly_def OclValid_def])
-  apply(case_tac \<tau>, rename_tac \<sigma> \<sigma>', simp split: split_if_asm)
-  apply(subst (asm) (2) OclExcluding_def)
-  apply(drule foundation5[simplified OclValid_def true_def], simp)
-  apply(subst (asm) Abs_Set_0_inverse, simp)
-  apply(rule disjI2)+
-  apply (metis (hide_lams, no_types) DiffD1 OclValid_def Set_inv_lemma def_x foundation16 foundation18')
-  apply(simp)
-  apply(erule_tac x = "oid_of (x (\<sigma>, \<sigma>'))" in ballE) apply simp+
-  apply (metis (hide_lams, no_types) DiffD1 image_iff image_insert insert_Diff_single insert_absorb oid_is_typerepr)
-  apply(simp add: invalid_def bot_option_def)+
+   apply(rule_tac f = "\<lambda>x. H \<lceil>x\<rceil>" in arg_cong)
+   apply(insert modifiesclause[simplified OclIsModifiedOnly_def OclValid_def])
+   apply(case_tac \<tau>, rename_tac \<sigma> \<sigma>', simp split: split_if_asm)
+    apply(subst (asm) (2) OclExcluding_def)
+    apply(drule foundation5[simplified OclValid_def true_def], simp)
+    apply(subst (asm) Abs_Set_0_inverse, simp)
+     apply(rule disjI2)+
+     apply (metis (hide_lams, no_types) DiffD1 OclValid_def Set_inv_lemma def_x foundation16 foundation18')
+    apply(simp)
+    apply(erule_tac x = "oid_of (x (\<sigma>, \<sigma>'))" in ballE) apply simp+
+    apply (metis (hide_lams, no_types) DiffD1 image_iff image_insert insert_Diff_single insert_absorb oid_is_typerepr)
+   apply(simp add: invalid_def bot_option_def)+
  by blast
  qed qed
  apply_end(simp add: OclSelf_at_post_def OclSelf_at_pre_def OclValid_def StrongEq_def true_def)+
@@ -998,7 +998,7 @@ proof -
   apply(rule OclForall_cong'[OF _ oid_is_typerepr xy_together], rename_tac y)
   apply(cut_tac Set_inv_lemma'[OF def_X]) prefer 2 apply assumption
   apply(rule contrapos_not, simp add: StrictRefEq\<^sub>O\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t_def)
-  apply(simp add: OclValid_def, subst cp_defined, simp add: val_x[simplified OclValid_def])
+    apply(simp add: OclValid_def, subst cp_defined, simp add: val_x[simplified OclValid_def])
  by(rule StrictRefEq\<^sub>O\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t_vs_StrongEq''[THEN iffD1, OF wff val_x _ oid_preserve])
  qed qed
  apply_end(simp add: OclSelf_at_post_def OclSelf_at_pre_def OclValid_def StrongEq_def true_def)+
@@ -1275,7 +1275,7 @@ subsection{* *}
 lemma StrictRefEq\<^sub>S\<^sub>e\<^sub>t_L_subst1 : "cp P \<Longrightarrow> \<tau> \<Turnstile> \<upsilon> x \<Longrightarrow> \<tau> \<Turnstile> \<upsilon> y \<Longrightarrow> \<tau> \<Turnstile> \<upsilon> P x \<Longrightarrow> \<tau> \<Turnstile> \<upsilon> P y \<Longrightarrow> \<tau> \<Turnstile> (x::('\<AA>,'\<alpha>::null)Set) \<doteq> y \<Longrightarrow> \<tau> \<Turnstile> (P x ::('\<AA>,'\<alpha>::null)Set) \<doteq> P y"
  apply(simp only: StrictRefEq\<^sub>S\<^sub>e\<^sub>t OclValid_def)
  apply(split split_if_asm)
- apply(simp add: StrongEq_L_subst1[simplified OclValid_def])
+  apply(simp add: StrongEq_L_subst1[simplified OclValid_def])
 by (simp add: invalid_def bot_option_def true_def)
 
 lemma including_subst_set' :
@@ -1287,9 +1287,9 @@ proof -
 
  show "\<tau> \<Turnstile> \<delta> s \<Longrightarrow> \<tau> \<Turnstile> \<delta> t \<Longrightarrow> \<tau> \<Turnstile> \<upsilon> x \<Longrightarrow> \<tau> \<Turnstile> (s \<doteq> t) \<Longrightarrow> ?thesis"
   apply(rule_tac P = "\<lambda>s. (s->including(x))" in StrictRefEq\<^sub>S\<^sub>e\<^sub>t_L_subst1)
-  apply(rule cp)
-  apply(simp add: foundation20) apply(simp add: foundation20)
-  apply (simp add: foundation10 foundation6)+
+       apply(rule cp)
+      apply(simp add: foundation20) apply(simp add: foundation20)
+    apply (simp add: foundation10 foundation6)+
  done
 qed
 
