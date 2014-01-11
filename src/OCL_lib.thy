@@ -180,24 +180,28 @@ lemma [simp,code_unfold] : "(null `+ x) = invalid"
 by(rule ext, simp add: OclAdd\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r_def true_def false_def)
 
 lemma OclAdd\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r_zero1[simp,code_unfold] : "(x `+ \<zero>) = (if \<upsilon> x and not (\<delta> x) then invalid else x endif)"
- apply(rule ext, rename_tac \<tau>)
- proof - fix \<tau> show "(x `+ \<zero>) \<tau> = (if \<upsilon> x and not (\<delta> x) then invalid else x endif) \<tau>"
-  apply(case_tac "(\<upsilon> x and not (\<delta> x)) \<tau> = true \<tau>")
-  apply(subst OclIf_true', simp add: OclValid_def)
-  apply (metis OclAdd\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r_def OclNot_defargs OclValid_def foundation5 foundation9)
-  apply(subst OclIf_false')
-  apply (metis OclValid_def defined5 defined6 defined_and_I defined_not_I foundation9)
-  (* *)
-  apply(simp add: OclAdd\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r_def OclInt0_def)
-  apply(rule conjI)
-  apply(case_tac "x \<tau>")
-  apply (metis OCL_core.bot_fun_def OCL_core.drop.simps bot_option_def defined_def false_def true_def)
-  apply(simp)
-  apply(rename_tac x', case_tac x')
-  apply(simp)
-  apply (metis OclValid_def bot_option_def foundation17 null_option_def)
-  apply(simp)
- by (metis OclValid_def foundation10 foundation18' foundation6 foundation7 invalid_def)
+ proof (rule ext, rename_tac \<tau>, case_tac "(\<upsilon> x and not (\<delta> x)) \<tau> = true \<tau>")
+  fix \<tau> show "(\<upsilon> x and not (\<delta> x)) \<tau> = true \<tau> \<Longrightarrow> 
+              (x `+ \<zero>) \<tau> = (if \<upsilon> x and not (\<delta> x) then invalid else x endif) \<tau>"
+   apply(subst OclIf_true', simp add: OclValid_def)
+  by (metis OclAdd\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r_def OclNot_defargs OclValid_def foundation5 foundation9)
+  apply_end assumption
+ next fix \<tau>
+  have A: "\<And>\<tau>. (\<tau> \<Turnstile> not (\<upsilon> x and not (\<delta> x))) = (x \<tau> = invalid \<tau> \<or> \<tau> \<Turnstile> \<delta> x)"
+  by (metis OclNot_not OclOr_def defined5 defined6 defined_not_I foundation11 foundation18'
+            foundation6 foundation7 foundation9 invalid_def)
+  have B: "\<tau> \<Turnstile> \<delta> x \<Longrightarrow> \<lfloor>\<lfloor>\<lceil>\<lceil>x \<tau>\<rceil>\<rceil>\<rfloor>\<rfloor> = x \<tau>"
+   apply(cases "x \<tau>", metis bot_option_def foundation17)
+   apply(rename_tac x', case_tac x', metis bot_option_def foundation16 null_option_def)
+  by(simp)
+  show "\<tau> \<Turnstile> not (\<upsilon> x and not (\<delta> x)) \<Longrightarrow> 
+              (x `+ \<zero>) \<tau> = (if \<upsilon> x and not (\<delta> x) then invalid else x endif) \<tau>"
+   apply(subst OclIf_false', simp, simp add: A, auto simp: OclAdd\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r_def OclInt0_def)
+   (* *)
+   apply (metis OclValid_def foundation19 foundation20)
+   apply(simp add: B)
+  by(simp add: OclValid_def)
+  apply_end(metis OclValid_def defined5 defined6 defined_and_I defined_not_I foundation9)
 qed
 
 lemma OclAdd\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r_zero2[simp,code_unfold] : "(\<zero> `+ x) = (if \<upsilon> x and not (\<delta> x) then invalid else x endif)"
@@ -572,14 +576,12 @@ where "Set{} \<equiv> (\<lambda> \<tau>.  Abs_Set_0 \<lfloor>\<lfloor>{}::'\<alp
 lemma mtSet_defined[simp,code_unfold]:"\<delta>(Set{}) = true"
 apply(rule ext, auto simp: mtSet_def defined_def null_Set_0_def
                            bot_Set_0_def bot_fun_def null_fun_def)
-apply(simp_all add: Abs_Set_0_inject bot_option_def null_Set_0_def null_option_def)
-done
+by(simp_all add: Abs_Set_0_inject bot_option_def null_Set_0_def null_option_def)
 
 lemma mtSet_valid[simp,code_unfold]:"\<upsilon>(Set{}) = true"
 apply(rule ext,auto simp: mtSet_def valid_def null_Set_0_def
                           bot_Set_0_def bot_fun_def null_fun_def)
-apply(simp_all add: Abs_Set_0_inject bot_option_def null_Set_0_def null_option_def)
-done
+by(simp_all add: Abs_Set_0_inject bot_option_def null_Set_0_def null_option_def)
 
 lemma mtSet_rep_set: "\<lceil>\<lceil>Rep_Set_0 (Set{} \<tau>)\<rceil>\<rceil> = {}"
  apply(simp add: mtSet_def, subst Abs_Set_0_inverse)
@@ -754,9 +756,7 @@ proof -
  have A : "\<bottom> \<in> {X. X = bot \<or> X = null \<or> (\<forall>x\<in>\<lceil>\<lceil>X\<rceil>\<rceil>. x \<noteq> bot)}" by(simp add: bot_option_def)
  have B : "\<lfloor>\<bottom>\<rfloor> \<in> {X. X = bot \<or> X = null \<or> (\<forall>x\<in>\<lceil>\<lceil>X\<rceil>\<rceil>. x \<noteq> bot)}" by(simp add: null_option_def bot_option_def)
  have C : "(\<tau> \<Turnstile>(\<delta> X)) \<Longrightarrow> (\<tau> \<Turnstile>(\<upsilon> x)) \<Longrightarrow> \<lfloor>\<lfloor>insert (x \<tau>) \<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil>\<rfloor>\<rfloor> \<in> {X. X = bot \<or> X = null \<or> (\<forall>x\<in>\<lceil>\<lceil>X\<rceil>\<rceil>. x \<noteq> bot)}"
-          apply(frule Set_inv_lemma)
-          apply(simp add: foundation18 invalid_def)
-          done
+          by(frule Set_inv_lemma, simp add: foundation18 invalid_def)
  have D: "(\<tau> \<Turnstile> \<delta>(X->including(x))) \<Longrightarrow> ((\<tau> \<Turnstile>(\<delta> X)) \<and> (\<tau> \<Turnstile>(\<upsilon> x)))"
           by(auto simp: OclIncluding_def OclValid_def true_def valid_def false_def StrongEq_def
                         defined_def invalid_def bot_fun_def null_fun_def
@@ -801,9 +801,7 @@ proof -
  have A : "\<bottom> \<in> {X. X = bot \<or> X = null \<or> (\<forall>x\<in>\<lceil>\<lceil>X\<rceil>\<rceil>. x \<noteq> bot)}" by(simp add: bot_option_def)
  have B : "\<lfloor>\<bottom>\<rfloor> \<in> {X. X = bot \<or> X = null \<or> (\<forall>x\<in>\<lceil>\<lceil>X\<rceil>\<rceil>. x \<noteq> bot)}" by(simp add: null_option_def bot_option_def)
  have C : "(\<tau> \<Turnstile>(\<delta> X)) \<Longrightarrow> (\<tau> \<Turnstile>(\<upsilon> x)) \<Longrightarrow> \<lfloor>\<lfloor>\<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil> - {x \<tau>}\<rfloor>\<rfloor> \<in> {X. X = bot \<or> X = null \<or> (\<forall>x\<in>\<lceil>\<lceil>X\<rceil>\<rceil>. x \<noteq> bot)}"
-          apply(frule Set_inv_lemma)
-          apply(simp add: foundation18 invalid_def)
-          done
+          by(frule Set_inv_lemma, simp add: foundation18 invalid_def)
  have D: "(\<tau> \<Turnstile> \<delta>(X->excluding(x))) \<Longrightarrow> ((\<tau> \<Turnstile>(\<delta> X)) \<and> (\<tau> \<Turnstile>(\<upsilon> x)))"
           by(auto simp: OclExcluding_def OclValid_def true_def valid_def false_def StrongEq_def
                         defined_def invalid_def bot_fun_def null_fun_def
@@ -2576,7 +2574,6 @@ proof -
    StrictRefEq\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r valid_def bot_option_def bot_fun_def false_def true_def invalid_def)
 
   apply (metis OCL_core.bot_fun_def null_fun_def null_is_valid valid_def)
-
  by(drule defined_inject_true, simp add: false_def true_def OclIf_false[simplified false_def] invalid_def)
 qed
 
