@@ -417,8 +417,8 @@ summarize the results of this section.
       \toprule
       Name & Theorem \\
       \midrule
-      @{thm [source] textbook_defined}  & @{thm [show_question_marks=false,display=false,margin=35] textbook_defined} \\
-      @{thm [source] textbook_valid}   & @{thm [show_question_marks=false,display=false,margin=35] textbook_valid} \\
+      @{thm [source] textbook_defined}  & @{thm [show_question_marks=false,display=true,margin=35] textbook_defined} \\
+      @{thm [source] textbook_valid}   & @{thm [show_question_marks=false,display=true,margin=35] textbook_valid} \\
       \bottomrule
    \end{tabular}
    \caption{Basic predicate definitions of the logic.}
@@ -431,11 +431,11 @@ summarize the results of this section.
       Name & Theorem \\
       \midrule
       @{thm [source] defined1}  & @{thm  defined1} \\
-      @{thm [source] defined2}   & @{thm [display=false,margin=35] defined2} \\
-      @{thm [source] defined3}   & @{thm [display=false,margin=35] defined3} \\
-      @{thm [source] defined4}   & @{thm [display=false,margin=35] defined4} \\
-      @{thm [source] defined5}   & @{thm [display=false,margin=35] defined5} \\
-      @{thm [source] defined6}   & @{thm [display=false,margin=35] defined6} \\
+      @{thm [source] defined2}   & @{thm [display=true,margin=35] defined2} \\
+      @{thm [source] defined3}   & @{thm [display=true,margin=35] defined3} \\
+      @{thm [source] defined4}   & @{thm [display=true,margin=35] defined4} \\
+      @{thm [source] defined5}   & @{thm [display=true,margin=35] defined5} \\
+      @{thm [source] defined6}   & @{thm [display=true,margin=35] defined6} \\
       \bottomrule
    \end{tabular}
    \caption{Laws of the basic predicates of the logic.}
