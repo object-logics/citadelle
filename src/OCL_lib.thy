@@ -2349,8 +2349,7 @@ proof -
   apply(simp add: OclIncluding_def OclValid_def)
   apply(subst Abs_Set_0_inverse, simp, (rule disjI2)+)
    apply (metis (hide_lams, no_types) OclValid_def Set_inv_lemma foundation18')
-  apply(simp add: Let_def)
- by(auto)
+ by(simp add: Let_def, auto)
 
  let ?OclSet = "\<lambda>S. \<lfloor>\<lfloor>S\<rfloor>\<rfloor> \<in> {X. X = \<bottom> \<or> X = null \<or> (\<forall>x\<in>\<lceil>\<lceil>X\<rceil>\<rceil>. x \<noteq> \<bottom>)}"
  have diff_in_Set_0 : "\<And>\<tau>. (\<delta> X) \<tau> = true \<tau> \<Longrightarrow>
@@ -2828,10 +2827,8 @@ proof -
 
  let ?P_eq = "\<lambda>x b \<tau>. P (\<lambda>_. x) \<tau> = b \<tau>"
  let ?P = "\<lambda>set b \<tau>. \<exists>x\<in>set. ?P_eq x b \<tau>"
- let ?forall = "\<lambda>P. if P false \<tau> then false \<tau>
-                    else if P \<bottom> \<tau> then \<bottom> \<tau>
-                    else if P null \<tau> then null \<tau>
-                    else true \<tau>"
+ let ?if = "\<lambda>f b c. if f b \<tau> then b \<tau> else c"
+ let ?forall = "\<lambda>P. ?if P false (?if P \<bottom> (?if P null (true \<tau>)))"
  show ?thesis
   apply(simp only: OclForall_def OclIterate_def)
   apply(case_tac "\<tau> \<Turnstile> \<delta> S", simp only: OclValid_def)

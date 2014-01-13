@@ -1304,6 +1304,21 @@ by(auto simp: OclNot_def OclValid_def true_def invalid_def defined_def false_def
                  bot_fun_def bot_option_def null_fun_def null_option_def
         split: bool.split_asm HOL.split_if_asm option.split option.split_asm)
 
+lemma OclNot_contrapos_nn:
+ assumes "\<tau> \<Turnstile> \<delta> A"
+ assumes "\<tau> \<Turnstile> not B"
+ assumes "\<tau> \<Turnstile> A \<Longrightarrow> \<tau> \<Turnstile> B"
+ shows   "\<tau> \<Turnstile> not A"
+proof -
+ have change_not : "\<And>a b. (not a \<tau> = b \<tau>) = (a \<tau> = not b \<tau>)"
+ by (metis OclNot_not cp_OclNot)
+ show ?thesis
+  apply(insert assms, simp add: OclValid_def, subst change_not, subst (asm) change_not)
+  apply(simp add: OclNot_def true_def)
+ by (metis OclValid_def bool_split defined_def false_def foundation2 true_def
+           bot_fun_def invalid_def)
+qed
+
 text{* So far, we have only one strict Boolean predicate (-family): the strict equality. *}
 
 section{* Miscellaneous: OCL's if then else endif *}

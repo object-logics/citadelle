@@ -216,7 +216,8 @@ theorem StrictRefEq\<^sub>O\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t_vs_StrongEq'
 assumes WFF: "WFF \<tau>"
 and valid_x: "\<tau> \<Turnstile>(\<upsilon> (x :: ('\<AA>::object,'\<alpha>::{null,object})val))"
 and valid_y: "\<tau> \<Turnstile>(\<upsilon> y)"
-and oid_preserve: "\<And>x. H x \<noteq> \<bottom> \<Longrightarrow> oid_of (H x) = oid_of x"
+and oid_preserve: "\<And>x. x \<in> ran (heap(fst \<tau>)) \<or> x \<in> ran (heap(snd \<tau>)) \<Longrightarrow>
+                        H x \<noteq> \<bottom> \<Longrightarrow> oid_of (H x) = oid_of x"
 and xy_together: "x \<tau> \<in> H ` ran (heap(fst \<tau>)) \<and> y \<tau> \<in> H ` ran (heap(fst \<tau>)) \<or>
                   x \<tau> \<in> H ` ran (heap(snd \<tau>)) \<and> y \<tau> \<in> H ` ran (heap(snd \<tau>))"
  (* x and y must be object representations that exist in either the pre or post state *)
@@ -727,7 +728,8 @@ theorem StrictRefEq\<^sub>O\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t_vs_StrongEq'
 assumes WFF: "WFF \<tau>"
 and valid_x: "\<tau> \<Turnstile>(\<upsilon> (x :: ('\<AA>::object,'\<alpha>::object option option)val))"
 and valid_y: "\<tau> \<Turnstile>(\<upsilon> y)"
-and oid_preserve: "\<And>x. oid_of (H x) = oid_of x"
+and oid_preserve: "\<And>x. x \<in> ran (heap(fst \<tau>)) \<or> x \<in> ran (heap(snd \<tau>)) \<Longrightarrow>
+                        oid_of (H x) = oid_of x"
 and xy_together: "\<tau> \<Turnstile> ((H .allInstances()->includes(x) and H .allInstances()->includes(y)) or
                        (H .allInstances@pre()->includes(x) and H .allInstances@pre()->includes(y)))"
  (* x and y must be object representations that exist in either the pre or post state *)
@@ -850,6 +852,10 @@ by(simp only: OclIsModifiedOnly_def, case_tac \<tau>, simp only:, subst cp_defin
 
 subsection{* OclSelf *}
 
+text{* The following predicate---which is not part of the OCL
+standard---explicitly retrieves in the pre or post state the original OCL expression
+given as argument. *}
+
 definition [simp]: "OclSelf x H fst_snd = (\<lambda>\<tau> . if (\<delta> x) \<tau> = true \<tau>
                         then if oid_of (x \<tau>) \<in> dom(heap(fst \<tau>)) \<and> oid_of (x \<tau>) \<in> dom(heap (snd \<tau>))
                              then  H \<lceil>(heap(fst_snd \<tau>))(oid_of (x \<tau>))\<rceil>
@@ -935,7 +941,7 @@ qed
 theorem framing:
       assumes modifiesclause:"\<tau> \<Turnstile> (X->excluding(x))->oclIsModifiedOnly()"
       and oid_is_typerepr : "\<tau> \<Turnstile> X->forAll(a| not (StrictRefEq\<^sub>O\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t x a))"
-      shows "\<tau> \<Turnstile> (x @pre H  \<triangleq>  (x @post H))"
+      shows "\<tau> \<Turnstile> (x @pre P  \<triangleq>  (x @post P))"
  apply(case_tac "\<tau> \<Turnstile> \<delta> x")
  proof - show "\<tau> \<Turnstile> \<delta> x \<Longrightarrow> ?thesis" proof - assume def_x : "\<tau> \<Turnstile> \<delta> x" show ?thesis proof -
 
@@ -965,7 +971,7 @@ theorem framing:
   apply(simp add: StrongEq_def OclValid_def true_def OclSelf_at_pre_def OclSelf_at_post_def
                   def_x[simplified OclValid_def])
   apply(rule conjI, rule impI)
-   apply(rule_tac f = "\<lambda>x. H \<lceil>x\<rceil>" in arg_cong)
+   apply(rule_tac f = "\<lambda>x. P \<lceil>x\<rceil>" in arg_cong)
    apply(insert modifiesclause[simplified OclIsModifiedOnly_def OclValid_def])
    apply(case_tac \<tau>, rename_tac \<sigma> \<sigma>', simp split: split_if_asm)
     apply(subst (asm) (2) OclExcluding_def)
@@ -985,45 +991,33 @@ theorem framing:
 qed
 
 
+text{* As corollary, the framing property can be expressed with only the strong equality
+as comparison operator. *}
+
 theorem framing':
   assumes wff : "WFF \<tau>"
   assumes modifiesclause:"\<tau> \<Turnstile> (X->excluding(x))->oclIsModifiedOnly()"
   and oid_is_typerepr : "\<tau> \<Turnstile> X->forAll(a| not (x \<triangleq> a))"
-  and oid_preserve: "\<And>x. oid_of (Hh x) = oid_of x"
+  and oid_preserve: "\<And>x. x \<in> ran (heap(fst \<tau>)) \<or> x \<in> ran (heap(snd \<tau>)) \<Longrightarrow>
+                          oid_of (H x) = oid_of x"
   and xy_together:
-  "\<tau> \<Turnstile> X->forAll(y | (Hh .allInstances()->includes(x) and Hh .allInstances()->includes(y)) or
-                     (Hh .allInstances@pre()->includes(x) and Hh .allInstances@pre()->includes(y)))"
-  shows "\<tau> \<Turnstile> (x @pre H  \<triangleq>  (x @post H))"
+  "\<tau> \<Turnstile> X->forAll(y | (H .allInstances()->includes(x) and H .allInstances()->includes(y)) or
+                     (H .allInstances@pre()->includes(x) and H .allInstances@pre()->includes(y)))"
+  shows "\<tau> \<Turnstile> (x @pre P  \<triangleq>  (x @post P))"
 proof -
  have def_X : "\<tau> \<Turnstile> \<delta> X"
   apply(insert oid_is_typerepr, simp add: OclForall_def OclValid_def split: split_if_asm)
  by(simp add: bot_option_def true_def)
  show ?thesis
- apply(case_tac "\<tau> \<Turnstile> \<delta> x")
- proof - show "\<tau> \<Turnstile> \<delta> x \<Longrightarrow> ?thesis" proof - assume def_x : "\<tau> \<Turnstile> \<delta> x" show ?thesis proof -
-
- have change_not : "\<And>a b. (not a \<tau> = b \<tau>) = (a \<tau> = not b \<tau>)"
- by (metis OclNot_not cp_OclNot)
-
- have contrapos_not: "\<And>A B. \<tau> \<Turnstile> \<delta> A \<Longrightarrow> (\<tau> \<Turnstile> A \<Longrightarrow> \<tau> \<Turnstile> B) \<Longrightarrow> \<tau> \<Turnstile> not B \<Longrightarrow> \<tau> \<Turnstile> not A"
-  apply(simp add: OclValid_def, subst change_not, subst (asm) change_not)
-  apply(simp add: OclNot_def true_def)
- by (metis OclValid_def bool_split defined_def false_def foundation2 true_def
-           bot_fun_def invalid_def)
-
- have val_x: "\<tau> \<Turnstile> \<upsilon> x"
- by(rule foundation20[OF def_x])
-
- show ?thesis
-  apply(rule framing[OF modifiesclause])
-  apply(rule OclForall_cong'[OF _ oid_is_typerepr xy_together], rename_tac y)
-  apply(cut_tac Set_inv_lemma'[OF def_X]) prefer 2 apply assumption
-  apply(rule contrapos_not, simp add: StrictRefEq\<^sub>O\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t_def)
-    apply(simp add: OclValid_def, subst cp_defined, simp add: val_x[simplified OclValid_def])
- by(rule StrictRefEq\<^sub>O\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t_vs_StrongEq''[THEN iffD1, OF wff val_x _ oid_preserve])
- qed qed
- apply_end(simp add: OclSelf_at_post_def OclSelf_at_pre_def OclValid_def StrongEq_def true_def)+
- qed
+  apply(case_tac "\<tau> \<Turnstile> \<delta> x", drule foundation20)
+   apply(rule framing[OF modifiesclause])
+   apply(rule OclForall_cong'[OF _ oid_is_typerepr xy_together], rename_tac y)
+   apply(cut_tac Set_inv_lemma'[OF def_X]) prefer 2 apply assumption
+   apply(rule OclNot_contrapos_nn, simp add: StrictRefEq\<^sub>O\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t_def)
+     apply(simp add: OclValid_def, subst cp_defined, simp,
+           assumption)
+   apply(rule StrictRefEq\<^sub>O\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t_vs_StrongEq''[THEN iffD1, OF wff _ _ oid_preserve], assumption+)
+ by(simp add: OclSelf_at_post_def OclSelf_at_pre_def OclValid_def StrongEq_def true_def)+
 qed
 
 subsection{* Miscellaneous *}
