@@ -302,16 +302,16 @@ by(simp add: Sem_def false_def)
 text {*
 \begin{table}[htbp]
    \centering
-   \begin{tabular}{lc} % Column formatting
+   \begin{tabu}{lX[,c,]}
       \toprule
       Name & Theorem \\
       \midrule
-      @{thm [source] textbook_invalid}  & @{thm  textbook_invalid} \\
-      @{thm [source] textbook_null_fun}  & @{thm  textbook_null_fun} \\
-      @{thm [source] textbook_true}   & @{thm  textbook_true} \\
-      @{thm [source] textbook_false} & @{thm textbook_false} \\
+      @{thm [source] textbook_invalid}  & @{thm  [display=true] textbook_invalid} \\
+      @{thm [source] textbook_null_fun}  & @{thm [display=true] textbook_null_fun} \\
+      @{thm [source] textbook_true}   & @{thm  [display=true] textbook_true} \\
+      @{thm [source] textbook_false} & @{thm [display=true] textbook_false} \\
       \bottomrule
-   \end{tabular}
+   \end{tabu}
    \caption{Basic semantic constant definitions of the logic (except @{term null})}
    \label{tab:sem_basic_constants}
 \end{table}
@@ -413,20 +413,20 @@ text {*
 summarize the results of this section. 
 \begin{table}[htbp]
    \centering
-   \begin{tabular}{lp{9cm}} % Column formatting
+   \begin{tabu}{lX[,c,]}
       \toprule
       Name & Theorem \\
       \midrule
-      @{thm [source] textbook_defined}  & @{thm [show_question_marks=false,display=false,margin=35] textbook_defined} \\
+      @{thm [source] textbook_defined}  & @{thm [show_question_marks=false,display=true,margin=35] textbook_defined} \\
       @{thm [source] textbook_valid}   & @{thm [show_question_marks=false,display=false,margin=35] textbook_valid} \\
       \bottomrule
-   \end{tabular}
+   \end{tabu}
    \caption{Basic predicate definitions of the logic.}
    \label{tab:sem_definedness}
 \end{table}
 \begin{table}[htbp]
    \centering
-   \begin{tabular}{lc} % Column formatting
+   \begin{tabu}{lX[,c,]}
       \toprule
       Name & Theorem \\
       \midrule
@@ -437,7 +437,7 @@ summarize the results of this section.
       @{thm [source] defined5}   & @{thm [display=false,margin=35] defined5} \\
       @{thm [source] defined6}   & @{thm [display=false,margin=35] defined6} \\
       \bottomrule
-   \end{tabular}
+   \end{tabu}
    \caption{Laws of the basic predicates of the logic.}
    \label{tab:alglaws_definedness}
 \end{table}
