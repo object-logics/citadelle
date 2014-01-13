@@ -352,6 +352,13 @@ lemma null_non_OclInt8 [simp,code_unfold]: "(null \<doteq> \<eight>) = false" by
 lemma OclInt9_non_null [simp,code_unfold]: "(\<nine> \<doteq> null) = false" by(simp add: OclInt9_def)
 lemma null_non_OclInt9 [simp,code_unfold]: "(null \<doteq> \<nine>) = false" by(simp add: OclInt9_def)
 
+lemma [simp]: "const(\<zero>)" by(simp add: const_ss OclInt0_def)
+lemma [simp]: "const(\<one>)" by(simp add: const_ss OclInt1_def)
+lemma [simp]: "const(\<two>)" by(simp add: const_ss OclInt2_def)
+lemma [simp]: "const(\<six>)" by(simp add: const_ss OclInt6_def)
+lemma [simp]: "const(\<eight>)" by(simp add: const_ss OclInt8_def)
+lemma [simp]: "const(\<nine>)" by(simp add: const_ss OclInt9_def)
+
 (* plus all the others ...*)
 
 
@@ -590,6 +597,10 @@ by(simp_all add: Abs_Set_0_inject bot_option_def null_Set_0_def null_option_def)
 lemma mtSet_rep_set: "\<lceil>\<lceil>Rep_Set_0 (Set{} \<tau>)\<rceil>\<rceil> = {}"
  apply(simp add: mtSet_def, subst Abs_Set_0_inverse)
 by(simp add: bot_option_def)+
+
+lemma [simp]: "const Set{}"
+by(simp add: const_def mtSet_def)
+
 
 text{* Note that the collection types in OCL allow for null to be included;
   however, there is the null-collection into which inclusion yields invalid. *}
@@ -1057,6 +1068,7 @@ by(simp add: OclIncluding_def invalid_def bot_fun_def defined_def valid_def fals
 lemma OclIncluding_null[simp,code_unfold]:"(null->including(x)) = invalid"
 by(simp add: OclIncluding_def invalid_def bot_fun_def defined_def valid_def false_def true_def)
 
+
 subsubsection{* OclExcluding *}
 
 lemma OclExcluding_invalid[simp,code_unfold]:"(invalid->excluding(x)) = invalid"
@@ -1439,6 +1451,34 @@ proof -
         simp add: OclIncluding_def OclIncludes_def OclValid_def true_def)
   apply(drule insert_absorb, simp, subst abs_rep_simp')
  by(simp_all add: OclValid_def true_def)
+qed
+
+
+lemma const_OclIncluding[simp] :
+ assumes const_x : "const x"
+     and const_S : "const S"
+   shows  "const (S->including(x))"
+   proof -
+     have A:"\<And>\<tau> \<tau>'. \<not> (\<tau> \<Turnstile> \<upsilon> x) \<Longrightarrow> (S->including(x) \<tau>) = (S->including(x) \<tau>')" 
+            apply(simp add: foundation18)
+            apply(erule const_subst[OF const_x const_invalid],simp_all)
+            by(rule const_charn[OF const_invalid])
+     have B: "\<And> \<tau> \<tau>'. \<not> (\<tau> \<Turnstile> \<delta> S) \<Longrightarrow> (S->including(x) \<tau>) = (S->including(x) \<tau>')" 
+            apply(simp add: foundation16', elim disjE)
+            apply(erule const_subst[OF const_S const_invalid],simp_all)
+            apply(rule const_charn[OF const_invalid])
+            apply(erule const_subst[OF const_S const_null],simp_all)
+            by(rule const_charn[OF const_invalid])
+     show ?thesis
+       apply(simp only: const_def,intro allI, rename_tac \<tau> \<tau>')
+       apply(case_tac "\<not> (\<tau> \<Turnstile> \<upsilon> x)", simp add: A)
+       apply(case_tac "\<not> (\<tau> \<Turnstile> \<delta> S)", simp_all add: B)
+       apply(frule_tac \<tau>'1= \<tau>' in  const_OclValid2[OF const_x, THEN iffD1])
+       apply(frule_tac \<tau>'1= \<tau>' in  const_OclValid1[OF const_S, THEN iffD1])
+       apply(simp add: OclIncluding_def OclValid_def)
+       apply(subst const_charn[OF const_x])
+       apply(subst const_charn[OF const_S])
+       by simp
 qed
 
 subsection{* OclExcluding *}
@@ -3063,6 +3103,9 @@ lemma    "\<tau> \<Turnstile> (Set{Set{\<two>,null}} \<doteq> Set{Set{null,\<two
 lemma    "\<tau> \<Turnstile> (Set{Set{\<two>,null}} <> Set{Set{null,\<two>},null})" by simp
 lemma    "\<tau> \<Turnstile> (Set{null}->select(x | not x) \<doteq> Set{null})" by simp
 lemma    "\<tau> \<Turnstile> (Set{null}->reject(x | not x) \<doteq> Set{null})" by simp
+
+lemma    "const (Set{Set{\<two>,null}, invalid})" by(simp add: const_ss)
+
 (*
 value "\<not> (\<tau> \<Turnstile> (Set{true} \<doteq> Set{false}))"
 value "\<not> (\<tau> \<Turnstile> (Set{true,true} \<doteq> Set{false}))"

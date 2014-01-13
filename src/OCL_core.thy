@@ -417,8 +417,8 @@ summarize the results of this section.
       \toprule
       Name & Theorem \\
       \midrule
-      @{thm [source] textbook_defined}  & @{thm [show_question_marks=false,display=true,margin=35] textbook_defined} \\
-      @{thm [source] textbook_valid}   & @{thm [show_question_marks=false,display=true,margin=35] textbook_valid} \\
+      @{thm [source] textbook_defined}  & @{thm [show_question_marks=false,display=false,margin=35] textbook_defined} \\
+      @{thm [source] textbook_valid}   & @{thm [show_question_marks=false,display=false,margin=35] textbook_valid} \\
       \bottomrule
    \end{tabular}
    \caption{Basic predicate definitions of the logic.}
@@ -431,11 +431,11 @@ summarize the results of this section.
       Name & Theorem \\
       \midrule
       @{thm [source] defined1}  & @{thm  defined1} \\
-      @{thm [source] defined2}   & @{thm [display=true,margin=35] defined2} \\
-      @{thm [source] defined3}   & @{thm [display=true,margin=35] defined3} \\
-      @{thm [source] defined4}   & @{thm [display=true,margin=35] defined4} \\
-      @{thm [source] defined5}   & @{thm [display=true,margin=35] defined5} \\
-      @{thm [source] defined6}   & @{thm [display=true,margin=35] defined6} \\
+      @{thm [source] defined2}   & @{thm [display=false,margin=35] defined2} \\
+      @{thm [source] defined3}   & @{thm [display=false,margin=35] defined3} \\
+      @{thm [source] defined4}   & @{thm [display=false,margin=35] defined4} \\
+      @{thm [source] defined5}   & @{thm [display=false,margin=35] defined5} \\
+      @{thm [source] defined6}   & @{thm [display=false,margin=35] defined6} \\
       \bottomrule
    \end{tabular}
    \caption{Laws of the basic predicates of the logic.}
@@ -1128,6 +1128,12 @@ lemma foundation16: "\<tau> \<Turnstile> (\<delta> X) = (X \<tau> \<noteq> bot \
 by(auto simp: OclValid_def defined_def false_def true_def  bot_fun_def null_fun_def
         split:split_if_asm)
 
+(* correcter rule; the previous is deprecated *)
+lemma foundation16': "(\<tau> \<Turnstile> (\<delta> X)) = (X \<tau> \<noteq> invalid \<tau> \<and> X \<tau> \<noteq> null \<tau>)"
+apply(simp add:invalid_def null_def null_fun_def)
+by(auto simp: OclValid_def defined_def false_def true_def  bot_fun_def null_fun_def
+        split:split_if_asm)
+
 lemmas foundation17 = foundation16[THEN iffD1,standard]
 
 lemma foundation18: "\<tau> \<Turnstile> (\<upsilon> X) = (X \<tau> \<noteq> invalid \<tau>)"
@@ -1376,5 +1382,158 @@ lemma OclNot_if[simp]:
   apply(subst cp_OclNot, simp add: OclIf_def)
   apply(subst cp_OclNot[symmetric])+
 by simp
+
+
+subsection{* A side-calculus for (Boolean) constant terms.*}
+
+definition "const X \<equiv> \<forall> \<tau> \<tau>'. X \<tau> = X \<tau>'"
+
+lemma const_charn: "const X \<Longrightarrow> X \<tau> = X \<tau>'"
+by(auto simp: const_def)
+
+lemma const_subst:
+ assumes const_X: "const X"
+     and const_Y: "const Y"
+     and eq :     "X \<tau> = Y \<tau>"
+     and cp_P:    "cp P"
+     and pp :     "P Y \<tau> = P Y \<tau>'"
+   shows "P X \<tau> = P X \<tau>'"
+proof -
+   have A: "\<And>Y. P Y \<tau> = P (\<lambda>_. Y \<tau>) \<tau>"
+      apply(insert cp_P, unfold cp_def)
+      apply(elim exE, erule_tac x=Y in allE', erule_tac x=\<tau> in allE)
+      apply(erule_tac x="(\<lambda>_. Y \<tau>)" in allE, erule_tac x=\<tau> in allE)
+      by simp
+   have B: "\<And>Y. P Y \<tau>' = P (\<lambda>_. Y \<tau>') \<tau>'"
+      apply(insert cp_P, unfold cp_def)
+      apply(elim exE, erule_tac x=Y in allE', erule_tac x=\<tau>' in allE)
+      apply(erule_tac x="(\<lambda>_. Y \<tau>')" in allE, erule_tac x=\<tau>' in allE)
+      by simp   
+   have C: "X \<tau>' = Y \<tau>'"
+      apply(rule trans, subst const_charn[OF const_X, of \<tau>' \<tau>],rule eq)
+      by(rule const_charn[OF const_Y])
+   show ?thesis
+      apply(subst A, subst B, simp add: eq C)
+      apply(subst A[symmetric],subst B[symmetric])
+      by(simp add:pp)
+qed
+
+
+lemma const_imply2 :
+ assumes "\<And>\<tau>1 \<tau>2. P \<tau>1 = P \<tau>2 \<Longrightarrow> Q \<tau>1 = Q \<tau>2"
+ shows "const P \<Longrightarrow> const Q"
+by(simp add: const_def, insert assms, blast)
+
+lemma const_imply3 :
+ assumes "\<And>\<tau>1 \<tau>2. P \<tau>1 = P \<tau>2 \<Longrightarrow> Q \<tau>1 = Q \<tau>2 \<Longrightarrow> R \<tau>1 = R \<tau>2"
+ shows "const P \<Longrightarrow> const Q \<Longrightarrow> const R"
+by(simp add: const_def, insert assms, blast)
+
+lemma const_imply4 :
+ assumes "\<And>\<tau>1 \<tau>2. P \<tau>1 = P \<tau>2 \<Longrightarrow> Q \<tau>1 = Q \<tau>2 \<Longrightarrow> R \<tau>1 = R \<tau>2 \<Longrightarrow> S \<tau>1 = S \<tau>2"
+ shows "const P \<Longrightarrow> const Q \<Longrightarrow> const R \<Longrightarrow> const S"
+by(simp add: const_def, insert assms, blast)
+
+lemma const_lam : "const (\<lambda>_. e)"
+by(simp add: const_def)
+
+
+lemma const_true : "const true"
+by(simp add: const_def true_def)
+
+lemma const_false : "const false"
+by(simp add: const_def false_def)
+
+lemma const_null : "const null"
+by(simp add: const_def null_fun_def)
+
+lemma const_invalid : "const invalid"
+by(simp add: const_def invalid_def)
+
+lemma const_bot : "const bot"
+by(simp add: const_def bot_fun_def)
+
+
+
+lemma const_defined :
+ assumes "const X"
+ shows "const (\<delta> X)"
+by(rule const_imply2[OF _ assms],
+   simp add: defined_def false_def true_def bot_fun_def bot_option_def null_fun_def null_option_def)
+
+lemma const_valid :
+ assumes "const X"
+ shows "const (\<upsilon> X)"
+by(rule const_imply2[OF _ assms],
+   simp add: valid_def false_def true_def bot_fun_def null_fun_def assms)
+
+lemma const_OclValid1:
+ assumes "const x"
+ shows   "(\<tau> \<Turnstile> \<delta> x) = (\<tau>' \<Turnstile> \<delta> x)"
+ apply(simp add: OclValid_def)
+ apply(subst const_defined[OF assms, THEN const_charn, of \<tau> \<tau>'])
+ by(simp add: true_def)
+
+lemma const_OclValid2:
+ assumes "const x"
+ shows   "(\<tau> \<Turnstile> \<upsilon> x) = (\<tau>' \<Turnstile> \<upsilon> x)"
+ apply(simp add: OclValid_def)
+ apply(subst const_valid[OF assms, THEN const_charn, of \<tau> \<tau>'])
+ by(simp add: true_def)
+
+ 
+lemma const_OclAnd :
+  assumes "const X"
+  assumes "const X'"
+  shows   "const (X and X')"
+by(rule const_imply3[OF _ assms], subst (1 2) cp_OclAnd, simp add: assms OclAnd_def)
+
+
+
+lemma const_OclNot :
+    assumes "const X"
+    shows "const (not X)"
+by(rule const_imply2[OF _ assms],subst cp_OclNot,simp add: assms OclNot_def)
+
+lemma const_OclOr :
+  assumes "const X"
+  assumes "const X'"
+  shows "const (X or X')"
+by(simp add: assms OclOr_def const_OclNot const_OclAnd)
+
+lemma const_OclImplies :
+  assumes "const X"
+  assumes "const X'"
+  shows "const (X implies X')"
+by(simp add: assms OclImplies_def const_OclNot const_OclOr)
+
+lemma const_StrongEq:
+  assumes "const X"
+  assumes "const X'"
+  shows   "const(X \<triangleq> X')"
+  apply(simp only: StrongEq_def const_def, intro allI, rename_tac "\<tau>" "\<tau>'"  )
+  apply(subst assms(1)[THEN const_charn, of "\<tau>" "\<tau>'"])
+  apply(subst assms(2)[THEN const_charn, of "\<tau>" "\<tau>'"])
+  by simp
+  
+
+lemma const_OclIf :
+  assumes "const B"
+      and "const C1"
+      and "const C2"
+    shows "const (if B then C1 else C2 endif)"
+ apply(rule const_imply4[OF _ assms], 
+       subst (1 2) cp_OclIf, simp only: OclIf_def cp_defined[symmetric])
+ apply(simp add: const_defined[OF assms(1), simplified const_def, THEN spec, THEN spec]
+                 const_true[simplified const_def, THEN spec, THEN spec]
+                 assms[simplified const_def, THEN spec, THEN spec]
+                 const_invalid[simplified const_def, THEN spec, THEN spec])
+by (metis (no_types) OCL_core.bot_fun_def OclValid_def const_def const_true defined_def foundation17 
+                     null_fun_def)
+
+
+lemmas const_ss = const_bot const_null  const_invalid  const_false  const_true  const_lam
+                  const_defined const_valid const_StrongEq const_OclNot const_OclAnd 
+                  const_OclOr const_OclImplies const_OclIf
 
 end
