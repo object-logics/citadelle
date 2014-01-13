@@ -1389,8 +1389,7 @@ proof -
     apply(subst state_update_vs_allInstances_at_post_tc, simp, simp add: OclAsType\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_\<AA>_def, simp, rule cp_3, rule including_subst_set, simp, simp)
      apply(subst state_update_vs_allInstances_at_post_tc, simp, simp add: OclAsType\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_\<AA>_def, simp, rule cp_4, rule including_subst_set, simp, simp)
       apply(subst state_update_vs_allInstances_at_post_tc, simp, simp add: OclAsType\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_\<AA>_def, simp, rule cp_6, rule including_subst_set, simp, simp)
-       apply(subst state_update_vs_allInstances_at_post_tc, simp, simp add: OclAsType\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_\<AA>_def
-                                                                            person7_def, simp, rule cp_7, rule including_subst_set, simp, simp)
+       apply(subst state_update_vs_allInstances_at_post_tc, simp, simp add: OclAsType\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_\<AA>_def, simp, rule cp_7, rule including_subst_set, simp, simp)
         apply(subst state_update_vs_allInstances_at_post_ntc, simp, simp add: OclAsType\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_\<AA>_def
                                                                               person8_def, simp, rule cp_9)
         apply(subst state_update_vs_allInstances_at_post_tc, simp, simp add: OclAsType\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_\<AA>_def, simp, rule cp_9, rule including_subst_set, simp, simp)
@@ -1398,14 +1397,24 @@ proof -
  by(simp_all add: OclAsType\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_\<AA>_def)
 qed
 
-lemma "\<And>\<sigma>\<^sub>1.    (\<sigma>\<^sub>1,\<sigma>\<^sub>1') \<Turnstile>      (OclAny .allInstances() \<doteq> Set{ X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n1 .oclAsType(OclAny), X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2 .oclAsType(OclAny), X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n3 .oclAsType(OclAny), X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n4 .oclAsType(OclAny)(*, X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n5*), X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n6 .oclAsType(OclAny), X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n7, X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n8, X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n9 .oclAsType(OclAny) })"
+lemma "\<And>\<sigma>\<^sub>1.
+ (\<sigma>\<^sub>1,\<sigma>\<^sub>1') \<Turnstile> (OclAny .allInstances() \<doteq> Set{ X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n1 .oclAsType(OclAny), X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2 .oclAsType(OclAny),
+                                           X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n3 .oclAsType(OclAny), X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n4 .oclAsType(OclAny)
+                                           (*, X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n5*), X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n6 .oclAsType(OclAny), 
+                                           X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n7, X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n8, X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n9 .oclAsType(OclAny) })"
 proof -
- let ?p1 = "((((\<lambda>_. \<lfloor>\<lfloor>mk\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n 0 \<lfloor>1300\<rfloor>\<rfloor>\<rfloor>) :: \<AA> state \<times> \<AA> state \<Rightarrow> type\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n option option) .oclAsType(OclAny)))"
- let ?p2 = "((((\<lambda>_. \<lfloor>\<lfloor>mk\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n 1 \<lfloor>1800\<rfloor>\<rfloor>\<rfloor>) :: \<AA> state \<times> \<AA> state \<Rightarrow> type\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n option option) .oclAsType(OclAny)))"
- let ?p3 = "((((\<lambda>_. \<lfloor>\<lfloor>mk\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n 2 None\<rfloor>\<rfloor>) :: \<AA> state \<times> \<AA> state \<Rightarrow> type\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n option option) .oclAsType(OclAny)))"
- let ?p4 = "((((\<lambda>_. \<lfloor>\<lfloor>mk\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n 3 \<lfloor>2900\<rfloor>\<rfloor>\<rfloor>) :: \<AA> state \<times> \<AA> state \<Rightarrow> type\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n option option) .oclAsType(OclAny)))"
- let ?p6 = "((((\<lambda>_. \<lfloor>\<lfloor>mk\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n 5 \<lfloor>2500\<rfloor>\<rfloor>\<rfloor>) :: \<AA> state \<times> \<AA> state \<Rightarrow> type\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n option option) .oclAsType(OclAny)))"
- let ?p9 = "((((\<lambda>_. \<lfloor>\<lfloor>mk\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n 8 \<lfloor>0\<rfloor>\<rfloor>\<rfloor>) :: \<AA> state \<times> \<AA> state \<Rightarrow> type\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n option option) .oclAsType(OclAny)))"
+ let ?p1 = "((((\<lambda>_. \<lfloor>\<lfloor>mk\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n 0 \<lfloor>1300\<rfloor>\<rfloor>\<rfloor>)
+                :: \<AA> state \<times> \<AA> state \<Rightarrow> type\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n option option) .oclAsType(OclAny)))"
+ let ?p2 = "((((\<lambda>_. \<lfloor>\<lfloor>mk\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n 1 \<lfloor>1800\<rfloor>\<rfloor>\<rfloor>)
+                :: \<AA> state \<times> \<AA> state \<Rightarrow> type\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n option option) .oclAsType(OclAny)))"
+ let ?p3 = "((((\<lambda>_. \<lfloor>\<lfloor>mk\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n 2 None\<rfloor>\<rfloor>)
+                :: \<AA> state \<times> \<AA> state \<Rightarrow> type\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n option option) .oclAsType(OclAny)))"
+ let ?p4 = "((((\<lambda>_. \<lfloor>\<lfloor>mk\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n 3 \<lfloor>2900\<rfloor>\<rfloor>\<rfloor>)
+                :: \<AA> state \<times> \<AA> state \<Rightarrow> type\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n option option) .oclAsType(OclAny)))"
+ let ?p6 = "((((\<lambda>_. \<lfloor>\<lfloor>mk\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n 5 \<lfloor>2500\<rfloor>\<rfloor>\<rfloor>)
+                :: \<AA> state \<times> \<AA> state \<Rightarrow> type\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n option option) .oclAsType(OclAny)))"
+ let ?p9 = "((((\<lambda>_. \<lfloor>\<lfloor>mk\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n 8 \<lfloor>0\<rfloor>\<rfloor>\<rfloor>)
+                :: \<AA> state \<times> \<AA> state \<Rightarrow> type\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n option option) .oclAsType(OclAny)))"
 
  have incl_cp_all : "\<And>S a.
                      \<forall>X \<tau> \<tau>'. X \<tau> = X \<tau>' \<longrightarrow>
@@ -1421,7 +1430,7 @@ proof -
   apply(intro allI impI, rule StrictEq_cp_all, simp)
  by(rule OclIncluding_cp_all, fast+)
 
- have cp_0 : "\<And>\<sigma>\<^sub>1. \<forall>X \<tau> \<tau>'. X \<tau> = X \<tau>' \<longrightarrow>
+ have cp_0 : "\<forall>X \<tau> \<tau>'. X \<tau> = X \<tau>' \<longrightarrow>
                      (X \<doteq> Set{}) \<tau> =
                      (X \<doteq> Set{}) \<tau>'"
   apply(intro allI impI, rule StrictEq_cp_all, simp)
