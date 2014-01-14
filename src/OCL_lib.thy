@@ -1464,7 +1464,7 @@ by(simp add:StrictRefEq\<^sub>S\<^sub>e\<^sub>t cp_StrongEq[symmetric] cp_valid[
 
 subsubsection{* Const *}
 
-lemma const_StrictEq :
+lemma const_StrictRefEq\<^sub>S\<^sub>e\<^sub>t :
   assumes "const (X :: (_,_::null) Set)"
   assumes "const X'"
   shows "const (X \<doteq> X')"
