@@ -3072,7 +3072,39 @@ proof -
  by(simp add: StrictRefEq\<^sub>S\<^sub>e\<^sub>t StrongEq_def false_def true_def valid_def defined_def)
 qed
 
+lemma StrictRefEq\<^sub>S\<^sub>e\<^sub>t_L_subst1 : "cp P \<Longrightarrow> \<tau> \<Turnstile> \<upsilon> x \<Longrightarrow> \<tau> \<Turnstile> \<upsilon> y \<Longrightarrow> \<tau> \<Turnstile> \<upsilon> P x \<Longrightarrow> \<tau> \<Turnstile> \<upsilon> P y \<Longrightarrow>
+    \<tau> \<Turnstile> (x::('\<AA>,'\<alpha>::null)Set) \<doteq> y \<Longrightarrow> \<tau> \<Turnstile> (P x ::('\<AA>,'\<alpha>::null)Set) \<doteq> P y"
+ apply(simp only: StrictRefEq\<^sub>S\<^sub>e\<^sub>t OclValid_def)
+ apply(split split_if_asm)
+  apply(simp add: StrongEq_L_subst1[simplified OclValid_def])
+by (simp add: invalid_def bot_option_def true_def)
 
+lemma OclIncluding_cong' :
+shows "\<tau> \<Turnstile> \<delta> s \<Longrightarrow> \<tau> \<Turnstile> \<delta> t \<Longrightarrow> \<tau> \<Turnstile> \<upsilon> x \<Longrightarrow>
+    \<tau> \<Turnstile> ((s::('\<AA>,'a::null)Set) \<doteq> t) \<Longrightarrow> \<tau> \<Turnstile> (s->including(x) \<doteq> (t->including(x)))"
+proof -
+ have cp: "cp (\<lambda>s. (s->including(x)))"
+  apply(simp add: cp_def, subst cp_OclIncluding)
+ by (rule_tac x = "(\<lambda>xab ab. ((\<lambda>_. xab)->including(\<lambda>_. x ab)) ab)" in exI, simp)
+
+ show "\<tau> \<Turnstile> \<delta> s \<Longrightarrow> \<tau> \<Turnstile> \<delta> t \<Longrightarrow> \<tau> \<Turnstile> \<upsilon> x \<Longrightarrow> \<tau> \<Turnstile> (s \<doteq> t) \<Longrightarrow> ?thesis"
+  apply(rule_tac P = "\<lambda>s. (s->including(x))" in StrictRefEq\<^sub>S\<^sub>e\<^sub>t_L_subst1)
+       apply(rule cp)
+      apply(simp add: foundation20) apply(simp add: foundation20)
+    apply (simp add: foundation10 foundation6)+
+ done
+qed
+
+lemma OclIncluding_cong : "\<And>(s::('\<AA>,'a::null)Set) t x y \<tau>. \<tau> \<Turnstile> \<delta> t \<Longrightarrow> \<tau> \<Turnstile> \<upsilon> y \<Longrightarrow>
+                             \<tau> \<Turnstile> s \<doteq> t \<Longrightarrow> x = y \<Longrightarrow> \<tau> \<Turnstile> s->including(x) \<doteq> (t->including(y))"
+ apply(simp only:)
+ apply(rule OclIncluding_cong', simp_all only:)
+by(auto simp: OclValid_def OclIf_def invalid_def bot_option_def OclNot_def split : split_if_asm)
+
+lemma const_StrictRefEq\<^sub>S\<^sub>e\<^sub>t_including : "const a \<Longrightarrow> const S \<Longrightarrow> const X \<Longrightarrow>
+                                       const (X \<doteq> S->including(a))"
+ apply(rule const_StrictRefEq\<^sub>S\<^sub>e\<^sub>t, assumption)
+by(rule const_OclIncluding)
 
 section{* Test Statements *}
 
