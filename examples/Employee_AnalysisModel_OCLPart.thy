@@ -42,13 +42,13 @@
 (* $Id:$ *)
 
 header{* The Employee Analysis Model (OCL) *}
- 
+
 theory
   Employee_AnalysisModel_OCLPart
 imports
   Employee_AnalysisModel_UMLPart (* Testing *)
 begin
-text {*  \label{ex:employee-analysis:ocl} *}
+text {* \label{ex:employee-analysis:ocl} *}
 section{* Standard State Infrastructure *}
 text{* Ideally, these definitions are automatically generated from the class model. *}
 
