@@ -436,24 +436,22 @@ assumes [simp]: "\<And>a. pre_post (mk a) = a"
 assumes oid_def:   "oid\<notin>dom \<sigma>'"
 and  non_type_conform: "Type Object = None "
 and  cp_ctxt:      "cp P"
-and  const_ctxt:   "\<forall> X. \<forall>\<tau> \<tau>'. X \<tau> = X \<tau>' \<longrightarrow> P X \<tau> =  P X \<tau>' "
+and  const_ctxt:   "\<And>X. const X \<Longrightarrow> const (P X)"
 shows "(mk \<lparr>heap=\<sigma>'(oid\<mapsto>Object),assocs\<^sub>2=A,assocs\<^sub>3=B\<rparr> \<Turnstile> P (OclAllInstances_generic pre_post Type)) =
        (mk \<lparr>heap=\<sigma>', assocs\<^sub>2=A, assocs\<^sub>3=B\<rparr>            \<Turnstile> P (OclAllInstances_generic pre_post Type))"
       (is "(?\<tau> \<Turnstile> P ?\<phi>) = (?\<tau>' \<Turnstile> P ?\<phi>)")
 proof -
  have P_cp  : "\<And>x \<tau>. P x \<tau> = P (\<lambda>_. x \<tau>) \<tau>"
              by (metis (full_types) cp_ctxt cp_def)
- have includes_const_inv: "\<And>x S \<tau> \<tau>'. (\<lambda>_. S)->including(\<lambda>_. x) \<tau> = ((\<lambda>_. S)->including(\<lambda>_. x) \<tau>')"
-             by(simp add: OclIncluding_def defined_def valid_def
-                          bot_fun_def null_fun_def true_def false_def)
+ have A     : "const (P (\<lambda>_. ?\<phi> ?\<tau>))"
+             by(simp add: const_ctxt const_ss)
  have       "(?\<tau> \<Turnstile> P ?\<phi>) = (?\<tau> \<Turnstile> \<lambda>_. P ?\<phi> ?\<tau>)"
              by(subst OCL_core.cp_validity, rule refl)
  also have  "... = (?\<tau> \<Turnstile> \<lambda>_. P (\<lambda>_. ?\<phi> ?\<tau>)  ?\<tau>)"
              by(subst P_cp, rule refl)
  also have  "... = (?\<tau>' \<Turnstile> \<lambda>_. P (\<lambda>_. ?\<phi> ?\<tau>)  ?\<tau>')"
              apply(simp add: OclValid_def)
-             apply(subst const_ctxt[THEN spec,of"(\<lambda>_. ?\<phi> ?\<tau>)",THEN spec,of"?\<tau>",THEN spec,of"?\<tau>'"])
-             by (simp add: true_def)+
+             by(subst A[simplified const_def], subst const_true[simplified const_def], simp)
  finally have X: "(?\<tau> \<Turnstile> P ?\<phi>) = (?\<tau>' \<Turnstile> \<lambda>_. P (\<lambda>_. ?\<phi> ?\<tau>)  ?\<tau>')"
              by simp
  show ?thesis
@@ -469,7 +467,7 @@ assumes [simp]: "\<And>a. pre_post (mk a) = a"
 assumes oid_def:   "oid\<notin>dom \<sigma>'"
 and  type_conform: "Type Object \<noteq> None "
 and  cp_ctxt:      "cp P"
-and  const_ctxt:   "\<forall> X. \<forall>\<tau> \<tau>'. X \<tau> = X \<tau>' \<longrightarrow> P X \<tau> =  P X \<tau>' "
+and  const_ctxt:   "\<And>X. const X \<Longrightarrow> const (P X)"
 shows "(mk \<lparr>heap=\<sigma>'(oid\<mapsto>Object),assocs\<^sub>2=A,assocs\<^sub>3=B\<rparr> \<Turnstile> P (OclAllInstances_generic pre_post Type)) =
        (mk \<lparr>heap=\<sigma>', assocs\<^sub>2=A, assocs\<^sub>3=B\<rparr>            \<Turnstile> P ((OclAllInstances_generic pre_post Type)
                                                                 ->including(\<lambda> _. \<lfloor>(Type Object)\<rfloor>)))"
@@ -477,17 +475,15 @@ shows "(mk \<lparr>heap=\<sigma>'(oid\<mapsto>Object),assocs\<^sub>2=A,assocs\<^
 proof -
  have P_cp  : "\<And>x \<tau>. P x \<tau> = P (\<lambda>_. x \<tau>) \<tau>"
              by (metis (full_types) cp_ctxt cp_def)
- have includes_const_inv: "\<And>x S \<tau> \<tau>'. (\<lambda>_. S)->including(\<lambda>_. x) \<tau> = ((\<lambda>_. S)->including(\<lambda>_. x) \<tau>')"
-             by(simp add: OclIncluding_def defined_def valid_def
-                          bot_fun_def null_fun_def true_def false_def)
+ have A     : "const (P (\<lambda>_. ?\<phi> ?\<tau>))"
+             by(simp add: const_ctxt const_ss)
  have       "(?\<tau> \<Turnstile> P ?\<phi>) = (?\<tau> \<Turnstile> \<lambda>_. P ?\<phi> ?\<tau>)"
              by(subst OCL_core.cp_validity, rule refl)
  also have  "... = (?\<tau> \<Turnstile> \<lambda>_. P (\<lambda>_. ?\<phi> ?\<tau>)  ?\<tau>)"
              by(subst P_cp, rule refl)
  also have  "... = (?\<tau>' \<Turnstile> \<lambda>_. P (\<lambda>_. ?\<phi> ?\<tau>)  ?\<tau>')"
              apply(simp add: OclValid_def)
-             apply(subst const_ctxt[THEN spec,of"(\<lambda>_. ?\<phi> ?\<tau>)",THEN spec,of"?\<tau>",THEN spec,of"?\<tau>'"])
-             by (simp add: true_def)+
+             by(subst A[simplified const_def], subst const_true[simplified const_def], simp)
  finally have X: "(?\<tau> \<Turnstile> P ?\<phi>) = (?\<tau>' \<Turnstile> \<lambda>_. P (\<lambda>_. ?\<phi> ?\<tau>)  ?\<tau>')"
              by simp
  let         ?allInstances = "OclAllInstances_generic pre_post Type"
@@ -495,7 +491,7 @@ proof -
              apply(rule state_update_vs_allInstances_generic_including)
              by(insert oid_def, auto simp: type_conform)
  also have   "... = ((\<lambda>_. ?allInstances ?\<tau>')->including(\<lambda>_. (\<lambda>_.\<lfloor>\<lfloor>\<lceil>Type Object\<rceil>\<rfloor>\<rfloor>) ?\<tau>') ?\<tau>')"
-             by(rule includes_const_inv)
+             by(subst const_OclIncluding[simplified const_def], simp+)
  also have   "... = (?allInstances->including(\<lambda> _. \<lfloor>Type Object\<rfloor>) ?\<tau>')"
              apply(subst OCL_lib.cp_OclIncluding[symmetric])
              by(insert type_conform, auto)
@@ -599,7 +595,7 @@ theorem state_update_vs_allInstances_at_post_ntc:
 assumes oid_def:   "oid\<notin>dom \<sigma>'"
 and  non_type_conform: "Type Object = None "
 and  cp_ctxt:      "cp P"
-and  const_ctxt:   "\<forall> X. \<forall>\<tau> \<tau>'. X \<tau> = X \<tau>' \<longrightarrow> P X \<tau> =  P X \<tau>' "
+and  const_ctxt:   "\<And>X. const X \<Longrightarrow> const (P X)"
 shows   "((\<sigma>, \<lparr>heap=\<sigma>'(oid\<mapsto>Object),assocs\<^sub>2=A,assocs\<^sub>3=B\<rparr>) \<Turnstile> (P(Type .allInstances()))) =
          ((\<sigma>, \<lparr>heap=\<sigma>', assocs\<^sub>2=A, assocs\<^sub>3=B\<rparr>)            \<Turnstile> (P(Type .allInstances())))"
 unfolding OclAllInstances_at_post_def 
@@ -609,7 +605,7 @@ theorem state_update_vs_allInstances_at_post_tc:
 assumes oid_def:   "oid\<notin>dom \<sigma>'"
 and  type_conform: "Type Object \<noteq> None "
 and  cp_ctxt:      "cp P"
-and  const_ctxt:   "\<forall> X. \<forall>\<tau> \<tau>'. X \<tau> = X \<tau>' \<longrightarrow> P X \<tau> =  P X \<tau>' "
+and  const_ctxt:   "\<And>X. const X \<Longrightarrow> const (P X)"
 shows   "((\<sigma>, \<lparr>heap=\<sigma>'(oid\<mapsto>Object),assocs\<^sub>2=A,assocs\<^sub>3=B\<rparr>) \<Turnstile> (P(Type .allInstances()))) =
          ((\<sigma>, \<lparr>heap=\<sigma>', assocs\<^sub>2=A, assocs\<^sub>3=B\<rparr>)            \<Turnstile> (P((Type .allInstances())
                                                                ->including(\<lambda> _. \<lfloor>(Type Object)\<rfloor>))))"
@@ -705,7 +701,7 @@ theorem state_update_vs_allInstances_at_pre_ntc:
 assumes oid_def:   "oid\<notin>dom \<sigma>'"
 and  non_type_conform: "Type Object = None "
 and  cp_ctxt:      "cp P"
-and  const_ctxt:   "\<forall> X. \<forall>\<tau> \<tau>'. X \<tau> = X \<tau>' \<longrightarrow> P X \<tau> =  P X \<tau>' "
+and  const_ctxt:   "\<And>X. const X \<Longrightarrow> const (P X)"
 shows   "((\<lparr>heap=\<sigma>'(oid\<mapsto>Object),assocs\<^sub>2=A,assocs\<^sub>3=B\<rparr>, \<sigma>) \<Turnstile> (P(Type .allInstances@pre()))) =
          ((\<lparr>heap=\<sigma>', assocs\<^sub>2=A, assocs\<^sub>3=B\<rparr>, \<sigma>)            \<Turnstile> (P(Type .allInstances@pre())))"
 unfolding OclAllInstances_at_pre_def 
@@ -715,7 +711,7 @@ theorem state_update_vs_allInstances_at_pre_tc:
 assumes oid_def:   "oid\<notin>dom \<sigma>'"
 and  type_conform: "Type Object \<noteq> None "
 and  cp_ctxt:      "cp P"
-and  const_ctxt:   "\<forall> X. \<forall>\<tau> \<tau>'. X \<tau> = X \<tau>' \<longrightarrow> P X \<tau> =  P X \<tau>' "
+and  const_ctxt:   "\<And>X. const X \<Longrightarrow> const (P X)"
 shows   "((\<lparr>heap=\<sigma>'(oid\<mapsto>Object),assocs\<^sub>2=A,assocs\<^sub>3=B\<rparr>, \<sigma>) \<Turnstile> (P(Type .allInstances@pre()))) =
          ((\<lparr>heap=\<sigma>', assocs\<^sub>2=A, assocs\<^sub>3=B\<rparr>, \<sigma>)            \<Turnstile> (P((Type .allInstances@pre())
                                                                ->including(\<lambda> _. \<lfloor>(Type Object)\<rfloor>))))"
@@ -1055,130 +1051,5 @@ by(simp add: OclIsMaintained_def OclSelf_at_pre_def OclSelf_at_post_def
 
 lemma framing_same_state: "(\<sigma>, \<sigma>) \<Turnstile> (x @pre H  \<triangleq>  (x @post H))"
 by(simp add: OclSelf_at_pre_def OclSelf_at_post_def OclValid_def StrongEq_def)
-
-section{* Miscellaneous : Propagation of "constant contexts P" *}
-subsection{* *}
-(* The following is a special case of const-reasoning and actually obsolete. bu *) 
-(* legacy *)
-
-lemma true_cp_all : "true \<tau>1 = true \<tau>2"
-by(simp add: true_def)
-
-
-(*
-lemma false_cp_all : "false \<tau>1 = false \<tau>2"
-by(simp add: false_def)
-
-lemma null_cp_all : "null \<tau>1 = null \<tau>2"
-by(simp add: null_fun_def)
-*)
-lemma invalid_cp_all : "invalid \<tau>1 = invalid \<tau>2"
-by(simp add: invalid_def)
-(*
-lemma bot_cp_all : "\<bottom> \<tau>1 = \<bottom> \<tau>2"
-by(simp add: bot_fun_def)
-*)
-lemma defined_cp_all :
- assumes "X \<tau>1 = X \<tau>2"
- shows "(\<delta> X) \<tau>1 = (\<delta> X) \<tau>2"
-by(simp add: defined_def false_def true_def bot_fun_def null_fun_def assms)
-
-lemma valid_cp_all :
- assumes "X \<tau>1 = X \<tau>2"
- shows "(\<upsilon> X) \<tau>1 = (\<upsilon> X) \<tau>2"
-by(simp add: valid_def false_def true_def bot_fun_def null_fun_def assms)
-(*
-lemma OclAnd_cp_all :
-  assumes "X \<tau>1 = X \<tau>2"
-  assumes "X' \<tau>1 = X' \<tau>2"
-  shows "(X and X') \<tau>1 = (X and X') \<tau>2"
-by(subst (1 2) cp_OclAnd, simp add: assms OclAnd_def)
-
-lemma OclIf_cp_all :
-  assumes "B \<tau>1 = B \<tau>2"
-  assumes "C1 \<tau>1 = C1 \<tau>2"
-  assumes "C2 \<tau>1 = C2 \<tau>2"
-  shows "(if B then C1 else C2 endif) \<tau>1 = (if B then C1 else C2 endif) \<tau>2"
- apply(subst (1 2) cp_OclIf, simp only: OclIf_def cp_defined[symmetric])
-by(simp add: defined_cp_all[OF assms(1)] true_cp_all assms invalid_cp_all)
-*)
-lemma OclIncluding_cp_all :
- assumes x_int : "\<And>\<tau>. \<tau> \<Turnstile> \<upsilon> x"
-     and x_incl : "x \<tau>1 = x \<tau>2"
-     and S_def : "\<And>\<tau>. \<tau> \<Turnstile> \<delta> S"
-     and S_incl : "S \<tau>1 = S \<tau>2"
-   shows  "S->including(x) \<tau>1 = S->including(x) \<tau>2"
- apply(unfold OclIncluding_def)
- apply(simp add: S_def[simplified OclValid_def] x_int[simplified OclValid_def] S_incl)
- apply(simp add: x_incl)
-done
-(*
-lemma OclForall_cp_all :
-  assumes "X \<tau>1 = X \<tau>2"
-  assumes "\<And>x. x \<tau>1 = x \<tau>2 \<Longrightarrow> X' x \<tau>1 = X' x \<tau>2"
-  shows "OclForall X X' \<tau>1 = OclForall X X' \<tau>2"
- apply(subst (1 2) cp_OclForall, simp only: OclForall_def cp_defined[symmetric])
-by(simp only: defined_cp_all[OF assms(1)] true_cp_all[of \<tau>1 \<tau>2] false_cp_all[of \<tau>1 \<tau>2] null_cp_all[of \<tau>1 \<tau>2] bot_cp_all[of \<tau>1 \<tau>2] assms)
-
-lemma OclIncludes_cp_all :
-  assumes "X \<tau>1 = X \<tau>2"
-  assumes "X' \<tau>1 = X' \<tau>2"
-  shows "OclIncludes X X' \<tau>1 = OclIncludes X X' \<tau>2"
- apply(subst (1 2) cp_OclIncludes, simp only: OclIncludes_def cp_defined[symmetric] cp_valid[symmetric])
-by(simp add: defined_cp_all[OF assms(1)] valid_cp_all[OF assms(2)] true_cp_all assms)
-
-lemma OclNot_cp_all :
-  assumes "X \<tau>1 = X \<tau>2"
-  shows "not X \<tau>1 = not X \<tau>2"
-by(simp add: OclNot_def assms)
-*)
-lemma StrongEq_cp_all :
-  assumes "X \<tau>1 = X \<tau>2"
-  assumes "X' \<tau>1 = X' \<tau>2"
-  shows "(X \<triangleq> X') \<tau>1 = (X \<triangleq> X') \<tau>2"
-by(simp add: StrongEq_def assms)
-
-lemma StrictEq_cp_all :
-  assumes "(X :: (_,_::null) Set) \<tau>1 = X \<tau>2"
-  assumes "X' \<tau>1 = X' \<tau>2"
-  shows "(X \<doteq> X') \<tau>1 = (X \<doteq> X') \<tau>2"
- apply(simp only: StrictRefEq\<^sub>S\<^sub>e\<^sub>t)
-by(subst valid_cp_all[OF assms(1)],
-   subst valid_cp_all[OF assms(2)],
-   subst (1 2) true_cp_all[of \<tau>1 \<tau>2],
-   subst invalid_cp_all[of \<tau>1 \<tau>2],
-   subst StrongEq_cp_all[OF assms],
-   simp)
-
-lemma mtSet_cp_all : "Set{} \<tau>1 = Set{} \<tau>2"
-by(simp add: mtSet_def)
-
-
-
-
-subsection{* *}
-
-lemma StrictRefEq\<^sub>S\<^sub>e\<^sub>t_L_subst1 : "cp P \<Longrightarrow> \<tau> \<Turnstile> \<upsilon> x \<Longrightarrow> \<tau> \<Turnstile> \<upsilon> y \<Longrightarrow> \<tau> \<Turnstile> \<upsilon> P x \<Longrightarrow> \<tau> \<Turnstile> \<upsilon> P y \<Longrightarrow>
-    \<tau> \<Turnstile> (x::('\<AA>,'\<alpha>::null)Set) \<doteq> y \<Longrightarrow> \<tau> \<Turnstile> (P x ::('\<AA>,'\<alpha>::null)Set) \<doteq> P y"
- apply(simp only: StrictRefEq\<^sub>S\<^sub>e\<^sub>t OclValid_def)
- apply(split split_if_asm)
-  apply(simp add: StrongEq_L_subst1[simplified OclValid_def])
-by (simp add: invalid_def bot_option_def true_def)
-
-lemma including_subst_set' :
-shows "\<tau> \<Turnstile> \<delta> s \<Longrightarrow> \<tau> \<Turnstile> \<delta> t \<Longrightarrow> \<tau> \<Turnstile> \<upsilon> x \<Longrightarrow>
-    \<tau> \<Turnstile> ((s::('\<AA>,'a::null)Set) \<doteq> t) \<Longrightarrow> \<tau> \<Turnstile> (s->including(x) \<doteq> (t->including(x)))"
-proof -
- have cp: "cp (\<lambda>s. (s->including(x)))"
-  apply(simp add: cp_def, subst cp_OclIncluding)
- by (rule_tac x = "(\<lambda>xab ab. ((\<lambda>_. xab)->including(\<lambda>_. x ab)) ab)" in exI, simp)
-
- show "\<tau> \<Turnstile> \<delta> s \<Longrightarrow> \<tau> \<Turnstile> \<delta> t \<Longrightarrow> \<tau> \<Turnstile> \<upsilon> x \<Longrightarrow> \<tau> \<Turnstile> (s \<doteq> t) \<Longrightarrow> ?thesis"
-  apply(rule_tac P = "\<lambda>s. (s->including(x))" in StrictRefEq\<^sub>S\<^sub>e\<^sub>t_L_subst1)
-       apply(rule cp)
-      apply(simp add: foundation20) apply(simp add: foundation20)
-    apply (simp add: foundation10 foundation6)+
- done
-qed
 
 end

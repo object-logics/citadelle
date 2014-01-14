@@ -1236,206 +1236,76 @@ proof -
  by(simp)
 qed
 
+(* *)
+
+declare const_ss [simp]
+
+lemma incl_cp_all : "const a \<Longrightarrow>
+                     const S \<Longrightarrow>
+                     const X \<Longrightarrow> const (X \<doteq> S->including(a))"
+ apply(rule const_StrictEq, assumption)
+by(rule const_OclIncluding)
+
+lemma StrictRefEq\<^sub>S\<^sub>e\<^sub>t_L_subst1 : "cp P \<Longrightarrow> \<tau> \<Turnstile> \<upsilon> x \<Longrightarrow> \<tau> \<Turnstile> \<upsilon> y \<Longrightarrow> \<tau> \<Turnstile> \<upsilon> P x \<Longrightarrow> \<tau> \<Turnstile> \<upsilon> P y \<Longrightarrow>
+    \<tau> \<Turnstile> (x::('\<AA>,'\<alpha>::null)Set) \<doteq> y \<Longrightarrow> \<tau> \<Turnstile> (P x ::('\<AA>,'\<alpha>::null)Set) \<doteq> P y"
+ apply(simp only: StrictRefEq\<^sub>S\<^sub>e\<^sub>t OclValid_def)
+ apply(split split_if_asm)
+  apply(simp add: StrongEq_L_subst1[simplified OclValid_def])
+by (simp add: invalid_def bot_option_def true_def)
+
+lemma including_subst_set' :
+shows "\<tau> \<Turnstile> \<delta> s \<Longrightarrow> \<tau> \<Turnstile> \<delta> t \<Longrightarrow> \<tau> \<Turnstile> \<upsilon> x \<Longrightarrow>
+    \<tau> \<Turnstile> ((s::('\<AA>,'a::null)Set) \<doteq> t) \<Longrightarrow> \<tau> \<Turnstile> (s->including(x) \<doteq> (t->including(x)))"
+proof -
+ have cp: "cp (\<lambda>s. (s->including(x)))"
+  apply(simp add: cp_def, subst cp_OclIncluding)
+ by (rule_tac x = "(\<lambda>xab ab. ((\<lambda>_. xab)->including(\<lambda>_. x ab)) ab)" in exI, simp)
+
+ show "\<tau> \<Turnstile> \<delta> s \<Longrightarrow> \<tau> \<Turnstile> \<delta> t \<Longrightarrow> \<tau> \<Turnstile> \<upsilon> x \<Longrightarrow> \<tau> \<Turnstile> (s \<doteq> t) \<Longrightarrow> ?thesis"
+  apply(rule_tac P = "\<lambda>s. (s->including(x))" in StrictRefEq\<^sub>S\<^sub>e\<^sub>t_L_subst1)
+       apply(rule cp)
+      apply(simp add: foundation20) apply(simp add: foundation20)
+    apply (simp add: foundation10 foundation6)+
+ done
+qed
+
+lemma including_subst_set : "\<And>(s::('\<AA>,'a::null)Set) t x y \<tau>. \<tau> \<Turnstile> \<delta> t \<Longrightarrow> \<tau> \<Turnstile> \<upsilon> y \<Longrightarrow>
+                             \<tau> \<Turnstile> s \<doteq> t \<Longrightarrow> x = y \<Longrightarrow> \<tau> \<Turnstile> s->including(x) \<doteq> (t->including(y))"
+ apply(simp only:)
+ apply(rule including_subst_set', simp_all only:)
+by(auto simp: OclValid_def OclIf_def invalid_def bot_option_def OclNot_def split : split_if_asm)
+
 lemma "\<And>\<sigma>\<^sub>1.
  (\<sigma>\<^sub>1,\<sigma>\<^sub>1') \<Turnstile> (Person .allInstances() \<doteq> Set{ X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n1, X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2, X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n3, X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n4(*, X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n5*), X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n6,
                                            X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n7 .oclAsType(Person)(*, X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n8*), X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n9 })"
-proof -
- let ?p7 = "((((\<lambda>_. \<lfloor>\<lfloor>mk\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y 6 \<lfloor>(\<lfloor>3200\<rfloor>, \<lfloor>6\<rfloor>)\<rfloor>\<rfloor>\<rfloor>)
-                :: \<AA> state \<times> \<AA> state \<Rightarrow> type\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y option option) .oclAsType(Person)))"
-
- have incl_cp_all : "\<And>S a.
-                     \<forall>X \<tau> \<tau>'. X \<tau> = X \<tau>' \<longrightarrow>
-                     (X \<doteq> S) \<tau> =
-                     (X \<doteq> S) \<tau>' \<Longrightarrow>
-                     \<forall>\<tau>. \<tau> \<Turnstile> \<upsilon> a \<Longrightarrow>
-                     \<forall>\<tau> \<tau>'. a \<tau> = a \<tau>' \<Longrightarrow>
-                     \<forall>\<tau>. \<tau> \<Turnstile> \<delta> S \<Longrightarrow>
-                     \<forall>\<tau> \<tau>'. S \<tau> = S \<tau>' \<Longrightarrow>
-                     \<forall>X \<tau> \<tau>'. X \<tau> = X \<tau>' \<longrightarrow>
-                     (X \<doteq> S->including(a)) \<tau> =
-                     (X \<doteq> S->including(a)) \<tau>'"
-  apply(intro allI impI, rule StrictEq_cp_all, simp)
- by(rule OclIncluding_cp_all, fast+)
-
- have cp_0 : "\<And>\<sigma>\<^sub>1. \<forall>X \<tau> \<tau>'. X \<tau> = X \<tau>' \<longrightarrow>
-                     (X \<doteq> Set{}) \<tau> =
-                     (X \<doteq> Set{}) \<tau>'"
-  apply(intro allI impI, rule StrictEq_cp_all, simp)
- by(rule mtSet_cp_all)
- have cp_9 : "\<And>\<sigma>\<^sub>1. \<forall>X \<tau> \<tau>'. X \<tau> = X \<tau>' \<longrightarrow>
-                     (X \<doteq> Set{\<lambda>_. \<lfloor>\<lfloor>person9\<rfloor>\<rfloor>}) \<tau> =
-                     (X \<doteq> Set{\<lambda>_. \<lfloor>\<lfloor>person9\<rfloor>\<rfloor>}) \<tau>'"
- by(rule incl_cp_all[OF cp_0], (simp add: mtSet_cp_all)+)
- have cp_7 : "\<And>\<sigma>\<^sub>1. \<forall>X \<tau> \<tau>'. X \<tau> = X \<tau>' \<longrightarrow>
-                     (X \<doteq> Set{?p7, \<lambda>_. \<lfloor>\<lfloor>person9\<rfloor>\<rfloor>}) \<tau> =
-                     (X \<doteq> Set{?p7, \<lambda>_. \<lfloor>\<lfloor>person9\<rfloor>\<rfloor>}) \<tau>'"
-  apply(rule incl_cp_all[OF cp_9], simp+)
- by(intro allI, (rule OclIncluding_cp_all, simp_all add: mtSet_cp_all)+)
- have cp_6 : "\<And>\<sigma>\<^sub>1. \<forall>X \<tau> \<tau>'. X \<tau> = X \<tau>' \<longrightarrow>
-                     (X \<doteq> Set{\<lambda>_. \<lfloor>\<lfloor>person6\<rfloor>\<rfloor>, ?p7, \<lambda>_. \<lfloor>\<lfloor>person9\<rfloor>\<rfloor>}) \<tau> =
-                     (X \<doteq> Set{\<lambda>_. \<lfloor>\<lfloor>person6\<rfloor>\<rfloor>, ?p7, \<lambda>_. \<lfloor>\<lfloor>person9\<rfloor>\<rfloor>}) \<tau>'"
-  apply(rule incl_cp_all[OF cp_7], simp+)
- by(intro allI, (rule OclIncluding_cp_all, simp_all add: mtSet_cp_all)+)
- have cp_4 : "\<And>\<sigma>\<^sub>1. \<forall>X \<tau> \<tau>'. X \<tau> = X \<tau>' \<longrightarrow>
-                     (X \<doteq> Set{\<lambda>_. \<lfloor>\<lfloor>person4\<rfloor>\<rfloor>, \<lambda>_. \<lfloor>\<lfloor>person6\<rfloor>\<rfloor>, ?p7, \<lambda>_. \<lfloor>\<lfloor>person9\<rfloor>\<rfloor>}) \<tau> =
-                     (X \<doteq> Set{\<lambda>_. \<lfloor>\<lfloor>person4\<rfloor>\<rfloor>, \<lambda>_. \<lfloor>\<lfloor>person6\<rfloor>\<rfloor>, ?p7, \<lambda>_. \<lfloor>\<lfloor>person9\<rfloor>\<rfloor>}) \<tau>'"
-  apply(rule incl_cp_all[OF cp_6], simp+)
- by(intro allI, (rule OclIncluding_cp_all, simp_all add: mtSet_cp_all)+)
- have cp_3 : "\<And>\<sigma>\<^sub>1. \<forall>X \<tau> \<tau>'. X \<tau> = X \<tau>' \<longrightarrow>
-                     (X \<doteq> Set{\<lambda>_. \<lfloor>\<lfloor>person3\<rfloor>\<rfloor>, \<lambda>_. \<lfloor>\<lfloor>person4\<rfloor>\<rfloor>, \<lambda>_. \<lfloor>\<lfloor>person6\<rfloor>\<rfloor>, ?p7, \<lambda>_. \<lfloor>\<lfloor>person9\<rfloor>\<rfloor>}) \<tau> =
-                     (X \<doteq> Set{\<lambda>_. \<lfloor>\<lfloor>person3\<rfloor>\<rfloor>, \<lambda>_. \<lfloor>\<lfloor>person4\<rfloor>\<rfloor>, \<lambda>_. \<lfloor>\<lfloor>person6\<rfloor>\<rfloor>, ?p7, \<lambda>_. \<lfloor>\<lfloor>person9\<rfloor>\<rfloor>}) \<tau>'"
-  apply(rule incl_cp_all[OF cp_4], simp+)
- by(intro allI, (rule OclIncluding_cp_all, simp_all add: mtSet_cp_all)+)
- have cp_2 : "\<And>\<sigma>\<^sub>1. \<forall>X \<tau> \<tau>'. X \<tau> = X \<tau>' \<longrightarrow>
-                     (X \<doteq> Set{\<lambda>_. \<lfloor>\<lfloor>person2\<rfloor>\<rfloor>, \<lambda>_. \<lfloor>\<lfloor>person3\<rfloor>\<rfloor>, \<lambda>_. \<lfloor>\<lfloor>person4\<rfloor>\<rfloor>, \<lambda>_. \<lfloor>\<lfloor>person6\<rfloor>\<rfloor>, ?p7, \<lambda>_. \<lfloor>\<lfloor>person9\<rfloor>\<rfloor>}) \<tau> =
-                     (X \<doteq> Set{\<lambda>_. \<lfloor>\<lfloor>person2\<rfloor>\<rfloor>, \<lambda>_. \<lfloor>\<lfloor>person3\<rfloor>\<rfloor>, \<lambda>_. \<lfloor>\<lfloor>person4\<rfloor>\<rfloor>, \<lambda>_. \<lfloor>\<lfloor>person6\<rfloor>\<rfloor>, ?p7, \<lambda>_. \<lfloor>\<lfloor>person9\<rfloor>\<rfloor>}) \<tau>'"
-  apply(rule incl_cp_all[OF cp_3], simp+)
- by(intro allI, (rule OclIncluding_cp_all, simp_all add: mtSet_cp_all)+)
- have cp_1 : "\<And>\<sigma>\<^sub>1. \<forall>X \<tau> \<tau>'. X \<tau> = X \<tau>' \<longrightarrow>
-                     (X \<doteq> Set{\<lambda>_. \<lfloor>\<lfloor>person1\<rfloor>\<rfloor>, \<lambda>_. \<lfloor>\<lfloor>person2\<rfloor>\<rfloor>, \<lambda>_. \<lfloor>\<lfloor>person3\<rfloor>\<rfloor>, \<lambda>_. \<lfloor>\<lfloor>person4\<rfloor>\<rfloor>, \<lambda>_. \<lfloor>\<lfloor>person6\<rfloor>\<rfloor>, ?p7, \<lambda>_. \<lfloor>\<lfloor>person9\<rfloor>\<rfloor>}) \<tau> =
-                     (X \<doteq> Set{\<lambda>_. \<lfloor>\<lfloor>person1\<rfloor>\<rfloor>, \<lambda>_. \<lfloor>\<lfloor>person2\<rfloor>\<rfloor>, \<lambda>_. \<lfloor>\<lfloor>person3\<rfloor>\<rfloor>, \<lambda>_. \<lfloor>\<lfloor>person4\<rfloor>\<rfloor>, \<lambda>_. \<lfloor>\<lfloor>person6\<rfloor>\<rfloor>, ?p7, \<lambda>_. \<lfloor>\<lfloor>person9\<rfloor>\<rfloor>}) \<tau>'"
-  apply(rule incl_cp_all[OF cp_2], simp+)
- by(intro allI, (rule OclIncluding_cp_all, simp_all add: mtSet_cp_all)+)
-
- have including_subst_set : "\<And>(s::('\<AA>,'a::null)Set) t x y \<tau>. \<tau> \<Turnstile> \<delta> t \<Longrightarrow> \<tau> \<Turnstile> \<upsilon> y \<Longrightarrow>
-                             \<tau> \<Turnstile> s \<doteq> t \<Longrightarrow> x = y \<Longrightarrow> \<tau> \<Turnstile> s->including(x) \<doteq> (t->including(y))"
-  apply(simp only:)
-  apply(rule including_subst_set', simp_all only:)
- by(auto simp: OclValid_def OclIf_def invalid_def bot_option_def OclNot_def split : split_if_asm)
-
- show "\<And>\<sigma>\<^sub>1. ?thesis \<sigma>\<^sub>1"
-  apply(subst perm_\<sigma>\<^sub>1')
-  apply(simp only: oid0_def oid1_def oid2_def oid3_def oid4_def oid5_def oid6_def oid7_def oid8_def
-                   X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n1_def X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2_def X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n3_def X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n4_def
-                   X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n5_def X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n6_def X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n7_def X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n8_def X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n9_def
-                   person7_def)
-  apply(subst state_update_vs_allInstances_at_post_tc, simp, simp add: OclAsType\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_\<AA>_def, simp, rule cp_1, rule including_subst_set, simp, simp)
-   apply(subst state_update_vs_allInstances_at_post_tc, simp, simp add: OclAsType\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_\<AA>_def, simp, rule cp_2, rule including_subst_set, simp, simp)
-    apply(subst state_update_vs_allInstances_at_post_tc, simp, simp add: OclAsType\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_\<AA>_def, simp, rule cp_3, rule including_subst_set, simp, simp)
-     apply(subst state_update_vs_allInstances_at_post_tc, simp, simp add: OclAsType\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_\<AA>_def, simp, rule cp_4, rule including_subst_set, simp, simp)
-      apply(subst state_update_vs_allInstances_at_post_tc, simp, simp add: OclAsType\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_\<AA>_def, simp, rule cp_6, rule including_subst_set, simp, simp)
-       apply(subst state_update_vs_allInstances_at_post_tc, simp, simp add: OclAsType\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_\<AA>_def, simp, rule cp_7, rule including_subst_set, simp, simp)
-        apply(subst state_update_vs_allInstances_at_post_ntc, simp, simp add: OclAsType\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_\<AA>_def
-                                                                              person8_def, simp, rule cp_9)
-        apply(subst state_update_vs_allInstances_at_post_tc, simp, simp add: OclAsType\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_\<AA>_def, simp, rule cp_9, rule including_subst_set, simp, simp)
-         apply(rule state_update_vs_allInstances_at_post_empty)
- by(simp_all add: OclAsType\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_\<AA>_def)
-qed
+ apply(subst perm_\<sigma>\<^sub>1')
+ apply(simp only: oid0_def oid1_def oid2_def oid3_def oid4_def oid5_def oid6_def oid7_def oid8_def
+                  X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n1_def X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2_def X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n3_def X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n4_def
+                  X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n5_def X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n6_def X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n7_def X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n8_def X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n9_def
+                  person7_def)
+ apply(subst state_update_vs_allInstances_at_post_tc, simp, simp add: OclAsType\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_\<AA>_def, simp, rule incl_cp_all, simp, simp, simp, rule including_subst_set, simp, simp)
+  apply(subst state_update_vs_allInstances_at_post_tc, simp, simp add: OclAsType\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_\<AA>_def, simp, rule incl_cp_all, simp, simp, simp, rule including_subst_set, simp, simp)
+   apply(subst state_update_vs_allInstances_at_post_tc, simp, simp add: OclAsType\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_\<AA>_def, simp, rule incl_cp_all, simp, simp, simp, rule including_subst_set, simp, simp)
+    apply(subst state_update_vs_allInstances_at_post_tc, simp, simp add: OclAsType\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_\<AA>_def, simp, rule incl_cp_all, simp, simp, simp, rule including_subst_set, simp, simp)
+     apply(subst state_update_vs_allInstances_at_post_tc, simp, simp add: OclAsType\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_\<AA>_def, simp, rule incl_cp_all, simp, simp, simp, rule including_subst_set, simp, simp)
+      apply(subst state_update_vs_allInstances_at_post_tc, simp, simp add: OclAsType\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_\<AA>_def, simp, rule incl_cp_all, simp, simp, simp, rule including_subst_set, simp, simp)
+       apply(subst state_update_vs_allInstances_at_post_ntc, simp, simp add: OclAsType\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_\<AA>_def
+                                                                             person8_def, simp, rule incl_cp_all, simp, simp, simp)
+       apply(subst state_update_vs_allInstances_at_post_tc, simp, simp add: OclAsType\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_\<AA>_def, simp, rule incl_cp_all, simp, simp, simp, rule including_subst_set, simp, simp)
+        apply(rule state_update_vs_allInstances_at_post_empty)
+by(simp_all add: OclAsType\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_\<AA>_def)
 
 lemma "\<And>\<sigma>\<^sub>1.
  (\<sigma>\<^sub>1,\<sigma>\<^sub>1') \<Turnstile> (OclAny .allInstances() \<doteq> Set{ X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n1 .oclAsType(OclAny), X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2 .oclAsType(OclAny),
                                            X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n3 .oclAsType(OclAny), X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n4 .oclAsType(OclAny)
                                            (*, X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n5*), X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n6 .oclAsType(OclAny), 
                                            X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n7, X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n8, X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n9 .oclAsType(OclAny) })"
-proof -
- let ?p1 = "((((\<lambda>_. \<lfloor>\<lfloor>mk\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n 0 \<lfloor>1300\<rfloor> \<lfloor>1\<rfloor>\<rfloor>\<rfloor>)
-                :: \<AA> state \<times> \<AA> state \<Rightarrow> type\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n option option) .oclAsType(OclAny)))"
- let ?p2 = "((((\<lambda>_. \<lfloor>\<lfloor>mk\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n 1 \<lfloor>1800\<rfloor> \<lfloor>1\<rfloor>\<rfloor>\<rfloor>)
-                :: \<AA> state \<times> \<AA> state \<Rightarrow> type\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n option option) .oclAsType(OclAny)))"
- let ?p3 = "((((\<lambda>_. \<lfloor>\<lfloor>mk\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n 2 None None\<rfloor>\<rfloor>)
-                :: \<AA> state \<times> \<AA> state \<Rightarrow> type\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n option option) .oclAsType(OclAny)))"
- let ?p4 = "((((\<lambda>_. \<lfloor>\<lfloor>mk\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n 3 \<lfloor>2900\<rfloor> None\<rfloor>\<rfloor>)
-                :: \<AA> state \<times> \<AA> state \<Rightarrow> type\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n option option) .oclAsType(OclAny)))"
- let ?p6 = "((((\<lambda>_. \<lfloor>\<lfloor>mk\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n 5 \<lfloor>2500\<rfloor> \<lfloor>6\<rfloor>\<rfloor>\<rfloor>)
-                :: \<AA> state \<times> \<AA> state \<Rightarrow> type\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n option option) .oclAsType(OclAny)))"
- let ?p9 = "((((\<lambda>_. \<lfloor>\<lfloor>mk\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n 8 \<lfloor>0\<rfloor> None\<rfloor>\<rfloor>)
-                :: \<AA> state \<times> \<AA> state \<Rightarrow> type\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n option option) .oclAsType(OclAny)))"
-
- have incl_cp_all : "\<And>S a.
-                     \<forall>X \<tau> \<tau>'. X \<tau> = X \<tau>' \<longrightarrow>
-                     (X \<doteq> S) \<tau> =
-                     (X \<doteq> S) \<tau>' \<Longrightarrow>
-                     \<forall>\<tau>. \<tau> \<Turnstile> \<upsilon> a \<Longrightarrow>
-                     \<forall>\<tau> \<tau>'. a \<tau> = a \<tau>' \<Longrightarrow>
-                     \<forall>\<tau>. \<tau> \<Turnstile> \<delta> S \<Longrightarrow>
-                     \<forall>\<tau> \<tau>'. S \<tau> = S \<tau>' \<Longrightarrow>
-                     \<forall>X \<tau> \<tau>'. X \<tau> = X \<tau>' \<longrightarrow>
-                     (X \<doteq> S->including(a)) \<tau> =
-                     (X \<doteq> S->including(a)) \<tau>'"
-  apply(intro allI impI, rule StrictEq_cp_all, simp)
- by(rule OclIncluding_cp_all, fast+)
-
- have cp_0 : "\<forall>X \<tau> \<tau>'. X \<tau> = X \<tau>' \<longrightarrow>
-                     (X \<doteq> Set{}) \<tau> =
-                     (X \<doteq> Set{}) \<tau>'"
-  apply(intro allI impI, rule StrictEq_cp_all, simp)
- by(rule mtSet_cp_all)
- have cp_9 : "\<forall>X \<tau> \<tau>'. X \<tau> = X \<tau>' \<longrightarrow>
-                    (X \<doteq> Set{?p9})
-                     \<tau> =
-                    (X \<doteq> Set{?p9})
-                     \<tau>'"
- by(rule incl_cp_all[OF cp_0], (simp add: mtSet_cp_all)+)
- have cp_8 : "\<forall>X \<tau> \<tau>'. X \<tau> = X \<tau>' \<longrightarrow>
-                    (X \<doteq> Set{(\<lambda>_. \<lfloor>\<lfloor>person8\<rfloor>\<rfloor>), ?p9})
-                     \<tau> =
-                    (X \<doteq> Set{(\<lambda>_. \<lfloor>\<lfloor>person8\<rfloor>\<rfloor>), ?p9})
-                     \<tau>'"
-  apply(rule incl_cp_all[OF cp_9], simp+)
- by(intro allI, (rule OclIncluding_cp_all, simp_all add: mtSet_cp_all)+)
- have cp_7 : "\<forall>X \<tau> \<tau>'. X \<tau> = X \<tau>' \<longrightarrow>
-                    (X \<doteq> Set{(\<lambda>_. \<lfloor>\<lfloor>person7\<rfloor>\<rfloor>), (\<lambda>_. \<lfloor>\<lfloor>person8\<rfloor>\<rfloor>), ?p9})
-                     \<tau> =
-                    (X \<doteq> Set{(\<lambda>_. \<lfloor>\<lfloor>person7\<rfloor>\<rfloor>), (\<lambda>_. \<lfloor>\<lfloor>person8\<rfloor>\<rfloor>), ?p9})
-                     \<tau>'"
-  apply(rule incl_cp_all[OF cp_8], simp+)
- by(intro allI, (rule OclIncluding_cp_all, simp_all add: mtSet_cp_all)+)
- have cp_6 : "\<forall>X \<tau> \<tau>'. X \<tau> = X \<tau>' \<longrightarrow>
-                    (X \<doteq> Set{?p6, (\<lambda>_. \<lfloor>\<lfloor>person7\<rfloor>\<rfloor>), (\<lambda>_. \<lfloor>\<lfloor>person8\<rfloor>\<rfloor>), ?p9})
-                     \<tau> =
-                    (X \<doteq> Set{?p6, (\<lambda>_. \<lfloor>\<lfloor>person7\<rfloor>\<rfloor>), (\<lambda>_. \<lfloor>\<lfloor>person8\<rfloor>\<rfloor>), ?p9})
-                     \<tau>'"
-  apply(rule incl_cp_all[OF cp_7], simp+)
- by(intro allI, (rule OclIncluding_cp_all, simp_all add: mtSet_cp_all)+)
- have cp_4 : "\<forall>X \<tau> \<tau>'. X \<tau> = X \<tau>' \<longrightarrow>
-                    (X \<doteq> Set{?p4, ?p6, (\<lambda>_. \<lfloor>\<lfloor>person7\<rfloor>\<rfloor>), (\<lambda>_. \<lfloor>\<lfloor>person8\<rfloor>\<rfloor>), ?p9})
-                     \<tau> =
-                    (X \<doteq> Set{?p4, ?p6, (\<lambda>_. \<lfloor>\<lfloor>person7\<rfloor>\<rfloor>), (\<lambda>_. \<lfloor>\<lfloor>person8\<rfloor>\<rfloor>), ?p9})
-                     \<tau>'"
-  apply(rule incl_cp_all[OF cp_6], simp+)
- by(intro allI, (rule OclIncluding_cp_all, simp_all add: mtSet_cp_all)+)
- have cp_3 : "\<forall>X \<tau> \<tau>'. X \<tau> = X \<tau>' \<longrightarrow>
-                    (X \<doteq> Set{?p3, ?p4, ?p6, (\<lambda>_. \<lfloor>\<lfloor>person7\<rfloor>\<rfloor>), (\<lambda>_. \<lfloor>\<lfloor>person8\<rfloor>\<rfloor>), ?p9})
-                     \<tau> =
-                    (X \<doteq> Set{?p3, ?p4, ?p6, (\<lambda>_. \<lfloor>\<lfloor>person7\<rfloor>\<rfloor>), (\<lambda>_. \<lfloor>\<lfloor>person8\<rfloor>\<rfloor>), ?p9})
-                     \<tau>'"
-  apply(rule incl_cp_all[OF cp_4], simp+)
- by(intro allI, (rule OclIncluding_cp_all, simp_all add: mtSet_cp_all)+)
- have cp_2 : "\<forall>X \<tau> \<tau>'. X \<tau> = X \<tau>' \<longrightarrow>
-                    (X \<doteq> Set{?p2, ?p3, ?p4, ?p6, (\<lambda>_. \<lfloor>\<lfloor>person7\<rfloor>\<rfloor>), (\<lambda>_. \<lfloor>\<lfloor>person8\<rfloor>\<rfloor>), ?p9})
-                     \<tau> =
-                    (X \<doteq> Set{?p2, ?p3, ?p4, ?p6, (\<lambda>_. \<lfloor>\<lfloor>person7\<rfloor>\<rfloor>), (\<lambda>_. \<lfloor>\<lfloor>person8\<rfloor>\<rfloor>), ?p9})
-                     \<tau>'"
-  apply(rule incl_cp_all[OF cp_3], simp+)
- by(intro allI, (rule OclIncluding_cp_all, simp_all add: mtSet_cp_all)+)
- have cp_1 : "\<forall>X \<tau> \<tau>'. X \<tau> = X \<tau>' \<longrightarrow>
-                    (X \<doteq> Set{?p1, ?p2, ?p3, ?p4, ?p6, (\<lambda>_. \<lfloor>\<lfloor>person7\<rfloor>\<rfloor>), (\<lambda>_. \<lfloor>\<lfloor>person8\<rfloor>\<rfloor>), ?p9})
-                     \<tau> =
-                    (X \<doteq> Set{?p1, ?p2, ?p3, ?p4, ?p6, (\<lambda>_. \<lfloor>\<lfloor>person7\<rfloor>\<rfloor>), (\<lambda>_. \<lfloor>\<lfloor>person8\<rfloor>\<rfloor>), ?p9})
-                     \<tau>'"
-  apply(rule incl_cp_all[OF cp_2], simp+)
- by(intro allI, (rule OclIncluding_cp_all, simp_all add: mtSet_cp_all)+)
-
- have including_subst_set : "\<And>(s::('\<AA>,'a::null)Set) t x y \<tau>. \<tau> \<Turnstile> \<delta> t \<Longrightarrow> \<tau> \<Turnstile> \<upsilon> y \<Longrightarrow> \<tau> \<Turnstile> s \<doteq> t \<Longrightarrow> x = y \<Longrightarrow> \<tau> \<Turnstile> s->including(x) \<doteq> (t->including(y))"
-  apply(simp only:)
-  apply(rule including_subst_set', simp_all only:)
- by(auto simp: OclValid_def OclIf_def invalid_def bot_option_def OclNot_def split : split_if_asm)
-
- show "\<And>\<sigma>\<^sub>1. ?thesis \<sigma>\<^sub>1"
-  apply(subst perm_\<sigma>\<^sub>1')
-  apply(simp only: oid0_def oid1_def oid2_def oid3_def oid4_def oid5_def oid6_def oid7_def oid8_def
-                   X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n1_def X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2_def X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n3_def X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n4_def X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n5_def X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n6_def X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n7_def X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n8_def X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n9_def
-                   person1_def person2_def person3_def person4_def person5_def person6_def person9_def)
-  apply(subst state_update_vs_allInstances_at_post_tc, simp, simp add: OclAsType\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_\<AA>_def, simp, rule cp_1, rule including_subst_set, simp, simp)
-   apply(subst state_update_vs_allInstances_at_post_tc, simp, simp add: OclAsType\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_\<AA>_def, simp, rule cp_2, rule including_subst_set, simp, simp)
-    apply(subst state_update_vs_allInstances_at_post_tc, simp, simp add: OclAsType\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_\<AA>_def, simp, rule cp_3, rule including_subst_set, simp, simp)
-     apply(subst state_update_vs_allInstances_at_post_tc, simp, simp add: OclAsType\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_\<AA>_def, simp, rule cp_4, rule including_subst_set, simp, simp)
-      apply(subst state_update_vs_allInstances_at_post_tc, simp, simp add: OclAsType\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_\<AA>_def, simp, rule cp_6, rule including_subst_set, simp, simp)
-       apply(subst state_update_vs_allInstances_at_post_tc, simp, simp add: OclAsType\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_\<AA>_def, simp, rule cp_7, rule including_subst_set, simp, simp)
-        apply(subst state_update_vs_allInstances_at_post_tc, simp, simp add: OclAsType\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_\<AA>_def, simp, rule cp_8, rule including_subst_set, simp, simp)
-         apply(subst state_update_vs_allInstances_at_post_tc, simp, simp add: OclAsType\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_\<AA>_def, simp, rule cp_9, rule including_subst_set, simp, simp)
-          apply(rule state_update_vs_allInstances_at_post_empty)
- by(simp_all add: OclAsType\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_\<AA>_def)
-qed
+ apply(subst perm_\<sigma>\<^sub>1')
+ apply(simp only: oid0_def oid1_def oid2_def oid3_def oid4_def oid5_def oid6_def oid7_def oid8_def
+                  X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n1_def X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2_def X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n3_def X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n4_def X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n5_def X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n6_def X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n7_def X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n8_def X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n9_def
+                  person1_def person2_def person3_def person4_def person5_def person6_def person9_def)
+ apply(subst state_update_vs_allInstances_at_post_tc, simp, simp add: OclAsType\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_\<AA>_def, simp, rule incl_cp_all, simp, simp, simp, rule including_subst_set, simp, simp)+
+         apply(rule state_update_vs_allInstances_at_post_empty)
+by(simp_all add: OclAsType\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_\<AA>_def)
 
 end
