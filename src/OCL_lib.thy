@@ -352,14 +352,17 @@ lemma null_non_OclInt8 [simp,code_unfold]: "(null \<doteq> \<eight>) = false" by
 lemma OclInt9_non_null [simp,code_unfold]: "(\<nine> \<doteq> null) = false" by(simp add: OclInt9_def)
 lemma null_non_OclInt9 [simp,code_unfold]: "(null \<doteq> \<nine>) = false" by(simp add: OclInt9_def)
 
-lemma [simp]: "const(\<zero>)" by(simp add: const_ss OclInt0_def)
-lemma [simp]: "const(\<one>)" by(simp add: const_ss OclInt1_def)
-lemma [simp]: "const(\<two>)" by(simp add: const_ss OclInt2_def)
-lemma [simp]: "const(\<six>)" by(simp add: const_ss OclInt6_def)
-lemma [simp]: "const(\<eight>)" by(simp add: const_ss OclInt8_def)
-lemma [simp]: "const(\<nine>)" by(simp add: const_ss OclInt9_def)
 
 (* plus all the others ...*)
+
+subsubsection{* Const *}
+
+lemma [simp,code_unfold]: "const(\<zero>)" by(simp add: const_ss OclInt0_def)
+lemma [simp,code_unfold]: "const(\<one>)" by(simp add: const_ss OclInt1_def)
+lemma [simp,code_unfold]: "const(\<two>)" by(simp add: const_ss OclInt2_def)
+lemma [simp,code_unfold]: "const(\<six>)" by(simp add: const_ss OclInt6_def)
+lemma [simp,code_unfold]: "const(\<eight>)" by(simp add: const_ss OclInt8_def)
+lemma [simp,code_unfold]: "const(\<nine>)" by(simp add: const_ss OclInt9_def)
 
 
 subsubsection{* Behavior vs StrongEq *}
@@ -598,7 +601,7 @@ lemma mtSet_rep_set: "\<lceil>\<lceil>Rep_Set_0 (Set{} \<tau>)\<rceil>\<rceil> =
  apply(simp add: mtSet_def, subst Abs_Set_0_inverse)
 by(simp add: bot_option_def)+
 
-lemma [simp]: "const Set{}"
+lemma [simp,code_unfold]: "const Set{}"
 by(simp add: const_def mtSet_def)
 
 
@@ -1323,6 +1326,66 @@ lemmas cp_intro''[intro!,simp,code_unfold] =
        cp_OclNotEmpty  [THEN allI[THEN allI[THEN cpI1], of "OclNotEmpty"]]
        cp_OclANY      [THEN allI[THEN allI[THEN cpI1], of "OclANY"]]
 
+subsection{* Const *}
+
+lemma const_OclIncluding[simp,code_unfold] :
+ assumes const_x : "const x"
+     and const_S : "const S"
+   shows  "const (S->including(x))"
+   proof -
+     have A:"\<And>\<tau> \<tau>'. \<not> (\<tau> \<Turnstile> \<upsilon> x) \<Longrightarrow> (S->including(x) \<tau>) = (S->including(x) \<tau>')" 
+            apply(simp add: foundation18)
+            apply(erule const_subst[OF const_x const_invalid],simp_all)
+            by(rule const_charn[OF const_invalid])
+     have B: "\<And> \<tau> \<tau>'. \<not> (\<tau> \<Turnstile> \<delta> S) \<Longrightarrow> (S->including(x) \<tau>) = (S->including(x) \<tau>')" 
+            apply(simp add: foundation16', elim disjE)
+            apply(erule const_subst[OF const_S const_invalid],simp_all)
+            apply(rule const_charn[OF const_invalid])
+            apply(erule const_subst[OF const_S const_null],simp_all)
+            by(rule const_charn[OF const_invalid])
+     show ?thesis
+       apply(simp only: const_def,intro allI, rename_tac \<tau> \<tau>')
+       apply(case_tac "\<not> (\<tau> \<Turnstile> \<upsilon> x)", simp add: A)
+       apply(case_tac "\<not> (\<tau> \<Turnstile> \<delta> S)", simp_all add: B)
+       apply(frule_tac \<tau>'1= \<tau>' in  const_OclValid2[OF const_x, THEN iffD1])
+       apply(frule_tac \<tau>'1= \<tau>' in  const_OclValid1[OF const_S, THEN iffD1])
+       apply(simp add: OclIncluding_def OclValid_def)
+       apply(subst const_charn[OF const_x])
+       apply(subst const_charn[OF const_S])
+       by simp
+qed
+
+(*
+lemma const_OclForall :
+  assumes "const X"
+  assumes "\<And>x \<tau>1 \<tau>2. x \<tau>1 = x \<tau>2 \<Longrightarrow> X' x \<tau>1 = X' x \<tau>2"
+  shows "const (OclForall X X')"
+ apply(simp only: const_def, intro allI)
+ proof - fix \<tau>1 \<tau>2 show "OclForall X X' \<tau>1 = OclForall X X' \<tau>2"
+  apply(subst (1 2) cp_OclForall, simp only: OclForall_def cp_defined[symmetric])
+ by(simp only: const_defined[OF assms(1), simplified const_def, THEN spec, THEN spec, of \<tau>1 \<tau>2]
+                  const_true[simplified const_def, THEN spec, THEN spec, of \<tau>1 \<tau>2]
+                  const_false[simplified const_def, THEN spec, THEN spec, of \<tau>1 \<tau>2]
+                  const_null[simplified const_def, THEN spec, THEN spec, of \<tau>1 \<tau>2]
+                  const_bot[simplified const_def, THEN spec, THEN spec, of \<tau>1 \<tau>2]
+                  assms(1)[simplified const_def, THEN spec, THEN spec, of \<tau>1 \<tau>2]
+                  assms(2)[of _ \<tau>1 \<tau>2])
+qed
+
+lemma const_OclIncludes :
+  assumes "const X"
+  assumes "const X'"
+  shows "const (OclIncludes X X')"
+ apply(rule const_imply3[OF _ assms], subst (1 2) cp_OclIncludes, simp only: OclIncludes_def cp_defined[symmetric] cp_valid[symmetric])
+ apply(simp add:
+  const_defined[OF assms(1), simplified const_def, THEN spec, THEN spec]
+  const_valid[OF assms(2), simplified const_def, THEN spec, THEN spec]
+  const_true[simplified const_def, THEN spec, THEN spec] assms[simplified const_def]
+  bot_option_def)
+by (metis (no_types) const_def const_defined const_true const_valid cp_defined cp_valid)
+
+*)
+
 section{* Fundamental Predicates on Set: Strict Equality *}
 
 subsection{* Definition *}
@@ -1399,6 +1462,22 @@ lemma cp_StrictRefEq\<^sub>S\<^sub>e\<^sub>t:"((X::('\<AA>,'\<alpha>::null)Set) 
 by(simp add:StrictRefEq\<^sub>S\<^sub>e\<^sub>t cp_StrongEq[symmetric] cp_valid[symmetric])
 
 
+subsubsection{* Const *}
+
+lemma const_StrictEq :
+  assumes "const (X :: (_,_::null) Set)"
+  assumes "const X'"
+  shows "const (X \<doteq> X')"
+ apply(simp only: const_def, intro allI)
+ proof -
+ fix \<tau>1 \<tau>2 show "(X \<doteq> X') \<tau>1 = (X \<doteq> X') \<tau>2"
+  apply(simp only: StrictRefEq\<^sub>S\<^sub>e\<^sub>t)
+ by(simp add: const_valid[OF assms(1), simplified const_def, THEN spec, THEN spec, of \<tau>1 \<tau>2]
+              const_valid[OF assms(2), simplified const_def, THEN spec, THEN spec, of \<tau>1 \<tau>2]
+              const_true[simplified const_def, THEN spec, THEN spec, of \<tau>1 \<tau>2]
+              const_invalid[simplified const_def, THEN spec, THEN spec, of \<tau>1 \<tau>2]
+              const_StrongEq[OF assms, simplified const_def, THEN spec, THEN spec])
+qed
 
 
 section{* Execution on Set's Operators (with mtSet and recursive case as arguments) *}
@@ -1453,33 +1532,6 @@ proof -
  by(simp_all add: OclValid_def true_def)
 qed
 
-
-lemma const_OclIncluding[simp] :
- assumes const_x : "const x"
-     and const_S : "const S"
-   shows  "const (S->including(x))"
-   proof -
-     have A:"\<And>\<tau> \<tau>'. \<not> (\<tau> \<Turnstile> \<upsilon> x) \<Longrightarrow> (S->including(x) \<tau>) = (S->including(x) \<tau>')" 
-            apply(simp add: foundation18)
-            apply(erule const_subst[OF const_x const_invalid],simp_all)
-            by(rule const_charn[OF const_invalid])
-     have B: "\<And> \<tau> \<tau>'. \<not> (\<tau> \<Turnstile> \<delta> S) \<Longrightarrow> (S->including(x) \<tau>) = (S->including(x) \<tau>')" 
-            apply(simp add: foundation16', elim disjE)
-            apply(erule const_subst[OF const_S const_invalid],simp_all)
-            apply(rule const_charn[OF const_invalid])
-            apply(erule const_subst[OF const_S const_null],simp_all)
-            by(rule const_charn[OF const_invalid])
-     show ?thesis
-       apply(simp only: const_def,intro allI, rename_tac \<tau> \<tau>')
-       apply(case_tac "\<not> (\<tau> \<Turnstile> \<upsilon> x)", simp add: A)
-       apply(case_tac "\<not> (\<tau> \<Turnstile> \<delta> S)", simp_all add: B)
-       apply(frule_tac \<tau>'1= \<tau>' in  const_OclValid2[OF const_x, THEN iffD1])
-       apply(frule_tac \<tau>'1= \<tau>' in  const_OclValid1[OF const_S, THEN iffD1])
-       apply(simp add: OclIncluding_def OclValid_def)
-       apply(subst const_charn[OF const_x])
-       apply(subst const_charn[OF const_S])
-       by simp
-qed
 
 subsection{* OclExcluding *}
 

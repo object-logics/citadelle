@@ -1135,6 +1135,8 @@ by(auto simp: OclValid_def defined_def false_def true_def  bot_fun_def null_fun_
         split:split_if_asm)
 
 lemmas foundation17 = foundation16[THEN iffD1,standard]
+(* correcter rule; the previous is deprecated *)
+lemmas foundation17' = foundation16'[THEN iffD1,standard]
 
 lemma foundation18: "\<tau> \<Turnstile> (\<upsilon> X) = (X \<tau> \<noteq> invalid \<tau>)"
 by(auto simp: OclValid_def valid_def false_def true_def bot_fun_def invalid_def
@@ -1327,7 +1329,9 @@ qed
 
 text{* So far, we have only one strict Boolean predicate (-family): the strict equality. *}
 
-section{* Miscellaneous: OCL's if then else endif *}
+section{* Miscellaneous *}
+
+subsection{* OCL's if then else endif *}
 
 definition OclIf :: "[('\<AA>)Boolean , ('\<AA>,'\<alpha>::null) val, ('\<AA>,'\<alpha>) val] \<Rightarrow> ('\<AA>,'\<alpha>) val"
                      ("if (_) then (_) else (_) endif" [10,10,10]50)
@@ -1410,7 +1414,7 @@ proof -
       apply(erule_tac x="(\<lambda>_. Y \<tau>')" in allE, erule_tac x=\<tau>' in allE)
       by simp   
    have C: "X \<tau>' = Y \<tau>'"
-      apply(rule trans, subst const_charn[OF const_X, of \<tau>' \<tau>],rule eq)
+      apply(rule trans, subst const_charn[OF const_X],rule eq)
       by(rule const_charn[OF const_Y])
    show ?thesis
       apply(subst A, subst B, simp add: eq C)
@@ -1471,14 +1475,14 @@ lemma const_OclValid1:
  assumes "const x"
  shows   "(\<tau> \<Turnstile> \<delta> x) = (\<tau>' \<Turnstile> \<delta> x)"
  apply(simp add: OclValid_def)
- apply(subst const_defined[OF assms, THEN const_charn, of \<tau> \<tau>'])
+ apply(subst const_defined[OF assms, THEN const_charn])
  by(simp add: true_def)
 
 lemma const_OclValid2:
  assumes "const x"
  shows   "(\<tau> \<Turnstile> \<upsilon> x) = (\<tau>' \<Turnstile> \<upsilon> x)"
  apply(simp add: OclValid_def)
- apply(subst const_valid[OF assms, THEN const_charn, of \<tau> \<tau>'])
+ apply(subst const_valid[OF assms, THEN const_charn])
  by(simp add: true_def)
 
  
@@ -1511,9 +1515,9 @@ lemma const_StrongEq:
   assumes "const X"
   assumes "const X'"
   shows   "const(X \<triangleq> X')"
-  apply(simp only: StrongEq_def const_def, intro allI, rename_tac "\<tau>" "\<tau>'"  )
-  apply(subst assms(1)[THEN const_charn, of "\<tau>" "\<tau>'"])
-  apply(subst assms(2)[THEN const_charn, of "\<tau>" "\<tau>'"])
+  apply(simp only: StrongEq_def const_def, intro allI)
+  apply(subst assms(1)[THEN const_charn])
+  apply(subst assms(2)[THEN const_charn])
   by simp
   
 

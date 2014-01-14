@@ -1154,72 +1154,7 @@ lemma mtSet_cp_all : "Set{} \<tau>1 = Set{} \<tau>2"
 by(simp add: mtSet_def)
 
 
-lemma const_OclIncluding :
- assumes x_int : "\<And>\<tau>. \<tau> \<Turnstile> \<upsilon> x"
-     and x_incl : "const x"
-     and S_def : "\<And>\<tau>. \<tau> \<Turnstile> \<delta> S"
-     and S_incl : "const S"
-   shows  "const (S->including(x))"
- apply(rule const_imply3[OF _ assms(2) assms(4)], unfold OclIncluding_def)
- by(simp add: S_def[simplified OclValid_def] x_int[simplified OclValid_def] S_incl)
- 
 
-
-(*
-lemma const_OclForall :
-  assumes "const X"
-  assumes "\<And>x \<tau>1 \<tau>2. x \<tau>1 = x \<tau>2 \<Longrightarrow> X' x \<tau>1 = X' x \<tau>2"
-  shows "const (OclForall X X')"
- apply(simp only: const_def, intro allI)
- proof - fix \<tau>1 \<tau>2 show "OclForall X X' \<tau>1 = OclForall X X' \<tau>2"
-  apply(subst (1 2) cp_OclForall, simp only: OclForall_def cp_defined[symmetric])
- by(simp only: const_defined[OF assms(1), simplified const_def, THEN spec, THEN spec, of \<tau>1 \<tau>2]
-                  const_true[simplified const_def, THEN spec, THEN spec, of \<tau>1 \<tau>2]
-                  const_false[simplified const_def, THEN spec, THEN spec, of \<tau>1 \<tau>2]
-                  const_null[simplified const_def, THEN spec, THEN spec, of \<tau>1 \<tau>2]
-                  const_bot[simplified const_def, THEN spec, THEN spec, of \<tau>1 \<tau>2]
-                  assms(1)[simplified const_def, THEN spec, THEN spec, of \<tau>1 \<tau>2]
-                  assms(2)[of _ \<tau>1 \<tau>2])
-qed
-
-lemma const_OclIncludes :
-  assumes "const X"
-  assumes "const X'"
-  shows "const (OclIncludes X X')"
- apply(rule const_imply3[OF _ assms], subst (1 2) cp_OclIncludes, simp only: OclIncludes_def cp_defined[symmetric] cp_valid[symmetric])
- apply(simp add:
-  const_defined[OF assms(1), simplified const_def, THEN spec, THEN spec]
-  const_valid[OF assms(2), simplified const_def, THEN spec, THEN spec]
-  const_true[simplified const_def, THEN spec, THEN spec] assms[simplified const_def]
-  bot_option_def)
-by (metis (no_types) const_def const_defined const_true const_valid cp_defined cp_valid)
-
-*)
-lemma const_StrongEq :
-  assumes "const (X :: (_,_::null) Set)"
-  assumes "const X'"
-  shows "const (X \<triangleq> X')"
- apply(rule const_imply3[OF _ assms])
-by(simp add: StrongEq_def assms)
-
-lemma const_StrictEq :
-  assumes "const (X :: (_,_::null) Set)"
-  assumes "const X'"
-  shows "const (X \<doteq> X')"
- apply(simp only: const_def, intro allI)
- proof -
- fix \<tau>1 \<tau>2 show "(X \<doteq> X') \<tau>1 = (X \<doteq> X') \<tau>2"
-  apply(simp only: StrictRefEq\<^sub>S\<^sub>e\<^sub>t)
- by(simp add: const_valid[OF assms(1), simplified const_def, THEN spec, THEN spec, of \<tau>1 \<tau>2]
-              const_valid[OF assms(2), simplified const_def, THEN spec, THEN spec, of \<tau>1 \<tau>2]
-              const_true[simplified const_def, THEN spec, THEN spec, of \<tau>1 \<tau>2]
-              const_invalid[simplified const_def, THEN spec, THEN spec, of \<tau>1 \<tau>2]
-              const_StrongEq[OF assms, simplified const_def, THEN spec, THEN spec])
-qed
-
-
-lemma const_mtSet : "const Set{}"
-by(simp add: const_def mtSet_def)
 
 subsection{* *}
 
