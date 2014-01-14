@@ -592,13 +592,12 @@ lemmas [simp] = Person_def OclAny_def
 lemma OclAllInstances_generic\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_exec: "OclAllInstances_generic pre_post OclAny =
              (\<lambda>\<tau>.  Abs_Set_0  \<lfloor>\<lfloor> Some ` OclAny ` ran (heap (pre_post \<tau>)) \<rfloor>\<rfloor>)"
 proof -
- have B : "\<And>\<tau>. OclAny ` ran (heap (pre_post \<tau>)) - {None} \<subseteq> OclAny ` ran (heap (pre_post \<tau>))"
-          by auto
- have C : "\<And>\<tau>. OclAny ` ran (heap (pre_post \<tau>))  \<subseteq> OclAny ` ran (heap (pre_post \<tau>)) - {None}"
-           by(auto simp:OclAsType\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_\<AA>_some)
- thm equalityI[OF B C ]
- show ?thesis
- by(rule ext, rename_tac "\<tau>", insert equalityI[OF B C ], simp)
+ let ?S1 = "\<lambda>\<tau>. OclAny ` ran (heap (pre_post \<tau>))"
+ let ?S2 = "\<lambda>\<tau>. ?S1 \<tau> - {None}"
+ have B : "\<And>\<tau>. ?S2 \<tau> \<subseteq> ?S1 \<tau>" by auto
+ have C : "\<And>\<tau>. ?S1 \<tau> \<subseteq> ?S2 \<tau>" by(auto simp: OclAsType\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_\<AA>_some)
+
+ show ?thesis by(insert equalityI[OF B C], simp)
 qed
 
 lemma OclAllInstances_at_post\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_exec: "OclAny .allInstances() =
