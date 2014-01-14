@@ -735,20 +735,31 @@ text{* Should be generated entirely from a class-diagram. *}
 
 subsection{* Definition *}
 
-definition "eval_extract X f = (\<lambda> \<tau>. case X \<tau> of
+definition eval_extract :: "('\<AA>,('a::object) option option) val
+                            \<Rightarrow> (oid \<Rightarrow> ('\<AA>,'c::null) val)
+                            \<Rightarrow> ('\<AA>,'c::null) val"
+where "eval_extract X f = (\<lambda> \<tau>. case X \<tau> of
                                     \<bottom> \<Rightarrow> invalid \<tau>   (* exception propagation *)
                                | \<lfloor>  \<bottom> \<rfloor> \<Rightarrow> invalid \<tau> (* dereferencing null pointer *)
                                | \<lfloor>\<lfloor> obj \<rfloor>\<rfloor> \<Rightarrow> f (oid_of obj) \<tau>)"
 (* TODO: rephrasing as if-then-else and shifting to OCL_state. *)
 
 
-definition "deref_oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n fst_snd f oid = (\<lambda>\<tau>. case (heap (fst_snd \<tau>)) oid of
+definition deref_oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n :: "(\<AA> state \<times> \<AA> state \<Rightarrow> \<AA> state)
+                             \<Rightarrow> (type\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n \<Rightarrow> (\<AA>, 'c::null)val)
+                             \<Rightarrow> oid
+                             \<Rightarrow> (\<AA>, 'c::null)val"
+where "deref_oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n fst_snd f oid = (\<lambda>\<tau>. case (heap (fst_snd \<tau>)) oid of
                        \<lfloor> in\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n obj \<rfloor> \<Rightarrow> f obj \<tau>
                      | _       \<Rightarrow> invalid \<tau>)"
 
 
 
-definition "deref_oid\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y fst_snd f oid = (\<lambda>\<tau>. case (heap (fst_snd \<tau>)) oid of
+definition deref_oid\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y :: "(\<AA> state \<times> \<AA> state \<Rightarrow> \<AA> state)
+                             \<Rightarrow> (type\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y \<Rightarrow> (\<AA>, 'c::null)val)
+                             \<Rightarrow> oid
+                             \<Rightarrow> (\<AA>, 'c::null)val"
+where "deref_oid\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y fst_snd f oid = (\<lambda>\<tau>. case (heap (fst_snd \<tau>)) oid of
                        \<lfloor> in\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y obj \<rfloor> \<Rightarrow> f obj \<tau>
                      | _       \<Rightarrow> invalid \<tau>)"
 

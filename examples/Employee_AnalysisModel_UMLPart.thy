@@ -107,16 +107,16 @@ text{* Our data universe  consists in the concrete class diagram just of node's,
 and implicitly of the class object. Each class implies the existence of a class
 type defined for the corresponding object representations as follows: *}
 
-datatype type\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n = mk\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n oid (* the oid to the person itself *)
+datatype type\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n = mk\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n oid          (* the oid to the person itself *)
                             "int option" (* the attribute "salary" or null *)
 
 
-datatype type\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y = mk\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y oid (* the oid to the oclany itself *)
+datatype type\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y = mk\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y oid          (* the oid to the oclany itself *)
                             "(int option) option"
                                          (* the extensions to "person"; used to denote 
                                             objects of actual type "person" casted to "oclany"; 
                                             in case of existence of several subclasses
-                                of oclany, sums of extensions have to be provided. *)
+                                            of oclany, sums of extensions have to be provided. *)
 
 text{* Now, we construct a concrete ``universe of OclAny types'' by injection into a
 sum type containing the class types. This type of OclAny will be used as instance
@@ -751,9 +751,9 @@ for $\mathit{oid}_{Person}\mathcal{BOSS}$ the empty relation (encoded as associa
 associations with a Sequence-like structure).*}
 
 
-definition  eval_extract :: "('\<AA>,('a::object) option option) val
-                             \<Rightarrow> (oid \<Rightarrow> ('\<AA>,'c::null) val)
-                             \<Rightarrow> ('\<AA>,'c::null) val"
+definition eval_extract :: "('\<AA>,('a::object) option option) val
+                            \<Rightarrow> (oid \<Rightarrow> ('\<AA>,'c::null) val)
+                            \<Rightarrow> ('\<AA>,'c::null) val"
 where "eval_extract X f = (\<lambda> \<tau>. case X \<tau> of
                                     \<bottom> \<Rightarrow> invalid \<tau>   (* exception propagation *)
                                | \<lfloor>  \<bottom> \<rfloor> \<Rightarrow> invalid \<tau> (* dereferencing null pointer *)
@@ -820,7 +820,11 @@ where "deref_oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n fst_snd f oid =
 
 
 
-definition "deref_oid\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y fst_snd f oid = (\<lambda>\<tau>. case (heap (fst_snd \<tau>)) oid of
+definition deref_oid\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y :: "(\<AA> state \<times> \<AA> state \<Rightarrow> \<AA> state)
+                             \<Rightarrow> (type\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y \<Rightarrow> (\<AA>, 'c::null)val)
+                             \<Rightarrow> oid
+                             \<Rightarrow> (\<AA>, 'c::null)val"
+where "deref_oid\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y fst_snd f oid = (\<lambda>\<tau>. case (heap (fst_snd \<tau>)) oid of
                        \<lfloor> in\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y obj \<rfloor> \<Rightarrow> f obj \<tau>
                      | _       \<Rightarrow> invalid \<tau>)"
 
