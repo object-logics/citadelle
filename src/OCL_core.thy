@@ -50,7 +50,7 @@ imports
 begin
 
 section{* Preliminaries *}
-subsection{* Notations for the option type *}
+subsection{* Notations for the Option Type *}
 
 text{*
   First of all, we will use a more compact notation for the library
@@ -201,7 +201,7 @@ text{* A trivial consequence of this adaption of the interface is that
 abstract and concrete versions of null are the same on base types
 (as could be expected). *}
 
-subsection{* The Semantic Space of OCL Types: Valuations. *}
+subsection{* The Semantic Space of OCL Types: Valuations *}
 
 text{* Valuations are now functions from a state pair (built upon
 data universe @{typ "'\<AA>"}) to an arbitrary null-type (\ie, containing
@@ -1388,7 +1388,7 @@ lemma OclNot_if[simp]:
 by simp
 
 
-subsection{* A side-calculus for (Boolean) constant terms.*}
+subsection{* A Side-calculus for (Boolean) Constant Terms *}
 
 definition "const X \<equiv> \<forall> \<tau> \<tau>'. X \<tau> = X \<tau>'"
 

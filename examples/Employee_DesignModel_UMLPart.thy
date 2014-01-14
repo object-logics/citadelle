@@ -160,7 +160,7 @@ end
 
 
 
-section{* Instantiation of the generic strict equality. *}
+section{* Instantiation of the Generic Strict Equality *}
 text{* We instantiate the referential equality
 on @{text "Person"} and @{text "OclAny"} *}
 
@@ -268,7 +268,7 @@ lemmas [simp] =
  cp_OclAsType\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_Person_OclAny
  cp_OclAsType\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_OclAny_Person
 
-subsection{* Execution with invalid or null as argument *}
+subsection{* Execution with Invalid or Null as Argument *}
 
 lemma OclAsType\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_OclAny_strict : "(invalid::OclAny) .oclAsType(OclAny) = invalid"
 by(simp)
@@ -365,7 +365,7 @@ lemmas [simp] =
  cp_OclIsTypeOf\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_Person_OclAny
  cp_OclIsTypeOf\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_OclAny_Person
 
-subsection{* Execution with invalid or null as argument *}
+subsection{* Execution with Invalid or Null as Argument *}
 
 lemma OclIsTypeOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_OclAny_strict1[simp]:
      "(invalid::OclAny) .oclIsTypeOf(OclAny) = invalid"
@@ -400,7 +400,7 @@ lemma OclIsTypeOf\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_Person_strict2
 by(rule ext, simp add: null_fun_def null_option_def bot_option_def null_def invalid_def
                        OclIsTypeOf\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_Person)
 
-subsection{* up down cast *}
+subsection{* Up Down Casting *}
 
 lemma actualType_larger_staticType:
 assumes isdef: "\<tau> \<Turnstile> (\<delta> X)"
@@ -522,7 +522,7 @@ lemmas [simp] =
  cp_OclIsKindOf\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_Person_OclAny
  cp_OclIsKindOf\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_OclAny_Person
 
-subsection{* Execution with invalid or null as argument *}
+subsection{* Execution with Invalid or Null as Argument *}
 
 lemma OclIsKindOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_OclAny_strict1[simp] : "(invalid::OclAny) .oclIsKindOf(OclAny) = invalid"
 by(rule ext, simp add: invalid_def bot_option_def
@@ -556,7 +556,7 @@ lemma OclIsKindOf\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_Person_strict2
 by(rule ext, simp add: null_fun_def null_option_def bot_option_def null_def invalid_def
                        OclIsKindOf\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_Person)
 
-subsection{* up down cast *}
+subsection{* Up Down Casting *}
 
 lemma actualKind_larger_staticKind:
 assumes isdef: "\<tau> \<Turnstile> (\<delta> X)"
@@ -728,7 +728,7 @@ lemma Person_allInstances_at_pre_oclIsKindOf\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^s
 unfolding OclAllInstances_at_pre_def
 by(rule Person_allInstances_generic_oclIsKindOf\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n)
 
-section{* The Accessors dot boss, dot salary *}
+section{* The Accessors (any, boss, salary) *}
 text{*\label{sec:edm-accessors}*}
 text{* Should be generated entirely from a class-diagram. *}
 
@@ -863,7 +863,7 @@ lemmas cp_dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<S>\<A>\<L>\<A>\<R
        cp_dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<S>\<A>\<L>\<A>\<R>\<Y>_at_pre[THEN allI[THEN allI],
                           of "\<lambda> X _. X" "\<lambda> _ \<tau>. \<tau>", THEN cpI1]
 
-subsection{* Execution with invalid or null as argument *}
+subsection{* Execution with Invalid or Null as Argument *}
 
 lemma dot\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y\<A>\<N>\<Y>_nullstrict [simp]: "(null).any = invalid"
 by(rule ext, simp add: null_fun_def null_option_def bot_option_def null_def invalid_def)
@@ -895,7 +895,7 @@ lemma dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<S>\<A>\<L>\<A>\<R>\<Y
 by(rule ext, simp add: null_fun_def null_option_def bot_option_def null_def invalid_def)
 
 
-section{* A little infra-structure on example states.*}
+section{* A Little Infra-structure on Example States *}
 
 text{*
 The example we are defining in this section comes from the figure~\ref{fig:edm1_system-states}.

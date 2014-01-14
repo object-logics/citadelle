@@ -60,7 +60,7 @@ text{*
 
 
 
-subsection{* Recall: The generic structure of States *}
+subsection{* Recall: The Generic Structure of States *}
 text{* Recall the foundational concept of an object id (oid),
 which is just some infinite set.*}
 
@@ -136,7 +136,7 @@ shows "\<tau> \<Turnstile> StrictRefEq\<^sub>O\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<
 by(simp add: StrictRefEq\<^sub>O\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t_def true_def OclValid_def
              x_val[simplified OclValid_def])
 
-subsubsection{* Execution with invalid or null as argument *}
+subsubsection{* Execution with Invalid or Null as Argument *}
 
 lemma StrictRefEq\<^sub>O\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t_strict1[simp,code_unfold] :
 "(StrictRefEq\<^sub>O\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t x invalid) = invalid"
@@ -231,7 +231,7 @@ text{* So, if two object descriptions live in the same state (both pre or post),
 equality on objects implies in a WFF state the logical equality.  *}
 
 section{* Operations on Object *}
-subsection{* Initial States (for Testing and Code Generation) *}
+subsection{* Initial States (for testing and code generation) *}
 
 definition \<tau>\<^sub>0 :: "('\<AA>)st"
 where     "\<tau>\<^sub>0 \<equiv> (\<lparr>heap=Map.empty, assocs\<^sub>2= Map.empty, assocs\<^sub>3= Map.empty\<rparr>,
@@ -824,7 +824,7 @@ where "X->oclIsModifiedOnly() \<equiv> (\<lambda>(\<sigma>,\<sigma>').
                               then \<lfloor>\<lfloor>\<forall> x \<in> S. (heap \<sigma>) x = (heap \<sigma>') x\<rfloor>\<rfloor>
                               else invalid (\<sigma>,\<sigma>'))"
 
-subsubsection{* Execution with invalid or null or null element as argument *}
+subsubsection{* Execution with Invalid or Null or Null Element as Argument *}
 
 lemma "invalid->oclIsModifiedOnly() = invalid"
 by(simp add: OclIsModifiedOnly_def)

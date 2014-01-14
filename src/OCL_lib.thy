@@ -54,7 +54,7 @@ Library.
   *}
 
 section{* Basic Types: Void and Integer *}
-subsection{* The construction of the Void Type *}
+subsection{* The Construction of the Void Type *}
 type_synonym ('\<AA>)Void = "('\<AA>,unit option) val"
 (* For technical reasons, the type does not contain to the null-class yet. *)
 text {* This \emph{minimal} OCL type contains only two elements:
@@ -64,7 +64,7 @@ however the cardinal of this type is more than two, so it would have the cost to
  @{text "Some None"} and @{text "Some (Some ())"} seemingly everywhere.*}
 
 
-subsection{* The construction of the Integer Type *}
+subsection{* The Construction of the Integer Type *}
 text{* Since @{term "Integer"} is again a basic type, we define its semantic domain
 as the valuations over @{typ "int option option"}. *}
 type_synonym ('\<AA>)Integer = "('\<AA>,int option option) val"
@@ -158,14 +158,14 @@ where "x `\<le> y \<equiv> \<lambda> \<tau>. if (\<delta> x) \<tau> = true \<tau
                 then \<lfloor>\<lfloor>\<lceil>\<lceil>x \<tau>\<rceil>\<rceil> \<le> \<lceil>\<lceil>y \<tau>\<rceil>\<rceil>\<rfloor>\<rfloor>
                 else invalid \<tau> "
 
-subsubsection{* Basic properties *}
+subsubsection{* Basic Properties *}
 
 lemma OclAdd\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r_commute: "(X `+ Y) = (Y `+ X)"
   by(rule ext,auto simp:true_def false_def OclAdd\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r_def invalid_def
                    split: option.split option.split_asm
                           bool.split bool.split_asm)
 
-subsubsection{* Execution with invalid or null or zero as argument *}
+subsubsection{* Execution with Invalid or Null or Zero as Argument *}
 
 lemma OclAdd\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r_strict1[simp,code_unfold] : "(x `+ invalid) = invalid"
 by(rule ext, simp add: OclAdd\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r_def true_def false_def)
@@ -317,7 +317,7 @@ lemma StrictRefEq\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r_refl[s
 "((x::('\<AA>)Integer) \<doteq> x) = (if (\<upsilon> x) then true else invalid endif)"
 by(rule ext, simp add: StrictRefEq\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r OclIf_def)
 
-subsubsection{* Execution with invalid or null as argument *}
+subsubsection{* Execution with Invalid or Null as Argument *}
 
 lemma StrictRefEq\<^sub>B\<^sub>o\<^sub>o\<^sub>l\<^sub>e\<^sub>a\<^sub>n_strict1[simp,code_unfold] : "((x::('\<AA>)Boolean) \<doteq> invalid) = invalid"
 by(rule ext, simp add: StrictRefEq\<^sub>B\<^sub>o\<^sub>o\<^sub>l\<^sub>e\<^sub>a\<^sub>n true_def false_def)
@@ -448,7 +448,7 @@ value "\<not>(\<tau> \<Turnstile> (\<delta> (\<zero> `< null)))"
 
 section{* Complex Types: The Set-Collection Type (I) Core *}
 
-subsection{* The construction of the Set Type *}
+subsection{* The Construction of the Set Type *}
 
 no_notation None ("\<bottom>")
 notation bot ("\<bottom>")
@@ -1057,7 +1057,7 @@ by(auto intro!: OclANY_valid_args_valid transform2_rev)
 
 (* and higher order ones : forall, exists, iterate, select, reject... *)
 
-subsection{* Execution with invalid or null or infinite set as argument *}
+subsection{* Execution with Invalid or Null or Infinite Set as Argument *}
 
 
 subsubsection{* OclIncluding *}
@@ -1423,7 +1423,7 @@ lemma StrictRefEq\<^sub>S\<^sub>e\<^sub>t_sym:
 "((x::('\<AA>,'\<alpha>::null)Set) \<doteq> y) = (y \<doteq> x)"
 by(simp add: StrictRefEq\<^sub>S\<^sub>e\<^sub>t, subst StrongEq_sym, rule ext, simp)
 
-subsubsection{* Execution with invalid or null as argument *}
+subsubsection{* Execution with Invalid or Null as Argument *}
 
 lemma StrictRefEq\<^sub>S\<^sub>e\<^sub>t_strict1[simp,code_unfold]: "((x::('\<AA>,'\<alpha>::null)Set) \<doteq> invalid)= invalid"
 by(simp add:StrictRefEq\<^sub>S\<^sub>e\<^sub>t false_def true_def)

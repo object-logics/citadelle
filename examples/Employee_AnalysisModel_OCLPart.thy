@@ -82,7 +82,7 @@ coinductive inv :: "Person \<Rightarrow> (\<AA>)st \<Rightarrow> bool" where
                      ( (inv(self .boss))\<tau> )))
                      \<Longrightarrow> ( inv self \<tau>)"
 
-section{* The contract of a recursive query : *}
+section{* The Contract of a Recursive Query *}
 text{* The original specification of a recursive query :
 \begin{ocl}
 context Person::contents():Set(Integer)
@@ -124,7 +124,7 @@ operations without side-effect. *}
 
 (* Missing: Properties on Casts, type-tests, and equality vs. projections. *)
 
-section{* The contract of a method. *}
+section{* The Contract of a Method *}
 text{*
 The specification in high-level OCL input syntax reads as follows:
 \begin{ocl}
