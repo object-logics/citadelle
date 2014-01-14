@@ -417,8 +417,8 @@ summarize the results of this section.
       \toprule
       Name & Theorem \\
       \midrule
-      @{thm [source] textbook_defined}  & @{thm [show_question_marks=false,display=true,margin=35] textbook_defined} \\
-      @{thm [source] textbook_valid}   & @{thm [show_question_marks=false,display=false,margin=35] textbook_valid} \\
+      @{thm [source] textbook_defined}  & @{thm [show_question_marks=false,display=true,margin=45] textbook_defined} \\
+      @{thm [source] textbook_valid}   & @{thm [show_question_marks=false,display=false,margin=45] textbook_valid} \\
       \bottomrule
    \end{tabu}
    \caption{Basic predicate definitions of the logic.}
