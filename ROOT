@@ -48,8 +48,8 @@ session "OCL" in src = HOL +
   files
     "document/root.tex"
     "document/root.bib"
-    "document/conclusion.tex"  
-    "document/formalization.tex"  
+    "document/conclusion.tex"
+    "document/formalization.tex"
     "document/introduction.tex"
 
 session "OCL-examples" in src = OCL +
@@ -60,8 +60,8 @@ session "OCL-examples" in src = OCL +
   files
     "document/root.tex"
     "document/root.bib"
-    "document/conclusion.tex"  
-    "document/formalization.tex"  
+    "document/conclusion.tex"
+    "document/formalization.tex"
     "document/introduction.tex"
 
 session "OCL-AFP" in src = HOL +
@@ -74,6 +74,24 @@ session "OCL-AFP" in src = HOL +
   files
     "document/root.tex"
     "document/root.bib"
-    "document/conclusion.tex"  
-    "document/formalization.tex"  
+    "document/conclusion.tex"
+    "document/formalization.tex"
+    "document/introduction.tex"
+
+session "OCL-all" in src = HOL +
+  description {* HOL-TestGen *}
+  options [document = pdf, document_output=document_generated,document_variants="document:outline=/proof,/ML"]
+  theories
+    "OCL_main"
+    "../examples/Employee_AnalysisModel_OCLPart"
+    "../examples/Employee_DesignModel_OCLPart"
+    "../examples/Employee_DesignModel_UMLPart_generator"
+    "../doc/Employee_DesignModel_UMLPart_generated"
+    "../examples/OCL_lib_UnlimitedNatural"
+    "../examples/OCL_lib_Gogolla_challenge_integer"
+  files
+    "document/root.tex"
+    "document/root.bib"
+    "document/conclusion.tex"
+    "document/formalization.tex"
     "document/introduction.tex"
