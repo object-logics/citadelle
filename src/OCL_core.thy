@@ -306,10 +306,10 @@ text {*
       \toprule
       Name & Theorem \\
       \midrule
-      @{thm [source] textbook_invalid}  & @{thm  [display=true] textbook_invalid} \\
-      @{thm [source] textbook_null_fun}  & @{thm [display=true] textbook_null_fun} \\
-      @{thm [source] textbook_true}   & @{thm  [display=true] textbook_true} \\
-      @{thm [source] textbook_false} & @{thm [display=true] textbook_false} \\
+      @{thm [source] textbook_invalid}  & @{thm  [display=false] textbook_invalid} \\
+      @{thm [source] textbook_null_fun}  & @{thm [display=false] textbook_null_fun} \\
+      @{thm [source] textbook_true}   & @{thm  [display=false] textbook_true} \\
+      @{thm [source] textbook_false} & @{thm [display=false] textbook_false} \\
       \bottomrule
    \end{tabu}
    \caption{Basic semantic constant definitions of the logic (except @{term null})}
@@ -417,7 +417,7 @@ summarize the results of this section.
       \toprule
       Name & Theorem \\
       \midrule
-      @{thm [source] textbook_defined}  & @{thm [show_question_marks=false,display=true,margin=45] textbook_defined} \\
+      @{thm [source] textbook_defined}  & @{thm [show_question_marks=false,display=false,margin=45] textbook_defined} \\
       @{thm [source] textbook_valid}   & @{thm [show_question_marks=false,display=false,margin=45] textbook_valid} \\
       \bottomrule
    \end{tabu}
@@ -1520,7 +1520,6 @@ lemma const_StrongEq:
   apply(subst assms(2)[THEN const_charn])
   by simp
   
-
 lemma const_OclIf :
   assumes "const B"
       and "const C1"
@@ -1535,9 +1534,7 @@ lemma const_OclIf :
 by (metis (no_types) OCL_core.bot_fun_def OclValid_def const_def const_true defined_def foundation17 
                      null_fun_def)
 
-
 lemmas const_ss = const_bot const_null  const_invalid  const_false  const_true  const_lam
                   const_defined const_valid const_StrongEq const_OclNot const_OclAnd 
                   const_OclOr const_OclImplies const_OclIf
-
 end
