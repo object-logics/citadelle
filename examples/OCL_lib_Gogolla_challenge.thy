@@ -4397,7 +4397,7 @@ proof -
  done
 qed
 
-section{* OCL_lib (continued) *}
+section{* OCL lib (continued) *} (* OCL_lib *)
 
 lemma OclSelect_body_commute :
  assumes including_swap_0 : "\<And>(S:: ('\<AA>, 'a option option) Set) i j. S->including(i)->including(j) = S->including(j)->including(i)"

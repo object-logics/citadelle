@@ -1169,7 +1169,7 @@ definition "Unicode_u_lfloor = Unicode_mk_u (STR ''lfloor'')"
 definition "Unicode_u_rfloor = Unicode_mk_u (STR ''rfloor'')"
 definition "Unicode_u_Longrightarrow = Unicode_mk_u (STR ''Longrightarrow'')"
 
-section{* s_of ... *}
+section{* s of ... *} (* s_of *)
 
 definition "s_of_dataty = (\<lambda> Datatype n l \<Rightarrow>
   sprintf2 (STR ''datatype %s = %s'')
