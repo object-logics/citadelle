@@ -5,8 +5,8 @@
  *
  * This file is part of HOL-TestGen.
  *
- * Copyright (c) 2013      Université Paris-Sud, France
- *               2013      IRT SystemX, France
+ * Copyright (c) 2013-2014 Université Paris-Sud, France
+ *               2013-2014 IRT SystemX, France
  *
  * All rights reserved.
  *

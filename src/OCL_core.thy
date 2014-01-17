@@ -6,8 +6,8 @@
  * OCL_core.thy --- Core definitions.
  * This file is part of HOL-TestGen.
  *
- * Copyright (c) 2012-2013 Université Paris-Sud, France
- *               2013      IRT SystemX, France
+ * Copyright (c) 2012-2014 Université Paris-Sud, France
+ *               2013-2014 IRT SystemX, France
  *
  * All rights reserved.
  *
@@ -134,7 +134,7 @@ instance "fun"    :: (type, plus) plus by intro_classes
 class   bot =
    fixes  bot :: "'a"
    assumes nonEmpty : "\<exists> x. x \<noteq> bot"
-   
+
 
 class      null = bot +
    fixes   null :: "'a"
@@ -157,7 +157,7 @@ begin
    instance proof show "\<exists>x\<Colon>'a option. x \<noteq> bot"
                   by(rule_tac x="Some x" in exI, simp add:bot_option_def)
             qed
-end 
+end
 
 
 instantiation   option  :: (bot)null
@@ -408,9 +408,9 @@ lemma textbook_valid: "I\<lbrakk>\<upsilon>(X)\<rbrakk> \<tau> = (if I\<lbrakk>X
 by(simp add: Sem_def valid_def)
 
 
-text {* 
+text {*
 \autoref{tab:sem_definedness} and \autoref{tab:alglaws_definedness}
-summarize the results of this section. 
+summarize the results of this section.
 \begin{table}[htbp]
    \centering
    \begin{tabu}{lX[,c,]}
@@ -466,7 +466,7 @@ text{*
   these two.  *} text{* Strong equality has two motivations: a
   pragmatic one and a fundamental one.
   \begin{enumerate}
-  \item The pragmatic reason is fairly simple: users of object-oriented languages want 
+  \item The pragmatic reason is fairly simple: users of object-oriented languages want
     something like a ``shallow object value equality''.
     You will want to say
     \inlineisar+ a.boss \<triangleq>  b.boss@pre +
@@ -568,7 +568,7 @@ defs   StrictRefEq\<^sub>B\<^sub>o\<^sub>o\<^sub>l\<^sub>e\<^sub>a\<^sub>n[code_
                                     then (x \<triangleq> y)\<tau>
                                     else invalid \<tau>"
 
-text{* which implies elementary properties like: *}                                    
+text{* which implies elementary properties like: *}
 lemma [simp,code_unfold] : "(true \<doteq> false) = false"
 by(simp add:StrictRefEq\<^sub>B\<^sub>o\<^sub>o\<^sub>l\<^sub>e\<^sub>a\<^sub>n)
 lemma [simp,code_unfold] : "(false \<doteq> true) = false"
@@ -693,14 +693,14 @@ where     "not X \<equiv>  \<lambda> \<tau> . case X \<tau> of
                            | \<lfloor>\<lfloor> x \<rfloor>\<rfloor>  \<Rightarrow> \<lfloor>\<lfloor> \<not> x \<rfloor>\<rfloor>"
 
 text{* with {term "not"} we can express the notation:*}
-                           
+
 syntax
   "notequal"        :: "('\<AA>)Boolean \<Rightarrow> ('\<AA>)Boolean \<Rightarrow> ('\<AA>)Boolean"   (infix "<>" 40)
 translations
   "a <> b" == "CONST OclNot( a \<doteq> b)"
 
 
-                           
+
 lemma cp_OclNot: "(not X)\<tau> = (not (\<lambda> _. X \<tau>)) \<tau>"
 by(simp add: OclNot_def)
 
@@ -920,7 +920,7 @@ lemma OclOr7[simp]: "(null or null) = null"
 by(rule ext, simp add: OclOr_def OclNot_def OclAnd_def null_def invalid_def true_def false_def
                        bot_option_def null_fun_def null_option_def)
 lemma OclOr8[simp]: "(null or invalid) = invalid"
-by(rule ext, simp add: OclOr_def OclNot_def OclAnd_def null_def invalid_def true_def false_def 
+by(rule ext, simp add: OclOr_def OclNot_def OclAnd_def null_def invalid_def true_def false_def
                        bot_option_def null_fun_def null_option_def)
 
 lemma OclOr_idem[simp]: "(X or X) = X"
@@ -1269,7 +1269,7 @@ lemma cpI2:
 apply(auto simp: true_def cp_def)
 apply(rule exI, (rule allI)+)
 by(erule_tac x="P X" in allE, auto)
- 
+
 lemma cpI3:
 "(\<forall> X Y Z \<tau>. f X Y Z \<tau> = f(\<lambda>_. X \<tau>)(\<lambda>_. Y \<tau>)(\<lambda>_. Z \<tau>) \<tau>) \<Longrightarrow>
  cp P \<Longrightarrow> cp Q \<Longrightarrow> cp R \<Longrightarrow> cp(\<lambda>X. f (P X) (Q X) (R X))"
@@ -1412,7 +1412,7 @@ proof -
       apply(insert cp_P, unfold cp_def)
       apply(elim exE, erule_tac x=Y in allE', erule_tac x=\<tau>' in allE)
       apply(erule_tac x="(\<lambda>_. Y \<tau>')" in allE, erule_tac x=\<tau>' in allE)
-      by simp   
+      by simp
    have C: "X \<tau>' = Y \<tau>'"
       apply(rule trans, subst const_charn[OF const_X],rule eq)
       by(rule const_charn[OF const_Y])
@@ -1485,7 +1485,7 @@ lemma const_OclValid2:
  apply(subst const_valid[OF assms, THEN const_charn])
  by(simp add: true_def)
 
- 
+
 lemma const_OclAnd :
   assumes "const X"
   assumes "const X'"
@@ -1519,22 +1519,22 @@ lemma const_StrongEq:
   apply(subst assms(1)[THEN const_charn])
   apply(subst assms(2)[THEN const_charn])
   by simp
-  
+
 lemma const_OclIf :
   assumes "const B"
       and "const C1"
       and "const C2"
     shows "const (if B then C1 else C2 endif)"
- apply(rule const_imply4[OF _ assms], 
+ apply(rule const_imply4[OF _ assms],
        subst (1 2) cp_OclIf, simp only: OclIf_def cp_defined[symmetric])
  apply(simp add: const_defined[OF assms(1), simplified const_def, THEN spec, THEN spec]
                  const_true[simplified const_def, THEN spec, THEN spec]
                  assms[simplified const_def, THEN spec, THEN spec]
                  const_invalid[simplified const_def, THEN spec, THEN spec])
-by (metis (no_types) OCL_core.bot_fun_def OclValid_def const_def const_true defined_def foundation17 
+by (metis (no_types) OCL_core.bot_fun_def OclValid_def const_def const_true defined_def foundation17
                      null_fun_def)
 
 lemmas const_ss = const_bot const_null  const_invalid  const_false  const_true  const_lam
-                  const_defined const_valid const_StrongEq const_OclNot const_OclAnd 
+                  const_defined const_valid const_StrongEq const_OclNot const_OclAnd
                   const_OclOr const_OclImplies const_OclIf
 end

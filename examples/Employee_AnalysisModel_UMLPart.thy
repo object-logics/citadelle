@@ -6,8 +6,8 @@
  * Employee_DesignModel_UMLPart.thy --- OCL Contracts and an Example.
  * This file is part of HOL-TestGen.
  *
- * Copyright (c) 2012-2013 Universite Paris-Sud, France
- *               2013      IRT SystemX, France
+ * Copyright (c) 2012-2014 Universite Paris-Sud, France
+ *               2013-2014 IRT SystemX, France
  *
  * All rights reserved.
  *
@@ -55,7 +55,7 @@ begin
 text {* \label{ex:employee-analysis:uml} *}
 
 section{* Introduction *}
-text{* 
+text{*
   For certain concepts like classes and class-types, only a generic
   definition for its resulting semantics can be given. Generic means,
   there is a function outside HOL that ``compiles'' a concrete,
@@ -77,11 +77,11 @@ subsection{* Outlining the Example *}
 
 text{* We are presenting here an ``analysis-model'' of the (slightly
 modified) example Figure 7.3, page 20 of
-the OCL standard~\cite{omg:ocl:2012}. 
+the OCL standard~\cite{omg:ocl:2012}.
 Here, analysis model means that associations
 were really represented as relation on objects on the state---as is
 intended by the standard---rather by pointers between objects as is
-done in our ``design model'' (see \autoref{ex:employee-design:uml}). 
+done in our ``design model'' (see \autoref{ex:employee-design:uml}).
 To be precise, this theory contains the formalization of the data-part
 covered by the UML class model (see \autoref{fig:person-ana}):*}
 
@@ -113,8 +113,8 @@ datatype type\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n = mk\<^sub>P\<^sub
 
 datatype type\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y = mk\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y oid          (* the oid to the oclany itself *)
                             "(int option) option"
-                                         (* the extensions to "person"; used to denote 
-                                            objects of actual type "person" casted to "oclany"; 
+                                         (* the extensions to "person"; used to denote
+                                            objects of actual type "person" casted to "oclany";
                                             in case of existence of several subclasses
                                             of oclany, sums of extensions have to be provided. *)
 
@@ -581,7 +581,7 @@ by(simp add: OclIsKindOf\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_OclAny 
 
 section{* OclAllInstances *}
 
-text{* To denote OCL-types occuring in OCL expressions syntactically---as, for example,  as 
+text{* To denote OCL-types occuring in OCL expressions syntactically---as, for example,  as
 ``argument'' of \inlineisar{oclAllInstances()}---we use the inverses of the injection
 functions into the object universes; we show that this is sufficient ``characterization.'' *}
 
@@ -1335,7 +1335,7 @@ by(simp_all add: OclAsType\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_\<AA>
 lemma "\<And>\<sigma>\<^sub>1.
  (\<sigma>\<^sub>1,\<sigma>\<^sub>1') \<Turnstile> (OclAny .allInstances() \<doteq> Set{ X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n1 .oclAsType(OclAny), X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2 .oclAsType(OclAny),
                                            X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n3 .oclAsType(OclAny), X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n4 .oclAsType(OclAny)
-                                           (*, X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n5*), X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n6 .oclAsType(OclAny), 
+                                           (*, X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n5*), X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n6 .oclAsType(OclAny),
                                            X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n7, X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n8, X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n9 .oclAsType(OclAny) })"
  apply(subst perm_\<sigma>\<^sub>1')
  apply(simp only: oid0_def oid1_def oid2_def oid3_def oid4_def oid5_def oid6_def oid7_def oid8_def

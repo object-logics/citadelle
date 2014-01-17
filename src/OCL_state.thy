@@ -6,8 +6,8 @@
  * OCL_state.thy --- State Operations and Objects.
  * This file is part of HOL-TestGen.
  *
- * Copyright (c) 2012-2013 Université Paris-Sud, France
- *               2013      IRT SystemX, France
+ * Copyright (c) 2012-2014 Université Paris-Sud, France
+ *               2013-2014 IRT SystemX, France
  *
  * All rights reserved.
  *
@@ -332,7 +332,7 @@ proof -
  show ?thesis
   apply(simp only: OclValid_def, subst cp_StrictRefEq\<^sub>S\<^sub>e\<^sub>t,
         simp add: state_update_vs_allInstances_empty)
-  apply(simp add: OclIf_def valid_def mtSet_def defined_def 
+  apply(simp add: OclIf_def valid_def mtSet_def defined_def
                   bot_fun_def null_fun_def null_option_def bot_Set_0_def)
  by(subst Abs_Set_0_inject, (simp add: bot_option_def true_def)+)
 qed
@@ -392,7 +392,7 @@ shows   "(OclAllInstances_generic pre_post Type)
  apply(subst state_update_vs_allInstances_generic_including', (simp add: assms)+,
        subst cp_OclIncluding,
        simp add: OclIncluding_def)
- apply(subst (1 3) cp_defined[symmetric], 
+ apply(subst (1 3) cp_defined[symmetric],
        simp add: OclAllInstances_generic_defined[simplified OclValid_def])
 
  apply(simp add: defined_def OclValid_def OclAllInstances_generic_def
@@ -530,7 +530,7 @@ by(rule represented_generic_objects_nonnull[OF A[simplified OclAllInstances_at_p
 lemma represented_at_post_objects_defined:
 assumes A: "\<tau> \<Turnstile> (((H::('\<AA>::object \<rightharpoonup> '\<alpha>)).allInstances()) ->includes(x))"
 shows      "\<tau> \<Turnstile> \<delta> (H .allInstances()) \<and> \<tau> \<Turnstile> \<delta> x"
-unfolding OclAllInstances_at_post_def 
+unfolding OclAllInstances_at_post_def
 by(rule represented_generic_objects_defined[OF A[simplified OclAllInstances_at_post_def]])
 
 
@@ -543,7 +543,7 @@ by(rule represented_generic_objects_in_state[OF A[simplified OclAllInstances_at_
 
 lemma state_update_vs_allInstances_at_post_empty:
 shows   "(\<sigma>, \<lparr>heap=empty, assocs\<^sub>2=A, assocs\<^sub>3=B\<rparr>) \<Turnstile> Type .allInstances() \<doteq> Set{}"
-unfolding OclAllInstances_at_post_def 
+unfolding OclAllInstances_at_post_def
 by(rule state_update_vs_allInstances_generic_empty[OF snd_conv])
 
 text{* Here comes a couple of operational rules that allow to infer the value
@@ -562,7 +562,7 @@ assumes "\<And>x. \<sigma>' oid = Some x \<Longrightarrow> x = Object"
          =
          ((Type .allInstances())->including(\<lambda> _. \<lfloor>\<lfloor> drop (Type Object) \<rfloor>\<rfloor>))
          (\<sigma>, \<lparr>heap=\<sigma>',assocs\<^sub>2=A, assocs\<^sub>3=B\<rparr>)"
-unfolding OclAllInstances_at_post_def 
+unfolding OclAllInstances_at_post_def
 by(rule state_update_vs_allInstances_generic_including'[OF snd_conv], insert assms)
 
 
@@ -575,7 +575,7 @@ shows   "(Type .allInstances())
          ((\<lambda>_. (Type .allInstances())
                  (\<sigma>, \<lparr>heap=\<sigma>', assocs\<^sub>2=A, assocs\<^sub>3=B\<rparr>))->including(\<lambda> _. \<lfloor>\<lfloor> drop (Type Object) \<rfloor>\<rfloor>))
          (\<sigma>, \<lparr>heap=\<sigma>'(oid\<mapsto>Object), assocs\<^sub>2=A, assocs\<^sub>3=B\<rparr>)"
-unfolding OclAllInstances_at_post_def 
+unfolding OclAllInstances_at_post_def
 by(rule state_update_vs_allInstances_generic_including[OF snd_conv], insert assms)
 
 
@@ -588,7 +588,7 @@ assumes "\<And>x. \<sigma>' oid = Some x \<Longrightarrow> x = Object"
          =
          (Type .allInstances())
          (\<sigma>, \<lparr>heap=\<sigma>', assocs\<^sub>2=A, assocs\<^sub>3=B\<rparr>)"
-unfolding OclAllInstances_at_post_def 
+unfolding OclAllInstances_at_post_def
 by(rule state_update_vs_allInstances_generic_noincluding'[OF snd_conv], insert assms)
 
 theorem state_update_vs_allInstances_at_post_ntc:
@@ -598,7 +598,7 @@ and  cp_ctxt:      "cp P"
 and  const_ctxt:   "\<And>X. const X \<Longrightarrow> const (P X)"
 shows   "((\<sigma>, \<lparr>heap=\<sigma>'(oid\<mapsto>Object),assocs\<^sub>2=A,assocs\<^sub>3=B\<rparr>) \<Turnstile> (P(Type .allInstances()))) =
          ((\<sigma>, \<lparr>heap=\<sigma>', assocs\<^sub>2=A, assocs\<^sub>3=B\<rparr>)            \<Turnstile> (P(Type .allInstances())))"
-unfolding OclAllInstances_at_post_def 
+unfolding OclAllInstances_at_post_def
 by(rule state_update_vs_allInstances_generic_ntc[OF snd_conv], insert assms)
 
 theorem state_update_vs_allInstances_at_post_tc:
@@ -609,7 +609,7 @@ and  const_ctxt:   "\<And>X. const X \<Longrightarrow> const (P X)"
 shows   "((\<sigma>, \<lparr>heap=\<sigma>'(oid\<mapsto>Object),assocs\<^sub>2=A,assocs\<^sub>3=B\<rparr>) \<Turnstile> (P(Type .allInstances()))) =
          ((\<sigma>, \<lparr>heap=\<sigma>', assocs\<^sub>2=A, assocs\<^sub>3=B\<rparr>)            \<Turnstile> (P((Type .allInstances())
                                                                ->including(\<lambda> _. \<lfloor>(Type Object)\<rfloor>))))"
-unfolding OclAllInstances_at_post_def 
+unfolding OclAllInstances_at_post_def
 by(rule state_update_vs_allInstances_generic_tc[OF snd_conv], insert assms)
 
 subsubsection{* OclAllInstances (@pre) *}
@@ -635,7 +635,7 @@ by(rule represented_generic_objects_nonnull[OF A[simplified OclAllInstances_at_p
 lemma represented_at_pre_objects_defined:
 assumes A: "\<tau> \<Turnstile> (((H::('\<AA>::object \<rightharpoonup> '\<alpha>)).allInstances@pre()) ->includes(x))"
 shows      "\<tau> \<Turnstile> \<delta> (H .allInstances@pre()) \<and> \<tau> \<Turnstile> \<delta> x"
-unfolding OclAllInstances_at_pre_def 
+unfolding OclAllInstances_at_pre_def
 by(rule represented_generic_objects_defined[OF A[simplified OclAllInstances_at_pre_def]])
 
 
@@ -649,7 +649,7 @@ by(rule represented_generic_objects_in_state[OF A[simplified OclAllInstances_at_
 
 lemma state_update_vs_allInstances_at_pre_empty:
 shows   "(\<lparr>heap=empty, assocs\<^sub>2=A, assocs\<^sub>3=B\<rparr>, \<sigma>) \<Turnstile> Type .allInstances@pre() \<doteq> Set{}"
-unfolding OclAllInstances_at_pre_def 
+unfolding OclAllInstances_at_pre_def
 by(rule state_update_vs_allInstances_generic_empty[OF fst_conv])
 
 text{* Here comes a couple of operational rules that allow to infer the value
@@ -668,7 +668,7 @@ assumes "\<And>x. \<sigma>' oid = Some x \<Longrightarrow> x = Object"
          =
          ((Type .allInstances@pre())->including(\<lambda> _. \<lfloor>\<lfloor> drop (Type Object) \<rfloor>\<rfloor>))
          (\<lparr>heap=\<sigma>',assocs\<^sub>2=A, assocs\<^sub>3=B\<rparr>, \<sigma>)"
-unfolding OclAllInstances_at_pre_def 
+unfolding OclAllInstances_at_pre_def
 by(rule state_update_vs_allInstances_generic_including'[OF fst_conv], insert assms)
 
 
@@ -681,7 +681,7 @@ shows   "(Type .allInstances@pre())
          ((\<lambda>_. (Type .allInstances@pre())
                  (\<lparr>heap=\<sigma>', assocs\<^sub>2=A, assocs\<^sub>3=B\<rparr>, \<sigma>))->including(\<lambda> _. \<lfloor>\<lfloor> drop (Type Object) \<rfloor>\<rfloor>))
          (\<lparr>heap=\<sigma>'(oid\<mapsto>Object), assocs\<^sub>2=A, assocs\<^sub>3=B\<rparr>, \<sigma>)"
-unfolding OclAllInstances_at_pre_def 
+unfolding OclAllInstances_at_pre_def
 by(rule state_update_vs_allInstances_generic_including[OF fst_conv], insert assms)
 
 
@@ -694,7 +694,7 @@ assumes "\<And>x. \<sigma>' oid = Some x \<Longrightarrow> x = Object"
          =
          (Type .allInstances@pre())
          (\<lparr>heap=\<sigma>', assocs\<^sub>2=A, assocs\<^sub>3=B\<rparr>, \<sigma>)"
-unfolding OclAllInstances_at_pre_def 
+unfolding OclAllInstances_at_pre_def
 by(rule state_update_vs_allInstances_generic_noincluding'[OF fst_conv], insert assms)
 
 theorem state_update_vs_allInstances_at_pre_ntc:
@@ -704,7 +704,7 @@ and  cp_ctxt:      "cp P"
 and  const_ctxt:   "\<And>X. const X \<Longrightarrow> const (P X)"
 shows   "((\<lparr>heap=\<sigma>'(oid\<mapsto>Object),assocs\<^sub>2=A,assocs\<^sub>3=B\<rparr>, \<sigma>) \<Turnstile> (P(Type .allInstances@pre()))) =
          ((\<lparr>heap=\<sigma>', assocs\<^sub>2=A, assocs\<^sub>3=B\<rparr>, \<sigma>)            \<Turnstile> (P(Type .allInstances@pre())))"
-unfolding OclAllInstances_at_pre_def 
+unfolding OclAllInstances_at_pre_def
 by(rule state_update_vs_allInstances_generic_ntc[OF fst_conv], insert assms)
 
 theorem state_update_vs_allInstances_at_pre_tc:
@@ -715,7 +715,7 @@ and  const_ctxt:   "\<And>X. const X \<Longrightarrow> const (P X)"
 shows   "((\<lparr>heap=\<sigma>'(oid\<mapsto>Object),assocs\<^sub>2=A,assocs\<^sub>3=B\<rparr>, \<sigma>) \<Turnstile> (P(Type .allInstances@pre()))) =
          ((\<lparr>heap=\<sigma>', assocs\<^sub>2=A, assocs\<^sub>3=B\<rparr>, \<sigma>)            \<Turnstile> (P((Type .allInstances@pre())
                                                                ->including(\<lambda> _. \<lfloor>(Type Object)\<rfloor>))))"
-unfolding OclAllInstances_at_pre_def 
+unfolding OclAllInstances_at_pre_def
 by(rule state_update_vs_allInstances_generic_tc[OF fst_conv], insert assms)
 
 subsubsection{* @post or @pre *}
@@ -878,7 +878,7 @@ lemma all_oid_diff:
  defines "P \<equiv> (\<lambda>a. not (StrictRefEq\<^sub>O\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t x a))"
  shows "(\<tau> \<Turnstile> X->forAll(a| P a)) = (oid_of (x \<tau>) \<notin> oid_of ` \<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil>)"
 proof -
- have P_null_bot: "\<And>b. b = null \<or> b = \<bottom> \<Longrightarrow> 
+ have P_null_bot: "\<And>b. b = null \<or> b = \<bottom> \<Longrightarrow>
                         \<not> (\<exists>x\<in>\<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil>. P (\<lambda>(_:: 'a state \<times> 'a state). x) \<tau> = b \<tau>)"
   apply(erule disjE)
    apply(simp, rule ballI,
