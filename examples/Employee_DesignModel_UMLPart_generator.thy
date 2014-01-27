@@ -65,48 +65,6 @@ definition "Employee_DesignModel_UMLPart' =
 
 subsection{* Raw *}
 
-definition "thy_object =
-            [ print_datatype_class
-            , print_datatype_universe
-            , print_type_synonym_class
-            , print_instantiation_class
-            , print_instantiation_universe
-            , print_def_strictrefeq
-
-            , print_astype_consts
-            , print_astype_class
-            (*, print_astype_from_universe*), print_astype_from_universe'
-            , print_astype_lemmas_id
-            , print_astype_lemma_cp
-            , print_astype_lemmas_cp
-            , print_astype_lemma_strict
-            , print_astype_lemmas_strict
-
-            , print_istypeof_consts
-            , print_istypeof_class
-            , print_istypeof_from_universe(*, print_istypeof_from_universe'*)
-            , print_istypeof_lemmas_id
-            , print_istypeof_lemma_cp
-            , print_istypeof_lemmas_cp
-            , print_istypeof_lemma_strict
-            , print_istypeof_lemmas_strict
-
-            , print_iskindof_consts
-            , print_iskindof_class
-            , print_iskindof_from_universe(*, print_iskindof_from_universe'*)
-            , print_iskindof_lemmas_id
-            , print_iskindof_lemma_cp
-            , print_iskindof_lemmas_cp
-            , print_iskindof_lemma_strict
-            , print_iskindof_lemmas_strict
-
-            , print_eval_extract
-            , print_deref_oid
-            , print_select
-            , print_select_inherited
-            , print_dot
-            , print_dot_inherited ]"
-
 definition "main = (let file_out = STR ''Employee_DesignModel_UMLPart_generated''
                       ; exemple = (case True of True \<Rightarrow> Employee_DesignModel_UMLPart
                                   | False \<Rightarrow> Employee_DesignModel_UMLPart') in
