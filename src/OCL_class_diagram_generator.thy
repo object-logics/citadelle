@@ -50,7 +50,7 @@ begin
 definition "bug_ocaml_extraction = id"
   (* In this theory, this identifier can be removed everywhere it is used.
      However without this, there is a syntax error when the code is extracted to OCaml. *)
-
+(*
 section{* On the Semantics of Object-oriented Data Structures and Path Expressions *}
 
 subsection{* Basic modelization of attributes *}
@@ -179,7 +179,7 @@ lemma "m2_of_m1 (m1_of_m2 X) = X"
   done
  qed
 qed
-
+*)
 section{* ... *}
 
 type_synonym str = "char list"

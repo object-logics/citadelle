@@ -45,7 +45,6 @@ header{* Part ... *}
 
 theory OCL_class_diagram_generator_reflect
   imports OCL_class_diagram_generator
-          OCL_main
   keywords "attr_base" "attr_object" "child"
        and "Class.end" :: thy_decl
        and "Class" :: thy_decl
@@ -223,7 +222,7 @@ val OCL_main = let open OCL in fold_thy ((*let val f = *)fn
        thy
        [ let val Type (s, _) = (read_typ_syntax NONE thy name) in s end ]
        []
-       @{sort "object"}
+       (Syntax.read_sort (Proof_Context.init_global thy) "object")
        (fn _ => fn thy =>
         let val ((_, (_, ty)), thy) = Specification.definition_cmd
            (NONE, ((To_binding (To_string n_def ^ "_" ^ name ^ "_def"), []), s_of_expr expr)) false thy in

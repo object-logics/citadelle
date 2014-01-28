@@ -46,6 +46,7 @@ header{* Part ... *}
 theory
   Employee_DesignModel_UMLPart_generator_reflect
 imports
+  "../src/OCL_main"
   "../src/OCL_class_diagram_generator_reflect"
 begin
 
