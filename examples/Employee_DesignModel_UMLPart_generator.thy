@@ -51,35 +51,29 @@ begin
 section{* Code generation *}
 subsection{* Instance *}
 
-definition "Employee_DesignModel_UMLPart =
-         Mk_univ ''OclAny'' []
-  (Some (Mk_univ ''Galaxy'' [(''sound'', OclTy_base ''unit''), (''moving'', OclTy_base ''bool'')]
-  (Some (Mk_univ ''Planet'' [(''weight'', OclTy_base ''nat'')]
-  (Some (Mk_univ ''Person'' [(''salary'', OclTy_base ''int''), (''boss'', object)]
-   None )) )) ))"
+Class Person =
+  attr_base salary :: int
+  attr_object boss
 
-definition "Employee_DesignModel_UMLPart' =
-         Mk_univ ''OclAny'' []
-  (Some (Mk_univ ''Person'' [(''salary'', OclTy_base ''int''), (''boss'', object)]
-   None ))"
+Class Planet =
+  attr_base weight :: nat
+  child Person
+
+Class Galaxy =
+  attr_base sound :: unit
+  attr_base moving :: bool
+  child Planet
+
+Class OclAny =
+  child Galaxy
+
+Class.end_deep OclAny Employee_DesignModel_UMLPart
 
 subsection{* Raw *}
 
-definition "main = (let file_out = STR ''Employee_DesignModel_UMLPart_generated''
-                      ; exemple = (case True of True \<Rightarrow> Employee_DesignModel_UMLPart
-                                  | False \<Rightarrow> Employee_DesignModel_UMLPart') in
-  case filter Sys_is_directory Sys_argv
-  of dir # _ \<Rightarrow>
-    out_file1
-      (\<lambda>fprintf1.
-        List_iter (fprintf1 (STR ''%s
-''))
-                  (s_of_thy_list
-                     file_out
-                     (STR ''../src/OCL_main'')
-                     (map (\<lambda>f. f exemple) thy_object)))
-      (sprintf2 (STR ''%s/%s.thy'') dir file_out)
-   | _ \<Rightarrow> eprintf0 (STR ''No directory in argument''))"
+definition "main = write_file (STR ''Employee_DesignModel_UMLPart_generated'')
+                              Employee_DesignModel_UMLPart
+                              (STR ''../src/OCL_main'')"
 
 export_code main
   in OCaml module_name M file "Employee_DesignModel_UMLPart_generator.ml"

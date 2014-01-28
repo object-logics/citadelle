@@ -47,7 +47,8 @@ theory OCL_class_diagram_generator
 imports Main
   keywords "attr_base" "attr_object" "child"
        and "Class" :: thy_decl
-       and "Class.end" :: thy_decl
+       and "Class.end_deep" :: thy_decl
+       and "Class.end_shallow" :: thy_decl
 begin
 
 definition "bug_ocaml_extraction = id"
@@ -1216,6 +1217,48 @@ code_reflect OCL
    functions nat_rec nibble_rec char_rec
              fold_thy
 
+ML{*
+structure To = struct
+  datatype nat = Zero_nat | Suc of nat
+
+  datatype nibble = Nibble0 | Nibble1 | Nibble2 | Nibble3 | Nibble4 | Nibble5 |
+    Nibble6 | Nibble7 | Nibble8 | Nibble9 | NibbleA | NibbleB | NibbleC | NibbleD
+    | NibbleE | NibbleF
+
+  datatype char = Char of nibble * nibble
+
+  structure M = struct
+    val to_nibble = fn
+      Nibble0 => 0x0 | Nibble1 => 0x1 | Nibble2 => 0x2 | Nibble3 => 0x3 | Nibble4 => 0x4 | Nibble5 => 0x5 |
+       Nibble6 => 0x6 | Nibble7 => 0x7 | Nibble8 => 0x8 | Nibble9 => 0x9 | NibbleA => 0xA | NibbleB => 0xB | NibbleC => 0xC | NibbleD => 0xD
+      | NibbleE => 0xE | NibbleF => 0xF
+
+    val to_char = fn Char (n1, n2) => Char.chr ((to_nibble n1) * 16 + to_nibble n2)
+
+    fun to_string l = (String.concat (map (fn c => str (to_char c)) l))
+
+    val to_nat =
+      let fun aux n = fn Zero_nat => n | Suc xs => aux (n + 1) xs in
+      aux 0
+      end
+  end
+
+  fun string nibble_rec char_rec =
+    let val ofN = nibble_rec
+      Nibble0 Nibble1 Nibble2 Nibble3 Nibble4 Nibble5
+      Nibble6 Nibble7 Nibble8 Nibble9 NibbleA NibbleB
+      NibbleC NibbleD NibbleE NibbleF in
+    M.to_string o List.map (char_rec (fn c1 => fn c2 => Char (ofN c1, ofN c2)))
+    end
+
+  fun nat nat_rec =
+    M.to_nat o nat_rec Zero_nat (fn _ => Suc)
+end
+
+ val To_string = To.string OCL.nibble_rec OCL.char_rec
+ val To_nat = To.nat OCL.nat_rec
+*}
+
 ML{* 
 type class_inline = { attr_base : (binding * binding) list
                     , attr_object : binding list
@@ -1260,52 +1303,62 @@ val () =
                                                      Symtab.insert (op =) (name, mk (SOME (From.mk_univ (name, mk NONE) t))) t
                                                      end))))
 *}
+ML{* 
+fun in_local decl thy =
+  thy
+  |> Named_Target.init I ""
+  |> decl
+  |> Local_Theory.exit_global
+*}
+
+subsection{* Deep *}
+
+definition "write_file file_out example path_dep = (
+  case filter Sys_is_directory Sys_argv
+  of dir # _ \<Rightarrow>
+    out_file1
+      (\<lambda>fprintf1.
+        List_iter (fprintf1 (STR ''%s
+''))
+                  (s_of_thy_list
+                     file_out
+                     path_dep
+                     (map (\<lambda>f. f example) thy_object)))
+      (sprintf2 (STR ''%s/%s.thy'') dir file_out)
+   | _ \<Rightarrow> eprintf0 (STR ''No directory in argument''))"
+
+ML{*
+fun i_of_string s = "''" ^ To_string s ^ "''"
+val i_of_oclTy = fn OCL.OclTy_base s => "OclTy_base " ^ i_of_string s
+                  | OCL.OclTy_object s => "OclTy_object " ^ i_of_string s
+
+fun i_of_univ (OCL.Mk_univ (s, l, opt)) = 
+  "Mk_univ " ^
+    i_of_string s ^ " [" ^
+    (String.concatWith ", " (map (fn (s,t) => "(" ^ i_of_string s ^ ", " ^ i_of_oclTy t ^ ")") l)) ^ "] " ^
+    (i_of_option i_of_univ opt)
+
+and i_of_option f = fn NONE => "None"
+                 | SOME s => "(Some (" ^ f s ^ "))"
+*}
+
+ML{*
+val () =
+  Outer_Syntax.command @{command_spec "Class.end_deep"} "Class generation in deep form"
+    (Parse.binding -- Parse.name >> (fn (name, name_var) =>
+      let val name = Binding.name_of name in
+      Toplevel.theory (fn thy => thy |> in_local (snd o Specification.definition_cmd (NONE, ((@{binding ""}, []), (let val SOME { attr_base = attr_base
+                                                        , attr_object = attr_object
+                                                        , child = child
+                                                        , univ = SOME univ} = Symtab.lookup (Data.get thy) name in
+                                           name_var ^ " = " ^ i_of_univ univ
+                                           end))) false))
+      end))
+*}
 
 subsection{* Shallow *}
 
 ML{*
-structure To = struct
-  datatype nat = Zero_nat | Suc of nat
-
-  datatype nibble = Nibble0 | Nibble1 | Nibble2 | Nibble3 | Nibble4 | Nibble5 |
-    Nibble6 | Nibble7 | Nibble8 | Nibble9 | NibbleA | NibbleB | NibbleC | NibbleD
-    | NibbleE | NibbleF
-
-  datatype char = Char of nibble * nibble
-
-  structure M = struct
-    val to_nibble = fn
-      Nibble0 => 0x0 | Nibble1 => 0x1 | Nibble2 => 0x2 | Nibble3 => 0x3 | Nibble4 => 0x4 | Nibble5 => 0x5 |
-       Nibble6 => 0x6 | Nibble7 => 0x7 | Nibble8 => 0x8 | Nibble9 => 0x9 | NibbleA => 0xA | NibbleB => 0xB | NibbleC => 0xC | NibbleD => 0xD
-      | NibbleE => 0xE | NibbleF => 0xF
-
-    val to_char = fn Char (n1, n2) => Char.chr ((to_nibble n1) * 16 + to_nibble n2)
-
-    fun to_string l = (String.concat (map (fn c => str (to_char c)) l))
-
-    val to_nat =
-      let fun aux n = fn Zero_nat => n | Suc xs => aux (n + 1) xs in
-      aux 0
-      end
-  end
-
-  fun string nibble_rec char_rec =
-    let val ofN = nibble_rec
-      Nibble0 Nibble1 Nibble2 Nibble3 Nibble4 Nibble5
-      Nibble6 Nibble7 Nibble8 Nibble9 NibbleA NibbleB
-      NibbleC NibbleD NibbleE NibbleF in
-    M.to_string o List.map (char_rec (fn c1 => fn c2 => Char (ofN c1, ofN c2)))
-    end
-
-  fun nat nat_rec =
-    M.to_nat o nat_rec Zero_nat (fn _ => Suc)
-end
-
-*}
-
-ML{*
- val To_string = To.string OCL.nibble_rec OCL.char_rec
- val To_nat = To.nat OCL.nat_rec
  fun To_binding s = Binding.make (s, Position.none)
  val To_sbinding = To_binding o To_string
  fun s_of_rawty rawty = case rawty of
@@ -1392,11 +1445,6 @@ in
 fun read_typ_syntax b = read_abbrev b
                       o Proof_Context.init_global
 end
-fun in_local decl thy =
-  thy
-  |> Named_Target.init I ""
-  |> decl
-  |> Local_Theory.exit_global
 
 fun s_of_tactic l = (Method.Then (map m_of_tactic l), (Position.none, Position.none))
 
@@ -1473,7 +1521,7 @@ end
 
 ML{*
 val () =
-  Outer_Syntax.command @{command_spec "Class.end"} "Class generation"
+  Outer_Syntax.command @{command_spec "Class.end_shallow"} "Class generation in shallow form"
     (Parse.binding >> (fn name =>
       let val name = Binding.name_of name in
       Toplevel.theory (fn thy => OCL_main (let val SOME { attr_base = attr_base

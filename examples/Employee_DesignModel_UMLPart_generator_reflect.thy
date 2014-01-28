@@ -66,6 +66,6 @@ Class Galaxy =
 Class OclAny =
   child Galaxy
 
-Class.end OclAny
+Class.end_shallow OclAny
 
 end
