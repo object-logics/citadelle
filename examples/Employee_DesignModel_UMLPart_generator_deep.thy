@@ -3,11 +3,11 @@
  *                       for the OMG Standard.
  *                       http://www.brucker.ch/projects/hol-testgen/
  *
- * Employee_DesignModel_UMLPart_generator_reflect.thy --- OCL Contracts and an Example.
+ * Employee_DesignModel_UMLPart_generator_deep.thy --- OCL Contracts and an Example.
  * This file is part of HOL-TestGen.
  *
- * Copyright (c) 2014      Universite Paris-Sud, France
- *               2014      IRT SystemX, France
+ * Copyright (c) 2013-2014 Universite Paris-Sud, France
+ *               2013-2014 IRT SystemX, France
  *
  * All rights reserved.
  *
@@ -44,11 +44,12 @@
 header{* Part ... *}
 
 theory
-  Employee_DesignModel_UMLPart_generator_reflect
+  Employee_DesignModel_UMLPart_generator_deep
 imports
-  "../src/OCL_main"
   "../src/OCL_class_diagram_generator"
 begin
+section{* Code generation *}
+subsection{* Instance *}
 
 Class Person =
   attr_base salary :: int
@@ -66,6 +67,15 @@ Class Galaxy =
 Class OclAny =
   child Galaxy
 
-Class.end_shallow OclAny
+Class.end_deep OclAny Employee_DesignModel_UMLPart
+
+subsection{* Raw *}
+
+definition "main = write_file (STR ''Employee_DesignModel_UMLPart_generated'')
+                              Employee_DesignModel_UMLPart
+                              (STR ''../src/OCL_main'')"
+
+export_code main
+  in OCaml module_name M file "Employee_DesignModel_UMLPart_generator_deep.ml"
 
 end
