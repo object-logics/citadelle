@@ -48,8 +48,6 @@ theory
 imports
   "../src/OCL_class_diagram_generator"
 begin
-section{* Code generation *}
-subsection{* Instance *}
 
 Class Person =
   attr_base salary :: int
@@ -67,15 +65,11 @@ Class Galaxy =
 Class OclAny =
   child Galaxy
 
-Class.end_deep OclAny Employee_DesignModel_UMLPart
-
-subsection{* Raw *}
-
-definition "main = write_file (STR ''Employee_DesignModel_UMLPart_generated'')
-                              Employee_DesignModel_UMLPart
-                              (STR ''../src/OCL_main'')"
-
-export_code main
+Class.end_deep OclAny
+  Employee_DesignModel_UMLPart
+  main
+  "STR ''Employee_DesignModel_UMLPart_generated''"
+  "STR ''../src/OCL_main''"
   in OCaml module_name M file "Employee_DesignModel_UMLPart_generator_deep.ml"
 
 end

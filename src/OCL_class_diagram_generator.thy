@@ -1343,17 +1343,37 @@ and i_of_option f = fn NONE => "None"
 *}
 
 ML{*
+local
+fun prep_destination "" = NONE
+  | prep_destination "-" = (legacy_feature "drop \"file\" argument entirely instead of \"-\""; NONE)
+  | prep_destination s = SOME (Path.explode s)
+
+fun export_code_cmd raw_cs seris thy = Code_Target.export_code thy (Code_Target.read_const_exprs thy raw_cs)
+  ((map o apfst o apsnd) prep_destination seris)
+
+val code_expr_argsP = Scan.optional (@{keyword "("} |-- Args.parse --| @{keyword ")"}) []
+in
+
 val () =
   Outer_Syntax.command @{command_spec "Class.end_deep"} "Class generation in deep form"
-    (Parse.binding -- Parse.name >> (fn (name, name_var) =>
-      let val name = Binding.name_of name in
-      Toplevel.theory (fn thy => thy |> in_local (snd o Specification.definition_cmd (NONE, ((@{binding ""}, []), (let val SOME { attr_base = attr_base
-                                                        , attr_object = attr_object
-                                                        , child = child
-                                                        , univ = SOME univ} = Symtab.lookup (Data.get thy) name in
-                                           name_var ^ " = " ^ i_of_univ univ
-                                           end))) false))
+    ((Parse.binding -- Parse.name -- Parse.name -- Parse.name -- Parse.name
+      -- (* code_expr_inP *) Scan.repeat (@{keyword "in"} |-- Parse.!!! (Parse.name
+        -- Scan.optional (@{keyword "module_name"} |-- Parse.name) ""
+        -- Scan.optional (@{keyword "file"} |-- Parse.name) ""
+        -- code_expr_argsP))) >> (fn (((((name, name_var), name_main), file_out), path_dep), seri_args) =>
+      let val name = Binding.name_of name
+          fun def s = in_local (snd o Specification.definition_cmd (NONE, ((@{binding ""}, []), s)) false) in
+      Toplevel.theory (fn thy =>
+        thy |> def let val SOME { attr_base = attr_base
+                                , attr_object = attr_object
+                                , child = child
+                                , univ = SOME univ} = Symtab.lookup (Data.get thy) name in
+                   name_var ^ " = " ^ i_of_univ univ
+                   end
+            |> def (name_main ^ " = write_file (" ^ file_out ^ ") (" ^ name_var ^ ") (" ^ path_dep ^ ")")
+            |> (fn thy => let val () = export_code_cmd [name_main] seri_args thy in thy end))
       end))
+end
 *}
 
 subsection{* Shallow *}
