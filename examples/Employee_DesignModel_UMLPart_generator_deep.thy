@@ -66,10 +66,7 @@ Class OclAny =
   child Galaxy
 
 Class.end_deep OclAny
-  Employee_DesignModel_UMLPart
-  main
-  "STR ''Employee_DesignModel_UMLPart_generated''"
-  "STR ''../src/OCL_main''"
+  (*THEORY Employee_DesignModel_UMLPart_generated IMPORTS "../src/OCL_main"*)
   (*thy_dir "../doc"*)
 
 end

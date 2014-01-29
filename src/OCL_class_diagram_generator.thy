@@ -45,7 +45,7 @@ header{* Part ... *}
 
 theory OCL_class_diagram_generator
 imports Main
-  keywords "attr_base" "attr_object" "child" "thy_dir"
+  keywords "attr_base" "attr_object" "child" "thy_dir" "THEORY" "IMPORTS"
        and "Class" :: thy_decl
        and "Class.end_deep" :: thy_decl
        and "Class.end_shallow" :: thy_decl
@@ -1207,14 +1207,18 @@ definition "s_of_thy =
              | Thy_lemmas_simp lemmas_simp \<Rightarrow> s_of_lemmas_simp lemmas_simp
              | Thy_lemma_by lemma_by \<Rightarrow> s_of_lemma_by lemma_by)"
 
-definition "s_of_thy_list name fic_import l_thy =
+definition "s_of_thy_list name_fic_import l_thy =
+  (let (th_beg, th_end) = case name_fic_import of None \<Rightarrow> ([], [])
+   | Some (name, fic_import) \<Rightarrow>
+       ( [ sprintf2ss (STR ''theory %s imports \"%s\" begin'') name fic_import ]
+       , [ STR '''', STR ''end'' ]) in
   flatten
-        [ [ sprintf2ss (STR ''theory %s imports \"%s\" begin'') name fic_import ]
+        [ th_beg
         , flatten (List_mapi (\<lambda>i l.
             ( STR ''''
             # sprintf1 (STR ''(* %d *********************************** *)'') (To_nat (Suc i))
             # List_map s_of_thy l )) l_thy)
-        , [ STR '''', STR ''end'' ] ]"
+        , th_end ])"
 
 section{* SML *}
 subsection{* global *}
@@ -1319,14 +1323,12 @@ fun in_local decl thy =
 
 subsection{* Deep *}
 
-definition "write_file file_out example path_dep =
- (\<lambda>f. case Sys_argv
-      of _ # dir # _ \<Rightarrow> out_file1 f (if Sys_is_directory2 dir then sprintf2 (STR ''%s/%s.thy'') dir file_out else dir)
-       | _ \<Rightarrow> out_stand1 f)
- (\<lambda>fprintf1. List_iter (fprintf1 (STR ''%s
-'')) (s_of_thy_list file_out
-                    path_dep
-                    (map (\<lambda>f. f example) thy_object)))"
+definition "write_file file_out_path_dep example =
+  (\<lambda>f. case (file_out_path_dep, Sys_argv)
+       of (Some (file_out, _), _ # dir # _) \<Rightarrow> out_file1 f (if Sys_is_directory2 dir then sprintf2 (STR ''%s/%s.thy'') dir file_out else dir)
+        | _ \<Rightarrow> out_stand1 f)
+  (\<lambda>fprintf1. List_iter (fprintf1 (STR ''%s
+'')) (s_of_thy_list file_out_path_dep (map (\<lambda>f. f example) thy_object)))"
 
 ML{*
 fun i_of_string s = "''" ^ To_string s ^ "''"
@@ -1386,27 +1388,53 @@ fun export_code_cmd raw_cs seris filename_thy thy =
   end
 
 val code_expr_argsP = Scan.optional (@{keyword "("} |-- Args.parse --| @{keyword ")"}) []
+
+fun mk_term ctxt s = fst (Scan.pass (Context.Proof ctxt) Args.term (Outer_Syntax.scan Position.none s))
+
+fun mk_free ctxt s l = 
+  let val t_s = mk_term ctxt s in
+  if Term.is_Free t_s then s else 
+    let val l = (s, "") :: l in
+    mk_free ctxt (fst (hd (Term.variant_frees t_s l))) l
+    end
+  end 
 in
 
 val () =
   Outer_Syntax.command @{command_spec "Class.end_deep"} "Class generation in deep form"
-    ((Parse.binding -- Parse.name -- Parse.name -- Parse.name -- Parse.name
+    ((Parse.binding
+      -- Scan.optional (((@{keyword "THEORY"} |-- Parse.name) -- (@{keyword "IMPORTS"} |-- Parse.name)) >> SOME) NONE
       -- (* code_expr_inP *) Scan.repeat (@{keyword "in"} |-- Parse.!!! (Parse.name
         -- Scan.optional (@{keyword "module_name"} |-- Parse.name) ""
         -- Scan.optional (@{keyword "file"} |-- Parse.name) ""
         -- code_expr_argsP))
-      -- Scan.optional (@{keyword "thy_dir"} |-- Parse.name >> SOME) NONE) >> (fn ((((((name, name_var), name_main), file_out), path_dep), seri_args), filename_thy) =>
+      -- Scan.optional (@{keyword "thy_dir"} |-- Parse.name >> SOME) NONE) >> (fn (((name, file_out_path_dep), seri_args), filename_thy) =>
       let val name = Binding.name_of name
-          fun def s = in_local (snd o Specification.definition_cmd (NONE, ((@{binding ""}, []), s)) false) in
-      Toplevel.theory (fn thy =>
-        thy |> def let val SOME { attr_base = attr_base
-                                , attr_object = attr_object
-                                , child = child
-                                , univ = SOME univ} = Symtab.lookup (Data.get thy) name in
-                   name_var ^ " = " ^ i_of_univ univ
-                   end
-            |> def (name_main ^ " = write_file (" ^ file_out ^ ") (" ^ name_var ^ ") (" ^ path_dep ^ ")")
-            |> (fn thy => let val () = export_code_cmd [name_main] seri_args filename_thy thy in thy end))
+          fun def s = in_local (snd o Specification.definition_cmd (NONE, ((@{binding ""}, []), s)) false)
+          fun of_str s = "STR ''" ^ s ^ "''"
+          fun of_paren s = "(" ^ s ^ ")"
+          fun of_option f = fn NONE => "None" | SOME s => "(Some " ^ f s ^ ")"
+          val _ = case (seri_args, filename_thy, file_out_path_dep) of
+              ([_], _, NONE) => warning ("Unknown filename, generating to stdout and ignoring " ^ (@{make_string} seri_args))
+            | (_, SOME t, NONE) => warning ("Unknown filename, generating to stdout and ignoring " ^ (@{make_string} t))
+            | _ => () in
+      Toplevel.theory (fn thy0 =>
+        let val name_main = mk_free (Proof_Context.init_global thy0) "main" [] in
+        thy0 |> def let val SOME { attr_base = attr_base
+                                 , attr_object = attr_object
+                                 , child = child
+                                 , univ = SOME univ} = Symtab.lookup (Data.get thy0) name in
+                    String.concatWith " " (  name_main
+                                          :: "="
+                                          :: "write_file"
+                                          :: map of_paren [ of_option (fn (file_out, path_dep) => 
+                                                                         of_paren (of_str file_out ^ ", " ^ of_str path_dep))
+                                                                      file_out_path_dep
+                                                          , i_of_univ univ])
+                    end
+             |> export_code_cmd [name_main] seri_args filename_thy
+             |> K thy0
+        end)
       end))
 end
 *}
