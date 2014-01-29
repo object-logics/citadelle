@@ -70,6 +70,6 @@ Class.end_deep OclAny
   main
   "STR ''Employee_DesignModel_UMLPart_generated''"
   "STR ''../src/OCL_main''"
-  in OCaml module_name M file "Employee_DesignModel_UMLPart_generator_deep.ml"
+  (*thy_dir "../doc"*)
 
 end

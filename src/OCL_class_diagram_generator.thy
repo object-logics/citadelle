@@ -45,7 +45,7 @@ header{* Part ... *}
 
 theory OCL_class_diagram_generator
 imports Main
-  keywords "attr_base" "attr_object" "child"
+  keywords "attr_base" "attr_object" "child" "thy_dir"
        and "Class" :: thy_decl
        and "Class.end_deep" :: thy_decl
        and "Class.end_shallow" :: thy_decl
@@ -991,8 +991,11 @@ module CodeConst = struct
     let () = f (Printf.fprintf oc) in
     close_out oc
 
+  let outStand1 f =
+    f (Printf.fprintf stdout)
+
   module Sys = struct open Sys
-    let isDirectory = is_directory
+    let isDirectory2 s = try is_directory s with _ -> false
     let argv = Array.to_list argv
   end
 
@@ -1020,6 +1023,9 @@ text{* ... *}
 consts out_file0 :: "((ml_string \<Rightarrow> unit) (* fprintf *) \<Rightarrow> unit) \<Rightarrow> ml_string \<Rightarrow> unit"
 consts out_file1 :: "((ml_string \<Rightarrow> '\<alpha>1 \<Rightarrow> unit) (* fprintf *) \<Rightarrow> unit) \<Rightarrow> ml_string \<Rightarrow> unit"
 code_const out_file1 (OCaml "CodeConst.outFile1")
+
+consts out_stand1 :: "((ml_string \<Rightarrow> '\<alpha>1 \<Rightarrow> unit) (* fprintf *) \<Rightarrow> unit) \<Rightarrow> unit"
+code_const out_stand1 (OCaml "CodeConst.outStand1")
 
 text{* module To *}
 
@@ -1074,8 +1080,8 @@ definition "List_mapi f l = (let (l, _) = foldl (\<lambda>(acc, n) x. (f n x # a
 
 text{* module Sys *}
 
-consts Sys_is_directory :: "ml_string \<Rightarrow> bool"
-code_const Sys_is_directory (OCaml "CodeConst.Sys.isDirectory")
+consts Sys_is_directory2 :: "ml_string \<Rightarrow> bool"
+code_const Sys_is_directory2 (OCaml "CodeConst.Sys.isDirectory2")
 
 consts Sys_argv :: "ml_string list"
 code_const Sys_argv (OCaml "CodeConst.Sys.argv")
@@ -1259,7 +1265,7 @@ end
  val To_nat = To.nat OCL.nat_rec
 *}
 
-ML{* 
+ML{*
 type class_inline = { attr_base : (binding * binding) list
                     , attr_object : binding list
                     , child : binding list
@@ -1280,7 +1286,7 @@ structure From = struct local
  fun from_string n = map (fn c => let val c = Char.ord c in OCL.Char (from_nibble (c div 16), from_nibble (c mod 16)) end) (String.explode n)
  val from_binding = from_string o Binding.name_of
  in
- fun mk_univ (n, ({attr_base = attr_base, attr_object = attr_object, child = child, ...}:class_inline)) t = 
+ fun mk_univ (n, ({attr_base = attr_base, attr_object = attr_object, child = child, ...}:class_inline)) t =
    Mk_univ ( from_string n
            , List.concat [ map (fn (b, ty) => (from_binding b, OclTy_base (from_binding ty))) attr_base
                          , map (fn b => (from_binding b, object)) attr_object]
@@ -1303,7 +1309,7 @@ val () =
                                                      Symtab.insert (op =) (name, mk (SOME (From.mk_univ (name, mk NONE) t))) t
                                                      end))))
 *}
-ML{* 
+ML{*
 fun in_local decl thy =
   thy
   |> Named_Target.init I ""
@@ -1313,26 +1319,21 @@ fun in_local decl thy =
 
 subsection{* Deep *}
 
-definition "write_file file_out example path_dep = (
-  case filter Sys_is_directory Sys_argv
-  of dir # _ \<Rightarrow>
-    out_file1
-      (\<lambda>fprintf1.
-        List_iter (fprintf1 (STR ''%s
-''))
-                  (s_of_thy_list
-                     file_out
-                     path_dep
-                     (map (\<lambda>f. f example) thy_object)))
-      (sprintf2 (STR ''%s/%s.thy'') dir file_out)
-   | _ \<Rightarrow> eprintf0 (STR ''No directory in argument''))"
+definition "write_file file_out example path_dep =
+ (\<lambda>f. case Sys_argv
+      of _ # dir # _ \<Rightarrow> out_file1 f (if Sys_is_directory2 dir then sprintf2 (STR ''%s/%s.thy'') dir file_out else dir)
+       | _ \<Rightarrow> out_stand1 f)
+ (\<lambda>fprintf1. List_iter (fprintf1 (STR ''%s
+'')) (s_of_thy_list file_out
+                    path_dep
+                    (map (\<lambda>f. f example) thy_object)))"
 
 ML{*
 fun i_of_string s = "''" ^ To_string s ^ "''"
 val i_of_oclTy = fn OCL.OclTy_base s => "OclTy_base " ^ i_of_string s
                   | OCL.OclTy_object s => "OclTy_object " ^ i_of_string s
 
-fun i_of_univ (OCL.Mk_univ (s, l, opt)) = 
+fun i_of_univ (OCL.Mk_univ (s, l, opt)) =
   "Mk_univ " ^
     i_of_string s ^ " [" ^
     (String.concatWith ", " (map (fn (s,t) => "(" ^ i_of_string s ^ ", " ^ i_of_oclTy t ^ ")") l)) ^ "] " ^
@@ -1348,8 +1349,41 @@ fun prep_destination "" = NONE
   | prep_destination "-" = (legacy_feature "drop \"file\" argument entirely instead of \"-\""; NONE)
   | prep_destination s = SOME (Path.explode s)
 
-fun export_code_cmd raw_cs seris thy = Code_Target.export_code thy (Code_Target.read_const_exprs thy raw_cs)
-  ((map o apfst o apsnd) prep_destination seris)
+fun produce_code thy cs seris =
+  let
+    val (names_cs, (naming, program)) = Code_Thingol.consts_program thy false cs in
+    map (fn (((target, module_name), some_path), args) =>
+      (some_path, Code_Target.produce_code_for thy (*some_path*) target NONE module_name args naming program names_cs)) seris
+  end
+
+fun export_code_cmd raw_cs seris filename_thy thy =
+  let
+    fun absolute_path filename = Path.implode (Path.append (Thy_Load.master_directory thy) (Path.explode filename))
+    val with_tmp_file =
+      case seris of
+        [] =>
+        (fn f =>
+          Isabelle_System.with_tmp_file "OCL_class_diagram_generator" "ml" (fn filename =>
+          let val filename = Path.implode filename in
+          (* export_code
+               in OCaml module_name M (* file "" *) *)
+          f [(((("OCaml", "M"), filename), []), filename)]
+          end))
+      | _ =>
+        (fn f => f (map (fn x => (x, case x of (((_, _), filename), _) => absolute_path filename)) seris))
+  in
+
+  with_tmp_file (fn seris =>
+    let val _ = Code_Target.export_code
+        thy
+        (Code_Target.read_const_exprs thy raw_cs)
+        ((map o apfst o apsnd) prep_destination (map fst seris))
+        val _ = Isabelle_System.bash ("ocaml -w '-8' " ^ snd (hd seris)
+                                                       ^ (case filename_thy of NONE => ""
+                                                                             | SOME filename_thy => " " ^ absolute_path filename_thy)) in
+    () end)
+
+  end
 
 val code_expr_argsP = Scan.optional (@{keyword "("} |-- Args.parse --| @{keyword ")"}) []
 in
@@ -1360,7 +1394,8 @@ val () =
       -- (* code_expr_inP *) Scan.repeat (@{keyword "in"} |-- Parse.!!! (Parse.name
         -- Scan.optional (@{keyword "module_name"} |-- Parse.name) ""
         -- Scan.optional (@{keyword "file"} |-- Parse.name) ""
-        -- code_expr_argsP))) >> (fn (((((name, name_var), name_main), file_out), path_dep), seri_args) =>
+        -- code_expr_argsP))
+      -- Scan.optional (@{keyword "thy_dir"} |-- Parse.name >> SOME) NONE) >> (fn ((((((name, name_var), name_main), file_out), path_dep), seri_args), filename_thy) =>
       let val name = Binding.name_of name
           fun def s = in_local (snd o Specification.definition_cmd (NONE, ((@{binding ""}, []), s)) false) in
       Toplevel.theory (fn thy =>
@@ -1371,7 +1406,7 @@ val () =
                    name_var ^ " = " ^ i_of_univ univ
                    end
             |> def (name_main ^ " = write_file (" ^ file_out ^ ") (" ^ name_var ^ ") (" ^ path_dep ^ ")")
-            |> (fn thy => let val () = export_code_cmd [name_main] seri_args thy in thy end))
+            |> (fn thy => let val () = export_code_cmd [name_main] seri_args filename_thy thy in thy end))
       end))
 end
 *}
