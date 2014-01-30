@@ -248,7 +248,7 @@ subsection{* ... *}
 
 definition "activate_simp_optimization = True"
 
-definition "print_datatype_class = List_map Thy_dataty o map_class_gen_h''''
+definition "print_infra_datatype_class = List_map Thy_dataty o map_class_gen_h''''
   (\<lambda>isub_name name _ l_attr l_inherited l_cons.
     [ Datatype
         (isub_name datatype_ext_name)
@@ -259,18 +259,18 @@ definition "print_datatype_class = List_map Thy_dataty o map_class_gen_h''''
         (isub_name datatype_name)
         [ (isub_name datatype_constr_name, [ Raw (isub_name datatype_ext_name) ] @@ List_map (\<lambda>(_, x). Opt (str_of_ty x)) l_attr ) ] ])"
 
-definition "print_datatype_universe expr = List_map Thy_dataty
+definition "print_infra_datatype_universe expr = List_map Thy_dataty
   [ Datatype unicode_AA
       (map_class (\<lambda>isub_name _ _ _ _ _. (isub_name datatype_in, [Raw (isub_name datatype_name)])) expr) ]"
 
-definition "print_type_synonym_class expr = List_map Thy_ty_synonym
+definition "print_infra_type_synonym_class expr = List_map Thy_ty_synonym
   (Type_synonym ty_boolean (Ty_apply (Ty_base ty_boolean) [Ty_base unicode_AA]) #
    (map_class (\<lambda>isub_name name _ _ _ _.
      Type_synonym name (Ty_apply (Ty_base ''val'') [Ty_base unicode_AA,
      let option = (\<lambda>x. Ty_apply (Ty_base ''option'') [x]) in
      option (option (Ty_base (isub_name datatype_name))) ])) expr))"
 
-definition "print_instantiation_class = List_map Thy_instantiation_class o map_class_gen_h''''
+definition "print_infra_instantiation_class = List_map Thy_instantiation_class o map_class_gen_h''''
   (\<lambda>isub_name name _ l_attr l_inherited l_cons.
     let oid_of = ''oid_of'' in
     [Instantiation
@@ -289,7 +289,7 @@ definition "print_instantiation_class = List_map Thy_instantiation_class o map_c
                                     , Expr_apply oid_of [Expr_basic [var_oid]])) l_cons))]))
     ])"
 
-definition "print_instantiation_universe expr = List_map Thy_instantiation_class
+definition "print_infra_instantiation_universe expr = List_map Thy_instantiation_class
   [ let oid_of = ''oid_of'' in
     Instantiation unicode_AA oid_of
       (Expr_rewrite
@@ -300,7 +300,7 @@ definition "print_instantiation_universe expr = List_map Thy_instantiation_class
     (esc (isub_name datatype_in), esc oid_of)) expr))) ]"
 
 
-definition "print_def_strictrefeq = List_map Thy_defs_overloaded o
+definition "print_instantia_def_strictrefeq = List_map Thy_defs_overloaded o
   map_class (\<lambda>isub_name name _ _ _ _.
     let mk_strict = (\<lambda>l. flatten (''StrictRefEq'' # isub_of_str ''Object'' # l))
       ; s_strict = mk_strict [''_'', isub_of_str name]
@@ -726,7 +726,7 @@ definition "print_iskindof_lemmas_strict =
 
 subsection{* ... *}
 
-definition "print_eval_extract _ = List_map Thy_definition_hol
+definition "print_access_eval_extract _ = List_map Thy_definition_hol
   (let lets = (\<lambda>var def. Definition (Expr_rewrite (Expr_basic [var]) ''='' (Expr_basic [def]))) in
   [ bug_ocaml_extraction
     (let var_x = ''x''
@@ -746,7 +746,7 @@ definition "print_eval_extract _ = List_map Thy_definition_hol
   , lets var_in_post_state ''snd''
   , lets var_reconst_basetype ''id'' ])"
 
-definition "print_deref_oid = List_map Thy_definition_hol o
+definition "print_access_deref_oid = List_map Thy_definition_hol o
   map_class (\<lambda>isub_name _ _ _ _ _.
     let var_fs = ''fst_snd''
       ; var_f = ''f''
@@ -762,7 +762,7 @@ definition "print_deref_oid = List_map Thy_definition_hol o
                      [ (Expr_some (Expr_basic [isub_name datatype_in, var_obj]), Expr_basic [var_f, var_obj, var_tau])
                      , (Expr_basic [wildcard], Expr_basic [''invalid'', var_tau]) ]))))"
 
-definition "print_select = List_map Thy_definition_hol o
+definition "print_access_select = List_map Thy_definition_hol o
   map_class_arg_only (\<lambda>isub_name name l_attr.
     let var_f = ''f''
       ; wildc = Expr_basic [wildcard] in
@@ -791,7 +791,7 @@ definition "print_select = List_map Thy_definition_hol o
       l_attr) in
     rev l)"
 
-definition "print_select_inherited = List_map Thy_definition_hol o
+definition "print_access_select_inherited = List_map Thy_definition_hol o
   map_class_arg_only' (\<lambda>isub_name name l_attr l_inherited l_cons.
     let var_f = ''f''
       ; wildc = Expr_basic [wildcard] in
@@ -829,7 +829,7 @@ definition "print_select_inherited = List_map Thy_definition_hol o
       l_inherited) in
     rev l)"
 
-definition "print_dot = List_map Thy_definition_hol o
+definition "print_access_dot = List_map Thy_definition_hol o
   map_class_arg_only (\<lambda>isub_name name l_attr.
     flatten (flatten (
     List_map (\<lambda>(var_in_when_state, dot_at_when, attr_when).
@@ -852,7 +852,7 @@ definition "print_dot = List_map Thy_definition_hol o
         [ (var_in_post_state, '''', '''')
         , (var_in_pre_state, ''_at_pre'', ''@pre'')])))"
 
-definition "print_dot_inherited = List_map Thy_definition_hol o
+definition "print_access_dot_inherited = List_map Thy_definition_hol o
   map_class_arg_only' (\<lambda>isub_name name l_attr l_inherited _.
     flatten (flatten (
     List_map (\<lambda>(var_in_when_state, dot_at_when, attr_when).
@@ -890,13 +890,13 @@ definition "thy_object =
             , subsection ''Outlining the Example''
             , section ''Example Data-Universe and its Infrastructure''
 
-            , print_datatype_class
-            , print_datatype_universe
-            , print_type_synonym_class
-            , print_instantiation_class
-            , print_instantiation_universe
+            , print_infra_datatype_class
+            , print_infra_datatype_universe
+            , print_infra_type_synonym_class
+            , print_infra_instantiation_class
+            , print_infra_instantiation_universe
             , section ''Instantiation of the Generic Strict Equality''
-            , print_def_strictrefeq ]
+            , print_instantia_def_strictrefeq ]
 
           , flatten (map (\<lambda>(title, body_def, body_cp, body_exec, body_up).
               section title # flatten [ subsection_def # body_def
@@ -940,12 +940,12 @@ definition "thy_object =
 
             , section ''The Accessors''
             , subsection_def
-            , print_eval_extract
-            , print_deref_oid
-            , print_select
-            , print_select_inherited
-            , print_dot
-            , print_dot_inherited
+            , print_access_eval_extract
+            , print_access_deref_oid
+            , print_access_select
+            , print_access_select_inherited
+            , print_access_dot
+            , print_access_dot_inherited
             , subsection_cp
             , subsection_exec
 
