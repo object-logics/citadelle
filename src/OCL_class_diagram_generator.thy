@@ -45,7 +45,7 @@ header{* Part ... *}
 
 theory OCL_class_diagram_generator
 imports Main
-  keywords "attr_base" "attr_object" "child" "thy_dir" "THEORY" "IMPORTS"
+  keywords "attr_base" "attr_object" "child" "thy_dir" "THEORY" "IMPORTS" "SECTION"
        and "Class" :: thy_decl
        and "Class.end_deep" :: thy_decl
        and "Class.end_shallow" :: thy_decl
@@ -148,6 +148,9 @@ datatype lemma_by = Lemma_by str (* name *) "expr list" (* specification to prov
                       "tactic list list" (* tactics : apply (... ',' ...) '\n' apply ... *)
                       "tactic list option" (* Some tactic : ending the proof with 'by ...' *)
 
+datatype section_title = Section_title nat (* nesting level *)
+                                       str (* content *)
+
 datatype thy = Thy_dataty dataty
              | Thy_ty_synonym ty_synonym
              | Thy_instantiation_class instantiation_class
@@ -156,6 +159,7 @@ datatype thy = Thy_dataty dataty
              | Thy_definition_hol definition_hol
              | Thy_lemmas_simp lemmas_simp
              | Thy_lemma_by lemma_by
+             | Thy_section_title section_title
 
 subsection{* ... *}
 
@@ -871,47 +875,81 @@ definition "print_dot_inherited = List_map Thy_definition_hol o
 
 subsection{* Conclusion *}
 
+definition "section_aux n s _ = [ Thy_section_title (Section_title n s) ]"
+definition "section = section_aux 0"
+definition "subsection = section_aux 1"
+definition "subsubsection = section_aux 2"
+
 definition "thy_object =
-            [ print_datatype_class
+  (let subsection_def = subsection ''Definition''
+     ; subsection_cp = subsection ''Context Passing''
+     ; subsection_exec = subsection ''Execution with Invalid or Null as Argument''
+     ; subsection_up = subsection ''Up Down Casting'' in
+  flatten
+          [ [ section ''Introduction''
+            , subsection ''Outlining the Example''
+            , section ''Example Data-Universe and its Infrastructure''
+
+            , print_datatype_class
             , print_datatype_universe
             , print_type_synonym_class
             , print_instantiation_class
             , print_instantiation_universe
-            , print_def_strictrefeq
+            , section ''Instantiation of the Generic Strict Equality''
+            , print_def_strictrefeq ]
 
-            , print_astype_consts
+          , flatten (map (\<lambda>(title, body_def, body_cp, body_exec, body_up).
+              section title # flatten [ subsection_def # body_def
+                                      , subsection_cp # body_cp
+                                      , subsection_exec # body_exec
+                                      , case body_up of None \<Rightarrow> [] | Some body_up \<Rightarrow>
+                                          subsection_up # body_up ])
+          [ (''OclAsType'', 
+            [ print_astype_consts
             , print_astype_class
             (*, print_astype_from_universe*), print_astype_from_universe'
-            , print_astype_lemmas_id
-            , print_astype_lemma_cp
-            , print_astype_lemmas_cp
-            , print_astype_lemma_strict
-            , print_astype_lemmas_strict
+            , print_astype_lemmas_id ]
+            , [ print_astype_lemma_cp
+            , print_astype_lemmas_cp ]
+            , [ print_astype_lemma_strict
+            , print_astype_lemmas_strict ], None)
 
-            , print_istypeof_consts
+          , (''OclIsTypeOf'', 
+            [ print_istypeof_consts
             , print_istypeof_class
             , print_istypeof_from_universe(*, print_istypeof_from_universe'*)
-            , print_istypeof_lemmas_id
-            , print_istypeof_lemma_cp
-            , print_istypeof_lemmas_cp
-            , print_istypeof_lemma_strict
-            , print_istypeof_lemmas_strict
+            , print_istypeof_lemmas_id ]
+            , [ print_istypeof_lemma_cp
+            , print_istypeof_lemmas_cp ]
+            , [ print_istypeof_lemma_strict
+            , print_istypeof_lemmas_strict ], Some [])
 
-            , print_iskindof_consts
+          , (''OclIsKindOf'', 
+            [ print_iskindof_consts
             , print_iskindof_class
             , print_iskindof_from_universe(*, print_iskindof_from_universe'*)
-            , print_iskindof_lemmas_id
-            , print_iskindof_lemma_cp
-            , print_iskindof_lemmas_cp
-            , print_iskindof_lemma_strict
-            , print_iskindof_lemmas_strict
+            , print_iskindof_lemmas_id ]
+            , [ print_iskindof_lemma_cp
+            , print_iskindof_lemmas_cp ]
+            , [ print_iskindof_lemma_strict
+            , print_iskindof_lemmas_strict ], Some []) ])
 
+          , [ section ''OclAllInstances''
+            , subsection ''OclIsTypeOf''
+            , subsection ''OclIsKindOf''
+
+            , section ''The Accessors''
+            , subsection_def
             , print_eval_extract
             , print_deref_oid
             , print_select
             , print_select_inherited
             , print_dot
-            , print_dot_inherited ]"
+            , print_dot_inherited
+            , subsection_cp
+            , subsection_exec
+
+            , section ''A Little Infra-structure on Example States'' ] ])"
 
 definition "fold_thy f univ = fold (\<lambda>x. fold f (x univ)) thy_object"
 
@@ -1197,7 +1235,17 @@ definition "s_of_lemma_by =
       (case o_by of None \<Rightarrow> STR ''done''
                   | Some l_apply \<Rightarrow> sprintf1 (STR ''by(%s)'') (String_concat (STR '', '') (List_map s_of_tactic l_apply))))"
 
-definition "s_of_thy =
+definition "s_of_section_title disable_thy_output = (\<lambda> Section_title n section_title \<Rightarrow>
+  if disable_thy_output then
+    STR ''''
+  else
+    sprintf2 (STR ''%s{* %s *}'')
+      (To_string ((case n of 0 \<Rightarrow> ''''
+                     | Suc 0 \<Rightarrow> ''sub''
+                     | Suc (Suc _) \<Rightarrow> ''subsub'') @@ ''section''))
+      (To_string section_title))"
+
+definition "s_of_thy disable_thy_output =
             (\<lambda> Thy_dataty dataty \<Rightarrow> s_of_dataty dataty
              | Thy_ty_synonym ty_synonym \<Rightarrow> s_of_ty_synonym ty_synonym
              | Thy_instantiation_class instantiation_class \<Rightarrow> s_of_instantiation_class instantiation_class
@@ -1205,9 +1253,10 @@ definition "s_of_thy =
              | Thy_consts_class consts_class \<Rightarrow> s_of_consts_class consts_class
              | Thy_definition_hol definition_hol \<Rightarrow> s_of_definition_hol definition_hol
              | Thy_lemmas_simp lemmas_simp \<Rightarrow> s_of_lemmas_simp lemmas_simp
-             | Thy_lemma_by lemma_by \<Rightarrow> s_of_lemma_by lemma_by)"
+             | Thy_lemma_by lemma_by \<Rightarrow> s_of_lemma_by lemma_by
+             | Thy_section_title section_title \<Rightarrow> s_of_section_title disable_thy_output section_title)"
 
-definition "s_of_thy_list name_fic_import l_thy =
+definition "s_of_thy_list disable_thy_output name_fic_import l_thy =
   (let (th_beg, th_end) = case name_fic_import of None \<Rightarrow> ([], [])
    | Some (name, fic_import) \<Rightarrow>
        ( [ sprintf2ss (STR ''theory %s imports \"%s\" begin'') name fic_import ]
@@ -1217,7 +1266,7 @@ definition "s_of_thy_list name_fic_import l_thy =
         , flatten (List_mapi (\<lambda>i l.
             ( STR ''''
             # sprintf1 (STR ''(* %d *********************************** *)'') (To_nat (Suc i))
-            # List_map s_of_thy l )) l_thy)
+            # List_map (s_of_thy disable_thy_output) l )) l_thy)
         , th_end ])"
 
 section{* SML *}
@@ -1323,12 +1372,12 @@ fun in_local decl thy =
 
 subsection{* Deep *}
 
-definition "write_file file_out_path_dep example =
+definition "write_file disable_thy_output file_out_path_dep example =
   (\<lambda>f. case (file_out_path_dep, Sys_argv)
        of (Some (file_out, _), _ # dir # _) \<Rightarrow> out_file1 f (if Sys_is_directory2 dir then sprintf2 (STR ''%s/%s.thy'') dir file_out else dir)
         | _ \<Rightarrow> out_stand1 f)
   (\<lambda>fprintf1. List_iter (fprintf1 (STR ''%s
-'')) (s_of_thy_list file_out_path_dep (map (\<lambda>f. f example) thy_object)))"
+'')) (s_of_thy_list disable_thy_output file_out_path_dep (map (\<lambda>f. f example) thy_object)))"
 
 ML{*
 fun i_of_string s = "''" ^ To_string s ^ "''"
@@ -1404,16 +1453,18 @@ val () =
   Outer_Syntax.command @{command_spec "Class.end_deep"} "Class generation in deep form"
     ((Parse.binding
       -- Scan.optional (((@{keyword "THEORY"} |-- Parse.name) -- (@{keyword "IMPORTS"} |-- Parse.name)) >> SOME) NONE
+      -- Scan.optional (@{keyword "SECTION"} >> SOME) NONE
       -- (* code_expr_inP *) Scan.repeat (@{keyword "in"} |-- Parse.!!! (Parse.name
         -- Scan.optional (@{keyword "module_name"} |-- Parse.name) ""
         -- Scan.optional (@{keyword "file"} |-- Parse.name) ""
         -- code_expr_argsP))
-      -- Scan.optional (@{keyword "thy_dir"} |-- Parse.name >> SOME) NONE) >> (fn (((name, file_out_path_dep), seri_args), filename_thy) =>
+      -- Scan.optional (@{keyword "thy_dir"} |-- Parse.name >> SOME) NONE) >> (fn ((((name, file_out_path_dep), disable_thy_output), seri_args), filename_thy) =>
       let val name = Binding.name_of name
           fun def s = in_local (snd o Specification.definition_cmd (NONE, ((@{binding ""}, []), s)) false)
           fun of_str s = "STR ''" ^ s ^ "''"
           fun of_paren s = "(" ^ s ^ ")"
           fun of_option f = fn NONE => "None" | SOME s => "(Some " ^ f s ^ ")"
+          fun of_bool s = if s then "True" else "False"
           val _ = case (seri_args, filename_thy, file_out_path_dep) of
               ([_], _, NONE) => warning ("Unknown filename, generating to stdout and ignoring " ^ (@{make_string} seri_args))
             | (_, SOME t, NONE) => warning ("Unknown filename, generating to stdout and ignoring " ^ (@{make_string} t))
@@ -1427,7 +1478,8 @@ val () =
                     String.concatWith " " (  name_main
                                           :: "="
                                           :: "write_file"
-                                          :: map of_paren [ of_option (fn (file_out, path_dep) => 
+                                          :: map of_paren [ of_bool (disable_thy_output = NONE)
+                                                          , of_option (fn (file_out, path_dep) => 
                                                                          of_paren (of_str file_out ^ ", " ^ of_str path_dep))
                                                                       file_out_path_dep
                                                           , i_of_univ univ])
@@ -1596,6 +1648,7 @@ val OCL_main = let open OCL in fold_thy ((*let val f = *)fn
              false lthy
         |> fold apply_results l_apply
         |> global_terminal_proof o_by)
+| Thy_section_title _ => I
 (*in fn t => fn thy => f t thy handle ERROR s => (warning s; thy)
  end*)
 )
