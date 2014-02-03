@@ -85,6 +85,12 @@ fun less_than_hierarchy where
                else less_than_hierarchy xs item1 item2)"
 definition "compare_hierarchy = (\<lambda>l x1 x2. if x1 = x2 then EQ else less_than_hierarchy l x1 x2)"
 
+fun fold_less_gen where "fold_less_gen f_gen f l = (case l of
+    x # xs \<Rightarrow> \<lambda>acc. fold_less_gen f_gen f xs (f_gen (f x) xs acc)
+  | [] \<Rightarrow> id)"
+
+definition "fold_less2 = fold_less_gen fold"
+definition "fold_less3 = fold_less_gen fold_less2"
 
 fun flip where "flip (a,b) = (b,a)"
 definition "List_map f l = rev (foldl (\<lambda>l x. f x # l) [] l)"
@@ -145,16 +151,30 @@ datatype lemmas_simp = Lemmas_simp str (* name *)
                                    "ntheorem list"
 
 datatype tactic = Tac_rule ntheorem
-                | Tac_plus tactic
+                | Tac_erule ntheorem
+                | Tac_elim ntheorem
+                | Tac_plus "tactic list"
                 | Tac_simp | Tac_simp_add "str list" | Tac_simp_only "str list"
                 | Tac_simp_all | Tac_simp_all_add str
+                | Tac_auto_simp_add "str list"
+                | Tac_auto_simp_add_split "str list" "str list"
+                | Tac_rename_tac "str list"
+                | Tac_case_tac expr
 
 datatype tactic_last = Tacl_done
                      | Tacl_by "tactic list"
                      | Tacl_sorry
 
+datatype tac_apply = App "tactic list" (* apply (... ',' ...) *)
+                   | App_using "str list" (* using ... *)
+
 datatype lemma_by = Lemma_by str (* name *) "expr list" (* specification to prove *)
                       "tactic list list" (* tactics : apply (... ',' ...) '\n' apply ... *)
+                      tactic_last
+                  | Lemma_by_assum str (* name *)
+                      "(str (* name *) \<times> expr) list" (* specification to prove (assms) *)
+                      expr (* specification to prove (conclusion) *)
+                      "tac_apply list"
                       tactic_last
 
 datatype section_title = Section_title nat (* nesting level *)
@@ -185,6 +205,7 @@ definition "mk_dot = (\<lambda>s1 s2. flatten [''.'', s1, s2])"
 definition "mk_dot_par = (\<lambda>dot s. flatten [dot, ''('', s, '')''])"
 
 definition "hol_definition s = flatten [s, ''_def'']"
+definition "hol_split s = flatten [s, ''.split'']"
 
 subsection{* ... *}
 
@@ -195,8 +216,11 @@ definition "ty_boolean = ''Boolean''"
 definition "unicode_equiv = escape_unicode ''equiv''"
 definition "unicode_doteq = escape_unicode ''doteq''"
 definition "unicode_tau = escape_unicode ''tau''"
+definition "unicode_delta = escape_unicode ''delta''"
 definition "unicode_bottom = escape_unicode ''bottom''"
 definition "unicode_AA = escape_unicode ''AA''"
+definition "unicode_Turnstile = escape_unicode ''Turnstile''"
+definition "unicode_triangleq = escape_unicode ''triangleq''"
 
 definition "datatype_ext_name = ''type''"
 definition "datatype_name = datatype_ext_name @@ str_of_ty object"
@@ -264,6 +288,11 @@ definition "map_class_arg_only_var0 = (\<lambda>f_app f_lattr isub_name name l_a
              , (var_in_pre_state, ''_at_pre'', ''@pre'')])))"
 definition "map_class_arg_only_var f1 f2 = map_class_arg_only0 (map_class_arg_only_var0 f1 id) (map_class_arg_only_var0 f2 (\<lambda>(_, l, _). l))"
 definition "map_class_arg_only_var' f = map_class_arg_only0 (map_class_arg_only_var0 f id) (map_class_arg_only_var0 f (\<lambda>(_, l, _). l))"
+definition "map_class_nupl2 f x = fold_less2 (\<lambda>x y l. f y x # l) (get_class_hierarchy x) []"
+definition "map_class_nupl3 f x = fold_less3 (\<lambda>x y z l. f z y x # l) (get_class_hierarchy x) []"
+definition "map_class_nupl2' f = map_class_nupl2 (\<lambda>(x,_) (y,_). f x y)"
+definition "map_class_nupl3' f = map_class_nupl3 (\<lambda>(x,_) (y,_) (z,_). f x y z)"
+definition "map_class_nupl2'3' f x = map_class_nupl2' (\<lambda>x y. f x y y) x @@ map_class_nupl3' f x"
 definition "get_hierarchy_fold f f_l x = flatten (flatten (
   let (l1, l2, l3) = f_l (List_map fst (get_class_hierarchy x)) in
   let (_, l) = foldl (\<lambda> (name1_last, l1) name1. (Some name1, List_map (\<lambda>name2. List_map (
@@ -271,6 +300,7 @@ definition "get_hierarchy_fold f f_l x = flatten (flatten (
 definition "get_hierarchy_map f f_l x = flatten (flatten (
   let (l1, l2, l3) = f_l (List_map fst (get_class_hierarchy x)) in
   List_map (\<lambda>name1. List_map (\<lambda>name2. List_map (f name1 name2) l3) l2) l1))"
+definition "split_ty name = map (\<lambda>s. hol_split (s @@ isub_of_str name)) [datatype_ext_name, datatype_name]"
 
 subsection{* ... *}
 
@@ -648,6 +678,96 @@ definition "print_istypeof_lemmas_strict expr = List_map Thy_lemmas_simp
         Thm_str (flatten [const_oclistypeof, isub_of_str name1, ''_'', name3, ''_'', name2]))
       l) ])"
 
+definition "print_istypeof_up_larger = List_map Thy_lemma_by o
+  map_class_nupl2' (\<lambda>name_pers name_any.
+    let var_X = ''X''
+      ; var_isdef = ''isdef''
+      ; f = Expr_binop (Expr_basic [unicode_tau]) unicode_Turnstile in
+    Lemma_by_assum
+        (flatten [''actualType'', isub_of_str name_pers, ''_larger_staticType'', isub_of_str name_any])
+        [(var_isdef, f (Expr_apply unicode_delta [Expr_basic [var_X]]))]
+        (f (Expr_binop (Expr_warning_parenthesis (Expr_postunary
+               (Expr_annot (Expr_basic [var_X]) name_pers)
+               (Expr_basic [dot_istypeof name_any]))
+             ) unicode_triangleq (Expr_basic [''false''])))
+        [App_using [var_isdef]]
+        (Tacl_by [Tac_auto_simp_add ( flatten [const_oclistypeof, isub_of_str name_any, ''_'', name_pers]
+                                    # ''foundation22''
+                                    # ''foundation16''
+                                    # map hol_definition [''null_option'', ''bot_option'' ])]))"
+
+definition "print_istypeof_up_d_cast expr = (List_map Thy_lemma_by o
+  map_class_nupl2'3' (\<lambda>name_pers name_mid name_any.
+    let var_X = ''X''
+      ; var_istyp = ''istyp''
+      ; var_isdef = ''isdef''
+      ; f = Expr_binop (Expr_basic [unicode_tau]) unicode_Turnstile in
+    Lemma_by_assum
+        (flatten [''down_cast_type'', isub_of_str name_mid, ''_from_'', name_any, ''_to_'', name_pers])
+        [(var_istyp, f (Expr_warning_parenthesis (Expr_postunary
+               (Expr_annot (Expr_basic [var_X]) name_any)
+               (Expr_basic [dot_istypeof name_mid]))))
+        ,(var_isdef, f (Expr_apply unicode_delta [Expr_basic [var_X]]))]
+        (f (Expr_binop (Expr_warning_parenthesis (Expr_postunary
+               (Expr_basic [var_X])
+               (Expr_basic [dot_astype name_pers]))
+             ) unicode_triangleq (Expr_basic [''invalid''])))
+        [App_using [var_istyp, var_isdef]
+        ,App [Tac_auto_simp_add_split ( flatten [const_oclastype, isub_of_str name_pers, ''_'', name_any]
+                                      # ''foundation22''
+                                      # ''foundation16''
+                                      # map hol_definition [''null_option'', ''bot_option'' ])
+                                      (split_ty name_any) ]]
+        (Tacl_by [Tac_simp_add (let l = map hol_definition [''OclValid'', ''false'', ''true''] in
+                                if name_mid = name_any & ~(print_istypeof_lemma_cp_set expr = []) then
+                                  l
+                                else
+                                  flatten [const_oclistypeof, isub_of_str name_mid, ''_'', name_any] # l)]))) expr"
+
+definition "print_istypeof_up_down_cast0_name name_any name_pers = flatten [''up'', isub_of_str name_any, ''_down'', isub_of_str name_pers, ''_cast0'']"
+definition "print_istypeof_up_down_cast0 = List_map Thy_lemma_by o
+  map_class_nupl2' (\<lambda>name_pers name_any.
+    let var_X = ''X''
+      ; var_isdef = ''isdef''
+      ; f = Expr_binop (Expr_basic [unicode_tau]) unicode_Turnstile in
+    Lemma_by_assum
+        (print_istypeof_up_down_cast0_name name_any name_pers)
+        [(var_isdef, f (Expr_apply unicode_delta [Expr_basic [var_X]]))]
+        (f (Expr_binop 
+             (bug_ocaml_extraction (let asty = \<lambda>x ty. Expr_warning_parenthesis (Expr_postunary x
+               (Expr_basic [dot_astype ty])) in
+               asty (asty (Expr_annot (Expr_basic [var_X]) name_pers) name_any) name_pers))
+             unicode_triangleq (Expr_basic [var_X])))
+        [App_using [var_isdef]]
+        (Tacl_by [Tac_auto_simp_add_split
+                                    ( flatten [const_oclastype, isub_of_str name_any, ''_'', name_pers]
+                                    # flatten [const_oclastype, isub_of_str name_pers, ''_'', name_any]
+                                    # ''foundation22''
+                                    # ''foundation16''
+                                    # map hol_definition [''null_option'', ''bot_option'' ])
+                                    (split_ty name_pers) ]))"
+
+definition "print_istypeof_up_down_cast = List_map Thy_lemma_by o
+  map_class_nupl2' (\<lambda>name_pers name_any.
+    let var_X = ''X''
+      ; var_tau = unicode_tau in
+    Lemma_by_assum
+        (flatten [''up'', isub_of_str name_any, ''_down'', isub_of_str name_pers, ''_cast''])
+        []
+        (Expr_binop 
+             (bug_ocaml_extraction (let asty = \<lambda>x ty. Expr_warning_parenthesis (Expr_postunary x
+               (Expr_basic [dot_astype ty])) in
+               asty (asty (Expr_annot (Expr_basic [var_X]) name_pers) name_any) name_pers))
+             ''='' (Expr_basic [var_X]))
+        (map App
+          [[Tac_rule (Thm_str ''ext''), Tac_rename_tac [var_tau]]
+          ,[Tac_rule (Thm_THEN (Thm_str ''foundation22'') (Thm_str ''iffD1''))]
+          ,[Tac_case_tac (Expr_binop (Expr_basic [var_tau]) unicode_Turnstile
+              (Expr_apply unicode_delta [Expr_basic [var_X]])), Tac_simp_add [print_istypeof_up_down_cast0_name name_any name_pers]]
+          ,[Tac_simp_add [''def_split_local''], Tac_elim (Thm_str ''disjE'')]
+          ,[Tac_plus [Tac_erule (Thm_str ''StrongEq_L_subst2_rev''), Tac_simp, Tac_simp]]])
+        Tacl_done)"
+
 subsection{* IsKindOf *}
 
 definition "print_iskindof_consts = List_map Thy_consts_class o
@@ -710,7 +830,7 @@ definition "print_iskindof_lemma_cp expr = (List_map Thy_lemma_by o
      | Some name1_previous \<Rightarrow>
       ( [ [ lem_simp1 ]
         , [ Tac_rule (Thm_where (Thm_str ''cpI2'') [(''f'', Expr_preunary (Expr_basic [''op'']) (Expr_basic [''or'']))])
-          , Tac_plus (Tac_rule (Thm_str ''allI''))
+          , Tac_plus [Tac_rule (Thm_str ''allI'')]
           , Tac_rule (Thm_str ''cp_OclOr'') ] ]
       , Tacl_by [ lem_simp2 , Tac_simp_only [flatten [''cp_'', const_ocliskindof, isub_of_str name1_previous, ''_'', name3, ''_'', name2]] ])
     in Lemma_by lemma_name lemma_spec tac1 tac2
@@ -898,22 +1018,22 @@ definition "print_access_dot = List_map Thy_definition_hol o
                           [case attr_ty of OclTy_base _ \<Rightarrow> Expr_basic [var_reconst_basetype]
                                          | OclTy_object _ \<Rightarrow> deref_oid [] ] ] ]))) ])"
 
+definition "print_access_dot_lemmas_id_set = 
+  (if activate_simp_optimization then
+     map_class_arg_only_var'
+       (\<lambda>isub_name (_, dot_at_when) _ isup_attr _. [flatten [isup_attr (isub_name ''dot''), dot_at_when]])
+   else (\<lambda>_. []))"
+
 definition "print_access_dot_lemmas_id expr =
-       (let name_set = 
-         (if activate_simp_optimization then
-           map_class_arg_only_var'
-             (\<lambda>isub_name (_, dot_at_when) _ isup_attr _. [flatten [isup_attr (isub_name ''dot''), dot_at_when]])
-          else (\<lambda>_. [])) expr in
+       (let name_set = print_access_dot_lemmas_id_set expr in
        case name_set of [] \<Rightarrow> [] | _ \<Rightarrow> List_map Thy_lemmas_simp
          [ Lemmas_simp '''' (List_map (Thm_str o hol_definition) name_set) ])"
 
 definition "print_access_dot_cp_lemmas_set = 
-  (if activate_simp_optimization then
-     [hol_definition var_eval_extract]
-   else [])"
+  (if activate_simp_optimization then [hol_definition var_eval_extract] else [])"
 
-definition "print_access_dot_cp_lemmas = 
-  (\<lambda>_. map (\<lambda>x. Thy_lemmas_simp (Lemmas_simp '''' [Thm_str x])) print_access_dot_cp_lemmas_set)"
+definition "print_access_dot_cp_lemmas _ = 
+  map (\<lambda>x. Thy_lemmas_simp (Lemmas_simp '''' [Thm_str x])) print_access_dot_cp_lemmas_set"
 
 definition "print_access_dot_lemma_cp = List_map Thy_lemma_by o
   map_class_arg_only_var
@@ -964,13 +1084,23 @@ definition "print_access_lemma_strict expr = (List_map Thy_lemma_by o
   map_class_arg_only_var' (\<lambda>isub_name (_, dot_at_when) _ isup_attr dot_attr.
             map (\<lambda>(name_invalid, tac_invalid). Lemma_by
                   (flatten [isup_attr (isub_name ''dot''), dot_at_when, ''_'', name_invalid])
-                   [Expr_rewrite
+                  [Expr_rewrite
                      (dot_attr (Expr_basic [name_invalid]))
                      ''=''
                      (Expr_basic [''invalid''])]
                   []
-                  (Tacl_by [ Tac_rule (Thm_str ''ext''), 
-                             Tac_simp_add (map hol_definition (''bot_option'' # tac_invalid))]) )
+                  (if print_access_dot_lemmas_id_set expr = [] | print_access_dot_cp_lemmas_set = [] then
+                     Tacl_sorry else
+                   Tacl_by [ Tac_rule (Thm_str ''ext''), 
+                             Tac_simp_add (map hol_definition
+                                             (let l = (let l = (''bot_option'' # tac_invalid) in
+                                              if print_access_dot_lemmas_id_set expr = [] then
+                                                flatten [isup_attr (isub_name ''dot''), dot_at_when] # l
+                                              else l) in
+                                              if print_access_dot_cp_lemmas_set = []
+                                              then
+                                                ''eval_extract'' # l
+                                              else l))]) )
                 [(''invalid'', [''invalid'']), (''null'', [''null_fun'', ''null_option''])])) expr"
 
 subsection{* Conclusion *}
@@ -988,13 +1118,14 @@ definition "thy_object =
   flatten
           [ [ section ''Introduction''
             , subsection ''Outlining the Example''
-            , section ''Example Data-Universe and its Infrastructure''
 
+            , section ''Example Data-Universe and its Infrastructure''
             , print_infra_datatype_class
             , print_infra_datatype_universe
             , print_infra_type_synonym_class
             , print_infra_instantiation_class
             , print_infra_instantiation_universe
+
             , section ''Instantiation of the Generic Strict Equality''
             , print_instantia_def_strictrefeq ]
 
@@ -1022,7 +1153,11 @@ definition "thy_object =
             , [ print_istypeof_lemma_cp
             , print_istypeof_lemmas_cp ]
             , [ print_istypeof_lemma_strict
-            , print_istypeof_lemmas_strict ], Some [])
+            , print_istypeof_lemmas_strict ], Some
+              [ print_istypeof_up_larger
+              , print_istypeof_up_d_cast
+              , print_istypeof_up_down_cast0
+              , print_istypeof_up_down_cast ])
 
           , (''OclIsKindOf'', 
             [ print_iskindof_consts
@@ -1338,12 +1473,20 @@ definition "s_of_lemmas_simp = (\<lambda> Lemmas_simp s l \<Rightarrow>
 
 fun s_of_tactic where "s_of_tactic expr = (\<lambda>
     Tac_rule s \<Rightarrow> sprintf1 (STR ''rule %s'') (s_of_ntheorem s)
-  | Tac_plus t \<Rightarrow> sprintf1 (STR ''(%s)+'') (s_of_tactic t)
+  | Tac_erule s \<Rightarrow> sprintf1 (STR ''erule %s'') (s_of_ntheorem s)
+  | Tac_elim s \<Rightarrow> sprintf1 (STR ''elim %s'') (s_of_ntheorem s)
+  | Tac_plus t \<Rightarrow> sprintf1 (STR ''(%s)+'') (String_concat (STR '', '') (map s_of_tactic t))
   | Tac_simp \<Rightarrow> sprintf0 (STR ''simp'')
   | Tac_simp_add l \<Rightarrow> sprintf1 (STR ''simp add: %s'') (String_concat (STR '' '') (List_map To_string l))
   | Tac_simp_only l \<Rightarrow> sprintf1 (STR ''simp only: %s'') (String_concat (STR '' '') (List_map To_string l))
   | Tac_simp_all \<Rightarrow> sprintf0 (STR ''simp_all'')
-  | Tac_simp_all_add s \<Rightarrow> sprintf1 (STR ''simp_all add: %s'') (To_string s)) expr"
+  | Tac_simp_all_add s \<Rightarrow> sprintf1 (STR ''simp_all add: %s'') (To_string s)
+  | Tac_auto_simp_add l \<Rightarrow> sprintf1 (STR ''auto simp: %s'') (String_concat (STR '' '') (List_map To_string l))
+  | Tac_auto_simp_add_split l_simp l_split \<Rightarrow>
+      let f = \<lambda>l. String_concat (STR '' '') (List_map To_string l) in
+      sprintf2 (STR ''auto simp: %s split: %s'') (f l_simp) (f l_split)
+  | Tac_rename_tac l \<Rightarrow> sprintf1 (STR ''rename_tac %s'') (String_concat (STR '' '') (List_map To_string l))
+  | Tac_case_tac e \<Rightarrow> sprintf1 (STR ''case_tac \"%s\"'') (s_of_expr e)) expr"
 
 definition "s_of_tactic_last = (\<lambda> Tacl_done \<Rightarrow> STR ''done''
                                 | Tacl_by l_apply \<Rightarrow> sprintf1 (STR ''by(%s)'') (String_concat (STR '', '') (List_map s_of_tactic l_apply))
@@ -1357,6 +1500,24 @@ definition "s_of_lemma_by =
       (String_concat (sprintf1 (STR '' %s '') Unicode_u_Longrightarrow) (List_map s_of_expr l_spec))
       (String_concat (STR '''') (List_map (\<lambda> [] \<Rightarrow> STR '''' | l_apply \<Rightarrow> sprintf1 (STR ''  apply(%s)
 '') (String_concat (STR '', '') (List_map s_of_tactic l_apply))) l_apply))
+      (s_of_tactic_last tactic_last)
+  | Lemma_by_assum n l_spec concl l_apply tactic_last \<Rightarrow>
+    sprintf4 (STR ''lemma %s : %s
+%s%s'')
+      (To_string n)
+      (String_concat (STR '''') (List_map (\<lambda>(n, e). 
+          sprintf2 (STR ''
+assumes %s\"%s\"'')
+            (if n = '''' then STR '''' else sprintf1 (STR ''%s: '') (To_string n))
+            (s_of_expr e)) l_spec
+       @@
+       [sprintf1 (STR ''
+shows \"%s\"'') (s_of_expr concl)]))
+      (String_concat (STR '''') (List_map (\<lambda> App [] \<Rightarrow> STR '''' | App l_apply \<Rightarrow> 
+sprintf1 (STR ''  apply(%s)
+'') (String_concat (STR '', '') (List_map s_of_tactic l_apply))
+        | App_using l \<Rightarrow> sprintf1 (STR ''  using %s
+'') (String_concat (STR '' '') (List_map To_string l))) l_apply))
       (s_of_tactic_last tactic_last))"
 
 definition "s_of_section_title disable_thy_output = (\<lambda> Section_title n section_title \<Rightarrow>
@@ -1683,15 +1844,27 @@ fun m_of_ntheorem ctxt s = let open OCL in case s of
       end
 end
 
-fun m_of_tactic expr = let open OCL in let open Method in case expr of
+fun m_of_tactic expr = let open OCL val f_fold = fold open Method in case expr of
     Tac_rule s => Basic (fn ctxt => rule [m_of_ntheorem ctxt s])
-  | Tac_plus t => Repeat1 (m_of_tactic t)
+  | Tac_erule s => Basic (fn ctxt => erule 0 [m_of_ntheorem ctxt s])
+  | Tac_elim s => Basic (fn ctxt => elim [m_of_ntheorem ctxt s])
+  | Tac_plus t => (case t of (*[x] => Repeat1 (m_of_tactic x)
+                           |*) _ => Repeat1 (Then (map m_of_tactic t)))
   | Tac_simp => simp_tac I
   | Tac_simp_add l => simp_tac (fn ctxt => ctxt addsimps (map (Proof_Context.get_thm ctxt o To_string) l))
   | Tac_simp_only l => simp_tac (fn ctxt => clear_simpset ctxt addsimps (map (Proof_Context.get_thm ctxt o To_string) l))
-  | Tac_simp_all => m_of_tactic (Tac_plus Tac_simp)
-  | Tac_simp_all_add s => m_of_tactic (Tac_plus (Tac_simp_add [s]))
-end end
+  | Tac_simp_all => m_of_tactic (Tac_plus [Tac_simp])
+  | Tac_simp_all_add s => m_of_tactic (Tac_plus [Tac_simp_add [s]])
+  | Tac_auto_simp_add l => Basic (fn ctxt => SIMPLE_METHOD (auto_tac (f_fold Simplifier.add_simp (map (Proof_Context.get_thm ctxt o To_string) l) ctxt)))
+  | Tac_auto_simp_add_split (l_simp, l_split) =>
+      Basic (fn ctxt => SIMPLE_METHOD (auto_tac (f_fold
+              (fn (f, l) => f_fold f (map (Proof_Context.get_thm ctxt o To_string) l))
+              [(Simplifier.add_simp, l_simp)
+              ,(Splitter.add_split, l_split)]
+              ctxt)))
+  | Tac_rename_tac l => Basic (K (SIMPLE_METHOD' (rename_tac (map To_string l))))
+  | Tac_case_tac e => Basic (fn ctxt => SIMPLE_METHOD' (Induct_Tacs.case_tac ctxt (s_of_expr e)))
+end
 *}
 
 ML{*
@@ -1722,9 +1895,8 @@ end
 
 fun s_of_tactic l = (Method.Then (map m_of_tactic l), (Position.none, Position.none))
 
-fun apply_results l =
-  fn p => p |> Proof.apply_results (s_of_tactic l)
-            |> Seq.the_result ""
+val apply_results = fn OCL.App l => (fn p => p |> (Proof.apply_results (s_of_tactic l)) |> Seq.the_result "")
+                     | OCL.App_using l => Proof.using_cmd [map (fn s => (Facts.Named ((To_string s, Position.none), NONE), [])) l]
 
 fun global_terminal_proof o_by = let open OCL in case o_by of
    Tacl_done => Proof.global_done_proof
@@ -1785,7 +1957,19 @@ val OCL_main = let open OCL in fold_thy ((*let val f = *)fn
 | Thy_lemma_by (Lemma_by (n, l_spec, l_apply, o_by)) =>
       in_local (fn lthy =>
            Specification.theorem_cmd Thm.lemmaK NONE (K I)
-             (@{binding ""}, []) [] [] (Element.Shows [((To_sbinding n, []), [((String.concatWith ((STR " " ^ Unicode_u_Longrightarrow ^ " ")) (map s_of_expr l_spec)), [])])])
+             (@{binding ""}, []) [] [] (Element.Shows [((To_sbinding n, [])
+                                                       ,[((String.concatWith (STR " " ^ Unicode_u_Longrightarrow ^ " ")
+                                                             (map s_of_expr l_spec)), [])])])
+             false lthy
+        |> fold (apply_results o OCL.App) l_apply
+        |> global_terminal_proof o_by)
+| Thy_lemma_by (Lemma_by_assum (n, l_spec, concl, l_apply, o_by)) =>
+      in_local (fn lthy =>
+           Specification.theorem_cmd Thm.lemmaK NONE (K I)
+             (To_sbinding n, [])
+             []
+             (map (fn (n, e) => Element.Assumes [((To_sbinding n, []), [(s_of_expr e, [])])]) l_spec)
+             (Element.Shows [((@{binding ""}, []),[(s_of_expr concl, [])])])
              false lthy
         |> fold apply_results l_apply
         |> global_terminal_proof o_by)
