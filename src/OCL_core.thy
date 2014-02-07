@@ -1192,7 +1192,11 @@ lemma valid_and_I :   "\<tau> \<Turnstile> \<upsilon> (x) \<Longrightarrow>  \<t
              split: option.split_asm HOL.split_if_asm)
   by(auto simp: null_option_def split: option.split bool.split)
 
+lemma defined_or_I : "\<tau> \<Turnstile> \<delta> (x) \<Longrightarrow>  \<tau> \<Turnstile> \<delta> (y) \<Longrightarrow> \<tau> \<Turnstile> \<delta> (x or y)"
+by(simp add: OclOr_def defined_and_I defined_not_I)
 
+lemma valid_or_I :   "\<tau> \<Turnstile> \<upsilon> (x) \<Longrightarrow>  \<tau> \<Turnstile> \<upsilon> (y) \<Longrightarrow> \<tau> \<Turnstile> \<upsilon> (x or y)"
+by(simp add: OclOr_def valid_and_I valid_not_I)
 
 subsection{* Local Judgements and Strong Equality *}
 
