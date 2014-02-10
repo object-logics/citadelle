@@ -566,6 +566,51 @@ definition "print_astype_defined = List_map Thy_lemma_by o (\<lambda>expr. flatt
       | _ \<Rightarrow> [])
       l_hierarchy)) expr))"
 
+definition "print_astype_up_d_cast0_name name_any name_pers = flatten [''up'', isub_of_str name_any, ''_down'', isub_of_str name_pers, ''_cast0'']"
+definition "print_astype_up_d_cast0 = List_map Thy_lemma_by o
+  map_class_nupl2' (\<lambda>name_pers name_any.
+    let var_X = ''X''
+      ; var_isdef = ''isdef''
+      ; f = Expr_binop (Expr_basic [unicode_tau]) unicode_Turnstile in
+    Lemma_by_assum
+        (print_astype_up_d_cast0_name name_any name_pers)
+        [(var_isdef, f (Expr_apply unicode_delta [Expr_basic [var_X]]))]
+        (f (Expr_binop 
+             (bug_ocaml_extraction (let asty = \<lambda>x ty. Expr_warning_parenthesis (Expr_postunary x
+               (Expr_basic [dot_astype ty])) in
+               asty (asty (Expr_annot (Expr_basic [var_X]) name_pers) name_any) name_pers))
+             unicode_triangleq (Expr_basic [var_X])))
+        [App_using [Thm_str var_isdef]]
+        (Tacl_by [Tac_auto_simp_add_split
+                                    (map Thm_str
+                                    ( flatten [const_oclastype, isub_of_str name_any, ''_'', name_pers]
+                                    # flatten [const_oclastype, isub_of_str name_pers, ''_'', name_any]
+                                    # ''foundation22''
+                                    # ''foundation16''
+                                    # map hol_definition [''null_option'', ''bot_option'' ]))
+                                    (split_ty name_pers) ]))"
+
+definition "print_astype_up_d_cast = List_map Thy_lemma_by o
+  map_class_nupl2' (\<lambda>name_pers name_any.
+    let var_X = ''X''
+      ; var_tau = unicode_tau in
+    Lemma_by_assum
+        (flatten [''up'', isub_of_str name_any, ''_down'', isub_of_str name_pers, ''_cast''])
+        []
+        (Expr_binop 
+             (bug_ocaml_extraction (let asty = \<lambda>x ty. Expr_warning_parenthesis (Expr_postunary x
+               (Expr_basic [dot_astype ty])) in
+               asty (asty (Expr_annot (Expr_basic [var_X]) name_pers) name_any) name_pers))
+             ''='' (Expr_basic [var_X]))
+        (map App
+          [[Tac_rule (Thm_str ''ext''), Tac_rename_tac [var_tau]]
+          ,[Tac_rule (Thm_THEN (Thm_str ''foundation22'') (Thm_str ''iffD1''))]
+          ,[Tac_case_tac (Expr_binop (Expr_basic [var_tau]) unicode_Turnstile
+              (Expr_apply unicode_delta [Expr_basic [var_X]])), Tac_simp_add [print_astype_up_d_cast0_name name_any name_pers]]
+          ,[Tac_simp_add [''def_split_local''], Tac_elim (Thm_str ''disjE'')]
+          ,[Tac_plus [Tac_erule (Thm_str ''StrongEq_L_subst2_rev''), Tac_simp, Tac_simp]]])
+        Tacl_done)"
+
 subsection{* IsTypeOf *}
 
 definition "print_istypeof_consts = List_map Thy_consts_class o
@@ -796,51 +841,6 @@ definition "print_istypeof_up_d_cast expr = (List_map Thy_lemma_by o
                                   l
                                 else
                                   flatten [const_oclistypeof, isub_of_str name_mid, ''_'', name_any] # l)]))) expr"
-
-definition "print_istypeof_up_down_cast0_name name_any name_pers = flatten [''up'', isub_of_str name_any, ''_down'', isub_of_str name_pers, ''_cast0'']"
-definition "print_istypeof_up_down_cast0 = List_map Thy_lemma_by o
-  map_class_nupl2' (\<lambda>name_pers name_any.
-    let var_X = ''X''
-      ; var_isdef = ''isdef''
-      ; f = Expr_binop (Expr_basic [unicode_tau]) unicode_Turnstile in
-    Lemma_by_assum
-        (print_istypeof_up_down_cast0_name name_any name_pers)
-        [(var_isdef, f (Expr_apply unicode_delta [Expr_basic [var_X]]))]
-        (f (Expr_binop 
-             (bug_ocaml_extraction (let asty = \<lambda>x ty. Expr_warning_parenthesis (Expr_postunary x
-               (Expr_basic [dot_astype ty])) in
-               asty (asty (Expr_annot (Expr_basic [var_X]) name_pers) name_any) name_pers))
-             unicode_triangleq (Expr_basic [var_X])))
-        [App_using [Thm_str var_isdef]]
-        (Tacl_by [Tac_auto_simp_add_split
-                                    (map Thm_str
-                                    ( flatten [const_oclastype, isub_of_str name_any, ''_'', name_pers]
-                                    # flatten [const_oclastype, isub_of_str name_pers, ''_'', name_any]
-                                    # ''foundation22''
-                                    # ''foundation16''
-                                    # map hol_definition [''null_option'', ''bot_option'' ]))
-                                    (split_ty name_pers) ]))"
-
-definition "print_istypeof_up_down_cast = List_map Thy_lemma_by o
-  map_class_nupl2' (\<lambda>name_pers name_any.
-    let var_X = ''X''
-      ; var_tau = unicode_tau in
-    Lemma_by_assum
-        (flatten [''up'', isub_of_str name_any, ''_down'', isub_of_str name_pers, ''_cast''])
-        []
-        (Expr_binop 
-             (bug_ocaml_extraction (let asty = \<lambda>x ty. Expr_warning_parenthesis (Expr_postunary x
-               (Expr_basic [dot_astype ty])) in
-               asty (asty (Expr_annot (Expr_basic [var_X]) name_pers) name_any) name_pers))
-             ''='' (Expr_basic [var_X]))
-        (map App
-          [[Tac_rule (Thm_str ''ext''), Tac_rename_tac [var_tau]]
-          ,[Tac_rule (Thm_THEN (Thm_str ''foundation22'') (Thm_str ''iffD1''))]
-          ,[Tac_case_tac (Expr_binop (Expr_basic [var_tau]) unicode_Turnstile
-              (Expr_apply unicode_delta [Expr_basic [var_X]])), Tac_simp_add [print_istypeof_up_down_cast0_name name_any name_pers]]
-          ,[Tac_simp_add [''def_split_local''], Tac_elim (Thm_str ''disjE'')]
-          ,[Tac_plus [Tac_erule (Thm_str ''StrongEq_L_subst2_rev''), Tac_simp, Tac_simp]]])
-        Tacl_done)"
 
 subsection{* IsKindOf *}
 
@@ -1349,8 +1349,7 @@ definition "thy_object =
                                       , subsection_cp # body_cp
                                       , subsection_exec # body_exec
                                       , subsection_defined # body_defined
-                                      , case body_up of None \<Rightarrow> [] | Some body_up \<Rightarrow>
-                                          subsection_up # body_up ])
+                                      , subsection_up # body_up ])
           [ (''OclAsType'', 
             [ print_astype_consts
             , print_astype_class
@@ -1361,7 +1360,8 @@ definition "thy_object =
             , [ print_astype_lemma_strict
             , print_astype_lemmas_strict ]
             , [ print_astype_defined ]
-            , None)
+            , [ print_astype_up_d_cast0
+            , print_astype_up_d_cast ])
 
           , (''OclIsTypeOf'', 
             [ print_istypeof_consts
@@ -1374,11 +1374,8 @@ definition "thy_object =
             , print_istypeof_lemmas_strict ]
             , [ print_istypeof_defined
             , print_istypeof_defined' ]
-            , Some
-              [ print_istypeof_up_larger
-            , print_istypeof_up_d_cast
-            , print_istypeof_up_down_cast0
-            , print_istypeof_up_down_cast ])
+            , [ print_istypeof_up_larger
+            , print_istypeof_up_d_cast ])
 
           , (''OclIsKindOf'', 
             [ print_iskindof_consts
@@ -1391,8 +1388,7 @@ definition "thy_object =
             , print_iskindof_lemmas_strict ]
             , [ print_iskindof_defined
             , print_iskindof_defined' ]
-            , Some 
-              [ print_iskindof_up_eq_asty
+            , [ print_iskindof_up_eq_asty
             , print_iskindof_up_larger
             , print_iskindof_up_istypeof
             , print_iskindof_up_d_cast ]) ])
