@@ -57,17 +57,17 @@ definition "bug_ocaml_extraction = id"
 
 section{* ... *}
 
-datatype oclTy = OclTy_base string | OclTy_object string
+datatype ocl_ty = OclTy_base string | OclTy_object string
 definition "str_of_ty = (\<lambda> OclTy_base x \<Rightarrow> x | OclTy_object x \<Rightarrow> x)"
 
-datatype univ =
- Mk_univ
+datatype ocl_class =
+ OclClass
    string (* name of the class *)
-   "(string (* name *) \<times> oclTy) list" (* attribute *)
-   "univ option" (* link to subclasses *)
+   "(string (* name *) \<times> ocl_ty) list" (* attribute *)
+   "ocl_class option" (* link to subclasses *)
 
 fun get_class_hierarchy_aux where
-   "get_class_hierarchy_aux l_res (Mk_univ name l_attr dataty) =
+   "get_class_hierarchy_aux l_res (OclClass name l_attr dataty) =
    (let l_res = (name, l_attr) # l_res in
     case dataty of None \<Rightarrow> rev l_res
                  | Some dataty \<Rightarrow> get_class_hierarchy_aux l_res dataty)"
@@ -254,7 +254,7 @@ definition "var_select = ''select''"
 section{* Model of OCL classes *}
 
 fun map_class_gen_aux where
-   "map_class_gen_aux l_inherited l_res l_cons f (Mk_univ name l_attr dataty) = (
+   "map_class_gen_aux l_inherited l_res l_cons f (OclClass name l_attr dataty) = (
       let l_cons = tl l_cons
         ; l_res = f (\<lambda>s. s @@ isub_of_str name) name l_attr l_inherited l_cons (dataty = None) # l_res in
       case dataty
@@ -1847,7 +1847,7 @@ ML{*
 type class_inline = { attr_base : (binding * binding) list
                     , attr_object : binding list
                     , child : binding list
-                    , univ : OCL.univ option }
+                    , ocl_class : OCL.ocl_class option }
 
 structure Data = Theory_Data
   (type T = class_inline Symtab.table
@@ -1864,7 +1864,7 @@ structure From = struct
  fun from_string n = map (fn c => let val c = Char.ord c in OCL.Char (from_nibble (c div 16), from_nibble (c mod 16)) end) (String.explode n)
  val from_binding = from_string o Binding.name_of
  fun mk_univ (n, ({attr_base = attr_base, attr_object = attr_object, child = child, ...}:class_inline)) t =
-   Mk_univ ( from_string n
+   OclClass ( from_string n
            , List.concat [ map (fn (b, ty) => (from_binding b, OclTy_base (from_binding ty))) attr_base
                          , map (fn b => (from_binding b, object)) attr_object]
            , case child of [] => NONE | [x] => SOME (mk_univ (let val x = Binding.name_of x in (x, let val SOME v = Symtab.lookup t x in v end) end) t))
@@ -1879,10 +1879,10 @@ val () =
         >> (fn (((binding, attr_base), attr_object), child) => fn x =>
               x |> Toplevel.theory (fn thy => thy |> Data.map (fn t =>
                                                      let val name = Binding.name_of binding
-                                                     fun mk univ = { attr_base = attr_base
-                                                                   , attr_object = attr_object
-                                                                   , child = child
-                                                                   , univ = univ } in
+                                                     fun mk ocl_class = { attr_base = attr_base
+                                                                        , attr_object = attr_object
+                                                                        , child = child
+                                                                        , ocl_class = ocl_class } in
                                                      Symtab.insert (op =) (name, mk (SOME (From.mk_univ (name, mk NONE) t))) t
                                                      end))))
 *}
@@ -1905,14 +1905,14 @@ definition "write_file disable_thy_output file_out_path_dep example =
 
 ML{*
 fun i_of_string s = "''" ^ To_string s ^ "''"
-val i_of_oclTy = fn OCL.OclTy_base s => "OclTy_base " ^ i_of_string s
-                  | OCL.OclTy_object s => "OclTy_object " ^ i_of_string s
+val i_of_ocl_ty = fn OCL.OclTy_base s => "OclTy_base " ^ i_of_string s
+                   | OCL.OclTy_object s => "OclTy_object " ^ i_of_string s
 
-fun i_of_univ (OCL.Mk_univ (s, l, opt)) =
-  "Mk_univ " ^
+fun i_of_ocl_class (OCL.OclClass (s, l, opt)) =
+  "OclClass " ^
     i_of_string s ^ " [" ^
-    (String.concatWith ", " (map (fn (s,t) => "(" ^ i_of_string s ^ ", " ^ i_of_oclTy t ^ ")") l)) ^ "] " ^
-    (i_of_option i_of_univ opt)
+    (String.concatWith ", " (map (fn (s,t) => "(" ^ i_of_string s ^ ", " ^ i_of_ocl_ty t ^ ")") l)) ^ "] " ^
+    (i_of_option i_of_ocl_class opt)
 
 and i_of_option f = fn NONE => "None"
                  | SOME s => "(Some (" ^ f s ^ "))"
@@ -1998,7 +1998,7 @@ val () =
         thy0 |> def let val SOME { attr_base = attr_base
                                  , attr_object = attr_object
                                  , child = child
-                                 , univ = SOME univ} = Symtab.lookup (Data.get thy0) name in
+                                 , ocl_class = SOME ocl_class } = Symtab.lookup (Data.get thy0) name in
                     String.concatWith " " (  name_main
                                           :: "="
                                           :: "write_file"
@@ -2006,7 +2006,7 @@ val () =
                                                           , of_option (fn (file_out, path_dep) => 
                                                                          of_paren (of_str file_out ^ ", " ^ of_str path_dep))
                                                                       file_out_path_dep
-                                                          , i_of_univ univ])
+                                                          , i_of_ocl_class ocl_class])
                     end
              |> export_code_cmd [name_main] seri_args filename_thy
              |> K thy0
@@ -2233,8 +2233,8 @@ val () =
                                           (let val SOME { attr_base = attr_base
                                                         , attr_object = attr_object
                                                         , child = child
-                                                        , univ = SOME univ} = Symtab.lookup (Data.get thy) name in
-                                           univ
+                                                        , ocl_class = SOME ocl_class } = Symtab.lookup (Data.get thy) name in
+                                           ocl_class
                                            end) thy)
       end))
 
