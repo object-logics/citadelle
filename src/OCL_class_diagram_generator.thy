@@ -57,15 +57,13 @@ definition "bug_ocaml_extraction = id"
 
 section{* ... *}
 
-type_synonym str = "char list"
-
-datatype oclTy = OclTy_base str | OclTy_object str
+datatype oclTy = OclTy_base string | OclTy_object string
 definition "str_of_ty = (\<lambda> OclTy_base x \<Rightarrow> x | OclTy_object x \<Rightarrow> x)"
 
 datatype univ =
  Mk_univ
-   str (* name of the class *)
-   "(str (* name *) \<times> oclTy) list" (* attribute *)
+   string (* name of the class *)
+   "(string (* name *) \<times> oclTy) list" (* attribute *)
    "univ option" (* link to subclasses *)
 
 fun get_class_hierarchy_aux where
@@ -102,28 +100,28 @@ definition "rev_map f = foldl (\<lambda>l x. f x # l) []"
 section{* HOL deep embedding *}
 subsection{* type definition *}
 
-datatype simplety = Opt str | Raw str
+datatype simplety = Opt string | Raw string
 
-datatype dataty = Datatype str (* name *)
-                           "(str (* name *) \<times> simplety list (* arguments *)) list" (* constructors *)
+datatype dataty = Datatype string (* name *)
+                           "(string (* name *) \<times> simplety list (* arguments *)) list" (* constructors *)
 
 datatype raw_ty =
    Ty_apply raw_ty "raw_ty list"
- | Ty_base str
+ | Ty_base string
 
-datatype ty_synonym = Type_synonym str (* name *)
+datatype ty_synonym = Type_synonym string (* name *)
                                    raw_ty (* content *)
 
 datatype expr = Expr_case expr (* value *)
                           "(expr (* pattern *) \<times> expr (* to return *)) list"
-              | Expr_rewrite expr (* left *) str (* symb rewriting *) expr (* right *)
-              | Expr_basic "str list"
-              | Expr_binop expr str expr
-              | Expr_annot expr str (* type *)
-              | Expr_lambda str (* lambda var *) expr
-              | Expr_lambdas "str list" expr
+              | Expr_rewrite expr (* left *) string (* symb rewriting *) expr (* right *)
+              | Expr_basic "string list"
+              | Expr_binop expr string expr
+              | Expr_annot expr string (* type *)
+              | Expr_lambda string (* lambda var *) expr
+              | Expr_lambdas "string list" expr
               | Expr_function "(expr (* pattern *) \<times> expr (* to return *)) list"
-              | Expr_apply str "expr list"
+              | Expr_apply string "expr list"
               | Expr_applys expr "expr list"
               | Expr_some expr (* with annotation \<lfloor> ... \<rfloor> *)
               | Expr_preunary expr expr (* no parenthesis and separated with one space *)
@@ -131,26 +129,26 @@ datatype expr = Expr_case expr (* value *)
               | Expr_warning_parenthesis expr (* optional parenthesis that can be removed but a warning will be raised *)
               | Expr_parenthesis expr (* mandatory parenthesis *)
 
-datatype instantiation_class = Instantiation str (* name *)
-                                             str (* name in definition *)
+datatype instantiation_class = Instantiation string (* name *)
+                                             string (* name in definition *)
                                              expr
 
-datatype defs_overloaded = Defs_overloaded str (* name *) expr (* content *)
+datatype defs_overloaded = Defs_overloaded string (* name *) expr (* content *)
 
-datatype consts_class = Consts str (* name *) str (* type output *) str (* ocl symbol1 *) str (* ocl symbol2 *)
+datatype consts_class = Consts string (* name *) string (* type output *) string (* ocl symbol1 *) string (* ocl symbol2 *)
 
 datatype definition_hol = Definition expr
-                        | Definition_abbrev str (* name *) "expr (* syntax extension *) \<times> nat (* priority *)" expr
+                        | Definition_abbrev string (* name *) "expr (* syntax extension *) \<times> nat (* priority *)" expr
 
-datatype ntheorem = Thm_str str
+datatype ntheorem = Thm_str string
                   | Thm_THEN ntheorem ntheorem
                   | Thm_simplified ntheorem ntheorem
                   | Thm_symmetric ntheorem
-                  | Thm_where ntheorem "(str \<times> expr) list"
+                  | Thm_where ntheorem "(string \<times> expr) list"
                   | Thm_of ntheorem "expr list"
                   | Thm_OF ntheorem ntheorem
 
-datatype lemmas_simp = Lemmas_simp str (* name *)
+datatype lemmas_simp = Lemmas_simp string (* name *)
                                    "ntheorem list"
 
 datatype tactic = Tac_rule ntheorem
@@ -159,11 +157,11 @@ datatype tactic = Tac_rule ntheorem
                 | Tac_subst ntheorem
                 | Tac_insert "ntheorem list"
                 | Tac_plus "tactic list"
-                | Tac_simp | Tac_simp_add "str list" | Tac_simp_only "ntheorem list"
-                | Tac_simp_all | Tac_simp_all_add str
-                | Tac_auto_simp_add "str list"
-                | Tac_auto_simp_add_split "ntheorem list" "str list"
-                | Tac_rename_tac "str list"
+                | Tac_simp | Tac_simp_add "string list" | Tac_simp_only "ntheorem list"
+                | Tac_simp_all | Tac_simp_all_add string
+                | Tac_auto_simp_add "string list"
+                | Tac_auto_simp_add_split "ntheorem list" "string list"
+                | Tac_rename_tac "string list"
                 | Tac_case_tac expr
 
 datatype tactic_last = Tacl_done
@@ -173,17 +171,17 @@ datatype tactic_last = Tacl_done
 datatype tac_apply = App "tactic list" (* apply (... ',' ...) *)
                    | App_using "ntheorem list" (* using ... *)
 
-datatype lemma_by = Lemma_by str (* name *) "expr list" (* specification to prove *)
+datatype lemma_by = Lemma_by string (* name *) "expr list" (* specification to prove *)
                       "tactic list list" (* tactics : apply (... ',' ...) '\n' apply ... *)
                       tactic_last
-                  | Lemma_by_assum str (* name *)
-                      "(str (* name *) \<times> expr) list" (* specification to prove (assms) *)
+                  | Lemma_by_assum string (* name *)
+                      "(string (* name *) \<times> expr) list" (* specification to prove (assms) *)
                       expr (* specification to prove (conclusion) *)
                       "tac_apply list"
                       tactic_last
 
 datatype section_title = Section_title nat (* nesting level *)
-                                       str (* content *)
+                                       string (* content *)
 
 datatype thy = Thy_dataty dataty
              | Thy_ty_synonym ty_synonym
