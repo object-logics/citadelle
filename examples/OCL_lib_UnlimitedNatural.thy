@@ -212,20 +212,20 @@ of the above definitions by compilation to code and execution to @{term "True"}.
 
 context OclUnlimitedNatural
 begin
-value "  \<tau> \<Turnstile> ( \<nine> \<le>\<^sub>U\<^sub>N \<one>\<zero> )"
-value "  \<tau> \<Turnstile> (( \<four> +\<^sub>U\<^sub>N \<four> ) \<le>\<^sub>U\<^sub>N \<one>\<zero> )"
-value "\<not>(\<tau> \<Turnstile> (( \<four> +\<^sub>U\<^sub>N ( \<four> +\<^sub>U\<^sub>N \<four> )) <\<^sub>U\<^sub>N \<one>\<zero> ))"
-value "  \<tau> \<Turnstile> (\<zero> `\<le> \<infinity>)"
-value "  \<tau> \<Turnstile> not (\<upsilon> (null +\<^sub>U\<^sub>N \<one>))"
-value "  \<tau> \<Turnstile> not (\<upsilon> (\<infinity> `+ \<zero>))"
-value "  \<tau> \<Turnstile>      \<mu> \<one>"
+Assert_local "  \<tau> \<Turnstile> ( \<nine> \<le>\<^sub>U\<^sub>N \<one>\<zero> )"
+Assert_local "  \<tau> \<Turnstile> (( \<four> +\<^sub>U\<^sub>N \<four> ) \<le>\<^sub>U\<^sub>N \<one>\<zero> )"
+Assert_local "\<not>(\<tau> \<Turnstile> (( \<four> +\<^sub>U\<^sub>N ( \<four> +\<^sub>U\<^sub>N \<four> )) <\<^sub>U\<^sub>N \<one>\<zero> ))"
+Assert_local "  \<tau> \<Turnstile> (\<zero> `\<le> \<infinity>)"
+Assert_local "  \<tau> \<Turnstile> not (\<upsilon> (null +\<^sub>U\<^sub>N \<one>))"
+Assert_local "  \<tau> \<Turnstile> not (\<upsilon> (\<infinity> `+ \<zero>))"
+Assert_local "  \<tau> \<Turnstile>      \<mu> \<one>"
 end
-value "  \<tau> \<Turnstile> not (\<upsilon> (null `+ \<infinity>))"
-value "  \<tau> \<Turnstile> not (\<infinity> `< \<infinity>)"
-value "  \<tau> \<Turnstile> not (\<upsilon> (invalid `\<le> \<infinity>))"
-value "  \<tau> \<Turnstile> not (\<upsilon> (null `\<le> \<infinity>))"
-value "  \<tau> \<Turnstile>      \<upsilon> \<infinity>"
-value "  \<tau> \<Turnstile>      \<delta> \<infinity>"
-value "  \<tau> \<Turnstile> not (\<mu> \<infinity>)"
+Assert "  \<tau> \<Turnstile> not (\<upsilon> (null `+ \<infinity>))"
+Assert "  \<tau> \<Turnstile> not (\<infinity> `< \<infinity>)"
+Assert "  \<tau> \<Turnstile> not (\<upsilon> (invalid `\<le> \<infinity>))"
+Assert "  \<tau> \<Turnstile> not (\<upsilon> (null `\<le> \<infinity>))"
+Assert "  \<tau> \<Turnstile>      \<upsilon> \<infinity>"
+Assert "  \<tau> \<Turnstile>      \<delta> \<infinity>"
+Assert "  \<tau> \<Turnstile> not (\<mu> \<infinity>)"
 
 end

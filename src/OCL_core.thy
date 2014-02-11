@@ -47,6 +47,8 @@ theory
   OCL_core
 imports
   Main (* Testing *)
+keywords "Assert" :: thy_decl
+     and "Assert_local" :: thy_decl
 begin
 
 section{* Preliminaries *}
@@ -251,6 +253,69 @@ abstract null:
 lemma textbook_null_fun: "I\<lbrakk>null::('\<AA>,'\<alpha>::null) val\<rbrakk> \<tau> = (null::'\<alpha>::null)"
 by(simp add: null_fun_def Sem_def)
 
+subsection{* ML assertions *}
+
+text{* We introduce here a new command \emph{Assert} similar as \emph{value} for proving
+ that the given term in argument is a true proposition. The difference with \emph{value} is that
+\emph{Assert} fails if the normal form of the term evaluated is not equal to @{term True}. 
+Moreover, in case \emph{value} could not normalize the given term, as another strategy of reduction
+ we try to prove it with a single ``simp'' tactic. *}
+
+ML{*
+fun disp_msg title msg status = title ^ ": '" ^ msg ^ "' " ^ status
+
+fun lemma msg specification_theorem concl in_local thy =
+  SOME
+    (in_local (fn lthy =>
+           specification_theorem Thm.lemmaK NONE (K I) (@{binding ""}, []) [] [] 
+             (Element.Shows [((@{binding ""}, []),[(concl lthy, [])])])
+             false lthy
+        |> Proof.global_terminal_proof
+             ((Method.Then [Method.Basic (fn ctxt => SIMPLE_METHOD (asm_full_simp_tac ctxt 1))],
+               (Position.none, Position.none)), NONE))
+              thy)
+  handle ERROR s =>
+    (warning s; writeln (disp_msg "KO" msg "failed to normalize"); NONE)
+
+fun outer_syntax_command command_spec theory in_local =
+  Outer_Syntax.command command_spec "assert that the given specification is true"
+    (Parse.term >> (fn elems_concl => theory (fn thy =>
+      case
+        lemma "code_unfold" Specification.theorem
+          (fn lthy => 
+            let val expr = Value.value lthy (Syntax.read_term lthy elems_concl)
+                val thy = Proof_Context.theory_of lthy
+                open HOLogic in
+            if Sign.typ_equiv thy (fastype_of expr, @{typ "prop"}) then
+              expr
+            else mk_Trueprop (mk_eq (@{term "True"}, expr))
+            end)
+          in_local
+          thy
+      of  NONE => 
+            let val attr_simp = "simp" in
+            case lemma attr_simp Specification.theorem_cmd (K elems_concl) in_local thy of
+               NONE => raise (ERROR "Assertion failed")
+             | SOME thy => 
+                (writeln (disp_msg "OK" "simp" "finished the normalization");
+(* TO BE DONE
+   why does this not work ? ? ?
+   une regle importante est dans simp, mais pas dans code_unfold ... *)
+                 thy)
+            end
+        | SOME thy => thy)))
+
+fun in_local decl thy =
+  thy
+  |> Named_Target.init I ""
+  |> decl
+  |> Local_Theory.exit_global
+
+val () = outer_syntax_command @{command_spec "Assert"} Toplevel.theory in_local 
+val () = outer_syntax_command @{command_spec "Assert_local"} (Toplevel.local_theory NONE) I
+(* TO BE DONE
+   merge the two commands together *)
+*}
 
 section{* Definition of the Boolean Type *}
 
@@ -978,8 +1043,8 @@ section{* A Standard Logical Calculus for OCL *}
 definition OclValid  :: "[('\<AA>)st, ('\<AA>)Boolean] \<Rightarrow> bool" ("(1(_)/ \<Turnstile> (_))" 50)
 where     "\<tau> \<Turnstile> P \<equiv> ((P \<tau>) = true \<tau>)"
 
-value "\<tau> \<Turnstile> true <> false"
-value "\<tau> \<Turnstile> false <> true"
+Assert "\<tau> \<Turnstile> true <> false"
+Assert "\<tau> \<Turnstile> false <> true"
 
 subsection{* Global vs. Local Judgements*}
 lemma transform1: "P = true \<Longrightarrow> \<tau> \<Turnstile> P"

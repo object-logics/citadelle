@@ -224,10 +224,10 @@ subsubsection{* Test Statements *}
 text{* Here follows a list of code-examples, that explain the meanings
 of the above definitions by compilation to code and execution to @{term "True"}.*}
 
-value "  \<tau> \<Turnstile> ( \<nine> `\<le> \<one>\<zero> )"
-value "  \<tau> \<Turnstile> (( \<four> `+ \<four> ) `\<le> \<one>\<zero> )"
-value "\<not>(\<tau> \<Turnstile> (( \<four> `+ ( \<four> `+ \<four> )) `< \<one>\<zero> ))"
-value "  \<tau> \<Turnstile> not (\<upsilon> (null `+ \<one>)) "
+Assert "  \<tau> \<Turnstile> ( \<nine> `\<le> \<one>\<zero> )"
+Assert "  \<tau> \<Turnstile> (( \<four> `+ \<four> ) `\<le> \<one>\<zero> )"
+Assert "\<not>(\<tau> \<Turnstile> (( \<four> `+ ( \<four> `+ \<four> )) `< \<one>\<zero> ))"
+Assert "  \<tau> \<Turnstile> not (\<upsilon> (null `+ \<one>)) "
 
 section{* Fundamental Predicates on Basic Types: Strict Equality *}
 
@@ -241,9 +241,9 @@ defs   StrictRefEq\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r[code_
                                     then (x \<triangleq> y) \<tau>
                                     else invalid \<tau>"
 
-value "\<tau> \<Turnstile> \<one> <> \<two>"
-value "\<tau> \<Turnstile> \<two> <> \<one>"
-value "\<tau> \<Turnstile> \<two> \<doteq> \<two>"
+Assert "\<tau> \<Turnstile> \<one> <> \<two>"
+Assert "\<tau> \<Turnstile> \<two> <> \<one>"
+Assert "\<tau> \<Turnstile> \<two> \<doteq> \<two>"
 
 subsection{* Logic and Algebraic Layer on Basic Types *}
 
@@ -407,43 +407,43 @@ text{* Here follows a list of code-examples, that explain the meanings
 of the above definitions by compilation to code and execution to @{term "True"}.*}
 
 text{* Elementary computations on Booleans *}
-value "\<tau> \<Turnstile> \<upsilon>(true)"
-value "\<tau> \<Turnstile> \<delta>(false)"
-value "\<not>(\<tau> \<Turnstile> \<delta>(null))"
-value "\<not>(\<tau> \<Turnstile> \<delta>(invalid))"
-value "\<tau> \<Turnstile> \<upsilon>((null::('\<AA>)Boolean))"
-value "\<not>(\<tau> \<Turnstile> \<upsilon>(invalid))"
-value "\<tau> \<Turnstile> (true and true)"
-value "\<tau> \<Turnstile> (true and true \<triangleq> true)"
-value "\<tau> \<Turnstile> ((null or null) \<triangleq> null)"
-value "\<tau> \<Turnstile> ((null or null) \<doteq> null)"
-value "\<tau> \<Turnstile> ((true \<triangleq> false) \<triangleq> false)"
-value "\<tau> \<Turnstile> ((invalid \<triangleq> false) \<triangleq> false)"
-value "\<tau> \<Turnstile> ((invalid \<doteq> false) \<triangleq> invalid)"
+Assert "\<tau> \<Turnstile> \<upsilon>(true)"
+Assert "\<tau> \<Turnstile> \<delta>(false)"
+Assert "\<not>(\<tau> \<Turnstile> \<delta>(null))"
+Assert "\<not>(\<tau> \<Turnstile> \<delta>(invalid))"
+Assert "\<tau> \<Turnstile> \<upsilon>((null::('\<AA>)Boolean))"
+Assert "\<not>(\<tau> \<Turnstile> \<upsilon>(invalid))"
+Assert "\<tau> \<Turnstile> (true and true)"
+Assert "\<tau> \<Turnstile> (true and true \<triangleq> true)"
+Assert "\<tau> \<Turnstile> ((null or null) \<triangleq> null)"
+Assert "\<tau> \<Turnstile> ((null or null) \<doteq> null)"
+Assert "\<tau> \<Turnstile> ((true \<triangleq> false) \<triangleq> false)"
+Assert "\<tau> \<Turnstile> ((invalid \<triangleq> false) \<triangleq> false)"
+Assert "\<tau> \<Turnstile> ((invalid \<doteq> false) \<triangleq> invalid)"
 
 
 text{* Elementary computations on Integer *}
-value "  \<tau> \<Turnstile> \<upsilon> \<four>"
-value "  \<tau> \<Turnstile> \<delta> \<four>"
-value "  \<tau> \<Turnstile> \<upsilon> (null::('\<AA>)Integer)"
-value "  \<tau> \<Turnstile> (invalid \<triangleq> invalid)"
-value "  \<tau> \<Turnstile> (null \<triangleq> null)"
-value "  \<tau> \<Turnstile> (\<four> \<triangleq> \<four>)"
-value "\<not>(\<tau> \<Turnstile> (\<nine> \<triangleq> \<one>\<zero>))"
-value "\<not>(\<tau> \<Turnstile> (invalid \<triangleq> \<one>\<zero>))"
-value "\<not>(\<tau> \<Turnstile> (null \<triangleq> \<one>\<zero>))"
-value "\<not>(\<tau> \<Turnstile> (invalid \<doteq> (invalid::('\<AA>)Integer)))" (* Without typeconstraint not executable.*)
-value "\<not>(\<tau> \<Turnstile> \<upsilon> (invalid \<doteq> (invalid::('\<AA>)Integer)))" (* Without typeconstraint not executable.*)
-value "\<not>(\<tau> \<Turnstile> (invalid <> (invalid::('\<AA>)Integer)))" (* Without typeconstraint not executable.*)
-value "\<not>(\<tau> \<Turnstile> \<upsilon> (invalid <> (invalid::('\<AA>)Integer)))" (* Without typeconstraint not executable.*)
-value "  \<tau> \<Turnstile> (null \<doteq> (null::('\<AA>)Integer) )" (* Without typeconstraint not executable.*)
-value "  \<tau> \<Turnstile> (null \<doteq> (null::('\<AA>)Integer) )" (* Without typeconstraint not executable.*)
-value "  \<tau> \<Turnstile> (\<four> \<doteq> \<four>)"
-value "\<not>(\<tau> \<Turnstile> (\<four> <> \<four>))"
-value "\<not>(\<tau> \<Turnstile> (\<four> \<doteq> \<one>\<zero>))"
-value "  \<tau> \<Turnstile> (\<four> <> \<one>\<zero>)"
-value "\<not>(\<tau> \<Turnstile> (\<zero> `< null))"
-value "\<not>(\<tau> \<Turnstile> (\<delta> (\<zero> `< null)))"
+Assert "  \<tau> \<Turnstile> \<upsilon> \<four>"
+Assert "  \<tau> \<Turnstile> \<delta> \<four>"
+Assert "  \<tau> \<Turnstile> \<upsilon> (null::('\<AA>)Integer)"
+Assert "  \<tau> \<Turnstile> (invalid \<triangleq> invalid)"
+Assert "  \<tau> \<Turnstile> (null \<triangleq> null)"
+Assert "  \<tau> \<Turnstile> (\<four> \<triangleq> \<four>)"
+Assert "\<not>(\<tau> \<Turnstile> (\<nine> \<triangleq> \<one>\<zero>))"
+Assert "\<not>(\<tau> \<Turnstile> (invalid \<triangleq> \<one>\<zero>))"
+Assert "\<not>(\<tau> \<Turnstile> (null \<triangleq> \<one>\<zero>))"
+Assert "\<not>(\<tau> \<Turnstile> (invalid \<doteq> (invalid::('\<AA>)Integer)))" (* Without typeconstraint not executable.*)
+Assert "\<not>(\<tau> \<Turnstile> \<upsilon> (invalid \<doteq> (invalid::('\<AA>)Integer)))" (* Without typeconstraint not executable.*)
+Assert "\<not>(\<tau> \<Turnstile> (invalid <> (invalid::('\<AA>)Integer)))" (* Without typeconstraint not executable.*)
+Assert "\<not>(\<tau> \<Turnstile> \<upsilon> (invalid <> (invalid::('\<AA>)Integer)))" (* Without typeconstraint not executable.*)
+Assert "  \<tau> \<Turnstile> (null \<doteq> (null::('\<AA>)Integer) )" (* Without typeconstraint not executable.*)
+Assert "  \<tau> \<Turnstile> (null \<doteq> (null::('\<AA>)Integer) )" (* Without typeconstraint not executable.*)
+Assert "  \<tau> \<Turnstile> (\<four> \<doteq> \<four>)"
+Assert "\<not>(\<tau> \<Turnstile> (\<four> <> \<four>))"
+Assert "\<not>(\<tau> \<Turnstile> (\<four> \<doteq> \<one>\<zero>))"
+Assert "  \<tau> \<Turnstile> (\<four> <> \<one>\<zero>)"
+Assert "\<not>(\<tau> \<Turnstile> (\<zero> `< null))"
+Assert "\<not>(\<tau> \<Turnstile> (\<delta> (\<zero> `< null)))"
 
 
 section{* Complex Types: The Set-Collection Type (I) Core *}
@@ -3148,57 +3148,42 @@ text{* Elementary computations on Sets.*}
 
 declare OclSelect_body_def [simp]
 
-value "\<not> (\<tau> \<Turnstile> \<upsilon>(invalid::('\<AA>,'\<alpha>::null) Set))"
-value    "\<tau> \<Turnstile> \<upsilon>(null::('\<AA>,'\<alpha>::null) Set)"
-value "\<not> (\<tau> \<Turnstile> \<delta>(null::('\<AA>,'\<alpha>::null) Set))"
-value    "\<tau> \<Turnstile> \<upsilon>(Set{})"
-value    "\<tau> \<Turnstile> \<upsilon>(Set{Set{\<two>},null})"
-value    "\<tau> \<Turnstile> \<delta>(Set{Set{\<two>},null})"
-value    "\<tau> \<Turnstile> (Set{\<two>,\<one>}->includes(\<one>))"
-value "\<not> (\<tau> \<Turnstile> (Set{\<two>}->includes(\<one>)))"
-value "\<not> (\<tau> \<Turnstile> (Set{\<two>,\<one>}->includes(null)))"
-value    "\<tau> \<Turnstile> (Set{\<two>,null}->includes(null))"
-value    "\<tau> \<Turnstile> (Set{null,\<two>}->includes(null))"
+Assert "\<not> (\<tau> \<Turnstile> \<upsilon>(invalid::('\<AA>,'\<alpha>::null) Set))"
+Assert    "\<tau> \<Turnstile> \<upsilon>(null::('\<AA>,'\<alpha>::null) Set)"
+Assert "\<not> (\<tau> \<Turnstile> \<delta>(null::('\<AA>,'\<alpha>::null) Set))"
+Assert    "\<tau> \<Turnstile> \<upsilon>(Set{})"
+Assert    "\<tau> \<Turnstile> \<upsilon>(Set{Set{\<two>},null})"
+Assert    "\<tau> \<Turnstile> \<delta>(Set{Set{\<two>},null})"
+Assert    "\<tau> \<Turnstile> (Set{\<two>,\<one>}->includes(\<one>))"
+Assert "\<not> (\<tau> \<Turnstile> (Set{\<two>}->includes(\<one>)))"
+Assert "\<not> (\<tau> \<Turnstile> (Set{\<two>,\<one>}->includes(null)))"
+Assert    "\<tau> \<Turnstile> (Set{\<two>,null}->includes(null))"
+Assert    "\<tau> \<Turnstile> (Set{null,\<two>}->includes(null))"
 
-value    "\<tau> \<Turnstile> ((Set{})->forAll(z | \<zero> `< z))"
+Assert    "\<tau> \<Turnstile> ((Set{})->forAll(z | \<zero> `< z))"
 
-value    "\<tau> \<Turnstile> ((Set{\<two>,\<one>})->forAll(z | \<zero> `< z))"
-value "\<not> (\<tau> \<Turnstile> ((Set{\<two>,\<one>})->exists(z | z `< \<zero> )))"
-value "\<not> (\<tau> \<Turnstile> \<delta>(Set{\<two>,null})->forAll(z | \<zero> `< z))"
-value "\<not> (\<tau> \<Turnstile> ((Set{\<two>,null})->forAll(z | \<zero> `< z)))"
-value    "\<tau> \<Turnstile> ((Set{\<two>,null})->exists(z | \<zero> `< z))"
+Assert    "\<tau> \<Turnstile> ((Set{\<two>,\<one>})->forAll(z | \<zero> `< z))"
+Assert "\<not> (\<tau> \<Turnstile> ((Set{\<two>,\<one>})->exists(z | z `< \<zero> )))"
+Assert "\<not> (\<tau> \<Turnstile> \<delta>(Set{\<two>,null})->forAll(z | \<zero> `< z))"
+Assert "\<not> (\<tau> \<Turnstile> ((Set{\<two>,null})->forAll(z | \<zero> `< z)))"
+Assert    "\<tau> \<Turnstile> ((Set{\<two>,null})->exists(z | \<zero> `< z))"
 
-value "\<not> (\<tau> \<Turnstile> (Set{null::'a Boolean} \<doteq> Set{}))"
-value "\<not> (\<tau> \<Turnstile> (Set{null::'a Integer} \<doteq> Set{}))"
+Assert "\<not> (\<tau> \<Turnstile> (Set{null::'a Boolean} \<doteq> Set{}))"
+Assert "\<not> (\<tau> \<Turnstile> (Set{null::'a Integer} \<doteq> Set{}))"
 
-value   "(\<tau> \<Turnstile> (Set{\<lambda>_. \<lfloor>\<lfloor>x\<rfloor>\<rfloor>} \<doteq> Set{\<lambda>_. \<lfloor>\<lfloor>x\<rfloor>\<rfloor>}))"
-value   "(\<tau> \<Turnstile> (Set{\<lambda>_. \<lfloor>x\<rfloor>} \<doteq> Set{\<lambda>_. \<lfloor>x\<rfloor>}))"
+Assert   "(\<tau> \<Turnstile> (Set{\<lambda>_. \<lfloor>\<lfloor>x\<rfloor>\<rfloor>} \<doteq> Set{\<lambda>_. \<lfloor>\<lfloor>x\<rfloor>\<rfloor>}))"
+Assert   "(\<tau> \<Turnstile> (Set{\<lambda>_. \<lfloor>x\<rfloor>} \<doteq> Set{\<lambda>_. \<lfloor>x\<rfloor>}))"
 
-(* TO BE DONE
-   why does this not work ? ? ?
-   une regle importante est dans simp, mais pas dans code_unfold ... *)
+Assert "\<not> (\<tau> \<Turnstile> (Set{true} \<doteq> Set{false}))"
+Assert "\<not> (\<tau> \<Turnstile> (Set{true,true} \<doteq> Set{false}))"
+Assert "\<not> (\<tau> \<Turnstile> (Set{\<two>} \<doteq> Set{\<one>}))"
+Assert    "\<tau> \<Turnstile> (Set{\<two>,null,\<two>} \<doteq> Set{null,\<two>})"
+Assert    "\<tau> \<Turnstile> (Set{\<one>,null,\<two>} <> Set{null,\<two>})"
+Assert    "\<tau> \<Turnstile> (Set{Set{\<two>,null}} \<doteq> Set{Set{null,\<two>}})"
+Assert    "\<tau> \<Turnstile> (Set{Set{\<two>,null}} <> Set{Set{null,\<two>},null})"
+Assert    "\<tau> \<Turnstile> (Set{null}->select(x | not x) \<doteq> Set{null})"
+Assert    "\<tau> \<Turnstile> (Set{null}->reject(x | not x) \<doteq> Set{null})"
 
-lemma "\<not> (\<tau> \<Turnstile> (Set{true} \<doteq> Set{false}))" by simp
-lemma "\<not> (\<tau> \<Turnstile> (Set{true,true} \<doteq> Set{false}))" by simp
-lemma "\<not> (\<tau> \<Turnstile> (Set{\<two>} \<doteq> Set{\<one>}))" by simp
-lemma    "\<tau> \<Turnstile> (Set{\<two>,null,\<two>} \<doteq> Set{null,\<two>})" by simp
-lemma    "\<tau> \<Turnstile> (Set{\<one>,null,\<two>} <> Set{null,\<two>})" by simp
-lemma    "\<tau> \<Turnstile> (Set{Set{\<two>,null}} \<doteq> Set{Set{null,\<two>}})" by simp
-lemma    "\<tau> \<Turnstile> (Set{Set{\<two>,null}} <> Set{Set{null,\<two>},null})" by simp
-lemma    "\<tau> \<Turnstile> (Set{null}->select(x | not x) \<doteq> Set{null})" by simp
-lemma    "\<tau> \<Turnstile> (Set{null}->reject(x | not x) \<doteq> Set{null})" by simp
+lemma     "const (Set{Set{\<two>,null}, invalid})" by(simp add: const_ss)
 
-lemma    "const (Set{Set{\<two>,null}, invalid})" by(simp add: const_ss)
-
-(*
-value "\<not> (\<tau> \<Turnstile> (Set{true} \<doteq> Set{false}))"
-value "\<not> (\<tau> \<Turnstile> (Set{true,true} \<doteq> Set{false}))"
-value "\<not> (\<tau> \<Turnstile> (Set{\<two>} \<doteq> Set{\<one>}))"
-value    "\<tau> \<Turnstile> (Set{\<two>,null,\<two>} \<doteq> Set{null,\<two>})"
-value    "\<tau> \<Turnstile> (Set{\<one>,null,\<two>} <> Set{null,\<two>})"
-value    "\<tau> \<Turnstile> (Set{Set{\<two>,null}} \<doteq> Set{Set{null,\<two>}})"
-value    "\<tau> \<Turnstile> (Set{Set{\<two>,null}} <> Set{Set{null,\<two>},null})"
-value    "\<tau> \<Turnstile> (Set{null}->select(x | not x) \<doteq> Set{null})"
-value    "\<tau> \<Turnstile> (Set{null}->reject(x | not x) \<doteq> Set{null})"
-*)
 end
