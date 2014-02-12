@@ -57,14 +57,45 @@ definition "bug_ocaml_extraction = id"
 
 section{* ... *}
 
-datatype ocl_ty = OclTy_base string | OclTy_object string
+datatype ocl_collection = Set | Sequence
+
+datatype ocl_ty = OclTy_base string 
+                | OclTy_object string
+                | OclTy_collection ocl_collection ocl_ty
+                | OclTy_base_raw string
+
 definition "str_of_ty = (\<lambda> OclTy_base x \<Rightarrow> x | OclTy_object x \<Rightarrow> x)"
 
+record ocl_operation = 
+  Op_args :: "(string \<times> ocl_ty) list"
+  Op_result :: ocl_ty
+  Op_pre :: "(string \<times> string) list"
+  Op_post :: "(string \<times> string) list"
+
 datatype ocl_class =
- OclClass
-   string (* name of the class *)
-   "(string (* name *) \<times> ocl_ty) list" (* attribute *)
-   "ocl_class option" (* link to subclasses *)
+  OclClass
+    string (* name of the class *)
+    "(string (* name *) \<times> ocl_ty) list" (* attribute *)
+    (*"(string (* name *) \<times> ocl_operation) list" (* contract *) 
+    "(string (* name *) \<times> string) list" (* invariant *) *)
+    "ocl_class option" (* link to subclasses *)
+
+record ocl_definition =
+  Def_expr :: string
+  Def_args :: "(string \<times> ocl_ty) list" 
+  Def_result :: ocl_ty
+
+record ocl_association_end =
+  Ass_coltyp :: "ocl_collection option"
+  Ass_cardinality :: "(nat option \<times> nat option) option"
+  Ass_role :: "string option"
+
+record ocl_class_model =
+  Mod_id :: string
+  Mod_class :: "ocl_class list"
+  Mod_assocs\<^sub>2 :: "(string \<times> (ocl_association_end \<times> ocl_association_end)) list"
+  Mod_assocs\<^sub>3 :: "(string \<times> (ocl_association_end \<times> ocl_association_end \<times> ocl_association_end)) list"
+  Mod_definition :: "(string \<times> ocl_definition) list"
 
 fun get_class_hierarchy_aux where
    "get_class_hierarchy_aux l_res (OclClass name l_attr dataty) =
@@ -88,7 +119,7 @@ fun fold_less_gen where "fold_less_gen f_gen f_jump f l = (case l of
   | [] \<Rightarrow> id)"
 
 definition "fold_less2 = fold_less_gen fold"
-definition "fold_less3 f_jump1 f_jump2 = fold_less_gen (fold_less2 f_jump1) f_jump2"
+definition "fold_less3 = fold_less_gen o fold_less2"
 
 fun flip where "flip (a,b) = (b,a)"
 definition "List_map f l = rev (foldl (\<lambda>l x. f x # l) [] l)"
