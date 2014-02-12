@@ -55,7 +55,8 @@ definition "bug_ocaml_extraction = id"
   (* In this theory, this identifier can be removed everywhere it is used.
      However without this, there is a syntax error when the code is extracted to OCaml. *)
 
-section{* ... *}
+section{* AST Definition: OCL *}
+subsection{* type definition *}
 
 datatype ocl_collection = Set | Sequence
 
@@ -63,8 +64,6 @@ datatype ocl_ty = OclTy_base string
                 | OclTy_object string
                 | OclTy_collection ocl_collection ocl_ty
                 | OclTy_base_raw string
-
-definition "str_of_ty = (\<lambda> OclTy_base x \<Rightarrow> x | OclTy_object x \<Rightarrow> x)"
 
 record ocl_operation = 
   Op_args :: "(string \<times> ocl_ty) list"
@@ -97,6 +96,10 @@ record ocl_class_model =
   Mod_assocs\<^sub>3 :: "(string \<times> (ocl_association_end \<times> ocl_association_end \<times> ocl_association_end)) list"
   Mod_definition :: "(string \<times> ocl_definition) list"
 
+subsection{* ... *}
+
+definition "str_of_ty = (\<lambda> OclTy_base x \<Rightarrow> x | OclTy_object x \<Rightarrow> x)"
+
 fun get_class_hierarchy_aux where
    "get_class_hierarchy_aux l_res (OclClass name l_attr dataty) =
    (let l_res = (name, l_attr) # l_res in
@@ -128,7 +131,7 @@ definition List_append (infixr "@@" 65) where "List_append a b = flatten [a, b]"
 definition "List_filter f l = rev (foldl (\<lambda>l x. if f x then x # l else l) [] l)"
 definition "rev_map f = foldl (\<lambda>l x. f x # l) []"
 
-section{* HOL deep embedding *}
+section{* AST Definition: HOL *}
 subsection{* type definition *}
 
 datatype hol_simplety = Opt string | Raw string
@@ -282,7 +285,7 @@ definition "var_eval_extract = ''eval_extract''"
 definition "var_deref_oid = ''deref_oid''"
 definition "var_select = ''select''"
 
-section{* Model of OCL classes *}
+section{* Translation of AST *}
 
 fun map_class_gen_aux where
    "map_class_gen_aux l_inherited l_res l_cons f (OclClass name l_attr dataty) = (
@@ -1448,7 +1451,7 @@ definition "fold_thy f univ = fold (\<lambda>x. fold f (x univ)) thy_object"
 definition "fold_thy2 P f univ A = fst (fold (\<lambda>x (acc, i). (if P i then (acc, i) else (fold f (x univ) acc, i + 1))) thy_object (A, 0 :: nat))"
 definition "fold_thy3 P f univ A = fst (fold (\<lambda>x. fold (\<lambda>x (acc, i). if P i then (acc, i) else (f x acc, i + 1)) (x univ)) thy_object (A, 0 :: nat))"
 
-section{* OCaml *}
+section{* Generation to Deep Form: OCaml *}
 subsection{* beginning *}
 
 code_include OCaml "" {*
@@ -1629,7 +1632,7 @@ definition "Unicode_u_lfloor = Unicode_mk_u (STR ''lfloor'')"
 definition "Unicode_u_rfloor = Unicode_mk_u (STR ''rfloor'')"
 definition "Unicode_u_Longrightarrow = Unicode_mk_u (STR ''Longrightarrow'')"
 
-section{* s of ... *} (* s_of *)
+subsection{* s of ... *} (* s_of *)
 
 definition "s_of_dataty = (\<lambda> Datatype n l \<Rightarrow>
   sprintf2 (STR ''datatype %s = %s'')
@@ -1825,7 +1828,33 @@ rev l*)
 )
         , th_end ])"
 
-section{* SML *}
+subsection{* conclusion *}
+
+definition "write_file disable_thy_output file_out_path_dep example =
+  (\<lambda>f. case (file_out_path_dep, Sys_argv)
+       of (Some (file_out, _), _ # dir # _) \<Rightarrow> out_file1 f (if Sys_is_directory2 dir then sprintf2 (STR ''%s/%s.thy'') dir file_out else dir)
+        | _ \<Rightarrow> out_stand1 f)
+  (\<lambda>fprintf1. List_iter (fprintf1 (STR ''%s
+'')) (s_of_thy_list disable_thy_output file_out_path_dep (List_map (\<lambda>f. f example) thy_object)))"
+
+subsection{* Deep (without reflection) *}
+
+definition "Employee_DesignModel_UMLPart =
+         OclClass ''OclAny'' []
+  (Some (OclClass ''Galaxy'' [(''sound'', OclTy_base ''unit''), (''moving'', OclTy_base ''bool'')]
+  (Some (OclClass ''Planet'' [(''weight'', OclTy_base ''nat'')]
+  (Some (OclClass ''Person'' [(''salary'', OclTy_base ''int''), (''boss'', object)]
+   None )) )) ))"
+
+definition "main = write_file False
+                              (Some (STR ''Employee_DesignModel_UMLPart_generated''
+                                    ,STR ''../src/OCL_main''))
+                              Employee_DesignModel_UMLPart"
+(*
+export_code main
+  in OCaml module_name M
+*)
+section{* Generation to Shallow Form: SML *}
 subsection{* global *}
 
 code_reflect OCL
@@ -1925,14 +1954,7 @@ fun in_local decl thy =
   |> Local_Theory.exit_global
 *}
 
-subsection{* Deep *}
-
-definition "write_file disable_thy_output file_out_path_dep example =
-  (\<lambda>f. case (file_out_path_dep, Sys_argv)
-       of (Some (file_out, _), _ # dir # _) \<Rightarrow> out_file1 f (if Sys_is_directory2 dir then sprintf2 (STR ''%s/%s.thy'') dir file_out else dir)
-        | _ \<Rightarrow> out_stand1 f)
-  (\<lambda>fprintf1. List_iter (fprintf1 (STR ''%s
-'')) (s_of_thy_list disable_thy_output file_out_path_dep (List_map (\<lambda>f. f example) thy_object)))"
+subsection{* Deep (with reflection) *}
 
 ML{*
 fun i_of_string s = "''" ^ To_string s ^ "''"
