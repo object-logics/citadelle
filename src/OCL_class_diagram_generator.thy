@@ -169,7 +169,9 @@ datatype hol_instantiation_class = Instantiation string (* name *)
 
 datatype hol_defs_overloaded = Defs_overloaded string (* name *) hol_expr (* content *)
 
-datatype hol_consts_class = Consts string (* name *) string (* type output *) string (* ocl symbol1 *) string (* ocl symbol2 *)
+datatype hol_consts_class = Consts string (* name *)
+                                   hol_raw_ty (* type output *)
+                                   string (* ocl 'post' mixfix *)
 
 datatype hol_definition_hol = Definition hol_expr
                             | Definition_abbrev string (* name *) "hol_expr (* syntax extension *) \<times> nat (* priority *)" hol_expr
@@ -271,6 +273,8 @@ definition "datatype_in = ''in''"
 definition "const_oclastype = ''OclAsType''"
 definition "const_oclistypeof = ''OclIsTypeOf''"
 definition "const_ocliskindof = ''OclIsKindOf''"
+definition "const_mixfix dot_ocl name = (let t = \<lambda>s. Char Nibble2 Nibble7 # s in
+                                         flatten [dot_ocl, t ''('', name, t '')''])"
 definition "dot_oclastype = ''.oclAsType''"
 definition "dot_oclistypeof = ''.oclIsTypeOf''"
 definition "dot_ocliskindof = ''.oclIsKindOf''"
@@ -284,6 +288,10 @@ definition "var_reconst_basetype = ''reconst_basetype''"
 definition "var_eval_extract = ''eval_extract''"
 definition "var_deref_oid = ''deref_oid''"
 definition "var_select = ''select''"
+definition "var_at_when_hol_post = ''''"
+definition "var_at_when_hol_pre = ''at_pre''"
+definition "var_at_when_ocl_post = ''''"
+definition "var_at_when_ocl_pre = ''@pre''"
 
 section{* Translation of AST *}
 
@@ -320,13 +328,14 @@ definition "map_class_arg_only_var0 = (\<lambda>f_app f_lattr isub_name name l_a
       List_map (\<lambda>(attr_name, attr_ty).
                   f_app
                     isub_name
+                    name
                     (var_in_when_state, dot_at_when)
                     attr_ty
                     (\<lambda>s. s @@ isup_of_str attr_name)
-                    (\<lambda>s. Expr_postunary (Expr_parenthesis s) (Expr_basic [mk_dot attr_name attr_when])))
+                    (\<lambda>s. Expr_postunary s (Expr_basic [mk_dot attr_name attr_when])))
                (f_lattr l_attr))
-             [ (var_in_post_state, '''', '''')
-             , (var_in_pre_state, ''_at_pre'', ''@pre'')])))"
+             [ (var_in_post_state, var_at_when_hol_post, var_at_when_ocl_post)
+             , (var_in_pre_state, var_at_when_hol_pre, var_at_when_ocl_pre)])))"
 definition "map_class_arg_only_var f1 f2 = map_class_arg_only0 (map_class_arg_only_var0 f1 id) (map_class_arg_only_var0 f2 (\<lambda>(_, l, _). l))"
 definition "map_class_arg_only_var' f = map_class_arg_only0 (map_class_arg_only_var0 f id) (map_class_arg_only_var0 f (\<lambda>(_, l, _). l))"
 definition "map_class_nupl2 f x = rev (fst (fold_less2 (\<lambda>(l, _). (l, None)) (\<lambda>x y (l, acc). (f x y acc # l, Some y)) (rev (get_class_hierarchy x)) ([], None)))"
@@ -424,7 +433,7 @@ subsection{* AsType *}
 
 definition "print_astype_consts = List_map Thy_consts_class o
   map_class (\<lambda>isub_name name _ _ _ _.
-    Consts (isub_name const_oclastype) name dot_oclastype name)"
+    Consts (isub_name const_oclastype) (Ty_base name) (const_mixfix dot_oclastype name))"
 
 definition "print_astype_class = List_map Thy_defs_overloaded o
   map_class_gen_h'' (\<lambda>isub_name name l_hierarchy nl_attr.
@@ -647,7 +656,7 @@ subsection{* IsTypeOf *}
 
 definition "print_istypeof_consts = List_map Thy_consts_class o
   map_class (\<lambda>isub_name name _ _ _ _.
-    Consts (isub_name const_oclistypeof) ty_boolean dot_oclistypeof name)"
+    Consts (isub_name const_oclistypeof) (Ty_base ty_boolean) (const_mixfix dot_oclistypeof name))"
 
 definition "print_istypeof_class = List_map Thy_defs_overloaded o
   map_class_gen_h''' (\<lambda>isub_name name l_hierarchy _ l_inh _.
@@ -878,7 +887,7 @@ subsection{* IsKindOf *}
 
 definition "print_iskindof_consts = List_map Thy_consts_class o
   map_class (\<lambda>isub_name name _ _ _ _.
-    Consts (isub_name const_ocliskindof) ty_boolean dot_ocliskindof name)"
+    Consts (isub_name const_ocliskindof) (Ty_base ty_boolean) (const_mixfix dot_ocliskindof name))"
 
 definition "print_iskindof_class_name isub_name h_name = flatten [isub_name const_ocliskindof, ''_'', h_name]"
 definition "print_iskindof_class = List_map Thy_defs_overloaded o map_class_gen_h''''
@@ -1237,43 +1246,47 @@ definition "print_access_select = List_map Thy_definition_hol o
       l_inherited) in
     rev l)"
 
-definition "print_access_dot = List_map Thy_definition_hol o
-  map_class_arg_only_var
-    (\<lambda>isub_name (var_in_when_state, dot_at_when) attr_ty isup_attr dot_attr.
-            [ Definition_abbrev
+definition "print_access_dot_consts = List_map Thy_consts_class o
+  flatten o flatten o map_class (\<lambda>isub_name name l_attr _ _ _.
+    List_map (\<lambda>(attr_n, attr_ty).
+      List_map
+        (\<lambda>(var_at_when_hol, var_at_when_ocl).
+          Consts
+            (flatten [''dot'', isup_of_str attr_n, var_at_when_hol])
+            (case attr_ty of
+                OclTy_base attr_ty \<Rightarrow> Ty_apply (Ty_base ''val'') [Ty_base unicode_AA,
+                  let option = \<lambda>x. Ty_apply (Ty_base ''option'') [x] in
+                  option (option (Ty_base attr_ty))]
+              | OclTy_object _ \<Rightarrow> Ty_base name)
+            (mk_dot attr_n var_at_when_ocl))
+        [ (var_at_when_hol_post, var_at_when_ocl_post)
+        , (var_at_when_hol_pre, var_at_when_ocl_pre)]) l_attr)"
+
+definition "print_access_dot = List_map Thy_defs_overloaded o
+  map_class_arg_only_var'
+    (\<lambda>isub_name name (var_in_when_state, dot_at_when) attr_ty isup_attr dot_attr.
+            [ Defs_overloaded
                 (flatten [isup_attr (isub_name ''dot''), dot_at_when])
-                (dot_attr (Expr_basic [wildcard]), 50)
                 (let var_x = ''x'' in
                  Expr_rewrite
-                   (dot_attr (Expr_basic [var_x]))
-                   ''=''
+                   (dot_attr (Expr_annot (Expr_basic [var_x]) name))
+                   unicode_equiv
                    (Expr_apply var_eval_extract [Expr_basic [var_x],
                     let deref_oid = (\<lambda>l. Expr_apply (isub_name var_deref_oid) (Expr_basic [var_in_when_state] # l)) in
                     deref_oid [Expr_apply (isup_attr (isub_name var_select))
                           [case attr_ty of OclTy_base _ \<Rightarrow> Expr_basic [var_reconst_basetype]
-                                         | OclTy_object _ \<Rightarrow> deref_oid [] ] ] ])) ])
-    (\<lambda>isub_name (var_in_when_state, dot_at_when) attr_ty isup_attr _.
-            [ Definition
-                (Expr_rewrite
-                   (Expr_basic [flatten [isup_attr (isub_name ''dot''), dot_at_when]])
-                   ''=''
-                   (let var_x = ''x'' in
-                    Expr_lambda var_x (Expr_apply var_eval_extract [Expr_basic [var_x],
-                    let deref_oid = (\<lambda>l. Expr_apply (isub_name var_deref_oid) (Expr_basic [var_in_when_state] # l)) in
-                    deref_oid [Expr_apply (isup_attr (isub_name var_select))
-                          [case attr_ty of OclTy_base _ \<Rightarrow> Expr_basic [var_reconst_basetype]
-                                         | OclTy_object _ \<Rightarrow> deref_oid [] ] ] ]))) ])"
+                                         | OclTy_object _ \<Rightarrow> deref_oid [] ] ] ])) ])"
 
 definition "print_access_dot_lemmas_id_set = 
   (if activate_simp_optimization then
      map_class_arg_only_var'
-       (\<lambda>isub_name (_, dot_at_when) _ isup_attr _. [flatten [isup_attr (isub_name ''dot''), dot_at_when]])
+       (\<lambda>isub_name _ (_, dot_at_when) _ isup_attr _. [flatten [isup_attr (isub_name ''dot''), dot_at_when]])
    else (\<lambda>_. []))"
 
 definition "print_access_dot_lemmas_id expr =
        (let name_set = print_access_dot_lemmas_id_set expr in
        case name_set of [] \<Rightarrow> [] | _ \<Rightarrow> List_map Thy_lemmas_simp
-         [ Lemmas_simp '''' (List_map (Thm_str o hol_definition) name_set) ])"
+         [ Lemmas_simp '''' (List_map Thm_str name_set) ])"
 
 definition "print_access_dot_cp_lemmas_set = 
   (if activate_simp_optimization then [hol_definition var_eval_extract] else [])"
@@ -1283,55 +1296,39 @@ definition "print_access_dot_cp_lemmas _ =
 
 definition "print_access_dot_lemma_cp = List_map Thy_lemma_by o
   map_class_arg_only_var
-    (\<lambda>isub_name (_, dot_at_when) _ isup_attr dot_attr.
+    (\<lambda>isub_name name (_, dot_at_when) _ isup_attr dot_attr.
             [ Lemma_by
                 (flatten [''cp_'', isup_attr (isub_name ''dot''), dot_at_when])
                 (bug_ocaml_extraction
                 (let var_x = ''X'' in
-                 let var_tau = unicode_tau
-                   ; app_tau = (\<lambda> var_x. Expr_applys (dot_attr var_x) [Expr_basic [var_tau]]) in
-                 [Expr_rewrite
-                   (app_tau (Expr_basic [var_x]))
-                   ''=''
-                   (app_tau (Expr_lambda wildcard (Expr_apply var_x [Expr_basic [var_tau]])))]))
+                 [Expr_apply ''cp'' [Expr_lambda var_x (dot_attr (Expr_annot (Expr_basic [var_x]) name)) ]]))
                 []
                 (Tacl_by [if print_access_dot_cp_lemmas_set = [] then
-                            Tac_simp_add (map hol_definition [var_eval_extract, flatten [isup_attr (isub_name ''dot''), dot_at_when]])
+                            Tac_auto_simp_add (map hol_definition [''cp'', var_eval_extract, flatten [isup_attr (isub_name ''dot''), dot_at_when]])
                           else
-                            Tac_simp]) ])
-    (\<lambda>isub_name (_, dot_at_when) _ isup_attr dot_attr.
+                            Tac_auto_simp_add (map hol_definition [''cp''])]) ])
+    (\<lambda>isub_name name (_, dot_at_when) _ isup_attr dot_attr.
             [ Lemma_by
                 (flatten [''cp_'', isup_attr (isub_name ''dot''), dot_at_when])
                 (bug_ocaml_extraction
                 (let var_x = ''X'' in
-                 let var_tau = [Expr_basic [unicode_tau]]
-                   ; app_tau = (\<lambda> var_x. Expr_applys (dot_attr var_x) var_tau) in
-                 [Expr_rewrite
-                   (app_tau (Expr_basic [var_x]))
-                   ''=''
-                   (app_tau (Expr_lambda wildcard (Expr_apply var_x var_tau)))]))
+                 [Expr_apply ''cp'' [Expr_lambda var_x (dot_attr (Expr_annot (Expr_basic [var_x]) name)) ]]))
                 []
                 (if print_access_dot_cp_lemmas_set = [] then Tacl_sorry (* fold l_hierarchy, take only subclass, unfold the corresponding definition *)
-                 else Tacl_by [Tac_simp]) ])"
+                 else Tacl_by [Tac_auto_simp_add (map hol_definition [''cp''])]) ])"
 
-definition "print_access_dot_lemmas_cp = List_map Thy_lemmas_simp o
-  map_class_arg_only_var'
-    (\<lambda>isub_name (_, dot_at_when) _ isup_attr _.
-            [ Lemmas_simp (flatten [''cp_'', isup_attr (isub_name ''dot''), dot_at_when, ''_I''])
-                [Thm_THEN (Thm_of (Thm_THEN
-                  (Thm_str (flatten [''cp_'', isup_attr (isub_name ''dot''), dot_at_when]))
-                  (let allI = Thm_str ''allI'' in Thm_THEN allI allI))
-                  [bug_ocaml_extraction (let var_x = ''X'' in
-                       Expr_lambdas [var_x, wildcard] (Expr_basic [var_x]))
-                  ,bug_ocaml_extraction (let var_x = unicode_tau in
-                       Expr_lambdas [wildcard, var_x] (Expr_basic [var_x]))]) (Thm_str ''cpI1'') ] ])"
+definition "print_access_dot_lemmas_cp = List_map Thy_lemmas_simp o (\<lambda>expr. [Lemmas_simp ''''
+  (map_class_arg_only_var'
+    (\<lambda>isub_name _ (_, dot_at_when) _ isup_attr _.
+      [Thm_str (flatten [''cp_'', isup_attr (isub_name ''dot''), dot_at_when]) ])
+    expr)])"
 
 definition "print_access_lemma_strict expr = (List_map Thy_lemma_by o
-  map_class_arg_only_var' (\<lambda>isub_name (_, dot_at_when) _ isup_attr dot_attr.
+  map_class_arg_only_var' (\<lambda>isub_name name (_, dot_at_when) _ isup_attr dot_attr.
             map (\<lambda>(name_invalid, tac_invalid). Lemma_by
                   (flatten [isup_attr (isub_name ''dot''), dot_at_when, ''_'', name_invalid])
                   [Expr_rewrite
-                     (dot_attr (Expr_basic [name_invalid]))
+                     (dot_attr (Expr_annot (Expr_basic [name_invalid]) name))
                      ''=''
                      (Expr_basic [''invalid''])]
                   []
@@ -1436,6 +1433,7 @@ definition "thy_object =
             , print_access_eval_extract
             , print_access_deref_oid
             , print_access_select
+            , print_access_dot_consts
             , print_access_dot
             , print_access_dot_lemmas_id
             , subsection_cp
@@ -1696,8 +1694,8 @@ end'')
 definition "s_of_defs_overloaded = (\<lambda> Defs_overloaded n e \<Rightarrow>
     sprintf2 (STR ''defs(overloaded) %s : \"%s\"'') (To_string n) (s_of_expr e))"
 
-definition "s_of_consts_class = (\<lambda> Consts n ty_out symb1 symb2 \<Rightarrow>
-    sprintf6 (STR ''consts %s :: \"'%s %s %s\" (\"(_) %s'(%s')\")'') (To_string n) Unicode_u_alpha Unicode_u_Rightarrow (To_string ty_out) (To_string symb1) (To_string symb2))"
+definition "s_of_consts_class = (\<lambda> Consts n ty_out symb \<Rightarrow>
+    sprintf5 (STR ''consts %s :: \"'%s %s %s\" (\"(_) %s\")'') (To_string n) Unicode_u_alpha Unicode_u_Rightarrow (s_of_rawty ty_out) (To_string symb))"
 
 definition "s_of_definition_hol = (\<lambda>
     Definition e \<Rightarrow> sprintf1 (STR ''definition \"%s\"'') (s_of_expr e)
@@ -2233,10 +2231,10 @@ val OCL_main = let open OCL in (*let val f = *)fn
      end)
 | Thy_defs_overloaded (Defs_overloaded (n, e)) =>
     Isar_Cmd.add_defs ((false, true), [((To_sbinding n, s_of_expr e), [])])
-| Thy_consts_class (Consts (n, ty_out, symb1, symb2)) =>
+| Thy_consts_class (Consts (n, ty_out, symb)) =>
     Sign.add_consts [( To_sbinding n
-                     , String.concatWith " " [ "'" ^ Unicode_u_alpha, Unicode_u_Rightarrow, (To_string ty_out) ]
-                     , Mixfix ("(_) " ^ (To_string symb1) ^ "'(" ^ (To_string symb2) ^ "')", [], 1000))]
+                     , String.concatWith " " [ "'" ^ Unicode_u_alpha, Unicode_u_Rightarrow, (s_of_rawty ty_out) ]
+                     , Mixfix ("(_) " ^ To_string symb, [], 1000))]
 | Thy_definition_hol def =>
     let val (def, e) = case def of
         Definition e => (NONE, e)
