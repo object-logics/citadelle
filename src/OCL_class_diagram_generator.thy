@@ -301,15 +301,15 @@ fun map_class_gen_aux where
         ; l_res = f (\<lambda>s. s @@ isub_of_str name) name l_attr l_inherited l_cons (dataty = None) # l_res in
       case dataty
       of None \<Rightarrow> flatten l_res
-       | Some dataty \<Rightarrow> map_class_gen_aux (l_attr # l_inherited) l_res l_cons f dataty)"
+       | Some dataty \<Rightarrow> map_class_gen_aux ((name, l_attr) # l_inherited) l_res l_cons f dataty)"
 definition "map_class_gen f expr = map_class_gen_aux [] [] (List_map fst (get_class_hierarchy expr)) f expr"
 
 definition "add_hierarchy f x = (\<lambda>isub_name name _ _ _ _. f isub_name name (List_map fst (get_class_hierarchy x)))"
 definition "add_hierarchy' f x = (\<lambda>isub_name name _ _ _ _. f isub_name name (get_class_hierarchy x))"
 definition "add_hierarchy'' f x = (\<lambda>isub_name name l_attr _ _ _. f isub_name name (get_class_hierarchy x) l_attr)"
-definition "add_hierarchy''' f x = (\<lambda>isub_name name l_attr l_hierarchy _ last_dataty. f isub_name name (get_class_hierarchy x) l_attr l_hierarchy last_dataty)"
-definition "add_hierarchy'''' f x = (\<lambda>isub_name name l_attr l_inherited l_cons _. f isub_name name (get_class_hierarchy x) l_attr l_inherited l_cons)"
-definition "map_class f = map_class_gen (\<lambda>isub_name name l_attr l_inherited l_cons last_dataty. [f isub_name name l_attr l_inherited l_cons last_dataty])"
+definition "add_hierarchy''' f x = (\<lambda>isub_name name l_attr l_inh _ last_dataty. f isub_name name (get_class_hierarchy x) l_attr (List_map snd l_inh) last_dataty)"
+definition "add_hierarchy'''' f x = (\<lambda>isub_name name l_attr l_inh l_cons _. f isub_name name (get_class_hierarchy x) l_attr (List_map snd l_inh) l_cons)"
+definition "map_class f = map_class_gen (\<lambda>isub_name name l_attr l_inh l_cons last_dataty. [f isub_name name l_attr l_inh l_cons last_dataty])"
 definition "map_class_gen_h f x = map_class_gen (add_hierarchy f x) x"
 definition "map_class_gen_h' f x = map_class_gen (add_hierarchy' f x) x"
 definition "map_class_gen_h'' f x = map_class_gen (add_hierarchy'' f x) x"
@@ -320,24 +320,25 @@ definition "map_class_h' f x = map_class (add_hierarchy' f x) x"
 definition "map_class_h'' f x = map_class (add_hierarchy'' f x) x"
 definition "map_class_h'''' f x = map_class (add_hierarchy'''' f x) x"
 definition "map_class_arg_only f = map_class_gen (\<lambda> isub_name name l_attr _ _ _. case l_attr of [] \<Rightarrow> [] | l \<Rightarrow> f isub_name name l)"
-definition "map_class_arg_only' f = map_class_gen (\<lambda> isub_name name l_attr l_inherited l_cons _. case flatten l_inherited of [] \<Rightarrow> [] | l \<Rightarrow> f isub_name name (l_attr, l, l_cons))"
+definition "map_class_arg_only' f = map_class_gen (\<lambda> isub_name name l_attr l_inh l_cons _. case filter (\<lambda> (_, []) \<Rightarrow> False | _ \<Rightarrow> True) l_inh of [] \<Rightarrow> [] | l \<Rightarrow> f isub_name name (l_attr, l, l_cons))"
 definition "map_class_arg_only0 f1 f2 u = map_class_arg_only f1 u @@ map_class_arg_only' f2 u"
 definition "map_class_arg_only_var0 = (\<lambda>f_app f_lattr isub_name name l_attr.
     flatten (flatten (
     List_map (\<lambda>(var_in_when_state, dot_at_when, attr_when).
-      List_map (\<lambda>(attr_name, attr_ty).
+      flatten (List_map (\<lambda> (attr_orig, l_attr). List_map (\<lambda>(attr_name, attr_ty).
                   f_app
                     isub_name
                     name
                     (var_in_when_state, dot_at_when)
+                    attr_orig
                     attr_ty
                     (\<lambda>s. s @@ isup_of_str attr_name)
-                    (\<lambda>s. Expr_postunary s (Expr_basic [mk_dot attr_name attr_when])))
-               (f_lattr l_attr))
+                    (\<lambda>s. Expr_postunary s (Expr_basic [mk_dot attr_name attr_when]))) l_attr)
+               (f_lattr l_attr)))
              [ (var_in_post_state, var_at_when_hol_post, var_at_when_ocl_post)
              , (var_in_pre_state, var_at_when_hol_pre, var_at_when_ocl_pre)])))"
-definition "map_class_arg_only_var f1 f2 = map_class_arg_only0 (map_class_arg_only_var0 f1 id) (map_class_arg_only_var0 f2 (\<lambda>(_, l, _). l))"
-definition "map_class_arg_only_var' f = map_class_arg_only0 (map_class_arg_only_var0 f id) (map_class_arg_only_var0 f (\<lambda>(_, l, _). l))"
+definition "map_class_arg_only_var f1 f2 = map_class_arg_only0 (map_class_arg_only_var0 f1 (\<lambda>l. [(None :: string option, l)])) (map_class_arg_only_var0 f2 (\<lambda>(_, l, _). List_map (\<lambda>(s, l). (Some s, l)) l))"
+definition "map_class_arg_only_var' f = map_class_arg_only0 (map_class_arg_only_var0 f (\<lambda>l. [(None, l)])) (map_class_arg_only_var0 f (\<lambda>(_, l, _). List_map (\<lambda>(s, l). (Some s, l)) l))"
 definition "map_class_nupl2 f x = rev (fst (fold_less2 (\<lambda>(l, _). (l, None)) (\<lambda>x y (l, acc). (f x y acc # l, Some y)) (rev (get_class_hierarchy x)) ([], None)))"
 definition "map_class_nupl3 f x = rev (fold_less3 id id (\<lambda>x y z l. f x y z # l) (rev (get_class_hierarchy x)) [])"
 definition "map_class_nupl2' f = map_class_nupl2 (\<lambda>(x,_) (y,_) _. f x y)"
@@ -1210,6 +1211,7 @@ definition "print_access_select = List_map Thy_definition_hol o
       l_attr) in
     rev l)
   (\<lambda>isub_name name (l_attr, l_inherited, l_cons).
+    let l_inherited = flatten (List_map snd l_inherited) in
     let var_f = ''f''
       ; wildc = Expr_basic [wildcard] in
     let (_, _, l) = (foldl
@@ -1264,7 +1266,7 @@ definition "print_access_dot_consts = List_map Thy_consts_class o
 
 definition "print_access_dot = List_map Thy_defs_overloaded o
   map_class_arg_only_var'
-    (\<lambda>isub_name name (var_in_when_state, dot_at_when) attr_ty isup_attr dot_attr.
+    (\<lambda>isub_name name (var_in_when_state, dot_at_when) attr_orig attr_ty isup_attr dot_attr.
             [ Defs_overloaded
                 (flatten [isup_attr (isub_name ''dot''), dot_at_when])
                 (let var_x = ''x'' in
@@ -1272,15 +1274,16 @@ definition "print_access_dot = List_map Thy_defs_overloaded o
                    (dot_attr (Expr_annot (Expr_basic [var_x]) name))
                    unicode_equiv
                    (Expr_apply var_eval_extract [Expr_basic [var_x],
-                    let deref_oid = (\<lambda>l. Expr_apply (isub_name var_deref_oid) (Expr_basic [var_in_when_state] # l)) in
-                    deref_oid [Expr_apply (isup_attr (isub_name var_select))
+                    let deref_oid = \<lambda>attr_orig l. Expr_apply (case attr_orig of None \<Rightarrow> isub_name var_deref_oid
+                                                                              | Some orig_n \<Rightarrow> var_deref_oid @@ isub_of_str orig_n) (Expr_basic [var_in_when_state] # l) in
+                    deref_oid None [Expr_apply (isup_attr (isub_name var_select))
                           [case attr_ty of OclTy_base _ \<Rightarrow> Expr_basic [var_reconst_basetype]
-                                         | OclTy_object _ \<Rightarrow> deref_oid [] ] ] ])) ])"
+                                         | OclTy_object _ \<Rightarrow> deref_oid attr_orig [] ] ] ])) ])"
 
 definition "print_access_dot_lemmas_id_set = 
   (if activate_simp_optimization then
      map_class_arg_only_var'
-       (\<lambda>isub_name _ (_, dot_at_when) _ isup_attr _. [flatten [isup_attr (isub_name ''dot''), dot_at_when]])
+       (\<lambda>isub_name _ (_, dot_at_when) _ _ isup_attr _. [flatten [isup_attr (isub_name ''dot''), dot_at_when]])
    else (\<lambda>_. []))"
 
 definition "print_access_dot_lemmas_id expr =
@@ -1296,7 +1299,7 @@ definition "print_access_dot_cp_lemmas _ =
 
 definition "print_access_dot_lemma_cp = List_map Thy_lemma_by o
   map_class_arg_only_var
-    (\<lambda>isub_name name (_, dot_at_when) _ isup_attr dot_attr.
+    (\<lambda>isub_name name (_, dot_at_when) _ _ isup_attr dot_attr.
             [ Lemma_by
                 (flatten [''cp_'', isup_attr (isub_name ''dot''), dot_at_when])
                 (bug_ocaml_extraction
@@ -1307,7 +1310,7 @@ definition "print_access_dot_lemma_cp = List_map Thy_lemma_by o
                             Tac_auto_simp_add (map hol_definition [''cp'', var_eval_extract, flatten [isup_attr (isub_name ''dot''), dot_at_when]])
                           else
                             Tac_auto_simp_add (map hol_definition [''cp''])]) ])
-    (\<lambda>isub_name name (_, dot_at_when) _ isup_attr dot_attr.
+    (\<lambda>isub_name name (_, dot_at_when) _ _ isup_attr dot_attr.
             [ Lemma_by
                 (flatten [''cp_'', isup_attr (isub_name ''dot''), dot_at_when])
                 (bug_ocaml_extraction
@@ -1319,12 +1322,12 @@ definition "print_access_dot_lemma_cp = List_map Thy_lemma_by o
 
 definition "print_access_dot_lemmas_cp = List_map Thy_lemmas_simp o (\<lambda>expr. [Lemmas_simp ''''
   (map_class_arg_only_var'
-    (\<lambda>isub_name _ (_, dot_at_when) _ isup_attr _.
+    (\<lambda>isub_name _ (_, dot_at_when) _ _ isup_attr _.
       [Thm_str (flatten [''cp_'', isup_attr (isub_name ''dot''), dot_at_when]) ])
     expr)])"
 
 definition "print_access_lemma_strict expr = (List_map Thy_lemma_by o
-  map_class_arg_only_var' (\<lambda>isub_name name (_, dot_at_when) _ isup_attr dot_attr.
+  map_class_arg_only_var' (\<lambda>isub_name name (_, dot_at_when) _ _ isup_attr dot_attr.
             map (\<lambda>(name_invalid, tac_invalid). Lemma_by
                   (flatten [isup_attr (isub_name ''dot''), dot_at_when, ''_'', name_invalid])
                   [Expr_rewrite
