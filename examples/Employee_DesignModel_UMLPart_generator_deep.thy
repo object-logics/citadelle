@@ -68,6 +68,7 @@ Class OclAny =
 Class.end_deep OclAny
   (*THEORY Employee_DesignModel_UMLPart_generated IMPORTS "../src/OCL_main"*)
   SECTION
+  (*oid_start 10*)
   (*thy_dir "../doc"*)
 
 end
