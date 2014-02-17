@@ -1995,17 +1995,12 @@ definition "s_of_thy_list disable_thy_output name_fic_import l_thy =
        , [ STR '''', STR ''end'' ]) in
   flatten
         [ th_beg
-        , flatten (List_mapi (\<lambda>i l.
-            ( STR ''''
-            # sprintf1 (STR ''(* %d *********************************** *)'') (To_nat (Suc i))
-            # List_map (s_of_thy disable_thy_output) l )) l_thy
-(*let (l, _, _) = (fold (\<lambda>l (acc, i, cpt).
-            let (l, lg) = fold (\<lambda>n (acc, i). (s_of_thy disable_thy_output n # acc, i + 1)) l ([], 0) in
+        , flatten (fst (fold_list (\<lambda>l (i, cpt).
+            let (l_thy, lg) = fold_list (\<lambda>l n. (s_of_thy disable_thy_output l, Suc n)) l 0 in
             (( STR ''''
-            # sprintf2 (STR ''(* %d %d ********************************* *)'') (To_nat (Suc i)) (To_nat cpt)
-            # rev l ) # acc, i + 1, cpt + lg)) l_thy ([], 0, 0)) in
-rev l*)
-)
+             # sprintf3 (STR ''(* %d ************************************ %d + %d *)'')
+                 (To_nat (Suc i)) (To_nat cpt) (To_nat lg) 
+             # l_thy), Suc i, cpt + lg)) l_thy (0, 0)))
         , th_end ])"
 
 subsection{* conclusion *}
