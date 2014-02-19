@@ -48,9 +48,10 @@ imports Main
   keywords "attr_base" "attr_object" "child"
            "oid_start" "thy_dir"
            "THEORY" "IMPORTS" "SECTION"
+           "deep" "shallow"
        and "Class" :: thy_decl
-       and "Class.end_deep" :: thy_decl
-       and "Class.end_shallow" :: thy_decl
+       and "Class.end" :: thy_decl
+       and "generation_mode" :: thy_decl
 begin
 
 definition "bug_ocaml_extraction = id"
@@ -2123,6 +2124,7 @@ val () =
                                                      Symtab.insert (op =) (name, mk (SOME (From.mk_univ (name, mk NONE) t))) t
                                                      end))))
 *}
+
 ML{*
 fun in_local decl thy =
   thy
@@ -2131,9 +2133,50 @@ fun in_local decl thy =
   |> Local_Theory.exit_global
 *}
 
+subsection{* ... *}
+
+ML{* 
+datatype generation_mode = Gen_deep of ((((bstring * bstring) option * bool) *
+                                          (((bstring * bstring) * bstring) * Token.T list) list)
+                                        * int)
+                                       * bstring option
+                         | Gen_shallow
+
+structure Data_gen = Theory_Data
+  (type T = generation_mode list Symtab.table
+   val empty = Symtab.empty
+   val extend = I
+   val merge = Symtab.merge (K true))
+
+val code_expr_argsP = Scan.optional (@{keyword "("} |-- Args.parse --| @{keyword ")"}) []
+
+val parse_deep = 
+  Scan.optional (((@{keyword "THEORY"} |-- Parse.name) -- (@{keyword "IMPORTS"} |-- Parse.name)) >> SOME) NONE
+      -- Scan.optional (@{keyword "SECTION"} >> K true) false
+      -- (* code_expr_inP *) Scan.repeat (@{keyword "in"} |-- Parse.!!! (Parse.name
+        -- Scan.optional (@{keyword "module_name"} |-- Parse.name) ""
+        -- Scan.optional (@{keyword "file"} |-- Parse.name) ""
+        -- code_expr_argsP))
+      -- Scan.optional (@{keyword "oid_start"} |-- Parse.nat) 0
+      -- Scan.optional (@{keyword "thy_dir"} |-- Parse.name >> SOME) NONE
+
+val mode = 
+     @{keyword "deep"} |-- parse_deep >> Gen_deep
+  || @{keyword "shallow"} >> K Gen_shallow
+
+val gen_empty = ""
+
+val () =
+  Outer_Syntax.command @{command_spec "generation_mode"} "set the generating list"
+    (Parse.$$$ "[" |-- Parse.list mode --| Parse.$$$ "]" >> (fn n =>
+      Toplevel.theory (Data_gen.map (Symtab.update (gen_empty, n))) ))
+*}
+
 subsection{* Deep (with reflection) *}
 
 ML{*
+structure Deep = struct
+structure I = struct
 fun i_of_string s = "''" ^ To_string s ^ "''"
 val i_of_ocl_ty = fn OCL.OclTy_base s => "OclTy_base " ^ i_of_string s
                    | OCL.OclTy_object s => "OclTy_object " ^ i_of_string s
@@ -2146,10 +2189,8 @@ fun i_of_ocl_class (OCL.OclClass (s, l, opt)) =
 
 and i_of_option f = fn NONE => "None"
                  | SOME s => "(Some (" ^ f s ^ "))"
-*}
+end
 
-ML{*
-local
 fun prep_destination "" = NONE
   | prep_destination "-" = (legacy_feature "drop \"file\" argument entirely instead of \"-\""; NONE)
   | prep_destination s = SOME (Path.explode s)
@@ -2190,7 +2231,6 @@ fun export_code_cmd raw_cs seris filename_thy thy =
 
   end
 
-val code_expr_argsP = Scan.optional (@{keyword "("} |-- Args.parse --| @{keyword ")"}) []
 
 fun mk_term ctxt s = fst (Scan.pass (Context.Proof ctxt) Args.term (Outer_Syntax.scan Position.none s))
 
@@ -2201,56 +2241,14 @@ fun mk_free ctxt s l =
     mk_free ctxt (fst (hd (Term.variant_frees t_s l))) l
     end
   end 
-in
 
-val () =
-  Outer_Syntax.command @{command_spec "Class.end_deep"} "Class generation in deep form"
-    ((Parse.binding
-      -- Scan.optional (((@{keyword "THEORY"} |-- Parse.name) -- (@{keyword "IMPORTS"} |-- Parse.name)) >> SOME) NONE
-      -- Scan.optional (@{keyword "SECTION"} >> SOME) NONE
-      -- (* code_expr_inP *) Scan.repeat (@{keyword "in"} |-- Parse.!!! (Parse.name
-        -- Scan.optional (@{keyword "module_name"} |-- Parse.name) ""
-        -- Scan.optional (@{keyword "file"} |-- Parse.name) ""
-        -- code_expr_argsP))
-      -- Scan.optional (@{keyword "oid_start"} |-- Parse.nat) 0
-      -- Scan.optional (@{keyword "thy_dir"} |-- Parse.name >> SOME) NONE) >> (fn (((((name, file_out_path_dep), disable_thy_output), seri_args), oid_start), filename_thy) =>
-      let val name = Binding.name_of name
-          fun def s = in_local (snd o Specification.definition_cmd (NONE, ((@{binding ""}, []), s)) false)
-          fun of_str s = "STR ''" ^ s ^ "''"
-          fun of_paren s = "(" ^ s ^ ")"
-          fun of_option f = fn NONE => "None" | SOME s => "(Some " ^ f s ^ ")"
-          fun of_bool s = if s then "True" else "False"
-          fun of_oid oid = "Oid " ^ Int.toString oid
-          val _ = case (seri_args, filename_thy, file_out_path_dep) of
-              ([_], _, NONE) => warning ("Unknown filename, generating to stdout and ignoring " ^ (@{make_string} seri_args))
-            | (_, SOME t, NONE) => warning ("Unknown filename, generating to stdout and ignoring " ^ (@{make_string} t))
-            | _ => () in
-      Toplevel.theory (fn thy0 =>
-        let val name_main = mk_free (Proof_Context.init_global thy0) "main" [] in
-        thy0 |> def let val SOME { attr_base = attr_base
-                                 , attr_object = attr_object
-                                 , child = child
-                                 , ocl_class = SOME ocl_class } = Symtab.lookup (Data.get thy0) name in
-                    String.concatWith " " (  name_main
-                                          :: "="
-                                          :: "write_file"
-                                          :: map of_paren [ of_bool (disable_thy_output = NONE)
-                                                          , of_option (fn (file_out, path_dep) => 
-                                                                         of_paren (of_str file_out ^ ", " ^ of_str path_dep))
-                                                                      file_out_path_dep
-                                                          , of_oid oid_start
-                                                          , i_of_ocl_class ocl_class])
-                    end
-             |> export_code_cmd [name_main] seri_args filename_thy
-             |> K thy0
-        end)
-      end))
 end
 *}
 
 subsection{* Shallow *}
 
 ML{*
+structure Shallow_conv = struct
  fun To_binding s = Binding.make (s, Position.none)
  val To_sbinding = To_binding o To_string
  fun s_of_rawty rawty = case rawty of
@@ -2342,9 +2340,10 @@ fun m_of_tactic expr = let open OCL val f_fold = fold open Method in case expr o
   | Tac_rename_tac l => Basic (K (SIMPLE_METHOD' (rename_tac (map To_string l))))
   | Tac_case_tac e => Basic (fn ctxt => SIMPLE_METHOD' (Induct_Tacs.case_tac ctxt (s_of_expr e)))
 end
-*}
 
-ML{*
+end
+
+structure Shallow_ml = struct open Shallow_conv
 fun perform_instantiation thy tycos vs f_eq add_def tac (*add_eq_thms*) =
     thy
     |> Class.instantiation (tycos, vs, f_eq)
@@ -2383,9 +2382,9 @@ fun global_terminal_proof o_by = let open OCL in case o_by of
  | Tacl_sorry => Proof.global_skip_proof true
  | Tacl_by l_apply => Proof.global_terminal_proof (s_of_tactic l_apply, NONE)
 end
-*}
+end
 
-ML{*
+structure Shallow_main = struct open Shallow_conv open Shallow_ml
 val OCL_main = let open OCL in (*let val f = *)fn
   Thy_dataty (Datatype (n, l)) =>
     (snd oo Datatype.add_datatype_cmd Datatype_Aux.default_config)
@@ -2457,23 +2456,59 @@ val OCL_main = let open OCL in (*let val f = *)fn
 (*in fn t => fn thy => f t thy handle ERROR s => (warning s; thy)
  end*)
 end
+end
+(*val _ = print_depth 100*)
 *}
 
-ML{*
-val () =
-  Outer_Syntax.command @{command_spec "Class.end_shallow"} "Class generation in shallow form"
-    (Parse.binding >> (fn name =>
-      let val name = Binding.name_of name in
-      Toplevel.theory (fn thy => OCL.fold_thy OCL_main
-                                          (let val SOME { attr_base = attr_base
-                                                        , attr_object = attr_object
-                                                        , child = child
-                                                        , ocl_class = SOME ocl_class } = Symtab.lookup (Data.get thy) name in
-                                           ocl_class
-                                           end) thy)
-      end))
+subsection{* Outer Syntax: Class.end *}
 
-(*val _ = print_depth 100*)
+ML{*
+
+fun class_end name = 
+  let fun get_oclclass thy = 
+    let val SOME { attr_base = attr_base
+                 , attr_object = attr_object
+                 , child = child
+                 , ocl_class = SOME ocl_class } = Symtab.lookup (Data.get thy) (Binding.name_of name) in
+    ocl_class end in
+  fn Gen_deep ((((file_out_path_dep, disable_thy_output), seri_args), oid_start), filename_thy) => 
+      let fun def s = in_local (snd o Specification.definition_cmd (NONE, ((@{binding ""}, []), s)) false)
+          fun of_str s = "STR ''" ^ s ^ "''"
+          fun of_paren s = "(" ^ s ^ ")"
+          fun of_option f = fn NONE => "None" | SOME s => "(Some " ^ f s ^ ")"
+          fun of_bool s = if s then "True" else "False"
+          fun of_oid oid = "Oid " ^ Int.toString oid
+          val _ = case (seri_args, filename_thy, file_out_path_dep) of
+              ([_], _, NONE) => warning ("Unknown filename, generating to stdout and ignoring " ^ (@{make_string} seri_args))
+            | (_, SOME t, NONE) => warning ("Unknown filename, generating to stdout and ignoring " ^ (@{make_string} t))
+            | _ => () in
+
+      fn thy0 =>
+        let val name_main = Deep.mk_free (Proof_Context.init_global thy0) "main" [] in
+        thy0 |> def (String.concatWith " " (  name_main
+                                          :: "="
+                                          :: "write_file"
+                                          :: map of_paren [ of_bool (not disable_thy_output)
+                                                          , of_option (fn (file_out, path_dep) => 
+                                                                         of_paren (of_str file_out ^ ", " ^ of_str path_dep))
+                                                                      file_out_path_dep
+                                                          , of_oid oid_start
+                                                          , Deep.I.i_of_ocl_class (get_oclclass thy0)]))
+             |> Deep.export_code_cmd [name_main] seri_args filename_thy
+             |> K thy0
+        end
+      end
+   | Gen_shallow => fn thy => OCL.fold_thy Shallow_main.OCL_main (get_oclclass thy) thy
+  end
+
+val () =
+  Outer_Syntax.command @{command_spec "Class.end"} "Class generation"
+    (Parse.binding >> (fn name =>
+      Toplevel.theory (fn thy =>
+        fold
+          (class_end name)
+          let val SOME l = Symtab.lookup (Data_gen.get thy) gen_empty in l end
+          thy)))
 *}
 
 end

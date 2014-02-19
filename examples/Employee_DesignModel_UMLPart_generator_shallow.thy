@@ -50,6 +50,8 @@ imports
   "../src/OCL_class_diagram_generator"
 begin
 
+generation_mode [ shallow ]
+
 Class Person =
   attr_base salary :: int
   attr_object boss
@@ -66,6 +68,6 @@ Class Galaxy =
 Class OclAny =
   child Galaxy
 
-Class.end_shallow OclAny
+Class.end OclAny
 
 end

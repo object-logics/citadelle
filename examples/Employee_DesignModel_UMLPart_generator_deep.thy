@@ -49,6 +49,12 @@ imports
   "../src/OCL_class_diagram_generator"
 begin
 
+generation_mode [ deep 
+                    (*THEORY Employee_DesignModel_UMLPart_generated IMPORTS "../src/OCL_main"*)
+                    SECTION
+                    (*oid_start 10*)
+                    (*thy_dir "../doc"*) ]
+
 Class Person =
   attr_base salary :: int
   attr_object boss
@@ -65,10 +71,6 @@ Class Galaxy =
 Class OclAny =
   child Galaxy
 
-Class.end_deep OclAny
-  (*THEORY Employee_DesignModel_UMLPart_generated IMPORTS "../src/OCL_main"*)
-  SECTION
-  (*oid_start 10*)
-  (*thy_dir "../doc"*)
+Class.end OclAny
 
 end
