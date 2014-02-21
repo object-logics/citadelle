@@ -2167,6 +2167,14 @@ definition "write_file3 disable_thy_output file_out_path_dep oid_start example =
   (\<lambda>fprintf1. List_iter (fprintf1 (STR ''%s
 '')) (s_of_thy_list disable_thy_output file_out_path_dep (List_map (\<lambda>f. f example) thy_object''')))"
 
+definition "write_file4 disable_thy_output file_out_path_dep oid_start example =
+  (\<lambda>f. let _ = register_oid_start (case oid_start of Oid n \<Rightarrow> To_nat n) in
+       case (file_out_path_dep, Sys_argv)
+       of (Some (file_out, _), _ # dir # _) \<Rightarrow> out_file1 f (if Sys_is_directory2 dir then sprintf2 (STR ''%s/%s.thy'') dir file_out else dir)
+        | _ \<Rightarrow> out_stand1 f)
+  (\<lambda>fprintf1. List_iter (fprintf1 (STR ''%s
+'')) (s_of_thy_list disable_thy_output file_out_path_dep (List_map (\<lambda>f. f example) thy_object')))"
+
 subsection{* Deep (without reflection) *}
 
 definition "Employee_DesignModel_UMLPart =
@@ -2375,6 +2383,9 @@ val i_of_ocl_st_core = fn OCL.OclDefCoreAdd i => "OclDefCoreAdd (" ^ (i_of_ocl_i
 
 fun i_of_ocl_st (OCL.OclDefSt (s, l)) =
   "OclDefSt " ^ i_of_string s ^ " [" ^ (String.concatWith ", " (map i_of_ocl_st_core l)) ^ "] "
+
+fun i_of_ocl_int l =
+  " [" ^ (String.concatWith ", " (map i_of_string l)) ^ "] "
 
 end
 
@@ -2736,10 +2747,48 @@ fun list_attr_tmp s = ((Parse.$$$ "(" |-- Parse.list
   || (annot_ty list_attr_tmp >> Ocl_l_attr_cast) ))
   --| Parse.$$$ ")" >> (fn (x1 :: Ocl_l_attr x2 :: _) => Ocl_prop (x1, x2)))) s
 
+fun cons_defint (l: string list) =
+  let fun get_oclinst _ = 
+    map From.from_string l in
+  fn Gen_deep ((((file_out_path_dep, disable_thy_output), seri_args), oid_start), filename_thy) =>
+      let fun def s = in_local (snd o Specification.definition_cmd (NONE, ((@{binding ""}, []), s)) false)
+          fun of_str s = "STR ''" ^ s ^ "''"
+          fun of_paren s = "(" ^ s ^ ")"
+          fun of_option f = fn NONE => "None" | SOME s => "(Some " ^ f s ^ ")"
+          fun of_bool s = if s then "True" else "False"
+          fun of_oid oid = "Oid " ^ Int.toString oid
+          val _ = case (seri_args, filename_thy, file_out_path_dep) of
+              ([_], _, NONE) => warning ("Unknown filename, generating to stdout and ignoring " ^ (@{make_string} seri_args))
+            | (_, SOME t, NONE) => warning ("Unknown filename, generating to stdout and ignoring " ^ (@{make_string} t))
+            | _ => () in
+
+      fn thy0 =>
+        let val name_main = Deep.mk_free (Proof_Context.init_global thy0) "main" [] in
+        thy0 |> def (String.concatWith " " (  name_main
+                                          :: "="
+                                          :: "write_file4"
+                                          :: map of_paren [ of_bool (not disable_thy_output)
+                                                          , of_option (fn (file_out, path_dep) =>
+                                                                         of_paren (of_str file_out ^ ", " ^ of_str path_dep))
+                                                                      file_out_path_dep
+                                                          , of_oid oid_start
+                                                          , Deep.I.i_of_ocl_int (get_oclinst thy0)]))
+             |> Deep.export_code_cmd [name_main] seri_args filename_thy
+             |> K thy0
+        end
+      end
+   | Gen_shallow => fn thy => OCL.fold_oclint Shallow_main.OCL_main (get_oclinst thy) thy
+  end
+
 val () =
   Outer_Syntax.command @{command_spec "Define_int"} ""
     (Parse.$$$ "[" |-- Parse.list Parse.number --| Parse.$$$ "]" >> (fn l_int =>
-      Toplevel.theory (OCL.fold_oclint Shallow_main.OCL_main (map From.from_string l_int))))
+      Toplevel.theory (fn thy =>
+        fold
+          (cons_defint l_int)
+          let val SOME l = Symtab.lookup (Data_gen.get thy) gen_empty in l end
+          thy)
+))
 
 datatype state_content = ST_l_attr of (binding * ocl_term) list * binding option
                        | ST_skip
