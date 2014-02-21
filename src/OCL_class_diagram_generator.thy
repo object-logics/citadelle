@@ -222,6 +222,7 @@ datatype hol_definition_hol = Definition hol_expr
                             | Definition_abbrev0 string (* name *) hol_expr (* syntax extension *) hol_expr
 
 datatype hol_ntheorem = Thm_str string
+                      | Thm_strs string nat (* nth to select *)
                       | Thm_THEN hol_ntheorem hol_ntheorem
                       | Thm_simplified hol_ntheorem hol_ntheorem
                       | Thm_symmetric hol_ntheorem
@@ -493,17 +494,29 @@ definition "print_infra_instantiation_universe expr = List_map Thy_instantiation
     (esc (isub_name datatype_in), esc oid_of)) expr))) ]"
 
 
+definition "print_instantia_def_strictrefeq_name mk_strict name = mk_strict [''_'', isub_of_str name]"
 definition "print_instantia_def_strictrefeq = List_map Thy_defs_overloaded o
   map_class (\<lambda>isub_name name _ _ _ _.
     let mk_strict = (\<lambda>l. flatten (''StrictRefEq'' # isub_of_str ''Object'' # l))
       ; s_strict = mk_strict [''_'', isub_of_str name]
       ; var_x = ''x''
       ; var_y = ''y'' in
-    Defs_overloaded s_strict (Expr_rewrite (Expr_binop (Expr_annot (Expr_basic [var_x]) name)
-                                                       unicode_doteq
-                                                       (Expr_basic [var_y]))
-                                           unicode_equiv
-                                           (Expr_basic [mk_strict [], var_x, var_y])) )"
+    Defs_overloaded
+      (print_instantia_def_strictrefeq_name mk_strict name)
+      (Expr_rewrite (Expr_binop (Expr_annot (Expr_basic [var_x]) name)
+                                unicode_doteq
+                                (Expr_basic [var_y]))
+                    unicode_equiv
+                    (Expr_basic [mk_strict [], var_x, var_y])) )"
+
+definition "print_instantia_lemmas_strictrefeq =
+  (if activate_simp_optimization then
+     \<lambda>expr.
+       let mk_strict = (\<lambda>l. flatten (''StrictRefEq'' # isub_of_str ''Object'' # l))
+         ; name_set = map_class (\<lambda>_ name _ _ _ _. print_instantia_def_strictrefeq_name mk_strict name) expr in
+       case name_set of [] \<Rightarrow> [] | _ \<Rightarrow> List_map Thy_lemmas_simp
+         [ Lemmas_simp '''' (List_map (Thm_str) name_set) ]
+  else (\<lambda>_. []))"
 
 subsection{* AsType *}
 
@@ -1616,6 +1629,9 @@ definition "print_examp_def_st_tmp = (\<lambda> OclDefSt name l \<Rightarrow> Li
                                                                                | _ \<Rightarrow> OclInst [] [] (OclNoInh []) []) l) ty l_inh l_attr isub_name cpt)
          , Suc cpt)) l 0))), b ''empty'', b ''empty''])) ]))"
 
+definition "print_examp_def_st_defs = (\<lambda> _ \<Rightarrow> List_map Thy_lemmas_simp
+  ([ Lemmas_simp '''' [Thm_strs ''state.defs'' 0] ]))"
+
 subsection{* Conclusion *}
 
 definition "section_aux n s _ = [ Thy_section_title (Section_title n s) ]"
@@ -1641,7 +1657,8 @@ definition "thy_object =
             , print_infra_instantiation_universe
 
             , section ''Instantiation of the Generic Strict Equality''
-            , print_instantia_def_strictrefeq ]
+            , print_instantia_def_strictrefeq
+            , print_instantia_lemmas_strictrefeq ]
 
           , flatten (map (\<lambda>(title, body_def, body_cp, body_exec, body_defined, body_up).
               section title # flatten [ subsection_def # body_def
@@ -1718,7 +1735,8 @@ definition "thy_object =
             , subsection_exec
             , print_access_lemma_strict
 
-            , section ''A Little Infra-structure on Example States'' ] ])"
+            , section ''A Little Infra-structure on Example States''
+            , print_examp_def_st_defs ] ])"
 
 definition "thy_object' = [ print_examp_oclint ]"
 definition "thy_object'' = [ print_examp_instance_tmp ]"
@@ -2014,6 +2032,7 @@ fun s_of_ntheorem_aux where "s_of_ntheorem_aux lacc expr =
      ; f_symmetric = (STR ''symmetric'', STR '''')
      ; s_base = (\<lambda>s lacc. sprintf2 (STR ''%s[%s]'') (To_string s) (String_concat (STR '', '') (List_map (\<lambda>(s, x). sprintf2 (STR ''%s %s'') s x) lacc))) in
   (\<lambda> Thm_str s \<Rightarrow> To_string s
+   | Thm_strs s _ \<Rightarrow> To_string s
    | Thm_THEN (Thm_str s) e2 \<Rightarrow> s_base s ((STR ''THEN'', s_of_ntheorem_aux [] e2) # lacc)
    | Thm_THEN e1 e2 \<Rightarrow> s_of_ntheorem_aux ((STR ''THEN'', s_of_ntheorem_aux [] e2) # lacc) e1
    | Thm_simplified (Thm_str s) e2 \<Rightarrow> s_base s ((STR ''simplified'', s_of_ntheorem_aux [] e2) # lacc)
@@ -2470,6 +2489,7 @@ fun simp_tac f = Method.Basic (fn ctxt => SIMPLE_METHOD (asm_full_simp_tac (f ct
 
 fun m_of_ntheorem ctxt s = let open OCL in case s of
     Thm_str s => Proof_Context.get_thm ctxt (To_string s)
+  | Thm_strs (s, n) => List.nth (Proof_Context.get_thms ctxt (To_string s), To_nat n)
   | Thm_THEN (e1, e2) => m_of_ntheorem ctxt e1 RSN (1, m_of_ntheorem ctxt e2)
   | Thm_simplified (e1, e2) => asm_full_simplify (clear_simpset ctxt addsimps [m_of_ntheorem ctxt e2]) (m_of_ntheorem ctxt e1)
   | Thm_OF (e1, e2) => [m_of_ntheorem ctxt e2] MRS m_of_ntheorem ctxt e1
@@ -2601,7 +2621,8 @@ val OCL_main = let open OCL in (*let val f = *)fn
     end
 | Thy_lemmas_simp (Lemmas_simp (s, l)) =>
     in_local (fn lthy => (snd o Specification.theorems Thm.lemmaK
-      [((To_sbinding s, map (Attrib.intern_src (Proof_Context.theory_of lthy)) [Args.src (("simp", []), Position.none)]),
+      [((To_sbinding s, map (Attrib.intern_src (Proof_Context.theory_of lthy))
+                          [Args.src (("simp", []), Position.none), Args.src (("code_unfold", []), Position.none)]),
         map (fn x => ([m_of_ntheorem lthy x], [])) l)]
       []
       false) lthy)
