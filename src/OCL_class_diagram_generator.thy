@@ -179,9 +179,10 @@ datatype hol_instantiation_class = Instantiation string (* name *)
 
 datatype hol_defs_overloaded = Defs_overloaded string (* name *) hol_expr (* content *)
 
-datatype hol_consts_class = Consts string (* name *)
-                                   hol_raw_ty (* type output *)
-                                   string (* ocl 'post' mixfix *)
+datatype hol_consts_class = Consts_raw string (* name *)
+                                       hol_raw_ty (* type in *)
+                                       hol_raw_ty (* type out *)
+                                       string (* ocl 'post' mixfix *)
 
 datatype hol_definition_hol = Definition hol_expr
                             | Definition_abbrev string (* name *) "hol_expr (* syntax extension *) \<times> nat (* priority *)" hol_expr
@@ -245,8 +246,8 @@ definition "wildcard = ''_''"
 
 definition "escape_unicode c = flatten [[Char Nibble5 NibbleC], ''<'', c, ''>'']"
 
-definition "isub_of_str str = flatten (List_map (\<lambda>c. escape_unicode ''^sub'' @@ [c]) str)"
-definition "isup_of_str str = flatten (List_map (\<lambda>c. escape_unicode [char_of_nat (nat_of_char c - 32)]) str)"
+definition "isub_of_str = flatten o List_map (\<lambda>c. escape_unicode ''^sub'' @@ [c])"
+definition "isup_of_str = flatten o List_map (\<lambda>c. escape_unicode [char_of_nat (nat_of_char c - 32)])"
 definition "lowercase_of_str = List_map (\<lambda>c. let n = nat_of_char c in if n < 97 then char_of_nat (n + 32) else c)"
 
 definition "mk_constr_name name = (\<lambda> x. flatten [isub_of_str name, ''_'', isub_of_str x])"
@@ -265,6 +266,7 @@ definition "ty_boolean = ''Boolean''"
 definition "unicode_equiv = escape_unicode ''equiv''"
 definition "unicode_doteq = escape_unicode ''doteq''"
 definition "unicode_tau = escape_unicode ''tau''"
+definition "unicode_alpha = escape_unicode ''alpha''"
 definition "unicode_delta = escape_unicode ''delta''"
 definition "unicode_upsilon = escape_unicode ''upsilon''"
 definition "unicode_bottom = escape_unicode ''bottom''"
@@ -387,6 +389,7 @@ definition "get_hierarchy_map f f_l x = flatten (flatten (
 definition "split_ty name = List_map (\<lambda>s. hol_split (s @@ isub_of_str name)) [datatype_ext_name, datatype_name]"
 definition "thm_OF s l = fold (\<lambda>x acc. Thm_OF acc x) l s"
 definition "expr_binop s l = (case rev l of x # xs \<Rightarrow> fold (\<lambda>x. Expr_binop x s) xs x)"
+definition "Consts s ty_out mix = Consts_raw s (Ty_base (Char Nibble2 Nibble7 # unicode_alpha)) ty_out mix"
 
 subsection{* ... *}
 
@@ -1408,8 +1411,9 @@ definition "print_access_dot_consts = List_map Thy_consts_class o
     List_map (\<lambda>(attr_n, attr_ty).
       List_map
         (\<lambda>(var_at_when_hol, var_at_when_ocl).
-          Consts
+          Consts_raw
             (flatten [''dot'', isup_of_str attr_n, var_at_when_hol])
+            (Ty_apply (Ty_base ''val'') [Ty_base unicode_AA, Ty_base (Char Nibble2 Nibble7 # unicode_alpha)])
             (case attr_ty of
                 OclTy_base attr_ty \<Rightarrow> Ty_apply (Ty_base ''val'') [Ty_base unicode_AA,
                   let option = \<lambda>x. Ty_apply (Ty_base ''option'') [x] in
@@ -1877,8 +1881,8 @@ end'')
 definition "s_of_defs_overloaded = (\<lambda> Defs_overloaded n e \<Rightarrow>
     sprintf2 (STR ''defs(overloaded) %s : \"%s\"'') (To_string n) (s_of_expr e))"
 
-definition "s_of_consts_class = (\<lambda> Consts n ty_out symb \<Rightarrow>
-    sprintf5 (STR ''consts %s :: \"'%s %s %s\" (\"(_) %s\")'') (To_string n) Unicode_u_alpha Unicode_u_Rightarrow (s_of_rawty ty_out) (To_string symb))"
+definition "s_of_consts_class = (\<lambda> Consts_raw n ty_out1 ty_out2 symb \<Rightarrow> 
+    sprintf5 (STR ''consts %s :: \"%s %s %s\" (\"(_) %s\")'') (To_string n) (s_of_rawty ty_out1) Unicode_u_Rightarrow (s_of_rawty ty_out2) (To_string symb))"
 
 definition "s_of_definition_hol = (\<lambda>
     Definition e \<Rightarrow> sprintf1 (STR ''definition \"%s\"'') (s_of_expr e)
@@ -1912,10 +1916,10 @@ fun s_of_ntheorem_aux where "s_of_ntheorem_aux lacc expr =
 definition "s_of_ntheorem = s_of_ntheorem_aux []"
 
 definition "s_of_lemmas_simp = (\<lambda> Lemmas_simp s l \<Rightarrow>
-    sprintf2 (STR ''lemmas%s [simp] = %s'')
+    sprintf2 (STR ''lemmas%s [simp,code_unfold] = %s'')
       (if s = [] then STR '''' else To_string ('' '' @@ s))
       (String_concat (STR ''
-                '') (List_map s_of_ntheorem l)))"
+                            '') (List_map s_of_ntheorem l)))"
 
 fun s_of_tactic where "s_of_tactic expr = (\<lambda>
     Tac_rule s \<Rightarrow> sprintf1 (STR ''rule %s'') (s_of_ntheorem s)
@@ -2414,9 +2418,9 @@ val OCL_main = let open OCL in (*let val f = *)fn
      end)
 | Thy_defs_overloaded (Defs_overloaded (n, e)) =>
     Isar_Cmd.add_defs ((false, true), [((To_sbinding n, s_of_expr e), [])])
-| Thy_consts_class (Consts (n, ty_out, symb)) =>
+| Thy_consts_class (Consts_raw (n, ty_out1, ty_out2, symb)) =>
     Sign.add_consts [( To_sbinding n
-                     , String.concatWith " " [ "'" ^ Unicode_u_alpha, Unicode_u_Rightarrow, (s_of_rawty ty_out) ]
+                     , String.concatWith " " [ (s_of_rawty ty_out1), Unicode_u_Rightarrow, (s_of_rawty ty_out2) ]
                      , Mixfix ("(_) " ^ To_string symb, [], 1000))]
 | Thy_definition_hol def =>
     let val (def, e) = case def of
