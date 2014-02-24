@@ -849,12 +849,12 @@ definition "print_istypeof_from_universe' = start_map Thy_definition_hol o
               | _ \<Rightarrow> [])) l_hierarchy)
    # [[(Expr_basic [wildcard], Expr_basic [''false''])]]))))))"
 
-definition "print_istypeof_lemma_cp_set = 
+definition "print_istypeof_lemma_cp_set =
   (if activate_simp_optimization then
     map_class (\<lambda>isub_name name _ _ _ _. ((isub_name, name), name))
    else (\<lambda>_. []))"
 
-definition "print_istypeof_lemmas_id = start_map' (\<lambda>expr. 
+definition "print_istypeof_lemmas_id = start_map' (\<lambda>expr.
   (let name_set = print_istypeof_lemma_cp_set expr in
    case name_set of [] \<Rightarrow> [] | _ \<Rightarrow> List_map Thy_lemmas_simp
   [ Lemmas_simp '''' (List_map (\<lambda>((isub_name, _), name).
@@ -1649,7 +1649,7 @@ definition "print_examp_instance_tmp = (\<lambda> OclInstance l \<Rightarrow> \<
 
 definition "print_examp_def_st_tmp = (\<lambda> OclDefSt name l \<Rightarrow> \<lambda> OclDeepEmbed disable_thy_output file_out_path_dep oid_start output_position () \<Rightarrow>
       (\<lambda>(l, _). (List_map Thy_definition_hol l, OclDeepEmbed disable_thy_output file_out_path_dep oid_start output_position ()))
-  (let oid_start = oidReinitInh oid_start 
+  (let oid_start = oidReinitInh oid_start
      ; b = \<lambda>s. Expr_basic [s]
      ; (expr_app, cpt) = fold_list (\<lambda> ocore cpt.
          let f = \<lambda>ty exp. [Expr_binop (Expr_oid var_oid_uniq (oidGetInh cpt)) unicode_mapsto (Expr_apply (datatype_in @@ isub_of_str ty) [exp])] in
@@ -1782,7 +1782,7 @@ definition "fold_thy0 univ thy_object0 f =
   fold (\<lambda>x (acc1, acc2).
     let (l, acc1) = x univ acc1 in
     (acc1, f l acc2)) thy_object0"
-definition "fold_thy' f ast = 
+definition "fold_thy' f ast =
                (case ast of OclAstClass univ \<Rightarrow> fold_thy0 univ thy_object
                           | OclAstInstance univ \<Rightarrow> fold_thy0 univ thy_object''
                           | OclAstDefInt univ \<Rightarrow> fold_thy0 univ thy_object'
@@ -1799,7 +1799,7 @@ definition "ocl_deep_embed_input_empty = OclDeepEmbed True None (oidInit (Oid 0)
 section{* Generation to Deep Form: OCaml *}
 subsection{* beginning *}
 
-code_include OCaml "" {*
+code_printing code_module "" \<rightharpoonup> (OCaml) {*
 
 let (<<) f g x = f (g x)
 
@@ -1898,7 +1898,7 @@ datatype ml_char = ML_char
 datatype ml_int = ML_int
 datatype ml_oid = ML_oid
 
-code_type ml_int (OCaml "CodeType.int")
+code_printing type_constructor ml_int \<rightharpoonup> (OCaml) "CodeType.int"
 
 subsection{* ML code const *}
 
@@ -1906,28 +1906,28 @@ text{* ... *}
 
 consts out_file0 :: "((ml_string \<Rightarrow> unit) (* fprintf *) \<Rightarrow> unit) \<Rightarrow> ml_string \<Rightarrow> unit"
 consts out_file1 :: "((ml_string \<Rightarrow> '\<alpha>1 \<Rightarrow> unit) (* fprintf *) \<Rightarrow> unit) \<Rightarrow> ml_string \<Rightarrow> unit"
-code_const out_file1 (OCaml "CodeConst.outFile1")
+code_printing constant out_file1 \<rightharpoonup> (OCaml) "CodeConst.outFile1"
 
 consts out_stand1 :: "((ml_string \<Rightarrow> '\<alpha>1 \<Rightarrow> unit) (* fprintf *) \<Rightarrow> unit) \<Rightarrow> unit"
-code_const out_stand1 (OCaml "CodeConst.outStand1")
+code_printing constant out_stand1 \<rightharpoonup> (OCaml) "CodeConst.outStand1"
 
 text{* module To *}
 
 consts ToString :: "(ml_nibble \<Rightarrow> ml_nibble \<Rightarrow> ml_nibble \<Rightarrow> ml_nibble \<Rightarrow> ml_nibble \<Rightarrow> ml_nibble \<Rightarrow> ml_nibble \<Rightarrow> ml_nibble \<Rightarrow> ml_nibble \<Rightarrow> ml_nibble \<Rightarrow> ml_nibble \<Rightarrow> ml_nibble \<Rightarrow> ml_nibble \<Rightarrow> ml_nibble \<Rightarrow> ml_nibble \<Rightarrow> ml_nibble \<Rightarrow> nibble \<Rightarrow> ml_nibble) \<Rightarrow>
                     ((nibble \<Rightarrow> nibble \<Rightarrow> ml_char) \<Rightarrow> char \<Rightarrow> ml_char) \<Rightarrow>
                     string \<Rightarrow> ml_string"
-code_const ToString (OCaml "CodeConst.To.string")
+code_printing constant ToString \<rightharpoonup> (OCaml) "CodeConst.To.string"
 definition "To_string = ToString nibble_rec char_rec"
 
 consts ToNat :: "(ml_nat \<Rightarrow> (nat \<Rightarrow> ml_nat \<Rightarrow> ml_nat) \<Rightarrow> nat \<Rightarrow> ml_nat) \<Rightarrow>
                  nat \<Rightarrow> ml_int"
-code_const ToNat (OCaml "CodeConst.To.nat")
+code_printing constant ToNat \<rightharpoonup> (OCaml) "CodeConst.To.nat"
 definition "To_nat = ToNat nat_rec"
 
 consts ToOid :: "((nat \<Rightarrow> ml_oid) \<Rightarrow> internal_oid \<Rightarrow> ml_oid) \<Rightarrow>
                   (ml_nat \<Rightarrow> (nat \<Rightarrow> ml_nat \<Rightarrow> ml_nat) \<Rightarrow> nat \<Rightarrow> ml_nat) \<Rightarrow>
                  internal_oid \<Rightarrow> ml_int"
-code_const ToOid (OCaml "CodeConst.To.oid")
+code_printing constant ToOid \<rightharpoonup> (OCaml) "CodeConst.To.oid"
 definition "To_oid = ToOid internal_oid_rec nat_rec"
 
 text{* module Printf *}
@@ -1940,28 +1940,28 @@ consts sprintf4 :: "ml_string \<Rightarrow> '\<alpha>1 \<Rightarrow> '\<alpha>2 
 consts sprintf5 :: "ml_string \<Rightarrow> '\<alpha>1 \<Rightarrow> '\<alpha>2 \<Rightarrow> '\<alpha>3 \<Rightarrow> '\<alpha>4 \<Rightarrow> '\<alpha>5 \<Rightarrow> ml_string"
 consts sprintf6 :: "ml_string \<Rightarrow> '\<alpha>1 \<Rightarrow> '\<alpha>2 \<Rightarrow> '\<alpha>3 \<Rightarrow> '\<alpha>4 \<Rightarrow> '\<alpha>5 \<Rightarrow> '\<alpha>6 \<Rightarrow> ml_string"
 
-code_const sprintf0 (OCaml "CodeConst.Printf.sprintf")
-code_const sprintf1 (OCaml "CodeConst.Printf.sprintf")
-code_const sprintf2 (OCaml "CodeConst.Printf.sprintf")
-code_const sprintf3 (OCaml "CodeConst.Printf.sprintf")
-code_const sprintf4 (OCaml "CodeConst.Printf.sprintf")
-code_const sprintf5 (OCaml "CodeConst.Printf.sprintf")
-code_const sprintf6 (OCaml "CodeConst.Printf.sprintf")
+code_printing constant sprintf0 \<rightharpoonup> (OCaml) "CodeConst.Printf.sprintf"
+code_printing constant sprintf1 \<rightharpoonup> (OCaml) "CodeConst.Printf.sprintf"
+code_printing constant sprintf2 \<rightharpoonup> (OCaml) "CodeConst.Printf.sprintf"
+code_printing constant sprintf3 \<rightharpoonup> (OCaml) "CodeConst.Printf.sprintf"
+code_printing constant sprintf4 \<rightharpoonup> (OCaml) "CodeConst.Printf.sprintf"
+code_printing constant sprintf5 \<rightharpoonup> (OCaml) "CodeConst.Printf.sprintf"
+code_printing constant sprintf6 \<rightharpoonup> (OCaml) "CodeConst.Printf.sprintf"
 
 consts eprintf0 :: "ml_string \<Rightarrow> unit"
-code_const eprintf0 (OCaml "CodeConst.Printf.eprintf")
+code_printing constant eprintf0 \<rightharpoonup> (OCaml) "CodeConst.Printf.eprintf"
 
 (* Monomorph *)
 
 consts sprintf1s :: "ml_string \<Rightarrow> ml_string \<Rightarrow> ml_string"
-code_const sprintf1s (OCaml "CodeConst.Printf.sprintf")
+code_printing constant sprintf1s \<rightharpoonup> (OCaml) "CodeConst.Printf.sprintf"
 consts sprintf2ss :: "ml_string \<Rightarrow> ml_string \<Rightarrow> ml_string \<Rightarrow> ml_string"
-code_const sprintf2ss (OCaml "CodeConst.Printf.sprintf")
+code_printing constant sprintf2ss \<rightharpoonup> (OCaml) "CodeConst.Printf.sprintf"
 
 text{* module String *}
 
 consts String_concat :: "ml_string \<Rightarrow> ml_string list \<Rightarrow> ml_string"
-code_const String_concat (OCaml "CodeConst.String.concat")
+code_printing constant String_concat \<rightharpoonup> (OCaml) "CodeConst.String.concat"
 
 text{* module List *}
 
@@ -1971,10 +1971,10 @@ definition "List_mapi f l = (let (l, _) = foldl (\<lambda>(acc, n) x. (f n x # a
 text{* module Sys *}
 
 consts Sys_is_directory2 :: "ml_string \<Rightarrow> bool"
-code_const Sys_is_directory2 (OCaml "CodeConst.Sys.isDirectory2")
+code_printing constant Sys_is_directory2 \<rightharpoonup> (OCaml) "CodeConst.Sys.isDirectory2"
 
 consts Sys_argv :: "ml_string list"
-code_const Sys_argv (OCaml "CodeConst.Sys.argv")
+code_printing constant Sys_argv \<rightharpoonup> (OCaml) "CodeConst.Sys.argv"
 
 text{* module Unicode *}
 
@@ -2812,12 +2812,12 @@ fun outer_syntax_command cmd_spec cmd_descr parser get_oclclass =
                 thy0 |> def (String.concatWith " " (  name_main
                                                   :: "="
                                                   :: (To_string (i_of_write_file
-(case ocl of OCL.OclDeepEmbed (disable_thy_output, file_out_path_dep, oid_start, output_position, ()) => 
+(case ocl of OCL.OclDeepEmbed (disable_thy_output, file_out_path_dep, oid_start, output_position, ()) =>
   OCL.OclDeepEmbed ( disable_thy_output, file_out_path_dep, oid_start, output_position, obj ))))
                                                   :: []))
                      |> Deep.export_code_cmd [name_main] seri_args filename_thy
                      |> (fn s =>
-                          let val _ = writeln 
+                          let val _ = writeln
                                 (case seri_args of [] =>
                                   String.concat (map ((fn s => s ^ "\n") o Active.sendback_markup [Markup.padding_command] o trim_line)
                                     (String.tokens (fn c => From.from_char c = OCL.char_escape) s))
@@ -2825,7 +2825,7 @@ fun outer_syntax_command cmd_spec cmd_descr parser get_oclclass =
                           (Gen_deep (OCL.fold_thy_deep obj ocl, seri_args, filename_thy), thy0) end)
                 end
               end
-           | Gen_shallow ocl => fn thy => 
+           | Gen_shallow ocl => fn thy =>
              let val (ocl, thy) = OCL.fold_thy Shallow_main.OCL_main (get_oclclass thy) (ocl, thy) in
              (Gen_shallow ocl, thy)
              end
