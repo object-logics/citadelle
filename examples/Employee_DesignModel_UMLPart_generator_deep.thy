@@ -49,7 +49,7 @@ imports
   "../src/OCL_class_diagram_generator"
 begin
 
-generation_mode [ deep 
+generation_mode [ deep design
                     (*THEORY Employee_DesignModel_UMLPart_generated IMPORTS "../src/OCL_main"*)
                     SECTION
                     (*oid_start 10*)
