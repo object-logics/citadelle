@@ -57,6 +57,8 @@ imports Main
        and "Define_int" :: thy_decl
        and "Define_state" :: thy_decl and "Define_state_tmp" :: thy_decl
        and "generation_mode" :: thy_decl
+       and "lazy_code_printing" :: thy_decl
+       and "apply_code_printing" :: thy_decl
 begin
 
 definition "bug_ocaml_extraction = id"
@@ -1804,9 +1806,73 @@ definition "fold_thy_deep obj ocl =
 definition "ocl_deep_embed_input_empty design_analysis = OclDeepEmbed True None (oidInit (Oid 0)) (0, 0) design_analysis ()"
 
 section{* Generation to Deep Form: OCaml *}
+
+subsection{* beginning (lazy code printing) *}
+
+ML{* 
+datatype code_printing = Code_printing of (string * (bstring * Code_Printer.const_syntax option) list, string * (bstring * Code_Printer.tyco_syntax option) list,
+              string * (bstring * string option) list, (string * string) * (bstring * unit option) list, (string * string) * (bstring * unit option) list,
+              bstring * (bstring * (string * string list) option) list)
+              Code_Symbol.attr
+              list
+
+structure Data_code = Theory_Data
+  (type T = code_printing list Symtab.table
+   val empty = Symtab.empty
+   val extend = I
+   val merge = Symtab.merge (K true))
+
+val code_empty = ""
+
+local 
+val parse_classrel_ident = Parse.class --| @{keyword "<"} -- Parse.class
+val parse_inst_ident = Parse.xname --| @{keyword "::"} -- Parse.class
+
+(* *)
+fun parse_single_symbol_pragma parse_keyword parse_isa parse_target =
+  parse_keyword |-- Parse.!!! (parse_isa --| (@{keyword "\<rightharpoonup>"} || @{keyword "=>"})
+    -- Parse.and_list1 (@{keyword "("} |-- (Parse.name --| @{keyword ")"} -- Scan.option parse_target)))
+
+fun parse_symbol_pragma parse_const parse_tyco parse_class parse_classrel parse_inst parse_module =
+  parse_single_symbol_pragma @{keyword "constant"} Parse.term parse_const
+    >> Code_Symbol.Constant
+  || parse_single_symbol_pragma @{keyword "type_constructor"} Parse.type_const parse_tyco
+    >> Code_Symbol.Type_Constructor
+  || parse_single_symbol_pragma @{keyword "type_class"} Parse.class parse_class
+    >> Code_Symbol.Type_Class
+  || parse_single_symbol_pragma @{keyword "class_relation"} parse_classrel_ident parse_classrel
+    >> Code_Symbol.Class_Relation
+  || parse_single_symbol_pragma @{keyword "class_instance"} parse_inst_ident parse_inst
+    >> Code_Symbol.Class_Instance
+  || parse_single_symbol_pragma @{keyword "code_module"} Parse.name parse_module
+    >> Code_Symbol.Module
+
+fun parse_symbol_pragmas parse_const parse_tyco parse_class parse_classrel parse_inst parse_module =
+  Parse.enum1 "|" (Parse.group (fn () => "code symbol pragma")
+    (parse_symbol_pragma parse_const parse_tyco parse_class parse_classrel parse_inst parse_module))
+
+in
+val () =
+  Outer_Syntax.command @{command_spec "lazy_code_printing"} "declare dedicated printing for code symbols"
+    (parse_symbol_pragmas (Code_Printer.parse_const_syntax) (Code_Printer.parse_tyco_syntax)
+      Parse.string (Parse.minus >> K ()) (Parse.minus >> K ())
+      (Parse.text -- Scan.optional (@{keyword "attach"} |-- Scan.repeat1 Parse.term) [])
+      >> (fn code =>
+            Toplevel.theory (Data_code.map (Symtab.map_default (code_empty, []) (fn l => Code_printing code :: l)))))
+end
+
+fun apply_code_printing thy =
+               (case Symtab.lookup (Data_code.get thy) code_empty of SOME l => rev l | _ => [])
+            |> (fn l => fold (fn Code_printing l => fold Code_Target.set_printings l) l thy)
+
+val () =
+  Outer_Syntax.command @{command_spec "apply_code_printing"} "apply dedicated printing for code symbols"
+    (Parse.$$$ "(" -- Parse.$$$ ")" >> K (Toplevel.theory apply_code_printing))
+*}
+
 subsection{* beginning *}
 
-code_printing code_module "" \<rightharpoonup> (OCaml) {*
+lazy_code_printing code_module "" \<rightharpoonup> (OCaml) {*
 
 let (<<) f g x = f (g x)
 
@@ -2221,6 +2287,7 @@ definition "main = write_file (OclDeepEmbed
                                  None
                                  (OclAstClass Employee_DesignModel_UMLPart))"
 (*
+apply_code_printing ()
 export_code main
   in OCaml module_name M
   (no_signatures)
@@ -2470,12 +2537,74 @@ fun in_local decl thy =
   |> Local_Theory.exit_global
 *}
 
+subsection{* Deep (with reflection) *}
+
+ML{*
+structure Deep = struct
+
+fun prep_destination "" = NONE
+  | prep_destination "-" = (legacy_feature "drop \"file\" argument entirely instead of \"-\""; NONE)
+  | prep_destination s = SOME (Path.explode s)
+
+fun produce_code thy cs seris =
+  let
+    val (names_cs, (naming, program)) = Code_Thingol.consts_program thy false cs in
+    map (fn (((target, module_name), some_path), args) =>
+      (some_path, Code_Target.produce_code_for thy (*some_path*) target NONE module_name args naming program names_cs)) seris
+  end
+
+fun absolute_path filename thy = Path.implode (Path.append (Thy_Load.master_directory thy) (Path.explode filename))
+
+fun export_code_cmd_gen with_tmp_file bash_output raw_cs filename_thy thy =
+  with_tmp_file (fn seris =>
+    let val _ = Code_Target.export_code
+                  thy
+                  (Code_Target.read_const_exprs thy raw_cs)
+                  ((map o apfst o apsnd) prep_destination (map fst seris))
+        val (out, _) = bash_output (snd (hd seris)) (case filename_thy of NONE => ""
+                                                                        | SOME filename_thy => " " ^ absolute_path filename_thy thy) in
+    out end)
+
+fun export_code_cmd' raw_cs seris filename_thy f thy =
+  export_code_cmd_gen 
+    (case seris of
+        [] =>
+        (fn f =>
+          Isabelle_System.with_tmp_file "OCL_class_diagram_generator" "ml" (fn filename =>
+          let val filename = Path.implode filename in
+          (* export_code
+               in OCaml module_name M (* file "" *) *)
+          f [(((("OCaml", "M"), filename), []), filename)]
+          end))
+      | _ =>
+        (fn f => f (map (fn x => (x, case x of (((_, _), filename), _) => absolute_path filename thy)) seris)))
+    f
+    raw_cs filename_thy thy
+
+fun export_code_cmd raw_cs seris filename_thy =
+  export_code_cmd' raw_cs seris filename_thy
+    (fn tmp_file => fn arg => Isabelle_System.bash_output ("ocaml -w '-8' " ^ tmp_file ^ arg))
+
+fun mk_term ctxt s = fst (Scan.pass (Context.Proof ctxt) Args.term (Outer_Syntax.scan Position.none s))
+
+fun mk_free ctxt s l =
+  let val t_s = mk_term ctxt s in
+  if Term.is_Free t_s then s else
+    let val l = (s, "") :: l in
+    mk_free ctxt (fst (hd (Term.variant_frees t_s l))) l
+    end
+  end
+
+end
+*}
+
 subsection{* ... *}
 
 ML{*
 datatype generation_mode = Gen_deep of unit OCL.ocl_deep_embed_input
                                      * (((bstring * bstring) * bstring) * Token.T list) list (* seri_args *)
                                      * bstring option (* filename_thy *)
+                                     * Path.T (* tmp dir export_code *)
                          | Gen_shallow of unit OCL.ocl_deep_embed_input
 
 structure Data_gen = Theory_Data
@@ -2510,74 +2639,39 @@ val mode =
                                                        , OCL.oidInit (From.from_internal_oid (From.from_nat oid_start))
                                                        , From.from_pair From.from_nat From.from_nat (0, 0)
                                                        , From.from_option From.from_nat design_analysis
-                                                       , () ), seri_args, filename_thy) end)
+                                                       , () ), seri_args, filename_thy, Isabelle_System.create_tmp_path "deep_export_code" "") end)
   || @{keyword "shallow"} |-- parse_scheme >> (fn design_analysis => Gen_shallow (OCL.ocl_deep_embed_input_empty (From.from_option From.from_nat design_analysis)))
 
 val gen_empty = ""
+val ocamlfile_function = "function.ml"
+val ocamlfile_argument = "argument.ml"
+val ocamlfile_main = "main.ml"
+val ocamlfile_ocp = "write"
 
 val () =
   Outer_Syntax.command @{command_spec "generation_mode"} "set the generating list"
-    (Parse.$$$ "[" |-- Parse.list mode --| Parse.$$$ "]" >> (fn n =>
-      Toplevel.theory (Data_gen.map (Symtab.map_default (gen_empty, n) (fn _ => n)))))
-*}
-
-subsection{* Deep (with reflection) *}
-
-ML{*
-structure Deep = struct
-
-fun prep_destination "" = NONE
-  | prep_destination "-" = (legacy_feature "drop \"file\" argument entirely instead of \"-\""; NONE)
-  | prep_destination s = SOME (Path.explode s)
-
-fun produce_code thy cs seris =
-  let
-    val (names_cs, (naming, program)) = Code_Thingol.consts_program thy false cs in
-    map (fn (((target, module_name), some_path), args) =>
-      (some_path, Code_Target.produce_code_for thy (*some_path*) target NONE module_name args naming program names_cs)) seris
-  end
-
-fun export_code_cmd raw_cs seris filename_thy thy =
-  let
-    fun absolute_path filename = Path.implode (Path.append (Thy_Load.master_directory thy) (Path.explode filename))
-    val with_tmp_file =
-      case seris of
-        [] =>
-        (fn f =>
-          Isabelle_System.with_tmp_file "OCL_class_diagram_generator" "ml" (fn filename =>
-          let val filename = Path.implode filename in
-          (* export_code
-               in OCaml module_name M (* file "" *) *)
-          f [(((("OCaml", "M"), filename), []), filename)]
-          end))
-      | _ =>
-        (fn f => f (map (fn x => (x, case x of (((_, _), filename), _) => absolute_path filename)) seris))
-  in
-
-  with_tmp_file (fn seris =>
-    let val _ = Code_Target.export_code
-        thy
-        (Code_Target.read_const_exprs thy raw_cs)
-        ((map o apfst o apsnd) prep_destination (map fst seris))
-        val (out, _) = Isabelle_System.bash_output ("ocaml -w '-8' " ^ snd (hd seris)
-                                                       ^ (case filename_thy of NONE => ""
-                                                                             | SOME filename_thy => " " ^ absolute_path filename_thy)) in
-    out end)
-
-  end
-
-
-fun mk_term ctxt s = fst (Scan.pass (Context.Proof ctxt) Args.term (Outer_Syntax.scan Position.none s))
-
-fun mk_free ctxt s l =
-  let val t_s = mk_term ctxt s in
-  if Term.is_Free t_s then s else
-    let val l = (s, "") :: l in
-    mk_free ctxt (fst (hd (Term.variant_frees t_s l))) l
-    end
-  end
-
-end
+    (Parse.$$$ "[" |-- Parse.list mode --| Parse.$$$ "]" >> (fn l_mode =>
+      Toplevel.theory (fn thy =>
+        let val (l_mode, thy) = OCL.fold_list
+          (fn Gen_shallow ocl => (fn thy => (Gen_shallow ocl, thy))
+            | Gen_deep (ocl, seri_args, filename_thy, tmp_export_code) => fn thy =>
+                let fun mk_fic s = Path.append tmp_export_code (Path.make [s])
+                    val _ = warning ("remove the directory (at the end): " ^ Path.implode tmp_export_code)
+                    val () = Isabelle_System.mkdir tmp_export_code
+                    val _ = Deep.export_code_cmd_gen
+                              (fn f => let val filename = Path.implode (mk_fic ocamlfile_function) in
+                                f [(((("OCaml", "M"), filename), []), filename)] end)
+                              (fn _ => fn _ => ("", ()))
+                              ["write_file"] filename_thy (apply_code_printing thy)
+                    val () = File.write (mk_fic (ocamlfile_ocp ^ ".ocp"))
+                              (String.concat [ "begin program \"", ocamlfile_ocp, "\" sort = true files = [ \"", ocamlfile_function
+                                             , "\" \"", ocamlfile_argument
+                                             , "\" \"", ocamlfile_main
+                                             , "\" ] end" ])
+                    val () = File.write (mk_fic ocamlfile_main) "let _ = Function.M.write_file (Obj.magic (Argument.M.maina))" in
+                (Gen_deep (ocl, seri_args, filename_thy, tmp_export_code), thy) end) l_mode thy in
+        Data_gen.map (Symtab.map_default (gen_empty, l_mode) (fn _ => l_mode)) thy
+        end)))
 *}
 
 subsection{* Shallow *}
@@ -2806,10 +2900,10 @@ subsection{* Outer Syntax: Class.end *}
 ML{*
 
 fun outer_syntax_command cmd_spec cmd_descr parser get_oclclass =
-  let val i_of_write_file =
+  let val i_of_arg =
     let val a = OCL.i_apply
       ; val b = I in
-    OCL.ap1 a (From.from_term @{context} @{term "write_file"})
+    (*OCL.ap1 a (From.from_term @{context} @{term "write_file"})*)
       (OCL.i_of_ocl_deep_embed_input a b OCL.i_of_ocl_deep_embed_ast)
     end in
   Outer_Syntax.command cmd_spec cmd_descr
@@ -2819,25 +2913,32 @@ fun outer_syntax_command cmd_spec cmd_descr parser get_oclclass =
         OCL.fold_list
 
           let val get_oclclass = get_oclclass name in
-          fn Gen_deep (ocl, seri_args, filename_thy) =>
+          fn Gen_deep (ocl, seri_args, filename_thy, tmp_export_code) =>
               let fun def s = in_local (snd o Specification.definition_cmd (NONE, ((@{binding ""}, []), s)) false) in
               fn thy0 =>
                 let val name_main = Deep.mk_free (Proof_Context.init_global thy0) "main" []
                   ; val obj = get_oclclass thy0 in
                 thy0 |> def (String.concatWith " " (  name_main
                                                   :: "="
-                                                  :: (To_string (i_of_write_file
+                                                  :: (To_string (i_of_arg
 (case ocl of OCL.OclDeepEmbed (disable_thy_output, file_out_path_dep, oid_start, output_position, design_analysis, ()) =>
   OCL.OclDeepEmbed ( disable_thy_output, file_out_path_dep, oid_start, output_position, design_analysis, obj ))))
                                                   :: []))
-                     |> Deep.export_code_cmd [name_main] seri_args filename_thy
+                     (*|> Deep.export_code_cmd [name_main] seri_args filename_thy*)
+                     |> Deep.export_code_cmd' [name_main] seri_args filename_thy (fn tmp_file => fn arg =>
+                          let val out = Isabelle_System.bash_output
+                                        ("cp " ^ tmp_file ^ " " ^ Path.implode (Path.append tmp_export_code (Path.make [ocamlfile_argument])) ^
+                                         " && cd " ^ Path.implode tmp_export_code ^
+                                         " && bash -c 'ocp-build -init -scan -no-bytecode 2>&1' 2>&1 > /dev/null" ^
+                                         " && ./_obuild/" ^ ocamlfile_ocp ^ "/" ^ ocamlfile_ocp ^ ".asm " ^ arg) in
+                          out end)
                      |> (fn s =>
                           let val _ = writeln
                                 (case seri_args of [] =>
                                   String.concat (map ((fn s => s ^ "\n") o Active.sendback_markup [Markup.padding_command] o trim_line)
                                     (String.tokens (fn c => From.from_char c = OCL.char_escape) s))
                                 | _ => s) in
-                          (Gen_deep (OCL.fold_thy_deep obj ocl, seri_args, filename_thy), thy0) end)
+                          (Gen_deep (OCL.fold_thy_deep obj ocl, seri_args, filename_thy, tmp_export_code), thy0) end)
                 end
               end
            | Gen_shallow ocl => fn thy =>
