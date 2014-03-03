@@ -72,39 +72,38 @@ Class.end OclAny
 
 Define_int [ 1000, 1200, 1300, 1800, 2600, 2900, 3200, 3500 ]
 
-Instance_tmp
-         X1 :: Person = ([ _, _, _ ], [ salary = 1300 , boss = self 1 ])
-     and X2 :: Person = ([ _, _, _ ], [ salary = 1800 , boss = self 1 ])
-     and X3 :: Person = ([ _, _, _ ], [ _, _ ])
-     and X4 :: Person = ([ _, _, _ ], [ salary = 2900 , _ ])
-     and X5 :: Person = ([ _, _, _ ], [ salary = 3500 , _ ])
-     and X6 :: Person = ([ _, _, _ ], [ salary = 2500 , boss = self 6 ])
-     and X7 :: OclAny = ((([ _, _, _ ], [ salary = 3200 , boss = self 6 ]) :: Person) , [])
-     and X8 :: OclAny = ([], [])
-     and X9 :: Person = ([ _, _, _ ], [ salary = 0 , _ ])
+Instance X1 :: Person = [ salary = 1300 , boss = X2 ]
+     and X2 :: Person = [ salary = 1800 , boss = X2 ]
+     and X3 :: Person = []
+     and X4 :: Person = [ salary = 2900 ]
+     and X5 :: Person = [ salary = 3500 ]
+     and X6 :: Person = [ salary = 2500 , boss = X7 ]
+     and X7 :: OclAny = ([ salary = 3200 , boss = X7 ] :: Person)
+     and X8 :: OclAny = []
+     and X9 :: Person = [ salary = 0 ]
 
-Define_state_tmp s1 =
-  [ defines [ (([ _, _, _ ], [ salary = 1000 , boss = self 1 ]) :: Person)
-            , (([ _, _, _ ], [ salary = 1200 , _]) :: Person) ]
-  , skip 
-  , defines [ (([ _, _, _ ], [ salary = 2600 , boss = self 4 ]) :: Person)
-            , (X5 :: Person)
-            , (([ _, _, _ ], [ salary = 2300 , boss = self 3 ]) :: Person) ]
-  , skip 
-  , skip 
-  , defines [ (X9 :: Person) ] ]
-
-Define_state_tmp s2 =
-  [ defines [ (X1 :: Person)
-            , (X2 :: Person)
-            , (X3 :: Person)
-            , (X4 :: Person) ]
+Define_state s1 =
+  [ defines [ ([ salary = 1000 , boss = self 1 ] :: Person)
+            , ([ salary = 1200 ] :: Person) ]
   , skip
-  , defines [ (X6 :: Person)
-            , (X7 :: OclAny)
-            , (X8 :: OclAny)
-            , (X9 :: Person) ] ]
+  , defines [ ([ salary = 2600 , boss = self 4 ] :: Person)
+            , X5
+            , ([ salary = 2300 , boss = self 3 ] :: Person) ]
+  , skip
+  , skip
+  , defines [ X9 ] ]
 
-Define_state_tmp s0 = []
+Define_state s2 =
+  [ defines [ X1
+            , X2
+            , X3
+            , X4 ]
+  , skip
+  , defines [ X6
+            , X7
+            , X8
+            , X9 ] ]
+
+Define_state s0 = []
 
 end

@@ -45,6 +45,8 @@ header{* Part ... *}
 
 theory OCL_class_diagram_generator
 imports "~~/src/HOL/Library/RBT"
+        "~~/src/HOL/Library/Char_ord"
+        "~~/src/HOL/Library/List_lexord"
   keywords "attr_base" "attr_object" "child"
            "oid_start" "thy_dir"
            "THEORY" "IMPORTS" "SECTION"
@@ -53,9 +55,9 @@ imports "~~/src/HOL/Library/RBT"
            "skip" "self"
        and "Class" :: thy_decl
        and "Class.end" :: thy_decl
-       and "Instance" :: thy_decl and "Instance_tmp" :: thy_decl
+       and "Instance" :: thy_decl
        and "Define_int" :: thy_decl
-       and "Define_state" :: thy_decl and "Define_state_tmp" :: thy_decl
+       and "Define_state" :: thy_decl
        and "generation_mode" :: thy_decl
        and "lazy_code_printing" :: thy_decl
        and "apply_code_printing" :: thy_decl
@@ -105,22 +107,19 @@ datatype ocl_class =
     "ocl_class option" (* link to subclasses *)
 
 datatype ocl_data_shallow = Shall_str string
-                          | Shall_binding string
                           | Shall_self internal_oid
-                          | Shall_tmp (* FIXME : to remove *)
 
-datatype ocl_list_inh = OclNoInh "(string (* name *) \<times> ocl_data_shallow) list"
-                      | OclInh
-                          "(string (* name *) \<times> ocl_data_shallow) list" (* inh *)
-                          "(string (* name *) \<times> ocl_data_shallow) list" (* own *)
-                          string (* cast from *)
+datatype 'a ocl_list_attr = OclAttrNoCast 'a (* inh, own *)
+                          | OclAttrCast
+                              string (* cast from *)
+                              "'a ocl_list_attr" (* cast entity *)
+                              'a (* inh, own *)
 
 datatype ocl_instance_single =
   OclInst
     string (* name *)
     string (* type *)
-    ocl_list_inh (* attribute inh *)
-    "(string (* name *) \<times> ocl_data_shallow) list" (* attribute own *)
+    "((string (* name *) \<times> ocl_data_shallow) list) (* inh and own *) ocl_list_attr"
 
 datatype ocl_instance =
   OclInstance "ocl_instance_single list" (* mutual recursive *)
@@ -129,7 +128,7 @@ datatype ocl_def_int = OclDefI "string list"
 
 datatype ocl_def_state_core = OclDefCoreAdd ocl_instance_single
                             | OclDefCoreSkip
-                            | OclDefCoreBinding string (* name *) string (* type *)
+                            | OclDefCoreBinding string (* name *)
 
 datatype ocl_def_state = OclDefSt
                            string (* name *)
@@ -147,6 +146,8 @@ datatype 'a ocl_deep_embed_input = OclDeepEmbed
                                      "nat \<times> nat" (* output_position *)
                                      "nat option" (* None : activate design,
                                                      Some n : activate analysis (with n + 1 assocs) *)
+                                     "ocl_class option" (* last class considered for the generation *)
+                                     "(string (* name *) \<times> string (* ty *)) list" (* instance namespace environment *)
                                      'a
 
 record ocl_definition =
@@ -165,6 +166,39 @@ record ocl_class_model =
   Mod_assocs\<^sub>2 :: "(string \<times> (ocl_association_end \<times> ocl_association_end)) list"
   Mod_assocs\<^sub>3 :: "(string \<times> (ocl_association_end \<times> ocl_association_end \<times> ocl_association_end)) list"
   Mod_definition :: "(string \<times> ocl_definition) list"
+
+subsection{* ... *} (* optimized data-structure version *)
+
+datatype opt_attr_type = OptInh | OptOwn
+datatype opt_ident = OptIdent nat
+
+instantiation internal_oid :: linorder
+begin
+ definition "n_of_internal_oid = (\<lambda> Oid n \<Rightarrow> n)"
+ definition "n \<le> m \<longleftrightarrow> n_of_internal_oid n \<le> n_of_internal_oid m"
+ definition "n < m \<longleftrightarrow> n_of_internal_oid n < n_of_internal_oid m"
+ instance
+   apply(default)
+   apply (metis less_eq_internal_oid_def less_imp_le less_internal_oid_def not_less)
+   apply (metis less_eq_internal_oid_def order_refl)
+   apply (metis less_eq_internal_oid_def order.trans)
+   apply(simp add: less_eq_internal_oid_def n_of_internal_oid_def, case_tac x, case_tac y, simp)
+ by (metis le_cases less_eq_internal_oid_def)
+end
+
+instantiation opt_ident :: linorder
+begin
+ definition "n_of_opt_ident = (\<lambda> OptIdent n \<Rightarrow> n)"
+ definition "n \<le> m \<longleftrightarrow> n_of_opt_ident n \<le> n_of_opt_ident m"
+ definition "n < m \<longleftrightarrow> n_of_opt_ident n < n_of_opt_ident m"
+ instance
+ apply(default)
+ apply (metis less_eq_opt_ident_def less_imp_le less_opt_ident_def not_less)
+ apply (metis less_eq_opt_ident_def order_refl)
+   apply (metis less_eq_opt_ident_def order.trans)
+   apply(simp add: less_eq_opt_ident_def n_of_opt_ident_def, case_tac x, case_tac y, simp)
+ by (metis le_cases less_eq_opt_ident_def)
+end
 
 subsection{* ... *}
 
@@ -204,6 +238,11 @@ definition "fold_list f l accu =
   (let (l, accu) = List.fold (\<lambda>x (l, accu). let (x, accu) = f x accu in (x # l, accu)) l ([], accu) in
    (rev l, accu))"
 definition "char_escape = Char Nibble0 Nibble9"
+definition "modify_def v k f rbt =
+  (case lookup rbt k of None \<Rightarrow> insert k (f v) rbt
+                      | Some _ \<Rightarrow> map_entry k f rbt)"
+definition "Option_bind f = (\<lambda> None \<Rightarrow> None | Some x \<Rightarrow> f x)"
+definition "List_assoc x1 l = List.fold (\<lambda>(x2, v). \<lambda>None \<Rightarrow> if x1 = x2 then Some v else None | x \<Rightarrow> x) l None"
 
 section{* AST Definition: HOL *}
 subsection{* type definition *}
@@ -461,13 +500,13 @@ definition "expr_binop s l = (case rev l of x # xs \<Rightarrow> List.fold (\<la
 definition "Consts s ty_out mix = Consts_raw s (Ty_base (Char Nibble2 Nibble7 # unicode_alpha)) ty_out mix"
 definition "start_map f = fold_list (\<lambda>x acc. (f x, acc))"
 definition "start_map' f x accu = (f x, accu)"
-definition "start_map''' f fl = (\<lambda> ocl. case ocl of OclDeepEmbed disable_thy_output file_out_path_dep oid_start output_position design_analysis () \<Rightarrow>
+definition "start_map''' f fl = (\<lambda> ocl. case ocl of OclDeepEmbed disable_thy_output file_out_path_dep oid_start output_position design_analysis class_spec instance_rbt () \<Rightarrow>
   let base_attr = (if design_analysis = None then id else List_filter (\<lambda> (_, OclTy_object _) \<Rightarrow> False | _ \<Rightarrow> True))
     ; base_attr' = (\<lambda> (l_attr, l_inh). (base_attr l_attr, List_map base_attr l_inh))
     ; base_attr'' = (\<lambda> (l_attr, l_inh). (base_attr l_attr, base_attr l_inh)) in
   start_map f (fl design_analysis base_attr base_attr' base_attr'') ocl)"
 definition "start_map'' f fl e = start_map''' f (\<lambda>_. fl) e"
-definition "start_map'''' f fl = (\<lambda> ocl. case ocl of OclDeepEmbed disable_thy_output file_out_path_dep oid_start output_position design_analysis () \<Rightarrow>
+definition "start_map'''' f fl = (\<lambda> ocl. case ocl of OclDeepEmbed disable_thy_output file_out_path_dep oid_start output_position design_analysis class_spec instance_rbt () \<Rightarrow>
   start_map f (fl design_analysis) ocl)"
 
 subsection{* ... *}
@@ -1279,9 +1318,9 @@ subsection{* accessors *}
 
 definition "print_access_oid_uniq_name isub_name attr = isub_name var_oid_uniq @@ isup_of_str attr"
 definition "print_access_oid_uniq =
-  (\<lambda>expr ocl. case ocl of OclDeepEmbed disable_thy_output file_out_path_dep oid_start output_position design_analysis () \<Rightarrow>
+  (\<lambda>expr ocl. case ocl of OclDeepEmbed disable_thy_output file_out_path_dep oid_start output_position design_analysis class_spec instance_rbt () \<Rightarrow>
     if design_analysis = None then ([], ocl) else
-      (\<lambda>(l, oid_start). (List_map Thy_definition_hol l, OclDeepEmbed disable_thy_output file_out_path_dep oid_start output_position design_analysis ()))
+      (\<lambda>(l, oid_start). (List_map Thy_definition_hol l, OclDeepEmbed disable_thy_output file_out_path_dep oid_start output_position design_analysis class_spec instance_rbt ()))
       (let (l, acc) = fold_class (\<lambda>isub_name name l_attr l_inh _ _ cpt.
          let l_inh = List_map snd l_inh in
          let (l, cpt) = fold_list (fold_list
@@ -1370,7 +1409,7 @@ definition "print_access_deref_oid = start_map Thy_definition_hol o
                      , (Expr_basic [wildcard], Expr_basic [''invalid'', var_tau]) ]))))"
 
 definition "print_access_deref_assocs_name isub_name = flatten [var_deref, ''_'', isub_name var_assocs]"
-definition "print_access_deref_assocs = start_map'''' Thy_definition_hol o (\<lambda>expr design_analysis. 
+definition "print_access_deref_assocs = start_map'''' Thy_definition_hol o (\<lambda>expr design_analysis.
   (if design_analysis = None then \<lambda>_. [] else (\<lambda>expr. flatten (flatten (map_class (\<lambda>isub_name name l_attr l_inherited _ _.
   let l_inherited = List_map snd l_inherited in
   let mk_n = \<lambda>s. s @@ isub_of_str ''2''
@@ -1394,7 +1433,7 @@ definition "print_access_deref_assocs = start_map'''' Thy_definition_hol o (\<la
        | _ \<Rightarrow> []))
       (l_attr # l_inherited))) expr)))) expr)"
 
-definition "print_access_select_object = start_map'''' Thy_definition_hol o (\<lambda>expr design_analysis. 
+definition "print_access_select_object = start_map'''' Thy_definition_hol o (\<lambda>expr design_analysis.
   (if design_analysis = None then \<lambda>_. [] else (\<lambda>_. [
    (let var_mt = ''mt''
       ; var_incl = ''incl''
@@ -1482,7 +1521,7 @@ definition "print_access_select = start_map'' Thy_definition_hol o (\<lambda>exp
       l_inherited) in
     rev l) expr)"
 
-definition "print_access_select_obj = start_map'''' Thy_definition_hol o (\<lambda>expr design_analysis. 
+definition "print_access_select_obj = start_map'''' Thy_definition_hol o (\<lambda>expr design_analysis.
   (if design_analysis = None then \<lambda>_. [] else (\<lambda>expr. flatten (flatten (map_class (\<lambda>isub_name name l_attr l_inh _ _.
     let l_inh = List_map snd l_inh in
     flatten (List_map (List_map
@@ -1514,7 +1553,7 @@ definition "print_access_dot_consts = start_map Thy_consts_class o
         [ (var_at_when_hol_post, var_at_when_ocl_post)
         , (var_at_when_hol_pre, var_at_when_ocl_pre)]) l_attr)"
 
-definition "print_access_dot = start_map'''' Thy_defs_overloaded o (\<lambda>expr design_analysis. 
+definition "print_access_dot = start_map'''' Thy_defs_overloaded o (\<lambda>expr design_analysis.
   map_class_arg_only_var'
     (\<lambda>isub_name name (var_in_when_state, dot_at_when) attr_orig attr_ty isup_attr dot_attr.
             [ Defs_overloaded
@@ -1613,63 +1652,117 @@ definition "print_examp_oclint = (\<lambda> OclDefI l \<Rightarrow> (start_map T
       (b (number_of_str nb))
       (Expr_rewrite (b name) ''='' (Expr_lambda wildcard (Expr_some (Expr_some (b nb))))))) l)"
 
-definition "print_examp_instance_app_constr oid_start b l = (\<lambda>isub_name app_x l_attr.
+definition "print_examp_instance_draw_list_attr map_self map_username =
+  (let b = \<lambda>s. Expr_basic [s]
+     ; f_get = \<lambda> None \<Rightarrow> b ''None''
+               | Some cpt \<Rightarrow> Expr_some (Expr_oid var_oid_uniq (oidGetInh cpt)) in
+   List_map (\<lambda> None \<Rightarrow> b ''None''
+             | Some (ty, ocl) \<Rightarrow>
+     case ocl of Shall_str s \<Rightarrow> (case ty of OclTy_object _ \<Rightarrow> f_get (map_username s) | _ \<Rightarrow> Expr_some (b s))
+               | Shall_self cpt1 \<Rightarrow> f_get (map_self cpt1)))"
+
+definition "print_examp_instance_app_constr_notmp map_self map_username = (\<lambda>isub_name app_x l_attr.
   Expr_apply
     (isub_name datatype_constr_name)
     ( app_x
-    # (List_map (\<lambda>(_, ocl). case ocl of Shall_str s \<Rightarrow> Expr_some (b s)
-                                 | Shall_binding n1 \<Rightarrow> (case flatten (fst (fold_list
-                                         (\<lambda> OclInst n0 _ _ _ \<Rightarrow> \<lambda>cpt. ((if n1 = n0 then [Expr_some (Expr_oid var_oid_uniq (oidGetInh cpt))] else []), oidSucInh cpt))
-                                         l oid_start)) of [s] \<Rightarrow> s)
-                                 | Shall_self cpt1 \<Rightarrow> (case flatten (fst (fold_list
-                                         (\<lambda> OclInst _ _ _ _ \<Rightarrow> \<lambda>cpt0. ((if oidGetInh cpt0 = cpt1 then [Expr_some (Expr_oid var_oid_uniq (oidGetInh cpt0))] else []), oidSucInh cpt0))
-                                         l oid_start)) of [s] \<Rightarrow> s)
-                                 | _ \<Rightarrow> b ''None'') l_attr)))"
+    # print_examp_instance_draw_list_attr map_self map_username l_attr))"
 
-definition "print_examp_instance_app_constr2 oid_start b l ty l_inh l_attr isub_name cpt =
-  (let var_oid = Expr_oid var_oid_uniq (oidGetInh cpt) in
-   print_examp_instance_app_constr oid_start b l isub_name
-     (case l_inh of OclNoInh l_inh \<Rightarrow> Expr_apply (isub_name datatype_ext_constr_name) (var_oid # List_map (\<lambda>_. b ''None'') l_inh)
-                  | OclInh l_inh l_attr x \<Rightarrow>
-                      Expr_apply
+definition "rbt_of_class class =
+  (let rbt = (snd o fold_class_gen (\<lambda>_ name l_attr l_inh _ _ rbt.
+     ( [()]
+     , modify_def (empty, []) name
+         (let fold = \<lambda>tag l rbt.
+            let (rbt, n) = List.fold
+                                   (\<lambda> (name_attr, ty) \<Rightarrow> \<lambda>(rbt, cpt).
+                                     (insert name_attr (ty, tag, OptIdent cpt) rbt, Suc cpt))
+                                   l
+                                   (rbt, 0) in
+            (rbt, (tag, n)) in
+          (\<lambda>(rbt, _).
+           let (rbt, info_own) = fold OptOwn l_attr rbt in
+           let (rbt, info_inh) = fold OptInh (flatten (List_map snd l_inh)) rbt in
+           (rbt, [info_own, info_inh])))
+         rbt)) empty) class in
+   (\<lambda>name.
+     let rbt = lookup rbt name in
+     ( \<lambda> name_attr.
+        Option_bind (\<lambda>(rbt, _). lookup rbt name_attr) rbt
+     , \<lambda> v. Option_bind (\<lambda>(_, l). List_assoc v l) rbt)))"
+
+definition "fill_blank f_blank =
+  List_map (\<lambda> (attr_ty, l).
+    case f_blank attr_ty of Some len \<Rightarrow>
+    let rbt = List.fold (\<lambda> ((ty, _, ident), shallow) \<Rightarrow> insert ident (ty, shallow)) l empty in
+    (attr_ty, List_map (\<lambda>n. lookup rbt (OptIdent n)) (List.upt 0 len)))"
+
+fun split_inh_own where
+   "split_inh_own f_class s_cast l_attr =
+  (let (f_attr, f_blank) = f_class s_cast
+     ; split = \<lambda>l. List.partition (\<lambda>((_, OptOwn, _), _) \<Rightarrow> True | _ \<Rightarrow> False) (List.map (\<lambda>(name_attr, data). (case f_attr name_attr of Some x \<Rightarrow> x, data)) l) in
+   case l_attr of
+     OclAttrNoCast l \<Rightarrow>
+       let (l_own, l_inh) = split l in
+       OclAttrNoCast (fill_blank f_blank [(OptOwn, l_own), (OptInh, l_inh)])
+   | OclAttrCast s_cast l_attr l \<Rightarrow>
+       case split l of (l_own, []) \<Rightarrow>
+       OclAttrCast s_cast (split_inh_own f_class s_cast l_attr) (fill_blank f_blank [(OptOwn, l_own)]))"
+
+fun print_examp_instance_app_constr2_notmp where
+   "print_examp_instance_app_constr2_notmp map_self map_username ty l_attr isub_name cpt =
+  (let (l_inh, l_own) =
+     let var_oid = Expr_oid var_oid_uniq (oidGetInh cpt) in
+     case l_attr of
+       OclAttrNoCast [(OptOwn, l_own), (OptInh, l_inh)] \<Rightarrow> (Expr_apply (isub_name datatype_ext_constr_name) (var_oid # print_examp_instance_draw_list_attr map_self map_username l_inh), l_own)
+     | OclAttrCast x l_attr [(OptOwn, l_own)] \<Rightarrow>
+                      (Expr_apply
                         (datatype_ext_constr_name @@ mk_constr_name ty x)
                         [ let isub_name = \<lambda>s. s @@ isub_of_str x in
-                          print_examp_instance_app_constr oid_start b l isub_name (Expr_apply (isub_name datatype_ext_constr_name) (var_oid # List_map (\<lambda>_. b ''None'') l_inh)) l_attr ])
-     l_attr)"
+                          print_examp_instance_app_constr2_notmp map_self map_username ty l_attr isub_name cpt ], l_own) in
+   print_examp_instance_app_constr_notmp map_self map_username isub_name l_inh l_own)"
 
-definition "print_examp_instance_tmp_name isub_name name = isub_name name"
-definition "print_examp_instance_tmp = (\<lambda> OclInstance l \<Rightarrow> \<lambda> OclDeepEmbed disable_thy_output file_out_path_dep oid_start output_position design_analysis () \<Rightarrow>
-      (\<lambda>(l, oid_start). ((List_map Thy_definition_hol o flatten) l, OclDeepEmbed disable_thy_output file_out_path_dep oid_start output_position design_analysis ()))
-      (fold_list
-      (\<lambda> (f1, f2) _.
-        fold_list (\<lambda> OclInst name ty l_inh l_attr \<Rightarrow> \<lambda>cpt.
+definition "print_examp_instance_app_constr2_notmp_norec oid_start l ty class_spec l_attr =
+  (let (map_self, map_username) =
+         let (rbt_nat, rbt_str, _, _) =
+           List.fold (\<lambda> OclInst name _ _ \<Rightarrow> \<lambda> (rbt_nat, rbt_str, oid_start, accu).
+             (insert (Oid accu) oid_start rbt_nat, insert name oid_start rbt_str, oidSucInh oid_start, Suc accu) ) l (empty, empty, oid_start, 0) in
+         (lookup rbt_nat, lookup rbt_str) in
+   print_examp_instance_app_constr2_notmp map_self map_username ty (split_inh_own (rbt_of_class class_spec) ty l_attr))"
+
+definition "print_examp_instance_name isub_name name = isub_name name"
+definition "print_examp_instance = (\<lambda> OclInstance l \<Rightarrow> \<lambda> OclDeepEmbed disable_thy_output file_out_path_dep oid_start output_position design_analysis (Some class_spec) instance_rbt () \<Rightarrow>
+  (\<lambda>(l, (oid_start, instance_rbt)). ((List_map Thy_definition_hol o flatten) l, OclDeepEmbed disable_thy_output file_out_path_dep oid_start output_position design_analysis (Some class_spec) instance_rbt ()))
+    (fold_list
+      (\<lambda> (f1, f2) (_, instance_rbt).
+        fold_list (\<lambda> OclInst name ty l_attr \<Rightarrow> \<lambda>(cpt, instance_rbt) \<Rightarrow>
           let var_oid = Expr_oid var_oid_uniq (oidGetInh cpt)
             ; b = \<lambda>s. Expr_basic [s]
             ; isub_name = \<lambda>s. s @@ isub_of_str ty in
-          ( Definition (Expr_rewrite (f1 var_oid b isub_name name ty) ''='' (f2 b l ty l_inh l_attr isub_name cpt name))
-          , oidSucInh cpt)) l oid_start)
+          ( Definition (Expr_rewrite (f1 var_oid b isub_name name ty) ''='' (f2 b l ty l_attr isub_name cpt name))
+          , ( oidSucInh cpt
+            , (name, ty) # instance_rbt))) l (oid_start, instance_rbt))
       [ ((\<lambda> var_oid _ _ _ _. var_oid),
-         (\<lambda> _ _ _ _ _ _ cpt _. Expr_oid '''' (oidGetInh cpt)))
-      , ((\<lambda> _ b isub_name name _. b (print_examp_instance_tmp_name isub_name name)),
-         (\<lambda> b l ty l_inh l_attr isub_name cpt _. print_examp_instance_app_constr2 oid_start b l ty l_inh l_attr isub_name cpt))
+         (\<lambda> _ _ _ _ _ cpt _. Expr_oid '''' (oidGetInh cpt)))
+      , ((\<lambda> _ b isub_name name _. b (print_examp_instance_name isub_name name)),
+         (\<lambda> b l ty l_attr isub_name cpt _. print_examp_instance_app_constr2_notmp_norec oid_start l ty class_spec l_attr isub_name cpt))
       , ((\<lambda> _ b _ name ty. Expr_annot (b name) ty),
-         (\<lambda> b _ _ _ _ isub_name _ name. Expr_lambda wildcard (Expr_some (Expr_some (b (print_examp_instance_tmp_name isub_name name)))))) ]
-      oid_start))"
+         (\<lambda> b _ _ _ isub_name _ name. Expr_lambda wildcard (Expr_some (Expr_some (b (print_examp_instance_name isub_name name)))))) ]
+      (oid_start, instance_rbt)))"
 
-definition "print_examp_def_st_tmp = (\<lambda> OclDefSt name l \<Rightarrow> \<lambda> OclDeepEmbed disable_thy_output file_out_path_dep oid_start output_position design_analysis () \<Rightarrow>
-      (\<lambda>(l, _). (List_map Thy_definition_hol l, OclDeepEmbed disable_thy_output file_out_path_dep oid_start output_position design_analysis ()))
+definition "print_examp_def_st = (\<lambda> OclDefSt name l \<Rightarrow> \<lambda> OclDeepEmbed disable_thy_output file_out_path_dep oid_start output_position design_analysis (Some class_spec) instance_rbt () \<Rightarrow>
+ (\<lambda>(l, _). (List_map Thy_definition_hol l, OclDeepEmbed disable_thy_output file_out_path_dep oid_start output_position design_analysis (Some class_spec) instance_rbt ()))
   (let oid_start = oidReinitInh oid_start
      ; b = \<lambda>s. Expr_basic [s]
      ; (expr_app, cpt) = fold_list (\<lambda> ocore cpt.
          let f = \<lambda>ty exp. [Expr_binop (Expr_oid var_oid_uniq (oidGetInh cpt)) unicode_mapsto (Expr_apply (datatype_in @@ isub_of_str ty) [exp])] in
          ( case ocore of OclDefCoreSkip \<Rightarrow> []
-                       | OclDefCoreBinding name ty \<Rightarrow>
+                       | OclDefCoreBinding name \<Rightarrow>
+                           case List_assoc name instance_rbt of Some ty \<Rightarrow>
                            let isub_name = \<lambda>s. s @@ isub_of_str ty in
-                           f ty (b (print_examp_instance_tmp_name isub_name name))
-                       | OclDefCoreAdd (OclInst n0 ty l_inh l_attr) \<Rightarrow>
+                           f ty (b (print_examp_instance_name isub_name name))
+                       | OclDefCoreAdd (OclInst n0 ty l_attr) \<Rightarrow>
                            let isub_name = \<lambda>s. s @@ isub_of_str ty in
-                           f ty (print_examp_instance_app_constr2 oid_start b (List_map (\<lambda> OclDefCoreAdd x \<Rightarrow> x
-                                                                               | _ \<Rightarrow> OclInst [] [] (OclNoInh []) []) l) ty l_inh l_attr isub_name cpt)
+                           f ty (print_examp_instance_app_constr2_notmp_norec oid_start (List_map (\<lambda> OclDefCoreAdd x \<Rightarrow> x
+                                     | _ \<Rightarrow> OclInst [] [] (OclAttrNoCast [])) l) ty class_spec l_attr isub_name cpt)
          , oidSucInh cpt)) l oid_start in
    ([ let empty = ''Map.empty'' in
       Definition (Expr_rewrite (b name) ''='' (Expr_apply ''state.make'' [Expr_apply empty
@@ -1785,32 +1878,35 @@ definition "thy_object =
             , print_examp_def_st_defs ] ])"
 
 definition "thy_object' = [ print_examp_oclint ]"
-definition "thy_object'' = [ print_examp_instance_tmp ]"
-definition "thy_object''' = [ print_examp_def_st_tmp ]"
+definition "thy_object'' = [ print_examp_instance ]"
+definition "thy_object''' = [ print_examp_def_st ]"
 
 definition "fold_thy0 univ thy_object0 f =
   List.fold (\<lambda>x (acc1, acc2).
     let (l, acc1) = x univ acc1 in
     (acc1, f l acc2)) thy_object0"
 definition "fold_thy' f ast =
-               (case ast of OclAstClass univ \<Rightarrow> fold_thy0 univ thy_object
-                          | OclAstInstance univ \<Rightarrow> fold_thy0 univ thy_object''
-                          | OclAstDefInt univ \<Rightarrow> fold_thy0 univ thy_object'
-                          | OclAstDefState univ \<Rightarrow> fold_thy0 univ thy_object''') f"
+  (case ast of
+     OclAstClass univ \<Rightarrow> (\<lambda>f. \<lambda> (ocl, accu) \<Rightarrow>
+       fold_thy0 univ thy_object f ((case ocl of OclDeepEmbed disable_thy_output file_out_path_dep oid_start output_position design_analysis _ instance_rbt () \<Rightarrow>
+         OclDeepEmbed disable_thy_output file_out_path_dep oid_start output_position design_analysis (Some univ) instance_rbt ()), accu))
+   | OclAstInstance univ \<Rightarrow> fold_thy0 univ thy_object''
+   | OclAstDefInt univ \<Rightarrow> fold_thy0 univ thy_object'
+   | OclAstDefState univ \<Rightarrow> fold_thy0 univ thy_object''') f"
 definition "fold_thy = fold_thy' o List.fold"
 definition "fold_thy_deep obj ocl =
-  (case ocl of OclDeepEmbed _ _ _ output_position _ () \<Rightarrow>
+  (case ocl of OclDeepEmbed _ _ _ output_position _ _ _ () \<Rightarrow>
    case fold_thy' (\<lambda>l (i, cpt). (Suc i, List.length l + cpt)) obj (ocl, output_position) of
-    (OclDeepEmbed disable_thy_output file_out_path_dep oid_start _ design_analysis (), output_position) \<Rightarrow>
-    OclDeepEmbed disable_thy_output file_out_path_dep oid_start output_position design_analysis ())"
+    (OclDeepEmbed disable_thy_output file_out_path_dep oid_start _ design_analysis class_spec instance_rbt (), output_position) \<Rightarrow>
+    OclDeepEmbed disable_thy_output file_out_path_dep oid_start output_position design_analysis class_spec instance_rbt ())"
 
-definition "ocl_deep_embed_input_empty design_analysis = OclDeepEmbed True None (oidInit (Oid 0)) (0, 0) design_analysis ()"
+definition "ocl_deep_embed_input_empty design_analysis = OclDeepEmbed True None (oidInit (Oid 0)) (0, 0) design_analysis None [] ()"
 
 section{* Generation to Deep Form: OCaml *}
 
 subsection{* beginning (lazy code printing) *}
 
-ML{* 
+ML{*
 datatype code_printing = Code_printing of (string * (bstring * Code_Printer.const_syntax option) list, string * (bstring * Code_Printer.tyco_syntax option) list,
               string * (bstring * string option) list, (string * string) * (bstring * unit option) list, (string * string) * (bstring * unit option) list,
               bstring * (bstring * (string * string list) option) list)
@@ -1825,7 +1921,7 @@ structure Data_code = Theory_Data
 
 val code_empty = ""
 
-local 
+local
 val parse_classrel_ident = Parse.class --| @{keyword "<"} -- Parse.class
 val parse_inst_ident = Parse.xname --| @{keyword "::"} -- Parse.class
 
@@ -2258,7 +2354,7 @@ definition "s_of_thy_list disable_thy_output name_fic_import output_position is_
 
 subsection{* conclusion *}
 
-definition "write_file = (\<lambda> OclDeepEmbed disable_thy_output file_out_path_dep oid_start output_position design_analysis example \<Rightarrow>
+definition "write_file = (\<lambda> OclDeepEmbed disable_thy_output file_out_path_dep oid_start output_position design_analysis class_spec instance_rbt example \<Rightarrow>
   let (is_file, f_output) = case (file_out_path_dep, Sys_argv)
      of (Some (file_out, _), _ # dir # _) \<Rightarrow> (True, \<lambda>f. out_file1 f (if Sys_is_directory2 dir then sprintf2 (STR ''%s/%s.thy'') dir (To_string file_out) else dir))
       | _ \<Rightarrow> (False, out_stand1) in
@@ -2268,7 +2364,7 @@ definition "write_file = (\<lambda> OclDeepEmbed disable_thy_output file_out_pat
 ''                                 ))
         (s_of_thy_list disable_thy_output file_out_path_dep output_position is_file
           ((rev o snd o fold_thy' Cons example)
-             (OclDeepEmbed disable_thy_output file_out_path_dep oid_start output_position design_analysis (), [])))))"
+             (OclDeepEmbed disable_thy_output file_out_path_dep oid_start output_position design_analysis class_spec instance_rbt (), [])))))"
 
 subsection{* Deep (without reflection) *}
 
@@ -2286,6 +2382,8 @@ definition "main = write_file (OclDeepEmbed
                                  (oidInit (Oid 0))
                                  (0, 0)
                                  None
+                                 None
+                                 []
                                  (OclAstClass Employee_DesignModel_UMLPart))"
 (*
 apply_code_printing ()
@@ -2309,6 +2407,8 @@ definition "co3 f g x1 x2 x3 = f (g x1 x2 x3)"
 definition "co4 f g x1 x2 x3 x4 = f (g x1 x2 x3 x4)"
 definition "co5 f g x1 x2 x3 x4 x5 = f (g x1 x2 x3 x4 x5)"
 definition "co6 f g x1 x2 x3 x4 x5 x6 = f (g x1 x2 x3 x4 x5 x6)"
+definition "co7 f g x1 x2 x3 x4 x5 x6 x7 = f (g x1 x2 x3 x4 x5 x6 x7)"
+definition "co8 f g x1 x2 x3 x4 x5 x6 x7 x8 = f (g x1 x2 x3 x4 x5 x6 x7 x8)"
 
 definition "ap1 a v0 f1 v1 = a v0 (f1 v1)"
 definition "ap2 a v0 f1 f2 v1 v2 = a (a v0 (f1 v1)) (f2 v2)"
@@ -2316,6 +2416,8 @@ definition "ap3 a v0 f1 f2 f3 v1 v2 v3 = a (a (a v0 (f1 v1)) (f2 v2)) (f3 v3)"
 definition "ap4 a v0 f1 f2 f3 f4 v1 v2 v3 v4 = a (a (a (a v0 (f1 v1)) (f2 v2)) (f3 v3)) (f4 v4)"
 definition "ap5 a v0 f1 f2 f3 f4 f5 v1 v2 v3 v4 v5 = a (a (a (a (a v0 (f1 v1)) (f2 v2)) (f3 v3)) (f4 v4)) (f5 v5)"
 definition "ap6 a v0 f1 f2 f3 f4 f5 f6 v1 v2 v3 v4 v5 v6 = a (a (a (a (a (a v0 (f1 v1)) (f2 v2)) (f3 v3)) (f4 v4)) (f5 v5)) (f6 v6)"
+definition "ap7 a v0 f1 f2 f3 f4 f5 f6 f7 v1 v2 v3 v4 v5 v6 v7 = a (a (a (a (a (a (a v0 (f1 v1)) (f2 v2)) (f3 v3)) (f4 v4)) (f5 v5)) (f6 v6)) (f7 v7)"
+definition "ap8 a v0 f1 f2 f3 f4 f5 f6 f7 f8 v1 v2 v3 v4 v5 v6 v7 v8 = a (a (a (a (a (a (a (a v0 (f1 v1)) (f2 v2)) (f3 v3)) (f4 v4)) (f5 v5)) (f6 v6)) (f7 v7)) (f8 v8)"
 
 definition "ar1 a v0 = a v0"
 definition "ar2 a v0 f1 v1 = a (a v0 (f1 v1))"
@@ -2323,6 +2425,8 @@ definition "ar3 a v0 f1 f2 v1 v2 = a (a (a v0 (f1 v1)) (f2 v2))"
 definition "ar4 a v0 f1 f2 f3 v1 v2 v3 = a (a (a (a v0 (f1 v1)) (f2 v2)) (f3 v3))"
 definition "ar5 a v0 f1 f2 f3 f4 v1 v2 v3 v4 = a (a (a (a (a v0 (f1 v1)) (f2 v2)) (f3 v3)) (f4 v4))"
 definition "ar6 a v0 f1 f2 f3 f4 f5 v1 v2 v3 v4 v5 = a (a (a (a (a (a v0 (f1 v1)) (f2 v2)) (f3 v3)) (f4 v4)) (f5 v5))"
+definition "ar7 a v0 f1 f2 f3 f4 f5 f6 v1 v2 v3 v4 v5 v6 = a (a (a (a (a (a (a v0 (f1 v1)) (f2 v2)) (f3 v3)) (f4 v4)) (f5 v5)) (f6 v6))"
+definition "ar8 a v0 f1 f2 f3 f4 f5 f6 f7 v1 v2 v3 v4 v5 v6 v7 = a (a (a (a (a (a (a (a v0 (f1 v1)) (f2 v2)) (f3 v3)) (f4 v4)) (f5 v5)) (f6 v6)) (f7 v7))"
 
 (* *)
 
@@ -2374,26 +2478,24 @@ definition "i_of_ocl_class a b = (\<lambda>f0 f1 f2 f3. ocl_class_rec_1 (co2 K (
 
 definition "i_of_ocl_data_shallow a b = ocl_data_shallow_rec
   (ap1 a (b ''Shall_str'') (i_of_string b))
-  (ap1 a (b ''Shall_binding'') (i_of_string b))
-  (ap1 a (b ''Shall_self'') (i_of_internal_oid a b))
-  (b ''Shall_tmp'')"
+  (ap1 a (b ''Shall_self'') (i_of_internal_oid a b))"
 
-definition "i_of_ocl_list_inh a b = (\<lambda>f0. co4 (ocl_list_inh_rec f0) (ap3 a))
-  (ap1 a (b ''OclNoInh'') (i_of_list a b (i_of_pair a b (i_of_string b) (i_of_ocl_data_shallow a b))))
-  (b ''OclInh'')
-    (i_of_list a b (i_of_pair a b (i_of_string b) (i_of_ocl_data_shallow a b)))
-    (i_of_list a b (i_of_pair a b (i_of_string b) (i_of_ocl_data_shallow a b)))
-    (i_of_string b)"
+definition "i_of_ocl_list_attr a b f = (\<lambda>f0. co4 (\<lambda>f1. ocl_list_attr_rec f0 (\<lambda>s _ a rec. f1 s rec a)) (ap3 a))
+  (ap1 a (b ''OclAttrNoCast'') f)
+  (b ''OclAttrCast'')
+    (i_of_string b)
+    id
+    f"
 
 definition "i_of_ocl_instance_single a b = ocl_instance_single_rec
-  (ap4 a (b ''OclInst'')
+  (ap3 a (b ''OclInst'')
     (i_of_string b)
     (i_of_string b)
-    (i_of_ocl_list_inh a b)
-    (i_of_list a b (i_of_pair a b (i_of_string b) (i_of_ocl_data_shallow a b))))"
+    (i_of_ocl_list_attr a b (i_of_list a b (i_of_pair a b (i_of_string b) (i_of_ocl_data_shallow a b)))))"
 
 definition "i_of_ocl_instance a b = ocl_instance_rec
-  (ap1 a (b ''OclInstance'') (i_of_list a b (i_of_ocl_instance_single a b)))"
+  (ap1 a (b ''OclInstance'')
+    (i_of_list a b (i_of_ocl_instance_single a b)))"
 
 definition "i_of_ocl_def_int a b = ocl_def_int_rec
   (ap1 a (b ''OclDefI'') (i_of_list a b (i_of_string b)))"
@@ -2401,7 +2503,7 @@ definition "i_of_ocl_def_int a b = ocl_def_int_rec
 definition "i_of_ocl_def_state_core a b = ocl_def_state_core_rec
   (ap1 a (b ''OclDefCoreAdd'') (i_of_ocl_instance_single a b))
   (b ''OclDefCoreSkip'')
-  (ap2 a (b ''OclDefCoreBinding'') (i_of_string b) (i_of_string b))"
+  (ap1 a (b ''OclDefCoreBinding'') (i_of_string b))"
 
 definition "i_of_ocl_def_state a b = ocl_def_state_rec
   (ap2 a (b ''OclDefSt'') (i_of_string b) (i_of_list a b (i_of_ocl_def_state_core a b)))"
@@ -2413,12 +2515,14 @@ definition "i_of_ocl_deep_embed_ast a b = ocl_deep_embed_ast_rec
   (ap1 a (b ''OclAstDefState'') (i_of_ocl_def_state a b))"
 
 definition "i_of_ocl_deep_embed_input a b f = ocl_deep_embed_input_rec
-  (ap6 a (b ''OclDeepEmbed'')
+  (ap8 a (b ''OclDeepEmbed'')
     (i_of_bool b)
     (i_of_option a b (i_of_pair a b (i_of_string b) (i_of_string b)))
     (i_of_internal_oids a b)
     (i_of_pair a b (i_of_nat a b) (i_of_nat a b))
     (i_of_option a b (i_of_nat a b))
+    (i_of_option a b (i_of_ocl_class a b))
+    (i_of_list a b (i_of_pair a b (i_of_string b) (i_of_string b)))
     (f a b))"
 
 (* *)
@@ -2504,6 +2608,7 @@ structure From = struct
  val from_internal_oid = Oid
  val from_bool = I
  val from_option = Option.map
+ val from_list = List.map
  fun from_pair f1 f2 (x, y) = (f1 x, f2 y)
 
  fun mk_univ (n, ({attr_base = attr_base, attr_object = attr_object, child = child, ...}:class_inline)) t =
@@ -2567,7 +2672,7 @@ fun export_code_cmd_gen with_tmp_file bash_output raw_cs filename_thy thy =
     out end)
 
 fun export_code_cmd' raw_cs seris filename_thy f thy =
-  export_code_cmd_gen 
+  export_code_cmd_gen
     (case seris of
         [] =>
         (fn f =>
@@ -2628,7 +2733,7 @@ val parse_deep =
 
 val parse_scheme = @{keyword "design"} >> K NONE || @{keyword "analysis"} >> K (SOME 1)
 
-val mode = 
+val mode =
      @{keyword "deep"} |-- parse_scheme -- parse_deep >> (fn (design_analysis, ((((file_out_path_dep, disable_thy_output), seri_args), oid_start), filename_thy)) =>
                  let val _ = case (seri_args, filename_thy, file_out_path_dep) of
                       ([_], _, NONE) => warning ("Unknown filename, generating to stdout and ignoring " ^ (@{make_string} seri_args))
@@ -2640,6 +2745,8 @@ val mode =
                                                        , OCL.oidInit (From.from_internal_oid (From.from_nat oid_start))
                                                        , From.from_pair From.from_nat From.from_nat (0, 0)
                                                        , From.from_option From.from_nat design_analysis
+                                                       , From.from_option I NONE
+                                                       , From.from_list I []
                                                        , () ), seri_args, filename_thy, Isabelle_System.create_tmp_path "deep_export_code" "") end)
   || @{keyword "shallow"} |-- parse_scheme >> (fn design_analysis => Gen_shallow (OCL.ocl_deep_embed_input_empty (From.from_option From.from_nat design_analysis)))
 
@@ -2665,7 +2772,7 @@ val () =
                               (fn _ => fn _ => ("", ()))
                               ["write_file"] filename_thy (apply_code_printing thy)
                     val () = File.write (mk_fic (ocamlfile_ocp ^ ".ocp"))
-                              (String.concat [ "begin program \"", ocamlfile_ocp, "\" sort = true files = [ \"", ocamlfile_function
+                              (String.concat [ "comp += \"-g\" link += \"-g\" begin program \"", ocamlfile_ocp, "\" sort = true files = [ \"", ocamlfile_function
                                              , "\" \"", ocamlfile_argument
                                              , "\" \"", ocamlfile_main
                                              , "\" ] end" ])
@@ -2922,8 +3029,8 @@ fun outer_syntax_command cmd_spec cmd_descr parser get_oclclass =
                 thy0 |> def (String.concatWith " " (  name_main
                                                   :: "="
                                                   :: (To_string (i_of_arg
-(case ocl of OCL.OclDeepEmbed (disable_thy_output, file_out_path_dep, oid_start, output_position, design_analysis, ()) =>
-  OCL.OclDeepEmbed ( disable_thy_output, file_out_path_dep, oid_start, output_position, design_analysis, obj ))))
+(case ocl of OCL.OclDeepEmbed (disable_thy_output, file_out_path_dep, oid_start, output_position, design_analysis, class_spec, instance_rbt, ()) =>
+  OCL.OclDeepEmbed ( disable_thy_output, file_out_path_dep, oid_start, output_position, design_analysis, class_spec, instance_rbt, obj ))))
                                                   :: []))
                      (*|> Deep.export_code_cmd [name_main] seri_args filename_thy*)
                      |> Deep.export_code_cmd' [name_main] seri_args filename_thy (fn tmp_file => fn arg =>
@@ -2971,139 +3078,71 @@ ML{*
 
 datatype ocl_term = OclTerm of binding
                   | OclOid of int
-                  | OclTmp (* FIXME: to remove *)
-
+(*
 datatype 'a ocl_l_attr = Ocl_l_attr of 'a
                     | Ocl_l_attr_cast of 'a ocl_prop * binding
 
 and 'a ocl_prop = Ocl_prop of 'a ocl_l_attr (* l_inh *) * 'a (* l_attr *)
 
 datatype ocl_prop_main = Ocl_prop_main of ((binding * ocl_term) list) ocl_prop
+*)
+fun parse_l f = Parse.$$$ "[" |-- Parse.!!! (Parse.list f --| Parse.$$$ "]")
+fun parse_l' f = Parse.$$$ "[" |-- Parse.list f --| Parse.$$$ "]"
+fun annot_ty f = Parse.$$$ "(" |-- f --| Parse.$$$ "::" -- Parse.binding --| Parse.$$$ ")" 
 
-val list_attr0 = Parse.list (Parse.binding -- (Parse.$$$ "=" |--
+val list_attr0 = Parse.binding -- (Parse.$$$ "=" |--
   (Parse.binding >> OclTerm
-  || (@{keyword "self"} |-- Parse.nat) >> OclOid)))
-val list_attr = Parse.$$$ "[" |-- Parse.!!! (list_attr0
-  -- (Parse.$$$ "]" >> (fn _ => (NONE : binding option))))
-val list_attr_cast = (Parse.$$$ "(" -- Parse.$$$ "[") |-- Parse.!!! (list_attr0
-  -- ((Parse.$$$ "]" -- Parse.$$$ "::") |-- (Parse.binding >> SOME) --| Parse.$$$ ")"))
-
-fun annot_ty f = Parse.$$$ "(" |-- f --| Parse.$$$ "::" -- Parse.binding --| Parse.$$$ ")"
-val list_attr0_tmp = Parse.$$$ "[" |-- Parse.list ( ((Parse.binding -- (Parse.$$$ "=" |--
-  (Parse.binding >> OclTerm
-  || (@{keyword "self"} |-- Parse.nat) >> OclOid))) || (Parse.underscore >> K (@{binding ""}, OclTmp)))) --| Parse.$$$ "]"
-fun list_attr_tmp s = ((Parse.$$$ "(" |-- Parse.list
-  (Parse.!!! ( list_attr0_tmp >> Ocl_l_attr
-  || (annot_ty list_attr_tmp >> Ocl_l_attr_cast) ))
-  --| Parse.$$$ ")" >> (fn (x1 :: Ocl_l_attr x2 :: _) => Ocl_prop (x1, x2)))) s
+  || @{keyword "self"} |-- Parse.nat >> OclOid))
+val list_attr00 = parse_l list_attr0
+val list_attr = list_attr00 >> (fn res => (res, NONE : binding option))
+val list_attr_cast00 = annot_ty list_attr00
+val list_attr_cast = list_attr_cast00 >> (fn (res, ty) => (res, SOME ty))
 
 val () =
   outer_syntax_command @{command_spec "Define_int"} ""
-    (Parse.$$$ "[" |-- Parse.list Parse.number --| Parse.$$$ "]")
+    (parse_l' Parse.number)
     (fn l_int => fn _ =>
       OCL.OclAstDefInt (OCL.OclDefI (map From.from_string l_int)))
 
-datatype state_content = ST_l_attr of (binding * ocl_term) list * binding option
+datatype state_content = ST_l_attr of (binding * ocl_term) list * binding (* ty *)
                        | ST_skip
                        | ST_binding of binding
 
-datatype state_content_tmp = STtmp_l_attr of (binding * ocl_term) list ocl_prop * binding (* ty *)
-                       | STtmp_empty
-                       | STtmp_binding of binding (* name *) * binding (* ty *)
-
 val state_parse =
-  (@{keyword "defines"} -- Parse.$$$ "[" |-- Parse.list
-      (  (list_attr || list_attr_cast) >> ST_l_attr
-      || Parse.binding >> ST_binding) --| Parse.$$$ "]")
+  (@{keyword "defines"} |-- parse_l' (list_attr_cast00 >> ST_l_attr
+                                     || Parse.binding >> ST_binding))
   || @{keyword "skip"} >> K [ST_skip]
-
-val state_parse_tmp =
-  (@{keyword "defines"} -- Parse.$$$ "[" |-- Parse.list
-      (  annot_ty list_attr_tmp >> STtmp_l_attr
-      || annot_ty Parse.binding >> STtmp_binding) --| Parse.$$$ "]")
-  || @{keyword "skip"} >> K [STtmp_empty]
-
-val () =
-  Outer_Syntax.command @{command_spec "Define_state"} ""
-    ((Parse.binding --| @{keyword "="} -- Parse.$$$ "[" |-- (Parse.list state_parse >> List.concat) --| Parse.$$$ "]") >> (fn n =>
-      let val _ = writeln (@{make_string} n) in
-      Toplevel.theory (fn thy => thy)
-      end))
-
-val inst1 = Parse.binding --| @{keyword "::"} -- Parse.binding --| @{keyword "="} -- (list_attr || list_attr_cast)
-val inst1_tmp = Parse.binding --| @{keyword "::"} -- Parse.binding --| @{keyword "="} -- list_attr_tmp
-
-val () =
-  Outer_Syntax.command @{command_spec "Instance"} ""
-    ((inst1 -- Scan.repeat (@{keyword "and"} |-- inst1)) >> (fn n =>
-      let val _ = writeln (@{make_string} n) in
-      Toplevel.theory (fn thy => thy)
-      end))
 
 local
   fun get_oclinst l _ =
-    OCL.OclInstance (map (fn ((name,typ), Ocl_prop (l_inh, l_attr)) =>
+    OCL.OclInstance (map (fn ((name,typ), (l_attr, is_cast)) =>
         let val f = map (fn (attr, ocl) => (From.from_binding attr,
                       case ocl of OclTerm s => OCL.Shall_str (From.from_binding s)
-                                | OclOid n => OCL.Shall_self (From.from_internal_oid (From.from_nat n))
-                                | OclTmp => OCL.Shall_tmp))
-            val l_inh = case l_inh of Ocl_l_attr l => OCL.OclNoInh (f l)
-                                    | Ocl_l_attr_cast (Ocl_prop (Ocl_l_attr l_inh, l_attr), b) => OCL.OclInh (f l_inh, f l_attr, From.from_binding b) in
+                                | OclOid n => OCL.Shall_self (From.from_internal_oid (From.from_nat n))))
+            val l_attr = case is_cast of NONE => OCL.OclAttrNoCast (f l_attr)
+                                       | SOME b => OCL.OclAttrCast (From.from_binding b, OCL.OclAttrNoCast (f l_attr), []) in
         OCL.OclInst
-          (From.from_binding name, From.from_binding typ, l_inh, f l_attr) end) l)
+          (From.from_binding name, From.from_binding typ, l_attr) end) l)
 in
+val () =
+  outer_syntax_command @{command_spec "Instance"} ""
+    (Parse.and_list1 (Parse.binding --| @{keyword "::"}
+                      -- Parse.binding --| @{keyword "="}
+                      -- (list_attr || list_attr_cast)))
+    (OCL.OclAstInstance oo get_oclinst)
 
 val () =
-  outer_syntax_command @{command_spec "Instance_tmp"} ""
-    (inst1_tmp -- Scan.repeat (@{keyword "and"} |-- inst1_tmp))
-    (fn (x, xs) => fn thy =>
-      OCL.OclAstInstance (get_oclinst (x :: xs) thy))
-
-val () =
-  outer_syntax_command @{command_spec "Define_state_tmp"} ""
-    (Parse.binding --| (@{keyword "="} -- Parse.$$$ "[") -- (Parse.list state_parse_tmp >> List.concat) --| Parse.$$$ "]")
-    (fn (name, l) => fn thy =>
+  outer_syntax_command @{command_spec "Define_state"} ""
+    (Parse.binding --| @{keyword "="}
+     -- parse_l' state_parse)
+     (fn (name, l) => fn thy =>
       OCL.OclAstDefState (OCL.OclDefSt (From.from_binding name,
-        map (fn STtmp_l_attr (l, ty) => OCL.OclDefCoreAdd (case get_oclinst [((ty, ty), l)] thy of OCL.OclInstance [x] => x)
-              | STtmp_empty => OCL.OclDefCoreSkip
-              | STtmp_binding (b1, b2) => OCL.OclDefCoreBinding (From.from_binding b1, From.from_binding b2)) l)))
+        map (fn ST_l_attr (l, ty) => OCL.OclDefCoreAdd (case get_oclinst [((@{binding ""}, ty), (l, NONE))] thy of OCL.OclInstance [x] => x)
+              | ST_skip => OCL.OclDefCoreSkip
+              | ST_binding b => OCL.OclDefCoreBinding (From.from_binding b)) (List.concat l))))
 end
 
 (*val _ = print_depth 100*)
 *}
-
-Instance X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n1 :: Person = [ salary = 1300 , boss = X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2 ]
-     and X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2 :: Person = [ salary = 1800 , boss = X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2 ]
-     and X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n3 :: Person = [ ]
-     and X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n4 :: Person = [ salary = 2900 ]
-     and X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n5 :: Person = [ salary = 3500 ]
-     and X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n6 :: Person = [ salary = 2500 , boss = X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n7 ]
-     and X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n7 :: OclAny = ([ salary = 3200 , boss = X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n7 ] :: Person)
-     and X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n8 :: OclAny = [ ]
-     and X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n9 :: Person = [ salary = 0 ]
-
-Define_state \<sigma>\<^sub>1 =
-  [ defines [ [ salary = 1000 , boss = self 1 ]
-            , [ salary = 1200 ] ]
-  , skip
-  , defines [ [ salary = 2600 , boss = self 4 ]
-            , X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n5
-            , [ salary = 2300 , boss = self 3 ] ]
-  , skip
-  , skip
-  , defines [ X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n9 ] ]
-
-Define_state \<sigma>\<^sub>1' =
-  [ defines [ X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n1
-            , X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2
-            , X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n3
-            , X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n4 ]
-  , skip
-  , defines [ X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n6
-            , X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n7
-            , X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n8
-            , X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n9 ] ]
-
-Define_state \<sigma>\<^sub>0 = []
 
 end
