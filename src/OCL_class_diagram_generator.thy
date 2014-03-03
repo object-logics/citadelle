@@ -146,7 +146,7 @@ record ocl_deep_embed_input =
   D_design_analysis :: "nat option" (* None : activate design,
                                        Some n : activate analysis (with n + 1 assocs) *)
   D_class_spec :: "ocl_class option" (* last class considered for the generation *)
-  D_instance_rbt :: "(string (* name *) \<times> string (* ty *)) list" (* instance namespace environment *)
+  D_instance_rbt :: "(string (* name (as key for rbt) *) \<times> ocl_instance_single \<times> internal_oid) list" (* instance namespace environment *)
 
 definition "ocl_deep_embed_input_more_map f ocl =
   ocl_deep_embed_input.extend
@@ -515,6 +515,7 @@ definition "start_map'''' f fl = (\<lambda> ocl. start_map f (fl (D_design_analy
 subsection{* ... *}
 
 definition "activate_simp_optimization = True"
+definition "assoc_max = 3"
 
 definition "print_infra_datatype_class = start_map'' Thy_dataty o (\<lambda>expr _ base_attr' _. map_class_gen_h''''
   (\<lambda>isub_name name _ l_attr l_inherited l_cons.
@@ -1670,33 +1671,43 @@ definition "print_examp_instance_app_constr_notmp map_self map_username = (\<lam
     ( app_x
     # print_examp_instance_draw_list_attr map_self map_username l_attr))"
 
-definition "rbt_of_class class =
+definition "rbt_of_class ocl =
   (let rbt = (snd o fold_class_gen (\<lambda>_ name l_attr l_inh _ _ rbt.
      ( [()]
      , modify_def (empty, []) name
          (let fold = \<lambda>tag l rbt.
-            let (rbt, n) = List.fold
-                                   (\<lambda> (name_attr, ty) \<Rightarrow> \<lambda>(rbt, cpt).
-                                     (insert name_attr (ty, tag, OptIdent cpt) rbt, Suc cpt))
+            let (rbt, _, n) = List.fold
+                                   (\<lambda> (name_attr, ty) \<Rightarrow> \<lambda>(rbt, cpt, l_obj).
+                                     (insert name_attr (ty, tag, OptIdent cpt) rbt, Suc cpt, (case ty of OclTy_object _ \<Rightarrow> True | _ \<Rightarrow> False) # l_obj))
                                    l
-                                   (rbt, 0) in
+                                   (rbt, 0, []) in
             (rbt, (tag, n)) in
           (\<lambda>(rbt, _).
            let (rbt, info_own) = fold OptOwn l_attr rbt in
            let (rbt, info_inh) = fold OptInh (flatten (List_map snd l_inh)) rbt in
            (rbt, [info_own, info_inh])))
-         rbt)) empty) class in
+         rbt)) empty) (case D_class_spec ocl of Some c \<Rightarrow> c) in
    (\<lambda>name.
      let rbt = lookup rbt name in
      ( \<lambda> name_attr.
         Option_bind (\<lambda>(rbt, _). lookup rbt name_attr) rbt
-     , \<lambda> v. Option_bind (\<lambda>(_, l). List_assoc v l) rbt)))"
+     , \<lambda> v. Option_bind (\<lambda>(_, l).
+        Option.map (\<lambda>l f accu. 
+          let (_, accu) = 
+            List.fold
+              (let f_fold = \<lambda>(n, accu). (Suc n, f n accu) in
+               if D_design_analysis ocl = None then
+                 (\<lambda>_ . f_fold)
+               else
+                 \<lambda> True \<Rightarrow> (\<lambda>(n, accu). (Suc n, accu))
+                 | False \<Rightarrow> f_fold) (rev l) (0, accu) in
+          accu) (List_assoc v l)) rbt)))"
 
 definition "fill_blank f_blank =
   List_map (\<lambda> (attr_ty, l).
-    case f_blank attr_ty of Some len \<Rightarrow>
+    case f_blank attr_ty of Some f_fold \<Rightarrow>
     let rbt = List.fold (\<lambda> ((ty, _, ident), shallow) \<Rightarrow> insert ident (ty, shallow)) l empty in
-    (attr_ty, List_map (\<lambda>n. lookup rbt (OptIdent n)) (List.upt 0 len)))"
+    (attr_ty, case f_fold (\<lambda>n l. lookup rbt (OptIdent n) # l) [] of l \<Rightarrow> rev l))"
 
 fun split_inh_own where
    "split_inh_own f_class s_cast l_attr =
@@ -1711,7 +1722,7 @@ fun split_inh_own where
        OclAttrCast s_cast (split_inh_own f_class s_cast l_attr) (fill_blank f_blank [(OptOwn, l_own)]))"
 
 fun print_examp_instance_app_constr2_notmp where
-   "print_examp_instance_app_constr2_notmp map_self map_username ty l_attr isub_name cpt =
+   "print_examp_instance_app_constr2_notmp (map_self, map_username) ty l_attr isub_name cpt =
   (let (l_inh, l_own) =
      let var_oid = Expr_oid var_oid_uniq (oidGetInh cpt) in
      case l_attr of
@@ -1720,57 +1731,77 @@ fun print_examp_instance_app_constr2_notmp where
                       (Expr_apply
                         (datatype_ext_constr_name @@ mk_constr_name ty x)
                         [ let isub_name = \<lambda>s. s @@ isub_of_str x in
-                          print_examp_instance_app_constr2_notmp map_self map_username ty l_attr isub_name cpt ], l_own) in
+                          print_examp_instance_app_constr2_notmp (map_self, map_username) ty l_attr isub_name cpt ], l_own) in
    print_examp_instance_app_constr_notmp map_self map_username isub_name l_inh l_own)"
 
-definition "print_examp_instance_app_constr2_notmp_norec ocl l ocli =
-  (let (map_self, map_username) =
-         let (rbt_nat, rbt_str, _, _) =
-           List.fold (\<lambda> ocl (rbt_nat, rbt_str, oid_start, accu).
-             (insert (Oid accu) oid_start rbt_nat, insert (Inst_name ocl) oid_start rbt_str, oidSucInh oid_start, Suc accu) ) l (empty, empty, D_oid_start ocl, 0) in
-         (lookup rbt_nat, lookup rbt_str) in
-   print_examp_instance_app_constr2_notmp map_self map_username (Inst_ty ocli) (split_inh_own (rbt_of_class (case D_class_spec ocl of Some c \<Rightarrow> c)) (Inst_ty ocli) (Inst_attr ocli)))"
+definition "init_map_class ocl l = 
+  (let (rbt_nat, rbt_str, _, _) =
+     List.fold
+       (\<lambda> ocl (rbt_nat, rbt_str, oid_start, accu).
+         ( insert (Oid accu) oid_start rbt_nat
+         , insert (Inst_name ocl) oid_start rbt_str
+         , oidSucInh oid_start
+         , Suc accu))
+       l
+       (empty, empty, D_oid_start ocl, 0) in
+   (rbt_of_class ocl, lookup rbt_nat, lookup rbt_str))"
 
-definition "print_examp_instance_name isub_name name = isub_name name"
+definition "print_examp_instance_app_constr2_notmp_norec = (\<lambda>(rbt, self_username) ocl ocli.
+  print_examp_instance_app_constr2_notmp self_username (Inst_ty ocli) (split_inh_own rbt (Inst_ty ocli) (Inst_attr ocli)))"
+
+definition "print_examp_instance_name = id"
 definition "print_examp_instance = (\<lambda> OclInstance l \<Rightarrow> \<lambda> ocl.
-  (\<lambda>(l, (oid_start, instance_rbt)). ((List_map Thy_definition_hol o flatten) l, ocl \<lparr> D_oid_start := oid_start, D_instance_rbt := instance_rbt \<rparr>))
-    (fold_list
-      (\<lambda> (f1, f2) (_, instance_rbt).
-        fold_list (\<lambda> ocli (cpt, instance_rbt).
+  (\<lambda>((l, oid_start), instance_rbt). ((List_map Thy_definition_hol o flatten) l, ocl \<lparr> D_oid_start := oid_start, D_instance_rbt := instance_rbt \<rparr>))
+    (let (rbt, (map_self, map_username)) = init_map_class ocl l in ((fold_list
+      (\<lambda> (f1, f2) _.
+        fold_list (\<lambda> ocli cpt.
           let var_oid = Expr_oid var_oid_uniq (oidGetInh cpt)
             ; isub_name = \<lambda>s. s @@ isub_of_str (Inst_ty ocli) in
-          ( Definition (Expr_rewrite (f1 var_oid isub_name ocli) ''='' (f2 l ocli isub_name cpt))
-          , ( oidSucInh cpt
-            , (Inst_name ocli, Inst_ty ocli) # instance_rbt))) l (D_oid_start ocl, instance_rbt))
+          ( Definition (Expr_rewrite (f1 var_oid isub_name ocli) ''='' (f2 ocli isub_name cpt))
+          , oidSucInh cpt)) l (D_oid_start ocl))
       (let b = \<lambda>s. Expr_basic [s] in
-       [ ((\<lambda> var_oid _ _. var_oid),
-          (\<lambda> _ _ _ cpt. Expr_oid '''' (oidGetInh cpt)))
-       , ((\<lambda> _ isub_name ocli. b (print_examp_instance_name isub_name (Inst_name ocli))),
-          print_examp_instance_app_constr2_notmp_norec ocl)
-       , ((\<lambda> _ _ ocli. Expr_annot (b (Inst_name ocli)) (Inst_ty ocli)),
-          (\<lambda> _ ocli isub_name _. Expr_lambda wildcard (Expr_some (Expr_some (b (print_examp_instance_name isub_name (Inst_name ocli))))))) ])
-      (D_oid_start ocl, D_instance_rbt ocl)))"
+       [ (\<lambda> var_oid _ _. var_oid,
+          \<lambda> _ _ cpt. Expr_oid '''' (oidGetInh cpt))
+       , (\<lambda> _ isub_name ocli. b (print_examp_instance_name isub_name (Inst_name ocli)),
+          print_examp_instance_app_constr2_notmp_norec (rbt, (map_self, map_username)) ocl)
+       , (\<lambda> _ _ ocli. Expr_annot (b (Inst_name ocli)) (Inst_ty ocli),
+          \<lambda> ocli isub_name _. Expr_lambda wildcard (Expr_some (Expr_some (b (print_examp_instance_name isub_name (Inst_name ocli)))))) ])
+      (D_oid_start ocl)
+    , List.fold (\<lambda>ocli instance_rbt.
+        let n = Inst_name ocli in
+        (n, ocli, case map_username n of Some oid \<Rightarrow> oidGetInh oid) # instance_rbt) l (D_instance_rbt ocl)))))"
 
 definition "print_examp_def_st = (\<lambda> OclDefSt name l \<Rightarrow> \<lambda>ocl.
  (\<lambda>(l, _). (List_map Thy_definition_hol l, ocl))
   (let ocl = ocl \<lparr> D_oid_start := oidReinitInh (D_oid_start ocl) \<rparr>
      ; b = \<lambda>s. Expr_basic [s]
+     ; (rbt, (map_self, map_username)) = 
+         init_map_class ocl (List_map (\<lambda> OclDefCoreAdd ocli \<Rightarrow> ocli
+                                       | _ \<Rightarrow> \<lparr> Inst_name = [], Inst_ty = [], Inst_attr = OclAttrNoCast [] \<rparr>) l)
      ; (expr_app, cpt) = fold_list (\<lambda> ocore cpt.
          let f = \<lambda>ty exp. [Expr_binop (Expr_oid var_oid_uniq (oidGetInh cpt)) unicode_mapsto (Expr_apply (datatype_in @@ isub_of_str ty) [exp])] in
          ( case ocore of OclDefCoreSkip \<Rightarrow> []
                        | OclDefCoreBinding name \<Rightarrow>
-                           case List_assoc name (D_instance_rbt ocl) of Some ty \<Rightarrow>
-                           let isub_name = \<lambda>s. s @@ isub_of_str ty in
-                           f ty (b (print_examp_instance_name isub_name name))
+                           case List_assoc name (D_instance_rbt ocl) of Some (ocli, cpt_registered) \<Rightarrow>
+                           if oidGetInh cpt = cpt_registered then
+                             let ty = Inst_ty ocli
+                               ; isub_name = \<lambda>s. s @@ isub_of_str ty in
+                             f ty (b (print_examp_instance_name isub_name name))
+                           else
+                             [] (* TODO
+                                   check that all oid appearing in this expression-alias
+                                   all appear in this defining state *)
                        | OclDefCoreAdd ocli \<Rightarrow>
                            let ty = Inst_ty ocli
                              ; isub_name = \<lambda>s. s @@ isub_of_str ty in
-                           f ty (print_examp_instance_app_constr2_notmp_norec ocl (List_map (\<lambda> OclDefCoreAdd ocli \<Rightarrow> ocli
-                                     | _ \<Rightarrow> \<lparr> Inst_name = [], Inst_ty = [], Inst_attr = OclAttrNoCast [] \<rparr>) l) ocli isub_name cpt)
+                           f ty (print_examp_instance_app_constr2_notmp_norec (rbt, (map_self, map_username)) ocl ocli isub_name cpt)
          , oidSucInh cpt)) l (D_oid_start ocl) in
    ([ let empty = ''Map.empty'' in
-      Definition (Expr_rewrite (b name) ''='' (Expr_apply ''state.make'' [Expr_apply empty
-       (flatten expr_app), b empty, b empty])) ], cpt)))"
+      Definition (Expr_rewrite (b name) ''='' (Expr_apply ''state.make''
+       ( Expr_apply empty (flatten expr_app)
+       # (case D_design_analysis ocl of 
+            Some (Suc 0) \<Rightarrow> [b empty, b empty]
+          | _ \<Rightarrow> List_map (\<lambda>_. b empty) (List.upt 1 assoc_max))))) ], cpt)))"
 
 definition "print_examp_def_st_defs = (\<lambda> _ \<Rightarrow> start_map Thy_lemmas_simp
   ([ Lemmas_simp '''' [Thm_strs ''state.defs'' 0] ]))"
@@ -2550,7 +2581,7 @@ definition "i_of_ocl_deep_embed_input a b f = ocl_deep_embed_input_rec
     (i_of_pair a b (i_of_nat a b) (i_of_nat a b))
     (i_of_option a b (i_of_nat a b))
     (i_of_option a b (i_of_ocl_class a b))
-    (i_of_list a b (i_of_pair a b (i_of_string b) (i_of_string b)))
+    (i_of_list a b (i_of_pair a b (i_of_string b) (i_of_pair a b (i_of_ocl_instance_single a b (K i_of_unit)) (i_of_internal_oid a b))))
     (f a b))"
 
 (* *)
