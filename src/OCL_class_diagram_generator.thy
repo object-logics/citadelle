@@ -1868,19 +1868,109 @@ definition thy_object ::
      ; n = [Char Nibble2 Nibble7]
      ; a = [Char Nibble2 Nibble2] in
   flatten
-          [ [ section ''Introduction''
+          [ [ txt''d [ ''
+   '', e, ''label{ex:employee-design:uml} '' ]
+            , txt''a [ ''
+   '', e, ''label{ex:employee-analysis:uml} '' ]
+            , section ''Introduction''
+            , txt'' [ ''
+  
+  For certain concepts like classes and class-types, only a generic
+  definition for its resulting semantics can be given. Generic means,
+  there is a function outside HOL that ``compiles'', n, '''', n, '' a concrete,
+  closed-world class diagram into a ``theory'', n, '''', n, '' of this data model,
+  consisting of a bunch of definitions for classes, accessors, method,
+  casts, and tests for actual types, as well as proofs for the
+  fundamental properties of these operations in this concrete data
+  model. '' ]
+            , txt'' [ ''
+   Such generic function or ``compiler'', n, '''', n, '' can be implemented in
+  Isabelle on the ML level.  This has been done, for a semantics
+  following the open-world assumption, for UML 2.0
+  in~'', e, ''cite{brucker.ea:extensible:2008-b, brucker:interactive:2007}. In
+  this paper, we follow another approach for UML 2.4: we define the
+  concepts of the compilation informally, and present a concrete
+  example which is verified in Isabelle/HOL. '' ]
             , subsection ''Outlining the Example''
-
+            , txt''d [ ''
+   We are presenting here a ``design-model'', n, '''', n, '' of the (slightly
+modified) example Figure 7.3, page 20 of
+the OCL standard~'', e, ''cite{omg:ocl:2012}. To be precise, this theory contains the formalization of
+the data-part covered by the UML class model (see '', e, ''autoref{fig:person}):'' ]
+            , txt''a [ ''
+   We are presenting here an ``analysis-model'', n, '''', n, '' of the (slightly
+modified) example Figure 7.3, page 20 of
+the OCL standard~'', e, ''cite{omg:ocl:2012}.
+Here, analysis model means that associations
+were really represented as relation on objects on the state---as is
+intended by the standard---rather by pointers between objects as is
+done in our ``design model'', n, '''', n, '' (see '', e, ''autoref{ex:employee-design:uml}).
+To be precise, this theory contains the formalization of the data-part
+covered by the UML class model (see '', e, ''autoref{fig:person-ana}):'' ]
+            , txt''d [ ''
+  
+'', e, ''begin{figure}
+  '', e, ''centering'', e, ''scalebox{.3}{'', e, ''includegraphics{figures/person.png}}%
+  '', e, ''caption{A simple UML class model drawn from Figure 7.3,
+  page 20 of~'', e, ''cite{omg:ocl:2012}. '', e, ''label{fig:person}}
+'', e, ''end{figure}
+'' ]
+            , txt''a [ ''
+  
+'', e, ''begin{figure}
+  '', e, ''centering'', e, ''scalebox{.3}{'', e, ''includegraphics{figures/person.png}}%
+  '', e, ''caption{A simple UML class model drawn from Figure 7.3,
+  page 20 of~'', e, ''cite{omg:ocl:2012}. '', e, ''label{fig:person-ana}}
+'', e, ''end{figure}
+'' ]
+            , txt'' [ ''
+   This means that the association (attached to the association class
+'', e, ''inlineocl{EmployeeRanking}) with the association ends '', e, ''inlineocl+boss+ and '', e, ''inlineocl+employees+ is implemented
+by the attribute  '', e, ''inlineocl+boss+ and the operation '', e, ''inlineocl+employees+ (to be discussed in the OCL part
+captured by the subsequent theory).
+'' ]
             , section ''Example Data-Universe and its Infrastructure''
+            , txt'' [ ''
+   Ideally, the following is generated automatically from a UML class model.  '' ]
+            , txt'' [ ''
+   Our data universe  consists in the concrete class diagram just of node'', n, ''s,
+and implicitly of the class object. Each class implies the existence of a class
+type defined for the corresponding object representations as follows: '' ]
             , print_infra_datatype_class
+            , txt'' [ ''
+   Now, we construct a concrete ``universe of OclAny types'', n, '''', n, '' by injection into a
+sum type containing the class types. This type of OclAny will be used as instance
+for all respective type-variables. '' ]
             , print_infra_datatype_universe
+            , txt'' [ ''
+   Having fixed the object universe, we can introduce type synonyms that exactly correspond
+to OCL types. Again, we exploit that our representation of OCL is a ``shallow embedding'', n, '''', n, '' with a
+one-to-one correspondance of OCL-types to types of the meta-language HOL. '' ]
             , print_infra_type_synonym_class
+            , txt'' [ ''
+   Just a little check: '' ]
+            , txt'' [ ''
+   To reuse key-elements of the library like referential equality, we have
+to show that the object universe belongs to the type class ``oclany,'', n, '''', n, '' '', e, ''ie,
+ each class type has to provide a function @{term oid_of} yielding the object id (oid) of the object. '' ]
             , print_infra_instantiation_class
             , print_infra_instantiation_universe
 
             , section ''Instantiation of the Generic Strict Equality''
+            , txt'' [ ''
+   We instantiate the referential equality
+on @{text '', a, ''Person'', a, ''} and @{text '', a, ''OclAny'', a, ''} '' ]
             , print_instantia_def_strictrefeq
-            , print_instantia_lemmas_strictrefeq ]
+            , print_instantia_lemmas_strictrefeq
+            , txt'' [ ''
+   For each Class '', e, ''emph{C}, we will have a casting operation '', e, ''inlineocl{.oclAsType($C$)},
+   a test on the actual type '', e, ''inlineocl{.oclIsTypeOf($C$)} as well as its relaxed form
+   '', e, ''inlineocl{.oclIsKindOf($C$)} (corresponding exactly to Java'', n, ''s '', e, ''verb+instanceof+-operator.
+'' ]
+            , txt'' [ ''
+   Thus, since we have two class-types in our concrete class hierarchy, we have
+two operations to declare and to provide two overloading definitions for the two static types.
+'' ] ]
 
           , flatten (List_map (\<lambda>(title, body_def, body_cp, body_exec, body_defined, body_up).
               section title # flatten [ subsection_def # body_def
@@ -1932,19 +2022,50 @@ definition thy_object ::
             , print_iskindof_up_d_cast ]) ])
 
           , [ section ''OclAllInstances''
+            , txt'' [ ''
+   To denote OCL-types occuring in OCL expressions syntactically---as, for example,  as
+``argument'', n, '''', n, '' of '', e, ''inlineisar{oclAllInstances()}---we use the inverses of the injection
+functions into the object universes; we show that this is sufficient ``characterization.'', n, '''', n, '' '' ]
             , print_allinst_def_id
             , print_allinst_lemmas_id
             , subsection ''OclIsTypeOf''
             , subsection ''OclIsKindOf''
 
             , section ''The Accessors''
+            , txt''d [ ''
+  '', e, ''label{sec:edm-accessors}'' ]
+            , txt''a [ ''
+  '', e, ''label{sec:eam-accessors}'' ]
+            , txt'' [ ''
+   Should be generated entirely from a class-diagram. '' ]
             , subsection_def
+            , txt''a [ ''
+   We start with a oid for the association; this oid can be used
+in presence of association classes to represent the association inside an object,
+pretty much similar to the '', e, ''inlineisar+Employee_DesignModel_UMLPart+, where we stored
+an '', e, ''verb+oid+ inside the class as ``pointer.'', n, '''', n, '' '' ]
             , print_access_oid_uniq
+            , txt''a [ ''
+   From there on, we can already define an empty state which must contain
+for $'', e, ''mathit{oid}_{Person}'', e, ''mathcal{BOSS}$ the empty relation (encoded as association list, since there are
+associations with a Sequence-like structure).'' ]
             , print_access_eval_extract
+            , txt''a [ ''
+   The @{text pre_post}-parameter is configured with @{text fst} or
+@{text snd}, the @{text to_from}-parameter either with the identity @{term id} or
+the following combinator @{text switch}: '' ]
             , print_access_choose
             , print_access_deref_oid
             , print_access_deref_assocs
+            , txt''a [ ''
+   The continuation @{text f} is usually instantiated with a smashing
+function which is either the identity @{term id} or, for '', e, ''inlineocl{0..1} cardinalities
+of associations, the @{term OclANY}-selector which also handles the
+@{term null}-cases appropriately. A standard use-case for this combinator
+is for example: '' ]
             , print_access_select_object
+            , txt'' [ ''
+   pointer undefined in state or not referencing a type conform object representation '' ]
             , print_access_select
             , print_access_select_obj
             , print_access_dot_consts
@@ -1958,6 +2079,26 @@ definition thy_object ::
             , print_access_lemma_strict
 
             , section ''A Little Infra-structure on Example States''
+            , txt''d [ ''
+  
+The example we are defining in this section comes from the figure~'', e, ''ref{fig:edm1_system-states}.
+'', e, ''begin{figure}
+'', e, ''includegraphics[width='', e, ''textwidth]{figures/pre-post.pdf}
+'', e, ''caption{(a) pre-state $'', e, ''sigma_1$ and
+  (b) post-state $'', e, ''sigma_1'', n, ''$.}
+'', e, ''label{fig:edm1_system-states}
+'', e, ''end{figure}
+'' ]
+            , txt''a [ ''
+  
+The example we are defining in this section comes from the figure~'', e, ''ref{fig:eam1_system-states}.
+'', e, ''begin{figure}
+'', e, ''includegraphics[width='', e, ''textwidth]{figures/pre-post.pdf}
+'', e, ''caption{(a) pre-state $'', e, ''sigma_1$ and
+  (b) post-state $'', e, ''sigma_1'', n, ''$.}
+'', e, ''label{fig:eam1_system-states}
+'', e, ''end{figure}
+'' ]
             , print_examp_def_st_defs ] ])"
 
 definition "thy_object' = [ print_examp_oclint ]"
