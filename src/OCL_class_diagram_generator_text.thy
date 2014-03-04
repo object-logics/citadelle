@@ -101,4 +101,80 @@ val () =
     (Parse.$$$ "(" -- Parse.$$$ ")" >> K (Toplevel.theory (Data_code.map (Symtab.map_default (code_empty, []) (fn _ => [])))))
 *}
 
+section{* Design *}
+
+lazy_text{* \label{ex:employee-design:uml} *}
+lazy_text{*
+  For certain concepts like classes and class-types, only a generic
+  definition for its resulting semantics can be given. Generic means,
+  there is a function outside HOL that ``compiles'' a concrete,
+  closed-world class diagram into a ``theory'' of this data model,
+  consisting of a bunch of definitions for classes, accessors, method,
+  casts, and tests for actual types, as well as proofs for the
+  fundamental properties of these operations in this concrete data
+  model. *}
+lazy_text{* Such generic function or ``compiler'' can be implemented in
+  Isabelle on the ML level.  This has been done, for a semantics
+  following the open-world assumption, for UML 2.0
+  in~\cite{brucker.ea:extensible:2008-b, brucker:interactive:2007}. In
+  this paper, we follow another approach for UML 2.4: we define the
+  concepts of the compilation informally, and present a concrete
+  example which is verified in Isabelle/HOL. *}
+lazy_text{* We are presenting here a ``design-model'' of the (slightly
+modified) example Figure 7.3, page 20 of
+the OCL standard~\cite{omg:ocl:2012}. To be precise, this theory contains the formalization of
+the data-part covered by the UML class model (see \autoref{fig:person}):*}
+lazy_text{*
+\begin{figure}
+  \centering\scalebox{.3}{\includegraphics{figures/person.png}}%
+  \caption{A simple UML class model drawn from Figure 7.3,
+  page 20 of~\cite{omg:ocl:2012}. \label{fig:person}}
+\end{figure}
+*}
+lazy_text{* This means that the association (attached to the association class
+\inlineocl{EmployeeRanking}) with the association ends \inlineocl+boss+ and \inlineocl+employees+ is implemented
+by the attribute  \inlineocl+boss+ and the operation \inlineocl+employees+ (to be discussed in the OCL part
+captured by the subsequent theory).
+*}
+lazy_text{* Ideally, the following is generated automatically from a UML class model.  *}
+lazy_text{* Our data universe  consists in the concrete class diagram just of node's,
+and implicitly of the class object. Each class implies the existence of a class
+type defined for the corresponding object representations as follows: *}
+lazy_text{* Now, we construct a concrete ``universe of OclAny types'' by injection into a
+sum type containing the class types. This type of OclAny will be used as instance
+for all respective type-variables. *}
+lazy_text{* Having fixed the object universe, we can introduce type synonyms that exactly correspond
+to OCL types. Again, we exploit that our representation of OCL is a ``shallow embedding'' with a
+one-to-one correspondance of OCL-types to types of the meta-language HOL. *}
+lazy_text{* Just a little check: *}
+lazy_text{* To reuse key-elements of the library like referential equality, we have
+to show that the object universe belongs to the type class ``oclany,'' \ie,
+ each class type has to provide a function @{term oid_of} yielding the object id (oid) of the object. *}
+lazy_text{* We instantiate the referential equality
+on @{text "Person"} and @{text "OclAny"} *}
+lazy_text{* For each Class \emph{C}, we will have a casting operation \inlineocl{.oclAsType($C$)},
+   a test on the actual type \inlineocl{.oclIsTypeOf($C$)} as well as its relaxed form
+   \inlineocl{.oclIsKindOf($C$)} (corresponding exactly to Java's \verb+instanceof+-operator.
+*}
+lazy_text{* Thus, since we have two class-types in our concrete class hierarchy, we have
+two operations to declare and to provide two overloading definitions for the two static types.
+*}
+lazy_text{* To denote OCL-types occuring in OCL expressions syntactically---as, for example,  as
+``argument'' of \inlineisar{oclAllInstances()}---we use the inverses of the injection
+functions into the object universes; we show that this is sufficient ``characterization.'' *}
+lazy_text{*\label{sec:edm-accessors}*}
+lazy_text{* Should be generated entirely from a class-diagram. *}
+lazy_text{* pointer undefined in state or not referencing a type conform object representation *}
+lazy_text{*
+The example we are defining in this section comes from the figure~\ref{fig:edm1_system-states}.
+\begin{figure}
+\includegraphics[width=\textwidth]{figures/pre-post.pdf}
+\caption{(a) pre-state $\sigma_1$ and
+  (b) post-state $\sigma_1'$.}
+\label{fig:edm1_system-states}
+\end{figure}
+*}
+
+apply_text () reset_text ()
+
 end
