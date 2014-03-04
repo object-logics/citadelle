@@ -51,7 +51,7 @@ begin
 
 generation_syntax [ deep
                       (generation_semantics [ analysis (*, oid_start 10*) ])
-                      (*(THEORY Employee_DesignModel_UMLPart_generated)
+                      (*(THEORY Employee_AnalysisModel_UMLPart_generated)
                       (IMPORTS "../src/OCL_main")*)
                       SECTION
                       (*(output_directory "../doc")*) ]
