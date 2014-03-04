@@ -51,7 +51,7 @@ imports "~~/src/HOL/Library/RBT"
            "output_directory"
            "THEORY" "IMPORTS" "SECTION"
            "design" "analysis" "oid_start"
-           "deep" "shallow"
+           "deep" "shallow" "syntax_print"
            "skip" "self"
            "generation_semantics"
        and "Class" :: thy_decl
@@ -2841,6 +2841,7 @@ datatype generation_mode = Gen_deep of unit OCL.ocl_deep_embed_input_ext
                                      * bstring option (* filename_thy *)
                                      * Path.T (* tmp dir export_code *)
                          | Gen_shallow of unit OCL.ocl_deep_embed_input_ext
+                         | Gen_syntax_print
 
 structure Data_gen = Theory_Data
   (type T = generation_mode list Symtab.table
@@ -2886,6 +2887,7 @@ val mode =
          (OCL.ocl_deep_embed_input_empty
            (OCL.oidInit (From.from_internal_oid (From.from_nat oid_start)))
            (From.from_option From.from_nat design_analysis)))
+  || @{keyword "syntax_print"} >> K Gen_syntax_print
 
 val gen_empty = ""
 val ocamlfile_function = "function.ml"
@@ -2899,6 +2901,7 @@ val () =
       Toplevel.theory (fn thy =>
         let val (l_mode, thy) = OCL.fold_list
           (fn Gen_shallow ocl => (fn thy => (Gen_shallow ocl, thy))
+            | Gen_syntax_print => (fn thy => (Gen_syntax_print, thy))
             | Gen_deep (ocl, seri_args, filename_thy, tmp_export_code) => fn thy =>
                 let fun mk_fic s = Path.append tmp_export_code (Path.make [s])
                     val _ = warning ("remove the directory (at the end): " ^ Path.implode tmp_export_code)
@@ -3144,7 +3147,7 @@ subsection{* Outer Syntax: Class.end *}
 
 ML{*
 
-fun outer_syntax_command cmd_spec cmd_descr parser get_oclclass =
+fun outer_syntax_command mk_string cmd_spec cmd_descr parser get_oclclass =
   let val i_of_arg =
     let val a = OCL.i_apply
       ; val b = I in
@@ -3158,7 +3161,8 @@ fun outer_syntax_command cmd_spec cmd_descr parser get_oclclass =
         OCL.fold_list
 
           let val get_oclclass = get_oclclass name in
-          fn Gen_deep (ocl, seri_args, filename_thy, tmp_export_code) =>
+          fn Gen_syntax_print => (fn thy => let val _ = writeln (mk_string name) in (Gen_syntax_print, thy) end)
+           | Gen_deep (ocl, seri_args, filename_thy, tmp_export_code) =>
               let fun def s = in_local (snd o Specification.definition_cmd (NONE, ((@{binding ""}, []), s)) false) in
               fn thy0 =>
                 let val name_main = Deep.mk_free (Proof_Context.init_global thy0) "main" []
@@ -3190,14 +3194,14 @@ fun outer_syntax_command cmd_spec cmd_descr parser get_oclclass =
              end
           end
 
-          let val SOME l = Symtab.lookup (Data_gen.get thy) gen_empty in l end
+          (case Symtab.lookup (Data_gen.get thy) gen_empty of SOME l => l | _ => [Gen_syntax_print])
           thy
         in
         Data_gen.map (Symtab.update (gen_empty, ocl)) thy end)))
 end
 
 val () =
-  outer_syntax_command @{command_spec "Class.end"} "Class generation"
+  outer_syntax_command @{make_string} @{command_spec "Class.end"} "Class generation"
     Parse.binding
     (fn name => fn thy =>
        let val SOME { attr_base = attr_base
@@ -3231,7 +3235,7 @@ val list_attr_cast00 = annot_ty list_attr00
 val list_attr_cast = list_attr_cast00 >> (fn (res, ty) => (res, SOME ty))
 
 val () =
-  outer_syntax_command @{command_spec "Define_int"} ""
+  outer_syntax_command @{make_string} @{command_spec "Define_int"} ""
     (parse_l' Parse.number)
     (fn l_int => fn _ =>
       OCL.OclAstDefInt (OCL.OclDefI (map From.from_string l_int)))
@@ -3257,14 +3261,14 @@ local
           (From.from_binding name, From.from_binding typ, l_attr, From.from_unit ()) end) l)
 in
 val () =
-  outer_syntax_command @{command_spec "Instance"} ""
+  outer_syntax_command @{make_string} @{command_spec "Instance"} ""
     (Parse.and_list1 (Parse.binding --| @{keyword "::"}
                       -- Parse.binding --| @{keyword "="}
                       -- (list_attr || list_attr_cast)))
     (OCL.OclAstInstance oo get_oclinst)
 
 val () =
-  outer_syntax_command @{command_spec "Define_state"} ""
+  outer_syntax_command @{make_string} @{command_spec "Define_state"} ""
     (Parse.binding --| @{keyword "="}
      -- parse_l' state_parse)
      (fn (name, l) => fn thy =>
