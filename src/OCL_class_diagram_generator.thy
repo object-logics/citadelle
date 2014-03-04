@@ -341,6 +341,8 @@ datatype hol_lemma_by = Lemma_by string (* name *) "hol_expr list" (* specificat
 datatype hol_section_title = Section_title nat (* nesting level *)
                                            string (* content *)
 
+datatype hol_text = Text string
+
 datatype hol_thy = Thy_dataty hol_dataty
                  | Thy_ty_synonym hol_ty_synonym
                  | Thy_instantiation_class hol_instantiation_class
@@ -350,6 +352,7 @@ datatype hol_thy = Thy_dataty hol_dataty
                  | Thy_lemmas_simp hol_lemmas_simp
                  | Thy_lemma_by hol_lemma_by
                  | Thy_section_title hol_section_title
+                 | Thy_text hol_text
 
 subsection{* ... *}
 
@@ -1844,6 +1847,11 @@ definition "section_aux n s = start_map' (\<lambda>_. [ Thy_section_title (Secti
 definition "section = section_aux 0"
 definition "subsection = section_aux 1"
 definition "subsubsection = section_aux 2"
+definition "txt f = start_map'''' Thy_text o (\<lambda>_ design_analysis. [Text (f design_analysis)])"
+definition "txt' s = txt (\<lambda>_. s)"
+definition "txt'' = txt' o flatten"
+definition "txt''d s = txt (\<lambda> None \<Rightarrow> flatten s | _ \<Rightarrow> [])"
+definition "txt''a s = txt (\<lambda> Some _ \<Rightarrow> flatten s | _ \<Rightarrow> [])"
 
 definition thy_object ::
   (* polymorphism weakening needed by code_reflect *)
@@ -1855,7 +1863,10 @@ definition thy_object ::
      ; subsection_cp = subsection ''Context Passing''
      ; subsection_exec = subsection ''Execution with Invalid or Null as Argument''
      ; subsection_up = subsection ''Up Down Casting''
-     ; subsection_defined = subsection ''Validity and Definedness Properties'' in
+     ; subsection_defined = subsection ''Validity and Definedness Properties''
+     ; e = [Char Nibble5 NibbleC]
+     ; n = [Char Nibble2 Nibble7]
+     ; a = [Char Nibble2 Nibble2] in
   flatten
           [ [ section ''Introduction''
             , subsection ''Outlining the Example''
@@ -2395,6 +2406,8 @@ definition "s_of_section_title ocl = (\<lambda> Section_title n section_title \<
                      | Suc (Suc _) \<Rightarrow> ''subsub'') @@ ''section''))
       (To_string section_title))"
 
+definition "s_of_text _ = (\<lambda> Text s \<Rightarrow> sprintf1 (STR ''text{* %s *}'') (To_string s))"
+
 definition "s_of_thy ocl =
             (\<lambda> Thy_dataty dataty \<Rightarrow> s_of_dataty ocl dataty
              | Thy_ty_synonym ty_synonym \<Rightarrow> s_of_ty_synonym ocl ty_synonym
@@ -2404,7 +2417,8 @@ definition "s_of_thy ocl =
              | Thy_definition_hol definition_hol \<Rightarrow> s_of_definition_hol ocl definition_hol
              | Thy_lemmas_simp lemmas_simp \<Rightarrow> s_of_lemmas_simp ocl lemmas_simp
              | Thy_lemma_by lemma_by \<Rightarrow> s_of_lemma_by ocl lemma_by
-             | Thy_section_title section_title \<Rightarrow> s_of_section_title ocl section_title)"
+             | Thy_section_title section_title \<Rightarrow> s_of_section_title ocl section_title
+             | Thy_text text \<Rightarrow> s_of_text ocl text)"
 
 definition "s_of_thy_list ocl l_thy =
   (let (th_beg, th_end) = case D_file_out_path_dep ocl of None \<Rightarrow> ([], [])
@@ -3136,6 +3150,7 @@ val OCL_main = let val f_fold = fold open OCL in (*let val f = *)fn
         |> f_fold apply_results l_apply
         |> global_terminal_proof o_by)
 | Thy_section_title _ => I
+| Thy_text _ => I
 (*in fn t => fn thy => f t thy handle ERROR s => (warning s; thy)
  end*)
 end
