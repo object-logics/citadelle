@@ -50,7 +50,7 @@ imports
   "../src/OCL_class_diagram_generator"
 begin
 
-generation_mode [ shallow design ]
+generation_syntax [ shallow (generation_semantics [ design ]) ]
 
 Class Person =
   attr_base salary :: int

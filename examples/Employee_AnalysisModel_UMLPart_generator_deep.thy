@@ -49,11 +49,12 @@ imports
   "../src/OCL_class_diagram_generator"
 begin
 
-generation_mode [ deep analysis
-                    (*THEORY Employee_AnalysisModel_UMLPart_generated IMPORTS "../src/OCL_main"*)
-                    SECTION
-                    (*oid_start 10*)
-                    (*thy_dir "../doc"*) ]
+generation_syntax [ deep
+                      (generation_semantics [ analysis (*, oid_start 10*) ])
+                      (*(THEORY Employee_DesignModel_UMLPart_generated)
+                      (IMPORTS "../src/OCL_main")*)
+                      SECTION
+                      (*(output_directory "../doc")*) ]
 
 Class Person =
   attr_base salary :: int

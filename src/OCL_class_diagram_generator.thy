@@ -48,17 +48,18 @@ imports "~~/src/HOL/Library/RBT"
         "~~/src/HOL/Library/Char_ord"
         "~~/src/HOL/Library/List_lexord"
   keywords "attr_base" "attr_object" "child"
-           "oid_start" "thy_dir"
+           "output_directory"
            "THEORY" "IMPORTS" "SECTION"
-           "design" "analysis"
+           "design" "analysis" "oid_start"
            "deep" "shallow"
            "skip" "self"
+           "generation_semantics"
        and "Class" :: thy_decl
        and "Class.end" :: thy_decl
        and "Instance" :: thy_decl
        and "Define_int" :: thy_decl
        and "Define_state" :: thy_decl
-       and "generation_mode" :: thy_decl
+       and "generation_syntax" :: thy_decl
        and "lazy_code_printing" :: thy_decl
        and "apply_code_printing" :: thy_decl
 begin
@@ -1968,7 +1969,7 @@ definition "fold_thy_deep obj ocl =
   (case fold_thy' (\<lambda>l (i, cpt). (Suc i, List.length l + cpt)) obj (ocl, D_output_position ocl) of
     (ocl, output_position) \<Rightarrow> ocl \<lparr> D_output_position := output_position \<rparr>)"
 
-definition "ocl_deep_embed_input_empty design_analysis = ocl_deep_embed_input.make True None (oidInit (Oid 0)) (0, 0) design_analysis None []"
+definition "ocl_deep_embed_input_empty oid_start design_analysis = ocl_deep_embed_input.make True None oid_start (0, 0) design_analysis None []"
 
 section{* Generation to Deep Form: OCaml *}
 
@@ -2444,7 +2445,7 @@ definition "Employee_DesignModel_UMLPart =
    None )) )) ))"
 
 definition "main = write_file (ocl_deep_embed_input.extend
-                                (ocl_deep_embed_input_empty None
+                                (ocl_deep_embed_input_empty (oidInit (Oid 0)) None
                                    \<lparr> D_disable_thy_output := False
                                    , D_file_out_path_dep := Some (''Employee_DesignModel_UMLPart_generated''
                                                                  ,''../src/OCL_main'') \<rparr>)
@@ -2654,9 +2655,9 @@ subsection{* global *}
 code_reflect OCL
    functions nibble_rec char_rec
              char_escape
-             fold_thy fold_thy_deep ocl_deep_embed_input_empty
+             fold_thy fold_thy_deep
+             ocl_deep_embed_input_empty ocl_deep_embed_input_more_map oidInit
              i_apply i_of_ocl_deep_embed_input i_of_ocl_deep_embed_ast
-             ocl_deep_embed_input_more_map
 
 ML{*
 structure To = struct
@@ -2828,6 +2829,12 @@ end
 
 subsection{* ... *}
 
+ML{* 
+fun parse_l f = Parse.$$$ "[" |-- Parse.!!! (Parse.list f --| Parse.$$$ "]")
+fun parse_l' f = Parse.$$$ "[" |-- Parse.list f --| Parse.$$$ "]"
+fun annot_ty f = Parse.$$$ "(" |-- f --| Parse.$$$ "::" -- Parse.binding --| Parse.$$$ ")"
+*}
+
 ML{*
 datatype generation_mode = Gen_deep of unit OCL.ocl_deep_embed_input_ext
                                      * (((bstring * bstring) * bstring) * Token.T list) list (* seri_args *)
@@ -2843,34 +2850,42 @@ structure Data_gen = Theory_Data
 
 val code_expr_argsP = Scan.optional (@{keyword "("} |-- Args.parse --| @{keyword ")"}) []
 
+val parse_scheme = @{keyword "design"} >> K NONE || @{keyword "analysis"} >> K (SOME 1)
+
 val parse_deep =
-  Scan.optional (((@{keyword "THEORY"} |-- Parse.name) -- (@{keyword "IMPORTS"} |-- Parse.name)) >> SOME) NONE
-      -- Scan.optional (@{keyword "SECTION"} >> K true) false
-      -- (* code_expr_inP *) Scan.repeat (@{keyword "in"} |-- Parse.!!! (Parse.name
+     Scan.optional (((Parse.$$$ "(" -- @{keyword "THEORY"}) |-- Parse.name -- ((Parse.$$$ ")" -- Parse.$$$ "(" -- @{keyword "IMPORTS"}) |-- Parse.name) --| Parse.$$$ ")") >> SOME) NONE
+  -- Scan.optional (@{keyword "SECTION"} >> K true) false
+  -- (* code_expr_inP *) Scan.repeat (@{keyword "in"} |-- Parse.!!! (Parse.name
         -- Scan.optional (@{keyword "module_name"} |-- Parse.name) ""
         -- Scan.optional (@{keyword "file"} |-- Parse.name) ""
         -- code_expr_argsP))
-      -- Scan.optional (@{keyword "oid_start"} |-- Parse.nat) 0
-      -- Scan.optional (@{keyword "thy_dir"} |-- Parse.name >> SOME) NONE
+  -- Scan.optional ((Parse.$$$ "(" -- @{keyword "output_directory"}) |-- Parse.name --| Parse.$$$ ")" >> SOME) NONE
 
-val parse_scheme = @{keyword "design"} >> K NONE || @{keyword "analysis"} >> K (SOME 1)
+val parse_sem_ocl =
+      (Parse.$$$ "(" -- @{keyword "generation_semantics"} -- Parse.$$$ "[")
+  |-- parse_scheme -- Scan.optional ((Parse.$$$ "," -- @{keyword "oid_start"}) |-- Parse.nat) 0
+  --| (Parse.$$$ "]" -- Parse.$$$ ")")
 
 val mode =
-     @{keyword "deep"} |-- parse_scheme -- parse_deep >> (fn (design_analysis, ((((file_out_path_dep, disable_thy_output), seri_args), oid_start), filename_thy)) =>
-                 let val _ = case (seri_args, filename_thy, file_out_path_dep) of
-                      ([_], _, NONE) => warning ("Unknown filename, generating to stdout and ignoring " ^ (@{make_string} seri_args))
-                    | (_, SOME t, NONE) => warning ("Unknown filename, generating to stdout and ignoring " ^ (@{make_string} t))
-                    | _ => () in
-                                            Gen_deep (OCL.Ocl_deep_embed_input_ext
-                                                       ( From.from_bool (not disable_thy_output)
-                                                       , From.from_option (From.from_pair From.from_string From.from_string) file_out_path_dep
-                                                       , OCL.oidInit (From.from_internal_oid (From.from_nat oid_start))
-                                                       , From.from_pair From.from_nat From.from_nat (0, 0)
-                                                       , From.from_option From.from_nat design_analysis
-                                                       , From.from_option I NONE
-                                                       , From.from_list I []
-                                                       , () ), seri_args, filename_thy, Isabelle_System.create_tmp_path "deep_export_code" "") end)
-  || @{keyword "shallow"} |-- parse_scheme >> (fn design_analysis => Gen_shallow (OCL.ocl_deep_embed_input_empty (From.from_option From.from_nat design_analysis)))
+     @{keyword "deep"} |-- parse_sem_ocl -- parse_deep >> (fn ((design_analysis, oid_start), (((file_out_path_dep, disable_thy_output), seri_args), filename_thy)) =>
+       let val _ = case (seri_args, filename_thy, file_out_path_dep) of
+            ([_], _, NONE) => warning ("Unknown filename, generating to stdout and ignoring " ^ (@{make_string} seri_args))
+          | (_, SOME t, NONE) => warning ("Unknown filename, generating to stdout and ignoring " ^ (@{make_string} t))
+          | _ => () in
+       Gen_deep (OCL.Ocl_deep_embed_input_ext
+                  ( From.from_bool (not disable_thy_output)
+                  , From.from_option (From.from_pair From.from_string From.from_string) file_out_path_dep
+                  , OCL.oidInit (From.from_internal_oid (From.from_nat oid_start))
+                  , From.from_pair From.from_nat From.from_nat (0, 0)
+                  , From.from_option From.from_nat design_analysis
+                  , From.from_option I NONE
+                  , From.from_list I []
+                  , () ), seri_args, filename_thy, Isabelle_System.create_tmp_path "deep_export_code" "") end)
+  || @{keyword "shallow"} |-- parse_sem_ocl >> (fn (design_analysis, oid_start) =>
+       Gen_shallow
+         (OCL.ocl_deep_embed_input_empty
+           (OCL.oidInit (From.from_internal_oid (From.from_nat oid_start)))
+           (From.from_option From.from_nat design_analysis)))
 
 val gen_empty = ""
 val ocamlfile_function = "function.ml"
@@ -2879,8 +2894,8 @@ val ocamlfile_main = "main.ml"
 val ocamlfile_ocp = "write"
 
 val () =
-  Outer_Syntax.command @{command_spec "generation_mode"} "set the generating list"
-    (Parse.$$$ "[" |-- Parse.list mode --| Parse.$$$ "]" >> (fn l_mode =>
+  Outer_Syntax.command @{command_spec "generation_syntax"} "set the generating list"
+    (parse_l' mode >> (fn l_mode =>
       Toplevel.theory (fn thy =>
         let val (l_mode, thy) = OCL.fold_list
           (fn Gen_shallow ocl => (fn thy => (Gen_shallow ocl, thy))
@@ -3192,7 +3207,7 @@ val () =
        OCL.OclAstClass ocl_class end)
 *}
 
-section{* Outer Syntax: Instance *}
+subsection{* Outer Syntax: Instance *}
 
 ML{*
 
@@ -3206,9 +3221,6 @@ and 'a ocl_prop = Ocl_prop of 'a ocl_l_attr (* l_inh *) * 'a (* l_attr *)
 
 datatype ocl_prop_main = Ocl_prop_main of ((binding * ocl_term) list) ocl_prop
 *)
-fun parse_l f = Parse.$$$ "[" |-- Parse.!!! (Parse.list f --| Parse.$$$ "]")
-fun parse_l' f = Parse.$$$ "[" |-- Parse.list f --| Parse.$$$ "]"
-fun annot_ty f = Parse.$$$ "(" |-- f --| Parse.$$$ "::" -- Parse.binding --| Parse.$$$ ")"
 
 val list_attr0 = Parse.binding -- (Parse.$$$ "=" |--
   (Parse.binding >> OclTerm
