@@ -1930,9 +1930,9 @@ by the attribute  '', e, ''inlineocl+boss+ and the operation '', e, ''inlineocl+
 captured by the subsequent theory).
 '' ]
             , section ''Example Data-Universe and its Infrastructure''
-            , txt'' [ ''
+            (*, txt'' [ ''
    Ideally, the following is generated automatically from a UML class model.  '' ]
-            , txt'' [ ''
+            *), txt'' [ ''
    Our data universe  consists in the concrete class diagram just of node'', n, ''s,
 and implicitly of the class object. Each class implies the existence of a class
 type defined for the corresponding object representations as follows: '' ]
@@ -1947,9 +1947,9 @@ for all respective type-variables. '' ]
 to OCL types. Again, we exploit that our representation of OCL is a ``shallow embedding'', n, '''', n, '' with a
 one-to-one correspondance of OCL-types to types of the meta-language HOL. '' ]
             , print_infra_type_synonym_class
-            , txt'' [ ''
+            (*, txt'' [ ''
    Just a little check: '' ]
-            , txt'' [ ''
+            *), txt'' [ ''
    To reuse key-elements of the library like referential equality, we have
 to show that the object universe belongs to the type class ``oclany,'', n, '''', n, '' '', e, ''ie,
  each class type has to provide a function @{term oid_of} yielding the object id (oid) of the object. '' ]
@@ -2036,9 +2036,9 @@ functions into the object universes; we show that this is sufficient ``character
   '', e, ''label{sec:edm-accessors}'' ]
             , txt''a [ ''
   '', e, ''label{sec:eam-accessors}'' ]
-            , txt'' [ ''
+            (*, txt'' [ ''
    Should be generated entirely from a class-diagram. '' ]
-            , subsection_def
+            *), subsection_def
             , txt''a [ ''
    We start with a oid for the association; this oid can be used
 in presence of association classes to represent the association inside an object,
