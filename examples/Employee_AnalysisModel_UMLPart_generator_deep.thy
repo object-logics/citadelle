@@ -76,39 +76,39 @@ Class.end OclAny
 
 Define_int [ 1000, 1200, 1300, 1800, 2600, 2900, 3200, 3500 ]
 
-Instance X1 :: Person = [ salary = 1300 , boss = X2 ]
-     and X2 :: Person = [ salary = 1800 , boss = X2 ]
-     and X3 :: Person = []
-     and X4 :: Person = [ salary = 2900 ]
-     and X5 :: Person = [ salary = 3500 ]
-     and X6 :: Person = [ salary = 2500 , boss = X7 ]
-     and X7 :: OclAny = ([ salary = 3200 , boss = X7 ] :: Person)
-     and X8 :: OclAny = []
-     and X9 :: Person = [ salary = 0 ]
+Instance X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n1 :: Person = [ salary = 1300 , boss = X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2 ]
+     and X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2 :: Person = [ salary = 1800 , boss = X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2 ]
+     and X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n3 :: Person = []
+     and X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n4 :: Person = [ salary = 2900 ]
+     and X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n5 :: Person = [ salary = 3500 ]
+     and X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n6 :: Person = [ salary = 2500 , boss = X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n7 ]
+     and X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n7 :: OclAny = ([ salary = 3200 , boss = X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n7 ] :: Person)
+     and X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n8 :: OclAny = []
+     and X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n9 :: Person = [ salary = 0 ]
 
-Define_state s1 =
+Define_state \<sigma>\<^sub>1 =
   [ defines [ ([ salary = 1000 , boss = self 1 ] :: Person)
             , ([ salary = 1200 ] :: Person) ]
   , skip
   , defines [ ([ salary = 2600 , boss = self 4 ] :: Person)
-            , X5
+            , X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n5
             , ([ salary = 2300 , boss = self 3 ] :: Person) ]
   , skip
   , skip
-  , defines [ X9 ] ]
+  , defines [ X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n9 ] ]
 
-Define_state s2 =
-  [ defines [ X1
-            , X2
-            , X3
-            , X4 ]
+Define_state \<sigma>\<^sub>1' =
+  [ defines [ X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n1
+            , X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2
+            , X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n3
+            , X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n4 ]
   , skip
-  , defines [ X6
-            , X7
-            , X8
-            , X9 ] ]
+  , defines [ X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n6
+            , X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n7
+            , X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n8
+            , X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n9 ] ]
 
-Define_state s0 = []
+Define_state \<sigma>\<^sub>0 = []
 
 (*generation_syntax deep flush_all*)
 

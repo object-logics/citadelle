@@ -2648,10 +2648,6 @@ definition "ocl_deep_embed_input_rec f ocl = ocl_deep_embed_input_rec0 f ocl
 
 (* *)
 
-definition "i_of_string b s = (let c = [Char Nibble2 Nibble7] in b (flatten [c,c, s, c,c]))"
-
-(* *)
-
 definition "K x _ = x"
 
 definition "co1 = op o"
@@ -2697,6 +2693,29 @@ definition "i_of_list a b f = (\<lambda>f0. list_rec f0 o co1 K)
   (b ''Nil'')
   (ar2 a (b ''Cons'') f)"
 
+definition "i_of_nibble b = nibble_rec
+  (b ''Nibble0'')
+  (b ''Nibble1'')
+  (b ''Nibble2'')
+  (b ''Nibble3'')
+  (b ''Nibble4'')
+  (b ''Nibble5'')
+  (b ''Nibble6'')
+  (b ''Nibble7'')
+  (b ''Nibble8'')
+  (b ''Nibble9'')
+  (b ''NibbleA'')
+  (b ''NibbleB'')
+  (b ''NibbleC'')
+  (b ''NibbleD'')
+  (b ''NibbleE'')
+  (b ''NibbleF'')"
+
+definition "i_of_char a b = char_rec
+  (ap2 a (b ''Char'') (i_of_nibble b) (i_of_nibble b))"
+
+definition "i_of_string a b = i_of_list a b (i_of_char a b)"
+
 definition "i_of_option a b f = option_rec
   (b ''None'')
   (ap1 a (b ''Some'') f)"
@@ -2721,33 +2740,33 @@ definition "i_of_ocl_collection b = ocl_collection_rec
   (b ''Sequence'')"
 
 definition "i_of_ocl_ty a b = (\<lambda>f1 f2. ocl_ty_rec f1 f2 o co1 K)
-  (ap1 a (b ''OclTy_base'') (i_of_string b))
-  (ap1 a (b ''OclTy_object'') (i_of_string b))
+  (ap1 a (b ''OclTy_base'') (i_of_string a b))
+  (ap1 a (b ''OclTy_object'') (i_of_string a b))
   (ar2 a (b ''OclTy_collection'') (i_of_ocl_collection b))
-  (ap1 a (b ''OclTy_base_raw'') (i_of_string b))"
+  (ap1 a (b ''OclTy_base_raw'') (i_of_string a b))"
 
 definition "i_of_ocl_class a b = (\<lambda>f0 f1 f2 f3. ocl_class_rec_1 (co2 K (ar3 a f0 f1 f2)) (f3 None) (K (f3 o Some)))
   (b ''OclClass'')
-    (i_of_string b)
-    (i_of_list a b (i_of_pair a b (i_of_string b) (i_of_ocl_ty a b)))
+    (i_of_string a b)
+    (i_of_list a b (i_of_pair a b (i_of_string a b) (i_of_ocl_ty a b)))
     (i_of_option a b id)"
 
 definition "i_of_ocl_data_shallow a b = ocl_data_shallow_rec
-  (ap1 a (b ''Shall_str'') (i_of_string b))
+  (ap1 a (b ''Shall_str'') (i_of_string a b))
   (ap1 a (b ''Shall_self'') (i_of_internal_oid a b))"
 
 definition "i_of_ocl_list_attr a b f = (\<lambda>f0. co4 (\<lambda>f1. ocl_list_attr_rec f0 (\<lambda>s _ a rec. f1 s rec a)) (ap3 a))
   (ap1 a (b ''OclAttrNoCast'') f)
   (b ''OclAttrCast'')
-    (i_of_string b)
+    (i_of_string a b)
     id
     f"
 
 definition "i_of_ocl_instance_single a b f = ocl_instance_single_rec
   (ap4 a (b ''ocl_instance_single_ext'')
-    (i_of_string b)
-    (i_of_string b)
-    (i_of_ocl_list_attr a b (i_of_list a b (i_of_pair a b (i_of_string b) (i_of_ocl_data_shallow a b))))
+    (i_of_string a b)
+    (i_of_string a b)
+    (i_of_ocl_list_attr a b (i_of_list a b (i_of_pair a b (i_of_string a b) (i_of_ocl_data_shallow a b))))
     (f a b))"
 
 definition "i_of_ocl_instance a b = ocl_instance_rec
@@ -2755,15 +2774,15 @@ definition "i_of_ocl_instance a b = ocl_instance_rec
     (i_of_list a b (i_of_ocl_instance_single a b (K i_of_unit))))"
 
 definition "i_of_ocl_def_int a b = ocl_def_int_rec
-  (ap1 a (b ''OclDefI'') (i_of_list a b (i_of_string b)))"
+  (ap1 a (b ''OclDefI'') (i_of_list a b (i_of_string a b)))"
 
 definition "i_of_ocl_def_state_core a b = ocl_def_state_core_rec
   (ap1 a (b ''OclDefCoreAdd'') (i_of_ocl_instance_single a b (K i_of_unit)))
   (b ''OclDefCoreSkip'')
-  (ap1 a (b ''OclDefCoreBinding'') (i_of_string b))"
+  (ap1 a (b ''OclDefCoreBinding'') (i_of_string a b))"
 
 definition "i_of_ocl_def_state a b = ocl_def_state_rec
-  (ap2 a (b ''OclDefSt'') (i_of_string b) (i_of_list a b (i_of_ocl_def_state_core a b)))"
+  (ap2 a (b ''OclDefSt'') (i_of_string a b) (i_of_list a b (i_of_ocl_def_state_core a b)))"
 
 definition "i_of_ocl_deep_embed_ast0 a b = ocl_deep_embed_ast0_rec
   (ap1 a (b ''OclAstClass'') (i_of_ocl_class a b))
@@ -2777,12 +2796,12 @@ definition "i_of_ocl_deep_embed_ast a b = ocl_deep_embed_ast_rec
 definition "i_of_ocl_deep_embed_input a b f = ocl_deep_embed_input_rec
   (ap8 a (b ''ocl_deep_embed_input_ext'')
     (i_of_bool b)
-    (i_of_option a b (i_of_pair a b (i_of_string b) (i_of_string b)))
+    (i_of_option a b (i_of_pair a b (i_of_string a b) (i_of_string a b)))
     (i_of_internal_oids a b)
     (i_of_pair a b (i_of_nat a b) (i_of_nat a b))
     (i_of_option a b (i_of_nat a b))
     (i_of_option a b (i_of_ocl_class a b))
-    (i_of_list a b (i_of_pair a b (i_of_string b) (i_of_pair a b (i_of_ocl_instance_single a b (K i_of_unit)) (i_of_internal_oid a b))))
+    (i_of_list a b (i_of_pair a b (i_of_string a b) (i_of_pair a b (i_of_ocl_instance_single a b (K i_of_unit)) (i_of_internal_oid a b))))
     (f a b))"
 
 (* *)
