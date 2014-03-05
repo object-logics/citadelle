@@ -51,10 +51,10 @@ begin
 
 generation_syntax [ deep
                       (generation_semantics [ analysis (*, oid_start 10*) ])
-                      (*(THEORY Employee_AnalysisModel_UMLPart_generated)
-                      (IMPORTS "../src/OCL_main")*)
+                      (THEORY Employee_AnalysisModel_UMLPart_generated)
+                      (IMPORTS "../src/OCL_main")
                       SECTION
-                      (*(output_directory "../doc")*) ]
+                      (output_directory "../doc") ]
 
 Class Person =
   attr_base salary :: int
@@ -109,5 +109,7 @@ Define_state s2 =
             , X9 ] ]
 
 Define_state s0 = []
+
+(*generation_syntax deep flush_all*)
 
 end
