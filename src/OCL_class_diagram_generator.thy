@@ -65,14 +65,57 @@ imports "~~/src/HOL/Library/RBT"
            "Class" "Class.end" "Instance" "Define_int" "Define_state"
 
            (* hol syntax *)
-           "generation_syntax" "lazy_code_printing" "apply_code_printing"
+           "generation_syntax" "lazy_code_printing" "apply_code_printing" "fun_sorry" "fun_quick"
 
            :: thy_decl
 begin
 
+section{* ... *}
+
 definition "bug_ocaml_extraction = id"
   (* In this theory, this identifier can be removed everywhere it is used.
      However without this, there is a syntax error when the code is extracted to OCaml. *)
+
+section{* ... *}
+
+ML{*
+structure Fun_quick = struct
+val quick_dirty = false
+  (* false: "fun_quick" behaves as "fun"
+     true: "fun_quick" behaves as "fun", but it proves completeness and termination with "sorry" *)
+
+val proof_by_patauto = Proof.global_terminal_proof
+  ( ( Method.Then
+        [ Method.Basic (fn ctxt => SIMPLE_METHOD (Pat_Completeness.pat_completeness_tac ctxt 1) )
+        , Method.Basic (fn ctxt => SIMPLE_METHOD (auto_tac (ctxt addsimps [])))]
+    , (Position.none, Position.none))
+  , NONE)
+val proof_by_sorry = Proof.global_skip_proof true
+
+fun mk_fun quick_dirty cmd_spec tac = 
+  Outer_Syntax.local_theory' cmd_spec
+    "define general recursive functions (short version)"
+    (Function_Common.function_parser
+      (if quick_dirty then
+         Function_Common.FunctionConfig { sequential=true, default=NONE
+                                        , domintros=false, partials=true}
+       else
+         Function_Fun.fun_config)
+      >> (if quick_dirty then 
+            fn ((config, fixes), statements) => fn b => fn ctxt =>
+            ctxt |> Function.function_cmd fixes statements config b 
+                 |> tac
+                 |> Function.termination_cmd NONE
+                 |> proof_by_sorry
+          else 
+            fn ((config, fixes), statements) => Function_Fun.add_fun_cmd fixes statements config))
+
+val () = mk_fun quick_dirty @{command_spec "fun_quick"} proof_by_sorry
+val () = mk_fun true @{command_spec "fun_sorry"} proof_by_patauto
+end
+*}
+
+section{* ... *}
 
 datatype internal_oid = Oid nat
 datatype internal_oids =
@@ -225,12 +268,10 @@ end
 
 subsection{* ... *}
 
-function (sequential) class_unflat_aux where
+fun_sorry class_unflat_aux where
    "class_unflat_aux rbt rbt_inv rbt_cycle r =
    (case (lookup rbt r, lookup rbt_cycle r) of (Some (l, _), None (* cycle detection *)) \<Rightarrow>
       OclClass r l (Option.map (class_unflat_aux rbt rbt_inv (insert r () rbt_cycle)) (lookup rbt_inv r)))"
-by(auto)
-termination sorry
 
 definition "class_unflat = (\<lambda> OclClassFlat l root \<Rightarrow>
   class_unflat_aux
@@ -241,7 +282,7 @@ definition "class_unflat = (\<lambda> OclClassFlat l root \<Rightarrow>
 
 definition "str_of_ty = (\<lambda> OclTy_base x \<Rightarrow> x | OclTy_object x \<Rightarrow> x)"
 
-fun get_class_hierarchy_aux where
+fun_quick get_class_hierarchy_aux where
    "get_class_hierarchy_aux l_res (OclClass name l_attr dataty) =
    (let l_res = (name, l_attr) # l_res in
     case dataty of None \<Rightarrow> rev l_res
@@ -250,7 +291,7 @@ definition "get_class_hierarchy = get_class_hierarchy_aux []"
 
 datatype position = EQ | LT | GT
 
-fun less_than_hierarchy where
+fun_quick less_than_hierarchy where
   "less_than_hierarchy l item1 item2 =
     (case l of x # xs \<Rightarrow>
                if x = item1 then GT
@@ -258,14 +299,14 @@ fun less_than_hierarchy where
                else less_than_hierarchy xs item1 item2)"
 definition "compare_hierarchy = (\<lambda>l x1 x2. if x1 = x2 then EQ else less_than_hierarchy l x1 x2)"
 
-fun fold_less_gen where "fold_less_gen f_gen f_jump f l = (case l of
+fun_quick fold_less_gen where "fold_less_gen f_gen f_jump f l = (case l of
     x # xs \<Rightarrow> \<lambda>acc. fold_less_gen f_gen f_jump f xs (f_gen (f x) xs (f_jump acc))
   | [] \<Rightarrow> id)"
 
 definition "fold_less2 = fold_less_gen List.fold"
 definition "fold_less3 = fold_less_gen o fold_less2"
 
-fun flip where "flip (a,b) = (b,a)"
+fun_quick flip where "flip (a,b) = (b,a)"
 definition "List_map f l = rev (foldl (\<lambda>l x. f x # l) [] l)"
 definition "flatten l = foldl (\<lambda>acc l. foldl (\<lambda>acc x. x # acc) acc (rev l)) [] (rev l)"
 definition List_append (infixr "@@" 65) where "List_append a b = flatten [a, b]"
@@ -465,7 +506,7 @@ definition "var_OclInt = ''OclInt''"
 
 section{* Translation of AST *}
 
-fun fold_class_gen_aux where
+fun_quick fold_class_gen_aux where
    "fold_class_gen_aux l_inherited l_res l_cons f accu (OclClass name l_attr dataty) = (
       let l_cons = tl l_cons
         ; (r, accu) = f (\<lambda>s. s @@ isub_of_str name) name l_attr l_inherited l_cons (dataty = None) accu in
@@ -1746,7 +1787,7 @@ definition "fill_blank f_blank =
     let rbt = List.fold (\<lambda> ((ty, _, ident), shallow) \<Rightarrow> insert ident (ty, shallow)) l empty in
     (attr_ty, case f_fold (\<lambda>n l. lookup rbt (OptIdent n) # l) [] of l \<Rightarrow> rev l))"
 
-fun split_inh_own where
+fun_quick split_inh_own where
    "split_inh_own f_class s_cast l_attr =
   (let (f_attr, f_blank) = f_class s_cast
      ; split = \<lambda>l. List.partition (\<lambda>((_, OptOwn, _), _) \<Rightarrow> True | _ \<Rightarrow> False) (List.map (\<lambda>(name_attr, data). (case f_attr name_attr of Some x \<Rightarrow> x, data)) l) in
@@ -1758,7 +1799,7 @@ fun split_inh_own where
        case split l of (l_own, []) \<Rightarrow>
        OclAttrCast s_cast (split_inh_own f_class s_cast l_attr) (fill_blank f_blank [(OptOwn, l_own)]))"
 
-fun print_examp_instance_app_constr2_notmp where
+fun_quick print_examp_instance_app_constr2_notmp where
    "print_examp_instance_app_constr2_notmp (map_self, map_username) ty l_attr isub_name cpt =
   (let (l_inh, l_own) =
      let var_oid = Expr_oid var_oid_uniq (oidGetInh cpt) in
@@ -1771,7 +1812,7 @@ fun print_examp_instance_app_constr2_notmp where
                           print_examp_instance_app_constr2_notmp (map_self, map_username) ty l_attr isub_name cpt ], l_own) in
    print_examp_instance_app_constr_notmp map_self map_username isub_name l_inh l_own)"
 
-fun fold_list_attr where 
+fun_quick fold_list_attr where 
    "fold_list_attr cast_from f l_attr accu = (case l_attr of 
         OclAttrNoCast x \<Rightarrow> f cast_from x accu
       | OclAttrCast c_from l_attr x \<Rightarrow> fold_list_attr c_from f l_attr (f cast_from x accu))"
@@ -2162,6 +2203,7 @@ section{* Generation to Deep Form: OCaml *}
 subsection{* beginning (lazy code printing) *}
 
 ML{*
+structure Code_printing = struct
 datatype code_printing = Code_printing of (string * (bstring * Code_Printer.const_syntax option) list, string * (bstring * Code_Printer.tyco_syntax option) list,
               string * (bstring * string option) list, (string * string) * (bstring * unit option) list, (string * string) * (bstring * unit option) list,
               bstring * (bstring * (string * string list) option) list)
@@ -2220,6 +2262,7 @@ fun apply_code_printing thy =
 val () =
   Outer_Syntax.command @{command_spec "apply_code_printing"} "apply dedicated printing for code symbols"
     (Parse.$$$ "(" -- Parse.$$$ ")" >> K (Toplevel.theory apply_code_printing))
+end
 *}
 
 subsection{* beginning *}
@@ -2428,7 +2471,7 @@ definition "s_of_dataty _ = (\<lambda> Datatype n l \<Rightarrow>
                | Raw o_ \<Rightarrow> sprintf1 (STR ''%s'') (To_string o_))
               l))) l) ))"
 
-fun s_of_rawty where "s_of_rawty rawty = (case rawty of
+fun_quick s_of_rawty where "s_of_rawty rawty = (case rawty of
     Ty_base s \<Rightarrow> To_string s
   | Ty_apply name l \<Rightarrow> sprintf2 (STR ''%s %s'') (let s = String_concat (STR '', '') (List.map s_of_rawty l) in
                                                  case l of [_] \<Rightarrow> s | _ \<Rightarrow> sprintf1 (STR ''(%s)'') s)
@@ -2437,7 +2480,7 @@ fun s_of_rawty where "s_of_rawty rawty = (case rawty of
 definition "s_of_ty_synonym _ = (\<lambda> Type_synonym n l \<Rightarrow>
     sprintf2 (STR ''type_synonym %s = \"%s\"'') (To_string n) (s_of_rawty l))"
 
-fun s_of_expr where "s_of_expr expr = (
+fun_quick s_of_expr where "s_of_expr expr = (
   case expr of
     Expr_case e l \<Rightarrow> sprintf2 (STR ''(case %s of %s)'') (s_of_expr e) (String_concat (STR ''
     | '') (List.map (\<lambda> (s1, s2) \<Rightarrow> sprintf3 (STR ''%s %s %s'') (s_of_expr s1) Unicode_u_Rightarrow (s_of_expr s2)) l))
@@ -2487,7 +2530,7 @@ definition "s_of_definition_hol _ = (\<lambda>
   | Definition_abbrev0 name abbrev e \<Rightarrow> sprintf3 (STR ''definition %s (\"%s\")
   where \"%s\"'') (To_string name) (s_of_expr abbrev) (s_of_expr e))"
 
-fun s_of_ntheorem_aux where "s_of_ntheorem_aux lacc expr =
+fun_quick s_of_ntheorem_aux where "s_of_ntheorem_aux lacc expr =
   (let f_where = (\<lambda>l. (STR ''where'', String_concat (STR '' and '')
                                         (List_map (\<lambda>(var, expr). sprintf2 (STR ''%s = \"%s\"'')
                                                         (To_string var)
@@ -2520,7 +2563,7 @@ definition "s_of_lemmas_simp _ = (\<lambda> Lemmas_simp s l \<Rightarrow>
       (String_concat (STR ''
                             '') (List_map s_of_ntheorem l)))"
 
-fun s_of_tactic where "s_of_tactic expr = (\<lambda>
+fun_quick s_of_tactic where "s_of_tactic expr = (\<lambda>
     Tac_rule s \<Rightarrow> sprintf1 (STR ''rule %s'') (s_of_ntheorem s)
   | Tac_erule s \<Rightarrow> sprintf1 (STR ''erule %s'') (s_of_ntheorem s)
   | Tac_elim s \<Rightarrow> sprintf1 (STR ''elim %s'') (s_of_ntheorem s)
@@ -3137,7 +3180,7 @@ fun f_command l_mode =
                               (fn f => let val filename = Path.implode (mk_fic ocamlfile_function) in
                                 f [(((("OCaml", "M"), filename), []), filename)] end)
                               (fn _ => fn _ => ("", ()))
-                              ["write_file"] filename_thy (apply_code_printing thy)
+                              ["write_file"] filename_thy (Code_printing.apply_code_printing thy)
                     val () = File.write (mk_fic (ocamlfile_ocp ^ ".ocp"))
                               (String.concat [ "comp += \"-g\" link += \"-g\" begin program \"", ocamlfile_ocp, "\" sort = true files = [ \"", ocamlfile_function
                                              , "\" \"", ocamlfile_argument
