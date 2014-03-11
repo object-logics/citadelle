@@ -48,7 +48,7 @@ imports "~~/src/HOL/Library/RBT"
         "~~/src/HOL/Library/Char_ord"
         "~~/src/HOL/Library/List_lexord"
   keywords (* ocl *)
-           "attr_base" "attr_object" "child"
+           "attribute" (*"object"*) "inherit"
            "skip" "self"
 
            (* hol syntax *)
@@ -113,6 +113,15 @@ datatype ocl_class =
     "(string (* name *) \<times> string) list" (* invariant *) *)
     "ocl_class option" (* link to subclasses *)
 
+datatype ocl_class_flat =
+  OclClassFlat
+    "( string (* name of the class *)
+    \<times> (string (* name *) \<times> ocl_ty) list (* attribute *)
+    (* \<times> (string (* name *) \<times> ocl_operation) list (* contract *)
+    \<times> (string (* name *) \<times> string) list (* invariant *) *)
+    \<times> string option (* inherits *)) list"
+    string (* name class root *)
+
 datatype ocl_data_shallow = Shall_str string
                           | Shall_self internal_oid
 
@@ -140,7 +149,7 @@ datatype ocl_def_state = OclDefSt
                            string (* name *)
                            "ocl_def_state_core list"
 
-datatype ocl_deep_embed_ast0 = OclAstClass ocl_class
+datatype ocl_deep_embed_ast0 = OclAstClassFlat ocl_class_flat
                              | OclAstInstance ocl_instance
                              | OclAstDefInt ocl_def_int
                              | OclAstDefState ocl_def_state
@@ -215,6 +224,20 @@ begin
 end
 
 subsection{* ... *}
+
+function (sequential) class_unflat_aux where
+   "class_unflat_aux rbt rbt_inv rbt_cycle r =
+   (case (lookup rbt r, lookup rbt_cycle r) of (Some (l, _), None (* cycle detection *)) \<Rightarrow>
+      OclClass r l (Option.map (class_unflat_aux rbt rbt_inv (insert r () rbt_cycle)) (lookup rbt_inv r)))"
+by(auto)
+termination sorry
+
+definition "class_unflat = (\<lambda> OclClassFlat l root \<Rightarrow>
+  class_unflat_aux
+    (List.fold (\<lambda> (k, v). insert k v) l empty)
+    (List.fold (\<lambda> (v, _, Some k) \<Rightarrow> insert k v | _ \<Rightarrow> id) l empty)
+    empty
+    root)"
 
 definition "str_of_ty = (\<lambda> OclTy_base x \<Rightarrow> x | OclTy_object x \<Rightarrow> x)"
 
@@ -2122,8 +2145,8 @@ definition "fold_thy0 univ thy_object0 f =
 definition "fold_thy' f ast =
   (case ast of OclDeepEmbed l \<Rightarrow> List.fold (\<lambda> ast.
     (case ast of
-     OclAstClass univ \<Rightarrow> \<lambda>f ((ocl :: unit ocl_deep_embed_input_scheme), accu).
-       fold_thy0 univ thy_object f (ocl \<lparr> D_class_spec := Some univ \<rparr>, accu)
+     OclAstClassFlat univ \<Rightarrow> let univ = class_unflat univ in (\<lambda>f ((ocl :: unit ocl_deep_embed_input_scheme), accu).
+       fold_thy0 univ thy_object f (ocl \<lparr> D_class_spec := Some univ \<rparr>, accu))
    | OclAstInstance univ \<Rightarrow> fold_thy0 univ thy_object''
    | OclAstDefInt univ \<Rightarrow> fold_thy0 univ thy_object'
    | OclAstDefState univ \<Rightarrow> fold_thy0 univ thy_object''') f) l)"
@@ -2604,18 +2627,19 @@ definition "write_file ocl = (
 subsection{* Deep (without reflection) *}
 
 definition "Employee_DesignModel_UMLPart =
-         OclClass ''OclAny'' []
-  (Some (OclClass ''Galaxy'' [(''sound'', OclTy_base ''unit''), (''moving'', OclTy_base ''bool'')]
-  (Some (OclClass ''Planet'' [(''weight'', OclTy_base ''nat'')]
-  (Some (OclClass ''Person'' [(''salary'', OclTy_base ''int''), (''boss'', object)]
-   None )) )) ))"
+  OclClassFlat
+    [ (''OclAny'', [], None)
+    , (''Galaxy'', [(''sound'', OclTy_base ''unit''), (''moving'', OclTy_base ''bool'')], Some ''OclAny'')
+    , (''Planet'', [(''weight'', OclTy_base ''nat'')], Some ''Galaxy'')
+    , (''Person'', [(''salary'', OclTy_base ''int''), (''boss'', object)], Some ''Planet'') ]
+    ''OclAny''"
 
 definition "main = write_file (ocl_deep_embed_input.extend
                                 (ocl_deep_embed_input_empty (oidInit (Oid 0)) None
                                    \<lparr> D_disable_thy_output := False
                                    , D_file_out_path_dep := Some (''Employee_DesignModel_UMLPart_generated''
                                                                  ,''../src/OCL_main'') \<rparr>)
-                                (OclDeepEmbed [OclAstClass Employee_DesignModel_UMLPart]))"
+                                (OclDeepEmbed [OclAstClassFlat Employee_DesignModel_UMLPart]))"
 (*
 apply_code_printing ()
 export_code main
@@ -2751,6 +2775,14 @@ definition "i_of_ocl_class a b = (\<lambda>f0 f1 f2 f3. ocl_class_rec_1 (co2 K (
     (i_of_list a b (i_of_pair a b (i_of_string a b) (i_of_ocl_ty a b)))
     (i_of_option a b id)"
 
+definition "i_of_ocl_class_flat a b = ocl_class_flat_rec
+  (ap2 a (b ''OclClassFlat'')
+    (i_of_list a b (i_of_pair a b
+      (i_of_string a b) (i_of_pair a b
+      (i_of_list a b (i_of_pair a b (i_of_string a b) (i_of_ocl_ty a b))) 
+      (i_of_option a b (i_of_string a b)))))
+    (i_of_string a b))"
+
 definition "i_of_ocl_data_shallow a b = ocl_data_shallow_rec
   (ap1 a (b ''Shall_str'') (i_of_string a b))
   (ap1 a (b ''Shall_self'') (i_of_internal_oid a b))"
@@ -2785,7 +2817,7 @@ definition "i_of_ocl_def_state a b = ocl_def_state_rec
   (ap2 a (b ''OclDefSt'') (i_of_string a b) (i_of_list a b (i_of_ocl_def_state_core a b)))"
 
 definition "i_of_ocl_deep_embed_ast0 a b = ocl_deep_embed_ast0_rec
-  (ap1 a (b ''OclAstClass'') (i_of_ocl_class a b))
+  (ap1 a (b ''OclAstClassFlat'') (i_of_ocl_class_flat a b))
   (ap1 a (b ''OclAstInstance'') (i_of_ocl_instance a b))
   (ap1 a (b ''OclAstDefInt'') (i_of_ocl_def_int a b))
   (ap1 a (b ''OclAstDefState'') (i_of_ocl_def_state a b))"
@@ -2894,10 +2926,10 @@ ML{*
 type class_inline = { attr_base : (binding * binding) list
                     , attr_object : binding list
                     , child : binding list
-                    , ocl_class : OCL.ocl_class option }
+                    , name : binding }
 
 structure Data = Theory_Data
-  (type T = class_inline Symtab.table
+  (type T = class_inline list Symtab.table
    val empty = Symtab.empty
    val extend = I
    val merge = Symtab.merge (K true))
@@ -2923,28 +2955,31 @@ structure From = struct
  val from_list = List.map
  fun from_pair f1 f2 (x, y) = (f1 x, f2 y)
 
- fun mk_univ (n, ({attr_base = attr_base, attr_object = attr_object, child = child, ...}:class_inline)) t =
-   OclClass ( from_string n
-           , List.concat [ List.map (fn (b, ty) => (from_binding b, OclTy_base (from_binding ty))) attr_base
-                         , List.map (fn b => (from_binding b, object)) attr_object]
-           , case child of [] => NONE | [x] => SOME (mk_univ (let val x = Binding.name_of x in (x, let val SOME v = Symtab.lookup t x in v end) end) t))
+ val mk_univ =
+   map (fn { attr_base = attr_base, attr_object = attr_object, child = child, name = name } =>
+     ( from_binding name
+     , ( List.concat [ List.map (fn (b, ty) => (from_binding b, OclTy_base (from_binding ty))) attr_base
+                     , List.map (fn b => (from_binding b, object)) attr_object]
+       , case child of [] => NONE | [x] => SOME (from_binding x))))
 end
+
+val class_empty = ""
 
 val () =
   Outer_Syntax.command @{command_spec "Class"} "Class definition"
-    ((Parse.binding --| Parse.$$$ "=") --
-      Scan.repeat (@{keyword "attr_base"} |-- Parse.!!! (Parse.binding -- (Parse.$$$ "::" |-- Parse.!!! Parse.binding))) --
-      Scan.repeat (@{keyword "attr_object"} |-- Parse.!!! Parse.binding) --
-      Scan.repeat (@{keyword "child"} |-- Parse.!!! Parse.binding)
-        >> (fn (((binding, attr_base), attr_object), child) => fn x =>
+    (((Parse.binding --| Parse.$$$ "=") --
+      Scan.repeat (@{keyword "inherit"} |-- Parse.!!! Parse.binding) --
+      Scan.repeat (@{keyword "attribute"} |-- Parse.!!! (Parse.binding -- Scan.optional (Parse.$$$ ":" |-- Parse.!!! Parse.binding >> SOME) NONE)))
+        >> (fn ((binding, child), attribute) => 
+            let val (attr_base, attr_object) = fold (fn (b, o_b) => fn (attr_base, attr_object) => case o_b of NONE => (attr_base, b :: attr_object) | SOME bb => ((b, bb) :: attr_base, attr_object)) attribute ([], [])
+                val (attr_base, attr_object) = (rev attr_base, rev attr_object) in
+            fn x =>
               x |> Toplevel.theory (fn thy => thy |> Data.map (fn t =>
-                                                     let val name = Binding.name_of binding
-                                                     fun mk ocl_class = { attr_base = attr_base
-                                                                        , attr_object = attr_object
-                                                                        , child = child
-                                                                        , ocl_class = ocl_class } in
-                                                     Symtab.insert (op =) (name, mk (SOME (From.mk_univ (name, mk NONE) t))) t
-                                                     end))))
+                                                     Symtab.map_default (class_empty, []) (fn l => { attr_base = attr_base
+                                                                                                   , attr_object = attr_object
+                                                                                                   , child = child
+                                                                                                   , name = binding } :: l) t))
+            end))
 *}
 
 ML{*
@@ -3438,11 +3473,8 @@ val () =
   outer_syntax_command @{make_string} @{command_spec "Class.end"} "Class generation"
     Parse.binding
     (fn name => fn thy =>
-       let val SOME { attr_base = attr_base
-                    , attr_object = attr_object
-                    , child = child
-                    , ocl_class = SOME ocl_class } = Symtab.lookup (Data.get thy) (Binding.name_of name) in
-       OCL.OclAstClass ocl_class end)
+       let val SOME l = Symtab.lookup (Data.get thy) class_empty in
+       OCL.OclAstClassFlat (OCL.OclClassFlat (From.mk_univ l, From.from_binding name)) end)
 *}
 
 subsection{* Outer Syntax: Instance *}

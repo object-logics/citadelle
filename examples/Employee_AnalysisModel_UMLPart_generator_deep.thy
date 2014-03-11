@@ -56,21 +56,18 @@ generation_syntax [ deep
                       SECTION
                       (output_directory "../doc") ]
 
-Class Person =
-  attr_base salary :: int
-  attr_object boss
+Class Person = inherit Planet
+  attribute salary : int
+  attribute boss
 
-Class Planet =
-  attr_base weight :: nat
-  child Person
+Class Planet = inherit Galaxy
+  attribute weight : nat
 
-Class Galaxy =
-  attr_base sound :: unit
-  attr_base moving :: bool
-  child Planet
+Class Galaxy = inherit OclAny
+  attribute sound : unit
+  attribute moving : bool
 
 Class OclAny =
-  child Galaxy
 
 Class.end OclAny
 
