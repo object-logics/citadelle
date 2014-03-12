@@ -306,7 +306,6 @@ fun_quick fold_less_gen where "fold_less_gen f_gen f_jump f l = (case l of
 definition "fold_less2 = fold_less_gen List.fold"
 definition "fold_less3 = fold_less_gen o fold_less2"
 
-fun_quick flip where "flip (a,b) = (b,a)"
 definition "List_map f l = rev (foldl (\<lambda>l x. f x # l) [] l)"
 definition "flatten l = foldl (\<lambda>acc l. foldl (\<lambda>acc x. x # acc) acc (rev l)) [] (rev l)"
 definition List_append (infixr "@@" 65) where "List_append a b = flatten [a, b]"
@@ -745,8 +744,10 @@ definition "print_astype_from_universe' = start_map'' Thy_definition_hol o (\<la
     let const_astype = flatten [const_oclastype, isub_of_str name, ''_'', unicode_AA] in
     Definition (Expr_rewrite (Expr_basic [const_astype]) ''=''
    (let ((finish_with_some1, finish_with_some2), last_case_none) =
-     let (f, r) = (if (fst o hd) l_hierarchy = name then (id, []) else (flip, [(Expr_basic [wildcard], Expr_basic [''None''])])) in
-     (f (id, Expr_some), r) in
+     if (fst o hd) l_hierarchy = name then
+       ((id, Expr_binop (Expr_basic [''Some'']) ''o''), [])
+     else
+       ((Expr_some, id), [(Expr_basic [wildcard], Expr_basic [''None''])]) in
    finish_with_some2
    (Expr_function (flatten (List_map
    (let l_hierarchy = List_map fst l_hierarchy in (\<lambda>(h_name, hl_attr).
