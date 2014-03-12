@@ -343,17 +343,14 @@ datatype hol_expr = Expr_case hol_expr (* value *)
                   | Expr_oid string (* prefix *) internal_oid
                   | Expr_binop hol_expr string hol_expr
                   | Expr_annot hol_expr string (* type *)
-                  | Expr_lambda string (* lambda var *) hol_expr
-                  | Expr_lambdas "string list" hol_expr
-                  | Expr_lambdas0 hol_expr hol_expr
+                  | Expr_bind string (* symbol *) "string list" (* arg *) hol_expr
+                  | Expr_bind0 string (* symbol *) hol_expr (* arg *) hol_expr
                   | Expr_function "(hol_expr (* pattern *) \<times> hol_expr (* to return *)) list"
                   | Expr_apply string "hol_expr list"
                   | Expr_applys hol_expr "hol_expr list"
-                  | Expr_some hol_expr (* with annotation \<lfloor> ... \<rfloor> *)
                   | Expr_preunary hol_expr hol_expr (* no parenthesis and separated with one space *)
                   | Expr_postunary hol_expr hol_expr (* no parenthesis and separated with one space *)
-                  | Expr_warning_parenthesis hol_expr (* optional parenthesis that can be removed but a warning will be raised *)
-                  | Expr_parenthesis hol_expr (* mandatory parenthesis *)
+                  | Expr_paren string (* left *) string (* right *) hol_expr
 
 datatype hol_instantiation_class = Instantiation string (* name *)
                                                  string (* name in definition *)
@@ -383,12 +380,14 @@ datatype hol_lemmas_simp = Lemmas_simp string (* name *)
                                        "hol_ntheorem list"
 
 datatype hol_tactic = Tac_rule hol_ntheorem
+                    | Tac_drule hol_ntheorem
                     | Tac_erule hol_ntheorem
+                    | Tac_intro "hol_ntheorem list"
                     | Tac_elim hol_ntheorem
-                    | Tac_subst hol_ntheorem
+                    | Tac_subst_l "string (* nat *) list" (* pos *) hol_ntheorem
                     | Tac_insert "hol_ntheorem list"
                     | Tac_plus "hol_tactic list"
-                    | Tac_simp | Tac_simp_add "string list" | Tac_simp_only "hol_ntheorem list"
+                    | Tac_simp | Tac_simp_add "string list" | Tac_simp_add_del "string list" "string list" | Tac_simp_only "hol_ntheorem list"
                     | Tac_simp_all | Tac_simp_all_add string
                     | Tac_auto_simp_add "string list"
                     | Tac_auto_simp_add_split "hol_ntheorem list" "string list"
@@ -456,6 +455,7 @@ definition "unicode_doteq = escape_unicode ''doteq''"
 definition "unicode_tau = escape_unicode ''tau''"
 definition "unicode_alpha = escape_unicode ''alpha''"
 definition "unicode_delta = escape_unicode ''delta''"
+definition "unicode_lambda = escape_unicode ''lambda''"
 definition "unicode_upsilon = escape_unicode ''upsilon''"
 definition "unicode_bottom = escape_unicode ''bottom''"
 definition "unicode_AA = escape_unicode ''AA''"
@@ -465,6 +465,13 @@ definition "unicode_not = escape_unicode ''not''"
 definition "unicode_or = escape_unicode ''or''"
 definition "unicode_circ = escape_unicode ''circ''"
 definition "unicode_mapsto = escape_unicode ''mapsto''"
+definition "unicode_forall = escape_unicode ''forall''"
+definition "unicode_exists = escape_unicode ''exists''"
+definition "unicode_in = escape_unicode ''in''"
+definition "unicode_lfloor = escape_unicode ''lfloor''"
+definition "unicode_rfloor = escape_unicode ''rfloor''"
+definition "unicode_lceil = escape_unicode ''lceil''"
+definition "unicode_rceil = escape_unicode ''rceil''"
 
 definition "datatype_ext_name = ''type''"
 definition "datatype_name = datatype_ext_name @@ str_of_ty object"
@@ -576,8 +583,15 @@ definition "get_hierarchy_map f f_l x = flatten (flatten (
   List_map (\<lambda>name1. List_map (\<lambda>name2. List_map (f name1 name2) l3) l2) l1))"
 definition "split_ty name = List_map (\<lambda>s. hol_split (s @@ isub_of_str name)) [datatype_ext_name, datatype_name]"
 definition "thm_OF s l = List.fold (\<lambda>x acc. Thm_OF acc x) l s"
+definition "Expr_lambdas = Expr_bind unicode_lambda"
+definition "Expr_lambda x = Expr_lambdas [x]"
+definition "Expr_lambdas0 = Expr_bind0 unicode_lambda"
+definition "Expr_some = Expr_paren unicode_lfloor unicode_rfloor"
+definition "Expr_parenthesis (* mandatory parenthesis *) = Expr_paren ''('' '')''"
+definition "Expr_warning_parenthesis (* optional parenthesis that can be removed but a warning will be raised *) = Expr_parenthesis"
 definition "expr_binop s l = (case rev l of x # xs \<Rightarrow> List.fold (\<lambda>x. Expr_binop x s) xs x)"
 definition "Consts s ty_out mix = Consts_raw s (Ty_base (Char Nibble2 Nibble7 # unicode_alpha)) ty_out mix"
+definition "Tac_subst = Tac_subst_l [''0'']"
 definition "start_map f = fold_list (\<lambda>x acc. (f x, acc))"
 definition "start_map' f x accu = (f x, accu)"
 definition "start_map''' f fl = (\<lambda> ocl.
@@ -1397,6 +1411,58 @@ definition "print_allinst_lemmas_id = start_map'
          [ Lemmas_simp '''' (List_map (Thm_str o hol_definition) name_set) ]
   else (\<lambda>_. []))"
 
+definition "print_allinst_iskindof_pre_name1 = ''ex_ssubst''"
+definition "print_allinst_iskindof_pre_name2 = ''ex_def''"
+definition "print_allinst_iskindof_pre = start_map Thy_lemma_by o (\<lambda>_.
+  [ Lemma_by
+      print_allinst_iskindof_pre_name1
+      (bug_ocaml_extraction (let var_x = ''x''
+         ; var_B = ''B''
+         ; var_s = ''s''
+         ; var_t = ''t''
+         ; var_P = ''P''
+         ; b = \<lambda>s. Expr_basic [s]
+         ; a = \<lambda>f x. Expr_apply f [x]
+         ; bind = \<lambda>symb. Expr_bind0 symb (Expr_binop (b var_x) unicode_in (b var_B))
+         ; f = \<lambda>v. bind unicode_exists (a var_P (a v (b var_x))) in
+       [ Expr_bind0 unicode_forall (Expr_binop (b var_x) unicode_in (b var_B)) (Expr_rewrite (a var_s (b var_x)) ''='' (a var_t (b var_x)))
+       , Expr_rewrite (f var_s) ''='' (f var_t) ]))
+      []
+      (Tacl_by [Tac_simp])
+  , Lemma_by
+      print_allinst_iskindof_pre_name2
+      (bug_ocaml_extraction (let var_x = ''x''
+         ; var_X = ''X''
+         ; var_y = ''y''
+         ; b = \<lambda>s. Expr_basic [s]
+         ; c = Expr_paren unicode_lceil unicode_rceil
+         ; f = Expr_paren unicode_lfloor unicode_rfloor
+         ; p = Expr_paren ''{'' ''}'' in
+       [ Expr_binop (b var_x) unicode_in (c (c (f (f (Expr_binop (b ''Some'') ''`'' (Expr_parenthesis (Expr_binop (b var_X) ''-'' (p (b ''None'')))))))))
+       , Expr_bind0 unicode_exists (b var_y) (Expr_rewrite (b var_x) ''='' (f (f (b var_y)))) ]))
+      []
+      (Tacl_by [Tac_auto_simp_add []]) ])"
+
+definition "print_allinst_iskindof = start_map Thy_lemma_by o map_class (\<lambda>isub_name name _ _ _ _.
+  let b = \<lambda>s. Expr_basic [s]
+    ; d = hol_definition
+    ; s = Tac_subst_l [''1'',''2'',''3'']
+    ; var_tau = unicode_tau in
+  Lemma_by
+    (flatten [name, ''_allInstances_generic_'', isub_name const_ocliskindof])
+    [ Expr_binop (b var_tau) unicode_Turnstile (Expr_apply ''OclForall'' [Expr_apply ''OclAllInstances_generic'' [b ''pre_post'', b name], b (isub_name const_ocliskindof) ])]
+    [ [Tac_simp_add_del [d ''OclValid''] [d ''OclAllInstances_generic'', flatten [isub_name const_ocliskindof, ''_'', name]]]
+    , [Tac_simp_only (flatten [List_map Thm_str [ d ''OclForall'', ''refl'', ''if_True'' ], [Thm_simplified (Thm_str ''OclAllInstances_generic_defined'') (Thm_str (d ''OclValid''))]])]
+    , [Tac_simp_only [Thm_str (d ''OclAllInstances_generic'')]]
+    , [s (Thm_str ''Abs_Set_0_inverse''), Tac_simp_add [d ''bot_option'']]
+    , [s (Thm_where
+           (Thm_str print_allinst_iskindof_pre_name1)
+           [ (''s'', let var_x = ''x'' in (Expr_lambda var_x (Expr_applys (Expr_postunary (Expr_lambda wildcard (b var_x)) (b (dot_iskindof name))) [b var_tau])))
+           , (''t'', Expr_lambda wildcard (Expr_apply ''true'' [b var_tau]))])]
+    , [Tac_intro [Thm_str ''ballI'', Thm_simplified (Thm_str (print_iskindof_up_eq_asty_name name)) (Thm_str (d ''OclValid''))]]
+    , [Tac_drule (Thm_str print_allinst_iskindof_pre_name2), Tac_erule (Thm_str (''exE'')), Tac_simp]]
+    (Tacl_by [Tac_simp]))"
+
 subsection{* accessors *}
 
 definition "print_access_oid_uniq_name isub_name attr = isub_name var_oid_uniq @@ isup_of_str attr"
@@ -2105,6 +2171,8 @@ functions into the object universes; we show that this is sufficient ``character
             , print_allinst_lemmas_id
             , subsection ''OclIsTypeOf''
             , subsection ''OclIsKindOf''
+            , print_allinst_iskindof_pre
+            , print_allinst_iskindof
 
             , section ''The Accessors''
             , txt''d [ ''
@@ -2449,10 +2517,6 @@ text{* module Unicode *}
 
 definition "Unicode_mk_u = sprintf1s (STR (Char Nibble5 NibbleC # ''<%s>''))"
 definition "Unicode_u_Rightarrow = Unicode_mk_u (STR ''Rightarrow'')"
-definition "Unicode_u_alpha = Unicode_mk_u (STR ''alpha'')"
-definition "Unicode_u_lambda = Unicode_mk_u (STR ''lambda'')"
-definition "Unicode_u_lfloor = Unicode_mk_u (STR ''lfloor'')"
-definition "Unicode_u_rfloor = Unicode_mk_u (STR ''rfloor'')"
 definition "Unicode_u_Longrightarrow = Unicode_mk_u (STR ''Longrightarrow'')"
 
 subsection{* s of ... *} (* s_of *)
@@ -2490,21 +2554,16 @@ fun_quick s_of_expr where "s_of_expr expr = (
   | Expr_oid tit s \<Rightarrow> sprintf2 (STR ''%s%d'') (To_string tit) (To_oid s)
   | Expr_binop e1 s e2 \<Rightarrow> sprintf3 (STR ''%s %s %s'') (s_of_expr e1) (s_of_expr (Expr_basic [s])) (s_of_expr e2)
   | Expr_annot e s \<Rightarrow> sprintf2 (STR ''(%s::%s)'') (s_of_expr e) (To_string s)
-  | Expr_lambda s e \<Rightarrow> sprintf3 (STR ''(%s%s. %s)'') Unicode_u_lambda (To_string s) (s_of_expr e)
-  | Expr_lambdas l e \<Rightarrow> sprintf3 (STR ''(%s%s. %s)'') Unicode_u_lambda (String_concat (STR '' '') (List_map To_string l)) (s_of_expr e)
-  | Expr_lambdas0 e1 e2 \<Rightarrow> sprintf3 (STR ''(%s%s. %s)'') Unicode_u_lambda (s_of_expr e1) (s_of_expr e2)
-  | Expr_function l \<Rightarrow> sprintf2 (STR ''(%s %s)'') Unicode_u_lambda (String_concat (STR ''
+  | Expr_bind symb l e \<Rightarrow> sprintf3 (STR ''(%s%s. %s)'') (To_string symb) (String_concat (STR '' '') (List_map To_string l)) (s_of_expr e)
+  | Expr_bind0 symb e1 e2 \<Rightarrow> sprintf3 (STR ''(%s%s. %s)'') (To_string symb) (s_of_expr e1) (s_of_expr e2)
+  | Expr_function l \<Rightarrow> sprintf2 (STR ''(%s %s)'') (To_string unicode_lambda) (String_concat (STR ''
     | '') (List.map (\<lambda> (s1, s2) \<Rightarrow> sprintf3 (STR ''%s %s %s'') (s_of_expr s1) Unicode_u_Rightarrow (s_of_expr s2)) l))
   (*| Expr_apply s [e] \<Rightarrow> sprintf2 (STR ''(%s %s)'') (To_string s) (s_of_expr e)*)
   | Expr_apply s l \<Rightarrow> sprintf2 (STR ''(%s %s)'') (To_string s) (String_concat (STR '' '') (List.map (\<lambda> e \<Rightarrow> sprintf1 (STR ''(%s)'') (s_of_expr e)) l))
   | Expr_applys e l \<Rightarrow> sprintf2 (STR ''((%s) %s)'') (s_of_expr e) (String_concat (STR '' '') (List.map (\<lambda> e \<Rightarrow> sprintf1 (STR ''(%s)'') (s_of_expr e)) l))
-  | Expr_some (Expr_function l) \<Rightarrow> sprintf4 (STR ''%s%s %s%s'') Unicode_u_lfloor Unicode_u_lambda (String_concat (STR ''
-    | '') (List.map (\<lambda> (s1, s2) \<Rightarrow> sprintf3 (STR ''%s %s %s'') (s_of_expr s1) Unicode_u_Rightarrow (s_of_expr s2)) l)) Unicode_u_rfloor
-  | Expr_some e \<Rightarrow> sprintf3 (STR ''%s%s%s'') Unicode_u_lfloor (s_of_expr e) Unicode_u_rfloor
   | Expr_postunary e1 e2 \<Rightarrow> sprintf2 (STR ''%s %s'') (s_of_expr e1) (s_of_expr e2)
   | Expr_preunary e1 e2 \<Rightarrow> sprintf2 (STR ''%s %s'') (s_of_expr e1) (s_of_expr e2)
-  | Expr_warning_parenthesis e \<Rightarrow> sprintf1 (STR ''(%s)'') (s_of_expr e)
-  | Expr_parenthesis e \<Rightarrow> sprintf1 (STR ''(%s)'') (s_of_expr e))"
+  | Expr_paren p_left p_right e \<Rightarrow> sprintf3 (STR ''%s%s%s'') (To_string p_left) (s_of_expr e) (To_string p_right))"
 
 definition "s_of_instantiation_class _ = (\<lambda> Instantiation n n_def expr \<Rightarrow>
     let name = To_string n in
@@ -2566,13 +2625,20 @@ definition "s_of_lemmas_simp _ = (\<lambda> Lemmas_simp s l \<Rightarrow>
 
 fun_quick s_of_tactic where "s_of_tactic expr = (\<lambda>
     Tac_rule s \<Rightarrow> sprintf1 (STR ''rule %s'') (s_of_ntheorem s)
+  | Tac_drule s \<Rightarrow> sprintf1 (STR ''drule %s'') (s_of_ntheorem s)
   | Tac_erule s \<Rightarrow> sprintf1 (STR ''erule %s'') (s_of_ntheorem s)
+  | Tac_intro l \<Rightarrow> sprintf1 (STR ''intro %s'') (String_concat (STR '' '') (List_map s_of_ntheorem l))
   | Tac_elim s \<Rightarrow> sprintf1 (STR ''elim %s'') (s_of_ntheorem s)
-  | Tac_subst s => sprintf1 (STR ''subst %s'') (s_of_ntheorem s)
+  | Tac_subst_l l s =>
+      if l = [''0''] then
+        sprintf1 (STR ''subst %s'') (s_of_ntheorem s)
+      else
+        sprintf2 (STR ''subst (%s) %s'') (String_concat (STR '' '') (List_map To_string l)) (s_of_ntheorem s)
   | Tac_insert l => sprintf1 (STR ''insert %s'') (String_concat (STR '' '') (List_map s_of_ntheorem l))
   | Tac_plus t \<Rightarrow> sprintf1 (STR ''(%s)+'') (String_concat (STR '', '') (List.map s_of_tactic t))
   | Tac_simp \<Rightarrow> sprintf0 (STR ''simp'')
   | Tac_simp_add l \<Rightarrow> sprintf1 (STR ''simp add: %s'') (String_concat (STR '' '') (List_map To_string l))
+  | Tac_simp_add_del l_add l_del \<Rightarrow> sprintf2 (STR ''simp add: %s del: %s'') (String_concat (STR '' '') (List_map To_string l_add)) (String_concat (STR '' '') (List_map To_string l_del))
   | Tac_simp_only l \<Rightarrow> sprintf1 (STR ''simp only: %s'') (String_concat (STR '' '') (List_map s_of_ntheorem l))
   | Tac_simp_all \<Rightarrow> sprintf0 (STR ''simp_all'')
   | Tac_simp_all_add s \<Rightarrow> sprintf1 (STR ''simp_all add: %s'') (To_string s)
@@ -3052,17 +3118,18 @@ fun produce_code thy cs seris =
 
 fun absolute_path filename thy = Path.implode (Path.append (Thy_Load.master_directory thy) (Path.explode filename))
 
-fun export_code_cmd_gen with_tmp_file bash_output raw_cs filename_thy thy =
+fun export_code_cmd_gen with_tmp_file bash_output f_err raw_cs filename_thy thy =
   with_tmp_file (fn seris =>
     let val _ = Code_Target.export_code
                   thy
                   (Code_Target.read_const_exprs thy raw_cs)
                   ((map o apfst o apsnd) prep_destination (map fst seris))
-        val (out, _) = bash_output (snd (hd seris)) (case filename_thy of NONE => ""
-                                                                        | SOME filename_thy => " " ^ absolute_path filename_thy thy) in
+        val (out, err) = bash_output (snd (hd seris)) (case filename_thy of NONE => ""
+                                                                          | SOME filename_thy => " " ^ absolute_path filename_thy thy)
+        val _ = f_err (snd (hd seris)) err in
     out end)
 
-fun export_code_cmd' raw_cs seris filename_thy f thy =
+fun export_code_cmd' raw_cs seris filename_thy f f_err thy =
   export_code_cmd_gen
     (case seris of
         [] =>
@@ -3076,11 +3143,15 @@ fun export_code_cmd' raw_cs seris filename_thy f thy =
       | _ =>
         (fn f => f (map (fn x => (x, case x of (((_, _), filename), _) => absolute_path filename thy)) seris)))
     f
+    f_err
     raw_cs filename_thy thy
+
+fun msg_err msg err = if err <> 0 then error msg else ()
 
 fun export_code_cmd raw_cs seris filename_thy =
   export_code_cmd' raw_cs seris filename_thy
     (fn tmp_file => fn arg => Isabelle_System.bash_output ("ocaml -w '-8' " ^ tmp_file ^ arg))
+    msg_err
 
 fun mk_term ctxt s = fst (Scan.pass (Context.Proof ctxt) Args.term (Outer_Syntax.scan Position.none s))
 
@@ -3181,6 +3252,7 @@ fun f_command l_mode =
                               (fn f => let val filename = Path.implode (mk_fic ocamlfile_function) in
                                 f [(((("OCaml", "M"), filename), []), filename)] end)
                               (fn _ => fn _ => ("", ()))
+                              (fn _ => fn _ => ())
                               ["write_file"] filename_thy (Code_printing.apply_code_printing thy)
                     val () = File.write (mk_fic (ocamlfile_ocp ^ ".ocp"))
                               (String.concat [ "comp += \"-g\" link += \"-g\" begin program \"", ocamlfile_ocp, "\" sort = true files = [ \"", ocamlfile_function
@@ -3212,10 +3284,6 @@ val STR = I
 
 val Unicode_mk_u = fn s => (STR ("\\" ^ "<" ^ s ^ ">"))
 val Unicode_u_Rightarrow = Unicode_mk_u (STR "Rightarrow")
-val Unicode_u_alpha = Unicode_mk_u (STR "alpha")
-val Unicode_u_lambda = Unicode_mk_u (STR "lambda")
-val Unicode_u_lfloor = Unicode_mk_u (STR "lfloor")
-val Unicode_u_rfloor = Unicode_mk_u (STR "rfloor")
 val Unicode_u_Longrightarrow = Unicode_mk_u (STR "Longrightarrow")
 
 fun s_of_expr expr = let open OCL in
@@ -3230,22 +3298,17 @@ val s2 = (String.concatWith (STR "\n    | ") (List.map (fn (s1, s2) => String.co
   | Expr_oid (tit, s) => To_string tit ^ Int.toString (case s of Oid s => To_nat s)
   | Expr_binop (e1, s, e2) => String.concatWith (STR " ") [(s_of_expr e1), (s_of_expr (Expr_basic [s])), (s_of_expr e2)]
   | Expr_annot (e, s) => (STR "(" ^ (s_of_expr e)  ^ "::" ^ (To_string s) ^ ")")
-  | Expr_lambda (s, e) =>  (STR "(" ^ Unicode_u_lambda  ^ "" ^ (To_string s)  ^ ". " ^ (s_of_expr e) ^ ")")
-  | Expr_lambdas (l, e) => (STR "(" ^ Unicode_u_lambda ^ "" ^ (String.concatWith (STR " ") (List.map To_string l)) ^ ". " ^ (s_of_expr e) ^ ")")
-  | Expr_lambdas0 (e1, e2) => (STR "(" ^ Unicode_u_lambda ^ "" ^ (s_of_expr e1) ^ ". " ^ (s_of_expr e2) ^ ")")
-  | Expr_function l =>  (STR "(" ^ Unicode_u_lambda  ^ " " ^ (String.concatWith (STR "\n    | ") (List.map (fn (s1, s2) => String.concatWith (STR " ") [ (s_of_expr s1),Unicode_u_Rightarrow, (s_of_expr s2)]) l)) ^ ")")
+  | Expr_bind (symb, l, e) => (STR "(" ^ To_string symb ^ "" ^ (String.concatWith (STR " ") (List.map To_string l)) ^ ". " ^ (s_of_expr e) ^ ")")
+  | Expr_bind0 (symb, e1, e2) => (STR "(" ^ To_string symb ^ "" ^ (s_of_expr e1) ^ ". " ^ (s_of_expr e2) ^ ")")
+  | Expr_function l =>  (STR "(" ^ (To_string unicode_lambda)  ^ " " ^ (String.concatWith (STR "\n    | ") (List.map (fn (s1, s2) => String.concatWith (STR " ") [ (s_of_expr s1),Unicode_u_Rightarrow, (s_of_expr s2)]) l)) ^ ")")
   (*| Expr_apply s [e] => sprintf2 (STR "(" ^ s ^ " " ^ s ^ ")") (To_string s) (s_of_expr e)*)
   | Expr_apply (s, l) =>  let val s1 = (To_string s) val s2 = (String.concatWith (STR " ") (List.map (fn e => (STR "(" ^ (s_of_expr e) ^ ")") ) l)) in
 (STR "(" ^ s1 ^ " " ^ s2 ^ ")") end
   | Expr_applys (e, l) => let val s1 = (s_of_expr e) val s2 = (String.concatWith (STR " ") (List.map (fn e => (STR "(" ^ (s_of_expr e) ^ ")") ) l)) in
  (STR "((" ^ s1 ^ ") " ^ s2 ^ ")") end
-  | Expr_some (Expr_function l) => let val s1 = Unicode_u_lfloor val s2 = Unicode_u_lambda val s3 = (String.concatWith (STR "\n    | ") (List.map (fn (s1, s2) => String.concatWith (STR " ") [ (s_of_expr s1), Unicode_u_Rightarrow, (s_of_expr s2)]) l)) val s4 = Unicode_u_rfloor in
-(STR "" ^ s1 ^ "" ^ s2 ^ " " ^ s3 ^ "" ^ s4 ^ "") end
-  | Expr_some e => String.concatWith (STR "") [Unicode_u_lfloor, (s_of_expr e), Unicode_u_rfloor]
   | Expr_postunary (e1, e2) =>  (s_of_expr e1) ^ " " ^ (s_of_expr e2)
   | Expr_preunary (e1, e2) =>  (s_of_expr e1) ^ " " ^ (s_of_expr e2)
-  | Expr_warning_parenthesis e =>  (STR "(" ^ (s_of_expr e) ^ ")")
-  | Expr_parenthesis e => (STR "(" ^ (s_of_expr e) ^ ")")
+  | Expr_paren (p_left, p_right, e) => (STR ((To_string p_left) ^ (s_of_expr e) ^ (To_string p_right)))
 end
 
 fun simp_tac f = Method.Basic (fn ctxt => SIMPLE_METHOD (asm_full_simp_tac (f ctxt) 1))
@@ -3272,13 +3335,17 @@ end
 
 fun m_of_tactic expr = let val f_fold = fold open OCL open Method in case expr of
     Tac_rule s => Basic (fn ctxt => rule [m_of_ntheorem ctxt s])
+  | Tac_drule s => Basic (fn ctxt => drule 0 [m_of_ntheorem ctxt s])
   | Tac_erule s => Basic (fn ctxt => erule 0 [m_of_ntheorem ctxt s])
   | Tac_elim s => Basic (fn ctxt => elim [m_of_ntheorem ctxt s])
-  | Tac_subst s => Basic (fn ctxt => SIMPLE_METHOD' (EqSubst.eqsubst_tac ctxt [0] [m_of_ntheorem ctxt s]))
+  | Tac_intro l => Basic (fn ctxt => intro (map (m_of_ntheorem ctxt) l))
+  | Tac_subst_l (l, s) => Basic (fn ctxt => SIMPLE_METHOD' (EqSubst.eqsubst_tac ctxt (map (fn s => case Int.fromString (To_string s) of SOME i => i) l) [m_of_ntheorem ctxt s]))
   | Tac_insert l => Basic (fn ctxt => insert (List.map (m_of_ntheorem ctxt) l))
   | Tac_plus t => Repeat1 (Then (List.map m_of_tactic t))
   | Tac_simp => simp_tac I
   | Tac_simp_add l => simp_tac (fn ctxt => ctxt addsimps (List.map (Proof_Context.get_thm ctxt o To_string) l))
+  | Tac_simp_add_del (l_add, l_del) => simp_tac (fn ctxt => ctxt addsimps (List.map (Proof_Context.get_thm ctxt o To_string) l_add)
+                                                                 delsimps (List.map (Proof_Context.get_thm ctxt o To_string) l_del))
   | Tac_simp_only l => simp_tac (fn ctxt => clear_simpset ctxt addsimps (List.map (m_of_ntheorem ctxt) l))
   | Tac_simp_all => m_of_tactic (Tac_plus [Tac_simp])
   | Tac_simp_all_add s => m_of_tactic (Tac_plus [Tac_simp_add [s]])
@@ -3441,6 +3508,8 @@ fun exec_deep (ocl, seri_args, filename_thy, tmp_export_code, l_obj) thy0 =
                                          " && bash -c 'ocp-build -init -scan -no-bytecode 2>&1' 2>&1 > /dev/null" ^
                                          " && ./_obuild/" ^ ocamlfile_ocp ^ "/" ^ ocamlfile_ocp ^ ".asm " ^ arg) in
                           out end)
+                          Deep.msg_err
+
 end end end end
 
 fun outer_syntax_command mk_string cmd_spec cmd_descr parser get_oclclass =
