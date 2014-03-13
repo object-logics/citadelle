@@ -400,6 +400,8 @@ datatype hol_tactic_last = Tacl_done
 
 datatype hol_tac_apply = App "hol_tactic list" (* apply (... ',' ...) *)
                        | App_using "hol_ntheorem list" (* using ... *)
+                       | App_let hol_expr (* name *) hol_expr
+                       | App_have string (* name *) hol_expr hol_tactic_last
 
 datatype hol_lemma_by = Lemma_by string (* name *) "hol_expr list" (* specification to prove *)
                           "hol_tactic list list" (* tactics : apply (... ',' ...) '\n' apply ... *)
@@ -462,6 +464,7 @@ definition "unicode_AA = escape_unicode ''AA''"
 definition "unicode_Turnstile = escape_unicode ''Turnstile''"
 definition "unicode_triangleq = escape_unicode ''triangleq''"
 definition "unicode_not = escape_unicode ''not''"
+definition "unicode_noteq = escape_unicode ''noteq''"
 definition "unicode_or = escape_unicode ''or''"
 definition "unicode_circ = escape_unicode ''circ''"
 definition "unicode_mapsto = escape_unicode ''mapsto''"
@@ -472,6 +475,8 @@ definition "unicode_lfloor = escape_unicode ''lfloor''"
 definition "unicode_rfloor = escape_unicode ''rfloor''"
 definition "unicode_lceil = escape_unicode ''lceil''"
 definition "unicode_rceil = escape_unicode ''rceil''"
+definition "unicode_And = escape_unicode ''And''"
+definition "unicode_subseteq = escape_unicode ''subseteq''"
 
 definition "datatype_ext_name = ''type''"
 definition "datatype_name = datatype_ext_name @@ str_of_ty object"
@@ -574,6 +579,12 @@ definition "map_class_nupl3l' f = map_class_nupl3l (\<lambda>(x,_) (y,_) (z,_) l
 definition "map_class_nupl3'_GE f x = map_class_nupl2' (\<lambda>x y. f x y y) x @@ map_class_nupl3' f x"
 definition "map_class_nupl3'_LE f x = map_class_nupl2' (\<lambda>x y. f x x y) x @@ map_class_nupl3' f x"
 definition "map_class_nupl3'_LE' f x = map_class_nupl2l' (\<lambda>x y l. f x x y l) x @@ map_class_nupl3l' f x"
+definition "map_class_one f_l f expr = 
+  (case f_l (fst (fold_class (\<lambda>isub_name name l_attr l_inh l_cons last_dataty _. ((isub_name, name, l_attr, l_inh, l_cons, last_dataty), ())) () expr)) of
+     (isub_name, name, l_attr, l_inh, l_cons, last_dataty) # _ \<Rightarrow>
+     [f isub_name name l_attr l_inh l_cons last_dataty])"
+definition "map_class_top = map_class_one rev"
+definition "map_class_bot = map_class_one id"
 definition "get_hierarchy_fold f f_l x = flatten (flatten (
   let (l1, l2, l3) = f_l (List_map fst (get_class_hierarchy x)) in
   let (_, l) = foldl (\<lambda> (name1_last, l1) name1. (Some name1, List_map (\<lambda>name2. List_map (
@@ -589,9 +600,11 @@ definition "Expr_lambdas0 = Expr_bind0 unicode_lambda"
 definition "Expr_some = Expr_paren unicode_lfloor unicode_rfloor"
 definition "Expr_parenthesis (* mandatory parenthesis *) = Expr_paren ''('' '')''"
 definition "Expr_warning_parenthesis (* optional parenthesis that can be removed but a warning will be raised *) = Expr_parenthesis"
+definition "Expr_pat b = Expr_basic [Char Nibble3 NibbleF # b]"
 definition "expr_binop s l = (case rev l of x # xs \<Rightarrow> List.fold (\<lambda>x. Expr_binop x s) xs x)"
 definition "Consts s ty_out mix = Consts_raw s (Ty_base (Char Nibble2 Nibble7 # unicode_alpha)) ty_out mix"
 definition "Tac_subst = Tac_subst_l [''0'']"
+definition "Tac_auto = Tac_auto_simp_add []"
 definition "start_map f = fold_list (\<lambda>x acc. (f x, acc))"
 definition "start_map' f x accu = (f x, accu)"
 definition "start_map''' f fl = (\<lambda> ocl.
@@ -1411,6 +1424,50 @@ definition "print_allinst_lemmas_id = start_map'
          [ Lemmas_simp '''' (List_map (Thm_str o hol_definition) name_set) ]
   else (\<lambda>_. []))"
 
+definition "print_allinst_astype_name isub_name = flatten [isub_name const_oclastype, ''_'', unicode_AA, ''_some'']"
+definition "print_allinst_astype = start_map Thy_lemma_by o map_class_top (\<lambda>isub_name name _ _ _ _.
+  let b = \<lambda>s. Expr_basic [s]
+    ; var_x = ''x''
+    ; d = hol_definition in
+  Lemma_by
+    (print_allinst_astype_name isub_name)
+    [ Expr_rewrite
+        (Expr_apply (flatten [isub_name const_oclastype, ''_'', unicode_AA]) [b var_x])
+        unicode_noteq
+        (b ''None'')]
+    []
+    (Tacl_by [Tac_simp_add [d (flatten [isub_name const_oclastype, ''_'', unicode_AA])]]))"
+
+definition "print_allinst_exec = start_map Thy_lemma_by o map_class_top (\<lambda>isub_name name _ _ _ _.
+  let b = \<lambda>s. Expr_basic [s]
+    ; a = \<lambda>f x. Expr_apply f [x]
+    ; d = hol_definition
+    ; f = Expr_paren unicode_lfloor unicode_rfloor
+    ; f_img = \<lambda>e1. Expr_binop (b e1) ''`''
+    ; var_pre_post = ''pre_post''
+    ; ran_heap = \<lambda>var_tau. f_img name (a ''ran'' (a ''heap'' (Expr_apply var_pre_post [b var_tau])))
+    ; Expr_lambd = \<lambda>x f. Expr_lambda x (f x)
+    ; f_incl = \<lambda>v1 v2.
+        let var_tau = unicode_tau in
+        Expr_bind0 unicode_And (b var_tau) (Expr_binop (Expr_applys (Expr_pat v1) [b var_tau]) unicode_subseteq (Expr_applys (Expr_pat v2) [b var_tau]))
+    ; var_B = ''B''
+    ; var_C = ''C'' in
+  Lemma_by_assum
+    (flatten [isub_name ''OclAllInstances_generic'', ''_exec''])
+    []
+    (Expr_rewrite
+       (Expr_apply ''OclAllInstances_generic'' [b var_pre_post, b name])
+       ''=''
+       (Expr_lambd unicode_tau (\<lambda>var_tau. Expr_apply ''Abs_Set_0'' [f (f (f_img ''Some'' (ran_heap var_tau))) ])))
+    (bug_ocaml_extraction (let var_S1 = ''S1''
+       ; var_S2 = ''S2'' in
+     [ App_let (Expr_pat var_S1) (Expr_lambd unicode_tau ran_heap)
+     , App_let (Expr_pat var_S2) (Expr_lambd unicode_tau (\<lambda>var_tau. Expr_binop (Expr_applys (Expr_pat var_S1) [b var_tau]) ''-'' (Expr_paren ''{'' ''}'' (b ''None''))))
+     , App_have var_B (f_incl var_S2 var_S1) (Tacl_by [Tac_auto])
+     , App_have var_C (f_incl var_S1 var_S2) (Tacl_by [Tac_auto_simp_add [print_allinst_astype_name isub_name]])
+     , App [Tac_simp_add_del [d ''OclValid''] [d ''OclAllInstances_generic'', flatten [isub_name const_ocliskindof, ''_'', name]]] ]))
+    (Tacl_by [Tac_insert [thm_OF (Thm_str ''equalityI'') (List_map Thm_str [var_B, var_C])], Tac_simp]))"
+
 definition "print_allinst_iskindof_pre_name1 = ''ex_ssubst''"
 definition "print_allinst_iskindof_pre_name2 = ''ex_def''"
 definition "print_allinst_iskindof_pre = start_map Thy_lemma_by o (\<lambda>_.
@@ -2169,6 +2226,8 @@ two operations to declare and to provide two overloading definitions for the two
 functions into the object universes; we show that this is sufficient ``characterization.'', n, '''', n, '' '' ]
             , print_allinst_def_id
             , print_allinst_lemmas_id
+            , print_allinst_astype
+            , print_allinst_exec
             , subsection ''OclIsTypeOf''
             , subsection ''OclIsKindOf''
             , print_allinst_iskindof_pre
@@ -2653,6 +2712,16 @@ definition "s_of_tactic_last = (\<lambda> Tacl_done \<Rightarrow> STR ''done''
                                 | Tacl_by l_apply \<Rightarrow> sprintf1 (STR ''by(%s)'') (String_concat (STR '', '') (List_map s_of_tactic l_apply))
                                 | Tacl_sorry \<Rightarrow> STR ''sorry'')"
 
+definition "s_of_tac_apply = (\<lambda> App [] \<Rightarrow> STR ''''
+                              | App l_apply \<Rightarrow> sprintf1 (STR ''  apply(%s)
+'') (String_concat (STR '', '') (List_map s_of_tactic l_apply))
+                              | App_using l \<Rightarrow> sprintf1 (STR ''  using %s
+'') (String_concat (STR '' '') (List_map s_of_ntheorem l))
+                              | App_let e_name e_body \<Rightarrow> sprintf2 (STR ''  proof - let %s = \"%s\" show ?thesis
+'') (s_of_expr e_name) (s_of_expr e_body)
+                              | App_have n e e_last \<Rightarrow> sprintf3 (STR ''  proof - have %s: \"%s\" %s show ?thesis
+'') (To_string n) (s_of_expr e) (s_of_tactic_last e_last))"
+
 definition "s_of_lemma_by _ =
  (\<lambda> Lemma_by n l_spec l_apply tactic_last \<Rightarrow>
     sprintf4 (STR ''lemma %s : \"%s\"
@@ -2663,8 +2732,8 @@ definition "s_of_lemma_by _ =
 '') (String_concat (STR '', '') (List_map s_of_tactic l_apply))) l_apply))
       (s_of_tactic_last tactic_last)
   | Lemma_by_assum n l_spec concl l_apply tactic_last \<Rightarrow>
-    sprintf4 (STR ''lemma %s : %s
-%s%s'')
+    sprintf5 (STR ''lemma %s : %s
+%s%s %s'')
       (To_string n)
       (String_concat (STR '''') (List_map (\<lambda>(n, e).
           sprintf2 (STR ''
@@ -2674,12 +2743,12 @@ assumes %s\"%s\"'')
        @@
        [sprintf1 (STR ''
 shows \"%s\"'') (s_of_expr concl)]))
-      (String_concat (STR '''') (List_map (\<lambda> App [] \<Rightarrow> STR '''' | App l_apply \<Rightarrow>
-sprintf1 (STR ''  apply(%s)
-'') (String_concat (STR '', '') (List_map s_of_tactic l_apply))
-        | App_using l \<Rightarrow> sprintf1 (STR ''  using %s
-'') (String_concat (STR '' '') (List_map s_of_ntheorem l))) l_apply))
-      (s_of_tactic_last tactic_last))"
+      (String_concat (STR '''') (List_map s_of_tac_apply l_apply))
+      (s_of_tactic_last tactic_last)
+      (String_concat (STR '' '')
+        (List_map
+          (\<lambda>_. STR ''qed'')
+          (filter (\<lambda> App_let _ _ \<Rightarrow> True | App_have _ _ _ \<Rightarrow> True | _ \<Rightarrow> False) l_apply))))"
 
 definition "s_of_section_title ocl = (\<lambda> Section_title n section_title \<Rightarrow>
   if D_disable_thy_output ocl then
@@ -3389,17 +3458,33 @@ end
 
 fun s_of_tactic l = (Method.Then (map m_of_tactic l), (Position.none, Position.none))
 
-val apply_results = fn OCL.App l => (fn st => st |> (Proof.apply_results (s_of_tactic l)) |> Seq.the_result "")
-                     | OCL.App_using l => fn st =>
-                         let val ctxt = Proof.context_of st in
-                         Proof.using [map (fn s => ([m_of_ntheorem ctxt s], [])) l] st
-                         end
+fun local_terminal_proof o_by = let open OCL in case o_by of
+   Tacl_done => Proof.local_done_proof
+ | Tacl_sorry => Proof.local_skip_proof true
+ | Tacl_by l_apply => Proof.local_terminal_proof (s_of_tactic l_apply, NONE)
+end
 
 fun global_terminal_proof o_by = let open OCL in case o_by of
    Tacl_done => Proof.global_done_proof
  | Tacl_sorry => Proof.global_skip_proof true
  | Tacl_by l_apply => Proof.global_terminal_proof (s_of_tactic l_apply, NONE)
 end
+
+fun proof_show f st = st
+  |> Proof.enter_forward
+  |> f
+  |> Isar_Cmd.show [((@{binding ""}, []), [("?thesis", [])])] true
+
+val apply_results = fn OCL.App l => (fn st => st |> (Proof.apply_results (s_of_tactic l)) |> Seq.the_result "")
+                     | OCL.App_using l => (fn st =>
+                         let val ctxt = Proof.context_of st in
+                         Proof.using [map (fn s => ([m_of_ntheorem ctxt s], [])) l] st
+                         end)
+                     | OCL.App_let (e1, e2) => proof_show (Proof.let_bind_cmd [([s_of_expr e1], s_of_expr e2)])
+                     | OCL.App_have (n, e, e_pr) => proof_show (fn st => st
+                         |> Isar_Cmd.have [((To_sbinding n, []), [(s_of_expr e, [])])] true
+                         |> local_terminal_proof e_pr)
+
 end
 
 structure Shallow_main = struct open Shallow_conv open Shallow_ml
@@ -3474,7 +3559,12 @@ val OCL_main = let val f_fold = fold open OCL in (*let val f = *)fn
              (Element.Shows [((@{binding ""}, []),[(s_of_expr concl, [])])])
              false lthy
         |> f_fold apply_results l_apply
-        |> global_terminal_proof o_by)
+        |> (case filter (fn OCL.App_let _ => true | OCL.App_have _ => true | _ => false) l_apply of
+              [] => global_terminal_proof o_by
+            | _ :: l => let val arg = (NONE, true) in fn st => st
+              |> local_terminal_proof o_by
+              |> f_fold (K (Proof.local_qed arg)) l
+              |> Proof.global_qed arg end))
 | Thy_section_title _ => I
 | Thy_text _ => I
 (*in fn t => fn thy => f t thy handle ERROR s => (warning s; thy)
