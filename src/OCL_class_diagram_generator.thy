@@ -1530,26 +1530,32 @@ definition "print_allinst_istypeof_pre = start_map Thy_lemma_by o (\<lambda>_.
       []
       (Tacl_by [Tac_auto_simp_add []]) ])"
 
-definition "print_allinst_istypeof_single isub_name name const_oclisof dot_isof f_simp1 f_simp2 =
+definition "print_allinst_istypeof_single isub_name name isub_name2 name2 const_oclisof dot_isof f_simp1 f_simp2 =
   (let b = \<lambda>s. Expr_basic [s]
     ; d = hol_definition
     ; s = Tac_subst_l [''1'',''2'',''3'']
     ; var_tau = unicode_tau in
   gen_pre_post
-    (\<lambda>s. flatten [name, ''_'', s, ''_'', isub_name const_oclisof])
-    (\<lambda>f_expr _. Expr_binop (b var_tau) unicode_Turnstile (Expr_apply ''OclForall'' [f_expr [b name], b (isub_name const_oclisof) ]))
+    (\<lambda>s. flatten [name, ''_'', s, ''_'', isub_name2 const_oclisof])
+    (\<lambda>f_expr _. Expr_binop (b var_tau) unicode_Turnstile (Expr_apply ''OclForall'' [f_expr [b name], b (isub_name2 const_oclisof) ]))
     (\<lambda>lem_tit lem_spec _. Lemma_by
       lem_tit
       [lem_spec]
-      [ [Tac_simp_add_del [d ''OclValid''] (d ''OclAllInstances_generic'' # f_simp1 [flatten [isub_name const_oclisof, ''_'', name]])]
+      [ [Tac_simp_add_del [d ''OclValid''] (d ''OclAllInstances_generic'' # f_simp1 [flatten [isub_name2 const_oclisof, ''_'', name]])]
       , [Tac_simp_only (flatten [List_map Thm_str [ d ''OclForall'', ''refl'', ''if_True'' ], [Thm_simplified (Thm_str ''OclAllInstances_generic_defined'') (Thm_str (d ''OclValid''))]])]
       , [Tac_simp_only [Thm_str (d ''OclAllInstances_generic'')]]
       , [s (Thm_str ''Abs_Set_0_inverse''), Tac_simp_add [d ''bot_option'']]
       , [s (Thm_where
              (Thm_str print_allinst_istypeof_pre_name1)
-             [ (''s'', let var_x = ''x'' in (Expr_lambda var_x (Expr_applys (Expr_postunary (Expr_lambda wildcard (b var_x)) (b (dot_isof name))) [b var_tau])))
+             [ (''s'', let var_x = ''x'' in (Expr_lambda var_x (Expr_applys (Expr_postunary (Expr_lambda wildcard (b var_x)) (b (dot_isof name2))) [b var_tau])))
              , (''t'', Expr_lambda wildcard (Expr_apply ''true'' [b var_tau]))])]
-      , [Tac_intro [Thm_str ''ballI'', thm_simplified (Thm_str (print_iskindof_up_eq_asty_name name)) (List_map Thm_str (d ''OclValid'' # f_simp2 [flatten [isub_name const_ocliskindof, ''_'', name]]))]]
+      , [Tac_intro [ Thm_str ''ballI''
+                   , thm_simplified
+                       (Thm_str (if name = name2 then
+                                   print_iskindof_up_eq_asty_name name
+                                 else
+                                   print_iskindof_up_larger_name name name2))
+                       (List_map Thm_str (d ''OclValid'' # f_simp2 [flatten [isub_name const_ocliskindof, ''_'', name]]))]]
       , [Tac_drule (Thm_str print_allinst_istypeof_pre_name2), Tac_erule (Thm_str (''exE'')), Tac_simp]]
       (Tacl_by [Tac_simp]))
       [])"
@@ -1561,7 +1567,7 @@ definition "print_allinst_istypeof = start_map'' Thy_lemma_by o (\<lambda>expr b
     ; s = Tac_subst_l [''1'',''2'',''3'']
     ; var_tau = unicode_tau in
   case next_dataty of None \<Rightarrow>
-    print_allinst_istypeof_single isub_name name const_oclistypeof dot_istypeof (\<lambda>_. []) id
+    print_allinst_istypeof_single isub_name name isub_name name const_oclistypeof dot_istypeof (\<lambda>_. []) id
   | Some (OclClass name_next _ _) \<Rightarrow>
     flatten 
     [ gen_pre_post
@@ -1607,8 +1613,11 @@ definition "print_allinst_istypeof = start_map'' Thy_lemma_by o (\<lambda>expr b
            (Tacl_by [Tac_simp_add [d ''state.make'', d ''OclNot'']]))
         [Tac_simp]]) expr)"
 
-definition "print_allinst_iskindof = start_map Thy_lemma_by o map_class_gen (\<lambda>isub_name name _ _ _ _.
-  print_allinst_istypeof_single isub_name name const_ocliskindof dot_iskindof id (\<lambda>_. []))"
+definition "print_allinst_iskindof_eq = start_map Thy_lemma_by o map_class_gen (\<lambda>isub_name name _ _ _ _.
+  print_allinst_istypeof_single isub_name name isub_name name const_ocliskindof dot_iskindof id (\<lambda>_. []))"
+
+definition "print_allinst_iskindof_larger = start_map Thy_lemma_by o flatten o map_class_nupl2' (\<lambda>name name2.
+  print_allinst_istypeof_single (\<lambda>s. s @@ isub_of_str name) name (\<lambda>s. s @@ isub_of_str name2) name2 const_ocliskindof dot_iskindof id (\<lambda>_. []))"
 
 subsection{* accessors *}
 
@@ -2322,7 +2331,8 @@ functions into the object universes; we show that this is sufficient ``character
             , print_allinst_istypeof_pre
             , print_allinst_istypeof
             , subsection ''OclIsKindOf''
-            , print_allinst_iskindof
+            , print_allinst_iskindof_eq
+            , print_allinst_iskindof_larger
 
             , section ''The Accessors''
             , txt''d [ ''
