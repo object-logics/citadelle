@@ -107,6 +107,8 @@ Define_state \<sigma>\<^sub>1' =
 
 Define_state \<sigma>\<^sub>0 = []
 
+Define_pre_post \<sigma>\<^sub>1 \<sigma>\<^sub>1'
+
 (*generation_syntax deep flush_all*)
 
 end
