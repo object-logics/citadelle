@@ -75,6 +75,24 @@ fun get2_inh where
    "get2_inh v = (\<lambda> T2 (T2_ext_oid _ inh) _ \<Rightarrow> inh
                   | T2 (T2_ext_rec (R _ t)) _ \<Rightarrow> get2_inh t) v"
 
+subsection{* Datatype definition of the class type and class type extension (version 3) *}
+
+datatype t3_ext = T3_ext_oid oid attr_inh attr_own
+                | T3_ext_rec "t3 recurse"
+     and t3 = T3 t3_ext
+
+fun get3_oid where
+   "get3_oid v = (\<lambda> T3 (T3_ext_oid oid _ _) \<Rightarrow> oid
+                  | T3 (T3_ext_rec (R _ t)) \<Rightarrow> get3_oid t) v"
+
+fun get3_inh where
+   "get3_inh v = (\<lambda> T3 (T3_ext_oid _ inh _) \<Rightarrow> inh
+                  | T3 (T3_ext_rec (R _ t)) \<Rightarrow> get3_inh t) v"
+
+fun get3_own where
+   "get3_own v = (\<lambda> T3 (T3_ext_oid _ _ own) \<Rightarrow> own
+                  | T3 (T3_ext_rec (R _ t)) \<Rightarrow> get3_own t) v"
+
 subsection{* Conversion t2 of t1 *}
 
 fun m2_of_m1_ext where
