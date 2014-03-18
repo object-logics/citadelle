@@ -67,13 +67,13 @@ datatype t2_ext = T2_ext_oid oid attr_inh
                 | T2_ext_rec "t2 recurse"
      and t2 = T2 t2_ext attr_own
 
-fun get_oid where
-   "get_oid v = (\<lambda> T2 (T2_ext_oid oid _) _ \<Rightarrow> oid
-                 | T2 (T2_ext_rec (R _ t)) _ \<Rightarrow> get_oid t) v"
+fun get2_oid where
+   "get2_oid v = (\<lambda> T2 (T2_ext_oid oid _) _ \<Rightarrow> oid
+                  | T2 (T2_ext_rec (R _ t)) _ \<Rightarrow> get2_oid t) v"
 
-fun get_inh where
-   "get_inh v = (\<lambda> T2 (T2_ext_oid _ inh) _ \<Rightarrow> inh
-                 | T2 (T2_ext_rec (R _ t)) _ \<Rightarrow> get_inh t) v"
+fun get2_inh where
+   "get2_inh v = (\<lambda> T2 (T2_ext_oid _ inh) _ \<Rightarrow> inh
+                  | T2 (T2_ext_rec (R _ t)) _ \<Rightarrow> get2_inh t) v"
 
 subsection{* Conversion t2 of t1 *}
 
@@ -95,7 +95,7 @@ fun m1_ext_of_m2 where
 
 definition "m1_of_m2 =
   (\<lambda> T2 (T2_ext_oid oid attr_inh) attr_own \<Rightarrow> T1 oid attr_own attr_inh None
-   | T2 (T2_ext_rec (R ide m2)) attr_own \<Rightarrow> T1 (get_oid m2) attr_own (get_inh m2) (Some (R ide (m1_ext_of_m2 m2))))"
+   | T2 (T2_ext_rec (R ide m2)) attr_own \<Rightarrow> T1 (get2_oid m2) attr_own (get2_inh m2) (Some (R ide (m1_ext_of_m2 m2))))"
 
 subsection{* Bijectivity proofs *}
 
@@ -103,10 +103,10 @@ lemma "m1_of_m2 (m2_of_m1 X) = X"
  apply(case_tac X, simp)
  proof -
 
- have id_get_oid : "\<And>oid inh m1. get_oid (m2_of_m1_ext oid inh m1) = oid"
+ have id_get_oid : "\<And>oid inh m1. get2_oid (m2_of_m1_ext oid inh m1) = oid"
  by (metis (full_types) oid.exhaust)
 
- have id_get_inh : "\<And>oid inh m1. get_inh (m2_of_m1_ext oid inh m1) = inh"
+ have id_get_inh : "\<And>oid inh m1. get2_inh (m2_of_m1_ext oid inh m1) = inh"
  by (metis (full_types) attr_inh.exhaust)
 
  have id_rec : "\<And>oid inh m1. m1_ext_of_m2 (m2_of_m1_ext oid inh m1) = m1"
@@ -131,8 +131,8 @@ lemma "m1_of_m2 (m2_of_m1 X) = X"
                           , THEN conjunct2, THEN conjunct1, THEN spec, THEN spec, THEN spec, simplified Let_def P_def])
   apply(auto)
   apply(subst m2_of_m1_def, subst m1_of_m2_def, auto)
-  apply (metis (no_types) get_oid.simps id_get_oid m2_of_m1_ext.simps t1_ext.cases t2.cases)
-  apply (metis (no_types) get_inh.simps id_get_inh m2_of_m1_ext.simps t1_ext.cases t2.cases)
+  apply (metis (no_types) get2_oid.simps id_get_oid m2_of_m1_ext.simps t1_ext.cases t2.cases)
+  apply (metis (no_types) get2_inh.simps id_get_inh m2_of_m1_ext.simps t1_ext.cases t2.cases)
   apply (metis (mono_tags) id_rec m1_ext_of_m2.simps m2_of_m1_ext.simps t1_ext.cases t2.cases)
 
   apply(simp add: m2_of_m1_def m1_of_m2_def)
@@ -153,8 +153,8 @@ lemma "m2_of_m1 (m1_of_m2 X) = X"
    apply(subst m1_of_m2_def, subst m2_of_m1_def, auto)+
 
    apply(subgoal_tac "(
-    let oid = case t2_ext of T2_ext_oid oid _ \<Rightarrow> oid | T2_ext_rec (R _ xb) \<Rightarrow> get_oid xb
-      ; inh = case t2_ext of T2_ext_oid _ inh \<Rightarrow> inh | T2_ext_rec (R _ xb) \<Rightarrow> get_inh xb in
+    let oid = case t2_ext of T2_ext_oid oid _ \<Rightarrow> oid | T2_ext_rec (R _ xb) \<Rightarrow> get2_oid xb
+      ; inh = case t2_ext of T2_ext_oid _ inh \<Rightarrow> inh | T2_ext_rec (R _ xb) \<Rightarrow> get2_inh xb in
 
     T2 (case t2_ext of T2_ext_oid _ _ \<Rightarrow> T2_ext_oid oid inh | T2_ext_rec (R ide m2) \<Rightarrow> T2_ext_rec (R ide (m2_of_m1_ext oid inh (m1_ext_of_m2 m2))) ) x) =
            T2 t2_ext x")
@@ -163,7 +163,7 @@ lemma "m2_of_m1 (m1_of_m2 X) = X"
    apply(case_tac t2_ext, simp, simp)
    apply(subst (asm) m2_of_m1_def, subst (asm) m1_of_m2_def, simp)
    proof -
-   def P \<equiv> "\<lambda>recurse. (case recurse of R ide m2 \<Rightarrow> T2_ext_rec (R ide (m2_of_m1_ext (case recurse of R xa x \<Rightarrow> get_oid x) (case recurse of R xa x \<Rightarrow> get_inh x) (m1_ext_of_m2 m2)))) =
+   def P \<equiv> "\<lambda>recurse. (case recurse of R ide m2 \<Rightarrow> T2_ext_rec (R ide (m2_of_m1_ext (case recurse of R xa x \<Rightarrow> get2_oid x) (case recurse of R xa x \<Rightarrow> get2_inh x) (m1_ext_of_m2 m2)))) =
           T2_ext_rec recurse"
    fix recurse
    show "P recurse"
