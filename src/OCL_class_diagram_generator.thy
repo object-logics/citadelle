@@ -2675,6 +2675,93 @@ definition "fold_thy_deep obj ocl =
 
 definition "ocl_deep_embed_input_empty oid_start design_analysis = ocl_deep_embed_input.make True None oid_start (0, 0) design_analysis None [] []"
 
+section{* Generation to both Form (setup part) *}
+
+definition "ocl_instance_single_rec0 f ocl = f
+  (Inst_name ocl)
+  (Inst_ty ocl)
+  (Inst_attr ocl)"
+
+definition "ocl_instance_single_rec f ocl = ocl_instance_single_rec0 f ocl
+  (ocl_instance_single.more ocl)"
+
+definition "ocl_deep_embed_input_rec0 f ocl = f
+  (D_disable_thy_output ocl)
+  (D_file_out_path_dep ocl)
+  (D_oid_start ocl)
+  (D_output_position ocl)
+  (D_design_analysis ocl)
+  (D_class_spec ocl)
+  (D_instance_rbt ocl)
+  (D_state_rbt ocl)"
+
+definition "ocl_deep_embed_input_rec f ocl = ocl_deep_embed_input_rec0 f ocl
+  (ocl_deep_embed_input.more ocl)"
+
+(* *)
+
+definition "K x _ = x"
+
+definition "co1 = op o"
+definition "co2 f g x1 x2 = f (g x1 x2)"
+definition "co3 f g x1 x2 x3 = f (g x1 x2 x3)"
+definition "co4 f g x1 x2 x3 x4 = f (g x1 x2 x3 x4)"
+definition "co5 f g x1 x2 x3 x4 x5 = f (g x1 x2 x3 x4 x5)"
+definition "co6 f g x1 x2 x3 x4 x5 x6 = f (g x1 x2 x3 x4 x5 x6)"
+definition "co7 f g x1 x2 x3 x4 x5 x6 x7 = f (g x1 x2 x3 x4 x5 x6 x7)"
+definition "co8 f g x1 x2 x3 x4 x5 x6 x7 x8 = f (g x1 x2 x3 x4 x5 x6 x7 x8)"
+definition "co9 f g x1 x2 x3 x4 x5 x6 x7 x8 x9 = f (g x1 x2 x3 x4 x5 x6 x7 x8 x9)"
+
+definition "ap1 a v0 f1 v1 = a v0 (f1 v1)"
+definition "ap2 a v0 f1 f2 v1 v2 = a (a v0 (f1 v1)) (f2 v2)"
+definition "ap3 a v0 f1 f2 f3 v1 v2 v3 = a (a (a v0 (f1 v1)) (f2 v2)) (f3 v3)"
+definition "ap4 a v0 f1 f2 f3 f4 v1 v2 v3 v4 = a (a (a (a v0 (f1 v1)) (f2 v2)) (f3 v3)) (f4 v4)"
+definition "ap5 a v0 f1 f2 f3 f4 f5 v1 v2 v3 v4 v5 = a (a (a (a (a v0 (f1 v1)) (f2 v2)) (f3 v3)) (f4 v4)) (f5 v5)"
+definition "ap6 a v0 f1 f2 f3 f4 f5 f6 v1 v2 v3 v4 v5 v6 = a (a (a (a (a (a v0 (f1 v1)) (f2 v2)) (f3 v3)) (f4 v4)) (f5 v5)) (f6 v6)"
+definition "ap7 a v0 f1 f2 f3 f4 f5 f6 f7 v1 v2 v3 v4 v5 v6 v7 = a (a (a (a (a (a (a v0 (f1 v1)) (f2 v2)) (f3 v3)) (f4 v4)) (f5 v5)) (f6 v6)) (f7 v7)"
+definition "ap8 a v0 f1 f2 f3 f4 f5 f6 f7 f8 v1 v2 v3 v4 v5 v6 v7 v8 = a (a (a (a (a (a (a (a v0 (f1 v1)) (f2 v2)) (f3 v3)) (f4 v4)) (f5 v5)) (f6 v6)) (f7 v7)) (f8 v8)"
+definition "ap9 a v0 f1 f2 f3 f4 f5 f6 f7 f8 f9 v1 v2 v3 v4 v5 v6 v7 v8 v9 = a (a (a (a (a (a (a (a (a v0 (f1 v1)) (f2 v2)) (f3 v3)) (f4 v4)) (f5 v5)) (f6 v6)) (f7 v7)) (f8 v8)) (f9 v9)"
+
+definition "ar1 a v0 = a v0"
+definition "ar2 a v0 f1 v1 = a (a v0 (f1 v1))"
+definition "ar3 a v0 f1 f2 v1 v2 = a (a (a v0 (f1 v1)) (f2 v2))"
+definition "ar4 a v0 f1 f2 f3 v1 v2 v3 = a (a (a (a v0 (f1 v1)) (f2 v2)) (f3 v3))"
+definition "ar5 a v0 f1 f2 f3 f4 v1 v2 v3 v4 = a (a (a (a (a v0 (f1 v1)) (f2 v2)) (f3 v3)) (f4 v4))"
+definition "ar6 a v0 f1 f2 f3 f4 f5 v1 v2 v3 v4 v5 = a (a (a (a (a (a v0 (f1 v1)) (f2 v2)) (f3 v3)) (f4 v4)) (f5 v5))"
+definition "ar7 a v0 f1 f2 f3 f4 f5 f6 v1 v2 v3 v4 v5 v6 = a (a (a (a (a (a (a v0 (f1 v1)) (f2 v2)) (f3 v3)) (f4 v4)) (f5 v5)) (f6 v6))"
+definition "ar8 a v0 f1 f2 f3 f4 f5 f6 f7 v1 v2 v3 v4 v5 v6 v7 = a (a (a (a (a (a (a (a v0 (f1 v1)) (f2 v2)) (f3 v3)) (f4 v4)) (f5 v5)) (f6 v6)) (f7 v7))"
+definition "ar9 a v0 f1 f2 f3 f4 f5 f6 f7 f8 v1 v2 v3 v4 v5 v6 v7 v8 = a (a (a (a (a (a (a (a (a v0 (f1 v1)) (f2 v2)) (f3 v3)) (f4 v4)) (f5 v5)) (f6 v6)) (f7 v7)) (f8 v8))"
+
+(* *)
+
+lemma [code]: "ocl_instance_single.extend = (\<lambda>ocl v. ocl_instance_single_rec0 (co3 (\<lambda>f. f v) ocl_instance_single_ext) ocl)"
+by(intro ext, simp add: ocl_instance_single_rec0_def
+                        ocl_instance_single.extend_def
+                        co3_def K_def)
+lemma [code]: "ocl_instance_single.make = co3 (\<lambda>f. f ()) ocl_instance_single_ext"
+by(intro ext, simp add: ocl_instance_single.make_def
+                        co3_def)
+lemma [code]: "ocl_instance_single.truncate = ocl_instance_single_rec (co3 K ocl_instance_single.make)"
+by(intro ext, simp add: ocl_instance_single_rec0_def
+                        ocl_instance_single_rec_def
+                        ocl_instance_single.truncate_def
+                        ocl_instance_single.make_def
+                        co3_def K_def)
+
+lemma [code]: "ocl_deep_embed_input.extend = (\<lambda>ocl v. ocl_deep_embed_input_rec0 (co8 (\<lambda>f. f v) ocl_deep_embed_input_ext) ocl)"
+by(intro ext, simp add: ocl_deep_embed_input_rec0_def
+                        ocl_deep_embed_input.extend_def
+                        co8_def K_def)
+lemma [code]: "ocl_deep_embed_input.make = co8 (\<lambda>f. f ()) ocl_deep_embed_input_ext"
+by(intro ext, simp add: ocl_deep_embed_input.make_def
+                        co8_def)
+lemma [code]: "ocl_deep_embed_input.truncate = ocl_deep_embed_input_rec (co8 K ocl_deep_embed_input.make)"
+by(intro ext, simp add: ocl_deep_embed_input_rec0_def
+                        ocl_deep_embed_input_rec_def
+                        ocl_deep_embed_input.truncate_def
+                        ocl_deep_embed_input.make_def
+                        co8_def K_def)
+
 section{* Generation to Deep Form: OCaml *}
 
 subsection{* beginning (lazy code printing) *}
@@ -3186,63 +3273,6 @@ section{* Generation to Shallow Form: SML *}
 
 subsection{* i of ... *} (* i_of *)
 
-definition "ocl_instance_single_rec0 f ocl = f
-  (Inst_name ocl)
-  (Inst_ty ocl)
-  (Inst_attr ocl)"
-
-definition "ocl_instance_single_rec f ocl = ocl_instance_single_rec0 f ocl
-  (ocl_instance_single.more ocl)"
-
-definition "ocl_deep_embed_input_rec0 f ocl = f
-  (D_disable_thy_output ocl)
-  (D_file_out_path_dep ocl)
-  (D_oid_start ocl)
-  (D_output_position ocl)
-  (D_design_analysis ocl)
-  (D_class_spec ocl)
-  (D_instance_rbt ocl)
-  (D_state_rbt ocl)"
-
-definition "ocl_deep_embed_input_rec f ocl = ocl_deep_embed_input_rec0 f ocl
-  (ocl_deep_embed_input.more ocl)"
-
-(* *)
-
-definition "K x _ = x"
-
-definition "co1 = op o"
-definition "co2 f g x1 x2 = f (g x1 x2)"
-definition "co3 f g x1 x2 x3 = f (g x1 x2 x3)"
-definition "co4 f g x1 x2 x3 x4 = f (g x1 x2 x3 x4)"
-definition "co5 f g x1 x2 x3 x4 x5 = f (g x1 x2 x3 x4 x5)"
-definition "co6 f g x1 x2 x3 x4 x5 x6 = f (g x1 x2 x3 x4 x5 x6)"
-definition "co7 f g x1 x2 x3 x4 x5 x6 x7 = f (g x1 x2 x3 x4 x5 x6 x7)"
-definition "co8 f g x1 x2 x3 x4 x5 x6 x7 x8 = f (g x1 x2 x3 x4 x5 x6 x7 x8)"
-definition "co9 f g x1 x2 x3 x4 x5 x6 x7 x8 x9 = f (g x1 x2 x3 x4 x5 x6 x7 x8 x9)"
-
-definition "ap1 a v0 f1 v1 = a v0 (f1 v1)"
-definition "ap2 a v0 f1 f2 v1 v2 = a (a v0 (f1 v1)) (f2 v2)"
-definition "ap3 a v0 f1 f2 f3 v1 v2 v3 = a (a (a v0 (f1 v1)) (f2 v2)) (f3 v3)"
-definition "ap4 a v0 f1 f2 f3 f4 v1 v2 v3 v4 = a (a (a (a v0 (f1 v1)) (f2 v2)) (f3 v3)) (f4 v4)"
-definition "ap5 a v0 f1 f2 f3 f4 f5 v1 v2 v3 v4 v5 = a (a (a (a (a v0 (f1 v1)) (f2 v2)) (f3 v3)) (f4 v4)) (f5 v5)"
-definition "ap6 a v0 f1 f2 f3 f4 f5 f6 v1 v2 v3 v4 v5 v6 = a (a (a (a (a (a v0 (f1 v1)) (f2 v2)) (f3 v3)) (f4 v4)) (f5 v5)) (f6 v6)"
-definition "ap7 a v0 f1 f2 f3 f4 f5 f6 f7 v1 v2 v3 v4 v5 v6 v7 = a (a (a (a (a (a (a v0 (f1 v1)) (f2 v2)) (f3 v3)) (f4 v4)) (f5 v5)) (f6 v6)) (f7 v7)"
-definition "ap8 a v0 f1 f2 f3 f4 f5 f6 f7 f8 v1 v2 v3 v4 v5 v6 v7 v8 = a (a (a (a (a (a (a (a v0 (f1 v1)) (f2 v2)) (f3 v3)) (f4 v4)) (f5 v5)) (f6 v6)) (f7 v7)) (f8 v8)"
-definition "ap9 a v0 f1 f2 f3 f4 f5 f6 f7 f8 f9 v1 v2 v3 v4 v5 v6 v7 v8 v9 = a (a (a (a (a (a (a (a (a v0 (f1 v1)) (f2 v2)) (f3 v3)) (f4 v4)) (f5 v5)) (f6 v6)) (f7 v7)) (f8 v8)) (f9 v9)"
-
-definition "ar1 a v0 = a v0"
-definition "ar2 a v0 f1 v1 = a (a v0 (f1 v1))"
-definition "ar3 a v0 f1 f2 v1 v2 = a (a (a v0 (f1 v1)) (f2 v2))"
-definition "ar4 a v0 f1 f2 f3 v1 v2 v3 = a (a (a (a v0 (f1 v1)) (f2 v2)) (f3 v3))"
-definition "ar5 a v0 f1 f2 f3 f4 v1 v2 v3 v4 = a (a (a (a (a v0 (f1 v1)) (f2 v2)) (f3 v3)) (f4 v4))"
-definition "ar6 a v0 f1 f2 f3 f4 f5 v1 v2 v3 v4 v5 = a (a (a (a (a (a v0 (f1 v1)) (f2 v2)) (f3 v3)) (f4 v4)) (f5 v5))"
-definition "ar7 a v0 f1 f2 f3 f4 f5 f6 v1 v2 v3 v4 v5 v6 = a (a (a (a (a (a (a v0 (f1 v1)) (f2 v2)) (f3 v3)) (f4 v4)) (f5 v5)) (f6 v6))"
-definition "ar8 a v0 f1 f2 f3 f4 f5 f6 f7 v1 v2 v3 v4 v5 v6 v7 = a (a (a (a (a (a (a (a v0 (f1 v1)) (f2 v2)) (f3 v3)) (f4 v4)) (f5 v5)) (f6 v6)) (f7 v7))"
-definition "ar9 a v0 f1 f2 f3 f4 f5 f6 f7 f8 v1 v2 v3 v4 v5 v6 v7 v8 = a (a (a (a (a (a (a (a (a v0 (f1 v1)) (f2 v2)) (f3 v3)) (f4 v4)) (f5 v5)) (f6 v6)) (f7 v7)) (f8 v8))"
-
-(* *)
-
 definition "i_of_unit b = unit_rec
   (b ''()'')"
 
@@ -3384,36 +3414,6 @@ definition "i_of_ocl_deep_embed_input a b f = ocl_deep_embed_input_rec
 (* *)
 
 definition "i_apply l1 l2 = flatten [l1, '' ('', l2, '')'']"
-
-(* *)
-
-lemma [code]: "ocl_instance_single.extend = (\<lambda>ocl v. ocl_instance_single_rec0 (co3 (\<lambda>f. f v) ocl_instance_single_ext) ocl)"
-by(intro ext, simp add: ocl_instance_single_rec0_def
-                        ocl_instance_single.extend_def
-                        co3_def K_def)
-lemma [code]: "ocl_instance_single.make = co3 (\<lambda>f. f ()) ocl_instance_single_ext"
-by(intro ext, simp add: ocl_instance_single.make_def
-                        co3_def)
-lemma [code]: "ocl_instance_single.truncate = ocl_instance_single_rec (co3 K ocl_instance_single.make)"
-by(intro ext, simp add: ocl_instance_single_rec0_def
-                        ocl_instance_single_rec_def
-                        ocl_instance_single.truncate_def
-                        ocl_instance_single.make_def
-                        co3_def K_def)
-
-lemma [code]: "ocl_deep_embed_input.extend = (\<lambda>ocl v. ocl_deep_embed_input_rec0 (co8 (\<lambda>f. f v) ocl_deep_embed_input_ext) ocl)"
-by(intro ext, simp add: ocl_deep_embed_input_rec0_def
-                        ocl_deep_embed_input.extend_def
-                        co8_def K_def)
-lemma [code]: "ocl_deep_embed_input.make = co8 (\<lambda>f. f ()) ocl_deep_embed_input_ext"
-by(intro ext, simp add: ocl_deep_embed_input.make_def
-                        co8_def)
-lemma [code]: "ocl_deep_embed_input.truncate = ocl_deep_embed_input_rec (co8 K ocl_deep_embed_input.make)"
-by(intro ext, simp add: ocl_deep_embed_input_rec0_def
-                        ocl_deep_embed_input_rec_def
-                        ocl_deep_embed_input.truncate_def
-                        ocl_deep_embed_input.make_def
-                        co8_def K_def)
 
 subsection{* global *}
 
