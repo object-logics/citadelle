@@ -313,6 +313,7 @@ definition "fold_less2 = fold_less_gen List.fold"
 definition "fold_less3 = fold_less_gen o fold_less2"
 
 definition "List_map f l = rev (foldl (\<lambda>l x. f x # l) [] l)"
+definition "List_iter f = foldl (\<lambda>_. f) ()"
 definition "flatten l = foldl (\<lambda>acc l. foldl (\<lambda>acc x. x # acc) acc (rev l)) [] (rev l)"
 definition List_append (infixr "@@" 65) where "List_append a b = flatten [a, b]"
 definition "List_filter f l = rev (foldl (\<lambda>l x. if f x then x # l else l) [] l)"
@@ -491,6 +492,8 @@ definition "unicode_lceil = escape_unicode ''lceil''"
 definition "unicode_rceil = escape_unicode ''rceil''"
 definition "unicode_And = escape_unicode ''And''"
 definition "unicode_subseteq = escape_unicode ''subseteq''"
+definition "unicode_Rightarrow = escape_unicode ''Rightarrow''"
+definition "unicode_Longrightarrow = escape_unicode ''Longrightarrow''"
 
 definition "datatype_ext_name = ''type''"
 definition "datatype_name = datatype_ext_name @@ str_of_ty object"
@@ -2883,9 +2886,6 @@ module To = struct
 
   let nat nat_rec =
     M.to_nat << nat_rec Zero_nat (fun _ x -> Suc x)
-
-  let oid oid_rec nat_rec oid =
-    oid_rec (nat nat_rec) oid
 end
 
 module CodeType = struct
@@ -2928,7 +2928,6 @@ datatype ml_nat = ML_nat
 datatype ml_nibble = ML_nibble
 datatype ml_char = ML_char
 datatype ml_int = ML_int
-datatype ml_oid = ML_oid
 
 code_printing type_constructor ml_int \<rightharpoonup> (OCaml) "CodeType.int"
 
@@ -2936,7 +2935,7 @@ subsection{* ML code const *}
 
 text{* ... *}
 
-consts out_file0 :: "((ml_string \<Rightarrow> unit) (* fprintf *) \<Rightarrow> unit) \<Rightarrow> ml_string \<Rightarrow> unit"
+(*consts out_file0 :: "((ml_string \<Rightarrow> unit) (* fprintf *) \<Rightarrow> unit) \<Rightarrow> ml_string \<Rightarrow> unit"*)
 consts out_file1 :: "((ml_string \<Rightarrow> '\<alpha>1 \<Rightarrow> unit) (* fprintf *) \<Rightarrow> unit) \<Rightarrow> ml_string \<Rightarrow> unit"
 code_printing constant out_file1 \<rightharpoonup> (OCaml) "CodeConst.outFile1"
 
@@ -2955,12 +2954,6 @@ consts ToNat :: "(ml_nat \<Rightarrow> (nat \<Rightarrow> ml_nat \<Rightarrow> m
                  nat \<Rightarrow> ml_int"
 code_printing constant ToNat \<rightharpoonup> (OCaml) "CodeConst.To.nat"
 definition "To_nat = ToNat nat_rec"
-
-consts ToOid :: "((nat \<Rightarrow> ml_oid) \<Rightarrow> internal_oid \<Rightarrow> ml_oid) \<Rightarrow>
-                  (ml_nat \<Rightarrow> (nat \<Rightarrow> ml_nat \<Rightarrow> ml_nat) \<Rightarrow> nat \<Rightarrow> ml_nat) \<Rightarrow>
-                 internal_oid \<Rightarrow> ml_int"
-code_printing constant ToOid \<rightharpoonup> (OCaml) "CodeConst.To.oid"
-definition "To_oid = ToOid internal_oid_rec nat_rec"
 
 text{* module Printf *}
 
@@ -2995,10 +2988,6 @@ text{* module String *}
 consts String_concat :: "ml_string \<Rightarrow> ml_string list \<Rightarrow> ml_string"
 code_printing constant String_concat \<rightharpoonup> (OCaml) "CodeConst.String.concat"
 
-text{* module List *}
-
-definition "List_iter f = foldl (\<lambda>_. f) ()"
-
 text{* module Sys *}
 
 consts Sys_is_directory2 :: "ml_string \<Rightarrow> bool"
@@ -3007,11 +2996,9 @@ code_printing constant Sys_is_directory2 \<rightharpoonup> (OCaml) "CodeConst.Sy
 consts Sys_argv :: "ml_string list"
 code_printing constant Sys_argv \<rightharpoonup> (OCaml) "CodeConst.Sys.argv"
 
-text{* module Unicode *}
+subsection{* ... *}
 
-definition "Unicode_mk_u = sprintf1s (STR (Char Nibble5 NibbleC # ''<%s>''))"
-definition "Unicode_u_Rightarrow = Unicode_mk_u (STR ''Rightarrow'')"
-definition "Unicode_u_Longrightarrow = Unicode_mk_u (STR ''Longrightarrow'')"
+definition "To_oid = internal_oid_rec (ToNat nat_rec)"
 
 subsection{* s of ... *} (* s_of *)
 
@@ -3042,7 +3029,7 @@ definition "s_of_ty_synonym _ = (\<lambda> Type_synonym n l \<Rightarrow>
 fun_quick s_of_expr where "s_of_expr expr = (
   case expr of
     Expr_case e l \<Rightarrow> sprintf2 (STR ''(case %s of %s)'') (s_of_expr e) (String_concat (STR ''
-    | '') (List.map (\<lambda> (s1, s2) \<Rightarrow> sprintf3 (STR ''%s %s %s'') (s_of_expr s1) Unicode_u_Rightarrow (s_of_expr s2)) l))
+    | '') (List.map (\<lambda> (s1, s2) \<Rightarrow> sprintf3 (STR ''%s %s %s'') (s_of_expr s1) (To_string unicode_Rightarrow) (s_of_expr s2)) l))
   | Expr_rewrite e1 symb e2 \<Rightarrow> sprintf3 (STR ''%s %s %s'') (s_of_expr e1) (To_string symb) (s_of_expr e2)
   | Expr_basic l \<Rightarrow> sprintf1 (STR ''%s'') (String_concat (STR '' '') (List_map To_string l))
   | Expr_oid tit s \<Rightarrow> sprintf2 (STR ''%s%d'') (To_string tit) (To_oid s)
@@ -3051,7 +3038,7 @@ fun_quick s_of_expr where "s_of_expr expr = (
   | Expr_bind symb l e \<Rightarrow> sprintf3 (STR ''(%s%s. %s)'') (To_string symb) (String_concat (STR '' '') (List_map To_string l)) (s_of_expr e)
   | Expr_bind0 symb e1 e2 \<Rightarrow> sprintf3 (STR ''(%s%s. %s)'') (To_string symb) (s_of_expr e1) (s_of_expr e2)
   | Expr_function l \<Rightarrow> sprintf2 (STR ''(%s %s)'') (To_string unicode_lambda) (String_concat (STR ''
-    | '') (List.map (\<lambda> (s1, s2) \<Rightarrow> sprintf3 (STR ''%s %s %s'') (s_of_expr s1) Unicode_u_Rightarrow (s_of_expr s2)) l))
+    | '') (List.map (\<lambda> (s1, s2) \<Rightarrow> sprintf3 (STR ''%s %s %s'') (s_of_expr s1) (To_string unicode_Rightarrow) (s_of_expr s2)) l))
   (*| Expr_apply s [e] \<Rightarrow> sprintf2 (STR ''(%s %s)'') (To_string s) (s_of_expr e)*)
   | Expr_apply s l \<Rightarrow> sprintf2 (STR ''(%s %s)'') (To_string s) (String_concat (STR '' '') (List.map (\<lambda> e \<Rightarrow> sprintf1 (STR ''(%s)'') (s_of_expr e)) l))
   | Expr_applys e l \<Rightarrow> sprintf2 (STR ''((%s) %s)'') (s_of_expr e) (String_concat (STR '' '') (List.map (\<lambda> e \<Rightarrow> sprintf1 (STR ''(%s)'') (s_of_expr e)) l))
@@ -3075,7 +3062,7 @@ definition "s_of_defs_overloaded _ = (\<lambda> Defs_overloaded n e \<Rightarrow
     sprintf2 (STR ''defs(overloaded) %s : \"%s\"'') (To_string n) (s_of_expr e))"
 
 definition "s_of_consts_class _ = (\<lambda> Consts_raw n ty_out1 ty_out2 symb \<Rightarrow>
-    sprintf5 (STR ''consts %s :: \"%s %s %s\" (\"(_) %s\")'') (To_string n) (s_of_rawty ty_out1) Unicode_u_Rightarrow (s_of_rawty ty_out2) (To_string symb))"
+    sprintf5 (STR ''consts %s :: \"%s %s %s\" (\"(_) %s\")'') (To_string n) (s_of_rawty ty_out1) (To_string unicode_Rightarrow) (s_of_rawty ty_out2) (To_string symb))"
 
 definition "s_of_definition_hol _ = (\<lambda>
     Definition e \<Rightarrow> sprintf1 (STR ''definition \"%s\"'') (s_of_expr e)
@@ -3170,7 +3157,7 @@ definition "s_of_lemma_by _ =
     sprintf4 (STR ''lemma %s : \"%s\"
 %s%s'')
       (To_string n)
-      (String_concat (sprintf1 (STR '' %s '') Unicode_u_Longrightarrow) (List_map s_of_expr l_spec))
+      (String_concat (sprintf1 (STR '' %s '') (To_string unicode_Longrightarrow)) (List_map s_of_expr l_spec))
       (String_concat (STR '''') (List_map (\<lambda> [] \<Rightarrow> STR '''' | l_apply \<Rightarrow> sprintf1 (STR ''  apply(%s)
 '') (String_concat (STR '', '') (List_map s_of_tactic l_apply))) l_apply))
       (s_of_tactic_last tactic_last)
@@ -3420,6 +3407,7 @@ subsection{* global *}
 code_reflect OCL
    functions nibble_rec char_rec
              char_escape
+             unicode_Rightarrow unicode_Longrightarrow
              fold_thy fold_thy_deep
              ocl_deep_embed_input_empty ocl_deep_embed_input_more_map ocl_deep_embed_ast_map oidInit
              D_file_out_path_dep_update
@@ -3718,16 +3706,12 @@ structure Shallow_conv = struct
 
 val STR = I
 
-val Unicode_mk_u = fn s => (STR ("\\" ^ "<" ^ s ^ ">"))
-val Unicode_u_Rightarrow = Unicode_mk_u (STR "Rightarrow")
-val Unicode_u_Longrightarrow = Unicode_mk_u (STR "Longrightarrow")
-
 fun s_of_expr expr = let open OCL in
   case expr of
     Expr_case (e, l) => let val s1 =
  (s_of_expr e)
 val s2 = (String.concatWith (STR "\n    | ") (List.map (fn (s1, s2) => String.concatWith (STR " ")
- [(s_of_expr s1), Unicode_u_Rightarrow, (s_of_expr s2)]) l)) in
+ [(s_of_expr s1), To_string unicode_Rightarrow, (s_of_expr s2)]) l)) in
 (STR "(case " ^ s1 ^ " of " ^ s2 ^ ")") end
   | Expr_rewrite (e1, symb, e2) => String.concatWith (STR " ") [(s_of_expr e1), (To_string symb), (s_of_expr e2)]
   | Expr_basic l =>  (String.concatWith (STR " ") (List.map To_string l))
@@ -3736,7 +3720,7 @@ val s2 = (String.concatWith (STR "\n    | ") (List.map (fn (s1, s2) => String.co
   | Expr_annot (e, s) => (STR "(" ^ (s_of_expr e)  ^ "::" ^ (To_string s) ^ ")")
   | Expr_bind (symb, l, e) => (STR "(" ^ To_string symb ^ "" ^ (String.concatWith (STR " ") (List.map To_string l)) ^ ". " ^ (s_of_expr e) ^ ")")
   | Expr_bind0 (symb, e1, e2) => (STR "(" ^ To_string symb ^ "" ^ (s_of_expr e1) ^ ". " ^ (s_of_expr e2) ^ ")")
-  | Expr_function l =>  (STR "(" ^ (To_string unicode_lambda)  ^ " " ^ (String.concatWith (STR "\n    | ") (List.map (fn (s1, s2) => String.concatWith (STR " ") [ (s_of_expr s1),Unicode_u_Rightarrow, (s_of_expr s2)]) l)) ^ ")")
+  | Expr_function l =>  (STR "(" ^ (To_string unicode_lambda)  ^ " " ^ (String.concatWith (STR "\n    | ") (List.map (fn (s1, s2) => String.concatWith (STR " ") [ (s_of_expr s1), To_string unicode_Rightarrow, (s_of_expr s2)]) l)) ^ ")")
   (*| Expr_apply s [e] => sprintf2 (STR "(" ^ s ^ " " ^ s ^ ")") (To_string s) (s_of_expr e)*)
   | Expr_apply (s, l) =>  let val s1 = (To_string s) val s2 = (String.concatWith (STR " ") (List.map (fn e => (STR "(" ^ (s_of_expr e) ^ ")") ) l)) in
 (STR "(" ^ s1 ^ " " ^ s2 ^ ")") end
@@ -3890,7 +3874,7 @@ val OCL_main = let val f_fold = fold open OCL in (*let val f = *)fn
     Isar_Cmd.add_defs ((false, true), [((To_sbinding n, s_of_expr e), [])])
 | Thy_consts_class (Consts_raw (n, ty_out1, ty_out2, symb)) =>
     Sign.add_consts [( To_sbinding n
-                     , String.concatWith " " [ (s_of_rawty ty_out1), Unicode_u_Rightarrow, (s_of_rawty ty_out2) ]
+                     , String.concatWith " " [ (s_of_rawty ty_out1), To_string unicode_Rightarrow, (s_of_rawty ty_out2) ]
                      , Mixfix ("(_) " ^ To_string symb, [], 1000))]
 | Thy_definition_hol def =>
     let val (def, e) = case def of
@@ -3923,7 +3907,7 @@ val OCL_main = let val f_fold = fold open OCL in (*let val f = *)fn
       in_local (fn lthy =>
            Specification.theorem_cmd Thm.lemmaK NONE (K I)
              (@{binding ""}, []) [] [] (Element.Shows [((To_sbinding n, [])
-                                                       ,[((String.concatWith (STR " " ^ Unicode_u_Longrightarrow ^ " ")
+                                                       ,[((String.concatWith (STR " " ^ (To_string OCL.unicode_Longrightarrow) ^ " ")
                                                              (List.map s_of_expr l_spec)), [])])])
              false lthy
         |> f_fold (apply_results o OCL.App) l_apply
