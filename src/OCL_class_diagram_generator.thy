@@ -2930,6 +2930,7 @@ datatype ml_char = ML_char
 datatype ml_int = ML_int
 
 code_printing type_constructor ml_int \<rightharpoonup> (OCaml) "CodeType.int"
+            | type_constructor ml_int \<rightharpoonup> (SML) "string"
 
 subsection{* ML code const *}
 
@@ -2948,12 +2949,10 @@ consts ToString :: "(ml_nibble \<Rightarrow> ml_nibble \<Rightarrow> ml_nibble \
                     ((nibble \<Rightarrow> nibble \<Rightarrow> ml_char) \<Rightarrow> char \<Rightarrow> ml_char) \<Rightarrow>
                     string \<Rightarrow> ml_string"
 code_printing constant ToString \<rightharpoonup> (OCaml) "CodeConst.To.string"
-definition "To_string = ToString nibble_rec char_rec"
 
 consts ToNat :: "(ml_nat \<Rightarrow> (nat \<Rightarrow> ml_nat \<Rightarrow> ml_nat) \<Rightarrow> nat \<Rightarrow> ml_nat) \<Rightarrow>
                  nat \<Rightarrow> ml_int"
 code_printing constant ToNat \<rightharpoonup> (OCaml) "CodeConst.To.nat"
-definition "To_nat = ToNat nat_rec"
 
 text{* module Printf *}
 
@@ -2967,8 +2966,11 @@ consts sprintf6 :: "ml_string \<Rightarrow> '\<alpha>1 \<Rightarrow> '\<alpha>2 
 
 code_printing constant sprintf0 \<rightharpoonup> (OCaml) "CodeConst.Printf.sprintf"
 code_printing constant sprintf1 \<rightharpoonup> (OCaml) "CodeConst.Printf.sprintf"
+            | constant sprintf1 \<rightharpoonup> (SML) "OCL'_boot.sprintf1"
 code_printing constant sprintf2 \<rightharpoonup> (OCaml) "CodeConst.Printf.sprintf"
+            | constant sprintf2 \<rightharpoonup> (SML) "OCL'_boot.sprintf2"
 code_printing constant sprintf3 \<rightharpoonup> (OCaml) "CodeConst.Printf.sprintf"
+            | constant sprintf3 \<rightharpoonup> (SML) "OCL'_boot.sprintf3"
 code_printing constant sprintf4 \<rightharpoonup> (OCaml) "CodeConst.Printf.sprintf"
 code_printing constant sprintf5 \<rightharpoonup> (OCaml) "CodeConst.Printf.sprintf"
 code_printing constant sprintf6 \<rightharpoonup> (OCaml) "CodeConst.Printf.sprintf"
@@ -2987,6 +2989,7 @@ text{* module String *}
 
 consts String_concat :: "ml_string \<Rightarrow> ml_string list \<Rightarrow> ml_string"
 code_printing constant String_concat \<rightharpoonup> (OCaml) "CodeConst.String.concat"
+            | constant String_concat \<rightharpoonup> (SML) "String.concatWith"
 
 text{* module Sys *}
 
@@ -2998,10 +3001,22 @@ code_printing constant Sys_argv \<rightharpoonup> (OCaml) "CodeConst.Sys.argv"
 
 subsection{* ... *}
 
-definition "To_oid = internal_oid_rec (ToNat nat_rec)"
+locale s_of = 
+  fixes To_string :: "string \<Rightarrow> ml_string"
+  fixes To_nat :: "nat \<Rightarrow> ml_int"
+
+  fixes s_of_expr :: "hol_expr \<Rightarrow> String.literal"
+  fixes s_of_ntheorem_aux :: "(String.literal \<times> String.literal) list \<Rightarrow> hol_ntheorem \<Rightarrow> String.literal"
+  fixes s_of_tactic :: "hol_tactic \<Rightarrow> String.literal"
+  fixes s_of_rawty :: "hol_raw_ty \<Rightarrow> String.literal"
+begin
+definition "To_oid = internal_oid_rec To_nat"
+end
 
 subsection{* s of ... *} (* s_of *)
 
+context s_of
+begin
 definition "s_of_dataty _ = (\<lambda> Datatype n l \<Rightarrow>
   sprintf2 (STR ''datatype %s = %s'')
     (To_string n)
@@ -3017,7 +3032,7 @@ definition "s_of_dataty _ = (\<lambda> Datatype n l \<Rightarrow>
                | Raw o_ \<Rightarrow> sprintf1 (STR ''%s'') (To_string o_))
               l))) l) ))"
 
-fun_quick s_of_rawty where "s_of_rawty rawty = (case rawty of
+definition "flat_s_of_rawty = (\<lambda>
     Ty_base s \<Rightarrow> To_string s
   | Ty_apply name l \<Rightarrow> sprintf2 (STR ''%s %s'') (let s = String_concat (STR '', '') (List.map s_of_rawty l) in
                                                  case l of [_] \<Rightarrow> s | _ \<Rightarrow> sprintf1 (STR ''(%s)'') s)
@@ -3026,8 +3041,7 @@ fun_quick s_of_rawty where "s_of_rawty rawty = (case rawty of
 definition "s_of_ty_synonym _ = (\<lambda> Type_synonym n l \<Rightarrow>
     sprintf2 (STR ''type_synonym %s = \"%s\"'') (To_string n) (s_of_rawty l))"
 
-fun_quick s_of_expr where "s_of_expr expr = (
-  case expr of
+definition "flat_s_of_expr = (\<lambda>
     Expr_case e l \<Rightarrow> sprintf2 (STR ''(case %s of %s)'') (s_of_expr e) (String_concat (STR ''
     | '') (List.map (\<lambda> (s1, s2) \<Rightarrow> sprintf3 (STR ''%s %s %s'') (s_of_expr s1) (To_string unicode_Rightarrow) (s_of_expr s2)) l))
   | Expr_rewrite e1 symb e2 \<Rightarrow> sprintf3 (STR ''%s %s %s'') (s_of_expr e1) (To_string symb) (s_of_expr e2)
@@ -3071,7 +3085,7 @@ definition "s_of_definition_hol _ = (\<lambda>
   | Definition_abbrev0 name abbrev e \<Rightarrow> sprintf3 (STR ''definition %s (\"%s\")
   where \"%s\"'') (To_string name) (s_of_expr abbrev) (s_of_expr e))"
 
-fun_quick s_of_ntheorem_aux where "s_of_ntheorem_aux lacc expr =
+definition "flat_s_of_ntheorem_aux lacc =
   (let f_where = (\<lambda>l. (STR ''where'', String_concat (STR '' and '')
                                         (List_map (\<lambda>(var, expr). sprintf2 (STR ''%s = \"%s\"'')
                                                         (To_string var)
@@ -3081,7 +3095,7 @@ fun_quick s_of_ntheorem_aux where "s_of_ntheorem_aux lacc expr =
                                                         (s_of_expr expr)) l)))
      ; f_symmetric = (STR ''symmetric'', STR '''')
      ; s_base = (\<lambda>s lacc. sprintf2 (STR ''%s[%s]'') (To_string s) (String_concat (STR '', '') (List_map (\<lambda>(s, x). sprintf2 (STR ''%s %s'') s x) lacc))) in
-  (\<lambda> Thm_str s \<Rightarrow> To_string s
+   \<lambda> Thm_str s \<Rightarrow> To_string s
    | Thm_THEN (Thm_str s) e2 \<Rightarrow> s_base s ((STR ''THEN'', s_of_ntheorem_aux [] e2) # lacc)
    | Thm_THEN e1 e2 \<Rightarrow> s_of_ntheorem_aux ((STR ''THEN'', s_of_ntheorem_aux [] e2) # lacc) e1
    | Thm_simplified (Thm_str s) e2 \<Rightarrow> s_base s ((STR ''simplified'', s_of_ntheorem_aux [] e2) # lacc)
@@ -3093,7 +3107,7 @@ fun_quick s_of_ntheorem_aux where "s_of_ntheorem_aux lacc expr =
    | Thm_of (Thm_str s) l \<Rightarrow> s_base s (f_of l # lacc)
    | Thm_of e1 l \<Rightarrow> s_of_ntheorem_aux (f_of l # lacc) e1
    | Thm_OF (Thm_str s) e2 \<Rightarrow> s_base s ((STR ''OF'', s_of_ntheorem_aux [] e2) # lacc)
-   | Thm_OF e1 e2 \<Rightarrow> s_of_ntheorem_aux ((STR ''OF'', s_of_ntheorem_aux [] e2) # lacc) e1) expr)"
+   | Thm_OF e1 e2 \<Rightarrow> s_of_ntheorem_aux ((STR ''OF'', s_of_ntheorem_aux [] e2) # lacc) e1)"
 
 definition "s_of_ntheorem = s_of_ntheorem_aux []"
 
@@ -3108,7 +3122,7 @@ definition "s_of_lemmas_simp _ = (\<lambda> Lemmas_simp s l \<Rightarrow>
       (String_concat (STR ''
                             '') (List_map To_string l)))"
 
-fun_quick s_of_tactic where "s_of_tactic expr = (\<lambda>
+definition "flat_s_of_tactic expr = (\<lambda>
     Tac_rule s \<Rightarrow> sprintf1 (STR ''rule %s'') (s_of_ntheorem s)
   | Tac_drule s \<Rightarrow> sprintf1 (STR ''drule %s'') (s_of_ntheorem s)
   | Tac_erule s \<Rightarrow> sprintf1 (STR ''erule %s'') (s_of_ntheorem s)
@@ -3219,9 +3233,12 @@ definition "s_of_thy_list ocl l_thy =
                  (To_string (if ocl_deep_embed_input.more ocl then '''' else [char_escape])) (To_nat (Suc i)) (To_nat cpt) (To_nat lg)
              # l_thy), Suc i, cpt + lg)) l_thy (D_output_position ocl)))
         , th_end ])"
+end
 
 subsection{* conclusion *}
 
+context s_of
+begin
 definition "write_file ocl = (
   let (is_file, f_output) = case (D_file_out_path_dep ocl, Sys_argv)
      of (Some (file_out, _), _ # dir # _) \<Rightarrow> (True, \<lambda>f. out_file1 f (if Sys_is_directory2 dir then sprintf2 (STR ''%s/%s.thy'') dir (To_string file_out) else dir))
@@ -3233,6 +3250,42 @@ definition "write_file ocl = (
         (s_of_thy_list (ocl_deep_embed_input_more_map (\<lambda>_. is_file) ocl)
           ((rev o snd o fold_thy' Cons (ocl_deep_embed_input.more ocl))
              (ocl_deep_embed_input.truncate ocl, [])))))"
+end
+
+fun_sorry s_of_rawty where "s_of_rawty To_string e = s_of.flat_s_of_rawty To_string (s_of_rawty To_string) e"
+fun_sorry s_of_expr where "s_of_expr To_string To_nat e = s_of.flat_s_of_expr To_string To_nat (s_of_expr To_string To_nat) e"
+fun_sorry s_of_ntheorem_aux where "s_of_ntheorem_aux To_string To_nat e = s_of.flat_s_of_ntheorem_aux To_string (s_of_expr To_string To_nat) (s_of_ntheorem_aux To_string To_nat) e"
+fun_sorry s_of_tactic where "s_of_tactic To_string To_nat e = s_of.flat_s_of_tactic To_string (s_of_expr To_string To_nat) (s_of_ntheorem_aux To_string To_nat) (s_of_tactic To_string To_nat) e"
+
+definition "write_file = 
+ (let To_string = ToString nibble_rec char_rec
+    ; To_nat = ToNat nat_rec in
+  s_of.write_file To_string To_nat (s_of_expr To_string To_nat) (s_of_ntheorem_aux To_string To_nat) (s_of_tactic To_string To_nat) (s_of_rawty To_string))"
+
+lemmas [code] =
+  s_of.To_oid_def
+
+  s_of.s_of_dataty_def
+  s_of.flat_s_of_rawty_def
+  s_of.s_of_ty_synonym_def
+  s_of.flat_s_of_expr_def
+  s_of.s_of_instantiation_class_def
+  s_of.s_of_defs_overloaded_def
+  s_of.s_of_consts_class_def
+  s_of.s_of_definition_hol_def
+  s_of.flat_s_of_ntheorem_aux_def
+  s_of.s_of_ntheorem_def
+  s_of.s_of_lemmas_simp_def
+  s_of.flat_s_of_tactic_def
+  s_of.s_of_tactic_last_def
+  s_of.s_of_tac_apply_def
+  s_of.s_of_lemma_by_def
+  s_of.s_of_section_title_def
+  s_of.s_of_text_def
+  s_of.s_of_thy_def
+  s_of.s_of_thy_list_def
+
+  s_of.write_file_def 
 
 subsection{* Deep (without reflection) *}
 
@@ -3404,8 +3457,31 @@ definition "i_apply l1 l2 = flatten [l1, '' ('', l2, '')'']"
 
 subsection{* global *}
 
+ML{* 
+structure OCL_boot = struct
+  local
+    fun sprintf s l = 
+      case String.fields (fn #"%" => true | _ => false) s of
+        [] => ""
+      | [x] => x
+      | x :: xs => 
+          let fun aux acc l_pat l_s = 
+            case l_pat of 
+              [] => rev acc
+            | x :: xs => aux (String.extract (x, 1, NONE) :: hd l_s :: acc) xs (tl l_s) in
+          String.concat (x :: aux [] xs l)
+    end
+  in
+    fun sprintf1 s_pat s1 = sprintf s_pat [s1]
+    fun sprintf2 s_pat s1 s2 = sprintf s_pat [s1, s2]
+    fun sprintf3 s_pat s1 s2 s3 = sprintf s_pat [s1, s2, s3]
+  end
+end
+*}
+
 code_reflect OCL
-   functions nibble_rec char_rec
+   functions nibble_rec char_rec 
+             s_of_rawty s_of_expr
              char_escape
              unicode_Rightarrow unicode_Longrightarrow
              fold_thy fold_thy_deep
@@ -3415,44 +3491,24 @@ code_reflect OCL
 
 ML{*
 structure To = struct
-  datatype nat = Zero_nat | Suc of nat
-
-  datatype nibble = Nibble0 | Nibble1 | Nibble2 | Nibble3 | Nibble4 | Nibble5 |
-    Nibble6 | Nibble7 | Nibble8 | Nibble9 | NibbleA | NibbleB | NibbleC | NibbleD
-    | NibbleE | NibbleF
-
-  datatype char = Char of nibble * nibble
-
-  structure M = struct
+    open OCL
     val to_nibble = fn
       Nibble0 => 0x0 | Nibble1 => 0x1 | Nibble2 => 0x2 | Nibble3 => 0x3 | Nibble4 => 0x4 | Nibble5 => 0x5 |
        Nibble6 => 0x6 | Nibble7 => 0x7 | Nibble8 => 0x8 | Nibble9 => 0x9 | NibbleA => 0xA | NibbleB => 0xB | NibbleC => 0xC | NibbleD => 0xD
       | NibbleE => 0xE | NibbleF => 0xF
 
-    val to_char = fn Char (n1, n2) => Char.chr ((to_nibble n1) * 16 + to_nibble n2)
+    val to_char = fn OCL.Char (n1, n2) => Char.chr ((to_nibble n1) * 16 + to_nibble n2)
 
-    fun to_string l = (String.concat (map (fn c => str (to_char c)) l))
+    fun to_string l = String.concat (map (fn c => str (to_char c)) l)
 
     val to_nat =
-      let fun aux n = fn Zero_nat => n | Suc xs => aux (n + 1) xs in
+      let fun aux n = fn Zero_nat => n | OCL.Suc xs => aux (n + 1) xs in
       aux 0
       end
-  end
-
-  fun string nibble_rec char_rec =
-    let val ofN = nibble_rec
-      Nibble0 Nibble1 Nibble2 Nibble3 Nibble4 Nibble5
-      Nibble6 Nibble7 Nibble8 Nibble9 NibbleA NibbleB
-      NibbleC NibbleD NibbleE NibbleF in
-    M.to_string o List.map (char_rec (fn c1 => fn c2 => Char (ofN c1, ofN c2)))
-    end
-
-  fun nat nat_rec =
-    M.to_nat o nat_rec Zero_nat (fn _ => Suc)
 end
 
- val To_string = To.string OCL.nibble_rec OCL.char_rec
- val To_nat = To.nat OCL.nat_rec
+ val To_string = To.to_string
+ val To_nat = To.to_nat
 *}
 
 ML{*
@@ -3693,47 +3749,22 @@ end
 
 subsection{* Shallow *}
 
+ML{* 
+structure OCL_overload = struct
+  val s_of_rawty = OCL.s_of_rawty To_string
+  val s_of_expr = OCL.s_of_expr To_string (Int.toString o To_nat)
+  val fold = fold
+end
+*}
+
 ML{*
 structure Shallow_conv = struct
  fun To_binding s = Binding.make (s, Position.none)
  val To_sbinding = To_binding o To_string
- fun s_of_rawty rawty = case rawty of
-    OCL.Ty_base s => To_string s
-  | OCL.Ty_apply (name, l) => (let val s = String.concatWith ", " (map s_of_rawty l) in
-                                                 case l of [_] => s | _ => "(" ^ s ^ ")" end)
-                              ^ " " ^
-                              (s_of_rawty name)
-
-val STR = I
-
-fun s_of_expr expr = let open OCL in
-  case expr of
-    Expr_case (e, l) => let val s1 =
- (s_of_expr e)
-val s2 = (String.concatWith (STR "\n    | ") (List.map (fn (s1, s2) => String.concatWith (STR " ")
- [(s_of_expr s1), To_string unicode_Rightarrow, (s_of_expr s2)]) l)) in
-(STR "(case " ^ s1 ^ " of " ^ s2 ^ ")") end
-  | Expr_rewrite (e1, symb, e2) => String.concatWith (STR " ") [(s_of_expr e1), (To_string symb), (s_of_expr e2)]
-  | Expr_basic l =>  (String.concatWith (STR " ") (List.map To_string l))
-  | Expr_oid (tit, s) => To_string tit ^ Int.toString (case s of Oid s => To_nat s)
-  | Expr_binop (e1, s, e2) => String.concatWith (STR " ") [(s_of_expr e1), (s_of_expr (Expr_basic [s])), (s_of_expr e2)]
-  | Expr_annot (e, s) => (STR "(" ^ (s_of_expr e)  ^ "::" ^ (To_string s) ^ ")")
-  | Expr_bind (symb, l, e) => (STR "(" ^ To_string symb ^ "" ^ (String.concatWith (STR " ") (List.map To_string l)) ^ ". " ^ (s_of_expr e) ^ ")")
-  | Expr_bind0 (symb, e1, e2) => (STR "(" ^ To_string symb ^ "" ^ (s_of_expr e1) ^ ". " ^ (s_of_expr e2) ^ ")")
-  | Expr_function l =>  (STR "(" ^ (To_string unicode_lambda)  ^ " " ^ (String.concatWith (STR "\n    | ") (List.map (fn (s1, s2) => String.concatWith (STR " ") [ (s_of_expr s1), To_string unicode_Rightarrow, (s_of_expr s2)]) l)) ^ ")")
-  (*| Expr_apply s [e] => sprintf2 (STR "(" ^ s ^ " " ^ s ^ ")") (To_string s) (s_of_expr e)*)
-  | Expr_apply (s, l) =>  let val s1 = (To_string s) val s2 = (String.concatWith (STR " ") (List.map (fn e => (STR "(" ^ (s_of_expr e) ^ ")") ) l)) in
-(STR "(" ^ s1 ^ " " ^ s2 ^ ")") end
-  | Expr_applys (e, l) => let val s1 = (s_of_expr e) val s2 = (String.concatWith (STR " ") (List.map (fn e => (STR "(" ^ (s_of_expr e) ^ ")") ) l)) in
- (STR "((" ^ s1 ^ ") " ^ s2 ^ ")") end
-  | Expr_postunary (e1, e2) =>  (s_of_expr e1) ^ " " ^ (s_of_expr e2)
-  | Expr_preunary (e1, e2) =>  (s_of_expr e1) ^ " " ^ (s_of_expr e2)
-  | Expr_paren (p_left, p_right, e) => (STR ((To_string p_left) ^ (s_of_expr e) ^ (To_string p_right)))
-end
 
 fun simp_tac f = Method.Basic (fn ctxt => SIMPLE_METHOD (asm_full_simp_tac (f ctxt) 1))
 
-fun m_of_ntheorem ctxt s = let open OCL in case s of
+fun m_of_ntheorem ctxt s = let open OCL open OCL_overload in case s of
     Thm_str s => Proof_Context.get_thm ctxt (To_string s)
   | Thm_THEN (e1, e2) => m_of_ntheorem ctxt e1 RSN (1, m_of_ntheorem ctxt e2)
   | Thm_simplified (e1, e2) => asm_full_simplify (clear_simpset ctxt addsimps [m_of_ntheorem ctxt e2]) (m_of_ntheorem ctxt e1)
@@ -3752,7 +3783,7 @@ fun m_of_ntheorem ctxt s = let open OCL in case s of
       end
 end
 
-fun m_of_tactic expr = let val f_fold = fold open OCL open Method in case expr of
+fun m_of_tactic expr = let open OCL open Method open OCL_overload in case expr of
     Tac_rule s => Basic (fn ctxt => rule [m_of_ntheorem ctxt s])
   | Tac_drule s => Basic (fn ctxt => drule 0 [m_of_ntheorem ctxt s])
   | Tac_erule s => Basic (fn ctxt => erule 0 [m_of_ntheorem ctxt s])
@@ -3770,7 +3801,7 @@ fun m_of_tactic expr = let val f_fold = fold open OCL open Method in case expr o
   | Tac_simp_all_add s => m_of_tactic (Tac_plus [Tac_simp_add [s]])
   | Tac_auto_simp_add l => Basic (fn ctxt => SIMPLE_METHOD (auto_tac (ctxt addsimps (List.map (Proof_Context.get_thm ctxt o To_string) l))))
   | Tac_auto_simp_add_split (l_simp, l_split) =>
-      Basic (fn ctxt => SIMPLE_METHOD (auto_tac (f_fold (fn (f, l) => f_fold f l)
+      Basic (fn ctxt => SIMPLE_METHOD (auto_tac (fold (fn (f, l) => fold f l)
               [(Simplifier.add_simp, List.map (m_of_ntheorem ctxt) l_simp)
               ,(Splitter.add_split, List.map (Proof_Context.get_thm ctxt o To_string) l_split)]
               ctxt)))
@@ -3825,7 +3856,7 @@ fun proof_show f st = st
   |> f
   |> Isar_Cmd.show [((@{binding ""}, []), [("?thesis", [])])] true
 
-val apply_results = fn OCL.App l => (fn st => st |> (Proof.apply_results (s_of_tactic l)) |> Seq.the_result "")
+val apply_results = let open OCL_overload in fn OCL.App l => (fn st => st |> (Proof.apply_results (s_of_tactic l)) |> Seq.the_result "")
                      | OCL.App_using l => (fn st =>
                          let val ctxt = Proof.context_of st in
                          Proof.using [map (fn s => ([m_of_ntheorem ctxt s], [])) l] st
@@ -3839,11 +3870,12 @@ val apply_results = fn OCL.App l => (fn st => st |> (Proof.apply_results (s_of_t
                          |> Isar_Cmd.have [((To_sbinding n, []), [(s_of_expr e, [])])] true
                          |> local_terminal_proof e_pr)
                      | OCL.App_fix l => proof_show (Proof.fix_cmd (List.map (fn i => (To_sbinding i, NONE, NoSyn)) l))
+end
 
 end
 
 structure Shallow_main = struct open Shallow_conv open Shallow_ml
-val OCL_main = let val f_fold = fold open OCL in (*let val f = *)fn
+val OCL_main = let open OCL open OCL_overload in (*let val f = *)fn
   Thy_dataty (Datatype (n, l)) =>
     (snd oo Datatype.add_datatype_cmd Datatype_Aux.default_config)
       [((To_sbinding n, [], NoSyn),
@@ -3907,10 +3939,10 @@ val OCL_main = let val f_fold = fold open OCL in (*let val f = *)fn
       in_local (fn lthy =>
            Specification.theorem_cmd Thm.lemmaK NONE (K I)
              (@{binding ""}, []) [] [] (Element.Shows [((To_sbinding n, [])
-                                                       ,[((String.concatWith (STR " " ^ (To_string OCL.unicode_Longrightarrow) ^ " ")
+                                                       ,[((String.concatWith (" " ^ (To_string OCL.unicode_Longrightarrow) ^ " ")
                                                              (List.map s_of_expr l_spec)), [])])])
              false lthy
-        |> f_fold (apply_results o OCL.App) l_apply
+        |> fold (apply_results o OCL.App) l_apply
         |> global_terminal_proof o_by)
 | Thy_lemma_by (Lemma_by_assum (n, l_spec, concl, l_apply, o_by)) =>
       in_local (fn lthy =>
@@ -3920,12 +3952,12 @@ val OCL_main = let val f_fold = fold open OCL in (*let val f = *)fn
              (List.map (fn (n, (b, e)) => Element.Assumes [((To_sbinding n, if b then [Args.src (("simp", []), Position.none)] else []), [(s_of_expr e, [])])]) l_spec)
              (Element.Shows [((@{binding ""}, []),[(s_of_expr concl, [])])])
              false lthy
-        |> f_fold apply_results l_apply
+        |> fold apply_results l_apply
         |> (case filter (fn OCL.App_let _ => true | OCL.App_have _ => true | OCL.App_fix _ => true | _ => false) l_apply of
               [] => global_terminal_proof o_by
             | _ :: l => let val arg = (NONE, true) in fn st => st
               |> local_terminal_proof o_by
-              |> f_fold (K (Proof.local_qed arg)) l
+              |> fold (K (Proof.local_qed arg)) l
               |> Proof.global_qed arg end))
 | Thy_section_title _ => I
 | Thy_text _ => I
