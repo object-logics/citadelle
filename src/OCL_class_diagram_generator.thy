@@ -47,6 +47,7 @@ theory OCL_class_diagram_generator
 imports "~~/src/HOL/Library/RBT"
         "~~/src/HOL/Library/Char_ord"
         "~~/src/HOL/Library/List_lexord"
+        "~~/src/HOL/Library/Code_Char"
   keywords (* ocl *)
            "attribute" (*"object"*) "inherit"
            "skip" "self"
@@ -2841,48 +2842,11 @@ let (<<) f g x = f (g x)
 module To = struct
   type nat = Zero_nat | Suc of nat
 
-  type nibble = Nibble0 | Nibble1 | Nibble2 | Nibble3 | Nibble4 | Nibble5 |
-    Nibble6 | Nibble7 | Nibble8 | Nibble9 | NibbleA | NibbleB | NibbleC | NibbleD
-    | NibbleE | NibbleF
-
-  type char = Char of nibble * nibble
-
   module M = struct
-    let to_nibble = function
-      Nibble0 -> 0x0 | Nibble1 -> 0x1 | Nibble2 -> 0x2 | Nibble3 -> 0x3 | Nibble4 -> 0x4 | Nibble5 -> 0x5 |
-       Nibble6 -> 0x6 | Nibble7 -> 0x7 | Nibble8 -> 0x8 | Nibble9 -> 0x9 | NibbleA -> 0xA | NibbleB -> 0xB | NibbleC -> 0xC | NibbleD -> 0xD
-      | NibbleE -> 0xE | NibbleF -> 0xF
-
-    let to_char = function Char (n1, n2) -> char_of_int (to_nibble n1 lsl 4 + to_nibble n2)
-
-    let to_string l = (String.concat "" (List.map (fun c -> String.make 1 (to_char c)) l))
-  (*
-    let to_num =
-      let rec aux mot n = function
-        | Bit0 p -> aux mot (succ n) p
-        | bit ->
-          let mot = mot + (1 lsl n) in
-          match bit with
-          | Bit1 p -> aux mot (succ n) p
-          | _ -> mot in
-      aux 0 0
-
-    let to_int = function
-      | ZeroInt -> 0
-      | Pos n -> to_num n
-      | Neg n -> - (to_num n)
-  *)
     let to_nat =
       let rec aux n = function Zero_nat -> n | Suc xs -> aux (succ n) xs in
       aux 0
   end
-
-  let string nibble_rec char_rec =
-    let ofN = nibble_rec
-      Nibble0 Nibble1 Nibble2 Nibble3 Nibble4 Nibble5
-      Nibble6 Nibble7 Nibble8 Nibble9 NibbleA NibbleB
-      NibbleC NibbleD NibbleE NibbleF in
-    M.to_string << List.map (char_rec (fun c1 c2 -> Char (ofN c1, ofN c2)))
 
   let nat nat_rec =
     M.to_nat << nat_rec Zero_nat (fun _ x -> Suc x)
@@ -3258,7 +3222,7 @@ fun_sorry s_of_ntheorem_aux where "s_of_ntheorem_aux To_string To_nat e = s_of.f
 fun_sorry s_of_tactic where "s_of_tactic To_string To_nat e = s_of.flat_s_of_tactic To_string (s_of_expr To_string To_nat) (s_of_ntheorem_aux To_string To_nat) (s_of_tactic To_string To_nat) e"
 
 definition "write_file = 
- (let To_string = ToString nibble_rec char_rec
+ (let To_string = implode
     ; To_nat = ToNat nat_rec in
   s_of.write_file To_string To_nat (s_of_expr To_string To_nat) (s_of_ntheorem_aux To_string To_nat) (s_of_tactic To_string To_nat) (s_of_rawty To_string))"
 
@@ -3492,14 +3456,7 @@ code_reflect OCL
 ML{*
 structure To = struct
     open OCL
-    val to_nibble = fn
-      Nibble0 => 0x0 | Nibble1 => 0x1 | Nibble2 => 0x2 | Nibble3 => 0x3 | Nibble4 => 0x4 | Nibble5 => 0x5 |
-       Nibble6 => 0x6 | Nibble7 => 0x7 | Nibble8 => 0x8 | Nibble9 => 0x9 | NibbleA => 0xA | NibbleB => 0xB | NibbleC => 0xC | NibbleD => 0xD
-      | NibbleE => 0xE | NibbleF => 0xF
-
-    val to_char = fn OCL.Char (n1, n2) => Char.chr ((to_nibble n1) * 16 + to_nibble n2)
-
-    fun to_string l = String.concat (map (fn c => str (to_char c)) l)
+    val to_string = implode o map str
 
     val to_nat =
       let fun aux n = fn Zero_nat => n | OCL.Suc xs => aux (n + 1) xs in
@@ -3525,12 +3482,8 @@ structure Data = Theory_Data
 
 structure From = struct
  open OCL
- val from_nibble = fn
-       0x0 => Nibble0 | 0x1 => Nibble1 | 0x2 => Nibble2 | 0x3 => Nibble3 | 0x4 => Nibble4 | 0x5 => Nibble5 |
-        0x6 => Nibble6 | 0x7 => Nibble7 | 0x8 => Nibble8 | 0x9 => Nibble9 | 0xA => NibbleA | 0xB => NibbleB | 0xC => NibbleC | 0xD => NibbleD
-       | 0xE => NibbleE | 0xF => NibbleF
- fun from_char c = let val c = Char.ord c in OCL.Char (from_nibble (c div 16), from_nibble (c mod 16)) end
- fun from_string n = List.map from_char (String.explode n)
+ val from_char = I
+ val from_string = String.explode
  val from_binding = from_string o Binding.name_of
  fun from_term ctxt s = from_string (XML.content_of (YXML.parse_body (Syntax.string_of_term ctxt s)))
  val from_nat =
@@ -3735,10 +3688,14 @@ fun f_command l_mode =
                               (fn _ => fn _ => ())
                               ["write_file"] filename_thy (Code_printing.apply_code_printing thy)
                     val () = File.write (mk_fic (ocamlfile_ocp ^ ".ocp"))
-                              (String.concat [ "comp += \"-g\" link += \"-g\" begin program \"", ocamlfile_ocp, "\" sort = true files = [ \"", ocamlfile_function
+                              (String.concat [ "comp += \"-g\" link += \"-g\" "
+                                             , "begin generated = true begin library \"nums\" end end "
+                                             , "begin program \"", ocamlfile_ocp, "\" sort = true files = [ \"", ocamlfile_function
                                              , "\" \"", ocamlfile_argument
                                              , "\" \"", ocamlfile_main
-                                             , "\" ] end" ])
+                                             , "\" ]"
+                                             , "requires = [\"nums\"] "
+                                             , "end" ])
                     val () = File.write (mk_fic ocamlfile_main) ("let _ = Function.M.write_file (Obj.magic (Argument.M." ^
                       Deep.mk_free (Proof_Context.init_global thy) argument_main [] ^ "))") in
                 (Gen_deep (ocl, seri_args, filename_thy, tmp_export_code, l_ast), thy) end) l_mode thy in
