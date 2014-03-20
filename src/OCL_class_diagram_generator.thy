@@ -117,6 +117,8 @@ end
 *}
 
 section{* ... *}
+type_synonym nat = natural
+definition "Succ x = x + 1"
 
 datatype internal_oid = Oid nat
 datatype internal_oids =
@@ -126,8 +128,8 @@ datatype internal_oids =
 
 definition "oidInit = (\<lambda> Oid n \<Rightarrow> Oids n n n)"
 
-definition "oidSucAssoc = (\<lambda> Oids n1 n2 n3 \<Rightarrow> Oids n1 (Suc n2) (Suc n3))"
-definition "oidSucInh = (\<lambda> Oids n1 n2 n3 \<Rightarrow> Oids n1 n2 (Suc n3))"
+definition "oidSucAssoc = (\<lambda> Oids n1 n2 n3 \<Rightarrow> Oids n1 (Succ n2) (Succ n3))"
+definition "oidSucInh = (\<lambda> Oids n1 n2 n3 \<Rightarrow> Oids n1 n2 (Succ n3))"
 definition "oidGetAssoc = (\<lambda> Oids _ n _ \<Rightarrow> Oid n)"
 definition "oidGetInh = (\<lambda> Oids _ _ n \<Rightarrow> Oid n)"
 
@@ -452,8 +454,9 @@ definition "lowercase_of_str = List_map (\<lambda>c. let n = nat_of_char c in if
 definition "number_of_str = flatten o List_map (\<lambda>c. escape_unicode ([''zero'', ''one'', ''two'', ''three'', ''four'', ''five'', ''six'', ''seven'', ''eight'', ''nine''] ! (nat_of_char c - 48)))"
 definition "nat_raw_of_str = List_map (\<lambda>i. char_of_nat (nat_of_char (Char Nibble3 Nibble0) + i))"
 fun_quick nat_of_str_aux where
-   "nat_of_str_aux l (n :: nat) = (if n < 10 then n # l else nat_of_str_aux (n mod 10 # l) (n div 10))"
+   "nat_of_str_aux l (n :: Nat.nat) = (if n < 10 then n # l else nat_of_str_aux (n mod 10 # l) (n div 10))"
 definition "nat_of_str n = nat_raw_of_str (nat_of_str_aux [] n)"
+definition "natural_of_str = nat_of_str o nat_of_natural"
 
 definition "mk_constr_name name = (\<lambda> x. flatten [isub_of_str name, ''_'', isub_of_str x])"
 definition "mk_dot = (\<lambda>s1 s2. flatten [''.'', s1, s2])"
@@ -2016,7 +2019,7 @@ definition "rbt_of_class ocl =
          (let fold = \<lambda>tag l rbt.
             let (rbt, _, n) = List.fold
                                    (\<lambda> (name_attr, ty) \<Rightarrow> \<lambda>(rbt, cpt, l_obj).
-                                     (insert name_attr (ty, tag, OptIdent cpt) rbt, Suc cpt, (case ty of OclTy_object _ \<Rightarrow> True | _ \<Rightarrow> False) # l_obj))
+                                     (insert name_attr (ty, tag, OptIdent cpt) rbt, Succ cpt, (case ty of OclTy_object _ \<Rightarrow> True | _ \<Rightarrow> False) # l_obj))
                                    l
                                    (rbt, 0, []) in
             (rbt, (tag, n)) in
@@ -2033,11 +2036,11 @@ definition "rbt_of_class ocl =
         Option.map (\<lambda>l f accu.
           let (_, accu) =
             List.fold
-              (let f_fold = \<lambda>(n, accu). (Suc n, f n accu) in
+              (let f_fold = \<lambda>(n, accu). (Succ n, f n accu) in
                if D_design_analysis ocl = None then
                  (\<lambda>_ . f_fold)
                else
-                 \<lambda> True \<Rightarrow> (\<lambda>(n, accu). (Suc n, accu))
+                 \<lambda> True \<Rightarrow> (\<lambda>(n, accu). (Succ n, accu))
                  | False \<Rightarrow> f_fold) (rev l) (0, accu) in
           accu) (List_assoc v l)) rbt)))"
 
@@ -2086,7 +2089,7 @@ definition "init_map_class ocl l =
          ( insert (Oid accu) oid_start rbt_nat
          , insert (Inst_name ocl) oid_start rbt_str
          , oidSucInh oid_start
-         , Suc accu))
+         , Succ accu))
        l
        (empty, empty, D_oid_start ocl, 0) in
    (rbt_of_class ocl, lookup rbt_nat, lookup rbt_str))"
@@ -2182,9 +2185,9 @@ definition "print_examp_def_st = (\<lambda> OclDefSt name l \<Rightarrow> \<lamb
    ( [ let s_empty = ''Map.empty'' in
        Definition (Expr_rewrite (b name) ''='' (Expr_apply ''state.make''
         ( Expr_apply s_empty expr_app
-        # (case D_design_analysis ocl of
-             Some (Suc 0) \<Rightarrow> print_examp_def_st_assoc rbt map_self map_username l_assoc s_empty
-           | _ \<Rightarrow> List_map (\<lambda>_. b s_empty) (List.upt 1 assoc_max))))) ]
+        # (if D_design_analysis ocl = Some 1 then
+             print_examp_def_st_assoc rbt map_self map_username l_assoc s_empty
+           else List_map (\<lambda>_. b s_empty) (List.upt 1 assoc_max))))) ]
    , l_st)))"
 
 definition "print_examp_def_st_dom_name name = flatten [''dom_'', name]"
@@ -2223,14 +2226,14 @@ definition "print_examp_def_st_perm = (\<lambda> _ ocl.
      ; (l_app, l_last) =
          case l_st of [] \<Rightarrow> ([], Tacl_by [Tac_simp_add [d name]])
          | _ \<Rightarrow>
-           ( [ Tac_simp_add (List_map d (name # List_map (\<lambda>(cpt, _). var_oid_uniq @@ nat_of_str (case oidGetInh cpt of Oid i \<Rightarrow> i)) l_st))]
+           ( [ Tac_simp_add (List_map d (name # List_map (\<lambda>(cpt, _). var_oid_uniq @@ natural_of_str (case oidGetInh cpt of Oid i \<Rightarrow> i)) l_st))]
              # flatten (List_map (\<lambda>i_max. List_map (\<lambda>i. [Tac_subst_l (List_map nat_of_str [i_max - i]) (Thm_str ''fun_upd_twist''), Tac_simp]) (List.upt 0 i_max)) (List.upt 1 (List.length l_st)))
            , Tacl_by [Tac_simp]) in
    [ Lemma_by
        (print_examp_def_st_perm_name name)
        [Expr_rewrite (b name) ''='' (Expr_apply ''state.make''
           (let s_empty = ''Map.empty'' in
-           Expr_apply s_empty expr_app # (List_map (\<lambda>i. Expr_apply (var_assocs @@ isub_of_str (nat_of_str (Suc i))) [b name]) (List.upt 1 assoc_max))))]
+           Expr_apply s_empty expr_app # (List_map (\<lambda>i. Expr_apply (var_assocs @@ isub_of_str (nat_of_str (Succ i))) [b name]) (List.upt 1 assoc_max))))]
        l_app
        l_last ]))"
 
@@ -2257,7 +2260,7 @@ definition "print_examp_def_st_allinst = (\<lambda> _ ocl.
      ; expr_app = extract_state ocl l_st
      ; a = \<lambda>f x. Expr_apply f [x]
      ; d = hol_definition
-     ; l_st_oid = List_map (\<lambda>(cpt, _). var_oid_uniq @@ nat_of_str (case oidGetInh cpt of Oid i \<Rightarrow> i)) l_st in
+     ; l_st_oid = List_map (\<lambda>(cpt, _). var_oid_uniq @@ natural_of_str (case oidGetInh cpt of Oid i \<Rightarrow> i)) l_st in
    map_class_gen_h' (\<lambda> isub_name name l_hierarchy.
      let l_hierarchy = List_map fst l_hierarchy
        ; expr_app = List_map (\<lambda>(ocore, cpt, ocli, exp).
@@ -2339,7 +2342,7 @@ definition "print_pre_post_wff = (\<lambda> OclDefPP s_pre s_post \<Rightarrow> 
       (Tacl_by [Tac_simp_add (List_map d (flatten
         [ [ ''WFF'', s_pre, s_post, const_oid_of unicode_AA ]
         , List_map
-            (\<lambda>(cpt, _). var_oid_uniq @@ nat_of_str (case cpt of Oid i \<Rightarrow> i))
+            (\<lambda>(cpt, _). var_oid_uniq @@ natural_of_str (case cpt of Oid i \<Rightarrow> i))
             (merge_unique ((\<lambda>x. Some (x, ())) o oidGetInh o fst) [l_pre, l_post])
         , List_map fst (merge_unique (\<lambda>(_, ocore). case ocore of OclDefCoreBinding (_, ocli) \<Rightarrow> Some (print_examp_instance_name (\<lambda>s. s @@ isub_of_str (Inst_ty ocli)) (Inst_name ocli), ()) | _ \<Rightarrow> None) [l_pre, l_post])
         , List_map
@@ -2369,14 +2372,14 @@ definition "print_pre_post_where = (\<lambda> OclDefPP s_pre s_post \<Rightarrow
          let (x_where, ocore) = filter_ocore x_pers_oid in
          (x_where, case ocore of OclDefCoreBinding (name, ocli) \<Rightarrow>
            (Some (name, print_examp_instance_name (\<lambda>s. s @@ isub_of_str (Inst_ty ocli)) (Inst_name ocli)), b name)) in
-       Lemma_by (flatten [var_oid_uniq, nat_of_str (case x_pers_oid of Oid i \<Rightarrow> i), ''_'', x_where])
+       Lemma_by (flatten [var_oid_uniq, natural_of_str (case x_pers_oid of Oid i \<Rightarrow> i), ''_'', x_where])
         [Expr_binop (Expr_couple (b s_pre) (b s_post)) unicode_Turnstile (a x_where (x_pers_expr))]
         []
         (Tacl_by [Tac_simp_add (List_map d (flatten
           [ case x_name of Some (x_pers, x_name) \<Rightarrow> [x_pers, x_name] | _ \<Rightarrow> []
           , [ x_where, ''OclValid'', s_pre, s_post, const_oid_of ''option'' ]
           , List_map
-              (\<lambda>(cpt, _). var_oid_uniq @@ nat_of_str (case cpt of Oid i \<Rightarrow> i))
+              (\<lambda>(cpt, _). var_oid_uniq @@ natural_of_str (case cpt of Oid i \<Rightarrow> i))
               (merge_unique ((\<lambda>x. Some (x, ())) o oidGetInh o fst) [l_pre, l_post])
           , l_oid_of ]))]))
      (filter (\<lambda>x_pers_oid. case snd (filter_ocore x_pers_oid) of OclDefCoreBinding _ \<Rightarrow> True | _ \<Rightarrow> False)
@@ -2674,7 +2677,7 @@ definition "fold_thy' f ast =
    | OclAstDefPrePost univ \<Rightarrow> fold_thy0 univ thy_def_pre_post) f) l)"
 definition "fold_thy = fold_thy' o List.fold"
 definition "fold_thy_deep obj ocl =
-  (case fold_thy' (\<lambda>l (i, cpt). (Suc i, List.length l + cpt)) obj (ocl, D_output_position ocl) of
+  (case fold_thy' (\<lambda>l (i, cpt). (Succ i, natural_of_nat (List.length l) + cpt)) obj (ocl, D_output_position ocl) of
     (ocl, output_position) \<Rightarrow> ocl \<lparr> D_output_position := output_position \<rparr>)"
 
 definition "ocl_deep_embed_input_empty oid_start design_analysis = ocl_deep_embed_input.make True None oid_start (0, 0) design_analysis None [] []"
@@ -2837,19 +2840,8 @@ subsection{* beginning *}
 
 lazy_code_printing code_module "" \<rightharpoonup> (OCaml) {*
 
-let (<<) f g x = f (g x)
-
 module To = struct
-  type nat = Zero_nat | Suc of nat
-
-  module M = struct
-    let to_nat =
-      let rec aux n = function Zero_nat -> n | Suc xs -> aux (succ n) xs in
-      aux 0
-  end
-
-  let nat nat_rec =
-    M.to_nat << nat_rec Zero_nat (fun _ x -> Suc x)
+  let nat big_int x = Big_int.int_of_big_int (big_int x)
 end
 
 module CodeType = struct
@@ -2888,9 +2880,6 @@ end
 subsection{* ML type *}
 
 type_synonym ml_string = String.literal
-datatype ml_nat = ML_nat
-datatype ml_nibble = ML_nibble
-datatype ml_char = ML_char
 datatype ml_int = ML_int
 
 code_printing type_constructor ml_int \<rightharpoonup> (OCaml) "CodeType.int"
@@ -2909,12 +2898,7 @@ code_printing constant out_stand1 \<rightharpoonup> (OCaml) "CodeConst.outStand1
 
 text{* module To *}
 
-consts ToString :: "(ml_nibble \<Rightarrow> ml_nibble \<Rightarrow> ml_nibble \<Rightarrow> ml_nibble \<Rightarrow> ml_nibble \<Rightarrow> ml_nibble \<Rightarrow> ml_nibble \<Rightarrow> ml_nibble \<Rightarrow> ml_nibble \<Rightarrow> ml_nibble \<Rightarrow> ml_nibble \<Rightarrow> ml_nibble \<Rightarrow> ml_nibble \<Rightarrow> ml_nibble \<Rightarrow> ml_nibble \<Rightarrow> ml_nibble \<Rightarrow> nibble \<Rightarrow> ml_nibble) \<Rightarrow>
-                    ((nibble \<Rightarrow> nibble \<Rightarrow> ml_char) \<Rightarrow> char \<Rightarrow> ml_char) \<Rightarrow>
-                    string \<Rightarrow> ml_string"
-code_printing constant ToString \<rightharpoonup> (OCaml) "CodeConst.To.string"
-
-consts ToNat :: "(ml_nat \<Rightarrow> (nat \<Rightarrow> ml_nat \<Rightarrow> ml_nat) \<Rightarrow> nat \<Rightarrow> ml_nat) \<Rightarrow>
+consts ToNat :: "(nat \<Rightarrow> integer) \<Rightarrow>
                  nat \<Rightarrow> ml_int"
 code_printing constant ToNat \<rightharpoonup> (OCaml) "CodeConst.To.nat"
 
@@ -3164,9 +3148,9 @@ definition "s_of_section_title ocl = (\<lambda> Section_title n section_title \<
     STR ''''
   else
     sprintf2 (STR ''%s{* %s *}'')
-      (To_string ((case n of 0 \<Rightarrow> ''''
-                     | Suc 0 \<Rightarrow> ''sub''
-                     | Suc (Suc _) \<Rightarrow> ''subsub'') @@ ''section''))
+      (To_string ((if n = 0 then ''''
+                   else if n = 1 then ''sub''
+                   else ''subsub'') @@ ''section''))
       (To_string section_title))"
 
 definition "s_of_text _ = (\<lambda> Text s \<Rightarrow> sprintf1 (STR ''text{* %s *}'') (To_string s))"
@@ -3191,11 +3175,11 @@ definition "s_of_thy_list ocl l_thy =
   flatten
         [ th_beg
         , flatten (fst (fold_list (\<lambda>l (i, cpt).
-            let (l_thy, lg) = fold_list (\<lambda>l n. (s_of_thy ocl l, Suc n)) l 0 in
+            let (l_thy, lg) = fold_list (\<lambda>l n. (s_of_thy ocl l, Succ n)) l 0 in
             (( STR ''''
              # sprintf4 (STR ''%s(* %d ************************************ %d + %d *)'')
-                 (To_string (if ocl_deep_embed_input.more ocl then '''' else [char_escape])) (To_nat (Suc i)) (To_nat cpt) (To_nat lg)
-             # l_thy), Suc i, cpt + lg)) l_thy (D_output_position ocl)))
+                 (To_string (if ocl_deep_embed_input.more ocl then '''' else [char_escape])) (To_nat (Succ i)) (To_nat cpt) (To_nat lg)
+             # l_thy), Succ i, cpt + lg)) l_thy (D_output_position ocl)))
         , th_end ])"
 end
 
@@ -3223,7 +3207,7 @@ fun_sorry s_of_tactic where "s_of_tactic To_string To_nat e = s_of.flat_s_of_tac
 
 definition "write_file = 
  (let To_string = implode
-    ; To_nat = ToNat nat_rec in
+    ; To_nat = ToNat integer_of_natural in
   s_of.write_file To_string To_nat (s_of_expr To_string To_nat) (s_of_ntheorem_aux To_string To_nat) (s_of_tactic To_string To_nat) (s_of_rawty To_string))"
 
 lemmas [code] =
@@ -3318,9 +3302,7 @@ definition "i_of_option a b f = option_rec
   (b ''None'')
   (ap1 a (b ''Some'') f)"
 
-definition "i_of_nat a b = (\<lambda>f0. nat_rec f0 o K)
-  (b ''0'')
-  (ar1 a (b ''Suc''))"
+definition "i_of_nat a b = b o natural_of_str"
 
 (* *)
 
@@ -3454,18 +3436,8 @@ code_reflect OCL
              i_apply i_of_ocl_deep_embed_input i_of_ocl_deep_embed_ast
 
 ML{*
-structure To = struct
-    open OCL
-    val to_string = implode o map str
-
-    val to_nat =
-      let fun aux n = fn Zero_nat => n | OCL.Suc xs => aux (n + 1) xs in
-      aux 0
-      end
-end
-
- val To_string = To.to_string
- val To_nat = To.to_nat
+ val To_string = implode o map str
+ fun To_nat (Code_Numeral.Nat i) = i
 *}
 
 ML{*
@@ -3486,10 +3458,7 @@ structure From = struct
  val from_string = String.explode
  val from_binding = from_string o Binding.name_of
  fun from_term ctxt s = from_string (XML.content_of (YXML.parse_body (Syntax.string_of_term ctxt s)))
- val from_nat =
-   let fun from_nat accu = fn 0 => accu | x => from_nat (Suc accu) (x - 1) in
-   from_nat Zero_nat
-   end
+ val from_nat = Code_Numeral.Nat
  val from_internal_oid = Oid
  val from_bool = I
  val from_unit = I
