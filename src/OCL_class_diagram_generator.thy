@@ -4019,9 +4019,11 @@ val list_attr0 = Parse.binding -- (Parse.$$$ "=" |--
   (Parse.binding >> OclTerm
   || @{keyword "self"} |-- Parse.nat >> OclOid))
 val list_attr00 = parse_l list_attr0
-val list_attr = list_attr00 >> (fn res => (res, NONE : binding option))
-val list_attr_cast00 = annot_ty list_attr00
-val list_attr_cast = list_attr_cast00 >> (fn (res, ty) => (res, SOME ty))
+val list_attr = list_attr00 >> (fn res => (res, [] : binding list))
+fun list_attr_cast00 e =
+  (annot_ty list_attr00 >> (fn (res, x) => (res, [x]))
+  || annot_ty list_attr_cast00 >> (fn ((res, xs), x) => (res, x :: xs))) e
+val list_attr_cast = list_attr_cast00 >> (fn (res, l) => (res, rev l))
 
 val () =
   outer_syntax_command @{make_string} @{command_spec "Define_int"} ""
@@ -4034,7 +4036,7 @@ datatype state_content = ST_l_attr of (binding * ocl_term) list * binding (* ty 
                        | ST_binding of binding
 
 val state_parse =
-  (@{keyword "defines"} |-- parse_l' (list_attr_cast00 >> ST_l_attr
+  (@{keyword "defines"} |-- parse_l' (list_attr_cast00 >> (fn (res, [x]) => ST_l_attr (res, x))
                                      || Parse.binding >> ST_binding))
   || @{keyword "skip"} >> K [ST_skip]
 
@@ -4044,8 +4046,11 @@ local
         let val f = map (fn (attr, ocl) => (From.from_binding attr,
                       case ocl of OclTerm s => OCL.Shall_str (From.from_binding s)
                                 | OclOid n => OCL.Shall_self (From.from_internal_oid (From.from_nat n))))
-            val l_attr = case is_cast of NONE => OCL.OclAttrNoCast (f l_attr)
-                                       | SOME b => OCL.OclAttrCast (From.from_binding b, OCL.OclAttrNoCast (f l_attr), []) in
+            val l_attr = 
+              fold
+                (fn b => fn acc => OCL.OclAttrCast (From.from_binding b, acc, []))
+                is_cast
+                (OCL.OclAttrNoCast (f l_attr)) in
         OCL.Ocl_instance_single_ext
           (From.from_binding name, From.from_binding typ, l_attr, From.from_unit ()) end) l)
 in
@@ -4062,7 +4067,7 @@ val () =
      -- parse_l' state_parse)
      (fn (name, l) => fn thy =>
       OCL.OclAstDefState (OCL.OclDefSt (From.from_binding name,
-        map (fn ST_l_attr (l, ty) => OCL.OclDefCoreAdd (case get_oclinst [((@{binding ""}, ty), (l, NONE))] thy of OCL.OclInstance [x] => x)
+        map (fn ST_l_attr (l, ty) => OCL.OclDefCoreAdd (case get_oclinst [((@{binding ""}, ty), (l, []))] thy of OCL.OclInstance [x] => x)
               | ST_skip => OCL.OclDefCoreSkip
               | ST_binding b => OCL.OclDefCoreBinding (From.from_binding b)) (List.concat l))))
 end
