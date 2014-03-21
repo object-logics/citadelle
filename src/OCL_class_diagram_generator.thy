@@ -2072,7 +2072,7 @@ fun_quick print_examp_instance_app_constr2_notmp where
                       (Expr_apply
                         (datatype_ext_constr_name @@ mk_constr_name ty x)
                         [ let isub_name = \<lambda>s. s @@ isub_of_str x in
-                          print_examp_instance_app_constr2_notmp (map_self, map_username) ty l_attr isub_name cpt ], l_own) in
+                          print_examp_instance_app_constr2_notmp (map_self, map_username) x l_attr isub_name cpt ], l_own) in
    print_examp_instance_app_constr_notmp map_self map_username isub_name l_inh l_own)"
 
 fun_quick fold_list_attr where
