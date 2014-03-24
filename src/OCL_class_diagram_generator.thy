@@ -2249,6 +2249,7 @@ definition "print_examp_def_st_perm = (\<lambda> _ ocl.
      ; d = hol_definition
      ; (l_app, l_last) =
          case l_st of [] \<Rightarrow> ([], Tacl_by [Tac_simp_add [d name]])
+         | [_] \<Rightarrow> ([], Tacl_by [Tac_simp_add [d name]])
          | _ \<Rightarrow>
            ( [ Tac_simp_add (List_map d (name # List_map (\<lambda>(cpt, _). var_oid_uniq @@ natural_of_str (case oidGetInh cpt of Oid i \<Rightarrow> i)) l_st))]
              # flatten (List_map (\<lambda>i_max. List_map (\<lambda>i. [Tac_subst_l (List_map nat_of_str [i_max - i]) (Thm_str ''fun_upd_twist''), Tac_simp]) (List.upt 0 i_max)) (List.upt 1 (List.length l_st)))
