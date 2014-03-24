@@ -3101,6 +3101,11 @@ lemma OclIncluding_cong : "\<And>(s::('\<AA>,'a::null)Set) t x y \<tau>. \<tau> 
  apply(rule OclIncluding_cong', simp_all only:)
 by(auto simp: OclValid_def OclIf_def invalid_def bot_option_def OclNot_def split : split_if_asm)
 
+lemma const_StrictRefEq\<^sub>S\<^sub>e\<^sub>t_empty : "const X \<Longrightarrow>
+                                       const (X \<doteq> Set{})"
+ apply(rule const_StrictRefEq\<^sub>S\<^sub>e\<^sub>t, assumption)
+by(simp)
+
 lemma const_StrictRefEq\<^sub>S\<^sub>e\<^sub>t_including : "const a \<Longrightarrow> const S \<Longrightarrow> const X \<Longrightarrow>
                                        const (X \<doteq> S->including(a))"
  apply(rule const_StrictRefEq\<^sub>S\<^sub>e\<^sub>t, assumption)

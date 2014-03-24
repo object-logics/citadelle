@@ -2305,23 +2305,28 @@ definition "print_examp_def_st_allinst = (\<lambda> _ ocl.
                              | None \<Rightarrow> []
                           else []) l_body) ]))]]
             , List_map (\<lambda> expr.
-                let (state_update_vs_allInstances_generic, l_print_examp, l_OclIncluding_cong) =
+                let mk_StrictRefEq_including = \<lambda>l.
+                      Tac_rule (Thm_str (flatten [''const_StrictRefEq'', isub_of_str ''Set'', ''_including'']))
+                      # Tac_simp # Tac_simp # Tac_simp # l
+                  ; (state_update_vs_allInstances_generic, l_print_examp, l_OclIncluding_cong) =
                   case expr of (ocore, []) \<Rightarrow>
                     ( ''state_update_vs_allInstances_generic_ntc''
                     , case ocore of OclDefCoreBinding (_, ocli) \<Rightarrow> [print_examp_instance_name (\<lambda>s. s @@ isub_of_str (Inst_ty ocli)) (Inst_name ocli)] | _ \<Rightarrow> []
-                    , [])
+                    , if l_spec = [] then
+                        [Tac_rule (Thm_str (flatten [''const_StrictRefEq'', isub_of_str ''Set'', ''_empty''])), Tac_simp]
+                      else
+                        mk_StrictRefEq_including [])
                   | _ \<Rightarrow>
                     ( ''state_update_vs_allInstances_generic_tc''
                     , []
-                    , [ Tac_rule (Thm_str ''OclIncluding_cong''), Tac_simp, Tac_simp ]) in
+                    , mk_StrictRefEq_including [ Tac_rule (Thm_str ''OclIncluding_cong''), Tac_simp, Tac_simp ]) in
                 ( Tac_subst (Thm_str state_update_vs_allInstances_generic)
                 # Tac_simp # Tac_simp
                 # Tac_simp_add (List_map d ((flatten [isub_name const_oclastype, ''_'', unicode_AA]) # l_print_examp))
                 # Tac_simp
-                # Tac_rule (Thm_str (flatten [''const_StrictRefEq'', isub_of_str ''Set'', ''_including'']))
-                # Tac_simp # Tac_simp # Tac_simp # l_OclIncluding_cong) ) expr_app
+                # l_OclIncluding_cong) ) expr_app
             , [[Tac_rule (Thm_str ''state_update_vs_allInstances_generic_empty'')]] ]))
-         (Tacl_by [ if l_st = [] then Tac_simp
+         (Tacl_by [ if l_spec = [] then Tac_simp
                     else Tac_plus [Tac_simp_add [d (flatten [isub_name const_oclastype, ''_'', unicode_AA])]]]) )
        [Tac_simp])
      (case D_class_spec ocl of Some class_spec \<Rightarrow> class_spec)))"
