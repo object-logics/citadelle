@@ -133,6 +133,7 @@ definition "oidSucInh = (\<lambda> Oids n1 n2 n3 \<Rightarrow> Oids n1 n2 (Succ 
 definition "oidGetAssoc = (\<lambda> Oids _ n _ \<Rightarrow> Oid n)"
 definition "oidGetInh = (\<lambda> Oids _ _ n \<Rightarrow> Oid n)"
 
+definition "oidReinitAll = (\<lambda>Oids n1 _ _ \<Rightarrow> Oids n1 n1 n1)"
 definition "oidReinitInh = (\<lambda>Oids n1 n2 _ \<Rightarrow> Oids n1 n2 n2)"
 
 section{* AST Definition: OCL *}
@@ -159,13 +160,12 @@ datatype ocl_class =
     "(string (* name *) \<times> string) list" (* invariant *) *)
     "ocl_class option" (* link to subclasses *)
 
-datatype ocl_class_flat =
-  OclClassFlat
-    "( string (* name of the class *)
-    \<times> (string (* name *) \<times> ocl_ty) list (* attribute *)
-    (* \<times> (string (* name *) \<times> ocl_operation) list (* contract *)
-    \<times> (string (* name *) \<times> string) list (* invariant *) *)
-    \<times> string option (* inherits *)) list"
+record ocl_class_flat =
+  Cflat_name :: string
+  Cflat_own :: "(string (* name *) \<times> ocl_ty) list" (* attribute *)
+  (*Cflat_contract :: "(string (* name *) \<times> ocl_operation) list" (* contract *)
+    Cflat_inv :: "(string (* name *) \<times> string) list" (* invariant *) *)
+  Cflat_inh :: "string option" (* inherits *)
 
 datatype ocl_data_shallow = Shall_str string
                           | Shall_self internal_oid
@@ -198,15 +198,14 @@ datatype ocl_def_pre_post = OclDefPP
                               string (* pre *)
                               string (* post *)
 
-datatype ocl_deep_embed_ast0 = OclAstClassFlat ocl_class_flat
-                             | OclAstInstance ocl_instance
-                             | OclAstDefInt ocl_def_int
-                             | OclAstDefState ocl_def_state
-                             | OclAstDefPrePost ocl_def_pre_post
+datatype ocl_flush_all = OclFlushAll
 
-datatype ocl_deep_embed_ast = OclDeepEmbed "ocl_deep_embed_ast0 list"
-
-definition "ocl_deep_embed_ast_map f = (\<lambda> OclDeepEmbed l \<Rightarrow> OclDeepEmbed (f l))"
+datatype ocl_deep_embed_ast = OclAstClassFlat ocl_class_flat
+                            | OclAstInstance ocl_instance
+                            | OclAstDefInt ocl_def_int
+                            | OclAstDefState ocl_def_state
+                            | OclAstDefPrePost ocl_def_pre_post
+                            | OclAstFlushAll ocl_flush_all
 
 record ocl_deep_embed_input =
   D_disable_thy_output :: bool
@@ -216,6 +215,7 @@ record ocl_deep_embed_input =
   D_design_analysis :: "nat option" (* None : activate design,
                                        Some n : activate analysis (with n + 1 assocs) *)
   D_class_spec :: "ocl_class option" (* last class considered for the generation *)
+  D_ocl_env :: "ocl_deep_embed_ast list"
   D_instance_rbt :: "(string (* name (as key for rbt) *) \<times> ocl_instance_single \<times> internal_oid) list" (* instance namespace environment *)
   D_state_rbt :: "(string (* name (as key for rbt) *) \<times> (internal_oids \<times> (string (* name *) \<times> ocl_instance_single (* alias *)) ocl_def_state_core) list) list" (* state namespace environment *)
 
@@ -299,14 +299,14 @@ definition "const_oclany = ''OclAny''"
 
 fun_sorry class_unflat_aux where
    "class_unflat_aux rbt rbt_inv rbt_cycle r =
-   (case (lookup rbt r, lookup rbt_cycle r) of (Some (l, _), None (* cycle detection *)) \<Rightarrow>
+   (case (lookup rbt r, lookup rbt_cycle r) of (Some l, None (* cycle detection *)) \<Rightarrow>
       OclClass r l (Option.map (class_unflat_aux rbt rbt_inv (insert r () rbt_cycle)) (lookup rbt_inv r)))"
 
-definition "class_unflat = (\<lambda> OclClassFlat l \<Rightarrow>
-  let l = (const_oclany, [], None) # List_map (\<lambda>(c, l, l_inh). (c, l, case l_inh of None \<Rightarrow> Some const_oclany | x \<Rightarrow> x)) l in
+definition "class_unflat l = 
+ (let l = (ocl_class_flat.make const_oclany [] None) # List_map (\<lambda>cflat. cflat \<lparr> Cflat_inh := case Cflat_inh cflat of None \<Rightarrow> Some const_oclany | x \<Rightarrow> x \<rparr>) l in
   class_unflat_aux
-    (List.fold (\<lambda> (k, v). insert k v) l empty)
-    (List.fold (\<lambda> (v, _, Some k) \<Rightarrow> insert k v | _ \<Rightarrow> id) l empty)
+    (List.fold (\<lambda> cflat. insert (Cflat_name cflat) (Cflat_own cflat)) l empty)
+    (List.fold (\<lambda> cflat. case Cflat_inh cflat of Some k \<Rightarrow> insert k (Cflat_name cflat) | _ \<Rightarrow> id) l empty)
     empty
     const_oclany)"
 
@@ -2427,12 +2427,12 @@ definition "txt'' = txt' o flatten"
 definition "txt''d s = txt (\<lambda> None \<Rightarrow> flatten s | _ \<Rightarrow> [])"
 definition "txt''a s = txt (\<lambda> Some _ \<Rightarrow> flatten s | _ \<Rightarrow> [])"
 
-definition thy_class_flat ::
+definition thy_class ::
   (* polymorphism weakening needed by code_reflect *)
   "(ocl_class
     \<Rightarrow> unit ocl_deep_embed_input_scheme
        \<Rightarrow> hol_thy list \<times>
-          unit ocl_deep_embed_input_scheme) list" where "thy_class_flat =
+          unit ocl_deep_embed_input_scheme) list" where "thy_class =
   (let subsection_def = subsection ''Definition''
      ; subsection_cp = subsection ''Context Passing''
      ; subsection_exec = subsection ''Execution with Invalid or Null as Argument''
@@ -2682,8 +2682,9 @@ The example we are defining in this section comes from the figure~'', e, ''ref{f
             , print_examp_def_st_defs
             , print_astype_lemmas_id2 ] ])"
 
-definition "thy_def_int = [ print_examp_oclint ]"
+definition "thy_class_flat = []"
 definition "thy_instance = [ print_examp_instance ]"
+definition "thy_def_int = [ print_examp_oclint ]"
 definition "thy_def_state = [ print_examp_def_st
                             , print_examp_def_st_dom
                             , print_examp_def_st_dom_lemmas
@@ -2691,28 +2692,90 @@ definition "thy_def_state = [ print_examp_def_st
                             , print_examp_def_st_allinst ]"
 definition "thy_def_pre_post = [ print_pre_post_wff
                                , print_pre_post_where ]"
+definition "thy_flush_all = []"
+
+definition "ocl_deep_embed_input_empty disable_thy_output file_out_path_dep oid_start design_analysis =
+  ocl_deep_embed_input.make
+    disable_thy_output
+    file_out_path_dep
+    oid_start
+    (0, 0)
+    design_analysis
+    None [] [] []"
+
+definition "ocl_deep_embed_input_reset_no_env ocl =
+  ocl_deep_embed_input_empty
+    (D_disable_thy_output ocl)
+    (D_file_out_path_dep ocl)
+    (oidReinitAll (D_oid_start ocl))
+    (D_design_analysis ocl)
+    \<lparr> D_ocl_env := D_ocl_env ocl \<rparr>"
+
+definition "ocl_deep_embed_input_reset_all ocl =
+  (let ocl = ocl_deep_embed_input_reset_no_env ocl in
+   ( ocl \<lparr> D_ocl_env := [] \<rparr>
+   , let (l_class, l_ocl) = List.partition (\<lambda> OclAstClassFlat _ \<Rightarrow> True | _ \<Rightarrow> False) (rev (D_ocl_env ocl)) in
+     flatten
+       [ l_class
+       , List.filter (\<lambda> OclAstFlushAll _ \<Rightarrow> False | _ \<Rightarrow> True) l_ocl
+       , [OclAstFlushAll OclFlushAll] ] ))"
 
 definition "fold_thy0 univ thy_object0 f =
   List.fold (\<lambda>x (acc1, acc2).
     let (l, acc1) = x univ acc1 in
     (acc1, f l acc2)) thy_object0"
-definition "fold_thy' f ast =
-  (case ast of OclDeepEmbed l \<Rightarrow> List.fold (\<lambda> ast.
-    (case ast of
-     OclAstClassFlat univ \<Rightarrow> let univ = class_unflat univ in (\<lambda>f ((ocl :: unit ocl_deep_embed_input_scheme), accu).
-       fold_thy0 univ thy_class_flat f (ocl \<lparr> D_class_spec := Some univ \<rparr>, accu))
-   | OclAstInstance univ \<Rightarrow> fold_thy0 univ thy_instance
+
+definition "ocl_env_class_spec_rm f_fold f ocl_accu =
+  (let (ocl, accu) = f_fold f ocl_accu in
+   (ocl \<lparr> D_class_spec := None \<rparr>, accu))"
+
+definition "ocl_env_class_spec_mk f_accu_reset f_fold f = 
+  (\<lambda> (ocl, accu).
+    f_fold f
+      (case D_class_spec ocl of Some _ \<Rightarrow> (ocl, accu) | None \<Rightarrow>
+       let (l_class, l_ocl) = List.partition (\<lambda> OclAstClassFlat _ \<Rightarrow> True | _ \<Rightarrow> False) (rev (D_ocl_env ocl)) in
+       (List.fold
+           (\<lambda>ast. (case ast of 
+               OclAstInstance univ \<Rightarrow> fold_thy0 univ thy_instance
+             | OclAstDefInt univ \<Rightarrow> fold_thy0 univ thy_def_int
+             | OclAstDefState univ \<Rightarrow> fold_thy0 univ thy_def_state
+             | OclAstDefPrePost univ \<Rightarrow> fold_thy0 univ thy_def_pre_post
+             | OclAstFlushAll univ \<Rightarrow> fold_thy0 univ thy_flush_all)
+                  f)
+           l_ocl
+           (let univ = class_unflat (List_map (\<lambda> OclAstClassFlat cflat \<Rightarrow> cflat) l_class)
+              ; (ocl, accu) = fold_thy0 univ thy_class f (let ocl = ocl_deep_embed_input_reset_no_env ocl in
+                                                          (ocl, f_accu_reset ocl accu)) in
+            (ocl \<lparr> D_class_spec := Some univ \<rparr>, accu)))))"
+
+definition "ocl_env_save ast f_fold f ocl_accu =
+  (let (ocl, accu) = f_fold f ocl_accu in
+   (ocl \<lparr> D_ocl_env := ast # D_ocl_env ocl \<rparr>, accu))"
+
+definition "fold_thy' f_accu_reset f =
+ (let ocl_env_class_spec_mk = ocl_env_class_spec_mk f_accu_reset in
+  List.fold (\<lambda> ast.
+    ocl_env_save ast (case ast of
+     OclAstClassFlat univ \<Rightarrow> ocl_env_class_spec_rm (fold_thy0 univ thy_class_flat)
+   | OclAstInstance univ \<Rightarrow> ocl_env_class_spec_mk (fold_thy0 univ thy_instance)
    | OclAstDefInt univ \<Rightarrow> fold_thy0 univ thy_def_int
-   | OclAstDefState univ \<Rightarrow> fold_thy0 univ thy_def_state
-   | OclAstDefPrePost univ \<Rightarrow> fold_thy0 univ thy_def_pre_post) f) l)"
-definition "fold_thy = fold_thy' o List.fold"
+   | OclAstDefState univ \<Rightarrow> ocl_env_class_spec_mk (fold_thy0 univ thy_def_state)
+   | OclAstDefPrePost univ \<Rightarrow> fold_thy0 univ thy_def_pre_post
+   | OclAstFlushAll univ \<Rightarrow> ocl_env_class_spec_mk (fold_thy0 univ thy_flush_all)) f))"
+definition "fold_thy_shallow f_accu_reset = fold_thy' f_accu_reset o List.fold"
 definition "fold_thy_deep obj ocl =
-  (case fold_thy' (\<lambda>l (i, cpt). (Succ i, natural_of_nat (List.length l) + cpt)) obj (ocl, D_output_position ocl) of
+  (case fold_thy' (\<lambda>ocl _. D_output_position ocl) (\<lambda>l (i, cpt). (Succ i, natural_of_nat (List.length l) + cpt)) obj (ocl, D_output_position ocl) of
     (ocl, output_position) \<Rightarrow> ocl \<lparr> D_output_position := output_position \<rparr>)"
 
-definition "ocl_deep_embed_input_empty oid_start design_analysis = ocl_deep_embed_input.make True None oid_start (0, 0) design_analysis None [] []"
-
 section{* Generation to both Form (setup part) *}
+
+definition "ocl_class_flat_rec0 f ocl = f
+  (Cflat_name ocl)
+  (Cflat_own ocl)
+  (Cflat_inh ocl)"
+
+definition "ocl_class_flat_rec f ocl = ocl_class_flat_rec0 f ocl
+  (ocl_class_flat.more ocl)"
 
 definition "ocl_instance_single_rec0 f ocl = f
   (Inst_name ocl)
@@ -2729,6 +2792,7 @@ definition "ocl_deep_embed_input_rec0 f ocl = f
   (D_output_position ocl)
   (D_design_analysis ocl)
   (D_class_spec ocl)
+  (D_ocl_env ocl)
   (D_instance_rbt ocl)
   (D_state_rbt ocl)"
 
@@ -2748,6 +2812,7 @@ definition "co6 f g x1 x2 x3 x4 x5 x6 = f (g x1 x2 x3 x4 x5 x6)"
 definition "co7 f g x1 x2 x3 x4 x5 x6 x7 = f (g x1 x2 x3 x4 x5 x6 x7)"
 definition "co8 f g x1 x2 x3 x4 x5 x6 x7 x8 = f (g x1 x2 x3 x4 x5 x6 x7 x8)"
 definition "co9 f g x1 x2 x3 x4 x5 x6 x7 x8 x9 = f (g x1 x2 x3 x4 x5 x6 x7 x8 x9)"
+definition "co10 f g x1 x2 x3 x4 x5 x6 x7 x8 x9 x10 = f (g x1 x2 x3 x4 x5 x6 x7 x8 x9 x10)"
 
 definition "ap1 a v0 f1 v1 = a v0 (f1 v1)"
 definition "ap2 a v0 f1 f2 v1 v2 = a (a v0 (f1 v1)) (f2 v2)"
@@ -2758,6 +2823,7 @@ definition "ap6 a v0 f1 f2 f3 f4 f5 f6 v1 v2 v3 v4 v5 v6 = a (a (a (a (a (a v0 (
 definition "ap7 a v0 f1 f2 f3 f4 f5 f6 f7 v1 v2 v3 v4 v5 v6 v7 = a (a (a (a (a (a (a v0 (f1 v1)) (f2 v2)) (f3 v3)) (f4 v4)) (f5 v5)) (f6 v6)) (f7 v7)"
 definition "ap8 a v0 f1 f2 f3 f4 f5 f6 f7 f8 v1 v2 v3 v4 v5 v6 v7 v8 = a (a (a (a (a (a (a (a v0 (f1 v1)) (f2 v2)) (f3 v3)) (f4 v4)) (f5 v5)) (f6 v6)) (f7 v7)) (f8 v8)"
 definition "ap9 a v0 f1 f2 f3 f4 f5 f6 f7 f8 f9 v1 v2 v3 v4 v5 v6 v7 v8 v9 = a (a (a (a (a (a (a (a (a v0 (f1 v1)) (f2 v2)) (f3 v3)) (f4 v4)) (f5 v5)) (f6 v6)) (f7 v7)) (f8 v8)) (f9 v9)"
+definition "ap10 a v0 f1 f2 f3 f4 f5 f6 f7 f8 f9 f10 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 = a (a (a (a (a (a (a (a (a (a v0 (f1 v1)) (f2 v2)) (f3 v3)) (f4 v4)) (f5 v5)) (f6 v6)) (f7 v7)) (f8 v8)) (f9 v9)) (f10 v10)"
 
 definition "ar1 a v0 = a v0"
 definition "ar2 a v0 f1 v1 = a (a v0 (f1 v1))"
@@ -2768,8 +2834,23 @@ definition "ar6 a v0 f1 f2 f3 f4 f5 v1 v2 v3 v4 v5 = a (a (a (a (a (a v0 (f1 v1)
 definition "ar7 a v0 f1 f2 f3 f4 f5 f6 v1 v2 v3 v4 v5 v6 = a (a (a (a (a (a (a v0 (f1 v1)) (f2 v2)) (f3 v3)) (f4 v4)) (f5 v5)) (f6 v6))"
 definition "ar8 a v0 f1 f2 f3 f4 f5 f6 f7 v1 v2 v3 v4 v5 v6 v7 = a (a (a (a (a (a (a (a v0 (f1 v1)) (f2 v2)) (f3 v3)) (f4 v4)) (f5 v5)) (f6 v6)) (f7 v7))"
 definition "ar9 a v0 f1 f2 f3 f4 f5 f6 f7 f8 v1 v2 v3 v4 v5 v6 v7 v8 = a (a (a (a (a (a (a (a (a v0 (f1 v1)) (f2 v2)) (f3 v3)) (f4 v4)) (f5 v5)) (f6 v6)) (f7 v7)) (f8 v8))"
+definition "ar10 a v0 f1 f2 f3 f4 f5 f6 f7 f8 f9 v1 v2 v3 v4 v5 v6 v7 v8 v9 = a (a (a (a (a (a (a (a (a (a v0 (f1 v1)) (f2 v2)) (f3 v3)) (f4 v4)) (f5 v5)) (f6 v6)) (f7 v7)) (f8 v8)) (f9 v9))"
 
 (* *)
+
+lemma [code]: "ocl_class_flat.extend = (\<lambda>ocl v. ocl_class_flat_rec0 (co3 (\<lambda>f. f v) ocl_class_flat_ext) ocl)"
+by(intro ext, simp add: ocl_class_flat_rec0_def
+                        ocl_class_flat.extend_def
+                        co3_def K_def)
+lemma [code]: "ocl_class_flat.make = co3 (\<lambda>f. f ()) ocl_class_flat_ext"
+by(intro ext, simp add: ocl_class_flat.make_def
+                        co3_def)
+lemma [code]: "ocl_class_flat.truncate = ocl_class_flat_rec (co3 K ocl_class_flat.make)"
+by(intro ext, simp add: ocl_class_flat_rec0_def
+                        ocl_class_flat_rec_def
+                        ocl_class_flat.truncate_def
+                        ocl_class_flat.make_def
+                        co3_def K_def)
 
 lemma [code]: "ocl_instance_single.extend = (\<lambda>ocl v. ocl_instance_single_rec0 (co3 (\<lambda>f. f v) ocl_instance_single_ext) ocl)"
 by(intro ext, simp add: ocl_instance_single_rec0_def
@@ -2785,19 +2866,19 @@ by(intro ext, simp add: ocl_instance_single_rec0_def
                         ocl_instance_single.make_def
                         co3_def K_def)
 
-lemma [code]: "ocl_deep_embed_input.extend = (\<lambda>ocl v. ocl_deep_embed_input_rec0 (co8 (\<lambda>f. f v) ocl_deep_embed_input_ext) ocl)"
+lemma [code]: "ocl_deep_embed_input.extend = (\<lambda>ocl v. ocl_deep_embed_input_rec0 (co9 (\<lambda>f. f v) ocl_deep_embed_input_ext) ocl)"
 by(intro ext, simp add: ocl_deep_embed_input_rec0_def
                         ocl_deep_embed_input.extend_def
-                        co8_def K_def)
-lemma [code]: "ocl_deep_embed_input.make = co8 (\<lambda>f. f ()) ocl_deep_embed_input_ext"
+                        co9_def K_def)
+lemma [code]: "ocl_deep_embed_input.make = co9 (\<lambda>f. f ()) ocl_deep_embed_input_ext"
 by(intro ext, simp add: ocl_deep_embed_input.make_def
-                        co8_def)
-lemma [code]: "ocl_deep_embed_input.truncate = ocl_deep_embed_input_rec (co8 K ocl_deep_embed_input.make)"
+                        co9_def)
+lemma [code]: "ocl_deep_embed_input.truncate = ocl_deep_embed_input_rec (co9 K ocl_deep_embed_input.make)"
 by(intro ext, simp add: ocl_deep_embed_input_rec0_def
                         ocl_deep_embed_input_rec_def
                         ocl_deep_embed_input.truncate_def
                         ocl_deep_embed_input.make_def
-                        co8_def K_def)
+                        co9_def K_def)
 
 section{* Generation to Deep Form: OCaml *}
 
@@ -3225,9 +3306,13 @@ definition "write_file ocl = (
     (\<lambda>fprintf1.
       List_iter (fprintf1 (STR ''%s
 ''                                 ))
-        (s_of_thy_list (ocl_deep_embed_input_more_map (\<lambda>_. is_file) ocl)
-          ((rev o snd o fold_thy' Cons (ocl_deep_embed_input.more ocl))
-             (ocl_deep_embed_input.truncate ocl, [])))))"
+        (bug_ocaml_extraction (let (ocl, l) =
+           fold_thy'
+             (\<lambda>_ _. [])
+             Cons
+             (ocl_deep_embed_input.more ocl)
+             (ocl_deep_embed_input.truncate ocl, []) in
+         s_of_thy_list (ocl_deep_embed_input_more_map (\<lambda>_. is_file) ocl) (rev l)))))"
 end
 
 fun_sorry s_of_rawty where "s_of_rawty To_string e = s_of.flat_s_of_rawty To_string (s_of_rawty To_string) e"
@@ -3268,17 +3353,17 @@ lemmas [code] =
 subsection{* Deep (without reflection) *}
 
 definition "Employee_DesignModel_UMLPart =
-  OclClassFlat
-    [ (''Galaxy'', [(''sound'', OclTy_base ''unit''), (''moving'', OclTy_base ''bool'')], None)
-    , (''Planet'', [(''weight'', OclTy_base ''nat'')], Some ''Galaxy'')
-    , (''Person'', [(''salary'', OclTy_base ''int''), (''boss'', object)], Some ''Planet'') ]"
+  [ ocl_class_flat.make ''Galaxy'' [(''sound'', OclTy_base ''unit''), (''moving'', OclTy_base ''bool'')] None
+  , ocl_class_flat.make ''Planet'' [(''weight'', OclTy_base ''nat'')] (Some ''Galaxy'')
+  , ocl_class_flat.make ''Person'' [(''salary'', OclTy_base ''int''), (''boss'', object)] (Some ''Planet'') ]"
 
 definition "main = write_file (ocl_deep_embed_input.extend
-                                (ocl_deep_embed_input_empty (oidInit (Oid 0)) None
+                                (ocl_deep_embed_input_empty True None (oidInit (Oid 0)) None
                                    \<lparr> D_disable_thy_output := False
                                    , D_file_out_path_dep := Some (''Employee_DesignModel_UMLPart_generated''
                                                                  ,''../src/OCL_main'') \<rparr>)
-                                (OclDeepEmbed [OclAstClassFlat Employee_DesignModel_UMLPart]))"
+                                (List_map OclAstClassFlat Employee_DesignModel_UMLPart
+                                 @@ [OclAstFlushAll OclFlushAll]))"
 (*
 apply_code_printing ()
 export_code main
@@ -3359,12 +3444,12 @@ definition "i_of_ocl_class a b = (\<lambda>f0 f1 f2 f3. ocl_class_rec_1 (co2 K (
     (i_of_list a b (i_of_pair a b (i_of_string a b) (i_of_ocl_ty a b)))
     (i_of_option a b id)"
 
-definition "i_of_ocl_class_flat a b = ocl_class_flat_rec
-  (ap1 a (b ''OclClassFlat'')
-    (i_of_list a b (i_of_pair a b
-      (i_of_string a b) (i_of_pair a b
-      (i_of_list a b (i_of_pair a b (i_of_string a b) (i_of_ocl_ty a b)))
-      (i_of_option a b (i_of_string a b))))))"
+definition "i_of_ocl_class_flat a b f = ocl_class_flat_rec
+  (ap4 a (b ''ocl_class_flat_ext'')
+    (i_of_string a b)
+    (i_of_list a b (i_of_pair a b (i_of_string a b) (i_of_ocl_ty a b)))
+    (i_of_option a b (i_of_string a b))
+    (f a b))"
 
 definition "i_of_ocl_data_shallow a b = ocl_data_shallow_rec
   (ap1 a (b ''Shall_str'') (i_of_string a b))
@@ -3402,24 +3487,26 @@ definition "i_of_ocl_def_state a b = ocl_def_state_rec
 definition "i_of_ocl_def_pre_post a b = ocl_def_pre_post_rec
   (ap2 a (b ''OclDefPP'') (i_of_string a b) (i_of_string a b))"
 
-definition "i_of_ocl_deep_embed_ast0 a b = ocl_deep_embed_ast0_rec
-  (ap1 a (b ''OclAstClassFlat'') (i_of_ocl_class_flat a b))
+definition "i_of_ocl_flush_all a b = ocl_flush_all_rec
+  (b ''OclFlushAll'')"
+
+definition "i_of_ocl_deep_embed_ast a b = ocl_deep_embed_ast_rec
+  (ap1 a (b ''OclAstClassFlat'') (i_of_ocl_class_flat a b (K i_of_unit)))
   (ap1 a (b ''OclAstInstance'') (i_of_ocl_instance a b))
   (ap1 a (b ''OclAstDefInt'') (i_of_ocl_def_int a b))
   (ap1 a (b ''OclAstDefState'') (i_of_ocl_def_state a b))
-  (ap1 a (b ''OclAstDefPrePost'') (i_of_ocl_def_pre_post a b))"
-
-definition "i_of_ocl_deep_embed_ast a b = ocl_deep_embed_ast_rec
-  (ap1 a (b ''OclDeepEmbed'') (i_of_list a b (i_of_ocl_deep_embed_ast0 a b)))"
+  (ap1 a (b ''OclAstDefPrePost'') (i_of_ocl_def_pre_post a b))
+  (ap1 a (b ''OclAstFlushAll'') (i_of_ocl_flush_all a b))"
 
 definition "i_of_ocl_deep_embed_input a b f = ocl_deep_embed_input_rec
-  (ap9 a (b ''ocl_deep_embed_input_ext'')
+  (ap10 a (b ''ocl_deep_embed_input_ext'')
     (i_of_bool b)
     (i_of_option a b (i_of_pair a b (i_of_string a b) (i_of_string a b)))
     (i_of_internal_oids a b)
     (i_of_pair a b (i_of_nat a b) (i_of_nat a b))
     (i_of_option a b (i_of_nat a b))
     (i_of_option a b (i_of_ocl_class a b))
+    (i_of_list a b (i_of_ocl_deep_embed_ast a b))
     (i_of_list a b (i_of_pair a b (i_of_string a b) (i_of_pair a b (i_of_ocl_instance_single a b (K i_of_unit)) (i_of_internal_oid a b))))
     (i_of_list a b (i_of_pair a b (i_of_string a b) (i_of_list a b (i_of_pair a b (i_of_internal_oids a b) (i_of_ocl_def_state_core a b (i_of_pair a b (i_of_string a b) (i_of_ocl_instance_single a b  (K i_of_unit))))))))
     (f a b))"
@@ -3457,8 +3544,8 @@ code_reflect OCL
              s_of_rawty s_of_expr
              char_escape
              unicode_Rightarrow unicode_Longrightarrow
-             fold_thy fold_thy_deep
-             ocl_deep_embed_input_empty ocl_deep_embed_input_more_map ocl_deep_embed_ast_map oidInit
+             fold_thy_shallow fold_thy_deep
+             ocl_deep_embed_input_empty ocl_deep_embed_input_more_map ocl_deep_embed_input_reset_all oidInit
              D_file_out_path_dep_update
              i_apply i_of_ocl_deep_embed_input i_of_ocl_deep_embed_ast
 
@@ -3468,17 +3555,6 @@ ML{*
 *}
 
 ML{*
-type class_inline = { attr_base : (binding * binding) list
-                    , attr_object : binding list
-                    , child : binding list
-                    , name : binding }
-
-structure Data = Theory_Data
-  (type T = class_inline list Symtab.table
-   val empty = Symtab.empty
-   val extend = I
-   val merge = Symtab.merge (K true))
-
 structure From = struct
  open OCL
  val from_char = I
@@ -3492,32 +3568,7 @@ structure From = struct
  val from_option = Option.map
  val from_list = List.map
  fun from_pair f1 f2 (x, y) = (f1 x, f2 y)
-
- val mk_univ =
-   map (fn { attr_base = attr_base, attr_object = attr_object, child = child, name = name } =>
-     ( from_binding name
-     , ( List.concat [ List.map (fn (b, ty) => (from_binding b, OclTy_base (from_binding ty))) attr_base
-                     , List.map (fn b => (from_binding b, object)) attr_object]
-       , case child of [] => NONE | [x] => SOME (from_binding x))))
 end
-
-val class_empty = ""
-
-val () =
-  Outer_Syntax.command @{command_spec "Class"} "Class definition"
-    (((Parse.binding --| Parse.$$$ "=") --
-      Scan.repeat (@{keyword "inherit"} |-- Parse.!!! Parse.binding) --
-      Scan.repeat (@{keyword "attribute"} |-- Parse.!!! (Parse.binding -- Scan.optional (Parse.$$$ ":" |-- Parse.!!! Parse.binding >> SOME) NONE)))
-        >> (fn ((binding, child), attribute) =>
-            let val (attr_base, attr_object) = fold (fn (b, o_b) => fn (attr_base, attr_object) => case o_b of NONE => (attr_base, b :: attr_object) | SOME bb => ((b, bb) :: attr_base, attr_object)) attribute ([], [])
-                val (attr_base, attr_object) = (rev attr_base, rev attr_object) in
-            fn x =>
-              x |> Toplevel.theory (fn thy => thy |> Data.map (fn t =>
-                                                     Symtab.map_default (class_empty, []) (fn l => { attr_base = attr_base
-                                                                                                   , attr_object = attr_object
-                                                                                                   , child = child
-                                                                                                   , name = binding } :: l) t))
-            end))
 *}
 
 ML{*
@@ -3604,16 +3655,16 @@ fun annot_ty f = Parse.$$$ "(" |-- f --| Parse.$$$ "::" -- Parse.binding --| Par
 
 ML{*
 structure Generation_mode = struct
-datatype generation_mode = Gen_deep of unit OCL.ocl_deep_embed_input_ext
-                                     * (((bstring * bstring) * bstring) * Token.T list) list (* seri_args *)
-                                     * bstring option (* filename_thy *)
-                                     * Path.T (* tmp dir export_code *)
-                                     * (unit OCL.ocl_deep_embed_input_ext * OCL.ocl_deep_embed_ast) (* environment of commands entered *)
-                         | Gen_shallow of unit OCL.ocl_deep_embed_input_ext
-                         | Gen_syntax_print
+datatype 'a generation_mode = Gen_deep of unit OCL.ocl_deep_embed_input_ext
+                                        * (((bstring * bstring) * bstring) * Token.T list) list (* seri_args *)
+                                        * bstring option (* filename_thy *)
+                                        * Path.T (* tmp dir export_code *)
+                            | Gen_shallow of unit OCL.ocl_deep_embed_input_ext
+                                           * 'a (* theory init *)
+                            | Gen_syntax_print
 
 structure Data_gen = Theory_Data
-  (type T = generation_mode list Symtab.table
+  (type T = theory generation_mode list Symtab.table
    val empty = Symtab.empty
    val extend = I
    val merge = Symtab.merge (K true))
@@ -3637,29 +3688,24 @@ val parse_sem_ocl =
   --| (Parse.$$$ "]" -- Parse.$$$ ")")
 
 val mode =
+  let fun mk_ocl disable_thy_output file_out_path_dep oid_start design_analysis = 
+    OCL.ocl_deep_embed_input_empty
+                    (From.from_bool disable_thy_output)
+                    (From.from_option (From.from_pair From.from_string From.from_string) file_out_path_dep)
+                    (OCL.oidInit (From.from_internal_oid (From.from_nat oid_start)))
+                    (From.from_option From.from_nat design_analysis) in
+
      @{keyword "deep"} |-- parse_sem_ocl -- parse_deep >> (fn ((design_analysis, oid_start), (((file_out_path_dep, disable_thy_output), seri_args), filename_thy)) =>
        let val _ = case (seri_args, filename_thy, file_out_path_dep) of
             ([_], _, NONE) => warning ("Unknown filename, generating to stdout and ignoring " ^ (@{make_string} seri_args))
           | (_, SOME t, NONE) => warning ("Unknown filename, generating to stdout and ignoring " ^ (@{make_string} t))
-          | _ => ()
-           val ocl = OCL.Ocl_deep_embed_input_ext
-                  ( From.from_bool (not disable_thy_output)
-                  , From.from_option (From.from_pair From.from_string From.from_string) file_out_path_dep
-                  , OCL.oidInit (From.from_internal_oid (From.from_nat oid_start))
-                  , From.from_pair From.from_nat From.from_nat (0, 0)
-                  , From.from_option From.from_nat design_analysis
-                  , From.from_option I NONE
-                  , From.from_list I []
-                  , From.from_list I []
-                  , () ) in
-       Gen_deep (ocl, seri_args, filename_thy, Isabelle_System.create_tmp_path "deep_export_code" ""
-                  , (ocl, OCL.OclDeepEmbed [])) end)
+          | _ => () in
+       Gen_deep ( mk_ocl (not disable_thy_output) file_out_path_dep oid_start design_analysis
+                , seri_args, filename_thy, Isabelle_System.create_tmp_path "deep_export_code" "") end)
   || @{keyword "shallow"} |-- parse_sem_ocl >> (fn (design_analysis, oid_start) =>
-       Gen_shallow
-         (OCL.ocl_deep_embed_input_empty
-           (OCL.oidInit (From.from_internal_oid (From.from_nat oid_start)))
-           (From.from_option From.from_nat design_analysis)))
+       Gen_shallow (mk_ocl true NONE oid_start design_analysis, ()))
   || @{keyword "syntax_print"} >> K Gen_syntax_print
+  end
 
 val gen_empty = ""
 val ocamlfile_function = "function.ml"
@@ -3671,9 +3717,10 @@ val argument_main = "main"
 fun f_command l_mode =
       Toplevel.theory (fn thy =>
         let val (l_mode, thy) = OCL.fold_list
-          (fn Gen_shallow ocl => (fn thy => (Gen_shallow ocl, thy))
+          (fn Gen_shallow (ocl, ()) => let val thy0 = thy in
+                                       fn thy => (Gen_shallow (ocl, thy0), thy) end
             | Gen_syntax_print => (fn thy => (Gen_syntax_print, thy))
-            | Gen_deep (ocl, seri_args, filename_thy, tmp_export_code, l_ast) => fn thy =>
+            | Gen_deep (ocl, seri_args, filename_thy, tmp_export_code) => fn thy =>
                 let fun mk_fic s = Path.append tmp_export_code (Path.make [s])
                     val _ = warning ("remove the directory (at the end): " ^ Path.implode tmp_export_code)
                     val () = Isabelle_System.mkdir tmp_export_code
@@ -3694,7 +3741,7 @@ fun f_command l_mode =
                                              , "end" ])
                     val () = File.write (mk_fic ocamlfile_main) ("let _ = Function.M.write_file (Obj.magic (Argument.M." ^
                       Deep.mk_free (Proof_Context.init_global thy) argument_main [] ^ "))") in
-                (Gen_deep (ocl, seri_args, filename_thy, tmp_export_code, l_ast), thy) end) l_mode thy in
+                (Gen_deep (ocl, seri_args, filename_thy, tmp_export_code), thy) end) l_mode thy in
         Data_gen.map (Symtab.map_default (gen_empty, l_mode) (fn _ => l_mode)) thy
         end)
 end
@@ -3930,7 +3977,7 @@ fun exec_deep (ocl, seri_args, filename_thy, tmp_export_code, l_obj) thy0 =
   let val i_of_arg =
     let val a = OCL.i_apply
       ; val b = I in
-    OCL.i_of_ocl_deep_embed_input a b OCL.i_of_ocl_deep_embed_ast
+    OCL.i_of_ocl_deep_embed_input a b (fn a => fn b => OCL.i_of_list a b (OCL.i_of_ocl_deep_embed_ast a b))
     end in
               let fun def s = in_local (snd o Specification.definition_cmd (NONE, ((@{binding ""}, []), s)) false) in
                 let val name_main = Deep.mk_free (Proof_Context.init_global thy0) argument_main [] in
@@ -3959,10 +4006,10 @@ fun outer_syntax_command mk_string cmd_spec cmd_descr parser get_oclclass =
 
           let val get_oclclass = get_oclclass name in
           fn Gen_syntax_print => (fn thy => let val _ = writeln (mk_string name) in (Gen_syntax_print, thy) end)
-           | Gen_deep (ocl, seri_args, filename_thy, tmp_export_code, (ocl_init, l_ast)) =>
+           | Gen_deep (ocl, seri_args, filename_thy, tmp_export_code) =>
               (fn thy0 =>
                 let val obj = get_oclclass thy0
-                  ; val l_obj = OCL.OclDeepEmbed [obj] in
+                  ; val l_obj = [obj] in
                 thy0 |> exec_deep (OCL.d_file_out_path_dep_update (fn _ => NONE) ocl, seri_args, NONE, tmp_export_code, l_obj)
                      |> (fn s =>
                           let val _ = writeln
@@ -3970,11 +4017,11 @@ fun outer_syntax_command mk_string cmd_spec cmd_descr parser get_oclclass =
                                   String.concat (map ((fn s => s ^ "\n") o Active.sendback_markup [Markup.padding_command] o trim_line)
                                     (String.tokens (fn c => From.from_char c = OCL.char_escape) s))
                                 | _ => s) in
-                          (Gen_deep (OCL.fold_thy_deep l_obj ocl, seri_args, filename_thy, tmp_export_code, (ocl_init, OCL.ocl_deep_embed_ast_map (fn l => obj :: l) l_ast)), thy0) end)
+                          (Gen_deep (OCL.fold_thy_deep l_obj ocl, seri_args, filename_thy, tmp_export_code), thy0) end)
                 end)
-           | Gen_shallow ocl => fn thy =>
-             let val (ocl, thy) = OCL.fold_thy Shallow_main.OCL_main (OCL.OclDeepEmbed [get_oclclass thy]) (ocl, thy) in
-             (Gen_shallow ocl, thy)
+           | Gen_shallow (ocl, thy0) => fn thy =>
+             let val (ocl, thy) = OCL.fold_thy_shallow (fn _ => fn _ => thy0) Shallow_main.OCL_main [get_oclclass thy] (ocl, thy) in
+             (Gen_shallow (ocl, thy0), thy)
              end
           end
 
@@ -4000,8 +4047,9 @@ val () = let open Generation_mode in
             val _ = case l of [] => warning "Nothing to perform." | _ => ()
             val thy =
         fold
-          (fn (_, seri_args, filename_thy, tmp_export_code, (ocl_init, l_ast)) => fn thy0 =>
-                thy0 |> exec_deep (ocl_init, seri_args, filename_thy, tmp_export_code, OCL.ocl_deep_embed_ast_map rev l_ast)
+          (fn (ocl, seri_args, filename_thy, tmp_export_code) => fn thy0 =>
+                thy0 |> let val (ocl, l_exec) = OCL.ocl_deep_embed_input_reset_all ocl in
+                        exec_deep (ocl, seri_args, filename_thy, tmp_export_code, l_exec) end
                      |> (fn s =>
                           let val _ = writeln
                                 (case seri_args of [] =>
@@ -4016,15 +4064,34 @@ val () = let open Generation_mode in
 end
 *}
 
+subsection{* Outer Syntax: Class *}
+
+ML{*
+val () =
+  outer_syntax_command @{make_string} @{command_spec "Class"} "Class generation"
+    ((Parse.binding --| Parse.$$$ "=") --
+      Scan.repeat (@{keyword "inherit"} |-- Parse.!!! Parse.binding) --
+      Scan.repeat (@{keyword "attribute"} |-- Parse.!!! (Parse.binding -- Scan.optional (Parse.$$$ ":" |-- Parse.!!! Parse.binding >> SOME) NONE)))
+    (fn ((binding, child), attribute) => fn _ =>
+       let val (attr_base, attr_object) = fold (fn (b, o_b) => fn (attr_base, attr_object) => case o_b of NONE => (attr_base, b :: attr_object) | SOME bb => ((b, bb) :: attr_base, attr_object)) attribute ([], [])
+           val (attr_base, attr_object) = (rev attr_base, rev attr_object) in
+       OCL.OclAstClassFlat (OCL.Ocl_class_flat_ext
+         ( From.from_binding binding
+         , List.concat [ List.map (fn (b, ty) => (From.from_binding b, OCL.OclTy_base (From.from_binding ty))) attr_base
+                       , List.map (fn b => (From.from_binding b, OCL.object)) attr_object]
+         , case child of [] => NONE | [x] => SOME (From.from_binding x)
+         , From.from_unit ()))
+       end)
+*}
+
 subsection{* Outer Syntax: Class.end *}
 
 ML{*
 val () =
   outer_syntax_command @{make_string} @{command_spec "Class.end"} "Class generation"
-    Parse.binding
-    (fn name => fn thy =>
-       let val SOME l = Symtab.lookup (Data.get thy) class_empty in
-       OCL.OclAstClassFlat (OCL.OclClassFlat (From.mk_univ l)) end)
+    (Scan.optional (Parse.binding >> SOME) NONE)
+    (fn _ => fn _ =>
+       OCL.OclAstFlushAll (OCL.OclFlushAll))
 *}
 
 subsection{* Outer Syntax: Instance *}
