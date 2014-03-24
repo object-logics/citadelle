@@ -2101,9 +2101,29 @@ definition "init_map_class ocl l =
 definition "print_examp_instance_app_constr2_notmp_norec = (\<lambda>(rbt, self_username) ocl ocli.
   print_examp_instance_app_constr2_notmp self_username (Inst_ty ocli) (split_inh_own rbt (Inst_ty ocli) (Inst_attr ocli)))"
 
+definition "print_examp_instance_oid l ocl =
+  (\<lambda>(l, _). ((List_map Thy_definition_hol o flatten o flatten) l))
+    (fold_list
+      (\<lambda> (f1, f2) _.
+        fold_list (\<lambda> o_ocli cpt.
+          case o_ocli of None \<Rightarrow> ([], oidSucInh cpt)
+          | Some ocli \<Rightarrow>
+            ( let var_oid = Expr_oid var_oid_uniq (oidGetInh cpt)
+                ; isub_name = \<lambda>s. s @@ isub_of_str (Inst_ty ocli) in
+              if List.fold (\<lambda>(_, _, cpt0) b. b | cpt0 = oidGetInh cpt) (D_instance_rbt ocl) False
+               | List.fold (\<lambda>(_, l). List.fold (\<lambda>(cpt0, _) b. b | cpt0 = cpt) l) (D_state_rbt ocl) False then
+                   []
+              else [Definition (Expr_rewrite (f1 var_oid isub_name ocli) ''='' (f2 ocli isub_name cpt))]
+            , oidSucInh cpt)) l (D_oid_start ocl))
+      [ (\<lambda> var_oid _ _. var_oid,
+         \<lambda> _ _ cpt. Expr_oid '''' (oidGetInh cpt)) ]
+      (D_oid_start ocl))"
+
 definition "print_examp_instance_name = id"
 definition "print_examp_instance = (\<lambda> OclInstance l \<Rightarrow> \<lambda> ocl.
-  (\<lambda>((l, oid_start), instance_rbt). ((List_map Thy_definition_hol o flatten) l, ocl \<lparr> D_oid_start := oid_start, D_instance_rbt := instance_rbt \<rparr>))
+  (\<lambda>((l_res, oid_start), instance_rbt).
+    (print_examp_instance_oid (List_map Some l) ocl
+    @@ (List_map Thy_definition_hol o flatten) l_res, ocl \<lparr> D_oid_start := oid_start, D_instance_rbt := instance_rbt \<rparr>))
     (let (rbt, (map_self, map_username)) = init_map_class ocl l in ((fold_list
       (\<lambda> (f1, f2) _.
         fold_list (\<lambda> ocli cpt.
@@ -2112,9 +2132,7 @@ definition "print_examp_instance = (\<lambda> OclInstance l \<Rightarrow> \<lamb
           ( Definition (Expr_rewrite (f1 var_oid isub_name ocli) ''='' (f2 ocli isub_name cpt))
           , oidSucInh cpt)) l (D_oid_start ocl))
       (let b = \<lambda>s. Expr_basic [s] in
-       [ (\<lambda> var_oid _ _. var_oid,
-          \<lambda> _ _ cpt. Expr_oid '''' (oidGetInh cpt))
-       , (\<lambda> _ isub_name ocli. b (print_examp_instance_name isub_name (Inst_name ocli)),
+       [ (\<lambda> _ isub_name ocli. b (print_examp_instance_name isub_name (Inst_name ocli)),
           print_examp_instance_app_constr2_notmp_norec (rbt, (map_self, map_username)) ocl)
        , (\<lambda> _ _ ocli. Expr_annot (b (Inst_name ocli)) (Inst_ty ocli),
           \<lambda> ocli isub_name _. Expr_lambda wildcard (Expr_some (Expr_some (b (print_examp_instance_name isub_name (Inst_name ocli)))))) ])
@@ -2162,14 +2180,16 @@ definition "print_examp_def_st_mapsto =
       Expr_binop (Expr_oid var_oid_uniq (oidGetInh cpt)) unicode_mapsto (Expr_apply (datatype_in @@ isub_of_str (Inst_ty ocli)) [exp]))"
 
 definition "print_examp_def_st = (\<lambda> OclDefSt name l \<Rightarrow> \<lambda>ocl.
- (\<lambda>(l, l_st). (List_map Thy_definition_hol l, ocl \<lparr> D_state_rbt := (name, l_st) # D_state_rbt ocl \<rparr>))
-  (let ocl = ocl \<lparr> D_oid_start := oidReinitInh (D_oid_start ocl) \<rparr>
+ let ocl_old = ocl \<lparr> D_oid_start := oidReinitInh (D_oid_start ocl) \<rparr>
+   ; l_ocli = List_map (\<lambda> OclDefCoreAdd ocli \<Rightarrow> Some ocli
+                                       | OclDefCoreBinding name \<Rightarrow>
+                                           (case List_assoc name (D_instance_rbt ocl_old) of Some (ocli, _) \<Rightarrow> Some ocli)
+                                       | _ \<Rightarrow> None) l in
+ (\<lambda>(l, l_st). (print_examp_instance_oid l_ocli ocl_old @@ List_map Thy_definition_hol l, ocl \<lparr> D_state_rbt := (name, l_st) # D_state_rbt ocl \<rparr>))
+  (let ocl = ocl_old
      ; b = \<lambda>s. Expr_basic [s]
      ; (rbt, (map_self, map_username)) =
-         init_map_class ocl (List_map (\<lambda> OclDefCoreAdd ocli \<Rightarrow> ocli
-                                       | OclDefCoreBinding name \<Rightarrow>
-                                           (case List_assoc name (D_instance_rbt ocl) of Some (ocli, _) \<Rightarrow> ocli)
-                                       | _ \<Rightarrow> \<lparr> Inst_name = [], Inst_ty = [], Inst_attr = OclAttrNoCast [] \<rparr>) l)
+         init_map_class ocl (List_map (\<lambda> Some ocli \<Rightarrow> ocli | None \<Rightarrow> \<lparr> Inst_name = [], Inst_ty = [], Inst_attr = OclAttrNoCast [] \<rparr>) l_ocli)
      ; (l_st, cpt, l_assoc) = fold_list (\<lambda> ocore (cpt, l_assoc).
          let f = \<lambda>ocore ocli. ([( cpt, ocore )], Some ocli)
            ; (def, o_ocli) = case ocore of OclDefCoreSkip \<Rightarrow> ([], None)
