@@ -59,11 +59,9 @@ Class Person = inherit Planet
 Class Planet = inherit Galaxy
   attribute weight : nat
 
-Class Galaxy = inherit OclAny
+Class Galaxy =
   attribute sound : unit
   attribute moving : bool
-
-Class OclAny =
 
 Class.end OclAny
 

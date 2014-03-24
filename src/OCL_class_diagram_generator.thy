@@ -166,7 +166,6 @@ datatype ocl_class_flat =
     (* \<times> (string (* name *) \<times> ocl_operation) list (* contract *)
     \<times> (string (* name *) \<times> string) list (* invariant *) *)
     \<times> string option (* inherits *)) list"
-    string (* name class root *)
 
 datatype ocl_data_shallow = Shall_str string
                           | Shall_self internal_oid
@@ -277,17 +276,39 @@ end
 
 subsection{* ... *}
 
+definition "List_map f l = rev (foldl (\<lambda>l x. f x # l) [] l)"
+definition "List_iter f = foldl (\<lambda>_. f) ()"
+definition "flatten l = foldl (\<lambda>acc l. foldl (\<lambda>acc x. x # acc) acc (rev l)) [] (rev l)"
+definition List_append (infixr "@@" 65) where "List_append a b = flatten [a, b]"
+definition "List_filter f l = rev (foldl (\<lambda>l x. if f x then x # l else l) [] l)"
+definition "rev_map f = foldl (\<lambda>l x. f x # l) []"
+definition "fold_list f l accu =
+  (let (l, accu) = List.fold (\<lambda>x (l, accu). let (x, accu) = f x accu in (x # l, accu)) l ([], accu) in
+   (rev l, accu))"
+definition "char_escape = Char Nibble0 Nibble9"
+definition "modify_def v k f rbt =
+  (case lookup rbt k of None \<Rightarrow> insert k (f v) rbt
+                      | Some _ \<Rightarrow> map_entry k f rbt)"
+definition "Option_bind f = (\<lambda> None \<Rightarrow> None | Some x \<Rightarrow> f x)"
+definition "List_assoc x1 l = List.fold (\<lambda>(x2, v). \<lambda>None \<Rightarrow> if x1 = x2 then Some v else None | x \<Rightarrow> x) l None"
+definition "List_split l = (List_map fst l, List_map snd l)"
+
+subsection{* ... *}
+
+definition "const_oclany = ''OclAny''"
+
 fun_sorry class_unflat_aux where
    "class_unflat_aux rbt rbt_inv rbt_cycle r =
    (case (lookup rbt r, lookup rbt_cycle r) of (Some (l, _), None (* cycle detection *)) \<Rightarrow>
       OclClass r l (Option.map (class_unflat_aux rbt rbt_inv (insert r () rbt_cycle)) (lookup rbt_inv r)))"
 
-definition "class_unflat = (\<lambda> OclClassFlat l root \<Rightarrow>
+definition "class_unflat = (\<lambda> OclClassFlat l \<Rightarrow>
+  let l = (const_oclany, [], None) # List_map (\<lambda>(c, l, l_inh). (c, l, case l_inh of None \<Rightarrow> Some const_oclany | x \<Rightarrow> x)) l in
   class_unflat_aux
     (List.fold (\<lambda> (k, v). insert k v) l empty)
     (List.fold (\<lambda> (v, _, Some k) \<Rightarrow> insert k v | _ \<Rightarrow> id) l empty)
     empty
-    root)"
+    const_oclany)"
 
 definition "str_of_ty = (\<lambda> OclTy_base x \<Rightarrow> x | OclTy_object x \<Rightarrow> x)"
 
@@ -314,23 +335,6 @@ fun_quick fold_less_gen where "fold_less_gen f_gen f_jump f l = (case l of
 
 definition "fold_less2 = fold_less_gen List.fold"
 definition "fold_less3 = fold_less_gen o fold_less2"
-
-definition "List_map f l = rev (foldl (\<lambda>l x. f x # l) [] l)"
-definition "List_iter f = foldl (\<lambda>_. f) ()"
-definition "flatten l = foldl (\<lambda>acc l. foldl (\<lambda>acc x. x # acc) acc (rev l)) [] (rev l)"
-definition List_append (infixr "@@" 65) where "List_append a b = flatten [a, b]"
-definition "List_filter f l = rev (foldl (\<lambda>l x. if f x then x # l else l) [] l)"
-definition "rev_map f = foldl (\<lambda>l x. f x # l) []"
-definition "fold_list f l accu =
-  (let (l, accu) = List.fold (\<lambda>x (l, accu). let (x, accu) = f x accu in (x # l, accu)) l ([], accu) in
-   (rev l, accu))"
-definition "char_escape = Char Nibble0 Nibble9"
-definition "modify_def v k f rbt =
-  (case lookup rbt k of None \<Rightarrow> insert k (f v) rbt
-                      | Some _ \<Rightarrow> map_entry k f rbt)"
-definition "Option_bind f = (\<lambda> None \<Rightarrow> None | Some x \<Rightarrow> f x)"
-definition "List_assoc x1 l = List.fold (\<lambda>(x2, v). \<lambda>None \<Rightarrow> if x1 = x2 then Some v else None | x \<Rightarrow> x) l None"
-definition "List_split l = (List_map fst l, List_map snd l)"
 
 section{* AST Definition: HOL *}
 subsection{* type definition *}
@@ -3239,11 +3243,9 @@ subsection{* Deep (without reflection) *}
 
 definition "Employee_DesignModel_UMLPart =
   OclClassFlat
-    [ (''OclAny'', [], None)
-    , (''Galaxy'', [(''sound'', OclTy_base ''unit''), (''moving'', OclTy_base ''bool'')], Some ''OclAny'')
+    [ (''Galaxy'', [(''sound'', OclTy_base ''unit''), (''moving'', OclTy_base ''bool'')], None)
     , (''Planet'', [(''weight'', OclTy_base ''nat'')], Some ''Galaxy'')
-    , (''Person'', [(''salary'', OclTy_base ''int''), (''boss'', object)], Some ''Planet'') ]
-    ''OclAny''"
+    , (''Person'', [(''salary'', OclTy_base ''int''), (''boss'', object)], Some ''Planet'') ]"
 
 definition "main = write_file (ocl_deep_embed_input.extend
                                 (ocl_deep_embed_input_empty (oidInit (Oid 0)) None
@@ -3332,12 +3334,11 @@ definition "i_of_ocl_class a b = (\<lambda>f0 f1 f2 f3. ocl_class_rec_1 (co2 K (
     (i_of_option a b id)"
 
 definition "i_of_ocl_class_flat a b = ocl_class_flat_rec
-  (ap2 a (b ''OclClassFlat'')
+  (ap1 a (b ''OclClassFlat'')
     (i_of_list a b (i_of_pair a b
       (i_of_string a b) (i_of_pair a b
       (i_of_list a b (i_of_pair a b (i_of_string a b) (i_of_ocl_ty a b)))
-      (i_of_option a b (i_of_string a b)))))
-    (i_of_string a b))"
+      (i_of_option a b (i_of_string a b))))))"
 
 definition "i_of_ocl_data_shallow a b = ocl_data_shallow_rec
   (ap1 a (b ''Shall_str'') (i_of_string a b))
@@ -3997,7 +3998,7 @@ val () =
     Parse.binding
     (fn name => fn thy =>
        let val SOME l = Symtab.lookup (Data.get thy) class_empty in
-       OCL.OclAstClassFlat (OCL.OclClassFlat (From.mk_univ l, From.from_binding name)) end)
+       OCL.OclAstClassFlat (OCL.OclClassFlat (From.mk_univ l)) end)
 *}
 
 subsection{* Outer Syntax: Instance *}
