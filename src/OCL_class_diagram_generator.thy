@@ -48,8 +48,13 @@ imports "~~/src/HOL/Library/RBT"
         "~~/src/HOL/Library/Char_ord"
         "~~/src/HOL/Library/List_lexord"
         "~~/src/HOL/Library/Code_Char"
-  keywords (* ocl *)
-           "attribute" (*"object"*) "inherit"
+  keywords (* ocl (USE tool) *)
+           "_between" "_end"
+           "_attributes" "_operations" "_constraints"
+           "_role"
+           "_ordered" "_subsets" "_union" "_redefines" "_derived" "_qualifier"
+           "_existential" "_inv" "_pre" "_post"
+           (* ocl (added) *)
            "skip" "self"
 
            (* hol syntax *)
@@ -62,8 +67,13 @@ imports "~~/src/HOL/Library/RBT"
            (* hol semantics *)
            "design" "analysis" "oid_start"
 
-       and (* ocl *)
-           "Class" "Class.end" "Instance" "Define_int" "Define_state" "Define_pre_post"
+       and (* ocl (USE tool) *)
+           "_abstract_class" "_class"
+           "_association" "_composition" "_aggregation"
+           "_abstract_associationclass" "_associationclass"
+           "_context"
+           (* ocl (added) *)
+           "Class.end" "Instance" "Define_int" "Define_state" "Define_pre_post"
 
            (* hol syntax *)
            "generation_syntax" "lazy_code_printing" "apply_code_printing" "fun_sorry" "fun_quick"
@@ -3650,6 +3660,7 @@ subsection{* ... *}
 ML{*
 fun parse_l f = Parse.$$$ "[" |-- Parse.!!! (Parse.list f --| Parse.$$$ "]")
 fun parse_l' f = Parse.$$$ "[" |-- Parse.list f --| Parse.$$$ "]"
+fun parse_l1' f = Parse.$$$ "[" |-- Parse.list1 f --| Parse.$$$ "]"
 fun annot_ty f = Parse.$$$ "(" |-- f --| Parse.$$$ "::" -- Parse.binding --| Parse.$$$ ")"
 *}
 
@@ -4064,15 +4075,82 @@ val () = let open Generation_mode in
 end
 *}
 
-subsection{* Outer Syntax: Class *}
+subsection{* ... *}
 
 ML{*
-val () =
-  outer_syntax_command @{make_string} @{command_spec "Class"} "Class generation"
-    ((Parse.binding --| Parse.$$$ "=") --
-      Scan.repeat (@{keyword "inherit"} |-- Parse.!!! Parse.binding) --
-      Scan.repeat (@{keyword "attribute"} |-- Parse.!!! (Parse.binding -- Scan.optional (Parse.$$$ ":" |-- Parse.!!! Parse.binding >> SOME) NONE)))
-    (fn ((binding, child), attribute) => fn _ =>
+structure USE_parse = struct
+ fun optional f = Scan.optional (f >> SOME) NONE
+ val colon = Parse.$$$ ":"
+ fun repeat2 scan = scan ::: Scan.repeat1 scan
+ (* *)
+ datatype use_opt = Ordered | Subsets of binding | Union | Redefines of binding | Derived of string | Qualifier of (binding * binding) list
+ datatype use_operation_def = Expression of string | BlockStat
+
+ val ident_dot_dot = Parse.alt_string (* ".." *)
+ val ident_star = Parse.alt_string (* "*" *)
+ (* *)
+ val use_type = Parse.binding
+ val use_expression = Parse.alt_string
+ val use_variableDeclaration = Parse.binding --| Parse.$$$ ":" -- use_type
+ val use_paramList = Parse.$$$ "(" |-- Parse.list use_variableDeclaration --| Parse.$$$ ")"
+ val use_multiplicitySpec = ident_star || Parse.number
+ val use_multiplicity = use_multiplicitySpec -- optional (ident_dot_dot |-- use_multiplicitySpec)
+ val use_associationEnd =
+      Parse.binding
+   -- parse_l1' use_multiplicity
+   -- optional (@{keyword "_role"} |-- Parse.binding)
+   -- Scan.repeat (   @{keyword "_ordered"} >> K Ordered
+                   || @{keyword "_subsets"} |-- Parse.binding >> Subsets
+                   || @{keyword "_union"} >> K Union
+                   || @{keyword "_redefines"} |-- Parse.binding >> Redefines
+                   || @{keyword "_derived"} -- Parse.$$$ "=" |-- use_expression >> Derived 
+                   || @{keyword "_qualifier"} |-- use_paramList >> Qualifier)
+   --| optional Parse.semicolon
+ val use_blockStat = Parse.alt_string
+ val use_prePostClause =
+      (@{keyword "_pre"} || @{keyword "_post"})
+   -- optional Parse.binding
+   -- colon
+   -- use_expression
+ val use_invariantClause = Scan.optional (@{keyword "_existential"} >> K true) false
+   --| @{keyword "_inv"}
+   -- Parse.binding
+   --| colon
+   -- use_expression
+ (* *)
+ val class_def_list = Scan.optional (Parse.$$$ "<" |-- Parse.list1 Parse.binding) []
+ val class_def_attr = Scan.optional (@{keyword "_attributes"}
+   |-- Scan.repeat (   Parse.binding
+                    -- optional (colon |-- Parse.binding))
+   --| optional Parse.semicolon) []
+ val class_def_oper = optional (@{keyword "_operations"}
+   |-- Parse.binding
+   -- use_paramList
+   -- optional (colon -- use_type)
+   -- optional (Parse.$$$ "=" |-- use_expression || use_blockStat)
+   -- Scan.repeat use_prePostClause
+   --| optional Parse.semicolon)
+ val class_def_constr = optional (@{keyword "_constraints"}
+   |-- use_invariantClause)
+end
+*}
+
+subsection{* Outer Syntax: (abstract) class *}
+
+ML{*
+datatype use_classDefinition = USE_class | USE_class_abstract
+local 
+ open USE_parse
+
+ fun mk_classDefinition _ cmd_spec =
+   outer_syntax_command @{make_string} cmd_spec "Class generation"
+    (   Parse.binding
+     -- class_def_list
+     -- class_def_attr
+     -- class_def_oper
+     -- class_def_constr
+     --| @{keyword "_end"})
+    (fn ((((binding, child), attribute), _), _) => fn _ =>
        let val (attr_base, attr_object) = fold (fn (b, o_b) => fn (attr_base, attr_object) => case o_b of NONE => (attr_base, b :: attr_object) | SOME bb => ((b, bb) :: attr_base, attr_object)) attribute ([], [])
            val (attr_base, attr_object) = (rev attr_base, rev attr_object) in
        OCL.OclAstClassFlat (OCL.Ocl_class_flat_ext
@@ -4082,6 +4160,93 @@ val () =
          , case child of [] => NONE | [x] => SOME (From.from_binding x)
          , From.from_unit ()))
        end)
+in
+val () = mk_classDefinition USE_class @{command_spec "_class"}
+val () = mk_classDefinition USE_class_abstract @{command_spec "_abstract_class"}  
+end
+*}
+
+subsection{* Outer Syntax: association, composition, aggregation *}
+
+ML{*
+datatype use_associationDefinition = USE_association | USE_association_composition | USE_association_aggregation
+
+local
+ open USE_parse
+
+ fun mk_associationDefinition f cmd_spec =
+  outer_syntax_command @{make_string} cmd_spec ""
+    (    Parse.binding
+     --| @{keyword "_between"}
+     -- repeat2 use_associationEnd
+     --| @{keyword "_end"})
+    (fn _ => fn _ =>
+    let val _ = writeln (@{make_string} f) in
+       OCL.OclAstFlushAll (OCL.OclFlushAll) end)
+in
+val () = mk_associationDefinition USE_association @{command_spec "_association"}
+val () = mk_associationDefinition USE_association_composition @{command_spec "_composition"}
+val () = mk_associationDefinition USE_association_aggregation @{command_spec "_aggregation"}
+end
+*}
+
+subsection{* Outer Syntax: (abstract) associationclass *}
+
+ML{*
+datatype use_associationClassDefinition = USE_associationclass | USE_associationclass_abstract
+
+local
+ open USE_parse
+
+ fun mk_associationClassDefinition f cmd_spec =
+  outer_syntax_command @{make_string} cmd_spec ""
+    (   Parse.binding
+     -- class_def_list
+     -- (Scan.optional (@{keyword "_between"}
+                        |-- repeat2 use_associationEnd >> SOME) NONE)
+     -- class_def_attr
+     -- class_def_oper
+     -- class_def_constr
+     -- optional Parse.alt_string
+     --| @{keyword "_end"})
+    (fn _ => fn _ =>
+    let val _ = writeln (@{make_string} f) in
+       OCL.OclAstFlushAll (OCL.OclFlushAll) end)
+in
+val () = mk_associationClassDefinition USE_associationclass @{command_spec "_associationclass"}
+val () = mk_associationClassDefinition USE_associationclass_abstract @{command_spec "_abstract_associationclass"}
+end
+*}
+
+subsection{* Outer Syntax: context *}
+
+ML{*
+datatype use_context = USE_context_invariant of ((binding list * string) option * binding) * ((bool * binding) * string) list
+                     | USE_context_pre_post of (((binding * binding) * (binding * binding) list) * (string * binding) option) *
+      (((string * binding option) * string) * string) list
+local
+ open USE_parse
+in
+val () =
+  outer_syntax_command @{make_string} @{command_spec "_context"} ""
+    (
+    ((* use_prePost *)
+         Parse.binding
+     --| Parse.$$$ "::"
+     -- Parse.binding
+     -- use_paramList
+     -- optional (Parse.$$$ ":" -- use_type)
+     -- Scan.repeat1 use_prePostClause) >> USE_context_pre_post
+    ||
+    ((* use_invariant *)
+        optional (Parse.list1 Parse.binding -- colon)
+     -- Parse.binding
+     -- Scan.repeat use_invariantClause
+     >> USE_context_invariant)
+    )
+    (fn _ => fn _ =>
+       OCL.OclAstFlushAll (OCL.OclFlushAll))
+end
 *}
 
 subsection{* Outer Syntax: Class.end *}
@@ -4094,7 +4259,7 @@ val () =
        OCL.OclAstFlushAll (OCL.OclFlushAll))
 *}
 
-subsection{* Outer Syntax: Instance *}
+subsection{* Outer Syntax: Define_int, Instance, Define_state *}
 
 ML{*
 
@@ -4165,7 +4330,11 @@ val () =
               | ST_skip => OCL.OclDefCoreSkip
               | ST_binding b => OCL.OclDefCoreBinding (From.from_binding b)) (List.concat l))))
 end
+*}
 
+subsection{* Outer Syntax: Define_pre_post *}
+
+ML{*
 val () =
   outer_syntax_command @{make_string} @{command_spec "Define_pre_post"} ""
     (Parse.binding -- Parse.binding)

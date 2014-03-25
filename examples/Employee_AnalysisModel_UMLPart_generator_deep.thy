@@ -56,16 +56,19 @@ generation_syntax [ deep
                       SECTION
                       (output_directory "../doc") ]
 
-Class Person = inherit Planet
-  attribute salary : int
-  attribute boss
+_class Person < Planet
+  _attributes salary : int
+              boss
+_end
 
-Class Planet = inherit Galaxy
-  attribute weight : nat
+_class Planet < Galaxy
+  _attributes weight : nat
+_end
 
-Class Galaxy =
-  attribute sound : unit
-  attribute moving : bool
+_class Galaxy
+  _attributes sound : unit
+              moving : bool
+_end
 
 Define_int [ 1000, 1200, 1300, 1800, 2600, 2900, 3200, 3500 ]
 
