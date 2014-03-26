@@ -54,7 +54,11 @@ generation_syntax [ shallow (generation_semantics [ analysis ]) ]
 
 _class Person < Planet
   _attributes salary : int
-              boss
+_end
+
+_association boss
+  _between Person [`*`]
+           Person [0 `..` 1] _role boss
 _end
 
 _class Planet < Galaxy
