@@ -177,9 +177,13 @@ record ocl_class_flat =
     Cflat_inv :: "(string (* name *) \<times> string) list" (* invariant *) *)
   Cflat_inh :: "string option" (* inherits *)
 
+datatype ocl_association_type = OclAssTy_association
+                              | OclAssTy_composition
+                              | OclAssTy_aggregation
+
 record ocl_association =
-  OclAss_relation :: "string (* name class *) list"
-  OclAss_attr :: string (* name attribute *)
+  OclAss_type :: ocl_association_type
+  OclAss_relation :: "(string (* name class *) \<times> string option (* role *)) list"
 
 datatype ocl_data_shallow = Shall_str string
                           | Shall_self internal_oid
@@ -325,8 +329,11 @@ definition "class_unflat l =
                 const_oclany
                 (ocl_class_flat.make const_oclany [] None)
                 (List.fold (\<lambda> OclAstClassFlat cflat \<Rightarrow> insert (Cflat_name cflat) (cflat \<lparr> Cflat_inh := case Cflat_inh cflat of None \<Rightarrow> Some const_oclany | x \<Rightarrow> x \<rparr>)) l_class empty) in
-    List_map snd (entries (List.fold (\<lambda> OclAstAssociation ass \<Rightarrow> case OclAss_relation ass of [name_from, name_to] \<Rightarrow>
-      map_entry name_from (\<lambda>cflat. cflat \<lparr> Cflat_own := (OclAss_attr ass, OclTy_object const_oid name_to) # Cflat_own cflat \<rparr>)) l_assoc rbt)) in
+    List_map snd (entries (List.fold (\<lambda> OclAstAssociation ass \<Rightarrow> 
+      let add_rbt = \<lambda> [(name_from, _), (name_to, Some role)] \<Rightarrow>
+                      map_entry name_from (\<lambda>cflat. cflat \<lparr> Cflat_own := (role, OclTy_object const_oid name_to) # Cflat_own cflat \<rparr>)
+                    | _ \<Rightarrow> id in
+      add_rbt (rev (OclAss_relation ass)) o add_rbt (OclAss_relation ass)) l_assoc rbt)) in
   class_unflat_aux
     (List.fold (\<lambda> cflat. insert (Cflat_name cflat) (Cflat_own cflat)) l empty)
     (List.fold (\<lambda> cflat. case Cflat_inh cflat of Some k \<Rightarrow> insert k (Cflat_name cflat) | _ \<Rightarrow> id) l empty)
@@ -2804,8 +2811,8 @@ definition "ocl_class_flat_rec f ocl = ocl_class_flat_rec0 f ocl
   (ocl_class_flat.more ocl)"
 
 definition "ocl_association_rec0 f ocl = f
-  (OclAss_relation ocl)
-  (OclAss_attr ocl)"
+  (OclAss_type ocl)
+  (OclAss_relation ocl)"
 
 definition "ocl_association_rec f ocl = ocl_association_rec0 f ocl
   (ocl_association.more ocl)"
@@ -3410,7 +3417,7 @@ definition "main = write_file (ocl_deep_embed_input.extend
                                    , D_file_out_path_dep := Some (''Employee_DesignModel_UMLPart_generated''
                                                                  ,''../src/OCL_main'') \<rparr>)
                                 (List_map OclAstClassFlat Employee_DesignModel_UMLPart
-                                 @@ [ OclAstAssociation (ocl_association.make [''Person'', ''Person''] ''boss'')
+                                 @@ [ OclAstAssociation (ocl_association.make OclAssTy_association [(''Person'', None), (''Person'', Some ''boss'')])
                                     , OclAstFlushAll OclFlushAll]))"
 (*
 apply_code_printing ()
@@ -3499,10 +3506,15 @@ definition "i_of_ocl_class_flat a b f = ocl_class_flat_rec
     (i_of_option a b (i_of_string a b))
     (f a b))"
 
+definition "i_of_ocl_association_type a b = ocl_association_type_rec
+  (b ''OclAssTy_association'')
+  (b ''OclAssTy_composition'')
+  (b ''OclAssTy_aggregation'')"
+
 definition "i_of_ocl_association a b f = ocl_association_rec
   (ap3 a (b ''ocl_association_ext'')
-    (i_of_list a b (i_of_string a b))
-    (i_of_string a b)
+    (i_of_ocl_association_type a b)
+    (i_of_list a b (i_of_pair a b (i_of_string a b) (i_of_option a b (i_of_string a b))))
     (f a b))"
 
 definition "i_of_ocl_data_shallow a b = ocl_data_shallow_rec
@@ -4209,29 +4221,25 @@ end
 subsection{* Outer Syntax: association, composition, aggregation *}
 
 ML{*
-datatype use_associationDefinition = USE_association | USE_association_composition | USE_association_aggregation
-
 local
  open USE_parse
 
- fun mk_associationDefinition f cmd_spec =
+ fun mk_associationDefinition ass_ty cmd_spec =
   outer_syntax_command @{make_string} cmd_spec ""
     (    Parse.binding
      --| @{keyword "_between"}
      -- repeat2 use_associationEnd
      --| @{keyword "_end"})
-    (fn (_, l) => fn _ =>
-       case (f, l) of 
-         ( USE_association
-         , [(((cl_from, _), NONE), []), (((cl_to, _), SOME cl_attr), [])]) =>
-             OCL.OclAstAssociation (OCL.Ocl_association_ext ( List.map From.from_binding [cl_from, cl_to]
-                                                            , From.from_binding cl_attr
-                                                            , From.from_unit ()))
-       | _ => OCL.OclAstFlushAll OCL.OclFlushAll)
+    (fn (_, l) => fn _ =>       
+      OCL.OclAstAssociation (OCL.Ocl_association_ext
+        ( ass_ty
+        , List.map (fn (((cl_from, _), o_cl_attr), _) =>
+            From.from_pair From.from_binding (From.from_option From.from_binding) (cl_from, o_cl_attr)) l 
+        , From.from_unit ())))
 in
-val () = mk_associationDefinition USE_association @{command_spec "_association"}
-val () = mk_associationDefinition USE_association_composition @{command_spec "_composition"}
-val () = mk_associationDefinition USE_association_aggregation @{command_spec "_aggregation"}
+val () = mk_associationDefinition OCL.OclAssTy_association @{command_spec "_association"}
+val () = mk_associationDefinition OCL.OclAssTy_composition @{command_spec "_composition"}
+val () = mk_associationDefinition OCL.OclAssTy_aggregation @{command_spec "_aggregation"}
 end
 *}
 
