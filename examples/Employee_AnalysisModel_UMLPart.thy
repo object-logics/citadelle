@@ -766,17 +766,18 @@ definition "choose\<^sub>3_1 = fst"
 definition "choose\<^sub>3_2 = fst o snd"
 definition "choose\<^sub>3_3 = snd o snd"
 
+definition "List_flatten = (\<lambda>l. (foldl ((\<lambda>acc. (\<lambda>l. (foldl ((\<lambda>acc. (\<lambda>l. (Cons (l) (acc))))) (acc) ((rev (l))))))) (Nil) ((rev (l)))))"
 definition "deref_assocs\<^sub>2" :: "('\<AA> state \<times> '\<AA> state \<Rightarrow> '\<AA> state)
-                              \<Rightarrow> (oid \<times> oid \<Rightarrow> oid \<times> oid)
+                              \<Rightarrow> (oid list \<times> oid list \<Rightarrow> oid list \<times> oid list)
                               \<Rightarrow> oid
-                              \<Rightarrow> (oid list \<Rightarrow> oid \<Rightarrow> ('\<AA>,'f)val)
+                              \<Rightarrow> (oid list \<Rightarrow> ('\<AA>,'f)val)
                               \<Rightarrow> oid
                               \<Rightarrow> ('\<AA>, 'f::null)val"
 where      "deref_assocs\<^sub>2 pre_post to_from assoc_oid f oid =
                  (\<lambda>\<tau>. case (assocs\<^sub>2 (pre_post \<tau>)) assoc_oid of
-                      \<lfloor> S \<rfloor> \<Rightarrow> f (map (choose\<^sub>2_2 \<circ> to_from)
-                                     (filter (\<lambda> p. choose\<^sub>2_1(to_from p)=oid) S))
-                                 oid \<tau>
+                      \<lfloor> S \<rfloor> \<Rightarrow> f (List_flatten (map (choose\<^sub>2_2 \<circ> to_from)
+                                     (filter (\<lambda> p. List.member (choose\<^sub>2_1 (to_from p)) oid) S)))
+                                 \<tau>
                      | _    \<Rightarrow> invalid \<tau>)"
 
 
@@ -797,9 +798,8 @@ definition select_object  ::"  (('\<AA>, 'b::null)val)
                          \<Rightarrow> (('\<AA>, 'b)val \<Rightarrow> ('\<AA>, 'd)val)
                          \<Rightarrow> (oid \<Rightarrow> ('\<AA>,'c::null)val)
                          \<Rightarrow> oid list
-                         \<Rightarrow> oid
                          \<Rightarrow> ('\<AA>, 'd)val"
-where  "select_object  mt incl smash deref l oid  = smash(foldl incl mt (map deref l))
+where  "select_object  mt incl smash deref l  = smash(foldl incl mt (map deref l))
  (* smash returns null with mt in input (in this case, object contains null pointer) *)"
 
 
@@ -1014,7 +1014,7 @@ definition
                           (*oid6*)
                           (*oid7*)
                            (oid8 \<mapsto> in\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n person9),
-               assocs\<^sub>2 = empty(oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<B>\<O>\<S>\<S> \<mapsto> [(oid0,oid1),(oid3,oid4),(oid5,oid3)]),
+               assocs\<^sub>2 = empty(oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<B>\<O>\<S>\<S> \<mapsto> [([oid0],[oid1]),([oid3],[oid4]),([oid5],[oid3])]),
                assocs\<^sub>3 = empty \<rparr>"
 
 definition
@@ -1027,7 +1027,7 @@ definition
                            (oid6 \<mapsto> in\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y person7)
                            (oid7 \<mapsto> in\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y person8)
                            (oid8 \<mapsto> in\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n person9),
-               assocs\<^sub>2 = empty(oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<B>\<O>\<S>\<S> \<mapsto> [(oid0,oid1),(oid1,oid1),(oid5,oid6),(oid6,oid6)]),
+               assocs\<^sub>2 = empty(oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<B>\<O>\<S>\<S> \<mapsto> [([oid0],[oid1]),([oid1],[oid1]),([oid5],[oid6]),([oid6],[oid6])]),
                assocs\<^sub>3 = empty \<rparr>"
 
 definition "\<sigma>\<^sub>0 \<equiv> \<lparr> heap = empty, assocs\<^sub>2 = empty, assocs\<^sub>3 = empty \<rparr>"
