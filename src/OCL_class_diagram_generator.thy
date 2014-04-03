@@ -2855,14 +2855,14 @@ definition "ocl_env_class_spec_rm f_fold f ocl_accu =
   (let (ocl, accu) = f_fold f ocl_accu in
    (ocl \<lparr> D_class_spec := None \<rparr>, accu))"
 
-definition "ocl_env_class_spec_mk f_accu_reset f_fold f = 
+definition "ocl_env_class_spec_mk f_try f_accu_reset f_fold f = 
   (\<lambda> (ocl, accu).
     f_fold f
       (case D_class_spec ocl of Some _ \<Rightarrow> (ocl, accu) | None \<Rightarrow>
        let (l_class, l_ocl) = List.partition (\<lambda> OclAstClassFlat _ \<Rightarrow> True 
                                               | OclAstAssociation _ \<Rightarrow> True
                                               | _ \<Rightarrow> False) (rev (D_ocl_env ocl)) in
-       (List.fold
+       (f_try (\<lambda> () \<Rightarrow> List.fold
            (\<lambda>ast. (case ast of 
                OclAstInstance univ \<Rightarrow> fold_thy0 univ thy_instance
              | OclAstDefInt univ \<Rightarrow> fold_thy0 univ thy_def_int
@@ -2874,14 +2874,14 @@ definition "ocl_env_class_spec_mk f_accu_reset f_fold f =
            (let univ = class_unflat l_class
               ; (ocl, accu) = fold_thy0 univ thy_class f (let ocl = ocl_deep_embed_input_reset_no_env ocl in
                                                           (ocl, f_accu_reset ocl accu)) in
-            (ocl \<lparr> D_class_spec := Some univ \<rparr>, accu)))))"
+            (ocl \<lparr> D_class_spec := Some univ \<rparr>, accu))))))"
 
 definition "ocl_env_save ast f_fold f ocl_accu =
   (let (ocl, accu) = f_fold f ocl_accu in
    (ocl \<lparr> D_ocl_env := ast # D_ocl_env ocl \<rparr>, accu))"
 
-definition "fold_thy' f_accu_reset f =
- (let ocl_env_class_spec_mk = ocl_env_class_spec_mk f_accu_reset in
+definition "fold_thy' f_try f_accu_reset f =
+ (let ocl_env_class_spec_mk = ocl_env_class_spec_mk f_try f_accu_reset in
   List.fold (\<lambda> ast.
     ocl_env_save ast (case ast of
      OclAstClassFlat univ \<Rightarrow> ocl_env_class_spec_rm (fold_thy0 univ thy_class_flat)
@@ -2891,9 +2891,14 @@ definition "fold_thy' f_accu_reset f =
    | OclAstDefState univ \<Rightarrow> ocl_env_class_spec_mk (fold_thy0 univ thy_def_state)
    | OclAstDefPrePost univ \<Rightarrow> fold_thy0 univ thy_def_pre_post
    | OclAstFlushAll univ \<Rightarrow> ocl_env_class_spec_mk (fold_thy0 univ thy_flush_all)) f))"
-definition "fold_thy_shallow f_accu_reset = fold_thy' f_accu_reset o List.fold"
+definition "fold_thy_shallow f_try f_accu_reset = fold_thy' f_try f_accu_reset o List.fold"
 definition "fold_thy_deep obj ocl =
-  (case fold_thy' (\<lambda>ocl _. D_output_position ocl) (\<lambda>l (i, cpt). (Succ i, natural_of_nat (List.length l) + cpt)) obj (ocl, D_output_position ocl) of
+  (case fold_thy'
+          (\<lambda>f. f ())
+          (\<lambda>ocl _. D_output_position ocl)
+          (\<lambda>l (i, cpt). (Succ i, natural_of_nat (List.length l) + cpt))
+          obj
+          (ocl, D_output_position ocl) of
     (ocl, output_position) \<Rightarrow> ocl \<lparr> D_output_position := output_position \<rparr>)"
 
 section{* Generation to both Form (setup part) *}
@@ -3458,6 +3463,7 @@ definition "write_file ocl = (
 ''                                 ))
         (bug_ocaml_extraction (let (ocl, l) =
            fold_thy'
+             (\<lambda>f. f ())
              (\<lambda>_ _. [])
              Cons
              (ocl_deep_embed_input.more ocl)
@@ -4198,7 +4204,16 @@ fun outer_syntax_command mk_string cmd_spec cmd_descr parser get_oclclass =
                           (Gen_deep (OCL.fold_thy_deep l_obj ocl, seri_args, filename_thy, tmp_export_code), thy0) end)
                 end)
            | Gen_shallow (ocl, thy0) => fn thy =>
-             let val (ocl, thy) = OCL.fold_thy_shallow (fn _ => fn _ => thy0) Shallow_main.OCL_main [get_oclclass thy] (ocl, thy) in
+             let val (ocl, thy) = OCL.fold_thy_shallow
+                   (fn f => f () handle ERROR e =>
+                     ( warning "Shallow Backtracking: HOL declarations occuring among OCL ones are ignored (if any)"
+                       (* TODO automatically determine if there is such HOL declarations,
+                               for raising earlier a specific error message *)
+                     ; error e))
+                   (fn _ => fn _ => thy0)
+                   Shallow_main.OCL_main
+                   [get_oclclass thy]
+                   (ocl, thy) in
              (Gen_shallow (ocl, thy0), thy)
              end
           end
