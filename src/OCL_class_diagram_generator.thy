@@ -156,8 +156,16 @@ datatype ocl_multiplicity_single = Mult_nat nat
 
 datatype ocl_multiplicity = OclMult "(ocl_multiplicity_single \<times> ocl_multiplicity_single option) list"
 
-datatype ocl_ty = OclTy_base string (* ty name *)
-                | OclTy_object string (* ty name *) ocl_multiplicity string (* class name *)
+record ocl_ty_object =
+  TyObj_name :: string (* ty: name *)
+  TyObj_ass_id :: nat
+  TyObj_ass_arity :: nat
+  TyObj_ass_switch :: nat
+  TyObj_role_multip :: ocl_multiplicity
+  TyObj_role_name :: string
+
+datatype ocl_ty = OclTy_base string (* ty: name *)
+                | OclTy_object ocl_ty_object
                 | OclTy_collection ocl_collection ocl_ty
                 | OclTy_base_raw string
 
@@ -306,6 +314,7 @@ end
 subsection{* ... *}
 
 definition "List_map f l = rev (foldl (\<lambda>l x. f x # l) [] l)"
+definition "List_mapi f l = rev (fst (foldl (\<lambda>(l,cpt) x. (f cpt x # l, Succ cpt)) ([], 0::nat) l))"
 definition "List_iter f = foldl (\<lambda>_. f) ()"
 definition "flatten l = foldl (\<lambda>acc l. foldl (\<lambda>acc x. x # acc) acc (rev l)) [] (rev l)"
 definition List_append (infixr "@@" 65) where "List_append a b = flatten [a, b]"
@@ -333,6 +342,13 @@ definition "single_multip = (\<lambda> OclMult l \<Rightarrow>
                  | (Mult_nat n, None) \<Rightarrow> n \<le> 1
                  | _ \<Rightarrow> False) l)"
 
+fun_quick fold_max_aux where
+   "fold_max_aux f l l_acc accu = (case l of
+      [] \<Rightarrow> accu
+    | x # xs \<Rightarrow> fold_max_aux f xs (x # l_acc) (f (snd x) (flatten [rev l_acc, xs]) accu))"
+
+definition "fold_max f l = fold_max_aux f (List_mapi Pair l) []"
+
 fun_sorry class_unflat_aux where
    "class_unflat_aux rbt rbt_inv rbt_cycle r =
    (case (lookup rbt r, lookup rbt_cycle r) of (Some l, None (* cycle detection *)) \<Rightarrow>
@@ -345,18 +361,21 @@ definition "class_unflat l =
                 const_oclany
                 (ocl_class_flat.make const_oclany [] None)
                 (List.fold (\<lambda> OclAstClassFlat cflat \<Rightarrow> insert (Cflat_name cflat) (cflat \<lparr> Cflat_inh := case Cflat_inh cflat of None \<Rightarrow> Some const_oclany | x \<Rightarrow> x \<rparr>)) l_class empty) in
-    List_map snd (entries (List.fold (\<lambda> OclAstAssociation ass \<Rightarrow> 
-      let add_rbt = \<lambda> [(name_from, _), (name_to, multip, Some role)] \<Rightarrow>
-                      map_entry name_from (\<lambda>cflat. cflat \<lparr> Cflat_own := (role, OclTy_object const_oid multip name_to) # Cflat_own cflat \<rparr>)
-                    | _ \<Rightarrow> id in
-      add_rbt (rev (OclAss_relation ass)) o add_rbt (OclAss_relation ass)) l_assoc rbt)) in
+    List_map snd (entries (List.fold (\<lambda> (ass_oid, OclAstAssociation ass) \<Rightarrow> 
+      let l_rel = OclAss_relation ass in
+      fold_max
+        (bug_ocaml_extraction (let n_rel = natural_of_nat (List.length l_rel) in
+         \<lambda> (name_to, multip, Some role) \<Rightarrow> List.fold (\<lambda> (cpt, name_from, _).
+            map_entry name_from (\<lambda>cflat. cflat \<lparr> Cflat_own := (role, OclTy_object (ocl_ty_object_ext const_oid ass_oid n_rel cpt multip name_to ())) # Cflat_own cflat \<rparr>))
+         | _ \<Rightarrow> \<lambda>_. id))
+        l_rel) (List_mapi Pair l_assoc) rbt)) in
   class_unflat_aux
     (List.fold (\<lambda> cflat. insert (Cflat_name cflat) (Cflat_own cflat)) l empty)
     (List.fold (\<lambda> cflat. case Cflat_inh cflat of Some k \<Rightarrow> insert k (Cflat_name cflat) | _ \<Rightarrow> id) l empty)
     empty
     const_oclany)"
 
-definition "str_of_ty = (\<lambda> OclTy_base x \<Rightarrow> x | OclTy_object x _ _ \<Rightarrow> flatten [x, '' '', const_oid_list])"
+definition "str_of_ty = (\<lambda> OclTy_base x \<Rightarrow> x | OclTy_object ty_obj \<Rightarrow> flatten [TyObj_name ty_obj, '' '', const_oid_list])"
 
 fun_quick get_class_hierarchy_aux where
    "get_class_hierarchy_aux l_res (OclClass name l_attr dataty) =
@@ -581,6 +600,7 @@ definition "var_select_object_set_any = ''select_object_set_any''"
 definition "var_choose = ''choose''"
 definition "var_switch = ''switch''"
 definition "var_assocs = ''assocs''"
+definition "var_map_of_list = ''map_of_list''"
 definition "var_at_when_hol_post = ''''"
 definition "var_at_when_hol_pre = ''at_pre''"
 definition "var_at_when_ocl_post = ''''"
@@ -679,15 +699,16 @@ definition "Expr_exists x f = Expr_bind0 unicode_exists (Expr_basic [x]) (f x)"
 definition "expr_binop s l = (case rev l of x # xs \<Rightarrow> List.fold (\<lambda>x. Expr_binop x s) xs x)"
 definition "Expr_set l = (case l of [] \<Rightarrow> Expr_basic [''{}''] | _ \<Rightarrow> Expr_paren ''{'' ''}'' (expr_binop '','' l))"
 definition "Expr_oclset l = (case l of [] \<Rightarrow> Expr_basic [''Set{}''] | _ \<Rightarrow> Expr_paren ''Set{'' ''}'' (expr_binop '','' l))"
-definition "Expr_couple e1 e2 = Expr_parenthesis (Expr_binop e1 '','' e2)"
-definition "Consts s ty_out mix = Consts_raw s (Ty_base (Char Nibble2 Nibble7 # unicode_alpha)) ty_out mix"
+definition "Expr_list l = (case l of [] \<Rightarrow> Expr_basic [''[]''] | _ \<Rightarrow> Expr_paren ''['' '']'' (expr_binop '','' l))"
+definition "Expr_pair e1 e2 = Expr_parenthesis (Expr_binop e1 '','' e2)"
+definition "Consts s = Consts_raw s (Ty_base (Char Nibble2 Nibble7 # unicode_alpha))"
 definition "Tac_subst = Tac_subst_l [''0'']"
 definition "Tac_auto = Tac_auto_simp_add []"
 definition "start_map f = fold_list (\<lambda>x acc. (f x, acc))"
 definition "start_map' f x accu = (f x, accu)"
 definition "start_map''' f fl = (\<lambda> ocl.
   let design_analysis = D_design_analysis ocl
-    ; base_attr = (if design_analysis = None then id else List_filter (\<lambda> (_, OclTy_object _ _ _) \<Rightarrow> False | _ \<Rightarrow> True))
+    ; base_attr = (if design_analysis = None then id else List_filter (\<lambda> (_, OclTy_object _) \<Rightarrow> False | _ \<Rightarrow> True))
     ; base_attr' = (\<lambda> (l_attr, l_inh). (base_attr l_attr, List_map base_attr l_inh))
     ; base_attr'' = (\<lambda> (l_attr, l_inh). (base_attr l_attr, base_attr l_inh)) in
   start_map f (fl design_analysis base_attr base_attr' base_attr'') ocl)"
@@ -1555,8 +1576,8 @@ definition "gen_pre_post f_tit spec f_lemma tac_last =
            [App_unfolding [Thm_str (d s_allinst)]]
            (Tacl_by (Tac_rule (Thm_str lem_gen) # tac_last)) in
   [ f_lemma lem_gen (spec (\<lambda>l. Expr_apply (f_allinst s_generic) (b var_pre_post # l)) (\<lambda>e. Expr_apply var_mk [e]) var_pre_post) var_pre_post var_mk var_st
-  , mk_pre_post ''snd'' ''at_post'' (Expr_couple (b var_st))
-  , mk_pre_post ''fst'' ''at_pre'' (\<lambda>e. Expr_couple e (b var_st)) ])"
+  , mk_pre_post ''snd'' ''at_post'' (Expr_pair (b var_st))
+  , mk_pre_post ''fst'' ''at_pre'' (\<lambda>e. Expr_pair e (b var_st)) ])"
 
 definition "print_allinst_exec = start_map Thy_lemma_by o map_class_top (\<lambda>isub_name name _ _ _ _.
   let b = \<lambda>s. Expr_basic [s]
@@ -1720,17 +1741,21 @@ definition "print_access_oid_uniq =
   (\<lambda>expr ocl.
     if D_design_analysis ocl = None then ([], ocl) else
       (\<lambda>(l, oid_start). (List_map Thy_definition_hol l, ocl \<lparr> D_oid_start := oid_start \<rparr>))
-      (let (l, acc) = fold_class (\<lambda>isub_name name l_attr l_inh _ _ cpt.
+      (let (l, (acc, _)) = fold_class (\<lambda>isub_name name l_attr l_inh _ _ cpt.
          let l_inh = List_map snd l_inh in
          let (l, cpt) = fold_list (fold_list
-           (\<lambda> (attr, OclTy_object _ _ _) \<Rightarrow> \<lambda>cpt.
+           (\<lambda> (attr, OclTy_object ty_obj) \<Rightarrow> bug_ocaml_extraction (let obj_oid = TyObj_ass_id ty_obj in \<lambda>(cpt, rbt) \<Rightarrow>
+             let (cpt_obj, cpt_rbt) = 
+               case lookup rbt obj_oid of
+                 None \<Rightarrow> (cpt, oidSucAssoc cpt, insert obj_oid cpt rbt)
+               | Some cpt_obj \<Rightarrow> (cpt_obj, cpt, rbt) in
              ([Definition (Expr_rewrite
                    (Expr_basic [print_access_oid_uniq_name isub_name attr])
                    ''=''
-                   (Expr_oid '''' (oidGetAssoc cpt)))], oidSucAssoc cpt)
+                   (Expr_oid '''' (oidGetAssoc cpt_obj)))], cpt_rbt))
             | _ \<Rightarrow> \<lambda>cpt. ([], cpt)))
            (l_attr # l_inh) cpt in
-         (flatten (flatten l), cpt)) (D_oid_start ocl) expr in
+         (flatten (flatten l), cpt)) (D_oid_start ocl, empty) expr in
        (flatten l, acc)))"
 
 definition "print_access_eval_extract _ = start_map Thy_definition_hol
@@ -1760,10 +1785,10 @@ definition "print_access_choose = start_map'''' Thy_definition_hol o (\<lambda>e
     ; l_flatten = ''List_flatten''
     ; a = \<lambda>f x. Expr_apply f [x]
     ; b = \<lambda>s. Expr_basic [s] in
-  ( lets (flatten [mk_n var_choose, ''_1'']) ''fst''
-  # lets (flatten [mk_n var_choose, ''_2'']) ''snd''
-  # lets' (flatten [mk_n var_switch, ''_1'']) (Expr_basic [''id''])
-  # lets' (flatten [mk_n var_switch, ''_2'']) (let cpl = \<lambda>x y. Expr_parenthesis (Expr_binop (Expr_basic [x]) '','' (Expr_basic [y]))
+  ( lets (flatten [mk_n var_choose, ''_0'']) ''fst''
+  # lets (flatten [mk_n var_choose, ''_1'']) ''snd''
+  # lets' (flatten [mk_n var_switch, ''_0'']) (Expr_basic [''id''])
+  # lets' (flatten [mk_n var_switch, ''_1'']) (let cpl = \<lambda>x y. Expr_parenthesis (Expr_binop (Expr_basic [x]) '','' (Expr_basic [y]))
                                                  ; var_x = ''x''
                                                  ; var_y = ''y'' in
                                                Expr_lambdas0 (cpl var_x var_y) (cpl var_y var_x))
@@ -1772,6 +1797,18 @@ definition "print_access_choose = start_map'''' Thy_definition_hol o (\<lambda>e
                      fun_foldl (\<lambda>var_acc. 
                        fun_foldl (\<lambda>var_acc. 
                          Expr_lam ''l'' (\<lambda>var_l. Expr_apply ''Cons'' (List_map b [var_l, var_acc]))) (b var_acc)) (b ''Nil''))
+  # lets' var_map_of_list (Expr_apply ''foldl''
+      [ Expr_lam ''map'' (\<lambda>var_map.
+          let var_x = ''x''
+            ; var_l0 = ''l0''
+            ; var_l1 = ''l1''
+            ; f_map = a var_map in
+          Expr_lambdas0 (Expr_pair (b var_x) (b var_l1))
+            (Expr_case (f_map (b var_x))
+              (List_map (\<lambda>(pat, e). (pat, f_map (Expr_binop (b var_x) unicode_mapsto e)))
+                [ (b ''None'', b var_l1)
+                , (Expr_some (b var_l0), a l_flatten (Expr_list (List_map b [var_l0, var_l1])))])))
+      , b ''Map.empty''])
   # [ let var_pre_post = ''pre_post''
         ; var_to_from = ''to_from''
         ; var_assoc_oid = ''assoc_oid''
@@ -1791,14 +1828,14 @@ definition "print_access_choose = start_map'''' Thy_definition_hol o (\<lambda>e
                    [ Expr_apply l_flatten
                        [ Expr_apply ''List.map''
                            [ Expr_binop
-                               (Expr_basic [flatten [mk_n var_choose, ''_2'']])
+                               (Expr_basic [flatten [mk_n var_choose, ''_1'']])
                                unicode_circ
                                (Expr_basic [var_to_from])
                            , Expr_apply ''filter''
                                [ Expr_lam ''p'' (\<lambda>var_p.
                                    Expr_apply ''List.member''
                                      [ Expr_applys
-                                         (Expr_basic [flatten [mk_n var_choose, ''_1'']])
+                                         (Expr_basic [flatten [mk_n var_choose, ''_0'']])
                                          [Expr_apply var_to_from [Expr_basic [var_p]]]
                                      , Expr_basic [var_oid] ])
                                , Expr_basic [var_S]]]]
@@ -1829,7 +1866,7 @@ definition "print_access_deref_assocs = start_map'''' Thy_definition_hol o (\<la
     ; var_f = ''f''
     ; b = \<lambda>s. Expr_basic [s] in
     flatten (List_map (List_map
-      (\<lambda> (attr, OclTy_object _ _ _) \<Rightarrow>
+      (\<lambda> (attr, OclTy_object ty_obj) \<Rightarrow>
            [Definition (Expr_rewrite
                   (Expr_basic [(print_access_deref_assocs_name isub_name @@ isup_of_str attr), var_fst_snd, var_f])
                   ''=''
@@ -1837,7 +1874,7 @@ definition "print_access_deref_assocs = start_map'''' Thy_definition_hol o (\<la
                     (Expr_apply
                       (mk_n var_deref_assocs)
                         (List_map b [ var_fst_snd
-                               , flatten [mk_n var_switch, ''_1'']
+                               , flatten [mk_n var_switch, ''_'', natural_of_str (TyObj_ass_switch ty_obj)]
                                , print_access_oid_uniq_name isub_name attr
                                , var_f ]))
                     unicode_circ
@@ -1964,7 +2001,7 @@ definition "print_access_select_obj = start_map'''' Thy_definition_hol o (\<lamb
   (if design_analysis = None then \<lambda>_. [] else (\<lambda>expr. flatten (flatten (map_class (\<lambda>isub_name name l_attr l_inh _ _.
     let l_inh = List_map snd l_inh in
     flatten (List_map (List_map
-      (\<lambda> (attr, OclTy_object _ multip _) \<Rightarrow>
+      (\<lambda> (attr, OclTy_object ty_obj) \<Rightarrow>
            [Definition (let var_f = ''f''
                           ; b = \<lambda>s. Expr_basic [s] in
               Expr_rewrite
@@ -1973,7 +2010,7 @@ definition "print_access_select_obj = start_map'''' Thy_definition_hol o (\<lamb
                   (Expr_apply var_select_object
                     [ b ''mtSet''
                     , b ''OclIncluding''
-                    , b (if single_multip multip then ''OclANY'' else ''id'')
+                    , b (if single_multip (TyObj_role_multip ty_obj) then ''OclANY'' else ''id'')
                     , Expr_apply var_f [let var_x = ''x'' in
                                         Expr_lambdas [var_x, wildcard] (Expr_some (Expr_some (Expr_basic [var_x])))]]))]
        | _ \<Rightarrow> []))
@@ -1991,8 +2028,9 @@ definition "print_access_dot_consts = start_map Thy_consts_class o
                 OclTy_base attr_ty \<Rightarrow> Ty_apply (Ty_base ''val'') [Ty_base unicode_AA,
                   let option = \<lambda>x. Ty_apply (Ty_base ''option'') [x] in
                   option (option (Ty_base attr_ty))]
-              | OclTy_object _ multip name \<Rightarrow> 
-                  Ty_base (if single_multip multip then
+              | OclTy_object ty_obj \<Rightarrow> 
+                  let name = TyObj_role_name ty_obj in
+                  Ty_base (if single_multip (TyObj_role_multip ty_obj) then
                              name
                            else
                              print_infra_type_synonym_class_set_name name))
@@ -2014,19 +2052,20 @@ definition "print_access_dot = start_map'''' Thy_defs_overloaded o (\<lambda>exp
                                                                               | Some orig_n \<Rightarrow> var_deref_oid @@ isub_of_str orig_n) (Expr_basic [var_in_when_state] # l) in
                     deref_oid None
                       [ ( case (design_analysis, attr_ty) of
-                            (Some _, OclTy_object _ _ name) \<Rightarrow>
+                            (Some _, OclTy_object _) \<Rightarrow>
                               \<lambda>l. Expr_apply (isup_attr (print_access_deref_assocs_name isub_name)) (Expr_basic [var_in_when_state] # [l])
                         | _ \<Rightarrow> id)
                           (Expr_apply (isup_attr (isub_name var_select))
                             [case attr_ty of OclTy_base _ \<Rightarrow> Expr_basic [var_reconst_basetype]
-                                           | OclTy_object _ multip name \<Rightarrow> 
+                                           | OclTy_object ty_obj \<Rightarrow> 
+                             let der_name = deref_oid (Some (TyObj_role_name ty_obj)) [] in
                              if design_analysis = None then
-                               Expr_apply (if single_multip multip then
+                               Expr_apply (if single_multip (TyObj_role_multip ty_obj) then
                                              var_select_object_set_any
                                            else
-                                             var_select_object_set) [deref_oid (Some name) []]
+                                             var_select_object_set) [der_name]
                              else
-                               deref_oid (Some name) []]) ] ])) ]) expr)"
+                               der_name]) ] ])) ]) expr)"
 
 definition "print_access_dot_lemmas_id_set =
   (if activate_simp_optimization then
@@ -2107,12 +2146,12 @@ definition "print_examp_oclint = (\<lambda> OclDefI l \<Rightarrow> (start_map T
 definition "print_examp_instance_draw_list_attr map_self map_username =
   (let b = \<lambda>s. Expr_basic [s]
      ; f_get = \<lambda> None \<Rightarrow> b ''None''
-               | Some cpt \<Rightarrow> Expr_some (Expr_apply ''Cons'' [Expr_oid var_oid_uniq (oidGetInh cpt), b ''Nil'']) in
+               | Some cpt \<Rightarrow> Expr_some (Expr_list [Expr_oid var_oid_uniq (oidGetInh cpt)]) in
    List_map (\<lambda> None \<Rightarrow> b ''None''
              | Some (ty, ocl) \<Rightarrow>
      case ocl of
        Shall_base base \<Rightarrow>
-         (case base of ShallB_str s \<Rightarrow> (case ty of OclTy_object _ _ _ \<Rightarrow> f_get (map_username s) | _ \<Rightarrow> Expr_some (b s))
+         (case base of ShallB_str s \<Rightarrow> (case ty of OclTy_object _ \<Rightarrow> f_get (map_username s) | _ \<Rightarrow> Expr_some (b s))
                      | ShallB_self cpt1 \<Rightarrow> f_get (map_self cpt1))
      | Shall_list [] \<Rightarrow> b ''None''
      | Shall_list l \<Rightarrow> Expr_some (List.fold (\<lambda>base acc. 
@@ -2133,7 +2172,7 @@ definition "rbt_of_class ocl =
          (let fold = \<lambda>tag l rbt.
             let (rbt, _, n) = List.fold
                                    (\<lambda> (name_attr, ty) \<Rightarrow> \<lambda>(rbt, cpt, l_obj).
-                                     (insert name_attr (ty, tag, OptIdent cpt) rbt, Succ cpt, (case ty of OclTy_object _ _ _ \<Rightarrow> True | _ \<Rightarrow> False) # l_obj))
+                                     (insert name_attr (ty, tag, OptIdent cpt) rbt, Succ cpt, (case ty of OclTy_object _ \<Rightarrow> True | _ \<Rightarrow> False) # l_obj))
                                    l
                                    (rbt, 0, []) in
             (rbt, (tag, n)) in
@@ -2234,7 +2273,8 @@ definition "print_examp_instance = (\<lambda> OclInstance l \<Rightarrow> \<lamb
   (\<lambda>((l_res, oid_start), instance_rbt).
     (print_examp_instance_oid (List_map Some l) ocl
     @@ (List_map Thy_definition_hol o flatten) l_res, ocl \<lparr> D_oid_start := oid_start, D_instance_rbt := instance_rbt \<rparr>))
-    (let (rbt, (map_self, map_username)) = init_map_class ocl l in ((fold_list
+    (let (rbt, (map_self, map_username)) = init_map_class ocl l in
+    ( fold_list
       (\<lambda> (f1, f2) _.
         fold_list (\<lambda> ocli cpt.
           let var_oid = Expr_oid var_oid_uniq (oidGetInh cpt)
@@ -2249,7 +2289,7 @@ definition "print_examp_instance = (\<lambda> OclInstance l \<Rightarrow> \<lamb
       (D_oid_start ocl)
     , List.fold (\<lambda>ocli instance_rbt.
         let n = Inst_name ocli in
-        (n, ocli, case map_username n of Some oid \<Rightarrow> oidGetInh oid) # instance_rbt) l (D_instance_rbt ocl)))))"
+        (n, ocli, case map_username n of Some oid \<Rightarrow> oidGetInh oid) # instance_rbt) l (D_instance_rbt ocl))))"
 
 definition "print_examp_def_st_assoc rbt map_self map_username l_assoc s_empty =
   (let b = \<lambda>s. Expr_basic [s]
@@ -2260,33 +2300,31 @@ definition "print_examp_def_st_assoc rbt map_self map_username l_assoc s_empty =
          modify_def empty ty
          (List.fold (\<lambda>(name_attr, shall).
            case f_attr_ty name_attr of
-             Some (OclTy_object _ _ _, _, _) \<Rightarrow>
-               modify_def [] name_attr
-               (\<lambda>l. case case shall of Shall_base shall \<Rightarrow> Option.map (\<lambda>x. [x]) (case shall of ShallB_str s \<Rightarrow> map_username s | ShallB_self s \<Rightarrow> map_self s)
+             Some (OclTy_object ty_obj, _, _) \<Rightarrow>
+               modify_def ([], TyObj_ass_switch ty_obj, TyObj_ass_arity ty_obj) name_attr
+               (\<lambda>(l, accu). case case shall of Shall_base shall \<Rightarrow> Option.map (\<lambda>x. [x]) (case shall of ShallB_str s \<Rightarrow> map_username s | ShallB_self s \<Rightarrow> map_self s)
                                      | Shall_list l \<Rightarrow> Some (List.map (\<lambda>c. case case c of ShallB_str s \<Rightarrow> map_username s | ShallB_self s \<Rightarrow> map_self s of Some cpt \<Rightarrow> cpt) l) of
-                      None \<Rightarrow> l
-                    | Some oid \<Rightarrow> (oidGetInh cpt, List_map oidGetInh oid) # l)
+                      None \<Rightarrow> (l, accu)
+                    | Some oid \<Rightarrow> ((oidGetInh cpt, List_map oidGetInh oid) # l, accu))
            | _ \<Rightarrow> id) l_attr)) ocli) l_assoc empty in
-   List_map (Expr_apply s_empty)
    (let (l_cons2, l_cons3) = 
-      fold (\<lambda>name. fold (\<lambda>name_attr l_attr (l_cons2, l_cons3).
-         let v = Expr_binop
+      fold (\<lambda>name. fold (\<lambda>name_attr (l_attr, switch_id, arity) (l_cons2, l_cons3).
+         let v = \<lambda>switch_num. Expr_pair
            (Expr_basic [print_access_oid_uniq_name (\<lambda>s. s @@ isub_of_str name) name_attr])
-           unicode_mapsto
-           (list_rec
-             (b ''Nil'')
-             (\<lambda>(x1, x2) _ xs. Expr_apply ''Cons'' [bug_ocaml_extraction (case rev (x1 # x2) of accu # x2 =>
-               List.fold (\<lambda>x2 acc. Expr_apply ''Pair'' (List_map (\<lambda>x. Expr_apply ''Cons'' [x, b ''Nil''])
-                                                        [Expr_oid var_oid_uniq x2, acc])) x2 (Expr_oid var_oid_uniq accu)), xs])
-             l_attr)
-           ; lg_n = \<lambda>n. List.list_all (\<lambda>(_, x2). List.length x2 = n) in
-         if lg_n 1 l_attr then
-           (v # l_cons2, l_cons3)
-         else if lg_n 2 l_attr then
-           (l_cons2, v # l_cons3)
+           (Expr_apply ''List.map''
+             [ b (flatten [var_switch, isub_of_str switch_num, ''_'', natural_of_str switch_id])
+             , Expr_list
+                 (List_map (\<lambda>(x1, x2). case rev (x1 # x2) of accu # x2 =>
+                   List.fold (\<lambda>x2 acc. Expr_apply ''Pair'' (List_map (\<lambda>x. Expr_list [x])
+                                                            [Expr_oid var_oid_uniq x2, acc])) x2 (Expr_oid var_oid_uniq accu))
+                 l_attr)]) in
+         if arity = 2 then
+           (v ''2'' # l_cons2, l_cons3)
+         else if arity = 3 then
+           (l_cons2, v ''3'' # l_cons3)
          else
            (l_cons2, l_cons3))) rbt ([], []) in
-    [l_cons2, l_cons3]))"
+    List_map (\<lambda>l. Expr_apply var_map_of_list [Expr_list l]) [l_cons2, l_cons3]))"
 
 definition "print_examp_def_st_mapsto_gen f ocl = (\<lambda> (rbt, (map_self, map_username)).
   List_map (\<lambda>(cpt, ocore).
@@ -2489,7 +2527,7 @@ definition "print_pre_post_wff = (\<lambda> OclDefPP s_pre s_post \<Rightarrow> 
    case (List_assoc s_pre l_st, List_assoc s_post l_st) of (Some l_pre, Some l_post) \<Rightarrow>
    [ Lemma_by
       (flatten [''basic_'', s_pre, ''_'', s_post, ''_wff''])
-      [a ''WFF'' (Expr_couple (b s_pre) (b s_post))]
+      [a ''WFF'' (Expr_pair (b s_pre) (b s_post))]
       []
       (Tacl_by [Tac_simp_add (List_map d (flatten
         [ [ ''WFF'', s_pre, s_post, const_oid_of unicode_AA ]
@@ -2525,7 +2563,7 @@ definition "print_pre_post_where = (\<lambda> OclDefPP s_pre s_post \<Rightarrow
          (x_where, case ocore of OclDefCoreBinding (name, ocli) \<Rightarrow>
            (Some (name, print_examp_instance_name (\<lambda>s. s @@ isub_of_str (Inst_ty ocli)) (Inst_name ocli)), b name)) in
        Lemma_by (flatten [var_oid_uniq, natural_of_str (case x_pers_oid of Oid i \<Rightarrow> i), ''_'', x_where])
-        [Expr_binop (Expr_couple (b s_pre) (b s_post)) unicode_Turnstile (a x_where (x_pers_expr))]
+        [Expr_binop (Expr_pair (b s_pre) (b s_post)) unicode_Turnstile (a x_where (x_pers_expr))]
         []
         (Tacl_by [Tac_simp_add (List_map d (flatten
           [ case x_name of Some (x_pers, x_name) \<Rightarrow> [x_pers, x_name] | _ \<Rightarrow> []
@@ -2902,6 +2940,17 @@ definition "fold_thy_deep obj ocl =
     (ocl, output_position) \<Rightarrow> ocl \<lparr> D_output_position := output_position \<rparr>)"
 
 section{* Generation to both Form (setup part) *}
+
+definition "ocl_ty_object_rec0 f ocl = f
+  (TyObj_name ocl)
+  (TyObj_ass_id ocl)
+  (TyObj_ass_arity ocl)
+  (TyObj_ass_switch ocl)
+  (TyObj_role_multip ocl)
+  (TyObj_role_name ocl)"
+
+definition "ocl_ty_object_rec f ocl = ocl_ty_object_rec0 f ocl
+  (ocl_ty_object.more ocl)"
 
 definition "ocl_class_flat_rec0 f ocl = f
   (Cflat_name ocl)
@@ -3599,9 +3648,19 @@ definition "i_of_ocl_multiplicity_single a b = ocl_multiplicity_single_rec
 definition "i_of_ocl_multiplicity a b = ocl_multiplicity_rec
   (ap1 a (b ''OclMult'') (i_of_list a b (i_of_pair a b (i_of_ocl_multiplicity_single a b) (i_of_option a b (i_of_ocl_multiplicity_single a b)))))"
 
+definition "i_of_ocl_ty_object a b f = ocl_ty_object_rec
+  (ap7 a (b ''ocl_ty_object_ext'')
+    (i_of_string a b)
+    (i_of_nat a b)
+    (i_of_nat a b)
+    (i_of_nat a b)
+    (i_of_ocl_multiplicity a b)
+    (i_of_string a b)
+    (f a b))"
+
 definition "i_of_ocl_ty a b = (\<lambda>f1 f2. ocl_ty_rec f1 f2 o co1 K)
   (ap1 a (b ''OclTy_base'') (i_of_string a b))
-  (ap3 a (b ''OclTy_object'') (i_of_string a b) (i_of_ocl_multiplicity a b) (i_of_string a b))
+  (ap1 a (b ''OclTy_object'') (i_of_ocl_ty_object a b (K i_of_unit)))
   (ar2 a (b ''OclTy_collection'') (i_of_ocl_collection b))
   (ap1 a (b ''OclTy_base_raw'') (i_of_string a b))"
 
