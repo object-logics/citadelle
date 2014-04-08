@@ -92,8 +92,7 @@ text{*
 *}
 record ('\<AA>)state =
              heap   :: "oid \<rightharpoonup> '\<AA> "
-             assocs\<^sub>2 :: "oid  \<rightharpoonup> (oid list \<times> oid list) list"       (* binary associations *)
-             assocs\<^sub>3 :: "oid  \<rightharpoonup> (oid list \<times> oid list \<times> oid list) list" (* ternary associations *)
+             assocs :: "oid \<rightharpoonup> (oid list list) list"
 
 
 type_synonym ('\<AA>)st = "'\<AA> state \<times> '\<AA> state"

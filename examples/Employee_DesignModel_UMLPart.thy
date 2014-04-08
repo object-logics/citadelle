@@ -632,7 +632,7 @@ lemma OclAny_allInstances_generic_oclIsTypeOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^
 assumes [simp]: "\<And>x. pre_post (x, x) = x"
 shows "\<exists>\<tau>. (\<tau> \<Turnstile> not ((OclAllInstances_generic pre_post OclAny)->forAll(X|X .oclIsTypeOf(OclAny))))"
 proof - fix oid a let ?t0 = "\<lparr>heap = empty(oid \<mapsto> in\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y (mk\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y oid \<lfloor>a\<rfloor>)),
-                              assocs\<^sub>2 = empty, assocs\<^sub>3 = empty\<rparr>" show ?thesis
+                              assocs = empty\<rparr>" show ?thesis
  apply(rule_tac x = "(?t0, ?t0)" in exI, simp add: OclValid_def del: OclAllInstances_generic_def)
  apply(simp only: OclForall_def refl if_True
                   OclAllInstances_generic_defined[simplified OclValid_def])
@@ -946,8 +946,7 @@ definition
                           (*oid6*)
                           (*oid7*)
                            (oid8 \<mapsto> in\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n person9),
-               assocs\<^sub>2 = empty,
-               assocs\<^sub>3 = empty \<rparr>"
+               assocs = empty \<rparr>"
 
 definition
       "\<sigma>\<^sub>1' \<equiv> \<lparr> heap = empty(oid0 \<mapsto> in\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n person1)
@@ -959,10 +958,9 @@ definition
                            (oid6 \<mapsto> in\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y person7)
                            (oid7 \<mapsto> in\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y person8)
                            (oid8 \<mapsto> in\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n person9),
-               assocs\<^sub>2 = empty,
-               assocs\<^sub>3 = empty \<rparr>"
+               assocs = empty \<rparr>"
 
-definition "\<sigma>\<^sub>0 \<equiv> \<lparr> heap = empty, assocs\<^sub>2 = empty, assocs\<^sub>3 = empty \<rparr>"
+definition "\<sigma>\<^sub>0 \<equiv> \<lparr> heap = empty, assocs = empty \<rparr>"
 
 
 lemma basic_\<tau>_wff: "WFF(\<sigma>\<^sub>1,\<sigma>\<^sub>1')"
@@ -1225,8 +1223,7 @@ lemma perm_\<sigma>\<^sub>1' : "\<sigma>\<^sub>1' = \<lparr> heap = empty
                            (oid2 \<mapsto> in\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n person3)
                            (oid1 \<mapsto> in\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n person2)
                            (oid0 \<mapsto> in\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n person1)
-                       , assocs\<^sub>2 = assocs\<^sub>2 \<sigma>\<^sub>1'
-                       , assocs\<^sub>3 = assocs\<^sub>3 \<sigma>\<^sub>1' \<rparr>"
+                       , assocs = assocs \<sigma>\<^sub>1' \<rparr>"
 proof -
  note P = fun_upd_twist
  show ?thesis

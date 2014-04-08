@@ -78,8 +78,7 @@ text{* This leads to the definitions:
 \begin{isar}[mathescape]
 record ('\<AA>)state =
              heap   :: "oid \<rightharpoonup> '\<AA> "
-             assocs\<^sub>2 :: "oid  \<rightharpoonup> (oid \<times> oid) list"
-             assocs\<^sub>3 :: "oid  \<rightharpoonup> (oid \<times> oid \<times> oid) list"
+             assocs :: "oid \<rightharpoonup> (oid list list) list"
 
 $\text{\textbf{type-synonym}}$ ('\<AA>)st = "'\<AA> state \<times> '\<AA> state"
 \end{isar}
@@ -234,8 +233,8 @@ section{* Operations on Object *}
 subsection{* Initial States (for testing and code generation) *}
 
 definition \<tau>\<^sub>0 :: "('\<AA>)st"
-where     "\<tau>\<^sub>0 \<equiv> (\<lparr>heap=Map.empty, assocs\<^sub>2= Map.empty, assocs\<^sub>3= Map.empty\<rparr>,
-                 \<lparr>heap=Map.empty, assocs\<^sub>2= Map.empty, assocs\<^sub>3= Map.empty\<rparr>)"
+where     "\<tau>\<^sub>0 \<equiv> (\<lparr>heap=Map.empty, assocs = Map.empty\<rparr>,
+                 \<lparr>heap=Map.empty, assocs = Map.empty\<rparr>)"
 
 subsection{* OclAllInstances *}
 
@@ -323,11 +322,11 @@ qed
 
 lemma state_update_vs_allInstances_generic_empty:
 assumes [simp]: "\<And>a. pre_post (mk a) = a"
-shows   "(mk \<lparr>heap=empty, assocs\<^sub>2=A, assocs\<^sub>3=B\<rparr>) \<Turnstile> OclAllInstances_generic pre_post Type \<doteq> Set{}"
+shows   "(mk \<lparr>heap=empty, assocs=A\<rparr>) \<Turnstile> OclAllInstances_generic pre_post Type \<doteq> Set{}"
 proof -
  have state_update_vs_allInstances_empty:
-  "(OclAllInstances_generic pre_post Type) (mk \<lparr>heap=empty, assocs\<^sub>2=A, assocs\<^sub>3=B\<rparr>) =
-   Set{} (mk \<lparr>heap=empty, assocs\<^sub>2=A, assocs\<^sub>3=B\<rparr>)"
+  "(OclAllInstances_generic pre_post Type) (mk \<lparr>heap=empty, assocs=A\<rparr>) =
+   Set{} (mk \<lparr>heap=empty, assocs=A\<rparr>)"
  by(simp add: OclAllInstances_generic_def mtSet_def)
  show ?thesis
   apply(simp only: OclValid_def, subst cp_StrictRefEq\<^sub>S\<^sub>e\<^sub>t,
@@ -350,10 +349,10 @@ assumes [simp]: "\<And>a. pre_post (mk a) = a"
 assumes "\<And>x. \<sigma>' oid = Some x \<Longrightarrow> x = Object"
     and "Type Object \<noteq> None"
   shows "(OclAllInstances_generic pre_post Type)
-         (mk \<lparr>heap=\<sigma>'(oid\<mapsto>Object), assocs\<^sub>2=A, assocs\<^sub>3=B\<rparr>)
+         (mk \<lparr>heap=\<sigma>'(oid\<mapsto>Object), assocs=A\<rparr>)
          =
          ((OclAllInstances_generic pre_post Type)->including(\<lambda> _. \<lfloor>\<lfloor> drop (Type Object) \<rfloor>\<rfloor>))
-         (mk \<lparr>heap=\<sigma>',assocs\<^sub>2=A, assocs\<^sub>3=B\<rparr>)"
+         (mk \<lparr>heap=\<sigma>',assocs=A\<rparr>)"
 proof -
  have drop_none : "\<And>x. x \<noteq> None \<Longrightarrow> \<lfloor>\<lceil>x\<rceil>\<rfloor> = x"
  by(case_tac x, simp+)
@@ -384,11 +383,11 @@ assumes [simp]: "\<And>a. pre_post (mk a) = a"
 assumes "\<And>x. \<sigma>' oid = Some x \<Longrightarrow> x = Object"
     and "Type Object \<noteq> None"
 shows   "(OclAllInstances_generic pre_post Type)
-         (mk \<lparr>heap=\<sigma>'(oid\<mapsto>Object), assocs\<^sub>2=A, assocs\<^sub>3=B\<rparr>)
+         (mk \<lparr>heap=\<sigma>'(oid\<mapsto>Object), assocs=A\<rparr>)
          =
          ((\<lambda>_. (OclAllInstances_generic pre_post Type)
-                 (mk \<lparr>heap=\<sigma>', assocs\<^sub>2=A, assocs\<^sub>3=B\<rparr>))->including(\<lambda> _. \<lfloor>\<lfloor> drop (Type Object) \<rfloor>\<rfloor>))
-         (mk \<lparr>heap=\<sigma>'(oid\<mapsto>Object), assocs\<^sub>2=A, assocs\<^sub>3=B\<rparr>)"
+                 (mk \<lparr>heap=\<sigma>', assocs=A\<rparr>))->including(\<lambda> _. \<lfloor>\<lfloor> drop (Type Object) \<rfloor>\<rfloor>))
+         (mk \<lparr>heap=\<sigma>'(oid\<mapsto>Object), assocs=A\<rparr>)"
  apply(subst state_update_vs_allInstances_generic_including', (simp add: assms)+,
        subst cp_OclIncluding,
        simp add: OclIncluding_def)
@@ -407,10 +406,10 @@ assumes [simp]: "\<And>a. pre_post (mk a) = a"
 assumes "\<And>x. \<sigma>' oid = Some x \<Longrightarrow> x = Object"
     and "Type Object = None"
   shows "(OclAllInstances_generic pre_post Type)
-         (mk \<lparr>heap=\<sigma>'(oid\<mapsto>Object), assocs\<^sub>2=A, assocs\<^sub>3=B\<rparr>)
+         (mk \<lparr>heap=\<sigma>'(oid\<mapsto>Object), assocs=A\<rparr>)
          =
          (OclAllInstances_generic pre_post Type)
-         (mk \<lparr>heap=\<sigma>', assocs\<^sub>2=A, assocs\<^sub>3=B\<rparr>)"
+         (mk \<lparr>heap=\<sigma>', assocs=A\<rparr>)"
 proof -
  have drop_none : "\<And>x. x \<noteq> None \<Longrightarrow> \<lfloor>\<lceil>x\<rceil>\<rfloor> = x"
  by(case_tac x, simp+)
@@ -437,8 +436,8 @@ assumes oid_def:   "oid\<notin>dom \<sigma>'"
 and  non_type_conform: "Type Object = None "
 and  cp_ctxt:      "cp P"
 and  const_ctxt:   "\<And>X. const X \<Longrightarrow> const (P X)"
-shows "(mk \<lparr>heap=\<sigma>'(oid\<mapsto>Object),assocs\<^sub>2=A,assocs\<^sub>3=B\<rparr> \<Turnstile> P (OclAllInstances_generic pre_post Type)) =
-       (mk \<lparr>heap=\<sigma>', assocs\<^sub>2=A, assocs\<^sub>3=B\<rparr>            \<Turnstile> P (OclAllInstances_generic pre_post Type))"
+shows "(mk \<lparr>heap=\<sigma>'(oid\<mapsto>Object),assocs=A\<rparr> \<Turnstile> P (OclAllInstances_generic pre_post Type)) =
+       (mk \<lparr>heap=\<sigma>', assocs=A\<rparr>            \<Turnstile> P (OclAllInstances_generic pre_post Type))"
       (is "(?\<tau> \<Turnstile> P ?\<phi>) = (?\<tau>' \<Turnstile> P ?\<phi>)")
 proof -
  have P_cp  : "\<And>x \<tau>. P x \<tau> = P (\<lambda>_. x \<tau>) \<tau>"
@@ -468,8 +467,8 @@ assumes oid_def:   "oid\<notin>dom \<sigma>'"
 and  type_conform: "Type Object \<noteq> None "
 and  cp_ctxt:      "cp P"
 and  const_ctxt:   "\<And>X. const X \<Longrightarrow> const (P X)"
-shows "(mk \<lparr>heap=\<sigma>'(oid\<mapsto>Object),assocs\<^sub>2=A,assocs\<^sub>3=B\<rparr> \<Turnstile> P (OclAllInstances_generic pre_post Type)) =
-       (mk \<lparr>heap=\<sigma>', assocs\<^sub>2=A, assocs\<^sub>3=B\<rparr>            \<Turnstile> P ((OclAllInstances_generic pre_post Type)
+shows "(mk \<lparr>heap=\<sigma>'(oid\<mapsto>Object),assocs=A\<rparr> \<Turnstile> P (OclAllInstances_generic pre_post Type)) =
+       (mk \<lparr>heap=\<sigma>', assocs=A\<rparr>            \<Turnstile> P ((OclAllInstances_generic pre_post Type)
                                                                 ->including(\<lambda> _. \<lfloor>(Type Object)\<rfloor>)))"
        (is "(?\<tau> \<Turnstile> P ?\<phi>) = (?\<tau>' \<Turnstile> P ?\<phi>')")
 proof -
@@ -542,7 +541,7 @@ shows      "x \<tau> \<in> (Some o H) ` ran (heap(snd \<tau>))"
 by(rule represented_generic_objects_in_state[OF A[simplified OclAllInstances_at_post_def]])
 
 lemma state_update_vs_allInstances_at_post_empty:
-shows   "(\<sigma>, \<lparr>heap=empty, assocs\<^sub>2=A, assocs\<^sub>3=B\<rparr>) \<Turnstile> Type .allInstances() \<doteq> Set{}"
+shows   "(\<sigma>, \<lparr>heap=empty, assocs=A\<rparr>) \<Turnstile> Type .allInstances() \<doteq> Set{}"
 unfolding OclAllInstances_at_post_def
 by(rule state_update_vs_allInstances_generic_empty[OF snd_conv])
 
@@ -558,10 +557,10 @@ lemma state_update_vs_allInstances_at_post_including':
 assumes "\<And>x. \<sigma>' oid = Some x \<Longrightarrow> x = Object"
     and "Type Object \<noteq> None"
   shows "(Type .allInstances())
-         (\<sigma>, \<lparr>heap=\<sigma>'(oid\<mapsto>Object), assocs\<^sub>2=A, assocs\<^sub>3=B\<rparr>)
+         (\<sigma>, \<lparr>heap=\<sigma>'(oid\<mapsto>Object), assocs=A\<rparr>)
          =
          ((Type .allInstances())->including(\<lambda> _. \<lfloor>\<lfloor> drop (Type Object) \<rfloor>\<rfloor>))
-         (\<sigma>, \<lparr>heap=\<sigma>',assocs\<^sub>2=A, assocs\<^sub>3=B\<rparr>)"
+         (\<sigma>, \<lparr>heap=\<sigma>',assocs=A\<rparr>)"
 unfolding OclAllInstances_at_post_def
 by(rule state_update_vs_allInstances_generic_including'[OF snd_conv], insert assms)
 
@@ -570,11 +569,11 @@ lemma state_update_vs_allInstances_at_post_including:
 assumes "\<And>x. \<sigma>' oid = Some x \<Longrightarrow> x = Object"
     and "Type Object \<noteq> None"
 shows   "(Type .allInstances())
-         (\<sigma>, \<lparr>heap=\<sigma>'(oid\<mapsto>Object), assocs\<^sub>2=A, assocs\<^sub>3=B\<rparr>)
+         (\<sigma>, \<lparr>heap=\<sigma>'(oid\<mapsto>Object), assocs=A\<rparr>)
          =
          ((\<lambda>_. (Type .allInstances())
-                 (\<sigma>, \<lparr>heap=\<sigma>', assocs\<^sub>2=A, assocs\<^sub>3=B\<rparr>))->including(\<lambda> _. \<lfloor>\<lfloor> drop (Type Object) \<rfloor>\<rfloor>))
-         (\<sigma>, \<lparr>heap=\<sigma>'(oid\<mapsto>Object), assocs\<^sub>2=A, assocs\<^sub>3=B\<rparr>)"
+                 (\<sigma>, \<lparr>heap=\<sigma>', assocs=A\<rparr>))->including(\<lambda> _. \<lfloor>\<lfloor> drop (Type Object) \<rfloor>\<rfloor>))
+         (\<sigma>, \<lparr>heap=\<sigma>'(oid\<mapsto>Object), assocs=A\<rparr>)"
 unfolding OclAllInstances_at_post_def
 by(rule state_update_vs_allInstances_generic_including[OF snd_conv], insert assms)
 
@@ -584,10 +583,10 @@ lemma state_update_vs_allInstances_at_post_noincluding':
 assumes "\<And>x. \<sigma>' oid = Some x \<Longrightarrow> x = Object"
     and "Type Object = None"
   shows "(Type .allInstances())
-         (\<sigma>, \<lparr>heap=\<sigma>'(oid\<mapsto>Object), assocs\<^sub>2=A, assocs\<^sub>3=B\<rparr>)
+         (\<sigma>, \<lparr>heap=\<sigma>'(oid\<mapsto>Object), assocs=A\<rparr>)
          =
          (Type .allInstances())
-         (\<sigma>, \<lparr>heap=\<sigma>', assocs\<^sub>2=A, assocs\<^sub>3=B\<rparr>)"
+         (\<sigma>, \<lparr>heap=\<sigma>', assocs=A\<rparr>)"
 unfolding OclAllInstances_at_post_def
 by(rule state_update_vs_allInstances_generic_noincluding'[OF snd_conv], insert assms)
 
@@ -596,8 +595,8 @@ assumes oid_def:   "oid\<notin>dom \<sigma>'"
 and  non_type_conform: "Type Object = None "
 and  cp_ctxt:      "cp P"
 and  const_ctxt:   "\<And>X. const X \<Longrightarrow> const (P X)"
-shows   "((\<sigma>, \<lparr>heap=\<sigma>'(oid\<mapsto>Object),assocs\<^sub>2=A,assocs\<^sub>3=B\<rparr>) \<Turnstile> (P(Type .allInstances()))) =
-         ((\<sigma>, \<lparr>heap=\<sigma>', assocs\<^sub>2=A, assocs\<^sub>3=B\<rparr>)            \<Turnstile> (P(Type .allInstances())))"
+shows   "((\<sigma>, \<lparr>heap=\<sigma>'(oid\<mapsto>Object),assocs=A\<rparr>) \<Turnstile> (P(Type .allInstances()))) =
+         ((\<sigma>, \<lparr>heap=\<sigma>', assocs=A\<rparr>)            \<Turnstile> (P(Type .allInstances())))"
 unfolding OclAllInstances_at_post_def
 by(rule state_update_vs_allInstances_generic_ntc[OF snd_conv], insert assms)
 
@@ -606,8 +605,8 @@ assumes oid_def:   "oid\<notin>dom \<sigma>'"
 and  type_conform: "Type Object \<noteq> None "
 and  cp_ctxt:      "cp P"
 and  const_ctxt:   "\<And>X. const X \<Longrightarrow> const (P X)"
-shows   "((\<sigma>, \<lparr>heap=\<sigma>'(oid\<mapsto>Object),assocs\<^sub>2=A,assocs\<^sub>3=B\<rparr>) \<Turnstile> (P(Type .allInstances()))) =
-         ((\<sigma>, \<lparr>heap=\<sigma>', assocs\<^sub>2=A, assocs\<^sub>3=B\<rparr>)            \<Turnstile> (P((Type .allInstances())
+shows   "((\<sigma>, \<lparr>heap=\<sigma>'(oid\<mapsto>Object),assocs=A\<rparr>) \<Turnstile> (P(Type .allInstances()))) =
+         ((\<sigma>, \<lparr>heap=\<sigma>', assocs=A\<rparr>)            \<Turnstile> (P((Type .allInstances())
                                                                ->including(\<lambda> _. \<lfloor>(Type Object)\<rfloor>))))"
 unfolding OclAllInstances_at_post_def
 by(rule state_update_vs_allInstances_generic_tc[OF snd_conv], insert assms)
@@ -648,7 +647,7 @@ by(rule represented_generic_objects_in_state[OF A[simplified OclAllInstances_at_
 
 
 lemma state_update_vs_allInstances_at_pre_empty:
-shows   "(\<lparr>heap=empty, assocs\<^sub>2=A, assocs\<^sub>3=B\<rparr>, \<sigma>) \<Turnstile> Type .allInstances@pre() \<doteq> Set{}"
+shows   "(\<lparr>heap=empty, assocs=A\<rparr>, \<sigma>) \<Turnstile> Type .allInstances@pre() \<doteq> Set{}"
 unfolding OclAllInstances_at_pre_def
 by(rule state_update_vs_allInstances_generic_empty[OF fst_conv])
 
@@ -664,10 +663,10 @@ lemma state_update_vs_allInstances_at_pre_including':
 assumes "\<And>x. \<sigma>' oid = Some x \<Longrightarrow> x = Object"
     and "Type Object \<noteq> None"
   shows "(Type .allInstances@pre())
-         (\<lparr>heap=\<sigma>'(oid\<mapsto>Object), assocs\<^sub>2=A, assocs\<^sub>3=B\<rparr>, \<sigma>)
+         (\<lparr>heap=\<sigma>'(oid\<mapsto>Object), assocs=A\<rparr>, \<sigma>)
          =
          ((Type .allInstances@pre())->including(\<lambda> _. \<lfloor>\<lfloor> drop (Type Object) \<rfloor>\<rfloor>))
-         (\<lparr>heap=\<sigma>',assocs\<^sub>2=A, assocs\<^sub>3=B\<rparr>, \<sigma>)"
+         (\<lparr>heap=\<sigma>',assocs=A\<rparr>, \<sigma>)"
 unfolding OclAllInstances_at_pre_def
 by(rule state_update_vs_allInstances_generic_including'[OF fst_conv], insert assms)
 
@@ -676,11 +675,11 @@ lemma state_update_vs_allInstances_at_pre_including:
 assumes "\<And>x. \<sigma>' oid = Some x \<Longrightarrow> x = Object"
     and "Type Object \<noteq> None"
 shows   "(Type .allInstances@pre())
-         (\<lparr>heap=\<sigma>'(oid\<mapsto>Object), assocs\<^sub>2=A, assocs\<^sub>3=B\<rparr>, \<sigma>)
+         (\<lparr>heap=\<sigma>'(oid\<mapsto>Object), assocs=A\<rparr>, \<sigma>)
          =
          ((\<lambda>_. (Type .allInstances@pre())
-                 (\<lparr>heap=\<sigma>', assocs\<^sub>2=A, assocs\<^sub>3=B\<rparr>, \<sigma>))->including(\<lambda> _. \<lfloor>\<lfloor> drop (Type Object) \<rfloor>\<rfloor>))
-         (\<lparr>heap=\<sigma>'(oid\<mapsto>Object), assocs\<^sub>2=A, assocs\<^sub>3=B\<rparr>, \<sigma>)"
+                 (\<lparr>heap=\<sigma>', assocs=A\<rparr>, \<sigma>))->including(\<lambda> _. \<lfloor>\<lfloor> drop (Type Object) \<rfloor>\<rfloor>))
+         (\<lparr>heap=\<sigma>'(oid\<mapsto>Object), assocs=A\<rparr>, \<sigma>)"
 unfolding OclAllInstances_at_pre_def
 by(rule state_update_vs_allInstances_generic_including[OF fst_conv], insert assms)
 
@@ -690,10 +689,10 @@ lemma state_update_vs_allInstances_at_pre_noincluding':
 assumes "\<And>x. \<sigma>' oid = Some x \<Longrightarrow> x = Object"
     and "Type Object = None"
   shows "(Type .allInstances@pre())
-         (\<lparr>heap=\<sigma>'(oid\<mapsto>Object), assocs\<^sub>2=A, assocs\<^sub>3=B\<rparr>, \<sigma>)
+         (\<lparr>heap=\<sigma>'(oid\<mapsto>Object), assocs=A\<rparr>, \<sigma>)
          =
          (Type .allInstances@pre())
-         (\<lparr>heap=\<sigma>', assocs\<^sub>2=A, assocs\<^sub>3=B\<rparr>, \<sigma>)"
+         (\<lparr>heap=\<sigma>', assocs=A\<rparr>, \<sigma>)"
 unfolding OclAllInstances_at_pre_def
 by(rule state_update_vs_allInstances_generic_noincluding'[OF fst_conv], insert assms)
 
@@ -702,8 +701,8 @@ assumes oid_def:   "oid\<notin>dom \<sigma>'"
 and  non_type_conform: "Type Object = None "
 and  cp_ctxt:      "cp P"
 and  const_ctxt:   "\<And>X. const X \<Longrightarrow> const (P X)"
-shows   "((\<lparr>heap=\<sigma>'(oid\<mapsto>Object),assocs\<^sub>2=A,assocs\<^sub>3=B\<rparr>, \<sigma>) \<Turnstile> (P(Type .allInstances@pre()))) =
-         ((\<lparr>heap=\<sigma>', assocs\<^sub>2=A, assocs\<^sub>3=B\<rparr>, \<sigma>)            \<Turnstile> (P(Type .allInstances@pre())))"
+shows   "((\<lparr>heap=\<sigma>'(oid\<mapsto>Object),assocs=A\<rparr>, \<sigma>) \<Turnstile> (P(Type .allInstances@pre()))) =
+         ((\<lparr>heap=\<sigma>', assocs=A\<rparr>, \<sigma>)            \<Turnstile> (P(Type .allInstances@pre())))"
 unfolding OclAllInstances_at_pre_def
 by(rule state_update_vs_allInstances_generic_ntc[OF fst_conv], insert assms)
 
@@ -712,8 +711,8 @@ assumes oid_def:   "oid\<notin>dom \<sigma>'"
 and  type_conform: "Type Object \<noteq> None "
 and  cp_ctxt:      "cp P"
 and  const_ctxt:   "\<And>X. const X \<Longrightarrow> const (P X)"
-shows   "((\<lparr>heap=\<sigma>'(oid\<mapsto>Object),assocs\<^sub>2=A,assocs\<^sub>3=B\<rparr>, \<sigma>) \<Turnstile> (P(Type .allInstances@pre()))) =
-         ((\<lparr>heap=\<sigma>', assocs\<^sub>2=A, assocs\<^sub>3=B\<rparr>, \<sigma>)            \<Turnstile> (P((Type .allInstances@pre())
+shows   "((\<lparr>heap=\<sigma>'(oid\<mapsto>Object),assocs=A\<rparr>, \<sigma>) \<Turnstile> (P(Type .allInstances@pre()))) =
+         ((\<lparr>heap=\<sigma>', assocs=A\<rparr>, \<sigma>)            \<Turnstile> (P((Type .allInstances@pre())
                                                                ->including(\<lambda> _. \<lfloor>(Type Object)\<rfloor>))))"
 unfolding OclAllInstances_at_pre_def
 by(rule state_update_vs_allInstances_generic_tc[OF fst_conv], insert assms)

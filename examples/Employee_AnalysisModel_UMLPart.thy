@@ -636,7 +636,7 @@ lemma OclAny_allInstances_generic_oclIsTypeOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^
 assumes [simp]: "\<And>x. pre_post (x, x) = x"
 shows "\<exists>\<tau>. (\<tau> \<Turnstile> not ((OclAllInstances_generic pre_post OclAny)->forAll(X|X .oclIsTypeOf(OclAny))))"
 proof - fix oid a let ?t0 = "\<lparr>heap = empty(oid \<mapsto> in\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y (mk\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y oid \<lfloor>a\<rfloor>)),
-                              assocs\<^sub>2 = empty, assocs\<^sub>3 = empty\<rparr>" show ?thesis
+                              assocs = empty\<rparr>" show ?thesis
  apply(rule_tac x = "(?t0, ?t0)" in exI, simp add: OclValid_def del: OclAllInstances_generic_def)
  apply(simp only: OclForall_def refl if_True
                   OclAllInstances_generic_defined[simplified OclValid_def])
@@ -762,19 +762,16 @@ where "eval_extract X f = (\<lambda> \<tau>. case X \<tau> of
 
 definition "choose\<^sub>2_1 = fst"
 definition "choose\<^sub>2_2 = snd"
-definition "choose\<^sub>3_1 = fst"
-definition "choose\<^sub>3_2 = fst o snd"
-definition "choose\<^sub>3_3 = snd o snd"
 
 definition "List_flatten = (\<lambda>l. (foldl ((\<lambda>acc. (\<lambda>l. (foldl ((\<lambda>acc. (\<lambda>l. (Cons (l) (acc))))) (acc) ((rev (l))))))) (Nil) ((rev (l)))))"
 definition "deref_assocs\<^sub>2" :: "('\<AA> state \<times> '\<AA> state \<Rightarrow> '\<AA> state)
-                              \<Rightarrow> (oid list \<times> oid list \<Rightarrow> oid list \<times> oid list)
+                              \<Rightarrow> (oid list list \<Rightarrow> oid list \<times> oid list)
                               \<Rightarrow> oid
                               \<Rightarrow> (oid list \<Rightarrow> ('\<AA>,'f)val)
                               \<Rightarrow> oid
                               \<Rightarrow> ('\<AA>, 'f::null)val"
 where      "deref_assocs\<^sub>2 pre_post to_from assoc_oid f oid =
-                 (\<lambda>\<tau>. case (assocs\<^sub>2 (pre_post \<tau>)) assoc_oid of
+                 (\<lambda>\<tau>. case (assocs (pre_post \<tau>)) assoc_oid of
                       \<lfloor> S \<rfloor> \<Rightarrow> f (List_flatten (map (choose\<^sub>2_2 \<circ> to_from)
                                      (filter (\<lambda> p. List.member (choose\<^sub>2_1 (to_from p)) oid) S)))
                                  \<tau>
@@ -784,14 +781,14 @@ where      "deref_assocs\<^sub>2 pre_post to_from assoc_oid f oid =
 text{* The @{text pre_post}-parameter is configured with @{text fst} or
 @{text snd}, the @{text to_from}-parameter either with the identity @{term id} or
 the following combinator @{text switch}: *}
-definition "switch\<^sub>2_1 = id"
-definition "switch\<^sub>2_2 = (\<lambda>(x,y). (y,x))"
-definition "switch\<^sub>3_1 = id"
-definition "switch\<^sub>3_2 = (\<lambda>(x,y,z). (x,z,y))"
-definition "switch\<^sub>3_3 = (\<lambda>(x,y,z). (y,x,z))"
-definition "switch\<^sub>3_4 = (\<lambda>(x,y,z). (y,z,x))"
-definition "switch\<^sub>3_5 = (\<lambda>(x,y,z). (z,x,y))"
-definition "switch\<^sub>3_6 = (\<lambda>(x,y,z). (z,y,x))"
+definition "switch\<^sub>2_1 = (\<lambda>[x,y]\<Rightarrow> (x,y))"
+definition "switch\<^sub>2_2 = (\<lambda>[x,y]\<Rightarrow> (y,x))"
+definition "switch\<^sub>3_1 = (\<lambda>[x,y,z]\<Rightarrow> (x,y))"
+definition "switch\<^sub>3_2 = (\<lambda>[x,y,z]\<Rightarrow> (x,z))"
+definition "switch\<^sub>3_3 = (\<lambda>[x,y,z]\<Rightarrow> (y,x))"
+definition "switch\<^sub>3_4 = (\<lambda>[x,y,z]\<Rightarrow> (y,z))"
+definition "switch\<^sub>3_5 = (\<lambda>[x,y,z]\<Rightarrow> (z,x))"
+definition "switch\<^sub>3_6 = (\<lambda>[x,y,z]\<Rightarrow> (z,y))"
 
 definition select_object  ::"  (('\<AA>, 'b::null)val)
                          \<Rightarrow> (('\<AA>,'b)val \<Rightarrow> ('\<AA>,'c)val \<Rightarrow> ('\<AA>, 'b)val)
@@ -1014,8 +1011,7 @@ definition
                           (*oid6*)
                           (*oid7*)
                            (oid8 \<mapsto> in\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n person9),
-               assocs\<^sub>2 = empty(oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<B>\<O>\<S>\<S> \<mapsto> [([oid0],[oid1]),([oid3],[oid4]),([oid5],[oid3])]),
-               assocs\<^sub>3 = empty \<rparr>"
+               assocs = empty(oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<B>\<O>\<S>\<S> \<mapsto> [[[oid0],[oid1]],[[oid3],[oid4]],[[oid5],[oid3]]]) \<rparr>"
 
 definition
       "\<sigma>\<^sub>1' \<equiv> \<lparr> heap = empty(oid0 \<mapsto> in\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n person1)
@@ -1027,10 +1023,9 @@ definition
                            (oid6 \<mapsto> in\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y person7)
                            (oid7 \<mapsto> in\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y person8)
                            (oid8 \<mapsto> in\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n person9),
-               assocs\<^sub>2 = empty(oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<B>\<O>\<S>\<S> \<mapsto> [([oid0],[oid1]),([oid1],[oid1]),([oid5],[oid6]),([oid6],[oid6])]),
-               assocs\<^sub>3 = empty \<rparr>"
+               assocs = empty(oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<B>\<O>\<S>\<S> \<mapsto> [[[oid0],[oid1]],[[oid1],[oid1]],[[oid5],[oid6]],[[oid6],[oid6]]]) \<rparr>"
 
-definition "\<sigma>\<^sub>0 \<equiv> \<lparr> heap = empty, assocs\<^sub>2 = empty, assocs\<^sub>3 = empty \<rparr>"
+definition "\<sigma>\<^sub>0 \<equiv> \<lparr> heap = empty, assocs = empty \<rparr>"
 
 
 lemma basic_\<tau>_wff: "WFF(\<sigma>\<^sub>1,\<sigma>\<^sub>1')"
@@ -1293,8 +1288,7 @@ lemma perm_\<sigma>\<^sub>1' : "\<sigma>\<^sub>1' = \<lparr> heap = empty
                            (oid2 \<mapsto> in\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n person3)
                            (oid1 \<mapsto> in\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n person2)
                            (oid0 \<mapsto> in\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n person1)
-                       , assocs\<^sub>2 = assocs\<^sub>2 \<sigma>\<^sub>1'
-                       , assocs\<^sub>3 = assocs\<^sub>3 \<sigma>\<^sub>1' \<rparr>"
+                       , assocs = assocs \<sigma>\<^sub>1' \<rparr>"
 proof -
  note P = fun_upd_twist
  show ?thesis
