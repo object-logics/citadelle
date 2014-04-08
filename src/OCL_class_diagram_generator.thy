@@ -385,6 +385,10 @@ definition "class_unflat l =
     empty
     const_oclany)"
 
+definition "apply_optim_ass_arity ty_obj v =
+  (if TyObj_ass_arity ty_obj \<le> 2 then None
+   else Some v)"
+
 definition "str_of_ty = (\<lambda> OclTy_base x \<Rightarrow> x | OclTy_object ty_obj \<Rightarrow> flatten [TyObj_name ty_obj, '' '', const_oid_list])"
 
 fun_quick get_class_hierarchy_aux where
@@ -665,9 +669,10 @@ definition "map_class_arg_only_var0 = (\<lambda>f_app f_lattr isub_name name l_a
           (\<lambda>s. s @@ isup_of_str attr_name)
           (\<lambda>s. Expr_postunary s (Expr_basic
             [ case case attr_ty of
-                     OclTy_object ty_obj \<Rightarrow> Some (case TyObj_role_name_from ty_obj of
-                                                    None => natural_of_str (TyObj_ass_switch_from ty_obj)
-                                                  | Some s => s)
+                     OclTy_object ty_obj \<Rightarrow> apply_optim_ass_arity ty_obj
+                       (case TyObj_role_name_from ty_obj of
+                          None => natural_of_str (TyObj_ass_switch_from ty_obj)
+                        | Some s => s)
                    | _ \<Rightarrow> None of
                 None \<Rightarrow> mk_dot attr_name attr_when
               | Some s2 \<Rightarrow> mk_dot_comment attr_name attr_when s2 ]))) l_attr)
@@ -2084,7 +2089,10 @@ definition "print_access_dot_consts = start_map Thy_consts_class o
                ; mk_par = 
                    let esc = \<lambda>s. Char Nibble2 Nibble7 # s in
                    (\<lambda>s1 s2. flatten [s1, '' '', esc ''/'', ''* '', s2, '' *'', esc ''/'']) in
-             case attr_ty of OclTy_object ty_obj \<Rightarrow> mk_par dot_name (case TyObj_role_name_from ty_obj of None => natural_of_str (TyObj_ass_switch_from ty_obj) | Some s => s)
+             case attr_ty of OclTy_object ty_obj \<Rightarrow> 
+               (case apply_optim_ass_arity ty_obj (mk_par dot_name (case TyObj_role_name_from ty_obj of None => natural_of_str (TyObj_ass_switch_from ty_obj) | Some s => s)) of
+                  None \<Rightarrow> dot_name
+                | Some dot_name \<Rightarrow> dot_name)
                            | _ \<Rightarrow> dot_name))
         [ (var_at_when_hol_post, var_at_when_ocl_post)
         , (var_at_when_hol_pre, var_at_when_ocl_pre)]) l_attr)"
