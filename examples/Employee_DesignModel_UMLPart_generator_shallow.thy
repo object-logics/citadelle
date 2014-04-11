@@ -52,23 +52,23 @@ begin
 
 generation_syntax [ shallow (generation_semantics [ design ]) ]
 
-_class Person < Planet
-  _attributes salary : int
-_end
+Class Person < Planet
+  Attributes salary : int
+End
 
-_association boss
-  _between Person [`*`]
-           Person [0 `..` 1] _role boss
-_end
+Association boss
+  Between Person [`*`]
+          Person [0 `..` 1] Role boss
+End
 
-_class Planet < Galaxy
-  _attributes weight : nat
-_end
+Class Planet < Galaxy
+  Attributes weight : nat
+End
 
-_class Galaxy
-  _attributes sound : unit
-              moving : bool
-_end
+Class Galaxy
+  Attributes sound : unit
+             moving : bool
+End
 
 Define_int [ 1000, 1200, 1300, 1800, 2600, 2900, 3200, 3500 ]
 
