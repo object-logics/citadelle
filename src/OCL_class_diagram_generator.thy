@@ -398,14 +398,20 @@ definition "apply_optim_ass_arity ty_obj v =
 
 definition "str_of_ty = (\<lambda> OclTy_base x \<Rightarrow> x | OclTy_object ty_obj \<Rightarrow> flatten [TyObj_name ty_obj, '' '', const_oid_list])"
 
-fun_quick get_class_hierarchy_aux where
-   "get_class_hierarchy_aux l_res (OclClass name l_attr dataty) =
-   (let l_res = (name, l_attr) # l_res in
-    case dataty of None \<Rightarrow> rev l_res
-                 | Some dataty \<Rightarrow> get_class_hierarchy_aux l_res dataty)"
-definition "get_class_hierarchy = get_class_hierarchy_aux []"
+fun_quick get_class_hierarchy'_aux where
+   "get_class_hierarchy'_aux l_res (OclClass name l_attr dataty) =
+   (let l_res = \<lambda>b. (name, l_attr, b) # l_res in
+    case dataty of None \<Rightarrow> rev (l_res True)
+                 | Some dataty \<Rightarrow> get_class_hierarchy'_aux (l_res False) dataty)"
+definition "get_class_hierarchy' = get_class_hierarchy'_aux []"
 
-datatype position = EQ | LT | GT
+definition "get_class_hierarchy e = List_map (\<lambda> (n, l, _). (n, l)) (get_class_hierarchy' e)"
+definition "get_class_hierarchy_sub = (\<lambda> None \<Rightarrow> []
+                                       | Some next_dataty \<Rightarrow> get_class_hierarchy next_dataty)"
+definition "get_class_hierarchy_sub' = (\<lambda> None \<Rightarrow> []
+                                        | Some next_dataty \<Rightarrow> get_class_hierarchy' next_dataty)"
+
+datatype position = EQ (* equal *) | LT (* less *) | GT (* greater *) | UN' (* uncomparable *)
 
 fun_quick less_than_hierarchy where
   "less_than_hierarchy l item1 item2 =
@@ -634,38 +640,50 @@ definition "var_OclInt = ''OclInt''"
 
 section{* Translation of AST *}
 
+datatype 'a tmp_sub = Tsub 'a
+datatype 'a tmp_inh = Tinh 'a
+datatype 'a tmp_univ = Tuniv 'a
+definition "of_inh = (\<lambda>Tinh l \<Rightarrow> l)"
+definition "of_sub = (\<lambda>Tsub l \<Rightarrow> l)"
+definition "of_univ = (\<lambda>Tuniv l \<Rightarrow> l)"
+
 fun_quick fold_class_gen_aux where
-   "fold_class_gen_aux l_inherited l_res l_cons f accu (OclClass name l_attr dataty) = (
-      let l_cons = tl l_cons
-        ; (r, accu) = f (\<lambda>s. s @@ isub_of_str name) name l_attr l_inherited l_cons dataty accu in
-      let l_res = r # l_res in
+   "fold_class_gen_aux l_inherited l_inh_sibling l_subtree l_res f accu (OclClass name l_attr dataty) = (
+      let l_subtree = tl l_subtree
+        ; (r, accu) = f (\<lambda>s. s @@ isub_of_str name) name l_attr (Tinh l_inherited) ((flatten o flatten o (List_map o List_map) get_class_hierarchy') l_inh_sibling) (Tsub l_subtree) dataty accu
+        ; l_res = r # l_res in
       case dataty
       of None \<Rightarrow> (flatten l_res, accu)
-       | Some dataty \<Rightarrow> fold_class_gen_aux ((name, l_attr) # l_inherited) l_res l_cons f accu dataty)"
-definition "fold_class_gen f accu expr = fold_class_gen_aux [] [] (List_map fst (get_class_hierarchy expr)) f accu expr"
+       | Some dataty \<Rightarrow> fold_class_gen_aux ((name, l_attr) # l_inherited) ([] :: ocl_class list list) l_subtree l_res f accu dataty)"
+definition "fold_class_gen f accu expr = fold_class_gen_aux [] [] (get_class_hierarchy' expr) [] f accu expr"
 
 definition "map_class_gen f = fst o fold_class_gen
-  (\<lambda> isub_name name l_attr l_inh l_cons last_d. \<lambda> () \<Rightarrow>
-    (f isub_name name l_attr l_inh l_cons last_d, ())) ()"
+  (\<lambda> isub_name name l_attr l_inh l_inh_sib l_subtree last_d. \<lambda> () \<Rightarrow>
+    (f isub_name name l_attr l_inh l_inh_sib l_subtree last_d, ())) ()"
 
-definition "add_hierarchy f x = (\<lambda>isub_name name _ _ _ _. f isub_name name (List_map fst (get_class_hierarchy x)))"
-definition "add_hierarchy' f x = (\<lambda>isub_name name _ _ _ _. f isub_name name (get_class_hierarchy x))"
-definition "add_hierarchy'' f x = (\<lambda>isub_name name l_attr _ _ _. f isub_name name (get_class_hierarchy x) l_attr)"
-definition "add_hierarchy''' f x = (\<lambda>isub_name name l_attr l_inh _ next_dataty. f isub_name name (get_class_hierarchy x) l_attr (List_map snd l_inh) next_dataty)"
-definition "add_hierarchy'''' f x = (\<lambda>isub_name name l_attr l_inh l_cons _. f isub_name name (get_class_hierarchy x) l_attr (List_map snd l_inh) l_cons)"
-definition "map_class f = map_class_gen (\<lambda>isub_name name l_attr l_inh l_cons next_dataty. [f isub_name name l_attr l_inh l_cons next_dataty])"
-definition "fold_class f = fold_class_gen (\<lambda>isub_name name l_attr l_inh l_cons next_dataty accu. let (x, accu) = f isub_name name l_attr l_inh l_cons next_dataty accu in ([x], accu))"
+definition "add_hierarchy f x = (\<lambda>isub_name name _ _ _ _ _. f isub_name name (Tuniv (List_map fst (get_class_hierarchy x))))"
+definition "add_hierarchy' f x = (\<lambda>isub_name name _ _ _ _ _. f isub_name name (Tuniv (get_class_hierarchy x)))"
+definition "add_hierarchy'' f x = (\<lambda>isub_name name l_attr _ _ _ _. f isub_name name (Tuniv (get_class_hierarchy x)) l_attr)"
+definition "add_hierarchy''' f x = (\<lambda>isub_name name l_attr l_inh _ _ next_dataty. f isub_name name (Tuniv (get_class_hierarchy x)) l_attr (Tinh (List_map snd (case l_inh of Tinh l \<Rightarrow> l))) next_dataty)"
+definition "add_hierarchy'''' f x = (\<lambda>isub_name name l_attr l_inh _ l_subtree _. f isub_name name (Tuniv (get_class_hierarchy x)) l_attr (Tinh (List_map snd (case l_inh of Tinh l \<Rightarrow> l))) l_subtree)"
+definition "add_hierarchy''''' f = (\<lambda>isub_name name l_attr l_inh l_inh_sib l_subtree. f isub_name name () l_attr (of_inh l_inh) l_inh_sib (of_sub l_subtree))"
+definition "map_class f = map_class_gen (\<lambda>isub_name name l_attr l_inh _ l_subtree next_dataty. [f isub_name name l_attr l_inh (Tsub (List_map fst (of_sub l_subtree))) next_dataty])"
+definition "map_class' f = map_class_gen (\<lambda>isub_name name l_attr l_inh l_inh_sib l_subtree next_dataty. [f isub_name name l_attr l_inh l_inh_sib l_subtree next_dataty])"
+definition "fold_class f = fold_class_gen (\<lambda>isub_name name l_attr l_inh _ l_subtree next_dataty accu. let (x, accu) = f isub_name name l_attr l_inh (Tsub (List_map fst (of_sub l_subtree))) next_dataty accu in ([x], accu))"
 definition "map_class_gen_h f x = map_class_gen (add_hierarchy f x) x"
 definition "map_class_gen_h' f x = map_class_gen (add_hierarchy' f x) x"
 definition "map_class_gen_h'' f x = map_class_gen (add_hierarchy'' f x) x"
 definition "map_class_gen_h''' f x = map_class_gen (add_hierarchy''' f x) x"
-definition "map_class_gen_h'''' f x = map_class_gen (add_hierarchy'''' f x) x"
+definition "map_class_gen_h'''' f x = map_class_gen (add_hierarchy'''' (\<lambda>isub_name name l_inherited l_attr l_inh l_subtree. f isub_name name l_inherited l_attr l_inh (Tsub (List_map fst (of_sub l_subtree)))) x) x"
+definition "map_class_gen_h''''' f x = map_class_gen (add_hierarchy''''' f) x"
 definition "map_class_h f x = map_class (add_hierarchy f x) x"
 definition "map_class_h' f x = map_class (add_hierarchy' f x) x"
 definition "map_class_h'' f x = map_class (add_hierarchy'' f x) x"
+definition "map_class_h''' f x = map_class (add_hierarchy''' f x) x"
 definition "map_class_h'''' f x = map_class (add_hierarchy'''' f x) x"
-definition "map_class_arg_only f = map_class_gen (\<lambda> isub_name name l_attr _ _ _. case l_attr of [] \<Rightarrow> [] | l \<Rightarrow> f isub_name name l)"
-definition "map_class_arg_only' f = map_class_gen (\<lambda> isub_name name l_attr l_inh l_cons _. case filter (\<lambda> (_, []) \<Rightarrow> False | _ \<Rightarrow> True) l_inh of [] \<Rightarrow> [] | l \<Rightarrow> f isub_name name (l_attr, l, l_cons))"
+definition "map_class_h''''' f x = map_class' (add_hierarchy''''' f) x"
+definition "map_class_arg_only f = map_class_gen (\<lambda> isub_name name l_attr _ _ _ _. case l_attr of [] \<Rightarrow> [] | l \<Rightarrow> f isub_name name l)"
+definition "map_class_arg_only' f = map_class_gen (\<lambda> isub_name name l_attr l_inh _ l_subtree _. case filter (\<lambda> (_, []) \<Rightarrow> False | _ \<Rightarrow> True) (of_inh l_inh) of [] \<Rightarrow> [] | l \<Rightarrow> f isub_name name (l_attr, Tinh l, l_subtree))"
 definition "map_class_arg_only0 f1 f2 u = map_class_arg_only f1 u @@ map_class_arg_only' f2 u"
 definition "map_class_arg_only_var0 = (\<lambda>f_app f_lattr isub_name name l_attr.
   flatten (flatten (
@@ -691,8 +709,8 @@ definition "map_class_arg_only_var0 = (\<lambda>f_app f_lattr isub_name name l_a
      (f_lattr l_attr)))
    [ (var_in_post_state, var_at_when_hol_post, var_at_when_ocl_post)
    , (var_in_pre_state, var_at_when_hol_pre, var_at_when_ocl_pre)])))"
-definition "map_class_arg_only_var f1 f2 = map_class_arg_only0 (map_class_arg_only_var0 f1 (\<lambda>l. [l])) (map_class_arg_only_var0 f2 (\<lambda>(_, l, _). List_map snd l))"
-definition "map_class_arg_only_var' f = map_class_arg_only0 (map_class_arg_only_var0 f (\<lambda>l. [l])) (map_class_arg_only_var0 f (\<lambda>(_, l, _). List_map snd l))"
+definition "map_class_arg_only_var f1 f2 = map_class_arg_only0 (map_class_arg_only_var0 f1 (\<lambda>l. [l])) (map_class_arg_only_var0 f2 (\<lambda>(_, Tinh l, _)\<Rightarrow> List_map snd l))"
+definition "map_class_arg_only_var' f = map_class_arg_only0 (map_class_arg_only_var0 f (\<lambda>l. [l])) (map_class_arg_only_var0 f (\<lambda>(_, Tinh l, _)\<Rightarrow> List_map snd l))"
 definition "map_class_nupl2 f x = rev (fst (fold_less2 (\<lambda>(l, _). (l, None)) (\<lambda>x y (l, acc). (f x y acc # l, Some y)) (rev (get_class_hierarchy x)) ([], None)))"
 definition "map_class_nupl3 f x = rev (fold_less3 id id (\<lambda>x y z l. f x y z # l) (rev (get_class_hierarchy x)) [])"
 definition "map_class_nupl2' f = map_class_nupl2 (\<lambda>(x,_) (y,_) _. f x y)"
@@ -706,9 +724,9 @@ definition "map_class_nupl3'_GE f x = map_class_nupl2' (\<lambda>x y. f x y y) x
 definition "map_class_nupl3'_LE f x = map_class_nupl2' (\<lambda>x y. f x x y) x @@ map_class_nupl3' f x"
 definition "map_class_nupl3'_LE' f x = map_class_nupl2l' (\<lambda>x y l. f x x y l) x @@ map_class_nupl3l' f x"
 definition "map_class_one f_l f expr =
-  (case f_l (fst (fold_class (\<lambda>isub_name name l_attr l_inh l_cons next_dataty _. ((isub_name, name, l_attr, l_inh, l_cons, next_dataty), ())) () expr)) of
-     (isub_name, name, l_attr, l_inh, l_cons, next_dataty) # _ \<Rightarrow>
-     f isub_name name l_attr l_inh l_cons next_dataty)"
+  (case f_l (fst (fold_class (\<lambda>isub_name name l_attr l_inh l_inh_sib next_dataty _. ((isub_name, name, l_attr, l_inh, l_inh_sib, next_dataty), ())) () expr)) of
+     (isub_name, name, l_attr, l_inh, l_inh_sib, next_dataty) # _ \<Rightarrow>
+     f isub_name name l_attr l_inh l_inh_sib next_dataty)"
 definition "map_class_top = map_class_one rev"
 definition "map_class_bot = map_class_one id"
 definition "get_hierarchy_fold f f_l x = flatten (flatten (
@@ -757,17 +775,63 @@ definition "start_map''' f fl = (\<lambda> ocl.
 definition "start_map'' f fl e = start_map''' f (\<lambda>_. fl) e"
 definition "start_map'''' f fl = (\<lambda> ocl. start_map f (fl (D_design_analysis ocl)) ocl)"
 
+definition "m_class_gen base_attr f print = 
+  map_class_gen_h''''' (\<lambda>isub_name name _ nl_attr l_inh l_inh_sib l_subtree next_dataty.
+    let l_inh = List_map (\<lambda>(n, l). (n, l, False)) l_inh
+      ; f_base_attr = List_map (\<lambda>(n, l, b). (n, base_attr l, b))
+      ; print_astype = \<lambda> l_hierarchy (isub_name, name, nl_attr) (h_name, hl_attr).
+         print
+           (f_base_attr l_inh)
+           (f_base_attr l_inh_sib)
+           (f_base_attr l_subtree)
+           next_dataty
+           l_hierarchy
+           (isub_name, name, nl_attr)
+           (h_name, hl_attr)
+      ; nl_attr = base_attr nl_attr in
+    f name
+      l_inh
+      (flatten (flatten (List_map (\<lambda>(l_hierarchy, l).
+        List_map
+          (\<lambda> (h_name, hl_attr, hb).
+            print_astype l_hierarchy (isub_name, name, nl_attr) (h_name, base_attr hl_attr, hb))
+          l)
+        [ (EQ, [(name, nl_attr, next_dataty = None)])
+        , (GT, l_inh)
+        , (LT, l_subtree)
+        , (UN', l_inh_sib) ]))))"
+
+definition "m_class_default = (\<lambda>_ _. id)"
+definition "m_class base_attr f print = m_class_gen base_attr f (\<lambda>_ _ _ _. print)"
+definition "m_class' base_attr print =
+  m_class
+    base_attr
+    m_class_default
+    (\<lambda> l_hierarchy (isub_name, name, nl_attr) (h_name, hl_attr). 
+          [ print l_hierarchy
+              (isub_name, name, nl_attr)
+              (h_name, hl_attr) ])"
+
+definition "start_m_gen final f print = start_map'' final o (\<lambda>expr base_attr _ _.
+  m_class_gen base_attr f print expr)"
+
+definition "start_m final f print = start_map'' final o (\<lambda>expr base_attr _ _.
+  m_class base_attr f print expr)"
+
+definition "start_m' final print = start_map'' final o (\<lambda>expr base_attr _ _.
+  m_class' base_attr print expr)"
+
 subsection{* ... *}
 
 definition "activate_simp_optimization = True"
 
 definition "print_infra_datatype_class = start_map'' Thy_dataty o (\<lambda>expr _ base_attr' _. map_class_gen_h''''
   (\<lambda>isub_name name _ l_attr l_inherited l_cons.
-    let (l_attr, l_inherited) = base_attr' (l_attr, l_inherited) in
+    let (l_attr, l_inherited) = base_attr' (l_attr, of_inh l_inherited) in
     [ Datatype
         (isub_name datatype_ext_name)
         (  (rev_map (\<lambda>x. ( datatype_ext_constr_name @@ mk_constr_name name x
-                         , [Raw (datatype_name @@ isub_of_str x)])) l_cons)
+                         , [Raw (datatype_name @@ isub_of_str x)])) (of_sub l_cons))
         @@ [(isub_name datatype_ext_constr_name, Raw const_oid # flatten ( List_map (List_map (\<lambda>(_, x). Opt (str_of_ty x))) l_inherited))])
     , Datatype
         (isub_name datatype_name)
@@ -793,7 +857,7 @@ definition "print_infra_type_synonym_class_set = start_map Thy_ty_synonym o
 
 definition "print_infra_instantiation_class = start_map'' Thy_instantiation_class o (\<lambda>expr _ base_attr' _. map_class_gen_h''''
   (\<lambda>isub_name name _ l_attr l_inherited l_cons.
-    let (l_attr, l_inherited) = base_attr' (l_attr, l_inherited) in
+    let (l_attr, l_inherited) = base_attr' (l_attr, of_inh l_inherited) in
     let oid_of = ''oid_of'' in
     [Instantiation
       (isub_name datatype_name)
@@ -811,7 +875,7 @@ definition "print_infra_instantiation_class = start_map'' Thy_instantiation_clas
                                (Expr_basic [var_oid] # flatten (List_map (List_map (\<lambda>_. Expr_basic [wildcard])) l_inherited))
                            , Expr_basic [var_oid])
                          # List_map (\<lambda>x. ( Expr_apply (datatype_ext_constr_name @@ mk_constr_name name x) [Expr_basic [var_oid]]
-                                         , Expr_apply oid_of [Expr_basic [var_oid]])) l_cons))]))
+                                         , Expr_apply oid_of [Expr_basic [var_oid]])) (of_sub l_cons)))]))
     ]) expr)"
 
 definition "print_infra_instantiation_universe expr = start_map Thy_instantiation_class
@@ -855,19 +919,15 @@ definition "print_astype_consts = start_map Thy_consts_class o
   map_class (\<lambda>isub_name name _ _ _ _.
     Consts (isub_name const_oclastype) (Ty_base name) (const_mixfix dot_oclastype name))"
 
-definition "print_astype_class = start_map'' Thy_defs_overloaded o (\<lambda>expr base_attr _ _.
-  map_class_gen_h'' (\<lambda>isub_name name l_hierarchy nl_attr.
-    let nl_attr = base_attr nl_attr in
-    List_map
-      (let l_hierarchy = List_map fst l_hierarchy in (\<lambda> (h_name, hl_attr).
-        let hl_attr = base_attr hl_attr in
-        Defs_overloaded
+definition "print_astype_class = start_m' Thy_defs_overloaded
+  (\<lambda> compare (isub_name, name, nl_attr) (h_name, hl_attr, _).
+    Defs_overloaded
           (flatten [isub_name const_oclastype, ''_'', h_name])
           (let var_x = ''x'' in
            Expr_rewrite
              (Expr_postunary (Expr_annot (Expr_basic [var_x]) h_name) (Expr_basic [dot_astype name]))
              unicode_equiv
-             (case compare_hierarchy l_hierarchy h_name name
+             (case compare
               of EQ \<Rightarrow>
                 Expr_basic [var_x]
               | x \<Rightarrow>
@@ -894,38 +954,20 @@ definition "print_astype_class = start_map'' Thy_defs_overloaded o (\<lambda>exp
                          [ (some_some (pattern_simple h_name), some_some (pattern_complex name h_name (List_map (\<lambda>_. Expr_basic [''None'']) nl_attr))) ]
                        else
                          [ (some_some (pattern_complex h_name name (List_map (\<lambda>_. Expr_basic [wildcard]) hl_attr)), some_some (pattern_simple name))
-                         , (Expr_basic [wildcard], val_invalid) ]) ) ))) ))
-      l_hierarchy) expr)"
+                         , (Expr_basic [wildcard], val_invalid) ]) ) ))))"
 
-definition "print_astype_from_universe = start_map Thy_definition_hol o
-  map_class_h (\<lambda>isub_name name l_hierarchy.
+definition "print_astype_from_universe = 
+ (let f_finish = (\<lambda> [] \<Rightarrow> ((id, Expr_binop (Expr_basic [''Some'']) ''o''), [])
+                  | _ \<Rightarrow> ((Expr_some, id), [(Expr_basic [wildcard], Expr_basic [''None''])])) in
+  start_m_gen Thy_definition_hol 
+  (\<lambda> name l_inh l.
     let const_astype = flatten [const_oclastype, isub_of_str name, ''_'', unicode_AA] in
-    Definition (Expr_rewrite (Expr_basic [const_astype]) ''=''
-   (
-   (Expr_function (List_map (\<lambda>h_name.
-     let isub_h = (\<lambda> s. s @@ isub_of_str h_name) in
-     ( Expr_apply (isub_h datatype_in) [Expr_basic [h_name]]
-     , Expr_warning_parenthesis
-       (Expr_postunary (Expr_annot (Expr_applys (bug_ocaml_extraction (let var_x = ''x'' in
-                                                      Expr_lambdas [var_x, wildcard] (Expr_some (Expr_some (Expr_basic [var_x]))))) [Expr_basic [h_name]])
-                                   h_name)
-                       (Expr_basic [dot_astype name])))) l_hierarchy)))))"
-
-definition "print_astype_from_universe' = start_map'' Thy_definition_hol o (\<lambda>expr base_attr _ _.
-  map_class_h'' (\<lambda>isub_name name l_hierarchy nl_attr.
-    let nl_attr = base_attr nl_attr in
-    let const_astype = flatten [const_oclastype, isub_of_str name, ''_'', unicode_AA] in
-    Definition (Expr_rewrite (Expr_basic [const_astype]) ''=''
-   (let ((finish_with_some1, finish_with_some2), last_case_none) =
-     if (fst o hd) l_hierarchy = name then
-       ((id, Expr_binop (Expr_basic [''Some'']) ''o''), [])
-     else
-       ((Expr_some, id), [(Expr_basic [wildcard], Expr_basic [''None''])]) in
-   finish_with_some2
-   (Expr_function (flatten (List_map
-   (let l_hierarchy = List_map fst l_hierarchy in (\<lambda>(h_name, hl_attr).
-     let hl_attr = base_attr hl_attr in
-     let isub_h = (\<lambda> s. s @@ isub_of_str h_name)
+    [ Definition (Expr_rewrite (Expr_basic [const_astype]) ''=''
+        (case f_finish l_inh of ((_, finish_with_some2), last_case_none) \<Rightarrow>
+          finish_with_some2 (Expr_function (flatten [l, last_case_none]))))])
+  (\<lambda> l_inh _ _ _ compare (_, name, nl_attr) (h_name, hl_attr, _).
+     let ((finish_with_some1, _), _) = f_finish l_inh
+       ; isub_h = (\<lambda> s. s @@ isub_of_str h_name)
        ; pattern_complex = (\<lambda>h_name name l_extra.
                             let isub_h = (\<lambda> s. s @@ isub_of_str h_name)
                               ; isub_name = (\<lambda>s. s @@ isub_of_str name)
@@ -938,12 +980,11 @@ definition "print_astype_from_universe' = start_map'' Thy_definition_hol o (\<la
                             let isub_name = (\<lambda>s. s @@ isub_of_str name)
                               ; var_name = name in
                              Expr_basic [var_name])
-       ; case_branch = (\<lambda>pat res. (Expr_apply (isub_h datatype_in) [pat], finish_with_some1 res)) in
-             case compare_hierarchy l_hierarchy h_name name
+       ; case_branch = (\<lambda>pat res. [(Expr_apply (isub_h datatype_in) [pat], finish_with_some1 res)]) in
+             case compare
              of GT \<Rightarrow> case_branch (pattern_complex h_name name (List_map (\<lambda>_. Expr_basic [wildcard]) hl_attr)) (pattern_simple name)
               | EQ \<Rightarrow> let n = Expr_basic [name] in case_branch n n
-              | LT \<Rightarrow> case_branch (pattern_simple h_name) (pattern_complex name h_name (List_map (\<lambda>_. Expr_basic [''None'']) nl_attr)))) l_hierarchy
-   # [last_case_none])))))) expr)"
+              | LT \<Rightarrow> case_branch (pattern_simple h_name) (pattern_complex name h_name (List_map (\<lambda>_. Expr_basic [''None'']) nl_attr))))"
 
 definition "print_astype_lemma_cp_set =
   (if activate_simp_optimization then
@@ -958,15 +999,16 @@ definition "print_astype_lemmas_id = start_map' (\<lambda>expr.
 
 definition "print_astype_lemma_cp_set2 =
   (if activate_simp_optimization then
-     \<lambda>expr. (flatten o map_class (\<lambda>isub_name name _ _ _ _. map_class_gen (\<lambda>isub_name2 name2 _ _ _ _.
-       if name = name2 then
-         []
-       else
-         [((isub_name, name), (isub_name2, name2))]) expr)) expr
-   else (\<lambda>_. []))"
+     \<lambda>expr base_attr. 
+       flatten (m_class' base_attr (\<lambda> compare (isub_name, name, _) (name2, _).
+         if compare = EQ then
+           []
+         else
+           [((isub_name, name), ((\<lambda>s. s @@ isub_of_str name2), name2))]) expr)
+   else (\<lambda>_ _. []))"
 
-definition "print_astype_lemmas_id2 = start_map' (\<lambda>expr.
-  (let name_set = print_astype_lemma_cp_set2 expr in
+definition "print_astype_lemmas_id2 = start_map'' id o (\<lambda>expr base_attr _ _.
+  (let name_set = print_astype_lemma_cp_set2 expr base_attr in
    case name_set of [] \<Rightarrow> [] | _ \<Rightarrow> List_map Thy_lemmas_simp
   [ Lemmas_simp '''' (List_map (\<lambda>((isub_name_h, _), (_, name)).
     Thm_str (flatten [isub_name_h const_oclastype, ''_'', name])) name_set) ]))"
@@ -1029,13 +1071,12 @@ definition "print_astype_lemmas_strict = start_map'
       ) (\<lambda>x. (x, [''invalid'',''null''], x)) expr)])
   else (\<lambda>_. []))"
 
-definition "print_astype_defined = start_map Thy_lemma_by o (\<lambda>expr. flatten (map_class_gen_h''' (\<lambda>isub_name name l_hierarchy _ _ _.
-     (let l_hierarchy = List_map fst l_hierarchy
-        ; var_X = ''X''
-        ; var_isdef = ''isdef''
-        ; f = \<lambda>e. Expr_binop (Expr_basic [unicode_tau]) unicode_Turnstile (Expr_apply unicode_delta [e]) in
-    List_map (\<lambda>h_name.
-      case compare_hierarchy l_hierarchy h_name name of LT \<Rightarrow>
+definition "print_astype_defined = start_m Thy_lemma_by m_class_default 
+  (\<lambda> compare (isub_name, name, _) (h_name, _).
+     let var_X = ''X''
+       ; var_isdef = ''isdef''
+       ; f = \<lambda>e. Expr_binop (Expr_basic [unicode_tau]) unicode_Turnstile (Expr_apply unicode_delta [e]) in
+     case compare of LT \<Rightarrow>
         [ Lemma_by_assum
           (flatten [isub_name const_oclastype, ''_'', h_name, ''_defined''])
           [(var_isdef, False, f (Expr_basic [var_X]))]
@@ -1044,8 +1085,7 @@ definition "print_astype_defined = start_map Thy_lemma_by o (\<lambda>expr. flat
           (Tacl_by [Tac_auto_simp_add (flatten [isub_name const_oclastype, ''_'', h_name]
                                         # ''foundation16''
                                         # List_map hol_definition [''null_option'', ''bot_option'' ])]) ]
-      | _ \<Rightarrow> [])
-      l_hierarchy)) expr))"
+      | _ \<Rightarrow> [])"
 
 definition "print_astype_up_d_cast0_name name_any name_pers = flatten [''up'', isub_of_str name_any, ''_down'', isub_of_str name_pers, ''_cast0'']"
 definition "print_astype_up_d_cast0 = start_map Thy_lemma_by o
@@ -1098,14 +1138,9 @@ definition "print_istypeof_consts = start_map Thy_consts_class o
   map_class (\<lambda>isub_name name _ _ _ _.
     Consts (isub_name const_oclistypeof) (Ty_base ty_boolean) (const_mixfix dot_oclistypeof name))"
 
-definition "print_istypeof_class = start_map'' Thy_defs_overloaded o (\<lambda>expr base_attr _ _.
-  map_class_gen_h''' (\<lambda>isub_name name l_hierarchy _ l_inh _.
-    let l_inh = List_map base_attr l_inh in
-    List_map
-      (let l_hierarchy = List_map fst l_hierarchy in
-      (\<lambda> (h_name, hl_attr).
-        let hl_attr = base_attr hl_attr in
-        Defs_overloaded
+definition "print_istypeof_class = start_m_gen Thy_defs_overloaded m_class_default
+  (\<lambda> l_inh _ _ _ compare (isub_name, name, _) (h_name, hl_attr, h_last).
+   [Defs_overloaded
           (flatten [isub_name const_oclistypeof, ''_'', h_name])
           (let var_x = ''x'' in
            Expr_rewrite
@@ -1125,47 +1160,24 @@ definition "print_istypeof_class = start_map'' Thy_defs_overloaded o (\<lambda>e
                                            ( Expr_apply (f2 (\<lambda>s. isub_name (s @@ ''_'')) (isub_h datatype_ext_constr_name))
                                                         (Expr_basic [wildcard] # f1)
                                            # List_map (\<lambda>_. Expr_basic [wildcard]) hl_attr))), ocl_tau ''true'')
-                             # (if h_name = last l_hierarchy then [] else l_false)) in
-                       case compare_hierarchy l_hierarchy h_name name
-                       of EQ \<Rightarrow> pattern_complex_gen (flatten (List_map (List_map (\<lambda>_. Expr_basic [wildcard])) l_inh)) (\<lambda>_. id)
+                             # (if h_last then [] else l_false)) in
+                       case compare
+                       of EQ \<Rightarrow> pattern_complex_gen (flatten (List_map (List_map (\<lambda>_. Expr_basic [wildcard]) o fst o snd) l_inh)) (\<lambda>_. id)
                         | GT \<Rightarrow> pattern_complex_gen [] id
-                        | _ \<Rightarrow> l_false) ) ))) ))
-      l_hierarchy) expr)"
+                        | _ \<Rightarrow> l_false) ) )))] )"
 
-definition "print_istypeof_from_universe = start_map Thy_definition_hol o
-  map_class_h (\<lambda>isub_name name l_hierarchy.
+definition "print_istypeof_from_universe = start_m Thy_definition_hol 
+  (\<lambda> name _ l.
     let const_istypeof = flatten [const_oclistypeof, isub_of_str name, ''_'', unicode_AA] in
-    Definition (Expr_rewrite (Expr_basic [const_istypeof]) ''=''
-   (
-   (Expr_function (List_map (\<lambda>h_name.
+    [ Definition (Expr_rewrite (Expr_basic [const_istypeof]) ''='' (Expr_function l))])
+  (\<lambda>_ (_, name, _) (h_name, _).
      let isub_h = (\<lambda> s. s @@ isub_of_str h_name) in
-     ( Expr_apply (isub_h datatype_in) [Expr_basic [h_name]]
-     , Expr_warning_parenthesis
-       (Expr_postunary (Expr_annot (Expr_applys (bug_ocaml_extraction (let var_x = ''x'' in
-                                                      Expr_lambdas [var_x, wildcard] (Expr_some (Expr_some (Expr_basic [var_x]))))) [Expr_basic [h_name]])
-                                   h_name)
-                       (Expr_basic [dot_istypeof name])))) l_hierarchy)))))"
-
-definition "print_istypeof_from_universe' = start_map Thy_definition_hol o
-  map_class_h' (\<lambda>isub_name name l_hierarchy.
-    let const_istypeof = flatten [const_oclistypeof, isub_of_str name, ''_'', unicode_AA] in
-    Definition (Expr_rewrite (Expr_basic [const_istypeof]) ''=''
-   (
-   (Expr_function (flatten (flatten (List_map
-   (let l_hierarchy = List_map fst l_hierarchy in
-    (\<lambda>(h_name, l_attr).
-     let pattern_complex_gen = (\<lambda>f1 f2.
-                            let isub_h = (\<lambda> s. s @@ isub_of_str h_name) in
-                            [ (Expr_apply (isub_h datatype_in)
-                                [Expr_apply (isub_h datatype_constr_name)
-                                            [ Expr_basic [wildcard]
-                                            , Expr_apply (f2 (\<lambda>s. isub_name (s @@ ''_'')) (isub_h datatype_ext_constr_name))
-                                                         f1]], Expr_basic [''true''])]) in
-             case compare_hierarchy l_hierarchy h_name name
-             of EQ \<Rightarrow> pattern_complex_gen (List_map (\<lambda>_. Expr_basic [wildcard]) l_attr) (\<lambda>_. id)
-              | GT \<Rightarrow> pattern_complex_gen [Expr_basic [wildcard]] id
-              | _ \<Rightarrow> [])) l_hierarchy)
-   # [[(Expr_basic [wildcard], Expr_basic [''false''])]]))))))"
+     [( Expr_apply (isub_h datatype_in) [Expr_basic [h_name]]
+      , Expr_warning_parenthesis
+        (Expr_postunary (Expr_annot (Expr_applys (bug_ocaml_extraction (let var_x = ''x'' in
+                                                       Expr_lambdas [var_x, wildcard] (Expr_some (Expr_some (Expr_basic [var_x]))))) [Expr_basic [h_name]])
+                                    h_name)
+                        (Expr_basic [dot_istypeof name])))])"
 
 definition "print_istypeof_lemma_cp_set =
   (if activate_simp_optimization then
@@ -1242,12 +1254,12 @@ definition "print_istypeof_lemmas_strict expr = start_map Thy_lemmas_simp
       l) ])"
 
 definition "print_istypeof_defined_name isub_name h_name = flatten [isub_name const_oclistypeof, ''_'', h_name, ''_defined'']"
-definition "print_istypeof_defined = start_map Thy_lemma_by o flatten o map_class_h (\<lambda>isub_name name l_hierarchy.
-     (let var_X = ''X''
+definition "print_istypeof_defined = start_m Thy_lemma_by m_class_default
+  (\<lambda> _ (isub_name, name, _) (h_name, _).
+      let var_X = ''X''
         ; var_isdef = ''isdef''
         ; f = \<lambda>symb e. Expr_binop (Expr_basic [unicode_tau]) unicode_Turnstile (Expr_apply symb [e]) in
-      List_map (\<lambda>h_name.
-        Lemma_by_assum
+      [ Lemma_by_assum
           (print_istypeof_defined_name isub_name h_name)
           [(var_isdef, False, f unicode_upsilon (Expr_basic [var_X]))]
           (f unicode_delta (Expr_postunary (Expr_annot (Expr_basic [var_X]) h_name) (Expr_basic [dot_istypeof name])))
@@ -1257,23 +1269,21 @@ definition "print_istypeof_defined = start_map Thy_lemma_by o flatten o map_clas
           (Tacl_by [Tac_auto_simp_add_split ( Thm_symmetric (Thm_str ''cp_defined'')
                                             # List_map Thm_str ( hol_definition ''bot_option''
                                                           # [ flatten [isub_name const_oclistypeof, ''_'', h_name] ]))
-                                            (''option.split'' # split_ty h_name) ]) )
-        l_hierarchy))"
+                                            (''option.split'' # split_ty h_name) ]) ])"
 
 definition "print_istypeof_defined'_name isub_name h_name = flatten [isub_name const_oclistypeof, ''_'', h_name, ''_defined'',  [Char Nibble2 Nibble7]]"
-definition "print_istypeof_defined' = start_map Thy_lemma_by o flatten o map_class_h (\<lambda>isub_name name l_hierarchy.
-     (let var_X = ''X''
+definition "print_istypeof_defined' = start_m Thy_lemma_by m_class_default
+  (\<lambda> _ (isub_name, name, _) (h_name, _).
+      let var_X = ''X''
         ; var_isdef = ''isdef''
         ; f = \<lambda>e. Expr_binop (Expr_basic [unicode_tau]) unicode_Turnstile (Expr_apply unicode_delta [e]) in
-      List_map (\<lambda>h_name.
-        Lemma_by_assum
+      [ Lemma_by_assum
           (print_istypeof_defined'_name isub_name h_name)
           [(var_isdef, False, f (Expr_basic [var_X]))]
           (f (Expr_postunary (Expr_annot (Expr_basic [var_X]) h_name) (Expr_basic [dot_istypeof name])))
           []
           (Tacl_by [Tac_rule (Thm_OF (Thm_str (print_istypeof_defined_name isub_name h_name))
-                                     (Thm_THEN (Thm_str var_isdef) (Thm_str ''foundation20'')))]) )
-        l_hierarchy))"
+                                     (Thm_THEN (Thm_str var_isdef) (Thm_str ''foundation20'')))]) ])"
 
 definition "print_istypeof_up_larger_name name_pers name_any = flatten [''actualType'', isub_of_str name_pers, ''_larger_staticType'', isub_of_str name_any]"
 definition "print_istypeof_up_larger = start_map Thy_lemma_by o
@@ -1331,32 +1341,30 @@ definition "print_iskindof_consts = start_map Thy_consts_class o
     Consts (isub_name const_ocliskindof) (Ty_base ty_boolean) (const_mixfix dot_ocliskindof name))"
 
 definition "print_iskindof_class_name isub_name h_name = flatten [isub_name const_ocliskindof, ''_'', h_name]"
-definition "print_iskindof_class = start_map Thy_defs_overloaded o map_class_gen_h''''
-  (\<lambda>isub_name name l_hierarchy l_attr l_inherited l_cons. List_map (\<lambda> (h_name, _).
-    Defs_overloaded
+definition "print_iskindof_class = start_m_gen Thy_defs_overloaded m_class_default
+  (\<lambda> _ _ _ next_dataty _ (isub_name, name, _) (h_name, _).
+    [ Defs_overloaded
           (print_iskindof_class_name isub_name h_name)
           (let var_x = ''x'' in
            Expr_rewrite
              (Expr_postunary (Expr_annot (Expr_basic [var_x]) h_name) (Expr_basic [dot_iskindof name]))
              unicode_equiv
              (let isof = (\<lambda>f name. Expr_warning_parenthesis (Expr_postunary (Expr_basic [var_x]) (Expr_basic [f name]))) in
-              case l_cons of [] \<Rightarrow> isof dot_istypeof name
-                           | name_past # _ \<Rightarrow> Expr_binop (isof dot_istypeof name) ''or'' (isof dot_iskindof name_past))))
-     l_hierarchy)"
+              case next_dataty of None \<Rightarrow> isof dot_istypeof name
+                           | Some (OclClass name_past _ _) \<Rightarrow> Expr_binop (isof dot_istypeof name) ''or'' (isof dot_iskindof name_past)))])"
 
-definition "print_iskindof_from_universe = start_map Thy_definition_hol o
-  map_class_h (\<lambda>isub_name name l_hierarchy.
+definition "print_iskindof_from_universe = start_m Thy_definition_hol 
+  (\<lambda>name _ l. 
     let const_iskindof = flatten [const_ocliskindof, isub_of_str name, ''_'', unicode_AA] in
-    Definition (Expr_rewrite (Expr_basic [const_iskindof]) ''=''
-   (
-   (Expr_function (List_map (\<lambda>h_name.
-     let isub_h = (\<lambda> s. s @@ isub_of_str h_name) in
-     ( Expr_apply (isub_h datatype_in) [Expr_basic [h_name]]
-     , Expr_warning_parenthesis
-       (Expr_postunary (Expr_annot (Expr_applys (bug_ocaml_extraction (let var_x = ''x'' in
-                                                      Expr_lambdas [var_x, wildcard] (Expr_some (Expr_some (Expr_basic [var_x]))))) [Expr_basic [h_name]])
-                                   h_name)
-                       (Expr_basic [dot_iskindof name])))) l_hierarchy)))))"
+    [ Definition (Expr_rewrite (Expr_basic [const_iskindof]) ''='' (Expr_function l)) ])
+  (\<lambda> _ (_, name, _) (h_name, _).
+    let isub_h = (\<lambda> s. s @@ isub_of_str h_name) in
+    [ ( Expr_apply (isub_h datatype_in) [Expr_basic [h_name]]
+      , Expr_warning_parenthesis
+        (Expr_postunary (Expr_annot (Expr_applys (bug_ocaml_extraction (let var_x = ''x'' in
+                                                       Expr_lambdas [var_x, wildcard] (Expr_some (Expr_some (Expr_basic [var_x]))))) [Expr_basic [h_name]])
+                                    h_name)
+                        (Expr_basic [dot_iskindof name])))])"
 
 definition "print_iskindof_lemma_cp_set =
   (if activate_simp_optimization then
@@ -1431,12 +1439,12 @@ definition "print_iskindof_lemmas_strict = start_map'
   else (\<lambda>_. []))"
 
 definition "print_iskindof_defined_name isub_name h_name = flatten [isub_name const_ocliskindof, ''_'', h_name, ''_defined'']"
-definition "print_iskindof_defined = start_map Thy_lemma_by o flatten o map_class_h'''' (\<lambda>isub_name name l_hierarchy _ _ l_cons.
-     (let var_X = ''X''
+definition "print_iskindof_defined = start_m_gen Thy_lemma_by m_class_default
+  (\<lambda> _ _ _ next_dataty _ (isub_name, name, _) (h_name, _).
+      let var_X = ''X''
         ; var_isdef = ''isdef''
         ; f = \<lambda>symb e. Expr_binop (Expr_basic [unicode_tau]) unicode_Turnstile (Expr_apply symb [e]) in
-      List_map (\<lambda>h_name.
-        Lemma_by_assum
+      [ Lemma_by_assum
           (print_iskindof_defined_name isub_name h_name)
           [(var_isdef, False, f unicode_upsilon (Expr_basic [var_X]))]
           (f unicode_delta (Expr_postunary (Expr_annot (Expr_basic [var_X]) h_name) (Expr_basic [dot_iskindof name])))
@@ -1444,35 +1452,34 @@ definition "print_iskindof_defined = start_map Thy_lemma_by o flatten o map_clas
           (Tacl_by [ Tac_simp_only [Thm_str (flatten [isub_name const_ocliskindof, ''_'', h_name])]
                    , Tac_rule
                       (let mk_OF = \<lambda>f. Thm_OF (Thm_str (f h_name)) (Thm_str var_isdef) in
-                       case l_cons of
-                         n # _ \<Rightarrow>
+                       case next_dataty of
+                         Some (OclClass n _ _) \<Rightarrow>
                              thm_OF
                                (Thm_str ''defined_or_I'')
                                (List_map mk_OF
                                   [ print_istypeof_defined_name isub_name
                                   , print_iskindof_defined_name (\<lambda>name. name @@ isub_of_str n)])
-                       | [] \<Rightarrow> mk_OF (print_istypeof_defined_name isub_name)) ]))
-        (List_map fst l_hierarchy)))"
+                       | None \<Rightarrow> mk_OF (print_istypeof_defined_name isub_name)) ])])"
 
 definition "print_iskindof_defined'_name isub_name h_name = flatten [isub_name const_ocliskindof, ''_'', h_name, ''_defined'', [Char Nibble2 Nibble7]]"
-definition "print_iskindof_defined' = start_map Thy_lemma_by o flatten o map_class_h'''' (\<lambda>isub_name name l_hierarchy _ _ l_cons.
-     (let var_X = ''X''
+definition "print_iskindof_defined' = start_m Thy_lemma_by m_class_default
+  (\<lambda> _ (isub_name, name, _) (h_name, _).
+      let var_X = ''X''
         ; var_isdef = ''isdef''
         ; f = \<lambda>e. Expr_binop (Expr_basic [unicode_tau]) unicode_Turnstile (Expr_apply unicode_delta [e]) in
-      List_map (\<lambda>h_name.
-        Lemma_by_assum
+      [ Lemma_by_assum
           (print_iskindof_defined'_name isub_name h_name)
           [(var_isdef, False, f (Expr_basic [var_X]))]
           (f (Expr_postunary (Expr_annot (Expr_basic [var_X]) h_name) (Expr_basic [dot_iskindof name])))
           []
           (Tacl_by [Tac_rule (Thm_OF (Thm_str (print_iskindof_defined_name isub_name h_name))
-                                     (Thm_THEN (Thm_str var_isdef) (Thm_str ''foundation20'')))]) )
-        (List_map fst l_hierarchy)))"
+                                     (Thm_THEN (Thm_str var_isdef) (Thm_str ''foundation20'')))]) ])"
 
 definition "print_iskindof_up_eq_asty_name name = (flatten [''actual_eq_static'', isub_of_str name])"
 definition "print_iskindof_up_eq_asty = start_map Thy_lemma_by o map_class_gen_h''''
-  (\<lambda> isub_name name _ _ _ l_cons.
-    let var_X = ''X''
+  (\<lambda> _ name _ _ _ l_subtree.
+    let l_subtree = of_sub l_subtree
+      ; var_X = ''X''
       ; var_isdef = ''isdef''
       ; f = Expr_binop (Expr_basic [unicode_tau]) unicode_Turnstile in
     [Lemma_by_assum
@@ -1488,11 +1495,11 @@ definition "print_iskindof_up_eq_asty = start_map Thy_lemma_by o map_class_gen_h
                                                       List_map Thm_str (flatten ([''foundation16'', hol_definition ''bot_option'']
                                                     # List_map (\<lambda>n. flatten [const_ocliskindof, isub_of_str n, ''_'', name]
                                                              # flatten [const_oclistypeof, isub_of_str n, ''_'', name]
-                                                             # []) l_cons)) in
-                                                     if l_cons = [] then l else Thm_symmetric (Thm_str ''cp_OclOr'') # l))
-                                                    (''option.split'' # flatten (split_ty name # List_map split_ty l_cons))] in
-                            if l_cons = [] then l else Tac_subst (Thm_str ''cp_OclOr'') # l in
-                  if l_cons = [] (* FIXME remove this condition if possible *) then l else [Tac_plus l]))])"
+                                                             # []) l_subtree)) in
+                                                     if l_subtree = [] then l else Thm_symmetric (Thm_str ''cp_OclOr'') # l))
+                                                    (''option.split'' # flatten (split_ty name # List_map split_ty l_subtree))] in
+                            if l_subtree = [] then l else Tac_subst (Thm_str ''cp_OclOr'') # l in
+                  if l_subtree = [] (* FIXME remove this condition if possible *) then l else [Tac_plus l]))])"
 
 definition "print_iskindof_up_larger_name name_pers name_any = flatten [''actualKind'', isub_of_str name_pers, ''_larger_staticKind'', isub_of_str name_any]"
 definition "print_iskindof_up_larger = start_map Thy_lemma_by o
@@ -1572,7 +1579,7 @@ definition "print_iskindof_up_d_cast expr = (start_map Thy_lemma_by o
 subsection{* allInstances *}
 
 definition "print_allinst_def_id = start_map Thy_definition_hol o
-  map_class_h (\<lambda>isub_name name l_hierarchy.
+  map_class (\<lambda>isub_name name _ _ _ _.
     let const_astype = flatten [const_oclastype, isub_of_str name, ''_'', unicode_AA] in
     Definition (Expr_rewrite (Expr_basic [name]) ''='' (Expr_basic [const_astype])))"
 
@@ -1716,7 +1723,7 @@ definition "print_allinst_istypeof_single isub_name name isub_name2 name2 const_
       (Tacl_by [Tac_simp]))
       [])"
 
-definition "print_allinst_istypeof = start_map'' Thy_lemma_by o (\<lambda>expr base_attr _ _. map_class_gen (\<lambda>isub_name name l_attr _ _ next_dataty.
+definition "print_allinst_istypeof = start_map'' Thy_lemma_by o (\<lambda>expr base_attr _ _. map_class_gen (\<lambda>isub_name name l_attr _ _ _ next_dataty.
   let l_attr = base_attr l_attr in
   let b = \<lambda>s. Expr_basic [s]
     ; d = hol_definition
@@ -1769,7 +1776,7 @@ definition "print_allinst_istypeof = start_map'' Thy_lemma_by o (\<lambda>expr b
            (Tacl_by [Tac_simp_add [d ''state.make'', d ''OclNot'']]))
         [Tac_simp]]) expr)"
 
-definition "print_allinst_iskindof_eq = start_map Thy_lemma_by o map_class_gen (\<lambda>isub_name name _ _ _ _.
+definition "print_allinst_iskindof_eq = start_map Thy_lemma_by o map_class_gen (\<lambda>isub_name name _ _ _ _ _.
   print_allinst_istypeof_single isub_name name isub_name name const_ocliskindof dot_iskindof id (\<lambda>_. []))"
 
 definition "print_allinst_iskindof_larger = start_map Thy_lemma_by o flatten o map_class_nupl2' (\<lambda>name name2.
@@ -1782,7 +1789,7 @@ definition "print_access_oid_uniq =
   (\<lambda>expr ocl.
       (\<lambda>(l, oid_start). (List_map Thy_definition_hol l, ocl \<lparr> D_oid_start := oid_start \<rparr>))
       (let (l, (acc, _)) = fold_class (\<lambda>isub_name name l_attr l_inh _ _ cpt.
-         let l_inh = List_map snd l_inh in
+         let l_inh = List_map snd (of_inh l_inh) in
          let (l, cpt) = fold_list (fold_list
            (\<lambda> (attr, OclTy_object ty_obj) \<Rightarrow> bug_ocaml_extraction (let obj_oid = TyObj_ass_id ty_obj
                                                                      ; obj_name_from_nat = TyObjN_ass_switch (TyObj_from ty_obj) in \<lambda>(cpt, rbt) \<Rightarrow>
@@ -1924,7 +1931,7 @@ definition "print_access_deref_assocs_name name_from isub_name attr =
   print_access_deref_assocs_name' name_from isub_name (\<lambda>s. s @@ isup_of_str attr)"
 definition "print_access_deref_assocs = start_map'''' Thy_definition_hol o (\<lambda>expr design_analysis.
   (if design_analysis = Gen_design then \<lambda>_. [] else (\<lambda>expr. flatten (flatten (map_class (\<lambda>isub_name name l_attr l_inherited _ _.
-  let l_inherited = List_map snd l_inherited in
+  let l_inherited = List_map snd (of_inh l_inherited) in
   let var_fst_snd = ''fst_snd''
     ; var_f = ''f''
     ; b = \<lambda>s. Expr_basic [s] in
@@ -2023,7 +2030,7 @@ definition "print_access_select = start_map'' Thy_definition_hol o (\<lambda>exp
       l_attr) in
     rev l)
   (\<lambda>isub_name name (l_attr, l_inherited, l_cons).
-    let l_inherited = flatten (List_map snd l_inherited) in
+    let l_inherited = flatten (List_map snd (of_inh l_inherited)) in
     let (l_attr, l_inherited) = base_attr'' (l_attr, l_inherited) in
     let var_f = ''f''
       ; wildc = Expr_basic [wildcard] in
@@ -2049,13 +2056,13 @@ definition "print_access_select = start_map'' Thy_definition_hol o (\<lambda>exp
                                                    (let var_x = ''x'' in
                                                       Expr_lambdas [var_x, wildcard] (Expr_some (Expr_some (Expr_basic [var_x]))))
                                                  , Expr_basic [var_attr]]) ]
-                            # (List_map (\<lambda>x. let var_x = lowercase_of_str x in
+                            # (List_map (\<lambda>(x, _). let var_x = lowercase_of_str x in
                                              (Expr_apply
                                                          (isub_name datatype_constr_name)
                                                          ( Expr_apply (datatype_ext_constr_name @@ mk_constr_name name x)
                                                              [Expr_basic [var_x]]
                                                          # List_map (\<lambda>_. wildc) l_attr), (Expr_apply (isup_attr (var_select @@ isub_of_str x))
-                                                                                                     (List_map (\<lambda>x. Expr_basic [x]) [var_f, var_x]) ))) l_cons)
+                                                                                                     (List_map (\<lambda>x. Expr_basic [x]) [var_f, var_x]) ))) (of_sub l_cons))
                             # [])))) # l_acc))
       ([], List_map (\<lambda>_. wildc) (tl l_inherited), [])
       l_inherited) in
@@ -2063,7 +2070,7 @@ definition "print_access_select = start_map'' Thy_definition_hol o (\<lambda>exp
 
 definition "print_access_select_obj = start_map'''' Thy_definition_hol o (\<lambda>expr design_analysis.
   (if design_analysis = Gen_design then \<lambda>_. [] else (\<lambda>expr. flatten (flatten (map_class (\<lambda>isub_name name l_attr l_inh _ _.
-    let l_inh = List_map snd l_inh in
+    let l_inh = List_map snd (of_inh l_inh) in
     flatten (fst (fold_list (fold_list
       (\<lambda> (attr, OclTy_object ty_obj) \<Rightarrow> \<lambda>rbt.
           if lookup2 rbt (name, attr) = None then
@@ -2250,7 +2257,7 @@ definition "print_examp_instance_app_constr_notmp f_oid = (\<lambda>isub_name ap
     # print_examp_instance_draw_list_attr f_oid l_attr))"
 
 definition "rbt_of_class ocl =
-  (let rbt = (snd o fold_class_gen (\<lambda>_ name l_attr l_inh _ _ rbt.
+  (let rbt = (snd o fold_class_gen (\<lambda>_ name l_attr l_inh _ _ _ rbt.
      ( [()]
      , modify_def (empty, []) name
          (let fold = \<lambda>tag l rbt.
@@ -2262,7 +2269,7 @@ definition "rbt_of_class ocl =
             (rbt, (tag, n)) in
           (\<lambda>(rbt, _).
            let (rbt, info_own) = fold OptOwn l_attr rbt in
-           let (rbt, info_inh) = fold OptInh (flatten (List_map snd l_inh)) rbt in
+           let (rbt, info_inh) = fold OptInh (flatten (List_map snd (of_inh l_inh))) rbt in
            (rbt, [info_own, info_inh])))
          rbt)) empty) (case D_class_spec ocl of Some c \<Rightarrow> c) in
    (\<lambda>name.
@@ -2646,16 +2653,16 @@ definition "print_examp_def_st_allinst = (\<lambda> _ ocl.
      ; d = hol_definition
      ; l_st_oid = List_map (\<lambda>(cpt, _). var_oid_uniq @@ natural_of_str (case oidGetInh cpt of Oid i \<Rightarrow> i)) l_st in
    map_class_gen_h' (\<lambda> isub_name name l_hierarchy.
-     let l_hierarchy = List_map fst l_hierarchy
+     let l_hierarchy = List_map fst (of_univ l_hierarchy)
        ; expr_app = List_map (\<lambda>(ocore, cpt, ocli, exp).
               ( ocore
               , let exp_annot = [(Expr_postunary (case ocore of OclDefCoreBinding _ \<Rightarrow> exp | _ \<Rightarrow> Expr_annot exp (Inst_ty ocli)) (b (dot_astype name)), True, ocore, cpt)] in
                 case compare_hierarchy l_hierarchy (Inst_ty ocli) name of
                   EQ \<Rightarrow> [(exp, False, ocore, cpt)]
                 | LT \<Rightarrow> exp_annot
-                | GT \<Rightarrow> case Inst_attr ocli of OclAttrCast name2 _ _ \<Rightarrow>
-                          if name = name2 then exp_annot
-                          else [] | _ \<Rightarrow> [])) expr_app
+                | GT \<Rightarrow> (case Inst_attr ocli of OclAttrCast name2 _ _ \<Rightarrow>
+                           if name = name2 then exp_annot
+                           else [] | _ \<Rightarrow> []))) expr_app
        ; (l_spec, l_body) = List_split (flatten (List_map snd expr_app)) in
      gen_pre_post
        (\<lambda>s. flatten [ name_st, ''_'', s, ''_exec_'', name ])
@@ -2930,7 +2937,7 @@ two operations to declare and to provide two overloading definitions for the two
           [ (''OclAsType'',
             [ print_astype_consts
             , print_astype_class
-            (*, print_astype_from_universe*), print_astype_from_universe'
+            , print_astype_from_universe
             , print_astype_lemmas_id ]
             , [ print_astype_lemma_cp
             , print_astype_lemmas_cp ]
@@ -2943,7 +2950,7 @@ two operations to declare and to provide two overloading definitions for the two
           , (''OclIsTypeOf'',
             [ print_istypeof_consts
             , print_istypeof_class
-            , print_istypeof_from_universe(*, print_istypeof_from_universe'*)
+            , print_istypeof_from_universe
             , print_istypeof_lemmas_id ]
             , [ print_istypeof_lemma_cp
             , print_istypeof_lemmas_cp ]
@@ -2957,7 +2964,7 @@ two operations to declare and to provide two overloading definitions for the two
           , (''OclIsKindOf'',
             [ print_iskindof_consts
             , print_iskindof_class
-            , print_iskindof_from_universe(*, print_iskindof_from_universe'*)
+            , print_iskindof_from_universe
             , print_iskindof_lemmas_id ]
             , [ print_iskindof_lemma_cp
             , print_iskindof_lemmas_cp ]
