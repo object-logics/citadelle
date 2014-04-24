@@ -1232,6 +1232,20 @@ lemmas cp_validity=foundation23
 lemma foundation24:"(\<tau> \<Turnstile> not(X \<triangleq> Y)) = (X \<tau> \<noteq> Y \<tau>)"
 by(simp add: StrongEq_def  OclValid_def OclNot_def true_def)
 
+lemma foundation25: "\<tau> \<Turnstile> P \<Longrightarrow> \<tau> \<Turnstile> (P or Q)"
+by(simp add: OclOr_def OclNot_def OclAnd_def OclValid_def true_def)
+
+lemma foundation25': "\<tau> \<Turnstile> Q \<Longrightarrow> \<tau> \<Turnstile> (P or Q)"
+by(subst OclOr_commute, simp add: foundation25)
+
+lemma foundation26:
+assumes defP: "\<tau> \<Turnstile> \<delta> P"
+assumes defQ: "\<tau> \<Turnstile> \<delta> Q"
+assumes H: "\<tau> \<Turnstile> (P or Q)"
+assumes P: "\<tau> \<Turnstile> P \<Longrightarrow> R"
+assumes Q: "\<tau> \<Turnstile> Q \<Longrightarrow> R"
+shows "R"
+by(insert H, subst (asm) foundation11[OF defP defQ], erule disjE, simp_all add: P Q)
 
 lemma defined_not_I : "\<tau> \<Turnstile> \<delta> (x) \<Longrightarrow> \<tau> \<Turnstile> \<delta> (not x)"
   by(auto simp: OclNot_def null_def invalid_def defined_def valid_def OclValid_def
