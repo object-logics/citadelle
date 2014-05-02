@@ -1502,17 +1502,17 @@ lemma OclIncluding_rep_set:
    shows "\<lceil>\<lceil>Rep_Set_0 (S->including(\<lambda>_. \<lfloor>\<lfloor>x\<rfloor>\<rfloor>) \<tau>)\<rceil>\<rceil> = insert \<lfloor>\<lfloor>x\<rfloor>\<rfloor> \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>"
  apply(simp add: OclIncluding_def S_def[simplified OclValid_def])
  apply(subst Abs_Set_0_inverse, simp add: bot_option_def null_option_def)
-  apply(insert Set_inv_lemma[OF S_def], metis bot_option_def not_Some_eq)
-by(simp)
+ apply(insert Set_inv_lemma[OF S_def], metis bot_option_def not_Some_eq)
+ by(simp)
 
 lemma OclIncluding_notempty_rep_set:
-assumes X_def: "\<tau> \<Turnstile> \<delta> X"
-    and a_val: "\<tau> \<Turnstile> \<upsilon> a"
+ assumes X_def: "\<tau> \<Turnstile> \<delta> X"
+     and a_val: "\<tau> \<Turnstile> \<upsilon> a"
   shows "\<lceil>\<lceil>Rep_Set_0 (X->including(a) \<tau>)\<rceil>\<rceil> \<noteq> {}"
  apply(simp add: OclIncluding_def X_def[simplified OclValid_def] a_val[simplified OclValid_def])
  apply(subst Abs_Set_0_inverse, simp add: bot_option_def null_option_def)
-  apply(insert Set_inv_lemma[OF X_def], metis a_val foundation18')
-by(simp)
+ apply(insert Set_inv_lemma[OF X_def], metis a_val foundation18')
+ by(simp)
 
 lemma OclIncluding_includes:
  assumes "\<tau> \<Turnstile> X->includes(x)"
@@ -1530,6 +1530,164 @@ proof -
         simp add: OclIncluding_def OclIncludes_def OclValid_def true_def)
   apply(drule insert_absorb, simp, subst abs_rep_simp')
  by(simp_all add: OclValid_def true_def)
+qed
+
+(* logical level : *)
+lemma including_idem0 :
+ assumes S_def : "\<tau> \<Turnstile> \<delta> S"
+     and i_val : "\<tau> \<Turnstile> \<upsilon> i"
+   shows "\<tau> \<Turnstile> ((S :: ('\<AA>, 'a::null) Set)->including(i)->including(i) \<triangleq> (S->including(i)))"
+proof -
+  have A : "\<lfloor>\<lfloor>insert (i \<tau>) \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>\<rfloor>\<rfloor> \<in> {X. X = bot \<or> X = null \<or> (\<forall>x\<in>\<lceil>\<lceil>X\<rceil>\<rceil>. x \<noteq> bot)}"
+           by(insert S_def i_val, frule Set_inv_lemma, simp add: foundation18 invalid_def)
+  have G1 : "Abs_Set_0 \<lfloor>\<lfloor>insert (i \<tau>) \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>\<rfloor>\<rfloor> \<noteq> Abs_Set_0 None"
+           by(insert A, simp add: Abs_Set_0_inject bot_option_def null_option_def)
+  have G2 : "Abs_Set_0 \<lfloor>\<lfloor>insert (i \<tau>) \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>\<rfloor>\<rfloor> \<noteq> Abs_Set_0 \<lfloor>None\<rfloor>"
+           by(insert A, simp add: Abs_Set_0_inject bot_option_def null_option_def)                    
+
+  have *  : "(\<delta> (\<lambda>_. Abs_Set_0 \<lfloor>\<lfloor>insert (i \<tau>) \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>\<rfloor>\<rfloor>)) \<tau> = \<lfloor>\<lfloor>True\<rfloor>\<rfloor>" 
+             by(auto simp: OclValid_def false_def  defined_def null_fun_def  true_def
+                              bot_fun_def bot_Set_0_def  null_Set_0_def S_def i_val G1 G2)  
+  have ** : "Abs_Set_0 \<lfloor>\<lfloor>insert(i \<tau>)\<lceil>\<lceil>Rep_Set_0(Abs_Set_0\<lfloor>\<lfloor>insert(i \<tau>)\<lceil>\<lceil>Rep_Set_0(S \<tau>)\<rceil>\<rceil>\<rfloor>\<rfloor>)\<rceil>\<rceil>\<rfloor>\<rfloor> =
+              Abs_Set_0\<lfloor>\<lfloor>insert(i \<tau>)\<lceil>\<lceil>Rep_Set_0(S \<tau>)\<rceil>\<rceil>\<rfloor>\<rfloor>" 
+              by(simp add: Abs_Set_0_inverse[OF A])
+           
+  show ?thesis 
+     apply(simp add: OclIncluding_def S_def[simplified OclValid_def]
+                  i_val[simplified OclValid_def] true_def OclValid_def StrongEq_def)           
+     apply(subst OCL_core.cp_defined,
+           simp add: S_def[simplified OclValid_def] i_val[simplified OclValid_def] true_def * **)
+     apply(subst OCL_core.cp_defined,
+           simp add: S_def[simplified OclValid_def] i_val[simplified OclValid_def] true_def *)
+     done
+qed
+
+(* Pure algebraic level *)
+theorem including_idem: "((S :: ('\<AA>,'a::null)Set)->including(i)->including(i) = (S->including(i)))"
+proof -
+  have A: "\<And> \<tau>.   \<tau> \<Turnstile> i \<triangleq> invalid   \<Longrightarrow> (S->including(i)->including(i)) \<tau> = invalid \<tau>"
+            apply(rule foundation22[THEN iffD1])
+            by(erule StrongEq_L_subst2_rev, simp,simp)
+  have A':"\<And> \<tau>.   \<tau> \<Turnstile> i \<triangleq> invalid   \<Longrightarrow> (S->including(i)) \<tau> = invalid \<tau>"
+            apply(rule foundation22[THEN iffD1])
+            by(erule StrongEq_L_subst2_rev, simp,simp)
+  have C: "\<And> \<tau>.   \<tau> \<Turnstile> S \<triangleq> invalid   \<Longrightarrow> (S->including(i)->including(i)) \<tau> = invalid \<tau>"
+            apply(rule foundation22[THEN iffD1])
+            by(erule StrongEq_L_subst2_rev, simp,simp)
+  have C': "\<And> \<tau>.  \<tau> \<Turnstile> S \<triangleq> invalid   \<Longrightarrow> (S->including(i)) \<tau> = invalid \<tau>"
+            apply(rule foundation22[THEN iffD1])
+            by(erule StrongEq_L_subst2_rev, simp,simp)
+  have D: "\<And> \<tau>.   \<tau> \<Turnstile> S \<triangleq> null   \<Longrightarrow> (S->including(i)->including(i)) \<tau> = invalid \<tau>"
+            apply(rule foundation22[THEN iffD1])
+            by(erule StrongEq_L_subst2_rev, simp,simp)
+  have D': "\<And> \<tau>.  \<tau> \<Turnstile> S \<triangleq> null   \<Longrightarrow> (S->including(i)) \<tau> = invalid \<tau>"
+            apply(rule foundation22[THEN iffD1])
+            by(erule StrongEq_L_subst2_rev, simp,simp)
+  show ?thesis
+    apply(rule ext, rename_tac \<tau>)
+    apply(case_tac "\<tau> \<Turnstile> (\<upsilon> i)")
+     apply(case_tac "\<tau> \<Turnstile> (\<delta> S)")
+      apply(simp only: including_idem0[THEN foundation22[THEN iffD1]]) 
+      apply(simp add: foundation16', elim disjE)
+      apply(simp add: C[OF foundation22[THEN iffD2]] C'[OF foundation22[THEN iffD2]])
+     apply(simp add: D[OF foundation22[THEN iffD2]] D'[OF foundation22[THEN iffD2]])
+   apply(simp add:foundation18 A[OF foundation22[THEN iffD2]] A'[OF foundation22[THEN iffD2]])  
+  done
+qed
+            
+lemma including_commute0 :
+ assumes S_def : "\<tau> \<Turnstile> \<delta> S"
+     and i_val : "\<tau> \<Turnstile> \<upsilon> i"
+     and j_val : "\<tau> \<Turnstile> \<upsilon> j"
+   shows "\<tau> \<Turnstile> ((S :: ('\<AA>, 'a::null) Set)->including(i)->including(j) \<triangleq> (S->including(j)->including(i)))"
+proof -
+  have A : "\<lfloor>\<lfloor>insert (i \<tau>) \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>\<rfloor>\<rfloor> \<in> {X. X = bot \<or> X = null \<or> (\<forall>x\<in>\<lceil>\<lceil>X\<rceil>\<rceil>. x \<noteq> bot)}"
+           by(insert S_def i_val, frule Set_inv_lemma, simp add: foundation18 invalid_def)
+  have B : "\<lfloor>\<lfloor>insert (j \<tau>) \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>\<rfloor>\<rfloor> \<in> {X. X = bot \<or> X = null \<or> (\<forall>x\<in>\<lceil>\<lceil>X\<rceil>\<rceil>. x \<noteq> bot)}"
+           by(insert S_def j_val, frule Set_inv_lemma, simp add: foundation18 invalid_def)
+  
+  have G1 : "Abs_Set_0 \<lfloor>\<lfloor>insert (i \<tau>) \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>\<rfloor>\<rfloor> \<noteq> Abs_Set_0 None"
+           by(insert A, simp add: Abs_Set_0_inject bot_option_def null_option_def)
+  have G2 : "Abs_Set_0 \<lfloor>\<lfloor>insert (i \<tau>) \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>\<rfloor>\<rfloor> \<noteq> Abs_Set_0 \<lfloor>None\<rfloor>"
+           by(insert A, simp add: Abs_Set_0_inject bot_option_def null_option_def)                    
+  have G3 : "Abs_Set_0 \<lfloor>\<lfloor>insert (j \<tau>) \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>\<rfloor>\<rfloor> \<noteq> Abs_Set_0 None"
+           by(insert B, simp add: Abs_Set_0_inject bot_option_def null_option_def)
+  have G4 : "Abs_Set_0 \<lfloor>\<lfloor>insert (j \<tau>) \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>\<rfloor>\<rfloor> \<noteq> Abs_Set_0 \<lfloor>None\<rfloor>"
+           by(insert B, simp add: Abs_Set_0_inject bot_option_def null_option_def)         
+           
+  have *   : "(\<delta> (\<lambda>_. Abs_Set_0 \<lfloor>\<lfloor>insert (i \<tau>) \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>\<rfloor>\<rfloor>)) \<tau> = \<lfloor>\<lfloor>True\<rfloor>\<rfloor>" 
+             by(auto simp: OclValid_def false_def  defined_def null_fun_def  true_def
+                              bot_fun_def bot_Set_0_def  null_Set_0_def S_def i_val G1 G2)  
+  
+  have **  : "(\<delta> (\<lambda>_. Abs_Set_0 \<lfloor>\<lfloor>insert (j \<tau>) \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>\<rfloor>\<rfloor>)) \<tau> = \<lfloor>\<lfloor>True\<rfloor>\<rfloor>" 
+             by(auto simp: OclValid_def false_def  defined_def null_fun_def  true_def
+                              bot_fun_def bot_Set_0_def  null_Set_0_def S_def i_val G3 G4)          
+  
+  have *** : "Abs_Set_0 \<lfloor>\<lfloor>insert(j \<tau>)\<lceil>\<lceil>Rep_Set_0(Abs_Set_0\<lfloor>\<lfloor>insert(i \<tau>)\<lceil>\<lceil>Rep_Set_0(S \<tau>)\<rceil>\<rceil>\<rfloor>\<rfloor>)\<rceil>\<rceil>\<rfloor>\<rfloor> =
+              Abs_Set_0 \<lfloor>\<lfloor>insert(i \<tau>)\<lceil>\<lceil>Rep_Set_0(Abs_Set_0\<lfloor>\<lfloor>insert(j \<tau>)\<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>\<rfloor>\<rfloor>)\<rceil>\<rceil>\<rfloor>\<rfloor>" 
+              by(simp add: Abs_Set_0_inverse[OF A] Abs_Set_0_inverse[OF B] Set.insert_commute)
+  show ?thesis 
+     apply(simp add: OclIncluding_def S_def[simplified OclValid_def]
+                  i_val[simplified OclValid_def] j_val[simplified OclValid_def]
+                  true_def OclValid_def StrongEq_def)
+     apply(subst OCL_core.cp_defined,
+           simp add: S_def[simplified OclValid_def] 
+                     i_val[simplified OclValid_def] j_val[simplified OclValid_def] true_def *)
+     apply(subst OCL_core.cp_defined,
+           simp add: S_def[simplified OclValid_def] 
+                     i_val[simplified OclValid_def] j_val[simplified OclValid_def] true_def ** ***)
+     apply(subst OCL_core.cp_defined,
+           simp add: S_def[simplified OclValid_def] 
+                     i_val[simplified OclValid_def] j_val[simplified OclValid_def] true_def *)
+     apply(subst OCL_core.cp_defined,
+           simp add: S_def[simplified OclValid_def] 
+                     i_val[simplified OclValid_def] j_val[simplified OclValid_def] true_def * )
+     apply(subst OCL_core.cp_defined,
+           simp add: S_def[simplified OclValid_def] 
+                     i_val[simplified OclValid_def] j_val[simplified OclValid_def] true_def * **)
+     done
+qed
+
+
+lemma OclIncluding_commute[simp,code_unfold]:
+"((S :: ('\<AA>, 'a::null) Set)->including(i)->including(j) = (S->including(j)->including(i)))"
+proof -
+  have A: "\<And> \<tau>.   \<tau> \<Turnstile> i \<triangleq> invalid   \<Longrightarrow> (S->including(i)->including(j)) \<tau> = invalid \<tau>"
+            apply(rule foundation22[THEN iffD1])
+            by(erule StrongEq_L_subst2_rev, simp,simp)
+  have A': "\<And> \<tau>.   \<tau> \<Turnstile> i \<triangleq> invalid   \<Longrightarrow> (S->including(j)->including(i)) \<tau> = invalid \<tau>"
+            apply(rule foundation22[THEN iffD1])
+            by(erule StrongEq_L_subst2_rev, simp,simp)
+  have B:"\<And> \<tau>.   \<tau> \<Turnstile> j \<triangleq> invalid   \<Longrightarrow> (S->including(i)->including(j)) \<tau> = invalid \<tau>"
+            apply(rule foundation22[THEN iffD1])
+            by(erule StrongEq_L_subst2_rev, simp,simp)
+  have B':"\<And> \<tau>.   \<tau> \<Turnstile> j \<triangleq> invalid   \<Longrightarrow> (S->including(j)->including(i)) \<tau> = invalid \<tau>"
+            apply(rule foundation22[THEN iffD1])
+            by(erule StrongEq_L_subst2_rev, simp,simp)
+  have C: "\<And> \<tau>.   \<tau> \<Turnstile> S \<triangleq> invalid   \<Longrightarrow> (S->including(i)->including(j)) \<tau> = invalid \<tau>"
+            apply(rule foundation22[THEN iffD1])
+            by(erule StrongEq_L_subst2_rev, simp,simp)
+  have C': "\<And> \<tau>.  \<tau> \<Turnstile> S \<triangleq> invalid   \<Longrightarrow> (S->including(j)->including(i)) \<tau> = invalid \<tau>"
+            apply(rule foundation22[THEN iffD1])
+            by(erule StrongEq_L_subst2_rev, simp,simp)
+  have D: "\<And> \<tau>.   \<tau> \<Turnstile> S \<triangleq> null   \<Longrightarrow> (S->including(i)->including(j)) \<tau> = invalid \<tau>"
+            apply(rule foundation22[THEN iffD1])
+            by(erule StrongEq_L_subst2_rev, simp,simp)
+  have D': "\<And> \<tau>.  \<tau> \<Turnstile> S \<triangleq> null   \<Longrightarrow> (S->including(j)->including(i)) \<tau> = invalid \<tau>"
+            apply(rule foundation22[THEN iffD1])
+            by(erule StrongEq_L_subst2_rev, simp,simp)
+  show ?thesis
+    apply(rule ext, rename_tac \<tau>)
+    apply(case_tac "\<tau> \<Turnstile> (\<upsilon> i)")
+     apply(case_tac "\<tau> \<Turnstile> (\<upsilon> j)")
+      apply(case_tac "\<tau> \<Turnstile> (\<delta> S)")
+       apply(simp only: including_commute0[THEN foundation22[THEN iffD1]]) 
+      apply(simp add: foundation16', elim disjE)
+     apply(simp add: C[OF foundation22[THEN iffD2]] C'[OF foundation22[THEN iffD2]])
+    apply(simp add: D[OF foundation22[THEN iffD2]] D'[OF foundation22[THEN iffD2]])
+   apply(simp add:foundation18 B[OF foundation22[THEN iffD2]] B'[OF foundation22[THEN iffD2]])
+  apply(simp add:foundation18 A[OF foundation22[THEN iffD2]] A'[OF foundation22[THEN iffD2]])  
+ done
 qed
 
 
@@ -1639,6 +1797,46 @@ proof -
    apply(auto simp: G1 G2)
   done
 qed
+
+theorem OclExcluding_charn3:  "((X->including(x))->excluding(x)) = (X->excluding(x))"
+proof -
+ have A1 : "\<And>\<tau>. \<tau> \<Turnstile> (X \<triangleq> invalid) \<Longrightarrow> (X->including(x)->excluding(x)) \<tau> = invalid \<tau>"
+            apply(rule foundation22[THEN iffD1])
+            by(erule StrongEq_L_subst2_rev, simp,simp)
+ have A1': "\<And>\<tau>. \<tau> \<Turnstile> (X \<triangleq> invalid) \<Longrightarrow> (X->excluding(x)) \<tau> = invalid \<tau>"
+            apply(rule foundation22[THEN iffD1])
+            by(erule StrongEq_L_subst2_rev, simp,simp)
+ have A2 : "\<And>\<tau>. \<tau> \<Turnstile> (X \<triangleq> null) \<Longrightarrow> (X->including(x)->excluding(x)) \<tau> = invalid \<tau>"
+            apply(rule foundation22[THEN iffD1])
+            by(erule StrongEq_L_subst2_rev, simp,simp)
+ have A2': "\<And>\<tau>. \<tau> \<Turnstile> (X \<triangleq> null) \<Longrightarrow> (X->excluding(x)) \<tau> = invalid \<tau>"
+            apply(rule foundation22[THEN iffD1])
+            by(erule StrongEq_L_subst2_rev, simp,simp)
+ have A3 : "\<And>\<tau>. \<tau> \<Turnstile> (x \<triangleq> invalid) \<Longrightarrow> (X->including(x)->excluding(x)) \<tau> = invalid \<tau>"
+            apply(rule foundation22[THEN iffD1])
+            by(erule StrongEq_L_subst2_rev, simp,simp)
+ have A3': "\<And>\<tau>. \<tau> \<Turnstile> (x \<triangleq> invalid) \<Longrightarrow> (X->excluding(x)) \<tau> = invalid \<tau>"
+            apply(rule foundation22[THEN iffD1])
+            by(erule StrongEq_L_subst2_rev, simp,simp)
+
+ show ?thesis
+ apply(rule ext, rename_tac "\<tau>")
+ apply(case_tac "\<tau> \<Turnstile> (\<upsilon> x)")
+  apply(case_tac "\<tau> \<Turnstile> (\<delta> X)")
+   apply(simp only: OclExcluding_charn2[THEN foundation22[THEN iffD1]]) 
+   apply(simp add: foundation16', elim disjE)
+   apply(simp add: A1[OF foundation22[THEN iffD2]] A1'[OF foundation22[THEN iffD2]])
+  apply(simp add: A2[OF foundation22[THEN iffD2]] A2'[OF foundation22[THEN iffD2]])
+ apply(simp add:foundation18 A3[OF foundation22[THEN iffD2]] A3'[OF foundation22[THEN iffD2]])  
+ done
+qed
+
+theorem excluding_idem: "((X->excluding(x))->excluding(x)) = (X->excluding(x))"
+sorry (* analogue including_idem*)
+
+theorem excluding_commute: "((X->excluding(x))->excluding(y)) = ((X->excluding(y))->excluding(x))"
+sorry (* analogue including_commute*)
+
 
 text{* One would like a generic theorem of the form:
 \begin{isar}[mathescape]
@@ -1835,7 +2033,7 @@ qed
 
 lemma OclIncludes_charn2:
 assumes def_X:"\<tau> \<Turnstile> (\<delta> X)"
-and     val_x:"\<tau> \<Turnstile> (\<upsilon> x)"
+and     val_x:"\<tau> \<Turnstile> (\<upsilon> x)"                   
 and     val_y:"\<tau> \<Turnstile> (\<upsilon> y)"
 and     neq  :"\<tau> \<Turnstile> not(x \<triangleq> y)"
 shows         "\<tau> \<Turnstile> (X->including(x)->includes(y)) \<triangleq> (X->includes(y))"
@@ -3190,5 +3388,8 @@ Assert    "\<tau> \<Turnstile> (Set{null}->select(x | not x) \<doteq> Set{null})
 Assert    "\<tau> \<Turnstile> (Set{null}->reject(x | not x) \<doteq> Set{null})"
 
 lemma     "const (Set{Set{\<two>,null}, invalid})" by(simp add: const_ss)
+
+
+
 
 end
