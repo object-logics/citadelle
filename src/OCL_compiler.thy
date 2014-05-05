@@ -223,7 +223,7 @@ datatype ocl_deep_mode = Gen_design
 
 record ocl_deep_embed_input =
   D_disable_thy_output :: bool
-  D_file_out_path_dep :: "(string \<times> string) option"
+  D_file_out_path_dep :: "(string (* theory *) \<times> string list (* imports *)) option"
   D_oid_start :: internal_oids
   D_output_position :: "nat \<times> nat"
   D_design_analysis :: ocl_deep_mode
@@ -793,6 +793,7 @@ definition "Expr_oclset l = (case l of [] \<Rightarrow> Expr_basic [''Set{}''] |
 definition "Expr_list l = (case l of [] \<Rightarrow> Expr_basic [''[]''] | _ \<Rightarrow> Expr_paren ''['' '']'' (expr_binop '','' l))"
 definition "Expr_list' f l = Expr_list (List_map f l)"
 definition "Expr_pair e1 e2 = Expr_parenthesis (Expr_binop e1 '','' e2)"
+definition "Expr_string s = Expr_basic [flatten [[Char Nibble2 Nibble2], s, [Char Nibble2 Nibble2]]]"
 definition "Consts s = Consts_raw s (Ty_base (Char Nibble2 Nibble7 # unicode_alpha))"
 definition "Tac_subst = Tac_subst_l [''0'']"
 definition "Tac_auto = Tac_auto_simp_add []"
@@ -2101,9 +2102,7 @@ definition "print_access_choose = start_map'''' Thy_definition_hol o (\<lambda>e
      ; lets'' = \<lambda>var exp. Definition (Expr_rewrite (Expr_basic [var]) ''='' (Expr_lam ''l'' (\<lambda>var_l. Expr_binop (b var_l) ''!'' (b exp))))
      ; l_flatten = ''List_flatten'' in
   flatten
-  [ [ lets' (flatten [var_choose, ''_0'']) ''fst''
-    , lets' (flatten [var_choose, ''_1'']) ''snd'' ]
-  , (bug_ocaml_extraction 
+  [ (bug_ocaml_extraction 
     (let a = \<lambda>f x. Expr_apply f [x]
        ; b = \<lambda>s. Expr_basic [s]
        ; lets = \<lambda>var exp. Definition (Expr_rewrite (Expr_basic [var]) ''='' exp)
@@ -2136,27 +2135,6 @@ definition "print_access_choose = start_map'''' Thy_definition_hol o (\<lambda>e
                 [ (b ''None'', b var_l1)
                 , (Expr_some (b var_l0), a l_flatten (Expr_list (List_map b [var_l0, var_l1])))])))
       , b ''Map.empty''])
-  , bug_ocaml_extraction
-     (let var_to_from = ''to_from''
-        ; var_oid = ''oid''
-        ; var_S = ''S'' in
-      Definition (Expr_rewrite
-        (Expr_basic [var_deref_assocs_list, var_to_from, var_oid, var_S ])
-        ''=''
-        (Expr_apply l_flatten
-                       [ Expr_apply ''List.map''
-                           [ Expr_binop
-                               (Expr_basic [flatten [var_choose, ''_1'']])
-                               unicode_circ
-                               (Expr_basic [var_to_from])
-                           , Expr_apply ''filter''
-                               [ Expr_lam ''p'' (\<lambda>var_p.
-                                   Expr_apply ''List.member''
-                                     [ Expr_applys
-                                         (Expr_basic [flatten [var_choose, ''_0'']])
-                                         [Expr_apply var_to_from [Expr_basic [var_p]]]
-                                     , Expr_basic [var_oid] ])
-                               , Expr_basic [var_S]]]])))
   ,   let var_pre_post = ''pre_post''
         ; var_to_from = ''to_from''
         ; var_assoc_oid = ''assoc_oid''
@@ -3991,7 +3969,7 @@ definition "s_of_thy ocl =
 definition "s_of_thy_list ocl l_thy =
   (let (th_beg, th_end) = case D_file_out_path_dep ocl of None \<Rightarrow> ([], [])
    | Some (name, fic_import) \<Rightarrow>
-       ( [ sprintf2 (STR ''theory %s imports \"%s\" begin'') (To_string name) (To_string fic_import) ]
+       ( [ sprintf2 (STR ''theory %s imports %s begin'') (To_string name) (s_of_expr (expr_binop '' '' (List_map Expr_string fic_import))) ]
        , [ STR '''', STR ''end'' ]) in
   flatten
         [ th_beg
@@ -4073,7 +4051,7 @@ definition "main = write_file
    (ocl_deep_embed_input_empty True None (oidInit (Oid 0)) Gen_design
       \<lparr> D_disable_thy_output := False
       , D_file_out_path_dep := Some (''Employee_DesignModel_UMLPart_generated''
-                                    ,''../src/OCL_main'') \<rparr>)
+                                    ,[''../src/OCL_main'', ''../src/OCL_class_diagram_static'']) \<rparr>)
    (List_map OclAstClassFlat Employee_DesignModel_UMLPart
     @@ [ OclAstAssociation (ocl_association.make OclAssTy_association
            [ (''Person'', OclMult [(Mult_star, None)], None)

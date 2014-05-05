@@ -255,7 +255,7 @@ definition "i_of_ocl_deep_mode a b = ocl_deep_mode_rec
 definition "i_of_ocl_deep_embed_input a b f = ocl_deep_embed_input_rec
   (ap10 a (b ''ocl_deep_embed_input_ext'')
     (i_of_bool b)
-    (i_of_option a b (i_of_pair a b (i_of_string a b) (i_of_string a b)))
+    (i_of_option a b (i_of_pair a b (i_of_string a b) (i_of_list a b (i_of_string a b))))
     (i_of_internal_oids a b)
     (i_of_pair a b (i_of_nat a b) (i_of_nat a b))
     (i_of_ocl_deep_mode a b)
@@ -430,7 +430,7 @@ val code_expr_argsP = Scan.optional (@{keyword "("} |-- Args.parse --| @{keyword
 val parse_scheme = @{keyword "design"} >> K NONE || @{keyword "analysis"} >> K (SOME 1)
 
 val parse_deep =
-     Scan.optional (((Parse.$$$ "(" -- @{keyword "THEORY"}) |-- Parse.name -- ((Parse.$$$ ")" -- Parse.$$$ "(" -- @{keyword "IMPORTS"}) |-- Parse.name) --| Parse.$$$ ")") >> SOME) NONE
+     Scan.optional (((Parse.$$$ "(" -- @{keyword "THEORY"}) |-- Parse.name -- ((Parse.$$$ ")" -- Parse.$$$ "(" -- @{keyword "IMPORTS"}) |-- parse_l' Parse.name) --| Parse.$$$ ")") >> SOME) NONE
   -- Scan.optional (@{keyword "SECTION"} >> K true) false
   -- (* code_expr_inP *) Scan.repeat (@{keyword "in"} |-- Parse.!!! (Parse.name
         -- Scan.optional (@{keyword "module_name"} |-- Parse.name) ""
@@ -447,7 +447,7 @@ val mode =
   let fun mk_ocl disable_thy_output file_out_path_dep oid_start design_analysis = 
     OCL.ocl_deep_embed_input_empty
                     (From.from_bool disable_thy_output)
-                    (From.from_option (From.from_pair From.from_string From.from_string) file_out_path_dep)
+                    (From.from_option (From.from_pair From.from_string (From.from_list From.from_string)) file_out_path_dep)
                     (OCL.oidInit (From.from_internal_oid (From.from_nat oid_start)))
                     (From.from_design_analysis design_analysis) in
 
