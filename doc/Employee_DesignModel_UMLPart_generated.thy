@@ -1,4 +1,4 @@
-theory Employee_DesignModel_UMLPart_generated imports "../src/OCL_main" begin
+theory Employee_DesignModel_UMLPart_generated imports "../src/OCL_main"   "../src/OCL_class_diagram_static" begin
 
 (* 1 ************************************ 0 + 1 *)
 text{* 
@@ -2634,34 +2634,38 @@ subsection{* Definition *}
 text{*  *}
 
 (* 102 ************************************ 636 + 1 *)
-definition "oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0_\<B>\<O>\<S>\<S> = 0"
+ML{* val oidPerson_0_boss = 0 *}
 
 (* 103 ************************************ 637 + 1 *)
+definition "oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0_\<B>\<O>\<S>\<S> = 0"
+
+(* 104 ************************************ 638 + 1 *)
 text{*  *}
 
-(* 104 ************************************ 638 + 4 *)
+(* 105 ************************************ 639 + 4 *)
 definition "eval_extract x f = (\<lambda>\<tau>. (case x \<tau> of \<lfloor>\<lfloor>obj\<rfloor>\<rfloor> \<Rightarrow> (f ((oid_of (obj))) (\<tau>))
     | _ \<Rightarrow> invalid \<tau>))"
 definition "in_pre_state = fst"
 definition "in_post_state = snd"
 definition "reconst_basetype = id"
 
-(* 105 ************************************ 642 + 1 *)
+(* 106 ************************************ 643 + 1 *)
 text{*  *}
 
-(* 106 ************************************ 643 + 8 *)
-definition "choose_0 = fst"
-definition "choose_1 = snd"
+(* 107 ************************************ 644 + 2 *)
+ML{* val switch2_01 = (fn [x0 , x1] => (x0 , x1)) *}
+ML{* val switch2_10 = (fn [x0 , x1] => (x1 , x0)) *}
+
+(* 108 ************************************ 646 + 5 *)
 definition "switch\<^sub>2_01 = (\<lambda> [x0 , x1] \<Rightarrow> (x0 , x1))"
 definition "switch\<^sub>2_10 = (\<lambda> [x0 , x1] \<Rightarrow> (x1 , x0))"
 definition "List_flatten = (\<lambda>l. (foldl ((\<lambda>acc. (\<lambda>l. (foldl ((\<lambda>acc. (\<lambda>l. (Cons (l) (acc))))) (acc) ((rev (l))))))) (Nil) ((rev (l)))))"
 definition "map_of_list = (foldl ((\<lambda>map. (\<lambda>(x , l1). (case (map (x)) of None \<Rightarrow> (map (x \<mapsto> l1))
     | \<lfloor>l0\<rfloor> \<Rightarrow> (map (x \<mapsto> (List_flatten ([l0 , l1])))))))) (Map.empty))"
-definition "deref_assocs_list to_from oid S = (List_flatten ((List.map (choose_1 \<circ> to_from) ((filter ((\<lambda>p. (List.member (((choose_0) ((to_from (p))))) (oid)))) (S))))))"
 definition "deref_assocs pre_post to_from assoc_oid f oid = (\<lambda>\<tau>. (case (assocs ((pre_post (\<tau>))) (assoc_oid)) of \<lfloor>S\<rfloor> \<Rightarrow> (f ((deref_assocs_list (to_from) (oid) (S))) (\<tau>))
     | _ \<Rightarrow> (invalid (\<tau>))))"
 
-(* 107 ************************************ 651 + 4 *)
+(* 109 ************************************ 651 + 4 *)
 definition "deref_oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n fst_snd f oid = (\<lambda>\<tau>. (case (heap (fst_snd \<tau>) (oid)) of \<lfloor>in\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n obj\<rfloor> \<Rightarrow> f obj \<tau>
     | _ \<Rightarrow> invalid \<tau>))"
 definition "deref_oid\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t fst_snd f oid = (\<lambda>\<tau>. (case (heap (fst_snd \<tau>) (oid)) of \<lfloor>in\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t obj\<rfloor> \<Rightarrow> f obj \<tau>
@@ -2671,21 +2675,21 @@ definition "deref_oid\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y fst_snd f 
 definition "deref_oid\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y fst_snd f oid = (\<lambda>\<tau>. (case (heap (fst_snd \<tau>) (oid)) of \<lfloor>in\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y obj\<rfloor> \<Rightarrow> f obj \<tau>
     | _ \<Rightarrow> invalid \<tau>))"
 
-(* 108 ************************************ 655 + 0 *)
+(* 110 ************************************ 655 + 0 *)
 
-(* 109 ************************************ 655 + 1 *)
+(* 111 ************************************ 655 + 1 *)
 text{*  *}
 
-(* 110 ************************************ 656 + 3 *)
+(* 112 ************************************ 656 + 3 *)
 definition "select_object mt incl smash deref l = (smash ((foldl (incl) (mt) ((List.map (deref) (l))))))"
 definition "select_object_set f p = (select_object (mtSet) (OclIncluding) (id) ((f (p))))"
 definition "select_object_set_any f p s_set = (OclANY ((select_object_set (f) (p) (s_set))))"
 
-(* 111 ************************************ 659 + 1 *)
+(* 113 ************************************ 659 + 1 *)
 text{* 
    pointer undefined in state or not referencing a type conform object representation  *}
 
-(* 112 ************************************ 660 + 10 *)
+(* 114 ************************************ 660 + 10 *)
 definition "select\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<B>\<O>\<S>\<S> f = (\<lambda> (mkoid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (_) (\<bottom>) (_)) \<Rightarrow> null
     | (mkoid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (_) (\<lfloor>boss\<rfloor>) (_)) \<Rightarrow> (f ((\<lambda>x _. \<lfloor>\<lfloor>x\<rfloor>\<rfloor>)) (boss)))"
 definition "select\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<S>\<A>\<L>\<A>\<R>\<Y> f = (\<lambda> (mkoid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (_) (_) (\<bottom>)) \<Rightarrow> null
@@ -2709,9 +2713,9 @@ definition "select\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t\<M>\<O>\<V>\<
     | (mkoid\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t ((mk\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t (_) (_) (\<lfloor>moving\<rfloor>))) (_)) \<Rightarrow> (f ((\<lambda>x _. \<lfloor>\<lfloor>x\<rfloor>\<rfloor>)) (moving))
     | (mkoid\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t ((mk\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t_\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (person))) (_)) \<Rightarrow> (select\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<M>\<O>\<V>\<I>\<N>\<G> (f) (person)))"
 
-(* 113 ************************************ 670 + 0 *)
+(* 115 ************************************ 670 + 0 *)
 
-(* 114 ************************************ 670 + 10 *)
+(* 116 ************************************ 670 + 10 *)
 consts dot_0_\<B>\<O>\<S>\<S> :: "(\<AA>, '\<alpha>) val \<Rightarrow> Person" ("(_) .boss")
 consts dot_0_\<B>\<O>\<S>\<S>at_pre :: "(\<AA>, '\<alpha>) val \<Rightarrow> Person" ("(_) .boss@pre")
 consts dot\<S>\<A>\<L>\<A>\<R>\<Y> :: "(\<AA>, '\<alpha>) val \<Rightarrow> (\<AA>, int option option) val" ("(_) .salary")
@@ -2723,7 +2727,7 @@ consts dot\<S>\<O>\<U>\<N>\<D>at_pre :: "(\<AA>, '\<alpha>) val \<Rightarrow> (\
 consts dot\<M>\<O>\<V>\<I>\<N>\<G> :: "(\<AA>, '\<alpha>) val \<Rightarrow> (\<AA>, bool option option) val" ("(_) .moving")
 consts dot\<M>\<O>\<V>\<I>\<N>\<G>at_pre :: "(\<AA>, '\<alpha>) val \<Rightarrow> (\<AA>, bool option option) val" ("(_) .moving@pre")
 
-(* 115 ************************************ 680 + 20 *)
+(* 117 ************************************ 680 + 20 *)
 defs(overloaded) dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0_\<B>\<O>\<S>\<S> : "(x::Person) .boss \<equiv> (eval_extract (x) ((deref_oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (in_post_state) ((select\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<B>\<O>\<S>\<S> ((select_object_set_any ((deref_oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (in_post_state))))))))))"
 defs(overloaded) dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<S>\<A>\<L>\<A>\<R>\<Y> : "(x::Person) .salary \<equiv> (eval_extract (x) ((deref_oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (in_post_state) ((select\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<S>\<A>\<L>\<A>\<R>\<Y> (reconst_basetype))))))"
 defs(overloaded) dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0_\<B>\<O>\<S>\<S>at_pre : "(x::Person) .boss@pre \<equiv> (eval_extract (x) ((deref_oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (in_pre_state) ((select\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<B>\<O>\<S>\<S> ((select_object_set_any ((deref_oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (in_pre_state))))))))))"
@@ -2745,7 +2749,7 @@ defs(overloaded) dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t\<M>\<O>\<V>
 defs(overloaded) dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t\<S>\<O>\<U>\<N>\<D>at_pre : "(x::Planet) .sound@pre \<equiv> (eval_extract (x) ((deref_oid\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t (in_pre_state) ((select\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t\<S>\<O>\<U>\<N>\<D> (reconst_basetype))))))"
 defs(overloaded) dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t\<M>\<O>\<V>\<I>\<N>\<G>at_pre : "(x::Planet) .moving@pre \<equiv> (eval_extract (x) ((deref_oid\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t (in_pre_state) ((select\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t\<M>\<O>\<V>\<I>\<N>\<G> (reconst_basetype))))))"
 
-(* 116 ************************************ 700 + 1 *)
+(* 118 ************************************ 700 + 1 *)
 lemmas [simp,code_unfold] = dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0_\<B>\<O>\<S>\<S>
                             dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<S>\<A>\<L>\<A>\<R>\<Y>
                             dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0_\<B>\<O>\<S>\<S>at_pre
@@ -2767,13 +2771,13 @@ lemmas [simp,code_unfold] = dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_
                             dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t\<S>\<O>\<U>\<N>\<D>at_pre
                             dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t\<M>\<O>\<V>\<I>\<N>\<G>at_pre
 
-(* 117 ************************************ 701 + 1 *)
+(* 119 ************************************ 701 + 1 *)
 subsection{* Context Passing *}
 
-(* 118 ************************************ 702 + 1 *)
+(* 120 ************************************ 702 + 1 *)
 lemmas [simp,code_unfold] = eval_extract_def
 
-(* 119 ************************************ 703 + 20 *)
+(* 121 ************************************ 703 + 20 *)
 lemma cp_dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0_\<B>\<O>\<S>\<S> : "(cp ((\<lambda>X. (X::Person) .boss)))"
 by(auto simp: cp_def)
 lemma cp_dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<S>\<A>\<L>\<A>\<R>\<Y> : "(cp ((\<lambda>X. (X::Person) .salary)))"
@@ -2815,7 +2819,7 @@ by(auto simp: cp_def)
 lemma cp_dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t\<M>\<O>\<V>\<I>\<N>\<G>at_pre : "(cp ((\<lambda>X. (X::Planet) .moving@pre)))"
 by(auto simp: cp_def)
 
-(* 120 ************************************ 723 + 1 *)
+(* 122 ************************************ 723 + 1 *)
 lemmas [simp,code_unfold] = cp_dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0_\<B>\<O>\<S>\<S>
                             cp_dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<S>\<A>\<L>\<A>\<R>\<Y>
                             cp_dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0_\<B>\<O>\<S>\<S>at_pre
@@ -2837,10 +2841,10 @@ lemmas [simp,code_unfold] = cp_dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub
                             cp_dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t\<S>\<O>\<U>\<N>\<D>at_pre
                             cp_dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t\<M>\<O>\<V>\<I>\<N>\<G>at_pre
 
-(* 121 ************************************ 724 + 1 *)
+(* 123 ************************************ 724 + 1 *)
 subsection{* Execution with Invalid or Null as Argument *}
 
-(* 122 ************************************ 725 + 40 *)
+(* 124 ************************************ 725 + 40 *)
 lemma dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0_\<B>\<O>\<S>\<S>_invalid : "(invalid::Person) .boss = invalid"
 by(rule ext, simp add: bot_option_def invalid_def)
 lemma dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0_\<B>\<O>\<S>\<S>_null : "(null::Person) .boss = invalid"
@@ -2922,10 +2926,10 @@ by(rule ext, simp add: bot_option_def invalid_def)
 lemma dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t\<M>\<O>\<V>\<I>\<N>\<G>at_pre_null : "(null::Planet) .moving@pre = invalid"
 by(rule ext, simp add: bot_option_def null_fun_def null_option_def)
 
-(* 123 ************************************ 765 + 1 *)
+(* 125 ************************************ 765 + 1 *)
 section{* A Little Infra-structure on Example States *}
 
-(* 124 ************************************ 766 + 1 *)
+(* 126 ************************************ 766 + 1 *)
 text{* 
 
 The example we are defining in this section comes from the figure~\ref{fig:edm1_system-states}.
@@ -2937,14 +2941,14 @@ The example we are defining in this section comes from the figure~\ref{fig:edm1_
 \end{figure}
  *}
 
-(* 125 ************************************ 767 + 1 *)
+(* 127 ************************************ 767 + 1 *)
 text{*  *}
 
-(* 126 ************************************ 768 + 1 *)
+(* 128 ************************************ 768 + 1 *)
 lemmas [simp,code_unfold] = state.defs
                             const_ss
 
-(* 127 ************************************ 769 + 1 *)
+(* 129 ************************************ 769 + 1 *)
 lemmas [simp,code_unfold] = OclAsType\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_Planet
                             OclAsType\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_Galaxy
                             OclAsType\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_OclAny
@@ -2958,7 +2962,7 @@ lemmas [simp,code_unfold] = OclAsType\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^
                             OclAsType\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_Planet
                             OclAsType\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_Galaxy
 
-(* 128 ************************************ 770 + 8 *)
+(* 130 ************************************ 770 + 8 *)
 definition OclInt1000 ("\<one>\<zero>\<zero>\<zero>")
   where "OclInt1000 = (\<lambda>_. \<lfloor>\<lfloor>1000\<rfloor>\<rfloor>)"
 definition OclInt1200 ("\<one>\<two>\<zero>\<zero>")
@@ -2976,7 +2980,7 @@ definition OclInt3200 ("\<three>\<two>\<zero>\<zero>")
 definition OclInt3500 ("\<three>\<five>\<zero>\<zero>")
   where "OclInt3500 = (\<lambda>_. \<lfloor>\<lfloor>3500\<rfloor>\<rfloor>)"
 
-(* 129 ************************************ 778 + 10 *)
+(* 131 ************************************ 778 + 10 *)
 definition "oid1 = 1"
 definition "oid2 = 2"
 definition "oid3 = 3"
@@ -2989,7 +2993,7 @@ definition "oid9 = 9"
 definition "inst_assoc1 = (\<lambda>oid_class to_from oid. ((case (deref_assocs_list ((to_from:: oid  list  list  \<Rightarrow>  oid  list  \<times>  oid  list )) ((oid::oid)) ((drop ((((map_of_list ([(oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0_\<B>\<O>\<S>\<S> , (List.map ((\<lambda>(x , y). [x , y]) o switch\<^sub>2_01) ([[[oid7] , [oid7]] , [[oid6] , [oid7]] , [[oid2] , [oid2]] , [[oid1] , [oid2]]])))]))) ((oid_class::oid))))))) of Nil \<Rightarrow> None
     | l \<Rightarrow> (Some (l))):: oid  list  option ))"
 
-(* 130 ************************************ 788 + 18 *)
+(* 132 ************************************ 788 + 18 *)
 definition "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n1\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n inst_assoc = (mkoid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n ((mk\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (oid1) (None) (None) (None))) (((inst_assoc) (oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0_\<B>\<O>\<S>\<S>) (switch\<^sub>2_01) (oid1))) (\<lfloor>1300\<rfloor>))"
 definition "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n inst_assoc = (mkoid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n ((mk\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (oid2) (None) (None) (None))) (((inst_assoc) (oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0_\<B>\<O>\<S>\<S>) (switch\<^sub>2_01) (oid2))) (\<lfloor>1800\<rfloor>))"
 definition "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n3\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n inst_assoc = (mkoid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n ((mk\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (oid3) (None) (None) (None))) (((inst_assoc) (oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0_\<B>\<O>\<S>\<S>) (switch\<^sub>2_01) (oid3))) (None))"
@@ -3009,25 +3013,28 @@ definition "(X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n7::OclAny) = (\<la
 definition "(X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n8::OclAny) = (\<lambda>_. \<lfloor>\<lfloor>(X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n8\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y (inst_assoc1))\<rfloor>\<rfloor>)"
 definition "(X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n9::Person) = (\<lambda>_. \<lfloor>\<lfloor>(X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n9\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (inst_assoc1))\<rfloor>\<rfloor>)"
 
-(* 131 ************************************ 806 + 1 *)
+(* 133 ************************************ 806 + 1 *)
+ML{* (Ty'.check ([("oid10" , "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n1") , ("oid11" , "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2") , ("oid12" , "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n3") , ("oid13" , "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n4") , ("oid14" , "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n5") , ("oid15" , "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n6") , ("oid16" , "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n7") , ("oid17" , "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n8") , ("oid18" , "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n9")]) ([(((Code_Numeral.Nat (oidPerson_0_boss)) , (NONE , (SOME ("boss")))) , (((Ty.OclMult ([(Ty.Mult_star , NONE)])) , (Ty.OclMult ([((Ty.Mult_nat ((Code_Numeral.Nat (0)))) , (SOME ((Ty.Mult_nat ((Code_Numeral.Nat (1)))))))]))) , (List.map (switch2_01) ([[["oid16"] , ["oid16"]] , [["oid15"] , ["oid16"]] , [["oid11"] , ["oid11"]] , [["oid10"] , ["oid11"]]]))))])) *}
+
+(* 134 ************************************ 807 + 1 *)
 definition "inst_assoc\<sigma>\<^sub>1 = (\<lambda>oid_class to_from oid. ((case (deref_assocs_list ((to_from:: oid  list  list  \<Rightarrow>  oid  list  \<times>  oid  list )) ((oid::oid)) ((drop ((((map_of_list ([(oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0_\<B>\<O>\<S>\<S> , (List.map ((\<lambda>(x , y). [x , y]) o switch\<^sub>2_01) ([[[oid6] , [oid4]] , [[oid4] , [oid5]] , [[oid1] , [oid2]]])))]))) ((oid_class::oid))))))) of Nil \<Rightarrow> None
     | l \<Rightarrow> (Some (l))):: oid  list  option ))"
 
-(* 132 ************************************ 807 + 1 *)
+(* 135 ************************************ 808 + 1 *)
 definition "\<sigma>\<^sub>1 = (state.make ((Map.empty (oid1 \<mapsto> (in\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n ((mkoid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n ((mk\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (oid1) (None) (None) (None))) (((inst_assoc\<sigma>\<^sub>1) (oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0_\<B>\<O>\<S>\<S>) (switch\<^sub>2_01) (oid1))) (\<lfloor>1000\<rfloor>))))) (oid2 \<mapsto> (in\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n ((mkoid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n ((mk\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (oid2) (None) (None) (None))) (((inst_assoc\<sigma>\<^sub>1) (oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0_\<B>\<O>\<S>\<S>) (switch\<^sub>2_01) (oid2))) (\<lfloor>1200\<rfloor>))))) (oid4 \<mapsto> (in\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n ((mkoid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n ((mk\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (oid4) (None) (None) (None))) (((inst_assoc\<sigma>\<^sub>1) (oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0_\<B>\<O>\<S>\<S>) (switch\<^sub>2_01) (oid4))) (\<lfloor>2600\<rfloor>))))) (oid5 \<mapsto> (in\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n ((X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n5\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (inst_assoc\<sigma>\<^sub>1))))) (oid6 \<mapsto> (in\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n ((mkoid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n ((mk\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (oid6) (None) (None) (None))) (((inst_assoc\<sigma>\<^sub>1) (oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0_\<B>\<O>\<S>\<S>) (switch\<^sub>2_01) (oid6))) (\<lfloor>2300\<rfloor>))))) (oid9 \<mapsto> (in\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n ((X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n9\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (inst_assoc\<sigma>\<^sub>1))))))) (Map.empty))"
 
-(* 133 ************************************ 808 + 2 *)
+(* 136 ************************************ 809 + 2 *)
 definition "(X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n5\<sigma>\<^sub>1::Person) = (\<lambda>_. \<lfloor>\<lfloor>(X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n5\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (inst_assoc\<sigma>\<^sub>1))\<rfloor>\<rfloor>)"
 definition "(X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n9\<sigma>\<^sub>1::Person) = (\<lambda>_. \<lfloor>\<lfloor>(X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n9\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (inst_assoc\<sigma>\<^sub>1))\<rfloor>\<rfloor>)"
 
-(* 134 ************************************ 810 + 1 *)
+(* 137 ************************************ 811 + 1 *)
 lemma dom_\<sigma>\<^sub>1 : "(dom ((heap (\<sigma>\<^sub>1)))) = {oid1 , oid2 , oid4 , oid5 , oid6 , oid9}"
 by(auto simp: \<sigma>\<^sub>1_def)
 
-(* 135 ************************************ 811 + 1 *)
+(* 138 ************************************ 812 + 1 *)
 lemmas [simp,code_unfold] = dom_\<sigma>\<^sub>1
 
-(* 136 ************************************ 812 + 1 *)
+(* 139 ************************************ 813 + 1 *)
 lemma perm_\<sigma>\<^sub>1 : "\<sigma>\<^sub>1 = (state.make ((Map.empty (oid9 \<mapsto> (in\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n ((X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n9\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (inst_assoc\<sigma>\<^sub>1))))) (oid6 \<mapsto> (in\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n ((mkoid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n ((mk\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (oid6) (None) (None) (None))) (((inst_assoc\<sigma>\<^sub>1) (oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0_\<B>\<O>\<S>\<S>) (switch\<^sub>2_01) (oid6))) (\<lfloor>2300\<rfloor>))))) (oid5 \<mapsto> (in\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n ((X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n5\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (inst_assoc\<sigma>\<^sub>1))))) (oid4 \<mapsto> (in\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n ((mkoid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n ((mk\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (oid4) (None) (None) (None))) (((inst_assoc\<sigma>\<^sub>1) (oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0_\<B>\<O>\<S>\<S>) (switch\<^sub>2_01) (oid4))) (\<lfloor>2600\<rfloor>))))) (oid2 \<mapsto> (in\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n ((mkoid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n ((mk\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (oid2) (None) (None) (None))) (((inst_assoc\<sigma>\<^sub>1) (oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0_\<B>\<O>\<S>\<S>) (switch\<^sub>2_01) (oid2))) (\<lfloor>1200\<rfloor>))))) (oid1 \<mapsto> (in\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n ((mkoid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n ((mk\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (oid1) (None) (None) (None))) (((inst_assoc\<sigma>\<^sub>1) (oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0_\<B>\<O>\<S>\<S>) (switch\<^sub>2_01) (oid1))) (\<lfloor>1000\<rfloor>))))))) ((assocs (\<sigma>\<^sub>1))))"
   apply(simp add: \<sigma>\<^sub>1_def oid1_def oid2_def oid4_def oid5_def oid6_def oid9_def)
   apply(subst (1) fun_upd_twist, simp)
@@ -3047,7 +3054,7 @@ lemma perm_\<sigma>\<^sub>1 : "\<sigma>\<^sub>1 = (state.make ((Map.empty (oid9 
   apply(subst (1) fun_upd_twist, simp)
 by(simp)
 
-(* 137 ************************************ 813 + 12 *)
+(* 140 ************************************ 814 + 12 *)
 lemma \<sigma>\<^sub>1_OclAllInstances_generic_exec_Person : 
 assumes [simp]: "(\<And>a. (pre_post ((mk (a)))) = a)"
 shows "(mk (\<sigma>\<^sub>1)) \<Turnstile> (OclAllInstances_generic (pre_post) (Person)) \<doteq> Set{(\<lambda>_. \<lfloor>\<lfloor>(mkoid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n ((mk\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (oid1) (None) (None) (None))) (((inst_assoc\<sigma>\<^sub>1) (oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0_\<B>\<O>\<S>\<S>) (switch\<^sub>2_01) (oid1))) (\<lfloor>1000\<rfloor>))\<rfloor>\<rfloor>) , (\<lambda>_. \<lfloor>\<lfloor>(mkoid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n ((mk\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (oid2) (None) (None) (None))) (((inst_assoc\<sigma>\<^sub>1) (oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0_\<B>\<O>\<S>\<S>) (switch\<^sub>2_01) (oid2))) (\<lfloor>1200\<rfloor>))\<rfloor>\<rfloor>) , (\<lambda>_. \<lfloor>\<lfloor>(mkoid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n ((mk\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (oid4) (None) (None) (None))) (((inst_assoc\<sigma>\<^sub>1) (oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0_\<B>\<O>\<S>\<S>) (switch\<^sub>2_01) (oid4))) (\<lfloor>2600\<rfloor>))\<rfloor>\<rfloor>) , X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n5\<sigma>\<^sub>1 , (\<lambda>_. \<lfloor>\<lfloor>(mkoid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n ((mk\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (oid6) (None) (None) (None))) (((inst_assoc\<sigma>\<^sub>1) (oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0_\<B>\<O>\<S>\<S>) (switch\<^sub>2_01) (oid6))) (\<lfloor>2300\<rfloor>))\<rfloor>\<rfloor>) , X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n9\<sigma>\<^sub>1}"
@@ -3133,14 +3140,14 @@ shows "(\<sigma>\<^sub>1 , st) \<Turnstile> (OclAllInstances_at_pre (OclAny)) \<
   unfolding OclAllInstances_at_pre_def
 by(rule \<sigma>\<^sub>1_OclAllInstances_generic_exec_OclAny, simp) 
 
-(* 138 ************************************ 825 + 1 *)
+(* 141 ************************************ 826 + 1 *)
 definition "inst_assoc\<sigma>\<^sub>1' = (\<lambda>oid_class to_from oid. ((case (deref_assocs_list ((to_from:: oid  list  list  \<Rightarrow>  oid  list  \<times>  oid  list )) ((oid::oid)) ((drop ((((map_of_list ([(oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0_\<B>\<O>\<S>\<S> , (List.map ((\<lambda>(x , y). [x , y]) o switch\<^sub>2_01) ([[[oid7] , [oid7]] , [[oid6] , [oid7]] , [[oid2] , [oid2]] , [[oid1] , [oid2]]])))]))) ((oid_class::oid))))))) of Nil \<Rightarrow> None
     | l \<Rightarrow> (Some (l))):: oid  list  option ))"
 
-(* 139 ************************************ 826 + 1 *)
+(* 142 ************************************ 827 + 1 *)
 definition "\<sigma>\<^sub>1' = (state.make ((Map.empty (oid1 \<mapsto> (in\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n ((X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n1\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (inst_assoc\<sigma>\<^sub>1'))))) (oid2 \<mapsto> (in\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n ((X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (inst_assoc\<sigma>\<^sub>1'))))) (oid3 \<mapsto> (in\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n ((X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n3\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (inst_assoc\<sigma>\<^sub>1'))))) (oid4 \<mapsto> (in\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n ((X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n4\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (inst_assoc\<sigma>\<^sub>1'))))) (oid6 \<mapsto> (in\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n ((X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n6\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (inst_assoc\<sigma>\<^sub>1'))))) (oid7 \<mapsto> (in\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y ((X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n7\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y (inst_assoc\<sigma>\<^sub>1'))))) (oid8 \<mapsto> (in\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y ((X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n8\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y (inst_assoc\<sigma>\<^sub>1'))))) (oid9 \<mapsto> (in\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n ((X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n9\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (inst_assoc\<sigma>\<^sub>1'))))))) (Map.empty))"
 
-(* 140 ************************************ 827 + 8 *)
+(* 143 ************************************ 828 + 8 *)
 definition "(X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n1\<sigma>\<^sub>1'::Person) = (\<lambda>_. \<lfloor>\<lfloor>(X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n1\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (inst_assoc\<sigma>\<^sub>1'))\<rfloor>\<rfloor>)"
 definition "(X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2\<sigma>\<^sub>1'::Person) = (\<lambda>_. \<lfloor>\<lfloor>(X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (inst_assoc\<sigma>\<^sub>1'))\<rfloor>\<rfloor>)"
 definition "(X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n3\<sigma>\<^sub>1'::Person) = (\<lambda>_. \<lfloor>\<lfloor>(X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n3\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (inst_assoc\<sigma>\<^sub>1'))\<rfloor>\<rfloor>)"
@@ -3150,14 +3157,14 @@ definition "(X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n7\<sigma>\<^sub>1'
 definition "(X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n8\<sigma>\<^sub>1'::OclAny) = (\<lambda>_. \<lfloor>\<lfloor>(X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n8\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y (inst_assoc\<sigma>\<^sub>1'))\<rfloor>\<rfloor>)"
 definition "(X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n9\<sigma>\<^sub>1'::Person) = (\<lambda>_. \<lfloor>\<lfloor>(X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n9\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (inst_assoc\<sigma>\<^sub>1'))\<rfloor>\<rfloor>)"
 
-(* 141 ************************************ 835 + 1 *)
+(* 144 ************************************ 836 + 1 *)
 lemma dom_\<sigma>\<^sub>1' : "(dom ((heap (\<sigma>\<^sub>1')))) = {oid1 , oid2 , oid3 , oid4 , oid6 , oid7 , oid8 , oid9}"
 by(auto simp: \<sigma>\<^sub>1'_def)
 
-(* 142 ************************************ 836 + 1 *)
+(* 145 ************************************ 837 + 1 *)
 lemmas [simp,code_unfold] = dom_\<sigma>\<^sub>1'
 
-(* 143 ************************************ 837 + 1 *)
+(* 146 ************************************ 838 + 1 *)
 lemma perm_\<sigma>\<^sub>1' : "\<sigma>\<^sub>1' = (state.make ((Map.empty (oid9 \<mapsto> (in\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n ((X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n9\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (inst_assoc\<sigma>\<^sub>1'))))) (oid8 \<mapsto> (in\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y ((X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n8\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y (inst_assoc\<sigma>\<^sub>1'))))) (oid7 \<mapsto> (in\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y ((X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n7\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y (inst_assoc\<sigma>\<^sub>1'))))) (oid6 \<mapsto> (in\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n ((X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n6\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (inst_assoc\<sigma>\<^sub>1'))))) (oid4 \<mapsto> (in\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n ((X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n4\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (inst_assoc\<sigma>\<^sub>1'))))) (oid3 \<mapsto> (in\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n ((X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n3\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (inst_assoc\<sigma>\<^sub>1'))))) (oid2 \<mapsto> (in\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n ((X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (inst_assoc\<sigma>\<^sub>1'))))) (oid1 \<mapsto> (in\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n ((X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n1\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (inst_assoc\<sigma>\<^sub>1'))))))) ((assocs (\<sigma>\<^sub>1'))))"
   apply(simp add: \<sigma>\<^sub>1'_def oid1_def oid2_def oid3_def oid4_def oid6_def oid7_def oid8_def oid9_def)
   apply(subst (1) fun_upd_twist, simp)
@@ -3190,7 +3197,7 @@ lemma perm_\<sigma>\<^sub>1' : "\<sigma>\<^sub>1' = (state.make ((Map.empty (oid
   apply(subst (1) fun_upd_twist, simp)
 by(simp)
 
-(* 144 ************************************ 838 + 12 *)
+(* 147 ************************************ 839 + 12 *)
 lemma \<sigma>\<^sub>1'_OclAllInstances_generic_exec_Person : 
 assumes [simp]: "(\<And>a. (pre_post ((mk (a)))) = a)"
 shows "(mk (\<sigma>\<^sub>1')) \<Turnstile> (OclAllInstances_generic (pre_post) (Person)) \<doteq> Set{X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n1\<sigma>\<^sub>1' , X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2\<sigma>\<^sub>1' , X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n3\<sigma>\<^sub>1' , X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n4\<sigma>\<^sub>1' , X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n6\<sigma>\<^sub>1' , X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n7\<sigma>\<^sub>1' .oclAsType(Person) , X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n9\<sigma>\<^sub>1'}"
@@ -3284,27 +3291,27 @@ shows "(\<sigma>\<^sub>1' , st) \<Turnstile> (OclAllInstances_at_pre (OclAny)) \
   unfolding OclAllInstances_at_pre_def
 by(rule \<sigma>\<^sub>1'_OclAllInstances_generic_exec_OclAny, simp) 
 
-(* 145 ************************************ 850 + 1 *)
+(* 148 ************************************ 851 + 1 *)
 definition "inst_assoc\<sigma>\<^sub>0 = (\<lambda>oid_class to_from oid. ((case (deref_assocs_list ((to_from:: oid  list  list  \<Rightarrow>  oid  list  \<times>  oid  list )) ((oid::oid)) ((drop ((((map_of_list ([]))) ((oid_class::oid))))))) of Nil \<Rightarrow> None
     | l \<Rightarrow> (Some (l))):: oid  list  option ))"
 
-(* 146 ************************************ 851 + 1 *)
+(* 149 ************************************ 852 + 1 *)
 definition "\<sigma>\<^sub>0 = (state.make ((Map.empty )) (Map.empty))"
 
-(* 147 ************************************ 852 + 0 *)
+(* 150 ************************************ 853 + 0 *)
 
-(* 148 ************************************ 852 + 1 *)
+(* 151 ************************************ 853 + 1 *)
 lemma dom_\<sigma>\<^sub>0 : "(dom ((heap (\<sigma>\<^sub>0)))) = {}"
 by(auto simp: \<sigma>\<^sub>0_def)
 
-(* 149 ************************************ 853 + 1 *)
+(* 152 ************************************ 854 + 1 *)
 lemmas [simp,code_unfold] = dom_\<sigma>\<^sub>0
 
-(* 150 ************************************ 854 + 1 *)
+(* 153 ************************************ 855 + 1 *)
 lemma perm_\<sigma>\<^sub>0 : "\<sigma>\<^sub>0 = (state.make ((Map.empty )) ((assocs (\<sigma>\<^sub>0))))"
 by(simp add: \<sigma>\<^sub>0_def)
 
-(* 151 ************************************ 855 + 12 *)
+(* 154 ************************************ 856 + 12 *)
 lemma \<sigma>\<^sub>0_OclAllInstances_generic_exec_Person : 
 assumes [simp]: "(\<And>a. (pre_post ((mk (a)))) = a)"
 shows "(mk (\<sigma>\<^sub>0)) \<Turnstile> (OclAllInstances_generic (pre_post) (Person)) \<doteq> Set{}"
@@ -3366,11 +3373,11 @@ shows "(\<sigma>\<^sub>0 , st) \<Turnstile> (OclAllInstances_at_pre (OclAny)) \<
   unfolding OclAllInstances_at_pre_def
 by(rule \<sigma>\<^sub>0_OclAllInstances_generic_exec_OclAny, simp) 
 
-(* 152 ************************************ 867 + 1 *)
+(* 155 ************************************ 868 + 1 *)
 lemma basic_\<sigma>\<^sub>1_\<sigma>\<^sub>1'_wff : "(WFF ((\<sigma>\<^sub>1 , \<sigma>\<^sub>1')))"
 by(simp add: WFF_def \<sigma>\<^sub>1_def \<sigma>\<^sub>1'_def oid_of_\<AA>_def oid1_def oid2_def oid3_def oid4_def oid5_def oid6_def oid7_def oid8_def oid9_def X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n1\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_def X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_def X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n3\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_def X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n4\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_def X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n5\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_def X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n6\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_def X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n7\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_def X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n8\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_def X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n9\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_def oid_of_typeoid\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_def oid_of_typeoid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_def)
 
-(* 153 ************************************ 868 + 10 *)
+(* 156 ************************************ 869 + 10 *)
 lemma oid1\<sigma>\<^sub>1\<sigma>\<^sub>1'_\<sigma>\<^sub>1'_OclIsMaintained : "(\<sigma>\<^sub>1 , \<sigma>\<^sub>1') \<Turnstile> (OclIsMaintained (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n1\<sigma>\<^sub>1'))"
 by(simp add: X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n1\<sigma>\<^sub>1'_def X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n1\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_def OclIsMaintained_def OclValid_def \<sigma>\<^sub>1_def \<sigma>\<^sub>1'_def oid_of_option_def oid1_def oid2_def oid3_def oid4_def oid5_def oid6_def oid7_def oid8_def oid9_def oid_of_typeoid\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_def oid_of_typeoid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_def)
 lemma oid2\<sigma>\<^sub>1\<sigma>\<^sub>1'_\<sigma>\<^sub>1'_OclIsMaintained : "(\<sigma>\<^sub>1 , \<sigma>\<^sub>1') \<Turnstile> (OclIsMaintained (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2\<sigma>\<^sub>1'))"
