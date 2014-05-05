@@ -1533,7 +1533,7 @@ proof -
 qed
 
 (* logical level : *)
-lemma including_idem0 :
+lemma OclIncluding_idem0 :
  assumes S_def : "\<tau> \<Turnstile> \<delta> S"
      and i_val : "\<tau> \<Turnstile> \<upsilon> i"
    shows "\<tau> \<Turnstile> ((S :: ('\<AA>, 'a::null) Set)->including(i)->including(i) \<triangleq> (S->including(i)))"
@@ -1563,7 +1563,7 @@ proof -
 qed
 
 (* Pure algebraic level *)
-theorem including_idem: "((S :: ('\<AA>,'a::null)Set)->including(i)->including(i) = (S->including(i)))"
+theorem OclIncluding_idem: "((S :: ('\<AA>,'a::null)Set)->including(i)->including(i) = (S->including(i)))"
 proof -
   have A: "\<And> \<tau>.   \<tau> \<Turnstile> i \<triangleq> invalid   \<Longrightarrow> (S->including(i)->including(i)) \<tau> = invalid \<tau>"
             apply(rule foundation22[THEN iffD1])
@@ -1587,7 +1587,7 @@ proof -
     apply(rule ext, rename_tac \<tau>)
     apply(case_tac "\<tau> \<Turnstile> (\<upsilon> i)")
      apply(case_tac "\<tau> \<Turnstile> (\<delta> S)")
-      apply(simp only: including_idem0[THEN foundation22[THEN iffD1]]) 
+      apply(simp only: OclIncluding_idem0[THEN foundation22[THEN iffD1]]) 
       apply(simp add: foundation16', elim disjE)
       apply(simp add: C[OF foundation22[THEN iffD2]] C'[OF foundation22[THEN iffD2]])
      apply(simp add: D[OF foundation22[THEN iffD2]] D'[OF foundation22[THEN iffD2]])
@@ -1595,7 +1595,7 @@ proof -
   done
 qed
             
-lemma including_commute0 :
+lemma OclIncluding_commute0 :
  assumes S_def : "\<tau> \<Turnstile> \<delta> S"
      and i_val : "\<tau> \<Turnstile> \<upsilon> i"
      and j_val : "\<tau> \<Turnstile> \<upsilon> j"
@@ -1681,7 +1681,7 @@ proof -
     apply(case_tac "\<tau> \<Turnstile> (\<upsilon> i)")
      apply(case_tac "\<tau> \<Turnstile> (\<upsilon> j)")
       apply(case_tac "\<tau> \<Turnstile> (\<delta> S)")
-       apply(simp only: including_commute0[THEN foundation22[THEN iffD1]]) 
+       apply(simp only: OclIncluding_commute0[THEN foundation22[THEN iffD1]]) 
       apply(simp add: foundation16', elim disjE)
      apply(simp add: C[OF foundation22[THEN iffD2]] C'[OF foundation22[THEN iffD2]])
     apply(simp add: D[OF foundation22[THEN iffD2]] D'[OF foundation22[THEN iffD2]])
@@ -1831,11 +1831,11 @@ proof -
  done
 qed
 
-theorem excluding_idem: "((X->excluding(x))->excluding(x)) = (X->excluding(x))"
-sorry (* analogue including_idem*)
+theorem OclExcluding_idem: "((X->excluding(x))->excluding(x)) = (X->excluding(x))"
+sorry (* analogue OclIncluding_idem*)
 
-theorem excluding_commute: "((X->excluding(x))->excluding(y)) = ((X->excluding(y))->excluding(x))"
-sorry (* analogue including_commute*)
+theorem OclExcluding_commute: "((X->excluding(x))->excluding(y)) = ((X->excluding(y))->excluding(x))"
+sorry (* analogue OclIncluding_commute*)
 
 
 text{* One would like a generic theorem of the form:
