@@ -419,6 +419,20 @@ fun_quick fold_less_gen where "fold_less_gen f_gen f_jump f l = (case l of
 definition "fold_less2 = fold_less_gen List.fold"
 definition "fold_less3 = fold_less_gen o fold_less2"
 
+section{* AST Definition: SML *}
+subsection{* type definition *}
+
+datatype sml_expr = Sexpr_string "string list"
+                  | Sexpr_rewrite_val sml_expr (* left *) string (* symb rewriting *) sml_expr (* right *)
+                  | Sexpr_rewrite_fun sml_expr (* left *) string (* symb rewriting *) sml_expr (* right *)
+                  | Sexpr_basic "string list"
+                  | Sexpr_oid string (* prefix *) internal_oid
+                  | Sexpr_binop sml_expr string sml_expr
+                  | Sexpr_annot sml_expr string (* type *)
+                  | Sexpr_function "(sml_expr (* pattern *) \<times> sml_expr (* to return *)) list"
+                  | Sexpr_apply string "sml_expr list"
+                  | Sexpr_paren string (* left *) string (* right *) sml_expr
+
 section{* AST Definition: HOL *}
 subsection{* type definition *}
 
@@ -520,6 +534,8 @@ datatype hol_section_title = Section_title nat (* nesting level *)
 
 datatype hol_text = Text string
 
+datatype hol_ml = Ml sml_expr
+
 datatype hol_thy = Thy_dataty hol_dataty
                  | Thy_ty_synonym hol_ty_synonym
                  | Thy_instantiation_class hol_instantiation_class
@@ -530,6 +546,7 @@ datatype hol_thy = Thy_dataty hol_dataty
                  | Thy_lemma_by hol_lemma_by
                  | Thy_section_title hol_section_title
                  | Thy_text hol_text
+                 | Thy_ml hol_ml
 
 subsection{* ... *}
 
@@ -781,18 +798,28 @@ definition "Expr_lambda x = Expr_lambdas [x]"
 definition "Expr_lambdas0 = Expr_bind0 unicode_lambda"
 definition "Expr_lam x f = Expr_lambdas0 (Expr_basic [x]) (f x)"
 definition "Expr_some = Expr_paren unicode_lfloor unicode_rfloor"
+definition "Sexpr_none = Sexpr_basic [''NONE'']"
+definition "Sexpr_some s = Sexpr_apply ''SOME'' [s]"
+definition "Sexpr_option' f l = (case Option.map f l of None \<Rightarrow> Sexpr_none | Some s \<Rightarrow> Sexpr_some s)"
+definition "Sexpr_option = Sexpr_option' id"
 definition "Expr_parenthesis (* mandatory parenthesis *) = Expr_paren ''('' '')''"
+definition "Sexpr_parenthesis (* mandatory parenthesis *) = Sexpr_paren ''('' '')''"
 definition "Expr_warning_parenthesis (* optional parenthesis that can be removed but a warning will be raised *) = Expr_parenthesis"
 definition "Expr_pat b = Expr_basic [Char Nibble3 NibbleF # b]"
 definition "Expr_And x f = Expr_bind0 unicode_And (Expr_basic [x]) (f x)"
 definition "Expr_exists x f = Expr_bind0 unicode_exists (Expr_basic [x]) (f x)"
 definition "expr_binop s l = (case rev l of x # xs \<Rightarrow> List.fold (\<lambda>x. Expr_binop x s) xs x)"
+definition "sexpr_binop s l = (case rev l of x # xs \<Rightarrow> List.fold (\<lambda>x. Sexpr_binop x s) xs x)"
 definition "expr_binop' s l = (case rev l of x # xs \<Rightarrow> List.fold (\<lambda>x. Expr_parenthesis o Expr_binop x s) xs x)"
 definition "Expr_set l = (case l of [] \<Rightarrow> Expr_basic [''{}''] | _ \<Rightarrow> Expr_paren ''{'' ''}'' (expr_binop '','' l))"
 definition "Expr_oclset l = (case l of [] \<Rightarrow> Expr_basic [''Set{}''] | _ \<Rightarrow> Expr_paren ''Set{'' ''}'' (expr_binop '','' l))"
 definition "Expr_list l = (case l of [] \<Rightarrow> Expr_basic [''[]''] | _ \<Rightarrow> Expr_paren ''['' '']'' (expr_binop '','' l))"
 definition "Expr_list' f l = Expr_list (List_map f l)"
+definition "Sexpr_list l = (case l of [] \<Rightarrow> Sexpr_basic [''[]''] | _ \<Rightarrow> Sexpr_paren ''['' '']'' (sexpr_binop '','' l))"
+definition "Sexpr_list' f l = Sexpr_list (List_map f l)"
 definition "Expr_pair e1 e2 = Expr_parenthesis (Expr_binop e1 '','' e2)"
+definition "Sexpr_pair e1 e2 = Sexpr_parenthesis (Sexpr_binop e1 '','' e2)"
+definition "Sexpr_pair' f1 f2 = (\<lambda> (e1, e2) \<Rightarrow> Sexpr_parenthesis (Sexpr_binop (f1 e1) '','' (f2 e2)))"
 definition "Expr_string s = Expr_basic [flatten [[Char Nibble2 Nibble2], s, [Char Nibble2 Nibble2]]]"
 definition "Consts s = Consts_raw s (Ty_base (Char Nibble2 Nibble7 # unicode_alpha))"
 definition "Tac_subst = Tac_subst_l [''0'']"
@@ -3752,6 +3779,7 @@ locale s_of =
   fixes s_of_ntheorem_aux :: "(String.literal \<times> String.literal) list \<Rightarrow> hol_ntheorem \<Rightarrow> String.literal"
   fixes s_of_tactic :: "hol_tactic \<Rightarrow> String.literal"
   fixes s_of_rawty :: "hol_raw_ty \<Rightarrow> String.literal"
+  fixes s_of_sexpr :: "sml_expr \<Rightarrow> String.literal"
 begin
 definition "To_oid = internal_oid_rec To_nat"
 end
@@ -3802,6 +3830,20 @@ definition "flat_s_of_expr = (\<lambda>
   | Expr_postunary e1 e2 \<Rightarrow> sprintf2 (STR ''%s %s'') (s_of_expr e1) (s_of_expr e2)
   | Expr_preunary e1 e2 \<Rightarrow> sprintf2 (STR ''%s %s'') (s_of_expr e1) (s_of_expr e2)
   | Expr_paren p_left p_right e \<Rightarrow> sprintf3 (STR ''%s%s%s'') (To_string p_left) (s_of_expr e) (To_string p_right))"
+
+definition "flat_s_of_sexpr = (\<lambda>
+    Sexpr_string l \<Rightarrow> let c = STR [Char Nibble2 Nibble2] in
+                      sprintf3 (STR ''%s%s%s'') c (String_concat (STR '' '') (List_map To_string l)) c
+  | Sexpr_rewrite_val e1 symb e2 \<Rightarrow> sprintf3 (STR ''val %s %s %s'') (s_of_sexpr e1) (To_string symb) (s_of_sexpr e2)
+  | Sexpr_rewrite_fun e1 symb e2 \<Rightarrow> sprintf3 (STR ''fun %s %s %s'') (s_of_sexpr e1) (To_string symb) (s_of_sexpr e2)
+  | Sexpr_basic l \<Rightarrow> sprintf1 (STR ''%s'') (String_concat (STR '' '') (List_map To_string l))
+  | Sexpr_oid tit s \<Rightarrow> sprintf2 (STR ''%s%d'') (To_string tit) (To_oid s)
+  | Sexpr_binop e1 s e2 \<Rightarrow> sprintf3 (STR ''%s %s %s'') (s_of_sexpr e1) (s_of_sexpr (Sexpr_basic [s])) (s_of_sexpr e2)
+  | Sexpr_annot e s \<Rightarrow> sprintf2 (STR ''(%s:%s)'') (s_of_sexpr e) (To_string s)
+  | Sexpr_function l \<Rightarrow> sprintf1 (STR ''(fn %s)'') (String_concat (STR ''
+    | '') (List.map (\<lambda> (s1, s2) \<Rightarrow> sprintf2 (STR ''%s => %s'') (s_of_sexpr s1) (s_of_sexpr s2)) l))
+  | Sexpr_apply s l \<Rightarrow> sprintf2 (STR ''(%s %s)'') (To_string s) (String_concat (STR '' '') (List.map (\<lambda> e \<Rightarrow> sprintf1 (STR ''(%s)'') (s_of_sexpr e)) l))
+  | Sexpr_paren p_left p_right e \<Rightarrow> sprintf3 (STR ''%s%s%s'') (To_string p_left) (s_of_sexpr e) (To_string p_right))"
 
 definition "s_of_instantiation_class _ = (\<lambda> Instantiation n n_def expr \<Rightarrow>
     let name = To_string n in
@@ -3954,6 +3996,8 @@ definition "s_of_section_title ocl = (\<lambda> Section_title n section_title \<
 
 definition "s_of_text _ = (\<lambda> Text s \<Rightarrow> sprintf1 (STR ''text{* %s *}'') (To_string s))"
 
+definition "s_of_ml _ = (\<lambda> Ml e \<Rightarrow> sprintf1 (STR ''ML{* %s *}'') (s_of_sexpr e))"
+
 definition "s_of_thy ocl =
             (\<lambda> Thy_dataty dataty \<Rightarrow> s_of_dataty ocl dataty
              | Thy_ty_synonym ty_synonym \<Rightarrow> s_of_ty_synonym ocl ty_synonym
@@ -3964,7 +4008,8 @@ definition "s_of_thy ocl =
              | Thy_lemmas_simp lemmas_simp \<Rightarrow> s_of_lemmas_simp ocl lemmas_simp
              | Thy_lemma_by lemma_by \<Rightarrow> s_of_lemma_by ocl lemma_by
              | Thy_section_title section_title \<Rightarrow> s_of_section_title ocl section_title
-             | Thy_text text \<Rightarrow> s_of_text ocl text)"
+             | Thy_text text \<Rightarrow> s_of_text ocl text
+             | Thy_ml ml \<Rightarrow> s_of_ml ocl ml)"
 
 definition "s_of_thy_list ocl l_thy =
   (let (th_beg, th_end) = case D_file_out_path_dep ocl of None \<Rightarrow> ([], [])
@@ -4008,11 +4053,12 @@ fun_sorry s_of_rawty where "s_of_rawty To_string e = s_of.flat_s_of_rawty To_str
 fun_sorry s_of_expr where "s_of_expr To_string To_nat e = s_of.flat_s_of_expr To_string To_nat (s_of_expr To_string To_nat) e"
 fun_sorry s_of_ntheorem_aux where "s_of_ntheorem_aux To_string To_nat e = s_of.flat_s_of_ntheorem_aux To_string (s_of_expr To_string To_nat) (s_of_ntheorem_aux To_string To_nat) e"
 fun_sorry s_of_tactic where "s_of_tactic To_string To_nat e = s_of.flat_s_of_tactic To_string To_nat (s_of_expr To_string To_nat) (s_of_ntheorem_aux To_string To_nat) (s_of_tactic To_string To_nat) e"
+fun_sorry s_of_sexpr where "s_of_sexpr To_string To_nat e = s_of.flat_s_of_sexpr To_string To_nat (s_of_sexpr To_string To_nat) e"
 
 definition "write_file = 
  (let To_string = implode
     ; To_nat = ToNat integer_of_natural in
-  s_of.write_file To_string To_nat (s_of_expr To_string To_nat) (s_of_ntheorem_aux To_string To_nat) (s_of_tactic To_string To_nat) (s_of_rawty To_string))"
+  s_of.write_file To_string To_nat (s_of_expr To_string To_nat) (s_of_ntheorem_aux To_string To_nat) (s_of_tactic To_string To_nat) (s_of_rawty To_string) (s_of_sexpr To_string To_nat))"
 
 lemmas [code] =
   s_of.To_oid_def
@@ -4021,6 +4067,7 @@ lemmas [code] =
   s_of.flat_s_of_rawty_def
   s_of.s_of_ty_synonym_def
   s_of.flat_s_of_expr_def
+  s_of.flat_s_of_sexpr_def
   s_of.s_of_instantiation_class_def
   s_of.s_of_defs_overloaded_def
   s_of.s_of_consts_class_def
@@ -4034,6 +4081,7 @@ lemmas [code] =
   s_of.s_of_lemma_by_def
   s_of.s_of_section_title_def
   s_of.s_of_text_def
+  s_of.s_of_ml_def
   s_of.s_of_thy_def
   s_of.s_of_thy_list_def
 

@@ -295,7 +295,7 @@ end
 
 code_reflect OCL
    functions nibble_rec char_rec 
-             s_of_rawty s_of_expr
+             s_of_rawty s_of_expr s_of_sexpr
              char_escape
              unicode_Rightarrow unicode_Longrightarrow
              fold_thy_shallow fold_thy_deep
@@ -509,6 +509,7 @@ ML{*
 structure OCL_overload = struct
   val s_of_rawty = OCL.s_of_rawty To_string
   val s_of_expr = OCL.s_of_expr To_string (Int.toString o To_nat)
+  val s_of_sexpr = OCL.s_of_sexpr To_string (Int.toString o To_nat)
   val fold = fold
 end
 *}
@@ -721,6 +722,9 @@ val OCL_main = let open OCL open OCL_overload in (*let val f = *)fn
               |> Proof.global_qed arg end))
 | Thy_section_title _ => I
 | Thy_text _ => I
+| Thy_ml ml => fn thy =>
+    case ML_Context.exec (fn () => ML_Context.eval_text false Position.none (case ml of Ml ml => s_of_sexpr ml)) (Context.Theory thy) of
+      Context.Theory thy => thy
 (*in fn t => fn thy => f t thy handle ERROR s => (warning s; thy)
  end*)
 end
