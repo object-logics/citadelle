@@ -1635,6 +1635,29 @@ qed
 
 subsection{* OclExcluding *}
 
+lemma OclExcluding_finite_rep_set :
+  assumes X_def : "\<tau> \<Turnstile> \<delta> X"
+      and x_val : "\<tau> \<Turnstile> \<upsilon> x"
+    shows "finite \<lceil>\<lceil>Rep_Set_0 (X->excluding(x) \<tau>)\<rceil>\<rceil> = finite \<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil>"
+ proof -
+  have C : "\<lfloor>\<lfloor>\<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil> - {x \<tau>}\<rfloor>\<rfloor> \<in> {X. X = bot \<or> X = null \<or> (\<forall>x\<in>\<lceil>\<lceil>X\<rceil>\<rceil>. x \<noteq> bot)}"
+          apply(insert X_def x_val, frule Set_inv_lemma)
+          apply(simp add: foundation18 invalid_def)
+          done
+ show "?thesis"
+  by(insert X_def x_val,
+     auto simp: OclExcluding_def Abs_Set_0_inverse[OF C]
+          dest: foundation13[THEN iffD2, THEN foundation22[THEN iffD1]])
+qed
+
+lemma OclExcluding_rep_set:
+ assumes S_def: "\<tau> \<Turnstile> \<delta> S"
+   shows "\<lceil>\<lceil>Rep_Set_0 (S->excluding(\<lambda>_. \<lfloor>\<lfloor>x\<rfloor>\<rfloor>) \<tau>)\<rceil>\<rceil> = \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil> - {\<lfloor>\<lfloor>x\<rfloor>\<rfloor>}"
+ apply(simp add: OclExcluding_def S_def[simplified OclValid_def])
+ apply(subst Abs_Set_0_inverse, simp add: bot_option_def null_option_def)
+  apply(insert Set_inv_lemma[OF S_def], metis Diff_iff bot_option_def not_None_eq)
+by(simp)
+
 lemma OclExcluding_excludes0:
  assumes "\<tau> \<Turnstile> X->excludes(x)"
    shows "X->excluding(x) \<tau> = X \<tau>"
@@ -1671,6 +1694,9 @@ proof -
                       OCL_lib.Set_0.Abs_Set_0_inject[OF B A])
   done
 qed
+
+theorem OclExcluding_commute: "((X->excluding(x))->excluding(y)) = ((X->excluding(y))->excluding(x))"
+sorry (* analogue OclIncluding_commute*)
 
 
 lemma OclExcluding_charn0_exec[simp,code_unfold]:
@@ -1794,9 +1820,6 @@ proof -
  done
 qed
 
-theorem OclExcluding_commute: "((X->excluding(x))->excluding(y)) = ((X->excluding(y))->excluding(x))"
-sorry (* analogue OclIncluding_commute*)
-
 
 text{* One would like a generic theorem of the form:
 \begin{isar}[mathescape]
@@ -1919,29 +1942,6 @@ by(rule OclExcluding_charn_exec[OF StrictRefEq\<^sub>S\<^sub>e\<^sub>t_strict1 S
                                 StrictRefEq\<^sub>S\<^sub>e\<^sub>t_strictEq_valid_args_valid
                              cp_StrictRefEq\<^sub>S\<^sub>e\<^sub>t StrictRefEq\<^sub>S\<^sub>e\<^sub>t_vs_StrongEq], simp_all)
 
-
-lemma OclExcluding_finite_rep_set :
-  assumes X_def : "\<tau> \<Turnstile> \<delta> X"
-      and x_val : "\<tau> \<Turnstile> \<upsilon> x"
-    shows "finite \<lceil>\<lceil>Rep_Set_0 (X->excluding(x) \<tau>)\<rceil>\<rceil> = finite \<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil>"
- proof -
-  have C : "\<lfloor>\<lfloor>\<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil> - {x \<tau>}\<rfloor>\<rfloor> \<in> {X. X = bot \<or> X = null \<or> (\<forall>x\<in>\<lceil>\<lceil>X\<rceil>\<rceil>. x \<noteq> bot)}"
-          apply(insert X_def x_val, frule Set_inv_lemma)
-          apply(simp add: foundation18 invalid_def)
-          done
- show "?thesis"
-  by(insert X_def x_val,
-     auto simp: OclExcluding_def Abs_Set_0_inverse[OF C]
-          dest: foundation13[THEN iffD2, THEN foundation22[THEN iffD1]])
-qed
-
-lemma OclExcluding_rep_set:
- assumes S_def: "\<tau> \<Turnstile> \<delta> S"
-   shows "\<lceil>\<lceil>Rep_Set_0 (S->excluding(\<lambda>_. \<lfloor>\<lfloor>x\<rfloor>\<rfloor>) \<tau>)\<rceil>\<rceil> = \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil> - {\<lfloor>\<lfloor>x\<rfloor>\<rfloor>}"
- apply(simp add: OclExcluding_def S_def[simplified OclValid_def])
- apply(subst Abs_Set_0_inverse, simp add: bot_option_def null_option_def)
-  apply(insert Set_inv_lemma[OF S_def], metis Diff_iff bot_option_def not_None_eq)
-by(simp)
 
 subsection{* OclIncludes *}
 
