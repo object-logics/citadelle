@@ -1566,7 +1566,7 @@ proof -
                               bot_fun_def bot_Set_0_def  null_Set_0_def S_def i_val G3 G4)          
   
   have *** : "Abs_Set_0 \<lfloor>\<lfloor>insert(j \<tau>)\<lceil>\<lceil>Rep_Set_0(Abs_Set_0\<lfloor>\<lfloor>insert(i \<tau>)\<lceil>\<lceil>Rep_Set_0(S \<tau>)\<rceil>\<rceil>\<rfloor>\<rfloor>)\<rceil>\<rceil>\<rfloor>\<rfloor> =
-              Abs_Set_0 \<lfloor>\<lfloor>insert(i \<tau>)\<lceil>\<lceil>Rep_Set_0(Abs_Set_0\<lfloor>\<lfloor>insert(j \<tau>)\<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>\<rfloor>\<rfloor>)\<rceil>\<rceil>\<rfloor>\<rfloor>" 
+              Abs_Set_0 \<lfloor>\<lfloor>insert(i \<tau>)\<lceil>\<lceil>Rep_Set_0(Abs_Set_0\<lfloor>\<lfloor>insert(j \<tau>)\<lceil>\<lceil>Rep_Set_0(S \<tau>)\<rceil>\<rceil>\<rfloor>\<rfloor>)\<rceil>\<rceil>\<rfloor>\<rfloor>" 
               by(simp add: Abs_Set_0_inverse[OF A] Abs_Set_0_inverse[OF B] Set.insert_commute)
   show ?thesis 
      apply(simp add: OclIncluding_def S_def[simplified OclValid_def]
@@ -1695,8 +1695,101 @@ proof -
   done
 qed
 
-theorem OclExcluding_commute: "((X->excluding(x))->excluding(y)) = ((X->excluding(y))->excluding(x))"
-sorry (* analogue OclIncluding_commute*)
+lemma OclExcluding_commute0 :
+ assumes S_def : "\<tau> \<Turnstile> \<delta> S"
+     and i_val : "\<tau> \<Turnstile> \<upsilon> i"
+     and j_val : "\<tau> \<Turnstile> \<upsilon> j"
+   shows "\<tau> \<Turnstile> ((S :: ('\<AA>, 'a::null) Set)->excluding(i)->excluding(j) \<triangleq> (S->excluding(j)->excluding(i)))"
+proof -
+  have A : "\<lfloor>\<lfloor>\<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil> - {i \<tau>}\<rfloor>\<rfloor> \<in> {X. X = bot \<or> X = null \<or> (\<forall>x\<in>\<lceil>\<lceil>X\<rceil>\<rceil>. x \<noteq> bot)}"
+           by(insert S_def i_val, frule Set_inv_lemma, simp add: foundation18 invalid_def)
+  have B : "\<lfloor>\<lfloor>\<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil> - {j \<tau>}\<rfloor>\<rfloor> \<in> {X. X = bot \<or> X = null \<or> (\<forall>x\<in>\<lceil>\<lceil>X\<rceil>\<rceil>. x \<noteq> bot)}"
+           by(insert S_def j_val, frule Set_inv_lemma, simp add: foundation18 invalid_def)
+  
+  have G1 : "Abs_Set_0 \<lfloor>\<lfloor>\<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil> - {i \<tau>}\<rfloor>\<rfloor> \<noteq> Abs_Set_0 None"
+           by(insert A, simp add: Abs_Set_0_inject bot_option_def null_option_def)
+  have G2 : "Abs_Set_0 \<lfloor>\<lfloor>\<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil> - {i \<tau>}\<rfloor>\<rfloor> \<noteq> Abs_Set_0 \<lfloor>None\<rfloor>"
+           by(insert A, simp add: Abs_Set_0_inject bot_option_def null_option_def)                    
+  have G3 : "Abs_Set_0 \<lfloor>\<lfloor>\<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil> - {j \<tau>}\<rfloor>\<rfloor> \<noteq> Abs_Set_0 None"
+           by(insert B, simp add: Abs_Set_0_inject bot_option_def null_option_def)
+  have G4 : "Abs_Set_0 \<lfloor>\<lfloor>\<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil> - {j \<tau>}\<rfloor>\<rfloor> \<noteq> Abs_Set_0 \<lfloor>None\<rfloor>"
+           by(insert B, simp add: Abs_Set_0_inject bot_option_def null_option_def)         
+           
+  have *   : "(\<delta> (\<lambda>_. Abs_Set_0 \<lfloor>\<lfloor>\<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil> - {i \<tau>}\<rfloor>\<rfloor>)) \<tau> = \<lfloor>\<lfloor>True\<rfloor>\<rfloor>" 
+             by(auto simp: OclValid_def false_def  defined_def null_fun_def  true_def
+                              bot_fun_def bot_Set_0_def  null_Set_0_def S_def i_val G1 G2)  
+  
+  have **  : "(\<delta> (\<lambda>_. Abs_Set_0 \<lfloor>\<lfloor>\<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil> - {j \<tau>}\<rfloor>\<rfloor>)) \<tau> = \<lfloor>\<lfloor>True\<rfloor>\<rfloor>" 
+             by(auto simp: OclValid_def false_def  defined_def null_fun_def  true_def
+                              bot_fun_def bot_Set_0_def  null_Set_0_def S_def i_val G3 G4)          
+  
+  have *** : "Abs_Set_0 \<lfloor>\<lfloor>\<lceil>\<lceil>Rep_Set_0(Abs_Set_0\<lfloor>\<lfloor>\<lceil>\<lceil>Rep_Set_0(S \<tau>)\<rceil>\<rceil>-{i \<tau>}\<rfloor>\<rfloor>)\<rceil>\<rceil>-{j \<tau>}\<rfloor>\<rfloor> =
+              Abs_Set_0 \<lfloor>\<lfloor>\<lceil>\<lceil>Rep_Set_0(Abs_Set_0\<lfloor>\<lfloor>\<lceil>\<lceil>Rep_Set_0(S \<tau>)\<rceil>\<rceil>-{j \<tau>}\<rfloor>\<rfloor>)\<rceil>\<rceil>-{i \<tau>}\<rfloor>\<rfloor>" 
+              apply(simp add: Abs_Set_0_inverse[OF A] Abs_Set_0_inverse[OF B])
+             by (metis Diff_insert2 insert_commute)
+  show ?thesis 
+     apply(simp add: OclExcluding_def S_def[simplified OclValid_def]
+                  i_val[simplified OclValid_def] j_val[simplified OclValid_def]
+                  true_def OclValid_def StrongEq_def)
+     apply(subst OCL_core.cp_defined,
+           simp add: S_def[simplified OclValid_def] 
+                     i_val[simplified OclValid_def] j_val[simplified OclValid_def] true_def *)
+     apply(subst OCL_core.cp_defined,
+           simp add: S_def[simplified OclValid_def] 
+                     i_val[simplified OclValid_def] j_val[simplified OclValid_def] true_def ** ***)
+     apply(subst OCL_core.cp_defined,
+           simp add: S_def[simplified OclValid_def] 
+                     i_val[simplified OclValid_def] j_val[simplified OclValid_def] true_def *)
+     apply(subst OCL_core.cp_defined,
+           simp add: S_def[simplified OclValid_def] 
+                     i_val[simplified OclValid_def] j_val[simplified OclValid_def] true_def * )
+     apply(subst OCL_core.cp_defined,
+           simp add: S_def[simplified OclValid_def] 
+                     i_val[simplified OclValid_def] j_val[simplified OclValid_def] true_def * **)
+     done
+qed
+
+
+lemma OclExcluding_commute[simp,code_unfold]:
+"((S :: ('\<AA>, 'a::null) Set)->excluding(i)->excluding(j) = (S->excluding(j)->excluding(i)))"
+proof -
+  have A: "\<And> \<tau>.   \<tau> \<Turnstile> i \<triangleq> invalid   \<Longrightarrow> (S->excluding(i)->excluding(j)) \<tau> = invalid \<tau>"
+            apply(rule foundation22[THEN iffD1])
+            by(erule StrongEq_L_subst2_rev, simp,simp)
+  have A': "\<And> \<tau>.   \<tau> \<Turnstile> i \<triangleq> invalid   \<Longrightarrow> (S->excluding(j)->excluding(i)) \<tau> = invalid \<tau>"
+            apply(rule foundation22[THEN iffD1])
+            by(erule StrongEq_L_subst2_rev, simp,simp)
+  have B:"\<And> \<tau>.   \<tau> \<Turnstile> j \<triangleq> invalid   \<Longrightarrow> (S->excluding(i)->excluding(j)) \<tau> = invalid \<tau>"
+            apply(rule foundation22[THEN iffD1])
+            by(erule StrongEq_L_subst2_rev, simp,simp)
+  have B':"\<And> \<tau>.   \<tau> \<Turnstile> j \<triangleq> invalid   \<Longrightarrow> (S->excluding(j)->excluding(i)) \<tau> = invalid \<tau>"
+            apply(rule foundation22[THEN iffD1])
+            by(erule StrongEq_L_subst2_rev, simp,simp)
+  have C: "\<And> \<tau>.   \<tau> \<Turnstile> S \<triangleq> invalid   \<Longrightarrow> (S->excluding(i)->excluding(j)) \<tau> = invalid \<tau>"
+            apply(rule foundation22[THEN iffD1])
+            by(erule StrongEq_L_subst2_rev, simp,simp)
+  have C': "\<And> \<tau>.  \<tau> \<Turnstile> S \<triangleq> invalid   \<Longrightarrow> (S->excluding(j)->excluding(i)) \<tau> = invalid \<tau>"
+            apply(rule foundation22[THEN iffD1])
+            by(erule StrongEq_L_subst2_rev, simp,simp)
+  have D: "\<And> \<tau>.   \<tau> \<Turnstile> S \<triangleq> null   \<Longrightarrow> (S->excluding(i)->excluding(j)) \<tau> = invalid \<tau>"
+            apply(rule foundation22[THEN iffD1])
+            by(erule StrongEq_L_subst2_rev, simp,simp)
+  have D': "\<And> \<tau>.  \<tau> \<Turnstile> S \<triangleq> null   \<Longrightarrow> (S->excluding(j)->excluding(i)) \<tau> = invalid \<tau>"
+            apply(rule foundation22[THEN iffD1])
+            by(erule StrongEq_L_subst2_rev, simp,simp)
+  show ?thesis
+    apply(rule ext, rename_tac \<tau>)
+    apply(case_tac "\<tau> \<Turnstile> (\<upsilon> i)")
+     apply(case_tac "\<tau> \<Turnstile> (\<upsilon> j)")
+      apply(case_tac "\<tau> \<Turnstile> (\<delta> S)")
+       apply(simp only: OclExcluding_commute0[THEN foundation22[THEN iffD1]]) 
+      apply(simp add: foundation16', elim disjE)
+     apply(simp add: C[OF foundation22[THEN iffD2]] C'[OF foundation22[THEN iffD2]])
+    apply(simp add: D[OF foundation22[THEN iffD2]] D'[OF foundation22[THEN iffD2]])
+   apply(simp add:foundation18 B[OF foundation22[THEN iffD2]] B'[OF foundation22[THEN iffD2]])
+  apply(simp add:foundation18 A[OF foundation22[THEN iffD2]] A'[OF foundation22[THEN iffD2]])  
+ done
+qed
 
 
 lemma OclExcluding_charn0_exec[simp,code_unfold]:
