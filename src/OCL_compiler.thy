@@ -48,6 +48,7 @@ imports "~~/src/HOL/Library/RBT"
         "~~/src/HOL/Library/Char_ord"
         "~~/src/HOL/Library/List_lexord"
         "~~/src/HOL/Library/Code_Char"
+        OCL_compiler_ast
   keywords (* hol syntax *)
            "lazy_code_printing" "apply_code_printing" "fun_sorry" "fun_quick"
 
@@ -100,7 +101,7 @@ end
 *}
 
 section{* ... *}
-type_synonym nat = natural
+
 definition "Succ x = x + 1"
 
 datatype internal_oid = Oid nat
@@ -123,11 +124,6 @@ section{* AST Definition: OCL *}
 subsection{* type definition *}
 
 datatype ocl_collection = Set | Sequence
-
-datatype ocl_multiplicity_single = Mult_nat nat
-                                 | Mult_star
-
-datatype ocl_multiplicity = OclMult "(ocl_multiplicity_single \<times> ocl_multiplicity_single option) list"
 
 record ocl_ty_object_node =
   TyObjN_ass_switch :: nat
