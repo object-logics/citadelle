@@ -2911,7 +2911,7 @@ lemma OclIncluding_idem0 :
 by(simp add: OclIncluding_includes OclIncludes_charn1 assms)
 
 (* Pure algebraic level *)
-theorem OclIncluding_idem: "((S :: ('\<AA>,'a::null)Set)->including(i)->including(i) = (S->including(i)))"
+theorem OclIncluding_idem[simp,code_unfold]: "((S :: ('\<AA>,'a::null)Set)->including(i)->including(i) = (S->including(i)))"
 proof -
   have A: "\<And> \<tau>.   \<tau> \<Turnstile> i \<triangleq> invalid   \<Longrightarrow> (S->including(i)->including(i)) \<tau> = invalid \<tau>"
             apply(rule foundation22[THEN iffD1])
@@ -2953,7 +2953,7 @@ lemma OclExcluding_idem0 :
 by(simp add: OclExcluding_excludes OclExcludes_charn1 assms)
 
 (* Pure algebraic level *)
-theorem OclExcluding_idem: "((S->excluding(i))->excluding(i)) = (S->excluding(i))"
+theorem OclExcluding_idem[simp,code_unfold]: "((S->excluding(i))->excluding(i)) = (S->excluding(i))"
 proof -
   have A: "\<And> \<tau>.   \<tau> \<Turnstile> i \<triangleq> invalid   \<Longrightarrow> (S->excluding(i)->excluding(i)) \<tau> = invalid \<tau>"
             apply(rule foundation22[THEN iffD1])

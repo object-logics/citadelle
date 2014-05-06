@@ -57,47 +57,47 @@ lemma including_swap_ :
      and i_val : "\<tau> \<Turnstile> \<upsilon> i"
      and j_val : "\<tau> \<Turnstile> \<upsilon> j"
    shows "\<tau> \<Turnstile> ((S :: ('\<AA>, int option option) Set)->including(i)->including(j) \<doteq> (S->including(j)->including(i)))"
-by(rule including_swap__generic[OF OclIncludes_execute\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r StrictRefEq\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r_refl StrictRefEq\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r_defined_args_valid OclIncludes_including\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r], simp_all add: assms)
+by(rule including_swap__generic[OF assms])
 
 lemma including_swap' : "\<tau> \<Turnstile> \<delta> S \<Longrightarrow> \<tau> \<Turnstile> \<upsilon> i \<Longrightarrow> \<tau> \<Turnstile> \<upsilon> j \<Longrightarrow> ((S :: ('\<AA>, int option option) Set)->including(i)->including(j) \<tau> = (S->including(j)->including(i)) \<tau>)"
-by(rule including_swap'_generic[OF including_swap_0_generic[OF OclIncludes_execute\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r StrictRefEq\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r_refl StrictRefEq\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r_defined_args_valid OclIncludes_including\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r]])
+by simp
 
 lemma including_swap : "\<forall>\<tau>. \<tau> \<Turnstile> \<delta> S \<Longrightarrow> \<forall>\<tau>. \<tau> \<Turnstile> \<upsilon> i \<Longrightarrow> \<forall>\<tau>. \<tau> \<Turnstile> \<upsilon> j \<Longrightarrow> ((S :: ('\<AA>, int option option) Set)->including(i)->including(j) = (S->including(j)->including(i)))"
-by(rule including_swap_generic[OF including_swap_0_generic[OF OclIncludes_execute\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r StrictRefEq\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r_refl StrictRefEq\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r_defined_args_valid OclIncludes_including\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r]])
+by simp
 
 section{* Properties: (with comp fun commute) OclIncluding *}
 subsection{* Preservation of comp fun commute (instance) *}
 
 lemma including_commute : "EQ_comp_fun_commute (\<lambda>j (r2 :: ('\<AA>, int option option) Set). (r2->including(j)))"
-by(rule including_commute_generic[OF including_swap'_generic[OF including_swap_0_generic[OF OclIncludes_execute\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r StrictRefEq\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r_refl StrictRefEq\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r_defined_args_valid OclIncludes_including\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r]]])
+by(rule including_commute_generic)
 
 lemma including_commute2 :
  assumes i_int : "is_int i"
    shows "EQ_comp_fun_commute (\<lambda>x (acc :: ('\<AA>, int option option) Set). ((acc->including(x))->including(i)))"
-by(rule including_commute2_generic[OF including_swap'_generic[OF including_swap_0_generic[OF OclIncludes_execute\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r StrictRefEq\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r_refl StrictRefEq\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r_defined_args_valid OclIncludes_including\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r]]], simp_all add: assms)
+by(rule including_commute2_generic, simp_all add: assms)
 
 lemma including_commute3 :
  assumes i_int : "is_int i"
    shows "EQ_comp_fun_commute (\<lambda>x (acc :: ('\<AA>, int option option) Set). acc->including(i)->including(x))"
-by(rule including_commute3_generic[OF including_swap'_generic[OF including_swap_0_generic[OF OclIncludes_execute\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r StrictRefEq\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r_refl StrictRefEq\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r_defined_args_valid OclIncludes_including\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r]]], simp_all add: assms)
+by(rule including_commute3_generic, simp_all add: assms)
 
 lemma including_commute4 :
  assumes i_int : "is_int i"
      and j_int : "is_int j"
    shows "EQ_comp_fun_commute (\<lambda>x (acc :: ('\<AA>, int option option) Set). acc->including(i)->including(x)->including(j))"
-by(rule including_commute4_generic[OF including_swap'_generic[OF including_swap_0_generic[OF OclIncludes_execute\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r StrictRefEq\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r_refl StrictRefEq\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r_defined_args_valid OclIncludes_including\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r]]], simp_all add: assms)
+by(rule including_commute4_generic, simp_all add: assms)
 
 lemma including_commute5 :
  assumes i_int : "is_int i"
      and j_int : "is_int j"
    shows "EQ_comp_fun_commute (\<lambda>x (acc :: ('\<AA>, int option option) Set). acc->including(x)->including(j)->including(i))"
-by(rule including_commute5_generic[OF including_swap'_generic[OF including_swap_0_generic[OF OclIncludes_execute\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r StrictRefEq\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r_refl StrictRefEq\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r_defined_args_valid OclIncludes_including\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r]]], simp_all add: assms)
+by(rule including_commute5_generic, simp_all add: assms)
 
 lemma including_commute6 :
  assumes i_int : "is_int i"
      and j_int : "is_int j"
    shows "EQ_comp_fun_commute (\<lambda>x (acc :: ('\<AA>, int option option) Set). acc->including(i)->including(j)->including(x))"
-by(rule including_commute6_generic[OF including_swap'_generic[OF including_swap_0_generic[OF OclIncludes_execute\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r StrictRefEq\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r_refl StrictRefEq\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r_defined_args_valid OclIncludes_including\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r]]], simp_all add: assms)
+by(rule including_commute6_generic, simp_all add: assms)
 
 section{* Properties: (with comp fun commute) OclIterate and OclIncluding *}
 subsection{* Identity *}
@@ -154,7 +154,7 @@ lemma iterate_including_commute_var :
                 (OclIterate (((OclIterate S S F)->including(a))->including(\<lambda>(_:: '\<AA> st). y)) (((OclIterate S S F)->including(a))->including(\<lambda>(_:: '\<AA> st). y)) F)->including(\<lambda>(_:: '\<AA> st). x) \<tau> "
      and a_int : "is_int a"
    shows "EQ_comp_fun_commute0 (\<lambda>x r1. (((r1 ->iterate(j;r2=r1 | F j r2))->including(a))->including(\<lambda>(_:: '\<AA> st). x)))"
-by(rule iterate_including_commute_var_generic[OF including_swap], simp_all add: assms)
+by(rule iterate_including_commute_var_generic, simp_all add: assms)
 
 subsection{* Execution OclIncluding out of OclIterate (theorem) *}
 
@@ -164,7 +164,7 @@ lemma including_out1 :
      and i_int : "is_int i"
      shows "\<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil> \<noteq> {} \<Longrightarrow>
             ((S :: ('\<AA>, _) Set)->iterate(x;acc=A | acc->including(x)->including(i))) \<tau> = (S->iterate(x;acc=A | acc->including(x))->including(i)) \<tau>"
-by(rule including_out1_generic[OF including_commute including_commute2 including_swap], simp_all add: assms)
+by(rule including_out1_generic[OF including_commute including_commute2], simp_all add: assms)
 
 lemma including_out2 :
  assumes S_all_def : "\<And>\<tau>. all_defined \<tau> (S :: ('\<AA>, int option option) Set)"
@@ -172,10 +172,7 @@ lemma including_out2 :
      and i_int : "is_int i"
      and x0_int : "is_int x0"
      shows "\<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil> \<noteq> {} \<Longrightarrow> (S->iterate(x;acc=A | acc->including(x0)->including(x)->including(i))) \<tau> = (S->iterate(x;acc=A | acc->including(x0)->including(x))->including(i)) \<tau>"
- apply(rule including_out2_generic[OF including_commute including_commute2 including_commute3 including_commute4 including_commute5 including_swap including_out1])
- apply(simp add: assms)
- apply(simp add: assms)
- apply(simp add: assms)
+ apply(rule including_out2_generic[OF including_commute including_commute2 including_commute3 including_commute4 including_commute5 including_out1])
  apply(simp add: assms)
  apply(simp add: assms)
  apply(simp add: assms)
@@ -202,7 +199,7 @@ lemma iterate_including_id_out :
  assumes S_def : "\<And>\<tau>. all_defined \<tau> (S:: ('\<AA>, int option option) Set)"
      and a_int : "is_int a"
    shows "\<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil> \<noteq> {} \<Longrightarrow> (S ->iterate(j;r2=S | r2->including(a)->including(j))) \<tau> = S->including(a) \<tau>"
-by(rule iterate_including_id_out_generic[OF including_commute including_commute2 including_commute3 including_swap including_out1], simp_all add: assms)
+by(rule iterate_including_id_out_generic[OF including_commute including_commute2 including_commute3 including_out1], simp_all add: assms)
 
 lemma iterate_including_id_out' :
  assumes S_def : "\<And>\<tau>. all_defined \<tau> (S:: ('\<AA>, int option option) Set)"
@@ -222,7 +219,7 @@ lemma iterate_including_id_out''' :
      and a_int : "is_int a"
      and b_int : "is_int b"
    shows "\<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil> \<noteq> {} \<Longrightarrow> (S ->iterate(j;r2=S | r2->including(a)->including(b)->including(j))) \<tau> = S->including(a)->including(b) \<tau>"
-by(rule iterate_including_id_out'''_generic[OF including_commute4 including_commute6 including_swap iterate_including_id_out''''], simp_all add: assms)
+by(rule iterate_including_id_out'''_generic[OF including_commute4 including_commute6 iterate_including_id_out''''], simp_all add: assms)
 
 section{* Conclusion *}
 
@@ -240,7 +237,7 @@ proof -
  have OclInt8_int : "is_int \<eight>" by (metis StrictRefEq\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r_strict' foundation1 is_int_def null_non_OclInt8 OclInt8_def valid4)
  have OclInt9_int : "is_int \<nine>" by (metis StrictRefEq\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r_strict' foundation1 is_int_def null_non_OclInt9 OclInt9_def valid4)
  show ?thesis
- by(rule GogollasChallenge_on_sets_generic[OF val_0 val_6 val_8 val_9 OclInt0_int OclInt6_int OclInt8_int OclInt9_int including_commute including_commute2 including_commute3 including_commute4 including_commute6 including_swap iterate_including_id iterate_including_id_out iterate_including_id_out' iterate_including_id_out''' iterate_including_id_out'''' including_swap' iterate_including_commute_var including_out0 including_out1 including_out2])
+ by(rule GogollasChallenge_on_sets_generic[OF val_0 val_6 val_8 val_9 OclInt0_int OclInt6_int OclInt8_int OclInt9_int including_commute including_commute2 including_commute3 including_commute4 including_commute5 including_commute6 iterate_including_id iterate_including_id_out iterate_including_id_out' iterate_including_id_out''' iterate_including_id_out'''' iterate_including_commute_var including_out0 including_out1 including_out2])
 qed
 
 end

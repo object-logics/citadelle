@@ -1445,6 +1445,9 @@ lemma OclIf_true' [simp]: "\<tau> \<Turnstile> P \<Longrightarrow> (if P then B\
 apply(subst cp_OclIf,auto simp: OclValid_def)
 by(simp add:cp_OclIf[symmetric])
 
+lemma OclIf_true'' [simp]: "\<tau> \<Turnstile> P \<Longrightarrow> \<tau> \<Turnstile> (if P then B\<^sub>1 else B\<^sub>2 endif) \<triangleq> B\<^sub>1"
+by(subst OclValid_def, simp add: StrongEq_def true_def)
+
 lemma OclIf_false [simp]: "(if false then B\<^sub>1 else B\<^sub>2 endif) = B\<^sub>2"
 by(rule ext, auto simp: OclIf_def)
 
