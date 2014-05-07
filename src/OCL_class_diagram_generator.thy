@@ -196,6 +196,11 @@ definition "i_of_ocl_association a b f = ocl_association_rec
     (i_of_list a b (i_of_pair a b (i_of_string a b) (i_of_pair a b (i_of_ocl_multiplicity a b) (i_of_option a b (i_of_string a b)))))
     (f a b))"
 
+definition "i_of_ocl_ass_class_flat a b = ocl_ass_class_flat_rec
+  (ap2 a (b ''OclAssClassFlat'')
+    (i_of_ocl_association a b (K i_of_unit))
+    (i_of_ocl_class_flat a b (K i_of_unit)))"
+
 definition "i_of_ocl_data_shallow_base a b = ocl_data_shallow_base_rec
   (ap1 a (b ''ShallB_str'') (i_of_string a b))
   (ap1 a (b ''ShallB_self'') (i_of_internal_oid a b))"
@@ -242,6 +247,7 @@ definition "i_of_ocl_flush_all a b = ocl_flush_all_rec
 definition "i_of_ocl_deep_embed_ast a b = ocl_deep_embed_ast_rec
   (ap1 a (b ''OclAstClassFlat'') (i_of_ocl_class_flat a b (K i_of_unit)))
   (ap1 a (b ''OclAstAssociation'') (i_of_ocl_association a b (K i_of_unit)))
+  (ap1 a (b ''OclAstAssClassFlat'') (i_of_ocl_ass_class_flat a b))
   (ap1 a (b ''OclAstInstance'') (i_of_ocl_instance a b))
   (ap1 a (b ''OclAstDefInt'') (i_of_ocl_def_int a b))
   (ap1 a (b ''OclAstDefState'') (i_of_ocl_def_state a b))
@@ -900,6 +906,16 @@ subsection{* Outer Syntax: (abstract) class *}
 
 ML{*
 datatype use_classDefinition = USE_class | USE_class_abstract
+
+structure Outer_syntax_ClassFlat = struct
+  fun make binding child attribute =
+    (OCL.Ocl_class_flat_ext
+         ( From.from_binding binding
+         , List.map (fn (b, ty) => (From.from_binding b, OCL.OclTy_base (From.from_binding ty))) attribute
+         , case child of [] => NONE | [x] => SOME (From.from_binding x)
+         , From.from_unit ()))
+end
+
 local 
  open USE_parse
 
@@ -912,11 +928,7 @@ local
      -- class_def_constr
      --| @{keyword "End"})
     (fn ((((binding, child), attribute), _), _) => fn _ =>
-       OCL.OclAstClassFlat (OCL.Ocl_class_flat_ext
-         ( From.from_binding binding
-         , List.map (fn (b, ty) => (From.from_binding b, OCL.OclTy_base (From.from_binding ty))) attribute
-         , case child of [] => NONE | [x] => SOME (From.from_binding x)
-         , From.from_unit ())))
+       OCL.OclAstClassFlat (Outer_syntax_ClassFlat.make binding child attribute))
 in
 val () = mk_classDefinition USE_class @{command_spec "Class"}
 val () = mk_classDefinition USE_class_abstract @{command_spec "Abstract_class"}  
@@ -926,11 +938,20 @@ end
 subsection{* Outer Syntax: association, composition, aggregation *}
 
 ML{*
+structure Outer_syntax_Association = struct
+  val mk_mult = fn "*" => OCL.Mult_star
+                 | s => OCL.Mult_nat (case Int.fromString s of SOME i => From.from_nat i)
+
+  fun make ass_ty l =
+    OCL.Ocl_association_ext
+        ( ass_ty
+        , List.map (fn (((cl_from, cl_mult), o_cl_attr), _) =>
+            (From.from_binding cl_from, (OCL.OclMult (List.map (From.from_pair mk_mult (From.from_option mk_mult)) cl_mult), From.from_option From.from_binding o_cl_attr))) l
+        , From.from_unit ())
+end
+
 local
  open USE_parse
-
- val mk_mult = fn "*" => OCL.Mult_star
-                | s => OCL.Mult_nat (case Int.fromString s of SOME i => From.from_nat i)
 
  fun mk_associationDefinition ass_ty cmd_spec =
   outer_syntax_command @{make_string} cmd_spec ""
@@ -939,11 +960,7 @@ local
      -- repeat2 use_associationEnd
      --| @{keyword "End"})
     (fn (_, l) => fn _ =>       
-      OCL.OclAstAssociation (OCL.Ocl_association_ext
-        ( ass_ty
-        , List.map (fn (((cl_from, cl_mult), o_cl_attr), _) =>
-            (From.from_binding cl_from, (OCL.OclMult (List.map (From.from_pair mk_mult (From.from_option mk_mult)) cl_mult), From.from_option From.from_binding o_cl_attr))) l
-        , From.from_unit ())))
+      OCL.OclAstAssociation (Outer_syntax_Association.make ass_ty l))
 in
 val () = mk_associationDefinition OCL.OclAssTy_association @{command_spec "Association"}
 val () = mk_associationDefinition OCL.OclAssTy_composition @{command_spec "Composition"}
@@ -970,9 +987,9 @@ local
      -- class_def_constr
      -- optional Parse.alt_string
      --| @{keyword "End"})
-    (fn _ => fn _ =>
-    let val _ = writeln (@{make_string} f) in
-       OCL.OclAstFlushAll (OCL.OclFlushAll) end)
+    (fn ((((((binding, child), o_l), attribute), _), _), _) => fn _ =>
+      OCL.OclAstAssClassFlat (OCL.OclAssClassFlat ( Outer_syntax_Association.make OCL.OclAssTy_association (case o_l of NONE => [] | SOME l => l)
+                                                  , Outer_syntax_ClassFlat.make binding child attribute)))
 in
 val () = mk_associationClassDefinition USE_associationclass @{command_spec "Associationclass"}
 val () = mk_associationClassDefinition USE_associationclass_abstract @{command_spec "Abstract_associationclass"}

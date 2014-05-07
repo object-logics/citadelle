@@ -174,6 +174,9 @@ record ocl_association =
                       \<times> ocl_multiplicity (* multiplicity *)
                       \<times> string option (* role *)) list"
 
+datatype ocl_ass_class_flat = 
+  OclAssClassFlat ocl_association ocl_class_flat
+
 datatype ocl_data_shallow_base = ShallB_str string
                                | ShallB_self internal_oid
 
@@ -212,6 +215,7 @@ datatype ocl_flush_all = OclFlushAll
 
 datatype ocl_deep_embed_ast = OclAstClassFlat ocl_class_flat
                             | OclAstAssociation ocl_association
+                            | OclAstAssClassFlat ocl_ass_class_flat
                             | OclAstInstance ocl_instance
                             | OclAstDefInt ocl_def_int
                             | OclAstDefState ocl_def_state
@@ -343,20 +347,21 @@ fun_sorry class_unflat_aux where
 
 definition "class_unflat l = 
  (let l = 
-    let (l_class, l_assoc) = List.partition (\<lambda> OclAstClassFlat cflat \<Rightarrow> True | _ => False) l
-      ; rbt = (* fold classes:
+    let rbt = (* fold classes:
                  set ''OclAny'' as default inherited class (for all classes linking to zero inherited classes) *)
               insert
                 const_oclany
                 (ocl_class_flat.make const_oclany [] None)
                 (List.fold
-                  (\<lambda> OclAstClassFlat cflat \<Rightarrow>
+                  (\<lambda> cflat \<Rightarrow>
                     insert (Cflat_name cflat) (cflat \<lparr> Cflat_inh := case Cflat_inh cflat of None \<Rightarrow> Some const_oclany | x \<Rightarrow> x \<rparr>))
-                  l_class
+                  (List.map_filter (\<lambda> OclAstClassFlat cflat \<Rightarrow> Some cflat
+                                    | OclAstAssClassFlat (OclAssClassFlat _ cflat) \<Rightarrow> Some cflat
+                                    | _ \<Rightarrow> None) l)
                   empty) in
     (* fold associations:
        add remaining 'object' attributes *)
-    List_map snd (entries (List.fold (\<lambda> (ass_oid, OclAstAssociation ass) \<Rightarrow> 
+    List_map snd (entries (List.fold (\<lambda> (ass_oid, ass) \<Rightarrow> 
       let l_rel = OclAss_relation ass in
       fold_max
         (bug_ocaml_extraction (let n_rel = natural_of_nat (List.length l_rel) in
@@ -367,7 +372,9 @@ definition "class_unflat l =
                 (ocl_ty_object_node_ext cpt_to multip_to (Some role_to) name_to ())
                 ())) # Cflat_own cflat \<rparr>))
          | _ \<Rightarrow> \<lambda>_. id))
-        l_rel) (List_mapi Pair l_assoc) rbt)) in
+        l_rel) (List_mapi Pair (List.map_filter (\<lambda> OclAstAssociation ass \<Rightarrow> Some ass
+                                                 | OclAstAssClassFlat (OclAssClassFlat ass _) \<Rightarrow> Some ass
+                                                 | _ \<Rightarrow> None) l)) rbt)) in
   class_unflat_aux
     (List.fold (\<lambda> cflat. insert (Cflat_name cflat) (Cflat_own cflat)) l empty)
     (List.fold (\<lambda> cflat. case Cflat_inh cflat of Some k \<Rightarrow> modify_def [] k (\<lambda>l. Cflat_name cflat # l) | _ \<Rightarrow> id) l empty)
@@ -3466,6 +3473,7 @@ definition "ocl_deep_embed_input_reset_all ocl =
    ( ocl \<lparr> D_ocl_env := [] \<rparr>
    , let (l_class, l_ocl) = List.partition (\<lambda> OclAstClassFlat _ \<Rightarrow> True
                                             | OclAstAssociation _ \<Rightarrow> True
+                                            | OclAstAssClassFlat _ \<Rightarrow> True
                                             | _ \<Rightarrow> False) (rev (D_ocl_env ocl)) in
      flatten
        [ l_class
@@ -3487,6 +3495,7 @@ definition "ocl_env_class_spec_mk f_try f_accu_reset f_fold f =
       (case D_class_spec ocl of Some _ \<Rightarrow> (ocl, accu) | None \<Rightarrow>
        let (l_class, l_ocl) = List.partition (\<lambda> OclAstClassFlat _ \<Rightarrow> True 
                                               | OclAstAssociation _ \<Rightarrow> True
+                                              | OclAstAssClassFlat _ \<Rightarrow> True
                                               | _ \<Rightarrow> False) (rev (D_ocl_env ocl)) in
        (f_try (\<lambda> () \<Rightarrow> List.fold
            (\<lambda>ast. (case ast of 
@@ -3506,12 +3515,18 @@ definition "ocl_env_save ast f_fold f ocl_accu =
   (let (ocl, accu) = f_fold f ocl_accu in
    (ocl \<lparr> D_ocl_env := ast # D_ocl_env ocl \<rparr>, accu))"
 
+definition "ocl_env_class_spec_bind l f = 
+  List.fold (\<lambda>x. x f) l"
+
 definition "fold_thy' f_try f_accu_reset f =
  (let ocl_env_class_spec_mk = ocl_env_class_spec_mk f_try f_accu_reset in
   List.fold (\<lambda> ast.
     ocl_env_save ast (case ast of
      OclAstClassFlat univ \<Rightarrow> ocl_env_class_spec_rm (fold_thy0 univ thy_class_flat)
    | OclAstAssociation univ \<Rightarrow> ocl_env_class_spec_rm (fold_thy0 univ thy_association)
+   | OclAstAssClassFlat (OclAssClassFlat univ_ass univ_class) \<Rightarrow>
+       ocl_env_class_spec_rm (ocl_env_class_spec_bind [ fold_thy0 univ_ass thy_association
+                                                      , fold_thy0 univ_class thy_class_flat ])
    | OclAstInstance univ \<Rightarrow> ocl_env_class_spec_mk (fold_thy0 univ thy_instance)
    | OclAstDefInt univ \<Rightarrow> fold_thy0 univ thy_def_int
    | OclAstDefState univ \<Rightarrow> ocl_env_class_spec_mk (fold_thy0 univ thy_def_state)
