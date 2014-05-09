@@ -55,13 +55,14 @@ imports "~~/src/HOL/Library/RBT"
            :: thy_decl
 begin
 
-section{* ... *}
+section{* Preliminaries *}
 
+subsection{* Misc. (to be removed) *}
 definition "bug_ocaml_extraction = id"
   (* In this theory, this identifier can be removed everywhere it is used.
      However without this, there is a syntax error when the code is extracted to OCaml. *)
 
-section{* ... *}
+subsection{* Infra-structure that skip lengthy termination proofs  *}
 
 ML{*
 structure Fun_quick = struct
@@ -100,7 +101,7 @@ val () = mk_fun true @{command_spec "fun_sorry"} proof_by_patauto
 end
 *}
 
-section{* ... *}
+subsection{* Oid-Management *}
 
 definition "Succ x = x + 1"
 
@@ -120,7 +121,8 @@ definition "oidGetInh = (\<lambda> Oids _ _ n \<Rightarrow> Oid n)"
 definition "oidReinitAll = (\<lambda>Oids n1 _ _ \<Rightarrow> Oids n1 n1 n1)"
 definition "oidReinitInh = (\<lambda>Oids n1 n2 _ \<Rightarrow> Oids n1 n2 n2)"
 
-section{* AST Definition: OCL *}
+section{* OCL Meta-model aka. AST for OCL *}
+
 subsection{* type definition *}
 
 datatype ocl_collection = Set | Sequence
@@ -149,33 +151,30 @@ record ocl_operation =
   Op_pre :: "(string \<times> string) list"
   Op_post :: "(string \<times> string) list"
 
-datatype ocl_class =
-  OclClass
-    string (* name of the class *)
-    "(string (* name *) \<times> ocl_ty) list" (* attribute *)
-    (*"(string (* name *) \<times> ocl_operation) list" (* contract *)
-    "(string (* name *) \<times> string) list" (* invariant *) *)
-    "ocl_class list" (* link to subclasses *)
+datatype ocl_class =  OclClass
+                           string (* name of the class *)
+                          "(string (* name *) \<times> ocl_ty) list" (* attribute *)
+                          (*"(string (* name *) \<times> ocl_operation) list" (* contract *)
+                            "(string (* name *) \<times> string) list" (* invariant *) *)
+                           "ocl_class list" (* link to subclasses *)
 
-record ocl_class_flat =
-  Cflat_name :: string
-  Cflat_own :: "(string (* name *) \<times> ocl_ty) list" (* attribute *)
-  (*Cflat_contract :: "(string (* name *) \<times> ocl_operation) list" (* contract *)
-    Cflat_inv :: "(string (* name *) \<times> string) list" (* invariant *) *)
-  Cflat_inh :: "string option" (* inherits *)
+record ocl_class_raw = Cflat_name :: string
+                        Cflat_own :: "(string (* name *) \<times> ocl_ty) list" (* attribute *)
+                      (*Cflat_contract :: "(string (* name *) \<times> ocl_operation) list" (* contract *)
+                        Cflat_inv :: "(string (* name *) \<times> string) list" (* invariant *) *)
+                        Cflat_inh :: "string option" (* superclass *)
+                        
+         
 
 datatype ocl_association_type = OclAssTy_association
                               | OclAssTy_composition
                               | OclAssTy_aggregation
 
-record ocl_association =
-  OclAss_type :: ocl_association_type
-  OclAss_relation :: "( string (* name class *)
-                      \<times> ocl_multiplicity (* multiplicity *)
-                      \<times> string option (* role *)) list"
-
-datatype ocl_ass_class_flat = 
-  OclAssClassFlat ocl_association ocl_class_flat
+record ocl_association =        OclAss_type     :: ocl_association_type
+                                OclAss_relation :: "( string (* name class *)
+                                                    \<times> ocl_multiplicity (* multiplicity *)
+                                                    \<times> string option (* role *)) list"
+datatype ocl_ass_class_flat =  OclAssClassFlat ocl_association ocl_class_raw
 
 datatype ocl_data_shallow_base = ShallB_str string
                                | ShallB_self internal_oid
@@ -189,13 +188,12 @@ datatype 'a ocl_list_attr = OclAttrNoCast 'a (* inh, own *)
                               "'a ocl_list_attr" (* cast entity *)
                               'a (* inh, own *)
 
-record ocl_instance_single =
-  Inst_name :: string
-  Inst_ty :: string (* type *)
-  Inst_attr :: "((string (* name *) \<times> ocl_data_shallow) list) (* inh and own *) ocl_list_attr"
+record ocl_instance_single = Inst_name :: string
+                             Inst_ty :: string (* type *)
+                             Inst_attr :: "((string (*name*) \<times> ocl_data_shallow) list) (* inh and own *) 
+                                           ocl_list_attr"
 
-datatype ocl_instance =
-  OclInstance "ocl_instance_single list" (* mutual recursive *)
+datatype ocl_instance = OclInstance "ocl_instance_single list" (* mutual recursive *)
 
 datatype ocl_def_int = OclDefI "string list"
 
@@ -203,9 +201,8 @@ datatype 'a ocl_def_state_core = OclDefCoreAdd ocl_instance_single
                                | OclDefCoreSkip
                                | OclDefCoreBinding 'a
 
-datatype ocl_def_state = OclDefSt
-                           string (* name *)
-                           "string (* name *) ocl_def_state_core list"
+datatype ocl_def_state = OclDefSt  string (* name *)
+                                  "string (* name *) ocl_def_state_core list"
 
 datatype ocl_def_pre_post = OclDefPP
                               string (* pre *)
@@ -213,7 +210,7 @@ datatype ocl_def_pre_post = OclDefPP
 
 datatype ocl_flush_all = OclFlushAll
 
-datatype ocl_deep_embed_ast = OclAstClassFlat ocl_class_flat
+datatype ocl_deep_embed_ast = OclAstClassFlat ocl_class_raw
                             | OclAstAssociation ocl_association
                             | OclAstAssClassFlat ocl_ass_class_flat
                             | OclAstInstance ocl_instance
@@ -222,41 +219,36 @@ datatype ocl_deep_embed_ast = OclAstClassFlat ocl_class_flat
                             | OclAstDefPrePost ocl_def_pre_post
                             | OclAstFlushAll ocl_flush_all
 
-datatype ocl_deep_mode = Gen_design
-                       | Gen_analysis
+datatype ocl_deep_mode = Gen_design | Gen_analysis
 
-record ocl_deep_embed_input =
-  D_disable_thy_output :: bool
-  D_file_out_path_dep :: "(string (* theory *) \<times> string list (* imports *)) option"
-  D_oid_start :: internal_oids
-  D_output_position :: "nat \<times> nat"
-  D_design_analysis :: ocl_deep_mode
-  D_class_spec :: "ocl_class option" (* last class considered for the generation *)
-  D_ocl_env :: "ocl_deep_embed_ast list"
-  D_instance_rbt :: "(string (* name (as key for rbt) *) \<times> ocl_instance_single \<times> internal_oid) list" (* instance namespace environment *)
-  D_state_rbt :: "(string (* name (as key for rbt) *) \<times> (internal_oids \<times> (string (* name *) \<times> ocl_instance_single (* alias *)) ocl_def_state_core) list) list" (* state namespace environment *)
+                       
+record Ocl_compiler_config =  D_disable_thy_output :: bool
+                               D_file_out_path_dep :: "(string (* theory *) 
+                                                       \<times> string list (* imports *)) option"
+                               D_oid_start :: internal_oids
+                               D_output_position :: "nat \<times> nat"
+                               D_design_analysis :: ocl_deep_mode
+                               D_class_spec :: "ocl_class option" 
+                                                (* last class considered for the generation *)
+                               D_ocl_env :: "ocl_deep_embed_ast list"
+                               D_instance_rbt :: "(string (* name (as key for rbt) *) 
+                                                  \<times> ocl_instance_single 
+                                                  \<times> internal_oid) list" 
+                                                (* instance namespace environment *)
+                               D_state_rbt :: "(string (* name (as key for rbt) *) 
+                                               \<times> (internal_oids 
+                                               \<times> (string (* name *) 
+                                                   \<times> ocl_instance_single (* alias *)) 
+                                                       ocl_def_state_core) list) list" 
+                                               (* state namespace environment *)
 
-definition "ocl_deep_embed_input_more_map f ocl =
-  ocl_deep_embed_input.extend
-    (ocl_deep_embed_input.truncate ocl)
-    (f (ocl_deep_embed_input.more ocl))"
+(* Auxilliary: *)
+definition "Ocl_compiler_config_more_map f ocl =
+            Ocl_compiler_config.extend  (Ocl_compiler_config.truncate ocl) (f (Ocl_compiler_config.more ocl))"
 
-record ocl_definition =
-  Def_expr :: string
-  Def_args :: "(string \<times> ocl_ty) list"
-  Def_result :: ocl_ty
 
-record ocl_association_end =
-  Ass_coltyp :: "ocl_collection option"
-  Ass_cardinality :: "(nat option \<times> nat option) option"
-  Ass_role :: "string option"
-
-record ocl_class_model =
-  Mod_id :: string
-  Mod_class :: "ocl_class list"
-  Mod_assocs\<^sub>2 :: "(string \<times> (ocl_association_end \<times> ocl_association_end)) list"
-  Mod_assocs\<^sub>3 :: "(string \<times> (ocl_association_end \<times> ocl_association_end \<times> ocl_association_end)) list"
-  Mod_definition :: "(string \<times> ocl_definition) list"
+section{* Preliminaries Compiler *}
+subsection{* RBT Miscellaneous *}
 
 subsection{* ... *} (* optimized data-structure version *)
 
@@ -317,7 +309,7 @@ definition "lookup2 rbt = (\<lambda>(x1, x2). Option_bind (\<lambda>rbt. lookup 
 definition "insert2 = (\<lambda>(x1, x2) v. modify_def empty x1 (insert x2 v))"
 
 
-subsection{* ... *}
+subsection{* Class Tranlation Preliminaries *}
 
 definition "const_oid = ''oid''"
 definition "const_oid_list = ''list''"
@@ -351,7 +343,7 @@ definition "class_unflat l =
                  set ''OclAny'' as default inherited class (for all classes linking to zero inherited classes) *)
               insert
                 const_oclany
-                (ocl_class_flat.make const_oclany [] None)
+                (ocl_class_raw.make const_oclany [] None)
                 (List.fold
                   (\<lambda> cflat \<Rightarrow>
                     insert (Cflat_name cflat) (cflat \<lparr> Cflat_inh := case Cflat_inh cflat of None \<Rightarrow> Some const_oclany | x \<Rightarrow> x \<rparr>))
@@ -440,7 +432,7 @@ datatype sml_expr = Sexpr_string "string list"
                   | Sexpr_apply string "sml_expr list"
                   | Sexpr_paren string (* left *) string (* right *) sml_expr
 
-section{* AST Definition: HOL *}
+section{* Meta-Model Isabelle/HOL aka. AST Definition of HOL *}
 subsection{* type definition *}
 
 datatype hol_simplety = Opt string | Raw string
@@ -3178,9 +3170,9 @@ definition "txt''a s = txt (\<lambda> Gen_analysis \<Rightarrow> flatten s | _ \
 definition thy_class ::
   (* polymorphism weakening needed by code_reflect *)
   "(ocl_class
-    \<Rightarrow> unit ocl_deep_embed_input_scheme
+    \<Rightarrow> unit Ocl_compiler_config_scheme
        \<Rightarrow> hol_thy list \<times>
-          unit ocl_deep_embed_input_scheme) list" where "thy_class =
+          unit Ocl_compiler_config_scheme) list" where "thy_class =
   (let subsection_def = subsection ''Definition''
      ; subsection_cp = subsection ''Context Passing''
      ; subsection_exec = subsection ''Execution with Invalid or Null as Argument''
@@ -3451,8 +3443,8 @@ definition "thy_def_pre_post = [ print_pre_post_wff
                                , print_pre_post_where ]"
 definition "thy_flush_all = []"
 
-definition "ocl_deep_embed_input_empty disable_thy_output file_out_path_dep oid_start design_analysis =
-  ocl_deep_embed_input.make
+definition "Ocl_compiler_config_empty disable_thy_output file_out_path_dep oid_start design_analysis =
+  Ocl_compiler_config.make
     disable_thy_output
     file_out_path_dep
     oid_start
@@ -3460,16 +3452,16 @@ definition "ocl_deep_embed_input_empty disable_thy_output file_out_path_dep oid_
     design_analysis
     None [] [] []"
 
-definition "ocl_deep_embed_input_reset_no_env ocl =
-  ocl_deep_embed_input_empty
+definition "Ocl_compiler_config_reset_no_env ocl =
+  Ocl_compiler_config_empty
     (D_disable_thy_output ocl)
     (D_file_out_path_dep ocl)
     (oidReinitAll (D_oid_start ocl))
     (D_design_analysis ocl)
     \<lparr> D_ocl_env := D_ocl_env ocl \<rparr>"
 
-definition "ocl_deep_embed_input_reset_all ocl =
-  (let ocl = ocl_deep_embed_input_reset_no_env ocl in
+definition "Ocl_compiler_config_reset_all ocl =
+  (let ocl = Ocl_compiler_config_reset_no_env ocl in
    ( ocl \<lparr> D_ocl_env := [] \<rparr>
    , let (l_class, l_ocl) = List.partition (\<lambda> OclAstClassFlat _ \<Rightarrow> True
                                             | OclAstAssociation _ \<Rightarrow> True
@@ -3507,7 +3499,7 @@ definition "ocl_env_class_spec_mk f_try f_accu_reset f_fold f =
                   f)
            l_ocl
            (let univ = class_unflat l_class
-              ; (ocl, accu) = fold_thy0 univ thy_class f (let ocl = ocl_deep_embed_input_reset_no_env ocl in
+              ; (ocl, accu) = fold_thy0 univ thy_class f (let ocl = Ocl_compiler_config_reset_no_env ocl in
                                                           (ocl, f_accu_reset ocl accu)) in
             (ocl \<lparr> D_class_spec := Some univ \<rparr>, accu))))))"
 
@@ -3563,13 +3555,13 @@ definition "ocl_ty_object_rec0 f ocl = f
 definition "ocl_ty_object_rec f ocl = ocl_ty_object_rec0 f ocl
   (ocl_ty_object.more ocl)"
 
-definition "ocl_class_flat_rec0 f ocl = f
+definition "ocl_class_raw_rec0 f ocl = f
   (Cflat_name ocl)
   (Cflat_own ocl)
   (Cflat_inh ocl)"
 
-definition "ocl_class_flat_rec f ocl = ocl_class_flat_rec0 f ocl
-  (ocl_class_flat.more ocl)"
+definition "ocl_class_raw_rec f ocl = ocl_class_raw_rec0 f ocl
+  (ocl_class_raw.more ocl)"
 
 definition "ocl_association_rec0 f ocl = f
   (OclAss_type ocl)
@@ -3586,7 +3578,7 @@ definition "ocl_instance_single_rec0 f ocl = f
 definition "ocl_instance_single_rec f ocl = ocl_instance_single_rec0 f ocl
   (ocl_instance_single.more ocl)"
 
-definition "ocl_deep_embed_input_rec0 f ocl = f
+definition "Ocl_compiler_config_rec0 f ocl = f
   (D_disable_thy_output ocl)
   (D_file_out_path_dep ocl)
   (D_oid_start ocl)
@@ -3597,8 +3589,8 @@ definition "ocl_deep_embed_input_rec0 f ocl = f
   (D_instance_rbt ocl)
   (D_state_rbt ocl)"
 
-definition "ocl_deep_embed_input_rec f ocl = ocl_deep_embed_input_rec0 f ocl
-  (ocl_deep_embed_input.more ocl)"
+definition "Ocl_compiler_config_rec f ocl = Ocl_compiler_config_rec0 f ocl
+  (Ocl_compiler_config.more ocl)"
 
 (* *)
 
@@ -3639,18 +3631,18 @@ definition "ar10 a v0 f1 f2 f3 f4 f5 f6 f7 f8 f9 v1 v2 v3 v4 v5 v6 v7 v8 v9 = a 
 
 (* *)
 
-lemma [code]: "ocl_class_flat.extend = (\<lambda>ocl v. ocl_class_flat_rec0 (co3 (\<lambda>f. f v) ocl_class_flat_ext) ocl)"
-by(intro ext, simp add: ocl_class_flat_rec0_def
-                        ocl_class_flat.extend_def
+lemma [code]: "ocl_class_raw.extend = (\<lambda>ocl v. ocl_class_raw_rec0 (co3 (\<lambda>f. f v) ocl_class_raw_ext) ocl)"
+by(intro ext, simp add: ocl_class_raw_rec0_def
+                        ocl_class_raw.extend_def
                         co3_def K_def)
-lemma [code]: "ocl_class_flat.make = co3 (\<lambda>f. f ()) ocl_class_flat_ext"
-by(intro ext, simp add: ocl_class_flat.make_def
+lemma [code]: "ocl_class_raw.make = co3 (\<lambda>f. f ()) ocl_class_raw_ext"
+by(intro ext, simp add: ocl_class_raw.make_def
                         co3_def)
-lemma [code]: "ocl_class_flat.truncate = ocl_class_flat_rec (co3 K ocl_class_flat.make)"
-by(intro ext, simp add: ocl_class_flat_rec0_def
-                        ocl_class_flat_rec_def
-                        ocl_class_flat.truncate_def
-                        ocl_class_flat.make_def
+lemma [code]: "ocl_class_raw.truncate = ocl_class_raw_rec (co3 K ocl_class_raw.make)"
+by(intro ext, simp add: ocl_class_raw_rec0_def
+                        ocl_class_raw_rec_def
+                        ocl_class_raw.truncate_def
+                        ocl_class_raw.make_def
                         co3_def K_def)
 
 lemma [code]: "ocl_association.extend = (\<lambda>ocl v. ocl_association_rec0 (co2 (\<lambda>f. f v) ocl_association_ext) ocl)"
@@ -3681,18 +3673,18 @@ by(intro ext, simp add: ocl_instance_single_rec0_def
                         ocl_instance_single.make_def
                         co3_def K_def)
 
-lemma [code]: "ocl_deep_embed_input.extend = (\<lambda>ocl v. ocl_deep_embed_input_rec0 (co9 (\<lambda>f. f v) ocl_deep_embed_input_ext) ocl)"
-by(intro ext, simp add: ocl_deep_embed_input_rec0_def
-                        ocl_deep_embed_input.extend_def
+lemma [code]: "Ocl_compiler_config.extend = (\<lambda>ocl v. Ocl_compiler_config_rec0 (co9 (\<lambda>f. f v) Ocl_compiler_config_ext) ocl)"
+by(intro ext, simp add: Ocl_compiler_config_rec0_def
+                        Ocl_compiler_config.extend_def
                         co9_def K_def)
-lemma [code]: "ocl_deep_embed_input.make = co9 (\<lambda>f. f ()) ocl_deep_embed_input_ext"
-by(intro ext, simp add: ocl_deep_embed_input.make_def
+lemma [code]: "Ocl_compiler_config.make = co9 (\<lambda>f. f ()) Ocl_compiler_config_ext"
+by(intro ext, simp add: Ocl_compiler_config.make_def
                         co9_def)
-lemma [code]: "ocl_deep_embed_input.truncate = ocl_deep_embed_input_rec (co9 K ocl_deep_embed_input.make)"
-by(intro ext, simp add: ocl_deep_embed_input_rec0_def
-                        ocl_deep_embed_input_rec_def
-                        ocl_deep_embed_input.truncate_def
-                        ocl_deep_embed_input.make_def
+lemma [code]: "Ocl_compiler_config.truncate = Ocl_compiler_config_rec (co9 K Ocl_compiler_config.make)"
+by(intro ext, simp add: Ocl_compiler_config_rec0_def
+                        Ocl_compiler_config_rec_def
+                        Ocl_compiler_config.truncate_def
+                        Ocl_compiler_config.make_def
                         co9_def K_def)
 
 section{* Generation to Deep Form: OCaml *}
@@ -4126,7 +4118,7 @@ definition "s_of_thy_list ocl l_thy =
             let (l_thy, lg) = fold_list (\<lambda>l n. (s_of_thy ocl l, Succ n)) l 0 in
             (( STR ''''
              # sprintf4 (STR ''%s(* %d ************************************ %d + %d *)'')
-                 (To_string (if ocl_deep_embed_input.more ocl then '''' else [char_escape])) (To_nat (Succ i)) (To_nat cpt) (To_nat lg)
+                 (To_string (if Ocl_compiler_config.more ocl then '''' else [char_escape])) (To_nat (Succ i)) (To_nat cpt) (To_nat lg)
              # l_thy), Succ i, cpt + lg)) l_thy (D_output_position ocl)))
         , th_end ])"
 end
@@ -4148,9 +4140,9 @@ definition "write_file ocl = (
              (\<lambda>f. f ())
              (\<lambda>_ _. [])
              Cons
-             (ocl_deep_embed_input.more ocl)
-             (ocl_deep_embed_input.truncate ocl, []) in
-         s_of_thy_list (ocl_deep_embed_input_more_map (\<lambda>_. is_file) ocl) (rev l)))))"
+             (Ocl_compiler_config.more ocl)
+             (Ocl_compiler_config.truncate ocl, []) in
+         s_of_thy_list (Ocl_compiler_config_more_map (\<lambda>_. is_file) ocl) (rev l)))))"
 end
 
 fun_sorry s_of_rawty where "s_of_rawty To_string e = s_of.flat_s_of_rawty To_string (s_of_rawty To_string) e"
@@ -4191,16 +4183,16 @@ lemmas [code] =
 
   s_of.write_file_def 
 
-subsection{* Deep (without reflection) *}
+subsection{* Test Scenario: Deep (without reflection) *}
 
 definition "Employee_DesignModel_UMLPart =
-  [ ocl_class_flat.make ''Galaxy'' [(''sound'', OclTy_base ''unit''), (''moving'', OclTy_base ''bool'')] None
-  , ocl_class_flat.make ''Planet'' [(''weight'', OclTy_base ''nat'')] (Some ''Galaxy'')
-  , ocl_class_flat.make ''Person'' [(''salary'', OclTy_base ''int'')] (Some ''Planet'') ]"
+  [ ocl_class_raw.make ''Galaxy'' [(''sound'', OclTy_base ''unit''), (''moving'', OclTy_base ''bool'')] None
+  , ocl_class_raw.make ''Planet'' [(''weight'', OclTy_base ''nat'')] (Some ''Galaxy'')
+  , ocl_class_raw.make ''Person'' [(''salary'', OclTy_base ''int'')] (Some ''Planet'') ]"
 
 definition "main = write_file
- (ocl_deep_embed_input.extend
-   (ocl_deep_embed_input_empty True None (oidInit (Oid 0)) Gen_design
+ (Ocl_compiler_config.extend
+   (Ocl_compiler_config_empty True None (oidInit (Oid 0)) Gen_design
       \<lparr> D_disable_thy_output := False
       , D_file_out_path_dep := Some (''Employee_DesignModel_UMLPart_generated''
                                     ,[''../src/OCL_main'', ''../src/OCL_class_diagram_static'']) \<rparr>)
