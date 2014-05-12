@@ -340,7 +340,58 @@ fun in_local decl thy =
   |> Local_Theory.exit_global
 *}
 
+ML{* fun List_mapi f = OCL.list_mapi (f o To_nat) *}
+
 subsection{* General Compiling Process: Deep (with reflection) *}
+
+ML{*
+structure Deep0 = struct
+val gen_empty = ""
+val ocamlfile_function = "function.ml"
+val ocamlfile_argument = "argument.ml"
+val ocamlfile_main = "main.ml"
+val ocamlfile_ocp = "write"
+val argument_main = "main"
+
+val compiler =
+  [ ( "OCaml", "ml"
+    , fn mk_fic => fn ml_module => fn mk_free => fn thy =>
+         let val () = File.write (mk_fic (ocamlfile_ocp ^ ".ocp"))
+                              (String.concat [ "comp += \"-g\" link += \"-g\" "
+                                             , "begin generated = true begin library \"nums\" end end "
+                                             , "begin program \"", ocamlfile_ocp, "\" sort = true files = [ \"", ocamlfile_function
+                                             , "\" \"", ocamlfile_argument
+                                             , "\" \"", ocamlfile_main
+                                             , "\" ]"
+                                             , "requires = [\"nums\"] "
+                                             , "end" ]) in
+         File.write (mk_fic ocamlfile_main)
+           ("let _ = Function." ^ ml_module ^ ".write_file (Obj.magic (Argument." ^ ml_module ^ "." ^
+            mk_free (Proof_Context.init_global thy) argument_main [] ^ "))")
+         end
+    , fn tmp_export_code => fn tmp_file => fn arg =>
+                          Isabelle_System.bash_output
+                                        ("cp " ^ tmp_file ^ " " ^ Path.implode (Path.append tmp_export_code (Path.make [ocamlfile_argument])) ^
+                                         " && cd " ^ Path.implode tmp_export_code ^
+                                         " && bash -c 'ocp-build -init -scan -no-bytecode 2>&1' 2>&1 > /dev/null" ^
+                                         " && ./_obuild/" ^ ocamlfile_ocp ^ "/" ^ ocamlfile_ocp ^ ".asm " ^ arg))
+  , ("SML", "ML", (fn _ => fn _ => fn _ => fn _ => error "To do"), fn _ => fn _ => fn _ => error "To do")
+  , ("Haskell", "hs", (fn _ => fn _ => fn _ => fn _ => error "To do"), fn _ => fn _ => fn _ => error "To do")
+  , ("Scala", "scala", (fn _ => fn _ => fn _ => fn _ => error "To do"), fn _ => fn _ => fn _ => error "To do") ]
+
+fun find_ext ml_compiler =
+  case List.find (fn (ml_compiler0, _, _, _) => ml_compiler0 = ml_compiler) compiler of
+    SOME (_, ext, _, _) => ext
+
+fun find_build ml_compiler =
+  case List.find (fn (ml_compiler0, _, _, _) => ml_compiler0 = ml_compiler) compiler of
+    SOME (_, _, _, build) => build
+
+fun find_init ml_compiler =
+  case List.find (fn (ml_compiler0, _, _, _) => ml_compiler0 = ml_compiler) compiler of
+    SOME (_, _, build, _) => build
+end
+*}
 
 ML{*
 structure Deep = struct
@@ -358,40 +409,45 @@ fun produce_code thy cs seris =
 
 fun absolute_path filename thy = Path.implode (Path.append (Thy_Load.master_directory thy) (Path.explode filename))
 
-fun export_code_cmd_gen with_tmp_file bash_output f_err raw_cs filename_thy thy =
-  with_tmp_file (fn seris =>
-    let val _ = Code_Target.export_code
+fun export_code_cmd_gen raw_cs thy seris =
+  Code_Target.export_code
                   thy
                   (Code_Target.read_const_exprs thy raw_cs)
-                  ((map o apfst o apsnd) prep_destination (map fst seris))
-        val (out, err) = bash_output (snd (hd seris)) (case filename_thy of NONE => ""
-                                                                          | SOME filename_thy => " " ^ absolute_path filename_thy thy)
-        val _ = f_err (snd (hd seris)) err in
-    out end)
+                  ((map o apfst o apsnd) prep_destination seris) 
 
-fun export_code_cmd' raw_cs seris filename_thy f f_err thy =
-  export_code_cmd_gen
-    (case seris of
-        [] =>
-        (fn f =>
-          Isabelle_System.with_tmp_file "OCL_class_diagram_generator" "ml" (fn filename =>
-          let val filename = Path.implode filename in
-          (* export_code
-               in OCaml module_name M (* file "" *) *)
-          f [(((("OCaml", "M"), filename), []), filename)]
-          end))
-      | _ =>
-        (fn f => f (map (fn x => (x, case x of (((_, _), filename), _) => absolute_path filename thy)) seris)))
-    f
-    f_err
-    raw_cs filename_thy thy
+fun export_code_tmp_file seris g = 
+  fold
+    (fn ((ml_compiler, ml_module), export_arg) => fn f => fn g =>
+      f (fn accu => 
+        Isabelle_System.with_tmp_file
+          "OCL_class_diagram_generator"
+          (Deep0.find_ext ml_compiler)
+          (fn filename =>
+             g (((((ml_compiler, ml_module), Path.implode filename), export_arg) :: accu)))))
+    seris
+    (fn f => f [])
+    (g o rev)
 
-fun msg_err msg err = if err <> 0 then error msg else ()
+fun mk_path_export_code tmp_export_code ml_compiler i =
+  Path.append tmp_export_code (Path.make [ml_compiler ^ Int.toString i])
 
-fun export_code_cmd raw_cs seris filename_thy =
-  export_code_cmd' raw_cs seris filename_thy
-    (fn tmp_file => fn arg => Isabelle_System.bash_output ("ocaml -w '-8' " ^ tmp_file ^ arg))
-    msg_err
+fun export_code_cmd' seris tmp_export_code f_err filename_thy raw_cs thy =
+  export_code_tmp_file seris
+    (fn seris =>
+      let val _ = export_code_cmd_gen raw_cs thy seris in
+      List_mapi
+        (fn i => fn seri => case seri of (((ml_compiler, _), filename), _) =>
+          let val (out, err) =
+                Deep0.find_build
+                  ml_compiler
+                  (mk_path_export_code tmp_export_code ml_compiler i)
+                  filename
+                  (case filename_thy of NONE => ""
+                                      | SOME filename_thy => " " ^ absolute_path filename_thy thy)
+              val _ = f_err seri err in
+          out
+          end) seris
+      end)
 
 fun mk_term ctxt s = fst (Scan.pass (Context.Proof ctxt) Args.term (Outer_Syntax.scan Position.none s))
 
@@ -402,6 +458,9 @@ fun mk_free ctxt s l =
     mk_free ctxt (fst (hd (Term.variant_frees t_s l))) l
     end
   end
+
+val list_all_eq = fn x0 :: xs =>
+  List.all (fn x1 => x0 = x1) xs
 
 end
 *}
@@ -418,7 +477,8 @@ fun annot_ty f = Parse.$$$ "(" |-- f --| Parse.$$$ "::" -- Parse.binding --| Par
 ML{*
 structure Generation_mode = struct
 datatype 'a generation_mode = Gen_deep of unit OCL.ocl_compiler_config_ext
-                                        * (((bstring * bstring) * bstring) * Token.T list) list (* seri_args *)
+                                        * (string * string list) option
+                                        * ((bstring (* compiler *) * bstring (* main module *) ) * Token.T list) list (* seri_args *)
                                         * bstring option (* filename_thy *)
                                         * Path.T (* tmp dir export_code *)
                             | Gen_shallow of unit OCL.ocl_compiler_config_ext
@@ -438,9 +498,8 @@ val parse_scheme = @{keyword "design"} >> K NONE || @{keyword "analysis"} >> K (
 val parse_deep =
      Scan.optional (((Parse.$$$ "(" -- @{keyword "THEORY"}) |-- Parse.name -- ((Parse.$$$ ")" -- Parse.$$$ "(" -- @{keyword "IMPORTS"}) |-- parse_l' Parse.name) --| Parse.$$$ ")") >> SOME) NONE
   -- Scan.optional (@{keyword "SECTION"} >> K true) false
-  -- (* code_expr_inP *) Scan.repeat (@{keyword "in"} |-- Parse.!!! (Parse.name
+  -- (* code_expr_inP *) parse_l1' (@{keyword "in"} |-- (Parse.name
         -- Scan.optional (@{keyword "module_name"} |-- Parse.name) ""
-        -- Scan.optional (@{keyword "file"} |-- Parse.name) ""
         -- code_expr_argsP))
   -- Scan.optional ((Parse.$$$ "(" -- @{keyword "output_directory"}) |-- Parse.name --| Parse.$$$ ")" >> SOME) NONE
 
@@ -458,23 +517,13 @@ val mode =
                     (From.from_design_analysis design_analysis) in
 
      @{keyword "deep"} |-- parse_sem_ocl -- parse_deep >> (fn ((design_analysis, oid_start), (((file_out_path_dep, disable_thy_output), seri_args), filename_thy)) =>
-       let val _ = case (seri_args, filename_thy, file_out_path_dep) of
-            ([_], _, NONE) => warning ("Unknown filename, generating to stdout and ignoring " ^ (@{make_string} seri_args))
-          | (_, SOME t, NONE) => warning ("Unknown filename, generating to stdout and ignoring " ^ (@{make_string} t))
-          | _ => () in
        Gen_deep ( mk_ocl (not disable_thy_output) file_out_path_dep oid_start design_analysis
-                , seri_args, filename_thy, Isabelle_System.create_tmp_path "deep_export_code" "") end)
+                , file_out_path_dep, seri_args, filename_thy, Isabelle_System.create_tmp_path "deep_export_code" ""))
   || @{keyword "shallow"} |-- parse_sem_ocl >> (fn (design_analysis, oid_start) =>
        Gen_shallow (mk_ocl true NONE oid_start design_analysis, ()))
   || @{keyword "syntax_print"} >> K Gen_syntax_print
   end
 
-val gen_empty = ""
-val ocamlfile_function = "function.ml"
-val ocamlfile_argument = "argument.ml"
-val ocamlfile_main = "main.ml"
-val ocamlfile_ocp = "write"
-val argument_main = "main"
 
 fun f_command l_mode =
       Toplevel.theory (fn thy =>
@@ -482,29 +531,22 @@ fun f_command l_mode =
           (fn Gen_shallow (ocl, ()) => let val thy0 = thy in
                                        fn thy => (Gen_shallow (ocl, thy0), thy) end
             | Gen_syntax_print => (fn thy => (Gen_syntax_print, thy))
-            | Gen_deep (ocl, seri_args, filename_thy, tmp_export_code) => fn thy =>
-                let fun mk_fic s = Path.append tmp_export_code (Path.make [s])
-                    val _ = warning ("remove the directory (at the end): " ^ Path.implode tmp_export_code)
-                    val () = Isabelle_System.mkdir tmp_export_code
+            | Gen_deep (ocl, file_out_path_dep, seri_args, filename_thy, tmp_export_code) => fn thy =>
+                let val _ = warning ("remove the directory (at the end): " ^ Path.implode tmp_export_code)
+                    val seri_args' = List_mapi (fn i => fn ((ml_compiler, ml_module), export_arg) =>
+                      let val tmp_export_code = Deep.mk_path_export_code tmp_export_code ml_compiler i
+                          fun mk_fic s = Path.append tmp_export_code (Path.make [s])
+                          val () = Isabelle_System.mkdirs tmp_export_code in
+                      ((((ml_compiler, ml_module), Path.implode (mk_fic Deep0.ocamlfile_function)), export_arg), mk_fic)
+                      end) seri_args
                     val _ = Deep.export_code_cmd_gen
-                              (fn f => let val filename = Path.implode (mk_fic ocamlfile_function) in
-                                f [(((("OCaml", "M"), filename), []), filename)] end)
-                              (fn _ => fn _ => ("", ()))
-                              (fn _ => fn _ => ())
-                              ["write_file"] filename_thy (Code_printing.apply_code_printing thy)
-                    val () = File.write (mk_fic (ocamlfile_ocp ^ ".ocp"))
-                              (String.concat [ "comp += \"-g\" link += \"-g\" "
-                                             , "begin generated = true begin library \"nums\" end end "
-                                             , "begin program \"", ocamlfile_ocp, "\" sort = true files = [ \"", ocamlfile_function
-                                             , "\" \"", ocamlfile_argument
-                                             , "\" \"", ocamlfile_main
-                                             , "\" ]"
-                                             , "requires = [\"nums\"] "
-                                             , "end" ])
-                    val () = File.write (mk_fic ocamlfile_main) ("let _ = Function.M.write_file (Obj.magic (Argument.M." ^
-                      Deep.mk_free (Proof_Context.init_global thy) argument_main [] ^ "))") in
-                (Gen_deep (ocl, seri_args, filename_thy, tmp_export_code), thy) end) l_mode thy in
-        Data_gen.map (Symtab.map_default (gen_empty, l_mode) (fn _ => l_mode)) thy
+                              ["write_file"]
+                              (Code_printing.apply_code_printing thy)
+                              (List.map fst seri_args')
+                    val () = fold (fn ((((ml_compiler, ml_module), _), _), mk_fic) => fn _ =>
+                      Deep0.find_init ml_compiler mk_fic ml_module Deep.mk_free thy) seri_args' () in
+                (Gen_deep (ocl, file_out_path_dep, seri_args, filename_thy, tmp_export_code), thy) end) l_mode thy in
+        Data_gen.map (Symtab.map_default (Deep0.gen_empty, l_mode) (fn _ => l_mode)) thy
         end)
 end
 *}
@@ -742,27 +784,28 @@ subsection{* ... *}
 
 ML{*
 
-fun exec_deep (ocl, seri_args, filename_thy, tmp_export_code, l_obj) thy0 =
+fun exec_deep (ocl, file_out_path_dep, seri_args, filename_thy, tmp_export_code, l_obj) thy0 =
   let open Generation_mode in
   let val i_of_arg =
     let val a = OCL.i_apply
       ; val b = I in
     OCL.i_of_ocl_compiler_config a b (fn a => fn b => OCL.i_of_list a b (OCL.i_of_ocl_deep_embed_ast a b))
     end in
-              let fun def s = in_local (snd o Specification.definition_cmd (NONE, ((@{binding ""}, []), s)) false) in
-                let val name_main = Deep.mk_free (Proof_Context.init_global thy0) argument_main [] in
-                thy0 |> def (String.concatWith " " (  name_main
-                                                  :: "="
-                                                  :: To_string (i_of_arg (OCL.ocl_compiler_config_more_map (fn () => l_obj) ocl))
-                                                  :: []))
-                     |> Deep.export_code_cmd' [name_main] seri_args filename_thy (fn tmp_file => fn arg =>
-                          let val out = Isabelle_System.bash_output
-                                        ("cp " ^ tmp_file ^ " " ^ Path.implode (Path.append tmp_export_code (Path.make [ocamlfile_argument])) ^
-                                         " && cd " ^ Path.implode tmp_export_code ^
-                                         " && bash -c 'ocp-build -init -scan -no-bytecode 2>&1' 2>&1 > /dev/null" ^
-                                         " && ./_obuild/" ^ ocamlfile_ocp ^ "/" ^ ocamlfile_ocp ^ ".asm " ^ arg) in
-                          out end)
-                          Deep.msg_err
+  let fun def s = in_local (snd o Specification.definition_cmd (NONE, ((@{binding ""}, []), s)) false) in
+  let val name_main = Deep.mk_free (Proof_Context.init_global thy0) Deep0.argument_main [] in
+  thy0 |> def (String.concatWith " " (  name_main
+                                    :: "="
+                                    :: To_string (i_of_arg (OCL.ocl_compiler_config_more_map (fn () => l_obj) ocl))
+                                    :: []))
+       |> Deep.export_code_cmd' seri_args tmp_export_code 
+            (fn (((_, _), msg), _) => fn err => if err <> 0 then error msg else ()) filename_thy [name_main]
+       |> (fn l => if Deep.list_all_eq l then hd l else error "There is an extracted language which does not produce a similar Isabelle content as the others")
+       |> (fn s =>
+             writeln
+               (case (file_out_path_dep, filename_thy) of
+                  (SOME _, SOME _) => s
+                | _ => String.concat (map ((fn s => s ^ "\n") o Active.sendback_markup [Markup.padding_command] o trim_line)
+                   (String.tokens (fn c => From.from_char c = OCL.char_escape) s))))
 
 end end end end
 
@@ -776,18 +819,12 @@ fun outer_syntax_command mk_string cmd_spec cmd_descr parser get_oclclass =
 
           let val get_oclclass = get_oclclass name in
           fn Gen_syntax_print => (fn thy => let val _ = writeln (mk_string name) in (Gen_syntax_print, thy) end)
-           | Gen_deep (ocl, seri_args, filename_thy, tmp_export_code) =>
+           | Gen_deep (ocl, file_out_path_dep, seri_args, filename_thy, tmp_export_code) =>
               (fn thy0 =>
                 let val obj = get_oclclass thy0
                   ; val l_obj = [obj] in
-                thy0 |> exec_deep (OCL.d_file_out_path_dep_update (fn _ => NONE) ocl, seri_args, NONE, tmp_export_code, l_obj)
-                     |> (fn s =>
-                          let val _ = writeln
-                                (case seri_args of [] =>
-                                  String.concat (map ((fn s => s ^ "\n") o Active.sendback_markup [Markup.padding_command] o trim_line)
-                                    (String.tokens (fn c => From.from_char c = OCL.char_escape) s))
-                                | _ => s) in
-                          (Gen_deep (OCL.fold_thy_deep l_obj ocl, seri_args, filename_thy, tmp_export_code), thy0) end)
+                thy0 |> exec_deep (OCL.d_file_out_path_dep_update (fn _ => NONE) ocl, file_out_path_dep, seri_args, NONE, tmp_export_code, l_obj)
+                     |> K (Gen_deep (OCL.fold_thy_deep l_obj ocl, file_out_path_dep, seri_args, filename_thy, tmp_export_code), thy0)
                 end)
            | Gen_shallow (ocl, thy0) => fn thy =>
              let val (ocl, thy) = OCL.fold_thy_shallow
@@ -804,10 +841,10 @@ fun outer_syntax_command mk_string cmd_spec cmd_descr parser get_oclclass =
              end
           end
 
-          (case Symtab.lookup (Data_gen.get thy) gen_empty of SOME l => l | _ => [Gen_syntax_print])
+          (case Symtab.lookup (Data_gen.get thy) Deep0.gen_empty of SOME l => l | _ => [Gen_syntax_print])
           thy
         in
-        Data_gen.map (Symtab.update (gen_empty, ocl)) thy end)))
+        Data_gen.map (Symtab.update (Deep0.gen_empty, ocl)) thy end)))
 end
 *}
 
@@ -821,21 +858,15 @@ val () = let open Generation_mode in
     (fn SOME x => f_command x
       | NONE =>
       Toplevel.theory (fn thy =>
-        let val l = case Symtab.lookup (Data_gen.get thy) gen_empty of SOME l => l | _ => []
+        let val l = case Symtab.lookup (Data_gen.get thy) Deep0.gen_empty of SOME l => l | _ => []
             val l = List.concat (List.map (fn Gen_deep x => [x] | _ => []) l)
             val _ = case l of [] => warning "Nothing to perform." | _ => ()
             val thy =
         fold
-          (fn (ocl, seri_args, filename_thy, tmp_export_code) => fn thy0 =>
+          (fn (ocl, file_out_path_dep, seri_args, filename_thy, tmp_export_code) => fn thy0 =>
                 thy0 |> let val (ocl, l_exec) = OCL.ocl_compiler_config_reset_all ocl in
-                        exec_deep (ocl, seri_args, filename_thy, tmp_export_code, l_exec) end
-                     |> (fn s =>
-                          let val _ = writeln
-                                (case seri_args of [] =>
-                                  String.concat (map ((fn s => s ^ "\n") o Active.sendback_markup [Markup.padding_command] o trim_line)
-                                    (String.tokens (fn c => From.from_char c = OCL.char_escape) s))
-                                | _ => s) in
-                          thy0 end))
+                        exec_deep (ocl, file_out_path_dep, seri_args, filename_thy, tmp_export_code, l_exec) end
+                     |> K thy0)
           l
           thy
         in

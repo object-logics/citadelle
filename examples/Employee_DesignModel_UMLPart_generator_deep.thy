@@ -54,6 +54,7 @@ generation_syntax [ deep
                       (THEORY Employee_DesignModel_UMLPart_generated)
                       (IMPORTS ["../src/OCL_main", "../src/OCL_class_diagram_static"])
                       SECTION
+                      [ in OCaml module_name M (no_signatures) ]
                       (output_directory "../doc") ]
 
 Class Person < Planet
