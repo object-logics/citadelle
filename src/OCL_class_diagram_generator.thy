@@ -178,8 +178,8 @@ definition "i_of_ocl_class a b = (\<lambda>f0 f1 f2 f3 f4. ocl_class_rec_1 (co2 
     (b ''Nil'')
     (ar2 a (b ''Cons'') id)"
 
-definition "i_of_ocl_class_flat a b f = ocl_class_flat_rec
-  (ap4 a (b ''ocl_class_flat_ext'')
+definition "i_of_ocl_class_raw a b f = ocl_class_raw_rec
+  (ap4 a (b ''ocl_class_raw_ext'')
     (i_of_string a b)
     (i_of_list a b (i_of_pair a b (i_of_string a b) (i_of_ocl_ty a b)))
     (i_of_option a b (i_of_string a b))
@@ -196,10 +196,10 @@ definition "i_of_ocl_association a b f = ocl_association_rec
     (i_of_list a b (i_of_pair a b (i_of_string a b) (i_of_pair a b (i_of_ocl_multiplicity a b) (i_of_option a b (i_of_string a b)))))
     (f a b))"
 
-definition "i_of_ocl_ass_class_flat a b = ocl_ass_class_flat_rec
-  (ap2 a (b ''OclAssClassFlat'')
+definition "i_of_ocl_ass_class a b = ocl_ass_class_rec
+  (ap2 a (b ''OclAssClass'')
     (i_of_ocl_association a b (K i_of_unit))
-    (i_of_ocl_class_flat a b (K i_of_unit)))"
+    (i_of_ocl_class_raw a b (K i_of_unit)))"
 
 definition "i_of_ocl_data_shallow_base a b = ocl_data_shallow_base_rec
   (ap1 a (b ''ShallB_str'') (i_of_string a b))
@@ -245,9 +245,9 @@ definition "i_of_ocl_flush_all a b = ocl_flush_all_rec
   (b ''OclFlushAll'')"
 
 definition "i_of_ocl_deep_embed_ast a b = ocl_deep_embed_ast_rec
-  (ap1 a (b ''OclAstClassFlat'') (i_of_ocl_class_flat a b (K i_of_unit)))
+  (ap1 a (b ''OclAstClassRaw'') (i_of_ocl_class_raw a b (K i_of_unit)))
   (ap1 a (b ''OclAstAssociation'') (i_of_ocl_association a b (K i_of_unit)))
-  (ap1 a (b ''OclAstAssClassFlat'') (i_of_ocl_ass_class_flat a b))
+  (ap1 a (b ''OclAstAssClass'') (i_of_ocl_ass_class a b))
   (ap1 a (b ''OclAstInstance'') (i_of_ocl_instance a b))
   (ap1 a (b ''OclAstDefInt'') (i_of_ocl_def_int a b))
   (ap1 a (b ''OclAstDefState'') (i_of_ocl_def_state a b))
@@ -258,8 +258,8 @@ definition "i_of_ocl_deep_mode a b = ocl_deep_mode_rec
   (b ''Gen_design'')
   (b ''Gen_analysis'')"
 
-definition "i_of_ocl_deep_embed_input a b f = ocl_deep_embed_input_rec
-  (ap10 a (b ''ocl_deep_embed_input_ext'')
+definition "i_of_ocl_compiler_config a b f = ocl_compiler_config_rec
+  (ap10 a (b ''ocl_compiler_config_ext'')
     (i_of_bool b)
     (i_of_option a b (i_of_pair a b (i_of_string a b) (i_of_list a b (i_of_string a b))))
     (i_of_internal_oids a b)
@@ -305,9 +305,9 @@ code_reflect OCL
              char_escape
              unicode_Rightarrow unicode_Longrightarrow
              fold_thy_shallow fold_thy_deep
-             ocl_deep_embed_input_empty ocl_deep_embed_input_more_map ocl_deep_embed_input_reset_all oidInit
+             ocl_compiler_config_empty ocl_compiler_config_more_map ocl_compiler_config_reset_all oidInit
              D_file_out_path_dep_update
-             i_apply i_of_ocl_deep_embed_input i_of_ocl_deep_embed_ast
+             i_apply i_of_ocl_compiler_config i_of_ocl_deep_embed_ast
 
 ML{*
  val To_string = implode o map str
@@ -340,7 +340,7 @@ fun in_local decl thy =
   |> Local_Theory.exit_global
 *}
 
-subsection{* Deep (with reflection) *}
+subsection{* General Compiling Process: Deep (with reflection) *}
 
 ML{*
 structure Deep = struct
@@ -417,11 +417,11 @@ fun annot_ty f = Parse.$$$ "(" |-- f --| Parse.$$$ "::" -- Parse.binding --| Par
 
 ML{*
 structure Generation_mode = struct
-datatype 'a generation_mode = Gen_deep of unit OCL.ocl_deep_embed_input_ext
+datatype 'a generation_mode = Gen_deep of unit OCL.ocl_compiler_config_ext
                                         * (((bstring * bstring) * bstring) * Token.T list) list (* seri_args *)
                                         * bstring option (* filename_thy *)
                                         * Path.T (* tmp dir export_code *)
-                            | Gen_shallow of unit OCL.ocl_deep_embed_input_ext
+                            | Gen_shallow of unit OCL.ocl_compiler_config_ext
                                            * 'a (* theory init *)
                             | Gen_syntax_print
 
@@ -451,7 +451,7 @@ val parse_sem_ocl =
 
 val mode =
   let fun mk_ocl disable_thy_output file_out_path_dep oid_start design_analysis = 
-    OCL.ocl_deep_embed_input_empty
+    OCL.ocl_compiler_config_empty
                     (From.from_bool disable_thy_output)
                     (From.from_option (From.from_pair From.from_string (From.from_list From.from_string)) file_out_path_dep)
                     (OCL.oidInit (From.from_internal_oid (From.from_nat oid_start)))
@@ -509,7 +509,7 @@ fun f_command l_mode =
 end
 *}
 
-subsection{* Shallow *}
+subsection{* General Compiling Process: Shallow *}
 
 ML{* 
 structure OCL_overload = struct
@@ -747,13 +747,13 @@ fun exec_deep (ocl, seri_args, filename_thy, tmp_export_code, l_obj) thy0 =
   let val i_of_arg =
     let val a = OCL.i_apply
       ; val b = I in
-    OCL.i_of_ocl_deep_embed_input a b (fn a => fn b => OCL.i_of_list a b (OCL.i_of_ocl_deep_embed_ast a b))
+    OCL.i_of_ocl_compiler_config a b (fn a => fn b => OCL.i_of_list a b (OCL.i_of_ocl_deep_embed_ast a b))
     end in
               let fun def s = in_local (snd o Specification.definition_cmd (NONE, ((@{binding ""}, []), s)) false) in
                 let val name_main = Deep.mk_free (Proof_Context.init_global thy0) argument_main [] in
                 thy0 |> def (String.concatWith " " (  name_main
                                                   :: "="
-                                                  :: To_string (i_of_arg (OCL.ocl_deep_embed_input_more_map (fn () => l_obj) ocl))
+                                                  :: To_string (i_of_arg (OCL.ocl_compiler_config_more_map (fn () => l_obj) ocl))
                                                   :: []))
                      |> Deep.export_code_cmd' [name_main] seri_args filename_thy (fn tmp_file => fn arg =>
                           let val out = Isabelle_System.bash_output
@@ -827,7 +827,7 @@ val () = let open Generation_mode in
             val thy =
         fold
           (fn (ocl, seri_args, filename_thy, tmp_export_code) => fn thy0 =>
-                thy0 |> let val (ocl, l_exec) = OCL.ocl_deep_embed_input_reset_all ocl in
+                thy0 |> let val (ocl, l_exec) = OCL.ocl_compiler_config_reset_all ocl in
                         exec_deep (ocl, seri_args, filename_thy, tmp_export_code, l_exec) end
                      |> (fn s =>
                           let val _ = writeln
@@ -907,9 +907,9 @@ subsection{* Outer Syntax: (abstract) class *}
 ML{*
 datatype use_classDefinition = USE_class | USE_class_abstract
 
-structure Outer_syntax_ClassFlat = struct
+structure Outer_syntax_Class = struct
   fun make binding child attribute =
-    (OCL.Ocl_class_flat_ext
+    (OCL.Ocl_class_raw_ext
          ( From.from_binding binding
          , List.map (fn (b, ty) => (From.from_binding b, OCL.OclTy_base (From.from_binding ty))) attribute
          , case child of [] => NONE | [x] => SOME (From.from_binding x)
@@ -928,7 +928,7 @@ local
      -- class_def_constr
      --| @{keyword "End"})
     (fn ((((binding, child), attribute), _), _) => fn _ =>
-       OCL.OclAstClassFlat (Outer_syntax_ClassFlat.make binding child attribute))
+       OCL.OclAstClassRaw (Outer_syntax_Class.make binding child attribute))
 in
 val () = mk_classDefinition USE_class @{command_spec "Class"}
 val () = mk_classDefinition USE_class_abstract @{command_spec "Abstract_class"}  
@@ -988,8 +988,8 @@ local
      -- optional Parse.alt_string
      --| @{keyword "End"})
     (fn ((((((binding, child), o_l), attribute), _), _), _) => fn _ =>
-      OCL.OclAstAssClassFlat (OCL.OclAssClassFlat ( Outer_syntax_Association.make OCL.OclAssTy_association (case o_l of NONE => [] | SOME l => l)
-                                                  , Outer_syntax_ClassFlat.make binding child attribute)))
+      OCL.OclAstAssClass (OCL.OclAssClass ( Outer_syntax_Association.make OCL.OclAssTy_association (case o_l of NONE => [] | SOME l => l)
+                                          , Outer_syntax_Class.make binding child attribute)))
 in
 val () = mk_associationClassDefinition USE_associationclass @{command_spec "Associationclass"}
 val () = mk_associationClassDefinition USE_associationclass_abstract @{command_spec "Abstract_associationclass"}
