@@ -57,26 +57,26 @@ text{* These recursive predicates can be defined conservatively
 by greatest fix-point
 constructions---automatically. See~\cite{brucker.ea:hol-ocl-book:2006,brucker:interactive:2007}
 for details. For the purpose of this example, we state them as axioms
+here.
 
-\begin{veratim}
-Context Person
-  inv label : not(self .boss \<doteq> null) implies (self .salary  \<le>  self .boss .salary
-\end{verbatim}
-
-here. *}
+\begin{ocl}
+context Person
+  inv label : self .boss <> null implies (self .salary  `\<le>  ((self .boss) .salary))
+\end{ocl}
+*}
 
 axiomatization inv_Person_label :: "Person \<Rightarrow> Boolean"
 where inv_Person_label_post:
 "(\<tau> \<Turnstile> (\<delta> self)) \<longrightarrow> (\<tau> \<Turnstile> (inv_Person_label(self) \<triangleq> 
-                           not(self .boss \<doteq> null) implies 
-                                   (self .salary  `\<le>  self .boss .salary and
+                           (self .boss <> null implies 
+                                   (self .salary  `\<le>  ((self .boss) .salary)) and
                                    inv_Person_label(self .boss))))"
 
 axiomatization inv_Person_label_pre :: "Person \<Rightarrow> Boolean"
 where inv_Person_label_pre: 
 "(\<tau> \<Turnstile> (\<delta> self)) \<longrightarrow> (\<tau> \<Turnstile> (inv_Person_label_pre(self) \<triangleq> 
-                             not(self .boss@pre \<doteq> null) implies 
-                                   (self .salary@pre  `\<le>  self .boss@pre .salary@pre and
+                           (self .boss@pre <> null implies 
+                                   (self .salary@pre  `\<le>  ((self .boss@pre) .salary@pre)) and
                                    inv_Person_label_pre(self .boss@pre))))"
 
 
