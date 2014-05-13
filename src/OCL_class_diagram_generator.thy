@@ -302,31 +302,7 @@ definition "i_apply l1 l2 = flatten [l1, '' ('', l2, '')'']"
 
 subsection{* global *}
 
-ML{* 
-structure OCL_boot = struct
-  local
-    fun sprintf s l = 
-      case String.fields (fn #"%" => true | _ => false) s of
-        [] => ""
-      | [x] => x
-      | x :: xs => 
-          let fun aux acc l_pat l_s = 
-            case l_pat of 
-              [] => rev acc
-            | x :: xs => aux (String.extract (x, 1, NONE) :: hd l_s :: acc) xs (tl l_s) in
-          String.concat (x :: aux [] xs l)
-    end
-  in
-    fun sprintf0 s_pat = s_pat
-    fun sprintf1 s_pat s1 = sprintf s_pat [s1]
-    fun sprintf2 s_pat s1 s2 = sprintf s_pat [s1, s2]
-    fun sprintf3 s_pat s1 s2 s3 = sprintf s_pat [s1, s2, s3]
-    fun sprintf4 s_pat s1 s2 s3 s4 = sprintf s_pat [s1, s2, s3, s4]
-    fun sprintf5 s_pat s1 s2 s3 s4 s5 = sprintf s_pat [s1, s2, s3, s4, s5]
-  end
-end
-*}
-
+apply_code_printing_reflect ()
 code_reflect OCL
    functions nibble_rec char_rec 
              s_of_rawty s_of_expr s_of_sexpr
@@ -799,9 +775,7 @@ val OCL_main = let open OCL open OCL_overload in (*let val f = *)fn
                                      [((To_sbinding n, []), [s_of_expr e])]
 | Thy_section_title _ => I
 | Thy_text _ => I
-| Thy_ml ml => fn thy =>
-    case ML_Context.exec (fn () => ML_Context.eval_text false Position.none (case ml of Ml ml => s_of_sexpr ml)) (Context.Theory thy) of
-      Context.Theory thy => thy
+| Thy_ml ml => Code_printing.reflect_ml (case ml of Ml ml => s_of_sexpr ml)
 (*in fn t => fn thy => f t thy handle ERROR s => (warning s; thy)
  end*)
 end

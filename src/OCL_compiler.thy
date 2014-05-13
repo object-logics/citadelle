@@ -50,7 +50,7 @@ imports "~~/src/HOL/Library/RBT"
         "~~/src/HOL/Library/Code_Char"
         OCL_compiler_ast
   keywords (* hol syntax *)
-           "lazy_code_printing" "apply_code_printing" "fun_sorry" "fun_quick"
+           "lazy_code_printing" "apply_code_printing" "apply_code_printing_reflect" "fun_sorry" "fun_quick"
 
            :: thy_decl
 begin
@@ -3842,12 +3842,29 @@ val () =
 end
 
 fun apply_code_printing thy =
-               (case Symtab.lookup (Data_code.get thy) code_empty of SOME l => rev l | _ => [])
-            |> (fn l => fold (fn Code_printing l => fold Code_Target.set_printings l) l thy)
+    (case Symtab.lookup (Data_code.get thy) code_empty of SOME l => rev l | _ => [])
+ |> (fn l => fold (fn Code_printing l => fold Code_Target.set_printings l) l thy)
 
 val () =
   Outer_Syntax.command @{command_spec "apply_code_printing"} "apply dedicated printing for code symbols"
     (Parse.$$$ "(" -- Parse.$$$ ")" >> K (Toplevel.theory apply_code_printing))
+
+fun reflect_ml txt thy =
+  case ML_Context.exec (fn () => ML_Context.eval_text false Position.none txt) (Context.Theory thy) of
+    Context.Theory thy => thy
+
+fun apply_code_printing_reflect thy =
+    (case Symtab.lookup (Data_code.get thy) code_empty of SOME l => rev l | _ => [])
+ |> (fn l => fold (fn Code_printing l =>
+      fold (fn Code_Symbol.Module (_, l) =>
+                 fold (fn ("SML", SOME (txt, _)) => reflect_ml txt
+                        | _ => I) l
+             | _ => I) l) l thy)
+
+val () =
+  Outer_Syntax.command @{command_spec "apply_code_printing_reflect"} "apply dedicated printing for code symbols"
+    (Parse.$$$ "(" -- Parse.$$$ ")" >> K (Toplevel.theory apply_code_printing_reflect))
+
 end
 *}
 
