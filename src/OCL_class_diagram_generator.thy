@@ -713,9 +713,9 @@ val OCL_main = let open OCL open OCL_overload in (*let val f = *)fn
      end)
 | Thy_defs_overloaded (Defs_overloaded (n, e)) =>
     Isar_Cmd.add_defs ((false, true), [((To_sbinding n, s_of_expr e), [])])
-| Thy_consts_class (Consts_raw (n, ty_out1, ty_out2, symb)) =>
+| Thy_consts_class (Consts_raw (n, ty, symb)) =>
     Sign.add_consts [( To_sbinding n
-                     , String.concatWith " " [ (s_of_rawty ty_out1), To_string unicode_Rightarrow, (s_of_rawty ty_out2) ]
+                     , s_of_rawty ty
                      , Mixfix ("(_) " ^ To_string symb, [], 1000))]
 | Thy_definition_hol def =>
     let val (def, e) = case def of

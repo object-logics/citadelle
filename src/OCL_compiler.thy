@@ -435,6 +435,8 @@ datatype hol_dataty = Datatype string (* name *)
 datatype hol_raw_ty =
    Ty_apply hol_raw_ty "hol_raw_ty list"
  | Ty_base string
+ | Ty_arrow hol_raw_ty hol_raw_ty
+ | Ty_times hol_raw_ty hol_raw_ty
 
 datatype hol_ty_synonym = Type_synonym string (* name *)
                                        hol_raw_ty (* content *)
@@ -445,7 +447,7 @@ datatype hol_expr = Expr_case hol_expr (* value *)
                   | Expr_basic "string list"
                   | Expr_oid string (* prefix *) internal_oid
                   | Expr_binop hol_expr string hol_expr
-                  | Expr_annot hol_expr string (* type *)
+                  | Expr_annot0 hol_expr hol_raw_ty
                   | Expr_bind string (* symbol *) "string list" (* arg *) hol_expr
                   | Expr_bind0 string (* symbol *) hol_expr (* arg *) hol_expr
                   | Expr_function "(hol_expr (* pattern *) \<times> hol_expr (* to return *)) list"
@@ -462,8 +464,7 @@ datatype hol_instantiation_class = Instantiation string (* name *)
 datatype hol_defs_overloaded = Defs_overloaded string (* name *) hol_expr (* content *)
 
 datatype hol_consts_class = Consts_raw string (* name *)
-                                       hol_raw_ty (* type in *)
-                                       hol_raw_ty (* type out *)
+                                       hol_raw_ty
                                        string (* ocl 'post' mixfix *)
 
 datatype hol_definition_hol = Definition hol_expr
@@ -784,6 +785,7 @@ definition "class_arity = keys o (\<lambda>l. List.fold (\<lambda>x. insert x ()
 definition "split_ty name = List_map (\<lambda>s. hol_split (s @@ isub_of_str name)) [datatype_ext_name, datatype_name]"
 definition "thm_OF s l = List.fold (\<lambda>x acc. Thm_OF acc x) l s"
 definition "thm_simplified s l = List.fold (\<lambda>x acc. Thm_simplified acc x) l s"
+definition "Expr_annot e s = Expr_annot0 e (Ty_base s)"
 definition "Expr_lambdas = Expr_bind unicode_lambda"
 definition "Expr_lambda x = Expr_lambdas [x]"
 definition "Expr_lambdas0 = Expr_bind0 unicode_lambda"
@@ -812,9 +814,19 @@ definition "Expr_pair e1 e2 = Expr_parenthesis (Expr_binop e1 '','' e2)"
 definition "Sexpr_pair e1 e2 = Sexpr_parenthesis (Sexpr_binop e1 '','' e2)"
 definition "Sexpr_pair' f1 f2 = (\<lambda> (e1, e2) \<Rightarrow> Sexpr_parenthesis (Sexpr_binop (f1 e1) '','' (f2 e2)))"
 definition "Expr_string s = Expr_basic [flatten [[Char Nibble2 Nibble2], s, [Char Nibble2 Nibble2]]]"
-definition "Consts s = Consts_raw s (Ty_base (Char Nibble2 Nibble7 # unicode_alpha))"
+definition "Consts_value = ''(_)''"
+definition "Consts_raw0 s l e o_arg = Consts_raw s l (e @@ (case o_arg of
+         None \<Rightarrow> ''''
+       | Some arg \<Rightarrow>
+           let ap = \<lambda>s. '''('' @@ s @@ ''')'' in
+           ap (if arg = 0 then
+                ''''
+              else
+                Consts_value @@ (flatten (List_map (\<lambda>_. '','' @@ Consts_value) (List_upto 2 arg))))))"
+definition "Consts s l e = Consts_raw0 s (Ty_arrow (Ty_base (Char Nibble2 Nibble7 # unicode_alpha)) l) e None"
 definition "Tac_subst = Tac_subst_l [''0'']"
 definition "Tac_auto = Tac_auto_simp_add []"
+definition "ty_arrow l = (case rev l of x # xs \<Rightarrow> List.fold Ty_arrow xs x)"
 
 definition "start_map f = fold_list (\<lambda>x acc. (f x, acc))"
 definition "start_map' f x accu = (f x, accu)"
@@ -2392,24 +2404,25 @@ definition "print_access_dot_consts = start_map Thy_consts_class o
     List_map (\<lambda>(attr_n, attr_ty).
       List_map
         (\<lambda>(var_at_when_hol, var_at_when_ocl).
-          Consts_raw
+          Consts_raw0
             (flatten [ ''dot''
                      , case attr_ty of
                          OclTy_object ty_obj \<Rightarrow> flatten [''_'', natural_of_str (TyObjN_ass_switch (TyObj_from ty_obj)), ''_'']
                        | _ \<Rightarrow> ''''
                      , isup_of_str attr_n, var_at_when_hol])
-            (Ty_apply (Ty_base ''val'') [Ty_base unicode_AA, Ty_base (Char Nibble2 Nibble7 # unicode_alpha)])
-            (case attr_ty of
-                OclTy_base attr_ty \<Rightarrow> Ty_apply (Ty_base ''val'') [Ty_base unicode_AA,
-                  let option = \<lambda>x. Ty_apply (Ty_base ''option'') [x] in
-                  option (option (Ty_base attr_ty))]
-              | OclTy_object ty_obj \<Rightarrow> 
-                  let ty_obj = TyObj_to ty_obj
-                    ; name = TyObjN_role_ty ty_obj in
-                  Ty_base (if single_multip (TyObjN_role_multip ty_obj) then
-                             name
-                           else
-                             print_infra_type_synonym_class_set_name name))
+            (Ty_arrow
+              (Ty_apply (Ty_base ''val'') [Ty_base unicode_AA, Ty_base (Char Nibble2 Nibble7 # unicode_alpha)])
+              (case attr_ty of
+                  OclTy_base attr_ty \<Rightarrow> Ty_apply (Ty_base ''val'') [Ty_base unicode_AA,
+                    let option = \<lambda>x. Ty_apply (Ty_base ''option'') [x] in
+                    option (option (Ty_base attr_ty))]
+                | OclTy_object ty_obj \<Rightarrow> 
+                    let ty_obj = TyObj_to ty_obj
+                      ; name = TyObjN_role_ty ty_obj in
+                    Ty_base (if single_multip (TyObjN_role_multip ty_obj) then
+                               name
+                             else
+                               print_infra_type_synonym_class_set_name name)))
             (let dot_name = mk_dot attr_n var_at_when_ocl
                ; mk_par = 
                    let esc = \<lambda>s. Char Nibble2 Nibble7 # s in
@@ -2418,7 +2431,8 @@ definition "print_access_dot_consts = start_map Thy_consts_class o
                (case apply_optim_ass_arity ty_obj (mk_par dot_name (bug_ocaml_extraction (let ty_obj = TyObj_from ty_obj in case TyObjN_role_name ty_obj of None => natural_of_str (TyObjN_ass_switch ty_obj) | Some s => s))) of
                   None \<Rightarrow> dot_name
                 | Some dot_name \<Rightarrow> dot_name)
-                           | _ \<Rightarrow> dot_name))
+                           | _ \<Rightarrow> dot_name)
+            None)
         [ (var_at_when_hol_post, var_at_when_ocl_post)
         , (var_at_when_hol_pre, var_at_when_ocl_pre)]) l_attr)"
 
@@ -2707,17 +2721,16 @@ definition "print_examp_instance_defassoc_gen name l_ocli ocl =
      (let var_oid_class = ''oid_class''
         ; var_to_from = ''to_from''
         ; var_oid = ''oid''
-        ; mk_ty = \<lambda>l. (flatten o flatten) (List_map (\<lambda>x. ['' '', x, '' '']) l) in
+        ; mk_ty = \<lambda>l. (flatten o flatten) (List_map (\<lambda>x. ['' '', x, '' '']) l)
+        ; a_l = \<lambda>s. Ty_apply (Ty_base const_oid_list) [s] in
       Expr_lambdas
         [var_oid_class, var_to_from, var_oid]
-        (Expr_annot (Expr_case
+        (Expr_annot0 (Expr_case
           (Expr_apply var_deref_assocs_list
-            [ Expr_annot (b var_to_from) (mk_ty
-                                            [ const_oid, const_oid_list, const_oid_list
-                                            , unicode_Rightarrow
-                                            , const_oid, const_oid_list
-                                            , unicode_times
-                                            , const_oid, const_oid_list])
+            [ Expr_annot0 (b var_to_from) (Ty_arrow
+                                            (a_l (a_l (Ty_base const_oid)))
+                                            (let t = a_l (Ty_base const_oid) in
+                                             Ty_times t t))
             , Expr_annot (b var_oid) const_oid
             , a ''drop''
               (Expr_applys (print_examp_def_st_assoc rbt map_self map_username
@@ -2725,7 +2738,7 @@ definition "print_examp_instance_defassoc_gen name l_ocli ocl =
                            [Expr_annot (b var_oid_class) const_oid])])
           [ (b ''Nil'', b ''None'')
           , let b_l = b ''l'' in
-            (b_l, a ''Some'' b_l)] ) (mk_ty [const_oid, const_oid_list, ''option''])))))])"
+            (b_l, a ''Some'' b_l)] ) (Ty_apply (Ty_base ''option'') [a_l (Ty_base const_oid)])))))])"
 
 definition "print_examp_instance_defassoc_typecheck_gen name l_ocli ocl =
  (let l_assoc = flatten (fst (fold_list (\<lambda>ocli cpt. (case ocli of None \<Rightarrow> []
@@ -3895,7 +3908,9 @@ definition "flat_s_of_rawty = (\<lambda>
     Ty_base s \<Rightarrow> To_string s
   | Ty_apply name l \<Rightarrow> sprintf2 (STR ''%s %s'') (let s = String_concat (STR '', '') (List.map s_of_rawty l) in
                                                  case l of [_] \<Rightarrow> s | _ \<Rightarrow> sprintf1 (STR ''(%s)'') s)
-                                                (s_of_rawty name))"
+                                                (s_of_rawty name)
+  | Ty_arrow ty1 ty2 \<Rightarrow> sprintf3 (STR ''%s %s %s'') (s_of_rawty ty1) (To_string unicode_Rightarrow) (s_of_rawty ty2)
+  | Ty_times ty1 ty2 \<Rightarrow> sprintf3 (STR ''%s %s %s'') (s_of_rawty ty1) (To_string unicode_times) (s_of_rawty ty2))"
 
 definition "s_of_ty_synonym _ = (\<lambda> Type_synonym n l \<Rightarrow>
     sprintf2 (STR ''type_synonym %s = \"%s\"'') (To_string n) (s_of_rawty l))"
@@ -3907,7 +3922,7 @@ definition "flat_s_of_expr = (\<lambda>
   | Expr_basic l \<Rightarrow> sprintf1 (STR ''%s'') (String_concat (STR '' '') (List_map To_string l))
   | Expr_oid tit s \<Rightarrow> sprintf2 (STR ''%s%d'') (To_string tit) (To_oid s)
   | Expr_binop e1 s e2 \<Rightarrow> sprintf3 (STR ''%s %s %s'') (s_of_expr e1) (s_of_expr (Expr_basic [s])) (s_of_expr e2)
-  | Expr_annot e s \<Rightarrow> sprintf2 (STR ''(%s::%s)'') (s_of_expr e) (To_string s)
+  | Expr_annot0 e s \<Rightarrow> sprintf2 (STR ''(%s::%s)'') (s_of_expr e) (s_of_rawty s)
   | Expr_bind symb l e \<Rightarrow> sprintf3 (STR ''(%s%s. %s)'') (To_string symb) (String_concat (STR '' '') (List_map To_string l)) (s_of_expr e)
   | Expr_bind0 symb e1 e2 \<Rightarrow> sprintf3 (STR ''(%s%s. %s)'') (To_string symb) (s_of_expr e1) (s_of_expr e2)
   | Expr_function l \<Rightarrow> sprintf2 (STR ''(%s %s)'') (To_string unicode_lambda) (String_concat (STR ''
@@ -3948,8 +3963,8 @@ end'')
 definition "s_of_defs_overloaded _ = (\<lambda> Defs_overloaded n e \<Rightarrow>
     sprintf2 (STR ''defs(overloaded) %s : \"%s\"'') (To_string n) (s_of_expr e))"
 
-definition "s_of_consts_class _ = (\<lambda> Consts_raw n ty_out1 ty_out2 symb \<Rightarrow>
-    sprintf5 (STR ''consts %s :: \"%s %s %s\" (\"(_) %s\")'') (To_string n) (s_of_rawty ty_out1) (To_string unicode_Rightarrow) (s_of_rawty ty_out2) (To_string symb))"
+definition "s_of_consts_class _ = (\<lambda> Consts_raw n ty symb \<Rightarrow>
+    sprintf4 (STR ''consts %s :: \"%s\" (\"%s %s\")'') (To_string n) (s_of_rawty ty) (To_string Consts_value) (To_string symb))"
 
 definition "s_of_definition_hol _ = (\<lambda>
     Definition e \<Rightarrow> sprintf1 (STR ''definition \"%s\"'') (s_of_expr e)
@@ -4138,7 +4153,7 @@ definition "write_file ocl = (
 end
 
 fun_sorry s_of_rawty where "s_of_rawty To_string e = s_of.flat_s_of_rawty To_string (s_of_rawty To_string) e"
-fun_sorry s_of_expr where "s_of_expr To_string To_nat e = s_of.flat_s_of_expr To_string To_nat (s_of_expr To_string To_nat) e"
+fun_sorry s_of_expr where "s_of_expr To_string To_nat e = s_of.flat_s_of_expr To_string To_nat (s_of_expr To_string To_nat) (s_of_rawty To_string) e"
 fun_sorry s_of_ntheorem_aux where "s_of_ntheorem_aux To_string To_nat e = s_of.flat_s_of_ntheorem_aux To_string (s_of_expr To_string To_nat) (s_of_ntheorem_aux To_string To_nat) e"
 fun_sorry s_of_tactic where "s_of_tactic To_string To_nat e = s_of.flat_s_of_tactic To_string To_nat (s_of_expr To_string To_nat) (s_of_ntheorem_aux To_string To_nat) (s_of_tactic To_string To_nat) e"
 fun_sorry s_of_sexpr where "s_of_sexpr To_string To_nat e = s_of.flat_s_of_sexpr To_string To_nat (s_of_sexpr To_string To_nat) e"
