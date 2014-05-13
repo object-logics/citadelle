@@ -3882,7 +3882,6 @@ module CodeConst = struct
 
   module Sys = struct open Sys
     let isDirectory2 s = try is_directory s with _ -> false
-    let argv = Array.to_list argv
   end
 
   module Printf = Printf
