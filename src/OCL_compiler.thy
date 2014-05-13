@@ -3872,7 +3872,7 @@ module CodeConst = struct
      (e.g. '_', '"', ...) *)
 
   let outFile1 f file =
-    let () = if Sys.file_exists file then Printf.eprintf "File exists %s\n" file else () in
+    let () = if Sys.file_exists file then Printf.eprintf "File exists \"%S\"\n" file else () in
     let oc = open_out file in
     let () = f (Printf.fprintf oc) in
     close_out oc
@@ -3958,9 +3958,6 @@ text{* module Sys *}
 
 consts Sys_is_directory2 :: "ml_string \<Rightarrow> bool"
 code_printing constant Sys_is_directory2 \<rightharpoonup> (OCaml) "CodeConst.Sys.isDirectory2"
-
-consts Sys_argv :: "ml_string list"
-code_printing constant Sys_argv \<rightharpoonup> (OCaml) "CodeConst.Sys.argv"
 
 subsection{* ... *}
 
@@ -4233,8 +4230,11 @@ subsection{* conclusion *}
 context s_of
 begin
 definition "write_file ocl = (
-  let (is_file, f_output) = case (D_file_out_path_dep ocl, Sys_argv)
-     of (Some (file_out, _), _ # dir # _) \<Rightarrow> (True, \<lambda>f. out_file1 f (if Sys_is_directory2 dir then sprintf2 (STR ''%s/%s.thy'') dir (To_string file_out) else dir))
+  let (l_thy, Sys_argv) = ocl_compiler_config.more ocl
+    ; (is_file, f_output) = case (D_file_out_path_dep ocl, Sys_argv)
+     of (Some (file_out, _), Some dir) \<Rightarrow>
+          let dir = To_string dir in
+          (True, \<lambda>f. out_file1 f (if Sys_is_directory2 dir then sprintf2 (STR ''%s/%s.thy'') dir (To_string file_out) else dir))
       | _ \<Rightarrow> (False, out_stand1) in
   f_output
     (\<lambda>fprintf1.
@@ -4245,7 +4245,7 @@ definition "write_file ocl = (
              (\<lambda>f. f ())
              (\<lambda>_ _. [])
              Cons
-             (ocl_compiler_config.more ocl)
+             l_thy
              (ocl_compiler_config.truncate ocl, []) in
          s_of_thy_list (ocl_compiler_config_more_map (\<lambda>_. is_file) ocl) (rev l)))))"
 end
@@ -4302,11 +4302,12 @@ definition "main = write_file
       \<lparr> D_disable_thy_output := False
       , D_file_out_path_dep := Some (''Employee_DesignModel_UMLPart_generated''
                                     ,[''../src/OCL_main'', ''../src/OCL_class_diagram_static'']) \<rparr>)
-   (List_map OclAstClassRaw Employee_DesignModel_UMLPart
-    @@ [ OclAstAssociation (ocl_association.make OclAssTy_association
-           [ (''Person'', OclMult [(Mult_star, None)], None)
-           , (''Person'', OclMult [(Mult_nat 0, Some (Mult_nat 1))], Some ''boss'')])
-       , OclAstFlushAll OclFlushAll]))"
+   ( List_map OclAstClassRaw Employee_DesignModel_UMLPart
+     @@ [ OclAstAssociation (ocl_association.make OclAssTy_association
+            [ (''Person'', OclMult [(Mult_star, None)], None)
+            , (''Person'', OclMult [(Mult_nat 0, Some (Mult_nat 1))], Some ''boss'')])
+        , OclAstFlushAll OclFlushAll]
+   , None))"
 (*
 apply_code_printing ()
 export_code main

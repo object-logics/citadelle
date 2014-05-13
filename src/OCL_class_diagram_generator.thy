@@ -394,15 +394,15 @@ val compiler =
            ("let _ = Function." ^ ml_module ^ ".write_file (Obj.magic (Argument." ^ ml_module ^ "." ^
             mk_free (Proof_Context.init_global thy) argument_main [] ^ "))")
          end
-    , fn tmp_export_code => fn tmp_file => fn arg =>
+    , fn tmp_export_code => fn tmp_file =>
                           Isabelle_System.bash_output
                                         ("cp " ^ tmp_file ^ " " ^ Path.implode (Path.append tmp_export_code (Path.make [ocamlfile_argument])) ^
                                          " && cd " ^ Path.implode tmp_export_code ^
                                          " && bash -c 'ocp-build -init -scan -no-bytecode 2>&1' 2>&1 > /dev/null" ^
-                                         " && ./_obuild/" ^ ocamlfile_ocp ^ "/" ^ ocamlfile_ocp ^ ".asm " ^ arg))
-  , ("SML", "ML", (fn _ => fn _ => fn _ => fn _ => error "To do"), fn _ => fn _ => fn _ => error "To do")
-  , ("Haskell", "hs", (fn _ => fn _ => fn _ => fn _ => error "To do"), fn _ => fn _ => fn _ => error "To do")
-  , ("Scala", "scala", (fn _ => fn _ => fn _ => fn _ => error "To do"), fn _ => fn _ => fn _ => error "To do") ]
+                                         " && ./_obuild/" ^ ocamlfile_ocp ^ "/" ^ ocamlfile_ocp ^ ".asm"))
+  , ("SML", "ML", (fn _ => error "To do"), fn _ => error "To do")
+  , ("Haskell", "hs", (fn _ => error "To do"), fn _ => error "To do")
+  , ("Scala", "scala", (fn _ => error "To do"), fn _ => error "To do") ]
 
 fun find_ext ml_compiler =
   case List.find (fn (ml_compiler0, _, _, _) => ml_compiler0 = ml_compiler) compiler of
@@ -467,8 +467,6 @@ fun export_code_cmd' seris tmp_export_code f_err filename_thy raw_cs thy =
                   ml_compiler
                   (mk_path_export_code tmp_export_code ml_compiler i)
                   filename
-                  (case filename_thy of NONE => ""
-                                      | SOME filename_thy => " " ^ absolute_path filename_thy thy)
               val _ = f_err seri err in
           out
           end) seris
@@ -817,13 +815,16 @@ fun exec_deep (ocl, file_out_path_dep, seri_args, filename_thy, tmp_export_code,
   let val i_of_arg =
     let val a = OCL.i_apply
       ; val b = I in
-    OCL.i_of_ocl_compiler_config a b (fn a => fn b => OCL.i_of_list a b (OCL.i_of_ocl_deep_embed_ast a b))
+    OCL.i_of_ocl_compiler_config a b (fn a => fn b => 
+      OCL.i_of_pair a b
+        (OCL.i_of_list a b (OCL.i_of_ocl_deep_embed_ast a b))
+        (OCL.i_of_option a b (OCL.i_of_string a b)))
     end in
   let fun def s = in_local (snd o Specification.definition_cmd (NONE, ((@{binding ""}, []), s)) false) in
   let val name_main = Deep.mk_free (Proof_Context.init_global thy0) Deep0.argument_main [] in
   thy0 |> def (String.concatWith " " (  name_main
                                     :: "="
-                                    :: To_string (i_of_arg (OCL.ocl_compiler_config_more_map (fn () => l_obj) ocl))
+                                    :: To_string (i_of_arg (OCL.ocl_compiler_config_more_map (fn () => (l_obj, From.from_option From.from_string (Option.map (fn filename_thy => Deep.absolute_path filename_thy thy0) filename_thy))) ocl))
                                     :: []))
        |> Deep.export_code_cmd' seri_args tmp_export_code 
             (fn (((_, _), msg), _) => fn err => if err <> 0 then error msg else ()) filename_thy [name_main]
