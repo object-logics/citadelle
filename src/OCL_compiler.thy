@@ -411,20 +411,11 @@ definition "get_class_hierarchy_sub' = (\<lambda> None \<Rightarrow> []
 
 datatype position = EQ (* equal *) | LT (* less *) | GT (* greater *) | UN' (* uncomparable *)
 
-fun_quick less_than_hierarchy where
-  "less_than_hierarchy l item1 item2 =
-    (case l of x # xs \<Rightarrow>
-               if x = item1 then GT
-               else if x = item2 then LT
-               else less_than_hierarchy xs item1 item2)"
-definition "compare_hierarchy = (\<lambda>l x1 x2. if x1 = x2 then EQ else less_than_hierarchy l x1 x2)"
-
 fun_quick fold_less_gen where "fold_less_gen f_gen f_jump f l = (case l of
     x # xs \<Rightarrow> \<lambda>acc. fold_less_gen f_gen f_jump f xs (f_gen (f x) xs (f_jump acc))
   | [] \<Rightarrow> id)"
 
 definition "fold_less2 = fold_less_gen List.fold"
-definition "fold_less3 = fold_less_gen o fold_less2"
 
 section{* SML Meta-Model aka. AST definition of SML *}
 subsection{* type definition *}
@@ -778,28 +769,11 @@ definition "map_class_arg_only_var0 = (\<lambda>f_app f_lattr isub_name name l_a
    , (var_in_pre_state, var_at_when_hol_pre, var_at_when_ocl_pre)])))"
 definition "map_class_arg_only_var f1 f2 = map_class_arg_only0 (map_class_arg_only_var0 f1 (\<lambda>l. [l])) (map_class_arg_only_var0 f2 (\<lambda> (_, Tinh l, _) \<Rightarrow> List_map (\<lambda> OclClass _ l _ \<Rightarrow> l) l))"
 definition "map_class_arg_only_var' f = map_class_arg_only0 (map_class_arg_only_var0 f (\<lambda>l. [l])) (map_class_arg_only_var0 f (\<lambda> (_, Tinh l, _) \<Rightarrow> List_map (\<lambda> OclClass _ l _ \<Rightarrow> l) l))"
-definition "map_class_nupl2 f x = rev (fst (fold_less2 (\<lambda>(l, _). (l, None)) (\<lambda>x y (l, acc). (f x y acc # l, Some y)) (rev (get_class_hierarchy x)) ([], None)))"
-definition "map_class_nupl3 f x = rev (fold_less3 id id (\<lambda>x y z l. f x y z # l) (rev (get_class_hierarchy x)) [])"
-definition "map_class_nupl2' f = map_class_nupl2 (\<lambda>(x,_) (y,_) _. f x y)"
-definition "map_class_nupl2'' f = map_class_nupl2 (\<lambda>(x,_) (y,_) opt. f x y (Option.map fst opt))"
-definition "map_class_nupl2l f x = rev (fst (fold_less2 (\<lambda>(l, _). (l, [])) (\<lambda>x y (l, acc). (f x y acc # l, y # acc)) (rev (get_class_hierarchy x)) ([], [])))"
-definition "map_class_nupl2l' f = map_class_nupl2l (\<lambda>(x,_) (y,_) l. f x y (List_map fst l))"
-definition "map_class_nupl3' f = map_class_nupl3 (\<lambda>(x,_) (y,_) (z,_). f x y z)"
-definition "map_class_nupl3l f x = rev (fst (fold_less3 (\<lambda>(l, _). (l, [])) id (\<lambda>x y z (l, acc). (f x y z acc # l, z # acc)) (rev (get_class_hierarchy x)) ([], [])))"
-definition "map_class_nupl3l' f = map_class_nupl3l (\<lambda>(x,_) (y,_) (z,_) l. f x y z (List_map fst l))"
-definition "map_class_nupl3'_GE f x = map_class_nupl2' (\<lambda>x y. f x y y) x @@ map_class_nupl3' f x"
-definition "map_class_nupl3'_LE f x = map_class_nupl2' (\<lambda>x y. f x x y) x @@ map_class_nupl3' f x"
-definition "map_class_nupl3'_LE' f x = map_class_nupl2l' (\<lambda>x y l. f x x y l) x @@ map_class_nupl3l' f x"
 definition "map_class_one f_l f expr =
   (case f_l (fst (fold_class (\<lambda>isub_name name l_attr l_inh l_inh_sib next_dataty _. ((isub_name, name, l_attr, l_inh, l_inh_sib, next_dataty), ())) () expr)) of
      (isub_name, name, l_attr, l_inh, l_inh_sib, next_dataty) # _ \<Rightarrow>
      f isub_name name l_attr l_inh l_inh_sib next_dataty)"
 definition "map_class_top = map_class_one rev"
-definition "map_class_bot = map_class_one id"
-definition "get_hierarchy_fold f f_l x = flatten (flatten (
-  let (l1, l2, l3) = f_l (List_map fst (get_class_hierarchy x)) in
-  let (_, l) = foldl (\<lambda> (name1_last, l1) name1. (Some name1, List_map (\<lambda>name2. List_map (
-  f (name1_last, name1) name2) l3) l2 # l1)) (None, []) l1 in rev l))"
 definition "get_hierarchy_map f f_l x = flatten (flatten (
   let (l1, l2, l3) = f_l (List_map fst (get_class_hierarchy x)) in
   List_map (\<lambda>name1. List_map (\<lambda>name2. List_map (f name1 name2) l3) l2) l1))"
