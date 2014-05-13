@@ -3889,6 +3889,51 @@ module CodeConst = struct
   module To = To
 end
 
+*} | code_module "" \<rightharpoonup> (SML) {* 
+
+structure OCL_boot = struct
+  local
+    fun sprintf s l = 
+      case String.fields (fn #"%" => true | _ => false) s of
+        [] => ""
+      | [x] => x
+      | x :: xs => 
+          let fun aux acc l_pat l_s = 
+            case l_pat of 
+              [] => rev acc
+            | x :: xs => aux (String.extract (x, 1, NONE) :: hd l_s :: acc) xs (tl l_s) in
+          String.concat (x :: aux [] xs l)
+    end
+  in
+    fun sprintf0 s_pat = s_pat
+    fun sprintf1 s_pat s1 = sprintf s_pat [s1]
+    fun sprintf2 s_pat s1 s2 = sprintf s_pat [s1, s2]
+    fun sprintf3 s_pat s1 s2 s3 = sprintf s_pat [s1, s2, s3]
+    fun sprintf4 s_pat s1 s2 s3 s4 = sprintf s_pat [s1, s2, s3, s4]
+    fun sprintf5 s_pat s1 s2 s3 s4 s5 = sprintf s_pat [s1, s2, s3, s4, s5]
+  end
+end
+
+structure CodeConst = struct
+  fun outFile1 f file =
+    let
+      val pfile = Path.explode file
+      val () = if File.exists pfile then error ("File exists \"" ^ file ^ "\"\n") else () in
+      f (fn a => fn b => File.write pfile (OCL_boot.sprintf1 a b))
+    end
+
+  fun outStand1 f =
+    f (fn a => fn b => writeln (OCL_boot.sprintf1 a b))
+
+  structure Sys = struct
+    val isDirectory2 = File.is_dir o Path.explode
+  end
+
+  structure To = struct
+    fun nat f = Int.toString o f
+  end
+end
+
 *}
 
 subsection{* ML type *}
@@ -3896,25 +3941,34 @@ subsection{* ML type *}
 type_synonym ml_string = String.literal
 datatype ml_int = ML_int
 
-code_printing type_constructor ml_int \<rightharpoonup> (OCaml) "CodeType.int"
+code_printing type_constructor ml_int \<rightharpoonup> (Haskell) "Prelude.Integer"
+            | type_constructor ml_int \<rightharpoonup> (OCaml) "CodeType.int"
             | type_constructor ml_int \<rightharpoonup> (SML) "string"
 
 subsection{* ML code const *}
 
 text{* ... *}
 
-(*consts out_file0 :: "((ml_string \<Rightarrow> unit) (* fprintf *) \<Rightarrow> unit) \<Rightarrow> ml_string \<Rightarrow> unit"*)
 consts out_file1 :: "((ml_string \<Rightarrow> '\<alpha>1 \<Rightarrow> unit) (* fprintf *) \<Rightarrow> unit) \<Rightarrow> ml_string \<Rightarrow> unit"
-code_printing constant out_file1 \<rightharpoonup> (OCaml) "CodeConst.outFile1"
+code_printing constant out_file1 \<rightharpoonup> (Haskell) "CodeConst.outFile1"
+            | constant out_file1 \<rightharpoonup> (OCaml) "CodeConst.outFile1"
+            | constant out_file1 \<rightharpoonup> (Scala) "CodeConst.outFile1"
+            | constant out_file1 \<rightharpoonup> (SML) "CodeConst.outFile1"
 
 consts out_stand1 :: "((ml_string \<Rightarrow> '\<alpha>1 \<Rightarrow> unit) (* fprintf *) \<Rightarrow> unit) \<Rightarrow> unit"
-code_printing constant out_stand1 \<rightharpoonup> (OCaml) "CodeConst.outStand1"
+code_printing constant out_stand1 \<rightharpoonup> (Haskell) "CodeConst.outStand1"
+            | constant out_stand1 \<rightharpoonup> (OCaml) "CodeConst.outStand1"
+            | constant out_stand1 \<rightharpoonup> (Scala) "CodeConst.outStand1"
+            | constant out_stand1 \<rightharpoonup> (SML) "CodeConst.outStand1"
 
 text{* module To *}
 
 consts ToNat :: "(nat \<Rightarrow> integer) \<Rightarrow>
                  nat \<Rightarrow> ml_int"
-code_printing constant ToNat \<rightharpoonup> (OCaml) "CodeConst.To.nat"
+code_printing constant ToNat \<rightharpoonup> (Haskell) "CodeConst.To.nat"
+            | constant ToNat \<rightharpoonup> (OCaml) "CodeConst.To.nat"
+            | constant ToNat \<rightharpoonup> (Scala) "CodeConst.To.nat"
+            | constant ToNat \<rightharpoonup> (SML) "CodeConst.To.nat"
 
 text{* module Printf *}
 
@@ -3924,39 +3978,47 @@ consts sprintf2 :: "ml_string \<Rightarrow> '\<alpha>1 \<Rightarrow> '\<alpha>2 
 consts sprintf3 :: "ml_string \<Rightarrow> '\<alpha>1 \<Rightarrow> '\<alpha>2 \<Rightarrow> '\<alpha>3 \<Rightarrow> ml_string"
 consts sprintf4 :: "ml_string \<Rightarrow> '\<alpha>1 \<Rightarrow> '\<alpha>2 \<Rightarrow> '\<alpha>3 \<Rightarrow> '\<alpha>4 \<Rightarrow> ml_string"
 consts sprintf5 :: "ml_string \<Rightarrow> '\<alpha>1 \<Rightarrow> '\<alpha>2 \<Rightarrow> '\<alpha>3 \<Rightarrow> '\<alpha>4 \<Rightarrow> '\<alpha>5 \<Rightarrow> ml_string"
-consts sprintf6 :: "ml_string \<Rightarrow> '\<alpha>1 \<Rightarrow> '\<alpha>2 \<Rightarrow> '\<alpha>3 \<Rightarrow> '\<alpha>4 \<Rightarrow> '\<alpha>5 \<Rightarrow> '\<alpha>6 \<Rightarrow> ml_string"
 
-code_printing constant sprintf0 \<rightharpoonup> (OCaml) "CodeConst.Printf.sprintf"
-code_printing constant sprintf1 \<rightharpoonup> (OCaml) "CodeConst.Printf.sprintf"
+code_printing constant sprintf0 \<rightharpoonup> (Haskell) "CodeConst.Printf.sprintf"
+            | constant sprintf0 \<rightharpoonup> (OCaml) "CodeConst.Printf.sprintf"
+            | constant sprintf0 \<rightharpoonup> (Scala) "CodeConst.Printf.sprintf"
+            | constant sprintf0 \<rightharpoonup> (SML) "OCL'_boot.sprintf0"
+code_printing constant sprintf1 \<rightharpoonup> (Haskell) "CodeConst.Printf.sprintf"
+            | constant sprintf1 \<rightharpoonup> (OCaml) "CodeConst.Printf.sprintf"
+            | constant sprintf1 \<rightharpoonup> (Scala) "CodeConst.Printf.sprintf"
             | constant sprintf1 \<rightharpoonup> (SML) "OCL'_boot.sprintf1"
-code_printing constant sprintf2 \<rightharpoonup> (OCaml) "CodeConst.Printf.sprintf"
+code_printing constant sprintf2 \<rightharpoonup> (Haskell) "CodeConst.Printf.sprintf"
+            | constant sprintf2 \<rightharpoonup> (OCaml) "CodeConst.Printf.sprintf"
+            | constant sprintf2 \<rightharpoonup> (Scala) "CodeConst.Printf.sprintf"
             | constant sprintf2 \<rightharpoonup> (SML) "OCL'_boot.sprintf2"
-code_printing constant sprintf3 \<rightharpoonup> (OCaml) "CodeConst.Printf.sprintf"
+code_printing constant sprintf3 \<rightharpoonup> (Haskell) "CodeConst.Printf.sprintf"
+            | constant sprintf3 \<rightharpoonup> (OCaml) "CodeConst.Printf.sprintf"
+            | constant sprintf3 \<rightharpoonup> (Scala) "CodeConst.Printf.sprintf"
             | constant sprintf3 \<rightharpoonup> (SML) "OCL'_boot.sprintf3"
-code_printing constant sprintf4 \<rightharpoonup> (OCaml) "CodeConst.Printf.sprintf"
-code_printing constant sprintf5 \<rightharpoonup> (OCaml) "CodeConst.Printf.sprintf"
-code_printing constant sprintf6 \<rightharpoonup> (OCaml) "CodeConst.Printf.sprintf"
-
-consts eprintf0 :: "ml_string \<Rightarrow> unit"
-code_printing constant eprintf0 \<rightharpoonup> (OCaml) "CodeConst.Printf.eprintf"
-
-(* Monomorph *)
-
-consts sprintf1s :: "ml_string \<Rightarrow> ml_string \<Rightarrow> ml_string"
-code_printing constant sprintf1s \<rightharpoonup> (OCaml) "CodeConst.Printf.sprintf"
-consts sprintf2ss :: "ml_string \<Rightarrow> ml_string \<Rightarrow> ml_string \<Rightarrow> ml_string"
-code_printing constant sprintf2ss \<rightharpoonup> (OCaml) "CodeConst.Printf.sprintf"
+code_printing constant sprintf4 \<rightharpoonup> (Haskell) "CodeConst.Printf.sprintf"
+            | constant sprintf4 \<rightharpoonup> (OCaml) "CodeConst.Printf.sprintf"
+            | constant sprintf4 \<rightharpoonup> (Scala) "CodeConst.Printf.sprintf"
+            | constant sprintf4 \<rightharpoonup> (SML) "OCL'_boot.sprintf4"
+code_printing constant sprintf5 \<rightharpoonup> (Haskell) "CodeConst.Printf.sprintf"
+            | constant sprintf5 \<rightharpoonup> (OCaml) "CodeConst.Printf.sprintf"
+            | constant sprintf5 \<rightharpoonup> (Scala) "CodeConst.Printf.sprintf"
+            | constant sprintf5 \<rightharpoonup> (SML) "OCL'_boot.sprintf5"
 
 text{* module String *}
 
 consts String_concat :: "ml_string \<Rightarrow> ml_string list \<Rightarrow> ml_string"
-code_printing constant String_concat \<rightharpoonup> (OCaml) "CodeConst.String.concat"
+code_printing constant String_concat \<rightharpoonup> (Haskell) "CodeConst.String.concat"
+            | constant String_concat \<rightharpoonup> (OCaml) "CodeConst.String.concat"
+            | constant String_concat \<rightharpoonup> (Scala) "CodeConst.String.concat"
             | constant String_concat \<rightharpoonup> (SML) "String.concatWith"
 
 text{* module Sys *}
 
 consts Sys_is_directory2 :: "ml_string \<Rightarrow> bool"
-code_printing constant Sys_is_directory2 \<rightharpoonup> (OCaml) "CodeConst.Sys.isDirectory2"
+code_printing constant Sys_is_directory2 \<rightharpoonup> (Haskell) "CodeConst.Sys.isDirectory2"
+            | constant Sys_is_directory2 \<rightharpoonup> (OCaml) "CodeConst.Sys.isDirectory2"
+            | constant Sys_is_directory2 \<rightharpoonup> (Scala) "CodeConst.Sys.isDirectory2"
+            | constant Sys_is_directory2 \<rightharpoonup> (SML) "CodeConst.Sys.isDirectory2"
 
 subsection{* ... *}
 

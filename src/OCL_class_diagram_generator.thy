@@ -317,9 +317,12 @@ structure OCL_boot = struct
           String.concat (x :: aux [] xs l)
     end
   in
+    fun sprintf0 s_pat = s_pat
     fun sprintf1 s_pat s1 = sprintf s_pat [s1]
     fun sprintf2 s_pat s1 s2 = sprintf s_pat [s1, s2]
     fun sprintf3 s_pat s1 s2 s3 = sprintf s_pat [s1, s2, s3]
+    fun sprintf4 s_pat s1 s2 s3 s4 = sprintf s_pat [s1, s2, s3, s4]
+    fun sprintf5 s_pat s1 s2 s3 s4 s5 = sprintf s_pat [s1, s2, s3, s4, s5]
   end
 end
 *}
