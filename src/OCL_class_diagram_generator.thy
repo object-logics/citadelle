@@ -170,6 +170,10 @@ definition "i_of_ocl_ty a b = (\<lambda>f1 f2. ocl_ty_rec f1 f2 o co1 K)
   (ar2 a (b ''OclTy_collection'') (i_of_ocl_collection b))
   (ap1 a (b ''OclTy_base_raw'') (i_of_string a b))"
 
+definition "i_of_ocl_ty_ctxt a b = (\<lambda>f1. ocl_ty_ctxt_rec f1 o K)
+  (ap1 a (b ''OclTyCtxt_base'') (i_of_string a b))
+  (ar1 a (b ''OclTyCtxt_set''))"
+
 definition "i_of_ocl_class a b = (\<lambda>f0 f1 f2 f3 f4. ocl_class_rec_1 (co2 K (ar3 a f0 f1 f2)) f3 (\<lambda>_ _. f4))
   (b ''OclClass'')
     (i_of_string a b)
@@ -241,6 +245,25 @@ definition "i_of_ocl_def_state a b = ocl_def_state_rec
 definition "i_of_ocl_def_pre_post a b = ocl_def_pre_post_rec
   (ap2 a (b ''OclDefPP'') (i_of_string a b) (i_of_string a b))"
 
+definition "i_of_ocl_ctxt_prefix a b = ocl_ctxt_prefix_rec
+  (b ''OclCtxtPre'')
+  (b ''OclCtxtPost'')"
+
+definition "i_of_ocl_ctxt_pre_post a b f = ocl_ctxt_pre_post_rec
+  (ap6 a (b ''ocl_ctxt_pre_post_ext'')
+    (i_of_string a b)
+    (i_of_string a b)
+    (i_of_list a b (i_of_pair a b (i_of_string a b) (i_of_ocl_ty_ctxt a b)))
+    (i_of_option a b (i_of_ocl_ty_ctxt a b))
+    (i_of_list a b (i_of_pair a b (i_of_ocl_ctxt_prefix a b) (i_of_string a b)))
+    (f a b))"
+
+definition "i_of_ocl_ctxt_inv a b f = ocl_ctxt_inv_rec
+  (ap3 a (b ''ocl_ctxt_inv_ext'')
+    (i_of_string a b)
+    (i_of_list a b (i_of_pair a b (i_of_string a b) (i_of_string a b)))
+    (f a b))"
+
 definition "i_of_ocl_flush_all a b = ocl_flush_all_rec
   (b ''OclFlushAll'')"
 
@@ -252,6 +275,8 @@ definition "i_of_ocl_deep_embed_ast a b = ocl_deep_embed_ast_rec
   (ap1 a (b ''OclAstDefInt'') (i_of_ocl_def_int a b))
   (ap1 a (b ''OclAstDefState'') (i_of_ocl_def_state a b))
   (ap1 a (b ''OclAstDefPrePost'') (i_of_ocl_def_pre_post a b))
+  (ap1 a (b ''OclAstCtxtPrePost'') (i_of_ocl_ctxt_pre_post a b (K i_of_unit)))
+  (ap1 a (b ''OclAstCtxtInv'') (i_of_ocl_ctxt_inv a b (K i_of_unit)))
   (ap1 a (b ''OclAstFlushAll'') (i_of_ocl_flush_all a b))"
 
 definition "i_of_ocl_deep_mode a b = ocl_deep_mode_rec
@@ -303,7 +328,7 @@ code_reflect OCL
    functions nibble_rec char_rec 
              s_of_rawty s_of_expr s_of_sexpr
              char_escape
-             unicode_Rightarrow unicode_Longrightarrow
+             unicode_Longrightarrow
              fold_thy_shallow fold_thy_deep
              ocl_compiler_config_empty ocl_compiler_config_more_map ocl_compiler_config_reset_all oidInit
              D_file_out_path_dep_update
@@ -768,6 +793,9 @@ val OCL_main = let open OCL open OCL_overload in (*let val f = *)fn
               |> local_terminal_proof o_by
               |> fold (K (Proof.local_qed arg)) l
               |> Proof.global_qed arg end))
+| Thy_axiom (Axiom (n, e)) => #2 o Specification.axiomatization_cmd
+                                     []
+                                     [((To_sbinding n, []), [s_of_expr e])]
 | Thy_section_title _ => I
 | Thy_text _ => I
 | Thy_ml ml => fn thy =>
@@ -882,13 +910,19 @@ structure USE_parse = struct
  val colon = Parse.$$$ ":"
  fun repeat2 scan = scan ::: Scan.repeat1 scan
  (* *)
- datatype use_opt = Ordered | Subsets of binding | Union | Redefines of binding | Derived of string | Qualifier of (binding * binding) list
+ datatype use_oclty = OclTypeBasic of binding
+                    | OclTypeSet of use_oclty
+ datatype use_opt = Ordered | Subsets of binding | Union | Redefines of binding | Derived of string | Qualifier of (binding * use_oclty) list
  datatype use_operation_def = Expression of string | BlockStat
+
+ fun from_oclty v = (fn OclTypeBasic s => OCL.OclTyCtxt_base (From.from_binding s)
+                      | OclTypeSet l => OCL.OclTyCtxt_set (from_oclty l)) v
 
  val ident_dot_dot = Parse.alt_string (* ".." *)
  val ident_star = Parse.alt_string (* "*" *)
  (* *)
- val use_type = Parse.binding
+ fun use_type v = (Parse.binding |-- Parse.$$$ "(" |-- use_type --| Parse.$$$ ")" >> OclTypeSet
+                   || Parse.binding >> OclTypeBasic) v
  val use_expression = Parse.alt_string
  val use_variableDeclaration = Parse.binding --| Parse.$$$ ":" -- use_type
  val use_paramList = Parse.$$$ "(" |-- Parse.list use_variableDeclaration --| Parse.$$$ ")"
@@ -909,7 +943,7 @@ structure USE_parse = struct
  val use_prePostClause =
       (@{keyword "Pre"} || @{keyword "Post"})
    -- optional Parse.binding
-   -- colon
+   --| colon
    -- use_expression
  val use_invariantClause = Scan.optional (@{keyword "Existential"} >> K true) false
    --| @{keyword "Inv"}
@@ -1030,9 +1064,8 @@ end
 subsection{* Outer Syntax: context *}
 
 ML{*
-datatype use_context = USE_context_invariant of ((binding list * string) option * binding) * ((bool * binding) * string) list
-                     | USE_context_pre_post of (((binding * binding) * (binding * binding) list) * (string * binding) option) *
-      (((string * binding option) * string) * string) list
+datatype ('a, 'b) use_context = USE_context_invariant of 'a
+                              | USE_context_pre_post of 'b
 local
  open USE_parse
 in
@@ -1044,17 +1077,30 @@ val () =
      --| Parse.$$$ "::"
      -- Parse.binding
      -- use_paramList
-     -- optional (Parse.$$$ ":" -- use_type)
+     -- optional (Parse.$$$ ":" |-- use_type)
      -- Scan.repeat1 use_prePostClause) >> USE_context_pre_post
     ||
     ((* use_invariant *)
-        optional (Parse.list1 Parse.binding -- colon)
+        optional (Parse.list1 Parse.binding --| colon)
      -- Parse.binding
      -- Scan.repeat use_invariantClause
      >> USE_context_invariant)
     )
-    (fn _ => fn _ =>
-       OCL.OclAstFlushAll (OCL.OclFlushAll))
+    (fn use_ctxt => fn _ =>
+      case use_ctxt of USE_context_pre_post ((((name_ty, name_fun), ty_arg), ty_out), expr) =>
+        OCL.OclAstCtxtPrePost (OCL.Ocl_ctxt_pre_post_ext
+          ( From.from_binding name_ty
+          , From.from_binding name_fun
+          , From.from_list (From.from_pair From.from_binding USE_parse.from_oclty) ty_arg
+          , From.from_option USE_parse.from_oclty ty_out
+          , From.from_list (fn ((s_pre_post, _), expr) => ( if s_pre_post = "Pre" then OCL.OclCtxtPre else OCL.OclCtxtPost
+                                                          , From.from_string expr)) expr
+          , ()))
+      | USE_context_invariant ((_, name), l) =>
+        OCL.OclAstCtxtInv (OCL.Ocl_ctxt_inv_ext
+          ( From.from_binding name
+          , From.from_list (fn ((_, s), e) => (From.from_binding s, From.from_string e)) l
+          , ())))
 end
 *}
 

@@ -138,6 +138,9 @@ datatype ocl_ty =           OclTy_base string (* ty: name *)
                           | OclTy_object ocl_ty_object
                           | OclTy_collection ocl_collection ocl_ty
                           | OclTy_base_raw string
+datatype ocl_ty_ctxt =      OclTyCtxt_base string (* ty : name *)
+                          | OclTyCtxt_set ocl_ty_ctxt
+
 
 record ocl_operation = Op_args :: "(string \<times> ocl_ty) list"
                        Op_result :: ocl_ty
@@ -199,6 +202,17 @@ datatype ocl_def_pre_post = OclDefPP
                               string (* pre *)
                               string (* post *)
 
+datatype ocl_ctxt_prefix = OclCtxtPre | OclCtxtPost
+
+record ocl_ctxt_pre_post = Ctxt_ty :: string (* class ty *)
+                           Ctxt_fun_name :: string (* function name *)
+                           Ctxt_fun_ty_arg :: "(string (* arg name *) \<times> ocl_ty_ctxt) list"
+                           Ctxt_fun_ty_out :: "ocl_ty_ctxt option" (* None : Void *)
+                           Ctxt_expr :: "(ocl_ctxt_prefix \<times> string (* expr *)) list"
+
+record ocl_ctxt_inv =      Ctxt_inv_ty :: string 
+                           Ctxt_inv_expr :: "(string (* name *) \<times> string (* expr *)) list"
+
 datatype ocl_flush_all = OclFlushAll
 
 datatype ocl_deep_embed_ast = OclAstClassRaw ocl_class_raw
@@ -208,6 +222,8 @@ datatype ocl_deep_embed_ast = OclAstClassRaw ocl_class_raw
                             | OclAstDefInt ocl_def_int
                             | OclAstDefState ocl_def_state
                             | OclAstDefPrePost ocl_def_pre_post
+                            | OclAstCtxtPrePost ocl_ctxt_pre_post
+                            | OclAstCtxtInv ocl_ctxt_inv
                             | OclAstFlushAll ocl_flush_all
 
 datatype ocl_deep_mode = Gen_design | Gen_analysis
@@ -456,6 +472,10 @@ datatype hol_expr = Expr_case hol_expr (* value *)
                   | Expr_preunary hol_expr hol_expr (* no parenthesis and separated with one space *)
                   | Expr_postunary hol_expr hol_expr (* no parenthesis and separated with one space *)
                   | Expr_paren string (* left *) string (* right *) hol_expr
+                  | Expr_if_then_else hol_expr hol_expr hol_expr
+
+                  (* to be removed *)
+                  | Expr_escape_raw string (* inner syntax term *)
 
 datatype hol_instantiation_class = Instantiation string (* name *)
                                                  string (* name in definition *)
@@ -521,6 +541,9 @@ datatype hol_lemma_by = Lemma_by string (* name *) "hol_expr list" (* specificat
                           "hol_tac_apply list"
                           hol_tactic_last
 
+datatype hol_axiom = Axiom string (* name *)
+                           hol_expr
+
 datatype hol_section_title = Section_title nat (* nesting level *)
                                            string (* content *)
 
@@ -536,6 +559,7 @@ datatype hol_thy = Thy_dataty hol_dataty
                  | Thy_definition_hol hol_definition_hol
                  | Thy_lemmas_simp hol_lemmas_simp
                  | Thy_lemma_by hol_lemma_by
+                 | Thy_axiom hol_axiom
                  | Thy_section_title hol_section_title
                  | Thy_text hol_text
                  | Thy_ml hol_ml
@@ -558,7 +582,8 @@ definition "natural_of_str = nat_of_str o nat_of_natural"
 
 definition "mk_constr_name name = (\<lambda> x. flatten [isub_of_str name, ''_'', isub_of_str x])"
 definition "mk_dot s1 s2 = flatten [''.'', s1, s2]"
-definition "mk_dot_par dot s = flatten [dot, ''('', s, '')'']"
+definition "mk_dot_par_gen dot l_s = flatten [dot, ''('', case l_s of [] \<Rightarrow> '''' | x # xs \<Rightarrow> flatten [x, flatten (List_map (\<lambda>s. '', '' @@ s) xs) ], '')'']"
+definition "mk_dot_par dot s = mk_dot_par_gen dot [s]"
 definition "mk_dot_comment s1 s2 s3 = mk_dot s1 (flatten [s2, '' /*'', s3, ''*/''])"
 
 definition "hol_definition s = flatten [s, ''_def'']"
@@ -595,7 +620,9 @@ definition "unicode_And = escape_unicode ''And''"
 definition "unicode_subseteq = escape_unicode ''subseteq''"
 definition "unicode_Rightarrow = escape_unicode ''Rightarrow''"
 definition "unicode_Longrightarrow = escape_unicode ''Longrightarrow''"
+definition "unicode_longrightarrow = escape_unicode ''longrightarrow''"
 definition "unicode_times = escape_unicode ''times''"
+definition "unicode_and = escape_unicode ''and''"
 
 definition "datatype_ext_name = ''type''"
 definition "datatype_name = datatype_ext_name @@ const_oid"
@@ -3160,6 +3187,73 @@ definition "print_pre_post_where = (\<lambda> OclDefPP s_pre s_post \<Rightarrow
        (snd (filter_ocore x_pers_oid)))
        (keys rbt)) ))"
 
+subsection{* context *}
+
+fun_quick print_ctxt_ty where
+   "print_ctxt_ty c = (\<lambda> OclTyCtxt_set t \<Rightarrow> Ty_apply (Ty_base ''Set'') [print_ctxt_ty t]
+                       | OclTyCtxt_base t \<Rightarrow> Ty_base t) c"
+
+definition "print_ctxt_const_name attr_n var_at_when_hol = flatten [ ''dot'', isup_of_str attr_n, var_at_when_hol]"
+definition "print_ctxt_const = start_map Thy_consts_class o (\<lambda> ctxt.
+  let attr_n = Ctxt_fun_name ctxt in
+      List_map
+        (\<lambda>(var_at_when_hol, var_at_when_ocl).
+          Consts_raw0
+            (print_ctxt_const_name attr_n var_at_when_hol)
+            (ty_arrow (Ty_base (Ctxt_ty ctxt) # List_map
+              (\<lambda> OclTyCtxt_set (OclTyCtxt_base s) \<Rightarrow> (* optimization *) Ty_base (print_infra_type_synonym_class_set_name s)
+               | e \<Rightarrow> print_ctxt_ty e)
+              (flatten
+                [ List_map snd (Ctxt_fun_ty_arg ctxt)
+                , [ case Ctxt_fun_ty_out ctxt of None \<Rightarrow> OclTyCtxt_base ''Void'' | Some s \<Rightarrow> s ] ])))
+            (mk_dot attr_n var_at_when_ocl)
+            (Some (natural_of_nat (length (Ctxt_fun_ty_arg ctxt)))))
+        [ (var_at_when_hol_post, var_at_when_ocl_post)
+        , (var_at_when_hol_pre, var_at_when_ocl_pre)])"
+
+definition "print_ctxt_axiom = start_map Thy_axiom o (\<lambda> ctxt.
+  let (l_pre, l_post) = List.partition (\<lambda> (OclCtxtPre, _) \<Rightarrow> True | _ \<Rightarrow> False) (Ctxt_expr ctxt)
+    ; attr_n = Ctxt_fun_name ctxt
+    ; a = \<lambda>f x. Expr_apply f [x]
+    ; b = \<lambda>s. Expr_basic [s]
+    ; var_tau = unicode_tau
+    ; f_tau = \<lambda>s. Expr_warning_parenthesis (Expr_binop (b var_tau) unicode_Turnstile s)
+    ; expr_binop = \<lambda>s_op. \<lambda> [] \<Rightarrow> b ''True'' | l \<Rightarrow> Expr_parenthesis (expr_binop s_op l)
+    ; f = \<lambda> (var_at_when_hol, var_at_when_ocl).
+        let var_self = ''self''
+          ; var_result = ''result'' in
+        [ Axiom
+            (hol_definition (print_ctxt_const_name attr_n var_at_when_hol))
+            (Expr_rewrite
+              (Expr_parenthesis (f_tau (Expr_rewrite
+                  (Expr_postunary (b var_self) (b (mk_dot_par_gen (flatten [''.'', attr_n, var_at_when_ocl]) (List_map fst (Ctxt_fun_ty_arg ctxt)))))
+                  unicode_triangleq
+                  (b var_result))))
+              ''=''
+              (Expr_parenthesis (Expr_if_then_else
+                (f_tau (a unicode_delta (b var_self)))
+                (Expr_binop 
+                  (expr_binop unicode_and (List_map (\<lambda>(_, expr). f_tau (Expr_escape_raw expr)) l_pre))
+                  unicode_longrightarrow
+                  (expr_binop unicode_and (List_map (\<lambda>(_, expr). f_tau (Expr_escape_raw expr)) l_post)))
+                (f_tau (Expr_rewrite (b var_result) unicode_triangleq (b ''invalid'')))))) ] in
+  f (var_at_when_hol_post, var_at_when_ocl_post))"
+
+definition "print_ctxt_inv = start_map Thy_axiom o (\<lambda> ctxt.
+  let a = \<lambda>f x. Expr_apply f [x]
+    ; b = \<lambda>s. Expr_basic [s]
+    ; var_tau = unicode_tau
+    ; f_tau = \<lambda>s. Expr_warning_parenthesis (Expr_binop (b var_tau) unicode_Turnstile s)
+    ; f = \<lambda> tit exp (var_at_when_hol, var_at_when_ocl).
+        let var_self = ''self''
+          ; var_result = ''result'' in
+        Axiom
+            (hol_definition (flatten [Ctxt_inv_ty ctxt, ''_'', tit]))
+            (f_tau (Expr_apply ''OclForall''
+              [ a ''OclAllInstances_at_post'' (b (Ctxt_inv_ty ctxt))
+              , Expr_lam ''self'' (\<lambda>var_self. b exp)])) in
+  List_map (\<lambda>(tit, e). f tit e (var_at_when_hol_post, var_at_when_ocl_post)) (Ctxt_inv_expr ctxt))"
+
 subsection{* Conclusion *}
 
 definition "section_aux n s = start_map' (\<lambda>_. [ Thy_section_title (Section_title n s) ])"
@@ -3446,6 +3540,9 @@ definition "thy_def_state = [ print_examp_def_st_defassoc
                             , print_examp_def_st_allinst ]"
 definition "thy_def_pre_post = [ print_pre_post_wff
                                , print_pre_post_where ]"
+definition "thy_ctxt_pre_post = [ print_ctxt_const
+                                , print_ctxt_axiom ]"
+definition "thy_ctxt_inv = [ print_ctxt_inv ]"
 definition "thy_flush_all = []"
 
 definition "ocl_compiler_config_empty disable_thy_output file_out_path_dep oid_start design_analysis =
@@ -3500,6 +3597,8 @@ definition "ocl_env_class_spec_mk f_try f_accu_reset f_fold f =
              | OclAstDefInt univ \<Rightarrow> fold_thy0 univ thy_def_int
              | OclAstDefState univ \<Rightarrow> fold_thy0 univ thy_def_state
              | OclAstDefPrePost univ \<Rightarrow> fold_thy0 univ thy_def_pre_post
+             | OclAstCtxtPrePost univ \<Rightarrow> fold_thy0 univ thy_ctxt_pre_post
+             | OclAstCtxtInv univ \<Rightarrow> fold_thy0 univ thy_ctxt_inv
              | OclAstFlushAll univ \<Rightarrow> fold_thy0 univ thy_flush_all)
                   f)
            l_ocl
@@ -3528,6 +3627,8 @@ definition "fold_thy' f_try f_accu_reset f =
    | OclAstDefInt univ \<Rightarrow> fold_thy0 univ thy_def_int
    | OclAstDefState univ \<Rightarrow> ocl_env_class_spec_mk (fold_thy0 univ thy_def_state)
    | OclAstDefPrePost univ \<Rightarrow> fold_thy0 univ thy_def_pre_post
+   | OclAstCtxtPrePost univ \<Rightarrow> ocl_env_class_spec_mk (fold_thy0 univ thy_ctxt_pre_post)
+   | OclAstCtxtInv univ \<Rightarrow> ocl_env_class_spec_mk (fold_thy0 univ thy_ctxt_inv)
    | OclAstFlushAll univ \<Rightarrow> ocl_env_class_spec_mk (fold_thy0 univ thy_flush_all)) f))"
 definition "fold_thy_shallow f_try f_accu_reset = fold_thy' f_try f_accu_reset o List.fold"
 definition "fold_thy_deep obj ocl =
@@ -3582,6 +3683,23 @@ definition "ocl_instance_single_rec0 f ocl = f
 
 definition "ocl_instance_single_rec f ocl = ocl_instance_single_rec0 f ocl
   (ocl_instance_single.more ocl)"
+
+definition "ocl_ctxt_pre_post_rec0 f ocl = f
+  (Ctxt_ty ocl)
+  (Ctxt_fun_name ocl)
+  (Ctxt_fun_ty_arg ocl)
+  (Ctxt_fun_ty_out ocl)
+  (Ctxt_expr ocl)"
+
+definition "ocl_ctxt_pre_post_rec f ocl = ocl_ctxt_pre_post_rec0 f ocl
+  (ocl_ctxt_pre_post.more ocl)"
+
+definition "ocl_ctxt_inv_rec0 f ocl = f
+  (Ctxt_inv_ty ocl)
+  (Ctxt_inv_expr ocl)"
+
+definition "ocl_ctxt_inv_rec f ocl = ocl_ctxt_inv_rec0 f ocl
+  (ocl_ctxt_inv.more ocl)"
 
 definition "ocl_compiler_config_rec0 f ocl = f
   (D_disable_thy_output ocl)
@@ -3932,7 +4050,9 @@ definition "flat_s_of_expr = (\<lambda>
   | Expr_applys e l \<Rightarrow> sprintf2 (STR ''((%s) %s)'') (s_of_expr e) (String_concat (STR '' '') (List.map (\<lambda> e \<Rightarrow> sprintf1 (STR ''(%s)'') (s_of_expr e)) l))
   | Expr_postunary e1 e2 \<Rightarrow> sprintf2 (STR ''%s %s'') (s_of_expr e1) (s_of_expr e2)
   | Expr_preunary e1 e2 \<Rightarrow> sprintf2 (STR ''%s %s'') (s_of_expr e1) (s_of_expr e2)
-  | Expr_paren p_left p_right e \<Rightarrow> sprintf3 (STR ''%s%s%s'') (To_string p_left) (s_of_expr e) (To_string p_right))"
+  | Expr_paren p_left p_right e \<Rightarrow> sprintf3 (STR ''%s%s%s'') (To_string p_left) (s_of_expr e) (To_string p_right)
+  | Expr_if_then_else e_if e_then e_else \<Rightarrow> sprintf3 (STR ''if %s then %s else %s'') (s_of_expr e_if) (s_of_expr e_then) (s_of_expr e_else)
+  | Expr_escape_raw s \<Rightarrow> To_string s)"
 
 definition "flat_s_of_sexpr = (\<lambda>
     Sexpr_string l \<Rightarrow> let c = STR [Char Nibble2 Nibble2] in
@@ -4087,6 +4207,9 @@ shows \"%s\"'') (s_of_expr concl)]))
           (\<lambda>_. STR ''qed'')
           (filter (\<lambda> App_let _ _ \<Rightarrow> True | App_have _ _ _ \<Rightarrow> True | App_fix _ \<Rightarrow> True | _ \<Rightarrow> False) l_apply))))"
 
+definition "s_of_axiom _ = (\<lambda> Axiom n e \<Rightarrow> sprintf2 (STR ''axiomatization where %s:
+\"%s\"'') (To_string n) (s_of_expr e))"
+
 definition "s_of_section_title ocl = (\<lambda> Section_title n section_title \<Rightarrow>
   if D_disable_thy_output ocl then
     STR ''''
@@ -4110,6 +4233,7 @@ definition "s_of_thy ocl =
              | Thy_definition_hol definition_hol \<Rightarrow> s_of_definition_hol ocl definition_hol
              | Thy_lemmas_simp lemmas_simp \<Rightarrow> s_of_lemmas_simp ocl lemmas_simp
              | Thy_lemma_by lemma_by \<Rightarrow> s_of_lemma_by ocl lemma_by
+             | Thy_axiom axiom \<Rightarrow> s_of_axiom ocl axiom
              | Thy_section_title section_title \<Rightarrow> s_of_section_title ocl section_title
              | Thy_text text \<Rightarrow> s_of_text ocl text
              | Thy_ml ml \<Rightarrow> s_of_ml ocl ml)"
@@ -4182,6 +4306,7 @@ lemmas [code] =
   s_of.s_of_tactic_last_def
   s_of.s_of_tac_apply_def
   s_of.s_of_lemma_by_def
+  s_of.s_of_axiom_def
   s_of.s_of_section_title_def
   s_of.s_of_text_def
   s_of.s_of_ml_def
