@@ -3870,28 +3870,36 @@ end
 
 subsection{* beginning *}
 
+  (* We put in 'CodeConst' functions using characters
+     not allowed in a Isabelle 'code_const' expr
+     (e.g. '_', '"', ...) *)
+
 lazy_code_printing code_module "" \<rightharpoonup> (OCaml) {*
 
 module CodeType = struct
   type mlInt = int
+
+  type 'a mlMonad = 'a option
 end
 
 module CodeConst = struct
-  (* here contain functions using characters
-     not allowed in a Isabelle 'code_const' expr
-     (e.g. '_', '"', ...) *)
-
   let outFile1 f file =
-    let () = if Sys.file_exists file then Printf.eprintf "File exists \"%S\"\n" file else () in
-    let oc = open_out file in
-    let () = f (Printf.fprintf oc) in
-    close_out oc
+    try 
+      let () = if Sys.file_exists file then Printf.eprintf "File exists \"%S\"\n" file else () in
+      let oc = open_out file in
+      let b = f (fun s a -> try Some (Printf.fprintf oc s a) with _ -> None) in
+      let () = close_out oc in
+      b
+    with _ -> None
 
   let outStand1 f =
-    f (Printf.fprintf stdout)
+    f (fun s a -> try Some (Printf.fprintf stdout s a) with _ -> None)
 
-  module Sys = struct open Sys
-    let isDirectory2 s = try is_directory s with _ -> false
+  module Monad = struct
+    let bind = function
+        None -> fun _ -> None
+      | Some a -> fun f -> f a
+    let return a = Some a
   end
 
   module Printf = struct
@@ -3906,6 +3914,10 @@ module CodeConst = struct
 
   module String = String
 
+  module Sys = struct open Sys
+    let isDirectory2 s = try Some (is_directory s) with _ -> None
+  end
+
   module To = struct
     let nat big_int x = Big_int.int_of_big_int (big_int x)
   end
@@ -3915,11 +3927,15 @@ end
 
 structure CodeType = struct
   type mlInt = string
+  type 'a mlMonad = 'a option
 end
 
 structure CodeConst = struct
-  structure Sys = struct
-    val isDirectory2 = File.is_dir o Path.explode
+  structure Monad = struct
+    val bind = fn
+        NONE => (fn _ => NONE)
+      | SOME a => fn f => f a
+    val return = SOME
   end
 
   structure Printf = struct
@@ -3949,6 +3965,10 @@ structure CodeConst = struct
     val concat = String.concatWith
   end
 
+  structure Sys = struct
+    val isDirectory2 = SOME o File.is_dir o Path.explode handle ERROR _ => K NONE
+  end
+
   structure To = struct
     fun nat f = Int.toString o f
   end
@@ -3957,21 +3977,70 @@ structure CodeConst = struct
     let
       val pfile = Path.explode file
       val () = if File.exists pfile then error ("File exists \"" ^ file ^ "\"\n") else () in
-      f (fn a => fn b => File.write pfile (Printf.sprintf1 a b))
+      f (fn a => fn b => SOME (File.write pfile (Printf.sprintf1 a b)) handle ERROR _ => NONE)
     end
 
   fun outStand1 f =
-    f (fn a => fn b => writeln (Printf.sprintf1 a b))
+    f (fn a => fn b => SOME (writeln (Printf.sprintf1 a b)) handle ERROR _ => NONE)
 end
 
+*} | code_module "CodeType" \<rightharpoonup> (Haskell) {*
+  type MlInt = Integer
+; type MlMonad a = IO a
+*} | code_module "CodeConst" \<rightharpoonup> (Haskell) {*
+  import System.Directory
+; import qualified CodeConst.Printf
+
+; outFile1 f file = (do
+  fileExists <- doesFileExist file
+  if fileExists then error ("File exists " ++ file ++ "\n") else
+    f (\pat -> writeFile file . CodeConst.Printf.sprintf1 pat))
+
+; outStand1 :: ((String -> String -> IO ()) -> IO ()) -> IO ()
+; outStand1 f = f (\pat -> putStr . CodeConst.Printf.sprintf1 pat)
+*} | code_module "CodeConst.Monad" \<rightharpoonup> (Haskell) {*
+  bind a = (>>=) a
+; return :: a -> IO a
+; return = Prelude.return
+*} | code_module "CodeConst.Printf" \<rightharpoonup> (Haskell) {*
+  import Text.Printf
+; sprintf0 = id
+
+; sprintf1 :: PrintfArg a => String -> a -> String
+; sprintf1 = printf
+
+; sprintf2 :: PrintfArg a => PrintfArg b => String -> a -> b -> String
+; sprintf2 = printf
+
+; sprintf3 :: PrintfArg a => PrintfArg b => PrintfArg c => String -> a -> b -> c -> String
+; sprintf3 = printf
+
+; sprintf4 :: PrintfArg a => PrintfArg b => PrintfArg c => PrintfArg d => String -> a -> b -> c -> d -> String
+; sprintf4 = printf
+
+; sprintf5 :: PrintfArg a => PrintfArg b => PrintfArg c => PrintfArg d => PrintfArg e => String -> a -> b -> c -> d -> e -> String
+; sprintf5 = printf
+*} | code_module "CodeConst.String" \<rightharpoonup> (Haskell) {*
+  concat s [] = []
+; concat s (x : xs) = x ++ concatMap ((++) s) xs
+*} | code_module "CodeConst.Sys" \<rightharpoonup> (Haskell) {*
+  import System.Directory
+; isDirectory2 = doesDirectoryExist
+*} | code_module "CodeConst.To" \<rightharpoonup> (Haskell) {*
+  nat = id
 *}
 
 subsection{* ML type *}
 
 datatype ml_int = ML_int
-code_printing type_constructor ml_int \<rightharpoonup> (Haskell) "CodeType.mlInt"
+code_printing type_constructor ml_int \<rightharpoonup> (Haskell) "CodeType.MlInt"
             | type_constructor ml_int \<rightharpoonup> (OCaml) "CodeType.mlInt"
             | type_constructor ml_int \<rightharpoonup> (SML) "CodeType.mlInt"
+
+datatype 'a ml_monad = ML_monad 'a
+code_printing type_constructor ml_monad \<rightharpoonup> (Haskell) "CodeType.MlMonad _"
+            | type_constructor ml_monad \<rightharpoonup> (OCaml) "_ CodeType.mlMonad"
+            | type_constructor ml_monad \<rightharpoonup> (SML) "_ CodeType.mlMonad"
 
 (* *)
 
@@ -3981,25 +4050,31 @@ subsection{* ML code const *}
 
 text{* ... *}
 
-consts out_file1 :: "((ml_string \<Rightarrow> '\<alpha>1 \<Rightarrow> unit) (* fprintf *) \<Rightarrow> unit) \<Rightarrow> ml_string \<Rightarrow> unit"
+consts out_file1 :: "((ml_string \<Rightarrow> '\<alpha>1 \<Rightarrow> unit ml_monad) (* fprintf *) \<Rightarrow> unit ml_monad) \<Rightarrow> ml_string \<Rightarrow> unit ml_monad"
 code_printing constant out_file1 \<rightharpoonup> (Haskell) "CodeConst.outFile1"
             | constant out_file1 \<rightharpoonup> (OCaml) "CodeConst.outFile1"
             | constant out_file1 \<rightharpoonup> (Scala) "CodeConst.outFile1"
             | constant out_file1 \<rightharpoonup> (SML) "CodeConst.outFile1"
 
-consts out_stand1 :: "((ml_string \<Rightarrow> '\<alpha>1 \<Rightarrow> unit) (* fprintf *) \<Rightarrow> unit) \<Rightarrow> unit"
+consts out_stand1 :: "((ml_string \<Rightarrow> '\<alpha>1 \<Rightarrow> unit ml_monad) (* fprintf *) \<Rightarrow> unit ml_monad) \<Rightarrow> unit ml_monad"
 code_printing constant out_stand1 \<rightharpoonup> (Haskell) "CodeConst.outStand1"
             | constant out_stand1 \<rightharpoonup> (OCaml) "CodeConst.outStand1"
             | constant out_stand1 \<rightharpoonup> (Scala) "CodeConst.outStand1"
             | constant out_stand1 \<rightharpoonup> (SML) "CodeConst.outStand1"
 
-text{* module To *}
+text{* module Monad *}
 
-consts ToNat :: "(nat \<Rightarrow> integer) \<Rightarrow> nat \<Rightarrow> ml_int"
-code_printing constant ToNat \<rightharpoonup> (Haskell) "CodeConst.To.nat"
-            | constant ToNat \<rightharpoonup> (OCaml) "CodeConst.To.nat"
-            | constant ToNat \<rightharpoonup> (Scala) "CodeConst.To.nat"
-            | constant ToNat \<rightharpoonup> (SML) "CodeConst.To.nat"
+consts bind :: "'a ml_monad \<Rightarrow> ('a \<Rightarrow> 'b ml_monad) \<Rightarrow> 'b ml_monad"
+code_printing constant bind \<rightharpoonup> (Haskell) "CodeConst.Monad.bind"
+            | constant bind \<rightharpoonup> (OCaml) "CodeConst.Monad.bind"
+            | constant bind \<rightharpoonup> (Scala) "CodeConst.Monad.bind"
+            | constant bind \<rightharpoonup> (SML) "CodeConst.Monad.bind"
+
+consts return :: "'a \<Rightarrow> 'a ml_monad"
+code_printing constant return \<rightharpoonup> (Haskell) "CodeConst.Monad.return"
+            | constant return \<rightharpoonup> (OCaml) "CodeConst.Monad.return"
+            | constant return \<rightharpoonup> (Scala) "CodeConst.Monad.return"
+            | constant return \<rightharpoonup> (SML) "CodeConst.Monad.return"
 
 text{* module Printf *}
 
@@ -4049,11 +4124,19 @@ code_printing constant String_concat \<rightharpoonup> (Haskell) "CodeConst.Stri
 
 text{* module Sys *}
 
-consts Sys_is_directory2 :: "ml_string \<Rightarrow> bool"
+consts Sys_is_directory2 :: "ml_string \<Rightarrow> bool ml_monad"
 code_printing constant Sys_is_directory2 \<rightharpoonup> (Haskell) "CodeConst.Sys.isDirectory2"
             | constant Sys_is_directory2 \<rightharpoonup> (OCaml) "CodeConst.Sys.isDirectory2"
             | constant Sys_is_directory2 \<rightharpoonup> (Scala) "CodeConst.Sys.isDirectory2"
             | constant Sys_is_directory2 \<rightharpoonup> (SML) "CodeConst.Sys.isDirectory2"
+
+text{* module To *}
+
+consts ToNat :: "(nat \<Rightarrow> integer) \<Rightarrow> nat \<Rightarrow> ml_int"
+code_printing constant ToNat \<rightharpoonup> (Haskell) "CodeConst.To.nat"
+            | constant ToNat \<rightharpoonup> (OCaml) "CodeConst.To.nat"
+            | constant ToNat \<rightharpoonup> (Scala) "CodeConst.To.nat"
+            | constant ToNat \<rightharpoonup> (SML) "CodeConst.To.nat"
 
 subsection{* ... *}
 
@@ -4323,6 +4406,9 @@ end
 
 subsection{* conclusion *}
 
+definition "List_iterM f l = 
+  List.fold (\<lambda>x m. bind m (\<lambda> () \<Rightarrow> f x)) l (return ())"
+
 context s_of
 begin
 definition "write_file ocl = (
@@ -4330,11 +4416,12 @@ definition "write_file ocl = (
     ; (is_file, f_output) = case (D_file_out_path_dep ocl, Sys_argv)
      of (Some (file_out, _), Some dir) \<Rightarrow>
           let dir = To_string dir in
-          (True, \<lambda>f. out_file1 f (if Sys_is_directory2 dir then sprintf2 (STR ''%s/%s.thy'') dir (To_string file_out) else dir))
+          (True, \<lambda>f. bind (Sys_is_directory2 dir) (\<lambda> Sys_is_directory2_dir. 
+                     out_file1 f (if Sys_is_directory2_dir then sprintf2 (STR ''%s/%s.thy'') dir (To_string file_out) else dir)))
       | _ \<Rightarrow> (False, out_stand1) in
   f_output
     (\<lambda>fprintf1.
-      List_iter (fprintf1 (STR ''%s
+      List_iterM (fprintf1 (STR ''%s
 ''                                 ))
         (bug_ocaml_extraction (let (ocl, l) =
            fold_thy'
