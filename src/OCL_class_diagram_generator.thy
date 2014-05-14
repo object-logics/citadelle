@@ -304,13 +304,16 @@ subsection{* global *}
 
 apply_code_printing_reflect ()
 code_reflect OCL
-   functions nibble_rec char_rec 
-             s_of_rawty s_of_expr s_of_sexpr
-             char_escape
-             unicode_Longrightarrow
-             fold_thy_shallow fold_thy_deep
-             ocl_compiler_config_empty ocl_compiler_config_more_map ocl_compiler_config_reset_all oidInit
-             D_file_out_path_dep_update
+   functions (* OCL compiler as monadic combinators for deep and shallow *)
+             fold_thy_deep fold_thy_shallow
+
+             (* printing the HOL AST to (shallow Isabelle) string *)
+             write_file
+
+             (* manipulating the compiling environment *)
+             ocl_compiler_config_reset_all oidInit D_file_out_path_dep_update
+
+             (* printing the OCL AST to (deep Isabelle) string *)
              i_apply i_of_ocl_compiler_config i_of_ocl_deep_embed_ast
 
 ML{*
@@ -648,18 +651,18 @@ fun read_typ_syntax b = read_abbrev b
                       o Proof_Context.init_global
 end
 
-fun s_of_tactic l = (Method.Then (map m_of_tactic l), (Position.none, Position.none))
+fun then_tactic l = (Method.Then (map m_of_tactic l), (Position.none, Position.none))
 
 fun local_terminal_proof o_by = let open OCL in case o_by of
    Tacl_done => Proof.local_done_proof
  | Tacl_sorry => Proof.local_skip_proof true
- | Tacl_by l_apply => Proof.local_terminal_proof (s_of_tactic l_apply, NONE)
+ | Tacl_by l_apply => Proof.local_terminal_proof (then_tactic l_apply, NONE)
 end
 
 fun global_terminal_proof o_by = let open OCL in case o_by of
    Tacl_done => Proof.global_done_proof
  | Tacl_sorry => Proof.global_skip_proof true
- | Tacl_by l_apply => Proof.global_terminal_proof (s_of_tactic l_apply, NONE)
+ | Tacl_by l_apply => Proof.global_terminal_proof (then_tactic l_apply, NONE)
 end
 
 fun proof_show f st = st
@@ -667,7 +670,7 @@ fun proof_show f st = st
   |> f
   |> Isar_Cmd.show [((@{binding ""}, []), [("?thesis", [])])] true
 
-val apply_results = let open OCL_overload in fn OCL.App l => (fn st => st |> (Proof.apply_results (s_of_tactic l)) |> Seq.the_result "")
+val apply_results = let open OCL_overload in fn OCL.App l => (fn st => st |> (Proof.apply_results (then_tactic l)) |> Seq.the_result "")
                      | OCL.App_using l => (fn st =>
                          let val ctxt = Proof.context_of st in
                          Proof.using [map (fn s => ([m_of_ntheorem ctxt s], [])) l] st
