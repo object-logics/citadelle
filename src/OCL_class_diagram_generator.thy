@@ -353,6 +353,16 @@ subsection{* General Compiling Process: Deep (with reflection) *}
 
 ML{*
 structure Deep0 = struct
+
+fun apply_hs_code_identifiers ml_module thy = 
+  let fun mod_hs (fic, ml_module) = Code_Symbol.Module (fic, [("Haskell", SOME ml_module)]) in
+  fold (Code_Target.set_identifiers o mod_hs)
+    [ ( case Properties.get (snd (Theory.get_markup thy)) "name" of
+                 SOME s => s
+      , ml_module)
+    , ("OCL_compiler", ml_module)
+    , ("OCL_compiler_ast", ml_module)] thy end
+
 val gen_empty = ""
 
 structure Export_code_env = struct
@@ -526,7 +536,7 @@ fun mk_path_export_code tmp_export_code ml_compiler i =
 fun export_code_cmd' seris tmp_export_code f_err filename_thy raw_cs thy =
   export_code_tmp_file seris
     (fn seris =>
-      let val _ = export_code_cmd_gen raw_cs thy seris in
+      let val _ = export_code_cmd_gen raw_cs (Deep0.apply_hs_code_identifiers Deep0.Export_code_env.Haskell.argument thy) seris in
       List_mapi
         (fn i => fn seri => case seri of (((ml_compiler, _), filename), _) =>
           let val (l, (out, err)) =
@@ -635,21 +645,12 @@ fun f_command l_mode =
                                           mk_fic (Deep0.find_function ml_compiler (Deep0.find_ext ml_compiler))))
                         , export_arg), mk_fic)
                       end) seri_args
-                    fun apply_hs_code_identifiers ml_module = 
-                      let fun mod_hs (fic, ml_module) = Code_Symbol.Module (fic, [("Haskell", SOME ml_module)]) in
-                      fold (Code_Target.set_identifiers o mod_hs)
-                        [ ( case Properties.get (snd (Theory.get_markup thy)) "name" of
-                                     SOME s => s
-                          , ml_module)
-                        , ("OCL_compiler", ml_module)
-                        , ("OCL_compiler_ast", ml_module)] end
                     val _ = Deep.export_code_cmd_gen
                               ["write_file"]
-                              (Code_printing.apply_code_printing (apply_hs_code_identifiers Deep0.Export_code_env.Haskell.function thy))
+                              (Code_printing.apply_code_printing (Deep0.apply_hs_code_identifiers Deep0.Export_code_env.Haskell.function thy))
                               (List.map fst seri_args')
                     val () = fold (fn ((((ml_compiler, ml_module), _), _), mk_fic) => fn _ =>
-                      Deep0.find_init ml_compiler mk_fic ml_module Deep.mk_free thy) seri_args' ()
-                    val thy = apply_hs_code_identifiers Deep0.Export_code_env.Haskell.argument thy in
+                      Deep0.find_init ml_compiler mk_fic ml_module Deep.mk_free thy) seri_args' () in
                 (Gen_deep (ocl, file_out_path_dep, seri_args, filename_thy, tmp_export_code), thy) end) l_mode thy in
         Data_gen.map (Symtab.map_default (Deep0.gen_empty, l_mode) (fn _ => l_mode)) thy
         end)
