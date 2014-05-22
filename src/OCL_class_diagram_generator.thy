@@ -399,9 +399,20 @@ fun compile l cmd =
     end
   end
 
+fun check l () =
+  fold (fn (cmd, msg) => fn () => 
+    let val (out, rc) = Isabelle_System.bash_output cmd in
+    if rc = 0 then
+      ()
+    else
+      ( writeln out
+      ; error msg)
+    end) l ()
+
 val compiler = let open Export_code_env in
   [ let val ml_ext = "hs" in
     ( "Haskell", ml_ext, Directory, Haskell.Filename.hs_function
+    , check [("ghc --version", "ghc is not installed (required for compiling a Haskell project)")]
     , (fn mk_fic => fn ml_module => fn mk_free => fn thy =>
         File.write (mk_fic ("Main." ^ ml_ext))
           (String.concatWith "; " [ "import qualified Unsafe.Coerce"
@@ -419,6 +430,8 @@ val compiler = let open Export_code_env in
     end
   , let val ml_ext = "ml" in
     ( "OCaml", ml_ext, File, OCaml.Filename.function
+    , check [("ocp-build -version", "ocp-build is not installed (required for compiling an OCaml project)")
+            ,("ocamlopt -version", "ocamlopt is not installed (required for compiling an OCaml project)")]
     , fn mk_fic => fn ml_module => fn mk_free => fn thy =>
          let val () = File.write (mk_fic (OCaml.Filename.makefile "ocp"))
                               (String.concat [ "comp += \"-g\" link += \"-g\" "
@@ -442,24 +455,28 @@ val compiler = let open Export_code_env in
 end
 
 fun find_ext ml_compiler =
-  case List.find (fn (ml_compiler0, _, _, _, _, _) => ml_compiler0 = ml_compiler) compiler of
-    SOME (_, ext, _, _, _, _) => ext
+  case List.find (fn (ml_compiler0, _, _, _, _, _, _) => ml_compiler0 = ml_compiler) compiler of
+    SOME (_, ext, _, _, _, _, _) => ext
 
 fun find_export_mode ml_compiler =
-  case List.find (fn (ml_compiler0, _, _, _, _, _) => ml_compiler0 = ml_compiler) compiler of
-    SOME (_, _, mode, _, _, _) => mode
+  case List.find (fn (ml_compiler0, _, _, _, _, _, _) => ml_compiler0 = ml_compiler) compiler of
+    SOME (_, _, mode, _, _, _, _) => mode
 
 fun find_function ml_compiler =
-  case List.find (fn (ml_compiler0, _, _, _, _, _) => ml_compiler0 = ml_compiler) compiler of
-    SOME (_, _, _, f, _, _) => f
+  case List.find (fn (ml_compiler0, _, _, _, _, _, _) => ml_compiler0 = ml_compiler) compiler of
+    SOME (_, _, _, f, _, _, _) => f
+
+fun find_check_compil ml_compiler =
+  case List.find (fn (ml_compiler0, _, _, _, _, _, _) => ml_compiler0 = ml_compiler) compiler of
+    SOME (_, _, _, _, build, _, _) => build
 
 fun find_init ml_compiler =
-  case List.find (fn (ml_compiler0, _, _, _, _, _) => ml_compiler0 = ml_compiler) compiler of
-    SOME (_, _, _, _, build, _) => build
+  case List.find (fn (ml_compiler0, _, _, _, _, _, _) => ml_compiler0 = ml_compiler) compiler of
+    SOME (_, _, _, _, _, build, _) => build
 
 fun find_build ml_compiler =
-  case List.find (fn (ml_compiler0, _, _, _, _, _) => ml_compiler0 = ml_compiler) compiler of
-    SOME (_, _, _, _, _, build) => build
+  case List.find (fn (ml_compiler0, _, _, _, _, _, _) => ml_compiler0 = ml_compiler) compiler of
+    SOME (_, _, _, _, _, _, build) => build
 
 
 end
@@ -609,6 +626,7 @@ fun f_command l_mode =
                     val seri_args' = List_mapi (fn i => fn ((ml_compiler, ml_module), export_arg) =>
                       let val tmp_export_code = Deep.mk_path_export_code tmp_export_code ml_compiler i
                           fun mk_fic s = Path.append tmp_export_code (Path.make [s])
+                          val () = Deep0.find_check_compil ml_compiler ()
                           val () = Isabelle_System.mkdirs tmp_export_code in
                       ((( (ml_compiler, ml_module)
                         , Path.implode (if Deep0.find_export_mode ml_compiler = Deep0.Export_code_env.Directory then
