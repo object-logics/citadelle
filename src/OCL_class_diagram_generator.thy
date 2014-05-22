@@ -919,7 +919,10 @@ fun exec_deep (ocl, file_out_path_dep, seri_args, filename_thy, tmp_export_code,
                   (SOME _, SOME _) => s
                 | _ => String.concat (map ((fn s => s ^ "\n") o Active.sendback_markup [Markup.padding_command] o trim_line)
                    (String.tokens (fn c => From.from_char c = OCL.char_escape) s))) in
-             fold (fn (out, err) => K (warning err; writeln out)) l_warn () end)
+             fold (fn (out, err) => K ( warning err
+                                      ; case trim_line out of
+                                          "" => ()
+                                        | out => writeln (Markup.markup Markup.keyword1 out))) l_warn () end)
 
 end end end end
 
