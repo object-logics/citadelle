@@ -164,15 +164,18 @@ definition "i_of_ocl_ty_object a b f = ocl_ty_object_rec
     (i_of_ocl_ty_object_node a b (K i_of_unit))
     (f a b))"
 
-definition "i_of_ocl_ty a b = (\<lambda>f1 f2. ocl_ty_rec f1 f2 o co1 K)
-  (ap1 a (b ''OclTy_base'') (i_of_string a b))
+definition "i_of_ocl_ty a b = (\<lambda>f1 f2 f3 . ocl_ty_rec f1 f2 f3 o co1 K)
+  (b ''OclTy_Boolean'')
+  (b ''OclTy_Integer'')
   (ap1 a (b ''OclTy_object'') (i_of_ocl_ty_object a b (K i_of_unit)))
   (ar2 a (b ''OclTy_collection'') (i_of_ocl_collection b))
-  (ap1 a (b ''OclTy_base_raw'') (i_of_string a b))"
+  (ap1 a (b ''OclTy_raw'') (i_of_string a b))"
 
 definition "i_of_ocl_ty_ctxt a b = (\<lambda>f1. ocl_ty_ctxt_rec f1 o K)
   (ap1 a (b ''OclTyCtxt_base'') (i_of_string a b))
   (ar1 a (b ''OclTyCtxt_set''))"
+  
+
 
 definition "i_of_ocl_class a b = (\<lambda>f0 f1 f2 f3 f4. ocl_class_rec_1 (co2 K (ar3 a f0 f1 f2)) f3 (\<lambda>_ _. f4))
   (b ''OclClass'')
@@ -253,8 +256,8 @@ definition "i_of_ocl_ctxt_pre_post a b f = ocl_ctxt_pre_post_rec
   (ap6 a (b ''ocl_ctxt_pre_post_ext'')
     (i_of_string a b)
     (i_of_string a b)
-    (i_of_list a b (i_of_pair a b (i_of_string a b) (i_of_ocl_ty_ctxt a b)))
-    (i_of_option a b (i_of_ocl_ty_ctxt a b))
+    (i_of_list a b (i_of_pair a b (i_of_string a b) (i_of_ocl_ty a b)))
+    (i_of_option a b (i_of_ocl_ty a b))
     (i_of_list a b (i_of_pair a b (i_of_ocl_ctxt_prefix a b) (i_of_string a b)))
     (f a b))"
 
@@ -999,19 +1002,41 @@ structure USE_parse = struct
  val colon = Parse.$$$ ":"
  fun repeat2 scan = scan ::: Scan.repeat1 scan
  (* *)
- datatype use_oclty = OclTypeBasic of binding
+ datatype use_oclty = OclTypeBoolean 
+                    | OclTypeInteger
                     | OclTypeSet of use_oclty
+                    | OclTypeSequence of use_oclty
+                    | HOLTypeRaw of string
+                    
+ (* should be identical / closer to:
+ datatype ocl_ty =           OclTy_Boolean  
+                          | OclTy_Integer 
+                          | OclTy_object (* should be_ class *) ocl_ty_object
+                          | OclTy_collection ocl_collection ocl_ty
+                          | OclTy_raw  string (* denoting raw HOL-type.*)
+ *)                   
+                    
  datatype use_opt = Ordered | Subsets of binding | Union | Redefines of binding | Derived of string | Qualifier of (binding * use_oclty) list
  datatype use_operation_def = Expression of string | BlockStat
 
- fun from_oclty v = (fn OclTypeBasic s => OCL.OclTyCtxt_base (From.from_binding s)
-                      | OclTypeSet l => OCL.OclTyCtxt_set (from_oclty l)) v
+ fun from_oclty v = (fn OclTypeBoolean   => OCL.OclTy_Boolean 
+                      | OclTypeInteger   => OCL.OclTy_Integer 
+                      | OclTypeSet l     => OCL.OclTy_collection(OCL.Set,(from_oclty l))
+                      | OclTypeSequence l=> OCL.OclTy_collection(OCL.Sequence,(from_oclty l))
+                      | HOLTypeRaw s     => OCL.OclTy_raw (From.from_string s)) v 
+                      
+                   
 
  val ident_dot_dot = Parse.alt_string (* ".." *)
  val ident_star = Parse.alt_string (* "*" *)
  (* *)
- fun use_type v = (Parse.binding |-- Parse.$$$ "(" |-- use_type --| Parse.$$$ ")" >> OclTypeSet
-                   || Parse.binding >> OclTypeBasic) v
+ fun use_type v = (Parse.reserved "Set" |-- Parse.$$$ "(" |-- use_type --| Parse.$$$ ")" >> OclTypeSet
+                || Parse.reserved "Sequence" |-- Parse.$$$ "(" |-- use_type --| Parse.$$$ ")" >> OclTypeSequence
+                || Parse.reserved "Boolean" >> K OclTypeBoolean 
+                || Parse.reserved "Integer" >> K OclTypeInteger 
+                || Parse.alt_string >> HOLTypeRaw) v                
+                
+
  val use_expression = Parse.alt_string
  val use_variableDeclaration = Parse.binding --| Parse.$$$ ":" -- use_type
  val use_paramList = Parse.$$$ "(" |-- Parse.list use_variableDeclaration --| Parse.$$$ ")"
@@ -1042,7 +1067,7 @@ structure USE_parse = struct
  (* *)
  val class_def_list = Scan.optional (Parse.$$$ "<" |-- Parse.list1 Parse.binding) []
  val class_def_attr = Scan.optional (@{keyword "Attributes"}
-   |-- Scan.repeat (Parse.binding --| colon -- Parse.binding)
+   |-- Scan.repeat (Parse.binding --| colon -- use_type)
    --| optional Parse.semicolon) []
  val class_def_oper = optional (@{keyword "Operations"}
    |-- Parse.binding
@@ -1065,7 +1090,7 @@ structure Outer_syntax_Class = struct
   fun make binding child attribute =
     (OCL.Ocl_class_raw_ext
          ( From.from_binding binding
-         , List.map (fn (b, ty) => (From.from_binding b, OCL.OclTy_base (From.from_binding ty))) attribute
+         , List.map (fn (b, ty) => (From.from_binding b, USE_parse.from_oclty ( ty))) attribute
          , case child of [] => NONE | [x] => SOME (From.from_binding x)
          , From.from_unit ()))
 end

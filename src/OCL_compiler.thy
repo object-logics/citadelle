@@ -43,7 +43,7 @@
 
 header{* Part ... *}
 
-theory OCL_compiler
+theory  OCL_compiler
 imports OCL_compiler_aux
         OCL_compiler_ast
   keywords (* hol syntax *)
@@ -113,14 +113,26 @@ record ocl_ty_object =      TyObj_name :: string
                             TyObj_ass_arity :: nat
                             TyObj_from :: ocl_ty_object_node
                             TyObj_to :: ocl_ty_object_node
-datatype ocl_ty =           OclTy_base string (* ty: name *)
-                          | OclTy_object ocl_ty_object
+datatype ocl_ty =           OclTy_Boolean  
+                          | OclTy_Integer 
+                          | OclTy_object (* should be_ class *) ocl_ty_object
                           | OclTy_collection ocl_collection ocl_ty
-                          | OclTy_base_raw string
+                          | OclTy_raw  string (* denoting raw HOL-type.*)
+                          
 datatype ocl_ty_ctxt =      OclTyCtxt_base string (* ty : name *)
                           | OclTyCtxt_set ocl_ty_ctxt
-
-
+(* TODO : fuse ocl_ty and ocl_ty_ctxt *)
+                          
+(*
+ datatype use_oclty = OclTypeBoolean of binding
+                    | OclTypeInteger of binding
+                    | OclTypeClass
+                    | OclTypeSet of use_oclty
+                    | OclTypeSequence of use_oclty
+                    | HOLTypeRaw of string
+*)
+                          
+                          
 record ocl_operation = Op_args :: "(string \<times> ocl_ty) list"
                        Op_result :: ocl_ty
                        Op_pre :: "(string \<times> string) list"
@@ -185,8 +197,8 @@ datatype ocl_ctxt_prefix = OclCtxtPre | OclCtxtPost
 
 record ocl_ctxt_pre_post = Ctxt_ty :: string (* class ty *)
                            Ctxt_fun_name :: string (* function name *)
-                           Ctxt_fun_ty_arg :: "(string (* arg name *) \<times> ocl_ty_ctxt) list"
-                           Ctxt_fun_ty_out :: "ocl_ty_ctxt option" (* None : Void *)
+                           Ctxt_fun_ty_arg :: "(string (* arg name *) \<times> ocl_ty) list"
+                           Ctxt_fun_ty_out :: "ocl_ty option" (* None : Void *)
                            Ctxt_expr :: "(ocl_ctxt_prefix \<times> string (* expr *)) list"
 
 record ocl_ctxt_inv =      Ctxt_inv_ty :: string 
@@ -305,7 +317,15 @@ definition "apply_optim_ass_arity ty_obj v =
   (if TyObj_ass_arity ty_obj \<le> 2 then None
    else Some v)"
 
-definition "str_of_ty = (\<lambda> OclTy_base x \<Rightarrow> x | OclTy_object ty_obj \<Rightarrow> flatten [TyObj_name ty_obj, '' '', const_oid_list])"
+fun str_of_ty where
+    "str_of_ty OclTy_Boolean = ''Boolean''"
+   |"str_of_ty OclTy_Integer = ''Integer''"
+   |"str_of_ty (OclTy_object ty_obj) = flatten [TyObj_name ty_obj, '' '', const_oid_list]"
+   |"str_of_ty (OclTy_raw  s) = s"
+   |"str_of_ty (OclTy_collection Set ocl_ty) = flatten [''Set('', str_of_ty ocl_ty,'')'']"   
+   |"str_of_ty (OclTy_collection Sequence ocl_ty) = flatten [''Sequence('', str_of_ty ocl_ty,'')'']"
+
+
 
 fun_quick get_class_hierarchy_strict_aux where
    "get_class_hierarchy_strict_aux dataty l_res =
@@ -2333,8 +2353,9 @@ definition "print_access_dot_consts = start_map Thy_consts_class o
                      , isup_of_str attr_n, var_at_when_hol])
             (Ty_arrow
               (Ty_apply (Ty_base ''val'') [Ty_base unicode_AA, Ty_base (Char Nibble2 Nibble7 # unicode_alpha)])
+          
               (case attr_ty of
-                  OclTy_base attr_ty \<Rightarrow> Ty_apply (Ty_base ''val'') [Ty_base unicode_AA,
+                  OclTy_raw attr_ty \<Rightarrow> Ty_apply (Ty_base ''val'') [Ty_base unicode_AA,
                     let option = \<lambda>x. Ty_apply (Ty_base ''option'') [x] in
                     option (option (Ty_base attr_ty))]
                 | OclTy_object ty_obj \<Rightarrow> 
@@ -2362,6 +2383,7 @@ definition "print_access_dot_name isub_name dot_at_when attr_ty isup_attr =
                       case attr_ty of
                         OclTy_object ty_obj \<Rightarrow> flatten [dot_name, ''_'', natural_of_str (TyObjN_ass_switch (TyObj_from ty_obj)), ''_'']
                       | _ \<Rightarrow> dot_name), dot_at_when]"
+                      
 definition "print_access_dot = start_map'''' Thy_defs_overloaded o (\<lambda>expr design_analysis.
   map_class_arg_only_var'
     (\<lambda>isub_name name (var_in_when_state, dot_at_when) attr_ty isup_attr dot_attr.
@@ -2380,7 +2402,7 @@ definition "print_access_dot = start_map'''' Thy_defs_overloaded o (\<lambda>exp
                               \<lambda>l. Expr_apply (print_access_deref_assocs_name' (TyObjN_ass_switch (TyObj_from ty_obj)) isub_name isup_attr) (Expr_basic [var_in_when_state] # [l])
                         | _ \<Rightarrow> id)
                           (Expr_apply (isup_attr (isub_name var_select))
-                            [case attr_ty of OclTy_base _ \<Rightarrow> Expr_basic [var_reconst_basetype]
+                            [case attr_ty of OclTy_raw _ \<Rightarrow> Expr_basic [var_reconst_basetype]
                                            | OclTy_object ty_obj \<Rightarrow> 
                              let ty_obj = TyObj_to ty_obj
                                ; der_name = deref_oid (Some (TyObjN_role_ty ty_obj)) [] in
@@ -3084,8 +3106,8 @@ definition "print_pre_post_where = (\<lambda> OclDefPP s_pre s_post \<Rightarrow
 subsection{* context *}
 
 fun_quick print_ctxt_ty where
-   "print_ctxt_ty c = (\<lambda> OclTyCtxt_set t \<Rightarrow> Ty_apply (Ty_base ''Set'') [print_ctxt_ty t]
-                       | OclTyCtxt_base t \<Rightarrow> Ty_base t) c"
+   "print_ctxt_ty c = (\<lambda> OclTy_collection Set t \<Rightarrow> Ty_apply (Ty_base ''Set'') [print_ctxt_ty t]
+                       | OclTy_raw t \<Rightarrow> Ty_base t) c"
 
 definition "print_ctxt_const_name attr_n var_at_when_hol = flatten [ ''dot'', isup_of_str attr_n, var_at_when_hol]"
 definition "print_ctxt_const = start_map Thy_consts_class o (\<lambda> ctxt.
@@ -3095,11 +3117,11 @@ definition "print_ctxt_const = start_map Thy_consts_class o (\<lambda> ctxt.
           Consts_raw0
             (print_ctxt_const_name attr_n var_at_when_hol)
             (ty_arrow (Ty_base (Ctxt_ty ctxt) # List_map
-              (\<lambda> OclTyCtxt_set (OclTyCtxt_base s) \<Rightarrow> (* optimization *) Ty_base (print_infra_type_synonym_class_set_name s)
+              (\<lambda> OclTy_collection Set (OclTy_raw s) \<Rightarrow> (* optimization *) Ty_base (print_infra_type_synonym_class_set_name s)
                | e \<Rightarrow> print_ctxt_ty e)
               (flatten
                 [ List_map snd (Ctxt_fun_ty_arg ctxt)
-                , [ case Ctxt_fun_ty_out ctxt of None \<Rightarrow> OclTyCtxt_base ''Void'' | Some s \<Rightarrow> s ] ])))
+                , [ case Ctxt_fun_ty_out ctxt of None \<Rightarrow> OclTy_raw ''Void'' | Some s \<Rightarrow> s ] ])))
             (mk_dot attr_n var_at_when_ocl)
             (Some (natural_of_nat (length (Ctxt_fun_ty_arg ctxt)))))
         [ (var_at_when_hol_post, var_at_when_ocl_post)
@@ -4395,9 +4417,9 @@ lemmas [code] =
 subsection{* General Compiling Process: Test Scenario: Deep (without reflection) *}
 
 definition "Employee_DesignModel_UMLPart =
-  [ ocl_class_raw.make ''Galaxy'' [(''sound'', OclTy_base ''unit''), (''moving'', OclTy_base ''bool'')] None
-  , ocl_class_raw.make ''Planet'' [(''weight'', OclTy_base ''nat'')] (Some ''Galaxy'')
-  , ocl_class_raw.make ''Person'' [(''salary'', OclTy_base ''int'')] (Some ''Planet'') ]"
+  [ ocl_class_raw.make ''Galaxy'' [(''sound'', OclTy_raw ''unit''), (''moving'', OclTy_raw ''bool'')] None
+  , ocl_class_raw.make ''Planet'' [(''weight'', OclTy_raw ''nat'')] (Some ''Galaxy'')
+  , ocl_class_raw.make ''Person'' [(''salary'', OclTy_raw ''int'')] (Some ''Planet'') ]"
 
 definition "main = write_file
  (ocl_compiler_config.extend
