@@ -44,41 +44,10 @@
 header{* Part ... *}
 
 theory OCL_class_diagram_static
-imports "~~/src/HOL/Library/RBT"
-        "~~/src/HOL/Library/Char_ord"
-        "~~/src/HOL/Library/List_lexord"
-        "~~/src/HOL/Library/Code_Char"
+imports OCL_compiler_aux
         OCL_compiler_ast
+        "~~/src/HOL/Library/Code_Char"
 begin
-
-section{* ... *}
-
-definition "List_map f l = rev (foldl (\<lambda>l x. f x # l) [] l)"
-(*definition "List_mapi f l = rev (fst (foldl (\<lambda>(l,cpt) x. (f cpt x # l, Succ cpt)) ([], 0::nat) l))"
-definition "List_iter f = foldl (\<lambda>_. f) ()"
-*)definition "flatten l = foldl (\<lambda>acc l. foldl (\<lambda>acc x. x # acc) acc (rev l)) [] (rev l)"
-definition List_append (infixr "@@" 65) where "List_append a b = flatten [a, b]"
-(*definition "List_filter f l = rev (foldl (\<lambda>l x. if f x then x # l else l) [] l)"
-definition "rev_map f = foldl (\<lambda>l x. f x # l) []"
-definition "fold_list f l accu =
-  (let (l, accu) = List.fold (\<lambda>x (l, accu). let (x, accu) = f x accu in (x # l, accu)) l ([], accu) in
-   (rev l, accu))"
-definition "char_escape = Char Nibble0 Nibble9"
-*)definition "modify_def v k f rbt =
-  (case lookup rbt k of None \<Rightarrow> insert k (f v) rbt
-                      | Some _ \<Rightarrow> map_entry k f rbt)"
-(*definition "Option_bind f = (\<lambda> None \<Rightarrow> None | Some x \<Rightarrow> f x)"
-definition "List_assoc x1 l = List.fold (\<lambda>(x2, v). \<lambda>None \<Rightarrow> if x1 = x2 then Some v else None | x \<Rightarrow> x) l None"
-definition "List_split l = (List_map fst l, List_map snd l)"
-definition "List_upto i j = 
- (let to_i = \<lambda>n. int_of_integer (integer_of_natural n) in
-  List_map (natural_of_integer o integer_of_int) (upto (to_i i) (to_i j)))"
-definition "lookup2 rbt = (\<lambda>(x1, x2). Option_bind (\<lambda>rbt. lookup rbt x2) (lookup rbt x1))"
-definition "insert2 = (\<lambda>(x1, x2) v. modify_def empty x1 (insert x2 v))"
-*)
-definition "String_concatWith s =
- (\<lambda> [] \<Rightarrow> ''''
-  | x # xs \<Rightarrow> flatten (flatten ([x] # List_map (\<lambda>s0. [s, s0]) xs)))"
 
 section{* ... *}
 

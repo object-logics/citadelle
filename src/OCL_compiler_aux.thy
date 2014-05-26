@@ -135,4 +135,8 @@ definition "List_upto i j =
 definition "lookup2 rbt = (\<lambda>(x1, x2). Option_bind (\<lambda>rbt. lookup rbt x2) (lookup rbt x1))"
 definition "insert2 = (\<lambda>(x1, x2) v. modify_def empty x1 (insert x2 v))"
 
+definition "String_concatWith s =
+ (\<lambda> [] \<Rightarrow> ''''
+  | x # xs \<Rightarrow> flatten (flatten ([x] # List_map (\<lambda>s0. [s, s0]) xs)))"
+
 end
