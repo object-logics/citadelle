@@ -105,35 +105,22 @@ section{* OCL Meta-Model aka. AST definition of OCL *}
 subsection{* type definition *}
 
 datatype ocl_collection =   Set | Sequence
-record ocl_ty_object_node = TyObjN_ass_switch :: nat
+record ocl_ty_class_node =  TyObjN_ass_switch :: nat
                             TyObjN_role_multip :: ocl_multiplicity
                             TyObjN_role_name :: "string option"
                             TyObjN_role_ty :: string
-record ocl_ty_object =      TyObj_name :: string
+record ocl_ty_class =       TyObj_name :: string
                             TyObj_ass_id :: nat
                             TyObj_ass_arity :: nat
-                            TyObj_from :: ocl_ty_object_node
-                            TyObj_to :: ocl_ty_object_node
-datatype ocl_ty =           OclTy_Boolean  
-                          | OclTy_Integer 
-                          | OclTy_object (* should be_ class *) ocl_ty_object
+                            TyObj_from :: ocl_ty_class_node
+                            TyObj_to :: ocl_ty_class_node
+datatype ocl_ty =           OclTy_boolean
+                          | OclTy_integer
+                          | OclTy_class ocl_ty_class
                           | OclTy_collection ocl_collection ocl_ty
-                          | OclTy_raw  string (* denoting raw HOL-type.*)
-                          
-datatype ocl_ty_ctxt =      OclTyCtxt_base string (* ty : name *)
-                          | OclTyCtxt_set ocl_ty_ctxt
-(* TODO : fuse ocl_ty and ocl_ty_ctxt *)
-                          
-(*
- datatype use_oclty = OclTypeBoolean of binding
-                    | OclTypeInteger of binding
-                    | OclTypeClass
-                    | OclTypeSet of use_oclty
-                    | OclTypeSequence of use_oclty
-                    | HOLTypeRaw of string
-*)
-                          
-                          
+                          | OclTy_raw string (* denoting raw HOL-type.*)
+
+
 record ocl_operation = Op_args :: "(string \<times> ocl_ty) list"
                        Op_result :: ocl_ty
                        Op_pre :: "(string \<times> string) list"
@@ -151,8 +138,8 @@ record ocl_class_raw = ClassRaw_name :: string
                       (*ClassRaw_contract :: "(string (* name *) \<times> ocl_operation) list" (* contract *)
                        ClassRaw_inv :: "(string (* name *) \<times> string) list" (* invariant *) *)
                        ClassRaw_inh :: "string option" (* superclass *)
-                        
-         
+
+
 
 datatype ocl_association_type = OclAssTy_association
                               | OclAssTy_composition
@@ -176,7 +163,7 @@ datatype 'a ocl_list_attr = OclAttrNoCast 'a (* inh, own *)
 
 record ocl_instance_single = Inst_name :: string
                              Inst_ty :: string (* type *)
-                             Inst_attr :: "((string (*name*) \<times> ocl_data_shallow) list) (* inh and own *) 
+                             Inst_attr :: "((string (*name*) \<times> ocl_data_shallow) list) (* inh and own *)
                                            ocl_list_attr"
 
 datatype ocl_instance = OclInstance "ocl_instance_single list" (* mutual recursive *)
@@ -202,7 +189,7 @@ record ocl_ctxt_pre_post = Ctxt_ty :: string (* class ty *)
                            Ctxt_fun_ty_out :: "ocl_ty option" (* None : Void *)
                            Ctxt_expr :: "(ocl_ctxt_prefix \<times> string (* expr *)) list"
 
-record ocl_ctxt_inv =      Ctxt_inv_ty :: string 
+record ocl_ctxt_inv =      Ctxt_inv_ty :: string
                            Ctxt_inv_expr :: "(string (* name *) \<times> string (* expr *)) list"
 
 datatype ocl_flush_all = OclFlushAll
@@ -221,25 +208,25 @@ datatype ocl_deep_embed_ast = OclAstClassRaw ocl_class_raw
 
 datatype ocl_deep_mode = Gen_design | Gen_analysis
 
-                       
+
 record ocl_compiler_config =  D_disable_thy_output :: bool
-                              D_file_out_path_dep :: "(string (* theory *) 
+                              D_file_out_path_dep :: "(string (* theory *)
                                                       \<times> string list (* imports *)) option"
                               D_oid_start :: internal_oids
                               D_output_position :: "nat \<times> nat"
                               D_design_analysis :: ocl_deep_mode
-                              D_class_spec :: "ocl_class option" 
+                              D_class_spec :: "ocl_class option"
                                               (* last class considered for the generation *)
                               D_ocl_env :: "ocl_deep_embed_ast list"
-                              D_instance_rbt :: "(string (* name (as key for rbt) *) 
-                                                 \<times> ocl_instance_single 
-                                                 \<times> internal_oid) list" 
+                              D_instance_rbt :: "(string (* name (as key for rbt) *)
+                                                 \<times> ocl_instance_single
+                                                 \<times> internal_oid) list"
                                                 (* instance namespace environment *)
-                              D_state_rbt :: "(string (* name (as key for rbt) *) 
-                                              \<times> (internal_oids 
-                                              \<times> (string (* name *) 
-                                                  \<times> ocl_instance_single (* alias *)) 
-                                                      ocl_def_state_core) list) list" 
+                              D_state_rbt :: "(string (* name (as key for rbt) *)
+                                              \<times> (internal_oids
+                                              \<times> (string (* name *)
+                                                  \<times> ocl_instance_single (* alias *))
+                                                      ocl_def_state_core) list) list"
                                              (* state namespace environment *)
 
 subsection{* Auxilliary *}
@@ -278,8 +265,8 @@ fun_sorry class_unflat_aux where
           (class_unflat_aux rbt rbt_inv (insert r () rbt_cycle))
           (case lookup rbt_inv r of None \<Rightarrow> [] | Some l \<Rightarrow> l)))"
 
-definition "class_unflat l = 
- (let l = 
+definition "class_unflat l =
+ (let l =
     let rbt = (* fold classes:
                  set ''OclAny'' as default inherited class (for all classes linking to zero inherited classes) *)
               insert
@@ -294,15 +281,15 @@ definition "class_unflat l =
                   empty) in
     (* fold associations:
        add remaining 'object' attributes *)
-    List_map snd (entries (List.fold (\<lambda> (ass_oid, ass) \<Rightarrow> 
+    List_map snd (entries (List.fold (\<lambda> (ass_oid, ass) \<Rightarrow>
       let l_rel = OclAss_relation ass in
       fold_max
         (bug_ocaml_extraction (let n_rel = natural_of_nat (List.length l_rel) in
          \<lambda> (cpt_to, (name_to, multip_to, Some role_to)) \<Rightarrow> List.fold (\<lambda> (cpt_from, (name_from, multip_from, role_from)).
             map_entry name_from (\<lambda>cflat. cflat \<lparr> ClassRaw_own := (role_to,
-              OclTy_object (ocl_ty_object_ext const_oid ass_oid n_rel
-                (ocl_ty_object_node_ext cpt_from multip_from role_from name_from ())
-                (ocl_ty_object_node_ext cpt_to multip_to (Some role_to) name_to ())
+              OclTy_class (ocl_ty_class_ext const_oid ass_oid n_rel
+                (ocl_ty_class_node_ext cpt_from multip_from role_from name_from ())
+                (ocl_ty_class_node_ext cpt_to multip_to (Some role_to) name_to ())
                 ())) # ClassRaw_own cflat \<rparr>))
          | _ \<Rightarrow> \<lambda>_. id))
         l_rel) (List_mapi Pair (List.map_filter (\<lambda> OclAstAssociation ass \<Rightarrow> Some ass
@@ -318,15 +305,13 @@ definition "apply_optim_ass_arity ty_obj v =
   (if TyObj_ass_arity ty_obj \<le> 2 then None
    else Some v)"
 
-fun str_of_ty where
-    "str_of_ty OclTy_Boolean = ''Boolean''"
-   |"str_of_ty OclTy_Integer = ''Integer''"
-   |"str_of_ty (OclTy_object ty_obj) = flatten [TyObj_name ty_obj, '' '', const_oid_list]"
-   |"str_of_ty (OclTy_raw  s) = s"
-   |"str_of_ty (OclTy_collection Set ocl_ty) = flatten [''Set('', str_of_ty ocl_ty,'')'']"   
+fun_quick str_of_ty where
+    "str_of_ty OclTy_boolean = ''Boolean''"
+   |"str_of_ty OclTy_integer = ''Integer''"
+   |"str_of_ty (OclTy_class ty_obj) = flatten [TyObj_name ty_obj, '' '', const_oid_list]"
+   |"str_of_ty (OclTy_collection Set ocl_ty) = flatten [''Set('', str_of_ty ocl_ty,'')'']"
    |"str_of_ty (OclTy_collection Sequence ocl_ty) = flatten [''Sequence('', str_of_ty ocl_ty,'')'']"
-
-
+   |"str_of_ty (OclTy_raw s) = s"
 
 fun_quick get_class_hierarchy_strict_aux where
    "get_class_hierarchy_strict_aux dataty l_res =
@@ -628,7 +613,7 @@ fun_quick fold_class_gen_aux where
                dataty
                accu in
   case dataty of [] \<Rightarrow> accu
-               | _ \<Rightarrow> 
+               | _ \<Rightarrow>
     fst (List.fold
        (\<lambda> node (accu, l_inh_l, l_inh_r).
          ( fold_class_gen_aux
@@ -642,7 +627,7 @@ fun_quick fold_class_gen_aux where
       dataty
       (accu, [], dataty)))"
 
-definition "fold_class_gen f accu expr = 
+definition "fold_class_gen f accu expr =
  (let (l_res, accu) =
     fold_class_gen_aux
       []
@@ -679,7 +664,7 @@ definition "map_class_h''' f x = map_class (add_hierarchy''' f x) x"
 definition "map_class_h'''' f x = map_class (add_hierarchy'''' f x) x"
 definition "map_class_h''''' f x = map_class' (add_hierarchy''''' f) x"
 definition "map_class_arg_only f = map_class_gen (\<lambda> isub_name name l_attr _ _ _. case l_attr of [] \<Rightarrow> [] | l \<Rightarrow> f isub_name name l)"
-definition "map_class_arg_only' f = map_class_gen (\<lambda> isub_name name l_attr l_inh l_subtree _. 
+definition "map_class_arg_only' f = map_class_gen (\<lambda> isub_name name l_attr l_inh l_subtree _.
   case filter (\<lambda> OclClass _ [] _ \<Rightarrow> False | _ \<Rightarrow> True) (of_linh (of_inh l_inh)) of
     [] \<Rightarrow> []
   | l \<Rightarrow> f isub_name name (l_attr, Tinh l, l_subtree))"
@@ -696,7 +681,7 @@ definition "map_class_arg_only_var0 = (\<lambda>f_app f_lattr isub_name name l_a
           (\<lambda>s. s @@ isup_of_str attr_name)
           (\<lambda>s. Expr_postunary s (Expr_basic
             [ case case attr_ty of
-                     OclTy_object ty_obj \<Rightarrow>
+                     OclTy_class ty_obj \<Rightarrow>
                        apply_optim_ass_arity ty_obj
                        (bug_ocaml_extraction (let ty_obj = TyObj_from ty_obj in
                        case TyObjN_role_name ty_obj of
@@ -719,9 +704,9 @@ definition "get_hierarchy_map f f_l x = flatten (flatten (
   let (l1, l2, l3) = f_l (List_map fst (get_class_hierarchy x)) in
   List_map (\<lambda>name1. List_map (\<lambda>name2. List_map (f name1 name2) l3) l2) l1))"
 
-definition "class_arity = keys o (\<lambda>l. List.fold (\<lambda>x. insert x ()) l empty) o 
+definition "class_arity = keys o (\<lambda>l. List.fold (\<lambda>x. insert x ()) l empty) o
   flatten o flatten o map_class (\<lambda> _ _ l_attr _ _ _.
-    List_map (\<lambda> (_, OclTy_object ty_obj) \<Rightarrow> [TyObj_ass_arity ty_obj]
+    List_map (\<lambda> (_, OclTy_class ty_obj) \<Rightarrow> [TyObj_ass_arity ty_obj]
               | _ \<Rightarrow> []) l_attr)"
 
 definition "split_ty name = List_map (\<lambda>s. hol_split (s @@ isub_of_str name)) [datatype_ext_name, datatype_name]"
@@ -774,14 +759,14 @@ definition "start_map f = fold_list (\<lambda>x acc. (f x, acc))"
 definition "start_map' f x accu = (f x, accu)"
 definition "start_map''' f fl = (\<lambda> ocl.
   let design_analysis = D_design_analysis ocl
-    ; base_attr = (if design_analysis = Gen_design then id else List_filter (\<lambda> (_, OclTy_object _) \<Rightarrow> False | _ \<Rightarrow> True))
+    ; base_attr = (if design_analysis = Gen_design then id else List_filter (\<lambda> (_, OclTy_class _) \<Rightarrow> False | _ \<Rightarrow> True))
     ; base_attr' = (\<lambda> (l_attr, l_inh). (base_attr l_attr, List_map base_attr l_inh))
     ; base_attr'' = (\<lambda> (l_attr, l_inh). (base_attr l_attr, base_attr l_inh)) in
   start_map f (fl design_analysis base_attr base_attr' base_attr'') ocl)"
 definition "start_map'' f fl e = start_map''' f (\<lambda>_. fl) e"
 definition "start_map'''' f fl = (\<lambda> ocl. start_map f (fl (D_design_analysis ocl)) ocl)"
 
-definition "map_class_gen_h'_inh f = 
+definition "map_class_gen_h'_inh f =
   map_class_gen_h''''' (\<lambda>isub_name name _ l_inh l_subtree _.
     let l_mem = \<lambda>l. List.member (List_map (\<lambda> OclClass n _ _ \<Rightarrow> n) l) in
     f isub_name
@@ -791,7 +776,7 @@ definition "map_class_gen_h'_inh f =
            if l_mem l_subtree n then LT else
            UN'))"
 
-definition "m_class_gen2 base_attr f print = 
+definition "m_class_gen2 base_attr f print =
  (let m_base_attr = \<lambda> OclClass n l b \<Rightarrow> OclClass n (base_attr l) b
     ; f_base_attr = List_map m_base_attr in
   map_class_gen_h''''' (\<lambda>isub_name name nl_attr l_inh l_subtree next_dataty.
@@ -799,7 +784,7 @@ definition "m_class_gen2 base_attr f print =
       l_inh
       l_subtree
       (flatten (flatten (List_map (
-        let print_astype = 
+        let print_astype =
               print
                 (List_map (map_linh m_base_attr) l_inh)
                 (f_base_attr l_subtree)
@@ -818,7 +803,7 @@ definition "f_less2 =
   (\<lambda>f l. rev (fst (fold_less2 (\<lambda>(l, _). (l, None)) (\<lambda>x y (l, acc). (f x y acc # l, Some y)) l ([], None))))
     (\<lambda>a b _. (a,b))"
 
-definition "m_class_gen3_GE base_attr f print = 
+definition "m_class_gen3_GE base_attr f print =
  (let m_base_attr = \<lambda> OclClass n l b \<Rightarrow> OclClass n (base_attr l) b
     ; f_base_attr = List_map m_base_attr in
   map_class_gen_h''''' (\<lambda>isub_name name nl_attr l_inh l_subtree next_dataty.
@@ -835,21 +820,21 @@ definition "m_class_gen3_GE base_attr f print =
           List_map (\<lambda> (h_name, hh_name). print_astype name h_name hh_name) (f_less2 (List_map (\<lambda> OclClass n _ _ \<Rightarrow> n) l)))
           [ (GT, of_linh l_inh) ]))
       , f (flatten (List_map (\<lambda> (l_hierarchy, l).
-          flatten (List_map (\<lambda> OclClass h_name _ _ \<Rightarrow> 
+          flatten (List_map (\<lambda> OclClass h_name _ _ \<Rightarrow>
             List_map (\<lambda> OclClass sib_name _ _ \<Rightarrow> print_astype name sib_name h_name) (of_linh_sib l_inh)) l))
           [ (GT, of_linh l_inh) ])) ]))"
 
-definition "m_class_gen3 base_attr f print = 
+definition "m_class_gen3 base_attr f print =
  (let m_base_attr = \<lambda> OclClass n l b \<Rightarrow> OclClass n (base_attr l) b
     ; f_base_attr = List_map m_base_attr in
   map_class_gen_h''''' (\<lambda>isub_name name nl_attr l_inh l_subtree next_dataty.
-    let print_astype = 
+    let print_astype =
          print
            (List_map (map_linh m_base_attr) l_inh)
            (f_base_attr l_subtree)
            next_dataty in
     f (flatten (
-        let l_tree = List_map (\<lambda>(cmp,l). (cmp, f_base_attr l)) 
+        let l_tree = List_map (\<lambda>(cmp,l). (cmp, f_base_attr l))
           [ (EQ, [OclClass name nl_attr next_dataty])
           , (GT, of_linh l_inh)
           , (LT, l_subtree)
@@ -879,27 +864,27 @@ definition "start_m'3_gen final print = start_map'' final o (\<lambda>expr base_
   m_class_gen3 base_attr id print expr)"
 
 definition "map_class_nupl2'_inh f = List.map_filter id o
- (m_class' id (\<lambda>compare (_, name, _). \<lambda> OclClass h_name _ _ \<Rightarrow> 
+ (m_class' id (\<lambda>compare (_, name, _). \<lambda> OclClass h_name _ _ \<Rightarrow>
     if compare = GT then Some (f name h_name) else None))"
 
 definition "map_class_nupl2'_inh_large f = List.map_filter id o
- (m_class' id (\<lambda>compare (_, name, _). \<lambda> OclClass h_name _ _ \<Rightarrow> 
+ (m_class' id (\<lambda>compare (_, name, _). \<lambda> OclClass h_name _ _ \<Rightarrow>
     if compare = GT
      | compare = UN' then Some (f name h_name) else None))"
 
-definition "map_class_nupl2''_inh f = List.map_filter id o 
- (m_class_gen2 id m_class_default (\<lambda> l_inh _ _ compare (_, name, _). \<lambda> OclClass h_name _ h_subtree \<Rightarrow> 
+definition "map_class_nupl2''_inh f = List.map_filter id o
+ (m_class_gen2 id m_class_default (\<lambda> l_inh _ _ compare (_, name, _). \<lambda> OclClass h_name _ h_subtree \<Rightarrow>
     [ if compare = GT then
         Some (f name h_name (List_map (\<lambda>x. (x, List.member (of_linh l_inh) x)) h_subtree))
       else
         None]))"
 
-definition "map_class_nupl2l'_inh_gen f = List.map_filter id o 
- (m_class_gen2 id m_class_default (\<lambda> l_inh l_subtree _ compare (_, name, _). \<lambda> OclClass h_name _ _ \<Rightarrow> 
+definition "map_class_nupl2l'_inh_gen f = List.map_filter id o
+ (m_class_gen2 id m_class_default (\<lambda> l_inh l_subtree _ compare (_, name, _). \<lambda> OclClass h_name _ _ \<Rightarrow>
     [ if compare = GT then
         Some (f l_subtree name (fst (List.fold (\<lambda>x. \<lambda> (l, True, prev_x) \<Rightarrow> (l, True, prev_x)
                                           | (l, False, prev_x) \<Rightarrow>
-                                              case Inh x of OclClass n _ next_d \<Rightarrow> 
+                                              case Inh x of OclClass n _ next_d \<Rightarrow>
                                               ( (x, List_map (\<lambda> OclClass n l next_d \<Rightarrow>
                                                                (OclClass n l next_d, n = prev_x))
                                                              next_d)
@@ -913,7 +898,7 @@ definition "map_class_nupl2l'_inh_gen f = List.map_filter id o
 
 definition "map_class_nupl2l'_inh f = map_class_nupl2l'_inh_gen (\<lambda>_ x l. f x l)"
 
-definition "map_class_nupl3'_LE'_inh f = flatten o map_class_nupl2l'_inh_gen (\<lambda>l_subtree x l. 
+definition "map_class_nupl3'_LE'_inh f = flatten o map_class_nupl2l'_inh_gen (\<lambda>l_subtree x l.
   List_map
     (\<lambda>name_bot. f name_bot x l)
     (x # List_map (\<lambda> OclClass n _ _ \<Rightarrow> n) l_subtree))"
@@ -1060,17 +1045,17 @@ definition "print_astype_class = start_m' Thy_defs_overloaded
                            # l
                          else l) ) ))))"
 
-definition "print_astype_from_universe = 
+definition "print_astype_from_universe =
  (let f_finish = (\<lambda> [] \<Rightarrow> ((id, Expr_binop (Expr_basic [''Some'']) ''o''), [])
                   | _ \<Rightarrow> ((Expr_some, id), [(Expr_basic [wildcard], Expr_basic [''None''])])) in
-  start_m_gen Thy_definition_hol 
+  start_m_gen Thy_definition_hol
   (\<lambda> name l_inh _ l.
     let const_astype = flatten [const_oclastype, isub_of_str name, ''_'', unicode_AA] in
     [ Definition (Expr_rewrite (Expr_basic [const_astype]) ''=''
         (case f_finish l_inh of ((_, finish_with_some2), last_case_none) \<Rightarrow>
           finish_with_some2 (Expr_function (flatten [l, last_case_none]))))])
   (\<lambda> l_inh _ _ compare (_, name, nl_attr). \<lambda> OclClass h_name hl_attr _ \<Rightarrow>
-     if compare = UN' then [] else 
+     if compare = UN' then [] else
      let ((finish_with_some1, _), _) = f_finish l_inh
        ; isub_h = (\<lambda> s. s @@ isub_of_str h_name)
        ; pattern_complex = (\<lambda>h_name name l_extra.
@@ -1104,7 +1089,7 @@ definition "print_astype_lemmas_id = start_map' (\<lambda>expr.
 
 definition "print_astype_lemma_cp_set2 =
   (if activate_simp_optimization then
-     \<lambda>expr base_attr. 
+     \<lambda>expr base_attr.
        flatten (m_class' base_attr (\<lambda> compare (isub_name, name, _). \<lambda> OclClass name2 _ _ \<Rightarrow>
          if compare = EQ then
            []
@@ -1176,7 +1161,7 @@ definition "print_astype_lemmas_strict = start_map'
       ) (\<lambda>x. (x, [''invalid'',''null''], x)) expr)])
   else (\<lambda>_. []))"
 
-definition "print_astype_defined = start_m Thy_lemma_by m_class_default 
+definition "print_astype_defined = start_m Thy_lemma_by m_class_default
   (\<lambda> compare (isub_name, name, _). \<lambda> OclClass h_name _ _ \<Rightarrow>
      let var_X = ''X''
        ; var_isdef = ''isdef''
@@ -1271,7 +1256,7 @@ definition "print_istypeof_class = start_m_gen Thy_defs_overloaded m_class_defau
                         | GT \<Rightarrow> pattern_complex_gen [] id
                         | _ \<Rightarrow> l_false) ) )))] )"
 
-definition "print_istypeof_from_universe = start_m Thy_definition_hol 
+definition "print_istypeof_from_universe = start_m Thy_definition_hol
   (\<lambda> name _ _ l.
     let const_istypeof = flatten [const_oclistypeof, isub_of_str name, ''_'', unicode_AA] in
     [ Definition (Expr_rewrite (Expr_basic [const_istypeof]) ''='' (Expr_function l))])
@@ -1457,8 +1442,8 @@ definition "print_iskindof_class = start_m_gen Thy_defs_overloaded m_class_defau
              (let isof = (\<lambda>f name. Expr_warning_parenthesis (Expr_postunary (Expr_basic [var_x]) (Expr_basic [f name]))) in
               expr_binop ''or'' (isof dot_istypeof name # List_map (\<lambda> OclClass name_past _ _ \<Rightarrow> isof dot_iskindof name_past) next_dataty)))])"
 
-definition "print_iskindof_from_universe = start_m Thy_definition_hol 
-  (\<lambda>name _ _ l. 
+definition "print_iskindof_from_universe = start_m Thy_definition_hol
+  (\<lambda>name _ _ l.
     let const_iskindof = flatten [const_ocliskindof, isub_of_str name, ''_'', unicode_AA] in
     [ Definition (Expr_rewrite (Expr_basic [const_iskindof]) ''='' (Expr_function l)) ])
   (\<lambda> _ (_, name, _). \<lambda> OclClass h_name _ _ \<Rightarrow>
@@ -1596,12 +1581,12 @@ definition "print_iskindof_up_eq_asty = start_map Thy_lemma_by o map_class_gen_h
         (f (Expr_warning_parenthesis (Expr_postunary
                (Expr_annot (Expr_basic [var_X]) name)
                (Expr_basic [dot_iskindof name]))))
-        (List_map App 
+        (List_map App
         [ [ Tac_simp_only [Thm_str (hol_definition ''OclValid'')]
           , Tac_insert [Thm_str var_isdef]]
         , flatten (fst (fold_list
                       (\<lambda> OclClass n _ next \<Rightarrow> \<lambda>accu.
-                        let (l_subst, accu) = fold_list (\<lambda> _ (cpt, l_sub). 
+                        let (l_subst, accu) = fold_list (\<lambda> _ (cpt, l_sub).
                           let l_sub = natural_of_str cpt # l_sub in
                           ( Tac_subst_l
                               l_sub (* subst could fail without the list of integers *)
@@ -1640,7 +1625,7 @@ definition "print_iskindof_up_larger = start_map Thy_lemma_by o
         (case
             fst (List.fold (\<lambda> cl. \<lambda> (l, True) \<Rightarrow> (l, True)
                                   | (l, False) \<Rightarrow>
-                                     let v = 
+                                     let v =
                                        case cl of (OclClass n _ _, inh) \<Rightarrow>
                                          if n = name_pers then
                                            Some (print_iskindof_up_eq_asty_name name_pers)
@@ -1650,7 +1635,7 @@ definition "print_iskindof_up_larger = start_map Thy_lemma_by o
                                      (v # l, v \<noteq> None))
               (rev (* priority of '_ or _' is right to left so we reverse *) name_pred)
               ([], False))
-         of Some tac_last # l \<Rightarrow> 
+         of Some tac_last # l \<Rightarrow>
            List_map Tac_rule
              (flatten [ List_map (\<lambda>_. Thm_str disjI1) l
                       , [ Thm_str disjI2]
@@ -1690,7 +1675,7 @@ fun_quick print_iskindof_up_istypeof_child
 
 definition "print_iskindof_up_istypeof_erule var_isdef next_dataty name_pers name_any =
  (let mk_OF = \<lambda>f. Thm_OF (Thm_str (f name_any)) (Thm_str var_isdef)
-    ; next_dataty = case next_dataty of x # xs \<Rightarrow> 
+    ; next_dataty = case next_dataty of x # xs \<Rightarrow>
                       rev ((''foundation26'', x) # List_map (Pair ''defined_or_I'') xs) in
   Tac_erule (List.fold
               (\<lambda> (rule_name, OclClass n _ _) \<Rightarrow> \<lambda> prf.
@@ -1704,7 +1689,7 @@ definition "print_iskindof_up_istypeof_erule var_isdef next_dataty name_pers nam
 definition "print_iskindof_up_istypeof_unfold_name name_pers name_any = flatten [''not_'', const_ocliskindof, isub_of_str name_pers, ''_then_'', name_any, ''_'', const_oclistypeof, ''_others_unfold'']"
 definition "print_iskindof_up_istypeof_unfold = start_m_gen Thy_lemma_by m_class_default
   (\<lambda> _ name_pred0 next_dataty compare (isub_name, name_pers, _). \<lambda> OclClass name_any _ _ \<Rightarrow>
-  if compare = GT then 
+  if compare = GT then
     let var_X = ''X''
       ; var_iskin = ''iskin''
       ; var_isdef = ''isdef''
@@ -1764,7 +1749,7 @@ definition "print_iskindof_up_istypeof = start_map Thy_lemma_by o
        # List_map (\<lambda>x. App [x])
          (List_map
            (\<lambda> I_simp_only name_pred \<Rightarrow> Tac_simp_only [Thm_str (print_iskindof_class_name (\<lambda>s. s @@ isub_of_str name_pred) name_any)]
-            | I_erule (name_pred, next_dataty) \<Rightarrow> 
+            | I_erule (name_pred, next_dataty) \<Rightarrow>
                 print_iskindof_up_istypeof_erule var_isdef (List_map fst next_dataty) name_pred name_any
             | I_simp_add_iskin _ \<Rightarrow> Tac_simp_add [var_iskin]
             | _ \<Rightarrow> Tac_simp)
@@ -1801,8 +1786,8 @@ definition "print_iskindof_up_d_cast expr = (start_map Thy_lemma_by o
                   # (case flatten [ name_pred_inh, name_pred_inh_sib ]
                      of [] \<Rightarrow> [] | [_] \<Rightarrow> [] | _ \<Rightarrow> [ Tac_elim (Thm_str ''disjE'') ]))]
            # List_map (App o f0) name_pred_inh
-           # List_map (\<lambda> (OclClass name_pred l_attr next_d, l_subtree) \<Rightarrow> 
-                         List_map App 
+           # List_map (\<lambda> (OclClass name_pred l_attr next_d, l_subtree) \<Rightarrow>
+                         List_map App
                            [ [ Tac_drule (Thm_OF (Thm_str (print_iskindof_up_istypeof_unfold_name name_pred name_any)) (Thm_str var_isdef))]
                            , if next_d = [] then
                                f0 (OclClass name_pred l_attr next_d)
@@ -2031,9 +2016,9 @@ definition "print_access_oid_uniq_gen Thy_def D_oid_start_upd def_rewrite =
       (let (l, (acc, _)) = fold_class (\<lambda>isub_name name l_attr l_inh _ _ cpt.
          let l_inh = List_map (\<lambda> OclClass _ l _ \<Rightarrow> l) (of_inh l_inh) in
          let (l, cpt) = fold_list (fold_list
-           (\<lambda> (attr, OclTy_object ty_obj) \<Rightarrow> bug_ocaml_extraction (let obj_oid = TyObj_ass_id ty_obj
+           (\<lambda> (attr, OclTy_class ty_obj) \<Rightarrow> bug_ocaml_extraction (let obj_oid = TyObj_ass_id ty_obj
                                                                      ; obj_name_from_nat = TyObjN_ass_switch (TyObj_from ty_obj) in \<lambda>(cpt, rbt) \<Rightarrow>
-             let (cpt_obj, cpt_rbt) = 
+             let (cpt_obj, cpt_rbt) =
                case lookup rbt obj_oid of
                  None \<Rightarrow> (cpt, oidSucAssoc cpt, insert obj_oid cpt rbt)
                | Some cpt_obj \<Rightarrow> (cpt_obj, cpt, rbt) in
@@ -2056,7 +2041,7 @@ definition "print_access_oid_uniq =
   print_access_oid_uniq_gen
     Thy_definition_hol
     (\<lambda>ocl oid_start. ocl \<lparr> D_oid_start := oid_start \<rparr>)
-    (\<lambda>obj_name_from_nat _ isub_name attr cpt_obj. 
+    (\<lambda>obj_name_from_nat _ isub_name attr cpt_obj.
       Definition (Expr_rewrite
                    (Expr_basic [print_access_oid_uniq_name obj_name_from_nat isub_name attr])
                    ''=''
@@ -2080,9 +2065,9 @@ definition "print_access_eval_extract _ = start_map Thy_definition_hol
   , lets var_in_post_state ''snd''
   , lets var_reconst_basetype ''id'' ])"
 
-definition "print_access_choose_name n i j = 
+definition "print_access_choose_name n i j =
   flatten [var_switch, isub_of_str (natural_of_str n), ''_'', natural_of_str i, natural_of_str j]"
-definition "print_access_choose_mlname n i j = 
+definition "print_access_choose_mlname n i j =
   flatten [var_switch, natural_of_str n, ''_'', natural_of_str i, natural_of_str j]"
 definition "print_access_choose_switch
               lets mk_var expr
@@ -2092,7 +2077,7 @@ definition "print_access_choose_switch
        (List_map
           (\<lambda>n.
            let l = List_upto 0 (n - 1) in
-           List_map (let l = sexpr_list (List_map mk_var l) in (\<lambda>(i,j). 
+           List_map (let l = sexpr_list (List_map mk_var l) in (\<lambda>(i,j).
              (lets
                 (print_access_choose_n n i j)
                 (sexpr_function [(l, (sexpr_pair (mk_var i) (mk_var j)))]))))
@@ -2116,7 +2101,7 @@ definition "print_access_choose = start_map'''' Thy_definition_hol o (\<lambda>e
      ; lets'' = \<lambda>var exp. Definition (Expr_rewrite (Expr_basic [var]) ''='' (Expr_lam ''l'' (\<lambda>var_l. Expr_binop (b var_l) ''!'' (b exp))))
      ; l_flatten = ''List_flatten'' in
   flatten
-  [ (bug_ocaml_extraction 
+  [ (bug_ocaml_extraction
     (let a = \<lambda>f x. Expr_apply f [x]
        ; b = \<lambda>s. Expr_basic [s]
        ; lets = \<lambda>var exp. Definition (Expr_rewrite (Expr_basic [var]) ''='' exp)
@@ -2128,8 +2113,8 @@ definition "print_access_choose = start_map'''' Thy_definition_hol o (\<lambda>e
   ,
   [ lets l_flatten (let fun_foldl = \<lambda>f base.
                        Expr_lam ''l'' (\<lambda>var_l. Expr_apply ''foldl'' [Expr_lam ''acc'' f, base, a ''rev'' (b var_l)]) in
-                     fun_foldl (\<lambda>var_acc. 
-                       fun_foldl (\<lambda>var_acc. 
+                     fun_foldl (\<lambda>var_acc.
+                       fun_foldl (\<lambda>var_acc.
                          Expr_lam ''l'' (\<lambda>var_l. Expr_apply ''Cons'' (List_map b [var_l, var_acc]))) (b var_acc)) (b ''Nil''))
   , lets var_map_of_list (Expr_apply ''foldl''
       [ Expr_lam ''map'' (\<lambda>var_map.
@@ -2188,7 +2173,7 @@ definition "print_access_deref_assocs = start_map'''' Thy_definition_hol o (\<la
     ; var_f = ''f''
     ; b = \<lambda>s. Expr_basic [s] in
     flatten (List_map (List_map
-      (\<lambda> (attr, OclTy_object ty_obj) \<Rightarrow>
+      (\<lambda> (attr, OclTy_class ty_obj) \<Rightarrow>
            let name_from = TyObjN_ass_switch (TyObj_from ty_obj) in
            [Definition (Expr_rewrite
                   (Expr_basic [print_access_deref_assocs_name name_from isub_name attr, var_fst_snd, var_f])
@@ -2225,7 +2210,7 @@ definition "print_access_select_object = start_map'''' Thy_definition_hol o (\<l
                              [ b var_deref
                              , b var_l ] ]])))
   #
-   (if design_analysis = Gen_design then  
+   (if design_analysis = Gen_design then
   [ bug_ocaml_extraction
     (let var_f = ''f''
        ; var_p = ''p''
@@ -2324,7 +2309,7 @@ definition "print_access_select_obj = start_map'''' Thy_definition_hol o (\<lamb
   (if design_analysis = Gen_design then \<lambda>_. [] else (\<lambda>expr. flatten (flatten (map_class (\<lambda>isub_name name l_attr l_inh _ _.
     let l_inh = map_class_inh l_inh in
     flatten (fst (fold_list (fold_list
-      (\<lambda> (attr, OclTy_object ty_obj) \<Rightarrow> \<lambda>rbt.
+      (\<lambda> (attr, OclTy_class ty_obj) \<Rightarrow> \<lambda>rbt.
           if lookup2 rbt (name, attr) = None then
            ([Definition (let var_f = ''f''
                           ; b = \<lambda>s. Expr_basic [s] in
@@ -2349,17 +2334,17 @@ definition "print_access_dot_consts = start_map Thy_consts_class o
           Consts_raw0
             (flatten [ ''dot''
                      , case attr_ty of
-                         OclTy_object ty_obj \<Rightarrow> flatten [''_'', natural_of_str (TyObjN_ass_switch (TyObj_from ty_obj)), ''_'']
+                         OclTy_class ty_obj \<Rightarrow> flatten [''_'', natural_of_str (TyObjN_ass_switch (TyObj_from ty_obj)), ''_'']
                        | _ \<Rightarrow> ''''
                      , isup_of_str attr_n, var_at_when_hol])
             (Ty_arrow
               (Ty_apply (Ty_base ''val'') [Ty_base unicode_AA, Ty_base (Char Nibble2 Nibble7 # unicode_alpha)])
-          
+
               (case attr_ty of
                   OclTy_raw attr_ty \<Rightarrow> Ty_apply (Ty_base ''val'') [Ty_base unicode_AA,
                     let option = \<lambda>x. Ty_apply (Ty_base ''option'') [x] in
                     option (option (Ty_base attr_ty))]
-                | OclTy_object ty_obj \<Rightarrow> 
+                | OclTy_class ty_obj \<Rightarrow>
                     let ty_obj = TyObj_to ty_obj
                       ; name = TyObjN_role_ty ty_obj in
                     Ty_base (if single_multip (TyObjN_role_multip ty_obj) then
@@ -2367,10 +2352,10 @@ definition "print_access_dot_consts = start_map Thy_consts_class o
                              else
                                print_infra_type_synonym_class_set_name name)))
             (let dot_name = mk_dot attr_n var_at_when_ocl
-               ; mk_par = 
+               ; mk_par =
                    let esc = \<lambda>s. Char Nibble2 Nibble7 # s in
                    (\<lambda>s1 s2. flatten [s1, '' '', esc ''/'', ''* '', s2, '' *'', esc ''/'']) in
-             case attr_ty of OclTy_object ty_obj \<Rightarrow> 
+             case attr_ty of OclTy_class ty_obj \<Rightarrow>
                (case apply_optim_ass_arity ty_obj (mk_par dot_name (bug_ocaml_extraction (let ty_obj = TyObj_from ty_obj in case TyObjN_role_name ty_obj of None => natural_of_str (TyObjN_ass_switch ty_obj) | Some s => s))) of
                   None \<Rightarrow> dot_name
                 | Some dot_name \<Rightarrow> dot_name)
@@ -2382,9 +2367,9 @@ definition "print_access_dot_consts = start_map Thy_consts_class o
 definition "print_access_dot_name isub_name dot_at_when attr_ty isup_attr =
   flatten [isup_attr (let dot_name = isub_name ''dot'' in
                       case attr_ty of
-                        OclTy_object ty_obj \<Rightarrow> flatten [dot_name, ''_'', natural_of_str (TyObjN_ass_switch (TyObj_from ty_obj)), ''_'']
+                        OclTy_class ty_obj \<Rightarrow> flatten [dot_name, ''_'', natural_of_str (TyObjN_ass_switch (TyObj_from ty_obj)), ''_'']
                       | _ \<Rightarrow> dot_name), dot_at_when]"
-                      
+
 definition "print_access_dot = start_map'''' Thy_defs_overloaded o (\<lambda>expr design_analysis.
   map_class_arg_only_var'
     (\<lambda>isub_name name (var_in_when_state, dot_at_when) attr_ty isup_attr dot_attr.
@@ -2399,12 +2384,12 @@ definition "print_access_dot = start_map'''' Thy_defs_overloaded o (\<lambda>exp
                                                                               | Some orig_n \<Rightarrow> var_deref_oid @@ isub_of_str orig_n) (Expr_basic [var_in_when_state] # l) in
                     deref_oid None
                       [ ( case (design_analysis, attr_ty) of
-                            (Gen_analysis, OclTy_object ty_obj) \<Rightarrow>
+                            (Gen_analysis, OclTy_class ty_obj) \<Rightarrow>
                               \<lambda>l. Expr_apply (print_access_deref_assocs_name' (TyObjN_ass_switch (TyObj_from ty_obj)) isub_name isup_attr) (Expr_basic [var_in_when_state] # [l])
                         | _ \<Rightarrow> id)
                           (Expr_apply (isup_attr (isub_name var_select))
                             [case attr_ty of OclTy_raw _ \<Rightarrow> Expr_basic [var_reconst_basetype]
-                                           | OclTy_object ty_obj \<Rightarrow> 
+                                           | OclTy_class ty_obj \<Rightarrow>
                              let ty_obj = TyObj_to ty_obj
                                ; der_name = deref_oid (Some (TyObjN_role_ty ty_obj)) [] in
                              if design_analysis = Gen_design then
@@ -2437,7 +2422,7 @@ definition "print_access_dot_lemma_cp = start_map Thy_lemma_by o
   map_class_arg_only_var
     (\<lambda>isub_name name (_, dot_at_when) attr_ty isup_attr dot_attr.
             [ Lemma_by
-                (print_access_dot_lemma_cp_name isub_name dot_at_when attr_ty isup_attr)                
+                (print_access_dot_lemma_cp_name isub_name dot_at_when attr_ty isup_attr)
                 [Expr_apply ''cp'' [Expr_lam ''X'' (\<lambda>var_x. dot_attr (Expr_annot (Expr_basic [var_x]) name)) ]]
                 []
                 (Tacl_by [if print_access_dot_cp_lemmas_set = [] then
@@ -2492,7 +2477,7 @@ definition "print_examp_oclint = (\<lambda> OclDefI l \<Rightarrow> (start_map T
       (b (number_of_str nb))
       (Expr_rewrite (b name) ''='' (Expr_lambda wildcard (Expr_some (Expr_some (b nb))))))) l)"
 
-datatype print_examp_instance_draw_list_attr = Return_obj ocl_ty_object | Return_exp hol_expr
+datatype print_examp_instance_draw_list_attr = Return_obj ocl_ty_class | Return_exp hol_expr
 
 definition "print_examp_instance_draw_list_attr f_oid =
   (let b = \<lambda>s. Expr_basic [s] in
@@ -2501,7 +2486,7 @@ definition "print_examp_instance_draw_list_attr f_oid =
        case obj of
          (t_obj, None) \<Rightarrow> (case t_obj of Some ty_obj \<Rightarrow> Return_obj ty_obj
                                        | _ \<Rightarrow> Return_exp (b ''None''))
-       | (_, Some (OclTy_object ty_obj, _)) \<Rightarrow> Return_obj ty_obj
+       | (_, Some (OclTy_class ty_obj, _)) \<Rightarrow> Return_obj ty_obj
        | (_, Some (_, Shall_base (ShallB_str s))) \<Rightarrow> Return_exp (Expr_some (b s))
      of Return_obj ty_obj \<Rightarrow> f_oid ty_obj
       | Return_exp exp \<Rightarrow> exp))"
@@ -2519,7 +2504,7 @@ definition "rbt_of_class ocl =
          (let fold = \<lambda>tag l rbt.
             let (rbt, _, n) = List.fold
                                    (\<lambda> (name_attr, ty) \<Rightarrow> \<lambda>(rbt, cpt, l_obj).
-                                     (insert name_attr (ty, tag, OptIdent cpt) rbt, Succ cpt, (case ty of OclTy_object ty_obj \<Rightarrow> Some ty_obj | _ \<Rightarrow> None) # l_obj))
+                                     (insert name_attr (ty, tag, OptIdent cpt) rbt, Succ cpt, (case ty of OclTy_class ty_obj \<Rightarrow> Some ty_obj | _ \<Rightarrow> None) # l_obj))
                                    l
                                    (rbt, 0, []) in
             (rbt, (tag, n)) in
@@ -2594,7 +2579,7 @@ definition "init_map_class ocl l =
        (empty, empty, D_oid_start ocl, 0) in
    (rbt_of_class ocl, lookup rbt_nat, lookup rbt_str))"
 
-definition "print_examp_def_st_assoc_build_rbt rbt map_self map_username l_assoc = 
+definition "print_examp_def_st_assoc_build_rbt rbt map_self map_username l_assoc =
   List.fold
      (\<lambda> (ocli, cpt). fold_instance_single
        (\<lambda> ty l_attr.
@@ -2602,7 +2587,7 @@ definition "print_examp_def_st_assoc_build_rbt rbt map_self map_username l_assoc
          modify_def empty ty
          (List.fold (\<lambda>(name_attr, shall).
            case f_attr_ty name_attr of
-             Some (OclTy_object ty_obj, _, _) \<Rightarrow>
+             Some (OclTy_class ty_obj, _, _) \<Rightarrow>
                modify_def ([], ty_obj) name_attr
                (\<lambda>(l, accu). case let find_map = \<lambda> ShallB_str s \<Rightarrow> map_username s | ShallB_self s \<Rightarrow> map_self s in
                                  case shall of
@@ -2696,11 +2681,11 @@ definition "print_examp_instance_defassoc_typecheck_gen name l_ocli ocl =
 
   [ Ml (Sexpr_apply ''Ty'.check''
     [ Sexpr_list'
-        (\<lambda>(ocli, oids). case oidGetInh oids of Oid n \<Rightarrow> 
+        (\<lambda>(ocli, oids). case oidGetInh oids of Oid n \<Rightarrow>
           Sexpr_pair (Sexpr_string [flatten [var_oid_uniq, natural_of_str n]])
                      (Sexpr_string [Inst_name ocli]))
         l_assoc
-    , Sexpr_list (fold (\<lambda>name. 
+    , Sexpr_list (fold (\<lambda>name.
        fold (\<lambda>name_attr (l_attr, ty_obj) l_cons.
          let cpt_from = TyObjN_ass_switch (TyObj_from ty_obj)
            ; cpt_to = TyObjN_ass_switch (TyObj_to ty_obj)
@@ -2708,7 +2693,7 @@ definition "print_examp_instance_defassoc_typecheck_gen name l_ocli ocl =
                let f = \<lambda> Mult_nat n \<Rightarrow> Sexpr_apply ''Ty.Mult_nat'' [Sexpr_apply var_Nat [Sexpr_basic [natural_of_str n]]]
                        | Mult_star \<Rightarrow> Sexpr_basic [''Ty.Mult_star''] in
                Sexpr_apply ''Ty.OclMult'' [Sexpr_list' (Sexpr_pair' f (Sexpr_option' f)) l]
-           ; srole = Sexpr_option' (\<lambda>x. Sexpr_string [x]) o TyObjN_role_name 
+           ; srole = Sexpr_option' (\<lambda>x. Sexpr_string [x]) o TyObjN_role_name
            ; (f_from, f_to) = if cpt_from < cpt_to then (TyObj_from, TyObj_to) else (TyObj_to, TyObj_from) in
          (Sexpr_pair
            (Sexpr_pair
@@ -2864,7 +2849,7 @@ definition "print_examp_def_st_inst_var = (\<lambda> OclDefSt name l \<Rightarro
      if D_design_analysis ocl = Gen_analysis then [] else
      fst (fold_list
       (\<lambda> (f1, f2) _.
-        let (l, accu) = 
+        let (l, accu) =
         fold_list (\<lambda> ocli cpt.
           ( case ocli of None \<Rightarrow> [] | Some ocli \<Rightarrow> bug_ocaml_extraction (let var_oid = Expr_oid var_oid_uniq (oidGetInh cpt)
             ; isub_name = \<lambda>s. s @@ isub_of_str (Inst_ty ocli) in
@@ -2927,7 +2912,7 @@ definition "print_examp_def_st_perm = (\<lambda> _ ocl.
        l_app
        l_last ]))"
 
-definition "extract_state ocl name_st l_st = 
+definition "extract_state ocl name_st l_st =
  (let b = \<lambda>s. Expr_basic [s]
     ; ocl = ocl \<lparr> D_oid_start := oidReinitInh (D_oid_start ocl) \<rparr> in
                   print_examp_def_st_mapsto_gen
@@ -2937,7 +2922,7 @@ definition "extract_state ocl name_st l_st =
                       , ocli
                       , case ocore of
                           OclDefCoreBinding (name, ocli) \<Rightarrow>
-                            b (if D_design_analysis ocl = Gen_analysis then 
+                            b (if D_design_analysis ocl = Gen_analysis then
                                  name
                                else
                                  print_examp_def_st_inst_var_name ocli name_st)
@@ -2991,7 +2976,7 @@ definition "print_examp_def_st_allinst = (\<lambda> _ ocl.
                       , flatten (List_map (\<lambda>(_, ocore, _).
                           case ocore of
                             OclDefCoreBinding (n, ocli) \<Rightarrow>
-                              [if D_design_analysis ocl = Gen_analysis then 
+                              [if D_design_analysis ocl = Gen_analysis then
                                  n
                                else
                                  print_examp_def_st_inst_var_name ocli name_st]
@@ -3078,7 +3063,7 @@ definition "print_pre_post_where = (\<lambda> OclDefPP s_pre s_post \<Rightarrow
      ; l_oid_of = keys (fold (\<lambda>_. \<lambda> OclDefCoreBinding (_, ocli) \<Rightarrow> insert (const_oid_of (datatype_name @@ isub_of_str (Inst_ty ocli))) ()
                             | _ \<Rightarrow> id) rbt empty) in
    List_map
-     (\<lambda>x_pers_oid. 
+     (\<lambda>x_pers_oid.
        let (x_where, l_ocore) = filter_ocore x_pers_oid in
        List_map (\<lambda>(ocore, name_st).
          let (x_where, x_name, x_pers_expr) =
@@ -3149,7 +3134,7 @@ definition "print_ctxt_axiom = start_map Thy_axiom o (\<lambda> ctxt.
               ''=''
               (Expr_parenthesis (Expr_if_then_else
                 (f_tau (a unicode_delta (b var_self)))
-                (Expr_binop 
+                (Expr_binop
                   (expr_binop unicode_and (List_map (\<lambda>(_, expr). f_tau (Expr_escape_raw expr)) l_pre))
                   unicode_longrightarrow
                   (expr_binop unicode_and (List_map (\<lambda>(_, expr). f_tau (Expr_escape_raw expr)) l_post)))
@@ -3500,16 +3485,16 @@ definition "ocl_env_class_spec_rm f_fold f ocl_accu =
   (let (ocl, accu) = f_fold f ocl_accu in
    (ocl \<lparr> D_class_spec := None \<rparr>, accu))"
 
-definition "ocl_env_class_spec_mk f_try f_accu_reset f_fold f = 
+definition "ocl_env_class_spec_mk f_try f_accu_reset f_fold f =
   (\<lambda> (ocl, accu).
     f_fold f
       (case D_class_spec ocl of Some _ \<Rightarrow> (ocl, accu) | None \<Rightarrow>
-       let (l_class, l_ocl) = List.partition (\<lambda> OclAstClassRaw _ \<Rightarrow> True 
+       let (l_class, l_ocl) = List.partition (\<lambda> OclAstClassRaw _ \<Rightarrow> True
                                               | OclAstAssociation _ \<Rightarrow> True
                                               | OclAstAssClass _ \<Rightarrow> True
                                               | _ \<Rightarrow> False) (rev (D_ocl_env ocl)) in
        (f_try (\<lambda> () \<Rightarrow> List.fold
-           (\<lambda>ast. (case ast of 
+           (\<lambda>ast. (case ast of
                OclAstInstance univ \<Rightarrow> fold_thy0 univ thy_instance
              | OclAstDefInt univ \<Rightarrow> fold_thy0 univ thy_def_int
              | OclAstDefState univ \<Rightarrow> fold_thy0 univ thy_def_state
@@ -3528,7 +3513,7 @@ definition "ocl_env_save ast f_fold f ocl_accu =
   (let (ocl, accu) = f_fold f ocl_accu in
    (ocl \<lparr> D_ocl_env := ast # D_ocl_env ocl \<rparr>, accu))"
 
-definition "ocl_env_class_spec_bind l f = 
+definition "ocl_env_class_spec_bind l f =
   List.fold (\<lambda>x. x f) l"
 
 definition "fold_thy' f_try f_accu_reset f =
@@ -3559,24 +3544,24 @@ definition "fold_thy_deep obj ocl =
 
 section{* Generation to both Form (setup part) *}
 
-definition "ocl_ty_object_node_rec0 f ocl = f
+definition "ocl_ty_class_node_rec0 f ocl = f
   (TyObjN_ass_switch ocl)
   (TyObjN_role_multip ocl)
   (TyObjN_role_name ocl)
   (TyObjN_role_ty ocl)"
 
-definition "ocl_ty_object_node_rec f ocl = ocl_ty_object_node_rec0 f ocl
-  (ocl_ty_object_node.more ocl)"
+definition "ocl_ty_class_node_rec f ocl = ocl_ty_class_node_rec0 f ocl
+  (ocl_ty_class_node.more ocl)"
 
-definition "ocl_ty_object_rec0 f ocl = f
+definition "ocl_ty_class_rec0 f ocl = f
   (TyObj_name ocl)
   (TyObj_ass_id ocl)
   (TyObj_ass_arity ocl)
   (TyObj_from ocl)
   (TyObj_to ocl)"
 
-definition "ocl_ty_object_rec f ocl = ocl_ty_object_rec0 f ocl
-  (ocl_ty_object.more ocl)"
+definition "ocl_ty_class_rec f ocl = ocl_ty_class_rec0 f ocl
+  (ocl_ty_class.more ocl)"
 
 definition "ocl_class_raw_rec0 f ocl = f
   (ClassRaw_name ocl)
@@ -3827,7 +3812,7 @@ end
 
 module CodeConst = struct
   let outFile1 f file =
-    try 
+    try
       let () = if Sys.file_exists file then Printf.eprintf "File exists \"%S\"\n" file else () in
       let oc = open_out file in
       let b = f (fun s a -> try Some (Printf.fprintf oc s a) with _ -> None) in
@@ -3866,7 +3851,7 @@ module CodeConst = struct
   end
 end
 
-*} | code_module "" \<rightharpoonup> (SML) {* 
+*} | code_module "" \<rightharpoonup> (SML) {*
 
 structure CodeType = struct
   type mlInt = string
@@ -3883,13 +3868,13 @@ structure CodeConst = struct
 
   structure Printf = struct
     local
-      fun sprintf s l = 
+      fun sprintf s l =
         case String.fields (fn #"%" => true | _ => false) s of
           [] => ""
         | [x] => x
-        | x :: xs => 
-            let fun aux acc l_pat l_s = 
-              case l_pat of 
+        | x :: xs =>
+            let fun aux acc l_pat l_s =
+              case l_pat of
                 [] => rev acc
               | x :: xs => aux (String.extract (x, 1, NONE) :: hd l_s :: acc) xs (tl l_s) in
             String.concat (x :: aux [] xs l)
@@ -4083,7 +4068,7 @@ code_printing constant ToNat \<rightharpoonup> (Haskell) "CodeConst.To.nat"
 
 subsection{* ... *}
 
-locale s_of = 
+locale s_of =
   fixes To_string :: "string \<Rightarrow> ml_string"
   fixes To_nat :: "nat \<Rightarrow> ml_int"
 
@@ -4349,7 +4334,7 @@ end
 
 subsection{* conclusion *}
 
-definition "List_iterM f l = 
+definition "List_iterM f l =
   List.fold (\<lambda>x m. bind m (\<lambda> () \<Rightarrow> f x)) l (return ())"
 
 context s_of
@@ -4359,7 +4344,7 @@ definition "write_file ocl = (
     ; (is_file, f_output) = case (D_file_out_path_dep ocl, Sys_argv)
      of (Some (file_out, _), Some dir) \<Rightarrow>
           let dir = To_string dir in
-          (True, \<lambda>f. bind (Sys_is_directory2 dir) (\<lambda> Sys_is_directory2_dir. 
+          (True, \<lambda>f. bind (Sys_is_directory2 dir) (\<lambda> Sys_is_directory2_dir.
                      out_file1 f (if Sys_is_directory2_dir then sprintf2 (STR ''%s/%s.thy'') dir (To_string file_out) else dir)))
       | _ \<Rightarrow> (False, out_stand1) in
   f_output
@@ -4382,7 +4367,7 @@ fun_sorry s_of_ntheorem_aux where "s_of_ntheorem_aux To_string To_nat e = s_of.f
 fun_sorry s_of_tactic where "s_of_tactic To_string To_nat e = s_of.flat_s_of_tactic To_string To_nat (s_of_expr To_string To_nat) (s_of_ntheorem_aux To_string To_nat) (s_of_tactic To_string To_nat) e"
 fun_sorry s_of_sexpr where "s_of_sexpr To_string To_nat e = s_of.flat_s_of_sexpr To_string To_nat (s_of_sexpr To_string To_nat) e"
 
-definition "write_file = 
+definition "write_file =
  (let To_string = implode
     ; To_nat = ToNat integer_of_natural in
   s_of.write_file To_string To_nat (s_of_expr To_string To_nat) (s_of_ntheorem_aux To_string To_nat) (s_of_tactic To_string To_nat) (s_of_rawty To_string) (s_of_sexpr To_string To_nat))"
@@ -4413,7 +4398,7 @@ lemmas [code] =
   s_of.s_of_thy_def
   s_of.s_of_thy_list_def
 
-  s_of.write_file_def 
+  s_of.write_file_def
 
 subsection{* General Compiling Process: Test Scenario: Deep (without reflection) *}
 

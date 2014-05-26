@@ -147,35 +147,29 @@ definition "i_of_ocl_multiplicity_single a b = ocl_multiplicity_single_rec
 definition "i_of_ocl_multiplicity a b = ocl_multiplicity_rec
   (ap1 a (b ''OclMult'') (i_of_list a b (i_of_pair a b (i_of_ocl_multiplicity_single a b) (i_of_option a b (i_of_ocl_multiplicity_single a b)))))"
 
-definition "i_of_ocl_ty_object_node a b f = ocl_ty_object_node_rec
-  (ap5 a (b ''ocl_ty_object_node_ext'')
+definition "i_of_ocl_ty_class_node a b f = ocl_ty_class_node_rec
+  (ap5 a (b ''ocl_ty_class_node_ext'')
     (i_of_nat a b)
     (i_of_ocl_multiplicity a b)
     (i_of_option a b (i_of_string a b))
     (i_of_string a b)
     (f a b))"
 
-definition "i_of_ocl_ty_object a b f = ocl_ty_object_rec
-  (ap6 a (b ''ocl_ty_object_ext'')
+definition "i_of_ocl_ty_class a b f = ocl_ty_class_rec
+  (ap6 a (b ''ocl_ty_class_ext'')
     (i_of_string a b)
     (i_of_nat a b)
     (i_of_nat a b)
-    (i_of_ocl_ty_object_node a b (K i_of_unit))
-    (i_of_ocl_ty_object_node a b (K i_of_unit))
+    (i_of_ocl_ty_class_node a b (K i_of_unit))
+    (i_of_ocl_ty_class_node a b (K i_of_unit))
     (f a b))"
 
-definition "i_of_ocl_ty a b = (\<lambda>f1 f2 f3 . ocl_ty_rec f1 f2 f3 o co1 K)
-  (b ''OclTy_Boolean'')
-  (b ''OclTy_Integer'')
-  (ap1 a (b ''OclTy_object'') (i_of_ocl_ty_object a b (K i_of_unit)))
+definition "i_of_ocl_ty a b = (\<lambda>f1 f2 f3. ocl_ty_rec f1 f2 f3 o co1 K)
+  (b ''OclTy_boolean'')
+  (b ''OclTy_integer'')
+  (ap1 a (b ''OclTy_class'') (i_of_ocl_ty_class a b (K i_of_unit)))
   (ar2 a (b ''OclTy_collection'') (i_of_ocl_collection b))
   (ap1 a (b ''OclTy_raw'') (i_of_string a b))"
-
-definition "i_of_ocl_ty_ctxt a b = (\<lambda>f1. ocl_ty_ctxt_rec f1 o K)
-  (ap1 a (b ''OclTyCtxt_base'') (i_of_string a b))
-  (ar1 a (b ''OclTyCtxt_set''))"
-  
-
 
 definition "i_of_ocl_class a b = (\<lambda>f0 f1 f2 f3 f4. ocl_class_rec_1 (co2 K (ar3 a f0 f1 f2)) f3 (\<lambda>_ _. f4))
   (b ''OclClass'')
@@ -357,7 +351,7 @@ subsection{* General Compiling Process: Deep (with reflection) *}
 ML{*
 structure Deep0 = struct
 
-fun apply_hs_code_identifiers ml_module thy = 
+fun apply_hs_code_identifiers ml_module thy =
   let fun mod_hs (fic, ml_module) = Code_Symbol.Module (fic, [("Haskell", SOME ml_module)]) in
   fold (Code_Target.set_identifiers o mod_hs)
     [ ( case Properties.get (snd (Theory.get_markup thy)) "name" of
@@ -398,8 +392,8 @@ structure Export_code_env = struct
                       | Directory
 end
 
-fun compile l cmd = 
-  let val (l, rc) = fold (fn cmd => (fn (l, 0) => 
+fun compile l cmd =
+  let val (l, rc) = fold (fn cmd => (fn (l, 0) =>
                                          let val {out, err, rc, ...} = Bash.process cmd in
                                          ((out, err) :: l, rc) end
                                      | x => x)) l ([], 0)
@@ -413,7 +407,7 @@ fun compile l cmd =
   end
 
 fun check l () =
-  fold (fn (cmd, msg) => fn () => 
+  fold (fn (cmd, msg) => fn () =>
     let val (out, rc) = Isabelle_System.bash_output cmd in
     if rc = 0 then
       ()
@@ -515,12 +509,12 @@ fun export_code_cmd_gen raw_cs thy seris =
   Code_Target.export_code
                   thy
                   (Code_Target.read_const_exprs thy raw_cs)
-                  ((map o apfst o apsnd) prep_destination seris) 
+                  ((map o apfst o apsnd) prep_destination seris)
 
-fun export_code_tmp_file seris g = 
+fun export_code_tmp_file seris g =
   fold
     (fn ((ml_compiler, ml_module), export_arg) => fn f => fn g =>
-      f (fn accu => 
+      f (fn accu =>
         let val tmp_name = "OCL_class_diagram_generator" in
         (if Deep0.find_export_mode ml_compiler = Deep0.Export_code_env.Directory then
            Isabelle_System.with_tmp_dir tmp_name
@@ -612,7 +606,7 @@ val parse_sem_ocl =
   --| (Parse.$$$ "]" -- Parse.$$$ ")")
 
 val mode =
-  let fun mk_ocl disable_thy_output file_out_path_dep oid_start design_analysis = 
+  let fun mk_ocl disable_thy_output file_out_path_dep oid_start design_analysis =
     OCL.ocl_compiler_config_empty
                     (From.from_bool disable_thy_output)
                     (From.from_option (From.from_pair From.from_string (From.from_list From.from_string)) file_out_path_dep)
@@ -662,7 +656,7 @@ end
 
 subsection{* General Compiling Process: Shallow *}
 
-ML{* 
+ML{*
 structure OCL_overload = struct
   val s_of_rawty = OCL.s_of_rawty To_string
   val s_of_expr = OCL.s_of_expr To_string (Int.toString o To_nat)
@@ -899,7 +893,7 @@ fun exec_deep (ocl, file_out_path_dep, seri_args, filename_thy, tmp_export_code,
   let val i_of_arg =
     let val a = OCL.i_apply
       ; val b = I in
-    OCL.i_of_ocl_compiler_config a b (fn a => fn b => 
+    OCL.i_of_ocl_compiler_config a b (fn a => fn b =>
       OCL.i_of_pair a b
         (OCL.i_of_list a b (OCL.i_of_ocl_deep_embed_ast a b))
         (OCL.i_of_option a b (OCL.i_of_string a b)))
@@ -910,7 +904,7 @@ fun exec_deep (ocl, file_out_path_dep, seri_args, filename_thy, tmp_export_code,
                                     :: "="
                                     :: To_string (i_of_arg (OCL.ocl_compiler_config_more_map (fn () => (l_obj, From.from_option From.from_string (Option.map (fn filename_thy => Deep.absolute_path filename_thy thy0) filename_thy))) ocl))
                                     :: []))
-       |> Deep.export_code_cmd' seri_args tmp_export_code 
+       |> Deep.export_code_cmd' seri_args tmp_export_code
             (fn (((_, _), msg), _) => fn err => if err <> 0 then error msg else ()) filename_thy [name_main]
        |> (fn l =>
              let val (l_warn, l) = (map fst l, map snd l) in
@@ -1002,40 +996,29 @@ structure USE_parse = struct
  val colon = Parse.$$$ ":"
  fun repeat2 scan = scan ::: Scan.repeat1 scan
  (* *)
- datatype use_oclty = OclTypeBoolean 
+ datatype use_oclty = OclTypeBoolean
                     | OclTypeInteger
                     | OclTypeSet of use_oclty
                     | OclTypeSequence of use_oclty
-                    | HOLTypeRaw of string
-                    
- (* should be identical / closer to:
- datatype ocl_ty =           OclTy_Boolean  
-                          | OclTy_Integer 
-                          | OclTy_object (* should be_ class *) ocl_ty_object
-                          | OclTy_collection ocl_collection ocl_ty
-                          | OclTy_raw  string (* denoting raw HOL-type.*)
- *)                   
-                    
+                    | OclTypeRaw of string
+
  datatype use_opt = Ordered | Subsets of binding | Union | Redefines of binding | Derived of string | Qualifier of (binding * use_oclty) list
  datatype use_operation_def = Expression of string | BlockStat
 
- fun from_oclty v = (fn OclTypeBoolean   => OCL.OclTy_Boolean 
-                      | OclTypeInteger   => OCL.OclTy_Integer 
-                      | OclTypeSet l     => OCL.OclTy_collection(OCL.Set,(from_oclty l))
-                      | OclTypeSequence l=> OCL.OclTy_collection(OCL.Sequence,(from_oclty l))
-                      | HOLTypeRaw s     => OCL.OclTy_raw (From.from_string s)) v 
-                      
-                   
+ fun from_oclty v = (fn OclTypeBoolean    => OCL.OclTy_boolean
+                      | OclTypeInteger    => OCL.OclTy_integer
+                      | OclTypeSet l      => OCL.OclTy_collection (OCL.Set, from_oclty l)
+                      | OclTypeSequence l => OCL.OclTy_collection (OCL.Sequence, from_oclty l)
+                      | OclTypeRaw s      => OCL.OclTy_raw (From.from_string s)) v
 
  val ident_dot_dot = Parse.alt_string (* ".." *)
  val ident_star = Parse.alt_string (* "*" *)
  (* *)
  fun use_type v = (Parse.reserved "Set" |-- Parse.$$$ "(" |-- use_type --| Parse.$$$ ")" >> OclTypeSet
                 || Parse.reserved "Sequence" |-- Parse.$$$ "(" |-- use_type --| Parse.$$$ ")" >> OclTypeSequence
-                || Parse.reserved "Boolean" >> K OclTypeBoolean 
-                || Parse.reserved "Integer" >> K OclTypeInteger 
-                || Parse.alt_string >> HOLTypeRaw) v                
-                
+                || Parse.reserved "Boolean" >> K OclTypeBoolean
+                || Parse.reserved "Integer" >> K OclTypeInteger
+                || Parse.typ >> OclTypeRaw) v
 
  val use_expression = Parse.alt_string
  val use_variableDeclaration = Parse.binding --| Parse.$$$ ":" -- use_type
@@ -1050,7 +1033,7 @@ structure USE_parse = struct
                    || @{keyword "Subsets"} |-- Parse.binding >> Subsets
                    || @{keyword "Union"} >> K Union
                    || @{keyword "Redefines"} |-- Parse.binding >> Redefines
-                   || @{keyword "Derived"} -- Parse.$$$ "=" |-- use_expression >> Derived 
+                   || @{keyword "Derived"} -- Parse.$$$ "=" |-- use_expression >> Derived
                    || @{keyword "Qualifier"} |-- use_paramList >> Qualifier)
    --| optional Parse.semicolon
  val use_blockStat = Parse.alt_string
@@ -1090,12 +1073,12 @@ structure Outer_syntax_Class = struct
   fun make binding child attribute =
     (OCL.Ocl_class_raw_ext
          ( From.from_binding binding
-         , List.map (fn (b, ty) => (From.from_binding b, USE_parse.from_oclty ( ty))) attribute
+         , From.from_list (From.from_pair From.from_binding USE_parse.from_oclty) attribute
          , case child of [] => NONE | [x] => SOME (From.from_binding x)
          , From.from_unit ()))
 end
 
-local 
+local
  open USE_parse
 
  fun mk_classDefinition _ cmd_spec =
@@ -1110,7 +1093,7 @@ local
        OCL.OclAstClassRaw (Outer_syntax_Class.make binding child attribute))
 in
 val () = mk_classDefinition USE_class @{command_spec "Class"}
-val () = mk_classDefinition USE_class_abstract @{command_spec "Abstract_class"}  
+val () = mk_classDefinition USE_class_abstract @{command_spec "Abstract_class"}
 end
 *}
 
@@ -1138,7 +1121,7 @@ local
      --| @{keyword "Between"}
      -- repeat2 use_associationEnd
      --| @{keyword "End"})
-    (fn (_, l) => fn _ =>       
+    (fn (_, l) => fn _ =>
       OCL.OclAstAssociation (Outer_syntax_Association.make ass_ty l))
 in
 val () = mk_associationDefinition OCL.OclAssTy_association @{command_spec "Association"}
@@ -1278,7 +1261,7 @@ local
             val f = map (fn (attr, ocl) => (From.from_binding attr,
                       case ocl of [x] => OCL.Shall_base (of_base x)
                                 | l => OCL.Shall_list (map of_base l)))
-            val l_attr = 
+            val l_attr =
               fold
                 (fn b => fn acc => OCL.OclAttrCast (From.from_binding b, acc, []))
                 is_cast
