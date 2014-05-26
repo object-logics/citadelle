@@ -46,6 +46,7 @@ header{* Part ... *}
 theory  OCL_compiler
 imports OCL_compiler_aux
         OCL_compiler_ast
+        "~~/src/HOL/Library/Code_Char"
   keywords (* hol syntax *)
            "lazy_code_printing" "apply_code_printing" "apply_code_printing_reflect" "fun_sorry" "fun_quick"
 
