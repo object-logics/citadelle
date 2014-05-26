@@ -183,20 +183,20 @@ subsection{* Arithmetical Operations on UnlimitedNatural *}
 
 subsubsection{* Definition *}
 
-definition OclAdd\<^sub>U\<^sub>n\<^sub>l\<^sub>i\<^sub>m\<^sub>i\<^sub>t\<^sub>e\<^sub>d\<^sub>N\<^sub>a\<^sub>t\<^sub>u\<^sub>r\<^sub>a\<^sub>l ::"('\<AA>)UnlimitedNatural \<Rightarrow> ('\<AA>)UnlimitedNatural \<Rightarrow> ('\<AA>)UnlimitedNatural" (infix "`+" 40)
-where "x `+ y \<equiv> \<lambda> \<tau>. if (\<mu> x) \<tau> = true \<tau> \<and> (\<mu> y) \<tau> = true \<tau>
+definition OclAdd\<^sub>U\<^sub>n\<^sub>l\<^sub>i\<^sub>m\<^sub>i\<^sub>t\<^sub>e\<^sub>d\<^sub>N\<^sub>a\<^sub>t\<^sub>u\<^sub>r\<^sub>a\<^sub>l ::"('\<AA>)UnlimitedNatural \<Rightarrow> ('\<AA>)UnlimitedNatural \<Rightarrow> ('\<AA>)UnlimitedNatural" (infix "+\<^sub>o\<^sub>c\<^sub>l" 40)
+where "x +\<^sub>o\<^sub>c\<^sub>l y \<equiv> \<lambda> \<tau>. if (\<mu> x) \<tau> = true \<tau> \<and> (\<mu> y) \<tau> = true \<tau>
                 then \<lfloor>\<lfloor>\<lfloor>\<lceil>\<lceil>\<lceil>x \<tau>\<rceil>\<rceil>\<rceil> + \<lceil>\<lceil>\<lceil>y \<tau>\<rceil>\<rceil>\<rceil>\<rfloor>\<rfloor>\<rfloor>
                 else invalid \<tau> "
 
-definition OclLess\<^sub>U\<^sub>n\<^sub>l\<^sub>i\<^sub>m\<^sub>i\<^sub>t\<^sub>e\<^sub>d\<^sub>N\<^sub>a\<^sub>t\<^sub>u\<^sub>r\<^sub>a\<^sub>l ::"('\<AA>)UnlimitedNatural \<Rightarrow> ('\<AA>)UnlimitedNatural \<Rightarrow> ('\<AA>)Boolean" (infix "`<" 40)
-where "x `< y \<equiv> \<lambda> \<tau>. if (\<mu> x) \<tau> = true \<tau> \<and> (\<mu> y) \<tau> = true \<tau>
+definition OclLess\<^sub>U\<^sub>n\<^sub>l\<^sub>i\<^sub>m\<^sub>i\<^sub>t\<^sub>e\<^sub>d\<^sub>N\<^sub>a\<^sub>t\<^sub>u\<^sub>r\<^sub>a\<^sub>l ::"('\<AA>)UnlimitedNatural \<Rightarrow> ('\<AA>)UnlimitedNatural \<Rightarrow> ('\<AA>)Boolean" (infix "<\<^sub>o\<^sub>c\<^sub>l" 40)
+where "x <\<^sub>o\<^sub>c\<^sub>l y \<equiv> \<lambda> \<tau>. if (\<mu> x) \<tau> = true \<tau> \<and> (\<mu> y) \<tau> = true \<tau>
                 then \<lfloor>\<lfloor>\<lceil>\<lceil>\<lceil>x \<tau>\<rceil>\<rceil>\<rceil> < \<lceil>\<lceil>\<lceil>y \<tau>\<rceil>\<rceil>\<rceil>\<rfloor>\<rfloor>
                 else if (\<delta> x) \<tau> = true \<tau> \<and> (\<delta> y) \<tau> = true \<tau>
                 then (\<mu> x) \<tau>
                 else invalid \<tau>"
 
-definition OclLe\<^sub>U\<^sub>n\<^sub>l\<^sub>i\<^sub>m\<^sub>i\<^sub>t\<^sub>e\<^sub>d\<^sub>N\<^sub>a\<^sub>t\<^sub>u\<^sub>r\<^sub>a\<^sub>l ::"('\<AA>)UnlimitedNatural \<Rightarrow> ('\<AA>)UnlimitedNatural \<Rightarrow> ('\<AA>)Boolean" (infix "`\<le>" 40)
-where "x `\<le> y \<equiv> \<lambda> \<tau>. if (\<mu> x) \<tau> = true \<tau> \<and> (\<mu> y) \<tau> = true \<tau>
+definition OclLe\<^sub>U\<^sub>n\<^sub>l\<^sub>i\<^sub>m\<^sub>i\<^sub>t\<^sub>e\<^sub>d\<^sub>N\<^sub>a\<^sub>t\<^sub>u\<^sub>r\<^sub>a\<^sub>l ::"('\<AA>)UnlimitedNatural \<Rightarrow> ('\<AA>)UnlimitedNatural \<Rightarrow> ('\<AA>)Boolean" (infix "\<le>\<^sub>o\<^sub>c\<^sub>l" 40)
+where "x \<le>\<^sub>o\<^sub>c\<^sub>l y \<equiv> \<lambda> \<tau>. if (\<mu> x) \<tau> = true \<tau> \<and> (\<mu> y) \<tau> = true \<tau>
                 then \<lfloor>\<lfloor>\<lceil>\<lceil>\<lceil>x \<tau>\<rceil>\<rceil>\<rceil> \<le> \<lceil>\<lceil>\<lceil>y \<tau>\<rceil>\<rceil>\<rceil>\<rfloor>\<rfloor>
                 else if (\<delta> x) \<tau> = true \<tau> \<and> (\<delta> y) \<tau> = true \<tau>
                 then not (\<mu> y) \<tau>
@@ -215,15 +215,15 @@ begin
 Assert_local "  \<tau> \<Turnstile> ( \<nine> \<le>\<^sub>U\<^sub>N \<one>\<zero> )"
 Assert_local "  \<tau> \<Turnstile> (( \<four> +\<^sub>U\<^sub>N \<four> ) \<le>\<^sub>U\<^sub>N \<one>\<zero> )"
 Assert_local "\<not>(\<tau> \<Turnstile> (( \<four> +\<^sub>U\<^sub>N ( \<four> +\<^sub>U\<^sub>N \<four> )) <\<^sub>U\<^sub>N \<one>\<zero> ))"
-Assert_local "  \<tau> \<Turnstile> (\<zero> `\<le> \<infinity>)"
+Assert_local "  \<tau> \<Turnstile> (\<zero> \<le>\<^sub>o\<^sub>c\<^sub>l \<infinity>)"
 Assert_local "  \<tau> \<Turnstile> not (\<upsilon> (null +\<^sub>U\<^sub>N \<one>))"
-Assert_local "  \<tau> \<Turnstile> not (\<upsilon> (\<infinity> `+ \<zero>))"
+Assert_local "  \<tau> \<Turnstile> not (\<upsilon> (\<infinity> +\<^sub>o\<^sub>c\<^sub>l \<zero>))"
 Assert_local "  \<tau> \<Turnstile>      \<mu> \<one>"
 end
-Assert "  \<tau> \<Turnstile> not (\<upsilon> (null `+ \<infinity>))"
-Assert "  \<tau> \<Turnstile> not (\<infinity> `< \<infinity>)"
-Assert "  \<tau> \<Turnstile> not (\<upsilon> (invalid `\<le> \<infinity>))"
-Assert "  \<tau> \<Turnstile> not (\<upsilon> (null `\<le> \<infinity>))"
+Assert "  \<tau> \<Turnstile> not (\<upsilon> (null +\<^sub>o\<^sub>c\<^sub>l \<infinity>))"
+Assert "  \<tau> \<Turnstile> not (\<infinity> <\<^sub>o\<^sub>c\<^sub>l \<infinity>)"
+Assert "  \<tau> \<Turnstile> not (\<upsilon> (invalid \<le>\<^sub>o\<^sub>c\<^sub>l \<infinity>))"
+Assert "  \<tau> \<Turnstile> not (\<upsilon> (null \<le>\<^sub>o\<^sub>c\<^sub>l \<infinity>))"
 Assert "  \<tau> \<Turnstile>      \<upsilon> \<infinity>"
 Assert "  \<tau> \<Turnstile>      \<delta> \<infinity>"
 Assert "  \<tau> \<Turnstile> not (\<mu> \<infinity>)"
