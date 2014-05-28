@@ -516,7 +516,13 @@ val compiler = let open Export_code_env in
               case SOME (File.read stdout_file) handle _ => NONE of
                 SOME s => let val () = File.rm stdout_file in s end
               | NONE => "" in
-            (l, (stdout, exit_st))
+            (l, (stdout, if List.exists (fn (err, _) =>
+                              List.exists (fn "*** Error" => true | _ => false)
+                                (String.tokens (fn #"\n" => true | _ => false) err)) l then
+                           let val () = fold (fn (out, err) => K (warning err; writeln out)) l () in
+                           1
+                           end
+                         else exit_st))
         end)
     end ]
 end
