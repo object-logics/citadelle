@@ -299,7 +299,10 @@ definition "i_apply l1 l2 = flatten [l1, '' ('', l2, '')'']"
 
 subsection{* global *}
 
-apply_code_printing_reflect ()
+apply_code_printing_reflect {*
+  (* this variable is not used but needed for well typechecking the reflected SML code *)
+  val stdout_file = Unsynchronized.ref ""
+*}
 code_reflect OCL
    functions (* OCL compiler as monadic combinators for deep and shallow *)
              fold_thy_deep fold_thy_shallow
@@ -367,6 +370,17 @@ structure Export_code_env = struct
     val argument_main = "main"
   end
 
+  structure Haskell = struct
+    val function = "Function"
+    val argument = "Argument"
+    val main = "Main"
+    structure Filename = struct
+      fun hs_function ext = function ^ "." ^ ext
+      fun hs_argument ext = argument ^ "." ^ ext
+      fun hs_main ext = main ^ "." ^ ext
+    end
+  end
+
   structure OCaml = struct
     val make = "write"
     structure Filename = struct
@@ -377,14 +391,13 @@ structure Export_code_env = struct
     end
   end
 
-  structure Haskell = struct
-    val function = "Function"
-    val argument = "Argument"
-    val main = "Main"
+  structure SML = struct
+    val main = "Run"
     structure Filename = struct
-      fun hs_function ext = function ^ "." ^ ext
-      fun hs_argument ext = argument ^ "." ^ ext
-      fun hs_main ext = main ^ "." ^ ext
+      fun function ext = "Function." ^ ext
+      fun argument ext = "Argument." ^ ext
+      fun stdout ext = "Stdout." ^ ext
+      fun main_fic ext = main ^ "." ^ ext
     end
   end
 
@@ -458,6 +471,53 @@ val compiler = let open Export_code_env in
                 , "cd " ^ Path.implode tmp_export_code ^
                   " && ocp-build -init -scan -no-bytecode 2>&1" ]
                 (Path.implode (Path.append tmp_export_code (Path.make [ "_obuild", OCaml.make, OCaml.make ^ ".asm"]))))
+    end
+  , let val ml_ext_thy = "thy"
+        val ml_ext_ml = "ML" in
+    ( "SML", ml_ext_ml, File, SML.Filename.function
+    , check [ let val isa = "isabelle" in
+              ( Path.implode (Path.expand (Path.append (Path.variable "ISABELLE_HOME") (Path.make ["bin", isa]))) ^ " version"
+              , isa ^ " is not installed (required for compiling a SML project)")
+              end ]
+    , fn mk_fic => fn ml_module => fn mk_free => fn thy =>
+         let val esc_star = "*"
+             val esc_accol1 = "{" ^ esc_star
+             val esc_accol2 = esc_star ^ "}" in
+         File.write_list (mk_fic (SML.Filename.main_fic ml_ext_thy))
+           (map (fn s => s ^ "\n") (List.concat
+           [ [ "theory " ^ SML.main
+             , "imports Main"
+             , "begin"
+             , "ML" ^ esc_accol1]
+           , map (fn s => s ^ ";")
+             let val arg = "argument" in
+             [ "val stdout_file = Unsynchronized.ref (File.read (Path.make [\"" ^ SML.Filename.stdout ml_ext_ml ^ "\"]))"
+             , "print_depth 100" (* any large number so that @{make_string} displays all the expression *)
+             , "use \"" ^ SML.Filename.argument ml_ext_ml ^ "\""
+             , "val " ^ arg ^ " = XML.content_of (YXML.parse_body (@{make_string} (" ^ ml_module ^ "." ^
+               mk_free (Proof_Context.init_global thy) Isabelle.argument_main ([]: (string * string) list) ^ ")))"
+             , "use \"" ^ SML.Filename.function ml_ext_ml ^ "\""
+             , "ML_Context.eval_text false Position.none (\"let open " ^ ml_module ^ " in write_file (\" ^ " ^ arg ^ " ^ \") end\")" ]
+             end
+           , [ esc_accol2
+             , "end"] ]))
+         end
+    , fn tmp_export_code => fn tmp_file => 
+        let val stdout_file = Isabelle_System.create_tmp_path "stdout_file" "thy"
+            val () = File.write (Path.append tmp_export_code (Path.make [SML.Filename.stdout ml_ext_ml])) (Path.implode (Path.expand stdout_file))
+            val (l, (_, exit_st)) = 
+              compile [ "mv " ^ tmp_file ^ " " ^ Path.implode (Path.append tmp_export_code (Path.make [SML.Filename.argument ml_ext_ml]))
+                      , "cd " ^ Path.implode tmp_export_code ^
+                        " && cat " ^ SML.Filename.main_fic ml_ext_thy ^
+                        " | " ^
+                        Path.implode (Path.expand (Path.append (Path.variable "ISABELLE_HOME") (Path.make ["bin", "isabelle"]))) ^ " tty" ]
+                      "true"
+            val stdout = 
+              case SOME (File.read stdout_file) handle _ => NONE of
+                SOME s => let val () = File.rm stdout_file in s end
+              | NONE => "" in
+            (l, (stdout, exit_st))
+        end)
     end ]
 end
 

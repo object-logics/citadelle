@@ -3791,7 +3791,7 @@ fun apply_code_printing_reflect thy =
 
 val () =
   Outer_Syntax.command @{command_spec "apply_code_printing_reflect"} "apply dedicated printing for code symbols"
-    (Parse.$$$ "(" -- Parse.$$$ ")" >> K (Toplevel.theory apply_code_printing_reflect))
+    (Parse.ML_source >> (fn (txt, _) => Toplevel.theory (apply_code_printing_reflect o reflect_ml txt)))
 
 end
 *}
@@ -3904,12 +3904,13 @@ structure CodeConst = struct
   fun outFile1 f file =
     let
       val pfile = Path.explode file
-      val () = if File.exists pfile then error ("File exists \"" ^ file ^ "\"\n") else () in
-      f (fn a => fn b => SOME (File.write pfile (Printf.sprintf1 a b)) handle ERROR _ => NONE)
+      val () = if File.exists pfile then error ("File exists \"" ^ file ^ "\"\n") else ()
+      val oc = Unsynchronized.ref []
+      val _ = f (fn a => fn b => SOME (oc := Printf.sprintf1 a b :: (Unsynchronized.! oc))) in
+      SOME (File.write_list pfile (rev (Unsynchronized.! oc))) handle _ => NONE
     end
 
-  fun outStand1 f =
-    f (fn a => fn b => SOME (writeln (Printf.sprintf1 a b)) handle ERROR _ => NONE)
+  fun outStand1 f = outFile1 f (Unsynchronized.! stdout_file)
 end
 
 *} | code_module "CodeType" \<rightharpoonup> (Haskell) {*
