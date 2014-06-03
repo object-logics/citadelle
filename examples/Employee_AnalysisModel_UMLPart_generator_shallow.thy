@@ -54,7 +54,7 @@ begin
 generation_syntax [ shallow (generation_semantics [ analysis ]) ]
 
 Class Person < Planet
-  Attributes salary : int
+  Attributes salary : Integer
 End
 
 Association boss
@@ -63,13 +63,18 @@ Association boss
 End
 
 Class Planet < Galaxy
-  Attributes weight : nat
+  Attributes weight : `bool option`  
+             hurx : Boolean
 End
-
+(* wishlist: 
 Class Galaxy
-  Attributes sound : unit
-             moving : bool
+  Attributes sound : Set(Set(Integer))
+             outerworld : Galaxy
+             moving : Boolean
+             
+
 End
+*)
 
 Define_int [ 1000, 1200, 1300, 1800, 2600, 2900, 3200, 3500 ]
 
@@ -108,5 +113,9 @@ Define_state \<sigma>\<^sub>1' =
 Define_state \<sigma>\<^sub>0 = []
 
 Define_pre_post \<sigma>\<^sub>1 \<sigma>\<^sub>1'
+
+Context Galaxy 
+Inv A : `true and (self .weight \<le>\<^sub>o\<^sub>c\<^sub>l \<zero>)` 
+
 
 end
