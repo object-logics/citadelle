@@ -3803,8 +3803,52 @@ subsection{* beginning *}
      not allowed in a Isabelle 'code_const' expr
      (e.g. '_', '"', ...) *)
 
-lazy_code_printing code_module "" \<rightharpoonup> (OCaml) {*
+lazy_code_printing code_module "CodeType" \<rightharpoonup> (Haskell) {*
+  type MlInt = Integer
+; type MlMonad a = IO a
+*} | code_module "CodeConst" \<rightharpoonup> (Haskell) {*
+  import System.Directory
+; import qualified CodeConst.Printf
 
+; outFile1 f file = (do
+  fileExists <- doesFileExist file
+  if fileExists then error ("File exists " ++ file ++ "\n") else
+    f (\pat -> writeFile file . CodeConst.Printf.sprintf1 pat))
+
+; outStand1 :: ((String -> String -> IO ()) -> IO ()) -> IO ()
+; outStand1 f = f (\pat -> putStr . CodeConst.Printf.sprintf1 pat)
+*} | code_module "CodeConst.Monad" \<rightharpoonup> (Haskell) {*
+  bind a = (>>=) a
+; return :: a -> IO a
+; return = Prelude.return
+*} | code_module "CodeConst.Printf" \<rightharpoonup> (Haskell) {*
+  import Text.Printf
+; sprintf0 = id
+
+; sprintf1 :: PrintfArg a => String -> a -> String
+; sprintf1 = printf
+
+; sprintf2 :: PrintfArg a => PrintfArg b => String -> a -> b -> String
+; sprintf2 = printf
+
+; sprintf3 :: PrintfArg a => PrintfArg b => PrintfArg c => String -> a -> b -> c -> String
+; sprintf3 = printf
+
+; sprintf4 :: PrintfArg a => PrintfArg b => PrintfArg c => PrintfArg d => String -> a -> b -> c -> d -> String
+; sprintf4 = printf
+
+; sprintf5 :: PrintfArg a => PrintfArg b => PrintfArg c => PrintfArg d => PrintfArg e => String -> a -> b -> c -> d -> e -> String
+; sprintf5 = printf
+*} | code_module "CodeConst.String" \<rightharpoonup> (Haskell) {*
+  concat s [] = []
+; concat s (x : xs) = x ++ concatMap ((++) s) xs
+*} | code_module "CodeConst.Sys" \<rightharpoonup> (Haskell) {*
+  import System.Directory
+; isDirectory2 = doesDirectoryExist
+*} | code_module "CodeConst.To" \<rightharpoonup> (Haskell) {*
+  nat = id
+
+*} | code_module "" \<rightharpoonup> (OCaml) {*
 module CodeType = struct
   type mlInt = int
 
@@ -3852,8 +3896,54 @@ module CodeConst = struct
   end
 end
 
-*} | code_module "" \<rightharpoonup> (SML) {*
+*} | code_module "" \<rightharpoonup> (Scala) {*
+object CodeType {
+  type mlMonad [A] = Option [A]
+  type mlInt = Int
+}
 
+object CodeConst {
+  def outFile1 [A] (f : (String => A => Option [Unit]) => Option [Unit], file0 : String) : Option [Unit] = {
+    val file = new java.io.File (file0)
+    if (file .isFile) {
+      val writer = new java.io.PrintWriter (file)
+      f ((fmt : String) => (s : A) => Some (writer .write (fmt .format (s))))
+      Some (writer .close ())
+    } else
+      None
+  }
+
+  def outStand1 [A] (f : (String => A => Option [Unit]) => Option [Unit]) : Option[Unit] = {
+    f ((fmt : String) => (s : A) => Some (print (fmt .format (s))))
+  }
+
+  object Monad {
+    def bind [A, B] (x : Option [A], f : A => Option [B]) : Option [B] = x match {
+      case None => None
+      case Some (a) => f (a)
+    }
+    def Return [A] (a : A) = Some (a)
+  }
+  object Printf {
+    def sprintf0 (x0 : String) = x0
+    def sprintf1 [A1] (fmt : String, x1 : A1) = fmt .format (x1)
+    def sprintf2 [A1, A2] (fmt : String, x1 : A1, x2 : A2) = fmt .format (x1, x2)
+    def sprintf3 [A1, A2, A3] (fmt : String, x1 : A1, x2 : A2, x3 : A3) = fmt .format (x1, x2, x3)
+    def sprintf4 [A1, A2, A3, A4] (fmt : String, x1 : A1, x2 : A2, x3 : A3, x4 : A4) = fmt .format (x1, x2, x3, x4)
+    def sprintf5 [A1, A2, A3, A4, A5] (fmt : String, x1 : A1, x2 : A2, x3 : A3, x4 : A4, x5 : A5) = fmt .format (x1, x2, x3, x4, x5)
+  }
+  object String {
+    def concat (s : String, l : List [String]) = l filter (_ .nonEmpty) mkString s
+  }
+  object Sys {
+    def isDirectory2 (s : String) = Some (new java.io.File (s) .isDirectory)
+  }
+  object To {
+    def nat [A] (f : A => BigInt, x : A) = f (x) .intValue ()
+  }
+}
+
+*} | code_module "" \<rightharpoonup> (SML) {*
 structure CodeType = struct
   type mlInt = string
   type 'a mlMonad = 'a option
@@ -3914,97 +4004,6 @@ structure CodeConst = struct
   fun outStand1 f = outFile1 f (Unsynchronized.! stdout_file)
 end
 
-*} | code_module "CodeType" \<rightharpoonup> (Haskell) {*
-  type MlInt = Integer
-; type MlMonad a = IO a
-*} | code_module "CodeConst" \<rightharpoonup> (Haskell) {*
-  import System.Directory
-; import qualified CodeConst.Printf
-
-; outFile1 f file = (do
-  fileExists <- doesFileExist file
-  if fileExists then error ("File exists " ++ file ++ "\n") else
-    f (\pat -> writeFile file . CodeConst.Printf.sprintf1 pat))
-
-; outStand1 :: ((String -> String -> IO ()) -> IO ()) -> IO ()
-; outStand1 f = f (\pat -> putStr . CodeConst.Printf.sprintf1 pat)
-*} | code_module "CodeConst.Monad" \<rightharpoonup> (Haskell) {*
-  bind a = (>>=) a
-; return :: a -> IO a
-; return = Prelude.return
-*} | code_module "CodeConst.Printf" \<rightharpoonup> (Haskell) {*
-  import Text.Printf
-; sprintf0 = id
-
-; sprintf1 :: PrintfArg a => String -> a -> String
-; sprintf1 = printf
-
-; sprintf2 :: PrintfArg a => PrintfArg b => String -> a -> b -> String
-; sprintf2 = printf
-
-; sprintf3 :: PrintfArg a => PrintfArg b => PrintfArg c => String -> a -> b -> c -> String
-; sprintf3 = printf
-
-; sprintf4 :: PrintfArg a => PrintfArg b => PrintfArg c => PrintfArg d => String -> a -> b -> c -> d -> String
-; sprintf4 = printf
-
-; sprintf5 :: PrintfArg a => PrintfArg b => PrintfArg c => PrintfArg d => PrintfArg e => String -> a -> b -> c -> d -> e -> String
-; sprintf5 = printf
-*} | code_module "CodeConst.String" \<rightharpoonup> (Haskell) {*
-  concat s [] = []
-; concat s (x : xs) = x ++ concatMap ((++) s) xs
-*} | code_module "CodeConst.Sys" \<rightharpoonup> (Haskell) {*
-  import System.Directory
-; isDirectory2 = doesDirectoryExist
-*} | code_module "CodeConst.To" \<rightharpoonup> (Haskell) {*
-  nat = id
-
-*} | code_module "" \<rightharpoonup> (Scala) {*
-object CodeType {
-  type mlMonad [A] = Option [A]
-  type mlInt = Int
-}
-
-object CodeConst {
-  def outFile1 [A] (f : (String => A => Option [Unit]) => Option [Unit], file0 : String) : Option [Unit] = {
-    val file = new java.io.File (file0)
-    if (file .isFile) {
-      val writer = new java.io.PrintWriter (file)
-      f ((fmt : String) => (s : A) => Some (writer .write (fmt .format (s))))
-      Some (writer .close ())
-    } else
-      None
-  }
-
-  def outStand1 [A] (f : (String => A => Option [Unit]) => Option [Unit]) : Option[Unit] = {
-    f ((fmt : String) => (s : A) => Some (print (fmt .format (s))))
-  }
-
-  object Monad {
-    def bind [A, B] (x : Option [A], f : A => Option [B]) : Option [B] = x match {
-      case None => None
-      case Some (a) => f (a)
-    }
-    def Return [A] (a : A) = Some (a)
-  }
-  object Printf {
-    def sprintf0 (x0 : String) = x0
-    def sprintf1 [A1] (fmt : String, x1 : A1) = fmt .format (x1)
-    def sprintf2 [A1, A2] (fmt : String, x1 : A1, x2 : A2) = fmt .format (x1, x2)
-    def sprintf3 [A1, A2, A3] (fmt : String, x1 : A1, x2 : A2, x3 : A3) = fmt .format (x1, x2, x3)
-    def sprintf4 [A1, A2, A3, A4] (fmt : String, x1 : A1, x2 : A2, x3 : A3, x4 : A4) = fmt .format (x1, x2, x3, x4)
-    def sprintf5 [A1, A2, A3, A4, A5] (fmt : String, x1 : A1, x2 : A2, x3 : A3, x4 : A4, x5 : A5) = fmt .format (x1, x2, x3, x4, x5)
-  }
-  object String {
-    def concat (s : String, l : List [String]) = l filter (_ .nonEmpty) mkString s
-  }
-  object Sys {
-    def isDirectory2 (s : String) = Some (new java.io.File (s) .isDirectory)
-  }
-  object To {
-    def nat [A] (f : A => BigInt, x : A) = f (x) .intValue ()
-  }
-}
 *}
 
 subsection{* ML type *}
