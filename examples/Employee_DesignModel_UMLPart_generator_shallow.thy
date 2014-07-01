@@ -71,6 +71,29 @@ Class Galaxy
              moving : bool
 End
 
+(* wishlist: 
+
+Class Person < Planet
+  Attributes salary : Integer
+End
+
+Association boss
+  Between Person [`*`]
+          Person [0 `..` 1] Role boss
+End
+
+Class Planet < Galaxy
+  Attributes weight : `bool option`  
+             hurx : Boolean
+End
+
+Class Galaxy
+  Attributes sound : Set(Set(Integer))
+             outerworld : Galaxy
+             moving : Boolean
+End
+*)
+
 Define_int [ 1000, 1200, 1300, 1800, 2600, 2900, 3200, 3500 ]
 
 Instance X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n1 :: Person = [ salary = 1300 , boss = X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2 ]
@@ -109,4 +132,8 @@ Define_state \<sigma>\<^sub>0 = []
 
 Define_pre_post \<sigma>\<^sub>1 \<sigma>\<^sub>1'
 
+(* wishlist: 
+Context Galaxy 
+  Inv A : `true and (self .weight \<le>\<^sub>o\<^sub>c\<^sub>l \<zero>)`
+*)
 end
