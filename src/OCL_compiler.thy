@@ -256,7 +256,8 @@ fun_quick fold_max_aux where
 
 definition "fold_max f l = fold_max_aux f (List_mapi Pair l) []"
 
-fun_sorry class_unflat_aux where
+function (sequential) class_unflat_aux where
+(* (* FIXME replace with this simplified form *)
    "class_unflat_aux rbt rbt_inv rbt_cycle r =
    (case lookup rbt_cycle r of (None (* cycle detection *)) \<Rightarrow>
       OclClass
@@ -265,6 +266,95 @@ fun_sorry class_unflat_aux where
         (List_map
           (class_unflat_aux rbt rbt_inv (insert r () rbt_cycle))
           (case lookup rbt_inv r of None \<Rightarrow> [] | Some l \<Rightarrow> l)))"
+*)
+   "class_unflat_aux rbt rbt_inv rbt_cycle r =
+   (case lookup rbt_inv r of 
+  None \<Rightarrow>
+(case lookup rbt_cycle r of (None (* cycle detection *)) \<Rightarrow>
+      OclClass
+        r
+        (bug_ocaml_extraction (case lookup rbt r of Some l \<Rightarrow> l))
+        ( ( [])))
+| Some l \<Rightarrow>
+(case lookup rbt_cycle r of (None (* cycle detection *)) \<Rightarrow>
+      OclClass
+        r
+        (bug_ocaml_extraction (case lookup rbt r of Some l \<Rightarrow> l))
+        (List_map
+          (class_unflat_aux rbt rbt_inv (insert r () rbt_cycle))
+          ( l))))"
+by pat_completeness auto
+
+termination
+proof -
+ have arith_diff: "\<And>a1 a2 (b :: Nat.nat). a1 = a2 \<Longrightarrow> a1 > b \<Longrightarrow> a1 - (b + 1) < a2 - b"
+ by arith
+
+ have arith_less: "\<And>(a:: Nat.nat) b c. b \<ge> max (a + 1) c \<Longrightarrow> a < b"
+ by arith
+
+ have rbt_length: "\<And>rbt_cycle r v. lookup rbt_cycle r = None \<Longrightarrow> 
+     length (keys (insert r v rbt_cycle)) = length (keys rbt_cycle) + 1"
+  apply(subst (1 2) distinct_card[symmetric], (rule distinct_keys)+)
+  apply(simp only: lookup_keys[symmetric], simp)
+ by (metis card_insert_if domIff finite_dom_lookup)
+
+ have rbt_fold_union'': "\<And>ab a x k. dom (\<lambda>b. if b = ab then Some a else k b) = {ab} \<union> dom k"
+ by(auto)
+
+ have rbt_fold_union': "\<And>l rbt_inv a.
+       dom (lookup (List.fold (\<lambda>(k, _). RBT.insert k a) l rbt_inv)) =
+       dom (map_of l) \<union> dom (lookup rbt_inv)"
+  apply(rule_tac P = "\<lambda>rbt_inv . dom (lookup (List.fold (\<lambda>(k, _). RBT.insert k a) l rbt_inv)) =
+       dom (map_of l) \<union> dom (lookup rbt_inv)" in allE, simp_all)
+  apply(induct_tac l, simp, rule allI)
+  apply(case_tac aa, simp)
+  apply(simp add: rbt_fold_union'')
+ done
+
+ have rbt_fold_union: "\<And>rbt_cycle rbt_inv a.
+   dom (lookup (RBT.fold (\<lambda>k _. RBT.insert k a) rbt_cycle rbt_inv)) = 
+   dom (lookup rbt_cycle) \<union> dom (lookup rbt_inv)"
+  apply(simp add: fold_fold)
+  apply(subst (2) map_of_entries[symmetric])
+  apply(rule rbt_fold_union')
+ done
+
+ have rbt_fold_eq: "\<And>rbt_cycle rbt_inv a b.
+   dom (lookup (RBT.fold (\<lambda>k _. RBT.insert k a) rbt_cycle rbt_inv)) =
+   dom (lookup (RBT.fold (\<lambda>k _. RBT.insert k b) rbt_inv rbt_cycle))"
+ by(simp add: rbt_fold_union Un_commute)
+
+ let ?len = "\<lambda>x. length (keys x)"
+ let ?len_merge = "\<lambda>rbt_cycle rbt_inv. ?len (fold (\<lambda>k _. insert k []) rbt_cycle rbt_inv)"
+
+ have rbt_fold_large: "\<And>rbt_cycle rbt_inv. ?len_merge rbt_cycle rbt_inv \<ge> max (?len rbt_cycle) (?len rbt_inv)"
+  apply(subst (1 2 3) distinct_card[symmetric], (rule distinct_keys)+)
+  apply(simp only: lookup_keys[symmetric], simp)
+  apply(subst (1 2) card_mono, simp_all)
+  apply(simp add: rbt_fold_union)+
+ done
+
+ have rbt_fold_eq: "\<And>rbt_cycle rbt_inv r a.
+     lookup rbt_inv r = Some a \<Longrightarrow>
+     ?len_merge (insert r () rbt_cycle) rbt_inv = ?len_merge rbt_cycle rbt_inv"
+  apply(subst (1 2) distinct_card[symmetric], (rule distinct_keys)+)
+  apply(simp only: lookup_keys[symmetric])
+  apply(simp add: rbt_fold_union)
+ by (metis Un_insert_right insert_dom)
+
+ show ?thesis
+  apply(relation "measure (\<lambda>(_, rbt_inv, rbt_cycle, r).
+    ?len_merge rbt_cycle rbt_inv - length (keys rbt_cycle)
+    )", simp+)
+  apply(subst rbt_length, simp)
+  apply(rule arith_diff)
+  apply(rule rbt_fold_eq, simp)
+  apply(rule arith_less)
+  apply(subst rbt_length[symmetric], simp)
+  apply(rule rbt_fold_large)
+ done
+qed
 
 definition "class_unflat l =
  (let l =
@@ -4121,12 +4211,6 @@ subsection{* ... *}
 locale s_of =
   fixes To_string :: "string \<Rightarrow> ml_string"
   fixes To_nat :: "nat \<Rightarrow> ml_int"
-
-  fixes s_of_expr :: "hol_expr \<Rightarrow> String.literal"
-  fixes s_of_ntheorem_aux :: "(String.literal \<times> String.literal) list \<Rightarrow> hol_ntheorem \<Rightarrow> String.literal"
-  fixes s_of_tactic :: "hol_tactic \<Rightarrow> String.literal"
-  fixes s_of_rawty :: "hol_raw_ty \<Rightarrow> String.literal"
-  fixes s_of_sexpr :: "sml_expr \<Rightarrow> String.literal"
 begin
 definition "To_oid = internal_oid_rec To_nat"
 end
@@ -4150,18 +4234,18 @@ definition "s_of_dataty _ = (\<lambda> Datatype n l \<Rightarrow>
                | Raw o_ \<Rightarrow> sprintf1 (STR ''%s'') (To_string o_))
               l))) l) ))"
 
-definition "flat_s_of_rawty = (\<lambda>
+fun_quick s_of_rawty where "s_of_rawty e = (\<lambda>
     Ty_base s \<Rightarrow> To_string s
   | Ty_apply name l \<Rightarrow> sprintf2 (STR ''%s %s'') (let s = String_concat (STR '', '') (List.map s_of_rawty l) in
                                                  case l of [_] \<Rightarrow> s | _ \<Rightarrow> sprintf1 (STR ''(%s)'') s)
                                                 (s_of_rawty name)
   | Ty_arrow ty1 ty2 \<Rightarrow> sprintf3 (STR ''%s %s %s'') (s_of_rawty ty1) (To_string unicode_Rightarrow) (s_of_rawty ty2)
-  | Ty_times ty1 ty2 \<Rightarrow> sprintf3 (STR ''%s %s %s'') (s_of_rawty ty1) (To_string unicode_times) (s_of_rawty ty2))"
+  | Ty_times ty1 ty2 \<Rightarrow> sprintf3 (STR ''%s %s %s'') (s_of_rawty ty1) (To_string unicode_times) (s_of_rawty ty2)) e"
 
 definition "s_of_ty_synonym _ = (\<lambda> Type_synonym n l \<Rightarrow>
     sprintf2 (STR ''type_synonym %s = \"%s\"'') (To_string n) (s_of_rawty l))"
 
-definition "flat_s_of_expr = (\<lambda>
+fun_quick s_of_expr where "s_of_expr e = (\<lambda>
     Expr_case e l \<Rightarrow> sprintf2 (STR ''(case %s of %s)'') (s_of_expr e) (String_concat (STR ''
     | '') (List.map (\<lambda> (s1, s2) \<Rightarrow> sprintf3 (STR ''%s %s %s'') (s_of_expr s1) (To_string unicode_Rightarrow) (s_of_expr s2)) l))
   | Expr_rewrite e1 symb e2 \<Rightarrow> sprintf3 (STR ''%s %s %s'') (s_of_expr e1) (To_string symb) (s_of_expr e2)
@@ -4180,9 +4264,9 @@ definition "flat_s_of_expr = (\<lambda>
   | Expr_preunary e1 e2 \<Rightarrow> sprintf2 (STR ''%s %s'') (s_of_expr e1) (s_of_expr e2)
   | Expr_paren p_left p_right e \<Rightarrow> sprintf3 (STR ''%s%s%s'') (To_string p_left) (s_of_expr e) (To_string p_right)
   | Expr_if_then_else e_if e_then e_else \<Rightarrow> sprintf3 (STR ''if %s then %s else %s'') (s_of_expr e_if) (s_of_expr e_then) (s_of_expr e_else)
-  | Expr_escape_raw s \<Rightarrow> To_string s)"
+  | Expr_escape_raw s \<Rightarrow> To_string s) e"
 
-definition "flat_s_of_sexpr = (\<lambda>
+fun_quick s_of_sexpr where "s_of_sexpr e = (\<lambda>
     Sexpr_string l \<Rightarrow> let c = STR [Char Nibble2 Nibble2] in
                       sprintf3 (STR ''%s%s%s'') c (String_concat (STR '' '') (List_map To_string l)) c
   | Sexpr_rewrite_val e1 symb e2 \<Rightarrow> sprintf3 (STR ''val %s %s %s'') (s_of_sexpr e1) (To_string symb) (s_of_sexpr e2)
@@ -4194,7 +4278,7 @@ definition "flat_s_of_sexpr = (\<lambda>
   | Sexpr_function l \<Rightarrow> sprintf1 (STR ''(fn %s)'') (String_concat (STR ''
     | '') (List.map (\<lambda> (s1, s2) \<Rightarrow> sprintf2 (STR ''%s => %s'') (s_of_sexpr s1) (s_of_sexpr s2)) l))
   | Sexpr_apply s l \<Rightarrow> sprintf2 (STR ''(%s %s)'') (To_string s) (String_concat (STR '' '') (List.map (\<lambda> e \<Rightarrow> sprintf1 (STR ''(%s)'') (s_of_sexpr e)) l))
-  | Sexpr_paren p_left p_right e \<Rightarrow> sprintf3 (STR ''%s%s%s'') (To_string p_left) (s_of_sexpr e) (To_string p_right))"
+  | Sexpr_paren p_left p_right e \<Rightarrow> sprintf3 (STR ''%s%s%s'') (To_string p_left) (s_of_sexpr e) (To_string p_right)) e"
 
 definition "s_of_instantiation_class _ = (\<lambda> Instantiation n n_def expr \<Rightarrow>
     let name = To_string n in
@@ -4221,8 +4305,9 @@ definition "s_of_definition_hol _ = (\<lambda>
   | Definition_abbrev0 name abbrev e \<Rightarrow> sprintf3 (STR ''definition %s (\"%s\")
   where \"%s\"'') (To_string name) (s_of_expr abbrev) (s_of_expr e))"
 
-definition "flat_s_of_ntheorem_aux lacc =
-  (let f_where = (\<lambda>l. (STR ''where'', String_concat (STR '' and '')
+fun_quick s_of_ntheorem_aux where "s_of_ntheorem_aux lacc e =
+  ((* FIXME regroup all the 'let' declarations at the beginning *)
+   (*let f_where = (\<lambda>l. (STR ''where'', String_concat (STR '' and '')
                                         (List_map (\<lambda>(var, expr). sprintf2 (STR ''%s = \"%s\"'')
                                                         (To_string var)
                                                         (s_of_expr expr)) l)))
@@ -4231,19 +4316,50 @@ definition "flat_s_of_ntheorem_aux lacc =
                                                         (s_of_expr expr)) l)))
      ; f_symmetric = (STR ''symmetric'', STR '''')
      ; s_base = (\<lambda>s lacc. sprintf2 (STR ''%s[%s]'') (To_string s) (String_concat (STR '', '') (List_map (\<lambda>(s, x). sprintf2 (STR ''%s %s'') s x) lacc))) in
-   \<lambda> Thm_str s \<Rightarrow> To_string s
-   | Thm_THEN (Thm_str s) e2 \<Rightarrow> s_base s ((STR ''THEN'', s_of_ntheorem_aux [] e2) # lacc)
+   *)\<lambda> Thm_str s \<Rightarrow> To_string s
+   | Thm_THEN (Thm_str s) e2 \<Rightarrow>
+let s_base = (\<lambda>s lacc. sprintf2 (STR ''%s[%s]'') (To_string s) (String_concat (STR '', '') (List_map (\<lambda>(s, x). sprintf2 (STR ''%s %s'') s x) lacc))) in
+       s_base s ((STR ''THEN'', s_of_ntheorem_aux [] e2) # lacc)
    | Thm_THEN e1 e2 \<Rightarrow> s_of_ntheorem_aux ((STR ''THEN'', s_of_ntheorem_aux [] e2) # lacc) e1
-   | Thm_simplified (Thm_str s) e2 \<Rightarrow> s_base s ((STR ''simplified'', s_of_ntheorem_aux [] e2) # lacc)
+   | Thm_simplified (Thm_str s) e2 \<Rightarrow>
+let s_base = (\<lambda>s lacc. sprintf2 (STR ''%s[%s]'') (To_string s) (String_concat (STR '', '') (List_map (\<lambda>(s, x). sprintf2 (STR ''%s %s'') s x) lacc))) in
+       s_base s ((STR ''simplified'', s_of_ntheorem_aux [] e2) # lacc)
    | Thm_simplified e1 e2 \<Rightarrow> s_of_ntheorem_aux ((STR ''simplified'', s_of_ntheorem_aux [] e2) # lacc) e1
-   | Thm_symmetric (Thm_str s) \<Rightarrow> s_base s (f_symmetric # lacc)
-   | Thm_symmetric e1 \<Rightarrow> s_of_ntheorem_aux (f_symmetric # lacc) e1
-   | Thm_where (Thm_str s) l \<Rightarrow> s_base s (f_where l # lacc)
-   | Thm_where e1 l \<Rightarrow> s_of_ntheorem_aux (f_where l # lacc) e1
-   | Thm_of (Thm_str s) l \<Rightarrow> s_base s (f_of l # lacc)
-   | Thm_of e1 l \<Rightarrow> s_of_ntheorem_aux (f_of l # lacc) e1
-   | Thm_OF (Thm_str s) e2 \<Rightarrow> s_base s ((STR ''OF'', s_of_ntheorem_aux [] e2) # lacc)
-   | Thm_OF e1 e2 \<Rightarrow> s_of_ntheorem_aux ((STR ''OF'', s_of_ntheorem_aux [] e2) # lacc) e1)"
+   | Thm_symmetric (Thm_str s) \<Rightarrow>
+let s_base = (\<lambda>s lacc. sprintf2 (STR ''%s[%s]'') (To_string s) (String_concat (STR '', '') (List_map (\<lambda>(s, x). sprintf2 (STR ''%s %s'') s x) lacc))) in
+let f_symmetric = (STR ''symmetric'', STR '''') in
+       s_base s (f_symmetric # lacc)
+   | Thm_symmetric e1 \<Rightarrow> 
+let f_symmetric = (STR ''symmetric'', STR '''') in
+       s_of_ntheorem_aux (f_symmetric # lacc) e1
+   | Thm_where (Thm_str s) l \<Rightarrow>
+let s_base = (\<lambda>s lacc. sprintf2 (STR ''%s[%s]'') (To_string s) (String_concat (STR '', '') (List_map (\<lambda>(s, x). sprintf2 (STR ''%s %s'') s x) lacc))) in
+let f_where = (\<lambda>l. (STR ''where'', String_concat (STR '' and '')
+                                        (List_map (\<lambda>(var, expr). sprintf2 (STR ''%s = \"%s\"'')
+                                                        (To_string var)
+                                                        (s_of_expr expr)) l))) in
+       s_base s (f_where l # lacc)
+   | Thm_where e1 l \<Rightarrow> 
+let f_where = (\<lambda>l. (STR ''where'', String_concat (STR '' and '')
+                                        (List_map (\<lambda>(var, expr). sprintf2 (STR ''%s = \"%s\"'')
+                                                        (To_string var)
+                                                        (s_of_expr expr)) l))) in
+       s_of_ntheorem_aux (f_where l # lacc) e1
+   | Thm_of (Thm_str s) l \<Rightarrow>
+let s_base = (\<lambda>s lacc. sprintf2 (STR ''%s[%s]'') (To_string s) (String_concat (STR '', '') (List_map (\<lambda>(s, x). sprintf2 (STR ''%s %s'') s x) lacc))) in
+let f_of = (\<lambda>l. (STR ''of'', String_concat (STR '' '')
+                                  (List_map (\<lambda>expr. sprintf1 (STR ''\"%s\"'')
+                                                        (s_of_expr expr)) l))) in
+       s_base s (f_of l # lacc)
+   | Thm_of e1 l \<Rightarrow> 
+let f_of = (\<lambda>l. (STR ''of'', String_concat (STR '' '')
+                                  (List_map (\<lambda>expr. sprintf1 (STR ''\"%s\"'')
+                                                        (s_of_expr expr)) l))) in
+       s_of_ntheorem_aux (f_of l # lacc) e1
+   | Thm_OF (Thm_str s) e2 \<Rightarrow>
+let s_base = (\<lambda>s lacc. sprintf2 (STR ''%s[%s]'') (To_string s) (String_concat (STR '', '') (List_map (\<lambda>(s, x). sprintf2 (STR ''%s %s'') s x) lacc))) in
+       s_base s ((STR ''OF'', s_of_ntheorem_aux [] e2) # lacc)
+   | Thm_OF e1 e2 \<Rightarrow> s_of_ntheorem_aux ((STR ''OF'', s_of_ntheorem_aux [] e2) # lacc) e1) e"
 
 definition "s_of_ntheorem = s_of_ntheorem_aux []"
 
@@ -4258,7 +4374,7 @@ definition "s_of_lemmas_simp _ = (\<lambda> Lemmas_simp s l \<Rightarrow>
       (String_concat (STR ''
                             '') (List_map To_string l)))"
 
-definition "flat_s_of_tactic expr = (\<lambda>
+fun_quick s_of_tactic where "s_of_tactic expr = (\<lambda>
     Tac_rule s \<Rightarrow> sprintf1 (STR ''rule %s'') (s_of_ntheorem s)
   | Tac_drule s \<Rightarrow> sprintf1 (STR ''drule %s'') (s_of_ntheorem s)
   | Tac_erule s \<Rightarrow> sprintf1 (STR ''erule %s'') (s_of_ntheorem s)
@@ -4411,33 +4527,20 @@ definition "write_file ocl = (
          s_of_thy_list (ocl_compiler_config_more_map (\<lambda>_. is_file) ocl) (rev l)))))"
 end
 
-fun_sorry s_of_rawty where "s_of_rawty To_string e = s_of.flat_s_of_rawty To_string (s_of_rawty To_string) e"
-fun_sorry s_of_expr where "s_of_expr To_string To_nat e = s_of.flat_s_of_expr To_string To_nat (s_of_expr To_string To_nat) (s_of_rawty To_string) e"
-fun_sorry s_of_ntheorem_aux where "s_of_ntheorem_aux To_string To_nat e = s_of.flat_s_of_ntheorem_aux To_string (s_of_expr To_string To_nat) (s_of_ntheorem_aux To_string To_nat) e"
-fun_sorry s_of_tactic where "s_of_tactic To_string To_nat e = s_of.flat_s_of_tactic To_string To_nat (s_of_expr To_string To_nat) (s_of_ntheorem_aux To_string To_nat) (s_of_tactic To_string To_nat) e"
-fun_sorry s_of_sexpr where "s_of_sexpr To_string To_nat e = s_of.flat_s_of_sexpr To_string To_nat (s_of_sexpr To_string To_nat) e"
-
-definition "write_file =
- (let To_string = implode
-    ; To_nat = ToNat integer_of_natural in
-  s_of.write_file To_string To_nat (s_of_expr To_string To_nat) (s_of_ntheorem_aux To_string To_nat) (s_of_tactic To_string To_nat) (s_of_rawty To_string) (s_of_sexpr To_string To_nat))"
+definition "write_file = s_of.write_file implode (ToNat integer_of_natural)"
 
 lemmas [code] =
+  (* def *)
   s_of.To_oid_def
 
   s_of.s_of_dataty_def
-  s_of.flat_s_of_rawty_def
   s_of.s_of_ty_synonym_def
-  s_of.flat_s_of_expr_def
-  s_of.flat_s_of_sexpr_def
   s_of.s_of_instantiation_class_def
   s_of.s_of_defs_overloaded_def
   s_of.s_of_consts_class_def
   s_of.s_of_definition_hol_def
-  s_of.flat_s_of_ntheorem_aux_def
   s_of.s_of_ntheorem_def
   s_of.s_of_lemmas_simp_def
-  s_of.flat_s_of_tactic_def
   s_of.s_of_tactic_last_def
   s_of.s_of_tac_apply_def
   s_of.s_of_lemma_by_def
@@ -4449,6 +4552,13 @@ lemmas [code] =
   s_of.s_of_thy_list_def
 
   s_of.write_file_def
+
+  (* fun *)
+  s_of.s_of_rawty.simps
+  s_of.s_of_expr.simps
+  s_of.s_of_ntheorem_aux.simps
+  s_of.s_of_tactic.simps
+  s_of.s_of_sexpr.simps
 
 subsection{* General Compiling Process: Test Scenario: Deep (without reflection) *}
 
