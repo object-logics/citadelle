@@ -1097,7 +1097,7 @@ structure USE_parse = struct
                     | OclTypeInteger
                     | OclTypeSet of use_oclty
                     | OclTypeSequence of use_oclty
-                    | OclTypeRaw of string
+                    | OclTypeRaw of binding (* FIXME use 'string' and Parse.typ *)
 
  datatype use_opt = Ordered | Subsets of binding | Union | Redefines of binding | Derived of string | Qualifier of (binding * use_oclty) list
  datatype use_operation_def = Expression of string | BlockStat
@@ -1106,7 +1106,7 @@ structure USE_parse = struct
                       | OclTypeInteger    => OCL.OclTy_integer
                       | OclTypeSet l      => OCL.OclTy_collection (OCL.Set, from_oclty l)
                       | OclTypeSequence l => OCL.OclTy_collection (OCL.Sequence, from_oclty l)
-                      | OclTypeRaw s      => OCL.OclTy_raw (From.from_string s)) v
+                      | OclTypeRaw s      => OCL.OclTy_raw (From.from_binding s)) v
 
  val ident_dot_dot = Parse.alt_string (* ".." *)
  val ident_star = Parse.alt_string (* "*" *)
@@ -1115,7 +1115,7 @@ structure USE_parse = struct
                 || Parse.reserved "Sequence" |-- Parse.$$$ "(" |-- use_type --| Parse.$$$ ")" >> OclTypeSequence
                 || Parse.reserved "Boolean" >> K OclTypeBoolean
                 || Parse.reserved "Integer" >> K OclTypeInteger
-                || Parse.typ >> OclTypeRaw) v
+                || Parse.binding >> OclTypeRaw) v
 
  val use_expression = Parse.alt_string
  val use_variableDeclaration = Parse.binding --| Parse.$$$ ":" -- use_type
