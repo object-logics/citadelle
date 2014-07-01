@@ -367,6 +367,7 @@ val gen_empty = ""
 
 structure Export_code_env = struct
   structure Isabelle = struct
+    val function = "write_file"
     val argument_main = "main"
   end
 
@@ -388,6 +389,13 @@ structure Export_code_env = struct
       fun argument ext = "argument." ^ ext
       fun main_fic ext = "main." ^ ext
       fun makefile ext = make ^ "." ^ ext
+    end
+  end
+
+  structure Scala = struct
+    structure Filename = struct
+      fun function ext = "Function." ^ ext
+      fun argument ext = "Argument." ^ ext
     end
   end
 
@@ -439,7 +447,7 @@ val compiler = let open Export_code_env in
                          , "import qualified " ^ Haskell.function
                          , "import qualified " ^ Haskell.argument
                          , "main :: IO ()"
-                         , "main = " ^ Haskell.function ^ ".write_file (Unsafe.Coerce.unsafeCoerce " ^ Haskell.argument ^ "." ^
+                         , "main = " ^ Haskell.function ^ "." ^ Isabelle.function ^ " (Unsafe.Coerce.unsafeCoerce " ^ Haskell.argument ^ "." ^
                            mk_free (Proof_Context.init_global thy) Isabelle.argument_main ([]: (string * string) list) ^
                            ")"]))
     , fn tmp_export_code => fn tmp_file =>
@@ -463,7 +471,7 @@ val compiler = let open Export_code_env in
                                              , "requires = [\"nums\"] "
                                              , "end" ]) in
          File.write (mk_fic (OCaml.Filename.main_fic ml_ext))
-           ("let _ = Function." ^ ml_module ^ ".write_file (Obj.magic (Argument." ^ ml_module ^ "." ^
+           ("let _ = Function." ^ ml_module ^ "." ^ Isabelle.function ^ " (Obj.magic (Argument." ^ ml_module ^ "." ^
             mk_free (Proof_Context.init_global thy) Isabelle.argument_main ([]: (string * string) list) ^ "))")
          end
     , fn tmp_export_code => fn tmp_file =>
@@ -471,6 +479,24 @@ val compiler = let open Export_code_env in
                 , "cd " ^ Path.implode tmp_export_code ^
                   " && ocp-build -init -scan -no-bytecode 2>&1" ]
                 (Path.implode (Path.append tmp_export_code (Path.make [ "_obuild", OCaml.make, OCaml.make ^ ".asm"]))))
+    end
+  , let val ml_ext = "scala"
+        val ml_module = Unsynchronized.ref ("", "") in
+    ( "Scala", ml_ext, File, Scala.Filename.function
+    , check [("scala -e 0", "scala is not installed (required for compiling a Scala project)")]
+    , (fn _ => fn ml_mod => fn mk_free => fn thy => 
+        ml_module := (ml_mod, mk_free (Proof_Context.init_global thy) Isabelle.argument_main ([]: (string * string) list)))
+    , fn tmp_export_code => fn tmp_file =>
+        let val l = File.read_lines (Path.explode tmp_file)
+            val (ml_module, ml_main) = Unsynchronized.! ml_module
+            val () = File.write_list
+                       (Path.append tmp_export_code (Path.make [Scala.Filename.argument ml_ext]))
+                       (List.map
+                         (fn s => s ^ "\n")
+                         ("object " ^ ml_module ^ " { def main (__ : Array [String]) = " ^ ml_module ^ "." ^ Isabelle.function ^ " (" ^ ml_module ^ "." ^ ml_main ^ ")" :: l @ ["}"])) in
+        compile []
+                ("scala -nowarn " ^ Path.implode (Path.append tmp_export_code (Path.make [Scala.Filename.argument ml_ext])))
+        end)
     end
   , let val ml_ext_thy = "thy"
         val ml_ext_ml = "ML" in
@@ -497,7 +523,7 @@ val compiler = let open Export_code_env in
              , "val " ^ arg ^ " = XML.content_of (YXML.parse_body (@{make_string} (" ^ ml_module ^ "." ^
                mk_free (Proof_Context.init_global thy) Isabelle.argument_main ([]: (string * string) list) ^ ")))"
              , "use \"" ^ SML.Filename.function ml_ext_ml ^ "\""
-             , "ML_Context.eval_text false Position.none (\"let open " ^ ml_module ^ " in write_file (\" ^ " ^ arg ^ " ^ \") end\")" ]
+             , "ML_Context.eval_text false Position.none (\"let open " ^ ml_module ^ " " ^ Isabelle.function ^ " (\" ^ " ^ arg ^ " ^ \") end\")" ]
              end
            , [ esc_accol2
              , "end"] ]))
@@ -599,7 +625,12 @@ fun mk_path_export_code tmp_export_code ml_compiler i =
 fun export_code_cmd' seris tmp_export_code f_err filename_thy raw_cs thy =
   export_code_tmp_file seris
     (fn seris =>
-      let val _ = export_code_cmd_gen raw_cs (Deep0.apply_hs_code_identifiers Deep0.Export_code_env.Haskell.argument thy) seris in
+      let val mem_scala = List.exists (fn ((("Scala", _), _), _) => true | _ => false) seris
+          val _ = export_code_cmd_gen
+        (if mem_scala then Deep0.Export_code_env.Isabelle.function :: raw_cs else raw_cs)
+        (let val v = Deep0.apply_hs_code_identifiers Deep0.Export_code_env.Haskell.argument thy in
+         if mem_scala then Code_printing.apply_code_printing v else v end)
+        seris in
       List_mapi
         (fn i => fn seri => case seri of (((ml_compiler, _), filename), _) =>
           let val (l, (out, err)) =
@@ -709,7 +740,7 @@ fun f_command l_mode =
                         , export_arg), mk_fic)
                       end) seri_args
                     val _ = Deep.export_code_cmd_gen
-                              ["write_file"]
+                              [Deep0.Export_code_env.Isabelle.function]
                               (Code_printing.apply_code_printing (Deep0.apply_hs_code_identifiers Deep0.Export_code_env.Haskell.function thy))
                               (List.map fst seri_args')
                     val () = fold (fn ((((ml_compiler, ml_module), _), _), mk_fic) => fn _ =>

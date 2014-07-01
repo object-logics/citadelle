@@ -57,6 +57,7 @@ section{* Preliminaries *}
 
 subsection{* Misc. (to be removed) *}
 definition "bug_ocaml_extraction = id"
+definition "bug_scala_extraction = id"
   (* In this theory, this identifier can be removed everywhere it is used.
      However without this, there is a syntax error when the code is extracted to OCaml. *)
 
@@ -2097,8 +2098,8 @@ definition "print_access_choose = start_map'''' Thy_definition_hol o (\<lambda>e
   (let a = \<lambda>f x. Expr_apply f [x]
      ; b = \<lambda>s. Expr_basic [s]
      ; lets = \<lambda>var exp. Definition (Expr_rewrite (Expr_basic [var]) ''='' exp)
-     ; lets' = \<lambda>var exp. Definition (Expr_rewrite (Expr_basic [var]) ''='' (b exp))
-     ; lets'' = \<lambda>var exp. Definition (Expr_rewrite (Expr_basic [var]) ''='' (Expr_lam ''l'' (\<lambda>var_l. Expr_binop (b var_l) ''!'' (b exp))))
+     ; lets' = bug_scala_extraction (\<lambda>var exp. Definition (Expr_rewrite (Expr_basic [var]) ''='' (b exp)))
+     ; lets'' = bug_scala_extraction (\<lambda>var exp. Definition (Expr_rewrite (Expr_basic [var]) ''='' (Expr_lam ''l'' (\<lambda>var_l. Expr_binop (b var_l) ''!'' (b exp)))))
      ; l_flatten = ''List_flatten'' in
   flatten
   [ (bug_ocaml_extraction
@@ -2650,7 +2651,7 @@ definition "print_examp_instance_defassoc_gen name l_ocli ocl =
      (let var_oid_class = ''oid_class''
         ; var_to_from = ''to_from''
         ; var_oid = ''oid''
-        ; mk_ty = \<lambda>l. (flatten o flatten) (List_map (\<lambda>x. ['' '', x, '' '']) l)
+        ; mk_ty = bug_scala_extraction (\<lambda>l. (flatten o flatten) (List_map (\<lambda>x. ['' '', x, '' '']) l))
         ; a_l = \<lambda>s. Ty_apply (Ty_base const_oid_list) [s] in
       Expr_lambdas
         [var_oid_class, var_to_from, var_oid]
@@ -2894,7 +2895,7 @@ definition "print_examp_def_st_perm = (\<lambda> _ ocl.
                                                    | (_, OclDefCoreBinding (_, ocli)) \<Rightarrow> ocli
                                                    | _ \<Rightarrow> \<lparr> Inst_name = [], Inst_ty = [], Inst_attr = OclAttrNoCast [] \<rparr>) l_st))
                     (rev l_st)
-     ; a = \<lambda>f x. Expr_apply f [x]
+     ; a = bug_scala_extraction (\<lambda>f x. Expr_apply f [x])
      ; b = \<lambda>s. Expr_basic [s]
      ; d = hol_definition
      ; (l_app, l_last) =
@@ -3957,18 +3958,67 @@ end
 ; isDirectory2 = doesDirectoryExist
 *} | code_module "CodeConst.To" \<rightharpoonup> (Haskell) {*
   nat = id
+
+*} | code_module "" \<rightharpoonup> (Scala) {*
+object CodeType {
+  type mlMonad [A] = Option [A]
+  type mlInt = Int
+}
+
+object CodeConst {
+  def outFile1 [A] (f : (String => A => Option [Unit]) => Option [Unit], file0 : String) : Option [Unit] = {
+    val file = new java.io.File (file0)
+    if (file .isFile) {
+      val writer = new java.io.PrintWriter (file)
+      f ((fmt : String) => (s : A) => Some (writer .write (fmt .format (s))))
+      Some (writer .close ())
+    } else
+      None
+  }
+
+  def outStand1 [A] (f : (String => A => Option [Unit]) => Option [Unit]) : Option[Unit] = {
+    f ((fmt : String) => (s : A) => Some (print (fmt .format (s))))
+  }
+
+  object Monad {
+    def bind [A, B] (x : Option [A], f : A => Option [B]) : Option [B] = x match {
+      case None => None
+      case Some (a) => f (a)
+    }
+    def Return [A] (a : A) = Some (a)
+  }
+  object Printf {
+    def sprintf0 (x0 : String) = x0
+    def sprintf1 [A1] (fmt : String, x1 : A1) = fmt .format (x1)
+    def sprintf2 [A1, A2] (fmt : String, x1 : A1, x2 : A2) = fmt .format (x1, x2)
+    def sprintf3 [A1, A2, A3] (fmt : String, x1 : A1, x2 : A2, x3 : A3) = fmt .format (x1, x2, x3)
+    def sprintf4 [A1, A2, A3, A4] (fmt : String, x1 : A1, x2 : A2, x3 : A3, x4 : A4) = fmt .format (x1, x2, x3, x4)
+    def sprintf5 [A1, A2, A3, A4, A5] (fmt : String, x1 : A1, x2 : A2, x3 : A3, x4 : A4, x5 : A5) = fmt .format (x1, x2, x3, x4, x5)
+  }
+  object String {
+    def concat (s : String, l : List [String]) = l filter (_ .nonEmpty) mkString s
+  }
+  object Sys {
+    def isDirectory2 (s : String) = Some (new java.io.File (s) .isDirectory)
+  }
+  object To {
+    def nat [A] (f : A => BigInt, x : A) = f (x) .intValue ()
+  }
+}
 *}
 
 subsection{* ML type *}
 
 datatype ml_int = ML_int
-code_printing type_constructor ml_int \<rightharpoonup> (Haskell) "CodeType.MlInt"
+code_printing type_constructor ml_int \<rightharpoonup> (Haskell) "CodeType.MlInt" (* syntax! *)
             | type_constructor ml_int \<rightharpoonup> (OCaml) "CodeType.mlInt"
+            | type_constructor ml_int \<rightharpoonup> (Scala) "CodeType.mlInt"
             | type_constructor ml_int \<rightharpoonup> (SML) "CodeType.mlInt"
 
 datatype 'a ml_monad = ML_monad 'a
-code_printing type_constructor ml_monad \<rightharpoonup> (Haskell) "CodeType.MlMonad _"
+code_printing type_constructor ml_monad \<rightharpoonup> (Haskell) "CodeType.MlMonad _" (* syntax! *)
             | type_constructor ml_monad \<rightharpoonup> (OCaml) "_ CodeType.mlMonad"
+            | type_constructor ml_monad \<rightharpoonup> (Scala) "CodeType.mlMonad [_]"
             | type_constructor ml_monad \<rightharpoonup> (SML) "_ CodeType.mlMonad"
 
 (* *)
@@ -4002,7 +4052,7 @@ code_printing constant bind \<rightharpoonup> (Haskell) "CodeConst.Monad.bind"
 consts return :: "'a \<Rightarrow> 'a ml_monad"
 code_printing constant return \<rightharpoonup> (Haskell) "CodeConst.Monad.return"
             | constant return \<rightharpoonup> (OCaml) "CodeConst.Monad.return"
-            | constant return \<rightharpoonup> (Scala) "CodeConst.Monad.return"
+            | constant return \<rightharpoonup> (Scala) "CodeConst.Monad.Return" (* syntax! *)
             | constant return \<rightharpoonup> (SML) "CodeConst.Monad.return"
 
 text{* module Printf *}
