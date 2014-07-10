@@ -2528,11 +2528,13 @@ definition "print_access_dot_lemma_cp = start_map Thy_lemma_by o
                 (if print_access_dot_cp_lemmas_set = [] then Tacl_sorry (* fold l_hierarchy, take only subclass, unfold the corresponding definition *)
                  else Tacl_by [Tac_auto_simp_add (List_map hol_definition [''cp''])]) ])"
 
-definition "print_access_dot_lemmas_cp = start_map Thy_lemmas_simp o (\<lambda>expr. [Lemmas_simp ''''
-  (map_class_arg_only_var'
+definition "print_access_dot_lemmas_cp = start_map Thy_lemmas_simp o (\<lambda>expr. 
+  case map_class_arg_only_var'
     (\<lambda>isub_name _ (_, dot_at_when) attr_ty isup_attr _.
       [Thm_str (print_access_dot_lemma_cp_name isub_name dot_at_when attr_ty isup_attr) ])
-    expr)])"
+    expr
+  of [] \<Rightarrow> []
+   | l \<Rightarrow> [Lemmas_simp '''' l])"
 
 definition "print_access_lemma_strict expr = (start_map Thy_lemma_by o
   map_class_arg_only_var' (\<lambda>isub_name name (_, dot_at_when) attr_ty isup_attr dot_attr.
