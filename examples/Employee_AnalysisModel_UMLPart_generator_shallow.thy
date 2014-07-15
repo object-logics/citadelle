@@ -63,7 +63,8 @@ Association boss
 End
 
 Class Planet < Galaxy
-  Attributes weight : nat
+  Attributes wormhole : nat
+             weight : int
 End
 
 Class Galaxy
@@ -71,19 +72,14 @@ Class Galaxy
              moving : bool
 End
 
-(* wishlist: 
+(* wishlist:
 
 Class Person < Planet
   Attributes salary : Integer
 End
 
-Association boss
-  Between Person [`*`]
-          Person [0 `..` 1] Role boss
-End
-
 Class Planet < Galaxy
-  Attributes weight : `bool option`  
+  Attributes weight : `bool option`
              hurx : Boolean
 End
 
@@ -132,8 +128,28 @@ Define_state \<sigma>\<^sub>0 = []
 
 Define_pre_post \<sigma>\<^sub>1 \<sigma>\<^sub>1'
 
-(* wishlist: 
-Context Galaxy 
-  Inv A : `true and (self .weight \<le>\<^sub>o\<^sub>c\<^sub>l \<zero>)`
+Context Person :: contents () : Set(int)
+  Post : `result \<triangleq> if (self .boss \<doteq> null)
+                   then (Set{}->including(self .salary))
+                   else (self .boss .contents()->including(self .salary))
+                   endif`
+  Post : `true`
+  Pre : `false`
+
+Context Person
+  Inv a: `self .boss <> null implies (self .salary  \<triangleq>  ((self .boss) .salary))`
+
+(* wishlist:
+Context Person :: contents () : Set(Integer)
+  Post : `result \<triangleq> if (self .boss \<doteq> null)
+                   then (Set{}->including(self .salary))
+                   else (self .boss .contents()->including(self .salary))
+                   endif`
+  Post : `true`
+  Pre : `false`
 *)
+
+Context Planet
+  Inv A : `true and (self .weight \<le>\<^sub>o\<^sub>c\<^sub>l \<zero>)`
+
 end

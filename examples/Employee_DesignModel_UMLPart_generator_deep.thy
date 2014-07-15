@@ -68,13 +68,32 @@ Association boss
 End
 
 Class Planet < Galaxy
-  Attributes weight : nat
+  Attributes wormhole : nat
+             weight : int
 End
 
 Class Galaxy
   Attributes sound : unit
              moving : bool
 End
+
+(* wishlist:
+
+Class Person < Planet
+  Attributes salary : Integer
+End
+
+Class Planet < Galaxy
+  Attributes weight : `bool option`
+             hurx : Boolean
+End
+
+Class Galaxy
+  Attributes sound : Set(Set(Integer))
+             outerworld : Galaxy
+             moving : Boolean
+End
+*)
 
 Define_int [ 1000, 1200, 1300, 1800, 2600, 2900, 3200, 3500 ]
 
@@ -113,6 +132,30 @@ Define_state \<sigma>\<^sub>1' =
 Define_state \<sigma>\<^sub>0 = []
 
 Define_pre_post \<sigma>\<^sub>1 \<sigma>\<^sub>1'
+
+Context Person :: contents () : Set(int)
+  Post : `result \<triangleq> if (self .boss \<doteq> null)
+                   then (Set{}->including(self .salary))
+                   else (self .boss .contents()->including(self .salary))
+                   endif`
+  Post : `true`
+  Pre : `false`
+
+Context Person
+  Inv a: `self .boss <> null implies (self .salary  \<triangleq>  ((self .boss) .salary))`
+
+(* wishlist:
+Context Person :: contents () : Set(Integer)
+  Post : `result \<triangleq> if (self .boss \<doteq> null)
+                   then (Set{}->including(self .salary))
+                   else (self .boss .contents()->including(self .salary))
+                   endif`
+  Post : `true`
+  Pre : `false`
+*)
+
+Context Planet
+  Inv A : `true and (self .weight \<le>\<^sub>o\<^sub>c\<^sub>l \<zero>)`
 
 (*generation_syntax deep flush_all*)
 

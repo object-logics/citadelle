@@ -129,9 +129,15 @@ definition "modify_def v k f rbt =
 definition "Option_bind f = (\<lambda> None \<Rightarrow> None | Some x \<Rightarrow> f x)"
 definition "List_assoc x1 l = List.fold (\<lambda>(x2, v). \<lambda>None \<Rightarrow> if x1 = x2 then Some v else None | x \<Rightarrow> x) l None"
 definition "List_split l = (List_map fst l, List_map snd l)"
-definition "List_upto i j = 
+definition "List_upto i j =
  (let to_i = \<lambda>n. int_of_integer (integer_of_natural n) in
   List_map (natural_of_integer o integer_of_int) (upto (to_i i) (to_i j)))"
+definition "List_split_at f l =
+ (let f = \<lambda>x. \<not> f x in
+  (takeWhile f l, case dropWhile f l of [] \<Rightarrow> (None, []) | x # xs \<Rightarrow> (Some x, xs)))"
+definition "List_take reverse lg l = reverse (snd (List_split (takeWhile (\<lambda>(n, _). n < lg) (enumerate 0 (reverse l)))))"
+definition "List_take_last = List_take rev"
+definition "List_take_first = List_take id"
 definition "List_replace_gen f_res l c0 lby =
  (case List.fold (\<lambda>c1 (l,lgen). if c1 = c0 then (lby, l # lgen) else (c1 # l, lgen)) (rev l) ([], [])
   of (l, lgen) \<Rightarrow> f_res (l # lgen))"

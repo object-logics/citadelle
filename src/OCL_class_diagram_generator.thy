@@ -94,7 +94,7 @@ code_reflect OCL
              write_file
 
              (* manipulating the compiling environment *)
-             ocl_compiler_config_reset_all oidInit D_file_out_path_dep_update
+             ocl_compiler_config_reset_all oidInit D_file_out_path_dep_update map_ctxt2_term
 
              (* printing the OCL AST to (deep Isabelle) string *)
              isabelle_apply isabelle_of_ocl_embed
@@ -118,7 +118,28 @@ structure From = struct
  val from_option = Option.map
  val from_list = List.map
  fun from_pair f1 f2 (x, y) = (f1 x, f2 y)
+ fun from_pair3 f1 f2 f3 (x, y, z) = (f1 x, f2 y, f3 z)
  val from_design_analysis = fn NONE => Gen_design | _ => Gen_analysis
+
+ val from_pure_indexname = OCL.PureIndexname o from_pair from_string from_nat
+ val from_pure_class = OCL.PureClass o from_string
+ val from_pure_sort = OCL.PureSort o from_list from_pure_class
+ fun from_pure_typ e = (fn
+     Type (s, l) => (OCL.PureType o from_pair from_string (from_list from_pure_typ)) (s, l)
+   | TFree (s, sort) => (OCL.PureTFree o from_pair from_string from_pure_sort) (s, sort)
+   | TVar (i, sort) => (OCL.PureTVar o from_pair from_pure_indexname from_pure_sort) (i, sort)
+  ) e
+ fun from_pure_term e = (fn
+     Const (s, typ) => (OCL.PureConst o from_pair from_string from_pure_typ) (s, typ)
+   | Free (s, typ) => (OCL.PureConst o from_pair from_string from_pure_typ) (s, typ)
+   | Var (i, typ) => (OCL.PureVar o from_pair from_pure_indexname from_pure_typ) (i, typ)
+   | Bound i => (OCL.PureBound o from_nat) i
+   | Abs (s, typ, term) => (OCL.PureAbs o from_pair3 from_string from_pure_typ from_pure_term) (s, typ, term)
+   | op $ (term1, term2) => (OCL.PureApp o from_pair from_pure_term from_pure_term) (term1, term2)
+  ) e
+
+ fun from_p_term thy expr =
+   OCL.T_pure (from_pure_term (Syntax.read_term (Proof_Context.init_global thy) expr))
 end
 *}
 
@@ -267,7 +288,7 @@ val compiler = let open Export_code_env in
         val ml_module = Unsynchronized.ref ("", "") in
     ( "Scala", ml_ext, File, Scala.Filename.function
     , check [("scala -e 0", "scala is not installed (required for compiling a Scala project)")]
-    , (fn _ => fn ml_mod => fn mk_free => fn thy => 
+    , (fn _ => fn ml_mod => fn mk_free => fn thy =>
         ml_module := (ml_mod, mk_free (Proof_Context.init_global thy) Isabelle.argument_main ([]: (string * string) list)))
     , fn tmp_export_code => fn tmp_file =>
         let val l = File.read_lines (Path.explode tmp_file)
@@ -311,17 +332,17 @@ val compiler = let open Export_code_env in
            , [ esc_accol2
              , "end"] ]))
          end
-    , fn tmp_export_code => fn tmp_file => 
+    , fn tmp_export_code => fn tmp_file =>
         let val stdout_file = Isabelle_System.create_tmp_path "stdout_file" "thy"
             val () = File.write (Path.append tmp_export_code (Path.make [SML.Filename.stdout ml_ext_ml])) (Path.implode (Path.expand stdout_file))
-            val (l, (_, exit_st)) = 
+            val (l, (_, exit_st)) =
               compile [ "mv " ^ tmp_file ^ " " ^ Path.implode (Path.append tmp_export_code (Path.make [SML.Filename.argument ml_ext_ml]))
                       , "cd " ^ Path.implode tmp_export_code ^
                         " && cat " ^ SML.Filename.main_fic ml_ext_thy ^
                         " | " ^
                         Path.implode (Path.expand (Path.append (Path.variable "ISABELLE_HOME") (Path.make ["bin", "isabelle"]))) ^ " tty" ]
                       "true"
-            val stdout = 
+            val stdout =
               case SOME (File.read stdout_file) handle _ => NONE of
                 SOME s => let val () = File.rm stdout_file in s end
               | NONE => "" in
@@ -767,6 +788,10 @@ val OCL_main_thy = let open OCL open OCL_overload in (*let val f = *)fn
 | Theory_section_title _ => I
 | Theory_text _ => I
 | Theory_ml ml => Code_printing.reflect_ml (case ml of Ml ml => s_of_sexpr ml)
+| Theory_thm (Thm thm) => in_local (fn lthy =>
+    let val () = writeln (Pretty.string_of (Proof_Context.pretty_fact lthy ("", List.map (m_of_ntheorem lthy) thm))) in
+    lthy
+    end)
 (*in fn t => fn thy => f t thy handle ERROR s => (warning s; thy)
  end*)
 end
@@ -775,7 +800,8 @@ fun OCL_main aux ret = let open OCL open OCL_overload in fn
   Isab_thy thy => ret o (OCL_main_thy thy)
 | Isab_thy_generation_syntax _ => ret o I
 | Isab_thy_ml_extended _ => ret o I
-| Isab_thy_ocl_deep_embed_ast ocl => aux ocl
+| Isab_thy_ocl_deep_embed_ast ocl => fn thy => aux (map_ctxt2_term (fn T_to_be_parsed s => From.from_p_term thy (String.implode s)
+                                                                     | x => x) ocl) thy
 end
 
 end
@@ -1062,7 +1088,7 @@ local
 in
 val () =
   outer_syntax_command @{make_string} @{command_spec "Context"} ""
-    (
+    (optional (Parse.$$$ "[" |-- @{keyword "shallow"} --| Parse.$$$ "]") -- (
     ((* use_prePost *)
          Parse.binding
      --| Parse.$$$ "::"
@@ -1076,22 +1102,28 @@ val () =
      -- Parse.binding
      -- Scan.repeat use_invariantClause
      >> USE_context_invariant)
-    )
-    (fn use_ctxt => fn _ =>
+    ))
+    (fn (is_shallow, use_ctxt) => fn thy =>
+      let val (from_expr, OclAstCtxtPrePost, OclAstCtxtInv) =
+        if is_shallow = NONE then
+          (OCL.T_to_be_parsed o From.from_string, OCL.OclAstCtxtPrePost, OCL.OclAstCtxtInv)
+        else
+          (From.from_p_term thy, OCL.OclAstCtxt2PrePost, OCL.OclAstCtxt2Inv) in
       case use_ctxt of USE_context_pre_post ((((name_ty, name_fun), ty_arg), ty_out), expr) =>
-        OCL.OclAstCtxtPrePost (OCL.Ocl_ctxt_pre_post_ext
+        OclAstCtxtPrePost (OCL.Ocl_ctxt_pre_post_ext
           ( From.from_binding name_ty
           , From.from_binding name_fun
           , From.from_list (From.from_pair From.from_binding USE_parse.from_oclty) ty_arg
           , From.from_option USE_parse.from_oclty ty_out
           , From.from_list (fn ((s_pre_post, _), expr) => ( if s_pre_post = "Pre" then OCL.OclCtxtPre else OCL.OclCtxtPost
-                                                          , From.from_string expr)) expr
+                                                          , from_expr expr)) expr
           , ()))
       | USE_context_invariant ((_, name), l) =>
-        OCL.OclAstCtxtInv (OCL.Ocl_ctxt_inv_ext
+        OclAstCtxtInv (OCL.Ocl_ctxt_inv_ext
           ( From.from_binding name
-          , From.from_list (fn ((_, s), e) => (From.from_binding s, From.from_string e)) l
-          , ())))
+          , From.from_list (fn ((_, s), e) => (From.from_binding s, from_expr e)) l
+          , ()))
+      end)
 end
 *}
 

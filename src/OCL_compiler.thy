@@ -101,6 +101,37 @@ end
 *}
 
 
+section{* Lambda_pure Meta-Model aka. AST definition of Lambda_pure *}
+
+subsection{* type definition *}
+
+datatype pure_indexname = PureIndexname string nat
+datatype pure_class = PureClass string
+datatype pure_sort = PureSort "pure_class list"
+datatype pure_typ =
+  PureType string "pure_typ list" |
+  PureTFree string pure_sort |
+  PureTVar pure_indexname pure_sort
+datatype pure_term =
+  PureConst string pure_typ |
+  PureFree string pure_typ |
+  PureVar pure_indexname pure_typ |
+  PureBound nat |
+  PureAbs string pure_typ pure_term |
+  PureApp pure_term pure_term (infixl "$" 200)
+
+subsection{* *}
+
+fun_quick map_Const where
+   "map_Const f expr = (\<lambda> PureConst s ty \<Rightarrow> PureConst (f s ty) ty
+                        | PureFree s ty \<Rightarrow> PureFree s ty
+                        | PureVar i ty \<Rightarrow> PureVar i ty
+                        | PureBound n \<Rightarrow> PureBound n
+                        | PureAbs s ty term \<Rightarrow> PureAbs s ty (map_Const f term)
+                        | PureApp term1 term2 \<Rightarrow> PureApp (map_Const f term1)
+                                                         (map_Const f term2))
+                        expr"
+
 section{* OCL Meta-Model aka. AST definition of OCL *}
 
 subsection{* type definition *}
@@ -184,14 +215,21 @@ datatype ocl_def_pre_post = OclDefPP
 
 datatype ocl_ctxt_prefix = OclCtxtPre | OclCtxtPost
 
+datatype ocl_ctxt_term = T_pure pure_term
+                       | T_to_be_parsed string
+
 record ocl_ctxt_pre_post = Ctxt_ty :: string (* class ty *)
                            Ctxt_fun_name :: string (* function name *)
                            Ctxt_fun_ty_arg :: "(string (* arg name *) \<times> ocl_ty) list"
                            Ctxt_fun_ty_out :: "ocl_ty option" (* None : Void *)
-                           Ctxt_expr :: "(ocl_ctxt_prefix \<times> string (* expr *)) list"
+                           Ctxt_expr :: "(ocl_ctxt_prefix \<times> ocl_ctxt_term (* expr *)) list"
+
+type_synonym ocl_ctxt2_pre_post = ocl_ctxt_pre_post
 
 record ocl_ctxt_inv =      Ctxt_inv_ty :: string
-                           Ctxt_inv_expr :: "(string (* name *) \<times> string (* expr *)) list"
+                           Ctxt_inv_expr :: "(string (* name *) \<times> ocl_ctxt_term (* expr *)) list"
+
+type_synonym ocl_ctxt2_inv = ocl_ctxt_inv
 
 datatype ocl_flush_all = OclFlushAll
 
@@ -204,7 +242,9 @@ datatype ocl_deep_embed_ast = OclAstClassRaw ocl_class_raw
                             | OclAstDefState ocl_def_state
                             | OclAstDefPrePost ocl_def_pre_post
                             | OclAstCtxtPrePost ocl_ctxt_pre_post
+                            | OclAstCtxt2PrePost ocl_ctxt2_pre_post
                             | OclAstCtxtInv ocl_ctxt_inv
+                            | OclAstCtxt2Inv ocl_ctxt2_inv
                             | OclAstFlushAll ocl_flush_all
 
 datatype ocl_deep_mode = Gen_design | Gen_analysis
@@ -231,8 +271,15 @@ record ocl_compiler_config =  D_disable_thy_output :: bool
                                                       ocl_def_state_core) list) list"
                                              (* state namespace environment *)
                               D_generation_syntax_shallow :: bool (* true : the header should import the compiler for bootstrapping *)
+                              D_accessor_rbt :: " string (* name of the constant added *) list (* pre *)
+                                                \<times> string (* name of the constant added *) list (* post *)"
 
 subsection{* Auxilliary *}
+
+definition "map_ctxt2_term f = (\<lambda>
+    OclAstCtxt2PrePost ocl \<Rightarrow> OclAstCtxt2PrePost (Ctxt_expr_update (List_map (\<lambda>(s, x). (s, f x))) ocl)
+  | OclAstCtxt2Inv ocl \<Rightarrow> OclAstCtxt2Inv (Ctxt_inv_expr_update (List_map (\<lambda>(s, x). (s, f x))) ocl)
+  | x \<Rightarrow> x)"
 
 definition "ocl_compiler_config_more_map f ocl =
             ocl_compiler_config.extend  (ocl_compiler_config.truncate ocl) (f (ocl_compiler_config.more ocl))"
@@ -487,9 +534,7 @@ datatype hol_expr = Expr_case hol_expr (* value *)
                   | Expr_postunary hol_expr hol_expr (* no parenthesis and separated with one space *)
                   | Expr_paren string (* left *) string (* right *) hol_expr
                   | Expr_if_then_else hol_expr hol_expr hol_expr
-
-                  (* to be removed *)
-                  | Expr_escape_raw string (* inner syntax term *)
+                  | Expr_inner pure_term (* inner syntax term *)
 
 datatype hol_instantiation_class = Instantiation string (* name *)
                                                  string (* name in definition *)
@@ -565,6 +610,8 @@ datatype hol_text = Text string
 
 datatype hol_ml = Ml sml_expr
 
+datatype hol_thm = Thm "hol_ntheorem list"
+
 datatype hol_thy = Theory_dataty hol_dataty
                  | Theory_ty_synonym hol_ty_synonym
                  | Theory_instantiation_class hol_instantiation_class
@@ -577,6 +624,7 @@ datatype hol_thy = Theory_dataty hol_dataty
                  | Theory_section_title hol_section_title
                  | Theory_text hol_text
                  | Theory_ml hol_ml
+                 | Theory_thm hol_thm
 
 datatype hol_generation_syntax = Generation_syntax_shallow ocl_deep_mode
 
@@ -604,6 +652,7 @@ definition "Thy_axiom = Isab_thy o Theory_axiom"
 definition "Thy_section_title = Isab_thy o Theory_section_title"
 definition "Thy_text = Isab_thy o Theory_text"
 definition "Thy_ml = Isab_thy o Theory_ml"
+definition "Thy_thm = Isab_thy o Theory_thm"
 
 subsection{* ... *}
 
@@ -614,6 +663,7 @@ definition "escape_unicode c = flatten [[Char Nibble5 NibbleC], ''<'', c, ''>'']
 definition "isub_of_str = flatten o List_map (\<lambda>c. escape_unicode ''^sub'' @@ [c])"
 definition "isup_of_str = flatten o List_map (\<lambda>c. escape_unicode [char_of_nat (nat_of_char c - 32)])"
 definition "lowercase_of_str = List_map (\<lambda>c. let n = nat_of_char c in if n < 97 then char_of_nat (n + 32) else c)"
+definition "uppercase_of_str = List_map (\<lambda>c. let n = nat_of_char c in if n < 97 then c else char_of_nat (n - 32))"
 definition "number_of_str = flatten o List_map (\<lambda>c. escape_unicode ([''zero'', ''one'', ''two'', ''three'', ''four'', ''five'', ''six'', ''seven'', ''eight'', ''nine''] ! (nat_of_char c - 48)))"
 definition "nat_raw_of_str = List_map (\<lambda>i. char_of_nat (nat_of_char (Char Nibble3 Nibble0) + i))"
 fun_quick nat_of_str_aux where
@@ -707,6 +757,9 @@ definition "var_at_when_hol_pre = ''at_pre''"
 definition "var_at_when_ocl_post = ''''"
 definition "var_at_when_ocl_pre = ''@pre''"
 definition "var_OclInt = ''OclInt''"
+
+definition "update_D_accessor_rbt_pre f = (\<lambda>(l_pre, l_post). (f l_pre, l_post))"
+definition "update_D_accessor_rbt_post f = (\<lambda>(l_pre, l_post). (l_pre, f l_post))"
 
 section{* Translation of AST *}
 
@@ -1052,7 +1105,12 @@ definition "print_infra_datatype_universe expr = start_map Thy_dataty
       (map_class (\<lambda>isub_name _ _ _ _ _. (isub_name datatype_in, [Raw (isub_name datatype_name)])) expr) ]"
 
 definition "print_infra_type_synonym_class expr = start_map Thy_ty_synonym
-  (Type_synonym ty_boolean (Ty_apply (Ty_base ty_boolean) [Ty_base unicode_AA]) #
+  (Type_synonym (* FIXME generate this automatically *)
+                ty_boolean (Ty_apply (Ty_base ty_boolean) [Ty_base unicode_AA]) #
+   Type_synonym (* FIXME generate this automatically *)
+                ''Set_int'' (Ty_apply (Ty_base ''Set'') [Ty_base unicode_AA,
+     let option = (\<lambda>x. Ty_apply (Ty_base ''option'') [x]) in
+     option (option (Ty_base ''int'')) ]) #
    (map_class (\<lambda>isub_name name _ _ _ _.
      Type_synonym name (Ty_apply (Ty_base ''val'') [Ty_base unicode_AA,
      let option = (\<lambda>x. Ty_apply (Ty_base ''option'') [x]) in
@@ -2450,17 +2508,21 @@ definition "print_access_select_obj = start_map'''' Thy_definition_hol o (\<lamb
        | _ \<Rightarrow> Pair []))
       (l_attr # l_inh) empty))) expr)))) expr)"
 
-definition "print_access_dot_consts = start_map Thy_consts_class o
-  flatten o flatten o map_class (\<lambda>isub_name name l_attr _ _ _.
+definition "print_access_dot_consts =
+ (fold_list (\<lambda>(f_update, x) ocl. (Thy_consts_class x, ocl \<lparr> D_accessor_rbt := f_update (D_accessor_rbt ocl) \<rparr> ))) o
+  (flatten o flatten o map_class (\<lambda>isub_name name l_attr _ _ _.
     List_map (\<lambda>(attr_n, attr_ty).
       List_map
-        (\<lambda>(var_at_when_hol, var_at_when_ocl).
-          Consts_raw0
-            (flatten [ ''dot''
+        (\<lambda>(var_at_when_hol, var_at_when_ocl, f_update_ocl).
+          let name =
+             flatten [ ''dot''
                      , case attr_ty of
                          OclTy_class ty_obj \<Rightarrow> flatten [''_'', natural_of_str (TyObjN_ass_switch (TyObj_from ty_obj)), ''_'']
                        | _ \<Rightarrow> ''''
-                     , isup_of_str attr_n, var_at_when_hol])
+                     , isup_of_str attr_n, var_at_when_hol] in
+          ( f_update_ocl (\<lambda> l. name # l)
+          , Consts_raw0
+            name
             (Ty_arrow
               (Ty_apply (Ty_base ''val'') [Ty_base unicode_AA, Ty_base (Char Nibble2 Nibble7 # unicode_alpha)])
 
@@ -2484,9 +2546,9 @@ definition "print_access_dot_consts = start_map Thy_consts_class o
                   None \<Rightarrow> dot_name
                 | Some dot_name \<Rightarrow> dot_name)
                            | _ \<Rightarrow> dot_name)
-            None)
-        [ (var_at_when_hol_post, var_at_when_ocl_post)
-        , (var_at_when_hol_pre, var_at_when_ocl_pre)]) l_attr)"
+            None))
+        [ (var_at_when_hol_post, var_at_when_ocl_post, update_D_accessor_rbt_post)
+        , (var_at_when_hol_pre, var_at_when_ocl_pre, update_D_accessor_rbt_pre)]) l_attr))"
 
 definition "print_access_dot_name isub_name dot_at_when attr_ty isup_attr =
   flatten [isup_attr (let dot_name = isub_name ''dot'' in
@@ -3222,36 +3284,120 @@ fun_quick print_ctxt_ty where
                        | OclTy_raw t \<Rightarrow> Ty_base t) c"
 
 definition "print_ctxt_const_name attr_n var_at_when_hol = flatten [ ''dot'', isup_of_str attr_n, var_at_when_hol]"
-definition "print_ctxt_const = start_map Thy_consts_class o (\<lambda> ctxt.
+definition "print_ctxt_const = List_map (map_pair id Thy_consts_class) o (\<lambda> ctxt.
   let attr_n = Ctxt_fun_name ctxt in
       List_map
-        (\<lambda>(var_at_when_hol, var_at_when_ocl).
-          Consts_raw0
-            (print_ctxt_const_name attr_n var_at_when_hol)
-            (ty_arrow (Ty_base (Ctxt_ty ctxt) # List_map
-              (\<lambda> OclTy_collection Set (OclTy_raw s) \<Rightarrow> (* optimization *) Ty_base (print_infra_type_synonym_class_set_name s)
-               | e \<Rightarrow> print_ctxt_ty e)
-              (flatten
-                [ List_map snd (Ctxt_fun_ty_arg ctxt)
-                , [ case Ctxt_fun_ty_out ctxt of None \<Rightarrow> OclTy_raw ''Void'' | Some s \<Rightarrow> s ] ])))
-            (mk_dot attr_n var_at_when_ocl)
-            (Some (natural_of_nat (length (Ctxt_fun_ty_arg ctxt)))))
-        [ (var_at_when_hol_post, var_at_when_ocl_post)
-        , (var_at_when_hol_pre, var_at_when_ocl_pre)])"
+        (\<lambda>(var_at_when_hol, var_at_when_ocl, f_update_ocl).
+          let name = print_ctxt_const_name attr_n var_at_when_hol in
+          ( f_update_ocl (\<lambda> l. name # l)
+          , Consts_raw0
+              name
+              (ty_arrow (Ty_base (Ctxt_ty ctxt) # List_map
+                (\<lambda> OclTy_collection Set (OclTy_raw s) \<Rightarrow> (* optimization *) Ty_base (print_infra_type_synonym_class_set_name s)
+                 | e \<Rightarrow> print_ctxt_ty e)
+                (flatten
+                  [ List_map snd (Ctxt_fun_ty_arg ctxt)
+                  , [ case Ctxt_fun_ty_out ctxt of None \<Rightarrow> OclTy_raw ''Void'' | Some s \<Rightarrow> s ] ])))
+              (mk_dot attr_n var_at_when_ocl)
+              (Some (natural_of_nat (length (Ctxt_fun_ty_arg ctxt))))))
+        [ (var_at_when_hol_post, var_at_when_ocl_post, update_D_accessor_rbt_post)
+        , (var_at_when_hol_pre, var_at_when_ocl_pre, update_D_accessor_rbt_pre)])"
 
-definition "print_ctxt_axiom = start_map Thy_axiom o (\<lambda> ctxt.
+definition "print_ctxt_gen_syntax_header_l l = Isab_thy (Theory_thm (Thm (List_map Thm_str l)))"
+definition "print_ctxt_gen_syntax_header f_x l ocl =
+ ( let (l, ocl) = f_x l ocl in
+   if D_generation_syntax_shallow ocl then
+     l
+   else
+     Isab_thy_generation_syntax (Generation_syntax_shallow (D_design_analysis ocl))
+     # Isab_thy_ml_extended (Ml_extended (Sexpr_ocl (ocl \<lparr> D_disable_thy_output := True
+                                                         , D_file_out_path_dep := None
+                                                         , D_output_position := (0, 0) \<rparr>) ))
+     # l
+ , ocl \<lparr> D_generation_syntax_shallow := True \<rparr> )"
+
+definition "print_ctxt2_pre_post_name attr_n var_at_when_hol = hol_definition (print_ctxt_const_name attr_n var_at_when_hol)"
+definition "print_ctxt_pre_post = (\<lambda>ctxt. print_ctxt_gen_syntax_header
+  (\<lambda>l ocl.
+    let (l_name, l_isab) = List_split (print_ctxt_const ctxt) in
+    (l_isab @@ l, List.fold (\<lambda>f_update ocl. ocl \<lparr> D_accessor_rbt := f_update (D_accessor_rbt ocl) \<rparr>) l_name ocl))
+  [ Isab_thy_ocl_deep_embed_ast (OclAstCtxt2PrePost ctxt)
+  , print_ctxt_gen_syntax_header_l [print_ctxt2_pre_post_name (Ctxt_fun_name ctxt) var_at_when_hol_post] ])"
+
+definition "print_ctxt2_inv_name n tit var_at_when = hol_definition (flatten [n, ''_'', tit, var_at_when])"
+definition "print_ctxt_inv = (\<lambda>ctxt. print_ctxt_gen_syntax_header Pair
+  [ Isab_thy_ocl_deep_embed_ast (OclAstCtxt2Inv ctxt)
+  , print_ctxt_gen_syntax_header_l
+      (flatten (List_map (\<lambda> (tit, _).
+        List_map (print_ctxt2_inv_name (Ctxt_inv_ty ctxt) tit)
+          [ var_at_when_hol_pre
+          , var_at_when_hol_post ]) (Ctxt_inv_expr ctxt))) ])"
+
+subsection{* context2 *}
+(* (* ERROR this lambda term type-checks expensively *)
+definition "print_ctxt2_is_accessor =
+  (\<lambda> PureType ''fun''
+               [PureType ''fun''
+                       [PureType ''Product_Type.prod''
+                               [PureType ''OCL_core.state.state_ext''
+                                       [PureType _ (* AA *) [], PureType ''Product_Type.unit'' []],
+                                PureType ''OCL_core.state.state_ext''
+                                       [PureType _ (* AA *) [], PureType ''Product_Type.unit'' []]],
+                        PureTFree _ (* 'a *) (PureSort [PureClass ''HOL.type''])],
+                PureType ''fun''
+                       [PureType ''Product_Type.prod''
+                               [PureType ''OCL_core.state.state_ext''
+                                       [PureType _ (* AA *) [], PureType ''Product_Type.unit'' []],
+                                PureType ''OCL_core.state.state_ext''
+                                       [PureType _ (* AA *) [], PureType ''Product_Type.unit'' []]],
+                        PureType ''Option.option''
+                               [PureType ''Option.option''
+                                       [PureType _ (* class name *) []]]]]
+       \<Rightarrow> True
+   | _ \<Rightarrow> False)"
+*)
+definition "print_ctxt2_is_name_at_gen var s =
+ (case var of _ # _ \<Rightarrow>
+    let lg_var = length var in
+    if List_take_last lg_var s = var then
+      Some (List_take_first (length s - lg_var) s)
+    else
+      None)"
+
+definition "print_ctxt2_is_name_at_pre = print_ctxt2_is_name_at_gen var_at_when_hol_pre"
+definition "print_ctxt2_is_name_at_post = (case var_at_when_hol_post of [] \<Rightarrow>
+  \<lambda>s. case print_ctxt2_is_name_at_pre s of None \<Rightarrow> Some s
+                                         | _ \<Rightarrow> None)"
+
+definition "print_ctxt2_to_ocl_gen l_access f var = (\<lambda> T_pure t \<Rightarrow>
+  T_pure (map_Const (\<lambda> s ty.
+    if (*print_ctxt2_is_accessor ty*)
+       list_ex (case List_split_at (\<lambda> s. s = Char Nibble2 NibbleE) s of
+                  (_, Some _, s) \<Rightarrow> \<lambda>n. n = s
+                | _ \<Rightarrow> \<lambda>_. False) l_access then
+      case f s of
+        Some s \<Rightarrow> s @@ var
+      | _ \<Rightarrow> s
+    else
+      s) t))"
+
+definition "print_ctxt2_to_ocl_pre ocl = print_ctxt2_to_ocl_gen (snd (D_accessor_rbt ocl)) print_ctxt2_is_name_at_post var_at_when_hol_pre"
+definition "print_ctxt2_to_ocl_post ocl = print_ctxt2_to_ocl_gen (fst (D_accessor_rbt ocl)) print_ctxt2_is_name_at_pre var_at_when_hol_post"
+
+definition "print_ctxt2_pre_post = fold_list (\<lambda>x ocl. (x ocl, ocl)) o (\<lambda> ctxt.
   let (l_pre, l_post) = List.partition (\<lambda> (OclCtxtPre, _) \<Rightarrow> True | _ \<Rightarrow> False) (Ctxt_expr ctxt)
     ; attr_n = Ctxt_fun_name ctxt
     ; a = \<lambda>f x. Expr_apply f [x]
     ; b = \<lambda>s. Expr_basic [s]
     ; var_tau = unicode_tau
-    ; f_tau = \<lambda>s. Expr_warning_parenthesis (Expr_binop (b var_tau) unicode_Turnstile s)
+    ; f_tau = \<lambda>s. Expr_warning_parenthesis (Expr_binop (b var_tau) unicode_Turnstile (Expr_warning_parenthesis s))
     ; expr_binop = \<lambda>s_op. \<lambda> [] \<Rightarrow> b ''True'' | l \<Rightarrow> Expr_parenthesis (expr_binop s_op l)
+    ; to_s = \<lambda>f_to l_pre. expr_binop unicode_and (List_map (\<lambda>(_, expr) \<Rightarrow> f_tau (Expr_inner (case f_to expr of T_pure expr \<Rightarrow> expr))) l_pre)
     ; f = \<lambda> (var_at_when_hol, var_at_when_ocl).
         let var_self = ''self''
           ; var_result = ''result'' in
-        [ Axiom
-            (hol_definition (print_ctxt_const_name attr_n var_at_when_hol))
+        [ \<lambda>ocl. Thy_axiom (Axiom
+            (print_ctxt2_pre_post_name attr_n var_at_when_hol)
             (Expr_rewrite
               (Expr_parenthesis (f_tau (Expr_rewrite
                   (Expr_postunary (b var_self) (b (mk_dot_par_gen (flatten [''.'', attr_n, var_at_when_ocl]) (List_map fst (Ctxt_fun_ty_arg ctxt)))))
@@ -3260,27 +3406,30 @@ definition "print_ctxt_axiom = start_map Thy_axiom o (\<lambda> ctxt.
               ''=''
               (Expr_parenthesis (Expr_if_then_else
                 (f_tau (a unicode_delta (b var_self)))
-                (Expr_binop
-                  (expr_binop unicode_and (List_map (\<lambda>(_, expr). f_tau (Expr_escape_raw expr)) l_pre))
+                (Expr_warning_parenthesis (Expr_binop
+                  (to_s (print_ctxt2_to_ocl_pre ocl) l_pre)
                   unicode_longrightarrow
-                  (expr_binop unicode_and (List_map (\<lambda>(_, expr). f_tau (Expr_escape_raw expr)) l_post)))
-                (f_tau (Expr_rewrite (b var_result) unicode_triangleq (b ''invalid'')))))) ] in
+                  (to_s (print_ctxt2_to_ocl_post ocl) l_post)))
+                (f_tau (Expr_rewrite (b var_result) unicode_triangleq (b ''invalid''))))))) ] in
   f (var_at_when_hol_post, var_at_when_ocl_post))"
 
-definition "print_ctxt_inv = start_map Thy_axiom o (\<lambda> ctxt.
+definition "print_ctxt2_inv = fold_list (\<lambda>x ocl. (x ocl, ocl)) o flatten o flatten o (\<lambda> ctxt.
   let a = \<lambda>f x. Expr_apply f [x]
     ; b = \<lambda>s. Expr_basic [s]
     ; var_tau = unicode_tau
-    ; f_tau = \<lambda>s. Expr_warning_parenthesis (Expr_binop (b var_tau) unicode_Turnstile s)
-    ; f = \<lambda> tit exp (var_at_when_hol, var_at_when_ocl).
+    ; f_tau = \<lambda>s. Expr_warning_parenthesis (Expr_binop (b var_tau) unicode_Turnstile s) in
+  List_map (\<lambda> (tit, e) \<Rightarrow>
+    List_map (\<lambda> (allinst_at_when, var_at_when, e) \<Rightarrow>
         let var_self = ''self''
           ; var_result = ''result'' in
-        Axiom
-            (hol_definition (flatten [Ctxt_inv_ty ctxt, ''_'', tit]))
+        [ \<lambda>ocl. Thy_axiom (Axiom
+            (print_ctxt2_inv_name (Ctxt_inv_ty ctxt) tit var_at_when)
             (f_tau (Expr_apply ''OclForall''
-              [ a ''OclAllInstances_at_post'' (b (Ctxt_inv_ty ctxt))
-              , Expr_lam ''self'' (\<lambda>var_self. b exp)])) in
-  List_map (\<lambda>(tit, e). f tit e (var_at_when_hol_post, var_at_when_ocl_post)) (Ctxt_inv_expr ctxt))"
+              [ a allinst_at_when (b (Ctxt_inv_ty ctxt))
+              , Expr_lam ''self'' (\<lambda>var_self. Expr_inner (case e ocl of T_pure e \<Rightarrow> e))]))) ])
+      [(''OclAllInstances_at_pre'', var_at_when_hol_pre, \<lambda>ocl. print_ctxt2_to_ocl_pre ocl e)
+      ,(''OclAllInstances_at_post'', var_at_when_hol_post, \<lambda>ocl. print_ctxt2_to_ocl_post ocl e)])
+    (Ctxt_inv_expr ctxt))"
 
 subsection{* Conclusion *}
 
@@ -3565,9 +3714,10 @@ definition "thy_def_state = [ print_examp_def_st_defassoc
                             , print_examp_def_st_allinst ]"
 definition "thy_def_pre_post = [ print_pre_post_wff
                                , print_pre_post_where ]"
-definition "thy_ctxt_pre_post = [ print_ctxt_const
-                                , print_ctxt_axiom ]"
+definition "thy_ctxt_pre_post = [ print_ctxt_pre_post ]"
+definition "thy_ctxt2_pre_post = [ print_ctxt2_pre_post ]"
 definition "thy_ctxt_inv = [ print_ctxt_inv ]"
+definition "thy_ctxt2_inv = [ print_ctxt2_inv ]"
 definition "thy_flush_all = []"
 
 definition "ocl_compiler_config_empty disable_thy_output file_out_path_dep oid_start design_analysis =
@@ -3577,7 +3727,7 @@ definition "ocl_compiler_config_empty disable_thy_output file_out_path_dep oid_s
     oid_start
     (0, 0)
     design_analysis
-    None [] [] [] False"
+    None [] [] [] False ([], [])"
 
 definition "ocl_compiler_config_reset_no_env ocl =
   ocl_compiler_config_empty
@@ -3623,7 +3773,9 @@ definition "ocl_env_class_spec_mk f_try f_accu_reset f_fold f =
              | OclAstDefState univ \<Rightarrow> fold_thy0 univ thy_def_state
              | OclAstDefPrePost univ \<Rightarrow> fold_thy0 univ thy_def_pre_post
              | OclAstCtxtPrePost univ \<Rightarrow> fold_thy0 univ thy_ctxt_pre_post
+             | OclAstCtxt2PrePost univ \<Rightarrow> fold_thy0 univ thy_ctxt2_pre_post
              | OclAstCtxtInv univ \<Rightarrow> fold_thy0 univ thy_ctxt_inv
+             | OclAstCtxt2Inv univ \<Rightarrow> fold_thy0 univ thy_ctxt2_inv
              | OclAstFlushAll univ \<Rightarrow> fold_thy0 univ thy_flush_all)
                   f)
            l_ocl
@@ -3653,7 +3805,9 @@ definition "fold_thy' f_try f_accu_reset f =
    | OclAstDefState univ \<Rightarrow> ocl_env_class_spec_mk (fold_thy0 univ thy_def_state)
    | OclAstDefPrePost univ \<Rightarrow> fold_thy0 univ thy_def_pre_post
    | OclAstCtxtPrePost univ \<Rightarrow> ocl_env_class_spec_mk (fold_thy0 univ thy_ctxt_pre_post)
+   | OclAstCtxt2PrePost univ \<Rightarrow> ocl_env_class_spec_mk (fold_thy0 univ thy_ctxt2_pre_post)
    | OclAstCtxtInv univ \<Rightarrow> ocl_env_class_spec_mk (fold_thy0 univ thy_ctxt_inv)
+   | OclAstCtxt2Inv univ \<Rightarrow> ocl_env_class_spec_mk (fold_thy0 univ thy_ctxt2_inv)
    | OclAstFlushAll univ \<Rightarrow> ocl_env_class_spec_mk (fold_thy0 univ thy_flush_all)) f))"
 
 definition "fold_thy_shallow f_try f_accu_reset x = fold_thy' f_try f_accu_reset (\<lambda>l acc1. List.fold x l o Pair acc1)"
@@ -3737,7 +3891,8 @@ definition "ocl_compiler_config_rec0 f ocl = f
   (D_ocl_env ocl)
   (D_instance_rbt ocl)
   (D_state_rbt ocl)
-  (D_generation_syntax_shallow ocl)"
+  (D_generation_syntax_shallow ocl)
+  (D_accessor_rbt ocl)"
 
 definition "ocl_compiler_config_rec f ocl = ocl_compiler_config_rec0 f ocl
   (ocl_compiler_config.more ocl)"
@@ -3757,6 +3912,7 @@ definition "co8 f g x1 x2 x3 x4 x5 x6 x7 x8 = f (g x1 x2 x3 x4 x5 x6 x7 x8)"
 definition "co9 f g x1 x2 x3 x4 x5 x6 x7 x8 x9 = f (g x1 x2 x3 x4 x5 x6 x7 x8 x9)"
 definition "co10 f g x1 x2 x3 x4 x5 x6 x7 x8 x9 x10 = f (g x1 x2 x3 x4 x5 x6 x7 x8 x9 x10)"
 definition "co11 f g x1 x2 x3 x4 x5 x6 x7 x8 x9 x10 x11 = f (g x1 x2 x3 x4 x5 x6 x7 x8 x9 x10 x11)"
+definition "co12 f g x1 x2 x3 x4 x5 x6 x7 x8 x9 x10 x11 x12 = f (g x1 x2 x3 x4 x5 x6 x7 x8 x9 x10 x11 x12)"
 
 definition "ap1 a v0 f1 v1 = a v0 [f1 v1]"
 definition "ap2 a v0 f1 f2 v1 v2 = a v0 [f1 v1, f2 v2]"
@@ -3769,6 +3925,7 @@ definition "ap8 a v0 f1 f2 f3 f4 f5 f6 f7 f8 v1 v2 v3 v4 v5 v6 v7 v8 = a v0 [f1 
 definition "ap9 a v0 f1 f2 f3 f4 f5 f6 f7 f8 f9 v1 v2 v3 v4 v5 v6 v7 v8 v9 = a v0 [f1 v1, f2 v2, f3 v3, f4 v4, f5 v5, f6 v6, f7 v7, f8 v8, f9 v9]"
 definition "ap10 a v0 f1 f2 f3 f4 f5 f6 f7 f8 f9 f10 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 = a v0 [f1 v1, f2 v2, f3 v3, f4 v4, f5 v5, f6 v6, f7 v7, f8 v8, f9 v9, f10 v10]"
 definition "ap11 a v0 f1 f2 f3 f4 f5 f6 f7 f8 f9 f10 f11 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 v11 = a v0 [f1 v1, f2 v2, f3 v3, f4 v4, f5 v5, f6 v6, f7 v7, f8 v8, f9 v9, f10 v10, f11 v11]"
+definition "ap12 a v0 f1 f2 f3 f4 f5 f6 f7 f8 f9 f10 f11 f12 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 v11 v12 = a v0 [f1 v1, f2 v2, f3 v3, f4 v4, f5 v5, f6 v6, f7 v7, f8 v8, f9 v9, f10 v10, f11 v11, f12 v12]"
 
 definition "ar1 a v0 z = a v0 [z]"
 definition "ar2 a v0 f1 v1 z = a v0 [f1 v1, z]"
@@ -3781,6 +3938,7 @@ definition "ar8 a v0 f1 f2 f3 f4 f5 f6 f7 v1 v2 v3 v4 v5 v6 v7 z = a v0 [f1 v1, 
 definition "ar9 a v0 f1 f2 f3 f4 f5 f6 f7 f8 v1 v2 v3 v4 v5 v6 v7 v8 z = a v0 [f1 v1, f2 v2, f3 v3, f4 v4, f5 v5, f6 v6, f7 v7, f8 v8, z]"
 definition "ar10 a v0 f1 f2 f3 f4 f5 f6 f7 f8 f9 v1 v2 v3 v4 v5 v6 v7 v8 v9 z = a v0 [f1 v1, f2 v2, f3 v3, f4 v4, f5 v5, f6 v6, f7 v7, f8 v8, f9 v9, z]"
 definition "ar11 a v0 f1 f2 f3 f4 f5 f6 f7 f8 f9 f10 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 z = a v0 [f1 v1, f2 v2, f3 v3, f4 v4, f5 v5, f6 v6, f7 v7, f8 v8, f9 v9, f10 v10, z]"
+definition "ar12 a v0 f1 f2 f3 f4 f5 f6 f7 f8 f9 f10 f11 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 v11 z = a v0 [f1 v1, f2 v2, f3 v3, f4 v4, f5 v5, f6 v6, f7 v7, f8 v8, f9 v9, f10 v10, f11 v11, z]"
 
 (* *)
 
@@ -3826,19 +3984,19 @@ by(intro ext, simp add: ocl_instance_single_rec0_def
                         ocl_instance_single.make_def
                         co3_def K_def)
 
-lemma [code]: "ocl_compiler_config.extend = (\<lambda>ocl v. ocl_compiler_config_rec0 (co10 (\<lambda>f. f v) ocl_compiler_config_ext) ocl)"
+lemma [code]: "ocl_compiler_config.extend = (\<lambda>ocl v. ocl_compiler_config_rec0 (co11 (\<lambda>f. f v) ocl_compiler_config_ext) ocl)"
 by(intro ext, simp add: ocl_compiler_config_rec0_def
                         ocl_compiler_config.extend_def
-                        co10_def K_def)
-lemma [code]: "ocl_compiler_config.make = co10 (\<lambda>f. f ()) ocl_compiler_config_ext"
+                        co11_def K_def)
+lemma [code]: "ocl_compiler_config.make = co11 (\<lambda>f. f ()) ocl_compiler_config_ext"
 by(intro ext, simp add: ocl_compiler_config.make_def
-                        co10_def)
-lemma [code]: "ocl_compiler_config.truncate = ocl_compiler_config_rec (co10 K ocl_compiler_config.make)"
+                        co11_def)
+lemma [code]: "ocl_compiler_config.truncate = ocl_compiler_config_rec (co11 K ocl_compiler_config.make)"
 by(intro ext, simp add: ocl_compiler_config_rec0_def
                         ocl_compiler_config_rec_def
                         ocl_compiler_config.truncate_def
                         ocl_compiler_config.make_def
-                        co10_def K_def)
+                        co11_def K_def)
 
 subsection{* i of ... *} (* i_of *)
 
@@ -3869,6 +4027,31 @@ definition "i_of_option a b f = option_rec
   (ap1 a (b i_Some) f)"
 
 (* *)
+
+definition "i_of_pure_indexname a b = pure_indexname_rec
+  (ap2 a (b ''PureIndexname'') (i_of_string a b) (i_of_nat a b))"
+
+definition "i_of_pure_class a b = pure_class_rec
+  (ap1 a (b ''PureClass'') (i_of_string a b))"
+
+definition "i_of_pure_sort a b = pure_sort_rec
+  (ap1 a (b ''PureSort'') (i_of_list a b (i_of_pure_class a b)))"
+
+definition "i_of_pure_typ a b = (\<lambda>f1 f2 f3 f4 f5. pure_typ_rec_1 (co1 K f1) f2 f3 f4 (\<lambda>_ _. f5))
+  (ar2 a (b ''PureType'') (i_of_string a b))
+  (ap2 a (b ''PureTFree'') (i_of_string a b) (i_of_pure_sort a b))
+  (ap2 a (b ''PureTVar'') (i_of_pure_indexname a b) (i_of_pure_sort a b))
+  (* *)
+  (b i_Nil)
+  (ar2 a (b i_Cons) id)"
+
+definition "i_of_pure_term a b = (\<lambda>f0 f1 f2 f3 f4 f5. pure_term_rec f0 f1 f2 f3 (co2 K f4) (\<lambda>_ _. f5))
+  (ap2 a (b ''PureConst'') (i_of_string a b) (i_of_pure_typ a b))
+  (ap2 a (b ''PureFree'') (i_of_string a b) (i_of_pure_typ a b))
+  (ap2 a (b ''PureVar'') (i_of_pure_indexname a b) (i_of_pure_typ a b))
+  (ap1 a (b ''PureBound'') (i_of_nat a b))
+  (ar3 a (b ''PureAbs'') (i_of_string a b) (i_of_pure_typ a b))
+  (ar2 a (b ''PureApp'') id)"
 
 definition "i_of_internal_oid a b = internal_oid_rec
   (ap1 a (b ''Oid'') (i_of_nat a b))"
@@ -3989,20 +4172,28 @@ definition "i_of_ocl_ctxt_prefix a b = ocl_ctxt_prefix_rec
   (b ''OclCtxtPre'')
   (b ''OclCtxtPost'')"
 
+definition "i_of_ocl_ctxt_term a b = ocl_ctxt_term_rec
+  (ap1 a (b ''T_pure'') (i_of_pure_term a b))
+  (ap1 a (b ''T_to_be_parsed'') (i_of_string a b))"
+
 definition "i_of_ocl_ctxt_pre_post a b f = ocl_ctxt_pre_post_rec
   (ap6 a (b (ext ''ocl_ctxt_pre_post_ext''))
     (i_of_string a b)
     (i_of_string a b)
     (i_of_list a b (i_of_pair a b (i_of_string a b) (i_of_ocl_ty a b)))
     (i_of_option a b (i_of_ocl_ty a b))
-    (i_of_list a b (i_of_pair a b (i_of_ocl_ctxt_prefix a b) (i_of_string a b)))
+    (i_of_list a b (i_of_pair a b (i_of_ocl_ctxt_prefix a b) (i_of_ocl_ctxt_term a b)))
     (f a b))"
+
+definition "i_of_ocl_ctxt2_pre_post = i_of_ocl_ctxt_pre_post"
 
 definition "i_of_ocl_ctxt_inv a b f = ocl_ctxt_inv_rec
   (ap3 a (b (ext ''ocl_ctxt_inv_ext''))
     (i_of_string a b)
-    (i_of_list a b (i_of_pair a b (i_of_string a b) (i_of_string a b)))
+    (i_of_list a b (i_of_pair a b (i_of_string a b) (i_of_ocl_ctxt_term a b)))
     (f a b))"
+
+definition "i_of_ocl_ctxt2_inv = i_of_ocl_ctxt_inv"
 
 definition "i_of_ocl_flush_all a b = ocl_flush_all_rec
   (b ''OclFlushAll'')"
@@ -4016,7 +4207,9 @@ definition "i_of_ocl_deep_embed_ast a b = ocl_deep_embed_ast_rec
   (ap1 a (b ''OclAstDefState'') (i_of_ocl_def_state a b))
   (ap1 a (b ''OclAstDefPrePost'') (i_of_ocl_def_pre_post a b))
   (ap1 a (b ''OclAstCtxtPrePost'') (i_of_ocl_ctxt_pre_post a b (K i_of_unit)))
+  (ap1 a (b ''OclAstCtxt2PrePost'') (i_of_ocl_ctxt2_pre_post a b (K i_of_unit)))
   (ap1 a (b ''OclAstCtxtInv'') (i_of_ocl_ctxt_inv a b (K i_of_unit)))
+  (ap1 a (b ''OclAstCtxt2Inv'') (i_of_ocl_ctxt2_inv a b (K i_of_unit)))
   (ap1 a (b ''OclAstFlushAll'') (i_of_ocl_flush_all a b))"
 
 definition "i_of_ocl_deep_mode a b = ocl_deep_mode_rec
@@ -4024,7 +4217,7 @@ definition "i_of_ocl_deep_mode a b = ocl_deep_mode_rec
   (b ''Gen_analysis'')"
 
 definition "i_of_ocl_compiler_config a b f = ocl_compiler_config_rec
-  (ap11 a (b (ext ''ocl_compiler_config_ext''))
+  (ap12 a (b (ext ''ocl_compiler_config_ext''))
     (i_of_bool b)
     (i_of_option a b (i_of_pair a b (i_of_string a b) (i_of_pair a b (i_of_list a b (i_of_string a b)) (i_of_string a b))))
     (i_of_internal_oids a b)
@@ -4035,6 +4228,7 @@ definition "i_of_ocl_compiler_config a b f = ocl_compiler_config_rec
     (i_of_list a b (i_of_pair a b (i_of_string a b) (i_of_pair a b (i_of_ocl_instance_single a b (K i_of_unit)) (i_of_internal_oid a b))))
     (i_of_list a b (i_of_pair a b (i_of_string a b) (i_of_list a b (i_of_pair a b (i_of_internal_oids a b) (i_of_ocl_def_state_core a b (i_of_pair a b (i_of_string a b) (i_of_ocl_instance_single a b  (K i_of_unit))))))))
     (i_of_bool b)
+    (i_of_pair a b (i_of_list a b (i_of_string a b)) (i_of_list a b (i_of_string a b)))
     (f a b))"
 
 end
@@ -4044,6 +4238,11 @@ lemmas [code] =
   i_of.i_of_list_def
   i_of.i_of_option_def
   (* *)
+  i_of.i_of_pure_indexname_def
+  i_of.i_of_pure_class_def
+  i_of.i_of_pure_sort_def
+  i_of.i_of_pure_typ_def
+  i_of.i_of_pure_term_def
   i_of.i_of_internal_oid_def
   i_of.i_of_internal_oids_def
   i_of.i_of_ocl_collection_def
@@ -4067,8 +4266,11 @@ lemmas [code] =
   i_of.i_of_ocl_def_state_def
   i_of.i_of_ocl_def_pre_post_def
   i_of.i_of_ocl_ctxt_prefix_def
+  i_of.i_of_ocl_ctxt_term_def
   i_of.i_of_ocl_ctxt_pre_post_def
+  i_of.i_of_ocl_ctxt2_pre_post_def
   i_of.i_of_ocl_ctxt_inv_def
+  i_of.i_of_ocl_ctxt2_inv_def
   i_of.i_of_ocl_flush_all_def
   i_of.i_of_ocl_deep_embed_ast_def
   i_of.i_of_ocl_deep_mode_def
@@ -4701,6 +4903,11 @@ fun_quick s_of_rawty where "s_of_rawty e = (\<lambda>
 definition "s_of_ty_synonym _ = (\<lambda> Type_synonym n l \<Rightarrow>
     sprintf2 (STR ''type_synonym %s = \"%s\"'') (To_string n) (s_of_rawty l))"
 
+fun_quick s_of_pure_term where "s_of_pure_term e = (\<lambda>
+    PureConst s _ \<Rightarrow> To_string s
+  | PureFree s _ \<Rightarrow> To_string s
+  | PureApp t1 t2 \<Rightarrow> sprintf2 (STR ''(%s) (%s)'') (s_of_pure_term t1) (s_of_pure_term t2)) e"
+
 fun_quick s_of_expr where "s_of_expr e = (\<lambda>
     Expr_case e l \<Rightarrow> sprintf2 (STR ''(case %s of %s)'') (s_of_expr e) (String_concat (STR ''
     | '') (List.map (\<lambda> (s1, s2) \<Rightarrow> sprintf3 (STR ''%s %s %s'') (s_of_expr s1) (To_string unicode_Rightarrow) (s_of_expr s2)) l))
@@ -4720,7 +4927,7 @@ fun_quick s_of_expr where "s_of_expr e = (\<lambda>
   | Expr_preunary e1 e2 \<Rightarrow> sprintf2 (STR ''%s %s'') (s_of_expr e1) (s_of_expr e2)
   | Expr_paren p_left p_right e \<Rightarrow> sprintf3 (STR ''%s%s%s'') (To_string p_left) (s_of_expr e) (To_string p_right)
   | Expr_if_then_else e_if e_then e_else \<Rightarrow> sprintf3 (STR ''if %s then %s else %s'') (s_of_expr e_if) (s_of_expr e_then) (s_of_expr e_else)
-  | Expr_escape_raw s \<Rightarrow> To_string s) e"
+  | Expr_inner pure \<Rightarrow> s_of_pure_term pure) e"
 
 fun_quick s_of_sexpr where "s_of_sexpr e = (\<lambda>
     Sexpr_string l \<Rightarrow> let c = STR [Char Nibble2 Nibble2] in
@@ -4826,11 +5033,13 @@ let s_base = (\<lambda>s lacc. sprintf2 (STR ''%s[%s]'') (To_string s) (String_c
 
 definition "s_of_ntheorem = s_of_ntheorem_aux []"
 
+definition "s_of_ntheorem_list l = String_concat (STR ''
+                            '') (List_map s_of_ntheorem l)"
+
 definition "s_of_lemmas_simp _ = (\<lambda> Lemmas_simp s l \<Rightarrow>
     sprintf2 (STR ''lemmas%s [simp,code_unfold] = %s'')
       (if s = [] then STR '''' else To_string ('' '' @@ s))
-      (String_concat (STR ''
-                            '') (List_map s_of_ntheorem l))
+      (s_of_ntheorem_list l)
                                   | Lemmas_simps s l \<Rightarrow>
     sprintf2 (STR ''lemmas%s [simp,code_unfold] = %s'')
       (if s = [] then STR '''' else To_string ('' '' @@ s))
@@ -4931,7 +5140,42 @@ definition "s_of_text _ = (\<lambda> Text s \<Rightarrow> sprintf1 (STR ''text{*
 
 definition "s_of_ml _ = (\<lambda> Ml e \<Rightarrow> sprintf1 (STR ''ML{* %s *}'') (s_of_sexpr e))"
 
-definition "s_of_ocl_deep_embed_ast _ = (\<lambda> _. STR '''')"
+definition "s_of_thm _ = (\<lambda> Thm thm \<Rightarrow> sprintf1 (STR ''thm %s'') (s_of_ntheorem_list thm))"
+
+definition "s_of_ctxt2_term = (\<lambda> T_pure pure \<Rightarrow> s_of_pure_term pure
+                               | T_to_be_parsed s \<Rightarrow> To_string s)"
+
+definition "s_of_ocl_deep_embed_ast _ =
+ (\<lambda> OclAstCtxt2PrePost ctxt \<Rightarrow>
+      sprintf5 (STR ''Context[shallow] %s :: %s (%s) : %s
+%s'')
+        (To_string (Ctxt_ty ctxt))
+        (To_string (Ctxt_fun_name ctxt))
+        (String_concat (STR '', '')
+          (List_map
+            (\<lambda> (s, ty). sprintf2 (STR ''%s : %s'') (To_string s) (To_string (str_of_ty ty)))
+            (Ctxt_fun_ty_arg ctxt)))
+        (case Ctxt_fun_ty_out ctxt of None \<Rightarrow> STR ''Void''
+                                     | Some ty \<Rightarrow> To_string (str_of_ty ty))
+        (String_concat (STR ''
+'')
+          (List_map
+            (\<lambda> (pref, s). sprintf2 (STR ''  %s : `%s`'')
+              (case pref of OclCtxtPre \<Rightarrow> STR ''Pre''
+                          | OclCtxtPost \<Rightarrow> STR ''Post'')
+              (s_of_ctxt2_term s))
+            (Ctxt_expr ctxt)))
+  | OclAstCtxt2Inv ctxt \<Rightarrow>
+      sprintf2 (STR ''Context[shallow] %s
+%s'')
+        (To_string (Ctxt_inv_ty ctxt))
+        (String_concat (STR ''
+'')
+          (List_map
+            (\<lambda> (n, s). sprintf2 (STR ''  Inv %s : `%s`'')
+              (To_string n)
+              (s_of_ctxt2_term s))
+            (Ctxt_inv_expr ctxt))))"
 
 definition "s_of_thy ocl =
             (\<lambda> Theory_dataty dataty \<Rightarrow> s_of_dataty ocl dataty
@@ -4945,7 +5189,8 @@ definition "s_of_thy ocl =
              | Theory_axiom axiom \<Rightarrow> s_of_axiom ocl axiom
              | Theory_section_title section_title \<Rightarrow> s_of_section_title ocl section_title
              | Theory_text text \<Rightarrow> s_of_text ocl text
-             | Theory_ml ml \<Rightarrow> s_of_ml ocl ml)"
+             | Theory_ml ml \<Rightarrow> s_of_ml ocl ml
+             | Theory_thm thm \<Rightarrow> s_of_thm ocl thm)"
 
 definition "s_of_generation_syntax _ = (\<lambda> Generation_syntax_shallow mode \<Rightarrow>
   sprintf1 (STR ''generation_syntax [ shallow (generation_semantics [ %s ]) ]'') (case mode of Gen_design \<Rightarrow> STR ''design'' | Gen_analysis \<Rightarrow> STR ''analysis''))"
@@ -5017,6 +5262,7 @@ lemmas [code] =
   s_of.s_of_consts_class_def
   s_of.s_of_definition_hol_def
   s_of.s_of_ntheorem_def
+  s_of.s_of_ntheorem_list_def
   s_of.s_of_lemmas_simp_def
   s_of.s_of_tactic_last_def
   s_of.s_of_tac_apply_def
@@ -5025,6 +5271,8 @@ lemmas [code] =
   s_of.s_of_section_title_def
   s_of.s_of_text_def
   s_of.s_of_ml_def
+  s_of.s_of_thm_def
+  s_of.s_of_ctxt2_term_def
   s_of.s_of_ocl_deep_embed_ast_def
   s_of.s_of_thy_def
   s_of.s_of_generation_syntax_def
@@ -5036,6 +5284,7 @@ lemmas [code] =
 
   (* fun *)
   s_of.s_of_rawty.simps
+  s_of.s_of_pure_term.simps
   s_of.s_of_expr.simps
   s_of.s_of_ntheorem_aux.simps
   s_of.s_of_tactic.simps
