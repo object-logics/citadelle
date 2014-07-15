@@ -141,6 +141,7 @@ definition "List_take_first = List_take id"
 definition "List_replace_gen f_res l c0 lby =
  (case List.fold (\<lambda>c1 (l,lgen). if c1 = c0 then (lby, l # lgen) else (c1 # l, lgen)) (rev l) ([], [])
   of (l, lgen) \<Rightarrow> f_res (l # lgen))"
+definition "List_nsplit l c0 = List_replace_gen id l c0 []"
 definition "List_replace = List_replace_gen flatten"
 definition "lookup2 rbt = (\<lambda>(x1, x2). Option_bind (\<lambda>rbt. lookup rbt x2) (lookup rbt x1))"
 definition "insert2 = (\<lambda>(x1, x2) v. modify_def empty x1 (insert x2 v))"

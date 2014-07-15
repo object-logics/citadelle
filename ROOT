@@ -86,8 +86,11 @@ session "OCL-all" in src = HOL +
     "../examples/Employee_AnalysisModel_OCLPart"
     "../examples/Employee_DesignModel_OCLPart"
     "../src/OCL_class_diagram_generator_proof"
-    "../src/OCL_class_diagram_generator"
-    "../doc/Employee_DesignModel_UMLPart_generated"
+(*    "../src/OCL_class_diagram_generator_text"*)
+(*    "../src/OCL_compiler"*)
+(*    "../src/OCL_class_diagram_generator"*)
+(*    "../doc/Employee_AnalysisModel_UMLPart_generated"*)
+(*    "../doc/Employee_DesignModel_UMLPart_generated"*)
     "../examples/OCL_lib_UnlimitedNatural"
     "../examples/OCL_lib_Gogolla_challenge_integer"
   files

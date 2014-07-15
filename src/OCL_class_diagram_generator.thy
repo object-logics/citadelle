@@ -231,7 +231,7 @@ fun compile l cmd =
     end
   end
 
-fun check l () =
+val check =
   fold (fn (cmd, msg) => fn () =>
     let val (out, rc) = Isabelle_System.bash_output cmd in
     if rc = 0 then
@@ -239,7 +239,7 @@ fun check l () =
     else
       ( writeln out
       ; error msg)
-    end) l ()
+    end)
 
 val compiler = let open Export_code_env in
   [ let val ml_ext = "hs" in
