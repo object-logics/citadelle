@@ -270,7 +270,7 @@ function (sequential) class_unflat_aux where
           (case lookup rbt_inv r of None \<Rightarrow> [] | Some l \<Rightarrow> l)))"
 *)
    "class_unflat_aux rbt rbt_inv rbt_cycle r =
-   (case lookup rbt_inv r of 
+   (case lookup rbt_inv r of
   None \<Rightarrow>
 (case lookup rbt_cycle r of (None (* cycle detection *)) \<Rightarrow>
       OclClass
@@ -295,7 +295,7 @@ proof -
  have arith_less: "\<And>(a:: Nat.nat) b c. b \<ge> max (a + 1) c \<Longrightarrow> a < b"
  by arith
 
- have rbt_length: "\<And>rbt_cycle r v. lookup rbt_cycle r = None \<Longrightarrow> 
+ have rbt_length: "\<And>rbt_cycle r v. lookup rbt_cycle r = None \<Longrightarrow>
      length (keys (insert r v rbt_cycle)) = length (keys rbt_cycle) + 1"
   apply(subst (1 2) distinct_card[symmetric], (rule distinct_keys)+)
   apply(simp only: lookup_keys[symmetric], simp)
@@ -315,7 +315,7 @@ proof -
  done
 
  have rbt_fold_union: "\<And>rbt_cycle rbt_inv a.
-   dom (lookup (RBT.fold (\<lambda>k _. RBT.insert k a) rbt_cycle rbt_inv)) = 
+   dom (lookup (RBT.fold (\<lambda>k _. RBT.insert k a) rbt_cycle rbt_inv)) =
    dom (lookup rbt_cycle) \<union> dom (lookup rbt_inv)"
   apply(simp add: fold_fold)
   apply(subst (2) map_of_entries[symmetric])
@@ -2561,7 +2561,7 @@ definition "print_access_dot_lemma_cp = start_map Thy_lemma_by o
                 (if print_access_dot_cp_lemmas_set = [] then Tacl_sorry (* fold l_hierarchy, take only subclass, unfold the corresponding definition *)
                  else Tacl_by [Tac_auto_simp_add (List_map hol_definition [''cp''])]) ])"
 
-definition "print_access_dot_lemmas_cp = start_map Thy_lemmas_simp o (\<lambda>expr. 
+definition "print_access_dot_lemmas_cp = start_map Thy_lemmas_simp o (\<lambda>expr.
   case map_class_arg_only_var'
     (\<lambda>isub_name _ (_, dot_at_when) attr_ty isup_attr _.
       [Thm_str (print_access_dot_lemma_cp_name isub_name dot_at_when attr_ty isup_attr) ])
@@ -3891,7 +3891,7 @@ definition "i_of_ocl_multiplicity a b = ocl_multiplicity_rec
   (ap1 a (b ''OclMult'') (i_of_list a b (i_of_pair a b (i_of_ocl_multiplicity_single a b) (i_of_option a b (i_of_ocl_multiplicity_single a b)))))"
 
 definition "i_of_ocl_ty_class_node a b f = ocl_ty_class_node_rec
-  (ap5 a (b ''ocl_ty_class_node_ext'')
+  (ap5 a (b (ext ''ocl_ty_class_node_ext''))
     (i_of_nat a b)
     (i_of_ocl_multiplicity a b)
     (i_of_option a b (i_of_string a b))
@@ -3899,7 +3899,7 @@ definition "i_of_ocl_ty_class_node a b f = ocl_ty_class_node_rec
     (f a b))"
 
 definition "i_of_ocl_ty_class a b f = ocl_ty_class_rec
-  (ap6 a (b ''ocl_ty_class_ext'')
+  (ap6 a (b (ext ''ocl_ty_class_ext''))
     (i_of_string a b)
     (i_of_nat a b)
     (i_of_nat a b)
@@ -3919,11 +3919,11 @@ definition "i_of_ocl_class a b = (\<lambda>f0 f1 f2 f3 f4. ocl_class_rec_1 (co2 
     (i_of_string a b)
     (i_of_list a b (i_of_pair a b (i_of_string a b) (i_of_ocl_ty a b)))
     (* *)
-    (b ''Nil'')
-    (ar2 a (b ''Cons'') id)"
+    (b i_Nil)
+    (ar2 a (b i_Cons) id)"
 
 definition "i_of_ocl_class_raw a b f = ocl_class_raw_rec
-  (ap4 a (b ''ocl_class_raw_ext'')
+  (ap4 a (b (ext ''ocl_class_raw_ext''))
     (i_of_string a b)
     (i_of_list a b (i_of_pair a b (i_of_string a b) (i_of_ocl_ty a b)))
     (i_of_option a b (i_of_string a b))
@@ -3935,7 +3935,7 @@ definition "i_of_ocl_association_type a b = ocl_association_type_rec
   (b ''OclAssTy_aggregation'')"
 
 definition "i_of_ocl_association a b f = ocl_association_rec
-  (ap3 a (b ''ocl_association_ext'')
+  (ap3 a (b (ext ''ocl_association_ext''))
     (i_of_ocl_association_type a b)
     (i_of_list a b (i_of_pair a b (i_of_string a b) (i_of_pair a b (i_of_ocl_multiplicity a b) (i_of_option a b (i_of_string a b)))))
     (f a b))"
@@ -3961,7 +3961,7 @@ definition "i_of_ocl_list_attr a b f = (\<lambda>f0. co4 (\<lambda>f1. ocl_list_
     f"
 
 definition "i_of_ocl_instance_single a b f = ocl_instance_single_rec
-  (ap4 a (b ''ocl_instance_single_ext'')
+  (ap4 a (b (ext ''ocl_instance_single_ext''))
     (i_of_string a b)
     (i_of_string a b)
     (i_of_ocl_list_attr a b (i_of_list a b (i_of_pair a b (i_of_string a b) (i_of_ocl_data_shallow a b))))
@@ -3990,7 +3990,7 @@ definition "i_of_ocl_ctxt_prefix a b = ocl_ctxt_prefix_rec
   (b ''OclCtxtPost'')"
 
 definition "i_of_ocl_ctxt_pre_post a b f = ocl_ctxt_pre_post_rec
-  (ap6 a (b ''ocl_ctxt_pre_post_ext'')
+  (ap6 a (b (ext ''ocl_ctxt_pre_post_ext''))
     (i_of_string a b)
     (i_of_string a b)
     (i_of_list a b (i_of_pair a b (i_of_string a b) (i_of_ocl_ty a b)))
@@ -3999,7 +3999,7 @@ definition "i_of_ocl_ctxt_pre_post a b f = ocl_ctxt_pre_post_rec
     (f a b))"
 
 definition "i_of_ocl_ctxt_inv a b f = ocl_ctxt_inv_rec
-  (ap3 a (b ''ocl_ctxt_inv_ext'')
+  (ap3 a (b (ext ''ocl_ctxt_inv_ext''))
     (i_of_string a b)
     (i_of_list a b (i_of_pair a b (i_of_string a b) (i_of_string a b)))
     (f a b))"
@@ -4024,7 +4024,7 @@ definition "i_of_ocl_deep_mode a b = ocl_deep_mode_rec
   (b ''Gen_analysis'')"
 
 definition "i_of_ocl_compiler_config a b f = ocl_compiler_config_rec
-  (ap11 a (b ''ocl_compiler_config_ext'')
+  (ap11 a (b (ext ''ocl_compiler_config_ext''))
     (i_of_bool b)
     (i_of_option a b (i_of_pair a b (i_of_string a b) (i_of_pair a b (i_of_list a b (i_of_string a b)) (i_of_string a b))))
     (i_of_internal_oids a b)
@@ -4148,7 +4148,7 @@ done
 
 context isabelle_of begin
   definition "ocl_embed a b =
-    i_of_ocl_compiler_config a b (\<lambda> a b. 
+    i_of_ocl_compiler_config a b (\<lambda> a b.
       i_of_pair a b
         (i_of_list a b (i_of_ocl_deep_embed_ast a b))
         (i_of_option a b (i_of_string a b)))"
@@ -4792,7 +4792,7 @@ let s_base = (\<lambda>s lacc. sprintf2 (STR ''%s[%s]'') (To_string s) (String_c
 let s_base = (\<lambda>s lacc. sprintf2 (STR ''%s[%s]'') (To_string s) (String_concat (STR '', '') (List_map (\<lambda>(s, x). sprintf2 (STR ''%s %s'') s x) lacc))) in
 let f_symmetric = (STR ''symmetric'', STR '''') in
        s_base s (f_symmetric # lacc)
-   | Thm_symmetric e1 \<Rightarrow> 
+   | Thm_symmetric e1 \<Rightarrow>
 let f_symmetric = (STR ''symmetric'', STR '''') in
        s_of_ntheorem_aux (f_symmetric # lacc) e1
    | Thm_where (Thm_str s) l \<Rightarrow>
@@ -4802,7 +4802,7 @@ let f_where = (\<lambda>l. (STR ''where'', String_concat (STR '' and '')
                                                         (To_string var)
                                                         (s_of_expr expr)) l))) in
        s_base s (f_where l # lacc)
-   | Thm_where e1 l \<Rightarrow> 
+   | Thm_where e1 l \<Rightarrow>
 let f_where = (\<lambda>l. (STR ''where'', String_concat (STR '' and '')
                                         (List_map (\<lambda>(var, expr). sprintf2 (STR ''%s = \"%s\"'')
                                                         (To_string var)
@@ -4814,7 +4814,7 @@ let f_of = (\<lambda>l. (STR ''of'', String_concat (STR '' '')
                                   (List_map (\<lambda>expr. sprintf1 (STR ''\"%s\"'')
                                                         (s_of_expr expr)) l))) in
        s_base s (f_of l # lacc)
-   | Thm_of e1 l \<Rightarrow> 
+   | Thm_of e1 l \<Rightarrow>
 let f_of = (\<lambda>l. (STR ''of'', String_concat (STR '' '')
                                   (List_map (\<lambda>expr. sprintf1 (STR ''\"%s\"'')
                                                         (s_of_expr expr)) l))) in
