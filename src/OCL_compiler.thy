@@ -212,7 +212,8 @@ datatype ocl_deep_mode = Gen_design | Gen_analysis
 
 record ocl_compiler_config =  D_disable_thy_output :: bool
                               D_file_out_path_dep :: "(string (* theory *)
-                                                      \<times> string list (* imports *)) option"
+                                                      \<times> string list (* imports *)
+                                                      \<times> string (* import optional (compiler bootstrap) *)) option"
                               D_oid_start :: internal_oids
                               D_output_position :: "nat \<times> nat"
                               D_design_analysis :: ocl_deep_mode
@@ -229,6 +230,7 @@ record ocl_compiler_config =  D_disable_thy_output :: bool
                                                   \<times> ocl_instance_single (* alias *))
                                                       ocl_def_state_core) list) list"
                                              (* state namespace environment *)
+                              D_generation_syntax_shallow :: bool (* true : the header should import the compiler for bootstrapping *)
 
 subsection{* Auxilliary *}
 
@@ -447,6 +449,10 @@ datatype sml_expr = Sexpr_string "string list"
                   | Sexpr_function "(sml_expr (* pattern *) \<times> sml_expr (* to return *)) list"
                   | Sexpr_apply string "sml_expr list"
                   | Sexpr_paren string (* left *) string (* right *) sml_expr
+                  | Sexpr_let_open string sml_expr
+
+datatype sml_expr_extended = Sexpr_extended sml_expr
+                           | Sexpr_ocl ocl_compiler_config
 
 section{* Isabelle/HOL Meta-Model aka. AST definition of HOL *}
 subsection{* type definition *}
@@ -572,20 +578,32 @@ datatype hol_thy = Theory_dataty hol_dataty
                  | Theory_text hol_text
                  | Theory_ml hol_ml
 
+datatype hol_generation_syntax = Generation_syntax_shallow ocl_deep_mode
+
+datatype hol_ml_extended = Ml_extended sml_expr_extended
+
+datatype hol_thy_extended = (* pure Isabelle *)
+                            Isab_thy hol_thy
+
+                            (* bootstrapping embedded languages *)
+                          | Isab_thy_generation_syntax hol_generation_syntax
+                          | Isab_thy_ml_extended hol_ml_extended
+                          | Isab_thy_ocl_deep_embed_ast ocl_deep_embed_ast
+
 subsection{* ... *}
 
-definition "Thy_dataty = Theory_dataty"
-definition "Thy_ty_synonym = Theory_ty_synonym"
-definition "Thy_instantiation_class = Theory_instantiation_class"
-definition "Thy_defs_overloaded = Theory_defs_overloaded"
-definition "Thy_consts_class = Theory_consts_class"
-definition "Thy_definition_hol = Theory_definition_hol"
-definition "Thy_lemmas_simp = Theory_lemmas_simp"
-definition "Thy_lemma_by = Theory_lemma_by"
-definition "Thy_axiom = Theory_axiom"
-definition "Thy_section_title = Theory_section_title"
-definition "Thy_text = Theory_text"
-definition "Thy_ml = Theory_ml"
+definition "Thy_dataty = Isab_thy o Theory_dataty"
+definition "Thy_ty_synonym = Isab_thy o Theory_ty_synonym"
+definition "Thy_instantiation_class = Isab_thy o Theory_instantiation_class"
+definition "Thy_defs_overloaded = Isab_thy o Theory_defs_overloaded"
+definition "Thy_consts_class = Isab_thy o Theory_consts_class"
+definition "Thy_definition_hol = Isab_thy o Theory_definition_hol"
+definition "Thy_lemmas_simp = Isab_thy o Theory_lemmas_simp"
+definition "Thy_lemma_by = Isab_thy o Theory_lemma_by"
+definition "Thy_axiom = Isab_thy o Theory_axiom"
+definition "Thy_section_title = Isab_thy o Theory_section_title"
+definition "Thy_text = Isab_thy o Theory_text"
+definition "Thy_ml = Isab_thy o Theory_ml"
 
 subsection{* ... *}
 
@@ -3278,10 +3296,7 @@ definition "txt''a s = txt (\<lambda> Gen_analysis \<Rightarrow> flatten s | _ \
 
 definition thy_class ::
   (* polymorphism weakening needed by code_reflect *)
-  "(ocl_class
-    \<Rightarrow> unit ocl_compiler_config_scheme
-       \<Rightarrow> hol_thy list \<times>
-          unit ocl_compiler_config_scheme) list" where "thy_class =
+  "(_ \<Rightarrow> ocl_compiler_config \<Rightarrow> _) list" where "thy_class =
   (let subsection_def = subsection ''Definition''
      ; subsection_cp = subsection ''Context Passing''
      ; subsection_exec = subsection ''Execution with Invalid or Null as Argument''
@@ -3562,7 +3577,7 @@ definition "ocl_compiler_config_empty disable_thy_output file_out_path_dep oid_s
     oid_start
     (0, 0)
     design_analysis
-    None [] [] []"
+    None [] [] [] False"
 
 definition "ocl_compiler_config_reset_no_env ocl =
   ocl_compiler_config_empty
@@ -3587,7 +3602,7 @@ definition "ocl_compiler_config_reset_all ocl =
 definition "fold_thy0 univ thy_object0 f =
   List.fold (\<lambda>x (acc1, acc2).
     let (l, acc1) = x univ acc1 in
-    (acc1, f l acc2)) thy_object0"
+    (f l acc1 acc2)) thy_object0"
 
 definition "ocl_env_class_spec_rm f_fold f ocl_accu =
   (let (ocl, accu) = f_fold f ocl_accu in
@@ -3640,12 +3655,13 @@ definition "fold_thy' f_try f_accu_reset f =
    | OclAstCtxtPrePost univ \<Rightarrow> ocl_env_class_spec_mk (fold_thy0 univ thy_ctxt_pre_post)
    | OclAstCtxtInv univ \<Rightarrow> ocl_env_class_spec_mk (fold_thy0 univ thy_ctxt_inv)
    | OclAstFlushAll univ \<Rightarrow> ocl_env_class_spec_mk (fold_thy0 univ thy_flush_all)) f))"
-definition "fold_thy_shallow f_try f_accu_reset = fold_thy' f_try f_accu_reset o List.fold"
+
+definition "fold_thy_shallow f_try f_accu_reset x = fold_thy' f_try f_accu_reset (\<lambda>l acc1. List.fold x l o Pair acc1)"
 definition "fold_thy_deep obj ocl =
   (case fold_thy'
           (\<lambda>f. f ())
           (\<lambda>ocl _. D_output_position ocl)
-          (\<lambda>l (i, cpt). (Succ i, natural_of_nat (List.length l) + cpt))
+          (\<lambda>l acc1 (i, cpt). (acc1, (Succ i, natural_of_nat (List.length l) + cpt)))
           obj
           (ocl, D_output_position ocl) of
     (ocl, output_position) \<Rightarrow> ocl \<lparr> D_output_position := output_position \<rparr>)"
@@ -3720,7 +3736,8 @@ definition "ocl_compiler_config_rec0 f ocl = f
   (D_class_spec ocl)
   (D_ocl_env ocl)
   (D_instance_rbt ocl)
-  (D_state_rbt ocl)"
+  (D_state_rbt ocl)
+  (D_generation_syntax_shallow ocl)"
 
 definition "ocl_compiler_config_rec f ocl = ocl_compiler_config_rec0 f ocl
   (ocl_compiler_config.more ocl)"
@@ -3739,6 +3756,7 @@ definition "co7 f g x1 x2 x3 x4 x5 x6 x7 = f (g x1 x2 x3 x4 x5 x6 x7)"
 definition "co8 f g x1 x2 x3 x4 x5 x6 x7 x8 = f (g x1 x2 x3 x4 x5 x6 x7 x8)"
 definition "co9 f g x1 x2 x3 x4 x5 x6 x7 x8 x9 = f (g x1 x2 x3 x4 x5 x6 x7 x8 x9)"
 definition "co10 f g x1 x2 x3 x4 x5 x6 x7 x8 x9 x10 = f (g x1 x2 x3 x4 x5 x6 x7 x8 x9 x10)"
+definition "co11 f g x1 x2 x3 x4 x5 x6 x7 x8 x9 x10 x11 = f (g x1 x2 x3 x4 x5 x6 x7 x8 x9 x10 x11)"
 
 definition "ap1 a v0 f1 v1 = a v0 [f1 v1]"
 definition "ap2 a v0 f1 f2 v1 v2 = a v0 [f1 v1, f2 v2]"
@@ -3750,6 +3768,7 @@ definition "ap7 a v0 f1 f2 f3 f4 f5 f6 f7 v1 v2 v3 v4 v5 v6 v7 = a v0 [f1 v1, f2
 definition "ap8 a v0 f1 f2 f3 f4 f5 f6 f7 f8 v1 v2 v3 v4 v5 v6 v7 v8 = a v0 [f1 v1, f2 v2, f3 v3, f4 v4, f5 v5, f6 v6, f7 v7, f8 v8]"
 definition "ap9 a v0 f1 f2 f3 f4 f5 f6 f7 f8 f9 v1 v2 v3 v4 v5 v6 v7 v8 v9 = a v0 [f1 v1, f2 v2, f3 v3, f4 v4, f5 v5, f6 v6, f7 v7, f8 v8, f9 v9]"
 definition "ap10 a v0 f1 f2 f3 f4 f5 f6 f7 f8 f9 f10 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 = a v0 [f1 v1, f2 v2, f3 v3, f4 v4, f5 v5, f6 v6, f7 v7, f8 v8, f9 v9, f10 v10]"
+definition "ap11 a v0 f1 f2 f3 f4 f5 f6 f7 f8 f9 f10 f11 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 v11 = a v0 [f1 v1, f2 v2, f3 v3, f4 v4, f5 v5, f6 v6, f7 v7, f8 v8, f9 v9, f10 v10, f11 v11]"
 
 definition "ar1 a v0 z = a v0 [z]"
 definition "ar2 a v0 f1 v1 z = a v0 [f1 v1, z]"
@@ -3761,6 +3780,7 @@ definition "ar7 a v0 f1 f2 f3 f4 f5 f6 v1 v2 v3 v4 v5 v6 z = a v0 [f1 v1, f2 v2,
 definition "ar8 a v0 f1 f2 f3 f4 f5 f6 f7 v1 v2 v3 v4 v5 v6 v7 z = a v0 [f1 v1, f2 v2, f3 v3, f4 v4, f5 v5, f6 v6, f7 v7, z]"
 definition "ar9 a v0 f1 f2 f3 f4 f5 f6 f7 f8 v1 v2 v3 v4 v5 v6 v7 v8 z = a v0 [f1 v1, f2 v2, f3 v3, f4 v4, f5 v5, f6 v6, f7 v7, f8 v8, z]"
 definition "ar10 a v0 f1 f2 f3 f4 f5 f6 f7 f8 f9 v1 v2 v3 v4 v5 v6 v7 v8 v9 z = a v0 [f1 v1, f2 v2, f3 v3, f4 v4, f5 v5, f6 v6, f7 v7, f8 v8, f9 v9, z]"
+definition "ar11 a v0 f1 f2 f3 f4 f5 f6 f7 f8 f9 f10 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 z = a v0 [f1 v1, f2 v2, f3 v3, f4 v4, f5 v5, f6 v6, f7 v7, f8 v8, f9 v9, f10 v10, z]"
 
 (* *)
 
@@ -3806,64 +3826,47 @@ by(intro ext, simp add: ocl_instance_single_rec0_def
                         ocl_instance_single.make_def
                         co3_def K_def)
 
-lemma [code]: "ocl_compiler_config.extend = (\<lambda>ocl v. ocl_compiler_config_rec0 (co9 (\<lambda>f. f v) ocl_compiler_config_ext) ocl)"
+lemma [code]: "ocl_compiler_config.extend = (\<lambda>ocl v. ocl_compiler_config_rec0 (co10 (\<lambda>f. f v) ocl_compiler_config_ext) ocl)"
 by(intro ext, simp add: ocl_compiler_config_rec0_def
                         ocl_compiler_config.extend_def
-                        co9_def K_def)
-lemma [code]: "ocl_compiler_config.make = co9 (\<lambda>f. f ()) ocl_compiler_config_ext"
+                        co10_def K_def)
+lemma [code]: "ocl_compiler_config.make = co10 (\<lambda>f. f ()) ocl_compiler_config_ext"
 by(intro ext, simp add: ocl_compiler_config.make_def
-                        co9_def)
-lemma [code]: "ocl_compiler_config.truncate = ocl_compiler_config_rec (co9 K ocl_compiler_config.make)"
+                        co10_def)
+lemma [code]: "ocl_compiler_config.truncate = ocl_compiler_config_rec (co10 K ocl_compiler_config.make)"
 by(intro ext, simp add: ocl_compiler_config_rec0_def
                         ocl_compiler_config_rec_def
                         ocl_compiler_config.truncate_def
                         ocl_compiler_config.make_def
-                        co9_def K_def)
+                        co10_def K_def)
 
 subsection{* i of ... *} (* i_of *)
 
-definition "i_of_unit b = unit_rec
-  (b ''()'')"
+subsubsection{* general *}
 
-definition "i_of_bool b = bool_rec
-  (b ''True'')
-  (b ''False'')"
+locale i_of =
+  fixes ext :: "char list \<Rightarrow> char list"
+
+  (* (effective) first order *)
+  fixes i_of_string :: "('a \<Rightarrow> 'a list \<Rightarrow> 'a) \<Rightarrow> (char list \<Rightarrow> 'a) \<Rightarrow> char list \<Rightarrow> 'a"
+  fixes i_of_nat :: "('a \<Rightarrow> 'a list \<Rightarrow> 'a) \<Rightarrow> (char list \<Rightarrow> 'a) \<Rightarrow> natural \<Rightarrow> 'a"
+  fixes i_of_unit :: "(char list \<Rightarrow> 'a) \<Rightarrow> unit \<Rightarrow> 'a"
+  fixes i_of_bool :: "(char list \<Rightarrow> 'a) \<Rightarrow> bool \<Rightarrow> 'a"
+
+  (* (simulation) higher order *)
+  fixes i_Pair i_Nil i_Cons i_None i_Some :: "char list"
+begin
 
 definition "i_of_pair a b f1 f2 = (\<lambda>f. \<lambda>(c, d) \<Rightarrow> f c d)
-  (ap2 a (b ''Pair'') f1 f2)"
+  (ap2 a (b i_Pair) f1 f2)"
 
 definition "i_of_list a b f = (\<lambda>f0. list_rec f0 o co1 K)
-  (b ''Nil'')
-  (ar2 a (b ''Cons'') f)"
-
-definition "i_of_nibble b = nibble_rec
-  (b ''Nibble0'')
-  (b ''Nibble1'')
-  (b ''Nibble2'')
-  (b ''Nibble3'')
-  (b ''Nibble4'')
-  (b ''Nibble5'')
-  (b ''Nibble6'')
-  (b ''Nibble7'')
-  (b ''Nibble8'')
-  (b ''Nibble9'')
-  (b ''NibbleA'')
-  (b ''NibbleB'')
-  (b ''NibbleC'')
-  (b ''NibbleD'')
-  (b ''NibbleE'')
-  (b ''NibbleF'')"
-
-definition "i_of_char a b = char_rec
-  (ap2 a (b ''Char'') (i_of_nibble b) (i_of_nibble b))"
-
-definition "i_of_string a b = i_of_list a b (i_of_char a b)"
+  (b i_Nil)
+  (ar2 a (b i_Cons) f)"
 
 definition "i_of_option a b f = option_rec
-  (b ''None'')
-  (ap1 a (b ''Some'') f)"
-
-definition "i_of_nat a b = b o natural_of_str"
+  (b i_None)
+  (ap1 a (b i_Some) f)"
 
 (* *)
 
@@ -4021,9 +4024,9 @@ definition "i_of_ocl_deep_mode a b = ocl_deep_mode_rec
   (b ''Gen_analysis'')"
 
 definition "i_of_ocl_compiler_config a b f = ocl_compiler_config_rec
-  (ap10 a (b ''ocl_compiler_config_ext'')
+  (ap11 a (b ''ocl_compiler_config_ext'')
     (i_of_bool b)
-    (i_of_option a b (i_of_pair a b (i_of_string a b) (i_of_list a b (i_of_string a b))))
+    (i_of_option a b (i_of_pair a b (i_of_string a b) (i_of_pair a b (i_of_list a b (i_of_string a b)) (i_of_string a b))))
     (i_of_internal_oids a b)
     (i_of_pair a b (i_of_nat a b) (i_of_nat a b))
     (i_of_ocl_deep_mode a b)
@@ -4031,11 +4034,230 @@ definition "i_of_ocl_compiler_config a b f = ocl_compiler_config_rec
     (i_of_list a b (i_of_ocl_deep_embed_ast a b))
     (i_of_list a b (i_of_pair a b (i_of_string a b) (i_of_pair a b (i_of_ocl_instance_single a b (K i_of_unit)) (i_of_internal_oid a b))))
     (i_of_list a b (i_of_pair a b (i_of_string a b) (i_of_list a b (i_of_pair a b (i_of_internal_oids a b) (i_of_ocl_def_state_core a b (i_of_pair a b (i_of_string a b) (i_of_ocl_instance_single a b  (K i_of_unit))))))))
+    (i_of_bool b)
     (f a b))"
+
+end
+
+lemmas [code] =
+  i_of.i_of_pair_def
+  i_of.i_of_list_def
+  i_of.i_of_option_def
+  (* *)
+  i_of.i_of_internal_oid_def
+  i_of.i_of_internal_oids_def
+  i_of.i_of_ocl_collection_def
+  i_of.i_of_ocl_multiplicity_single_def
+  i_of.i_of_ocl_multiplicity_def
+  i_of.i_of_ocl_ty_class_node_def
+  i_of.i_of_ocl_ty_class_def
+  i_of.i_of_ocl_ty_def
+  i_of.i_of_ocl_class_def
+  i_of.i_of_ocl_class_raw_def
+  i_of.i_of_ocl_association_type_def
+  i_of.i_of_ocl_association_def
+  i_of.i_of_ocl_ass_class_def
+  i_of.i_of_ocl_data_shallow_base_def
+  i_of.i_of_ocl_data_shallow_def
+  i_of.i_of_ocl_list_attr_def
+  i_of.i_of_ocl_instance_single_def
+  i_of.i_of_ocl_instance_def
+  i_of.i_of_ocl_def_int_def
+  i_of.i_of_ocl_def_state_core_def
+  i_of.i_of_ocl_def_state_def
+  i_of.i_of_ocl_def_pre_post_def
+  i_of.i_of_ocl_ctxt_prefix_def
+  i_of.i_of_ocl_ctxt_pre_post_def
+  i_of.i_of_ocl_ctxt_inv_def
+  i_of.i_of_ocl_flush_all_def
+  i_of.i_of_ocl_deep_embed_ast_def
+  i_of.i_of_ocl_deep_mode_def
+  i_of.i_of_ocl_compiler_config_def
+
+subsubsection{* Isabelle *}
+
+locale isabelle_of
+begin
+
+definition "i_Pair = ''Pair''"
+definition "i_Nil = ''Nil''"
+definition "i_Cons = ''Cons''"
+definition "i_None = ''None''"
+definition "i_Some = ''Some''"
 
 (* *)
 
-definition "i_apply s l = flatten [s, flatten (List_map (\<lambda> s. flatten ['' ('', s, '')'']) l)]"
+definition "i_of_pair a b f1 f2 = (\<lambda>f. \<lambda>(c, d) \<Rightarrow> f c d)
+  (ap2 a (b i_Pair) f1 f2)"
+
+definition "i_of_list a b f = (\<lambda>f0. list_rec f0 o co1 K)
+  (b i_Nil)
+  (ar2 a (b i_Cons) f)"
+
+definition "i_of_option a b f = option_rec
+  (b i_None)
+  (ap1 a (b i_Some) f)"
+
+(* *)
+
+definition "i_of_unit b = unit_rec
+  (b ''()'')"
+
+definition "i_of_bool b = bool_rec
+  (b ''True'')
+  (b ''False'')"
+
+definition "i_of_nibble b = nibble_rec
+  (b ''Nibble0'')
+  (b ''Nibble1'')
+  (b ''Nibble2'')
+  (b ''Nibble3'')
+  (b ''Nibble4'')
+  (b ''Nibble5'')
+  (b ''Nibble6'')
+  (b ''Nibble7'')
+  (b ''Nibble8'')
+  (b ''Nibble9'')
+  (b ''NibbleA'')
+  (b ''NibbleB'')
+  (b ''NibbleC'')
+  (b ''NibbleD'')
+  (b ''NibbleE'')
+  (b ''NibbleF'')"
+
+definition "i_of_char a b = char_rec
+  (ap2 a (b ''Char'') (i_of_nibble b) (i_of_nibble b))"
+
+definition "i_of_string a b = i_of_list a b (i_of_char a b)"
+
+definition "i_of_nat a b = b o natural_of_str"
+
+end
+
+sublocale isabelle_of < i_of "id"
+                             isabelle_of.i_of_string
+                             isabelle_of.i_of_nat
+                             isabelle_of.i_of_unit
+                             isabelle_of.i_of_bool
+                             isabelle_of.i_Pair
+                             isabelle_of.i_Nil
+                             isabelle_of.i_Cons
+                             isabelle_of.i_None
+                             isabelle_of.i_Some
+done
+
+context isabelle_of begin
+  definition "ocl_embed a b =
+    i_of_ocl_compiler_config a b (\<lambda> a b. 
+      i_of_pair a b
+        (i_of_list a b (i_of_ocl_deep_embed_ast a b))
+        (i_of_option a b (i_of_string a b)))"
+end
+
+definition "isabelle_of_ocl_embed = isabelle_of.ocl_embed"
+
+lemmas [code] =
+  isabelle_of.i_Pair_def
+  isabelle_of.i_Nil_def
+  isabelle_of.i_Cons_def
+  isabelle_of.i_None_def
+  isabelle_of.i_Some_def
+
+  isabelle_of.i_of_pair_def
+  isabelle_of.i_of_list_def
+  isabelle_of.i_of_option_def
+  isabelle_of.i_of_unit_def
+  isabelle_of.i_of_bool_def
+  isabelle_of.i_of_nibble_def
+  isabelle_of.i_of_char_def
+  isabelle_of.i_of_string_def
+  isabelle_of.i_of_nat_def
+
+  isabelle_of.ocl_embed_def
+
+(* *)
+
+definition "isabelle_apply s l = flatten [s, flatten (List_map (\<lambda> s. flatten ['' ('', s, '')'']) l)]"
+
+subsubsection{* SML *}
+
+locale sml_of
+begin
+
+definition "i_Pair = ''I''"
+definition "i_Nil = ''nil''"
+definition "i_Cons = ''uncurry cons''" (* val cons2 = uncurry cons *)
+definition "i_None = ''NONE''"
+definition "i_Some = ''SOME''"
+
+(* *)
+
+definition "i_of_pair a b f1 f2 = (\<lambda>f. \<lambda>(c, d) \<Rightarrow> f c d)
+  (ap2 a (b i_Pair) f1 f2)"
+
+definition "i_of_list a b f = (\<lambda>f0. list_rec f0 o co1 K)
+  (b i_Nil)
+  (ar2 a (b i_Cons) f)"
+
+definition "i_of_option a b f = option_rec
+  (b i_None)
+  (ap1 a (b i_Some) f)"
+
+(* *)
+
+definition "i_of_unit b = unit_rec
+  (b ''()'')"
+
+definition "i_of_bool b = bool_rec
+  (b ''true'')
+  (b ''false'')"
+
+definition "i_of_string a b =
+ (let c = [Char Nibble2 Nibble2] in
+  (\<lambda>x. b (flatten [''(String.explode '', c, List_replace x (Char Nibble0 NibbleA) (Char Nibble5 NibbleC # ''n''), c,'')''])))"
+
+definition "i_of_nat a b = (\<lambda>x. b (flatten [''(Code_Numeral.Nat '', natural_of_str x, '')'']))"
+
+end
+
+sublocale sml_of < i_of "\<lambda>x # xs \<Rightarrow> flatten [uppercase_of_str [x], xs]"
+                        sml_of.i_of_string
+                        sml_of.i_of_nat
+                        sml_of.i_of_unit
+                        sml_of.i_of_bool
+                        sml_of.i_Pair
+                        sml_of.i_Nil
+                        sml_of.i_Cons
+                        sml_of.i_None
+                        sml_of.i_Some
+done
+
+context sml_of begin
+  definition "ocl_unit a b = i_of_ocl_compiler_config a b (\<lambda> _. i_of_unit)"
+end
+
+definition "sml_of_ocl_unit = sml_of.ocl_unit"
+
+lemmas [code] =
+  sml_of.i_Pair_def
+  sml_of.i_Nil_def
+  sml_of.i_Cons_def
+  sml_of.i_None_def
+  sml_of.i_Some_def
+
+  sml_of.i_of_pair_def
+  sml_of.i_of_list_def
+  sml_of.i_of_option_def
+  sml_of.i_of_unit_def
+  sml_of.i_of_bool_def
+  sml_of.i_of_string_def
+  sml_of.i_of_nat_def
+
+  sml_of.ocl_unit_def
+
+(* *)
+
+definition "sml_apply s l = flatten [s, '' ('', bug_ocaml_extraction (case l of x # xs \<Rightarrow> flatten [x, flatten (List_map (\<lambda>s. flatten ['', '', s]) xs)]), '')'' ]"
 
 section{* Generation to Deep Form: OCaml *}
 
@@ -4512,7 +4734,14 @@ fun_quick s_of_sexpr where "s_of_sexpr e = (\<lambda>
   | Sexpr_function l \<Rightarrow> sprintf1 (STR ''(fn %s)'') (String_concat (STR ''
     | '') (List.map (\<lambda> (s1, s2) \<Rightarrow> sprintf2 (STR ''%s => %s'') (s_of_sexpr s1) (s_of_sexpr s2)) l))
   | Sexpr_apply s l \<Rightarrow> sprintf2 (STR ''(%s %s)'') (To_string s) (String_concat (STR '' '') (List.map (\<lambda> e \<Rightarrow> sprintf1 (STR ''(%s)'') (s_of_sexpr e)) l))
-  | Sexpr_paren p_left p_right e \<Rightarrow> sprintf3 (STR ''%s%s%s'') (To_string p_left) (s_of_sexpr e) (To_string p_right)) e"
+  | Sexpr_paren p_left p_right e \<Rightarrow> sprintf3 (STR ''%s%s%s'') (To_string p_left) (s_of_sexpr e) (To_string p_right)
+  | Sexpr_let_open s e \<Rightarrow> sprintf2 (STR ''let open %s in %s end'') (To_string s) (s_of_sexpr e)) e"
+
+definition "s_of_sexpr_extended = (\<lambda>
+    Sexpr_extended s \<Rightarrow> s_of_sexpr s
+  | Sexpr_ocl ocl \<Rightarrow> s_of_sexpr
+     (Sexpr_apply ''Generation_mode.update_compiler_config''
+       [Sexpr_apply ''K'' [Sexpr_let_open ''OCL'' (Sexpr_basic [sml_of_ocl_unit sml_apply id ocl])]]))"
 
 definition "s_of_instantiation_class _ = (\<lambda> Instantiation n n_def expr \<Rightarrow>
     let name = To_string n in
@@ -4702,6 +4931,8 @@ definition "s_of_text _ = (\<lambda> Text s \<Rightarrow> sprintf1 (STR ''text{*
 
 definition "s_of_ml _ = (\<lambda> Ml e \<Rightarrow> sprintf1 (STR ''ML{* %s *}'') (s_of_sexpr e))"
 
+definition "s_of_ocl_deep_embed_ast _ = (\<lambda> _. STR '''')"
+
 definition "s_of_thy ocl =
             (\<lambda> Theory_dataty dataty \<Rightarrow> s_of_dataty ocl dataty
              | Theory_ty_synonym ty_synonym \<Rightarrow> s_of_ty_synonym ocl ty_synonym
@@ -4716,15 +4947,26 @@ definition "s_of_thy ocl =
              | Theory_text text \<Rightarrow> s_of_text ocl text
              | Theory_ml ml \<Rightarrow> s_of_ml ocl ml)"
 
+definition "s_of_generation_syntax _ = (\<lambda> Generation_syntax_shallow mode \<Rightarrow>
+  sprintf1 (STR ''generation_syntax [ shallow (generation_semantics [ %s ]) ]'') (case mode of Gen_design \<Rightarrow> STR ''design'' | Gen_analysis \<Rightarrow> STR ''analysis''))"
+
+definition "s_of_ml_extended _ = (\<lambda> Ml_extended e \<Rightarrow> sprintf1 (STR ''setup{* %s *}'') (s_of_sexpr_extended e))"
+
+definition "s_of_thy_extended ocl = (\<lambda>
+    Isab_thy thy \<Rightarrow> s_of_thy ocl thy
+  | Isab_thy_generation_syntax generation_syntax \<Rightarrow> s_of_generation_syntax ocl generation_syntax
+  | Isab_thy_ml_extended ml_extended \<Rightarrow> s_of_ml_extended ocl ml_extended
+  | Isab_thy_ocl_deep_embed_ast ocl_deep_embed_ast \<Rightarrow> s_of_ocl_deep_embed_ast ocl ocl_deep_embed_ast)"
+
 definition "s_of_thy_list ocl l_thy =
   (let (th_beg, th_end) = case D_file_out_path_dep ocl of None \<Rightarrow> ([], [])
-   | Some (name, fic_import) \<Rightarrow>
-       ( [ sprintf2 (STR ''theory %s imports %s begin'') (To_string name) (s_of_expr (expr_binop '' '' (List_map Expr_string fic_import))) ]
+   | Some (name, fic_import, fic_import_boot) \<Rightarrow>
+       ( [ sprintf2 (STR ''theory %s imports %s begin'') (To_string name) (s_of_expr (expr_binop '' '' (List_map Expr_string (fic_import @@ (if D_generation_syntax_shallow ocl then [fic_import_boot] else []))))) ]
        , [ STR '''', STR ''end'' ]) in
   flatten
         [ th_beg
         , flatten (fst (fold_list (\<lambda>l (i, cpt).
-            let (l_thy, lg) = fold_list (\<lambda>l n. (s_of_thy ocl l, Succ n)) l 0 in
+            let (l_thy, lg) = fold_list (\<lambda>l n. (s_of_thy_extended ocl l, Succ n)) l 0 in
             (( STR ''''
              # sprintf4 (STR ''%s(* %d ************************************ %d + %d *)'')
                  (To_string (if ocl_compiler_config.more ocl then '''' else [char_escape])) (To_nat (Succ i)) (To_nat cpt) (To_nat lg)
@@ -4755,7 +4997,7 @@ definition "write_file ocl = (
            fold_thy'
              (\<lambda>f. f ())
              (\<lambda>_ _. [])
-             Cons
+             (\<lambda>x acc1 acc2. (acc1, Cons x acc2))
              l_thy
              (ocl_compiler_config.truncate ocl, []) in
          s_of_thy_list (ocl_compiler_config_more_map (\<lambda>_. is_file) ocl) (rev l)))))"
@@ -4769,6 +5011,7 @@ lemmas [code] =
 
   s_of.s_of_dataty_def
   s_of.s_of_ty_synonym_def
+  s_of.s_of_sexpr_extended_def
   s_of.s_of_instantiation_class_def
   s_of.s_of_defs_overloaded_def
   s_of.s_of_consts_class_def
@@ -4782,7 +5025,11 @@ lemmas [code] =
   s_of.s_of_section_title_def
   s_of.s_of_text_def
   s_of.s_of_ml_def
+  s_of.s_of_ocl_deep_embed_ast_def
   s_of.s_of_thy_def
+  s_of.s_of_generation_syntax_def
+  s_of.s_of_ml_extended_def
+  s_of.s_of_thy_extended_def
   s_of.s_of_thy_list_def
 
   s_of.write_file_def
@@ -4806,7 +5053,8 @@ definition "main = write_file
    (ocl_compiler_config_empty True None (oidInit (Oid 0)) Gen_design
       \<lparr> D_disable_thy_output := False
       , D_file_out_path_dep := Some (''Employee_DesignModel_UMLPart_generated''
-                                    ,[''../src/OCL_main'', ''../src/OCL_class_diagram_static'']) \<rparr>)
+                                    ,[''../src/OCL_main'', ''../src/OCL_class_diagram_static'']
+                                    ,''../src/OCL_class_diagram_generator'') \<rparr>)
    ( List_map OclAstClassRaw Employee_DesignModel_UMLPart
      @@ [ OclAstAssociation (ocl_association.make OclAssTy_association
             [ (''Person'', OclMult [(Mult_star, None)], None)

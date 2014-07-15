@@ -63,7 +63,8 @@ type_synonym real = int
 generation_syntax [ deep
                       (generation_semantics [ analysis (*, oid_start 10*) ])
                       (THEORY Bank_AnalysisModel_generated)
-                      (IMPORTS ["../src/OCL_main", "../src/OCL_class_diagram_static"])
+                      (IMPORTS ["../src/OCL_main", "../src/OCL_class_diagram_static"]
+                               "../src/OCL_class_diagram_generator")
                       SECTION
                       [ in OCaml module_name M (no_signatures) ]
                       (output_directory "../doc")

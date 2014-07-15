@@ -97,7 +97,7 @@ code_reflect OCL
              ocl_compiler_config_reset_all oidInit D_file_out_path_dep_update
 
              (* printing the OCL AST to (deep Isabelle) string *)
-             i_apply i_of_ocl_compiler_config i_of_ocl_deep_embed_ast
+             isabelle_apply isabelle_of_ocl_embed
 
 ML{*
  val To_string = implode o map str
@@ -454,7 +454,7 @@ fun annot_ty f = Parse.$$$ "(" |-- f --| Parse.$$$ "::" -- Parse.binding --| Par
 ML{*
 structure Generation_mode = struct
 datatype 'a generation_mode = Gen_deep of unit OCL.ocl_compiler_config_ext
-                                        * (string * string list) option
+                                        * (string * (string list (* imports *) * string (* import optional (bootstrap) *))) option
                                         * ((bstring (* compiler *) * bstring (* main module *) ) * Token.T list) list (* seri_args *)
                                         * bstring option (* filename_thy *)
                                         * Path.T (* tmp dir export_code *)
@@ -473,7 +473,7 @@ val code_expr_argsP = Scan.optional (@{keyword "("} |-- Args.parse --| @{keyword
 val parse_scheme = @{keyword "design"} >> K NONE || @{keyword "analysis"} >> K (SOME 1)
 
 val parse_deep =
-     Scan.optional (((Parse.$$$ "(" -- @{keyword "THEORY"}) |-- Parse.name -- ((Parse.$$$ ")" -- Parse.$$$ "(" -- @{keyword "IMPORTS"}) |-- parse_l' Parse.name) --| Parse.$$$ ")") >> SOME) NONE
+     Scan.optional (((Parse.$$$ "(" -- @{keyword "THEORY"}) |-- Parse.name -- ((Parse.$$$ ")" -- Parse.$$$ "(" -- @{keyword "IMPORTS"}) |-- parse_l' Parse.name -- Parse.name) --| Parse.$$$ ")") >> SOME) NONE
   -- Scan.optional (@{keyword "SECTION"} >> K true) false
   -- (* code_expr_inP *) parse_l1' (@{keyword "in"} |-- (Parse.name
         -- Scan.optional (@{keyword "module_name"} |-- Parse.name) ""
@@ -489,7 +489,7 @@ val mode =
   let fun mk_ocl disable_thy_output file_out_path_dep oid_start design_analysis =
     OCL.ocl_compiler_config_empty
                     (From.from_bool disable_thy_output)
-                    (From.from_option (From.from_pair From.from_string (From.from_list From.from_string)) file_out_path_dep)
+                    (From.from_option (From.from_pair From.from_string (From.from_pair (From.from_list From.from_string) From.from_string)) file_out_path_dep)
                     (OCL.oidInit (From.from_internal_oid (From.from_nat oid_start)))
                     (From.from_design_analysis design_analysis) in
 
@@ -531,6 +531,16 @@ fun f_command l_mode =
                 (Gen_deep (ocl, file_out_path_dep, seri_args, filename_thy, tmp_export_code), thy) end) l_mode thy in
         Data_gen.map (Symtab.map_default (Deep0.gen_empty, l_mode) (fn _ => l_mode)) thy
         end)
+
+fun update_compiler_config f =
+  Data_gen.map
+    (Symtab.map_entry
+      Deep0.gen_empty
+      (fn l_mode =>
+        map (fn Gen_deep (ocl, file_out_path_dep, seri_args, filename_thy, tmp_export_code) =>
+                  Gen_deep (f ocl, file_out_path_dep, seri_args, filename_thy, tmp_export_code)
+              | Gen_shallow (ocl, thy) => Gen_shallow (f ocl, thy)
+              | Gen_syntax_print => Gen_syntax_print) l_mode))
 end
 *}
 
@@ -667,7 +677,7 @@ end
 end
 
 structure Shallow_main = struct open Shallow_conv open Shallow_ml
-val OCL_main = let open OCL open OCL_overload in (*let val f = *)fn
+val OCL_main_thy = let open OCL open OCL_overload in (*let val f = *)fn
   Theory_dataty (Datatype (n, l)) =>
     (snd oo Datatype.add_datatype_cmd Datatype_Aux.default_config)
       [((To_sbinding n, [], NoSyn),
@@ -760,6 +770,14 @@ val OCL_main = let open OCL open OCL_overload in (*let val f = *)fn
 (*in fn t => fn thy => f t thy handle ERROR s => (warning s; thy)
  end*)
 end
+
+fun OCL_main aux ret = let open OCL open OCL_overload in fn
+  Isab_thy thy => ret o (OCL_main_thy thy)
+| Isab_thy_generation_syntax _ => ret o I
+| Isab_thy_ml_extended _ => ret o I
+| Isab_thy_ocl_deep_embed_ast ocl => aux ocl
+end
+
 end
 (*val _ = print_depth 100*)
 *}
@@ -770,14 +788,7 @@ ML{*
 
 fun exec_deep (ocl, file_out_path_dep, seri_args, filename_thy, tmp_export_code, l_obj) thy0 =
   let open Generation_mode in
-  let val i_of_arg =
-    let val a = OCL.i_apply
-      ; val b = I in
-    OCL.i_of_ocl_compiler_config a b (fn a => fn b =>
-      OCL.i_of_pair a b
-        (OCL.i_of_list a b (OCL.i_of_ocl_deep_embed_ast a b))
-        (OCL.i_of_option a b (OCL.i_of_string a b)))
-    end in
+  let val i_of_arg = OCL.isabelle_of_ocl_embed OCL.isabelle_apply I in
   let fun def s = in_local (snd o Specification.definition_cmd (NONE, ((@{binding ""}, []), s)) false) in
   let val name_main = Deep.mk_free (Proof_Context.init_global thy0) Deep0.Export_code_env.Isabelle.argument_main [] in
   thy0 |> def (String.concatWith " " (  name_main
@@ -821,16 +832,19 @@ fun outer_syntax_command mk_string cmd_spec cmd_descr parser get_oclclass =
                      |> K (Gen_deep (OCL.fold_thy_deep l_obj ocl, file_out_path_dep, seri_args, filename_thy, tmp_export_code), thy0)
                 end)
            | Gen_shallow (ocl, thy0) => fn thy =>
-             let val (ocl, thy) = OCL.fold_thy_shallow
+             let fun aux (ocl, thy) x =
+                  OCL.fold_thy_shallow
                    (fn f => f () handle ERROR e =>
                      ( warning "Shallow Backtracking: HOL declarations occuring among OCL ones are ignored (if any)"
                        (* TODO automatically determine if there is such HOL declarations,
                                for raising earlier a specific error message *)
                      ; error e))
                    (fn _ => fn _ => thy0)
-                   Shallow_main.OCL_main
-                   [get_oclclass thy]
-                   (ocl, thy) in
+                   (fn l => fn (ocl, thy) =>
+                     Shallow_main.OCL_main (fn x => fn thy => aux (ocl, thy) x) (pair ocl) l thy)
+                   [x]
+                   (ocl, thy)
+                 val (ocl, thy) = aux (ocl, thy) (get_oclclass thy) in
              (Gen_shallow (ocl, thy0), thy)
              end
           end
