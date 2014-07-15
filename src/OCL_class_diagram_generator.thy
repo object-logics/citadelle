@@ -668,18 +668,18 @@ end
 
 structure Shallow_main = struct open Shallow_conv open Shallow_ml
 val OCL_main = let open OCL open OCL_overload in (*let val f = *)fn
-  Thy_dataty (Datatype (n, l)) =>
+  Theory_dataty (Datatype (n, l)) =>
     (snd oo Datatype.add_datatype_cmd Datatype_Aux.default_config)
       [((To_sbinding n, [], NoSyn),
        List.map (fn (n, l) => (To_sbinding n, List.map (fn OCL.Opt o_ => To_string o_ ^ " option"
                                              |   Raw o_ => To_string o_) l, NoSyn)) l)]
-| Thy_ty_synonym (Type_synonym (n, l)) =>
+| Theory_ty_synonym (Type_synonym (n, l)) =>
     (fn thy =>
      let val s_bind = To_sbinding n in
      (snd o Typedecl.abbrev_global (s_bind, [], NoSyn)
                                    (read_typ_syntax (SOME s_bind) thy (s_of_rawty l))) thy
      end)
-| Thy_instantiation_class (Instantiation (n, n_def, expr)) =>
+| Theory_instantiation_class (Instantiation (n, n_def, expr)) =>
     (fn thy =>
      let val name = To_string n in
      perform_instantiation
@@ -694,13 +694,13 @@ val OCL_main = let open OCL open OCL_overload in (*let val f = *)fn
         end)
        (fn thms => Class.intro_classes_tac [] THEN ALLGOALS (Proof_Context.fact_tac thms))
      end)
-| Thy_defs_overloaded (Defs_overloaded (n, e)) =>
+| Theory_defs_overloaded (Defs_overloaded (n, e)) =>
     Isar_Cmd.add_defs ((false, true), [((To_sbinding n, s_of_expr e), [])])
-| Thy_consts_class (Consts_raw (n, ty, symb)) =>
+| Theory_consts_class (Consts_raw (n, ty, symb)) =>
     Sign.add_consts [( To_sbinding n
                      , s_of_rawty ty
                      , Mixfix ("(_) " ^ To_string symb, [], 1000))]
-| Thy_definition_hol def =>
+| Theory_definition_hol def =>
     let val (def, e) = case def of
         Definition e => (NONE, e)
       | Definition_abbrev (name, (abbrev, prio), e) =>
@@ -713,21 +713,21 @@ val OCL_main = let open OCL open OCL_overload in (*let val f = *)fn
                 , Mixfix ("(" ^ s_of_expr abbrev ^ ")", [], 1000)), e) in
     in_local (snd o Specification.definition_cmd (def, ((@{binding ""}, []), s_of_expr e)) false)
     end
-| Thy_lemmas_simp (Lemmas_simp (s, l)) =>
+| Theory_lemmas_simp (Lemmas_simp (s, l)) =>
     in_local (fn lthy => (snd o Specification.theorems Thm.lemmaK
       [((To_sbinding s, List.map (Attrib.intern_src (Proof_Context.theory_of lthy))
                           [Args.src (("simp", []), Position.none), Args.src (("code_unfold", []), Position.none)]),
         List.map (fn x => ([m_of_ntheorem lthy x], [])) l)]
       []
       false) lthy)
-| Thy_lemmas_simp (Lemmas_simps (s, l)) =>
+| Theory_lemmas_simp (Lemmas_simps (s, l)) =>
     in_local (fn lthy => (snd o Specification.theorems Thm.lemmaK
       [((To_sbinding s, List.map (Attrib.intern_src (Proof_Context.theory_of lthy))
                           [Args.src (("simp", []), Position.none), Args.src (("code_unfold", []), Position.none)]),
         List.map (fn x => (Proof_Context.get_thms lthy (To_string x), [])) l)]
       []
       false) lthy)
-| Thy_lemma_by (Lemma_by (n, l_spec, l_apply, o_by)) =>
+| Theory_lemma_by (Lemma_by (n, l_spec, l_apply, o_by)) =>
       in_local (fn lthy =>
            Specification.theorem_cmd Thm.lemmaK NONE (K I)
              (@{binding ""}, []) [] [] (Element.Shows [((To_sbinding n, [])
@@ -736,7 +736,7 @@ val OCL_main = let open OCL open OCL_overload in (*let val f = *)fn
              false lthy
         |> fold (apply_results o OCL.App) l_apply
         |> global_terminal_proof o_by)
-| Thy_lemma_by (Lemma_by_assum (n, l_spec, concl, l_apply, o_by)) =>
+| Theory_lemma_by (Lemma_by_assum (n, l_spec, concl, l_apply, o_by)) =>
       in_local (fn lthy =>
            Specification.theorem_cmd Thm.lemmaK NONE (K I)
              (To_sbinding n, [])
@@ -751,12 +751,12 @@ val OCL_main = let open OCL open OCL_overload in (*let val f = *)fn
               |> local_terminal_proof o_by
               |> fold (K (Proof.local_qed arg)) l
               |> Proof.global_qed arg end))
-| Thy_axiom (Axiom (n, e)) => #2 o Specification.axiomatization_cmd
+| Theory_axiom (Axiom (n, e)) => #2 o Specification.axiomatization_cmd
                                      []
                                      [((To_sbinding n, []), [s_of_expr e])]
-| Thy_section_title _ => I
-| Thy_text _ => I
-| Thy_ml ml => Code_printing.reflect_ml (case ml of Ml ml => s_of_sexpr ml)
+| Theory_section_title _ => I
+| Theory_text _ => I
+| Theory_ml ml => Code_printing.reflect_ml (case ml of Ml ml => s_of_sexpr ml)
 (*in fn t => fn thy => f t thy handle ERROR s => (warning s; thy)
  end*)
 end

@@ -559,18 +559,33 @@ datatype hol_text = Text string
 
 datatype hol_ml = Ml sml_expr
 
-datatype hol_thy = Thy_dataty hol_dataty
-                 | Thy_ty_synonym hol_ty_synonym
-                 | Thy_instantiation_class hol_instantiation_class
-                 | Thy_defs_overloaded hol_defs_overloaded
-                 | Thy_consts_class hol_consts_class
-                 | Thy_definition_hol hol_definition_hol
-                 | Thy_lemmas_simp hol_lemmas_simp
-                 | Thy_lemma_by hol_lemma_by
-                 | Thy_axiom hol_axiom
-                 | Thy_section_title hol_section_title
-                 | Thy_text hol_text
-                 | Thy_ml hol_ml
+datatype hol_thy = Theory_dataty hol_dataty
+                 | Theory_ty_synonym hol_ty_synonym
+                 | Theory_instantiation_class hol_instantiation_class
+                 | Theory_defs_overloaded hol_defs_overloaded
+                 | Theory_consts_class hol_consts_class
+                 | Theory_definition_hol hol_definition_hol
+                 | Theory_lemmas_simp hol_lemmas_simp
+                 | Theory_lemma_by hol_lemma_by
+                 | Theory_axiom hol_axiom
+                 | Theory_section_title hol_section_title
+                 | Theory_text hol_text
+                 | Theory_ml hol_ml
+
+subsection{* ... *}
+
+definition "Thy_dataty = Theory_dataty"
+definition "Thy_ty_synonym = Theory_ty_synonym"
+definition "Thy_instantiation_class = Theory_instantiation_class"
+definition "Thy_defs_overloaded = Theory_defs_overloaded"
+definition "Thy_consts_class = Theory_consts_class"
+definition "Thy_definition_hol = Theory_definition_hol"
+definition "Thy_lemmas_simp = Theory_lemmas_simp"
+definition "Thy_lemma_by = Theory_lemma_by"
+definition "Thy_axiom = Theory_axiom"
+definition "Thy_section_title = Theory_section_title"
+definition "Thy_text = Theory_text"
+definition "Thy_ml = Theory_ml"
 
 subsection{* ... *}
 
@@ -4688,18 +4703,18 @@ definition "s_of_text _ = (\<lambda> Text s \<Rightarrow> sprintf1 (STR ''text{*
 definition "s_of_ml _ = (\<lambda> Ml e \<Rightarrow> sprintf1 (STR ''ML{* %s *}'') (s_of_sexpr e))"
 
 definition "s_of_thy ocl =
-            (\<lambda> Thy_dataty dataty \<Rightarrow> s_of_dataty ocl dataty
-             | Thy_ty_synonym ty_synonym \<Rightarrow> s_of_ty_synonym ocl ty_synonym
-             | Thy_instantiation_class instantiation_class \<Rightarrow> s_of_instantiation_class ocl instantiation_class
-             | Thy_defs_overloaded defs_overloaded \<Rightarrow> s_of_defs_overloaded ocl defs_overloaded
-             | Thy_consts_class consts_class \<Rightarrow> s_of_consts_class ocl consts_class
-             | Thy_definition_hol definition_hol \<Rightarrow> s_of_definition_hol ocl definition_hol
-             | Thy_lemmas_simp lemmas_simp \<Rightarrow> s_of_lemmas_simp ocl lemmas_simp
-             | Thy_lemma_by lemma_by \<Rightarrow> s_of_lemma_by ocl lemma_by
-             | Thy_axiom axiom \<Rightarrow> s_of_axiom ocl axiom
-             | Thy_section_title section_title \<Rightarrow> s_of_section_title ocl section_title
-             | Thy_text text \<Rightarrow> s_of_text ocl text
-             | Thy_ml ml \<Rightarrow> s_of_ml ocl ml)"
+            (\<lambda> Theory_dataty dataty \<Rightarrow> s_of_dataty ocl dataty
+             | Theory_ty_synonym ty_synonym \<Rightarrow> s_of_ty_synonym ocl ty_synonym
+             | Theory_instantiation_class instantiation_class \<Rightarrow> s_of_instantiation_class ocl instantiation_class
+             | Theory_defs_overloaded defs_overloaded \<Rightarrow> s_of_defs_overloaded ocl defs_overloaded
+             | Theory_consts_class consts_class \<Rightarrow> s_of_consts_class ocl consts_class
+             | Theory_definition_hol definition_hol \<Rightarrow> s_of_definition_hol ocl definition_hol
+             | Theory_lemmas_simp lemmas_simp \<Rightarrow> s_of_lemmas_simp ocl lemmas_simp
+             | Theory_lemma_by lemma_by \<Rightarrow> s_of_lemma_by ocl lemma_by
+             | Theory_axiom axiom \<Rightarrow> s_of_axiom ocl axiom
+             | Theory_section_title section_title \<Rightarrow> s_of_section_title ocl section_title
+             | Theory_text text \<Rightarrow> s_of_text ocl text
+             | Theory_ml ml \<Rightarrow> s_of_ml ocl ml)"
 
 definition "s_of_thy_list ocl l_thy =
   (let (th_beg, th_end) = case D_file_out_path_dep ocl of None \<Rightarrow> ([], [])
