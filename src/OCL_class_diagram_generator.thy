@@ -57,7 +57,7 @@ imports OCL_compiler
            (* hol syntax *)
            "output_directory"
            "THEORY" "IMPORTS" "SECTION"
-           "deep" "shallow" "syntax_print"
+           "deep" "shallow" "syntax_print" "skip_export"
            "generation_semantics"
            "flush_all"
 
@@ -479,6 +479,7 @@ datatype 'a generation_mode = Gen_deep of unit OCL.ocl_compiler_config_ext
                                         * ((bstring (* compiler *) * bstring (* main module *) ) * Token.T list) list (* seri_args *)
                                         * bstring option (* filename_thy *)
                                         * Path.T (* tmp dir export_code *)
+                                        * bool (* true: skip preview of code exportation *)
                             | Gen_shallow of unit OCL.ocl_compiler_config_ext
                                            * 'a (* theory init *)
                             | Gen_syntax_print
@@ -494,7 +495,8 @@ val code_expr_argsP = Scan.optional (@{keyword "("} |-- Args.parse --| @{keyword
 val parse_scheme = @{keyword "design"} >> K NONE || @{keyword "analysis"} >> K (SOME 1)
 
 val parse_deep =
-     Scan.optional (((Parse.$$$ "(" -- @{keyword "THEORY"}) |-- Parse.name -- ((Parse.$$$ ")" -- Parse.$$$ "(" -- @{keyword "IMPORTS"}) |-- parse_l' Parse.name -- Parse.name) --| Parse.$$$ ")") >> SOME) NONE
+     Scan.optional (@{keyword "skip_export"} >> K true) false
+  -- Scan.optional (((Parse.$$$ "(" -- @{keyword "THEORY"}) |-- Parse.name -- ((Parse.$$$ ")" -- Parse.$$$ "(" -- @{keyword "IMPORTS"}) |-- parse_l' Parse.name -- Parse.name) --| Parse.$$$ ")") >> SOME) NONE
   -- Scan.optional (@{keyword "SECTION"} >> K true) false
   -- (* code_expr_inP *) parse_l1' (@{keyword "in"} |-- (Parse.name
         -- Scan.optional (@{keyword "module_name"} |-- Parse.name) ""
@@ -514,9 +516,9 @@ val mode =
                     (OCL.oidInit (From.from_internal_oid (From.from_nat oid_start)))
                     (From.from_design_analysis design_analysis) in
 
-     @{keyword "deep"} |-- parse_sem_ocl -- parse_deep >> (fn ((design_analysis, oid_start), (((file_out_path_dep, disable_thy_output), seri_args), filename_thy)) =>
+     @{keyword "deep"} |-- parse_sem_ocl -- parse_deep >> (fn ((design_analysis, oid_start), ((((skip_exportation, file_out_path_dep), disable_thy_output), seri_args), filename_thy)) =>
        Gen_deep ( mk_ocl (not disable_thy_output) file_out_path_dep oid_start design_analysis
-                , file_out_path_dep, seri_args, filename_thy, Isabelle_System.create_tmp_path "deep_export_code" ""))
+                , file_out_path_dep, seri_args, filename_thy, Isabelle_System.create_tmp_path "deep_export_code" "", skip_exportation))
   || @{keyword "shallow"} |-- parse_sem_ocl >> (fn (design_analysis, oid_start) =>
        Gen_shallow (mk_ocl true NONE oid_start design_analysis, ()))
   || @{keyword "syntax_print"} >> K Gen_syntax_print
@@ -529,7 +531,7 @@ fun f_command l_mode =
           (fn Gen_shallow (ocl, ()) => let val thy0 = thy in
                                        fn thy => (Gen_shallow (ocl, thy0), thy) end
             | Gen_syntax_print => (fn thy => (Gen_syntax_print, thy))
-            | Gen_deep (ocl, file_out_path_dep, seri_args, filename_thy, tmp_export_code) => fn thy =>
+            | Gen_deep (ocl, file_out_path_dep, seri_args, filename_thy, tmp_export_code, skip_exportation) => fn thy =>
                 let val _ = warning ("remove the directory (at the end): " ^ Path.implode tmp_export_code)
                     val seri_args' = List_mapi (fn i => fn ((ml_compiler, ml_module), export_arg) =>
                       let val tmp_export_code = Deep.mk_path_export_code tmp_export_code ml_compiler i
@@ -549,7 +551,7 @@ fun f_command l_mode =
                               (List.map fst seri_args')
                     val () = fold (fn ((((ml_compiler, ml_module), _), _), mk_fic) => fn _ =>
                       Deep0.find_init ml_compiler mk_fic ml_module Deep.mk_free thy) seri_args' () in
-                (Gen_deep (ocl, file_out_path_dep, seri_args, filename_thy, tmp_export_code), thy) end) l_mode thy in
+                (Gen_deep (ocl, file_out_path_dep, seri_args, filename_thy, tmp_export_code, skip_exportation), thy) end) l_mode thy in
         Data_gen.map (Symtab.map_default (Deep0.gen_empty, l_mode) (fn _ => l_mode)) thy
         end)
 
@@ -558,8 +560,8 @@ fun update_compiler_config f =
     (Symtab.map_entry
       Deep0.gen_empty
       (fn l_mode =>
-        map (fn Gen_deep (ocl, file_out_path_dep, seri_args, filename_thy, tmp_export_code) =>
-                  Gen_deep (f ocl, file_out_path_dep, seri_args, filename_thy, tmp_export_code)
+        map (fn Gen_deep (ocl, file_out_path_dep, seri_args, filename_thy, tmp_export_code, skip_exportation) =>
+                  Gen_deep (f ocl, file_out_path_dep, seri_args, filename_thy, tmp_export_code, skip_exportation)
               | Gen_shallow (ocl, thy) => Gen_shallow (f ocl, thy)
               | Gen_syntax_print => Gen_syntax_print) l_mode))
 end
@@ -850,12 +852,15 @@ fun outer_syntax_command mk_string cmd_spec cmd_descr parser get_oclclass =
 
           let val get_oclclass = get_oclclass name in
           fn Gen_syntax_print => (fn thy => let val _ = writeln (mk_string name) in (Gen_syntax_print, thy) end)
-           | Gen_deep (ocl, file_out_path_dep, seri_args, filename_thy, tmp_export_code) =>
+           | Gen_deep (ocl, file_out_path_dep, seri_args, filename_thy, tmp_export_code, skip_exportation) =>
               (fn thy0 =>
                 let val obj = get_oclclass thy0
                   ; val l_obj = [obj] in
-                thy0 |> exec_deep (OCL.d_file_out_path_dep_update (fn _ => NONE) ocl, file_out_path_dep, seri_args, NONE, tmp_export_code, l_obj)
-                     |> K (Gen_deep (OCL.fold_thy_deep l_obj ocl, file_out_path_dep, seri_args, filename_thy, tmp_export_code), thy0)
+                thy0 |> (if skip_exportation then
+                           K ()
+                         else
+                           exec_deep (OCL.d_file_out_path_dep_update (fn _ => NONE) ocl, file_out_path_dep, seri_args, NONE, tmp_export_code, l_obj))
+                     |> K (Gen_deep (OCL.fold_thy_deep l_obj ocl, file_out_path_dep, seri_args, filename_thy, tmp_export_code, skip_exportation), thy0)
                 end)
            | Gen_shallow (ocl, thy0) => fn thy =>
              let fun aux (ocl, thy) x =
@@ -897,7 +902,7 @@ val () = let open Generation_mode in
             val _ = case l of [] => warning "Nothing to perform." | _ => ()
             val thy =
         fold
-          (fn (ocl, file_out_path_dep, seri_args, filename_thy, tmp_export_code) => fn thy0 =>
+          (fn (ocl, file_out_path_dep, seri_args, filename_thy, tmp_export_code, _) => fn thy0 =>
                 thy0 |> let val (ocl, l_exec) = OCL.ocl_compiler_config_reset_all ocl in
                         exec_deep (ocl, file_out_path_dep, seri_args, filename_thy, tmp_export_code, l_exec) end
                      |> K thy0)
