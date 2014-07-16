@@ -322,7 +322,7 @@ val compiler = let open Export_code_env in
            , map (fn s => s ^ ";")
              let val arg = "argument" in
              [ "val stdout_file = Unsynchronized.ref (File.read (Path.make [\"" ^ SML.Filename.stdout ml_ext_ml ^ "\"]))"
-             , "print_depth 100" (* any large number so that @{make_string} displays all the expression *)
+             , "print_depth 500" (* any large number so that @{make_string} displays all the expression *)
              , "use \"" ^ SML.Filename.argument ml_ext_ml ^ "\""
              , "val " ^ arg ^ " = XML.content_of (YXML.parse_body (@{make_string} (" ^ ml_module ^ "." ^
                mk_free (Proof_Context.init_global thy) Isabelle.argument_main ([]: (string * string) list) ^ ")))"
@@ -819,7 +819,8 @@ fun exec_deep (ocl, file_out_path_dep, seri_args, filename_thy, tmp_export_code,
   let val i_of_arg = OCL.isabelle_of_ocl_embed OCL.isabelle_apply I in
   let fun def s = in_local (snd o Specification.definition_cmd (NONE, ((@{binding ""}, []), s)) false) in
   let val name_main = Deep.mk_free (Proof_Context.init_global thy0) Deep0.Export_code_env.Isabelle.argument_main [] in
-  thy0 |> def (String.concatWith " " (  name_main
+  thy0 |> def (String.concatWith " " (  "(" (* polymorphism weakening needed by export_code *)
+                                        ^ name_main ^ " :: (_ \<times> char list option) ocl_compiler_config_scheme)"
                                     :: "="
                                     :: To_string (i_of_arg (OCL.ocl_compiler_config_more_map (fn () => (l_obj, From.from_option From.from_string (Option.map (fn filename_thy => Deep.absolute_path filename_thy thy0) filename_thy))) ocl))
                                     :: []))
