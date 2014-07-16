@@ -66,7 +66,7 @@ generation_syntax [ deep
                       (IMPORTS ["../src/OCL_main", "../src/OCL_class_diagram_static"]
                                "../src/OCL_class_diagram_generator")
                       SECTION
-                      [ in OCaml module_name M (no_signatures) ]
+                      [ in SML module_name M (no_signatures) ]
                       (output_directory "../doc")
                   , shallow (generation_semantics [ analysis ]) ]
 
