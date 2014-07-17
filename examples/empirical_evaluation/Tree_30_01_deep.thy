@@ -1,8 +1,8 @@
-theory Tree_30_02_deep imports  "../../src/OCL_class_diagram_generator" begin
+theory Tree_30_01_deep imports  "../../src/OCL_class_diagram_generator" begin
 generation_syntax [ deep
                       (generation_semantics [ analysis (*, oid_start 10*) ])
                       skip_export
-                      (THEORY Tree_30_02_generated)
+                      (THEORY Tree_30_01_generated)
                       (IMPORTS ["../../../src/OCL_main", "../../../src/OCL_class_diagram_static"]
                                "../../../src/OCL_class_diagram_generator")
                       SECTION
