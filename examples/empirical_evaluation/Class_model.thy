@@ -129,7 +129,7 @@ definition "print_abr sprintf_int write_file =
           let (n1, map) = ident_fresh l1 map
           ; (n2, map) = ident_fresh l2 map in
           (print_class (case n1 of 0 \<Rightarrow> OclAny | n \<Rightarrow> Class (string26_of_nat n), string26_of_nat n2) # l, map))
-        (mk_tree nb_child (deep - 1))
+        (mk_tree nb_child deep)
         ([], ident_empty))
       ; tree_name = flatten [''Tree_'', sprintf_int nb_child, ''_'', sprintf_int deep]
       ; g = [Char Nibble2 Nibble2] in
@@ -167,53 +167,53 @@ definition "print_abr sprintf_int write_file =
       , ''Class.end'') ]))"
 
 definition "main sprintf_int write_file = print_abr sprintf_int write_file 
-  [ (1, 1)
+  [ (1, 0)
+  , (1, 1)
   , (1, 2)
   , (1, 3)
   , (1, 4)
   , (1, 5)
   , (1, 6)
-  , (1, 7)
-  , (1, 13)
-  , (1, 15)
-  , (1, 21)
-  , (1, 31)
-  , (1, 40)
-  , (1, 43)
-  , (1, 57)
+  , (1, 12)
+  , (1, 14)
+  , (1, 20)
+  , (1, 30)
+  , (1, 39)
+  , (1, 42)
+  , (1, 56)
 
   (* *)
 
+  , (2, 1)
   , (2, 2)
   , (2, 3)
   , (2, 4)
-  , (2, 5)
 
+  , (3, 1)
   , (3, 2)
   , (3, 3)
-  , (3, 4)
 
+  , (4, 1)
   , (4, 2)
-  , (4, 3)
 
+  , (5, 1)
   , (5, 2)
-  , (5, 3)
 
+  , (6, 1)
   , (6, 2)
-  , (6, 3)
 
+  , (7, 1)
   , (7, 2)
-  , (7, 3)
 
   (* *)
 
-  , (12, 2)
-  , (14, 2)
-  , (20, 2)
-  , (30, 2)
-  , (39, 2)
-  , (42, 2)
-  , (56, 2) ]"
+  , (12, 1)
+  , (14, 1)
+  , (20, 1)
+  , (30, 1)
+  , (39, 1)
+  , (42, 1)
+  , (56, 1) ]"
 (*
 export_code main
   in OCaml module_name M file "class_model_isabelle.ml"
