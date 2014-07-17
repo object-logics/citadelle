@@ -109,7 +109,7 @@ definition "string26_of_nat n =
   case
   if n < 26 then
     let s2 = str26_of_nat (26 - n - 1) in
-    flatten [s1, s1(*, s2, s2*)]
+    flatten [s1, s1, s2, s2]
   else
     flatten [s1, s1]
   of 
