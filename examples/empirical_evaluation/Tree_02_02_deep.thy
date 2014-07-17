@@ -9,8 +9,8 @@ generation_syntax [ deep
                       [ in SML module_name M (no_signatures) ]
                       (output_directory "./doc") ]
 
-Class Aa End
-Class Bb End
+Class Aazz End
+Class Bbyy End
 
 (* 2 *)
 

@@ -9,12 +9,12 @@ generation_syntax [ deep
                       [ in SML module_name M (no_signatures) ]
                       (output_directory "./doc") ]
 
-Class Aa End
-Class Bb End
-Class Cc < Aa End
-Class Dd < Aa End
-Class Ee < Bb End
-Class Ff < Bb End
+Class Aazz End
+Class Bbyy End
+Class Ccxx < Aazz End
+Class Ddww < Aazz End
+Class Eevv < Bbyy End
+Class Ffuu < Bbyy End
 
 (* 6 *)
 

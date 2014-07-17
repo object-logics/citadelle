@@ -9,48 +9,48 @@ generation_syntax [ deep
                       [ in SML module_name M (no_signatures) ]
                       (output_directory "./doc") ]
 
-Class Aa End
-Class Bb End
-Class Cc End
-Class Dd End
-Class Ee End
-Class Ff End
-Class Gg < Aa End
-Class Hh < Aa End
-Class Ii < Aa End
-Class Jj < Aa End
-Class Kk < Aa End
-Class Ll < Aa End
-Class Mm < Bb End
-Class Nn < Bb End
-Class Oo < Bb End
-Class Pp < Bb End
-Class Qq < Bb End
-Class Rr < Bb End
-Class Ss < Cc End
-Class Tt < Cc End
-Class Uu < Cc End
-Class Vv < Cc End
-Class Ww < Cc End
-Class Xx < Cc End
-Class Yy < Dd End
-Class Zz < Dd End
-Class Baba < Dd End
-Class Bbbb < Dd End
-Class Bcbc < Dd End
-Class Bdbd < Dd End
-Class Bebe < Ee End
-Class Bfbf < Ee End
-Class Bgbg < Ee End
-Class Bhbh < Ee End
-Class Bibi < Ee End
-Class Bjbj < Ee End
-Class Bkbk < Ff End
-Class Blbl < Ff End
-Class Bmbm < Ff End
-Class Bnbn < Ff End
-Class Bobo < Ff End
-Class Bpbp < Ff End
+Class Aazz End
+Class Bbyy End
+Class Ccxx End
+Class Ddww End
+Class Eevv End
+Class Ffuu End
+Class Ggtt < Aazz End
+Class Hhss < Aazz End
+Class Iirr < Aazz End
+Class Jjqq < Aazz End
+Class Kkpp < Aazz End
+Class Lloo < Aazz End
+Class Mmnn < Bbyy End
+Class Nnmm < Bbyy End
+Class Ooll < Bbyy End
+Class Ppkk < Bbyy End
+Class Qqjj < Bbyy End
+Class Rrii < Bbyy End
+Class Sshh < Ccxx End
+Class Ttgg < Ccxx End
+Class Uuff < Ccxx End
+Class Vvee < Ccxx End
+Class Wwdd < Ccxx End
+Class Xxcc < Ccxx End
+Class Yybb < Ddww End
+Class Zzaa < Ddww End
+Class Baba < Ddww End
+Class Bbbb < Ddww End
+Class Bcbc < Ddww End
+Class Bdbd < Ddww End
+Class Bebe < Eevv End
+Class Bfbf < Eevv End
+Class Bgbg < Eevv End
+Class Bhbh < Eevv End
+Class Bibi < Eevv End
+Class Bjbj < Eevv End
+Class Bkbk < Ffuu End
+Class Blbl < Ffuu End
+Class Bmbm < Ffuu End
+Class Bnbn < Ffuu End
+Class Bobo < Ffuu End
+Class Bpbp < Ffuu End
 
 (* 42 *)
 

@@ -9,20 +9,20 @@ generation_syntax [ deep
                       [ in SML module_name M (no_signatures) ]
                       (output_directory "./doc") ]
 
-Class Aa End
-Class Bb < Aa End
-Class Cc < Bb End
-Class Dd < Cc End
-Class Ee < Dd End
-Class Ff < Ee End
-Class Gg < Ff End
-Class Hh < Gg End
-Class Ii < Hh End
-Class Jj < Ii End
-Class Kk < Jj End
-Class Ll < Kk End
-Class Mm < Ll End
-Class Nn < Mm End
+Class Aazz End
+Class Bbyy < Aazz End
+Class Ccxx < Bbyy End
+Class Ddww < Ccxx End
+Class Eevv < Ddww End
+Class Ffuu < Eevv End
+Class Ggtt < Ffuu End
+Class Hhss < Ggtt End
+Class Iirr < Hhss End
+Class Jjqq < Iirr End
+Class Kkpp < Jjqq End
+Class Lloo < Kkpp End
+Class Mmnn < Lloo End
+Class Nnmm < Mmnn End
 
 (* 14 *)
 

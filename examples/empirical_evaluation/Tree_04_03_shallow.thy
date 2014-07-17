@@ -1,26 +1,26 @@
 theory Tree_04_03_shallow imports "../../src/OCL_main" "../../src/OCL_class_diagram_static" "../../src/OCL_class_diagram_generator" begin
 generation_syntax [ shallow (generation_semantics [ analysis ]) ]
 
-Class Aa End
-Class Bb End
-Class Cc End
-Class Dd End
-Class Ee < Aa End
-Class Ff < Aa End
-Class Gg < Aa End
-Class Hh < Aa End
-Class Ii < Bb End
-Class Jj < Bb End
-Class Kk < Bb End
-Class Ll < Bb End
-Class Mm < Cc End
-Class Nn < Cc End
-Class Oo < Cc End
-Class Pp < Cc End
-Class Qq < Dd End
-Class Rr < Dd End
-Class Ss < Dd End
-Class Tt < Dd End
+Class Aazz End
+Class Bbyy End
+Class Ccxx End
+Class Ddww End
+Class Eevv < Aazz End
+Class Ffuu < Aazz End
+Class Ggtt < Aazz End
+Class Hhss < Aazz End
+Class Iirr < Bbyy End
+Class Jjqq < Bbyy End
+Class Kkpp < Bbyy End
+Class Lloo < Bbyy End
+Class Mmnn < Ccxx End
+Class Nnmm < Ccxx End
+Class Ooll < Ccxx End
+Class Ppkk < Ccxx End
+Class Qqjj < Ddww End
+Class Rrii < Ddww End
+Class Sshh < Ddww End
+Class Ttgg < Ddww End
 
 (* 20 *)
 
