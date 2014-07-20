@@ -1312,32 +1312,31 @@ by(auto simp: OclValid_def StrongEq_def true_def cp_def)
 
 lemma StrongEq_L_subst2_rev: "\<tau> \<Turnstile> y \<triangleq> x \<Longrightarrow> cp P \<Longrightarrow> \<tau> \<Turnstile> P x \<Longrightarrow> \<tau> \<Turnstile> P y"
 apply(erule StrongEq_L_subst2)
-apply(erule StrongEq_L_sym)
+apply(erule StrongEq_L_sym)  
 by assumption
 
 lemma  StrongEq_L_subst3:
 assumes cp: "cp P"
-and     eq: "\<tau> \<Turnstile> x \<triangleq> y"
+and     eq: "\<tau> \<Turnstile> (x \<triangleq> y)"
 shows       "(\<tau> \<Turnstile> P x) = (\<tau> \<Turnstile> P y)"
 apply(rule iffI)
 apply(rule OCL_core.StrongEq_L_subst2[OF cp,OF eq],simp)
 apply(rule OCL_core.StrongEq_L_subst2[OF cp,OF eq[THEN StrongEq_L_sym]],simp)
 done
 
+lemma  StrongEq_L_subst3_rev:
+assumes eq: "\<tau> \<Turnstile> (x \<triangleq> y)" 
+and     cp: "cp P"
+shows       "(\<tau> \<Turnstile> P x) = (\<tau> \<Turnstile> P y)"
+by(insert cp, erule StrongEq_L_subst3, rule eq)
 
-(* for an automated version of ocl_subst *)
-ML{* (* just a fist sketch *)
-fun ocl_subst_tac subst =
-          let val foundation22_THEN_iffD1 = @{thm foundation22} RS @{thm iffD1}
-              val StrongEq_L_subst2_rev_ = @{thm StrongEq_L_subst2_rev}
-              val the_context = @{context} (* Hack of bu : will not work in general *)
-          in  EVERY[rtac foundation22_THEN_iffD1 1,
-                    eres_inst_tac the_context [(("P",0),subst)] StrongEq_L_subst2_rev_ 1,
-                    simp_tac the_context 1,
-                    simp_tac the_context 1]
-          end
-
- *}
+lemma  StrongEq_L_subst4_rev:
+assumes eq: "\<tau> \<Turnstile> (x \<triangleq> y)" 
+and     cp: "cp P"
+shows       "(\<not>(\<tau> \<Turnstile> P x)) = (\<not>(\<tau> \<Turnstile> P y))"
+thm arg_cong[of _ _ "Not"]
+apply(rule arg_cong[of _ _ "Not"])
+by(insert cp, erule StrongEq_L_subst3, rule eq)
 
 lemma cpI1:
 "(\<forall> X \<tau>. f X \<tau> = f(\<lambda>_. X \<tau>) \<tau>) \<Longrightarrow> cp P \<Longrightarrow> cp(\<lambda>X. f (P X))"

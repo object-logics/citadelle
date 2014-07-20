@@ -45,24 +45,33 @@ imports OCL_core
 begin
 
 
-lemmas substs = OCL_core.foundation13[THEN iffD2, THEN OCL_core.StrongEq_L_subst2_rev]
-                OCL_core.foundation14[THEN iffD2, THEN OCL_core.StrongEq_L_subst2_rev]
-                OCL_core.foundation15[THEN iffD2, THEN OCL_core.StrongEq_L_subst2_rev]
-                OCL_core.foundation7'[THEN iffD2, THEN OCL_core.foundation15[THEN iffD2, 
-                                      THEN OCL_core.StrongEq_L_subst2_rev]]
-                OCL_core.StrongEq_L_subst2_rev
-
+lemmas substs1 = OCL_core.StrongEq_L_subst2_rev
+                 OCL_core.foundation15[THEN iffD2, THEN OCL_core.StrongEq_L_subst2_rev]
+                 OCL_core.foundation7'[THEN iffD2, THEN OCL_core.foundation15[THEN iffD2, 
+                                       THEN OCL_core.StrongEq_L_subst2_rev]]                
+                 OCL_core.foundation14[THEN iffD2, THEN OCL_core.StrongEq_L_subst2_rev]
+                 OCL_core.foundation13[THEN iffD2, THEN OCL_core.StrongEq_L_subst2_rev]
                 
-ML{*
-local val [c1,c2,c3,c4,c5] = @{thms "substs"}
-in
+lemmas substs2 = OCL_core.StrongEq_L_subst3_rev
+                 OCL_core.foundation15[THEN iffD2, THEN OCL_core.StrongEq_L_subst3_rev]
+                 OCL_core.foundation7'[THEN iffD2, THEN OCL_core.foundation15[THEN iffD2, 
+                                       THEN OCL_core.StrongEq_L_subst3_rev]]                
+                 OCL_core.foundation14[THEN iffD2, THEN OCL_core.StrongEq_L_subst3_rev]
+                 OCL_core.foundation13[THEN iffD2, THEN OCL_core.StrongEq_L_subst3_rev]
+                 
+lemmas substs4 = OCL_core.StrongEq_L_subst4_rev
+                 OCL_core.foundation15[THEN iffD2, THEN OCL_core.StrongEq_L_subst4_rev]
+                 OCL_core.foundation7'[THEN iffD2, THEN OCL_core.foundation15[THEN iffD2, 
+                                       THEN OCL_core.StrongEq_L_subst4_rev]]                
+                 OCL_core.foundation14[THEN iffD2, THEN OCL_core.StrongEq_L_subst4_rev]
+                 OCL_core.foundation13[THEN iffD2, THEN OCL_core.StrongEq_L_subst4_rev]
 
-fun ocl_subst_asm_tac ctxt x = FIRST[(etac c5 x) THEN (simp_tac ctxt x), 
-                                     (etac c4 x) THEN (simp_tac ctxt x), 
-                                     (etac c3 x) THEN (simp_tac ctxt x), 
-                                     (etac c2 x) THEN (simp_tac ctxt x),
-                                     (etac c1 x) THEN (simp_tac ctxt x)]
-end;
+                 
+lemmas substs = substs1 substs2 substs4 [THEN iffD2] substs4
+thm substs
+ML{*
+fun ocl_subst_asm_tac ctxt  = FIRST'(map (fn C => (etac C) THEN' (simp_tac ctxt)) 
+                                         @{thms "substs"})
 
 val ocl_subst_asm = fn ctxt => SIMPLE_METHOD (ocl_subst_asm_tac ctxt 1); 
 
@@ -73,28 +82,28 @@ val _ = Theory.setup
  
 *}
 
-lemma test1' : "\<tau> \<Turnstile> A \<Longrightarrow> \<tau> \<Turnstile> (A and B \<triangleq> B)"
+lemma test1 : "\<tau> \<Turnstile> A \<Longrightarrow> \<tau> \<Turnstile> (A and B \<triangleq> B)"
 apply(tactic "ocl_subst_asm_tac @{context} 1")
 apply(simp)
 done
 
-lemma test1 : "\<tau> \<Turnstile> A \<Longrightarrow> \<tau> \<Turnstile> (A and B \<triangleq> B)"
+lemma test2 : "\<tau> \<Turnstile> A \<Longrightarrow> \<tau> \<Turnstile> (A and B \<triangleq> B)"
 by(ocl_subst_asm, simp)
 
-lemma test2 : "\<tau> \<Turnstile> not A \<Longrightarrow> \<tau> \<Turnstile> (A and B \<triangleq> false)"
+lemma test3 : "\<tau> \<Turnstile> A \<Longrightarrow> \<tau> \<Turnstile> (A and A)"
 by(ocl_subst_asm, simp)
 
-lemma test3 : "\<tau> \<Turnstile> (A \<triangleq> null) \<Longrightarrow> \<tau> \<Turnstile> (B \<triangleq> null) \<Longrightarrow> \<tau> \<Turnstile> not(A and B)"
-apply(ocl_subst_asm,ocl_subst_asm,simp)
-oops
+lemma test4 : "\<tau> \<Turnstile> not A \<Longrightarrow> \<tau> \<Turnstile> (A and B \<triangleq> false)"
+by(ocl_subst_asm, simp)
 
- (* TODO : establish support for goals of the form 
-   -  \<not> \<tau> \<Turnstile> A  
-   -  (\<tau> \<Turnstile> A)  = (\<tau> \<Turnstile> A')  
-   -  \<not>(\<tau> \<Turnstile> A)  = \<not>(\<tau> \<Turnstile> A')  
-   
-   Use :  OCL_core.StrongEq_L_subst3 etc...
- *)
+lemma test5 : "\<tau> \<Turnstile> (A \<triangleq> null) \<Longrightarrow> \<tau> \<Turnstile> (B \<triangleq> null) \<Longrightarrow> \<not> (\<tau> \<Turnstile> (A and B))"
+by(ocl_subst_asm,ocl_subst_asm,simp)
+
+lemma test6 : "\<tau> \<Turnstile> not A \<Longrightarrow> \<not> (\<tau> \<Turnstile> (A and B))"
+by(ocl_subst_asm, simp)
+
+lemma test7 : "\<not> (\<tau> \<Turnstile> (\<upsilon> A)) \<Longrightarrow> \<tau> \<Turnstile> (not B) \<Longrightarrow> \<not> (\<tau> \<Turnstile> (A and B))"
+by(ocl_subst_asm,ocl_subst_asm,simp)
 
  (* TODO : establish tactic support for ocl_subst thm1 ... thmn
     (argument line version)
