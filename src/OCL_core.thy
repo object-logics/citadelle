@@ -1509,17 +1509,17 @@ qed
 
 
 lemma const_imply2 :
- assumes "\<And>\<tau>1 \<tau>2. P \<tau>1 = P \<tau>2 \<Longrightarrow> Q \<tau>1 = Q \<tau>2"
+ assumes "\<And>\<tau> \<tau>'. P \<tau> = P \<tau>' \<Longrightarrow> Q \<tau> = Q \<tau>'"
  shows "const P \<Longrightarrow> const Q"
 by(simp add: const_def, insert assms, blast)
 
 lemma const_imply3 :
- assumes "\<And>\<tau>1 \<tau>2. P \<tau>1 = P \<tau>2 \<Longrightarrow> Q \<tau>1 = Q \<tau>2 \<Longrightarrow> R \<tau>1 = R \<tau>2"
+ assumes "\<And>\<tau> \<tau>'. P \<tau> = P \<tau>' \<Longrightarrow> Q \<tau> = Q \<tau>' \<Longrightarrow> R \<tau> = R \<tau>'"
  shows "const P \<Longrightarrow> const Q \<Longrightarrow> const R"
 by(simp add: const_def, insert assms, blast)
 
 lemma const_imply4 :
- assumes "\<And>\<tau>1 \<tau>2. P \<tau>1 = P \<tau>2 \<Longrightarrow> Q \<tau>1 = Q \<tau>2 \<Longrightarrow> R \<tau>1 = R \<tau>2 \<Longrightarrow> S \<tau>1 = S \<tau>2"
+ assumes "\<And>\<tau> \<tau>'. P \<tau> = P \<tau>' \<Longrightarrow> Q \<tau> = Q \<tau>' \<Longrightarrow> R \<tau> = R \<tau>' \<Longrightarrow> S \<tau> = S \<tau>'"
  shows "const P \<Longrightarrow> const Q \<Longrightarrow> const R \<Longrightarrow> const S"
 by(simp add: const_def, insert assms, blast)
 
@@ -1546,13 +1546,13 @@ by(simp add: const_def bot_fun_def)
 
 lemma const_defined :
  assumes "const X"
- shows "const (\<delta> X)"
+ shows   "const (\<delta> X)"
 by(rule const_imply2[OF _ assms],
    simp add: defined_def false_def true_def bot_fun_def bot_option_def null_fun_def null_option_def)
 
 lemma const_valid :
  assumes "const X"
- shows "const (\<upsilon> X)"
+ shows   "const (\<upsilon> X)"
 by(rule const_imply2[OF _ assms],
    simp add: valid_def false_def true_def bot_fun_def null_fun_def assms)
 
@@ -1581,19 +1581,19 @@ by(rule const_imply3[OF _ assms], subst (1 2) cp_OclAnd, simp add: assms OclAnd_
 
 lemma const_OclNot :
     assumes "const X"
-    shows "const (not X)"
+    shows   "const (not X)"
 by(rule const_imply2[OF _ assms],subst cp_OclNot,simp add: assms OclNot_def)
 
 lemma const_OclOr :
   assumes "const X"
   assumes "const X'"
-  shows "const (X or X')"
+  shows   "const (X or X')"
 by(simp add: assms OclOr_def const_OclNot const_OclAnd)
 
 lemma const_OclImplies :
   assumes "const X"
   assumes "const X'"
-  shows "const (X implies X')"
+  shows   "const (X implies X')"
 by(simp add: assms OclImplies_def const_OclNot const_OclOr)
 
 lemma const_StrongEq:
