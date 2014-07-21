@@ -105,6 +105,18 @@ by(ocl_subst_asm, simp)
 lemma test7 : "\<not> (\<tau> \<Turnstile> (\<upsilon> A)) \<Longrightarrow> \<tau> \<Turnstile> (not B) \<Longrightarrow> \<not> (\<tau> \<Turnstile> (A and B))"
 by(ocl_subst_asm,ocl_subst_asm,simp)
 
+lemma X: "\<not> (\<tau> \<Turnstile> (invalid and B))"
+oops
+
+lemma Y: "\<not> (\<tau> \<Turnstile> (null and B))"
+oops
+
+lemma Z: "\<not> (\<tau> \<Turnstile> (false and B))"
+oops
+
+lemma Z: "(\<tau> \<Turnstile> (true and B)) = (\<tau> \<Turnstile> B)"
+oops
+
  (* TODO : establish tactic support for ocl_subst thm1 ... thmn
     (argument line version)
  *)
