@@ -4556,12 +4556,15 @@ lazy_code_printing code_module "CodeType" \<rightharpoonup> (Haskell) {*
 ; type MlMonad a = IO a
 *} | code_module "CodeConst" \<rightharpoonup> (Haskell) {*
   import System.Directory
+; import System.IO
 ; import qualified CodeConst.Printf
 
 ; outFile1 f file = (do
   fileExists <- doesFileExist file
-  if fileExists then error ("File exists " ++ file ++ "\n") else
-    f (\pat -> writeFile file . CodeConst.Printf.sprintf1 pat))
+  if fileExists then error ("File exists " ++ file ++ "\n") else do
+    h <- openFile file WriteMode
+    f (\pat -> hPutStr h . CodeConst.Printf.sprintf1 pat)
+    hClose h)
 
 ; outStand1 :: ((String -> String -> IO ()) -> IO ()) -> IO ()
 ; outStand1 f = f (\pat -> putStr . CodeConst.Printf.sprintf1 pat)
