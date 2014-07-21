@@ -52,11 +52,11 @@ datatype 'a tree = T 'a "'a tree list"
 
 fun make_tree
 and make_tree' where
-   "make_tree l_pos nb_child deep = 
+   "make_tree l_pos nb_child deep =
       T l_pos (case deep of 0 \<Rightarrow> []
                | Suc deep \<Rightarrow> make_tree' l_pos nb_child nb_child deep [])"
 
- | "make_tree' l_pos nb_child i deep l = 
+ | "make_tree' l_pos nb_child i deep l =
      (case i of 0 \<Rightarrow> l
       | Suc i \<Rightarrow> make_tree' l_pos nb_child i deep (make_tree (i # l_pos) nb_child deep # l))"
 
@@ -71,7 +71,7 @@ definition "ident_empty = (empty, 0)"
 fun fold_tree where
    "fold_tree f t accu =
      (case t of T _ [] \<Rightarrow> accu
-      | T x l \<Rightarrow> 
+      | T x l \<Rightarrow>
           List.fold
             (fold_tree f)
             l
@@ -103,7 +103,7 @@ definition "str10_of_nat n = nat_raw_of_str10 (str_of_nat10_aux [] n)"
 
 definition "uppercase_of_str = List_map (\<lambda>c. let n = nat_of_char c in if n < 97 then c else char_of_nat (n - 32))"
 
-definition "string26_of_nat n = 
+definition "string26_of_nat n =
  (let n = n - 1
     ; s1 = str26_of_nat n in
   case
@@ -112,17 +112,17 @@ definition "string26_of_nat n =
     flatten [s1, s1, s2, s2]
   else
     flatten [s1, s1]
-  of 
+  of
   x # xs \<Rightarrow> flatten [uppercase_of_str [x], xs])"
 
-definition "print_class = 
+definition "print_class =
  (\<lambda> (OclAny, s) \<Rightarrow> flatten [''Class '', s, '' End'']
   | (Class s1, s2) \<Rightarrow> flatten [''Class '', s2, '' < '', s1, '' End'']  )"
 
 definition "print_abr sprintf_int write_file =
   (let sprintf_int = sprintf_int o natural_of_nat
      ; flatten_n = flatten o List_map (\<lambda>s. flatten [s, [Char Nibble0 NibbleA]]) in
-  flatten o List_map (\<lambda> (nb_child, deep).
+  flatten o flatten o List_map (\<lambda> (nb_child, deep).
     let body = (rev o fst)
       (fold_tree
         (\<lambda> l1 l2 (l, map).
@@ -134,39 +134,46 @@ definition "print_abr sprintf_int write_file =
       ; tree_name = flatten [''Tree_'', sprintf_int nb_child, ''_'', sprintf_int deep]
       ; g = [Char Nibble2 Nibble2] in
 
-   List_map 
-    (\<lambda> (gen_mode, gen_import, gen_init, gen_flush). 
-      let filename = flatten [tree_name, ''_'', gen_mode] in
-      write_file (flatten [filename, ''.thy''])
-      (flatten
-        [ [ flatten [''theory '', filename, '' imports '', gen_import, '' '',g,''../../src/OCL_class_diagram_generator'',g,'' begin'']
-          , gen_init ]
-        , body
-        , [ ''''
-          , flatten [''(* '', str10_of_nat (length body), '' *)'' ]
-          , ''''
-          , gen_flush
-          , ''''
-          , ''end'' ] ]))
-    [ ( ''deep''
-      , ''''
-      , flatten_n [ ''generation_syntax [ deep''
-                , ''                      (generation_semantics [ analysis (*, oid_start 10*) ])''
-                , ''                      skip_export''
-                , flatten [''                      (THEORY '', tree_name, ''_generated)'']
-                , flatten [''                      (IMPORTS ['',g,''../../../src/OCL_main'',g,'', '',g,''../../../src/OCL_class_diagram_static'',g,'']'']
-                , flatten [''                               '',g,''../../../src/OCL_class_diagram_generator'',g,'')'']
-                , ''                      SECTION''
-                , ''                      [ in SML module_name M (no_signatures) ]''
-                , flatten [''                      (output_directory '',g,''./doc'',g,'') ]''] ]
-      , ''generation_syntax deep flush_all'')
-    , ( ''shallow''
-      , flatten [ g,''../../src/OCL_main'',g, '' ''
-                , g,''../../src/OCL_class_diagram_static'',g ]
-      , flatten_n [ ''generation_syntax [ shallow (generation_semantics [ analysis ]) ]'' ]
-      , ''Class.end'') ]))"
+    List_map
+      (\<lambda> ((gen_mode, gen_comp), gen_import, gen_init, gen_flush).
+        List_map
+          (\<lambda>(comp, comp2).
+            let filename = flatten [tree_name, ''_'', gen_mode, if comp = [] then [] else flatten [''_'', comp]] in
+            write_file
+              (flatten [filename, ''.thy''])
+              (flatten
+                [ [ flatten [''theory '', filename, '' imports '', gen_import, '' '',g,''../../src/OCL_class_diagram_generator'',g,'' begin'']
+                  , gen_init comp comp2]
+                , body
+                , [ ''''
+                  , flatten [''(* '', str10_of_nat (length body), '' *)'' ]
+                  , ''''
+                  , gen_flush
+                  , ''''
+                  , ''end'' ] ])) gen_comp)
+      [ ( (''deep'', [ (''Haskell'', '''')
+                     , (''OCaml'', ''module_name M (no_signatures)'')
+                     , (''Scala'', ''module_name M'')
+                     , (''SML'', ''module_name M (no_signatures)'')])
+        , ''''
+        , \<lambda> comp comp2.
+            flatten_n [          ''generation_syntax [ deep''
+                      ,          ''                      (generation_semantics [ analysis (*, oid_start 10*) ])''
+                      ,          ''                      skip_export''
+                      , flatten [''                      (THEORY '', tree_name, ''_generated'', ''_'', comp, '')'']
+                      , flatten [''                      (IMPORTS ['',g,''../../../src/OCL_main'',g,'', '',g,''../../../src/OCL_class_diagram_static'',g,'']'']
+                      , flatten [''                               '',g,''../../../src/OCL_class_diagram_generator'',g,'')'']
+                      ,          ''                      SECTION''
+                      , flatten [''                      [ in '', comp, '' '', comp2, '' ]'']
+                      , flatten [''                      (output_directory '',g,''./doc'',g,'') ]''] ]
+        , flatten_n [ ''generation_syntax deep flush_all'' ])
+      , ( (''shallow'', [('''', '''')])
+        , flatten [ g,''../../src/OCL_main'',g, '' ''
+                  , g,''../../src/OCL_class_diagram_static'',g ]
+        , \<lambda>_ _. flatten_n [ ''generation_syntax [ shallow (generation_semantics [ analysis ]) ]'' ]
+        , ''Class.end'') ]))"
 
-definition "main sprintf_int write_file = print_abr sprintf_int write_file 
+definition "main sprintf_int write_file = print_abr sprintf_int write_file
   [ (1, 0)
   , (1, 1)
   , (1, 2)
