@@ -56,7 +56,9 @@ where "ocl_eq a b = ((a implies b) and (b implies a))"
 
 consts OclMinus\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r :: "('\<AA>)Integer \<Rightarrow> ('\<AA>)Integer \<Rightarrow> ('\<AA>)Integer" (infix "-\<^sub>o\<^sub>c\<^sub>l" 40)
 
-type_synonym real = int
+type_synonym Real = int
+type_synonym String = int
+type_synonym Integer' = int
 
 (* *)
 
@@ -71,27 +73,27 @@ generation_syntax [ deep
                   , shallow (generation_semantics [ analysis ]) ]
 
 Class Bank 
-  Attributes name : string
+  Attributes name : String
 End
 
 Class Client
-  Attributes nameclient : string
-             address : string
-             age : int
+  Attributes clientname : String
+             address : String
+             age : Integer'
 End
 
 Class Account
-  Attributes ident : int
-             solde : real
+  Attributes ident : Integer'
+             moneybalance : Real
 End
   
 Association clients
-  Between Bank [`*`] Role banks
+  Between Bank [1 `..` `*`] Role banks
           Client [1 `..` `*`] Role clients
 End
 
 Association accounts
-  Between Account [`*`] Role accounts
+  Between Account [1 `..` `*`] Role clientaccounts
           Client [1] Role owner
 End
 
@@ -101,22 +103,22 @@ Association bankaccounts
 End
 
 Class Savings < Account
-  Attributes maxsavings : real
+  Attributes maximum : Real
 End
 
 Class Checks < Account
-  Attributes allowances: real
+  Attributes overdraft: Real
 End
 
 Define_int [ 25, 250 ]
 
 Context c: Savings 
-  Inv A : `\<zero> <\<^sub>o\<^sub>c\<^sub>l (c .maxsavings)`
-  Inv B : `c .solde \<le>\<^sub>o\<^sub>c\<^sub>l (c .maxsavings) and \<zero> \<le>\<^sub>o\<^sub>c\<^sub>l (c .solde)`
+  Inv A : `\<zero> <\<^sub>o\<^sub>c\<^sub>l (c .maximum)`
+  Inv B : `c .moneybalance \<le>\<^sub>o\<^sub>c\<^sub>l (c .maximum) and \<zero> \<le>\<^sub>o\<^sub>c\<^sub>l (c .moneybalance)`
 
 Context c: Checks
-  Inv A : `\<two>\<five> <\<^sub>o\<^sub>c\<^sub>l (c .owner .age) implies (c .allowances \<doteq> \<zero>)`
-  Inv B : `c .owner .age \<le>\<^sub>o\<^sub>c\<^sub>l \<two>\<five> implies (c .allowances \<doteq> \<zero> -\<^sub>o\<^sub>c\<^sub>l \<two>\<five>\<zero>)`
+  Inv A : `\<two>\<five> <\<^sub>o\<^sub>c\<^sub>l (c .owner .age) implies (c .overdraft \<doteq> \<zero>)`
+  Inv B : `c .owner .age \<le>\<^sub>o\<^sub>c\<^sub>l \<two>\<five> implies (c .overdraft \<doteq> \<zero> -\<^sub>o\<^sub>c\<^sub>l \<two>\<five>\<zero>)`
 
 (*generation_syntax deep flush_all*)
 
