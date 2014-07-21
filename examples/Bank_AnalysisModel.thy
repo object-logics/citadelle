@@ -72,7 +72,7 @@ generation_syntax [ deep
                       (output_directory "../doc")
                   , shallow (generation_semantics [ analysis ]) ]
 
-Class Bank 
+Class Bank
   Attributes name : String
 End
 
@@ -86,7 +86,7 @@ Class Account
   Attributes ident : Integer'
              moneybalance : Real
 End
-  
+
 Association clients
   Between Bank [1 `..` `*`] Role banks
           Client [1 `..` `*`] Role clients
@@ -110,9 +110,25 @@ Class Checks < Account
   Attributes overdraft: Real
 End
 
-Define_int [ 25, 250 ]
+Define_int [ 25, 250, 2000 ]
 
-Context c: Savings 
+Instance Saving1 :: Account = ([ maximum = 2000 ] :: Savings)
+     and Client1 :: Client = [ clientaccounts = [ Saving1 ] , banks = Bank1 ]
+     and Account1 :: Account = [ ident = 250 , owner = Client1 ]
+     and Bank1 :: Bank = [ bankaccounts = [ Saving1 , Account1 ] ]
+
+Define_state \<sigma>\<^sub>1' =
+  [ defines [ Account1
+            , Client1 ]
+  , skip , skip , skip
+  , defines [ Bank1
+            , Saving1 ] ]
+
+Define_state ss = []
+
+Define_pre_post ss \<sigma>\<^sub>1'
+
+Context c: Savings
   Inv A : `\<zero> <\<^sub>o\<^sub>c\<^sub>l (c .maximum)`
   Inv B : `c .moneybalance \<le>\<^sub>o\<^sub>c\<^sub>l (c .maximum) and \<zero> \<le>\<^sub>o\<^sub>c\<^sub>l (c .moneybalance)`
 
