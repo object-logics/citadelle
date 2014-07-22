@@ -109,7 +109,7 @@ definition "ocl_compiler_config_more_map f ocl =
 
 subsection{* ... *}
 
-definition "class_unflat l =
+definition "class_unflat l_class l_ass =
  (let l =
     let rbt = (* fold classes:
                  set ''OclAny'' as default inherited class (for all classes linking to zero inherited classes) *)
@@ -119,9 +119,7 @@ definition "class_unflat l =
                 (List.fold
                   (\<lambda> cflat \<Rightarrow>
                     insert (ClassRaw_name cflat) (cflat \<lparr> ClassRaw_inh := case ClassRaw_inh cflat of None \<Rightarrow> Some const_oclany | x \<Rightarrow> x \<rparr>))
-                  (List.map_filter (\<lambda> OclAstClassRaw cflat \<Rightarrow> Some cflat
-                                    | OclAstAssClass (OclAssClass _ cflat) \<Rightarrow> Some cflat
-                                    | _ \<Rightarrow> None) l)
+                  l_class
                   empty) in
     (* fold associations:
        add remaining 'object' attributes *)
@@ -136,9 +134,7 @@ definition "class_unflat l =
                 (ocl_ty_class_node_ext cpt_to multip_to (Some role_to) name_to ())
                 ())) # ClassRaw_own cflat \<rparr>))
          | _ \<Rightarrow> \<lambda>_. id))
-        l_rel) (List_mapi Pair (List.map_filter (\<lambda> OclAstAssociation ass \<Rightarrow> Some ass
-                                                 | OclAstAssClass (OclAssClass ass _) \<Rightarrow> Some ass
-                                                 | _ \<Rightarrow> None) l)) rbt)) in
+        l_rel) (List_mapi Pair l_ass) rbt)) in
   class_unflat_aux
     (List.fold (\<lambda> cflat. insert (ClassRaw_name cflat) (ClassRaw_own cflat)) l empty)
     (List.fold (\<lambda> cflat. case ClassRaw_inh cflat of Some k \<Rightarrow> modify_def [] k (\<lambda>l. ClassRaw_name cflat # l) | _ \<Rightarrow> id) l empty)
@@ -3436,7 +3432,13 @@ definition "ocl_env_class_spec_mk f_try f_accu_reset f_fold f =
              | OclAstFlushAll univ \<Rightarrow> fold_thy0 univ thy_flush_all)
                   f)
            l_ocl
-           (let univ = class_unflat l_class
+           (let univ = class_unflat
+                         (List.map_filter (\<lambda> OclAstClassRaw cflat \<Rightarrow> Some cflat
+                                           | OclAstAssClass (OclAssClass _ cflat) \<Rightarrow> Some cflat
+                                           | _ \<Rightarrow> None) l_class)
+                         (List.map_filter (\<lambda> OclAstAssociation ass \<Rightarrow> Some ass
+                                           | OclAstAssClass (OclAssClass ass _) \<Rightarrow> Some ass
+                                           | _ \<Rightarrow> None) l_class)
               ; (ocl, accu) = fold_thy0 univ thy_class f (let ocl = ocl_compiler_config_reset_no_env ocl in
                                                           (ocl, f_accu_reset ocl accu)) in
             (ocl \<lparr> D_class_spec := Some univ \<rparr>, accu))))))"
