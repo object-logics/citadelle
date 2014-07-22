@@ -44,7 +44,7 @@
 header{* Part ... *}
 
 theory OCL_class_diagram_generator
-imports OCL_compiler
+imports OCL_compiler_printer
   keywords (* ocl (USE tool) *)
            "Between" "End"
            "Attributes" "Operations" "Constraints"
