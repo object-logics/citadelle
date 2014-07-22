@@ -94,7 +94,7 @@ code_reflect OCL
              write_file
 
              (* manipulating the compiling environment *)
-             ocl_compiler_config_reset_all oidInit D_file_out_path_dep_update map_ctxt2_term
+             ocl_compiler_config_reset_all oidInit D_file_out_path_dep_update map_ctxt2_term check_export_code
 
              (* printing the OCL AST to (deep Isabelle) string *)
              isabelle_apply isabelle_of_ocl_embed
@@ -153,6 +153,27 @@ fun in_local decl thy =
 
 ML{* fun List_mapi f = OCL.list_mapi (f o To_nat) *}
 
+ML{*
+structure Ty' = struct
+fun check l_oid l =
+  let val Mp = OCL.map_pair 
+      val Me = String.explode
+      val Mi = String.implode
+      val Mo = Option.map
+      val Ml = map in
+  OCL.check_export_code
+    (writeln o Mi)
+    (warning o Mi)
+    (writeln o Markup.markup Markup.bad o Mi)
+    (error o Mi)
+    (Ml (Mp Me Me)
+      l_oid)
+    (Ml (Mp (Mp I (Mp (Mo Me) (Mo Me))) (Mp I (Ml (Mp (Ml Me) (Ml Me)))))
+      l)
+  end
+end
+*}
+
 subsection{* General Compiling Process: Deep (with reflection) *}
 
 ML{*
@@ -164,8 +185,7 @@ fun apply_hs_code_identifiers ml_module thy =
     [ ( case Properties.get (snd (Theory.get_markup thy)) "name" of
                  SOME s => s
       , ml_module)
-    , ("OCL_compiler", ml_module)
-    , ("OCL_compiler_ast", ml_module)] thy end
+    , ("OCL_compiler", ml_module)] thy end
 
 val gen_empty = ""
 

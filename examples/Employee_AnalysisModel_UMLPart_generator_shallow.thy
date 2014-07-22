@@ -47,7 +47,6 @@ theory
   Employee_AnalysisModel_UMLPart_generator_shallow
 imports
   "../src/OCL_main"
-  "../src/OCL_class_diagram_static"
   "../src/OCL_class_diagram_generator"
 begin
 
