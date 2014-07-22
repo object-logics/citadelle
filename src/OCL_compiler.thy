@@ -55,8 +55,6 @@ begin
 section{* Preliminaries *}
 
 subsection{* Misc. (to be removed) *}
-type_synonym nat = natural
-
 definition "bug_ocaml_extraction = id"
 definition "bug_scala_extraction = id"
   (* In this theory, this identifier can be removed everywhere it is used.
