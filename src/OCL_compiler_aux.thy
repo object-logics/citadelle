@@ -47,6 +47,9 @@ theory OCL_compiler_aux
 imports "~~/src/HOL/Library/RBT"
         "~~/src/HOL/Library/Char_ord"
         "~~/src/HOL/Library/List_lexord"
+  keywords (* hol syntax *)
+           "fun_sorry" "fun_quick"
+           :: thy_decl
 begin
 
 section{* ... *}
@@ -149,5 +152,52 @@ definition "insert2 = (\<lambda>(x1, x2) v. modify_def empty x1 (insert x2 v))"
 definition "String_concatWith s =
  (\<lambda> [] \<Rightarrow> ''''
   | x # xs \<Rightarrow> flatten (flatten ([x] # List_map (\<lambda>s0. [s, s0]) xs)))"
+
+section{* Preliminaries *}
+
+subsection{* Misc. (to be removed) *}
+definition "bug_ocaml_extraction = id"
+definition "bug_scala_extraction = id"
+  (* In this theory, this identifier can be removed everywhere it is used.
+     However without this, there is a syntax error when the code is extracted to OCaml. *)
+
+subsection{* Infra-structure that skip lengthy termination proofs *}
+
+ML{*
+structure Fun_quick = struct
+val quick_dirty = false
+  (* false: "fun_quick" behaves as "fun"
+     true: "fun_quick" behaves as "fun", but it proves completeness and termination with "sorry" *)
+
+val proof_by_patauto = Proof.global_terminal_proof
+  ( ( Method.Then
+        [ Method.Basic (fn ctxt => SIMPLE_METHOD (Pat_Completeness.pat_completeness_tac ctxt 1) )
+        , Method.Basic (fn ctxt => SIMPLE_METHOD (auto_tac (ctxt addsimps [])))]
+    , (Position.none, Position.none))
+  , NONE)
+val proof_by_sorry = Proof.global_skip_proof true
+
+fun mk_fun quick_dirty cmd_spec tac =
+  Outer_Syntax.local_theory' cmd_spec
+    "define general recursive functions (short version)"
+    (Function_Common.function_parser
+      (if quick_dirty then
+         Function_Common.FunctionConfig { sequential=true, default=NONE
+                                        , domintros=false, partials=true}
+       else
+         Function_Fun.fun_config)
+      >> (if quick_dirty then
+            fn ((config, fixes), statements) => fn b => fn ctxt =>
+            ctxt |> Function.function_cmd fixes statements config b
+                 |> tac
+                 |> Function.termination_cmd NONE
+                 |> proof_by_sorry
+          else
+            fn ((config, fixes), statements) => Function_Fun.add_fun_cmd fixes statements config))
+
+val () = mk_fun quick_dirty @{command_spec "fun_quick"} proof_by_sorry
+val () = mk_fun true @{command_spec "fun_sorry"} proof_by_patauto
+end
+*}
 
 end
