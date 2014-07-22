@@ -69,6 +69,8 @@ lemmas substs4 = OCL_core.StrongEq_L_subst4_rev
                  
 lemmas substs = substs1 substs2 substs4 [THEN iffD2] substs4
 thm substs
+thm  OCL_core.foundation20
+find_theorems "_ \<Turnstile> \<delta> _"
 ML{*
 fun ocl_subst_asm_tac ctxt  = FIRST'(map (fn C => (etac C) THEN' (simp_tac ctxt)) 
                                          @{thms "substs"})
@@ -105,25 +107,50 @@ by(ocl_subst_asm, simp)
 lemma test7 : "\<not> (\<tau> \<Turnstile> (\<upsilon> A)) \<Longrightarrow> \<tau> \<Turnstile> (not B) \<Longrightarrow> \<not> (\<tau> \<Turnstile> (A and B))"
 by(ocl_subst_asm,ocl_subst_asm,simp)
 
+
+lemma bool_split': "(\<tau> \<Turnstile> \<upsilon> A) = ((\<tau> \<Turnstile> A \<triangleq> null) \<or> (\<tau> \<Turnstile> A) \<or> (\<tau> \<Turnstile> not A)) "
+apply(insert bool_split[of A \<tau>], simp add: foundation18, elim disjE, simp_all)
+apply(simp add:OclValid_def StrongEq_def)
+apply(simp_all add:true_def false_def invalid_def null_def null_fun_def null_option_def bot_option_def OclValid_def OclNot_def)
+apply(simp_all add:StrongEq_def)
+done
+
+
+lemma bool_split'': "(\<tau> \<Turnstile> \<delta> A) = ((\<tau> \<Turnstile> A) \<or> (\<tau> \<Turnstile> not A))"
+apply(auto simp:OCL_core.foundation16')
+apply(insert foundation8[of \<tau> A], auto)
+apply(auto simp:true_def false_def invalid_def null_def null_fun_def null_option_def bot_option_def OclValid_def OclNot_def)
+done
+
+
+(* a proof that shows that not everything is humpty dumpty ... *)
 lemma X: "\<not> (\<tau> \<Turnstile> (invalid and B))"
-oops
+apply(insert OCL_core.foundation8[of "\<tau>" "B"], elim disjE, simp add:bool_split'', elim disjE)
+apply(ocl_subst_asm, simp)
+apply(ocl_subst_asm, simp)
+apply(ocl_subst_asm, simp)
+apply(ocl_subst_asm, simp)
+done
 
+(* easier is: *)
+(* just to show the power of this extremely useful foundational rule:*)
+lemma X': "\<not> (\<tau> \<Turnstile> (invalid and B))"
+by(simp add:foundation10')
 lemma Y: "\<not> (\<tau> \<Turnstile> (null and B))"
-oops
-
+by(simp add: foundation10')
 lemma Z: "\<not> (\<tau> \<Turnstile> (false and B))"
-oops
+by(simp add: foundation10')
+lemma Z': "(\<tau> \<Turnstile> (true and B)) = (\<tau> \<Turnstile> B)"
+by(simp)
 
-lemma Z: "(\<tau> \<Turnstile> (true and B)) = (\<tau> \<Turnstile> B)"
-oops
 
- (* TODO : establish tactic support for ocl_subst thm1 ... thmn
-    (argument line version)
- *)
+
+(* TODO : establish tactic support for ocl_subst thm1 ... thmn
+   (argument line version) *)
  
- (* TODO : Implement delta-closure procedure *)
+(* TODO : Implement delta-closure procedure *)
  
- (* TODO : Implement ocl_smt *)
+(* TODO : Implement ocl_smt *)
 
  
 end
