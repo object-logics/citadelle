@@ -173,4 +173,41 @@ datatype hol_thy = Theory_dataty hol_dataty
                  | Theory_ml hol_ml
                  | Theory_thm hol_thm
 
+section{* ... *}
+
+definition "thm_OF s l = List.fold (\<lambda>x acc. Thm_OF acc x) l s"
+definition "thm_simplified s l = List.fold (\<lambda>x acc. Thm_simplified acc x) l s"
+definition "Expr_annot e s = Expr_annot0 e (Ty_base s)"
+definition "Expr_lambdas = Expr_bind unicode_lambda"
+definition "Expr_lambda x = Expr_lambdas [x]"
+definition "Expr_lambdas0 = Expr_bind0 unicode_lambda"
+definition "Expr_lam x f = Expr_lambdas0 (Expr_basic [x]) (f x)"
+definition "Expr_some = Expr_paren unicode_lfloor unicode_rfloor"
+definition "Expr_parenthesis (* mandatory parenthesis *) = Expr_paren ''('' '')''"
+definition "Expr_warning_parenthesis (* optional parenthesis that can be removed but a warning will be raised *) = Expr_parenthesis"
+definition "Expr_pat b = Expr_basic [Char Nibble3 NibbleF # b]"
+definition "Expr_And x f = Expr_bind0 unicode_And (Expr_basic [x]) (f x)"
+definition "Expr_exists x f = Expr_bind0 unicode_exists (Expr_basic [x]) (f x)"
+definition "expr_binop s l = (case rev l of x # xs \<Rightarrow> List.fold (\<lambda>x. Expr_binop x s) xs x)"
+definition "expr_binop' s l = (case rev l of x # xs \<Rightarrow> List.fold (\<lambda>x. Expr_parenthesis o Expr_binop x s) xs x)"
+definition "Expr_set l = (case l of [] \<Rightarrow> Expr_basic [''{}''] | _ \<Rightarrow> Expr_paren ''{'' ''}'' (expr_binop '','' l))"
+definition "Expr_oclset l = (case l of [] \<Rightarrow> Expr_basic [''Set{}''] | _ \<Rightarrow> Expr_paren ''Set{'' ''}'' (expr_binop '','' l))"
+definition "Expr_list l = (case l of [] \<Rightarrow> Expr_basic [''[]''] | _ \<Rightarrow> Expr_paren ''['' '']'' (expr_binop '','' l))"
+definition "Expr_list' f l = Expr_list (List_map f l)"
+definition "Expr_pair e1 e2 = Expr_parenthesis (Expr_binop e1 '','' e2)"
+definition "Expr_string s = Expr_basic [flatten [[Char Nibble2 Nibble2], s, [Char Nibble2 Nibble2]]]"
+definition "Consts_value = ''(_)''"
+definition "Consts_raw0 s l e o_arg = Consts_raw s l (e @@ (case o_arg of
+         None \<Rightarrow> ''''
+       | Some arg \<Rightarrow>
+           let ap = \<lambda>s. '''('' @@ s @@ ''')'' in
+           ap (if arg = 0 then
+                ''''
+              else
+                Consts_value @@ (flatten (List_map (\<lambda>_. '','' @@ Consts_value) (List_upto 2 arg))))))"
+definition "Consts s l e = Consts_raw0 s (Ty_arrow (Ty_base (Char Nibble2 Nibble7 # unicode_alpha)) l) e None"
+definition "Tac_subst = Tac_subst_l [''0'']"
+definition "Tac_auto = Tac_auto_simp_add []"
+definition "ty_arrow l = (case rev l of x # xs \<Rightarrow> List.fold Ty_arrow xs x)"
+
 end

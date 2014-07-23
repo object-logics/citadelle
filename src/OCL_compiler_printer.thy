@@ -332,6 +332,66 @@ definition "s_of_sexpr_extended = (\<lambda>
      (Sexpr_apply ''Generation_mode.update_compiler_config''
        [Sexpr_apply ''K'' [Sexpr_let_open ''OCL'' (Sexpr_basic [sml_of_ocl_unit sml_apply id ocl])]]))"
 
+definition "s_of_section_title ocl = (\<lambda> Section_title n section_title \<Rightarrow>
+  if D_disable_thy_output ocl then
+    STR ''''
+  else
+    sprintf2 (STR ''%s{* %s *}'')
+      (To_string ((if n = 0 then ''''
+                   else if n = 1 then ''sub''
+                   else ''subsub'') @@ ''section''))
+      (To_string section_title))"
+
+definition "s_of_ctxt2_term = (\<lambda> T_pure pure \<Rightarrow> s_of_pure_term pure
+                               | T_to_be_parsed s \<Rightarrow> To_string s)"
+
+definition "s_of_ocl_deep_embed_ast _ =
+ (\<lambda> OclAstCtxt2PrePost ctxt \<Rightarrow>
+      sprintf5 (STR ''Context[shallow] %s :: %s (%s) : %s
+%s'')
+        (To_string (Ctxt_ty ctxt))
+        (To_string (Ctxt_fun_name ctxt))
+        (String_concat (STR '', '')
+          (List_map
+            (\<lambda> (s, ty). sprintf2 (STR ''%s : %s'') (To_string s) (To_string (str_of_ty ty)))
+            (Ctxt_fun_ty_arg ctxt)))
+        (case Ctxt_fun_ty_out ctxt of None \<Rightarrow> STR ''Void''
+                                     | Some ty \<Rightarrow> To_string (str_of_ty ty))
+        (String_concat (STR ''
+'')
+          (List_map
+            (\<lambda> (pref, s). sprintf2 (STR ''  %s : `%s`'')
+              (case pref of OclCtxtPre \<Rightarrow> STR ''Pre''
+                          | OclCtxtPost \<Rightarrow> STR ''Post'')
+              (s_of_ctxt2_term s))
+            (Ctxt_expr ctxt)))
+  | OclAstCtxt2Inv ctxt \<Rightarrow>
+      sprintf2 (STR ''Context[shallow] %s
+%s'')
+        (To_string (Ctxt_inv_ty ctxt))
+        (String_concat (STR ''
+'')
+          (List_map
+            (\<lambda> (n, s). sprintf2 (STR ''  Inv %s : `%s`'')
+              (To_string n)
+              (s_of_ctxt2_term s))
+            (Ctxt_inv_expr ctxt))))"
+
+definition "s_of_thy ocl =
+            (\<lambda> Theory_dataty dataty \<Rightarrow> s_of_dataty ocl dataty
+             | Theory_ty_synonym ty_synonym \<Rightarrow> s_of_ty_synonym ocl ty_synonym
+             | Theory_instantiation_class instantiation_class \<Rightarrow> s_of_instantiation_class ocl instantiation_class
+             | Theory_defs_overloaded defs_overloaded \<Rightarrow> s_of_defs_overloaded ocl defs_overloaded
+             | Theory_consts_class consts_class \<Rightarrow> s_of_consts_class ocl consts_class
+             | Theory_definition_hol definition_hol \<Rightarrow> s_of_definition_hol ocl definition_hol
+             | Theory_lemmas_simp lemmas_simp \<Rightarrow> s_of_lemmas_simp ocl lemmas_simp
+             | Theory_lemma_by lemma_by \<Rightarrow> s_of_lemma_by ocl lemma_by
+             | Theory_axiom axiom \<Rightarrow> s_of_axiom ocl axiom
+             | Theory_section_title section_title \<Rightarrow> s_of_section_title ocl section_title
+             | Theory_text text \<Rightarrow> s_of_text ocl text
+             | Theory_ml ml \<Rightarrow> s_of_ml ocl ml
+             | Theory_thm thm \<Rightarrow> s_of_thm ocl thm)"
+
 definition "s_of_generation_syntax _ = (\<lambda> Generation_syntax_shallow mode \<Rightarrow>
   sprintf1 (STR ''generation_syntax [ shallow (generation_semantics [ %s ]) ]'') (case mode of Gen_design \<Rightarrow> STR ''design'' | Gen_analysis \<Rightarrow> STR ''analysis''))"
 

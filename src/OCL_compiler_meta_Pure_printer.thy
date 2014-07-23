@@ -44,8 +44,20 @@
 header{* Part ... *}
 
 theory  OCL_compiler_meta_Pure_printer
-imports OCL_compiler_meta_UML
-        OCL_compiler_meta_Isabelle
+imports OCL_compiler_printer_aux
+        OCL_compiler_meta_Pure
 begin
+
+
+subsection{* s of ... *} (* s_of *)
+
+context s_of
+begin
+fun_quick s_of_pure_term where "s_of_pure_term e = (\<lambda>
+    PureConst s _ \<Rightarrow> To_string s
+  | PureFree s _ \<Rightarrow> To_string s
+  | PureApp t1 t2 \<Rightarrow> sprintf2 (STR ''(%s) (%s)'') (s_of_pure_term t1) (s_of_pure_term t2)) e"
+
+end
 
 end

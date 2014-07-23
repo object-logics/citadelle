@@ -200,4 +200,107 @@ val () = mk_fun true @{command_spec "fun_sorry"} proof_by_patauto
 end
 *}
 
+section{* ...  *}
+
+subsection{* ... *}
+
+definition "wildcard = ''_''"
+
+definition "escape_unicode c = flatten [[Char Nibble5 NibbleC], ''<'', c, ''>'']"
+
+definition "isub_of_str = flatten o List_map (\<lambda>c. escape_unicode ''^sub'' @@ [c])"
+definition "isup_of_str = flatten o List_map (\<lambda>c. escape_unicode [char_of_nat (nat_of_char c - 32)])"
+definition "lowercase_of_str = List_map (\<lambda>c. let n = nat_of_char c in if n < 97 then char_of_nat (n + 32) else c)"
+definition "uppercase_of_str = List_map (\<lambda>c. let n = nat_of_char c in if n < 97 then c else char_of_nat (n - 32))"
+definition "number_of_str = flatten o List_map (\<lambda>c. escape_unicode ([''zero'', ''one'', ''two'', ''three'', ''four'', ''five'', ''six'', ''seven'', ''eight'', ''nine''] ! (nat_of_char c - 48)))"
+definition "nat_raw_of_str = List_map (\<lambda>i. char_of_nat (nat_of_char (Char Nibble3 Nibble0) + i))"
+fun_quick nat_of_str_aux where
+   "nat_of_str_aux l (n :: Nat.nat) = (if n < 10 then n # l else nat_of_str_aux (n mod 10 # l) (n div 10))"
+definition "nat_of_str n = nat_raw_of_str (nat_of_str_aux [] n)"
+definition "natural_of_str = nat_of_str o nat_of_natural"
+
+definition "mk_constr_name name = (\<lambda> x. flatten [isub_of_str name, ''_'', isub_of_str x])"
+definition "mk_dot s1 s2 = flatten [''.'', s1, s2]"
+definition "mk_dot_par_gen dot l_s = flatten [dot, ''('', case l_s of [] \<Rightarrow> '''' | x # xs \<Rightarrow> flatten [x, flatten (List_map (\<lambda>s. '', '' @@ s) xs) ], '')'']"
+definition "mk_dot_par dot s = mk_dot_par_gen dot [s]"
+definition "mk_dot_comment s1 s2 s3 = mk_dot s1 (flatten [s2, '' /*'', s3, ''*/''])"
+
+definition "hol_definition s = flatten [s, ''_def'']"
+definition "hol_split s = flatten [s, ''.split'']"
+
+subsection{* ... *}
+
+definition "ty_boolean = ''Boolean''"
+
+definition "unicode_AA = escape_unicode ''AA''"
+definition "unicode_alpha = escape_unicode ''alpha''"
+definition "unicode_and = escape_unicode ''and''"
+definition "unicode_And = escape_unicode ''And''"
+definition "unicode_bottom = escape_unicode ''bottom''"
+definition "unicode_circ = escape_unicode ''circ''"
+definition "unicode_delta = escape_unicode ''delta''"
+definition "unicode_doteq = escape_unicode ''doteq''"
+definition "unicode_equiv = escape_unicode ''equiv''"
+definition "unicode_exists = escape_unicode ''exists''"
+definition "unicode_forall = escape_unicode ''forall''"
+definition "unicode_in = escape_unicode ''in''"
+definition "unicode_lambda = escape_unicode ''lambda''"
+definition "unicode_lceil = escape_unicode ''lceil''"
+definition "unicode_lfloor = escape_unicode ''lfloor''"
+definition "unicode_longrightarrow = escape_unicode ''longrightarrow''"
+definition "unicode_Longrightarrow = escape_unicode ''Longrightarrow''"
+definition "unicode_mapsto = escape_unicode ''mapsto''"
+definition "unicode_noteq = escape_unicode ''noteq''"
+definition "unicode_not = escape_unicode ''not''"
+definition "unicode_or = escape_unicode ''or''"
+definition "unicode_rceil = escape_unicode ''rceil''"
+definition "unicode_rfloor = escape_unicode ''rfloor''"
+definition "unicode_Rightarrow = escape_unicode ''Rightarrow''"
+definition "unicode_subseteq = escape_unicode ''subseteq''"
+definition "unicode_tau = escape_unicode ''tau''"
+definition "unicode_times = escape_unicode ''times''"
+definition "unicode_triangleq = escape_unicode ''triangleq''"
+definition "unicode_Turnstile = escape_unicode ''Turnstile''"
+definition "unicode_upsilon = escape_unicode ''upsilon''"
+
+definition "const_oclastype = ''OclAsType''"
+definition "const_oclistypeof = ''OclIsTypeOf''"
+definition "const_ocliskindof = ''OclIsKindOf''"
+definition "const_mixfix dot_ocl name = (let t = \<lambda>s. Char Nibble2 Nibble7 # s in
+                                         flatten [dot_ocl, t ''('', name, t '')''])"
+definition "const_oid_of s = flatten [''oid_of_'', s]"
+definition "dot_oclastype = ''.oclAsType''"
+definition "dot_oclistypeof = ''.oclIsTypeOf''"
+definition "dot_ocliskindof = ''.oclIsKindOf''"
+definition "dot_astype = mk_dot_par dot_oclastype"
+definition "dot_istypeof = mk_dot_par dot_oclistypeof"
+definition "dot_iskindof = mk_dot_par dot_ocliskindof"
+
+definition "var_in_pre_state = ''in_pre_state''"
+definition "var_in_post_state = ''in_post_state''"
+definition "var_reconst_basetype = ''reconst_basetype''"
+definition "var_oid_uniq = ''oid''"
+definition "var_eval_extract = ''eval_extract''"
+definition "var_deref = ''deref''"
+definition "var_deref_oid = ''deref_oid''"
+definition "var_deref_assocs = ''deref_assocs''"
+definition "var_deref_assocs_list = ''deref_assocs_list''"
+definition "var_inst_assoc = ''inst_assoc''"
+definition "var_select = ''select''"
+definition "var_select_object = ''select_object''"
+definition "var_select_object_set = ''select_object_set''"
+definition "var_select_object_set_any = ''select_object_set_any''"
+definition "var_choose = ''choose''"
+definition "var_switch = ''switch''"
+definition "var_assocs = ''assocs''"
+definition "var_map_of_list = ''map_of_list''"
+definition "var_at_when_hol_post = ''''"
+definition "var_at_when_hol_pre = ''at_pre''"
+definition "var_at_when_ocl_post = ''''"
+definition "var_at_when_ocl_pre = ''@pre''"
+definition "var_OclInt = ''OclInt''"
+
+definition "update_D_accessor_rbt_pre f = (\<lambda>(l_pre, l_post). (f l_pre, l_post))"
+definition "update_D_accessor_rbt_post f = (\<lambda>(l_pre, l_post). (l_pre, f l_post))"
+
 end

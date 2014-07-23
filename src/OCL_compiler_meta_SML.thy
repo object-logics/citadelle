@@ -62,4 +62,17 @@ datatype sml_expr = Sexpr_string "string list"
                   | Sexpr_paren string (* left *) string (* right *) sml_expr
                   | Sexpr_let_open string sml_expr
 
+section{* ... *}
+
+definition "Sexpr_none = Sexpr_basic [''NONE'']"
+definition "Sexpr_some s = Sexpr_apply ''SOME'' [s]"
+definition "Sexpr_option' f l = (case Option.map f l of None \<Rightarrow> Sexpr_none | Some s \<Rightarrow> Sexpr_some s)"
+definition "Sexpr_option = Sexpr_option' id"
+definition "Sexpr_parenthesis (* mandatory parenthesis *) = Sexpr_paren ''('' '')''"
+definition "sexpr_binop s l = (case rev l of x # xs \<Rightarrow> List.fold (\<lambda>x. Sexpr_binop x s) xs x)"
+definition "Sexpr_list l = (case l of [] \<Rightarrow> Sexpr_basic [''[]''] | _ \<Rightarrow> Sexpr_paren ''['' '']'' (sexpr_binop '','' l))"
+definition "Sexpr_list' f l = Sexpr_list (List_map f l)"
+definition "Sexpr_pair e1 e2 = Sexpr_parenthesis (Sexpr_binop e1 '','' e2)"
+definition "Sexpr_pair' f1 f2 = (\<lambda> (e1, e2) \<Rightarrow> Sexpr_parenthesis (Sexpr_binop (f1 e1) '','' (f2 e2)))"
+
 end
