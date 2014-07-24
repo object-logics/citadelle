@@ -3,7 +3,7 @@
  *                       for the OMG Standard.
  *                       http://www.brucker.ch/projects/hol-testgen/
  *
- * OCL_compiler_meta_UML_printer.thy ---
+ * OCL_compiler_printer_UML.thy ---
  * This file is part of HOL-TestGen.
  *
  * Copyright (c) 2013-2014 Universite Paris-Sud, France
@@ -43,7 +43,7 @@
 
 header{* Part ... *}
 
-theory  OCL_compiler_meta_UML_printer
+theory  OCL_compiler_printer_UML
 imports OCL_compiler_meta_UML
 begin
 

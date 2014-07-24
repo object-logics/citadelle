@@ -3,7 +3,7 @@
  *                       for the OMG Standard.
  *                       http://www.brucker.ch/projects/hol-testgen/
  *
- * OCL_compiler_printer_aux.thy ---
+ * OCL_compiler_printer_init.thy ---
  * This file is part of HOL-TestGen.
  *
  * Copyright (c) 2013-2014 Universite Paris-Sud, France
@@ -43,8 +43,8 @@
 
 header{* Part ... *}
 
-theory  OCL_compiler_printer_aux
-imports OCL_compiler_aux
+theory  OCL_compiler_printer_init
+imports OCL_compiler_init
   keywords (* hol syntax *)
            "lazy_code_printing" "apply_code_printing" "apply_code_printing_reflect"
            :: thy_decl

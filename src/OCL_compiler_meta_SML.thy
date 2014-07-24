@@ -44,7 +44,7 @@
 header{* Part ... *}
 
 theory  OCL_compiler_meta_SML
-imports OCL_compiler_aux
+imports OCL_compiler_init
 begin
 
 section{* SML Meta-Model aka. AST definition of SML *}

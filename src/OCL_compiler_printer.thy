@@ -45,8 +45,8 @@ header{* Part ... *}
 
 theory  OCL_compiler_printer
 imports OCL_compiler_core
-        OCL_compiler_meta_UML_printer
-        OCL_compiler_meta_Isabelle_printer
+        OCL_compiler_printer_UML
+        OCL_compiler_printer_Isabelle
 begin
 
 section{* Generation to both Form (setup part) *}
