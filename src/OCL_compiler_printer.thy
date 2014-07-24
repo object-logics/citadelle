@@ -490,30 +490,4 @@ lemmas [code] =
   s_of.s_of_tactic.simps
   s_of.s_of_sexpr.simps
 
-subsection{* General Compiling Process: Test Scenario: Deep (without reflection) *}
-
-definition "Employee_DesignModel_UMLPart =
-  [ ocl_class_raw.make ''Galaxy'' [(''sound'', OclTy_raw ''unit''), (''moving'', OclTy_raw ''bool'')] None
-  , ocl_class_raw.make ''Planet'' [(''weight'', OclTy_raw ''nat'')] (Some ''Galaxy'')
-  , ocl_class_raw.make ''Person'' [(''salary'', OclTy_raw ''int'')] (Some ''Planet'') ]"
-
-definition "main = write_file
- (ocl_compiler_config.extend
-   (ocl_compiler_config_empty True None (oidInit (Oid 0)) Gen_design
-      \<lparr> D_disable_thy_output := False
-      , D_file_out_path_dep := Some (''Employee_DesignModel_UMLPart_generated''
-                                    ,[''../src/OCL_main'']
-                                    ,''../src/OCL_class_diagram_generator'') \<rparr>)
-   ( List_map OclAstClassRaw Employee_DesignModel_UMLPart
-     @@ [ OclAstAssociation (ocl_association.make OclAssTy_association
-            [ (''Person'', OclMult [(Mult_star, None)], None)
-            , (''Person'', OclMult [(Mult_nat 0, Some (Mult_nat 1))], Some ''boss'')])
-        , OclAstFlushAll OclFlushAll]
-   , None))"
-(*
-apply_code_printing ()
-export_code main
-  in OCaml module_name M
-  (no_signatures)
-*)
 end
