@@ -3,7 +3,7 @@
  *                       for the OMG Standard.
  *                       http://www.brucker.ch/projects/hol-testgen/
  *
- * OCL_class_diagram_generator_text.thy ---
+ * OCL_compiler_aux_text.thy ---
  * This file is part of HOL-TestGen.
  *
  * Copyright (c) 2014 Universite Paris-Sud, France
@@ -43,7 +43,7 @@
 
 header{* Part ... *}
 
-theory OCL_class_diagram_generator_text
+theory OCL_compiler_aux_text
 imports Main
   keywords "lazy_text" :: thy_decl
        and "reset_text" :: thy_decl
