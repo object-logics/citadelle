@@ -47,7 +47,7 @@ theory
   Employee_DesignModel_UMLPart_generator_shallow
 imports
   "../src/OCL_main"
-  "../src/OCL_class_diagram_generator"
+  "../src/OCL_compiler_generator_dynamic"
 begin
 
 generation_syntax [ shallow (generation_semantics [ design ]) ]

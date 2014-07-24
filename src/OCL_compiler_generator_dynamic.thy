@@ -3,7 +3,7 @@
  *                       for the OMG Standard.
  *                       http://www.brucker.ch/projects/hol-testgen/
  *
- * OCL_class_diagram_generator.thy ---
+ * OCL_compiler_generator_dynamic.thy ---
  * This file is part of HOL-TestGen.
  *
  * Copyright (c) 2013-2014 Universite Paris-Sud, France
@@ -43,7 +43,7 @@
 
 header{* Part ... *}
 
-theory OCL_class_diagram_generator
+theory OCL_compiler_generator_dynamic
 imports OCL_compiler_printer
   keywords (* ocl (USE tool) *)
            "Between" "End"
@@ -431,7 +431,7 @@ fun export_code_tmp_file seris g =
   fold
     (fn ((ml_compiler, ml_module), export_arg) => fn f => fn g =>
       f (fn accu =>
-        let val tmp_name = "OCL_class_diagram_generator" in
+        let val tmp_name = "OCL_compiler_generator_dynamic" in
         (if Deep0.find_export_mode ml_compiler = Deep0.Export_code_env.Directory then
            Isabelle_System.with_tmp_dir tmp_name
          else

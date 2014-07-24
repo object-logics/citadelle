@@ -46,14 +46,14 @@ header{* Part ... *}
 theory
   Employee_DesignModel_UMLPart_generator_deep
 imports
-  "../src/OCL_class_diagram_generator"
+  "../src/OCL_compiler_generator_dynamic"
 begin
 
 generation_syntax [ deep
                       (generation_semantics [ design (*, oid_start 10*) ])
                       (THEORY Employee_DesignModel_UMLPart_generated)
                       (IMPORTS ["../src/OCL_main"]
-                               "../src/OCL_class_diagram_generator")
+                               "../src/OCL_compiler_generator_dynamic")
                       SECTION
                       [ in SML module_name M (no_signatures) ]
                       (output_directory "../doc") ]

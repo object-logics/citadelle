@@ -44,7 +44,7 @@
 header{* Part ... *}
 
 theory  Class_model
-imports "../../src/OCL_compiler_aux"
+imports "../../src/OCL_compiler_init"
         "~~/src/HOL/Library/Code_Char"
 begin
 
@@ -142,7 +142,7 @@ definition "print_abr sprintf_int write_file =
             write_file
               (flatten [filename, ''.thy''])
               (flatten
-                [ [ flatten [''theory '', filename, '' imports '', gen_import, '' '',g,''../../src/OCL_class_diagram_generator'',g,'' begin'']
+                [ [ flatten [''theory '', filename, '' imports '', gen_import, '' '',g,''../../src/OCL_compiler_generator_dynamic'',g,'' begin'']
                   , gen_init comp comp2]
                 , body
                 , [ ''''
@@ -162,7 +162,7 @@ definition "print_abr sprintf_int write_file =
                       ,          ''                      skip_export''
                       , flatten [''                      (THEORY '', tree_name, ''_generated'', ''_'', comp, '')'']
                       , flatten [''                      (IMPORTS ['',g,''../../../src/OCL_main'',g,'']'']
-                      , flatten [''                               '',g,''../../../src/OCL_class_diagram_generator'',g,'')'']
+                      , flatten [''                               '',g,''../../../src/OCL_compiler_generator_dynamic'',g,'')'']
                       ,          ''                      SECTION''
                       , flatten [''                      [ in '', comp, '' '', comp2, '' ]'']
                       , flatten [''                      (output_directory '',g,''./doc'',g,'') ]''] ]

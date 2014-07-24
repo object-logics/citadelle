@@ -47,7 +47,7 @@ theory
   Bank_AnalysisModel
 imports
   "../src/OCL_main"
-  "../src/OCL_class_diagram_generator"
+  "../src/OCL_compiler_generator_dynamic"
 begin
 
 definition ocl_eq (infixl "equiv" 30)
@@ -65,7 +65,7 @@ generation_syntax [ deep
                       (generation_semantics [ analysis (*, oid_start 10*) ])
                       (THEORY Bank_AnalysisModel_generated)
                       (IMPORTS ["../src/OCL_main"]
-                               "../src/OCL_class_diagram_generator")
+                               "../src/OCL_compiler_generator_dynamic")
                       SECTION
                       [ in SML module_name M (no_signatures) ]
                       (output_directory "../doc")
