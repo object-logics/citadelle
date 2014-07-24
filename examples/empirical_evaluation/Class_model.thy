@@ -101,8 +101,6 @@ fun str_of_nat10_aux where (* FIXME merge polymorphically *)
 definition "str26_of_nat n = nat_raw_of_str26 (str_of_nat26_aux [] n)"
 definition "str10_of_nat n = nat_raw_of_str10 (str_of_nat10_aux [] n)"
 
-definition "uppercase_of_str = List_map (\<lambda>c. let n = nat_of_char c in if n < 97 then c else char_of_nat (n - 32))"
-
 definition "string26_of_nat n =
  (let n = n - 1
     ; s1 = str26_of_nat n in
