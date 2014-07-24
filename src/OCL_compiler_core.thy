@@ -3,7 +3,7 @@
  *                       for the OMG Standard.
  *                       http://www.brucker.ch/projects/hol-testgen/
  *
- * OCL_compiler.thy ---
+ * OCL_compiler_core.thy ---
  * This file is part of HOL-TestGen.
  *
  * Copyright (c) 2013-2014 Universite Paris-Sud, France
@@ -43,7 +43,7 @@
 
 header{* Part ... *}
 
-theory  OCL_compiler
+theory  OCL_compiler_core
 imports OCL_compiler_meta_UML
         OCL_compiler_meta_Isabelle
         "~~/src/HOL/Library/Code_Char"
