@@ -1151,6 +1151,13 @@ apply(simp add: def_split_local )
 by(auto simp: OclNot_def null_fun_def null_option_def bot_option_def
                  OclValid_def invalid_def true_def null_def StrongEq_def)
 
+lemma foundation9':
+"            \<tau> \<Turnstile> not x \<Longrightarrow> \<not> (\<tau> \<Turnstile> x)"
+by(auto simp: foundation6 foundation9)
+
+lemma foundation9'':
+"            \<tau> \<Turnstile> not x \<Longrightarrow> \<tau> \<Turnstile> \<delta> x"
+by(metis OclNot3 OclNot_not OclValid_def cp_OclNot cp_defined defined4)
 
 lemma foundation10:
 "\<tau> \<Turnstile> \<delta> x \<Longrightarrow> \<tau> \<Turnstile> \<delta> y \<Longrightarrow> (\<tau> \<Turnstile> (x and y)) = ( (\<tau> \<Turnstile> x) \<and> (\<tau> \<Turnstile> y))"
@@ -1172,11 +1179,11 @@ by(auto simp: OclNot_def OclOr_def OclAnd_def OclValid_def invalid_def
 
 
 lemma foundation12:
-"\<tau> \<Turnstile> \<delta> x \<Longrightarrow>  \<tau> \<Turnstile> \<delta> y \<Longrightarrow> (\<tau> \<Turnstile> (x implies y)) = ( (\<tau> \<Turnstile> x) \<longrightarrow> (\<tau> \<Turnstile> y))"
+"\<tau> \<Turnstile> \<delta> x \<Longrightarrow> (\<tau> \<Turnstile> (x implies y)) = ( (\<tau> \<Turnstile> x) \<longrightarrow> (\<tau> \<Turnstile> y))"
 apply(simp add: def_split_local)
 by(auto simp: OclNot_def OclOr_def OclAnd_def OclImplies_def bot_option_def
               OclValid_def invalid_def true_def null_def StrongEq_def null_fun_def null_option_def
-        split:bool.split_asm bool.split)
+        split:bool.split_asm bool.split option.split_asm)
 
 lemma foundation13:"(\<tau> \<Turnstile> A \<triangleq> true)    = (\<tau> \<Turnstile> A)"
 by(auto simp: OclNot_def  OclValid_def invalid_def true_def null_def StrongEq_def
