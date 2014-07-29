@@ -439,7 +439,7 @@ shows "((X::Person) .oclAsType(OclAny) .oclAsType(Person) = X)"
  apply(rule ext, rename_tac \<tau>)
  apply(rule foundation22[THEN iffD1])
  apply(case_tac "\<tau> \<Turnstile> (\<delta> X)", simp add: up_down_cast)
- apply(simp add: def_split_local, elim disjE)
+ apply(simp add: OCL_core.defined_split, elim disjE)
  apply(erule StrongEq_L_subst2_rev, simp, simp)+
 done
 

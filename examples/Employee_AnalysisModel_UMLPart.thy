@@ -443,7 +443,7 @@ shows "((X::Person) .oclAsType(OclAny) .oclAsType(Person) = X)"
  apply(rule ext, rename_tac \<tau>)
  apply(rule foundation22[THEN iffD1])
  apply(case_tac "\<tau> \<Turnstile> (\<delta> X)", simp add: up_down_cast)
- apply(simp add: def_split_local, elim disjE)
+ apply(simp add: OCL_core.defined_split, elim disjE)
  apply(erule StrongEq_L_subst2_rev, simp, simp)+
 done
 
@@ -564,15 +564,15 @@ subsection{* Up Down Casting *}
 
 lemma actualKind_larger_staticKind:
 assumes isdef: "\<tau> \<Turnstile> (\<delta> X)"
-shows          "\<tau> \<Turnstile> (X::Person) .oclIsKindOf(OclAny) \<triangleq> true"
+shows          "\<tau> \<Turnstile>  ((X::Person) .oclIsKindOf(OclAny) \<triangleq> true)"
 using isdef
 by(auto simp : bot_option_def
                OclIsKindOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_Person foundation22 foundation16)
 
 lemma down_cast_kind:
-assumes isOclAny: "\<not> \<tau> \<Turnstile> (X::OclAny) .oclIsKindOf(Person)"
+assumes isOclAny: "\<not> (\<tau> \<Turnstile> ((X::OclAny).oclIsKindOf(Person)))"
 and     non_null: "\<tau> \<Turnstile> (\<delta> X)"
-shows             "\<tau> \<Turnstile> (X .oclAsType(Person)) \<triangleq> invalid"
+shows             "\<tau> \<Turnstile> ((X .oclAsType(Person)) \<triangleq> invalid)"
 using isOclAny non_null
 apply(auto simp : bot_fun_def null_fun_def null_option_def bot_option_def null_def invalid_def
                   OclAsType\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_Person OclAsType\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_OclAny foundation22 foundation16
