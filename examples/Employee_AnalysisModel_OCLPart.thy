@@ -168,9 +168,8 @@ axiomatization where dot_insert_def:
 (*
 lemma H : "(\<tau> \<Turnstile> (self).insert(x) \<triangleq> result)"
  nitpick
-thm dot_insert_def
-oops
-takes too long...
+ oops
+ takes too long...
 *)
 
 
