@@ -42,7 +42,7 @@
 
 session "OCL" in src = HOL +
   description {* HOL-TestGen *}
-  options [document = pdf, document_variants="document:outline=/proof,/ML"]
+  options [quick_and_dirty=true,document = pdf, document_variants="document:outline=/proof,/ML"]
   theories
     "OCL_main"
   files
