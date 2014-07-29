@@ -338,7 +338,7 @@ where     "true \<equiv> \<lambda> \<tau>. \<lfloor>\<lfloor>True\<rfloor>\<rflo
 definition false :: "('\<AA>)Boolean"
 where     "false \<equiv>  \<lambda> \<tau>. \<lfloor>\<lfloor>False\<rfloor>\<rfloor>"
 
-lemma bool_split: "X \<tau> = invalid \<tau> \<or> X \<tau> = null \<tau> \<or>
+lemma bool_split_0: "X \<tau> = invalid \<tau> \<or> X \<tau> = null \<tau> \<or>
                    X \<tau> = true \<tau>    \<or> X \<tau> = false \<tau>"
 apply(simp add: invalid_def null_def true_def false_def)
 apply(case_tac "X \<tau>",simp_all add: null_fun_def null_option_def bot_option_def)
@@ -1093,17 +1093,24 @@ by(auto simp: OclValid_def true_def false_def invalid_def bot_option_def)
 lemma foundation4[simp]: "\<not>(\<tau> \<Turnstile> null)"
 by(auto simp: OclValid_def true_def false_def null_def null_fun_def null_option_def bot_option_def)
 
-lemma bool_split_local[simp]:
+lemma bool_split[simp]:
 "(\<tau> \<Turnstile> (x \<triangleq> invalid)) \<or> (\<tau> \<Turnstile> (x \<triangleq> null)) \<or> (\<tau> \<Turnstile> (x \<triangleq> true)) \<or> (\<tau> \<Turnstile> (x \<triangleq> false))"
-apply(insert bool_split[of x \<tau>], auto)
+apply(insert bool_split_0[of x \<tau>], auto)
 apply(simp_all add: OclValid_def StrongEq_def true_def null_def invalid_def)
 done
 
-lemma def_split_local:
+lemma defined_split:
 "(\<tau> \<Turnstile> \<delta> x) = ((\<not>(\<tau> \<Turnstile> (x \<triangleq> invalid))) \<and> (\<not> (\<tau> \<Turnstile> (x \<triangleq> null))))"
 by(simp add:defined_def true_def false_def invalid_def null_def
                StrongEq_def OclValid_def bot_fun_def null_fun_def)
 
+lemma valid_bool_split: "(\<tau> \<Turnstile> \<upsilon> A) = ((\<tau> \<Turnstile> A \<triangleq> null) \<or> (\<tau> \<Turnstile> A) \<or>  (\<tau> \<Turnstile> not A)) "
+by(auto simp:valid_def true_def false_def invalid_def null_def OclNot_def
+             StrongEq_def OclValid_def bot_fun_def bot_option_def null_option_def null_fun_def)
+
+lemma defined_bool_split: "(\<tau> \<Turnstile> \<delta> A) = ((\<tau> \<Turnstile> A) \<or> (\<tau> \<Turnstile> not A))"
+by(auto simp:defined_def true_def false_def invalid_def null_def OclNot_def
+             StrongEq_def OclValid_def bot_fun_def bot_option_def null_option_def null_fun_def)
 
 
 
@@ -1136,18 +1143,21 @@ text{*
   see below) by @{text invalid} or @{text null}. Strictness-reduction rules will
   usually reduce these substituted terms drastically.
 *}
+
+
 lemma foundation8:
 "(\<tau> \<Turnstile> \<delta> x) \<or> (\<tau> \<Turnstile> (x \<triangleq> invalid)) \<or> (\<tau> \<Turnstile> (x \<triangleq> null))"
 proof -
   have 1 : "(\<tau> \<Turnstile> \<delta> x) \<or> (\<not>(\<tau> \<Turnstile> \<delta> x))" by auto
   have 2 : "(\<not>(\<tau> \<Turnstile> \<delta> x)) = ((\<tau> \<Turnstile> (x \<triangleq> invalid)) \<or> (\<tau> \<Turnstile> (x \<triangleq> null)))"
-           by(simp only: def_split_local, simp)
+           by(simp only: defined_split, simp)
   show ?thesis by(insert 1, simp add:2)
 qed
 
+
 lemma foundation9:
 "\<tau> \<Turnstile> \<delta> x \<Longrightarrow> (\<tau> \<Turnstile> not x) = (\<not> (\<tau> \<Turnstile> x))"
-apply(simp add: def_split_local )
+apply(simp add: defined_split )
 by(auto simp: OclNot_def null_fun_def null_option_def bot_option_def
                  OclValid_def invalid_def true_def null_def StrongEq_def)
 
@@ -1161,7 +1171,7 @@ by(metis OclNot3 OclNot_not OclValid_def cp_OclNot cp_defined defined4)
 
 lemma foundation10:
 "\<tau> \<Turnstile> \<delta> x \<Longrightarrow> \<tau> \<Turnstile> \<delta> y \<Longrightarrow> (\<tau> \<Turnstile> (x and y)) = ( (\<tau> \<Turnstile> x) \<and> (\<tau> \<Turnstile> y))"
-apply(simp add: def_split_local)
+apply(simp add: defined_split)
 by(auto simp: OclAnd_def OclValid_def invalid_def
               true_def null_def StrongEq_def null_fun_def null_option_def bot_option_def
         split:bool.split_asm)
@@ -1171,7 +1181,7 @@ by(auto dest:OCL_core.foundation5 simp:OCL_core.foundation6 OCL_core.foundation1
 
 lemma foundation11:
 "\<tau> \<Turnstile> \<delta> x \<Longrightarrow>  \<tau> \<Turnstile> \<delta> y \<Longrightarrow> (\<tau> \<Turnstile> (x or y)) = ( (\<tau> \<Turnstile> x) \<or> (\<tau> \<Turnstile> y))"
-apply(simp add: def_split_local)
+apply(simp add: defined_split)
 by(auto simp: OclNot_def OclOr_def OclAnd_def OclValid_def invalid_def
               true_def null_def StrongEq_def null_fun_def null_option_def bot_option_def
         split:bool.split_asm bool.split)
@@ -1180,14 +1190,14 @@ by(auto simp: OclNot_def OclOr_def OclAnd_def OclValid_def invalid_def
 
 lemma foundation12:
 "\<tau> \<Turnstile> \<delta> x \<Longrightarrow> (\<tau> \<Turnstile> (x implies y)) = ( (\<tau> \<Turnstile> x) \<longrightarrow> (\<tau> \<Turnstile> y))"
-apply(simp add: def_split_local)
+apply(simp add: defined_split)
 by(auto simp: OclNot_def OclOr_def OclAnd_def OclImplies_def bot_option_def
               OclValid_def invalid_def true_def null_def StrongEq_def null_fun_def null_option_def
         split:bool.split_asm bool.split option.split_asm)
 
 lemma foundation13:"(\<tau> \<Turnstile> A \<triangleq> true)    = (\<tau> \<Turnstile> A)"
 by(auto simp: OclNot_def  OclValid_def invalid_def true_def null_def StrongEq_def
-           split:bool.split_asm bool.split)
+              split:bool.split_asm bool.split)
 
 lemma foundation14:"(\<tau> \<Turnstile> A \<triangleq> false)   = (\<tau> \<Turnstile> not A)"
 by(auto simp: OclNot_def  OclValid_def invalid_def false_def true_def null_def StrongEq_def
@@ -1214,9 +1224,7 @@ apply(simp add:invalid_def null_def null_fun_def)
 by(auto simp: OclValid_def defined_def false_def true_def  bot_fun_def null_fun_def
         split:split_if_asm)
 
-lemmas foundation17 = foundation16[THEN iffD1,standard]
-(* correcter rule; the previous is deprecated *)
-lemmas foundation17' = foundation16'[THEN iffD1,standard]
+
 
 lemma foundation18: "(\<tau> \<Turnstile> (\<upsilon> X)) = (X \<tau> \<noteq> invalid \<tau>)"
 by(auto simp: OclValid_def valid_def false_def true_def bot_fun_def invalid_def
@@ -1227,11 +1235,9 @@ lemma foundation18': "(\<tau> \<Turnstile> (\<upsilon> X)) = (X \<tau> \<noteq> 
 by(auto simp: OclValid_def valid_def false_def true_def bot_fun_def
         split:split_if_asm)
 
-lemma foundation18'': "(\<tau> \<Turnstile> (\<upsilon> X) )=  (\<not>(\<tau> \<Turnstile> (X \<triangleq> invalid)))" 
+lemma foundation18'': "(\<tau> \<Turnstile> (\<upsilon> X) )=  (\<not>(\<tau> \<Turnstile> (X \<triangleq> invalid)))"  (* TODO: This should be 18 !*)
 by(auto simp:foundation15)
 
-
-lemmas foundation19 = foundation18[THEN iffD1,standard]
 
 lemma foundation20 : "\<tau> \<Turnstile> (\<delta> X) \<Longrightarrow> \<tau> \<Turnstile> \<upsilon> X"
 by(simp add: foundation18 foundation16 invalid_def)
@@ -1246,7 +1252,7 @@ by(auto simp: StrongEq_def OclValid_def true_def)
 lemma foundation23: "(\<tau> \<Turnstile> P) = (\<tau> \<Turnstile> (\<lambda> _ . P \<tau>))"
 by(auto simp: OclValid_def true_def)
 
-lemmas cp_validity=foundation23
+
 
 lemma foundation24:"(\<tau> \<Turnstile> not(X \<triangleq> Y)) = (X \<tau> \<noteq> Y \<tau>)"
 by(simp add: StrongEq_def  OclValid_def OclNot_def true_def)
@@ -1271,20 +1277,6 @@ lemma foundation27: "(\<tau> \<Turnstile> (A and B)) = ((\<tau> \<Turnstile> A) 
 by(auto dest:OCL_core.foundation5 simp:OCL_core.foundation6 OCL_core.foundation10)
 
 
-(* TODO : should be reproven higher-up *)
-lemma bool_split': "(\<tau> \<Turnstile> \<upsilon> A) = ((\<tau> \<Turnstile> A \<triangleq> null) \<or> (\<tau> \<Turnstile> A) \<or>  (\<tau> \<Turnstile> not A)) "
-apply(insert bool_split[of A \<tau>], simp add: foundation18, elim disjE, simp_all)
-apply(simp add:OclValid_def StrongEq_def)
-apply(simp_all add:true_def false_def invalid_def null_def null_fun_def null_option_def bot_option_def OclValid_def OclNot_def)
-apply(simp_all add:StrongEq_def)
-done
-
-(* TODO : should be reproven higher-up *)
-lemma bool_split'': "(\<tau> \<Turnstile> \<delta> A) = ((\<tau> \<Turnstile> A) \<or> (\<tau> \<Turnstile> not A))"
-apply(auto simp:OCL_core.foundation16')
-apply(insert foundation8[of \<tau> A], auto)
-apply(auto simp:true_def false_def invalid_def null_def null_fun_def null_option_def bot_option_def OclValid_def OclNot_def)
-done
 
 lemma defined_not_I : "\<tau> \<Turnstile> \<delta> (x) \<Longrightarrow> \<tau> \<Turnstile> \<delta> (not x)"
   by(auto simp: OclNot_def null_def invalid_def defined_def valid_def OclValid_def
@@ -1420,7 +1412,7 @@ lemmas cp_intro[intro!,simp,code_unfold] =
        cp_OclOr[THEN allI[THEN allI[THEN allI[THEN cpI2]], of "op or"]]
        cp_OclImplies[THEN allI[THEN allI[THEN allI[THEN cpI2]], of "op implies"]]
        cp_StrongEq[THEN allI[THEN allI[THEN allI[THEN cpI2]],
-             of "StrongEq"]]
+                   of "StrongEq"]]
 
 subsection{* Laws to Establish Definedness ($\delta$-closure) *}
 
@@ -1432,19 +1424,17 @@ by(auto simp: OclNot_def OclValid_def true_def invalid_def defined_def false_def
                  bot_fun_def bot_option_def null_fun_def null_option_def
         split: bool.split_asm HOL.split_if_asm option.split option.split_asm)
 
+
 lemma OclNot_contrapos_nn:
- assumes "\<tau> \<Turnstile> \<delta> A"
- assumes "\<tau> \<Turnstile> not B"
- assumes "\<tau> \<Turnstile> A \<Longrightarrow> \<tau> \<Turnstile> B"
- shows   "\<tau> \<Turnstile> not A"
+ assumes A: "\<tau> \<Turnstile> \<delta> A"
+ assumes B: "\<tau> \<Turnstile> not B"
+ assumes C: "\<tau> \<Turnstile> A \<Longrightarrow> \<tau> \<Turnstile> B"
+ shows      "\<tau> \<Turnstile> not A"
 proof -
- have change_not : "\<And>a b. (not a \<tau> = b \<tau>) = (a \<tau> = not b \<tau>)"
- by (metis OclNot_not cp_OclNot)
- show ?thesis
-  apply(insert assms, simp add: OclValid_def, subst change_not, subst (asm) change_not)
-  apply(simp add: OclNot_def true_def)
- by (metis OclValid_def bool_split defined_def false_def foundation2 true_def
-           bot_fun_def invalid_def)
+ have D : "\<tau> \<Turnstile> \<delta> B" by(rule B[THEN OclNot_defargs])
+ show ?thesis 
+    apply(insert B,simp add: A D OCL_core.foundation9)
+    by(erule contrapos_nn, auto intro: C)
 qed
 
 text{* So far, we have only one strict Boolean predicate (-family): the strict equality. *}
@@ -1643,6 +1633,7 @@ lemma const_StrongEq:
   apply(subst assms(2)[THEN const_charn])
   by simp
 
+
 lemma const_OclIf :
   assumes "const B"
       and "const C1"
@@ -1654,10 +1645,12 @@ lemma const_OclIf :
                  const_true[simplified const_def, THEN spec, THEN spec]
                  assms[simplified const_def, THEN spec, THEN spec]
                  const_invalid[simplified const_def, THEN spec, THEN spec])
-by (metis (no_types) OCL_core.bot_fun_def OclValid_def const_def const_true defined_def foundation17
-                     null_fun_def)
+by (metis (no_types) OCL_core.bot_fun_def OclValid_def const_def const_true defined_def 
+                 foundation16[THEN iffD1,standard]  null_fun_def)
 
 lemmas const_ss = const_bot const_null  const_invalid  const_false  const_true  const_lam
                   const_defined const_valid const_StrongEq const_OclNot const_OclAnd
                   const_OclOr const_OclImplies const_OclIf
+                  
+               
 end

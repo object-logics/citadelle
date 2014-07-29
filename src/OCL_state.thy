@@ -445,7 +445,7 @@ proof -
  have A     : "const (P (\<lambda>_. ?\<phi> ?\<tau>))"
              by(simp add: const_ctxt const_ss)
  have       "(?\<tau> \<Turnstile> P ?\<phi>) = (?\<tau> \<Turnstile> \<lambda>_. P ?\<phi> ?\<tau>)"
-             by(subst OCL_core.cp_validity, rule refl)
+             by(subst OCL_core.foundation23, rule refl)
  also have  "... = (?\<tau> \<Turnstile> \<lambda>_. P (\<lambda>_. ?\<phi> ?\<tau>)  ?\<tau>)"
              by(subst P_cp, rule refl)
  also have  "... = (?\<tau>' \<Turnstile> \<lambda>_. P (\<lambda>_. ?\<phi> ?\<tau>)  ?\<tau>')"
@@ -454,7 +454,7 @@ proof -
  finally have X: "(?\<tau> \<Turnstile> P ?\<phi>) = (?\<tau>' \<Turnstile> \<lambda>_. P (\<lambda>_. ?\<phi> ?\<tau>)  ?\<tau>')"
              by simp
  show ?thesis
- apply(subst X) apply(subst OCL_core.cp_validity[symmetric])
+ apply(subst X) apply(subst OCL_core.foundation23[symmetric])
  apply(rule StrongEq_L_subst3[OF cp_ctxt])
  apply(simp add: OclValid_def StrongEq_def true_def)
  apply(rule state_update_vs_allInstances_generic_noincluding')
@@ -477,7 +477,7 @@ proof -
  have A     : "const (P (\<lambda>_. ?\<phi> ?\<tau>))"
              by(simp add: const_ctxt const_ss)
  have       "(?\<tau> \<Turnstile> P ?\<phi>) = (?\<tau> \<Turnstile> \<lambda>_. P ?\<phi> ?\<tau>)"
-             by(subst OCL_core.cp_validity, rule refl)
+             by(subst OCL_core.foundation23, rule refl)
  also have  "... = (?\<tau> \<Turnstile> \<lambda>_. P (\<lambda>_. ?\<phi> ?\<tau>)  ?\<tau>)"
              by(subst P_cp, rule refl)
  also have  "... = (?\<tau>' \<Turnstile> \<lambda>_. P (\<lambda>_. ?\<phi> ?\<tau>)  ?\<tau>')"
@@ -497,7 +497,7 @@ proof -
  finally have Y : "?allInstances ?\<tau> = (?allInstances->including(\<lambda> _. \<lfloor>Type Object\<rfloor>) ?\<tau>')"
              by auto
  show ?thesis
-      apply(subst X) apply(subst OCL_core.cp_validity[symmetric])
+      apply(subst X) apply(subst foundation23[symmetric])
       apply(rule StrongEq_L_subst3[OF cp_ctxt])
       apply(simp add: OclValid_def StrongEq_def Y true_def)
  done
@@ -885,11 +885,12 @@ proof -
          subst cp_OclNot, simp,
          subgoal_tac "x \<tau> \<noteq> null \<and> x' \<noteq> null", simp,
          simp add: OclNot_def null_fun_def null_option_def bot_option_def bot_fun_def invalid_def,
-         ( metis def_X' def_x foundation17
+         ( metis def_X' def_x foundation16[THEN iffD1]
          | (metis OCL_core.bot_fun_def OclValid_def Set_inv_lemma def_X def_x defined_def valid_def,
-            metis def_X' def_x foundation17)))+
+            metis def_X' def_x foundation16[THEN iffD1])))+
  done
 
+ 
  have not_inj : "\<And>x y. ((not x) \<tau> = (not y) \<tau>) = (x \<tau> = y \<tau>)"
  by (metis foundation21 foundation22)
 
@@ -900,7 +901,7 @@ proof -
   apply(simp only: OclNot3[symmetric], simp only: not_inj)
   apply(simp add: StrictRefEq\<^sub>O\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t_def split: split_if_asm)
     apply(subgoal_tac "x \<tau> \<noteq> null \<and> x' \<noteq> null", simp)
-    apply (metis (mono_tags) OCL_core.drop.simps def_x foundation17 true_def)
+    apply (metis (mono_tags) OCL_core.drop.simps def_x foundation16[THEN iffD1] true_def)
  by(simp add: invalid_def bot_option_def true_def)+
 
  have P_true : "\<forall>x\<in>\<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil>. P (\<lambda>_. x) \<tau> = true \<tau> \<Longrightarrow>
@@ -912,7 +913,7 @@ proof -
    apply(simp only: OclNot4[symmetric], simp only: not_inj)
    apply(simp add: StrictRefEq\<^sub>O\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t_def false_def split: split_if_asm)
     apply(subgoal_tac "x \<tau> \<noteq> null \<and> x' \<noteq> null", simp)
-    apply (metis def_X' def_x foundation17)
+    apply (metis def_X' def_x  foundation16[THEN iffD1])
  by(simp add: invalid_def bot_option_def false_def)+
 
  have bool_split : "\<forall>x\<in>\<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil>. P (\<lambda>_. x) \<tau> \<noteq> null \<tau> \<Longrightarrow>
@@ -923,7 +924,7 @@ proof -
   apply(drule_tac x = x in ballE) prefer 3 apply assumption
    apply(drule_tac x = x in ballE) prefer 3 apply assumption
     apply(drule_tac x = x in ballE) prefer 3 apply assumption
-     apply (metis (full_types) OCL_core.bot_fun_def OclNot4 OclValid_def foundation16 foundation18'
+     apply (metis (full_types) OCL_core.bot_fun_def OclNot4 OclValid_def foundation16 
                                foundation9 not_inj null_fun_def)
  by(fast+)
 
@@ -954,7 +955,7 @@ theorem framing:
     apply(simp)
     apply(erule ballE[where P = "\<lambda>x. x \<noteq> null"]) apply(assumption)
     apply(simp)
-    apply (metis (hide_lams, no_types) def_x foundation17)
+    apply (metis (hide_lams, no_types) def_x  foundation16[THEN iffD1])
    apply (metis (hide_lams, no_types) OclValid_def def_X def_x foundation20
                                       OclExcluding_valid_args_valid OclExcluding_valid_args_valid'')
  by(simp add: invalid_def bot_option_def)

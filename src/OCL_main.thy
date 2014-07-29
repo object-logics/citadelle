@@ -49,6 +49,18 @@ ML{*
 
 *}
 
+(* legacy---still better names ?
+lemmas defined_charn = foundation16
+lemmas definedD = foundation17
+lemmas valid_charn =
+lemmas validD = foundation19
+lemmas valid_implies_defined = foundation20
+
+lemmas cp_validity = foundation23
+lemmas foundation17 = foundation16[THEN iffD1]
+lemmas def_split_local = OCL_core.defined_split
+end legacy *)
+
 end
 
 
