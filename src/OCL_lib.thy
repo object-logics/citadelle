@@ -546,35 +546,33 @@ text{* The core of an own type construction is done via a type
   is shown that this type ``fits'' indeed into the abstract type
   interface discussed in the previous section. *}
 
-typedef ('\<alpha>,'\<beta>) Pair_0 = "{X::('\<alpha>\<Colon>null \<times> '\<beta>\<Colon>null) option option.
+typedef ('\<alpha>, '\<beta>) Pair_0 = "{X::('\<alpha>\<Colon>null \<times> '\<beta>\<Colon>null) option option.
                                        X = bot \<or> X = null \<or> ((fst\<lceil>\<lceil>X\<rceil>\<rceil> \<noteq> bot) \<and> (fst\<lceil>\<lceil>X\<rceil>\<rceil> \<noteq> bot))}"
-          by (rule_tac x="bot" in exI, simp)
+                          by (rule_tac x="bot" in exI, simp)
 
+                          
 instantiation   Pair_0  :: (null,null)bot
 begin
-   definition bot_Pair_0_def: "(bot :: ('a\<Colon>null,'b\<Colon>null) Pair_0) \<equiv> Abs_Pair_0 None"
+   definition bot_Pair_0_def: "(bot_class.bot :: ('a\<Colon>null,'b\<Colon>null) Pair_0) \<equiv> Abs_Pair_0 None"
 
-   instance proof show "\<exists>x\<Colon>('a, 'b) Pair_0. x \<noteq> bot"
+   instance proof show "\<exists>x\<Colon>('a,'b) Pair_0. x \<noteq> bot"
                   apply(rule_tac x="Abs_Pair_0 \<lfloor>None\<rfloor>" in exI)
                   apply(simp add:bot_Pair_0_def)
                   apply(subst Abs_Pair_0_inject)
-                    apply(simp_all add: bot_Pair_0_def
-                                        null_option_def bot_option_def)
+                  apply(simp_all add: bot_Pair_0_def
+                                      null_option_def bot_option_def)
                   done
-            qed
+            qed            
 end
-
 
 instantiation   Pair_0  :: (null,null)null
 begin
-
    definition null_Pair_0_def: "(null::('a::null,'b::null) Pair_0) \<equiv> Abs_Pair_0 \<lfloor> None \<rfloor>"
 
    instance proof show "(null::('a::null,'b::null) Pair_0) \<noteq> bot"
                   apply(simp add:null_Pair_0_def bot_Pair_0_def)
                   apply(subst Abs_Pair_0_inject)
-                    apply(simp_all add: bot_Pair_0_def
-                                        null_option_def bot_option_def)
+                  apply(simp_all add: bot_Pair_0_def null_option_def bot_option_def)
                   done
             qed
 end
@@ -582,6 +580,29 @@ end
 
 text{* ...  and lifting this type to the format of a valuation gives us:*}
 type_synonym    ('\<AA>,'\<alpha>,'\<beta>) Pair  = "('\<AA>, ('\<alpha>,'\<beta>) Pair_0) val"
+
+definition OclPair::"('\<AA>, '\<alpha>) val \<Rightarrow>
+                     ('\<AA>, '\<beta>) val \<Rightarrow> 
+                     ('\<AA>,'\<alpha>::null,'\<beta>::null) Pair"  ("Pair{(_),(_)}")
+where     "Pair{X,Y} \<equiv> (\<lambda> \<tau>. if (\<upsilon> X) \<tau> = true \<tau> \<and> (\<upsilon> Y) \<tau> = true \<tau> 
+                              then Abs_Pair_0 \<lfloor>\<lfloor>(X \<tau>, Y \<tau>)\<rfloor>\<rfloor>
+                              else invalid \<tau>)"
+
+definition OclFst::" ('\<AA>,'\<alpha>::null,'\<beta>::null) Pair \<Rightarrow> ('\<AA>, '\<alpha>) val"  ("Fst'(_')")
+where     "Fst(X) \<equiv> (\<lambda> \<tau>. if (\<delta> X) \<tau> = true \<tau> 
+                           then fst \<lceil>\<lceil>Rep_Pair_0 (X \<tau>)\<rceil>\<rceil>
+                           else invalid \<tau>)"
+
+
+definition OclSnd::" ('\<AA>,'\<alpha>::null,'\<beta>::null) Pair \<Rightarrow> ('\<AA>, '\<beta>) val"  ("Snd'(_')")
+where     "Snd(X) \<equiv> (\<lambda> \<tau>. if (\<delta> X) \<tau> = true \<tau> 
+                           then snd \<lceil>\<lceil>Rep_Pair_0 (X \<tau>)\<rceil>\<rceil>
+                           else invalid \<tau>)"
+
+(* TODO : cp_lemmas, strictness rules, definedness - inference ... 
+          fst_conv, snd_conv, Product_Type.pair_collapse *)
+                              
+
 
 subsection{* The Construction of the Set Type *}
 
@@ -608,7 +629,6 @@ begin
                   done
             qed
 end
-
 
 instantiation   Set_0  :: (null)null
 begin
@@ -663,13 +683,17 @@ apply(rule ext, auto simp: Integer\<^sub>n\<^sub>u\<^sub>l\<^sub>l_def defined_d
                            bot_fun_def null_fun_def null_option_def)
 by(simp_all add: Abs_Set_0_inject bot_option_def bot_Set_0_def null_Set_0_def null_option_def)
 
-text{* This allows the two theorems: 
+text{* This allows the theorems: 
 
       @{text "\<tau> \<Turnstile> \<delta> x  \<Longrightarrow> \<tau> \<Turnstile> (Integer->includes(x))"}
+      @{text "\<tau> \<Turnstile> \<delta> x  \<Longrightarrow> \<tau> \<Turnstile> Integer  \<triangleq> (Integer->including(x))"} 
 
 and
       
       @{text "\<tau> \<Turnstile> \<upsilon> x  \<Longrightarrow> \<tau> \<Turnstile> (Integer\<^sub>n\<^sub>u\<^sub>l\<^sub>l->includes(x))"}
+      @{text "\<tau> \<Turnstile> \<upsilon> x  \<Longrightarrow> \<tau> \<Turnstile> Integer\<^sub>n\<^sub>u\<^sub>l\<^sub>l  \<triangleq> (Integer\<^sub>n\<^sub>u\<^sub>l\<^sub>l->including(x))"}
+      
+which characterize the infiniteness of these sets by a recursive property on these sets.
 *}
 
 subsection{* Validity and Definedness Properties *}
@@ -3824,6 +3848,53 @@ Assert    "\<tau> \<Turnstile> (Set{null}->reject(x | not x) \<doteq> Set{null})
 
 lemma     "const (Set{Set{\<two>,null}, invalid})" by(simp add: const_ss)
 
+
+
+subsection{* The Construction of the Sequence Type *}
+
+
+text{* The core of an own type construction is done via a type
+  definition which provides the raw-type @{text "'\<alpha> Sequence_0"}. It
+  is shown that this type ``fits'' indeed into the abstract type
+  interface discussed in the previous section. *}
+
+typedef '\<alpha> Sequence_0 ="{X::('\<alpha>\<Colon>null) list option option. 
+                              X = bot \<or> X = null \<or> (\<forall>x\<in>set \<lceil>\<lceil>X\<rceil>\<rceil>. x \<noteq> bot)}"
+          by (rule_tac x="bot" in exI, simp)
+
+instantiation   Sequence_0  :: (null)bot
+begin
+
+   definition bot_Sequence_0_def: "(bot::('a::null) Sequence_0) \<equiv> Abs_Sequence_0 None"
+
+   instance proof show "\<exists>x\<Colon>'a Sequence_0. x \<noteq> bot"
+                  apply(rule_tac x="Abs_Sequence_0 \<lfloor>None\<rfloor>" in exI)
+                  apply(simp add:bot_Sequence_0_def)
+                  apply(subst Abs_Sequence_0_inject)
+                    apply(simp_all add: bot_Set_0_def
+                                        null_option_def bot_option_def)
+                  done
+            qed
+end
+
+
+instantiation   Sequence_0  :: (null)null
+begin
+
+   definition null_Sequence_0_def: "(null::('a::null) Sequence_0) \<equiv> Abs_Sequence_0 \<lfloor> None \<rfloor>"
+
+   instance proof show "(null::('a::null) Sequence_0) \<noteq> bot"
+                  apply(simp add:null_Sequence_0_def bot_Sequence_0_def)
+                  apply(subst Abs_Sequence_0_inject)
+                    apply(simp_all add: bot_Set_0_def
+                                        null_option_def bot_option_def)
+                  done
+            qed
+end
+
+
+text{* ...  and lifting this type to the format of a valuation gives us:*}
+type_synonym    ('\<AA>,'\<alpha>) Sequence  = "('\<AA>, '\<alpha> Sequence_0) val"
 
 
 
