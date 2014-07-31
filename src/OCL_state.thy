@@ -47,6 +47,7 @@ theory OCL_state
 imports OCL_lib
 begin
 
+no_notation None ("\<bottom>")
 section{* Introduction: States over Typed Object Universes *}
 
 text{*

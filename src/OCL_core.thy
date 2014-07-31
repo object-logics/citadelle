@@ -1674,9 +1674,8 @@ lemmas const_ss = const_bot const_null  const_invalid  const_false  const_true  
                
 =======
 
-subsection{* Redefining the syntax of ``bottom'' *}
+subsection{* Overloading the syntax of ``bottom'' *}
 
-no_notation None ("\<bottom>")
 notation bot ("\<bottom>")
 
 >>>>>>> .r10494

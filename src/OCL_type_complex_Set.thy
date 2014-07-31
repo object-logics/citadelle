@@ -47,6 +47,7 @@ theory  OCL_type_complex_Set
 imports OCL_lib_init
 begin
 
+no_notation None ("\<bottom>")
 section{* Complex Types: The Set-Collection Type (I) Core *}
 
 subsection{* The Construction of the Set Type *}
