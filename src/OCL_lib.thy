@@ -3203,8 +3203,8 @@ proof -
  have d_and_v_inject : "\<And>\<tau> X y. (\<delta> X and \<upsilon> y) \<tau> \<noteq> true \<tau> \<Longrightarrow> (\<delta> X and \<upsilon> y) \<tau> = false \<tau>"
       apply(fold OclValid_def, subst OCL_core.foundation22[symmetric])
       apply(auto simp:foundation27  OCL_core.defined_split)
-      apply(erule OCL_core.StrongEq_L_subst2_rev,simp,simp)
-      apply(erule OCL_core.StrongEq_L_subst2_rev,simp,simp)
+        apply(erule OCL_core.StrongEq_L_subst2_rev,simp,simp)
+       apply(erule OCL_core.StrongEq_L_subst2_rev,simp,simp)
       by(erule OCL_core.foundation7'[THEN iffD2, THEN OCL_core.foundation15[THEN iffD2,
                                        THEN OCL_core.StrongEq_L_subst2_rev]],simp,simp)
 
@@ -3239,7 +3239,8 @@ proof -
 
  have conj_comm : "\<And>p q r. (p \<and> q \<and> r) = ((p \<and> q) \<and> r)" by blast
 
- have false_invalid : "\<And>\<tau>. false \<tau> = invalid \<tau>" sorry
+ have inv_bot : "\<And>\<tau>. invalid \<tau> = \<bottom> \<tau>" by (metis OCL_core.bot_fun_def invalid_def)
+ have inv_bot' : "\<And>\<tau>. invalid \<tau> = \<bottom>" by (simp add: invalid_def)
 
  show ?thesis
   apply(rule ext, rename_tac \<tau>)
@@ -3248,11 +3249,10 @@ proof -
    apply(( subst ex_including | subst in_including),
          metis OclValid_def foundation5,
          metis OclValid_def foundation5)+
-   apply(simp add: Let_def)
-   apply(subst (4) false_def)
-(* STOPPED HERE ! bu
-   apply(subst (4) bot_fun_def)
-   apply( simp add: bot_option_def P_cp[symmetric])
+   apply(simp add: Let_def inv_bot)
+   apply(subst (2 4 7 9) bot_fun_def)
+
+   apply(subst (4) false_def, subst (4) bot_fun_def, simp add: bot_option_def P_cp[symmetric])
    (* *)
    apply(case_tac "\<not> (\<tau> \<Turnstile> (\<upsilon> P y))")
     apply(subgoal_tac "P y \<tau> \<noteq> false \<tau>")
@@ -3277,7 +3277,8 @@ proof -
    (* *)
    apply(subst (1 2) al_including, metis OclValid_def foundation5, metis OclValid_def foundation5)
    apply(simp add: P_cp[symmetric], subst (4) false_def, subst (4) bot_option_def, simp)
-   apply(simp add: OclSelect_def OclSelect_body_def StrictRefEq\<^sub>B\<^sub>o\<^sub>o\<^sub>l\<^sub>e\<^sub>a\<^sub>n)
+
+   apply(simp add: OclSelect_def[simplified inv_bot'] OclSelect_body_def StrictRefEq\<^sub>B\<^sub>o\<^sub>o\<^sub>l\<^sub>e\<^sub>a\<^sub>n)
    apply(subst (1 2 3 4) cp_OclIf,
          subst (1 2 3 4) foundation18'[THEN iffD2, simplified OclValid_def],
          simp,
@@ -3320,10 +3321,10 @@ proof -
   apply(subst cp_OclSelect_body, subst cp_OclSelect, subst OclExcluding_def)
   apply(simp add: OclValid_def false_def true_def, rule conjI, blast)
   apply(simp add: OclSelect_invalid[simplified invalid_def]
-                  OclSelect_body_strict1[simplified invalid_def])
+                  OclSelect_body_strict1[simplified invalid_def]
+                  inv_bot')
  done
-*) sorry
- qed
+qed
 
 subsection{* OclReject *}
 
@@ -3715,24 +3716,21 @@ proof -
  let ?P_eq = "\<lambda>x b \<tau>. P (\<lambda>_. x) \<tau> = b \<tau>"
  let ?P = "\<lambda>set b \<tau>. \<exists>x\<in>set. ?P_eq x b \<tau>"
  let ?if = "\<lambda>f b c. if f b \<tau> then b \<tau> else c"
- thm OclForall_def
- let ?forall = "\<lambda>P. ?if P false (?if P \<bottom> (?if P null (true \<tau>)))"
+ let ?forall = "\<lambda>P. ?if P false (?if P invalid (?if P null (true \<tau>)))"
  show ?thesis
   apply(simp only: OclForall_def OclIterate_def)
   apply(case_tac "\<tau> \<Turnstile> \<delta> S", simp only: OclValid_def)
    apply(subgoal_tac "let set = \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil> in
                       ?forall (?P set) =
                       Finite_Set.fold (\<lambda>x acc. acc and P x) true ((\<lambda>a \<tau>. a) ` set) \<tau>",
-         simp only: Let_def)
-   apply(simp add: S_finite) defer 1 (* NEW ! Something is broken here !!! *)
-   apply( simp only: Let_def)
+         simp only: Let_def, simp add: S_finite, simp only: Let_def)
    apply(case_tac "\<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil> = {}", simp)
    apply(rule finite_ne_induct[OF S_finite], simp)
     (* *)
     apply(simp only: image_insert)
     apply(subst comp_fun_commute.fold_insert[OF and_comm], simp)
      apply (metis empty_iff image_empty)
-    apply(simp)
+    apply(simp add: invalid_def)
     apply (metis OCL_core.bot_fun_def destruct_ocl null_fun_def)
    (* *)
    apply(simp only: image_insert)
@@ -3748,36 +3746,11 @@ proof -
             ?forall (\<lambda>b \<tau>. ?P_eq x b \<tau> \<or> ?P F b \<tau>) =
             ((\<lambda>_. ?forall (?P F)) and (\<lambda>_. P (\<lambda>\<tau>. x) \<tau>)) \<tau>"
     apply(rule disjE4[OF destruct_ocl[where x = "P (\<lambda>\<tau>. x) \<tau>"]])
-       apply(simp_all add: true_def false_def OclAnd_def
+       apply(simp_all add: true_def false_def invalid_def OclAnd_def
                            null_fun_def null_option_def bot_fun_def bot_option_def)
    by (metis (lifting) option.distinct(1))+
    apply_end(simp add: OclValid_def)+
- next (* Just to repair this crap ! *)
-   show "((\<exists>x\<in>\<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>. P (\<lambda>_. x) \<tau> = null \<tau>) \<longrightarrow>
-     ((\<exists>x\<in>\<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>. P (\<lambda>_. x) \<tau> = invalid \<tau>) \<longrightarrow>
-      ((\<exists>x\<in>\<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>. P (\<lambda>_. x) \<tau> = false \<tau>) \<longrightarrow>
-       false \<tau> = Finite_Set.fold (\<lambda>x acc. acc and P x) true ((\<lambda>a \<tau>. a) ` \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>) \<tau>) \<and>
-      ((\<forall>x\<in>\<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>. P (\<lambda>_. x) \<tau> \<noteq> false \<tau>) \<longrightarrow>
-       invalid \<tau> = Finite_Set.fold (\<lambda>x acc. acc and P x) true ((\<lambda>a \<tau>. a) ` \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>) \<tau>)) \<and>
-     ((\<forall>x\<in>\<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>. P (\<lambda>_. x) \<tau> \<noteq> invalid \<tau>) \<longrightarrow>
-      ((\<exists>x\<in>\<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>. P (\<lambda>_. x) \<tau> = false \<tau>) \<longrightarrow>
-       false \<tau> = Finite_Set.fold (\<lambda>x acc. acc and P x) true ((\<lambda>a \<tau>. a) ` \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>) \<tau>) \<and>
-      ((\<forall>x\<in>\<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>. P (\<lambda>_. x) \<tau> \<noteq> false \<tau>) \<longrightarrow>
-       null \<tau> = Finite_Set.fold (\<lambda>x acc. acc and P x) true ((\<lambda>a \<tau>. a) ` \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>) \<tau>))) \<and>
-    ((\<forall>x\<in>\<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>. P (\<lambda>_. x) \<tau> \<noteq> null \<tau>) \<longrightarrow>
-     ((\<exists>x\<in>\<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>. P (\<lambda>_. x) \<tau> = invalid \<tau>) \<longrightarrow>
-      ((\<exists>x\<in>\<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>. P (\<lambda>_. x) \<tau> = false \<tau>) \<longrightarrow>
-       false \<tau> = Finite_Set.fold (\<lambda>x acc. acc and P x) true ((\<lambda>a \<tau>. a) ` \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>) \<tau>) \<and>
-      ((\<forall>x\<in>\<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>. P (\<lambda>_. x) \<tau> \<noteq> false \<tau>) \<longrightarrow>
-       invalid \<tau> = Finite_Set.fold (\<lambda>x acc. acc and P x) true ((\<lambda>a \<tau>. a) ` \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>) \<tau>)) \<and>
-     ((\<forall>x\<in>\<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>. P (\<lambda>_. x) \<tau> \<noteq> invalid \<tau>) \<longrightarrow>
-      ((\<exists>x\<in>\<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>. P (\<lambda>_. x) \<tau> = false \<tau>) \<longrightarrow>
-       false \<tau> = Finite_Set.fold (\<lambda>x acc. acc and P x) true ((\<lambda>a \<tau>. a) ` \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>) \<tau>) \<and>
-      ((\<forall>x\<in>\<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>. P (\<lambda>_. x) \<tau> \<noteq> false \<tau>) \<longrightarrow>
-       true \<tau> = Finite_Set.fold (\<lambda>x acc. acc and P x) true ((\<lambda>a \<tau>. a) ` \<lceil>\<lceil>Rep_Set_0 (S \<tau>)\<rceil>\<rceil>) \<tau>)))"
-   sorry
  qed
-
 qed
 
 lemma OclForall_cong:
