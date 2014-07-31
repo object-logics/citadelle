@@ -4004,7 +4004,7 @@ begin
                   apply(rule_tac x="Abs_Sequence_0 \<lfloor>None\<rfloor>" in exI)
                   apply(simp add:bot_Sequence_0_def)
                   apply(subst Abs_Sequence_0_inject)
-                    apply(simp_all add: bot_Set_0_def
+                    apply(simp_all add: bot_Sequence_0_def
                                         null_option_def bot_option_def)
                   done
             qed
@@ -4019,7 +4019,7 @@ begin
    instance proof show "(null::('a::null) Sequence_0) \<noteq> bot"
                   apply(simp add:null_Sequence_0_def bot_Sequence_0_def)
                   apply(subst Abs_Sequence_0_inject)
-                    apply(simp_all add: bot_Set_0_def
+                    apply(simp_all add: bot_Sequence_0_def
                                         null_option_def bot_option_def)
                   done
             qed
