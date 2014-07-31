@@ -1555,19 +1555,19 @@ lemma const_lam : "const (\<lambda>_. e)"
 by(simp add: const_def)
 
 
-lemma const_true : "const true"
+lemma const_true[simp] : "const true"
 by(simp add: const_def true_def)
 
-lemma const_false : "const false"
+lemma const_false[simp] : "const false"
 by(simp add: const_def false_def)
 
-lemma const_null : "const null"
+lemma const_null[simp] : "const null"
 by(simp add: const_def null_fun_def)
 
-lemma const_invalid : "const invalid"
+lemma const_invalid [simp]: "const invalid"
 by(simp add: const_def invalid_def)
 
-lemma const_bot : "const bot"
+lemma const_bot[simp] : "const bot"
 by(simp add: const_def bot_fun_def)
 
 
@@ -1648,13 +1648,36 @@ lemma const_OclIf :
 by (metis (no_types) OCL_core.bot_fun_def OclValid_def const_def const_true defined_def 
                  foundation16[THEN iffD1,standard]  null_fun_def)
 
+lemma const_HOL_if : "const C \<Longrightarrow> const D \<Longrightarrow> const F \<Longrightarrow> const (\<lambda>\<tau>. if C \<tau> then D \<tau> else F \<tau>)"
+      by(auto simp: const_def)
+lemma const_HOL_and: "const C \<Longrightarrow> const D \<Longrightarrow> const (\<lambda>\<tau>. C \<tau> \<and> D \<tau>)"
+      by(auto simp: const_def)
+lemma const_HOL_eq : "const C \<Longrightarrow> const D \<Longrightarrow> const (\<lambda>\<tau>. C \<tau> = D \<tau>)" 
+      apply(auto simp: const_def)
+      apply(erule_tac x=\<tau> in allE)
+      apply(erule_tac x=\<tau> in allE)
+      apply(erule_tac x=\<tau>' in allE)
+      apply(erule_tac x=\<tau>' in allE)
+      apply simp
+      apply(erule_tac x=\<tau> in allE)
+      apply(erule_tac x=\<tau> in allE)
+      apply(erule_tac x=\<tau>' in allE)
+      apply(erule_tac x=\<tau>' in allE)
+      by simp
+
+
 lemmas const_ss = const_bot const_null  const_invalid  const_false  const_true  const_lam
                   const_defined const_valid const_StrongEq const_OclNot const_OclAnd
                   const_OclOr const_OclImplies const_OclIf
+<<<<<<< .mine
+                  const_HOL_if const_HOL_and const_HOL_eq
+               
+=======
 
 subsection{* Redefining the syntax of ``bottom'' *}
 
 no_notation None ("\<bottom>")
 notation bot ("\<bottom>")
 
+>>>>>>> .r10494
 end
