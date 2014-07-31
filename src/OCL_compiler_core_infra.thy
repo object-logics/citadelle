@@ -53,15 +53,16 @@ subsection{* infrastructure *}
 
 definition "print_infra_datatype_class = start_map'' Thy_dataty o (\<lambda>expr _ base_attr' _. map_class_gen_h''''
   (\<lambda>isub_name name _ l_attr l_inherited l_cons.
-    let (l_attr, l_inherited) = base_attr' (l_attr, of_inh l_inherited) in
+    let (l_attr, l_inherited) = base_attr' (l_attr, of_inh l_inherited)
+      ; map_ty = List_map (Opt o str_of_ty o snd) in
     [ Datatype
         (isub_name datatype_ext_name)
         (  (rev_map (\<lambda>x. ( datatype_ext_constr_name @@ mk_constr_name name x
                          , [Raw (datatype_name @@ isub_of_str x)])) (of_sub l_cons))
-        @@ [(isub_name datatype_ext_constr_name, Raw const_oid # flatten ( List_map (List_map (\<lambda>(_, x). Opt (str_of_ty x))) l_inherited))])
+        @@ [(isub_name datatype_ext_constr_name, Raw const_oid # List_maps map_ty l_inherited)])
     , Datatype
         (isub_name datatype_name)
-        [ (isub_name datatype_constr_name, [ Raw (isub_name datatype_ext_name) ] @@ List_map (\<lambda>(_, x). Opt (str_of_ty x)) l_attr ) ] ]) expr)"
+        [ (isub_name datatype_constr_name, Raw (isub_name datatype_ext_name) # map_ty l_attr ) ] ]) expr)"
 
 definition "print_infra_datatype_universe expr = start_map Thy_dataty
   [ Datatype unicode_AA
