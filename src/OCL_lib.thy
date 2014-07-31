@@ -708,7 +708,7 @@ text{* The core of an own type construction is done via a type
   interface discussed in the previous section. *}
 
 typedef ('\<alpha>, '\<beta>) Pair_0 = "{X::('\<alpha>\<Colon>null \<times> '\<beta>\<Colon>null) option option.
-                                       X = bot \<or> X = null \<or> ((fst\<lceil>\<lceil>X\<rceil>\<rceil> \<noteq> bot) \<and> (fst\<lceil>\<lceil>X\<rceil>\<rceil> \<noteq> bot))}"
+                                       X = bot \<or> X = null \<or> (fst\<lceil>\<lceil>X\<rceil>\<rceil> \<noteq> bot \<and> snd\<lceil>\<lceil>X\<rceil>\<rceil> \<noteq> bot)}"
                           by (rule_tac x="bot" in exI, simp)
 
                           
