@@ -1651,6 +1651,10 @@ by (metis (no_types) OCL_core.bot_fun_def OclValid_def const_def const_true defi
 lemmas const_ss = const_bot const_null  const_invalid  const_false  const_true  const_lam
                   const_defined const_valid const_StrongEq const_OclNot const_OclAnd
                   const_OclOr const_OclImplies const_OclIf
-                  
-               
+
+subsection{* Redefining the syntax of ``bottom'' *}
+
+no_notation None ("\<bottom>")
+notation bot ("\<bottom>")
+
 end

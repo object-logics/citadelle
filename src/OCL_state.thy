@@ -268,10 +268,10 @@ shows      "\<tau> \<Turnstile> not(x \<triangleq> null)"
 proof -
     have B: "\<tau> \<Turnstile> \<delta> (OclAllInstances_generic pre_post H)"
          by(insert  A[THEN OCL_core.foundation6,
-                      simplified OCL_lib.OclIncludes_defined_args_valid], auto)
+                      simplified OclIncludes_defined_args_valid], auto)
     have C: "\<tau> \<Turnstile> \<upsilon> x"
          by(insert  A[THEN OCL_core.foundation6,
-                      simplified OCL_lib.OclIncludes_defined_args_valid], auto)
+                      simplified OclIncludes_defined_args_valid], auto)
     show ?thesis
     apply(insert A)
     apply(simp add: StrongEq_def  OclValid_def
@@ -279,7 +279,7 @@ proof -
                                                                  C[simplified OclValid_def])
     apply(simp add:OclAllInstances_generic_def)
     apply(erule contrapos_pn)
-    apply(subst OCL_lib.Set_0.Abs_Set_0_inverse,
+    apply(subst Set_0.Abs_Set_0_inverse,
           auto simp: null_fun_def null_option_def bot_option_def)
     done
 qed
@@ -289,7 +289,7 @@ lemma represented_generic_objects_defined:
 assumes A: "\<tau> \<Turnstile> ((OclAllInstances_generic pre_post (H::('\<AA>::object \<rightharpoonup> '\<alpha>))) ->includes(x))"
 shows      "\<tau> \<Turnstile> \<delta> (OclAllInstances_generic pre_post H) \<and> \<tau> \<Turnstile> \<delta> x"
 apply(insert  A[THEN OCL_core.foundation6,
-                simplified OCL_lib.OclIncludes_defined_args_valid])
+                simplified OclIncludes_defined_args_valid])
 apply(simp add: OCL_core.foundation16 OCL_core.foundation18 invalid_def, erule conjE)
 apply(insert A[THEN represented_generic_objects_nonnull])
 by(simp add: foundation24 null_fun_def)
@@ -305,11 +305,11 @@ proof -
            by(simp add: OCL_core.OclValid_def[symmetric] OclAllInstances_generic_defined)
    have C: "(\<upsilon> x) \<tau> = true \<tau>"
            by(insert  A[THEN OCL_core.foundation6,
-                           simplified OCL_lib.OclIncludes_defined_args_valid],
+                           simplified OclIncludes_defined_args_valid],
                  auto simp: OclValid_def)
    have F: "Rep_Set_0 (Abs_Set_0 \<lfloor>\<lfloor>Some ` (H ` ran (heap (pre_post \<tau>)) - {None})\<rfloor>\<rfloor>) =
             \<lfloor>\<lfloor>Some ` (H ` ran (heap (pre_post \<tau>)) - {None})\<rfloor>\<rfloor>"
-           by(subst OCL_lib.Set_0.Abs_Set_0_inverse,simp_all add: bot_option_def)
+           by(subst Set_0.Abs_Set_0_inverse,simp_all add: bot_option_def)
    show ?thesis
     apply(insert A)
     apply(simp add: OclIncludes_def OclValid_def ran_def B C image_def true_def)
@@ -330,7 +330,7 @@ proof -
  by(simp add: OclAllInstances_generic_def mtSet_def)
  show ?thesis
   apply(simp only: OclValid_def, subst cp_StrictRefEq\<^sub>S\<^sub>e\<^sub>t,
-        simp add: state_update_vs_allInstances_empty)
+        simp only: state_update_vs_allInstances_empty StrictRefEq\<^sub>S\<^sub>e\<^sub>t_refl)
   apply(simp add: OclIf_def valid_def mtSet_def defined_def
                   bot_fun_def null_fun_def null_option_def bot_Set_0_def)
  by(subst Abs_Set_0_inject, (simp add: bot_option_def true_def)+)
@@ -492,7 +492,7 @@ proof -
  also have   "... = ((\<lambda>_. ?allInstances ?\<tau>')->including(\<lambda>_. (\<lambda>_.\<lfloor>\<lfloor>\<lceil>Type Object\<rceil>\<rfloor>\<rfloor>) ?\<tau>') ?\<tau>')"
              by(subst const_OclIncluding[simplified const_def], simp+)
  also have   "... = (?allInstances->including(\<lambda> _. \<lfloor>Type Object\<rfloor>) ?\<tau>')"
-             apply(subst OCL_lib.cp_OclIncluding[symmetric])
+             apply(subst cp_OclIncluding[symmetric])
              by(insert type_conform, auto)
  finally have Y : "?allInstances ?\<tau> = (?allInstances->including(\<lambda> _. \<lfloor>Type Object\<rfloor>) ?\<tau>')"
              by auto
@@ -740,10 +740,10 @@ proof -
    by(subst cp_defined, simp)
    have F: "Rep_Set_0 (Abs_Set_0 \<lfloor>\<lfloor>Some ` (H ` ran (heap (fst \<tau>)) - {None})\<rfloor>\<rfloor>) =
             \<lfloor>\<lfloor>Some ` (H ` ran (heap (fst \<tau>)) - {None})\<rfloor>\<rfloor>"
-           by(subst OCL_lib.Set_0.Abs_Set_0_inverse,simp_all add: bot_option_def)
+           by(subst Set_0.Abs_Set_0_inverse,simp_all add: bot_option_def)
    have F': "Rep_Set_0 (Abs_Set_0 \<lfloor>\<lfloor>Some ` (H ` ran (heap (snd \<tau>)) - {None})\<rfloor>\<rfloor>) =
             \<lfloor>\<lfloor>Some ` (H ` ran (heap (snd \<tau>)) - {None})\<rfloor>\<rfloor>"
-           by(subst OCL_lib.Set_0.Abs_Set_0_inverse,simp_all add: bot_option_def)
+           by(subst Set_0.Abs_Set_0_inverse,simp_all add: bot_option_def)
  show ?thesis
   apply(rule StrictRefEq\<^sub>O\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t_vs_StrongEq'[OF WFF valid_x valid_y, where H = "Some o H"])
   apply(subst oid_preserve[symmetric], simp, simp add: oid_of_option_def)

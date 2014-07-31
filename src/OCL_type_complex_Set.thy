@@ -49,11 +49,7 @@ begin
 
 section{* Complex Types: The Set-Collection Type (I) Core *}
 
-no_notation None ("\<bottom>")
-notation bot ("\<bottom>")
-
 subsection{* The Construction of the Set Type *}
-
 
 text{* The core of an own type construction is done via a type
   definition which provides the raw-type @{text "'\<alpha> Set_0"}. It

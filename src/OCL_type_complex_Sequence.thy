@@ -51,7 +51,6 @@ section{* Complex Types: The Sequence-Collection Type (I) Core *}
 
 subsection{* The Construction of the Sequence Type *}
 
-
 text{* The core of an own type construction is done via a type
   definition which provides the raw-type @{text "'\<alpha> Sequence_0"}. It
   is shown that this type ``fits'' indeed into the abstract type
