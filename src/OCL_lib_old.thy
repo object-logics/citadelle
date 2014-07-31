@@ -43,7 +43,7 @@
 
 header{* Formalization II: Library Definitions *}
 
-theory  OCL_lib    
+theory  OCL_lib_old    
 imports OCL_core OCL_lib_common
         (* Real *) (* Transcendental *) (* For Real Numbers only ... 
                                       Has unfortunate side-effects on syntax. *)  
