@@ -1669,14 +1669,11 @@ lemma const_HOL_eq : "const C \<Longrightarrow> const D \<Longrightarrow> const 
 lemmas const_ss = const_bot const_null  const_invalid  const_false  const_true  const_lam
                   const_defined const_valid const_StrongEq const_OclNot const_OclAnd
                   const_OclOr const_OclImplies const_OclIf
-<<<<<<< .mine
                   const_HOL_if const_HOL_and const_HOL_eq
                
-=======
 
 subsection{* Overloading the syntax of ``bottom'' *}
 
 notation bot ("\<bottom>")
 
->>>>>>> .r10494
 end

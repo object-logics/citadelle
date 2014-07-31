@@ -808,8 +808,19 @@ subsubsection{* Definition *}
 definition OclIncluding   :: "[('\<AA>,'\<alpha>::null) Set,('\<AA>,'\<alpha>) val] \<Rightarrow> ('\<AA>,'\<alpha>) Set"
 where     "OclIncluding x y = (\<lambda> \<tau>. if (\<delta> x) \<tau> = true \<tau> \<and> (\<upsilon> y) \<tau> = true \<tau>
                                     then Abs_Set_0 \<lfloor>\<lfloor> \<lceil>\<lceil>Rep_Set_0 (x \<tau>)\<rceil>\<rceil>  \<union> {y \<tau>} \<rfloor>\<rfloor>
-                                    else \<bottom> )"
+                                    else invalid \<tau> )"
 notation   OclIncluding   ("_->including'(_')")
+
+interpretation OclIncluding : binop_infra2 OclIncluding "\<lambda>x y. Abs_Set_0\<lfloor>\<lfloor>\<lceil>\<lceil>Rep_Set_0 x\<rceil>\<rceil> \<union> {y}\<rfloor>\<rfloor>"
+proof -  show "binop_infra2 OclIncluding (\<lambda>x y. Abs_Set_0\<lfloor>\<lfloor>\<lceil>\<lceil>Rep_Set_0 x\<rceil>\<rceil> \<union> {y}\<rfloor>\<rfloor>)"
+         apply unfold_locales  
+         apply(auto simp:OclIncluding_def bot_option_def null_option_def null_Set_0_def bot_Set_0_def)
+         apply(erule_tac Q="Abs_Set_0\<lfloor>\<lfloor>insert y \<lceil>\<lceil>Rep_Set_0 x\<rceil>\<rceil>\<rfloor>\<rfloor> = Abs_Set_0 None" in contrapos_pp)
+         apply(subst Abs_Set_0_inject, simp_all add: bot_option_def null_option_def)
+         apply(insert Rep_Set_0[simplified])
+         sorry (* devrait se faire, mais loin d etre optimal ...*)
+qed
+
 
 syntax
   "_OclFinset" :: "args => ('\<AA>,'a::null) Set"    ("Set{(_)}")
