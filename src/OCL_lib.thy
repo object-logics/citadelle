@@ -133,10 +133,7 @@ Assert    "\<tau> \<Turnstile> ((Set{\<two>,null})->exists(z | \<zero> <\<^sub>i
 
 Assert "\<not> (\<tau> \<Turnstile> (Set{null::'a Boolean} \<doteq> Set{}))"
 Assert "\<not> (\<tau> \<Turnstile> (Set{null::'a Integer} \<doteq> Set{}))"
-(*
-Assert   "(\<tau> \<Turnstile> (Set{\<lambda>_. \<lfloor>\<lfloor>x\<rfloor>\<rfloor>} \<doteq> Set{\<lambda>_. \<lfloor>\<lfloor>x\<rfloor>\<rfloor>}))"
-Assert   "(\<tau> \<Turnstile> (Set{\<lambda>_. \<lfloor>x\<rfloor>} \<doteq> Set{\<lambda>_. \<lfloor>x\<rfloor>}))"
-*)
+
 Assert "\<not> (\<tau> \<Turnstile> (Set{true} \<doteq> Set{false}))"
 Assert "\<not> (\<tau> \<Turnstile> (Set{true,true} \<doteq> Set{false}))"
 Assert "\<not> (\<tau> \<Turnstile> (Set{\<two>} \<doteq> Set{\<one>}))"

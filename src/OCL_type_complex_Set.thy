@@ -3194,4 +3194,9 @@ lemma const_StrictRefEq\<^sub>S\<^sub>e\<^sub>t_including : "const a \<Longright
  apply(rule const_StrictRefEq\<^sub>S\<^sub>e\<^sub>t, assumption)
 by(rule const_OclIncluding)
 
+section{* Test Statements *}
+
+Assert   "(\<tau> \<Turnstile> (Set{\<lambda>_. \<lfloor>\<lfloor>x\<rfloor>\<rfloor>} \<doteq> Set{\<lambda>_. \<lfloor>\<lfloor>x\<rfloor>\<rfloor>}))"
+Assert   "(\<tau> \<Turnstile> (Set{\<lambda>_. \<lfloor>x\<rfloor>} \<doteq> Set{\<lambda>_. \<lfloor>x\<rfloor>}))"
+
 end
