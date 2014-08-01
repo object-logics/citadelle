@@ -44,8 +44,7 @@
 header{* ... *}
 
 theory  OCL_basic_type_Real
-imports OCL_core
-        OCL_basic_type_Integer
+imports OCL_basic_type_Integer
         (* Real *) (* Transcendental *) (* For Real Numbers only ...
                                       Has unfortunate side-effects on syntax. *)
 begin
@@ -54,7 +53,7 @@ section{* Basic Types: Real *}
 subsection{* The Construction of the Real Type *}
 text{* The following text can only be included if the two packages "Real" and "Transcendental"
 were also included. *}
-type_synonym real = int (* If package Real is not incl*)
+type_synonym real = nat (* If package Real is not included*)
 
 text{* Since @{term "Real"} is again a basic type, we define its semantic domain
 as the valuations over @{typ "real option option"} --- i.e. the mathematical type of real numbers.
@@ -105,10 +104,13 @@ where      "\<nine>.\<zero> = (\<lambda> _ . \<lfloor>\<lfloor>9::real\<rfloor>\
 definition OclReal10 ::"('\<AA>)Real" ("\<one>\<zero>.\<zero>")
 where      "\<one>\<zero>.\<zero> = (\<lambda> _ . \<lfloor>\<lfloor>10::real\<rfloor>\<rfloor>)"
 
-term "pi"
+term "pi" (* is `the mathematical pi', i.e. a constant if package `transcendental' is imported ! *)
 
 (* TODO: Infrastructure for Reals; ... *)
-
+defs   StrictRefEq\<^sub>R\<^sub>e\<^sub>a\<^sub>l [code_unfold] :
+      "(x::('\<AA>)Real) \<doteq> y \<equiv> \<lambda> \<tau>. if (\<upsilon> x) \<tau> = true \<tau> \<and> (\<upsilon> y) \<tau> = true \<tau>
+                                    then (x \<triangleq> y) \<tau>
+                                    else invalid \<tau>"
 
 subsection{* Validity and Definedness Properties on Real *}
 
@@ -189,7 +191,7 @@ by(rule ext, simp add: OclAdd\<^sub>R\<^sub>e\<^sub>a\<^sub>l_def true_def false
 
 lemma [simp,code_unfold] : "(null +\<^sub>r\<^sub>e\<^sub>a\<^sub>l x) = invalid"
 by(rule ext, simp add: OclAdd\<^sub>R\<^sub>e\<^sub>a\<^sub>l_def true_def false_def)
-
+(*
 lemma OclAdd\<^sub>R\<^sub>e\<^sub>a\<^sub>l_zero1[simp,code_unfold] :
 "(x +\<^sub>r\<^sub>e\<^sub>a\<^sub>l \<zero>) = (if \<upsilon> x and not (\<delta> x) then invalid else x endif)"
  proof (rule ext, rename_tac \<tau>, case_tac "(\<upsilon> x and not (\<delta> x)) \<tau> = true \<tau>")
@@ -219,7 +221,7 @@ qed
 lemma OclAdd\<^sub>R\<^sub>e\<^sub>a\<^sub>l_zero2[simp,code_unfold] :
 "(\<zero> +\<^sub>r\<^sub>e\<^sub>a\<^sub>l x) = (if \<upsilon> x and not (\<delta> x) then invalid else x endif)"
 by(subst OclAdd\<^sub>R\<^sub>e\<^sub>a\<^sub>l_commute, simp)
-
+*)
 (* TODO Basic proproperties for multiplication, division, modulus. *)
 
 

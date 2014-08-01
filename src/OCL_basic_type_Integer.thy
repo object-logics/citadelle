@@ -44,7 +44,7 @@
 header{* ... *}
 
 theory  OCL_basic_type_Integer
-imports OCL_core
+imports OCL_lib_common
 begin
 
 section{* Basic Types: Integer *}
@@ -132,38 +132,63 @@ definition OclAdd\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r ::"('\
 where "x +\<^sub>i\<^sub>n\<^sub>t y \<equiv> \<lambda> \<tau>. if (\<delta> x) \<tau> = true \<tau> \<and> (\<delta> y) \<tau> = true \<tau>
                        then \<lfloor>\<lfloor>\<lceil>\<lceil>x \<tau>\<rceil>\<rceil> + \<lceil>\<lceil>y \<tau>\<rceil>\<rceil>\<rfloor>\<rfloor>
                        else invalid \<tau> "
+interpretation OclAdd\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r : binop_infra1 OclAdd\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r "\<lambda> x y. \<lfloor>\<lfloor>\<lceil>\<lceil>x\<rceil>\<rceil> + \<lceil>\<lceil>y\<rceil>\<rceil>\<rfloor>\<rfloor>"
+proof -  show "binop_infra1 op +\<^sub>i\<^sub>n\<^sub>t (\<lambda>x y. \<lfloor>\<lfloor>\<lceil>\<lceil>x\<rceil>\<rceil> + \<lceil>\<lceil>y\<rceil>\<rceil>\<rfloor>\<rfloor>)"
+         by   unfold_locales  (auto simp:OclAdd\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r_def bot_option_def null_option_def)
+qed
 
+  
 definition OclMinus\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r ::"('\<AA>)Integer \<Rightarrow> ('\<AA>)Integer \<Rightarrow> ('\<AA>)Integer" (infix "-\<^sub>i\<^sub>n\<^sub>t" 41)
 where "x -\<^sub>i\<^sub>n\<^sub>t y \<equiv> \<lambda> \<tau>. if (\<delta> x) \<tau> = true \<tau> \<and> (\<delta> y) \<tau> = true \<tau>
                        then \<lfloor>\<lfloor>\<lceil>\<lceil>x \<tau>\<rceil>\<rceil> - \<lceil>\<lceil>y \<tau>\<rceil>\<rceil>\<rfloor>\<rfloor>
                        else invalid \<tau> "
+interpretation OclMinus\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r : binop_infra1 OclMinus\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r "\<lambda> x y. \<lfloor>\<lfloor>\<lceil>\<lceil>x\<rceil>\<rceil> - \<lceil>\<lceil>y\<rceil>\<rceil>\<rfloor>\<rfloor>"
+proof -  show "binop_infra1 op -\<^sub>i\<^sub>n\<^sub>t (\<lambda>x y. \<lfloor>\<lfloor>\<lceil>\<lceil>x\<rceil>\<rceil> - \<lceil>\<lceil>y\<rceil>\<rceil>\<rfloor>\<rfloor>)"
+         by   unfold_locales  (auto simp:OclMinus\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r_def bot_option_def null_option_def)
+qed
 
+                       
 definition OclMult\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r ::"('\<AA>)Integer \<Rightarrow> ('\<AA>)Integer \<Rightarrow> ('\<AA>)Integer" (infix "*\<^sub>i\<^sub>n\<^sub>t" 45)
 where "x *\<^sub>i\<^sub>n\<^sub>t y \<equiv> \<lambda> \<tau>. if (\<delta> x) \<tau> = true \<tau> \<and> (\<delta> y) \<tau> = true \<tau>
                        then \<lfloor>\<lfloor>\<lceil>\<lceil>x \<tau>\<rceil>\<rceil> * \<lceil>\<lceil>y \<tau>\<rceil>\<rceil>\<rfloor>\<rfloor>
-                       else invalid \<tau> "
-
+                       else invalid \<tau>"
+interpretation OclMult\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r : binop_infra1 OclMult\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r "\<lambda> x y. \<lfloor>\<lfloor>\<lceil>\<lceil>x\<rceil>\<rceil> * \<lceil>\<lceil>y\<rceil>\<rceil>\<rfloor>\<rfloor>"
+proof -  show "binop_infra1 op *\<^sub>i\<^sub>n\<^sub>t (\<lambda>x y. \<lfloor>\<lfloor>\<lceil>\<lceil>x\<rceil>\<rceil> * \<lceil>\<lceil>y\<rceil>\<rceil>\<rfloor>\<rfloor>)"
+         by   unfold_locales  (auto simp:OclMult\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r_def bot_option_def null_option_def)
+qed
+          
+text{* Here is the special case of division, which is defined as invalid for division
+by zero. *}
 definition OclDivision\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r ::"('\<AA>)Integer \<Rightarrow> ('\<AA>)Integer \<Rightarrow> ('\<AA>)Integer" (infix "div\<^sub>i\<^sub>n\<^sub>t" 45)
 where "x div\<^sub>i\<^sub>n\<^sub>t y \<equiv> \<lambda> \<tau>. if (\<delta> x) \<tau> = true \<tau> \<and> (\<delta> y) \<tau> = true \<tau>
-                       then \<lfloor>\<lfloor>\<lceil>\<lceil>x \<tau>\<rceil>\<rceil> div \<lceil>\<lceil>y \<tau>\<rceil>\<rceil>\<rfloor>\<rfloor>
+                       then if y \<tau> \<noteq> OclInt0 \<tau> then \<lfloor>\<lfloor>\<lceil>\<lceil>x \<tau>\<rceil>\<rceil> div \<lceil>\<lceil>y \<tau>\<rceil>\<rceil>\<rfloor>\<rfloor> else invalid \<tau> 
                        else invalid \<tau> "
-
+(* TODO: special locale setup.*)
 
 definition OclModulus\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r ::"('\<AA>)Integer \<Rightarrow> ('\<AA>)Integer \<Rightarrow> ('\<AA>)Integer" (infix "mod\<^sub>i\<^sub>n\<^sub>t" 45)
 where "x mod\<^sub>i\<^sub>n\<^sub>t y \<equiv> \<lambda> \<tau>. if (\<delta> x) \<tau> = true \<tau> \<and> (\<delta> y) \<tau> = true \<tau>
-                       then \<lfloor>\<lfloor>\<lceil>\<lceil>x \<tau>\<rceil>\<rceil> mod \<lceil>\<lceil>y \<tau>\<rceil>\<rceil>\<rfloor>\<rfloor>
+                       then if y \<tau> \<noteq> OclInt0 \<tau> then \<lfloor>\<lfloor>\<lceil>\<lceil>x \<tau>\<rceil>\<rceil> mod \<lceil>\<lceil>y \<tau>\<rceil>\<rceil>\<rfloor>\<rfloor> else invalid \<tau> 
                        else invalid \<tau> "
-
-
+(* TODO: special locale setup.*)
+                       
+                       
 definition OclLess\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r ::"('\<AA>)Integer \<Rightarrow> ('\<AA>)Integer \<Rightarrow> ('\<AA>)Boolean" (infix "<\<^sub>i\<^sub>n\<^sub>t" 35)
 where "x <\<^sub>i\<^sub>n\<^sub>t y \<equiv> \<lambda> \<tau>. if (\<delta> x) \<tau> = true \<tau> \<and> (\<delta> y) \<tau> = true \<tau>
                        then \<lfloor>\<lfloor>\<lceil>\<lceil>x \<tau>\<rceil>\<rceil> < \<lceil>\<lceil>y \<tau>\<rceil>\<rceil>\<rfloor>\<rfloor>
                        else invalid \<tau> "
+interpretation OclLess\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r : binop_infra1 OclLess\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r "\<lambda> x y. \<lfloor>\<lfloor>\<lceil>\<lceil>x\<rceil>\<rceil> < \<lceil>\<lceil>y\<rceil>\<rceil>\<rfloor>\<rfloor>"
+proof -  show "binop_infra1 op <\<^sub>i\<^sub>n\<^sub>t (\<lambda>x y. \<lfloor>\<lfloor>\<lceil>\<lceil>x\<rceil>\<rceil> < \<lceil>\<lceil>y\<rceil>\<rceil>\<rfloor>\<rfloor>)"
+         by   unfold_locales  (auto simp:OclLess\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r_def bot_option_def null_option_def)
+qed
 
 definition OclLe\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r ::"('\<AA>)Integer \<Rightarrow> ('\<AA>)Integer \<Rightarrow> ('\<AA>)Boolean" (infix "\<le>\<^sub>i\<^sub>n\<^sub>t" 35)
 where "x \<le>\<^sub>i\<^sub>n\<^sub>t y \<equiv> \<lambda> \<tau>. if (\<delta> x) \<tau> = true \<tau> \<and> (\<delta> y) \<tau> = true \<tau>
                        then \<lfloor>\<lfloor>\<lceil>\<lceil>x \<tau>\<rceil>\<rceil> \<le> \<lceil>\<lceil>y \<tau>\<rceil>\<rceil>\<rfloor>\<rfloor>
                        else invalid \<tau> "
+interpretation OclLe\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r : binop_infra1 OclLe\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r "\<lambda> x y. \<lfloor>\<lfloor>\<lceil>\<lceil>x\<rceil>\<rceil> \<le> \<lceil>\<lceil>y\<rceil>\<rceil>\<rfloor>\<rfloor>"
+proof -  show "binop_infra1 op \<le>\<^sub>i\<^sub>n\<^sub>t (\<lambda>x y. \<lfloor>\<lfloor>\<lceil>\<lceil>x\<rceil>\<rceil> \<le> \<lceil>\<lceil>y\<rceil>\<rceil>\<rfloor>\<rfloor>)"
+         by   unfold_locales  (auto simp:OclLe\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r_def bot_option_def null_option_def)
+qed
 
 subsubsection{* Basic Properties *}
 
@@ -173,18 +198,6 @@ lemma OclAdd\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r_commute: "(
                           bool.split bool.split_asm)
 
 subsubsection{* Execution with Invalid or Null or Zero as Argument *}
-
-lemma OclAdd\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r_strict1[simp,code_unfold] : "(x +\<^sub>i\<^sub>n\<^sub>t invalid) = invalid"
-by(rule ext, simp add: OclAdd\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r_def true_def false_def)
-
-lemma OclAdd\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r_strict2[simp,code_unfold] : "(invalid +\<^sub>i\<^sub>n\<^sub>t x) = invalid"
-by(rule ext, simp add: OclAdd\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r_def true_def false_def)
-
-lemma [simp,code_unfold] : "(x +\<^sub>i\<^sub>n\<^sub>t null) = invalid"
-by(rule ext, simp add: OclAdd\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r_def true_def false_def)
-
-lemma [simp,code_unfold] : "(null +\<^sub>i\<^sub>n\<^sub>t x) = invalid"
-by(rule ext, simp add: OclAdd\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r_def true_def false_def)
 
 lemma OclAdd\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r_zero1[simp,code_unfold] :
 "(x +\<^sub>i\<^sub>n\<^sub>t \<zero>) = (if \<upsilon> x and not (\<delta> x) then invalid else x endif)"
@@ -219,19 +232,6 @@ by(subst OclAdd\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r_commute,
 (* TODO Basic proproperties for multiplication, division, modulus. *)
 
 
-subsubsection{* Context Passing *}
-
-lemma cp_OclAdd\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r:"(X +\<^sub>i\<^sub>n\<^sub>t Y) \<tau> = ((\<lambda> _. X \<tau>) +\<^sub>i\<^sub>n\<^sub>t (\<lambda> _. Y \<tau>)) \<tau>"
-by(simp add: OclAdd\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r_def cp_defined[symmetric])
-
-lemma cp_OclLess\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r:"(X <\<^sub>i\<^sub>n\<^sub>t Y) \<tau> = ((\<lambda> _. X \<tau>) <\<^sub>i\<^sub>n\<^sub>t (\<lambda> _. Y \<tau>)) \<tau>"
-by(simp add: OclLess\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r_def cp_defined[symmetric])
-
-lemma cp_OclLe\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r:"(X \<le>\<^sub>i\<^sub>n\<^sub>t Y) \<tau> = ((\<lambda> _. X \<tau>) \<le>\<^sub>i\<^sub>n\<^sub>t (\<lambda> _. Y \<tau>)) \<tau>"
-by(simp add: OclLe\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r_def cp_defined[symmetric])
-
-(* TODO Basic proproperties for multiplication, division, modulus. *)
-
 
 subsubsection{* Test Statements *}
 text{* Here follows a list of code-examples, that explain the meanings
@@ -241,6 +241,9 @@ Assert "  \<tau> \<Turnstile> ( \<nine> \<le>\<^sub>i\<^sub>n\<^sub>t \<one>\<ze
 Assert "  \<tau> \<Turnstile> (( \<four> +\<^sub>i\<^sub>n\<^sub>t \<four> ) \<le>\<^sub>i\<^sub>n\<^sub>t \<one>\<zero> )"
 Assert "\<not>(\<tau> \<Turnstile> (( \<four> +\<^sub>i\<^sub>n\<^sub>t ( \<four> +\<^sub>i\<^sub>n\<^sub>t \<four> )) <\<^sub>i\<^sub>n\<^sub>t \<one>\<zero> ))"
 Assert "  \<tau> \<Turnstile> not (\<upsilon> (null +\<^sub>i\<^sub>n\<^sub>t \<one>)) "
+Assert "  \<tau> \<Turnstile> (((\<nine> *\<^sub>i\<^sub>n\<^sub>t \<four>) div\<^sub>i\<^sub>n\<^sub>t \<one>\<zero>) \<le>\<^sub>i\<^sub>n\<^sub>t  \<four>) "
+Assert "  \<tau> \<Turnstile> not (\<delta> (\<one> div\<^sub>i\<^sub>n\<^sub>t \<zero>)) "
+Assert "  \<tau> \<Turnstile> not (\<upsilon> (\<one> div\<^sub>i\<^sub>n\<^sub>t \<zero>)) "
 
 
 end

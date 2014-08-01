@@ -49,11 +49,9 @@ imports OCL_collection_type_Pair
         OCL_collection_type_Sequence
 begin
 
-text {*
-The structure of this chapter roughly follows the structure of Chapter
+text {* The structure of this chapter roughly follows the structure of Chapter
 10 of the OCL standard~\cite{omg:ocl:2012}, which introduces the OCL
-Library.
-  *}
+Library. *}
 
 section{* Basic Types *}
 section{* Complex Types *}

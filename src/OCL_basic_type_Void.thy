@@ -44,7 +44,7 @@
 header{* ... *}
 
 theory  OCL_basic_type_Void
-imports OCL_core
+imports OCL_lib_common
 begin
 
 section{* Basic Types: Void *}
