@@ -48,6 +48,7 @@ imports OCL_basic_type_Boolean
         OCL_basic_type_Void
         OCL_basic_type_Integer
         OCL_basic_type_Real
+        OCL_basic_type_String
 begin
 
 section{* Fundamental Predicates on Basic Types: Strict Equality *}
@@ -57,5 +58,6 @@ lemmas cp_intro'[intro!,simp,code_unfold] =
        cp_intro'\<^sub>B\<^sub>o\<^sub>o\<^sub>l\<^sub>e\<^sub>a\<^sub>n
        cp_intro'\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r
        cp_intro'\<^sub>R\<^sub>e\<^sub>a\<^sub>l
+       cp_intro'\<^sub>S\<^sub>t\<^sub>r\<^sub>i\<^sub>n\<^sub>g
 
 end
