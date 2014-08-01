@@ -268,7 +268,7 @@ definition "print_astype_up_d_cast = start_map Thy_lemma_by o
           ,[Tac_rule (Thm_THEN (Thm_str ''foundation22'') (Thm_str ''iffD1''))]
           ,[Tac_case_tac (Expr_binop (Expr_basic [var_tau]) unicode_Turnstile
               (Expr_apply unicode_delta [Expr_basic [var_X]])), Tac_simp_add [print_astype_up_d_cast0_name name_any name_pers]]
-          ,[Tac_simp_add [''def_split_local''], Tac_elim (Thm_str ''disjE'')]
+          ,[Tac_simp_add [''defined_split''], Tac_elim (Thm_str ''disjE'')]
           ,[Tac_plus [Tac_erule (Thm_str ''StrongEq_L_subst2_rev''), Tac_simp, Tac_simp]]])
         Tacl_done)"
 
