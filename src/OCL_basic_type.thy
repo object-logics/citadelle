@@ -3,7 +3,7 @@
  *                       for the OMG Standard.
  *                       http://www.brucker.ch/projects/hol-testgen/
  *
- * OCL_lib_init.thy --- Library definitions.
+ * OCL_basic_type.thy --- Library definitions.
  * This file is part of HOL-TestGen.
  *
  * Copyright (c) 2012-2014 Université Paris-Sud, France
@@ -43,7 +43,7 @@
 
 header{* ... *}
 
-theory  OCL_lib_init
+theory  OCL_basic_type
 imports OCL_basic_type_Void
         OCL_basic_type_Integer
         OCL_basic_type_Real

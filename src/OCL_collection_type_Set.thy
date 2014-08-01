@@ -44,7 +44,7 @@
 header{* ... *}
 
 theory  OCL_collection_type_Set
-imports OCL_lib_init
+imports OCL_basic_type
 begin
 
 no_notation None ("\<bottom>")
