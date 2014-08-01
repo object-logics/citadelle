@@ -44,9 +44,9 @@
 header{* ... *}
 
 theory  OCL_lib_init
-imports OCL_type_basic_Void
-        OCL_type_basic_Integer
-        OCL_type_basic_Real
+imports OCL_basic_type_Void
+        OCL_basic_type_Integer
+        OCL_basic_type_Real
 begin
 
 section{* Fundamental Predicates on Basic Types: Strict Equality *}

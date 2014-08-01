@@ -3,7 +3,7 @@
  *                       for the OMG Standard.
  *                       http://www.brucker.ch/projects/hol-testgen/
  *
- * OCL_type_complex_Pair.thy --- Library definitions.
+ * OCL_collection_type_Pair.thy --- Library definitions.
  * This file is part of HOL-TestGen.
  *
  * Copyright (c) 2012-2014 Université Paris-Sud, France
@@ -43,7 +43,7 @@
 
 header{* ... *}
 
-theory  OCL_type_complex_Pair
+theory  OCL_collection_type_Pair
 imports OCL_core
 begin
 

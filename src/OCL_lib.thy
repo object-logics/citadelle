@@ -44,9 +44,9 @@
 header{* Formalization II: Library Definitions *}
 
 theory  OCL_lib
-imports OCL_type_complex_Pair
-        OCL_type_complex_Set
-        OCL_type_complex_Sequence
+imports OCL_collection_type_Pair
+        OCL_collection_type_Set
+        OCL_collection_type_Sequence
 begin
 
 text {*

@@ -3,7 +3,7 @@
  *                       for the OMG Standard.
  *                       http://www.brucker.ch/projects/hol-testgen/
  *
- * OCL_type_basic_Real.thy --- Library definitions.
+ * OCL_basic_type_Real.thy --- Library definitions.
  * This file is part of HOL-TestGen.
  *
  * Copyright (c) 2012-2014 Université Paris-Sud, France
@@ -43,9 +43,9 @@
 
 header{* ... *}
 
-theory  OCL_type_basic_Real
+theory  OCL_basic_type_Real
 imports OCL_core
-        OCL_type_basic_Integer
+        OCL_basic_type_Integer
         (* Real *) (* Transcendental *) (* For Real Numbers only ...
                                       Has unfortunate side-effects on syntax. *)
 begin
