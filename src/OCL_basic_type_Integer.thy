@@ -90,7 +90,7 @@ where      "\<nine> = (\<lambda> _ . \<lfloor>\<lfloor>9::int\<rfloor>\<rfloor>)
 definition OclInt10 ::"('\<AA>)Integer" ("\<one>\<zero>")
 where      "\<one>\<zero> = (\<lambda> _ . \<lfloor>\<lfloor>10::int\<rfloor>\<rfloor>)"
 
-subsection{* Validity and Definedness Properties on Integer *}
+subsection{* Validity and Definedness Properties *}
 
 lemma  "\<delta>(null::('\<AA>)Integer) = false" by simp
 lemma  "\<upsilon>(null::('\<AA>)Integer) = true"  by simp
@@ -118,7 +118,7 @@ lemma [simp,code_unfold]: "\<delta> \<nine> = true" by(simp add:OclInt9_def)
 lemma [simp,code_unfold]: "\<upsilon> \<nine> = true" by(simp add:OclInt9_def)
 
 
-subsection{* Arithmetical Operations on Integer *}
+subsection{* Arithmetical Operations *}
 
 subsubsection{* Definition *}
 text{* Here is a common case of a built-in operation on built-in types.

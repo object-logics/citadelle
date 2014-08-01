@@ -44,7 +44,7 @@
 header{* ... *}
 
 theory  OCL_basic_type_Real
-imports OCL_basic_type_Integer
+imports OCL_lib_common
         (* Real *) (* Transcendental *) (* For Real Numbers only ...
                                       Has unfortunate side-effects on syntax. *)
 begin
@@ -106,10 +106,18 @@ where      "\<one>\<zero>.\<zero> = (\<lambda> _ . \<lfloor>\<lfloor>10::real\<r
 
 term "pi" (* is `the mathematical pi', i.e. a constant if package `transcendental' is imported ! *)
 
-subsection{* Validity and Definedness Properties on Real *}
+subsection{* Validity and Definedness Properties *}
 
 lemma  "\<delta>(null::('\<AA>)Real) = false" by simp
 lemma  "\<upsilon>(null::('\<AA>)Real) = true"  by simp
+
+lemma [simp,code_unfold]: "\<delta> (\<lambda>_. \<lfloor>\<lfloor>n\<rfloor>\<rfloor>) = true"
+by(simp add:defined_def true_def
+               bot_fun_def bot_option_def null_fun_def null_option_def)
+
+lemma [simp,code_unfold]: "\<upsilon> (\<lambda>_. \<lfloor>\<lfloor>n\<rfloor>\<rfloor>) = true"
+by(simp add:valid_def true_def
+               bot_fun_def bot_option_def)
 
 (* ecclectic proofs to make examples executable *)
 lemma [simp,code_unfold]: "\<delta> \<zero>.\<zero> = true" by(simp add:OclReal0_def)
@@ -126,7 +134,7 @@ lemma [simp,code_unfold]: "\<delta> \<nine>.\<zero> = true" by(simp add:OclReal9
 lemma [simp,code_unfold]: "\<upsilon> \<nine>.\<zero> = true" by(simp add:OclReal9_def)
 
 
-subsection{* Arithmetical Operations on Real *}
+subsection{* Arithmetical Operations *}
 
 subsubsection{* Definition *}
 text{* Here is a common case of a built-in operation on built-in types.
