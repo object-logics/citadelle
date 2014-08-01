@@ -47,6 +47,7 @@ theory
   Employee_AnalysisModel_UMLPart_generator_shallow
 imports
   "../src/OCL_main"
+  "../src/OCL_compiler_static"
   "../src/OCL_compiler_generator_dynamic"
 begin
 

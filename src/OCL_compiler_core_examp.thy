@@ -219,12 +219,6 @@ definition "print_examp_instance_oid l ocl =
          \<lambda> _ _ cpt. Expr_oid '''' (oidGetInh cpt)) ]
       (D_oid_start ocl))"
 
-definition "choose_0 = fst"
-definition "choose_1 = snd"
-
-definition "deref_assocs_list to_from oid S =
-  flatten (List_map (choose_1 o to_from) (filter (\<lambda>p. List.member (choose_0 (to_from p)) oid) S))"
-
 datatype reporting = Warning
                    | Error
                    | Writeln

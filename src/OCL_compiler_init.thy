@@ -44,7 +44,8 @@
 header{* Part ... *}
 
 theory OCL_compiler_init
-imports "~~/src/HOL/Library/RBT"
+imports OCL_compiler_static
+        "~~/src/HOL/Library/RBT"
         "~~/src/HOL/Library/Char_ord"
         "~~/src/HOL/Library/List_lexord"
   keywords (* hol syntax *)
@@ -115,10 +116,8 @@ end
 
 subsection{* ... *}
 
-definition "List_map f l = rev (foldl (\<lambda>l x. f x # l) [] l)"
 definition "List_mapi f l = rev (fst (foldl (\<lambda>(l,cpt) x. (f cpt x # l, Succ cpt)) ([], 0::nat) l))"
 definition "List_iter f = foldl (\<lambda>_. f) ()"
-definition "flatten l = foldl (\<lambda>acc l. foldl (\<lambda>acc x. x # acc) acc (rev l)) [] (rev l)"
 definition "List_maps f x = flatten (List_map f x)"
 definition List_append (infixr "@@" 65) where "List_append a b = flatten [a, b]"
 definition "List_filter f l = rev (foldl (\<lambda>l x. if f x then x # l else l) [] l)"
