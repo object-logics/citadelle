@@ -56,5 +56,6 @@ lemmas cp_intro'[intro!,simp,code_unfold] =
        cp_intro'
        cp_intro'\<^sub>B\<^sub>o\<^sub>o\<^sub>l\<^sub>e\<^sub>a\<^sub>n
        cp_intro'\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r
+       cp_intro'\<^sub>R\<^sub>e\<^sub>a\<^sub>l
 
 end

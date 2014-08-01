@@ -106,12 +106,6 @@ where      "\<one>\<zero>.\<zero> = (\<lambda> _ . \<lfloor>\<lfloor>10::real\<r
 
 term "pi" (* is `the mathematical pi', i.e. a constant if package `transcendental' is imported ! *)
 
-(* TODO: Infrastructure for Reals; ... *)
-defs   StrictRefEq\<^sub>R\<^sub>e\<^sub>a\<^sub>l [code_unfold] :
-      "(x::('\<AA>)Real) \<doteq> y \<equiv> \<lambda> \<tau>. if (\<upsilon> x) \<tau> = true \<tau> \<and> (\<upsilon> y) \<tau> = true \<tau>
-                                    then (x \<triangleq> y) \<tau>
-                                    else invalid \<tau>"
-
 subsection{* Validity and Definedness Properties on Real *}
 
 lemma  "\<delta>(null::('\<AA>)Real) = false" by simp
@@ -248,6 +242,167 @@ Assert "  \<tau> \<Turnstile> not (\<upsilon> (null +\<^sub>r\<^sub>e\<^sub>a\<^
 Assert "  \<tau> \<Turnstile> (((\<nine>.\<zero> *\<^sub>r\<^sub>e\<^sub>a\<^sub>l \<four>.\<zero>) div\<^sub>r\<^sub>e\<^sub>a\<^sub>l \<one>\<zero>.\<zero>) \<le>\<^sub>r\<^sub>e\<^sub>a\<^sub>l  \<four>.\<zero>) "
 Assert "  \<tau> \<Turnstile> not (\<delta> (\<one>.\<zero> div\<^sub>r\<^sub>e\<^sub>a\<^sub>l \<zero>.\<zero>)) "
 Assert "  \<tau> \<Turnstile> not (\<upsilon> (\<one>.\<zero> div\<^sub>r\<^sub>e\<^sub>a\<^sub>l \<zero>.\<zero>)) "
+
+
+section{* Fundamental Predicates on Basic Types: Strict Equality *}
+
+subsection{* Definition *}
+
+text{* The last basic operation belonging to the fundamental infrastructure
+of a value-type in OCL is the weak equality, which is defined similar
+to the @{typ "('\<AA>)Boolean"}-case as strict extension of the strong equality:*}
+defs   StrictRefEq\<^sub>R\<^sub>e\<^sub>a\<^sub>l [code_unfold] :
+      "(x::('\<AA>)Real) \<doteq> y \<equiv> \<lambda> \<tau>. if (\<upsilon> x) \<tau> = true \<tau> \<and> (\<upsilon> y) \<tau> = true \<tau>
+                                    then (x \<triangleq> y) \<tau>
+                                    else invalid \<tau>"
+
+Assert "\<tau> \<Turnstile> \<one>.\<zero> <> \<two>.\<zero>"
+Assert "\<tau> \<Turnstile> \<two>.\<zero> <> \<one>.\<zero>"
+Assert "\<tau> \<Turnstile> \<two>.\<zero> \<doteq> \<two>.\<zero>"
+
+subsection{* Logic and Algebraic Layer on Basic Types *}
+
+subsubsection{* Validity and Definedness Properties (I) *}
+
+lemma StrictRefEq\<^sub>R\<^sub>e\<^sub>a\<^sub>l_defined_args_valid:
+"(\<tau> \<Turnstile> \<delta>((x::('\<AA>)Real) \<doteq> y)) = ((\<tau> \<Turnstile>(\<upsilon> x)) \<and> (\<tau> \<Turnstile>(\<upsilon> y)))"
+by(auto simp: StrictRefEq\<^sub>R\<^sub>e\<^sub>a\<^sub>l OclValid_def true_def valid_def false_def StrongEq_def
+              defined_def invalid_def null_fun_def bot_fun_def null_option_def bot_option_def
+        split: bool.split_asm HOL.split_if_asm option.split)
+
+subsubsection{* Validity and Definedness Properties (II) *}
+
+lemma StrictRefEq\<^sub>R\<^sub>e\<^sub>a\<^sub>l_defargs:
+"\<tau> \<Turnstile> ((x::('\<AA>)Real) \<doteq> y) \<Longrightarrow> (\<tau> \<Turnstile> (\<upsilon> x)) \<and> (\<tau> \<Turnstile> (\<upsilon> y))"
+by(simp add: StrictRefEq\<^sub>R\<^sub>e\<^sub>a\<^sub>l OclValid_def true_def invalid_def valid_def bot_option_def
+           split: bool.split_asm HOL.split_if_asm)
+
+subsubsection{* Validity and Definedness Properties (III) Miscellaneous *}
+
+lemma StrictRefEq\<^sub>R\<^sub>e\<^sub>a\<^sub>l_strict'' : "\<delta> ((x::('\<AA>)Real) \<doteq> y) = (\<upsilon>(x) and \<upsilon>(y))"
+by(auto intro!: transform2_rev defined_and_I simp:foundation10 StrictRefEq\<^sub>R\<^sub>e\<^sub>a\<^sub>l_defined_args_valid)
+
+(* Probably not very useful *)
+lemma StrictRefEq\<^sub>R\<^sub>e\<^sub>a\<^sub>l_strict :
+  assumes A: "\<upsilon> (x::('\<AA>)Real) = true"
+  and     B: "\<upsilon> y = true"
+  shows   "\<upsilon> (x \<doteq> y) = true"
+  apply(insert A B)
+  apply(rule ext, simp add: StrongEq_def StrictRefEq\<^sub>R\<^sub>e\<^sub>a\<^sub>l true_def valid_def defined_def
+                            bot_fun_def bot_option_def)
+  done
+
+
+(* Probably not very useful *)
+lemma StrictRefEq\<^sub>R\<^sub>e\<^sub>a\<^sub>l_strict' :
+  assumes A: "\<upsilon> (((x::('\<AA>)Real)) \<doteq> y) = true"
+  shows      "\<upsilon> x = true \<and> \<upsilon> y = true"
+  apply(insert A, rule conjI)
+   apply(rule ext, rename_tac \<tau>, drule_tac x=\<tau> in fun_cong)
+   prefer 2
+   apply(rule ext, rename_tac \<tau>, drule_tac x=\<tau> in fun_cong)
+   apply(simp_all add: StrongEq_def StrictRefEq\<^sub>R\<^sub>e\<^sub>a\<^sub>l
+                       false_def true_def valid_def defined_def)
+   apply(case_tac "y \<tau>", auto)
+    apply(simp_all add: true_def invalid_def bot_fun_def)
+  done
+
+subsubsection{* Reflexivity *}
+
+lemma StrictRefEq\<^sub>R\<^sub>e\<^sub>a\<^sub>l_refl[simp,code_unfold] :
+"((x::('\<AA>)Real) \<doteq> x) = (if (\<upsilon> x) then true else invalid endif)"
+by(rule ext, simp add: StrictRefEq\<^sub>R\<^sub>e\<^sub>a\<^sub>l OclIf_def)
+
+subsubsection{* Execution with Invalid or Null as Argument *}
+
+lemma StrictRefEq\<^sub>R\<^sub>e\<^sub>a\<^sub>l_strict1[simp,code_unfold] : "((x::('\<AA>)Real) \<doteq> invalid) = invalid"
+by(rule ext, simp add: StrictRefEq\<^sub>R\<^sub>e\<^sub>a\<^sub>l true_def false_def)
+
+lemma StrictRefEq\<^sub>R\<^sub>e\<^sub>a\<^sub>l_strict2[simp,code_unfold] : "(invalid \<doteq> (x::('\<AA>)Real)) = invalid"
+by(rule ext, simp add: StrictRefEq\<^sub>R\<^sub>e\<^sub>a\<^sub>l true_def false_def)
+
+lemma real_non_null [simp]: "((\<lambda>_. \<lfloor>\<lfloor>n\<rfloor>\<rfloor>) \<doteq> (null::('\<AA>)Real)) = false"
+by(rule ext,auto simp: StrictRefEq\<^sub>R\<^sub>e\<^sub>a\<^sub>l valid_def
+                         bot_fun_def bot_option_def null_fun_def null_option_def StrongEq_def)
+
+lemma null_non_real [simp]: "((null::('\<AA>)Real) \<doteq> (\<lambda>_. \<lfloor>\<lfloor>n\<rfloor>\<rfloor>)) = false"
+by(rule ext,auto simp: StrictRefEq\<^sub>R\<^sub>e\<^sub>a\<^sub>l valid_def
+                         bot_fun_def bot_option_def null_fun_def null_option_def StrongEq_def)
+
+lemma OclReal0_non_null [simp,code_unfold]: "(\<zero>.\<zero> \<doteq> null) = false" by(simp add: OclReal0_def)
+lemma null_non_OclReal0 [simp,code_unfold]: "(null \<doteq> \<zero>.\<zero>) = false" by(simp add: OclReal0_def)
+lemma OclReal1_non_null [simp,code_unfold]: "(\<one>.\<zero> \<doteq> null) = false" by(simp add: OclReal1_def)
+lemma null_non_OclReal1 [simp,code_unfold]: "(null \<doteq> \<one>.\<zero>) = false" by(simp add: OclReal1_def)
+lemma OclReal2_non_null [simp,code_unfold]: "(\<two>.\<zero> \<doteq> null) = false" by(simp add: OclReal2_def)
+lemma null_non_OclReal2 [simp,code_unfold]: "(null \<doteq> \<two>.\<zero>) = false" by(simp add: OclReal2_def)
+lemma OclReal6_non_null [simp,code_unfold]: "(\<six>.\<zero> \<doteq> null) = false" by(simp add: OclReal6_def)
+lemma null_non_OclReal6 [simp,code_unfold]: "(null \<doteq> \<six>.\<zero>) = false" by(simp add: OclReal6_def)
+lemma OclReal8_non_null [simp,code_unfold]: "(\<eight>.\<zero> \<doteq> null) = false" by(simp add: OclReal8_def)
+lemma null_non_OclReal8 [simp,code_unfold]: "(null \<doteq> \<eight>.\<zero>) = false" by(simp add: OclReal8_def)
+lemma OclReal9_non_null [simp,code_unfold]: "(\<nine>.\<zero> \<doteq> null) = false" by(simp add: OclReal9_def)
+lemma null_non_OclReal9 [simp,code_unfold]: "(null \<doteq> \<nine>.\<zero>) = false" by(simp add: OclReal9_def)
+
+
+(* plus all the others ...*)
+
+subsubsection{* Const *}
+
+lemma [simp,code_unfold]: "const(\<zero>.\<zero>)" by(simp add: const_ss OclReal0_def)
+lemma [simp,code_unfold]: "const(\<one>.\<zero>)" by(simp add: const_ss OclReal1_def)
+lemma [simp,code_unfold]: "const(\<two>.\<zero>)" by(simp add: const_ss OclReal2_def)
+lemma [simp,code_unfold]: "const(\<six>.\<zero>)" by(simp add: const_ss OclReal6_def)
+lemma [simp,code_unfold]: "const(\<eight>.\<zero>)" by(simp add: const_ss OclReal8_def)
+lemma [simp,code_unfold]: "const(\<nine>.\<zero>)" by(simp add: const_ss OclReal9_def)
+
+
+subsubsection{* Behavior vs StrongEq *}
+
+lemma StrictRefEq\<^sub>R\<^sub>e\<^sub>a\<^sub>l_vs_StrongEq:
+"\<tau> \<Turnstile>(\<upsilon> x) \<Longrightarrow> \<tau> \<Turnstile>(\<upsilon> y) \<Longrightarrow> (\<tau> \<Turnstile> (((x::('\<AA>)Real) \<doteq> y) \<triangleq> (x \<triangleq> y)))"
+apply(simp add: StrictRefEq\<^sub>R\<^sub>e\<^sub>a\<^sub>l OclValid_def)
+apply(subst cp_StrongEq[of _ "(x \<triangleq> y)"])
+by simp
+
+
+subsubsection{* Context Passing *}
+
+lemma cp_StrictRefEq\<^sub>R\<^sub>e\<^sub>a\<^sub>l:
+"((X::('\<AA>)Real) \<doteq> Y) \<tau> = ((\<lambda> _. X \<tau>) \<doteq> (\<lambda> _. Y \<tau>)) \<tau>"
+by(auto simp: StrictRefEq\<^sub>R\<^sub>e\<^sub>a\<^sub>l StrongEq_def valid_def  cp_defined[symmetric])
+
+
+lemmas cp_intro'\<^sub>R\<^sub>e\<^sub>a\<^sub>l =
+       cp_StrictRefEq\<^sub>R\<^sub>e\<^sub>a\<^sub>l[THEN allI[THEN allI[THEN allI[THEN cpI2]],  of "StrictRefEq"]]
+       OclAdd\<^sub>R\<^sub>e\<^sub>a\<^sub>l.cp       OclMult\<^sub>R\<^sub>e\<^sub>a\<^sub>l.cp       OclMult\<^sub>R\<^sub>e\<^sub>a\<^sub>l.cp
+       OclLess\<^sub>R\<^sub>e\<^sub>a\<^sub>l.cp      OclLe\<^sub>R\<^sub>e\<^sub>a\<^sub>l.cp
+
+
+subsection{* Test Statements on Basic Types. *}
+text{* Here follows a list of code-examples, that explain the meanings
+of the above definitions by compilation to code and execution to @{term "True"}.*}
+
+text{* Elementary computations on Real *}
+Assert "  \<tau> \<Turnstile> \<upsilon> \<four>.\<zero>"
+Assert "  \<tau> \<Turnstile> \<delta> \<four>.\<zero>"
+Assert "  \<tau> \<Turnstile> \<upsilon> (null::('\<AA>)Real)"
+Assert "  \<tau> \<Turnstile> (invalid \<triangleq> invalid)"
+Assert "  \<tau> \<Turnstile> (null \<triangleq> null)"
+Assert "  \<tau> \<Turnstile> (\<four>.\<zero> \<triangleq> \<four>.\<zero>)"
+Assert "\<not>(\<tau> \<Turnstile> (\<nine>.\<zero> \<triangleq> \<one>\<zero>.\<zero>))"
+Assert "\<not>(\<tau> \<Turnstile> (invalid \<triangleq> \<one>\<zero>.\<zero>))"
+Assert "\<not>(\<tau> \<Turnstile> (null \<triangleq> \<one>\<zero>.\<zero>))"
+Assert "\<not>(\<tau> \<Turnstile> (invalid \<doteq> (invalid::('\<AA>)Real)))" (* Without typeconstraint not executable.*)
+Assert "\<not>(\<tau> \<Turnstile> \<upsilon> (invalid \<doteq> (invalid::('\<AA>)Real)))" (* Without typeconstraint not executable.*)
+Assert "\<not>(\<tau> \<Turnstile> (invalid <> (invalid::('\<AA>)Real)))" (* Without typeconstraint not executable.*)
+Assert "\<not>(\<tau> \<Turnstile> \<upsilon> (invalid <> (invalid::('\<AA>)Real)))" (* Without typeconstraint not executable.*)
+Assert "  \<tau> \<Turnstile> (null \<doteq> (null::('\<AA>)Real) )" (* Without typeconstraint not executable.*)
+Assert "  \<tau> \<Turnstile> (null \<doteq> (null::('\<AA>)Real) )" (* Without typeconstraint not executable.*)
+Assert "  \<tau> \<Turnstile> (\<four>.\<zero> \<doteq> \<four>.\<zero>)"
+Assert "\<not>(\<tau> \<Turnstile> (\<four>.\<zero> <> \<four>.\<zero>))"
+Assert "\<not>(\<tau> \<Turnstile> (\<four>.\<zero> \<doteq> \<one>\<zero>.\<zero>))"
+Assert "  \<tau> \<Turnstile> (\<four>.\<zero> <> \<one>\<zero>.\<zero>)"
+Assert "\<not>(\<tau> \<Turnstile> (\<zero>.\<zero> <\<^sub>r\<^sub>e\<^sub>a\<^sub>l null))"
+Assert "\<not>(\<tau> \<Turnstile> (\<delta> (\<zero>.\<zero> <\<^sub>r\<^sub>e\<^sub>a\<^sub>l null)))"
 
 
 end
