@@ -812,15 +812,46 @@ where     "OclIncluding x y = (\<lambda> \<tau>. if (\<delta> x) \<tau> = true \
 notation   OclIncluding   ("_->including'(_')")
 
 interpretation OclIncluding : binop_infra2 OclIncluding "\<lambda>x y. Abs_Set_0\<lfloor>\<lfloor>\<lceil>\<lceil>Rep_Set_0 x\<rceil>\<rceil> \<union> {y}\<rfloor>\<rfloor>"
-proof -  show "binop_infra2 OclIncluding (\<lambda>x y. Abs_Set_0\<lfloor>\<lfloor>\<lceil>\<lceil>Rep_Set_0 x\<rceil>\<rceil> \<union> {y}\<rfloor>\<rfloor>)"
+proof -  
+ have A : "None \<in> {X. X = bot \<or> X = null \<or> (\<forall>x\<in>\<lceil>\<lceil>X\<rceil>\<rceil>. x \<noteq> bot)}" by(simp add: bot_option_def)
+ have B : "\<lfloor>None\<rfloor> \<in> {X. X = bot \<or> X = null \<or> (\<forall>x\<in>\<lceil>\<lceil>X\<rceil>\<rceil>. x \<noteq> bot)}" 
+          by(simp add: null_option_def bot_option_def)
+ have C : "\<And>x y. x \<noteq> \<bottom> \<Longrightarrow> x \<noteq> null \<Longrightarrow>  y \<noteq> \<bottom>  \<Longrightarrow>
+           \<lfloor>\<lfloor>insert y \<lceil>\<lceil>Rep_Set_0 x\<rceil>\<rceil>\<rfloor>\<rfloor> \<in> {X. X = bot \<or> X = null \<or> (\<forall>x\<in>\<lceil>\<lceil>X\<rceil>\<rceil>. x \<noteq> bot)}"
+           by(auto intro!:Set_inv_lemma[simplified OclValid_def 
+                                        defined_def false_def true_def null_fun_def bot_fun_def])          
+         show "binop_infra2 OclIncluding (\<lambda>x y. Abs_Set_0\<lfloor>\<lfloor>\<lceil>\<lceil>Rep_Set_0 x\<rceil>\<rceil> \<union> {y}\<rfloor>\<rfloor>)"
          apply unfold_locales  
          apply(auto simp:OclIncluding_def bot_option_def null_option_def null_Set_0_def bot_Set_0_def)
          apply(erule_tac Q="Abs_Set_0\<lfloor>\<lfloor>insert y \<lceil>\<lceil>Rep_Set_0 x\<rceil>\<rceil>\<rfloor>\<rfloor> = Abs_Set_0 None" in contrapos_pp)
-         apply(subst Abs_Set_0_inject, simp_all add: bot_option_def null_option_def)
-         apply(insert Rep_Set_0[simplified])
-         sorry (* devrait se faire, mais loin d etre optimal ...*)
+         apply(subst Abs_Set_0_inject[OF C A])
+         apply(simp_all add:  null_Set_0_def bot_Set_0_def bot_option_def)
+         apply(erule_tac Q="Abs_Set_0\<lfloor>\<lfloor>insert y \<lceil>\<lceil>Rep_Set_0 x\<rceil>\<rceil>\<rfloor>\<rfloor> = Abs_Set_0 \<lfloor>None\<rfloor>" in contrapos_pp)
+         apply(subst Abs_Set_0_inject[OF C B])
+         apply(simp_all add:  null_Set_0_def bot_Set_0_def bot_option_def)
+         done
 qed
 
+(*
+ have A : "\<bottom> \<in> {X. X = bot \<or> X = null \<or> (\<forall>x\<in>\<lceil>\<lceil>X\<rceil>\<rceil>. x \<noteq> bot)}" by(simp add: bot_option_def)
+ have B : "\<lfloor>\<bottom>\<rfloor> \<in> {X. X = bot \<or> X = null \<or> (\<forall>x\<in>\<lceil>\<lceil>X\<rceil>\<rceil>. x \<noteq> bot)}"
+          by(simp add: null_option_def bot_option_def)
+ have C : "(\<tau> \<Turnstile>(\<delta> X)) \<Longrightarrow> (\<tau> \<Turnstile>(\<upsilon> x)) \<Longrightarrow>
+           \<lfloor>\<lfloor>insert (x \<tau>) \<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil>\<rfloor>\<rfloor> \<in> {X. X = bot \<or> X = null \<or> (\<forall>x\<in>\<lceil>\<lceil>X\<rceil>\<rceil>. x \<noteq> bot)}"
+          by(frule Set_inv_lemma, simp add: foundation18 invalid_def)
+ have D: "(\<tau> \<Turnstile> \<delta>(X->including(x))) \<Longrightarrow> ((\<tau> \<Turnstile>(\<delta> X)) \<and> (\<tau> \<Turnstile>(\<upsilon> x)))"
+          by(auto simp: OclIncluding_def OclValid_def true_def valid_def false_def StrongEq_def
+                        defined_def invalid_def bot_fun_def null_fun_def
+                  split: bool.split_asm HOL.split_if_asm option.split)
+ have E: "(\<tau> \<Turnstile>(\<delta> X)) \<Longrightarrow> (\<tau> \<Turnstile>(\<upsilon> x)) \<Longrightarrow> (\<tau> \<Turnstile> \<delta>(X->including(x)))"
+          apply(subst OclIncluding_def, subst OclValid_def, subst defined_def)
+          apply(auto simp: OclValid_def null_Set_0_def bot_Set_0_def null_fun_def bot_fun_def)
+           apply(frule Abs_Set_0_inject[OF C A, simplified OclValid_def, THEN iffD1],
+                 simp_all add: bot_option_def)
+          apply(frule Abs_Set_0_inject[OF C B, simplified OclValid_def, THEN iffD1],
+                simp_all add: bot_option_def)
+          done
+*)
 
 syntax
   "_OclFinset" :: "args => ('\<AA>,'a::null) Set"    ("Set{(_)}")
