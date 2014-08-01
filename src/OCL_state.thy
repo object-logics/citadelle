@@ -395,7 +395,7 @@ shows   "(OclAllInstances_generic pre_post Type)
  apply(subst (1 3) cp_defined[symmetric],
        simp add: OclAllInstances_generic_defined[simplified OclValid_def])
 
- apply(simp add: defined_def OclValid_def OclAllInstances_generic_def
+ apply(simp add: defined_def OclValid_def OclAllInstances_generic_def invalid_def
                  bot_fun_def null_fun_def bot_Set_0_def null_Set_0_def)
  apply(subst (1 3) Abs_Set_0_inject)
 by(simp add: bot_option_def null_option_def)+
