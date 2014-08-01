@@ -44,7 +44,7 @@
 header{* ... *}
 
 theory  OCL_collection_type_Sequence
-imports OCL_core
+imports OCL_basic_type
 begin
 
 section{* Complex Types: The Sequence-Collection Type (I) Core *}
@@ -94,6 +94,6 @@ end
 text{* ...  and lifting this type to the format of a valuation gives us:*}
 type_synonym    ('\<AA>,'\<alpha>) Sequence  = "('\<AA>, '\<alpha> Sequence_0) val"
 
-
+lemmas cp_intro''\<^sub>S\<^sub>e\<^sub>q\<^sub>u\<^sub>e\<^sub>n\<^sub>c\<^sub>e[intro!,simp,code_unfold] = cp_intro'
 
 end

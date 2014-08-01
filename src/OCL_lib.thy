@@ -73,6 +73,12 @@ in order to have nested types: arguments of type-constructors must conform to ou
 abstract interface, and the result type too.
 *}
 
+lemmas cp_intro'' [intro!,simp,code_unfold] =
+       cp_intro'
+       cp_intro''\<^sub>P\<^sub>a\<^sub>i\<^sub>r
+       cp_intro''\<^sub>S\<^sub>e\<^sub>t
+       cp_intro''\<^sub>S\<^sub>e\<^sub>q\<^sub>u\<^sub>e\<^sub>n\<^sub>c\<^sub>e
+
 section{* Test Statements *}
 
 lemma syntax_test: "Set{\<two>,\<one>} = (Set{}->including(\<one>)->including(\<two>))"

@@ -986,8 +986,7 @@ lemma cp_OclReject: "(X->reject(a | P a)) \<tau> =
                 ((\<lambda> _. X \<tau>)->reject(a | P a)) \<tau>"
 by(simp add: OclReject_def, subst cp_OclSelect, simp)
 
-lemmas cp_intro''[intro!,simp,code_unfold] =
-       cp_intro'
+lemmas cp_intro''\<^sub>S\<^sub>e\<^sub>t[intro!,simp,code_unfold] =
        cp_OclIncluding [THEN allI[THEN allI[THEN allI[THEN cpI2]], of "OclIncluding"]]
        cp_OclExcluding [THEN allI[THEN allI[THEN allI[THEN cpI2]], of "OclExcluding"]]
        cp_OclIncludes  [THEN allI[THEN allI[THEN allI[THEN cpI2]], of "OclIncludes"]]
@@ -995,7 +994,7 @@ lemmas cp_intro''[intro!,simp,code_unfold] =
        cp_OclSize      [THEN allI[THEN allI[THEN cpI1], of "OclSize"]]
        cp_OclIsEmpty   [THEN allI[THEN allI[THEN cpI1], of "OclIsEmpty"]]
        cp_OclNotEmpty  [THEN allI[THEN allI[THEN cpI1], of "OclNotEmpty"]]
-       cp_OclANY      [THEN allI[THEN allI[THEN cpI1], of "OclANY"]]
+       cp_OclANY       [THEN allI[THEN allI[THEN cpI1], of "OclANY"]]
 
 subsection{* Const *}
 
@@ -2662,7 +2661,7 @@ lemma OclReject_including_exec[simp,code_unfold]:
  assumes P_cp : "cp P"
  shows "OclReject (X->including(y)) P = OclSelect_body (not o P) y (OclReject (X->excluding(y)) P)"
  apply(simp add: OclReject_def comp_def, rule OclSelect_including_exec)
-by (metis assms cp_intro''(5))
+by (metis OCL_basic_type.cp_intro'(5) assms)
 
 section{* Execution on Set's Operators (higher composition) *}
 

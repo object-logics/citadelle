@@ -44,7 +44,7 @@
 header{* ... *}
 
 theory  OCL_collection_type_Pair
-imports OCL_core
+imports OCL_basic_type
 begin
 
 section{* Complex Types: The Pair-Collection Type (I) Core *}
@@ -119,5 +119,7 @@ where     "Snd(X) \<equiv> (\<lambda> \<tau>. if (\<delta> X) \<tau> = true \<ta
 
 (* TODO : cp_lemmas, strictness rules, definedness - inference ...
           fst_conv, snd_conv, Product_Type.pair_collapse *)
+
+lemmas cp_intro''\<^sub>P\<^sub>a\<^sub>i\<^sub>r[intro!,simp,code_unfold] = cp_intro'
 
 end
