@@ -122,6 +122,14 @@ lemma [simp,code_unfold]: "\<delta> \<zero>.\<zero> = true" by(simp add:OclReal0
 lemma [simp,code_unfold]: "\<upsilon> \<zero>.\<zero> = true" by(simp add:OclReal0_def)
 lemma [simp,code_unfold]: "\<delta> \<one>.\<zero> = true" by(simp add:OclReal1_def)
 lemma [simp,code_unfold]: "\<upsilon> \<one>.\<zero> = true" by(simp add:OclReal1_def)
+lemma [simp,code_unfold]: "\<delta> \<two>.\<zero> = true" by(simp add:OclReal2_def)
+lemma [simp,code_unfold]: "\<upsilon> \<two>.\<zero> = true" by(simp add:OclReal2_def)
+lemma [simp,code_unfold]: "\<delta> \<six>.\<zero> = true" by(simp add:OclReal6_def)
+lemma [simp,code_unfold]: "\<upsilon> \<six>.\<zero> = true" by(simp add:OclReal6_def)
+lemma [simp,code_unfold]: "\<delta> \<eight>.\<zero> = true" by(simp add:OclReal8_def)
+lemma [simp,code_unfold]: "\<upsilon> \<eight>.\<zero> = true" by(simp add:OclReal8_def)
+lemma [simp,code_unfold]: "\<delta> \<nine>.\<zero> = true" by(simp add:OclReal9_def)
+lemma [simp,code_unfold]: "\<upsilon> \<nine>.\<zero> = true" by(simp add:OclReal9_def)
 
 
 subsection{* Arithmetical Operations on Real *}
@@ -138,38 +146,53 @@ definition OclAdd\<^sub>R\<^sub>e\<^sub>a\<^sub>l ::"('\<AA>)Real \<Rightarrow> 
 where "x +\<^sub>r\<^sub>e\<^sub>a\<^sub>l y \<equiv> \<lambda> \<tau>. if (\<delta> x) \<tau> = true \<tau> \<and> (\<delta> y) \<tau> = true \<tau>
                        then \<lfloor>\<lfloor>\<lceil>\<lceil>x \<tau>\<rceil>\<rceil> + \<lceil>\<lceil>y \<tau>\<rceil>\<rceil>\<rfloor>\<rfloor>
                        else invalid \<tau> "
+interpretation OclAdd\<^sub>R\<^sub>e\<^sub>a\<^sub>l : binop_infra1 "op +\<^sub>r\<^sub>e\<^sub>a\<^sub>l" "\<lambda> x y. \<lfloor>\<lfloor>\<lceil>\<lceil>x\<rceil>\<rceil> + \<lceil>\<lceil>y\<rceil>\<rceil>\<rfloor>\<rfloor>"
+         by unfold_locales (auto simp:OclAdd\<^sub>R\<^sub>e\<^sub>a\<^sub>l_def bot_option_def null_option_def)
+
 
 definition OclMinus\<^sub>R\<^sub>e\<^sub>a\<^sub>l ::"('\<AA>)Real \<Rightarrow> ('\<AA>)Real \<Rightarrow> ('\<AA>)Real" (infix "-\<^sub>r\<^sub>e\<^sub>a\<^sub>l" 41)
 where "x -\<^sub>r\<^sub>e\<^sub>a\<^sub>l y \<equiv> \<lambda> \<tau>. if (\<delta> x) \<tau> = true \<tau> \<and> (\<delta> y) \<tau> = true \<tau>
                        then \<lfloor>\<lfloor>\<lceil>\<lceil>x \<tau>\<rceil>\<rceil> - \<lceil>\<lceil>y \<tau>\<rceil>\<rceil>\<rfloor>\<rfloor>
                        else invalid \<tau> "
+interpretation OclMinus\<^sub>R\<^sub>e\<^sub>a\<^sub>l : binop_infra1 "op -\<^sub>r\<^sub>e\<^sub>a\<^sub>l" "\<lambda> x y. \<lfloor>\<lfloor>\<lceil>\<lceil>x\<rceil>\<rceil> - \<lceil>\<lceil>y\<rceil>\<rceil>\<rfloor>\<rfloor>"
+         by   unfold_locales  (auto simp:OclMinus\<^sub>R\<^sub>e\<^sub>a\<^sub>l_def bot_option_def null_option_def)
+
 
 definition OclMult\<^sub>R\<^sub>e\<^sub>a\<^sub>l ::"('\<AA>)Real \<Rightarrow> ('\<AA>)Real \<Rightarrow> ('\<AA>)Real" (infix "*\<^sub>r\<^sub>e\<^sub>a\<^sub>l" 45)
 where "x *\<^sub>r\<^sub>e\<^sub>a\<^sub>l y \<equiv> \<lambda> \<tau>. if (\<delta> x) \<tau> = true \<tau> \<and> (\<delta> y) \<tau> = true \<tau>
                        then \<lfloor>\<lfloor>\<lceil>\<lceil>x \<tau>\<rceil>\<rceil> * \<lceil>\<lceil>y \<tau>\<rceil>\<rceil>\<rfloor>\<rfloor>
-                       else invalid \<tau> "
-
+                       else invalid \<tau>"
+interpretation OclMult\<^sub>R\<^sub>e\<^sub>a\<^sub>l : binop_infra1 "op *\<^sub>r\<^sub>e\<^sub>a\<^sub>l" "\<lambda> x y. \<lfloor>\<lfloor>\<lceil>\<lceil>x\<rceil>\<rceil> * \<lceil>\<lceil>y\<rceil>\<rceil>\<rfloor>\<rfloor>"
+         by   unfold_locales  (auto simp:OclMult\<^sub>R\<^sub>e\<^sub>a\<^sub>l_def bot_option_def null_option_def)
+          
+text{* Here is the special case of division, which is defined as invalid for division
+by zero. *}
 definition OclDivision\<^sub>R\<^sub>e\<^sub>a\<^sub>l ::"('\<AA>)Real \<Rightarrow> ('\<AA>)Real \<Rightarrow> ('\<AA>)Real" (infix "div\<^sub>r\<^sub>e\<^sub>a\<^sub>l" 45)
 where "x div\<^sub>r\<^sub>e\<^sub>a\<^sub>l y \<equiv> \<lambda> \<tau>. if (\<delta> x) \<tau> = true \<tau> \<and> (\<delta> y) \<tau> = true \<tau>
-                       then \<lfloor>\<lfloor>\<lceil>\<lceil>x \<tau>\<rceil>\<rceil> div \<lceil>\<lceil>y \<tau>\<rceil>\<rceil>\<rfloor>\<rfloor>
+                       then if y \<tau> \<noteq> OclReal0 \<tau> then \<lfloor>\<lfloor>\<lceil>\<lceil>x \<tau>\<rceil>\<rceil> div \<lceil>\<lceil>y \<tau>\<rceil>\<rceil>\<rfloor>\<rfloor> else invalid \<tau> 
                        else invalid \<tau> "
-
+(* TODO: special locale setup.*)
 
 definition OclModulus\<^sub>R\<^sub>e\<^sub>a\<^sub>l ::"('\<AA>)Real \<Rightarrow> ('\<AA>)Real \<Rightarrow> ('\<AA>)Real" (infix "mod\<^sub>r\<^sub>e\<^sub>a\<^sub>l" 45)
 where "x mod\<^sub>r\<^sub>e\<^sub>a\<^sub>l y \<equiv> \<lambda> \<tau>. if (\<delta> x) \<tau> = true \<tau> \<and> (\<delta> y) \<tau> = true \<tau>
-                       then \<lfloor>\<lfloor>\<lceil>\<lceil>x \<tau>\<rceil>\<rceil> mod \<lceil>\<lceil>y \<tau>\<rceil>\<rceil>\<rfloor>\<rfloor>
+                       then if y \<tau> \<noteq> OclReal0 \<tau> then \<lfloor>\<lfloor>\<lceil>\<lceil>x \<tau>\<rceil>\<rceil> mod \<lceil>\<lceil>y \<tau>\<rceil>\<rceil>\<rfloor>\<rfloor> else invalid \<tau> 
                        else invalid \<tau> "
+(* TODO: special locale setup.*)
 
 
 definition OclLess\<^sub>R\<^sub>e\<^sub>a\<^sub>l ::"('\<AA>)Real \<Rightarrow> ('\<AA>)Real \<Rightarrow> ('\<AA>)Boolean" (infix "<\<^sub>r\<^sub>e\<^sub>a\<^sub>l" 35)
 where "x <\<^sub>r\<^sub>e\<^sub>a\<^sub>l y \<equiv> \<lambda> \<tau>. if (\<delta> x) \<tau> = true \<tau> \<and> (\<delta> y) \<tau> = true \<tau>
                        then \<lfloor>\<lfloor>\<lceil>\<lceil>x \<tau>\<rceil>\<rceil> < \<lceil>\<lceil>y \<tau>\<rceil>\<rceil>\<rfloor>\<rfloor>
                        else invalid \<tau> "
+interpretation OclLess\<^sub>R\<^sub>e\<^sub>a\<^sub>l : binop_infra1 "op <\<^sub>r\<^sub>e\<^sub>a\<^sub>l" "\<lambda> x y. \<lfloor>\<lfloor>\<lceil>\<lceil>x\<rceil>\<rceil> < \<lceil>\<lceil>y\<rceil>\<rceil>\<rfloor>\<rfloor>"
+         by   unfold_locales  (auto simp:OclLess\<^sub>R\<^sub>e\<^sub>a\<^sub>l_def bot_option_def null_option_def)
 
 definition OclLe\<^sub>R\<^sub>e\<^sub>a\<^sub>l ::"('\<AA>)Real \<Rightarrow> ('\<AA>)Real \<Rightarrow> ('\<AA>)Boolean" (infix "\<le>\<^sub>r\<^sub>e\<^sub>a\<^sub>l" 35)
 where "x \<le>\<^sub>r\<^sub>e\<^sub>a\<^sub>l y \<equiv> \<lambda> \<tau>. if (\<delta> x) \<tau> = true \<tau> \<and> (\<delta> y) \<tau> = true \<tau>
                        then \<lfloor>\<lfloor>\<lceil>\<lceil>x \<tau>\<rceil>\<rceil> \<le> \<lceil>\<lceil>y \<tau>\<rceil>\<rceil>\<rfloor>\<rfloor>
                        else invalid \<tau> "
+interpretation OclLe\<^sub>R\<^sub>e\<^sub>a\<^sub>l : binop_infra1 "op \<le>\<^sub>r\<^sub>e\<^sub>a\<^sub>l" "\<lambda> x y. \<lfloor>\<lfloor>\<lceil>\<lceil>x\<rceil>\<rceil> \<le> \<lceil>\<lceil>y\<rceil>\<rceil>\<rfloor>\<rfloor>"
+         by   unfold_locales  (auto simp:OclLe\<^sub>R\<^sub>e\<^sub>a\<^sub>l_def bot_option_def null_option_def)
 
 subsubsection{* Basic Properties *}
 
@@ -180,23 +203,11 @@ lemma OclAdd\<^sub>R\<^sub>e\<^sub>a\<^sub>l_commute: "(X +\<^sub>r\<^sub>e\<^su
 
 subsubsection{* Execution with Invalid or Null or Zero as Argument *}
 
-lemma OclAdd\<^sub>R\<^sub>e\<^sub>a\<^sub>l_strict1[simp,code_unfold] : "(x +\<^sub>r\<^sub>e\<^sub>a\<^sub>l invalid) = invalid"
-by(rule ext, simp add: OclAdd\<^sub>R\<^sub>e\<^sub>a\<^sub>l_def true_def false_def)
-
-lemma OclAdd\<^sub>R\<^sub>e\<^sub>a\<^sub>l_strict2[simp,code_unfold] : "(invalid +\<^sub>r\<^sub>e\<^sub>a\<^sub>l x) = invalid"
-by(rule ext, simp add: OclAdd\<^sub>R\<^sub>e\<^sub>a\<^sub>l_def true_def false_def)
-
-lemma [simp,code_unfold] : "(x +\<^sub>r\<^sub>e\<^sub>a\<^sub>l null) = invalid"
-by(rule ext, simp add: OclAdd\<^sub>R\<^sub>e\<^sub>a\<^sub>l_def true_def false_def)
-
-lemma [simp,code_unfold] : "(null +\<^sub>r\<^sub>e\<^sub>a\<^sub>l x) = invalid"
-by(rule ext, simp add: OclAdd\<^sub>R\<^sub>e\<^sub>a\<^sub>l_def true_def false_def)
-(*
 lemma OclAdd\<^sub>R\<^sub>e\<^sub>a\<^sub>l_zero1[simp,code_unfold] :
-"(x +\<^sub>r\<^sub>e\<^sub>a\<^sub>l \<zero>) = (if \<upsilon> x and not (\<delta> x) then invalid else x endif)"
+"(x +\<^sub>r\<^sub>e\<^sub>a\<^sub>l \<zero>.\<zero>) = (if \<upsilon> x and not (\<delta> x) then invalid else x endif)"
  proof (rule ext, rename_tac \<tau>, case_tac "(\<upsilon> x and not (\<delta> x)) \<tau> = true \<tau>")
   fix \<tau> show "(\<upsilon> x and not (\<delta> x)) \<tau> = true \<tau> \<Longrightarrow>
-              (x +\<^sub>r\<^sub>e\<^sub>a\<^sub>l \<zero>) \<tau> = (if \<upsilon> x and not (\<delta> x) then invalid else x endif) \<tau>"
+              (x +\<^sub>r\<^sub>e\<^sub>a\<^sub>l \<zero>.\<zero>) \<tau> = (if \<upsilon> x and not (\<delta> x) then invalid else x endif) \<tau>"
    apply(subst OclIf_true', simp add: OclValid_def)
   by (metis OclAdd\<^sub>R\<^sub>e\<^sub>a\<^sub>l_def OclNot_defargs OclValid_def foundation5 foundation9)
   apply_end assumption
@@ -209,8 +220,8 @@ lemma OclAdd\<^sub>R\<^sub>e\<^sub>a\<^sub>l_zero1[simp,code_unfold] :
    apply(rename_tac x', case_tac x', metis bot_option_def foundation16 null_option_def)
   by(simp)
   show "\<tau> \<Turnstile> not (\<upsilon> x and not (\<delta> x)) \<Longrightarrow>
-              (x +\<^sub>r\<^sub>e\<^sub>a\<^sub>l \<zero>) \<tau> = (if \<upsilon> x and not (\<delta> x) then invalid else x endif) \<tau>"
-   apply(subst OclIf_false', simp, simp add: A, auto simp: OclAdd\<^sub>R\<^sub>e\<^sub>a\<^sub>l_def OclInt0_def)
+              (x +\<^sub>r\<^sub>e\<^sub>a\<^sub>l \<zero>.\<zero>) \<tau> = (if \<upsilon> x and not (\<delta> x) then invalid else x endif) \<tau>"
+   apply(subst OclIf_false', simp, simp add: A, auto simp: OclAdd\<^sub>R\<^sub>e\<^sub>a\<^sub>l_def OclReal0_def)
      (* *)
      apply(simp add: foundation16'[simplified OclValid_def])
     apply(simp add: B)
@@ -219,24 +230,11 @@ lemma OclAdd\<^sub>R\<^sub>e\<^sub>a\<^sub>l_zero1[simp,code_unfold] :
 qed
 
 lemma OclAdd\<^sub>R\<^sub>e\<^sub>a\<^sub>l_zero2[simp,code_unfold] :
-"(\<zero> +\<^sub>r\<^sub>e\<^sub>a\<^sub>l x) = (if \<upsilon> x and not (\<delta> x) then invalid else x endif)"
+"(\<zero>.\<zero> +\<^sub>r\<^sub>e\<^sub>a\<^sub>l x) = (if \<upsilon> x and not (\<delta> x) then invalid else x endif)"
 by(subst OclAdd\<^sub>R\<^sub>e\<^sub>a\<^sub>l_commute, simp)
-*)
-(* TODO Basic proproperties for multiplication, division, modulus. *)
-
-
-subsubsection{* Context Passing *}
-
-lemma cp_OclAdd\<^sub>R\<^sub>e\<^sub>a\<^sub>l:"(X +\<^sub>r\<^sub>e\<^sub>a\<^sub>l Y) \<tau> = ((\<lambda> _. X \<tau>) +\<^sub>r\<^sub>e\<^sub>a\<^sub>l (\<lambda> _. Y \<tau>)) \<tau>"
-by(simp add: OclAdd\<^sub>R\<^sub>e\<^sub>a\<^sub>l_def cp_defined[symmetric])
-
-lemma cp_OclLess\<^sub>R\<^sub>e\<^sub>a\<^sub>l:"(X <\<^sub>r\<^sub>e\<^sub>a\<^sub>l Y) \<tau> = ((\<lambda> _. X \<tau>) <\<^sub>r\<^sub>e\<^sub>a\<^sub>l (\<lambda> _. Y \<tau>)) \<tau>"
-by(simp add: OclLess\<^sub>R\<^sub>e\<^sub>a\<^sub>l_def cp_defined[symmetric])
-
-lemma cp_OclLe\<^sub>R\<^sub>e\<^sub>a\<^sub>l:"(X \<le>\<^sub>r\<^sub>e\<^sub>a\<^sub>l Y) \<tau> = ((\<lambda> _. X \<tau>) \<le>\<^sub>r\<^sub>e\<^sub>a\<^sub>l (\<lambda> _. Y \<tau>)) \<tau>"
-by(simp add: OclLe\<^sub>R\<^sub>e\<^sub>a\<^sub>l_def cp_defined[symmetric])
 
 (* TODO Basic proproperties for multiplication, division, modulus. *)
+
 
 
 subsubsection{* Test Statements *}
@@ -247,6 +245,9 @@ Assert "  \<tau> \<Turnstile> ( \<nine>.\<zero> \<le>\<^sub>r\<^sub>e\<^sub>a\<^
 Assert "  \<tau> \<Turnstile> (( \<four>.\<zero> +\<^sub>r\<^sub>e\<^sub>a\<^sub>l \<four>.\<zero> ) \<le>\<^sub>r\<^sub>e\<^sub>a\<^sub>l \<one>\<zero>.\<zero> )"
 Assert "\<not>(\<tau> \<Turnstile> (( \<four>.\<zero> +\<^sub>r\<^sub>e\<^sub>a\<^sub>l ( \<four>.\<zero> +\<^sub>r\<^sub>e\<^sub>a\<^sub>l \<four>.\<zero> )) <\<^sub>r\<^sub>e\<^sub>a\<^sub>l \<one>\<zero>.\<zero> ))"
 Assert "  \<tau> \<Turnstile> not (\<upsilon> (null +\<^sub>r\<^sub>e\<^sub>a\<^sub>l \<one>.\<zero>)) "
+Assert "  \<tau> \<Turnstile> (((\<nine>.\<zero> *\<^sub>r\<^sub>e\<^sub>a\<^sub>l \<four>.\<zero>) div\<^sub>r\<^sub>e\<^sub>a\<^sub>l \<one>\<zero>.\<zero>) \<le>\<^sub>r\<^sub>e\<^sub>a\<^sub>l  \<four>.\<zero>) "
+Assert "  \<tau> \<Turnstile> not (\<delta> (\<one>.\<zero> div\<^sub>r\<^sub>e\<^sub>a\<^sub>l \<zero>.\<zero>)) "
+Assert "  \<tau> \<Turnstile> not (\<upsilon> (\<one>.\<zero> div\<^sub>r\<^sub>e\<^sub>a\<^sub>l \<zero>.\<zero>)) "
 
 
 end
