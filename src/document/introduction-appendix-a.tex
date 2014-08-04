@@ -1,4 +1,116 @@
 \part{Introduction}
+\chapter{Introduction}
+This annex formally defines the semantics of OCL and will proceed by describing the OCL semantics by a translation in to a core language --- called FeatherWeight OCL ---
+which has in itself a formally described semantics presented in Isabelle/HOL (see \cite{} )
+% http://afp.sourceforge.net/entries/Featherweight_OCL.shtml
+for an up-to-date, machine-checked version 
+in the Archive of Formal Proods (AFP)). The semantic definitions are 
+in large parts executable, in some parts only provable (namely the essence of Set-constructions). The main concern of its construction is \emph{consistency}, i.e. it should
+be possible to apply logical rules and evaluation rules for OCL in an arbitrary manner always yielding the same,
+except in pathological cases unambiguously defined result. 
+Since OCL is a typed, object-oriented language based on a four-valued logics, this effort seems to be justified.
+In order to make this annex usable not only by logicians, but also by developers of compilers and proof-tools, we 
+\emph{derived} from the Isabelle definitions also \emph{logical rules} allowing formal interactive and automated proofs on 
+UML/OCL specifications, as well as \emph{execution rules} and \emph{test-cases} revealing corner-cases resulting from
+this semantics which give vital information for the implementor.
+
+OCL is a \emph{typed} object-oriented language. This means that it is --- like Java or C++ --- based on the concept of
+a \emph{static type}, that is the type that the type-checker infers from a UML class model and its OCL annotation, as 
+well as a dynamic type, that is the type at which an object is dynamically created. 
+\footnote{As side-effect free language, OCL has no object-constructors, but with \verb+OclIsNew()+, the effect of
+object creation can be expressed in a declarative way.} Types are not only a means for efficient compilation
+and a support of separation of concerns in programming, there are of fundamental importance for our
+goal of logical consistency\footnote{it is impossible to have sets that contain themselves, i.e. to state Russels Paradox in
+OCL typed set-theory}. Moreover, object-oriented typing means that between types there can be sub typing
+relations; technically speaking, this means that they can be \emph{casted} via 
+\verb+oclIsTypeOf(T)+ one to the other, and under particular conditions to be described in detail later, these casts 
+are semantically \emph{lossless}. 
+
+Here is a feature-list of FeatherWeight OCL: 
+\begin{enumerate}
+\item It specifies key built-in types such as \verb+Boolean+, \verb+Void+, \verb+Integer+, \verb+Real+ and \verb+String+
+         as well as generic types such as \verb+Pair(T,T')+, \verb+Sequence(T)+ and \verb+Set(T).
+\item It defines the semantics of the operations of these types in \emph{denotational form} --- see explanation below ---, 
+         and thus an unambiguous (and in Isabelle/HOL executable or animatable) way.    
+\item it develops the \emph{theory} of these definitions, i.e. the collection of lemmas and theorems that
+         can be proven from these definitions. In the case of the four-valued \verb+Boolean+ type, this also covers the
+         derivation of the \emph{logic} of OCL.
+                                                                                                 
+
+%\section{Featherweight OCL: Design Goals}
+Featherweight OCL is a formalization of the core of OCL
+aiming at formally investigating the relationship between the
+various concepts. At present, it does not attempt to define the complete
+OCL library. Instead, it concentrates on the core concepts of
+OCL as well as the types \inlineocl{Boolean},
+\inlineocl{Integer}, and typed sets (\inlineocl|Set(T)|).  Following
+the tradition of
+HOL-OCL~\cite{brucker.ea:hol-ocl:2008,brucker.ea:hol-ocl-book:2006},
+Featherweight OCL is based on the following principles:
+\begin{enumerate}
+\item It is an embedding into a powerful semantic meta-language and
+  environment, namely
+  Isabelle/HOL~\cite{nipkow.ea:isabelle:2002}.
+\item It is a \emph{shallow embedding} in HOL; types
+  in OCL were injectively mapped to types in Featherweight
+  OCL\@. Ill-typed OCL specifications cannot be represented in
+  Featherweight OCL and a type in Featherweight OCL contains exactly
+  the values that are possible in OCL\@. Thus, sets may contain
+  \inlineocl{null} (\inlineocl|Set{null}| is a defined set) but not
+  \inlineocl{invalid} (\inlineocl|Set{invalid}| is just
+  \inlineocl{invalid}).
+\item Any Featherweight OCL type contains at least
+  \inlineocl{invalid} and \inlineocl{null} (the type \inlineocl{Void}
+  contains only these instances). The logic is consequently
+  four-valued, and there is a \inlineocl{null}-element in the type
+  \inlineocl{Set(A)}.
+\item It is a strongly typed language in the Hindley-Milner tradition.
+  We assume that a pre-process eliminates all implicit conversions due
+  to subtyping by introducing explicit casts (\eg,
+  \inlineocl{oclAsType()}). The details of such a pre-processing are
+  described in~\cite{brucker:interactive:2007}.  Casts are semantic
+  functions, typically injections, that may convert data between the
+  different Featherweight OCL types.
+\item All objects are represented in an object universe in the HOL-OCL
+  tradition~\cite{brucker.ea:extensible:2008-b}. The universe
+  construction also gives semantics to type casts, dynamic type
+  tests, as well as functions such as \inlineocl{oclAllInstances()},
+  or \inlineocl{oclIsNew()}.
+\item Featherweight OCL types may be arbitrarily nested. For example,
+  the expression
+  \inlineocl|Set{Set{1,2}} = Set{Set{2,1}}| is legal and true.
+\item For demonstration purposes, the set type in Featherweight OCL
+  may be infinite, allowing infinite quantification and a constant
+  that contains the set of all Integers.  Arithmetic laws like
+  commutativity may therefore be expressed in OCL itself.  The
+  iterator is only defined on finite sets.
+\item It supports equational reasoning and congruence reasoning, but
+  this requires a differentiation of the different equalities like
+  strict equality, strong equality, meta-equality (HOL). Strict
+  equality and strong equality require a subcalculus, ``cp'' (a
+  detailed discussion of the different equalities as well as the
+  subcalculus ``cp''---for three-valued OCL 2.0---is given
+  in~\cite{brucker.ea:semantics:2009}), which is nasty but can be
+  hidden from the user inside tools.
+\end{enumerate}
+
+is organized as follows. 
+\fixme{rethink this ! I think it should be the other way round !}
+Sub clause A.1 defines the concept of object models. Object models provide information used as context for OCL expressions and constraints. Sub clause A.2 defines the type system of OCL and the set of standard operations. Finally, sub clause A.3 defines the semantics of OCL expressions.
+\fixme{... END}
+
+
+a particular organization necessary: 
+\begin{enumerate}
+\item all operations must first be 
+
+
+
+
+ 
+\subsection{}
+
+A.1 Object ModelsIn this sub clause, the notion of an object model is formally defined. An object model provides the context for OCL expressions and constraints. A precise understanding of object models is required before a formal definition of OCL expressions can be given. Sub clause A.1.1 proceeds with a formal definition of the syntax of object models. The semantics of object models is defined in sub clause A.1.2. This sub clause also defines the notion of system states as snapshots of a running system.
 \chapter{Motivation}
 The Unified Modeling Language
 (UML)~\cite{omg:uml-infrastructure:2011,omg:uml-superstructure:2011}
@@ -229,7 +341,7 @@ conclusion $A_{n+1}$'' and which is written in Isabelle as
   \semantics{A_1 ; \ldots; A_n}\Implies A_{n+1}
   \qquad
   \text{or, in mathematical notation,}
-  \qquad
+  \quad
   \begin{prooftree}
     A_1 \qquad \cdots \qquad A_n
     \justifies
@@ -446,62 +558,6 @@ Isabelle simplifier provides also a highly potent decision procedure
 for many fragments of theories underlying the constraints to be
 processed when constructing test theorems.
 
-\section{Featherweight OCL: Design Goals}
-Featherweight OCL is a formalization of the core of OCL
-aiming at formally investigating the relationship between the
-various concepts. At present, it does not attempt to define the complete
-OCL library. Instead, it concentrates on the core concepts of
-OCL as well as the types \inlineocl{Boolean},
-\inlineocl{Integer}, and typed sets (\inlineocl|Set(T)|).  Following
-the tradition of
-HOL-OCL~\cite{brucker.ea:hol-ocl:2008,brucker.ea:hol-ocl-book:2006},
-Featherweight OCL is based on the following principles:
-\begin{enumerate}
-\item It is an embedding into a powerful semantic meta-language and
-  environment, namely
-  Isabelle/HOL~\cite{nipkow.ea:isabelle:2002}.
-\item It is a \emph{shallow embedding} in HOL; types
-  in OCL were injectively mapped to types in Featherweight
-  OCL\@. Ill-typed OCL specifications cannot be represented in
-  Featherweight OCL and a type in Featherweight OCL contains exactly
-  the values that are possible in OCL\@. Thus, sets may contain
-  \inlineocl{null} (\inlineocl|Set{null}| is a defined set) but not
-  \inlineocl{invalid} (\inlineocl|Set{invalid}| is just
-  \inlineocl{invalid}).
-\item Any Featherweight OCL type contains at least
-  \inlineocl{invalid} and \inlineocl{null} (the type \inlineocl{Void}
-  contains only these instances). The logic is consequently
-  four-valued, and there is a \inlineocl{null}-element in the type
-  \inlineocl{Set(A)}.
-\item It is a strongly typed language in the Hindley-Milner tradition.
-  We assume that a pre-process eliminates all implicit conversions due
-  to subtyping by introducing explicit casts (\eg,
-  \inlineocl{oclAsType()}). The details of such a pre-processing are
-  described in~\cite{brucker:interactive:2007}.  Casts are semantic
-  functions, typically injections, that may convert data between the
-  different Featherweight OCL types.
-\item All objects are represented in an object universe in the HOL-OCL
-  tradition~\cite{brucker.ea:extensible:2008-b}. The universe
-  construction also gives semantics to type casts, dynamic type
-  tests, as well as functions such as \inlineocl{oclAllInstances()},
-  or \inlineocl{oclIsNew()}.
-\item Featherweight OCL types may be arbitrarily nested. For example,
-  the expression
-  \inlineocl|Set{Set{1,2}} = Set{Set{2,1}}| is legal and true.
-\item For demonstration purposes, the set type in Featherweight OCL
-  may be infinite, allowing infinite quantification and a constant
-  that contains the set of all Integers.  Arithmetic laws like
-  commutativity may therefore be expressed in OCL itself.  The
-  iterator is only defined on finite sets.
-\item It supports equational reasoning and congruence reasoning, but
-  this requires a differentiation of the different equalities like
-  strict equality, strong equality, meta-equality (HOL). Strict
-  equality and strong equality require a subcalculus, ``cp'' (a
-  detailed discussion of the different equalities as well as the
-  subcalculus ``cp''---for three-valued OCL 2.0---is given
-  in~\cite{brucker.ea:semantics:2009}), which is nasty but can be
-  hidden from the user inside tools.
-\end{enumerate}
 
 \section{The Theory Organization}
 The semantic theory is organized in a quite conventional manner in
