@@ -159,17 +159,14 @@ fun check l_oid l =
   let val Mp = OCL.map_pair 
       val Me = String.explode
       val Mi = String.implode
-      val Mo = Option.map
       val Ml = map in
   OCL.check_export_code
     (writeln o Mi)
     (warning o Mi)
     (writeln o Markup.markup Markup.bad o Mi)
     (error o Mi)
-    (Ml (Mp Me Me)
-      l_oid)
-    (Ml (Mp (Mp I (Mp (Mo Me) (Mo Me))) (Mp I (Ml (Mp (Ml Me) (Ml Me)))))
-      l)
+    (Ml (Mp I Me) l_oid)
+    (Me l)
   end
 end
 *}

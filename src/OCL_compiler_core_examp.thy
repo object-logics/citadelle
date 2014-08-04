@@ -241,8 +241,8 @@ definition "check_single = (\<lambda> (name_attr, oid, l_oid) l_mult l.
                                              , '' ''
                                              , case name_attr of None \<Rightarrow> ''/* unnamed attribute */'' | Some s \<Rightarrow> ''.'' @@ s
                                              , '' = Set{''
-                                             , let l = List_map assoc l in
-                                               if l = [] then '''' else '' '' @@ String_concatWith '' , '' l @@ '' ''
+                                             , bug_ocaml_extraction (let l = List_map assoc l in
+                                               if l = [] then '''' else '' '' @@ String_concatWith '' , '' l @@ '' '')
                                              , ''}''
                                              , if b then '''' else f msg ]))
                   [(case mult_min of Mult_nat mult_min \<Rightarrow> mult_min \<le> attr_len | _ \<Rightarrow> True, ''minimum'')
@@ -260,45 +260,18 @@ definition "check_single = (\<lambda> (name_attr, oid, l_oid) l_mult l.
          (Error, List_map (filter (Not o fst)) l_typed) in
   flatten (List_map (List_map (\<lambda> (b, s) \<Rightarrow> (if b then Writeln else stop, s))) l_typed))"
 
-definition "check f_writeln f_warning f_error f_raise l_oid l = 
- (let l_out =
-        fold
-          (\<lambda>_ l.
-            case l of ((name_from, name_to), ((OclMult l_mult_from, OclMult l_mult_to), _)) # _ \<Rightarrow>
-            let l = List_map (\<lambda> (a, b) \<Rightarrow> [a, b]) (flatten (List_map (snd o snd) l)) in
-            List.fold
-              (\<lambda> (x, _) acc.
-                let s = (*01*) \<lambda> [x0, x1] \<Rightarrow> (x0, x1)
-                  ; s' = (*01*) \<lambda> [x0, x1] \<Rightarrow> (x0, x1)
-                  ; s'' = (*01*) \<lambda> [x0, x1] \<Rightarrow> (x0, x1)
-                  ; l1 = check_single ((snd o s'') [name_from, name_to], x, l_oid) ((snd o s') [l_mult_from, l_mult_to]) (deref_assocs_list s x l)
-                  ; s = (*10*) \<lambda> [x0, x1] \<Rightarrow> (x1, x0)
-                  ; s' = (*10*) \<lambda> [x0, x1] \<Rightarrow> (x1, x0)
-                  ; s'' = (*10*) \<lambda> [x0, x1] \<Rightarrow> (x1, x0)
-                  ; l2 = check_single ((snd o s'') [name_from, name_to], x, l_oid) ((snd o s') [l_mult_from, l_mult_to]) (deref_assocs_list s x l) in
-                flatten [acc, l1, l2])
-              l_oid)
-          (List.fold
-            (\<lambda> ((oid, name_attr), l_o) \<Rightarrow>
-              modify_def [] oid (\<lambda>l. (name_attr, l_o) # l))
-            l
-            empty)
-          []
-    ; l_err =
+definition "check_export_code f_writeln f_warning f_error f_raise l_report msg_last = 
+ (let l_err =
         List.fold
           (\<lambda> (Writeln, s) \<Rightarrow> \<lambda>acc. case f_writeln s of () \<Rightarrow> acc
            | (Warning, s) \<Rightarrow> \<lambda>acc. case f_warning s of () \<Rightarrow> acc
            | (Error, s) \<Rightarrow> \<lambda>acc. case f_error s of () \<Rightarrow> s # acc)
-          l_out
+          l_report
           [] in
   if l_err = [] then
     ()
   else
-    f_raise (nat_of_str (length l_err) @@ '' error(s) in multiplicity constraints''))"
-
-definition "check_export_code (* polymorphism weakening needed by code_reflect *)
-        f_writeln f_warning f_error f_raise (l_oid :: (string \<times> _) list) (l :: ((nat \<times> _) \<times> _) list) = 
-  check f_writeln f_warning f_error f_raise l_oid l"
+    f_raise (nat_of_str (length l_err) @@ msg_last))"
 
 definition "print_examp_instance_defassoc_gen name l_ocli ocl =
  (if D_design_analysis ocl = Gen_analysis then [] else
@@ -341,37 +314,65 @@ definition "print_examp_instance_defassoc_typecheck_gen name l_ocli ocl =
                 , (map_self, map_username)) =
               init_map_class ocl (List_map (\<lambda> Some ocli \<Rightarrow> ocli | None \<Rightarrow> \<lparr> Inst_name = [], Inst_ty = [], Inst_attr = OclAttrNoCast [] \<rparr>) l_ocli) in
             print_examp_def_st_assoc_build_rbt rbt map_self map_username l_assoc
-    ; var_Nat = ''Code_Numeral.Nat'' in
+    ; var_Nat = ''Code_Numeral.Nat''
+  (* *)
+
+    ; l_oid = List_map (\<lambda>(ocli, oids). case oidGetInh oids of Oid n \<Rightarrow>
+          (flatten [var_oid_uniq, natural_of_str n], Inst_name ocli))
+        l_assoc
+    ; l = fold (\<lambda>name.
+       fold (\<lambda>name_attr (l_attr, ty_obj) l_cons.
+         if TyObj_ass_arity ty_obj = 2 then
+         let cpt_from = TyObjN_ass_switch (TyObj_from ty_obj)
+           ; cpt_to = TyObjN_ass_switch (TyObj_to ty_obj)
+           ; (f_from, f_to) = if cpt_from < cpt_to then (TyObj_from, TyObj_to) else (TyObj_to, TyObj_from) in
+         ( ( print_access_oid_uniq_mlname cpt_from name name_attr
+           , TyObjN_role_name (f_from ty_obj)
+           , TyObjN_role_name (f_to ty_obj))
+         , (TyObjN_role_multip (f_from ty_obj), TyObjN_role_multip (f_to ty_obj))
+         , List_map (let v = ( cpt_from
+                             , cpt_to) in
+                     if v = (0, 1) then
+                       (*01*) \<lambda> [x0, x1] \<Rightarrow> (x0, x1)
+                     else
+                       (*10*) \<lambda> [x0, x1] \<Rightarrow> (x1, x0))
+                    (List_map (List_map (List_map (\<lambda>Oid n \<Rightarrow> flatten [var_oid_uniq, natural_of_str n]))) l_attr))
+         # l_cons else l_cons)) rbt []
+    ; l_out = 
+        fold
+          (\<lambda>_ l.
+            case l of ((name_from, name_to), ((OclMult l_mult_from, OclMult l_mult_to), _)) # _ \<Rightarrow>
+            let l = List_map (\<lambda> (a, b) \<Rightarrow> [a, b]) (flatten (List_map (snd o snd) l)) in
+            List.fold
+              (\<lambda> (x, _) acc.
+                let s = (*01*) \<lambda> [x0, x1] \<Rightarrow> (x0, x1)
+                  ; s' = (*01*) \<lambda> [x0, x1] \<Rightarrow> (x0, x1)
+                  ; s'' = (*01*) \<lambda> [x0, x1] \<Rightarrow> (x0, x1)
+                  ; l1 = check_single ((snd o s'') [name_from, name_to], x, l_oid) ((snd o s') [l_mult_from, l_mult_to]) (deref_assocs_list s x l)
+                  ; s = (*10*) \<lambda> [x0, x1] \<Rightarrow> (x1, x0)
+                  ; s' = (*10*) \<lambda> [x0, x1] \<Rightarrow> (x1, x0)
+                  ; s'' = (*10*) \<lambda> [x0, x1] \<Rightarrow> (x1, x0)
+                  ; l2 = check_single ((snd o s'') [name_from, name_to], x, l_oid) ((snd o s') [l_mult_from, l_mult_to]) (deref_assocs_list s x l) in
+                flatten [acc, l1, l2])
+              l_oid)
+          (List.fold
+            (\<lambda> ((oid, name_attr), l_o) \<Rightarrow>
+              modify_def [] oid (\<lambda>l. (name_attr, l_o) # l))
+            l
+            empty)
+          []
+ in
 
   [ Ml (Sexpr_apply ''Ty'.check''
     [ Sexpr_list'
-        (\<lambda>(ocli, oids). case oidGetInh oids of Oid n \<Rightarrow>
-          Sexpr_pair (Sexpr_string [flatten [var_oid_uniq, natural_of_str n]])
-                     (Sexpr_string [Inst_name ocli]))
-        l_assoc
-    , Sexpr_list (fold (\<lambda>name.
-       fold (\<lambda>name_attr (l_attr, ty_obj) l_cons.
-         let cpt_from = TyObjN_ass_switch (TyObj_from ty_obj)
-           ; cpt_to = TyObjN_ass_switch (TyObj_to ty_obj)
-           ; smult = \<lambda>m. case TyObjN_role_multip m of OclMult l \<Rightarrow>
-               let f = \<lambda> Mult_nat n \<Rightarrow> Sexpr_apply ''OCL.Mult_nat'' [Sexpr_apply var_Nat [Sexpr_basic [natural_of_str n]]]
-                       | Mult_star \<Rightarrow> Sexpr_basic [''OCL.Mult_star''] in
-               Sexpr_apply ''OCL.OclMult'' [Sexpr_list' (Sexpr_pair' f (Sexpr_option' f)) l]
-           ; srole = Sexpr_option' (\<lambda>x. Sexpr_string [x]) o TyObjN_role_name
-           ; (f_from, f_to) = if cpt_from < cpt_to then (TyObj_from, TyObj_to) else (TyObj_to, TyObj_from) in
-         (Sexpr_pair
-           (Sexpr_pair
-             (Sexpr_apply var_Nat [Sexpr_basic [print_access_oid_uniq_mlname cpt_from name name_attr]])
-             (Sexpr_pair (srole (f_from ty_obj)) (srole (f_to ty_obj))))
-           (Sexpr_pair
-             ( Sexpr_pair (smult (f_from ty_obj)) (smult (f_to ty_obj)))
-             ( Sexpr_apply ''List.map''
-               [ b (print_access_choose_mlname
-                                (TyObj_ass_arity ty_obj)
-                                cpt_from
-                                cpt_to)
-               , Sexpr_list' (Sexpr_list' (Sexpr_list' (\<lambda>Oid n \<Rightarrow> Sexpr_string [flatten [var_oid_uniq, natural_of_str n]]))) l_attr ])))
-         # l_cons)) rbt [])])])"
+        (\<lambda>(rep, s). 
+          Sexpr_pair (Sexpr_basic [flatten [ ''OCL.''
+                                           , case rep of Warning \<Rightarrow> ''Warning''
+                                                       | Error \<Rightarrow> ''Error''
+                                                       | Writeln \<Rightarrow> ''Writeln'' ]])
+                     (Sexpr_string [s]))
+        l_out
+    , Sexpr_string ['' error(s) in multiplicity constraints'']])])"
 
 definition "print_examp_instance_defassoc = (\<lambda> OclInstance l \<Rightarrow> \<lambda> ocl.
   (\<lambda>l_res.
