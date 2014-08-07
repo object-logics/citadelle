@@ -43,7 +43,7 @@
 
 header{* ... *}
 
-theory  OCL_lib_UnlimitedNatural
+theory  OCL_basic_type_UnlimitedNatural
 imports "../src/OCL_lib_common"
 begin
 
