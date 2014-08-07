@@ -52,6 +52,9 @@ definition "flatten l = foldl (\<lambda>acc l. foldl (\<lambda>acc x. x # acc) a
 
 (* *)
 
+definition "map_of_list = (foldl ((\<lambda>map. (\<lambda>(x , l1). (case (map (x)) of None \<Rightarrow> (map (x \<mapsto> l1))
+    | Some l0 \<Rightarrow> (map (x \<mapsto> (flatten ([l0 , l1])))))))) (Map.empty))"
+
 definition "choose_0 = fst"
 definition "choose_1 = snd"
 

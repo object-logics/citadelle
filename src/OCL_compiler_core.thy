@@ -352,7 +352,7 @@ definition "ocl_compiler_config_empty disable_thy_output file_out_path_dep oid_s
     oid_start
     (0, 0)
     design_analysis
-    None [] [] [] False ([], [])"
+    None [] [] [] False False ([], [])"
 
 definition "ocl_compiler_config_reset_no_env ocl =
   ocl_compiler_config_empty
@@ -387,10 +387,7 @@ definition "ocl_env_class_spec_mk f_try f_accu_reset f_fold f =
   (\<lambda> (ocl, accu).
     f_fold f
       (case D_class_spec ocl of Some _ \<Rightarrow> (ocl, accu) | None \<Rightarrow>
-       let (l_class, l_ocl) = List.partition (\<lambda> OclAstClassRaw _ \<Rightarrow> True
-                                              | OclAstAssociation _ \<Rightarrow> True
-                                              | OclAstAssClass _ \<Rightarrow> True
-                                              | _ \<Rightarrow> False) (rev (D_ocl_env ocl)) in
+       let (l_class, l_ocl) = find_class_ass ocl in
        (f_try (\<lambda> () \<Rightarrow> List.fold
            (\<lambda>ast. (case ast of
                OclAstInstance univ \<Rightarrow> fold_thy0 univ thy_instance
@@ -408,9 +405,7 @@ definition "ocl_env_class_spec_mk f_try f_accu_reset f_fold f =
                          (List.map_filter (\<lambda> OclAstClassRaw cflat \<Rightarrow> Some cflat
                                            | OclAstAssClass (OclAssClass _ cflat) \<Rightarrow> Some cflat
                                            | _ \<Rightarrow> None) l_class)
-                         (List.map_filter (\<lambda> OclAstAssociation ass \<Rightarrow> Some ass
-                                           | OclAstAssClass (OclAssClass ass _) \<Rightarrow> Some ass
-                                           | _ \<Rightarrow> None) l_class)
+                         (filter_ass l_class)
               ; (ocl, accu) = fold_thy0 univ thy_class f (let ocl = ocl_compiler_config_reset_no_env ocl in
                                                           (ocl, f_accu_reset ocl accu)) in
             (ocl \<lparr> D_class_spec := Some univ \<rparr>, accu))))))"

@@ -137,7 +137,19 @@ definition "print_access_choose = start_map'''' Thy_definition_hol o (\<lambda>e
      ; lets = \<lambda>var exp. Definition (Expr_rewrite (Expr_basic [var]) ''='' exp)
      ; lets' = bug_scala_extraction (\<lambda>var exp. Definition (Expr_rewrite (Expr_basic [var]) ''='' (b exp)))
      ; lets'' = bug_scala_extraction (\<lambda>var exp. Definition (Expr_rewrite (Expr_basic [var]) ''='' (Expr_lam ''l'' (\<lambda>var_l. Expr_binop (b var_l) ''!'' (b exp)))))
-     ; l_flatten = ''List_flatten'' in
+     ; l_flatten = ''List_flatten''
+     ; _(* ignored *) = lets var_map_of_list (Expr_apply ''foldl''
+      [ Expr_lam ''map'' (\<lambda>var_map.
+          let var_x = ''x''
+            ; var_l0 = ''l0''
+            ; var_l1 = ''l1''
+            ; f_map = a var_map in
+          Expr_lambdas0 (Expr_pair (b var_x) (b var_l1))
+            (Expr_case (f_map (b var_x))
+              (List_map (\<lambda>(pat, e). (pat, f_map (Expr_binop (b var_x) unicode_mapsto e)))
+                [ (b ''None'', b var_l1)
+                , (Expr_some (b var_l0), a l_flatten (Expr_list (List_map b [var_l0, var_l1])))])))
+      , b ''Map.empty'']) in
   flatten
   [ (bug_ocaml_extraction
     (let a = \<lambda>f x. Expr_apply f [x]
@@ -154,18 +166,6 @@ definition "print_access_choose = start_map'''' Thy_definition_hol o (\<lambda>e
                      fun_foldl (\<lambda>var_acc.
                        fun_foldl (\<lambda>var_acc.
                          Expr_lam ''l'' (\<lambda>var_l. Expr_apply ''Cons'' (List_map b [var_l, var_acc]))) (b var_acc)) (b ''Nil''))
-  , lets var_map_of_list (Expr_apply ''foldl''
-      [ Expr_lam ''map'' (\<lambda>var_map.
-          let var_x = ''x''
-            ; var_l0 = ''l0''
-            ; var_l1 = ''l1''
-            ; f_map = a var_map in
-          Expr_lambdas0 (Expr_pair (b var_x) (b var_l1))
-            (Expr_case (f_map (b var_x))
-              (List_map (\<lambda>(pat, e). (pat, f_map (Expr_binop (b var_x) unicode_mapsto e)))
-                [ (b ''None'', b var_l1)
-                , (Expr_some (b var_l0), a l_flatten (Expr_list (List_map b [var_l0, var_l1])))])))
-      , b ''Map.empty''])
   ,   let var_pre_post = ''pre_post''
         ; var_to_from = ''to_from''
         ; var_assoc_oid = ''assoc_oid''

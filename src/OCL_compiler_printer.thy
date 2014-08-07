@@ -61,6 +61,7 @@ definition "ocl_compiler_config_rec0 f ocl = f
   (D_ocl_env ocl)
   (D_instance_rbt ocl)
   (D_state_rbt ocl)
+  (D_import_compiler ocl)
   (D_generation_syntax_shallow ocl)
   (D_accessor_rbt ocl)"
 
@@ -69,19 +70,19 @@ definition "ocl_compiler_config_rec f ocl = ocl_compiler_config_rec0 f ocl
 
 (* *)
 
-lemma [code]: "ocl_compiler_config.extend = (\<lambda>ocl v. ocl_compiler_config_rec0 (co11 (\<lambda>f. f v) ocl_compiler_config_ext) ocl)"
+lemma [code]: "ocl_compiler_config.extend = (\<lambda>ocl v. ocl_compiler_config_rec0 (co12 (\<lambda>f. f v) ocl_compiler_config_ext) ocl)"
 by(intro ext, simp add: ocl_compiler_config_rec0_def
                         ocl_compiler_config.extend_def
-                        co11_def K_def)
-lemma [code]: "ocl_compiler_config.make = co11 (\<lambda>f. f ()) ocl_compiler_config_ext"
+                        co12_def K_def)
+lemma [code]: "ocl_compiler_config.make = co12 (\<lambda>f. f ()) ocl_compiler_config_ext"
 by(intro ext, simp add: ocl_compiler_config.make_def
-                        co11_def)
-lemma [code]: "ocl_compiler_config.truncate = ocl_compiler_config_rec (co11 K ocl_compiler_config.make)"
+                        co12_def)
+lemma [code]: "ocl_compiler_config.truncate = ocl_compiler_config_rec (co12 K ocl_compiler_config.make)"
 by(intro ext, simp add: ocl_compiler_config_rec0_def
                         ocl_compiler_config_rec_def
                         ocl_compiler_config.truncate_def
                         ocl_compiler_config.make_def
-                        co11_def K_def)
+                        co12_def K_def)
 
 subsection{* i of ... *} (* i_of *)
 
@@ -112,7 +113,7 @@ definition "i_of_ocl_deep_mode a b = ocl_deep_mode_rec
   (b ''Gen_analysis'')"
 
 definition "i_of_ocl_compiler_config a b f = ocl_compiler_config_rec
-  (ap12 a (b (ext ''ocl_compiler_config_ext''))
+  (ap13 a (b (ext ''ocl_compiler_config_ext''))
     (i_of_bool b)
     (i_of_option a b (i_of_pair a b (i_of_string a b) (i_of_pair a b (i_of_list a b (i_of_string a b)) (i_of_string a b))))
     (i_of_internal_oids a b)
@@ -122,6 +123,7 @@ definition "i_of_ocl_compiler_config a b f = ocl_compiler_config_rec
     (i_of_list a b (i_of_ocl_deep_embed_ast a b))
     (i_of_list a b (i_of_pair a b (i_of_string a b) (i_of_pair a b (i_of_ocl_instance_single a b (K i_of_unit)) (i_of_internal_oid a b))))
     (i_of_list a b (i_of_pair a b (i_of_string a b) (i_of_list a b (i_of_pair a b (i_of_internal_oids a b) (i_of_ocl_def_state_core a b (i_of_pair a b (i_of_string a b) (i_of_ocl_instance_single a b  (K i_of_unit))))))))
+    (i_of_bool b)
     (i_of_bool b)
     (i_of_pair a b (i_of_list a b (i_of_string a b)) (i_of_list a b (i_of_string a b)))
     (f a b))"
@@ -406,7 +408,7 @@ definition "s_of_thy_extended ocl = (\<lambda>
 definition "s_of_thy_list ocl l_thy =
   (let (th_beg, th_end) = case D_file_out_path_dep ocl of None \<Rightarrow> ([], [])
    | Some (name, fic_import, fic_import_boot) \<Rightarrow>
-       ( [ sprintf2 (STR ''theory %s imports %s begin'') (To_string name) (s_of_expr (expr_binop '' '' (List_map Expr_string (fic_import @@ (if D_generation_syntax_shallow ocl then [fic_import_boot] else []))))) ]
+       ( [ sprintf2 (STR ''theory %s imports %s begin'') (To_string name) (s_of_expr (expr_binop '' '' (List_map Expr_string (fic_import @@ (if D_import_compiler ocl | D_generation_syntax_shallow ocl then [fic_import_boot] else []))))) ]
        , [ STR '''', STR ''end'' ]) in
   flatten
         [ th_beg

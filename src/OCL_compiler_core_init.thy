@@ -90,7 +90,8 @@ record ocl_compiler_config =  D_disable_thy_output :: bool
                                                   \<times> ocl_instance_single (* alias *))
                                                       ocl_def_state_core) list) list"
                                              (* state namespace environment *)
-                              D_generation_syntax_shallow :: bool (* true : the header should import the compiler for bootstrapping *)
+                              D_import_compiler :: bool (* true : the header should import the compiler for bootstrapping *)
+                              D_generation_syntax_shallow :: bool (* true : add the generation_syntax command *)
                               D_accessor_rbt :: " string (* name of the constant added *) list (* pre *)
                                                 \<times> string (* name of the constant added *) list (* post *)"
 
@@ -103,6 +104,16 @@ definition "map_ctxt2_term f = (\<lambda>
 
 definition "ocl_compiler_config_more_map f ocl =
             ocl_compiler_config.extend  (ocl_compiler_config.truncate ocl) (f (ocl_compiler_config.more ocl))"
+
+definition "find_class_ass ocl =
+                              List.partition (\<lambda> OclAstClassRaw _ \<Rightarrow> True
+                                              | OclAstAssociation _ \<Rightarrow> True
+                                              | OclAstAssClass _ \<Rightarrow> True
+                                              | _ \<Rightarrow> False) (rev (D_ocl_env ocl))"
+
+definition "filter_ass = List.map_filter (\<lambda> OclAstAssociation ass \<Rightarrow> Some ass
+                                          | OclAstAssClass (OclAssClass ass _) \<Rightarrow> Some ass
+                                          | _ \<Rightarrow> None)"
 
 section{* SML Meta-Model (extended) *}
 subsection{* type definition *}
