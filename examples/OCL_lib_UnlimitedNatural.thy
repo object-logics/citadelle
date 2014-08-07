@@ -41,18 +41,15 @@
  ******************************************************************************)
 (* $Id:$ *)
 
-header{* Part II: Library Definitions *}
+header{* ... *}
 
-theory
-  OCL_lib_UnlimitedNatural
-imports
-  "../src/OCL_lib"
+theory  OCL_lib_UnlimitedNatural
+imports "../src/OCL_lib_common"
 begin
 
-section{* Basic Types: UnlimitedNatural *}
-subsection{* The construction of the UnlimitedNatural Type *}
+section{* ... *}
 
-text{* Unlike @{term "Integer"}, we should also include the infinity value besides @{term "undefined"} and @{term "null"}. *}
+text{* Unlike @{term "UnlimitedNatural"}, we should also include the infinity value besides @{term "undefined"} and @{term "null"}. *}
 
 
 class      infinity = null +
@@ -108,7 +105,16 @@ lemma (*limitedNatural*)[simp]: "\<mu> null = false"
 lemma (*limitedNatural*)[simp]: "\<mu> infinity = false"
   by(rule ext, simp add: limitedNatural_def)
 
-type_synonym ('\<AA>)UnlimitedNatural = "('\<AA>, nat option option option) val'"
+section{* Basic Types: UnlimitedNatural *}
+subsection{* The Construction of the UnlimitedNatural Type *}
+text{* Since @{term "UnlimitedNatural"} is again a basic type, we define its semantic domain
+as the valuations over @{typ "nat option option option"}. *}
+type_synonym UnlimitedNatural\<^sub>b\<^sub>a\<^sub>s\<^sub>e = "nat option option option"
+type_synonym ('\<AA>)UnlimitedNatural = "('\<AA>, UnlimitedNatural\<^sub>b\<^sub>a\<^sub>s\<^sub>e) val'"
+
+text{* Although the remaining part of this library reasons about
+integers abstractly, we provide here as example some convenient shortcuts. *}
+
 locale OclUnlimitedNatural
 
 definition OclNat0 ::"('\<AA>)UnlimitedNatural" (*"\<zero>"*)
@@ -170,41 +176,148 @@ lemma  "\<delta>(null::('\<AA>)UnlimitedNatural) = false" by simp
 lemma  "\<upsilon>(null::('\<AA>)UnlimitedNatural) = true"  by simp
 
 lemma [simp,code_unfold]: "\<delta> (\<lambda>_. \<lfloor>\<lfloor>\<lfloor>n\<rfloor>\<rfloor>\<rfloor>) = true"
-by(simp)
+by(simp add:defined_def true_def
+               bot_fun_def bot_option_def null_fun_def null_option_def)
 
 lemma [simp,code_unfold]: "\<upsilon> (\<lambda>_. \<lfloor>\<lfloor>\<lfloor>n\<rfloor>\<rfloor>\<rfloor>) = true"
-by(simp)
+by(simp add:valid_def true_def
+               bot_fun_def bot_option_def)
 
 lemma [simp,code_unfold]: "\<mu> (\<lambda>_. \<lfloor>\<lfloor>\<lfloor>n\<rfloor>\<rfloor>\<rfloor>) = true"
 by(simp add: limitedNatural_def true_def
                bot_fun_def bot_option_def null_fun_def null_option_def infinity_fun_def infinity_option_def)
 
-subsection{* Arithmetical Operations on UnlimitedNatural *}
+(* ecclectic proofs to make examples executable *)
+lemma [simp,code_unfold]: "\<delta> OclNat0 = true" by(simp add:OclNat0_def)
+lemma [simp,code_unfold]: "\<upsilon> OclNat0 = true" by(simp add:OclNat0_def)
+
+
+subsection{* Arithmetical Operations *}
 
 subsubsection{* Definition *}
-
-definition OclAdd\<^sub>U\<^sub>n\<^sub>l\<^sub>i\<^sub>m\<^sub>i\<^sub>t\<^sub>e\<^sub>d\<^sub>N\<^sub>a\<^sub>t\<^sub>u\<^sub>r\<^sub>a\<^sub>l ::"('\<AA>)UnlimitedNatural \<Rightarrow> ('\<AA>)UnlimitedNatural \<Rightarrow> ('\<AA>)UnlimitedNatural" (infix "+\<^sub>o\<^sub>c\<^sub>l" 40)
-where "x +\<^sub>o\<^sub>c\<^sub>l y \<equiv> \<lambda> \<tau>. if (\<mu> x) \<tau> = true \<tau> \<and> (\<mu> y) \<tau> = true \<tau>
+text{* Here is a common case of a built-in operation on built-in types.
+Note that the arguments must be both defined (non-null, non-bot). *}
+text{* Note that we can not follow the lexis of the OCL Standard for Isabelle
+technical reasons; these operators are heavily overloaded in the HOL library
+that a further overloading would lead to heavy technical buzz in this
+document.
+*}
+definition OclAdd\<^sub>U\<^sub>n\<^sub>l\<^sub>i\<^sub>m\<^sub>i\<^sub>t\<^sub>e\<^sub>d\<^sub>N\<^sub>a\<^sub>t\<^sub>u\<^sub>r\<^sub>a\<^sub>l ::"('\<AA>)UnlimitedNatural \<Rightarrow> ('\<AA>)UnlimitedNatural \<Rightarrow> ('\<AA>)UnlimitedNatural" (infix "+\<^sub>n\<^sub>a\<^sub>t" 40)
+where "x +\<^sub>n\<^sub>a\<^sub>t y \<equiv> \<lambda> \<tau>. if (\<mu> x) \<tau> = true \<tau> \<and> (\<mu> y) \<tau> = true \<tau>
                 then \<lfloor>\<lfloor>\<lfloor>\<lceil>\<lceil>\<lceil>x \<tau>\<rceil>\<rceil>\<rceil> + \<lceil>\<lceil>\<lceil>y \<tau>\<rceil>\<rceil>\<rceil>\<rfloor>\<rfloor>\<rfloor>
                 else invalid \<tau> "
+interpretation OclAdd\<^sub>U\<^sub>n\<^sub>l\<^sub>i\<^sub>m\<^sub>i\<^sub>t\<^sub>e\<^sub>d\<^sub>N\<^sub>a\<^sub>t\<^sub>u\<^sub>r\<^sub>a\<^sub>l : binop_infra1 "op +\<^sub>n\<^sub>a\<^sub>t" "\<lambda> x y. \<lfloor>\<lfloor>\<lfloor>\<lceil>\<lceil>\<lceil>x\<rceil>\<rceil>\<rceil> + \<lceil>\<lceil>\<lceil>y\<rceil>\<rceil>\<rceil>\<rfloor>\<rfloor>\<rfloor>"
+         apply (unfold_locales, auto simp:OclAdd\<^sub>U\<^sub>n\<^sub>l\<^sub>i\<^sub>m\<^sub>i\<^sub>t\<^sub>e\<^sub>d\<^sub>N\<^sub>a\<^sub>t\<^sub>u\<^sub>r\<^sub>a\<^sub>l_def bot_option_def null_option_def infinity_option_def)
+         sorry
+(* TODO: special locale setup.*)
 
-definition OclLess\<^sub>U\<^sub>n\<^sub>l\<^sub>i\<^sub>m\<^sub>i\<^sub>t\<^sub>e\<^sub>d\<^sub>N\<^sub>a\<^sub>t\<^sub>u\<^sub>r\<^sub>a\<^sub>l ::"('\<AA>)UnlimitedNatural \<Rightarrow> ('\<AA>)UnlimitedNatural \<Rightarrow> ('\<AA>)Boolean" (infix "<\<^sub>o\<^sub>c\<^sub>l" 40)
-where "x <\<^sub>o\<^sub>c\<^sub>l y \<equiv> \<lambda> \<tau>. if (\<mu> x) \<tau> = true \<tau> \<and> (\<mu> y) \<tau> = true \<tau>
+
+definition OclMinus\<^sub>U\<^sub>n\<^sub>l\<^sub>i\<^sub>m\<^sub>i\<^sub>t\<^sub>e\<^sub>d\<^sub>N\<^sub>a\<^sub>t\<^sub>u\<^sub>r\<^sub>a\<^sub>l ::"('\<AA>)UnlimitedNatural \<Rightarrow> ('\<AA>)UnlimitedNatural \<Rightarrow> ('\<AA>)UnlimitedNatural" (infix "-\<^sub>n\<^sub>a\<^sub>t" 41)
+where "x -\<^sub>n\<^sub>a\<^sub>t y \<equiv> \<lambda> \<tau>. if (\<mu> x) \<tau> = true \<tau> \<and> (\<mu> y) \<tau> = true \<tau>
+                       then \<lfloor>\<lfloor>\<lfloor>\<lceil>\<lceil>\<lceil>x \<tau>\<rceil>\<rceil>\<rceil> - \<lceil>\<lceil>\<lceil>y \<tau>\<rceil>\<rceil>\<rceil>\<rfloor>\<rfloor>\<rfloor>
+                       else invalid \<tau> "
+interpretation OclMinus\<^sub>U\<^sub>n\<^sub>l\<^sub>i\<^sub>m\<^sub>i\<^sub>t\<^sub>e\<^sub>d\<^sub>N\<^sub>a\<^sub>t\<^sub>u\<^sub>r\<^sub>a\<^sub>l : binop_infra1 "op -\<^sub>n\<^sub>a\<^sub>t" "\<lambda> x y. \<lfloor>\<lfloor>\<lfloor>\<lceil>\<lceil>\<lceil>x\<rceil>\<rceil>\<rceil> - \<lceil>\<lceil>\<lceil>y\<rceil>\<rceil>\<rceil>\<rfloor>\<rfloor>\<rfloor>"
+         apply (unfold_locales, auto simp:OclMinus\<^sub>U\<^sub>n\<^sub>l\<^sub>i\<^sub>m\<^sub>i\<^sub>t\<^sub>e\<^sub>d\<^sub>N\<^sub>a\<^sub>t\<^sub>u\<^sub>r\<^sub>a\<^sub>l_def bot_option_def null_option_def infinity_option_def)
+         sorry
+(* TODO: special locale setup.*)
+
+
+definition OclMult\<^sub>U\<^sub>n\<^sub>l\<^sub>i\<^sub>m\<^sub>i\<^sub>t\<^sub>e\<^sub>d\<^sub>N\<^sub>a\<^sub>t\<^sub>u\<^sub>r\<^sub>a\<^sub>l ::"('\<AA>)UnlimitedNatural \<Rightarrow> ('\<AA>)UnlimitedNatural \<Rightarrow> ('\<AA>)UnlimitedNatural" (infix "*\<^sub>n\<^sub>a\<^sub>t" 45)
+where "x *\<^sub>n\<^sub>a\<^sub>t y \<equiv> \<lambda> \<tau>. if (\<mu> x) \<tau> = true \<tau> \<and> (\<mu> y) \<tau> = true \<tau>
+                       then \<lfloor>\<lfloor>\<lfloor>\<lceil>\<lceil>\<lceil>x \<tau>\<rceil>\<rceil>\<rceil> * \<lceil>\<lceil>\<lceil>y \<tau>\<rceil>\<rceil>\<rceil>\<rfloor>\<rfloor>\<rfloor>
+                       else invalid \<tau> "
+interpretation OclMult\<^sub>U\<^sub>n\<^sub>l\<^sub>i\<^sub>m\<^sub>i\<^sub>t\<^sub>e\<^sub>d\<^sub>N\<^sub>a\<^sub>t\<^sub>u\<^sub>r\<^sub>a\<^sub>l : binop_infra1 "op *\<^sub>n\<^sub>a\<^sub>t" "\<lambda> x y. \<lfloor>\<lfloor>\<lfloor>\<lceil>\<lceil>\<lceil>x\<rceil>\<rceil>\<rceil> * \<lceil>\<lceil>\<lceil>y\<rceil>\<rceil>\<rceil>\<rfloor>\<rfloor>\<rfloor>"
+         apply (unfold_locales, auto simp:OclMult\<^sub>U\<^sub>n\<^sub>l\<^sub>i\<^sub>m\<^sub>i\<^sub>t\<^sub>e\<^sub>d\<^sub>N\<^sub>a\<^sub>t\<^sub>u\<^sub>r\<^sub>a\<^sub>l_def bot_option_def null_option_def infinity_option_def)
+         sorry
+(* TODO: special locale setup.*)
+
+text{* Here is the special case of division, which is defined as invalid for division
+by zero. *}
+definition OclDivision\<^sub>U\<^sub>n\<^sub>l\<^sub>i\<^sub>m\<^sub>i\<^sub>t\<^sub>e\<^sub>d\<^sub>N\<^sub>a\<^sub>t\<^sub>u\<^sub>r\<^sub>a\<^sub>l ::"('\<AA>)UnlimitedNatural \<Rightarrow> ('\<AA>)UnlimitedNatural \<Rightarrow> ('\<AA>)UnlimitedNatural" (infix "div\<^sub>n\<^sub>a\<^sub>t" 45)
+where "x div\<^sub>n\<^sub>a\<^sub>t y \<equiv> \<lambda> \<tau>. if (\<mu> x) \<tau> = true \<tau> \<and> (\<mu> y) \<tau> = true \<tau>
+                       then if y \<tau> \<noteq> OclNat0 \<tau> then \<lfloor>\<lfloor>\<lfloor>\<lceil>\<lceil>\<lceil>x \<tau>\<rceil>\<rceil>\<rceil> div \<lceil>\<lceil>\<lceil>y \<tau>\<rceil>\<rceil>\<rceil>\<rfloor>\<rfloor>\<rfloor> else invalid \<tau> 
+                       else invalid \<tau> "
+(* TODO: special locale setup.*)
+
+
+definition OclModulus\<^sub>U\<^sub>n\<^sub>l\<^sub>i\<^sub>m\<^sub>i\<^sub>t\<^sub>e\<^sub>d\<^sub>N\<^sub>a\<^sub>t\<^sub>u\<^sub>r\<^sub>a\<^sub>l ::"('\<AA>)UnlimitedNatural \<Rightarrow> ('\<AA>)UnlimitedNatural \<Rightarrow> ('\<AA>)UnlimitedNatural" (infix "mod\<^sub>n\<^sub>a\<^sub>t" 45)
+where "x mod\<^sub>n\<^sub>a\<^sub>t y \<equiv> \<lambda> \<tau>. if (\<mu> x) \<tau> = true \<tau> \<and> (\<mu> y) \<tau> = true \<tau>
+                       then if y \<tau> \<noteq> OclNat0 \<tau> then \<lfloor>\<lfloor>\<lfloor>\<lceil>\<lceil>\<lceil>x \<tau>\<rceil>\<rceil>\<rceil> mod \<lceil>\<lceil>\<lceil>y \<tau>\<rceil>\<rceil>\<rceil>\<rfloor>\<rfloor>\<rfloor> else invalid \<tau> 
+                       else invalid \<tau> "
+(* TODO: special locale setup.*)
+
+
+definition OclLess\<^sub>U\<^sub>n\<^sub>l\<^sub>i\<^sub>m\<^sub>i\<^sub>t\<^sub>e\<^sub>d\<^sub>N\<^sub>a\<^sub>t\<^sub>u\<^sub>r\<^sub>a\<^sub>l ::"('\<AA>)UnlimitedNatural \<Rightarrow> ('\<AA>)UnlimitedNatural \<Rightarrow> ('\<AA>)Boolean" (infix "<\<^sub>n\<^sub>a\<^sub>t" 35)
+where "x <\<^sub>n\<^sub>a\<^sub>t y \<equiv> \<lambda> \<tau>. if (\<mu> x) \<tau> = true \<tau> \<and> (\<mu> y) \<tau> = true \<tau>
                 then \<lfloor>\<lfloor>\<lceil>\<lceil>\<lceil>x \<tau>\<rceil>\<rceil>\<rceil> < \<lceil>\<lceil>\<lceil>y \<tau>\<rceil>\<rceil>\<rceil>\<rfloor>\<rfloor>
                 else if (\<delta> x) \<tau> = true \<tau> \<and> (\<delta> y) \<tau> = true \<tau>
                 then (\<mu> x) \<tau>
                 else invalid \<tau>"
+interpretation OclLess\<^sub>U\<^sub>n\<^sub>l\<^sub>i\<^sub>m\<^sub>i\<^sub>t\<^sub>e\<^sub>d\<^sub>N\<^sub>a\<^sub>t\<^sub>u\<^sub>r\<^sub>a\<^sub>l : binop_infra1 "op <\<^sub>n\<^sub>a\<^sub>t" "\<lambda> x y. \<lfloor>\<lfloor>\<lceil>\<lceil>\<lceil>x\<rceil>\<rceil>\<rceil> < \<lceil>\<lceil>\<lceil>y\<rceil>\<rceil>\<rceil>\<rfloor>\<rfloor>"
+         apply (unfold_locales, auto simp:OclLess\<^sub>U\<^sub>n\<^sub>l\<^sub>i\<^sub>m\<^sub>i\<^sub>t\<^sub>e\<^sub>d\<^sub>N\<^sub>a\<^sub>t\<^sub>u\<^sub>r\<^sub>a\<^sub>l_def bot_option_def null_option_def infinity_option_def)
+         oops
+(* TODO: special locale setup.*)
 
-definition OclLe\<^sub>U\<^sub>n\<^sub>l\<^sub>i\<^sub>m\<^sub>i\<^sub>t\<^sub>e\<^sub>d\<^sub>N\<^sub>a\<^sub>t\<^sub>u\<^sub>r\<^sub>a\<^sub>l ::"('\<AA>)UnlimitedNatural \<Rightarrow> ('\<AA>)UnlimitedNatural \<Rightarrow> ('\<AA>)Boolean" (infix "\<le>\<^sub>o\<^sub>c\<^sub>l" 40)
-where "x \<le>\<^sub>o\<^sub>c\<^sub>l y \<equiv> \<lambda> \<tau>. if (\<mu> x) \<tau> = true \<tau> \<and> (\<mu> y) \<tau> = true \<tau>
+definition OclLe\<^sub>U\<^sub>n\<^sub>l\<^sub>i\<^sub>m\<^sub>i\<^sub>t\<^sub>e\<^sub>d\<^sub>N\<^sub>a\<^sub>t\<^sub>u\<^sub>r\<^sub>a\<^sub>l ::"('\<AA>)UnlimitedNatural \<Rightarrow> ('\<AA>)UnlimitedNatural \<Rightarrow> ('\<AA>)Boolean" (infix "\<le>\<^sub>n\<^sub>a\<^sub>t" 35)
+where "x \<le>\<^sub>n\<^sub>a\<^sub>t y \<equiv> \<lambda> \<tau>. if (\<mu> x) \<tau> = true \<tau> \<and> (\<mu> y) \<tau> = true \<tau>
                 then \<lfloor>\<lfloor>\<lceil>\<lceil>\<lceil>x \<tau>\<rceil>\<rceil>\<rceil> \<le> \<lceil>\<lceil>\<lceil>y \<tau>\<rceil>\<rceil>\<rceil>\<rfloor>\<rfloor>
                 else if (\<delta> x) \<tau> = true \<tau> \<and> (\<delta> y) \<tau> = true \<tau>
                 then not (\<mu> y) \<tau>
                 else invalid \<tau>"
+interpretation OclLe\<^sub>U\<^sub>n\<^sub>l\<^sub>i\<^sub>m\<^sub>i\<^sub>t\<^sub>e\<^sub>d\<^sub>N\<^sub>a\<^sub>t\<^sub>u\<^sub>r\<^sub>a\<^sub>l : binop_infra1 "op \<le>\<^sub>n\<^sub>a\<^sub>t" "\<lambda> x y. \<lfloor>\<lfloor>\<lceil>\<lceil>\<lceil>x\<rceil>\<rceil>\<rceil> \<le> \<lceil>\<lceil>\<lceil>y\<rceil>\<rceil>\<rceil>\<rfloor>\<rfloor>"
+         apply (unfold_locales, auto simp:OclLe\<^sub>U\<^sub>n\<^sub>l\<^sub>i\<^sub>m\<^sub>i\<^sub>t\<^sub>e\<^sub>d\<^sub>N\<^sub>a\<^sub>t\<^sub>u\<^sub>r\<^sub>a\<^sub>l_def bot_option_def null_option_def infinity_option_def)
+         oops
+(* TODO: special locale setup.*)
 
 abbreviation OclAdd_\<^sub>U\<^sub>n\<^sub>l\<^sub>i\<^sub>m\<^sub>i\<^sub>t\<^sub>e\<^sub>d\<^sub>N\<^sub>a\<^sub>t\<^sub>u\<^sub>r\<^sub>a\<^sub>l (infix "+\<^sub>U\<^sub>N" 40) where "x +\<^sub>U\<^sub>N y \<equiv> OclAdd\<^sub>U\<^sub>n\<^sub>l\<^sub>i\<^sub>m\<^sub>i\<^sub>t\<^sub>e\<^sub>d\<^sub>N\<^sub>a\<^sub>t\<^sub>u\<^sub>r\<^sub>a\<^sub>l x y"
-abbreviation OclLess_\<^sub>U\<^sub>n\<^sub>l\<^sub>i\<^sub>m\<^sub>i\<^sub>t\<^sub>e\<^sub>d\<^sub>N\<^sub>a\<^sub>t\<^sub>u\<^sub>r\<^sub>a\<^sub>l (infix "<\<^sub>U\<^sub>N" 40) where "x <\<^sub>U\<^sub>N y \<equiv> OclLess\<^sub>U\<^sub>n\<^sub>l\<^sub>i\<^sub>m\<^sub>i\<^sub>t\<^sub>e\<^sub>d\<^sub>N\<^sub>a\<^sub>t\<^sub>u\<^sub>r\<^sub>a\<^sub>l x y"
-abbreviation OclLe_\<^sub>U\<^sub>n\<^sub>l\<^sub>i\<^sub>m\<^sub>i\<^sub>t\<^sub>e\<^sub>d\<^sub>N\<^sub>a\<^sub>t\<^sub>u\<^sub>r\<^sub>a\<^sub>l (infix "\<le>\<^sub>U\<^sub>N" 40) where "x \<le>\<^sub>U\<^sub>N y \<equiv> OclLe\<^sub>U\<^sub>n\<^sub>l\<^sub>i\<^sub>m\<^sub>i\<^sub>t\<^sub>e\<^sub>d\<^sub>N\<^sub>a\<^sub>t\<^sub>u\<^sub>r\<^sub>a\<^sub>l x y"
+abbreviation OclMinus_\<^sub>U\<^sub>n\<^sub>l\<^sub>i\<^sub>m\<^sub>i\<^sub>t\<^sub>e\<^sub>d\<^sub>N\<^sub>a\<^sub>t\<^sub>u\<^sub>r\<^sub>a\<^sub>l (infix "-\<^sub>U\<^sub>N" 41) where "x -\<^sub>U\<^sub>N y \<equiv> OclMinus\<^sub>U\<^sub>n\<^sub>l\<^sub>i\<^sub>m\<^sub>i\<^sub>t\<^sub>e\<^sub>d\<^sub>N\<^sub>a\<^sub>t\<^sub>u\<^sub>r\<^sub>a\<^sub>l x y"
+abbreviation OclMult_\<^sub>U\<^sub>n\<^sub>l\<^sub>i\<^sub>m\<^sub>i\<^sub>t\<^sub>e\<^sub>d\<^sub>N\<^sub>a\<^sub>t\<^sub>u\<^sub>r\<^sub>a\<^sub>l (infix "*\<^sub>U\<^sub>N" 45) where "x *\<^sub>U\<^sub>N y \<equiv> OclMult\<^sub>U\<^sub>n\<^sub>l\<^sub>i\<^sub>m\<^sub>i\<^sub>t\<^sub>e\<^sub>d\<^sub>N\<^sub>a\<^sub>t\<^sub>u\<^sub>r\<^sub>a\<^sub>l x y"
+abbreviation OclDivision_\<^sub>U\<^sub>n\<^sub>l\<^sub>i\<^sub>m\<^sub>i\<^sub>t\<^sub>e\<^sub>d\<^sub>N\<^sub>a\<^sub>t\<^sub>u\<^sub>r\<^sub>a\<^sub>l (infix "div\<^sub>U\<^sub>N" 45) where "x div\<^sub>U\<^sub>N y \<equiv> OclDivision\<^sub>U\<^sub>n\<^sub>l\<^sub>i\<^sub>m\<^sub>i\<^sub>t\<^sub>e\<^sub>d\<^sub>N\<^sub>a\<^sub>t\<^sub>u\<^sub>r\<^sub>a\<^sub>l x y"
+abbreviation OclModulus_\<^sub>U\<^sub>n\<^sub>l\<^sub>i\<^sub>m\<^sub>i\<^sub>t\<^sub>e\<^sub>d\<^sub>N\<^sub>a\<^sub>t\<^sub>u\<^sub>r\<^sub>a\<^sub>l (infix "mod\<^sub>U\<^sub>N" 45) where "x mod\<^sub>U\<^sub>N y \<equiv> OclModulus\<^sub>U\<^sub>n\<^sub>l\<^sub>i\<^sub>m\<^sub>i\<^sub>t\<^sub>e\<^sub>d\<^sub>N\<^sub>a\<^sub>t\<^sub>u\<^sub>r\<^sub>a\<^sub>l x y"
+abbreviation OclLess_\<^sub>U\<^sub>n\<^sub>l\<^sub>i\<^sub>m\<^sub>i\<^sub>t\<^sub>e\<^sub>d\<^sub>N\<^sub>a\<^sub>t\<^sub>u\<^sub>r\<^sub>a\<^sub>l (infix "<\<^sub>U\<^sub>N" 35) where "x <\<^sub>U\<^sub>N y \<equiv> OclLess\<^sub>U\<^sub>n\<^sub>l\<^sub>i\<^sub>m\<^sub>i\<^sub>t\<^sub>e\<^sub>d\<^sub>N\<^sub>a\<^sub>t\<^sub>u\<^sub>r\<^sub>a\<^sub>l x y"
+abbreviation OclLe_\<^sub>U\<^sub>n\<^sub>l\<^sub>i\<^sub>m\<^sub>i\<^sub>t\<^sub>e\<^sub>d\<^sub>N\<^sub>a\<^sub>t\<^sub>u\<^sub>r\<^sub>a\<^sub>l (infix "\<le>\<^sub>U\<^sub>N" 35) where "x \<le>\<^sub>U\<^sub>N y \<equiv> OclLe\<^sub>U\<^sub>n\<^sub>l\<^sub>i\<^sub>m\<^sub>i\<^sub>t\<^sub>e\<^sub>d\<^sub>N\<^sub>a\<^sub>t\<^sub>u\<^sub>r\<^sub>a\<^sub>l x y"
+
+subsubsection{* Basic Properties *}
+
+lemma OclAdd\<^sub>U\<^sub>n\<^sub>l\<^sub>i\<^sub>m\<^sub>i\<^sub>t\<^sub>e\<^sub>d\<^sub>N\<^sub>a\<^sub>t\<^sub>u\<^sub>r\<^sub>a\<^sub>l_commute: "(X +\<^sub>n\<^sub>a\<^sub>t Y) = (Y +\<^sub>n\<^sub>a\<^sub>t X)"
+  by(rule ext,auto simp:true_def false_def OclAdd\<^sub>U\<^sub>n\<^sub>l\<^sub>i\<^sub>m\<^sub>i\<^sub>t\<^sub>e\<^sub>d\<^sub>N\<^sub>a\<^sub>t\<^sub>u\<^sub>r\<^sub>a\<^sub>l_def invalid_def
+                   split: option.split option.split_asm
+                          bool.split bool.split_asm)
+
+subsubsection{* Execution with Invalid or Null or Zero as Argument *}
+
+lemma OclAdd\<^sub>U\<^sub>n\<^sub>l\<^sub>i\<^sub>m\<^sub>i\<^sub>t\<^sub>e\<^sub>d\<^sub>N\<^sub>a\<^sub>t\<^sub>u\<^sub>r\<^sub>a\<^sub>l_zero1[simp,code_unfold] :
+"(x +\<^sub>n\<^sub>a\<^sub>t OclNat0) = (if \<upsilon> x and not (\<delta> x) then invalid else x endif)"
+ proof (rule ext, rename_tac \<tau>, case_tac "(\<upsilon> x and not (\<delta> x)) \<tau> = true \<tau>")
+  fix \<tau> show "(\<upsilon> x and not (\<delta> x)) \<tau> = true \<tau> \<Longrightarrow>
+              (x +\<^sub>n\<^sub>a\<^sub>t OclNat0) \<tau> = (if \<upsilon> x and not (\<delta> x) then invalid else x endif) \<tau>"
+   apply(subst OclIf_true', simp add: OclValid_def)
+  sorry
+  apply_end assumption
+ next fix \<tau>
+  have A: "\<And>\<tau>. (\<tau> \<Turnstile> not (\<upsilon> x and not (\<delta> x))) = (x \<tau> = invalid \<tau> \<or> \<tau> \<Turnstile> \<delta> x)"
+  by (metis OclNot_not OclOr_def defined5 defined6 defined_not_I foundation11 foundation18'
+            foundation6 foundation7 foundation9 invalid_def)
+  have B: "\<tau> \<Turnstile> \<delta> x \<Longrightarrow> \<lfloor>\<lfloor>\<lceil>\<lceil>x \<tau>\<rceil>\<rceil>\<rfloor>\<rfloor> = x \<tau>"
+   apply(cases "x \<tau>", metis bot_option_def foundation16)
+   apply(rename_tac x', case_tac x', metis bot_option_def foundation16 null_option_def)
+  by(simp)
+  show "\<tau> \<Turnstile> not (\<upsilon> x and not (\<delta> x)) \<Longrightarrow>
+              (x +\<^sub>n\<^sub>a\<^sub>t OclNat0) \<tau> = (if \<upsilon> x and not (\<delta> x) then invalid else x endif) \<tau>"
+   apply(subst OclIf_false', simp, simp add: A, auto simp: OclAdd\<^sub>U\<^sub>n\<^sub>l\<^sub>i\<^sub>m\<^sub>i\<^sub>t\<^sub>e\<^sub>d\<^sub>N\<^sub>a\<^sub>t\<^sub>u\<^sub>r\<^sub>a\<^sub>l_def OclNat0_def)
+     (* *)
+  sorry
+  apply_end(metis OclValid_def defined5 defined6 defined_and_I defined_not_I foundation9)
+oops
+
+lemma OclAdd\<^sub>U\<^sub>n\<^sub>l\<^sub>i\<^sub>m\<^sub>i\<^sub>t\<^sub>e\<^sub>d\<^sub>N\<^sub>a\<^sub>t\<^sub>u\<^sub>r\<^sub>a\<^sub>l_zero2[simp,code_unfold] :
+"(OclNat0 +\<^sub>n\<^sub>a\<^sub>t x) = (if \<upsilon> x and not (\<delta> x) then invalid else x endif)"
+apply(subst OclAdd\<^sub>U\<^sub>n\<^sub>l\<^sub>i\<^sub>m\<^sub>i\<^sub>t\<^sub>e\<^sub>d\<^sub>N\<^sub>a\<^sub>t\<^sub>u\<^sub>r\<^sub>a\<^sub>l_commute, simp?)
+oops
+
+(* TODO Basic proproperties for multiplication, division, modulus. *)
+
+
 
 subsubsection{* Test Statements *}
 text{* Here follows a list of code-examples, that explain the meanings
@@ -215,17 +328,155 @@ begin
 Assert_local "  \<tau> \<Turnstile> ( \<nine> \<le>\<^sub>U\<^sub>N \<one>\<zero> )"
 Assert_local "  \<tau> \<Turnstile> (( \<four> +\<^sub>U\<^sub>N \<four> ) \<le>\<^sub>U\<^sub>N \<one>\<zero> )"
 Assert_local "\<not>(\<tau> \<Turnstile> (( \<four> +\<^sub>U\<^sub>N ( \<four> +\<^sub>U\<^sub>N \<four> )) <\<^sub>U\<^sub>N \<one>\<zero> ))"
-Assert_local "  \<tau> \<Turnstile> (\<zero> \<le>\<^sub>o\<^sub>c\<^sub>l \<infinity>)"
+Assert_local "  \<tau> \<Turnstile> (\<zero> \<le>\<^sub>n\<^sub>a\<^sub>t \<infinity>)"
 Assert_local "  \<tau> \<Turnstile> not (\<upsilon> (null +\<^sub>U\<^sub>N \<one>))"
-Assert_local "  \<tau> \<Turnstile> not (\<upsilon> (\<infinity> +\<^sub>o\<^sub>c\<^sub>l \<zero>))"
+Assert_local "  \<tau> \<Turnstile> not (\<upsilon> (\<infinity> +\<^sub>n\<^sub>a\<^sub>t \<zero>))"
 Assert_local "  \<tau> \<Turnstile>      \<mu> \<one>"
 end
-Assert "  \<tau> \<Turnstile> not (\<upsilon> (null +\<^sub>o\<^sub>c\<^sub>l \<infinity>))"
-Assert "  \<tau> \<Turnstile> not (\<infinity> <\<^sub>o\<^sub>c\<^sub>l \<infinity>)"
-Assert "  \<tau> \<Turnstile> not (\<upsilon> (invalid \<le>\<^sub>o\<^sub>c\<^sub>l \<infinity>))"
-Assert "  \<tau> \<Turnstile> not (\<upsilon> (null \<le>\<^sub>o\<^sub>c\<^sub>l \<infinity>))"
+Assert "  \<tau> \<Turnstile> not (\<upsilon> (null +\<^sub>n\<^sub>a\<^sub>t \<infinity>))"
+Assert "  \<tau> \<Turnstile> not (\<infinity> <\<^sub>n\<^sub>a\<^sub>t \<infinity>)"
+Assert "  \<tau> \<Turnstile> not (\<upsilon> (invalid \<le>\<^sub>n\<^sub>a\<^sub>t \<infinity>))"
+Assert "  \<tau> \<Turnstile> not (\<upsilon> (null \<le>\<^sub>n\<^sub>a\<^sub>t \<infinity>))"
 Assert "  \<tau> \<Turnstile>      \<upsilon> \<infinity>"
 Assert "  \<tau> \<Turnstile>      \<delta> \<infinity>"
 Assert "  \<tau> \<Turnstile> not (\<mu> \<infinity>)"
+
+section{* Fundamental Predicates on Basic Types: Strict Equality *}
+
+subsection{* Definition *}
+
+text{* The last basic operation belonging to the fundamental infrastructure
+of a value-type in OCL is the weak equality, which is defined similar
+to the @{typ "('\<AA>)Boolean"}-case as strict extension of the strong equality:*}
+defs   StrictRefEq\<^sub>U\<^sub>n\<^sub>l\<^sub>i\<^sub>m\<^sub>i\<^sub>t\<^sub>e\<^sub>d\<^sub>N\<^sub>a\<^sub>t\<^sub>u\<^sub>r\<^sub>a\<^sub>l[code_unfold] :
+      "(x::('\<AA>)UnlimitedNatural) \<doteq> y \<equiv> \<lambda> \<tau>. if (\<upsilon> x) \<tau> = true \<tau> \<and> (\<upsilon> y) \<tau> = true \<tau>
+                                    then (x \<triangleq> y) \<tau>
+                                    else invalid \<tau>"
+
+Assert "\<tau> \<Turnstile> OclNat0 <> OclNat1"
+Assert "\<tau> \<Turnstile> OclNat1 <> OclNat0"
+Assert "\<tau> \<Turnstile> OclNat0 \<doteq> OclNat0"
+
+subsection{* Logic and Algebraic Layer on Basic Types *}
+
+subsubsection{* Validity and Definedness Properties (I) *}
+
+lemma StrictRefEq\<^sub>U\<^sub>n\<^sub>l\<^sub>i\<^sub>m\<^sub>i\<^sub>t\<^sub>e\<^sub>d\<^sub>N\<^sub>a\<^sub>t\<^sub>u\<^sub>r\<^sub>a\<^sub>l_defined_args_valid:
+"(\<tau> \<Turnstile> \<delta>((x::('\<AA>)UnlimitedNatural) \<doteq> y)) = ((\<tau> \<Turnstile>(\<upsilon> x)) \<and> (\<tau> \<Turnstile>(\<upsilon> y)))"
+by(auto simp: StrictRefEq\<^sub>U\<^sub>n\<^sub>l\<^sub>i\<^sub>m\<^sub>i\<^sub>t\<^sub>e\<^sub>d\<^sub>N\<^sub>a\<^sub>t\<^sub>u\<^sub>r\<^sub>a\<^sub>l OclValid_def true_def valid_def false_def StrongEq_def
+              defined_def invalid_def null_fun_def bot_fun_def null_option_def bot_option_def
+        split: bool.split_asm HOL.split_if_asm option.split)
+
+subsubsection{* Validity and Definedness Properties (II) *}
+
+lemma StrictRefEq\<^sub>U\<^sub>n\<^sub>l\<^sub>i\<^sub>m\<^sub>i\<^sub>t\<^sub>e\<^sub>d\<^sub>N\<^sub>a\<^sub>t\<^sub>u\<^sub>r\<^sub>a\<^sub>l_defargs:
+"\<tau> \<Turnstile> ((x::('\<AA>)UnlimitedNatural) \<doteq> y) \<Longrightarrow> (\<tau> \<Turnstile> (\<upsilon> x)) \<and> (\<tau> \<Turnstile> (\<upsilon> y))"
+by(simp add: StrictRefEq\<^sub>U\<^sub>n\<^sub>l\<^sub>i\<^sub>m\<^sub>i\<^sub>t\<^sub>e\<^sub>d\<^sub>N\<^sub>a\<^sub>t\<^sub>u\<^sub>r\<^sub>a\<^sub>l OclValid_def true_def invalid_def valid_def bot_option_def
+           split: bool.split_asm HOL.split_if_asm)
+
+subsubsection{* Validity and Definedness Properties (III) Miscellaneous *}
+
+lemma StrictRefEq\<^sub>U\<^sub>n\<^sub>l\<^sub>i\<^sub>m\<^sub>i\<^sub>t\<^sub>e\<^sub>d\<^sub>N\<^sub>a\<^sub>t\<^sub>u\<^sub>r\<^sub>a\<^sub>l_strict'' : "\<delta> ((x::('\<AA>)UnlimitedNatural) \<doteq> y) = (\<upsilon>(x) and \<upsilon>(y))"
+by(auto intro!: transform2_rev defined_and_I simp:foundation10 StrictRefEq\<^sub>U\<^sub>n\<^sub>l\<^sub>i\<^sub>m\<^sub>i\<^sub>t\<^sub>e\<^sub>d\<^sub>N\<^sub>a\<^sub>t\<^sub>u\<^sub>r\<^sub>a\<^sub>l_defined_args_valid)
+
+(* Probably not very useful *)
+lemma StrictRefEq\<^sub>U\<^sub>n\<^sub>l\<^sub>i\<^sub>m\<^sub>i\<^sub>t\<^sub>e\<^sub>d\<^sub>N\<^sub>a\<^sub>t\<^sub>u\<^sub>r\<^sub>a\<^sub>l_strict :
+  assumes A: "\<upsilon> (x::('\<AA>)UnlimitedNatural) = true"
+  and     B: "\<upsilon> y = true"
+  shows   "\<upsilon> (x \<doteq> y) = true"
+  apply(insert A B)
+  apply(rule ext, simp add: StrongEq_def StrictRefEq\<^sub>U\<^sub>n\<^sub>l\<^sub>i\<^sub>m\<^sub>i\<^sub>t\<^sub>e\<^sub>d\<^sub>N\<^sub>a\<^sub>t\<^sub>u\<^sub>r\<^sub>a\<^sub>l true_def valid_def defined_def
+                            bot_fun_def bot_option_def)
+  done
+
+
+(* Probably not very useful *)
+lemma StrictRefEq\<^sub>U\<^sub>n\<^sub>l\<^sub>i\<^sub>m\<^sub>i\<^sub>t\<^sub>e\<^sub>d\<^sub>N\<^sub>a\<^sub>t\<^sub>u\<^sub>r\<^sub>a\<^sub>l_strict' :
+  assumes A: "\<upsilon> (((x::('\<AA>)UnlimitedNatural)) \<doteq> y) = true"
+  shows      "\<upsilon> x = true \<and> \<upsilon> y = true"
+  apply(insert A, rule conjI)
+   apply(rule ext, rename_tac \<tau>, drule_tac x=\<tau> in fun_cong)
+   prefer 2
+   apply(rule ext, rename_tac \<tau>, drule_tac x=\<tau> in fun_cong)
+   apply(simp_all add: StrongEq_def StrictRefEq\<^sub>U\<^sub>n\<^sub>l\<^sub>i\<^sub>m\<^sub>i\<^sub>t\<^sub>e\<^sub>d\<^sub>N\<^sub>a\<^sub>t\<^sub>u\<^sub>r\<^sub>a\<^sub>l
+                       false_def true_def valid_def defined_def)
+   apply(case_tac "y \<tau>", auto)
+    apply(simp_all add: true_def invalid_def bot_fun_def)
+  done
+
+subsubsection{* Reflexivity *}
+
+lemma StrictRefEq\<^sub>U\<^sub>n\<^sub>l\<^sub>i\<^sub>m\<^sub>i\<^sub>t\<^sub>e\<^sub>d\<^sub>N\<^sub>a\<^sub>t\<^sub>u\<^sub>r\<^sub>a\<^sub>l_refl[simp,code_unfold] :
+"((x::('\<AA>)UnlimitedNatural) \<doteq> x) = (if (\<upsilon> x) then true else invalid endif)"
+by(rule ext, simp add: StrictRefEq\<^sub>U\<^sub>n\<^sub>l\<^sub>i\<^sub>m\<^sub>i\<^sub>t\<^sub>e\<^sub>d\<^sub>N\<^sub>a\<^sub>t\<^sub>u\<^sub>r\<^sub>a\<^sub>l OclIf_def)
+
+subsubsection{* Execution with Invalid or Null as Argument *}
+
+lemma StrictRefEq\<^sub>U\<^sub>n\<^sub>l\<^sub>i\<^sub>m\<^sub>i\<^sub>t\<^sub>e\<^sub>d\<^sub>N\<^sub>a\<^sub>t\<^sub>u\<^sub>r\<^sub>a\<^sub>l_strict1[simp,code_unfold] : "((x::('\<AA>)UnlimitedNatural) \<doteq> invalid) = invalid"
+by(rule ext, simp add: StrictRefEq\<^sub>U\<^sub>n\<^sub>l\<^sub>i\<^sub>m\<^sub>i\<^sub>t\<^sub>e\<^sub>d\<^sub>N\<^sub>a\<^sub>t\<^sub>u\<^sub>r\<^sub>a\<^sub>l true_def false_def)
+
+lemma StrictRefEq\<^sub>U\<^sub>n\<^sub>l\<^sub>i\<^sub>m\<^sub>i\<^sub>t\<^sub>e\<^sub>d\<^sub>N\<^sub>a\<^sub>t\<^sub>u\<^sub>r\<^sub>a\<^sub>l_strict2[simp,code_unfold] : "(invalid \<doteq> (x::('\<AA>)UnlimitedNatural)) = invalid"
+by(rule ext, simp add: StrictRefEq\<^sub>U\<^sub>n\<^sub>l\<^sub>i\<^sub>m\<^sub>i\<^sub>t\<^sub>e\<^sub>d\<^sub>N\<^sub>a\<^sub>t\<^sub>u\<^sub>r\<^sub>a\<^sub>l true_def false_def)
+
+lemma integer_non_null [simp]: "((\<lambda>_. \<lfloor>\<lfloor>n\<rfloor>\<rfloor>) \<doteq> (null::('\<AA>)UnlimitedNatural)) = false"
+by(rule ext,auto simp: StrictRefEq\<^sub>U\<^sub>n\<^sub>l\<^sub>i\<^sub>m\<^sub>i\<^sub>t\<^sub>e\<^sub>d\<^sub>N\<^sub>a\<^sub>t\<^sub>u\<^sub>r\<^sub>a\<^sub>l valid_def
+                         bot_fun_def bot_option_def null_fun_def null_option_def StrongEq_def)
+
+lemma null_non_integer [simp]: "((null::('\<AA>)UnlimitedNatural) \<doteq> (\<lambda>_. \<lfloor>\<lfloor>n\<rfloor>\<rfloor>)) = false"
+by(rule ext,auto simp: StrictRefEq\<^sub>U\<^sub>n\<^sub>l\<^sub>i\<^sub>m\<^sub>i\<^sub>t\<^sub>e\<^sub>d\<^sub>N\<^sub>a\<^sub>t\<^sub>u\<^sub>r\<^sub>a\<^sub>l valid_def
+                         bot_fun_def bot_option_def null_fun_def null_option_def StrongEq_def)
+
+lemma OclNat0_non_null [simp,code_unfold]: "(OclNat0 \<doteq> null) = false" by(simp add: OclNat0_def)
+lemma null_non_OclNat0 [simp,code_unfold]: "(null \<doteq> OclNat0) = false" by(simp add: OclNat0_def)
+
+
+(* plus all the others ...*)
+
+subsubsection{* Const *}
+
+lemma [simp,code_unfold]: "const(OclNat0)" by(simp add: const_ss OclNat0_def)
+
+
+subsubsection{* Behavior vs StrongEq *}
+
+lemma StrictRefEq\<^sub>U\<^sub>n\<^sub>l\<^sub>i\<^sub>m\<^sub>i\<^sub>t\<^sub>e\<^sub>d\<^sub>N\<^sub>a\<^sub>t\<^sub>u\<^sub>r\<^sub>a\<^sub>l_vs_StrongEq:
+"\<tau> \<Turnstile>(\<upsilon> x) \<Longrightarrow> \<tau> \<Turnstile>(\<upsilon> y) \<Longrightarrow> (\<tau> \<Turnstile> (((x::('\<AA>)UnlimitedNatural) \<doteq> y) \<triangleq> (x \<triangleq> y)))"
+apply(simp add: StrictRefEq\<^sub>U\<^sub>n\<^sub>l\<^sub>i\<^sub>m\<^sub>i\<^sub>t\<^sub>e\<^sub>d\<^sub>N\<^sub>a\<^sub>t\<^sub>u\<^sub>r\<^sub>a\<^sub>l OclValid_def)
+apply(subst cp_StrongEq[of _ "(x \<triangleq> y)"])
+by simp
+
+
+subsubsection{* Context Passing *}
+
+lemma cp_StrictRefEq\<^sub>U\<^sub>n\<^sub>l\<^sub>i\<^sub>m\<^sub>i\<^sub>t\<^sub>e\<^sub>d\<^sub>N\<^sub>a\<^sub>t\<^sub>u\<^sub>r\<^sub>a\<^sub>l:
+"((X::('\<AA>)UnlimitedNatural) \<doteq> Y) \<tau> = ((\<lambda> _. X \<tau>) \<doteq> (\<lambda> _. Y \<tau>)) \<tau>"
+by(auto simp: StrictRefEq\<^sub>U\<^sub>n\<^sub>l\<^sub>i\<^sub>m\<^sub>i\<^sub>t\<^sub>e\<^sub>d\<^sub>N\<^sub>a\<^sub>t\<^sub>u\<^sub>r\<^sub>a\<^sub>l StrongEq_def valid_def  cp_defined[symmetric])
+
+
+lemmas cp_intro'\<^sub>U\<^sub>n\<^sub>l\<^sub>i\<^sub>m\<^sub>i\<^sub>t\<^sub>e\<^sub>d\<^sub>N\<^sub>a\<^sub>t\<^sub>u\<^sub>r\<^sub>a\<^sub>l =
+       cp_StrictRefEq\<^sub>U\<^sub>n\<^sub>l\<^sub>i\<^sub>m\<^sub>i\<^sub>t\<^sub>e\<^sub>d\<^sub>N\<^sub>a\<^sub>t\<^sub>u\<^sub>r\<^sub>a\<^sub>l[THEN allI[THEN allI[THEN allI[THEN cpI2]],  of "StrictRefEq"]]
+       OclAdd\<^sub>U\<^sub>n\<^sub>l\<^sub>i\<^sub>m\<^sub>i\<^sub>t\<^sub>e\<^sub>d\<^sub>N\<^sub>a\<^sub>t\<^sub>u\<^sub>r\<^sub>a\<^sub>l.cp       OclMult\<^sub>U\<^sub>n\<^sub>l\<^sub>i\<^sub>m\<^sub>i\<^sub>t\<^sub>e\<^sub>d\<^sub>N\<^sub>a\<^sub>t\<^sub>u\<^sub>r\<^sub>a\<^sub>l.cp       OclMult\<^sub>U\<^sub>n\<^sub>l\<^sub>i\<^sub>m\<^sub>i\<^sub>t\<^sub>e\<^sub>d\<^sub>N\<^sub>a\<^sub>t\<^sub>u\<^sub>r\<^sub>a\<^sub>l.cp
+       (*OclLess\<^sub>U\<^sub>n\<^sub>l\<^sub>i\<^sub>m\<^sub>i\<^sub>t\<^sub>e\<^sub>d\<^sub>N\<^sub>a\<^sub>t\<^sub>u\<^sub>r\<^sub>a\<^sub>l.cp*)      (*OclLe\<^sub>U\<^sub>n\<^sub>l\<^sub>i\<^sub>m\<^sub>i\<^sub>t\<^sub>e\<^sub>d\<^sub>N\<^sub>a\<^sub>t\<^sub>u\<^sub>r\<^sub>a\<^sub>l.cp*)
+
+
+subsection{* Test Statements on Basic Types. *}
+text{* Here follows a list of code-examples, that explain the meanings
+of the above definitions by compilation to code and execution to @{term "True"}.*}
+
+text{* Elementary computations on UnlimitedNatural *}
+Assert "  \<tau> \<Turnstile> \<upsilon> OclNat0"
+Assert "  \<tau> \<Turnstile> \<delta> OclNat0"
+Assert "  \<tau> \<Turnstile> \<upsilon> (null::('\<AA>)UnlimitedNatural)"
+Assert "  \<tau> \<Turnstile> (invalid \<triangleq> invalid)"
+Assert "  \<tau> \<Turnstile> (null \<triangleq> null)"
+Assert "\<not>(\<tau> \<Turnstile> (invalid \<doteq> (invalid::('\<AA>)UnlimitedNatural)))" (* Without typeconstraint not executable.*)
+Assert "\<not>(\<tau> \<Turnstile> \<upsilon> (invalid \<doteq> (invalid::('\<AA>)UnlimitedNatural)))" (* Without typeconstraint not executable.*)
+Assert "\<not>(\<tau> \<Turnstile> (invalid <> (invalid::('\<AA>)UnlimitedNatural)))" (* Without typeconstraint not executable.*)
+Assert "\<not>(\<tau> \<Turnstile> \<upsilon> (invalid <> (invalid::('\<AA>)UnlimitedNatural)))" (* Without typeconstraint not executable.*)
+Assert "  \<tau> \<Turnstile> (null \<doteq> (null::('\<AA>)UnlimitedNatural) )" (* Without typeconstraint not executable.*)
+Assert "  \<tau> \<Turnstile> (null \<doteq> (null::('\<AA>)UnlimitedNatural) )" (* Without typeconstraint not executable.*)
+Assert "\<not>(\<tau> \<Turnstile> (OclNat0 <\<^sub>n\<^sub>a\<^sub>t null))"
+Assert "\<not>(\<tau> \<Turnstile> (\<delta> (OclNat0 <\<^sub>n\<^sub>a\<^sub>t null)))"
+
 
 end
