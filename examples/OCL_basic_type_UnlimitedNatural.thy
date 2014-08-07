@@ -49,7 +49,7 @@ begin
 
 section{* ... *}
 
-text{* Unlike @{term "UnlimitedNatural"}, we should also include the infinity value besides @{term "undefined"} and @{term "null"}. *}
+text{* Unlike @{term "Integer"}, we should also include the infinity value besides @{term "undefined"} and @{term "null"}. *}
 
 
 class      infinity = null +
