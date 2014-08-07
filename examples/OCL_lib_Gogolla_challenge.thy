@@ -61,7 +61,7 @@ Consider for instance this ground term:
   r1->iterate(j;r2=r1|
     r2->including(\<zero>)->including(i)->including(j)))"}.
 Starting from a set of numbers, this complex expression finally involves only two combinators:
-1) @{term OclIterate\<^sub>S\<^sub>e\<^sub>t}, and
+1) @{term OclIterate}, and
 2) @{term OclIncluding}.
 
 As there is no removing, we conjecture that the final result should be equal to the set
@@ -70,7 +70,7 @@ containing all ground numbers appearing in the expression: that is @{term \<six>
 
 text{* The following part sets up the necessary requirement towards an automatic execution.
 The goal is to normalize a general term composed of a set of numbers applied to an arbitrary nesting of
-@{term OclIterate\<^sub>S\<^sub>e\<^sub>t} and @{term OclIncluding}.
+@{term OclIterate} and @{term OclIncluding}.
 One solution is to rawly compute the initial term by following a call by value strategy or by need.
 However for efficiency reasons, we present in the next subsections some algebraic properties on sets
 that would shortcut the number of reduction steps, by reaching optimaly a normal form. *}
@@ -79,25 +79,25 @@ section{* Introduction *}
 
 text{* Besides the @{term invalid} exception element, the other important concept that
 characterizes OCL sets in our formalization is the finiteness property.
-Since the iteration could only be performed on finite sets, the definition of @{term OclIterate\<^sub>S\<^sub>e\<^sub>t}
+Since the iteration could only be performed on finite sets, the definition of @{term OclIterate}
 contains as prerequisite a check that the given argument is finite. If it is the case,
 @{term Finite_Set.fold} is then called internally to execute the iteration. *}
 
 text{* Recall that our goal is to provide a generic solution to the Gogolla's challenge,
-in the sense that we focus on an arbitrary list of nested @{term OclIterate\<^sub>S\<^sub>e\<^sub>t} combinators.
+in the sense that we focus on an arbitrary list of nested @{term OclIterate} combinators.
 A naive approach for simplifying such huge expression would be to repeatedly rewrite with
-@{term OclIterate\<^sub>S\<^sub>e\<^sub>t_including}.
-However, @{term OclIterate\<^sub>S\<^sub>e\<^sub>t_including} contains @{term "comp_fun_commute F"} as hypothesis
+@{thm[source] OclIterate_including}.
+However, @{thm[source] OclIterate_including} contains @{term "comp_fun_commute F"} as hypothesis
 and this one is generally difficult to prove. Indeed, the easiest case would be when simplifying
-the outermost @{term OclIterate\<^sub>S\<^sub>e\<^sub>t} since the overall expression is ground. But for the others inner nested
-@{term OclIterate\<^sub>S\<^sub>e\<^sub>t}, the @{term "F"} function could have as free variable a set
+the outermost @{term OclIterate} since the overall expression is ground. But for the others inner nested
+@{term OclIterate}, the @{term "F"} function could have as free variable a set
 where its validity, definedness and finiteness are unknown --
 and the finiteness is precisely required for all sets occuring
-in a chain of @{term OclIterate\<^sub>S\<^sub>e\<^sub>t} nested term. *}
+in a chain of @{term OclIterate} nested term. *}
 
 text{* Thus we propose to write an Isabelle locale similar as the locale @{term "comp_fun_commute"}
 but containing the additional properties that sets should fulfill
-while traveling through the nested @{term OclIterate\<^sub>S\<^sub>e\<^sub>t}.
+while traveling through the nested @{term OclIterate}.
 For reusability, these properties will be abstractly regrouped in @{term "is_int"} (representing ground value in a set, like integer)
 and @{term "all_defined"} (representing ground sets). *}
 
