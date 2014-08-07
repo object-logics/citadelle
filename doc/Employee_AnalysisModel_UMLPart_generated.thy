@@ -1,4 +1,4 @@
-theory Employee_AnalysisModel_UMLPart_generated imports "../src/OCL_main"   "../src/OCL_class_diagram_static"   "../src/OCL_class_diagram_generator" begin
+theory Employee_AnalysisModel_UMLPart_generated imports "../src/OCL_main"   "../src/OCL_compiler_static"   "../src/OCL_compiler_generator_dynamic" begin
 
 (* 1 ************************************ 0 + 1 *)
 text{*  *}
@@ -670,7 +670,7 @@ shows "(((X::Person) .oclAsType(Planet)) .oclAsType(Person)) = X"
   apply(rule ext, rename_tac \<tau>)
   apply(rule foundation22[THEN iffD1])
   apply(case_tac "\<tau> \<Turnstile> (\<delta> (X))", simp add: up\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t_down\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_cast0)
-  apply(simp add: def_split_local, elim disjE)
+  apply(simp add: defined_split, elim disjE)
   apply((erule StrongEq_L_subst2_rev, simp, simp)+)
 done 
 lemma up\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y_down\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_cast : 
@@ -678,7 +678,7 @@ shows "(((X::Person) .oclAsType(Galaxy)) .oclAsType(Person)) = X"
   apply(rule ext, rename_tac \<tau>)
   apply(rule foundation22[THEN iffD1])
   apply(case_tac "\<tau> \<Turnstile> (\<delta> (X))", simp add: up\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y_down\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_cast0)
-  apply(simp add: def_split_local, elim disjE)
+  apply(simp add: defined_split, elim disjE)
   apply((erule StrongEq_L_subst2_rev, simp, simp)+)
 done 
 lemma up\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_down\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_cast : 
@@ -686,7 +686,7 @@ shows "(((X::Person) .oclAsType(OclAny)) .oclAsType(Person)) = X"
   apply(rule ext, rename_tac \<tau>)
   apply(rule foundation22[THEN iffD1])
   apply(case_tac "\<tau> \<Turnstile> (\<delta> (X))", simp add: up\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_down\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_cast0)
-  apply(simp add: def_split_local, elim disjE)
+  apply(simp add: defined_split, elim disjE)
   apply((erule StrongEq_L_subst2_rev, simp, simp)+)
 done 
 lemma up\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y_down\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t_cast : 
@@ -694,7 +694,7 @@ shows "(((X::Planet) .oclAsType(Galaxy)) .oclAsType(Planet)) = X"
   apply(rule ext, rename_tac \<tau>)
   apply(rule foundation22[THEN iffD1])
   apply(case_tac "\<tau> \<Turnstile> (\<delta> (X))", simp add: up\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y_down\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t_cast0)
-  apply(simp add: def_split_local, elim disjE)
+  apply(simp add: defined_split, elim disjE)
   apply((erule StrongEq_L_subst2_rev, simp, simp)+)
 done 
 lemma up\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_down\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t_cast : 
@@ -702,7 +702,7 @@ shows "(((X::Planet) .oclAsType(OclAny)) .oclAsType(Planet)) = X"
   apply(rule ext, rename_tac \<tau>)
   apply(rule foundation22[THEN iffD1])
   apply(case_tac "\<tau> \<Turnstile> (\<delta> (X))", simp add: up\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_down\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t_cast0)
-  apply(simp add: def_split_local, elim disjE)
+  apply(simp add: defined_split, elim disjE)
   apply((erule StrongEq_L_subst2_rev, simp, simp)+)
 done 
 lemma up\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_down\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y_cast : 
@@ -710,7 +710,7 @@ shows "(((X::Galaxy) .oclAsType(OclAny)) .oclAsType(Galaxy)) = X"
   apply(rule ext, rename_tac \<tau>)
   apply(rule foundation22[THEN iffD1])
   apply(case_tac "\<tau> \<Turnstile> (\<delta> (X))", simp add: up\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_down\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y_cast0)
-  apply(simp add: def_split_local, elim disjE)
+  apply(simp add: defined_split, elim disjE)
   apply((erule StrongEq_L_subst2_rev, simp, simp)+)
 done 
 
@@ -2672,16 +2672,14 @@ the following combinator @{text switch}:  *}
 ML{* val switch2_01 = (fn [x0 , x1] => (x0 , x1)) *}
 ML{* val switch2_10 = (fn [x0 , x1] => (x1 , x0)) *}
 
-(* 108 ************************************ 647 + 5 *)
+(* 108 ************************************ 647 + 4 *)
 definition "switch\<^sub>2_01 = (\<lambda> [x0 , x1] \<Rightarrow> (x0 , x1))"
 definition "switch\<^sub>2_10 = (\<lambda> [x0 , x1] \<Rightarrow> (x1 , x0))"
 definition "List_flatten = (\<lambda>l. (foldl ((\<lambda>acc. (\<lambda>l. (foldl ((\<lambda>acc. (\<lambda>l. (Cons (l) (acc))))) (acc) ((rev (l))))))) (Nil) ((rev (l)))))"
-definition "map_of_list = (foldl ((\<lambda>map. (\<lambda>(x , l1). (case (map (x)) of None \<Rightarrow> (map (x \<mapsto> l1))
-    | \<lfloor>l0\<rfloor> \<Rightarrow> (map (x \<mapsto> (List_flatten ([l0 , l1])))))))) (Map.empty))"
 definition "deref_assocs pre_post to_from assoc_oid f oid = (\<lambda>\<tau>. (case (assocs ((pre_post (\<tau>))) (assoc_oid)) of \<lfloor>S\<rfloor> \<Rightarrow> (f ((deref_assocs_list (to_from) (oid) (S))) (\<tau>))
     | _ \<Rightarrow> (invalid (\<tau>))))"
 
-(* 109 ************************************ 652 + 4 *)
+(* 109 ************************************ 651 + 4 *)
 definition "deref_oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n fst_snd f oid = (\<lambda>\<tau>. (case (heap (fst_snd \<tau>) (oid)) of \<lfloor>in\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n obj\<rfloor> \<Rightarrow> f obj \<tau>
     | _ \<Rightarrow> invalid \<tau>))"
 definition "deref_oid\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t fst_snd f oid = (\<lambda>\<tau>. (case (heap (fst_snd \<tau>) (oid)) of \<lfloor>in\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t obj\<rfloor> \<Rightarrow> f obj \<tau>
@@ -2691,10 +2689,10 @@ definition "deref_oid\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y fst_snd f 
 definition "deref_oid\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y fst_snd f oid = (\<lambda>\<tau>. (case (heap (fst_snd \<tau>) (oid)) of \<lfloor>in\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y obj\<rfloor> \<Rightarrow> f obj \<tau>
     | _ \<Rightarrow> invalid \<tau>))"
 
-(* 110 ************************************ 656 + 1 *)
+(* 110 ************************************ 655 + 1 *)
 definition "deref_assocs\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0_\<B>\<O>\<S>\<S> fst_snd f = (deref_assocs (fst_snd) (switch\<^sub>2_01) (oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0_\<B>\<O>\<S>\<S>) (f)) \<circ> oid_of"
 
-(* 111 ************************************ 657 + 1 *)
+(* 111 ************************************ 656 + 1 *)
 text{* 
    The continuation @{text f} is usually instantiated with a smashing
 function which is either the identity @{term id} or, for \inlineocl{0..1} cardinalities
@@ -2702,14 +2700,14 @@ of associations, the @{term OclANY}-selector which also handles the
 @{term null}-cases appropriately. A standard use-case for this combinator
 is for example:  *}
 
-(* 112 ************************************ 658 + 1 *)
+(* 112 ************************************ 657 + 1 *)
 definition "select_object mt incl smash deref l = (smash ((foldl (incl) (mt) ((List.map (deref) (l))))))"
 
-(* 113 ************************************ 659 + 1 *)
+(* 113 ************************************ 658 + 1 *)
 text{* 
    pointer undefined in state or not referencing a type conform object representation  *}
 
-(* 114 ************************************ 660 + 11 *)
+(* 114 ************************************ 659 + 11 *)
 definition "select\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<S>\<A>\<L>\<A>\<R>\<Y> f = (\<lambda> (mkoid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (_) (\<bottom>)) \<Rightarrow> null
     | (mkoid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (_) (\<lfloor>salary\<rfloor>)) \<Rightarrow> (f ((\<lambda>x _. \<lfloor>\<lfloor>x\<rfloor>\<rfloor>)) (salary)))"
 definition "select\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t\<W>\<O>\<R>\<M>\<H>\<O>\<L>\<E> f = (\<lambda> (mkoid\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t (_) (\<bottom>) (_)) \<Rightarrow> null
@@ -2735,10 +2733,10 @@ definition "select\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t\<M>\<O>\<V>\<
     | (mkoid\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t ((mk\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t (_) (_) (\<lfloor>moving\<rfloor>))) (_) (_)) \<Rightarrow> (f ((\<lambda>x _. \<lfloor>\<lfloor>x\<rfloor>\<rfloor>)) (moving))
     | (mkoid\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t ((mk\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t_\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (person))) (_) (_)) \<Rightarrow> (select\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<M>\<O>\<V>\<I>\<N>\<G> (f) (person)))"
 
-(* 115 ************************************ 671 + 1 *)
+(* 115 ************************************ 670 + 1 *)
 definition "select\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<B>\<O>\<S>\<S> f = (select_object (mtSet) (OclIncluding) (OclANY) ((f ((\<lambda>x _. \<lfloor>\<lfloor>x\<rfloor>\<rfloor>)))))"
 
-(* 116 ************************************ 672 + 12 *)
+(* 116 ************************************ 671 + 12 *)
 consts dot_0_\<B>\<O>\<S>\<S> :: "(\<AA>, '\<alpha>) val \<Rightarrow> Person" ("(_) .boss")
 consts dot_0_\<B>\<O>\<S>\<S>at_pre :: "(\<AA>, '\<alpha>) val \<Rightarrow> Person" ("(_) .boss@pre")
 consts dot\<S>\<A>\<L>\<A>\<R>\<Y> :: "(\<AA>, '\<alpha>) val \<Rightarrow> (\<AA>, int option option) val" ("(_) .salary")
@@ -2752,7 +2750,7 @@ consts dot\<S>\<O>\<U>\<N>\<D>at_pre :: "(\<AA>, '\<alpha>) val \<Rightarrow> (\
 consts dot\<M>\<O>\<V>\<I>\<N>\<G> :: "(\<AA>, '\<alpha>) val \<Rightarrow> (\<AA>, bool option option) val" ("(_) .moving")
 consts dot\<M>\<O>\<V>\<I>\<N>\<G>at_pre :: "(\<AA>, '\<alpha>) val \<Rightarrow> (\<AA>, bool option option) val" ("(_) .moving@pre")
 
-(* 117 ************************************ 684 + 24 *)
+(* 117 ************************************ 683 + 24 *)
 defs(overloaded) dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0_\<B>\<O>\<S>\<S> : "(x::Person) .boss \<equiv> (eval_extract (x) ((deref_oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (in_post_state) ((deref_assocs\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0_\<B>\<O>\<S>\<S> (in_post_state) ((select\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<B>\<O>\<S>\<S> ((deref_oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (in_post_state))))))))))"
 defs(overloaded) dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<S>\<A>\<L>\<A>\<R>\<Y> : "(x::Person) .salary \<equiv> (eval_extract (x) ((deref_oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (in_post_state) ((select\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<S>\<A>\<L>\<A>\<R>\<Y> (reconst_basetype))))))"
 defs(overloaded) dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0_\<B>\<O>\<S>\<S>at_pre : "(x::Person) .boss@pre \<equiv> (eval_extract (x) ((deref_oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (in_pre_state) ((deref_assocs\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0_\<B>\<O>\<S>\<S> (in_pre_state) ((select\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<B>\<O>\<S>\<S> ((deref_oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (in_pre_state))))))))))"
@@ -2778,7 +2776,7 @@ defs(overloaded) dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t\<M>\<O>\<V>
 defs(overloaded) dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t\<S>\<O>\<U>\<N>\<D>at_pre : "(x::Planet) .sound@pre \<equiv> (eval_extract (x) ((deref_oid\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t (in_pre_state) ((select\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t\<S>\<O>\<U>\<N>\<D> (reconst_basetype))))))"
 defs(overloaded) dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t\<M>\<O>\<V>\<I>\<N>\<G>at_pre : "(x::Planet) .moving@pre \<equiv> (eval_extract (x) ((deref_oid\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t (in_pre_state) ((select\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t\<M>\<O>\<V>\<I>\<N>\<G> (reconst_basetype))))))"
 
-(* 118 ************************************ 708 + 1 *)
+(* 118 ************************************ 707 + 1 *)
 lemmas [simp,code_unfold] = dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0_\<B>\<O>\<S>\<S>
                             dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<S>\<A>\<L>\<A>\<R>\<Y>
                             dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0_\<B>\<O>\<S>\<S>at_pre
@@ -2804,13 +2802,13 @@ lemmas [simp,code_unfold] = dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_
                             dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t\<S>\<O>\<U>\<N>\<D>at_pre
                             dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t\<M>\<O>\<V>\<I>\<N>\<G>at_pre
 
-(* 119 ************************************ 709 + 1 *)
+(* 119 ************************************ 708 + 1 *)
 subsection{* Context Passing *}
 
-(* 120 ************************************ 710 + 1 *)
+(* 120 ************************************ 709 + 1 *)
 lemmas [simp,code_unfold] = eval_extract_def
 
-(* 121 ************************************ 711 + 24 *)
+(* 121 ************************************ 710 + 24 *)
 lemma cp_dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0_\<B>\<O>\<S>\<S> : "(cp ((\<lambda>X. (X::Person) .boss)))"
 by(auto simp: cp_def)
 lemma cp_dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<S>\<A>\<L>\<A>\<R>\<Y> : "(cp ((\<lambda>X. (X::Person) .salary)))"
@@ -2860,7 +2858,7 @@ by(auto simp: cp_def)
 lemma cp_dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t\<M>\<O>\<V>\<I>\<N>\<G>at_pre : "(cp ((\<lambda>X. (X::Planet) .moving@pre)))"
 by(auto simp: cp_def)
 
-(* 122 ************************************ 735 + 1 *)
+(* 122 ************************************ 734 + 1 *)
 lemmas [simp,code_unfold] = cp_dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0_\<B>\<O>\<S>\<S>
                             cp_dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<S>\<A>\<L>\<A>\<R>\<Y>
                             cp_dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0_\<B>\<O>\<S>\<S>at_pre
@@ -2886,10 +2884,10 @@ lemmas [simp,code_unfold] = cp_dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub
                             cp_dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t\<S>\<O>\<U>\<N>\<D>at_pre
                             cp_dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t\<M>\<O>\<V>\<I>\<N>\<G>at_pre
 
-(* 123 ************************************ 736 + 1 *)
+(* 123 ************************************ 735 + 1 *)
 subsection{* Execution with Invalid or Null as Argument *}
 
-(* 124 ************************************ 737 + 48 *)
+(* 124 ************************************ 736 + 48 *)
 lemma dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0_\<B>\<O>\<S>\<S>_invalid : "(invalid::Person) .boss = invalid"
 by(rule ext, simp add: bot_option_def invalid_def)
 lemma dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0_\<B>\<O>\<S>\<S>_null : "(null::Person) .boss = invalid"
@@ -2987,13 +2985,13 @@ by(rule ext, simp add: bot_option_def invalid_def)
 lemma dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t\<M>\<O>\<V>\<I>\<N>\<G>at_pre_null : "(null::Planet) .moving@pre = invalid"
 by(rule ext, simp add: bot_option_def null_fun_def null_option_def)
 
-(* 125 ************************************ 785 + 1 *)
+(* 125 ************************************ 784 + 1 *)
 section{* A Little Infra-structure on Example States *}
 
-(* 126 ************************************ 786 + 1 *)
+(* 126 ************************************ 785 + 1 *)
 text{*  *}
 
-(* 127 ************************************ 787 + 1 *)
+(* 127 ************************************ 786 + 1 *)
 text{* 
 
 The example we are defining in this section comes from the figure~\ref{fig:eam1_system-states}.
@@ -3005,11 +3003,11 @@ The example we are defining in this section comes from the figure~\ref{fig:eam1_
 \end{figure}
  *}
 
-(* 128 ************************************ 788 + 1 *)
+(* 128 ************************************ 787 + 1 *)
 lemmas [simp,code_unfold] = state.defs
                             const_ss
 
-(* 129 ************************************ 789 + 1 *)
+(* 129 ************************************ 788 + 1 *)
 lemmas [simp,code_unfold] = OclAsType\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_Planet
                             OclAsType\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_Galaxy
                             OclAsType\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_OclAny
@@ -3023,7 +3021,7 @@ lemmas [simp,code_unfold] = OclAsType\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^
                             OclAsType\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_Planet
                             OclAsType\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_Galaxy
 
-(* 130 ************************************ 790 + 8 *)
+(* 130 ************************************ 789 + 8 *)
 definition OclInt1000 ("\<one>\<zero>\<zero>\<zero>")
   where "OclInt1000 = (\<lambda>_. \<lfloor>\<lfloor>1000\<rfloor>\<rfloor>)"
 definition OclInt1200 ("\<one>\<two>\<zero>\<zero>")
@@ -3041,7 +3039,7 @@ definition OclInt3200 ("\<three>\<two>\<zero>\<zero>")
 definition OclInt3500 ("\<three>\<five>\<zero>\<zero>")
   where "OclInt3500 = (\<lambda>_. \<lfloor>\<lfloor>3500\<rfloor>\<rfloor>)"
 
-(* 131 ************************************ 798 + 9 *)
+(* 131 ************************************ 797 + 9 *)
 definition "oid1 = 1"
 definition "oid2 = 2"
 definition "oid3 = 3"
@@ -3052,7 +3050,7 @@ definition "oid7 = 7"
 definition "oid8 = 8"
 definition "oid9 = 9"
 
-(* 132 ************************************ 807 + 18 *)
+(* 132 ************************************ 806 + 18 *)
 definition "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n1\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n = (mkoid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n ((mk\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (oid1) (None) (None) (None) (None))) (\<lfloor>1300\<rfloor>))"
 definition "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n = (mkoid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n ((mk\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (oid2) (None) (None) (None) (None))) (\<lfloor>1800\<rfloor>))"
 definition "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n3\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n = (mkoid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n ((mk\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (oid3) (None) (None) (None) (None))) (None))"
@@ -3072,24 +3070,24 @@ definition "(X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n7::OclAny) = (\<la
 definition "(X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n8::OclAny) = (\<lambda>_. \<lfloor>\<lfloor>X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n8\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y\<rfloor>\<rfloor>)"
 definition "(X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n9::Person) = (\<lambda>_. \<lfloor>\<lfloor>X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n9\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<rfloor>\<rfloor>)"
 
-(* 133 ************************************ 825 + 1 *)
-ML{* (Ty'.check ([("oid10" , "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n1") , ("oid11" , "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2") , ("oid12" , "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n3") , ("oid13" , "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n4") , ("oid14" , "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n5") , ("oid15" , "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n6") , ("oid16" , "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n7") , ("oid17" , "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n8") , ("oid18" , "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n9")]) ([(((Code_Numeral.Nat (oidPerson_0_boss)) , (NONE , (SOME ("boss")))) , (((Ty.OclMult ([(Ty.Mult_star , NONE)])) , (Ty.OclMult ([((Ty.Mult_nat ((Code_Numeral.Nat (0)))) , (SOME ((Ty.Mult_nat ((Code_Numeral.Nat (1)))))))]))) , (List.map (switch2_01) ([[["oid16"] , ["oid16"]] , [["oid15"] , ["oid16"]] , [["oid11"] , ["oid11"]] , [["oid10"] , ["oid11"]]]))))])) *}
+(* 133 ************************************ 824 + 1 *)
+ML{* (Ty'.check ([(OCL.Writeln , "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n1 .boss = Set{ X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2 }") , (OCL.Writeln , "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n1 /* unnamed attribute */ = Set{}") , (OCL.Writeln , "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2 .boss = Set{ X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2 }") , (OCL.Writeln , "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2 /* unnamed attribute */ = Set{ X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n1 , X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2 }") , (OCL.Writeln , "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n3 .boss = Set{}") , (OCL.Writeln , "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n3 /* unnamed attribute */ = Set{}") , (OCL.Writeln , "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n4 .boss = Set{}") , (OCL.Writeln , "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n4 /* unnamed attribute */ = Set{}") , (OCL.Writeln , "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n5 .boss = Set{}") , (OCL.Writeln , "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n5 /* unnamed attribute */ = Set{}") , (OCL.Writeln , "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n6 .boss = Set{ X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n7 }") , (OCL.Writeln , "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n6 /* unnamed attribute */ = Set{}") , (OCL.Writeln , "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n7 .boss = Set{ X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n7 }") , (OCL.Writeln , "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n7 /* unnamed attribute */ = Set{ X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n6 , X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n7 }") , (OCL.Writeln , "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n9 .boss = Set{}") , (OCL.Writeln , "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n9 /* unnamed attribute */ = Set{}")]) (" error(s) in multiplicity constraints")) *}
 
-(* 134 ************************************ 826 + 0 *)
+(* 134 ************************************ 825 + 0 *)
 
-(* 135 ************************************ 826 + 1 *)
+(* 135 ************************************ 825 + 1 *)
 definition "\<sigma>\<^sub>1 = (state.make ((Map.empty (oid1 \<mapsto> (in\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n ((mkoid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n ((mk\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (oid1) (None) (None) (None) (None))) (\<lfloor>1000\<rfloor>))))) (oid2 \<mapsto> (in\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n ((mkoid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n ((mk\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (oid2) (None) (None) (None) (None))) (\<lfloor>1200\<rfloor>))))) (oid4 \<mapsto> (in\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n ((mkoid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n ((mk\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (oid4) (None) (None) (None) (None))) (\<lfloor>2600\<rfloor>))))) (oid5 \<mapsto> (in\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n5\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n))) (oid6 \<mapsto> (in\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n ((mkoid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n ((mk\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (oid6) (None) (None) (None) (None))) (\<lfloor>2300\<rfloor>))))) (oid9 \<mapsto> (in\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n9\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n))))) ((map_of_list ([(oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0_\<B>\<O>\<S>\<S> , (List.map ((\<lambda>(x , y). [x , y]) o switch\<^sub>2_01) ([[[oid1] , [oid2]] , [[oid4] , [oid5]] , [[oid6] , [oid4]]])))]))))"
 
-(* 136 ************************************ 827 + 0 *)
+(* 136 ************************************ 826 + 0 *)
 
-(* 137 ************************************ 827 + 1 *)
+(* 137 ************************************ 826 + 1 *)
 lemma dom_\<sigma>\<^sub>1 : "(dom ((heap (\<sigma>\<^sub>1)))) = {oid1 , oid2 , oid4 , oid5 , oid6 , oid9}"
 by(auto simp: \<sigma>\<^sub>1_def)
 
-(* 138 ************************************ 828 + 1 *)
+(* 138 ************************************ 827 + 1 *)
 lemmas [simp,code_unfold] = dom_\<sigma>\<^sub>1
 
-(* 139 ************************************ 829 + 1 *)
+(* 139 ************************************ 828 + 1 *)
 lemma perm_\<sigma>\<^sub>1 : "\<sigma>\<^sub>1 = (state.make ((Map.empty (oid9 \<mapsto> (in\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n9\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n))) (oid6 \<mapsto> (in\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n ((mkoid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n ((mk\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (oid6) (None) (None) (None) (None))) (\<lfloor>2300\<rfloor>))))) (oid5 \<mapsto> (in\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n5\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n))) (oid4 \<mapsto> (in\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n ((mkoid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n ((mk\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (oid4) (None) (None) (None) (None))) (\<lfloor>2600\<rfloor>))))) (oid2 \<mapsto> (in\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n ((mkoid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n ((mk\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (oid2) (None) (None) (None) (None))) (\<lfloor>1200\<rfloor>))))) (oid1 \<mapsto> (in\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n ((mkoid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n ((mk\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (oid1) (None) (None) (None) (None))) (\<lfloor>1000\<rfloor>))))))) ((assocs (\<sigma>\<^sub>1))))"
   apply(simp add: \<sigma>\<^sub>1_def oid1_def oid2_def oid4_def oid5_def oid6_def oid9_def)
   apply(subst (1) fun_upd_twist, simp)
@@ -3109,7 +3107,7 @@ lemma perm_\<sigma>\<^sub>1 : "\<sigma>\<^sub>1 = (state.make ((Map.empty (oid9 
   apply(subst (1) fun_upd_twist, simp)
 by(simp)
 
-(* 140 ************************************ 830 + 12 *)
+(* 140 ************************************ 829 + 12 *)
 lemma \<sigma>\<^sub>1_OclAllInstances_generic_exec_Person : 
 assumes [simp]: "(\<And>a. (pre_post ((mk (a)))) = a)"
 shows "(mk (\<sigma>\<^sub>1)) \<Turnstile> (OclAllInstances_generic (pre_post) (Person)) \<doteq> Set{(\<lambda>_. \<lfloor>\<lfloor>(mkoid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n ((mk\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (oid1) (None) (None) (None) (None))) (\<lfloor>1000\<rfloor>))\<rfloor>\<rfloor>) , (\<lambda>_. \<lfloor>\<lfloor>(mkoid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n ((mk\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (oid2) (None) (None) (None) (None))) (\<lfloor>1200\<rfloor>))\<rfloor>\<rfloor>) , (\<lambda>_. \<lfloor>\<lfloor>(mkoid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n ((mk\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (oid4) (None) (None) (None) (None))) (\<lfloor>2600\<rfloor>))\<rfloor>\<rfloor>) , X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n5 , (\<lambda>_. \<lfloor>\<lfloor>(mkoid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n ((mk\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (oid6) (None) (None) (None) (None))) (\<lfloor>2300\<rfloor>))\<rfloor>\<rfloor>) , X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n9}"
@@ -3195,21 +3193,21 @@ shows "(\<sigma>\<^sub>1 , st) \<Turnstile> (OclAllInstances_at_pre (OclAny)) \<
   unfolding OclAllInstances_at_pre_def
 by(rule \<sigma>\<^sub>1_OclAllInstances_generic_exec_OclAny, simp) 
 
-(* 141 ************************************ 842 + 0 *)
+(* 141 ************************************ 841 + 0 *)
 
-(* 142 ************************************ 842 + 1 *)
+(* 142 ************************************ 841 + 1 *)
 definition "\<sigma>\<^sub>1' = (state.make ((Map.empty (oid1 \<mapsto> (in\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n1\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n))) (oid2 \<mapsto> (in\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n))) (oid3 \<mapsto> (in\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n3\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n))) (oid4 \<mapsto> (in\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n4\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n))) (oid6 \<mapsto> (in\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n6\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n))) (oid7 \<mapsto> (in\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n7\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y))) (oid8 \<mapsto> (in\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n8\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y))) (oid9 \<mapsto> (in\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n9\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n))))) ((map_of_list ([(oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0_\<B>\<O>\<S>\<S> , (List.map ((\<lambda>(x , y). [x , y]) o switch\<^sub>2_01) ([[[oid1] , [oid2]] , [[oid2] , [oid2]] , [[oid6] , [oid7]] , [[oid7] , [oid7]]])))]))))"
 
-(* 143 ************************************ 843 + 0 *)
+(* 143 ************************************ 842 + 0 *)
 
-(* 144 ************************************ 843 + 1 *)
+(* 144 ************************************ 842 + 1 *)
 lemma dom_\<sigma>\<^sub>1' : "(dom ((heap (\<sigma>\<^sub>1')))) = {oid1 , oid2 , oid3 , oid4 , oid6 , oid7 , oid8 , oid9}"
 by(auto simp: \<sigma>\<^sub>1'_def)
 
-(* 145 ************************************ 844 + 1 *)
+(* 145 ************************************ 843 + 1 *)
 lemmas [simp,code_unfold] = dom_\<sigma>\<^sub>1'
 
-(* 146 ************************************ 845 + 1 *)
+(* 146 ************************************ 844 + 1 *)
 lemma perm_\<sigma>\<^sub>1' : "\<sigma>\<^sub>1' = (state.make ((Map.empty (oid9 \<mapsto> (in\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n9\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n))) (oid8 \<mapsto> (in\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n8\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y))) (oid7 \<mapsto> (in\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n7\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y))) (oid6 \<mapsto> (in\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n6\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n))) (oid4 \<mapsto> (in\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n4\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n))) (oid3 \<mapsto> (in\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n3\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n))) (oid2 \<mapsto> (in\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n))) (oid1 \<mapsto> (in\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n1\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n))))) ((assocs (\<sigma>\<^sub>1'))))"
   apply(simp add: \<sigma>\<^sub>1'_def oid1_def oid2_def oid3_def oid4_def oid6_def oid7_def oid8_def oid9_def)
   apply(subst (1) fun_upd_twist, simp)
@@ -3242,7 +3240,7 @@ lemma perm_\<sigma>\<^sub>1' : "\<sigma>\<^sub>1' = (state.make ((Map.empty (oid
   apply(subst (1) fun_upd_twist, simp)
 by(simp)
 
-(* 147 ************************************ 846 + 12 *)
+(* 147 ************************************ 845 + 12 *)
 lemma \<sigma>\<^sub>1'_OclAllInstances_generic_exec_Person : 
 assumes [simp]: "(\<And>a. (pre_post ((mk (a)))) = a)"
 shows "(mk (\<sigma>\<^sub>1')) \<Turnstile> (OclAllInstances_generic (pre_post) (Person)) \<doteq> Set{X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n1 , X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2 , X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n3 , X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n4 , X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n6 , X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n7 .oclAsType(Person) , X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n9}"
@@ -3336,25 +3334,25 @@ shows "(\<sigma>\<^sub>1' , st) \<Turnstile> (OclAllInstances_at_pre (OclAny)) \
   unfolding OclAllInstances_at_pre_def
 by(rule \<sigma>\<^sub>1'_OclAllInstances_generic_exec_OclAny, simp) 
 
-(* 148 ************************************ 858 + 0 *)
+(* 148 ************************************ 857 + 0 *)
 
-(* 149 ************************************ 858 + 1 *)
+(* 149 ************************************ 857 + 1 *)
 definition "\<sigma>\<^sub>0 = (state.make ((Map.empty )) ((map_of_list ([]))))"
 
-(* 150 ************************************ 859 + 0 *)
+(* 150 ************************************ 858 + 0 *)
 
-(* 151 ************************************ 859 + 1 *)
+(* 151 ************************************ 858 + 1 *)
 lemma dom_\<sigma>\<^sub>0 : "(dom ((heap (\<sigma>\<^sub>0)))) = {}"
 by(auto simp: \<sigma>\<^sub>0_def)
 
-(* 152 ************************************ 860 + 1 *)
+(* 152 ************************************ 859 + 1 *)
 lemmas [simp,code_unfold] = dom_\<sigma>\<^sub>0
 
-(* 153 ************************************ 861 + 1 *)
+(* 153 ************************************ 860 + 1 *)
 lemma perm_\<sigma>\<^sub>0 : "\<sigma>\<^sub>0 = (state.make ((Map.empty )) ((assocs (\<sigma>\<^sub>0))))"
 by(simp add: \<sigma>\<^sub>0_def)
 
-(* 154 ************************************ 862 + 12 *)
+(* 154 ************************************ 861 + 12 *)
 lemma \<sigma>\<^sub>0_OclAllInstances_generic_exec_Person : 
 assumes [simp]: "(\<And>a. (pre_post ((mk (a)))) = a)"
 shows "(mk (\<sigma>\<^sub>0)) \<Turnstile> (OclAllInstances_generic (pre_post) (Person)) \<doteq> Set{}"
@@ -3416,11 +3414,11 @@ shows "(\<sigma>\<^sub>0 , st) \<Turnstile> (OclAllInstances_at_pre (OclAny)) \<
   unfolding OclAllInstances_at_pre_def
 by(rule \<sigma>\<^sub>0_OclAllInstances_generic_exec_OclAny, simp) 
 
-(* 155 ************************************ 874 + 1 *)
+(* 155 ************************************ 873 + 1 *)
 lemma basic_\<sigma>\<^sub>1_\<sigma>\<^sub>1'_wff : "(WFF ((\<sigma>\<^sub>1 , \<sigma>\<^sub>1')))"
 by(simp add: WFF_def \<sigma>\<^sub>1_def \<sigma>\<^sub>1'_def oid_of_\<AA>_def oid1_def oid2_def oid3_def oid4_def oid5_def oid6_def oid7_def oid8_def oid9_def X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n1\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_def X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_def X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n3\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_def X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n4\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_def X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n5\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_def X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n6\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_def X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n7\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_def X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n8\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_def X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n9\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_def oid_of_typeoid\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_def oid_of_typeoid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_def)
 
-(* 156 ************************************ 875 + 10 *)
+(* 156 ************************************ 874 + 10 *)
 lemma oid1\<sigma>\<^sub>1\<sigma>\<^sub>1'_\<sigma>\<^sub>1'_OclIsMaintained : "(\<sigma>\<^sub>1 , \<sigma>\<^sub>1') \<Turnstile> (OclIsMaintained (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n1))"
 by(simp add: X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n1_def X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n1\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_def OclIsMaintained_def OclValid_def \<sigma>\<^sub>1_def \<sigma>\<^sub>1'_def oid_of_option_def oid1_def oid2_def oid3_def oid4_def oid5_def oid6_def oid7_def oid8_def oid9_def oid_of_typeoid\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_def oid_of_typeoid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_def)
 lemma oid2\<sigma>\<^sub>1\<sigma>\<^sub>1'_\<sigma>\<^sub>1'_OclIsMaintained : "(\<sigma>\<^sub>1 , \<sigma>\<^sub>1') \<Turnstile> (OclIsMaintained (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2))"
@@ -3442,9 +3440,9 @@ by(simp add: X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n9_def X\<^sub>P\<^
 lemma oid9\<sigma>\<^sub>1\<sigma>\<^sub>1'_\<sigma>\<^sub>1'_OclIsMaintained : "(\<sigma>\<^sub>1 , \<sigma>\<^sub>1') \<Turnstile> (OclIsMaintained (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n9))"
 by(simp add: X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n9_def X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n9\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_def OclIsMaintained_def OclValid_def \<sigma>\<^sub>1_def \<sigma>\<^sub>1'_def oid_of_option_def oid1_def oid2_def oid3_def oid4_def oid5_def oid6_def oid7_def oid8_def oid9_def oid_of_typeoid\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_def oid_of_typeoid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_def)
 
-(* 157 ************************************ 885 + 6 *)
+(* 157 ************************************ 884 + 6 *)
 generation_syntax [ shallow (generation_semantics [ analysis ]) ]
-setup{* (Generation_mode.update_compiler_config ((K (let open OCL in Ocl_compiler_config_ext (true, NONE, Oids ((Code_Numeral.Nat 0), (Code_Numeral.Nat 1), (Code_Numeral.Nat 10)), I ((Code_Numeral.Nat 0), (Code_Numeral.Nat 0)), Gen_analysis, SOME (OclClass ((String.explode "OclAny"), nil, uncurry cons (OclClass ((String.explode "Galaxy"), uncurry cons (I ((String.explode "sound"), OclTy_raw ((String.explode "unit"))), uncurry cons (I ((String.explode "moving"), OclTy_raw ((String.explode "bool"))), nil)), uncurry cons (OclClass ((String.explode "Planet"), uncurry cons (I ((String.explode "wormhole"), OclTy_raw ((String.explode "nat"))), uncurry cons (I ((String.explode "weight"), OclTy_raw ((String.explode "int"))), nil)), uncurry cons (OclClass ((String.explode "Person"), uncurry cons (I ((String.explode "boss"), OclTy_class (Ocl_ty_class_ext ((String.explode "oid"), (Code_Numeral.Nat 0), (Code_Numeral.Nat 2), Ocl_ty_class_node_ext ((Code_Numeral.Nat 0), OclMult (uncurry cons (I (Mult_star, NONE), nil)), NONE, (String.explode "Person"), ()), Ocl_ty_class_node_ext ((Code_Numeral.Nat 1), OclMult (uncurry cons (I (Mult_nat ((Code_Numeral.Nat 0)), SOME (Mult_nat ((Code_Numeral.Nat 1)))), nil)), SOME ((String.explode "boss")), (String.explode "Person"), ()), ()))), uncurry cons (I ((String.explode "salary"), OclTy_raw ((String.explode "int"))), nil)), nil), nil)), nil)), nil))), uncurry cons (OclAstDefPrePost (OclDefPP ((String.explode "\<sigma>\<^sub>1"), (String.explode "\<sigma>\<^sub>1'"))), uncurry cons (OclAstDefState (OclDefSt ((String.explode "\<sigma>\<^sub>0"), nil)), uncurry cons (OclAstDefState (OclDefSt ((String.explode "\<sigma>\<^sub>1'"), uncurry cons (OclDefCoreBinding ((String.explode "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n1")), uncurry cons (OclDefCoreBinding ((String.explode "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2")), uncurry cons (OclDefCoreBinding ((String.explode "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n3")), uncurry cons (OclDefCoreBinding ((String.explode "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n4")), uncurry cons (OclDefCoreSkip, uncurry cons (OclDefCoreBinding ((String.explode "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n6")), uncurry cons (OclDefCoreBinding ((String.explode "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n7")), uncurry cons (OclDefCoreBinding ((String.explode "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n8")), uncurry cons (OclDefCoreBinding ((String.explode "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n9")), nil))))))))))), uncurry cons (OclAstDefState (OclDefSt ((String.explode "\<sigma>\<^sub>1"), uncurry cons (OclDefCoreAdd (Ocl_instance_single_ext ((String.explode ""), (String.explode "Person"), OclAttrNoCast (uncurry cons (I ((String.explode "salary"), Shall_base (ShallB_str ((String.explode "1000")))), uncurry cons (I ((String.explode "boss"), Shall_base (ShallB_self (Oid ((Code_Numeral.Nat 1))))), nil))), ())), uncurry cons (OclDefCoreAdd (Ocl_instance_single_ext ((String.explode ""), (String.explode "Person"), OclAttrNoCast (uncurry cons (I ((String.explode "salary"), Shall_base (ShallB_str ((String.explode "1200")))), nil)), ())), uncurry cons (OclDefCoreSkip, uncurry cons (OclDefCoreAdd (Ocl_instance_single_ext ((String.explode ""), (String.explode "Person"), OclAttrNoCast (uncurry cons (I ((String.explode "salary"), Shall_base (ShallB_str ((String.explode "2600")))), uncurry cons (I ((String.explode "boss"), Shall_base (ShallB_self (Oid ((Code_Numeral.Nat 4))))), nil))), ())), uncurry cons (OclDefCoreBinding ((String.explode "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n5")), uncurry cons (OclDefCoreAdd (Ocl_instance_single_ext ((String.explode ""), (String.explode "Person"), OclAttrNoCast (uncurry cons (I ((String.explode "salary"), Shall_base (ShallB_str ((String.explode "2300")))), uncurry cons (I ((String.explode "boss"), Shall_base (ShallB_self (Oid ((Code_Numeral.Nat 3))))), nil))), ())), uncurry cons (OclDefCoreSkip, uncurry cons (OclDefCoreSkip, uncurry cons (OclDefCoreBinding ((String.explode "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n9")), nil))))))))))), uncurry cons (OclAstInstance (OclInstance (uncurry cons (Ocl_instance_single_ext ((String.explode "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n1"), (String.explode "Person"), OclAttrNoCast (uncurry cons (I ((String.explode "salary"), Shall_base (ShallB_str ((String.explode "1300")))), uncurry cons (I ((String.explode "boss"), Shall_base (ShallB_str ((String.explode "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2")))), nil))), ()), uncurry cons (Ocl_instance_single_ext ((String.explode "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2"), (String.explode "Person"), OclAttrNoCast (uncurry cons (I ((String.explode "salary"), Shall_base (ShallB_str ((String.explode "1800")))), uncurry cons (I ((String.explode "boss"), Shall_base (ShallB_str ((String.explode "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2")))), nil))), ()), uncurry cons (Ocl_instance_single_ext ((String.explode "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n3"), (String.explode "Person"), OclAttrNoCast (nil), ()), uncurry cons (Ocl_instance_single_ext ((String.explode "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n4"), (String.explode "Person"), OclAttrNoCast (uncurry cons (I ((String.explode "salary"), Shall_base (ShallB_str ((String.explode "2900")))), nil)), ()), uncurry cons (Ocl_instance_single_ext ((String.explode "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n5"), (String.explode "Person"), OclAttrNoCast (uncurry cons (I ((String.explode "salary"), Shall_base (ShallB_str ((String.explode "3500")))), nil)), ()), uncurry cons (Ocl_instance_single_ext ((String.explode "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n6"), (String.explode "Person"), OclAttrNoCast (uncurry cons (I ((String.explode "salary"), Shall_base (ShallB_str ((String.explode "2500")))), uncurry cons (I ((String.explode "boss"), Shall_base (ShallB_str ((String.explode "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n7")))), nil))), ()), uncurry cons (Ocl_instance_single_ext ((String.explode "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n7"), (String.explode "OclAny"), OclAttrCast ((String.explode "Person"), OclAttrNoCast (uncurry cons (I ((String.explode "salary"), Shall_base (ShallB_str ((String.explode "3200")))), uncurry cons (I ((String.explode "boss"), Shall_base (ShallB_str ((String.explode "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n7")))), nil))), nil), ()), uncurry cons (Ocl_instance_single_ext ((String.explode "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n8"), (String.explode "OclAny"), OclAttrNoCast (nil), ()), uncurry cons (Ocl_instance_single_ext ((String.explode "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n9"), (String.explode "Person"), OclAttrNoCast (uncurry cons (I ((String.explode "salary"), Shall_base (ShallB_str ((String.explode "0")))), nil)), ()), nil))))))))))), uncurry cons (OclAstDefInt (OclDefI (uncurry cons ((String.explode "1000"), uncurry cons ((String.explode "1200"), uncurry cons ((String.explode "1300"), uncurry cons ((String.explode "1800"), uncurry cons ((String.explode "2600"), uncurry cons ((String.explode "2900"), uncurry cons ((String.explode "3200"), uncurry cons ((String.explode "3500"), nil)))))))))), uncurry cons (OclAstClassRaw (Ocl_class_raw_ext ((String.explode "Galaxy"), uncurry cons (I ((String.explode "sound"), OclTy_raw ((String.explode "unit"))), uncurry cons (I ((String.explode "moving"), OclTy_raw ((String.explode "bool"))), nil)), NONE, ())), uncurry cons (OclAstClassRaw (Ocl_class_raw_ext ((String.explode "Planet"), uncurry cons (I ((String.explode "wormhole"), OclTy_raw ((String.explode "nat"))), uncurry cons (I ((String.explode "weight"), OclTy_raw ((String.explode "int"))), nil)), SOME ((String.explode "Galaxy")), ())), uncurry cons (OclAstAssociation (Ocl_association_ext (OclAssTy_association, uncurry cons (I ((String.explode "Person"), I (OclMult (uncurry cons (I (Mult_star, NONE), nil)), NONE)), uncurry cons (I ((String.explode "Person"), I (OclMult (uncurry cons (I (Mult_nat ((Code_Numeral.Nat 0)), SOME (Mult_nat ((Code_Numeral.Nat 1)))), nil)), SOME ((String.explode "boss")))), nil)), ())), uncurry cons (OclAstClassRaw (Ocl_class_raw_ext ((String.explode "Person"), uncurry cons (I ((String.explode "salary"), OclTy_raw ((String.explode "int"))), nil), SOME ((String.explode "Planet")), ())), nil)))))))))), uncurry cons (I ((String.explode "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n9"), I (Ocl_instance_single_ext ((String.explode "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n9"), (String.explode "Person"), OclAttrNoCast (uncurry cons (I ((String.explode "salary"), Shall_base (ShallB_str ((String.explode "0")))), nil)), ()), Oid ((Code_Numeral.Nat 9)))), uncurry cons (I ((String.explode "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n8"), I (Ocl_instance_single_ext ((String.explode "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n8"), (String.explode "OclAny"), OclAttrNoCast (nil), ()), Oid ((Code_Numeral.Nat 8)))), uncurry cons (I ((String.explode "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n7"), I (Ocl_instance_single_ext ((String.explode "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n7"), (String.explode "OclAny"), OclAttrCast ((String.explode "Person"), OclAttrNoCast (uncurry cons (I ((String.explode "salary"), Shall_base (ShallB_str ((String.explode "3200")))), uncurry cons (I ((String.explode "boss"), Shall_base (ShallB_str ((String.explode "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n7")))), nil))), nil), ()), Oid ((Code_Numeral.Nat 7)))), uncurry cons (I ((String.explode "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n6"), I (Ocl_instance_single_ext ((String.explode "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n6"), (String.explode "Person"), OclAttrNoCast (uncurry cons (I ((String.explode "salary"), Shall_base (ShallB_str ((String.explode "2500")))), uncurry cons (I ((String.explode "boss"), Shall_base (ShallB_str ((String.explode "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n7")))), nil))), ()), Oid ((Code_Numeral.Nat 6)))), uncurry cons (I ((String.explode "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n5"), I (Ocl_instance_single_ext ((String.explode "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n5"), (String.explode "Person"), OclAttrNoCast (uncurry cons (I ((String.explode "salary"), Shall_base (ShallB_str ((String.explode "3500")))), nil)), ()), Oid ((Code_Numeral.Nat 5)))), uncurry cons (I ((String.explode "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n4"), I (Ocl_instance_single_ext ((String.explode "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n4"), (String.explode "Person"), OclAttrNoCast (uncurry cons (I ((String.explode "salary"), Shall_base (ShallB_str ((String.explode "2900")))), nil)), ()), Oid ((Code_Numeral.Nat 4)))), uncurry cons (I ((String.explode "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n3"), I (Ocl_instance_single_ext ((String.explode "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n3"), (String.explode "Person"), OclAttrNoCast (nil), ()), Oid ((Code_Numeral.Nat 3)))), uncurry cons (I ((String.explode "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2"), I (Ocl_instance_single_ext ((String.explode "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2"), (String.explode "Person"), OclAttrNoCast (uncurry cons (I ((String.explode "salary"), Shall_base (ShallB_str ((String.explode "1800")))), uncurry cons (I ((String.explode "boss"), Shall_base (ShallB_str ((String.explode "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2")))), nil))), ()), Oid ((Code_Numeral.Nat 2)))), uncurry cons (I ((String.explode "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n1"), I (Ocl_instance_single_ext ((String.explode "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n1"), (String.explode "Person"), OclAttrNoCast (uncurry cons (I ((String.explode "salary"), Shall_base (ShallB_str ((String.explode "1300")))), uncurry cons (I ((String.explode "boss"), Shall_base (ShallB_str ((String.explode "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2")))), nil))), ()), Oid ((Code_Numeral.Nat 1)))), nil))))))))), uncurry cons (I ((String.explode "\<sigma>\<^sub>0"), nil), uncurry cons (I ((String.explode "\<sigma>\<^sub>1'"), uncurry cons (I (Oids ((Code_Numeral.Nat 0), (Code_Numeral.Nat 1), (Code_Numeral.Nat 1)), OclDefCoreBinding (I ((String.explode "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n1"), Ocl_instance_single_ext ((String.explode "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n1"), (String.explode "Person"), OclAttrNoCast (uncurry cons (I ((String.explode "salary"), Shall_base (ShallB_str ((String.explode "1300")))), uncurry cons (I ((String.explode "boss"), Shall_base (ShallB_str ((String.explode "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2")))), nil))), ())))), uncurry cons (I (Oids ((Code_Numeral.Nat 0), (Code_Numeral.Nat 1), (Code_Numeral.Nat 2)), OclDefCoreBinding (I ((String.explode "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2"), Ocl_instance_single_ext ((String.explode "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2"), (String.explode "Person"), OclAttrNoCast (uncurry cons (I ((String.explode "salary"), Shall_base (ShallB_str ((String.explode "1800")))), uncurry cons (I ((String.explode "boss"), Shall_base (ShallB_str ((String.explode "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2")))), nil))), ())))), uncurry cons (I (Oids ((Code_Numeral.Nat 0), (Code_Numeral.Nat 1), (Code_Numeral.Nat 3)), OclDefCoreBinding (I ((String.explode "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n3"), Ocl_instance_single_ext ((String.explode "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n3"), (String.explode "Person"), OclAttrNoCast (nil), ())))), uncurry cons (I (Oids ((Code_Numeral.Nat 0), (Code_Numeral.Nat 1), (Code_Numeral.Nat 4)), OclDefCoreBinding (I ((String.explode "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n4"), Ocl_instance_single_ext ((String.explode "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n4"), (String.explode "Person"), OclAttrNoCast (uncurry cons (I ((String.explode "salary"), Shall_base (ShallB_str ((String.explode "2900")))), nil)), ())))), uncurry cons (I (Oids ((Code_Numeral.Nat 0), (Code_Numeral.Nat 1), (Code_Numeral.Nat 6)), OclDefCoreBinding (I ((String.explode "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n6"), Ocl_instance_single_ext ((String.explode "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n6"), (String.explode "Person"), OclAttrNoCast (uncurry cons (I ((String.explode "salary"), Shall_base (ShallB_str ((String.explode "2500")))), uncurry cons (I ((String.explode "boss"), Shall_base (ShallB_str ((String.explode "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n7")))), nil))), ())))), uncurry cons (I (Oids ((Code_Numeral.Nat 0), (Code_Numeral.Nat 1), (Code_Numeral.Nat 7)), OclDefCoreBinding (I ((String.explode "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n7"), Ocl_instance_single_ext ((String.explode "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n7"), (String.explode "OclAny"), OclAttrCast ((String.explode "Person"), OclAttrNoCast (uncurry cons (I ((String.explode "salary"), Shall_base (ShallB_str ((String.explode "3200")))), uncurry cons (I ((String.explode "boss"), Shall_base (ShallB_str ((String.explode "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n7")))), nil))), nil), ())))), uncurry cons (I (Oids ((Code_Numeral.Nat 0), (Code_Numeral.Nat 1), (Code_Numeral.Nat 8)), OclDefCoreBinding (I ((String.explode "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n8"), Ocl_instance_single_ext ((String.explode "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n8"), (String.explode "OclAny"), OclAttrNoCast (nil), ())))), uncurry cons (I (Oids ((Code_Numeral.Nat 0), (Code_Numeral.Nat 1), (Code_Numeral.Nat 9)), OclDefCoreBinding (I ((String.explode "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n9"), Ocl_instance_single_ext ((String.explode "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n9"), (String.explode "Person"), OclAttrNoCast (uncurry cons (I ((String.explode "salary"), Shall_base (ShallB_str ((String.explode "0")))), nil)), ())))), nil))))))))), uncurry cons (I ((String.explode "\<sigma>\<^sub>1"), uncurry cons (I (Oids ((Code_Numeral.Nat 0), (Code_Numeral.Nat 1), (Code_Numeral.Nat 1)), OclDefCoreAdd (Ocl_instance_single_ext ((String.explode ""), (String.explode "Person"), OclAttrNoCast (uncurry cons (I ((String.explode "salary"), Shall_base (ShallB_str ((String.explode "1000")))), uncurry cons (I ((String.explode "boss"), Shall_base (ShallB_self (Oid ((Code_Numeral.Nat 1))))), nil))), ()))), uncurry cons (I (Oids ((Code_Numeral.Nat 0), (Code_Numeral.Nat 1), (Code_Numeral.Nat 2)), OclDefCoreAdd (Ocl_instance_single_ext ((String.explode ""), (String.explode "Person"), OclAttrNoCast (uncurry cons (I ((String.explode "salary"), Shall_base (ShallB_str ((String.explode "1200")))), nil)), ()))), uncurry cons (I (Oids ((Code_Numeral.Nat 0), (Code_Numeral.Nat 1), (Code_Numeral.Nat 4)), OclDefCoreAdd (Ocl_instance_single_ext ((String.explode ""), (String.explode "Person"), OclAttrNoCast (uncurry cons (I ((String.explode "salary"), Shall_base (ShallB_str ((String.explode "2600")))), uncurry cons (I ((String.explode "boss"), Shall_base (ShallB_self (Oid ((Code_Numeral.Nat 4))))), nil))), ()))), uncurry cons (I (Oids ((Code_Numeral.Nat 0), (Code_Numeral.Nat 1), (Code_Numeral.Nat 5)), OclDefCoreBinding (I ((String.explode "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n5"), Ocl_instance_single_ext ((String.explode "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n5"), (String.explode "Person"), OclAttrNoCast (uncurry cons (I ((String.explode "salary"), Shall_base (ShallB_str ((String.explode "3500")))), nil)), ())))), uncurry cons (I (Oids ((Code_Numeral.Nat 0), (Code_Numeral.Nat 1), (Code_Numeral.Nat 6)), OclDefCoreAdd (Ocl_instance_single_ext ((String.explode ""), (String.explode "Person"), OclAttrNoCast (uncurry cons (I ((String.explode "salary"), Shall_base (ShallB_str ((String.explode "2300")))), uncurry cons (I ((String.explode "boss"), Shall_base (ShallB_self (Oid ((Code_Numeral.Nat 3))))), nil))), ()))), uncurry cons (I (Oids ((Code_Numeral.Nat 0), (Code_Numeral.Nat 1), (Code_Numeral.Nat 9)), OclDefCoreBinding (I ((String.explode "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n9"), Ocl_instance_single_ext ((String.explode "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n9"), (String.explode "Person"), OclAttrNoCast (uncurry cons (I ((String.explode "salary"), Shall_base (ShallB_str ((String.explode "0")))), nil)), ())))), nil))))))), nil))), false, I (uncurry cons ((String.explode "dot\<C>\<O>\<N>\<T>\<E>\<N>\<T>\<S>at_pre"), uncurry cons ((String.explode "dot\<M>\<O>\<V>\<I>\<N>\<G>at_pre"), uncurry cons ((String.explode "dot\<S>\<O>\<U>\<N>\<D>at_pre"), uncurry cons ((String.explode "dot\<W>\<E>\<I>\<G>\<H>\<T>at_pre"), uncurry cons ((String.explode "dot\<W>\<O>\<R>\<M>\<H>\<O>\<L>\<E>at_pre"), uncurry cons ((String.explode "dot\<S>\<A>\<L>\<A>\<R>\<Y>at_pre"), uncurry cons ((String.explode "dot_0_\<B>\<O>\<S>\<S>at_pre"), nil))))))), uncurry cons ((String.explode "dot\<C>\<O>\<N>\<T>\<E>\<N>\<T>\<S>"), uncurry cons ((String.explode "dot\<M>\<O>\<V>\<I>\<N>\<G>"), uncurry cons ((String.explode "dot\<S>\<O>\<U>\<N>\<D>"), uncurry cons ((String.explode "dot\<W>\<E>\<I>\<G>\<H>\<T>"), uncurry cons ((String.explode "dot\<W>\<O>\<R>\<M>\<H>\<O>\<L>\<E>"), uncurry cons ((String.explode "dot\<S>\<A>\<L>\<A>\<R>\<Y>"), uncurry cons ((String.explode "dot_0_\<B>\<O>\<S>\<S>"), nil)))))))), ()) end)))) *}
+setup{* (Generation_mode.update_compiler_config ((K (let open OCL in Ocl_compiler_config_ext (true, NONE, Oids ((Code_Numeral.Nat 0), (Code_Numeral.Nat 1), (Code_Numeral.Nat 10)), I ((Code_Numeral.Nat 0), (Code_Numeral.Nat 0)), Gen_analysis, SOME (OclClass ((String.explode "OclAny"), nil, uncurry cons (OclClass ((String.explode "Galaxy"), uncurry cons (I ((String.explode "sound"), OclTy_raw ((String.explode "unit"))), uncurry cons (I ((String.explode "moving"), OclTy_raw ((String.explode "bool"))), nil)), uncurry cons (OclClass ((String.explode "Planet"), uncurry cons (I ((String.explode "wormhole"), OclTy_raw ((String.explode "nat"))), uncurry cons (I ((String.explode "weight"), OclTy_raw ((String.explode "int"))), nil)), uncurry cons (OclClass ((String.explode "Person"), uncurry cons (I ((String.explode "boss"), OclTy_class (Ocl_ty_class_ext ((String.explode "oid"), (Code_Numeral.Nat 0), (Code_Numeral.Nat 2), Ocl_ty_class_node_ext ((Code_Numeral.Nat 0), OclMult (uncurry cons (I (Mult_star, NONE), nil)), NONE, (String.explode "Person"), ()), Ocl_ty_class_node_ext ((Code_Numeral.Nat 1), OclMult (uncurry cons (I (Mult_nat ((Code_Numeral.Nat 0)), SOME (Mult_nat ((Code_Numeral.Nat 1)))), nil)), SOME ((String.explode "boss")), (String.explode "Person"), ()), ()))), uncurry cons (I ((String.explode "salary"), OclTy_raw ((String.explode "int"))), nil)), nil), nil)), nil)), nil))), uncurry cons (OclAstDefPrePost (OclDefPP ((String.explode "\<sigma>\<^sub>1"), (String.explode "\<sigma>\<^sub>1'"))), uncurry cons (OclAstDefState (OclDefSt ((String.explode "\<sigma>\<^sub>0"), nil)), uncurry cons (OclAstDefState (OclDefSt ((String.explode "\<sigma>\<^sub>1'"), uncurry cons (OclDefCoreBinding ((String.explode "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n1")), uncurry cons (OclDefCoreBinding ((String.explode "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2")), uncurry cons (OclDefCoreBinding ((String.explode "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n3")), uncurry cons (OclDefCoreBinding ((String.explode "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n4")), uncurry cons (OclDefCoreSkip, uncurry cons (OclDefCoreBinding ((String.explode "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n6")), uncurry cons (OclDefCoreBinding ((String.explode "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n7")), uncurry cons (OclDefCoreBinding ((String.explode "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n8")), uncurry cons (OclDefCoreBinding ((String.explode "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n9")), nil))))))))))), uncurry cons (OclAstDefState (OclDefSt ((String.explode "\<sigma>\<^sub>1"), uncurry cons (OclDefCoreAdd (Ocl_instance_single_ext ((String.explode ""), (String.explode "Person"), OclAttrNoCast (uncurry cons (I ((String.explode "salary"), Shall_base (ShallB_str ((String.explode "1000")))), uncurry cons (I ((String.explode "boss"), Shall_base (ShallB_self (Oid ((Code_Numeral.Nat 1))))), nil))), ())), uncurry cons (OclDefCoreAdd (Ocl_instance_single_ext ((String.explode ""), (String.explode "Person"), OclAttrNoCast (uncurry cons (I ((String.explode "salary"), Shall_base (ShallB_str ((String.explode "1200")))), nil)), ())), uncurry cons (OclDefCoreSkip, uncurry cons (OclDefCoreAdd (Ocl_instance_single_ext ((String.explode ""), (String.explode "Person"), OclAttrNoCast (uncurry cons (I ((String.explode "salary"), Shall_base (ShallB_str ((String.explode "2600")))), uncurry cons (I ((String.explode "boss"), Shall_base (ShallB_self (Oid ((Code_Numeral.Nat 4))))), nil))), ())), uncurry cons (OclDefCoreBinding ((String.explode "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n5")), uncurry cons (OclDefCoreAdd (Ocl_instance_single_ext ((String.explode ""), (String.explode "Person"), OclAttrNoCast (uncurry cons (I ((String.explode "salary"), Shall_base (ShallB_str ((String.explode "2300")))), uncurry cons (I ((String.explode "boss"), Shall_base (ShallB_self (Oid ((Code_Numeral.Nat 3))))), nil))), ())), uncurry cons (OclDefCoreSkip, uncurry cons (OclDefCoreSkip, uncurry cons (OclDefCoreBinding ((String.explode "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n9")), nil))))))))))), uncurry cons (OclAstInstance (OclInstance (uncurry cons (Ocl_instance_single_ext ((String.explode "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n1"), (String.explode "Person"), OclAttrNoCast (uncurry cons (I ((String.explode "salary"), Shall_base (ShallB_str ((String.explode "1300")))), uncurry cons (I ((String.explode "boss"), Shall_base (ShallB_str ((String.explode "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2")))), nil))), ()), uncurry cons (Ocl_instance_single_ext ((String.explode "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2"), (String.explode "Person"), OclAttrNoCast (uncurry cons (I ((String.explode "salary"), Shall_base (ShallB_str ((String.explode "1800")))), uncurry cons (I ((String.explode "boss"), Shall_base (ShallB_str ((String.explode "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2")))), nil))), ()), uncurry cons (Ocl_instance_single_ext ((String.explode "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n3"), (String.explode "Person"), OclAttrNoCast (nil), ()), uncurry cons (Ocl_instance_single_ext ((String.explode "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n4"), (String.explode "Person"), OclAttrNoCast (uncurry cons (I ((String.explode "salary"), Shall_base (ShallB_str ((String.explode "2900")))), nil)), ()), uncurry cons (Ocl_instance_single_ext ((String.explode "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n5"), (String.explode "Person"), OclAttrNoCast (uncurry cons (I ((String.explode "salary"), Shall_base (ShallB_str ((String.explode "3500")))), nil)), ()), uncurry cons (Ocl_instance_single_ext ((String.explode "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n6"), (String.explode "Person"), OclAttrNoCast (uncurry cons (I ((String.explode "salary"), Shall_base (ShallB_str ((String.explode "2500")))), uncurry cons (I ((String.explode "boss"), Shall_base (ShallB_str ((String.explode "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n7")))), nil))), ()), uncurry cons (Ocl_instance_single_ext ((String.explode "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n7"), (String.explode "OclAny"), OclAttrCast ((String.explode "Person"), OclAttrNoCast (uncurry cons (I ((String.explode "salary"), Shall_base (ShallB_str ((String.explode "3200")))), uncurry cons (I ((String.explode "boss"), Shall_base (ShallB_str ((String.explode "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n7")))), nil))), nil), ()), uncurry cons (Ocl_instance_single_ext ((String.explode "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n8"), (String.explode "OclAny"), OclAttrNoCast (nil), ()), uncurry cons (Ocl_instance_single_ext ((String.explode "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n9"), (String.explode "Person"), OclAttrNoCast (uncurry cons (I ((String.explode "salary"), Shall_base (ShallB_str ((String.explode "0")))), nil)), ()), nil))))))))))), uncurry cons (OclAstDefInt (OclDefI (uncurry cons ((String.explode "1000"), uncurry cons ((String.explode "1200"), uncurry cons ((String.explode "1300"), uncurry cons ((String.explode "1800"), uncurry cons ((String.explode "2600"), uncurry cons ((String.explode "2900"), uncurry cons ((String.explode "3200"), uncurry cons ((String.explode "3500"), nil)))))))))), uncurry cons (OclAstClassRaw (Ocl_class_raw_ext ((String.explode "Galaxy"), uncurry cons (I ((String.explode "sound"), OclTy_raw ((String.explode "unit"))), uncurry cons (I ((String.explode "moving"), OclTy_raw ((String.explode "bool"))), nil)), NONE, ())), uncurry cons (OclAstClassRaw (Ocl_class_raw_ext ((String.explode "Planet"), uncurry cons (I ((String.explode "wormhole"), OclTy_raw ((String.explode "nat"))), uncurry cons (I ((String.explode "weight"), OclTy_raw ((String.explode "int"))), nil)), SOME ((String.explode "Galaxy")), ())), uncurry cons (OclAstAssociation (Ocl_association_ext (OclAssTy_association, uncurry cons (I ((String.explode "Person"), I (OclMult (uncurry cons (I (Mult_star, NONE), nil)), NONE)), uncurry cons (I ((String.explode "Person"), I (OclMult (uncurry cons (I (Mult_nat ((Code_Numeral.Nat 0)), SOME (Mult_nat ((Code_Numeral.Nat 1)))), nil)), SOME ((String.explode "boss")))), nil)), ())), uncurry cons (OclAstClassRaw (Ocl_class_raw_ext ((String.explode "Person"), uncurry cons (I ((String.explode "salary"), OclTy_raw ((String.explode "int"))), nil), SOME ((String.explode "Planet")), ())), nil)))))))))), uncurry cons (I ((String.explode "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n9"), I (Ocl_instance_single_ext ((String.explode "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n9"), (String.explode "Person"), OclAttrNoCast (uncurry cons (I ((String.explode "salary"), Shall_base (ShallB_str ((String.explode "0")))), nil)), ()), Oid ((Code_Numeral.Nat 9)))), uncurry cons (I ((String.explode "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n8"), I (Ocl_instance_single_ext ((String.explode "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n8"), (String.explode "OclAny"), OclAttrNoCast (nil), ()), Oid ((Code_Numeral.Nat 8)))), uncurry cons (I ((String.explode "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n7"), I (Ocl_instance_single_ext ((String.explode "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n7"), (String.explode "OclAny"), OclAttrCast ((String.explode "Person"), OclAttrNoCast (uncurry cons (I ((String.explode "salary"), Shall_base (ShallB_str ((String.explode "3200")))), uncurry cons (I ((String.explode "boss"), Shall_base (ShallB_str ((String.explode "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n7")))), nil))), nil), ()), Oid ((Code_Numeral.Nat 7)))), uncurry cons (I ((String.explode "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n6"), I (Ocl_instance_single_ext ((String.explode "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n6"), (String.explode "Person"), OclAttrNoCast (uncurry cons (I ((String.explode "salary"), Shall_base (ShallB_str ((String.explode "2500")))), uncurry cons (I ((String.explode "boss"), Shall_base (ShallB_str ((String.explode "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n7")))), nil))), ()), Oid ((Code_Numeral.Nat 6)))), uncurry cons (I ((String.explode "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n5"), I (Ocl_instance_single_ext ((String.explode "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n5"), (String.explode "Person"), OclAttrNoCast (uncurry cons (I ((String.explode "salary"), Shall_base (ShallB_str ((String.explode "3500")))), nil)), ()), Oid ((Code_Numeral.Nat 5)))), uncurry cons (I ((String.explode "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n4"), I (Ocl_instance_single_ext ((String.explode "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n4"), (String.explode "Person"), OclAttrNoCast (uncurry cons (I ((String.explode "salary"), Shall_base (ShallB_str ((String.explode "2900")))), nil)), ()), Oid ((Code_Numeral.Nat 4)))), uncurry cons (I ((String.explode "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n3"), I (Ocl_instance_single_ext ((String.explode "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n3"), (String.explode "Person"), OclAttrNoCast (nil), ()), Oid ((Code_Numeral.Nat 3)))), uncurry cons (I ((String.explode "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2"), I (Ocl_instance_single_ext ((String.explode "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2"), (String.explode "Person"), OclAttrNoCast (uncurry cons (I ((String.explode "salary"), Shall_base (ShallB_str ((String.explode "1800")))), uncurry cons (I ((String.explode "boss"), Shall_base (ShallB_str ((String.explode "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2")))), nil))), ()), Oid ((Code_Numeral.Nat 2)))), uncurry cons (I ((String.explode "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n1"), I (Ocl_instance_single_ext ((String.explode "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n1"), (String.explode "Person"), OclAttrNoCast (uncurry cons (I ((String.explode "salary"), Shall_base (ShallB_str ((String.explode "1300")))), uncurry cons (I ((String.explode "boss"), Shall_base (ShallB_str ((String.explode "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2")))), nil))), ()), Oid ((Code_Numeral.Nat 1)))), nil))))))))), uncurry cons (I ((String.explode "\<sigma>\<^sub>0"), nil), uncurry cons (I ((String.explode "\<sigma>\<^sub>1'"), uncurry cons (I (Oids ((Code_Numeral.Nat 0), (Code_Numeral.Nat 1), (Code_Numeral.Nat 1)), OclDefCoreBinding (I ((String.explode "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n1"), Ocl_instance_single_ext ((String.explode "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n1"), (String.explode "Person"), OclAttrNoCast (uncurry cons (I ((String.explode "salary"), Shall_base (ShallB_str ((String.explode "1300")))), uncurry cons (I ((String.explode "boss"), Shall_base (ShallB_str ((String.explode "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2")))), nil))), ())))), uncurry cons (I (Oids ((Code_Numeral.Nat 0), (Code_Numeral.Nat 1), (Code_Numeral.Nat 2)), OclDefCoreBinding (I ((String.explode "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2"), Ocl_instance_single_ext ((String.explode "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2"), (String.explode "Person"), OclAttrNoCast (uncurry cons (I ((String.explode "salary"), Shall_base (ShallB_str ((String.explode "1800")))), uncurry cons (I ((String.explode "boss"), Shall_base (ShallB_str ((String.explode "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2")))), nil))), ())))), uncurry cons (I (Oids ((Code_Numeral.Nat 0), (Code_Numeral.Nat 1), (Code_Numeral.Nat 3)), OclDefCoreBinding (I ((String.explode "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n3"), Ocl_instance_single_ext ((String.explode "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n3"), (String.explode "Person"), OclAttrNoCast (nil), ())))), uncurry cons (I (Oids ((Code_Numeral.Nat 0), (Code_Numeral.Nat 1), (Code_Numeral.Nat 4)), OclDefCoreBinding (I ((String.explode "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n4"), Ocl_instance_single_ext ((String.explode "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n4"), (String.explode "Person"), OclAttrNoCast (uncurry cons (I ((String.explode "salary"), Shall_base (ShallB_str ((String.explode "2900")))), nil)), ())))), uncurry cons (I (Oids ((Code_Numeral.Nat 0), (Code_Numeral.Nat 1), (Code_Numeral.Nat 6)), OclDefCoreBinding (I ((String.explode "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n6"), Ocl_instance_single_ext ((String.explode "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n6"), (String.explode "Person"), OclAttrNoCast (uncurry cons (I ((String.explode "salary"), Shall_base (ShallB_str ((String.explode "2500")))), uncurry cons (I ((String.explode "boss"), Shall_base (ShallB_str ((String.explode "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n7")))), nil))), ())))), uncurry cons (I (Oids ((Code_Numeral.Nat 0), (Code_Numeral.Nat 1), (Code_Numeral.Nat 7)), OclDefCoreBinding (I ((String.explode "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n7"), Ocl_instance_single_ext ((String.explode "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n7"), (String.explode "OclAny"), OclAttrCast ((String.explode "Person"), OclAttrNoCast (uncurry cons (I ((String.explode "salary"), Shall_base (ShallB_str ((String.explode "3200")))), uncurry cons (I ((String.explode "boss"), Shall_base (ShallB_str ((String.explode "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n7")))), nil))), nil), ())))), uncurry cons (I (Oids ((Code_Numeral.Nat 0), (Code_Numeral.Nat 1), (Code_Numeral.Nat 8)), OclDefCoreBinding (I ((String.explode "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n8"), Ocl_instance_single_ext ((String.explode "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n8"), (String.explode "OclAny"), OclAttrNoCast (nil), ())))), uncurry cons (I (Oids ((Code_Numeral.Nat 0), (Code_Numeral.Nat 1), (Code_Numeral.Nat 9)), OclDefCoreBinding (I ((String.explode "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n9"), Ocl_instance_single_ext ((String.explode "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n9"), (String.explode "Person"), OclAttrNoCast (uncurry cons (I ((String.explode "salary"), Shall_base (ShallB_str ((String.explode "0")))), nil)), ())))), nil))))))))), uncurry cons (I ((String.explode "\<sigma>\<^sub>1"), uncurry cons (I (Oids ((Code_Numeral.Nat 0), (Code_Numeral.Nat 1), (Code_Numeral.Nat 1)), OclDefCoreAdd (Ocl_instance_single_ext ((String.explode ""), (String.explode "Person"), OclAttrNoCast (uncurry cons (I ((String.explode "salary"), Shall_base (ShallB_str ((String.explode "1000")))), uncurry cons (I ((String.explode "boss"), Shall_base (ShallB_self (Oid ((Code_Numeral.Nat 1))))), nil))), ()))), uncurry cons (I (Oids ((Code_Numeral.Nat 0), (Code_Numeral.Nat 1), (Code_Numeral.Nat 2)), OclDefCoreAdd (Ocl_instance_single_ext ((String.explode ""), (String.explode "Person"), OclAttrNoCast (uncurry cons (I ((String.explode "salary"), Shall_base (ShallB_str ((String.explode "1200")))), nil)), ()))), uncurry cons (I (Oids ((Code_Numeral.Nat 0), (Code_Numeral.Nat 1), (Code_Numeral.Nat 4)), OclDefCoreAdd (Ocl_instance_single_ext ((String.explode ""), (String.explode "Person"), OclAttrNoCast (uncurry cons (I ((String.explode "salary"), Shall_base (ShallB_str ((String.explode "2600")))), uncurry cons (I ((String.explode "boss"), Shall_base (ShallB_self (Oid ((Code_Numeral.Nat 4))))), nil))), ()))), uncurry cons (I (Oids ((Code_Numeral.Nat 0), (Code_Numeral.Nat 1), (Code_Numeral.Nat 5)), OclDefCoreBinding (I ((String.explode "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n5"), Ocl_instance_single_ext ((String.explode "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n5"), (String.explode "Person"), OclAttrNoCast (uncurry cons (I ((String.explode "salary"), Shall_base (ShallB_str ((String.explode "3500")))), nil)), ())))), uncurry cons (I (Oids ((Code_Numeral.Nat 0), (Code_Numeral.Nat 1), (Code_Numeral.Nat 6)), OclDefCoreAdd (Ocl_instance_single_ext ((String.explode ""), (String.explode "Person"), OclAttrNoCast (uncurry cons (I ((String.explode "salary"), Shall_base (ShallB_str ((String.explode "2300")))), uncurry cons (I ((String.explode "boss"), Shall_base (ShallB_self (Oid ((Code_Numeral.Nat 3))))), nil))), ()))), uncurry cons (I (Oids ((Code_Numeral.Nat 0), (Code_Numeral.Nat 1), (Code_Numeral.Nat 9)), OclDefCoreBinding (I ((String.explode "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n9"), Ocl_instance_single_ext ((String.explode "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n9"), (String.explode "Person"), OclAttrNoCast (uncurry cons (I ((String.explode "salary"), Shall_base (ShallB_str ((String.explode "0")))), nil)), ())))), nil))))))), nil))), true, false, I (uncurry cons ((String.explode "dot\<C>\<O>\<N>\<T>\<E>\<N>\<T>\<S>at_pre"), uncurry cons ((String.explode "dot\<M>\<O>\<V>\<I>\<N>\<G>at_pre"), uncurry cons ((String.explode "dot\<S>\<O>\<U>\<N>\<D>at_pre"), uncurry cons ((String.explode "dot\<W>\<E>\<I>\<G>\<H>\<T>at_pre"), uncurry cons ((String.explode "dot\<W>\<O>\<R>\<M>\<H>\<O>\<L>\<E>at_pre"), uncurry cons ((String.explode "dot\<S>\<A>\<L>\<A>\<R>\<Y>at_pre"), uncurry cons ((String.explode "dot_0_\<B>\<O>\<S>\<S>at_pre"), nil))))))), uncurry cons ((String.explode "dot\<C>\<O>\<N>\<T>\<E>\<N>\<T>\<S>"), uncurry cons ((String.explode "dot\<M>\<O>\<V>\<I>\<N>\<G>"), uncurry cons ((String.explode "dot\<S>\<O>\<U>\<N>\<D>"), uncurry cons ((String.explode "dot\<W>\<E>\<I>\<G>\<H>\<T>"), uncurry cons ((String.explode "dot\<W>\<O>\<R>\<M>\<H>\<O>\<L>\<E>"), uncurry cons ((String.explode "dot\<S>\<A>\<L>\<A>\<R>\<Y>"), uncurry cons ((String.explode "dot_0_\<B>\<O>\<S>\<S>"), nil)))))))), ()) end)))) *}
 consts dot\<C>\<O>\<N>\<T>\<E>\<N>\<T>\<S> :: "Person \<Rightarrow> Set_int" ("(_) .contents'(')")
 consts dot\<C>\<O>\<N>\<T>\<E>\<N>\<T>\<S>at_pre :: "Person \<Rightarrow> Set_int" ("(_) .contents@pre'(')")
 Context[shallow] Person :: contents () : Set(int)
@@ -3456,15 +3454,15 @@ Context[shallow] Person :: contents () : Set(int)
   Pre : `false`
 thm dot\<C>\<O>\<N>\<T>\<E>\<N>\<T>\<S>_def
 
-(* 158 ************************************ 891 + 2 *)
+(* 158 ************************************ 890 + 2 *)
 Context[shallow] Person
   Inv a : `self .boss <> null implies (self .salary  \<triangleq>  ((self .boss) .salary))`
 thm Person_aat_pre_def
                             Person_a_def
 
-(* 159 ************************************ 893 + 2 *)
+(* 159 ************************************ 892 + 2 *)
 Context[shallow] Planet
-  Inv A : `true and (self .weight \<le>\<^sub>o\<^sub>c\<^sub>l \<zero>)`
+  Inv A : `true and (self .weight \<le>\<^sub>i\<^sub>n\<^sub>t \<zero>)`
 thm Planet_Aat_pre_def
                             Planet_A_def
 
