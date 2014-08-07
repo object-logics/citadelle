@@ -140,7 +140,7 @@ definition "print_abr sprintf_int write_file =
             write_file
               (flatten [filename, ''.thy''])
               (flatten
-                [ [ flatten [''theory '', filename, '' imports '', gen_import, '' '',g,''../../src/OCL_compiler_generator_dynamic'',g,'' begin'']
+                [ [ flatten [''theory '', filename, '' imports '', gen_import,'' begin'']
                   , gen_init comp comp2]
                 , body
                 , [ ''''
@@ -153,7 +153,7 @@ definition "print_abr sprintf_int write_file =
                      , (''OCaml'', ''module_name M (no_signatures)'')
                      , (''Scala'', ''module_name M'')
                      , (''SML'', ''module_name M (no_signatures)'')])
-        , ''''
+        , flatten [ g,''../../src/OCL_compiler_generator_dynamic'',g ]
         , \<lambda> comp comp2.
             flatten_n [          ''generation_syntax [ deep''
                       ,          ''                      (generation_semantics [ analysis (*, oid_start 10*) ])''
