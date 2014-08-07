@@ -497,7 +497,7 @@ definition "print_examp_def_st = (\<lambda> OclDefSt name l \<Rightarrow> \<lamb
                                        | OclDefCoreBinding name \<Rightarrow>
                                            (case List_assoc name (D_instance_rbt ocl_old) of Some (ocli, _) \<Rightarrow> Some ocli)
                                        | _ \<Rightarrow> None) l in
- (\<lambda>(l, l_st). (print_examp_instance_oid l_ocli ocl_old @@ List_map Thy_definition_hol l, ocl \<lparr> D_state_rbt := (name, l_st) # D_state_rbt ocl \<rparr>))
+ (\<lambda>(l, l_st). (List_map Thy_definition_hol l, ocl \<lparr> D_state_rbt := (name, l_st) # D_state_rbt ocl \<rparr>))
   (let ocl = ocl_old
      ; b = \<lambda>s. Expr_basic [s]
      ; (rbt, (map_self, map_username)) =
