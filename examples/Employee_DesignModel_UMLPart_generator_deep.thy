@@ -155,7 +155,7 @@ Context Person :: contents () : Set(Integer)
 *)
 
 Context Planet
-  Inv A : `true and (self .weight \<le>\<^sub>o\<^sub>c\<^sub>l \<zero>)`
+  Inv A : `true and (self .weight \<le>\<^sub>i\<^sub>n\<^sub>t \<zero>)`
 
 (*generation_syntax deep flush_all*)
 

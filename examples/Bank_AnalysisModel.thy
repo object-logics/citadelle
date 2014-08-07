@@ -129,12 +129,12 @@ Define_state ss = []
 Define_pre_post ss \<sigma>\<^sub>1'
 
 Context c: Savings
-  Inv A : `\<zero> <\<^sub>o\<^sub>c\<^sub>l (c .maximum)`
-  Inv B : `c .moneybalance \<le>\<^sub>o\<^sub>c\<^sub>l (c .maximum) and \<zero> \<le>\<^sub>o\<^sub>c\<^sub>l (c .moneybalance)`
+  Inv A : `\<zero> <\<^sub>i\<^sub>n\<^sub>t (c .maximum)`
+  Inv B : `c .moneybalance \<le>\<^sub>i\<^sub>n\<^sub>t (c .maximum) and \<zero> \<le>\<^sub>i\<^sub>n\<^sub>t (c .moneybalance)`
 
 Context c: Checks
-  Inv A : `\<two>\<five> <\<^sub>o\<^sub>c\<^sub>l (c .owner .age) implies (c .overdraft \<doteq> \<zero>)`
-  Inv B : `c .owner .age \<le>\<^sub>o\<^sub>c\<^sub>l \<two>\<five> implies (c .overdraft \<doteq> \<zero> -\<^sub>o\<^sub>c\<^sub>l \<two>\<five>\<zero>)`
+  Inv A : `\<two>\<five> <\<^sub>i\<^sub>n\<^sub>t (c .owner .age) implies (c .overdraft \<doteq> \<zero>)`
+  Inv B : `c .owner .age \<le>\<^sub>i\<^sub>n\<^sub>t \<two>\<five> implies (c .overdraft \<doteq> \<zero> -\<^sub>i\<^sub>n\<^sub>t \<two>\<five>\<zero>)`
 
 (*generation_syntax deep flush_all*)
 
