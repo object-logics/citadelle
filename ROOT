@@ -78,6 +78,21 @@ session "OCL-AFP" in src = HOL +
     "document/formalization.tex"
     "document/introduction.tex"
 
+session "OCL-Appendix-A" in src = HOL +
+  description {* HOL-TestGen *}
+  options [quick_and_dirty, document = pdf, document_output=document_generated,document_variants="document:outline=/proof,/ML"]
+  theories
+    "OCL_main"
+    "../examples/Employee_AnalysisModel_OCLPart"
+    "../examples/Employee_DesignModel_OCLPart"
+  files
+    "document/root-appendix-a.tex"
+    "document/root.bib"
+    "document/conclusion.tex"
+    "document/formalization.tex"
+    "document/introduction.tex"
+
+
 session "OCL-all" in src = HOL +
   description {* HOL-TestGen *}
   options [document = pdf, document_output=document_generated,document_variants="document:outline=/proof,/ML"]
