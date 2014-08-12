@@ -127,6 +127,12 @@ lemma StrictRefEq\<^sub>O\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t_defargs:
 by(simp add: StrictRefEq\<^sub>O\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t_def OclValid_def true_def invalid_def bot_option_def
         split: bool.split_asm HOL.split_if_asm)
 
+lemma defined_StrictRefEq\<^sub>O\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t_I:
+ assumes val_x : "\<tau> \<Turnstile> \<upsilon> x"
+ assumes val_x : "\<tau> \<Turnstile> \<upsilon> y"
+ shows "\<tau> \<Turnstile> \<delta> (StrictRefEq\<^sub>O\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t x y)"
+ apply(insert assms, simp add: StrictRefEq\<^sub>O\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t_def OclValid_def)
+by(subst cp_defined, simp add: true_def)
 
 subsubsection{* Symmetry *}
 
