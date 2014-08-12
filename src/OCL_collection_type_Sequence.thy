@@ -52,47 +52,45 @@ section{* Complex Types: The Sequence-Collection Type (I) Core *}
 subsection{* The Construction of the Sequence Type *}
 
 text{* The core of an own type construction is done via a type
-  definition which provides the raw-type @{text "'\<alpha> Sequence_0"}. It
+  definition which provides the base-type @{text "'\<alpha> Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e"}. It
   is shown that this type ``fits'' indeed into the abstract type
   interface discussed in the previous section. *}
 
-typedef '\<alpha> Sequence_0 ="{X::('\<alpha>\<Colon>null) list option option.
+typedef '\<alpha> Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e ="{X::('\<alpha>\<Colon>null) list option option.
                               X = bot \<or> X = null \<or> (\<forall>x\<in>set \<lceil>\<lceil>X\<rceil>\<rceil>. x \<noteq> bot)}"
           by (rule_tac x="bot" in exI, simp)
 
-instantiation   Sequence_0  :: (null)bot
+instantiation   Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e  :: (null)bot
 begin
 
-   definition bot_Sequence_0_def: "(bot::('a::null) Sequence_0) \<equiv> Abs_Sequence_0 None"
+   definition bot_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def: "(bot::('a::null) Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e) \<equiv> Abs_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e None"
 
-   instance proof show "\<exists>x\<Colon>'a Sequence_0. x \<noteq> bot"
-                  apply(rule_tac x="Abs_Sequence_0 \<lfloor>None\<rfloor>" in exI)
-                  apply(simp add:bot_Sequence_0_def)
-                  apply(subst Abs_Sequence_0_inject)
-                    apply(simp_all add: bot_Sequence_0_def
-                                        null_option_def bot_option_def)
+   instance proof show "\<exists>x\<Colon>'a Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e. x \<noteq> bot"
+                  apply(rule_tac x="Abs_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor>None\<rfloor>" in exI)
+                  apply(simp add:bot_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def)
+                  apply(subst Abs_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inject)
+                    apply(simp_all add: bot_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def null_option_def bot_option_def)
                   done
             qed
 end
 
 
-instantiation   Sequence_0  :: (null)null
+instantiation   Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e  :: (null)null
 begin
 
-   definition null_Sequence_0_def: "(null::('a::null) Sequence_0) \<equiv> Abs_Sequence_0 \<lfloor> None \<rfloor>"
+   definition null_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def: "(null::('a::null) Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e) \<equiv> Abs_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor> None \<rfloor>"
 
-   instance proof show "(null::('a::null) Sequence_0) \<noteq> bot"
-                  apply(simp add:null_Sequence_0_def bot_Sequence_0_def)
-                  apply(subst Abs_Sequence_0_inject)
-                    apply(simp_all add: bot_Sequence_0_def
-                                        null_option_def bot_option_def)
+   instance proof show "(null::('a::null) Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e) \<noteq> bot"
+                  apply(simp add:null_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def bot_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def)
+                  apply(subst Abs_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inject)
+                    apply(simp_all add: bot_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def null_option_def bot_option_def)
                   done
             qed
 end
 
 
 text{* ...  and lifting this type to the format of a valuation gives us:*}
-type_synonym    ('\<AA>,'\<alpha>) Sequence  = "('\<AA>, '\<alpha> Sequence_0) val"
+type_synonym    ('\<AA>,'\<alpha>) Sequence  = "('\<AA>, '\<alpha> Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e) val"
 
 lemmas cp_intro''\<^sub>S\<^sub>e\<^sub>q\<^sub>u\<^sub>e\<^sub>n\<^sub>c\<^sub>e[intro!,simp,code_unfold] = cp_intro'
 

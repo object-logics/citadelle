@@ -68,6 +68,8 @@ of course, this feature would be logically unsafe.*}
 type_synonym Real\<^sub>b\<^sub>a\<^sub>s\<^sub>e = "real option option"
 type_synonym ('\<AA>)Real = "('\<AA>,Real\<^sub>b\<^sub>a\<^sub>s\<^sub>e) val"
 
+section{* Basic Real Constants: *}
+
 text{* Although the remaining part of this library reasons about
 reals abstractly, we provide here as example some convenient shortcuts. *}
 

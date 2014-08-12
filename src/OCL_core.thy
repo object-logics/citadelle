@@ -69,6 +69,23 @@ text{*
 fun    drop :: "'\<alpha> option \<Rightarrow> '\<alpha>" ("\<lceil>(_)\<rceil>")
 where  drop_lift[simp]: "\<lceil>\<lfloor>v\<rfloor>\<rceil> = v"
 
+text{* The definitions for the constants and operations based on functions
+will be geared towards a format that Isabelle can check to be a ``conservative''
+(\ie, logically safe) axiomatic definition. By introducing an explicit
+interpretation function (which happens to be defined just as the identity
+since we are using a shallow embedding of OCL into HOL), all these definitions
+can be rewritten into the conventional semantic textbook format.
+To say it in other words: The interpretation function @{text Sem} as defined
+below is just a textual marker for presentation purposes, i.e. intended for readers
+used to conventional textbook notations on semantics. Since we use a ``shallow embedding'',
+i.e. since we represent the syntax of OCL directly by HOL constants, the interpretation function
+is semantically not only superfluous, but from an Isabelle perspective strictly in
+the way for certain consistency checks performed by the definitional packages.
+*}
+
+definition Sem :: "'a \<Rightarrow> 'a" ("I\<lbrakk>_\<rbrakk>")
+where "I\<lbrakk>x\<rbrakk> \<equiv> x"
+
 
 subsection{* Minimal Notions of State and State Transitions *}
 text{* Next we will introduce the foundational concept of an object id (oid),
@@ -210,15 +227,6 @@ at least a destinguished @{text "null"} and @{text "invalid"} element). *}
 
 type_synonym ('\<AA>,'\<alpha>) val = "'\<AA> st \<Rightarrow> '\<alpha>::null"
 
-text{* The definitions for the constants and operations based on valuations
-will be geared towards a format that Isabelle can check to be a ``conservative''
-(\ie, logically safe) axiomatic definition. By introducing an explicit
-interpretation function (which happens to be defined just as the identity
-since we are using a shallow embedding of OCL into HOL), all these definitions
-can be rewritten into the conventional semantic textbook format  as follows: *}
-
-definition Sem :: "'a \<Rightarrow> 'a" ("I\<lbrakk>_\<rbrakk>")
-where "I\<lbrakk>x\<rbrakk> \<equiv> x"
 
 text{* As a consequence of semantic domain definition, any OCL type will
 have the two semantic constants @{text "invalid"} (for exceptional, aborted
@@ -319,9 +327,12 @@ val () = outer_syntax_command @{command_spec "Assert_local"} (Toplevel.local_the
 section{* Definition of the Boolean Type *}
 
 text{* The semantic domain of the (basic) boolean type is now defined as the Standard:
-the space of valuation to @{typ "bool option option"}:*}
+the space of valuation to @{typ "bool option option"}, \ie{} the Boolean raw type:*}
 
-type_synonym ('\<AA>)Boolean = "('\<AA>,bool option option) val"
+type_synonym Boolean\<^sub>0 = "bool option option"
+type_synonym ('\<AA>)Boolean = "('\<AA>,Boolean\<^sub>0) val"
+
+(* XXX SNIP HERE !!! *)
 
 subsection{* Basic Constants *}
 

@@ -52,36 +52,36 @@ section{* Complex Types: The Pair-Collection Type (I) Core *}
 subsection{* The Construction of the Pair Type (Tuples) *}
 
 text{* The core of an own type construction is done via a type
-  definition which provides the raw-type @{text "('\<alpha>, '\<beta>) Pair_0"}. It
+  definition which provides the base-type @{text "('\<alpha>, '\<beta>) Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e"}. It
   is shown that this type ``fits'' indeed into the abstract type
   interface discussed in the previous section. *}
 
-typedef ('\<alpha>, '\<beta>) Pair_0 = "{X::('\<alpha>\<Colon>null \<times> '\<beta>\<Colon>null) option option.
+typedef ('\<alpha>, '\<beta>) Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e = "{X::('\<alpha>\<Colon>null \<times> '\<beta>\<Colon>null) option option.
                                        X = bot \<or> X = null \<or> (fst\<lceil>\<lceil>X\<rceil>\<rceil> \<noteq> bot \<and> snd\<lceil>\<lceil>X\<rceil>\<rceil> \<noteq> bot)}"
                           by (rule_tac x="bot" in exI, simp)
 
 
-instantiation   Pair_0  :: (null,null)bot
+instantiation   Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e  :: (null,null)bot
 begin
-   definition bot_Pair_0_def: "(bot_class.bot :: ('a\<Colon>null,'b\<Colon>null) Pair_0) \<equiv> Abs_Pair_0 None"
+   definition bot_Pair_0_def: "(bot_class.bot :: ('a\<Colon>null,'b\<Colon>null) Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e) \<equiv> Abs_Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e None"
 
-   instance proof show "\<exists>x\<Colon>('a,'b) Pair_0. x \<noteq> bot"
-                  apply(rule_tac x="Abs_Pair_0 \<lfloor>None\<rfloor>" in exI)
+   instance proof show "\<exists>x\<Colon>('a,'b) Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e. x \<noteq> bot"
+                  apply(rule_tac x="Abs_Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor>None\<rfloor>" in exI)
                   apply(simp add:bot_Pair_0_def)
-                  apply(subst Abs_Pair_0_inject)
+                  apply(subst Abs_Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inject)
                   apply(simp_all add: bot_Pair_0_def
                                       null_option_def bot_option_def)
                   done
             qed
 end
 
-instantiation   Pair_0  :: (null,null)null
+instantiation   Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e  :: (null,null)null
 begin
-   definition null_Pair_0_def: "(null::('a::null,'b::null) Pair_0) \<equiv> Abs_Pair_0 \<lfloor> None \<rfloor>"
+   definition null_Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def: "(null::('a::null,'b::null) Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e) \<equiv> Abs_Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor> None \<rfloor>"
 
-   instance proof show "(null::('a::null,'b::null) Pair_0) \<noteq> bot"
-                  apply(simp add:null_Pair_0_def bot_Pair_0_def)
-                  apply(subst Abs_Pair_0_inject)
+   instance proof show "(null::('a::null,'b::null) Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e) \<noteq> bot"
+                  apply(simp add:null_Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def bot_Pair_0_def)
+                  apply(subst Abs_Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inject)
                   apply(simp_all add: bot_Pair_0_def null_option_def bot_option_def)
                   done
             qed
@@ -89,7 +89,7 @@ end
 
 
 text{* ...  and lifting this type to the format of a valuation gives us:*}
-type_synonym    ('\<AA>,'\<alpha>,'\<beta>) Pair  = "('\<AA>, ('\<alpha>,'\<beta>) Pair_0) val"
+type_synonym    ('\<AA>,'\<alpha>,'\<beta>) Pair  = "('\<AA>, ('\<alpha>,'\<beta>) Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e) val"
 
 section{* Complex Types: The Pair-Collection Type (II) Library *}
 
@@ -103,18 +103,18 @@ definition OclPair::"('\<AA>, '\<alpha>) val \<Rightarrow>
                      ('\<AA>, '\<beta>) val \<Rightarrow>
                      ('\<AA>,'\<alpha>::null,'\<beta>::null) Pair"  ("Pair{(_),(_)}")
 where     "Pair{X,Y} \<equiv> (\<lambda> \<tau>. if (\<upsilon> X) \<tau> = true \<tau> \<and> (\<upsilon> Y) \<tau> = true \<tau>
-                              then Abs_Pair_0 \<lfloor>\<lfloor>(X \<tau>, Y \<tau>)\<rfloor>\<rfloor>
+                              then Abs_Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor>\<lfloor>(X \<tau>, Y \<tau>)\<rfloor>\<rfloor>
                               else invalid \<tau>)"
 
 definition OclFst::" ('\<AA>,'\<alpha>::null,'\<beta>::null) Pair \<Rightarrow> ('\<AA>, '\<alpha>) val"  ("Fst'(_')")
 where     "Fst(X) \<equiv> (\<lambda> \<tau>. if (\<delta> X) \<tau> = true \<tau>
-                           then fst \<lceil>\<lceil>Rep_Pair_0 (X \<tau>)\<rceil>\<rceil>
+                           then fst \<lceil>\<lceil>Rep_Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e (X \<tau>)\<rceil>\<rceil>
                            else invalid \<tau>)"
 
 
 definition OclSnd::" ('\<AA>,'\<alpha>::null,'\<beta>::null) Pair \<Rightarrow> ('\<AA>, '\<beta>) val"  ("Snd'(_')")
 where     "Snd(X) \<equiv> (\<lambda> \<tau>. if (\<delta> X) \<tau> = true \<tau>
-                           then snd \<lceil>\<lceil>Rep_Pair_0 (X \<tau>)\<rceil>\<rceil>
+                           then snd \<lceil>\<lceil>Rep_Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e (X \<tau>)\<rceil>\<rceil>
                            else invalid \<tau>)"
 
 (* TODO : cp_lemmas, strictness rules, definedness - inference ...

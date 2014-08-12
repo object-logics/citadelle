@@ -54,6 +54,7 @@ as the valuations over @{typ "int option option"}. *}
 type_synonym Integer\<^sub>b\<^sub>a\<^sub>s\<^sub>e = "int option option"
 type_synonym ('\<AA>)Integer = "('\<AA>,Integer\<^sub>b\<^sub>a\<^sub>s\<^sub>e) val"
 
+subsection{* Basic Integer Constants *}
 text{* Although the remaining part of this library reasons about
 integers abstractly, we provide here as example some convenient shortcuts. *}
 
