@@ -230,8 +230,6 @@ definition "hol_split s = flatten [s, ''.split'']"
 
 subsection{* ... *}
 
-definition "ty_boolean = ''Boolean''"
-
 definition "unicode_AA = escape_unicode ''AA''"
 definition "unicode_alpha = escape_unicode ''alpha''"
 definition "unicode_and = escape_unicode ''and''"

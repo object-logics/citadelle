@@ -328,6 +328,9 @@ definition "i_of_ocl_ass_class a b = ocl_ass_class_rec
     (i_of_ocl_association a b (K i_of_unit))
     (i_of_ocl_class_raw a b (K i_of_unit)))"
 
+definition "i_of_ocl_def_int a b = ocl_def_int_rec
+  (ap1 a (b ''OclDefI'') (i_of_list a b (i_of_string a b)))"
+
 definition "i_of_ocl_data_shallow_base a b = ocl_data_shallow_base_rec
   (ap1 a (b ''ShallB_str'') (i_of_string a b))
   (ap1 a (b ''ShallB_self'') (i_of_internal_oid a b))"
@@ -353,9 +356,6 @@ definition "i_of_ocl_instance_single a b f = ocl_instance_single_rec
 definition "i_of_ocl_instance a b = ocl_instance_rec
   (ap1 a (b ''OclInstance'')
     (i_of_list a b (i_of_ocl_instance_single a b (K i_of_unit))))"
-
-definition "i_of_ocl_def_int a b = ocl_def_int_rec
-  (ap1 a (b ''OclDefI'') (i_of_list a b (i_of_string a b)))"
 
 definition "i_of_ocl_def_state_core a b f = ocl_def_state_core_rec
   (ap1 a (b ''OclDefCoreAdd'') (i_of_ocl_instance_single a b (K i_of_unit)))
@@ -420,12 +420,12 @@ lemmas [code] =
   i_of.i_of_ocl_association_type_def
   i_of.i_of_ocl_association_def
   i_of.i_of_ocl_ass_class_def
+  i_of.i_of_ocl_def_int_def
   i_of.i_of_ocl_data_shallow_base_def
   i_of.i_of_ocl_data_shallow_def
   i_of.i_of_ocl_list_attr_def
   i_of.i_of_ocl_instance_single_def
   i_of.i_of_ocl_instance_def
-  i_of.i_of_ocl_def_int_def
   i_of.i_of_ocl_def_state_core_def
   i_of.i_of_ocl_def_state_def
   i_of.i_of_ocl_def_pre_post_def

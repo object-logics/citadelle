@@ -845,6 +845,11 @@ where    "X or Y \<equiv> not(not X and not Y)"
 definition OclImplies :: "[('\<AA>)Boolean, ('\<AA>)Boolean] \<Rightarrow> ('\<AA>)Boolean"       (infixl "implies" 25)
 where    "X implies Y \<equiv> not X or Y"
 
+(*
+definition ocl_eq (infixl "equiv" 30)
+where "ocl_eq a b = ((a implies b) and (b implies a))"
+*)
+
 lemma cp_OclAnd:"(X and Y) \<tau> = ((\<lambda> _. X \<tau>) and (\<lambda> _. Y \<tau>)) \<tau>"
 by(simp add: OclAnd_def)
 

@@ -103,6 +103,8 @@ record ocl_association =        OclAss_type     :: ocl_association_type
                                                     \<times> string option (* role *)) list"
 datatype ocl_ass_class =        OclAssClass ocl_association ocl_class_raw
 
+datatype ocl_def_int = OclDefI "string list"
+
 datatype ocl_data_shallow_base = ShallB_str string
                                | ShallB_self internal_oid
 datatype ocl_data_shallow =      Shall_base ocl_data_shallow_base
@@ -120,8 +122,6 @@ record ocl_instance_single = Inst_name :: string
                                            ocl_list_attr"
 
 datatype ocl_instance = OclInstance "ocl_instance_single list" (* mutual recursive *)
-
-datatype ocl_def_int = OclDefI "string list"
 
 datatype 'a ocl_def_state_core = OclDefCoreAdd ocl_instance_single
                                | OclDefCoreSkip
@@ -315,6 +315,10 @@ fun_quick str_of_ty where
    |"str_of_ty (OclTy_collection Set ocl_ty) = flatten [''Set('', str_of_ty ocl_ty,'')'']"
    |"str_of_ty (OclTy_collection Sequence ocl_ty) = flatten [''Sequence('', str_of_ty ocl_ty,'')'']"
    |"str_of_ty (OclTy_raw s) = s"
+
+definition "ty_boolean = ''Boolean''"
+
+definition "print_infra_type_synonym_class_set_name name = ''Set_'' @@ name"
 
 fun_quick get_class_hierarchy_strict_aux where
    "get_class_hierarchy_strict_aux dataty l_res =
