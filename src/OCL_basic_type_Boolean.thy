@@ -44,7 +44,7 @@
 header{* ... *}
 
 theory  OCL_basic_type_Boolean
-imports OCL_lib_common
+imports OCL_lib_common OCL_Types
 begin
 
 section{* Fundamental Predicates on Basic Types: Strict Equality *}

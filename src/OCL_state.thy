@@ -246,13 +246,13 @@ universes; we show that this is a sufficient ``characterization.'' *}
 definition OclAllInstances_generic :: "(('\<AA>::object) st \<Rightarrow> '\<AA> state) \<Rightarrow> ('\<AA>::object \<rightharpoonup> '\<alpha>) \<Rightarrow>
                                        ('\<AA>, '\<alpha> option option) Set"
 where "OclAllInstances_generic fst_snd H =
-                    (\<lambda>\<tau>. Abs_Set_0 \<lfloor>\<lfloor> Some ` ((H ` ran (heap (fst_snd \<tau>))) - { None }) \<rfloor>\<rfloor>)"
+                    (\<lambda>\<tau>. Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor>\<lfloor> Some ` ((H ` ran (heap (fst_snd \<tau>))) - { None }) \<rfloor>\<rfloor>)"
 
 lemma OclAllInstances_generic_defined: "\<tau> \<Turnstile> \<delta> (OclAllInstances_generic pre_post H)"
  apply(simp add: defined_def OclValid_def OclAllInstances_generic_def false_def true_def
-                 bot_fun_def bot_Set_0_def null_fun_def null_Set_0_def)
+                 bot_fun_def bot_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def null_fun_def null_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def)
  apply(rule conjI)
- apply(rule notI, subst (asm) Abs_Set_0_inject, simp,
+ apply(rule notI, subst (asm) Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inject, simp,
        (rule disjI2)+,
        metis bot_option_def option.distinct(1),
        (simp add: bot_option_def null_option_def)+)+
@@ -280,7 +280,7 @@ proof -
                                                                  C[simplified OclValid_def])
     apply(simp add:OclAllInstances_generic_def)
     apply(erule contrapos_pn)
-    apply(subst Set_0.Abs_Set_0_inverse,
+    apply(subst Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e.Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inverse,
           auto simp: null_fun_def null_option_def bot_option_def)
     done
 qed
@@ -308,9 +308,9 @@ proof -
            by(insert  A[THEN OCL_core.foundation6,
                            simplified OclIncludes_defined_args_valid],
                  auto simp: OclValid_def)
-   have F: "Rep_Set_0 (Abs_Set_0 \<lfloor>\<lfloor>Some ` (H ` ran (heap (pre_post \<tau>)) - {None})\<rfloor>\<rfloor>) =
+   have F: "Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor>\<lfloor>Some ` (H ` ran (heap (pre_post \<tau>)) - {None})\<rfloor>\<rfloor>) =
             \<lfloor>\<lfloor>Some ` (H ` ran (heap (pre_post \<tau>)) - {None})\<rfloor>\<rfloor>"
-           by(subst Set_0.Abs_Set_0_inverse,simp_all add: bot_option_def)
+           by(subst Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e.Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inverse,simp_all add: bot_option_def)
    show ?thesis
     apply(insert A)
     apply(simp add: OclIncludes_def OclValid_def ran_def B C image_def true_def)
@@ -333,8 +333,8 @@ proof -
   apply(simp only: OclValid_def, subst cp_StrictRefEq\<^sub>S\<^sub>e\<^sub>t,
         simp only: state_update_vs_allInstances_empty StrictRefEq\<^sub>S\<^sub>e\<^sub>t_refl)
   apply(simp add: OclIf_def valid_def mtSet_def defined_def
-                  bot_fun_def null_fun_def null_option_def bot_Set_0_def)
- by(subst Abs_Set_0_inject, (simp add: bot_option_def true_def)+)
+                  bot_fun_def null_fun_def null_option_def bot_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def)
+ by(subst Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inject, (simp add: bot_option_def true_def)+)
 qed
 
 text{* Here comes a couple of operational rules that allow to infer the value
@@ -364,7 +364,7 @@ proof -
  show ?thesis
   apply(simp add: OclIncluding_def OclAllInstances_generic_defined[simplified OclValid_def],
         simp add: OclAllInstances_generic_def)
-  apply(subst Abs_Set_0_inverse, simp add: bot_option_def, simp add: comp_def,
+  apply(subst Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inverse, simp add: bot_option_def, simp add: comp_def,
         subst image_insert[symmetric],
         subst drop_none, simp add: assms)
   apply(case_tac "Type Object", simp add: assms, simp only:,
@@ -396,8 +396,8 @@ shows   "(OclAllInstances_generic pre_post Type)
        simp add: OclAllInstances_generic_defined[simplified OclValid_def])
 
  apply(simp add: defined_def OclValid_def OclAllInstances_generic_def invalid_def
-                 bot_fun_def null_fun_def bot_Set_0_def null_Set_0_def)
- apply(subst (1 3) Abs_Set_0_inject)
+                 bot_fun_def null_fun_def bot_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def null_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def)
+ apply(subst (1 3) Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inject)
 by(simp add: bot_option_def null_option_def)+
 
 
@@ -739,12 +739,12 @@ proof -
     apply(simp add: OclIncludes_def OclValid_def
                     OclAllInstances_at_pre_defined[simplified OclValid_def])
    by(subst cp_defined, simp)
-   have F: "Rep_Set_0 (Abs_Set_0 \<lfloor>\<lfloor>Some ` (H ` ran (heap (fst \<tau>)) - {None})\<rfloor>\<rfloor>) =
+   have F: "Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor>\<lfloor>Some ` (H ` ran (heap (fst \<tau>)) - {None})\<rfloor>\<rfloor>) =
             \<lfloor>\<lfloor>Some ` (H ` ran (heap (fst \<tau>)) - {None})\<rfloor>\<rfloor>"
-           by(subst Set_0.Abs_Set_0_inverse,simp_all add: bot_option_def)
-   have F': "Rep_Set_0 (Abs_Set_0 \<lfloor>\<lfloor>Some ` (H ` ran (heap (snd \<tau>)) - {None})\<rfloor>\<rfloor>) =
+           by(subst Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e.Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inverse,simp_all add: bot_option_def)
+   have F': "Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor>\<lfloor>Some ` (H ` ran (heap (snd \<tau>)) - {None})\<rfloor>\<rfloor>) =
             \<lfloor>\<lfloor>Some ` (H ` ran (heap (snd \<tau>)) - {None})\<rfloor>\<rfloor>"
-           by(subst Set_0.Abs_Set_0_inverse,simp_all add: bot_option_def)
+           by(subst Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e.Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inverse,simp_all add: bot_option_def)
  show ?thesis
   apply(rule StrictRefEq\<^sub>O\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t_vs_StrongEq'[OF WFF valid_x valid_y, where H = "Some o H"])
   apply(subst oid_preserve[symmetric], simp, simp add: oid_of_option_def)
@@ -818,9 +818,9 @@ both states), with the exception of those objects. *}
 definition OclIsModifiedOnly ::"('\<AA>::object,'\<alpha>::{null,object})Set \<Rightarrow> '\<AA> Boolean"
                         ("_->oclIsModifiedOnly'(')")
 where "X->oclIsModifiedOnly() \<equiv> (\<lambda>(\<sigma>,\<sigma>').
-                           let X' = (oid_of ` \<lceil>\<lceil>Rep_Set_0(X(\<sigma>,\<sigma>'))\<rceil>\<rceil>);
+                           let X' = (oid_of ` \<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e(X(\<sigma>,\<sigma>'))\<rceil>\<rceil>);
                                S = ((dom (heap \<sigma>) \<inter> dom (heap \<sigma>')) - X')
-                           in if (\<delta> X) (\<sigma>,\<sigma>') = true (\<sigma>,\<sigma>') \<and> (\<forall>x\<in>\<lceil>\<lceil>Rep_Set_0(X(\<sigma>,\<sigma>'))\<rceil>\<rceil>. x \<noteq> null)
+                           in if (\<delta> X) (\<sigma>,\<sigma>') = true (\<sigma>,\<sigma>') \<and> (\<forall>x\<in>\<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e(X(\<sigma>,\<sigma>'))\<rceil>\<rceil>. x \<noteq> null)
                               then \<lfloor>\<lfloor>\<forall> x \<in> S. (heap \<sigma>) x = (heap \<sigma>') x\<rfloor>\<rfloor>
                               else invalid (\<sigma>,\<sigma>'))"
 
@@ -873,13 +873,13 @@ subsection{* Framing Theorem *}
 lemma all_oid_diff:
  assumes def_x : "\<tau> \<Turnstile> \<delta> x"
  assumes def_X : "\<tau> \<Turnstile> \<delta> X"
- assumes def_X' : "\<And>x. x \<in> \<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil> \<Longrightarrow> x \<noteq> null"
+ assumes def_X' : "\<And>x. x \<in> \<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (X \<tau>)\<rceil>\<rceil> \<Longrightarrow> x \<noteq> null"
 
  defines "P \<equiv> (\<lambda>a. not (StrictRefEq\<^sub>O\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t x a))"
- shows "(\<tau> \<Turnstile> X->forAll(a| P a)) = (oid_of (x \<tau>) \<notin> oid_of ` \<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil>)"
+ shows "(\<tau> \<Turnstile> X->forAll(a| P a)) = (oid_of (x \<tau>) \<notin> oid_of ` \<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (X \<tau>)\<rceil>\<rceil>)"
 proof -
  have P_null_bot: "\<And>b. b = null \<or> b = \<bottom> \<Longrightarrow>
-                        \<not> (\<exists>x\<in>\<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil>. P (\<lambda>(_:: 'a state \<times> 'a state). x) \<tau> = b \<tau>)"
+                        \<not> (\<exists>x\<in>\<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (X \<tau>)\<rceil>\<rceil>. P (\<lambda>(_:: 'a state \<times> 'a state). x) \<tau> = b \<tau>)"
   apply(erule disjE)
    apply(simp, rule ballI,
          simp add: P_def StrictRefEq\<^sub>O\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t_def, rename_tac x',
@@ -895,8 +895,8 @@ proof -
  have not_inj : "\<And>x y. ((not x) \<tau> = (not y) \<tau>) = (x \<tau> = y \<tau>)"
  by (metis foundation21 foundation22)
 
- have P_false : "\<exists>x\<in>\<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil>. P (\<lambda>_. x) \<tau> = false \<tau> \<Longrightarrow>
-                 oid_of (x \<tau>) \<in> oid_of ` \<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil>"
+ have P_false : "\<exists>x\<in>\<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (X \<tau>)\<rceil>\<rceil>. P (\<lambda>_. x) \<tau> = false \<tau> \<Longrightarrow>
+                 oid_of (x \<tau>) \<in> oid_of ` \<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (X \<tau>)\<rceil>\<rceil>"
   apply(erule bexE, rename_tac x')
   apply(simp add: P_def)
   apply(simp only: OclNot3[symmetric], simp only: not_inj)
@@ -905,9 +905,9 @@ proof -
     apply (metis (mono_tags) drop.simps def_x foundation16[THEN iffD1] true_def)
  by(simp add: invalid_def bot_option_def true_def)+
 
- have P_true : "\<forall>x\<in>\<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil>. P (\<lambda>_. x) \<tau> = true \<tau> \<Longrightarrow>
-                oid_of (x \<tau>) \<notin> oid_of ` \<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil>"
-  apply(subgoal_tac "\<forall>x'\<in>\<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil>. oid_of x' \<noteq> oid_of (x \<tau>)")
+ have P_true : "\<forall>x\<in>\<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (X \<tau>)\<rceil>\<rceil>. P (\<lambda>_. x) \<tau> = true \<tau> \<Longrightarrow>
+                oid_of (x \<tau>) \<notin> oid_of ` \<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (X \<tau>)\<rceil>\<rceil>"
+  apply(subgoal_tac "\<forall>x'\<in>\<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (X \<tau>)\<rceil>\<rceil>. oid_of x' \<noteq> oid_of (x \<tau>)")
    apply (metis imageE)
   apply(rule ballI, drule_tac x = "x'" in ballE) prefer 3 apply assumption
    apply(simp add: P_def)
@@ -917,10 +917,10 @@ proof -
     apply (metis def_X' def_x  foundation16[THEN iffD1])
  by(simp add: invalid_def bot_option_def false_def)+
 
- have bool_split : "\<forall>x\<in>\<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil>. P (\<lambda>_. x) \<tau> \<noteq> null \<tau> \<Longrightarrow>
-                    \<forall>x\<in>\<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil>. P (\<lambda>_. x) \<tau> \<noteq> \<bottom> \<tau> \<Longrightarrow>
-                    \<forall>x\<in>\<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil>. P (\<lambda>_. x) \<tau> \<noteq> false \<tau> \<Longrightarrow>
-                    \<forall>x\<in>\<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil>. P (\<lambda>_. x) \<tau> = true \<tau>"
+ have bool_split : "\<forall>x\<in>\<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (X \<tau>)\<rceil>\<rceil>. P (\<lambda>_. x) \<tau> \<noteq> null \<tau> \<Longrightarrow>
+                    \<forall>x\<in>\<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (X \<tau>)\<rceil>\<rceil>. P (\<lambda>_. x) \<tau> \<noteq> \<bottom> \<tau> \<Longrightarrow>
+                    \<forall>x\<in>\<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (X \<tau>)\<rceil>\<rceil>. P (\<lambda>_. x) \<tau> \<noteq> false \<tau> \<Longrightarrow>
+                    \<forall>x\<in>\<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (X \<tau>)\<rceil>\<rceil>. P (\<lambda>_. x) \<tau> = true \<tau>"
   apply(rule ballI)
   apply(drule_tac x = x in ballE) prefer 3 apply assumption
    apply(drule_tac x = x in ballE) prefer 3 apply assumption
@@ -946,11 +946,11 @@ theorem framing:
   apply(insert oid_is_typerepr, simp add: OclForall_def OclValid_def split: split_if_asm)
  by(simp add: bot_option_def true_def)
 
- have def_X' : "\<And>x. x \<in> \<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil> \<Longrightarrow> x \<noteq> null"
+ have def_X' : "\<And>x. x \<in> \<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (X \<tau>)\<rceil>\<rceil> \<Longrightarrow> x \<noteq> null"
   apply(insert modifiesclause, simp add: OclIsModifiedOnly_def OclValid_def split: split_if_asm)
   apply(case_tac \<tau>, simp split: split_if_asm)
    apply(simp add: OclExcluding_def split: split_if_asm)
-    apply(subst (asm) (2) Abs_Set_0_inverse)
+    apply(subst (asm) (2) Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inverse)
      apply(simp, (rule disjI2)+)
      apply (metis (hide_lams, mono_tags) Diff_iff Set_inv_lemma def_X)
     apply(simp)
@@ -961,7 +961,7 @@ theorem framing:
                                       OclExcluding_valid_args_valid OclExcluding_valid_args_valid'')
  by(simp add: invalid_def bot_option_def)
 
- have oid_is_typerepr : "oid_of (x \<tau>) \<notin> oid_of ` \<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil>"
+ have oid_is_typerepr : "oid_of (x \<tau>) \<notin> oid_of ` \<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (X \<tau>)\<rceil>\<rceil>"
  by(rule all_oid_diff[THEN iffD1, OF def_x def_X def_X' oid_is_typerepr])
 
  show ?thesis
@@ -973,7 +973,7 @@ theorem framing:
    apply(case_tac \<tau>, rename_tac \<sigma> \<sigma>', simp split: split_if_asm)
     apply(subst (asm) (2) OclExcluding_def)
     apply(drule foundation5[simplified OclValid_def true_def], simp)
-    apply(subst (asm) Abs_Set_0_inverse, simp)
+    apply(subst (asm) Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inverse, simp)
      apply(rule disjI2)+
      apply (metis (hide_lams, no_types) DiffD1 OclValid_def Set_inv_lemma def_x
                                         foundation16 foundation18')

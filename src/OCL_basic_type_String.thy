@@ -47,12 +47,7 @@ theory  OCL_basic_type_String
 imports OCL_lib_common
 begin
 
-section{* Basic Types: String *}
-subsection{* The Construction of the String Type *}
-text{* Since @{term "String"} is again a basic type, we define its semantic domain
-as the valuations over @{typ "string option option"}. *}
-type_synonym String\<^sub>b\<^sub>a\<^sub>s\<^sub>e = "string option option"
-type_synonym ('\<AA>)String = "('\<AA>,String\<^sub>b\<^sub>a\<^sub>s\<^sub>e) val"
+section{* Basic Types: String Operations *}
 
 text{* Although the remaining part of this library reasons about
 integers abstractly, we provide here as example some convenient shortcuts. *}
@@ -120,9 +115,12 @@ interpretation OclLe\<^sub>S\<^sub>t\<^sub>r\<^sub>i\<^sub>n\<^sub>g : binop_inf
 subsubsection{* Basic Properties *}
 
 lemma OclAdd\<^sub>S\<^sub>t\<^sub>r\<^sub>i\<^sub>n\<^sub>g_not_commute: "\<exists>X Y. (X +\<^sub>s\<^sub>t\<^sub>r\<^sub>i\<^sub>n\<^sub>g Y) \<noteq> (Y +\<^sub>s\<^sub>t\<^sub>r\<^sub>i\<^sub>n\<^sub>g X)"
-  apply(rule_tac x = "\<lambda>_. \<lfloor>\<lfloor>''''\<rfloor>\<rfloor>" in exI)
+  apply(rule_tac x = "\<lambda>_. \<lfloor>\<lfloor>''b''\<rfloor>\<rfloor>" in exI)
   apply(rule_tac x = "\<lambda>_. \<lfloor>\<lfloor>''a''\<rfloor>\<rfloor>" in exI)
-sorry
+  apply(simp_all add:OclAdd\<^sub>S\<^sub>t\<^sub>r\<^sub>i\<^sub>n\<^sub>g_def)
+  apply auto
+  apply(drule fun_cong[of _ _ t], auto)
+  done
 
 subsubsection{* Execution with Invalid or Null or Zero as Argument *}
 (*

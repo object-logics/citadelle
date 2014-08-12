@@ -44,15 +44,10 @@
 header{* ... *}
 
 theory  OCL_basic_type_Integer
-imports OCL_lib_common
+imports OCL_lib_common OCL_Types
 begin
 
 section{* Basic Types: Integer *}
-subsection{* The Construction of the Integer Type *}
-text{* Since @{term "Integer"} is again a basic type, we define its semantic domain
-as the valuations over @{typ "int option option"}. *}
-type_synonym Integer\<^sub>b\<^sub>a\<^sub>s\<^sub>e = "int option option"
-type_synonym ('\<AA>)Integer = "('\<AA>,Integer\<^sub>b\<^sub>a\<^sub>s\<^sub>e) val"
 
 subsection{* Basic Integer Constants *}
 text{* Although the remaining part of this library reasons about

@@ -47,13 +47,8 @@ theory  OCL_basic_type_Void
 imports OCL_lib_common
 begin
 
-section{* Basic Types: Void *}
-subsection{* The Construction of the Void Type *}
-text{* The pathological case of a type that contains
-just null and no other element: *}
+section{* Basic Types: Void Operations *}
 
-type_synonym Void\<^sub>b\<^sub>a\<^sub>s\<^sub>e = "unit option"
-type_synonym ('\<AA>)Void = "('\<AA>,Void\<^sub>b\<^sub>a\<^sub>s\<^sub>e) val"
 (* For technical reasons, the type does not contain to the null-class yet. *)
 text {* This \emph{minimal} OCL type contains only two elements:
 @{term "invalid"} and @{term "null"}.

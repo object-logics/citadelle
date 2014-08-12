@@ -44,53 +44,37 @@
 header{* ... *}
 
 theory  OCL_collection_type_Sequence
-imports OCL_basic_type
+imports OCL_basic_type OCL_Types
 begin
 
-section{* Complex Types: The Sequence-Collection Type (I) Core *}
+section{* The Collection Sequence Type Operations *}
 
-subsection{* The Construction of the Sequence Type *}
-
-text{* The core of an own type construction is done via a type
-  definition which provides the base-type @{text "'\<alpha> Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e"}. It
-  is shown that this type ``fits'' indeed into the abstract type
-  interface discussed in the previous section. *}
-
-typedef '\<alpha> Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e ="{X::('\<alpha>\<Colon>null) list option option.
-                              X = bot \<or> X = null \<or> (\<forall>x\<in>set \<lceil>\<lceil>X\<rceil>\<rceil>. x \<noteq> bot)}"
-          by (rule_tac x="bot" in exI, simp)
-
-instantiation   Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e  :: (null)bot
-begin
-
-   definition bot_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def: "(bot::('a::null) Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e) \<equiv> Abs_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e None"
-
-   instance proof show "\<exists>x\<Colon>'a Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e. x \<noteq> bot"
-                  apply(rule_tac x="Abs_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor>None\<rfloor>" in exI)
-                  apply(simp add:bot_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def)
-                  apply(subst Abs_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inject)
-                    apply(simp_all add: bot_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def null_option_def bot_option_def)
-                  done
-            qed
-end
+subsection{* Constants on Sequences: mtSequence *}
+definition mtSequence::"('\<AA>,'\<alpha>::null) Sequence"  ("Seq{}")
+where     "Seq{} \<equiv> (\<lambda> \<tau>.  Abs_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor>\<lfloor>[]::'\<alpha> list\<rfloor>\<rfloor> )"
 
 
-instantiation   Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e  :: (null)null
-begin
+lemma mtSequence_defined[simp,code_unfold]:"\<delta>(Seq{}) = true"
+apply(rule ext, auto simp: mtSequence_def defined_def null_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def
+                           bot_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def bot_fun_def null_fun_def)
+by(simp_all add: Abs_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inject bot_option_def null_option_def)
 
-   definition null_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def: "(null::('a::null) Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e) \<equiv> Abs_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor> None \<rfloor>"
+lemma mtSequence_valid[simp,code_unfold]:"\<upsilon>(Seq{}) = true"
+apply(rule ext,auto simp: mtSequence_def valid_def null_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def
+                          bot_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def bot_fun_def null_fun_def)
+by(simp_all add: Abs_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inject bot_option_def null_option_def)
 
-   instance proof show "(null::('a::null) Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e) \<noteq> bot"
-                  apply(simp add:null_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def bot_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def)
-                  apply(subst Abs_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inject)
-                    apply(simp_all add: bot_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def null_option_def bot_option_def)
-                  done
-            qed
-end
+lemma mtSequence_rep_set: "\<lceil>\<lceil>Rep_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e (Seq{} \<tau>)\<rceil>\<rceil> = []"
+ apply(simp add: mtSequence_def, subst Abs_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inverse)
+by(simp add: bot_option_def)+
+
+lemma [simp,code_unfold]: "const Seq{}"
+by(simp add: const_def mtSequence_def)
 
 
-text{* ...  and lifting this type to the format of a valuation gives us:*}
-type_synonym    ('\<AA>,'\<alpha>) Sequence  = "('\<AA>, '\<alpha> Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e) val"
+text{* Note that the collection types in OCL allow for null to be included;
+  however, there is the null-collection into which inclusion yields invalid. *}
+
 
 lemmas cp_intro''\<^sub>S\<^sub>e\<^sub>q\<^sub>u\<^sub>e\<^sub>n\<^sub>c\<^sub>e[intro!,simp,code_unfold] = cp_intro'
 

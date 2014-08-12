@@ -44,29 +44,11 @@
 header{* ... *}
 
 theory  OCL_basic_type_Real
-imports OCL_lib_common
-        (* Real *) (* Transcendental *) (* For Real Numbers only ...
-                                      Has unfortunate side-effects on syntax. *)
+imports OCL_lib_common OCL_Types
 begin
 
-section{* Basic Types: Real *}
-subsection{* The Construction of the Real Type *}
-text{* The following text can only be included if the two packages "Real" and "Transcendental"
-were also included. *}
-type_synonym real = nat (* If package Real is not included*)
-
-text{* Since @{term "Real"} is again a basic type, we define its semantic domain
-as the valuations over @{typ "real option option"} --- i.e. the mathematical type of real numbers.
-The HOL-theory for @{typ real} ``Real'' transcendental numbers such as $\pi$ and $e$ as well as
-infrastructure to reason over infinite convergent Cauchy-sequences (it is thus possible, in principle,
-to reason that the sum of two-s exponentials is actually 2.
-
-If needed, a code-generator to compile @{term "Real"} to floating-point
-numbers can be added; this allows for mapping reals to an efficient machine representation;
-of course, this feature would be logically unsafe.*}
-
-type_synonym Real\<^sub>b\<^sub>a\<^sub>s\<^sub>e = "real option option"
-type_synonym ('\<AA>)Real = "('\<AA>,Real\<^sub>b\<^sub>a\<^sub>s\<^sub>e) val"
+(* Hack since Real not imported in OCL_Types: *)
+type_synonym real = nat
 
 section{* Basic Real Constants: *}
 
