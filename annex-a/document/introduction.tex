@@ -1,17 +1,23 @@
-\part{Introduction}
+\part{Annex A}
 \chapter{Introduction}
-This annex formally defines the semantics of OCL and will proceed by describing 
-the OCL semantics by a translation in to a core language --- called FeatherWeight OCL ---
-which has in itself a formally described semantics presented in Isabelle/HOL (see \cite{} )
-% http://afp.sourceforge.net/entries/Featherweight_OCL.shtml
-for an up-to-date, machine-checked version 
-in the Archive of Formal Proods (AFP)). The semantic definitions are 
-in large parts executable, in some parts only provable (namely the essence of 
-        Set-constructions). The main concern of its construction is \emph{consistency}, 
-i.e. it should be possible to apply logical rules and evaluation rules for OCL 
-in an arbitrary manner always yielding the same, except in pathological cases 
-unambiguously defined result. Since OCL is a typed, object-oriented language 
-based on a four-valued logics, this effort seems to be justified.
+This annex formally defines the semantics of OCL. It will proceed by describing 
+the OCL semantics by a translation into a core language --- called FeatherWeight OCL ---
+which has in itself a formally described semantics presented in 
+Isabelle/HOL\cite{nipkow.ea:isabelle:2002}
+\footnote{An updated, machine-checked version and formally complete version of 
+        this document is maintained
+        by the Isabelle Archive of Formal Proofs (AFP), see
+\url{http://afp.sourceforge.net/entries/Featherweight_OCL.shtml}}. 
+The semantic definitions are in large parts executable, in some parts only provable, 
+namely the essence of Set-constructions. The main concern of its construction is 
+\emph{consistency}, 
+\ie{} it should be possible to apply logical rules and/or evaluation rules for OCL 
+in an arbitrary manner always yielding the same result. Moreover, except in 
+pathological cases, this result should be unambiquously defined.
+Since OCL is a quite complex object-oriented language 
+based on a four-valued logics, this effort seems to be justified for a 
+standardization document.
+
 In order to make this annex usable not only by logicians, but also by developers 
 of compilers and proof-tools, we  \emph{derived} from the Isabelle definitions 
 also \emph{logical rules} allowing formal interactive and automated proofs on 
@@ -19,20 +25,25 @@ UML/OCL specifications, as well as \emph{execution rules} and \emph{test-cases}
 revealing corner-cases resulting from this semantics which give vital information 
 for the implementor.
 
-OCL is a \emph{typed} object-oriented language. This means that it is --- like 
+OCL is an annotation language for UML models, in particular class models 
+allowing for specifying data and operations on them. As such, it
+is a \emph{typed} object-oriented language. This means that it is --- like 
 Java or C++ --- based on the concept of a \emph{static type}, that is the type 
 that the type-checker infers from a UML class model and its OCL annotation, as 
-well as a \emph{dynamic type}, that is the type at which an object is dynamically created. 
+well as a \emph{dynamic type}, that is the type at which an object is dynamically created 
 \footnote{As side-effect free language, OCL has no object-constructors, but with 
 \inlineocl+OclIsNew()+, the effect of object creation can be expressed in a 
-declarative way.} Types are not only a means for efficient compilation
+declarative way.}. Types are not only a means for efficient compilation
 and a support of separation of concerns in programming, there are of fundamental 
-importance for our goal of logical consistency\footnote{it is impossible to have 
-sets that contain themselves, i.e. to state Russels Paradox in OCL typed set-theory}. 
-Moreover, object-oriented typing means that between types there can be sub typing
-relations; technically speaking, this means that they can be \emph{casted} via 
+importance for our goal of logical consistency: it is impossible to have 
+sets that contain themselves, i.e. to state Russels Paradox in OCL typed set-theory. 
+Moreover, object-oriented typing means that types there can be in sub-typing
+relation; technically speaking, this means that they can be \emph{casted} via 
 \inlineocl+oclIsTypeOf(T)+ one to the other, and under particular conditions to be 
 described in detail later, these casts  are semantically \emph{lossless}. 
+Furthermore, object-orientedness means that operations and object-types can be
+grouped to \emph{classes} on which an inheritance relation can be established;
+the latter induces a sub-type relation between the corresponding types.
 
 Here is a feature-list of FeatherWeight OCL: 
 \begin{itemize}
@@ -41,7 +52,7 @@ Here is a feature-list of FeatherWeight OCL:
          as well as generic types such as \inlineocl+Pair(T,T')+, \inlineocl+Sequence(T)+ and \inlineocl+Set(T)+.
  \item it defines the semantics of the operations of these types in \emph{denotational form} 
          --- see explanation below ---, 
-         and thus an unambiguous (and in Isabelle/HOL executable or animatable) way.    
+         and thus in an unambiguous (and in Isabelle/HOL executable or animatable) way.    
  \item it develops the \emph{theory} of these definitions, i.e. the collection of lemmas and theorems that
          can be proven from these definitions. 
  \item all types in FeatherWeight OCL contain the elements \inlineocl{null} and \inlineocl{invalid};        
@@ -54,8 +65,8 @@ Here is a feature-list of FeatherWeight OCL:
          \inlineocl{invalid}).
  \item Wrt. to the static types, Featherweight OCL a strongly typed language in 
          the Hindley-Milner tradition.
-         We assume that a pre-process eliminates all implicit conversions due
-         to subtyping by introducing explicit casts (\eg,
+         We assume that a pre-process for full OCL eliminates all implicit 
+         conversions due to subtyping by introducing explicit casts (\eg,
          \inlineocl{oclAsType()}). \footnote{The details of such a pre-processing are
          described in~\cite{brucker:interactive:2007}.}                                                                                      
  \item Featherweight OCL types may be arbitrarily nested. For example,
@@ -65,12 +76,20 @@ Here is a feature-list of FeatherWeight OCL:
          the tradition of HOL-OCL~\cite{brucker.ea:extensible:2008-b}}.
          The universe construction also gives semantics to type casts, dynamic type
          tests, as well as functions such as \inlineocl{oclAllInstances()},
-         or \inlineocl{oclIsNew()}.
- \item Technically, Featherweight OCL is a \emph{semantic embedding} into a powerful semantic meta-language and
+         or \inlineocl{oclIsNew()}. The object universe onstruction is
+         conceptually described and demonstrated at an example.
+ \item As part of the OCL logic, Featherweight OCL develops the theory of
+         equality in UML/OCL. This includes the standard equality, which is a
+         computable strict equality using the object references for comparison,
+         and the not necessarily computable logical equality, which expresses
+         the Leibniz principle that `equals may be replaced by equals' in 
+         OCL terms.
+ \item Technically, Featherweight OCL is a \emph{semantic embedding} into a 
+         powerful semantic meta-language and
          environment, namely Isabelle/HOL~\cite{nipkow.ea:isabelle:2002}.
-         It is a \emph{shallow embedding} in HOL; types
-         in OCL were injectively mapped to types in Featherweight
-         OCL\@. Ill-typed OCL specifications cannot be represented in
+         It is a so-called \emph{shallow embedding} in HOL; this means that types
+         in OCL were \emph{injectively} represented by types in Isabelle/HOL. 
+         Ill-typed OCL specifications cannot therefore not be represented in
          Featherweight OCL and a type in Featherweight OCL contains exactly
          the values that are possible in OCL\@. 
 % \item It supports equational reasoning and congruence reasoning, but
@@ -82,74 +101,24 @@ Here is a feature-list of FeatherWeight OCL:
 %         in~\cite{brucker.ea:semantics:2009}), which is nasty but can be
 %         hidden from the user inside tools.
 \end{itemize}
-  
-This paper is organized as follows. 
-\fixme{rethink this ! I think it should be the other way round !}
-Sub clause A.1 defines the concept of object models. Object models provide information used as context for OCL expressions and constraints. Sub clause A.2 defines the type system of OCL and the set of standard operations. Finally, sub clause A.3 defines the semantics of OCL expressions.
-\fixme{... END}
 
- 
-\subsection{}
+\subsubsection{Context.} This document stands in a  more than fifteen years  tradition of 
+giving a formal semantics to the core of UML and its annotation language OCL,
+starting from \citet{richters:precise:2002} and   
+\cite{hamie.ea:reflections:1998,mandel.ea:ocl:1999,cook.ea::amsterdam:2002},
+leading to a number of formal, machine-checked versions, most notably HOL-OCL
+~\cite{brucker.ea:semantic:2006-b,brucker.ea:hol-ocl-book:2006,brucker.ea:extensible:2008-b}
+and more recent approaches~\cite{DBLP:conf/models/BruckerLTW13}. All of them
+have in common
+the attempt to reconcile the conflicting demands of an industrially used 
+specification language and its various stakeholders, the needs of OMG 
+standardization process and the desire for sufficient logical precision 
+for tool-implementors, in particular from the Formal Methods research community.        
 
-
-A.1 Object Models
-In this sub clause, the notion of an object model is formally defined. An object model provides the context for OCL expressions and constraints. A precise understanding of object models is required before a formal definition of OCL expressions can be given. Sub clause A.1.1 proceeds with a formal definition of the syntax of object models. The semantics of object models is defined in sub clause A.1.2. This sub clause also defines the notion of system states as snapshots of a running system.
-\chapter{Motivation}
-The Unified Modeling Language
-(UML)~\cite{omg:uml-infrastructure:2011,omg:uml-superstructure:2011}
-is one of the few modeling languages that is widely used in
-industry. UML is defined, in an open process, by the Object Management
-Group (OMG), \ie, an industry consortium.  While UML is mostly known
-as diagrammatic modeling language (\eg, visualizing class models), it
-also comprises a textual language, called Object Constraint Language
-(OCL)~\cite{omg:ocl:2012}. OCL is a textual annotation language,
-originally conceived as a three-valued logic, that turns substantial
-parts of UML into a formal language.  Unfortunately the semantics of
-this specification language, captured in the ``Annex A'' (originally,
-based on the work of \citet{richters:precise:2002}) of the OCL
-standard leads to different interpretations of corner cases.  Many of
-these corner cases had been subject to formal analysis since more than
-nearly fifteen years (see,
-\eg,~\cite{brucker.ea:semantic:2006-b,brucker.ea:proposal:2002,mandel.ea:ocl:1999,
-  hamie.ea:reflections:1998,cook.ea::amsterdam:2002}).
-
-At its origins~\cite{richters:precise:2002,omg:ocl:1997}, OCL was
-conceived as a strict semantics for undefinedness (\eg, denoted by the
-element \inlineocl{invalid}\footnote{In earlier versions of the OCL
-  standard, this element was called \inlineocl{OclUndefined}.}), with
-the exception of the logical connectives of type \inlineocl{Boolean}
-that constitute a three-valued propositional logic. At its core, OCL
-comprises four layers:
-\begin{enumerate}
-\item Operators (\eg, \inlineocl{_ and _}, \inlineocl{_ + _}) on
-  built-in data structures such as \inlineocl{Boolean},
-  \inlineocl{Integer}, or typed sets (\inlineocl{Set(_)}.
-\item Operators on the user-defined data model (\eg, defined as part
-  of a UML class model) such as accessors, type casts and tests.
-\item Arbitrary, user-defined, side-effect-free methods,
-\item Specification for invariants on states and contracts for
-  operations to be specified via pre- and post-conditions.
-\end{enumerate}
-
-Motivated by the need for aligning OCL closer with UML, recent
-versions of the OCL standard~\cite{omg:ocl:2006,omg:ocl:2012} added a
-second exception element.  While the first exception element
-\inlineocl{invalid} has a strict semantics, \inlineocl{null} has a non
-strict semantic interpretation.  Unfortunately, this extension results
-in several inconsistencies and contradictions. These problems are
-reflected in difficulties to define interpreters, code-generators,
-specification animators or theorem provers for OCL in a uniform manner
-and resulting incompatibilities of various tools.
-
-For the OCL community, the semantics of \inlineocl{invalid} and
-\inlineocl{null} as well as many related issues resulted in the
-challenge to define a consistent version of the OCL standard that is
-well aligned with the recent developments of the UML\@. A syntactical
-and semantical consistent standard requires a major revision of both
-the informal and formal parts of the standard. To discuss the future
-directions of the standard, several OCL experts met in November 2013
-in Aachen to discuss possible mid-term improvements of OCL, strategies
-of standardization of OCL within the OMG, and a vision for possible
+\fixme{Something like this ? Shorten Paragraph !}
+To discuss the future directions of the standard, several OCL experts met 
+in November 2013 in Aachen to discuss possible mid-term improvements of OCL, 
+strategies of standardization of OCL within the OMG, and a vision for possible
 long-term developments of the
 language~\cite{brucker.ea:summary-aachen:2013}. During this meeting, a
 Request for Proposals (RFP) for OCL 2.5 was finalized and meanwhile
@@ -162,26 +131,31 @@ source. This will ensure
 \item a suite of corner-cases relevant for OCL tool implementors.
 \end{itemize}
 
-In this document, we present a formalization using
-Isabelle/HOL~\cite{nipkow.ea:isabelle:2002} of a core language of
-OCL\@. The semantic theory, based on a ``shallow embedding'', is
-called \emph{Featherweight OCL}, since it focuses on a formal
-treatment of the key-elements of the language (rather than a full
-treatment of all operators and thus, a ``complete''
-implementation). In contrast to full OCL, it comprises just the logic
-captured in \verb+Boolean+, the basic data type \verb+Integer+, the
-collection type \verb+Set+, as well as the generic construction
-principle of class models, which is instantiated and demonstrated for
-two examples (an automated support for this type-safe construction is
-again out of the scope of Featherweight OCL).  This formal semantics
-definition is intended to be a proposal for the standardization
-process of OCL 2.5, which should ultimately replace parts of the
-mandatory part of the standard document~\cite{omg:ocl:2012} as well as
-replace completely its informative ``Annex A.''
+\subsubsection{Organization of this document.}
+This document is organized as follows. After a brief background section
+introducing a running example and basic knowledge on Isabelle/HOL and its formal
+notations, we present the formal semantics of FeatherWeight OCL introducing:
+\begin{enumerate}
+\item OCL Types and their presentation in Isabelle/HOL,
+\item OCL Terms, \ie{} the semantics of library operators, 
+        together with definitions, lemmas, and test cases for the implementor,
+\item UML/OCL Constructs, \ie{} a core of UML class models plus user-defined
+        constructions on them such as class-invariants and oepration constracts.
+\end{enumerate}
+
+%A.1 Object Models
+%In this sub clause, the notion of an object model is formally defined. 
+%An object model provides the context for OCL expressions and constraints. 
+%A precise understanding of object models is required before a formal 
+%definition of OCL expressions can be given. Sub clause A.1.1 proceeds with a 
+%formal definition of the syntax of object models. The semantics of object 
+%models is defined in sub clause A.1.2. This sub clause also defines the 
+%notion of system states as snapshots of a running system.
 
 \chapter{Background}
-\section{A Guided Tour Through UML/OCL}
+\section{A Running Example for UML/OCL}
 \label{sec:guidedtour}
+\fixme{REWRITE THIS FOR THE ANNEX A: SHORTEN!}
 The Unified Modeling Language
 (UML)~\cite{omg:uml-infrastructure:2011,omg:uml-superstructure:2011}
 comprises a variety of model types for describing static (\eg, class
