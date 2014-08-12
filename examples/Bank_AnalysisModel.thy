@@ -51,9 +51,6 @@ imports
   "../src/OCL_compiler_generator_dynamic"
 begin
 
-definition ocl_eq (infixl "equiv" 30)
-where "ocl_eq a b = ((a implies b) and (b implies a))"
-
 consts OclMinus\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r :: "('\<AA>)Integer \<Rightarrow> ('\<AA>)Integer \<Rightarrow> ('\<AA>)Integer" (infix "-\<^sub>o\<^sub>c\<^sub>l" 40)
 
 type_synonym Real = int
