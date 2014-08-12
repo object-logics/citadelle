@@ -43,14 +43,14 @@
 
 header{* Formalization I: Core Definitions *}
 
-theory
-  OCL_core
+theory  OCL_core 
 imports
-  Main (* Testing *)
-keywords "Assert" :: thy_decl
-     and "Assert_local" :: thy_decl
+  Main OCL_Types (* Testing *)
+(* keywords "Assert" :: thy_decl
+     and "Assert_local" :: thy_decl *)
 begin
 
+(*
 section{* Preliminaries *}
 subsection{* Notations for the Option Type *}
 
@@ -333,6 +333,7 @@ type_synonym Boolean\<^sub>0 = "bool option option"
 type_synonym ('\<AA>)Boolean = "('\<AA>,Boolean\<^sub>0) val"
 
 (* XXX SNIP HERE !!! *)
+*)
 
 subsection{* Basic Constants *}
 
@@ -665,7 +666,7 @@ text{* Thus, the weak equality is \emph{not} reflexive. *}
 
 lemma null_non_false [simp,code_unfold]:"(null \<doteq> false) = false"
  apply(rule ext, simp add: StrictRefEq\<^sub>B\<^sub>o\<^sub>o\<^sub>l\<^sub>e\<^sub>a\<^sub>n StrongEq_def false_def)
-by (metis OCL_core.drop.simps cp_valid false_def is_none_code(2) is_none_def valid4
+by (metis drop.simps cp_valid false_def is_none_code(2) is_none_def valid4
           bot_option_def null_fun_def null_option_def)
 
 lemma null_non_true [simp,code_unfold]:"(null \<doteq> true) = false"
@@ -674,7 +675,7 @@ by(simp add: true_def bot_option_def null_fun_def null_option_def)
 
 lemma false_non_null [simp,code_unfold]:"(false \<doteq> null) = false"
  apply(rule ext, simp add: StrictRefEq\<^sub>B\<^sub>o\<^sub>o\<^sub>l\<^sub>e\<^sub>a\<^sub>n StrongEq_def false_def)
-by (metis OCL_core.drop.simps cp_valid false_def is_none_code(2) is_none_def valid4
+by (metis drop.simps cp_valid false_def is_none_code(2) is_none_def valid4
           bot_option_def null_fun_def null_option_def )
 
 lemma true_non_null [simp,code_unfold]:"(true \<doteq> null) = false"
@@ -1661,7 +1662,7 @@ lemma const_OclIf :
                  const_true[simplified const_def, THEN spec, THEN spec]
                  assms[simplified const_def, THEN spec, THEN spec]
                  const_invalid[simplified const_def, THEN spec, THEN spec])
-by (metis (no_types) OCL_core.bot_fun_def OclValid_def const_def const_true defined_def 
+by (metis (no_types) bot_fun_def OclValid_def const_def const_true defined_def 
                  foundation16[THEN iffD1,standard]  null_fun_def)
 
 lemma const_HOL_if : "const C \<Longrightarrow> const D \<Longrightarrow> const F \<Longrightarrow> const (\<lambda>\<tau>. if C \<tau> then D \<tau> else F \<tau>)"

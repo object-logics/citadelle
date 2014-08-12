@@ -591,7 +591,7 @@ lemma OclIsEmpty_defined_args_valid:"\<tau> \<Turnstile> \<delta> (X->isEmpty())
   apply(case_tac x, simp add: null_option_def bot_option_def, simp)
   apply(simp add: OclSize_def StrictRefEq\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r valid_def)
 by (metis (hide_lams, no_types)
-          OCL_core.bot_fun_def OclValid_def defined_def foundation2 invalid_def)
+           bot_fun_def OclValid_def defined_def foundation2 invalid_def)
 
 lemma "\<tau> \<Turnstile> \<delta> (null->isEmpty())"
 by(auto simp: OclIsEmpty_def OclValid_def defined_def valid_def false_def true_def
@@ -1144,7 +1144,7 @@ lemma OclIncluding_includes0:
    shows "X->including(x) \<tau> = X \<tau>"
 proof -
  have includes_def: "\<tau> \<Turnstile> X->includes(x) \<Longrightarrow> \<tau> \<Turnstile> \<delta> X"
- by (metis OCL_core.bot_fun_def OclIncludes_def OclValid_def defined3 foundation16)
+ by (metis bot_fun_def OclIncludes_def OclValid_def defined3 foundation16)
 
  have includes_val: "\<tau> \<Turnstile> X->includes(x) \<Longrightarrow> \<tau> \<Turnstile> \<upsilon> x"
  by (metis (hide_lams, no_types) foundation6
@@ -1830,7 +1830,7 @@ lemma OclIncludes_including_generic :
    shows "\<tau> \<Turnstile> S->including((a::('\<AA>,'a::null)val))->includes(x)"
 proof -
  have discr_eq_bot1_true : "\<And>\<tau>. (\<bottom> \<tau> = true \<tau>) = False"
- by (metis OCL_core.bot_fun_def foundation1 foundation18' valid3)
+ by (metis bot_fun_def foundation1 foundation18' valid3)
  have discr_eq_bot2_true : "\<And>\<tau>. (\<bottom> = true \<tau>) = False"
  by (metis bot_fun_def discr_eq_bot1_true)
  have discr_neq_invalid_true : "\<And>\<tau>. (invalid \<tau> \<noteq> true \<tau>) = True"
@@ -1909,7 +1909,7 @@ proof -
   by(simp add: OclIncludes_def OclValid_def true_def)
 
   have includes_def: "\<tau> \<Turnstile> X->includes(x) \<Longrightarrow> \<tau> \<Turnstile> \<delta> X"
-  by (metis OCL_core.bot_fun_def OclIncludes_def OclValid_def defined3 foundation16)
+  by (metis bot_fun_def OclIncludes_def OclValid_def defined3 foundation16)
 
   have includes_val: "\<tau> \<Turnstile> X->includes(x) \<Longrightarrow> \<tau> \<Turnstile> \<upsilon> x"
   by (metis (hide_lams, no_types) foundation6
@@ -2469,7 +2469,7 @@ proof -
       apply(subst StrongEq_L_subst3[OF _ if_eq], simp, metis foundation18')
       apply(simp add: OclValid_def, subst StrongEq_def, subst true_def, simp)
       apply(subgoal_tac "\<exists>x\<in>\<lceil>\<lceil>Rep_Set_0 (X->excluding(y) \<tau>)\<rceil>\<rceil>. P (\<lambda>_. x) \<tau> = \<bottom> \<tau>")
-       prefer 2 apply (metis OCL_core.bot_fun_def )
+       prefer 2 apply (metis bot_fun_def )
        apply(subst if_same[where d = "\<bottom>"])
         apply (metis defined7 transform1)
        apply(simp add: OclSelect_def bot_option_def bot_fun_def invalid_def)
@@ -2516,7 +2516,7 @@ proof -
 
  have conj_comm : "\<And>p q r. (p \<and> q \<and> r) = ((p \<and> q) \<and> r)" by blast
 
- have inv_bot : "\<And>\<tau>. invalid \<tau> = \<bottom> \<tau>" by (metis OCL_core.bot_fun_def invalid_def)
+ have inv_bot : "\<And>\<tau>. invalid \<tau> = \<bottom> \<tau>" by (metis bot_fun_def invalid_def)
  have inv_bot' : "\<And>\<tau>. invalid \<tau> = \<bottom>" by (simp add: invalid_def)
 
  show ?thesis
@@ -2548,7 +2548,7 @@ proof -
           simp,
           simp)
     apply(simp add: P_cp[symmetric])
-    apply (metis OCL_core.bot_fun_def foundation18')
+    apply (metis bot_fun_def foundation18')
 
    apply(simp add: foundation18' bot_fun_def OclSelect_body_bot OclSelect_body_bot')
    (* *)
@@ -2741,7 +2741,7 @@ proof -
  have B: "\<And>X \<tau>. \<not> finite \<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil> \<Longrightarrow> (\<delta> (X->size())) \<tau> = false \<tau>"
   apply(subst cp_defined)
   apply(simp add: OclSize_def)
- by (metis OCL_core.bot_fun_def defined_def)
+ by (metis bot_fun_def defined_def)
 
  show ?thesis
   apply(rule ext, rename_tac \<tau>, simp only: OclIncludes_def OclANY_def)
@@ -2786,7 +2786,7 @@ proof -
     apply(simp add: OclNot_def StrongEq_def StrictRefEq\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r valid_def false_def true_def
                     bot_option_def bot_fun_def invalid_def)
 
-   apply (metis OCL_core.bot_fun_def null_fun_def null_is_valid valid_def)
+   apply (metis bot_fun_def null_fun_def null_is_valid valid_def)
  by(drule defined_inject_true,
     simp add: false_def true_def OclIf_false[simplified false_def] invalid_def)
 qed
@@ -2936,9 +2936,9 @@ proof -
  show ?thesis
   apply(simp add: OclForall_def OclValid_def true_def false_def invalid_def
                   bot_fun_def bot_option_def null_fun_def null_option_def split: split_if_asm)
-  apply(rule conjI, rule impI) apply (metis OCL_core.drop.simps option.distinct(1) invalid_def)
+  apply(rule conjI, rule impI) apply (metis drop.simps option.distinct(1) invalid_def)
   apply(rule impI, rule conjI, rule impI) apply (metis option.distinct(1))
-  apply(rule impI, rule conjI, rule impI) apply (metis OCL_core.drop.simps)
+  apply(rule impI, rule conjI, rule impI) apply (metis drop.simps)
   apply(intro conjI impI ballI)
    proof - fix x show "\<forall>x\<in>\<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil>. P (\<lambda>_. x) \<tau> \<noteq> \<lfloor>None\<rfloor> \<Longrightarrow>
                        \<forall>x\<in>\<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil>. \<exists>y. P (\<lambda>_. x) \<tau> = \<lfloor>y\<rfloor> \<Longrightarrow>
@@ -3008,7 +3008,7 @@ proof -
     apply(subst comp_fun_commute.fold_insert[OF and_comm], simp)
      apply (metis empty_iff image_empty)
     apply(simp add: invalid_def)
-    apply (metis OCL_core.bot_fun_def destruct_ocl null_fun_def)
+    apply (metis bot_fun_def destruct_ocl null_fun_def)
    (* *)
    apply(simp only: image_insert)
    apply(subst comp_fun_commute.fold_insert[OF and_comm], simp)

@@ -887,7 +887,7 @@ proof -
          subgoal_tac "x \<tau> \<noteq> null \<and> x' \<noteq> null", simp,
          simp add: OclNot_def null_fun_def null_option_def bot_option_def bot_fun_def invalid_def,
          ( metis def_X' def_x foundation16[THEN iffD1]
-         | (metis OCL_core.bot_fun_def OclValid_def Set_inv_lemma def_X def_x defined_def valid_def,
+         | (metis bot_fun_def OclValid_def Set_inv_lemma def_X def_x defined_def valid_def,
             metis def_X' def_x foundation16[THEN iffD1])))+
  done
 
@@ -902,7 +902,7 @@ proof -
   apply(simp only: OclNot3[symmetric], simp only: not_inj)
   apply(simp add: StrictRefEq\<^sub>O\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t_def split: split_if_asm)
     apply(subgoal_tac "x \<tau> \<noteq> null \<and> x' \<noteq> null", simp)
-    apply (metis (mono_tags) OCL_core.drop.simps def_x foundation16[THEN iffD1] true_def)
+    apply (metis (mono_tags) drop.simps def_x foundation16[THEN iffD1] true_def)
  by(simp add: invalid_def bot_option_def true_def)+
 
  have P_true : "\<forall>x\<in>\<lceil>\<lceil>Rep_Set_0 (X \<tau>)\<rceil>\<rceil>. P (\<lambda>_. x) \<tau> = true \<tau> \<Longrightarrow>
@@ -925,7 +925,7 @@ proof -
   apply(drule_tac x = x in ballE) prefer 3 apply assumption
    apply(drule_tac x = x in ballE) prefer 3 apply assumption
     apply(drule_tac x = x in ballE) prefer 3 apply assumption
-     apply (metis (full_types) OCL_core.bot_fun_def OclNot4 OclValid_def foundation16 
+     apply (metis (full_types) bot_fun_def OclNot4 OclValid_def foundation16 
                                foundation9 not_inj null_fun_def)
  by(fast+)
 

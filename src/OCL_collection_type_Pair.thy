@@ -63,13 +63,13 @@ typedef ('\<alpha>, '\<beta>) Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e = "{X::('\<al
 
 instantiation   Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e  :: (null,null)bot
 begin
-   definition bot_Pair_0_def: "(bot_class.bot :: ('a\<Colon>null,'b\<Colon>null) Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e) \<equiv> Abs_Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e None"
+   definition bot_Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def: "(bot_class.bot :: ('a\<Colon>null,'b\<Colon>null) Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e) \<equiv> Abs_Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e None"
 
    instance proof show "\<exists>x\<Colon>('a,'b) Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e. x \<noteq> bot"
                   apply(rule_tac x="Abs_Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor>None\<rfloor>" in exI)
-                  apply(simp add:bot_Pair_0_def)
+                  apply(simp add:bot_Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def)
                   apply(subst Abs_Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inject)
-                  apply(simp_all add: bot_Pair_0_def
+                  apply(simp_all add: bot_Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def
                                       null_option_def bot_option_def)
                   done
             qed
@@ -80,9 +80,9 @@ begin
    definition null_Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def: "(null::('a::null,'b::null) Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e) \<equiv> Abs_Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor> None \<rfloor>"
 
    instance proof show "(null::('a::null,'b::null) Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e) \<noteq> bot"
-                  apply(simp add:null_Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def bot_Pair_0_def)
+                  apply(simp add:null_Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def bot_Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def)
                   apply(subst Abs_Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inject)
-                  apply(simp_all add: bot_Pair_0_def null_option_def bot_option_def)
+                  apply(simp_all add: bot_Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def null_option_def bot_option_def)
                   done
             qed
 end
