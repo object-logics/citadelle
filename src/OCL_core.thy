@@ -41,15 +41,13 @@
  ******************************************************************************)
 (* $Id:$ *)
 
-header{* Formalization I: Core Definitions *}
+header{* Formalization II: OCL Terms and Library Operations *}
 
 theory  OCL_core 
-imports
-  Main OCL_Types (* Testing *)
-(* keywords "Assert" :: thy_decl
-     and "Assert_local" :: thy_decl *)
+imports OCL_Types 
 begin
 
+section{* The Operations of the Boolean Type and the OCL Logic*}
 
 subsection{* Basic Constants *}
 
@@ -235,7 +233,7 @@ summarize the results of this section.
 \end{table}
 *}
 
-section{* The Equalities of OCL *}
+subsection{* The Equalities of OCL *}
 text{*
   The OCL contains a particular version of equality, written in
   Standard documents \inlineocl+_ = _+ and \inlineocl+_ <> _+ for its
@@ -309,7 +307,7 @@ text{*
   they mean the same thing can therefore not be taken for granted.
 *}
 
-subsection{* Definition *}
+subsubsection{* Definition *}
 text{*
   The strict equality on basic types (actually on all types) must be
   exceptionally defined on @{term "null"}---otherwise the entire
@@ -398,7 +396,7 @@ lemma true_non_null [simp,code_unfold]:"(true \<doteq> null) = false"
  apply(rule ext, simp add: StrictRefEq\<^sub>B\<^sub>o\<^sub>o\<^sub>l\<^sub>e\<^sub>a\<^sub>n StrongEq_def false_def)
 by(simp add: true_def bot_option_def null_fun_def null_option_def)
 
-subsection{* Fundamental Predicates on Strong Equality *}
+subsubsection{* Fundamental Predicates on Strong Equality *}
 
 text{* Equality reasoning in OCL is not humpty dumpty. While strong equality
 is clearly an equivalence: *}
@@ -453,7 +451,7 @@ lemma valid7[simp]: "\<upsilon> (X \<triangleq> Y) = true"
 lemma cp_StrongEq: "(X \<triangleq> Y) \<tau> = ((\<lambda> _. X \<tau>) \<triangleq> (\<lambda> _. Y \<tau>)) \<tau>"
 by(simp add: StrongEq_def)
 
-section{* Logical Connectives and their Universal Properties *}
+subsection{* Logical Connectives and their Universal Properties *}
 text{*
   It is a design goal to give OCL a semantics that is as closely as
   possible to a ``logical system'' in a known sense; a specification
@@ -770,7 +768,7 @@ lemma deMorgan2: "not(X or Y) = ((not X) and (not Y))"
   by(simp add: OclOr_def)
 
 
-section{* A Standard Logical Calculus for OCL *}
+subsection{* A Standard Logical Calculus for OCL *}
 (* Besides the need for algebraic laws for OCL in order to normalize *)
 definition OclValid  :: "[('\<AA>)st, ('\<AA>)Boolean] \<Rightarrow> bool" ("(1(_)/ \<Turnstile> (_))" 50)
 where     "\<tau> \<Turnstile> P \<equiv> ((P \<tau>) = true \<tau>)"
@@ -778,7 +776,7 @@ where     "\<tau> \<Turnstile> P \<equiv> ((P \<tau>) = true \<tau>)"
 Assert "\<tau> \<Turnstile> true <> false"
 Assert "\<tau> \<Turnstile> false <> true"
 
-subsection{* Global vs. Local Judgements*}
+subsubsection{* Global vs. Local Judgements*}
 lemma transform1: "P = true \<Longrightarrow> \<tau> \<Turnstile> P"
 by(simp add: OclValid_def)
 
@@ -811,7 +809,7 @@ apply(rule H[THEN fun_cong])
 apply(rule ext)
 oops
 
-subsection{* Local Validity and Meta-logic*}
+subsubsection{* Local Validity and Meta-logic*}
 text{* \label{sec:localVal} *}
 
 lemma foundation1[simp]: "\<tau> \<Turnstile> true"
@@ -1040,7 +1038,7 @@ by(simp add: OclOr_def defined_and_I defined_not_I)
 lemma valid_or_I :   "\<tau> \<Turnstile> \<upsilon> (x) \<Longrightarrow>  \<tau> \<Turnstile> \<upsilon> (y) \<Longrightarrow> \<tau> \<Turnstile> \<upsilon> (x or y)"
 by(simp add: OclOr_def valid_and_I valid_not_I)
 
-subsection{* Local Judgements and Strong Equality *}
+subsubsection{* Local Judgements and Strong Equality *}
 
 lemma StrongEq_L_refl: "\<tau> \<Turnstile> (x \<triangleq> x)"
 by(simp add: OclValid_def StrongEq_def)
@@ -1172,7 +1170,7 @@ qed
 
 text{* So far, we have only one strict Boolean predicate (-family): the strict equality. *}
 
-section{* Miscellaneous *}
+subsection{* Miscellaneous *}
 
 subsection{* OCL's if then else endif *}
 
@@ -1405,7 +1403,7 @@ lemmas const_ss = const_bot const_null  const_invalid  const_false  const_true  
                   const_HOL_if const_HOL_and const_HOL_eq
                
 
-subsection{* Overloading the syntax of ``bottom'' *}
+text{* Miscellaneous: Overloading the syntax of ``bottom'' *}
 
 notation bot ("\<bottom>")
 

@@ -41,16 +41,14 @@
  ******************************************************************************)
 (* $Id:$ *)
 
-header{* ... *}
-
 theory  OCL_basic_type_Real
 imports OCL_lib_common OCL_Types
 begin
 
-(* Hack since Real not imported in OCL_Types: *)
-type_synonym real = nat
+(* Hack since Real not imported in OCL_Types: *)  type_synonym real = nat
 
-section{* Basic Real Constants: *}
+section{* Basic Type Real:  Operations *}
+subsection{* Constants: *}
 
 text{* Although the remaining part of this library reasons about
 reals abstractly, we provide here as example some convenient shortcuts. *}
@@ -236,9 +234,9 @@ Assert "  \<tau> \<Turnstile> not (\<delta> (\<one>.\<zero> div\<^sub>r\<^sub>e\
 Assert "  \<tau> \<Turnstile> not (\<upsilon> (\<one>.\<zero> div\<^sub>r\<^sub>e\<^sub>a\<^sub>l \<zero>.\<zero>)) "
 
 
-section{* Fundamental Predicates on Basic Types: Strict Equality *}
+subsection{* Fundamental Predicates on Reals: Strict Equality *}
 
-subsection{* Definition *}
+subsubsection{* Definition *}
 
 text{* The last basic operation belonging to the fundamental infrastructure
 of a value-type in OCL is the weak equality, which is defined similar
@@ -248,12 +246,7 @@ defs   StrictRefEq\<^sub>R\<^sub>e\<^sub>a\<^sub>l [code_unfold] :
                                     then (x \<triangleq> y) \<tau>
                                     else invalid \<tau>"
 
-Assert "\<tau> \<Turnstile> \<one>.\<zero> <> \<two>.\<zero>"
-Assert "\<tau> \<Turnstile> \<two>.\<zero> <> \<one>.\<zero>"
-Assert "\<tau> \<Turnstile> \<two>.\<zero> \<doteq> \<two>.\<zero>"
-
-subsection{* Logic and Algebraic Layer on Basic Types *}
-
+                                   
 subsubsection{* Validity and Definedness Properties (I) *}
 
 lemma StrictRefEq\<^sub>R\<^sub>e\<^sub>a\<^sub>l_defined_args_valid:
@@ -373,7 +366,13 @@ subsection{* Test Statements on Basic Types. *}
 text{* Here follows a list of code-examples, that explain the meanings
 of the above definitions by compilation to code and execution to @{term "True"}.*}
 
+
 text{* Elementary computations on Real *}
+
+Assert "\<tau> \<Turnstile> \<one>.\<zero> <> \<two>.\<zero>"
+Assert "\<tau> \<Turnstile> \<two>.\<zero> <> \<one>.\<zero>"
+Assert "\<tau> \<Turnstile> \<two>.\<zero> \<doteq> \<two>.\<zero>"
+
 Assert "  \<tau> \<Turnstile> \<upsilon> \<four>.\<zero>"
 Assert "  \<tau> \<Turnstile> \<delta> \<four>.\<zero>"
 Assert "  \<tau> \<Turnstile> \<upsilon> (null::('\<AA>)Real)"

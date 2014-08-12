@@ -41,13 +41,11 @@
  ******************************************************************************)
 (* $Id:$ *)
 
-header{* ... *}
-
 theory  OCL_basic_type_Integer
 imports OCL_lib_common OCL_Types
 begin
 
-section{* Basic Types: Integer *}
+section{* Basic Types Integer: Operations *}
 
 subsection{* Basic Integer Constants *}
 text{* Although the remaining part of this library reasons about
@@ -219,6 +217,20 @@ by(subst OclAdd\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r_commute,
 
 
 
+
+subsection{* Fundamental Predicates on Basic Types: Strict Equality *}
+
+subsubsection{* Definition *}
+
+text{* The last basic operation belonging to the fundamental infrastructure
+of a value-type in OCL is the weak equality, which is defined similar
+to the @{typ "('\<AA>)Boolean"}-case as strict extension of the strong equality:*}
+defs   StrictRefEq\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r[code_unfold] :
+      "(x::('\<AA>)Integer) \<doteq> y \<equiv> \<lambda> \<tau>. if (\<upsilon> x) \<tau> = true \<tau> \<and> (\<upsilon> y) \<tau> = true \<tau>
+                                    then (x \<triangleq> y) \<tau>
+                                    else invalid \<tau>"
+                                    
+
 subsubsection{* Test Statements *}
 text{* Here follows a list of code-examples, that explain the meanings
 of the above definitions by compilation to code and execution to @{term "True"}.*}
@@ -232,23 +244,10 @@ Assert "  \<tau> \<Turnstile> not (\<delta> (\<one> div\<^sub>i\<^sub>n\<^sub>t 
 Assert "  \<tau> \<Turnstile> not (\<upsilon> (\<one> div\<^sub>i\<^sub>n\<^sub>t \<zero>)) "
 
 
-section{* Fundamental Predicates on Basic Types: Strict Equality *}
-
-subsection{* Definition *}
-
-text{* The last basic operation belonging to the fundamental infrastructure
-of a value-type in OCL is the weak equality, which is defined similar
-to the @{typ "('\<AA>)Boolean"}-case as strict extension of the strong equality:*}
-defs   StrictRefEq\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r[code_unfold] :
-      "(x::('\<AA>)Integer) \<doteq> y \<equiv> \<lambda> \<tau>. if (\<upsilon> x) \<tau> = true \<tau> \<and> (\<upsilon> y) \<tau> = true \<tau>
-                                    then (x \<triangleq> y) \<tau>
-                                    else invalid \<tau>"
-
 Assert "\<tau> \<Turnstile> \<one> <> \<two>"
 Assert "\<tau> \<Turnstile> \<two> <> \<one>"
 Assert "\<tau> \<Turnstile> \<two> \<doteq> \<two>"
 
-subsection{* Logic and Algebraic Layer on Basic Types *}
 
 subsubsection{* Validity and Definedness Properties (I) *}
 
@@ -365,7 +364,7 @@ lemmas cp_intro'\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r =
        OclLess\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r.cp      OclLe\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r.cp
 
 
-subsection{* Test Statements on Basic Types. *}
+subsection{* Test Statements on Basic Integer (II) *}
 text{* Here follows a list of code-examples, that explain the meanings
 of the above definitions by compilation to code and execution to @{term "True"}.*}
 

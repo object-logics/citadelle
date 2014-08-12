@@ -48,7 +48,7 @@ theory OCL_lib_common
 imports  OCL_core
 begin
 
-section{* Common Infrastructure *}
+section{* Common Library Infrastructure *}
 
 text{* We use the Isabelle mechanism of a \emph{Locale} to generate the
 common lemmas for each type and operator; Locales can be seen as a 

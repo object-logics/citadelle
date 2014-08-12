@@ -41,17 +41,11 @@
  ******************************************************************************)
 (* $Id:$ *)
 
-header{* ... *}
-
 theory  OCL_basic_type_Boolean
 imports OCL_lib_common OCL_Types
 begin
 
-section{* Fundamental Predicates on Basic Types: Strict Equality *}
-
-subsection{* Definition *}
-
-subsection{* Logic and Algebraic Layer on Basic Types *}
+subsection{* Fundamental Predicates on Basic Types: Strict Equality *}
 
 subsubsection{* Validity and Definedness Properties (I) *}
 
@@ -109,7 +103,7 @@ lemmas cp_intro'\<^sub>B\<^sub>o\<^sub>o\<^sub>l\<^sub>e\<^sub>a\<^sub>n =
        cp_StrictRefEq\<^sub>B\<^sub>o\<^sub>o\<^sub>l\<^sub>e\<^sub>a\<^sub>n[THEN allI[THEN allI[THEN allI[THEN cpI2]], of "StrictRefEq"]]
 
 
-subsection{* Test Statements on Basic Types. *}
+subsection{* Test Statements on the Boolean Types. *}
 text{* Here follows a list of code-examples, that explain the meanings
 of the above definitions by compilation to code and execution to @{term "True"}.*}
 

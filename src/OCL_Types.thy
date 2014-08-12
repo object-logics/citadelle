@@ -41,7 +41,7 @@
  ******************************************************************************)
 (* $Id:$ *)
 
-header{* Formalization I: Core Definitions and OCL Types *}
+header{* Formalization I: OCL Types and Core Definitions *}
 
 theory    OCL_Types
 imports   Main (* Testing *)
@@ -444,6 +444,15 @@ end
 
 text{* ...  and lifting this type to the format of a valuation gives us:*}
 type_synonym    ('\<AA>,'\<alpha>) Sequence  = "('\<AA>, '\<alpha> Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e) val"
+
+subsection{* The Construction of Class Types *}
+text{* OCL is a textual extension of the UML; in particular, we use OCL as means to annotate
+UML class models. \fixme{MORE TO COME !!!}
+
+-- or integrating into section on rudimentary object state above ?
+-- or include section "Introduction: States over Typed Object Universes" ?
+
+*}
 
 
 (*<*)

@@ -41,13 +41,11 @@
  ******************************************************************************)
 (* $Id:$ *)
 
-header{* ... *}
-
 theory  OCL_collection_type_Pair
-imports OCL_basic_type
+imports OCL_Types OCL_core OCL_lib_common OCL_basic_type_Boolean OCL_basic_type_Integer
 begin
 
-section{* Complex Types: The Collection Pair-Type Operations *}
+section{* Collection Type Pairs:  Operations *}
 
 text{* This part provides a collection of operators for the Pair type. *}
 
@@ -77,5 +75,9 @@ where     "Snd(X) \<equiv> (\<lambda> \<tau>. if (\<delta> X) \<tau> = true \<ta
           fst_conv, snd_conv, Product_Type.pair_collapse *)
 
 lemmas cp_intro''\<^sub>P\<^sub>a\<^sub>i\<^sub>r[intro!,simp,code_unfold] = cp_intro'
+
+subsection{*Test Statements*}
+
+text{*\fixme{TODO}*}
 
 end

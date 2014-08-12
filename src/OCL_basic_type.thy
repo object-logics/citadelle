@@ -41,7 +41,6 @@
  ******************************************************************************)
 (* $Id:$ *)
 
-header{* ... *}
 
 theory  OCL_basic_type
 imports OCL_basic_type_Boolean
@@ -51,7 +50,7 @@ imports OCL_basic_type_Boolean
         OCL_basic_type_String
 begin
 
-section{* Fundamental Predicates on Basic Types: Strict Equality *}
+subsection{* Fundamental Properties on Basic Types: Strict Equality *}
 
 lemmas cp_intro'[intro!,simp,code_unfold] =
        cp_intro'

@@ -41,13 +41,12 @@
  ******************************************************************************)
 (* $Id:$ *)
 
-header{* ... *}
 
 theory  OCL_basic_type_String
 imports OCL_lib_common
 begin
 
-section{* Basic Types: String Operations *}
+section{* Basic Type String: Operations *}
 
 text{* Although the remaining part of this library reasons about
 integers abstractly, we provide here as example some convenient shortcuts. *}
@@ -79,7 +78,7 @@ lemma [simp,code_unfold]: "\<delta> \<a> = true" by(simp add:OclStringa_def)
 lemma [simp,code_unfold]: "\<upsilon> \<a> = true" by(simp add:OclStringa_def)
 
 
-subsection{* Arithmetical Operations *}
+subsection{* String Operations *}
 
 subsubsection{* Definition *}
 text{* Here is a common case of a built-in operation on built-in types.
@@ -167,9 +166,9 @@ Assert "\<not>(\<tau> \<Turnstile> (( \<four> +\<^sub>s\<^sub>t\<^sub>r\<^sub>i\
 Assert "  \<tau> \<Turnstile> not (\<upsilon> (null +\<^sub>s\<^sub>t\<^sub>r\<^sub>i\<^sub>n\<^sub>g \<one>)) "
 *)
 
-section{* Fundamental Predicates on Basic Types: Strict Equality *}
+subsection{* Fundamental Predicates on Basic Types: Strict Equality *}
 
-subsection{* Definition *}
+subsubsection{* Definition *}
 
 text{* The last basic operation belonging to the fundamental infrastructure
 of a value-type in OCL is the weak equality, which is defined similar
@@ -179,11 +178,12 @@ defs   StrictRefEq\<^sub>S\<^sub>t\<^sub>r\<^sub>i\<^sub>n\<^sub>g[code_unfold] 
                                     then (x \<triangleq> y) \<tau>
                                     else invalid \<tau>"
 
+                                    
+subsection{* Test Statements *}
+
 Assert "\<tau> \<Turnstile> \<a> <> \<b>"
 Assert "\<tau> \<Turnstile> \<b> <> \<a>"
 Assert "\<tau> \<Turnstile> \<b> \<doteq> \<b>"
-
-subsection{* Logic and Algebraic Layer on Basic Types *}
 
 subsubsection{* Validity and Definedness Properties (I) *}
 
@@ -285,7 +285,7 @@ lemmas cp_intro'\<^sub>S\<^sub>t\<^sub>r\<^sub>i\<^sub>n\<^sub>g =
        (*OclLess\<^sub>S\<^sub>t\<^sub>r\<^sub>i\<^sub>n\<^sub>g.cp      OclLe\<^sub>S\<^sub>t\<^sub>r\<^sub>i\<^sub>n\<^sub>g.cp*)
 
 
-subsection{* Test Statements on Basic Types. *}
+subsection{* Test Statements on Strings. *}
 text{* Here follows a list of code-examples, that explain the meanings
 of the above definitions by compilation to code and execution to @{term "True"}.*}
 

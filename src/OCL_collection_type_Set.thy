@@ -41,14 +41,13 @@
  ******************************************************************************)
 (* $Id:$ *)
 
-header{* ... *}
 
 theory  OCL_collection_type_Set
-imports OCL_basic_type OCL_Types
+imports OCL_Types OCL_core OCL_lib_common OCL_basic_type_Boolean OCL_basic_type_Integer  
 begin
 
 no_notation None ("\<bottom>")
-section{*  The Collection Set-Type Operations *}
+section{* Collection Type Set: Operations *}
 
 subsection{* As a Motivation for the (infinite) Type Construction: Type-Extensions as Sets*}
 
@@ -193,13 +192,11 @@ by(simp add: const_def mtSet_def)
 text{* Note that the collection types in OCL allow for null to be included;
   however, there is the null-collection into which inclusion yields invalid. *}
 
-section{* Complex Types: The Set-Collection Type (II) Library *}
+subsection{* Operations *}
 
 text{* This part provides a collection of operators for the Set type. *}
 
-subsection{* Computational Operations on Set *}
-
-subsubsection{* Definition *}
+subsubsection{* Definition: Including *}
 
 definition OclIncluding   :: "[('\<AA>,'\<alpha>::null) Set,('\<AA>,'\<alpha>) val] \<Rightarrow> ('\<AA>,'\<alpha>) Set"
 where     "OclIncluding x y = (\<lambda> \<tau>. if (\<delta> x) \<tau> = true \<tau> \<and> (\<upsilon> y) \<tau> = true \<tau>
@@ -234,6 +231,9 @@ translations
   "Set{x, xs}" == "CONST OclIncluding (Set{xs}) x"
   "Set{x}"     == "CONST OclIncluding (Set{}) x "
 
+  
+subsubsection{* Definition: Excluding *}
+
 definition OclExcluding   :: "[('\<AA>,'\<alpha>::null) Set,('\<AA>,'\<alpha>) val] \<Rightarrow> ('\<AA>,'\<alpha>) Set"
 where     "OclExcluding x y = (\<lambda> \<tau>.  if (\<delta> x) \<tau> = true \<tau> \<and> (\<upsilon> y) \<tau> = true \<tau>
                                      then Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor>\<lfloor> \<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (x \<tau>)\<rceil>\<rceil> - {y \<tau>} \<rfloor>\<rfloor>
@@ -255,6 +255,8 @@ explicitly in Featherweight OCL the possibility of infinite sets. For
 the size definition, this requires an extra condition that assures
 that the cardinality of the set is actually a defined integer. *}
 
+subsubsection{* Definition: OclSize *}
+
 definition OclSize     :: "('\<AA>,'\<alpha>::null)Set \<Rightarrow> '\<AA> Integer"
 where     "OclSize x = (\<lambda> \<tau>. if (\<delta> x) \<tau> = true \<tau> \<and> finite(\<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (x \<tau>)\<rceil>\<rceil>)
                              then \<lfloor>\<lfloor> int(card \<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (x \<tau>)\<rceil>\<rceil>) \<rfloor>\<rfloor>
@@ -267,6 +269,9 @@ standard to treat null as neutral element of sets. It is
 a well-documented exception from the general strictness
 rule and the rule that the distinguished argument self should
 be non-null. *}
+
+subsubsection{* Definition: IsEmpty *}
+
 definition OclIsEmpty   :: "('\<AA>,'\<alpha>::null) Set \<Rightarrow> '\<AA> Boolean"
 where     "OclIsEmpty x =  ((\<upsilon> x and not (\<delta> x)) or ((OclSize x) \<doteq> \<zero>))"
 notation   OclIsEmpty     ("_->isEmpty'(')" (*[66]*))
@@ -274,6 +279,9 @@ notation   OclIsEmpty     ("_->isEmpty'(')" (*[66]*))
 definition OclNotEmpty   :: "('\<AA>,'\<alpha>::null) Set \<Rightarrow> '\<AA> Boolean"
 where     "OclNotEmpty x =  not(OclIsEmpty x)"
 notation   OclNotEmpty    ("_->notEmpty'(')" (*[66]*))
+
+
+subsubsection{* Definition: OclANY *}
 
 (* Slight breach of naming convention in order to avoid naming conflict on constant.*)
 definition OclANY   :: "[('\<AA>,'\<alpha>::null) Set] \<Rightarrow> ('\<AA>,'\<alpha>) val"
@@ -290,6 +298,7 @@ source->any(iterator | body) =
 source->select(iterator | body)->asSequence()->first(). Since we don't have sequences,
 we have to go for a direct---restricted---definition. *)
 
+subsubsection{* Definition: Forall *}
 
 text{* The definition of OclForall mimics the one of @{term "OclAnd"}:
 OclForall is not a strict operation. *}
@@ -308,6 +317,8 @@ syntax
 translations
   "X->forAll(x | P)" == "CONST OclForall X (%x. P)"
 
+subsubsection{* Definition: Exists *}
+  
 text{* Like OclForall, OclExists is also not strict. *}
 definition OclExists     :: "[('\<AA>,'\<alpha>::null) Set,('\<AA>,'\<alpha>)val\<Rightarrow>('\<AA>)Boolean] \<Rightarrow> '\<AA> Boolean"
 where     "OclExists S P = not(OclForall S (\<lambda> X. not (P X)))"
@@ -316,6 +327,9 @@ syntax
   "_OclExist" :: "[('\<AA>,'\<alpha>::null) Set,id,('\<AA>)Boolean] \<Rightarrow> '\<AA> Boolean"    ("(_)->exists'(_|_')")
 translations
   "X->exists(x | P)" == "CONST OclExists X (%x. P)"
+
+  
+subsubsection{* Definition: Iterate *}
 
 definition OclIterate :: "[('\<AA>,'\<alpha>::null) Set,('\<AA>,'\<beta>::null)val,
                              ('\<AA>,'\<alpha>)val\<Rightarrow>('\<AA>,'\<beta>)val\<Rightarrow>('\<AA>,'\<beta>)val] \<Rightarrow> ('\<AA>,'\<beta>)val"
@@ -328,6 +342,10 @@ syntax
 translations
   "X->iterate(a; x = A | P)" == "CONST OclIterate X A (%a. (% x. P))"
 
+  
+subsubsection{* Definition: Select *}
+  
+  
 definition OclSelect :: "[('\<AA>,'\<alpha>::null)Set,('\<AA>,'\<alpha>)val\<Rightarrow>('\<AA>)Boolean] \<Rightarrow> ('\<AA>,'\<alpha>)Set"
 where "OclSelect S P = (\<lambda>\<tau>. if (\<delta> S) \<tau> = true \<tau>
                               then if (\<exists>x\<in>\<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (S \<tau>)\<rceil>\<rceil>. P(\<lambda> _. x) \<tau> = invalid \<tau>)
@@ -372,9 +390,9 @@ notation
 notation
     OclIntersection("_->intersection'(_')"   (*[71,70]70*))
 
-subsection{* Validity and Definedness Properties *}
+subsubsection{* Validity and Definedness Properties *}
 
-subsubsection{* OclIncluding *}
+text{* OclIncluding *}
 
 lemma OclIncluding_defined_args_valid:
 "(\<tau> \<Turnstile> \<delta>(X->including(x))) = ((\<tau> \<Turnstile>(\<delta> X)) \<and> (\<tau> \<Turnstile>(\<upsilon> x)))"
@@ -395,7 +413,7 @@ lemma OclIncluding_valid_args_valid''[simp,code_unfold]:
 by(auto intro!: transform2_rev simp:OclIncluding_valid_args_valid foundation10 defined_and_I)
 
 
-subsubsection{* OclExcluding *}
+text{* OclExcluding *}
 
 lemma OclExcluding_defined_args_valid:
 "(\<tau> \<Turnstile> \<delta>(X->excluding(x))) = ((\<tau> \<Turnstile>(\<delta> X)) \<and> (\<tau> \<Turnstile>(\<upsilon> x)))"
@@ -444,7 +462,7 @@ lemma OclExcluding_valid_args_valid''[simp,code_unfold]:
 "\<upsilon>(X->excluding(x)) = ((\<delta> X) and (\<upsilon> x))"
 by(auto intro!: transform2_rev simp:OclExcluding_valid_args_valid foundation10 defined_and_I)
 
-subsubsection{* OclIncludes *}
+text{* OclIncludes *}
 
 lemma OclIncludes_defined_args_valid:
 "(\<tau> \<Turnstile> \<delta>(X->includes(x))) = ((\<tau> \<Turnstile>(\<delta> X)) \<and> (\<tau> \<Turnstile>(\<upsilon> x)))"
@@ -504,7 +522,7 @@ lemma OclExcludes_valid_args_valid''[simp,code_unfold]:
 "\<upsilon>(X->excludes(x)) = ((\<delta> X) and (\<upsilon> x))"
 by(auto intro!: transform2_rev simp:OclExcludes_valid_args_valid foundation10 defined_and_I)
 
-subsubsection{* OclSize *}
+text{* OclSize *}
 
 lemma OclSize_defined_args_valid: "\<tau> \<Turnstile> \<delta> (X->size()) \<Longrightarrow> \<tau> \<Turnstile> \<delta> X"
 by(auto simp: OclSize_def OclValid_def true_def valid_def false_def StrongEq_def
@@ -538,7 +556,7 @@ lemma size_defined':
  apply(simp add: defined_def bot_option_def bot_fun_def null_option_def null_fun_def X_finite)
 done
 
-subsubsection{* OclIsEmpty *}
+text{* OclIsEmpty *}
 
 lemma OclIsEmpty_defined_args_valid:"\<tau> \<Turnstile> \<delta> (X->isEmpty()) \<Longrightarrow> \<tau> \<Turnstile> \<upsilon> X"
   apply(auto simp: OclIsEmpty_def OclValid_def defined_def valid_def false_def true_def
@@ -563,7 +581,7 @@ lemma OclIsEmpty_infinite: "\<tau> \<Turnstile> \<delta> X \<Longrightarrow> \<n
   apply(case_tac x, simp add: null_option_def bot_option_def, simp)
 by(simp add: OclSize_def StrictRefEq\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r valid_def bot_fun_def false_def true_def invalid_def)
 
-subsubsection{* OclNotEmpty *}
+text{* OclNotEmpty *}
 
 lemma OclNotEmpty_defined_args_valid:"\<tau> \<Turnstile> \<delta> (X->notEmpty()) \<Longrightarrow> \<tau> \<Turnstile> \<upsilon> X"
 by (metis (hide_lams, no_types) OclNotEmpty_def OclNot_defargs OclNot_not foundation6 foundation9
@@ -591,7 +609,7 @@ lemma OclNotEmpty_has_elt : "\<tau> \<Turnstile> \<delta> X \<Longrightarrow>
        simp_all add: false_def true_def bot_option_def bot_fun_def OclInt0_def)
 by (metis equals0I)
 
-subsubsection{* OclANY *}
+text{* OclANY *}
 
 lemma OclANY_defined_args_valid: "\<tau> \<Turnstile> \<delta> (X->any()) \<Longrightarrow> \<tau> \<Turnstile> \<delta> X"
 by(auto simp: OclANY_def OclValid_def true_def valid_def false_def StrongEq_def
@@ -636,10 +654,9 @@ by(auto intro!: OclANY_valid_args_valid transform2_rev)
 
 (* and higher order ones : forall, exists, iterate, select, reject... *)
 
-subsection{* Execution with Invalid or Null or Infinite Set as Argument *}
+subsubsection{* Execution with Invalid or Null or Infinite Set as Argument *}
 
-
-subsubsection{* OclIncluding *}
+text{* OclIncluding *}
 
 lemma OclIncluding_invalid[simp,code_unfold]:"(invalid->including(x)) = invalid"
 by(simp add: bot_fun_def OclIncluding_def invalid_def defined_def valid_def false_def true_def)
@@ -651,7 +668,7 @@ lemma OclIncluding_null[simp,code_unfold]:"(null->including(x)) = invalid"
 by(simp add: OclIncluding_def invalid_def bot_fun_def defined_def valid_def false_def true_def)
 
 
-subsubsection{* OclExcluding *}
+text{* OclExcluding *}
 
 lemma OclExcluding_invalid[simp,code_unfold]:"(invalid->excluding(x)) = invalid"
 by(simp add: bot_fun_def OclExcluding_def invalid_def defined_def valid_def false_def true_def)
@@ -662,7 +679,7 @@ by(simp add: OclExcluding_def invalid_def bot_fun_def defined_def valid_def fals
 lemma OclExcluding_null[simp,code_unfold]:"(null->excluding(x)) = invalid"
 by(simp add: OclExcluding_def invalid_def bot_fun_def defined_def valid_def false_def true_def)
 
-subsubsection{* OclIncludes *}
+text{* OclIncludes *}
 
 lemma OclIncludes_invalid[simp,code_unfold]:"(invalid->includes(x)) = invalid"
 by(simp add: bot_fun_def OclIncludes_def invalid_def defined_def valid_def false_def true_def)
@@ -673,7 +690,7 @@ by(simp add: OclIncludes_def invalid_def bot_fun_def defined_def valid_def false
 lemma OclIncludes_null[simp,code_unfold]:"(null->includes(x)) = invalid"
 by(simp add: OclIncludes_def invalid_def bot_fun_def defined_def valid_def false_def true_def)
 
-subsubsection{* OclExcludes *}
+text{* OclExcludes *}
 
 lemma OclExcludes_invalid[simp,code_unfold]:"(invalid->excludes(x)) = invalid"
 by(simp add: OclExcludes_def OclNot_def, simp add: invalid_def bot_option_def)
@@ -684,7 +701,7 @@ by(simp add: OclExcludes_def OclNot_def, simp add: invalid_def bot_option_def)
 lemma OclExcludes_null[simp,code_unfold]:"(null->excludes(x)) = invalid"
 by(simp add: OclExcludes_def OclNot_def, simp add: invalid_def bot_option_def)
 
-subsubsection{* OclSize *}
+text{* OclSize *}
 
 lemma OclSize_invalid[simp,code_unfold]:"(invalid->size()) = invalid"
 by(simp add: bot_fun_def OclSize_def invalid_def defined_def valid_def false_def true_def)
@@ -694,7 +711,7 @@ by(rule ext,
    simp add: bot_fun_def null_fun_def null_is_valid OclSize_def
              invalid_def defined_def valid_def false_def true_def)
 
-subsubsection{* OclIsEmpty *}
+text{* OclIsEmpty *}
 
 lemma OclIsEmpty_invalid[simp,code_unfold]:"(invalid->isEmpty()) = invalid"
 by(simp add: OclIsEmpty_def)
@@ -702,7 +719,7 @@ by(simp add: OclIsEmpty_def)
 lemma OclIsEmpty_null[simp,code_unfold]:"(null->isEmpty()) = true"
 by(simp add: OclIsEmpty_def)
 
-subsubsection{* OclNotEmpty *}
+text{* OclNotEmpty *}
 
 lemma OclNotEmpty_invalid[simp,code_unfold]:"(invalid->notEmpty()) = invalid"
 by(simp add: OclNotEmpty_def)
@@ -710,7 +727,7 @@ by(simp add: OclNotEmpty_def)
 lemma OclNotEmpty_null[simp,code_unfold]:"(null->notEmpty()) = false"
 by(simp add: OclNotEmpty_def)
 
-subsubsection{* OclANY *}
+text{* OclANY *}
 
 lemma OclANY_invalid[simp,code_unfold]:"(invalid->any()) = invalid"
 by(simp add: bot_fun_def OclANY_def invalid_def defined_def valid_def false_def true_def)
@@ -718,7 +735,7 @@ by(simp add: bot_fun_def OclANY_def invalid_def defined_def valid_def false_def 
 lemma OclANY_null[simp,code_unfold]:"(null->any()) = null"
 by(simp add: OclANY_def false_def true_def)
 
-subsubsection{* OclForall *}
+text{* OclForall *}
 
 lemma OclForall_invalid[simp,code_unfold]:"invalid->forAll(a| P a) = invalid"
 by(simp add: bot_fun_def invalid_def OclForall_def defined_def valid_def false_def true_def)
@@ -726,7 +743,7 @@ by(simp add: bot_fun_def invalid_def OclForall_def defined_def valid_def false_d
 lemma OclForall_null[simp,code_unfold]:"null->forAll(a | P a) = invalid"
 by(simp add: bot_fun_def invalid_def OclForall_def defined_def valid_def false_def true_def)
 
-subsubsection{* OclExists *}
+text{* OclExists *}
 
 lemma OclExists_invalid[simp,code_unfold]:"invalid->exists(a| P a) = invalid"
 by(simp add: OclExists_def)
@@ -734,7 +751,7 @@ by(simp add: OclExists_def)
 lemma OclExists_null[simp,code_unfold]:"null->exists(a | P a) = invalid"
 by(simp add: OclExists_def)
 
-subsubsection{* OclIterate *}
+text{* OclIterate *}
 
 lemma OclIterate_invalid[simp,code_unfold]:"invalid->iterate(a; x = A | P a x) = invalid"
 by(simp add: bot_fun_def invalid_def OclIterate_def defined_def valid_def false_def true_def)
@@ -759,7 +776,7 @@ apply(insert non_finite [THEN OclSize_infinite])
 apply(subst (asm) foundation9, simp)
 by(metis OclIterate_def OclValid_def invalid_def)
 
-subsubsection{* OclSelect *}
+text{* OclSelect *}
 
 lemma OclSelect_invalid[simp,code_unfold]:"invalid->select(a | P a) = invalid"
 by(simp add: bot_fun_def invalid_def OclSelect_def defined_def valid_def false_def true_def)
@@ -767,7 +784,7 @@ by(simp add: bot_fun_def invalid_def OclSelect_def defined_def valid_def false_d
 lemma OclSelect_null[simp,code_unfold]:"null->select(a | P a) = invalid"
 by(simp add: bot_fun_def invalid_def OclSelect_def defined_def valid_def false_def true_def)
 
-subsubsection{* OclReject *}
+text{* OclReject *}
 
 lemma OclReject_invalid[simp,code_unfold]:"invalid->reject(a | P a) = invalid"
 by(simp add: OclReject_def)
@@ -775,7 +792,7 @@ by(simp add: OclReject_def)
 lemma OclReject_null[simp,code_unfold]:"null->reject(a | P a) = invalid"
 by(simp add: OclReject_def)
 
-subsection{* Context Passing *}
+text{* Context Passing *}
 
 lemma cp_OclIncluding:
 "(X->including(x)) \<tau> = ((\<lambda> _. X \<tau>)->including(\<lambda> _. x \<tau>)) \<tau>"
@@ -964,9 +981,9 @@ by (metis (no_types) const_def const_defined const_true const_valid cp_defined c
 
 *)
 
-section{* Fundamental Predicates on Set: Strict Equality *}
+subsection{* Strict Equality *}
 
-subsection{* Definition *}
+subsubsection{* Definition *}
 
 text{* After the part of foundational operations on sets, we detail here equality on sets.
 Strong equality is inherited from the OCL core, but we have to consider
@@ -985,30 +1002,27 @@ in the store will represented in the object itself). For such well-formed stores
 this invariant (the WFF-invariant), the referential equality and the
 strong equality---and therefore the strict equality on sets in the sense above---coincides.*}
 
-subsection{* Logic and Algebraic Layer on Set *}
+subsubsection{* Logic and Algebraic Layer on Set *}
 
-subsubsection{* Reflexivity *}
-
-text{* To become operational, we derive: *}
+text{* Reflexivity.  To become operational, we derive: *}
 
 lemma StrictRefEq\<^sub>S\<^sub>e\<^sub>t_refl[simp,code_unfold]:
 "((x::('\<AA>,'\<alpha>::null)Set) \<doteq> x) = (if (\<upsilon> x) then true else invalid endif)"
 by(rule ext, simp add: StrictRefEq\<^sub>S\<^sub>e\<^sub>t OclIf_def)
 
-subsubsection{* Symmetry *}
+text{* Symmetry *}
 
 lemma StrictRefEq\<^sub>S\<^sub>e\<^sub>t_sym:
 "((x::('\<AA>,'\<alpha>::null)Set) \<doteq> y) = (y \<doteq> x)"
 by(simp add: StrictRefEq\<^sub>S\<^sub>e\<^sub>t, subst StrongEq_sym, rule ext, simp)
 
-subsubsection{* Execution with Invalid or Null as Argument *}
+text{* Execution with Invalid or Null as Argument *}
 
 lemma StrictRefEq\<^sub>S\<^sub>e\<^sub>t_strict1[simp,code_unfold]: "((x::('\<AA>,'\<alpha>::null)Set) \<doteq> invalid)= invalid"
 by(simp add:StrictRefEq\<^sub>S\<^sub>e\<^sub>t false_def true_def)
 
 lemma StrictRefEq\<^sub>S\<^sub>e\<^sub>t_strict2[simp,code_unfold]: "(invalid \<doteq> (y::('\<AA>,'\<alpha>::null)Set))= invalid"
 by(simp add:StrictRefEq\<^sub>S\<^sub>e\<^sub>t false_def true_def)
-
 
 
 lemma StrictRefEq\<^sub>S\<^sub>e\<^sub>t_strictEq_valid_args_valid:
@@ -1062,9 +1076,7 @@ lemma const_StrictRefEq\<^sub>S\<^sub>e\<^sub>t :
 qed
 
 
-section{* Execution on Set's Operators (with mtSet and recursive case as arguments) *}
-
-subsection{* OclIncluding *}
+subsubsection{* Execution Rules on OclIncluding *}
 
 lemma OclIncluding_finite_rep_set :
   assumes X_def : "\<tau> \<Turnstile> \<delta> X"
@@ -1215,7 +1227,7 @@ proof -
 qed
 
 
-subsection{* OclExcluding *}
+subsubsection{* Execution Rules on OclExcluding *}
 
 lemma OclExcluding_finite_rep_set :
   assumes X_def : "\<tau> \<Turnstile> \<delta> X"
@@ -1625,7 +1637,7 @@ by(rule OclExcluding_charn_exec[OF StrictRefEq\<^sub>S\<^sub>e\<^sub>t_strict1 S
                              cp_StrictRefEq\<^sub>S\<^sub>e\<^sub>t StrictRefEq\<^sub>S\<^sub>e\<^sub>t_vs_StrongEq], simp_all)
 
 
-subsection{* OclIncludes *}
+subsubsection{* Execution Rules on OclIncludes *}
 
 
 lemma OclIncludes_charn0[simp]:
@@ -2569,11 +2581,11 @@ lemma OclReject_including_exec[simp,code_unfold]:
  assumes P_cp : "cp P"
  shows "OclReject (X->including(y)) P = OclSelect_body (not o P) y (OclReject (X->excluding(y)) P)"
  apply(simp add: OclReject_def comp_def, rule OclSelect_including_exec)
-by (metis OCL_basic_type.cp_intro'(5) assms)
+by (metis  assms cp_intro'(5))
 
-section{* Execution on Set's Operators (higher composition) *}
+subsection{* Execution Rules on Set Operators *}
 
-subsection{* OclIncluding *}
+subsubsection{* OclIncluding *}
 
 (* logical level : *)
 lemma OclIncluding_idem0 :
@@ -2615,7 +2627,7 @@ proof -
   done
 qed
 
-subsection{* OclExcluding *}
+subsubsection{* OclExcluding *}
 
 (* logical level : *)
 lemma OclExcluding_idem0 :
@@ -2657,7 +2669,7 @@ proof -
   done
 qed
 
-subsection{* OclIncludes *}
+subsubsection{* OclIncludes *}
 
 
 lemma OclIncludes_any[simp,code_unfold]:
@@ -2748,7 +2760,7 @@ proof -
     simp add: false_def true_def OclIf_false[simplified false_def] invalid_def)
 qed
 
-subsection{* OclSize *}
+subsubsection{* OclSize *}
 
 lemma [simp,code_unfold]: "\<delta> (Set{} ->size()) = true"
 by simp
@@ -2869,7 +2881,7 @@ lemma [simp]:
 by(simp add: size_defined[OF X_finite] del: OclSize_including_exec)
 
 
-subsection{* OclForall *}
+subsubsection{* OclForall *}
 
 lemma OclForall_rep_set_false:
  assumes "\<tau> \<Turnstile> \<delta> X"
@@ -3014,7 +3026,7 @@ proof -
  by (simp add: assms)
 qed
 
-subsection{* Strict Equality *}
+subsubsection{* Strict Equality *}
 
 lemma StrictRefEq\<^sub>S\<^sub>e\<^sub>t_defined :
  assumes x_def: "\<tau> \<Turnstile> \<delta> x"
@@ -3141,7 +3153,7 @@ lemma const_StrictRefEq\<^sub>S\<^sub>e\<^sub>t_including : "const a \<Longright
  apply(rule const_StrictRefEq\<^sub>S\<^sub>e\<^sub>t, assumption)
 by(rule const_OclIncluding)
 
-section{* Test Statements *}
+subsection{* Test Statements *}
 
 Assert   "(\<tau> \<Turnstile> (Set{\<lambda>_. \<lfloor>\<lfloor>x\<rfloor>\<rfloor>} \<doteq> Set{\<lambda>_. \<lfloor>\<lfloor>x\<rfloor>\<rfloor>}))"
 Assert   "(\<tau> \<Turnstile> (Set{\<lambda>_. \<lfloor>x\<rfloor>} \<doteq> Set{\<lambda>_. \<lfloor>x\<rfloor>}))"

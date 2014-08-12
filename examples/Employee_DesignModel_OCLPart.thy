@@ -41,7 +41,6 @@
  ******************************************************************************)
 (* $Id:$ *)
 
-header{* The Employee Design Model (OCL) *}
 
 theory
   Employee_DesignModel_OCLPart
@@ -49,7 +48,7 @@ imports
   Employee_DesignModel_UMLPart (* Testing *)
 begin
 text {* \label{ex:employee-design:ocl} *}
-section{* Standard State Infrastructure *}
+section{* OCL Part: Standard State Infrastructure *}
 text{* Ideally, these definitions are automatically generated from the class model. *}
 
 section{* Invariant *}

@@ -41,9 +41,9 @@
  ******************************************************************************)
 (* $Id:$ *)
 
-header{* Formalization III:  State Operations and Objects *}
+header{* Formalization III:  UML/OCL constructs: State Operations and Objects *}
 
-theory OCL_state
+theory  OCL_state
 imports OCL_lib
 begin
 

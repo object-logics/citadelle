@@ -41,7 +41,7 @@
  ******************************************************************************)
 (* $Id:$ *)
 
-header{* The Employee Design Model (UML) *}
+header{* Example II: The Employee Design Model (UML) *}
 
 (* This example is not yet balanced. Some parts of should go to
    Part VI : State Operations and Objects *)
@@ -586,7 +586,7 @@ definition "OclAny \<equiv> OclAsType\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^
 lemmas [simp] = Person_def OclAny_def
 
 lemma OclAllInstances_generic\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_exec: "OclAllInstances_generic pre_post OclAny =
-             (\<lambda>\<tau>.  Abs_Set_0  \<lfloor>\<lfloor> Some ` OclAny ` ran (heap (pre_post \<tau>)) \<rfloor>\<rfloor>)"
+             (\<lambda>\<tau>.  Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e  \<lfloor>\<lfloor> Some ` OclAny ` ran (heap (pre_post \<tau>)) \<rfloor>\<rfloor>)"
 proof -
  let ?S1 = "\<lambda>\<tau>. OclAny ` ran (heap (pre_post \<tau>))"
  let ?S2 = "\<lambda>\<tau>. ?S1 \<tau> - {None}"
@@ -597,12 +597,12 @@ proof -
 qed
 
 lemma OclAllInstances_at_post\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_exec: "OclAny .allInstances() =
-             (\<lambda>\<tau>.  Abs_Set_0  \<lfloor>\<lfloor> Some ` OclAny ` ran (heap (snd \<tau>)) \<rfloor>\<rfloor>)"
+             (\<lambda>\<tau>.  Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e  \<lfloor>\<lfloor> Some ` OclAny ` ran (heap (snd \<tau>)) \<rfloor>\<rfloor>)"
 unfolding OclAllInstances_at_post_def
 by(rule OclAllInstances_generic\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_exec)
 
 lemma OclAllInstances_at_pre\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_exec: "OclAny .allInstances@pre() =
-             (\<lambda>\<tau>.  Abs_Set_0  \<lfloor>\<lfloor> Some ` OclAny ` ran (heap (fst \<tau>)) \<rfloor>\<rfloor>) "
+             (\<lambda>\<tau>.  Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e  \<lfloor>\<lfloor> Some ` OclAny ` ran (heap (fst \<tau>)) \<rfloor>\<rfloor>) "
 unfolding OclAllInstances_at_pre_def
 by(rule OclAllInstances_generic\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_exec)
 
@@ -615,7 +615,7 @@ shows "\<exists>\<tau>. (\<tau> \<Turnstile>     ((OclAllInstances_generic pre_p
  apply(simp only: assms OclForall_def refl if_True
                   OclAllInstances_generic_defined[simplified OclValid_def])
  apply(simp only: OclAllInstances_generic_def)
- apply(subst (1 2 3) Abs_Set_0_inverse, simp add: bot_option_def)
+ apply(subst (1 2 3) Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inverse, simp add: bot_option_def)
 by(simp add: OclIsTypeOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_OclAny)
 
 lemma OclAny_allInstances_at_post_oclIsTypeOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y1:
@@ -637,7 +637,7 @@ proof - fix oid a let ?t0 = "\<lparr>heap = empty(oid \<mapsto> in\<^sub>O\<^sub
  apply(simp only: OclForall_def refl if_True
                   OclAllInstances_generic_defined[simplified OclValid_def])
  apply(simp only: OclAllInstances_generic_def OclAsType\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_\<AA>_def)
- apply(subst (1 2 3) Abs_Set_0_inverse, simp add: bot_option_def)
+ apply(subst (1 2 3) Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inverse, simp add: bot_option_def)
  by(simp add: OclIsTypeOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_OclAny OclNot_def OclAny_def)
 qed
 
@@ -657,7 +657,7 @@ lemma Person_allInstances_generic_oclIsTypeOf\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^
  apply(simp only: OclForall_def refl if_True
                   OclAllInstances_generic_defined[simplified OclValid_def])
  apply(simp only: OclAllInstances_generic_def)
- apply(subst (1 2 3) Abs_Set_0_inverse, simp add: bot_option_def)
+ apply(subst (1 2 3) Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inverse, simp add: bot_option_def)
 by(simp add: OclIsTypeOf\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_Person)
 
 lemma Person_allInstances_at_post_oclIsTypeOf\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n:
@@ -677,7 +677,7 @@ lemma OclAny_allInstances_generic_oclIsKindOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^
  apply(simp only: OclForall_def refl if_True
                   OclAllInstances_generic_defined[simplified OclValid_def])
  apply(simp only: OclAllInstances_generic_def)
- apply(subst (1 2 3) Abs_Set_0_inverse, simp add: bot_option_def)
+ apply(subst (1 2 3) Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inverse, simp add: bot_option_def)
 by(simp add: OclIsKindOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_OclAny)
 
 lemma OclAny_allInstances_at_post_oclIsKindOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y:
@@ -696,7 +696,7 @@ lemma Person_allInstances_generic_oclIsKindOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^
  apply(simp only: OclForall_def refl if_True
                   OclAllInstances_generic_defined[simplified OclValid_def])
  apply(simp only: OclAllInstances_generic_def)
- apply(subst (1 2 3) Abs_Set_0_inverse, simp add: bot_option_def)
+ apply(subst (1 2 3) Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inverse, simp add: bot_option_def)
 by(simp add: OclIsKindOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_Person)
 
 lemma Person_allInstances_at_post_oclIsKindOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y:
@@ -715,7 +715,7 @@ lemma Person_allInstances_generic_oclIsKindOf\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^
  apply(simp only: OclForall_def refl if_True
                   OclAllInstances_generic_defined[simplified OclValid_def])
  apply(simp only: OclAllInstances_generic_def)
- apply(subst (1 2 3) Abs_Set_0_inverse, simp add: bot_option_def)
+ apply(subst (1 2 3) Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inverse, simp add: bot_option_def)
 by(simp add: OclIsKindOf\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_Person)
 
 lemma Person_allInstances_at_post_oclIsKindOf\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n:
@@ -1165,22 +1165,22 @@ lemma "(\<sigma>\<^sub>1,\<sigma>\<^sub>1') \<Turnstile> (((X\<^sub>P\<^sub>e\<^
 proof -
 
  have including4 : "\<And>a b c d \<tau>.
-        Set{\<lambda>\<tau>. \<lfloor>\<lfloor>a\<rfloor>\<rfloor>, \<lambda>\<tau>. \<lfloor>\<lfloor>b\<rfloor>\<rfloor>, \<lambda>\<tau>. \<lfloor>\<lfloor>c\<rfloor>\<rfloor>, \<lambda>\<tau>. \<lfloor>\<lfloor>d\<rfloor>\<rfloor>} \<tau> = Abs_Set_0 \<lfloor>\<lfloor> {\<lfloor>\<lfloor>a\<rfloor>\<rfloor>, \<lfloor>\<lfloor>b\<rfloor>\<rfloor>, \<lfloor>\<lfloor>c\<rfloor>\<rfloor>, \<lfloor>\<lfloor>d\<rfloor>\<rfloor>} \<rfloor>\<rfloor>"
+        Set{\<lambda>\<tau>. \<lfloor>\<lfloor>a\<rfloor>\<rfloor>, \<lambda>\<tau>. \<lfloor>\<lfloor>b\<rfloor>\<rfloor>, \<lambda>\<tau>. \<lfloor>\<lfloor>c\<rfloor>\<rfloor>, \<lambda>\<tau>. \<lfloor>\<lfloor>d\<rfloor>\<rfloor>} \<tau> = Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor>\<lfloor> {\<lfloor>\<lfloor>a\<rfloor>\<rfloor>, \<lfloor>\<lfloor>b\<rfloor>\<rfloor>, \<lfloor>\<lfloor>c\<rfloor>\<rfloor>, \<lfloor>\<lfloor>d\<rfloor>\<rfloor>} \<rfloor>\<rfloor>"
   apply(subst abs_rep_simp'[symmetric], simp)
   apply(simp add: OclIncluding_rep_set mtSet_rep_set)
-  by(rule arg_cong[of _ _ "\<lambda>x. (Abs_Set_0(\<lfloor>\<lfloor> x \<rfloor>\<rfloor>))"], auto)
+  by(rule arg_cong[of _ _ "\<lambda>x. (Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e(\<lfloor>\<lfloor> x \<rfloor>\<rfloor>))"], auto)
 
  have excluding1: "\<And>S a b c d e \<tau>.
-                   (\<lambda>_. Abs_Set_0 \<lfloor>\<lfloor> {\<lfloor>\<lfloor>a\<rfloor>\<rfloor>, \<lfloor>\<lfloor>b\<rfloor>\<rfloor>, \<lfloor>\<lfloor>c\<rfloor>\<rfloor>, \<lfloor>\<lfloor>d\<rfloor>\<rfloor>} \<rfloor>\<rfloor>)->excluding(\<lambda>\<tau>. \<lfloor>\<lfloor>e\<rfloor>\<rfloor>) \<tau> =
-                   Abs_Set_0 \<lfloor>\<lfloor> {\<lfloor>\<lfloor>a\<rfloor>\<rfloor>, \<lfloor>\<lfloor>b\<rfloor>\<rfloor>, \<lfloor>\<lfloor>c\<rfloor>\<rfloor>, \<lfloor>\<lfloor>d\<rfloor>\<rfloor>} - {\<lfloor>\<lfloor>e\<rfloor>\<rfloor>} \<rfloor>\<rfloor>"
+                   (\<lambda>_. Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor>\<lfloor> {\<lfloor>\<lfloor>a\<rfloor>\<rfloor>, \<lfloor>\<lfloor>b\<rfloor>\<rfloor>, \<lfloor>\<lfloor>c\<rfloor>\<rfloor>, \<lfloor>\<lfloor>d\<rfloor>\<rfloor>} \<rfloor>\<rfloor>)->excluding(\<lambda>\<tau>. \<lfloor>\<lfloor>e\<rfloor>\<rfloor>) \<tau> =
+                   Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor>\<lfloor> {\<lfloor>\<lfloor>a\<rfloor>\<rfloor>, \<lfloor>\<lfloor>b\<rfloor>\<rfloor>, \<lfloor>\<lfloor>c\<rfloor>\<rfloor>, \<lfloor>\<lfloor>d\<rfloor>\<rfloor>} - {\<lfloor>\<lfloor>e\<rfloor>\<rfloor>} \<rfloor>\<rfloor>"
   apply(simp add: OclExcluding_def)
   apply(simp add: defined_def OclValid_def false_def true_def
-                  bot_fun_def bot_Set_0_def null_fun_def null_Set_0_def)
+                  bot_fun_def bot_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def null_fun_def null_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def)
   apply(rule conjI)
-   apply(rule impI, subst (asm) Abs_Set_0_inject) apply( simp add: bot_option_def)+
+   apply(rule impI, subst (asm) Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inject) apply( simp add: bot_option_def)+
   apply(rule conjI)
-   apply(rule impI, subst (asm) Abs_Set_0_inject) apply( simp add: bot_option_def null_option_def)+
-  apply(subst Abs_Set_0_inverse, simp add: bot_option_def, simp)
+   apply(rule impI, subst (asm) Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inject) apply( simp add: bot_option_def null_option_def)+
+  apply(subst Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inverse, simp add: bot_option_def, simp)
  done
 
  show ?thesis

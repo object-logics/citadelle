@@ -41,13 +41,11 @@
  ******************************************************************************)
 (* $Id:$ *)
 
-header{* ... *}
-
 theory  OCL_basic_type_Void
 imports OCL_lib_common
 begin
 
-section{* Basic Types: Void Operations *}
+section{* Basic Type Void *}
 
 (* For technical reasons, the type does not contain to the null-class yet. *)
 text {* This \emph{minimal} OCL type contains only two elements:
