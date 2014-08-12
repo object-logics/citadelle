@@ -63,8 +63,8 @@ Class Person < Planet
 End
 
 Association boss
-  Between Person [`*`]
-          Person [0 `..` 1] Role boss
+  Between Person [*]
+          Person [0 \<bullet>\<bullet> 1] Role boss
 End
 
 Class Planet < Galaxy

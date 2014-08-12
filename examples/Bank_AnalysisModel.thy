@@ -85,17 +85,17 @@ Class Account
 End
 
 Association clients
-  Between Bank [1 `..` `*`] Role banks
-          Client [1 `..` `*`] Role clients
+  Between Bank [1 \<bullet>\<bullet> *] Role banks
+          Client [1 \<bullet>\<bullet> *] Role clients
 End
 
 Association accounts
-  Between Account [1 `..` `*`] Role clientaccounts
+  Between Account [1 \<bullet>\<bullet> *] Role clientaccounts
           Client [1] Role owner
 End
 
 Association bankaccounts
-  Between Account [1 `..` `*`] Role bankaccounts
+  Between Account [1 \<bullet>\<bullet> *] Role bankaccounts
           Bank [1] Role bank
 End
 
@@ -104,7 +104,7 @@ Class Savings < Account
 End
 
 Class Checks < Account
-  Attributes overdraft: Real
+  Attributes overdraft : Real
 End
 
 Define_base [ 25, 250, 2000 ]

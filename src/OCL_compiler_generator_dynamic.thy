@@ -954,8 +954,8 @@ structure USE_parse = struct
                       | OclTypeCollectionSequence l => OCL.OclTy_collection (OCL.Sequence, from_oclty l)
                       | OclTypeRaw s       => OCL.OclTy_raw (From.from_binding s)) v
 
- val ident_dot_dot = Parse.alt_string (* ".." *)
- val ident_star = Parse.alt_string (* "*" *)
+ val ident_dot_dot = Parse.sym_ident -- Parse.sym_ident (* "\<bullet>\<bullet>" *)
+ val ident_star = Parse.sym_ident (* "*" *)
  (* *)
  fun use_type v = (Parse.reserved "Set" |-- Parse.$$$ "(" |-- use_type --| Parse.$$$ ")" >> OclTypeCollectionSet
                 || Parse.reserved "Sequence" |-- Parse.$$$ "(" |-- use_type --| Parse.$$$ ")" >> OclTypeCollectionSequence
