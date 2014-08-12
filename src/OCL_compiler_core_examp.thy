@@ -51,14 +51,40 @@ section{* Translation of AST *}
 
 subsection{* example *}
 
-definition "print_examp_oclbase = (\<lambda> OclDefBase l \<Rightarrow> (start_map Thy_definition_hol o
-  List_map (\<lambda>nb.
-    let name = var_OclInt @@ nb
-      ; b = \<lambda>s. Expr_basic [s] in
-    Definition_abbrev0
-      name
-      (b (number_of_str nb))
-      (Expr_rewrite (b name) ''='' (Expr_lambda wildcard (Expr_some (Expr_some (b nb))))))) l)"
+definition "print_examp_oclbase_gen = 
+ (\<lambda> OclDefInteger nb \<Rightarrow>
+        let name = var_OclInteger @@ nb
+          ; b = \<lambda>s. Expr_basic [s]
+          ; ab_name = b nb in
+        (ab_name, Definition_abbrev0
+          name
+          (b (number_of_str nb))
+          (Expr_rewrite (b name) ''='' (Expr_lambda wildcard (Expr_some (Expr_some ab_name)))))
+  | OclDefReal (nb0, nb1) \<Rightarrow>
+        let name = flatten [ var_OclReal, nb0, ''_'', nb1 ]
+          ; b = \<lambda>s. Expr_basic [s]
+          ; ab_name = b (flatten [nb0(*(* WARNING 
+                                          uncomment this as soon as OCL_basic_type_Real.thy 
+                                          is not implemented as 'nat' *), ''.'', nb1*)]) in
+        (ab_name, Definition_abbrev0
+          name
+          (b (flatten [number_of_str nb0, ''.'', number_of_str nb1]))
+          (Expr_rewrite (b name) ''='' (Expr_lambda wildcard (Expr_some (Expr_some ab_name)))))
+  | OclDefString nb \<Rightarrow>
+        let name = var_OclString @@ base255_of_str nb
+          ; b = \<lambda>s. Expr_basic [s] in
+        if list_all (is_letter o nat_of_char) nb then
+          let ab_name = b (let c = [Char Nibble2 Nibble7] in flatten [c,c, nb, c,c]) in
+          (ab_name,
+          Definition_abbrev0 name (b (text2_of_str nb))
+            (Expr_rewrite (b name) ''='' (Expr_lambda wildcard (Expr_some (Expr_some ab_name)))))
+        else
+          let ab_name = b (text_of_str nb) in
+          (ab_name,
+          Definition
+            (Expr_rewrite (b name) ''='' (Expr_lambda wildcard (Expr_some (Expr_some ab_name))))))"
+
+definition "print_examp_oclbase = (\<lambda> OclDefBase l \<Rightarrow> (start_map Thy_definition_hol o List_map (snd o print_examp_oclbase_gen)) l)"
 
 datatype print_examp_instance_draw_list_attr = Return_obj ocl_ty_class | Return_exp hol_expr
 
@@ -70,6 +96,7 @@ definition "print_examp_instance_draw_list_attr f_oid =
          (t_obj, None) \<Rightarrow> (case t_obj of Some ty_obj \<Rightarrow> Return_obj ty_obj
                                        | _ \<Rightarrow> Return_exp (b ''None''))
        | (_, Some (OclTy_class ty_obj, _)) \<Rightarrow> Return_obj ty_obj
+       | (_, Some (_, Shall_base (ShallB_term s))) \<Rightarrow> Return_exp (Expr_some (fst (print_examp_oclbase_gen s)))
        | (_, Some (_, Shall_base (ShallB_str s))) \<Rightarrow> Return_exp (Expr_some (b s))
      of Return_obj ty_obj \<Rightarrow> f_oid ty_obj
       | Return_exp exp \<Rightarrow> exp))"

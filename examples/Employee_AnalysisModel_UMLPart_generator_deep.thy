@@ -78,20 +78,9 @@ Class Galaxy
 End
 
 (* wishlist:
-
-Class Person < Planet
-  Attributes salary : Integer
-End
-
-Class Planet < Galaxy
-  Attributes weight : `bool option`
-             hurx : Boolean
-End
-
 Class Galaxy
   Attributes sound : Set(Set(Integer))
              outerworld : Galaxy
-             moving : Boolean
 End
 *)
 

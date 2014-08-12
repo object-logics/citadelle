@@ -99,7 +99,7 @@ definition "i_of_ocl_deep_embed_ast a b = ocl_deep_embed_ast_rec
   (ap1 a (b ''OclAstAssociation'') (i_of_ocl_association a b (K i_of_unit)))
   (ap1 a (b ''OclAstAssClass'') (i_of_ocl_ass_class a b))
   (ap1 a (b ''OclAstInstance'') (i_of_ocl_instance a b))
-  (ap1 a (b ''OclAstDefBase'') (i_of_ocl_def_base a b))
+  (ap1 a (b ''OclAstDefBaseL'') (i_of_ocl_def_base_l a b))
   (ap1 a (b ''OclAstDefState'') (i_of_ocl_def_state a b))
   (ap1 a (b ''OclAstDefPrePost'') (i_of_ocl_def_pre_post a b))
   (ap1 a (b ''OclAstCtxtPrePost'') (i_of_ocl_ctxt_pre_post a b (K i_of_unit)))
@@ -349,7 +349,7 @@ definition "s_of_ctxt2_term = (\<lambda> T_pure pure \<Rightarrow> s_of_pure_ter
 
 definition "s_of_ocl_deep_embed_ast _ =
  (\<lambda> OclAstCtxt2PrePost ctxt \<Rightarrow>
-      sprintf5 (STR ''Context[shallow] %s :: %s (%s) : %s
+      sprintf5 (STR ''Context[shallow] %s :: %s (%s) %s
 %s'')
         (To_string (Ctxt_ty ctxt))
         (To_string (Ctxt_fun_name ctxt))
@@ -357,8 +357,8 @@ definition "s_of_ocl_deep_embed_ast _ =
           (List_map
             (\<lambda> (s, ty). sprintf2 (STR ''%s : %s'') (To_string s) (To_string (str_of_ty ty)))
             (Ctxt_fun_ty_arg ctxt)))
-        (case Ctxt_fun_ty_out ctxt of None \<Rightarrow> STR ''Void''
-                                     | Some ty \<Rightarrow> To_string (str_of_ty ty))
+        (case Ctxt_fun_ty_out ctxt of None \<Rightarrow> STR ''''
+                                    | Some ty \<Rightarrow> sprintf1 (STR '': %s'') (To_string (str_of_ty ty)))
         (String_concat (STR ''
 '')
           (List_map

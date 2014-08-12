@@ -382,17 +382,20 @@ definition "print_access_dot_consts =
             (Ty_arrow
               (Ty_apply (Ty_base ''val'') [Ty_base unicode_AA, Ty_base (Char Nibble2 Nibble7 # unicode_alpha)])
 
-              (case attr_ty of
-                  OclTy_raw attr_ty \<Rightarrow> Ty_apply (Ty_base ''val'') [Ty_base unicode_AA,
+              (let ty_base = \<lambda>attr_ty. 
+                 Ty_apply (Ty_base ''val'') [Ty_base unicode_AA,
                     let option = \<lambda>x. Ty_apply (Ty_base ''option'') [x] in
-                    option (option (Ty_base attr_ty))]
+                    option (option (Ty_base attr_ty))] in
+               case attr_ty of
+                  OclTy_raw attr_ty \<Rightarrow> ty_base attr_ty
                 | OclTy_class ty_obj \<Rightarrow>
                     let ty_obj = TyObj_to ty_obj
                       ; name = TyObjN_role_ty ty_obj in
                     Ty_base (if single_multip (TyObjN_role_multip ty_obj) then
                                name
                              else
-                               print_infra_type_synonym_class_set_name name)))
+                               print_infra_type_synonym_class_set_name name)
+                | _ \<Rightarrow> ty_base (str_hol_of_ty attr_ty)))
             (let dot_name = mk_dot attr_n var_at_when_ocl
                ; mk_par =
                    let esc = \<lambda>s. Char Nibble2 Nibble7 # s in
@@ -430,7 +433,14 @@ definition "print_access_dot = start_map'''' Thy_defs_overloaded o (\<lambda>exp
                               \<lambda>l. Expr_apply (print_access_deref_assocs_name' (TyObjN_ass_switch (TyObj_from ty_obj)) isub_name isup_attr) (Expr_basic [var_in_when_state] # [l])
                         | _ \<Rightarrow> id)
                           (Expr_apply (isup_attr (isub_name var_select))
-                            [case attr_ty of OclTy_raw _ \<Rightarrow> Expr_basic [var_reconst_basetype]
+                            [let ty_base = Expr_basic [var_reconst_basetype] in
+                             case attr_ty of OclTy_raw _ \<Rightarrow> ty_base
+                                           | OclTy_base_void \<Rightarrow> ty_base
+                                           | OclTy_base_boolean \<Rightarrow> ty_base
+                                           | OclTy_base_integer \<Rightarrow> ty_base
+                                           | OclTy_base_unlimitednatural \<Rightarrow> ty_base
+                                           | OclTy_base_real \<Rightarrow> ty_base
+                                           | OclTy_base_string \<Rightarrow> ty_base
                                            | OclTy_class ty_obj \<Rightarrow>
                              let ty_obj = TyObj_to ty_obj
                                ; der_name = deref_oid (Some (TyObjN_role_ty ty_obj)) [] in

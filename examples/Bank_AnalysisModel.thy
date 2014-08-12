@@ -51,14 +51,6 @@ imports
   "../src/OCL_compiler_generator_dynamic"
 begin
 
-consts OclMinus\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r :: "('\<AA>)Integer \<Rightarrow> ('\<AA>)Integer \<Rightarrow> ('\<AA>)Integer" (infix "-\<^sub>o\<^sub>c\<^sub>l" 40)
-
-type_synonym Real = int
-type_synonym String = int
-type_synonym Integer' = int
-
-(* *)
-
 generation_syntax [ deep
                       (generation_semantics [ analysis (*, oid_start 10*) ])
                       (THEORY Bank_AnalysisModel_generated)
@@ -76,11 +68,11 @@ End
 Class Client
   Attributes clientname : String
              address : String
-             age : Integer'
+             age : Integer
 End
 
 Class Account
-  Attributes ident : Integer'
+  Attributes ident : Integer
              moneybalance : Real
 End
 
@@ -107,12 +99,10 @@ Class Checks < Account
   Attributes overdraft : Real
 End
 
-Define_base [ 25, 250, 2000 ]
-
 Instance Saving1 :: Account = ([ maximum = 2000 ] :: Savings)
      and Client1 :: Client = [ clientaccounts = [ Saving1 ] , banks = Bank1 ]
-     and Account1 :: Account = [ ident = 250 , owner = Client1 ]
-     and Bank1 :: Bank = [ bankaccounts = [ Saving1 , Account1 ] ]
+     and Account1 :: Account = [ ident = 666 , owner = Client1 ]
+     and Bank1 :: Bank = [ bankaccounts = [ Saving1 , Account1 ], name = "\<infinity>\<heartsuit> \<Longleftrightarrow> \<infinity>\<euro>" ]
 
 Define_state \<sigma>\<^sub>1' =
   [ defines [ Account1
@@ -125,13 +115,15 @@ Define_state ss = []
 
 Define_pre_post ss \<sigma>\<^sub>1'
 
+Define_base [ 25, 250.0 ]
+
 Context c: Savings
-  Inv A : `\<zero> <\<^sub>i\<^sub>n\<^sub>t (c .maximum)`
-  Inv B : `c .moneybalance \<le>\<^sub>i\<^sub>n\<^sub>t (c .maximum) and \<zero> \<le>\<^sub>i\<^sub>n\<^sub>t (c .moneybalance)`
+  Inv A : `\<zero>.\<zero> <\<^sub>r\<^sub>e\<^sub>a\<^sub>l (c .maximum)`
+  Inv B : `c .moneybalance \<le>\<^sub>r\<^sub>e\<^sub>a\<^sub>l (c .maximum) and \<zero>.\<zero> \<le>\<^sub>r\<^sub>e\<^sub>a\<^sub>l (c .moneybalance)`
 
 Context c: Checks
-  Inv A : `\<two>\<five> <\<^sub>i\<^sub>n\<^sub>t (c .owner .age) implies (c .overdraft \<doteq> \<zero>)`
-  Inv B : `c .owner .age \<le>\<^sub>i\<^sub>n\<^sub>t \<two>\<five> implies (c .overdraft \<doteq> \<zero> -\<^sub>i\<^sub>n\<^sub>t \<two>\<five>\<zero>)`
+  Inv A : `\<two>\<five> <\<^sub>i\<^sub>n\<^sub>t (c .owner .age) implies (c .overdraft \<doteq> \<zero>.\<zero>)`
+  Inv B : `c .owner .age \<le>\<^sub>i\<^sub>n\<^sub>t \<two>\<five> implies (c .overdraft \<doteq> \<zero>.\<zero> -\<^sub>r\<^sub>e\<^sub>a\<^sub>l \<two>\<five>\<zero>.\<zero>)`
 
 (*generation_syntax deep flush_all*)
 

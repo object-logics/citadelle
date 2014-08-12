@@ -64,7 +64,7 @@ definition "print_ctxt_const = List_map (map_pair id Thy_consts_class) o (\<lamb
                 (Ty_base o print_ctxt_ty)
                 (flatten
                   [ List_map snd (Ctxt_fun_ty_arg ctxt)
-                  , [ case Ctxt_fun_ty_out ctxt of None \<Rightarrow> OclTy_raw ''Void'' | Some s \<Rightarrow> s ] ])))
+                  , [ case Ctxt_fun_ty_out ctxt of None \<Rightarrow> OclTy_base_void | Some s \<Rightarrow> s ] ])))
               (mk_dot attr_n var_at_when_ocl)
               (Some (natural_of_nat (length (Ctxt_fun_ty_arg ctxt))))))
         [ (var_at_when_hol_post, var_at_when_ocl_post, update_D_accessor_rbt_post)

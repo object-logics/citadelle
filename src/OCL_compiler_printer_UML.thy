@@ -290,9 +290,13 @@ definition "i_of_ocl_ty_class a b f = ocl_ty_class_rec
     (i_of_ocl_ty_class_node a b (K i_of_unit))
     (f a b))"
 
-definition "i_of_ocl_ty a b = (\<lambda>f1 f2 f3. ocl_ty_rec f1 f2 f3 o co1 K)
+definition "i_of_ocl_ty a b = (\<lambda>f1 f2 f3 f4 f5 f6 f7. ocl_ty_rec f1 f2 f3 f4 f5 f6 f7 o co1 K)
+  (b ''OclTy_base_void'')
   (b ''OclTy_base_boolean'')
   (b ''OclTy_base_integer'')
+  (b ''OclTy_base_unlimitednatural'')
+  (b ''OclTy_base_real'')
+  (b ''OclTy_base_string'')
   (ap1 a (b ''OclTy_class'') (i_of_ocl_ty_class a b (K i_of_unit)))
   (ar2 a (b ''OclTy_collection'') (i_of_ocl_collection b))
   (ap1 a (b ''OclTy_raw'') (i_of_string a b))"
@@ -329,9 +333,12 @@ definition "i_of_ocl_ass_class a b = ocl_ass_class_rec
     (i_of_ocl_class_raw a b (K i_of_unit)))"
 
 definition "i_of_ocl_def_base a b = ocl_def_base_rec
-  (ap1 a (b ''OclDefBase'') (i_of_list a b (i_of_string a b)))"
+  (ap1 a (b ''OclDefInteger'') (i_of_string a b))
+  (ap1 a (b ''OclDefReal'') (i_of_pair a b (i_of_string a b) (i_of_string a b)))
+  (ap1 a (b ''OclDefString'') (i_of_string a b))"
 
 definition "i_of_ocl_data_shallow_base a b = ocl_data_shallow_base_rec
+  (ap1 a (b ''ShallB_term'') (i_of_ocl_def_base a b))
   (ap1 a (b ''ShallB_str'') (i_of_string a b))
   (ap1 a (b ''ShallB_self'') (i_of_internal_oid a b))"
 
@@ -356,6 +363,9 @@ definition "i_of_ocl_instance_single a b f = ocl_instance_single_rec
 definition "i_of_ocl_instance a b = ocl_instance_rec
   (ap1 a (b ''OclInstance'')
     (i_of_list a b (i_of_ocl_instance_single a b (K i_of_unit))))"
+
+definition "i_of_ocl_def_base_l a b = ocl_def_base_l_rec
+  (ap1 a (b ''OclDefBase'') (i_of_list a b (i_of_ocl_def_base a b)))"
 
 definition "i_of_ocl_def_state_core a b f = ocl_def_state_core_rec
   (ap1 a (b ''OclDefCoreAdd'') (i_of_ocl_instance_single a b (K i_of_unit)))
@@ -426,6 +436,7 @@ lemmas [code] =
   i_of.i_of_ocl_list_attr_def
   i_of.i_of_ocl_instance_single_def
   i_of.i_of_ocl_instance_def
+  i_of.i_of_ocl_def_base_l_def
   i_of.i_of_ocl_def_state_core_def
   i_of.i_of_ocl_def_state_def
   i_of.i_of_ocl_def_pre_post_def

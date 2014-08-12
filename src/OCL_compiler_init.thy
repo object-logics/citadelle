@@ -218,6 +218,23 @@ fun_quick nat_of_str_aux where
    "nat_of_str_aux l (n :: Nat.nat) = (if n < 10 then n # l else nat_of_str_aux (n mod 10 # l) (n div 10))"
 definition "nat_of_str n = nat_raw_of_str (nat_of_str_aux [] n)"
 definition "natural_of_str = nat_of_str o nat_of_natural"
+definition "add_0 n = flatten [ flatten (List_map (\<lambda>_. ''0'') (upt 0 (if n < 10 then 2 else if n < 100 then 1 else 0)))
+          , nat_of_str n ]"
+definition "is_letter n = (n \<ge> 65 & n < 91 | n \<ge> 97 & n < 123)"
+definition "base255_of_str_gen f0 f = flatten o List_map (\<lambda>c. let n = nat_of_char c in
+  if is_letter n then f0 c else f (add_0 n))"
+definition "base255_of_str = base255_of_str_gen (\<lambda>c. [c]) id"
+definition "text_of_str str = 
+ (let s = ''c''
+    ; ap = '' # '' in
+  flatten [ ''(let '', s, '' = char_of_nat in ''
+          , base255_of_str_gen
+              (\<lambda>c.
+                let g = [Char Nibble2 Nibble7] in
+                flatten [''CHR '',  g,g,[c],g,g,  ap])
+              (\<lambda>c. flatten [s, '' '', c, ap]) str
+          , ''[])''])"
+definition "text2_of_str = flatten o List_map (\<lambda>c. escape_unicode [c])"
 
 definition "mk_constr_name name = (\<lambda> x. flatten [isub_of_str name, ''_'', isub_of_str x])"
 definition "mk_dot s1 s2 = flatten [''.'', s1, s2]"
@@ -231,6 +248,7 @@ definition "hol_split s = flatten [s, ''.split'']"
 subsection{* ... *}
 
 definition "unicode_AA = escape_unicode ''AA''"
+definition "unicode_acute = escape_unicode ''acute''"
 definition "unicode_alpha = escape_unicode ''alpha''"
 definition "unicode_and = escape_unicode ''and''"
 definition "unicode_And = escape_unicode ''And''"
@@ -296,7 +314,9 @@ definition "var_at_when_hol_post = ''''"
 definition "var_at_when_hol_pre = ''at_pre''"
 definition "var_at_when_ocl_post = ''''"
 definition "var_at_when_ocl_pre = ''@pre''"
-definition "var_OclInt = ''OclInt''"
+definition "var_OclInteger = ''OclInt''"
+definition "var_OclReal = ''OclReal''"
+definition "var_OclString = ''OclString''"
 
 definition "update_D_accessor_rbt_pre f = (\<lambda>(l_pre, l_post). (f l_pre, l_post))"
 definition "update_D_accessor_rbt_post f = (\<lambda>(l_pre, l_post). (l_pre, f l_post))"

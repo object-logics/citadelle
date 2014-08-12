@@ -54,7 +54,7 @@ subsection{* infrastructure *}
 definition "print_infra_datatype_class = start_map'' Thy_dataty o (\<lambda>expr _ base_attr' _. map_class_gen_h''''
   (\<lambda>isub_name name _ l_attr l_inherited l_cons.
     let (l_attr, l_inherited) = base_attr' (l_attr, of_inh l_inherited)
-      ; map_ty = List_map (Opt o str_of_ty o snd) in
+      ; map_ty = List_map (Opt o str_hol_of_ty o snd) in
     [ Datatype
         (isub_name datatype_ext_name)
         (  (rev_map (\<lambda>x. ( datatype_ext_constr_name @@ mk_constr_name name x
@@ -69,15 +69,17 @@ definition "print_infra_datatype_universe expr = start_map Thy_dataty
       (map_class (\<lambda>isub_name _ _ _ _ _. (isub_name datatype_in, [Raw (isub_name datatype_name)])) expr) ]"
 
 definition "print_infra_type_synonym_class expr = start_map Thy_ty_synonym
-  (Type_synonym (* FIXME generate this automatically *)
-                ty_boolean (Ty_apply (Ty_base ty_boolean) [Ty_base unicode_AA]) #
+  (let option = (\<lambda>x. Ty_apply (Ty_base ''option'') [x]) in
    Type_synonym (* FIXME generate this automatically *)
-                ''Set_int'' (Ty_apply (Ty_base ''Set'') [Ty_base unicode_AA,
-     let option = (\<lambda>x. Ty_apply (Ty_base ''option'') [x]) in
-     option (option (Ty_base ''int'')) ]) #
+                (print_ctxt_ty OclTy_base_boolean) (Ty_apply (Ty_base ty_boolean) [Ty_base unicode_AA]) #
+   Type_synonym (* FIXME generate this automatically *)
+                (print_ctxt_ty (OclTy_collection Set (OclTy_raw ''int''))) (Ty_apply (Ty_base ''Set'') [Ty_base unicode_AA,
+     option (option (Ty_base (str_hol_of_ty OclTy_base_integer))) ]) #
+   Type_synonym (* FIXME generate this automatically *)
+                (print_ctxt_ty (OclTy_collection Set OclTy_base_integer)) (Ty_apply (Ty_base ''Set'') [Ty_base unicode_AA,
+     option (option (Ty_base (str_hol_of_ty OclTy_base_integer))) ]) #
    (map_class (\<lambda>isub_name name _ _ _ _.
      Type_synonym name (Ty_apply (Ty_base ''val'') [Ty_base unicode_AA,
-     let option = (\<lambda>x. Ty_apply (Ty_base ''option'') [x]) in
      option (option (Ty_base (isub_name datatype_name))) ])) expr))"
 
 definition "print_infra_type_synonym_class_set = start_map Thy_ty_synonym o

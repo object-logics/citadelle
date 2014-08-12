@@ -156,7 +156,7 @@ ML{* fun List_mapi f = OCL.list_mapi (f o To_nat) *}
 ML{*
 structure Ty' = struct
 fun check l_oid l =
-  let val Mp = OCL.map_pair 
+  let val Mp = OCL.map_pair
       val Me = String.explode
       val Mi = String.implode
       val Ml = map in
@@ -939,8 +939,12 @@ structure USE_parse = struct
  val colon = Parse.$$$ ":"
  fun repeat2 scan = scan ::: Scan.repeat1 scan
  (* *)
- datatype use_oclty = OclTypeBaseBoolean
+ datatype use_oclty = OclTypeBaseVoid
+                    | OclTypeBaseBoolean
                     | OclTypeBaseInteger
+                    | OclTypeBaseUnlimitednatural
+                    | OclTypeBaseReal
+                    | OclTypeBaseString
                     | OclTypeCollectionSet of use_oclty
                     | OclTypeCollectionSequence of use_oclty
                     | OclTypeRaw of binding (* FIXME use 'string' and Parse.typ *)
@@ -948,8 +952,12 @@ structure USE_parse = struct
  datatype use_opt = Ordered | Subsets of binding | Union | Redefines of binding | Derived of string | Qualifier of (binding * use_oclty) list
  datatype use_operation_def = Expression of string | BlockStat
 
- fun from_oclty v = (fn OclTypeBaseBoolean => OCL.OclTy_base_boolean
+ fun from_oclty v = (fn OclTypeBaseVoid    => OCL.OclTy_base_void
+                      | OclTypeBaseBoolean => OCL.OclTy_base_boolean
                       | OclTypeBaseInteger => OCL.OclTy_base_integer
+                      | OclTypeBaseUnlimitednatural => OCL.OclTy_base_unlimitednatural
+                      | OclTypeBaseReal    => OCL.OclTy_base_real
+                      | OclTypeBaseString  => OCL.OclTy_base_string
                       | OclTypeCollectionSet l      => OCL.OclTy_collection (OCL.Set, from_oclty l)
                       | OclTypeCollectionSequence l => OCL.OclTy_collection (OCL.Sequence, from_oclty l)
                       | OclTypeRaw s       => OCL.OclTy_raw (From.from_binding s)) v
@@ -957,10 +965,19 @@ structure USE_parse = struct
  val ident_dot_dot = Parse.sym_ident -- Parse.sym_ident (* "\<bullet>\<bullet>" *)
  val ident_star = Parse.sym_ident (* "*" *)
  (* *)
- fun use_type v = (Parse.reserved "Set" |-- Parse.$$$ "(" |-- use_type --| Parse.$$$ ")" >> OclTypeCollectionSet
+ fun use_type v = ((* collection *)
+                   Parse.reserved "Set" |-- Parse.$$$ "(" |-- use_type --| Parse.$$$ ")" >> OclTypeCollectionSet
                 || Parse.reserved "Sequence" |-- Parse.$$$ "(" |-- use_type --| Parse.$$$ ")" >> OclTypeCollectionSequence
+
+                   (* base *)
+                || Parse.reserved "Void" >> K OclTypeBaseVoid
                 || Parse.reserved "Boolean" >> K OclTypeBaseBoolean
                 || Parse.reserved "Integer" >> K OclTypeBaseInteger
+                || Parse.reserved "UnlimitedNatural" >> K OclTypeBaseUnlimitednatural
+                || Parse.reserved "Real" >> K OclTypeBaseReal
+                || Parse.reserved "String" >> K OclTypeBaseString
+
+                   (* *)
                 || Parse.sym_ident (* "\<acute>" *) |-- Parse.binding --| Parse.sym_ident (* "\<acute>" *) >> OclTypeRaw) v
 
  val use_expression = Parse.alt_string
@@ -1164,7 +1181,8 @@ subsection{* Outer Syntax: Define_base, Instance, Define_state *}
 
 ML{*
 
-datatype ocl_term = OclTerm of binding
+datatype ocl_term = OclTermBase of OCL.ocl_def_base
+                  | OclTerm of binding
                   | OclOid of int
 (*
 datatype 'a ocl_l_attr = Ocl_l_attr of 'a
@@ -1175,7 +1193,13 @@ and 'a ocl_prop = Ocl_prop of 'a ocl_l_attr (* l_inh *) * 'a (* l_attr *)
 datatype ocl_prop_main = Ocl_prop_main of ((binding * ocl_term) list) ocl_prop
 *)
 
-val ocl_term = Parse.binding >> OclTerm
+val ocl_term0 =
+     Parse.number >> (OCL.OclDefInteger o From.from_string)
+  || Parse.float_number >> (OCL.OclDefReal o (From.from_pair From.from_string From.from_string o
+       (fn s => case String.tokens (fn #"." => true | _ => false) s of [l1,l2] => (l1,l2))))
+  || Parse.string >> (OCL.OclDefString o From.from_string)
+val ocl_term = ocl_term0 >> OclTermBase
+  || Parse.binding >> OclTerm
   || @{keyword "self"} |-- Parse.nat >> OclOid
 val list_attr0 = Parse.binding -- (Parse.$$$ "=" |--
   (ocl_term >> (fn x => [x])
@@ -1189,9 +1213,8 @@ val list_attr_cast = list_attr_cast00 >> (fn (res, l) => (res, rev l))
 
 val () =
   outer_syntax_command @{make_string} @{command_spec "Define_base"} ""
-    (parse_l' Parse.number)
-    (fn l_int => fn _ =>
-      OCL.OclAstDefBase (OCL.OclDefBase (map From.from_string l_int)))
+    (parse_l' ocl_term0)
+    (K o OCL.OclAstDefBaseL o OCL.OclDefBase)
 
 datatype state_content = ST_l_attr of (binding * ocl_term list) list * binding (* ty *)
                        | ST_skip
@@ -1205,7 +1228,8 @@ val state_parse =
 local
   fun get_oclinst l _ =
     OCL.OclInstance (map (fn ((name,typ), (l_attr, is_cast)) =>
-        let val of_base = fn OclTerm s => OCL.ShallB_str (From.from_binding s)
+        let val of_base = fn OclTermBase s => OCL.ShallB_term s
+                           | OclTerm s => OCL.ShallB_str (From.from_binding s)
                            | OclOid n => OCL.ShallB_self (From.from_internal_oid (From.from_nat n))
             val f = map (fn (attr, ocl) => (From.from_binding attr,
                       case ocl of [x] => OCL.Shall_base (of_base x)
