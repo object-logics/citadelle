@@ -70,7 +70,7 @@ imports OCL_compiler_printer
            "Abstract_associationclass" "Associationclass"
            "Context"
            (* ocl (added) *)
-           "Class.end" "Instance" "Define_int" "Define_state" "Define_pre_post"
+           "Class.end" "Instance" "Define_base" "Define_state" "Define_pre_post"
 
            (* hol syntax *)
            "generation_syntax"
@@ -939,28 +939,28 @@ structure USE_parse = struct
  val colon = Parse.$$$ ":"
  fun repeat2 scan = scan ::: Scan.repeat1 scan
  (* *)
- datatype use_oclty = OclTypeBoolean
-                    | OclTypeInteger
-                    | OclTypeSet of use_oclty
-                    | OclTypeSequence of use_oclty
+ datatype use_oclty = OclTypeBaseBoolean
+                    | OclTypeBaseInteger
+                    | OclTypeCollectionSet of use_oclty
+                    | OclTypeCollectionSequence of use_oclty
                     | OclTypeRaw of binding (* FIXME use 'string' and Parse.typ *)
 
  datatype use_opt = Ordered | Subsets of binding | Union | Redefines of binding | Derived of string | Qualifier of (binding * use_oclty) list
  datatype use_operation_def = Expression of string | BlockStat
 
- fun from_oclty v = (fn OclTypeBoolean    => OCL.OclTy_boolean
-                      | OclTypeInteger    => OCL.OclTy_integer
-                      | OclTypeSet l      => OCL.OclTy_collection (OCL.Set, from_oclty l)
-                      | OclTypeSequence l => OCL.OclTy_collection (OCL.Sequence, from_oclty l)
-                      | OclTypeRaw s      => OCL.OclTy_raw (From.from_binding s)) v
+ fun from_oclty v = (fn OclTypeBaseBoolean => OCL.OclTy_base_boolean
+                      | OclTypeBaseInteger => OCL.OclTy_base_integer
+                      | OclTypeCollectionSet l      => OCL.OclTy_collection (OCL.Set, from_oclty l)
+                      | OclTypeCollectionSequence l => OCL.OclTy_collection (OCL.Sequence, from_oclty l)
+                      | OclTypeRaw s       => OCL.OclTy_raw (From.from_binding s)) v
 
  val ident_dot_dot = Parse.alt_string (* ".." *)
  val ident_star = Parse.alt_string (* "*" *)
  (* *)
- fun use_type v = (Parse.reserved "Set" |-- Parse.$$$ "(" |-- use_type --| Parse.$$$ ")" >> OclTypeSet
-                || Parse.reserved "Sequence" |-- Parse.$$$ "(" |-- use_type --| Parse.$$$ ")" >> OclTypeSequence
-                || Parse.reserved "Boolean" >> K OclTypeBoolean
-                || Parse.reserved "Integer" >> K OclTypeInteger
+ fun use_type v = (Parse.reserved "Set" |-- Parse.$$$ "(" |-- use_type --| Parse.$$$ ")" >> OclTypeCollectionSet
+                || Parse.reserved "Sequence" |-- Parse.$$$ "(" |-- use_type --| Parse.$$$ ")" >> OclTypeCollectionSequence
+                || Parse.reserved "Boolean" >> K OclTypeBaseBoolean
+                || Parse.reserved "Integer" >> K OclTypeBaseInteger
                 || Parse.binding >> OclTypeRaw) v
 
  val use_expression = Parse.alt_string
@@ -1160,7 +1160,7 @@ val () =
        OCL.OclAstFlushAll (OCL.OclFlushAll))
 *}
 
-subsection{* Outer Syntax: Define_int, Instance, Define_state *}
+subsection{* Outer Syntax: Define_base, Instance, Define_state *}
 
 ML{*
 
@@ -1188,10 +1188,10 @@ fun list_attr_cast00 e =
 val list_attr_cast = list_attr_cast00 >> (fn (res, l) => (res, rev l))
 
 val () =
-  outer_syntax_command @{make_string} @{command_spec "Define_int"} ""
+  outer_syntax_command @{make_string} @{command_spec "Define_base"} ""
     (parse_l' Parse.number)
     (fn l_int => fn _ =>
-      OCL.OclAstDefInt (OCL.OclDefI (map From.from_string l_int)))
+      OCL.OclAstDefBase (OCL.OclDefBase (map From.from_string l_int)))
 
 datatype state_content = ST_l_attr of (binding * ocl_term list) list * binding (* ty *)
                        | ST_skip

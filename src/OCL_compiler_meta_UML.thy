@@ -67,8 +67,8 @@ record ocl_ty_class =       TyObj_name :: string
                             TyObj_ass_arity :: nat
                             TyObj_from :: ocl_ty_class_node
                             TyObj_to :: ocl_ty_class_node
-datatype ocl_ty =           OclTy_boolean
-                          | OclTy_integer
+datatype ocl_ty =           OclTy_base_boolean
+                          | OclTy_base_integer
                           | OclTy_class ocl_ty_class
                           | OclTy_collection ocl_collection ocl_ty
                           | OclTy_raw string (* denoting raw HOL-type.*)
@@ -103,7 +103,7 @@ record ocl_association =        OclAss_type     :: ocl_association_type
                                                     \<times> string option (* role *)) list"
 datatype ocl_ass_class =        OclAssClass ocl_association ocl_class_raw
 
-datatype ocl_def_int = OclDefI "string list"
+datatype ocl_def_base = OclDefBase "string list"
 
 datatype ocl_data_shallow_base = ShallB_str string
                                | ShallB_self internal_oid
@@ -309,8 +309,8 @@ definition "apply_optim_ass_arity ty_obj v =
    else Some v)"
 
 fun_quick str_of_ty where
-    "str_of_ty OclTy_boolean = ''Boolean''"
-   |"str_of_ty OclTy_integer = ''Integer''"
+    "str_of_ty OclTy_base_boolean = ''Boolean''"
+   |"str_of_ty OclTy_base_integer = ''Integer''"
    |"str_of_ty (OclTy_class ty_obj) = flatten [TyObj_name ty_obj, '' '', const_oid_list]"
    |"str_of_ty (OclTy_collection Set ocl_ty) = flatten [''Set('', str_of_ty ocl_ty,'')'']"
    |"str_of_ty (OclTy_collection Sequence ocl_ty) = flatten [''Sequence('', str_of_ty ocl_ty,'')'']"
@@ -323,8 +323,8 @@ definition "print_infra_type_synonym_class_set_name name = ''Set_'' @@ name"
 fun_quick print_ctxt_ty where
    "print_ctxt_ty c = (\<lambda> OclTy_collection Set t \<Rightarrow> print_infra_type_synonym_class_set_name (print_ctxt_ty t)
                        | OclTy_raw t \<Rightarrow> t
-                       | OclTy_boolean \<Rightarrow> str_of_ty c
-                       | OclTy_integer \<Rightarrow> str_of_ty c) c"
+                       | OclTy_base_boolean \<Rightarrow> str_of_ty c
+                       | OclTy_base_integer \<Rightarrow> str_of_ty c) c"
 
 fun_quick get_class_hierarchy_strict_aux where
    "get_class_hierarchy_strict_aux dataty l_res =

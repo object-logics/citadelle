@@ -329,7 +329,7 @@ definition "thy_association = []"
 definition "thy_instance = [ print_examp_instance_defassoc
                            , print_examp_instance
                            , print_examp_instance_defassoc_typecheck ]"
-definition "thy_def_int = [ print_examp_oclint ]"
+definition "thy_def_base = [ print_examp_oclbase ]"
 definition "thy_def_state = [ print_examp_def_st_defassoc
                             , print_examp_def_st
                             , print_examp_def_st_inst_var
@@ -391,7 +391,7 @@ definition "ocl_env_class_spec_mk f_try f_accu_reset f_fold f =
        (f_try (\<lambda> () \<Rightarrow> List.fold
            (\<lambda>ast. (case ast of
                OclAstInstance univ \<Rightarrow> fold_thy0 univ thy_instance
-             | OclAstDefInt univ \<Rightarrow> fold_thy0 univ thy_def_int
+             | OclAstDefBase univ \<Rightarrow> fold_thy0 univ thy_def_base
              | OclAstDefState univ \<Rightarrow> fold_thy0 univ thy_def_state
              | OclAstDefPrePost univ \<Rightarrow> fold_thy0 univ thy_def_pre_post
              | OclAstCtxtPrePost univ \<Rightarrow> fold_thy0 univ thy_ctxt_pre_post
@@ -427,7 +427,7 @@ definition "fold_thy' f_try f_accu_reset f =
        ocl_env_class_spec_rm (ocl_env_class_spec_bind [ fold_thy0 univ_ass thy_association
                                                       , fold_thy0 univ_class thy_class_flat ])
    | OclAstInstance univ \<Rightarrow> ocl_env_class_spec_mk (fold_thy0 univ thy_instance)
-   | OclAstDefInt univ \<Rightarrow> fold_thy0 univ thy_def_int
+   | OclAstDefBase univ \<Rightarrow> fold_thy0 univ thy_def_base
    | OclAstDefState univ \<Rightarrow> ocl_env_class_spec_mk (fold_thy0 univ thy_def_state)
    | OclAstDefPrePost univ \<Rightarrow> fold_thy0 univ thy_def_pre_post
    | OclAstCtxtPrePost univ \<Rightarrow> ocl_env_class_spec_mk (fold_thy0 univ thy_ctxt_pre_post)

@@ -107,7 +107,7 @@ Class Checks < Account
   Attributes overdraft: Real
 End
 
-Define_int [ 25, 250, 2000 ]
+Define_base [ 25, 250, 2000 ]
 
 Instance Saving1 :: Account = ([ maximum = 2000 ] :: Savings)
      and Client1 :: Client = [ clientaccounts = [ Saving1 ] , banks = Bank1 ]

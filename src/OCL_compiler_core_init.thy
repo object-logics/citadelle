@@ -58,7 +58,7 @@ datatype ocl_deep_embed_ast = OclAstClassRaw ocl_class_raw
                             | OclAstAssociation ocl_association
                             | OclAstAssClass ocl_ass_class
                             | OclAstInstance ocl_instance
-                            | OclAstDefInt ocl_def_int
+                            | OclAstDefBase ocl_def_base
                             | OclAstDefState ocl_def_state
                             | OclAstDefPrePost ocl_def_pre_post
                             | OclAstCtxtPrePost ocl_ctxt_pre_post

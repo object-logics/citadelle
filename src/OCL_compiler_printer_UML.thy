@@ -291,8 +291,8 @@ definition "i_of_ocl_ty_class a b f = ocl_ty_class_rec
     (f a b))"
 
 definition "i_of_ocl_ty a b = (\<lambda>f1 f2 f3. ocl_ty_rec f1 f2 f3 o co1 K)
-  (b ''OclTy_boolean'')
-  (b ''OclTy_integer'')
+  (b ''OclTy_base_boolean'')
+  (b ''OclTy_base_integer'')
   (ap1 a (b ''OclTy_class'') (i_of_ocl_ty_class a b (K i_of_unit)))
   (ar2 a (b ''OclTy_collection'') (i_of_ocl_collection b))
   (ap1 a (b ''OclTy_raw'') (i_of_string a b))"
@@ -328,8 +328,8 @@ definition "i_of_ocl_ass_class a b = ocl_ass_class_rec
     (i_of_ocl_association a b (K i_of_unit))
     (i_of_ocl_class_raw a b (K i_of_unit)))"
 
-definition "i_of_ocl_def_int a b = ocl_def_int_rec
-  (ap1 a (b ''OclDefI'') (i_of_list a b (i_of_string a b)))"
+definition "i_of_ocl_def_base a b = ocl_def_base_rec
+  (ap1 a (b ''OclDefBase'') (i_of_list a b (i_of_string a b)))"
 
 definition "i_of_ocl_data_shallow_base a b = ocl_data_shallow_base_rec
   (ap1 a (b ''ShallB_str'') (i_of_string a b))
@@ -420,7 +420,7 @@ lemmas [code] =
   i_of.i_of_ocl_association_type_def
   i_of.i_of_ocl_association_def
   i_of.i_of_ocl_ass_class_def
-  i_of.i_of_ocl_def_int_def
+  i_of.i_of_ocl_def_base_def
   i_of.i_of_ocl_data_shallow_base_def
   i_of.i_of_ocl_data_shallow_def
   i_of.i_of_ocl_list_attr_def

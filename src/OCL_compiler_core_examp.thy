@@ -51,7 +51,7 @@ section{* Translation of AST *}
 
 subsection{* example *}
 
-definition "print_examp_oclint = (\<lambda> OclDefI l \<Rightarrow> (start_map Thy_definition_hol o
+definition "print_examp_oclbase = (\<lambda> OclDefBase l \<Rightarrow> (start_map Thy_definition_hol o
   List_map (\<lambda>nb.
     let name = var_OclInt @@ nb
       ; b = \<lambda>s. Expr_basic [s] in

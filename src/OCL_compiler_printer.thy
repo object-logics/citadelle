@@ -99,7 +99,7 @@ definition "i_of_ocl_deep_embed_ast a b = ocl_deep_embed_ast_rec
   (ap1 a (b ''OclAstAssociation'') (i_of_ocl_association a b (K i_of_unit)))
   (ap1 a (b ''OclAstAssClass'') (i_of_ocl_ass_class a b))
   (ap1 a (b ''OclAstInstance'') (i_of_ocl_instance a b))
-  (ap1 a (b ''OclAstDefInt'') (i_of_ocl_def_int a b))
+  (ap1 a (b ''OclAstDefBase'') (i_of_ocl_def_base a b))
   (ap1 a (b ''OclAstDefState'') (i_of_ocl_def_state a b))
   (ap1 a (b ''OclAstDefPrePost'') (i_of_ocl_def_pre_post a b))
   (ap1 a (b ''OclAstCtxtPrePost'') (i_of_ocl_ctxt_pre_post a b (K i_of_unit)))
