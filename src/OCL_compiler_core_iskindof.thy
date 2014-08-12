@@ -379,7 +379,7 @@ definition "print_iskindof_up_istypeof = start_map Thy_lemma_by o
            (print_iskindof_up_istypeof_child name_pred0)))
         Tacl_done)"
 
-definition "print_iskindof_up_d_cast expr = (start_map Thy_lemma_by o
+definition "print_iskindof_up_d_cast = start_map Thy_lemma_by o
   map_class_nupl3'_LE'_inh (\<lambda>name_pers name_mid name_pred0.
     case name_pred0 of (name_any, _) # name_pred \<Rightarrow>
     let name_any = case Inh name_any of OclClass name_any _ _ \<Rightarrow> name_any
@@ -421,6 +421,6 @@ definition "print_iskindof_up_d_cast expr = (start_map Thy_lemma_by o
                                                   print_istypeof_up_d_cast_name name_pred name_any name_pers)
                                                 l_subtree)] ])
                       name_pred_inh_sib_gen))
-        Tacl_done)) expr"
+        Tacl_done)"
 
 end
