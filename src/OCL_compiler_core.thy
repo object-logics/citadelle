@@ -202,7 +202,8 @@ two operations to declare and to provide two overloading definitions for the two
             , print_astype_lemmas_strict ]
             , [ print_astype_defined ]
             , [ print_astype_up_d_cast0
-            , print_astype_up_d_cast ])
+            , print_astype_up_d_cast
+            , print_astype_d_up_cast ])
 
           , (''OclIsTypeOf'',
             [ print_istypeof_consts

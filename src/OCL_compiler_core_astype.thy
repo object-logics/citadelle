@@ -251,6 +251,7 @@ definition "print_astype_up_d_cast0 = start_map Thy_lemma_by o
                                     # List_map hol_definition [''null_option'', ''bot_option'' ]))
                                     (split_ty name_pers) ]))"
 
+definition "print_astype_up_d_cast_name name_any name_pers = flatten [''up'', isub_of_str name_any, ''_down'', isub_of_str name_pers, ''_cast'']"
 definition "print_astype_up_d_cast = start_map Thy_lemma_by o
   map_class_nupl2'_inh (\<lambda>name_pers name_any.
     let var_X = ''X''
@@ -271,5 +272,34 @@ definition "print_astype_up_d_cast = start_map Thy_lemma_by o
           ,[Tac_simp_add [''defined_split''], Tac_elim (Thm_str ''disjE'')]
           ,[Tac_plus [Tac_erule (Thm_str ''StrongEq_L_subst2_rev''), Tac_simp, Tac_simp]]])
         Tacl_done)"
+
+definition "print_astype_d_up_cast = start_map Thy_lemma_by o
+  map_class_nupl2'_inh (\<lambda>name_pers name_any.
+    let var_X = ''X''
+      ; var_Y = ''Y''
+      ; a = \<lambda>f x. Expr_apply f [x]
+      ; b = \<lambda>s. Expr_basic [s]
+      ; var_tau = unicode_tau
+      ; f_tau = \<lambda>s. Expr_warning_parenthesis (Expr_binop (b var_tau) unicode_Turnstile (Expr_warning_parenthesis s))
+      ; var_def_X = ''def_X''
+      ; asty = \<lambda>x ty. Expr_warning_parenthesis (Expr_postunary x (Expr_basic [dot_astype ty]))
+      ; not_val = a ''not'' (a unicode_upsilon (b var_X)) in
+    Lemma_by_assum
+      (flatten [''down'', isub_of_str name_pers, ''_up'', isub_of_str name_any, ''_cast''])
+      [(var_def_X, False, Expr_binop
+             (Expr_basic [var_X])
+             ''=''
+             (asty (Expr_annot (Expr_basic [var_Y]) name_pers) name_any))]
+      (f_tau (Expr_binop not_val ''or''
+               (Expr_binop
+                 (asty (asty (Expr_basic [var_X]) name_pers) name_any)
+                 unicode_doteq
+                 (b var_X))))
+      (List_map App
+        [[Tac_case_tac (f_tau not_val), Tac_rule (Thm_str ''foundation25''), Tac_simp]])
+      (Tacl_by [ Tac_rule (Thm_str (flatten [''foundation25'', [Char Nibble2 Nibble7]]))
+               , Tac_simp_add [ var_def_X
+                              , print_astype_up_d_cast_name name_any name_pers
+                              , flatten [''StrictRefEq'', isub_of_str ''Object'', ''_sym'']]]) )"
 
 end
