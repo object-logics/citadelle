@@ -961,7 +961,7 @@ structure USE_parse = struct
                 || Parse.reserved "Sequence" |-- Parse.$$$ "(" |-- use_type --| Parse.$$$ ")" >> OclTypeCollectionSequence
                 || Parse.reserved "Boolean" >> K OclTypeBaseBoolean
                 || Parse.reserved "Integer" >> K OclTypeBaseInteger
-                || Parse.binding >> OclTypeRaw) v
+                || Parse.sym_ident (* "\<acute>" *) |-- Parse.binding --| Parse.sym_ident (* "\<acute>" *) >> OclTypeRaw) v
 
  val use_expression = Parse.alt_string
  val use_variableDeclaration = Parse.binding --| Parse.$$$ ":" -- use_type

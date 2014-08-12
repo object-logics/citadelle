@@ -54,7 +54,7 @@ begin
 generation_syntax [ shallow (generation_semantics [ design ]) ]
 
 Class Person < Planet
-  Attributes salary : int
+  Attributes salary : \<acute>int\<acute>
 End
 
 Association boss
@@ -63,13 +63,13 @@ Association boss
 End
 
 Class Planet < Galaxy
-  Attributes wormhole : nat
-             weight : int
+  Attributes wormhole : \<acute>nat\<acute>
+             weight : \<acute>int\<acute>
 End
 
 Class Galaxy
-  Attributes sound : unit
-             moving : bool
+  Attributes sound : \<acute>unit\<acute>
+             moving : \<acute>bool\<acute>
 End
 
 (* wishlist:
@@ -128,7 +128,7 @@ Define_state \<sigma>\<^sub>0 = []
 
 Define_pre_post \<sigma>\<^sub>1 \<sigma>\<^sub>1'
 
-Context Person :: contents () : Set(int)
+Context Person :: contents () : Set(\<acute>int\<acute>)
   Post : `result \<triangleq> if (self .boss \<doteq> null)
                    then (Set{}->including(self .salary))
                    else (self .boss .contents()->including(self .salary))
