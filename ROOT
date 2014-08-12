@@ -97,18 +97,18 @@ session "OCL-Annex-A" in "annex-a" = HOL +
 
 session "OCL-all" in src = HOL +
   description {* HOL-TestGen *}
-  options [document = pdf, document_output=document_generated,document_variants="document:outline=/proof,/ML"]
+  options [quick_and_dirty,document=pdf,document_output=document_generated,document_variants="document:outline=/proof,/ML"]
   theories
     "OCL_main"
     "../examples/Employee_AnalysisModel_OCLPart"
     "../examples/Employee_DesignModel_OCLPart"
-    "../src/OCL_class_diagram_generator_proof"
-(*    "../src/OCL_class_diagram_generator_text"*)
-(*    "../src/OCL_compiler"*)
-(*    "../src/OCL_class_diagram_generator"*)
+    "../src/OCL_compiler_aux_proof"
+(*    "../src/OCL_compiler_aux_text"*)
+(*    "../src/OCL_compiler_generator_static"*)
+(*    "../src/OCL_compiler_generator_dynamic"*)
 (*    "../doc/Employee_AnalysisModel_UMLPart_generated"*)
 (*    "../doc/Employee_DesignModel_UMLPart_generated"*)
-    "../examples/OCL_lib_UnlimitedNatural"
+    "../examples/OCL_basic_type_UnlimitedNatural"
     "../examples/OCL_lib_Gogolla_challenge_integer"
   files
     "document/root.tex"
