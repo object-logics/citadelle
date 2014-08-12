@@ -51,10 +51,6 @@ section{* Translation of AST *}
 
 subsection{* context *}
 
-fun_quick print_ctxt_ty where
-   "print_ctxt_ty c = (\<lambda> OclTy_collection Set t \<Rightarrow> Ty_apply (Ty_base ''Set'') [print_ctxt_ty t]
-                       | OclTy_raw t \<Rightarrow> Ty_base t) c"
-
 definition "print_ctxt_const_name attr_n var_at_when_hol = flatten [ ''dot'', isup_of_str attr_n, var_at_when_hol]"
 definition "print_ctxt_const = List_map (map_pair id Thy_consts_class) o (\<lambda> ctxt.
   let attr_n = Ctxt_fun_name ctxt in
@@ -65,8 +61,7 @@ definition "print_ctxt_const = List_map (map_pair id Thy_consts_class) o (\<lamb
           , Consts_raw0
               name
               (ty_arrow (Ty_base (Ctxt_ty ctxt) # List_map
-                (\<lambda> OclTy_collection Set (OclTy_raw s) \<Rightarrow> (* optimization *) Ty_base (print_infra_type_synonym_class_set_name s)
-                 | e \<Rightarrow> print_ctxt_ty e)
+                (Ty_base o print_ctxt_ty)
                 (flatten
                   [ List_map snd (Ctxt_fun_ty_arg ctxt)
                   , [ case Ctxt_fun_ty_out ctxt of None \<Rightarrow> OclTy_raw ''Void'' | Some s \<Rightarrow> s ] ])))

@@ -320,6 +320,12 @@ definition "ty_boolean = ''Boolean''"
 
 definition "print_infra_type_synonym_class_set_name name = ''Set_'' @@ name"
 
+fun_quick print_ctxt_ty where
+   "print_ctxt_ty c = (\<lambda> OclTy_collection Set t \<Rightarrow> print_infra_type_synonym_class_set_name (print_ctxt_ty t)
+                       | OclTy_raw t \<Rightarrow> t
+                       | OclTy_boolean \<Rightarrow> str_of_ty c
+                       | OclTy_integer \<Rightarrow> str_of_ty c) c"
+
 fun_quick get_class_hierarchy_strict_aux where
    "get_class_hierarchy_strict_aux dataty l_res =
    (List.fold
