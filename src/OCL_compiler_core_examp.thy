@@ -73,7 +73,7 @@ definition "print_examp_oclbase_gen =
   | OclDefString nb \<Rightarrow>
         let name = var_OclString @@ base255_of_str nb
           ; b = \<lambda>s. Expr_basic [s] in
-        if list_all (is_letter o nat_of_char) nb then
+        if nb \<noteq> [] & list_all (is_letter o nat_of_char) nb then
           let ab_name = b (let c = [Char Nibble2 Nibble7] in flatten [c,c, nb, c,c]) in
           (ab_name,
           Definition_abbrev0 name (b (text2_of_str nb))
