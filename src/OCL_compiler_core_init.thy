@@ -44,83 +44,12 @@
 header{* Part ... *}
 
 theory  OCL_compiler_core_init
-imports OCL_compiler_meta_UML
-        OCL_compiler_meta_UML_extended
-        OCL_compiler_meta_Isabelle
+imports OCL_compiler_meta_META
         "~~/src/HOL/Library/Code_Char"
 begin
 
-section{* Configuration of the Set of Meta in Input *}
-
-datatype ocl_flush_all = OclFlushAll
-
-(* *)
-
-type_synonym ocl2_class_raw = ocl_class_raw
-type_synonym ocl2_ass_class = ocl_ass_class
-type_synonym ocl2_ctxt_pre_post = ocl_ctxt_pre_post
-type_synonym ocl2_ctxt_inv = ocl_ctxt_inv
-
-(* *)
-
-(* le meta-model de "tout le monde" - frederic. *)
-datatype ocl_deep_embed_ast = (* USE *)
-                              OclAstClassRaw ocl_class_raw
-                            | OclAstAssociation ocl_association
-                            | OclAstAssClass ocl_ass_class
-                            | OclAstCtxtPrePost ocl_ctxt_pre_post
-                            | OclAstCtxtInv ocl_ctxt_inv
-
-                              (* USE reflected 1 time *)
-                            | Ocl2AstClassRaw ocl2_class_raw
-                            | Ocl2AstAssClass ocl2_ass_class
-                            | Ocl2AstCtxtPrePost ocl2_ctxt_pre_post
-                            | Ocl2AstCtxtInv ocl2_ctxt_inv
-
-                              (* invented *)
-                            | OclAstInstance ocl_instance
-                            | OclAstDefBaseL ocl_def_base_l
-                            | OclAstDefState ocl_def_state
-                            | OclAstDefPrePost ocl_def_pre_post
-                            | OclAstFlushAll ocl_flush_all
-
-datatype ocl_deep_mode = Gen_design | Gen_analysis
-
-
-record ocl_compiler_config =  D_disable_thy_output :: bool
-                              D_file_out_path_dep :: "(string (* theory *)
-                                                      \<times> string list (* imports *)
-                                                      \<times> string (* import optional (compiler bootstrap) *)) option"
-                              D_oid_start :: internal_oids
-                              D_output_position :: "nat \<times> nat"
-                              D_design_analysis :: ocl_deep_mode
-                              D_class_spec :: "ocl_class option"
-                                              (* last class considered for the generation *)
-                              D_ocl_env :: "ocl_deep_embed_ast list"
-                              D_instance_rbt :: "(string (* name (as key for rbt) *)
-                                                 \<times> ocl_instance_single
-                                                 \<times> internal_oid) list"
-                                                (* instance namespace environment *)
-                              D_state_rbt :: "(string (* name (as key for rbt) *)
-                                              \<times> (internal_oids
-                                              \<times> (string (* name *)
-                                                  \<times> ocl_instance_single (* alias *))
-                                                      ocl_def_state_core) list) list"
-                                             (* state namespace environment *)
-                              D_import_compiler :: bool (* true : the header should import the compiler for bootstrapping *)
-                              D_generation_syntax_shallow :: bool (* true : add the generation_syntax command *)
-                              D_accessor_rbt :: " string (* name of the constant added *) list (* pre *)
-                                                \<times> string (* name of the constant added *) list (* post *)"
-
-subsection{* Auxilliary *}
-
-definition "map2_ctxt_term f = (\<lambda>
-    Ocl2AstCtxtPrePost ocl \<Rightarrow> Ocl2AstCtxtPrePost (Ctxt_expr_update (List_map (\<lambda>(s, x). (s, f x))) ocl)
-  | Ocl2AstCtxtInv ocl \<Rightarrow> Ocl2AstCtxtInv (Ctxt_inv_expr_update (List_map (\<lambda>(s, x). (s, f x))) ocl)
-  | x \<Rightarrow> x)"
-
-definition "ocl_compiler_config_more_map f ocl =
-            ocl_compiler_config.extend  (ocl_compiler_config.truncate ocl) (f (ocl_compiler_config.more ocl))"
+section{* ... *}
+subsection{* ... *}
 
 definition "find_class_ass ocl =
  (let (l_class, l_ocl) =
@@ -147,43 +76,6 @@ definition "find_class_ass ocl =
 definition "filter_ass = List.map_filter (\<lambda> OclAstAssociation ass \<Rightarrow> Some ass
                                           | OclAstAssClass (OclAssClass ass _) \<Rightarrow> Some ass
                                           | _ \<Rightarrow> None)"
-
-section{* SML Meta-Model (extended) *}
-subsection{* type definition *}
-
-datatype sml_expr_extended = Sexpr_extended sml_expr
-                           | Sexpr_ocl ocl_compiler_config
-
-section{* Isabelle/HOL Meta-Model (extended) *}
-subsection{* type definition *}
-
-datatype hol_generation_syntax = Generation_syntax_shallow ocl_deep_mode
-
-datatype hol_ml_extended = Ml_extended sml_expr_extended
-
-datatype hol_thy_extended = (* pure Isabelle *)
-                            Isab_thy hol_thy
-
-                            (* bootstrapping embedded languages *)
-                          | Isab_thy_generation_syntax hol_generation_syntax
-                          | Isab_thy_ml_extended hol_ml_extended
-                          | Isab_thy_ocl_deep_embed_ast ocl_deep_embed_ast
-
-subsection{* ... *}
-
-definition "Thy_dataty = Isab_thy o Theory_dataty"
-definition "Thy_ty_synonym = Isab_thy o Theory_ty_synonym"
-definition "Thy_instantiation_class = Isab_thy o Theory_instantiation_class"
-definition "Thy_defs_overloaded = Isab_thy o Theory_defs_overloaded"
-definition "Thy_consts_class = Isab_thy o Theory_consts_class"
-definition "Thy_definition_hol = Isab_thy o Theory_definition_hol"
-definition "Thy_lemmas_simp = Isab_thy o Theory_lemmas_simp"
-definition "Thy_lemma_by = Isab_thy o Theory_lemma_by"
-definition "Thy_axiom = Isab_thy o Theory_axiom"
-definition "Thy_section_title = Isab_thy o Theory_section_title"
-definition "Thy_text = Isab_thy o Theory_text"
-definition "Thy_ml = Isab_thy o Theory_ml"
-definition "Thy_thm = Isab_thy o Theory_thm"
 
 subsection{* ... *}
 
