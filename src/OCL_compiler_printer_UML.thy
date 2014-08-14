@@ -301,21 +301,6 @@ definition "i_of_ocl_ty a b = (\<lambda>f1 f2 f3 f4 f5 f6 f7. ocl_ty_rec f1 f2 f
   (ar2 a (b ''OclTy_collection'') (i_of_ocl_collection b))
   (ap1 a (b ''OclTy_raw'') (i_of_string a b))"
 
-definition "i_of_ocl_class a b = (\<lambda>f0 f1 f2 f3 f4. ocl_class_rec_1 (co2 K (ar3 a f0 f1 f2)) f3 (\<lambda>_ _. f4))
-  (b ''OclClass'')
-    (i_of_string a b)
-    (i_of_list a b (i_of_pair a b (i_of_string a b) (i_of_ocl_ty a b)))
-    (* *)
-    (b i_Nil)
-    (ar2 a (b i_Cons) id)"
-
-definition "i_of_ocl_class_raw a b f = ocl_class_raw_rec
-  (ap4 a (b (ext ''ocl_class_raw_ext''))
-    (i_of_string a b)
-    (i_of_list a b (i_of_pair a b (i_of_string a b) (i_of_ocl_ty a b)))
-    (i_of_option a b (i_of_string a b))
-    (f a b))"
-
 definition "i_of_ocl_association_type a b = ocl_association_type_rec
   (b ''OclAssTy_association'')
   (b ''OclAssTy_composition'')
@@ -326,11 +311,6 @@ definition "i_of_ocl_association a b f = ocl_association_rec
     (i_of_ocl_association_type a b)
     (i_of_list a b (i_of_pair a b (i_of_string a b) (i_of_pair a b (i_of_ocl_multiplicity a b) (i_of_option a b (i_of_string a b)))))
     (f a b))"
-
-definition "i_of_ocl_ass_class a b = ocl_ass_class_rec
-  (ap2 a (b ''OclAssClass'')
-    (i_of_ocl_association a b (K i_of_unit))
-    (i_of_ocl_class_raw a b (K i_of_unit)))"
 
 definition "i_of_ocl_def_base a b = ocl_def_base_rec
   (ap1 a (b ''OclDefInteger'') (i_of_string a b))
@@ -395,14 +375,35 @@ definition "i_of_ocl_ctxt_pre_post a b f = ocl_ctxt_pre_post_rec
     (i_of_list a b (i_of_pair a b (i_of_ocl_ctxt_prefix a b) (i_of_ocl_ctxt_term a b)))
     (f a b))"
 
-definition "i_of_ocl_ctxt2_pre_post = i_of_ocl_ctxt_pre_post"
-
 definition "i_of_ocl_ctxt_inv a b f = ocl_ctxt_inv_rec
   (ap3 a (b (ext ''ocl_ctxt_inv_ext''))
     (i_of_string a b)
     (i_of_list a b (i_of_pair a b (i_of_string a b) (i_of_ocl_ctxt_term a b)))
     (f a b))"
 
+definition "i_of_ocl_class a b = (\<lambda>f0 f1 f2 f3 f4. ocl_class_rec_1 (co2 K (ar3 a f0 f1 f2)) f3 (\<lambda>_ _. f4))
+  (b ''OclClass'')
+    (i_of_string a b)
+    (i_of_list a b (i_of_pair a b (i_of_string a b) (i_of_ocl_ty a b)))
+    (* *)
+    (b i_Nil)
+    (ar2 a (b i_Cons) id)"
+
+definition "i_of_ocl_class_raw a b f = ocl_class_raw_rec
+  (ap4 a (b (ext ''ocl_class_raw_ext''))
+    (i_of_string a b)
+    (i_of_list a b (i_of_pair a b (i_of_string a b) (i_of_ocl_ty a b)))
+    (i_of_option a b (i_of_string a b))
+    (f a b))"
+
+definition "i_of_ocl_ass_class a b = ocl_ass_class_rec
+  (ap2 a (b ''OclAssClass'')
+    (i_of_ocl_association a b (K i_of_unit))
+    (i_of_ocl_class_raw a b (K i_of_unit)))"
+
+(* *)
+
+definition "i_of_ocl_ctxt2_pre_post = i_of_ocl_ctxt_pre_post"
 definition "i_of_ocl_ctxt2_inv = i_of_ocl_ctxt_inv"
 
 end
@@ -425,11 +426,8 @@ lemmas [code] =
   i_of.i_of_ocl_ty_class_node_def
   i_of.i_of_ocl_ty_class_def
   i_of.i_of_ocl_ty_def
-  i_of.i_of_ocl_class_def
-  i_of.i_of_ocl_class_raw_def
   i_of.i_of_ocl_association_type_def
   i_of.i_of_ocl_association_def
-  i_of.i_of_ocl_ass_class_def
   i_of.i_of_ocl_def_base_def
   i_of.i_of_ocl_data_shallow_base_def
   i_of.i_of_ocl_data_shallow_def
@@ -443,8 +441,12 @@ lemmas [code] =
   i_of.i_of_ocl_ctxt_prefix_def
   i_of.i_of_ocl_ctxt_term_def
   i_of.i_of_ocl_ctxt_pre_post_def
-  i_of.i_of_ocl_ctxt2_pre_post_def
   i_of.i_of_ocl_ctxt_inv_def
+  i_of.i_of_ocl_class_def
+  i_of.i_of_ocl_class_raw_def
+  i_of.i_of_ocl_ass_class_def
+  (* *)
+  i_of.i_of_ocl_ctxt2_pre_post_def
   i_of.i_of_ocl_ctxt2_inv_def
 
 end

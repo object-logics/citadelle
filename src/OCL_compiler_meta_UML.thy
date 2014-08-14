@@ -83,21 +83,6 @@ record ocl_operation = Op_args :: "(string \<times> ocl_ty) list"
                        Op_pre :: "(string \<times> string) list"
                        Op_post :: "(string \<times> string) list"
 
-datatype ocl_class =   OclClass
-                         string (* name of the class *)
-                         "(string (* name *) \<times> ocl_ty) list" (* attribute *)
-                         (*"(string (* name *) \<times> ocl_operation) list" (* contract *)
-                         "(string (* name *) \<times> string) list" (* invariant *) *)
-                         "ocl_class list" (* link to subclasses *)
-
-record ocl_class_raw = ClassRaw_name :: string
-                       ClassRaw_own :: "(string (* name *) \<times> ocl_ty) list" (* attribute *)
-                      (*ClassRaw_contract :: "(string (* name *) \<times> ocl_operation) list" (* contract *)
-                       ClassRaw_inv :: "(string (* name *) \<times> string) list" (* invariant *) *)
-                       ClassRaw_inh :: "string option" (* superclass *)
-
-
-
 datatype ocl_association_type = OclAssTy_association
                               | OclAssTy_composition
                               | OclAssTy_aggregation
@@ -105,7 +90,6 @@ record ocl_association =        OclAss_type     :: ocl_association_type
                                 OclAss_relation :: "( string (* name class *)
                                                     \<times> ocl_multiplicity (* multiplicity *)
                                                     \<times> string option (* role *)) list"
-datatype ocl_ass_class =        OclAssClass ocl_association ocl_class_raw
 
 datatype ocl_def_base = OclDefInteger "string" (* integer digit *)
                       | OclDefReal "string (* integer digit (left) *) \<times> string (* integer digit (right) *)"
@@ -154,14 +138,23 @@ record ocl_ctxt_pre_post = Ctxt_ty :: string (* class ty *)
                            Ctxt_fun_ty_out :: "ocl_ty option" (* None : Void *)
                            Ctxt_expr :: "(ocl_ctxt_prefix \<times> ocl_ctxt_term (* expr *)) list"
 
-type_synonym ocl_ctxt2_pre_post = ocl_ctxt_pre_post
-
 record ocl_ctxt_inv =      Ctxt_inv_ty :: string
                            Ctxt_inv_expr :: "(string (* name *) \<times> ocl_ctxt_term (* expr *)) list"
 
-type_synonym ocl_ctxt2_inv = ocl_ctxt_inv
+datatype ocl_class =   OclClass
+                         string (* name of the class *)
+                         "(string (* name *) \<times> ocl_ty) list" (* attribute *)
+                         (*"(string (* name *) \<times> ocl_operation) list" (* contract *)
+                         "(string (* name *) \<times> string) list" (* invariant *) *)
+                         "ocl_class list" (* link to subclasses *)
 
+record ocl_class_raw = ClassRaw_name :: string
+                       ClassRaw_own :: "(string (* name *) \<times> ocl_ty) list" (* attribute *)
+                      (*ClassRaw_contract :: "(string (* name *) \<times> ocl_operation) list" (* contract *)
+                       ClassRaw_inv :: "(string (* name *) \<times> string) list" (* invariant *) *)
+                       ClassRaw_inh :: "string option" (* superclass *)
 
+datatype ocl_ass_class =        OclAssClass ocl_association ocl_class_raw
 
 subsection{* Class Translation Preliminaries *}
 

@@ -98,14 +98,16 @@ definition "i_of_ocl_deep_embed_ast a b = ocl_deep_embed_ast_rec
   (ap1 a (b ''OclAstClassRaw'') (i_of_ocl_class_raw a b (K i_of_unit)))
   (ap1 a (b ''OclAstAssociation'') (i_of_ocl_association a b (K i_of_unit)))
   (ap1 a (b ''OclAstAssClass'') (i_of_ocl_ass_class a b))
+  (ap1 a (b ''OclAstCtxtPrePost'') (i_of_ocl_ctxt_pre_post a b (K i_of_unit)))
+  (ap1 a (b ''OclAstCtxtInv'') (i_of_ocl_ctxt_inv a b (K i_of_unit)))
+
+  (ap1 a (b ''OclAstCtxt2PrePost'') (i_of_ocl_ctxt2_pre_post a b (K i_of_unit)))
+  (ap1 a (b ''OclAstCtxt2Inv'') (i_of_ocl_ctxt2_inv a b (K i_of_unit)))
+
   (ap1 a (b ''OclAstInstance'') (i_of_ocl_instance a b))
   (ap1 a (b ''OclAstDefBaseL'') (i_of_ocl_def_base_l a b))
   (ap1 a (b ''OclAstDefState'') (i_of_ocl_def_state a b))
   (ap1 a (b ''OclAstDefPrePost'') (i_of_ocl_def_pre_post a b))
-  (ap1 a (b ''OclAstCtxtPrePost'') (i_of_ocl_ctxt_pre_post a b (K i_of_unit)))
-  (ap1 a (b ''OclAstCtxt2PrePost'') (i_of_ocl_ctxt2_pre_post a b (K i_of_unit)))
-  (ap1 a (b ''OclAstCtxtInv'') (i_of_ocl_ctxt_inv a b (K i_of_unit)))
-  (ap1 a (b ''OclAstCtxt2Inv'') (i_of_ocl_ctxt2_inv a b (K i_of_unit)))
   (ap1 a (b ''OclAstFlushAll'') (i_of_ocl_flush_all a b))"
 
 definition "i_of_ocl_deep_mode a b = ocl_deep_mode_rec

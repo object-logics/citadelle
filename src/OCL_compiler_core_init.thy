@@ -53,18 +53,30 @@ section{* Configuration of the Set of Meta in Input *}
 
 datatype ocl_flush_all = OclFlushAll
 
+(* *)
+
+type_synonym ocl_ctxt2_pre_post = ocl_ctxt_pre_post
+type_synonym ocl_ctxt2_inv = ocl_ctxt_inv
+
+(* *)
+
 (* le meta-model de "tout le monde" - frederic. *)
-datatype ocl_deep_embed_ast = OclAstClassRaw ocl_class_raw
+datatype ocl_deep_embed_ast = (* USE *)
+                              OclAstClassRaw ocl_class_raw
                             | OclAstAssociation ocl_association
                             | OclAstAssClass ocl_ass_class
+                            | OclAstCtxtPrePost ocl_ctxt_pre_post
+                            | OclAstCtxtInv ocl_ctxt_inv
+
+                              (* USE reflected 1 time *)
+                            | OclAstCtxt2PrePost ocl_ctxt2_pre_post
+                            | OclAstCtxt2Inv ocl_ctxt2_inv
+
+                              (* invented *)
                             | OclAstInstance ocl_instance
                             | OclAstDefBaseL ocl_def_base_l
                             | OclAstDefState ocl_def_state
                             | OclAstDefPrePost ocl_def_pre_post
-                            | OclAstCtxtPrePost ocl_ctxt_pre_post
-                            | OclAstCtxt2PrePost ocl_ctxt2_pre_post
-                            | OclAstCtxtInv ocl_ctxt_inv
-                            | OclAstCtxt2Inv ocl_ctxt2_inv
                             | OclAstFlushAll ocl_flush_all
 
 datatype ocl_deep_mode = Gen_design | Gen_analysis
