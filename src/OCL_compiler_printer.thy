@@ -45,7 +45,6 @@ header{* Part ... *}
 
 theory  OCL_compiler_printer
 imports OCL_compiler_core
-        OCL_compiler_parser_META
         OCL_compiler_printer_META
 begin
 
