@@ -56,10 +56,11 @@ generation_syntax [ deep
                                "../src/OCL_compiler_generator_dynamic")
                       SECTION
                       [ in SML module_name M (no_signatures) ]
-                      (output_directory "../doc") ]
+                      (output_directory "../doc")
+                  (*, syntax_print*) ]
 
 Class Person < Planet
-  Attributes salary : \<acute>int\<acute>
+  Attributes salary : Integer (*\<acute>int\<acute>*)
 End
 
 Association boss
@@ -68,13 +69,13 @@ Association boss
 End
 
 Class Planet < Galaxy
-  Attributes wormhole : \<acute>nat\<acute>
-             weight : \<acute>int\<acute>
+  Attributes wormhole : UnlimitedNatural
+             weight : Integer
 End
 
 Class Galaxy
-  Attributes sound : \<acute>unit\<acute>
-             moving : \<acute>bool\<acute>
+  Attributes sound : Void
+             moving : Boolean
 End
 
 (* wishlist:
@@ -83,8 +84,6 @@ Class Galaxy
              outerworld : Galaxy
 End
 *)
-
-Define_base [ 1000, 1200, 1300, 1800, 2600, 2900, 3200, 3500 ]
 
 Instance X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n1 :: Person = [ salary = 1300 , boss = X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2 ]
      and X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2 :: Person = [ salary = 1800 , boss = X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2 ]
@@ -118,11 +117,11 @@ Define_state \<sigma>\<^sub>1' =
             , X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n8
             , X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n9 ] ]
 
-Define_state \<sigma>\<^sub>0 = []
+(*Define_state \<sigma>\<^sub>0 = []*)
 
 Define_pre_post \<sigma>\<^sub>1 \<sigma>\<^sub>1'
 
-Context Person :: contents () : Set(\<acute>int\<acute>)
+Context Person :: contents () : Set(Integer)
   Post : `result \<triangleq> if (self .boss \<doteq> null)
                    then (Set{}->including(self .salary))
                    else (self .boss .contents()->including(self .salary))
@@ -133,18 +132,12 @@ Context Person :: contents () : Set(\<acute>int\<acute>)
 Context Person
   Inv a: `self .boss <> null implies (self .salary  \<triangleq>  ((self .boss) .salary))`
 
-(* wishlist:
-Context Person :: contents () : Set(Integer)
-  Post : `result \<triangleq> if (self .boss \<doteq> null)
-                   then (Set{}->including(self .salary))
-                   else (self .boss .contents()->including(self .salary))
-                   endif`
-  Post : `true`
-  Pre : `false`
-*)
-
 Context Planet
   Inv A : `true and (self .weight \<le>\<^sub>i\<^sub>n\<^sub>t \<zero>)`
+
+(*Define_base [ 1000, 1200, 1300, 1800, 2600, 2900, 3200, 3500
+            , 3.14159265
+            , "abc", "\<AA>\<BB>\<CC>\<DD>\<EE>\<FF>" ]*)
 
 (*generation_syntax deep flush_all*)
 
