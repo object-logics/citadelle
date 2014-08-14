@@ -286,4 +286,29 @@ definition "s_of_thm _ = (\<lambda> Thm thm \<Rightarrow> sprintf1 (STR ''thm %s
 
 end
 
+lemmas [code] =
+  (* def *)
+  s_of.s_of_dataty_def
+  s_of.s_of_ty_synonym_def
+  s_of.s_of_instantiation_class_def
+  s_of.s_of_defs_overloaded_def
+  s_of.s_of_consts_class_def
+  s_of.s_of_definition_hol_def
+  s_of.s_of_ntheorem_def
+  s_of.s_of_ntheorem_list_def
+  s_of.s_of_lemmas_simp_def
+  s_of.s_of_tactic_last_def
+  s_of.s_of_tac_apply_def
+  s_of.s_of_lemma_by_def
+  s_of.s_of_axiom_def
+  s_of.s_of_text_def
+  s_of.s_of_ml_def
+  s_of.s_of_thm_def
+
+  (* fun *)
+  s_of.s_of_rawty.simps
+  s_of.s_of_expr.simps
+  s_of.s_of_ntheorem_aux.simps
+  s_of.s_of_tactic.simps
+
 end

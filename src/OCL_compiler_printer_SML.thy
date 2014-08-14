@@ -70,4 +70,9 @@ fun_quick s_of_sexpr where "s_of_sexpr e = (\<lambda>
 
 end
 
+lemmas [code] =
+  (* def *)
+  (* fun *)
+  s_of.s_of_sexpr.simps
+
 end

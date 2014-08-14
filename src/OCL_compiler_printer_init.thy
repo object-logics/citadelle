@@ -466,4 +466,10 @@ begin
 definition "To_oid = internal_oid_rec To_nat"
 end
 
+lemmas [code] =
+  (* def *)
+  s_of.To_oid_def
+
+  (* fun *)
+
 end

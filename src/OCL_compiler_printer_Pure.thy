@@ -60,4 +60,9 @@ fun_quick s_of_pure_term where "s_of_pure_term e = (\<lambda>
 
 end
 
+lemmas [code] =
+  (* def *)
+  (* fun *)
+  s_of.s_of_pure_term.simps
+
 end
