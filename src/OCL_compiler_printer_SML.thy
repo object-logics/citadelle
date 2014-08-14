@@ -44,8 +44,8 @@
 header{* Part ... *}
 
 theory  OCL_compiler_printer_SML
-imports OCL_compiler_printer_init
-        OCL_compiler_meta_SML
+imports OCL_compiler_meta_SML
+        OCL_compiler_printer_oid
 begin
 
 

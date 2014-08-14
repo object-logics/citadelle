@@ -3,7 +3,7 @@
  *                       for the OMG Standard.
  *                       http://www.brucker.ch/projects/hol-testgen/
  *
- * OCL_compiler_meta_SML.thy ---
+ * OCL_compiler_printer_oid.thy ---
  * This file is part of HOL-TestGen.
  *
  * Copyright (c) 2013-2014 Universite Paris-Sud, France
@@ -43,36 +43,22 @@
 
 header{* Part ... *}
 
-theory  OCL_compiler_meta_SML
-imports OCL_compiler_meta_oid
+theory  OCL_compiler_printer_oid
+imports OCL_compiler_printer_init
+        OCL_compiler_meta_oid
 begin
 
-section{* SML Meta-Model aka. AST definition of SML *}
-subsection{* type definition *}
+subsection{* s of ... *} (* s_of *)
 
-datatype sml_expr = Sexpr_string "string list"
-                  | Sexpr_rewrite_val sml_expr (* left *) string (* symb rewriting *) sml_expr (* right *)
-                  | Sexpr_rewrite_fun sml_expr (* left *) string (* symb rewriting *) sml_expr (* right *)
-                  | Sexpr_basic "string list"
-                  | Sexpr_oid string (* prefix *) internal_oid
-                  | Sexpr_binop sml_expr string sml_expr
-                  | Sexpr_annot sml_expr string (* type *)
-                  | Sexpr_function "(sml_expr (* pattern *) \<times> sml_expr (* to return *)) list"
-                  | Sexpr_apply string "sml_expr list"
-                  | Sexpr_paren string (* left *) string (* right *) sml_expr
-                  | Sexpr_let_open string sml_expr
+context s_of
+begin
+definition "To_oid = internal_oid_rec To_nat"
+end
 
-section{* ... *}
+lemmas [code] =
+  (* def *)
+  s_of.To_oid_def
 
-definition "Sexpr_none = Sexpr_basic [''NONE'']"
-definition "Sexpr_some s = Sexpr_apply ''SOME'' [s]"
-definition "Sexpr_option' f l = (case Option.map f l of None \<Rightarrow> Sexpr_none | Some s \<Rightarrow> Sexpr_some s)"
-definition "Sexpr_option = Sexpr_option' id"
-definition "Sexpr_parenthesis (* mandatory parenthesis *) = Sexpr_paren ''('' '')''"
-definition "sexpr_binop s l = (case rev l of x # xs \<Rightarrow> List.fold (\<lambda>x. Sexpr_binop x s) xs x)"
-definition "Sexpr_list l = (case l of [] \<Rightarrow> Sexpr_basic [''[]''] | _ \<Rightarrow> Sexpr_paren ''['' '']'' (sexpr_binop '','' l))"
-definition "Sexpr_list' f l = Sexpr_list (List_map f l)"
-definition "Sexpr_pair e1 e2 = Sexpr_parenthesis (Sexpr_binop e1 '','' e2)"
-definition "Sexpr_pair' f1 f2 = (\<lambda> (e1, e2) \<Rightarrow> Sexpr_parenthesis (Sexpr_binop (f1 e1) '','' (f2 e2)))"
+  (* fun *)
 
 end

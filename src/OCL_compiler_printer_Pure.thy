@@ -44,8 +44,8 @@
 header{* Part ... *}
 
 theory  OCL_compiler_printer_Pure
-imports OCL_compiler_printer_init
-        OCL_compiler_meta_Pure
+imports OCL_compiler_meta_Pure
+        OCL_compiler_printer_init
 begin
 
 

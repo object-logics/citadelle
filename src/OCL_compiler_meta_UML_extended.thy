@@ -44,7 +44,7 @@
 header{* Part ... *}
 
 theory  OCL_compiler_meta_UML_extended
-imports OCL_compiler_meta_Pure
+imports OCL_compiler_meta_oid
 begin
 
 section{* OCL Meta-Model aka. AST definition of OCL *}

@@ -44,7 +44,8 @@
 header{* Part ... *}
 
 theory  OCL_compiler_printer_init
-imports OCL_compiler_init
+imports "~~/src/HOL/Library/Code_Char"
+        OCL_compiler_init
   keywords (* hol syntax *)
            "lazy_code_printing" "apply_code_printing" "apply_code_printing_reflect"
            :: thy_decl
@@ -462,14 +463,5 @@ subsection{* ... *}
 locale s_of =
   fixes To_string :: "string \<Rightarrow> ml_string"
   fixes To_nat :: "nat \<Rightarrow> ml_int"
-begin
-definition "To_oid = internal_oid_rec To_nat"
-end
-
-lemmas [code] =
-  (* def *)
-  s_of.To_oid_def
-
-  (* fun *)
 
 end

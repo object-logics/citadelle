@@ -45,9 +45,6 @@ header{* Part ... *}
 
 theory OCL_compiler_init
 imports OCL_compiler_static
-        "~~/src/HOL/Library/RBT"
-        "~~/src/HOL/Library/Char_ord"
-        "~~/src/HOL/Library/List_lexord"
   keywords (* hol syntax *)
            "fun_sorry" "fun_quick"
            :: thy_decl
@@ -56,63 +53,7 @@ begin
 section{* ... *}
 
 type_synonym nat = natural
-
-section{* Preliminaries Compiler *}
-
-subsection{* Oid-Management *}
-
 definition "Succ x = x + 1"
-
-datatype internal_oid = Oid nat
-datatype internal_oids = Oids nat (* start *)
-                              nat (* oid for assoc (incremented from start) *)
-                              nat (* oid for inh (incremented from start) *)
-
-definition "oidInit = (\<lambda> Oid n \<Rightarrow> Oids n n n)"
-
-definition "oidSucAssoc = (\<lambda> Oids n1 n2 n3 \<Rightarrow> Oids n1 (Succ n2) (Succ n3))"
-definition "oidSucInh = (\<lambda> Oids n1 n2 n3 \<Rightarrow> Oids n1 n2 (Succ n3))"
-definition "oidGetAssoc = (\<lambda> Oids _ n _ \<Rightarrow> Oid n)"
-definition "oidGetInh = (\<lambda> Oids _ _ n \<Rightarrow> Oid n)"
-
-definition "oidReinitAll = (\<lambda>Oids n1 _ _ \<Rightarrow> Oids n1 n1 n1)"
-definition "oidReinitInh = (\<lambda>Oids n1 n2 _ \<Rightarrow> Oids n1 n2 n2)"
-
-
-subsection{* RBT Miscellaneous *}
-
-subsection{* ... *} (* optimized data-structure version *)
-
-datatype opt_attr_type = OptInh | OptOwn
-datatype opt_ident = OptIdent nat
-
-instantiation internal_oid :: linorder
-begin
- definition "n_of_internal_oid = (\<lambda> Oid n \<Rightarrow> n)"
- definition "n \<le> m \<longleftrightarrow> n_of_internal_oid n \<le> n_of_internal_oid m"
- definition "n < m \<longleftrightarrow> n_of_internal_oid n < n_of_internal_oid m"
- instance
-   apply(default)
-   apply (metis less_eq_internal_oid_def less_imp_le less_internal_oid_def not_less)
-   apply (metis less_eq_internal_oid_def order_refl)
-   apply (metis less_eq_internal_oid_def order.trans)
-   apply(simp add: less_eq_internal_oid_def n_of_internal_oid_def, case_tac x, case_tac y, simp)
- by (metis le_cases less_eq_internal_oid_def)
-end
-
-instantiation opt_ident :: linorder
-begin
- definition "n_of_opt_ident = (\<lambda> OptIdent n \<Rightarrow> n)"
- definition "n \<le> m \<longleftrightarrow> n_of_opt_ident n \<le> n_of_opt_ident m"
- definition "n < m \<longleftrightarrow> n_of_opt_ident n < n_of_opt_ident m"
- instance
- apply(default)
- apply (metis less_eq_opt_ident_def less_imp_le less_opt_ident_def not_less)
- apply (metis less_eq_opt_ident_def order_refl)
-   apply (metis less_eq_opt_ident_def order.trans)
-   apply(simp add: less_eq_opt_ident_def n_of_opt_ident_def, case_tac x, case_tac y, simp)
- by (metis le_cases less_eq_opt_ident_def)
-end
 
 subsection{* ... *}
 
@@ -126,9 +67,6 @@ definition "fold_list f l accu =
   (let (l, accu) = List.fold (\<lambda>x (l, accu). let (x, accu) = f x accu in (x # l, accu)) l ([], accu) in
    (rev l, accu))"
 definition "char_escape = Char Nibble0 Nibble9"
-definition "modify_def v k f rbt =
-  (case lookup rbt k of None \<Rightarrow> insert k (f v) rbt
-                      | Some _ \<Rightarrow> map_entry k f rbt)"
 definition "Option_bind f = (\<lambda> None \<Rightarrow> None | Some x \<Rightarrow> f x)"
 definition "List_assoc x1 l = List.fold (\<lambda>(x2, v). \<lambda>None \<Rightarrow> if x1 = x2 then Some v else None | x \<Rightarrow> x) l None"
 definition "List_split l = (List_map fst l, List_map snd l)"
@@ -146,8 +84,6 @@ definition "List_replace_gen f_res l c0 lby =
   of (l, lgen) \<Rightarrow> f_res (l # lgen))"
 definition "List_nsplit l c0 = List_replace_gen id l c0 []"
 definition "List_replace = List_replace_gen flatten"
-definition "lookup2 rbt = (\<lambda>(x1, x2). Option_bind (\<lambda>rbt. lookup rbt x2) (lookup rbt x1))"
-definition "insert2 = (\<lambda>(x1, x2) v. modify_def empty x1 (insert x2 v))"
 
 definition "String_concatWith s =
  (\<lambda> [] \<Rightarrow> ''''
@@ -278,47 +214,5 @@ definition "unicode_times = escape_unicode ''times''"
 definition "unicode_triangleq = escape_unicode ''triangleq''"
 definition "unicode_Turnstile = escape_unicode ''Turnstile''"
 definition "unicode_upsilon = escape_unicode ''upsilon''"
-
-definition "const_oclastype = ''OclAsType''"
-definition "const_oclistypeof = ''OclIsTypeOf''"
-definition "const_ocliskindof = ''OclIsKindOf''"
-definition "const_mixfix dot_ocl name = (let t = \<lambda>s. Char Nibble2 Nibble7 # s in
-                                         flatten [dot_ocl, t ''('', name, t '')''])"
-definition "const_oid_of s = flatten [''oid_of_'', s]"
-definition "dot_oclastype = ''.oclAsType''"
-definition "dot_oclistypeof = ''.oclIsTypeOf''"
-definition "dot_ocliskindof = ''.oclIsKindOf''"
-definition "dot_astype = mk_dot_par dot_oclastype"
-definition "dot_istypeof = mk_dot_par dot_oclistypeof"
-definition "dot_iskindof = mk_dot_par dot_ocliskindof"
-
-definition "var_in_pre_state = ''in_pre_state''"
-definition "var_in_post_state = ''in_post_state''"
-definition "var_reconst_basetype = ''reconst_basetype''"
-definition "var_oid_uniq = ''oid''"
-definition "var_eval_extract = ''eval_extract''"
-definition "var_deref = ''deref''"
-definition "var_deref_oid = ''deref_oid''"
-definition "var_deref_assocs = ''deref_assocs''"
-definition "var_deref_assocs_list = ''deref_assocs_list''"
-definition "var_inst_assoc = ''inst_assoc''"
-definition "var_select = ''select''"
-definition "var_select_object = ''select_object''"
-definition "var_select_object_set = ''select_object_set''"
-definition "var_select_object_set_any = ''select_object_set_any''"
-definition "var_choose = ''choose''"
-definition "var_switch = ''switch''"
-definition "var_assocs = ''assocs''"
-definition "var_map_of_list = ''map_of_list''"
-definition "var_at_when_hol_post = ''''"
-definition "var_at_when_hol_pre = ''at_pre''"
-definition "var_at_when_ocl_post = ''''"
-definition "var_at_when_ocl_pre = ''@pre''"
-definition "var_OclInteger = ''OclInt''"
-definition "var_OclReal = ''OclReal''"
-definition "var_OclString = ''OclString''"
-
-definition "update_D_accessor_rbt_pre f = (\<lambda>(l_pre, l_post). (f l_pre, l_post))"
-definition "update_D_accessor_rbt_post f = (\<lambda>(l_pre, l_post). (l_pre, f l_post))"
 
 end

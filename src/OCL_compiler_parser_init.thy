@@ -44,7 +44,7 @@
 header{* Part ... *}
 
 theory  OCL_compiler_parser_init
-imports OCL_compiler_init
+imports Main
 begin
 
 definition "K x _ = x"
@@ -119,25 +119,11 @@ definition "i_of_option a b f = option_rec
   (b i_None)
   (ap1 a (b i_Some) f)"
 
-(* *)
-
-definition "i_of_internal_oid a b = internal_oid_rec
-  (ap1 a (b ''Oid'') (i_of_nat a b))"
-
-definition "i_of_internal_oids a b = internal_oids_rec
-  (ap3 a (b ''Oids'')
-    (i_of_nat a b)
-    (i_of_nat a b)
-    (i_of_nat a b))"
-
 end
 
 lemmas [code] =
   i_of.i_of_pair_def
   i_of.i_of_list_def
   i_of.i_of_option_def
-  (* *)
-  i_of.i_of_internal_oid_def
-  i_of.i_of_internal_oids_def
 
 end

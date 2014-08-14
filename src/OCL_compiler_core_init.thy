@@ -45,10 +45,83 @@ header{* Part ... *}
 
 theory  OCL_compiler_core_init
 imports OCL_compiler_meta_META
-        "~~/src/HOL/Library/Code_Char"
 begin
 
-section{* ... *}
+section{* Preliminaries Compiler *}
+
+subsection{* RBT Miscellaneous *}
+
+subsection{* ... *} (* optimized data-structure version *)
+
+datatype opt_attr_type = OptInh | OptOwn
+datatype opt_ident = OptIdent nat
+
+instantiation internal_oid :: linorder
+begin
+ definition "n_of_internal_oid = (\<lambda> Oid n \<Rightarrow> n)"
+ definition "n \<le> m \<longleftrightarrow> n_of_internal_oid n \<le> n_of_internal_oid m"
+ definition "n < m \<longleftrightarrow> n_of_internal_oid n < n_of_internal_oid m"
+ instance
+   apply(default)
+   apply (metis less_eq_internal_oid_def less_imp_le less_internal_oid_def not_less)
+   apply (metis less_eq_internal_oid_def order_refl)
+   apply (metis less_eq_internal_oid_def order.trans)
+   apply(simp add: less_eq_internal_oid_def n_of_internal_oid_def, case_tac x, case_tac y, simp)
+ by (metis le_cases less_eq_internal_oid_def)
+end
+
+instantiation opt_ident :: linorder
+begin
+ definition "n_of_opt_ident = (\<lambda> OptIdent n \<Rightarrow> n)"
+ definition "n \<le> m \<longleftrightarrow> n_of_opt_ident n \<le> n_of_opt_ident m"
+ definition "n < m \<longleftrightarrow> n_of_opt_ident n < n_of_opt_ident m"
+ instance
+ apply(default)
+ apply (metis less_eq_opt_ident_def less_imp_le less_opt_ident_def not_less)
+ apply (metis less_eq_opt_ident_def order_refl)
+   apply (metis less_eq_opt_ident_def order.trans)
+   apply(simp add: less_eq_opt_ident_def n_of_opt_ident_def, case_tac x, case_tac y, simp)
+ by (metis le_cases less_eq_opt_ident_def)
+end
+
+subsection{* ... *}
+
+definition "const_oclastype = ''OclAsType''"
+definition "const_oclistypeof = ''OclIsTypeOf''"
+definition "const_ocliskindof = ''OclIsKindOf''"
+definition "const_mixfix dot_ocl name = (let t = \<lambda>s. Char Nibble2 Nibble7 # s in
+                                         flatten [dot_ocl, t ''('', name, t '')''])"
+definition "const_oid_of s = flatten [''oid_of_'', s]"
+definition "dot_oclastype = ''.oclAsType''"
+definition "dot_oclistypeof = ''.oclIsTypeOf''"
+definition "dot_ocliskindof = ''.oclIsKindOf''"
+definition "dot_astype = mk_dot_par dot_oclastype"
+definition "dot_istypeof = mk_dot_par dot_oclistypeof"
+definition "dot_iskindof = mk_dot_par dot_ocliskindof"
+
+definition "var_reconst_basetype = ''reconst_basetype''"
+definition "var_oid_uniq = ''oid''"
+definition "var_eval_extract = ''eval_extract''"
+definition "var_deref = ''deref''"
+definition "var_deref_oid = ''deref_oid''"
+definition "var_deref_assocs = ''deref_assocs''"
+definition "var_deref_assocs_list = ''deref_assocs_list''"
+definition "var_inst_assoc = ''inst_assoc''"
+definition "var_select = ''select''"
+definition "var_select_object = ''select_object''"
+definition "var_select_object_set = ''select_object_set''"
+definition "var_select_object_set_any = ''select_object_set_any''"
+definition "var_choose = ''choose''"
+definition "var_switch = ''switch''"
+definition "var_assocs = ''assocs''"
+definition "var_map_of_list = ''map_of_list''"
+definition "var_OclInteger = ''OclInt''"
+definition "var_OclReal = ''OclReal''"
+definition "var_OclString = ''OclString''"
+
+definition "update_D_accessor_rbt_pre f = (\<lambda>(l_pre, l_post). (f l_pre, l_post))"
+definition "update_D_accessor_rbt_post f = (\<lambda>(l_pre, l_post). (l_pre, f l_post))"
+
 subsection{* ... *}
 
 definition "find_class_ass ocl =

@@ -45,6 +45,7 @@ header{* Part ... *}
 
 theory  OCL_compiler_meta_UML
 imports OCL_compiler_meta_Pure
+        OCL_compiler_init_rbt
 begin
 
 section{* OCL Meta-Model aka. AST definition of OCL *}
@@ -334,6 +335,13 @@ fun_quick fold_less_gen where "fold_less_gen f_gen f_jump f l = (case l of
 definition "fold_less2 = fold_less_gen List.fold"
 
 section{* Translation of AST *}
+
+definition "var_in_pre_state = ''in_pre_state''"
+definition "var_in_post_state = ''in_post_state''"
+definition "var_at_when_hol_post = ''''"
+definition "var_at_when_hol_pre = ''at_pre''"
+definition "var_at_when_ocl_post = ''''"
+definition "var_at_when_ocl_pre = ''@pre''"
 
 datatype 'a tmp_sub = Tsub 'a
 record 'a inheritance =
