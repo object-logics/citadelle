@@ -86,42 +86,6 @@ record ocl_association =        OclAss_type     :: ocl_association_type
                                                     \<times> ocl_multiplicity (* multiplicity *)
                                                     \<times> string option (* role *)) list"
 
-datatype ocl_def_base = OclDefInteger "string" (* integer digit *)
-                      | OclDefReal "string (* integer digit (left) *) \<times> string (* integer digit (right) *)"
-                      | OclDefString "string"
-
-datatype ocl_data_shallow_base = ShallB_term ocl_def_base
-                               | ShallB_str string (* binding *)
-                               | ShallB_self internal_oid
-datatype ocl_data_shallow =      Shall_base ocl_data_shallow_base
-                               | Shall_list "ocl_data_shallow_base list"
-
-datatype 'a ocl_list_attr = OclAttrNoCast 'a (* inh, own *)
-                          | OclAttrCast
-                              string (* cast from *)
-                              "'a ocl_list_attr" (* cast entity *)
-                              'a (* inh, own *)
-
-record ocl_instance_single = Inst_name :: string
-                             Inst_ty :: string (* type *)
-                             Inst_attr :: "((string (*name*) \<times> ocl_data_shallow) list) (* inh and own *)
-                                           ocl_list_attr"
-
-datatype ocl_instance = OclInstance "ocl_instance_single list" (* mutual recursive *)
-
-datatype ocl_def_base_l = OclDefBase "ocl_def_base list"
-
-datatype 'a ocl_def_state_core = OclDefCoreAdd ocl_instance_single
-                               | OclDefCoreSkip
-                               | OclDefCoreBinding 'a
-
-datatype ocl_def_state = OclDefSt  string (* name *)
-                                  "string (* name *) ocl_def_state_core list"
-
-datatype ocl_def_pre_post = OclDefPP
-                              string (* pre *)
-                              string (* post *)
-
 datatype ocl_ctxt_prefix = OclCtxtPre | OclCtxtPost
 
 datatype ocl_ctxt_term = T_pure pure_term

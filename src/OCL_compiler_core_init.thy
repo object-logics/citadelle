@@ -45,6 +45,7 @@ header{* Part ... *}
 
 theory  OCL_compiler_core_init
 imports OCL_compiler_meta_UML
+        OCL_compiler_meta_UML_extended
         OCL_compiler_meta_Isabelle
         "~~/src/HOL/Library/Code_Char"
 begin
