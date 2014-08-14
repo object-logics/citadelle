@@ -70,8 +70,6 @@ lemmas substs4 = OCL_core.StrongEq_L_subst4_rev
                  
 lemmas substs = substs1 substs2 substs4 [THEN iffD2] substs4
 thm substs
-thm  OCL_core.foundation20 
-find_theorems "_ \<Turnstile> \<delta> _"
 ML{*
 fun ocl_subst_asm_tac ctxt  = FIRST'(map (fn C => (etac C) THEN' (simp_tac ctxt)) 
                                          @{thms "substs"})

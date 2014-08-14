@@ -45,7 +45,7 @@ theory  OCL_collection_type_Sequence
 imports OCL_Types OCL_core OCL_lib_common OCL_basic_type_Boolean OCL_basic_type_Integer 
 begin
 
-section{* The Collection Sequence Type Operations *}
+section{* Collection Type Sequence: Operations *}
 
 subsection{* Constants on Sequences: mtSequence *}
 definition mtSequence::"('\<AA>,'\<alpha>::null) Sequence"  ("Seq{}")

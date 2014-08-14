@@ -337,65 +337,6 @@ lemma [simp,code_unfold]: "(false \<triangleq> true) = false"
 by(rule ext, auto simp: StrongEq_def)
 
 
-text{*
-  In contrast, referential equality behaves differently for all
-  types---on value types, it is basically strong equality for defined
-  values, but on object types it will compare references---we
-  introduce it as an \emph{overloaded} concept and will handle it for
-  each type instance individually.
-*}
-consts StrictRefEq :: "[('\<AA>,'a)val,('\<AA>,'a)val] \<Rightarrow> ('\<AA>)Boolean" (infixl "\<doteq>" 30)
-
-
-text{*
-  Here is a first instance of a definition of weak equality---for
-  the special case of the type @{typ "('\<AA>)Boolean"}, it is just
-  the strict extension of the logical
-  equality:
-*}
-defs   StrictRefEq\<^sub>B\<^sub>o\<^sub>o\<^sub>l\<^sub>e\<^sub>a\<^sub>n[code_unfold] :
-      "(x::('\<AA>)Boolean) \<doteq> y \<equiv> \<lambda> \<tau>. if (\<upsilon> x) \<tau> = true \<tau> \<and> (\<upsilon> y) \<tau> = true \<tau>
-                                    then (x \<triangleq> y)\<tau>
-                                    else invalid \<tau>"
-
-text{* which implies elementary properties like: *}
-lemma [simp,code_unfold] : "(true \<doteq> false) = false"
-by(simp add:StrictRefEq\<^sub>B\<^sub>o\<^sub>o\<^sub>l\<^sub>e\<^sub>a\<^sub>n)
-lemma [simp,code_unfold] : "(false \<doteq> true) = false"
-by(simp add:StrictRefEq\<^sub>B\<^sub>o\<^sub>o\<^sub>l\<^sub>e\<^sub>a\<^sub>n)
-
-lemma [simp,code_unfold] : "(invalid \<doteq> false) = invalid"
-by(simp add:StrictRefEq\<^sub>B\<^sub>o\<^sub>o\<^sub>l\<^sub>e\<^sub>a\<^sub>n false_def true_def)
-lemma [simp,code_unfold] : "(invalid \<doteq> true) = invalid"
-by(simp add:StrictRefEq\<^sub>B\<^sub>o\<^sub>o\<^sub>l\<^sub>e\<^sub>a\<^sub>n false_def true_def)
-
-lemma [simp,code_unfold] : "(false \<doteq> invalid) = invalid"
-by(simp add:StrictRefEq\<^sub>B\<^sub>o\<^sub>o\<^sub>l\<^sub>e\<^sub>a\<^sub>n false_def true_def)
-lemma [simp,code_unfold] : "(true \<doteq> invalid) = invalid"
-by(simp add:StrictRefEq\<^sub>B\<^sub>o\<^sub>o\<^sub>l\<^sub>e\<^sub>a\<^sub>n false_def true_def)
-
-lemma [simp,code_unfold] : "((invalid::('\<AA>)Boolean) \<doteq> invalid) = invalid"
-by(simp add:StrictRefEq\<^sub>B\<^sub>o\<^sub>o\<^sub>l\<^sub>e\<^sub>a\<^sub>n false_def true_def)
-text{* Thus, the weak equality is \emph{not} reflexive. *}
-
-lemma null_non_false [simp,code_unfold]:"(null \<doteq> false) = false"
- apply(rule ext, simp add: StrictRefEq\<^sub>B\<^sub>o\<^sub>o\<^sub>l\<^sub>e\<^sub>a\<^sub>n StrongEq_def false_def)
-by (metis drop.simps cp_valid false_def is_none_code(2) is_none_def valid4
-          bot_option_def null_fun_def null_option_def)
-
-lemma null_non_true [simp,code_unfold]:"(null \<doteq> true) = false"
- apply(rule ext, simp add: StrictRefEq\<^sub>B\<^sub>o\<^sub>o\<^sub>l\<^sub>e\<^sub>a\<^sub>n StrongEq_def false_def)
-by(simp add: true_def bot_option_def null_fun_def null_option_def)
-
-lemma false_non_null [simp,code_unfold]:"(false \<doteq> null) = false"
- apply(rule ext, simp add: StrictRefEq\<^sub>B\<^sub>o\<^sub>o\<^sub>l\<^sub>e\<^sub>a\<^sub>n StrongEq_def false_def)
-by (metis drop.simps cp_valid false_def is_none_code(2) is_none_def valid4
-          bot_option_def null_fun_def null_option_def )
-
-lemma true_non_null [simp,code_unfold]:"(true \<doteq> null) = false"
- apply(rule ext, simp add: StrictRefEq\<^sub>B\<^sub>o\<^sub>o\<^sub>l\<^sub>e\<^sub>a\<^sub>n StrongEq_def false_def)
-by(simp add: true_def bot_option_def null_fun_def null_option_def)
-
 subsubsection{* Fundamental Predicates on Strong Equality *}
 
 text{* Equality reasoning in OCL is not humpty dumpty. While strong equality
@@ -481,13 +422,6 @@ where     "not X \<equiv>  \<lambda> \<tau> . case X \<tau> of
                                \<bottom>     \<Rightarrow> \<bottom>
                            | \<lfloor> \<bottom> \<rfloor>   \<Rightarrow> \<lfloor> \<bottom> \<rfloor>
                            | \<lfloor>\<lfloor> x \<rfloor>\<rfloor>  \<Rightarrow> \<lfloor>\<lfloor> \<not> x \<rfloor>\<rfloor>"
-
-text{* with {term "not"} we can express the notation:*}
-
-syntax
-  "notequal"        :: "('\<AA>)Boolean \<Rightarrow> ('\<AA>)Boolean \<Rightarrow> ('\<AA>)Boolean"   (infix "<>" 40)
-translations
-  "a <> b" == "CONST OclNot( a \<doteq> b)"
 
 
 
@@ -772,9 +706,6 @@ subsection{* A Standard Logical Calculus for OCL *}
 (* Besides the need for algebraic laws for OCL in order to normalize *)
 definition OclValid  :: "[('\<AA>)st, ('\<AA>)Boolean] \<Rightarrow> bool" ("(1(_)/ \<Turnstile> (_))" 50)
 where     "\<tau> \<Turnstile> P \<equiv> ((P \<tau>) = true \<tau>)"
-
-Assert "\<tau> \<Turnstile> true <> false"
-Assert "\<tau> \<Turnstile> false <> true"
 
 subsubsection{* Global vs. Local Judgements*}
 lemma transform1: "P = true \<Longrightarrow> \<tau> \<Turnstile> P"

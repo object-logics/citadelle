@@ -48,7 +48,7 @@ theory OCL_lib_common
 imports  OCL_core
 begin
 
-section{* Common Library Infrastructure *}
+section{* Property Profiles for OCL Operators via Isabelle Locales *}
 
 text{* We use the Isabelle mechanism of a \emph{Locale} to generate the
 common lemmas for each type and operator; Locales can be seen as a 
@@ -119,6 +119,16 @@ begin
       qed
 end
 
+
+text{*
+In our context, we will use Locales as ``Property Profiles'' for OCL operators;
+if an operator @{term "f"} is of profile @{term "binop_infra defined f g"} we know
+that it satisfies a number of properties like @{text "strict1"} or @{text "strict2"}
+\ie{} @{term "f invalid y = invalid"} and @{term "f null y = invalid"}.
+Since some of the more advanced Locales come with 10 - 15 theorems, property profiles
+represent a major structuring mechanism for the OCL library.
+*}
+
 locale binop_infra1 =
    fixes f::"('\<AA>,'a::null)val \<Rightarrow> ('\<AA>,'b::null)val \<Rightarrow> ('\<AA>,'c::null)val"
    fixes g::"'a::null \<Rightarrow> 'b::null \<Rightarrow> 'c::null"
@@ -160,5 +170,85 @@ sublocale binop_infra2 < binop_infra valid
    apply(rule const_valid, simp)
   apply(rule def_scheme)
  by (metis OclValid_def def_body def_scheme foundation16 foundation18')
+ 
+ 
+ 
+ 
+ 
+ 
+text{* TODO : Deeper Integration of this Locale*}
+
+locale binop_property_profile3 =
+   fixes f :: "('\<AA>,'\<alpha>::null)val \<Rightarrow> ('\<AA>,'\<alpha>::null)val \<Rightarrow> ('\<AA>) Boolean"
+   assumes def_scheme: "(f x y) \<equiv> \<lambda> \<tau>. if (\<upsilon> x) \<tau> = true \<tau> \<and> (\<upsilon> y) \<tau> = true \<tau>
+                                        then (x \<triangleq> y)\<tau>
+                                        else invalid \<tau>"
+   begin
+      (* side calculi *)
+      lemma cp0 : "f X Y \<tau> = f (\<lambda> _. X \<tau>) (\<lambda> _. Y \<tau>) \<tau>"
+      by(simp add: def_scheme  cp_valid[symmetric] cp_StrongEq[symmetric])
+      
+      lemma cp[simp] : " cp P \<Longrightarrow> cp Q \<Longrightarrow> cp (\<lambda>X. f (P X) (Q X))"
+      by(rule OCL_core.cpI2[of "f"], intro allI, rule cp0, simp_all)
+
+      lemma const[simp] : 
+            assumes C1 :"const X" and C2 : "const Y"  shows  "const(f X Y)"
+            by(simp_all add : def_scheme const_ss C1 C2 )
+         
+      (* strictness *)
+      lemma strict2[simp,code_unfold]: "(f invalid y) = invalid"
+      by(rule ext, rename_tac \<tau>, simp add: def_scheme true_def false_def)
+
+      lemma strict1[simp,code_unfold]: " f x invalid = invalid"
+      by(rule ext, simp add: def_scheme true_def false_def)
+
+      lemma idem[simp,code_unfold]: " f null null = true"
+      by(rule ext, simp add: def_scheme true_def false_def)
+
+      (* definedness *)
+      lemma def_homo[simp]: "\<delta>(f x y) = (\<upsilon> x and \<upsilon> y)"
+         apply(rule ext, rename_tac "\<tau>")
+         apply(subst cp_defined)
+         apply(simp add: def_scheme)
+         apply(case_tac "(\<upsilon> x) \<tau> = true \<tau>", simp_all)
+          apply(case_tac "(\<upsilon> y) \<tau> = true \<tau>", 
+                simp_all add: foundation22[symmetric] cp_defined[symmetric])
+           apply(erule OCL_core.StrongEq_L_subst2_rev, simp,simp)
+           apply(erule OCL_core.StrongEq_L_subst2_rev, simp,simp)
+          apply(erule OCL_core.StrongEq_L_subst2_rev, simp,simp)
+          apply(simp_all add: foundation13)
+          apply(erule  OCL_core.foundation7'[THEN iffD2, 
+                                              THEN OCL_core.foundation15[THEN iffD2, 
+                                                THEN OCL_core.StrongEq_L_subst2_rev]],simp, simp)+
+         done
+      
+      lemma defined_args_valid: "(\<tau> \<Turnstile> \<delta> (f x y)) = ((\<tau> \<Turnstile> \<upsilon> x) \<and> (\<tau> \<Turnstile> \<upsilon> y))"
+         by(simp add: foundation27)
+
+      (* logic and algebraic proerties *)                  
+      lemma refl_ext[simp,code_unfold] : "(f x x) = (if (\<upsilon> x) then true else invalid endif)"
+         by(rule ext, simp add: def_scheme OclIf_def)
+      
+      lemma sym : "\<tau> \<Turnstile> (f x y) \<Longrightarrow> \<tau> \<Turnstile> (f y x)"  
+         apply(case_tac "\<tau> \<Turnstile> \<upsilon> x")
+          apply(auto simp: def_scheme OclValid_def)
+         by(fold OclValid_def, erule StrongEq_L_sym)
+
+      lemma symmetric : "(f x y) = (f y x)"  
+         by(rule ext, rename_tac \<tau>, auto simp: def_scheme StrongEq_sym)
+      
+      lemma trans : "\<tau> \<Turnstile> (f x y) \<Longrightarrow> \<tau> \<Turnstile> (f y z) \<Longrightarrow> \<tau> \<Turnstile> (f x z)"  
+         apply(case_tac "\<tau> \<Turnstile> \<upsilon> x")
+          apply(case_tac "\<tau> \<Turnstile> \<upsilon> y")
+           apply(auto simp: def_scheme OclValid_def)
+         by(fold OclValid_def, auto elim: StrongEq_L_trans)
+         
+      lemma StrictRefEq_vs_StrongEq: "\<tau> \<Turnstile>(\<upsilon> x) \<Longrightarrow> \<tau> \<Turnstile>(\<upsilon> y) \<Longrightarrow> (\<tau> \<Turnstile> ((f x y) \<triangleq> (x \<triangleq> y)))"
+         apply(simp add: def_scheme OclValid_def)
+         apply(subst cp_StrongEq[of _ "(x \<triangleq> y)"])
+         by simp
+         
+   end
+
 
 end

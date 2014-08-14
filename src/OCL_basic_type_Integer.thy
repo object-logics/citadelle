@@ -42,7 +42,7 @@
 (* $Id:$ *)
 
 theory  OCL_basic_type_Integer
-imports OCL_lib_common OCL_Types
+imports OCL_Types OCL_basic_type_Boolean 
 begin
 
 section{* Basic Types Integer: Operations *}
@@ -230,7 +230,10 @@ defs   StrictRefEq\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r[code_
                                     then (x \<triangleq> y) \<tau>
                                     else invalid \<tau>"
                                     
-
+text{* Property prof in terms of @{term "binop_property_profile3"}*}
+interpretation  StrictRefEq\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r : binop_property_profile3 "\<lambda> x y. (x::('\<AA>)Integer) \<doteq> y" 
+         by unfold_locales (auto simp: StrictRefEq\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r)
+                                            
 subsubsection{* Test Statements *}
 text{* Here follows a list of code-examples, that explain the meanings
 of the above definitions by compilation to code and execution to @{term "True"}.*}
@@ -243,70 +246,12 @@ Assert "  \<tau> \<Turnstile> (((\<nine> *\<^sub>i\<^sub>n\<^sub>t \<four>) div\
 Assert "  \<tau> \<Turnstile> not (\<delta> (\<one> div\<^sub>i\<^sub>n\<^sub>t \<zero>)) "
 Assert "  \<tau> \<Turnstile> not (\<upsilon> (\<one> div\<^sub>i\<^sub>n\<^sub>t \<zero>)) "
 
+Assert   "\<tau> \<Turnstile> ((\<zero> <\<^sub>i\<^sub>n\<^sub>t \<two>) and (\<zero> <\<^sub>i\<^sub>n\<^sub>t \<one>))"
 
-Assert "\<tau> \<Turnstile> \<one> <> \<two>"
-Assert "\<tau> \<Turnstile> \<two> <> \<one>"
-Assert "\<tau> \<Turnstile> \<two> \<doteq> \<two>"
+Assert "\<tau> \<Turnstile> (\<one> <> \<two>)"
+Assert "\<tau> \<Turnstile> (\<two> <> \<one>)"
+Assert "\<tau> \<Turnstile> (\<two> \<doteq> \<two>)"
 
-
-subsubsection{* Validity and Definedness Properties (I) *}
-
-lemma StrictRefEq\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r_defined_args_valid:
-"(\<tau> \<Turnstile> \<delta>((x::('\<AA>)Integer) \<doteq> y)) = ((\<tau> \<Turnstile>(\<upsilon> x)) \<and> (\<tau> \<Turnstile>(\<upsilon> y)))"
-by(auto simp: StrictRefEq\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r OclValid_def true_def valid_def false_def StrongEq_def
-              defined_def invalid_def null_fun_def bot_fun_def null_option_def bot_option_def
-        split: bool.split_asm HOL.split_if_asm option.split)
-
-subsubsection{* Validity and Definedness Properties (II) *}
-
-lemma StrictRefEq\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r_defargs:
-"\<tau> \<Turnstile> ((x::('\<AA>)Integer) \<doteq> y) \<Longrightarrow> (\<tau> \<Turnstile> (\<upsilon> x)) \<and> (\<tau> \<Turnstile> (\<upsilon> y))"
-by(simp add: StrictRefEq\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r OclValid_def true_def invalid_def valid_def bot_option_def
-           split: bool.split_asm HOL.split_if_asm)
-
-subsubsection{* Validity and Definedness Properties (III) Miscellaneous *}
-
-lemma StrictRefEq\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r_strict'' : "\<delta> ((x::('\<AA>)Integer) \<doteq> y) = (\<upsilon>(x) and \<upsilon>(y))"
-by(auto intro!: transform2_rev defined_and_I simp:foundation10 StrictRefEq\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r_defined_args_valid)
-
-(* Probably not very useful *)
-lemma StrictRefEq\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r_strict :
-  assumes A: "\<upsilon> (x::('\<AA>)Integer) = true"
-  and     B: "\<upsilon> y = true"
-  shows   "\<upsilon> (x \<doteq> y) = true"
-  apply(insert A B)
-  apply(rule ext, simp add: StrongEq_def StrictRefEq\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r true_def valid_def defined_def
-                            bot_fun_def bot_option_def)
-  done
-
-
-(* Probably not very useful *)
-lemma StrictRefEq\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r_strict' :
-  assumes A: "\<upsilon> (((x::('\<AA>)Integer)) \<doteq> y) = true"
-  shows      "\<upsilon> x = true \<and> \<upsilon> y = true"
-  apply(insert A, rule conjI)
-   apply(rule ext, rename_tac \<tau>, drule_tac x=\<tau> in fun_cong)
-   prefer 2
-   apply(rule ext, rename_tac \<tau>, drule_tac x=\<tau> in fun_cong)
-   apply(simp_all add: StrongEq_def StrictRefEq\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r
-                       false_def true_def valid_def defined_def)
-   apply(case_tac "y \<tau>", auto)
-    apply(simp_all add: true_def invalid_def bot_fun_def)
-  done
-
-subsubsection{* Reflexivity *}
-
-lemma StrictRefEq\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r_refl[simp,code_unfold] :
-"((x::('\<AA>)Integer) \<doteq> x) = (if (\<upsilon> x) then true else invalid endif)"
-by(rule ext, simp add: StrictRefEq\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r OclIf_def)
-
-subsubsection{* Execution with Invalid or Null as Argument *}
-
-lemma StrictRefEq\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r_strict1[simp,code_unfold] : "((x::('\<AA>)Integer) \<doteq> invalid) = invalid"
-by(rule ext, simp add: StrictRefEq\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r true_def false_def)
-
-lemma StrictRefEq\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r_strict2[simp,code_unfold] : "(invalid \<doteq> (x::('\<AA>)Integer)) = invalid"
-by(rule ext, simp add: StrictRefEq\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r true_def false_def)
 
 lemma integer_non_null [simp]: "((\<lambda>_. \<lfloor>\<lfloor>n\<rfloor>\<rfloor>) \<doteq> (null::('\<AA>)Integer)) = false"
 by(rule ext,auto simp: StrictRefEq\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r valid_def
@@ -328,40 +273,6 @@ lemma OclInt8_non_null [simp,code_unfold]: "(\<eight> \<doteq> null) = false" by
 lemma null_non_OclInt8 [simp,code_unfold]: "(null \<doteq> \<eight>) = false" by(simp add: OclInt8_def)
 lemma OclInt9_non_null [simp,code_unfold]: "(\<nine> \<doteq> null) = false" by(simp add: OclInt9_def)
 lemma null_non_OclInt9 [simp,code_unfold]: "(null \<doteq> \<nine>) = false" by(simp add: OclInt9_def)
-
-
-(* plus all the others ...*)
-
-subsubsection{* Const *}
-
-lemma [simp,code_unfold]: "const(\<zero>)" by(simp add: const_ss OclInt0_def)
-lemma [simp,code_unfold]: "const(\<one>)" by(simp add: const_ss OclInt1_def)
-lemma [simp,code_unfold]: "const(\<two>)" by(simp add: const_ss OclInt2_def)
-lemma [simp,code_unfold]: "const(\<six>)" by(simp add: const_ss OclInt6_def)
-lemma [simp,code_unfold]: "const(\<eight>)" by(simp add: const_ss OclInt8_def)
-lemma [simp,code_unfold]: "const(\<nine>)" by(simp add: const_ss OclInt9_def)
-
-
-subsubsection{* Behavior vs StrongEq *}
-
-lemma StrictRefEq\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r_vs_StrongEq:
-"\<tau> \<Turnstile>(\<upsilon> x) \<Longrightarrow> \<tau> \<Turnstile>(\<upsilon> y) \<Longrightarrow> (\<tau> \<Turnstile> (((x::('\<AA>)Integer) \<doteq> y) \<triangleq> (x \<triangleq> y)))"
-apply(simp add: StrictRefEq\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r OclValid_def)
-apply(subst cp_StrongEq[of _ "(x \<triangleq> y)"])
-by simp
-
-
-subsubsection{* Context Passing *}
-
-lemma cp_StrictRefEq\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r:
-"((X::('\<AA>)Integer) \<doteq> Y) \<tau> = ((\<lambda> _. X \<tau>) \<doteq> (\<lambda> _. Y \<tau>)) \<tau>"
-by(auto simp: StrictRefEq\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r StrongEq_def valid_def  cp_defined[symmetric])
-
-
-lemmas cp_intro'\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r =
-       cp_StrictRefEq\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r[THEN allI[THEN allI[THEN allI[THEN cpI2]],  of "StrictRefEq"]]
-       OclAdd\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r.cp       OclMult\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r.cp       OclMult\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r.cp
-       OclLess\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r.cp      OclLe\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r.cp
 
 
 subsection{* Test Statements on Basic Integer (II) *}
@@ -390,6 +301,7 @@ Assert "\<not>(\<tau> \<Turnstile> (\<four> \<doteq> \<one>\<zero>))"
 Assert "  \<tau> \<Turnstile> (\<four> <> \<one>\<zero>)"
 Assert "\<not>(\<tau> \<Turnstile> (\<zero> <\<^sub>i\<^sub>n\<^sub>t null))"
 Assert "\<not>(\<tau> \<Turnstile> (\<delta> (\<zero> <\<^sub>i\<^sub>n\<^sub>t null)))"
+
 
 
 end

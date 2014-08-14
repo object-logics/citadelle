@@ -826,8 +826,8 @@ lemma cp_OclIsEmpty: "X->isEmpty() \<tau> = ((\<lambda>_. X \<tau>)->isEmpty()) 
  apply(subst (2) cp_OclOr,
        subst cp_OclAnd,
        subst cp_OclNot,
-       subst cp_StrictRefEq\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r)
-by(simp add: cp_defined[symmetric] cp_valid[symmetric] cp_StrictRefEq\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r[symmetric]
+       subst StrictRefEq\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r.cp0)
+by(simp add: cp_defined[symmetric] cp_valid[symmetric] StrictRefEq\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r.cp0[symmetric]
              cp_OclSize[symmetric] cp_OclNot[symmetric] cp_OclAnd[symmetric] cp_OclOr[symmetric])
 
 lemma cp_OclNotEmpty: "X->notEmpty() \<tau> = ((\<lambda>_. X \<tau>)->notEmpty()) \<tau>"
@@ -1622,14 +1622,15 @@ qed
 
 (* Hack to work around OF-Bug *)
 schematic_lemma OclExcluding_charn_exec\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r[simp,code_unfold]: "?X"
-by(rule OclExcluding_charn_exec[OF StrictRefEq\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r_strict1 StrictRefEq\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r_strict2
-                                StrictRefEq\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r_defined_args_valid
-                             cp_StrictRefEq\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r StrictRefEq\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r_vs_StrongEq], simp_all)
+by(rule OclExcluding_charn_exec[OF StrictRefEq\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r.strict1 StrictRefEq\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r.strict2
+                                StrictRefEq\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r.defined_args_valid
+                                StrictRefEq\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r.cp0 StrictRefEq\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r.StrictRefEq_vs_StrongEq], simp_all)
 
 schematic_lemma OclExcluding_charn_exec\<^sub>B\<^sub>o\<^sub>o\<^sub>l\<^sub>e\<^sub>a\<^sub>n[simp,code_unfold]: "?X"
-by(rule OclExcluding_charn_exec[OF StrictRefEq\<^sub>B\<^sub>o\<^sub>o\<^sub>l\<^sub>e\<^sub>a\<^sub>n_strict1 StrictRefEq\<^sub>B\<^sub>o\<^sub>o\<^sub>l\<^sub>e\<^sub>a\<^sub>n_strict2
-                                StrictRefEq\<^sub>B\<^sub>o\<^sub>o\<^sub>l\<^sub>e\<^sub>a\<^sub>n_defined_args_valid
-                             cp_StrictRefEq\<^sub>B\<^sub>o\<^sub>o\<^sub>l\<^sub>e\<^sub>a\<^sub>n StrictRefEq\<^sub>B\<^sub>o\<^sub>o\<^sub>l\<^sub>e\<^sub>a\<^sub>n_vs_StrongEq], simp_all)
+by(rule OclExcluding_charn_exec[OF StrictRefEq\<^sub>B\<^sub>o\<^sub>o\<^sub>l\<^sub>e\<^sub>a\<^sub>n.strict1 StrictRefEq\<^sub>B\<^sub>o\<^sub>o\<^sub>l\<^sub>e\<^sub>a\<^sub>n.strict2
+                                StrictRefEq\<^sub>B\<^sub>o\<^sub>o\<^sub>l\<^sub>e\<^sub>a\<^sub>n.defined_args_valid
+                             StrictRefEq\<^sub>B\<^sub>o\<^sub>o\<^sub>l\<^sub>e\<^sub>a\<^sub>n.cp0 StrictRefEq\<^sub>B\<^sub>o\<^sub>o\<^sub>l\<^sub>e\<^sub>a\<^sub>n.StrictRefEq_vs_StrongEq], simp_all)
+
 
 schematic_lemma OclExcluding_charn_exec\<^sub>S\<^sub>e\<^sub>t[simp,code_unfold]: "?X"
 by(rule OclExcluding_charn_exec[OF StrictRefEq\<^sub>S\<^sub>e\<^sub>t_strict1 StrictRefEq\<^sub>S\<^sub>e\<^sub>t_strict2
@@ -1772,15 +1773,15 @@ qed
 
 (* Hack to work around OF-Bug *)
 schematic_lemma OclIncludes_execute\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r[simp,code_unfold]: "?X"
-by(rule OclIncludes_execute_generic[OF StrictRefEq\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r_strict1 StrictRefEq\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r_strict2
-                                 cp_StrictRefEq\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r
-                                    StrictRefEq\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r_vs_StrongEq], simp_all)
+by(rule OclIncludes_execute_generic[OF StrictRefEq\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r.strict1 StrictRefEq\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r.strict2
+                                    StrictRefEq\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r.cp0
+                                    StrictRefEq\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r.StrictRefEq_vs_StrongEq], simp_all)
 
 
 schematic_lemma OclIncludes_execute\<^sub>B\<^sub>o\<^sub>o\<^sub>l\<^sub>e\<^sub>a\<^sub>n[simp,code_unfold]: "?X"
-by(rule OclIncludes_execute_generic[OF StrictRefEq\<^sub>B\<^sub>o\<^sub>o\<^sub>l\<^sub>e\<^sub>a\<^sub>n_strict1 StrictRefEq\<^sub>B\<^sub>o\<^sub>o\<^sub>l\<^sub>e\<^sub>a\<^sub>n_strict2
-                                 cp_StrictRefEq\<^sub>B\<^sub>o\<^sub>o\<^sub>l\<^sub>e\<^sub>a\<^sub>n
-                                    StrictRefEq\<^sub>B\<^sub>o\<^sub>o\<^sub>l\<^sub>e\<^sub>a\<^sub>n_vs_StrongEq], simp_all)
+by(rule OclIncludes_execute_generic[OF StrictRefEq\<^sub>B\<^sub>o\<^sub>o\<^sub>l\<^sub>e\<^sub>a\<^sub>n.strict1 StrictRefEq\<^sub>B\<^sub>o\<^sub>o\<^sub>l\<^sub>e\<^sub>a\<^sub>n.strict2
+                                    StrictRefEq\<^sub>B\<^sub>o\<^sub>o\<^sub>l\<^sub>e\<^sub>a\<^sub>n.cp0
+                                    StrictRefEq\<^sub>B\<^sub>o\<^sub>o\<^sub>l\<^sub>e\<^sub>a\<^sub>n.StrictRefEq_vs_StrongEq], simp_all)
 
 
 schematic_lemma OclIncludes_execute\<^sub>S\<^sub>e\<^sub>t[simp,code_unfold]: "?X"
@@ -1818,7 +1819,7 @@ show ?thesis
 qed
 
 lemmas OclIncludes_including\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r =
-       OclIncludes_including_generic[OF OclIncludes_execute\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r StrictRefEq\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r_strict'']
+       OclIncludes_including_generic[OF OclIncludes_execute\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r StrictRefEq\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r.def_homo]
 
 subsection{* OclExcludes *}
 
@@ -1953,9 +1954,9 @@ proof -
       by (case_tac " P \<tau> = \<bottom> \<or> P \<tau> = null", simp_all add: true_def)
 
  have B : "\<And>X \<tau>. \<tau> \<Turnstile> \<upsilon> X \<Longrightarrow> X \<tau> \<noteq> \<zero> \<tau> \<Longrightarrow> (X \<doteq> \<zero>) \<tau> = false \<tau>"
- by (metis OclAnd_true2 OclValid_def foundation16 foundation22 valid4
-           StrictRefEq\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r StrictRefEq\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r_strict' StrictRefEq\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r_strict''
-           bool_split invalid_def null_fun_def null_non_OclInt0)
+      apply(simp add: foundation22[symmetric] foundation14 foundation9)
+      apply(erule StrongEq_L_subst4_rev[THEN iffD2, OF StrictRefEq\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r.StrictRefEq_vs_StrongEq])
+      by(simp_all)
 
  show ?thesis
   apply(simp add: OclIsEmpty_def del: OclSize_including_exec)
@@ -2700,7 +2701,7 @@ proof -
   apply(rename_tac X'', case_tac X'', simp)
    apply (metis (hide_lams, no_types) foundation16[THEN iffD1,standard] null_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def)
   apply(simp add: OclIsEmpty_def OclSize_def)
-  apply(subst (asm) cp_OclNot, subst (asm) cp_OclOr, subst (asm) cp_StrictRefEq\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r,
+  apply(subst (asm) cp_OclNot, subst (asm) cp_OclOr, subst (asm) StrictRefEq\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r.cp0,
         subst (asm) cp_OclAnd, subst (asm) cp_OclNot)
   apply(simp only: OclValid_def foundation20[simplified OclValid_def]
                    cp_OclNot[symmetric] cp_OclAnd[symmetric] cp_OclOr[symmetric])
@@ -2731,7 +2732,7 @@ proof -
     apply(simp add: OclNotEmpty_def cp_valid[symmetric])
     apply(subgoal_tac "\<not> (null \<tau> \<in> \<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (X \<tau>)\<rceil>\<rceil>)", simp)
      apply(subst OclIsEmpty_def, simp add: OclSize_def)
-     apply(subst cp_OclNot, subst cp_OclOr, subst cp_StrictRefEq\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r, subst cp_OclAnd,
+     apply(subst cp_OclNot, subst cp_OclOr, subst StrictRefEq\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r.cp0, subst cp_OclAnd,
            subst cp_OclNot, simp add: OclValid_def foundation20[simplified OclValid_def]
                                       cp_OclNot[symmetric] cp_OclAnd[symmetric] cp_OclOr[symmetric])
      apply(frule notempty'[simplified OclValid_def],
@@ -2748,7 +2749,7 @@ proof -
     apply(subgoal_tac "X->size() \<tau> = \<bottom>")
      prefer 2
      apply (metis (hide_lams, no_types) OclSize_def)
-    apply(subst (asm) cp_OclNot, subst (asm) cp_OclOr, subst (asm) cp_StrictRefEq\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r,
+    apply(subst (asm) cp_OclNot, subst (asm) cp_OclOr, subst (asm) StrictRefEq\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r.cp0,
           subst (asm) cp_OclAnd, subst (asm) cp_OclNot)
     apply(simp add: OclValid_def foundation20[simplified OclValid_def]
                     cp_OclNot[symmetric] cp_OclAnd[symmetric] cp_OclOr[symmetric])

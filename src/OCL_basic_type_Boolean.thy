@@ -45,65 +45,79 @@ theory  OCL_basic_type_Boolean
 imports OCL_lib_common OCL_Types
 begin
 
-subsection{* Fundamental Predicates on Basic Types: Strict Equality *}
+subsection{* Fundamental Predicates on Basic Types: Strict (Referential) Equality *}
 
-subsubsection{* Validity and Definedness Properties (I) *}
+text{*
+  In contrast to logical equality, the OCL standard defines an equality operation
+  which we call ``strict referential equality''. It behaves differently for all
+  types---on value types, it is basically a strict version of strong equality, 
+  for defined values it behaves identical. But on object types it will compare 
+  their references within the store. We  introduce strict referential equality 
+  as an \emph{overloaded} concept and will handle it for
+  each type instance individually.
+*}
+consts StrictRefEq :: "[('\<AA>,'a)val,('\<AA>,'a)val] \<Rightarrow> ('\<AA>)Boolean" (infixl "\<doteq>" 30)
 
-lemma StrictRefEq\<^sub>B\<^sub>o\<^sub>o\<^sub>l\<^sub>e\<^sub>a\<^sub>n_defined_args_valid:
-"(\<tau> \<Turnstile> \<delta>((x::('\<AA>)Boolean) \<doteq> y)) = ((\<tau> \<Turnstile>(\<upsilon> x)) \<and> (\<tau> \<Turnstile>(\<upsilon> y)))"
-by(auto simp: StrictRefEq\<^sub>B\<^sub>o\<^sub>o\<^sub>l\<^sub>e\<^sub>a\<^sub>n OclValid_def true_def valid_def false_def StrongEq_def
-              defined_def invalid_def null_fun_def bot_fun_def null_option_def bot_option_def
-        split: bool.split_asm HOL.split_if_asm option.split)
+text{* with {term "not"} we can express the notation:*}
 
-subsubsection{* Validity and Definedness Properties (II) *}
-
-lemma StrictRefEq\<^sub>B\<^sub>o\<^sub>o\<^sub>l\<^sub>e\<^sub>a\<^sub>n_defargs:
-"\<tau> \<Turnstile> ((x::('\<AA>)Boolean) \<doteq> y) \<Longrightarrow> (\<tau> \<Turnstile> (\<upsilon> x)) \<and> (\<tau> \<Turnstile>(\<upsilon> y))"
-by(simp add: StrictRefEq\<^sub>B\<^sub>o\<^sub>o\<^sub>l\<^sub>e\<^sub>a\<^sub>n OclValid_def true_def invalid_def
-             bot_option_def
-        split: bool.split_asm HOL.split_if_asm)
-
-subsubsection{* Validity and Definedness Properties (III) Miscellaneous *}
-
-lemma StrictRefEq\<^sub>B\<^sub>o\<^sub>o\<^sub>l\<^sub>e\<^sub>a\<^sub>n_strict'' : "\<delta> ((x::('\<AA>)Boolean) \<doteq> y) = (\<upsilon>(x) and \<upsilon>(y))"
-by(auto intro!: transform2_rev defined_and_I simp:foundation10 StrictRefEq\<^sub>B\<^sub>o\<^sub>o\<^sub>l\<^sub>e\<^sub>a\<^sub>n_defined_args_valid)
-
-subsubsection{* Reflexivity *}
-
-lemma StrictRefEq\<^sub>B\<^sub>o\<^sub>o\<^sub>l\<^sub>e\<^sub>a\<^sub>n_refl[simp,code_unfold] :
-"((x::('\<AA>)Boolean) \<doteq> x) = (if (\<upsilon> x) then true else invalid endif)"
-by(rule ext, simp add: StrictRefEq\<^sub>B\<^sub>o\<^sub>o\<^sub>l\<^sub>e\<^sub>a\<^sub>n OclIf_def)
-
-subsubsection{* Execution with Invalid or Null as Argument *}
-
-lemma StrictRefEq\<^sub>B\<^sub>o\<^sub>o\<^sub>l\<^sub>e\<^sub>a\<^sub>n_strict1[simp,code_unfold] : "((x::('\<AA>)Boolean) \<doteq> invalid) = invalid"
-by(rule ext, simp add: StrictRefEq\<^sub>B\<^sub>o\<^sub>o\<^sub>l\<^sub>e\<^sub>a\<^sub>n true_def false_def)
-
-lemma StrictRefEq\<^sub>B\<^sub>o\<^sub>o\<^sub>l\<^sub>e\<^sub>a\<^sub>n_strict2[simp,code_unfold] : "(invalid \<doteq> (x::('\<AA>)Boolean)) = invalid"
-by(rule ext, simp add: StrictRefEq\<^sub>B\<^sub>o\<^sub>o\<^sub>l\<^sub>e\<^sub>a\<^sub>n true_def false_def)
-
-subsubsection{* Const *}
-
-subsubsection{* Behavior vs StrongEq *}
-
-lemma StrictRefEq\<^sub>B\<^sub>o\<^sub>o\<^sub>l\<^sub>e\<^sub>a\<^sub>n_vs_StrongEq:
-"\<tau> \<Turnstile>(\<upsilon> x) \<Longrightarrow> \<tau> \<Turnstile>(\<upsilon> y) \<Longrightarrow> (\<tau> \<Turnstile> (((x::('\<AA>)Boolean) \<doteq> y) \<triangleq> (x \<triangleq> y)))"
-apply(simp add: StrictRefEq\<^sub>B\<^sub>o\<^sub>o\<^sub>l\<^sub>e\<^sub>a\<^sub>n OclValid_def)
-apply(subst cp_StrongEq[of _ "(x \<triangleq> y)"])
-by simp
+syntax
+  "notequal"        :: "('\<AA>)Boolean \<Rightarrow> ('\<AA>)Boolean \<Rightarrow> ('\<AA>)Boolean"   (infix "<>" 40)
+translations
+  "a <> b" == "CONST OclNot( a \<doteq> b)"
 
 
-subsubsection{* Context Passing *}
+text{*
+  Here is a first instance of a definition of weak equality---for
+  the special case of the type @{typ "('\<AA>)Boolean"}, it is just
+  the strict extension of the logical
+  equality:
+*}
+defs   StrictRefEq\<^sub>B\<^sub>o\<^sub>o\<^sub>l\<^sub>e\<^sub>a\<^sub>n[code_unfold] :
+      "(x::('\<AA>)Boolean) \<doteq> y \<equiv> \<lambda> \<tau>. if (\<upsilon> x) \<tau> = true \<tau> \<and> (\<upsilon> y) \<tau> = true \<tau>
+                                    then (x \<triangleq> y)\<tau>
+                                    else invalid \<tau>"
 
-lemma cp_StrictRefEq\<^sub>B\<^sub>o\<^sub>o\<^sub>l\<^sub>e\<^sub>a\<^sub>n:
-"((X::('\<AA>)Boolean) \<doteq> Y) \<tau> = ((\<lambda> _. X \<tau>) \<doteq> (\<lambda> _. Y \<tau>)) \<tau>"
-by(auto simp: StrictRefEq\<^sub>B\<^sub>o\<^sub>o\<^sub>l\<^sub>e\<^sub>a\<^sub>n StrongEq_def defined_def valid_def  cp_defined[symmetric])
+text{* which implies elementary properties like: *}
+lemma [simp,code_unfold] : "(true \<doteq> false) = false"
+by(simp add:StrictRefEq\<^sub>B\<^sub>o\<^sub>o\<^sub>l\<^sub>e\<^sub>a\<^sub>n)
+lemma [simp,code_unfold] : "(false \<doteq> true) = false"
+by(simp add:StrictRefEq\<^sub>B\<^sub>o\<^sub>o\<^sub>l\<^sub>e\<^sub>a\<^sub>n)
 
-lemmas cp_intro'\<^sub>B\<^sub>o\<^sub>o\<^sub>l\<^sub>e\<^sub>a\<^sub>n =
-       cp_StrictRefEq\<^sub>B\<^sub>o\<^sub>o\<^sub>l\<^sub>e\<^sub>a\<^sub>n[THEN allI[THEN allI[THEN allI[THEN cpI2]], of "StrictRefEq"]]
+lemma null_non_false [simp,code_unfold]:"(null \<doteq> false) = false"
+ apply(rule ext, simp add: StrictRefEq\<^sub>B\<^sub>o\<^sub>o\<^sub>l\<^sub>e\<^sub>a\<^sub>n StrongEq_def false_def)
+ by (metis drop.simps cp_valid false_def is_none_code(2) is_none_def valid4
+           bot_option_def null_fun_def null_option_def)
+
+lemma null_non_true [simp,code_unfold]:"(null \<doteq> true) = false"
+ apply(rule ext, simp add: StrictRefEq\<^sub>B\<^sub>o\<^sub>o\<^sub>l\<^sub>e\<^sub>a\<^sub>n StrongEq_def false_def)
+ by(simp add: true_def bot_option_def null_fun_def null_option_def)
+
+lemma false_non_null [simp,code_unfold]:"(false \<doteq> null) = false"
+ apply(rule ext, simp add: StrictRefEq\<^sub>B\<^sub>o\<^sub>o\<^sub>l\<^sub>e\<^sub>a\<^sub>n StrongEq_def false_def)
+ by(metis drop.simps cp_valid false_def is_none_code(2) is_none_def valid4
+          bot_option_def null_fun_def null_option_def )
+
+lemma true_non_null [simp,code_unfold]:"(true \<doteq> null) = false"
+ apply(rule ext, simp add: StrictRefEq\<^sub>B\<^sub>o\<^sub>o\<^sub>l\<^sub>e\<^sub>a\<^sub>n StrongEq_def false_def)
+ by(simp add: true_def bot_option_def null_fun_def null_option_def)
+
+text{* With respect to strictness properties and miscelleaneous side-calculi,
+strict referential equality behaves on booleans as described in the
+@{term "binop_property_profile3"}:*}
+interpretation StrictRefEq\<^sub>B\<^sub>o\<^sub>o\<^sub>l\<^sub>e\<^sub>a\<^sub>n : binop_property_profile3 "\<lambda> x y. (x::('\<AA>)Boolean) \<doteq> y" 
+         by unfold_locales (auto simp:StrictRefEq\<^sub>B\<^sub>o\<^sub>o\<^sub>l\<^sub>e\<^sub>a\<^sub>n)
+         
+text{* In particular, it is strict, cp-preserving and const-preserving. In particular,
+it generates the simplifier rules for terms like:*}
+lemma "(invalid \<doteq> false) = invalid" by(simp)
+lemma "(invalid \<doteq> true) = invalid"  by(simp)
+lemma "(false \<doteq> invalid) = invalid" by(simp)
+lemma "(true \<doteq> invalid) = invalid"  by(simp)
+lemma "((invalid::('\<AA>)Boolean) \<doteq> invalid) = invalid" by(simp)
+text{* Thus, the weak equality is \emph{not} reflexive. *}
 
 
-subsection{* Test Statements on the Boolean Types. *}
+subsection{* Test Statements on Boolean Operations. *}
 text{* Here follows a list of code-examples, that explain the meanings
 of the above definitions by compilation to code and execution to @{term "True"}.*}
 
@@ -121,6 +135,8 @@ Assert "\<tau> \<Turnstile> ((null or null) \<doteq> null)"
 Assert "\<tau> \<Turnstile> ((true \<triangleq> false) \<triangleq> false)"
 Assert "\<tau> \<Turnstile> ((invalid \<triangleq> false) \<triangleq> false)"
 Assert "\<tau> \<Turnstile> ((invalid \<doteq> false) \<triangleq> invalid)"
+Assert "\<tau> \<Turnstile> (true <> false)"
+Assert "\<tau> \<Turnstile> (false <> true)"
 
 
 end
