@@ -3,7 +3,7 @@
  *                       for the OMG Standard.
  *                       http://www.brucker.ch/projects/hol-testgen/
  *
- * OCL_compiler_printer_UML.thy ---
+ * OCL_compiler_parser_UML.thy ---
  * This file is part of HOL-TestGen.
  *
  * Copyright (c) 2013-2014 Universite Paris-Sud, France
@@ -43,9 +43,9 @@
 
 header{* Part ... *}
 
-theory  OCL_compiler_printer_UML
+theory  OCL_compiler_parser_UML
 imports OCL_compiler_meta_UML
-        OCL_compiler_printer_aux
+        OCL_compiler_parser_init
 begin
 
 section{* Generation to both Form (setup part) *}

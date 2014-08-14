@@ -45,8 +45,8 @@ header{* Part ... *}
 
 theory  OCL_compiler_printer
 imports OCL_compiler_core
-        OCL_compiler_printer_UML
-        OCL_compiler_printer_UML_extended
+        OCL_compiler_parser_UML
+        OCL_compiler_parser_UML_extended
         OCL_compiler_printer_Isabelle
 begin
 
