@@ -55,10 +55,10 @@ datatype ocl_flush_all = OclFlushAll
 
 (* *)
 
-type_synonym ocl_class2_raw = ocl_class_raw
-type_synonym ocl_ass2_class = ocl_ass_class
-type_synonym ocl_ctxt2_pre_post = ocl_ctxt_pre_post
-type_synonym ocl_ctxt2_inv = ocl_ctxt_inv
+type_synonym ocl2_class_raw = ocl_class_raw
+type_synonym ocl2_ass_class = ocl_ass_class
+type_synonym ocl2_ctxt_pre_post = ocl_ctxt_pre_post
+type_synonym ocl2_ctxt_inv = ocl_ctxt_inv
 
 (* *)
 
@@ -71,10 +71,10 @@ datatype ocl_deep_embed_ast = (* USE *)
                             | OclAstCtxtInv ocl_ctxt_inv
 
                               (* USE reflected 1 time *)
-                            | OclAstClass2Raw ocl_class2_raw
-                            | OclAstAss2Class ocl_ass2_class
-                            | OclAstCtxt2PrePost ocl_ctxt2_pre_post
-                            | OclAstCtxt2Inv ocl_ctxt2_inv
+                            | Ocl2AstClassRaw ocl2_class_raw
+                            | Ocl2AstAssClass ocl2_ass_class
+                            | Ocl2AstCtxtPrePost ocl2_ctxt_pre_post
+                            | Ocl2AstCtxtInv ocl2_ctxt_inv
 
                               (* invented *)
                             | OclAstInstance ocl_instance
@@ -113,9 +113,9 @@ record ocl_compiler_config =  D_disable_thy_output :: bool
 
 subsection{* Auxilliary *}
 
-definition "map_ctxt2_term f = (\<lambda>
-    OclAstCtxt2PrePost ocl \<Rightarrow> OclAstCtxt2PrePost (Ctxt_expr_update (List_map (\<lambda>(s, x). (s, f x))) ocl)
-  | OclAstCtxt2Inv ocl \<Rightarrow> OclAstCtxt2Inv (Ctxt_inv_expr_update (List_map (\<lambda>(s, x). (s, f x))) ocl)
+definition "map2_ctxt_term f = (\<lambda>
+    Ocl2AstCtxtPrePost ocl \<Rightarrow> Ocl2AstCtxtPrePost (Ctxt_expr_update (List_map (\<lambda>(s, x). (s, f x))) ocl)
+  | Ocl2AstCtxtInv ocl \<Rightarrow> Ocl2AstCtxtInv (Ctxt_inv_expr_update (List_map (\<lambda>(s, x). (s, f x))) ocl)
   | x \<Rightarrow> x)"
 
 definition "ocl_compiler_config_more_map f ocl =

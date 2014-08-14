@@ -101,10 +101,10 @@ definition "i_of_ocl_deep_embed_ast a b = ocl_deep_embed_ast_rec
   (ap1 a (b ''OclAstCtxtPrePost'') (i_of_ocl_ctxt_pre_post a b (K i_of_unit)))
   (ap1 a (b ''OclAstCtxtInv'') (i_of_ocl_ctxt_inv a b (K i_of_unit)))
 
-  (ap1 a (b ''OclAstClass2Raw'') (i_of_ocl_class2_raw a b (K i_of_unit)))
-  (ap1 a (b ''OclAstAss2Class'') (i_of_ocl_ass2_class a b))
-  (ap1 a (b ''OclAstCtxt2PrePost'') (i_of_ocl_ctxt2_pre_post a b (K i_of_unit)))
-  (ap1 a (b ''OclAstCtxt2Inv'') (i_of_ocl_ctxt2_inv a b (K i_of_unit)))
+  (ap1 a (b ''Ocl2AstClassRaw'') (i_of_ocl_class2_raw a b (K i_of_unit)))
+  (ap1 a (b ''Ocl2AstAssClass'') (i_of_ocl_ass2_class a b))
+  (ap1 a (b ''Ocl2AstCtxtPrePost'') (i_of_ocl_ctxt2_pre_post a b (K i_of_unit)))
+  (ap1 a (b ''Ocl2AstCtxtInv'') (i_of_ocl_ctxt2_inv a b (K i_of_unit)))
 
   (ap1 a (b ''OclAstInstance'') (i_of_ocl_instance a b))
   (ap1 a (b ''OclAstDefBaseL'') (i_of_ocl_def_base_l a b))
@@ -352,7 +352,7 @@ definition "s_of_ctxt2_term = (\<lambda> T_pure pure \<Rightarrow> s_of_pure_ter
                                | T_to_be_parsed s \<Rightarrow> To_string s)"
 
 definition "s_of_ocl_deep_embed_ast _ =
- (\<lambda> OclAstCtxt2PrePost ctxt \<Rightarrow>
+ (\<lambda> Ocl2AstCtxtPrePost ctxt \<Rightarrow>
       sprintf5 (STR ''Context[shallow] %s :: %s (%s) %s
 %s'')
         (To_string (Ctxt_ty ctxt))
@@ -371,7 +371,7 @@ definition "s_of_ocl_deep_embed_ast _ =
                           | OclCtxtPost \<Rightarrow> STR ''Post'')
               (s_of_ctxt2_term s))
             (Ctxt_expr ctxt)))
-  | OclAstCtxt2Inv ctxt \<Rightarrow>
+  | Ocl2AstCtxtInv ctxt \<Rightarrow>
       sprintf2 (STR ''Context[shallow] %s
 %s'')
         (To_string (Ctxt_inv_ty ctxt))

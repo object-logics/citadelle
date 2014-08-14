@@ -83,27 +83,27 @@ definition "print_ctxt_gen_syntax_header f_x l ocl =
      # l
  , ocl \<lparr> D_generation_syntax_shallow := True \<rparr> )"
 
-definition "print_ctxt2_pre_post_name attr_n var_at_when_hol = hol_definition (print_ctxt_const_name attr_n var_at_when_hol)"
+definition "print_ctxt_pre_post_name attr_n var_at_when_hol = hol_definition (print_ctxt_const_name attr_n var_at_when_hol)"
 definition "print_ctxt_pre_post = (\<lambda>ctxt. print_ctxt_gen_syntax_header
   (\<lambda>l ocl.
     let (l_name, l_isab) = List_split (print_ctxt_const ctxt) in
     (l_isab @@ l, List.fold (\<lambda>f_update ocl. ocl \<lparr> D_accessor_rbt := f_update (D_accessor_rbt ocl) \<rparr>) l_name ocl))
-  [ Isab_thy_ocl_deep_embed_ast (OclAstCtxt2PrePost ctxt)
-  , print_ctxt_gen_syntax_header_l [print_ctxt2_pre_post_name (Ctxt_fun_name ctxt) var_at_when_hol_post] ])"
+  [ Isab_thy_ocl_deep_embed_ast (Ocl2AstCtxtPrePost ctxt)
+  , print_ctxt_gen_syntax_header_l [print_ctxt_pre_post_name (Ctxt_fun_name ctxt) var_at_when_hol_post] ])"
 
-definition "print_ctxt2_inv_name n tit var_at_when = hol_definition (flatten [n, ''_'', tit, var_at_when])"
+definition "print_ctxt_inv_name n tit var_at_when = hol_definition (flatten [n, ''_'', tit, var_at_when])"
 definition "print_ctxt_inv = (\<lambda>ctxt. print_ctxt_gen_syntax_header Pair
-  [ Isab_thy_ocl_deep_embed_ast (OclAstCtxt2Inv ctxt)
+  [ Isab_thy_ocl_deep_embed_ast (Ocl2AstCtxtInv ctxt)
   , print_ctxt_gen_syntax_header_l
       (flatten (List_map (\<lambda> (tit, _).
-        List_map (print_ctxt2_inv_name (Ctxt_inv_ty ctxt) tit)
+        List_map (print_ctxt_inv_name (Ctxt_inv_ty ctxt) tit)
           [ var_at_when_hol_pre
           , var_at_when_hol_post ]) (Ctxt_inv_expr ctxt))) ])"
 
 subsection{* context2 *}
 
 (* (* ERROR this lambda term type-checks expensively *)
-definition "print_ctxt2_is_accessor =
+definition "print_ctxt_is_accessor =
   (\<lambda> PureType ''fun''
                [PureType ''fun''
                        [PureType ''Product_Type.prod''
@@ -124,7 +124,7 @@ definition "print_ctxt2_is_accessor =
        \<Rightarrow> True
    | _ \<Rightarrow> False)"
 *)
-definition "print_ctxt2_is_name_at_gen var s =
+definition "print_ctxt_is_name_at_gen var s =
  (case var of _ # _ \<Rightarrow>
     let lg_var = length var in
     if List_take_last lg_var s = var then
@@ -132,12 +132,12 @@ definition "print_ctxt2_is_name_at_gen var s =
     else
       None)"
 
-definition "print_ctxt2_is_name_at_pre = print_ctxt2_is_name_at_gen var_at_when_hol_pre"
-definition "print_ctxt2_is_name_at_post = (case var_at_when_hol_post of [] \<Rightarrow>
-  \<lambda>s. case print_ctxt2_is_name_at_pre s of None \<Rightarrow> Some s
-                                         | _ \<Rightarrow> None)"
+definition "print_ctxt_is_name_at_pre = print_ctxt_is_name_at_gen var_at_when_hol_pre"
+definition "print_ctxt_is_name_at_post = (case var_at_when_hol_post of [] \<Rightarrow>
+  \<lambda>s. case print_ctxt_is_name_at_pre s of None \<Rightarrow> Some s
+                                        | _ \<Rightarrow> None)"
 
-definition "print_ctxt2_to_ocl_gen l_access f var = (\<lambda> T_pure t \<Rightarrow>
+definition "print_ctxt_to_ocl_gen l_access f var = (\<lambda> T_pure t \<Rightarrow>
   T_pure (map_Const (\<lambda> s ty.
     if (*print_ctxt2_is_accessor ty*)
        list_ex (case List_split_at (\<lambda> s. s = Char Nibble2 NibbleE) s of
@@ -149,10 +149,10 @@ definition "print_ctxt2_to_ocl_gen l_access f var = (\<lambda> T_pure t \<Righta
     else
       s) t))"
 
-definition "print_ctxt2_to_ocl_pre ocl = print_ctxt2_to_ocl_gen (snd (D_accessor_rbt ocl)) print_ctxt2_is_name_at_post var_at_when_hol_pre"
-definition "print_ctxt2_to_ocl_post ocl = print_ctxt2_to_ocl_gen (fst (D_accessor_rbt ocl)) print_ctxt2_is_name_at_pre var_at_when_hol_post"
+definition "print_ctxt_to_ocl_pre ocl = print_ctxt_to_ocl_gen (snd (D_accessor_rbt ocl)) print_ctxt_is_name_at_post var_at_when_hol_pre"
+definition "print_ctxt_to_ocl_post ocl = print_ctxt_to_ocl_gen (fst (D_accessor_rbt ocl)) print_ctxt_is_name_at_pre var_at_when_hol_post"
 
-definition "print_ctxt2_pre_post = fold_list (\<lambda>x ocl. (x ocl, ocl)) o (\<lambda> ctxt.
+definition "print_ctxt_pre_post' = fold_list (\<lambda>x ocl. (x ocl, ocl)) o (\<lambda> ctxt.
   let (l_pre, l_post) = List.partition (\<lambda> (OclCtxtPre, _) \<Rightarrow> True | _ \<Rightarrow> False) (Ctxt_expr ctxt)
     ; attr_n = Ctxt_fun_name ctxt
     ; a = \<lambda>f x. Expr_apply f [x]
@@ -165,7 +165,7 @@ definition "print_ctxt2_pre_post = fold_list (\<lambda>x ocl. (x ocl, ocl)) o (\
         let var_self = ''self''
           ; var_result = ''result'' in
         [ \<lambda>ocl. Thy_axiom (Axiom
-            (print_ctxt2_pre_post_name attr_n var_at_when_hol)
+            (print_ctxt_pre_post_name attr_n var_at_when_hol)
             (Expr_rewrite
               (Expr_parenthesis (f_tau (Expr_rewrite
                   (Expr_postunary (b var_self) (b (mk_dot_par_gen (flatten [''.'', attr_n, var_at_when_ocl]) (List_map fst (Ctxt_fun_ty_arg ctxt)))))
@@ -175,13 +175,13 @@ definition "print_ctxt2_pre_post = fold_list (\<lambda>x ocl. (x ocl, ocl)) o (\
               (Expr_parenthesis (Expr_if_then_else
                 (f_tau (a unicode_delta (b var_self)))
                 (Expr_warning_parenthesis (Expr_binop
-                  (to_s (print_ctxt2_to_ocl_pre ocl) l_pre)
+                  (to_s (print_ctxt_to_ocl_pre ocl) l_pre)
                   unicode_longrightarrow
-                  (to_s (print_ctxt2_to_ocl_post ocl) l_post)))
+                  (to_s (print_ctxt_to_ocl_post ocl) l_post)))
                 (f_tau (Expr_rewrite (b var_result) unicode_triangleq (b ''invalid''))))))) ] in
   f (var_at_when_hol_post, var_at_when_ocl_post))"
 
-definition "print_ctxt2_inv = fold_list (\<lambda>x ocl. (x ocl, ocl)) o flatten o flatten o (\<lambda> ctxt.
+definition "print_ctxt_inv' = fold_list (\<lambda>x ocl. (x ocl, ocl)) o flatten o flatten o (\<lambda> ctxt.
   let a = \<lambda>f x. Expr_apply f [x]
     ; b = \<lambda>s. Expr_basic [s]
     ; var_tau = unicode_tau
@@ -191,12 +191,12 @@ definition "print_ctxt2_inv = fold_list (\<lambda>x ocl. (x ocl, ocl)) o flatten
         let var_self = ''self''
           ; var_result = ''result'' in
         [ \<lambda>ocl. Thy_axiom (Axiom
-            (print_ctxt2_inv_name (Ctxt_inv_ty ctxt) tit var_at_when)
+            (print_ctxt_inv_name (Ctxt_inv_ty ctxt) tit var_at_when)
             (f_tau (Expr_apply ''OclForall''
               [ a allinst_at_when (b (Ctxt_inv_ty ctxt))
               , Expr_lam ''self'' (\<lambda>var_self. Expr_inner (case e ocl of T_pure e \<Rightarrow> e))]))) ])
-      [(''OclAllInstances_at_pre'', var_at_when_hol_pre, \<lambda>ocl. print_ctxt2_to_ocl_pre ocl e)
-      ,(''OclAllInstances_at_post'', var_at_when_hol_post, \<lambda>ocl. print_ctxt2_to_ocl_post ocl e)])
+      [(''OclAllInstances_at_pre'', var_at_when_hol_pre, \<lambda>ocl. print_ctxt_to_ocl_pre ocl e)
+      ,(''OclAllInstances_at_post'', var_at_when_hol_post, \<lambda>ocl. print_ctxt_to_ocl_post ocl e)])
     (Ctxt_inv_expr ctxt))"
 
 end

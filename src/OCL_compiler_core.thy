@@ -341,9 +341,9 @@ definition "thy_def_state = [ print_examp_def_st_defassoc
 definition "thy_def_pre_post = [ print_pre_post_wff
                                , print_pre_post_where ]"
 definition "thy_ctxt_pre_post = [ print_ctxt_pre_post ]"
-definition "thy_ctxt2_pre_post = [ print_ctxt2_pre_post ]"
+definition "thy2_ctxt_pre_post = [ print_ctxt_pre_post' ]"
 definition "thy_ctxt_inv = [ print_ctxt_inv ]"
-definition "thy_ctxt2_inv = [ print_ctxt2_inv ]"
+definition "thy2_ctxt_inv = [ print_ctxt_inv' ]"
 definition "thy_flush_all = []"
 
 definition "ocl_compiler_config_empty disable_thy_output file_out_path_dep oid_start design_analysis =
@@ -393,9 +393,9 @@ definition "ocl_env_class_spec_mk f_try f_accu_reset f_fold f =
              | OclAstDefState univ \<Rightarrow> fold_thy0 univ thy_def_state
              | OclAstDefPrePost univ \<Rightarrow> fold_thy0 univ thy_def_pre_post
              | OclAstCtxtPrePost univ \<Rightarrow> fold_thy0 univ thy_ctxt_pre_post
-             | OclAstCtxt2PrePost univ \<Rightarrow> fold_thy0 univ thy_ctxt2_pre_post
+             | Ocl2AstCtxtPrePost univ \<Rightarrow> fold_thy0 univ thy2_ctxt_pre_post
              | OclAstCtxtInv univ \<Rightarrow> fold_thy0 univ thy_ctxt_inv
-             | OclAstCtxt2Inv univ \<Rightarrow> fold_thy0 univ thy_ctxt2_inv
+             | Ocl2AstCtxtInv univ \<Rightarrow> fold_thy0 univ thy2_ctxt_inv
              | OclAstFlushAll univ \<Rightarrow> fold_thy0 univ thy_flush_all)
                   f)
            l_ocl
@@ -429,9 +429,9 @@ definition "fold_thy' f_try f_accu_reset f =
    | OclAstDefState univ \<Rightarrow> ocl_env_class_spec_mk (fold_thy0 univ thy_def_state)
    | OclAstDefPrePost univ \<Rightarrow> fold_thy0 univ thy_def_pre_post
    | OclAstCtxtPrePost univ \<Rightarrow> ocl_env_class_spec_mk (fold_thy0 univ thy_ctxt_pre_post)
-   | OclAstCtxt2PrePost univ \<Rightarrow> ocl_env_class_spec_mk (fold_thy0 univ thy_ctxt2_pre_post)
+   | Ocl2AstCtxtPrePost univ \<Rightarrow> ocl_env_class_spec_mk (fold_thy0 univ thy2_ctxt_pre_post)
    | OclAstCtxtInv univ \<Rightarrow> ocl_env_class_spec_mk (fold_thy0 univ thy_ctxt_inv)
-   | OclAstCtxt2Inv univ \<Rightarrow> ocl_env_class_spec_mk (fold_thy0 univ thy_ctxt2_inv)
+   | Ocl2AstCtxtInv univ \<Rightarrow> ocl_env_class_spec_mk (fold_thy0 univ thy2_ctxt_inv)
    | OclAstFlushAll univ \<Rightarrow> ocl_env_class_spec_mk (fold_thy0 univ thy_flush_all)) f))"
 
 definition "fold_thy_shallow f_try f_accu_reset x = fold_thy' f_try f_accu_reset (\<lambda>l acc1. List.fold x l o Pair acc1)"

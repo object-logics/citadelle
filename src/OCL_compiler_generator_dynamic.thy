@@ -94,7 +94,7 @@ code_reflect OCL
              write_file
 
              (* manipulating the compiling environment *)
-             ocl_compiler_config_reset_all oidInit D_file_out_path_dep_update map_ctxt2_term check_export_code
+             ocl_compiler_config_reset_all oidInit D_file_out_path_dep_update map2_ctxt_term check_export_code
 
              (* printing the OCL AST to (deep Isabelle) string *)
              isabelle_apply isabelle_of_ocl_embed
@@ -819,7 +819,7 @@ fun OCL_main aux ret = let open OCL open OCL_overload in fn
   Isab_thy thy => ret o (OCL_main_thy thy)
 | Isab_thy_generation_syntax _ => ret o I
 | Isab_thy_ml_extended _ => ret o I
-| Isab_thy_ocl_deep_embed_ast ocl => fn thy => aux (map_ctxt2_term (fn T_to_be_parsed s => From.from_p_term thy (String.implode s)
+| Isab_thy_ocl_deep_embed_ast ocl => fn thy => aux (map2_ctxt_term (fn T_to_be_parsed s => From.from_p_term thy (String.implode s)
                                                                      | x => x) ocl) thy
 end
 
@@ -1088,7 +1088,7 @@ local
      -- class_def_constr
      --| @{keyword "End"})
     OCL.OclAstClassRaw
-    OCL.OclAstClass2Raw
+    OCL.Ocl2AstClassRaw
     (fn (from_expr, OclAstClassRaw) =>
      fn ((((binding, child), attribute), oper), constr) =>
        OclAstClassRaw (Outer_syntax_Class.make from_expr binding child attribute oper constr))
@@ -1151,7 +1151,7 @@ local
      -- optional Parse.alt_string
      --| @{keyword "End"})
     OCL.OclAstAssClass
-    OCL.OclAstAss2Class
+    OCL.Ocl2AstAssClass
     (fn (from_expr, OclAstAssClass) =>
      fn ((((((binding, child), o_l), attribute), oper), constr), _) =>
         OclAstAssClass (OCL.OclAssClass ( Outer_syntax_Association.make OCL.OclAssTy_association (case o_l of NONE => [] | SOME l => l)
@@ -1188,7 +1188,7 @@ val () =
      >> USE_context_invariant)
     )
     (OCL.OclAstCtxtPrePost, OCL.OclAstCtxtInv)
-    (OCL.OclAstCtxt2PrePost, OCL.OclAstCtxt2Inv)
+    (OCL.Ocl2AstCtxtPrePost, OCL.Ocl2AstCtxtInv)
     (fn (from_expr, (OclAstCtxtPrePost, OclAstCtxtInv)) =>
      fn USE_context_pre_post ((((name_ty, name_fun), ty_arg), ty_out), expr) =>
         OclAstCtxtPrePost (Outer_syntax_Pre_Post.make from_expr name_ty name_fun ty_arg ty_out expr)
