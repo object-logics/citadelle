@@ -71,6 +71,8 @@ definition "ocl_ty_class_rec f ocl = ocl_ty_class_rec0 f ocl
 definition "ocl_class_raw_rec0 f ocl = f
   (ClassRaw_name ocl)
   (ClassRaw_own ocl)
+  (ClassRaw_contract ocl)
+  (ClassRaw_invariant ocl)
   (ClassRaw_inh ocl)"
 
 definition "ocl_class_raw_rec f ocl = ocl_class_raw_rec0 f ocl
@@ -156,19 +158,19 @@ definition "ar13 a v0 f1 f2 f3 f4 f5 f6 f7 f8 f9 f10 f11 f12 v1 v2 v3 v4 v5 v6 v
 
 (* *)
 
-lemma [code]: "ocl_class_raw.extend = (\<lambda>ocl v. ocl_class_raw_rec0 (co3 (\<lambda>f. f v) ocl_class_raw_ext) ocl)"
+lemma [code]: "ocl_class_raw.extend = (\<lambda>ocl v. ocl_class_raw_rec0 (co5 (\<lambda>f. f v) ocl_class_raw_ext) ocl)"
 by(intro ext, simp add: ocl_class_raw_rec0_def
                         ocl_class_raw.extend_def
-                        co3_def K_def)
-lemma [code]: "ocl_class_raw.make = co3 (\<lambda>f. f ()) ocl_class_raw_ext"
+                        co5_def K_def)
+lemma [code]: "ocl_class_raw.make = co5 (\<lambda>f. f ()) ocl_class_raw_ext"
 by(intro ext, simp add: ocl_class_raw.make_def
-                        co3_def)
-lemma [code]: "ocl_class_raw.truncate = ocl_class_raw_rec (co3 K ocl_class_raw.make)"
+                        co5_def)
+lemma [code]: "ocl_class_raw.truncate = ocl_class_raw_rec (co5 K ocl_class_raw.make)"
 by(intro ext, simp add: ocl_class_raw_rec0_def
                         ocl_class_raw_rec_def
                         ocl_class_raw.truncate_def
                         ocl_class_raw.make_def
-                        co3_def K_def)
+                        co5_def K_def)
 
 lemma [code]: "ocl_association.extend = (\<lambda>ocl v. ocl_association_rec0 (co2 (\<lambda>f. f v) ocl_association_ext) ocl)"
 by(intro ext, simp add: ocl_association_rec0_def
@@ -390,9 +392,11 @@ definition "i_of_ocl_class a b = (\<lambda>f0 f1 f2 f3 f4. ocl_class_rec_1 (co2 
     (ar2 a (b i_Cons) id)"
 
 definition "i_of_ocl_class_raw a b f = ocl_class_raw_rec
-  (ap4 a (b (ext ''ocl_class_raw_ext''))
+  (ap6 a (b (ext ''ocl_class_raw_ext''))
     (i_of_string a b)
     (i_of_list a b (i_of_pair a b (i_of_string a b) (i_of_ocl_ty a b)))
+    (i_of_list a b (i_of_ocl_ctxt_pre_post a b (K i_of_unit)))
+    (i_of_list a b (i_of_ocl_ctxt_inv a b (K i_of_unit)))
     (i_of_option a b (i_of_string a b))
     (f a b))"
 
@@ -403,6 +407,8 @@ definition "i_of_ocl_ass_class a b = ocl_ass_class_rec
 
 (* *)
 
+definition "i_of_ocl_class2_raw = i_of_ocl_class_raw"
+definition "i_of_ocl_ass2_class = i_of_ocl_ass_class"
 definition "i_of_ocl_ctxt2_pre_post = i_of_ocl_ctxt_pre_post"
 definition "i_of_ocl_ctxt2_inv = i_of_ocl_ctxt_inv"
 
@@ -446,6 +452,8 @@ lemmas [code] =
   i_of.i_of_ocl_class_raw_def
   i_of.i_of_ocl_ass_class_def
   (* *)
+  i_of.i_of_ocl_class2_raw_def
+  i_of.i_of_ocl_ass2_class_def
   i_of.i_of_ocl_ctxt2_pre_post_def
   i_of.i_of_ocl_ctxt2_inv_def
 

@@ -366,10 +366,7 @@ definition "ocl_compiler_config_reset_no_env ocl =
 definition "ocl_compiler_config_reset_all ocl =
   (let ocl = ocl_compiler_config_reset_no_env ocl in
    ( ocl \<lparr> D_ocl_env := [] \<rparr>
-   , let (l_class, l_ocl) = List.partition (\<lambda> OclAstClassRaw _ \<Rightarrow> True
-                                            | OclAstAssociation _ \<Rightarrow> True
-                                            | OclAstAssClass _ \<Rightarrow> True
-                                            | _ \<Rightarrow> False) (rev (D_ocl_env ocl)) in
+   , let (l_class, l_ocl) = find_class_ass ocl in
      flatten
        [ l_class
        , List.filter (\<lambda> OclAstFlushAll _ \<Rightarrow> False | _ \<Rightarrow> True) l_ocl

@@ -938,6 +938,17 @@ structure USE_parse = struct
  fun optional f = Scan.optional (f >> SOME) NONE
  val colon = Parse.$$$ ":"
  fun repeat2 scan = scan ::: Scan.repeat1 scan
+
+ fun outer_syntax_command2 mk_string cmd_spec cmd_descr parser v_true v_false get_oclclass =
+   outer_syntax_command mk_string cmd_spec cmd_descr
+     (optional (Parse.$$$ "[" |-- @{keyword "shallow"} --| Parse.$$$ "]") -- parser)
+     (fn (is_shallow, use) => fn thy =>
+        get_oclclass
+          (if is_shallow = NONE then
+             (OCL.T_to_be_parsed o From.from_string, v_true)
+           else
+             (From.from_p_term thy, v_false))
+          use)
  (* *)
  datatype use_oclty = OclTypeBaseVoid
                     | OclTypeBaseBoolean
@@ -1029,11 +1040,38 @@ subsection{* Outer Syntax: (abstract) class *}
 ML{*
 datatype use_classDefinition = USE_class | USE_class_abstract
 
+structure Outer_syntax_Pre_Post = struct
+  fun make from_expr name_ty name_fun ty_arg ty_out expr =
+        OCL.Ocl_ctxt_pre_post_ext
+          ( From.from_binding name_ty
+          , From.from_binding name_fun
+          , From.from_list (From.from_pair From.from_binding USE_parse.from_oclty) ty_arg
+          , From.from_option USE_parse.from_oclty ty_out
+          , From.from_list (fn ((s_pre_post, _), expr) => ( if s_pre_post = "Pre" then OCL.OclCtxtPre else OCL.OclCtxtPost
+                                                          , from_expr expr)) expr
+          , ())
+
+  fun make2 from_expr name_ty =
+    map (fn ((((name_fun, ty_arg), ty_out), _), expr) =>
+              make from_expr name_ty name_fun ty_arg ty_out expr)
+end
+
+structure Outer_syntax_Inv = struct
+  fun make from_expr name l =
+        OCL.Ocl_ctxt_inv_ext
+          ( From.from_binding name
+          , From.from_list (fn ((_, s), e) => (From.from_binding s, from_expr e)) l
+          , ())
+  fun make2 from_expr name_ty = map (fn l => make from_expr name_ty [l])
+end
+
 structure Outer_syntax_Class = struct
-  fun make binding child attribute =
+  fun make from_expr binding child attribute oper constr =
     (OCL.Ocl_class_raw_ext
          ( From.from_binding binding
          , From.from_list (From.from_pair From.from_binding USE_parse.from_oclty) attribute
+         , Outer_syntax_Pre_Post.make2 from_expr binding oper
+         , Outer_syntax_Inv.make2 from_expr binding constr
          , case child of [] => NONE | [x] => SOME (From.from_binding x)
          , From.from_unit ()))
 end
@@ -1042,15 +1080,18 @@ local
  open USE_parse
 
  fun mk_classDefinition _ cmd_spec =
-   outer_syntax_command @{make_string} cmd_spec "Class generation"
+   outer_syntax_command2 @{make_string} cmd_spec "Class generation"
     (   Parse.binding
      -- class_def_list
      -- class_def_attr
      -- class_def_oper
      -- class_def_constr
      --| @{keyword "End"})
-    (fn ((((binding, child), attribute), _), _) => fn _ =>
-       OCL.OclAstClassRaw (Outer_syntax_Class.make binding child attribute))
+    OCL.OclAstClassRaw
+    OCL.OclAstClass2Raw
+    (fn (from_expr, OclAstClassRaw) =>
+     fn ((((binding, child), attribute), oper), constr) =>
+       OclAstClassRaw (Outer_syntax_Class.make from_expr binding child attribute oper constr))
 in
 val () = mk_classDefinition USE_class @{command_spec "Class"}
 val () = mk_classDefinition USE_class_abstract @{command_spec "Abstract_class"}
@@ -1099,7 +1140,7 @@ local
  open USE_parse
 
  fun mk_associationClassDefinition f cmd_spec =
-  outer_syntax_command @{make_string} cmd_spec ""
+  outer_syntax_command2 @{make_string} cmd_spec ""
     (   Parse.binding
      -- class_def_list
      -- (Scan.optional (@{keyword "Between"}
@@ -1109,9 +1150,12 @@ local
      -- class_def_constr
      -- optional Parse.alt_string
      --| @{keyword "End"})
-    (fn ((((((binding, child), o_l), attribute), _), _), _) => fn _ =>
-      OCL.OclAstAssClass (OCL.OclAssClass ( Outer_syntax_Association.make OCL.OclAssTy_association (case o_l of NONE => [] | SOME l => l)
-                                          , Outer_syntax_Class.make binding child attribute)))
+    OCL.OclAstAssClass
+    OCL.OclAstAss2Class
+    (fn (from_expr, OclAstAssClass) =>
+     fn ((((((binding, child), o_l), attribute), oper), constr), _) =>
+        OclAstAssClass (OCL.OclAssClass ( Outer_syntax_Association.make OCL.OclAssTy_association (case o_l of NONE => [] | SOME l => l)
+                                          , Outer_syntax_Class.make from_expr binding child attribute oper constr)))
 in
 val () = mk_associationClassDefinition USE_associationclass @{command_spec "Associationclass"}
 val () = mk_associationClassDefinition USE_associationclass_abstract @{command_spec "Abstract_associationclass"}
@@ -1127,8 +1171,8 @@ local
  open USE_parse
 in
 val () =
-  outer_syntax_command @{make_string} @{command_spec "Context"} ""
-    (optional (Parse.$$$ "[" |-- @{keyword "shallow"} --| Parse.$$$ "]") -- (
+  outer_syntax_command2 @{make_string} @{command_spec "Context"} ""
+    (
     ((* use_prePost *)
          Parse.binding
      --| Parse.$$$ "::"
@@ -1142,28 +1186,14 @@ val () =
      -- Parse.binding
      -- Scan.repeat use_invariantClause
      >> USE_context_invariant)
-    ))
-    (fn (is_shallow, use_ctxt) => fn thy =>
-      let val (from_expr, OclAstCtxtPrePost, OclAstCtxtInv) =
-        if is_shallow = NONE then
-          (OCL.T_to_be_parsed o From.from_string, OCL.OclAstCtxtPrePost, OCL.OclAstCtxtInv)
-        else
-          (From.from_p_term thy, OCL.OclAstCtxt2PrePost, OCL.OclAstCtxt2Inv) in
-      case use_ctxt of USE_context_pre_post ((((name_ty, name_fun), ty_arg), ty_out), expr) =>
-        OclAstCtxtPrePost (OCL.Ocl_ctxt_pre_post_ext
-          ( From.from_binding name_ty
-          , From.from_binding name_fun
-          , From.from_list (From.from_pair From.from_binding USE_parse.from_oclty) ty_arg
-          , From.from_option USE_parse.from_oclty ty_out
-          , From.from_list (fn ((s_pre_post, _), expr) => ( if s_pre_post = "Pre" then OCL.OclCtxtPre else OCL.OclCtxtPost
-                                                          , from_expr expr)) expr
-          , ()))
+    )
+    (OCL.OclAstCtxtPrePost, OCL.OclAstCtxtInv)
+    (OCL.OclAstCtxt2PrePost, OCL.OclAstCtxt2Inv)
+    (fn (from_expr, (OclAstCtxtPrePost, OclAstCtxtInv)) =>
+     fn USE_context_pre_post ((((name_ty, name_fun), ty_arg), ty_out), expr) =>
+        OclAstCtxtPrePost (Outer_syntax_Pre_Post.make from_expr name_ty name_fun ty_arg ty_out expr)
       | USE_context_invariant ((_, name), l) =>
-        OclAstCtxtInv (OCL.Ocl_ctxt_inv_ext
-          ( From.from_binding name
-          , From.from_list (fn ((_, s), e) => (From.from_binding s, from_expr e)) l
-          , ()))
-      end)
+        OclAstCtxtInv (Outer_syntax_Inv.make from_expr name l))
 end
 *}
 

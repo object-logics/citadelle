@@ -55,6 +55,8 @@ datatype ocl_flush_all = OclFlushAll
 
 (* *)
 
+type_synonym ocl_class2_raw = ocl_class_raw
+type_synonym ocl_ass2_class = ocl_ass_class
 type_synonym ocl_ctxt2_pre_post = ocl_ctxt_pre_post
 type_synonym ocl_ctxt2_inv = ocl_ctxt_inv
 
@@ -69,6 +71,8 @@ datatype ocl_deep_embed_ast = (* USE *)
                             | OclAstCtxtInv ocl_ctxt_inv
 
                               (* USE reflected 1 time *)
+                            | OclAstClass2Raw ocl_class2_raw
+                            | OclAstAss2Class ocl_ass2_class
                             | OclAstCtxt2PrePost ocl_ctxt2_pre_post
                             | OclAstCtxt2Inv ocl_ctxt2_inv
 
@@ -118,10 +122,26 @@ definition "ocl_compiler_config_more_map f ocl =
             ocl_compiler_config.extend  (ocl_compiler_config.truncate ocl) (f (ocl_compiler_config.more ocl))"
 
 definition "find_class_ass ocl =
-                              List.partition (\<lambda> OclAstClassRaw _ \<Rightarrow> True
-                                              | OclAstAssociation _ \<Rightarrow> True
-                                              | OclAstAssClass _ \<Rightarrow> True
-                                              | _ \<Rightarrow> False) (rev (D_ocl_env ocl))"
+ (let (l_class, l_ocl) =
+    partition (bug_ocaml_extraction
+              (let f = \<lambda>class. ClassRaw_contract class = [] & ClassRaw_invariant class = [] in
+               \<lambda> OclAstClassRaw class \<Rightarrow> f class
+               | OclAstAssociation _ \<Rightarrow> True
+               | OclAstAssClass (OclAssClass _ class) \<Rightarrow> f class
+               | _ \<Rightarrow> False)) (rev (D_ocl_env ocl)) in
+  ( flatten [l_class, List.map_filter (bug_ocaml_extraction
+                                      (let f = \<lambda>class. class \<lparr> ClassRaw_contract := [], ClassRaw_invariant := [] \<rparr> in
+                                       \<lambda> OclAstClassRaw c \<Rightarrow> Some (OclAstClassRaw (f c))
+                                       | OclAstAssClass (OclAssClass ass class) \<Rightarrow> Some (OclAstAssClass (OclAssClass ass (f class)))
+                                       | _ \<Rightarrow> None)) l_ocl]
+  , flatten (List_map
+      (bug_ocaml_extraction
+      (let f = \<lambda>class. 
+          flatten [ List_map OclAstCtxtPrePost (ClassRaw_contract class)
+                  , List_map OclAstCtxtInv (ClassRaw_invariant class) ] in
+       \<lambda> OclAstClassRaw class \<Rightarrow> f class
+       | OclAstAssClass (OclAssClass _ class) \<Rightarrow> f class
+       | x \<Rightarrow> [x])) l_ocl)))"
 
 definition "filter_ass = List.map_filter (\<lambda> OclAstAssociation ass \<Rightarrow> Some ass
                                           | OclAstAssClass (OclAssClass ass _) \<Rightarrow> Some ass

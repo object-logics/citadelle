@@ -78,11 +78,6 @@ datatype ocl_ty =           OclTy_base_void
                           | OclTy_raw string (* denoting raw HOL-type.*)
 
 
-record ocl_operation = Op_args :: "(string \<times> ocl_ty) list"
-                       Op_result :: ocl_ty
-                       Op_pre :: "(string \<times> string) list"
-                       Op_post :: "(string \<times> string) list"
-
 datatype ocl_association_type = OclAssTy_association
                               | OclAssTy_composition
                               | OclAssTy_aggregation
@@ -144,17 +139,16 @@ record ocl_ctxt_inv =      Ctxt_inv_ty :: string
 datatype ocl_class =   OclClass
                          string (* name of the class *)
                          "(string (* name *) \<times> ocl_ty) list" (* attribute *)
-                         (*"(string (* name *) \<times> ocl_operation) list" (* contract *)
-                         "(string (* name *) \<times> string) list" (* invariant *) *)
                          "ocl_class list" (* link to subclasses *)
 
 record ocl_class_raw = ClassRaw_name :: string
                        ClassRaw_own :: "(string (* name *) \<times> ocl_ty) list" (* attribute *)
-                      (*ClassRaw_contract :: "(string (* name *) \<times> ocl_operation) list" (* contract *)
-                       ClassRaw_inv :: "(string (* name *) \<times> string) list" (* invariant *) *)
+                       ClassRaw_contract :: "ocl_ctxt_pre_post list" (* contract *)
+                       ClassRaw_invariant :: "ocl_ctxt_inv list" (* invariant *)
                        ClassRaw_inh :: "string option" (* superclass *)
 
-datatype ocl_ass_class =        OclAssClass ocl_association ocl_class_raw
+datatype ocl_ass_class = OclAssClass ocl_association
+                                     ocl_class_raw
 
 subsection{* Class Translation Preliminaries *}
 
@@ -280,7 +274,7 @@ definition "class_unflat l_class l_ass =
                  set ''OclAny'' as default inherited class (for all classes linking to zero inherited classes) *)
               insert
                 const_oclany
-                (ocl_class_raw.make const_oclany [] None)
+                (ocl_class_raw.make const_oclany [] [] [] None)
                 (List.fold
                   (\<lambda> cflat \<Rightarrow>
                     insert (ClassRaw_name cflat) (cflat \<lparr> ClassRaw_inh := case ClassRaw_inh cflat of None \<Rightarrow> Some const_oclany | x \<Rightarrow> x \<rparr>))

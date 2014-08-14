@@ -101,6 +101,8 @@ definition "i_of_ocl_deep_embed_ast a b = ocl_deep_embed_ast_rec
   (ap1 a (b ''OclAstCtxtPrePost'') (i_of_ocl_ctxt_pre_post a b (K i_of_unit)))
   (ap1 a (b ''OclAstCtxtInv'') (i_of_ocl_ctxt_inv a b (K i_of_unit)))
 
+  (ap1 a (b ''OclAstClass2Raw'') (i_of_ocl_class2_raw a b (K i_of_unit)))
+  (ap1 a (b ''OclAstAss2Class'') (i_of_ocl_ass2_class a b))
   (ap1 a (b ''OclAstCtxt2PrePost'') (i_of_ocl_ctxt2_pre_post a b (K i_of_unit)))
   (ap1 a (b ''OclAstCtxt2Inv'') (i_of_ocl_ctxt2_inv a b (K i_of_unit)))
 
