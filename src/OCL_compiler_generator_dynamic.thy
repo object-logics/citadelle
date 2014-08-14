@@ -858,7 +858,7 @@ fun exec_deep (ocl, file_out_path_dep, seri_args, filename_thy, tmp_export_code,
                                           "" => ()
                                         | out => writeln (Markup.markup Markup.keyword1 out))) l_warn () end)
 
-end end end end
+  end end end end
 
 fun outer_syntax_command mk_string cmd_spec cmd_descr parser get_oclclass =
   let open Generation_mode in
@@ -902,7 +902,7 @@ fun outer_syntax_command mk_string cmd_spec cmd_descr parser get_oclclass =
           thy
         in
         Data_gen.map (Symtab.update (Deep0.gen_empty, ocl)) thy end)))
-end
+  end
 *}
 
 subsection{* ... *}
@@ -981,7 +981,7 @@ structure USE_parse = struct
                 || Parse.sym_ident (* "\<acute>" *) |-- Parse.binding --| Parse.sym_ident (* "\<acute>" *) >> OclTypeRaw) v
 
  val use_expression = Parse.alt_string
- val use_variableDeclaration = Parse.binding --| Parse.$$$ ":" -- use_type
+ val use_variableDeclaration = Parse.binding --| colon -- use_type
  val use_paramList = Parse.$$$ "(" |-- Parse.list use_variableDeclaration --| Parse.$$$ ")"
  val use_multiplicitySpec = ident_star || Parse.number
  val use_multiplicity = use_multiplicitySpec -- optional (ident_dot_dot |-- use_multiplicitySpec)
@@ -1010,17 +1010,17 @@ structure USE_parse = struct
  (* *)
  val class_def_list = Scan.optional (Parse.$$$ "<" |-- Parse.list1 Parse.binding) []
  val class_def_attr = Scan.optional (@{keyword "Attributes"}
-   |-- Scan.repeat (Parse.binding --| colon -- use_type)
-   --| optional Parse.semicolon) []
- val class_def_oper = optional (@{keyword "Operations"}
-   |-- Parse.binding
-   -- use_paramList
-   -- optional (colon -- use_type)
-   -- optional (Parse.$$$ "=" |-- use_expression || use_blockStat)
-   -- Scan.repeat use_prePostClause
-   --| optional Parse.semicolon)
- val class_def_constr = optional (@{keyword "Constraints"}
-   |-- use_invariantClause)
+   |-- Scan.repeat (Parse.binding --| colon -- use_type
+                    --| optional Parse.semicolon)) []
+ val class_def_oper = Scan.optional (@{keyword "Operations"}
+   |-- Scan.repeat (   Parse.binding
+                    -- use_paramList
+                    -- optional (colon |-- use_type)
+                    -- optional (Parse.$$$ "=" |-- use_expression || use_blockStat)
+                    -- Scan.repeat use_prePostClause
+                    --| optional Parse.semicolon)) []
+ val class_def_constr = Scan.optional (@{keyword "Constraints"}
+   |-- Scan.repeat use_invariantClause) []
 end
 *}
 
@@ -1134,7 +1134,7 @@ val () =
      --| Parse.$$$ "::"
      -- Parse.binding
      -- use_paramList
-     -- optional (Parse.$$$ ":" |-- use_type)
+     -- optional (colon |-- use_type)
      -- Scan.repeat1 use_prePostClause) >> USE_context_pre_post
     ||
     ((* use_invariant *)
