@@ -50,9 +50,9 @@ begin
 subsection{* General Compiling Process: Test Scenario: Deep (without reflection) *}
 
 definition "Employee_DesignModel_UMLPart =
-  [ ocl_class_raw.make ''Galaxy'' [(''sound'', OclTy_raw ''unit''), (''moving'', OclTy_raw ''bool'')] None
-  , ocl_class_raw.make ''Planet'' [(''weight'', OclTy_raw ''nat'')] (Some ''Galaxy'')
-  , ocl_class_raw.make ''Person'' [(''salary'', OclTy_raw ''int'')] (Some ''Planet'') ]"
+  [ ocl_class_raw.make ''Galaxy'' [(''sound'', OclTy_raw ''unit''), (''moving'', OclTy_raw ''bool'')] [] [] None
+  , ocl_class_raw.make ''Planet'' [(''weight'', OclTy_raw ''nat'')] [] [] (Some ''Galaxy'')
+  , ocl_class_raw.make ''Person'' [(''salary'', OclTy_raw ''int'')] [] [] (Some ''Planet'') ]"
 
 definition "main = write_file
  (ocl_compiler_config.extend
