@@ -41,12 +41,13 @@
  ******************************************************************************)
 (* $Id:$ *)
 
-
 theory  OCL_basic_type_String
 imports OCL_Types OCL_basic_type_Boolean
 begin
 
 section{* Basic Type String: Operations *}
+
+subsection{* Basic String Constants *}
 
 text{* Although the remaining part of this library reasons about
 integers abstractly, we provide here as example some convenient shortcuts. *}
@@ -88,7 +89,6 @@ technical reasons; these operators are heavily overloaded in the HOL library
 that a further overloading would lead to heavy technical buzz in this
 document.
 *}
-
 definition OclAdd\<^sub>S\<^sub>t\<^sub>r\<^sub>i\<^sub>n\<^sub>g ::"('\<AA>)String \<Rightarrow> ('\<AA>)String \<Rightarrow> ('\<AA>)String" (infix "+\<^sub>s\<^sub>t\<^sub>r\<^sub>i\<^sub>n\<^sub>g" 40)
 where "x +\<^sub>s\<^sub>t\<^sub>r\<^sub>i\<^sub>n\<^sub>g y \<equiv> \<lambda> \<tau>. if (\<delta> x) \<tau> = true \<tau> \<and> (\<delta> y) \<tau> = true \<tau>
                        then \<lfloor>\<lfloor>concat [\<lceil>\<lceil>x \<tau>\<rceil>\<rceil>, \<lceil>\<lceil>y \<tau>\<rceil>\<rceil>]\<rfloor>\<rfloor>
@@ -117,9 +117,7 @@ lemma OclAdd\<^sub>S\<^sub>t\<^sub>r\<^sub>i\<^sub>n\<^sub>g_not_commute: "\<exi
   apply(rule_tac x = "\<lambda>_. \<lfloor>\<lfloor>''b''\<rfloor>\<rfloor>" in exI)
   apply(rule_tac x = "\<lambda>_. \<lfloor>\<lfloor>''a''\<rfloor>\<rfloor>" in exI)
   apply(simp_all add:OclAdd\<^sub>S\<^sub>t\<^sub>r\<^sub>i\<^sub>n\<^sub>g_def)
-  apply auto
-  apply(drule fun_cong[of _ _ t], auto)
-  done
+  by(auto, drule fun_cong, auto)
 
 subsubsection{* Execution with Invalid or Null or Zero as Argument *}
 (*
@@ -166,7 +164,7 @@ Assert "\<not>(\<tau> \<Turnstile> (( \<four> +\<^sub>s\<^sub>t\<^sub>r\<^sub>i\
 Assert "  \<tau> \<Turnstile> not (\<upsilon> (null +\<^sub>s\<^sub>t\<^sub>r\<^sub>i\<^sub>n\<^sub>g \<one>)) "
 *)
 
-subsection{* Fundamental Predicates on Basic Types: Strict Equality *}
+subsection{* Fundamental Predicates on Strings: Strict Equality *}
 
 subsubsection{* Definition *}
 
@@ -178,12 +176,6 @@ defs   StrictRefEq\<^sub>S\<^sub>t\<^sub>r\<^sub>i\<^sub>n\<^sub>g[code_unfold] 
                                     then (x \<triangleq> y) \<tau>
                                     else invalid \<tau>"
 
-                                    
-subsection{* Test Statements *}
-
-Assert "\<tau> \<Turnstile> \<a> <> \<b>"
-Assert "\<tau> \<Turnstile> \<b> <> \<a>"
-Assert "\<tau> \<Turnstile> \<b> \<doteq> \<b>"
 
 subsubsection{* Validity and Definedness Properties (I) *}
 
@@ -285,11 +277,17 @@ lemmas cp_intro'\<^sub>S\<^sub>t\<^sub>r\<^sub>i\<^sub>n\<^sub>g =
        (*OclLess\<^sub>S\<^sub>t\<^sub>r\<^sub>i\<^sub>n\<^sub>g.cp      OclLe\<^sub>S\<^sub>t\<^sub>r\<^sub>i\<^sub>n\<^sub>g.cp*)
 
 
-subsection{* Test Statements on Strings. *}
+subsection{* Test Statements on Basic String *}
 text{* Here follows a list of code-examples, that explain the meanings
 of the above definitions by compilation to code and execution to @{term "True"}.*}
 
+
 text{* Elementary computations on String *}
+
+Assert "\<tau> \<Turnstile> \<a> <> \<b>"
+Assert "\<tau> \<Turnstile> \<b> <> \<a>"
+Assert "\<tau> \<Turnstile> \<b> \<doteq> \<b>"
+
 Assert "  \<tau> \<Turnstile> \<upsilon> \<a>"
 Assert "  \<tau> \<Turnstile> \<delta> \<a>"
 Assert "  \<tau> \<Turnstile> \<upsilon> (null::('\<AA>)String)"

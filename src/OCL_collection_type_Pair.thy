@@ -45,13 +45,13 @@ theory  OCL_collection_type_Pair
 imports OCL_Types OCL_core OCL_lib_common OCL_basic_type_Boolean OCL_basic_type_Integer
 begin
 
-section{* Collection Type Pairs:  Operations *}
+section{* Collection Type Pairs: Operations *}
+
+subsection{* Operations *}
 
 text{* This part provides a collection of operators for the Pair type. *}
 
-subsection{* Computational Operations on Pair *}
-
-subsubsection{* Definition *}
+subsubsection{* Definition: OclPair *}
 
 definition OclPair::"('\<AA>, '\<alpha>) val \<Rightarrow>
                      ('\<AA>, '\<beta>) val \<Rightarrow>
@@ -60,11 +60,14 @@ where     "Pair{X,Y} \<equiv> (\<lambda> \<tau>. if (\<upsilon> X) \<tau> = true
                               then Abs_Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor>\<lfloor>(X \<tau>, Y \<tau>)\<rfloor>\<rfloor>
                               else invalid \<tau>)"
 
+subsubsection{* Definition: OclFst *}
+
 definition OclFst::" ('\<AA>,'\<alpha>::null,'\<beta>::null) Pair \<Rightarrow> ('\<AA>, '\<alpha>) val"  ("Fst'(_')")
 where     "Fst(X) \<equiv> (\<lambda> \<tau>. if (\<delta> X) \<tau> = true \<tau>
                            then fst \<lceil>\<lceil>Rep_Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e (X \<tau>)\<rceil>\<rceil>
                            else invalid \<tau>)"
 
+subsubsection{* Definition: OclSnd *}
 
 definition OclSnd::" ('\<AA>,'\<alpha>::null,'\<beta>::null) Pair \<Rightarrow> ('\<AA>, '\<beta>) val"  ("Snd'(_')")
 where     "Snd(X) \<equiv> (\<lambda> \<tau>. if (\<delta> X) \<tau> = true \<tau>
@@ -73,8 +76,13 @@ where     "Snd(X) \<equiv> (\<lambda> \<tau>. if (\<delta> X) \<tau> = true \<ta
 
 (* TODO : cp_lemmas, strictness rules, definedness - inference ...
           fst_conv, snd_conv, Product_Type.pair_collapse *)
+subsubsection{* Validity and Definedness Properties *}
+subsubsection{* Execution with Invalid or Null as Argument *}
+subsubsection{* Context Passing *}
 
 lemmas cp_intro''\<^sub>P\<^sub>a\<^sub>i\<^sub>r[intro!,simp,code_unfold] = cp_intro'
+
+subsubsection{* Const *}
 
 subsection{*Test Statements*}
 

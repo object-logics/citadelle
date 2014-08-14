@@ -47,8 +47,9 @@ begin
 
 (* Hack since Real not imported in OCL_Types: *)  type_synonym real = nat
 
-section{* Basic Type Real:  Operations *}
-subsection{* Constants: *}
+section{* Basic Type Real: Operations *}
+
+subsection{* Basic Real Constants *}
 
 text{* Although the remaining part of this library reasons about
 reals abstractly, we provide here as example some convenient shortcuts. *}
@@ -362,7 +363,7 @@ lemmas cp_intro'\<^sub>R\<^sub>e\<^sub>a\<^sub>l =
        OclLess\<^sub>R\<^sub>e\<^sub>a\<^sub>l.cp      OclLe\<^sub>R\<^sub>e\<^sub>a\<^sub>l.cp
 
 
-subsection{* Test Statements on Basic Types. *}
+subsection{* Test Statements on Basic Real *}
 text{* Here follows a list of code-examples, that explain the meanings
 of the above definitions by compilation to code and execution to @{term "True"}.*}
 

@@ -45,9 +45,10 @@ theory  OCL_basic_type_Integer
 imports OCL_Types OCL_basic_type_Boolean 
 begin
 
-section{* Basic Types Integer: Operations *}
+section{* Basic Type Integer: Operations *}
 
 subsection{* Basic Integer Constants *}
+
 text{* Although the remaining part of this library reasons about
 integers abstractly, we provide here as example some convenient shortcuts. *}
 
@@ -217,8 +218,20 @@ by(subst OclAdd\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r_commute,
 
 
 
+subsubsection{* Test Statements *}
+text{* Here follows a list of code-examples, that explain the meanings
+of the above definitions by compilation to code and execution to @{term "True"}.*}
 
-subsection{* Fundamental Predicates on Basic Types: Strict Equality *}
+Assert "  \<tau> \<Turnstile> ( \<nine> \<le>\<^sub>i\<^sub>n\<^sub>t \<one>\<zero> )"
+Assert "  \<tau> \<Turnstile> (( \<four> +\<^sub>i\<^sub>n\<^sub>t \<four> ) \<le>\<^sub>i\<^sub>n\<^sub>t \<one>\<zero> )"
+Assert "\<not>(\<tau> \<Turnstile> (( \<four> +\<^sub>i\<^sub>n\<^sub>t ( \<four> +\<^sub>i\<^sub>n\<^sub>t \<four> )) <\<^sub>i\<^sub>n\<^sub>t \<one>\<zero> ))"
+Assert "  \<tau> \<Turnstile> not (\<upsilon> (null +\<^sub>i\<^sub>n\<^sub>t \<one>)) "
+Assert "  \<tau> \<Turnstile> (((\<nine> *\<^sub>i\<^sub>n\<^sub>t \<four>) div\<^sub>i\<^sub>n\<^sub>t \<one>\<zero>) \<le>\<^sub>i\<^sub>n\<^sub>t  \<four>) "
+Assert "  \<tau> \<Turnstile> not (\<delta> (\<one> div\<^sub>i\<^sub>n\<^sub>t \<zero>)) "
+Assert "  \<tau> \<Turnstile> not (\<upsilon> (\<one> div\<^sub>i\<^sub>n\<^sub>t \<zero>)) "
+
+
+subsection{* Fundamental Predicates on Integers: Strict Equality *}
 
 subsubsection{* Definition *}
 
@@ -234,24 +247,6 @@ text{* Property prof in terms of @{term "binop_property_profile3"}*}
 interpretation  StrictRefEq\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r : binop_property_profile3 "\<lambda> x y. (x::('\<AA>)Integer) \<doteq> y" 
          by unfold_locales (auto simp: StrictRefEq\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r)
                                             
-subsubsection{* Test Statements *}
-text{* Here follows a list of code-examples, that explain the meanings
-of the above definitions by compilation to code and execution to @{term "True"}.*}
-
-Assert "  \<tau> \<Turnstile> ( \<nine> \<le>\<^sub>i\<^sub>n\<^sub>t \<one>\<zero> )"
-Assert "  \<tau> \<Turnstile> (( \<four> +\<^sub>i\<^sub>n\<^sub>t \<four> ) \<le>\<^sub>i\<^sub>n\<^sub>t \<one>\<zero> )"
-Assert "\<not>(\<tau> \<Turnstile> (( \<four> +\<^sub>i\<^sub>n\<^sub>t ( \<four> +\<^sub>i\<^sub>n\<^sub>t \<four> )) <\<^sub>i\<^sub>n\<^sub>t \<one>\<zero> ))"
-Assert "  \<tau> \<Turnstile> not (\<upsilon> (null +\<^sub>i\<^sub>n\<^sub>t \<one>)) "
-Assert "  \<tau> \<Turnstile> (((\<nine> *\<^sub>i\<^sub>n\<^sub>t \<four>) div\<^sub>i\<^sub>n\<^sub>t \<one>\<zero>) \<le>\<^sub>i\<^sub>n\<^sub>t  \<four>) "
-Assert "  \<tau> \<Turnstile> not (\<delta> (\<one> div\<^sub>i\<^sub>n\<^sub>t \<zero>)) "
-Assert "  \<tau> \<Turnstile> not (\<upsilon> (\<one> div\<^sub>i\<^sub>n\<^sub>t \<zero>)) "
-
-Assert   "\<tau> \<Turnstile> ((\<zero> <\<^sub>i\<^sub>n\<^sub>t \<two>) and (\<zero> <\<^sub>i\<^sub>n\<^sub>t \<one>))"
-
-Assert "\<tau> \<Turnstile> (\<one> <> \<two>)"
-Assert "\<tau> \<Turnstile> (\<two> <> \<one>)"
-Assert "\<tau> \<Turnstile> (\<two> \<doteq> \<two>)"
-
 
 lemma integer_non_null [simp]: "((\<lambda>_. \<lfloor>\<lfloor>n\<rfloor>\<rfloor>) \<doteq> (null::('\<AA>)Integer)) = false"
 by(rule ext,auto simp: StrictRefEq\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r valid_def
@@ -275,11 +270,19 @@ lemma OclInt9_non_null [simp,code_unfold]: "(\<nine> \<doteq> null) = false" by(
 lemma null_non_OclInt9 [simp,code_unfold]: "(null \<doteq> \<nine>) = false" by(simp add: OclInt9_def)
 
 
-subsection{* Test Statements on Basic Integer (II) *}
+subsection{* Test Statements on Basic Integer *}
 text{* Here follows a list of code-examples, that explain the meanings
 of the above definitions by compilation to code and execution to @{term "True"}.*}
 
+
 text{* Elementary computations on Integer *}
+
+Assert   "\<tau> \<Turnstile> ((\<zero> <\<^sub>i\<^sub>n\<^sub>t \<two>) and (\<zero> <\<^sub>i\<^sub>n\<^sub>t \<one>))"
+
+Assert "\<tau> \<Turnstile> \<one> <> \<two>"
+Assert "\<tau> \<Turnstile> \<two> <> \<one>"
+Assert "\<tau> \<Turnstile> \<two> \<doteq> \<two>"
+
 Assert "  \<tau> \<Turnstile> \<upsilon> \<four>"
 Assert "  \<tau> \<Turnstile> \<delta> \<four>"
 Assert "  \<tau> \<Turnstile> \<upsilon> (null::('\<AA>)Integer)"
@@ -301,7 +304,6 @@ Assert "\<not>(\<tau> \<Turnstile> (\<four> \<doteq> \<one>\<zero>))"
 Assert "  \<tau> \<Turnstile> (\<four> <> \<one>\<zero>)"
 Assert "\<not>(\<tau> \<Turnstile> (\<zero> <\<^sub>i\<^sub>n\<^sub>t null))"
 Assert "\<not>(\<tau> \<Turnstile> (\<delta> (\<zero> <\<^sub>i\<^sub>n\<^sub>t null)))"
-
 
 
 end

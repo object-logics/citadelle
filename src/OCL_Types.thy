@@ -45,6 +45,8 @@ header{* Formalization I: OCL Types and Core Definitions *}
 
 theory    OCL_Types
 imports   Main (* Testing *)
+        (* Real *) (* Transcendental *) (* For Real Numbers only ...
+                                      Has unfortunate side-effects on syntax. *)
 keywords "Assert" :: thy_decl
      and "Assert_local" :: thy_decl
 begin
@@ -366,7 +368,7 @@ text{* The core of an own type construction is done via a type
   is shown that this type ``fits'' indeed into the abstract type
   interface discussed in the previous section. Note that we make 
   no restriction whatsoever to \emph{finite} sets; the type
-  constructor of FeatherWeight OCL is in fact infinite. *}
+  constructor of Featherweight OCL is in fact infinite. *}
 
 typedef '\<alpha> Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e ="{X::('\<alpha>\<Colon>null) set option option. X = bot \<or> X = null \<or> (\<forall>x\<in>\<lceil>\<lceil>X\<rceil>\<rceil>. x \<noteq> bot)}"
           by (rule_tac x="bot" in exI, simp)

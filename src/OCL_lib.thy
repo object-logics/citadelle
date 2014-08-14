@@ -44,7 +44,6 @@
 
 theory  OCL_lib
 imports (* Basic Type Operations *)
-
         OCL_basic_type_Boolean
         OCL_basic_type_Void
         OCL_basic_type_Integer
