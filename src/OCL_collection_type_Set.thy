@@ -231,7 +231,7 @@ translations
   "Set{x, xs}" == "CONST OclIncluding (Set{xs}) x"
   "Set{x}"     == "CONST OclIncluding (Set{}) x "
 
-  
+
 subsubsection{* Definition: OclExcluding *}
 
 definition OclExcluding   :: "[('\<AA>,'\<alpha>::null) Set,('\<AA>,'\<alpha>) val] \<Rightarrow> ('\<AA>,'\<alpha>) Set"
@@ -1010,9 +1010,18 @@ in the store will represented in the object itself). For such well-formed stores
 this invariant (the WFF-invariant), the referential equality and the
 strong equality---and therefore the strict equality on sets in the sense above---coincides.*}
 
+<<<<<<< .mine
+text{* Property proof in terms of @{term "binop_property_profile3"}*}
+interpretation  StrictRefEq\<^sub>S\<^sub>e\<^sub>t : binop_property_profile3 "\<lambda> x y. (x::('\<AA>,'\<alpha>::null)Set) \<doteq> y" 
+         by unfold_locales (auto simp:  StrictRefEq\<^sub>S\<^sub>e\<^sub>t)
+ 
+=======
 subsubsection{* Reflexivity *}
 text{* To become operational, we derive: *}
+>>>>>>> .r10561
 
+<<<<<<< .mine
+=======
 lemma StrictRefEq\<^sub>S\<^sub>e\<^sub>t_refl[simp,code_unfold]:
 "((x::('\<AA>,'\<alpha>::null)Set) \<doteq> x) = (if (\<upsilon> x) then true else invalid endif)"
 by(rule ext, simp add: StrictRefEq\<^sub>S\<^sub>e\<^sub>t OclIf_def)
@@ -1084,6 +1093,7 @@ qed
 
 subsection{* Execution Rules on Set Operators *}
 
+>>>>>>> .r10561
 subsubsection{* Execution Rules on OclIncluding *}
 
 lemma OclIncluding_finite_rep_set :
@@ -1641,9 +1651,9 @@ by(rule OclExcluding_charn_exec[OF StrictRefEq\<^sub>B\<^sub>o\<^sub>o\<^sub>l\<
 
 
 schematic_lemma OclExcluding_charn_exec\<^sub>S\<^sub>e\<^sub>t[simp,code_unfold]: "?X"
-by(rule OclExcluding_charn_exec[OF StrictRefEq\<^sub>S\<^sub>e\<^sub>t_strict1 StrictRefEq\<^sub>S\<^sub>e\<^sub>t_strict2
-                                StrictRefEq\<^sub>S\<^sub>e\<^sub>t_strictEq_valid_args_valid
-                             cp_StrictRefEq\<^sub>S\<^sub>e\<^sub>t StrictRefEq\<^sub>S\<^sub>e\<^sub>t_vs_StrongEq], simp_all)
+by(rule OclExcluding_charn_exec[OF StrictRefEq\<^sub>S\<^sub>e\<^sub>t.strict1 StrictRefEq\<^sub>S\<^sub>e\<^sub>t.strict2
+                                StrictRefEq\<^sub>S\<^sub>e\<^sub>t.defined_args_valid
+                                StrictRefEq\<^sub>S\<^sub>e\<^sub>t.cp0 StrictRefEq\<^sub>S\<^sub>e\<^sub>t.StrictRefEq_vs_StrongEq], simp_all)
 
 
 subsubsection{* Execution Rules on OclIncludes *}
@@ -1793,9 +1803,9 @@ by(rule OclIncludes_execute_generic[OF StrictRefEq\<^sub>B\<^sub>o\<^sub>o\<^sub
 
 
 schematic_lemma OclIncludes_execute\<^sub>S\<^sub>e\<^sub>t[simp,code_unfold]: "?X"
-by(rule OclIncludes_execute_generic[OF StrictRefEq\<^sub>S\<^sub>e\<^sub>t_strict1 StrictRefEq\<^sub>S\<^sub>e\<^sub>t_strict2
-                                 cp_StrictRefEq\<^sub>S\<^sub>e\<^sub>t
-                                    StrictRefEq\<^sub>S\<^sub>e\<^sub>t_vs_StrongEq], simp_all)
+by(rule OclIncludes_execute_generic[OF StrictRefEq\<^sub>S\<^sub>e\<^sub>t.strict1 StrictRefEq\<^sub>S\<^sub>e\<^sub>t.strict2
+                                    StrictRefEq\<^sub>S\<^sub>e\<^sub>t.cp0
+                                    StrictRefEq\<^sub>S\<^sub>e\<^sub>t.StrictRefEq_vs_StrongEq], simp_all)
 
 lemma OclIncludes_including_generic :
  assumes OclIncludes_execute_generic [simp] : "\<And>X x y.
@@ -3152,14 +3162,13 @@ lemma OclIncluding_cong : "\<And>(s::('\<AA>,'a::null)Set) t x y \<tau>. \<tau> 
  apply(rule OclIncluding_cong', simp_all only:)
 by(auto simp: OclValid_def OclIf_def invalid_def bot_option_def OclNot_def split : split_if_asm)
 
-lemma const_StrictRefEq\<^sub>S\<^sub>e\<^sub>t_empty : "const X \<Longrightarrow>
-                                       const (X \<doteq> Set{})"
- apply(rule const_StrictRefEq\<^sub>S\<^sub>e\<^sub>t, assumption)
+lemma const_StrictRefEq\<^sub>S\<^sub>e\<^sub>t_empty : "const X \<Longrightarrow>  const (X \<doteq> Set{})" 
+ apply(rule StrictRefEq\<^sub>S\<^sub>e\<^sub>t.const, assumption)
 by(simp)
 
-lemma const_StrictRefEq\<^sub>S\<^sub>e\<^sub>t_including : "const a \<Longrightarrow> const S \<Longrightarrow> const X \<Longrightarrow>
-                                       const (X \<doteq> S->including(a))"
- apply(rule const_StrictRefEq\<^sub>S\<^sub>e\<^sub>t, assumption)
+lemma const_StrictRefEq\<^sub>S\<^sub>e\<^sub>t_including : 
+ "const a \<Longrightarrow> const S \<Longrightarrow> const X \<Longrightarrow>  const (X \<doteq> S->including(a))"
+ apply(rule StrictRefEq\<^sub>S\<^sub>e\<^sub>t.const, assumption)
 by(rule const_OclIncluding)
 
 subsection{* Test Statements *}
