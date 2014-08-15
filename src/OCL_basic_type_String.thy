@@ -95,22 +95,10 @@ where "x +\<^sub>s\<^sub>t\<^sub>r\<^sub>i\<^sub>n\<^sub>g y \<equiv> \<lambda> 
                        else invalid \<tau> "
 interpretation OclAdd\<^sub>S\<^sub>t\<^sub>r\<^sub>i\<^sub>n\<^sub>g : binop_infra1 "op +\<^sub>s\<^sub>t\<^sub>r\<^sub>i\<^sub>n\<^sub>g" "\<lambda> x y. \<lfloor>\<lfloor>concat [\<lceil>\<lceil>x\<rceil>\<rceil>, \<lceil>\<lceil>y\<rceil>\<rceil>]\<rfloor>\<rfloor>"
          by unfold_locales (auto simp:OclAdd\<^sub>S\<^sub>t\<^sub>r\<^sub>i\<^sub>n\<^sub>g_def bot_option_def null_option_def)
+         
+(* TODO : size(), concat, substring(s:string) toInteger, toReal, at(i:Integer), characters() etc. *)
 
-(*
-definition OclLess\<^sub>S\<^sub>t\<^sub>r\<^sub>i\<^sub>n\<^sub>g ::"('\<AA>)String \<Rightarrow> ('\<AA>)String \<Rightarrow> ('\<AA>)Boolean" (infix "<\<^sub>s\<^sub>t\<^sub>r\<^sub>i\<^sub>n\<^sub>g" 35)
-where "x <\<^sub>s\<^sub>t\<^sub>r\<^sub>i\<^sub>n\<^sub>g y \<equiv> \<lambda> \<tau>. if (\<delta> x) \<tau> = true \<tau> \<and> (\<delta> y) \<tau> = true \<tau>
-                       then \<lfloor>\<lfloor>\<lceil>\<lceil>x \<tau>\<rceil>\<rceil> < \<lceil>\<lceil>y \<tau>\<rceil>\<rceil>\<rfloor>\<rfloor>
-                       else invalid \<tau> "
-interpretation OclLess\<^sub>S\<^sub>t\<^sub>r\<^sub>i\<^sub>n\<^sub>g : binop_infra1 "op <\<^sub>s\<^sub>t\<^sub>r\<^sub>i\<^sub>n\<^sub>g" "\<lambda> x y. \<lfloor>\<lfloor>\<lceil>\<lceil>x\<rceil>\<rceil> < \<lceil>\<lceil>y\<rceil>\<rceil>\<rfloor>\<rfloor>"
-         by   unfold_locales  (auto simp:OclLess\<^sub>S\<^sub>t\<^sub>r\<^sub>i\<^sub>n\<^sub>g_def bot_option_def null_option_def)
 
-definition OclLe\<^sub>S\<^sub>t\<^sub>r\<^sub>i\<^sub>n\<^sub>g ::"('\<AA>)String \<Rightarrow> ('\<AA>)String \<Rightarrow> ('\<AA>)Boolean" (infix "\<le>\<^sub>s\<^sub>t\<^sub>r\<^sub>i\<^sub>n\<^sub>g" 35)
-where "x \<le>\<^sub>s\<^sub>t\<^sub>r\<^sub>i\<^sub>n\<^sub>g y \<equiv> \<lambda> \<tau>. if (\<delta> x) \<tau> = true \<tau> \<and> (\<delta> y) \<tau> = true \<tau>
-                       then \<lfloor>\<lfloor>\<lceil>\<lceil>x \<tau>\<rceil>\<rceil> \<le> \<lceil>\<lceil>y \<tau>\<rceil>\<rceil>\<rfloor>\<rfloor>
-                       else invalid \<tau> "
-interpretation OclLe\<^sub>S\<^sub>t\<^sub>r\<^sub>i\<^sub>n\<^sub>g : binop_infra1 "op \<le>\<^sub>s\<^sub>t\<^sub>r\<^sub>i\<^sub>n\<^sub>g" "\<lambda> x y. \<lfloor>\<lfloor>\<lceil>\<lceil>x\<rceil>\<rceil> \<le> \<lceil>\<lceil>y\<rceil>\<rceil>\<rfloor>\<rfloor>"
-         by   unfold_locales  (auto simp:OclLe\<^sub>S\<^sub>t\<^sub>r\<^sub>i\<^sub>n\<^sub>g_def bot_option_def null_option_def)
-*)
 subsubsection{* Basic Properties *}
 
 lemma OclAdd\<^sub>S\<^sub>t\<^sub>r\<^sub>i\<^sub>n\<^sub>g_not_commute: "\<exists>X Y. (X +\<^sub>s\<^sub>t\<^sub>r\<^sub>i\<^sub>n\<^sub>g Y) \<noteq> (Y +\<^sub>s\<^sub>t\<^sub>r\<^sub>i\<^sub>n\<^sub>g X)"
@@ -118,40 +106,6 @@ lemma OclAdd\<^sub>S\<^sub>t\<^sub>r\<^sub>i\<^sub>n\<^sub>g_not_commute: "\<exi
   apply(rule_tac x = "\<lambda>_. \<lfloor>\<lfloor>''a''\<rfloor>\<rfloor>" in exI)
   apply(simp_all add:OclAdd\<^sub>S\<^sub>t\<^sub>r\<^sub>i\<^sub>n\<^sub>g_def)
   by(auto, drule fun_cong, auto)
-
-subsubsection{* Execution with Invalid or Null or Zero as Argument *}
-(*
-lemma OclAdd\<^sub>S\<^sub>t\<^sub>r\<^sub>i\<^sub>n\<^sub>g_zero1[simp,code_unfold] :
-"(x +\<^sub>s\<^sub>t\<^sub>r\<^sub>i\<^sub>n\<^sub>g \<zero>) = (if \<upsilon> x and not (\<delta> x) then invalid else x endif)"
- proof (rule ext, rename_tac \<tau>, case_tac "(\<upsilon> x and not (\<delta> x)) \<tau> = true \<tau>")
-  fix \<tau> show "(\<upsilon> x and not (\<delta> x)) \<tau> = true \<tau> \<Longrightarrow>
-              (x +\<^sub>s\<^sub>t\<^sub>r\<^sub>i\<^sub>n\<^sub>g \<zero>) \<tau> = (if \<upsilon> x and not (\<delta> x) then invalid else x endif) \<tau>"
-   apply(subst OclIf_true', simp add: OclValid_def)
-  by (metis OclAdd\<^sub>S\<^sub>t\<^sub>r\<^sub>i\<^sub>n\<^sub>g_def OclNot_defargs OclValid_def foundation5 foundation9)
-  apply_end assumption
- next fix \<tau>
-  have A: "\<And>\<tau>. (\<tau> \<Turnstile> not (\<upsilon> x and not (\<delta> x))) = (x \<tau> = invalid \<tau> \<or> \<tau> \<Turnstile> \<delta> x)"
-  by (metis OclNot_not OclOr_def defined5 defined6 defined_not_I foundation11 foundation18'
-            foundation6 foundation7 foundation9 invalid_def)
-  have B: "\<tau> \<Turnstile> \<delta> x \<Longrightarrow> \<lfloor>\<lfloor>\<lceil>\<lceil>x \<tau>\<rceil>\<rceil>\<rfloor>\<rfloor> = x \<tau>"
-   apply(cases "x \<tau>", metis bot_option_def foundation16)
-   apply(rename_tac x', case_tac x', metis bot_option_def foundation16 null_option_def)
-  by(simp)
-  show "\<tau> \<Turnstile> not (\<upsilon> x and not (\<delta> x)) \<Longrightarrow>
-              (x +\<^sub>s\<^sub>t\<^sub>r\<^sub>i\<^sub>n\<^sub>g \<zero>) \<tau> = (if \<upsilon> x and not (\<delta> x) then invalid else x endif) \<tau>"
-   apply(subst OclIf_false', simp, simp add: A, auto simp: OclAdd\<^sub>S\<^sub>t\<^sub>r\<^sub>i\<^sub>n\<^sub>g_def OclString0_def)
-     (* *)
-     apply(simp add: foundation16'[simplified OclValid_def])
-    apply(simp add: B)
-  by(simp add: OclValid_def)
-  apply_end(metis OclValid_def defined5 defined6 defined_and_I defined_not_I foundation9)
-qed
-
-lemma OclAdd\<^sub>S\<^sub>t\<^sub>r\<^sub>i\<^sub>n\<^sub>g_zero2[simp,code_unfold] :
-"(\<zero> +\<^sub>s\<^sub>t\<^sub>r\<^sub>i\<^sub>n\<^sub>g x) = (if \<upsilon> x and not (\<delta> x) then invalid else x endif)"
-by(subst OclAdd\<^sub>S\<^sub>t\<^sub>r\<^sub>i\<^sub>n\<^sub>g_commute, simp)
-*)
-
 
 
 subsubsection{* Test Statements *}
@@ -164,7 +118,7 @@ Assert "\<not>(\<tau> \<Turnstile> (( \<four> +\<^sub>s\<^sub>t\<^sub>r\<^sub>i\
 Assert "  \<tau> \<Turnstile> not (\<upsilon> (null +\<^sub>s\<^sub>t\<^sub>r\<^sub>i\<^sub>n\<^sub>g \<one>)) "
 *)
 
-subsection{* Fundamental Predicates on Strings: Strict Equality *}
+subsection{* Fundamental Properties on Strings: Strict Equality *}
 
 subsubsection{* Definition *}
 
@@ -175,104 +129,14 @@ defs   StrictRefEq\<^sub>S\<^sub>t\<^sub>r\<^sub>i\<^sub>n\<^sub>g[code_unfold] 
       "(x::('\<AA>)String) \<doteq> y \<equiv> \<lambda> \<tau>. if (\<upsilon> x) \<tau> = true \<tau> \<and> (\<upsilon> y) \<tau> = true \<tau>
                                     then (x \<triangleq> y) \<tau>
                                     else invalid \<tau>"
-
-
-subsubsection{* Validity and Definedness Properties (I) *}
-
-lemma StrictRefEq\<^sub>S\<^sub>t\<^sub>r\<^sub>i\<^sub>n\<^sub>g_defined_args_valid:
-"(\<tau> \<Turnstile> \<delta>((x::('\<AA>)String) \<doteq> y)) = ((\<tau> \<Turnstile>(\<upsilon> x)) \<and> (\<tau> \<Turnstile>(\<upsilon> y)))"
-by(auto simp: StrictRefEq\<^sub>S\<^sub>t\<^sub>r\<^sub>i\<^sub>n\<^sub>g OclValid_def true_def valid_def false_def StrongEq_def
-              defined_def invalid_def null_fun_def bot_fun_def null_option_def bot_option_def
-        split: bool.split_asm HOL.split_if_asm option.split)
-
-subsubsection{* Validity and Definedness Properties (II) *}
-
-lemma StrictRefEq\<^sub>S\<^sub>t\<^sub>r\<^sub>i\<^sub>n\<^sub>g_defargs:
-"\<tau> \<Turnstile> ((x::('\<AA>)String) \<doteq> y) \<Longrightarrow> (\<tau> \<Turnstile> (\<upsilon> x)) \<and> (\<tau> \<Turnstile> (\<upsilon> y))"
-by(simp add: StrictRefEq\<^sub>S\<^sub>t\<^sub>r\<^sub>i\<^sub>n\<^sub>g OclValid_def true_def invalid_def valid_def bot_option_def
-           split: bool.split_asm HOL.split_if_asm)
-
-subsubsection{* Validity and Definedness Properties (III) Miscellaneous *}
-
-lemma StrictRefEq\<^sub>S\<^sub>t\<^sub>r\<^sub>i\<^sub>n\<^sub>g_strict'' : "\<delta> ((x::('\<AA>)String) \<doteq> y) = (\<upsilon>(x) and \<upsilon>(y))"
-by(auto intro!: transform2_rev defined_and_I simp:foundation10 StrictRefEq\<^sub>S\<^sub>t\<^sub>r\<^sub>i\<^sub>n\<^sub>g_defined_args_valid)
-
-(* Probably not very useful *)
-lemma StrictRefEq\<^sub>S\<^sub>t\<^sub>r\<^sub>i\<^sub>n\<^sub>g_strict :
-  assumes A: "\<upsilon> (x::('\<AA>)String) = true"
-  and     B: "\<upsilon> y = true"
-  shows   "\<upsilon> (x \<doteq> y) = true"
-  apply(insert A B)
-  apply(rule ext, simp add: StrongEq_def StrictRefEq\<^sub>S\<^sub>t\<^sub>r\<^sub>i\<^sub>n\<^sub>g true_def valid_def defined_def
-                            bot_fun_def bot_option_def)
-  done
-
-
-(* Probably not very useful *)
-lemma StrictRefEq\<^sub>S\<^sub>t\<^sub>r\<^sub>i\<^sub>n\<^sub>g_strict' :
-  assumes A: "\<upsilon> (((x::('\<AA>)String)) \<doteq> y) = true"
-  shows      "\<upsilon> x = true \<and> \<upsilon> y = true"
-  apply(insert A, rule conjI)
-   apply(rule ext, rename_tac \<tau>, drule_tac x=\<tau> in fun_cong)
-   prefer 2
-   apply(rule ext, rename_tac \<tau>, drule_tac x=\<tau> in fun_cong)
-   apply(simp_all add: StrongEq_def StrictRefEq\<^sub>S\<^sub>t\<^sub>r\<^sub>i\<^sub>n\<^sub>g
-                       false_def true_def valid_def defined_def)
-   apply(case_tac "y \<tau>", auto)
-    apply(simp_all add: true_def invalid_def bot_fun_def)
-  done
-
-subsubsection{* Reflexivity *}
-
-lemma StrictRefEq\<^sub>S\<^sub>t\<^sub>r\<^sub>i\<^sub>n\<^sub>g_refl[simp,code_unfold] :
-"((x::('\<AA>)String) \<doteq> x) = (if (\<upsilon> x) then true else invalid endif)"
-by(rule ext, simp add: StrictRefEq\<^sub>S\<^sub>t\<^sub>r\<^sub>i\<^sub>n\<^sub>g OclIf_def)
-
-subsubsection{* Execution with Invalid or Null as Argument *}
-
-lemma StrictRefEq\<^sub>S\<^sub>t\<^sub>r\<^sub>i\<^sub>n\<^sub>g_strict1[simp,code_unfold] : "((x::('\<AA>)String) \<doteq> invalid) = invalid"
-by(rule ext, simp add: StrictRefEq\<^sub>S\<^sub>t\<^sub>r\<^sub>i\<^sub>n\<^sub>g true_def false_def)
-
-lemma StrictRefEq\<^sub>S\<^sub>t\<^sub>r\<^sub>i\<^sub>n\<^sub>g_strict2[simp,code_unfold] : "(invalid \<doteq> (x::('\<AA>)String)) = invalid"
-by(rule ext, simp add: StrictRefEq\<^sub>S\<^sub>t\<^sub>r\<^sub>i\<^sub>n\<^sub>g true_def false_def)
-
-lemma integer_non_null [simp]: "((\<lambda>_. \<lfloor>\<lfloor>n\<rfloor>\<rfloor>) \<doteq> (null::('\<AA>)String)) = false"
-by(rule ext,auto simp: StrictRefEq\<^sub>S\<^sub>t\<^sub>r\<^sub>i\<^sub>n\<^sub>g valid_def
-                         bot_fun_def bot_option_def null_fun_def null_option_def StrongEq_def)
-
-lemma null_non_integer [simp]: "((null::('\<AA>)String) \<doteq> (\<lambda>_. \<lfloor>\<lfloor>n\<rfloor>\<rfloor>)) = false"
-by(rule ext,auto simp: StrictRefEq\<^sub>S\<^sub>t\<^sub>r\<^sub>i\<^sub>n\<^sub>g valid_def
-                         bot_fun_def bot_option_def null_fun_def null_option_def StrongEq_def)
-
-lemma OclString0_non_null [simp,code_unfold]: "(\<a> \<doteq> null) = false" by(simp add: OclStringa_def)
-lemma null_non_OclString0 [simp,code_unfold]: "(null \<doteq> \<a>) = false" by(simp add: OclStringa_def)
-
-
-(* plus all the others ...*)
-
-subsubsection{* Const *}
-
-lemma [simp,code_unfold]: "const(\<a>)" by(simp add: const_ss OclStringa_def)
-
-
-subsubsection{* Behavior vs StrongEq *}
-
-lemma StrictRefEq\<^sub>S\<^sub>t\<^sub>r\<^sub>i\<^sub>n\<^sub>g_vs_StrongEq:
-"\<tau> \<Turnstile>(\<upsilon> x) \<Longrightarrow> \<tau> \<Turnstile>(\<upsilon> y) \<Longrightarrow> (\<tau> \<Turnstile> (((x::('\<AA>)String) \<doteq> y) \<triangleq> (x \<triangleq> y)))"
-apply(simp add: StrictRefEq\<^sub>S\<^sub>t\<^sub>r\<^sub>i\<^sub>n\<^sub>g OclValid_def)
-apply(subst cp_StrongEq[of _ "(x \<triangleq> y)"])
-by simp
-
-
-subsubsection{* Context Passing *}
-
-lemma cp_StrictRefEq\<^sub>S\<^sub>t\<^sub>r\<^sub>i\<^sub>n\<^sub>g:
-"((X::('\<AA>)String) \<doteq> Y) \<tau> = ((\<lambda> _. X \<tau>) \<doteq> (\<lambda> _. Y \<tau>)) \<tau>"
-by(auto simp: StrictRefEq\<^sub>S\<^sub>t\<^sub>r\<^sub>i\<^sub>n\<^sub>g StrongEq_def valid_def  cp_defined[symmetric])
+text{* Property prof in terms of @{term "binop_property_profile3"}*}
+interpretation  StrictRefEq\<^sub>S\<^sub>t\<^sub>r\<^sub>i\<^sub>n\<^sub>g : binop_property_profile3 "\<lambda> x y. (x::('\<AA>)String) \<doteq> y" 
+         by unfold_locales (auto simp: StrictRefEq\<^sub>S\<^sub>t\<^sub>r\<^sub>i\<^sub>n\<^sub>g)
+ 
 
 
 lemmas cp_intro'\<^sub>S\<^sub>t\<^sub>r\<^sub>i\<^sub>n\<^sub>g =
-       cp_StrictRefEq\<^sub>S\<^sub>t\<^sub>r\<^sub>i\<^sub>n\<^sub>g[THEN allI[THEN allI[THEN allI[THEN cpI2]],  of "StrictRefEq"]]
+       StrictRefEq\<^sub>S\<^sub>t\<^sub>r\<^sub>i\<^sub>n\<^sub>g.cp 
        OclAdd\<^sub>S\<^sub>t\<^sub>r\<^sub>i\<^sub>n\<^sub>g.cp
        (*OclLess\<^sub>S\<^sub>t\<^sub>r\<^sub>i\<^sub>n\<^sub>g.cp      OclLe\<^sub>S\<^sub>t\<^sub>r\<^sub>i\<^sub>n\<^sub>g.cp*)
 
