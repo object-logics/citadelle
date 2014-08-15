@@ -243,7 +243,7 @@ defs   StrictRefEq\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r[code_
                                     then (x \<triangleq> y) \<tau>
                                     else invalid \<tau>"
                                     
-text{* Property prof in terms of @{term "binop_property_profile3"}*}
+text{* Property proof in terms of @{term "binop_property_profile3"}*}
 interpretation  StrictRefEq\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r : binop_property_profile3 "\<lambda> x y. (x::('\<AA>)Integer) \<doteq> y" 
          by unfold_locales (auto simp: StrictRefEq\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r)
                                             
