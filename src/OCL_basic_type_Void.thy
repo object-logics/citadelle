@@ -42,7 +42,7 @@
 (* $Id:$ *)
 
 theory  OCL_basic_type_Void
-imports OCL_lib_common
+imports OCL_basic_type_Boolean OCL_lib_common
 begin
 
 section{* Basic Type Void *}
@@ -53,6 +53,50 @@ text {* This \emph{minimal} OCL type contains only two elements:
 @{term "Void"} could initially be defined as @{typ "unit option option"},
 however the cardinal of this type is more than two, so it would have the cost to consider
  @{text "Some None"} and @{text "Some (Some ())"} seemingly everywhere.*}
+ 
+subsection{* Fundamental Properties on Basic Types: Strict Equality *}
+
+subsubsection{* Definition *}
+
+instantiation   Void\<^sub>b\<^sub>a\<^sub>s\<^sub>e  :: bot
+begin
+   definition bot_Void_def: "(bot_class.bot :: Void\<^sub>b\<^sub>a\<^sub>s\<^sub>e) \<equiv> Abs_Void\<^sub>b\<^sub>a\<^sub>s\<^sub>e None"
+
+   instance proof show "\<exists>x:: Void\<^sub>b\<^sub>a\<^sub>s\<^sub>e. x \<noteq> bot"
+                  apply(rule_tac x="Abs_Void\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor>None\<rfloor>" in exI)
+                  apply(simp add:bot_Void_def, subst Abs_Void\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inject)
+                  apply(simp_all add: null_option_def bot_option_def)
+                  done
+            qed
+end
+
+instantiation   Void\<^sub>b\<^sub>a\<^sub>s\<^sub>e :: null
+begin
+   definition null_Void_def: "(null::Void\<^sub>b\<^sub>a\<^sub>s\<^sub>e) \<equiv> Abs_Void\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor> None \<rfloor>"
+
+   instance proof show "(null:: Void\<^sub>b\<^sub>a\<^sub>s\<^sub>e) \<noteq> bot"
+                  apply(simp add:null_Void_def bot_Void_def, subst Abs_Void\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inject)
+                  apply(simp_all add: null_option_def bot_option_def)
+                  done
+            qed
+end
+
+
+text{* The last basic operation belonging to the fundamental infrastructure
+of a value-type in OCL is the weak equality, which is defined similar
+to the @{typ "('\<AA>)Void"}-case as strict extension of the strong equality:*}
+defs   StrictRefEq\<^sub>V\<^sub>o\<^sub>i\<^sub>d[code_unfold] :
+      "(x::('\<AA>)Void) \<doteq> y \<equiv> \<lambda> \<tau>. if (\<upsilon> x) \<tau> = true \<tau> \<and> (\<upsilon> y) \<tau> = true \<tau>
+                                 then (x \<triangleq> y) \<tau>
+                                 else invalid \<tau>"
+text{* Property prof in terms of @{term "binop_property_profile3"}*}
+interpretation   StrictRefEq\<^sub>V\<^sub>o\<^sub>i\<^sub>d : binop_property_profile3 "\<lambda> x y. (x::('\<AA>)Void) \<doteq> y" 
+       by unfold_locales (auto simp:  StrictRefEq\<^sub>V\<^sub>o\<^sub>i\<^sub>d)
+ 
+                                    
+subsection{* Test Statements *}
+
+Assert "\<tau> \<Turnstile> ((null::('\<AA>)Void)  \<doteq> null)"
 
 
 end
