@@ -42,16 +42,56 @@
 (* $Id:$ *)
 
 theory  OCL_collection_type_Pair
-imports OCL_Types OCL_core OCL_lib_common OCL_basic_type_Boolean OCL_basic_type_Integer
+imports OCL_Types OCL_core OCL_lib_common 
 begin
 
 section{* Collection Type Pairs: Operations *}
 
+text{* The OCL standard provides the concept of \emph{Tuples}, \ie{} a family of record-types
+with projection functions. In FeatherWeight OCL, their is only the theory of one such Tuple
+type developped, namely the type of Pairs (which is, however, sufficient for all applications
+since it can be used to mimick all tuples.)*}
+
+subsection{* Semantic properties of the Type Constructor *}
+
+lemma A[simp]:"Rep_Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e x \<noteq> None \<Longrightarrow> Rep_Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e x \<noteq> null \<Longrightarrow> (fst \<lceil>\<lceil>Rep_Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e x\<rceil>\<rceil>) \<noteq> bot" 
+by(insert Rep_Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e[of x],auto simp:null_option_def bot_option_def)
+
+lemma A'[simp]:" x \<noteq> bot \<Longrightarrow>  x \<noteq> null \<Longrightarrow> (fst \<lceil>\<lceil>Rep_Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e x\<rceil>\<rceil>) \<noteq> bot" 
+apply(insert Rep_Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e[of x], simp add: bot_Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def null_Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def)
+apply(auto simp:null_option_def bot_option_def) 
+sorry
+
+lemma B[simp]:"Rep_Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e x \<noteq> None \<Longrightarrow> Rep_Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e x \<noteq> null \<Longrightarrow> (snd \<lceil>\<lceil>Rep_Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e x\<rceil>\<rceil>) \<noteq> bot" 
+by(insert Rep_Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e[of x],auto simp:null_option_def bot_option_def)
+
+lemma B'[simp]:"x \<noteq> bot \<Longrightarrow> x \<noteq> null \<Longrightarrow> (snd \<lceil>\<lceil>Rep_Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e x\<rceil>\<rceil>) \<noteq> bot" 
+sorry
+
+subsection{* Strict Equality *}
+
+subsubsection{* Definition *}
+
+text{* After the part of foundational operations on sets, we detail here equality on sets.
+Strong equality is inherited from the OCL core, but we have to consider
+the case of the strict equality. We decide to overload strict equality in the
+same way we do for other value's in OCL:*}
+
+defs  StrictRefEq\<^sub>P\<^sub>a\<^sub>i\<^sub>r :
+      "((x::('\<AA>,'\<alpha>::null,'\<beta>::null)Pair) \<doteq> y) \<equiv> (\<lambda> \<tau>. if (\<upsilon> x) \<tau> = true \<tau> \<and> (\<upsilon> y) \<tau> = true \<tau>
+                                                       then (x \<triangleq> y)\<tau>
+                                                       else invalid \<tau>)"
+
+
+text{* Property proof in terms of @{term "binop_property_profile3"}*}
+interpretation  StrictRefEq\<^sub>P\<^sub>a\<^sub>i\<^sub>r : binop_property_profile3 "\<lambda> x y. (x::('\<AA>,'\<alpha>::null,'\<beta>::null)Pair) \<doteq> y" 
+                by unfold_locales (auto simp:  StrictRefEq\<^sub>P\<^sub>a\<^sub>i\<^sub>r)
+ 
 subsection{* Operations *}
 
 text{* This part provides a collection of operators for the Pair type. *}
 
-subsubsection{* Definition: OclPair *}
+subsubsection{* Definition: OclPair Constructor *}
 
 definition OclPair::"('\<AA>, '\<alpha>) val \<Rightarrow>
                      ('\<AA>, '\<beta>) val \<Rightarrow>
@@ -62,20 +102,26 @@ where     "Pair{X,Y} \<equiv> (\<lambda> \<tau>. if (\<upsilon> X) \<tau> = true
 
 subsubsection{* Definition: OclFst *}
 
-definition OclFst::" ('\<AA>,'\<alpha>::null,'\<beta>::null) Pair \<Rightarrow> ('\<AA>, '\<alpha>) val"  ("Fst'(_')")
-where     "Fst(X) \<equiv> (\<lambda> \<tau>. if (\<delta> X) \<tau> = true \<tau>
-                           then fst \<lceil>\<lceil>Rep_Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e (X \<tau>)\<rceil>\<rceil>
-                           else invalid \<tau>)"
+definition OclFirst::" ('\<AA>,'\<alpha>::null,'\<beta>::null) Pair \<Rightarrow> ('\<AA>, '\<alpha>) val"  ("'(_').First")
+where     "(X).First \<equiv> (\<lambda> \<tau>. if (\<delta> X) \<tau> = true \<tau>
+                              then fst \<lceil>\<lceil>Rep_Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e (X \<tau>)\<rceil>\<rceil>
+                              else invalid \<tau>)"
+
+
+interpretation OclFirst : monop_property_profile2 OclFirst "\<lambda>x.  fst \<lceil>\<lceil>Rep_Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e (x)\<rceil>\<rceil>"
+                              apply unfold_locales 
+                              by (auto simp:  OclFirst_def)
 
 subsubsection{* Definition: OclSnd *}
+                              
+definition OclSecond::" ('\<AA>,'\<alpha>::null,'\<beta>::null) Pair \<Rightarrow> ('\<AA>, '\<beta>) val"  ("'(_').Second")
+where     "(X).Second \<equiv> (\<lambda> \<tau>. if (\<delta> X) \<tau> = true \<tau>
+                               then snd \<lceil>\<lceil>Rep_Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e (X \<tau>)\<rceil>\<rceil>
+                               else invalid \<tau>)"
 
-definition OclSnd::" ('\<AA>,'\<alpha>::null,'\<beta>::null) Pair \<Rightarrow> ('\<AA>, '\<beta>) val"  ("Snd'(_')")
-where     "Snd(X) \<equiv> (\<lambda> \<tau>. if (\<delta> X) \<tau> = true \<tau>
-                           then snd \<lceil>\<lceil>Rep_Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e (X \<tau>)\<rceil>\<rceil>
-                           else invalid \<tau>)"
-
-(* TODO : cp_lemmas, strictness rules, definedness - inference ...
-          fst_conv, snd_conv, Product_Type.pair_collapse *)
+interpretation OclSecond : monop_property_profile2 OclSecond "\<lambda>x.  snd \<lceil>\<lceil>Rep_Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e (x)\<rceil>\<rceil>"
+                              by unfold_locales  (auto simp:  OclSecond_def)
+                               
 subsubsection{* Validity and Definedness Properties *}
 subsubsection{* Execution with Invalid or Null as Argument *}
 subsubsection{* Context Passing *}
