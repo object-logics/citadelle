@@ -64,7 +64,7 @@ lemmas cp_intro'[intro!,simp,code_unfold] =
        cp_intro'
 (*       cp_intro'\<^sub>B\<^sub>o\<^sub>o\<^sub>l\<^sub>e\<^sub>a\<^sub>n *)
 (*       cp_intro'\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r *)
-       cp_intro'\<^sub>R\<^sub>e\<^sub>a\<^sub>l
+(*       cp_intro'\<^sub>R\<^sub>e\<^sub>a\<^sub>l *)
        cp_intro'\<^sub>S\<^sub>t\<^sub>r\<^sub>i\<^sub>n\<^sub>g
 
 subsection{*  Properties on Collection Types: Strict Equality *}
@@ -148,7 +148,7 @@ Assert    "\<tau> \<Turnstile> (Set{null,\<two>}->includes(null))"
 
 Assert    "\<tau> \<Turnstile> ((Set{})->forAll(z | \<zero> <\<^sub>i\<^sub>n\<^sub>t z))"
 
-(* TODO: Frederic: Find out why this does not work any longer ...
+(* TODO: Frederic: Find out why this does not work any longer ... 
 Assert    "\<tau> \<Turnstile> ((Set{\<two>,\<one>})->forAll(z | \<zero> <\<^sub>i\<^sub>n\<^sub>t z))"
 Assert   "\<tau> \<Turnstile> (\<zero> <\<^sub>i\<^sub>n\<^sub>t \<two>) and (\<zero> <\<^sub>i\<^sub>n\<^sub>t \<one>) "
 Assert "\<not> (\<tau> \<Turnstile> ((Set{\<two>,\<one>})->exists(z | z <\<^sub>i\<^sub>n\<^sub>t \<zero> )))"

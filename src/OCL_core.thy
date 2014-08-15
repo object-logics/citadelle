@@ -824,7 +824,7 @@ by(auto simp: OclNot_def null_fun_def null_option_def bot_option_def
                  OclValid_def invalid_def true_def null_def StrongEq_def)
 
 lemma foundation9':
-"            \<tau> \<Turnstile> not x \<Longrightarrow> \<not> (\<tau> \<Turnstile> x)"
+"\<tau> \<Turnstile> not x \<Longrightarrow> \<not> (\<tau> \<Turnstile> x)"
 by(auto simp: foundation6 foundation9)
 
 lemma foundation9'':
@@ -1076,6 +1076,30 @@ lemmas cp_intro[intro!,simp,code_unfold] =
        cp_StrongEq[THEN allI[THEN allI[THEN allI[THEN cpI2]],
                    of "StrongEq"]]
 
+       
+       
+subsection{* Fundamental Predicates on Basic Types: Strict (Referential) Equality *}
+
+text{*
+  In contrast to logical equality, the OCL standard defines an equality operation
+  which we call ``strict referential equality''. It behaves differently for all
+  types---on value types, it is basically a strict version of strong equality, 
+  for defined values it behaves identical. But on object types it will compare 
+  their references within the store. We  introduce strict referential equality 
+  as an \emph{overloaded} concept and will handle it for
+  each type instance individually.
+*}
+consts StrictRefEq :: "[('\<AA>,'a)val,('\<AA>,'a)val] \<Rightarrow> ('\<AA>)Boolean" (infixl "\<doteq>" 30)
+
+text{* with {term "not"} we can express the notation:*}
+
+syntax
+  "notequal"        :: "('\<AA>)Boolean \<Rightarrow> ('\<AA>)Boolean \<Rightarrow> ('\<AA>)Boolean"   (infix "<>" 40)
+translations
+  "a <> b" == "CONST OclNot( a \<doteq> b)"
+       
+text{* We will define instances of this equality in a case-by-case basis.*}       
+       
 subsection{* Laws to Establish Definedness ($\delta$-closure) *}
 
 text{* For the logical connectives, we have --- beyond

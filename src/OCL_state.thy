@@ -61,51 +61,7 @@ text{*
 
 
 
-subsection{* Recall: The Generic Structure of States *}
-text{* Recall the foundational concept of an object id (oid),
-which is just some infinite set.*}
-
-text{*
-\begin{isar}[mathescape]
-$\text{\textbf{type-synonym}}$ $\mathit{oid = nat}$
-\end{isar}
-*}
-
-text{* Further, recall that states are pair of a partial map from oid's to elements of an
-object universe @{text "'\<AA>"}---the heap---and a map to relations of objects.
-The relations were encoded as lists of pairs  to leave the possibility to have Bags,
-OrderedSets or Sequences as association ends.  *}
-text{* This leads to the definitions:
-\begin{isar}[mathescape]
-record ('\<AA>)state =
-             heap   :: "oid \<rightharpoonup> '\<AA> "
-             assocs :: "oid \<rightharpoonup> (oid list list) list"
-
-$\text{\textbf{type-synonym}}$ ('\<AA>)st = "'\<AA> state \<times> '\<AA> state"
-\end{isar}
-*}
-
-text{* Now we refine our state-interface.
-In certain contexts, we will require that the elements of the object universe have
-a particular structure; more precisely, we will require that there is a function that
-reconstructs the oid of an object in the state (we will settle the question how to define
-this function later). *}
-
-class object =  fixes oid_of :: "'a \<Rightarrow> oid"
-
-text{* Thus, if needed, we can constrain the object universe to objects by adding
-the following type class constraint:*}
-typ "'\<AA> :: object"
-
-text{* The major instance needed are instances constructed over options: once an object,
-options of objects are also objects. *}
-instantiation   option  :: (object)object
-begin
-   definition oid_of_option_def: "oid_of x = oid_of (the x)"
-   instance ..
-end
-
-section{* Fundamental Predicates on Object: Strict Equality *}
+subsection{* Fundamental Properties on Objects: Core Referential Equality *}
 subsubsection{* Definition *}
 
 text{* Generic referential equality - to be used for instantiations
@@ -118,6 +74,31 @@ where      "StrictRefEq\<^sub>O\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t x y
                          else \<lfloor>\<lfloor>(oid_of (x \<tau>)) = (oid_of (y \<tau>)) \<rfloor>\<rfloor>
                     else invalid \<tau>"
 
+subsubsection{* Strictness and context passing  *}
+
+lemma StrictRefEq\<^sub>O\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t_strict1[simp,code_unfold] :
+"(StrictRefEq\<^sub>O\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t x invalid) = invalid"
+by(rule ext, simp add: StrictRefEq\<^sub>O\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t_def true_def false_def)
+
+lemma StrictRefEq\<^sub>O\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t_strict2[simp,code_unfold] :
+"(StrictRefEq\<^sub>O\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t invalid x) = invalid"
+by(rule ext, simp add: StrictRefEq\<^sub>O\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t_def true_def false_def)
+
+
+lemma cp_StrictRefEq\<^sub>O\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t:
+"(StrictRefEq\<^sub>O\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t x y \<tau>) = (StrictRefEq\<^sub>O\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t (\<lambda>_. x \<tau>) (\<lambda>_. y \<tau>)) \<tau>"
+by(auto simp: StrictRefEq\<^sub>O\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t_def cp_valid[symmetric])
+
+lemmas cp0_StrictRefEq\<^sub>O\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t= cp_StrictRefEq\<^sub>O\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t[THEN allI[THEN allI[THEN allI[THEN cpI2]],
+             of "StrictRefEq\<^sub>O\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t"]]
+
+(*Superfluous in the future ... *)
+lemmas cp_intro''[intro!,simp,code_unfold] =
+       cp_intro''
+       cp_StrictRefEq\<^sub>O\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t[THEN allI[THEN allI[THEN allI[THEN cpI2]],
+             of "StrictRefEq\<^sub>O\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t"]]
+                    
+                    
 subsection{* Logic and Algebraic Layer on Object *}
 subsubsection{* Validity and Definedness Properties *}
 
@@ -134,6 +115,10 @@ lemma defined_StrictRefEq\<^sub>O\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t_I:
  apply(insert assms, simp add: StrictRefEq\<^sub>O\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t_def OclValid_def)
 by(subst cp_defined, simp add: true_def)
 
+lemma StrictRefEq\<^sub>O\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t_def_homo : 
+"\<delta>(StrictRefEq\<^sub>O\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t x (y::('\<AA>,'a::{null,object})val)) = ((\<upsilon> x) and (\<upsilon> y))"
+sorry
+
 subsubsection{* Symmetry *}
 
 lemma StrictRefEq\<^sub>O\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t_sym :
@@ -142,26 +127,6 @@ shows "\<tau> \<Turnstile> StrictRefEq\<^sub>O\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<
 by(simp add: StrictRefEq\<^sub>O\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t_def true_def OclValid_def
              x_val[simplified OclValid_def])
 
-subsubsection{* Execution with Invalid or Null as Argument *}
-
-lemma StrictRefEq\<^sub>O\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t_strict1[simp,code_unfold] :
-"(StrictRefEq\<^sub>O\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t x invalid) = invalid"
-by(rule ext, simp add: StrictRefEq\<^sub>O\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t_def true_def false_def)
-
-lemma StrictRefEq\<^sub>O\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t_strict2[simp,code_unfold] :
-"(StrictRefEq\<^sub>O\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t invalid x) = invalid"
-by(rule ext, simp add: StrictRefEq\<^sub>O\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t_def true_def false_def)
-
-subsubsection{* Context Passing *}
-
-lemma cp_StrictRefEq\<^sub>O\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t:
-"(StrictRefEq\<^sub>O\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t x y \<tau>) = (StrictRefEq\<^sub>O\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t (\<lambda>_. x \<tau>) (\<lambda>_. y \<tau>)) \<tau>"
-by(auto simp: StrictRefEq\<^sub>O\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t_def cp_valid[symmetric])
-
-lemmas cp_intro''[intro!,simp,code_unfold] =
-       cp_intro''
-       cp_StrictRefEq\<^sub>O\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t[THEN allI[THEN allI[THEN allI[THEN cpI2]],
-             of "StrictRefEq\<^sub>O\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t"]]
 
 subsubsection{* Behavior vs StrongEq *}
 
@@ -336,8 +301,8 @@ proof -
    Set{} (mk \<lparr>heap=empty, assocs=A\<rparr>)"
  by(simp add: OclAllInstances_generic_def mtSet_def)
  show ?thesis
-  apply(simp only: OclValid_def, subst cp_StrictRefEq\<^sub>S\<^sub>e\<^sub>t,
-        simp only: state_update_vs_allInstances_empty StrictRefEq\<^sub>S\<^sub>e\<^sub>t_refl)
+  apply(simp only: OclValid_def, subst StrictRefEq\<^sub>S\<^sub>e\<^sub>t.cp0,
+        simp only: state_update_vs_allInstances_empty StrictRefEq\<^sub>S\<^sub>e\<^sub>t.refl_ext)
   apply(simp add: OclIf_def valid_def mtSet_def defined_def
                   bot_fun_def null_fun_def null_option_def bot_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def)
  by(subst Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inject, (simp add: bot_option_def true_def)+)
@@ -366,10 +331,10 @@ proof -
 
  have insert_diff : "\<And>x S. insert \<lfloor>x\<rfloor> (S - {None}) = (insert \<lfloor>x\<rfloor> S) - {None}"
  by (metis insert_Diff_if option.distinct(1) singletonE)
-
  show ?thesis
-  apply(simp add: OclIncluding_def OclAllInstances_generic_defined[simplified OclValid_def],
-        simp add: OclAllInstances_generic_def)
+ thm OclAllInstances_generic_defined[simplified OclValid_def]
+  apply(simp add: OclIncluding_def OclAllInstances_generic_defined[simplified OclValid_def])
+  apply(simp add: OclAllInstances_generic_def)
   apply(subst Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inverse, simp add: bot_option_def, simp add: comp_def,
         subst image_insert[symmetric],
         subst drop_none, simp add: assms)

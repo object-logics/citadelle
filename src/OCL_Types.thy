@@ -9,7 +9,7 @@
  * Copyright (c) 2012-2014 Université Paris-Sud, France
  *               2013-2014 IRT SystemX, France
  *
- * All rights reserved.
+ * All rights reserved. 
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are
@@ -86,36 +86,8 @@ the way for certain consistency checks performed by the definitional packages.
 definition Sem :: "'a \<Rightarrow> 'a" ("I\<lbrakk>_\<rbrakk>")
 where "I\<lbrakk>x\<rbrakk> \<equiv> x"
 
-subsection{* Minimal Notions of State and State Transitions *}
-text{* In general, OCL operations are functions implicitly depending on a pair
-of pre- and post-state. Since this will be reflected in our representation of
-OCL Types within HOL, we need to introduce the foundational concept of an object id (oid),
-which is just some infinite set, and some abstract notion of state. *}
 
-text{* In order to assure executability of as much as possible formulas, we fixed the
-type of object id's to just natural numbers.*}
-type_synonym oid = nat
-
-text{* We refrained from the alternative:
-\begin{isar}[mathescape]
-$\text{\textbf{type-synonym}}$ $\mathit{oid = ind}$
-\end{isar}
-which is slightly more abstract but non-executable.
-*}
-
-text{*
-  States are just a partial map from oid's to elements of an object
-  universe @{text "'\<AA>"}, and state transitions pairs of states
-  \ldots
-*}
-record ('\<AA>)state =
-             heap   :: "oid \<rightharpoonup> '\<AA> "
-             assocs :: "oid \<rightharpoonup> (oid list list) list"
-
-
-type_synonym ('\<AA>)st = "'\<AA> state \<times> '\<AA> state"
-
-subsection{* Prerequisite: An Abstract Interface for OCL Types *}
+subsection{*  Common Infrastructure for all OCL Types *}
 
 text {* In order to have the possibility to nest collection types,
   such that we can give semantics to expressions like @{text "Set{Set{\<two>},null}"},
@@ -149,6 +121,7 @@ text{*
 instance option   :: (plus) plus  by intro_classes
 instance "fun"    :: (type, plus) plus by intro_classes
 *)
+
 class   bot =
    fixes   bot :: "'a"
    assumes nonEmpty : "\<exists> x. x \<noteq> bot"
@@ -219,7 +192,69 @@ text{* A trivial consequence of this adaption of the interface is that
 abstract and concrete versions of null are the same on base types
 (as could be expected). *}
 
-subsection{* The Semantic Space of OCL Types: Valuations *}
+subsection{* The Common Infrastructure of Object Types (Class Types) and States. *}
+
+text{* Recall that OCL is a textual extension of the UML; in particular, we use OCL as means to 
+annotate UML class models. Thus, OCL inherits a notion of \emph{data} in the UML: UML class
+models provide classes, inheritance, types of objects, and subtypes connecting them along
+the inheritance hierarchie.
+*}
+
+text{* For the moment, we formalize the most common notions of objects, in particular
+the existance of object-identifiers (oid) for each object under which it can
+be referenced in a \emph{state}. *}
+
+type_synonym oid = nat
+
+text{* We refrained from the alternative:
+\begin{isar}[mathescape]
+$\text{\textbf{type-synonym}}$ $\mathit{oid = ind}$
+\end{isar}
+which is slightly more abstract but non-executable.
+*}
+
+text{* \emph{States} in UML/OCL are a pair of
+\begin{itemize}
+\item a partial map from oid's to elements of an \emph{object universe},
+      \ie{} the set of all possible object representations.
+\item and an oid-indexed family of \emph{associations}, \ie{} finite relations between
+      objects living in a state. These relations can be n-ary which we model by nested lists.
+\end{enumerate}      
+For the moment we do not have to describe the concrete structure of the object universe and denote 
+it by the  polymorphic variable @{text "'\<AA>"}.*}
+
+record ('\<AA>)state =
+             heap   :: "oid \<rightharpoonup> '\<AA> "
+             assocs :: "oid \<rightharpoonup> ((oid list) list) list"
+
+text{* In general, OCL operations are functions implicitly depending on a pair
+of pre- and post-state, \ie{} \emph{state transitions}. Since this will be reflected in our 
+representation of OCL Types within HOL, we need to introduce the foundational concept of an 
+object id (oid), which is just some infinite set, and some abstract notion of state. *}
+
+type_synonym ('\<AA>)st = "'\<AA> state \<times> '\<AA> state"
+
+text{* We will require for all objects that there is a function that
+reconstructs the oid of an object in the state (we will settle the question how to define
+this function later). We will use the Isabelle type class mechanism \cite{XXX} 
+\fixme{Get Appropriate Reference!} to capture this: *}
+
+class object =  fixes oid_of :: "'a \<Rightarrow> oid"
+
+text{* Thus, if needed, we can constrain the object universe to objects by adding
+the following type class constraint:*}
+typ "'\<AA> :: object"
+
+text{* The major instance needed are instances constructed over options: once an object,
+options of objects are also objects. *}
+instantiation   option  :: (object)object
+begin
+   definition oid_of_option_def: "oid_of x = oid_of (the x)"
+   instance ..
+end
+
+
+subsection{* Common Infrastructure for all OCL Types (II): Valuations as OCL Types *}
 text{* Since OCL operations in general depend on pre- and post-states, we will
 represent OCL types as \emph{functions} from pre- and post-state to some
 HOL raw-type that contains exactly the data in the OCL type --- see below. 
@@ -238,7 +273,7 @@ interpretation function (which happens to be defined just as the identity
 since we are using a shallow embedding of OCL into HOL), all these definitions
 can be rewritten into the conventional semantic textbook format  as follows: *}
 
-subsection{* The fundamental constants 'invalid' and 'null'. *}
+subsection{* The fundamental constants 'invalid' and 'null' in all OCL Types *}
 
 text{* As a consequence of semantic domain definition, any OCL type will
 have the two semantic constants @{text "invalid"} (for exceptional, aborted
@@ -269,10 +304,10 @@ semantic textbook definition for the OCL null constant based on the
 abstract null:
 *}
 
-lemma textbook_null_fun: "I\<lbrakk>null::('\<AA>,'\<alpha>::null) val\<rbrakk> \<tau> = (null::'\<alpha>::null)"
+lemma textbook_null_fun: "I\<lbrakk>null::('\<AA>,'\<alpha>::null) val\<rbrakk> \<tau> = (null::('\<alpha>::null))"
 by(simp add: null_fun_def Sem_def)
 
-section{* Basic OCL Types *}
+section{* Basic OCL Value Types *}
 
 text{* The semantic domain of the (basic) boolean type is now defined as the Standard:
 the space of valuation to @{typ "bool option option"}, \ie{} the Boolean base type:*}
@@ -290,10 +325,6 @@ type_synonym ('\<AA>)Integer = "('\<AA>,Integer\<^sub>b\<^sub>a\<^sub>s\<^sub>e)
 type_synonym String\<^sub>b\<^sub>a\<^sub>s\<^sub>e  = "string option option"
 type_synonym ('\<AA>)String = "('\<AA>,String\<^sub>b\<^sub>a\<^sub>s\<^sub>e) val"
 
-text{* Slightly atypic are the definitions:*}
-type_synonym Void\<^sub>b\<^sub>a\<^sub>s\<^sub>e = "unit option"
-type_synonym ('\<AA>)Void = "('\<AA>,Void\<^sub>b\<^sub>a\<^sub>s\<^sub>e) val"
-
 (* type_synonym Real\<^sub>b\<^sub>a\<^sub>s\<^sub>e = "real option option" : 
    Only when Theory Real or Transcendent were imported *)
 type_synonym Real\<^sub>b\<^sub>a\<^sub>s\<^sub>e  = "nat option option"
@@ -303,11 +334,22 @@ text{* Since @{term "Real"} is again a basic type, we define its semantic domain
 as the valuations over @{text "real option option"} --- i.e. the mathematical type of real numbers.
 The HOL-theory for @{text real} ``Real'' transcendental numbers such as $\pi$ and $e$ as well as
 infrastructure to reason over infinite convergent Cauchy-sequences (it is thus possible, in principle,
-to reason that the sum of two-s exponentials is actually 2.
+to reason in Featherweight OCL that the sum of inverted two-s exponentials is actually 2.
 
 If needed, a code-generator to compile @{text "Real"} to floating-point
 numbers can be added; this allows for mapping reals to an efficient machine representation;
 of course, this feature would be logically unsafe.*}
+
+text{* For technical reasons related to the Isabelle type inference for type-classes
+(we don't get the properties in the right order that class instantiation provides them,
+if we would follow the previous scheme), we give a slightly atypic definition:*}
+
+typedef Void\<^sub>b\<^sub>a\<^sub>s\<^sub>e = "{X::unit option option. X = bot \<or> X = null }"
+                            by (rule_tac x="bot" in exI, simp)
+type_synonym ('\<AA>)Void = "('\<AA>,Void\<^sub>b\<^sub>a\<^sub>s\<^sub>e) val"
+
+
+
 
 section{* Some OCL Collection Types *}
 text{* The construction of collection types is sligtly more involved: We need to define an
@@ -333,13 +375,13 @@ identify these with @{term "invalid"}.
 
 instantiation   Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e  :: (null,null)bot
 begin
-   definition bot_Pair_0_def: "(bot_class.bot :: ('a\<Colon>null,'b\<Colon>null) Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e) \<equiv> Abs_Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e None"
+   definition bot_Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def: "(bot_class.bot :: ('a\<Colon>null,'b\<Colon>null) Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e) \<equiv> Abs_Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e None"
 
    instance proof show "\<exists>x\<Colon>('a,'b) Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e. x \<noteq> bot"
                   apply(rule_tac x="Abs_Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor>None\<rfloor>" in exI)
-                  apply(simp add:bot_Pair_0_def)
+                  apply(simp add:bot_Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def)
                   apply(subst Abs_Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inject)
-                  apply(simp_all add: bot_Pair_0_def
+                  apply(simp_all add: bot_Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def
                                       null_option_def bot_option_def)
                   done
             qed
@@ -350,9 +392,9 @@ begin
    definition null_Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def: "(null::('a::null,'b::null) Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e) \<equiv> Abs_Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor> None \<rfloor>"
 
    instance proof show "(null::('a::null,'b::null) Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e) \<noteq> bot"
-                  apply(simp add:null_Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def bot_Pair_0_def)
+                  apply(simp add:null_Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def bot_Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def)
                   apply(subst Abs_Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inject)
-                  apply(simp_all add: bot_Pair_0_def null_option_def bot_option_def)
+                  apply(simp_all add: bot_Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def null_option_def bot_option_def)
                   done
             qed
 end
@@ -447,15 +489,52 @@ end
 text{* ...  and lifting this type to the format of a valuation gives us:*}
 type_synonym    ('\<AA>,'\<alpha>) Sequence  = "('\<AA>, '\<alpha> Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e) val"
 
-subsection{* The Construction of Class Types *}
-text{* OCL is a textual extension of the UML; in particular, we use OCL as means to annotate
-UML class models. \fixme{MORE TO COME !!!}
-
--- or integrating into section on rudimentary object state above ?
--- or include section "Introduction: States over Typed Object Universes" ?
-
+subsection{* Discussion: The Representation of UML/OCL Types in FeatherWeight OCL *}
+text{* In the introduction, we mentioned that there is an ``injective representation
+mapping'' between the types of OCL and the types of FeatherWeight OCL (and its 
+meta-language: HOL). This injectivity is at the heart of our representation technique
+--- a so-called \emph{shallow embedding} --- and means: OCL types were mapped one-to-one
+to types in HOL, ruling out a resentation where
+everything is mapped on some common HOL-type, say ``OCL-expression'', in which we 
+would have to sort out the typing of OCL and its impact on the semantic representation
+function in an own, quite heavy side-calculus.
 *}
 
+text{* After the previous sections, we are now able to exemplify this representation as follows:
+
+\begin{table}[htbp]
+   \centering
+   \begin{tabu}{lX[,c,]}
+      \toprule
+      OCL Type & HOL Type \\
+      \midrule
+      \inlineocl{Boolean}  & @{typ  "('\<AA>)Boolean"} \\
+      \inlineocl{Boolean -> Boolean} & @{typ  "('\<AA>)Boolean \<Rightarrow> ('\<AA>)Boolean"} \\
+      \inlineocl{(Integer,Integer) -> Boolean} & @{typ  "('\<AA>)Integer \<Rightarrow> ('\<AA>)Integer \<Rightarrow> ('\<AA>)Boolean"} \\
+      \inlineocl{Set(Integer)} & @{typ "('\<AA>,Integer\<^sub>b\<^sub>a\<^sub>s\<^sub>e)Set"} \\
+      \inlineocl{Set(Integer)-> Real} & @{typ "('\<AA>,Integer\<^sub>b\<^sub>a\<^sub>s\<^sub>e)Set \<Rightarrow> ('\<AA>)Real"} \\
+      \inlineocl{Set(Pair(Integer,Boolean))} & @{typ "('\<AA>,(Integer\<^sub>b\<^sub>a\<^sub>s\<^sub>e, Boolean\<^sub>b\<^sub>a\<^sub>s\<^sub>e)Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e)Set"} \\
+      \inlineocl{Set(<T>)} & @{typ "('\<AA>,'\<alpha>::null)Set"} \\
+      \bottomrule
+   \end{tabu}
+   \caption{Basic semantic constant definitions of the logic (except @{term null})}
+   \label{tab:sem_basic_constants}
+\end{table}
+We do not formalize the representation map here; however, its principles are quite straight-forward:
+\begin{enumerate}
+\item cartesion products of arguments were curried,
+\item constants of type \inlineocl{T} were mapped to valuations over the
+      HOL-type for \inlineocl{T},
+\item functions \inlineocl{T -> T'} were mapped to functions in HOL, where
+      \inlineocl{T} and  \inlineocl{T'}  were mapped to the valuations for them, and
+\item the arguments of type constructors  \inlineocl{Set(T)} remain corresponding HOL base-types.
+\end{enumerate}
+      
+*}
+
+text{* Note, furthermore, that our construction of ``fully abstract types'' (no junk, no confusion)
+assures that the logical equality to be defined in the next section works correctly and comes
+as element of the ``lingua franca'', \ie{} HOL. *}
 
 (*<*)
 section{* Miscelleaneous: ML assertions *}

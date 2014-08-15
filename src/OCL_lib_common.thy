@@ -58,6 +58,70 @@ of an operator definition and obtain the common rules for strictness, definednes
 propagation, context-passingness and constance in a systematic way.
 *}
 
+locale monop_property_profile1 =
+   fixes f :: "('\<AA>,'\<alpha>::null)val \<Rightarrow> ('\<AA>,'\<beta>::null)val"
+   fixes g::"'\<alpha> \<Rightarrow> '\<beta>"
+   assumes def_scheme: "(f x) \<equiv> \<lambda> \<tau>. if (\<delta> x) \<tau> = true \<tau>  then g (x \<tau>) else invalid \<tau>"
+   assumes def_body:  "\<And> x. g x \<noteq> bot \<and> g x \<noteq> null"
+begin
+   lemma strict[simp,code_unfold]: " f invalid = invalid"
+   by(rule ext, simp add: def_scheme true_def false_def)
+ 
+   lemma null_strict[simp,code_unfold]: " f null = invalid"
+   by(rule ext, simp add: def_scheme true_def false_def)
+
+   lemma cp0 : "f X \<tau> = f (\<lambda> _. X \<tau>)  \<tau>"
+   by(simp add: def_scheme  cp_defined[symmetric])
+      
+   lemma cp[simp,code_unfold] : " cp P \<Longrightarrow> cp (\<lambda>X. f (P X) )"
+   by(rule OCL_core.cpI1[of "f"], intro allI, rule cp0, simp_all)
+
+   lemma def_homo[simp]: "\<delta>(f x) = (\<delta> x)"
+   apply(rule ext, rename_tac "\<tau>",subst OCL_core.foundation22[symmetric])
+   apply(case_tac "\<not>(\<tau> \<Turnstile> \<delta> x)", simp add:defined_split, elim disjE)
+     apply(erule OCL_core.StrongEq_L_subst2_rev, simp,simp)
+    apply(erule OCL_core.StrongEq_L_subst2_rev, simp,simp)
+    apply(simp)
+    apply(rule foundation13[THEN iffD2,THEN OCL_core.StrongEq_L_subst2_rev, where y ="\<delta> x"])
+    apply(simp_all add:def_scheme)
+    apply(simp add: OclValid_def valid_def, subst cp_StrongEq)
+    apply(subst (1) cp_defined)
+   by(auto simp:foundation13 StrongEq_def false_def true_def defined_def bot_fun_def null_fun_def def_body)
+
+   lemma def_valid_then_def: "\<upsilon>(f x) = (\<delta>(f x))"
+   apply(rule ext, rename_tac "\<tau>",subst OCL_core.foundation22[symmetric])
+   apply(case_tac "\<not>(\<tau> \<Turnstile> \<delta> x)", simp add:defined_split, elim disjE)
+     apply(erule OCL_core.StrongEq_L_subst2_rev, simp,simp)
+    apply(erule OCL_core.StrongEq_L_subst2_rev, simp,simp)
+   apply simp
+   apply(simp_all add:def_scheme)
+   apply(simp add: OclValid_def valid_def, subst cp_StrongEq)
+   apply(subst (2) cp_defined, simp, simp add: cp_defined[symmetric])
+   by(auto simp: def_body bot_fun_def)
+
+end
+
+locale monop_property_profile2 =
+   fixes f :: "('\<AA>,'\<alpha>::null)val \<Rightarrow> ('\<AA>,'\<beta>::null)val"
+   fixes g::"'\<alpha> \<Rightarrow> '\<beta>"
+   assumes def_scheme: "(f x) \<equiv> \<lambda> \<tau>. if (\<delta> x) \<tau> = true \<tau>  then g (x \<tau>) else invalid \<tau>"
+   assumes def_body:  "\<And> x. x \<noteq> bot \<Longrightarrow> x \<noteq> null \<Longrightarrow> g x \<noteq> bot"
+begin
+   lemma strict[simp,code_unfold]: " f invalid = invalid"
+   by(rule ext, simp add: def_scheme true_def false_def)
+ 
+   lemma null_strict[simp,code_unfold]: " f null = invalid"
+   by(rule ext, simp add: def_scheme true_def false_def)
+
+   lemma cp0 : "f X \<tau> = f (\<lambda> _. X \<tau>)  \<tau>"
+   by(simp add: def_scheme  cp_defined[symmetric])
+      
+   lemma cp[simp,code_unfold] : " cp P \<Longrightarrow> cp (\<lambda>X. f (P X) )"
+   by(rule OCL_core.cpI1[of "f"], intro allI, rule cp0, simp_all)
+
+(* Missing ! equivs to def_homo.*)
+end
+      
 locale binop_infra =
    fixes d:: "('\<AA>,'b::null)val \<Rightarrow> '\<AA> Boolean"
    fixes f::"('\<AA>,'a::null)val \<Rightarrow> ('\<AA>,'b::null)val \<Rightarrow> ('\<AA>,'c::null)val"
@@ -66,7 +130,7 @@ locale binop_infra =
    assumes d_cp0: "d Y \<tau> = d (\<lambda> _. Y \<tau>) \<tau>"
    assumes d_homo[simp]: "cp (f x) \<Longrightarrow> 
                           f x invalid = invalid \<Longrightarrow>
-                          \<not> \<tau> \<Turnstile> d y \<Longrightarrow> \<tau> \<Turnstile> \<delta> f x y \<triangleq> (\<delta> x and d y)"
+                          \<not> (\<tau> \<Turnstile> (d y)) \<Longrightarrow> \<tau> \<Turnstile> ((\<delta> f x y) \<triangleq> ((\<delta> x) and (d y)))"
    assumes d_const[simp]: "const Y \<Longrightarrow> const (d Y)"
    assumes def_scheme': "f x y = (\<lambda> \<tau>. if (\<delta> x) \<tau> = true \<tau> \<and> (d y) \<tau> = true \<tau>
                                       then g (x \<tau>) (y \<tau>)
@@ -81,11 +145,11 @@ begin
 
       lemma strict3[simp,code_unfold]: " f null y = invalid"
       by(rule ext, simp add: def_scheme' true_def false_def)
-
+                                                                          
       lemma cp0 : "f X Y \<tau> = f (\<lambda> _. X \<tau>) (\<lambda> _. Y \<tau>) \<tau>"
       by(simp add: def_scheme' d_cp0[symmetric] cp_defined[symmetric])
       
-      lemma cp[simp] : " cp P \<Longrightarrow> cp Q \<Longrightarrow> cp (\<lambda>X. f (P X) (Q X))"
+      lemma cp[simp,code_unfold] : " cp P \<Longrightarrow> cp Q \<Longrightarrow> cp (\<lambda>X. f (P X) (Q X))"
       by(rule OCL_core.cpI2[of "f"], intro allI, rule cp0, simp_all)
 
       lemma def_homo[simp]: "\<delta>(f x y) = (\<delta> x and d y)"
@@ -108,7 +172,7 @@ begin
                              null_def null_fun_def null_option_def bot_fun_def)
          by (metis "1" OclValid_def def_scheme' foundation16 true_def)
 
-      lemma const[simp] : 
+      lemma const[simp,code_unfold] : 
           assumes C1 :"const X" and C2 : "const Y"
           shows       "const(f X Y)"
       proof -
@@ -188,10 +252,10 @@ locale binop_property_profile3 =
       lemma cp0 : "f X Y \<tau> = f (\<lambda> _. X \<tau>) (\<lambda> _. Y \<tau>) \<tau>"
       by(simp add: def_scheme  cp_valid[symmetric] cp_StrongEq[symmetric])
       
-      lemma cp[simp] : " cp P \<Longrightarrow> cp Q \<Longrightarrow> cp (\<lambda>X. f (P X) (Q X))"
+      lemma cp[simp,code_unfold] : " cp P \<Longrightarrow> cp Q \<Longrightarrow> cp (\<lambda>X. f (P X) (Q X))"
       by(rule OCL_core.cpI2[of "f"], intro allI, rule cp0, simp_all)
 
-      lemma const[simp] : 
+      lemma const[simp,code_unfold] : 
             assumes C1 :"const X" and C2 : "const Y"  shows  "const(f X Y)"
             by(simp_all add : def_scheme const_ss C1 C2 )
          
