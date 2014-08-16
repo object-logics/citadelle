@@ -48,25 +48,40 @@ begin
 section{* Collection Type Pairs: Operations *}
 
 text{* The OCL standard provides the concept of \emph{Tuples}, \ie{} a family of record-types
-with projection functions. In FeatherWeight OCL, their is only the theory of one such Tuple
-type developped, namely the type of Pairs (which is, however, sufficient for all applications
-since it can be used to mimick all tuples.)*}
+with projection functions. In FeatherWeight OCL,  only the theory of a special case is
+developped, namely the type of Pairs, which is, however, sufficient for all applications
+since it can be used to mimick all tuples. In particular, it can be used to express operations
+with multiple arguments, roles of n-ary associations, ... *}
 
-subsection{* Semantic properties of the Type Constructor *}
+subsection{* Semantic Properties of the Type Constructor *}
 
 lemma A[simp]:"Rep_Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e x \<noteq> None \<Longrightarrow> Rep_Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e x \<noteq> null \<Longrightarrow> (fst \<lceil>\<lceil>Rep_Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e x\<rceil>\<rceil>) \<noteq> bot" 
 by(insert Rep_Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e[of x],auto simp:null_option_def bot_option_def)
 
 lemma A'[simp]:" x \<noteq> bot \<Longrightarrow>  x \<noteq> null \<Longrightarrow> (fst \<lceil>\<lceil>Rep_Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e x\<rceil>\<rceil>) \<noteq> bot" 
 apply(insert Rep_Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e[of x], simp add: bot_Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def null_Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def)
-apply(auto simp:null_option_def bot_option_def) 
-sorry
+apply(auto simp:null_option_def bot_option_def)
+apply(erule contrapos_np[of "x = Abs_Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e None"])
+apply(subst Rep_Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inject[symmetric], simp)
+apply(subst Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e.Abs_Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inverse, simp_all,simp add: bot_option_def)
+apply(erule contrapos_np[of "x = Abs_Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor>None\<rfloor>"])
+apply(subst Rep_Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inject[symmetric], simp)
+apply(subst Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e.Abs_Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inverse, simp_all,simp add: null_option_def bot_option_def)
+done
 
 lemma B[simp]:"Rep_Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e x \<noteq> None \<Longrightarrow> Rep_Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e x \<noteq> null \<Longrightarrow> (snd \<lceil>\<lceil>Rep_Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e x\<rceil>\<rceil>) \<noteq> bot" 
 by(insert Rep_Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e[of x],auto simp:null_option_def bot_option_def)
 
 lemma B'[simp]:"x \<noteq> bot \<Longrightarrow> x \<noteq> null \<Longrightarrow> (snd \<lceil>\<lceil>Rep_Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e x\<rceil>\<rceil>) \<noteq> bot" 
-sorry
+apply(insert Rep_Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e[of x], simp add: bot_Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def null_Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def)
+apply(auto simp:null_option_def bot_option_def)
+apply(erule contrapos_np[of "x = Abs_Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e None"])
+apply(subst Rep_Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inject[symmetric], simp)
+apply(subst Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e.Abs_Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inverse, simp_all,simp add: bot_option_def)
+apply(erule contrapos_np[of "x = Abs_Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor>None\<rfloor>"])
+apply(subst Rep_Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inject[symmetric], simp)
+apply(subst Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e.Abs_Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inverse, simp_all,simp add: null_option_def bot_option_def)
+done
 
 subsection{* Strict Equality *}
 
@@ -87,7 +102,7 @@ text{* Property proof in terms of @{term "binop_property_profile3"}*}
 interpretation  StrictRefEq\<^sub>P\<^sub>a\<^sub>i\<^sub>r : binop_property_profile3 "\<lambda> x y. (x::('\<AA>,'\<alpha>::null,'\<beta>::null)Pair) \<doteq> y" 
                 by unfold_locales (auto simp:  StrictRefEq\<^sub>P\<^sub>a\<^sub>i\<^sub>r)
  
-subsection{* Operations *}
+subsection{* Standard Operations *}
 
 text{* This part provides a collection of operators for the Pair type. *}
 
@@ -102,36 +117,35 @@ where     "Pair{X,Y} \<equiv> (\<lambda> \<tau>. if (\<upsilon> X) \<tau> = true
 
 subsubsection{* Definition: OclFst *}
 
-definition OclFirst::" ('\<AA>,'\<alpha>::null,'\<beta>::null) Pair \<Rightarrow> ('\<AA>, '\<alpha>) val"  ("'(_').First")
-where     "(X).First \<equiv> (\<lambda> \<tau>. if (\<delta> X) \<tau> = true \<tau>
+definition OclFirst::" ('\<AA>,'\<alpha>::null,'\<beta>::null) Pair \<Rightarrow> ('\<AA>, '\<alpha>) val"  (" _ .First'(')")
+where     "X .First() \<equiv> (\<lambda> \<tau>. if (\<delta> X) \<tau> = true \<tau>
                               then fst \<lceil>\<lceil>Rep_Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e (X \<tau>)\<rceil>\<rceil>
                               else invalid \<tau>)"
 
 
 interpretation OclFirst : monop_property_profile2 OclFirst "\<lambda>x.  fst \<lceil>\<lceil>Rep_Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e (x)\<rceil>\<rceil>"
-                              apply unfold_locales 
-                              by (auto simp:  OclFirst_def)
+                         by unfold_locales (auto simp:  OclFirst_def)
 
 subsubsection{* Definition: OclSnd *}
                               
-definition OclSecond::" ('\<AA>,'\<alpha>::null,'\<beta>::null) Pair \<Rightarrow> ('\<AA>, '\<beta>) val"  ("'(_').Second")
-where     "(X).Second \<equiv> (\<lambda> \<tau>. if (\<delta> X) \<tau> = true \<tau>
+definition OclSecond::" ('\<AA>,'\<alpha>::null,'\<beta>::null) Pair \<Rightarrow> ('\<AA>, '\<beta>) val"  ("_ .Second'(')")
+where     "X .Second() \<equiv> (\<lambda> \<tau>. if (\<delta> X) \<tau> = true \<tau>
                                then snd \<lceil>\<lceil>Rep_Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e (X \<tau>)\<rceil>\<rceil>
                                else invalid \<tau>)"
 
 interpretation OclSecond : monop_property_profile2 OclSecond "\<lambda>x.  snd \<lceil>\<lceil>Rep_Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e (x)\<rceil>\<rceil>"
-                              by unfold_locales  (auto simp:  OclSecond_def)
+                           by unfold_locales  (auto simp:  OclSecond_def)
                                
-subsubsection{* Validity and Definedness Properties *}
-subsubsection{* Execution with Invalid or Null as Argument *}
-subsubsection{* Context Passing *}
+subsection{* Execution Properties *}
 
-lemmas cp_intro''\<^sub>P\<^sub>a\<^sub>i\<^sub>r[intro!,simp,code_unfold] = cp_intro'
-
-subsubsection{* Const *}
 
 subsection{*Test Statements*}
 
+Assert "\<tau> \<Turnstile> invalid .First() \<triangleq> invalid "
+Assert "\<tau> \<Turnstile> null .First() \<triangleq> invalid "
+Assert "\<tau> \<Turnstile> null .Second() \<triangleq> invalid .Second() "
+(*
+Assert "\<tau> \<Turnstile> Pair{invalid, true} \<triangleq> invalid "
 text{*\fixme{TODO}*}
-
+*)
 end
