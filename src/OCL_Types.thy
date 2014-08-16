@@ -219,7 +219,7 @@ text{* \emph{States} in UML/OCL are a pair of
       \ie{} the set of all possible object representations.
 \item and an oid-indexed family of \emph{associations}, \ie{} finite relations between
       objects living in a state. These relations can be n-ary which we model by nested lists.
-\end{enumerate}      
+\end{itemize}      
 For the moment we do not have to describe the concrete structure of the object universe and denote 
 it by the  polymorphic variable @{text "'\<AA>"}.*}
 

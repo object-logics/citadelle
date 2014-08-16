@@ -805,7 +805,7 @@ function which is either the identity @{term id} or, for \inlineocl{0..1} cardin
 of associations, the @{term OclANY}-selector which also handles the
 @{term null}-cases appropriately. A standard use-case for this combinator
 is for example: *}
-term "(select_object mtSet OclIncluding OclANY f  l oid )::('\<AA>, 'a::null)val"
+term "(select_object mtSet OCL_collection_type_Set.OclIncluding OclANY f  l oid )::('\<AA>, 'a::null)val"
 
 definition deref_oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n :: "(\<AA> state \<times> \<AA> state \<Rightarrow> \<AA> state)
                              \<Rightarrow> (type\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n \<Rightarrow> (\<AA>, 'c::null)val)
@@ -833,7 +833,7 @@ definition "select\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y\<A>\<N>\<Y> f
                    | (mk\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y _ \<lfloor>any\<rfloor>) \<Rightarrow> f (\<lambda>x _. \<lfloor>\<lfloor>x\<rfloor>\<rfloor>) any)"
 
 
-definition "select\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<B>\<O>\<S>\<S> f = select_object mtSet OclIncluding OclANY (f (\<lambda>x _. \<lfloor>\<lfloor>x\<rfloor>\<rfloor>))"
+definition "select\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<B>\<O>\<S>\<S> f = select_object mtSet OCL_collection_type_Set.OclIncluding OclANY (f (\<lambda>x _. \<lfloor>\<lfloor>x\<rfloor>\<rfloor>))"
 
 
 definition "select\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<S>\<A>\<L>\<A>\<R>\<Y> f = (\<lambda> X. case X of

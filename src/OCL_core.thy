@@ -1076,57 +1076,6 @@ lemmas cp_intro[intro!,simp,code_unfold] =
        cp_StrongEq[THEN allI[THEN allI[THEN allI[THEN cpI2]],
                    of "StrongEq"]]
 
-       
-       
-subsection{* Fundamental Predicates on Basic Types: Strict (Referential) Equality *}
-
-text{*
-  In contrast to logical equality, the OCL standard defines an equality operation
-  which we call ``strict referential equality''. It behaves differently for all
-  types---on value types, it is basically a strict version of strong equality, 
-  for defined values it behaves identical. But on object types it will compare 
-  their references within the store. We  introduce strict referential equality 
-  as an \emph{overloaded} concept and will handle it for
-  each type instance individually.
-*}
-consts StrictRefEq :: "[('\<AA>,'a)val,('\<AA>,'a)val] \<Rightarrow> ('\<AA>)Boolean" (infixl "\<doteq>" 30)
-
-text{* with {term "not"} we can express the notation:*}
-
-syntax
-  "notequal"        :: "('\<AA>)Boolean \<Rightarrow> ('\<AA>)Boolean \<Rightarrow> ('\<AA>)Boolean"   (infix "<>" 40)
-translations
-  "a <> b" == "CONST OclNot( a \<doteq> b)"
-       
-text{* We will define instances of this equality in a case-by-case basis.*}       
-       
-subsection{* Laws to Establish Definedness ($\delta$-closure) *}
-
-text{* For the logical connectives, we have --- beyond
-@{thm foundation6} --- the following facts:  *}
-lemma OclNot_defargs:
-"\<tau> \<Turnstile> (not P) \<Longrightarrow> \<tau> \<Turnstile> \<delta> P"
-by(auto simp: OclNot_def OclValid_def true_def invalid_def defined_def false_def
-                 bot_fun_def bot_option_def null_fun_def null_option_def
-        split: bool.split_asm HOL.split_if_asm option.split option.split_asm)
-
-
-lemma OclNot_contrapos_nn:
- assumes A: "\<tau> \<Turnstile> \<delta> A"
- assumes B: "\<tau> \<Turnstile> not B"
- assumes C: "\<tau> \<Turnstile> A \<Longrightarrow> \<tau> \<Turnstile> B"
- shows      "\<tau> \<Turnstile> not A"
-proof -
- have D : "\<tau> \<Turnstile> \<delta> B" by(rule B[THEN OclNot_defargs])
- show ?thesis 
-    apply(insert B,simp add: A D OCL_core.foundation9)
-    by(erule contrapos_nn, auto intro: C)
-qed
-
-text{* So far, we have only one strict Boolean predicate (-family): the strict equality. *}
-
-subsection{* Miscellaneous *}
-
 subsection{* OCL's if then else endif *}
 
 definition OclIf :: "[('\<AA>)Boolean , ('\<AA>,'\<alpha>::null) val, ('\<AA>,'\<alpha>) val] \<Rightarrow> ('\<AA>,'\<alpha>) val"
@@ -1187,7 +1136,54 @@ lemma OclNot_if[simp]:
 by simp
 
 
-subsection{* A Side-calculus for (Boolean) Constant Terms *}
+       
+subsection{* Fundamental Predicates on Basic Types: Strict (Referential) Equality *}
+
+text{*
+  In contrast to logical equality, the OCL standard defines an equality operation
+  which we call ``strict referential equality''. It behaves differently for all
+  types---on value types, it is basically a strict version of strong equality, 
+  for defined values it behaves identical. But on object types it will compare 
+  their references within the store. We  introduce strict referential equality 
+  as an \emph{overloaded} concept and will handle it for
+  each type instance individually.
+*}
+consts StrictRefEq :: "[('\<AA>,'a)val,('\<AA>,'a)val] \<Rightarrow> ('\<AA>)Boolean" (infixl "\<doteq>" 30)
+
+text{* with {term "not"} we can express the notation:*}
+
+syntax
+  "notequal"        :: "('\<AA>)Boolean \<Rightarrow> ('\<AA>)Boolean \<Rightarrow> ('\<AA>)Boolean"   (infix "<>" 40)
+translations
+  "a <> b" == "CONST OclNot( a \<doteq> b)"
+       
+text{* We will define instances of this equality in a case-by-case basis.*}       
+       
+subsection{* Laws to Establish Definedness ($\delta$-closure) *}
+
+text{* For the logical connectives, we have --- beyond
+@{thm foundation6} --- the following facts:  *}
+lemma OclNot_defargs:
+"\<tau> \<Turnstile> (not P) \<Longrightarrow> \<tau> \<Turnstile> \<delta> P"
+by(auto simp: OclNot_def OclValid_def true_def invalid_def defined_def false_def
+                 bot_fun_def bot_option_def null_fun_def null_option_def
+        split: bool.split_asm HOL.split_if_asm option.split option.split_asm)
+
+
+lemma OclNot_contrapos_nn:
+ assumes A: "\<tau> \<Turnstile> \<delta> A"
+ assumes B: "\<tau> \<Turnstile> not B"
+ assumes C: "\<tau> \<Turnstile> A \<Longrightarrow> \<tau> \<Turnstile> B"
+ shows      "\<tau> \<Turnstile> not A"
+proof -
+ have D : "\<tau> \<Turnstile> \<delta> B" by(rule B[THEN OclNot_defargs])
+ show ?thesis 
+    apply(insert B,simp add: A D OCL_core.foundation9)
+    by(erule contrapos_nn, auto intro: C)
+qed
+
+
+subsection{* A Side-calculus for Constant Terms *}
 
 definition "const X \<equiv> \<forall> \<tau> \<tau>'. X \<tau> = X \<tau>'"
 
@@ -1270,27 +1266,12 @@ lemma const_valid :
 by(rule const_imply2[OF _ assms],
    simp add: valid_def false_def true_def bot_fun_def null_fun_def assms)
 
-lemma const_OclValid1:
- assumes "const x"
- shows   "(\<tau> \<Turnstile> \<delta> x) = (\<tau>' \<Turnstile> \<delta> x)"
- apply(simp add: OclValid_def)
- apply(subst const_defined[OF assms, THEN const_charn])
- by(simp add: true_def)
-
-lemma const_OclValid2:
- assumes "const x"
- shows   "(\<tau> \<Turnstile> \<upsilon> x) = (\<tau>' \<Turnstile> \<upsilon> x)"
- apply(simp add: OclValid_def)
- apply(subst const_valid[OF assms, THEN const_charn])
- by(simp add: true_def)
-
 
 lemma const_OclAnd :
   assumes "const X"
   assumes "const X'"
   shows   "const (X and X')"
 by(rule const_imply3[OF _ assms], subst (1 2) cp_OclAnd, simp add: assms OclAnd_def)
-
 
 
 lemma const_OclNot :
@@ -1318,8 +1299,8 @@ lemma const_StrongEq:
   apply(subst assms(1)[THEN const_charn])
   apply(subst assms(2)[THEN const_charn])
   by simp
-
-
+  
+  
 lemma const_OclIf :
   assumes "const B"
       and "const C1"
@@ -1333,6 +1314,23 @@ lemma const_OclIf :
                  const_invalid[simplified const_def, THEN spec, THEN spec])
 by (metis (no_types) bot_fun_def OclValid_def const_def const_true defined_def 
                  foundation16[THEN iffD1,standard]  null_fun_def)
+
+       
+
+lemma const_OclValid1:
+ assumes "const x"
+ shows   "(\<tau> \<Turnstile> \<delta> x) = (\<tau>' \<Turnstile> \<delta> x)"
+ apply(simp add: OclValid_def)
+ apply(subst const_defined[OF assms, THEN const_charn])
+ by(simp add: true_def)
+
+lemma const_OclValid2:
+ assumes "const x"
+ shows   "(\<tau> \<Turnstile> \<upsilon> x) = (\<tau>' \<Turnstile> \<upsilon> x)"
+ apply(simp add: OclValid_def)
+ apply(subst const_valid[OF assms, THEN const_charn])
+ by(simp add: true_def)
+
 
 lemma const_HOL_if : "const C \<Longrightarrow> const D \<Longrightarrow> const F \<Longrightarrow> const (\<lambda>\<tau>. if C \<tau> then D \<tau> else F \<tau>)"
       by(auto simp: const_def)

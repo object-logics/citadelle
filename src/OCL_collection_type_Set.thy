@@ -1010,22 +1010,12 @@ in the store will represented in the object itself). For such well-formed stores
 this invariant (the WFF-invariant), the referential equality and the
 strong equality---and therefore the strict equality on sets in the sense above---coincides.*}
 
-<<<<<<< .mine
 text{* Property proof in terms of @{term "binop_property_profile3"}*}
 interpretation  StrictRefEq\<^sub>S\<^sub>e\<^sub>t : binop_property_profile3 "\<lambda> x y. (x::('\<AA>,'\<alpha>::null)Set) \<doteq> y" 
          by unfold_locales (auto simp:  StrictRefEq\<^sub>S\<^sub>e\<^sub>t)
  
-=======
-subsubsection{* Reflexivity *}
-text{* To become operational, we derive: *}
->>>>>>> .r10561
 
-<<<<<<< .mine
-=======
-lemma StrictRefEq\<^sub>S\<^sub>e\<^sub>t_refl[simp,code_unfold]:
-"((x::('\<AA>,'\<alpha>::null)Set) \<doteq> x) = (if (\<upsilon> x) then true else invalid endif)"
-by(rule ext, simp add: StrictRefEq\<^sub>S\<^sub>e\<^sub>t OclIf_def)
-
+(*
 subsubsection{* Symmetry *}
 
 lemma StrictRefEq\<^sub>S\<^sub>e\<^sub>t_sym:
@@ -1092,8 +1082,8 @@ lemma const_StrictRefEq\<^sub>S\<^sub>e\<^sub>t :
 qed
 
 subsection{* Execution Rules on Set Operators *}
+*)
 
->>>>>>> .r10561
 subsubsection{* Execution Rules on OclIncluding *}
 
 lemma OclIncluding_finite_rep_set :

@@ -333,7 +333,7 @@ proof -
  by (metis insert_Diff_if option.distinct(1) singletonE)
  show ?thesis
  thm OclAllInstances_generic_defined[simplified OclValid_def]
-  apply(simp add: OclIncluding_def OclAllInstances_generic_defined[simplified OclValid_def])
+  apply(simp add: OCL_collection_type_Set.OclIncluding_def OclAllInstances_generic_defined[simplified OclValid_def])
   apply(simp add: OclAllInstances_generic_def)
   apply(subst Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inverse, simp add: bot_option_def, simp add: comp_def,
         subst image_insert[symmetric],
@@ -347,6 +347,7 @@ proof -
   apply(subgoal_tac "Object \<in> ran \<sigma>'") prefer 2
    apply(rule ranI, simp)
  by(subst insert_absorb, simp, metis fun_upd_apply)
+
 qed
 
 
@@ -362,7 +363,7 @@ shows   "(OclAllInstances_generic pre_post Type)
          (mk \<lparr>heap=\<sigma>'(oid\<mapsto>Object), assocs=A\<rparr>)"
  apply(subst state_update_vs_allInstances_generic_including', (simp add: assms)+,
        subst cp_OclIncluding,
-       simp add: OclIncluding_def)
+       simp add: OCL_collection_type_Set.OclIncluding_def)
  apply(subst (1 3) cp_defined[symmetric],
        simp add: OclAllInstances_generic_defined[simplified OclValid_def])
 

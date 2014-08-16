@@ -111,9 +111,9 @@ Define_state \<sigma>\<^sub>1' =
   , defines [ Bank1
             , Saving1 ] ]
 
-Define_state ss = []
+Define_state ss = [] 
 
-Define_pre_post ss \<sigma>\<^sub>1'
+Define_pre_post ss \<sigma>\<^sub>1' 
 
 Define_base [ 25, 250.0 ]
 
