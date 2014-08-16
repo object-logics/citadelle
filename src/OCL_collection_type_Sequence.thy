@@ -114,9 +114,9 @@ interpretation  StrictRefEq\<^sub>S\<^sub>e\<^sub>q\<^sub>u\<^sub>e\<^sub>n\<^su
                 by unfold_locales (auto simp:  StrictRefEq\<^sub>S\<^sub>e\<^sub>q\<^sub>u\<^sub>e\<^sub>n\<^sub>c\<^sub>e)
  
 
-subsection{* Including *}
+subsection{* Standard Operations *}
 
-subsubsection{* Definition: Including *}
+subsubsection{* Definition: including *}
 
 definition OclIncluding   :: "[('\<AA>,'\<alpha>::null) Sequence,('\<AA>,'\<alpha>) val] \<Rightarrow> ('\<AA>,'\<alpha>) Sequence"
 where     "OclIncluding x y = (\<lambda> \<tau>. if (\<delta> x) \<tau> = true \<tau> \<and> (\<upsilon> y) \<tau> = true \<tau>
@@ -152,6 +152,17 @@ translations
 
   typ int
   typ num
+
+subsubsection{* Definition: excluding *}
+subsubsection{* Definition: union *}
+subsubsection{* Definition: append *}
+text{* identical to including *}
+subsubsection{* Definition: prepend *}
+subsubsection{* Definition: subSequence *}
+subsubsection{* Definition: at *}
+subsubsection{* Definition: first *}
+subsubsection{* Definition: last *}
+subsubsection{* Definition: asSet *}
   
   
 (* open problem: An executable code-generator setup for the Sequence type. Some bits and pieces
