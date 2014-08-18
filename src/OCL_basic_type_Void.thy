@@ -89,7 +89,7 @@ defs   StrictRefEq\<^sub>V\<^sub>o\<^sub>i\<^sub>d[code_unfold] :
       "(x::('\<AA>)Void) \<doteq> y \<equiv> \<lambda> \<tau>. if (\<upsilon> x) \<tau> = true \<tau> \<and> (\<upsilon> y) \<tau> = true \<tau>
                                  then (x \<triangleq> y) \<tau>
                                  else invalid \<tau>"
-text{* Property prof in terms of @{term "binop_property_profile3"}*}
+text{* Property proof in terms of @{term "binop_property_profile3"}*}
 interpretation   StrictRefEq\<^sub>V\<^sub>o\<^sub>i\<^sub>d : binop_property_profile3 "\<lambda> x y. (x::('\<AA>)Void) \<doteq> y" 
        by unfold_locales (auto simp:  StrictRefEq\<^sub>V\<^sub>o\<^sub>i\<^sub>d)
  

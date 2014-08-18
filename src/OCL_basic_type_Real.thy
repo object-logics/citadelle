@@ -247,7 +247,7 @@ defs   StrictRefEq\<^sub>R\<^sub>e\<^sub>a\<^sub>l [code_unfold] :
                                     then (x \<triangleq> y) \<tau>
                                     else invalid \<tau>"
                                     
-text{* Property prof in terms of @{term "binop_property_profile3"}*}
+text{* Property proof in terms of @{term "binop_property_profile3"}*}
 interpretation StrictRefEq\<^sub>R\<^sub>e\<^sub>a\<^sub>l : binop_property_profile3 "\<lambda> x y. (x::('\<AA>)Real) \<doteq> y" 
          by unfold_locales (auto simp: StrictRefEq\<^sub>R\<^sub>e\<^sub>a\<^sub>l)
                                    

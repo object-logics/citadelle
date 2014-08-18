@@ -129,17 +129,11 @@ defs   StrictRefEq\<^sub>S\<^sub>t\<^sub>r\<^sub>i\<^sub>n\<^sub>g[code_unfold] 
       "(x::('\<AA>)String) \<doteq> y \<equiv> \<lambda> \<tau>. if (\<upsilon> x) \<tau> = true \<tau> \<and> (\<upsilon> y) \<tau> = true \<tau>
                                     then (x \<triangleq> y) \<tau>
                                     else invalid \<tau>"
-text{* Property prof in terms of @{term "binop_property_profile3"}*}
+
+text{* Property proof in terms of @{term "binop_property_profile3"}*}
 interpretation  StrictRefEq\<^sub>S\<^sub>t\<^sub>r\<^sub>i\<^sub>n\<^sub>g : binop_property_profile3 "\<lambda> x y. (x::('\<AA>)String) \<doteq> y" 
          by unfold_locales (auto simp: StrictRefEq\<^sub>S\<^sub>t\<^sub>r\<^sub>i\<^sub>n\<^sub>g)
  
-
-
-lemmas cp_intro'\<^sub>S\<^sub>t\<^sub>r\<^sub>i\<^sub>n\<^sub>g =
-       StrictRefEq\<^sub>S\<^sub>t\<^sub>r\<^sub>i\<^sub>n\<^sub>g.cp 
-       OclAdd\<^sub>S\<^sub>t\<^sub>r\<^sub>i\<^sub>n\<^sub>g.cp
-       (*OclLess\<^sub>S\<^sub>t\<^sub>r\<^sub>i\<^sub>n\<^sub>g.cp      OclLe\<^sub>S\<^sub>t\<^sub>r\<^sub>i\<^sub>n\<^sub>g.cp*)
-
 
 subsection{* Test Statements on Basic String *}
 text{* Here follows a list of code-examples, that explain the meanings
