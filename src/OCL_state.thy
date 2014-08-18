@@ -331,10 +331,10 @@ proof -
 
  have insert_diff : "\<And>x S. insert \<lfloor>x\<rfloor> (S - {None}) = (insert \<lfloor>x\<rfloor> S) - {None}"
  by (metis insert_Diff_if option.distinct(1) singletonE)
+
  show ?thesis
- thm OclAllInstances_generic_defined[simplified OclValid_def]
-  apply(simp add: OCL_collection_type_Set.OclIncluding_def OclAllInstances_generic_defined[simplified OclValid_def])
-  apply(simp add: OclAllInstances_generic_def)
+  apply(simp add: OCL_collection_type_Set.OclIncluding_def OclAllInstances_generic_defined[simplified OclValid_def],
+        simp add: OclAllInstances_generic_def)
   apply(subst Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inverse, simp add: bot_option_def, simp add: comp_def,
         subst image_insert[symmetric],
         subst drop_none, simp add: assms)
