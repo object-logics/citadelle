@@ -76,7 +76,7 @@ begin
    lemma cp[simp,code_unfold] : " cp P \<Longrightarrow> cp (\<lambda>X. f (P X) )"
    by(rule OCL_core.cpI1[of "f"], intro allI, rule cp0, simp_all)
 
-   lemma def_homo[simp]: "\<delta>(f x) = (\<delta> x)"
+   lemma def_homo[simp,code_unfold]: "\<delta>(f x) = (\<delta> x)"
    apply(rule ext, rename_tac "\<tau>",subst OCL_core.foundation22[symmetric])
    apply(case_tac "\<not>(\<tau> \<Turnstile> \<delta> x)", simp add:defined_split, elim disjE)
      apply(erule OCL_core.StrongEq_L_subst2_rev, simp,simp)
@@ -119,7 +119,7 @@ begin
    lemma cp[simp,code_unfold] : " cp P \<Longrightarrow> cp (\<lambda>X. f (P X) )"
    by(rule OCL_core.cpI1[of "f"], intro allI, rule cp0, simp_all)
 
-   lemma def_homo[simp]: "\<upsilon>(f x) = (\<delta> x)"
+   lemma def_homo[simp,code_unfold]: "\<upsilon>(f x) = (\<delta> x)"
    apply(rule ext, rename_tac "\<tau>",subst OCL_core.foundation22[symmetric])
    apply(case_tac "\<not>(\<tau> \<Turnstile> \<delta> x)",simp add:defined_split, elim disjE)
     apply(erule OCL_core.StrongEq_L_subst2_rev, simp,simp)
@@ -166,7 +166,7 @@ begin
       lemma cp[simp,code_unfold] : " cp P \<Longrightarrow> cp Q \<Longrightarrow> cp (\<lambda>X. f (P X) (Q X))"
       by(rule OCL_core.cpI2[of "f"], intro allI, rule cp0, simp_all)
 
-      lemma def_homo[simp]: "\<delta>(f x y) = (\<delta> x and d y)"
+      lemma def_homo[simp,code_unfold]: "\<delta>(f x y) = (\<delta> x and d y)"
          apply(rule ext, rename_tac "\<tau>",subst OCL_core.foundation22[symmetric])
          apply(case_tac "\<not>(\<tau> \<Turnstile> \<delta> x)", simp add:defined_split, elim disjE)
            apply(erule OCL_core.StrongEq_L_subst2_rev, simp,simp)
@@ -284,7 +284,7 @@ locale binop_property_profile3 =
       by(rule ext, simp add: def_scheme true_def false_def)
 
       (* definedness *)
-      lemma def_homo[simp]: "\<delta>(f x y) = (\<upsilon> x and \<upsilon> y)"
+      lemma def_homo[simp,code_unfold]: "\<delta>(f x y) = (\<upsilon> x and \<upsilon> y)"
          apply(rule ext, rename_tac "\<tau>")
          apply(subst cp_defined)
          apply(simp add: def_scheme)
