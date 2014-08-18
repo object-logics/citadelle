@@ -119,7 +119,21 @@ begin
    lemma cp[simp,code_unfold] : " cp P \<Longrightarrow> cp (\<lambda>X. f (P X) )"
    by(rule OCL_core.cpI1[of "f"], intro allI, rule cp0, simp_all)
 
-(* Missing ! equivs to def_homo.*)
+   lemma def_homo[simp]: "\<upsilon>(f x) = (\<delta> x)"
+   apply(rule ext, rename_tac "\<tau>",subst OCL_core.foundation22[symmetric])
+   apply(case_tac "\<not>(\<tau> \<Turnstile> \<delta> x)",simp add:defined_split, elim disjE)
+    apply(erule OCL_core.StrongEq_L_subst2_rev, simp,simp)
+    apply(erule OCL_core.StrongEq_L_subst2_rev, simp,simp)
+    apply(simp)
+    apply(rule foundation13[THEN iffD2,THEN OCL_core.StrongEq_L_subst2_rev, where y ="\<delta> x"])
+    apply(simp_all add: foundation13)
+    apply(simp add: OclValid_def valid_def def_scheme, intro impI)
+    apply(fold OclValid_def, simp add:defined_split)
+    apply(erule contrapos_pp) back
+    apply(simp add: bot_fun_def)
+    apply(rule def_body)
+   by(auto simp:OclValid_def StrongEq_def bot_fun_def null_fun_def def_body invalid_def)
+   
 end
       
 locale binop_infra =
