@@ -148,14 +148,12 @@ Assert    "\<tau> \<Turnstile> (Set{null,\<two>}->includes(null))"
 
 Assert    "\<tau> \<Turnstile> ((Set{})->forAll(z | \<zero> <\<^sub>i\<^sub>n\<^sub>t z))"
 
-(* TODO: Frederic: Find out why this does not work any longer ... 
 Assert    "\<tau> \<Turnstile> ((Set{\<two>,\<one>})->forAll(z | \<zero> <\<^sub>i\<^sub>n\<^sub>t z))"
 Assert   "\<tau> \<Turnstile> (\<zero> <\<^sub>i\<^sub>n\<^sub>t \<two>) and (\<zero> <\<^sub>i\<^sub>n\<^sub>t \<one>) "
 Assert "\<not> (\<tau> \<Turnstile> ((Set{\<two>,\<one>})->exists(z | z <\<^sub>i\<^sub>n\<^sub>t \<zero> )))"
 Assert "\<not> (\<tau> \<Turnstile> (\<delta>(Set{\<two>,null})->forAll(z | \<zero> <\<^sub>i\<^sub>n\<^sub>t z)))"
 Assert "\<not> (\<tau> \<Turnstile> ((Set{\<two>,null})->forAll(z | \<zero> <\<^sub>i\<^sub>n\<^sub>t z)))"
 Assert    "\<tau> \<Turnstile> ((Set{\<two>,null})->exists(z | \<zero> <\<^sub>i\<^sub>n\<^sub>t z))"
-*)
 
 Assert "\<not> (\<tau> \<Turnstile> (Set{null::'a Boolean} \<doteq> Set{}))"
 Assert "\<not> (\<tau> \<Turnstile> (Set{null::'a Integer} \<doteq> Set{}))"
