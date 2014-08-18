@@ -303,6 +303,14 @@ locale binop_property_profile3 =
       lemma defined_args_valid: "(\<tau> \<Turnstile> \<delta> (f x y)) = ((\<tau> \<Turnstile> \<upsilon> x) \<and> (\<tau> \<Turnstile> \<upsilon> y))"
          by(simp add: foundation27)
 
+
+      lemma defargs: "\<tau> \<Turnstile> (f x y) \<Longrightarrow> (\<tau> \<Turnstile> (\<upsilon> x)) \<and> (\<tau> \<Turnstile> (\<upsilon> y))"
+         by(simp add: def_scheme OclValid_def true_def invalid_def valid_def bot_option_def
+               split: bool.split_asm HOL.split_if_asm)
+
+      lemma defined_args_valid' : "\<delta> (f x y) = (\<upsilon>(x) and \<upsilon>(y))"
+      by(auto intro!: transform2_rev defined_and_I simp:foundation10 defined_args_valid)
+
       (* logic and algebraic proerties *)                  
       lemma refl_ext[simp,code_unfold] : "(f x x) = (if (\<upsilon> x) then true else invalid endif)"
          by(rule ext, simp add: def_scheme OclIf_def)
