@@ -42,7 +42,7 @@
 (* $Id:$ *)
 
 theory  OCL_basic_type_Integer
-imports OCL_Types OCL_basic_type_Boolean 
+imports OCL_basic_type_Boolean
 begin
 
 section{* Basic Type Integer: Operations *}

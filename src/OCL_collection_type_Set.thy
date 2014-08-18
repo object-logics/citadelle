@@ -43,7 +43,7 @@
 
 
 theory  OCL_collection_type_Set
-imports OCL_Types OCL_core OCL_lib_common OCL_basic_type_Boolean OCL_basic_type_Integer  
+imports OCL_basic_type_Integer
 begin
 
 no_notation None ("\<bottom>")

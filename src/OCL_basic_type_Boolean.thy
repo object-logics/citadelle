@@ -42,7 +42,7 @@
 (* $Id:$ *)
 
 theory  OCL_basic_type_Boolean
-imports OCL_lib_common OCL_Types
+imports OCL_lib_common
 begin
 
 

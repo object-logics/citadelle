@@ -489,9 +489,9 @@ end
 text{* ...  and lifting this type to the format of a valuation gives us:*}
 type_synonym    ('\<AA>,'\<alpha>) Sequence  = "('\<AA>, '\<alpha> Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e) val"
 
-subsection{* Discussion: The Representation of UML/OCL Types in FeatherWeight OCL *}
+subsection{* Discussion: The Representation of UML/OCL Types in Featherweight OCL *}
 text{* In the introduction, we mentioned that there is an ``injective representation
-mapping'' between the types of OCL and the types of FeatherWeight OCL (and its 
+mapping'' between the types of OCL and the types of Featherweight OCL (and its 
 meta-language: HOL). This injectivity is at the heart of our representation technique
 --- a so-called \emph{shallow embedding} --- and means: OCL types were mapped one-to-one
 to types in HOL, ruling out a resentation where

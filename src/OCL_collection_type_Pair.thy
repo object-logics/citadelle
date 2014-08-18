@@ -42,7 +42,7 @@
 (* $Id:$ *)
 
 theory  OCL_collection_type_Pair
-imports OCL_Types OCL_core OCL_lib_common 
+imports OCL_lib_common
 begin
 
 section{* Collection Type Pairs: Operations *}

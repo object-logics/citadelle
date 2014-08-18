@@ -42,7 +42,7 @@
 (* $Id:$ *)
 
 theory  OCL_basic_type_Real
-imports OCL_Types OCL_basic_type_Boolean 
+imports OCL_basic_type_Boolean
 begin
 
 (* Hack since Real not imported in OCL_Types: *)  type_synonym real = nat

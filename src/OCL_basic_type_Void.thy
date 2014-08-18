@@ -42,7 +42,7 @@
 (* $Id:$ *)
 
 theory  OCL_basic_type_Void
-imports OCL_basic_type_Boolean OCL_lib_common
+imports OCL_basic_type_Boolean
 begin
 
 section{* Basic Type Void *}
