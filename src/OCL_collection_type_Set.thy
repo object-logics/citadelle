@@ -1545,8 +1545,8 @@ the following generic theorem and instantiate it later (using properties
 that link the polymorphic logical strong equality with the concrete instance
 of strict quality).*}
 lemma OclExcluding_charn_exec:
- assumes strict1: "(x \<doteq> invalid) = invalid"
- and     strict2: "(invalid \<doteq> y) = invalid"
+ assumes strict1: "(invalid \<doteq> y) = invalid"
+ and     strict2: "(x \<doteq> invalid) = invalid"
  and     StrictRefEq_valid_args_valid: "\<And> (x::('\<AA>,'a::null)val) y \<tau>.
                                      (\<tau> \<Turnstile> \<delta> (x \<doteq> y)) = ((\<tau> \<Turnstile> (\<upsilon> x)) \<and> (\<tau> \<Turnstile> \<upsilon> y))"
  and     cp_StrictRefEq: "\<And> (X::('\<AA>,'a::null)val) Y \<tau>. (X \<doteq> Y) \<tau> = ((\<lambda>_. X \<tau>) \<doteq> (\<lambda>_. Y \<tau>)) \<tau>"
@@ -1586,14 +1586,14 @@ proof -
            (if x \<doteq> y then X->excluding(y) else X->excluding(y)->including(x) endif) \<tau>"
             apply(rule foundation22[THEN iffD1])
             apply(erule StrongEq_L_subst2_rev,simp,simp)
-            by(simp add: strict2)
+            by(simp add: strict1)
 
  have D: "\<And>\<tau>. \<tau> \<Turnstile> (y \<triangleq> invalid) \<Longrightarrow>
            (X->including(x)->excluding(y)) \<tau> =
            (if x \<doteq> y then X->excluding(y) else X->excluding(y)->including(x) endif) \<tau>"
             apply(rule foundation22[THEN iffD1])
             apply(erule StrongEq_L_subst2_rev,simp,simp)
-            by (simp add: strict1)
+            by (simp add: strict2)
 
  have E: "\<And>\<tau>. \<tau> \<Turnstile> \<upsilon> x \<Longrightarrow> \<tau> \<Turnstile> \<upsilon> y \<Longrightarrow>
               (if x \<doteq> y then X->excluding(y) else X->excluding(y)->including(x) endif) \<tau> =
@@ -1717,8 +1717,8 @@ qed
 text{* Here is again a generic theorem similar as above. *}
 
 lemma OclIncludes_execute_generic:
-assumes strict1: "(x \<doteq> invalid) = invalid"
-and     strict2: "(invalid \<doteq> y) = invalid"
+assumes strict1: "(invalid \<doteq> y) = invalid"
+and     strict2: "(x \<doteq> invalid) = invalid"
 and     cp_StrictRefEq: "\<And> (X::('\<AA>,'a::null)val) Y \<tau>. (X \<doteq> Y) \<tau> = ((\<lambda>_. X \<tau>) \<doteq> (\<lambda>_. Y \<tau>)) \<tau>"
 and     StrictRefEq_vs_StrongEq: "\<And> (x::('\<AA>,'a::null)val) y \<tau>.
                                       \<tau> \<Turnstile> \<upsilon> x \<Longrightarrow> \<tau> \<Turnstile> \<upsilon> y \<Longrightarrow> (\<tau> \<Turnstile> ((x \<doteq> y) \<triangleq> (x \<triangleq> y)))"
@@ -1742,13 +1742,13 @@ proof -
            (if x \<doteq> y then true else X->includes(y) endif) \<tau>"
             apply(rule foundation22[THEN iffD1])
             apply(erule StrongEq_L_subst2_rev,simp,simp)
-            by (simp add: strict2)
+            by (simp add: strict1)
   have D:"\<And>\<tau>. \<tau> \<Turnstile> (y \<triangleq> invalid) \<Longrightarrow>
            (X->including(x)->includes(y)) \<tau> =
            (if x \<doteq> y then true else X->includes(y) endif) \<tau>"
             apply(rule foundation22[THEN iffD1])
             apply(erule StrongEq_L_subst2_rev,simp,simp)
-            by (simp add: strict1)
+            by (simp add: strict2)
   have E: "\<And>\<tau>. \<tau> \<Turnstile> \<upsilon> x \<Longrightarrow> \<tau> \<Turnstile> \<upsilon> y \<Longrightarrow>
               (if x \<doteq> y then true else X->includes(y) endif) \<tau> =
               (if x \<triangleq> y then true else X->includes(y) endif) \<tau>"

@@ -274,10 +274,10 @@ locale binop_property_profile3 =
             by(simp_all add : def_scheme const_ss C1 C2 )
          
       (* strictness *)
-      lemma strict2[simp,code_unfold]: "(f invalid y) = invalid"
+      lemma strict1[simp,code_unfold]: "(f invalid y) = invalid"
       by(rule ext, rename_tac \<tau>, simp add: def_scheme true_def false_def)
 
-      lemma strict1[simp,code_unfold]: " f x invalid = invalid"
+      lemma strict2[simp,code_unfold]: " f x invalid = invalid"
       by(rule ext, simp add: def_scheme true_def false_def)
 
       lemma idem[simp,code_unfold]: " f null null = true"
