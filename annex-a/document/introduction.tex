@@ -9,18 +9,44 @@ Isabelle/HOL\cite{nipkow.ea:isabelle:2002}
         by the Isabelle Archive of Formal Proofs (AFP), see
 \url{http://afp.sourceforge.net/entries/Featherweight_OCL.shtml}}. 
 The semantic definitions are in large parts executable, in some parts only provable, 
-namely the essence of Set-constructions. The main concern of its construction is 
-\emph{consistency}, 
-\ie{} it should be possible to apply logical rules and/or evaluation rules for OCL 
-in an arbitrary manner always yielding the same result. Moreover, except in 
-pathological cases, this result should be unambiquously defined.
-Since OCL is a quite complex object-oriented language 
-based on a four-valued logics, this effort seems to be justified for a 
-standardization document.
+namely the essence of Set-constructions. The first goal of its construction is 
+\emph{consistency}, \ie{} it should be possible to apply logical rules and/or evaluation 
+rules for OCL in an arbitrary manner always yielding the same result. Moreover, except in 
+pathological cases, this result should be unambiquously defined, \ie{} represent a value.
 
-In order to make this annex usable not only by logicians, but also by developers 
-of compilers and proof-tools, we  \emph{derived} from the Isabelle definitions 
-also \emph{logical rules} allowing formal interactive and automated proofs on 
+In order to motivate the need for logical consistency and also the magnitude of the problem,
+we focus on one particular feature of the language as example: \inlineocl{Tuples}. Recall that 
+tuples (in other languages known as \emph{records}) are n-ary cartesian products with named 
+components, where the component names are used also as projection functions: the special case 
+\inlineocl+Pair{x:First, y:Second}+ stands for the usual binary pairing operator 
+\inlineocl+Pair{true,null}+ and the two projection functions
+\inlineocl+x.First()+ and \inlineocl+x.Second()+. For a developer of a compiler or proof-tool
+(based on, say, a connection to an SMT solver designed to animate OCL contracts) it would be natural 
+to add the rules \inlineocl+Pair{X,Y}.First() = X+ and \inlineocl+Pair{X,Y}.Second() = Y+ to give
+pairings the usual semantics. At some place, the \OCL Standard requires the existance
+of a constant symbol \inlineocl+invalid+ and requires all operators to be strict. To implement this,
+the developer might be tempted to add a generator for corresponding 
+strictness axioms, producing among hundreds of other rules 
+\inlineocl+Pair{invalid,Y}=invalid+,\inlineocl+Pair{X,invalid}=invalid+,
+\inlineocl+invalid.First()=invalid+, \inlineocl+invalid.Second()=invalid+, etc.
+Unfortunately, this ``natural'' axiomatization of pairing and projection together with strictness
+is already inconsistent. One can derive:
+\begin{ocl}
+   Pair{true,invalid}.First() = invalid.First() = invalid
+\end{ocl}
+and:
+\begin{ocl}
+   Pair{true,invalid}.First() = true 
+\end{ocl}
+which then results in the absurd logical consequence that \inlineocl+invalid = true+. Obviously, we 
+need to be more careful on the side-conditions of our rules\footnote{The solution to this little
+riddle can be found in \autoref{sec:collection_pairs}.}. And obviously, only a mechanized check
+of these definitions, following a rigourous methodology, can establish strong guarantees for
+logical consistency of the \OCL language.
+
+This leads us to our second goal of this annex: it should not only be usable by logicians, but also 
+by developers  of compilers and proof-tools. For this end, we  \emph{derived} from the Isabelle 
+definitions also \emph{logical rules} allowing formal interactive and automated proofs on 
 UML/OCL specifications, as well as \emph{execution rules} and \emph{test-cases} 
 revealing corner-cases resulting from this semantics which give vital information 
 for the implementor.
@@ -136,12 +162,21 @@ This document is organized as follows. After a brief background section
 introducing a running example and basic knowledge on Isabelle/HOL and its formal
 notations, we present the formal semantics of FeatherWeight OCL introducing:
 \begin{enumerate}
+\item A conceptual description of the formal semantics, highlighting the essentials
+      and avoiding the definitions in detail.
+\item A detailed formal description. This covers:
+\begin{enumerate}
 \item OCL Types and their presentation in Isabelle/HOL,
 \item OCL Terms, \ie{} the semantics of library operators, 
         together with definitions, lemmas, and test cases for the implementor,
-\item UML/OCL Constructs, \ie{} a core of UML class models plus user-defined
+\item \UML/\OCL Constructs, \ie{} a core of \UML class models plus user-defined
         constructions on them such as class-invariants and oepration constracts.
 \end{enumerate}
+\item Since the latter, \ie{} the construction of \UML class models, has to be done on the meta-level
+(so not \emph{inside} \HOL, rather on the level of a pre-compiler), we will describe this process
+with two larger examples, namely formalizations of our running example.
+\end{enumerate}
+       
 
 %A.1 Object Models
 %In this sub clause, the notion of an object model is formally defined. 
@@ -515,6 +550,7 @@ Isabelle simplifier provides also a highly potent decision procedure
 for many fragments of theories underlying the constraints to be
 processed when constructing test theorems.
 
+\chapter{Conceptual Overview}
 
 \section{The Theory Organization}
 The semantic theory is organized in a quite conventional manner in
@@ -1432,9 +1468,80 @@ the \inlineocl|isQuery| property is true. So, whenever we have $ \tau
 \isasymMathOclValid s.a \triangleq s.a\isasymOclATpre$.
 
 
+\section{Data Invariants}
+\label{sec:invlogic}
+(*
+The \OCL semantics  uses different interpretation
+functions for invariants and pre-conditions; instead, we achieve their semantic
+effect by a syntactic transformation $\__\text{pre}$ which replaces all accessor
+functions $\getAttrib{\_}{i}$ by their counterparts
+$\getAttrib{\_}{i\isasymOclATpre}$. For example, $(\getAttrib{\self}{i} >
+5)_\text{pre}$ is just $(\getAttrib{\self}{i\isasymOclATpre} > 5)$.  The
+operation $\_\isasymOclAllInstances$ is also substituted by its
+$\isasymOclATpre$ counterpart.  Thus, we can re-formulate the semantics of the
+two \OCL top-level constructs, invariant specification and method specification,
+as follows:
+\begin{gather}\label{eq:inv}
+\begin{aligned}
+& I\semantics{\mathtt{context}~c:C~\mathtt{inv}~n: \phi(c)} \tau \equiv  \\
+&\qquad \tau  \isasymMathOclValid  (C\isasymOclAllInstances\isasymOclForAll(x
+\text{|} \phi(x)))~\land \\
+&\qquad \tau  \isasymMathOclValid (C\isasymOclAllInstances\isasymOclForAll(x
+\text{|} \phi(x)))_\text{pre} 
+\end{aligned}
+\end{gather}
+The standard forbids expressions containing $\isasymOclATpre$ constructs in
+invariants or preconditions syntactically; thus, mixed forms cannot arise.
+Since operations have strict semantics in \OCL, we have to distinguish for a specification of an
+$\mathit{op}$ with the arguments $a_1$, \ldots, $a_n$ the
+two cases where all arguments are defined (and $\self$ is non-null), or not. In
+the former case, a method call can be replaced by a $\mathit{result}$
+that satisfies the contract, in the latter case the argument is
+$\isasymMathOclUndefined$:
+\begin{gather}\label{eq:contract}
+\begin{aligned}
+ I\semantics{& \mathtt{context}~C~:: \mathit{op}(a_1, \ldots, a_n) : T \\
+                     & \qquad\mathtt{pre}~ \phi(\self, a_1, \ldots, a_n)  \\
+                     & \qquad\mathtt{post}~\psi(\self, a_1, \ldots, a_n, \mathit{result})} \tau \equiv  
+ \forall s,  x_1, \ldots, x_n.  \\
+ & \qquad\qquad\qquad\qquad\quad
+ ~ ~  \Delta( s, x_1, \ldots, x_n) \land \tau  \isasymMathOclValid \phi(s, x_1, \ldots, x_n)_\text{pre} \\
+& \qquad\qquad\qquad\qquad
+\qquad  \quad \implies \tau \isasymMathOclValid \psi(s, x_1, \ldots, x_n, s.\mathit{op}(x_1, \ldots, x_n))\\
+&\qquad\qquad\qquad\qquad
+~ ~ ~ \land \lnot \Delta( s, x_1, \ldots, x_n) \implies  \tau  \isasymMathOclValid   s.\mathit{op}(x_1, \ldots, x_n) \isasymMathOclStrongEq \isasymMathOclUndefined
+\end{aligned}
+\end{gather}
+where $\Delta( s, x_1, \ldots, x_n)$ is an abbreviation for $\tau
+\isasymMathOclValid s \isasymMathOclStrongNotEq \Null{} \land \tau
+\isasymMathOclValid \isasymMathOclIsDefined s \land \tau \isasymMathOclValid
+\isasymMathOclIsDefined x_1 \land \ldots \tau \isasymMathOclValid
+\isasymMathOclIsDefined x_n$. This definition captures the two cases: if the
+arguments of an operation are defined and, moreover, $\self$ is not $\Null{}$,
+the result of a method call must satisfy the specification; otherwise the
+operation will be strict and return invalid $\isasymMathOclUndefined$.  By these
+definitions an \OCL specification, \ie, a sequence of invariant declarations and
+operation contracts, can be transformed into a set of (logically conjoined)
+statements which is called the \emph{context} $\Gamma_{\tau}$. The \emph{theory}
+of an \OCL specification is the set of all valid transitions $\tau
+\isasymMathOclValid \phi$ that can be derived from $\Gamma_{\tau}$. For the
+logical connectives of \OCL, a conventional Gentzen-style calculus for pairs of
+the form $\Gamma_{\tau} \vdash \phi$ can be developed that allows for inferring
+valid transitions from $\Gamma_{\tau}$ by deduction
+(cf.~\cite{brucker.ea:semantics:2009}).  Due to the inclusion of arithmetic, any
+calculus for \OCL is necessarily incomplete. It is straight-forward to extend
+our notion of context to multi-transition contexts such as:
+\begin{gather*}
+  \Gamma \equiv \bigl\{(\sigma, \sigma')  \isasymMathOclValid \phi,
+(\sigma', \sigma'')  \isasymMathOclValid \psi \bigr\}
+\end{gather*}
+such that we can reason over systems executing several transitions. 
+*)
 
+\section{Operation Contracts}
 
-\section{A Machine-checked Annex A}
+\section{How this Annex A was Generated from Isabelle/HOL Theories}
+\fixme{Here ? Or in chap 2 ?}
 \begin{figure*}[tb]
   \mbox{}\hfill
   \subfloat%
