@@ -550,8 +550,66 @@ Isabelle simplifier provides also a highly potent decision procedure
 for many fragments of theories underlying the constraints to be
 processed when constructing test theorems.
 
-\chapter{Conceptual Overview}
+\section{How this Annex A was Generated from Isabelle/HOL Theories}
+\fixme{Here ? Or in chap 2 ?}
+\begin{figure*}[tb]
+  \mbox{}\hfill
+  \subfloat%
+  [The Isabelle jEdit environment. ]%
+  {\label{fig:jedit} \includegraphics[height=6.2cm]{jedit}}%
+  \hfill%
+  \hfill%
+    \subfloat[The generated formal document.]%
+    {\label{fig:pdf} \includegraphics[height=6.2cm]{pdf}}
+    \hfill\mbox{}
+  \caption{Generating documents with guaranteed  syntactical and
+    semantical consistency.}
+  \label{fig:gener-docum-where}
+\end{figure*}
+Isabelle, as a framework for building formal
+tools~\cite{wenzel.ea:building:2007}, provides the means for
+generating \emph{formal documents}.  With formal documents (such as
+the one you are currently reading) we refer to documents that are
+machine-generated and ensure certain formal guarantees. In particular,
+all formal content (\eg, definitions, formulae, types) are checked for
+consistency during the document generation.
 
+For writing documents, Isabelle supports the embedding of informal
+texts using a \LaTeX-based markup language within the theory files. To
+ensure the consistency, Isabelle supports to use, within these
+informal texts, \emph{antiquotations} that refer to the formal parts
+and that are checked while generating the actual document as
+PDF\@. For example, in an informal text, the antiquotation
+\inlineisar|@{$\text{thm}$ "not_not"}| will instruct Isabelle to
+lock-up the (formally proven) theorem of name \inlineisar"ocl_not_not"
+and to replace the antiquotation with the actual theorem, \ie,
+\inlineocl{not (not x) $=$ x}.
+
+\autoref{fig:gener-docum-where}
+illustrates this approach: \autoref{fig:jedit} shows the jEdit-based
+development environment of Isabelle with an excerpt of one of the core
+theories of Featherweight OCL\@. \autoref{fig:pdf} shows the generated
+PDF document where all antiquotations are replaced. Moreover,
+the document generation tools allows for defining syntactic sugar as
+well as skipping technical details of the formalization.
+
+
+Thus, applying the Featherweight OCL approach to writing an updated
+Annex A that provides a formal semantics of the most fundamental
+concepts of OCL would ensure
+\begin{enumerate}
+\item that all formal context is syntactically correct and well-typed,
+  and
+\item all formal definitions and the derived logical rules are
+  semantically consistent.
+\end{enumerate}
+Overall, this would contribute to one of the main goals of the OCL 2.5
+RFP, as discussed at the OCL meeting in
+Aachen~\cite{brucker.ea:summary-aachen:2013}.
+
+
+\chapter{Conceptual Overview}
+\fixme{Generate this chapter from Isabelle theories ? Just for principle ?}
 \section{The Theory Organization}
 The semantic theory is organized in a quite conventional manner in
 three layers. The first layer, called the \emph{denotational
@@ -1540,62 +1598,6 @@ such that we can reason over systems executing several transitions.
 
 \section{Operation Contracts}
 
-\section{How this Annex A was Generated from Isabelle/HOL Theories}
-\fixme{Here ? Or in chap 2 ?}
-\begin{figure*}[tb]
-  \mbox{}\hfill
-  \subfloat%
-  [The Isabelle jEdit environment. ]%
-  {\label{fig:jedit} \includegraphics[height=6.2cm]{jedit}}%
-  \hfill%
-  \hfill%
-    \subfloat[The generated formal document.]%
-    {\label{fig:pdf} \includegraphics[height=6.2cm]{pdf}}
-    \hfill\mbox{}
-  \caption{Generating documents with guaranteed  syntactical and
-    semantical consistency.}
-  \label{fig:gener-docum-where}
-\end{figure*}
-Isabelle, as a framework for building formal
-tools~\cite{wenzel.ea:building:2007}, provides the means for
-generating \emph{formal documents}.  With formal documents (such as
-the one you are currently reading) we refer to documents that are
-machine-generated and ensure certain formal guarantees. In particular,
-all formal content (\eg, definitions, formulae, types) are checked for
-consistency during the document generation.
-
-For writing documents, Isabelle supports the embedding of informal
-texts using a \LaTeX-based markup language within the theory files. To
-ensure the consistency, Isabelle supports to use, within these
-informal texts, \emph{antiquotations} that refer to the formal parts
-and that are checked while generating the actual document as
-PDF\@. For example, in an informal text, the antiquotation
-\inlineisar|@{$\text{thm}$ "not_not"}| will instruct Isabelle to
-lock-up the (formally proven) theorem of name \inlineisar"ocl_not_not"
-and to replace the antiquotation with the actual theorem, \ie,
-\inlineocl{not (not x) $=$ x}.
-
-\autoref{fig:gener-docum-where}
-illustrates this approach: \autoref{fig:jedit} shows the jEdit-based
-development environment of Isabelle with an excerpt of one of the core
-theories of Featherweight OCL\@. \autoref{fig:pdf} shows the generated
-PDF document where all antiquotations are replaced. Moreover,
-the document generation tools allows for defining syntactic sugar as
-well as skipping technical details of the formalization.
-
-
-Thus, applying the Featherweight OCL approach to writing an updated
-Annex A that provides a formal semantics of the most fundamental
-concepts of OCL would ensure
-\begin{enumerate}
-\item that all formal context is syntactically correct and well-typed,
-  and
-\item all formal definitions and the derived logical rules are
-  semantically consistent.
-\end{enumerate}
-Overall, this would contribute to one of the main goals of the OCL 2.5
-RFP, as discussed at the OCL meeting in
-Aachen~\cite{brucker.ea:summary-aachen:2013}.
 
 %%% Local Variables:
 %%% mode: latex

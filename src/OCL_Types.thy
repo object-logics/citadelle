@@ -344,8 +344,8 @@ text{* For technical reasons related to the Isabelle type inference for type-cla
 (we don't get the properties in the right order that class instantiation provides them,
 if we would follow the previous scheme), we give a slightly atypic definition:*}
 
-typedef Void\<^sub>b\<^sub>a\<^sub>s\<^sub>e = "{X::unit option option. X = bot \<or> X = null }"
-                            by (rule_tac x="bot" in exI, simp)
+typedef Void\<^sub>b\<^sub>a\<^sub>s\<^sub>e = "{X::unit option option. X = bot \<or> X = null }" by(rule_tac x="bot" in exI, simp)
+
 type_synonym ('\<AA>)Void = "('\<AA>,Void\<^sub>b\<^sub>a\<^sub>s\<^sub>e) val"
 
 
@@ -379,11 +379,7 @@ begin
 
    instance proof show "\<exists>x\<Colon>('a,'b) Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e. x \<noteq> bot"
                   apply(rule_tac x="Abs_Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor>None\<rfloor>" in exI)
-                  apply(simp add:bot_Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def)
-                  apply(subst Abs_Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inject)
-                  apply(simp_all add: bot_Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def
-                                      null_option_def bot_option_def)
-                  done
+                  by(simp add: bot_Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def  Abs_Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inject  null_option_def bot_option_def)
             qed
 end
 
@@ -392,10 +388,8 @@ begin
    definition null_Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def: "(null::('a::null,'b::null) Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e) \<equiv> Abs_Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor> None \<rfloor>"
 
    instance proof show "(null::('a::null,'b::null) Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e) \<noteq> bot"
-                  apply(simp add:null_Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def bot_Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def)
-                  apply(subst Abs_Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inject)
-                  apply(simp_all add: bot_Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def null_option_def bot_option_def)
-                  done
+                  by(simp add: bot_Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def null_Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def Abs_Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inject 
+                               null_option_def bot_option_def)
             qed
 end
 
@@ -422,11 +416,7 @@ begin
 
    instance proof show "\<exists>x\<Colon>'a Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e. x \<noteq> bot"
                   apply(rule_tac x="Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor>None\<rfloor>" in exI)
-                  apply(simp add:bot_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def)
-                  apply(subst Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inject)
-                    apply(simp_all add: bot_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def
-                                        null_option_def bot_option_def)
-                  done
+                  by(simp add: bot_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inject null_option_def bot_option_def)
             qed
 end
 
@@ -436,10 +426,8 @@ begin
    definition null_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def: "(null::('a::null) Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e) \<equiv> Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor> None \<rfloor>"
 
    instance proof show "(null::('a::null) Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e) \<noteq> bot"
-                  apply(simp add:null_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def bot_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def)
-                  apply(subst Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inject)
-                    apply(simp_all add: bot_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def null_option_def bot_option_def)
-                  done
+                  by(simp add:null_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def bot_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inject 
+                              null_option_def bot_option_def)
             qed
 end
 
@@ -464,10 +452,8 @@ begin
 
    instance proof show "\<exists>x\<Colon>'a Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e. x \<noteq> bot"
                   apply(rule_tac x="Abs_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor>None\<rfloor>" in exI)
-                  apply(simp add:bot_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def)
-                  apply(subst Abs_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inject)
-                    apply(simp_all add: bot_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def null_option_def bot_option_def)
-                  done
+                  by(auto simp:bot_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def Abs_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inject 
+                               null_option_def bot_option_def)
             qed
 end
 
@@ -478,10 +464,8 @@ begin
    definition null_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def: "(null::('a::null) Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e) \<equiv> Abs_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor> None \<rfloor>"
 
    instance proof show "(null::('a::null) Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e) \<noteq> bot"
-                  apply(simp add:null_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def bot_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def)
-                  apply(subst Abs_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inject)
-                    apply(simp_all add: bot_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def null_option_def bot_option_def)
-                  done
+                  by(auto simp:bot_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def null_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def Abs_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inject 
+                               null_option_def bot_option_def)
             qed
 end
 
