@@ -59,40 +59,70 @@ here.
 
 \begin{ocl}
 context Person
-  inv label : self .boss <> null implies (self .salary  `\<le>  ((self .boss) .salary))
+  inv label : self .boss <> null implies (self .salary  \<le>  ((self .boss) .salary))
 \end{ocl}
 *}
 
-axiomatization inv_Person_label :: "Person \<Rightarrow> Boolean"
-where inv_Person_label_post:
-"(\<tau> \<Turnstile> (\<delta> self)) \<longrightarrow> (\<tau> \<Turnstile> (inv_Person_label(self) \<triangleq> 
-                           (self .boss <> null implies 
-                                   (self .salary  \<le>\<^sub>i\<^sub>n\<^sub>t  ((self .boss) .salary)) and
-                                   inv_Person_label(self .boss))))"
+definition Person_label\<^sub>i\<^sub>n\<^sub>v :: "Person \<Rightarrow> Boolean" 
+where     "Person_label\<^sub>i\<^sub>n\<^sub>v (self) \<equiv>  
+                 (self .boss <> null implies (self .salary  \<le>\<^sub>i\<^sub>n\<^sub>t  ((self .boss) .salary)))"
+                                       
 
-axiomatization inv_Person_label_pre :: "Person \<Rightarrow> Boolean"
-where inv_Person_label_pre: 
-"(\<tau> \<Turnstile> (\<delta> self)) \<longrightarrow> (\<tau> \<Turnstile> (inv_Person_label_pre(self) \<triangleq> 
-                           (self .boss@pre <> null implies 
+definition Person_label\<^sub>i\<^sub>n\<^sub>v\<^sub>A\<^sub>T\<^sub>p\<^sub>r\<^sub>e :: "Person \<Rightarrow> Boolean" 
+where     "Person_label\<^sub>i\<^sub>n\<^sub>v\<^sub>A\<^sub>T\<^sub>p\<^sub>r\<^sub>e (self) \<equiv>  
+                 (self .boss@pre <> null implies (self .salary@pre \<le>\<^sub>i\<^sub>n\<^sub>t ((self .boss@pre) .salary@pre)))"
+
+definition Person_label\<^sub>g\<^sub>l\<^sub>o\<^sub>b\<^sub>a\<^sub>l\<^sub>i\<^sub>n\<^sub>v :: "Boolean"
+where     "Person_label\<^sub>g\<^sub>l\<^sub>o\<^sub>b\<^sub>a\<^sub>l\<^sub>i\<^sub>n\<^sub>v \<equiv> (Person .allInstances()->forAll(x | Person_label\<^sub>i\<^sub>n\<^sub>v (x)) and 
+                                  (Person .allInstances@pre()->forAll(x | Person_label\<^sub>i\<^sub>n\<^sub>v\<^sub>A\<^sub>T\<^sub>p\<^sub>r\<^sub>e (x))))"
+                                  
+                                  
+lemma "\<tau> \<Turnstile> \<delta> (X .boss) \<Longrightarrow> \<tau> \<Turnstile> Person .allInstances()->includes(X .boss) \<and>
+                            \<tau> \<Turnstile> Person .allInstances()->includes(X) "
+sorry 
+(* To be generated generically ... hard, but crucial lemma that should hold. 
+   It means that X and it successor are object representation that actually
+   occur in the state. *)
+
+lemma REC_pre : "\<tau> \<Turnstile> Person_label\<^sub>g\<^sub>l\<^sub>o\<^sub>b\<^sub>a\<^sub>l\<^sub>i\<^sub>n\<^sub>v 
+       \<Longrightarrow> \<tau> \<Turnstile> Person .allInstances()->includes(X) (* X represented object in state *)
+       \<Longrightarrow> \<exists> REC.  \<tau> \<Turnstile> REC(X)  \<triangleq> (Person_label\<^sub>i\<^sub>n\<^sub>v (X) and (X .boss <> null implies REC(X .boss)))"
+sorry (* Attempt to allegiate the burden of he following axiomatizations: could be
+         a witness for a constant specification ...*)       
+
+text{* This allows to state a predicate: *}
+                                       
+axiomatization inv\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<^sub>_\<^sub>l\<^sub>a\<^sub>b\<^sub>e\<^sub>l :: "Person \<Rightarrow> Boolean"
+where inv\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<^sub>_\<^sub>l\<^sub>a\<^sub>b\<^sub>e\<^sub>l_def:
+"(\<tau> \<Turnstile> Person .allInstances()->includes(self)) \<Longrightarrow> 
+ (\<tau> \<Turnstile> (inv\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<^sub>_\<^sub>l\<^sub>a\<^sub>b\<^sub>e\<^sub>l(self) \<triangleq>  (self .boss <> null implies  
+                                  (self .salary  \<le>\<^sub>i\<^sub>n\<^sub>t  ((self .boss) .salary)) and
+                                   inv\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<^sub>_\<^sub>l\<^sub>a\<^sub>b\<^sub>e\<^sub>l(self .boss))))"
+
+axiomatization inv\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<^sub>_\<^sub>l\<^sub>a\<^sub>b\<^sub>e\<^sub>l\<^sub>A\<^sub>T\<^sub>p\<^sub>r\<^sub>e :: "Person \<Rightarrow> Boolean"
+where inv\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<^sub>_\<^sub>l\<^sub>a\<^sub>b\<^sub>e\<^sub>l\<^sub>A\<^sub>T\<^sub>p\<^sub>r\<^sub>e_def: 
+"(\<tau> \<Turnstile> Person .allInstances@pre()->includes(self)) \<Longrightarrow>
+ (\<tau> \<Turnstile> (inv\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<^sub>_\<^sub>l\<^sub>a\<^sub>b\<^sub>e\<^sub>l\<^sub>A\<^sub>T\<^sub>p\<^sub>r\<^sub>e(self) \<triangleq> (self .boss@pre <> null implies 
                                    (self .salary@pre  \<le>\<^sub>i\<^sub>n\<^sub>t  ((self .boss@pre) .salary@pre)) and
-                                   inv_Person_label_pre(self .boss@pre))))"
+                                    inv\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<^sub>_\<^sub>l\<^sub>a\<^sub>b\<^sub>e\<^sub>l\<^sub>A\<^sub>T\<^sub>p\<^sub>r\<^sub>e(self .boss@pre))))"
 
 
-axiomatization inv_Person :: "Person \<Rightarrow> Boolean"
-where A : "(\<tau> \<Turnstile> (\<delta> self)) \<longrightarrow>
-               (\<tau> \<Turnstile> inv_Person(self)) =
-                   ((\<tau> \<Turnstile> (self .boss \<doteq> null)) \<or>
-                    ( \<tau> \<Turnstile> (self .boss <> null) \<and> (\<tau> \<Turnstile> ((self .salary)  \<le>\<^sub>i\<^sub>n\<^sub>t  (self .boss .salary)))  \<and>
-                     (\<tau> \<Turnstile> (inv_Person(self .boss))))) "
+lemma inv_1 : 
+"(\<tau> \<Turnstile> Person .allInstances()->includes(self)) \<Longrightarrow>
+    (\<tau> \<Turnstile> inv\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<^sub>_\<^sub>l\<^sub>a\<^sub>b\<^sub>e\<^sub>l(self) = ((\<tau> \<Turnstile> (self .boss \<doteq> null)) \<or>
+                               ( \<tau> \<Turnstile> (self .boss <> null) \<and> 
+                                 \<tau> \<Turnstile> ((self .salary)  \<le>\<^sub>i\<^sub>n\<^sub>t  (self .boss .salary))  \<and>
+                                 \<tau> \<Turnstile> (inv\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<^sub>_\<^sub>l\<^sub>a\<^sub>b\<^sub>e\<^sub>l(self .boss))))) "
+sorry (* Let's hope that this holds ... *)
 
 
-axiomatization inv_Person_at_pre :: "Person \<Rightarrow> Boolean"
-where B : "(\<tau> \<Turnstile> (\<delta> self)) \<longrightarrow>
-               (\<tau> \<Turnstile> inv_Person_at_pre(self)) =
-                   ((\<tau> \<Turnstile> (self .boss@pre \<doteq> null)) \<or>
-                    ( \<tau> \<Turnstile> (self .boss@pre <> null) \<and>
-                     (\<tau> \<Turnstile> (self .boss@pre .salary@pre \<le>\<^sub>i\<^sub>n\<^sub>t self .salary@pre))  \<and>
-                     (\<tau> \<Turnstile> (inv_Person_at_pre(self .boss@pre))))) "
+lemma inv_2 : 
+"(\<tau> \<Turnstile> Person .allInstances@pre()->includes(self)) \<Longrightarrow>
+    (\<tau> \<Turnstile> inv\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<^sub>_\<^sub>l\<^sub>a\<^sub>b\<^sub>e\<^sub>l\<^sub>A\<^sub>T\<^sub>p\<^sub>r\<^sub>e(self)) =  ((\<tau> \<Turnstile> (self .boss@pre \<doteq> null)) \<or>
+                                     (\<tau> \<Turnstile> (self .boss@pre <> null) \<and>
+                                     (\<tau> \<Turnstile> (self .boss@pre .salary@pre \<le>\<^sub>i\<^sub>n\<^sub>t self .salary@pre))  \<and>
+                                     (\<tau> \<Turnstile> (inv\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<^sub>_\<^sub>l\<^sub>a\<^sub>b\<^sub>e\<^sub>l\<^sub>A\<^sub>T\<^sub>p\<^sub>r\<^sub>e(self .boss@pre)))))"
+sorry (* Let's hope that this holds ... *)
 
 text{* A very first attempt to characterize the axiomatization by an inductive
 definition - this can not be the last word since too weak (should be equality!) *}
@@ -112,10 +142,46 @@ post:  result = if self.boss = null
                 endif
 \end{ocl} *}
 
-
+(*
 consts dot_contents :: "Person \<Rightarrow> Set_Integer"  ("(1(_).contents'('))" 50)
+*)
 
-axiomatization where dot_contents_def:
+text{* For a non-recursive operation contract of the form:
+\begin{ocl}
+context T::operation(arg1:T1,...,argn:Tn):ResultType
+pre:   PRE (arg1,...,argn)
+post:  POST(arg1,...,argn,result)
+\end{ocl}
+
+we can generate a conservative definition:
+*}
+
+definition PRE\<^sub>o\<^sub>p\<^sub>e\<^sub>r\<^sub>a\<^sub>t\<^sub>i\<^sub>o\<^sub>n :: "('\<AA>,'\<tau>0::null)val \<Rightarrow>
+                             ('\<AA>,'\<alpha>1::null)val \<Rightarrow> ('\<AA>,'\<alpha>2::null)val \<Rightarrow> ('\<AA>,'\<alpha>n::null)val \<Rightarrow>
+                             ('\<AA>, Boolean\<^sub>b\<^sub>a\<^sub>s\<^sub>e)val"
+where     "PRE\<^sub>o\<^sub>p\<^sub>e\<^sub>r\<^sub>a\<^sub>t\<^sub>i\<^sub>o\<^sub>n self a1 a2 an = undefined"
+
+definition POST\<^sub>o\<^sub>p\<^sub>e\<^sub>r\<^sub>a\<^sub>t\<^sub>i\<^sub>o\<^sub>n :: "('\<AA>,'\<tau>0::null)val \<Rightarrow>
+                             ('\<AA>,'\<alpha>1::null)val \<Rightarrow> ('\<AA>,'\<alpha>2::null)val \<Rightarrow> ('\<AA>,'\<alpha>n::null)val \<Rightarrow>
+                             ('\<AA>,'res::null)val \<Rightarrow>
+                             ('\<AA>, Boolean\<^sub>b\<^sub>a\<^sub>s\<^sub>e)val"
+where     "POST\<^sub>o\<^sub>p\<^sub>e\<^sub>r\<^sub>a\<^sub>t\<^sub>i\<^sub>o\<^sub>n self a1 a2 an result = undefined"
+
+
+definition operation :: "('\<AA>,'\<tau>0::null)val \<Rightarrow>
+                         ('\<AA>,'\<alpha>1::null)val \<Rightarrow> ('\<AA>,'\<alpha>2::null)val \<Rightarrow> ('\<AA>,'\<alpha>n::null)val \<Rightarrow> 
+                         ('\<AA>,'res::null)val"
+                  ("_ .operation'(_,_,_')" [50,50,50,50]55)
+where "self .operation(a1,a2,an) \<equiv> 
+            (\<lambda> \<tau>. if (\<tau> \<Turnstile> (\<delta> self)) \<and>  (\<tau> \<Turnstile> \<upsilon> a1) \<and>  (\<tau> \<Turnstile> \<upsilon> a2) \<and>  (\<tau> \<Turnstile> \<upsilon> an)
+                  then SOME res. (\<tau> \<Turnstile> PRE\<^sub>o\<^sub>p\<^sub>e\<^sub>r\<^sub>a\<^sub>t\<^sub>i\<^sub>o\<^sub>n self a1 a2 an) \<and>  
+                                 (\<tau> \<Turnstile> POST\<^sub>o\<^sub>p\<^sub>e\<^sub>r\<^sub>a\<^sub>t\<^sub>i\<^sub>o\<^sub>n self a1 a2 an (\<lambda> _. res))
+                  else invalid \<tau>)"
+
+text{* For the case of recursive queries, we use at present just axiomatizations: *}               
+                  
+axiomatization dot_contents :: "Person \<Rightarrow> Set_Integer"  ("(1(_).contents'('))" 50)
+where dot_contents_def:
 "(\<tau> \<Turnstile> ((self).contents() \<triangleq> result)) =
  (if (\<delta> self) \<tau> = true \<tau>
   then ((\<tau> \<Turnstile> true) \<and>
@@ -125,6 +191,8 @@ axiomatization where dot_contents_def:
                         endif)))
   else \<tau> \<Turnstile> result \<triangleq> invalid)"
 
+text{* Since we have only one interpretation function, we need the corresponding
+operation on the pre-state: *}               
 
 consts dot_contents_AT_pre :: "Person \<Rightarrow> Set_Integer"  ("(1(_).contents@pre'('))" 50)
 
@@ -140,7 +208,6 @@ axiomatization where dot_contents_AT_pre_def:
 
 text{* These \inlineocl{@pre} variants on methods are only available on queries, \ie,
 operations without side-effect. *}
-(* TODO: Should be rephased by conservative means... *)
 
 (* Missing: Properties on Casts, type-tests, and equality vs. projections. *)
 
@@ -154,21 +221,13 @@ contents() = contents@pre()->including(x)
 \end{ocl}
 *}
 
-consts dot_insert :: "Person \<Rightarrow> Integer \<Rightarrow> Void"  ("(1(_).insert'(_'))" 50)
 
-axiomatization where dot_insert_def:
-"(\<tau> \<Turnstile> ((self).insert(x) \<triangleq> result)) =
- (if (\<delta> self) \<tau> = true \<tau> \<and> (\<upsilon> x) \<tau> = true \<tau>
-  then \<tau> \<Turnstile> true \<and>
-       \<tau> \<Turnstile> ((self).contents() \<triangleq> (self).contents@pre()->including(x))
-  else \<tau> \<Turnstile> ((self).insert(x) \<triangleq> invalid))"
-
-(*
-lemma H : "(\<tau> \<Turnstile> (self).insert(x) \<triangleq> result)"
- nitpick
- oops
- takes too long...
-*)
+definition insert :: "Person \<Rightarrow>Integer \<Rightarrow> Void"  ("(1(_).insert'(_'))" 50)
+where "self .insert(x) \<equiv> 
+            (\<lambda> \<tau>. if (\<tau> \<Turnstile> (\<delta> self)) \<and>  (\<tau> \<Turnstile> \<upsilon> x)
+                  then SOME res. (\<tau> \<Turnstile> true \<and>  
+                                 (\<tau> \<Turnstile> ((self).contents() \<triangleq> (self).contents@pre()->including(x))))
+                  else invalid \<tau>)"  
 
 
 end
