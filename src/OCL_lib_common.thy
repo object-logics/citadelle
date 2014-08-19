@@ -132,6 +132,15 @@ locale single_infra =
 
 subsection{* binop *}
 
+definition "bin' f g d\<^sub>x d\<^sub>y X Y =
+                       (f X Y = (\<lambda> \<tau>. if (d\<^sub>x X) \<tau> = true \<tau> \<and> (d\<^sub>y Y) \<tau> = true \<tau>
+                                      then g X Y \<tau>
+                                      else invalid \<tau> ))"
+ 
+definition "bin f g = bin' f (\<lambda>X Y \<tau>. g (X \<tau>) (Y \<tau>))"
+
+lemmas [simp,code_unfold] = bin'_def bin_def
+
 locale binop_infra =
    fixes d\<^sub>x:: "('\<AA>,'a::null)val \<Rightarrow> '\<AA> Boolean"
    fixes d\<^sub>y:: "('\<AA>,'b::null)val \<Rightarrow> '\<AA> Boolean"
@@ -145,9 +154,7 @@ locale binop_infra =
                           f invalid Y = invalid \<Longrightarrow>
                           (\<not> (\<tau> \<Turnstile> d\<^sub>x X) \<or> \<not> (\<tau> \<Turnstile> d\<^sub>y Y)) \<Longrightarrow>
                           \<tau> \<Turnstile> (\<delta> f X Y \<triangleq> (d\<^sub>x X and d\<^sub>y Y))"
-   assumes def_scheme'': "f X Y = (\<lambda> \<tau>. if (d\<^sub>x X) \<tau> = true \<tau> \<and> (d\<^sub>y Y) \<tau> = true \<tau>
-                                      then g (X \<tau>) (Y \<tau>)
-                                      else invalid \<tau> )"
+   assumes def_scheme''[simplified]: "bin f g d\<^sub>x d\<^sub>y X Y"
    assumes 1: "\<tau> \<Turnstile> d\<^sub>x X \<Longrightarrow> \<tau> \<Turnstile> d\<^sub>y Y \<Longrightarrow> \<tau> \<Turnstile> \<delta> f X Y"
 begin
       interpretation d\<^sub>x : single_infra d\<^sub>x by (rule d\<^sub>x')
@@ -217,9 +224,7 @@ locale binop_infra1' =
                           f X invalid = invalid \<Longrightarrow>
                           \<not> \<tau> \<Turnstile> d\<^sub>y Y \<Longrightarrow>
                           \<tau> \<Turnstile> \<delta> f X Y \<triangleq> (\<delta> X and d\<^sub>y Y)"
-   assumes def_scheme': "f x y = (\<lambda> \<tau>. if (\<delta> x) \<tau> = true \<tau> \<and> (d\<^sub>y y) \<tau> = true \<tau>
-                                      then g (x \<tau>) (y \<tau>)
-                                      else invalid \<tau> )"
+   assumes def_scheme'[simplified]: "bin f g defined d\<^sub>y X Y"
    assumes def_body':  "\<And> x y \<tau>. x\<noteq>bot \<Longrightarrow> x\<noteq>null \<Longrightarrow> (d\<^sub>y y) \<tau> = true \<tau> \<Longrightarrow> g x (y \<tau>) \<noteq> bot \<and> g x (y \<tau>) \<noteq> null "
 begin
       lemma strict3[simp,code_unfold]: " f null y = invalid"
@@ -237,7 +242,7 @@ proof -
    apply(simp add:defined_split, elim disjE)
      apply(erule OCL_core.StrongEq_L_subst2_rev, simp, simp)+
    apply(simp)
-  apply(rule def_scheme')
+  apply(simp add: def_scheme')
  apply(simp add: defined_def OclValid_def false_def true_def 
               bot_fun_def null_fun_def def_scheme' split: split_if_asm, rule def_body')
  by(simp add: true_def)+
@@ -246,9 +251,7 @@ qed
 locale binop_infra1 =
    fixes f::"('\<AA>,'a::null)val \<Rightarrow> ('\<AA>,'b::null)val \<Rightarrow> ('\<AA>,'c::null)val"
    fixes g
-   assumes def_scheme: "f x y = (\<lambda> \<tau>. if (\<delta> x) \<tau> = true \<tau> \<and> (\<delta> y) \<tau> = true \<tau>
-                                      then g (x \<tau>) (y \<tau>)
-                                      else invalid \<tau> )"
+   assumes def_scheme[simplified]: "bin f g defined defined X Y"
    assumes def_body:  "\<And> x y. g x y \<noteq> bot \<and> g x y \<noteq> null "
 begin
       lemma strict4[simp,code_unfold]: " f x null = invalid"
@@ -262,16 +265,14 @@ sublocale binop_infra1 < binop_infra1' defined
     apply(rule const_defined, simp)+
    apply(simp add:defined_split, elim disjE)
     apply(erule OCL_core.StrongEq_L_subst2_rev, simp, simp)+
-  apply(rule def_scheme)
+  apply(simp add: def_scheme)
  by(simp add: defined_def OclValid_def false_def true_def 
               bot_fun_def null_fun_def def_scheme def_body)
 
 locale binop_infra2 =
    fixes f::"('\<AA>,'a::null)val \<Rightarrow> ('\<AA>,'b::null)val \<Rightarrow> ('\<AA>,'c::null)val"
    fixes g
-   assumes def_scheme: "f x y = (\<lambda> \<tau>. if (\<delta> x) \<tau> = true \<tau> \<and> (\<upsilon> y) \<tau> = true \<tau>
-                                      then g (x \<tau>) (y \<tau>)
-                                      else invalid \<tau> )"
+   assumes def_scheme[simplified]: "bin f g defined valid X Y"
    assumes def_body:  "\<And> x y. x\<noteq>bot \<Longrightarrow> x\<noteq>null \<Longrightarrow> y\<noteq>bot \<Longrightarrow> g x y \<noteq> bot \<and> g x y \<noteq> null"
 
 sublocale binop_infra2 < binop_infra1' valid
@@ -281,14 +282,12 @@ sublocale binop_infra2 < binop_infra1' valid
     apply(rule const_valid, simp)
    apply(simp add:foundation18'')
    apply(erule OCL_core.StrongEq_L_subst2_rev, simp, simp)
-  apply(rule def_scheme)
+  apply(simp add: def_scheme)
  by (metis OclValid_def def_body foundation18')
  
 locale binop_property_profile3 =
    fixes f :: "('\<AA>,'\<alpha>::null)val \<Rightarrow> ('\<AA>,'\<alpha>::null)val \<Rightarrow> ('\<AA>) Boolean"
-   assumes def_scheme: "(f x y) \<equiv> \<lambda> \<tau>. if (\<upsilon> x) \<tau> = true \<tau> \<and> (\<upsilon> y) \<tau> = true \<tau>
-                                        then (x \<triangleq> y)\<tau>
-                                        else invalid \<tau>"
+   assumes def_scheme[simplified]: "bin' f StrongEq valid valid X Y"
 
 sublocale binop_property_profile3 < binop_infra valid valid f "\<lambda>x y. \<lfloor>\<lfloor>x = y\<rfloor>\<rfloor>"
  apply(unfold_locales)
@@ -338,59 +337,19 @@ context binop_property_profile3
    end
 
    
-   locale binop_property_profile4 =
+locale binop_property_profile4 =
    fixes f :: "('\<AA>,'\<alpha>::null)val \<Rightarrow> ('\<AA>,'\<beta>::null)val \<Rightarrow> ('\<AA>,'\<gamma>::null)val"
-   fixes g::"'\<alpha>::null \<Rightarrow> '\<beta>::null \<Rightarrow> '\<gamma>::null"
-   assumes def_scheme: "(f x y) \<equiv> \<lambda> \<tau>. if (\<upsilon> x) \<tau> = true \<tau> \<and> (\<upsilon> y) \<tau> = true \<tau>
-                                        then g (x \<tau>) (y \<tau>)
-                                        else invalid \<tau>"
+   fixes g
+   assumes def_scheme[simplified]: "bin f g valid valid X Y"
    assumes def_body:  "\<And> x y. x\<noteq>bot \<Longrightarrow> y\<noteq>bot \<Longrightarrow> g x y \<noteq> bot \<and> g x y \<noteq> null"
-   begin
-      (* side calculi *)
-      lemma cp0 : "f X Y \<tau> = f (\<lambda> _. X \<tau>) (\<lambda> _. Y \<tau>) \<tau>"
-      by(simp add: def_scheme  cp_valid[symmetric] cp_StrongEq[symmetric])
-      
-      lemma cp[simp,code_unfold] : " cp P \<Longrightarrow> cp Q \<Longrightarrow> cp (\<lambda>X. f (P X) (Q X))"
-      by(rule OCL_core.cpI2[of "f"], intro allI, rule cp0, simp_all)
 
-      lemma const[simp,code_unfold] : 
-            assumes C1 :"const X" and C2 : "const Y"  shows  "const(f X Y)"
-      proof -
-          have const_g : "const (\<lambda>\<tau>. g (X \<tau>) (Y \<tau>))" 
-                  by(insert C1 C2, auto simp:const_def, metis)
-        show ?thesis
-        by(simp_all add : def_scheme const_ss C1 C2 const_g)
-      qed
-                     
-      (* strictness *)
-      lemma strict2[simp,code_unfold]: "(f invalid y) = invalid"
-      by(rule ext, rename_tac \<tau>, simp add: def_scheme true_def false_def)
-
-      lemma strict1[simp,code_unfold]: " f x invalid = invalid"
-      by(rule ext, simp add: def_scheme true_def false_def)
-
-
-      (* definedness *)
-      lemma def_homo[simp]: "\<delta>(f x y) = (\<upsilon> x and \<upsilon> y)"
-         apply(rule ext, rename_tac "\<tau>")
-         apply(subst cp_defined)
-         apply(simp add: def_scheme)
-         apply(case_tac "(\<upsilon> x) \<tau> = true \<tau>", simp_all)
-          apply(case_tac "(\<upsilon> y) \<tau> = true \<tau>", 
-                simp_all add: foundation22[symmetric] cp_defined[symmetric])
-           apply(subgoal_tac "\<tau> \<Turnstile> \<delta> (\<lambda>_. g (x \<tau>) (y \<tau>))")
-            apply(erule OCL_core.StrongEq_L_subst2_rev, simp,simp)
-            apply(erule OCL_core.StrongEq_L_subst2_rev, simp,simp_all add: foundation13)
-           apply(simp add: valid_def defined_def OclValid_def true_def false_def bot_fun_def null_fun_def)
-            apply(rule def_body)
-           apply(auto simp: true_def false_def)
-           apply(fold false_def)
-          apply(erule OCL_core.foundation7'[THEN iffD2, THEN OCL_core.foundation15[THEN iffD2, 
-                                       THEN OCL_core.StrongEq_L_subst2_rev]]     , simp,simp)+
-         done
-      
-      lemma defined_args_valid: "(\<tau> \<Turnstile> \<delta> (f x y)) = ((\<tau> \<Turnstile> \<upsilon> x) \<and> (\<tau> \<Turnstile> \<upsilon> y))"
-         by(simp add: foundation27)
-end   
+sublocale binop_property_profile4 < binop_infra valid valid
+ apply(unfold_locales)
+         apply(simp, subst cp_valid, simp, rule const_valid, simp)+
+   apply (metis (hide_lams, mono_tags) OclValid_def def_scheme defined5 defined6 defined_and_I foundation1 foundation10' foundation16' foundation18 foundation21 foundation22 foundation9)
+  apply(simp add: def_scheme)
+ apply(simp add: defined_def OclValid_def false_def true_def 
+              bot_fun_def null_fun_def def_scheme split: split_if_asm, rule def_body)
+ by (metis OclValid_def foundation18' true_def)+
 
 end
