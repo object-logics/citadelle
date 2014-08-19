@@ -45,7 +45,7 @@ theory  OCL_collection_type_Pair
 imports OCL_lib_common
 begin
 
-section{* Collection Type Pairs: Operations *}
+section{* Collection Type Pairs: Operations \label{sec:collection_pairs} *}
 
 text{* The OCL standard provides the concept of \emph{Tuples}, \ie{} a family of record-types
 with projection functions. In FeatherWeight OCL,  only the theory of a special case is
@@ -115,6 +115,12 @@ where     "Pair{X,Y} \<equiv> (\<lambda> \<tau>. if (\<upsilon> X) \<tau> = true
                               then Abs_Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor>\<lfloor>(X \<tau>, Y \<tau>)\<rfloor>\<rfloor>
                               else invalid \<tau>)"
 
+interpretation OclPair : binop_property_profile4  
+               OclPair "\<lambda> x y. Abs_Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor>\<lfloor>(x, y)\<rfloor>\<rfloor>"                             
+               apply(unfold_locales, auto simp:  OclPair_def bot_Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def null_Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def)
+               by(auto simp: Abs_Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inject null_option_def bot_option_def)
+             
+
 subsubsection{* Definition: OclFst *}
 
 definition OclFirst::" ('\<AA>,'\<alpha>::null,'\<beta>::null) Pair \<Rightarrow> ('\<AA>, '\<alpha>) val"  (" _ .First'(')")
@@ -124,7 +130,7 @@ where     "X .First() \<equiv> (\<lambda> \<tau>. if (\<delta> X) \<tau> = true 
 
 
 interpretation OclFirst : monop_property_profile2 OclFirst "\<lambda>x.  fst \<lceil>\<lceil>Rep_Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e (x)\<rceil>\<rceil>"
-                         by unfold_locales (auto simp:  OclFirst_def)
+                          by unfold_locales (auto simp:  OclFirst_def)
 
 subsubsection{* Definition: OclSnd *}
                               
@@ -135,17 +141,55 @@ where     "X .Second() \<equiv> (\<lambda> \<tau>. if (\<delta> X) \<tau> = true
 
 interpretation OclSecond : monop_property_profile2 OclSecond "\<lambda>x.  snd \<lceil>\<lceil>Rep_Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e (x)\<rceil>\<rceil>"
                            by unfold_locales  (auto simp:  OclSecond_def)
-                               
+                           
+subsection{* Logical Properties *}
+
+lemma 1 : "\<tau> \<Turnstile> \<upsilon> Y \<Longrightarrow> \<tau> \<Turnstile> Pair{X,Y} .First() \<triangleq> X"
+apply(case_tac "\<not>(\<tau> \<Turnstile> \<upsilon> X)")
+apply(erule OCL_core.foundation7'[THEN iffD2, THEN OCL_core.foundation15[THEN iffD2, 
+                                       THEN OCL_core.StrongEq_L_subst2_rev]],simp_all add:foundation18')
+apply(auto simp: OclValid_def valid_def defined_def StrongEq_def OclFirst_def OclPair_def
+                true_def false_def invalid_def bot_fun_def null_fun_def)
+apply(auto simp: Abs_Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inject null_option_def bot_option_def bot_Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def null_Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def)
+by(simp add: Abs_Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inverse)
+
+lemma 2 : "\<tau> \<Turnstile> \<upsilon> X \<Longrightarrow> \<tau> \<Turnstile> Pair{X,Y} .Second() \<triangleq> Y" 
+apply(case_tac "\<not>(\<tau> \<Turnstile> \<upsilon> Y)")
+apply(erule OCL_core.foundation7'[THEN iffD2, THEN OCL_core.foundation15[THEN iffD2, 
+                                       THEN OCL_core.StrongEq_L_subst2_rev]],simp_all add:foundation18')
+apply(auto simp: OclValid_def valid_def defined_def StrongEq_def OclSecond_def OclPair_def
+                true_def false_def invalid_def bot_fun_def null_fun_def)
+apply(auto simp: Abs_Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inject null_option_def bot_option_def bot_Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def null_Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def)
+by(simp add: Abs_Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inverse)
+
 subsection{* Execution Properties *}
 
+lemma proj1_exec [simp, code_unfold] : "Pair{X,Y} .First() = (if (\<upsilon> Y) then X else invalid endif)"
+apply(rule ext, rename_tac "\<tau>", simp add: foundation22[symmetric])
+apply(case_tac "\<not>(\<tau> \<Turnstile> \<upsilon> Y)")
+apply(erule OCL_core.foundation7'[THEN iffD2, THEN OCL_core.foundation15[THEN iffD2, 
+                                  THEN OCL_core.StrongEq_L_subst2_rev]],simp_all)
+apply(subgoal_tac "\<tau> \<Turnstile> \<upsilon> Y")
+apply(erule foundation13[THEN iffD2, THEN OCL_core.StrongEq_L_subst2_rev], simp_all)
+by(erule 1)
+
+lemma proj2_exec [simp, code_unfold] : "Pair{X,Y} .Second() = (if (\<upsilon> X) then Y else invalid endif)"
+apply(rule ext, rename_tac "\<tau>", simp add: foundation22[symmetric])
+apply(case_tac "\<not>(\<tau> \<Turnstile> \<upsilon> X)")
+apply(erule OCL_core.foundation7'[THEN iffD2, THEN OCL_core.foundation15[THEN iffD2, 
+                                  THEN OCL_core.StrongEq_L_subst2_rev]],simp_all)
+apply(subgoal_tac "\<tau> \<Turnstile> \<upsilon> X")
+apply(erule foundation13[THEN iffD2, THEN OCL_core.StrongEq_L_subst2_rev], simp_all)
+by(erule 2)
 
 subsection{*Test Statements*}
 
 Assert "\<tau> \<Turnstile> invalid .First() \<triangleq> invalid "
 Assert "\<tau> \<Turnstile> null .First() \<triangleq> invalid "
 Assert "\<tau> \<Turnstile> null .Second() \<triangleq> invalid .Second() "
-(*
 Assert "\<tau> \<Turnstile> Pair{invalid, true} \<triangleq> invalid "
-text{*\fixme{TODO}*}
-*)
+Assert "\<tau> \<Turnstile> \<upsilon>(Pair{null, true}.First())"
+Assert "\<tau> \<Turnstile> (Pair{null, true}).First() \<triangleq> null "
+Assert "\<tau> \<Turnstile> (Pair{null, Pair{true,invalid}}).First() \<triangleq> invalid "
+
 end
