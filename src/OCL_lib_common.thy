@@ -60,12 +60,12 @@ propagation, context-passingness and constance in a systematic way.
 
 subsection{* mono *}
 
-locale monop_property_profile_scheme =
+locale profile_mono_scheme =
    fixes f :: "('\<AA>,'\<alpha>::null)val \<Rightarrow> ('\<AA>,'\<beta>::null)val"
    fixes g
    assumes def_scheme: "(f x) \<equiv> \<lambda> \<tau>. if (\<delta> x) \<tau> = true \<tau> then g (x \<tau>) else invalid \<tau>"
 
-locale monop_property_profile2 = monop_property_profile_scheme +
+locale profile_mono2 = profile_mono_scheme +
    assumes "\<And> x. x \<noteq> bot \<Longrightarrow> x \<noteq> null \<Longrightarrow> g x \<noteq> bot"
 begin
    lemma strict[simp,code_unfold]: " f invalid = invalid"
@@ -89,13 +89,13 @@ begin
       qed  
 end
 
-locale monop_property_profile0 = monop_property_profile_scheme +
+locale profile_mono0 = profile_mono_scheme +
    assumes def_body:  "\<And> x. x \<noteq> bot \<Longrightarrow> x \<noteq> null \<Longrightarrow> g x \<noteq> bot \<and> g x \<noteq> null"
 
-sublocale monop_property_profile0 < monop_property_profile2
+sublocale profile_mono0 < profile_mono2
 by(unfold_locales, simp add: def_scheme, simp add: def_body)
 
-context monop_property_profile0
+context profile_mono0
 begin
    lemma def_homo[simp,code_unfold]: "\<delta>(f x) = (\<delta> x)"
    apply(rule ext, rename_tac "\<tau>",subst OCL_core.foundation22[symmetric])
@@ -124,13 +124,13 @@ end
 
 subsection{* single *}
 
-locale single_infra =
+locale profile_single =
    fixes d:: "('\<AA>,'a::null)val \<Rightarrow> '\<AA> Boolean"
    assumes d_strict[simp,code_unfold]: "d invalid = false"
    assumes d_cp0: "d X \<tau> = d (\<lambda> _. X \<tau>) \<tau>"
    assumes d_const[simp,code_unfold]: "const X \<Longrightarrow> const (d X)"
 
-subsection{* binop *}
+subsection{* bin *}
 
 definition "bin' f g d\<^sub>x d\<^sub>y X Y =
                        (f X Y = (\<lambda> \<tau>. if (d\<^sub>x X) \<tau> = true \<tau> \<and> (d\<^sub>y Y) \<tau> = true \<tau>
@@ -141,13 +141,13 @@ definition "bin f g = bin' f (\<lambda>X Y \<tau>. g (X \<tau>) (Y \<tau>))"
 
 lemmas [simp,code_unfold] = bin'_def bin_def
 
-locale binop_infra =
+locale profile_bin_scheme =
    fixes d\<^sub>x:: "('\<AA>,'a::null)val \<Rightarrow> '\<AA> Boolean"
    fixes d\<^sub>y:: "('\<AA>,'b::null)val \<Rightarrow> '\<AA> Boolean"
    fixes f::"('\<AA>,'a::null)val \<Rightarrow> ('\<AA>,'b::null)val \<Rightarrow> ('\<AA>,'c::null)val"
    fixes g
-   assumes d\<^sub>x' : "single_infra d\<^sub>x"
-   assumes d\<^sub>y' : "single_infra d\<^sub>y"
+   assumes d\<^sub>x' : "profile_single d\<^sub>x"
+   assumes d\<^sub>y' : "profile_single d\<^sub>y"
    assumes d\<^sub>x_d\<^sub>y_homo[simp,code_unfold]: "cp (f X) \<Longrightarrow> 
                           cp (\<lambda>x. f x Y) \<Longrightarrow> 
                           f X invalid = invalid \<Longrightarrow>
@@ -157,8 +157,8 @@ locale binop_infra =
    assumes def_scheme''[simplified]: "bin f g d\<^sub>x d\<^sub>y X Y"
    assumes 1: "\<tau> \<Turnstile> d\<^sub>x X \<Longrightarrow> \<tau> \<Turnstile> d\<^sub>y Y \<Longrightarrow> \<tau> \<Turnstile> \<delta> f X Y"
 begin
-      interpretation d\<^sub>x : single_infra d\<^sub>x by (rule d\<^sub>x')
-      interpretation d\<^sub>y : single_infra d\<^sub>y by (rule d\<^sub>y')
+      interpretation d\<^sub>x : profile_single d\<^sub>x by (rule d\<^sub>x')
+      interpretation d\<^sub>y : profile_single d\<^sub>y by (rule d\<^sub>y')
 
       lemma strict1[simp,code_unfold]: " f invalid y = invalid"
       by(rule ext, simp add: def_scheme'' true_def false_def)
@@ -207,7 +207,7 @@ end
 
 text{*
 In our context, we will use Locales as ``Property Profiles'' for OCL operators;
-if an operator @{term "f"} is of profile @{term "binop_infra defined f g"} we know
+if an operator @{term "f"} is of profile @{term "profile_bin_scheme defined f g"} we know
 that it satisfies a number of properties like @{text "strict1"} or @{text "strict2"}
 \ie{} @{term "f invalid y = invalid"} and @{term "f null y = invalid"}.
 Since some of the more advanced Locales come with 10 - 15 theorems, property profiles
@@ -215,11 +215,11 @@ represent a major structuring mechanism for the OCL library.
 *}
 
 
-locale binop_infra1' =
+locale profile_bin_scheme_defined =
    fixes d\<^sub>y:: "('\<AA>,'b::null)val \<Rightarrow> '\<AA> Boolean"
    fixes f::"('\<AA>,'a::null)val \<Rightarrow> ('\<AA>,'b::null)val \<Rightarrow> ('\<AA>,'c::null)val"
    fixes g
-   assumes d\<^sub>y : "single_infra d\<^sub>y"
+   assumes d\<^sub>y : "profile_single d\<^sub>y"
    assumes d\<^sub>y_homo[simp,code_unfold]: "cp (f X) \<Longrightarrow> 
                           f X invalid = invalid \<Longrightarrow>
                           \<not> \<tau> \<Turnstile> d\<^sub>y Y \<Longrightarrow>
@@ -231,10 +231,10 @@ begin
       by(rule ext, simp add: def_scheme' true_def false_def)
 end
 
-sublocale binop_infra1' < binop_infra defined
+sublocale profile_bin_scheme_defined < profile_bin_scheme defined
 proof - 
-      interpret d\<^sub>y : single_infra d\<^sub>y by (rule d\<^sub>y)
- show "binop_infra defined d\<^sub>y f g"
+      interpret d\<^sub>y : profile_single d\<^sub>y by (rule d\<^sub>y)
+ show "profile_bin_scheme defined d\<^sub>y f g"
  apply(unfold_locales)
       apply(simp)+
      apply(subst cp_defined, simp)
@@ -248,7 +248,7 @@ proof -
  by(simp add: true_def)+
 qed
 
-locale binop_infra1 =
+locale profile_bin1 =
    fixes f::"('\<AA>,'a::null)val \<Rightarrow> ('\<AA>,'b::null)val \<Rightarrow> ('\<AA>,'c::null)val"
    fixes g
    assumes def_scheme[simplified]: "bin f g defined defined X Y"
@@ -258,7 +258,7 @@ begin
       by(rule ext, simp add: def_scheme true_def false_def)
 end
 
-sublocale binop_infra1 < binop_infra1' defined
+sublocale profile_bin1 < profile_bin_scheme_defined defined
  apply(unfold_locales)
       apply(simp)+
      apply(subst cp_defined, simp)+
@@ -269,13 +269,13 @@ sublocale binop_infra1 < binop_infra1' defined
  by(simp add: defined_def OclValid_def false_def true_def 
               bot_fun_def null_fun_def def_scheme def_body)
 
-locale binop_infra2 =
+locale profile_bin2 =
    fixes f::"('\<AA>,'a::null)val \<Rightarrow> ('\<AA>,'b::null)val \<Rightarrow> ('\<AA>,'c::null)val"
    fixes g
    assumes def_scheme[simplified]: "bin f g defined valid X Y"
    assumes def_body:  "\<And> x y. x\<noteq>bot \<Longrightarrow> x\<noteq>null \<Longrightarrow> y\<noteq>bot \<Longrightarrow> g x y \<noteq> bot \<and> g x y \<noteq> null"
 
-sublocale binop_infra2 < binop_infra1' valid
+sublocale profile_bin2 < profile_bin_scheme_defined valid
  apply(unfold_locales)
       apply(simp)
      apply(subst cp_valid, simp)
@@ -285,11 +285,11 @@ sublocale binop_infra2 < binop_infra1' valid
   apply(simp add: def_scheme)
  by (metis OclValid_def def_body foundation18')
  
-locale binop_property_profile3 =
+locale profile_bin3 =
    fixes f :: "('\<AA>,'\<alpha>::null)val \<Rightarrow> ('\<AA>,'\<alpha>::null)val \<Rightarrow> ('\<AA>) Boolean"
    assumes def_scheme[simplified]: "bin' f StrongEq valid valid X Y"
 
-sublocale binop_property_profile3 < binop_infra valid valid f "\<lambda>x y. \<lfloor>\<lfloor>x = y\<rfloor>\<rfloor>"
+sublocale profile_bin3 < profile_bin_scheme valid valid f "\<lambda>x y. \<lfloor>\<lfloor>x = y\<rfloor>\<rfloor>"
  apply(unfold_locales)
       apply(simp)
      apply(subst cp_valid, simp)
@@ -298,7 +298,7 @@ sublocale binop_property_profile3 < binop_infra valid valid f "\<lambda>x y. \<l
   apply(simp add: def_scheme, subst StrongEq_def, simp)
  by (metis OclValid_def def_scheme defined7 foundation16)
 
-context binop_property_profile3
+context profile_bin3
    begin
       lemma idem[simp,code_unfold]: " f null null = true"
       by(rule ext, simp add: def_scheme true_def false_def)
@@ -337,13 +337,13 @@ context binop_property_profile3
    end
 
    
-locale binop_property_profile4 =
+locale profile_bin4 =
    fixes f :: "('\<AA>,'\<alpha>::null)val \<Rightarrow> ('\<AA>,'\<beta>::null)val \<Rightarrow> ('\<AA>,'\<gamma>::null)val"
    fixes g
    assumes def_scheme[simplified]: "bin f g valid valid X Y"
    assumes def_body:  "\<And> x y. x\<noteq>bot \<Longrightarrow> y\<noteq>bot \<Longrightarrow> g x y \<noteq> bot \<and> g x y \<noteq> null"
 
-sublocale binop_property_profile4 < binop_infra valid valid
+sublocale profile_bin4 < profile_bin_scheme valid valid
  apply(unfold_locales)
          apply(simp, subst cp_valid, simp, rule const_valid, simp)+
    apply (metis (hide_lams, mono_tags) OclValid_def def_scheme defined5 defined6 defined_and_I foundation1 foundation10' foundation16' foundation18 foundation21 foundation22 foundation9)

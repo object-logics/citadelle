@@ -84,8 +84,8 @@ lemma true_non_null [simp,code_unfold]:"(true \<doteq> null) = false"
 
 text{* With respect to strictness properties and miscelleaneous side-calculi,
 strict referential equality behaves on booleans as described in the
-@{term "binop_property_profile3"}:*}
-interpretation StrictRefEq\<^sub>B\<^sub>o\<^sub>o\<^sub>l\<^sub>e\<^sub>a\<^sub>n : binop_property_profile3 "\<lambda> x y. (x::('\<AA>)Boolean) \<doteq> y" 
+@{term "profile_bin3"}:*}
+interpretation StrictRefEq\<^sub>B\<^sub>o\<^sub>o\<^sub>l\<^sub>e\<^sub>a\<^sub>n : profile_bin3 "\<lambda> x y. (x::('\<AA>)Boolean) \<doteq> y" 
          by unfold_locales (auto simp:StrictRefEq\<^sub>B\<^sub>o\<^sub>o\<^sub>l\<^sub>e\<^sub>a\<^sub>n)
          
 text{* In particular, it is strict, cp-preserving and const-preserving. In particular,

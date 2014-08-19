@@ -98,8 +98,8 @@ defs  StrictRefEq\<^sub>P\<^sub>a\<^sub>i\<^sub>r :
                                                        else invalid \<tau>)"
 
 
-text{* Property proof in terms of @{term "binop_property_profile3"}*}
-interpretation  StrictRefEq\<^sub>P\<^sub>a\<^sub>i\<^sub>r : binop_property_profile3 "\<lambda> x y. (x::('\<AA>,'\<alpha>::null,'\<beta>::null)Pair) \<doteq> y" 
+text{* Property proof in terms of @{term "profile_bin3"}*}
+interpretation  StrictRefEq\<^sub>P\<^sub>a\<^sub>i\<^sub>r : profile_bin3 "\<lambda> x y. (x::('\<AA>,'\<alpha>::null,'\<beta>::null)Pair) \<doteq> y" 
                 by unfold_locales (auto simp:  StrictRefEq\<^sub>P\<^sub>a\<^sub>i\<^sub>r)
  
 subsection{* Standard Operations *}
@@ -115,7 +115,7 @@ where     "Pair{X,Y} \<equiv> (\<lambda> \<tau>. if (\<upsilon> X) \<tau> = true
                               then Abs_Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor>\<lfloor>(X \<tau>, Y \<tau>)\<rfloor>\<rfloor>
                               else invalid \<tau>)"
 
-interpretation OclPair : binop_property_profile4  
+interpretation OclPair : profile_bin4  
                OclPair "\<lambda> x y. Abs_Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor>\<lfloor>(x, y)\<rfloor>\<rfloor>"                             
                apply(unfold_locales, auto simp:  OclPair_def bot_Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def null_Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def)
                by(auto simp: Abs_Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inject null_option_def bot_option_def)
@@ -129,7 +129,7 @@ where     "X .First() \<equiv> (\<lambda> \<tau>. if (\<delta> X) \<tau> = true 
                               else invalid \<tau>)"
 
 
-interpretation OclFirst : monop_property_profile2 OclFirst "\<lambda>x.  fst \<lceil>\<lceil>Rep_Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e (x)\<rceil>\<rceil>"
+interpretation OclFirst : profile_mono2 OclFirst "\<lambda>x.  fst \<lceil>\<lceil>Rep_Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e (x)\<rceil>\<rceil>"
                           by unfold_locales (auto simp:  OclFirst_def)
 
 subsubsection{* Definition: OclSnd *}
@@ -139,7 +139,7 @@ where     "X .Second() \<equiv> (\<lambda> \<tau>. if (\<delta> X) \<tau> = true
                                then snd \<lceil>\<lceil>Rep_Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e (X \<tau>)\<rceil>\<rceil>
                                else invalid \<tau>)"
 
-interpretation OclSecond : monop_property_profile2 OclSecond "\<lambda>x.  snd \<lceil>\<lceil>Rep_Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e (x)\<rceil>\<rceil>"
+interpretation OclSecond : profile_mono2 OclSecond "\<lambda>x.  snd \<lceil>\<lceil>Rep_Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e (x)\<rceil>\<rceil>"
                            by unfold_locales  (auto simp:  OclSecond_def)
                            
 subsection{* Logical Properties *}

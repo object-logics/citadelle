@@ -131,7 +131,7 @@ definition OclAdd\<^sub>R\<^sub>e\<^sub>a\<^sub>l ::"('\<AA>)Real \<Rightarrow> 
 where "x +\<^sub>r\<^sub>e\<^sub>a\<^sub>l y \<equiv> \<lambda> \<tau>. if (\<delta> x) \<tau> = true \<tau> \<and> (\<delta> y) \<tau> = true \<tau>
                        then \<lfloor>\<lfloor>\<lceil>\<lceil>x \<tau>\<rceil>\<rceil> + \<lceil>\<lceil>y \<tau>\<rceil>\<rceil>\<rfloor>\<rfloor>
                        else invalid \<tau> "
-interpretation OclAdd\<^sub>R\<^sub>e\<^sub>a\<^sub>l : binop_infra1 "op +\<^sub>r\<^sub>e\<^sub>a\<^sub>l" "\<lambda> x y. \<lfloor>\<lfloor>\<lceil>\<lceil>x\<rceil>\<rceil> + \<lceil>\<lceil>y\<rceil>\<rceil>\<rfloor>\<rfloor>"
+interpretation OclAdd\<^sub>R\<^sub>e\<^sub>a\<^sub>l : profile_bin1 "op +\<^sub>r\<^sub>e\<^sub>a\<^sub>l" "\<lambda> x y. \<lfloor>\<lfloor>\<lceil>\<lceil>x\<rceil>\<rceil> + \<lceil>\<lceil>y\<rceil>\<rceil>\<rfloor>\<rfloor>"
          by unfold_locales (auto simp:OclAdd\<^sub>R\<^sub>e\<^sub>a\<^sub>l_def bot_option_def null_option_def)
 
 
@@ -139,7 +139,7 @@ definition OclMinus\<^sub>R\<^sub>e\<^sub>a\<^sub>l ::"('\<AA>)Real \<Rightarrow
 where "x -\<^sub>r\<^sub>e\<^sub>a\<^sub>l y \<equiv> \<lambda> \<tau>. if (\<delta> x) \<tau> = true \<tau> \<and> (\<delta> y) \<tau> = true \<tau>
                        then \<lfloor>\<lfloor>\<lceil>\<lceil>x \<tau>\<rceil>\<rceil> - \<lceil>\<lceil>y \<tau>\<rceil>\<rceil>\<rfloor>\<rfloor>
                        else invalid \<tau> "
-interpretation OclMinus\<^sub>R\<^sub>e\<^sub>a\<^sub>l : binop_infra1 "op -\<^sub>r\<^sub>e\<^sub>a\<^sub>l" "\<lambda> x y. \<lfloor>\<lfloor>\<lceil>\<lceil>x\<rceil>\<rceil> - \<lceil>\<lceil>y\<rceil>\<rceil>\<rfloor>\<rfloor>"
+interpretation OclMinus\<^sub>R\<^sub>e\<^sub>a\<^sub>l : profile_bin1 "op -\<^sub>r\<^sub>e\<^sub>a\<^sub>l" "\<lambda> x y. \<lfloor>\<lfloor>\<lceil>\<lceil>x\<rceil>\<rceil> - \<lceil>\<lceil>y\<rceil>\<rceil>\<rfloor>\<rfloor>"
          by   unfold_locales  (auto simp:OclMinus\<^sub>R\<^sub>e\<^sub>a\<^sub>l_def bot_option_def null_option_def)
 
 
@@ -147,7 +147,7 @@ definition OclMult\<^sub>R\<^sub>e\<^sub>a\<^sub>l ::"('\<AA>)Real \<Rightarrow>
 where "x *\<^sub>r\<^sub>e\<^sub>a\<^sub>l y \<equiv> \<lambda> \<tau>. if (\<delta> x) \<tau> = true \<tau> \<and> (\<delta> y) \<tau> = true \<tau>
                        then \<lfloor>\<lfloor>\<lceil>\<lceil>x \<tau>\<rceil>\<rceil> * \<lceil>\<lceil>y \<tau>\<rceil>\<rceil>\<rfloor>\<rfloor>
                        else invalid \<tau>"
-interpretation OclMult\<^sub>R\<^sub>e\<^sub>a\<^sub>l : binop_infra1 "op *\<^sub>r\<^sub>e\<^sub>a\<^sub>l" "\<lambda> x y. \<lfloor>\<lfloor>\<lceil>\<lceil>x\<rceil>\<rceil> * \<lceil>\<lceil>y\<rceil>\<rceil>\<rfloor>\<rfloor>"
+interpretation OclMult\<^sub>R\<^sub>e\<^sub>a\<^sub>l : profile_bin1 "op *\<^sub>r\<^sub>e\<^sub>a\<^sub>l" "\<lambda> x y. \<lfloor>\<lfloor>\<lceil>\<lceil>x\<rceil>\<rceil> * \<lceil>\<lceil>y\<rceil>\<rceil>\<rfloor>\<rfloor>"
          by   unfold_locales  (auto simp:OclMult\<^sub>R\<^sub>e\<^sub>a\<^sub>l_def bot_option_def null_option_def)
           
 text{* Here is the special case of division, which is defined as invalid for division
@@ -169,14 +169,14 @@ definition OclLess\<^sub>R\<^sub>e\<^sub>a\<^sub>l ::"('\<AA>)Real \<Rightarrow>
 where "x <\<^sub>r\<^sub>e\<^sub>a\<^sub>l y \<equiv> \<lambda> \<tau>. if (\<delta> x) \<tau> = true \<tau> \<and> (\<delta> y) \<tau> = true \<tau>
                        then \<lfloor>\<lfloor>\<lceil>\<lceil>x \<tau>\<rceil>\<rceil> < \<lceil>\<lceil>y \<tau>\<rceil>\<rceil>\<rfloor>\<rfloor>
                        else invalid \<tau> "
-interpretation OclLess\<^sub>R\<^sub>e\<^sub>a\<^sub>l : binop_infra1 "op <\<^sub>r\<^sub>e\<^sub>a\<^sub>l" "\<lambda> x y. \<lfloor>\<lfloor>\<lceil>\<lceil>x\<rceil>\<rceil> < \<lceil>\<lceil>y\<rceil>\<rceil>\<rfloor>\<rfloor>"
+interpretation OclLess\<^sub>R\<^sub>e\<^sub>a\<^sub>l : profile_bin1 "op <\<^sub>r\<^sub>e\<^sub>a\<^sub>l" "\<lambda> x y. \<lfloor>\<lfloor>\<lceil>\<lceil>x\<rceil>\<rceil> < \<lceil>\<lceil>y\<rceil>\<rceil>\<rfloor>\<rfloor>"
          by   unfold_locales  (auto simp:OclLess\<^sub>R\<^sub>e\<^sub>a\<^sub>l_def bot_option_def null_option_def)
 
 definition OclLe\<^sub>R\<^sub>e\<^sub>a\<^sub>l ::"('\<AA>)Real \<Rightarrow> ('\<AA>)Real \<Rightarrow> ('\<AA>)Boolean" (infix "\<le>\<^sub>r\<^sub>e\<^sub>a\<^sub>l" 35)
 where "x \<le>\<^sub>r\<^sub>e\<^sub>a\<^sub>l y \<equiv> \<lambda> \<tau>. if (\<delta> x) \<tau> = true \<tau> \<and> (\<delta> y) \<tau> = true \<tau>
                        then \<lfloor>\<lfloor>\<lceil>\<lceil>x \<tau>\<rceil>\<rceil> \<le> \<lceil>\<lceil>y \<tau>\<rceil>\<rceil>\<rfloor>\<rfloor>
                        else invalid \<tau> "
-interpretation OclLe\<^sub>R\<^sub>e\<^sub>a\<^sub>l : binop_infra1 "op \<le>\<^sub>r\<^sub>e\<^sub>a\<^sub>l" "\<lambda> x y. \<lfloor>\<lfloor>\<lceil>\<lceil>x\<rceil>\<rceil> \<le> \<lceil>\<lceil>y\<rceil>\<rceil>\<rfloor>\<rfloor>"
+interpretation OclLe\<^sub>R\<^sub>e\<^sub>a\<^sub>l : profile_bin1 "op \<le>\<^sub>r\<^sub>e\<^sub>a\<^sub>l" "\<lambda> x y. \<lfloor>\<lfloor>\<lceil>\<lceil>x\<rceil>\<rceil> \<le> \<lceil>\<lceil>y\<rceil>\<rceil>\<rfloor>\<rfloor>"
          by   unfold_locales  (auto simp:OclLe\<^sub>R\<^sub>e\<^sub>a\<^sub>l_def bot_option_def null_option_def)
 
 subsubsection{* Basic Properties *}
@@ -247,8 +247,8 @@ defs   StrictRefEq\<^sub>R\<^sub>e\<^sub>a\<^sub>l [code_unfold] :
                                     then (x \<triangleq> y) \<tau>
                                     else invalid \<tau>"
                                     
-text{* Property proof in terms of @{term "binop_property_profile3"}*}
-interpretation StrictRefEq\<^sub>R\<^sub>e\<^sub>a\<^sub>l : binop_property_profile3 "\<lambda> x y. (x::('\<AA>)Real) \<doteq> y" 
+text{* Property proof in terms of @{term "profile_bin3"}*}
+interpretation StrictRefEq\<^sub>R\<^sub>e\<^sub>a\<^sub>l : profile_bin3 "\<lambda> x y. (x::('\<AA>)Real) \<doteq> y" 
          by unfold_locales (auto simp: StrictRefEq\<^sub>R\<^sub>e\<^sub>a\<^sub>l)
                                    
 
