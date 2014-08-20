@@ -346,7 +346,8 @@ locale profile_bin4 =
 sublocale profile_bin4 < profile_bin_scheme valid valid
  apply(unfold_locales)
          apply(simp, subst cp_valid, simp, rule const_valid, simp)+
-   apply (metis (hide_lams, mono_tags) OclValid_def def_scheme defined5 defined6 defined_and_I foundation1 foundation10' foundation16' foundation18 foundation21 foundation22 foundation9)
+   apply (metis (hide_lams, mono_tags) OclValid_def def_scheme defined5 defined6 defined_and_I 
+         foundation1 foundation10' foundation16' foundation18 foundation21 foundation22 foundation9)
   apply(simp add: def_scheme)
  apply(simp add: defined_def OclValid_def false_def true_def 
               bot_fun_def null_fun_def def_scheme split: split_if_asm, rule def_body)
