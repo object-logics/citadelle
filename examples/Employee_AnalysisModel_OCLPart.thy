@@ -178,34 +178,57 @@ where "self .operation(a1,a2,an) \<equiv>
                                  (\<tau> \<Turnstile> POST\<^sub>o\<^sub>p\<^sub>e\<^sub>r\<^sub>a\<^sub>t\<^sub>i\<^sub>o\<^sub>n self a1 a2 an (\<lambda> _. res))
                   else invalid \<tau>)"
 
+                  
 text{* For the case of recursive queries, we use at present just axiomatizations: *}               
                   
-axiomatization dot_contents :: "Person \<Rightarrow> Set_Integer"  ("(1(_).contents'('))" 50)
-where dot_contents_def:
-"(\<tau> \<Turnstile> ((self).contents() \<triangleq> result)) =
- (if (\<delta> self) \<tau> = true \<tau>
-  then ((\<tau> \<Turnstile> true) \<and>
-        (\<tau> \<Turnstile> (result \<triangleq> if (self .boss \<doteq> null)
-                        then (Set{self .salary})
-                        else (self .boss .contents()->including(self .salary))
-                        endif)))
-  else \<tau> \<Turnstile> result \<triangleq> invalid)"
-
+axiomatization contents :: "Person \<Rightarrow> Set_Integer"  ("(1(_).contents'('))" 50)
+where contents_def:
+"(self .contents()) = (\<lambda> \<tau>. (if \<tau> \<Turnstile> (\<delta> self)
+                             then SOME res.((\<tau> \<Turnstile> true) \<and>
+                                            (\<tau> \<Turnstile> (\<lambda>_ . res) \<triangleq> if (self .boss \<doteq> null)
+                                                               then (Set{self .salary})
+                                                               else (self .boss .contents()
+                                                                        ->including(self .salary))
+                                                               endif))
+                             else invalid \<tau>))"
+interpretation contents : contract0 "contents" "\<lambda> self. true"  
+                          "\<lambda> self res.  res \<triangleq> if (self .boss \<doteq> null)
+                                                               then (Set{self .salary})
+                                                               else (self .boss .contents()
+                                                                        ->including(self .salary))
+                                                               endif"   
+         apply unfold_locales 
+         apply(auto simp: contents_def)      
+         sorry   (* far too much unfolding in the operations above ... *)
+         
+         thm contents.unfold contents.unfold2[of _ _ _ "\<lambda> self. true"]
+         
 text{* Since we have only one interpretation function, we need the corresponding
 operation on the pre-state: *}               
 
-consts dot_contents_AT_pre :: "Person \<Rightarrow> Set_Integer"  ("(1(_).contents@pre'('))" 50)
+consts contentsATpre :: "Person \<Rightarrow> Set_Integer"  ("(1(_).contents@pre'('))" 50)
 
-axiomatization where dot_contents_AT_pre_def:
-"(\<tau> \<Turnstile> (self).contents@pre() \<triangleq> result) =
- (if (\<delta> self) \<tau> = true \<tau>
-  then \<tau> \<Turnstile> true \<and>                                (* pre *)
-        \<tau> \<Turnstile> (result \<triangleq> if (self).boss@pre \<doteq> null  (* post *)
-                        then Set{(self).salary@pre}
-                        else (self).boss@pre .contents@pre()->including(self .salary@pre)
-                        endif)
-  else \<tau> \<Turnstile> result \<triangleq> invalid)"
+axiomatization where contentsATpre_def:
+" (self).contents@pre() = (\<lambda> \<tau>.
+ (if \<tau> \<Turnstile> (\<delta> self)
+  then SOME res.((\<tau> \<Turnstile> true) \<and>                                  (* pre *)
+                 (\<tau> \<Turnstile> ((\<lambda>_. res) \<triangleq> if (self).boss@pre \<doteq> null  (* post *)
+                                    then Set{(self).salary@pre}
+                                    else (self).boss@pre .contents@pre()->including(self .salary@pre)
+                                    endif)))
+  else invalid \<tau>))"
 
+interpretation contentsATpre : contract0 "contentsATpre" "\<lambda> self. true"  
+                          "\<lambda> self res.  res \<triangleq> if (self .boss@pre \<doteq> null)
+                                                               then (Set{self .salary@pre})
+                                                               else (self .boss@pre .contents@pre()
+                                                                        ->including(self .salary@pre))
+                                                               endif"     
+         apply unfold_locales 
+         apply(auto simp: contentsATpre_def)      
+         sorry   (* far too much unfolding in the operations above ... *)
+  
+  
 text{* These \inlineocl{@pre} variants on methods are only available on queries, \ie,
 operations without side-effect. *}
 
@@ -229,5 +252,10 @@ where "self .insert(x) \<equiv>
                                  (\<tau> \<Turnstile> ((self).contents() \<triangleq> (self).contents@pre()->including(x))))
                   else invalid \<tau>)"  
 
+interpretation insert : contract1 "insert" "\<lambda> self x. true" 
+                                  "\<lambda> self x res. ((self .contents()) \<triangleq> (self .contents@pre()->including(x)))" 
+         apply unfold_locales 
+         apply(auto simp:insert_def)
+         sorry
 
 end
