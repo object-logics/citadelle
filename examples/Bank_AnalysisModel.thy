@@ -47,15 +47,15 @@ theory
   Bank_AnalysisModel
 imports
   "../src/OCL_main"
-  "../src/OCL_compiler_static"
-  "../src/OCL_compiler_generator_dynamic"
+  "../src/compiler/OCL_compiler_static"
+  "../src/compiler/OCL_compiler_generator_dynamic"
 begin
 
 generation_syntax [ deep
                       (generation_semantics [ analysis (*, oid_start 10*) ])
                       (THEORY Bank_AnalysisModel_generated)
-                      (IMPORTS ["../src/OCL_main", "../src/OCL_compiler_static"]
-                               "../src/OCL_compiler_generator_dynamic")
+                      (IMPORTS ["../src/OCL_main", "../src/compiler/OCL_compiler_static"]
+                               "../src/compiler/OCL_compiler_generator_dynamic")
                       SECTION
                       [ in SML module_name M (no_signatures) ]
                       (output_directory "../doc")

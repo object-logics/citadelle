@@ -44,7 +44,7 @@
 header{* Part ... *}
 
 theory  OCL_compiler_core_init
-imports OCL_compiler_meta_META
+imports "../meta/OCL_compiler_meta_META"
 begin
 
 section{* Preliminaries Compiler *}

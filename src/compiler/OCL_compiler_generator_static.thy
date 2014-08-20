@@ -60,7 +60,7 @@ definition "main = write_file
       \<lparr> D_disable_thy_output := False
       , D_file_out_path_dep := Some (''Employee_DesignModel_UMLPart_generated''
                                     ,[''../src/OCL_main'']
-                                    ,''../src/OCL_class_diagram_generator'') \<rparr>)
+                                    ,''../src/compiler/OCL_compiler_generator_dynamic'') \<rparr>)
    ( List_map OclAstClassRaw Employee_DesignModel_UMLPart
      @@ [ OclAstAssociation (ocl_association.make OclAssTy_association
             [ (''Person'', OclMult [(Mult_star, None)], None)

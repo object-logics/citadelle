@@ -45,7 +45,7 @@ header{* Part ... *}
 
 theory  OCL_compiler_printer_init
 imports "~~/src/HOL/Library/Code_Char"
-        OCL_compiler_init
+        "../OCL_compiler_init"
   keywords (* hol syntax *)
            "lazy_code_printing" "apply_code_printing" "apply_code_printing_reflect"
            :: thy_decl

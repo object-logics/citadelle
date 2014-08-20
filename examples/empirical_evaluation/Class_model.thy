@@ -44,7 +44,7 @@
 header{* Part ... *}
 
 theory  Class_model
-imports "../../src/OCL_compiler_init_rbt"
+imports "../../src/compiler/OCL_compiler_init_rbt"
         "~~/src/HOL/Library/Code_Char"
 begin
 
@@ -153,21 +153,21 @@ definition "print_abr sprintf_int write_file =
                      , (''OCaml'', ''module_name M (no_signatures)'')
                      , (''Scala'', ''module_name M'')
                      , (''SML'', ''module_name M (no_signatures)'')])
-        , flatten [ g,''../../src/OCL_compiler_generator_dynamic'',g ]
+        , flatten [ g,''../../src/compiler/OCL_compiler_generator_dynamic'',g ]
         , \<lambda> comp comp2.
             flatten_n [          ''generation_syntax [ deep''
                       ,          ''                      (generation_semantics [ analysis (*, oid_start 10*) ])''
                       ,          ''                      skip_export''
                       , flatten [''                      (THEORY '', tree_name, ''_generated'', ''_'', comp, '')'']
-                      , flatten [''                      (IMPORTS ['',g,''../../../src/OCL_main'',g,'', '',g,''../../../src/OCL_compiler_static'',g,'']'']
-                      , flatten [''                               '',g,''../../../src/OCL_compiler_generator_dynamic'',g,'')'']
+                      , flatten [''                      (IMPORTS ['',g,''../../../src/OCL_main'',g,'', '',g,''../../../src/compiler/OCL_compiler_static'',g,'']'']
+                      , flatten [''                               '',g,''../../../src/compiler/OCL_compiler_generator_dynamic'',g,'')'']
                       ,          ''                      SECTION''
                       , flatten [''                      [ in '', comp, '' '', comp2, '' ]'']
                       , flatten [''                      (output_directory '',g,''./doc'',g,'') ]''] ]
         , flatten_n [ ''generation_syntax deep flush_all'' ])
       , ( (''shallow'', [('''', '''')])
         , flatten [ g,''../../src/OCL_main'',g, '' ''
-                  , g,''../../src/OCL_compiler_static'',g  ]
+                  , g,''../../src/compiler/OCL_compiler_static'',g  ]
         , \<lambda>_ _. flatten_n [ ''generation_syntax [ shallow (generation_semantics [ analysis ]) ]'' ]
         , ''Class.end'') ]))"
 

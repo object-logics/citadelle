@@ -44,14 +44,14 @@
 header{* Part ... *}
 
 theory  OCL_compiler_core
-imports OCL_compiler_core_infra
-        OCL_compiler_core_astype
-        OCL_compiler_core_istypeof
-        OCL_compiler_core_iskindof
-        OCL_compiler_core_allinst
-        OCL_compiler_core_access
-        OCL_compiler_core_examp
-        OCL_compiler_core_ctxt
+imports "core/OCL_compiler_core_infra"
+        "core/OCL_compiler_core_astype"
+        "core/OCL_compiler_core_istypeof"
+        "core/OCL_compiler_core_iskindof"
+        "core/OCL_compiler_core_allinst"
+        "core/OCL_compiler_core_access"
+        "core/OCL_compiler_core_examp"
+        "core/OCL_compiler_core_ctxt"
 begin
 
 section{* Translation of AST *}

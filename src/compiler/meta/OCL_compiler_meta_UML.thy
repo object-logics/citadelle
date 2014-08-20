@@ -45,7 +45,7 @@ header{* Part ... *}
 
 theory  OCL_compiler_meta_UML
 imports OCL_compiler_meta_Pure
-        OCL_compiler_init_rbt
+        "../OCL_compiler_init_rbt"
 begin
 
 section{* OCL Meta-Model aka. AST definition of OCL *}
