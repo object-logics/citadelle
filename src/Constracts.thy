@@ -29,9 +29,7 @@ locale contract2 =
               assumes "cp self' \<Longrightarrow> cp a1' \<Longrightarrow> cp a2' \<Longrightarrow> cp (\<lambda>X. PRE (self' X) (a1' X) (a2' X) )"
               which is too polymorphic. *)
    assumes "POST (self) (a1) (a2) (res) \<tau> = POST (\<lambda> _. self \<tau>)(\<lambda> _. a1 \<tau>)(\<lambda> _. a2 \<tau>) (\<lambda> _. res \<tau>) \<tau>"
-   (*
-   assumes "cp self' \<Longrightarrow> cp a1' \<Longrightarrow> cp a2' \<Longrightarrow> cp res'
-                \<Longrightarrow> cp (\<lambda>X. POST (self' X) (a1' X) (a2' X) (res' X))" *)
+
 begin  
    lemma strict0 [simp]: "f invalid X Y = invalid"
    by(rule ext, rename_tac "\<tau>", simp add: def_scheme)
@@ -56,11 +54,42 @@ begin
                        \<Longrightarrow> cp (\<lambda>X. f (self' X) (a1' X) (a2' X))"
    sorry                 
    
-   lemma unfold : "f self a1 a2 = undefined "
-   sorry
+   theorem unfold : 
+      assumes context_ok:    "cp E"
+      and args_def_or_valid: "(\<tau> \<Turnstile> \<delta> self) \<and> (\<tau> \<Turnstile> \<upsilon> a1) \<and>  (\<tau> \<Turnstile> \<upsilon> a2)"
+      and pre_satisfied:     "\<tau> \<Turnstile> PRE self a1 a2"
+      and post_satisfiable:  " \<exists>res. (\<tau> \<Turnstile> POST self a1 a2 (\<lambda> _. res))"
+      and sat_for_sols_post: "(\<And>res. \<tau> \<Turnstile> POST self a1 a2 (\<lambda> _. res)  \<Longrightarrow> \<tau> \<Turnstile> E (\<lambda> _. res))"
+      shows                  "\<tau> \<Turnstile> E(f self a1 a2)"
+   proof -  
+      have cp0: "\<And> X \<tau>. E X \<tau> = E (\<lambda>_. X \<tau>) \<tau>" by(insert context_ok[simplified cp_def], auto)
+      show ?thesis
+         apply(simp add: OclValid_def, subst cp0, fold OclValid_def)
+         apply(simp add:def_scheme args_def_or_valid pre_satisfied)
+         apply(insert post_satisfiable, elim exE)
+         apply(rule Hilbert_Choice.someI2, assumption)
+         by(rule sat_for_sols_post, simp)
+   qed
+   
+   lemma unfold2 :
+      assumes context_ok:      "cp E"
+      and args_def_or_valid:   "(\<tau> \<Turnstile> \<delta> self) \<and> (\<tau> \<Turnstile> \<upsilon> a1) \<and>  (\<tau> \<Turnstile> \<upsilon> a2)"
+      and pre_satisfied:       "\<tau> \<Turnstile> PRE self a1 a2"
+      and postsplit_satisfied: "\<tau> \<Turnstile> POST' self a1 a2" (* split constraint holds on post-state *)
+      and post_decomposable  : "\<And> res. (POST self a1 a2 res) = 
+                                       ((POST' self a1 a2)  and (res \<triangleq> (BODY self a1 a2)))"
+      shows "(\<tau> \<Turnstile> E(f self a1 a2)) = (\<tau> \<Turnstile> E(BODY self a1 a2))"
+   proof -
+      have cp0: "\<And> X \<tau>. E X \<tau> = E (\<lambda>_. X \<tau>) \<tau>" by(insert context_ok[simplified cp_def], auto)
+      show ?thesis
+         apply(simp add: OclValid_def, subst cp0, fold OclValid_def)      
+         apply(simp add:def_scheme args_def_or_valid pre_satisfied 
+                        post_decomposable postsplit_satisfied foundation27)
+         apply(subst some_equality)
+         apply(simp add: OclValid_def StrongEq_def true_def)
+         apply(simp add: OclValid_def StrongEq_def true_def)
+         apply(simp add: OclValid_def StrongEq_def true_def)
+         by(subst (2) cp0, rule refl)
+   qed
 end
 
-
-
-                 term "THE x. P x" 
-                  
