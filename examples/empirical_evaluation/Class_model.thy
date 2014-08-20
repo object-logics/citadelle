@@ -44,7 +44,7 @@
 header{* Part ... *}
 
 theory  Class_model
-imports "../../src/OCL_compiler_init"
+imports "../../src/OCL_compiler_init_rbt"
         "~~/src/HOL/Library/Code_Char"
 begin
 
