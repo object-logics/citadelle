@@ -1118,23 +1118,33 @@ previous section to much more detail.  In contrast to wide-spread
 opinions, UML class diagrams represent in a compact and visual manner
 quite complex, object-oriented data-types with a surprisingly rich
 theory. It is part of our endeavor here to make this theory explicit
-and to point out corner cases.  A UML class diagram---underlying a
-given OCL formula---produces several implicit operations which
-become accessible via appropriate OCL syntax:
+and to point out corner cases.  A \UML class diagram---underlying a
+given \OCL formula---produces several implicit operations which
+become accessible via appropriate \OCL syntax:
 
 \begin{enumerate}
 \item Classes and class names (written as $C_1$, \ldots, $C_n$), which
-  become types of data in OCL\@. Class names declare two projector
+  become types of data in \OCL\@. Class names declare two projector
   functions to the set of all objects in a state:
   $C_i$\inlineocl{.allInstances()} and
   $C_i$\inlineocl{.allInstances}$\isasymOclATpre$\inlineocl{()},
-\item an inheritance relation $\_ < \_$ on classes and a collection of
-  attributes $A$ associated to classes,
-\item two families of accessors; for each attribute $a$ in a
-  class definition (denoted
+\item an inheritance relation $\_ < \_$ on classes, a collection of
+  attributes $Attrib(C_i)$ associated to classes $C_i$,
+  and a collection of associations $Assoc(C_i,C_j)$,
+  \footnote{Given the fact that there is at present no consensus on the
+  semantics of n-ary associations, \FOCL{} restricts itself to binary associations. }
+\item two families of accessors; for each attribute $a \in Attrib(C_i) $ in a
+  class definition $C_i$ (denoted
   $\getAttrib{X}{\text{$a$}}               :: C_i \rightarrow A $ and
   $\getAttrib{X}{\text{$a$}\isasymOclATpre}:: C_i \rightarrow A $ for
   $A\in \{\V{}{\up{\ldots}}, C_1, \ldots, C_n\}$),
+\item An association $(n, rn_{from}, rn_{to})\in Assoc(C_i,C_j) $ between to classes 
+      $C_i$ and $C_j$ is a triple consisting of a (unique) association name $n$, 
+      and the rolenames $rn_{to}$ and $rn_{from}$. To each rolename belong two
+      families of accessors   denoted
+  $\getRole{X}{\text{$a$}}               :: C_i \rightarrow Collection(A) $ and
+  $\getRole{X}{\text{$a$}\isasymOclATpre}:: C_i \rightarrow Colletion(A) $ for
+  $A\in \{\V{}{\up{\ldots}}, C_1, \ldots, C_n\}$), 
 \item type casts that can change the static type of an object of a
       class ($\getAttrib{X}{\mocl{oclAsType(}\text{$C_i$}\mocl{)}}$ of type
       $C_j \rightarrow C_i$)
@@ -1528,28 +1538,36 @@ the \inlineocl|isQuery| property is true. So, whenever we have $ \tau
 
 \section{Data Invariants}
 \label{sec:invlogic}
-(*
-The \OCL semantics  uses different interpretation
-functions for invariants and pre-conditions; instead, we achieve their semantic
-effect by a syntactic transformation $\__\text{pre}$ which replaces all accessor
-functions $\getAttrib{\_}{i}$ by their counterparts
-$\getAttrib{\_}{i\isasymOclATpre}$. For example, $(\getAttrib{\self}{i} >
-5)_\text{pre}$ is just $(\getAttrib{\self}{i\isasymOclATpre} > 5)$.  The
-operation $\_\isasymOclAllInstances$ is also substituted by its
-$\isasymOclATpre$ counterpart.  Thus, we can re-formulate the semantics of the
-two \OCL top-level constructs, invariant specification and method specification,
-as follows:
+Since the present \OCL semantics uses one interpretation function \footnote{This has been handled 
+differently in previous versions of the Annex A.}, we express the effect of \OCL terms
+occuring in preconditions and invariants by a syntactic transformation $\__\text{pre}$ which 
+replaces:
+\begin{itemize}
+\item all accessor functions $\getAttrib{\_}{a}$ from the class model $a \in Attrib(C)$ by their 
+counterparts $\getAttrib{\_}{i\isasymOclATpre}$. For example, $(\getAttrib{\self}{salary} >
+500)_\text{pre}$ is transformed to $(\getAttrib{\self}{salary\isasymOclATpre} > 500)$. 
+\item all role accessor functions  $\getRole{\_}{rn_{from}}$ or  $\getRole{\_}{rn_{to}}$ 
+      within the class model (\ie{} $(id, rn_{from},  rn_{to}) \in Assoc(C_i, C_j)$)
+      were replaced by their counterparts $\getRole{\_}{rn\isasymOclATpre}$.
+      For example, $(\getAttrib{\self}{boss} = null)_\text{pre}$ is transformed to
+      $\getAttrib{\self}{boss\isasymOclATpre} = null$.
+\item The operation $\_\isasymOclAllInstances$ is also substituted by its
+$\isasymOclATpre$ counterpart.  
+\end{itemize}
+Thus, we formulate the semantics of the invariant specification  as follows:
 \begin{gather}\label{eq:inv}
 \begin{aligned}
-& I\semantics{\mathtt{context}~c:C~\mathtt{inv}~n: \phi(c)} \tau \equiv  \\
-&\qquad \tau  \isasymMathOclValid  (C\isasymOclAllInstances\isasymOclForAll(x
+& I\semantics{\mathtt{context}~c:C_i~\mathtt{inv}~n: \phi(c)} \tau \equiv  \\
+&\qquad \tau  \isasymMathOclValid  (C_i\isasymOclAllInstances\isasymOclForAll(x
 \text{|} \phi(x)))~\land \\
-&\qquad \tau  \isasymMathOclValid (C\isasymOclAllInstances\isasymOclForAll(x
+&\qquad \tau  \isasymMathOclValid (C_i\isasymOclAllInstances\isasymOclForAll(x
 \text{|} \phi(x)))_\text{pre} 
 \end{aligned}
 \end{gather}
-The standard forbids expressions containing $\isasymOclATpre$ constructs in
-invariants or preconditions syntactically; thus, mixed forms cannot arise.
+Recall that  expressions containing $\isasymOclATpre$ constructs in
+invariants or preconditions are syntactically forbidden; thus, mixed forms cannot arise.
+
+\section{Operation Contracts}
 Since operations have strict semantics in \OCL, we have to distinguish for a specification of an
 $\mathit{op}$ with the arguments $a_1$, \ldots, $a_n$ the
 two cases where all arguments are defined (and $\self$ is non-null), or not. In
@@ -1594,11 +1612,9 @@ our notion of context to multi-transition contexts such as:
 (\sigma', \sigma'')  \isasymMathOclValid \psi \bigr\}
 \end{gather*}
 such that we can reason over systems executing several transitions. 
-*)
-
-\section{Operation Contracts}
 
 
+      
 %%% Local Variables:
 %%% mode: latex
 %%% TeX-master: "root"
