@@ -30,7 +30,7 @@ begin
    lemma strict0 [simp]: "f invalid  = invalid"
    by(rule ext, rename_tac "\<tau>", simp add: def_scheme)
 
-   lemma nullstrict1[simp]: "f null = invalid"
+   lemma nullstrict0[simp]: "f null = invalid"
    by(rule ext, rename_tac "\<tau>", simp add: def_scheme)
 
    lemma cp_pre: "cp self' \<Longrightarrow>  cp (\<lambda>X. PRE (self' X)  )"
@@ -43,8 +43,7 @@ begin
    lemma cp0 : "f self \<tau> = f (\<lambda> _. self \<tau>) \<tau>"
    proof -
       have A: "(\<tau> \<Turnstile> \<delta> (\<lambda>_. self \<tau>)) = (\<tau> \<Turnstile> \<delta> self)" by(simp add: OclValid_def cp_defined[symmetric])
-      have D: "(\<tau> \<Turnstile> PRE (\<lambda>_. self \<tau>) ) = ( \<tau> \<Turnstile> PRE self )"
-                                                 by(simp add: OclValid_def cp\<^sub>P\<^sub>R\<^sub>E[symmetric])
+      have D: "(\<tau> \<Turnstile> PRE (\<lambda>_. self \<tau>)) = ( \<tau> \<Turnstile> PRE self)" by(simp add: OclValid_def cp\<^sub>P\<^sub>R\<^sub>E[symmetric])
       show ?thesis
         apply(auto simp: def_scheme A  D)
         apply(simp add: OclValid_def)
@@ -121,7 +120,7 @@ begin
    lemma strict0 [simp]: "f invalid X = invalid"
    by(rule ext, rename_tac "\<tau>", simp add: def_scheme)
 
-   lemma nullstrict1[simp]: "f null X = invalid"
+   lemma nullstrict0[simp]: "f null X = invalid"
    by(rule ext, rename_tac "\<tau>", simp add: def_scheme)
 
    lemma strict1[simp]: "f self invalid = invalid"
@@ -218,7 +217,7 @@ begin
    lemma strict0 [simp]: "f invalid X Y = invalid"
    by(rule ext, rename_tac "\<tau>", simp add: def_scheme)
 
-   lemma nullstrict1[simp]: "f null X Y = invalid"
+   lemma nullstrict0[simp]: "f null X Y = invalid"
    by(rule ext, rename_tac "\<tau>", simp add: def_scheme)
 
    lemma strict1[simp]: "f self invalid Y = invalid"
