@@ -45,8 +45,6 @@ theory  OCL_basic_type_Real
 imports OCL_basic_type_Boolean
 begin
 
-(* Hack since Real not imported in OCL_Types: *)  type_synonym real = nat
-
 section{* Basic Type Real: Operations *}
 
 subsection{* Basic Real Constants *}
@@ -87,7 +85,8 @@ where      "\<nine>.\<zero> = (\<lambda> _ . \<lfloor>\<lfloor>9::real\<rfloor>\
 definition OclReal10 ::"('\<AA>)Real" ("\<one>\<zero>.\<zero>")
 where      "\<one>\<zero>.\<zero> = (\<lambda> _ . \<lfloor>\<lfloor>10::real\<rfloor>\<rfloor>)"
 
-term "pi" (* is `the mathematical pi', i.e. a constant if package `transcendental' is imported ! *)
+definition OclRealpi ::"('\<AA>)Real" ("\<pi>")
+where      "\<pi> = (\<lambda> _ . \<lfloor>\<lfloor>pi\<rfloor>\<rfloor>)"
 
 subsection{* Validity and Definedness Properties *}
 
@@ -154,13 +153,14 @@ text{* Here is the special case of division, which is defined as invalid for div
 by zero. *}
 definition OclDivision\<^sub>R\<^sub>e\<^sub>a\<^sub>l ::"('\<AA>)Real \<Rightarrow> ('\<AA>)Real \<Rightarrow> ('\<AA>)Real" (infix "div\<^sub>r\<^sub>e\<^sub>a\<^sub>l" 45)
 where "x div\<^sub>r\<^sub>e\<^sub>a\<^sub>l y \<equiv> \<lambda> \<tau>. if (\<delta> x) \<tau> = true \<tau> \<and> (\<delta> y) \<tau> = true \<tau>
-                       then if y \<tau> \<noteq> OclReal0 \<tau> then \<lfloor>\<lfloor>\<lceil>\<lceil>x \<tau>\<rceil>\<rceil> div \<lceil>\<lceil>y \<tau>\<rceil>\<rceil>\<rfloor>\<rfloor> else invalid \<tau> 
+                       then if y \<tau> \<noteq> OclReal0 \<tau> then \<lfloor>\<lfloor>\<lceil>\<lceil>x \<tau>\<rceil>\<rceil> / \<lceil>\<lceil>y \<tau>\<rceil>\<rceil>\<rfloor>\<rfloor> else invalid \<tau> 
                        else invalid \<tau> "
 (* TODO: special locale setup.*)
 
+definition "mod_float a b = a - real (floor (a / b)) * b"
 definition OclModulus\<^sub>R\<^sub>e\<^sub>a\<^sub>l ::"('\<AA>)Real \<Rightarrow> ('\<AA>)Real \<Rightarrow> ('\<AA>)Real" (infix "mod\<^sub>r\<^sub>e\<^sub>a\<^sub>l" 45)
 where "x mod\<^sub>r\<^sub>e\<^sub>a\<^sub>l y \<equiv> \<lambda> \<tau>. if (\<delta> x) \<tau> = true \<tau> \<and> (\<delta> y) \<tau> = true \<tau>
-                       then if y \<tau> \<noteq> OclReal0 \<tau> then \<lfloor>\<lfloor>\<lceil>\<lceil>x \<tau>\<rceil>\<rceil> mod \<lceil>\<lceil>y \<tau>\<rceil>\<rceil>\<rfloor>\<rfloor> else invalid \<tau> 
+                       then if y \<tau> \<noteq> OclReal0 \<tau> then \<lfloor>\<lfloor>mod_float \<lceil>\<lceil>x \<tau>\<rceil>\<rceil> \<lceil>\<lceil>y \<tau>\<rceil>\<rceil>\<rfloor>\<rfloor> else invalid \<tau> 
                        else invalid \<tau> "
 (* TODO: special locale setup.*)
 

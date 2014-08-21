@@ -44,9 +44,7 @@
 header{* Formalization I: OCL Types and Core Definitions *}
 
 theory    OCL_Types
-imports   Main (* Testing *)
-        (* Real *) (* Transcendental *) (* For Real Numbers only ...
-                                      Has unfortunate side-effects on syntax. *)
+imports   Transcendental (* Testing *)
 keywords "Assert" :: thy_decl
      and "Assert_local" :: thy_decl
 begin
@@ -59,6 +57,10 @@ text{*
   option type which occur all over in our definitions and which will make
   the presentation more like a textbook:
 *}
+
+no_notation ceiling  ("\<lceil>_\<rceil>") (* For Real Numbers only ... Otherwise has unfortunate side-effects on syntax. *)
+no_notation floor  ("\<lfloor>_\<rfloor>") (* For Real Numbers only ... Otherwise has unfortunate side-effects on syntax. *)
+
 notation Some ("\<lfloor>(_)\<rfloor>")
 notation None ("\<bottom>")
 
@@ -325,9 +327,7 @@ type_synonym ('\<AA>)Integer = "('\<AA>,Integer\<^sub>b\<^sub>a\<^sub>s\<^sub>e)
 type_synonym String\<^sub>b\<^sub>a\<^sub>s\<^sub>e  = "string option option"
 type_synonym ('\<AA>)String = "('\<AA>,String\<^sub>b\<^sub>a\<^sub>s\<^sub>e) val"
 
-(* type_synonym Real\<^sub>b\<^sub>a\<^sub>s\<^sub>e = "real option option" : 
-   Only when Theory Real or Transcendent were imported *)
-type_synonym Real\<^sub>b\<^sub>a\<^sub>s\<^sub>e  = "nat option option"
+type_synonym Real\<^sub>b\<^sub>a\<^sub>s\<^sub>e = "real option option"
 type_synonym ('\<AA>)Real = "('\<AA>,Real\<^sub>b\<^sub>a\<^sub>s\<^sub>e) val"
 
 text{* Since @{term "Real"} is again a basic type, we define its semantic domain
