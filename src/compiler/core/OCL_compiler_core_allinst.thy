@@ -96,7 +96,7 @@ definition "print_allinst_exec = start_map Thy_lemma_by o map_class_top (\<lambd
       Expr_rewrite
        (f_expr [b name])
        ''=''
-       (Expr_lam unicode_tau (\<lambda>var_tau. Expr_apply ''Abs_Set_0'' [f (f (f_img ''Some'' (ran_heap var_pre_post var_tau))) ])))
+       (Expr_lam unicode_tau (\<lambda>var_tau. Expr_apply var_Abs_Set [f (f (f_img ''Some'' (ran_heap var_pre_post var_tau))) ])))
     (\<lambda>lem_tit lem_spec var_pre_post _ _.
       Lemma_by_assum
         lem_tit
@@ -158,7 +158,7 @@ definition "print_allinst_istypeof_single isub_name name isub_name2 name2 const_
       [ [Tac_simp_add_del [d ''OclValid''] (d ''OclAllInstances_generic'' # f_simp1 [flatten [isub_name2 const_oclisof, ''_'', name]])]
       , [Tac_simp_only (flatten [List_map Thm_str [ d ''OclForall'', ''refl'', ''if_True'' ], [Thm_simplified (Thm_str ''OclAllInstances_generic_defined'') (Thm_str (d ''OclValid''))]])]
       , [Tac_simp_only [Thm_str (d ''OclAllInstances_generic'')]]
-      , [s (Thm_str ''Abs_Set_0_inverse''), Tac_simp_add [d ''bot_option'']]
+      , [s (Thm_str var_Abs_Set_inverse), Tac_simp_add [d ''bot_option'']]
       , [s (Thm_where
              (Thm_str print_allinst_istypeof_pre_name1)
              [ (''s'', Expr_lam ''x'' (\<lambda>var_x. Expr_applys (Expr_postunary (Expr_lambda wildcard (b var_x)) (b (dot_isof name2))) [b var_tau]))
@@ -199,7 +199,7 @@ definition "print_allinst_istypeof = start_map'' Thy_lemma_by o (\<lambda>expr b
                 [Tac_rule (Thm_where (Thm_str ''exI'') [(''x'', b var_tau0)]), Tac_simp_add_del (List_map d [var_tau0, ''OclValid'']) [d ''OclAllInstances_generic'']])
               , [Tac_simp_only (flatten [List_map Thm_str [ d ''OclForall'', ''refl'', ''if_True'' ], [Thm_simplified (Thm_str ''OclAllInstances_generic_defined'') (Thm_str (d ''OclValid''))]])]
               , [Tac_simp_only [Thm_str (d ''OclAllInstances_generic'')]]
-              , [s (Thm_str ''Abs_Set_0_inverse''), Tac_simp_add [d ''bot_option'']] ] )
+              , [s (Thm_str var_Abs_Set_inverse), Tac_simp_add [d ''bot_option'']] ] )
            (Tacl_by [Tac_simp (*Tac_simp_add [flatten [isub_name const_oclistypeof, ''_'', name]]*)]))
         [Tac_simp]
     , gen_pre_post
@@ -223,7 +223,7 @@ definition "print_allinst_istypeof = start_map'' Thy_lemma_by o (\<lambda>expr b
             , App [Tac_rule (Thm_where (Thm_str ''exI'') [(''x'', Expr_parenthesis (Expr_binop (Expr_pat var_t0) '','' (Expr_pat var_t0)))]), Tac_simp_add_del [d ''OclValid''] [d ''OclAllInstances_generic'']]
             , App [Tac_simp_only (flatten [List_map Thm_str [ d ''OclForall'', ''refl'', ''if_True'' ], [Thm_simplified (Thm_str ''OclAllInstances_generic_defined'') (Thm_str (d ''OclValid''))]])]
             , App [Tac_simp_only (List_map (\<lambda>x. Thm_str (d x)) [''OclAllInstances_generic'', flatten [isub_name const_oclastype, ''_'', unicode_AA]])]
-            , App [s (Thm_str ''Abs_Set_0_inverse''), Tac_simp_add [d ''bot_option'']] ] ))
+            , App [s (Thm_str var_Abs_Set_inverse), Tac_simp_add [d ''bot_option'']] ] ))
            (Tacl_by [Tac_simp_add [d ''state.make'', d ''OclNot'']]))
         [Tac_simp]]) expr)"
 
