@@ -40,9 +40,19 @@ begin
    lemma cp_post: "cp self' \<Longrightarrow> cp res'  \<Longrightarrow> cp (\<lambda>X. POST (self' X) (res' X))"
    by(rule_tac f=POST in cpI2, auto intro: cp\<^sub>P\<^sub>O\<^sub>S\<^sub>T)  
     
-   lemma cp0 [simp]:  "cp self' \<Longrightarrow>  cp res'  \<Longrightarrow> cp (\<lambda>X. f (self' X)  )"
-   apply(simp add: def_scheme)
-   sorry                 
+   lemma cp0 : "f self \<tau> = f (\<lambda> _. self \<tau>) \<tau>"
+   proof -
+      have A: "(\<tau> \<Turnstile> \<delta> (\<lambda>_. self \<tau>)) = (\<tau> \<Turnstile> \<delta> self)" by(simp add: OclValid_def cp_defined[symmetric])
+      have D: "(\<tau> \<Turnstile> PRE (\<lambda>_. self \<tau>) ) = ( \<tau> \<Turnstile> PRE self )"
+                                                 by(simp add: OclValid_def cp\<^sub>P\<^sub>R\<^sub>E[symmetric])
+      show ?thesis
+        apply(auto simp: def_scheme A  D)
+        apply(simp add: OclValid_def)
+        by(subst cp\<^sub>P\<^sub>O\<^sub>S\<^sub>T, simp)
+      qed
+      
+   lemma cp [simp]:  "cp self' \<Longrightarrow>  cp res' \<Longrightarrow> cp (\<lambda>X. f (self' X) )"
+      by(rule_tac f=f in cpI1, auto intro:cp0)  
    
    theorem unfold : 
       assumes context_ok:    "cp E"
@@ -125,11 +135,21 @@ begin
                    \<Longrightarrow> cp (\<lambda>X. POST (self' X) (a1' X) (res' X))"
    by(rule_tac f=POST in cpI3, auto intro: cp\<^sub>P\<^sub>O\<^sub>S\<^sub>T)  
     
-   lemma cp0 [simp]:  "cp self' \<Longrightarrow> cp a1' \<Longrightarrow> cp res'
-                       \<Longrightarrow> cp (\<lambda>X. f (self' X) (a1' X) )"
-   apply(simp add: def_scheme)
-   sorry                 
-   
+   lemma cp0 : "f self a1 \<tau> = f (\<lambda> _. self \<tau>) (\<lambda> _. a1 \<tau>) \<tau>"
+   proof -
+      have A: "(\<tau> \<Turnstile> \<delta> (\<lambda>_. self \<tau>)) = (\<tau> \<Turnstile> \<delta> self)" by(simp add: OclValid_def cp_defined[symmetric])
+      have B: "(\<tau> \<Turnstile> \<upsilon> (\<lambda>_. a1 \<tau>)) = (\<tau> \<Turnstile> \<upsilon> a1)" by(simp add: OclValid_def cp_valid[symmetric])
+      have D: "(\<tau> \<Turnstile> PRE (\<lambda>_. self \<tau>) (\<lambda>_. a1 \<tau>)) = ( \<tau> \<Turnstile> PRE self a1 )"
+                                                 by(simp add: OclValid_def cp\<^sub>P\<^sub>R\<^sub>E[symmetric])
+      show ?thesis
+        apply(auto simp: def_scheme A B D)
+        apply(simp add: OclValid_def)
+        by(subst cp\<^sub>P\<^sub>O\<^sub>S\<^sub>T, simp)
+      qed
+      
+   lemma cp [simp]:  "cp self' \<Longrightarrow> cp a1' \<Longrightarrow>  cp res' \<Longrightarrow> cp (\<lambda>X. f (self' X) (a1' X))"
+      by(rule_tac f=f in cpI2, auto intro:cp0)  
+      
    theorem unfold : 
       assumes context_ok:    "cp E"
       and args_def_or_valid: "(\<tau> \<Turnstile> \<delta> self) \<and> (\<tau> \<Turnstile> \<upsilon> a1)"
