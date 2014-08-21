@@ -191,7 +191,8 @@ locale contract2 =
            (* this interface is preferable than :
               assumes "cp self' \<Longrightarrow> cp a1' \<Longrightarrow> cp a2' \<Longrightarrow> cp (\<lambda>X. PRE (self' X) (a1' X) (a2' X) )"
               which is too polymorphic. *)
-   assumes cp\<^sub>P\<^sub>O\<^sub>S\<^sub>T:"POST (self) (a1) (a2) (res) \<tau> = POST (\<lambda> _. self \<tau>)(\<lambda> _. a1 \<tau>)(\<lambda> _. a2 \<tau>) (\<lambda> _. res \<tau>) \<tau>"
+   assumes cp\<^sub>P\<^sub>O\<^sub>S\<^sub>T:"\<And>res. POST (self) (a1) (a2) (res) \<tau> = 
+                         POST (\<lambda> _. self \<tau>)(\<lambda> _. a1 \<tau>)(\<lambda> _. a2 \<tau>) (\<lambda> _. res \<tau>) \<tau>"
 
 begin  
    lemma strict0 [simp]: "f invalid X Y = invalid"
@@ -213,11 +214,23 @@ begin
    lemma cp_post: "cp self' \<Longrightarrow> cp a1' \<Longrightarrow> cp a2' \<Longrightarrow> cp res'
                    \<Longrightarrow> cp (\<lambda>X. POST (self' X) (a1' X) (a2' X) (res' X))"
    by(rule_tac f=POST in cpI4, auto intro: cp\<^sub>P\<^sub>O\<^sub>S\<^sub>T)  
-    
-   lemma cp0 [simp]:  "cp self' \<Longrightarrow> cp a1' \<Longrightarrow> cp a2' \<Longrightarrow> cp res'
+   
+   lemma cp0 : "f self a1 a2 \<tau> = f (\<lambda> _. self \<tau>) (\<lambda> _. a1 \<tau>) (\<lambda> _. a2 \<tau>) \<tau>"
+   proof -
+      have A: "(\<tau> \<Turnstile> \<delta> (\<lambda>_. self \<tau>)) = (\<tau> \<Turnstile> \<delta> self)" by(simp add: OclValid_def cp_defined[symmetric])
+      have B: "(\<tau> \<Turnstile> \<upsilon> (\<lambda>_. a1 \<tau>)) = (\<tau> \<Turnstile> \<upsilon> a1)" by(simp add: OclValid_def cp_valid[symmetric])
+      have C: "(\<tau> \<Turnstile> \<upsilon> (\<lambda>_. a2 \<tau>)) = (\<tau> \<Turnstile> \<upsilon> a2)" by(simp add: OclValid_def cp_valid[symmetric])
+      have D: "(\<tau> \<Turnstile> PRE (\<lambda>_. self \<tau>) (\<lambda>_. a1 \<tau>) (\<lambda>_. a2 \<tau>)) = ( \<tau> \<Turnstile> PRE self a1 a2 )"
+                                                 by(simp add: OclValid_def cp\<^sub>P\<^sub>R\<^sub>E[symmetric])
+      show ?thesis
+        apply(auto simp: def_scheme A B C D)
+        apply(simp add: OclValid_def)
+        by(subst cp\<^sub>P\<^sub>O\<^sub>S\<^sub>T, simp)
+      qed
+      
+   lemma cp [simp]:  "cp self' \<Longrightarrow> cp a1' \<Longrightarrow> cp a2' \<Longrightarrow> cp res'
                        \<Longrightarrow> cp (\<lambda>X. f (self' X) (a1' X) (a2' X))"
-   apply(simp add: def_scheme)
-   sorry                 
+      by(rule_tac f=f in cpI3, auto intro:cp0)  
    
    theorem unfold : 
       assumes context_ok:    "cp E"
