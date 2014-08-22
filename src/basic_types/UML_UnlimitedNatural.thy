@@ -3,7 +3,7 @@
  *                       for the OMG Standard.
  *                       http://www.brucker.ch/projects/hol-testgen/
  *
- * OCL_lib_UnlimitedNatural.thy --- Library definitions.
+ * UML_UnlimitedNatural.thy --- Library definitions.
  * This file is part of HOL-TestGen.
  *
  * Copyright (c) 2013-2014 Universite Paris-Sud, France
@@ -43,8 +43,8 @@
 
 header{* ... *}
 
-theory  OCL_basic_type_UnlimitedNatural
-imports "../src/OCL_lib_common"
+theory  UML_UnlimitedNatural
+imports "../UML_PropertyProfiles"
 begin
 
 section{* ... *}
