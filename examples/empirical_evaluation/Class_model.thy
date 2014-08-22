@@ -159,14 +159,14 @@ definition "print_abr sprintf_int write_file =
                       ,          ''                      (generation_semantics [ analysis (*, oid_start 10*) ])''
                       ,          ''                      skip_export''
                       , flatten [''                      (THEORY '', tree_name, ''_generated'', ''_'', comp, '')'']
-                      , flatten [''                      (IMPORTS ['',g,''../../../src/OCL_main'',g,'', '',g,''../../../src/compiler/OCL_compiler_static'',g,'']'']
+                      , flatten [''                      (IMPORTS ['',g,''../../../src/UML_Main'',g,'', '',g,''../../../src/compiler/OCL_compiler_static'',g,'']'']
                       , flatten [''                               '',g,''../../../src/compiler/OCL_compiler_generator_dynamic'',g,'')'']
                       ,          ''                      SECTION''
                       , flatten [''                      [ in '', comp, '' '', comp2, '' ]'']
                       , flatten [''                      (output_directory '',g,''./doc'',g,'') ]''] ]
         , flatten_n [ ''generation_syntax deep flush_all'' ])
       , ( (''shallow'', [('''', '''')])
-        , flatten [ g,''../../src/OCL_main'',g, '' ''
+        , flatten [ g,''../../src/UML_Main'',g, '' ''
                   , g,''../../src/compiler/OCL_compiler_static'',g  ]
         , \<lambda>_ _. flatten_n [ ''generation_syntax [ shallow (generation_semantics [ analysis ]) ]'' ]
         , ''Class.end'') ]))"

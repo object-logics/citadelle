@@ -260,7 +260,7 @@ definition "print_access_select_object = start_map'''' Thy_definition_hol o (\<l
         ''=''
         (Expr_apply var_select_object
            [ b ''mtSet''
-           , b ''OCL_collection_type_Set.OclIncluding''
+           , b var_OclIncluding
            , b ''id''
            , a var_f (b var_p)])))
   , (let var_f = ''f''
@@ -356,7 +356,7 @@ definition "print_access_select_obj = start_map'''' Thy_definition_hol o (\<lamb
                   ''=''
                   (Expr_apply var_select_object
                     [ b ''mtSet''
-                    , b ''OCL_collection_type_Set.OclIncluding''
+                    , b var_OclIncluding
                     , b (if single_multip (TyObjN_role_multip (TyObj_to ty_obj)) then ''OclANY'' else ''id'')
                     , Expr_apply var_f [let var_x = ''x'' in
                                         Expr_lambdas [var_x, wildcard] (Expr_some (Expr_some (Expr_basic [var_x])))]]))], insert2 (name, attr) () rbt)

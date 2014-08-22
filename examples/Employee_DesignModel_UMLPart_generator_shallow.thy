@@ -46,7 +46,7 @@ header{* Part ... *}
 theory
   Employee_DesignModel_UMLPart_generator_shallow
 imports
-  "../src/OCL_main"
+  "../src/UML_Main"
   "../src/compiler/OCL_compiler_static"
   "../src/compiler/OCL_compiler_generator_dynamic"
 begin

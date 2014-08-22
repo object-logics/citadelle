@@ -52,7 +52,7 @@ begin
 generation_syntax [ deep
                       (generation_semantics [ design (*, oid_start 10*) ])
                       (THEORY Employee_DesignModel_UMLPart_generated)
-                      (IMPORTS ["../src/OCL_main", "../src/compiler/OCL_compiler_static"]
+                      (IMPORTS ["../src/UML_Main", "../src/compiler/OCL_compiler_static"]
                                "../src/compiler/OCL_compiler_generator_dynamic")
                       SECTION
                       [ in SML module_name M (no_signatures) ]
