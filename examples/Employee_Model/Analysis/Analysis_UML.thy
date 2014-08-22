@@ -741,7 +741,7 @@ subsection{* Definition (of the association Employee-Boss) *}
 
 text{* We start with a oid for the association; this oid can be used
 in presence of association classes to represent the association inside an object,
-pretty much similar to the \inlineisar+UML_Design+, where we stored
+pretty much similar to the \inlineisar+Design_UML+, where we stored
 an \verb+oid+ inside the class as ``pointer.'' *}
 
 definition oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<B>\<O>\<S>\<S> ::"oid" where "oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<B>\<O>\<S>\<S> = 10"
