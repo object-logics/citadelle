@@ -179,10 +179,43 @@ structure Deep0 = struct
 fun apply_hs_code_identifiers ml_module thy =
   let fun mod_hs (fic, ml_module) = Code_Symbol.Module (fic, [("Haskell", SOME ml_module)]) in
   fold (Code_Target.set_identifiers o mod_hs)
-    [ ( case Properties.get (snd (Theory.get_markup thy)) "name" of
+    ( ( case Properties.get (snd (Theory.get_markup thy)) "name" of
                  SOME s => s
       , ml_module)
-    , ("OCL_compiler", ml_module)] thy end
+    :: map (fn x => (x, ml_module))
+         (* list of .hs files that will be merged together in "ml_module" *)
+         [ "OCL_compiler_core_access"
+         , "OCL_compiler_core_allinst"
+         , "OCL_compiler_core_astype"
+         , "OCL_compiler_core_ctxt"
+         , "OCL_compiler_core_examp"
+         , "OCL_compiler_core"
+         , "OCL_compiler_core_infra"
+         , "OCL_compiler_core_init"
+         , "OCL_compiler_core_iskindof"
+         , "OCL_compiler_core_istypeof"
+         , "OCL_compiler_init"
+         , "OCL_compiler_init_rbt"
+         , "OCL_compiler_meta_Isabelle"
+         , "OCL_compiler_meta_META"
+         , "OCL_compiler_meta_oid"
+         , "OCL_compiler_meta_Pure"
+         , "OCL_compiler_meta_SML"
+         , "OCL_compiler_meta_UML_extended"
+         , "OCL_compiler_meta_UML"
+         , "OCL_compiler_parser_init"
+         , "OCL_compiler_parser_META"
+         , "OCL_compiler_parser_oid"
+         , "OCL_compiler_parser_Pure"
+         , "OCL_compiler_parser_UML_extended"
+         , "OCL_compiler_parser_UML"
+         , "OCL_compiler_printer"
+         , "OCL_compiler_printer_Isabelle"
+         , "OCL_compiler_printer_META"
+         , "OCL_compiler_printer_oid"
+         , "OCL_compiler_printer_Pure"
+         , "OCL_compiler_printer_SML"
+         , "OCL_compiler_static" ]) thy end
 
 val gen_empty = ""
 
