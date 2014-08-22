@@ -3,7 +3,7 @@
  *                       for the OMG Standard.
  *                       http://www.brucker.ch/projects/hol-testgen/
  *
- * OCL_collection_type_Sequence.thy --- Library definitions.
+ * UML_Sequence.thy --- Library definitions.
  * This file is part of HOL-TestGen.
  *
  * Copyright (c) 2012-2014 Université Paris-Sud, France
@@ -41,8 +41,8 @@
  ******************************************************************************)
 (* $Id:$ *)
 
-theory  OCL_collection_type_Sequence
-imports OCL_basic_type_Integer
+theory  UML_Sequence
+imports "../basic_types/UML_Integer"
 begin
 
 section{* Collection Type Sequence: Operations *}

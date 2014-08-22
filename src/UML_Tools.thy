@@ -3,7 +3,7 @@
  *                       for the OMG Standard.
  *                       http://www.brucker.ch/projects/hol-testgen/
  *
- * OCL_tools.thy ---
+ * UML_Tools.thy ---
  * This file is part of HOL-TestGen.
  *
  * Copyright (c) 2012      Université Paris-Sud, France
@@ -41,31 +41,31 @@
 (* $Id:$ *)
 
 (* < *)
-theory OCL_tools
-imports OCL_core
+theory UML_Tools
+imports UML_Logic
 begin
 
 
-lemmas substs1 = OCL_core.StrongEq_L_subst2_rev
-                 OCL_core.foundation15[THEN iffD2, THEN OCL_core.StrongEq_L_subst2_rev]
-                 OCL_core.foundation7'[THEN iffD2, THEN OCL_core.foundation15[THEN iffD2, 
-                                       THEN OCL_core.StrongEq_L_subst2_rev]]                
-                 OCL_core.foundation14[THEN iffD2, THEN OCL_core.StrongEq_L_subst2_rev]
-                 OCL_core.foundation13[THEN iffD2, THEN OCL_core.StrongEq_L_subst2_rev]
+lemmas substs1 = StrongEq_L_subst2_rev
+                 foundation15[THEN iffD2, THEN StrongEq_L_subst2_rev]
+                 foundation7'[THEN iffD2, THEN foundation15[THEN iffD2, 
+                                       THEN StrongEq_L_subst2_rev]]                
+                 foundation14[THEN iffD2, THEN StrongEq_L_subst2_rev]
+                 foundation13[THEN iffD2, THEN StrongEq_L_subst2_rev]
                 
-lemmas substs2 = OCL_core.StrongEq_L_subst3_rev
-                 OCL_core.foundation15[THEN iffD2, THEN OCL_core.StrongEq_L_subst3_rev]
-                 OCL_core.foundation7'[THEN iffD2, THEN OCL_core.foundation15[THEN iffD2, 
-                                       THEN OCL_core.StrongEq_L_subst3_rev]]                
-                 OCL_core.foundation14[THEN iffD2, THEN OCL_core.StrongEq_L_subst3_rev]
-                 OCL_core.foundation13[THEN iffD2, THEN OCL_core.StrongEq_L_subst3_rev]
+lemmas substs2 = StrongEq_L_subst3_rev
+                 foundation15[THEN iffD2, THEN StrongEq_L_subst3_rev]
+                 foundation7'[THEN iffD2, THEN foundation15[THEN iffD2, 
+                                       THEN StrongEq_L_subst3_rev]]                
+                 foundation14[THEN iffD2, THEN StrongEq_L_subst3_rev]
+                 foundation13[THEN iffD2, THEN StrongEq_L_subst3_rev]
                  
-lemmas substs4 = OCL_core.StrongEq_L_subst4_rev
-                 OCL_core.foundation15[THEN iffD2, THEN OCL_core.StrongEq_L_subst4_rev]
-                 OCL_core.foundation7'[THEN iffD2, THEN OCL_core.foundation15[THEN iffD2, 
-                                       THEN OCL_core.StrongEq_L_subst4_rev]]                
-                 OCL_core.foundation14[THEN iffD2, THEN OCL_core.StrongEq_L_subst4_rev]
-                 OCL_core.foundation13[THEN iffD2, THEN OCL_core.StrongEq_L_subst4_rev]
+lemmas substs4 = StrongEq_L_subst4_rev
+                 foundation15[THEN iffD2, THEN StrongEq_L_subst4_rev]
+                 foundation7'[THEN iffD2, THEN foundation15[THEN iffD2, 
+                                       THEN StrongEq_L_subst4_rev]]                
+                 foundation14[THEN iffD2, THEN StrongEq_L_subst4_rev]
+                 foundation13[THEN iffD2, THEN StrongEq_L_subst4_rev]
 
                  
 lemmas substs = substs1 substs2 substs4 [THEN iffD2] substs4
@@ -112,7 +112,7 @@ by(ocl_subst_asm,ocl_subst_asm,simp)
 
 (* a proof that shows that not everything is humpty dumpty ... *)
 lemma X: "\<not> (\<tau> \<Turnstile> (invalid and B))"
-apply(insert OCL_core.foundation8[of "\<tau>" "B"], elim disjE, 
+apply(insert foundation8[of "\<tau>" "B"], elim disjE, 
       simp add:defined_bool_split, elim disjE)
 apply(ocl_subst_asm, simp)
 apply(ocl_subst_asm, simp)

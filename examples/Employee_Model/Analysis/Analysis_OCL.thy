@@ -42,9 +42,9 @@
 (* $Id:$ *)
 
 theory
-  Employee_AnalysisModel_OCLPart
+  Analysis_OCL
 imports
-  Employee_AnalysisModel_UMLPart (* Testing *)
+  Analysis_UML (* Testing *)
 begin
 text {* \label{ex:employee-analysis:ocl} *}
 section{* OCL Part: Standard State Infrastructure *}
@@ -162,8 +162,8 @@ where contents_def:
                                                                endif))
                              else invalid \<tau>))"
                              
-declare Employee_AnalysisModel_UMLPart.dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<S>\<A>\<L>\<A>\<R>\<Y>_def [simp del]
-declare Employee_AnalysisModel_UMLPart.dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<B>\<O>\<S>\<S>_def  [simp del]
+declare dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<S>\<A>\<L>\<A>\<R>\<Y>_def [simp del]
+declare dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<B>\<O>\<S>\<S>_def  [simp del]
 
 interpretation contents : contract0 "contents" "\<lambda> self. true"  
                           "\<lambda> self res.  res \<triangleq> if (self .boss \<doteq> null)
@@ -231,8 +231,8 @@ axiomatization where contentsATpre_def:
                                          endif)))
         else invalid \<tau>))"
 
-declare Employee_AnalysisModel_UMLPart.dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<S>\<A>\<L>\<A>\<R>\<Y>_at_pre_def [simp del]
-declare Employee_AnalysisModel_UMLPart.dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<B>\<O>\<S>\<S>_at_pre_def  [simp del]
+declare dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<S>\<A>\<L>\<A>\<R>\<Y>_at_pre_def [simp del]
+declare dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<B>\<O>\<S>\<S>_at_pre_def  [simp del]
 
 interpretation contentsATpre : contract0 "contentsATpre" "\<lambda> self. true"  
                           "\<lambda> self res.  res \<triangleq> if (self .boss@pre \<doteq> null)
@@ -315,8 +315,8 @@ interpretation insert : contract1 "insert" "\<lambda> self x. true"
          apply unfold_locales  apply(auto simp:insert_def)
          apply(subst cp_StrongEq) apply(subst (2) cp_StrongEq)
          apply(subst contents.cp0)
-         apply(subst OCL_collection_type_Set.OclIncluding.cp0)
-         apply(subst (2) OCL_collection_type_Set.OclIncluding.cp0)
+         apply(subst UML_Set.OclIncluding.cp0)
+         apply(subst (2) UML_Set.OclIncluding.cp0)
          apply(subst contentsATpre.cp0)
          by(simp)  (* an extremely hacky proof that cries for reformulation and automation - bu *)
 

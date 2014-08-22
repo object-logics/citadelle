@@ -3,7 +3,7 @@
  *                       for the OMG Standard.
  *                       http://www.brucker.ch/projects/hol-testgen/
  *
- * OCL_collection_type_Set.thy --- Library definitions.
+ * UML_Set.thy --- Library definitions.
  * This file is part of HOL-TestGen.
  *
  * Copyright (c) 2012-2014 Université Paris-Sud, France
@@ -42,8 +42,8 @@
 (* $Id:$ *)
 
 
-theory  OCL_collection_type_Set
-imports OCL_basic_type_Integer
+theory  UML_Set
+imports "../basic_types/UML_Integer"
 begin
 
 no_notation None ("\<bottom>")
@@ -1174,19 +1174,19 @@ proof -
      apply(simp add: OclIncluding_def S_def[simplified OclValid_def]
                   i_val[simplified OclValid_def] j_val[simplified OclValid_def]
                   true_def OclValid_def StrongEq_def)
-     apply(subst OCL_core.cp_defined,
+     apply(subst cp_defined,
            simp add: S_def[simplified OclValid_def]
                      i_val[simplified OclValid_def] j_val[simplified OclValid_def] true_def *)
-     apply(subst OCL_core.cp_defined,
+     apply(subst cp_defined,
            simp add: S_def[simplified OclValid_def]
                      i_val[simplified OclValid_def] j_val[simplified OclValid_def] true_def ** ***)
-     apply(subst OCL_core.cp_defined,
+     apply(subst cp_defined,
            simp add: S_def[simplified OclValid_def]
                      i_val[simplified OclValid_def] j_val[simplified OclValid_def] true_def *)
-     apply(subst OCL_core.cp_defined,
+     apply(subst cp_defined,
            simp add: S_def[simplified OclValid_def]
                      i_val[simplified OclValid_def] j_val[simplified OclValid_def] true_def * )
-     apply(subst OCL_core.cp_defined,
+     apply(subst cp_defined,
            simp add: S_def[simplified OclValid_def]
                      i_val[simplified OclValid_def] j_val[simplified OclValid_def] true_def * **)
      done
@@ -1333,19 +1333,19 @@ proof -
      apply(simp add: OclExcluding_def S_def[simplified OclValid_def]
                   i_val[simplified OclValid_def] j_val[simplified OclValid_def]
                   true_def OclValid_def StrongEq_def)
-     apply(subst OCL_core.cp_defined,
+     apply(subst cp_defined,
            simp add: S_def[simplified OclValid_def]
                      i_val[simplified OclValid_def] j_val[simplified OclValid_def] true_def *)
-     apply(subst OCL_core.cp_defined,
+     apply(subst cp_defined,
            simp add: S_def[simplified OclValid_def]
                      i_val[simplified OclValid_def] j_val[simplified OclValid_def] true_def ** ***)
-     apply(subst OCL_core.cp_defined,
+     apply(subst cp_defined,
            simp add: S_def[simplified OclValid_def]
                      i_val[simplified OclValid_def] j_val[simplified OclValid_def] true_def *)
-     apply(subst OCL_core.cp_defined,
+     apply(subst cp_defined,
            simp add: S_def[simplified OclValid_def]
                      i_val[simplified OclValid_def] j_val[simplified OclValid_def] true_def * )
-     apply(subst OCL_core.cp_defined,
+     apply(subst cp_defined,
            simp add: S_def[simplified OclValid_def]
                      i_val[simplified OclValid_def] j_val[simplified OclValid_def] true_def * **)
      done
@@ -2104,7 +2104,7 @@ proof -
            apply(subgoal_tac "OclForall S P \<tau> = false \<tau>")
             apply(simp only: cp_OclAnd[symmetric], simp)
            apply(simp add: OclForall_def)
-           apply(fold OclValid_def, simp add:  OCL_core.foundation27)
+           apply(fold OclValid_def, simp add:  foundation27)
            done
 
    have C2 : "\<And>\<tau>. \<tau> \<Turnstile> (\<delta> S and \<upsilon> x) \<Longrightarrow>
@@ -2113,7 +2113,7 @@ proof -
                   \<forall>x\<in>\<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (S->including(x) \<tau>)\<rceil>\<rceil>. P (\<lambda>_. x) \<tau> \<noteq> false \<tau> \<Longrightarrow>
                   invalid \<tau> = (P x and OclForall S P) \<tau>"
            apply(subgoal_tac "(\<delta> S)\<tau> = true \<tau>")
-            prefer 2 apply(simp add: OCL_core.foundation27, simp add: OclValid_def)
+            prefer 2 apply(simp add: foundation27, simp add: OclValid_def)
            apply(drule forall_including_invert[of "\<lambda> x \<tau>. P x \<tau> \<noteq> false \<tau>", OF cp_OclNot_eq, THEN iffD1])
             apply(assumption)
            apply(simp add: cp_OclAnd[of "P x"],elim disjE, simp_all)
@@ -2124,7 +2124,7 @@ proof -
             apply(simp add:cp_OclAnd[symmetric],simp)
            apply(erule conjE)
            apply(subgoal_tac "(P x \<tau> = invalid \<tau>) \<or> (P x \<tau> = null \<tau>) \<or> (P x \<tau> = true \<tau>) \<or> (P x \<tau> = false \<tau>)")
-            prefer 2 apply(rule OCL_core.bool_split_0)
+            prefer 2 apply(rule bool_split_0)
            apply(elim disjE, simp_all)
             apply(simp only:cp_OclAnd[symmetric],simp)+
            done
@@ -2148,7 +2148,7 @@ proof -
                      apply(subst forall_including_invert[of "\<lambda> x \<tau>. P x \<tau> \<noteq> null \<tau>",symmetric])
                      by(simp_all add: cp_OclNot_eq 0)
                  have 7 : "(\<delta> S) \<tau> = true \<tau>"
-                     by(insert 0, simp add: OCL_core.foundation27, simp add: OclValid_def)
+                     by(insert 0, simp add: foundation27, simp add: OclValid_def)
          show "?thesis \<tau>"
            apply(subst OclForall_def)
            apply(simp add: cp_OclAnd[THEN sym] OclValid_def contradict_Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e)
@@ -2165,7 +2165,7 @@ proof -
                  note 4 = 4[OF 3]
                  note 5 = 5[OF 2]
                  have 6 : "P x \<tau> = null \<tau> \<or> P x \<tau> = true \<tau>"
-                     by(metis 4 5 OCL_core.bool_split_0)
+                     by(metis 4 5 bool_split_0)
                  show ?thesis
                  apply(insert 6, elim disjE)
                   apply(subst cp_OclAnd)
@@ -2185,7 +2185,7 @@ proof -
                  note 4 = 4[OF 3]
                  note 6 = 6[OF 1]
                  have 5 : "P x \<tau> = invalid \<tau> \<or> P x \<tau> = true \<tau>"
-                     by(metis 4 6 OCL_core.bool_split_0)
+                     by(metis 4 6 bool_split_0)
                  show ?thesis
                  apply(insert 5, elim disjE)
                   apply(subst cp_OclAnd)
@@ -2206,7 +2206,7 @@ proof -
                  note 5 = 5[OF 2]
                  note 6 = 6[OF 1]
                  have 8 : "P x \<tau> = true \<tau>"
-                     by(metis 4 5 6 OCL_core.bool_split_0)
+                     by(metis 4 5 6 bool_split_0)
                  show ?thesis
                  apply(subst cp_OclAnd, simp add: 8 cp_OclAnd[symmetric])
                  by(simp add: OclForall_def 4 5 6 7)
@@ -2221,7 +2221,7 @@ proof -
                  OclForall (S->including(x)) P \<tau> = invalid \<tau>"
            apply(rule foundation22[THEN iffD1])
            apply(simp only: foundation10' de_Morgan_conj foundation18'', elim disjE)
-            apply(simp add:  OCL_core.defined_split, elim disjE)
+            apply(simp add:  defined_split, elim disjE)
              apply(erule StrongEq_L_subst2_rev, simp+)+
            done
 
@@ -2456,12 +2456,12 @@ proof -
 
 
  have d_and_v_inject : "\<And>\<tau> X y. (\<delta> X and \<upsilon> y) \<tau> \<noteq> true \<tau> \<Longrightarrow> (\<delta> X and \<upsilon> y) \<tau> = false \<tau>"
-      apply(fold OclValid_def, subst OCL_core.foundation22[symmetric])
-      apply(auto simp:foundation27  OCL_core.defined_split)
-        apply(erule OCL_core.StrongEq_L_subst2_rev,simp,simp)
-       apply(erule OCL_core.StrongEq_L_subst2_rev,simp,simp)
-      by(erule OCL_core.foundation7'[THEN iffD2, THEN OCL_core.foundation15[THEN iffD2,
-                                       THEN OCL_core.StrongEq_L_subst2_rev]],simp,simp)
+      apply(fold OclValid_def, subst foundation22[symmetric])
+      apply(auto simp:foundation27  defined_split)
+        apply(erule StrongEq_L_subst2_rev,simp,simp)
+       apply(erule StrongEq_L_subst2_rev,simp,simp)
+      by(erule foundation7'[THEN iffD2, THEN foundation15[THEN iffD2,
+                                       THEN StrongEq_L_subst2_rev]],simp,simp)
 
 
 
@@ -2702,7 +2702,7 @@ proof -
  have notempty': "\<And>\<tau> X. \<tau> \<Turnstile> \<delta> X \<Longrightarrow> finite \<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (X \<tau>)\<rceil>\<rceil> \<Longrightarrow> not (X->isEmpty()) \<tau> \<noteq> true \<tau> \<Longrightarrow>
                         X \<tau> = Set{} \<tau>"
   apply(case_tac "X \<tau>", rename_tac X', simp add: mtSet_def Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inject)
-  apply(erule disjE, metis (hide_lams, no_types) bot_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def bot_option_def foundation16[THEN iffD1,standard])
+  apply(erule disjE, metis (hide_lams, mono_tags) bot_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def bot_option_def foundation16)
   apply(erule disjE, metis (hide_lams, no_types) bot_option_def
                                                  null_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def null_option_def foundation16[THEN iffD1,standard])
   apply(case_tac X', simp, metis (hide_lams, no_types) bot_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def foundation16[THEN iffD1,standard])

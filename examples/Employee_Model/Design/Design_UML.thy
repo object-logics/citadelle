@@ -3,7 +3,7 @@
  *                       for the OMG Standard.
  *                       http://www.brucker.ch/projects/hol-testgen/
  *
- * Employee_DesignModel_UMLPart.thy --- OCL Contracts and an Example.
+ * Design_UML.thy --- OCL Contracts and an Example.
  * This file is part of HOL-TestGen.
  *
  * Copyright (c) 2012-2014 Universite Paris-Sud, France
@@ -47,9 +47,9 @@ header{* Example II: The Employee Design Model (UML) *}
    Part VI : State Operations and Objects *)
 
 theory
-  Employee_DesignModel_UMLPart
+  Design_UML
 imports
-  "../src/OCL_main"
+  "../../../src/UML_Main"
 begin
 
 text {* \label{ex:employee-design:uml} *}
@@ -439,7 +439,7 @@ shows "((X::Person) .oclAsType(OclAny) .oclAsType(Person) = X)"
  apply(rule ext, rename_tac \<tau>)
  apply(rule foundation22[THEN iffD1])
  apply(case_tac "\<tau> \<Turnstile> (\<delta> X)", simp add: up_down_cast)
- apply(simp add: OCL_core.defined_split, elim disjE)
+ apply(simp add: defined_split, elim disjE)
  apply(erule StrongEq_L_subst2_rev, simp, simp)+
 done
 

@@ -3,7 +3,7 @@
  *                       for the OMG Standard.
  *                       http://www.brucker.ch/projects/hol-testgen/
  *
- * OCL_basic_type_Integer.thy --- Library definitions.
+ * UML_Integer.thy --- Library definitions.
  * This file is part of HOL-TestGen.
  *
  * Copyright (c) 2012-2014 Université Paris-Sud, France
@@ -41,8 +41,8 @@
  ******************************************************************************)
 (* $Id:$ *)
 
-theory  OCL_basic_type_Integer
-imports OCL_basic_type_Boolean
+theory  UML_Integer
+imports UML_Boolean
 begin
 
 section{* Basic Type Integer: Operations *}

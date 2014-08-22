@@ -3,7 +3,7 @@
  *                       for the OMG Standard.
  *                       http://www.brucker.ch/projects/hol-testgen/
  *
- * OCL_basic_type_Boolean.thy --- Library definitions.
+ * UML_Boolean.thy --- Library definitions.
  * This file is part of HOL-TestGen.
  *
  * Copyright (c) 2012-2014 Université Paris-Sud, France
@@ -41,8 +41,8 @@
  ******************************************************************************)
 (* $Id:$ *)
 
-theory  OCL_basic_type_Boolean
-imports OCL_lib_common
+theory  UML_Boolean
+imports "../UML_PropertyProfiles"
 begin
 
 

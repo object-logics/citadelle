@@ -3,7 +3,7 @@
  *                       for the OMG Standard.
  *                       http://www.brucker.ch/projects/hol-testgen/
  *
- * OCL_basic_type_Void.thy --- Library definitions.
+ * UML_Void.thy --- Library definitions.
  * This file is part of HOL-TestGen.
  *
  * Copyright (c) 2012-2014 Université Paris-Sud, France
@@ -41,8 +41,8 @@
  ******************************************************************************)
 (* $Id:$ *)
 
-theory  OCL_basic_type_Void
-imports OCL_basic_type_Boolean
+theory  UML_Void
+imports UML_Boolean
 begin
 
 section{* Basic Type Void *}

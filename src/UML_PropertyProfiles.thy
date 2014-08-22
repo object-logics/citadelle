@@ -3,7 +3,7 @@
  *                       for the OMG Standard.
  *                       http://www.brucker.ch/projects/hol-testgen/
  *
- * OCL_lib_common.thy ---
+ * UML_PropertyProfiles.thy ---
  * This file is part of HOL-TestGen.
  *
  * Copyright (c) 2013-2014 Universite Paris-Sud, France
@@ -44,8 +44,8 @@
 
 
 
-theory OCL_lib_common
-imports  OCL_core
+theory UML_PropertyProfiles
+imports  UML_Logic
 begin
 
 section{* Property Profiles for OCL Operators via Isabelle Locales *}
@@ -78,7 +78,7 @@ begin
    by(simp add: def_scheme  cp_defined[symmetric])
       
    lemma cp[simp,code_unfold] : " cp P \<Longrightarrow> cp (\<lambda>X. f (P X) )"
-   by(rule OCL_core.cpI1[of "f"], intro allI, rule cp0, simp_all)
+   by(rule cpI1[of "f"], intro allI, rule cp0, simp_all)
    
    lemma const[simp,code_unfold] : 
           assumes C1 :"const X"
@@ -98,22 +98,22 @@ by(unfold_locales, simp add: def_scheme, simp add: def_body)
 context profile_mono0
 begin
    lemma def_homo[simp,code_unfold]: "\<delta>(f x) = (\<delta> x)"
-   apply(rule ext, rename_tac "\<tau>",subst OCL_core.foundation22[symmetric])
+   apply(rule ext, rename_tac "\<tau>",subst foundation22[symmetric])
    apply(case_tac "\<not>(\<tau> \<Turnstile> \<delta> x)", simp add:defined_split, elim disjE)
-     apply(erule OCL_core.StrongEq_L_subst2_rev, simp,simp)
-    apply(erule OCL_core.StrongEq_L_subst2_rev, simp,simp)
+     apply(erule StrongEq_L_subst2_rev, simp,simp)
+    apply(erule StrongEq_L_subst2_rev, simp,simp)
    apply(simp)
-   apply(rule foundation13[THEN iffD2,THEN OCL_core.StrongEq_L_subst2_rev, where y ="\<delta> x"])
+   apply(rule foundation13[THEN iffD2,THEN StrongEq_L_subst2_rev, where y ="\<delta> x"])
      apply(simp_all add:def_scheme)
    apply(simp add: OclValid_def)
    by(auto simp:foundation13 StrongEq_def false_def true_def defined_def bot_fun_def null_fun_def def_body
            split: split_if_asm)
 
    lemma def_valid_then_def: "\<upsilon>(f x) = (\<delta>(f x))"
-   apply(rule ext, rename_tac "\<tau>",subst OCL_core.foundation22[symmetric])
+   apply(rule ext, rename_tac "\<tau>",subst foundation22[symmetric])
    apply(case_tac "\<not>(\<tau> \<Turnstile> \<delta> x)", simp add:defined_split, elim disjE)
-     apply(erule OCL_core.StrongEq_L_subst2_rev, simp,simp)
-    apply(erule OCL_core.StrongEq_L_subst2_rev, simp,simp)
+     apply(erule StrongEq_L_subst2_rev, simp,simp)
+    apply(erule StrongEq_L_subst2_rev, simp,simp)
    apply simp
    apply(simp_all add:def_scheme)
    apply(simp add: OclValid_def valid_def, subst cp_StrongEq)
@@ -170,16 +170,16 @@ begin
       by(simp add: def_scheme'' d\<^sub>x.d_cp0[symmetric] d\<^sub>y.d_cp0[symmetric] cp_defined[symmetric])
       
       lemma cp[simp,code_unfold] : " cp P \<Longrightarrow> cp Q \<Longrightarrow> cp (\<lambda>X. f (P X) (Q X))"
-      by(rule OCL_core.cpI2[of "f"], intro allI, rule cp0, simp_all)
+      by(rule cpI2[of "f"], intro allI, rule cp0, simp_all)
 
       lemma def_homo[simp,code_unfold]: "\<delta>(f x y) = (d\<^sub>x x and d\<^sub>y y)"
-         apply(rule ext, rename_tac "\<tau>",subst OCL_core.foundation22[symmetric])
+         apply(rule ext, rename_tac "\<tau>",subst foundation22[symmetric])
          apply(case_tac "\<not>(\<tau> \<Turnstile> d\<^sub>x x)", simp)
          apply(case_tac "\<not>(\<tau> \<Turnstile> d\<^sub>y y)", simp)
          apply(simp)
-         apply(rule foundation13[THEN iffD2,THEN OCL_core.StrongEq_L_subst2_rev, where y ="d\<^sub>x x"])
+         apply(rule foundation13[THEN iffD2,THEN StrongEq_L_subst2_rev, where y ="d\<^sub>x x"])
            apply(simp_all)
-         apply(rule foundation13[THEN iffD2,THEN OCL_core.StrongEq_L_subst2_rev, where y ="d\<^sub>y y"])
+         apply(rule foundation13[THEN iffD2,THEN StrongEq_L_subst2_rev, where y ="d\<^sub>y y"])
            apply(simp_all add: 1 foundation13)
          done
 
@@ -240,7 +240,7 @@ proof -
      apply(subst cp_defined, simp)
     apply(rule const_defined, simp)
    apply(simp add:defined_split, elim disjE)
-     apply(erule OCL_core.StrongEq_L_subst2_rev, simp, simp)+
+     apply(erule StrongEq_L_subst2_rev, simp, simp)+
    apply(simp)
   apply(simp add: def_scheme')
  apply(simp add: defined_def OclValid_def false_def true_def 
@@ -264,7 +264,7 @@ sublocale profile_bin1 < profile_bin_scheme_defined defined
      apply(subst cp_defined, simp)+
     apply(rule const_defined, simp)+
    apply(simp add:defined_split, elim disjE)
-    apply(erule OCL_core.StrongEq_L_subst2_rev, simp, simp)+
+    apply(erule StrongEq_L_subst2_rev, simp, simp)+
   apply(simp add: def_scheme)
  by(simp add: defined_def OclValid_def false_def true_def 
               bot_fun_def null_fun_def def_scheme def_body)
@@ -281,7 +281,7 @@ sublocale profile_bin2 < profile_bin_scheme_defined valid
      apply(subst cp_valid, simp)
     apply(rule const_valid, simp)
    apply(simp add:foundation18'')
-   apply(erule OCL_core.StrongEq_L_subst2_rev, simp, simp)
+   apply(erule StrongEq_L_subst2_rev, simp, simp)
   apply(simp add: def_scheme)
  by (metis OclValid_def def_body foundation18')
  

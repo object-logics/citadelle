@@ -3,7 +3,7 @@
  *                       for the OMG Standard.
  *                       http://www.brucker.ch/projects/hol-testgen/
  *
- * OCL_basic_type_String.thy --- Library definitions.
+ * UML_String.thy --- Library definitions.
  * This file is part of HOL-TestGen.
  *
  * Copyright (c) 2012-2014 Université Paris-Sud, France
@@ -41,8 +41,8 @@
  ******************************************************************************)
 (* $Id:$ *)
 
-theory  OCL_basic_type_String
-imports OCL_basic_type_Boolean
+theory  UML_String
+imports UML_Boolean
 begin
 
 section{* Basic Type String: Operations *}

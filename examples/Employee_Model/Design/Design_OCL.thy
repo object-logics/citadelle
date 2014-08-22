@@ -3,7 +3,7 @@
  *                       for the OMG Standard.
  *                       http://www.brucker.ch/projects/hol-testgen/
  *
- * Employee_DesignModel_OCLPart.thy --- OCL Contracts and an Example.
+ * Design_OCL.thy --- OCL Contracts and an Example.
  * This file is part of HOL-TestGen.
  *
  * Copyright (c) 2012-2014 Université Paris-Sud, France
@@ -42,9 +42,9 @@
 (* $Id:$ *)
 
 theory
-  Employee_DesignModel_OCLPart
+  Design_OCL
 imports
-  Employee_DesignModel_UMLPart (* Testing *)
+  Design_UML (* Testing *)
 begin
 text {* \label{ex:employee-design:ocl} *}
 section{* OCL Part: Standard State Infrastructure *}

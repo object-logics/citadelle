@@ -1,5 +1,5 @@
-theory Contracts
-imports OCL_state OCL_lib
+theory UML_Contracts
+imports UML_State UML_Library
 begin
 
 text{* Modeling of an operation contract for an operation  with 2 arguments,

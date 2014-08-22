@@ -3,7 +3,7 @@
  *                       for the OMG Standard.
  *                       http://www.brucker.ch/projects/hol-testgen/
  *
- * Employee_DesignModel_UMLPart.thy --- OCL Contracts and an Example.
+ * Analysis_UML.thy --- OCL Contracts and an Example.
  * This file is part of HOL-TestGen.
  *
  * Copyright (c) 2012-2014 Universite Paris-Sud, France
@@ -47,9 +47,9 @@ header{* Example I : The Employee Analysis Model (UML) *}
    Part V : State Operations and Objects *)
 
 theory
-  Employee_AnalysisModel_UMLPart
+  Analysis_UML
 imports
-  "../src/OCL_main"
+  "../../../src/UML_Main"
 begin
 
 text {* \label{ex:employee-analysis:uml} *}
@@ -443,7 +443,7 @@ shows "((X::Person) .oclAsType(OclAny) .oclAsType(Person) = X)"
  apply(rule ext, rename_tac \<tau>)
  apply(rule foundation22[THEN iffD1])
  apply(case_tac "\<tau> \<Turnstile> (\<delta> X)", simp add: up_down_cast)
- apply(simp add: OCL_core.defined_split, elim disjE)
+ apply(simp add: defined_split, elim disjE)
  apply(erule StrongEq_L_subst2_rev, simp, simp)+
 done
 
@@ -741,7 +741,7 @@ subsection{* Definition (of the association Employee-Boss) *}
 
 text{* We start with a oid for the association; this oid can be used
 in presence of association classes to represent the association inside an object,
-pretty much similar to the \inlineisar+Employee_DesignModel_UMLPart+, where we stored
+pretty much similar to the \inlineisar+UML_Design+, where we stored
 an \verb+oid+ inside the class as ``pointer.'' *}
 
 definition oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<B>\<O>\<S>\<S> ::"oid" where "oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<B>\<O>\<S>\<S> = 10"
@@ -805,7 +805,7 @@ function which is either the identity @{term id} or, for \inlineocl{0..1} cardin
 of associations, the @{term OclANY}-selector which also handles the
 @{term null}-cases appropriately. A standard use-case for this combinator
 is for example: *}
-term "(select_object mtSet OCL_collection_type_Set.OclIncluding OclANY f  l oid )::('\<AA>, 'a::null)val"
+term "(select_object mtSet UML_Set.OclIncluding OclANY f  l oid )::('\<AA>, 'a::null)val"
 
 definition deref_oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n :: "(\<AA> state \<times> \<AA> state \<Rightarrow> \<AA> state)
                              \<Rightarrow> (type\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n \<Rightarrow> (\<AA>, 'c::null)val)
@@ -833,7 +833,7 @@ definition "select\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y\<A>\<N>\<Y> f
                    | (mk\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y _ \<lfloor>any\<rfloor>) \<Rightarrow> f (\<lambda>x _. \<lfloor>\<lfloor>x\<rfloor>\<rfloor>) any)"
 
 
-definition "select\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<B>\<O>\<S>\<S> f = select_object mtSet OCL_collection_type_Set.OclIncluding OclANY (f (\<lambda>x _. \<lfloor>\<lfloor>x\<rfloor>\<rfloor>))"
+definition "select\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<B>\<O>\<S>\<S> f = select_object mtSet UML_Set.OclIncluding OclANY (f (\<lambda>x _. \<lfloor>\<lfloor>x\<rfloor>\<rfloor>))"
 
 
 definition "select\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<S>\<A>\<L>\<A>\<R>\<Y> f = (\<lambda> X. case X of

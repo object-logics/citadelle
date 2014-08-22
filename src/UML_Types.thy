@@ -43,7 +43,7 @@
 
 header{* Formalization I: OCL Types and Core Definitions *}
 
-theory    OCL_Types
+theory    UML_Types
 imports   Transcendental (* Testing *)
 keywords "Assert" :: thy_decl
      and "Assert_local" :: thy_decl

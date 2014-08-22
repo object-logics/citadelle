@@ -3,7 +3,7 @@
  *                       for the OMG Standard.
  *                       http://www.brucker.ch/projects/hol-testgen/
  *
- * OCL_core.thy --- Core definitions.
+ * UML_Logic.thy --- Core definitions.
  * This file is part of HOL-TestGen.
  *
  * Copyright (c) 2012-2014 Université Paris-Sud, France
@@ -43,8 +43,8 @@
 
 header{* Formalization II: OCL Terms and Library Operations *}
 
-theory  OCL_core 
-imports OCL_Types 
+theory  UML_Logic 
+imports UML_Types 
 begin
 
 section{* The Operations of the Boolean Type and the OCL Logic*}
@@ -839,7 +839,7 @@ by(auto simp: OclAnd_def OclValid_def invalid_def
         split:bool.split_asm)
 
 lemma foundation10': "(\<tau> \<Turnstile> (A and B)) = ((\<tau> \<Turnstile> A) \<and> (\<tau> \<Turnstile> B))" (* stronger than foundation !*)
-by(auto dest:OCL_core.foundation5 simp:OCL_core.foundation6 OCL_core.foundation10)
+by(auto dest:foundation5 simp:foundation6 foundation10)
 
 lemma foundation11:
 "\<tau> \<Turnstile> \<delta> x \<Longrightarrow>  \<tau> \<Turnstile> \<delta> y \<Longrightarrow> (\<tau> \<Turnstile> (x or y)) = ( (\<tau> \<Turnstile> x) \<or> (\<tau> \<Turnstile> y))"
@@ -936,7 +936,7 @@ shows "R"
 by(insert H, subst (asm) foundation11[OF defP defQ], erule disjE, simp_all add: P Q)
 
 lemma foundation27: "(\<tau> \<Turnstile> (A and B)) = ((\<tau> \<Turnstile> A) \<and> (\<tau> \<Turnstile> B))" (* stronger than foundation !*)
-by(auto dest:OCL_core.foundation5 simp:OCL_core.foundation6 OCL_core.foundation10)
+by(auto dest:foundation5 simp:foundation6 foundation10)
 
 
 
@@ -1013,8 +1013,8 @@ assumes cp: "cp P"
 and     eq: "\<tau> \<Turnstile> (x \<triangleq> y)"
 shows       "(\<tau> \<Turnstile> P x) = (\<tau> \<Turnstile> P y)"
 apply(rule iffI)
-apply(rule OCL_core.StrongEq_L_subst2[OF cp,OF eq],simp)
-apply(rule OCL_core.StrongEq_L_subst2[OF cp,OF eq[THEN StrongEq_L_sym]],simp)
+apply(rule StrongEq_L_subst2[OF cp,OF eq],simp)
+apply(rule StrongEq_L_subst2[OF cp,OF eq[THEN StrongEq_L_sym]],simp)
 done
 
 lemma  StrongEq_L_subst3_rev:
@@ -1178,7 +1178,7 @@ lemma OclNot_contrapos_nn:
 proof -
  have D : "\<tau> \<Turnstile> \<delta> B" by(rule B[THEN OclNot_defargs])
  show ?thesis 
-    apply(insert B,simp add: A D OCL_core.foundation9)
+    apply(insert B,simp add: A D foundation9)
     by(erule contrapos_nn, auto intro: C)
 qed
 

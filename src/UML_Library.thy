@@ -3,7 +3,7 @@
  *                       for the OMG Standard.
  *                       http://www.brucker.ch/projects/hol-testgen/
  *
- * OCL_lib.thy --- Library definitions.
+ * UML_Library.thy --- Library definitions.
  * This file is part of HOL-TestGen.
  *
  * Copyright (c) 2012-2014 Université Paris-Sud, France
@@ -42,18 +42,18 @@
 (* $Id:$ *)
 
 
-theory  OCL_lib
+theory  UML_Library
 imports (* Basic Type Operations *)
-        OCL_basic_type_Boolean
-        OCL_basic_type_Void
-        OCL_basic_type_Integer
-        OCL_basic_type_Real
-        OCL_basic_type_String
+        "basic_types/UML_Boolean"
+        "basic_types/UML_Void"
+        "basic_types/UML_Integer"
+        "basic_types/UML_Real"
+        "basic_types/UML_String"
         
         (* Collection Type Operations *)
-        OCL_collection_type_Pair
-        OCL_collection_type_Set
-        OCL_collection_type_Sequence
+        "collection_types/UML_Pair"
+        "collection_types/UML_Set"
+        "collection_types/UML_Sequence"
 begin
 
 section{* Miscellaneous Stuff*}

@@ -44,7 +44,7 @@ session "OCL" in src = HOL +
   description {* HOL-TestGen *}
   options [quick_and_dirty=true,document = pdf, document_variants="document:outline=/proof,/ML"]
   theories
-    "OCL_main"
+    "UML_Main"
   files
     "document/root.tex"
     "document/root.bib"
@@ -55,8 +55,8 @@ session "OCL" in src = HOL +
 session "OCL-examples" in src = OCL +
   options [quick_and_dirty, document = pdf, document_variants="document:outline=/proof,/ML"]
   theories
-    "../examples/Employee_AnalysisModel_OCLPart"
-    "../examples/Employee_DesignModel_OCLPart"
+    "../examples/Employee_Model/Analysis/Analysis_OCL"
+    "../examples/Employee_Model/Design/Design_OCL"
   files
     "document/root.tex"
     "document/root.bib"
@@ -68,9 +68,9 @@ session "OCL-AFP" in src = HOL +
   description {* HOL-TestGen *}
   options [document = pdf, document_output=document_generated,document_variants="document:outline=/proof,/ML"]
   theories
-    "OCL_main"
-    "../examples/Employee_AnalysisModel_OCLPart"
-    "../examples/Employee_DesignModel_OCLPart"
+    "UML_Main"
+    "../examples/Employee_Model/Analysis/Analysis_OCL"
+    "../examples/Employee_Model/Design/Design_OCL"
   files
     "document/root.tex"
     "document/root.bib"
@@ -84,9 +84,9 @@ session "OCL-Annex-A" in "annex-a" = HOL +
            document_variants="document:outline=/proof,/ML",
            show_question_marks = false]
   theories
-    "../src/OCL_main"
-    "../examples/Employee_AnalysisModel_OCLPart"
-    "../examples/Employee_DesignModel_OCLPart"
+    "../src/UML_Main"
+    "../examples/Employee_Model/Analysis/Analysis_OCL"
+    "../examples/Employee_Model/Design/Design_OCL"
   files
     "document/root.tex"
     "document/root.bib"
@@ -99,16 +99,16 @@ session "OCL-all" in src = HOL +
   description {* HOL-TestGen *}
   options [quick_and_dirty,document=pdf,document_output=document_generated,document_variants="document:outline=/proof,/ML"]
   theories
-    "OCL_main"
-    "../examples/Employee_AnalysisModel_OCLPart"
-    "../examples/Employee_DesignModel_OCLPart"
-    "../src/OCL_compiler_aux_proof"
+    "UML_Main"
+    "../examples/Employee_Model/Analysis/Analysis_OCL"
+    "../examples/Employee_Model/Design/Design_OCL"
+(*    "../src/OCL_compiler_aux_proof"*)
 (*    "../src/OCL_compiler_aux_text"*)
 (*    "../src/OCL_compiler_generator_static"*)
 (*    "../src/OCL_compiler_generator_dynamic"*)
 (*    "../doc/Employee_AnalysisModel_UMLPart_generated"*)
 (*    "../doc/Employee_DesignModel_UMLPart_generated"*)
-    "../examples/OCL_basic_type_UnlimitedNatural"
+(*    "../examples/OCL_basic_type_UnlimitedNatural"*)
     "../examples/OCL_lib_Gogolla_challenge_integer"
   files
     "document/root.tex"

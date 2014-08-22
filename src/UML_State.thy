@@ -3,7 +3,7 @@
  *                       for the OMG Standard.
  *                       http://www.brucker.ch/projects/hol-testgen/
  *
- * OCL_state.thy --- State Operations and Objects.
+ * UML_State.thy --- State Operations and Objects.
  * This file is part of HOL-TestGen.
  *
  * Copyright (c) 2012-2014 Université Paris-Sud, France
@@ -43,8 +43,8 @@
 
 header{* Formalization III:  UML/OCL constructs: State Operations and Objects *}
 
-theory  OCL_state
-imports OCL_lib
+theory  UML_State
+imports UML_Library
 begin
 
 no_notation None ("\<bottom>")
@@ -239,10 +239,10 @@ assumes A: "\<tau> \<Turnstile> ((OclAllInstances_generic pre_post (H::('\<AA>::
 shows      "\<tau> \<Turnstile> not(x \<triangleq> null)"
 proof -
     have B: "\<tau> \<Turnstile> \<delta> (OclAllInstances_generic pre_post H)"
-         by(insert  A[THEN OCL_core.foundation6,
+         by(insert  A[THEN foundation6,
                       simplified OclIncludes_defined_args_valid], auto)
     have C: "\<tau> \<Turnstile> \<upsilon> x"
-         by(insert  A[THEN OCL_core.foundation6,
+         by(insert  A[THEN foundation6,
                       simplified OclIncludes_defined_args_valid], auto)
     show ?thesis
     apply(insert A)
@@ -260,9 +260,9 @@ qed
 lemma represented_generic_objects_defined:
 assumes A: "\<tau> \<Turnstile> ((OclAllInstances_generic pre_post (H::('\<AA>::object \<rightharpoonup> '\<alpha>))) ->includes(x))"
 shows      "\<tau> \<Turnstile> \<delta> (OclAllInstances_generic pre_post H) \<and> \<tau> \<Turnstile> \<delta> x"
-apply(insert  A[THEN OCL_core.foundation6,
+apply(insert  A[THEN foundation6,
                 simplified OclIncludes_defined_args_valid])
-apply(simp add: OCL_core.foundation16 OCL_core.foundation18 invalid_def, erule conjE)
+apply(simp add: foundation16 foundation18 invalid_def, erule conjE)
 apply(insert A[THEN represented_generic_objects_nonnull])
 by(simp add: foundation24 null_fun_def)
 
@@ -274,9 +274,9 @@ assumes A: "\<tau> \<Turnstile> (OclAllInstances_generic pre_post H)->includes(x
 shows      "x \<tau> \<in> (Some o H) ` ran (heap(pre_post \<tau>))"
 proof -
    have B: "(\<delta> (OclAllInstances_generic pre_post H)) \<tau> = true \<tau>"
-           by(simp add: OCL_core.OclValid_def[symmetric] OclAllInstances_generic_defined)
+           by(simp add: OclValid_def[symmetric] OclAllInstances_generic_defined)
    have C: "(\<upsilon> x) \<tau> = true \<tau>"
-           by(insert  A[THEN OCL_core.foundation6,
+           by(insert  A[THEN foundation6,
                            simplified OclIncludes_defined_args_valid],
                  auto simp: OclValid_def)
    have F: "Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor>\<lfloor>Some ` (H ` ran (heap (pre_post \<tau>)) - {None})\<rfloor>\<rfloor>) =
@@ -333,7 +333,7 @@ proof -
  by (metis insert_Diff_if option.distinct(1) singletonE)
 
  show ?thesis
-  apply(simp add: OCL_collection_type_Set.OclIncluding_def OclAllInstances_generic_defined[simplified OclValid_def],
+  apply(simp add: UML_Set.OclIncluding_def OclAllInstances_generic_defined[simplified OclValid_def],
         simp add: OclAllInstances_generic_def)
   apply(subst Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inverse, simp add: bot_option_def, simp add: comp_def,
         subst image_insert[symmetric],
@@ -363,7 +363,7 @@ shows   "(OclAllInstances_generic pre_post Type)
          (mk \<lparr>heap=\<sigma>'(oid\<mapsto>Object), assocs=A\<rparr>)"
  apply(subst state_update_vs_allInstances_generic_including', (simp add: assms)+,
        subst cp_OclIncluding,
-       simp add: OCL_collection_type_Set.OclIncluding_def)
+       simp add: UML_Set.OclIncluding_def)
  apply(subst (1 3) cp_defined[symmetric],
        simp add: OclAllInstances_generic_defined[simplified OclValid_def])
 
@@ -418,7 +418,7 @@ proof -
  have A     : "const (P (\<lambda>_. ?\<phi> ?\<tau>))"
              by(simp add: const_ctxt const_ss)
  have       "(?\<tau> \<Turnstile> P ?\<phi>) = (?\<tau> \<Turnstile> \<lambda>_. P ?\<phi> ?\<tau>)"
-             by(subst OCL_core.foundation23, rule refl)
+             by(subst foundation23, rule refl)
  also have  "... = (?\<tau> \<Turnstile> \<lambda>_. P (\<lambda>_. ?\<phi> ?\<tau>)  ?\<tau>)"
              by(subst P_cp, rule refl)
  also have  "... = (?\<tau>' \<Turnstile> \<lambda>_. P (\<lambda>_. ?\<phi> ?\<tau>)  ?\<tau>')"
@@ -427,7 +427,7 @@ proof -
  finally have X: "(?\<tau> \<Turnstile> P ?\<phi>) = (?\<tau>' \<Turnstile> \<lambda>_. P (\<lambda>_. ?\<phi> ?\<tau>)  ?\<tau>')"
              by simp
  show ?thesis
- apply(subst X) apply(subst OCL_core.foundation23[symmetric])
+ apply(subst X) apply(subst foundation23[symmetric])
  apply(rule StrongEq_L_subst3[OF cp_ctxt])
  apply(simp add: OclValid_def StrongEq_def true_def)
  apply(rule state_update_vs_allInstances_generic_noincluding')
@@ -450,7 +450,7 @@ proof -
  have A     : "const (P (\<lambda>_. ?\<phi> ?\<tau>))"
              by(simp add: const_ctxt const_ss)
  have       "(?\<tau> \<Turnstile> P ?\<phi>) = (?\<tau> \<Turnstile> \<lambda>_. P ?\<phi> ?\<tau>)"
-             by(subst OCL_core.foundation23, rule refl)
+             by(subst foundation23, rule refl)
  also have  "... = (?\<tau> \<Turnstile> \<lambda>_. P (\<lambda>_. ?\<phi> ?\<tau>)  ?\<tau>)"
              by(subst P_cp, rule refl)
  also have  "... = (?\<tau>' \<Turnstile> \<lambda>_. P (\<lambda>_. ?\<phi> ?\<tau>)  ?\<tau>')"

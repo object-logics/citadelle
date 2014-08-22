@@ -3,7 +3,7 @@
  *                       for the OMG Standard.
  *                       http://www.brucker.ch/projects/hol-testgen/
  *
- * OCL_main.thy --- 
+ * UML_Main.thy --- 
  * This file is part of HOL-TestGen.
  *
  * Copyright (c) 2012-2013 Université Paris-Sud, France
@@ -40,8 +40,8 @@
  ******************************************************************************)
 (* $Id:$ *)
 
-theory OCL_main
-imports OCL_lib OCL_state OCL_tools Contracts
+theory UML_Main
+imports UML_Library UML_State UML_Tools UML_Contracts
 begin
 
 (* legacy---still better names ?
