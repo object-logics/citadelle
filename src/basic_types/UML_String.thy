@@ -42,7 +42,7 @@
 (* $Id:$ *)
 
 theory  UML_String
-imports UML_Boolean
+imports "../UML_PropertyProfiles"
 begin
 
 section{* Basic Type String: Operations *}

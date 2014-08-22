@@ -42,7 +42,7 @@
 (* $Id:$ *)
 
 theory  UML_Void
-imports UML_Boolean
+imports "../UML_PropertyProfiles"
 begin
 
 section{* Basic Type Void *}

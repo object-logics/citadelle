@@ -43,7 +43,8 @@
 
 
 theory  UML_Set
-imports "../basic_types/UML_Integer"
+imports "../basic_types/UML_Boolean"
+        "../basic_types/UML_Integer"
 begin
 
 no_notation None ("\<bottom>")

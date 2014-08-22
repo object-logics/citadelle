@@ -42,7 +42,8 @@
 (* $Id:$ *)
 
 theory  UML_Sequence
-imports "../basic_types/UML_Integer"
+imports "../basic_types/UML_Boolean"
+        "../basic_types/UML_Integer"
 begin
 
 section{* Collection Type Sequence: Operations *}

@@ -42,7 +42,7 @@
 (* $Id:$ *)
 
 theory  UML_Integer
-imports UML_Boolean
+imports "../UML_PropertyProfiles"
 begin
 
 section{* Basic Type Integer: Operations *}

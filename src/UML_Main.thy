@@ -41,7 +41,7 @@
 (* $Id:$ *)
 
 theory UML_Main
-imports UML_Library UML_State UML_Tools UML_Contracts
+imports UML_State UML_Tools UML_Contracts
 begin
 
 (* legacy---still better names ?
