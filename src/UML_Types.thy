@@ -491,14 +491,14 @@ text{* After the previous sections, we are now able to exemplify this representa
    \begin{tabu}{lX[,c,]}
       \toprule
       OCL Type & HOL Type \\
-      \midrule
-      \inlineocl{Boolean}  & @{typ  "('\<AA>)Boolean"} \\
-      \inlineocl{Boolean -> Boolean} & @{typ  "('\<AA>)Boolean \<Rightarrow> ('\<AA>)Boolean"} \\
-      \inlineocl{(Integer,Integer) -> Boolean} & @{typ  "('\<AA>)Integer \<Rightarrow> ('\<AA>)Integer \<Rightarrow> ('\<AA>)Boolean"} \\
-      \inlineocl{Set(Integer)} & @{typ "('\<AA>,Integer\<^sub>b\<^sub>a\<^sub>s\<^sub>e)Set"} \\
-      \inlineocl{Set(Integer)-> Real} & @{typ "('\<AA>,Integer\<^sub>b\<^sub>a\<^sub>s\<^sub>e)Set \<Rightarrow> ('\<AA>)Real"} \\
-      \inlineocl{Set(Pair(Integer,Boolean))} & @{typ "('\<AA>,(Integer\<^sub>b\<^sub>a\<^sub>s\<^sub>e, Boolean\<^sub>b\<^sub>a\<^sub>s\<^sub>e)Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e)Set"} \\
-      \inlineocl{Set(<T>)} & @{typ "('\<AA>,'\<alpha>::null)Set"} \\
+      \midrule 
+      \inlineocl|Boolean|  & @{typ  "('\<AA>)Boolean"} \\
+      \inlineocl|Boolean -> Boolean| & @{typ  "('\<AA>)Boolean \<Rightarrow> ('\<AA>)Boolean"} \\
+      \inlineocl|(Integer,Integer) -> Boolean| & @{typ  "('\<AA>)Integer \<Rightarrow> ('\<AA>)Integer \<Rightarrow> ('\<AA>)Boolean"} \\
+      \inlineocl|Set(Integer)| & @{typ "('\<AA>,Integer\<^sub>b\<^sub>a\<^sub>s\<^sub>e)Set"} \\
+      \inlineocl|Set(Integer)-> Real| & @{typ "('\<AA>,Integer\<^sub>b\<^sub>a\<^sub>s\<^sub>e)Set \<Rightarrow> ('\<AA>)Real"} \\
+      \inlineocl|Set(Pair(Integer,Boolean))| & @{typ "('\<AA>,(Integer\<^sub>b\<^sub>a\<^sub>s\<^sub>e, Boolean\<^sub>b\<^sub>a\<^sub>s\<^sub>e)Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e)Set"} \\
+      \inlineocl|Set(<T>)| & @{typ "('\<AA>,'\<alpha>::null)Set"} \\
       \bottomrule
    \end{tabu}
    \caption{Basic semantic constant definitions of the logic (except @{term null})}
