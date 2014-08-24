@@ -94,6 +94,22 @@ session "OCL-Annex-A" in "annex-a" = HOL +
     "document/formalization.tex"
     "document/introduction.tex"
 
+session "OCL-Annex-A-Experiment" in "annex-a" = HOL +
+  description {* HOL-TestGen *}
+  options [quick_and_dirty,document=pdf,document_output=document_generated,
+           document_variants="document:outline=/proof,/ML",
+           show_question_marks = false]
+  theories
+    "../src/UML_Types"
+  files
+    "document/root.tex"
+    "document/root.bib"
+    "document/conclusion.tex"
+    "document/formalization.tex"
+    "document/introduction.tex"
+
+
+
 
 session "OCL-all" in src = HOL +
   description {* HOL-TestGen *}
