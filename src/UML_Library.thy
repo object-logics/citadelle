@@ -146,6 +146,7 @@ Assert "\<not> (\<tau> \<Turnstile> (\<delta>(Set{\<two>,null})->forAll(z | \<ze
 Assert "\<not> (\<tau> \<Turnstile> ((Set{\<two>,null})->forAll(z | \<zero> <\<^sub>i\<^sub>n\<^sub>t z)))"
 Assert    "\<tau> \<Turnstile> ((Set{\<two>,null})->exists(z | \<zero> <\<^sub>i\<^sub>n\<^sub>t z))"
 
+
 Assert "\<not> (\<tau> \<Turnstile> (Set{null::'a Boolean} \<doteq> Set{}))"
 Assert "\<not> (\<tau> \<Turnstile> (Set{null::'a Integer} \<doteq> Set{}))"
 

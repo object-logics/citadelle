@@ -41,7 +41,7 @@
  ******************************************************************************)
 (* $Id:$ *)
 
-header{* Formalization I: OCL Types and Core Definitions *}
+header{* Formalization I: OCL Types and Core Definitions \label{sec:focl-types}*}
 
 theory    UML_Types
 imports   Transcendental (* Testing *)
@@ -237,7 +237,7 @@ object id (oid), which is just some infinite set, and some abstract notion of st
 type_synonym ('\<AA>)st = "'\<AA> state \<times> '\<AA> state"
 
 text{* We will require for all objects that there is a function that
-reconstructs the oid of an object in the state (we will settle the question how to define
+projects the oid of an object in the state (we will settle the question how to define
 this function later). We will use the Isabelle type class mechanism \cite{XXX} 
 \fixme{Get Appropriate Reference!} to capture this: *}
 
