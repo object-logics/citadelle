@@ -1550,6 +1550,7 @@ The operations induced from a class-model have the following properties:
  \<tau> \<Turnstile> (Person .allInstances@pre()->forAll(X|X .oclIsTypeOf(Person)))
  \<tau> \<Turnstile> (Person .allInstances()->forAll(X|X .oclIsKindOf(Person)))
  \<tau> \<Turnstile> (Person .allInstances@pre()->forAll(X|X .oclIsKindOf(Person)))
+ \<tau> \<Turnstile> (X::C_i).oclIsTypeOf(C_j) \<Longrightarrow> \<tau> \<Turnstile> (X::C_i).oclIsKindOf(C_i)
  (\<tau> \<Turnstile> X \<doteq> X) = (\<tau> \<Turnstile> if \<upsilon> X then true else invalid endif)
  \<tau> \<Turnstile> X \<doteq> Y \<Longrightarrow>  \<tau> \<Turnstile> Y \<doteq> X 
  \<tau> \<Turnstile> X \<doteq> Y \<Longrightarrow>  \<tau> \<Turnstile> Y \<doteq> Z  \<Longrightarrow>  \<tau> \<Turnstile> X \<doteq> Z 
@@ -1561,6 +1562,8 @@ The operations induced from a class-model have the following  properties:
 \begin{ocl}
  invalid .oclIsTypeOf(C_i) = invalid               
  null .oclIsTypeOf(C_i) = true                     
+ invalid .oclIsKindOf(C_i) = invalid               
+ null .oclIsKindOf(C_i) = true                     
  (X::C_i) .oclAsType(C_i) = X                    
  invalid .oclAsType(C_i) = invalid              
  null .oclAsType(C_i) = null                      
