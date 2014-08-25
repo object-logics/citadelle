@@ -674,7 +674,9 @@ As a consequence of this definition of the type, we have the elements
 $\isasymbottom, \lift{\isasymbottom}, \lift{\lift{\HolTrue}},\lift{\lift{\HolFalse}}$ 
 in the carrier-set of  $\text{Boolean}_{\text{base}}$. We can therefore use the element
 $\isasymbottom$ to define the generic type class element $\bot$ and $\lift{\bot}$ for the
-generic class type $\null$. For collection types and object types this definition
+generic type class $\HolNull$.
+\fixme{why does backslash null not work here ?}
+For collection types and object types this definition
 is more evolved (see \autoref{sec:focl-types}).
 
 For object base types, we assume a typed universe $\Alpha$ of objects to be discussed later,
@@ -828,7 +830,7 @@ the \mocl{null}-element, it is necessary to allow  \mocl{null} as argument for
 \begin{gather*}
    \begin{array}{rl}
    I\semantics{S \;\mocl{->including}(y)} \tau  = &\HolIf I\semantics{\delta ~ S}\tau =
-                  I\semantics{true}\tau  \land   I\semantics{\upsilon ~ y}\tau =I\semantics{true}\tau \\
+                  I\semantics{\mocl{true}}\tau  \land   I\semantics{\upsilon ~ y}\tau =I\semantics{\mocl{true}}\tau \\
                 &\HolThen \mocl{Abs_Set}_\mocl{base} \lift{\lift{\drop{\drop{\mocl{Rep_Set}_\mocl{base} {I\semantics{S}\tau } }}  
                 \cup \{ I\semantics{y}\tau \} }} \\
                 &\HolElse \bottom
@@ -859,7 +861,7 @@ $(\sigma, \sigma')$ (\ie, $\tau$ for short) yields true. Formally this means:
 \tau \isasymMathOclValid P \equiv \bigl(I\semantics{P} \tau = \lift{ \lift{\HolTrue }} \bigr)\mi{.}
 \end{equation*}
 On this basis, classical, two-valued inference rules can be established for
-reasoning over the logical connective, the different notions of equality,
+reasoning over the logical connectives, the different notions of equality,
 definedness and validity. Generally speaking, rules over logical validity can
 relate bits and pieces in various \OCL terms and allow---via strong
 logical equality discussed below---the replacement
@@ -874,7 +876,9 @@ of semantically equivalent sub-expressions. The core inference rules are:
   \tau \models \mocl{not}\; P \Longrightarrow \lnot (\tau \models P)\\
 \begin{array}{lcr}
   \tau \models P \;\mocl{and}\; Q \Longrightarrow \tau \models P&\qquad&
-  \tau \models P \;\mocl{and}\; Q \Longrightarrow \tau \models Q
+  \tau \models P \;\mocl{and}\; Q \Longrightarrow \tau \models Q \\
+  \tau \models P \Longrightarrow \tau \models P \;\mocl{or}\; Q  &\qquad&
+   \tau \models Q \tau \Longrightarrow \models P \;\mocl{or}\; Q  \\
 \end{array}\\
   \tau \models P \Longrightarrow
      (\mocl{if}\; P \;\mocl{then}\; B_1 \;\mocl{else}\; B_2 \;\mocl{endif})\tau = B_1\ap \tau\\
@@ -885,28 +889,37 @@ of semantically equivalent sub-expressions. The core inference rules are:
   \tau \models \delta \ap X \Longrightarrow \tau \models \upsilon \ap X
 \end{array}
 \end{gather*}
+
 By the latter two properties it can be inferred that any valid
 property $P$ (so for example: a valid invariant) is defined, which
 allows to infer for terms composed by strict operations that their
 arguments and finally the variables occurring in it are valid or
 defined.
 
-We propose to distinguish the \emph{strong logical equality} (written
-$\_ \isasymMathOclStrongEq \_$), which follows the general principle
-that ``equals can be replaced by equals,'' from the \emph{strict
-  referential equality} (written $\_ \isasymMathOclStrictEq \_$),
-which is an object-oriented concept that attempts to approximate and
-to implement the former.  Strict referential equality, which is the
-default in the \OCL language and is written \inlineocl|_ = _|
-in the standard, is an overloaded concept and has to be defined for
-each \OCL type individually; for objects resulting from class
-definitions, it is implemented by comparing the references to
-the objects. In contrast, strong logical equality is a polymorphic
-concept which is defined once and for all by:
+The mandatory part of the \OCL standard refers to an equality
+(written \mocl{x = y} or \mocl{x <> y} for its negation), which is
+intended to be a strict operation (thus: \mocl{invalid = y} evaluates
+  to \mocl{invalid}) and which uses the references of objects in a state
+when comparing objects, similarly to C++ or Java. In order to avoid 
+confusions, we will use the following notations for equality:
+\begin{enumerate}
+\item The symbol $\_ = \_$ remains to be reserved to the \HOL equality,
+      \ie{} the equality of our semantic meta-language,
+\item The symbol $\_ \isasymMathOclStrongEq \_$ will be used for
+      the \emph{strong logical equality},  which follows the general 
+      logical principle that ``equals can be replaced by equals,''
+      \footnote{Strong logical equality is also referred as ``Leibniz''-equality.}
+      and is at the heart of the \OCL logic,
+\item The symbol $\_ \isasymMathOclStrictEq \_$ is used for the
+      strict referential equality, \ie{} the equality the mandatory part
+      of the \OCL standard refers to by the \mocl{_ = _}- symbol.
+\end{enumerate}
+      
+The strong logical equality is a polymorphic
+concept which is defined polymorphically for all \OCL types by:
 \begin{gather*}
-  I\semantics{X \triangleq  Y}  \tau  \equiv  \lfloor \lfloor
-  I\semantics{X}  \tau=
-  I\semantics{Y} \tau  \rfloor \rfloor
+  I\semantics{X \triangleq  Y}  \tau  \equiv  
+  \lift { \lift{ I\semantics{X}  \tau = I\semantics{Y} \tau  }}
 \shortintertext{It enjoys nearly the laws of a congruence:}
 \tau \models (x \triangleq x)\\
 \tau \models (x \triangleq y) \Longrightarrow \tau \models (y \triangleq x)\\
@@ -914,13 +927,27 @@ concept which is defined once and for all by:
 \HolOclCp P \Longrightarrow \tau \models (x \triangleq y) \Longrightarrow \tau \models (P\ap x) \Longrightarrow \tau \models (P\ap y)
 \end{gather*}
 where the predicate $\HolOclCp$ stands for \emph{context-passing}, a
-property that is characterized by $P(X)$ equals $\lambda \tau\spot
-P(\lambda \_\spot X \tau) \tau$. It means that the state tuple $\tau =
-(\sigma, \sigma')$ is passed unchanged from surrounding expressions to
-sub-expressions. it is true for all pure \OCL expressions (but not
+property that is true for all pure \OCL expressions (but not
 arbitrary mixtures of \OCL and HOL) in \FOCL\@.  The
 necessary side-calculus for establishing $\HolOclCp$ can be fully
-automated.
+automated; the reader interested in the details is referred to 
+\autoref{sec:equality}.
+
+The strong logical equality of \FOCL give rise to a number
+of further rules and derived properties, that clarify the role of strong logical equality and
+the boolean constants in \OCL specifications:
+\begin{gather*}
+\tau \models \delta \ap x \lor \tau \models x \triangleq \mocl{invalid} \lor \tau \models x \triangleq \mocl{null} \mi{,}\\
+(\tau \models A \triangleq \mocl{invalid}) = (\tau \models \mocl{not} (\upsilon A))\\
+% (*  foundation15 *)
+\begin{multlined}
+ (\tau \models A \triangleq \mocl{true}) = (\tau \models A)  \qquad
+ (\tau \models A \triangleq \mocl{false}) = (\tau \models \mocl{not} A) \\
+ (\tau \models \mocl{not} (\delta x)) = (\lnot \tau \models \delta x) \qquad
+ (\tau \models \mocl{not} (\upsilon x)) = (\lnot \tau \models \upsilon x) % (*  UML_Logic.foundation7':*)
+\end{multlined}
+\end{gather*}
+%   (not A \<triangleq> not B) = (A \<triangleq> B) (*foundation21*)
 
 The logical layer of the  \FOCL rules gives also a means
 to convert an \OCL formula living in its four-valued world into a
@@ -936,9 +963,9 @@ connectives have the following format, \eg:
 \Longrightarrow (\tau \models (x \ap\mocl{implies}\ap y)) = ( (\tau \models x) \longrightarrow (\tau \models y))
 \end{multlined}
 \end{gather*}
-Together with the general case-distinction
+Together with the already mentioned general case-distinction
 \begin{gather*}
-    \tau \models \delta \ap x \lor \tau \models x \triangleq \mocl{invalid} \lor \tau \models x \triangleq \mocl{null} \mi{,}
+\tau \models \delta \ap x \lor \tau \models x \triangleq \mocl{invalid} \lor \tau \models x \triangleq \mocl{null}
 \end{gather*}
 which is possible for any \OCL type, a case distinction on the
 variables in a formula can be performed; due to strictness rules,
@@ -961,8 +988,7 @@ formula for all \OCL formulas.
 \subsection{Algebraic Layer}
 Based on the logical layer, we build a system with simpler rules which
 are amenable to automated reasoning. We restrict ourselves to pure
-equations on \OCL expressions, where the used equality is the
-meta-(HOL-)equality.
+equations on \OCL expressions.
 
 Our denotational definitions on \inlineocl+not+ and \inlineocl+and+
 can be re-formulated in the following ground equations:
@@ -1050,7 +1076,7 @@ standard expresses at many places that most operations are strict,
   X \;\mocl{+}\; \mocl{null} &= \mocl{invalid}&\qquad
   \mocl{null} \;\mocl{+}\; X &= \mocl{invalid}
   \end{aligned}\\
-  \mocl{null.oclAsType(}X\mocl{)} = \mocl{invalid}
+  \mocl{null.oclAsType(}X\mocl{)} = \mocl{invalid} \\
 \shortintertext{besides ``classical'' exceptional behavior:}
   \begin{aligned}
     \mocl{1} \;\mocl{/}\; \mocl{0} &= \mocl{invalid} \quad &\quad
@@ -1068,43 +1094,19 @@ equations, this semantic alternative (this is \emph{not}
   \begin{aligned}
     \mocl{invalid} \;\mocl{+}\; X &= \mocl{invalid} &\qquad
     X \;\mocl{+}\; \mocl{invalid} &= \mocl{invalid}\\
-    X \;\mocl{+}\; \mocl{null} &= \mocl{null}&\qquad
-    \mocl{null} \;\mocl{+}\; X &= \mocl{null}
+    \mocl{invalid->including(}X\mocl{)} &= \mocl{invalid} &\qquad
+    \mocl{null->including(}X\mocl{)} &= \mocl{invalid}\\    
+    X \isasymMathOclStrictEq  \mocl{invalid} &= \mocl{invalid}&\qquad
+    \mocl{invalid} \isasymMathOclStrictEq X &= \mocl{invalid} \\
   \end{aligned}\\
-    \mocl{null.oclAsType(}X\mocl{)} = \mocl{null}\\
+      \mocl{S->including(invalid)}=\mocl{invalid} \\
+       X \isasymMathOclStrictEq X =  (\mocl{if}\; \upsilon\; x\; \mocl{then true}
+                                         \mocl{else invalid endif}) \\
   \begin{aligned}
     \mocl{1} \;\mocl{/}\; \mocl{0} &= \mocl{invalid} \quad &\quad
-    \mocl{1} \;\mocl{/}\; \mocl{null} &= \mocl{null}
+    \mocl{1} \;\mocl{/}\; \mocl{null} &= \mocl{null} \\
+    \mocl{invalid->isEmpty()}&=\mocl{invalid} \quad &\quad \mocl{null->isEmpty()}&=\mocl{null}\\
   \end{aligned}\\
-    \mocl{null->isEmpty()}=\mocl{null}
-\end{gather*}
-
-While this is logically perfectly possible, while it can be argued
-that this semantics is ``intuitive'', and although we do not expect a
-too heavy cost in deduction when computing $\delta$-closures, we
-object that there are other, also ``intuitive'' interpretations that
-are even more wide-spread: In classical spreadsheet programs, for
-example, the semantics tends to interpret \inlineocl+null+
-(representing empty cells in a sheet) as the neutral element of the
-type, so \inlineocl{0} or the empty string, for example.\footnote{In
-  spreadsheet programs the interpretation of \inlineisar+null+ varies
-  from operation to operation; \eg, the \inlineocl+average+
-  function treats \inlineocl+null+ as non-existing value and not as
-  \inlineocl{0}.}  This semantic alternative (this is
-\emph{not}  \FOCL at present) would yield:
-\begin{gather*}
-  \begin{aligned}
-    \mocl{invalid} \;\mocl{+}\; X &= \mocl{invalid} &\qquad
-    X \;\mocl{+}\; \mocl{invalid} &= \mocl{invalid}\\
-    X \;\mocl{+}\; \mocl{null} &= X&\qquad
-    \mocl{null} \;\mocl{+}\; X &= X
-  \end{aligned}\\
-    \mocl{null.oclAsType(}X\mocl{)} = \mocl{invalid}\\
-  \begin{aligned}
-    \mocl{1} \;\mocl{/}\; \mocl{0} &= \mocl{invalid} \quad &\quad
-    \mocl{1} \;\mocl{/}\; \mocl{null} &= \mocl{invalid}
-\end{aligned}\\
-    \mocl{null->isEmpty()}=\mocl{true}
 \end{gather*}
 
 Algebraic rules are also the key for execution and compilation
@@ -1138,46 +1140,41 @@ As \inlineocl+Set{1,2}+ is only syntactic sugar for
   Set{}->including(1)->including(2)
 \end{ocl}
 an expression like \inlineocl+Set{1,2}->includes(null)+ becomes
-decidable in  \FOCL by a combination of
-rewriting and code-generation and execution. The generated
-documentation from the theory files can thus be enriched by numerous
+decidable in  \FOCL by applying these algebaric laws (which can give
+  rise to efficient compilations). The reader interested in the list of
 ``test-statements'' like:
 \begin{isar}[mathescape]
 value  "\<tau> \<Turnstile> ($\mathtt{Set\{Set\{2,null\}\}}$ \<doteq> $\;\mathtt{Set\{Set\{null,2\}\}}$)"
 \end{isar}
-which have been machine-checked and which present a high-level and in
-our opinion fairly readable information for \OCL tool manufactures and
-users.
+make consult \autoref{formal-set}; these test-statements 
+ have been machine-checked and proven consistent with the denotational and logic
+ semantics of \FOCL. 
+% It fairly readable information for \OCL tool manufactures and users.
 
 
 \section{Object-oriented Datatype Theories}
-As mentioned earlier, the \OCL is composed of
-\begin{enumerate}
-\item operators on built-in data structures such as Boolean, Integer or Set(\_),
-      and
-\item operators of the user-defined data model such as accessors,
-      type casts and tests.
-\end{enumerate}
-
 In the following, we will refine the concepts of a user-defined
 data-model (implied by a \emph{class-model}, visualized by a class-diagram)
 as well as the notion of $\state{}$ used in the
-previous section to much more detail.  In contrast to wide-spread
-opinions, \UML class models represent in a compact and visual manner
-quite complex, object-oriented data-types with a surprisingly rich
-theory. It is part of our endeavor here to make this theory explicit
-and to point out corner cases.  A \UML class diagram---underlying a
-given \OCL formula---produces several implicit operations which
-become accessible via appropriate \OCL syntax:
+previous section to much more detail.  \UML class models represent in a compact 
+and visual manner quite complex, object-oriented data-types with a surprisingly rich
+theory. In this section, this theory is made explicit
+and to point out corner cases.  A \UML class model underlying a
+given \OCL invariant or operation contract
+produces several implicit operations which
+become accessible via appropriate \OCL syntax.
 
+A class model is a four-tuple $(C, \_ < \_, Attrib, Assoc)$ where:
+\fixme{TODO}
 \begin{enumerate}
-\item Classes and class names (written as $C_1$, \ldots, $C_n$), which
+\item $C$ is a  set of class names (written as $C_1$, \ldots, $C_n$), which
   become types of data in \OCL\@. Class names declare two projector
   functions to the set of all objects in a state:
   $C_i$\inlineocl{.allInstances()} and
   $C_i$\inlineocl{.allInstances}$\isasymOclATpre$\inlineocl{()},
-\item an inheritance relation $\_ < \_$ on classes, a collection of
-  attributes $Attrib(C_i)$ associated to classes $C_i$,
+\item $\_ < \_$ is an inheritance relation on classes,
+\item $Attrib(C_i)$ is a collection of
+  attributes associated to classes $C_i$,
   and a collection of associations $Assoc(C_i,C_j)$,
   \footnote{Given the fact that there is at present no consensus on the
   semantics of n-ary associations, \FOCL{} restricts itself to binary associations. }

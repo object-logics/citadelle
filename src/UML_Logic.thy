@@ -233,7 +233,7 @@ summarize the results of this section.
 \end{table}
 *}
 
-subsection{* The Equalities of OCL *}
+subsection{* The Equalities of OCL \label{sec:equality}*}
 text{*
   The OCL contains a particular version of equality, written in
   Standard documents \inlineocl+_ = _+ and \inlineocl+_ <> _+ for its
