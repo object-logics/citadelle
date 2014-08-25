@@ -89,11 +89,11 @@ Here is a feature-list of  \FOCL:
          \inlineocl{null} (so \inlineocl|Set{null}| is a defined set) but not
          \inlineocl{invalid} (\inlineocl|Set{invalid}| is just
          \inlineocl{invalid}).
- \item Wrt. to the static types,  \FOCL a strongly typed language in 
+ \item Wrt. to the static types,  \FOCL is a strongly typed language in 
          the Hindley-Milner tradition.
          We assume that a pre-process for full \OCL eliminates all implicit 
          conversions due to subtyping by introducing explicit casts (\eg,
-         \inlineocl{oclAsType()}). \footnote{The details of such a pre-processing are
+         \inlineocl{oclAsType(Class)}). \footnote{The details of such a pre-processing are
          described in~\cite{brucker:interactive:2007}.}                                                                                      
  \item  \FOCL types may be arbitrarily nested. For example,
          the expression
@@ -639,7 +639,7 @@ object universes were excluded from a presentation here.
 
 \subsection{Denotational Semantics of Types}
 The syntactic material for type expressions, called $\text{TYPES}(C)$, is inductively
-defined as follows:
+defined as follows: \fixme{should we use expliucit definitions ?}
 \begin{itemize}
 \item $C \subseteq \text{TYPES}(C)$ 
 \item $\text{Boolean}$, $\text{Integer}$, $\text{Real}$, $\text{Void}$, ... are elements
@@ -654,11 +654,11 @@ and a null element; this is achieved in Isabelle by a type-class $\TCnull$ that
 contains two distinguishable elements $\HolBot$ and $\HolNull$ (see \autoref{sec:focl-types}
   for the details of the construction).
 
-Moreover, the representation mapping from \OCL types to \FOCL id 
+Moreover, the representation mapping from \OCL types to \FOCL is 
 one-to-one (\ie{} injective), and the corresponding \FOCL types were
 constructed to represent \emph{exactly} the elements (``no junk, no confucion
   elements'') of their \OCL counterparts. The corresponding \FOCL types were
-constructed in two stages: First, a \emph{base-type} is constructed whose
+constructed in two stages: First, a \emph{base type} is constructed whose
 carrier set contains exactly the elements of the \OCL type. Secondly, this
 base type is lifted to a \emph{valuation} type that we use for type-checking
 \FOCL constants, operations, and expressions. The valuation type takes into account
@@ -667,39 +667,57 @@ depend on a pre- and a post-state.
 
 For most base types like $\text{Boolean}_{\text{base}}$ or $\text{Integer}_{\text{base}}$, it suffices 
 to double-lift a \HOL library type:
-\begin{equation*}
-\typedef \qquad  \text{Boolean}_{\text{base}} \equiv \up{{\up{bool}}}
-\end{equation*}
-\fixme{Replace by typesynonym}
-As a consequence of this type synonym, we have the elements $\HolBot, \lift{\HolBot}, 
-\lift{\lift{\HolTrue}},\lift{\lift{\HolFalse}}$ in the carrier-set of  $\text{Boolean}_{\text{base}}$.
+\begin{equation}
+\typesynonym \qquad  \text{Boolean}_{\text{base}} \defeq \up{{\up{bool}}}
+\end{equation}
+As a consequence of this definition of the type, we have the elements 
+$\isasymbottom, \lift{\isasymbottom}, \lift{\lift{\HolTrue}},\lift{\lift{\HolFalse}}$ 
+in the carrier-set of  $\text{Boolean}_{\text{base}}$. We can therefore use the element
+$\isasymbottom$ to define the generic type class element $\bot$ and $\lift{\bot}$ for the
+generic class type $\null$. For collection types and object types this definition
+is more evolved (see \autoref{sec:focl-types}).
+
 For object base types, we assume a typed universe $\Alpha$ of objects to be discussed later,
 for the moment we will refer it by its polymorphic variable. 
 
 With respect the valuation types for \OCL expression in general and Boolean expressions in
 particular, they depend on the pair $(\sigma, \sigma')$ of pre-and post-state.  
 Thus, we define valuation types by the synonym:
-\begin{equation*}
-  \V{\Alpha}{\alpha} \defeq \state{\Alpha} \times \state{\Alpha} \to \alpha \ofType \TCnull \mi{.}
-\end{equation*}
+\begin{equation}
+\typesynonym \qquad  \V{\Alpha}{\alpha} \defeq \state{\Alpha} \times \state{\Alpha} \to \alpha \ofType \TCnull \mi{.}
+\end{equation}
+The valuation type for boolean,integer, etc. \OCL terms is therefore defined as:
+\begin{gather*}
+\typesynonym \qquad \text{Boolean}_{\Alpha} \defeq  \V{\Alpha}{\text{Boolean}_{\text{base}}} \\
+\typesynonym \qquad \text{Integer}_{\Alpha} \defeq  \V{\Alpha}{\text{Integer}_{\text{base}}} \\
+\ldots \\
+\end{gather*}
+the other cases are analogous. In the subsequent sections, we will drop the index $\Alpha$ since
+it is constant in all formulas and expressions except for operations related to the object universe
+construction in \autoref{sec:}
 
-The rules of the logical layer (there are no algebraic rules for the semantic sections on types),
+The rules of the logical layer (there are no algebraic rules related to the semantics of types),
 and more details can be found in  \autoref{sec:focl-types}.
 
 \subsection{Denotational Semantics of Constants and Operations}
-We use the notation $I\semantics{E}$ for the semantic interpretation function as
+We use the notation $I\semantics{E}\tau$ for the semantic interpretation function as
 commonly used in mathematical textbooks and the variable $\tau$ standing for pairs of
-pre- and post state $(\sigma, \sigma')$. For reasons of conciseness,
-we will write $\delta~X$ for $\mocl{not}\;X\mocl{.oclIsUndefined()}$
-and $\upsilon~X$ for $\mocl{not}\;X\mocl{.oclIsInvalid()}$ throughout
-this paper.
+pre- and post state $(\sigma, \sigma')$. \OCL provides for all \OCL types the
+ constants \mocl{invalid} for the exceptional computation result and \mocl{null} for
+ the non-existing value. Thus we define:
 \begin{gather*}
 \begin{alignedat}{3}
 I\semantics{\mocl{invalid}\ofType V(\alpha)} \tau &\equiv \HolBot &
 \qquad I\semantics{\mocl{null}\ofType V(\alpha)}  \tau    &\equiv \HolNull\\
-I\semantics{\mocl{true}\ofType\mocl{Boolean}} \tau &=\lfloor\lfloor
-\HolTrue\rfloor\rfloor &
-I\semantics{\mocl{false}} \tau &= \lfloor\lfloor\HolFalse\rfloor\rfloor\\
+\end{alignedat}\\
+\end{gather*}
+For the concrete \mocl{Boolean}-type, we define similarly the boolean constants $\mocl{true}$ and
+$\mocl{false}$ as well as the fundamental tests for definedness and validity (generically 
+  defined for all types):
+\begin{gather*}
+\begin{alignedat}{3}
+I\semantics{\mocl{true}\ofType\mocl{Boolean}} \tau &= \lift{\lift{\HolTrue}} &
+\qquad I\semantics{\mocl{false}} \tau &= \lift{\lift{\HolFalse}}\\
 \end{alignedat}\\
 I\semantics{X\mocl{.oclIsUndefined()}} \tau =
     (\HolIf I\semantics{X}\tau \in \{\HolBot, \HolNull\} \HolThen I\semantics{\mocl{true}}\tau \HolElse I\semantics{\mocl{false}}\tau)\\
@@ -707,43 +725,20 @@ I\semantics{X\mocl{.oclIsUndefined()}} \tau =
     (\HolIf I\semantics{X}\tau = \HolBot \HolThen I\semantics{\mocl{true}}\tau \HolElse I\semantics{\mocl{false}}\tau)
 \end{gather*}
 
+For reasons of conciseness, we will write $\delta~X$ for $\mocl{not}(X\mocl{.oclIsUndefined())}$
+and $\upsilon~X$ for $\mocl{not}(X\mocl{.oclIsInvalid())}$ throughout this document.
+
 Due to the used style of
 semantic representation (a shallow embedding) $I$ is in fact
-superfluous and defined semantically as the identity; instead of:
+superfluous and defined semantically as the identity $\lambda x. x$; instead of:
 \begin{gather*}
-I\semantics{\mocl{true}\ofType\mocl{Boolean}} \tau =\lfloor\lfloor \HolTrue\rfloor\rfloor
+I\semantics{\mocl{true}\ofType\mocl{Boolean}} \tau = \lift{\lift{\HolTrue}}
 \shortintertext{we can therefore write:}
-\mocl{true}\ofType\mocl{Boolean}  = \lambda \tau. \lfloor\lfloor
-\HolTrue\rfloor\rfloor
+\mocl{true}\ofType\mocl{Boolean}  = \lambda \tau.  \lift{\lift{\HolTrue}}
 \end{gather*}
 In Isabelle theories, this particular presentation of definitions
 paves the way for an automatic check that the underlying equation
-has the form of an \emph{axiomatic
-definition} and is therefore logically safe.
-Since all operators of the assertion language depend on the context $\tau$ = $(\sigma,
-\sigma')$ and result in values that can be $\isasymbottom$, all expressions can
-be viewed as \emph{evaluations} from $(\sigma, \sigma')$ to a type $\alpha$
-which must posses a $\bottom$ and a $\text{null}$-element. Given that such
-constraints can be expressed in Isabelle/HOL via \emph{type classes} (written: $\alpha::\kappa$),
-all types for \OCL-expressions are of a form captured by
-\begin{equation*}
- \V{}{\alpha} \defeq \state{} \times \state{} \to \alpha::\{bot,null\}  \mi{,}
- \end{equation*}
-where $\state{}$ stands for the system state and $\state{} \times
-\state{}$ describes the pair of pre-state and post-state and
-$\_\defeq\_$ denotes the type abbreviation.
-
-The current \OCL semantics~\cite[Annex A]{omg:ocl:2003} uses different
-interpretation functions for invariants and pre-conditions; we achieve
-their semantic effect by a syntactic transformation $\__\text{pre}$
-which replaces, for example, all accessor functions
-$\getAttrib{\_}{a}$ by their counterparts
-$\getAttrib{\_}{a\isasymOclATpre}$. For example,
-$(\getAttrib{\self}{a} > 5)_\text{pre}$ is just
-$(\getAttrib{\self}{a\isasymOclATpre} > 5)$. This way, also invariants
-and pre-conditions can be interpreted by the same interpretation
-function and have the same type of an evaluation $\V{}{\alpha}$.
-
+has the form of an \emph{axiomatic definition} and is therefore logically safe.
 
 On this basis, one can define the core logical operators $\mocl{not}$
 and $\mocl{and}$ as follows:
@@ -758,7 +753,7 @@ and $\mocl{and}$ as follows:
           \end{array}
   \end{array}
 \end{gather*}
-
+\fixme{we must uniformize the list - vs. lfloor notation. Either the one or the other.}
 \begin{gather*}
   \begin{array}{ll}
    I\semantics{X\;\mocl{and}\; Y}  \tau
@@ -812,23 +807,44 @@ $X\;\mocl{implies}\;Y \equiv (\mocl{not}\; X)\;\mocl{or}\; Y$.
 
 The default semantics for an \OCL library operator is strict
 semantics; this means that the result of an operation $f$ is
-\inlineisar+invalid+ if one of its arguments is \inlineisar+invalid+.
-For a semantics comprising \inlineisar+null+, we suggest to stay
-conform to the standard and define the addition for integers as
-follows:
- \begin{gather*}
+\inlineisar+invalid+ if one of its arguments is \mocl+invalid+ or \mocl+null+.
+The definition of the addition for integers as default variant reads as follows:
+\begin{gather*}
    \begin{array}{rl}
-   I\semantics{x \;\mocl{+}\; y}\tau  = &\HolIf I\semantics{\delta ~ x}\tau =\lfloor \lfloor \HolTrue\rfloor \rfloor  \land   I\semantics{\delta  ~ y}\tau =\lfloor \lfloor \HolTrue\rfloor \rfloor \\
+   I\semantics{x \;\mocl{+}\; y}\tau  = &\HolIf I\semantics{\delta ~ x}\tau =I\semantics{\mocl{true}}\tau  
+                 \land  I\semantics{\delta  ~ y}\tau =I\semantics{\mocl{true}}\tau \\
                 &\HolThen \lfloor \lfloor \lceil \lceil I\semantics{x}\tau \rceil \rceil  + \lceil \lceil I\semantics{y}\tau \rceil \rceil \rfloor \rfloor\\
                 &\HolElse \bottom
    \end{array}
- \end{gather*}
+\end{gather*}
  where the operator ``\mocl{+}'' on the left-hand
  side of the equation denotes the \OCL addition of type
- $[\V{}{\up{(\up{\HolInteger})}}, \V{}{\up{(\up{\HolInteger})}}] \Rightarrow
- \V{}{\up{(\up{\HolInteger})}}$ while the ``$+$'' on the right-hand side of
- the equation of type $[\HolInteger,\HolInteger]\Rightarrow
- \HolInteger$ denotes the integer-addition from the HOL library.
+ $\mocl{Integer} \Rightarrow \mocl{Integer} \Rightarrow \mocl{Integer}$ while the ``$+$'' on the 
+ right-hand side of the equation of type $[\HolInteger,\HolInteger]\Rightarrow \HolInteger$ denotes the integer-addition from the HOL library.
+
+There are cases where stricness is handled differently: For example, since \mocl{Set}'s may contain 
+the \mocl{null}-element, it is necessary to allow  \mocl{null} as argument for 
+\mocl{_->including()}:
+\begin{gather*}
+   \begin{array}{rl}
+   I\semantics{S \;\mocl{->including}(y)} \tau  = &\HolIf I\semantics{\delta ~ S}\tau =
+                  I\semantics{true}\tau  \land   I\semantics{\upsilon ~ y}\tau =I\semantics{true}\tau \\
+                &\HolThen \mocl{Abs_Set}_\mocl{base} \lift{\lift{\drop{\drop{\mocl{Rep_Set}_\mocl{base} {I\semantics{S}\tau } }}  
+                \cup \{ I\semantics{y}\tau \} }} \\
+                &\HolElse \bottom
+   \end{array}
+\end{gather*}
+Here, the operator $\_ \cup \_$ stems from the \HOL set theory, together with the set inclusion
+$\{\_\}$. The operator $\mocl{Abs_Set}_\mocl{base}$ is the constructor for the \FOCL Set type,
+whereas $\mocl{Rep_Set}_\mocl{base}$ is its destructor (see \autoref{sec:focl-types} for details).
+% Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor>\<lfloor> \<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (x \<tau>)\<rceil>\<rceil>  \<union> {y \<tau>} \<rfloor>\<rfloor>
+There is even one more variant of a strict basic \OCL operation: the referential equality 
+$\_ \mocl{=} \_$. Since the comparison with \null must be possible and since the referential equality
+should be symmetric, \null should be allowed for \emph{both} arguments  and the expression:
+\begin{equation}
+     \mocl{null = null}
+\end{equation}
+should be valid and true. The details were discussed in the next session.
 
 \subsection{Logical Layer}
 The topmost goal of the logic for \OCL is to define the \emph{validity statement}:
@@ -836,11 +852,11 @@ The topmost goal of the logic for \OCL is to define the \emph{validity statement
    (\sigma, \sigma') \isasymMathOclValid P\mi{,}
 \end{equation*}
 where $\sigma$ is the pre-state and $\sigma'$ the post-state of the
-underlying system and $P$ is a formula.
+underlying system and $P$ is a formula, \ie{} and \OCL expression of type \mocl{Boolean}.
 Informally, a formula $P$ is valid if and only if its evaluation in
 $(\sigma, \sigma')$ (\ie, $\tau$ for short) yields true. Formally this means:
 \begin{equation*}
-\tau \isasymMathOclValid P \equiv \bigl(I\semantics{P} \tau =  \lfloor \lfloor \HolTrue  \rfloor \rfloor \bigr)\mi{.}
+\tau \isasymMathOclValid P \equiv \bigl(I\semantics{P} \tau = \lift{ \lift{\HolTrue }} \bigr)\mi{.}
 \end{equation*}
 On this basis, classical, two-valued inference rules can be established for
 reasoning over the logical connective, the different notions of equality,
