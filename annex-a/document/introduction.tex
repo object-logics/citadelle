@@ -608,7 +608,8 @@ RFP, as discussed at the \OCL meeting in
 Aachen~\cite{brucker.ea:summary-aachen:2013}.
 
 
-\chapter{The Essence of \UML-\OCL Semantics}
+
+\chapter{The Essence of UML-OCL Semantics}
 \fixme{Generate this chapter from Isabelle theories ? Just for principle ?}
 \section{The Theory Organization}
 The semantic theory is organized in a quite conventional manner in
@@ -645,7 +646,7 @@ defined as follows:
       of $\text{TYPES}(C)$
 \item $\text{Sequence}(X)$, $\text{Set}(X)$, et $\text{Pair}(X,Y)$ (as example for a Tuple-type)
       are in  $\text{TYPES}(C)$ (if $X, Y \in \text{TYPES}(C)$).
-\begin{itemize}
+\end{itemize}
 
 Types were directly represented in \FOCL by types in \HOL; consequently,
 any \FOCL type must provide elements for a bottom element (also denoted $\bot$) 
@@ -667,11 +668,11 @@ depend on a pre- and a post-state.
 For most base types like $\text{Boolean}_{\text{base}}$ or $\text{Integer}_{\text{base}}$, it suffices 
 to double-lift a \HOL library type:
 \begin{equation*}
-\typedef \qquad  \text{Boolean}_{\text{base}} \equiv \up{\up{bool}} 
+\typedef \qquad  \text{Boolean}_{\text{base}} \equiv \up{{\up{bool}}}
 \end{equation*}
 \fixme{Replace by typesynonym}
 As a consequence of this type synonym, we have the elements $\HolBot, \lift{\HolBot}, 
-\lift{\lift{\HOLtrue}},\lift{\lift{\HOLfalse}}$ in the carrier-set of  $\text{Boolean}_{\text{base}}$.
+\lift{\lift{\HolTrue}},\lift{\lift{\HolFalse}}$ in the carrier-set of  $\text{Boolean}_{\text{base}}$.
 For object base types, we assume a typed universe $\Alpha$ of objects to be discussed later,
 for the moment we will refer it by its polymorphic variable. 
 
@@ -1025,7 +1026,7 @@ major deviation point from
 \HOLOCL~\cite{brucker.ea:hol-ocl:2008,brucker.ea:hol-ocl-book:2006},
 to  \FOCL as presented here.  The
 standard expresses at many places that most operations are strict,
-\ie, enjoy the properties (exemplary for \inlineocl{_ + _}):
+\ie, enjoy the properties (exemplary for \inlineocl|_ + _|):
 \begin{gather*}
   \begin{aligned}
   \mocl{invalid}\;\mocl{+}\; X &= \mocl{invalid}&\qquad
@@ -1641,19 +1642,17 @@ query operations can be used safely inside pre- and post-conditions of other con
 For the general case of a user-defined contract, the following rules can be established:
 \begin{gather}
   \begin{prooftree}
-    \tau 
-    % \isasymMathOclValid {\isasymdelta}\ \self \qquad {\tau}\ {\isasymMathOclValid}\ {\isasymupsilon}\ a{\isadigit{1}}
-    \justifies
-      \isa{{\isasymlbrakk}cp\ E{\isacharsemicolon}
-      %{\isasymand}\ {\tau}\ {\isasymMathOclValid}\ {\isasymupsilon}\ a{\isadigit{1}}{\isachardot}{\isadigit{0}}{\isacharsemicolon}\ {\tau}\ {\isasymMathOclValid}\ true{\isacharsemicolon}\ {\tau}\ {\isasymMathOclValid}\ POST{\isacharprime}\ self\ a{\isadigit{1}}{\isachardot}{\isadigit{0}}{\isacharsemicolon}\ {\isasymAnd}res{\isachardot}\ {\isacharparenleft}self{\isachardot}contents{\isacharparenleft}{\isacharparenright}\ {\isasymtriangleq}\ self{\isachardot}contents{\isacharat}pre{\isacharparenleft}{\isacharparenright}{\isacharminus}{\isachargreater}including{\isacharparenleft}a{\isadigit{1}}{\isachardot}{\isadigit{0}}{\isacharparenright}{\isacharparenright}\ {\isacharequal}\ {\isacharparenleft}POST{\isacharprime}\ self\ a{\isadigit{1}}{\isachardot}{\isadigit{0}}\ and\ {\isacharparenleft}res\ {\isasymtriangleq}\ BODY\ self\ a{\isadigit{1}}{\isachardot}{\isadigit{0}}{\isacharparenright}{\isacharparenright}{\isasymrbrakk}\ {\isasymLongrightarrow}\ {\isacharparenleft}{\tau}\ {\isasymMathOclValid}\ E\ {\isacharparenleft}self{\isachardot}insert{\isacharparenleft}a{\isadigit{1}}{\isachardot}{\isadigit{0}}{\isacharparenright}{\isacharparenright}{\isacharparenright}\ {\isacharequal}\ {\isacharparenleft}{\tau}\ {\isasymMathOclValid}\ E\ {\isacharparenleft}BODY\ self\ a{\isadigit{1}}{\isachardot}{\isadigit{0}}{\isacharparenright}{\isacharparenright}} \\
-    \ptmi{.}
+    \tau \isasymMathOclValid {\isasymdelta}\ \self \qquad {\tau}\
+    {\isasymMathOclValid}\ {\isasymupsilon}\ a{\isadigit{1}}
+    \justifies {\isasymlbrakk}cp\ E{\isacharsemicolon}
+      {\isasymand}\ {\tau}\ {\isasymMathOclValid}\ {\isasymupsilon}\ a{\isadigit{1}}{\isachardot}{\isadigit{0}}{\isacharsemicolon}\ {\tau}\ {\isasymMathOclValid}\ true{\isacharsemicolon}\ {\tau}\ {\isasymMathOclValid}\ POST{\isacharprime}\ self\ a{\isadigit{1}}{\isachardot}{\isadigit{0}}{\isacharsemicolon}\ {\isasymAnd}res{\isachardot}\ {\isacharparenleft}self{\isachardot}contents{\isacharparenleft}{\isacharparenright}\ {\isasymtriangleq}\ self{\isachardot}contents{\isacharat}pre{\isacharparenleft}{\isacharparenright}{\isacharminus}{\isachargreater}including{\isacharparenleft}a{\isadigit{1}}{\isachardot}{\isadigit{0}}{\isacharparenright}{\isacharparenright}\ {\isacharequal}\ {\isacharparenleft}POST{\isacharprime}\ self\ a{\isadigit{1}}{\isachardot}{\isadigit{0}}\ and\ {\isacharparenleft}res\ {\isasymtriangleq}\ BODY\ self\ a{\isadigit{1}}{\isachardot}{\isadigit{0}}{\isacharparenright}{\isacharparenright}{\isasymrbrakk}\ {\isasymLongrightarrow}\ {\isacharparenleft}{\tau}\ {\isasymMathOclValid}\ E\ {\isacharparenleft}self{\isachardot}insert{\isacharparenleft}a{\isadigit{1}}{\isachardot}{\isadigit{0}}{\isacharparenright}{\isacharparenright}{\isacharparenright}\ {\isacharequal}\ {\isacharparenleft}{\tau}\ {\isasymMathOclValid}\ E\ {\isacharparenleft}BODY\ self\ a{\isadigit{1}}{\isachardot}{\isadigit{0}}{\isacharparenright}{\isacharparenright}
   \end{prooftree}
 \end{gather}
 under the conditions:
 \begin{itemize}
 \item $E$ must be an \OCL term and
 \item $\self$ must be defined, the arguments valid in $\tau$:
-      $\isasymMathOclValid \isasymMathOclIsDefineds \land \tau \isasymMathOclValid \isasymupsilon~x_1 \land \ldots \land  \tau \isasy~mMathOclValid \isasymupsilon~ x_n$
+      $\isasymMathOclValid \isasymMathOclIsDefined \land \tau \isasymMathOclValid \isasymupsilon~x_1 \land \ldots \land  \tau \isasymMathOclValid \isasymupsilon~ x_n$
 \end{itemize}
 For the special case of a (recursive) query method, this rule can be specialized to the following
 executable ``unfolding principle'':
@@ -1662,19 +1661,18 @@ executable ``unfolding principle'':
   E
     \justifies
  F
-  %  \isa{{\isasymlbrakk}cp\ E{\isacharsemicolon}\ 
-  %    \ 
-  %    {\isasymand}\ {\tau}\ {\isasymMathOclValid}\ {\isasymupsilon}\ a{\isadigit{1}}{\isachardot}{\isadigit{0}}{\isacharsemicolon}\ {\tau}\ {\isasymMathOclValid}\ true{\isacharsemicolon}\ 
-  %    {\tau}\ {\isasymMathOclValid}\ POST{\isacharprime}\ self\ a{\isadigit{1}}{\isachardot}{\isadigit{0}}{\isacharsemicolon}\ 
-  %    {\isasymAnd}res{\isachardot}\ {\isacharparenleft}self{\isachardot}contents{\isacharparenleft}{\isacharparenright}\
-  %    {\isasymtriangleq}\ self{\isachardot}contents{\isacharat}pre{\isacharparenleft}{\isacharparenright}{\isacharminus}
-  %    {\isachargreater}including{\isacharparenleft}a{\isadigit{1}}{\isachardot}{\isadigit{0}}{\isacharparenright}{\isacharparenright}\
-  %    {\isacharequal}\ {\isacharparenleft}POST{\isacharprime}\ self\ a{\isadigit{1}}{\isachardot}{\isadigit{0}}\ and\ {\isacharparenleft}res\ 
-  %    {\isasymtriangleq}\ BODY\ self\ a{\isadigit{1}}{\isachardot}{\isadigit{0}}{\isacharparenright}{\isacharparenright}{\isasymrbrakk}\ 
-  %    {\isasymLongrightarrow}\ {\isacharparenleft}{\tau}\ {\isasymMathOclValid}\ E\ {\isacharparenleft}self{\isachardot}insert{\isacharparenleft}a
-  %    {\isadigit{1}}{\isachardot}{\isadigit{0}}{\isacharparenright}{\isacharparenright}{\isacharparenright}\ {\isacharequal}\ {\isacharparenleft}{\tau}\ 
-  %    {\isasymMathOclValid}\ E\ {\isacharparenleft}BODY\ self\ a{\isadigit{1}}{\isachardot}{\isadigit{0}}{\isacharparenright}{\isacharparenright}} \\
-  %  \ptmi{.}
+   {{\isasymlbrakk}cp\ E{\isacharsemicolon}\ 
+     \ 
+     {\isasymand}\ {\tau}\ {\isasymMathOclValid}\ {\isasymupsilon}\ a{\isadigit{1}}{\isachardot}{\isadigit{0}}{\isacharsemicolon}\ {\tau}\ {\isasymMathOclValid}\ true{\isacharsemicolon}\ 
+     {\tau}\ {\isasymMathOclValid}\ POST{\isacharprime}\ self\ a{\isadigit{1}}{\isachardot}{\isadigit{0}}{\isacharsemicolon}\ 
+     {\isasymAnd}res{\isachardot}\ {\isacharparenleft}self{\isachardot}contents{\isacharparenleft}{\isacharparenright}\
+     {\isasymtriangleq}\ self{\isachardot}contents{\isacharat}pre{\isacharparenleft}{\isacharparenright}{\isacharminus}
+     {\isachargreater}including{\isacharparenleft}a{\isadigit{1}}{\isachardot}{\isadigit{0}}{\isacharparenright}{\isacharparenright}\
+     {\isacharequal}\ {\isacharparenleft}POST{\isacharprime}\ self\ a{\isadigit{1}}{\isachardot}{\isadigit{0}}\ and\ {\isacharparenleft}res\ 
+     {\isasymtriangleq}\ BODY\ self\ a{\isadigit{1}}{\isachardot}{\isadigit{0}}{\isacharparenright}{\isacharparenright}{\isasymrbrakk}\ 
+     {\isasymLongrightarrow}\ {\isacharparenleft}{\tau}\ {\isasymMathOclValid}\ E\ {\isacharparenleft}self{\isachardot}insert{\isacharparenleft}a
+     {\isadigit{1}}{\isachardot}{\isadigit{0}}{\isacharparenright}{\isacharparenright}{\isacharparenright}\ {\isacharequal}\ {\isacharparenleft}{\tau}\ 
+     {\isasymMathOclValid}\ E\ {\isacharparenleft}BODY\ self\ a{\isadigit{1}}{\isachardot}{\isadigit{0}}{\isacharparenright}{\isacharparenright}} 
   \end{prooftree}
 \end{gather}
 
