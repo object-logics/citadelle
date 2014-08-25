@@ -650,7 +650,7 @@ defined as follows: \fixme{should we use expliucit definitions ?}
 
 Types were directly represented in \FOCL by types in \HOL; consequently,
 any \FOCL type must provide elements for a bottom element (also denoted $\bot$) 
-and a null element; this is achieved in Isabelle by a type-class $\TCnull$ that 
+and a null element; this is enforced in Isabelle by a type-class $\TCnull$ that 
 contains two distinguishable elements $\HolBot$ and $\HolNull$ (see \autoref{sec:focl-types}
   for the details of the construction).
 
@@ -1063,33 +1063,11 @@ $\delta$-closures.
 
 The above equations explain the behavior for the most-important
 non-strict operations. The clarification of the exceptional behaviors
-is of key-importance for a semantic definition the standard and the
+is of key-importance for a semantic definition of the standard and the
 major deviation point from
 \HOLOCL~\cite{brucker.ea:hol-ocl:2008,brucker.ea:hol-ocl-book:2006},
-to  \FOCL as presented here.  The
-standard expresses at many places that most operations are strict,
-\ie, enjoy the properties (exemplary for \inlineocl|_ + _|):
-\begin{gather*}
-  \begin{aligned}
-  \mocl{invalid}\;\mocl{+}\; X &= \mocl{invalid}&\qquad
-  X \;\mocl{+}\; \mocl{invalid} &= \mocl{invalid}\\
-  X \;\mocl{+}\; \mocl{null} &= \mocl{invalid}&\qquad
-  \mocl{null} \;\mocl{+}\; X &= \mocl{invalid}
-  \end{aligned}\\
-  \mocl{null.oclAsType(}X\mocl{)} = \mocl{invalid} \\
-\shortintertext{besides ``classical'' exceptional behavior:}
-  \begin{aligned}
-    \mocl{1} \;\mocl{/}\; \mocl{0} &= \mocl{invalid} \quad &\quad
-    \mocl{1} \;\mocl{/}\; \mocl{null} &= \mocl{invalid}
-  \end{aligned}\\
-    \mocl{null->isEmpty()}=\mocl{true}
-\end{gather*}
-
-Moreover, there is also the proposal to use \inlineocl+null+ as a kind
-of ``don't know'' value for all strict operations, not only in the
-semantics of the logical connectives.  Expressed in algebraic
-equations, this semantic alternative (this is \emph{not}
- \FOCL at present) would boil down to:
+to  \FOCL as presented here.  Expressed in algebraic
+equations, ``strictness-principles'' boil down to:
 \begin{gather*}
   \begin{aligned}
     \mocl{invalid} \;\mocl{+}\; X &= \mocl{invalid} &\qquad
@@ -1154,66 +1132,74 @@ make consult \autoref{formal-set}; these test-statements
 
 \section{Object-oriented Datatype Theories}
 In the following, we will refine the concepts of a user-defined
-data-model (implied by a \emph{class-model}, visualized by a class-diagram)
+data-model implied by a \emph{class-model} (\emph{visualized} by a class-\emph{diagram})
 as well as the notion of $\state{}$ used in the
 previous section to much more detail.  \UML class models represent in a compact 
 and visual manner quite complex, object-oriented data-types with a surprisingly rich
 theory. In this section, this theory is made explicit
-and to point out corner cases.  A \UML class model underlying a
+and corner cases were pointed out. 
+
+A \UML class model underlying a
 given \OCL invariant or operation contract
 produces several implicit operations which
 become accessible via appropriate \OCL syntax.
-
 A class model is a four-tuple $(C, \_ < \_, Attrib, Assoc)$ where:
+
 \fixme{TODO}
 \begin{enumerate}
-\item $C$ is a  set of class names (written as $C_1$, \ldots, $C_n$), which
-  become types of data in \OCL\@. Class names declare two projector
+\item $C$ is a  set of class names (written as $\{C_1, \ldots, C_n\}$). To each class
+  name a type of data in \OCL is associated. Moreover, class names declare two projector
   functions to the set of all objects in a state:
   $C_i$\inlineocl{.allInstances()} and
   $C_i$\inlineocl{.allInstances}$\isasymOclATpre$\inlineocl{()},
 \item $\_ < \_$ is an inheritance relation on classes,
 \item $Attrib(C_i)$ is a collection of
-  attributes associated to classes $C_i$,
-  and a collection of associations $Assoc(C_i,C_j)$,
-  \footnote{Given the fact that there is at present no consensus on the
-  semantics of n-ary associations, \FOCL{} restricts itself to binary associations. }
-\item two families of accessors; for each attribute $a \in Attrib(C_i) $ in a
+  attributes associated to classes $C_i$. It declares two wo families of accessors; for each attribute $a \in Attrib(C_i) $ in a
   class definition $C_i$ (denoted
   $\getAttrib{X}{\text{$a$}}               :: C_i \rightarrow A $ and
   $\getAttrib{X}{\text{$a$}\isasymOclATpre}:: C_i \rightarrow A $ for
-  $A\in \{\V{}{\up{\ldots}}, C_1, \ldots, C_n\}$),
-\item An association $(n, rn_{from}, rn_{to})\in Assoc(C_i,C_j) $ between to classes 
-      $C_i$ and $C_j$ is a triple consisting of a (unique) association name $n$, 
-      and the rolenames $rn_{to}$ and $rn_{from}$. To each rolename belong two
-      families of accessors   denoted
-  $\getRole{X}{\text{$a$}}               :: C_i \rightarrow Collection(A) $ and
-  $\getRole{X}{\text{$a$}\isasymOclATpre}:: C_i \rightarrow Colletion(A) $ for
-  $A\in \{\V{}{\up{\ldots}}, C_1, \ldots, C_n\}$), 
-\item type casts that can change the static type of an object of a
-      class ($\getAttrib{X}{\mocl{oclAsType(}\text{$C_i$}\mocl{)}}$ of type
-      $C_j \rightarrow C_i$)
-\item two dynamic type tests ($\getAttrib{X}{\mocl{oclIsTypeOf(}\text{$C_i$}\mocl{)}}$ and
-      $\getAttrib{X}{\mocl{oclIsKindOf(}\text{$C_i$}\mocl{)}}$ ),
-\item and last but not least, for each class name $C_i$ there is an
-  instance of the overloaded referential equality (written $\_
-  \isasymMathOclStrictEq \_$).
+  $A\in TYPES(C)$),
+\item $Assoc(C_i,C_j)$ is a collection of associations.
+  \footnote{Given the fact that there is at present no consensus on the
+  semantics of n-ary associations, \FOCL{} restricts itself to binary associations. }
+   An association $(n, rn_{from}, rn_{to})\in Assoc(C_i,C_j)$ between to classes 
+   $C_i$ and $C_j$ is a triple consisting of a (unique) association name $n$, 
+    and the rolenames $rn_{to}$ and $rn_{from}$. To each rolename belong two
+    families of accessors   denoted
+    $\getRole{X}{\text{$a$}}               :: C_i \rightarrow A$ and
+    $\getRole{X}{\text{$a$}\isasymOclATpre}:: C_i \rightarrow A$ for
+    $A\in TYPES(C)$), 
+\item for each pair $C_i < C_j$ ($C_i, C_j < C$), there is a 
+     cast operation of type $C_j \rightarrow C_i$ that can change the static type 
+     of an object of type $C_i$: 
+     $\getAttrib{obj::C_i}{\mocl{oclAsType(}\text{$C_j$}\mocl{)}}$,
+\item for each class $C_i\in C$, there are two dynamic type tests 
+     ($\getAttrib{X}{\mocl{oclIsTypeOf(}\text{$C_i$}\mocl{)}}$ and
+     $\getAttrib{X}{\mocl{oclIsKindOf(}\text{$C_i$}\mocl{)}}$ ),
+\item and last but not least, for each class name $C_i\in C$ there is an
+     instance of the overloaded referential equality (written $\_
+     \isasymMathOclStrictEq \_$).
 \end{enumerate}
-
 
 Assuming a strong static type discipline in the sense of
 Hindley-Milner types,  \FOCL has no ``syntactic
-subtyping.''  This does not mean that subtyping cannot be expressed
-\emph{semantically} in  \FOCL; by giving a formal semantics
-to type-casts, subtyping becomes an issue of the front-end that can
+subtyping.''  In contrast, subtyping can be expressed
+\emph{semantically} in  \FOCL; by adding suitable casts which do
+have a formal semantics, subtyping becomes an issue of the front-end that can
 make implicit type-coersions explicit by introducing explicit
 type-casts. Our perspective shifts the emphasis on the semantic
 properties of casting, and the necessary universe of object
 representations (induced by a class model) that allows to establish
 them.
 
+As a pre-requisite of a denotational semantics for these operations induced
+by a class-model, we need an \emph{object-universe} in which these operations can
+be defined in a denotational manner and from which the necessary properties
+can be derived. A concrete universe constructed from a class model will be 
+used to instantiate the implicit type parameter $\Alpha$ of all \OCL operations
+discussed so far.
 
-\subsection{Object Universes}
+\subsection{A Denotational Space for Class-Models: Object Universes}
 
 It is natural to construct system states by a set of partial functions
 $f$ that map object identifiers $\oid$ to some representations of
@@ -1238,13 +1224,13 @@ In a shallow embedding which must represent
 different ways to construct such a set of object representations,
 which we call an \emph{object universe} $\mathfrak{A}$:
 \begin{enumerate}
-\item an object universe can be constructed for a given class model,
+\item an object universe can be constructed from a given class model,
   leading to \emph{closed world semantics}, and
 \item an object universe can be constructed for a given class model
   \emph{and all its extensions by new classes added into the leaves of
     the class hierarchy}, leading to an \emph{open world semantics}.
 \end{enumerate}
-For the sake of simplicity, we chose the first option for
+For the sake of simplicity, the present semantics chose the first option for
  \FOCL, while HOL-\OCL~\cite{brucker.ea:extensible:2008-b}
 used an involved construction allowing the latter.
 
@@ -1322,7 +1308,7 @@ of this paper which has a focus on the semantic construction and its
 presentation.
 
 
-\subsection{Accessors on Objects and Associations}
+\subsection{Denotational Semantics of Accessors on Objects and Associations}
 Our choice to use a shallow embedding of \OCL in HOL and, thus having
 an injective mapping from \OCL types to HOL types, results in
 type-safety of  \FOCL\@. Arguments and results of accessors
@@ -1410,12 +1396,12 @@ readability, we introduce the functions:
 Let \_\inlineocl{.getBase} be an accessor of class $C$ yielding a
 value of base-type $A_{base}$. Then its definition is of the form:
 \begin{gather}
-  \begin{array}{lll}
+\begin{array}{lll}
 \definitionS&\_\mocl{.getBase} &\ofType \ap C \Rightarrow A_{base}\\
 \where\enspace&X\mocl{.getBase} &= \operatorname{eval\_extract}\ap X\ap
                        (\operatorname{deref\_oid}_C\ap \operatorname{in\_post\_state}\ap\\
               &          &\quad   (\operatorname{select}_\text{getBase}\ap \operatorname{reconst\_basetype}))
-                           \end{array}
+\end{array}
 \end{gather}
 
 Let \_\inlineocl{.getObject} be an accessor of class $C$ yielding a
@@ -1539,6 +1525,48 @@ to be the result of an error. If the modeler wishes to allow references to
 non-existent objects, she can make use of the possibility described above to
 omit the multiplicity.
 
+\subsection{Logic Properties of Class-Models}\label{sec:logicprop-datamodel}
+The operations induced from a class-model have the following properties:
+\fixme{generalize OclAny and Person away  ... by Ci and Cj and Ci < Cj ....}
+\begin{ocl}
+ \<tau> \<Turnstile> X .oclAsType(OclAny) \<triangleq> X
+ \<tau> \<Turnstile> invalid .oclAsType(OclAny) \<triangleq> invalid
+ \<tau> \<Turnstile> null .oclAsType(OclAny) \<triangleq> null
+ \<tau> \<Turnstile> ((X::Person) .oclAsType(OclAny) .oclAsType(Person) \<triangleq> X)
+ \<tau> \<Turnstile> X .oclAsType(OclAny) .oclAsType(Person) \<triangleq> X
+ \<tau> \<Turnstile> \<upsilon> (X :: Person) \<Longrightarrow> \<tau> \<Turnstile> (X .oclIsTypeOf(Person) implies (X .oclAsType(OclAny) .oclAsType(Person)) \<doteq> X)"
+ \<tau> \<Turnstile> X .oclAsType(OclAny) \<triangleq> X
+ \<tau> \<Turnstile> invalid .oclAsType(OclAny) \<triangleq> invalid
+ \<tau> \<Turnstile> null .oclAsType(OclAny) \<triangleq> null
+ \<tau> \<Turnstile> ((X::Person) .oclAsType(OclAny) .oclAsType(Person) \<triangleq> X)
+ \<tau> \<Turnstile> X .oclAsType(OclAny) .oclAsType(Person) \<triangleq> X
+ \<tau> \<Turnstile> \<upsilon> (X :: Person) \<Longrightarrow> \<tau> \<Turnstile> (X .oclIsTypeOf(Person) implies (X .oclAsType(OclAny) .oclAsType(Person)) \<doteq> X)"
+ \<tau> \<Turnstile> \<delta> X \<Longrightarrow> \<tau> \<Turnstile> X .oclAsType(OclAny) .oclAsType(Person) \<triangleq> X
+ \<tau> \<Turnstile> \<upsilon> X \<Longrightarrow> \<tau> \<Turnstile> X .oclIsTypeOf(Person) implies X .oclAsType(OclAny) .oclAsType(Person) \<doteq> X
+ \<tau> \<Turnstile> X .oclIsTypeOf(OclAny) \<Longrightarrow> \<tau> \<Turnstile> \<delta> X \<Longrightarrow> \<tau> \<Turnstile> not (\<upsilon> X .oclAsType(Person))
+ \<tau> \<Turnstile> invalid .oclIsTypeOf(Person) \<triangleq> invalid
+ \<tau> \<Turnstile> null .oclIsTypeOf(Person) \<triangleq> true
+ \<tau> \<Turnstile> (Person .allInstances()->forAll(X|X .oclIsTypeOf(Person)))
+ \<tau> \<Turnstile> (Person .allInstances@pre()->forAll(X|X .oclIsTypeOf(Person)))
+ \<tau> \<Turnstile> (Person .allInstances()->forAll(X|X .oclIsKindOf(Person)))
+ \<tau> \<Turnstile> (Person .allInstances@pre()->forAll(X|X .oclIsKindOf(Person)))
+ (\<tau> \<Turnstile> X \<doteq> X) = (\<tau> \<Turnstile> if \<upsilon> X then true else invalid endif)
+ \<tau> \<Turnstile> X \<doteq> Y \<Longrightarrow>  \<tau> \<Turnstile> Y \<doteq> X 
+ \<tau> \<Turnstile> X \<doteq> Y \<Longrightarrow>  \<tau> \<Turnstile> Y \<doteq> Z  \<Longrightarrow>  \<tau> \<Turnstile> X \<doteq> Z 
+\end{ocl}
+
+\subsection{Algebraic Properties of the Class-Models}\label{sec:algprop-datamodel}
+In this section, we assume to be $C_i \in C$ and  $C_i < C_j$. 
+The operations induced from a class-model have the following  properties:
+\begin{ocl}
+ invalid .oclIsTypeOf(C_i) = invalid               
+ null .oclIsTypeOf(C_i) = true                     
+ (X::C_i) .oclAsType(C_i) = X                    
+ invalid .oclAsType(C_i) = invalid              
+ null .oclAsType(C_i) = null                      
+ (X::C_i) \<doteq> X = if \<upsilon> X then true else invalid endif 
+ ((X::C_i) .oclAsType(C_j) .oclAsType(C_i) = X)
+\end{ocl}
 
 \subsection{Other Operations on States}\label{sec:otherStateOperations}
 Defining $\_\isasymOclAllInstances$
