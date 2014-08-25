@@ -344,8 +344,8 @@ set of properties, which serves as basis for automated deduction on them:
       @{thm [source] insert.unfold2} & @{thm [display=false] insert.unfold2} \\
       \bottomrule
    \end{tabu}
-   \caption{Basic semantic constant definitions of the logic (except @{term null})}
-   \label{tab:sem_basic_constants}
+   \caption{Semantic properties resulting from a user-defined operation contract.}
+   \label{tab:sem_operation_contract}
 \end{table}
 
 *}

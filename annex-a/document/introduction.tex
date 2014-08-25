@@ -615,15 +615,20 @@ The semantic theory is organized in a quite conventional manner in
 three layers. The first layer, called the \emph{denotational
   semantics} comprises a set of definitions of the operators of the
 language.  Presented as \emph{definitional axioms} inside
-Isabelle/HOL, this part assures the logically consistency of the
-overall construction. The second layer, called \emph{logical layer},
+Isabelle/\HOL, this part assures the logically consistency of the
+overall construction. The denotational definitions of types, constants
+and operations, and \OCL contracts represent the ``gold standard'' of the
+semantics. The second layer, called \emph{logical layer},
 is derived from the former and centered around the notion of validity
 of an \OCL formula $P$ for a state-transition from pre-state $\sigma$
 to post-state $\sigma'$, validity statements were written $(\sigma,
-\sigma') \models P$.  The third layer, called \emph{algebraic layer},
+\sigma') \models P$. Its major purpose is to logically establish facts
+(lemmas and theorems) about the denotational definitions.
+The third layer, called \emph{algebraic layer},
 also derived from the former layers, tries to establish algebraic laws
 of the form $P = P'$; such laws are amenable to equational reasoning
-and also help for automated reasoning and code-generation.
+and also help for automated reasoning and code-generation. For an
+implementor of an \OCL compiler, these consequences are of most interest.
 
 For space reasons, we will restrict ourselves in this paper to a few
 operators and make a traversal through all three layers to give a
@@ -631,30 +636,62 @@ high-level description of our formalization.  Especially, the details
 of the semantic construction for sets and the handling of objects and
 object universes were excluded from a presentation here.
 
-\subsection{Denotational Semantics}
- \OCL is composed of
- \begin{enumerate}
- \item operators on built-in data structures such as
-   \inlineocl{Boolean}, \inlineocl{Integer}, or \inlineocl{Set(A)},
- \item operators of the user-defined data-model such as accessors,
-   type-casts and tests, and
- \item user-defined, side-effect-free methods.
- \end{enumerate}
- Conceptually, an \OCL expression in general and Boolean expressions in
- particular (\ie, \emph{formulae}) depends on the pair $(\sigma,
- \sigma')$ of pre-and post-state.  The precise form of states is
- irrelevant for this paper (compare~\cite{brucker.ea:ocl-null:2009})
- and will be left abstract in this presentation. We construct in
- Isabelle a type-class $\TCnull$ that contains two distinguishable
- elements $\HolBot$ and $\HolNull$. Any type of the form
- $\up{(\up{\alpha})}$ is an instance of this type-class with $\HolBot
- \equiv \isasymbottom$ and $\HolNull \equiv \lfloor \isasymbottom \rfloor$.
-Now, any \OCL type can be represented by an HOL type of the form:
+\subsection{Denotational Semantics of Types}
+The syntactic material for type expressions, called $\text{TYPES}(C)$, is inductively
+defined as follows:
+\begin{itemize}
+\item $C \subseteq \text{TYPES}(C)$ 
+\item $\text{Boolean}$, $\text{Integer}$, $\text{Real}$, $\text{Void}$, ... are elements
+      of $\text{TYPES}(C)$
+\item $\text{Sequence}(X)$, $\text{Set}(X)$, et $\text{Pair}(X,Y)$ (as example for a Tuple-type)
+      are in  $\text{TYPES}(C)$ (if $X, Y \in \text{TYPES}(C)$).
+\begin{itemize}
+
+Types were directly represented in \FOCL by types in \HOL; consequently,
+any \FOCL type must provide elements for a bottom element (also denoted $\bot$) 
+and a null element; this is achieved in Isabelle by a type-class $\TCnull$ that 
+contains two distinguishable elements $\HolBot$ and $\HolNull$ (see \autoref{sec:focl-types}
+  for the details of the construction).
+
+Moreover, the representation mapping from \OCL types to \FOCL id 
+one-to-one (\ie{} injective), and the corresponding \FOCL types were
+constructed to represent \emph{exactly} the elements (``no junk, no confucion
+  elements'') of their \OCL counterparts. The corresponding \FOCL types were
+constructed in two stages: First, a \emph{base-type} is constructed whose
+carrier set contains exactly the elements of the \OCL type. Secondly, this
+base type is lifted to a \emph{valuation} type that we use for type-checking
+\FOCL constants, operations, and expressions. The valuation type takes into account
+that some \UML-\OCL functions of its \OCL type (namely: accessors in path-expressions)
+depend on a pre- and a post-state.
+
+For most base types like $\text{Boolean}_{\text{base}}$ or $\text{Integer}_{\text{base}}$, it suffices 
+to double-lift a \HOL library type:
 \begin{equation*}
-  \V{}{\alpha} \defeq \state{} \times \state{} \to \alpha \ofType \TCnull \mi{.}
+\typedef \qquad  \text{Boolean}_{\text{base}} \equiv \up{\up{bool}} 
 \end{equation*}
-On this basis, we define $\V{}{\up{(\up{\HolBoolean })}}$ as the HOL
-type for the \OCL type $\mocl{Boolean}$ and define:
+\fixme{Replace by typesynonym}
+As a consequence of this type synonym, we have the elements $\HolBot, \lift{\HolBot}, 
+\lift{\lift{\HOLtrue}},\lift{\lift{\HOLfalse}}$ in the carrier-set of  $\text{Boolean}_{\text{base}}$.
+For object base types, we assume a typed universe $\Alpha$ of objects to be discussed later,
+for the moment we will refer it by its polymorphic variable. 
+
+With respect the valuation types for \OCL expression in general and Boolean expressions in
+particular, they depend on the pair $(\sigma, \sigma')$ of pre-and post-state.  
+Thus, we define valuation types by the synonym:
+\begin{equation*}
+  \V{\Alpha}{\alpha} \defeq \state{\Alpha} \times \state{\Alpha} \to \alpha \ofType \TCnull \mi{.}
+\end{equation*}
+
+The rules of the logical layer (there are no algebraic rules for the semantic sections on types),
+and more details can be found in  \autoref{sec:focl-types}.
+
+\subsection{Denotational Semantics of Constants and Operations}
+We use the notation $I\semantics{E}$ for the semantic interpretation function as
+commonly used in mathematical textbooks and the variable $\tau$ standing for pairs of
+pre- and post state $(\sigma, \sigma')$. For reasons of conciseness,
+we will write $\delta~X$ for $\mocl{not}\;X\mocl{.oclIsUndefined()}$
+and $\upsilon~X$ for $\mocl{not}\;X\mocl{.oclIsInvalid()}$ throughout
+this paper.
 \begin{gather*}
 \begin{alignedat}{3}
 I\semantics{\mocl{invalid}\ofType V(\alpha)} \tau &\equiv \HolBot &
@@ -668,12 +705,6 @@ I\semantics{X\mocl{.oclIsUndefined()}} \tau =
  I\semantics{X\mocl{.oclIsInvalid()}} \tau =
     (\HolIf I\semantics{X}\tau = \HolBot \HolThen I\semantics{\mocl{true}}\tau \HolElse I\semantics{\mocl{false}}\tau)
 \end{gather*}
-where $I\semantics{E}$ is the semantic interpretation function
-commonly used in mathematical textbooks and $\tau$ stands for pairs of
-pre- and post state $(\sigma, \sigma')$. For reasons of conciseness,
-we will write $\delta~X$ for $\mocl{not}\;X\mocl{.oclIsUndefined()}$
-and $\upsilon~X$ for $\mocl{not}\;X\mocl{.oclIsInvalid()}$ throughout
-this paper.
 
 Due to the used style of
 semantic representation (a shallow embedding) $I$ is in fact
@@ -1581,10 +1612,9 @@ that satisfies the contract, in the latter case the result is
                      & \qquad\mathtt{post}~\psi(\self, a_1, \ldots, a_n, \mathit{result})}  \equiv \\
  & \qquad \quad \lambda  s,  x_1, \ldots, x_n, \tau.  \\
  & \qquad\qquad \text{if}  ~ ~ \tau
-\isasymMathOclValid \isasymMathOclIsDefined s \land \tau
-\isasymMathOclValid  \upsilon~s \land \tau \isasymMathOclValid
-\upsilon~x_1 \land \ldots \land  \tau \isasymMathOclValid
-\upsilon~ x_n \\
+\isasymMathOclValid \isasymMathOclIsDefined s \land  \land \tau \isasymMathOclValid
+\isasymupsilon~x_1 \land \ldots \land  \tau \isasymMathOclValid
+\isasymupsilon~ x_n \\
  & \qquad\qquad \text{then} ~ \text{SOME}~ \mathit{result}. ~ ~ ~ ~\tau \isasymMathOclValid \phi(s, x_1, \ldots, x_n)_\text{pre} \\
  & \qquad\qquad\qquad\qquad\qquad\qquad ~ ~          \land \tau \isasymMathOclValid \psi(s, x_1, \ldots, x_n, \mathit{result}))\\
  &\qquad\qquad  \text{else}  ~  \isasymMathOclUndefined
@@ -1608,8 +1638,45 @@ of termination, \ie{} by showing that all recursive calls were applied to  argum
 smaller wrt. to a well-founded ordering). Under this condition, an $f_{op}$ resulting from recursive 
 query operations can be used safely inside pre- and post-conditions of other contracts.
 
-
-
+For the general case of a user-defined contract, the following rules can be established:
+\begin{gather}
+  \begin{prooftree}
+    \tau 
+    % \isasymMathOclValid {\isasymdelta}\ \self \qquad {\tau}\ {\isasymMathOclValid}\ {\isasymupsilon}\ a{\isadigit{1}}
+    \justifies
+      \isa{{\isasymlbrakk}cp\ E{\isacharsemicolon}
+      %{\isasymand}\ {\tau}\ {\isasymMathOclValid}\ {\isasymupsilon}\ a{\isadigit{1}}{\isachardot}{\isadigit{0}}{\isacharsemicolon}\ {\tau}\ {\isasymMathOclValid}\ true{\isacharsemicolon}\ {\tau}\ {\isasymMathOclValid}\ POST{\isacharprime}\ self\ a{\isadigit{1}}{\isachardot}{\isadigit{0}}{\isacharsemicolon}\ {\isasymAnd}res{\isachardot}\ {\isacharparenleft}self{\isachardot}contents{\isacharparenleft}{\isacharparenright}\ {\isasymtriangleq}\ self{\isachardot}contents{\isacharat}pre{\isacharparenleft}{\isacharparenright}{\isacharminus}{\isachargreater}including{\isacharparenleft}a{\isadigit{1}}{\isachardot}{\isadigit{0}}{\isacharparenright}{\isacharparenright}\ {\isacharequal}\ {\isacharparenleft}POST{\isacharprime}\ self\ a{\isadigit{1}}{\isachardot}{\isadigit{0}}\ and\ {\isacharparenleft}res\ {\isasymtriangleq}\ BODY\ self\ a{\isadigit{1}}{\isachardot}{\isadigit{0}}{\isacharparenright}{\isacharparenright}{\isasymrbrakk}\ {\isasymLongrightarrow}\ {\isacharparenleft}{\tau}\ {\isasymMathOclValid}\ E\ {\isacharparenleft}self{\isachardot}insert{\isacharparenleft}a{\isadigit{1}}{\isachardot}{\isadigit{0}}{\isacharparenright}{\isacharparenright}{\isacharparenright}\ {\isacharequal}\ {\isacharparenleft}{\tau}\ {\isasymMathOclValid}\ E\ {\isacharparenleft}BODY\ self\ a{\isadigit{1}}{\isachardot}{\isadigit{0}}{\isacharparenright}{\isacharparenright}} \\
+    \ptmi{.}
+  \end{prooftree}
+\end{gather}
+under the conditions:
+\begin{itemize}
+\item $E$ must be an \OCL term and
+\item $\self$ must be defined, the arguments valid in $\tau$:
+      $\isasymMathOclValid \isasymMathOclIsDefineds \land \tau \isasymMathOclValid \isasymupsilon~x_1 \land \ldots \land  \tau \isasy~mMathOclValid \isasymupsilon~ x_n$
+\end{itemize}
+For the special case of a (recursive) query method, this rule can be specialized to the following
+executable ``unfolding principle'':
+\begin{gather}
+  \begin{prooftree}
+  E
+    \justifies
+ F
+  %  \isa{{\isasymlbrakk}cp\ E{\isacharsemicolon}\ 
+  %    \ 
+  %    {\isasymand}\ {\tau}\ {\isasymMathOclValid}\ {\isasymupsilon}\ a{\isadigit{1}}{\isachardot}{\isadigit{0}}{\isacharsemicolon}\ {\tau}\ {\isasymMathOclValid}\ true{\isacharsemicolon}\ 
+  %    {\tau}\ {\isasymMathOclValid}\ POST{\isacharprime}\ self\ a{\isadigit{1}}{\isachardot}{\isadigit{0}}{\isacharsemicolon}\ 
+  %    {\isasymAnd}res{\isachardot}\ {\isacharparenleft}self{\isachardot}contents{\isacharparenleft}{\isacharparenright}\
+  %    {\isasymtriangleq}\ self{\isachardot}contents{\isacharat}pre{\isacharparenleft}{\isacharparenright}{\isacharminus}
+  %    {\isachargreater}including{\isacharparenleft}a{\isadigit{1}}{\isachardot}{\isadigit{0}}{\isacharparenright}{\isacharparenright}\
+  %    {\isacharequal}\ {\isacharparenleft}POST{\isacharprime}\ self\ a{\isadigit{1}}{\isachardot}{\isadigit{0}}\ and\ {\isacharparenleft}res\ 
+  %    {\isasymtriangleq}\ BODY\ self\ a{\isadigit{1}}{\isachardot}{\isadigit{0}}{\isacharparenright}{\isacharparenright}{\isasymrbrakk}\ 
+  %    {\isasymLongrightarrow}\ {\isacharparenleft}{\tau}\ {\isasymMathOclValid}\ E\ {\isacharparenleft}self{\isachardot}insert{\isacharparenleft}a
+  %    {\isadigit{1}}{\isachardot}{\isadigit{0}}{\isacharparenright}{\isacharparenright}{\isacharparenright}\ {\isacharequal}\ {\isacharparenleft}{\tau}\ 
+  %    {\isasymMathOclValid}\ E\ {\isacharparenleft}BODY\ self\ a{\isadigit{1}}{\isachardot}{\isadigit{0}}{\isacharparenright}{\isacharparenright}} \\
+  %  \ptmi{.}
+  \end{prooftree}
+\end{gather}
 
 
       
