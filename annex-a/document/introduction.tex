@@ -1736,7 +1736,7 @@ where
 \begin{itemize}
 \item $E$ must be an \OCL term.
 \item the postcondition $\psi~self~a_1~\ldots~a_n~result$ must be decomposable
-      into a $\psi'~self~a_1~\ldots a_n$ and $result = BODY~self~a_1~\ldots~a_n$.
+      into a $\psi'~self~a_1~\ldots a_n$ and $result \isasymMathOclStrongEq BODY~self~a_1~\ldots~a_n$.
 \end{itemize}
       
 We do not model overloading of operations explicitly in \FOCL. However, it is easy expressed in 
