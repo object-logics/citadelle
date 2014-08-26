@@ -1701,29 +1701,35 @@ of termination, \ie{} by showing that all recursive calls were applied to  argum
 smaller wrt. to a well-founded ordering). Under this condition, an $f_{op}$ resulting from recursive 
 query operations can be used safely inside pre- and post-conditions of other contracts.
 
-For the general case of a user-defined contract, the following rules can be established:
+For the general case of a user-defined contract, the following rule can be established
+that reduces the proof of a property $E$ over a method call $f_{op}$ to a proof 
+of $E(res)$ (where $res$ must be one of the values that satisfy the post-condition $\psi$):
 \begin{gather}
   \begin{prooftree}
-    \mocl{\<And>  \<tau> \<Turnstile> \<psi> self a1 ... an res \<Longrightarrow> \<tau> \<Turnstile> E res}
+     \[ \big[ \tau \isasymMathOclValid \psi~self~a_1\ldots a_n~res \big]_{res} 
+        \leadsto 
+        \tau \isasymMathOclValid E(res) 
+     \]
     \justifies
-     \mocl{\<tau> \<Turnstile> E (f self a1 ... an)}
+    \tau \isasymMathOclValid E(f_{op}~self~a_1 \ldots a_n)
     \end{prooftree}
 \end{gather}
 under the conditions:
 \begin{itemize}
 \item $E$ must be an \OCL term and
-\item $\self$ must be defined, the arguments valid in $\tau$:
-      $\isasymMathOclValid \isasymMathOclIsDefined \land \tau \isasymMathOclValid \isasymupsilon~x_1 \land \ldots \land  \tau \isasymMathOclValid \isasymupsilon~ x_n$
+\item $\self$ must be defined, and the arguments valid in $\tau$: \\
+      $\isasymMathOclValid \isasymMathOclIsDefined~elf \land \tau \isasymMathOclValid \isasymupsilon~x_1 \land \ldots \land  \tau \isasymMathOclValid \isasymupsilon~ x_n$
 \item the post-condition must be satisfiable (``the operation must be implementable''):
-      $\exists res. \tau \models \psi ~self ~a1 \ldots an~res $.
+      $\exists res. \tau \isasymMathOclValid \psi ~self ~a_1 \ldots a_n~res $.
 \end{itemize}
 For the special case of a (recursive) query method, this rule can be specialized to the following
 executable ``unfolding principle'':
 \begin{gather}
   \begin{prooftree}
-  \mocl{\<tau> \<Turnstile> \<delta> self} \qquad \mocl{\<tau> \<Turnstile> \<phi> self a1 ... an}
+  \tau \isasymMathOclValid \delta~ self \qquad \tau \isasymMathOclValid \phi~self~a_1\ldots a_n
   \justifies
-  \mocl{(\<tau> \<Turnstile> E (f self a1 ... an)) = (\<tau> \<Turnstile> E (BODY self a1 ... an))}   
+  (\tau \isasymMathOclValid E(f_{op}~self~a_1\ldots a_n)) = 
+   (\tau \isasymMathOclValid E (BODY~self~a_1 ... a_n))
   \end{prooftree}
 \end{gather}
 where  
@@ -1733,6 +1739,12 @@ where
       into a $\psi'~self~a_1~\ldots a_n$ and $result = BODY~self~a_1~\ldots~a_n$.
 \end{itemize}
       
+We do not model overloading of operations explicitly in \FOCL. However, it is easy expressed in 
+this core-language by adding \mocl{self.oclIsKindOf(C)} in the pre-condition $\phi$ (assuming
+  that, as in the schema above, \mocl{C} is the context to which the contract is referring to).
+In order to avoid contradictions of 
+
+
 %%% Local Variables:
 %%% mode: latex
 %%% TeX-master: "root"
