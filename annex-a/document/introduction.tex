@@ -1661,6 +1661,7 @@ Recall that  expressions containing $\isasymOclATpre$ constructs in
 invariants or preconditions are syntactically forbidden; thus, mixed forms cannot arise.
 
 \section{Operation Contracts}
+\fixme{Should we add in our notion of Class-Model also the Operations ?}
 Since operations have strict semantics in \OCL, we have to distinguish for a specification of an
 operation $\mathit{op}$ with the arguments $a_1$, \ldots, $a_n$ the
 two cases where all arguments are valid and additionally, $\self$ is non-null (\ie{} it must be defined), or not. 
@@ -1703,41 +1704,34 @@ query operations can be used safely inside pre- and post-conditions of other con
 For the general case of a user-defined contract, the following rules can be established:
 \begin{gather}
   \begin{prooftree}
-    \tau \isasymMathOclValid {\isasymdelta}\ \self \qquad {\tau}\
-    {\isasymMathOclValid}\ {\isasymupsilon}\ a{\isadigit{1}}
-    \justifies {\isasymlbrakk}cp\ E{\isacharsemicolon}
-      {\isasymand}\ {\tau}\ {\isasymMathOclValid}\ {\isasymupsilon}\ a{\isadigit{1}}{\isachardot}{\isadigit{0}}{\isacharsemicolon}\ {\tau}\ {\isasymMathOclValid}\ true{\isacharsemicolon}\ {\tau}\ {\isasymMathOclValid}\ POST{\isacharprime}\ self\ a{\isadigit{1}}{\isachardot}{\isadigit{0}}{\isacharsemicolon}\ {\isasymAnd}res{\isachardot}\ {\isacharparenleft}self{\isachardot}contents{\isacharparenleft}{\isacharparenright}\ {\isasymtriangleq}\ self{\isachardot}contents{\isacharat}pre{\isacharparenleft}{\isacharparenright}{\isacharminus}{\isachargreater}including{\isacharparenleft}a{\isadigit{1}}{\isachardot}{\isadigit{0}}{\isacharparenright}{\isacharparenright}\ {\isacharequal}\ {\isacharparenleft}POST{\isacharprime}\ self\ a{\isadigit{1}}{\isachardot}{\isadigit{0}}\ and\ {\isacharparenleft}res\ {\isasymtriangleq}\ BODY\ self\ a{\isadigit{1}}{\isachardot}{\isadigit{0}}{\isacharparenright}{\isacharparenright}{\isasymrbrakk}\ {\isasymLongrightarrow}\ {\isacharparenleft}{\tau}\ {\isasymMathOclValid}\ E\ {\isacharparenleft}self{\isachardot}insert{\isacharparenleft}a{\isadigit{1}}{\isachardot}{\isadigit{0}}{\isacharparenright}{\isacharparenright}{\isacharparenright}\ {\isacharequal}\ {\isacharparenleft}{\tau}\ {\isasymMathOclValid}\ E\ {\isacharparenleft}BODY\ self\ a{\isadigit{1}}{\isachardot}{\isadigit{0}}{\isacharparenright}{\isacharparenright}
-  \end{prooftree}
+    \mocl{\<And>  \<tau> \<Turnstile> \<psi> self a1 ... an res \<Longrightarrow> \<tau> \<Turnstile> E res}
+    \justifies
+     \mocl{\<tau> \<Turnstile> E (f self a1 ... an)}
+    \end{prooftree}
 \end{gather}
 under the conditions:
 \begin{itemize}
 \item $E$ must be an \OCL term and
 \item $\self$ must be defined, the arguments valid in $\tau$:
       $\isasymMathOclValid \isasymMathOclIsDefined \land \tau \isasymMathOclValid \isasymupsilon~x_1 \land \ldots \land  \tau \isasymMathOclValid \isasymupsilon~ x_n$
+\item the post-condition must be satisfiable (``the operation must be implementable''):
+      $\exists res. \tau \models \psi ~self ~a1 \ldots an~res $.
 \end{itemize}
 For the special case of a (recursive) query method, this rule can be specialized to the following
 executable ``unfolding principle'':
 \begin{gather}
   \begin{prooftree}
-  E
-    \justifies
- F
-   {{\isasymlbrakk}cp\ E{\isacharsemicolon}\ 
-     \ 
-     {\isasymand}\ {\tau}\ {\isasymMathOclValid}\ {\isasymupsilon}\ a{\isadigit{1}}{\isachardot}{\isadigit{0}}{\isacharsemicolon}\ {\tau}\ {\isasymMathOclValid}\ true{\isacharsemicolon}\ 
-     {\tau}\ {\isasymMathOclValid}\ POST{\isacharprime}\ self\ a{\isadigit{1}}{\isachardot}{\isadigit{0}}{\isacharsemicolon}\ 
-     {\isasymAnd}res{\isachardot}\ {\isacharparenleft}self{\isachardot}contents{\isacharparenleft}{\isacharparenright}\
-     {\isasymtriangleq}\ self{\isachardot}contents{\isacharat}pre{\isacharparenleft}{\isacharparenright}{\isacharminus}
-     {\isachargreater}including{\isacharparenleft}a{\isadigit{1}}{\isachardot}{\isadigit{0}}{\isacharparenright}{\isacharparenright}\
-     {\isacharequal}\ {\isacharparenleft}POST{\isacharprime}\ self\ a{\isadigit{1}}{\isachardot}{\isadigit{0}}\ and\ {\isacharparenleft}res\ 
-     {\isasymtriangleq}\ BODY\ self\ a{\isadigit{1}}{\isachardot}{\isadigit{0}}{\isacharparenright}{\isacharparenright}{\isasymrbrakk}\ 
-     {\isasymLongrightarrow}\ {\isacharparenleft}{\tau}\ {\isasymMathOclValid}\ E\ {\isacharparenleft}self{\isachardot}insert{\isacharparenleft}a
-     {\isadigit{1}}{\isachardot}{\isadigit{0}}{\isacharparenright}{\isacharparenright}{\isacharparenright}\ {\isacharequal}\ {\isacharparenleft}{\tau}\ 
-     {\isasymMathOclValid}\ E\ {\isacharparenleft}BODY\ self\ a{\isadigit{1}}{\isachardot}{\isadigit{0}}{\isacharparenright}{\isacharparenright}} 
+  \mocl{\<tau> \<Turnstile> \<delta> self} \qquad \mocl{\<tau> \<Turnstile> \<phi> self a1 ... an}
+  \justifies
+  \mocl{(\<tau> \<Turnstile> E (f self a1 ... an)) = (\<tau> \<Turnstile> E (BODY self a1 ... an))}   
   \end{prooftree}
 \end{gather}
-
-
+where  
+\begin{itemize}
+\item $E$ must be an \OCL term.
+\item the postcondition $\psi~self~a_1~\ldots~a_n~result$ must be decomposable
+      into a $\psi'~self~a_1~\ldots a_n$ and $result = BODY~self~a_1~\ldots~a_n$.
+\end{itemize}
       
 %%% Local Variables:
 %%% mode: latex
