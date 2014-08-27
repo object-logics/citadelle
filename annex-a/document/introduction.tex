@@ -1417,7 +1417,7 @@ value of object-type $A_{object}$. Then its definition is of the form:
                         (\operatorname{deref\_oid}_C\ap \operatorname{in\_post\_state}\ap\\
      &                    &\quad (\operatorname{select}_\text{getObject}\ap
                           (\operatorname{deref\_oid}_C\ap\operatorname{in\_post\_state})))
-                           \end{array}
+\end{array}
 \end{gather}
 The variant for an accessor yielding a collection is omitted here; its
 construction follows by the application of the principles of the
@@ -1560,29 +1560,31 @@ The operations induced from a class-model have the following properties:
 \subsection{Algebraic Properties of the Class-Models}\label{sec:algprop-datamodel}
 In this section, we assume to be $C_i,C_j \in C$ and  $C_i < C_j$. 
 The operations induced from a class-model have the following  properties:
-\begin{ocl}
- invalid .oclIsTypeOf(C_i) = invalid               
- null .oclIsTypeOf(C_i) = true                     
- invalid .oclIsKindOf(C_i) = invalid               
- null .oclIsKindOf(C_i) = true                     
- (X::C_i) .oclAsType(C_i) = X                    
- invalid .oclAsType(C_i) = invalid              
- null .oclAsType(C_i) = null                      
- (X::C_i) \<doteq> X = if \<upsilon> X then true else invalid endif 
- ((X::C_i) .oclAsType(C_j) .oclAsType(C_i) = X)
-\end{ocl}
+\begin{gather}
+\begin{array}{ll}
+ \mocl{invalid} \mocl{.oclIsTypeOf(}C_i\mocl{)} = \mocl{invalid}  \qquad            
+ \mocl{null}  \mocl{.oclIsTypeOf(}C_i\mocl{)} = \mocl{true}     \\             
+ \mocl{invalid} \mocl{.oclIsKindOf(}C_i\mocl{)} = \mocl{invalid}   \qquad            
+ \mocl{null} \mocl{.oclIsKindOf(}C_i\mocl{)} = \mocl{true}       \\               
+ (X::C_i) \mocl{.oclAsType(}C_i\mocl{)} = X                    \qquad
+ \mocl{invalid} \mocl{.oclAsType(}C_i\mocl{)} = \mocl{invalid}     \\         
+ \mocl{null} \mocl{.oclAsType(}C_i\mocl{)} = \mocl{null}         \qquad             
+ ((X::C_i) \mocl{.oclAsType(}C_j\mocl{) .oclAsType(}C_i\mocl{)} = X) 
+\end{array}
+ (X::C_i) \isasymMathOclStrictEq X = \mocl{if} \upsilon ~ X \mocl{then true else} \mocl{invalid} \mocl{endif} 
+\end{gather}
 With respect to attributes $\getAttrib{\_}{\text{a}}$ or $\getAttrib{\_}{\text{a}\isasymOclATpre}$ 
 and role-ends $\getAttrib{\_}{\text{r}}$ or $\getAttrib{\_}{\text{r}\isasymOclATpre}$ we have
-\begin{gather}
- \getAttrib{\mocl{invalid}}{\text{a}} = \mocl{invalid}\\
+\begin{gather*}
+ \getAttrib{\mocl{invalid}}{\text{a}} = \mocl{invalid} \qquad
  \getAttrib{\mocl{null}}{\text{a}} = \mocl{invalid} \\
- \getAttrib{\mocl{invalid}}{\text{a}\isasymOclATpre} = \mocl{invalid}\\
+ \getAttrib{\mocl{invalid}}{\text{a}\isasymOclATpre} = \mocl{invalid} \qquad
  \getAttrib{\mocl{null}}{\text{a}\isasymOclATpre} = \mocl{invalid} \\
- \getRole{\mocl{invalid}}{\text{r}} = \mocl{invalid}\\
+ \getRole{\mocl{invalid}}{\text{r}} = \mocl{invalid} \qquad
  \getRole{\mocl{null}}{\text{r}} = \mocl{invalid} \\
- \getRole{\mocl{invalid}}{\text{r}\isasymOclATpre} = \mocl{invalid}\\
- \getRole{\mocl{null}}{\text{r}\isasymOclATpre} = \mocl{invalid} \\
-\end{gather}
+ \getRole{\mocl{invalid}}{\text{r}\isasymOclATpre} = \mocl{invalid} \qquad
+ \getRole{\mocl{null}}{\text{r}\isasymOclATpre} = \mocl{invalid} 
+\end{gather*}
 
 \subsection{Other Operations on States}\label{sec:otherStateOperations}
 Defining $\_\isasymOclAllInstances$
