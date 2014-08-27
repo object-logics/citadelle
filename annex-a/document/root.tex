@@ -1,7 +1,15 @@
-\documentclass[11pt,a4paper,openright,twoside,abstracton]{scrreprt}
+\documentclass[paper=8.28in:11in]{scrreprt}
+\areaset{6.7in}{8in}
 \usepackage{fixltx2e}
-\usepackage{isabelle,isabellesym}
-\usepackage[nocolortable, noaclist]{hol-ocl-isar}
+\usepackage[T1]{fontenc}
+\usepackage{isabelle}
+\usepackage[nocolortable, noaclist,isasymonly]{hol-ocl-isar}
+\usepackage{mathptmx} % rm & math
+\usepackage[scaled=0.90]{helvet} % ss
+\usepackage{courier} % tt
+\normalfont
+
+
 \usepackage{booktabs}
 \usepackage{graphicx}
 \usepackage{amssymb}
@@ -11,26 +19,20 @@
 \usepackage{tabu}
 \usepackage[]{mathtools}
 \usepackage{prooftree}
-\usepackage{aeguill}
 \usepackage[pdfpagelabels, pageanchor=false, plainpages=false]{hyperref}
 \usepackage[draft]{fixme}
 
-% MathOCl expressions
-\colorlet{MathOclColor}{Black}
-\colorlet{HolOclColor}{Black}
-\colorlet{OclColor}{Black}
 %
-\sloppy 
+%\sloppy 
 
-\uchyph=0
+%\uchyph=0
 \graphicspath{{data/},{figures/}}
-\allowdisplaybreaks
 
 \newcommand{\HOL}{HOL\xspace}
 \newcommand{\OCL}{OCL\xspace}
 \newcommand{\UML}{UML\xspace}
 \newcommand{\HOLOCL}{HOLOCL\xspace}
-\newcommand{\FOCL}{FeatherweightOCL\xspace} % why does xspace not work here ???
+\newcommand{\FOCL}{FeatherweightOCL\xspace} 
 \newcommand{\testgen}{HOL-TestGen\xspace}
 
 \renewcommand{\HolTrue}{\mathrm{true}}
@@ -68,7 +70,6 @@
 \DeclareMathOperator{\HolBot}{bot}
 \newcommand{\Alpha}{??} % should be \<AA> --- HACK
 
-
 % urls in roman style, theory text in math-similar italics
 \urlstyle{rm}
 \isabellestyle{it}
@@ -90,81 +91,14 @@
 \newcommand{\subtableautorefname}{\tableautorefname}
 \newcommand{\subfigureautorefname}{\figureautorefname}
 
-\title{Featherweight OCL}
-\subtitle{A Proposal for a Machine-Checked Formal Semantics for OCL 2.5}
-\author{%
-  \href{http://www.brucker.ch/}{Achim D. Brucker}\footnotemark[1]
-  \and
-  \href{https://www.lri.fr/~tuong/}{Fr\'ed\'eric Tuong}\footnotemark[3]
-  \and
-  \href{https://www.lri.fr/~wolff/}{Burkhart Wolff}\footnotemark[2]}
-\publishers{%
-  \footnotemark[1]~SAP AG, Vincenz-Priessnitz-Str. 1, 76131 Karlsruhe,
-  Germany \texorpdfstring{\\}{} \href{mailto:"Achim D. Brucker"
-    <achim.brucker@sap.com>}{achim.brucker@sap.com}\\[2em]
-  %
-  \footnotemark[3]~Univ. Paris-Sud, IRT SystemX, 8 av.~de la Vauve, \\
-  91120 Palaiseau, France\\
-  frederic.tuong@\{u-psud, irt-systemx\}.fr\\[2em]
-  %
-  \footnotemark[2]~Univ. Paris-Sud, Laboratoire LRI, UMR8623, 91405 Orsay, France\\
-  CNRS, 91405 Orsay, France\texorpdfstring{\\}{}
-  \href{mailto:"Burkhart Wolff" <burkhart.wolff@lri.fr>}{burkhart.wolff@lri.fr}
-}
-
-
-%\maketitle
-
-%\begin{abstract}
-%  The Unified Modeling Language (UML) is one of the few modeling
-%  languages that is widely used in industry. While UML is mostly known
-%  as diagrammatic modeling language (\eg, visualizing class models),
-%  it is complemented by a textual language, called Object Constraint
-%  Language (OCL). OCL is a textual annotation language, based on a
-%  three-valued logic, that turns UML into a formal language.
-%  Unfortunately the semantics of this specification language, captured
-%  in the ``Annex A'' of the OCL standard, leads to different
-%  interpretations of corner cases.  Many of these corner cases had
-%  been subject to formal analysis since more than ten years.
-%
-%  The situation complicated when with version 2.3 the OCL was aligned
-%  with the latest version of UML: this led to the extension of the
-%  three-valued logic by a second exception element, called
-%  \inlineocl{null}.  While the first exception element
-%  \inlineocl{invalid} has a strict semantics, \inlineocl{null} has a
-%  non strict semantic interpretation. These semantic difficulties lead
-%  to remarkable confusion for implementors of OCL compilers and
-%  interpreters.
-%
-%  In this paper, we provide a formalization of the core of OCL in
-%  HOL\@. It provides denotational definitions, a logical calculus and
-%  operational rules that allow for the execution of OCL expressions by
-%  a mixture of term rewriting and code compilation. Moreover, we describe
-%  a coding-scheme (an implementation has been undertaken, its 
-%  its description is however not included in this document) for UML 
-%  class models that were annotated by code-invariants and code
-%  contracts.
-%  
-%  Our formalization
-%  reveals several inconsistencies and contradictions in the current
-%  version of the OCL standard.  They reflect a challenge to define and
-%  implement OCL tools in a uniform manner.  Overall, this document is
-%  intended to provide the basis for a machine-checked text ``Annex A''
-%  of the OCL standard targeting at tool implementors.
-%
-%\end{abstract}
-
-
-
+\appendix
 \include{introduction}
 \include{formalization}
 \include{conclusion}
-
-\tableofcontents
-
-
 \bibliographystyle{abbrvnat}
 \bibliography{root} 
+
+\tableofcontents
 
 \end{document}
 
