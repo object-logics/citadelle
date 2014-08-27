@@ -1,5 +1,4 @@
-\part{Annex A}
-\chapter{Introduction}
+\section{Introduction}
 This annex formally defines the semantics of \OCL. It will proceed by describing 
 the \OCL semantics by a translation into a core language --- called  \FOCL ---
 which has in itself a formally described semantics presented in 
@@ -132,7 +131,7 @@ Here is a feature-list of  \FOCL:
 %         hidden from the user inside tools.
 \end{itemize}
 
-\subsubsection{Context.} This document stands in a  more than fifteen years  tradition of 
+\paragraph{Context.} This document stands in a  more than fifteen years  tradition of 
 giving a formal semantics to the core of \UML and its annotation language \OCL,
 starting from \citet{richters:precise:2002} and   
 \cite{hamie.ea:reflections:1998,mandel.ea:ocl:1999,cook.ea::amsterdam:2002},
@@ -161,7 +160,7 @@ source. This will ensure
 \item a suite of corner-cases relevant for \OCL tool implementors.
 \end{itemize}
 
-\subsubsection{Organization of this document.}
+\paragraph{Organization of this document.}
 This document is organized as follows. After a brief background section
 introducing a running example and basic knowledge on Isabelle/\HOL and its formal
 notations, we present the formal semantics of  \FOCL introducing:
@@ -191,8 +190,8 @@ with two larger examples, namely formalizations of our running example.
 %models is defined in sub clause A.1.2. This sub clause also defines the 
 %notion of system states as snapshots of a running system.
 
-\chapter{Background}
-\section{A Running Example for \UML/\OCL}
+\section{Background}
+\subsection{A Running Example for \UML/\OCL}
 \label{sec:guidedtour}
 \fixme{REWRITE THIS FOR THE ANNEX A: SHORTEN!}
 The Unified Modeling Language
@@ -318,10 +317,10 @@ tantamount for the foundation of the entire method.
 
 
 
-\section{Formal Foundation}
+\subsection{Formal Foundation}
 
 
-\subsection{Isabelle}
+\subsubsection{Isabelle}
 Isabelle~\cite{nipkow.ea:isabelle:2002} is a \emph{generic} theorem
 prover. New object logics can be introduced by specifying their syntax
 and natural deduction inference rules. Among other logics, Isabelle
@@ -389,7 +388,7 @@ Isabelle supports meta-variables (written $\meta{x}, \meta{y},
 substituted. Meta-variables are instantiated by Isabelle's built-in
 higher-order unification.
 
-\subsection{Higher-order Logic (HOL)}
+\subsubsection{Higher-order Logic (HOL)}
 \emph{Higher-order logic}
 (HOL)~\cite{church:types:1940,andrews:introduction:2002} is a
 classical logic based on a simple type system.  It provides the usual
@@ -554,7 +553,7 @@ Isabelle simplifier provides also a highly potent decision procedure
 for many fragments of theories underlying the constraints to be
 processed when constructing test theorems.
 
-\section{How this Annex A was Generated from Isabelle/HOL Theories}
+\subsection{How this Annex A was Generated from Isabelle/HOL Theories}
 \fixme{Here ? Or in chap 2 ?}
 \begin{figure*}[tb]
   \mbox{}\hfill
@@ -613,9 +612,9 @@ Aachen~\cite{brucker.ea:summary-aachen:2013}.
 
 
 
-\chapter{The Essence of UML-OCL Semantics}
+\section{The Essence of UML-OCL Semantics}
 \fixme{Generate this chapter from Isabelle theories ? Just for principle ?}
-\section{The Theory Organization}
+\subsection{The Theory Organization}
 The semantic theory is organized in a quite conventional manner in
 three layers. The first layer, called the \emph{denotational
   semantics} comprises a set of definitions of the operators of the
@@ -641,7 +640,7 @@ high-level description of our formalization.  Especially, the details
 of the semantic construction for sets and the handling of objects and
 object universes were excluded from a presentation here.
 
-\subsection{Denotational Semantics of Types}
+\subsubsection{Denotational Semantics of Types}
 The syntactic material for type expressions, called $\text{TYPES}(C)$, is inductively
 defined as follows: \fixme{should we use expliucit definitions ?}
 \begin{itemize}
@@ -698,7 +697,7 @@ The valuation type for boolean,integer, etc. \OCL terms is therefore defined as:
 \typesynonym \qquad \text{Integer}_{\Alpha} \defeq  \V{\Alpha}{\text{Integer}_{\text{base}}} \\
 \ldots \\
 \end{gather*}
-the other cases are analogous. In the subsequent sections, we will drop the index $\Alpha$ since
+the other cases are analogous. In the subsequent subsections, we will drop the index $\Alpha$ since
 it is constant in all formulas and expressions except for operations related to the object universe
 construction in \autoref{sec:}
 
@@ -852,7 +851,7 @@ should be symmetric, \null should be allowed for \emph{both} arguments  and the 
 \end{equation}
 should be valid and true. The details were discussed in the next session.
 
-\subsection{Logical Layer}
+\subsubsection{Logical Layer}
 The topmost goal of the logic for \OCL is to define the \emph{validity statement}:
 \begin{equation*}
    (\sigma, \sigma') \isasymMathOclValid P\mi{,}
@@ -989,7 +988,7 @@ works---for the price of a potential, but due to the usually ``rich''
 $\delta$-closures of invariants rare---exponential blow-up of the
 formula for all \OCL formulas.
 
-\subsection{Algebraic Layer}
+\subsubsection{Algebraic Layer}
 Based on the logical layer, we build a system with simpler rules which
 are amenable to automated reasoning. We restrict ourselves to pure
 equations on \OCL expressions.
@@ -1134,7 +1133,7 @@ make consult \autoref{formal-set}; these test-statements
 % It fairly readable information for \OCL tool manufactures and users.
 
 
-\section{Object-oriented Datatype Theories}
+\subsection{Object-oriented Datatype Theories}
 In the following, we will refine the concepts of a user-defined
 data-model implied by a \emph{class-model} (\emph{visualized} by a class-\emph{diagram})
 as well as the notion of $\state{}$ used in the
@@ -1203,7 +1202,7 @@ can be derived. A concrete universe constructed from a class model will be
 used to instantiate the implicit type parameter $\Alpha$ of all \OCL operations
 discussed so far.
 
-\subsection{A Denotational Space for Class-Models: Object Universes}
+\subsubsection{A Denotational Space for Class-Models: Object Universes}
 
 It is natural to construct system states by a set of partial functions
 $f$ that map object identifiers $\oid$ to some representations of
@@ -1312,7 +1311,7 @@ of this paper which has a focus on the semantic construction and its
 presentation.
 
 
-\subsection{Denotational Semantics of Accessors on Objects and Associations}
+\subsubsection{Denotational Semantics of Accessors on Objects and Associations}
 Our choice to use a shallow embedding of \OCL in HOL and, thus having
 an injective mapping from \OCL types to HOL types, results in
 type-safety of  \FOCL\@. Arguments and results of accessors
@@ -1440,7 +1439,7 @@ A multiplicity defines a lower bound as well as a possibly infinite upper
 bound on the cardinality of the attribute's values.
 
 
-\subsubsection{Single-Valued Attributes}\label{sec:single-valued-properties}
+\paragraph{Single-Valued Attributes}\label{sec:single-valued-properties}
 If the upper bound specified by the attribute's multiplicity is one,
 then an evaluation of the attribute yields a single value.
 Thus, the evaluation result is \emph{not} a collection. If the lower bound specified by the
@@ -1464,7 +1463,7 @@ context OclAny::asSet():T
 \end{ocl}
 % Changed self.isTypeOf(\OCLVoid) to self = null to make it easier for the superficial reader
 
-\subsubsection{Collection-Valued Attributes}\label{sec:collection-valued-properties}
+\paragraph{Collection-Valued Attributes}\label{sec:collection-valued-properties}
 If the upper bound specified by the attribute's multiplicity is larger than one,
 then an evaluation of the attribute yields a collection of values.  This raises
 the question whether $\isasymOclNull$ can belong to this collection. The \OCL
@@ -1500,7 +1499,7 @@ not only restricted by multiplicities, but also by other constraints enforcing
 the semantics of associations. Hence, the values of association ends cannot be
 completely unrestricted.
 
-\subsubsection{The Precise Meaning of Multiplicity Constraints}
+\paragraph{The Precise Meaning of Multiplicity Constraints}
 We are now ready to define the meaning of multiplicity constraints by giving
 equivalent invariants written in \OCL\@. Let \inlineocl{a} be an attribute of a
 class \inlineocl{C} with a multiplicity specifying a lower bound $m$ and an
@@ -1529,7 +1528,7 @@ to be the result of an error. If the modeler wishes to allow references to
 non-existent objects, she can make use of the possibility described above to
 omit the multiplicity.
 
-\subsection{Logic Properties of Class-Models}\label{sec:logicprop-datamodel}
+\subsubsection{Logic Properties of Class-Models}\label{sec:logicprop-datamodel}
 In this section, we assume to be $C_z,C_i,C_j \in C$ and  $C_i < C_j$. 
 Let $C_z$ be a smallest element wit h respect to the class hierarchy $\_ < \_$.
 The operations induced from a class-model have the following properties:
@@ -1557,7 +1556,7 @@ The operations induced from a class-model have the following properties:
  \<tau> \<Turnstile> (X::C_j) \<doteq> Y \<Longrightarrow>  \<tau> \<Turnstile> Y \<doteq> Z  \<Longrightarrow>  \<tau> \<Turnstile> X \<doteq> Z 
 \end{ocl}
 
-\subsection{Algebraic Properties of the Class-Models}\label{sec:algprop-datamodel}
+\subsubsection{Algebraic Properties of the Class-Models}\label{sec:algprop-datamodel}
 In this section, we assume to be $C_i,C_j \in C$ and  $C_i < C_j$. 
 The operations induced from a class-model have the following  properties:
 \begin{gather}
@@ -1586,7 +1585,7 @@ and role-ends $\getAttrib{\_}{\text{r}}$ or $\getAttrib{\_}{\text{r}\isasymOclAT
  \getRole{\mocl{null}}{\text{r}\isasymOclATpre} = \mocl{invalid} 
 \end{gather*}
 
-\subsection{Other Operations on States}\label{sec:otherStateOperations}
+\subsubsection{Other Operations on States}\label{sec:otherStateOperations}
 Defining $\_\isasymOclAllInstances$
 is straight-forward; the only difference is the property
 $T\isasymOclAllInstances\isasymOclExcludes(\isasymOclNull)$ which is a
@@ -1631,7 +1630,7 @@ the \inlineocl|isQuery| property is true. So, whenever we have $ \tau
 \isasymMathOclValid s.a \triangleq s.a\isasymOclATpre$.
 
 
-\section{Data Invariants}
+\subsection{Data Invariants}
 \label{sec:invlogic}
 Since the present \OCL semantics uses one interpretation function \footnote{This has been handled 
 differently in previous versions of the Annex A.}, we express the effect of \OCL terms
@@ -1662,7 +1661,7 @@ Thus, we formulate the semantics of the invariant specification  as follows:
 Recall that  expressions containing $\isasymOclATpre$ constructs in
 invariants or preconditions are syntactically forbidden; thus, mixed forms cannot arise.
 
-\section{Operation Contracts}
+\subsection{Operation Contracts}
 \fixme{Should we add in our notion of Class-Model also the Operations ?}
 Since operations have strict semantics in \OCL, we have to distinguish for a specification of an
 operation $\mathit{op}$ with the arguments $a_1$, \ldots, $a_n$ the

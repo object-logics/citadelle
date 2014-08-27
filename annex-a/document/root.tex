@@ -8,33 +8,26 @@
 \usepackage[scaled=0.90]{helvet} % ss
 \usepackage{courier} % tt
 \normalfont
-
-
+\usepackage{lstisar}
+\usepackage[]{mathtools}
 \usepackage{booktabs}
 \usepackage{graphicx}
-\usepackage{amssymb}
 \usepackage[numbers, sort&compress, sectionbib]{natbib}
 \usepackage[caption=false]{subfig}
-\usepackage{lstisar}
 \usepackage{tabu}
-\usepackage[]{mathtools}
 \usepackage{prooftree}
-\usepackage[pdfpagelabels, pageanchor=false, plainpages=false]{hyperref}
 \usepackage[draft]{fixme}
-
-%
-%\sloppy 
-
-%\uchyph=0
+\usepackage[pdfpagelabels, pageanchor=false, plainpages=false]{hyperref}
 \graphicspath{{data/},{figures/}}
 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \newcommand{\HOL}{HOL\xspace}
 \newcommand{\OCL}{OCL\xspace}
 \newcommand{\UML}{UML\xspace}
-\newcommand{\HOLOCL}{HOLOCL\xspace}
+\newcommand{\HOLOCL}{HOL-OCL\xspace}
 \newcommand{\FOCL}{FeatherweightOCL\xspace} 
-\newcommand{\testgen}{HOL-TestGen\xspace}
-
+%\newcommand{\testgen}{HOL-TestGen\xspace}
 \renewcommand{\HolTrue}{\mathrm{true}}
 \renewcommand{\HolFalse}{\mathrm{false}}
 \newcommand{\ptmi}[1]{\using{\mi{#1}}}
@@ -75,13 +68,13 @@
 \isabellestyle{it}
 \newcommand{\ie}{i.\,e.\xspace}
 \newcommand{\eg}{e.\,g.\xspace}
-\renewcommand{\isamarkupheader}[1]{\chapter{#1}}
-\renewcommand{\isamarkupsection}[1]{\section{#1}}
-\renewcommand{\isamarkupsubsection}[1]{\subsection{#1}}
-\renewcommand{\isamarkupsubsubsection}[1]{\subsubsection{#1}}
-\renewcommand{\isamarkupsect}[1]{\section{#1}}
-\renewcommand{\isamarkupsubsect}[1]{\susubsection{#1}}
-\renewcommand{\isamarkupsubsubsect}[1]{\subsubsection{#1}}
+\renewcommand{\isamarkupheader}[1]{\section{#1}}
+\renewcommand{\isamarkupsection}[1]{\subsection{#1}}
+\renewcommand{\isamarkupsubsection}[1]{\subsubsection{#1}}
+\renewcommand{\isamarkupsubsubsection}[1]{\paragraph{#1}}
+\renewcommand{\isamarkupsect}[1]{\subsection{#1}}
+\renewcommand{\isamarkupsubsect}[1]{\paragraph{#1}}
+\renewcommand{\isamarkupsubsubsect}[1]{\paragraph{#1}}
 
 \begin{document}
 \renewcommand{\subsubsectionautorefname}{Section}
@@ -92,8 +85,10 @@
 \newcommand{\subfigureautorefname}{\figureautorefname}
 
 \appendix
-\include{introduction}
-\include{formalization}
+\chapter{Overview of the OCL Semantics}
+\input{introduction}
+\chapter{Formal Semantics of OCL}
+\input{session}
 \include{conclusion}
 \bibliographystyle{abbrvnat}
 \bibliography{root} 
