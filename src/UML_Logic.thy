@@ -1155,7 +1155,7 @@ text{* with {term "not"} we can express the notation:*}
 syntax
   "notequal"        :: "('\<AA>)Boolean \<Rightarrow> ('\<AA>)Boolean \<Rightarrow> ('\<AA>)Boolean"   (infix "<>" 40)
 translations
-  "a <> b" == "CONST OclNot( a \<doteq> b)"
+  "a <> b" == "CONST OclNot(a \<doteq> b)"
        
 text{* We will define instances of this equality in a case-by-case basis.*}       
        

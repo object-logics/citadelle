@@ -58,7 +58,7 @@ of an operator definition and obtain the common rules for strictness, definednes
 propagation, context-passingness and constance in a systematic way.
 *}
 
-subsection{* mono *}
+subsection{* Property Profiles for Monadic Operators *}
 
 locale profile_mono_scheme =
    fixes f :: "('\<AA>,'\<alpha>::null)val \<Rightarrow> ('\<AA>,'\<beta>::null)val"
@@ -122,7 +122,7 @@ begin
            split: split_if_asm)
 end
 
-subsection{* single *}
+subsection{*  Property Profiles for Single  *}
 
 locale profile_single =
    fixes d:: "('\<AA>,'a::null)val \<Rightarrow> '\<AA> Boolean"
@@ -130,7 +130,7 @@ locale profile_single =
    assumes d_cp0: "d X \<tau> = d (\<lambda> _. X \<tau>) \<tau>"
    assumes d_const[simp,code_unfold]: "const X \<Longrightarrow> const (d X)"
 
-subsection{* bin *}
+subsection{* Property Profiles for Binary Operators *}
 
 definition "bin' f g d\<^sub>x d\<^sub>y X Y =
                        (f X Y = (\<lambda> \<tau>. if (d\<^sub>x X) \<tau> = true \<tau> \<and> (d\<^sub>y Y) \<tau> = true \<tau>

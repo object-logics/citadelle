@@ -48,7 +48,7 @@ imports "../basic_types/UML_Boolean"
 begin
 
 no_notation None ("\<bottom>")
-section{* Collection Type Set: Operations *}
+section{* Collection Type Set: Operations \label{formal-set}*}
 
 subsection{* As a Motivation for the (infinite) Type Construction: Type-Extensions as Sets*}
 
