@@ -1675,7 +1675,7 @@ that satisfies the contract, in the latter case the result is
                      & \qquad\mathtt{post}~\psi(\self, a_1, \ldots, a_n, \mathit{result})}  \equiv \\
  & \qquad \quad \lambda  s,  x_1, \ldots, x_n, \tau.  \\
  & \qquad\qquad \text{if}  ~ ~ \tau
-\isasymMathOclValid \isasymMathOclIsDefined s \land  \land \tau \isasymMathOclValid
+\isasymMathOclValid \isasymMathOclIsDefined s \land \tau \isasymMathOclValid
 \isasymupsilon~x_1 \land \ldots \land  \tau \isasymMathOclValid
 \isasymupsilon~ x_n \\
  & \qquad\qquad \text{then} ~ \text{SOME}~ \mathit{result}. ~ ~ ~ ~\tau \isasymMathOclValid \phi(s, x_1, \ldots, x_n)_\text{pre} \\
@@ -1718,15 +1718,15 @@ under the conditions:
 \begin{itemize}
 \item $E$ must be an \OCL term and
 \item $\self$ must be defined, and the arguments valid in $\tau$: \\
-      $\isasymMathOclValid \isasymMathOclIsDefined~elf \land \tau \isasymMathOclValid \isasymupsilon~x_1 \land \ldots \land  \tau \isasymMathOclValid \isasymupsilon~ x_n$
+      $\isasymMathOclValid \isasymMathOclIsDefined~\self \land \tau \isasymMathOclValid \isasymupsilon~x_1 \land \ldots \land  \tau \isasymMathOclValid \isasymupsilon~ x_n$
 \item the post-condition must be satisfiable (``the operation must be implementable''):
-      $\exists res. \tau \isasymMathOclValid \psi ~self ~a_1 \ldots a_n~res $.
+      $\exists res. \tau \isasymMathOclValid \psi ~\self ~a_1 \ldots a_n~res $.
 \end{itemize}
 For the special case of a (recursive) query method, this rule can be specialized to the following
 executable ``unfolding principle'':
 \begin{gather}
   \begin{prooftree}
-  \tau \isasymMathOclValid \delta~ self \qquad \tau \isasymMathOclValid \phi~self~a_1\ldots a_n
+  \tau \isasymMathOclValid \phi~self~a_1\ldots a_n
   \justifies
   (\tau \isasymMathOclValid E(f_{op}~self~a_1\ldots a_n)) = 
    (\tau \isasymMathOclValid E (BODY~self~a_1 ... a_n))
@@ -1735,14 +1735,19 @@ executable ``unfolding principle'':
 where  
 \begin{itemize}
 \item $E$ must be an \OCL term.
+\item $\self$ must be defined, and the arguments valid in $\tau$: \\
+      $\tau \isasymMathOclValid \isasymMathOclIsDefined~\self \land \tau \isasymMathOclValid \isasymupsilon~x_1 \land \ldots \land  \tau \isasymMathOclValid \isasymupsilon~ x_n$
 \item the postcondition $\psi~self~a_1~\ldots~a_n~result$ must be decomposable
       into a $\psi'~self~a_1~\ldots a_n$ and $result \isasymMathOclStrongEq BODY~self~a_1~\ldots~a_n$.
 \end{itemize}
       
-We do not model overloading of operations explicitly in \FOCL. However, it is easy expressed in 
-this core-language by adding \mocl{self.oclIsKindOf(C)} in the pre-condition $\phi$ (assuming
+We do not model \emph{overriding}  of operations as in Java or C++ explicitly in \FOCL. 
+However, it is easy expressed in this core-language by adding \mocl{self.oclIsKindOf(C)} in the pre-condition $\phi$ (assuming
   that, as in the schema above, \mocl{C} is the context to which the contract is referring to).
-In order to avoid contradictions of 
+In order to avoid logical contradictions (inconsistencies) between different instances of an 
+overriden operation, the user has to prove Liskov's principle for these situations:
+pre-conditions of the superclass must imply pre-conditions of the subclass, and post-conditions
+of a subclass must imply post-conditions of the superclass. \fixme{correct?}
 
 
 %%% Local Variables:
