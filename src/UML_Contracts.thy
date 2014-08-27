@@ -56,39 +56,39 @@ locale contract_scheme =
                   ('\<AA>,'res::null)val"
    fixes PRE
    fixes POST
-   assumes def_scheme: "f self x \<equiv>  (\<lambda> \<tau>. if (\<tau> \<Turnstile> (\<delta> self)) \<and> f_\<upsilon> x \<tau>
+   assumes def_scheme': "f self x \<equiv>  (\<lambda> \<tau>. if (\<tau> \<Turnstile> (\<delta> self)) \<and> f_\<upsilon> x \<tau>
                                          then SOME res. (\<tau> \<Turnstile> PRE self x) \<and>
                                                         (\<tau> \<Turnstile> POST self x (\<lambda> _. res))
                                          else invalid \<tau>)"
-   assumes all_post: "\<forall> \<sigma> \<sigma>' \<sigma>''. ((\<sigma>,\<sigma>') \<Turnstile> PRE self x) = ((\<sigma>,\<sigma>'') \<Turnstile> PRE self x)"
+   assumes all_post': "\<forall> \<sigma> \<sigma>' \<sigma>''. ((\<sigma>,\<sigma>') \<Turnstile> PRE self x) = ((\<sigma>,\<sigma>'') \<Turnstile> PRE self x)"
            (* PRE is really a pre-condition semantically,
               i.e. it does not depend on the post-state. ... *)
-   assumes cp\<^sub>P\<^sub>R\<^sub>E: "PRE (self) x \<tau> = PRE (\<lambda> _. self \<tau>) (f_lam x \<tau>) \<tau> "
+   assumes cp\<^sub>P\<^sub>R\<^sub>E': "PRE (self) x \<tau> = PRE (\<lambda> _. self \<tau>) (f_lam x \<tau>) \<tau> "
            (* this interface is preferable than :
               assumes "cp self' \<Longrightarrow> cp a1' \<Longrightarrow> cp a2' \<Longrightarrow> cp (\<lambda>X. PRE (self' X) (a1' X) (a2' X) )"
               which is too polymorphic. *)
-   assumes cp\<^sub>P\<^sub>O\<^sub>S\<^sub>T:"POST (self) x (res) \<tau> = POST (\<lambda> _. self \<tau>) (f_lam x \<tau>) (\<lambda> _. res \<tau>) \<tau>"
+   assumes cp\<^sub>P\<^sub>O\<^sub>S\<^sub>T':"POST (self) x (res) \<tau> = POST (\<lambda> _. self \<tau>) (f_lam x \<tau>) (\<lambda> _. res \<tau>) \<tau>"
    assumes f_\<upsilon>_val: "\<And>a1. f_\<upsilon> (f_lam a1 \<tau>) \<tau> = f_\<upsilon> a1 \<tau>"
 begin  
    lemma strict0 [simp]: "f invalid X = invalid"
-   by(rule ext, rename_tac "\<tau>", simp add: def_scheme)
+   by(rule ext, rename_tac "\<tau>", simp add: def_scheme')
 
    lemma nullstrict0[simp]: "f null X = invalid"
-   by(rule ext, rename_tac "\<tau>", simp add: def_scheme)
+   by(rule ext, rename_tac "\<tau>", simp add: def_scheme')
     
    lemma cp0 : "f self a1 \<tau> = f (\<lambda> _. self \<tau>) (f_lam a1 \<tau>) \<tau>"
    proof -
       have A: "(\<tau> \<Turnstile> \<delta> (\<lambda>_. self \<tau>)) = (\<tau> \<Turnstile> \<delta> self)" by(simp add: OclValid_def cp_defined[symmetric])
       have B: "f_\<upsilon> (f_lam a1 \<tau>) \<tau> = f_\<upsilon> a1 \<tau>" by (rule f_\<upsilon>_val)
       have D: "(\<tau> \<Turnstile> PRE (\<lambda>_. self \<tau>) (f_lam a1 \<tau>)) = ( \<tau> \<Turnstile> PRE self a1 )"
-                                                 by(simp add: OclValid_def cp\<^sub>P\<^sub>R\<^sub>E[symmetric])
+                                                 by(simp add: OclValid_def cp\<^sub>P\<^sub>R\<^sub>E'[symmetric])
       show ?thesis
-        apply(auto simp: def_scheme A B D)
+        apply(auto simp: def_scheme' A B D)
         apply(simp add: OclValid_def)
-        by(subst cp\<^sub>P\<^sub>O\<^sub>S\<^sub>T, simp)
+        by(subst cp\<^sub>P\<^sub>O\<^sub>S\<^sub>T', simp)
       qed
 
-   theorem unfold : 
+   theorem unfold' : 
       assumes context_ok:    "cp E"
       and args_def_or_valid: "(\<tau> \<Turnstile> \<delta> self) \<and> f_\<upsilon> a1 \<tau>"
       and pre_satisfied:     "\<tau> \<Turnstile> PRE self a1"
@@ -99,13 +99,13 @@ begin
       have cp0: "\<And> X \<tau>. E X \<tau> = E (\<lambda>_. X \<tau>) \<tau>" by(insert context_ok[simplified cp_def], auto)
       show ?thesis
          apply(simp add: OclValid_def, subst cp0, fold OclValid_def)
-         apply(simp add:def_scheme args_def_or_valid pre_satisfied)
+         apply(simp add:def_scheme' args_def_or_valid pre_satisfied)
          apply(insert post_satisfiable, elim exE)
          apply(rule Hilbert_Choice.someI2, assumption)
          by(rule sat_for_sols_post, simp)
    qed
    
-   lemma unfold2 :
+   lemma unfold2' :
       assumes context_ok:      "cp E"
       and args_def_or_valid:   "(\<tau> \<Turnstile> \<delta> self) \<and> (f_\<upsilon> a1 \<tau>)"
       and pre_satisfied:       "\<tau> \<Turnstile> PRE self a1"
@@ -117,7 +117,7 @@ begin
       have cp0: "\<And> X \<tau>. E X \<tau> = E (\<lambda>_. X \<tau>) \<tau>" by(insert context_ok[simplified cp_def], auto)
       show ?thesis
          apply(simp add: OclValid_def, subst cp0, fold OclValid_def)      
-         apply(simp add:def_scheme args_def_or_valid pre_satisfied 
+         apply(simp add:def_scheme' args_def_or_valid pre_satisfied 
                         post_decomposable postsplit_satisfied foundation27)
          apply(subst some_equality)
          apply(simp add: OclValid_def StrongEq_def true_def)+
@@ -160,7 +160,7 @@ begin
    lemma cp [simp]:  "cp self' \<Longrightarrow>  cp res' \<Longrightarrow> cp (\<lambda>X. f (self' X) )"
       by(rule_tac f=f in cpI1, auto intro:cp0)  
 
-   lemmas unfold = unfold[simplified]
+   lemmas unfold = unfold'[simplified]
 
    lemma unfold2 :
       assumes                  "cp E"
@@ -170,7 +170,7 @@ begin
       and                      "\<And> res. (POST self res) = 
                                        ((POST' self)  and (res \<triangleq> (BODY self)))"
       shows "(\<tau> \<Turnstile> E(f self)) = (\<tau> \<Turnstile> E(BODY self))"
-        apply(rule unfold2[simplified])
+        apply(rule unfold2'[simplified])
       by((rule assms)+)
 
 end
@@ -215,6 +215,8 @@ begin
    lemma cp [simp]:  "cp self' \<Longrightarrow> cp a1' \<Longrightarrow>  cp res' \<Longrightarrow> cp (\<lambda>X. f (self' X) (a1' X))"
       by(rule_tac f=f in cpI2, auto intro:cp0)  
 
+   lemmas unfold = unfold'
+   lemmas unfold2 = unfold2'
 end
 
 locale contract2 =
@@ -286,7 +288,7 @@ begin
       and                    " \<exists>res. (\<tau> \<Turnstile> POST self a1 a2 (\<lambda> _. res))"
       and                    "(\<And>res. \<tau> \<Turnstile> POST self a1 a2 (\<lambda> _. res)  \<Longrightarrow> \<tau> \<Turnstile> E (\<lambda> _. res))"
       shows                  "\<tau> \<Turnstile> E(f self a1 a2)"
-      apply(rule unfold[of _ _ _ "(a1, a2)", simplified])
+      apply(rule unfold'[of _ _ _ "(a1, a2)", simplified])
       by((rule assms)+)
 
    lemma unfold2 :
@@ -297,7 +299,7 @@ begin
       and                      "\<And> res. (POST self a1 a2 res) = 
                                        ((POST' self a1 a2)  and (res \<triangleq> (BODY self a1 a2)))"
       shows "(\<tau> \<Turnstile> E(f self a1 a2)) = (\<tau> \<Turnstile> E(BODY self a1 a2))"
-      apply(rule unfold2[of _ _ _ "(a1, a2)", simplified])
+      apply(rule unfold2'[of _ _ _ "(a1, a2)", simplified])
       by((rule assms)+)
 end
 
