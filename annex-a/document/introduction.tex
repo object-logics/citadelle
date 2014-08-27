@@ -1739,7 +1739,8 @@ where
 \item $\self$ must be defined, and the arguments valid in $\tau$: \\
       $\tau \isasymMathOclValid \isasymMathOclIsDefined~\self \land \tau \isasymMathOclValid \isasymupsilon~x_1 \land \ldots \land  \tau \isasymMathOclValid \isasymupsilon~ x_n$
 \item the postcondition $\psi~self~a_1~\ldots~a_n~result$ must be decomposable
-      into a $\psi'~self~a_1~\ldots a_n$ and $result \isasymMathOclStrongEq BODY~self~a_1~\ldots~a_n$.
+      into: \\
+      $\psi'~self~a_1~\ldots a_n$ and $result \isasymMathOclStrongEq BODY~self~a_1~\ldots~a_n$.
 \end{itemize}
       
 We do not model \emph{overriding}  of operations as in Java or C++ explicitly in \FOCL. 
