@@ -191,6 +191,10 @@ definition "s_of_lemmas_simp _ = (\<lambda> Lemmas_simp s l \<Rightarrow>
     sprintf2 (STR ''lemmas%s [simp,code_unfold] = %s'')
       (if s = [] then STR '''' else To_string ('' '' @@ s))
       (s_of_ntheorem_list l)
+                                  | Lemmas_nosimp s l \<Rightarrow>
+    sprintf2 (STR ''lemmas%s = %s'')
+      (if s = [] then STR '''' else To_string ('' '' @@ s))
+      (s_of_ntheorem_list l)
                                   | Lemmas_simps s l \<Rightarrow>
     sprintf2 (STR ''lemmas%s [simp,code_unfold] = %s'')
       (if s = [] then STR '''' else To_string ('' '' @@ s))
@@ -214,13 +218,17 @@ fun_quick s_of_tactic where "s_of_tactic expr = (\<lambda>
   | Tac_blast None \<Rightarrow> sprintf0 (STR ''blast'')
   | Tac_blast (Some n) \<Rightarrow> sprintf1 (STR ''blast %d'') (To_nat n)
   | Tac_simp \<Rightarrow> sprintf0 (STR ''simp'')
-  | Tac_simp_add l \<Rightarrow> sprintf1 (STR ''simp add: %s'') (String_concat (STR '' '') (List_map To_string l))
+  | Tac_simp_add2 l1 l2 \<Rightarrow> sprintf2 (STR ''simp add: %s %s'')
+      (String_concat (STR '' '') (List_map To_string l1))
+      (String_concat (STR '' '') (List_map To_string l2))
   | Tac_simp_add0 l \<Rightarrow> sprintf1 (STR ''simp add: %s'') (String_concat (STR '' '') (List_map s_of_ntheorem l))
   | Tac_simp_add_del l_add l_del \<Rightarrow> sprintf2 (STR ''simp add: %s del: %s'') (String_concat (STR '' '') (List_map To_string l_add)) (String_concat (STR '' '') (List_map To_string l_del))
   | Tac_simp_only l \<Rightarrow> sprintf1 (STR ''simp only: %s'') (String_concat (STR '' '') (List_map s_of_ntheorem l))
   | Tac_simp_all \<Rightarrow> sprintf0 (STR ''simp_all'')
   | Tac_simp_all_add s \<Rightarrow> sprintf1 (STR ''simp_all add: %s'') (To_string s)
-  | Tac_auto_simp_add l \<Rightarrow> sprintf1 (STR ''auto simp: %s'') (String_concat (STR '' '') (List_map To_string l))
+  | Tac_auto_simp_add2 l1 l2 \<Rightarrow> sprintf2 (STR ''auto simp: %s %s'')
+      (String_concat (STR '' '') (List_map To_string l1))
+      (String_concat (STR '' '') (List_map To_string l2))
   | Tac_auto_simp_add_split l_simp l_split \<Rightarrow>
       let f = String_concat (STR '' '') in
       sprintf2 (STR ''auto simp: %s split: %s'') (f (List_map s_of_ntheorem l_simp)) (f (List_map To_string l_split))

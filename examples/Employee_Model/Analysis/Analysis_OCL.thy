@@ -162,9 +162,6 @@ where contents_def:
                                                                endif))
                              else invalid \<tau>))"
                              
-declare dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<S>\<A>\<L>\<A>\<R>\<Y>_def [simp del]
-declare dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<B>\<O>\<S>\<S>_def  [simp del]
-
 interpretation contents : contract0 "contents" "\<lambda> self. true"  
                           "\<lambda> self res.  res \<triangleq> if (self .boss \<doteq> null)
                                                                then (Set{self .salary})
@@ -230,9 +227,6 @@ axiomatization where contentsATpre_def:
                                                     ->including(self .salary@pre)
                                          endif)))
         else invalid \<tau>))"
-
-declare dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<S>\<A>\<L>\<A>\<R>\<Y>_at_pre_def [simp del]
-declare dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<B>\<O>\<S>\<S>_at_pre_def  [simp del]
 
 interpretation contentsATpre : contract0 "contentsATpre" "\<lambda> self. true"  
                           "\<lambda> self res.  res \<triangleq> if (self .boss@pre \<doteq> null)

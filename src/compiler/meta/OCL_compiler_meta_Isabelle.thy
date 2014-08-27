@@ -107,6 +107,8 @@ datatype hol_ntheorem = Thm_str string
 
 datatype hol_lemmas_simp = Lemmas_simp string (* name *)
                                        "hol_ntheorem list"
+                         | Lemmas_nosimp string (* name *)
+                                       "hol_ntheorem list"
                          | Lemmas_simps string (* name *)
                                         "string (* thms *) list"
 
@@ -119,9 +121,10 @@ datatype hol_tactic = Tac_rule hol_ntheorem
                     | Tac_insert "hol_ntheorem list"
                     | Tac_plus "hol_tactic list"
                     | Tac_option "hol_tactic list"
-                    | Tac_simp | Tac_simp_add "string list" | Tac_simp_add_del "string list" "string list" | Tac_simp_only "hol_ntheorem list" | Tac_simp_add0 "hol_ntheorem list"
+                    | Tac_simp | Tac_simp_add2 "string list" (* thms *) "string list" (* thm *) | Tac_simp_add_del "string list" "string list" | Tac_simp_only "hol_ntheorem list" | Tac_simp_add0 "hol_ntheorem list"
                     | Tac_simp_all | Tac_simp_all_add string
-                    | Tac_auto_simp_add "string list"
+                    | Tac_auto_simp_add2 "string list" (* thms *)
+                                         "string list" (* thm *)
                     | Tac_auto_simp_add_split "hol_ntheorem list" "string list"
                     | Tac_rename_tac "string list"
                     | Tac_case_tac hol_expr
@@ -207,6 +210,8 @@ definition "Consts_raw0 s l e o_arg = Consts_raw s l (e @@ (case o_arg of
                 Consts_value @@ (flatten (List_map (\<lambda>_. '','' @@ Consts_value) (List_upto 2 arg))))))"
 definition "Consts s l e = Consts_raw0 s (Ty_arrow (Ty_base (Char Nibble2 Nibble7 # unicode_alpha)) l) e None"
 definition "Tac_subst = Tac_subst_l [''0'']"
+definition "Tac_simp_add = Tac_simp_add2 []"
+definition "Tac_auto_simp_add = Tac_auto_simp_add2 []"
 definition "Tac_auto = Tac_auto_simp_add []"
 definition "ty_arrow l = (case rev l of x # xs \<Rightarrow> List.fold Ty_arrow xs x)"
 

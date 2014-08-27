@@ -458,10 +458,11 @@ definition "print_access_dot_lemmas_id_set =
        (\<lambda>isub_name _ (_, dot_at_when) attr_ty isup_attr _. [print_access_dot_name isub_name dot_at_when attr_ty isup_attr])
    else (\<lambda>_. []))"
 
+definition "print_access_dot_lemmas_id_name = ''dot_accessor''"
 definition "print_access_dot_lemmas_id = start_map' (\<lambda>expr.
        (let name_set = print_access_dot_lemmas_id_set expr in
        case name_set of [] \<Rightarrow> [] | _ \<Rightarrow> List_map Thy_lemmas_simp
-         [ Lemmas_simp '''' (List_map Thm_str name_set) ]))"
+         [ Lemmas_nosimp print_access_dot_lemmas_id_name (List_map Thm_str name_set) ]))"
 
 definition "print_access_dot_cp_lemmas_set =
   (if activate_simp_optimization then [hol_definition var_eval_extract] else [])"
@@ -471,23 +472,24 @@ definition "print_access_dot_cp_lemmas = start_map' (\<lambda>_.
 
 definition "print_access_dot_lemma_cp_name isub_name dot_at_when attr_ty isup_attr = flatten [''cp_'', print_access_dot_name isub_name dot_at_when attr_ty isup_attr]"
 definition "print_access_dot_lemma_cp = start_map Thy_lemma_by o
+ (let auto = \<lambda>l. Tac_auto_simp_add2 [print_access_dot_lemmas_id_name] (List_map hol_definition (''cp'' # l)) in
   map_class_arg_only_var
     (\<lambda>isub_name name (_, dot_at_when) attr_ty isup_attr dot_attr.
             [ Lemma_by
                 (print_access_dot_lemma_cp_name isub_name dot_at_when attr_ty isup_attr)
                 [Expr_apply ''cp'' [Expr_lam ''X'' (\<lambda>var_x. dot_attr (Expr_annot (Expr_basic [var_x]) name)) ]]
                 []
-                (Tacl_by [if print_access_dot_cp_lemmas_set = [] then
-                            Tac_auto_simp_add (List_map hol_definition [''cp'', var_eval_extract, flatten [isup_attr (isub_name ''dot''), dot_at_when]])
-                          else
-                            Tac_auto_simp_add (List_map hol_definition [''cp''])]) ])
+                (Tacl_by [auto (if print_access_dot_cp_lemmas_set = [] then
+                                  [var_eval_extract, flatten [isup_attr (isub_name ''dot''), dot_at_when]]
+                                else
+                                  [])]) ])
     (\<lambda>isub_name name (_, dot_at_when) attr_ty isup_attr dot_attr.
             [ Lemma_by
                 (print_access_dot_lemma_cp_name isub_name dot_at_when attr_ty isup_attr)
                 [Expr_apply ''cp'' [Expr_lam ''X'' (\<lambda>var_x. dot_attr (Expr_annot (Expr_basic [var_x]) name)) ]]
                 []
                 (if print_access_dot_cp_lemmas_set = [] then Tacl_sorry (* fold l_hierarchy, take only subclass, unfold the corresponding definition *)
-                 else Tacl_by [Tac_auto_simp_add (List_map hol_definition [''cp''])]) ])"
+                 else Tacl_by [auto []]) ]))"
 
 definition "print_access_dot_lemmas_cp = start_map Thy_lemmas_simp o (\<lambda>expr.
   case map_class_arg_only_var'
@@ -509,7 +511,8 @@ definition "print_access_lemma_strict expr = (start_map Thy_lemma_by o
                   (if print_access_dot_lemmas_id_set expr = [] | print_access_dot_cp_lemmas_set = [] then
                      Tacl_sorry else
                    Tacl_by [ Tac_rule (Thm_str ''ext''),
-                             Tac_simp_add (List_map hol_definition
+                             Tac_simp_add2 [print_access_dot_lemmas_id_name]
+                                           (List_map hol_definition
                                              (let l = (let l = (''bot_option'' # tac_invalid) in
                                               if print_access_dot_lemmas_id_set expr = [] then
                                                 flatten [isup_attr (isub_name ''dot''), dot_at_when] # l

@@ -654,6 +654,10 @@ fun m_of_ntheorem ctxt s = let open OCL open OCL_overload in case s of
       end
 end
 
+fun addsimp (l1, l2) ctxt0 = 
+  fold (fn a => fn ctxt => ctxt addsimps ((Proof_Context.get_thms ctxt0 o To_string) a)) l1
+  (ctxt0 addsimps (List.map (Proof_Context.get_thm ctxt0 o To_string) l2))
+
 fun m_of_tactic expr = let open OCL open Method open OCL_overload in case expr of
     Tac_rule s => Basic (fn ctxt => rule [m_of_ntheorem ctxt s])
   | Tac_drule s => Basic (fn ctxt => drule 0 [m_of_ntheorem ctxt s])
@@ -667,14 +671,14 @@ fun m_of_tactic expr = let open OCL open Method open OCL_overload in case expr o
   | Tac_blast n => Basic (case n of NONE => SIMPLE_METHOD' o blast_tac
                                   | SOME lim => fn ctxt => SIMPLE_METHOD' (depth_tac ctxt (To_nat lim)))
   | Tac_simp => simp_tac I
-  | Tac_simp_add l => simp_tac (fn ctxt => ctxt addsimps (List.map (Proof_Context.get_thm ctxt o To_string) l))
+  | Tac_simp_add2 l => simp_tac (addsimp l)
   | Tac_simp_add0 l => simp_tac (fn ctxt => ctxt addsimps (List.map (m_of_ntheorem ctxt) l))
   | Tac_simp_add_del (l_add, l_del) => simp_tac (fn ctxt => ctxt addsimps (List.map (Proof_Context.get_thm ctxt o To_string) l_add)
                                                                  delsimps (List.map (Proof_Context.get_thm ctxt o To_string) l_del))
   | Tac_simp_only l => simp_tac (fn ctxt => clear_simpset ctxt addsimps (List.map (m_of_ntheorem ctxt) l))
   | Tac_simp_all => m_of_tactic (Tac_plus [Tac_simp])
-  | Tac_simp_all_add s => m_of_tactic (Tac_plus [Tac_simp_add [s]])
-  | Tac_auto_simp_add l => Basic (fn ctxt => SIMPLE_METHOD (auto_tac (ctxt addsimps (List.map (Proof_Context.get_thm ctxt o To_string) l))))
+  | Tac_simp_all_add s => m_of_tactic (Tac_plus [Tac_simp_add2 ([],[s])])
+  | Tac_auto_simp_add2 l => Basic (fn ctxt => SIMPLE_METHOD (auto_tac (addsimp l ctxt)))
   | Tac_auto_simp_add_split (l_simp, l_split) =>
       Basic (fn ctxt => SIMPLE_METHOD (auto_tac (fold (fn (f, l) => fold f l)
               [(Simplifier.add_simp, List.map (m_of_ntheorem ctxt) l_simp)
@@ -800,6 +804,12 @@ val OCL_main_thy = let open OCL open OCL_overload in (*let val f = *)fn
     in_local (fn lthy => (snd o Specification.theorems Thm.lemmaK
       [((To_sbinding s, List.map (Attrib.intern_src (Proof_Context.theory_of lthy))
                           [Args.src (("simp", []), Position.none), Args.src (("code_unfold", []), Position.none)]),
+        List.map (fn x => ([m_of_ntheorem lthy x], [])) l)]
+      []
+      false) lthy)
+| Theory_lemmas_simp (Lemmas_nosimp (s, l)) =>
+    in_local (fn lthy => (snd o Specification.theorems Thm.lemmaK
+      [((To_sbinding s, []),
         List.map (fn x => ([m_of_ntheorem lthy x], [])) l)]
       []
       false) lthy)
