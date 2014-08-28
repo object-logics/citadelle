@@ -109,7 +109,7 @@ Here is a feature-list of  \FOCL:
  \item All objects types are represented in an object universe\footnote{following
          the tradition of \HOL-\OCL~\cite{brucker.ea:extensible:2008-b}}.
          The universe construction also gives semantics to type casts, dynamic type
-         tests, as well as functions such as \inlineocl{oclAllInstances()},
+         tests, as well as functions such as \inlineocl{allInstances()},
          or \inlineocl{oclIsNew()}. The object universe onstruction is
          conceptually described and demonstrated at an example.
  \item As part of the \OCL logic,  \FOCL develops the theory of
@@ -123,7 +123,7 @@ Here is a feature-list of  \FOCL:
          environment, namely Isabelle/\HOL~\cite{nipkow.ea:isabelle:2002}.
          It is a so-called \emph{shallow embedding} in \HOL; this means that types
          in \OCL were \emph{injectively} represented by types in Isabelle/\HOL. 
-         Ill-typed \OCL specifications cannot therefore not be represented in
+         Ill-typed \OCL specifications cannot therefore be represented in
           \FOCL and a type in  \FOCL contains exactly
          the values that are possible in \OCL\@. 
 % \item It supports equational reasoning and congruence reasoning, but
@@ -178,7 +178,7 @@ notations, we present the formal semantics of  \FOCL introducing:
 \item \OCL Terms, \ie{} the semantics of library operators, 
         together with definitions, lemmas, and test cases for the implementor,
 \item \UML/\OCL Constructs, \ie{} a core of \UML class models plus user-defined
-        constructions on them such as class-invariants and oepration constracts.
+        constructions on them such as class-invariants and operation contracts.
 \end{enumerate}
 \item Since the latter, \ie{} the construction of \UML class models, has to be done on the meta-level
 (so not \emph{inside} \HOL, rather on the level of a pre-compiler), we will describe this process
@@ -639,7 +639,7 @@ of the form $P = P'$; such laws are amenable to equational reasoning
 and also help for automated reasoning and code-generation. For an
 implementor of an \OCL compiler, these consequences are of most interest.
 
-For space reasons, we will restrict ourselves in this paper to a few
+For space reasons, we will restrict ourselves in this annex to a few
 operators and make a traversal through all three layers to give a
 high-level description of our formalization.  Especially, the details
 of the semantic construction for sets and the handling of objects and
@@ -1162,14 +1162,14 @@ A class model is a four-tuple $(C, \_ < \_, Attrib, Assoc)$ where:
   $C_i$\inlineocl{.allInstances}$\isasymOclATpre$\inlineocl{()},
 \item $\_ < \_$ is an inheritance relation on classes,
 \item $Attrib(C_i)$ is a collection of
-  attributes associated to classes $C_i$. It declares two wo families of accessors; for each attribute $a \in Attrib(C_i) $ in a
+  attributes associated to classes $C_i$. It declares two families of accessors; for each attribute $a \in Attrib(C_i) $ in a
   class definition $C_i$ (denoted
   $\getAttrib{X}{\text{$a$}}               :: C_i \rightarrow A $ and
   $\getAttrib{X}{\text{$a$}\isasymOclATpre}:: C_i \rightarrow A $ for
   $A\in TYPES(C)$),
-\item $Assoc(C_i,C_j)$ is a collection of associations.
+\item $Assoc(C_i,C_j)$ is a collection of associations
   \footnote{Given the fact that there is at present no consensus on the
-  semantics of n-ary associations, \FOCL{} restricts itself to binary associations. }
+  semantics of n-ary associations, \FOCL{} restricts itself to binary associations. }.
    An association $(n, rn_{from}, rn_{to})\in Assoc(C_i,C_j)$ between to classes 
    $C_i$ and $C_j$ is a triple consisting of a (unique) association name $n$, 
     and the rolenames $rn_{to}$ and $rn_{from}$. To each rolename belong two
@@ -1312,7 +1312,7 @@ object-universes in \autoref{ex:employee-analysis:uml} and \autoref{ex:employee-
 derivation of the respective datatype theories. While an
 automatization is clearly possible and desirable for concrete
 applications of  \FOCL, we consider this out of the scope
-of this paper which has a focus on the semantic construction and its
+of this annex which has a focus on the semantic construction and its
 presentation.
 
 
@@ -1702,7 +1702,7 @@ In the case of a query operation (\ie{} $\tau$ must have the form: $(\sigma,\sig
 means that query operations do not change the state; c.f. \mocl{oclIsModifiedOnly()} in 
 \autoref{sec:otherStateOperations}), this constraint can be relaxed: the above
 equation is then stated as \emph{axiom}. Note however, that the consistency of the overall 
-theory is for recursive query constracts left to the user (it can be shown, for example, by a proof 
+theory is for recursive query contracts left to the user (it can be shown, for example, by a proof
 of termination, \ie{} by showing that all recursive calls were applied to  argument vectors that are 
 smaller wrt. to a well-founded ordering). Under this condition, an $f_{op}$ resulting from recursive 
 query operations can be used safely inside pre- and post-conditions of other contracts.
