@@ -42,9 +42,10 @@
 
 session "OCL" in src = HOL +
   description {* HOL-TestGen *}
-  options [quick_and_dirty=true,document = pdf, document_variants="document:outline=/proof,/ML"]
+  options [quick_and_dirty,document=pdf,
+           document_variants="document:outline=/proof,/ML"]
   theories
-    "UML_Main"
+    "../src/UML_Main"
   files
     "document/root.tex"
     "document/root.bib"
@@ -53,7 +54,8 @@ session "OCL" in src = HOL +
     "document/introduction.tex"
 
 session "OCL-examples" in src = OCL +
-  options [quick_and_dirty, document = pdf, document_variants="document:outline=/proof,/ML"]
+  options [quick_and_dirty,document=pdf,
+           document_variants="document:outline=/proof,/ML"]
   theories
     "../examples/Employee_Model/Analysis/Analysis_OCL"
     "../examples/Employee_Model/Design/Design_OCL"
@@ -66,9 +68,10 @@ session "OCL-examples" in src = OCL +
 
 session "OCL-AFP" in src = HOL +
   description {* HOL-TestGen *}
-  options [document = pdf, document_output=document_generated,document_variants="document:outline=/proof,/ML"]
+  options [quick_and_dirty,document=pdf,document_output=document_generated,
+           document_variants="document:outline=/proof,/ML"]
   theories
-    "UML_Main"
+    "../src/UML_Main"
     "../examples/Employee_Model/Analysis/Analysis_OCL"
     "../examples/Employee_Model/Design/Design_OCL"
   files
@@ -113,9 +116,10 @@ session "OCL-Annex-A-Experiment" in "annex-a" = HOL +
 
 session "OCL-all" in src = HOL +
   description {* HOL-TestGen *}
-  options [quick_and_dirty,document=pdf,document_output=document_generated,document_variants="document:outline=/proof,/ML"]
+  options [quick_and_dirty,document=pdf,document_output=document_generated,
+           document_variants="document:outline=/proof,/ML"]
   theories
-    "UML_Main"
+    "../src/UML_Main"
     "../examples/Employee_Model/Analysis/Analysis_OCL"
     "../examples/Employee_Model/Design/Design_OCL"
 (*    "../src/OCL_compiler_aux_proof"*)
@@ -125,7 +129,7 @@ session "OCL-all" in src = HOL +
 (*    "../doc/Employee_AnalysisModel_UMLPart_generated"*)
 (*    "../doc/Employee_DesignModel_UMLPart_generated"*)
 (*    "../examples/OCL_basic_type_UnlimitedNatural"*)
-    "../examples/OCL_lib_Gogolla_challenge_integer"
+(*    "../examples/OCL_lib_Gogolla_challenge_integer"*)
   files
     "document/root.tex"
     "document/root.bib"
