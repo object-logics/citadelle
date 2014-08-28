@@ -1,17 +1,22 @@
 \section{Introduction}
-This annex formally defines the semantics of \OCL. It will proceed by describing 
-the \OCL semantics by a translation into a core language --- called  \FOCL ---
-which has in itself a formally described semantics presented in 
-Isabelle/\HOL\cite{nipkow.ea:isabelle:2002}
-\footnote{An updated, machine-checked version and formally complete version of 
-        this document is maintained
-        by the Isabelle Archive of Formal Proofs (AFP), see
-\url{http://afp.sourceforge.net/entries/Featherweight_OCL.shtml}}. 
-The semantic definitions are in large parts executable, in some parts only provable, 
-namely the essence of Set-constructions. The first goal of its construction is 
-\emph{consistency}, \ie{} it should be possible to apply logical rules and/or evaluation 
-rules for \OCL in an arbitrary manner always yielding the same result. Moreover, except in 
-pathological cases, this result should be unambiquously defined, \ie{} represent a value.
+
+
+This annex formally defines the semantics of \OCL. It will proceed by
+describing the \OCL semantics by a translation into a core
+language---called \FOCL---which has in itself a formally described
+semantics presented in
+Isabelle/\HOL\cite{nipkow.ea:isabelle:2002}\footnote{An updated,
+  machine-checked version and formally complete version of this
+  document is maintained by the Isabelle Archive of Formal Proofs
+  (AFP), see
+  \url{http://afp.sourceforge.net/entries/Featherweight_OCL.shtml}}.
+The semantic definitions are in large parts executable, in some parts
+only provable, namely the essence of Set-constructions. The first goal
+of its construction is \emph{consistency}, \ie{} it should be possible
+to apply logical rules and/or evaluation rules for \OCL in an
+arbitrary manner always yielding the same result. Moreover, except in
+pathological cases, this result should be unambiquously defined, \ie{}
+represent a value.
 
 In order to motivate the need for logical consistency and also the magnitude of the problem,
 we focus on one particular feature of the language as example: \inlineocl{Tuples}. Recall that 
@@ -682,22 +687,22 @@ generic type class $\HolNull$.
 For collection types and object types this definition
 is more evolved (see \autoref{sec:focl-types}).
 
-For object base types, we assume a typed universe $\Alpha$ of objects to be discussed later,
+For object base types, we assume a typed universe $\isaAA$ of objects to be discussed later,
 for the moment we will refer it by its polymorphic variable. 
 
 With respect the valuation types for \OCL expression in general and Boolean expressions in
 particular, they depend on the pair $(\sigma, \sigma')$ of pre-and post-state.  
 Thus, we define valuation types by the synonym:
 \begin{equation}
-\typesynonym \qquad  \V{\Alpha}{\alpha} \defeq \state{\Alpha} \times \state{\Alpha} \to \alpha \ofType \TCnull \mi{.}
+\typesynonym \qquad  \V{\isaAA}{\alpha} \defeq \state{\isaAA} \times \state{\isaAA} \to \alpha \ofType \TCnull \mi{.}
 \end{equation}
 The valuation type for boolean,integer, etc. \OCL terms is therefore defined as:
 \begin{gather*}
-\typesynonym \qquad \text{Boolean}_{\Alpha} \defeq  \V{\Alpha}{\text{Boolean}_{\text{base}}} \\
-\typesynonym \qquad \text{Integer}_{\Alpha} \defeq  \V{\Alpha}{\text{Integer}_{\text{base}}} \\
+\typesynonym \qquad \text{Boolean}_{\isaAA} \defeq  \V{\isaAA}{\text{Boolean}_{\text{base}}} \\
+\typesynonym \qquad \text{Integer}_{\isaAA} \defeq  \V{\isaAA}{\text{Integer}_{\text{base}}} \\
 \ldots \\
 \end{gather*}
-the other cases are analogous. In the subsequent subsections, we will drop the index $\Alpha$ since
+the other cases are analogous. In the subsequent subsections, we will drop the index $\isaAA$ since
 it is constant in all formulas and expressions except for operations related to the object universe
 construction in \autoref{sec:}
 
@@ -1199,7 +1204,7 @@ As a pre-requisite of a denotational semantics for these operations induced
 by a class-model, we need an \emph{object-universe} in which these operations can
 be defined in a denotational manner and from which the necessary properties
 can be derived. A concrete universe constructed from a class model will be 
-used to instantiate the implicit type parameter $\Alpha$ of all \OCL operations
+used to instantiate the implicit type parameter $\isaAA$ of all \OCL operations
 discussed so far.
 
 \subsubsection{A Denotational Space for Class-Models: Object Universes}
