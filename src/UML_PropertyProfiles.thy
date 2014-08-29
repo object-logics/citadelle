@@ -60,13 +60,10 @@ propagation, context-passingness and constance in a systematic way.
 
 subsection{* Property Profiles for Monadic Operators *}
 
-locale profile_mono_scheme =
+locale profile_mono_schemeD =
    fixes f :: "('\<AA>,'\<alpha>::null)val \<Rightarrow> ('\<AA>,'\<beta>::null)val"
    fixes g
    assumes def_scheme: "(f x) \<equiv> \<lambda> \<tau>. if (\<delta> x) \<tau> = true \<tau> then g (x \<tau>) else invalid \<tau>"
-
-locale profile_mono2 = profile_mono_scheme +
-   assumes "\<And> x. x \<noteq> bot \<Longrightarrow> x \<noteq> null \<Longrightarrow> g x \<noteq> bot"
 begin
    lemma strict[simp,code_unfold]: " f invalid = invalid"
    by(rule ext, simp add: def_scheme true_def false_def)
@@ -79,7 +76,29 @@ begin
       
    lemma cp[simp,code_unfold] : " cp P \<Longrightarrow> cp (\<lambda>X. f (P X) )"
    by(rule cpI1[of "f"], intro allI, rule cp0, simp_all)
-   
+    
+end
+
+locale profile_mono_schemeV =
+   fixes f :: "('\<AA>,'\<alpha>::null)val \<Rightarrow> ('\<AA>,'\<beta>::null)val"
+   fixes g
+   assumes def_scheme: "(f x) \<equiv> \<lambda> \<tau>. if (\<upsilon> x) \<tau> = true \<tau> then g (x \<tau>) else invalid \<tau>"
+begin
+   lemma strict[simp,code_unfold]: " f invalid = invalid"
+   by(rule ext, simp add: def_scheme true_def false_def)
+ 
+   lemma cp0 : "f X \<tau> = f (\<lambda> _. X \<tau>) \<tau>"
+   by(simp add: def_scheme  cp_valid[symmetric])
+      
+   lemma cp[simp,code_unfold] : " cp P \<Longrightarrow> cp (\<lambda>X. f (P X) )"
+   by(rule cpI1[of "f"], intro allI, rule cp0, simp_all)
+    
+end
+
+locale profile_mono2 = profile_mono_schemeD +
+   assumes "\<And> x. x \<noteq> bot \<Longrightarrow> x \<noteq> null \<Longrightarrow> g x \<noteq> bot"
+begin
+  
    lemma const[simp,code_unfold] : 
           assumes C1 :"const X"
           shows       "const(f X)"
@@ -89,7 +108,7 @@ begin
       qed  
 end
 
-locale profile_mono0 = profile_mono_scheme +
+locale profile_mono0 = profile_mono_schemeD +
    assumes def_body:  "\<And> x. x \<noteq> bot \<Longrightarrow> x \<noteq> null \<Longrightarrow> g x \<noteq> bot \<and> g x \<noteq> null"
 
 sublocale profile_mono0 < profile_mono2
