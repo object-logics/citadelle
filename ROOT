@@ -68,6 +68,21 @@ session "OCL-examples" in src = OCL +
 
 session "OCL-AFP" in src = HOL +
   description {* HOL-TestGen *}
+  options [document=pdf,document_output=document_generated,
+           document_variants="document:outline=/proof,/ML"]
+  theories
+    "../src/UML_Main"
+    "../examples/Employee_Model/Analysis/Analysis_OCL"
+    "../examples/Employee_Model/Design/Design_OCL"
+  files
+    "document/root.tex"
+    "document/root.bib"
+    "document/conclusion.tex"
+    "document/formalization.tex"
+    "document/introduction.tex"
+
+session "OCL-AFP-dirty" in src = HOL +
+  description {* HOL-TestGen *}
   options [quick_and_dirty,document=pdf,document_output=document_generated,
            document_variants="document:outline=/proof,/ML"]
   theories
@@ -93,7 +108,6 @@ session "OCL-Annex-A" in "annex-a" = HOL +
   files
     "document/root.tex"
     "document/root.bib"
-    "document/conclusion.tex"
     "document/formalization.tex"
     "document/introduction.tex"
 

@@ -99,4 +99,15 @@ clean:
 	$(RM) -f *info *.tpt
 	$(RM) -f *.idx *.lot *.ind *.ilg *.lof *.thm *.html *.toc *.out *.tmp  *.log *.bak *.aux *.bbl *.blg  *.eps *~
 distclean: clean
-	$(RM) -f *.pdf *.dvi *.ps 
+	$(RM) -f *.pdf *.dvi *.ps
+
+rmlinks:
+	find -type l -delete
+
+mklinks:
+	(ln -s ../document_generated/outline/* . || true)
+
+isabelle: rmlinks
+	isabelle build -c -d ../../ -v -b OCL-Annex-A
+
+regenerate: isabelle mklinks
