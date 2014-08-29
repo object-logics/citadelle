@@ -31,7 +31,7 @@ developer of a compiler or proof-tool (based on, say, a connection to
 an SMT solver designed to animate \OCL contracts) it would be natural
 to add the rules \inlineocl+Pair{X,Y}.First() = X+ and
 \inlineocl+Pair{X,Y}.Second() = Y+ to give pairings the usual
-semantics. At some place, the \OCL Standard requires the existance of
+semantics. At some place, the \OCL Standard requires the existence of
 a constant symbol \inlineocl+invalid+ and requires all operators to be
 strict. To implement this, the developer might be tempted to add a
 generator for corresponding strictness axioms, producing among
@@ -53,7 +53,7 @@ which then results in the absurd logical consequence that
 the side-conditions of our rules\footnote{The solution to this little
   riddle can be found in \autoref{sec:collection_pairs}.}. And
 obviously, only a mechanized check of these definitions, following a
-rigourous methodology, can establish strong guarantees for logical
+rigorous methodology, can establish strong guarantees for logical
 consistency of the \OCL language.
 
 This leads us to our second goal of this annex: it should not only be
@@ -81,7 +81,7 @@ logical consistency: it is impossible to have sets that contain
 themselves, i.e. to state Russels Paradox in \OCL typed set-theory.
 Moreover, object-oriented typing means that types there can be in
 sub-typing relation; technically speaking, this means that they can be
-\emph{casted} via \inlineocl+oclIsTypeOf(T)+ one to the other, and
+\emph{cast} via \inlineocl+oclIsTypeOf(T)+ one to the other, and
 under particular conditions to be described in detail later, these
 casts are semantically \emph{lossless}, \ie{}
 \begin{equation}
@@ -123,7 +123,7 @@ Here is a feature-list of  \FOCL:
          the tradition of \HOL-\OCL~\cite{brucker.ea:extensible:2008-b}}.
          The universe construction also gives semantics to type casts, dynamic type
          tests, as well as functions such as \inlineocl{allInstances()},
-         or \inlineocl{oclIsNew()}. The object universe onstruction is
+         or \inlineocl{oclIsNew()}. The object universe construction is
          conceptually described and demonstrated at an example.
  \item As part of the \OCL logic,  \FOCL develops the theory of
          equality in \UML/\OCL. This includes the standard equality, which is a
@@ -677,7 +677,7 @@ contains two distinguishable elements $\HolBot$ and $\HolNull$ (see \autoref{sec
 
 Moreover, the representation mapping from \OCL types to \FOCL is 
 one-to-one (\ie{} injective), and the corresponding \FOCL types were
-constructed to represent \emph{exactly} the elements (``no junk, no confucion
+constructed to represent \emph{exactly} the elements (``no junk, no confusion
   elements'') of their \OCL counterparts. The corresponding \FOCL types were
 constructed in two stages: First, a \emph{base type} is constructed whose
 carrier set contains exactly the elements of the \OCL type. Secondly, this
@@ -845,7 +845,7 @@ The definition of the addition for integers as default variant reads as follows:
  $\mocl{Integer} \Rightarrow \mocl{Integer} \Rightarrow \mocl{Integer}$ while the ``$+$'' on the 
  right-hand side of the equation of type $[\HolInteger,\HolInteger]\Rightarrow \HolInteger$ denotes the integer-addition from the HOL library.
 
-There are cases where stricness is handled differently: For example, since \mocl{Set}'s may contain 
+There are cases where strictness is handled differently: For example, since \mocl{Set}'s may contain 
 the \mocl{null}-element, it is necessary to allow  \mocl{null} as argument for 
 \mocl{_->including()}:
 \begin{gather*}
@@ -1139,7 +1139,7 @@ As \inlineocl+Set{1,2}+ is only syntactic sugar for
   Set{}->including(1)->including(2)
 \end{ocl}
 an expression like \inlineocl+Set{1,2}->includes(null)+ becomes
-decidable in  \FOCL by applying these algebaric laws (which can give
+decidable in  \FOCL by applying these algebraic laws (which can give
   rise to efficient compilations). The reader interested in the list of
 ``test-statements'' like:
 \begin{isar}[mathescape]
@@ -1185,7 +1185,7 @@ A class model is a four-tuple $(C, \_ < \_, Attrib, Assoc)$ where:
   semantics of n-ary associations, \FOCL{} restricts itself to binary associations. }.
    An association $(n, rn_{from}, rn_{to})\in Assoc(C_i,C_j)$ between to classes 
    $C_i$ and $C_j$ is a triple consisting of a (unique) association name $n$, 
-    and the rolenames $rn_{to}$ and $rn_{from}$. To each rolename belong two
+    and the role-names $rn_{to}$ and $rn_{from}$. To each role-name belong two
     families of accessors   denoted
     $\getRole{X}{\text{$a$}}               :: C_i \rightarrow A$ and
     $\getRole{X}{\text{$a$}\isasymOclATpre}:: C_i \rightarrow A$ for
@@ -1207,7 +1207,7 @@ Hindley-Milner types,  \FOCL has no ``syntactic
 subtyping.''  In contrast, subtyping can be expressed
 \emph{semantically} in  \FOCL; by adding suitable casts which do
 have a formal semantics, subtyping becomes an issue of the front-end that can
-make implicit type-coersions explicit by introducing explicit
+make implicit type-coercions explicit by introducing explicit
 type-casts. Our perspective shifts the emphasis on the semantic
 properties of casting, and the necessary universe of object
 representations (induced by a class model) that allows to establish
@@ -1342,8 +1342,8 @@ This implies the following scheme for an accessor:
   reported.
 \item The \emph{dereferentiation} phase. The $\oid$ is interpreted in
   the pre- or post-state, %(depending on the suffix of accessor),
-  the resulting object is casted to the expected format.  The
-  exceptional case of nonexistence in this state must be treated.
+  the resulting object is cast to the expected format.  The
+  exceptional case of non-existence in this state must be treated.
 \item The \emph{selection} phase. The corresponding attribute is
   extracted from the object representation.
 \item The \emph{re-construction} phase.  The resulting value has to be
@@ -1351,7 +1351,7 @@ This implies the following scheme for an accessor:
   an object (not value), it is represented by an optional (set of)
   $\oid$, which must be converted via dereferentiation in one of the
   states to produce an object representation again. The
-  exceptional case of nonexistence in this state must be treated.
+  exceptional case of non-existence in this state must be treated.
 \end{itemize}
 
 The first phase directly translates into the following formalization:
@@ -1652,7 +1652,7 @@ the \inlineocl|isQuery| property is true. So, whenever we have $ \tau
 \label{sec:invlogic}
 Since the present \OCL semantics uses one interpretation function \footnote{This has been handled 
 differently in previous versions of the Annex A.}, we express the effect of \OCL terms
-occuring in preconditions and invariants by a syntactic transformation $\__\text{pre}$ which 
+occurring in preconditions and invariants by a syntactic transformation $\__\text{pre}$ which 
 replaces:
 \begin{itemize}
 \item all accessor functions $\getAttrib{\_}{a}$ from the class model $a \in Attrib(C)$ by their 
@@ -1765,7 +1765,7 @@ We do not model \emph{overriding}  of operations as in Java or C++ explicitly in
 However, it is easy expressed in this core-language by adding \mocl{self.oclIsKindOf(C)} in the pre-condition $\phi$ (assuming
   that, as in the schema above, \mocl{C} is the context to which the contract is referring to).
 In order to avoid logical contradictions (inconsistencies) between different instances of an 
-overriden operation, the user has to prove Liskov's principle for these situations:
+overridden operation, the user has to prove Liskov's principle for these situations:
 pre-conditions of the superclass must imply pre-conditions of the subclass, and post-conditions
 of a subclass must imply post-conditions of the superclass. \fixme{correct?}
 
