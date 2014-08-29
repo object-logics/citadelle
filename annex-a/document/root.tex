@@ -20,6 +20,17 @@
 \usepackage[pdfpagelabels, pageanchor=false, plainpages=false]{hyperref}
 \graphicspath{{data/},{figures/}}
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% Overall the (rightfully isssued) warning by Koma Script
+%%% that \rm etc. should not be used 
+  \DeclareOldFontCommand{\rm}{\normalfont\rmfamily}{\mathrm}
+  \DeclareOldFontCommand{\sf}{\normalfont\sffamily}{\mathsf}
+  \DeclareOldFontCommand{\tt}{\normalfont\ttfamily}{\mathtt}
+  \DeclareOldFontCommand{\bf}{\normalfont\bfseries}{\mathbf}
+  \DeclareOldFontCommand{\it}{\normalfont\itshape}{\mathit}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
 \newcommand{\HOL}{HOL\xspace}
 \newcommand{\OCL}{OCL\xspace}
 \newcommand{\UML}{UML\xspace}
@@ -84,14 +95,15 @@
 \appendix
 \chapter{Overview of the OCL Semantics}
 \input{introduction}
-\chapter{Formal Semantics of OCL}
 \input{session}
-\include{conclusion}
+% \include{conclusion} no conclusion for standard document 
 \bibliographystyle{abbrvnat}
 \bibliography{root}
 
+\clearpage
+{\small
 \tableofcontents
-
+}
 \end{document}
 
 %%% Local Variables:
