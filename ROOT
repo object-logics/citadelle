@@ -99,7 +99,7 @@ session "OCL-AFP-dirty" in src = HOL +
 session "OCL-Annex-A" in "annex-a" = HOL +
   description {* HOL-TestGen *}
   options [quick_and_dirty,document=pdf,document_output=document_generated,
-           document_variants="document:outline=/proof,/ML",
+           document_variants="annex-a=annexa,-afp,-proof,-ML:document=afp,-annexa:outline=-annexa,afp,/proof,/ML",
            show_question_marks = false]
   theories
     "../src/UML_Main"

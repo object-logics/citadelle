@@ -20,17 +20,20 @@
 \usepackage[pdfpagelabels, pageanchor=false, plainpages=false]{hyperref}
 \graphicspath{{data/},{figures/}}
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% Overall the (rightfully isssued) warning by Koma Script
-%%% that \rm etc. should not be used 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% Overall the (rightfully issued) warning by Koma Script that \rm
+%%% etc. should not be used (they are deprecated since more than a
+%%% decade)
   \DeclareOldFontCommand{\rm}{\normalfont\rmfamily}{\mathrm}
   \DeclareOldFontCommand{\sf}{\normalfont\sffamily}{\mathsf}
   \DeclareOldFontCommand{\tt}{\normalfont\ttfamily}{\mathtt}
   \DeclareOldFontCommand{\bf}{\normalfont\bfseries}{\mathbf}
   \DeclareOldFontCommand{\it}{\normalfont\itshape}{\mathit}
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
+
+  
 \newcommand{\HOL}{HOL\xspace}
 \newcommand{\OCL}{OCL\xspace}
 \newcommand{\UML}{UML\xspace}
@@ -93,17 +96,19 @@
 \newcommand{\subfigureautorefname}{\figureautorefname}
 
 \appendix
-\chapter{Overview of the OCL Semantics}
+\chapter{Formal Semantics of OCL}
 \input{introduction}
 \input{session}
-% \include{conclusion} no conclusion for standard document 
+\isatagafp
+  \include{conclusion} no conclusion for standard document 
+\endisatagafp
+
 \bibliographystyle{abbrvnat}
 \bibliography{root}
 
-\clearpage
-{\small
-\tableofcontents
-}
+\isatagannexa
+  \clearpage {\small \tableofcontents }
+\endisatagannexa
 \end{document}
 
 %%% Local Variables:

@@ -1,15 +1,13 @@
 \section{Introduction}
+This annex chapter formally defines the semantics of \OCL. This
+chapter is a, to a large extend automatically generated, summary of a
+formal semantics of the core of OCL, called \FOCL\footnote{An updated,
+  machine-checked version and formally complete version of the
+  complete formalization is maintained by the Isabelle Archive of
+  Formal Proofs (AFP), see
+  \url{http://afp.sourceforge.net/entries/Featherweight_OCL.shtml}}. \FOCL
+has a formal semantics in Isabelle/\HOL~\cite{nipkow.ea:isabelle:2002}
 
-
-This annex formally defines the semantics of \OCL. It will proceed by
-describing the \OCL semantics by a translation into a core
-language---called \FOCL---which has in itself a formally described
-semantics presented in
-Isabelle/\HOL\cite{nipkow.ea:isabelle:2002}\footnote{An updated,
-  machine-checked version and formally complete version of this
-  document is maintained by the Isabelle Archive of Formal Proofs
-  (AFP), see
-  \url{http://afp.sourceforge.net/entries/Featherweight_OCL.shtml}}.
 The semantic definitions are in large parts executable, in some parts
 only provable, namely the essence of Set-constructions. The first goal
 of its construction is \emph{consistency}, \ie, it should be possible
