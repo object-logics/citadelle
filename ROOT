@@ -7,6 +7,7 @@
  *
  * Copyright (c) 2013-2014 Université Paris-Sud, France
  *               2013-2014 IRT SystemX, France
+ *               2013-2014 Achim D. Brucker, Germany
  *
  * All rights reserved.
  *
@@ -40,64 +41,8 @@
  ******************************************************************************)
 (* $Id:$ *)
 
-session "OCL" in src = HOL +
-  description {* HOL-TestGen *}
-  options [quick_and_dirty,document=pdf,
-           document_variants="document:outline=/proof,/ML"]
-  theories
-    "../src/UML_Main"
-  files
-    "document/root.tex"
-    "document/root.bib"
-    "document/conclusion.tex"
-    "document/formalization.tex"
-    "document/introduction.tex"
-
-session "OCL-examples" in src = OCL +
-  options [quick_and_dirty,document=pdf,
-           document_variants="document:outline=/proof,/ML"]
-  theories
-    "../examples/Employee_Model/Analysis/Analysis_OCL"
-    "../examples/Employee_Model/Design/Design_OCL"
-  files
-    "document/root.tex"
-    "document/root.bib"
-    "document/conclusion.tex"
-    "document/formalization.tex"
-    "document/introduction.tex"
-
-session "OCL-AFP" in src = HOL +
-  description {* HOL-TestGen *}
-  options [document=pdf,document_output=document_generated,
-           document_variants="document:outline=/proof,/ML"]
-  theories
-    "../src/UML_Main"
-    "../examples/Employee_Model/Analysis/Analysis_OCL"
-    "../examples/Employee_Model/Design/Design_OCL"
-  files
-    "document/root.tex"
-    "document/root.bib"
-    "document/conclusion.tex"
-    "document/formalization.tex"
-    "document/introduction.tex"
-
-session "OCL-AFP-dirty" in src = HOL +
-  description {* HOL-TestGen *}
-  options [quick_and_dirty,document=pdf,document_output=document_generated,
-           document_variants="document:outline=/proof,/ML"]
-  theories
-    "../src/UML_Main"
-    "../examples/Employee_Model/Analysis/Analysis_OCL"
-    "../examples/Employee_Model/Design/Design_OCL"
-  files
-    "document/root.tex"
-    "document/root.bib"
-    "document/conclusion.tex"
-    "document/formalization.tex"
-    "document/introduction.tex"
-
-session "OCL-Annex-A" in "annex-a" = HOL +
-  description {* HOL-TestGen *}
+session "OCL-dirty" in "src" = HOL +
+  description {* Featherweight OCL (Quick and Dirty) *}
   options [quick_and_dirty,document=pdf,document_output=document_generated,
            document_variants="annex-a=annexa,-afp,-proof,-ML:document=afp,-annexa:outline=-annexa,afp,/proof,/ML",
            show_question_marks = false]
@@ -111,21 +56,21 @@ session "OCL-Annex-A" in "annex-a" = HOL +
     "document/formalization.tex"
     "document/introduction.tex"
 
-session "OCL-Annex-A-Experiment" in "annex-a" = HOL +
-  description {* HOL-TestGen *}
-  options [quick_and_dirty,document=pdf,document_output=document_generated,
-           document_variants="document:outline=/proof,/ML",
+
+session "OCL" in "src" = HOL +
+  description {* Featherweigt OCL *}
+  options [document=pdf,document_output=document_generated,
+           document_variants="annex-a=annexa,-afp,-proof,-ML:document=afp,-annexa:outline=-annexa,afp,/proof,/ML",
            show_question_marks = false]
   theories
-    "../src/UML_Types"
+    "../src/UML_Main"
+    "../examples/Employee_Model/Analysis/Analysis_OCL"
+    "../examples/Employee_Model/Design/Design_OCL"
   files
     "document/root.tex"
     "document/root.bib"
-    "document/conclusion.tex"
     "document/formalization.tex"
     "document/introduction.tex"
-
-
 
 
 session "OCL-all" in src = HOL +

@@ -1,31 +1,47 @@
 \documentclass[11pt,a4paper,openright,twoside,abstracton]{scrreprt}
 \usepackage{fixltx2e}
-\usepackage{isabelle,isabellesym}
-\usepackage[nocolortable, noaclist]{hol-ocl-isar}
+\usepackage[T1]{fontenc}
+\usepackage{isabelle}
+\usepackage[nocolortable, noaclist,isasymonly]{hol-ocl-isar}
+\isatagannexa
+  \KOMAoptions{paper=8.28in:11in,twoside=semi}
+  \areaset{6.7in}{8in}
+  \usepackage{mathptmx} % rm & math
+  \usepackage[scaled=0.90]{helvet} % ss
+  \usepackage{courier} % tt
+  \normalfont
+\endisatagannexa
+\usepackage{lstisar}
+\usepackage[]{mathtools}
 \usepackage{booktabs}
 \usepackage{graphicx}
-\usepackage{amssymb}
 \usepackage[numbers, sort&compress, sectionbib]{natbib}
 \usepackage[caption=false]{subfig}
-\usepackage{lstisar}
 \usepackage{tabu}
-\usepackage[]{mathtools}
 \usepackage{prooftree}
-\usepackage{aeguill}
-\usepackage[pdfpagelabels, pageanchor=false, plainpages=false]{hyperref}
 \usepackage[draft]{fixme}
-
-% MathOCl expressions
-\colorlet{MathOclColor}{Black}
-\colorlet{HolOclColor}{Black}
-\colorlet{OclColor}{Black}
-%
-\sloppy
-
-\uchyph=0
+\usepackage[pdfpagelabels, pageanchor=false, plainpages=false]{hyperref}
 \graphicspath{{data/},{figures/}}
-\allowdisplaybreaks
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% Overall the (rightfully issued) warning by Koma Script that \rm
+%%% etc. should not be used (they are deprecated since more than a
+%%% decade)
+  \DeclareOldFontCommand{\rm}{\normalfont\rmfamily}{\mathrm}
+  \DeclareOldFontCommand{\sf}{\normalfont\sffamily}{\mathsf}
+  \DeclareOldFontCommand{\tt}{\normalfont\ttfamily}{\mathtt}
+  \DeclareOldFontCommand{\bf}{\normalfont\bfseries}{\mathbf}
+  \DeclareOldFontCommand{\it}{\normalfont\itshape}{\mathit}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+  
+\newcommand{\HOL}{HOL\xspace}
+\newcommand{\OCL}{OCL\xspace}
+\newcommand{\UML}{UML\xspace}
+\newcommand{\HOLOCL}{HOL-OCL\xspace}
+\newcommand{\FOCL}{FeatherweightOCL\xspace}
 \renewcommand{\HolTrue}{\mathrm{true}}
 \renewcommand{\HolFalse}{\mathrm{false}}
 \newcommand{\ptmi}[1]{\using{\mi{#1}}}
@@ -50,6 +66,7 @@
 \newcommand{\ran}{\mathrm{ran}}
 \newcommand{\dom}{\mathrm{dom}}
 \newcommand{\typedef}{\mathrm{typedef}}
+\newcommand{\typesynonym}{\mathrm{type_synonym}}
 \newcommand{\mi}[1]{\,\text{#1}}
 \newcommand{\state}[1]{\ifthenelse{\equal{}{#1}}%
   {\operatorname{state}}%
@@ -59,21 +76,21 @@
 \DeclareMathOperator{\TCnull}{null}
 \DeclareMathOperator{\HolNull}{null}
 \DeclareMathOperator{\HolBot}{bot}
-
+\newcommand{\isaAA}{\mathfrak{A}} 
 
 % urls in roman style, theory text in math-similar italics
 \urlstyle{rm}
 \isabellestyle{it}
 \newcommand{\ie}{i.\,e.\xspace}
 \newcommand{\eg}{e.\,g.\xspace}
-\renewcommand{\isamarkupheader}[1]{\chapter{#1}}
-\renewcommand{\isamarkupsection}[1]{\section{#1}}
-\renewcommand{\isamarkupsubsection}[1]{\subsection{#1}}
-\renewcommand{\isamarkupsubsubsection}[1]{\subsubsection{#1}}
-\renewcommand{\isamarkupsect}[1]{\section{#1}}
-\renewcommand{\isamarkupsubsect}[1]{\susubsection{#1}}
-\renewcommand{\isamarkupsubsubsect}[1]{\subsubsection{#1}}
 
+\renewcommand{\isamarkupheader}[1]{\section{#1}}
+\renewcommand{\isamarkupsection}[1]{\subsection{#1}}
+\renewcommand{\isamarkupsubsection}[1]{\subsubsection{#1}}
+\renewcommand{\isamarkupsubsubsection}[1]{\paragraph{#1}}
+\renewcommand{\isamarkupsect}[1]{\subsection{#1}}
+\renewcommand{\isamarkupsubsect}[1]{\paragraph{#1}}
+\renewcommand{\isamarkupsubsubsect}[1]{\paragraph{#1}}
 \begin{document}
 \renewcommand{\subsubsectionautorefname}{Section}
 \renewcommand{\subsectionautorefname}{Section}
@@ -81,6 +98,13 @@
 \renewcommand{\chapterautorefname}{Chapter}
 \newcommand{\subtableautorefname}{\tableautorefname}
 \newcommand{\subfigureautorefname}{\figureautorefname}
+
+
+
+\isatagafp
+
+
+
 
 \title{Featherweight OCL}
 \subtitle{A Proposal for a Machine-Checked Formal Semantics for OCL 2.5}
@@ -105,54 +129,64 @@
 }
 
 
-\maketitle
 
-\begin{abstract} MURKS!
-  The Unified Modeling Language (UML) is one of the few modeling
-  languages that is widely used in industry. While UML is mostly known
-  as diagrammatic modeling language (\eg, visualizing class models),
-  it is complemented by a textual language, called Object Constraint
-  Language (OCL). OCL is a textual annotation language, based on a
-  three-valued logic, that turns UML into a formal language.
-  Unfortunately the semantics of this specification language, captured
-  in the ``Annex A'' of the OCL standard, leads to different
-  interpretations of corner cases.  Many of these corner cases had
-  been subject to formal analysis since more than ten years.
 
-  The situation complicated when with version 2.3 the OCL was aligned
-  with the latest version of UML: this led to the extension of the
-  three-valued logic by a second exception element, called
-  \inlineocl{null}.  While the first exception element
-  \inlineocl{invalid} has a strict semantics, \inlineocl{null} has a
-  non strict semantic interpretation. These semantic difficulties lead
-  to remarkable confusion for implementors of OCL compilers and
-  interpreters.
+  \maketitle
+  \begin{abstract} MURKS!
+    The Unified Modeling Language (UML) is one of the few modeling
+    languages that is widely used in industry. While UML is mostly known
+    as diagrammatic modeling language (\eg, visualizing class models),
+    it is complemented by a textual language, called Object Constraint
+    Language (OCL). OCL is a textual annotation language, based on a
+    three-valued logic, that turns UML into a formal language.
+    Unfortunately the semantics of this specification language, captured
+    in the ``Annex A'' of the OCL standard, leads to different
+    interpretations of corner cases.  Many of these corner cases had
+    been subject to formal analysis since more than ten years.
 
-  In this paper, we provide a formalization of the core of OCL in
-  HOL\@. It provides denotational definitions, a logical calculus and
-  operational rules that allow for the execution of OCL expressions by
-  a mixture of term rewriting and code compilation. Moreover, we describe
-  a coding-scheme (an implementation has been undertaken, its
-  its description is however not included in this document) for UML
-  class models that were annotated by code-invariants and code
-  contracts.
+    The situation complicated when with version 2.3 the OCL was aligned
+    with the latest version of UML: this led to the extension of the
+    three-valued logic by a second exception element, called
+    \inlineocl{null}.  While the first exception element
+    \inlineocl{invalid} has a strict semantics, \inlineocl{null} has a
+    non strict semantic interpretation. These semantic difficulties lead
+    to remarkable confusion for implementors of OCL compilers and
+    interpreters.
 
-  Our formalization
-  reveals several inconsistencies and contradictions in the current
-  version of the OCL standard.  They reflect a challenge to define and
-  implement OCL tools in a uniform manner.  Overall, this document is
-  intended to provide the basis for a machine-checked text ``Annex A''
-  of the OCL standard targeting at tool implementors.
+    In this paper, we provide a formalization of the core of OCL in
+    HOL\@. It provides denotational definitions, a logical calculus and
+    operational rules that allow for the execution of OCL expressions by
+    a mixture of term rewriting and code compilation. Moreover, we describe
+    a coding-scheme (an implementation has been undertaken, its
+    its description is however not included in this document) for UML
+    class models that were annotated by code-invariants and code
+    contracts.
 
-\end{abstract}
+    Our formalization reveals several inconsistencies and contradictions 
+    in the current version of the OCL standard.  They reflect a challenge 
+    to define and implement OCL tools in a uniform manner.  Overall, this 
+    document is intended to provide the basis for a machine-checked text 
+    ``Annex A'' of the OCL standard targeting at tool implementors.
+  \end{abstract}
+  \tableofcontents
+\endisatagafp
 
-\tableofcontents
-\include{introduction}
-\include{formalization}
-\include{conclusion}
+\isatagannexa
+  \appendix
+\endisatagannexa
+\chapter{Formal Semantics of OCL}
+\input{introduction}
+\input{session}
+\isatagafp
+  \include{conclusion} no conclusion for standard document 
+\endisatagafp
+
 \bibliographystyle{abbrvnat}
 \bibliography{root}
 
+\isatagannexa
+  \clearpage {\small \tableofcontents }
+\endisatagannexa
 \end{document}
 
 %%% Local Variables:
