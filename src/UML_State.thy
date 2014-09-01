@@ -117,7 +117,7 @@ by(subst cp_defined, simp add: true_def)
 
 lemma StrictRefEq\<^sub>O\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t_def_homo : 
 "\<delta>(StrictRefEq\<^sub>O\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t x (y::('\<AA>,'a::{null,object})val)) = ((\<upsilon> x) and (\<upsilon> y))"
-sorry
+oops (* sorry *)
 
 subsubsection{* Symmetry *}
 

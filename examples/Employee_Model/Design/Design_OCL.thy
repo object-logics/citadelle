@@ -79,7 +79,7 @@ where     "Person_label\<^sub>g\<^sub>l\<^sub>o\<^sub>b\<^sub>a\<^sub>l\<^sub>i\
                                   
 lemma "\<tau> \<Turnstile> \<delta> (X .boss) \<Longrightarrow> \<tau> \<Turnstile> Person .allInstances()->includes(X .boss) \<and>
                             \<tau> \<Turnstile> Person .allInstances()->includes(X) "
-sorry 
+oops (* should be: sorry*) 
 (* To be generated generically ... hard, but crucial lemma that should hold. 
    It means that X and it successor are object representation that actually
    occur in the state. *)
@@ -87,7 +87,8 @@ sorry
 lemma REC_pre : "\<tau> \<Turnstile> Person_label\<^sub>g\<^sub>l\<^sub>o\<^sub>b\<^sub>a\<^sub>l\<^sub>i\<^sub>n\<^sub>v 
        \<Longrightarrow> \<tau> \<Turnstile> Person .allInstances()->includes(X) (* X represented object in state *)
        \<Longrightarrow> \<exists> REC.  \<tau> \<Turnstile> REC(X)  \<triangleq> (Person_label\<^sub>i\<^sub>n\<^sub>v (X) and (X .boss <> null implies REC(X .boss)))"
-sorry (* Attempt to allegiate the burden of he following axiomatizations: could be
+oops (* should be sorry*) 
+(* Attempt to allegiate the burden of he following axiomatizations: could be
          a witness for a constant specification ...*)       
 
 text{* This allows to state a predicate: *}
@@ -113,7 +114,7 @@ lemma inv_1 :
                                ( \<tau> \<Turnstile> (self .boss <> null) \<and> 
                                  \<tau> \<Turnstile> ((self .salary)  \<le>\<^sub>i\<^sub>n\<^sub>t  (self .boss .salary))  \<and>
                                  \<tau> \<Turnstile> (inv\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<^sub>_\<^sub>l\<^sub>a\<^sub>b\<^sub>e\<^sub>l(self .boss))))) "
-sorry (* Let's hope that this holds ... *)
+oops (*should be: sorry *) (* Let's hope that this holds ... *)
 
 
 lemma inv_2 : 
@@ -122,7 +123,7 @@ lemma inv_2 :
                                      (\<tau> \<Turnstile> (self .boss@pre <> null) \<and>
                                      (\<tau> \<Turnstile> (self .boss@pre .salary@pre \<le>\<^sub>i\<^sub>n\<^sub>t self .salary@pre))  \<and>
                                      (\<tau> \<Turnstile> (inv\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<^sub>_\<^sub>l\<^sub>a\<^sub>b\<^sub>e\<^sub>l\<^sub>A\<^sub>T\<^sub>p\<^sub>r\<^sub>e(self .boss@pre)))))"
-sorry (* Let's hope that this holds ... *)
+oops (*should be: sorry *) (* Let's hope that this holds ... *)
 
 text{* A very first attempt to characterize the axiomatization by an inductive
 definition - this can not be the last word since too weak (should be equality!) *}

@@ -79,7 +79,7 @@ where     "Person_label\<^sub>g\<^sub>l\<^sub>o\<^sub>b\<^sub>a\<^sub>l\<^sub>i\
                                   
 lemma "\<tau> \<Turnstile> \<delta> (X .boss) \<Longrightarrow> \<tau> \<Turnstile> Person .allInstances()->includes(X .boss) \<and>
                             \<tau> \<Turnstile> Person .allInstances()->includes(X) "
-sorry 
+oops (* in future: sorry *) 
 (* To be generated generically ... hard, but crucial lemma that should hold. 
    It means that X and it successor are object representation that actually
    occur in the state. *)
@@ -87,8 +87,9 @@ sorry
 lemma REC_pre : "\<tau> \<Turnstile> Person_label\<^sub>g\<^sub>l\<^sub>o\<^sub>b\<^sub>a\<^sub>l\<^sub>i\<^sub>n\<^sub>v 
        \<Longrightarrow> \<tau> \<Turnstile> Person .allInstances()->includes(X) (* X represented object in state *)
        \<Longrightarrow> \<exists> REC.  \<tau> \<Turnstile> REC(X)  \<triangleq> (Person_label\<^sub>i\<^sub>n\<^sub>v (X) and (X .boss <> null implies REC(X .boss)))"
-sorry (* Attempt to allegiate the burden of he following axiomatizations: could be
-         a witness for a constant specification ...*)       
+oops (* In future: sorry.
+        Attempt to allegiate the burden of he following axiomatizations: could be
+        a witness for a constant specification ...*)       
 
 text{* This allows to state a predicate: *}
                                        
@@ -113,7 +114,7 @@ lemma inv_1 :
                                ( \<tau> \<Turnstile> (self .boss <> null) \<and> 
                                  \<tau> \<Turnstile> ((self .salary)  \<le>\<^sub>i\<^sub>n\<^sub>t  (self .boss .salary))  \<and>
                                  \<tau> \<Turnstile> (inv\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<^sub>_\<^sub>l\<^sub>a\<^sub>b\<^sub>e\<^sub>l(self .boss))))) "
-sorry (* Let's hope that this holds ... *)
+oops (* sorry *)(* Let's hope that this holds ... *)
 
 
 lemma inv_2 : 
@@ -122,7 +123,7 @@ lemma inv_2 :
                                      (\<tau> \<Turnstile> (self .boss@pre <> null) \<and>
                                      (\<tau> \<Turnstile> (self .boss@pre .salary@pre \<le>\<^sub>i\<^sub>n\<^sub>t self .salary@pre))  \<and>
                                      (\<tau> \<Turnstile> (inv\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<^sub>_\<^sub>l\<^sub>a\<^sub>b\<^sub>e\<^sub>l\<^sub>A\<^sub>T\<^sub>p\<^sub>r\<^sub>e(self .boss@pre)))))"
-sorry (* Let's hope that this holds ... *)
+oops (* sorry *) (* Let's hope that this holds ... *)
 
 text{* A very first attempt to characterize the axiomatization by an inductive
 definition - this can not be the last word since too weak (should be equality!) *}
@@ -161,7 +162,8 @@ where contents_def:
                                                                         ->including(self .salary))
                                                                endif))
                              else invalid \<tau>))"
-                             
+and cp0_contents:"(X .contents()) \<tau> = ((\<lambda>_. X \<tau>) .contents()) \<tau>"
+
 interpretation contents : contract0 "contents" "\<lambda> self. true"  
                           "\<lambda> self res.  res \<triangleq> if (self .boss \<doteq> null)
                                                                then (Set{self .salary})
@@ -183,10 +185,19 @@ interpretation contents : contract0 "contents" "\<lambda> self. true"
                              else invalid \<tau>"
                   by(auto simp: contents_def )
          next
-            have A:"\<And>self \<tau>. ((\<lambda>_. self \<tau>) .boss \<doteq> null) \<tau> = (\<lambda>_. (self .boss \<doteq> null) \<tau>) \<tau>"  sorry
-            have B:"\<And>self \<tau>. (\<lambda>_. Set{(\<lambda>_. self \<tau>) .salary} \<tau>) = (\<lambda>_. Set{self .salary} \<tau>)" sorry
+            have A:"\<And>self \<tau>. ((\<lambda>_. self \<tau>) .boss \<doteq> null) \<tau> = (\<lambda>_. (self .boss \<doteq> null) \<tau>) \<tau>" 
+                   apply(subst cps23(1),subst (2) cps23(1))
+                   apply(subst (2) cp_dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<B>\<O>\<S>\<S>) by simp
+            have B:"\<And>self \<tau>. (\<lambda>_. Set{(\<lambda>_. self \<tau>) .salary} \<tau>) = (\<lambda>_. Set{self .salary} \<tau>)" 
+                   apply(subst UML_Set.OclIncluding.cp0)
+                   apply(subst (2) UML_Set.OclIncluding.cp0)
+                   apply(subst (2) Analysis_UML.cp_dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<S>\<A>\<L>\<A>\<R>\<Y>) by simp
             have C:"\<And>self \<tau>. ((\<lambda>_. self \<tau>).boss .contents()->including((\<lambda>_. self \<tau>).salary) \<tau>) = 
-                              (self .boss .contents() ->including(self .salary) \<tau>)" sorry
+                              (self .boss .contents() ->including(self .salary) \<tau>)" 
+                   apply(subst UML_Set.OclIncluding.cp0) apply(subst (2) UML_Set.OclIncluding.cp0)   
+                   apply(subst (2) Analysis_UML.cp_dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<S>\<A>\<L>\<A>\<R>\<Y>)
+                   apply(subst cp0_contents)  apply(subst (2) cp0_contents)
+                   apply(subst (2) cp_dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<B>\<O>\<S>\<S>) by simp
             show "\<And>self res \<tau>.
                    (res \<triangleq> if (self .boss) \<doteq> null then Set{self .salary} 
                            else self .boss .contents()->including(self .salary) endif) \<tau> =
@@ -227,6 +238,7 @@ axiomatization where contentsATpre_def:
                                                     ->including(self .salary@pre)
                                          endif)))
         else invalid \<tau>))"
+and cp0_contents_at_pre:"(X .contents@pre()) \<tau> = ((\<lambda>_. X \<tau>) .contents@pre()) \<tau>"
 
 interpretation contentsATpre : contract0 "contentsATpre" "\<lambda> self. true"  
                           "\<lambda> self res.  res \<triangleq> if (self .boss@pre \<doteq> null)
@@ -249,11 +261,20 @@ interpretation contentsATpre : contract0 "contentsATpre" "\<lambda> self. true"
                              else invalid \<tau>"
                   by(auto simp: contentsATpre_def)
          next
-            have A:"\<And>self \<tau>. ((\<lambda>_. self \<tau>) .boss@pre \<doteq> null) \<tau> = (\<lambda>_. (self .boss@pre \<doteq> null) \<tau>) \<tau>" sorry
-            have B:"\<And>self \<tau>. (\<lambda>_. Set{(\<lambda>_. self \<tau>) .salary@pre} \<tau>) = (\<lambda>_. Set{self .salary@pre} \<tau>)" sorry
+            have A:"\<And>self \<tau>. ((\<lambda>_. self \<tau>) .boss@pre \<doteq> null) \<tau> = (\<lambda>_. (self .boss@pre \<doteq> null) \<tau>) \<tau>" 
+                   apply(subst cps23(1),subst (2) cps23(1))
+                   apply(subst (2) cp_dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<B>\<O>\<S>\<S>_at_pre) by simp
+            have B:"\<And>self \<tau>. (\<lambda>_. Set{(\<lambda>_. self \<tau>) .salary@pre} \<tau>) = (\<lambda>_. Set{self .salary@pre} \<tau>)"
+                   apply(subst UML_Set.OclIncluding.cp0)
+                   apply(subst (2) UML_Set.OclIncluding.cp0)
+                   apply(subst (2) Analysis_UML.cp_dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<S>\<A>\<L>\<A>\<R>\<Y>_at_pre) by simp
             have C:"\<And>self \<tau>. ((\<lambda>_. self \<tau>).boss@pre .contents@pre()->including((\<lambda>_. self \<tau>).salary@pre) \<tau>) = 
-                              (self .boss@pre .contents@pre() ->including(self .salary@pre) \<tau>)" sorry
-            show "\<And>self res \<tau>.
+                              (self .boss@pre .contents@pre() ->including(self .salary@pre) \<tau>)" 
+                   apply(subst UML_Set.OclIncluding.cp0) apply(subst (2) UML_Set.OclIncluding.cp0)   
+                   apply(subst (2) Analysis_UML.cp_dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<S>\<A>\<L>\<A>\<R>\<Y>_at_pre)
+                   apply(subst cp0_contents_at_pre)  apply(subst (2) cp0_contents_at_pre)
+                   apply(subst (2) cp_dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<B>\<O>\<S>\<S>_at_pre) by simp
+           show "\<And>self res \<tau>.
                    (res \<triangleq> if (self .boss@pre) \<doteq> null then Set{self .salary@pre} 
                            else self .boss@pre .contents@pre()->including(self .salary@pre) endif) \<tau> =
                    ((\<lambda>_. res \<tau>) \<triangleq> if (\<lambda>_. self \<tau>) .boss@pre \<doteq> null then Set{(\<lambda>_. self \<tau>) .salary@pre} 
