@@ -53,11 +53,14 @@ subsection{* s of ... *} (* s_of *)
 
 context s_of
 begin
+
+definition "s_of_val_fun = (\<lambda> Sval \<Rightarrow> STR ''val''
+                            | Sfun \<Rightarrow> STR ''fun'')"
+
 fun_quick s_of_sexpr where "s_of_sexpr e = (\<lambda>
-    Sexpr_string l \<Rightarrow> let c = STR [Char Nibble2 Nibble2] in
-                      sprintf3 (STR ''%s%s%s'') c (String_concat (STR '' '') (List_map To_string l)) c
-  | Sexpr_rewrite_val e1 symb e2 \<Rightarrow> sprintf3 (STR ''val %s %s %s'') (s_of_sexpr e1) (To_string symb) (s_of_sexpr e2)
-  | Sexpr_rewrite_fun e1 symb e2 \<Rightarrow> sprintf3 (STR ''fun %s %s %s'') (s_of_sexpr e1) (To_string symb) (s_of_sexpr e2)
+    Sexpr_string s \<Rightarrow> let c = STR [Char Nibble2 Nibble2] in
+                      sprintf3 (STR ''%s%s%s'') c (To_string s) c
+  | Sexpr_rewrite val_fun e1 symb e2 \<Rightarrow> sprintf4 (STR ''%s %s %s %s'') (s_of_val_fun val_fun) (s_of_sexpr e1) (To_string symb) (s_of_sexpr e2)
   | Sexpr_basic l \<Rightarrow> sprintf1 (STR ''%s'') (String_concat (STR '' '') (List_map To_string l))
   | Sexpr_oid tit s \<Rightarrow> sprintf2 (STR ''%s%d'') (To_string tit) (To_oid s)
   | Sexpr_binop e1 s e2 \<Rightarrow> sprintf3 (STR ''%s %s %s'') (s_of_sexpr e1) (s_of_sexpr (Sexpr_basic [s])) (s_of_sexpr e2)
@@ -72,6 +75,7 @@ end
 
 lemmas [code] =
   (* def *)
+  s_of.s_of_val_fun_def
   (* fun *)
   s_of.s_of_sexpr.simps
 

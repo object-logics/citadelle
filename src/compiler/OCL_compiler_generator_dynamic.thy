@@ -658,34 +658,33 @@ fun addsimp (l1, l2) ctxt0 =
   fold (fn a => fn ctxt => ctxt addsimps ((Proof_Context.get_thms ctxt0 o To_string) a)) l1
   (ctxt0 addsimps (List.map (Proof_Context.get_thm ctxt0 o To_string) l2))
 
+fun m_of_ntheorems ctxt = fn OCL.Thms_single thy => [m_of_ntheorem ctxt thy]
+                           | OCL.Thms_mult thy => Proof_Context.get_thms ctxt (To_string thy)
+
+fun m_of_ntheorems_l ctxt l = List.concat (map (m_of_ntheorems ctxt) l)
+
 fun m_of_tactic expr = let open OCL open Method open OCL_overload in case expr of
-    Tac_rule s => Basic (fn ctxt => rule [m_of_ntheorem ctxt s])
-  | Tac_drule s => Basic (fn ctxt => drule 0 [m_of_ntheorem ctxt s])
-  | Tac_erule s => Basic (fn ctxt => erule 0 [m_of_ntheorem ctxt s])
-  | Tac_elim s => Basic (fn ctxt => elim [m_of_ntheorem ctxt s])
-  | Tac_intro l => Basic (fn ctxt => intro (map (m_of_ntheorem ctxt) l))
-  | Tac_subst_l (l, s) => Basic (fn ctxt => SIMPLE_METHOD' (EqSubst.eqsubst_tac ctxt (map (fn s => case Int.fromString (To_string s) of SOME i => i) l) [m_of_ntheorem ctxt s]))
-  | Tac_insert l => Basic (fn ctxt => insert (List.map (m_of_ntheorem ctxt) l))
-  | Tac_plus t => Repeat1 (Then (List.map m_of_tactic t))
-  | Tac_option t => Try (Then (List.map m_of_tactic t))
-  | Tac_blast n => Basic (case n of NONE => SIMPLE_METHOD' o blast_tac
-                                  | SOME lim => fn ctxt => SIMPLE_METHOD' (depth_tac ctxt (To_nat lim)))
-  | Tac_simp => simp_tac I
-  | Tac_simp_add2 l => simp_tac (addsimp l)
-  | Tac_simp_add0 l => simp_tac (fn ctxt => ctxt addsimps (List.map (m_of_ntheorem ctxt) l))
-  | Tac_simp_add_del (l_add, l_del) => simp_tac (fn ctxt => ctxt addsimps (List.map (Proof_Context.get_thm ctxt o To_string) l_add)
-                                                                 delsimps (List.map (Proof_Context.get_thm ctxt o To_string) l_del))
-  | Tac_simp_only l => simp_tac (fn ctxt => clear_simpset ctxt addsimps (List.map (m_of_ntheorem ctxt) l))
-  | Tac_simp_all => m_of_tactic (Tac_plus [Tac_simp])
-  | Tac_simp_all_add s => m_of_tactic (Tac_plus [Tac_simp_add2 ([],[s])])
-  | Tac_auto_simp_add2 l => Basic (fn ctxt => SIMPLE_METHOD (auto_tac (addsimp l ctxt)))
-  | Tac_auto_simp_add_split (l_simp, l_split) =>
+    Tact_rule s => Basic (fn ctxt => rule [m_of_ntheorem ctxt s])
+  | Tact_drule s => Basic (fn ctxt => drule 0 [m_of_ntheorem ctxt s])
+  | Tact_erule s => Basic (fn ctxt => erule 0 [m_of_ntheorem ctxt s])
+  | Tact_elim s => Basic (fn ctxt => elim [m_of_ntheorem ctxt s])
+  | Tact_intro l => Basic (fn ctxt => intro (map (m_of_ntheorem ctxt) l))
+  | Tact_subst_l (l, s) => Basic (fn ctxt => SIMPLE_METHOD' (EqSubst.eqsubst_tac ctxt (map (fn s => case Int.fromString (To_string s) of SOME i => i) l) [m_of_ntheorem ctxt s]))
+  | Tact_insert l => Basic (fn ctxt => insert (m_of_ntheorems_l ctxt l))
+  | Tact_plus t => Repeat1 (Then (List.map m_of_tactic t))
+  | Tact_option t => Try (Then (List.map m_of_tactic t))
+  | Tact_one (Simp_only l) => simp_tac (fn ctxt => clear_simpset ctxt addsimps (m_of_ntheorems_l ctxt l))
+  | Tact_one (Simp_add_del (l_add, l_del)) => simp_tac (fn ctxt => ctxt addsimps (m_of_ntheorems_l ctxt l_add)
+                                                                        delsimps (m_of_ntheorems_l ctxt l_del))
+  | Tact_auto_simp_add_split (l_simp, l_split) =>
       Basic (fn ctxt => SIMPLE_METHOD (auto_tac (fold (fn (f, l) => fold f l)
-              [(Simplifier.add_simp, List.map (m_of_ntheorem ctxt) l_simp)
+              [(Simplifier.add_simp, m_of_ntheorems_l ctxt l_simp)
               ,(Splitter.add_split, List.map (Proof_Context.get_thm ctxt o To_string) l_split)]
               ctxt)))
-  | Tac_rename_tac l => Basic (K (SIMPLE_METHOD' (rename_tac (List.map To_string l))))
-  | Tac_case_tac e => Basic (fn ctxt => SIMPLE_METHOD' (Induct_Tacs.case_tac ctxt (s_of_expr e)))
+  | Tact_rename_tac l => Basic (K (SIMPLE_METHOD' (rename_tac (List.map To_string l))))
+  | Tact_case_tac e => Basic (fn ctxt => SIMPLE_METHOD' (Induct_Tacs.case_tac ctxt (s_of_expr e)))
+  | Tact_blast n => Basic (case n of NONE => SIMPLE_METHOD' o blast_tac
+                                   | SOME lim => fn ctxt => SIMPLE_METHOD' (depth_tac ctxt (To_nat lim)))
 end
 
 end
@@ -736,13 +735,13 @@ fun proof_show f st = st
   |> Isar_Cmd.show [((@{binding ""}, []), [("?thesis", [])])] true
 
 val apply_results = let open OCL_overload in fn OCL.App l => (fn st => st |> (Proof.apply_results (then_tactic l)) |> Seq.the_result "")
-                     | OCL.App_using l => (fn st =>
+                     | OCL.App_using0 l => (fn st =>
                          let val ctxt = Proof.context_of st in
-                         Proof.using [map (fn s => ([m_of_ntheorem ctxt s], [])) l] st
+                         Proof.using [map (fn s => ([ s], [])) (m_of_ntheorems_l ctxt l)] st
                          end)
-                     | OCL.App_unfolding l => (fn st =>
+                     | OCL.App_unfolding0 l => (fn st =>
                          let val ctxt = Proof.context_of st in
-                         Proof.unfolding [map (fn s => ([m_of_ntheorem ctxt s], [])) l] st
+                         Proof.unfolding [map (fn s => ([s], [])) (m_of_ntheorems_l ctxt l)] st
                          end)
                      | OCL.App_let (e1, e2) => proof_show (Proof.let_bind_cmd [([s_of_expr e1], s_of_expr e2)])
                      | OCL.App_have (n, e, e_pr) => proof_show (fn st => st
@@ -800,23 +799,17 @@ val OCL_main_thy = let open OCL open OCL_overload in (*let val f = *)fn
                 , Mixfix ("(" ^ s_of_expr abbrev ^ ")", [], 1000)), e) in
     in_local (snd o Specification.definition_cmd (def, ((@{binding ""}, []), s_of_expr e)) false)
     end
-| Theory_lemmas_simp (Lemmas_simp (s, l)) =>
+| Theory_lemmas_simp (Lemmas_simp_opt (simp, s, l)) =>
     in_local (fn lthy => (snd o Specification.theorems Thm.lemmaK
-      [((To_sbinding s, List.map (Attrib.intern_src (Proof_Context.theory_of lthy))
-                          [Args.src (("simp", []), Position.none), Args.src (("code_unfold", []), Position.none)]),
-        List.map (fn x => ([m_of_ntheorem lthy x], [])) l)]
-      []
-      false) lthy)
-| Theory_lemmas_simp (Lemmas_nosimp (s, l)) =>
-    in_local (fn lthy => (snd o Specification.theorems Thm.lemmaK
-      [((To_sbinding s, []),
+      [((To_sbinding s, List.map (fn s => Attrib.intern_src (Proof_Context.theory_of lthy) (Args.src ((s, []), Position.none)))
+                          (if simp then ["simp", "code_unfold"] else [])),
         List.map (fn x => ([m_of_ntheorem lthy x], [])) l)]
       []
       false) lthy)
 | Theory_lemmas_simp (Lemmas_simps (s, l)) =>
     in_local (fn lthy => (snd o Specification.theorems Thm.lemmaK
-      [((To_sbinding s, List.map (Attrib.intern_src (Proof_Context.theory_of lthy))
-                          [Args.src (("simp", []), Position.none), Args.src (("code_unfold", []), Position.none)]),
+      [((To_sbinding s, List.map (fn s => Attrib.intern_src (Proof_Context.theory_of lthy) (Args.src ((s, []), Position.none)))
+                          ["simp", "code_unfold"]),
         List.map (fn x => (Proof_Context.get_thms lthy (To_string x), [])) l)]
       []
       false) lthy)

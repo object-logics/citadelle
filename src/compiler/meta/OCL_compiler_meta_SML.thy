@@ -50,9 +50,11 @@ begin
 section{* SML Meta-Model aka. AST definition of SML *}
 subsection{* type definition *}
 
-datatype sml_expr = Sexpr_string "string list"
-                  | Sexpr_rewrite_val sml_expr (* left *) string (* symb rewriting *) sml_expr (* right *)
-                  | Sexpr_rewrite_fun sml_expr (* left *) string (* symb rewriting *) sml_expr (* right *)
+datatype sml_val_fun = Sval
+                     | Sfun
+
+datatype sml_expr = Sexpr_string string
+                  | Sexpr_rewrite sml_val_fun sml_expr (* left *) string (* symb rewriting *) sml_expr (* right *)
                   | Sexpr_basic "string list"
                   | Sexpr_oid string (* prefix *) internal_oid
                   | Sexpr_binop sml_expr string sml_expr
@@ -74,5 +76,7 @@ definition "Sexpr_list l = (case l of [] \<Rightarrow> Sexpr_basic [''[]''] | _ 
 definition "Sexpr_list' f l = Sexpr_list (List_map f l)"
 definition "Sexpr_pair e1 e2 = Sexpr_parenthesis (Sexpr_binop e1 '','' e2)"
 definition "Sexpr_pair' f1 f2 = (\<lambda> (e1, e2) \<Rightarrow> Sexpr_parenthesis (Sexpr_binop (f1 e1) '','' (f2 e2)))"
+definition "Sexpr_rewrite_val = Sexpr_rewrite Sval"
+definition "Sexpr_rewrite_fun = Sexpr_rewrite Sfun"
 
 end

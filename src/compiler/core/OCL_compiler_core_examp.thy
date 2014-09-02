@@ -421,9 +421,9 @@ definition "print_examp_instance_defassoc_typecheck_gen name l_ocli ocl =
                                            , case rep of Warning \<Rightarrow> ''Warning''
                                                        | Error \<Rightarrow> ''Error''
                                                        | Writeln \<Rightarrow> ''Writeln'' ]])
-                     (Sexpr_string [s]))
+                     (Sexpr_string s))
         l_out
-    , Sexpr_string ['' error(s) in multiplicity constraints'']])])"
+    , Sexpr_string '' error(s) in multiplicity constraints''])])"
 
 definition "print_examp_instance_defassoc = (\<lambda> OclInstance l \<Rightarrow> \<lambda> ocl.
   (\<lambda>l_res.
