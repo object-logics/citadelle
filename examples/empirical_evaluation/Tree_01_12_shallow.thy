@@ -1,4 +1,4 @@
-theory Tree_01_12_shallow imports "../../src/OCL_main" "../../src/OCL_compiler_static" begin
+theory Tree_01_12_shallow imports "../../src/UML_Main" "../../src/compiler/OCL_compiler_static" "../../src/compiler/OCL_compiler_generator_dynamic" begin
 generation_syntax [ shallow (generation_semantics [ analysis ]) ]
 
 Class Aazz End
