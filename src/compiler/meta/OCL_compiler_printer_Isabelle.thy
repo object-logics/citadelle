@@ -183,9 +183,9 @@ definition "s_of_ntheorems = (\<lambda> Thms_single thy \<Rightarrow> s_of_ntheo
 
 definition "s_of_ntheorem_l l = String_concat (STR ''
                             '') (List_map s_of_ntheorem l)"
+definition "s_of_ntheorem_l1 l = String_concat (STR '' '') (List_map s_of_ntheorem l)"
 
-definition "s_of_ntheorems_l l = String_concat (STR ''
-                            '') (List_map s_of_ntheorems l)"
+definition "s_of_ntheorems_l l = String_concat (STR '' '') (List_map s_of_ntheorems l)"
 
 definition "s_of_lemmas_simp _ = (\<lambda> Lemmas_simp_opt simp s l \<Rightarrow>
     sprintf3 (STR ''lemmas%s%s = %s'')
@@ -214,7 +214,7 @@ fun_quick s_of_tactic where "s_of_tactic expr = (\<lambda>
     Tact_rule s \<Rightarrow> sprintf1 (STR ''rule %s'') (s_of_ntheorem s)
   | Tact_drule s \<Rightarrow> sprintf1 (STR ''drule %s'') (s_of_ntheorem s)
   | Tact_erule s \<Rightarrow> sprintf1 (STR ''erule %s'') (s_of_ntheorem s)
-  | Tact_intro l \<Rightarrow> sprintf1 (STR ''intro %s'') (s_of_ntheorem_l l)
+  | Tact_intro l \<Rightarrow> sprintf1 (STR ''intro %s'') (s_of_ntheorem_l1 l)
   | Tact_elim s \<Rightarrow> sprintf1 (STR ''elim %s'') (s_of_ntheorem s)
   | Tact_subst_l l s =>
       if l = [''0''] then
@@ -295,7 +295,7 @@ definition "s_of_text _ = (\<lambda> Text s \<Rightarrow> sprintf1 (STR ''text{*
 
 definition "s_of_ml _ = (\<lambda> Ml e \<Rightarrow> sprintf1 (STR ''ML{* %s *}'') (s_of_sexpr e))"
 
-definition "s_of_thm _ = (\<lambda> Thm thm \<Rightarrow> sprintf1 (STR ''thm %s'') (s_of_ntheorem_l thm))"
+definition "s_of_thm _ = (\<lambda> Thm thm \<Rightarrow> sprintf1 (STR ''thm %s'') (s_of_ntheorem_l1 thm))"
 
 end
 
