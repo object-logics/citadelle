@@ -91,7 +91,7 @@ lemmas cp_intro'' [intro!,simp,code_unfold] =
 
 subsection{* MOVE TEXT: Test Statements *}
 
-lemma syntax_test: "Set{\<two>,\<one>} = (Set{}->including(\<one>)->including(\<two>))"
+lemma syntax_test: "Set{\<two>,\<one>} = (Set{}->including\<^sub>S\<^sub>e\<^sub>t(\<one>)->including\<^sub>S\<^sub>e\<^sub>t(\<two>))"
 by (rule refl)
 
 text{* Here is an example of a nested collection. Note that we have
@@ -99,7 +99,7 @@ to use the abstract null (since we did not (yet) define a concrete
 constant @{term null} for the non-existing Sets) :*}
 lemma semantic_test2:
 assumes H:"(Set{\<two>} \<doteq> null) = (false::('\<AA>)Boolean)"
-shows   "(\<tau>::('\<AA>)st) \<Turnstile> (Set{Set{\<two>},null}->includes(null))"
+shows   "(\<tau>::('\<AA>)st) \<Turnstile> (Set{Set{\<two>},null}->includes\<^sub>S\<^sub>e\<^sub>t(null))"
 by(simp add: OclIncludes_execute\<^sub>S\<^sub>e\<^sub>t H)
 
 
@@ -131,20 +131,20 @@ Assert "\<not> (\<tau> \<Turnstile> \<delta>(null::('\<AA>,'\<alpha>::null) Set)
 Assert    "\<tau> \<Turnstile> \<upsilon>(Set{})"
 Assert    "\<tau> \<Turnstile> \<upsilon>(Set{Set{\<two>},null})"
 Assert    "\<tau> \<Turnstile> \<delta>(Set{Set{\<two>},null})"
-Assert    "\<tau> \<Turnstile> (Set{\<two>,\<one>}->includes(\<one>))"
-Assert "\<not> (\<tau> \<Turnstile> (Set{\<two>}->includes(\<one>)))"
-Assert "\<not> (\<tau> \<Turnstile> (Set{\<two>,\<one>}->includes(null)))"
-Assert    "\<tau> \<Turnstile> (Set{\<two>,null}->includes(null))"
-Assert    "\<tau> \<Turnstile> (Set{null,\<two>}->includes(null))"
+Assert    "\<tau> \<Turnstile> (Set{\<two>,\<one>}->includes\<^sub>S\<^sub>e\<^sub>t(\<one>))"
+Assert "\<not> (\<tau> \<Turnstile> (Set{\<two>}->includes\<^sub>S\<^sub>e\<^sub>t(\<one>)))"
+Assert "\<not> (\<tau> \<Turnstile> (Set{\<two>,\<one>}->includes\<^sub>S\<^sub>e\<^sub>t(null)))"
+Assert    "\<tau> \<Turnstile> (Set{\<two>,null}->includes\<^sub>S\<^sub>e\<^sub>t(null))"
+Assert    "\<tau> \<Turnstile> (Set{null,\<two>}->includes\<^sub>S\<^sub>e\<^sub>t(null))"
 
-Assert    "\<tau> \<Turnstile> ((Set{})->forAll(z | \<zero> <\<^sub>i\<^sub>n\<^sub>t z))"
+Assert    "\<tau> \<Turnstile> ((Set{})->forAll\<^sub>S\<^sub>e\<^sub>t(z | \<zero> <\<^sub>i\<^sub>n\<^sub>t z))"
 
-Assert    "\<tau> \<Turnstile> ((Set{\<two>,\<one>})->forAll(z | \<zero> <\<^sub>i\<^sub>n\<^sub>t z))"
+Assert    "\<tau> \<Turnstile> ((Set{\<two>,\<one>})->forAll\<^sub>S\<^sub>e\<^sub>t(z | \<zero> <\<^sub>i\<^sub>n\<^sub>t z))"
 Assert   "\<tau> \<Turnstile> (\<zero> <\<^sub>i\<^sub>n\<^sub>t \<two>) and (\<zero> <\<^sub>i\<^sub>n\<^sub>t \<one>) "
-Assert "\<not> (\<tau> \<Turnstile> ((Set{\<two>,\<one>})->exists(z | z <\<^sub>i\<^sub>n\<^sub>t \<zero> )))"
-Assert "\<not> (\<tau> \<Turnstile> (\<delta>(Set{\<two>,null})->forAll(z | \<zero> <\<^sub>i\<^sub>n\<^sub>t z)))"
-Assert "\<not> (\<tau> \<Turnstile> ((Set{\<two>,null})->forAll(z | \<zero> <\<^sub>i\<^sub>n\<^sub>t z)))"
-Assert    "\<tau> \<Turnstile> ((Set{\<two>,null})->exists(z | \<zero> <\<^sub>i\<^sub>n\<^sub>t z))"
+Assert "\<not> (\<tau> \<Turnstile> ((Set{\<two>,\<one>})->exists\<^sub>S\<^sub>e\<^sub>t(z | z <\<^sub>i\<^sub>n\<^sub>t \<zero> )))"
+Assert "\<not> (\<tau> \<Turnstile> (\<delta>(Set{\<two>,null})->forAll\<^sub>S\<^sub>e\<^sub>t(z | \<zero> <\<^sub>i\<^sub>n\<^sub>t z)))"
+Assert "\<not> (\<tau> \<Turnstile> ((Set{\<two>,null})->forAll\<^sub>S\<^sub>e\<^sub>t(z | \<zero> <\<^sub>i\<^sub>n\<^sub>t z)))"
+Assert    "\<tau> \<Turnstile> ((Set{\<two>,null})->exists\<^sub>S\<^sub>e\<^sub>t(z | \<zero> <\<^sub>i\<^sub>n\<^sub>t z))"
 
 
 Assert "\<not> (\<tau> \<Turnstile> (Set{null::'a Boolean} \<doteq> Set{}))"
@@ -157,8 +157,8 @@ Assert    "\<tau> \<Turnstile> (Set{\<two>,null,\<two>} \<doteq> Set{null,\<two>
 Assert    "\<tau> \<Turnstile> (Set{\<one>,null,\<two>} <> Set{null,\<two>})"
 Assert    "\<tau> \<Turnstile> (Set{Set{\<two>,null}} \<doteq> Set{Set{null,\<two>}})"
 Assert    "\<tau> \<Turnstile> (Set{Set{\<two>,null}} <> Set{Set{null,\<two>},null})"
-Assert    "\<tau> \<Turnstile> (Set{null}->select(x | not x) \<doteq> Set{null})"
-Assert    "\<tau> \<Turnstile> (Set{null}->reject(x | not x) \<doteq> Set{null})"
+Assert    "\<tau> \<Turnstile> (Set{null}->select\<^sub>S\<^sub>e\<^sub>t(x | not x) \<doteq> Set{null})"
+Assert    "\<tau> \<Turnstile> (Set{null}->reject\<^sub>S\<^sub>e\<^sub>t(x | not x) \<doteq> Set{null})"
 
 lemma     "const (Set{Set{\<two>,null}, invalid})" by(simp add: const_ss)
 

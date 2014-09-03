@@ -73,19 +73,19 @@ where     "Person_label\<^sub>i\<^sub>n\<^sub>v\<^sub>A\<^sub>T\<^sub>p\<^sub>r\
                  (self .boss@pre <> null implies (self .salary@pre \<le>\<^sub>i\<^sub>n\<^sub>t ((self .boss@pre) .salary@pre)))"
 
 definition Person_label\<^sub>g\<^sub>l\<^sub>o\<^sub>b\<^sub>a\<^sub>l\<^sub>i\<^sub>n\<^sub>v :: "Boolean"
-where     "Person_label\<^sub>g\<^sub>l\<^sub>o\<^sub>b\<^sub>a\<^sub>l\<^sub>i\<^sub>n\<^sub>v \<equiv> (Person .allInstances()->forAll(x | Person_label\<^sub>i\<^sub>n\<^sub>v (x)) and 
-                                  (Person .allInstances@pre()->forAll(x | Person_label\<^sub>i\<^sub>n\<^sub>v\<^sub>A\<^sub>T\<^sub>p\<^sub>r\<^sub>e (x))))"
+where     "Person_label\<^sub>g\<^sub>l\<^sub>o\<^sub>b\<^sub>a\<^sub>l\<^sub>i\<^sub>n\<^sub>v \<equiv> (Person .allInstances()->forAll\<^sub>S\<^sub>e\<^sub>t(x | Person_label\<^sub>i\<^sub>n\<^sub>v (x)) and 
+                                  (Person .allInstances@pre()->forAll\<^sub>S\<^sub>e\<^sub>t(x | Person_label\<^sub>i\<^sub>n\<^sub>v\<^sub>A\<^sub>T\<^sub>p\<^sub>r\<^sub>e (x))))"
                                   
                                   
-lemma "\<tau> \<Turnstile> \<delta> (X .boss) \<Longrightarrow> \<tau> \<Turnstile> Person .allInstances()->includes(X .boss) \<and>
-                            \<tau> \<Turnstile> Person .allInstances()->includes(X) "
+lemma "\<tau> \<Turnstile> \<delta> (X .boss) \<Longrightarrow> \<tau> \<Turnstile> Person .allInstances()->includes\<^sub>S\<^sub>e\<^sub>t(X .boss) \<and>
+                            \<tau> \<Turnstile> Person .allInstances()->includes\<^sub>S\<^sub>e\<^sub>t(X) "
 oops (* in future: sorry *) 
 (* To be generated generically ... hard, but crucial lemma that should hold. 
    It means that X and it successor are object representation that actually
    occur in the state. *)
 
 lemma REC_pre : "\<tau> \<Turnstile> Person_label\<^sub>g\<^sub>l\<^sub>o\<^sub>b\<^sub>a\<^sub>l\<^sub>i\<^sub>n\<^sub>v 
-       \<Longrightarrow> \<tau> \<Turnstile> Person .allInstances()->includes(X) (* X represented object in state *)
+       \<Longrightarrow> \<tau> \<Turnstile> Person .allInstances()->includes\<^sub>S\<^sub>e\<^sub>t(X) (* X represented object in state *)
        \<Longrightarrow> \<exists> REC.  \<tau> \<Turnstile> REC(X)  \<triangleq> (Person_label\<^sub>i\<^sub>n\<^sub>v (X) and (X .boss <> null implies REC(X .boss)))"
 oops (* In future: sorry.
         Attempt to allegiate the burden of he following axiomatizations: could be
@@ -95,21 +95,21 @@ text{* This allows to state a predicate: *}
                                        
 axiomatization inv\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<^sub>_\<^sub>l\<^sub>a\<^sub>b\<^sub>e\<^sub>l :: "Person \<Rightarrow> Boolean"
 where inv\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<^sub>_\<^sub>l\<^sub>a\<^sub>b\<^sub>e\<^sub>l_def:
-"(\<tau> \<Turnstile> Person .allInstances()->includes(self)) \<Longrightarrow> 
+"(\<tau> \<Turnstile> Person .allInstances()->includes\<^sub>S\<^sub>e\<^sub>t(self)) \<Longrightarrow> 
  (\<tau> \<Turnstile> (inv\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<^sub>_\<^sub>l\<^sub>a\<^sub>b\<^sub>e\<^sub>l(self) \<triangleq>  (self .boss <> null implies  
                                   (self .salary  \<le>\<^sub>i\<^sub>n\<^sub>t  ((self .boss) .salary)) and
                                    inv\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<^sub>_\<^sub>l\<^sub>a\<^sub>b\<^sub>e\<^sub>l(self .boss))))"
 
 axiomatization inv\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<^sub>_\<^sub>l\<^sub>a\<^sub>b\<^sub>e\<^sub>l\<^sub>A\<^sub>T\<^sub>p\<^sub>r\<^sub>e :: "Person \<Rightarrow> Boolean"
 where inv\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<^sub>_\<^sub>l\<^sub>a\<^sub>b\<^sub>e\<^sub>l\<^sub>A\<^sub>T\<^sub>p\<^sub>r\<^sub>e_def: 
-"(\<tau> \<Turnstile> Person .allInstances@pre()->includes(self)) \<Longrightarrow>
+"(\<tau> \<Turnstile> Person .allInstances@pre()->includes\<^sub>S\<^sub>e\<^sub>t(self)) \<Longrightarrow>
  (\<tau> \<Turnstile> (inv\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<^sub>_\<^sub>l\<^sub>a\<^sub>b\<^sub>e\<^sub>l\<^sub>A\<^sub>T\<^sub>p\<^sub>r\<^sub>e(self) \<triangleq> (self .boss@pre <> null implies 
                                    (self .salary@pre  \<le>\<^sub>i\<^sub>n\<^sub>t  ((self .boss@pre) .salary@pre)) and
                                     inv\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<^sub>_\<^sub>l\<^sub>a\<^sub>b\<^sub>e\<^sub>l\<^sub>A\<^sub>T\<^sub>p\<^sub>r\<^sub>e(self .boss@pre))))"
 
 
 lemma inv_1 : 
-"(\<tau> \<Turnstile> Person .allInstances()->includes(self)) \<Longrightarrow>
+"(\<tau> \<Turnstile> Person .allInstances()->includes\<^sub>S\<^sub>e\<^sub>t(self)) \<Longrightarrow>
     (\<tau> \<Turnstile> inv\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<^sub>_\<^sub>l\<^sub>a\<^sub>b\<^sub>e\<^sub>l(self) = ((\<tau> \<Turnstile> (self .boss \<doteq> null)) \<or>
                                ( \<tau> \<Turnstile> (self .boss <> null) \<and> 
                                  \<tau> \<Turnstile> ((self .salary)  \<le>\<^sub>i\<^sub>n\<^sub>t  (self .boss .salary))  \<and>
@@ -118,7 +118,7 @@ oops (* sorry *)(* Let's hope that this holds ... *)
 
 
 lemma inv_2 : 
-"(\<tau> \<Turnstile> Person .allInstances@pre()->includes(self)) \<Longrightarrow>
+"(\<tau> \<Turnstile> Person .allInstances@pre()->includes\<^sub>S\<^sub>e\<^sub>t(self)) \<Longrightarrow>
     (\<tau> \<Turnstile> inv\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<^sub>_\<^sub>l\<^sub>a\<^sub>b\<^sub>e\<^sub>l\<^sub>A\<^sub>T\<^sub>p\<^sub>r\<^sub>e(self)) =  ((\<tau> \<Turnstile> (self .boss@pre \<doteq> null)) \<or>
                                      (\<tau> \<Turnstile> (self .boss@pre <> null) \<and>
                                      (\<tau> \<Turnstile> (self .boss@pre .salary@pre \<le>\<^sub>i\<^sub>n\<^sub>t self .salary@pre))  \<and>
@@ -159,7 +159,7 @@ where contents_def:
                                             (\<tau> \<Turnstile> (\<lambda>_ . res) \<triangleq> if (self .boss \<doteq> null)
                                                                then (Set{self .salary})
                                                                else (self .boss .contents()
-                                                                        ->including(self .salary))
+                                                                        ->including\<^sub>S\<^sub>e\<^sub>t(self .salary))
                                                                endif))
                              else invalid \<tau>))"
 and cp0_contents:"(X .contents()) \<tau> = ((\<lambda>_. X \<tau>) .contents()) \<tau>"
@@ -168,7 +168,7 @@ interpretation contents : contract0 "contents" "\<lambda> self. true"
                           "\<lambda> self res.  res \<triangleq> if (self .boss \<doteq> null)
                                                                then (Set{self .salary})
                                                                else (self .boss .contents()
-                                                                        ->including(self .salary))
+                                                                        ->including\<^sub>S\<^sub>e\<^sub>t(self .salary))
                                                                endif"  
          proof (unfold_locales)
             show "\<And>self \<tau>. true \<tau> = true \<tau>" by auto
@@ -180,7 +180,7 @@ interpretation contents : contract0 "contents" "\<lambda> self. true"
                              then SOME res. 
                                       \<tau> \<Turnstile> true \<and>
                                       \<tau> \<Turnstile> (\<lambda>_. res) \<triangleq> (if self .boss \<doteq> null then Set{self .salary} 
-                                              else self .boss .contents()->including(self .salary) 
+                                              else self .boss .contents()->including\<^sub>S\<^sub>e\<^sub>t(self .salary) 
                                               endif)
                              else invalid \<tau>"
                   by(auto simp: contents_def )
@@ -192,17 +192,17 @@ interpretation contents : contract0 "contents" "\<lambda> self. true"
                    apply(subst UML_Set.OclIncluding.cp0)
                    apply(subst (2) UML_Set.OclIncluding.cp0)
                    apply(subst (2) Analysis_UML.cp_dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<S>\<A>\<L>\<A>\<R>\<Y>) by simp
-            have C:"\<And>self \<tau>. ((\<lambda>_. self \<tau>).boss .contents()->including((\<lambda>_. self \<tau>).salary) \<tau>) = 
-                              (self .boss .contents() ->including(self .salary) \<tau>)" 
+            have C:"\<And>self \<tau>. ((\<lambda>_. self \<tau>).boss .contents()->including\<^sub>S\<^sub>e\<^sub>t((\<lambda>_. self \<tau>).salary) \<tau>) = 
+                              (self .boss .contents() ->including\<^sub>S\<^sub>e\<^sub>t(self .salary) \<tau>)" 
                    apply(subst UML_Set.OclIncluding.cp0) apply(subst (2) UML_Set.OclIncluding.cp0)   
                    apply(subst (2) Analysis_UML.cp_dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<S>\<A>\<L>\<A>\<R>\<Y>)
                    apply(subst cp0_contents)  apply(subst (2) cp0_contents)
                    apply(subst (2) cp_dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<B>\<O>\<S>\<S>) by simp
             show "\<And>self res \<tau>.
                    (res \<triangleq> if (self .boss) \<doteq> null then Set{self .salary} 
-                           else self .boss .contents()->including(self .salary) endif) \<tau> =
+                           else self .boss .contents()->including\<^sub>S\<^sub>e\<^sub>t(self .salary) endif) \<tau> =
                    ((\<lambda>_. res \<tau>) \<triangleq> if (\<lambda>_. self \<tau>) .boss \<doteq> null then Set{(\<lambda>_. self \<tau>) .salary} 
-                                   else(\<lambda>_. self \<tau>) .boss .contents()->including((\<lambda>_. self \<tau>) .salary) endif) \<tau>"
+                                   else(\<lambda>_. self \<tau>) .boss .contents()->including\<^sub>S\<^sub>e\<^sub>t((\<lambda>_. self \<tau>) .salary) endif) \<tau>"
            apply(subst cp_StrongEq)
            apply(subst (2) cp_StrongEq)
            apply(subst cp_OclIf)
@@ -219,7 +219,7 @@ theorem unfold_contents :
    shows   "(\<tau> \<Turnstile> E (self .contents())) = 
             (\<tau> \<Turnstile> E (if self .boss \<doteq> null 
                     then Set{self .salary} 
-                    else self .boss .contents()->including(self .salary) endif))"
+                    else self .boss .contents()->including\<^sub>S\<^sub>e\<^sub>t(self .salary) endif))"
 by(rule contents.unfold2[of _ _ _ "\<lambda> X. true"], simp_all add: assms)
 
 
@@ -235,7 +235,7 @@ axiomatization where contentsATpre_def:
                       (\<tau> \<Turnstile> ((\<lambda>_. res) \<triangleq> if (self).boss@pre \<doteq> null  (* post *)
                                          then Set{(self).salary@pre}
                                          else (self).boss@pre .contents@pre()
-                                                    ->including(self .salary@pre)
+                                                    ->including\<^sub>S\<^sub>e\<^sub>t(self .salary@pre)
                                          endif)))
         else invalid \<tau>))"
 and cp0_contents_at_pre:"(X .contents@pre()) \<tau> = ((\<lambda>_. X \<tau>) .contents@pre()) \<tau>"
@@ -244,7 +244,7 @@ interpretation contentsATpre : contract0 "contentsATpre" "\<lambda> self. true"
                           "\<lambda> self res.  res \<triangleq> if (self .boss@pre \<doteq> null)
                                                                then (Set{self .salary@pre})
                                                                else (self .boss@pre .contents@pre()
-                                                                        ->including(self .salary@pre))
+                                                                        ->including\<^sub>S\<^sub>e\<^sub>t(self .salary@pre))
                                                                endif"     
          proof (unfold_locales)
             show "\<And>self \<tau>. true \<tau> = true \<tau>" by auto
@@ -256,7 +256,7 @@ interpretation contentsATpre : contract0 "contentsATpre" "\<lambda> self. true"
                              then SOME res. 
                                       \<tau> \<Turnstile> true \<and>
                                       \<tau> \<Turnstile> (\<lambda>_. res) \<triangleq> (if self .boss@pre \<doteq> null then Set{self .salary@pre} 
-                                              else self .boss@pre .contents@pre()->including(self .salary@pre) 
+                                              else self .boss@pre .contents@pre()->including\<^sub>S\<^sub>e\<^sub>t(self .salary@pre) 
                                               endif)
                              else invalid \<tau>"
                   by(auto simp: contentsATpre_def)
@@ -268,17 +268,17 @@ interpretation contentsATpre : contract0 "contentsATpre" "\<lambda> self. true"
                    apply(subst UML_Set.OclIncluding.cp0)
                    apply(subst (2) UML_Set.OclIncluding.cp0)
                    apply(subst (2) Analysis_UML.cp_dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<S>\<A>\<L>\<A>\<R>\<Y>_at_pre) by simp
-            have C:"\<And>self \<tau>. ((\<lambda>_. self \<tau>).boss@pre .contents@pre()->including((\<lambda>_. self \<tau>).salary@pre) \<tau>) = 
-                              (self .boss@pre .contents@pre() ->including(self .salary@pre) \<tau>)" 
+            have C:"\<And>self \<tau>. ((\<lambda>_. self \<tau>).boss@pre .contents@pre()->including\<^sub>S\<^sub>e\<^sub>t((\<lambda>_. self \<tau>).salary@pre) \<tau>) = 
+                              (self .boss@pre .contents@pre() ->including\<^sub>S\<^sub>e\<^sub>t(self .salary@pre) \<tau>)" 
                    apply(subst UML_Set.OclIncluding.cp0) apply(subst (2) UML_Set.OclIncluding.cp0)   
                    apply(subst (2) Analysis_UML.cp_dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<S>\<A>\<L>\<A>\<R>\<Y>_at_pre)
                    apply(subst cp0_contents_at_pre)  apply(subst (2) cp0_contents_at_pre)
                    apply(subst (2) cp_dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<B>\<O>\<S>\<S>_at_pre) by simp
            show "\<And>self res \<tau>.
                    (res \<triangleq> if (self .boss@pre) \<doteq> null then Set{self .salary@pre} 
-                           else self .boss@pre .contents@pre()->including(self .salary@pre) endif) \<tau> =
+                           else self .boss@pre .contents@pre()->including\<^sub>S\<^sub>e\<^sub>t(self .salary@pre) endif) \<tau> =
                    ((\<lambda>_. res \<tau>) \<triangleq> if (\<lambda>_. self \<tau>) .boss@pre \<doteq> null then Set{(\<lambda>_. self \<tau>) .salary@pre} 
-                                   else(\<lambda>_. self \<tau>) .boss@pre .contents@pre()->including((\<lambda>_. self \<tau>) .salary@pre) endif) \<tau>"
+                                   else(\<lambda>_. self \<tau>) .boss@pre .contents@pre()->including\<^sub>S\<^sub>e\<^sub>t((\<lambda>_. self \<tau>) .salary@pre) endif) \<tau>"
            apply(subst cp_StrongEq)
            apply(subst (2) cp_StrongEq)
            apply(subst cp_OclIf)
@@ -294,7 +294,7 @@ theorem unfold_contentsATpre :
    shows   "(\<tau> \<Turnstile> E (self .contents@pre())) = 
             (\<tau> \<Turnstile> E (if self .boss@pre \<doteq> null 
                     then Set{self .salary@pre} 
-                    else self .boss@pre .contents@pre()->including(self .salary@pre) endif))"
+                    else self .boss@pre .contents@pre()->including\<^sub>S\<^sub>e\<^sub>t(self .salary@pre) endif))"
 by(rule contentsATpre.unfold2[of _ _ _ "\<lambda> X. true"], simp_all add: assms)
 
          
@@ -320,13 +320,13 @@ definition insert :: "Person \<Rightarrow>Integer \<Rightarrow> Void"  ("(1(_).i
 where "self .insert(x) \<equiv> 
             (\<lambda> \<tau>. if (\<tau> \<Turnstile> (\<delta> self)) \<and>  (\<tau> \<Turnstile> \<upsilon> x)
                   then SOME res. (\<tau> \<Turnstile> true \<and>  
-                                 (\<tau> \<Turnstile> ((self).contents() \<triangleq> (self).contents@pre()->including(x))))
+                                 (\<tau> \<Turnstile> ((self).contents() \<triangleq> (self).contents@pre()->including\<^sub>S\<^sub>e\<^sub>t(x))))
                   else invalid \<tau>)"  
 
 text{* The semantic consequences of this definition were computed inside this locale interpretation:*}
 interpretation insert : contract1 "insert" "\<lambda> self x. true" 
                                   "\<lambda> self x res. ((self .contents()) \<triangleq> 
-                                                       (self .contents@pre()->including(x)))" 
+                                                       (self .contents@pre()->including\<^sub>S\<^sub>e\<^sub>t(x)))" 
          apply unfold_locales  apply(auto simp:insert_def)
          apply(subst cp_StrongEq) apply(subst (2) cp_StrongEq)
          apply(subst contents.cp0)

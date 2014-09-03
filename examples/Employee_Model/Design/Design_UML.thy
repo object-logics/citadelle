@@ -610,7 +610,7 @@ subsection{* OclIsTypeOf *}
 
 lemma OclAny_allInstances_generic_oclIsTypeOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y1:
 assumes [simp]: "\<And>x. pre_post (x, x) = x"
-shows "\<exists>\<tau>. (\<tau> \<Turnstile>     ((OclAllInstances_generic pre_post OclAny)->forAll(X|X .oclIsTypeOf(OclAny))))"
+shows "\<exists>\<tau>. (\<tau> \<Turnstile>     ((OclAllInstances_generic pre_post OclAny)->forAll\<^sub>S\<^sub>e\<^sub>t(X|X .oclIsTypeOf(OclAny))))"
  apply(rule_tac x = \<tau>\<^sub>0 in exI, simp add: \<tau>\<^sub>0_def OclValid_def del: OclAllInstances_generic_def)
  apply(simp only: assms OclForall_def refl if_True
                   OclAllInstances_generic_defined[simplified OclValid_def])
@@ -619,18 +619,18 @@ shows "\<exists>\<tau>. (\<tau> \<Turnstile>     ((OclAllInstances_generic pre_p
 by(simp add: OclIsTypeOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_OclAny)
 
 lemma OclAny_allInstances_at_post_oclIsTypeOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y1:
-"\<exists>\<tau>. (\<tau> \<Turnstile>     (OclAny .allInstances()->forAll(X|X .oclIsTypeOf(OclAny))))"
+"\<exists>\<tau>. (\<tau> \<Turnstile>     (OclAny .allInstances()->forAll\<^sub>S\<^sub>e\<^sub>t(X|X .oclIsTypeOf(OclAny))))"
 unfolding OclAllInstances_at_post_def
 by(rule OclAny_allInstances_generic_oclIsTypeOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y1, simp)
 
 lemma OclAny_allInstances_at_pre_oclIsTypeOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y1:
-"\<exists>\<tau>. (\<tau> \<Turnstile>     (OclAny .allInstances@pre()->forAll(X|X .oclIsTypeOf(OclAny))))"
+"\<exists>\<tau>. (\<tau> \<Turnstile>     (OclAny .allInstances@pre()->forAll\<^sub>S\<^sub>e\<^sub>t(X|X .oclIsTypeOf(OclAny))))"
 unfolding OclAllInstances_at_pre_def
 by(rule OclAny_allInstances_generic_oclIsTypeOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y1, simp)
 
 lemma OclAny_allInstances_generic_oclIsTypeOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y2:
 assumes [simp]: "\<And>x. pre_post (x, x) = x"
-shows "\<exists>\<tau>. (\<tau> \<Turnstile> not ((OclAllInstances_generic pre_post OclAny)->forAll(X|X .oclIsTypeOf(OclAny))))"
+shows "\<exists>\<tau>. (\<tau> \<Turnstile> not ((OclAllInstances_generic pre_post OclAny)->forAll\<^sub>S\<^sub>e\<^sub>t(X|X .oclIsTypeOf(OclAny))))"
 proof - fix oid a let ?t0 = "\<lparr>heap = empty(oid \<mapsto> in\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y (mk\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y oid \<lfloor>a\<rfloor>)),
                               assocs = empty\<rparr>" show ?thesis
  apply(rule_tac x = "(?t0, ?t0)" in exI, simp add: OclValid_def del: OclAllInstances_generic_def)
@@ -642,17 +642,17 @@ proof - fix oid a let ?t0 = "\<lparr>heap = empty(oid \<mapsto> in\<^sub>O\<^sub
 qed
 
 lemma OclAny_allInstances_at_post_oclIsTypeOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y2:
-"\<exists>\<tau>. (\<tau> \<Turnstile> not (OclAny .allInstances()->forAll(X|X .oclIsTypeOf(OclAny))))"
+"\<exists>\<tau>. (\<tau> \<Turnstile> not (OclAny .allInstances()->forAll\<^sub>S\<^sub>e\<^sub>t(X|X .oclIsTypeOf(OclAny))))"
 unfolding OclAllInstances_at_post_def
 by(rule OclAny_allInstances_generic_oclIsTypeOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y2, simp)
 
 lemma OclAny_allInstances_at_pre_oclIsTypeOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y2:
-"\<exists>\<tau>. (\<tau> \<Turnstile> not (OclAny .allInstances@pre()->forAll(X|X .oclIsTypeOf(OclAny))))"
+"\<exists>\<tau>. (\<tau> \<Turnstile> not (OclAny .allInstances@pre()->forAll\<^sub>S\<^sub>e\<^sub>t(X|X .oclIsTypeOf(OclAny))))"
 unfolding OclAllInstances_at_pre_def
 by(rule OclAny_allInstances_generic_oclIsTypeOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y2, simp)
 
 lemma Person_allInstances_generic_oclIsTypeOf\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n:
-"\<tau> \<Turnstile> ((OclAllInstances_generic pre_post Person)->forAll(X|X .oclIsTypeOf(Person)))"
+"\<tau> \<Turnstile> ((OclAllInstances_generic pre_post Person)->forAll\<^sub>S\<^sub>e\<^sub>t(X|X .oclIsTypeOf(Person)))"
  apply(simp add: OclValid_def del: OclAllInstances_generic_def)
  apply(simp only: OclForall_def refl if_True
                   OclAllInstances_generic_defined[simplified OclValid_def])
@@ -661,18 +661,18 @@ lemma Person_allInstances_generic_oclIsTypeOf\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^
 by(simp add: OclIsTypeOf\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_Person)
 
 lemma Person_allInstances_at_post_oclIsTypeOf\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n:
-"\<tau> \<Turnstile> (Person .allInstances()->forAll(X|X .oclIsTypeOf(Person)))"
+"\<tau> \<Turnstile> (Person .allInstances()->forAll\<^sub>S\<^sub>e\<^sub>t(X|X .oclIsTypeOf(Person)))"
 unfolding OclAllInstances_at_post_def
 by(rule Person_allInstances_generic_oclIsTypeOf\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n)
 
 lemma Person_allInstances_at_pre_oclIsTypeOf\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n:
-"\<tau> \<Turnstile> (Person .allInstances@pre()->forAll(X|X .oclIsTypeOf(Person)))"
+"\<tau> \<Turnstile> (Person .allInstances@pre()->forAll\<^sub>S\<^sub>e\<^sub>t(X|X .oclIsTypeOf(Person)))"
 unfolding OclAllInstances_at_pre_def
 by(rule Person_allInstances_generic_oclIsTypeOf\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n)
 
 subsection{* OclIsKindOf *}
 lemma OclAny_allInstances_generic_oclIsKindOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y:
-"\<tau> \<Turnstile> ((OclAllInstances_generic pre_post OclAny)->forAll(X|X .oclIsKindOf(OclAny)))"
+"\<tau> \<Turnstile> ((OclAllInstances_generic pre_post OclAny)->forAll\<^sub>S\<^sub>e\<^sub>t(X|X .oclIsKindOf(OclAny)))"
  apply(simp add: OclValid_def del: OclAllInstances_generic_def)
  apply(simp only: OclForall_def refl if_True
                   OclAllInstances_generic_defined[simplified OclValid_def])
@@ -681,17 +681,17 @@ lemma OclAny_allInstances_generic_oclIsKindOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^
 by(simp add: OclIsKindOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_OclAny)
 
 lemma OclAny_allInstances_at_post_oclIsKindOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y:
-"\<tau> \<Turnstile> (OclAny .allInstances()->forAll(X|X .oclIsKindOf(OclAny)))"
+"\<tau> \<Turnstile> (OclAny .allInstances()->forAll\<^sub>S\<^sub>e\<^sub>t(X|X .oclIsKindOf(OclAny)))"
 unfolding OclAllInstances_at_post_def
 by(rule OclAny_allInstances_generic_oclIsKindOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y)
 
 lemma OclAny_allInstances_at_pre_oclIsKindOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y:
-"\<tau> \<Turnstile> (OclAny .allInstances@pre()->forAll(X|X .oclIsKindOf(OclAny)))"
+"\<tau> \<Turnstile> (OclAny .allInstances@pre()->forAll\<^sub>S\<^sub>e\<^sub>t(X|X .oclIsKindOf(OclAny)))"
 unfolding OclAllInstances_at_pre_def
 by(rule OclAny_allInstances_generic_oclIsKindOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y)
 
 lemma Person_allInstances_generic_oclIsKindOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y:
-"\<tau> \<Turnstile> ((OclAllInstances_generic pre_post Person)->forAll(X|X .oclIsKindOf(OclAny)))"
+"\<tau> \<Turnstile> ((OclAllInstances_generic pre_post Person)->forAll\<^sub>S\<^sub>e\<^sub>t(X|X .oclIsKindOf(OclAny)))"
  apply(simp add: OclValid_def del: OclAllInstances_generic_def)
  apply(simp only: OclForall_def refl if_True
                   OclAllInstances_generic_defined[simplified OclValid_def])
@@ -700,17 +700,17 @@ lemma Person_allInstances_generic_oclIsKindOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^
 by(simp add: OclIsKindOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_Person)
 
 lemma Person_allInstances_at_post_oclIsKindOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y:
-"\<tau> \<Turnstile> (Person .allInstances()->forAll(X|X .oclIsKindOf(OclAny)))"
+"\<tau> \<Turnstile> (Person .allInstances()->forAll\<^sub>S\<^sub>e\<^sub>t(X|X .oclIsKindOf(OclAny)))"
 unfolding OclAllInstances_at_post_def
 by(rule Person_allInstances_generic_oclIsKindOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y)
 
 lemma Person_allInstances_at_pre_oclIsKindOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y:
-"\<tau> \<Turnstile> (Person .allInstances@pre()->forAll(X|X .oclIsKindOf(OclAny)))"
+"\<tau> \<Turnstile> (Person .allInstances@pre()->forAll\<^sub>S\<^sub>e\<^sub>t(X|X .oclIsKindOf(OclAny)))"
 unfolding OclAllInstances_at_pre_def
 by(rule Person_allInstances_generic_oclIsKindOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y)
 
 lemma Person_allInstances_generic_oclIsKindOf\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n:
-"\<tau> \<Turnstile> ((OclAllInstances_generic pre_post Person)->forAll(X|X .oclIsKindOf(Person)))"
+"\<tau> \<Turnstile> ((OclAllInstances_generic pre_post Person)->forAll\<^sub>S\<^sub>e\<^sub>t(X|X .oclIsKindOf(Person)))"
  apply(simp add: OclValid_def del: OclAllInstances_generic_def)
  apply(simp only: OclForall_def refl if_True
                   OclAllInstances_generic_defined[simplified OclValid_def])
@@ -719,12 +719,12 @@ lemma Person_allInstances_generic_oclIsKindOf\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^
 by(simp add: OclIsKindOf\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_Person)
 
 lemma Person_allInstances_at_post_oclIsKindOf\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n:
-"\<tau> \<Turnstile> (Person .allInstances()->forAll(X|X .oclIsKindOf(Person)))"
+"\<tau> \<Turnstile> (Person .allInstances()->forAll\<^sub>S\<^sub>e\<^sub>t(X|X .oclIsKindOf(Person)))"
 unfolding OclAllInstances_at_post_def
 by(rule Person_allInstances_generic_oclIsKindOf\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n)
 
 lemma Person_allInstances_at_pre_oclIsKindOf\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n:
-"\<tau> \<Turnstile> (Person .allInstances@pre()->forAll(X|X .oclIsKindOf(Person)))"
+"\<tau> \<Turnstile> (Person .allInstances@pre()->forAll\<^sub>S\<^sub>e\<^sub>t(X|X .oclIsKindOf(Person)))"
 unfolding OclAllInstances_at_pre_def
 by(rule Person_allInstances_generic_oclIsKindOf\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n)
 
@@ -1171,7 +1171,7 @@ proof -
   by(rule arg_cong[of _ _ "\<lambda>x. (Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e(\<lfloor>\<lfloor> x \<rfloor>\<rfloor>))"], auto)
 
  have excluding1: "\<And>S a b c d e \<tau>.
-                   (\<lambda>_. Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor>\<lfloor> {\<lfloor>\<lfloor>a\<rfloor>\<rfloor>, \<lfloor>\<lfloor>b\<rfloor>\<rfloor>, \<lfloor>\<lfloor>c\<rfloor>\<rfloor>, \<lfloor>\<lfloor>d\<rfloor>\<rfloor>} \<rfloor>\<rfloor>)->excluding(\<lambda>\<tau>. \<lfloor>\<lfloor>e\<rfloor>\<rfloor>) \<tau> =
+                   (\<lambda>_. Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor>\<lfloor> {\<lfloor>\<lfloor>a\<rfloor>\<rfloor>, \<lfloor>\<lfloor>b\<rfloor>\<rfloor>, \<lfloor>\<lfloor>c\<rfloor>\<rfloor>, \<lfloor>\<lfloor>d\<rfloor>\<rfloor>} \<rfloor>\<rfloor>)->excluding\<^sub>S\<^sub>e\<^sub>t(\<lambda>\<tau>. \<lfloor>\<lfloor>e\<rfloor>\<rfloor>) \<tau> =
                    Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor>\<lfloor> {\<lfloor>\<lfloor>a\<rfloor>\<rfloor>, \<lfloor>\<lfloor>b\<rfloor>\<rfloor>, \<lfloor>\<lfloor>c\<rfloor>\<rfloor>, \<lfloor>\<lfloor>d\<rfloor>\<rfloor>} - {\<lfloor>\<lfloor>e\<rfloor>\<rfloor>} \<rfloor>\<rfloor>"
   apply(simp add: OclExcluding_def)
   apply(simp add: defined_def OclValid_def false_def true_def
