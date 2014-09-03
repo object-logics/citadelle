@@ -310,6 +310,7 @@ lemmas [code] =
   s_of.s_of_ntheorem_def
   s_of.s_of_ntheorems_def
   s_of.s_of_ntheorem_l_def
+  s_of.s_of_ntheorem_l1_def
   s_of.s_of_ntheorems_l_def
   s_of.s_of_lemmas_simp_def
   s_of.s_of_attrib_def
