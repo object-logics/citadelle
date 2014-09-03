@@ -97,7 +97,34 @@ and
 
 which characterize the infiniteness of these sets by a recursive property on these sets.
 *}
+subsection{* Strict Equality *}
 
+subsubsection{* Definition *}
+
+text{* After the part of foundational operations on sets, we detail here equality on sets.
+Strong equality is inherited from the OCL core, but we have to consider
+the case of the strict equality. We decide to overload strict equality in the
+same way we do for other value's in OCL:*}
+
+defs   StrictRefEq\<^sub>S\<^sub>e\<^sub>t :
+      "(x::('\<AA>,'\<alpha>::null)Set) \<doteq> y \<equiv> \<lambda> \<tau>. if (\<upsilon> x) \<tau> = true \<tau> \<and> (\<upsilon> y) \<tau> = true \<tau>
+                                         then (x \<triangleq> y)\<tau>
+                                         else invalid \<tau>"
+
+text{* One might object here that for the case of objects, this is an empty definition.
+The answer is no, we will restrain later on states and objects such that any object
+has its oid stored inside the object (so the ref, under which an object can be referenced
+in the store will represented in the object itself). For such well-formed stores that satisfy
+this invariant (the WFF-invariant), the referential equality and the
+strong equality---and therefore the strict equality on sets in the sense above---coincides.*}
+
+text{* Property proof in terms of @{term "profile_bin3"}*}
+interpretation  StrictRefEq\<^sub>S\<^sub>e\<^sub>t : profile_bin3 "\<lambda> x y. (x::('\<AA>,'\<alpha>::null)Set) \<doteq> y" 
+         by unfold_locales (auto simp:  StrictRefEq\<^sub>S\<^sub>e\<^sub>t)
+ 
+
+         
+         
 subsection{* Validity and Definedness Properties *}
 
 text{* Every element in a defined set is valid. *}
@@ -938,10 +965,10 @@ lemma cp_OclSelect: "(X->select\<^sub>S\<^sub>e\<^sub>t(a | P a)) \<tau> =
                 ((\<lambda> _. X \<tau>)->select\<^sub>S\<^sub>e\<^sub>t(a | P a)) \<tau>"
 by(simp add: OclSelect_def cp_defined[symmetric])
 
-lemma cp_OclReject: "(X->reject\<^sub>S\<^sub>e\<^sub>t(a | P a)) \<tau> =
-                ((\<lambda> _. X \<tau>)->reject\<^sub>S\<^sub>e\<^sub>t(a | P a)) \<tau>"
+lemma cp_OclReject: "(X->reject\<^sub>S\<^sub>e\<^sub>t(a | P a)) \<tau> = ((\<lambda> _. X \<tau>)->reject\<^sub>S\<^sub>e\<^sub>t(a | P a)) \<tau>"
 by(simp add: OclReject_def, subst cp_OclSelect, simp)
 
+(* < *)
 lemmas cp_intro''\<^sub>S\<^sub>e\<^sub>t[intro!,simp,code_unfold] =
        cp_OclIncluding [THEN allI[THEN allI[THEN allI[THEN cpI2]], of "OclIncluding"]]
        cp_OclExcluding [THEN allI[THEN allI[THEN allI[THEN cpI2]], of "OclExcluding"]]
@@ -980,6 +1007,7 @@ lemma const_OclIncluding[simp,code_unfold] :
        apply(subst const_charn[OF const_S])
        by simp
 qed
+(* > *)
 
 (*
 lemma const_OclForall :
@@ -1012,31 +1040,6 @@ by (metis (no_types) const_def const_defined const_true const_valid cp_defined c
 
 *)
 
-subsection{* Strict Equality *}
-
-subsubsection{* Definition *}
-
-text{* After the part of foundational operations on sets, we detail here equality on sets.
-Strong equality is inherited from the OCL core, but we have to consider
-the case of the strict equality. We decide to overload strict equality in the
-same way we do for other value's in OCL:*}
-
-defs   StrictRefEq\<^sub>S\<^sub>e\<^sub>t :
-      "(x::('\<AA>,'\<alpha>::null)Set) \<doteq> y \<equiv> \<lambda> \<tau>. if (\<upsilon> x) \<tau> = true \<tau> \<and> (\<upsilon> y) \<tau> = true \<tau>
-                                         then (x \<triangleq> y)\<tau>
-                                         else invalid \<tau>"
-
-text{* One might object here that for the case of objects, this is an empty definition.
-The answer is no, we will restrain later on states and objects such that any object
-has its oid stored inside the object (so the ref, under which an object can be referenced
-in the store will represented in the object itself). For such well-formed stores that satisfy
-this invariant (the WFF-invariant), the referential equality and the
-strong equality---and therefore the strict equality on sets in the sense above---coincides.*}
-
-text{* Property proof in terms of @{term "profile_bin3"}*}
-interpretation  StrictRefEq\<^sub>S\<^sub>e\<^sub>t : profile_bin3 "\<lambda> x y. (x::('\<AA>,'\<alpha>::null)Set) \<doteq> y" 
-         by unfold_locales (auto simp:  StrictRefEq\<^sub>S\<^sub>e\<^sub>t)
- 
 
 
 subsubsection{* Execution Rules on OclIncluding *}
