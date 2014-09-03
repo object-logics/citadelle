@@ -418,7 +418,7 @@ consts (* abstract set collection operations *)
 notation  OclCount       ("_->count\<^sub>S\<^sub>e\<^sub>t'(_')" (*[66,65]65*))
 notation  OclSum         ("_->sum\<^sub>S\<^sub>e\<^sub>t'(')" (*[66]*))
 
-text{* \isatagafp *}
+(* text{* \isatagafp *} *)
 subsubsection{* Validity and Definedness Properties *}
 
 text{* OclIncluding *}
@@ -682,7 +682,7 @@ lemma OclANY_valid_args_valid''[simp,code_unfold]:
 by(auto intro!: OclANY_valid_args_valid transform2_rev)
 
 (* and higher order ones : forall, exists, iterate, select, reject... *)
-text{* \endisatagafp *}
+(* text{* \endisatagafp *} *)
 
 subsubsection{* Execution with Invalid or Null or Infinite Set as Argument *}
 
