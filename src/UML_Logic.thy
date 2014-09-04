@@ -1,5 +1,5 @@
 (*****************************************************************************
- * Featherweight-OCL --- A Formal Semantics for UML-OCL Version OCL 2.4
+ * Featherweight-OCL --- A Formal Semantics for UML-OCL Version OCL 2.5
  *                       for the OMG Standard.
  *                       http://www.brucker.ch/projects/hol-testgen/
  *
@@ -118,24 +118,19 @@ where   "\<upsilon> X \<equiv>  \<lambda> \<tau> . if X \<tau> = bot \<tau> then
 lemma valid1[simp]: "\<upsilon> invalid = false"
   by(rule ext,simp add: valid_def bot_fun_def bot_option_def
                         invalid_def true_def false_def)
-
 lemma valid2[simp]: "\<upsilon> null = true"
   by(rule ext,simp add: valid_def bot_fun_def bot_option_def null_is_valid
                         null_fun_def invalid_def true_def false_def)
-
 lemma valid3[simp]: "\<upsilon> true = true"
   by(rule ext,simp add: valid_def bot_fun_def bot_option_def null_is_valid
                         null_fun_def invalid_def true_def false_def)
-
 lemma valid4[simp]: "\<upsilon> false = true"
   by(rule ext,simp add: valid_def bot_fun_def bot_option_def null_is_valid
                         null_fun_def invalid_def true_def false_def)
-
-
+text_raw{* \isatagafp *}
 lemma cp_valid: "(\<upsilon> X) \<tau> = (\<upsilon> (\<lambda> _. X \<tau>)) \<tau>"
 by(simp add: valid_def)
-
-
+text_raw{* \endisatagafp *}
 
 definition defined :: "('\<AA>,'a::null)val \<Rightarrow> ('\<AA>)Boolean" ("\<delta> _" [100]100)
 where   "\<delta> X \<equiv>  \<lambda> \<tau> . if X \<tau> = bot \<tau>  \<or> X \<tau> = null \<tau> then false \<tau> else true \<tau>"
@@ -145,44 +140,35 @@ properties as the old ones : *}
 lemma defined1[simp]: "\<delta> invalid = false"
   by(rule ext,simp add: defined_def bot_fun_def bot_option_def
                         null_def invalid_def true_def false_def)
-
 lemma defined2[simp]: "\<delta> null = false"
   by(rule ext,simp add: defined_def bot_fun_def bot_option_def
                         null_def null_option_def null_fun_def invalid_def true_def false_def)
-
-
 lemma defined3[simp]: "\<delta> true = true"
   by(rule ext,simp add: defined_def bot_fun_def bot_option_def null_is_valid null_option_def
                         null_fun_def invalid_def true_def false_def)
-
 lemma defined4[simp]: "\<delta> false = true"
   by(rule ext,simp add: defined_def bot_fun_def bot_option_def null_is_valid null_option_def
                         null_fun_def invalid_def true_def false_def)
-
-
 lemma defined5[simp]: "\<delta> \<delta> X = true"
   by(rule ext,
      auto simp:           defined_def true_def false_def
                 bot_fun_def bot_option_def null_option_def null_fun_def)
-
 lemma defined6[simp]: "\<delta> \<upsilon> X = true"
   by(rule ext,
      auto simp: valid_def defined_def true_def false_def
                 bot_fun_def bot_option_def null_option_def null_fun_def)
-
 lemma valid5[simp]: "\<upsilon> \<upsilon> X = true"
   by(rule ext,
      auto simp: valid_def             true_def false_def
                 bot_fun_def bot_option_def null_option_def null_fun_def)
-
 lemma valid6[simp]: "\<upsilon> \<delta> X = true"
   by(rule ext,
      auto simp: valid_def defined_def true_def false_def
                 bot_fun_def bot_option_def null_option_def null_fun_def)
-
-
+text_raw{* \isatagafp *}
 lemma cp_defined:"(\<delta> X)\<tau> = (\<delta> (\<lambda> _. X \<tau>)) \<tau>"
 by(simp add: defined_def)
+text_raw{* \endisatagafp *}
 
 text{* The definitions above for the constants @{const defined} and @{const valid}
 can be rewritten into the conventional semantic "textbook" format  as follows: *}
