@@ -102,7 +102,7 @@ text {*
       @{thm [source] textbook_false} & @{thm [display=false] textbook_false} \\
       \bottomrule
    \end{tabu}
-   \caption{Basic semantic constant definitions of the logic (except @{term null})}
+   \caption{Basic semantic constant definitions of the logic}
    \label{tab:sem_basic_constants}
 \end{table}
 *}

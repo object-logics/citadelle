@@ -1549,7 +1549,7 @@ In this section, we assume to be $C_z,C_i,C_j \in C$ and  $C_i < C_j$.
 Let $C_z$ be a smallest element with respect to the class hierarchy $\_ < \_$.
 The operations induced from a class-model have the following properties:
 \begin{gather*}
-  \begin{aligned}[c]
+\begin{aligned}[c]
   \tau \isasymMathOclValid X \mocl{.oclAsType(}C_i\mocl{)} \isasymMathOclStrongEq X   \\
  \tau \isasymMathOclValid \mocl{invalid .oclAsType(}C_i\mocl{)} \isasymMathOclStrongEq \mocl{invalid} \\
  \tau \isasymMathOclValid \mocl{null .oclAsType(}C_i\mocl{)} \isasymMathOclStrongEq \mocl{null} \\
@@ -1579,7 +1579,7 @@ The operations induced from a class-model have the following properties:
 \subsubsection{Algebraic Properties of the Class-Models}\label{sec:algprop-datamodel}
 In this section, we assume to be $C_i,C_j \in C$ and  $C_i < C_j$. 
 The operations induced from a class-model have the following  properties:
-\begin{gather}
+\begin{gather*}
 \begin{array}{ll}
  \mocl{invalid} \mocl{.oclIsTypeOf(}C_i\mocl{)} = \mocl{invalid}  \qquad            
  \mocl{null}  \mocl{.oclIsTypeOf(}C_i\mocl{)} = \mocl{true}     \\             
@@ -1588,10 +1588,10 @@ The operations induced from a class-model have the following  properties:
  (X::C_i) \mocl{.oclAsType(}C_i\mocl{)} = X                    \qquad
  \mocl{invalid} \mocl{.oclAsType(}C_i\mocl{)} = \mocl{invalid}     \\         
  \mocl{null} \mocl{.oclAsType(}C_i\mocl{)} = \mocl{null}         \qquad             
- ((X::C_i) \mocl{.oclAsType(}C_j\mocl{) .oclAsType(}C_i\mocl{)} = X) 
-\end{array}
- (X::C_i) \isasymMathOclStrictEq X = \mocl{if} \upsilon ~ X \mocl{then true else} \mocl{invalid} \mocl{endif} 
-\end{gather}
+ (X::C_i) \mocl{.oclAsType(}C_j\mocl{).oclAsType(}C_i\mocl{)} = X
+\end{array} \\
+ (X::C_i) \isasymMathOclStrictEq X = \mocl{if } \upsilon ~ X \mocl{ then true els invalid endif} \\
+\end{gather*}
 With respect to attributes $\getAttrib{\_}{\text{a}}$ or $\getAttrib{\_}{\text{a}\isasymOclATpre}$ 
 and role-ends $\getAttrib{\_}{\text{r}}$ or $\getAttrib{\_}{\text{r}\isasymOclATpre}$ we have
 \begin{gather*}
@@ -1739,17 +1739,17 @@ under the conditions:
 \begin{itemize}
 \item $E$ must be an \OCL term and
 \item $\self$ must be defined, and the arguments valid in $\tau$: \\
-      $\isasymMathOclValid \isasymMathOclIsDefined~\self \land \tau \isasymMathOclValid \isasymupsilon~x_1 \land \ldots \land  \tau \isasymMathOclValid \isasymupsilon~ x_n$
+      $\tau \isasymMathOclValid \isasymMathOclIsDefined~\self \land \tau \isasymMathOclValid \isasymupsilon~a_1 \land \ldots \land  \tau \isasymMathOclValid \isasymupsilon~ a_n$
 \item the post-condition must be satisfiable (``the operation must be implementable''):
-      $\exists res. \tau \isasymMathOclValid \psi ~\self ~a_1 \ldots a_n~res $.
-\end{itemize}
+      $\exists res.~ \tau \isasymMathOclValid \psi ~\self ~a_1 \ldots a_n~res $.
+\end{itemize}                                                                    
 For the special case of a (recursive) query method, this rule can be specialized to the following
 executable ``unfolding principle'':
 \begin{gather}
   \begin{prooftree}
   \tau \isasymMathOclValid \phi~self~a_1\ldots a_n
   \justifies
-  (\tau \isasymMathOclValid E(f_{op}~self~a_1\ldots a_n)) = 
+  (\tau \isasymMathOclValid E(f_{op}~self~a_1\ldots a_n)) = e
    (\tau \isasymMathOclValid E (BODY~self~a_1 ... a_n))
   \end{prooftree}
 \end{gather}
@@ -1757,7 +1757,7 @@ where
 \begin{itemize}
 \item $E$ must be an \OCL term.
 \item $\self$ must be defined, and the arguments valid in $\tau$: \\
-      $\tau \isasymMathOclValid \isasymMathOclIsDefined~\self \land \tau \isasymMathOclValid \isasymupsilon~x_1 \land \ldots \land  \tau \isasymMathOclValid \isasymupsilon~ x_n$
+      $\tau \isasymMathOclValid \isasymMathOclIsDefined~\self \land \tau \isasymMathOclValid \isasymupsilon~a_1 \land \ldots \land  \tau \isasymMathOclValid \isasymupsilon~ a_n$
 \item the postcondition $\psi~self~a_1~\ldots~a_n~result$ must be decomposable
       into: \\
       $\psi'~self~a_1~\ldots a_n$ and $result \isasymMathOclStrongEq BODY~self~a_1~\ldots~a_n$.

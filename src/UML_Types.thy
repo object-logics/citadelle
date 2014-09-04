@@ -501,7 +501,7 @@ text{* After the previous sections, we are now able to exemplify this representa
       \inlineocl|Set(<T>)| & @{typ "('\<AA>,'\<alpha>::null)Set"} \\
       \bottomrule
    \end{tabu}
-   \caption{Basic semantic constant definitions of the logic (except @{term null})}
+   \caption{Correspondance between \OCL types and \HOL types}
    \label{tab:sem_basic_constants}
 \end{table}
 We do not formalize the representation map here; however, its principles are quite straight-forward:
