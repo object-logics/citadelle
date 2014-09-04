@@ -235,34 +235,27 @@ Here is a feature-list of  \FOCL:
 %         hidden from the user inside tools.
 \end{itemize}
 
-\paragraph{Context.} This document stands in a  more than fifteen years  tradition of 
-giving a formal semantics to the core of \UML and its annotation language \OCL,
-starting from \citet{richters:precise:2002} and   
-\cite{hamie.ea:reflections:1998,mandel.ea:ocl:1999,cook.ea::amsterdam:2002},
-leading to a number of formal, machine-checked versions, most notably \HOL-\OCL
-~\cite{brucker.ea:semantic:2006-b,brucker.ea:hol-ocl-book:2006,brucker.ea:extensible:2008-b}
-and more recent approaches~\cite{DBLP:conf/models/BruckerLTW13}. All of them
-have in common
-the attempt to reconcile the conflicting demands of an industrially used 
-specification language and its various stakeholders, the needs of OMG 
-standardization process and the desire for sufficient logical precision 
-for tool-implementors, in particular from the Formal Methods research community.        
-
-\fixme{Something like this ? Shorten Paragraph !}
-To discuss the future directions of the standard, several \OCL experts met 
-in November 2013 in Aachen to discuss possible mid-term improvements of \OCL, 
-strategies of standardization of \OCL within the OMG, and a vision for possible
-long-term developments of the
-language~\cite{brucker.ea:summary-aachen:2013}. During this meeting, a
-Request for Proposals (RFP) for \OCL 2.5 was finalized and meanwhile
-proposed. In particular, this RFP requires that the future \OCL 2.5
-standard document shall be generated from a machine-checked
-source. This will ensure
-\begin{itemize}
-\item the absence of syntax errors,
-\item the consistency of the formal semantics,
-\item a suite of corner-cases relevant for \OCL tool implementors.
-\end{itemize}
+\paragraph{Context.} This document stands in a more than fifteen years
+tradition of giving a formal semantics to the core of \UML and its
+annotation language \OCL, starting from \citet{richters:precise:2002}
+and~\cite{hamie.ea:reflections:1998,mandel.ea:ocl:1999,cook.ea::amsterdam:2002},
+leading to a number of formal, machine-checked versions, most notably
+\HOL-\OCL~\cite{brucker.ea:semantic:2006-b,brucker:interactive:2007,brucker.ea:hol-ocl-book:2006,brucker.ea:extensible:2008-b}
+and more recent approaches~\cite{DBLP:conf/models/BruckerLTW13}. All
+of them have in common the attempt to reconcile the conflicting
+demands of an industrially used specification language and its various
+stakeholders, the needs of OMG standardization process and the desire
+for sufficient logical precision for tool-implementors, in particular
+from the Formal Methods research community.  To discuss the future
+directions of the standard, several \OCL experts met in November 2013
+in Aachen to discuss possible mid-term improvements of \OCL,
+strategies of standardization of \OCL within the OMG, and a vision for
+possible long-term developments of the
+language~\cite{brucker.ea:summary-aachen:2013}. The participants
+agreed that future proposals for a formal semantics should be
+machine-check, to ensure the absence of syntax errors, the consistency
+of the formal semantics, as well as provide a a suite of corner-cases
+relevant for \OCL tool implementors.
 
 \paragraph{Organization of this document.}
 This document is organized as follows. After a brief background section
@@ -806,7 +799,7 @@ object universes were excluded from a presentation here.
 
 \subsubsection{Denotational Semantics of Types}
 The syntactic material for type expressions, called $\text{TYPES}(C)$, is inductively
-defined as follows: \fixme{should we use expliucit definitions ?}
+defined as follows: %\fixme{should we use expliucit definitions ?}
 \begin{itemize}
 \item $C \subseteq \text{TYPES}(C)$ 
 \item $\text{Boolean}$, $\text{Integer}$, $\text{Real}$, $\text{Void}$, ... are elements
@@ -1913,13 +1906,17 @@ where
       $\psi'~self~a_1~\ldots a_n$ and $result \isasymMathOclStrongEq BODY~self~a_1~\ldots~a_n$.
 \end{itemize}
       
-We do not model \emph{overriding}  of operations as in Java or C++ explicitly in \FOCL. 
-However, it is easy expressed in this core-language by adding \mocl{self.oclIsKindOf(C)} in the pre-condition $\phi$ (assuming
-  that, as in the schema above, \mocl{C} is the context to which the contract is referring to).
-In order to avoid logical contradictions (inconsistencies) between different instances of an 
-overridden operation, the user has to prove Liskov's principle for these situations:
-pre-conditions of the superclass must imply pre-conditions of the subclass, and post-conditions
-of a subclass must imply post-conditions of the superclass. \fixme{correct?}
+We do not model \emph{overriding} of operations as in Java or C++
+explicitly in \FOCL.  However, it is easy expressed in this
+core-language by adding \mocl{self.oclIsKindOf(C)} in the
+pre-condition $\phi$ (assuming that, as in the schema above, \mocl{C}
+is the context to which the contract is referring to).  In order to
+avoid logical contradictions (inconsistencies) between different
+instances of an overridden operation, the user has to prove Liskov's
+principle for these situations: pre-conditions of the superclass must
+imply pre-conditions of the subclass, and post-conditions of a
+subclass must imply post-conditions of the
+superclass. \fixme{correct?}
 
 
 %%% Local Variables:
