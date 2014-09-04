@@ -924,7 +924,7 @@ lemma (*cp_OclForall:*)
  cp(\<lambda>X. ((S X)->forAll\<^sub>S\<^sub>e\<^sub>t(x | P x X)))"
 oops
 
-(* old proo in HOL-OCL based on Isabelle2005:
+(* old proof in HOL-OCL based on Isabelle2005:
 
 lemma cp_OclForall2 [simp,intro!]:
 "\<lbrakk> cp (\<lambda> X St.(\<lambda>x. P (\<lambda>\<tau>. x) X St));
