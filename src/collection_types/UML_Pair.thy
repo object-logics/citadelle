@@ -183,7 +183,7 @@ apply(subgoal_tac "\<tau> \<Turnstile> \<upsilon> X")
 apply(erule foundation13[THEN iffD2, THEN StrongEq_L_subst2_rev], simp_all)
 by(erule 2)
 
-subsection{*Test Statements*}
+subsection{* Test Statements*}
 
 Assert "\<tau> \<Turnstile> invalid .First() \<triangleq> invalid "
 Assert "\<tau> \<Turnstile> null .First() \<triangleq> invalid "
