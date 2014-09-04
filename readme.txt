@@ -2,6 +2,12 @@ This direcotry contains the detailed AFP submission of the
 "Featherweight OCL" semantics for OCL as well as our proposal
 for Appendix A of the OCL standard.
 
+Beyond the standard mechanism 
+
+(* < *)
+<<skipped isar text, not shown in doc >>
+(* > *)
+
 The two main targes of this Isabelle project are:
 - check everything and generate all documents allowing "sorry"'s, i.e., 
   using Isabelles "quick-and-dirty"-mode:
