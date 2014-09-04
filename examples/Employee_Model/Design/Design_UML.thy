@@ -311,6 +311,26 @@ defs (overloaded) OclIsTypeOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_Oc
                             | \<lfloor>\<lfloor>mk\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y oid \<bottom> \<rfloor>\<rfloor> \<Rightarrow> true \<tau>
                             | \<lfloor>\<lfloor>mk\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y oid \<lfloor>_\<rfloor> \<rfloor>\<rfloor> \<Rightarrow> false \<tau>)"
 
+lemma OclIsTypeOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_OclAny':
+         "(X::OclAny) .oclIsTypeOf(OclAny) = 
+                    (\<lambda> \<tau>. if \<tau> \<Turnstile> \<upsilon> X then (case X \<tau> of
+                                              \<lfloor>\<bottom>\<rfloor> \<Rightarrow> true \<tau>  (* invalid ?? *)
+                                           | \<lfloor>\<lfloor>mk\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y oid \<bottom> \<rfloor>\<rfloor> \<Rightarrow> true \<tau>
+                                           | \<lfloor>\<lfloor>mk\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y oid \<lfloor>_\<rfloor> \<rfloor>\<rfloor> \<Rightarrow> false \<tau>)
+                                           else invalid \<tau>)"
+       apply(rule ext, simp add: OclIsTypeOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_OclAny)
+       by(case_tac "\<tau> \<Turnstile> \<upsilon> X", auto simp: foundation18' bot_option_def)
+
+interpretation OclIsTypeOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_OclAny : 
+       profile_mono_schemeV 
+       "OclIsTypeOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y::OclAny \<Rightarrow> Boolean" 
+       "\<lambda> X. (case X of
+                    \<lfloor>None\<rfloor> \<Rightarrow> \<lfloor>\<lfloor>True\<rfloor>\<rfloor>  (* invalid ?? *)
+                  | \<lfloor>\<lfloor>mk\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y oid None \<rfloor>\<rfloor> \<Rightarrow> \<lfloor>\<lfloor>True\<rfloor>\<rfloor>
+                  | \<lfloor>\<lfloor>mk\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y oid \<lfloor>_\<rfloor> \<rfloor>\<rfloor> \<Rightarrow> \<lfloor>\<lfloor>False\<rfloor>\<rfloor>)"                     
+      apply(unfold_locales, simp add: atomize_eq, rule ext)
+      by(auto simp:  OclIsTypeOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_OclAny' OclValid_def true_def false_def 
+              split: option.split type\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y.split)
 
 defs (overloaded) OclIsTypeOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_Person:
         "(X::Person) .oclIsTypeOf(OclAny) \<equiv>

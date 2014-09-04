@@ -331,13 +331,10 @@ interpretation OclIsTypeOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_OclAn
                     \<lfloor>None\<rfloor> \<Rightarrow> \<lfloor>\<lfloor>True\<rfloor>\<rfloor>  (* invalid ?? *)
                   | \<lfloor>\<lfloor>mk\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y oid None \<rfloor>\<rfloor> \<Rightarrow> \<lfloor>\<lfloor>True\<rfloor>\<rfloor>
                   | \<lfloor>\<lfloor>mk\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y oid \<lfloor>_\<rfloor> \<rfloor>\<rfloor> \<Rightarrow> \<lfloor>\<lfloor>False\<rfloor>\<rfloor>)"                     
-      apply(unfold_locales)
-      apply(simp add: HOL.atomize_eq,rule ext)
-      by(auto simp: OclIsTypeOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_OclAny' OclValid_def true_def false_def 
-              split:option.split type\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y.split)
+      apply(unfold_locales, simp add: atomize_eq, rule ext)
+      by(auto simp:  OclIsTypeOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_OclAny' OclValid_def true_def false_def 
+              split: option.split type\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y.split)
 
-   find_theorems name: "OclIsTypeOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_OclAny"   
-      
 defs (overloaded) OclIsTypeOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_Person:
         "(X::Person) .oclIsTypeOf(OclAny) \<equiv>
                    (\<lambda>\<tau>. case X \<tau> of
