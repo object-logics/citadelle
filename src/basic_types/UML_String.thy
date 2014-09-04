@@ -71,6 +71,7 @@ definition OclStringb ::"('\<AA>)String" ("\<b>")    where      "\<b> = (\<lambd
 definition OclStringc ::"('\<AA>)String" ("\<c>")    where      "\<c> = (\<lambda> _ . \<lfloor>\<lfloor>''c''\<rfloor>\<rfloor>)"
 text{* Etc.*}
 text_raw{* \isatagafp *}
+
 subsection{* Validity and Definedness Properties *}
 
 lemma  "\<delta>(null::('\<AA>)String) = false" by simp
@@ -118,7 +119,7 @@ lemma OclAdd\<^sub>S\<^sub>t\<^sub>r\<^sub>i\<^sub>n\<^sub>g_not_commute: "\<exi
   by(auto, drule fun_cong, auto)
 
 
-subsubsection{* Test Statements *}
+subsection{* Test Statements *}
 text{* Here follows a list of code-examples, that explain the meanings
 of the above definitions by compilation to code and execution to @{term "True"}.*}
 (*
@@ -128,9 +129,6 @@ Assert "\<not>(\<tau> \<Turnstile> (( \<four> +\<^sub>s\<^sub>t\<^sub>r\<^sub>i\
 Assert "  \<tau> \<Turnstile> not (\<upsilon> (null +\<^sub>s\<^sub>t\<^sub>r\<^sub>i\<^sub>n\<^sub>g \<one>)) "
 *)
 
-
-
-subsection{* Test Statements on Basic String *}
 text{* Here follows a list of code-examples, that explain the meanings
 of the above definitions by compilation to code and execution to @{term "True"}.*}
 
