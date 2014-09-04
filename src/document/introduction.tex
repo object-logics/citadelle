@@ -1546,7 +1546,7 @@ omit the multiplicity.
 
 \subsubsection{Logic Properties of Class-Models}\label{sec:logicprop-datamodel}
 In this section, we assume to be $C_z,C_i,C_j \in C$ and  $C_i < C_j$. 
-Let $C_z$ be a smallest element wit h respect to the class hierarchy $\_ < \_$.
+Let $C_z$ be a smallest element with respect to the class hierarchy $\_ < \_$.
 The operations induced from a class-model have the following properties:
 \begin{gather*}
   \begin{aligned}[c]
@@ -1555,9 +1555,11 @@ The operations induced from a class-model have the following properties:
  \tau \isasymMathOclValid \mocl{null .oclAsType(}C_i\mocl{)} \isasymMathOclStrongEq \mocl{null} \\
  \tau \isasymMathOclValid \mocl{((}X::C_i) \mocl{.oclAsType(C_j) .oclAsType(}C_i\mocl{)} \isasymMathOclStrongEq X\mocl{)}  \\
  \tau \isasymMathOclValid X \mocl{.oclAsType(}C_j\mocl{) .oclAsType(}C_i) \isasymMathOclStrongEq X  \\
- \tau \isasymMathOclValid \upsilon (X :: C_i) \Longrightarrow \tau \isasymMathOclValid (X \mocl{.oclIsTypeOf(}C_i\mocl{) implies} (X \mocl{.oclAsType(}C_j\mocl{) .oclAsType(}C_i\mocl{))} \isasymMathOclStrictEq X) \\
  \tau \isasymMathOclValid \mocl{(}X::OclAny\mocl{) .oclAsType(}OclAny\mocl{)} \isasymMathOclStrongEq X \\
- \tau \isasymMathOclValid \upsilon (X :: C_i) \Longrightarrow \tau \isasymMathOclValid (X \mocl{.oclIsTypeOf(}C_i\mocl{) implies (}X \mocl{.oclAsType(}C_j\mocl{) .oclAsType(}C_i\mocl{))} \isasymMathOclStrictEq X) \\
+ \tau \isasymMathOclValid \upsilon (X :: C_i)  \Longrightarrow \qquad \qquad \qquad \qquad \\
+    \qquad \tau \isasymMathOclValid (X \mocl{.oclIsTypeOf(}C_i\mocl{) implies (}X \mocl{.oclAsType(}C_j\mocl{).oclAsType(}C_i\mocl{))} \isasymMathOclStrictEq X) \\
+ \tau \isasymMathOclValid \upsilon (X :: C_i) \Longrightarrow  \qquad \qquad \qquad \qquad \\
+    \qquad \tau \isasymMathOclValid X \mocl{.oclIsTypeOf(}C_i\mocl{) implies (}X \mocl{.oclAsType(}C_j\mocl{) .oclAsType(}C_i\mocl{))} \isasymMathOclStrictEq X \\
  \tau \isasymMathOclValid \delta X \Longrightarrow \tau \isasymMathOclValid X \mocl{.oclAsType(}C_j\mocl{) .oclAsType(}C_i\mocl{)} \isasymMathOclStrongEq X \\
  \tau \isasymMathOclValid \upsilon X \Longrightarrow \tau \isasymMathOclValid X \mocl{.oclIsTypeOf(}C_i\mocl{) implies} X \mocl{.oclAsType(}C_j\mocl{) .oclAsType(}C_i\mocl{)} \isasymMathOclStrictEq X \\
  \tau \isasymMathOclValid X \mocl{.oclIsTypeOf(}C_j\mocl{)} \Longrightarrow \tau \isasymMathOclValid \delta X \Longrightarrow \tau \isasymMathOclValid \mocl{not} (\upsilon X \mocl{.oclAsType(}C_i\mocl{))} \\
