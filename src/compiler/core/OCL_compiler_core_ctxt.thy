@@ -72,16 +72,16 @@ definition "print_ctxt_const = List_map (map_pair id Thy_consts_class) o (\<lamb
 
 definition "print_ctxt_gen_syntax_header_l l = Isab_thy (Theory_thm (Thm (List_map Thm_str l)))"
 definition "print_ctxt_gen_syntax_header f_x l ocl =
- ( let (l, ocl) = f_x l ocl in
-   if D_generation_syntax_shallow ocl then
-     l
-   else
-     Isab_thy_generation_syntax (Generation_syntax_shallow (D_design_analysis ocl))
-     # Isab_thy_ml_extended (Ml_extended (Sexpr_ocl (ocl \<lparr> D_disable_thy_output := True
-                                                         , D_file_out_path_dep := None
-                                                         , D_output_position := (0, 0) \<rparr>) ))
-     # l
- , ocl \<lparr> D_generation_syntax_shallow := True \<rparr> )"
+ (let (l, ocl) = f_x l ocl in
+  ( if D_generation_syntax_shallow ocl then
+      l
+    else
+      Isab_thy_generation_syntax (Generation_syntax_shallow (D_design_analysis ocl))
+      # Isab_thy_ml_extended (Ml_extended (Sexpr_ocl (ocl \<lparr> D_disable_thy_output := True
+                                                          , D_file_out_path_dep := None
+                                                          , D_output_position := (0, 0) \<rparr>) ))
+      # l
+  , ocl \<lparr> D_generation_syntax_shallow := True \<rparr> ))"
 
 definition "print_ctxt_pre_post_name attr_n var_at_when_hol = hol_definition (print_ctxt_const_name attr_n var_at_when_hol)"
 definition "print_ctxt_pre_post = (\<lambda>ctxt. print_ctxt_gen_syntax_header
