@@ -106,7 +106,7 @@ where "x +\<^sub>s\<^sub>t\<^sub>r\<^sub>i\<^sub>n\<^sub>g y \<equiv> \<lambda> 
 interpretation OclAdd\<^sub>S\<^sub>t\<^sub>r\<^sub>i\<^sub>n\<^sub>g : profile_bin1 "op +\<^sub>s\<^sub>t\<^sub>r\<^sub>i\<^sub>n\<^sub>g" "\<lambda> x y. \<lfloor>\<lfloor>concat [\<lceil>\<lceil>x\<rceil>\<rceil>, \<lceil>\<lceil>y\<rceil>\<rceil>]\<rfloor>\<rfloor>"
          by unfold_locales (auto simp:OclAdd\<^sub>S\<^sub>t\<^sub>r\<^sub>i\<^sub>n\<^sub>g_def bot_option_def null_option_def)
          
-(* TODO : size\<^sub>S\<^sub>e\<^sub>t(), concat, substring(s:string) toInteger, toReal, at(i:Integer), characters() etc. *)
+(* TODO : size(), concat, substring(s:string) toInteger, toReal, at(i:Integer), characters() etc. *)
 
 
 subsubsection{* Basic Properties *}
