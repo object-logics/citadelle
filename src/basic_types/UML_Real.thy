@@ -60,7 +60,6 @@ defs   StrictRefEq\<^sub>R\<^sub>e\<^sub>a\<^sub>l [code_unfold] :
 text{* Property proof in terms of @{term "profile_bin3"}*}
 interpretation StrictRefEq\<^sub>R\<^sub>e\<^sub>a\<^sub>l : profile_bin3 "\<lambda> x y. (x::('\<AA>)Real) \<doteq> y" 
          by unfold_locales (auto simp: StrictRefEq\<^sub>R\<^sub>e\<^sub>a\<^sub>l)
-                                   
 
 subsection{* Basic Real Constants *}
 
@@ -109,6 +108,7 @@ lemma [simp,code_unfold]: "\<upsilon> \<eight>.\<zero> = true" by(simp add:OclRe
 lemma [simp,code_unfold]: "\<delta> \<nine>.\<zero> = true" by(simp add:OclReal9_def)
 lemma [simp,code_unfold]: "\<upsilon> \<nine>.\<zero> = true" by(simp add:OclReal9_def)
 text_raw{* \endisatagafp *}
+
 subsection{* Arithmetical Operations *}
 
 subsubsection{* Definition *}
@@ -215,7 +215,7 @@ by(subst OclAdd\<^sub>R\<^sub>e\<^sub>a\<^sub>l_commute, simp)
 
 
 
-subsubsection{* Test Statements *}
+subsection{* Test Statements *}
 text{* Here follows a list of code-examples, that explain the meanings
 of the above definitions by compilation to code and execution to @{term "True"}.*}
 
@@ -228,7 +228,7 @@ Assert "  \<tau> \<Turnstile> not (\<delta> (\<one>.\<zero> div\<^sub>r\<^sub>e\
 Assert "  \<tau> \<Turnstile> not (\<upsilon> (\<one>.\<zero> div\<^sub>r\<^sub>e\<^sub>a\<^sub>l \<zero>.\<zero>)) "
 
 
-subsection{* Test Statements*}
+
 lemma real_non_null [simp]: "((\<lambda>_. \<lfloor>\<lfloor>n\<rfloor>\<rfloor>) \<doteq> (null::('\<AA>)Real)) = false"
 by(rule ext,auto simp: StrictRefEq\<^sub>R\<^sub>e\<^sub>a\<^sub>l valid_def
                          bot_fun_def bot_option_def null_fun_def null_option_def StrongEq_def)
@@ -249,18 +249,6 @@ lemma OclReal8_non_null [simp,code_unfold]: "(\<eight>.\<zero> \<doteq> null) = 
 lemma null_non_OclReal8 [simp,code_unfold]: "(null \<doteq> \<eight>.\<zero>) = false" by(simp add: OclReal8_def)
 lemma OclReal9_non_null [simp,code_unfold]: "(\<nine>.\<zero> \<doteq> null) = false" by(simp add: OclReal9_def)
 lemma null_non_OclReal9 [simp,code_unfold]: "(null \<doteq> \<nine>.\<zero>) = false" by(simp add: OclReal9_def)
-
-
-(* plus all the others ...*)
-
-subsubsection{* Const *}
-
-lemma [simp,code_unfold]: "const(\<zero>.\<zero>)" by(simp add: const_ss OclReal0_def)
-lemma [simp,code_unfold]: "const(\<one>.\<zero>)" by(simp add: const_ss OclReal1_def)
-lemma [simp,code_unfold]: "const(\<two>.\<zero>)" by(simp add: const_ss OclReal2_def)
-lemma [simp,code_unfold]: "const(\<six>.\<zero>)" by(simp add: const_ss OclReal6_def)
-lemma [simp,code_unfold]: "const(\<eight>.\<zero>)" by(simp add: const_ss OclReal8_def)
-lemma [simp,code_unfold]: "const(\<nine>.\<zero>)" by(simp add: const_ss OclReal9_def)
 
 
 text{* Here follows a list of code-examples, that explain the meanings

@@ -47,6 +47,20 @@ begin
 
 section{* Basic Type Integer: Operations *}
 
+subsection{* Fundamental Predicates on Integers: Strict Equality \label{sec:integer-strict-eq}*}
+
+text{* The last basic operation belonging to the fundamental infrastructure
+of a value-type in OCL is the weak equality, which is defined similar
+to the @{typ "('\<AA>)Boolean"}-case as strict extension of the strong equality:*}
+defs   StrictRefEq\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r[code_unfold] :
+      "(x::('\<AA>)Integer) \<doteq> y \<equiv> \<lambda> \<tau>. if (\<upsilon> x) \<tau> = true \<tau> \<and> (\<upsilon> y) \<tau> = true \<tau>
+                                    then (x \<triangleq> y) \<tau>
+                                    else invalid \<tau>"
+                                    
+text{* Property proof in terms of @{term "profile_bin3"}*}
+interpretation  StrictRefEq\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r : profile_bin3 "\<lambda> x y. (x::('\<AA>)Integer) \<doteq> y" 
+         by unfold_locales (auto simp: StrictRefEq\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r)
+
 subsection{* Basic Integer Constants *}
 
 text{* Although the remaining part of this library reasons about
@@ -54,10 +68,9 @@ integers abstractly, we provide here as example some convenient shortcuts. *}
 
 definition OclInt0 ::"('\<AA>)Integer" ("\<zero>")  where      "\<zero> = (\<lambda> _ . \<lfloor>\<lfloor>0::int\<rfloor>\<rfloor>)"
 definition OclInt1 ::"('\<AA>)Integer" ("\<one>")  where      "\<one> = (\<lambda> _ . \<lfloor>\<lfloor>1::int\<rfloor>\<rfloor>)"
-text{* Etc. *}
-
-text_raw{* \isatagafp *}
 definition OclInt2 ::"('\<AA>)Integer" ("\<two>")  where      "\<two> = (\<lambda> _ . \<lfloor>\<lfloor>2::int\<rfloor>\<rfloor>)"
+text{* Etc. *}
+text_raw{* \isatagafp *}
 definition OclInt3 ::"('\<AA>)Integer" ("\<three>")  where      "\<three> = (\<lambda> _ . \<lfloor>\<lfloor>3::int\<rfloor>\<rfloor>)"
 definition OclInt4 ::"('\<AA>)Integer" ("\<four>")  where      "\<four> = (\<lambda> _ . \<lfloor>\<lfloor>4::int\<rfloor>\<rfloor>)"
 definition OclInt5 ::"('\<AA>)Integer" ("\<five>")  where      "\<five> = (\<lambda> _ . \<lfloor>\<lfloor>5::int\<rfloor>\<rfloor>)"
@@ -201,7 +214,7 @@ by(subst OclAdd\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r_commute,
 
 
 
-subsubsection{* Test Statements *}
+subsection{* Test Statements *}
 text{* Here follows a list of code-examples, that explain the meanings
 of the above definitions by compilation to code and execution to @{term "True"}.*}
 
@@ -214,22 +227,6 @@ Assert "  \<tau> \<Turnstile> not (\<delta> (\<one> div\<^sub>i\<^sub>n\<^sub>t 
 Assert "  \<tau> \<Turnstile> not (\<upsilon> (\<one> div\<^sub>i\<^sub>n\<^sub>t \<zero>)) "
 
 
-subsection{* Fundamental Predicates on Integers: Strict Equality *}
-
-subsubsection{* Definition *}
-
-text{* The last basic operation belonging to the fundamental infrastructure
-of a value-type in OCL is the weak equality, which is defined similar
-to the @{typ "('\<AA>)Boolean"}-case as strict extension of the strong equality:*}
-defs   StrictRefEq\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r[code_unfold] :
-      "(x::('\<AA>)Integer) \<doteq> y \<equiv> \<lambda> \<tau>. if (\<upsilon> x) \<tau> = true \<tau> \<and> (\<upsilon> y) \<tau> = true \<tau>
-                                    then (x \<triangleq> y) \<tau>
-                                    else invalid \<tau>"
-                                    
-text{* Property proof in terms of @{term "profile_bin3"}*}
-interpretation  StrictRefEq\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r : profile_bin3 "\<lambda> x y. (x::('\<AA>)Integer) \<doteq> y" 
-         by unfold_locales (auto simp: StrictRefEq\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r)
-                                            
 
 lemma integer_non_null [simp]: "((\<lambda>_. \<lfloor>\<lfloor>n\<rfloor>\<rfloor>) \<doteq> (null::('\<AA>)Integer)) = false"
 by(rule ext,auto simp: StrictRefEq\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r valid_def
@@ -253,7 +250,6 @@ lemma OclInt9_non_null [simp,code_unfold]: "(\<nine> \<doteq> null) = false" by(
 lemma null_non_OclInt9 [simp,code_unfold]: "(null \<doteq> \<nine>) = false" by(simp add: OclInt9_def)
 
 
-subsection{* Test Statements on Basic Integer *}
 text{* Here follows a list of code-examples, that explain the meanings
 of the above definitions by compilation to code and execution to @{term "True"}.*}
 
