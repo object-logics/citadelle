@@ -968,7 +968,7 @@ by(simp add: OclSelect_def cp_defined[symmetric])
 lemma cp_OclReject: "(X->reject\<^sub>S\<^sub>e\<^sub>t(a | P a)) \<tau> = ((\<lambda> _. X \<tau>)->reject\<^sub>S\<^sub>e\<^sub>t(a | P a)) \<tau>"
 by(simp add: OclReject_def, subst cp_OclSelect, simp)
 
-(* < *)
+text_raw{* \isatagafp *}
 lemmas cp_intro''\<^sub>S\<^sub>e\<^sub>t[intro!,simp,code_unfold] =
        cp_OclIncluding [THEN allI[THEN allI[THEN allI[THEN cpI2]], of "OclIncluding"]]
        cp_OclExcluding [THEN allI[THEN allI[THEN allI[THEN cpI2]], of "OclExcluding"]]
@@ -1007,7 +1007,8 @@ lemma const_OclIncluding[simp,code_unfold] :
        apply(subst const_charn[OF const_S])
        by simp
 qed
-(* > *)
+text_raw{* \endisatagafp *}
+
 
 (*
 lemma const_OclForall :

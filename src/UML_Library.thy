@@ -83,12 +83,13 @@ in order to have nested types: arguments of type-constructors must conform to ou
 abstract interface, and the result type too.
 *}
 
+text_raw{* \isatagafp *}
 lemmas cp_intro'' [intro!,simp,code_unfold] =
        cp_intro'
      (*  cp_intro''\<^sub>P\<^sub>a\<^sub>i\<^sub>r *)
        cp_intro''\<^sub>S\<^sub>e\<^sub>t
        cp_intro''\<^sub>S\<^sub>e\<^sub>q\<^sub>u\<^sub>e\<^sub>n\<^sub>c\<^sub>e
-
+text_raw{* \endisatagafp *}
 subsection{* MOVE TEXT: Test Statements *}
 
 lemma syntax_test: "Set{\<two>,\<one>} = (Set{}->including\<^sub>S\<^sub>e\<^sub>t(\<one>)->including\<^sub>S\<^sub>e\<^sub>t(\<two>))"
