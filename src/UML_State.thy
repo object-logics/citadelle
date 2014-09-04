@@ -923,7 +923,7 @@ theorem framing:
  have def_X' : "\<And>x. x \<in> \<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (X \<tau>)\<rceil>\<rceil> \<Longrightarrow> x \<noteq> null"
   apply(insert modifiesclause, simp add: OclIsModifiedOnly_def OclValid_def split: split_if_asm)
   apply(case_tac \<tau>, simp split: split_if_asm)
-   apply(simp add: OclExcluding_def split: split_if_asm)
+   apply(simp add: UML_Set.OclExcluding_def split: split_if_asm)
     apply(subst (asm) (2) Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inverse)
      apply(simp, (rule disjI2)+)
      apply (metis (hide_lams, mono_tags) Diff_iff Set_inv_lemma def_X)
@@ -945,7 +945,7 @@ theorem framing:
    apply(rule_tac f = "\<lambda>x. P \<lceil>x\<rceil>" in arg_cong)
    apply(insert modifiesclause[simplified OclIsModifiedOnly_def OclValid_def])
    apply(case_tac \<tau>, rename_tac \<sigma> \<sigma>', simp split: split_if_asm)
-    apply(subst (asm) (2) OclExcluding_def)
+    apply(subst (asm) (2) UML_Set.OclExcluding_def)
     apply(drule foundation5[simplified OclValid_def true_def], simp)
     apply(subst (asm) Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inverse, simp)
      apply(rule disjI2)+

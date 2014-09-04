@@ -48,6 +48,22 @@ begin
 
 section{* Collection Type Sequence: Operations *}
 
+subsubsection{* Properties of the Sequence Type  *}
+text{* Every element in a defined sequence is valid. *}
+
+lemma Sequence_inv_lemma: "\<tau> \<Turnstile> (\<delta> X) \<Longrightarrow> \<forall>x\<in>set \<lceil>\<lceil>Rep_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e (X \<tau>)\<rceil>\<rceil>. x \<noteq> bot"
+apply(insert Rep_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e [of "X \<tau>"], simp)
+apply(auto simp: OclValid_def defined_def false_def true_def cp_def
+                 bot_fun_def bot_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def null_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def null_fun_def
+           split:split_if_asm)
+ apply(erule contrapos_pp [of "Rep_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e (X \<tau>) = bot"])
+ apply(subst Abs_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inject[symmetric], rule Rep_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e, simp)
+ apply(simp add: Rep_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inverse bot_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def bot_option_def)
+apply(erule contrapos_pp [of "Rep_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e (X \<tau>) = null"])
+apply(subst Abs_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inject[symmetric], rule Rep_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e, simp)
+apply(simp add: Rep_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inverse  null_option_def)
+by (simp add: bot_option_def)
+
 subsection{* Constants: mtSequence *}
 definition mtSequence ::"('\<AA>,'\<alpha>::null) Sequence"  ("Sequence{}")
 where     "Sequence{} \<equiv> (\<lambda> \<tau>.  Abs_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor>\<lfloor>[]::'\<alpha> list\<rfloor>\<rfloor> )"
@@ -79,26 +95,8 @@ text{* Note that the collection types in OCL allow for null to be included;
 lemmas cp_intro''\<^sub>S\<^sub>e\<^sub>q\<^sub>u\<^sub>e\<^sub>n\<^sub>c\<^sub>e[intro!,simp,code_unfold] = cp_intro'
 text_raw{* \endisatagafp *}
 
-subsubsection{* Properties of Sequence Type:  *}
 
-text{* Every element in a defined sequence is valid. *}
-
-lemma Sequence_inv_lemma: "\<tau> \<Turnstile> (\<delta> X) \<Longrightarrow> \<forall>x\<in>set \<lceil>\<lceil>Rep_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e (X \<tau>)\<rceil>\<rceil>. x \<noteq> bot"
-apply(insert Rep_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e [of "X \<tau>"], simp)
-apply(auto simp: OclValid_def defined_def false_def true_def cp_def
-                 bot_fun_def bot_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def null_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def null_fun_def
-           split:split_if_asm)
- apply(erule contrapos_pp [of "Rep_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e (X \<tau>) = bot"])
- apply(subst Abs_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inject[symmetric], rule Rep_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e, simp)
- apply(simp add: Rep_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inverse bot_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def bot_option_def)
-apply(erule contrapos_pp [of "Rep_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e (X \<tau>) = null"])
-apply(subst Abs_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inject[symmetric], rule Rep_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e, simp)
-apply(simp add: Rep_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inverse  null_option_def)
-by (simp add: bot_option_def)
-
-subsection{* Strict Equality *}
-
-subsubsection{* Definition *}
+subsection{* Definition: Strict Equality \label{sec:seq-strict-equality}*}
 
 text{* After the part of foundational operations on sets, we detail here equality on sets.
 Strong equality is inherited from the OCL core, but we have to consider
@@ -116,9 +114,7 @@ interpretation  StrictRefEq\<^sub>S\<^sub>e\<^sub>q\<^sub>u\<^sub>e\<^sub>n\<^su
                 by unfold_locales (auto simp:  StrictRefEq\<^sub>S\<^sub>e\<^sub>q\<^sub>u\<^sub>e\<^sub>n\<^sub>c\<^sub>e)
  
 
-subsection{* Standard Operations *}
-
-subsubsection{* Definition: including *}
+subsection{* Definition: including *}
 
 definition OclIncluding   :: "[('\<AA>,'\<alpha>::null) Sequence,('\<AA>,'\<alpha>) val] \<Rightarrow> ('\<AA>,'\<alpha>) Sequence"
 where     "OclIncluding x y = (\<lambda> \<tau>. if (\<delta> x) \<tau> = true \<tau> \<and> (\<upsilon> y) \<tau> = true \<tau>
@@ -136,11 +132,14 @@ proof -
                                        
          show "profile_bin2 OclIncluding (\<lambda>x y. Abs_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor>\<lfloor>\<lceil>\<lceil>Rep_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e x\<rceil>\<rceil> @ [y]\<rfloor>\<rfloor>)"
          apply unfold_locales  
-          apply(auto simp:OclIncluding_def bot_option_def null_option_def null_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def bot_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def)
-          apply(erule_tac Q="Abs_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor>\<lfloor>\<lceil>\<lceil>Rep_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e x\<rceil>\<rceil> @ [y]\<rfloor>\<rfloor> = Abs_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e None" in contrapos_pp)
+          apply(auto simp:OclIncluding_def bot_option_def null_option_def null_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def 
+               bot_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def)
+          apply(erule_tac Q="Abs_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor>\<lfloor>\<lceil>\<lceil>Rep_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e x\<rceil>\<rceil> @ [y]\<rfloor>\<rfloor> = Abs_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e None" 
+                in contrapos_pp)
           apply(subst Abs_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inject [OF A])
              apply(simp_all add:  null_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def bot_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def bot_option_def)
-         apply(erule_tac Q="Abs_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e\<lfloor>\<lfloor>\<lceil>\<lceil>Rep_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e x\<rceil>\<rceil> @ [y]\<rfloor>\<rfloor> = Abs_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor>None\<rfloor>" in contrapos_pp)
+         apply(erule_tac Q="Abs_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e\<lfloor>\<lfloor>\<lceil>\<lceil>Rep_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e x\<rceil>\<rceil> @ [y]\<rfloor>\<rfloor> = Abs_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor>None\<rfloor>" 
+               in contrapos_pp)
          apply(subst Abs_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inject[OF A])
             apply(simp_all add:  null_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def bot_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def bot_option_def null_option_def)
          done
@@ -152,20 +151,90 @@ translations
   "Sequence{x, xs}" == "CONST OclIncluding (Sequence{xs}) x"
   "Sequence{x}"     == "CONST OclIncluding (Sequence{}) x "
 
-  typ int
-  typ num
+subsection{* Definition: excluding *}
+definition OclExcluding   :: "[('\<AA>,'\<alpha>::null) Sequence,('\<AA>,'\<alpha>) val] \<Rightarrow> ('\<AA>,'\<alpha>) Sequence"
+where     "OclExcluding x y = (\<lambda> \<tau>. if (\<delta> x) \<tau> = true \<tau> \<and> (\<upsilon> y) \<tau> = true \<tau>
+                                    then Abs_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor>\<lfloor> filter (\<lambda>x. x = y \<tau>)
+                                                                   \<lceil>\<lceil>Rep_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e (x \<tau>)\<rceil>\<rceil>\<rfloor>\<rfloor>
+                                    else invalid \<tau> )"
+notation   OclExcluding   ("_->excluding\<^sub>S\<^sub>e\<^sub>q'(_')")
 
-subsubsection{* Definition: excluding *}
-subsubsection{* Definition: union *}
-subsubsection{* Definition: append *}
+subsection{* Definition: append *}
 text{* identical to including *}
-subsubsection{* Definition: prepend *}
-subsubsection{* Definition: subSequence *}
-subsubsection{* Definition: at *}
-subsubsection{* Definition: first *}
-subsubsection{* Definition: last *}
-subsubsection{* Definition: asSet *}
-  
+definition OclAppend   :: "[('\<AA>,'\<alpha>::null) Sequence,('\<AA>,'\<alpha>) val] \<Rightarrow> ('\<AA>,'\<alpha>) Sequence"
+where     "OclAppend = OclIncluding"
+
+(* TODO: Locale Setup by hand. *)
+
+subsection{* Definition: union *}
+definition OclUnion   :: "[('\<AA>,'\<alpha>::null) Sequence,('\<AA>,'\<alpha>) Sequence] \<Rightarrow> ('\<AA>,'\<alpha>) Sequence"
+where     "OclUnion x y = (\<lambda> \<tau>. if (\<delta> x) \<tau> = true \<tau> \<and> (\<delta> y) \<tau> = true \<tau>
+                                then Abs_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor>\<lfloor> \<lceil>\<lceil>Rep_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e (x \<tau>)\<rceil>\<rceil> @
+                                                                   \<lceil>\<lceil>Rep_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e (y \<tau>)\<rceil>\<rceil>\<rfloor>\<rfloor>
+                                    else invalid \<tau> )"
+notation   OclUnion   ("_->union\<^sub>S\<^sub>e\<^sub>q'(_')")
+(* TODO: Locale Setup. *)
+
+subsection{* Definition: prepend *}
+definition OclPrepend   :: "[('\<AA>,'\<alpha>::null) Sequence,('\<AA>,'\<alpha>) val] \<Rightarrow> ('\<AA>,'\<alpha>) Sequence"
+where     "OclPrepend x y = (\<lambda> \<tau>. if (\<delta> x) \<tau> = true \<tau> \<and> (\<upsilon> y) \<tau> = true \<tau>
+                                    then Abs_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor>\<lfloor> (y \<tau>)#\<lceil>\<lceil>Rep_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e (x \<tau>)\<rceil>\<rceil> \<rfloor>\<rfloor>
+                                    else invalid \<tau> )"
+notation   OclPrepend   ("_->prepend\<^sub>S\<^sub>e\<^sub>q'(_')")
+
+interpretation OclPrepend:profile_bin2 OclPrepend "\<lambda>x y. Abs_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e\<lfloor>\<lfloor>y#\<lceil>\<lceil>Rep_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e x\<rceil>\<rceil>\<rfloor>\<rfloor>"
+proof -  
+ have A : "\<And>x y. x \<noteq> bot \<Longrightarrow> x \<noteq> null \<Longrightarrow>  y \<noteq> bot  \<Longrightarrow>
+           \<lfloor>\<lfloor>y#\<lceil>\<lceil>Rep_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e x\<rceil>\<rceil>\<rfloor>\<rfloor> \<in> {X. X = bot \<or> X = null \<or> (\<forall>x\<in>set \<lceil>\<lceil>X\<rceil>\<rceil>. x \<noteq> bot)}"
+          by(auto intro!:Sequence_inv_lemma[simplified OclValid_def 
+                         defined_def false_def true_def null_fun_def bot_fun_def])  
+                                       
+         show "profile_bin2 OclPrepend (\<lambda>x y. Abs_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor>\<lfloor>y#\<lceil>\<lceil>Rep_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e x\<rceil>\<rceil>\<rfloor>\<rfloor>)"
+         apply unfold_locales  
+          apply(auto simp:OclPrepend_def bot_option_def null_option_def null_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def 
+               bot_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def)
+          apply(erule_tac Q="Abs_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor>\<lfloor>y#\<lceil>\<lceil>Rep_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e x\<rceil>\<rceil>\<rfloor>\<rfloor> = Abs_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e None" 
+                in contrapos_pp)
+          apply(subst Abs_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inject [OF A])
+             apply(simp_all add:  null_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def bot_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def bot_option_def)
+         apply(erule_tac Q="Abs_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e\<lfloor>\<lfloor>y#\<lceil>\<lceil>Rep_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e x\<rceil>\<rceil>\<rfloor>\<rfloor> = Abs_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor>None\<rfloor>" 
+               in contrapos_pp)
+         apply(subst Abs_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inject[OF A])
+            apply(simp_all add:  null_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def bot_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def 
+                                 bot_option_def null_option_def)
+         done
+qed
+
+subsection{* Definition: subSequence *}
+(*TODO.*)  
+
+subsection{* Definition: at *}
+definition OclAt   :: "[('\<AA>,'\<alpha>::null) Sequence,('\<AA>) Integer] \<Rightarrow> ('\<AA>,'\<alpha>) val"
+where     "OclAt x y = (\<lambda> \<tau>. if (\<delta> x) \<tau> = true \<tau> \<and> (\<delta> y) \<tau> = true \<tau>
+                             then if  1 \<le> \<lceil>\<lceil>y \<tau>\<rceil>\<rceil> \<and>  \<lceil>\<lceil>y \<tau>\<rceil>\<rceil> \<le> length\<lceil>\<lceil>Rep_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e (x \<tau>)\<rceil>\<rceil> 
+                                  then \<lceil>\<lceil>Rep_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e (x \<tau>)\<rceil>\<rceil> ! (nat \<lceil>\<lceil>y \<tau>\<rceil>\<rceil> + 1) 
+                                  else invalid \<tau>
+                             else invalid \<tau> )"
+notation   OclAt ("_->at\<^sub>S\<^sub>e\<^sub>q'(_')")
+
+
+subsection{* Definition: first *}
+definition OclFirst   :: "[('\<AA>,'\<alpha>::null) Sequence] \<Rightarrow> ('\<AA>,'\<alpha>) val"
+where     "OclFirst x = (\<lambda> \<tau>. if (\<delta> x) \<tau> = true \<tau>
+                                    then hd \<lceil>\<lceil>Rep_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e (x \<tau>)\<rceil>\<rceil> 
+                                    else invalid \<tau> )"
+notation   OclFirst   ("_->first\<^sub>S\<^sub>e\<^sub>q'(_')")
+
+
+subsection{* Definition: last *}
+definition OclLast   :: "[('\<AA>,'\<alpha>::null) Sequence] \<Rightarrow> ('\<AA>,'\<alpha>) val"
+where     "OclLast x = (\<lambda> \<tau>. if (\<delta> x) \<tau> = true \<tau>
+                                    then last \<lceil>\<lceil>Rep_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e (x \<tau>)\<rceil>\<rceil> 
+                                    else invalid \<tau> )"
+notation   OclLast   ("_->last\<^sub>S\<^sub>e\<^sub>q'(_')")
+
+subsection{* Definition: asSet *}
+(*TODO.*)  
   
 (* open problem: An executable code-generator setup for the Sequence type. Some bits and pieces
 so far : 
