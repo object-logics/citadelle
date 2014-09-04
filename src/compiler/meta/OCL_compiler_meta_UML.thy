@@ -269,6 +269,11 @@ definition "apply_optim_ass_arity ty_obj v =
   (if TyObj_ass_arity ty_obj \<le> 2 then None
    else Some v)"
 
+definition "is_higher_order = (\<lambda> OclTy_collection _ _ \<Rightarrow> True | _ \<Rightarrow> False)"
+
+definition "parse_ty_raw = (\<lambda> OclTy_raw s \<Rightarrow> (case s of ''int'' \<Rightarrow> OclTy_base_integer)
+                            | x \<Rightarrow> x)"
+
 fun_quick str_of_ty where
     "str_of_ty OclTy_base_void = ''Void''"
    |"str_of_ty OclTy_base_boolean = ''Boolean''"
@@ -280,7 +285,12 @@ fun_quick str_of_ty where
    |"str_of_ty (OclTy_collection Sequence ocl_ty) = flatten [''Sequence('', str_of_ty ocl_ty,'')'']"
    |"str_of_ty (OclTy_raw s) = flatten [unicode_acute, s, unicode_acute]"
 
+definition "ty_void = str_of_ty OclTy_base_void"
 definition "ty_boolean = str_of_ty OclTy_base_boolean"
+definition "ty_integer = str_of_ty OclTy_base_integer"
+definition "ty_unlimitednatural = str_of_ty OclTy_base_unlimitednatural"
+definition "ty_real = str_of_ty OclTy_base_real"
+definition "ty_string = str_of_ty OclTy_base_string"
 
 fun_quick str_hol_of_ty where
     "str_hol_of_ty OclTy_base_void = ''unit''"

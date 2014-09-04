@@ -69,15 +69,16 @@ definition "print_infra_datatype_universe expr = start_map Thy_dataty
       (map_class (\<lambda>isub_name _ _ _ _ _. (isub_name datatype_in, [Raw (isub_name datatype_name)])) expr) ]"
 
 definition "print_infra_type_synonym_class expr = start_map Thy_ty_synonym
-  (let option = (\<lambda>x. Ty_apply (Ty_base ''option'') [x]) in
-   Type_synonym (* FIXME generate this automatically *)
-                (print_ctxt_ty OclTy_base_boolean) (Ty_apply (Ty_base ty_boolean) [Ty_base unicode_AA]) #
-   Type_synonym (* FIXME generate this automatically *)
-                (print_ctxt_ty (OclTy_collection Set (OclTy_raw ''int''))) (Ty_apply (Ty_base ''Set'') [Ty_base unicode_AA,
-     option (option (Ty_base (str_hol_of_ty OclTy_base_integer))) ]) #
-   Type_synonym (* FIXME generate this automatically *)
-                (print_ctxt_ty (OclTy_collection Set OclTy_base_integer)) (Ty_apply (Ty_base ''Set'') [Ty_base unicode_AA,
-     option (option (Ty_base (str_hol_of_ty OclTy_base_integer))) ]) #
+  (let option = (\<lambda>x. Ty_apply (Ty_base ''option'') [x])
+     ; ty = \<lambda> t s. Type_synonym (print_ctxt_ty t) (Ty_apply (Ty_base s) [Ty_base unicode_AA]) in
+   (* base type *)
+   ty OclTy_base_void ty_void #
+   ty OclTy_base_boolean ty_boolean #
+   ty OclTy_base_integer ty_integer #
+   (*ty OclTy_base_unlimitednatural ty_unlimitednatural #*)
+   ty OclTy_base_real ty_real #
+   ty OclTy_base_string ty_string #
+   (* *)
    (map_class (\<lambda>isub_name name _ _ _ _.
      Type_synonym name (Ty_apply (Ty_base ''val'') [Ty_base unicode_AA,
      option (option (Ty_base (isub_name datatype_name))) ])) expr))"

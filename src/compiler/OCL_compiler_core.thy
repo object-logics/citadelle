@@ -353,7 +353,7 @@ definition "ocl_compiler_config_empty disable_thy_output file_out_path_dep oid_s
     oid_start
     (0, 0)
     design_analysis
-    None [] [] [] False False ([], [])"
+    None [] [] [] False False ([], []) []"
 
 definition "ocl_compiler_config_reset_no_env ocl =
   ocl_compiler_config_empty

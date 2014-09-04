@@ -52,23 +52,51 @@ section{* Translation of AST *}
 subsection{* context *}
 
 definition "print_ctxt_const_name attr_n var_at_when_hol = flatten [ ''dot'', isup_of_str attr_n, var_at_when_hol]"
-definition "print_ctxt_const = List_map (map_pair id Thy_consts_class) o (\<lambda> ctxt.
-  let attr_n = Ctxt_fun_name ctxt in
-      List_map
-        (\<lambda>(var_at_when_hol, var_at_when_ocl, f_update_ocl).
-          let name = print_ctxt_const_name attr_n var_at_when_hol in
-          ( f_update_ocl (\<lambda> l. name # l)
-          , Consts_raw0
-              name
-              (ty_arrow (Ty_base (Ctxt_ty ctxt) # List_map
-                (Ty_base o print_ctxt_ty)
+definition "print_ctxt_const ctxt ocl =
+ (let attr_n = Ctxt_fun_name ctxt in
+  map_pair (map_pair id (rev o List_map Thy_ty_synonym)) (rev o List_map Thy_consts_class)
+    (List.fold
+      (\<lambda>(var_at_when_hol, var_at_when_ocl, f_update_ocl) ((ocl, l_isab_ty), l_isab_const).
+        let name = print_ctxt_const_name attr_n var_at_when_hol
+          ; l_ty =
+              List_map (\<lambda>n. (print_ctxt_ty n, n))
                 (flatten
                   [ List_map snd (Ctxt_fun_ty_arg ctxt)
-                  , [ case Ctxt_fun_ty_out ctxt of None \<Rightarrow> OclTy_base_void | Some s \<Rightarrow> s ] ])))
-              (mk_dot attr_n var_at_when_ocl)
-              (Some (natural_of_nat (length (Ctxt_fun_ty_arg ctxt))))))
-        [ (var_at_when_hol_post, var_at_when_ocl_post, update_D_accessor_rbt_post)
-        , (var_at_when_hol_pre, var_at_when_ocl_pre, update_D_accessor_rbt_pre)])"
+                  , [ case Ctxt_fun_ty_out ctxt of None \<Rightarrow> OclTy_base_void | Some s \<Rightarrow> s ] ]) in
+        ( map_pair
+            (let ocl = ocl \<lparr> D_accessor_rbt := f_update_ocl (\<lambda> l. name # l) (D_accessor_rbt ocl) \<rparr> in
+             (\<lambda> D_higher_order_ty. ocl \<lparr> D_higher_order_ty := D_higher_order_ty \<rparr>))
+            id
+            (List.fold
+              (\<lambda> (n, ty) (l, l_isab_ty).
+                if is_higher_order ty & List_assoc n l = None then
+                  ( (n, ty) # l
+                  , let option = (\<lambda>x. Ty_apply (Ty_base ''option'') [x])
+                      ; ty_set = \<lambda>b.
+                          Type_synonym
+                            n
+                            (Ty_apply (Ty_base ''Set'')
+                               [Ty_base unicode_AA, option (option (Ty_base (str_hol_of_ty (parse_ty_raw b)))) ]) in
+                    (case ty of OclTy_collection Set OclTy_base_void \<Rightarrow> ty_set OclTy_base_void
+                              | OclTy_collection Set OclTy_base_boolean \<Rightarrow> ty_set OclTy_base_boolean
+                              | OclTy_collection Set OclTy_base_integer \<Rightarrow> ty_set OclTy_base_integer
+                              | OclTy_collection Set OclTy_base_unlimitednatural \<Rightarrow> ty_set OclTy_base_unlimitednatural
+                              | OclTy_collection Set OclTy_base_real \<Rightarrow> ty_set OclTy_base_real
+                              | OclTy_collection Set OclTy_base_string \<Rightarrow> ty_set OclTy_base_string
+                              | OclTy_collection Set (OclTy_raw t) \<Rightarrow> ty_set (OclTy_raw t)
+                              (*| _ \<Rightarrow> (* FIXME generalize to higher order construction *) *)) # l_isab_ty)
+                else
+                  (l, l_isab_ty))
+              l_ty
+              (D_higher_order_ty ocl, l_isab_ty))
+        , Consts_raw0
+            name
+            (ty_arrow (List_map Ty_base (Ctxt_ty ctxt # fst (List_split l_ty))))
+            (mk_dot attr_n var_at_when_ocl)
+            (Some (natural_of_nat (length (Ctxt_fun_ty_arg ctxt)))) # l_isab_const))
+      [ (var_at_when_hol_post, var_at_when_ocl_post, update_D_accessor_rbt_post)
+      , (var_at_when_hol_pre, var_at_when_ocl_pre, update_D_accessor_rbt_pre)]
+      ((ocl, []), [])))"
 
 definition "print_ctxt_gen_syntax_header_l l = Isab_thy (Theory_thm (Thm (List_map Thm_str l)))"
 definition "print_ctxt_gen_syntax_header f_x l ocl =
@@ -86,8 +114,8 @@ definition "print_ctxt_gen_syntax_header f_x l ocl =
 definition "print_ctxt_pre_post_name attr_n var_at_when_hol = hol_definition (print_ctxt_const_name attr_n var_at_when_hol)"
 definition "print_ctxt_pre_post = (\<lambda>ctxt. print_ctxt_gen_syntax_header
   (\<lambda>l ocl.
-    let (l_name, l_isab) = List_split (print_ctxt_const ctxt) in
-    (l_isab @@ l, List.fold (\<lambda>f_update ocl. ocl \<lparr> D_accessor_rbt := f_update (D_accessor_rbt ocl) \<rparr>) l_name ocl))
+    let ((ocl, l_isab_ty), l_isab) = print_ctxt_const ctxt ocl in
+    (flatten [l_isab_ty, l_isab, l], ocl))
   [ Isab_thy_ocl_deep_embed_ast (Ocl2AstCtxtPrePost ctxt)
   , print_ctxt_gen_syntax_header_l [print_ctxt_pre_post_name (Ctxt_fun_name ctxt) var_at_when_hol_post] ])"
 

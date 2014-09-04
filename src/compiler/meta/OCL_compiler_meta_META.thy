@@ -113,6 +113,7 @@ record ocl_compiler_config =  D_disable_thy_output :: bool
                               D_generation_syntax_shallow :: bool (* true : add the generation_syntax command *)
                               D_accessor_rbt :: " string (* name of the constant added *) list (* pre *)
                                                 \<times> string (* name of the constant added *) list (* post *)"
+                              D_higher_order_ty :: "(string (* raw HOL name (as key for rbt) *) \<times> ocl_ty) list"
 
 subsection{* Auxilliary *}
 
