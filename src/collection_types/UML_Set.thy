@@ -3119,11 +3119,11 @@ lemma const_StrictRefEq\<^sub>S\<^sub>e\<^sub>t_including :
  "const a \<Longrightarrow> const S \<Longrightarrow> const X \<Longrightarrow>  const (X \<doteq> S->including\<^sub>S\<^sub>e\<^sub>t(a))"
  apply(rule StrictRefEq\<^sub>S\<^sub>e\<^sub>t.const, assumption)
 by(rule const_OclIncluding)
-(* > *)
 
 subsection{* Test Statements *}
 
 Assert   "(\<tau> \<Turnstile> (Set{\<lambda>_. \<lfloor>\<lfloor>x\<rfloor>\<rfloor>} \<doteq> Set{\<lambda>_. \<lfloor>\<lfloor>x\<rfloor>\<rfloor>}))"
 Assert   "(\<tau> \<Turnstile> (Set{\<lambda>_. \<lfloor>x\<rfloor>} \<doteq> Set{\<lambda>_. \<lfloor>x\<rfloor>}))"
+(* > *)
 
 end
