@@ -442,9 +442,6 @@ consts (* abstract set collection operations *)
 notation  OclCount       ("_->count\<^sub>S\<^sub>e\<^sub>t'(_')" (*[66,65]65*))
 notation  OclSum         ("_->sum\<^sub>S\<^sub>e\<^sub>t'(')" (*[66]*))
 
-subsection{* Validity and Definedness Properties *}
-
-
 subsection{* Logical Properties *}
 
 text{* OclIncluding *}
