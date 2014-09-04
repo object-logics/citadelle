@@ -642,7 +642,7 @@ semantics. The second layer, called \emph{logical layer},
 is derived from the former and centered around the notion of validity
 of an \OCL formula $P$ for a state-transition from pre-state $\sigma$
 to post-state $\sigma'$, validity statements were written $(\sigma,
-\sigma') \models P$. Its major purpose is to logically establish facts
+\sigma') \isasymMathOclValid P$. Its major purpose is to logically establish facts
 (lemmas and theorems) about the denotational definitions.
 The third layer, called \emph{algebraic layer},
 also derived from the former layers, tries to establish algebraic laws
@@ -887,25 +887,25 @@ logical equality discussed below---the replacement
 of semantically equivalent sub-expressions. The core inference rules are:
 \begin{gather*}
 \begin{array}{lccr}
-  \tau \models \mocl{true} &\quad
-  \lnot(\tau \models \mocl{false})&\quad
-  \lnot(\tau \models \mocl{invalid})&\quad
-  \lnot(\tau \models \mocl{null})
+  \tau \isasymMathOclValid \mocl{true} &\quad
+  \lnot(\tau \isasymMathOclValid \mocl{false})&\quad
+  \lnot(\tau \isasymMathOclValid \mocl{invalid})&\quad
+  \lnot(\tau \isasymMathOclValid \mocl{null})
 \end{array}\\
-  \tau \models \mocl{not}\; P \Longrightarrow \lnot (\tau \models P)\\
+  \tau \isasymMathOclValid \mocl{not}\; P \Longrightarrow \lnot (\tau \isasymMathOclValid P)\\
 \begin{array}{lcr}
-  \tau \models P \;\mocl{and}\; Q \Longrightarrow \tau \models P&\qquad&
-  \tau \models P \;\mocl{and}\; Q \Longrightarrow \tau \models Q \\
-  \tau \models P \Longrightarrow \tau \models P \;\mocl{or}\; Q  &\qquad&
-   \tau \models Q \tau \Longrightarrow \models P \;\mocl{or}\; Q  \\
+  \tau \isasymMathOclValid P \;\mocl{and}\; Q \Longrightarrow \tau \isasymMathOclValid P&\qquad&
+  \tau \isasymMathOclValid P \;\mocl{and}\; Q \Longrightarrow \tau \isasymMathOclValid Q \\
+  \tau \isasymMathOclValid P \Longrightarrow \tau \isasymMathOclValid P \;\mocl{or}\; Q  &\qquad&
+   \tau \isasymMathOclValid Q \tau \Longrightarrow \isasymMathOclValid P \;\mocl{or}\; Q  \\
 \end{array}\\
-  \tau \models P \Longrightarrow
+  \tau \isasymMathOclValid P \Longrightarrow
      (\mocl{if}\; P \;\mocl{then}\; B_1 \;\mocl{else}\; B_2 \;\mocl{endif})\tau = B_1\ap \tau\\
-  \tau \models \mocl{not}\; P \Longrightarrow
+  \tau \isasymMathOclValid \mocl{not}\; P \Longrightarrow
        (\mocl{if}\; P \;\mocl{then}\; B_1 \;\mocl{else}\; B_2 \;\mocl{endif})\tau = B_2\ap \tau\\
 \begin{array}[lcr]{lcr}
-  \tau \models P \Longrightarrow \tau \models \delta \ap P &\qquad&
-  \tau \models \delta \ap X \Longrightarrow \tau \models \upsilon \ap X
+  \tau \isasymMathOclValid P \Longrightarrow \tau \isasymMathOclValid \delta \ap P &\qquad&
+  \tau \isasymMathOclValid \delta \ap X \Longrightarrow \tau \isasymMathOclValid \upsilon \ap X
 \end{array}
 \end{gather*}
 
@@ -940,10 +940,10 @@ concept which is defined polymorphically for all \OCL types by:
   I\semantics{X \triangleq  Y}  \tau  \equiv  
   \lift { \lift{ I\semantics{X}  \tau = I\semantics{Y} \tau  }}
 \shortintertext{It enjoys nearly the laws of a congruence:}
-\tau \models (x \triangleq x)\\
-\tau \models (x \triangleq y) \Longrightarrow \tau \models (y \triangleq x)\\
-\tau \models (x \triangleq y) \Longrightarrow \tau \models (y \triangleq z) \Longrightarrow \tau \models (x \triangleq z)\\
-\HolOclCp P \Longrightarrow \tau \models (x \triangleq y) \Longrightarrow \tau \models (P\ap x) \Longrightarrow \tau \models (P\ap y)
+\tau \isasymMathOclValid (x \triangleq x)\\
+\tau \isasymMathOclValid (x \triangleq y) \Longrightarrow \tau \isasymMathOclValid (y \triangleq x)\\
+\tau \isasymMathOclValid (x \triangleq y) \Longrightarrow \tau \isasymMathOclValid (y \triangleq z) \Longrightarrow \tau \isasymMathOclValid (x \triangleq z)\\
+\HolOclCp P \Longrightarrow \tau \isasymMathOclValid (x \triangleq y) \Longrightarrow \tau \isasymMathOclValid (P\ap x) \Longrightarrow \tau \isasymMathOclValid (P\ap y)
 \end{gather*}
 where the predicate $\HolOclCp$ stands for \emph{context-passing}, a
 property that is true for all pure \OCL expressions (but not
@@ -956,14 +956,14 @@ The strong logical equality of \FOCL give rise to a number
 of further rules and derived properties, that clarify the role of strong logical equality and
 the boolean constants in \OCL specifications:
 \begin{gather*}
-\tau \models \delta \ap x \lor \tau \models x \triangleq \mocl{invalid} \lor \tau \models x \triangleq \mocl{null} \mi{,}\\
-(\tau \models A \triangleq \mocl{invalid}) = (\tau \models \mocl{not} (\upsilon A))\\
+\tau \isasymMathOclValid \delta \ap x \lor \tau \isasymMathOclValid x \triangleq \mocl{invalid} \lor \tau \isasymMathOclValid x \triangleq \mocl{null} \mi{,}\\
+(\tau \isasymMathOclValid A \triangleq \mocl{invalid}) = (\tau \isasymMathOclValid \mocl{not} (\upsilon A))\\
 % (*  foundation15 *)
 \begin{multlined}
- (\tau \models A \triangleq \mocl{true}) = (\tau \models A)  \qquad
- (\tau \models A \triangleq \mocl{false}) = (\tau \models \mocl{not} A) \\
- (\tau \models \mocl{not} (\delta x)) = (\lnot \tau \models \delta x) \qquad
- (\tau \models \mocl{not} (\upsilon x)) = (\lnot \tau \models \upsilon x) % (*  UML_Logic.foundation7':*)
+ (\tau \isasymMathOclValid A \triangleq \mocl{true}) = (\tau \isasymMathOclValid A)  \qquad
+ (\tau \isasymMathOclValid A \triangleq \mocl{false}) = (\tau \isasymMathOclValid \mocl{not} A) \\
+ (\tau \isasymMathOclValid \mocl{not} (\delta x)) = (\lnot \tau \isasymMathOclValid \delta x) \qquad
+ (\tau \isasymMathOclValid \mocl{not} (\upsilon x)) = (\lnot \tau \isasymMathOclValid \upsilon x) % (*  UML_Logic.foundation7':*)
 \end{multlined}
 \end{gather*}
 %   (not A \<triangleq> not B) = (A \<triangleq> B) (*foundation21*)
@@ -975,30 +975,30 @@ standard SMT solvers such as CVC3~\cite{barrett.ea:cvc3:2007} or
 Z3~\cite{moura.ea:z3:2008}. $\delta$-closure rules for all logical
 connectives have the following format, \eg:
 \begin{gather*}
-\tau \models \delta \ap x \Longrightarrow (\tau \models \ap\mocl{not}\ap x) = (\lnot (\tau \models x))\\
-\tau \models \delta \ap x \Longrightarrow \tau \models \delta \ap y \Longrightarrow (\tau \models x \ap\mocl{and}\ap y) = ( \tau \models x \land \tau \models y)\\
+\tau \isasymMathOclValid \delta \ap x \Longrightarrow (\tau \isasymMathOclValid \ap\mocl{not}\ap x) = (\lnot (\tau \isasymMathOclValid x))\\
+\tau \isasymMathOclValid \delta \ap x \Longrightarrow \tau \isasymMathOclValid \delta \ap y \Longrightarrow (\tau \isasymMathOclValid x \ap\mocl{and}\ap y) = ( \tau \isasymMathOclValid x \land \tau \isasymMathOclValid y)\\
 \begin{multlined}
-\tau \models \delta \ap x \Longrightarrow  \tau \models \delta \ap y \\
-\Longrightarrow (\tau \models (x \ap\mocl{implies}\ap y)) = ( (\tau \models x) \longrightarrow (\tau \models y))
+\tau \isasymMathOclValid \delta \ap x \Longrightarrow  \tau \isasymMathOclValid \delta \ap y \\
+\Longrightarrow (\tau \isasymMathOclValid (x \ap\mocl{implies}\ap y)) = ( (\tau \isasymMathOclValid x) \longrightarrow (\tau \isasymMathOclValid y))
 \end{multlined}
 \end{gather*}
 Together with the already mentioned general case-distinction
 \begin{gather*}
-\tau \models \delta \ap x \lor \tau \models x \triangleq \mocl{invalid} \lor \tau \models x \triangleq \mocl{null}
+\tau \isasymMathOclValid \delta \ap x \lor \tau \isasymMathOclValid x \triangleq \mocl{invalid} \lor \tau \isasymMathOclValid x \triangleq \mocl{null}
 \end{gather*}
 which is possible for any \OCL type, a case distinction on the
 variables in a formula can be performed; due to strictness rules,
 formulae containing somewhere a variable $x$ that is known to be
 $\mocl{invalid}$ or $\mocl{null}$ reduce usually quickly to
 contradictions.  For example, we can infer from an invariant $\tau
-\models x \isasymMathOclStrictEq y \;\mocl{-}\; \mocl{3}$ that we have $\tau
-\models x \isasymMathOclStrictEq y \;\mocl{-}\; \mocl{3} \land \tau \models
-\delta \ap x \land \tau \models \delta \ap y$.  We call the latter formula the
+\isasymMathOclValid x \isasymMathOclStrictEq y \;\mocl{-}\; \mocl{3}$ that we have $\tau
+\isasymMathOclValid x \isasymMathOclStrictEq y \;\mocl{-}\; \mocl{3} \land \tau \isasymMathOclValid
+\delta \ap x \land \tau \isasymMathOclValid \delta \ap y$.  We call the latter formula the
 $\delta$-closure of the former.  Now, we can convert a formula like
-$\tau \models x \;\mocl{>}\; \mocl{0} \ap\mocl{or}\ap \mocl{3} \;\mocl{*}\; y \;\mocl{>}\;
+$\tau \isasymMathOclValid x \;\mocl{>}\; \mocl{0} \ap\mocl{or}\ap \mocl{3} \;\mocl{*}\; y \;\mocl{>}\;
 x \;\mocl{*}\; x$ into the equivalent formula
-$\tau \models x \;\mocl{>}\; \mocl{0} \lor \tau
-\models \mocl{3} \;\mocl{*}\; y \;\mocl{>}\; x \;\mocl{*}\; x$ and thus internalize the
+$\tau \isasymMathOclValid x \;\mocl{>}\; \mocl{0} \lor \tau
+\isasymMathOclValid \mocl{3} \;\mocl{*}\; y \;\mocl{>}\; x \;\mocl{*}\; x$ and thus internalize the
 \OCL-logic into a classical (and more tool-conform) logic. This
 works---for the price of a potential, but due to the usually ``rich''
 $\delta$-closures of invariants rare---exponential blow-up of the
@@ -1548,30 +1548,32 @@ omit the multiplicity.
 In this section, we assume to be $C_z,C_i,C_j \in C$ and  $C_i < C_j$. 
 Let $C_z$ be a smallest element wit h respect to the class hierarchy $\_ < \_$.
 The operations induced from a class-model have the following properties:
-\begin{ocl}
- \<tau> \<Turnstile> X .oclAsType(C_i) \<triangleq> X
- \<tau> \<Turnstile> invalid .oclAsType(C_i) \<triangleq> invalid
- \<tau> \<Turnstile> null .oclAsType(C_i) \<triangleq> null
- \<tau> \<Turnstile> ((X::C_i) .oclAsType(C_j) .oclAsType(C_i) \<triangleq> X)
- \<tau> \<Turnstile> X .oclAsType(C_j) .oclAsType(C_i) \<triangleq> X
- \<tau> \<Turnstile> \<upsilon> (X :: C_i) \<Longrightarrow> \<tau> \<Turnstile> (X .oclIsTypeOf(C_i) implies (X .oclAsType(C_j) .oclAsType(C_i)) \<doteq> X)"
- \<tau> \<Turnstile> (X::OclAny) .oclAsType(OclAny) \<triangleq> X
- \<tau> \<Turnstile> \<upsilon> (X :: C_i) \<Longrightarrow> \<tau> \<Turnstile> (X .oclIsTypeOf(C_i) implies (X .oclAsType(C_j) .oclAsType(C_i)) \<doteq> X)"
- \<tau> \<Turnstile> \<delta> X \<Longrightarrow> \<tau> \<Turnstile> X .oclAsType(C_j) .oclAsType(C_i) \<triangleq> X
- \<tau> \<Turnstile> \<upsilon> X \<Longrightarrow> \<tau> \<Turnstile> X .oclIsTypeOf(C_i) implies X .oclAsType(C_j) .oclAsType(C_i) \<doteq> X
- \<tau> \<Turnstile> X .oclIsTypeOf(C_j) \<Longrightarrow> \<tau> \<Turnstile> \<delta> X \<Longrightarrow> \<tau> \<Turnstile> not (\<upsilon> X .oclAsType(C_i))
- \<tau> \<Turnstile> invalid .oclIsTypeOf(C_i) \<triangleq> invalid
- \<tau> \<Turnstile> null .oclIsTypeOf(C_i) \<triangleq> true
- \<tau> \<Turnstile> (Person .allInstances()->forAll(X|X .oclIsTypeOf(C_z)))
- \<tau> \<Turnstile> (Person .allInstances@pre()->forAll(X|X .oclIsTypeOf(C_z)))
- \<tau> \<Turnstile> (Person .allInstances()->forAll(X|X .oclIsKindOf(C_i)))
- \<tau> \<Turnstile> (Person .allInstances@pre()->forAll(X|X .oclIsKindOf(C_i)))
- \<tau> \<Turnstile> (X::C_i).oclIsTypeOf(C_j) \<Longrightarrow> \<tau> \<Turnstile> (X::C_i).oclIsKindOf(C_i)
-(\<tau> \<Turnstile> (X::C_j) \<doteq> X) = (\<tau> \<Turnstile> if \<upsilon> X then true else invalid endif)
- \<tau> \<Turnstile> (X::C_j) \<doteq> Y \<Longrightarrow>  \<tau> \<Turnstile> Y \<doteq> X 
- \<tau> \<Turnstile> (X::C_j) \<doteq> Y \<Longrightarrow>  \<tau> \<Turnstile> Y \<doteq> Z  \<Longrightarrow>  \<tau> \<Turnstile> X \<doteq> Z 
-\end{ocl}
-
+\begin{gather*}
+  \begin{aligned}[c]
+  \tau \isasymMathOclValid X \mocl{.oclAsType(}C_i\mocl{)} \isasymMathOclStrongEq X   \\
+ \tau \isasymMathOclValid \mocl{invalid .oclAsType(}C_i\mocl{)} \isasymMathOclStrongEq \mocl{invalid} \\
+ \tau \isasymMathOclValid \mocl{null .oclAsType(}C_i\mocl{)} \isasymMathOclStrongEq \mocl{null} \\
+ \tau \isasymMathOclValid \mocl{((}X::C_i) \mocl{.oclAsType(C_j) .oclAsType(}C_i\mocl{)} \isasymMathOclStrongEq X\mocl{)}  \\
+ \tau \isasymMathOclValid X \mocl{.oclAsType(}C_j\mocl{) .oclAsType(}C_i) \isasymMathOclStrongEq X  \\
+ \tau \isasymMathOclValid \upsilon (X :: C_i) \Longrightarrow \tau \isasymMathOclValid (X \mocl{.oclIsTypeOf(}C_i\mocl{) implies} (X \mocl{.oclAsType(}C_j\mocl{) .oclAsType(}C_i\mocl{))} \isasymMathOclStrictEq X) \\
+ \tau \isasymMathOclValid \mocl{(}X::OclAny\mocl{) .oclAsType(}OclAny\mocl{)} \isasymMathOclStrongEq X \\
+ \tau \isasymMathOclValid \upsilon (X :: C_i) \Longrightarrow \tau \isasymMathOclValid (X \mocl{.oclIsTypeOf(}C_i\mocl{) implies (}X \mocl{.oclAsType(}C_j\mocl{) .oclAsType(}C_i\mocl{))} \isasymMathOclStrictEq X) \\
+ \tau \isasymMathOclValid \delta X \Longrightarrow \tau \isasymMathOclValid X \mocl{.oclAsType(}C_j\mocl{) .oclAsType(}C_i\mocl{)} \isasymMathOclStrongEq X \\
+ \tau \isasymMathOclValid \upsilon X \Longrightarrow \tau \isasymMathOclValid X \mocl{.oclIsTypeOf(}C_i\mocl{) implies} X \mocl{.oclAsType(}C_j\mocl{) .oclAsType(}C_i\mocl{)} \isasymMathOclStrictEq X \\
+ \tau \isasymMathOclValid X \mocl{.oclIsTypeOf(}C_j\mocl{)} \Longrightarrow \tau \isasymMathOclValid \delta X \Longrightarrow \tau \isasymMathOclValid \mocl{not} (\upsilon X \mocl{.oclAsType(}C_i\mocl{))} \\
+ \tau \isasymMathOclValid \mocl{invalid} \mocl{.oclIsTypeOf(}C_i\mocl{)} \isasymMathOclStrongEq \mocl{invalid} \\
+ \tau \isasymMathOclValid \mocl{null .oclIsTypeOf(}C_i\mocl{)} \isasymMathOclStrongEq \mocl{true} \\
+ \tau \isasymMathOclValid Person \mocl{.allInstances()->forAll(}X\mocl{|}X \mocl{.oclIsTypeOf(}C_z\mocl{))} \\
+ \tau \isasymMathOclValid Person \mocl{.allInstances@pre()->forAll(}X\mocl{|}X \mocl{.oclIsTypeOf(}C_z\mocl{))} \\
+ \tau \isasymMathOclValid Person \mocl{.allInstances()->forAll(}X\mocl{|}X \mocl{.oclIsKindOf(}C_i\mocl{))} \\
+ \tau \isasymMathOclValid Person \mocl{.allInstances@pre()->forAll(}X\mocl{|}X \mocl{.oclIsKindOf(}C_i\mocl{))} \\
+ \tau \isasymMathOclValid (X::C_i)\mocl{.oclIsTypeOf(}C_j\mocl{)} \Longrightarrow \tau \isasymMathOclValid \mocl{(}X::C_i\mocl{).oclIsKindOf(}C_i\mocl{)} \\
+(\tau \isasymMathOclValid (X::C_j) \isasymMathOclStrictEq X) = (\tau \isasymMathOclValid \mocl{if } \upsilon X \mocl{ then true else invalid endif}) \\
+ \tau \isasymMathOclValid (X::C_j) \isasymMathOclStrictEq Y \Longrightarrow  \tau \isasymMathOclValid Y \isasymMathOclStrictEq X \\
+ \tau \isasymMathOclValid (X::C_j) \isasymMathOclStrictEq Y \Longrightarrow  \tau \isasymMathOclValid Y \isasymMathOclStrictEq Z  \Longrightarrow   \tau \isasymMathOclValid X \isasymMathOclStrictEq Z 
+\end{aligned}
+\end{gather*}
+ 
 \subsubsection{Algebraic Properties of the Class-Models}\label{sec:algprop-datamodel}
 In this section, we assume to be $C_i,C_j \in C$ and  $C_i < C_j$. 
 The operations induced from a class-model have the following  properties:
