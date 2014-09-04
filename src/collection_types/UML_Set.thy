@@ -445,7 +445,7 @@ consts (* abstract set collection operations *)
 notation  OclCount       ("_->count\<^sub>S\<^sub>e\<^sub>t'(_')" (*[66,65]65*))
 notation  OclSum         ("_->sum\<^sub>S\<^sub>e\<^sub>t'(')" (*[66]*))
 
-(* text{* \isatagafp *} *)
+text_raw{* \isatagafp *} 
 subsubsection{* Validity and Definedness Properties *}
 
 text{* OclIncluding *}
@@ -709,7 +709,7 @@ lemma OclANY_valid_args_valid''[simp,code_unfold]:
 by(auto intro!: OclANY_valid_args_valid transform2_rev)
 
 (* and higher order ones : forall, exists, iterate, select, reject... *)
-(* text{* \endisatagafp *} *)
+text_raw{* \endisatagafp *} 
 
 subsubsection{* Execution with Invalid or Null or Infinite Set as Argument *}
 
@@ -3110,6 +3110,7 @@ lemma OclIncluding_cong : "\<And>(s::('\<AA>,'a::null)Set) t x y \<tau>. \<tau> 
  apply(rule OclIncluding_cong', simp_all only:)
 by(auto simp: OclValid_def OclIf_def invalid_def bot_option_def OclNot_def split : split_if_asm)
 
+(* < *)
 lemma const_StrictRefEq\<^sub>S\<^sub>e\<^sub>t_empty : "const X \<Longrightarrow>  const (X \<doteq> Set{})" 
  apply(rule StrictRefEq\<^sub>S\<^sub>e\<^sub>t.const, assumption)
 by(simp)
@@ -3118,6 +3119,7 @@ lemma const_StrictRefEq\<^sub>S\<^sub>e\<^sub>t_including :
  "const a \<Longrightarrow> const S \<Longrightarrow> const X \<Longrightarrow>  const (X \<doteq> S->including\<^sub>S\<^sub>e\<^sub>t(a))"
  apply(rule StrictRefEq\<^sub>S\<^sub>e\<^sub>t.const, assumption)
 by(rule const_OclIncluding)
+(* > *)
 
 subsection{* Test Statements *}
 
