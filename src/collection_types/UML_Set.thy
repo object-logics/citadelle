@@ -1040,7 +1040,7 @@ by (metis (no_types) const_def const_defined const_true const_valid cp_defined c
 
 *)
 subsection{* General Albegraic Execution Rules *}
-subsubsection{* Execution Rules on OclIncluding *}
+subsubsection{* Execution Rules on Including *}
 
 lemma OclIncluding_finite_rep_set :
   assumes X_def : "\<tau> \<Turnstile> \<delta> X"
@@ -1980,7 +1980,7 @@ lemma OclANY_singleton_exec[simp,code_unfold]:
        simp add: mtSet_defined[simplified mtSet_def] valid_def bot_fun_def)
 by(simp add: cp_OclAnd[symmetric], rule impI, simp add: false_def true_def)
 
-subsubsection{* Execution Rules on OclForall *}
+subsubsection{* Execution Rules on Forall *}
 
 lemma OclForall_mtSet_exec[simp,code_unfold] :"((Set{})->forAll\<^sub>S\<^sub>e\<^sub>t(z| P(z))) = true"
 apply(simp add: OclForall_def)
@@ -2536,7 +2536,7 @@ proof -
  done
 qed
 
-subsubsection{* Execution Rules on OclReject *}
+subsubsection{* Execution Rules on Reject *}
 
 lemma OclReject_mtSet_exec[simp,code_unfold]: "OclReject mtSet P = mtSet"
 by(simp add: OclReject_def)
