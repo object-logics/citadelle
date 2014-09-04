@@ -239,7 +239,7 @@ type_synonym ('\<AA>)st = "'\<AA> state \<times> '\<AA> state"
 text{* We will require for all objects that there is a function that
 projects the oid of an object in the state (we will settle the question how to define
 this function later). We will use the Isabelle type class mechanism~\cite{haftmann.ea:constructive:2006} 
-\fixme{Get Appropriate Reference!} to capture this: *}
+to capture this: *}
 
 class object =  fixes oid_of :: "'a \<Rightarrow> oid"
 

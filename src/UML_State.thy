@@ -50,7 +50,7 @@ begin
 no_notation None ("\<bottom>")
 section{* Introduction: States over Typed Object Universes *}
 
-text{*
+text{* \label{sec:universe}
   In the following, we will refine the concepts of a user-defined
   data-model (implied by a class-diagram) as well as the notion of
   $\state{}$ used in the previous section to much more detail.
