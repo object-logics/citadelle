@@ -68,15 +68,16 @@ lemma mtSequence_rep_set: "\<lceil>\<lceil>Rep_Sequence\<^sub>b\<^sub>a\<^sub>s\
  apply(simp add: mtSequence_def, subst Abs_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inverse)
 by(simp add: bot_option_def)+
 
+text_raw{* \isatagafp *}
+
 lemma [simp,code_unfold]: "const Sequence{}"
 by(simp add: const_def mtSequence_def)
-
 
 text{* Note that the collection types in OCL allow for null to be included;
   however, there is the null-collection into which inclusion yields invalid. *}
 
-
 lemmas cp_intro''\<^sub>S\<^sub>e\<^sub>q\<^sub>u\<^sub>e\<^sub>n\<^sub>c\<^sub>e[intro!,simp,code_unfold] = cp_intro'
+text_raw{* \endisatagafp *}
 
 subsubsection{* Properties of Sequence Type:  *}
 

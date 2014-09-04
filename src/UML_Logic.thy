@@ -1064,6 +1064,8 @@ lemma cp_const : "cp(\<lambda>_. c)"
 lemma cp_id :     "cp(\<lambda>X. X)"
   by (simp add: cp_def, fast)
 
+text_raw{*  \isatagafp *}
+ 
 lemmas cp_intro[intro!,simp,code_unfold] =
        cp_const
        cp_id
@@ -1076,6 +1078,9 @@ lemmas cp_intro[intro!,simp,code_unfold] =
        cp_StrongEq[THEN allI[THEN allI[THEN allI[THEN cpI2]],
                    of "StrongEq"]]
 
+text_raw{* \endisatagafp *}
+       
+       
 subsection{* OCL's if then else endif *}
 
 definition OclIf :: "[('\<AA>)Boolean , ('\<AA>,'\<alpha>::null) val, ('\<AA>,'\<alpha>) val] \<Rightarrow> ('\<AA>,'\<alpha>) val"
@@ -1090,10 +1095,12 @@ where "(if C then B\<^sub>1 else B\<^sub>2 endif) = (\<lambda> \<tau>. if (\<del
 lemma cp_OclIf:"((if C then B\<^sub>1 else B\<^sub>2 endif) \<tau> =
                   (if (\<lambda> _. C \<tau>) then (\<lambda> _. B\<^sub>1 \<tau>) else (\<lambda> _. B\<^sub>2 \<tau>) endif) \<tau>)"
 by(simp only: OclIf_def, subst cp_defined, rule refl)
+text_raw{*  \isatagafp *}
 
 lemmas cp_intro'[intro!,simp,code_unfold] =
        cp_intro
        cp_OclIf[THEN allI[THEN allI[THEN allI[THEN allI[THEN cpI3]]], of "OclIf"]]
+text_raw{* \endisatagafp *}
 
 lemma OclIf_invalid [simp]: "(if invalid then B\<^sub>1 else B\<^sub>2 endif) = invalid"
 by(rule ext, auto simp: OclIf_def)
