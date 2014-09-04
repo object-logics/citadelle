@@ -2,7 +2,17 @@
 \usepackage{fixltx2e}
 \usepackage[T1]{fontenc}
 \usepackage{isabelle}
-\usepackage[nocolortable, noaclist,isasymonly]{hol-ocl-isar}
+\usepackage[nocolortable, noaclist,isasymonly,nocolor]{hol-ocl-isar}
+\renewcommand{\lfloor}{\isasymHolOclLiftLeft}
+\renewcommand{\rfloor}{\isasymHolOclLiftRight}
+\renewcommand{\lceil}{\isasymHolOclDropLeft}
+\renewcommand{\rceil}{\isasymHolOclDropRight}
+\renewcommand{\oclkeywordstyle}{\bfseries}
+\renewcommand{\javakeywordstyle}{\bfseries}
+\renewcommand{\smlkeywordstyle}{\bfseries}
+\renewcommand{\holoclthykeywordstyle}{}
+
+
 \isatagannexa
   \KOMAoptions{paper=8.28in:11in,twoside=semi}
   \areaset{6.7in}{8in}
@@ -34,7 +44,7 @@
   \DeclareOldFontCommand{\it}{\normalfont\itshape}{\mathit}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\setcounter{tocdepth}{2} % printed TOC not too detailed 
+\setcounter{tocdepth}{3} % printed TOC not too detailed 
 \hypersetup{bookmarksdepth=4} % more detailed digital TOC (aka bookmarks)
 \sloppy
 
