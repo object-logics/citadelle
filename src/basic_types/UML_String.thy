@@ -47,20 +47,30 @@ begin
 
 section{* Basic Type String: Operations *}
 
+subsection{* Fundamental Properties on Strings: Strict Equality \label{sec:string-strict-eq}*}
+
+text{* The last basic operation belonging to the fundamental infrastructure
+of a value-type in OCL is the weak equality, which is defined similar
+to the @{typ "('\<AA>)Boolean"}-case as strict extension of the strong equality:*}
+defs   StrictRefEq\<^sub>S\<^sub>t\<^sub>r\<^sub>i\<^sub>n\<^sub>g[code_unfold] :
+      "(x::('\<AA>)String) \<doteq> y \<equiv> \<lambda> \<tau>. if (\<upsilon> x) \<tau> = true \<tau> \<and> (\<upsilon> y) \<tau> = true \<tau>
+                                    then (x \<triangleq> y) \<tau>
+                                    else invalid \<tau>"
+
+text{* Property proof in terms of @{term "profile_bin3"}*}
+interpretation  StrictRefEq\<^sub>S\<^sub>t\<^sub>r\<^sub>i\<^sub>n\<^sub>g : profile_bin3 "\<lambda> x y. (x::('\<AA>)String) \<doteq> y" 
+         by unfold_locales (auto simp: StrictRefEq\<^sub>S\<^sub>t\<^sub>r\<^sub>i\<^sub>n\<^sub>g)
+ 
 subsection{* Basic String Constants *}
 
 text{* Although the remaining part of this library reasons about
 integers abstractly, we provide here as example some convenient shortcuts. *}
 
-definition OclStringa ::"('\<AA>)String" ("\<a>")
-where      "\<a> = (\<lambda> _ . \<lfloor>\<lfloor>''a''\<rfloor>\<rfloor>)"
-
-definition OclStringb ::"('\<AA>)String" ("\<b>")
-where      "\<b> = (\<lambda> _ . \<lfloor>\<lfloor>''b''\<rfloor>\<rfloor>)"
-
-definition OclStringc ::"('\<AA>)String" ("\<c>")
-where      "\<c> = (\<lambda> _ . \<lfloor>\<lfloor>''c''\<rfloor>\<rfloor>)"
-
+definition OclStringa ::"('\<AA>)String" ("\<a>")    where      "\<a> = (\<lambda> _ . \<lfloor>\<lfloor>''a''\<rfloor>\<rfloor>)"
+definition OclStringb ::"('\<AA>)String" ("\<b>")    where      "\<b> = (\<lambda> _ . \<lfloor>\<lfloor>''b''\<rfloor>\<rfloor>)"
+definition OclStringc ::"('\<AA>)String" ("\<c>")    where      "\<c> = (\<lambda> _ . \<lfloor>\<lfloor>''c''\<rfloor>\<rfloor>)"
+text{* Etc.*}
+text_raw{* \isatagafp *}
 subsection{* Validity and Definedness Properties *}
 
 lemma  "\<delta>(null::('\<AA>)String) = false" by simp
@@ -77,7 +87,7 @@ by(simp add:valid_def true_def
 (* ecclectic proofs to make examples executable *)
 lemma [simp,code_unfold]: "\<delta> \<a> = true" by(simp add:OclStringa_def)
 lemma [simp,code_unfold]: "\<upsilon> \<a> = true" by(simp add:OclStringa_def)
-
+text_raw{* \endisatagafp *}
 
 subsection{* String Operations *}
 
@@ -118,22 +128,7 @@ Assert "\<not>(\<tau> \<Turnstile> (( \<four> +\<^sub>s\<^sub>t\<^sub>r\<^sub>i\
 Assert "  \<tau> \<Turnstile> not (\<upsilon> (null +\<^sub>s\<^sub>t\<^sub>r\<^sub>i\<^sub>n\<^sub>g \<one>)) "
 *)
 
-subsection{* Fundamental Properties on Strings: Strict Equality *}
 
-subsubsection{* Definition *}
-
-text{* The last basic operation belonging to the fundamental infrastructure
-of a value-type in OCL is the weak equality, which is defined similar
-to the @{typ "('\<AA>)Boolean"}-case as strict extension of the strong equality:*}
-defs   StrictRefEq\<^sub>S\<^sub>t\<^sub>r\<^sub>i\<^sub>n\<^sub>g[code_unfold] :
-      "(x::('\<AA>)String) \<doteq> y \<equiv> \<lambda> \<tau>. if (\<upsilon> x) \<tau> = true \<tau> \<and> (\<upsilon> y) \<tau> = true \<tau>
-                                    then (x \<triangleq> y) \<tau>
-                                    else invalid \<tau>"
-
-text{* Property proof in terms of @{term "profile_bin3"}*}
-interpretation  StrictRefEq\<^sub>S\<^sub>t\<^sub>r\<^sub>i\<^sub>n\<^sub>g : profile_bin3 "\<lambda> x y. (x::('\<AA>)String) \<doteq> y" 
-         by unfold_locales (auto simp: StrictRefEq\<^sub>S\<^sub>t\<^sub>r\<^sub>i\<^sub>n\<^sub>g)
- 
 
 subsection{* Test Statements on Basic String *}
 text{* Here follows a list of code-examples, that explain the meanings

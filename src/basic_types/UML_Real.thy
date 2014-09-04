@@ -47,46 +47,40 @@ begin
 
 section{* Basic Type Real: Operations *}
 
+subsection{* Fundamental Predicates on Reals: Strict Equality \label{sec:real-strict-eq}*}
+
+text{* The last basic operation belonging to the fundamental infrastructure
+of a value-type in OCL is the weak equality, which is defined similar
+to the @{typ "('\<AA>)Boolean"}-case as strict extension of the strong equality:*}
+defs   StrictRefEq\<^sub>R\<^sub>e\<^sub>a\<^sub>l [code_unfold] :
+      "(x::('\<AA>)Real) \<doteq> y \<equiv> \<lambda> \<tau>. if (\<upsilon> x) \<tau> = true \<tau> \<and> (\<upsilon> y) \<tau> = true \<tau>
+                                    then (x \<triangleq> y) \<tau>
+                                    else invalid \<tau>"
+                                    
+text{* Property proof in terms of @{term "profile_bin3"}*}
+interpretation StrictRefEq\<^sub>R\<^sub>e\<^sub>a\<^sub>l : profile_bin3 "\<lambda> x y. (x::('\<AA>)Real) \<doteq> y" 
+         by unfold_locales (auto simp: StrictRefEq\<^sub>R\<^sub>e\<^sub>a\<^sub>l)
+                                   
+
 subsection{* Basic Real Constants *}
 
 text{* Although the remaining part of this library reasons about
 reals abstractly, we provide here as example some convenient shortcuts. *}
 
-definition OclReal0 ::"('\<AA>)Real" ("\<zero>.\<zero>")
-where      "\<zero>.\<zero> =  (\<lambda> _ . \<lfloor>\<lfloor>0::real\<rfloor>\<rfloor>)"
-
-definition OclReal1 ::"('\<AA>)Real" ("\<one>.\<zero>")
-where      "\<one>.\<zero> = (\<lambda> _ . \<lfloor>\<lfloor>1::real\<rfloor>\<rfloor>)"
-
-definition OclReal2 ::"('\<AA>)Real" ("\<two>.\<zero>")
-where      "\<two>.\<zero> = (\<lambda> _ . \<lfloor>\<lfloor>2::real\<rfloor>\<rfloor>)"
-
-definition OclReal3 ::"('\<AA>)Real" ("\<three>.\<zero>")
-where      "\<three>.\<zero> = (\<lambda> _ . \<lfloor>\<lfloor>3::real\<rfloor>\<rfloor>)"
-
-definition OclReal4 ::"('\<AA>)Real" ("\<four>.\<zero>")
-where      "\<four>.\<zero> = (\<lambda> _ . \<lfloor>\<lfloor>4::real\<rfloor>\<rfloor>)"
-
-definition OclReal5 ::"('\<AA>)Real" ("\<five>.\<zero>")
-where      "\<five>.\<zero> = (\<lambda> _ . \<lfloor>\<lfloor>5::real\<rfloor>\<rfloor>)"
-
-definition OclReal6 ::"('\<AA>)Real" ("\<six>.\<zero>")
-where      "\<six>.\<zero> = (\<lambda> _ . \<lfloor>\<lfloor>6::real\<rfloor>\<rfloor>)"
-
-definition OclReal7 ::"('\<AA>)Real" ("\<seven>.\<zero>")
-where      "\<seven>.\<zero> = (\<lambda> _ . \<lfloor>\<lfloor>7::real\<rfloor>\<rfloor>)"
-
-definition OclReal8 ::"('\<AA>)Real" ("\<eight>.\<zero>")
-where      "\<eight>.\<zero> = (\<lambda> _ . \<lfloor>\<lfloor>8::real\<rfloor>\<rfloor>)"
-
-definition OclReal9 ::"('\<AA>)Real" ("\<nine>.\<zero>")
-where      "\<nine>.\<zero> = (\<lambda> _ . \<lfloor>\<lfloor>9::real\<rfloor>\<rfloor>)"
-
-definition OclReal10 ::"('\<AA>)Real" ("\<one>\<zero>.\<zero>")
-where      "\<one>\<zero>.\<zero> = (\<lambda> _ . \<lfloor>\<lfloor>10::real\<rfloor>\<rfloor>)"
-
-definition OclRealpi ::"('\<AA>)Real" ("\<pi>")
-where      "\<pi> = (\<lambda> _ . \<lfloor>\<lfloor>pi\<rfloor>\<rfloor>)"
+definition OclReal0 ::"('\<AA>)Real" ("\<zero>.\<zero>")   where      "\<zero>.\<zero> =  (\<lambda> _ . \<lfloor>\<lfloor>0::real\<rfloor>\<rfloor>)"
+definition OclReal1 ::"('\<AA>)Real" ("\<one>.\<zero>")   where      "\<one>.\<zero> = (\<lambda> _ . \<lfloor>\<lfloor>1::real\<rfloor>\<rfloor>)"
+definition OclReal2 ::"('\<AA>)Real" ("\<two>.\<zero>")   where      "\<two>.\<zero> = (\<lambda> _ . \<lfloor>\<lfloor>2::real\<rfloor>\<rfloor>)"
+text{* Etc. *}
+text_raw{* \isatagafp *}
+definition OclReal3 ::"('\<AA>)Real" ("\<three>.\<zero>")   where      "\<three>.\<zero> = (\<lambda> _ . \<lfloor>\<lfloor>3::real\<rfloor>\<rfloor>)"
+definition OclReal4 ::"('\<AA>)Real" ("\<four>.\<zero>")   where      "\<four>.\<zero> = (\<lambda> _ . \<lfloor>\<lfloor>4::real\<rfloor>\<rfloor>)"
+definition OclReal5 ::"('\<AA>)Real" ("\<five>.\<zero>")   where      "\<five>.\<zero> = (\<lambda> _ . \<lfloor>\<lfloor>5::real\<rfloor>\<rfloor>)"
+definition OclReal6 ::"('\<AA>)Real" ("\<six>.\<zero>")   where      "\<six>.\<zero> = (\<lambda> _ . \<lfloor>\<lfloor>6::real\<rfloor>\<rfloor>)" 
+definition OclReal7 ::"('\<AA>)Real" ("\<seven>.\<zero>")   where      "\<seven>.\<zero> = (\<lambda> _ . \<lfloor>\<lfloor>7::real\<rfloor>\<rfloor>)"
+definition OclReal8 ::"('\<AA>)Real" ("\<eight>.\<zero>")   where      "\<eight>.\<zero> = (\<lambda> _ . \<lfloor>\<lfloor>8::real\<rfloor>\<rfloor>)"
+definition OclReal9 ::"('\<AA>)Real" ("\<nine>.\<zero>")   where      "\<nine>.\<zero> = (\<lambda> _ . \<lfloor>\<lfloor>9::real\<rfloor>\<rfloor>)"
+definition OclReal10 ::"('\<AA>)Real" ("\<one>\<zero>.\<zero>") where      "\<one>\<zero>.\<zero> = (\<lambda> _ . \<lfloor>\<lfloor>10::real\<rfloor>\<rfloor>)"
+definition OclRealpi ::"('\<AA>)Real" ("\<pi>")    where      "\<pi> = (\<lambda> _ . \<lfloor>\<lfloor>pi\<rfloor>\<rfloor>)"
 
 subsection{* Validity and Definedness Properties *}
 
@@ -114,8 +108,7 @@ lemma [simp,code_unfold]: "\<delta> \<eight>.\<zero> = true" by(simp add:OclReal
 lemma [simp,code_unfold]: "\<upsilon> \<eight>.\<zero> = true" by(simp add:OclReal8_def)
 lemma [simp,code_unfold]: "\<delta> \<nine>.\<zero> = true" by(simp add:OclReal9_def)
 lemma [simp,code_unfold]: "\<upsilon> \<nine>.\<zero> = true" by(simp add:OclReal9_def)
-
-
+text_raw{* \endisatagafp *}
 subsection{* Arithmetical Operations *}
 
 subsubsection{* Definition *}
@@ -235,23 +228,7 @@ Assert "  \<tau> \<Turnstile> not (\<delta> (\<one>.\<zero> div\<^sub>r\<^sub>e\
 Assert "  \<tau> \<Turnstile> not (\<upsilon> (\<one>.\<zero> div\<^sub>r\<^sub>e\<^sub>a\<^sub>l \<zero>.\<zero>)) "
 
 
-subsection{* Fundamental Predicates on Reals: Strict Equality *}
-
-subsubsection{* Definition *}
-
-text{* The last basic operation belonging to the fundamental infrastructure
-of a value-type in OCL is the weak equality, which is defined similar
-to the @{typ "('\<AA>)Boolean"}-case as strict extension of the strong equality:*}
-defs   StrictRefEq\<^sub>R\<^sub>e\<^sub>a\<^sub>l [code_unfold] :
-      "(x::('\<AA>)Real) \<doteq> y \<equiv> \<lambda> \<tau>. if (\<upsilon> x) \<tau> = true \<tau> \<and> (\<upsilon> y) \<tau> = true \<tau>
-                                    then (x \<triangleq> y) \<tau>
-                                    else invalid \<tau>"
-                                    
-text{* Property proof in terms of @{term "profile_bin3"}*}
-interpretation StrictRefEq\<^sub>R\<^sub>e\<^sub>a\<^sub>l : profile_bin3 "\<lambda> x y. (x::('\<AA>)Real) \<doteq> y" 
-         by unfold_locales (auto simp: StrictRefEq\<^sub>R\<^sub>e\<^sub>a\<^sub>l)
-                                   
-
+subsection{* Test Statements*}
 lemma real_non_null [simp]: "((\<lambda>_. \<lfloor>\<lfloor>n\<rfloor>\<rfloor>) \<doteq> (null::('\<AA>)Real)) = false"
 by(rule ext,auto simp: StrictRefEq\<^sub>R\<^sub>e\<^sub>a\<^sub>l valid_def
                          bot_fun_def bot_option_def null_fun_def null_option_def StrongEq_def)
@@ -286,7 +263,6 @@ lemma [simp,code_unfold]: "const(\<eight>.\<zero>)" by(simp add: const_ss OclRea
 lemma [simp,code_unfold]: "const(\<nine>.\<zero>)" by(simp add: const_ss OclReal9_def)
 
 
-subsection{* Test Statements on Basic Real *}
 text{* Here follows a list of code-examples, that explain the meanings
 of the above definitions by compilation to code and execution to @{term "True"}.*}
 

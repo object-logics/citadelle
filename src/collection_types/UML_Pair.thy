@@ -84,9 +84,7 @@ apply(subst Rep_Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inject[symmetric], simp)
 apply(subst Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e.Abs_Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inverse, simp_all,simp add: null_option_def bot_option_def)
 done
 
-subsection{* Strict Equality *}
-
-subsubsection{* Definition *}
+subsection{* Fundamental Properties of Strict Equality \label{sec:pair-strict-eq}*}
 
 text{* After the part of foundational operations on sets, we detail here equality on sets.
 Strong equality is inherited from the OCL core, but we have to consider
@@ -103,7 +101,7 @@ text{* Property proof in terms of @{term "profile_bin3"}*}
 interpretation  StrictRefEq\<^sub>P\<^sub>a\<^sub>i\<^sub>r : profile_bin3 "\<lambda> x y. (x::('\<AA>,'\<alpha>::null,'\<beta>::null)Pair) \<doteq> y" 
                 by unfold_locales (auto simp:  StrictRefEq\<^sub>P\<^sub>a\<^sub>i\<^sub>r)
  
-subsection{* Standard Operations *}
+subsection{* Standard Operations Definitions *}
 
 text{* This part provides a collection of operators for the Pair type. *}
 
@@ -163,13 +161,14 @@ apply(auto simp: OclValid_def valid_def defined_def StrongEq_def OclSecond_def O
 apply(auto simp: Abs_Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inject null_option_def bot_option_def bot_Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def null_Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def)
 by(simp add: Abs_Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inverse)
 
-subsection{* Execution Properties *}
+subsection{* Algebraic Execution Properties *}
 
 lemma proj1_exec [simp, code_unfold] : "Pair{X,Y} .First() = (if (\<upsilon> Y) then X else invalid endif)"
 apply(rule ext, rename_tac "\<tau>", simp add: foundation22[symmetric])
 apply(case_tac "\<not>(\<tau> \<Turnstile> \<upsilon> Y)")
-apply(erule foundation7'[THEN iffD2, THEN foundation15[THEN iffD2, 
-                                  THEN StrongEq_L_subst2_rev]],simp_all)
+apply(erule foundation7'[THEN iffD2, 
+                         THEN foundation15[THEN iffD2, 
+                                           THEN StrongEq_L_subst2_rev]],simp_all)
 apply(subgoal_tac "\<tau> \<Turnstile> \<upsilon> Y")
 apply(erule foundation13[THEN iffD2, THEN StrongEq_L_subst2_rev], simp_all)
 by(erule 1)

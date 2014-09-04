@@ -52,38 +52,20 @@ subsection{* Basic Integer Constants *}
 text{* Although the remaining part of this library reasons about
 integers abstractly, we provide here as example some convenient shortcuts. *}
 
-definition OclInt0 ::"('\<AA>)Integer" ("\<zero>")
-where      "\<zero> = (\<lambda> _ . \<lfloor>\<lfloor>0::int\<rfloor>\<rfloor>)"
+definition OclInt0 ::"('\<AA>)Integer" ("\<zero>")  where      "\<zero> = (\<lambda> _ . \<lfloor>\<lfloor>0::int\<rfloor>\<rfloor>)"
+definition OclInt1 ::"('\<AA>)Integer" ("\<one>")  where      "\<one> = (\<lambda> _ . \<lfloor>\<lfloor>1::int\<rfloor>\<rfloor>)"
+text{* Etc. *}
 
-definition OclInt1 ::"('\<AA>)Integer" ("\<one>")
-where      "\<one> = (\<lambda> _ . \<lfloor>\<lfloor>1::int\<rfloor>\<rfloor>)"
-
-definition OclInt2 ::"('\<AA>)Integer" ("\<two>")
-where      "\<two> = (\<lambda> _ . \<lfloor>\<lfloor>2::int\<rfloor>\<rfloor>)"
-
-definition OclInt3 ::"('\<AA>)Integer" ("\<three>")
-where      "\<three> = (\<lambda> _ . \<lfloor>\<lfloor>3::int\<rfloor>\<rfloor>)"
-
-definition OclInt4 ::"('\<AA>)Integer" ("\<four>")
-where      "\<four> = (\<lambda> _ . \<lfloor>\<lfloor>4::int\<rfloor>\<rfloor>)"
-
-definition OclInt5 ::"('\<AA>)Integer" ("\<five>")
-where      "\<five> = (\<lambda> _ . \<lfloor>\<lfloor>5::int\<rfloor>\<rfloor>)"
-
-definition OclInt6 ::"('\<AA>)Integer" ("\<six>")
-where      "\<six> = (\<lambda> _ . \<lfloor>\<lfloor>6::int\<rfloor>\<rfloor>)"
-
-definition OclInt7 ::"('\<AA>)Integer" ("\<seven>")
-where      "\<seven> = (\<lambda> _ . \<lfloor>\<lfloor>7::int\<rfloor>\<rfloor>)"
-
-definition OclInt8 ::"('\<AA>)Integer" ("\<eight>")
-where      "\<eight> = (\<lambda> _ . \<lfloor>\<lfloor>8::int\<rfloor>\<rfloor>)"
-
-definition OclInt9 ::"('\<AA>)Integer" ("\<nine>")
-where      "\<nine> = (\<lambda> _ . \<lfloor>\<lfloor>9::int\<rfloor>\<rfloor>)"
-
-definition OclInt10 ::"('\<AA>)Integer" ("\<one>\<zero>")
-where      "\<one>\<zero> = (\<lambda> _ . \<lfloor>\<lfloor>10::int\<rfloor>\<rfloor>)"
+text_raw{* \isatagafp *}
+definition OclInt2 ::"('\<AA>)Integer" ("\<two>")  where      "\<two> = (\<lambda> _ . \<lfloor>\<lfloor>2::int\<rfloor>\<rfloor>)"
+definition OclInt3 ::"('\<AA>)Integer" ("\<three>")  where      "\<three> = (\<lambda> _ . \<lfloor>\<lfloor>3::int\<rfloor>\<rfloor>)"
+definition OclInt4 ::"('\<AA>)Integer" ("\<four>")  where      "\<four> = (\<lambda> _ . \<lfloor>\<lfloor>4::int\<rfloor>\<rfloor>)"
+definition OclInt5 ::"('\<AA>)Integer" ("\<five>")  where      "\<five> = (\<lambda> _ . \<lfloor>\<lfloor>5::int\<rfloor>\<rfloor>)"
+definition OclInt6 ::"('\<AA>)Integer" ("\<six>")  where      "\<six> = (\<lambda> _ . \<lfloor>\<lfloor>6::int\<rfloor>\<rfloor>)"
+definition OclInt7 ::"('\<AA>)Integer" ("\<seven>")  where      "\<seven> = (\<lambda> _ . \<lfloor>\<lfloor>7::int\<rfloor>\<rfloor>)"
+definition OclInt8 ::"('\<AA>)Integer" ("\<eight>")  where      "\<eight> = (\<lambda> _ . \<lfloor>\<lfloor>8::int\<rfloor>\<rfloor>)"
+definition OclInt9 ::"('\<AA>)Integer" ("\<nine>")  where      "\<nine> = (\<lambda> _ . \<lfloor>\<lfloor>9::int\<rfloor>\<rfloor>)"
+definition OclInt10 ::"('\<AA>)Integer" ("\<one>\<zero>")where      "\<one>\<zero> = (\<lambda> _ . \<lfloor>\<lfloor>10::int\<rfloor>\<rfloor>)"
 
 subsection{* Validity and Definedness Properties *}
 
@@ -112,6 +94,7 @@ lemma [simp,code_unfold]: "\<upsilon> \<eight> = true" by(simp add:OclInt8_def)
 lemma [simp,code_unfold]: "\<delta> \<nine> = true" by(simp add:OclInt9_def)
 lemma [simp,code_unfold]: "\<upsilon> \<nine> = true" by(simp add:OclInt9_def)
 
+text_raw{* \endisatagafp *}
 
 subsection{* Arithmetical Operations *}
 
