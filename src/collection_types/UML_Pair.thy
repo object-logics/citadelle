@@ -107,7 +107,7 @@ subsection{* Standard Operations *}
 
 text{* This part provides a collection of operators for the Pair type. *}
 
-subsubsection{* Definition: OclPair Constructor *}
+subsubsection{* Definition: Pair Constructor *}
 
 definition OclPair::"('\<AA>, '\<alpha>) val \<Rightarrow>
                      ('\<AA>, '\<beta>) val \<Rightarrow>
@@ -122,7 +122,7 @@ interpretation OclPair : profile_bin4
                by(auto simp: Abs_Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inject null_option_def bot_option_def)
              
 
-subsubsection{* Definition: OclFst *}
+subsubsection{* Definition: First *}
 
 definition OclFirst::" ('\<AA>,'\<alpha>::null,'\<beta>::null) Pair \<Rightarrow> ('\<AA>, '\<alpha>) val"  (" _ .First'(')")
 where     "X .First() \<equiv> (\<lambda> \<tau>. if (\<delta> X) \<tau> = true \<tau>
@@ -133,7 +133,7 @@ where     "X .First() \<equiv> (\<lambda> \<tau>. if (\<delta> X) \<tau> = true 
 interpretation OclFirst : profile_mono2 OclFirst "\<lambda>x.  fst \<lceil>\<lceil>Rep_Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e (x)\<rceil>\<rceil>"
                           by unfold_locales (auto simp:  OclFirst_def)
 
-subsubsection{* Definition: OclSnd *}
+subsubsection{* Definition: Second *}
                               
 definition OclSecond::" ('\<AA>,'\<alpha>::null,'\<beta>::null) Pair \<Rightarrow> ('\<AA>, '\<beta>) val"  ("_ .Second'(')")
 where     "X .Second() \<equiv> (\<lambda> \<tau>. if (\<delta> X) \<tau> = true \<tau>
