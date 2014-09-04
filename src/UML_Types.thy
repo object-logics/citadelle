@@ -89,7 +89,7 @@ definition Sem :: "'a \<Rightarrow> 'a" ("I\<lbrakk>_\<rbrakk>")
 where "I\<lbrakk>x\<rbrakk> \<equiv> x"
 
 
-subsection{*  Common Infrastructure for all OCL Types \label{sec:focl-types}*}
+subsection{*  Common Infrastructure for all OCL Types \label{sec:focl-common-types}*}
 
 text {* In order to have the possibility to nest collection types,
   such that we can give semantics to expressions like @{text "Set{Set{\<two>},null}"},
@@ -502,7 +502,7 @@ text{* After the previous sections, we are now able to exemplify this representa
       \bottomrule
    \end{tabu}
    \caption{Correspondance between \OCL types and \HOL types}
-   \label{tab:sem_basic_constants}
+   \label{tab:types}
 \end{table}
 We do not formalize the representation map here; however, its principles are quite straight-forward:
 \begin{enumerate}
