@@ -44,7 +44,7 @@
 session "OCL-dirty" in "src" = HOL +
   description {* Featherweight OCL (Quick and Dirty) *}
   options [quick_and_dirty,document=pdf,document_output=document_generated,
-           document_variants="annex-a=annexa,-afp,-proof,-ML:document=afp,-annexa:outline=-annexa,afp,/proof,/ML",
+           document_variants="annex-a=annexa,-theory,-afp,-proof,-ML:document=afp,-annexa:outline=-annexa,afp,/proof,/ML",
            show_question_marks = false]
   theories
     "../src/UML_Main"
@@ -60,7 +60,7 @@ session "OCL-dirty" in "src" = HOL +
 session "OCL" in "src" = HOL +
   description {* Featherweigt OCL *}
   options [document=pdf,document_output=document_generated,
-           document_variants="annex-a=annexa,-afp,-proof,-ML:document=afp,-annexa:outline=-annexa,afp,/proof,/ML",
+           document_variants="annex-a=annexa,-theory,-afp,-proof,-ML:document=afp,-annexa:outline=-annexa,afp,/proof,/ML",
            show_question_marks = false]
   theories
     "../src/UML_Main"
