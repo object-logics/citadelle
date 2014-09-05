@@ -1903,6 +1903,8 @@ where
       $\psi'~self~a_1~\ldots a_n$ and $result \isasymMathOclStrongEq BODY~self~a_1~\ldots~a_n$.
 \end{itemize}
       
+\fxwarning{correct? What should be checked? Achim: Description of Liskov is IMHO correct, 
+but the simulation of a vtable using oclIsKindOf is at leat tedious. One should, imho, add a vtable for modelling overridding properly (informally, we had this already in HOL-OCL)}
 We do not model \emph{overriding} of operations as in Java or C++
 explicitly in \FOCL.  However, it is easy expressed in this
 core-language by adding \mocl{self.oclIsKindOf(C)} in the
@@ -1913,9 +1915,7 @@ instances of an overridden operation, the user has to prove Liskov's
 principle for these situations: pre-conditions of the superclass must
 imply pre-conditions of the subclass, and post-conditions of a
 subclass must imply post-conditions of the
-superclass. \fxwarning{correct? What should be checked? Achim: Description of Liskov is IMHO correct, 
-but the simulation of a vtable using oclIsKindOf is at leat tedious. One should, imho, add a vtable for modelling overridding properly (informally, we had this already in HOL-OCL)}
-
+superclass. 
 %%% Local Variables:
 %%% mode: latex
 %%% TeX-master: "root"
