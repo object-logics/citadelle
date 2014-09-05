@@ -165,7 +165,6 @@ end
 instantiation "fun"  :: (type,bot) bot
 begin
    definition bot_fun_def: "bot \<equiv> (\<lambda> x. bot)"
-
    instance proof  show "\<exists>(x::'a \<Rightarrow> 'b). x \<noteq> bot"
                    apply(rule_tac x="\<lambda> _. (SOME y. y \<noteq> bot)" in exI, auto)
                    apply(drule_tac x=x in fun_cong,auto simp:bot_fun_def)
@@ -180,7 +179,6 @@ end
 instantiation "fun"  :: (type,null) null
 begin
  definition null_fun_def: "(null::'a \<Rightarrow> 'b::null) \<equiv> (\<lambda> x. null)"
-
  instance proof
               show "(null::'a \<Rightarrow> 'b::null) \<noteq> bot"
               apply(auto simp: null_fun_def bot_fun_def)
