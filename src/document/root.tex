@@ -14,7 +14,7 @@
 
 
 \isatagannexa
-  \KOMAoptions{paper=8.28in:11in,twoside=semi}
+  \KOMAoptions{paper=8.28in:11in,twoside=semi,headings=openany}
   \areaset{6.7in}{8in}
   \usepackage{mathptmx} % rm & math
   \usepackage[scaled=0.90]{helvet} % ss
@@ -26,6 +26,7 @@
 \usepackage{booktabs}
 \usepackage{graphicx}
 \usepackage[numbers, sort&compress, sectionbib]{natbib}
+\usepackage{chapterbib}
 \usepackage[caption=false]{subfig}
 \usepackage{tabu}
 \usepackage{prooftree}
@@ -187,7 +188,7 @@
 \endisatagannexa
 \chapter{Formal Semantics of OCL}
 \input{introduction}
-
+\clearpage
 \isatagafp
 \input{session}
 \endisatagafp
@@ -216,7 +217,6 @@
 \isatagafp
 \input{conclusion} no conclusion for standard document 
 \endisatagafp
-
 \bibliographystyle{abbrvnat}
 \bibliography{root}
 
