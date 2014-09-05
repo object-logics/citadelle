@@ -1152,7 +1152,7 @@ translations
        
 text{* We will define instances of this equality in a case-by-case basis.*}       
        
-subsection{* Laws to Establish Definedness ($\delta$-closure) *}
+subsection{* Laws to Establish Definedness (\texorpdfstring{$\delta$}{d}-closure) *}
 
 text{* For the logical connectives, we have --- beyond
 @{thm foundation6} --- the following facts:  *}

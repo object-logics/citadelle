@@ -799,7 +799,7 @@ object universes were excluded from a presentation here.
 
 \subsubsection{Denotational Semantics of Types}
 The syntactic material for type expressions, called $\text{TYPES}(C)$, is inductively
-defined as follows: %\fixme{should we use expliucit definitions ?}
+defined as follows: \fxnote{should we use expliucit definitions ?}
 \begin{itemize}
 \item $C \subseteq \text{TYPES}(C)$ 
 \item $\text{Boolean}$, $\text{Integer}$, $\text{Real}$, $\text{Void}$, ... are elements
@@ -940,7 +940,6 @@ and $\mocl{and}$ as follows:
           \end{array}
   \end{array}
 \end{gather*}
-%\fixme{we must uniformize the list - vs. lfloor notation. Either the one or the other.}
 \begin{gather*}
   \begin{array}{ll}
    I\semantics{X\;\mocl{and}\; Y}  \tau
@@ -1306,7 +1305,7 @@ produces several implicit operations which
 become accessible via appropriate \OCL syntax.
 A class model is a four-tuple $(C, \_ < \_, Attrib, Assoc)$ where:
 
-\fixme{TODO}
+\fxfatal{TODO}
 \begin{enumerate}
 \item $C$ is a  set of class names (written as $\{C_1, \ldots, C_n\}$). To each class
   name a type of data in \OCL is associated. Moreover, class names declare two projector
@@ -1825,7 +1824,7 @@ Recall that  expressions containing $\isasymOclATpre$ constructs in
 invariants or preconditions are syntactically forbidden; thus, mixed forms cannot arise.
 
 \subsection{Operation Contracts}
-\fixme{Should we add in our notion of Class-Model also the Operations ?}
+\fxnote{Should we add in our notion of Class-Model also the Operations ?}
 Since operations have strict semantics in \OCL, we have to distinguish for a specification of an
 operation $\mathit{op}$ with the arguments $a_1$, \ldots, $a_n$ the
 two cases where all arguments are valid and additionally, $\self$ is non-null (\ie{} it must be defined), or not. 
@@ -1916,8 +1915,8 @@ instances of an overridden operation, the user has to prove Liskov's
 principle for these situations: pre-conditions of the superclass must
 imply pre-conditions of the subclass, and post-conditions of a
 subclass must imply post-conditions of the
-superclass. \fixme{correct?}
-
+superclass. \fxwarning{correct? What should be checked? Achim: Description of Liskov is IMHO correct, 
+but the simulation of a vtable using oclIsKindOf is at leat tedious. One should, imho, add a vtable for modelling overridding properly (informally, we had this already in HOL-OCL)}
 
 %%% Local Variables:
 %%% mode: latex
