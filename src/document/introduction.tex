@@ -1691,17 +1691,16 @@ In this section, we assume to be $C_z,C_i,C_j \in C$ and  $C_i < C_j$.
 Let $C_z$ be a smallest element with respect to the class hierarchy $\_ < \_$.
 The operations induced from a class-model have the following properties:
 \begin{gather*}
-\begin{aligned}[c]
   \tau \isasymMathOclValid X \mocl{.oclAsType(}C_i\mocl{)} \isasymMathOclStrongEq X   \\
  \tau \isasymMathOclValid \mocl{invalid .oclAsType(}C_i\mocl{)} \isasymMathOclStrongEq \mocl{invalid} \\
  \tau \isasymMathOclValid \mocl{null .oclAsType(}C_i\mocl{)} \isasymMathOclStrongEq \mocl{null} \\
  \tau \isasymMathOclValid \mocl{((}X::C_i) \mocl{.oclAsType(C_j) .oclAsType(}C_i\mocl{)} \isasymMathOclStrongEq X\mocl{)}  \\
  \tau \isasymMathOclValid X \mocl{.oclAsType(}C_j\mocl{) .oclAsType(}C_i) \isasymMathOclStrongEq X  \\
  \tau \isasymMathOclValid \mocl{(}X::OclAny\mocl{) .oclAsType(}OclAny\mocl{)} \isasymMathOclStrongEq X \\
- \tau \isasymMathOclValid \upsilon (X :: C_i)  \Longrightarrow \qquad \qquad \qquad \qquad \\
-    \qquad \tau \isasymMathOclValid (X \mocl{.oclIsTypeOf(}C_i\mocl{) implies (}X \mocl{.oclAsType(}C_j\mocl{).oclAsType(}C_i\mocl{))} \isasymMathOclStrictEq X) \\
- \tau \isasymMathOclValid \upsilon (X :: C_i) \Longrightarrow  \qquad \qquad \qquad \qquad \\
-    \qquad \tau \isasymMathOclValid X \mocl{.oclIsTypeOf(}C_i\mocl{) implies (}X \mocl{.oclAsType(}C_j\mocl{) .oclAsType(}C_i\mocl{))} \isasymMathOclStrictEq X \\
+ \tau \isasymMathOclValid \upsilon (X :: C_i)  \Longrightarrow %\qquad \qquad \qquad \qquad \\
+    \tau \isasymMathOclValid (X \mocl{.oclIsTypeOf(}C_i\mocl{) implies (}X \mocl{.oclAsType(}C_j\mocl{).oclAsType(}C_i\mocl{))} \isasymMathOclStrictEq X) \\
+ \tau \isasymMathOclValid \upsilon (X :: C_i) \Longrightarrow  %\qquad \qquad \qquad \qquad \\
+    \tau \isasymMathOclValid X \mocl{.oclIsTypeOf(}C_i\mocl{) implies (}X \mocl{.oclAsType(}C_j\mocl{) .oclAsType(}C_i\mocl{))} \isasymMathOclStrictEq X \\
  \tau \isasymMathOclValid \delta X \Longrightarrow \tau \isasymMathOclValid X \mocl{.oclAsType(}C_j\mocl{) .oclAsType(}C_i\mocl{)} \isasymMathOclStrongEq X \\
  \tau \isasymMathOclValid \upsilon X \Longrightarrow \tau \isasymMathOclValid X \mocl{.oclIsTypeOf(}C_i\mocl{) implies} X \mocl{.oclAsType(}C_j\mocl{) .oclAsType(}C_i\mocl{)} \isasymMathOclStrictEq X \\
  \tau \isasymMathOclValid X \mocl{.oclIsTypeOf(}C_j\mocl{)} \Longrightarrow \tau \isasymMathOclValid \delta X \Longrightarrow \tau \isasymMathOclValid \mocl{not} (\upsilon X \mocl{.oclAsType(}C_i\mocl{))} \\
@@ -1715,7 +1714,6 @@ The operations induced from a class-model have the following properties:
 (\tau \isasymMathOclValid (X::C_j) \isasymMathOclStrictEq X) = (\tau \isasymMathOclValid \mocl{if } \upsilon X \mocl{ then true else invalid endif}) \\
  \tau \isasymMathOclValid (X::C_j) \isasymMathOclStrictEq Y \Longrightarrow  \tau \isasymMathOclValid Y \isasymMathOclStrictEq X \\
  \tau \isasymMathOclValid (X::C_j) \isasymMathOclStrictEq Y \Longrightarrow  \tau \isasymMathOclValid Y \isasymMathOclStrictEq Z  \Longrightarrow   \tau \isasymMathOclValid X \isasymMathOclStrictEq Z 
-\end{aligned}
 \end{gather*}
  
 \subsubsection{Algebraic Properties of the Class-Models}\label{sec:algprop-datamodel}
