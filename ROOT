@@ -53,7 +53,6 @@ session "OCL-dirty" in "src" = HOL +
   files
     "document/root.tex"
     "document/root.bib"
-    "document/formalization.tex"
     "document/introduction.tex"
 
 
@@ -70,7 +69,6 @@ session "OCL" in "src" = HOL +
   files
     "document/root.tex"
     "document/root.bib"
-    "document/formalization.tex"
     "document/introduction.tex"
 
 
@@ -94,5 +92,4 @@ session "OCL-all" in src = HOL +
     "document/root.tex"
     "document/root.bib"
     "document/conclusion.tex"
-    "document/formalization.tex"
     "document/introduction.tex"

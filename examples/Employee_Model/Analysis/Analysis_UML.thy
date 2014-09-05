@@ -81,7 +81,13 @@ the OCL standard~\cite{omg:ocl:2012}.
 Here, analysis model means that associations
 were really represented as relation on objects on the state---as is
 intended by the standard---rather by pointers between objects as is
-done in our ``design model'' (see \autoref{ex:employee-design:uml}).
+done in our ``design model'' 
+\isatagafp
+(see \autoref{ex:employee-design:uml}).
+\endisatagafp
+\isatagannexa
+(see \url{http://afp.sourceforge.net/entries/Featherweight_OCL.shtml}).
+\endisatagannexa
 To be precise, this theory contains the formalization of the data-part
 covered by the UML class model (see \autoref{fig:person-ana}):*}
 

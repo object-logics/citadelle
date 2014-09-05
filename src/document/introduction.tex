@@ -1,4 +1,4 @@
-\section{Introduction}
+2\section{Introduction}
 \isatagafp%
 The Unified Modeling Language
 (UML)~\cite{omg:uml-infrastructure:2011,omg:uml-superstructure:2011}
@@ -1195,9 +1195,9 @@ can be re-formulated in the following ground equations:
   (\mocl{true} \;\mocl{and}\; \mocl{invalid}) &= \mocl{invalid}
 \end{aligned}\\[.04\baselineskip]
 \begin{aligned}
-  (\mocl{invalid} \;\mocl{and}\; \mocl{true}) &= \mocl{invalid} \\
+  (\mocl{invalid} \;\mocl{and}\; \mocl{true}) &= \mocl{invalid} &\qquad
   (\mocl{invalid} \;\mocl{and}\; \mocl{false}) &= \mocl{false}\\
-  (\mocl{invalid} \;\mocl{and}\; \mocl{null}) &= \mocl{invalid} \\
+  (\mocl{invalid} \;\mocl{and}\; \mocl{null}) &= \mocl{invalid} &\qquad
   (\mocl{invalid} \;\mocl{and}\; \mocl{invalid}) &= \mocl{invalid}\\
 \end{aligned}
 \shortintertext{On this core, the structure of a conventional lattice arises:}
@@ -1225,9 +1225,9 @@ The above equations explain the behavior for the most-important
 non-strict operations. The clarification of the exceptional behaviors
 is of key-importance for a semantic definition of the standard and the
 major deviation point from
-\HOLOCL~\cite{brucker.ea:hol-ocl:2008,brucker.ea:hol-ocl-book:2006},
-to  \FOCL as presented here.  Expressed in algebraic
-equations, ``strictness-principles'' boil down to:
+\HOLOCL~\cite{brucker.ea:hol-ocl:2008,brucker.ea:hol-ocl-book:2006}
+to \FOCL as presented here.  Expressed in algebraic equations,
+``strictness-principles'' boil down to:
 \begin{gather*}
   \begin{aligned}
     \mocl{invalid} \;\mocl{+}\; X &= \mocl{invalid} &\qquad
@@ -1440,8 +1440,14 @@ $\{C_{j_{1}}, \ldots, C_{j_{m}}\}$.
         ranges over all class type extensions of the subclass $C_{j}$ of $C_i$.
 \end{itemize}
 
+\isatagafp
 Example instances of this scheme---outlining a compiler---can be found
 in \autoref{ex:employee-analysis:uml} and \autoref{ex:employee-design:uml}.
+\endisatagafp
+\isatagannexa
+Example instances of this scheme---outlining a compiler---can be found
+in \autoref{ex:employee-analysis:uml}.
+\endisatagannexa
 
 This construction can \emph{not} be done in HOL itself since it
 involves quantifications and iterations over the ``set of class-types'';
@@ -1460,6 +1466,7 @@ which above all means is intended to be type-safe, this has the following conseq
 \item there are fixed principles that allow to derive the semantic theory of any
       concrete object universe, called the \emph{object-oriented datatype theory.}
 \end{itemize}
+\isatagafp
 We will work out concrete examples for the construction of the
 object-universes in \autoref{ex:employee-analysis:uml} and \autoref{ex:employee-design:uml} and the
 derivation of the respective datatype theories. While an
@@ -1467,6 +1474,16 @@ automatization is clearly possible and desirable for concrete
 applications of  \FOCL, we consider this out of the scope
 of this annex which has a focus on the semantic construction and its
 presentation.
+\endisatagafp
+\isatagannexa
+We will work out concrete examples for the construction of the
+object-universes in \autoref{ex:employee-analysis:uml} and the
+derivation of the respective datatype theories. While an
+automatization is clearly possible and desirable for concrete
+applications of  \FOCL, we consider this out of the scope
+of this annex which has a focus on the semantic construction and its
+presentation.
+\endisatagannexa
 
 
 \subsubsection{Denotational Semantics of Accessors on Objects and Associations}
@@ -1583,10 +1600,17 @@ $\getAttrib{\_}{\text{$a$}\isasymOclATpre}$ were produced when
 \inlineisar+in_post_state+ is replaced by
 $\operatorname{in\_pre\_state}$.
 
+\isatagafp
 Examples for the construction of accessors via associations can be found in
 \autoref{sec:eam-accessors}, the construction of accessors via attributes in
 \autoref{sec:edm-accessors}. The construction of casts and type tests \inlineocl{->oclIsTypeOf()} and
 \inlineocl{->oclIsKindOf()} is similarly.
+\endisatagafp
+\isatagannexa
+Examples for the construction of accessors via associations can be found in
+\autoref{sec:eam-accessors}. The construction of casts and type tests \inlineocl{->oclIsTypeOf()} and
+\inlineocl{->oclIsKindOf()} is similarly.
+\endisatagannexa
 
 In the following, we discuss the role of multiplicities on the types of the
 accessors.
