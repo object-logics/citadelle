@@ -770,7 +770,9 @@ Aachen~\cite{brucker.ea:summary-aachen:2013}.
 
 
 \section{The Essence of UML-OCL Semantics}
+\isatagafp
 \fxnote{Generate this chapter from Isabelle theories ? Just for principle ?}
+\endisatagafp
 \subsection{The Theory Organization}
 The semantic theory is organized in a quite conventional manner in
 three layers. The first layer, called the \emph{denotational
@@ -799,7 +801,10 @@ object universes were excluded from a presentation here.
 
 \subsubsection{Denotational Semantics of Types}
 The syntactic material for type expressions, called $\text{TYPES}(C)$, is inductively
-defined as follows: \fxnote{should we use expliucit definitions ?}
+defined as follows:
+\isatagafp
+ \fxnote{should we use expliucit definitions ?}
+\endisatagafp
 \begin{itemize}
 \item $C \subseteq \text{TYPES}(C)$ 
 \item $\text{Boolean}$, $\text{Integer}$, $\text{Real}$, $\text{Void}$, ... are elements
@@ -1305,7 +1310,9 @@ produces several implicit operations which
 become accessible via appropriate \OCL syntax.
 A class model is a four-tuple $(C, \_ < \_, Attrib, Assoc)$ where:
 
+\isatagafp
 \fxfatal{TODO}
+\endisatagafp
 \begin{enumerate}
 \item $C$ is a  set of class names (written as $\{C_1, \ldots, C_n\}$). To each class
   name a type of data in \OCL is associated. Moreover, class names declare two projector
@@ -1846,7 +1853,9 @@ Recall that  expressions containing $\isasymOclATpre$ constructs in
 invariants or preconditions are syntactically forbidden; thus, mixed forms cannot arise.
 
 \subsection{Operation Contracts}
+\isatagafp
 \fxnote{Should we add in our notion of Class-Model also the Operations ?}
+\endisatagafp
 Since operations have strict semantics in \OCL, we have to distinguish for a specification of an
 operation $\mathit{op}$ with the arguments $a_1$, \ldots, $a_n$ the
 two cases where all arguments are valid and additionally, $\self$ is non-null (\ie{} it must be defined), or not. 
@@ -1926,9 +1935,10 @@ where
       into: \\
       $\psi'~self~a_1~\ldots a_n$ and $result \isasymMathOclStrongEq BODY~self~a_1~\ldots~a_n$.
 \end{itemize}
-      
+\isatagafp      
 \fxwarning{correct? What should be checked? Achim: Description of Liskov is IMHO correct, 
 but the simulation of a vtable using oclIsKindOf is at leat tedious. One should, imho, add a vtable for modelling overridding properly (informally, we had this already in HOL-OCL)}
+\endisatagafp      
 We do not model \emph{overriding} of operations as in Java or C++
 explicitly in \FOCL.  However, it is easy expressed in this
 core-language by adding \mocl{self.oclIsKindOf(C)} in the
