@@ -63,8 +63,12 @@ subsection{*  Properties on Collection Types: Strict Equality *}
 text {* The structure of this chapter roughly follows the structure of Chapter
 10 of the OCL standard~\cite{omg:ocl:2012}, which introduces the OCL
 Library. *}
-
-subsection{* MOVE TEXT : Collection Types *}
+subsection{* Collection Types *}
+text_raw{*
+\isatagafp
+\fxfatal{MOVE TEXT:}
+\endisatagafp 
+*}
 
 text{* For the semantic construction of the collection types, we have two goals:
 \begin{enumerate}
@@ -90,7 +94,13 @@ lemmas cp_intro'' [intro!,simp,code_unfold] =
        cp_intro''\<^sub>S\<^sub>e\<^sub>t
        cp_intro''\<^sub>S\<^sub>e\<^sub>q\<^sub>u\<^sub>e\<^sub>n\<^sub>c\<^sub>e
 text_raw{* \endisatagafp *}
-subsection{* MOVE TEXT: Test Statements *}
+
+subsection{* Test Statements *}
+text_raw{*
+\isatagafp
+\fxfatal{MOVE TEXT:}
+\endisatagafp 
+*}
 
 lemma syntax_test: "Set{\<two>,\<one>} = (Set{}->including\<^sub>S\<^sub>e\<^sub>t(\<one>)->including\<^sub>S\<^sub>e\<^sub>t(\<two>))"
 by (rule refl)
