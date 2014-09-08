@@ -12,7 +12,6 @@
 \renewcommand{\smlkeywordstyle}{\bfseries}
 \renewcommand{\holoclthykeywordstyle}{}
 
-
 \isatagannexa
   \KOMAoptions{paper=8.28in:11in,twoside=semi,headings=openany}
   \areaset{6.7in}{8in}
@@ -21,6 +20,7 @@
   \usepackage{courier} % tt
   \normalfont
   \usepackage{draftwatermark}
+  \usepackage[document]{ragged2e}
   \SetWatermarkAngle{55}
   \SetWatermarkLightness{.9}
   \SetWatermarkFontSize{3cm}
@@ -37,7 +37,7 @@
 \usepackage{tabu}
 \usepackage{prooftree}
 \usepackage[draft]{fixme}
-\usepackage[pdfpagelabels, pageanchor=false, plainpages=false]{hyperref}
+\usepackage[pdfpagelabels, pageanchor=false, bookmarksnumbered, plainpages=false]{hyperref}
 \graphicspath{{data/},{figures/}}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
