@@ -50,7 +50,8 @@ begin
 no_notation None ("\<bottom>")
 section{* Collection Type Set: Operations \label{formal-set}*}
 
-subsection{* As a Motivation for the (infinite) Type Construction: Type-Extensions as Sets*}
+subsection{* As a Motivation for the (infinite) Type Construction: Type-Extensions as Sets 
+             \label{sec:type-extensions}*}
 
 text{* Our notion of typed set goes beyond the usual notion of a finite executable set and
 is powerful enough to capture \emph{the extension of a type} in UML and OCL. This means

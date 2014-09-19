@@ -2,7 +2,7 @@
 \isatagafp%
 The Unified Modeling Language
 (UML)~\cite{omg:uml-infrastructure:2011,omg:uml-superstructure:2011}
-is one of the few modeling languages that is widely used in
+is one of the few modeling languages that is widely used inA 
 industry. UML is defined, in an open process, by the Object Management
 Group (OMG), \ie, an industry consortium.  While UML is mostly known
 as diagrammatic modeling language (\eg, visualizing class models), it
@@ -920,12 +920,12 @@ where $\state{}$ stands for the system state and $\state{} \times
 \state{}$ describes the pair of pre-state and post-state and
 $\_\defeq\_$ denotes the type abbreviation.
 
-The current OCL semantics~\cite[Annex A]{omg:ocl:2003} uses different
+Previous versions of the OCL semantics~\cite[Annex A]{omg:ocl:2003} used different
 interpretation functions for invariants and pre-conditions; we achieve
 their semantic effect by a syntactic transformation $\__\text{pre}$
 which replaces, for example, all accessor functions
 $\getAttrib{\_}{a}$ by their counterparts
-$\getAttrib{\_}{a\isasymOclATpre}$. For example,
+$\getAttrib{\_}{a\isasymOclATpre}$ (see \autoref{sec:invlogic}). For example,
 $(\getAttrib{\self}{a} > 5)_\text{pre}$ is just
 $(\getAttrib{\self}{a\isasymOclATpre} > 5)$. This way, also invariants
 and pre-conditions can be interpreted by the same interpretation

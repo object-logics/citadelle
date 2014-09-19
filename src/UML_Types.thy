@@ -401,8 +401,10 @@ text{* The core of an own type construction is done via a type
   definition which provides the raw-type @{text "'\<alpha> Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e"}. It
   is shown that this type ``fits'' indeed into the abstract type
   interface discussed in the previous section. Note that we make 
-  no restriction whatsoever to \emph{finite} sets; the type
-  constructor of Featherweight OCL is in fact infinite. *}
+  no restriction whatsoever to \emph{finite} sets; while with 
+  the standards type-constructors only finite sets can be denoted,
+  there is the possibility to define in fact infinite 
+  type constructors in \FOCL (c.f. \autoref{sec:type-extensions}). *}
 
 typedef '\<alpha> Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e ="{X::('\<alpha>\<Colon>null) set option option. X = bot \<or> X = null \<or> (\<forall>x\<in>\<lceil>\<lceil>X\<rceil>\<rceil>. x \<noteq> bot)}"
           by (rule_tac x="bot" in exI, simp)
