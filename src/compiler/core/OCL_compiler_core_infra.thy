@@ -64,6 +64,19 @@ definition "print_infra_datatype_class = start_map'' Thy_dataty o (\<lambda>expr
         (isub_name datatype_name)
         [ (isub_name datatype_constr_name, Raw (isub_name datatype_ext_name) # map_ty l_attr ) ] ]) expr)"
 
+definition "print_latex_infra_datatype_class = start_map'' Thy_dataty o (\<lambda>expr _ base_attr' _. map_class_gen_h''''
+  (\<lambda>isub_name name _ l_attr l_inherited l_cons.
+    let (l_attr, l_inherited) = base_attr' (l_attr, of_inh l_inherited)
+      ; map_ty = List_map (Opt o str_hol_of_ty o snd) in let c = [Char Nibble5 NibbleC] in
+    [ Datatype
+        (''''@@c@@''operatorname{'' @@ name @@ ''}_{ty}'')
+        (  (rev_map (\<lambda>x. ( ''''@@c@@''operatorname{mk}_''@@c@@''text{'' @@ name @@ ''''@@c@@''_'' @@ x @@ ''}''
+                         , [Raw (''''@@c@@''operatorname{'' @@ x @@ ''}_{ext}'')])) (of_sub l_cons))
+        @@ [(''''@@c@@''operatorname{mk}_''@@c@@''text{'' @@ name @@ ''}'', Raw const_oid # List_maps map_ty l_inherited)])
+    , Datatype
+        (''''@@c@@''operatorname{'' @@ name @@ ''}_{ext}'')
+        [ (''''@@c@@''operatorname{mkoid}_''@@c@@''text{'' @@ name @@ ''}'', Raw (''''@@c@@''operatorname{'' @@ name @@ ''}_{ty}'') # map_ty l_attr ) ] ]) expr)"
+
 definition "print_infra_datatype_universe expr = start_map Thy_dataty
   [ Datatype unicode_AA
       (map_class (\<lambda>isub_name _ _ _ _ _. (isub_name datatype_in, [Raw (isub_name datatype_name)])) expr) ]"

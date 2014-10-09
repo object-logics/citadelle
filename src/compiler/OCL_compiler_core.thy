@@ -148,6 +148,7 @@ captured by the subsequent theory).
    Our data universe  consists in the concrete class diagram just of node'', n, ''s,
 and implicitly of the class object. Each class implies the existence of a class
 type defined for the corresponding object representations as follows: '' ]
+            (*, print_latex_infra_datatype_class*)
             , print_infra_datatype_class
             , txt'' [ ''
    Now, we construct a concrete ``universe of OclAny types'', n, '''', n, '' by injection into a
