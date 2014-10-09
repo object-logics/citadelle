@@ -110,7 +110,7 @@ text {*
 subsection{* Validity and Definedness *}
 
 text{* However, this has also the consequence that core concepts like definedness,
-validness and even cp have to be redefined on this type class:*}
+validity and even cp have to be redefined on this type class:*}
 
 definition valid :: "('\<AA>,'a::null)val \<Rightarrow> ('\<AA>)Boolean" ("\<upsilon> _" [100]100)
 where   "\<upsilon> X \<equiv>  \<lambda> \<tau> . if X \<tau> = bot \<tau> then false \<tau> else true \<tau>"
@@ -692,6 +692,10 @@ subsection{* A Standard Logical Calculus for OCL *}
 (* Besides the need for algebraic laws for OCL in order to normalize *)
 definition OclValid  :: "[('\<AA>)st, ('\<AA>)Boolean] \<Rightarrow> bool" ("(1(_)/ \<Turnstile> (_))" 50)
 where     "\<tau> \<Turnstile> P \<equiv> ((P \<tau>) = true \<tau>)"
+
+syntax OclNonValid  :: "[('\<AA>)st, ('\<AA>)Boolean] \<Rightarrow> bool" ("(1(_)/ |\<noteq> (_))" 50)
+
+translations "\<tau> |\<noteq> P" == "\<not>(\<tau> \<Turnstile> P)" 
 
 subsubsection{* Global vs. Local Judgements*}
 lemma transform1: "P = true \<Longrightarrow> \<tau> \<Turnstile> P"

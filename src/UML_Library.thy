@@ -58,6 +58,11 @@ begin
 
 section{* Miscellaneous Stuff*}
 
+subsection{* Definition: asSet *}
+definition OclAsSet   :: "[('\<AA>,'\<alpha>::null)Sequence]\<Rightarrow>('\<AA>,'\<alpha>)Set" ("(_)->asSet'(')")
+where     "OclAsSet S = (S->iterate\<^sub>S\<^sub>e\<^sub>q(b; x = Set{} | x ->including\<^sub>S\<^sub>e\<^sub>t(b)))"
+
+
 subsection{*  Properties on Collection Types: Strict Equality *}
 
 text {* The structure of this chapter roughly follows the structure of Chapter

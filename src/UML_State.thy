@@ -917,7 +917,7 @@ theorem framing:
  proof - show "\<tau> \<Turnstile> \<delta> x \<Longrightarrow> ?thesis" proof - assume def_x : "\<tau> \<Turnstile> \<delta> x" show ?thesis proof -
 
  have def_X : "\<tau> \<Turnstile> \<delta> X"
-  apply(insert oid_is_typerepr, simp add: OclForall_def OclValid_def split: split_if_asm)
+  apply(insert oid_is_typerepr, simp add: UML_Set.OclForall_def OclValid_def split: split_if_asm)
  by(simp add: bot_option_def true_def)
 
  have def_X' : "\<And>x. x \<in> \<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (X \<tau>)\<rceil>\<rceil> \<Longrightarrow> x \<noteq> null"
@@ -977,7 +977,7 @@ theorem framing':
   shows "\<tau> \<Turnstile> (x @pre P  \<triangleq>  (x @post P))"
 proof -
  have def_X : "\<tau> \<Turnstile> \<delta> X"
-  apply(insert oid_is_typerepr, simp add: OclForall_def OclValid_def split: split_if_asm)
+  apply(insert oid_is_typerepr, simp add: UML_Set.OclForall_def OclValid_def split: split_if_asm)
  by(simp add: bot_option_def true_def)
  show ?thesis
   apply(case_tac "\<tau> \<Turnstile> \<delta> x", drule foundation20)

@@ -106,10 +106,10 @@ of the above definitions by compilation to code and execution to @{term "True"}.
 text{* Elementary computations on Boolean *}
 Assert "\<tau> \<Turnstile> \<upsilon>(true)"
 Assert "\<tau> \<Turnstile> \<delta>(false)"
-Assert "\<not>(\<tau> \<Turnstile> \<delta>(null))"
-Assert "\<not>(\<tau> \<Turnstile> \<delta>(invalid))"
+Assert "\<tau> |\<noteq> \<delta>(null)"
+Assert "\<tau> |\<noteq> \<delta>(invalid)"
 Assert "\<tau> \<Turnstile> \<upsilon>((null::('\<AA>)Boolean))"
-Assert "\<not>(\<tau> \<Turnstile> \<upsilon>(invalid))"
+Assert "\<tau> |\<noteq> \<upsilon>(invalid)"
 Assert "\<tau> \<Turnstile> (true and true)"
 Assert "\<tau> \<Turnstile> (true and true \<triangleq> true)"
 Assert "\<tau> \<Turnstile> ((null or null) \<triangleq> null)"

@@ -256,33 +256,33 @@ of the above definitions by compilation to code and execution to @{term "True"}.
 
 text{* Elementary computations on Integer *}
 
-Assert   "\<tau> \<Turnstile> ((\<zero> <\<^sub>i\<^sub>n\<^sub>t \<two>) and (\<zero> <\<^sub>i\<^sub>n\<^sub>t \<one>))"
+Assert "\<tau> \<Turnstile> ((\<zero> <\<^sub>i\<^sub>n\<^sub>t \<two>) and (\<zero> <\<^sub>i\<^sub>n\<^sub>t \<one>))"
 
 Assert "\<tau> \<Turnstile> \<one> <> \<two>"
 Assert "\<tau> \<Turnstile> \<two> <> \<one>"
 Assert "\<tau> \<Turnstile> \<two> \<doteq> \<two>"
 
-Assert "  \<tau> \<Turnstile> \<upsilon> \<four>"
-Assert "  \<tau> \<Turnstile> \<delta> \<four>"
-Assert "  \<tau> \<Turnstile> \<upsilon> (null::('\<AA>)Integer)"
-Assert "  \<tau> \<Turnstile> (invalid \<triangleq> invalid)"
-Assert "  \<tau> \<Turnstile> (null \<triangleq> null)"
-Assert "  \<tau> \<Turnstile> (\<four> \<triangleq> \<four>)"
-Assert "\<not>(\<tau> \<Turnstile> (\<nine> \<triangleq> \<one>\<zero>))"
-Assert "\<not>(\<tau> \<Turnstile> (invalid \<triangleq> \<one>\<zero>))"
-Assert "\<not>(\<tau> \<Turnstile> (null \<triangleq> \<one>\<zero>))"
-Assert "\<not>(\<tau> \<Turnstile> (invalid \<doteq> (invalid::('\<AA>)Integer)))" (* Without typeconstraint not executable.*)
-Assert "\<not>(\<tau> \<Turnstile> \<upsilon> (invalid \<doteq> (invalid::('\<AA>)Integer)))" (* Without typeconstraint not executable.*)
-Assert "\<not>(\<tau> \<Turnstile> (invalid <> (invalid::('\<AA>)Integer)))" (* Without typeconstraint not executable.*)
-Assert "\<not>(\<tau> \<Turnstile> \<upsilon> (invalid <> (invalid::('\<AA>)Integer)))" (* Without typeconstraint not executable.*)
-Assert "  \<tau> \<Turnstile> (null \<doteq> (null::('\<AA>)Integer) )" (* Without typeconstraint not executable.*)
-Assert "  \<tau> \<Turnstile> (null \<doteq> (null::('\<AA>)Integer) )" (* Without typeconstraint not executable.*)
-Assert "  \<tau> \<Turnstile> (\<four> \<doteq> \<four>)"
-Assert "\<not>(\<tau> \<Turnstile> (\<four> <> \<four>))"
-Assert "\<not>(\<tau> \<Turnstile> (\<four> \<doteq> \<one>\<zero>))"
-Assert "  \<tau> \<Turnstile> (\<four> <> \<one>\<zero>)"
-Assert "\<not>(\<tau> \<Turnstile> (\<zero> <\<^sub>i\<^sub>n\<^sub>t null))"
-Assert "\<not>(\<tau> \<Turnstile> (\<delta> (\<zero> <\<^sub>i\<^sub>n\<^sub>t null)))"
+Assert "\<tau> \<Turnstile> \<upsilon> \<four>"
+Assert "\<tau> \<Turnstile> \<delta> \<four>"
+Assert "\<tau> \<Turnstile> \<upsilon> (null::('\<AA>)Integer)"
+Assert "\<tau> \<Turnstile> (invalid \<triangleq> invalid)"
+Assert "\<tau> \<Turnstile> (null \<triangleq> null)"
+Assert "\<tau> \<Turnstile> (\<four> \<triangleq> \<four>)"
+Assert "\<tau> |\<noteq> (\<nine> \<triangleq> \<one>\<zero>)"
+Assert "\<tau> |\<noteq> (invalid \<triangleq> \<one>\<zero>)"
+Assert "\<tau> |\<noteq> (null \<triangleq> \<one>\<zero>)"
+Assert "\<tau> |\<noteq> (invalid \<doteq> (invalid::('\<AA>)Integer))"   (* Without typeconstraint not executable.*)
+Assert "\<tau> |\<noteq> \<upsilon> (invalid \<doteq> (invalid::('\<AA>)Integer))" (* Without typeconstraint not executable.*)
+Assert "\<tau> |\<noteq> (invalid <> (invalid::('\<AA>)Integer))"   (* Without typeconstraint not executable.*)
+Assert "\<tau> |\<noteq> \<upsilon> (invalid <> (invalid::('\<AA>)Integer))" (* Without typeconstraint not executable.*)
+Assert "\<tau> \<Turnstile> (null \<doteq> (null::('\<AA>)Integer) )" (* Without typeconstraint not executable.*)
+Assert "\<tau> \<Turnstile> (null \<doteq> (null::('\<AA>)Integer) )" (* Without typeconstraint not executable.*)
+Assert "\<tau> \<Turnstile> (\<four> \<doteq> \<four>)"
+Assert "\<tau> |\<noteq> (\<four> <> \<four>)"
+Assert "\<tau> |\<noteq> (\<four> \<doteq> \<one>\<zero>)"
+Assert "\<tau> \<Turnstile> (\<four> <> \<one>\<zero>)"
+Assert "\<tau> |\<noteq> (\<zero> <\<^sub>i\<^sub>n\<^sub>t null)"
+Assert "\<tau> |\<noteq> (\<delta> (\<zero> <\<^sub>i\<^sub>n\<^sub>t null))"
 
 
 end

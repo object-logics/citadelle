@@ -1,6 +1,6 @@
 (*****************************************************************************
  * Featherweight-OCL --- A Formal Semantics for UML-OCL Version OCL 2.5
- *                       for the OMG Standard.
+ *                       for the OMG Standard.it
  *                       http://www.brucker.ch/projects/hol-testgen/
  *
  * UML_Set.thy --- Library definitions.
@@ -346,18 +346,18 @@ where     "OclForall S P = (\<lambda> \<tau>. if (\<delta> S) \<tau> = true \<ta
 syntax
   "_OclForall" :: "[('\<AA>,'\<alpha>::null) Set,id,('\<AA>)Boolean] \<Rightarrow> '\<AA> Boolean"    ("(_)->forAll\<^sub>S\<^sub>e\<^sub>t'(_|_')")
 translations
-  "X->forAll\<^sub>S\<^sub>e\<^sub>t(x | P)" == "CONST OclForall X (%x. P)"
+  "X->forAll\<^sub>S\<^sub>e\<^sub>t(x | P)" == "CONST UML_Set.OclForall X (%x. P)"
 
 subsection{* Definition: Exists *}
   
 text{* Like OclForall, OclExists is also not strict. *}
 definition OclExists     :: "[('\<AA>,'\<alpha>::null) Set,('\<AA>,'\<alpha>)val\<Rightarrow>('\<AA>)Boolean] \<Rightarrow> '\<AA> Boolean"
-where     "OclExists S P = not(OclForall S (\<lambda> X. not (P X)))"
+where     "OclExists S P = not(UML_Set.OclForall S (\<lambda> X. not (P X)))"
 
 syntax
   "_OclExist" :: "[('\<AA>,'\<alpha>::null) Set,id,('\<AA>)Boolean] \<Rightarrow> '\<AA> Boolean"    ("(_)->exists\<^sub>S\<^sub>e\<^sub>t'(_|_')")
 translations
-  "X->exists\<^sub>S\<^sub>e\<^sub>t(x | P)" == "CONST OclExists X (%x. P)"
+  "X->exists\<^sub>S\<^sub>e\<^sub>t(x | P)" == "CONST UML_Set.OclExists X (%x. P)"
 
   
 subsection{* Definition: Iterate *}

@@ -616,7 +616,7 @@ lemma OclAny_allInstances_generic_oclIsTypeOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^
 assumes [simp]: "\<And>x. pre_post (x, x) = x"
 shows "\<exists>\<tau>. (\<tau> \<Turnstile>     ((OclAllInstances_generic pre_post OclAny)->forAll\<^sub>S\<^sub>e\<^sub>t(X|X .oclIsTypeOf(OclAny))))"
  apply(rule_tac x = \<tau>\<^sub>0 in exI, simp add: \<tau>\<^sub>0_def OclValid_def del: OclAllInstances_generic_def)
- apply(simp only: assms OclForall_def refl if_True
+ apply(simp only: assms UML_Set.OclForall_def refl if_True
                   OclAllInstances_generic_defined[simplified OclValid_def])
  apply(simp only: OclAllInstances_generic_def)
  apply(subst (1 2 3) Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inverse, simp add: bot_option_def)
@@ -638,7 +638,7 @@ shows "\<exists>\<tau>. (\<tau> \<Turnstile> not ((OclAllInstances_generic pre_p
 proof - fix oid a let ?t0 = "\<lparr>heap = empty(oid \<mapsto> in\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y (mk\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y oid \<lfloor>a\<rfloor>)),
                               assocs = empty\<rparr>" show ?thesis
  apply(rule_tac x = "(?t0, ?t0)" in exI, simp add: OclValid_def del: OclAllInstances_generic_def)
- apply(simp only: OclForall_def refl if_True
+ apply(simp only: UML_Set.OclForall_def refl if_True
                   OclAllInstances_generic_defined[simplified OclValid_def])
  apply(simp only: OclAllInstances_generic_def OclAsType\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_\<AA>_def)
  apply(subst (1 2 3) Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inverse, simp add: bot_option_def)
@@ -658,7 +658,7 @@ by(rule OclAny_allInstances_generic_oclIsTypeOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\
 lemma Person_allInstances_generic_oclIsTypeOf\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n:
 "\<tau> \<Turnstile> ((OclAllInstances_generic pre_post Person)->forAll\<^sub>S\<^sub>e\<^sub>t(X|X .oclIsTypeOf(Person)))"
  apply(simp add: OclValid_def del: OclAllInstances_generic_def)
- apply(simp only: OclForall_def refl if_True
+ apply(simp only: UML_Set.OclForall_def refl if_True
                   OclAllInstances_generic_defined[simplified OclValid_def])
  apply(simp only: OclAllInstances_generic_def)
  apply(subst (1 2 3) Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inverse, simp add: bot_option_def)
@@ -678,7 +678,7 @@ subsection{* OclIsKindOf *}
 lemma OclAny_allInstances_generic_oclIsKindOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y:
 "\<tau> \<Turnstile> ((OclAllInstances_generic pre_post OclAny)->forAll\<^sub>S\<^sub>e\<^sub>t(X|X .oclIsKindOf(OclAny)))"
  apply(simp add: OclValid_def del: OclAllInstances_generic_def)
- apply(simp only: OclForall_def refl if_True
+ apply(simp only: UML_Set.OclForall_def refl if_True
                   OclAllInstances_generic_defined[simplified OclValid_def])
  apply(simp only: OclAllInstances_generic_def)
  apply(subst (1 2 3) Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inverse, simp add: bot_option_def)
@@ -697,7 +697,7 @@ by(rule OclAny_allInstances_generic_oclIsKindOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\
 lemma Person_allInstances_generic_oclIsKindOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y:
 "\<tau> \<Turnstile> ((OclAllInstances_generic pre_post Person)->forAll\<^sub>S\<^sub>e\<^sub>t(X|X .oclIsKindOf(OclAny)))"
  apply(simp add: OclValid_def del: OclAllInstances_generic_def)
- apply(simp only: OclForall_def refl if_True
+ apply(simp only: UML_Set.OclForall_def refl if_True
                   OclAllInstances_generic_defined[simplified OclValid_def])
  apply(simp only: OclAllInstances_generic_def)
  apply(subst (1 2 3) Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inverse, simp add: bot_option_def)
@@ -716,7 +716,7 @@ by(rule Person_allInstances_generic_oclIsKindOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\
 lemma Person_allInstances_generic_oclIsKindOf\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n:
 "\<tau> \<Turnstile> ((OclAllInstances_generic pre_post Person)->forAll\<^sub>S\<^sub>e\<^sub>t(X|X .oclIsKindOf(Person)))"
  apply(simp add: OclValid_def del: OclAllInstances_generic_def)
- apply(simp only: OclForall_def refl if_True
+ apply(simp only: UML_Set.OclForall_def refl if_True
                   OclAllInstances_generic_defined[simplified OclValid_def])
  apply(simp only: OclAllInstances_generic_def)
  apply(subst (1 2 3) Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inverse, simp add: bot_option_def)
