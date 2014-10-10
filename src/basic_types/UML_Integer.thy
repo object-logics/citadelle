@@ -218,13 +218,13 @@ subsection{* Test Statements *}
 text{* Here follows a list of code-examples, that explain the meanings
 of the above definitions by compilation to code and execution to @{term "True"}.*}
 
-Assert "  \<tau> \<Turnstile> ( \<nine> \<le>\<^sub>i\<^sub>n\<^sub>t \<one>\<zero> )"
-Assert "  \<tau> \<Turnstile> (( \<four> +\<^sub>i\<^sub>n\<^sub>t \<four> ) \<le>\<^sub>i\<^sub>n\<^sub>t \<one>\<zero> )"
-Assert "\<not>(\<tau> \<Turnstile> (( \<four> +\<^sub>i\<^sub>n\<^sub>t ( \<four> +\<^sub>i\<^sub>n\<^sub>t \<four> )) <\<^sub>i\<^sub>n\<^sub>t \<one>\<zero> ))"
-Assert "  \<tau> \<Turnstile> not (\<upsilon> (null +\<^sub>i\<^sub>n\<^sub>t \<one>)) "
-Assert "  \<tau> \<Turnstile> (((\<nine> *\<^sub>i\<^sub>n\<^sub>t \<four>) div\<^sub>i\<^sub>n\<^sub>t \<one>\<zero>) \<le>\<^sub>i\<^sub>n\<^sub>t  \<four>) "
-Assert "  \<tau> \<Turnstile> not (\<delta> (\<one> div\<^sub>i\<^sub>n\<^sub>t \<zero>)) "
-Assert "  \<tau> \<Turnstile> not (\<upsilon> (\<one> div\<^sub>i\<^sub>n\<^sub>t \<zero>)) "
+Assert "\<tau> \<Turnstile> ( \<nine> \<le>\<^sub>i\<^sub>n\<^sub>t \<one>\<zero> )"
+Assert "\<tau> \<Turnstile> (( \<four> +\<^sub>i\<^sub>n\<^sub>t \<four> ) \<le>\<^sub>i\<^sub>n\<^sub>t \<one>\<zero> )"
+Assert "\<tau> |\<noteq> (( \<four> +\<^sub>i\<^sub>n\<^sub>t ( \<four> +\<^sub>i\<^sub>n\<^sub>t \<four> )) <\<^sub>i\<^sub>n\<^sub>t \<one>\<zero> )"
+Assert "\<tau> \<Turnstile> not (\<upsilon> (null +\<^sub>i\<^sub>n\<^sub>t \<one>)) "
+Assert "\<tau> \<Turnstile> (((\<nine> *\<^sub>i\<^sub>n\<^sub>t \<four>) div\<^sub>i\<^sub>n\<^sub>t \<one>\<zero>) \<le>\<^sub>i\<^sub>n\<^sub>t  \<four>) "
+Assert "\<tau> \<Turnstile> not (\<delta> (\<one> div\<^sub>i\<^sub>n\<^sub>t \<zero>)) "
+Assert "\<tau> \<Turnstile> not (\<upsilon> (\<one> div\<^sub>i\<^sub>n\<^sub>t \<zero>)) "
 
 
 

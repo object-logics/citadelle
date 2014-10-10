@@ -219,13 +219,13 @@ subsection{* Test Statements *}
 text{* Here follows a list of code-examples, that explain the meanings
 of the above definitions by compilation to code and execution to @{term "True"}.*}
 
-Assert "  \<tau> \<Turnstile> ( \<nine>.\<zero> \<le>\<^sub>r\<^sub>e\<^sub>a\<^sub>l \<one>\<zero>.\<zero> )"
-Assert "  \<tau> \<Turnstile> (( \<four>.\<zero> +\<^sub>r\<^sub>e\<^sub>a\<^sub>l \<four>.\<zero> ) \<le>\<^sub>r\<^sub>e\<^sub>a\<^sub>l \<one>\<zero>.\<zero> )"
-Assert "\<not>(\<tau> \<Turnstile> (( \<four>.\<zero> +\<^sub>r\<^sub>e\<^sub>a\<^sub>l ( \<four>.\<zero> +\<^sub>r\<^sub>e\<^sub>a\<^sub>l \<four>.\<zero> )) <\<^sub>r\<^sub>e\<^sub>a\<^sub>l \<one>\<zero>.\<zero> ))"
-Assert "  \<tau> \<Turnstile> not (\<upsilon> (null +\<^sub>r\<^sub>e\<^sub>a\<^sub>l \<one>.\<zero>)) "
-Assert "  \<tau> \<Turnstile> (((\<nine>.\<zero> *\<^sub>r\<^sub>e\<^sub>a\<^sub>l \<four>.\<zero>) div\<^sub>r\<^sub>e\<^sub>a\<^sub>l \<one>\<zero>.\<zero>) \<le>\<^sub>r\<^sub>e\<^sub>a\<^sub>l  \<four>.\<zero>) "
-Assert "  \<tau> \<Turnstile> not (\<delta> (\<one>.\<zero> div\<^sub>r\<^sub>e\<^sub>a\<^sub>l \<zero>.\<zero>)) "
-Assert "  \<tau> \<Turnstile> not (\<upsilon> (\<one>.\<zero> div\<^sub>r\<^sub>e\<^sub>a\<^sub>l \<zero>.\<zero>)) "
+Assert "\<tau> \<Turnstile> ( \<nine>.\<zero> \<le>\<^sub>r\<^sub>e\<^sub>a\<^sub>l \<one>\<zero>.\<zero> )"
+Assert "\<tau> \<Turnstile> (( \<four>.\<zero> +\<^sub>r\<^sub>e\<^sub>a\<^sub>l \<four>.\<zero> ) \<le>\<^sub>r\<^sub>e\<^sub>a\<^sub>l \<one>\<zero>.\<zero> )"
+Assert "\<tau> |\<noteq> (( \<four>.\<zero> +\<^sub>r\<^sub>e\<^sub>a\<^sub>l ( \<four>.\<zero> +\<^sub>r\<^sub>e\<^sub>a\<^sub>l \<four>.\<zero> )) <\<^sub>r\<^sub>e\<^sub>a\<^sub>l \<one>\<zero>.\<zero> )"
+Assert "\<tau> \<Turnstile> not (\<upsilon> (null +\<^sub>r\<^sub>e\<^sub>a\<^sub>l \<one>.\<zero>)) "
+Assert "\<tau> \<Turnstile> (((\<nine>.\<zero> *\<^sub>r\<^sub>e\<^sub>a\<^sub>l \<four>.\<zero>) div\<^sub>r\<^sub>e\<^sub>a\<^sub>l \<one>\<zero>.\<zero>) \<le>\<^sub>r\<^sub>e\<^sub>a\<^sub>l  \<four>.\<zero>) "
+Assert "\<tau> \<Turnstile> not (\<delta> (\<one>.\<zero> div\<^sub>r\<^sub>e\<^sub>a\<^sub>l \<zero>.\<zero>)) "
+Assert "\<tau> \<Turnstile> not (\<upsilon> (\<one>.\<zero> div\<^sub>r\<^sub>e\<^sub>a\<^sub>l \<zero>.\<zero>)) "
 
 
 
@@ -261,27 +261,27 @@ Assert "\<tau> \<Turnstile> \<one>.\<zero> <> \<two>.\<zero>"
 Assert "\<tau> \<Turnstile> \<two>.\<zero> <> \<one>.\<zero>"
 Assert "\<tau> \<Turnstile> \<two>.\<zero> \<doteq> \<two>.\<zero>"
 
-Assert "  \<tau> \<Turnstile> \<upsilon> \<four>.\<zero>"
-Assert "  \<tau> \<Turnstile> \<delta> \<four>.\<zero>"
-Assert "  \<tau> \<Turnstile> \<upsilon> (null::('\<AA>)Real)"
-Assert "  \<tau> \<Turnstile> (invalid \<triangleq> invalid)"
-Assert "  \<tau> \<Turnstile> (null \<triangleq> null)"
-Assert "  \<tau> \<Turnstile> (\<four>.\<zero> \<triangleq> \<four>.\<zero>)"
-Assert "\<not>(\<tau> \<Turnstile> (\<nine>.\<zero> \<triangleq> \<one>\<zero>.\<zero>))"
-Assert "\<not>(\<tau> \<Turnstile> (invalid \<triangleq> \<one>\<zero>.\<zero>))"
-Assert "\<not>(\<tau> \<Turnstile> (null \<triangleq> \<one>\<zero>.\<zero>))"
-Assert "\<not>(\<tau> \<Turnstile> (invalid \<doteq> (invalid::('\<AA>)Real)))" (* Without typeconstraint not executable.*)
-Assert "\<not>(\<tau> \<Turnstile> \<upsilon> (invalid \<doteq> (invalid::('\<AA>)Real)))" (* Without typeconstraint not executable.*)
-Assert "\<not>(\<tau> \<Turnstile> (invalid <> (invalid::('\<AA>)Real)))" (* Without typeconstraint not executable.*)
-Assert "\<not>(\<tau> \<Turnstile> \<upsilon> (invalid <> (invalid::('\<AA>)Real)))" (* Without typeconstraint not executable.*)
-Assert "  \<tau> \<Turnstile> (null \<doteq> (null::('\<AA>)Real) )" (* Without typeconstraint not executable.*)
-Assert "  \<tau> \<Turnstile> (null \<doteq> (null::('\<AA>)Real) )" (* Without typeconstraint not executable.*)
-Assert "  \<tau> \<Turnstile> (\<four>.\<zero> \<doteq> \<four>.\<zero>)"
-Assert "\<not>(\<tau> \<Turnstile> (\<four>.\<zero> <> \<four>.\<zero>))"
-Assert "\<not>(\<tau> \<Turnstile> (\<four>.\<zero> \<doteq> \<one>\<zero>.\<zero>))"
-Assert "  \<tau> \<Turnstile> (\<four>.\<zero> <> \<one>\<zero>.\<zero>)"
-Assert "\<not>(\<tau> \<Turnstile> (\<zero>.\<zero> <\<^sub>r\<^sub>e\<^sub>a\<^sub>l null))"
-Assert "\<not>(\<tau> \<Turnstile> (\<delta> (\<zero>.\<zero> <\<^sub>r\<^sub>e\<^sub>a\<^sub>l null)))"
+Assert "\<tau> \<Turnstile> \<upsilon> \<four>.\<zero>"
+Assert "\<tau> \<Turnstile> \<delta> \<four>.\<zero>"
+Assert "\<tau> \<Turnstile> \<upsilon> (null::('\<AA>)Real)"
+Assert "\<tau> \<Turnstile> (invalid \<triangleq> invalid)"
+Assert "\<tau> \<Turnstile> (null \<triangleq> null)"
+Assert "\<tau> \<Turnstile> (\<four>.\<zero> \<triangleq> \<four>.\<zero>)"
+Assert "\<tau> |\<noteq> (\<nine>.\<zero> \<triangleq> \<one>\<zero>.\<zero>)"
+Assert "\<tau> |\<noteq> (invalid \<triangleq> \<one>\<zero>.\<zero>)"
+Assert "\<tau> |\<noteq> (null \<triangleq> \<one>\<zero>.\<zero>)"
+Assert "\<tau> |\<noteq> (invalid \<doteq> (invalid::('\<AA>)Real))" (* Without typeconstraint not executable.*)
+Assert "\<tau> |\<noteq> \<upsilon> (invalid \<doteq> (invalid::('\<AA>)Real))" (* Without typeconstraint not executable.*)
+Assert "\<tau> |\<noteq> (invalid <> (invalid::('\<AA>)Real))" (* Without typeconstraint not executable.*)
+Assert "\<tau> |\<noteq> \<upsilon> (invalid <> (invalid::('\<AA>)Real))" (* Without typeconstraint not executable.*)
+Assert "\<tau> \<Turnstile> (null \<doteq> (null::('\<AA>)Real) )" (* Without typeconstraint not executable.*)
+Assert "\<tau> \<Turnstile> (null \<doteq> (null::('\<AA>)Real) )" (* Without typeconstraint not executable.*)
+Assert "\<tau> \<Turnstile> (\<four>.\<zero> \<doteq> \<four>.\<zero>)"
+Assert "\<tau> |\<noteq> (\<four>.\<zero> <> \<four>.\<zero>)"
+Assert "\<tau> |\<noteq> (\<four>.\<zero> \<doteq> \<one>\<zero>.\<zero>)"
+Assert "\<tau> \<Turnstile> (\<four>.\<zero> <> \<one>\<zero>.\<zero>)"
+Assert "\<tau> |\<noteq> (\<zero>.\<zero> <\<^sub>r\<^sub>e\<^sub>a\<^sub>l null)"
+Assert "\<tau> |\<noteq> (\<delta> (\<zero>.\<zero> <\<^sub>r\<^sub>e\<^sub>a\<^sub>l null))"
 
 
 end
