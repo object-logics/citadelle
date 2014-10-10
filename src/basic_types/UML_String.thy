@@ -123,10 +123,10 @@ subsection{* Test Statements *}
 text{* Here follows a list of code-examples, that explain the meanings
 of the above definitions by compilation to code and execution to @{term "True"}.*}
 (*
-Assert "  \<tau> \<Turnstile> ( \<nine> \<le>\<^sub>s\<^sub>t\<^sub>r\<^sub>i\<^sub>n\<^sub>g \<one>\<zero> )"
-Assert "  \<tau> \<Turnstile> (( \<four> +\<^sub>s\<^sub>t\<^sub>r\<^sub>i\<^sub>n\<^sub>g \<four> ) \<le>\<^sub>s\<^sub>t\<^sub>r\<^sub>i\<^sub>n\<^sub>g \<one>\<zero> )"
-Assert "\<not>(\<tau> \<Turnstile> (( \<four> +\<^sub>s\<^sub>t\<^sub>r\<^sub>i\<^sub>n\<^sub>g ( \<four> +\<^sub>s\<^sub>t\<^sub>r\<^sub>i\<^sub>n\<^sub>g \<four> )) <\<^sub>s\<^sub>t\<^sub>r\<^sub>i\<^sub>n\<^sub>g \<one>\<zero> ))"
-Assert "  \<tau> \<Turnstile> not (\<upsilon> (null +\<^sub>s\<^sub>t\<^sub>r\<^sub>i\<^sub>n\<^sub>g \<one>)) "
+Assert "\<tau> \<Turnstile> ( \<nine> \<le>\<^sub>s\<^sub>t\<^sub>r\<^sub>i\<^sub>n\<^sub>g \<one>\<zero> )"
+Assert "\<tau> \<Turnstile> (( \<four> +\<^sub>s\<^sub>t\<^sub>r\<^sub>i\<^sub>n\<^sub>g \<four> ) \<le>\<^sub>s\<^sub>t\<^sub>r\<^sub>i\<^sub>n\<^sub>g \<one>\<zero> )"
+Assert "\<tau> |\<noteq> (( \<four> +\<^sub>s\<^sub>t\<^sub>r\<^sub>i\<^sub>n\<^sub>g ( \<four> +\<^sub>s\<^sub>t\<^sub>r\<^sub>i\<^sub>n\<^sub>g \<four> )) <\<^sub>s\<^sub>t\<^sub>r\<^sub>i\<^sub>n\<^sub>g \<one>\<zero> )"
+Assert "\<tau> \<Turnstile> not (\<upsilon> (null +\<^sub>s\<^sub>t\<^sub>r\<^sub>i\<^sub>n\<^sub>g \<one>)) "
 *)
 
 text{* Here follows a list of code-examples, that explain the meanings
@@ -139,27 +139,27 @@ Assert "\<tau> \<Turnstile> \<a> <> \<b>"
 Assert "\<tau> \<Turnstile> \<b> <> \<a>"
 Assert "\<tau> \<Turnstile> \<b> \<doteq> \<b>"
 
-Assert "  \<tau> \<Turnstile> \<upsilon> \<a>"
-Assert "  \<tau> \<Turnstile> \<delta> \<a>"
-Assert "  \<tau> \<Turnstile> \<upsilon> (null::('\<AA>)String)"
-Assert "  \<tau> \<Turnstile> (invalid \<triangleq> invalid)"
-Assert "  \<tau> \<Turnstile> (null \<triangleq> null)"
-Assert "  \<tau> \<Turnstile> (\<a> \<triangleq> \<a>)"
-Assert "\<not>(\<tau> \<Turnstile> (\<a> \<triangleq> \<b>))"
-Assert "\<not>(\<tau> \<Turnstile> (invalid \<triangleq> \<b>))"
-Assert "\<not>(\<tau> \<Turnstile> (null \<triangleq> \<b>))"
-Assert "\<not>(\<tau> \<Turnstile> (invalid \<doteq> (invalid::('\<AA>)String)))" (* Without typeconstraint not executable.*)
-Assert "\<not>(\<tau> \<Turnstile> \<upsilon> (invalid \<doteq> (invalid::('\<AA>)String)))" (* Without typeconstraint not executable.*)
-Assert "\<not>(\<tau> \<Turnstile> (invalid <> (invalid::('\<AA>)String)))" (* Without typeconstraint not executable.*)
-Assert "\<not>(\<tau> \<Turnstile> \<upsilon> (invalid <> (invalid::('\<AA>)String)))" (* Without typeconstraint not executable.*)
-Assert "  \<tau> \<Turnstile> (null \<doteq> (null::('\<AA>)String) )" (* Without typeconstraint not executable.*)
-Assert "  \<tau> \<Turnstile> (null \<doteq> (null::('\<AA>)String) )" (* Without typeconstraint not executable.*)
-Assert "  \<tau> \<Turnstile> (\<b> \<doteq> \<b>)"
-Assert "\<not>(\<tau> \<Turnstile> (\<b> <> \<b>))"
-Assert "\<not>(\<tau> \<Turnstile> (\<b> \<doteq> \<c>))"
-Assert "  \<tau> \<Turnstile> (\<b> <> \<c>)"
-(*Assert "\<not>(\<tau> \<Turnstile> (\<zero> <\<^sub>s\<^sub>t\<^sub>r\<^sub>i\<^sub>n\<^sub>g null))"
-Assert "\<not>(\<tau> \<Turnstile> (\<delta> (\<zero> <\<^sub>s\<^sub>t\<^sub>r\<^sub>i\<^sub>n\<^sub>g null)))"
+Assert "\<tau> \<Turnstile> \<upsilon> \<a>"
+Assert "\<tau> \<Turnstile> \<delta> \<a>"
+Assert "\<tau> \<Turnstile> \<upsilon> (null::('\<AA>)String)"
+Assert "\<tau> \<Turnstile> (invalid \<triangleq> invalid)"
+Assert "\<tau> \<Turnstile> (null \<triangleq> null)"
+Assert "\<tau> \<Turnstile> (\<a> \<triangleq> \<a>)"
+Assert "\<tau> |\<noteq> (\<a> \<triangleq> \<b>)"
+Assert "\<tau> |\<noteq> (invalid \<triangleq> \<b>)"
+Assert "\<tau> |\<noteq> (null \<triangleq> \<b>)"
+Assert "\<tau> |\<noteq> (invalid \<doteq> (invalid::('\<AA>)String))" (* Without typeconstraint not executable.*)
+Assert "\<tau> |\<noteq> \<upsilon> (invalid \<doteq> (invalid::('\<AA>)String))" (* Without typeconstraint not executable.*)
+Assert "\<tau> |\<noteq> (invalid <> (invalid::('\<AA>)String))" (* Without typeconstraint not executable.*)
+Assert "\<tau> |\<noteq> \<upsilon> (invalid <> (invalid::('\<AA>)String))" (* Without typeconstraint not executable.*)
+Assert "\<tau> \<Turnstile> (null \<doteq> (null::('\<AA>)String) )" (* Without typeconstraint not executable.*)
+Assert "\<tau> \<Turnstile> (null \<doteq> (null::('\<AA>)String) )" (* Without typeconstraint not executable.*)
+Assert "\<tau> \<Turnstile> (\<b> \<doteq> \<b>)"
+Assert "\<tau> |\<noteq> (\<b> <> \<b>)"
+Assert "\<tau> |\<noteq> (\<b> \<doteq> \<c>)"
+Assert "\<tau> \<Turnstile> (\<b> <> \<c>)"
+(*Assert "\<tau> |\<noteq> (\<zero> <\<^sub>s\<^sub>t\<^sub>r\<^sub>i\<^sub>n\<^sub>g null)"
+Assert "\<tau> |\<noteq> (\<delta> (\<zero> <\<^sub>s\<^sub>t\<^sub>r\<^sub>i\<^sub>n\<^sub>g null))"
 *)
 
 end
