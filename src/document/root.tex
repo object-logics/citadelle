@@ -2,6 +2,15 @@
 \usepackage{fixltx2e}
 \usepackage[T1]{fontenc}
 \usepackage{isabelle}
+\isatagannexa
+  \usepackage{omg}
+  \usepackage{draftwatermark}
+  \SetWatermarkAngle{55}
+  \SetWatermarkLightness{.9}
+  \SetWatermarkFontSize{3cm}
+  \SetWatermarkScale{1.4}
+  \SetWatermarkText{\textbf{\textsf{Draft Proposal}}}
+\endisatagannexa
 \usepackage[nocolortable, noaclist,isasymonly,nocolor]{hol-ocl-isar}
 \renewcommand{\lfloor}{\isasymHolOclLiftLeft}
 \renewcommand{\rfloor}{\isasymHolOclLiftRight}
@@ -12,15 +21,6 @@
 \renewcommand{\smlkeywordstyle}{\bfseries}
 \renewcommand{\holoclthykeywordstyle}{}
 
-\isatagannexa
-  \usepackage{omg}
-  \usepackage{draftwatermark}
-  \SetWatermarkAngle{55}
-  \SetWatermarkLightness{.9}
-  \SetWatermarkFontSize{3cm}
-  \SetWatermarkScale{1.4}
-  \SetWatermarkText{\textbf{\textsf{Draft Proposal}}}
-\endisatagannexa
 \usepackage{lstisar}
 \usepackage[]{mathtools}
 \usepackage{booktabs}
