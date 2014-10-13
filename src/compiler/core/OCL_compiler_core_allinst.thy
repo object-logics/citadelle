@@ -151,12 +151,12 @@ definition "print_allinst_istypeof_single isub_name name isub_name2 name2 const_
     ; var_tau = unicode_tau in
   gen_pre_post
     (\<lambda>s. flatten [name, ''_'', s, ''_'', isub_name2 const_oclisof])
-    (\<lambda>f_expr _ _. Expr_binop (b var_tau) unicode_Turnstile (Expr_apply ''OclForall'' [f_expr [b name], b (isub_name2 const_oclisof) ]))
+    (\<lambda>f_expr _ _. Expr_binop (b var_tau) unicode_Turnstile (Expr_apply var_OclForall [f_expr [b name], b (isub_name2 const_oclisof) ]))
     (\<lambda>lem_tit lem_spec _ _ _. Lemma_by
       lem_tit
       [lem_spec]
       [ [Tac_simp_add_del [d ''OclValid''] (d ''OclAllInstances_generic'' # f_simp1 [flatten [isub_name2 const_oclisof, ''_'', name]])]
-      , [Tac_simp_only (flatten [List_map Thm_str [ d ''OclForall'', ''refl'', ''if_True'' ], [Thm_simplified (Thm_str ''OclAllInstances_generic_defined'') (Thm_str (d ''OclValid''))]])]
+      , [Tac_simp_only (flatten [List_map Thm_str [ d var_OclForall, ''refl'', ''if_True'' ], [Thm_simplified (Thm_str ''OclAllInstances_generic_defined'') (Thm_str (d ''OclValid''))]])]
       , [Tac_simp_only [Thm_str (d ''OclAllInstances_generic'')]]
       , [s (Thm_str var_Abs_Set_inverse), Tac_simp_add [d ''bot_option'']]
       , [s (Thm_where
@@ -189,7 +189,7 @@ definition "print_allinst_istypeof = start_map'' Thy_lemma_by o (\<lambda>expr b
         (\<lambda>f_expr _ _.
            Expr_exists
              unicode_tau
-             (\<lambda>var_tau. Expr_binop (b var_tau) unicode_Turnstile (Expr_apply ''OclForall'' [f_expr [b name], b (isub_name const_oclistypeof) ])))
+             (\<lambda>var_tau. Expr_binop (b var_tau) unicode_Turnstile (Expr_apply var_OclForall [f_expr [b name], b (isub_name const_oclistypeof) ])))
         (\<lambda>lem_tit lem_spec var_pre_post _ _. Lemma_by_assum
            lem_tit
            [('''', True, Expr_And ''x'' (\<lambda>var_x. Expr_rewrite (Expr_apply var_pre_post [Expr_parenthesis (Expr_binop (b var_x) '','' (b var_x))]) ''='' (b var_x)) )]
@@ -197,7 +197,7 @@ definition "print_allinst_istypeof = start_map'' Thy_lemma_by o (\<lambda>expr b
            (List_map App
               [ bug_ocaml_extraction (let var_tau0 = var_tau @@ isub_of_str ''0'' in
                 [Tac_rule (Thm_where (Thm_str ''exI'') [(''x'', b var_tau0)]), Tac_simp_add_del (List_map d [var_tau0, ''OclValid'']) [d ''OclAllInstances_generic'']])
-              , [Tac_simp_only (flatten [List_map Thm_str [ d ''OclForall'', ''refl'', ''if_True'' ], [Thm_simplified (Thm_str ''OclAllInstances_generic_defined'') (Thm_str (d ''OclValid''))]])]
+              , [Tac_simp_only (flatten [List_map Thm_str [ d var_OclForall, ''refl'', ''if_True'' ], [Thm_simplified (Thm_str ''OclAllInstances_generic_defined'') (Thm_str (d ''OclValid''))]])]
               , [Tac_simp_only [Thm_str (d ''OclAllInstances_generic'')]]
               , [s (Thm_str var_Abs_Set_inverse), Tac_simp_add [d ''bot_option'']] ] )
            (Tacl_by [Tac_simp (*Tac_simp_add [flatten [isub_name const_oclistypeof, ''_'', name]]*)]))
@@ -207,7 +207,7 @@ definition "print_allinst_istypeof = start_map'' Thy_lemma_by o (\<lambda>expr b
         (\<lambda>f_expr _ _.
            Expr_exists
              unicode_tau
-             (\<lambda>var_tau. Expr_binop (b var_tau) unicode_Turnstile (Expr_apply ''not'' [Expr_apply ''OclForall'' [f_expr [b name], b (isub_name const_oclistypeof) ]])))
+             (\<lambda>var_tau. Expr_binop (b var_tau) unicode_Turnstile (Expr_apply ''not'' [Expr_apply var_OclForall [f_expr [b name], b (isub_name const_oclistypeof) ]])))
         (\<lambda>lem_tit lem_spec var_pre_post _ _. Lemma_by_assum
            lem_tit
            [('''', True, Expr_And ''x'' (\<lambda>var_x. Expr_rewrite (Expr_apply var_pre_post [Expr_parenthesis (Expr_binop (b var_x) '','' (b var_x))]) ''='' (b var_x)) )]
@@ -221,7 +221,7 @@ definition "print_allinst_istypeof = start_map'' Thy_lemma_by o (\<lambda>expr b
                 [ Expr_apply s_empty [Expr_binop (b var_oid) unicode_mapsto (Expr_apply (isub_name datatype_in) [Expr_apply (isub_name datatype_constr_name) (Expr_apply (datatype_ext_constr_name @@ mk_constr_name name name_next) [b var_a] # List_map (\<lambda>_. b ''None'') l_attr)])]
                 , b s_empty])
             , App [Tac_rule (Thm_where (Thm_str ''exI'') [(''x'', Expr_parenthesis (Expr_binop (Expr_pat var_t0) '','' (Expr_pat var_t0)))]), Tac_simp_add_del [d ''OclValid''] [d ''OclAllInstances_generic'']]
-            , App [Tac_simp_only (flatten [List_map Thm_str [ d ''OclForall'', ''refl'', ''if_True'' ], [Thm_simplified (Thm_str ''OclAllInstances_generic_defined'') (Thm_str (d ''OclValid''))]])]
+            , App [Tac_simp_only (flatten [List_map Thm_str [ d var_OclForall, ''refl'', ''if_True'' ], [Thm_simplified (Thm_str ''OclAllInstances_generic_defined'') (Thm_str (d ''OclValid''))]])]
             , App [Tac_simp_only (List_map (\<lambda>x. Thm_str (d x)) [''OclAllInstances_generic'', flatten [isub_name const_oclastype, ''_'', unicode_AA]])]
             , App [s (Thm_str var_Abs_Set_inverse), Tac_simp_add [d ''bot_option'']] ] ))
            (Tacl_by [Tac_simp_add [d ''state.make'', d ''OclNot'']]))

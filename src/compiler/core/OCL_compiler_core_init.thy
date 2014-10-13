@@ -121,6 +121,7 @@ definition "var_OclString = ''OclString''"
 definition "var_Abs_Set = flatten [''Abs_Set'',isub_of_str ''base'']"
 definition "var_Abs_Set_inverse = flatten [var_Abs_Set, ''_inverse'']"
 definition "var_OclIncluding = ''UML_Set.OclIncluding''"
+definition "var_OclForall = ''UML_Set.OclForall''"
 
 definition "update_D_accessor_rbt_pre f = (\<lambda>(l_pre, l_post). (f l_pre, l_post))"
 definition "update_D_accessor_rbt_post f = (\<lambda>(l_pre, l_post). (l_pre, f l_post))"
