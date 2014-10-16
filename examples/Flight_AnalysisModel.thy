@@ -134,16 +134,43 @@ Context r: Reservation
   Inv B : `r .reservnext <> null implies (r .flight .destito \<doteq> r .reservnext .flight .destifrom)`
   Inv C : `r .reservnext <> null implies (r .client \<doteq> r .reservnext .client)`
 
-(*
-Define_state \<sigma>\<^sub>1' =
-  [ ]
-
-Define_state ss = [] 
-
-Define_pre_post ss \<sigma>\<^sub>1' 
-
-Define_base [ 25, 250.0 ]
+(* (* Example of type errors *)
+Instance R00 :: Reservation = [ ident = 00, flight = [ F1 ], reservnext = R11 ]
+     and R11 :: Reservation = [ ident = 11, flight = [ F1, F2 ], reservnext = R00 ]
+     and R22 :: Reservation = [ ident = 22, reservnext = [ R00, R11, R22 ] ]
+     and F1 :: Flight = [ seats = 120, destifrom = "Paris", destito = "London" ]
+     and F2 :: Flight = [ seats = 370, destifrom = "London", destito = "New-York" ]
 *)
+
+Instance S1 :: Staff = [ name = "James" , (**) flights = F1 ]
+     and C1 :: Client = [ name = "Peter" , address = "London" , (**) flights = F1 , (**) clientreserv = R11 ]
+     and C2 :: Client = [ name = "Marie" , address = "Paris" , (**) flights = F1 , (**) clientreserv = R21 ]
+     and R11 :: Reservation = [ ident = 12345 , (**) flight = F1 ]
+     and R21 :: Reservation = [ ident = 98796 , (**) flight = F1 ]
+     and F1 :: Flight = [ seats = 120 , destifrom = "Paris" , destito = "London" ]
+     and F2 :: Flight = [ seats = 370 , destifrom = "London" , destito = "New-York" ]
+
+Define_state \<sigma>\<^sub>1 =
+  [ defines [ S1
+            , C1
+            , C2 
+            , R11
+            , R21
+            , F1
+            , F2 ] ]
+
+Define_state \<sigma>\<^sub>2 =
+  [ defines [ S1
+            , C1
+            , ([ name = "Marie" , address = "Paris" , (**) flights = [ F1 , F2 ] , (**) clientreserv = self 7 ] :: Client)
+            , R11
+            , ([ ident = 98796 , (**) flight = F1 , (**) reservnext = self 7 ] :: Reservation)
+            , F1
+            , F2
+            , ([ ident = 98798 , (**) flight = F2 ] :: Reservation) ] ]
+
+Define_pre_post \<sigma>\<^sub>1 \<sigma>\<^sub>2
+
 (*generation_syntax deep flush_all*)
 
 end
