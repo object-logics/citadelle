@@ -51,10 +51,10 @@ imports
   "../src/compiler/OCL_compiler_generator_dynamic"
 begin
 
-definition "OclCollect x y z w = (
+definition "OclCollect2 x y z w = (
   (y .allInstances()) ->select\<^sub>S\<^sub>e\<^sub>t(c | x->includesAll\<^sub>S\<^sub>e\<^sub>t(z c))
                       ->iterate\<^sub>S\<^sub>e\<^sub>t(a; x = Set{} | x->including\<^sub>S\<^sub>e\<^sub>t(w a)))"
-notation  OclCollect ("_->collect\<^sub>S\<^sub>e\<^sub>t'(_,_,_')" (*[66,65]65*))
+notation  OclCollect2 ("_->collect\<^sub>S\<^sub>e\<^sub>t'(_,_,_')" (*[66,65]65*))
 
 generation_syntax [ deep
                       (generation_semantics [ analysis (*, oid_start 10*) ])
@@ -119,21 +119,6 @@ Association connection
             Role reservprev
 End
 
-Context f: Flight
-  Inv A : `\<zero> <\<^sub>i\<^sub>n\<^sub>t (f .seats)`
-  Inv B : `f .flightreserv ->size\<^sub>S\<^sub>e\<^sub>t() \<le>\<^sub>i\<^sub>n\<^sub>t (f .seats)`
-(*  Inv C : `f .passengers ->select\<^sub>S\<^sub>e\<^sub>t(p | p .oclIsTypeOf(Client))
-                          \<doteq> ((f .flightreserv)->collect\<^sub>S\<^sub>e\<^sub>t(Client,(\<lambda>c. (c .clientreserv))
-                                                                ,(\<lambda>a. (a .oclAsType(Person)))))`
-*)     term "f .passengers ->select\<^sub>S\<^sub>e\<^sub>t(p | p .oclIsTypeOf(Client))
-                          \<doteq> ((f .flightreserv)->collect\<^sub>S\<^sub>e\<^sub>t(Client,(\<lambda>c. (c .clientreserv))
-                                                                ,(\<lambda>a. (a .oclAsType(Person)))))"
-
-Context r: Reservation
-  Inv A : `\<zero> <\<^sub>i\<^sub>n\<^sub>t (r .ident)`
-  Inv B : `r .reservnext <> null implies (r .flight .destito \<doteq> r .reservnext .flight .destifrom)`
-  Inv C : `r .reservnext <> null implies (r .client \<doteq> r .reservnext .client)`
-
 (* (* Example of type errors *)
 Instance R00 :: Reservation = [ ident = 00, flight = [ F1 ], reservnext = R11 ]
      and R11 :: Reservation = [ ident = 11, flight = [ F1, F2 ], reservnext = R00 ]
@@ -170,6 +155,18 @@ Define_state \<sigma>\<^sub>2 =
             , ([ ident = 98798 , (**) flight = F2 ] :: Reservation) ] ]
 
 Define_pre_post \<sigma>\<^sub>1 \<sigma>\<^sub>2
+
+Context f: Flight
+  Inv A : `\<zero> <\<^sub>i\<^sub>n\<^sub>t (f .seats)`
+  Inv B : `f .flightreserv ->size\<^sub>S\<^sub>e\<^sub>t() \<le>\<^sub>i\<^sub>n\<^sub>t (f .seats)`
+  (*Inv C : `f .passengers ->select\<^sub>S\<^sub>e\<^sub>t(p | p .oclIsTypeOf(Client))
+                          \<doteq> ((f .flightreserv)->collect\<^sub>S\<^sub>e\<^sub>t(Client,(\<lambda>c. (c .clientreserv))
+                                                                ,(\<lambda>a. (a .oclAsType(Person)))))`*)
+
+Context r: Reservation
+  Inv A : `\<zero> <\<^sub>i\<^sub>n\<^sub>t (r .ident)`
+  Inv B : `r .reservnext <> null implies (r .flight .destito \<doteq> r .reservnext .flight .destifrom)`
+  Inv C : `r .reservnext <> null implies (r .client \<doteq> r .reservnext .client)`
 
 (*generation_syntax deep flush_all*)
 

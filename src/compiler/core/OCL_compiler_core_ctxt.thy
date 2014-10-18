@@ -220,7 +220,7 @@ definition "print_ctxt_inv' = fold_list (\<lambda>x ocl. (x ocl, ocl)) o flatten
           ; var_result = ''result'' in
         [ \<lambda>ocl. Thy_axiom (Axiom
             (print_ctxt_inv_name (Ctxt_inv_ty ctxt) tit var_at_when)
-            (f_tau (Expr_apply ''OclForall''
+            (f_tau (Expr_apply var_OclForall
               [ a allinst_at_when (b (Ctxt_inv_ty ctxt))
               , Expr_lam ''self'' (\<lambda>var_self. Expr_inner (case e ocl of T_pure e \<Rightarrow> e))]))) ])
       [(''OclAllInstances_at_pre'', var_at_when_hol_pre, \<lambda>ocl. print_ctxt_to_ocl_pre ocl e)
