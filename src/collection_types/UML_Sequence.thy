@@ -267,10 +267,20 @@ apply(case_tac "\<tau> \<Turnstile> \<upsilon> A", simp_all add: foundation18')
 apply(simp add: mtSequence_def)
 apply(subst Abs_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inverse) by auto
 
+lemma iterate_including[simp]:
+assumes strict1 : "\<And>X. P invalid X = invalid"
+and     P_valid_arg: "\<And> \<tau>. (\<upsilon> A) \<tau> = (\<upsilon> (P a A)) \<tau>"
+and     P_cp    : "\<And> x y \<tau>. P x y \<tau> = P (\<lambda> _. x \<tau>) y \<tau>"
+and     P_cp'   : "\<And> x y \<tau>. P x y \<tau> = P x (\<lambda> _. y \<tau>) \<tau>"
+shows  "(S->including\<^sub>S\<^sub>e\<^sub>q(a))->iterate\<^sub>S\<^sub>e\<^sub>q(b; x = A | P b x) = S->iterate\<^sub>S\<^sub>e\<^sub>q(b; x = P a A| P b x)"
+sorry
+
 lemma iterate_prepend[simp]:
 assumes strict1 : "\<And>X. P invalid X = invalid"
 and     strict2 : "\<And>X. P X invalid = invalid"
-shows  "(S->prepend\<^sub>S\<^sub>e\<^sub>q(a))->iterate\<^sub>S\<^sub>e\<^sub>q(b; x = A | P b x) = S->iterate\<^sub>S\<^sub>e\<^sub>q(b; x = P a A| P b x)"
+and     P_cp    : "\<And> x y \<tau>. P x y \<tau> = P (\<lambda> _. x \<tau>) y \<tau>"
+and     P_cp'   : "\<And> x y \<tau>. P x y \<tau> = P x (\<lambda> _. y \<tau>) \<tau>"
+shows  "(S->prepend\<^sub>S\<^sub>e\<^sub>q(a))->iterate\<^sub>S\<^sub>e\<^sub>q(b; x = A | P b x) = P a (S->iterate\<^sub>S\<^sub>e\<^sub>q(b; x = A| P b x))"
 sorry
 
 subsection{* Definition: forall *}
