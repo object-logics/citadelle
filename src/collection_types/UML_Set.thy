@@ -1040,7 +1040,7 @@ lemma const_OclIncludes :
 by (metis (no_types) const_def const_defined const_true const_valid cp_defined cp_valid)
 
 *)
-subsection{* General Albegraic Execution Rules *}
+subsection{* General Algebraic Execution Rules *}
 subsubsection{* Execution Rules on Including *}
 
 lemma OclIncluding_finite_rep_set :
