@@ -112,6 +112,20 @@ type_synonym ('\<AA>)UnlimitedNatural = "('\<AA>, UnlimitedNatural\<^sub>b\<^sub
 
 section{* Basic Types UnlimitedNatural: Operations *}
 
+subsection{* Fundamental Predicates on UnlimitedNaturals: Strict Equality *}
+
+text{* The last basic operation belonging to the fundamental infrastructure
+of a value-type in OCL is the weak equality, which is defined similar
+to the @{typ "('\<AA>)Boolean"}-case as strict extension of the strong equality:*}
+defs   StrictRefEq\<^sub>U\<^sub>n\<^sub>l\<^sub>i\<^sub>m\<^sub>i\<^sub>t\<^sub>e\<^sub>d\<^sub>N\<^sub>a\<^sub>t\<^sub>u\<^sub>r\<^sub>a\<^sub>l[code_unfold] :
+      "(x::('\<AA>)UnlimitedNatural) \<doteq> y \<equiv> \<lambda> \<tau>. if (\<upsilon> x) \<tau> = true \<tau> \<and> (\<upsilon> y) \<tau> = true \<tau>
+                                    then (x \<triangleq> y) \<tau>
+                                    else invalid \<tau>"
+                                    
+text{* Property proof in terms of @{term "profile_bin3"}*}
+interpretation  StrictRefEq\<^sub>U\<^sub>n\<^sub>l\<^sub>i\<^sub>m\<^sub>i\<^sub>t\<^sub>e\<^sub>d\<^sub>N\<^sub>a\<^sub>t\<^sub>u\<^sub>r\<^sub>a\<^sub>l : profile_bin3 "\<lambda> x y. (x::('\<AA>)UnlimitedNatural) \<doteq> y" 
+         by unfold_locales (auto simp: StrictRefEq\<^sub>U\<^sub>n\<^sub>l\<^sub>i\<^sub>m\<^sub>i\<^sub>t\<^sub>e\<^sub>d\<^sub>N\<^sub>a\<^sub>t\<^sub>u\<^sub>r\<^sub>a\<^sub>l)
+
 subsection{* Basic UnlimitedNatural Constants *}
 
 text{* Although the remaining part of this library reasons about
@@ -327,39 +341,23 @@ of the above definitions by compilation to code and execution to @{term "True"}.
 
 context OclUnlimitedNatural
 begin
-Assert_local "  \<tau> \<Turnstile> ( \<nine> \<le>\<^sub>U\<^sub>N \<one>\<zero> )"
-Assert_local "  \<tau> \<Turnstile> (( \<four> +\<^sub>U\<^sub>N \<four> ) \<le>\<^sub>U\<^sub>N \<one>\<zero> )"
-Assert_local "\<not>(\<tau> \<Turnstile> (( \<four> +\<^sub>U\<^sub>N ( \<four> +\<^sub>U\<^sub>N \<four> )) <\<^sub>U\<^sub>N \<one>\<zero> ))"
-Assert_local "  \<tau> \<Turnstile> (\<zero> \<le>\<^sub>n\<^sub>a\<^sub>t \<infinity>)"
-Assert_local "  \<tau> \<Turnstile> not (\<upsilon> (null +\<^sub>U\<^sub>N \<one>))"
-Assert_local "  \<tau> \<Turnstile> not (\<upsilon> (\<infinity> +\<^sub>n\<^sub>a\<^sub>t \<zero>))"
-Assert_local "  \<tau> \<Turnstile>      \<mu> \<one>"
+Assert_local "\<tau> \<Turnstile> ( \<nine> \<le>\<^sub>U\<^sub>N \<one>\<zero> )"
+Assert_local "\<tau> \<Turnstile> (( \<four> +\<^sub>U\<^sub>N \<four> ) \<le>\<^sub>U\<^sub>N \<one>\<zero> )"
+Assert_local "\<tau> |\<noteq> (( \<four> +\<^sub>U\<^sub>N ( \<four> +\<^sub>U\<^sub>N \<four> )) <\<^sub>U\<^sub>N \<one>\<zero> )"
+Assert_local "\<tau> \<Turnstile> (\<zero> \<le>\<^sub>n\<^sub>a\<^sub>t \<infinity>)"
+Assert_local "\<tau> \<Turnstile> not (\<upsilon> (null +\<^sub>U\<^sub>N \<one>))"
+Assert_local "\<tau> \<Turnstile> not (\<upsilon> (\<infinity> +\<^sub>n\<^sub>a\<^sub>t \<zero>))"
+Assert_local "\<tau> \<Turnstile>      \<mu> \<one>"
 end
-Assert "  \<tau> \<Turnstile> not (\<upsilon> (null +\<^sub>n\<^sub>a\<^sub>t \<infinity>))"
-Assert "  \<tau> \<Turnstile> not (\<infinity> <\<^sub>n\<^sub>a\<^sub>t \<infinity>)"
-Assert "  \<tau> \<Turnstile> not (\<upsilon> (invalid \<le>\<^sub>n\<^sub>a\<^sub>t \<infinity>))"
-Assert "  \<tau> \<Turnstile> not (\<upsilon> (null \<le>\<^sub>n\<^sub>a\<^sub>t \<infinity>))"
-Assert "  \<tau> \<Turnstile>      \<upsilon> \<infinity>"
-Assert "  \<tau> \<Turnstile>      \<delta> \<infinity>"
-Assert "  \<tau> \<Turnstile> not (\<mu> \<infinity>)"
+Assert "\<tau> \<Turnstile> not (\<upsilon> (null +\<^sub>n\<^sub>a\<^sub>t \<infinity>))"
+Assert "\<tau> \<Turnstile> not (\<infinity> <\<^sub>n\<^sub>a\<^sub>t \<infinity>)"
+Assert "\<tau> \<Turnstile> not (\<upsilon> (invalid \<le>\<^sub>n\<^sub>a\<^sub>t \<infinity>))"
+Assert "\<tau> \<Turnstile> not (\<upsilon> (null \<le>\<^sub>n\<^sub>a\<^sub>t \<infinity>))"
+Assert "\<tau> \<Turnstile>      \<upsilon> \<infinity>"
+Assert "\<tau> \<Turnstile>      \<delta> \<infinity>"
+Assert "\<tau> \<Turnstile> not (\<mu> \<infinity>)"
 
 
-subsection{* Fundamental Predicates on UnlimitedNaturals: Strict Equality *}
-
-subsubsection{* Definition *}
-
-text{* The last basic operation belonging to the fundamental infrastructure
-of a value-type in OCL is the weak equality, which is defined similar
-to the @{typ "('\<AA>)Boolean"}-case as strict extension of the strong equality:*}
-defs   StrictRefEq\<^sub>U\<^sub>n\<^sub>l\<^sub>i\<^sub>m\<^sub>i\<^sub>t\<^sub>e\<^sub>d\<^sub>N\<^sub>a\<^sub>t\<^sub>u\<^sub>r\<^sub>a\<^sub>l[code_unfold] :
-      "(x::('\<AA>)UnlimitedNatural) \<doteq> y \<equiv> \<lambda> \<tau>. if (\<upsilon> x) \<tau> = true \<tau> \<and> (\<upsilon> y) \<tau> = true \<tau>
-                                    then (x \<triangleq> y) \<tau>
-                                    else invalid \<tau>"
-                                    
-text{* Property proof in terms of @{term "profile_bin3"}*}
-interpretation  StrictRefEq\<^sub>U\<^sub>n\<^sub>l\<^sub>i\<^sub>m\<^sub>i\<^sub>t\<^sub>e\<^sub>d\<^sub>N\<^sub>a\<^sub>t\<^sub>u\<^sub>r\<^sub>a\<^sub>l : profile_bin3 "\<lambda> x y. (x::('\<AA>)UnlimitedNatural) \<doteq> y" 
-         by unfold_locales (auto simp: StrictRefEq\<^sub>U\<^sub>n\<^sub>l\<^sub>i\<^sub>m\<^sub>i\<^sub>t\<^sub>e\<^sub>d\<^sub>N\<^sub>a\<^sub>t\<^sub>u\<^sub>r\<^sub>a\<^sub>l)
-                                            
 
 lemma integer_non_null [simp]: "((\<lambda>_. \<lfloor>\<lfloor>n\<rfloor>\<rfloor>) \<doteq> (null::('\<AA>)UnlimitedNatural)) = false"
 by(rule ext,auto simp: StrictRefEq\<^sub>U\<^sub>n\<^sub>l\<^sub>i\<^sub>m\<^sub>i\<^sub>t\<^sub>e\<^sub>d\<^sub>N\<^sub>a\<^sub>t\<^sub>u\<^sub>r\<^sub>a\<^sub>l valid_def
@@ -384,19 +382,19 @@ Assert "\<tau> \<Turnstile> OclNat0 <> OclNat1"
 Assert "\<tau> \<Turnstile> OclNat1 <> OclNat0"
 Assert "\<tau> \<Turnstile> OclNat0 \<doteq> OclNat0"
 
-Assert "  \<tau> \<Turnstile> \<upsilon> OclNat0"
-Assert "  \<tau> \<Turnstile> \<delta> OclNat0"
-Assert "  \<tau> \<Turnstile> \<upsilon> (null::('\<AA>)UnlimitedNatural)"
-Assert "  \<tau> \<Turnstile> (invalid \<triangleq> invalid)"
-Assert "  \<tau> \<Turnstile> (null \<triangleq> null)"
-Assert "\<not>(\<tau> \<Turnstile> (invalid \<doteq> (invalid::('\<AA>)UnlimitedNatural)))" (* Without typeconstraint not executable.*)
-Assert "\<not>(\<tau> \<Turnstile> \<upsilon> (invalid \<doteq> (invalid::('\<AA>)UnlimitedNatural)))" (* Without typeconstraint not executable.*)
-Assert "\<not>(\<tau> \<Turnstile> (invalid <> (invalid::('\<AA>)UnlimitedNatural)))" (* Without typeconstraint not executable.*)
-Assert "\<not>(\<tau> \<Turnstile> \<upsilon> (invalid <> (invalid::('\<AA>)UnlimitedNatural)))" (* Without typeconstraint not executable.*)
-Assert "  \<tau> \<Turnstile> (null \<doteq> (null::('\<AA>)UnlimitedNatural) )" (* Without typeconstraint not executable.*)
-Assert "  \<tau> \<Turnstile> (null \<doteq> (null::('\<AA>)UnlimitedNatural) )" (* Without typeconstraint not executable.*)
-Assert "\<not>(\<tau> \<Turnstile> (OclNat0 <\<^sub>n\<^sub>a\<^sub>t null))"
-Assert "\<not>(\<tau> \<Turnstile> (\<delta> (OclNat0 <\<^sub>n\<^sub>a\<^sub>t null)))"
+Assert "\<tau> \<Turnstile> \<upsilon> OclNat0"
+Assert "\<tau> \<Turnstile> \<delta> OclNat0"
+Assert "\<tau> \<Turnstile> \<upsilon> (null::('\<AA>)UnlimitedNatural)"
+Assert "\<tau> \<Turnstile> (invalid \<triangleq> invalid)"
+Assert "\<tau> \<Turnstile> (null \<triangleq> null)"
+Assert "\<tau> |\<noteq> (invalid \<doteq> (invalid::('\<AA>)UnlimitedNatural))" (* Without typeconstraint not executable.*)
+Assert "\<tau> |\<noteq> \<upsilon> (invalid \<doteq> (invalid::('\<AA>)UnlimitedNatural))" (* Without typeconstraint not executable.*)
+Assert "\<tau> |\<noteq> (invalid <> (invalid::('\<AA>)UnlimitedNatural))" (* Without typeconstraint not executable.*)
+Assert "\<tau> |\<noteq> \<upsilon> (invalid <> (invalid::('\<AA>)UnlimitedNatural))" (* Without typeconstraint not executable.*)
+Assert "\<tau> \<Turnstile> (null \<doteq> (null::('\<AA>)UnlimitedNatural) )" (* Without typeconstraint not executable.*)
+Assert "\<tau> \<Turnstile> (null \<doteq> (null::('\<AA>)UnlimitedNatural) )" (* Without typeconstraint not executable.*)
+Assert "\<tau> |\<noteq> (OclNat0 <\<^sub>n\<^sub>a\<^sub>t null)"
+Assert "\<tau> |\<noteq> (\<delta> (OclNat0 <\<^sub>n\<^sub>a\<^sub>t null))"
 
 
 end
