@@ -45,7 +45,7 @@ theory  UML_Void
 imports "../UML_PropertyProfiles"
 begin
 
-section{* Basic Type Void *}
+section{* Basic Type Void: Operations *}
 
 (* For technical reasons, the type does not contain to the null-class yet. *)
 text {* This \emph{minimal} OCL type contains only two elements:
@@ -54,7 +54,7 @@ text {* This \emph{minimal} OCL type contains only two elements:
 however the cardinal of this type is more than two, so it would have the cost to consider
  @{text "Some None"} and @{text "Some (Some ())"} seemingly everywhere.*}
  
-subsection{* Fundamental Properties on Basic Types: Strict Equality *}
+subsection{* Fundamental Properties on Voids: Strict Equality *}
 
 subsubsection{* Definition *}
 
@@ -94,6 +94,49 @@ interpretation   StrictRefEq\<^sub>V\<^sub>o\<^sub>i\<^sub>d : profile_bin3 "\<l
        by unfold_locales (auto simp:  StrictRefEq\<^sub>V\<^sub>o\<^sub>i\<^sub>d)
  
                                     
+subsection{* Basic Void Constants *}
+
+text{* Although the remaining part of this library reasons about
+voids abstractly, we provide here as example some convenient shortcuts. *}
+
+definition OclVoid0 ::"('\<AA>)Void" ("\<lbrakk>\<rbrakk>")  where      "\<lbrakk>\<rbrakk> = (\<lambda> _ . Abs_Void\<^sub>b\<^sub>a\<^sub>s\<^sub>e None)"
+definition OclVoid1 ::"('\<AA>)Void" ("\<lbrace>\<rbrace>")  where      "\<lbrace>\<rbrace> = (\<lambda> _ . Abs_Void\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor>None\<rfloor>)"
+
+subsection{* Validity and Definedness Properties *}
+
+lemma  "\<delta>(null::('\<AA>)Void) = false" by simp
+lemma  "\<upsilon>(null::('\<AA>)Void) = true"  by simp
+
+lemma [simp,code_unfold]: "\<delta> (\<lambda>_. Abs_Void\<^sub>b\<^sub>a\<^sub>s\<^sub>e None) = false"
+apply(simp add:defined_def true_def
+               bot_fun_def bot_option_def)
+apply(rule ext, simp split:, intro conjI impI)
+by(simp add: bot_Void_def)
+
+lemma [simp,code_unfold]: "\<upsilon> (\<lambda>_. Abs_Void\<^sub>b\<^sub>a\<^sub>s\<^sub>e None) = false"
+apply(simp add:valid_def true_def
+               bot_fun_def bot_option_def)
+apply(rule ext, simp split:, intro conjI impI)
+by(simp add: bot_Void_def)
+
+lemma [simp,code_unfold]: "\<delta> (\<lambda>_. Abs_Void\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor>None\<rfloor>) = false"
+apply(simp add:defined_def true_def
+               bot_fun_def bot_option_def null_fun_def null_option_def)
+apply(rule ext, simp split:, intro conjI impI)
+by(simp add: null_Void_def)
+
+lemma [simp,code_unfold]: "\<upsilon> (\<lambda>_. Abs_Void\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor>None\<rfloor>) = true"
+apply(simp add:valid_def true_def
+               bot_fun_def bot_option_def)
+apply(rule ext, simp split:, intro conjI impI)
+by(metis null_Void_def null_is_valid, simp add: true_def)
+
+(* ecclectic proofs to make examples executable *)
+lemma [simp,code_unfold]: "\<delta> \<lbrakk>\<rbrakk> = false" by(simp add:OclVoid0_def)
+lemma [simp,code_unfold]: "\<upsilon> \<lbrakk>\<rbrakk> = false" by(simp add:OclVoid0_def)
+lemma [simp,code_unfold]: "\<delta> \<lbrace>\<rbrace> = false" by(simp add:OclVoid1_def)
+lemma [simp,code_unfold]: "\<upsilon> \<lbrace>\<rbrace> = true" by(simp add:OclVoid1_def)
+
 subsection{* Test Statements *}
 
 Assert "\<tau> \<Turnstile> ((null::('\<AA>)Void)  \<doteq> null)"
