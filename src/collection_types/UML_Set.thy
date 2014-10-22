@@ -101,7 +101,7 @@ which characterize the infiniteness of these sets by a recursive property on the
 
          
          
-subsection{* Basic Properties of the Set-Type*}
+subsection{* Basic Properties of the Set Type*}
 
 text{* Every element in a defined set is valid. *}
 
@@ -192,10 +192,10 @@ strong equality---and therefore the strict equality on sets in the sense above--
 text{* Property proof in terms of @{term "profile_bin3"}*}
 interpretation  StrictRefEq\<^sub>S\<^sub>e\<^sub>t : profile_bin3 "\<lambda> x y. (x::('\<AA>,'\<alpha>::null)Set) \<doteq> y" 
          by unfold_locales (auto simp:  StrictRefEq\<^sub>S\<^sub>e\<^sub>t)
- 
 
 
-subsection{* Constants on Sets: mtSet *}
+
+subsection{* Constants: mtSet *}
 definition mtSet::"('\<AA>,'\<alpha>::null) Set"  ("Set{}")
 where     "Set{} \<equiv> (\<lambda> \<tau>.  Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor>\<lfloor>{}::'\<alpha> set\<rfloor>\<rfloor> )"
 
@@ -344,7 +344,7 @@ where     "OclForall S P = (\<lambda> \<tau>. if (\<delta> S) \<tau> = true \<ta
                                                 else true \<tau>
                                  else \<bottom>)"
 syntax
-  "_OclForall" :: "[('\<AA>,'\<alpha>::null) Set,id,('\<AA>)Boolean] \<Rightarrow> '\<AA> Boolean"    ("(_)->forAll\<^sub>S\<^sub>e\<^sub>t'(_|_')")
+  "_OclForallSet" :: "[('\<AA>,'\<alpha>::null) Set,id,('\<AA>)Boolean] \<Rightarrow> '\<AA> Boolean"    ("(_)->forAll\<^sub>S\<^sub>e\<^sub>t'(_|_')")
 translations
   "X->forAll\<^sub>S\<^sub>e\<^sub>t(x | P)" == "CONST UML_Set.OclForall X (%x. P)"
 
@@ -355,7 +355,7 @@ definition OclExists     :: "[('\<AA>,'\<alpha>::null) Set,('\<AA>,'\<alpha>)val
 where     "OclExists S P = not(UML_Set.OclForall S (\<lambda> X. not (P X)))"
 
 syntax
-  "_OclExist" :: "[('\<AA>,'\<alpha>::null) Set,id,('\<AA>)Boolean] \<Rightarrow> '\<AA> Boolean"    ("(_)->exists\<^sub>S\<^sub>e\<^sub>t'(_|_')")
+  "_OclExistSet" :: "[('\<AA>,'\<alpha>::null) Set,id,('\<AA>)Boolean] \<Rightarrow> '\<AA> Boolean"    ("(_)->exists\<^sub>S\<^sub>e\<^sub>t'(_|_')")
 translations
   "X->exists\<^sub>S\<^sub>e\<^sub>t(x | P)" == "CONST UML_Set.OclExists X (%x. P)"
 
@@ -368,7 +368,7 @@ where "OclIterate S A F = (\<lambda> \<tau>. if (\<delta> S) \<tau> = true \<tau
                                   then (Finite_Set.fold (F) (A) ((\<lambda>a \<tau>. a) ` \<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (S \<tau>)\<rceil>\<rceil>))\<tau>
                                   else \<bottom>)"
 syntax
-  "_OclIterate"  :: "[('\<AA>,'\<alpha>::null) Set, idt, idt, '\<alpha>, '\<beta>] => ('\<AA>,'\<gamma>)val"
+  "_OclIterateSet"  :: "[('\<AA>,'\<alpha>::null) Set, idt, idt, '\<alpha>, '\<beta>] => ('\<AA>,'\<gamma>)val"
                         ("_ ->iterate\<^sub>S\<^sub>e\<^sub>t'(_;_=_ | _')" (*[71,100,70]50*))
 translations
   "X->iterate\<^sub>S\<^sub>e\<^sub>t(a; x = A | P)" == "CONST OclIterate X A (%a. (% x. P))"
@@ -384,7 +384,7 @@ where "OclSelect S P = (\<lambda>\<tau>. if (\<delta> S) \<tau> = true \<tau>
                                    else Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor>\<lfloor>{x\<in>\<lceil>\<lceil> Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (S \<tau>)\<rceil>\<rceil>. P (\<lambda>_. x) \<tau> \<noteq> false \<tau>}\<rfloor>\<rfloor>
                               else invalid \<tau>)"
 syntax
-  "_OclSelect" :: "[('\<AA>,'\<alpha>::null) Set,id,('\<AA>)Boolean] \<Rightarrow> '\<AA> Boolean"    ("(_)->select\<^sub>S\<^sub>e\<^sub>t'(_|_')")
+  "_OclSelectSet" :: "[('\<AA>,'\<alpha>::null) Set,id,('\<AA>)Boolean] \<Rightarrow> '\<AA> Boolean"    ("(_)->select\<^sub>S\<^sub>e\<^sub>t'(_|_')")
 translations
   "X->select\<^sub>S\<^sub>e\<^sub>t(x | P)" == "CONST OclSelect X (% x. P)"
 
@@ -393,7 +393,7 @@ subsection{* Definition: Reject *}
 definition OclReject :: "[('\<AA>,'\<alpha>::null)Set,('\<AA>,'\<alpha>)val\<Rightarrow>('\<AA>)Boolean] \<Rightarrow> ('\<AA>,'\<alpha>::null)Set"
 where "OclReject S P = OclSelect S (not o P)"
 syntax
-  "_OclReject" :: "[('\<AA>,'\<alpha>::null) Set,id,('\<AA>)Boolean] \<Rightarrow> '\<AA> Boolean"    ("(_)->reject\<^sub>S\<^sub>e\<^sub>t'(_|_')")
+  "_OclRejectSet" :: "[('\<AA>,'\<alpha>::null) Set,id,('\<AA>)Boolean] \<Rightarrow> '\<AA> Boolean"    ("(_)->reject\<^sub>S\<^sub>e\<^sub>t'(_|_')")
 translations
   "X->reject\<^sub>S\<^sub>e\<^sub>t(x | P)" == "CONST OclReject X (% x. P)"
 

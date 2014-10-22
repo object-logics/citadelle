@@ -364,7 +364,7 @@ shows   "(OclAllInstances_generic pre_post Type)
                  (mk \<lparr>heap=\<sigma>', assocs=A\<rparr>))->including\<^sub>S\<^sub>e\<^sub>t(\<lambda> _. \<lfloor>\<lfloor> drop (Type Object) \<rfloor>\<rfloor>))
          (mk \<lparr>heap=\<sigma>'(oid\<mapsto>Object), assocs=A\<rparr>)"
  apply(subst state_update_vs_allInstances_generic_including', (simp add: assms)+,
-       subst cp_OclIncluding,
+       subst UML_Set.cp_OclIncluding,
        simp add: UML_Set.OclIncluding_def)
  apply(subst (1 3) cp_defined[symmetric],
        simp add: OclAllInstances_generic_defined[simplified OclValid_def])
@@ -467,7 +467,7 @@ proof -
  also have   "... = ((\<lambda>_. ?allInstances ?\<tau>')->including\<^sub>S\<^sub>e\<^sub>t(\<lambda>_. (\<lambda>_.\<lfloor>\<lfloor>\<lceil>Type Object\<rceil>\<rfloor>\<rfloor>) ?\<tau>') ?\<tau>')"
              by(subst const_OclIncluding[simplified const_def], simp+)
  also have   "... = (?allInstances->including\<^sub>S\<^sub>e\<^sub>t(\<lambda> _. \<lfloor>Type Object\<rfloor>) ?\<tau>')"
-             apply(subst cp_OclIncluding[symmetric])
+             apply(subst UML_Set.cp_OclIncluding[symmetric])
              by(insert type_conform, auto)
  finally have Y : "?allInstances ?\<tau> = (?allInstances->including\<^sub>S\<^sub>e\<^sub>t(\<lambda> _. \<lfloor>Type Object\<rfloor>) ?\<tau>')"
              by auto
