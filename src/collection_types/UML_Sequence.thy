@@ -47,6 +47,7 @@ imports "../basic_types/UML_Boolean"
         (* UML_Set *)
 begin
 
+no_notation None ("\<bottom>")
 section{* Collection Type Sequence: Operations *}
 
 subsubsection{* Properties of the Sequence Type  *}
@@ -182,10 +183,33 @@ proof -
 qed
 
 lemma [simp] : "(Sequence{}->including\<^sub>S\<^sub>e\<^sub>q(a)) = (Sequence{}->prepend\<^sub>S\<^sub>e\<^sub>q(a))"
-sorry
+  apply(simp add: OclIncluding_def OclPrepend_def mtSequence_def)
+  apply(subst (1 2) Abs_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inverse, simp)
+by(metis drop.simps append_Nil)
 
 lemma [simp] : "((S->prepend\<^sub>S\<^sub>e\<^sub>q(a))->including\<^sub>S\<^sub>e\<^sub>q(b)) = ((S->including\<^sub>S\<^sub>e\<^sub>q(b))->prepend\<^sub>S\<^sub>e\<^sub>q(a))"
-sorry
+ proof -
+  have A: "\<And>S b \<tau>. S \<noteq> \<bottom> \<Longrightarrow> S \<noteq> null \<Longrightarrow> b \<noteq> \<bottom>  \<Longrightarrow>
+                   \<lfloor>\<lfloor>\<lceil>\<lceil>Rep_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e S\<rceil>\<rceil> @ [b]\<rfloor>\<rfloor> \<in> {X. X = bot \<or> X = null \<or> (\<forall>x\<in>set \<lceil>\<lceil>X\<rceil>\<rceil>. x \<noteq> \<bottom>)}"
+           by(auto intro!:Sequence_inv_lemma[simplified OclValid_def 
+                                        defined_def false_def true_def null_fun_def bot_fun_def])          
+  have B: "\<And>S a \<tau>. S \<noteq> \<bottom> \<Longrightarrow> S \<noteq> null \<Longrightarrow> a \<noteq> \<bottom>  \<Longrightarrow>
+                   \<lfloor>\<lfloor>a # \<lceil>\<lceil>Rep_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e S\<rceil>\<rceil>\<rfloor>\<rfloor> \<in> {X. X = bot \<or> X = null \<or> (\<forall>x\<in>set \<lceil>\<lceil>X\<rceil>\<rceil>. x \<noteq> \<bottom>)}"
+           by(auto intro!:Sequence_inv_lemma[simplified OclValid_def 
+                                        defined_def false_def true_def null_fun_def bot_fun_def])          
+ show ?thesis
+  apply(simp add: OclIncluding_def OclPrepend_def mtSequence_def, rule ext)
+  apply(subst (2 5) cp_defined, simp split:)
+  apply(intro conjI impI)
+        apply(subst Abs_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inverse[OF B],
+              (simp add: foundation16[simplified OclValid_def] foundation18'[simplified OclValid_def])+)
+        apply(subst Abs_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inverse[OF A],
+              (simp add: foundation16[simplified OclValid_def] foundation18'[simplified OclValid_def])+)
+       apply(simp add: OclIncluding.def_body)
+      apply (metis OclValid_def foundation16 invalid_def)
+     apply (metis (no_types) OclPrepend.def_body' OclValid_def foundation16)
+ by (metis OclValid_def foundation16 invalid_def)+
+qed
 
 subsection{* Definition: excluding *}
 definition OclExcluding   :: "[('\<AA>,'\<alpha>::null) Sequence,('\<AA>,'\<alpha>) val] \<Rightarrow> ('\<AA>,'\<alpha>) Sequence"
@@ -267,13 +291,44 @@ apply(case_tac "\<tau> \<Turnstile> \<upsilon> A", simp_all add: foundation18')
 apply(simp add: mtSequence_def)
 apply(subst Abs_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inverse) by auto
 
+lemma cp_OclIterate: 
+     "(X->iterate\<^sub>S\<^sub>e\<^sub>q(a; x = A | P a x)) \<tau> =
+                ((\<lambda> _. X \<tau>)->iterate\<^sub>S\<^sub>e\<^sub>q(a; x = A | P a x)) \<tau>"
+by(simp add: OclIterate_def cp_defined[symmetric])
+
 lemma iterate_including[simp]:
 assumes strict1 : "\<And>X. P invalid X = invalid"
 and     P_valid_arg: "\<And> \<tau>. (\<upsilon> A) \<tau> = (\<upsilon> (P a A)) \<tau>"
 and     P_cp    : "\<And> x y \<tau>. P x y \<tau> = P (\<lambda> _. x \<tau>) y \<tau>"
 and     P_cp'   : "\<And> x y \<tau>. P x y \<tau> = P x (\<lambda> _. y \<tau>) \<tau>"
 shows  "(S->including\<^sub>S\<^sub>e\<^sub>q(a))->iterate\<^sub>S\<^sub>e\<^sub>q(b; x = A | P b x) = S->iterate\<^sub>S\<^sub>e\<^sub>q(b; x = P a A| P b x)"
-sorry
+ apply(rule ext)
+proof -
+ have A: "\<And>S b \<tau>. S \<noteq> \<bottom> \<Longrightarrow> S \<noteq> null \<Longrightarrow> b \<noteq> \<bottom>  \<Longrightarrow>
+                  \<lfloor>\<lfloor>\<lceil>\<lceil>Rep_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e S\<rceil>\<rceil> @ [b]\<rfloor>\<rfloor> \<in> {X. X = bot \<or> X = null \<or> (\<forall>x\<in>set \<lceil>\<lceil>X\<rceil>\<rceil>. x \<noteq> \<bottom>)}"
+          by(auto intro!:Sequence_inv_lemma[simplified OclValid_def 
+                                       defined_def false_def true_def null_fun_def bot_fun_def])          
+ have P: "\<And>l A A' \<tau>. A \<tau> = A' \<tau> \<Longrightarrow> foldr P l A \<tau> = foldr P l A' \<tau>"
+  apply(rule list.induct, simp, simp)
+ by(subst (1 2) P_cp', simp)
+
+ fix \<tau>
+ show "OclIterate (S->including\<^sub>S\<^sub>e\<^sub>q(a)) A P \<tau> = OclIterate S (P a A) P \<tau>"
+  apply(subst cp_OclIterate, subst OclIncluding_def, simp split:)
+  apply(intro conjI impI)
+
+   apply(simp add: OclIterate_def)
+   apply(intro conjI impI)
+     apply(subst Abs_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inverse[OF A],
+           (simp add: foundation16[simplified OclValid_def] foundation18'[simplified OclValid_def])+)
+     apply(rule P, metis P_cp)
+    apply (metis P_valid_arg)
+   apply(simp add: P_valid_arg[symmetric])
+   apply (metis (lifting, no_types) OclIncluding.def_body' OclValid_def foundation16)
+  apply(simp add: OclIterate_def defined_def invalid_def bot_option_def bot_fun_def false_def true_def)
+  apply(intro impI, simp add: false_def true_def P_valid_arg)
+ by (metis P_cp P_valid_arg UML_Types.bot_fun_def cp_valid invalid_def strict1 true_def valid1 valid_def)
+qed
 
 lemma iterate_prepend[simp]:
 assumes strict1 : "\<And>X. P invalid X = invalid"
@@ -281,7 +336,36 @@ and     strict2 : "\<And>X. P X invalid = invalid"
 and     P_cp    : "\<And> x y \<tau>. P x y \<tau> = P (\<lambda> _. x \<tau>) y \<tau>"
 and     P_cp'   : "\<And> x y \<tau>. P x y \<tau> = P x (\<lambda> _. y \<tau>) \<tau>"
 shows  "(S->prepend\<^sub>S\<^sub>e\<^sub>q(a))->iterate\<^sub>S\<^sub>e\<^sub>q(b; x = A | P b x) = P a (S->iterate\<^sub>S\<^sub>e\<^sub>q(b; x = A| P b x))"
-sorry
+ apply(rule ext)
+proof -
+ have B: "\<And>S a \<tau>. S \<noteq> \<bottom> \<Longrightarrow> S \<noteq> null \<Longrightarrow> a \<noteq> \<bottom>  \<Longrightarrow>
+                  \<lfloor>\<lfloor>a # \<lceil>\<lceil>Rep_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e S\<rceil>\<rceil>\<rfloor>\<rfloor> \<in> {X. X = bot \<or> X = null \<or> (\<forall>x\<in>set \<lceil>\<lceil>X\<rceil>\<rceil>. x \<noteq> \<bottom>)}"
+          by(auto intro!:Sequence_inv_lemma[simplified OclValid_def 
+                                       defined_def false_def true_def null_fun_def bot_fun_def])          
+ fix \<tau>
+ show "OclIterate (S->prepend\<^sub>S\<^sub>e\<^sub>q(a)) A P \<tau> = P a (OclIterate S A P) \<tau>"
+  apply(subst cp_OclIterate, subst OclPrepend_def, simp split:)
+  apply(intro conjI impI)
+
+   apply(subst P_cp')
+   apply(simp add: OclIterate_def)
+   apply(intro conjI impI)
+     apply(subst Abs_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inverse[OF B],
+           (simp add: foundation16[simplified OclValid_def] foundation18'[simplified OclValid_def])+)
+     apply(simp add: P_cp'[symmetric])
+     apply(subst P_cp, simp add: P_cp[symmetric])
+    apply (metis (no_types) OclPrepend.def_body' OclValid_def foundation16)
+   apply (metis P_cp' invalid_def strict2 valid_def)
+
+  apply(subst P_cp',
+        simp add: OclIterate_def defined_def invalid_def bot_option_def bot_fun_def false_def true_def,
+        intro conjI impI)
+     apply (metis P_cp' invalid_def strict2 valid_def)
+    apply (metis P_cp' invalid_def strict2 valid_def)
+   apply (metis (no_types) P_cp invalid_def strict1 true_def valid1 valid_def)
+  apply (metis P_cp' invalid_def strict2 valid_def)
+ done
+qed
 
 subsection{* Definition: forall *}
 definition OclForall     :: "[('\<AA>,'\<alpha>::null)Sequence,('\<AA>,'\<alpha>)val\<Rightarrow>('\<AA>)Boolean] \<Rightarrow> '\<AA> Boolean"
