@@ -271,7 +271,8 @@ locale profile_bin1 =
    fixes f::"('\<AA>,'a::null)val \<Rightarrow> ('\<AA>,'b::null)val \<Rightarrow> ('\<AA>,'c::null)val"
    fixes g
    assumes def_scheme[simplified]: "bin f g defined defined X Y"
-   assumes def_body:  "\<And> x y. g x y \<noteq> bot \<and> g x y \<noteq> null "
+   assumes def_body:  "\<And> x y. x\<noteq>bot \<Longrightarrow> x\<noteq>null \<Longrightarrow> y\<noteq>bot \<Longrightarrow> y\<noteq>null \<Longrightarrow>
+                               g x y \<noteq> bot \<and> g x y \<noteq> null "
 begin
       lemma strict4[simp,code_unfold]: " f x null = invalid"
       by(rule ext, simp add: def_scheme true_def false_def)
@@ -285,8 +286,9 @@ sublocale profile_bin1 < profile_bin_scheme_defined defined
    apply(simp add:defined_split, elim disjE)
     apply(erule StrongEq_L_subst2_rev, simp, simp)+
   apply(simp add: def_scheme)
- by(simp add: defined_def OclValid_def false_def true_def 
-              bot_fun_def null_fun_def def_scheme def_body)
+ apply(simp add: defined_def OclValid_def false_def true_def bot_fun_def null_fun_def def_scheme)
+ apply(rule def_body, simp_all add: true_def false_def split:split_if_asm)
+done
 
 locale profile_bin2 =
    fixes f::"('\<AA>,'a::null)val \<Rightarrow> ('\<AA>,'b::null)val \<Rightarrow> ('\<AA>,'c::null)val"

@@ -228,25 +228,67 @@ where     "OclExcluding x y = (\<lambda> \<tau>. if (\<delta> x) \<tau> = true \
                                     else invalid \<tau> )"
 notation   OclExcluding   ("_->excluding\<^sub>S\<^sub>e\<^sub>q'(_')")
 
+interpretation OclExcluding:profile_bin2 OclExcluding 
+                          "\<lambda>x y. Abs_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor>\<lfloor> filter (\<lambda>x. x = y) \<lceil>\<lceil>Rep_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e (x)\<rceil>\<rceil>\<rfloor>\<rfloor>"
+proof -
+    show "profile_bin2 OclExcluding (\<lambda>x y. Abs_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor>\<lfloor>[x\<leftarrow>\<lceil>\<lceil>Rep_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e x\<rceil>\<rceil> . x = y]\<rfloor>\<rfloor>)"
+         apply unfold_locales  
+         apply(auto simp:OclExcluding_def bot_option_def null_option_def  
+                         null_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def bot_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def)
+         apply(subst (asm) Abs_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inject,
+               simp_all add: null_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def bot_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def bot_option_def null_option_def)+
+   done
+qed
+
 subsection{* Definition: Append *}
 text{* identical to including *}
 definition OclAppend   :: "[('\<AA>,'\<alpha>::null) Sequence,('\<AA>,'\<alpha>) val] \<Rightarrow> ('\<AA>,'\<alpha>) Sequence"
 where     "OclAppend = OclIncluding"
 
-(* TODO: Locale Setup by hand. *)
+interpretation OclAppend : 
+               profile_bin2 OclAppend "\<lambda>x y. Abs_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e\<lfloor>\<lfloor>\<lceil>\<lceil>Rep_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e x\<rceil>\<rceil> @ [y]\<rfloor>\<rfloor>"
+proof -  
+ have A : "\<And>x y. x \<noteq> bot \<Longrightarrow> x \<noteq> null \<Longrightarrow>  y \<noteq> bot  \<Longrightarrow>
+           \<lfloor>\<lfloor>\<lceil>\<lceil>Rep_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e x\<rceil>\<rceil> @ [y]\<rfloor>\<rfloor> \<in> {X. X = bot \<or> X = null \<or> (\<forall>x\<in>set \<lceil>\<lceil>X\<rceil>\<rceil>. x \<noteq> bot)}"
+          by(auto intro!:Sequence_inv_lemma[simplified OclValid_def 
+                         defined_def false_def true_def null_fun_def bot_fun_def])  
+                                       
+         show "profile_bin2 OclAppend (\<lambda>x y. Abs_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor>\<lfloor>\<lceil>\<lceil>Rep_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e x\<rceil>\<rceil> @ [y]\<rfloor>\<rfloor>)"
+         apply unfold_locales unfolding OclAppend_def 
+          apply(auto simp:OclIncluding_def bot_option_def null_option_def null_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def 
+               bot_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def)
+          apply(erule_tac Q="Abs_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor>\<lfloor>\<lceil>\<lceil>Rep_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e x\<rceil>\<rceil> @ [y]\<rfloor>\<rfloor> = Abs_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e None" 
+                in contrapos_pp)
+          apply(subst Abs_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inject [OF A])
+             apply(simp_all add:  null_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def bot_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def bot_option_def)
+         apply(erule_tac Q="Abs_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e\<lfloor>\<lfloor>\<lceil>\<lceil>Rep_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e x\<rceil>\<rceil> @ [y]\<rfloor>\<rfloor> = Abs_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor>None\<rfloor>" 
+               in contrapos_pp)
+         apply(subst Abs_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inject[OF A])
+            apply(simp_all add:  null_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def bot_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def bot_option_def null_option_def)
+         done
+qed
 
 subsection{* Definition: Union *}
 definition OclUnion   :: "[('\<AA>,'\<alpha>::null) Sequence,('\<AA>,'\<alpha>) Sequence] \<Rightarrow> ('\<AA>,'\<alpha>) Sequence"
 where     "OclUnion x y = (\<lambda> \<tau>. if (\<delta> x) \<tau> = true \<tau> \<and> (\<delta> y) \<tau> = true \<tau>
                                 then Abs_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor>\<lfloor> \<lceil>\<lceil>Rep_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e (x \<tau>)\<rceil>\<rceil> @
                                                         \<lceil>\<lceil>Rep_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e (y \<tau>)\<rceil>\<rceil>\<rfloor>\<rfloor>
-                                    else invalid \<tau> )"
+                                else invalid \<tau> )"
 notation   OclUnion   ("_->union\<^sub>S\<^sub>e\<^sub>q'(_')")
-(* TODO: Locale Setup. *)
 
-
-subsection{* Definition: SubSequence *}
-(*TODO.*)  
+interpretation OclUnion : 
+               profile_bin1 OclUnion "\<lambda>x y. Abs_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e\<lfloor>\<lfloor>\<lceil>\<lceil>Rep_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e x\<rceil>\<rceil> @ \<lceil>\<lceil>Rep_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e y\<rceil>\<rceil>\<rfloor>\<rfloor>"
+proof -  
+   have A : "\<And>x y. x \<noteq> \<bottom> \<Longrightarrow>  x \<noteq> null \<Longrightarrow> \<forall>x\<in>set \<lceil>\<lceil>Rep_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e x\<rceil>\<rceil>. x \<noteq> \<bottom> " 
+            apply(rule Sequence_inv_lemma[of \<tau>])
+            by(simp add: defined_def OclValid_def bot_fun_def null_fun_def false_def true_def)   
+   show "profile_bin1 OclUnion (\<lambda>x y. Abs_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e\<lfloor>\<lfloor>\<lceil>\<lceil>Rep_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e x\<rceil>\<rceil>@\<lceil>\<lceil>Rep_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e y\<rceil>\<rceil>\<rfloor>\<rfloor>)"
+   apply unfold_locales 
+   apply(auto simp:OclUnion_def bot_option_def null_option_def 
+                   null_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def bot_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def)
+   by(subst (asm) Abs_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inject,
+      simp_all add: bot_option_def null_option_def  Set.ball_Un A null_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def bot_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def)+
+qed
 
 subsection{* Definition: At *}
 definition OclAt   :: "[('\<AA>,'\<alpha>::null) Sequence,('\<AA>) Integer] \<Rightarrow> ('\<AA>,'\<alpha>) val"
@@ -256,36 +298,42 @@ where     "OclAt x y = (\<lambda> \<tau>. if (\<delta> x) \<tau> = true \<tau> \
                                   else invalid \<tau>
                              else invalid \<tau> )"
 notation   OclAt ("_->at\<^sub>S\<^sub>e\<^sub>q'(_')")
+(*TODO Locale.*)  
 
 
 subsection{* Definition: First *}
 definition OclFirst   :: "[('\<AA>,'\<alpha>::null) Sequence] \<Rightarrow> ('\<AA>,'\<alpha>) val"
-where     "OclFirst x = (\<lambda> \<tau>. if (\<delta> x) \<tau> = true \<tau>
-                                    then hd \<lceil>\<lceil>Rep_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e (x \<tau>)\<rceil>\<rceil> 
-                                    else invalid \<tau> )"
+where     "OclFirst x = (\<lambda> \<tau>. if (\<delta> x) \<tau> = true \<tau> then hd \<lceil>\<lceil>Rep_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e (x \<tau>)\<rceil>\<rceil>  else invalid \<tau> )"
 notation   OclFirst   ("_->first\<^sub>S\<^sub>e\<^sub>q'(_')")
+(*TODO Locale.*)  
 
 
 subsection{* Definition: Last *}
 definition OclLast   :: "[('\<AA>,'\<alpha>::null) Sequence] \<Rightarrow> ('\<AA>,'\<alpha>) val"
-where     "OclLast x = (\<lambda> \<tau>. if (\<delta> x) \<tau> = true \<tau>
-                                    then last \<lceil>\<lceil>Rep_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e (x \<tau>)\<rceil>\<rceil> 
-                                    else invalid \<tau> )"
+where     "OclLast x = (\<lambda> \<tau>. if (\<delta> x) \<tau> = true \<tau> then last \<lceil>\<lceil>Rep_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e (x \<tau>)\<rceil>\<rceil> else invalid \<tau> )"
 notation   OclLast   ("_->last\<^sub>S\<^sub>e\<^sub>q'(_')")
+(*TODO Locale.*)  
+
+subsection{* Definition: SubSequence *}
+(*TODO.*)  
 
 subsection{* Definition: Iterate *}
 
 definition OclIterate :: "[('\<AA>,'\<alpha>::null) Sequence,('\<AA>,'\<beta>::null)val,
                            ('\<AA>,'\<alpha>)val\<Rightarrow>('\<AA>,'\<beta>)val\<Rightarrow>('\<AA>,'\<beta>)val] \<Rightarrow> ('\<AA>,'\<beta>)val"
-where "OclIterate S A F = (\<lambda> \<tau>. if (\<delta> S) \<tau> = true \<tau> \<and> (\<upsilon> A) \<tau> = true \<tau> 
-                                  then (foldr (F) (map (\<lambda>a \<tau>. a) \<lceil>\<lceil>Rep_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e (S \<tau>)\<rceil>\<rceil>))(A)\<tau>
-                                  else \<bottom>)"
-syntax
+where     "OclIterate S A F = (\<lambda> \<tau>. if (\<delta> S) \<tau> = true \<tau> \<and> (\<upsilon> A) \<tau> = true \<tau> 
+                                    then (foldr (F) (map (\<lambda>a \<tau>. a) \<lceil>\<lceil>Rep_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e (S \<tau>)\<rceil>\<rceil>))(A)\<tau>
+                                    else \<bottom>)"
+syntax  
   "_OclIterateSeq"  :: "[('\<AA>,'\<alpha>::null) Sequence, idt, idt, '\<alpha>, '\<beta>] => ('\<AA>,'\<gamma>)val"
                         ("_ ->iterate\<^sub>S\<^sub>e\<^sub>q'(_;_=_ | _')" (*[71,100,70]50*))
 translations
   "X->iterate\<^sub>S\<^sub>e\<^sub>q(a; x = A | P)" == "CONST OclIterate X A (%a. (% x. P))"
 
+(*TODO Locale - Equivalent*)  
+
+  
+  
 subsection{* Definition: Forall *}
 definition OclForall     :: "[('\<AA>,'\<alpha>::null) Sequence,('\<AA>,'\<alpha>)val\<Rightarrow>('\<AA>)Boolean] \<Rightarrow> '\<AA> Boolean"
 where     "OclForall S P = (S->iterate\<^sub>S\<^sub>e\<^sub>q(b; x = true | x and (P b)))"
@@ -506,6 +554,8 @@ lemma equal_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e_code [code]:
 Assert   "\<tau> \<Turnstile> (Sequence{} \<doteq> Sequence{})" 
 Assert   "\<tau> \<Turnstile> (Sequence{\<one>,\<two>} \<triangleq> Sequence{}->prepend\<^sub>S\<^sub>e\<^sub>q(\<two>)->prepend\<^sub>S\<^sub>e\<^sub>q(\<one>))" 
 Assert   "\<tau> \<Turnstile> (Sequence{\<one>,invalid,\<two>} \<triangleq> invalid)"
+Assert   "\<tau> \<Turnstile> (Sequence{\<one>,\<two>}->prepend\<^sub>S\<^sub>e\<^sub>q(null) \<triangleq> Sequence{null,\<one>,\<two>})"
+Assert   "\<tau> \<Turnstile> (Sequence{\<one>,\<two>}->including\<^sub>S\<^sub>e\<^sub>q(null) \<triangleq> Sequence{\<one>,\<two>,null})"
 
 (* TODO Frederic ?:
 Assert   "\<not> (\<tau> \<Turnstile> (Sequence{\<one>,\<one>,\<two>} \<doteq> Sequence{\<one>,\<two>}))"
