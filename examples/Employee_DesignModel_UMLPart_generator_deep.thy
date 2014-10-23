@@ -123,8 +123,8 @@ Define_pre_post \<sigma>\<^sub>1 \<sigma>\<^sub>1'
 
 Context Person :: contents () : Set(Integer)
   Post : `result \<triangleq> if (self .boss \<doteq> null)
-                   then (Set{}->including(self .salary))
-                   else (self .boss .contents()->including(self .salary))
+                   then (Set{}->including\<^sub>S\<^sub>e\<^sub>t(self .salary))
+                   else (self .boss .contents()->including\<^sub>S\<^sub>e\<^sub>t(self .salary))
                    endif`
   Post : `true`
   Pre : `false`
