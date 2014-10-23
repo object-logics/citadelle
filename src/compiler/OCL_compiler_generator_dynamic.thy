@@ -1243,7 +1243,7 @@ val () =
        OCL.OclAstFlushAll (OCL.OclFlushAll))
 *}
 
-subsection{* Outer Syntax: Define_base, Instance, Define_state *}
+subsection{* Outer Syntax: \text{Define\_base}, Instance, \text{Define\_state} *}
 
 ML{*
 
@@ -1327,7 +1327,7 @@ val () =
 end
 *}
 
-subsection{* Outer Syntax: Define_pre_post *}
+subsection{* Outer Syntax: \text{Define\_pre\_post} *}
 
 ML{*
 val () =

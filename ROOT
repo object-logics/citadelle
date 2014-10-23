@@ -53,11 +53,10 @@ session "OCL-dirty" in "src" = HOL +
   files
     "document/root.tex"
     "document/root.bib"
-    "document/introduction.tex"
 
 
 session "OCL" in "src" = HOL +
-  description {* Featherweigt OCL *}
+  description {* Featherweight OCL *}
   options [document=pdf,document_output=document_generated,
            document_variants="annex-a=annexa,-theory,-afp,-proof,-ML:document=afp,-annexa:outline=-annexa,afp,/proof,/ML",
            show_question_marks = false]
@@ -69,27 +68,52 @@ session "OCL" in "src" = HOL +
   files
     "document/root.tex"
     "document/root.bib"
-    "document/introduction.tex"
 
 
-session "OCL-all" in src = HOL +
-  description {* HOL-TestGen *}
+(******************************************************)
+
+session "OCL-all-dirty" in "src" = HOL +
+  description {* Featherweight OCL (Long and Dirty) *}
   options [quick_and_dirty,document=pdf,document_output=document_generated,
-           document_variants="document:outline=/proof,/ML"]
+           document_variants="document=afp,-annexa",
+           show_question_marks = false]
   theories
     "../src/UML_Main"
+    "../src/basic_types/UML_UnlimitedNatural"
+
+    "../examples/empirical_evaluation/Class_model"
+
     "../examples/Employee_Model/Analysis/Analysis_OCL"
     "../examples/Employee_Model/Design/Design_OCL"
-(*    "../src/OCL_compiler_aux_proof"*)
-(*    "../src/OCL_compiler_aux_text"*)
-(*    "../src/OCL_compiler_generator_static"*)
-(*    "../src/OCL_compiler_generator_dynamic"*)
-(*    "../doc/Employee_AnalysisModel_UMLPart_generated"*)
-(*    "../doc/Employee_DesignModel_UMLPart_generated"*)
-(*    "../examples/OCL_basic_type_UnlimitedNatural"*)
-(*    "../examples/OCL_lib_Gogolla_challenge_integer"*)
+    "../doc/Employee_AnalysisModel_UMLPart_generated"
+    "../doc/Employee_DesignModel_UMLPart_generated"
+
+    (*"../examples/Bank_AnalysisModel"*)
+    (*"../examples/Employee_AnalysisModel_UMLPart_generator_deep"*)
+    "../examples/Employee_AnalysisModel_UMLPart_generator_shallow"
+    (*"../examples/Employee_DesignModel_UMLPart_generator_deep"*)
+    "../examples/Employee_DesignModel_UMLPart_generator_shallow"
+    (*"../examples/Flight_AnalysisModel"*)
+
+    "../src/compiler/OCL_compiler_aux_proof"
+    "../src/compiler/OCL_compiler_aux_text"
+
+    (*"../examples/OCL_lib_Gogolla_challenge_integer"*)
   files
     "document/root.tex"
     "document/root.bib"
-    "document/conclusion.tex"
-    "document/introduction.tex"
+
+
+(******************************************************)
+
+session "OCL-compiler" in "src" = HOL +
+  description {* Featherweight OCL (Compiler) *}
+  options [document=pdf,document_output=document_generated,
+           document_variants="document=afp,-annexa",
+           show_question_marks = false]
+  theories
+    "../src/compiler/OCL_compiler_generator_static"
+    "../src/compiler/OCL_compiler_generator_dynamic"
+  files
+    "document/root.tex"
+    "document/root.bib"

@@ -47,7 +47,7 @@ theory  OCL_compiler_meta_Pure
 imports "../OCL_compiler_init"
 begin
 
-section{* Lambda_pure Meta-Model aka. AST definition of Lambda_pure *}
+section{* \text{Lambda\_pure} Meta-Model aka. AST definition of \text{Lambda\_pure} *}
 
 subsection{* type definition *}
 

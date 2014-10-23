@@ -45,7 +45,7 @@
   \DeclareOldFontCommand{\it}{\normalfont\itshape}{\mathit}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\setcounter{tocdepth}{3} % printed TOC not too detailed 
+\setcounter{tocdepth}{3} % printed TOC not too detailed
 \hypersetup{bookmarksdepth=3} % more detailed digital TOC (aka bookmarks)
 \sloppy
 \allowdisplaybreaks[4]
@@ -90,7 +90,7 @@
 \DeclareMathOperator{\TCnull}{null}
 \DeclareMathOperator{\HolNull}{null}
 \DeclareMathOperator{\HolBot}{bot}
-\newcommand{\isaAA}{\mathfrak{A}} 
+\newcommand{\isaAA}{\mathfrak{A}}
 
 % urls in roman style, theory text in math-similar italics
 \urlstyle{rm}
@@ -105,6 +105,9 @@
 \renewcommand{\isamarkupsect}[1]{\subsection{#1}}
 \renewcommand{\isamarkupsubsect}[1]{\paragraph{#1}}
 \renewcommand{\isamarkupsubsubsect}[1]{\paragraph{#1}}
+\newenvironment{isamarkuplazy_text}{\par \isacommand{lazy{\isacharunderscore}text}\isamarkupfalse\isacharverbatimopen\isastyletext\begin{isapar}}{\end{isapar}\isacharverbatimclose}
+\renewcommand{\isasymguillemotleft}{\isatext{\textquotedblleft}}
+\renewcommand{\isasymguillemotright}{\isatext{\textquotedblright}}
 \begin{document}
 \renewcommand{\subsubsectionautorefname}{Section}
 \renewcommand{\subsectionautorefname}{Section}
@@ -150,7 +153,7 @@
 \endisatagannexa
 
 \isatagafp
-  \begin{abstract} 
+  \begin{abstract}
     The Unified Modeling Language (UML) is one of the few modeling
     languages that is widely used in industry. While UML is mostly known
     as diagrammatic modeling language (\eg, visualizing class models),
@@ -180,10 +183,10 @@
     class models that were annotated by code-invariants and code
     contracts.
 
-    Our formalization reveals several inconsistencies and contradictions 
-    in the current version of the OCL standard.  They reflect a challenge 
-    to define and implement OCL tools in a uniform manner.  Overall, this 
-    document is intended to provide the basis for a machine-checked text 
+    Our formalization reveals several inconsistencies and contradictions
+    in the current version of the OCL standard.  They reflect a challenge
+    to define and implement OCL tools in a uniform manner.  Overall, this
+    document is intended to provide the basis for a machine-checked text
     ``Annex A'' of the OCL standard targeting at tool implementors.
   \end{abstract}
   \tableofcontents
@@ -221,7 +224,7 @@
 \input{Analysis_OCL.tex}
 \endisatagannexa
 \isatagafp
-\input{conclusion} no conclusion for standard document 
+\input{conclusion} no conclusion for standard document
 \endisatagafp
 \bibliographystyle{abbrvnat}
 \bibliography{root}
