@@ -98,7 +98,7 @@ session "OCL-all-dirty" in "src" = HOL +
     "../src/compiler/OCL_compiler_aux_proof"
     "../src/compiler/OCL_compiler_aux_text"
 
-    (*"../examples/OCL_lib_Gogolla_challenge_integer"*)
+    "../examples/OCL_lib_Gogolla_challenge_integer"
   files
     "document/root.tex"
     "document/root.bib"
