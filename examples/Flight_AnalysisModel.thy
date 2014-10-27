@@ -146,8 +146,8 @@ Define_state \<sigma>\<^sub>1 =
 
 Define_state \<sigma>\<^sub>2 =
   [ defines [ S1
-            , C1
-            , ([ name = "Marie" , address = "Paris" , (**) flights = [ F1 , F2 ] , (**) clientreserv = self 7 ] :: Client)
+            , ([ name = "Peter" , address = "Dublin" , (**) flights = F1 , (**) clientreserv = R11 ] :: Client)
+            , ([ name = "Marie" , address = "Paris" , (**) flights = [ F1 , F2 ] , (**) clientreserv = [ self 4, self 7 ] ] :: Client)
             , R11
             , ([ ident = 98796 , (**) flight = F1 , (**) reservnext = self 7 ] :: Reservation)
             , F1
