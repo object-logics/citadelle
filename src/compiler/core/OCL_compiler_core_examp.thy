@@ -777,6 +777,7 @@ definition "print_pre_post_where = (\<lambda> OclDefPP s_pre s_post \<Rightarrow
            | (None, Some ocore) \<Rightarrow> (''OclIsNew'', [(ocore, s_post)])
      ; rbt = union rbt_pre rbt_post
      ; l_oid_of = keys (fold (\<lambda>_. \<lambda> OclDefCoreBinding (_, ocli) \<Rightarrow> insert (const_oid_of (datatype_name @@ isub_of_str (Inst_ty ocli))) ()
+                            | OclDefCoreAdd ocli \<Rightarrow> insert (const_oid_of (datatype_name @@ isub_of_str (Inst_ty ocli))) ()
                             | _ \<Rightarrow> id) rbt empty) in
    List_map
      (\<lambda>x_pers_oid.
