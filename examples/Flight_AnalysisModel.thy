@@ -170,4 +170,6 @@ Context r: Reservation
 
 (*generation_syntax deep flush_all*)
 
+lemmas [simp,code_unfold] = dot_accessor
+
 end

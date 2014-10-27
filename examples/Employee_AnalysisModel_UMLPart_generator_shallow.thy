@@ -134,4 +134,6 @@ Context Planet
             , 3.14159265
             , "abc", "\<AA>\<BB>\<CC>\<DD>\<EE>\<FF>" ]*)
 
+lemmas [simp,code_unfold] = dot_accessor
+
 end
