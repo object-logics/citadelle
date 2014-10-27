@@ -56,7 +56,7 @@ definition "OclCollect2 x y z w = (
                       ->iterate\<^sub>S\<^sub>e\<^sub>t(a; x = Set{} | x->including\<^sub>S\<^sub>e\<^sub>t(w a)))"
 notation  OclCollect2 ("_->collect\<^sub>S\<^sub>e\<^sub>t'(_,_,_')" (*[66,65]65*))
 
-generation_syntax [ deep
+generation_syntax [ (*deep
                       (generation_semantics [ analysis (*, oid_start 10*) ])
                       (THEORY Flight_AnalysisModel_generated)
                       (IMPORTS ["../src/UML_Main", "../src/compiler/OCL_compiler_static"]
@@ -64,7 +64,7 @@ generation_syntax [ deep
                       SECTION
                       [ in SML module_name M (no_signatures) ]
                       (output_directory "../doc")
-                  , shallow (generation_semantics [ analysis ]) ]
+                  ,*) shallow (generation_semantics [ analysis ]) ]
 
 Class Flight
   Attributes

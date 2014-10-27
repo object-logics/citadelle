@@ -51,7 +51,7 @@ imports
   "../src/compiler/OCL_compiler_generator_dynamic"
 begin
 
-generation_syntax [ deep
+generation_syntax [ (*deep
                       (generation_semantics [ analysis (*, oid_start 10*) ])
                       (THEORY Bank_AnalysisModel_generated)
                       (IMPORTS ["../src/UML_Main", "../src/compiler/OCL_compiler_static"]
@@ -59,7 +59,7 @@ generation_syntax [ deep
                       SECTION
                       [ in SML module_name M (no_signatures) ]
                       (output_directory "../doc")
-                  , shallow (generation_semantics [ analysis ]) ]
+                  ,*) shallow (generation_semantics [ analysis ]) ]
 
 Class Bank
   Attributes name : String
