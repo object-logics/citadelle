@@ -277,7 +277,7 @@ subsection{* Definition: At *}
 definition OclAt   :: "[('\<AA>,'\<alpha>::null) Sequence,('\<AA>) Integer] \<Rightarrow> ('\<AA>,'\<alpha>) val"
 where     "OclAt x y = (\<lambda> \<tau>. if (\<delta> x) \<tau> = true \<tau> \<and> (\<delta> y) \<tau> = true \<tau>
                              then if  1 \<le> \<lceil>\<lceil>y \<tau>\<rceil>\<rceil> \<and>  \<lceil>\<lceil>y \<tau>\<rceil>\<rceil> \<le> length\<lceil>\<lceil>Rep_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e (x \<tau>)\<rceil>\<rceil> 
-                                  then \<lceil>\<lceil>Rep_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e (x \<tau>)\<rceil>\<rceil> ! (nat \<lceil>\<lceil>y \<tau>\<rceil>\<rceil> + 1) 
+                                  then \<lceil>\<lceil>Rep_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e (x \<tau>)\<rceil>\<rceil> ! (nat \<lceil>\<lceil>y \<tau>\<rceil>\<rceil> - 1) 
                                   else invalid \<tau>
                              else invalid \<tau> )"
 notation   OclAt ("_->at\<^sub>S\<^sub>e\<^sub>q'(_')")
