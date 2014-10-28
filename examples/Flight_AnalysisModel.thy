@@ -51,11 +51,6 @@ imports
   "../src/compiler/OCL_compiler_generator_dynamic"
 begin
 
-definition "OclCollect2 x y z w = (
-  (y .allInstances()) ->select\<^sub>S\<^sub>e\<^sub>t(c | x->includesAll\<^sub>S\<^sub>e\<^sub>t(z c))
-                      ->iterate\<^sub>S\<^sub>e\<^sub>t(a; x = Set{} | x->including\<^sub>S\<^sub>e\<^sub>t(w a)))"
-notation  OclCollect2 ("_->collect\<^sub>S\<^sub>e\<^sub>t'(_,_,_')" (*[66,65]65*))
-
 generation_syntax [ (*deep
                       (generation_semantics [ analysis (*, oid_start 10*) ])
                       (THEORY Flight_AnalysisModel_generated)
@@ -160,8 +155,7 @@ Context f: Flight
   Inv A : `\<zero> <\<^sub>i\<^sub>n\<^sub>t (f .seats)`
   Inv B : `f .flightreserv ->size\<^sub>S\<^sub>e\<^sub>t() \<le>\<^sub>i\<^sub>n\<^sub>t (f .seats)`
   (*Inv C : `f .passengers ->select\<^sub>S\<^sub>e\<^sub>t(p | p .oclIsTypeOf(Client))
-                          \<doteq> ((f .flightreserv)->collect\<^sub>S\<^sub>e\<^sub>t(Client,(\<lambda>c. (c .clientreserv))
-                                                                ,(\<lambda>a. (a .oclAsType(Person)))))`*)
+                          \<doteq> ((f .flightreserv)->asSequence\<^sub>S\<^sub>e\<^sub>t()->collect\<^sub>S\<^sub>e\<^sub>q(c | c .oclAsType(Person))->asSet\<^sub>S\<^sub>e\<^sub>q())`*)
 
 Context r: Reservation
   Inv A : `\<zero> <\<^sub>i\<^sub>n\<^sub>t (r .ident)`
