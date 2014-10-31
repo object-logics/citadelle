@@ -60,7 +60,7 @@ propagation, context-passingness and constance in a systematic way.
 
 subsection{* Property Profiles for Monadic Operators *}
 
-locale profile_mono_schemeD =
+locale profile_mono_scheme_defined =
    fixes f :: "('\<AA>,'\<alpha>::null)val \<Rightarrow> ('\<AA>,'\<beta>::null)val"
    fixes g
    assumes def_scheme: "(f x) \<equiv> \<lambda> \<tau>. if (\<delta> x) \<tau> = true \<tau> then g (x \<tau>) else invalid \<tau>"
@@ -95,7 +95,7 @@ begin
     
 end
 
-locale profile_mono2 = profile_mono_schemeD +
+locale profile_mono\<^sub>d = profile_mono_scheme_defined +
    assumes "\<And> x. x \<noteq> bot \<Longrightarrow> x \<noteq> null \<Longrightarrow> g x \<noteq> bot"
 begin
   
@@ -108,10 +108,10 @@ begin
       qed  
 end
 
-locale profile_mono0 = profile_mono_schemeD +
+locale profile_mono0 = profile_mono_scheme_defined +
    assumes def_body:  "\<And> x. x \<noteq> bot \<Longrightarrow> x \<noteq> null \<Longrightarrow> g x \<noteq> bot \<and> g x \<noteq> null"
 
-sublocale profile_mono0 < profile_mono2
+sublocale profile_mono0 < profile_mono\<^sub>d
 by(unfold_locales, simp add: def_scheme, simp add: def_body)
 
 context profile_mono0
@@ -267,7 +267,7 @@ proof -
  by(simp add: true_def)+
 qed
 
-locale profile_bin1 =
+locale profile_bin\<^sub>d_\<^sub>d =
    fixes f::"('\<AA>,'a::null)val \<Rightarrow> ('\<AA>,'b::null)val \<Rightarrow> ('\<AA>,'c::null)val"
    fixes g
    assumes def_scheme[simplified]: "bin f g defined defined X Y"
@@ -278,7 +278,7 @@ begin
       by(rule ext, simp add: def_scheme true_def false_def)
 end
 
-sublocale profile_bin1 < profile_bin_scheme_defined defined
+sublocale profile_bin\<^sub>d_\<^sub>d < profile_bin_scheme_defined defined
  apply(unfold_locales)
       apply(simp)+
      apply(subst cp_defined, simp)+
@@ -290,13 +290,13 @@ sublocale profile_bin1 < profile_bin_scheme_defined defined
  apply(rule def_body, simp_all add: true_def false_def split:split_if_asm)
 done
 
-locale profile_bin2 =
+locale profile_bin\<^sub>d_\<^sub>v =
    fixes f::"('\<AA>,'a::null)val \<Rightarrow> ('\<AA>,'b::null)val \<Rightarrow> ('\<AA>,'c::null)val"
    fixes g
    assumes def_scheme[simplified]: "bin f g defined valid X Y"
    assumes def_body:  "\<And> x y. x\<noteq>bot \<Longrightarrow> x\<noteq>null \<Longrightarrow> y\<noteq>bot \<Longrightarrow> g x y \<noteq> bot \<and> g x y \<noteq> null"
 
-sublocale profile_bin2 < profile_bin_scheme_defined valid
+sublocale profile_bin\<^sub>d_\<^sub>v < profile_bin_scheme_defined valid
  apply(unfold_locales)
       apply(simp)
      apply(subst cp_valid, simp)
@@ -306,11 +306,11 @@ sublocale profile_bin2 < profile_bin_scheme_defined valid
   apply(simp add: def_scheme)
  by (metis OclValid_def def_body foundation18')
  
-locale profile_bin3 =
+locale profile_bin\<^sub>S\<^sub>t\<^sub>r\<^sub>o\<^sub>n\<^sub>g\<^sub>E\<^sub>q_\<^sub>v_\<^sub>v =
    fixes f :: "('\<AA>,'\<alpha>::null)val \<Rightarrow> ('\<AA>,'\<alpha>::null)val \<Rightarrow> ('\<AA>) Boolean"
    assumes def_scheme[simplified]: "bin' f StrongEq valid valid X Y"
 
-sublocale profile_bin3 < profile_bin_scheme valid valid f "\<lambda>x y. \<lfloor>\<lfloor>x = y\<rfloor>\<rfloor>"
+sublocale profile_bin\<^sub>S\<^sub>t\<^sub>r\<^sub>o\<^sub>n\<^sub>g\<^sub>E\<^sub>q_\<^sub>v_\<^sub>v < profile_bin_scheme valid valid f "\<lambda>x y. \<lfloor>\<lfloor>x = y\<rfloor>\<rfloor>"
  apply(unfold_locales)
       apply(simp)
      apply(subst cp_valid, simp)
@@ -319,7 +319,7 @@ sublocale profile_bin3 < profile_bin_scheme valid valid f "\<lambda>x y. \<lfloo
   apply(simp add: def_scheme, subst StrongEq_def, simp)
  by (metis OclValid_def def_scheme defined7 foundation16)
 
-context profile_bin3
+context profile_bin\<^sub>S\<^sub>t\<^sub>r\<^sub>o\<^sub>n\<^sub>g\<^sub>E\<^sub>q_\<^sub>v_\<^sub>v
    begin
       lemma idem[simp,code_unfold]: " f null null = true"
       by(rule ext, simp add: def_scheme true_def false_def)
@@ -358,13 +358,13 @@ context profile_bin3
    end
 
    
-locale profile_bin4 =
+locale profile_bin\<^sub>v_\<^sub>v =
    fixes f :: "('\<AA>,'\<alpha>::null)val \<Rightarrow> ('\<AA>,'\<beta>::null)val \<Rightarrow> ('\<AA>,'\<gamma>::null)val"
    fixes g
    assumes def_scheme[simplified]: "bin f g valid valid X Y"
    assumes def_body:  "\<And> x y. x\<noteq>bot \<Longrightarrow> y\<noteq>bot \<Longrightarrow> g x y \<noteq> bot \<and> g x y \<noteq> null"
 
-sublocale profile_bin4 < profile_bin_scheme valid valid
+sublocale profile_bin\<^sub>v_\<^sub>v < profile_bin_scheme valid valid
  apply(unfold_locales)
          apply(simp, subst cp_valid, simp, rule const_valid, simp)+
    apply (metis (hide_lams, mono_tags) OclValid_def def_scheme defined5 defined6 defined_and_I 

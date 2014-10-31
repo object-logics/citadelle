@@ -88,8 +88,8 @@ this invariant (the WFF-invariant), the referential equality and the
 strong equality---and therefore the strict equality on sequences in the sense above---coincides.*}
 text_raw{* \endisatagafp *}
 
-text{* Property proof in terms of @{term "profile_bin3"}*}
-interpretation  StrictRefEq\<^sub>S\<^sub>e\<^sub>q : profile_bin3 "\<lambda> x y. (x::('\<AA>,'\<alpha>::null)Sequence) \<doteq> y" 
+text{* Property proof in terms of @{term "profile_bin\<^sub>S\<^sub>t\<^sub>r\<^sub>o\<^sub>n\<^sub>g\<^sub>E\<^sub>q_\<^sub>v_\<^sub>v"}*}
+interpretation  StrictRefEq\<^sub>S\<^sub>e\<^sub>q : profile_bin\<^sub>S\<^sub>t\<^sub>r\<^sub>o\<^sub>n\<^sub>g\<^sub>E\<^sub>q_\<^sub>v_\<^sub>v "\<lambda> x y. (x::('\<AA>,'\<alpha>::null)Sequence) \<doteq> y" 
                 by unfold_locales (auto simp:  StrictRefEq\<^sub>S\<^sub>e\<^sub>q)
 
 
@@ -131,14 +131,14 @@ where     "OclPrepend x y = (\<lambda> \<tau>. if (\<delta> x) \<tau> = true \<t
                                     else invalid \<tau> )"
 notation   OclPrepend   ("_->prepend\<^sub>S\<^sub>e\<^sub>q'(_')")
 
-interpretation OclPrepend:profile_bin2 OclPrepend "\<lambda>x y. Abs_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e\<lfloor>\<lfloor>y#\<lceil>\<lceil>Rep_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e x\<rceil>\<rceil>\<rfloor>\<rfloor>"
+interpretation OclPrepend:profile_bin\<^sub>d_\<^sub>v OclPrepend "\<lambda>x y. Abs_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e\<lfloor>\<lfloor>y#\<lceil>\<lceil>Rep_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e x\<rceil>\<rceil>\<rfloor>\<rfloor>"
 proof -  
  have A : "\<And>x y. x \<noteq> bot \<Longrightarrow> x \<noteq> null \<Longrightarrow>  y \<noteq> bot  \<Longrightarrow>
            \<lfloor>\<lfloor>y#\<lceil>\<lceil>Rep_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e x\<rceil>\<rceil>\<rfloor>\<rfloor> \<in> {X. X = bot \<or> X = null \<or> (\<forall>x\<in>set \<lceil>\<lceil>X\<rceil>\<rceil>. x \<noteq> bot)}"
           by(auto intro!:Sequence_inv_lemma[simplified OclValid_def 
                          defined_def false_def true_def null_fun_def bot_fun_def])  
                                        
-         show "profile_bin2 OclPrepend (\<lambda>x y. Abs_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor>\<lfloor>y#\<lceil>\<lceil>Rep_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e x\<rceil>\<rceil>\<rfloor>\<rfloor>)"
+         show "profile_bin\<^sub>d_\<^sub>v OclPrepend (\<lambda>x y. Abs_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor>\<lfloor>y#\<lceil>\<lceil>Rep_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e x\<rceil>\<rceil>\<rfloor>\<rfloor>)"
          apply unfold_locales  
           apply(auto simp:OclPrepend_def bot_option_def null_option_def null_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def 
                bot_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def)
@@ -169,14 +169,14 @@ where     "OclIncluding x y = (\<lambda> \<tau>. if (\<delta> x) \<tau> = true \
 notation   OclIncluding   ("_->including\<^sub>S\<^sub>e\<^sub>q'(_')")
 
 interpretation OclIncluding : 
-               profile_bin2 OclIncluding "\<lambda>x y. Abs_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e\<lfloor>\<lfloor>\<lceil>\<lceil>Rep_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e x\<rceil>\<rceil> @ [y]\<rfloor>\<rfloor>"
+               profile_bin\<^sub>d_\<^sub>v OclIncluding "\<lambda>x y. Abs_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e\<lfloor>\<lfloor>\<lceil>\<lceil>Rep_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e x\<rceil>\<rceil> @ [y]\<rfloor>\<rfloor>"
 proof -  
  have A : "\<And>x y. x \<noteq> bot \<Longrightarrow> x \<noteq> null \<Longrightarrow>  y \<noteq> bot  \<Longrightarrow>
            \<lfloor>\<lfloor>\<lceil>\<lceil>Rep_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e x\<rceil>\<rceil> @ [y]\<rfloor>\<rfloor> \<in> {X. X = bot \<or> X = null \<or> (\<forall>x\<in>set \<lceil>\<lceil>X\<rceil>\<rceil>. x \<noteq> bot)}"
           by(auto intro!:Sequence_inv_lemma[simplified OclValid_def 
                          defined_def false_def true_def null_fun_def bot_fun_def])  
                                        
-         show "profile_bin2 OclIncluding (\<lambda>x y. Abs_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor>\<lfloor>\<lceil>\<lceil>Rep_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e x\<rceil>\<rceil> @ [y]\<rfloor>\<rfloor>)"
+         show "profile_bin\<^sub>d_\<^sub>v OclIncluding (\<lambda>x y. Abs_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor>\<lfloor>\<lceil>\<lceil>Rep_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e x\<rceil>\<rceil> @ [y]\<rfloor>\<rfloor>)"
          apply unfold_locales  
           apply(auto simp:OclIncluding_def bot_option_def null_option_def null_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def 
                bot_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def)
@@ -228,10 +228,10 @@ where     "OclExcluding x y = (\<lambda> \<tau>. if (\<delta> x) \<tau> = true \
                                     else invalid \<tau> )"
 notation   OclExcluding   ("_->excluding\<^sub>S\<^sub>e\<^sub>q'(_')")
 
-interpretation OclExcluding:profile_bin2 OclExcluding 
+interpretation OclExcluding:profile_bin\<^sub>d_\<^sub>v OclExcluding 
                           "\<lambda>x y. Abs_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor>\<lfloor> filter (\<lambda>x. x = y) \<lceil>\<lceil>Rep_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e (x)\<rceil>\<rceil>\<rfloor>\<rfloor>"
 proof -
-    show "profile_bin2 OclExcluding (\<lambda>x y. Abs_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor>\<lfloor>[x\<leftarrow>\<lceil>\<lceil>Rep_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e x\<rceil>\<rceil> . x = y]\<rfloor>\<rfloor>)"
+    show "profile_bin\<^sub>d_\<^sub>v OclExcluding (\<lambda>x y. Abs_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor>\<lfloor>[x\<leftarrow>\<lceil>\<lceil>Rep_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e x\<rceil>\<rceil> . x = y]\<rfloor>\<rfloor>)"
          apply unfold_locales  
          apply(auto simp:OclExcluding_def bot_option_def null_option_def  
                          null_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def bot_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def)
@@ -246,7 +246,7 @@ definition OclAppend   :: "[('\<AA>,'\<alpha>::null) Sequence,('\<AA>,'\<alpha>)
 where     "OclAppend = OclIncluding"
 
 interpretation OclAppend : 
-               profile_bin2 OclAppend "\<lambda>x y. Abs_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e\<lfloor>\<lfloor>\<lceil>\<lceil>Rep_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e x\<rceil>\<rceil> @ [y]\<rfloor>\<rfloor>"
+               profile_bin\<^sub>d_\<^sub>v OclAppend "\<lambda>x y. Abs_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e\<lfloor>\<lfloor>\<lceil>\<lceil>Rep_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e x\<rceil>\<rceil> @ [y]\<rfloor>\<rfloor>"
          apply unfold_locales
  by(auto simp: OclAppend_def bin_def bin'_def
                OclIncluding.def_scheme OclIncluding.def_body)
@@ -260,12 +260,12 @@ where     "OclUnion x y = (\<lambda> \<tau>. if (\<delta> x) \<tau> = true \<tau
 notation   OclUnion   ("_->union\<^sub>S\<^sub>e\<^sub>q'(_')")
 
 interpretation OclUnion : 
-               profile_bin1 OclUnion "\<lambda>x y. Abs_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e\<lfloor>\<lfloor>\<lceil>\<lceil>Rep_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e x\<rceil>\<rceil> @ \<lceil>\<lceil>Rep_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e y\<rceil>\<rceil>\<rfloor>\<rfloor>"
+               profile_bin\<^sub>d_\<^sub>d OclUnion "\<lambda>x y. Abs_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e\<lfloor>\<lfloor>\<lceil>\<lceil>Rep_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e x\<rceil>\<rceil> @ \<lceil>\<lceil>Rep_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e y\<rceil>\<rceil>\<rfloor>\<rfloor>"
 proof -  
    have A : "\<And>x y. x \<noteq> \<bottom> \<Longrightarrow>  x \<noteq> null \<Longrightarrow> \<forall>x\<in>set \<lceil>\<lceil>Rep_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e x\<rceil>\<rceil>. x \<noteq> \<bottom> " 
             apply(rule Sequence_inv_lemma[of \<tau>])
             by(simp add: defined_def OclValid_def bot_fun_def null_fun_def false_def true_def)   
-   show "profile_bin1 OclUnion (\<lambda>x y. Abs_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e\<lfloor>\<lfloor>\<lceil>\<lceil>Rep_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e x\<rceil>\<rceil>@\<lceil>\<lceil>Rep_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e y\<rceil>\<rceil>\<rfloor>\<rfloor>)"
+   show "profile_bin\<^sub>d_\<^sub>d OclUnion (\<lambda>x y. Abs_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e\<lfloor>\<lfloor>\<lceil>\<lceil>Rep_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e x\<rceil>\<rceil>@\<lceil>\<lceil>Rep_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e y\<rceil>\<rceil>\<rfloor>\<rfloor>)"
    apply unfold_locales 
    apply(auto simp:OclUnion_def bot_option_def null_option_def 
                    null_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def bot_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def)
