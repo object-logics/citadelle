@@ -97,7 +97,7 @@ Association flights
   Between Flight      [1]
             Role flight
           Reservation [0 \<bullet>\<bullet> *]
-            Role flightreserv
+            Role flightreserv Sequence_
 End
 
 Association reservations
@@ -155,7 +155,7 @@ Context f: Flight
   Inv A : `\<zero> <\<^sub>i\<^sub>n\<^sub>t (f .seats)`
   Inv B : `f .flightreserv ->size\<^sub>S\<^sub>e\<^sub>t() \<le>\<^sub>i\<^sub>n\<^sub>t (f .seats)`
   (*Inv C : `f .passengers ->select\<^sub>S\<^sub>e\<^sub>t(p | p .oclIsTypeOf(Client))
-                          \<doteq> ((f .flightreserv)->asSequence\<^sub>S\<^sub>e\<^sub>t()->collect\<^sub>S\<^sub>e\<^sub>q(c | c .oclAsType(Person))->asSet\<^sub>S\<^sub>e\<^sub>q())`*)
+                          \<doteq> ((f .flightreserv)->collect\<^sub>S\<^sub>e\<^sub>q(c | c .oclAsType(Person))->asSet\<^sub>S\<^sub>e\<^sub>q())`*)
 
 Context r: Reservation
   Inv A : `\<zero> <\<^sub>i\<^sub>n\<^sub>t (r .ident)`
