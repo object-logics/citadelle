@@ -58,6 +58,7 @@ datatype ocl_multiplicity_single = Mult_nat nat
                                  | Mult_star
 
 datatype ocl_multiplicity = OclMult "(ocl_multiplicity_single \<times> ocl_multiplicity_single option) list"
+                                    ocl_collection (* return type of the association *)
 
 record ocl_ty_class_node =  TyObjN_ass_switch :: nat
                             TyObjN_role_multip :: ocl_multiplicity
@@ -121,7 +122,7 @@ definition "const_oid = ''oid''"
 definition "const_oid_list = ''list''"
 definition "const_oclany = ''OclAny''"
 
-definition "single_multip = (\<lambda> OclMult l \<Rightarrow>
+definition "single_multip = (\<lambda> OclMult l _ \<Rightarrow>
   List.list_all (\<lambda> (_, Some (Mult_nat n)) \<Rightarrow> n \<le> 1
                  | (Mult_nat n, None) \<Rightarrow> n \<le> 1
                  | _ \<Rightarrow> False) l)"

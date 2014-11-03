@@ -249,30 +249,35 @@ definition "print_access_select_object = start_map'''' Thy_definition_hol o (\<l
                              , b var_l ] ]])))
   #
    (if design_analysis = Gen_design then
-  [ bug_ocaml_extraction
-    (let var_f = ''f''
+    let f1 = \<lambda>var_select_object_name var_mt var_OclIncluding.
+     let var_f = ''f''
        ; var_p = ''p''
        ; a = \<lambda>f x. Expr_apply f [x]
        ; b = \<lambda>s. Expr_basic [s] in
     Definition
       (Expr_rewrite
-        (Expr_basic [var_select_object_set, var_f, var_p])
+        (Expr_basic [var_select_object_name, var_f, var_p])
         ''=''
         (Expr_apply var_select_object
-           [ b ''mtSet''
+           [ b var_mt
            , b var_OclIncluding
            , b ''id''
-           , a var_f (b var_p)])))
-  , (let var_f = ''f''
+           , a var_f (b var_p)]))
+      ; f2 = \<lambda> var_select_object_name_any var_ANY var_select_object_name.
+     let var_f = ''f''
        ; var_p = ''p''
        ; var_s_set = ''s_set''
        ; a = \<lambda>f x. Expr_apply f [x]
        ; b = \<lambda>s. Expr_basic [s] in
     Definition
       (Expr_rewrite
-        (Expr_basic [var_select_object_set_any, var_f, var_p, var_s_set])
+        (Expr_basic [var_select_object_name_any, var_f, var_p, var_s_set])
         ''=''
-        (a ''OclANY'' (Expr_apply var_select_object_set (List_map b [var_f, var_p, var_s_set]))))) ]
+        (a var_ANY (Expr_apply var_select_object_name (List_map b [var_f, var_p, var_s_set])))) in
+  [ f1 var_select_object_set var_mt_set var_OclIncluding_set
+  , f2 var_select_object_set_any var_ANY_set var_select_object_set
+  , f1 var_select_object_sequence var_mt_sequence var_OclIncluding_sequence
+  , f2 var_select_object_sequence_any var_ANY_sequence var_select_object_sequence ]
     else [])) expr)"
 
 definition "print_access_select = start_map'' Thy_definition_hol o (\<lambda>expr base_attr _ base_attr''.
@@ -355,11 +360,16 @@ definition "print_access_select_obj = start_map'''' Thy_definition_hol o (\<lamb
                   (Expr_basic [isub_name var_select @@ isup_of_str attr, var_f])
                   ''=''
                   (Expr_apply var_select_object
-                    [ b ''mtSet''
+                   (bug_ocaml_extraction
+                   (let obj_mult = TyObjN_role_multip (TyObj_to ty_obj)
+                      ; (var_mt, var_OclIncluding, var_ANY) =
+                          case obj_mult of OclMult _ Set \<Rightarrow> (var_mt_set, var_OclIncluding_set, var_ANY_set)
+                                         | _ \<Rightarrow> (var_mt_sequence, var_OclIncluding_sequence, var_ANY_sequence) in
+                    [ b var_mt
                     , b var_OclIncluding
-                    , b (if single_multip (TyObjN_role_multip (TyObj_to ty_obj)) then ''OclANY'' else ''id'')
+                    , b (if single_multip obj_mult then var_ANY else ''id'')
                     , Expr_apply var_f [let var_x = ''x'' in
-                                        Expr_lambdas [var_x, wildcard] (Expr_some (Expr_some (Expr_basic [var_x])))]]))], insert2 (name, attr) () rbt)
+                                        Expr_lambdas [var_x, wildcard] (Expr_some (Expr_some (Expr_basic [var_x])))]]))))], insert2 (name, attr) () rbt)
          else ([], rbt)
        | _ \<Rightarrow> Pair []))
       (l_attr # l_inh) empty))) expr)))) expr)"
@@ -445,10 +455,14 @@ definition "print_access_dot = start_map'''' Thy_defs_overloaded o (\<lambda>exp
                              let ty_obj = TyObj_to ty_obj
                                ; der_name = deref_oid (Some (TyObjN_role_ty ty_obj)) [] in
                              if design_analysis = Gen_design then
-                               Expr_apply (if single_multip (TyObjN_role_multip ty_obj) then
-                                             var_select_object_set_any
+                               let mult_obj = TyObjN_role_multip ty_obj
+                                 ; (var_select_object_name_any, var_select_object_name) = 
+                                     case mult_obj of OclMult _ Set \<Rightarrow> (var_select_object_set_any, var_select_object_set)
+                                                    | _ \<Rightarrow> (var_select_object_sequence_any, var_select_object_sequence) in
+                               Expr_apply (if single_multip mult_obj then
+                                             var_select_object_name_any
                                            else
-                                             var_select_object_set) [der_name]
+                                             var_select_object_name) [der_name]
                              else
                                der_name]) ] ])) ]) expr)"
 

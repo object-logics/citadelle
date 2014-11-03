@@ -372,7 +372,7 @@ definition "check_single_ty rbt_init rbt' l_attr_gen l_oid x =
     flatten [ acc
             , check_single
                 ((snd o s'') name, x, l_oid)
-                ((snd o s') (case (mult_from, mult_to) of (OclMult mult_from, OclMult mult_to) \<Rightarrow> [mult_from, mult_to]))
+                ((snd o s') (case (mult_from, mult_to) of (OclMult mult_from _, OclMult mult_to _) \<Rightarrow> [mult_from, mult_to]))
                 l]))"
 
 definition "print_examp_instance_defassoc_typecheck_gen name l_ocli ocl =

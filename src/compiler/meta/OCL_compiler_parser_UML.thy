@@ -149,7 +149,9 @@ definition "i_of_ocl_multiplicity_single a b = ocl_multiplicity_single_rec
   (b ''Mult_star'')"
 
 definition "i_of_ocl_multiplicity a b = ocl_multiplicity_rec
-  (ap1 a (b ''OclMult'') (i_of_list a b (i_of_pair a b (i_of_ocl_multiplicity_single a b) (i_of_option a b (i_of_ocl_multiplicity_single a b)))))"
+  (ap2 a (b ''OclMult'')
+    (i_of_list a b (i_of_pair a b (i_of_ocl_multiplicity_single a b) (i_of_option a b (i_of_ocl_multiplicity_single a b))))
+    (i_of_ocl_collection b))"
 
 definition "i_of_ocl_ty_class_node a b f = ocl_ty_class_node_rec
   (ap5 a (b (ext ''ocl_ty_class_node_ext''))

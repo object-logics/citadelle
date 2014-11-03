@@ -53,6 +53,7 @@ imports OCL_compiler_printer
            "Existential" "Inv" "Pre" "Post"
            (* ocl (added) *)
            "skip" "self"
+           "Nonunique" "Sequence_"
 
            (* hol syntax *)
            "output_directory"
@@ -996,7 +997,7 @@ structure USE_parse = struct
                     | OclTypeCollectionSequence of use_oclty
                     | OclTypeRaw of binding (* FIXME use 'string' and Parse.typ *)
 
- datatype use_opt = Ordered | Subsets of binding | Union | Redefines of binding | Derived of string | Qualifier of (binding * use_oclty) list
+ datatype use_opt = Ordered (* ordered set *) | Subsets of binding | Union | Redefines of binding | Derived of string | Qualifier of (binding * use_oclty) list | Nonunique (* bag *) | Sequence
  datatype use_operation_def = Expression of string | BlockStat
 
  fun from_oclty v = (fn OclTypeBaseVoid    => OCL.OclTy_base_void
@@ -1041,7 +1042,9 @@ structure USE_parse = struct
                    || @{keyword "Union"} >> K Union
                    || @{keyword "Redefines"} |-- Parse.binding >> Redefines
                    || @{keyword "Derived"} -- Parse.$$$ "=" |-- use_expression >> Derived
-                   || @{keyword "Qualifier"} |-- use_paramList >> Qualifier)
+                   || @{keyword "Qualifier"} |-- use_paramList >> Qualifier
+                   || @{keyword "Nonunique"} >> K Nonunique
+                   || @{keyword "Sequence_"} >> K Sequence)
    --| optional Parse.semicolon
  val use_blockStat = Parse.alt_string
  val use_prePostClause =
@@ -1144,8 +1147,11 @@ structure Outer_syntax_Association = struct
   fun make ass_ty l =
     OCL.Ocl_association_ext
         ( ass_ty
-        , List.map (fn (((cl_from, cl_mult), o_cl_attr), _) =>
-            (From.from_binding cl_from, (OCL.OclMult (List.map (From.from_pair mk_mult (From.from_option mk_mult)) cl_mult), From.from_option From.from_binding o_cl_attr))) l
+        , List.map (fn (((cl_from, cl_mult), o_cl_attr), l_set) =>
+            ( From.from_binding cl_from
+            , ( OCL.OclMult ( List.map (From.from_pair mk_mult (From.from_option mk_mult)) cl_mult
+                            , if l_set = [] then OCL.Set else OCL.Sequence)
+              , From.from_option From.from_binding o_cl_attr))) l
         , From.from_unit ())
 end
 
