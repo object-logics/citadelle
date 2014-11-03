@@ -191,12 +191,12 @@ proof -
          done
 qed
 
-lemma [simp] : "(Sequence{}->including\<^sub>S\<^sub>e\<^sub>q(a)) = (Sequence{}->prepend\<^sub>S\<^sub>e\<^sub>q(a))"
+lemma [simp,code_unfold] : "(Sequence{}->including\<^sub>S\<^sub>e\<^sub>q(a)) = (Sequence{}->prepend\<^sub>S\<^sub>e\<^sub>q(a))"
   apply(simp add: OclIncluding_def OclPrepend_def mtSequence_def)
   apply(subst (1 2) Abs_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inverse, simp)
 by(metis drop.simps append_Nil)
 
-lemma [simp] : "((S->prepend\<^sub>S\<^sub>e\<^sub>q(a))->including\<^sub>S\<^sub>e\<^sub>q(b)) = ((S->including\<^sub>S\<^sub>e\<^sub>q(b))->prepend\<^sub>S\<^sub>e\<^sub>q(a))"
+lemma [simp,code_unfold] : "((S->prepend\<^sub>S\<^sub>e\<^sub>q(a))->including\<^sub>S\<^sub>e\<^sub>q(b)) = ((S->including\<^sub>S\<^sub>e\<^sub>q(b))->prepend\<^sub>S\<^sub>e\<^sub>q(a))"
  proof -
   have A: "\<And>S b \<tau>. S \<noteq> \<bottom> \<Longrightarrow> S \<noteq> null \<Longrightarrow> b \<noteq> \<bottom>  \<Longrightarrow>
                    \<lfloor>\<lfloor>\<lceil>\<lceil>Rep_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e S\<rceil>\<rceil> @ [b]\<rfloor>\<rfloor> \<in> {X. X = bot \<or> X = null \<or> (\<forall>x\<in>set \<lceil>\<lceil>X\<rceil>\<rceil>. x \<noteq> \<bottom>)}"
@@ -244,6 +244,7 @@ subsection{* Definition: Append *}
 text{* Identical to OclIncluding. *}
 definition OclAppend   :: "[('\<AA>,'\<alpha>::null) Sequence,('\<AA>,'\<alpha>) val] \<Rightarrow> ('\<AA>,'\<alpha>) Sequence"
 where     "OclAppend = OclIncluding"
+notation   OclAppend   ("_->append\<^sub>S\<^sub>e\<^sub>q'(_')")
 
 interpretation OclAppend : 
                profile_bin\<^sub>d_\<^sub>v OclAppend "\<lambda>x y. Abs_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e\<lfloor>\<lfloor>\<lceil>\<lceil>Rep_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e x\<rceil>\<rceil> @ [y]\<rfloor>\<rfloor>"
