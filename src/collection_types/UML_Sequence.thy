@@ -496,10 +496,12 @@ qed
 (* < *)
 
 subsection{* Test Statements *}
-
-(*TODO.*)  
-  
-(* open problem: An executable code-generator setup for the Sequence type. Some bits and pieces
+(*
+Assert   "(\<tau> \<Turnstile> (Sequence{\<lambda>_. \<lfloor>\<lfloor>x\<rfloor>\<rfloor>} \<doteq> Sequence{\<lambda>_. \<lfloor>\<lfloor>x\<rfloor>\<rfloor>}))"
+Assert   "(\<tau> \<Turnstile> (Sequence{\<lambda>_. \<lfloor>x\<rfloor>} \<doteq> Sequence{\<lambda>_. \<lfloor>x\<rfloor>}))"
+*)
+(* (*TODO.*)  
+open problem: An executable code-generator setup for the Sequence type. Some bits and pieces
 so far : 
 instantiation int :: equal
 begin

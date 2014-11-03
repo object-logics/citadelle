@@ -3122,6 +3122,55 @@ subsection{* Test Statements *}
 
 Assert   "(\<tau> \<Turnstile> (Set{\<lambda>_. \<lfloor>\<lfloor>x\<rfloor>\<rfloor>} \<doteq> Set{\<lambda>_. \<lfloor>\<lfloor>x\<rfloor>\<rfloor>}))"
 Assert   "(\<tau> \<Turnstile> (Set{\<lambda>_. \<lfloor>x\<rfloor>} \<doteq> Set{\<lambda>_. \<lfloor>x\<rfloor>}))"
+
+(* (*TODO.*)  
+open problem: An executable code-generator setup for the Set type. Some bits and pieces
+so far : 
+instantiation int :: equal
+begin
+
+definition
+  "HOL.equal k l \<longleftrightarrow> k = (l::int)"
+
+instance by default (rule equal_int_def)
+
+end
+
+lemma equal_int_code [code]:
+  "HOL.equal 0 (0::int) \<longleftrightarrow> True"
+  "HOL.equal 0 (Pos l) \<longleftrightarrow> False"
+  "HOL.equal 0 (Neg l) \<longleftrightarrow> False"
+  "HOL.equal (Pos k) 0 \<longleftrightarrow> False"
+  "HOL.equal (Pos k) (Pos l) \<longleftrightarrow> HOL.equal k l"
+  "HOL.equal (Pos k) (Neg l) \<longleftrightarrow> False"
+  "HOL.equal (Neg k) 0 \<longleftrightarrow> False"
+  "HOL.equal (Neg k) (Pos l) \<longleftrightarrow> False"
+  "HOL.equal (Neg k) (Neg l) \<longleftrightarrow> HOL.equal k l"
+  by (auto simp add: equal)
+*)  
+  
+
+instantiation Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e  :: (equal)equal
+begin
+  definition "HOL.equal k l \<longleftrightarrow>  (k::('a::equal)Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e) =  l"
+  instance   by default (rule equal_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def)
+end
+
+lemma equal_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_code [code]:
+  "HOL.equal k (l::('a::{equal,null})Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e) \<longleftrightarrow> Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e k = Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e l"
+  by (auto simp add: equal Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e.Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inject)
+
+Assert   "\<tau> \<Turnstile> (Set{} \<doteq> Set{})" 
+Assert   "\<tau> \<Turnstile> (Set{\<one>,\<two>} \<triangleq> Set{}->including\<^sub>S\<^sub>e\<^sub>t(\<two>)->including\<^sub>S\<^sub>e\<^sub>t(\<one>))" 
+Assert   "\<tau> \<Turnstile> (Set{\<one>,invalid,\<two>} \<triangleq> invalid)"
+Assert   "\<tau> \<Turnstile> (Set{\<one>,\<two>}->including\<^sub>S\<^sub>e\<^sub>t(null) \<triangleq> Set{null,\<one>,\<two>})"
+Assert   "\<tau> \<Turnstile> (Set{\<one>,\<two>}->including\<^sub>S\<^sub>e\<^sub>t(null) \<triangleq> Set{\<one>,\<two>,null})"
+
+(* TODO Frederic ?:
+Assert   "\<not> (\<tau> \<Turnstile> (Set{\<one>,\<one>,\<two>} \<doteq> Set{\<one>,\<two>}))"
+Assert   "\<not> (\<tau> \<Turnstile> (Set{\<one>,\<two>} \<doteq> Set{\<two>,\<one>}))"
+*)
+
 (* > *)
 
 end
