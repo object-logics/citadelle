@@ -304,6 +304,7 @@ fun_quick str_hol_of_ty where
    |"str_hol_of_ty (OclTy_raw s) = s"
 
 definition "print_infra_type_synonym_class_set_name name = ''Set_'' @@ name"
+definition "print_infra_type_synonym_class_sequence_name name = ''Sequence_'' @@ name"
 
 fun_quick print_ctxt_ty where
    "print_ctxt_ty c = (\<lambda> OclTy_collection Set t \<Rightarrow> print_infra_type_synonym_class_set_name (print_ctxt_ty t)

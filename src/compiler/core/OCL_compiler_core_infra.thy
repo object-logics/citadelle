@@ -104,6 +104,12 @@ definition "print_infra_type_synonym_class_set = start_map Thy_ty_synonym o
     let option = (\<lambda>x. Ty_apply (Ty_base ''option'') [x]) in
     option (option (Ty_base (isub_name datatype_name))) ]))"
 
+definition "print_infra_type_synonym_class_sequence = start_map Thy_ty_synonym o
+  map_class (\<lambda>isub_name name _ _ _ _.
+    Type_synonym (print_infra_type_synonym_class_sequence_name name) (Ty_apply (Ty_base ''Sequence'') [Ty_base unicode_AA,
+    let option = (\<lambda>x. Ty_apply (Ty_base ''option'') [x]) in
+    option (option (Ty_base (isub_name datatype_name))) ]))"
+
 definition "print_infra_instantiation_class = start_map'' Thy_instantiation_class o (\<lambda>expr _ base_attr' _. map_class_gen_h''''
   (\<lambda>isub_name name _ l_attr l_inherited l_cons.
     let (l_attr, l_inherited) = base_attr' (l_attr, of_inh l_inherited) in

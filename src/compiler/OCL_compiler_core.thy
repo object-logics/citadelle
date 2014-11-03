@@ -161,6 +161,7 @@ to OCL types. Again, we exploit that our representation of OCL is a ``shallow em
 one-to-one correspondance of OCL-types to types of the meta-language HOL. '' ]
             , print_infra_type_synonym_class
             , print_infra_type_synonym_class_set
+            , print_infra_type_synonym_class_sequence
             (*, txt'' [ ''
    Just a little check: '' ]
             *), txt'' [ ''

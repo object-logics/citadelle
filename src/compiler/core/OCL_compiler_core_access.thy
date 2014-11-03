@@ -400,11 +400,13 @@ definition "print_access_dot_consts =
                   OclTy_raw attr_ty \<Rightarrow> ty_base attr_ty
                 | OclTy_class ty_obj \<Rightarrow>
                     let ty_obj = TyObj_to ty_obj
-                      ; name = TyObjN_role_ty ty_obj in
-                    Ty_base (if single_multip (TyObjN_role_multip ty_obj) then
+                      ; name = TyObjN_role_ty ty_obj
+                      ; obj_mult = TyObjN_role_multip ty_obj in
+                    Ty_base (if single_multip obj_mult then
                                name
                              else
-                               print_infra_type_synonym_class_set_name name)
+                               case obj_mult of OclMult _ Set \<Rightarrow> print_infra_type_synonym_class_set_name name
+                                              | _ \<Rightarrow> print_infra_type_synonym_class_sequence_name name)
                 | _ \<Rightarrow> ty_base (str_hol_of_ty attr_ty)))
             (let dot_name = mk_dot attr_n var_at_when_ocl
                ; mk_par =
@@ -455,11 +457,11 @@ definition "print_access_dot = start_map'''' Thy_defs_overloaded o (\<lambda>exp
                              let ty_obj = TyObj_to ty_obj
                                ; der_name = deref_oid (Some (TyObjN_role_ty ty_obj)) [] in
                              if design_analysis = Gen_design then
-                               let mult_obj = TyObjN_role_multip ty_obj
+                               let obj_mult = TyObjN_role_multip ty_obj
                                  ; (var_select_object_name_any, var_select_object_name) = 
-                                     case mult_obj of OclMult _ Set \<Rightarrow> (var_select_object_set_any, var_select_object_set)
+                                     case obj_mult of OclMult _ Set \<Rightarrow> (var_select_object_set_any, var_select_object_set)
                                                     | _ \<Rightarrow> (var_select_object_sequence_any, var_select_object_sequence) in
-                               Expr_apply (if single_multip mult_obj then
+                               Expr_apply (if single_multip obj_mult then
                                              var_select_object_name_any
                                            else
                                              var_select_object_name) [der_name]
