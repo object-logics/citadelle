@@ -163,6 +163,9 @@ lemma short_cut'''[simp,code_unfold]: "(\<one> \<doteq> \<two>) = false"
                  true_def false_def invalid_def bot_option_def)
 done
 
+Assert   "\<tau> \<Turnstile> (\<zero> <\<^sub>i\<^sub>n\<^sub>t \<two>) and (\<zero> <\<^sub>i\<^sub>n\<^sub>t \<one>) "
+
+
 text{* Elementary computations on Sets.*}
 
 declare OclSelect_body_def [simp]
@@ -182,7 +185,6 @@ Assert    "\<tau> \<Turnstile> (Set{null,\<two>}->includes\<^sub>S\<^sub>e\<^sub
 Assert    "\<tau> \<Turnstile> ((Set{})->forAll\<^sub>S\<^sub>e\<^sub>t(z | \<zero> <\<^sub>i\<^sub>n\<^sub>t z))"
 
 Assert    "\<tau> \<Turnstile> ((Set{\<two>,\<one>})->forAll\<^sub>S\<^sub>e\<^sub>t(z | \<zero> <\<^sub>i\<^sub>n\<^sub>t z))"
-Assert   "\<tau> \<Turnstile> (\<zero> <\<^sub>i\<^sub>n\<^sub>t \<two>) and (\<zero> <\<^sub>i\<^sub>n\<^sub>t \<one>) "
 Assert "\<not> (\<tau> \<Turnstile> ((Set{\<two>,\<one>})->exists\<^sub>S\<^sub>e\<^sub>t(z | z <\<^sub>i\<^sub>n\<^sub>t \<zero> )))"
 Assert "\<not> (\<tau> \<Turnstile> (\<delta>(Set{\<two>,null})->forAll\<^sub>S\<^sub>e\<^sub>t(z | \<zero> <\<^sub>i\<^sub>n\<^sub>t z)))"
 Assert "\<not> (\<tau> \<Turnstile> ((Set{\<two>,null})->forAll\<^sub>S\<^sub>e\<^sub>t(z | \<zero> <\<^sub>i\<^sub>n\<^sub>t z)))"
@@ -203,6 +205,47 @@ Assert    "\<tau> \<Turnstile> (Set{null}->select\<^sub>S\<^sub>e\<^sub>t(x | no
 Assert    "\<tau> \<Turnstile> (Set{null}->reject\<^sub>S\<^sub>e\<^sub>t(x | not x) \<doteq> Set{null})"
 
 lemma     "const (Set{Set{\<two>,null}, invalid})" by(simp add: const_ss)
+
+
+text{* Elementary computations on Sequences.*}
+
+(*(*TODO*)declare OclSelect_body_def [simp]*)
+
+Assert "\<not> (\<tau> \<Turnstile> \<upsilon>(invalid::('\<AA>,'\<alpha>::null) Sequence))"
+Assert    "\<tau> \<Turnstile> \<upsilon>(null::('\<AA>,'\<alpha>::null) Sequence)"
+Assert "\<not> (\<tau> \<Turnstile> \<delta>(null::('\<AA>,'\<alpha>::null) Sequence))"
+Assert    "\<tau> \<Turnstile> \<upsilon>(Sequence{})"
+(*(*TOFIX*)Assert    "\<tau> \<Turnstile> \<upsilon>(Sequence{Sequence{\<two>},null})"
+Assert    "\<tau> \<Turnstile> \<delta>(Sequence{Sequence{\<two>},null})"*)
+(*(*TODO*)Assert    "\<tau> \<Turnstile> (Sequence{\<two>,\<one>}->includes\<^sub>S\<^sub>e\<^sub>q(\<one>))"
+Assert "\<not> (\<tau> \<Turnstile> (Sequence{\<two>}->includes\<^sub>S\<^sub>e\<^sub>q(\<one>)))"
+Assert "\<not> (\<tau> \<Turnstile> (Sequence{\<two>,\<one>}->includes\<^sub>S\<^sub>e\<^sub>q(null)))"
+Assert    "\<tau> \<Turnstile> (Sequence{\<two>,null}->includes\<^sub>S\<^sub>e\<^sub>q(null))"
+Assert    "\<tau> \<Turnstile> (Sequence{null,\<two>}->includes\<^sub>S\<^sub>e\<^sub>q(null))"*)
+(*(*TOFIX*)
+Assert    "\<tau> \<Turnstile> ((Sequence{})->forAll\<^sub>S\<^sub>e\<^sub>q(z | \<zero> <\<^sub>i\<^sub>n\<^sub>t z))"
+
+Assert    "\<tau> \<Turnstile> ((Sequence{\<two>,\<one>})->forAll\<^sub>S\<^sub>e\<^sub>q(z | \<zero> <\<^sub>i\<^sub>n\<^sub>t z))"
+Assert "\<not> (\<tau> \<Turnstile> ((Sequence{\<two>,\<one>})->exists\<^sub>S\<^sub>e\<^sub>q(z | z <\<^sub>i\<^sub>n\<^sub>t \<zero> )))"
+Assert "\<not> (\<tau> \<Turnstile> (\<delta>(Sequence{\<two>,null})->forAll\<^sub>S\<^sub>e\<^sub>q(z | \<zero> <\<^sub>i\<^sub>n\<^sub>t z)))"
+Assert "\<not> (\<tau> \<Turnstile> ((Sequence{\<two>,null})->forAll\<^sub>S\<^sub>e\<^sub>q(z | \<zero> <\<^sub>i\<^sub>n\<^sub>t z)))"
+Assert    "\<tau> \<Turnstile> ((Sequence{\<two>,null})->exists\<^sub>S\<^sub>e\<^sub>q(z | \<zero> <\<^sub>i\<^sub>n\<^sub>t z))"
+
+
+Assert "\<not> (\<tau> \<Turnstile> (Sequence{null::'a Boolean} \<doteq> Sequence{}))"
+Assert "\<not> (\<tau> \<Turnstile> (Sequence{null::'a Integer} \<doteq> Sequence{}))"
+
+Assert "\<not> (\<tau> \<Turnstile> (Sequence{true} \<doteq> Sequence{false}))"
+Assert "\<not> (\<tau> \<Turnstile> (Sequence{true,true} \<doteq> Sequence{false}))"
+Assert "\<not> (\<tau> \<Turnstile> (Sequence{\<two>} \<doteq> Sequence{\<one>}))"
+Assert    "\<tau> \<Turnstile> (Sequence{\<two>,null,\<two>} \<doteq> Sequence{null,\<two>})"
+Assert    "\<tau> \<Turnstile> (Sequence{\<one>,null,\<two>} <> Sequence{null,\<two>})"
+Assert    "\<tau> \<Turnstile> (Sequence{Sequence{\<two>,null}} \<doteq> Sequence{Sequence{null,\<two>}})"
+Assert    "\<tau> \<Turnstile> (Sequence{Sequence{\<two>,null}} <> Sequence{Sequence{null,\<two>},null})"
+Assert    "\<tau> \<Turnstile> (Sequence{null}->select\<^sub>S\<^sub>e\<^sub>q(x | not x) \<doteq> Sequence{null})"*)
+(*(*TODO*)Assert    "\<tau> \<Turnstile> (Sequence{null}->reject\<^sub>S\<^sub>e\<^sub>q(x | not x) \<doteq> Sequence{null})"*)
+
+lemma     "const (Sequence{Sequence{\<two>,null}, invalid})" by(simp add: const_ss)
 
 
 
