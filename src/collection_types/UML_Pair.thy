@@ -182,7 +182,49 @@ apply(subgoal_tac "\<tau> \<Turnstile> \<upsilon> X")
 apply(erule foundation13[THEN iffD2, THEN StrongEq_L_subst2_rev], simp_all)
 by(erule 2)
 
+(* < *)
+
 subsection{* Test Statements*}
+(*
+Assert   "(\<tau> \<Turnstile> (Pair{\<lambda>_. \<lfloor>\<lfloor>x\<rfloor>\<rfloor>,\<lambda>_. \<lfloor>\<lfloor>x\<rfloor>\<rfloor>} \<doteq> Pair{\<lambda>_. \<lfloor>\<lfloor>x\<rfloor>\<rfloor>,\<lambda>_. \<lfloor>\<lfloor>x\<rfloor>\<rfloor>}))"
+Assert   "(\<tau> \<Turnstile> (Pair{\<lambda>_. \<lfloor>x\<rfloor>,\<lambda>_. \<lfloor>x\<rfloor>} \<doteq> Pair{\<lambda>_. \<lfloor>x\<rfloor>,\<lambda>_. \<lfloor>x\<rfloor>}))"
+*)
+(* (*TODO.*)  
+open problem: An executable code-generator setup for the Pair type. Some bits and pieces
+so far : 
+instantiation int :: equal
+begin
+
+definition
+  "HOL.equal k l \<longleftrightarrow> k = (l::int)"
+
+instance by default (rule equal_int_def)
+
+end
+
+lemma equal_int_code [code]:
+  "HOL.equal 0 (0::int) \<longleftrightarrow> True"
+  "HOL.equal 0 (Pos l) \<longleftrightarrow> False"
+  "HOL.equal 0 (Neg l) \<longleftrightarrow> False"
+  "HOL.equal (Pos k) 0 \<longleftrightarrow> False"
+  "HOL.equal (Pos k) (Pos l) \<longleftrightarrow> HOL.equal k l"
+  "HOL.equal (Pos k) (Neg l) \<longleftrightarrow> False"
+  "HOL.equal (Neg k) 0 \<longleftrightarrow> False"
+  "HOL.equal (Neg k) (Pos l) \<longleftrightarrow> False"
+  "HOL.equal (Neg k) (Neg l) \<longleftrightarrow> HOL.equal k l"
+  by (auto simp add: equal)
+*)  
+  
+
+instantiation Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e  :: (equal,equal)equal
+begin
+  definition "HOL.equal k l \<longleftrightarrow>  (k::('a::equal,'b::equal)Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e) =  l"
+  instance   by default (rule equal_Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def)
+end
+
+lemma equal_Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e_code [code]:
+  "HOL.equal k (l::('a::{equal,null},'b::{equal,null})Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e) \<longleftrightarrow> Rep_Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e k = Rep_Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e l"
+  by (auto simp add: equal Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e.Rep_Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inject)
 
 Assert "\<tau> \<Turnstile> invalid .First() \<triangleq> invalid "
 Assert "\<tau> \<Turnstile> null .First() \<triangleq> invalid "
@@ -191,5 +233,12 @@ Assert "\<tau> \<Turnstile> Pair{invalid, true} \<triangleq> invalid "
 Assert "\<tau> \<Turnstile> \<upsilon>(Pair{null, true}.First())"
 Assert "\<tau> \<Turnstile> (Pair{null, true}).First() \<triangleq> null "
 Assert "\<tau> \<Turnstile> (Pair{null, Pair{true,invalid}}).First() \<triangleq> invalid "
+
+
+(* TODO Frederic ?:
+Assert   "\<not> (\<tau> \<Turnstile> (Pair{\<one>,\<two>} \<doteq> Pair{\<two>,\<one>}))"
+*)
+
+(* > *)
 
 end
