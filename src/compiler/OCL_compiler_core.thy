@@ -52,6 +52,7 @@ imports "core/OCL_compiler_floor1_infra"
         "core/OCL_compiler_floor1_access"
         "core/OCL_compiler_floor1_examp"
         "core/OCL_compiler_floor1_ctxt"
+        "core/OCL_compiler_floor2_ctxt"
 begin
 
 section{* Translation of AST *}
