@@ -3,7 +3,7 @@
  *                       for the OMG Standard.
  *                       http://www.brucker.ch/projects/hol-testgen/
  *
- * OCL_compiler_core_iskindof.thy ---
+ * OCL_compiler_floor1_iskindof.thy ---
  * This file is part of HOL-TestGen.
  *
  * Copyright (c) 2013-2014 Universite Paris-Sud, France
@@ -43,8 +43,8 @@
 
 header{* Part ... *}
 
-theory  OCL_compiler_core_iskindof
-imports "../OCL_compiler_core_init"
+theory  OCL_compiler_floor1_iskindof
+imports OCL_compiler_core_init
 begin
 
 section{* Translation of AST *}
