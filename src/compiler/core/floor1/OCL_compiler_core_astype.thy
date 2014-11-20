@@ -44,7 +44,7 @@
 header{* Part ... *}
 
 theory  OCL_compiler_core_astype
-imports OCL_compiler_core_init
+imports "../OCL_compiler_core_init"
 begin
 
 section{* Translation of AST *}
