@@ -343,10 +343,10 @@ definition "thy_def_state = [ print_examp_def_st_defassoc
                             , print_examp_def_st_allinst ]"
 definition "thy_def_pre_post = [ print_pre_post_wff
                                , print_pre_post_where ]"
-definition "thy_ctxt_pre_post = [ print_ctxt_pre_post ]"
-definition "thy2_ctxt_pre_post = [ print_ctxt_pre_post' ]"
-definition "thy_ctxt_inv = [ print_ctxt_inv ]"
-definition "thy2_ctxt_inv = [ print_ctxt_inv' ]"
+definition "thy_ctxt_pre_post = [ OCL_compiler_floor1_ctxt.print_ctxt_pre_post ]"
+definition "thy2_ctxt_pre_post = [ OCL_compiler_floor2_ctxt.print_ctxt_pre_post ]"
+definition "thy_ctxt_inv = [ OCL_compiler_floor1_ctxt.print_ctxt_inv ]"
+definition "thy2_ctxt_inv = [ OCL_compiler_floor2_ctxt.print_ctxt_inv ]"
 definition "thy_flush_all = []"
 
 definition "ocl_compiler_config_empty disable_thy_output file_out_path_dep oid_start design_analysis =
