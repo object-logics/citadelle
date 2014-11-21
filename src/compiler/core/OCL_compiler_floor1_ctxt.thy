@@ -114,11 +114,11 @@ definition "print_ctxt_pre_post = (\<lambda>ctxt. print_ctxt_gen_syntax_header
   (\<lambda>l ocl.
     let ((ocl, l_isab_ty), l_isab) = print_ctxt_const ctxt ocl in
     (flatten [l_isab_ty, l_isab, l], ocl))
-  [ Isab_thy_ocl_deep_embed_ast (Ocl2AstCtxtPrePost ctxt)
+  [ Isab_thy_ocl_deep_embed_ast (OclAstCtxtPrePost Floor2 ctxt)
   , print_ctxt_gen_syntax_header_l [print_ctxt_pre_post_name (Ctxt_fun_name ctxt) var_at_when_hol_post] ])"
 
 definition "print_ctxt_inv = (\<lambda>ctxt. print_ctxt_gen_syntax_header Pair
-  [ Isab_thy_ocl_deep_embed_ast (Ocl2AstCtxtInv ctxt)
+  [ Isab_thy_ocl_deep_embed_ast (OclAstCtxtInv Floor2 ctxt)
   , print_ctxt_gen_syntax_header_l
       (flatten (List_map (\<lambda> (tit, _).
         List_map (print_ctxt_inv_name (Ctxt_inv_ty ctxt) tit)

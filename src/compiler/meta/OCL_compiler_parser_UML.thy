@@ -237,13 +237,6 @@ definition "i_of_ocl_ass_class a b = ocl_ass_class_rec
     (i_of_ocl_association a b (K i_of_unit))
     (i_of_ocl_class_raw a b (K i_of_unit)))"
 
-(* *)
-
-definition "i_of_ocl_class2_raw = i_of_ocl_class_raw"
-definition "i_of_ocl_ass2_class = i_of_ocl_ass_class"
-definition "i_of_ocl_ctxt2_pre_post = i_of_ocl_ctxt_pre_post"
-definition "i_of_ocl_ctxt2_inv = i_of_ocl_ctxt_inv"
-
 end
 
 lemmas [code] =
@@ -262,10 +255,5 @@ lemmas [code] =
   i_of.i_of_ocl_class_def
   i_of.i_of_ocl_class_raw_def
   i_of.i_of_ocl_ass_class_def
-  (* *)
-  i_of.i_of_ocl_class2_raw_def
-  i_of.i_of_ocl_ass2_class_def
-  i_of.i_of_ocl_ctxt2_pre_post_def
-  i_of.i_of_ocl_ctxt2_inv_def
 
 end

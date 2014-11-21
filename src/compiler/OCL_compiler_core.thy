@@ -343,10 +343,10 @@ definition "thy_def_state = [ print_examp_def_st_defassoc
                             , print_examp_def_st_allinst ]"
 definition "thy_def_pre_post = [ print_pre_post_wff
                                , print_pre_post_where ]"
-definition "thy_ctxt_pre_post = [ OCL_compiler_floor1_ctxt.print_ctxt_pre_post ]"
-definition "thy2_ctxt_pre_post = [ OCL_compiler_floor2_ctxt.print_ctxt_pre_post ]"
-definition "thy_ctxt_inv = [ OCL_compiler_floor1_ctxt.print_ctxt_inv ]"
-definition "thy2_ctxt_inv = [ OCL_compiler_floor2_ctxt.print_ctxt_inv ]"
+definition "thy_ctxt_pre_post n = [ case n of Floor1 \<Rightarrow> OCL_compiler_floor1_ctxt.print_ctxt_pre_post
+                                            | Floor2 \<Rightarrow> OCL_compiler_floor2_ctxt.print_ctxt_pre_post ]"
+definition "thy_ctxt_inv n = [ case n of Floor1 \<Rightarrow> OCL_compiler_floor1_ctxt.print_ctxt_inv
+                                       | Floor2 \<Rightarrow> OCL_compiler_floor2_ctxt.print_ctxt_inv ]"
 definition "thy_flush_all = []"
 
 definition "ocl_compiler_config_empty disable_thy_output file_out_path_dep oid_start design_analysis =
@@ -395,16 +395,14 @@ definition "ocl_env_class_spec_mk f_try f_accu_reset f_fold f =
              | OclAstDefBaseL univ \<Rightarrow> fold_thy0 univ thy_def_base_l
              | OclAstDefState univ \<Rightarrow> fold_thy0 univ thy_def_state
              | OclAstDefPrePost univ \<Rightarrow> fold_thy0 univ thy_def_pre_post
-             | OclAstCtxtPrePost univ \<Rightarrow> fold_thy0 univ thy_ctxt_pre_post
-             | Ocl2AstCtxtPrePost univ \<Rightarrow> fold_thy0 univ thy2_ctxt_pre_post
-             | OclAstCtxtInv univ \<Rightarrow> fold_thy0 univ thy_ctxt_inv
-             | Ocl2AstCtxtInv univ \<Rightarrow> fold_thy0 univ thy2_ctxt_inv
+             | OclAstCtxtPrePost floor univ \<Rightarrow> fold_thy0 univ (thy_ctxt_pre_post floor)
+             | OclAstCtxtInv floor univ \<Rightarrow> fold_thy0 univ (thy_ctxt_inv floor)
              | OclAstFlushAll univ \<Rightarrow> fold_thy0 univ thy_flush_all)
                   f)
            l_ocl
            (let univ = class_unflat
-                         (List.map_filter (\<lambda> OclAstClassRaw cflat \<Rightarrow> Some cflat
-                                           | OclAstAssClass (OclAssClass _ cflat) \<Rightarrow> Some cflat
+                         (List.map_filter (\<lambda> OclAstClassRaw Floor1 cflat \<Rightarrow> Some cflat
+                                           | OclAstAssClass Floor1 (OclAssClass _ cflat) \<Rightarrow> Some cflat
                                            | _ \<Rightarrow> None) l_class)
                          (filter_ass l_class)
               ; (ocl, accu) = fold_thy0 univ thy_class f (let ocl = ocl_compiler_config_reset_no_env ocl in
@@ -422,19 +420,17 @@ definition "fold_thy' f_try f_accu_reset f =
  (let ocl_env_class_spec_mk = ocl_env_class_spec_mk f_try f_accu_reset in
   List.fold (\<lambda> ast.
     ocl_env_save ast (case ast of
-     OclAstClassRaw univ \<Rightarrow> ocl_env_class_spec_rm (fold_thy0 univ thy_class_flat)
+     OclAstClassRaw Floor1 univ \<Rightarrow> ocl_env_class_spec_rm (fold_thy0 univ thy_class_flat)
    | OclAstAssociation univ \<Rightarrow> ocl_env_class_spec_rm (fold_thy0 univ thy_association)
-   | OclAstAssClass (OclAssClass univ_ass univ_class) \<Rightarrow>
+   | OclAstAssClass Floor1 (OclAssClass univ_ass univ_class) \<Rightarrow>
        ocl_env_class_spec_rm (ocl_env_class_spec_bind [ fold_thy0 univ_ass thy_association
                                                       , fold_thy0 univ_class thy_class_flat ])
    | OclAstInstance univ \<Rightarrow> ocl_env_class_spec_mk (fold_thy0 univ thy_instance)
    | OclAstDefBaseL univ \<Rightarrow> fold_thy0 univ thy_def_base_l
    | OclAstDefState univ \<Rightarrow> ocl_env_class_spec_mk (fold_thy0 univ thy_def_state)
    | OclAstDefPrePost univ \<Rightarrow> fold_thy0 univ thy_def_pre_post
-   | OclAstCtxtPrePost univ \<Rightarrow> ocl_env_class_spec_mk (fold_thy0 univ thy_ctxt_pre_post)
-   | Ocl2AstCtxtPrePost univ \<Rightarrow> ocl_env_class_spec_mk (fold_thy0 univ thy2_ctxt_pre_post)
-   | OclAstCtxtInv univ \<Rightarrow> ocl_env_class_spec_mk (fold_thy0 univ thy_ctxt_inv)
-   | Ocl2AstCtxtInv univ \<Rightarrow> ocl_env_class_spec_mk (fold_thy0 univ thy2_ctxt_inv)
+   | OclAstCtxtPrePost floor univ \<Rightarrow> ocl_env_class_spec_mk (fold_thy0 univ (thy_ctxt_pre_post floor))
+   | OclAstCtxtInv floor univ \<Rightarrow> ocl_env_class_spec_mk (fold_thy0 univ (thy_ctxt_inv floor))
    | OclAstFlushAll univ \<Rightarrow> ocl_env_class_spec_mk (fold_thy0 univ thy_flush_all)) f))"
 
 definition "fold_thy_shallow f_try f_accu_reset x = fold_thy' f_try f_accu_reset (\<lambda>l acc1. List.fold x l o Pair acc1)"

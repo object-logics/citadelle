@@ -73,7 +73,7 @@ definition "s_of_ctxt2_term = (\<lambda> T_pure pure \<Rightarrow> s_of_pure_ter
                                | T_to_be_parsed s \<Rightarrow> To_string s)"
 
 definition "s_of_ocl_deep_embed_ast _ =
- (\<lambda> Ocl2AstCtxtPrePost ctxt \<Rightarrow>
+ (\<lambda> OclAstCtxtPrePost Floor2 ctxt \<Rightarrow>
       sprintf5 (STR ''Context[shallow] %s :: %s (%s) %s
 %s'')
         (To_string (Ctxt_ty ctxt))
@@ -92,7 +92,7 @@ definition "s_of_ocl_deep_embed_ast _ =
                           | OclCtxtPost \<Rightarrow> STR ''Post'')
               (s_of_ctxt2_term s))
             (Ctxt_expr ctxt)))
-  | Ocl2AstCtxtInv ctxt \<Rightarrow>
+  | OclAstCtxtInv Floor2 ctxt \<Rightarrow>
       sprintf2 (STR ''Context[shallow] %s
 %s'')
         (To_string (Ctxt_inv_ty ctxt))

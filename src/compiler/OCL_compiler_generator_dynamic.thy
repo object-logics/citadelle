@@ -1126,8 +1126,8 @@ local
      -- class_def_oper
      -- class_def_constr
      --| @{keyword "End"})
-    OCL.OclAstClassRaw
-    OCL.Ocl2AstClassRaw
+    (curry OCL.OclAstClassRaw OCL.Floor1)
+    (curry OCL.OclAstClassRaw OCL.Floor2)
     (fn (from_expr, OclAstClassRaw) =>
      fn ((((binding, child), attribute), oper), constr) =>
        OclAstClassRaw (Outer_syntax_Class.make from_expr binding child attribute oper constr))
@@ -1192,8 +1192,8 @@ local
      -- class_def_constr
      -- optional Parse.alt_string
      --| @{keyword "End"})
-    OCL.OclAstAssClass
-    OCL.Ocl2AstAssClass
+    (curry OCL.OclAstAssClass OCL.Floor1)
+    (curry OCL.OclAstAssClass OCL.Floor2)
     (fn (from_expr, OclAstAssClass) =>
      fn ((((((binding, child), o_l), attribute), oper), constr), _) =>
         OclAstAssClass (OCL.OclAssClass ( Outer_syntax_Association.make OCL.OclAssTy_association (case o_l of NONE => [] | SOME l => l)
@@ -1229,8 +1229,8 @@ val () =
      -- Scan.repeat use_invariantClause
      >> USE_context_invariant)
     )
-    (OCL.OclAstCtxtPrePost, OCL.OclAstCtxtInv)
-    (OCL.Ocl2AstCtxtPrePost, OCL.Ocl2AstCtxtInv)
+    (curry OCL.OclAstCtxtPrePost OCL.Floor1, curry OCL.OclAstCtxtInv OCL.Floor1)
+    (curry OCL.OclAstCtxtPrePost OCL.Floor2, curry OCL.OclAstCtxtInv OCL.Floor2)
     (fn (from_expr, (OclAstCtxtPrePost, OclAstCtxtInv)) =>
      fn USE_context_pre_post ((((name_ty, name_fun), ty_arg), ty_out), expr) =>
         OclAstCtxtPrePost (Outer_syntax_Pre_Post.make from_expr name_ty name_fun ty_arg ty_out expr)

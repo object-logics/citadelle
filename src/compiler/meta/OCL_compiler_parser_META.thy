@@ -95,17 +95,17 @@ begin
 definition "i_of_ocl_flush_all a b = ocl_flush_all_rec
   (b ''OclFlushAll'')"
 
-definition "i_of_ocl_deep_embed_ast a b = ocl_deep_embed_ast_rec
-  (ap1 a (b ''OclAstClassRaw'') (i_of_ocl_class_raw a b (K i_of_unit)))
-  (ap1 a (b ''OclAstAssociation'') (i_of_ocl_association a b (K i_of_unit)))
-  (ap1 a (b ''OclAstAssClass'') (i_of_ocl_ass_class a b))
-  (ap1 a (b ''OclAstCtxtPrePost'') (i_of_ocl_ctxt_pre_post a b (K i_of_unit)))
-  (ap1 a (b ''OclAstCtxtInv'') (i_of_ocl_ctxt_inv a b (K i_of_unit)))
+definition "i_of_floor a b = floor_rec
+  (b ''Floor1'')
+  (b ''Floor2'')
+  (b ''Floor3'')"
 
-  (ap1 a (b ''Ocl2AstClassRaw'') (i_of_ocl_class2_raw a b (K i_of_unit)))
-  (ap1 a (b ''Ocl2AstAssClass'') (i_of_ocl_ass2_class a b))
-  (ap1 a (b ''Ocl2AstCtxtPrePost'') (i_of_ocl_ctxt2_pre_post a b (K i_of_unit)))
-  (ap1 a (b ''Ocl2AstCtxtInv'') (i_of_ocl_ctxt2_inv a b (K i_of_unit)))
+definition "i_of_ocl_deep_embed_ast a b = ocl_deep_embed_ast_rec
+  (ap2 a (b ''OclAstClassRaw'') (i_of_floor a b) (i_of_ocl_class_raw a b (K i_of_unit)))
+  (ap1 a (b ''OclAstAssociation'') (i_of_ocl_association a b (K i_of_unit)))
+  (ap2 a (b ''OclAstAssClass'') (i_of_floor a b) (i_of_ocl_ass_class a b))
+  (ap2 a (b ''OclAstCtxtPrePost'') (i_of_floor a b) (i_of_ocl_ctxt_pre_post a b (K i_of_unit)))
+  (ap2 a (b ''OclAstCtxtInv'') (i_of_floor a b) (i_of_ocl_ctxt_inv a b (K i_of_unit)))
 
   (ap1 a (b ''OclAstInstance'') (i_of_ocl_instance a b))
   (ap1 a (b ''OclAstDefBaseL'') (i_of_ocl_def_base_l a b))
@@ -138,6 +138,7 @@ end
 
 lemmas [code] =
   i_of.i_of_ocl_flush_all_def
+  i_of.i_of_floor_def
   i_of.i_of_ocl_deep_embed_ast_def
   i_of.i_of_ocl_deep_mode_def
   i_of.i_of_ocl_compiler_config_def

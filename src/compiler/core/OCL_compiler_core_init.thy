@@ -140,26 +140,26 @@ definition "find_class_ass ocl =
  (let (l_class, l_ocl) =
     partition (bug_ocaml_extraction
               (let f = \<lambda>class. ClassRaw_contract class = [] & ClassRaw_invariant class = [] in
-               \<lambda> OclAstClassRaw class \<Rightarrow> f class
+               \<lambda> OclAstClassRaw Floor1 class \<Rightarrow> f class
                | OclAstAssociation _ \<Rightarrow> True
-               | OclAstAssClass (OclAssClass _ class) \<Rightarrow> f class
+               | OclAstAssClass Floor1 (OclAssClass _ class) \<Rightarrow> f class
                | _ \<Rightarrow> False)) (rev (D_ocl_env ocl)) in
   ( flatten [l_class, List.map_filter (bug_ocaml_extraction
                                       (let f = \<lambda>class. class \<lparr> ClassRaw_contract := [], ClassRaw_invariant := [] \<rparr> in
-                                       \<lambda> OclAstClassRaw c \<Rightarrow> Some (OclAstClassRaw (f c))
-                                       | OclAstAssClass (OclAssClass ass class) \<Rightarrow> Some (OclAstAssClass (OclAssClass ass (f class)))
+                                       \<lambda> OclAstClassRaw Floor1 c \<Rightarrow> Some (OclAstClassRaw Floor1 (f c))
+                                       | OclAstAssClass Floor1 (OclAssClass ass class) \<Rightarrow> Some (OclAstAssClass Floor1 (OclAssClass ass (f class)))
                                        | _ \<Rightarrow> None)) l_ocl]
   , flatten (List_map
       (bug_ocaml_extraction
       (let f = \<lambda>class. 
-          flatten [ List_map OclAstCtxtPrePost (ClassRaw_contract class)
-                  , List_map OclAstCtxtInv (ClassRaw_invariant class) ] in
-       \<lambda> OclAstClassRaw class \<Rightarrow> f class
-       | OclAstAssClass (OclAssClass _ class) \<Rightarrow> f class
+          flatten [ List_map (OclAstCtxtPrePost Floor1) (ClassRaw_contract class)
+                  , List_map (OclAstCtxtInv Floor1) (ClassRaw_invariant class) ] in
+       \<lambda> OclAstClassRaw Floor1 class \<Rightarrow> f class
+       | OclAstAssClass Floor1 (OclAssClass _ class) \<Rightarrow> f class
        | x \<Rightarrow> [x])) l_ocl)))"
 
 definition "filter_ass = List.map_filter (\<lambda> OclAstAssociation ass \<Rightarrow> Some ass
-                                          | OclAstAssClass (OclAssClass ass _) \<Rightarrow> Some ass
+                                          | OclAstAssClass Floor1 (OclAssClass ass _) \<Rightarrow> Some ass
                                           | _ \<Rightarrow> None)"
 
 subsection{* ... *}
