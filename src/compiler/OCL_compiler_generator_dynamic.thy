@@ -132,7 +132,7 @@ structure From = struct
   ) e
  fun from_pure_term e = (fn
      Const (s, typ) => (OCL.PureConst o from_pair from_string from_pure_typ) (s, typ)
-   | Free (s, typ) => (OCL.PureConst o from_pair from_string from_pure_typ) (s, typ)
+   | Free (s, typ) => (OCL.PureFree o from_pair from_string from_pure_typ) (s, typ)
    | Var (i, typ) => (OCL.PureVar o from_pair from_pure_indexname from_pure_typ) (i, typ)
    | Bound i => (OCL.PureBound o from_nat) i
    | Abs (s, typ, term) => (OCL.PureAbs o from_pair3 from_string from_pure_typ from_pure_term) (s, typ, term)
