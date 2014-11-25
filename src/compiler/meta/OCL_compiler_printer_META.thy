@@ -69,7 +69,7 @@ definition "s_of_section_title ocl = (\<lambda> Section_title n section_title \<
                    else ''subsub'') @@ ''section''))
       (To_string section_title))"
 
-definition "s_of_ctxt2_term = (\<lambda> T_pure pure \<Rightarrow> s_of_pure_term pure
+definition "s_of_ctxt2_term = (\<lambda> T_pure pure \<Rightarrow> s_of_pure_term [] pure
                                | T_to_be_parsed s \<Rightarrow> To_string s)"
 
 definition "s_of_ocl_deep_embed_ast _ =

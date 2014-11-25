@@ -249,10 +249,6 @@ definition "print_examp_instance_oid l ocl =
          \<lambda> _ _ cpt. Expr_oid '''' (oidGetInh cpt)) ]
       (D_oid_start ocl))"
 
-datatype reporting = Warning
-                   | Error
-                   | Writeln
-
 definition "check_single = (\<lambda> (name_attr, oid, l_oid) l_mult l.
   let l = (keys o bulkload o List_map (\<lambda>x. (x, ()))) l
     ; assoc = \<lambda>x. case map_of l_oid x of Some s \<Rightarrow> s
@@ -414,16 +410,7 @@ definition "print_examp_instance_defassoc_typecheck_gen name l_ocli ocl =
       l_oid_gen
       [] in
 
-  [ Ml (Sexpr_apply ''Ty'.check''
-    [ Sexpr_list'
-        (\<lambda>(rep, s).
-          Sexpr_pair (Sexpr_basic [flatten [ ''OCL.''
-                                           , case rep of Warning \<Rightarrow> ''Warning''
-                                                       | Error \<Rightarrow> ''Error''
-                                                       | Writeln \<Rightarrow> ''Writeln'' ]])
-                     (Sexpr_string s))
-        l_out
-    , Sexpr_string '' error(s) in multiplicity constraints''])])"
+  [ raise_ml l_out '' error(s) in multiplicity constraints'' ])"
 
 definition "print_examp_instance_defassoc = (\<lambda> OclInstance l \<Rightarrow> \<lambda> ocl.
   (\<lambda>l_res.

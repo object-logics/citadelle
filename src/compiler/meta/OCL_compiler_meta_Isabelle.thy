@@ -73,7 +73,8 @@ datatype hol_expr = Expr_rewrite hol_expr (* left *) string (* symb rewriting *)
                   | Expr_applys00 hol_expr "hol_expr list"
                   | Expr_paren string (* left *) string (* right *) hol_expr
                   | Expr_if_then_else hol_expr hol_expr hol_expr
-                  | Expr_inner pure_term (* inner syntax term *)
+                  | Expr_inner0 "string list" (* de bruijn variables under "lam", pre-initialized context *)
+                                pure_term (* inner syntax term *)
 
 datatype hol_instantiation_class = Instantiation string (* name *)
                                                  string (* name in definition *)
@@ -205,6 +206,7 @@ definition "Expr_preunary e1 e2 = Expr_applys00 e1 [e2]" (* no parenthesis and s
 definition "Expr_postunary e1 e2 = Expr_applys00 e1 [e2]" (* no parenthesis and separated with one space *)
 definition "Expr_case = Expr_function0 o Some"
 definition "Expr_function = Expr_function0 None"
+definition "Expr_inner = Expr_inner0 []"
 definition "Lemmas_simp = Lemmas_simp_opt True"
 definition "Lemmas_nosimp = Lemmas_simp_opt False"
 definition "Consts_value = ''(_)''"

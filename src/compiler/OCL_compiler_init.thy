@@ -215,4 +215,8 @@ definition "unicode_triangleq = escape_unicode ''triangleq''"
 definition "unicode_Turnstile = escape_unicode ''Turnstile''"
 definition "unicode_upsilon = escape_unicode ''upsilon''"
 
+subsection{* ... *}
+
+definition "pure_lam l s = flatten [''('', String_concatWith '' '' (unicode_lambda # l), ''. ('', s, ''))'']"
+
 end

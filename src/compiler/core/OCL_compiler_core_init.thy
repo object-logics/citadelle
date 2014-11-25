@@ -130,6 +130,8 @@ definition "var_mt_sequence = ''mtSequence''"
 definition "var_ANY_sequence = flatten [''(%x t. hd (drop (drop (Rep_Sequence'', isub_of_str ''base'','' (x t)))))'']"
 definition "var_OclIncluding_sequence = ''UML_Sequence.OclIncluding''"
 definition "var_OclForall_sequence = ''UML_Sequence.OclForall''"
+definition "var_self = ''self''"
+definition "var_result = ''result''"
 
 definition "update_D_accessor_rbt_pre f = (\<lambda>(l_pre, l_post). (f l_pre, l_post))"
 definition "update_D_accessor_rbt_post f = (\<lambda>(l_pre, l_post). (l_pre, f l_post))"
@@ -250,11 +252,30 @@ definition "print_access_choose_mlname n i j =
 
 subsection{* example *}
 
+datatype reporting = Warning
+                   | Error
+                   | Writeln
+
+definition "raise_ml l_out s = Ml (Sexpr_apply ''Ty'.check''
+    [ Sexpr_list'
+        (\<lambda>(rep, s).
+          Sexpr_pair (Sexpr_basic [flatten [ ''OCL.''
+                                           , case rep of Warning \<Rightarrow> ''Warning''
+                                                       | Error \<Rightarrow> ''Error''
+                                                       | Writeln \<Rightarrow> ''Writeln'' ]])
+                     (Sexpr_string s))
+        l_out
+    , Sexpr_string s ])"
+
 subsection{* context *}
 
 definition "print_ctxt_const_name attr_n var_at_when_hol = flatten [ ''dot'', isup_of_str attr_n, var_at_when_hol]"
 definition "print_ctxt_pre_post_name attr_n var_at_when_hol = hol_definition (print_ctxt_const_name attr_n var_at_when_hol)"
 definition "print_ctxt_inv_name n tit var_at_when = hol_definition (flatten [n, ''_'', tit, var_at_when])"
+
+definition "make_ctxt_free_var pref ctxt =
+ (let l = var_self # List_map fst (Ctxt_fun_ty_arg ctxt) in
+  if pref = OclCtxtPre then l else var_result # l)"
 
 subsection{* context2 *}
 

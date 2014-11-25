@@ -54,24 +54,20 @@ subsection{* s of ... *} (* s_of *)
 context s_of
 begin
 
-fun_quick s_of_pure_term_aux where "s_of_pure_term_aux l e = (\<lambda>
+fun_quick s_of_pure_term where "s_of_pure_term l e = (\<lambda>
     PureConst s _ \<Rightarrow> To_string s
   | PureFree s _ \<Rightarrow> To_string s
-  | PureApp t1 t2 \<Rightarrow> sprintf2 (STR ''(%s) (%s)'') (s_of_pure_term_aux l t1) (s_of_pure_term_aux l t2)
+  | PureApp t1 t2 \<Rightarrow> sprintf2 (STR ''(%s) (%s)'') (s_of_pure_term l t1) (s_of_pure_term l t2)
   | PureAbs s _ t \<Rightarrow> 
       let s = To_string s in
-      sprintf3 (STR ''(%s %s. %s)'') (To_string unicode_lambda) s (s_of_pure_term_aux (s # l) t)
+      sprintf3 (STR ''(%s %s. %s)'') (To_string unicode_lambda) s (s_of_pure_term (s # l) t)
   | PureBound n \<Rightarrow> sprintf1 (STR ''%s'') (l ! nat_of_natural n)) e"
-
-definition "s_of_pure_term = s_of_pure_term_aux []"
 
 end
 
 lemmas [code] =
   (* def *)
-  s_of.s_of_pure_term_def
-
   (* fun *)
-  s_of.s_of_pure_term_aux.simps
+  s_of.s_of_pure_term.simps
 
 end

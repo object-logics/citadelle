@@ -78,4 +78,18 @@ fun_quick map_Const where
                                                          (map_Const f term2))
                         expr"
 
+fun_quick fold_Free where
+   "fold_Free f accu expr = (\<lambda> PureFree s ty \<Rightarrow> f accu s 
+                        | PureAbs _ _ term \<Rightarrow> fold_Free f accu term
+                        | PureApp term1 term2 \<Rightarrow> fold_Free f (fold_Free f accu term1) term2
+                        | _ \<Rightarrow> accu)
+                        expr"
+
+fun_quick cross_abs_aux where
+   "cross_abs_aux l x = (\<lambda> (Suc n, PureAbs s _ t) \<Rightarrow> cross_abs_aux (s # l) (n, t)
+                         | (_, e) \<Rightarrow> (l, e))
+                         x"
+
+definition "cross_abs n l = cross_abs_aux [] (n, l)"
+
 end

@@ -101,6 +101,17 @@ definition "print_ctxt_to_ocl_gen l_access f var = (\<lambda> T_pure t \<Rightar
 definition "print_ctxt_to_ocl_pre ocl = print_ctxt_to_ocl_gen (snd (D_accessor_rbt ocl)) print_ctxt_is_name_at_post var_at_when_hol_pre"
 definition "print_ctxt_to_ocl_post ocl = print_ctxt_to_ocl_gen (fst (D_accessor_rbt ocl)) print_ctxt_is_name_at_pre var_at_when_hol_post"
 
+definition "axiom_unbound ax_name ax_body f_msg ctxt = 
+        [ (\<lambda>ocl. Thy_axiom (Axiom ax_name (ax_body ocl)))
+        , (\<lambda>_. Thy_ml (raise_ml (bug_ocaml_extraction
+                                (let l = flatten (List_mapi (\<lambda> n. \<lambda>(msg, T_pure t) \<Rightarrow> 
+                                            let l = 
+                                              rev (fold_Free (\<lambda>l s. 
+                                                (Error, flatten [f_msg n msg, '': unbound value '', s]) # l) [] t) in
+                                            if l = [] then [(Writeln, f_msg n msg)] else l) ctxt) in
+                                 if list_ex (\<lambda>(Error, _) \<Rightarrow> True | _ \<Rightarrow> False) l then l else []))
+                                '' error(s)'')) ]"
+
 definition "print_ctxt_pre_post = fold_list (\<lambda>x ocl. (x ocl, ocl)) o (\<lambda> ctxt.
   let (l_pre, l_post) = List.partition (\<lambda> (OclCtxtPre, _) \<Rightarrow> True | _ \<Rightarrow> False) (Ctxt_expr ctxt)
     ; attr_n = Ctxt_fun_name ctxt
@@ -109,13 +120,19 @@ definition "print_ctxt_pre_post = fold_list (\<lambda>x ocl. (x ocl, ocl)) o (\<
     ; var_tau = unicode_tau
     ; f_tau = \<lambda>s. Expr_warning_parenthesis (Expr_binop (b var_tau) unicode_Turnstile (Expr_warning_parenthesis s))
     ; expr_binop = \<lambda>s_op. \<lambda> [] \<Rightarrow> b ''True'' | l \<Rightarrow> Expr_parenthesis (expr_binop s_op l)
-    ; to_s = \<lambda>f_to l_pre. expr_binop unicode_and (List_map (\<lambda>(_, expr) \<Rightarrow> f_tau (Expr_inner (case f_to expr of T_pure expr \<Rightarrow> expr))) l_pre)
+    ; to_s = \<lambda>pref f_to l_pre. 
+        expr_binop unicode_and
+          (bug_ocaml_extraction
+          (List_map
+             (bug_ocaml_extraction
+             (let nb_var = length (make_ctxt_free_var pref ctxt) in
+              (\<lambda>(_, expr) \<Rightarrow> 
+               f_tau (bug_ocaml_extraction
+                     (let (l, expr) = cross_abs nb_var (case f_to expr of T_pure expr \<Rightarrow> expr) in
+                      Expr_inner0 l expr))))) l_pre))
     ; f = \<lambda> (var_at_when_hol, var_at_when_ocl).
-        let var_self = ''self''
-          ; var_result = ''result'' in
-        [ \<lambda>ocl. Thy_axiom (Axiom
-            (print_ctxt_pre_post_name attr_n var_at_when_hol)
-            (Expr_rewrite
+        axiom_unbound (print_ctxt_pre_post_name attr_n var_at_when_hol)
+          (\<lambda>ocl. Expr_rewrite
               (Expr_parenthesis (f_tau (Expr_rewrite
                   (Expr_postunary (b var_self) (b (mk_dot_par_gen (flatten [''.'', attr_n, var_at_when_ocl]) (List_map fst (Ctxt_fun_ty_arg ctxt)))))
                   unicode_triangleq
@@ -124,10 +141,12 @@ definition "print_ctxt_pre_post = fold_list (\<lambda>x ocl. (x ocl, ocl)) o (\<
               (Expr_parenthesis (Expr_if_then_else
                 (f_tau (a unicode_delta (b var_self)))
                 (Expr_warning_parenthesis (Expr_binop
-                  (to_s (print_ctxt_to_ocl_pre ocl) l_pre)
+                  (to_s OclCtxtPre (print_ctxt_to_ocl_pre ocl) l_pre)
                   unicode_longrightarrow
-                  (to_s (print_ctxt_to_ocl_post ocl) l_post)))
-                (f_tau (Expr_rewrite (b var_result) unicode_triangleq (b ''invalid''))))))) ] in
+                  (to_s OclCtxtPost (print_ctxt_to_ocl_post ocl) l_post)))
+                (f_tau (Expr_rewrite (b var_result) unicode_triangleq (b ''invalid''))))))
+          (\<lambda>n pref. flatten [''('', natural_of_str (n + 1), '') '', if pref = OclCtxtPre then ''pre'' else ''post''])
+          (Ctxt_expr ctxt) in
   f (var_at_when_hol_post, var_at_when_ocl_post))"
 
 definition "print_ctxt_inv = fold_list (\<lambda>x ocl. (x ocl, ocl)) o flatten o flatten o (\<lambda> ctxt.
@@ -137,13 +156,12 @@ definition "print_ctxt_inv = fold_list (\<lambda>x ocl. (x ocl, ocl)) o flatten 
     ; f_tau = \<lambda>s. Expr_warning_parenthesis (Expr_binop (b var_tau) unicode_Turnstile s) in
   List_map (\<lambda> (tit, e) \<Rightarrow>
     List_map (\<lambda> (allinst_at_when, var_at_when, e) \<Rightarrow>
-        let var_self = ''self''
-          ; var_result = ''result'' in
-        [ \<lambda>ocl. Thy_axiom (Axiom
-            (print_ctxt_inv_name (Ctxt_inv_ty ctxt) tit var_at_when)
-            (f_tau (Expr_apply var_OclForall_set
+        axiom_unbound (print_ctxt_inv_name (Ctxt_inv_ty ctxt) tit var_at_when)
+          (\<lambda>ocl. f_tau (Expr_apply var_OclForall_set
               [ a allinst_at_when (b (Ctxt_inv_ty ctxt))
-              , Expr_lam ''self'' (\<lambda>var_self. Expr_inner (case e ocl of T_pure e \<Rightarrow> e))]))) ])
+              , Expr_inner (case e ocl of T_pure e \<Rightarrow> e)]))
+          (\<lambda>_ pref. flatten [''inv '', pref])
+          (Ctxt_inv_expr ctxt))
       [(''OclAllInstances_at_pre'', var_at_when_hol_pre, \<lambda>ocl. print_ctxt_to_ocl_pre ocl e)
       ,(''OclAllInstances_at_post'', var_at_when_hol_post, \<lambda>ocl. print_ctxt_to_ocl_post ocl e)])
     (Ctxt_inv_expr ctxt))"

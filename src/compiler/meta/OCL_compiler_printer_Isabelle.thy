@@ -93,7 +93,7 @@ fun_quick s_of_expr where "s_of_expr e = (\<lambda>
   | Expr_applys00 e l \<Rightarrow> sprintf2 (STR ''%s %s'') (s_of_expr e) (String_concat (STR '' '') (List.map (\<lambda> e \<Rightarrow> sprintf1 (STR ''%s'') (s_of_expr e)) l))
   | Expr_paren p_left p_right e \<Rightarrow> sprintf3 (STR ''%s%s%s'') (To_string p_left) (s_of_expr e) (To_string p_right)
   | Expr_if_then_else e_if e_then e_else \<Rightarrow> sprintf3 (STR ''if %s then %s else %s'') (s_of_expr e_if) (s_of_expr e_then) (s_of_expr e_else)
-  | Expr_inner pure \<Rightarrow> s_of_pure_term pure) e"
+  | Expr_inner0 l pure \<Rightarrow> s_of_pure_term (List_map To_string l) pure) e"
 
 definition "s_of_instantiation_class _ = (\<lambda> Instantiation n n_def expr \<Rightarrow>
     let name = To_string n in
