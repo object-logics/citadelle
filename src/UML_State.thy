@@ -271,9 +271,11 @@ by(simp add: foundation24 null_fun_def)
 
 text{* One way to establish the actual presence of an object representation in a state is:*}
 
+definition "is_represented_in_state fst_snd x H \<tau> = (x \<tau> \<in> (Some o H) ` ran (heap (fst_snd \<tau>)))"
+
 lemma represented_generic_objects_in_state:
 assumes A: "\<tau> \<Turnstile> (OclAllInstances_generic pre_post H)->includes\<^sub>S\<^sub>e\<^sub>t(x)"
-shows      "x \<tau> \<in> (Some o H) ` ran (heap(pre_post \<tau>))"
+shows      "is_represented_in_state pre_post x H \<tau>"
 proof -
    have B: "(\<delta> (OclAllInstances_generic pre_post H)) \<tau> = true \<tau>"
            by(simp add: OclValid_def[symmetric] OclAllInstances_generic_defined)
@@ -286,7 +288,7 @@ proof -
            by(subst Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e.Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inverse,simp_all add: bot_option_def)
    show ?thesis
     apply(insert A)
-    apply(simp add: OclIncludes_def OclValid_def ran_def B C image_def true_def)
+    apply(simp add: is_represented_in_state_def OclIncludes_def OclValid_def ran_def B C image_def true_def)
     apply(simp add: OclAllInstances_generic_def)
     apply(simp add: F)
     apply(simp add: ran_def)
@@ -512,7 +514,7 @@ text{* One way to establish the actual presence of an object representation in a
 
 lemma
 assumes A: "\<tau> \<Turnstile> H .allInstances()->includes\<^sub>S\<^sub>e\<^sub>t(x)"
-shows      "x \<tau> \<in> (Some o H) ` ran (heap(snd \<tau>))"
+shows      "is_represented_in_state snd x H \<tau>"
 by(rule represented_generic_objects_in_state[OF A[simplified OclAllInstances_at_post_def]])
 
 lemma state_update_vs_allInstances_at_post_empty:
@@ -617,7 +619,7 @@ text{* One way to establish the actual presence of an object representation in a
 
 lemma
 assumes A: "\<tau> \<Turnstile> H .allInstances@pre()->includes\<^sub>S\<^sub>e\<^sub>t(x)"
-shows      "x \<tau> \<in> (Some o H) ` ran (heap(fst \<tau>))"
+shows      "is_represented_in_state fst x H \<tau>"
 by(rule represented_generic_objects_in_state[OF A[simplified OclAllInstances_at_pre_def]])
 
 

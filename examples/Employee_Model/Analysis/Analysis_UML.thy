@@ -972,44 +972,24 @@ by(rule ext, simp add: dot_accessor null_fun_def null_option_def bot_option_def 
 
 subsection{* Representation in States *}
 
-lemma dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<B>\<O>\<S>\<S>_def_mono:"\<tau> \<Turnstile> \<delta>(x .boss) \<Longrightarrow> \<tau> \<Turnstile> \<delta>(x)"
-sorry (* pour frederic ici, dans le cas generic et compiler*)
-find_theorems WFF
-(* heap (snd \<tau>) (oid_of y) *)
+lemma dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<B>\<O>\<S>\<S>_def_mono:"\<tau> \<Turnstile> \<delta>(X .boss) \<Longrightarrow> \<tau> \<Turnstile> \<delta>(X)"
+  apply(case_tac "\<tau> \<Turnstile> (X \<triangleq> invalid)", insert StrongEq_L_subst2[where P = "(\<lambda>x. (\<delta> (x .boss)))" and \<tau> = "\<tau>" and x = "X" and y = "invalid"], simp add: foundation16')
+  apply(case_tac "\<tau> \<Turnstile> (X \<triangleq> null)", insert StrongEq_L_subst2[where P = "(\<lambda>x. (\<delta> (x .boss)))" and \<tau> = "\<tau>" and x = "X" and y = "null"], simp add: foundation16')
+by(simp add: defined_split)
+
 lemma repr_boss:  
 assumes A : "\<tau> \<Turnstile> \<delta>(x .boss)"
-shows      "is_represented_in_state ((x .boss) \<tau>) (H) (snd \<tau>) "
-proof - 
-   have B : "invalid \<tau> \<notin> (Some \<circ> H) ` ran (heap (snd \<tau>))" 
-               by (metis (full_types) bot_option_def image_compose image_iff 
-                                      invalid_def option.distinct(1))
-   show ?thesis
-         apply(insert A)
-         unfolding is_represented_in_state_def dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<B>\<O>\<S>\<S>_def OclValid_def 
-                    defined_def eval_extract_def select\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<B>\<O>\<S>\<S>_def in_post_state_def
-         apply(insert A[THEN dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<B>\<O>\<S>\<S>_def_mono])
-         apply(simp add:UML_Logic.foundation16 bot_option_def null_option_def)
-         apply(case_tac "x \<tau>",simp_all) 
-         apply(erule exE, simp)
-         apply(thin_tac "a = \<lfloor>y\<rfloor>" )
-         unfolding deref_oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_def
-         apply(case_tac "heap (snd \<tau>) (oid_of y)",simp_all) 
-         apply (metis OclValid_def UML_Types.bot_fun_def foundation2 invalid_def)
-         apply(case_tac "aa",simp_all) defer
-         
-         apply (metis OclValid_def UML_Types.bot_fun_def foundation2 invalid_def)
-         apply (case_tac "type\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n",simp_all)
-         apply (case_tac "option2",simp add:false_def true_def, simp)
-         apply (simp split:split_if_asm, simp add: true_def false_def, erule conjE)
-         unfolding deref_oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_def
-         apply(case_tac "a =oid_of y", simp_all)
-         sledgehammer
-sorry
-qed
+shows      "is_represented_in_state in_post_state (x .boss) Person \<tau>"
+         apply(insert A[simplified foundation16]
+                      A[THEN dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<B>\<O>\<S>\<S>_def_mono, simplified foundation16])
+         unfolding is_represented_in_state_def
+                   dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<B>\<O>\<S>\<S>_def eval_extract_def select\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<B>\<O>\<S>\<S>_def in_post_state_def
+         oops
 
 lemma repr_bossX : 
-"\<tau> \<Turnstile> \<delta>(x .boss) \<Longrightarrow> \<tau> \<Turnstile> (Person .allInstances()) ->includes\<^sub>S\<^sub>e\<^sub>t(x .boss)"
-sorry
+assumes A: "\<tau> \<Turnstile> \<delta>(x .boss)"
+shows "\<tau> \<Turnstile> ((Person .allInstances()) ->includes\<^sub>S\<^sub>e\<^sub>t(x .boss))"
+oops
 
 section{* A Little Infra-structure on Example States *}
 
