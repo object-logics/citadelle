@@ -541,7 +541,7 @@ definition "print_access_lemma_strict expr = (start_map Thy_lemma_by o
                 [(''invalid'', [''invalid'']), (''null'', [''null_fun'', ''null_option''])])) expr"
 
 definition "print_access_def_mono_name isub_name dot_at_when attr_ty isup_attr =
-  flatten [ ''define_mono_''
+  flatten [ ''defined_mono_''
           , isup_attr (let dot_name = isub_name ''dot'' in
                       case attr_ty of
                         OclTy_class ty_obj \<Rightarrow> flatten [dot_name, ''_'', natural_of_str (TyObjN_ass_switch (TyObj_from ty_obj)), ''_'']
