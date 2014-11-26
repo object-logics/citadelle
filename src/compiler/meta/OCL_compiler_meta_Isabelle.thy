@@ -118,7 +118,9 @@ datatype hol_tactic = Tact_rule hol_ntheorem
                     | Tact_erule hol_ntheorem
                     | Tact_intro "hol_ntheorem list"
                     | Tact_elim hol_ntheorem
-                    | Tact_subst_l "string (* nat *) list" (* pos *) hol_ntheorem
+                    | Tact_subst_l0 bool (* asm *)
+                                    "string (* nat *) list" (* pos *)
+                                    hol_ntheorem
                     | Tact_insert hol_ntheorems_l
                     | Tact_plus "hol_tactic list"
                     | Tact_option "hol_tactic list"
@@ -221,11 +223,14 @@ definition "Consts_raw0 s l e o_arg = Consts_raw s l (e @@ (case o_arg of
 definition "Ty_arrow = Ty_apply_bin unicode_Rightarrow"
 definition "Ty_times = Ty_apply_bin unicode_times"
 definition "Consts s l e = Consts_raw0 s (Ty_arrow (Ty_base (Char Nibble2 Nibble7 # unicode_alpha)) l) e None"
+definition "Tact_subst_l = Tact_subst_l0 False"
+
 definition "Tac_rule = Tact_rule"
 definition "Tac_drule = Tact_drule"
 definition "Tac_erule = Tact_erule"
 definition "Tac_intro = Tact_intro"
 definition "Tac_elim = Tact_elim"
+definition "Tac_subst_l0 = Tact_subst_l0"
 definition "Tac_subst_l = Tact_subst_l"
 definition "Tac_insert = Tact_insert o List_map Thms_single"
 definition "Tac_plus = Tact_plus"
@@ -248,6 +253,7 @@ definition "Tac_rename_tac = Tact_rename_tac"
 definition "Tac_case_tac = Tact_case_tac"
 definition "Tac_blast = Tact_blast"
 
+definition "Tac_subst_asm b = Tac_subst_l0 b [''0'']"
 definition "Tac_subst = Tac_subst_l [''0'']"
 definition "Tac_auto_simp_add = Tac_auto_simp_add2 []"
 definition "Tac_auto = Tac_auto_simp_add []"

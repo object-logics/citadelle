@@ -670,7 +670,12 @@ fun m_of_tactic expr = let open OCL open Method open OCL_overload in case expr o
   | Tact_erule s => Basic (fn ctxt => erule 0 [m_of_ntheorem ctxt s])
   | Tact_elim s => Basic (fn ctxt => elim [m_of_ntheorem ctxt s])
   | Tact_intro l => Basic (fn ctxt => intro (map (m_of_ntheorem ctxt) l))
-  | Tact_subst_l (l, s) => Basic (fn ctxt => SIMPLE_METHOD' (EqSubst.eqsubst_tac ctxt (map (fn s => case Int.fromString (To_string s) of SOME i => i) l) [m_of_ntheorem ctxt s]))
+  | Tact_subst_l0 (asm, l, s) => Basic (fn ctxt => 
+      SIMPLE_METHOD' ((if asm then
+                         EqSubst.eqsubst_asm_tac
+                       else
+                         EqSubst.eqsubst_tac) ctxt (map (fn s => case Int.fromString (To_string s) of
+                                                                   SOME i => i) l) [m_of_ntheorem ctxt s]))
   | Tact_insert l => Basic (fn ctxt => insert (m_of_ntheorems_l ctxt l))
   | Tact_plus t => Repeat1 (Then (List.map m_of_tactic t))
   | Tact_option t => Try (Then (List.map m_of_tactic t))

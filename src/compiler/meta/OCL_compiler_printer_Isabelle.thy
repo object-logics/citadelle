@@ -216,11 +216,12 @@ fun_quick s_of_tactic where "s_of_tactic expr = (\<lambda>
   | Tact_erule s \<Rightarrow> sprintf1 (STR ''erule %s'') (s_of_ntheorem s)
   | Tact_intro l \<Rightarrow> sprintf1 (STR ''intro %s'') (s_of_ntheorem_l1 l)
   | Tact_elim s \<Rightarrow> sprintf1 (STR ''elim %s'') (s_of_ntheorem s)
-  | Tact_subst_l l s =>
+  | Tact_subst_l0 asm l s =>
+      let s_asm = if asm then STR ''(asm) '' else STR '''' in
       if l = [''0''] then
-        sprintf1 (STR ''subst %s'') (s_of_ntheorem s)
+        sprintf2 (STR ''subst %s%s'') s_asm (s_of_ntheorem s)
       else
-        sprintf2 (STR ''subst (%s) %s'') (String_concat (STR '' '') (List_map To_string l)) (s_of_ntheorem s)
+        sprintf3 (STR ''subst %s(%s) %s'') s_asm (String_concat (STR '' '') (List_map To_string l)) (s_of_ntheorem s)
   | Tact_insert l => sprintf1 (STR ''insert %s'') (s_of_ntheorems_l l)
   | Tact_plus [Tact_one (Simp_only l)] \<Rightarrow> sprintf1 (STR ''simp_all only: %s'') (s_of_ntheorems_l l)
   | Tact_plus [Tact_one (Simp_add_del l1 l2)] \<Rightarrow> sprintf2 (STR ''simp_all%s%s'')
