@@ -515,10 +515,11 @@ definition "print_access_dot_lemmas_cp = start_map Thy_lemmas_simp o (\<lambda>e
   of [] \<Rightarrow> []
    | l \<Rightarrow> [Lemmas_simp '''' l])"
 
+definition "print_access_lemma_strict_name isub_name dot_at_when attr_ty isup_attr name_invalid = flatten [print_access_dot_name isub_name dot_at_when attr_ty isup_attr, ''_'', name_invalid]"
 definition "print_access_lemma_strict expr = (start_map Thy_lemma_by o
   map_class_arg_only_var' (\<lambda>isub_name name (_, dot_at_when) attr_ty isup_attr dot_attr.
             List_map (\<lambda>(name_invalid, tac_invalid). Lemma_by
-                  (flatten [print_access_dot_name isub_name dot_at_when attr_ty isup_attr, ''_'', name_invalid])
+                  (print_access_lemma_strict_name isub_name dot_at_when attr_ty isup_attr name_invalid)
                   [Expr_rewrite
                      (dot_attr (Expr_annot (Expr_basic [name_invalid]) name))
                      ''=''
@@ -538,5 +539,39 @@ definition "print_access_lemma_strict expr = (start_map Thy_lemma_by o
                                                 ''eval_extract'' # l
                                               else l))]) )
                 [(''invalid'', [''invalid'']), (''null'', [''null_fun'', ''null_option''])])) expr"
+
+definition "print_access_def_mono_name isub_name dot_at_when attr_ty isup_attr =
+  flatten [ ''define_mono_''
+          , isup_attr (let dot_name = isub_name ''dot'' in
+                      case attr_ty of
+                        OclTy_class ty_obj \<Rightarrow> flatten [dot_name, ''_'', natural_of_str (TyObjN_ass_switch (TyObj_from ty_obj)), ''_'']
+                      | _ \<Rightarrow> dot_name), dot_at_when]"
+
+definition "print_access_def_mono = start_map'''' Thy_lemma_by o (\<lambda>expr _.
+  map_class_arg_only_var'
+    (\<lambda>isub_name name (_, dot_at_when) attr_ty isup_attr dot_attr.
+      let var_X = ''X''
+        ; var_tau = unicode_tau
+        ; a = \<lambda>f x. Expr_apply f [x]
+        ; b = \<lambda>s. Expr_basic [s]
+        ; f0 = \<lambda>e. Expr_binop (Expr_basic [var_tau]) unicode_Turnstile e
+        ; f = \<lambda>e. f0 (Expr_apply unicode_delta [e]) in
+            [ Lemma_by
+                (print_access_def_mono_name isub_name dot_at_when attr_ty isup_attr)
+                (List_map f [ dot_attr (Expr_annot (b var_X) name)
+                            , b var_X ])
+                (bug_ocaml_extraction
+                (let f_tac = \<lambda>s.
+                   [ Tac_case_tac (f0 (Expr_warning_parenthesis (Expr_rewrite (b var_X) unicode_triangleq (b s))))
+                   , Tac_insert [Thm_where (Thm_str ''StrongEq_L_subst2'')
+                                           [ (''P'', Expr_lam ''x'' (\<lambda>var_X. a unicode_delta (dot_attr (b var_X))))
+                                           , (unicode_tau, b unicode_tau)
+                                           , (''x'', b var_X)
+                                           , (''y'', b s)]]
+                   , Tac_simp_add [ ''foundation16'' @@ [Char Nibble2 Nibble7]
+                                  , print_access_lemma_strict_name isub_name dot_at_when attr_ty isup_attr s] ] in
+                 [ f_tac ''invalid''
+                 , f_tac ''null'' ]))
+                (Tacl_by [Tac_simp_add [''defined_split'']]) ]) expr)"
 
 end

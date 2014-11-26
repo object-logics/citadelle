@@ -303,6 +303,7 @@ is for example: '' ]
             , print_access_dot_lemmas_cp
             , subsection_exec
             , print_access_lemma_strict
+            , print_access_def_mono
 
             , section ''A Little Infra-structure on Example States''
             , txt''d [ ''
