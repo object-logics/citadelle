@@ -99,7 +99,8 @@ record ocl_ctxt_pre_post = Ctxt_ty :: string (* class ty *)
                            Ctxt_fun_ty_out :: "ocl_ty option" (* None : Void *)
                            Ctxt_expr :: "(ocl_ctxt_prefix \<times> ocl_ctxt_term (* expr *)) list"
 
-record ocl_ctxt_inv =      Ctxt_inv_ty :: string
+record ocl_ctxt_inv =      Ctxt_inv_param :: "string list"
+                           Ctxt_inv_ty :: string
                            Ctxt_inv_expr :: "(string (* name *) \<times> ocl_ctxt_term (* expr *)) list"
 
 datatype ocl_class =   OclClass

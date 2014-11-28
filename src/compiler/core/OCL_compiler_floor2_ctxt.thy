@@ -153,13 +153,16 @@ definition "print_ctxt_inv = fold_list (\<lambda>x ocl. (x ocl, ocl)) o flatten 
   let a = \<lambda>f x. Expr_apply f [x]
     ; b = \<lambda>s. Expr_basic [s]
     ; var_tau = unicode_tau
-    ; f_tau = \<lambda>s. Expr_warning_parenthesis (Expr_binop (b var_tau) unicode_Turnstile s) in
+    ; f_tau = \<lambda>s. Expr_warning_parenthesis (Expr_binop (b var_tau) unicode_Turnstile s)
+    ; nb_var = length (Ctxt_inv_param ctxt) in
   List_map (\<lambda> (tit, e) \<Rightarrow>
     List_map (\<lambda> (allinst_at_when, var_at_when, e) \<Rightarrow>
         axiom_unbound (print_ctxt_inv_name (Ctxt_inv_ty ctxt) tit var_at_when)
           (\<lambda>ocl. f_tau (Expr_apply var_OclForall_set
               [ a allinst_at_when (b (Ctxt_inv_ty ctxt))
-              , Expr_inner (case e ocl of T_pure e \<Rightarrow> e)]))
+              , bug_ocaml_extraction
+                (let (l, expr) = cross_abs nb_var (case e ocl of T_pure e \<Rightarrow> e) in
+                 Expr_inner0 l expr)]))
           (\<lambda>_ pref. flatten [''inv '', pref])
           (Ctxt_inv_expr ctxt))
       [(''OclAllInstances_at_pre'', var_at_when_hol_pre, \<lambda>ocl. print_ctxt_to_ocl_pre ocl e)

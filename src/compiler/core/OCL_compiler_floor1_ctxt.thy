@@ -124,7 +124,7 @@ definition "print_ctxt_pre_post = (\<lambda>ctxt. print_ctxt_gen_syntax_header
 definition "print_ctxt_inv = (\<lambda>ctxt. print_ctxt_gen_syntax_header Pair
   [ Isab_thy_ocl_deep_embed_ast (OclAstCtxtInv Floor2
       (ctxt \<lparr> Ctxt_inv_expr :=
-              List_map (\<lambda> (s, T_to_be_parsed e) \<Rightarrow> (s, T_to_be_parsed (pure_lam [var_self] e)))
+              List_map (\<lambda> (s, T_to_be_parsed e) \<Rightarrow> (s, T_to_be_parsed (pure_lam (Ctxt_inv_param ctxt @@ [var_self]) e)))
                        (Ctxt_inv_expr ctxt) \<rparr>))
   , print_ctxt_gen_syntax_header_l
       (flatten (List_map (\<lambda> (tit, _).

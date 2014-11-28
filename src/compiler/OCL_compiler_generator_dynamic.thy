@@ -1101,12 +1101,13 @@ structure Outer_syntax_Pre_Post = struct
 end
 
 structure Outer_syntax_Inv = struct
-  fun make from_expr name l =
+  fun make from_expr l_param name l =
         OCL.Ocl_ctxt_inv_ext
-          ( From.from_binding name
+          ( From.from_list From.from_binding l_param
+          , From.from_binding name
           , From.from_list (fn ((_, s), e) => (From.from_binding s, from_expr e)) l
           , ())
-  fun make2 from_expr name_ty = map (fn l => make from_expr name_ty [l])
+  fun make2 from_expr l_param name_ty = map (fn l => make from_expr l_param name_ty [l])
 end
 
 structure Outer_syntax_Class = struct
@@ -1115,7 +1116,7 @@ structure Outer_syntax_Class = struct
          ( From.from_binding binding
          , From.from_list (From.from_pair From.from_binding USE_parse.from_oclty) attribute
          , Outer_syntax_Pre_Post.make2 from_expr binding oper
-         , Outer_syntax_Inv.make2 from_expr binding constr
+         , Outer_syntax_Inv.make2 from_expr [] binding constr
          , case child of [] => NONE | [x] => SOME (From.from_binding x)
          , From.from_unit ()))
 end
@@ -1239,8 +1240,8 @@ val () =
     (fn (from_expr, (OclAstCtxtPrePost, OclAstCtxtInv)) =>
      fn USE_context_pre_post ((((name_ty, name_fun), ty_arg), ty_out), expr) =>
         OclAstCtxtPrePost (Outer_syntax_Pre_Post.make from_expr name_ty name_fun ty_arg ty_out expr)
-      | USE_context_invariant ((_, name), l) =>
-        OclAstCtxtInv (Outer_syntax_Inv.make from_expr name l))
+      | USE_context_invariant ((l_param, name), l) =>
+        OclAstCtxtInv (Outer_syntax_Inv.make from_expr (case l_param of NONE => [] | SOME l => l) name l))
 end
 *}
 
