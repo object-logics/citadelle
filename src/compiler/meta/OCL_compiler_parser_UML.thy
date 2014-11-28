@@ -97,6 +97,7 @@ definition "ocl_ctxt_pre_post_rec f ocl = ocl_ctxt_pre_post_rec0 f ocl
   (ocl_ctxt_pre_post.more ocl)"
 
 definition "ocl_ctxt_inv_rec0 f ocl = f
+  (Ctxt_inv_param ocl)
   (Ctxt_inv_ty ocl)
   (Ctxt_inv_expr ocl)"
 
@@ -210,7 +211,8 @@ definition "i_of_ocl_ctxt_pre_post a b f = ocl_ctxt_pre_post_rec
     (f a b))"
 
 definition "i_of_ocl_ctxt_inv a b f = ocl_ctxt_inv_rec
-  (ap3 a (b (ext ''ocl_ctxt_inv_ext''))
+  (ap4 a (b (ext ''ocl_ctxt_inv_ext''))
+    (i_of_list a b (i_of_string a b))
     (i_of_string a b)
     (i_of_list a b (i_of_pair a b (i_of_string a b) (i_of_ocl_ctxt_term a b)))
     (f a b))"
