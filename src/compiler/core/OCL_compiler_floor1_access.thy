@@ -228,58 +228,6 @@ definition "print_access_deref_assocs = start_map'''' Thy_definition_hol o (\<la
        | _ \<Rightarrow> []))
       (l_attr # l_inherited))) expr)))) expr)"
 
-definition "print_access_select_object = start_map'''' Thy_definition_hol o (\<lambda>expr design_analysis.
-  (\<lambda>_.
-   bug_ocaml_extraction
-   (let var_mt = ''mt''
-      ; var_incl = ''incl''
-      ; var_smash = ''smash''
-      ; var_deref = ''deref''
-      ; var_l = ''l''
-      ; b = \<lambda>s. Expr_basic [s] in
-    Definition (Expr_rewrite
-                  (Expr_basic [var_select_object, var_mt, var_incl, var_smash, var_deref, var_l])
-                  ''=''
-                  (Expr_apply var_smash
-                     [ Expr_apply ''foldl''
-                         [ b var_incl
-                         , b var_mt
-                         , Expr_apply ''List.map''
-                             [ b var_deref
-                             , b var_l ] ]])))
-  #
-   (if design_analysis = Gen_design then
-    let f1 = \<lambda>var_select_object_name var_mt var_OclIncluding.
-     let var_f = ''f''
-       ; var_p = ''p''
-       ; a = \<lambda>f x. Expr_apply f [x]
-       ; b = \<lambda>s. Expr_basic [s] in
-    Definition
-      (Expr_rewrite
-        (Expr_basic [var_select_object_name, var_f, var_p])
-        ''=''
-        (Expr_apply var_select_object
-           [ b var_mt
-           , b var_OclIncluding
-           , b ''id''
-           , a var_f (b var_p)]))
-      ; f2 = \<lambda> var_select_object_name_any var_ANY var_select_object_name.
-     let var_f = ''f''
-       ; var_p = ''p''
-       ; var_s_set = ''s_set''
-       ; a = \<lambda>f x. Expr_apply f [x]
-       ; b = \<lambda>s. Expr_basic [s] in
-    Definition
-      (Expr_rewrite
-        (Expr_basic [var_select_object_name_any, var_f, var_p, var_s_set])
-        ''=''
-        (a var_ANY (Expr_apply var_select_object_name (List_map b [var_f, var_p, var_s_set])))) in
-  [ f1 var_select_object_set var_mt_set var_OclIncluding_set
-  , f2 var_select_object_set_any var_ANY_set var_select_object_set
-  , f1 var_select_object_sequence var_mt_sequence var_OclIncluding_sequence
-  , f2 var_select_object_sequence_any var_ANY_sequence var_select_object_sequence ]
-    else [])) expr)"
-
 definition "print_access_select = start_map'' Thy_definition_hol o (\<lambda>expr base_attr _ base_attr''.
   map_class_arg_only0 (\<lambda>isub_name name l_attr.
     let l_attr = base_attr l_attr in

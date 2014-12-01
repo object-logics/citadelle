@@ -1029,4 +1029,29 @@ by(simp add: OclIsMaintained_def OclSelf_at_pre_def OclSelf_at_post_def
 lemma framing_same_state: "(\<sigma>, \<sigma>) \<Turnstile> (x @pre H  \<triangleq>  (x @post H))"
 by(simp add: OclSelf_at_pre_def OclSelf_at_post_def OclValid_def StrongEq_def)
 
+section{* Accessors on Object *}
+
+definition "select_object mt incl smash deref l = smash (foldl incl mt (map deref l))
+ (* smash returns null with mt in input (in this case, object contains null pointer) *)"
+
+text{* The continuation @{text f} is usually instantiated with a smashing
+function which is either the identity @{term id} or, for \inlineocl{0..1} cardinalities
+of associations, the @{term OclANY}-selector which also handles the
+@{term null}-cases appropriately. A standard use-case for this combinator
+is for example: *}
+term "(select_object mtSet UML_Set.OclIncluding OclANY f  l oid )::('\<AA>, 'a::null)val"
+
+definition "OclANY\<^sub>S\<^sub>e\<^sub>q = (\<lambda>x \<tau>. 
+   let x_\<tau> = x \<tau> in
+   if x_\<tau> = invalid \<tau> then
+     None
+   else
+     case drop (drop (Rep_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e x_\<tau>)) of [] \<Rightarrow> None
+                                             | l \<Rightarrow> hd l)"
+
+definition "select_object_set f p = select_object mtSet UML_Set.OclIncluding id (f p)"
+definition "select_object_set_any f p s_set = OclANY (select_object_set f p s_set)"
+definition "select_object_sequence f p = select_object mtSequence UML_Sequence.OclIncluding id (f p)"
+definition "select_object_sequence_any f p s_set = OclANY\<^sub>S\<^sub>e\<^sub>q (select_object_sequence f p s_set)"
+
 end

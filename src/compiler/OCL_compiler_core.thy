@@ -283,13 +283,6 @@ the following combinator @{text switch}: '' ]
             , print_access_choose
             , print_access_deref_oid
             , print_access_deref_assocs
-            , txt''a [ ''
-   The continuation @{text f} is usually instantiated with a smashing
-function which is either the identity @{term id} or, for '', e, ''inlineocl{0..1} cardinalities
-of associations, the @{term OclANY}-selector which also handles the
-@{term null}-cases appropriately. A standard use-case for this combinator
-is for example: '' ]
-            , print_access_select_object
             , txt'' [ ''
    pointer undefined in state or not referencing a type conform object representation '' ]
             , print_access_select

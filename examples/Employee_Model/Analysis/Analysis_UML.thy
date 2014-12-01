@@ -801,23 +801,6 @@ definition "switch\<^sub>3_4 = (\<lambda>[x,y,z]\<Rightarrow> (y,z))"
 definition "switch\<^sub>3_5 = (\<lambda>[x,y,z]\<Rightarrow> (z,x))"
 definition "switch\<^sub>3_6 = (\<lambda>[x,y,z]\<Rightarrow> (z,y))"
 
-definition select_object  ::"  (('\<AA>, 'b::null)val)
-                         \<Rightarrow> (('\<AA>,'b)val \<Rightarrow> ('\<AA>,'c)val \<Rightarrow> ('\<AA>, 'b)val)
-                         \<Rightarrow> (('\<AA>, 'b)val \<Rightarrow> ('\<AA>, 'd)val)
-                         \<Rightarrow> (oid \<Rightarrow> ('\<AA>,'c::null)val)
-                         \<Rightarrow> oid list
-                         \<Rightarrow> ('\<AA>, 'd)val"
-where  "select_object  mt incl smash deref l  = smash(foldl incl mt (map deref l))
- (* smash returns null with mt in input (in this case, object contains null pointer) *)"
-
-
-text{* The continuation @{text f} is usually instantiated with a smashing
-function which is either the identity @{term id} or, for \inlineocl{0..1} cardinalities
-of associations, the @{term OclANY}-selector which also handles the
-@{term null}-cases appropriately. A standard use-case for this combinator
-is for example: *}
-term "(select_object mtSet UML_Set.OclIncluding OclANY f  l oid )::('\<AA>, 'a::null)val"
-
 definition deref_oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n :: "(\<AA> state \<times> \<AA> state \<Rightarrow> \<AA> state)
                              \<Rightarrow> (type\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n \<Rightarrow> (\<AA>, 'c::null)val)
                              \<Rightarrow> oid
