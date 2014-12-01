@@ -98,9 +98,9 @@ lemmas cp_intro''[intro!,simp,code_unfold] =
        cp_intro''
        cp_StrictRefEq\<^sub>O\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t[THEN allI[THEN allI[THEN allI[THEN cpI2]],
              of "StrictRefEq\<^sub>O\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t"]]
-                    
+
 text_raw{* \endisatagafp *}
-                    
+
 subsection{* Logic and Algebraic Layer on Object *}
 subsubsection{* Validity and Definedness Properties *}
 
@@ -117,7 +117,7 @@ lemma defined_StrictRefEq\<^sub>O\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t_I:
  apply(insert assms, simp add: StrictRefEq\<^sub>O\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t_def OclValid_def)
 by(subst cp_defined, simp add: true_def)
 
-lemma StrictRefEq\<^sub>O\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t_def_homo : 
+lemma StrictRefEq\<^sub>O\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t_def_homo :
 "\<delta>(StrictRefEq\<^sub>O\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t x (y::('\<AA>,'a::{null,object})val)) = ((\<upsilon> x) and (\<upsilon> y))"
 oops (* sorry *)
 
@@ -867,7 +867,7 @@ proof -
             metis def_X' def_x foundation16[THEN iffD1])))+
  done
 
- 
+
  have not_inj : "\<And>x y. ((not x) \<tau> = (not y) \<tau>) = (x \<tau> = y \<tau>)"
  by (metis foundation21 foundation22)
 
@@ -901,7 +901,7 @@ proof -
   apply(drule_tac x = x in ballE) prefer 3 apply assumption
    apply(drule_tac x = x in ballE) prefer 3 apply assumption
     apply(drule_tac x = x in ballE) prefer 3 apply assumption
-     apply (metis (full_types) bot_fun_def OclNot4 OclValid_def foundation16 
+     apply (metis (full_types) bot_fun_def OclNot4 OclValid_def foundation16
                                foundation9 not_inj null_fun_def)
  by(fast+)
 
@@ -1030,6 +1030,7 @@ lemma framing_same_state: "(\<sigma>, \<sigma>) \<Turnstile> (x @pre H  \<triang
 by(simp add: OclSelf_at_pre_def OclSelf_at_post_def OclValid_def StrongEq_def)
 
 section{* Accessors on Object *}
+subsection{* Definition *}
 
 definition "select_object mt incl smash deref l = smash (foldl incl mt (map deref l))
  (* smash returns null with mt in input (in this case, object contains null pointer) *)"
@@ -1041,17 +1042,72 @@ of associations, the @{term OclANY}-selector which also handles the
 is for example: *}
 term "(select_object mtSet UML_Set.OclIncluding OclANY f  l oid )::('\<AA>, 'a::null)val"
 
-definition "OclANY\<^sub>S\<^sub>e\<^sub>q = (\<lambda>x \<tau>. 
-   let x_\<tau> = x \<tau> in
-   if x_\<tau> = invalid \<tau> then
-     None
-   else
-     case drop (drop (Rep_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e x_\<tau>)) of [] \<Rightarrow> None
-                                             | l \<Rightarrow> hd l)"
+definition "OclANY\<^sub>S\<^sub>e\<^sub>q x \<tau> =
+ (if x \<tau> = invalid \<tau> then
+    \<bottom>
+  else
+    case drop (drop (Rep_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e (x \<tau>))) of [] \<Rightarrow> \<bottom>
+                                              | l \<Rightarrow> hd l)"
 
 definition "select_object_set f p = select_object mtSet UML_Set.OclIncluding id (f p)"
 definition "select_object_set_any f p s_set = OclANY (select_object_set f p s_set)"
 definition "select_object_sequence f p = select_object mtSequence UML_Sequence.OclIncluding id (f p)"
 definition "select_object_sequence_any f p s_set = OclANY\<^sub>S\<^sub>e\<^sub>q (select_object_sequence f p s_set)"
+
+subsection{* Validity and Definedness Properties *}
+
+lemma select_fold_exec:
+ assumes "list_all (\<lambda>f. (\<tau> \<Turnstile> \<upsilon> f)) l"
+ shows "\<lceil>\<lceil>Rep_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e (foldl UML_Sequence.OclIncluding Sequence{} l \<tau>)\<rceil>\<rceil> = List.map (\<lambda>f. f \<tau>) l"
+proof -
+ have def_fold: "\<And>l. list_all (\<lambda>f. \<tau> \<Turnstile> \<upsilon> f) l \<Longrightarrow>
+            \<tau> \<Turnstile> (\<delta> foldl UML_Sequence.OclIncluding Sequence{} l)"
+  apply(rule rev_induct[where P = "\<lambda>l. list_all (\<lambda>f. (\<tau> \<Turnstile> \<upsilon> f)) l \<longrightarrow> \<tau> \<Turnstile> (\<delta> foldl UML_Sequence.OclIncluding Sequence{} l)", THEN mp], simp)
+ by(simp add: foundation10')
+ show ?thesis
+  apply(rule rev_induct[where P = "\<lambda>l. list_all (\<lambda>f. (\<tau> \<Turnstile> \<upsilon> f)) l \<longrightarrow> \<lceil>\<lceil>Rep_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e (foldl UML_Sequence.OclIncluding Sequence{} l \<tau>)\<rceil>\<rceil> = List.map (\<lambda>f. f \<tau>) l", THEN mp], simp)
+    apply(simp add: mtSequence_def)
+    apply(subst Abs_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inverse, (simp | intro impI)+)
+   apply(simp add: OclIncluding_def, intro conjI impI)
+    apply(subst Abs_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inverse, simp, (rule disjI2)+)
+     apply(simp add: list_all_iff foundation18', simp)
+   apply(subst (asm) def_fold[simplified (no_asm) OclValid_def], simp, simp add: OclValid_def)
+ by (rule assms)
+qed
+
+lemma fold_val_elem:
+ assumes "\<tau> \<Turnstile> \<upsilon> (foldl UML_Sequence.OclIncluding Sequence{} (List.map (f p) s_set))"
+ shows "list_all (\<lambda>x. (\<tau> \<Turnstile> \<upsilon> (f p x))) s_set"
+ apply(rule rev_induct[where P = "\<lambda>s_set. \<tau> \<Turnstile> \<upsilon> foldl UML_Sequence.OclIncluding Sequence{} (List.map (f p) s_set) \<longrightarrow> list_all (\<lambda>x. \<tau> \<Turnstile> \<upsilon> f p x) s_set", THEN mp])
+   apply(simp, auto)
+    apply (metis (hide_lams, mono_tags) UML_Sequence.OclIncluding.def_valid_then_def UML_Sequence.OclIncluding.defined_args_valid foundation20)+
+by(simp add: assms)
+
+lemma select_object_sequence_any_exec:
+ assumes def_sel: "\<tau> \<Turnstile> \<delta> (select_object_sequence_any f p s_set)"
+ shows "\<tau> \<Turnstile> (select_object_sequence_any f p s_set \<triangleq> f p (hd s_set))"
+proof -
+ have list_all_map: "\<And>P f l. list_all P (List.map f l) = list_all (P o f) l"
+ by(induct_tac l, simp_all)
+
+ have s_set_nonempty: "s_set \<noteq> []"
+  apply(insert def_sel, case_tac s_set)
+   apply(simp add: select_object_sequence_any_def OclANY\<^sub>S\<^sub>e\<^sub>q_def select_object_sequence_def select_object_def
+                   defined_def OclValid_def
+                   false_def true_def bot_fun_def bot_option_def
+              split: split_if_asm)
+   apply(simp add: mtSequence_def, subst (asm) Abs_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inverse, simp, simp)
+ by(simp)
+ show ?thesis
+  apply(insert def_sel[simplified foundation16],
+        simp add: select_object_sequence_any_def foundation22 OclANY\<^sub>S\<^sub>e\<^sub>q_def split: split_if_asm)
+  apply(case_tac "\<lceil>\<lceil>Rep_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e (select_object_sequence f p s_set \<tau>)\<rceil>\<rceil>", simp add: bot_option_def, simp)
+  apply(simp add: select_object_sequence_def select_object_def)
+  apply(subst (asm) select_fold_exec, simp add: list_all_map comp_def)
+   apply(rule fold_val_elem, simp add: foundation18' invalid_def)
+  apply(simp add: list_all_map)
+  apply(drule arg_cong[where f = hd], subst (asm) hd_map, simp add: s_set_nonempty, simp)
+ done
+qed
 
 end
