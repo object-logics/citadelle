@@ -106,12 +106,13 @@ session "OCL-all-dirty" in "src" = HOL +
 
 (******************************************************)
 
-session "OCL-compiler" in "src" = HOL +
+session "FOCL" in "src" = HOL +
   description {* Featherweight OCL (Compiler) *}
   options [document=pdf,document_output=document_generated,
            document_variants="document=afp,-annexa",
            show_question_marks = false]
   theories
+    "../src/UML_Main"
     "../src/compiler/OCL_compiler_generator_static"
     "../src/compiler/OCL_compiler_generator_dynamic"
   files
