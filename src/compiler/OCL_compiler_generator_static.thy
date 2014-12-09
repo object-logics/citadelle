@@ -63,8 +63,8 @@ definition "main = write_file
                                     ,''../src/compiler/OCL_compiler_generator_dynamic'') \<rparr>)
    ( List_map OclAstClassRaw Employee_DesignModel_UMLPart
      @@ [ OclAstAssociation (ocl_association.make OclAssTy_association
-            [ (''Person'', OclMult [(Mult_star, None)], None)
-            , (''Person'', OclMult [(Mult_nat 0, Some (Mult_nat 1))], Some ''boss'')])
+            [ (''Person'', OclMult [(Mult_star, None)] Set, None)
+            , (''Person'', OclMult [(Mult_nat 0, Some (Mult_nat 1))] Set, Some ''boss'')])
         , OclAstFlushAll OclFlushAll]
    , None))"
 (*
