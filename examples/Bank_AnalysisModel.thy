@@ -102,7 +102,7 @@ End
 Instance Saving1 :: Account = ([ maximum = 2000 ] :: Savings)
      and Client1 :: Client = [ clientaccounts = [ Saving1 ] , banks = Bank1 ]
      and Account1 :: Account = [ ident = 666 , owner = Client1 ]
-     and Bank1 :: Bank = [ bankaccounts = [ Saving1 , Account1 ], name = "\<infinity>\<heartsuit> \<Longleftrightarrow> \<infinity>\<euro>" ]
+     and Bank1 :: Bank = [ bankaccounts = [ Saving1 , Account1 ], name = "\<infinity>\<heartsuit> \<Longleftrightarrow> \<infinity>\<epsilon>" (* (* TODO latex *) \<euro> *) ]
 
 Define_state \<sigma>\<^sub>1' =
   [ defines [ Account1
