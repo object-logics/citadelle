@@ -61,7 +61,7 @@ definition "main = write_file
       , D_file_out_path_dep := Some (''Employee_DesignModel_UMLPart_generated''
                                     ,[''../src/OCL_main'']
                                     ,''../src/compiler/OCL_compiler_generator_dynamic'') \<rparr>)
-   ( List_map OclAstClassRaw Employee_DesignModel_UMLPart
+   ( List_map (OclAstClassRaw Floor1) Employee_DesignModel_UMLPart
      @@ [ OclAstAssociation (ocl_association.make OclAssTy_association
             [ (''Person'', OclMult [(Mult_star, None)] Set, None)
             , (''Person'', OclMult [(Mult_nat 0, Some (Mult_nat 1))] Set, Some ''boss'')])
