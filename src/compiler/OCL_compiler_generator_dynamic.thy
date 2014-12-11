@@ -665,7 +665,7 @@ fun m_of_ntheorems ctxt = fn OCL.Thms_single thy => [m_of_ntheorem ctxt thy]
 fun m_of_ntheorems_l ctxt l = List.concat (map (m_of_ntheorems ctxt) l)
 
 fun m_of_tactic expr = let open OCL open Method open OCL_overload in case expr of
-    Tact_rule s => Basic (fn ctxt => rule [m_of_ntheorem ctxt s])
+    Tact_rule0 o_s => Basic (fn ctxt => rule (case o_s of NONE => [] | SOME s => [m_of_ntheorem ctxt s]))
   | Tact_drule s => Basic (fn ctxt => drule 0 [m_of_ntheorem ctxt s])
   | Tact_erule s => Basic (fn ctxt => erule 0 [m_of_ntheorem ctxt s])
   | Tact_elim s => Basic (fn ctxt => elim [m_of_ntheorem ctxt s])
@@ -680,8 +680,11 @@ fun m_of_tactic expr = let open OCL open Method open OCL_overload in case expr o
   | Tact_plus t => Repeat1 (Then (List.map m_of_tactic t))
   | Tact_option t => Try (Then (List.map m_of_tactic t))
   | Tact_one (Simp_only l) => simp_tac (fn ctxt => clear_simpset ctxt addsimps (m_of_ntheorems_l ctxt l))
-  | Tact_one (Simp_add_del (l_add, l_del)) => simp_tac (fn ctxt => ctxt addsimps (m_of_ntheorems_l ctxt l_add)
-                                                                        delsimps (m_of_ntheorems_l ctxt l_del))
+  | Tact_one (Simp_add_del_split (l_add, l_del, l_split)) =>
+      simp_tac (fn ctxt => fold Splitter.add_split
+                                (m_of_ntheorems_l ctxt l_split)
+                                (ctxt addsimps (m_of_ntheorems_l ctxt l_add)
+                                      delsimps (m_of_ntheorems_l ctxt l_del)))
   | Tact_auto_simp_add_split (l_simp, l_split) =>
       Basic (fn ctxt => SIMPLE_METHOD (auto_tac (fold (fn (f, l) => fold f l)
               [(Simplifier.add_simp, m_of_ntheorems_l ctxt l_simp)
@@ -691,6 +694,7 @@ fun m_of_tactic expr = let open OCL open Method open OCL_overload in case expr o
   | Tact_case_tac e => Basic (fn ctxt => SIMPLE_METHOD' (Induct_Tacs.case_tac ctxt (s_of_expr e)))
   | Tact_blast n => Basic (case n of NONE => SIMPLE_METHOD' o blast_tac
                                    | SOME lim => fn ctxt => SIMPLE_METHOD' (depth_tac ctxt (To_nat lim)))
+  | Tact_clarify => Basic (fn ctxt => (SIMPLE_METHOD' (fn i => CHANGED_PROP (clarify_tac ctxt i))))
 end
 
 end
@@ -735,12 +739,19 @@ fun global_terminal_proof o_by = let open OCL in case o_by of
  | Tacl_by l_apply => Proof.global_terminal_proof (then_tactic l_apply, NONE)
 end
 
-fun proof_show f st = st
+fun proof_show_gen f thes st = st
   |> Proof.enter_forward
   |> f
-  |> Isar_Cmd.show [((@{binding ""}, []), [("?thesis", [])])] true
+  |> Isar_Cmd.show [((@{binding ""}, []), [(thes, [])])] true
 
-val apply_results = let open OCL_overload in fn OCL.App l => (fn st => st |> (Proof.apply_results (then_tactic l)) |> Seq.the_result "")
+val applyE_results = let open OCL_overload in
+                     fn OCL.AppE l => (fn st => st |> (Proof.apply_end_results (then_tactic l)) |> Seq.the_result "")
+end
+
+val apply_results = let open OCL_overload
+                        val thesis = "?thesis"
+                        fun proof_show f = proof_show_gen f thesis in
+                    fn OCL.App l => (fn st => st |> (Proof.apply_results (then_tactic l)) |> Seq.the_result "")
                      | OCL.App_using0 l => (fn st =>
                          let val ctxt = Proof.context_of st in
                          Proof.using [map (fn s => ([ s], [])) (m_of_ntheorems_l ctxt l)] st
@@ -753,7 +764,14 @@ val apply_results = let open OCL_overload in fn OCL.App l => (fn st => st |> (Pr
                      | OCL.App_have (n, e, e_pr) => proof_show (fn st => st
                          |> Isar_Cmd.have [((To_sbinding n, []), [(s_of_expr e, [])])] true
                          |> local_terminal_proof e_pr)
-                     | OCL.App_fix l => proof_show (Proof.fix_cmd (List.map (fn i => (To_sbinding i, NONE, NoSyn)) l))
+                     | OCL.App_fix_let (l, l_let, o_exp, _) =>
+                         proof_show_gen ( fold (fn (e1, e2) =>
+                                                  Proof.let_bind_cmd [([s_of_expr e1], s_of_expr e2)])
+                                               l_let
+                                        o Proof.fix_cmd (List.map (fn i => (To_sbinding i, NONE, NoSyn)) l))
+                                        (case o_exp of NONE => thesis | SOME l_spec => 
+                                          (String.concatWith (" " ^ (To_string OCL.unicode_Longrightarrow) ^ " ")
+                                                             (List.map s_of_expr l_spec)))
 end
 
 end
@@ -837,11 +855,11 @@ val OCL_main_thy = let open OCL open OCL_overload in (*let val f = *)fn
              (Element.Shows [((@{binding ""}, []),[(s_of_expr concl, [])])])
              false lthy
         |> fold apply_results l_apply
-        |> (case filter (fn OCL.App_let _ => true | OCL.App_have _ => true | OCL.App_fix _ => true | _ => false) l_apply of
+        |> (case map_filter (fn OCL.App_let _ => SOME [] | OCL.App_have _ => SOME [] | OCL.App_fix_let (_, _, _, l) => SOME l | _ => NONE) (rev l_apply) of
               [] => global_terminal_proof o_by
             | _ :: l => let val arg = (NONE, true) in fn st => st
               |> local_terminal_proof o_by
-              |> fold (K (Proof.local_qed arg)) l
+              |> fold (Proof.local_qed arg oo fold applyE_results) l
               |> Proof.global_qed arg end))
 | Theory_axiom (Axiom (n, e)) => #2 o Specification.axiomatization_cmd
                                      []

@@ -100,7 +100,7 @@ definition "print_astype_from_universe =
                   | _ \<Rightarrow> ((Expr_some, id), [(Expr_basic [wildcard], Expr_basic [''None''])])) in
   start_m_gen Thy_definition_hol
   (\<lambda> name l_inh _ l.
-    let const_astype = flatten [const_oclastype, isub_of_str name, ''_'', unicode_AA] in
+    let const_astype = print_astype_from_universe_name name in
     [ Definition (Expr_rewrite (Expr_basic [const_astype]) ''=''
         (case f_finish l_inh of ((_, finish_with_some2), last_case_none) \<Rightarrow>
           finish_with_some2 (Expr_function (flatten [l, last_case_none]))))])

@@ -75,8 +75,7 @@ definition "print_iskindof_from_universe = start_m Thy_definition_hol
     let isub_h = (\<lambda> s. s @@ isub_of_str h_name) in
     [ ( Expr_apply (isub_h datatype_in) [Expr_basic [h_name]]
       , Expr_warning_parenthesis
-        (Expr_postunary (Expr_annot (Expr_applys (bug_ocaml_extraction (let var_x = ''x'' in
-                                                       Expr_lambdas [var_x, wildcard] (Expr_some (Expr_some (Expr_basic [var_x]))))) [Expr_basic [h_name]])
+        (Expr_postunary (Expr_annot (Expr_applys Expr_basety [Expr_basic [h_name]])
                                     h_name)
                         (Expr_basic [dot_iskindof name])))])"
 

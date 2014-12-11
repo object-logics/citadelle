@@ -296,7 +296,9 @@ the following combinator @{text switch}: '' ]
             , print_access_dot_lemmas_cp
             , subsection_exec
             , print_access_lemma_strict
+            , subsection ''Representation in States''
             , print_access_def_mono
+            , print_access_is_repr
 
             , section ''A Little Infra-structure on Example States''
             , txt''d [ ''

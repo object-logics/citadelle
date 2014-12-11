@@ -111,8 +111,10 @@ definition "var_select = ''select''"
 definition "var_select_object = ''select_object''"
 definition "var_select_object_set = ''select_object_set''"
 definition "var_select_object_set_any = ''select_object_set_any''"
+definition "var_select_object_set_any_exec = ''select_object_set_any_exec''"
 definition "var_select_object_sequence = ''select_object_sequence''"
 definition "var_select_object_sequence_any = ''select_object_sequence_any''"
+definition "var_select_object_sequence_any_exec = ''select_object_sequence_any_exec''"
 definition "var_choose = ''choose''"
 definition "var_switch = ''switch''"
 definition "var_assocs = ''assocs''"
@@ -135,6 +137,9 @@ definition "var_result = ''result''"
 
 definition "update_D_accessor_rbt_pre f = (\<lambda>(l_pre, l_post). (f l_pre, l_post))"
 definition "update_D_accessor_rbt_post f = (\<lambda>(l_pre, l_post). (l_pre, f l_post))"
+
+definition "Expr_basety = (let var_x = ''x'' in
+                           Expr_lambdas [var_x, wildcard] (Expr_some (Expr_some (Expr_basic [var_x]))))"
 
 subsection{* ... *}
 
@@ -204,6 +209,8 @@ subsection{* ... *}
 definition "activate_simp_optimization = True"
 
 subsection{* AsType *}
+
+definition "print_astype_from_universe_name name = flatten [const_oclastype, isub_of_str name, ''_'', unicode_AA]"
 
 subsection{* IsTypeOf *}
 

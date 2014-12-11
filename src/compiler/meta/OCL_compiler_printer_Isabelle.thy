@@ -211,7 +211,8 @@ definition "s_of_attrib1 (attr::String.literal) l = (* error reflection: to be m
     sprintf2 (STR '' %s: %s'') attr (String_concat (STR '' '') (List_map To_string l)))"
 
 fun_quick s_of_tactic where "s_of_tactic expr = (\<lambda>
-    Tact_rule s \<Rightarrow> sprintf1 (STR ''rule %s'') (s_of_ntheorem s)
+    Tact_rule0 o_s \<Rightarrow> sprintf1 (STR ''rule%s'') (case o_s of None \<Rightarrow> STR ''''
+                                                           | Some s \<Rightarrow> sprintf1 (STR '' %s'') (s_of_ntheorem s))
   | Tact_drule s \<Rightarrow> sprintf1 (STR ''drule %s'') (s_of_ntheorem s)
   | Tact_erule s \<Rightarrow> sprintf1 (STR ''erule %s'') (s_of_ntheorem s)
   | Tact_intro l \<Rightarrow> sprintf1 (STR ''intro %s'') (s_of_ntheorem_l1 l)
@@ -224,30 +225,46 @@ fun_quick s_of_tactic where "s_of_tactic expr = (\<lambda>
         sprintf3 (STR ''subst %s(%s) %s'') s_asm (String_concat (STR '' '') (List_map To_string l)) (s_of_ntheorem s)
   | Tact_insert l => sprintf1 (STR ''insert %s'') (s_of_ntheorems_l l)
   | Tact_plus [Tact_one (Simp_only l)] \<Rightarrow> sprintf1 (STR ''simp_all only: %s'') (s_of_ntheorems_l l)
-  | Tact_plus [Tact_one (Simp_add_del l1 l2)] \<Rightarrow> sprintf2 (STR ''simp_all%s%s'')
+  | Tact_plus [Tact_one (Simp_add_del_split l1 l2 [])] \<Rightarrow> sprintf2 (STR ''simp_all%s%s'')
       (s_of_attrib (STR ''add'') l1)
       (s_of_attrib (STR ''del'') l2)
+  | Tact_plus [Tact_one (Simp_add_del_split l1 l2 l3)] \<Rightarrow> sprintf3 (STR ''simp_all%s%s%s'')
+      (s_of_attrib (STR ''add'') l1)
+      (s_of_attrib (STR ''del'') l2)
+      (s_of_attrib (STR ''split'') l3)
   | Tact_plus t \<Rightarrow> sprintf1 (STR ''(%s)+'') (String_concat (STR '', '') (List.map s_of_tactic t))
   | Tact_option t \<Rightarrow> sprintf1 (STR ''(%s)?'') (String_concat (STR '', '') (List.map s_of_tactic t))
   | Tact_one (Simp_only l) \<Rightarrow> sprintf1 (STR ''simp only: %s'') (s_of_ntheorems_l l)
-  | Tact_one (Simp_add_del l1 l2) \<Rightarrow> sprintf2 (STR ''simp%s%s'')
+  | Tact_one (Simp_add_del_split l1 l2 []) \<Rightarrow> sprintf2 (STR ''simp%s%s'')
       (s_of_attrib (STR ''add'') l1)
       (s_of_attrib (STR ''del'') l2)
+  | Tact_one (Simp_add_del_split l1 l2 l3) \<Rightarrow> sprintf3 (STR ''simp%s%s%s'')
+      (s_of_attrib (STR ''add'') l1)
+      (s_of_attrib (STR ''del'') l2)
+      (s_of_attrib (STR ''split'') l3)
   | Tact_auto_simp_add_split l_simp l_split \<Rightarrow> sprintf2 (STR ''auto%s%s'')
       (s_of_attrib (STR ''simp'') l_simp)
       (s_of_attrib1 (STR ''split'') l_split)
   | Tact_rename_tac l \<Rightarrow> sprintf1 (STR ''rename_tac %s'') (String_concat (STR '' '') (List_map To_string l))
   | Tact_case_tac e \<Rightarrow> sprintf1 (STR ''case_tac \"%s\"'') (s_of_expr e)
   | Tact_blast None \<Rightarrow> sprintf0 (STR ''blast'')
-  | Tact_blast (Some n) \<Rightarrow> sprintf1 (STR ''blast %d'') (To_nat n)) expr"
+  | Tact_blast (Some n) \<Rightarrow> sprintf1 (STR ''blast %d'') (To_nat n)
+  | Tact_clarify \<Rightarrow> sprintf0 (STR ''clarify'')) expr"
 
 definition "s_of_tactic_last = (\<lambda> Tacl_done \<Rightarrow> STR ''done''
                                 | Tacl_by l_apply \<Rightarrow> sprintf1 (STR ''by(%s)'') (String_concat (STR '', '') (List_map s_of_tactic l_apply))
                                 | Tacl_sorry \<Rightarrow> STR ''sorry'')"
 
+definition "s_of_tac_apply_end = (
+  \<lambda> AppE [] \<Rightarrow> STR ''''
+  | AppE l_apply \<Rightarrow> sprintf1 (STR ''  apply_end(%s)
+'') (String_concat (STR '', '') (List_map s_of_tactic l_apply)))"
+
 definition "s_of_tac_apply = (
-  let scope_thesis = sprintf1 (STR ''  proof - %s show ?thesis
-'') in
+  let thesis = STR ''?thesis''
+    ; scope_thesis_gen = sprintf2 (STR ''  proof - %s show %s
+'')
+    ; scope_thesis = \<lambda>s. scope_thesis_gen s thesis in
   \<lambda> App [] \<Rightarrow> STR ''''
   | App l_apply \<Rightarrow> sprintf1 (STR ''  apply(%s)
 '') (String_concat (STR '', '') (List_map s_of_tactic l_apply))
@@ -257,7 +274,23 @@ definition "s_of_tac_apply = (
 '') (s_of_ntheorems_l l)
   | App_let e_name e_body \<Rightarrow> scope_thesis (sprintf2 (STR ''let %s = \"%s\"'') (s_of_expr e_name) (s_of_expr e_body))
   | App_have n e e_last \<Rightarrow> scope_thesis (sprintf3 (STR ''have %s: \"%s\" %s'') (To_string n) (s_of_expr e) (s_of_tactic_last e_last))
-  | App_fix l \<Rightarrow> scope_thesis (sprintf1 (STR ''fix %s'') (String_concat (STR '' '') (List_map To_string l))))"
+  | App_fix_let l l_let o_show _ \<Rightarrow>
+      scope_thesis_gen
+        (sprintf2 (STR ''fix %s%s'') (String_concat (STR '' '') (List_map To_string l))
+                                     (String_concat
+                                       (STR ''
+''                                            )
+                                       (List_map
+                                         (\<lambda>(e_name, e_body).
+                                           sprintf2 (STR ''          let %s = \"%s\"'') (s_of_expr e_name) (s_of_expr e_body))
+                                         l_let)))
+        (case o_show of None \<Rightarrow> thesis
+                      | Some l_show \<Rightarrow> 
+                          let g = STR [Char Nibble2 Nibble2] in
+                          sprintf3 (STR ''%s%s%s'')
+                            g
+                            (String_concat (sprintf1 (STR '' %s '') (To_string unicode_Longrightarrow)) (List_map s_of_expr l_show))
+                            g))"
 
 definition "s_of_lemma_by _ =
  (\<lambda> Lemma_by n l_spec l_apply tactic_last \<Rightarrow>
@@ -285,8 +318,17 @@ shows \"%s\"'') (s_of_expr concl)]))
       (s_of_tactic_last tactic_last)
       (String_concat (STR '' '')
         (List_map
-          (\<lambda>_. STR ''qed'')
-          (filter (\<lambda> App_let _ _ \<Rightarrow> True | App_have _ _ _ \<Rightarrow> True | App_fix _ \<Rightarrow> True | _ \<Rightarrow> False) l_apply))))"
+          (\<lambda>l_apply_e.
+            sprintf1 (STR ''%sqed'')
+              (if l_apply_e = [] then
+                 STR ''''
+               else
+                 sprintf1 (STR ''
+%s '') (String_concat (STR '''') (List_map s_of_tac_apply_end l_apply_e))))
+          (List.map_filter
+            (\<lambda> App_let _ _ \<Rightarrow> Some [] | App_have _ _ _ \<Rightarrow> Some [] | App_fix_let _ _ _ l \<Rightarrow> Some l | _ \<Rightarrow> None)
+            (rev l_apply)))))"
+
 
 definition "s_of_axiom _ = (\<lambda> Axiom n e \<Rightarrow> sprintf2 (STR ''axiomatization where %s:
 \"%s\"'') (To_string n) (s_of_expr e))"
@@ -317,6 +359,7 @@ lemmas [code] =
   s_of.s_of_attrib_def
   s_of.s_of_attrib1_def
   s_of.s_of_tactic_last_def
+  s_of.s_of_tac_apply_end_def
   s_of.s_of_tac_apply_def
   s_of.s_of_lemma_by_def
   s_of.s_of_axiom_def

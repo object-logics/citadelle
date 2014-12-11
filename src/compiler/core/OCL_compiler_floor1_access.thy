@@ -186,6 +186,7 @@ definition "print_access_choose = start_map'''' Thy_definition_hol o (\<lambda>e
                    , Expr_basic [var_tau]]))
              , (Expr_basic[wildcard], Expr_apply ''invalid'' [Expr_basic [var_tau]]) ]))) ]] ))"
 
+definition "print_access_deref_oid_name isub_name = isub_name var_deref_oid"
 definition "print_access_deref_oid = start_map Thy_definition_hol o
   map_class (\<lambda>isub_name _ _ _ _ _.
     let var_fs = ''fst_snd''
@@ -193,7 +194,7 @@ definition "print_access_deref_oid = start_map Thy_definition_hol o
       ; var_oid = ''oid''
       ; var_obj = ''obj'' in
     Definition (Expr_rewrite
-                  (Expr_basic [isub_name var_deref_oid, var_fs, var_f, var_oid])
+                  (Expr_basic [print_access_deref_oid_name isub_name, var_fs, var_f, var_oid])
                   ''=''
                   (Expr_lam unicode_tau
                      (\<lambda>var_tau. Expr_case (Expr_apply ''heap'' [Expr_basic [var_fs, var_tau], Expr_basic [var_oid]])
@@ -228,6 +229,7 @@ definition "print_access_deref_assocs = start_map'''' Thy_definition_hol o (\<la
        | _ \<Rightarrow> []))
       (l_attr # l_inherited))) expr)))) expr)"
 
+definition "print_access_select_name isup_attr isub_name = isup_attr (isub_name var_select)"
 definition "print_access_select = start_map'' Thy_definition_hol o (\<lambda>expr base_attr _ base_attr''.
   map_class_arg_only0 (\<lambda>isub_name name l_attr.
     let l_attr = base_attr l_attr in
@@ -239,7 +241,7 @@ definition "print_access_select = start_map'' Thy_definition_hol o (\<lambda>exp
         ( wildc # l_wildl
         , tl l_wildr
         , Definition (Expr_rewrite
-                       (Expr_basic [isup_attr (isub_name var_select), var_f])
+                       (Expr_basic [print_access_select_name isup_attr isub_name, var_f])
                        ''=''
                        (let var_attr = attr in
                         Expr_function
@@ -250,9 +252,7 @@ definition "print_access_select = start_map'' Thy_definition_hol o (\<lambda>exp
                                                      , rhs))
                             [ ( Expr_basic [unicode_bottom], Expr_basic [''null''] )
                             , ( Expr_some (Expr_basic [var_attr])
-                              , Expr_apply var_f [ bug_ocaml_extraction
-                                                   (let var_x = ''x'' in
-                                                      Expr_lambdas [var_x, wildcard] (Expr_some (Expr_some (Expr_basic [var_x]))))
+                              , Expr_apply var_f [ Expr_basety
                                                  , Expr_basic [var_attr]]) ]))) # l_acc))
       ([], List_map (\<lambda>_. wildc) (tl l_attr), [])
       l_attr) in
@@ -280,9 +280,7 @@ definition "print_access_select = start_map'' Thy_definition_hol o (\<lambda>exp
                                                      , rhs))
                             [ ( Expr_basic [unicode_bottom], Expr_basic [''null''] )
                             , ( Expr_some (Expr_basic [var_attr])
-                              , Expr_apply var_f [ bug_ocaml_extraction
-                                                   (let var_x = ''x'' in
-                                                      Expr_lambdas [var_x, wildcard] (Expr_some (Expr_some (Expr_basic [var_x]))))
+                              , Expr_apply var_f [ Expr_basety
                                                  , Expr_basic [var_attr]]) ]
                             # (List_map (\<lambda> OclClass x _ _ \<Rightarrow> let var_x = lowercase_of_str x in
                                              (Expr_apply
@@ -316,8 +314,7 @@ definition "print_access_select_obj = start_map'''' Thy_definition_hol o (\<lamb
                     [ b var_mt
                     , b var_OclIncluding
                     , b (if single_multip obj_mult then var_ANY else ''id'')
-                    , Expr_apply var_f [let var_x = ''x'' in
-                                        Expr_lambdas [var_x, wildcard] (Expr_some (Expr_some (Expr_basic [var_x])))]]))))], insert2 (name, attr) () rbt)
+                    , Expr_apply var_f [Expr_basety]]))))], insert2 (name, attr) () rbt)
          else ([], rbt)
        | _ \<Rightarrow> Pair []))
       (l_attr # l_inh) empty))) expr)))) expr)"
@@ -489,12 +486,7 @@ definition "print_access_lemma_strict expr = (start_map Thy_lemma_by o
                 [(''invalid'', [''invalid'']), (''null'', [''null_fun'', ''null_option''])])) expr"
 
 definition "print_access_def_mono_name isub_name dot_at_when attr_ty isup_attr =
-  flatten [ ''defined_mono_''
-          , isup_attr (let dot_name = isub_name ''dot'' in
-                      case attr_ty of
-                        OclTy_class ty_obj \<Rightarrow> flatten [dot_name, ''_'', natural_of_str (TyObjN_ass_switch (TyObj_from ty_obj)), ''_'']
-                      | _ \<Rightarrow> dot_name), dot_at_when]"
-
+  flatten [ ''defined_mono_'', print_access_dot_name isub_name dot_at_when attr_ty isup_attr ]"
 definition "print_access_def_mono = start_map'''' Thy_lemma_by o (\<lambda>expr _.
   map_class_arg_only_var'
     (\<lambda>isub_name name (_, dot_at_when) attr_ty isup_attr dot_attr.
@@ -521,5 +513,163 @@ definition "print_access_def_mono = start_map'''' Thy_lemma_by o (\<lambda>expr 
                  [ f_tac ''invalid''
                  , f_tac ''null'' ]))
                 (Tacl_by [Tac_simp_add [''defined_split'']]) ]) expr)"
+
+definition "print_access_is_repr_name isub_name dot_at_when attr_ty isup_attr =
+  flatten [ ''is_repr_'', print_access_dot_name isub_name dot_at_when attr_ty isup_attr ]"
+definition "print_access_is_repr = start_map'''' Thy_lemma_by o (\<lambda>expr design_analysis.
+  (if design_analysis = Gen_analysis then \<lambda>_. [] else
+  map_class_arg_only_var'
+    (\<lambda>isub_name name (var_in_when_state, dot_at_when) attr_ty isup_attr dot_attr.
+      case attr_ty of OclTy_class ty_obj \<Rightarrow>
+      let var_X = ''X''
+        ; var_tau = unicode_tau
+        ; var_def_dot = ''def_dot''
+        ; a = \<lambda>f x. Expr_apply f [x]
+        ; ap = \<lambda>f x. Expr_applys (Expr_pat f) [x]
+        ; ap' = \<lambda>f x. Expr_applys (Expr_pat f) x
+        ; b = \<lambda>s. Expr_basic [s]
+        ; f0 = \<lambda>e. Expr_binop (Expr_basic [var_tau]) unicode_Turnstile e
+        ; f = \<lambda>e. f0 (Expr_apply unicode_delta [e])
+        ; hol_l = List_map (Thm_str o hol_definition)
+        ; attr_ty' = case TyObjN_role_multip (TyObj_to ty_obj) of OclMult _ x \<Rightarrow> x in
+            [ Lemma_by_assum
+                (print_access_is_repr_name isub_name dot_at_when attr_ty isup_attr)
+                [ (var_def_dot, False, f (dot_attr (Expr_annot (b var_X) name))) ]
+                (Expr_apply ''is_represented_in_state'' [b var_in_when_state, dot_attr (Expr_basic [var_X]), b name, b var_tau])
+(bug_ocaml_extraction
+(let (* existential variables *)
+     v_a0 = ''a0''
+   ; v_a = ''a''
+   ; v_b = ''b''
+   ; v_r = ''r''
+   ; v_typeoid = ''typeoid''
+   ; v_opt = ''opt''
+   ; v_aa = ''aa''
+   ; v_e = ''e''
+   ; v_aaa = ''aaa''
+
+     (* schematic variables *)
+   ; vs_t = ''t''
+   ; vs_sel_any = ''sel_any''
+   ; vs_sel = ''sel''
+
+     (* *)
+   ; l_thes = \<lambda>l. Some (l @@ [Expr_pat ''thesis''])
+   ; l_thes0 = \<lambda>l. Some (l @@ [Expr_pat ''t''])
+   ; hol_d = List_map hol_definition
+   ; thol_d = List_map (Thm_str o hol_definition)
+   ; App_f = \<lambda>l e. App_fix_let l [] e []
+   ; App_f' = \<lambda>l. App_fix_let l []
+   ; f_ss = \<lambda>v. a ''Some'' (a ''Some'' (b v)) in
+ [ App [Tac_insert [Thm_simplified (Thm_OF (Thm_str (print_access_def_mono_name isub_name dot_at_when attr_ty isup_attr))
+                                           (Thm_str var_def_dot))
+                                   (Thm_str ''foundation16'')]]
+ , App [Tac_case_tac (a var_X (b var_tau)), Tac_simp_add [hol_definition ''bot_option'']]
+ (* *)
+ , App_f' [v_a0]
+          (l_thes [ Expr_binop (a var_X (b var_tau)) unicode_noteq (b ''null'')
+                  , Expr_binop (a var_X (b var_tau)) ''='' (a ''Some'' (b v_a0)) ])
+          [AppE [Tac_simp_all]]
+ , App [Tac_case_tac (b v_a0), Tac_simp_add (List_map hol_definition [''null_option'', ''bot_option'']), Tac_clarify]
+ (* *)
+ , App_f [v_a] (l_thes [ Expr_binop (a var_X (b var_tau)) ''='' (f_ss v_a) ])
+ , App [Tac_case_tac (Expr_apply ''heap'' [ a var_in_when_state (b var_tau)
+                                          , a ''oid_of'' (b v_a)]), Tac_simp_add (hol_d [''invalid'', ''bot_option''])]
+ , App [ Tac_insert [Thm_str ''def_dot'']
+       , Tac_simp_add_split ( Thm_str (print_access_dot_name isub_name dot_at_when attr_ty isup_attr)
+                            # thol_d [ ''is_represented_in_state''
+                                     , print_access_select_name isup_attr isub_name
+                                     , print_access_deref_oid_name isub_name
+                                     , var_in_when_state
+                                     , ''defined'', ''OclValid'', ''false'', ''true'', ''invalid'', ''bot_fun''])
+                            [Thm_str ''split_if_asm'']]
+ (* *)
+ , App_f [v_b] (l_thes [ Expr_binop (a var_X (b var_tau)) ''='' (f_ss v_a)
+                       , Expr_rewrite (Expr_apply ''heap'' [ a var_in_when_state (b var_tau)
+                                                           , a ''oid_of'' (b v_a)])
+                                      ''=''
+                                      (a ''Some'' (b v_b)) ])
+ , App [ Tac_insert [Thm_simplified (Thm_str ''def_dot'') (Thm_str ''foundation16'')]
+       , Tac_auto_simp_add ( print_access_dot_name isub_name dot_at_when attr_ty isup_attr
+                           # hol_d [ ''is_represented_in_state''
+                                   , print_access_deref_oid_name isub_name
+                                   , ''bot_option'', ''null_option''])]
+ , App [ Tac_case_tac (b v_b), Tac_simp_all_add (hol_d [''invalid'', ''bot_option'']) ]
+ (* *)
+ , App_fix_let
+     [v_r, v_typeoid]
+     [ ( Expr_pat vs_t
+       , Expr_rewrite (f_ss v_r) unicode_in (Expr_binop
+                                              (Expr_parenthesis
+                                                (Expr_binop (b ''Some'') ''o'' (b (print_astype_from_universe_name name))))
+                                              ''`''
+                                              (a ''ran'' (a ''heap'' (a var_in_when_state (b var_tau))))))
+     , ( Expr_pat vs_sel_any
+       , Expr_apply (case attr_ty' of Set \<Rightarrow> var_select_object_set_any | Sequence \<Rightarrow> var_select_object_sequence_any)
+                    [ a (print_access_deref_oid_name isub_name) (b var_in_when_state) ])
+     , ( Expr_pat vs_sel
+       , ap vs_sel_any Expr_basety)]
+     (Some [ Expr_rewrite (Expr_apply (print_access_select_name isup_attr isub_name)
+                                      [ Expr_pat vs_sel_any
+                                      , b v_typeoid
+                                      , b var_tau ]) ''='' (f_ss v_r)
+           , Expr_pat vs_t ])
+     []
+ , App [ Tac_case_tac (b v_typeoid), Tac_simp_add (hol_d [print_access_select_name isup_attr isub_name]) ]
+ (* *)
+ , App_f [v_opt]
+     (l_thes0
+       [ Expr_rewrite (Expr_applys (Expr_case (b v_opt)
+                                              [ (b ''None'', b ''null'')
+                                              , let var_x = ''x'' in
+                                                (a ''Some'' (b var_x), ap vs_sel (b var_x)) ])
+                                   [ b var_tau ])
+                      ''=''
+                      (f_ss v_r) ])
+ , App [ Tac_case_tac (b v_opt), Tac_auto_simp_add (hol_d [''null_fun'', ''null_option'', ''bot_option'']) ] 
+ (* *)
+ , App_f' [v_aa]
+     (l_thes0
+       [ Expr_binop (b var_tau) unicode_Turnstile (a unicode_delta (ap vs_sel (b v_aa)))
+       , Expr_rewrite (ap' vs_sel [ b v_aa, b var_tau ]) ''='' (f_ss v_r) ])
+     [ AppE [ Tac_simp_all_only [] ]
+     , AppE [ Tac_simp_add (''foundation16'' # hol_d [''bot_option'', ''null_option'']) ] ]
+ , App [ Tac_drule (Thm_simplified (Thm_str (case attr_ty' of Set \<Rightarrow> var_select_object_set_any_exec
+                                                            | Sequence \<Rightarrow> var_select_object_sequence_any_exec))
+                                   (Thm_str ''foundation22'')), Tac_erule (Thm_str ''exE'') ]
+ (* *)
+ , App_f' [v_e]
+     (l_thes0
+       [ Expr_rewrite (ap' vs_sel [ b v_aa, b var_tau ]) ''='' (f_ss v_r)
+       , Expr_rewrite (ap' vs_sel [ b v_aa, b var_tau ])
+                      ''=''
+                      (Expr_apply (print_access_deref_oid_name isub_name)
+                                  [ b var_in_when_state
+                                  , Expr_basety
+                                  , b v_e
+                                  , b var_tau ]) ])
+     [ AppE [ Tac_plus [Tac_blast None] ] ]
+ , App [ Tac_simp_add (hol_d [print_access_deref_oid_name isub_name]) ]
+ , App [ Tac_case_tac (Expr_apply ''heap'' [ a var_in_when_state (b var_tau), b v_e ])
+       , Tac_simp_add (hol_d [''invalid'', ''bot_option'']), Tac_simp ]
+ (* *)
+ , App_f [v_aaa]
+     (l_thes0
+       [ Expr_rewrite (Expr_case (b v_aaa)
+                                 [ bug_ocaml_extraction
+                                   (let var_obj = ''obj'' in
+                                    (a (isub_name datatype_in) (b var_obj), f_ss var_obj))
+                                 , (b wildcard, a ''invalid'' (b var_tau)) ])
+                      ''=''
+                      (f_ss v_r)
+       , Expr_rewrite (Expr_apply ''heap'' [ a var_in_when_state (b var_tau), b v_e ])
+                      ''=''
+                      (a ''Some'' (b v_aaa)) ])
+ , App [ Tac_case_tac (b v_aaa), Tac_auto_simp_add (hol_d [''invalid'', ''bot_option'', ''image'', ''ran'']) ]
+ , App [ Tac_rule (Thm_where (Thm_str ''exI'') [(''x'', a (isub_name datatype_in) (b v_r))])
+       , Tac_simp_add_split (thol_d [print_astype_from_universe_name name, ''Let''])
+                            [Thm_str ''split_if_asm''] ] ]))
+                (Tacl_by [ Tac_rule' ]) ]
+      | _ \<Rightarrow> [])) expr)"
 
 end

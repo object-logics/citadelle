@@ -111,9 +111,9 @@ datatype hol_lemmas_simp = Lemmas_simp_opt
                                         "string (* thms *) list"
 
 datatype hol_tactic_simp = Simp_only hol_ntheorems_l
-                         | Simp_add_del hol_ntheorems_l (* add *) hol_ntheorems_l (* del *)
+                         | Simp_add_del_split hol_ntheorems_l (* add *) hol_ntheorems_l (* del *) hol_ntheorems_l (* split *)
 
-datatype hol_tactic = Tact_rule hol_ntheorem
+datatype hol_tactic = Tact_rule0 "hol_ntheorem option"
                     | Tact_drule hol_ntheorem
                     | Tact_erule hol_ntheorem
                     | Tact_intro "hol_ntheorem list"
@@ -129,17 +129,24 @@ datatype hol_tactic = Tact_rule hol_ntheorem
                     | Tact_rename_tac "string list"
                     | Tact_case_tac hol_expr
                     | Tact_blast "nat option"
+                    | Tact_clarify
 
 datatype hol_tactic_last = Tacl_done
                          | Tacl_by "hol_tactic list"
                          | Tacl_sorry
+
+datatype hol_tac_apply_end = AppE "hol_tactic list" (* apply_end (... ',' ...) *)
 
 datatype hol_tac_apply = App "hol_tactic list" (* apply (... ',' ...) *)
                        | App_using0 hol_ntheorems_l (* using ... *)
                        | App_unfolding0 hol_ntheorems_l (* unfolding ... *)
                        | App_let hol_expr (* name *) hol_expr
                        | App_have string (* name *) hol_expr hol_tactic_last
-                       | App_fix "string list"
+                       | App_fix_let "string list"
+                                     "(hol_expr (* name *) \<times> hol_expr) list" (* let statements *) (* TODO merge recursively *)
+                                     "hol_expr list option" (* None => ?thesis
+                                                               Some l => "... ==> ..." *)
+                                     "hol_tac_apply_end list" (* qed apply_end ... *)
 
 datatype hol_lemma_by = Lemma_by string (* name *) "hol_expr list" (* specification to prove *)
                           "hol_tactic list list" (* tactics : apply (... ',' ...) '\n' apply ... *)
@@ -223,9 +230,11 @@ definition "Consts_raw0 s l e o_arg = Consts_raw s l (e @@ (case o_arg of
 definition "Ty_arrow = Ty_apply_bin unicode_Rightarrow"
 definition "Ty_times = Ty_apply_bin unicode_times"
 definition "Consts s l e = Consts_raw0 s (Ty_arrow (Ty_base (Char Nibble2 Nibble7 # unicode_alpha)) l) e None"
+definition "Simp_add_del l_a l_d = Simp_add_del_split l_a l_d []"
 definition "Tact_subst_l = Tact_subst_l0 False"
 
-definition "Tac_rule = Tact_rule"
+definition "Tac_rule' = Tact_rule0 None"
+definition "Tac_rule = Tact_rule0 o Some"
 definition "Tac_drule = Tact_drule"
 definition "Tac_erule = Tact_erule"
 definition "Tac_intro = Tact_intro"
@@ -241,17 +250,25 @@ definition "Tac_simp_add2 l1 l2 = Tact_one (Simp_add_del (flatten [ List_map Thm
                                                          [])"
 definition "Tac_simp_add_del l1 l2 = Tact_one (Simp_add_del (List_map (Thms_single o Thm_str) l1)
                                                             (List_map (Thms_single o Thm_str) l2))"
+definition "Tac_simp_add_del_split l1 l2 l3 = Tact_one (Simp_add_del_split (List_map Thms_single l1)
+                                                                           (List_map Thms_single l2)
+                                                                           (List_map Thms_single l3))"
+definition "Tac_simp_add_split l1 l2 = Tact_one (Simp_add_del_split (List_map Thms_single l1)
+                                                                    []
+                                                                    (List_map Thms_single l2))"
 definition "Tac_simp_only l = Tact_one (Simp_only (List_map Thms_single l))"
 definition "Tac_simp_add0 l = Tact_one (Simp_add_del (List_map Thms_single l) [])"
 definition "Tac_simp_add = Tac_simp_add2 []"
 definition "Tac_simp_all = Tac_plus [Tac_simp]"
-definition "Tac_simp_all_add s = Tac_plus [Tac_simp_add [s]]"
+definition "Tac_simp_all_add l = Tac_plus [Tac_simp_add l]"
+definition "Tac_simp_all_only l = Tac_plus [Tac_simp_only l]"
 definition "Tac_auto_simp_add2 l1 l2 = Tact_auto_simp_add_split (flatten [ List_map Thms_mult l1
                                                                 , List_map (Thms_single o Thm_str) l2]) []"
 definition "Tac_auto_simp_add_split l = Tact_auto_simp_add_split (List_map Thms_single l)"
 definition "Tac_rename_tac = Tact_rename_tac"
 definition "Tac_case_tac = Tact_case_tac"
 definition "Tac_blast = Tact_blast"
+definition "Tac_clarify = Tact_clarify"
 
 definition "Tac_subst_asm b = Tac_subst_l0 b [''0'']"
 definition "Tac_subst = Tac_subst_l [''0'']"
@@ -261,5 +278,6 @@ definition "ty_arrow l = (case rev l of x # xs \<Rightarrow> List.fold Ty_arrow 
 
 definition "App_using = App_using0 o List_map Thms_single"
 definition "App_unfolding = App_unfolding0 o List_map Thms_single"
+definition "App_fix l = App_fix_let l [] None []"
 
 end
