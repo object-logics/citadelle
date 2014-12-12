@@ -373,6 +373,15 @@ definition OclNotEmpty   :: "('\<AA>,'\<alpha>::null) Sequence \<Rightarrow> '\<
 where     "OclNotEmpty x =  not(OclIsEmpty x)"
 notation   OclNotEmpty    ("_->notEmpty\<^sub>S\<^sub>e\<^sub>q'(')" (*[66]*))
 
+subsection{* Definition: Any *}
+
+definition "OclANY\<^sub>S\<^sub>e\<^sub>q x \<tau> =
+ (if x \<tau> = invalid \<tau> then
+    \<bottom>
+  else
+    case drop (drop (Rep_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e (x \<tau>))) of [] \<Rightarrow> \<bottom>
+                                              | l \<Rightarrow> hd l)"
+
 subsection{* Logical Properties *}
 
 subsection{* Execution Laws with Invalid or Null as Argument *}

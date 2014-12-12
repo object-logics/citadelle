@@ -1042,13 +1042,6 @@ of associations, the @{term OclANY}-selector which also handles the
 is for example: *}
 term "(select_object mtSet UML_Set.OclIncluding OclANY f  l oid )::('\<AA>, 'a::null)val"
 
-definition "OclANY\<^sub>S\<^sub>e\<^sub>q x \<tau> =
- (if x \<tau> = invalid \<tau> then
-    \<bottom>
-  else
-    case drop (drop (Rep_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e (x \<tau>))) of [] \<Rightarrow> \<bottom>
-                                              | l \<Rightarrow> hd l)"
-
 definition "select_object_set f p = select_object mtSet UML_Set.OclIncluding id (f p)"
 definition "select_object_set_any0 f p s_set = OclANY (select_object_set f p s_set)"
 definition "select_object_set_any f p s_set = 
