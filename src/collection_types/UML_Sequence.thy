@@ -375,12 +375,13 @@ notation   OclNotEmpty    ("_->notEmpty\<^sub>S\<^sub>e\<^sub>q'(')" (*[66]*))
 
 subsection{* Definition: Any *}
 
-definition "OclANY\<^sub>S\<^sub>e\<^sub>q x \<tau> =
- (if x \<tau> = invalid \<tau> then
+definition "OclANY x = (\<lambda> \<tau>.
+  if x \<tau> = invalid \<tau> then
     \<bottom>
   else
     case drop (drop (Rep_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e (x \<tau>))) of [] \<Rightarrow> \<bottom>
                                               | l \<Rightarrow> hd l)"
+notation   OclANY   ("_->any\<^sub>S\<^sub>e\<^sub>q'(')")
 
 subsection{* Logical Properties *}
 
