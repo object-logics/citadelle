@@ -1169,6 +1169,75 @@ lemma select_object_sequence_any_exec:
  apply(case_tac s_set, simp add: select_object_sequence_any_defined[OF def_sel])
 by (metis hd.simps member_rec(1))
 
+lemma (*select_object_set_any_exec:*)
+ assumes def_sel: "\<tau> \<Turnstile> \<delta> (select_object_set_any0 f p s_set)"
+ shows "\<exists> e. List.member s_set e \<and> (\<tau> \<Turnstile> (select_object_set_any0 f p s_set \<triangleq> f p e))"
+proof -
+ have list_all_map: "\<And>P f l. list_all P (List.map f l) = list_all (P o f) l"
+ by(induct_tac l, simp_all)
+
+ fix z
+ show " \<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (select_object_set f p s_set \<tau>)\<rceil>\<rceil> = z \<Longrightarrow> ?thesis"
+  apply(insert def_sel[simplified foundation16],
+        simp add: select_object_set_any0_def foundation22 OclANY_def null_fun_def split: split_if_asm)
+
+  apply(simp add: select_object_set_def select_object_def)
+  apply(subst (asm) select_fold_set_exec)
+   apply(rule fold_val_elem_set, simp add: OclValid_def)
+  apply(simp add: comp_def)
+
+  apply(case_tac s_set, simp, simp add: false_def true_def, simp)
+
+  proof - fix a l
+  show "insert (f p a \<tau>) ((\<lambda>x. f p x \<tau>) ` set l) = z \<Longrightarrow>
+        \<exists>e. List.member (a # l) e \<and> (SOME y. y \<in> z) = f p e \<tau>"
+   apply(rule list.induct[where P = "\<lambda>l. \<forall>z a. insert (f p a \<tau>) ((\<lambda>x. f p x \<tau>) ` set l) = z \<longrightarrow>
+        (\<exists>e. List.member (a # l) e \<and> ((SOME y. y \<in> z) = f p e \<tau>))", THEN spec, THEN spec, THEN mp], intro allI impI)
+     proof - fix x xa show "insert (f p xa \<tau>) ((\<lambda>x. f p x \<tau>) ` set []) = x \<Longrightarrow> \<exists>e. List.member [xa] e \<and> (SOME y. y \<in> x) = f p e \<tau>"
+      apply(rule exI[where x = xa], simp add: List.member_def)
+      apply(subst some_equality[where a = "f p xa \<tau>"])
+        apply (metis (mono_tags) insertI1)
+       apply (metis (mono_tags) empty_iff insert_iff)
+     by(simp)
+     apply_end simp
+    apply_end(intro allI impI, simp)
+    fix x list xa xb
+    show " \<forall>x. \<exists>e. List.member (x # list) e \<and> (SOME y. y = f p x \<tau> \<or> y \<in> (\<lambda>x. f p x \<tau>) ` set list) = f p e \<tau> \<Longrightarrow>
+       insert (f p xb \<tau>) (insert (f p x \<tau>) ((\<lambda>x. f p x \<tau>) ` set list)) = xa \<Longrightarrow>
+       \<exists>e. List.member (xb # x # list) e \<and> (SOME y. y \<in> xa) = f p e \<tau>"
+     apply(case_tac "x = xb", simp)
+      apply(erule allE[where x = xb])
+      apply(erule exE)
+      proof - fix e show "insert (f p xb \<tau>) ((\<lambda>x. f p x \<tau>) ` set list) = xa \<Longrightarrow>
+         x = xb \<Longrightarrow>
+         List.member (xb # list) e \<and> (SOME y. y = f p xb \<tau> \<or> y \<in> (\<lambda>x. f p x \<tau>) ` set list) = f p e \<tau> \<Longrightarrow>
+         \<exists>e. List.member (xb # xb # list) e \<and> (SOME y. y \<in> xa) = f p e \<tau>"
+      apply(rule exI[where x = e], auto)
+      by (metis member_rec(1))
+        apply_end(blast)+
+     apply_end(case_tac "List.member list x")
+      apply_end(erule allE[where x = xb])
+      apply_end(erule exE)
+      fix e
+      let ?P = "\<lambda>y. y = f p xb \<tau> \<or> y \<in> (\<lambda>x. f p x \<tau>) ` set list"
+      show "insert (f p xb \<tau>) (insert (f p x \<tau>) ((\<lambda>x. f p x \<tau>) ` set list)) = xa \<Longrightarrow>
+         x \<noteq> xb \<Longrightarrow>
+         List.member list x \<Longrightarrow>
+         List.member (xb # list) e \<and> (SOME y. y = f p xb \<tau> \<or> y \<in> (\<lambda>x. f p x \<tau>) ` set list) = f p e \<tau> \<Longrightarrow>
+         \<exists>e. List.member (xb # x # list) e \<and> (SOME y. y \<in> xa) = f p e \<tau>"
+       apply(rule exI[where x = e], auto)
+        apply (metis member_rec(1))
+
+       apply(subgoal_tac "?P (f p e \<tau>)")
+        prefer 2
+        apply(case_tac "xb = e", simp)
+        apply (metis (mono_tags) image_eqI in_set_member member_rec(1)) 
+
+       apply(rule someI2[where a = "f p e \<tau>"])
+        apply(erule disjE, simp)+
+        apply(rule disjI2)+ apply(simp)
+oops
+
 lemma select_object_set_any_exec:
  assumes def_sel: "\<tau> \<Turnstile> \<delta> (select_object_set_any f p s_set)"
  shows "\<exists> e. List.member s_set e \<and> (\<tau> \<Turnstile> (select_object_set_any f p s_set \<triangleq> f p e))"
