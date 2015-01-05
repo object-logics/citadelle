@@ -2739,28 +2739,28 @@ text{*
 
 (* 114 ************************************ 670 + 11 *)
 definition "select\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<S>\<A>\<L>\<A>\<R>\<Y> f = (\<lambda> (mkoid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (_) (\<bottom>)) \<Rightarrow> null
-    | (mkoid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (_) (\<lfloor>salary\<rfloor>)) \<Rightarrow> (f ((\<lambda>x _. \<lfloor>\<lfloor>x\<rfloor>\<rfloor>)) (salary)))"
+    | (mkoid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (_) (\<lfloor>\<S>\<A>\<L>\<A>\<R>\<Y>\<rfloor>)) \<Rightarrow> (f ((\<lambda>x _. \<lfloor>\<lfloor>x\<rfloor>\<rfloor>)) (\<S>\<A>\<L>\<A>\<R>\<Y>)))"
 definition "select\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t\<W>\<O>\<R>\<M>\<H>\<O>\<L>\<E> f = (\<lambda> (mkoid\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t (_) (\<bottom>) (_)) \<Rightarrow> null
-    | (mkoid\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t (_) (\<lfloor>wormhole\<rfloor>) (_)) \<Rightarrow> (f ((\<lambda>x _. \<lfloor>\<lfloor>x\<rfloor>\<rfloor>)) (wormhole)))"
+    | (mkoid\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t (_) (\<lfloor>\<W>\<O>\<R>\<M>\<H>\<O>\<L>\<E>\<rfloor>) (_)) \<Rightarrow> (f ((\<lambda>x _. \<lfloor>\<lfloor>x\<rfloor>\<rfloor>)) (\<W>\<O>\<R>\<M>\<H>\<O>\<L>\<E>)))"
 definition "select\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t\<W>\<E>\<I>\<G>\<H>\<T> f = (\<lambda> (mkoid\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t (_) (_) (\<bottom>)) \<Rightarrow> null
-    | (mkoid\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t (_) (_) (\<lfloor>weight\<rfloor>)) \<Rightarrow> (f ((\<lambda>x _. \<lfloor>\<lfloor>x\<rfloor>\<rfloor>)) (weight)))"
+    | (mkoid\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t (_) (_) (\<lfloor>\<W>\<E>\<I>\<G>\<H>\<T>\<rfloor>)) \<Rightarrow> (f ((\<lambda>x _. \<lfloor>\<lfloor>x\<rfloor>\<rfloor>)) (\<W>\<E>\<I>\<G>\<H>\<T>)))"
 definition "select\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y\<S>\<O>\<U>\<N>\<D> f = (\<lambda> (mkoid\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y (_) (\<bottom>) (_)) \<Rightarrow> null
-    | (mkoid\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y (_) (\<lfloor>sound\<rfloor>) (_)) \<Rightarrow> (f ((\<lambda>x _. \<lfloor>\<lfloor>x\<rfloor>\<rfloor>)) (sound)))"
+    | (mkoid\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y (_) (\<lfloor>\<S>\<O>\<U>\<N>\<D>\<rfloor>) (_)) \<Rightarrow> (f ((\<lambda>x _. \<lfloor>\<lfloor>x\<rfloor>\<rfloor>)) (\<S>\<O>\<U>\<N>\<D>)))"
 definition "select\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y\<M>\<O>\<V>\<I>\<N>\<G> f = (\<lambda> (mkoid\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y (_) (_) (\<bottom>)) \<Rightarrow> null
-    | (mkoid\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y (_) (_) (\<lfloor>moving\<rfloor>)) \<Rightarrow> (f ((\<lambda>x _. \<lfloor>\<lfloor>x\<rfloor>\<rfloor>)) (moving)))"
+    | (mkoid\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y (_) (_) (\<lfloor>\<M>\<O>\<V>\<I>\<N>\<G>\<rfloor>)) \<Rightarrow> (f ((\<lambda>x _. \<lfloor>\<lfloor>x\<rfloor>\<rfloor>)) (\<M>\<O>\<V>\<I>\<N>\<G>)))"
 definition "select\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<W>\<O>\<R>\<M>\<H>\<O>\<L>\<E> f = (\<lambda> (mkoid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n ((mk\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (_) (\<bottom>) (_) (_) (_))) (_)) \<Rightarrow> null
-    | (mkoid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n ((mk\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (_) (\<lfloor>wormhole\<rfloor>) (_) (_) (_))) (_)) \<Rightarrow> (f ((\<lambda>x _. \<lfloor>\<lfloor>x\<rfloor>\<rfloor>)) (wormhole)))"
+    | (mkoid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n ((mk\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (_) (\<lfloor>\<W>\<O>\<R>\<M>\<H>\<O>\<L>\<E>\<rfloor>) (_) (_) (_))) (_)) \<Rightarrow> (f ((\<lambda>x _. \<lfloor>\<lfloor>x\<rfloor>\<rfloor>)) (\<W>\<O>\<R>\<M>\<H>\<O>\<L>\<E>)))"
 definition "select\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<W>\<E>\<I>\<G>\<H>\<T> f = (\<lambda> (mkoid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n ((mk\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (_) (_) (\<bottom>) (_) (_))) (_)) \<Rightarrow> null
-    | (mkoid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n ((mk\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (_) (_) (\<lfloor>weight\<rfloor>) (_) (_))) (_)) \<Rightarrow> (f ((\<lambda>x _. \<lfloor>\<lfloor>x\<rfloor>\<rfloor>)) (weight)))"
+    | (mkoid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n ((mk\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (_) (_) (\<lfloor>\<W>\<E>\<I>\<G>\<H>\<T>\<rfloor>) (_) (_))) (_)) \<Rightarrow> (f ((\<lambda>x _. \<lfloor>\<lfloor>x\<rfloor>\<rfloor>)) (\<W>\<E>\<I>\<G>\<H>\<T>)))"
 definition "select\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<S>\<O>\<U>\<N>\<D> f = (\<lambda> (mkoid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n ((mk\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (_) (_) (_) (\<bottom>) (_))) (_)) \<Rightarrow> null
-    | (mkoid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n ((mk\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (_) (_) (_) (\<lfloor>sound\<rfloor>) (_))) (_)) \<Rightarrow> (f ((\<lambda>x _. \<lfloor>\<lfloor>x\<rfloor>\<rfloor>)) (sound)))"
+    | (mkoid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n ((mk\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (_) (_) (_) (\<lfloor>\<S>\<O>\<U>\<N>\<D>\<rfloor>) (_))) (_)) \<Rightarrow> (f ((\<lambda>x _. \<lfloor>\<lfloor>x\<rfloor>\<rfloor>)) (\<S>\<O>\<U>\<N>\<D>)))"
 definition "select\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<M>\<O>\<V>\<I>\<N>\<G> f = (\<lambda> (mkoid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n ((mk\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (_) (_) (_) (_) (\<bottom>))) (_)) \<Rightarrow> null
-    | (mkoid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n ((mk\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (_) (_) (_) (_) (\<lfloor>moving\<rfloor>))) (_)) \<Rightarrow> (f ((\<lambda>x _. \<lfloor>\<lfloor>x\<rfloor>\<rfloor>)) (moving)))"
+    | (mkoid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n ((mk\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (_) (_) (_) (_) (\<lfloor>\<M>\<O>\<V>\<I>\<N>\<G>\<rfloor>))) (_)) \<Rightarrow> (f ((\<lambda>x _. \<lfloor>\<lfloor>x\<rfloor>\<rfloor>)) (\<M>\<O>\<V>\<I>\<N>\<G>)))"
 definition "select\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t\<S>\<O>\<U>\<N>\<D> f = (\<lambda> (mkoid\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t ((mk\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t (_) (\<bottom>) (_))) (_) (_)) \<Rightarrow> null
-    | (mkoid\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t ((mk\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t (_) (\<lfloor>sound\<rfloor>) (_))) (_) (_)) \<Rightarrow> (f ((\<lambda>x _. \<lfloor>\<lfloor>x\<rfloor>\<rfloor>)) (sound))
+    | (mkoid\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t ((mk\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t (_) (\<lfloor>\<S>\<O>\<U>\<N>\<D>\<rfloor>) (_))) (_) (_)) \<Rightarrow> (f ((\<lambda>x _. \<lfloor>\<lfloor>x\<rfloor>\<rfloor>)) (\<S>\<O>\<U>\<N>\<D>))
     | (mkoid\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t ((mk\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t_\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (person))) (_) (_)) \<Rightarrow> (select\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<S>\<O>\<U>\<N>\<D> (f) (person)))"
 definition "select\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t\<M>\<O>\<V>\<I>\<N>\<G> f = (\<lambda> (mkoid\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t ((mk\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t (_) (_) (\<bottom>))) (_) (_)) \<Rightarrow> null
-    | (mkoid\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t ((mk\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t (_) (_) (\<lfloor>moving\<rfloor>))) (_) (_)) \<Rightarrow> (f ((\<lambda>x _. \<lfloor>\<lfloor>x\<rfloor>\<rfloor>)) (moving))
+    | (mkoid\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t ((mk\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t (_) (_) (\<lfloor>\<M>\<O>\<V>\<I>\<N>\<G>\<rfloor>))) (_) (_)) \<Rightarrow> (f ((\<lambda>x _. \<lfloor>\<lfloor>x\<rfloor>\<rfloor>)) (\<M>\<O>\<V>\<I>\<N>\<G>))
     | (mkoid\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t ((mk\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t_\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (person))) (_) (_)) \<Rightarrow> (select\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<M>\<O>\<V>\<I>\<N>\<G> (f) (person)))"
 
 (* 115 ************************************ 681 + 1 *)
@@ -3482,22 +3482,22 @@ type_synonym Set_Integer = "(\<AA>, int option option) Set"
 consts dot\<C>\<O>\<N>\<T>\<E>\<N>\<T>\<S> :: "Person \<Rightarrow> Set_Integer" ("(_) .contents'(')")
 consts dot\<C>\<O>\<N>\<T>\<E>\<N>\<T>\<S>at_pre :: "Person \<Rightarrow> Set_Integer" ("(_) .contents@pre'(')")
 Context[shallow] Person :: contents () : Set(Integer)
-  Post : `(\<lambda> result self. (result \<triangleq> if (self .boss \<doteq> null)
+  Post : "(\<lambda> self result. (result \<triangleq> if (self .boss \<doteq> null)
                    then (Set{}->including\<^sub>S\<^sub>e\<^sub>t(self .salary))
                    else (self .boss .contents()->including\<^sub>S\<^sub>e\<^sub>t(self .salary))
-                   endif))`
-  Post : `(\<lambda> result self. (true))`
-  Pre : `(\<lambda> self. (false))`
+                   endif))"
+  Post : "(\<lambda> self result. (true))"
+  Pre : "(\<lambda> self. (false))"
 thm dot\<C>\<O>\<N>\<T>\<E>\<N>\<T>\<S>_def
 
 (* 153 ************************************ 903 + 2 *)
 Context[shallow] Person
-  Inv a : `(\<lambda> self. (self .boss <> null implies (self .salary  \<triangleq>  ((self .boss) .salary))))`
+  Inv a : "(\<lambda> self. (self .boss <> null implies (self .salary  \<triangleq>  ((self .boss) .salary))))"
 thm Person_aat_pre_def Person_a_def
 
 (* 154 ************************************ 905 + 2 *)
 Context[shallow] Planet
-  Inv A : `(\<lambda> self. (true and (self .weight \<le>\<^sub>i\<^sub>n\<^sub>t \<zero>)))`
+  Inv A : "(\<lambda> self. (true and (self .weight \<le>\<^sub>i\<^sub>n\<^sub>t \<zero>)))"
 thm Planet_Aat_pre_def Planet_A_def
 
 end
