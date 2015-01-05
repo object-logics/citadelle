@@ -5,9 +5,9 @@
  *
  * This file is part of HOL-TestGen.
  *
- * Copyright (c) 2013-2014 Université Paris-Sud, France
- *               2013-2014 IRT SystemX, France
- *               2013-2014 Achim D. Brucker, Germany
+ * Copyright (c) 2013-2015 Université Paris-Sud, France
+ *               2013-2015 IRT SystemX, France
+ *               2013-2015 Achim D. Brucker, Germany
  *
  * All rights reserved.
  *

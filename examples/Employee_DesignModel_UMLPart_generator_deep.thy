@@ -6,8 +6,8 @@
  * Employee_DesignModel_UMLPart_generator_deep.thy --- OCL Contracts and an Example.
  * This file is part of HOL-TestGen.
  *
- * Copyright (c) 2013-2014 Universite Paris-Sud, France
- *               2013-2014 IRT SystemX, France
+ * Copyright (c) 2013-2015 Université Paris-Sud, France
+ *               2013-2015 IRT SystemX, France
  *
  * All rights reserved.
  *
