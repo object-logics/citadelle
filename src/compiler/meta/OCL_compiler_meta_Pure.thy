@@ -85,11 +85,4 @@ fun_quick fold_Free where
                         | _ \<Rightarrow> accu)
                         expr"
 
-fun_quick cross_abs_aux where
-   "cross_abs_aux l x = (\<lambda> (Suc n, PureAbs s _ t) \<Rightarrow> cross_abs_aux (s # l) (n, t)
-                         | (_, e) \<Rightarrow> (l, e))
-                         x"
-
-definition "cross_abs n l = cross_abs_aux [] (n, l)"
-
 end

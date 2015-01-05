@@ -101,9 +101,8 @@ definition "print_ctxt_to_ocl_gen l_access f var = (\<lambda> T_pure t \<Rightar
 definition "print_ctxt_to_ocl_pre ocl = print_ctxt_to_ocl_gen (snd (D_accessor_rbt ocl)) print_ctxt_is_name_at_post var_at_when_hol_pre"
 definition "print_ctxt_to_ocl_post ocl = print_ctxt_to_ocl_gen (fst (D_accessor_rbt ocl)) print_ctxt_is_name_at_pre var_at_when_hol_post"
 
-definition "axiom_unbound ax_name ax_body f_msg ctxt = 
-        [ (\<lambda>ocl. Thy_axiom (Axiom ax_name (ax_body ocl)))
-        , (\<lambda>_. Thy_ml (raise_ml (bug_ocaml_extraction
+definition "raise_ml_unbound f_msg ctxt = 
+        [ (\<lambda>_. Thy_ml (raise_ml (bug_ocaml_extraction
                                 (let l = flatten (List_mapi (\<lambda> n. \<lambda>(msg, T_pure t) \<Rightarrow> 
                                             let l = 
                                               rev (fold_Free (\<lambda>l s. 
@@ -127,12 +126,10 @@ definition "print_ctxt_pre_post = fold_list (\<lambda>x ocl. (x ocl, ocl)) o (\<
              (bug_ocaml_extraction
              (let nb_var = length (make_ctxt_free_var pref ctxt) in
               (\<lambda>(_, expr) \<Rightarrow> 
-               f_tau (bug_ocaml_extraction
-                     (let (l, expr) = cross_abs nb_var (case f_to expr of T_pure expr \<Rightarrow> expr) in
-                      Expr_inner0 l expr))))) l_pre))
+               f_tau (cross_abs (\<lambda>_. id) nb_var (case f_to expr of T_pure expr \<Rightarrow> expr))))) l_pre))
     ; f = \<lambda> (var_at_when_hol, var_at_when_ocl).
-        axiom_unbound (print_ctxt_pre_post_name attr_n var_at_when_hol)
-          (\<lambda>ocl. Expr_rewrite
+        (\<lambda>ocl. Thy_axiom (Axiom (print_ctxt_pre_post_name attr_n var_at_when_hol)
+            (Expr_rewrite
               (Expr_parenthesis (f_tau (Expr_rewrite
                   (Expr_postunary (b var_self) (b (mk_dot_par_gen (flatten [''.'', attr_n, var_at_when_ocl]) (List_map fst (Ctxt_fun_ty_arg ctxt)))))
                   unicode_triangleq
@@ -144,7 +141,8 @@ definition "print_ctxt_pre_post = fold_list (\<lambda>x ocl. (x ocl, ocl)) o (\<
                   (to_s OclCtxtPre (print_ctxt_to_ocl_pre ocl) l_pre)
                   unicode_longrightarrow
                   (to_s OclCtxtPost (print_ctxt_to_ocl_post ocl) l_post)))
-                (f_tau (Expr_rewrite (b var_result) unicode_triangleq (b ''invalid''))))))
+                (f_tau (Expr_rewrite (b var_result) unicode_triangleq (b ''invalid''))))))))
+        # raise_ml_unbound
           (\<lambda>n pref. flatten [''('', natural_of_str (n + 1), '') '', if pref = OclCtxtPre then ''pre'' else ''post''])
           (Ctxt_expr ctxt) in
   f (var_at_when_hol_post, var_at_when_ocl_post))"
@@ -155,18 +153,18 @@ definition "print_ctxt_inv = fold_list (\<lambda>x ocl. (x ocl, ocl)) o flatten 
     ; var_tau = unicode_tau
     ; f_tau = \<lambda>s. Expr_warning_parenthesis (Expr_binop (b var_tau) unicode_Turnstile s)
     ; nb_var = length (Ctxt_inv_param ctxt) in
-  List_map (\<lambda> (tit, e) \<Rightarrow>
-    List_map (\<lambda> (allinst_at_when, var_at_when, e) \<Rightarrow>
-        axiom_unbound (print_ctxt_inv_name (Ctxt_inv_ty ctxt) tit var_at_when)
-          (\<lambda>ocl. f_tau (Expr_apply var_OclForall_set
-              [ a allinst_at_when (b (Ctxt_inv_ty ctxt))
-              , bug_ocaml_extraction
-                (let (l, expr) = cross_abs nb_var (case e ocl of T_pure e \<Rightarrow> e) in
-                 Expr_inner0 l expr)]))
-          (\<lambda>_ pref. flatten [''inv '', pref])
-          (Ctxt_inv_expr ctxt))
-      [(''OclAllInstances_at_pre'', var_at_when_hol_pre, \<lambda>ocl. print_ctxt_to_ocl_pre ocl e)
-      ,(''OclAllInstances_at_post'', var_at_when_hol_post, \<lambda>ocl. print_ctxt_to_ocl_post ocl e)])
+  List_map (\<lambda> (tit, T_pure t) \<Rightarrow>
+    (List_map
+      (\<lambda> (allinst_at_when, var_at_when, e) \<Rightarrow>
+        [ (\<lambda>ocl. Thy_axiom (Axiom (print_ctxt_inv_name (Ctxt_inv_ty ctxt) tit var_at_when)
+                                  (f_tau (cross_abs (\<lambda>s x. Expr_apply var_OclForall_set
+                                                            [ a allinst_at_when (b (Ctxt_inv_ty ctxt))
+                                                            , Expr_lambda s x])
+                                                    (Suc nb_var (* nb_var + ''self'' *))
+                                                    (case e ocl of T_pure e \<Rightarrow> e)) ))) ])
+      [(''OclAllInstances_at_pre'', var_at_when_hol_pre, \<lambda>ocl. print_ctxt_to_ocl_pre ocl (T_pure t))
+      ,(''OclAllInstances_at_post'', var_at_when_hol_post, \<lambda>ocl. print_ctxt_to_ocl_post ocl (T_pure t))])
+  @@ [raise_ml_unbound (\<lambda>_ pref. flatten [''inv '', pref]) (Ctxt_inv_expr ctxt)] )
     (Ctxt_inv_expr ctxt))"
 
 end

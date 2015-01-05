@@ -101,8 +101,11 @@ definition "s_of_ocl_deep_embed_ast _ =
               g)
             (Ctxt_expr ctxt)))
   | OclAstCtxtInv Floor2 ctxt \<Rightarrow>
-      sprintf2 (STR ''Context[shallow] %s
+      sprintf3 (STR ''Context[shallow] %s%s
 %s'')
+        (case Ctxt_inv_param ctxt of
+           [] \<Rightarrow> To_string ''''
+         | l \<Rightarrow> sprintf1 (STR ''%s:'') (String_concat (STR '','') (List_map To_string l)))
         (To_string (Ctxt_inv_ty ctxt))
         (String_concat (STR ''
 '')

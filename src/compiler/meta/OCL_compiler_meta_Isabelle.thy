@@ -73,8 +73,8 @@ datatype hol_expr = Expr_rewrite hol_expr (* left *) string (* symb rewriting *)
                   | Expr_applys00 hol_expr "hol_expr list"
                   | Expr_paren string (* left *) string (* right *) hol_expr
                   | Expr_if_then_else hol_expr hol_expr hol_expr
-                  | Expr_inner0 "string list" (* de bruijn variables under "lam", pre-initialized context *)
-                                pure_term (* inner syntax term *)
+                  | Expr_inner0 "string list" (* simulate a pre-initialized context (de bruijn variables under "lam") *)
+                                pure_term (* usual continuation of inner syntax term *)
 
 datatype hol_instantiation_class = Instantiation string (* name *)
                                                  string (* name in definition *)
@@ -279,5 +279,12 @@ definition "ty_arrow l = (case rev l of x # xs \<Rightarrow> List.fold Ty_arrow 
 definition "App_using = App_using0 o List_map Thms_single"
 definition "App_unfolding = App_unfolding0 o List_map Thms_single"
 definition "App_fix l = App_fix_let l [] None []"
+
+fun_quick cross_abs_aux where
+   "cross_abs_aux f l x = (\<lambda> (Suc n, PureAbs s _ t) \<Rightarrow> f s (cross_abs_aux f (s # l) (n, t))
+                         | (_, e) \<Rightarrow> Expr_inner0 l e)
+                         x"
+
+definition "cross_abs f n l = cross_abs_aux f [] (n, l)"
 
 end
