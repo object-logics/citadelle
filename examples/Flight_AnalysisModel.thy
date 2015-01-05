@@ -120,8 +120,8 @@ End
 Instance R00 :: Reservation = [ id = 00, flight = [ F1 ], "next" = R11 ]
      and R11 :: Reservation = [ id = 11, flight = [ F1, F2 ], "next" = R00 ]
      and R22 :: Reservation = [ id = 22, "next" = [ R00, R11, R22 ] ]
-     and F1 :: Flight = [ seats = 120, "from" = "Paris", to = "London" ]
-     and F2 :: Flight = [ seats = 370, "from" = "London", to = "New-York" ]
+     and F1 :: Flight = [ seats = 120, "from" = "Ostrava", to = "Plzen" ]
+     and F2 :: Flight = [ seats = 370, "from" = "Plzen", to = "Brno" ]
 (*
 R00 .flight = Set{ F1 } 
 R00 .client = Set{} // minimum constraint [1] not satisfied 
@@ -143,13 +143,13 @@ F2 .fl_res = Set{ R11 }
 *)
 *)
 
-Instance S1 :: Staff = [ name = "James" , (**) flights = F1 ]
-     and C1 :: Client = [ name = "Peter" , address = "London" , (**) flights = F1 , (**) cl_res = R11 ]
-     and C2 :: Client = [ name = "Marie" , address = "Paris" , (**) flights = F1 , (**) cl_res = R21 ]
+Instance S1 :: Staff = [ name = "Mallory" , (**) flights = F1 ]
+     and C1 :: Client = [ name = "Bob" , address = "Plzen" , (**) flights = F1 , (**) cl_res = R11 ]
+     and C2 :: Client = [ name = "Alice" , address = "Ostrava" , (**) flights = F1 , (**) cl_res = R21 ]
      and R11 :: Reservation = [ id = 12345 , (**) flight = F1 ]
-     and R21 :: Reservation = [ id = 98796 , (**) flight = F1 ]
-     and F1 :: Flight = [ seats = 120 , "from" = "Paris" , to = "London" ]
-     and F2 :: Flight = [ seats = 370 , "from" = "London" , to = "New-York" ]
+     and R21 :: Reservation = [ id = 98765 , (**) flight = F1 ]
+     and F1 :: Flight = [ seats = 120 , "from" = "Ostrava" , to = "Plzen" ]
+     and F2 :: Flight = [ seats = 370 , "from" = "Plzen" , to = "Brno" ]
 
 Define_state \<sigma>\<^sub>1 =
   [ defines [ S1
@@ -162,13 +162,13 @@ Define_state \<sigma>\<^sub>1 =
 
 Define_state \<sigma>\<^sub>2 =
   [ defines [ S1
-            , ([ name = "Peter" , address = "Dublin" , (**) flights = F1 , (**) cl_res = R11 ] :: Client)
-            , ([ name = "Marie" , address = "Paris" , (**) flights = [ F1 , F2 ] , (**) cl_res = [ self 4, self 7 ] ] :: Client)
+            , ([ name = "Bob" , address = "Praha" , (**) flights = F1 , (**) cl_res = R11 ] :: Client)
+            , ([ name = "Alice" , address = "Ostrava" , (**) flights = [ F1 , F2 ] , (**) cl_res = [ self 4, self 7 ] ] :: Client)
             , R11
-            , ([ id = 98796 , (**) flight = F1 , (**) "next" = self 7 ] :: Reservation)
+            , ([ id = 98765 , (**) flight = F1 , (**) "next" = self 7 ] :: Reservation)
             , F1
             , F2
-            , ([ id = 98798 , (**) flight = F2 ] :: Reservation) ] ]
+            , ([ id = 19283 , (**) flight = F2 ] :: Reservation) ] ]
 
 Define_pre_post \<sigma>\<^sub>1 \<sigma>\<^sub>2
 
