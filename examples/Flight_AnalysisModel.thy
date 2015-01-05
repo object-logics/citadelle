@@ -88,23 +88,23 @@ Class Staff < Person
 End
 
 Association passengers
-  Between Person      [0 \<bullet>\<bullet> *]
+  Between Person      [*]
             Role passengers
-          Flight      [0 \<bullet>\<bullet> *]
+          Flight      [*]
             Role flights
 End
 
-Association flights
+Aggregation flights
   Between Flight      [1]
             Role flight
-          Reservation [0 \<bullet>\<bullet> *]
+          Reservation [*]
             Role fl_res Sequence_
 End
 
 Association reservations
   Between Client      [1]
             Role client
-          Reservation [0 \<bullet>\<bullet> *]
+          Reservation [*]
             Role cl_res
 End
 
@@ -115,12 +115,32 @@ Association connection
             Role prev
 End
 
-(* (* Example of type errors *)
+(*
+(* Example of type errors *)
 Instance R00 :: Reservation = [ id = 00, flight = [ F1 ], "next" = R11 ]
      and R11 :: Reservation = [ id = 11, flight = [ F1, F2 ], "next" = R00 ]
      and R22 :: Reservation = [ id = 22, "next" = [ R00, R11, R22 ] ]
      and F1 :: Flight = [ seats = 120, "from" = "Paris", to = "London" ]
      and F2 :: Flight = [ seats = 370, "from" = "London", to = "New-York" ]
+(*
+R00 .flight = Set{ F1 } 
+R00 .client = Set{} // minimum constraint [1] not satisfied 
+R00 .prev = Set{ R11 , R22 } // maximum constraint [0 .. 1] not satisfied 
+R00 .next = Set{ R11 } 
+R11 .flight = Set{ F1 , F2 } // maximum constraint [1] not satisfied 
+R11 .client = Set{} // minimum constraint [1] not satisfied 
+R11 .prev = Set{ R00 , R22 } // maximum constraint [0 .. 1] not satisfied 
+R11 .next = Set{ R00 } 
+R22 .flight = Set{} // minimum constraint [1] not satisfied 
+R22 .client = Set{} // minimum constraint [1] not satisfied 
+R22 .prev = Set{ R22 } 
+R22 .next = Set{ R00 , R11 , R22 } // maximum constraint [0 .. 1] not satisfied 
+F1 .passengers = Set{} 
+F1 .fl_res = Set{ R00 , R11 } 
+F2 .passengers = Set{} 
+F2 .fl_res = Set{ R11 } 
+8 error(s) in multiplicity constraints
+*)
 *)
 
 Instance S1 :: Staff = [ name = "James" , (**) flights = F1 ]
