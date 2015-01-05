@@ -231,6 +231,7 @@ definition "print_access_deref_assocs = start_map'''' Thy_definition_hol o (\<la
 
 definition "print_access_select_name isup_attr isub_name = isup_attr (isub_name var_select)"
 definition "print_access_select = start_map'' Thy_definition_hol o (\<lambda>expr base_attr _ base_attr''.
+  let b = \<lambda>s. Expr_basic [s] in
   map_class_arg_only0 (\<lambda>isub_name name l_attr.
     let l_attr = base_attr l_attr in
     let var_f = ''f''
@@ -243,7 +244,7 @@ definition "print_access_select = start_map'' Thy_definition_hol o (\<lambda>exp
         , Definition (Expr_rewrite
                        (Expr_basic [print_access_select_name isup_attr isub_name, var_f])
                        ''=''
-                       (let var_attr = attr in
+                       (let var_attr = b (isup_of_str attr) in
                         Expr_function
                           (List_map (\<lambda>(lhs,rhs). ( Expr_apply
                                                          (isub_name datatype_constr_name)
@@ -251,9 +252,9 @@ definition "print_access_select = start_map'' Thy_definition_hol o (\<lambda>exp
                                                          # flatten [l_wildl, [lhs], l_wildr])
                                                      , rhs))
                             [ ( Expr_basic [unicode_bottom], Expr_basic [''null''] )
-                            , ( Expr_some (Expr_basic [var_attr])
+                            , ( Expr_some var_attr
                               , Expr_apply var_f [ Expr_basety
-                                                 , Expr_basic [var_attr]]) ]))) # l_acc))
+                                                 , var_attr]) ]))) # l_acc))
       ([], List_map (\<lambda>_. wildc) (tl l_attr), [])
       l_attr) in
     rev l)
@@ -270,7 +271,7 @@ definition "print_access_select = start_map'' Thy_definition_hol o (\<lambda>exp
         , Definition (Expr_rewrite
                        (Expr_basic [isup_attr (isub_name var_select), var_f])
                        ''=''
-                       (let var_attr = attr in
+                       (let var_attr = b (isup_of_str attr) in
                         Expr_function
                           (flatten (List_map (\<lambda>(lhs,rhs). ( Expr_apply
                                                          (isub_name datatype_constr_name)
@@ -279,9 +280,9 @@ definition "print_access_select = start_map'' Thy_definition_hol o (\<lambda>exp
                                                          # List_map (\<lambda>_. wildc) l_attr)
                                                      , rhs))
                             [ ( Expr_basic [unicode_bottom], Expr_basic [''null''] )
-                            , ( Expr_some (Expr_basic [var_attr])
+                            , ( Expr_some (var_attr)
                               , Expr_apply var_f [ Expr_basety
-                                                 , Expr_basic [var_attr]]) ]
+                                                 , var_attr]) ]
                             # (List_map (\<lambda> OclClass x _ _ \<Rightarrow> let var_x = lowercase_of_str x in
                                              (Expr_apply
                                                          (isub_name datatype_constr_name)
@@ -358,7 +359,14 @@ definition "print_access_dot_consts =
                    let esc = \<lambda>s. Char Nibble2 Nibble7 # s in
                    (\<lambda>s1 s2. flatten [s1, '' '', esc ''/'', ''* '', s2, '' *'', esc ''/'']) in
              case attr_ty of OclTy_class ty_obj \<Rightarrow>
-               (case apply_optim_ass_arity ty_obj (mk_par dot_name (bug_ocaml_extraction (let ty_obj = TyObj_from ty_obj in case TyObjN_role_name ty_obj of None => natural_of_str (TyObjN_ass_switch ty_obj) | Some s => s))) of
+               (case apply_optim_ass_arity
+                       ty_obj
+                       (mk_par
+                          dot_name
+                          (bug_ocaml_extraction (let ty_obj = TyObj_from ty_obj in
+                           case TyObjN_role_name ty_obj of
+                                None => natural_of_str (TyObjN_ass_switch ty_obj)
+                              | Some s => s))) of
                   None \<Rightarrow> dot_name
                 | Some dot_name \<Rightarrow> dot_name)
                            | _ \<Rightarrow> dot_name)
