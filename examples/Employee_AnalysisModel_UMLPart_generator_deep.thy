@@ -122,18 +122,18 @@ Define_state \<sigma>\<^sub>1' =
 Define_pre_post \<sigma>\<^sub>1 \<sigma>\<^sub>1'
 
 Context Person :: contents () : Set(Integer)
-  Post : `result \<triangleq> if (self .boss \<doteq> null)
+  Post : "result \<triangleq> if (self .boss \<doteq> null)
                    then (Set{}->including\<^sub>S\<^sub>e\<^sub>t(self .salary))
                    else (self .boss .contents()->including\<^sub>S\<^sub>e\<^sub>t(self .salary))
-                   endif`
-  Post : `true`
-  Pre : `false`
+                   endif"
+  Post : "true"
+  Pre : "false"
 
 Context Person
-  Inv a: `self .boss <> null implies (self .salary  \<triangleq>  ((self .boss) .salary))`
+  Inv a: "self .boss <> null implies (self .salary  \<triangleq>  ((self .boss) .salary))"
 
 Context Planet
-  Inv A : `true and (self .weight \<le>\<^sub>i\<^sub>n\<^sub>t \<zero>)`
+  Inv A : "true and (self .weight \<le>\<^sub>i\<^sub>n\<^sub>t \<zero>)"
 
 (*Define_base [ 1000, 1200, 1300, 1800, 2600, 2900, 3200, 3500
             , 3.14159265

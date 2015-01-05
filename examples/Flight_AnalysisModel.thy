@@ -152,15 +152,15 @@ Define_state \<sigma>\<^sub>2 =
 Define_pre_post \<sigma>\<^sub>1 \<sigma>\<^sub>2
 
 Context f: Flight
-  Inv A : `\<zero> <\<^sub>i\<^sub>n\<^sub>t (f .seats)`
-  Inv B : `f .flightreserv ->size\<^sub>S\<^sub>e\<^sub>q() \<le>\<^sub>i\<^sub>n\<^sub>t (f .seats)`
-  Inv C : `f .passengers ->select\<^sub>S\<^sub>e\<^sub>t(p | p .oclIsTypeOf(Client))
-                          \<doteq> ((f .flightreserv)->collect\<^sub>S\<^sub>e\<^sub>q(c | c .oclAsType(Person))->asSet\<^sub>S\<^sub>e\<^sub>q())`
+  Inv A : "\<zero> <\<^sub>i\<^sub>n\<^sub>t (f .seats)"
+  Inv B : "f .flightreserv ->size\<^sub>S\<^sub>e\<^sub>q() \<le>\<^sub>i\<^sub>n\<^sub>t (f .seats)"
+  Inv C : "f .passengers ->select\<^sub>S\<^sub>e\<^sub>t(p | p .oclIsTypeOf(Client))
+                          \<doteq> ((f .flightreserv)->collect\<^sub>S\<^sub>e\<^sub>q(c | c .oclAsType(Person))->asSet\<^sub>S\<^sub>e\<^sub>q())"
 
 Context r: Reservation
-  Inv A : `\<zero> <\<^sub>i\<^sub>n\<^sub>t (r .ident)`
-  Inv B : `r .reservnext <> null implies (r .flight .destito \<doteq> r .reservnext .flight .destifrom)`
-  Inv C : `r .reservnext <> null implies (r .client \<doteq> r .reservnext .client)`
+  Inv A : "\<zero> <\<^sub>i\<^sub>n\<^sub>t (r .ident)"
+  Inv B : "r .reservnext <> null implies (r .flight .destito \<doteq> r .reservnext .flight .destifrom)"
+  Inv C : "r .reservnext <> null implies (r .client \<doteq> r .reservnext .client)"
 
 (*generation_syntax deep flush_all*)
 

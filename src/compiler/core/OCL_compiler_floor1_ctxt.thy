@@ -116,15 +116,14 @@ definition "print_ctxt_pre_post = (\<lambda>ctxt. print_ctxt_gen_syntax_header
     (flatten [l_isab_ty, l_isab, l], ocl))
   [ Isab_thy_ocl_deep_embed_ast (OclAstCtxtPrePost Floor2
       (ctxt \<lparr> Ctxt_expr :=
-              List_map (\<lambda> (pref, T_to_be_parsed s) \<Rightarrow>
-                          (pref, T_to_be_parsed (pure_lam (make_ctxt_free_var pref ctxt) s)))
+              List_map (\<lambda> (pref, e) \<Rightarrow> (pref, T_lambdas (make_ctxt_free_var pref ctxt) e))
                        (Ctxt_expr ctxt) \<rparr>))
   , print_ctxt_gen_syntax_header_l [print_ctxt_pre_post_name (Ctxt_fun_name ctxt) var_at_when_hol_post] ])"
 
 definition "print_ctxt_inv = (\<lambda>ctxt. print_ctxt_gen_syntax_header Pair
   [ Isab_thy_ocl_deep_embed_ast (OclAstCtxtInv Floor2
       (ctxt \<lparr> Ctxt_inv_expr :=
-              List_map (\<lambda> (s, T_to_be_parsed e) \<Rightarrow> (s, T_to_be_parsed (pure_lam (Ctxt_inv_param ctxt @@ [var_self]) e)))
+              List_map (map_pair id (T_lambdas (Ctxt_inv_param ctxt @@ [var_self])))
                        (Ctxt_inv_expr ctxt) \<rparr>))
   , print_ctxt_gen_syntax_header_l
       (flatten (List_map (\<lambda> (tit, _).

@@ -69,11 +69,17 @@ definition "s_of_section_title ocl = (\<lambda> Section_title n section_title \<
                    else ''subsub'') @@ ''section''))
       (To_string section_title))"
 
-definition "s_of_ctxt2_term = (\<lambda> T_pure pure \<Rightarrow> s_of_pure_term [] pure
-                               | T_to_be_parsed s \<Rightarrow> To_string s)"
+fun_quick s_of_ctxt2_term_aux where "s_of_ctxt2_term_aux l e =
+ (\<lambda> T_pure pure \<Rightarrow> (if l = [] then id else sprintf2 (STR ''(%s. (%s))'') (To_string (String_concatWith '' '' (unicode_lambda # rev l))))
+                     (s_of_pure_term [] pure)
+  | T_to_be_parsed _ s \<Rightarrow> (if l = [] then id else sprintf2 (STR ''(%s. (%s))'') (To_string (String_concatWith '' '' (unicode_lambda # rev l))))
+                            (To_string s)
+  | T_lambda s c \<Rightarrow> s_of_ctxt2_term_aux (s # l) c) e"
+definition "s_of_ctxt2_term = s_of_ctxt2_term_aux []"
 
 definition "s_of_ocl_deep_embed_ast _ =
- (\<lambda> OclAstCtxtPrePost Floor2 ctxt \<Rightarrow>
+ (let g = STR [Char Nibble2 Nibble2] in
+  \<lambda> OclAstCtxtPrePost Floor2 ctxt \<Rightarrow>
       sprintf5 (STR ''Context[shallow] %s :: %s (%s) %s
 %s'')
         (To_string (Ctxt_ty ctxt))
@@ -87,10 +93,12 @@ definition "s_of_ocl_deep_embed_ast _ =
         (String_concat (STR ''
 '')
           (List_map
-            (\<lambda> (pref, s). sprintf2 (STR ''  %s : `%s`'')
+            (\<lambda> (pref, s). sprintf4 (STR ''  %s : %s%s%s'')
               (case pref of OclCtxtPre \<Rightarrow> STR ''Pre''
                           | OclCtxtPost \<Rightarrow> STR ''Post'')
-              (s_of_ctxt2_term s))
+              g
+              (s_of_ctxt2_term s)
+              g)
             (Ctxt_expr ctxt)))
   | OclAstCtxtInv Floor2 ctxt \<Rightarrow>
       sprintf2 (STR ''Context[shallow] %s
@@ -99,9 +107,11 @@ definition "s_of_ocl_deep_embed_ast _ =
         (String_concat (STR ''
 '')
           (List_map
-            (\<lambda> (n, s). sprintf2 (STR ''  Inv %s : `%s`'')
+            (\<lambda> (n, s). sprintf4 (STR (''  Inv %s : %s%s%s''))
               (To_string n)
-              (s_of_ctxt2_term s))
+              g
+              (s_of_ctxt2_term s)
+              g)
             (Ctxt_inv_expr ctxt))))"
 
 definition "s_of_thy ocl =
@@ -159,5 +169,6 @@ lemmas [code] =
   s_of.s_of_thy_list_def
 
   (* fun *)
+  s_of.s_of_ctxt2_term_aux.simps
 
 end

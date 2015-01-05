@@ -879,8 +879,30 @@ fun OCL_main aux ret = let open OCL open OCL_overload in fn
   Isab_thy thy => ret o (OCL_main_thy thy)
 | Isab_thy_generation_syntax _ => ret o I
 | Isab_thy_ml_extended _ => ret o I
-| Isab_thy_ocl_deep_embed_ast ocl => fn thy => aux (map2_ctxt_term (fn T_to_be_parsed s => From.from_p_term thy (String.implode s)
-                                                                     | x => x) ocl) thy
+| Isab_thy_ocl_deep_embed_ast ocl => fn thy =>
+  aux
+    (map2_ctxt_term
+      (fn T_pure x => T_pure x
+        | e =>
+          let fun aux e = case e of 
+            T_to_be_parsed (s, _) => SOME let val t = Syntax.read_term (Proof_Context.init_global thy) (String.implode s) in
+                                          (t, Term.add_frees t [])
+                                          end
+          | T_lambda (a, e) =>
+            Option.map
+              (fn (e, l_free) => 
+               let val a = String.implode a 
+                   val (t, l_free) = case List.partition (fn (x, _) => x = a) l_free of
+                                       ([], l_free) => (TFree ("'a", ["HOL.type"]), l_free)
+                                     | ([(_, t)], l_free) => (t, l_free) in
+               (lambda (Free (a, t)) e, l_free)
+               end)
+              (aux e)
+          | _ => NONE in
+          case aux e of
+            NONE => error "nested pure expression not expected"
+          | SOME (e, _) => OCL.T_pure (From.from_pure_term e)
+          end) ocl) thy
 end
 
 end
@@ -1005,7 +1027,11 @@ structure USE_parse = struct
      (fn (is_shallow, use) => fn thy =>
         get_oclclass
           (if is_shallow = NONE then
-             (OCL.T_to_be_parsed o From.from_string, v_true)
+             ( fn s =>
+                 OCL.T_to_be_parsed ( From.from_string s
+                                    , (XML.content_of (YXML.parse_body s), Position.none)
+                                    |> Symbol_Pos.explode |> Symbol_Pos.implode |> From.from_string)
+             , v_true)
            else
              (From.from_p_term thy, v_false))
           use)
@@ -1051,7 +1077,7 @@ structure USE_parse = struct
                    (* *)
                 || Parse.sym_ident (* "\<acute>" *) |-- Parse.binding --| Parse.sym_ident (* "\<acute>" *) >> OclTypeRaw) v
 
- val use_expression = Parse.alt_string
+ val use_expression = Parse.term
  val use_variableDeclaration = Parse.binding --| colon -- use_type
  val use_paramList = Parse.$$$ "(" |-- Parse.list use_variableDeclaration --| Parse.$$$ ")"
  val use_multiplicitySpec = ident_star || Parse.number

@@ -91,7 +91,9 @@ record ocl_association =        OclAss_type     :: ocl_association_type
 datatype ocl_ctxt_prefix = OclCtxtPre | OclCtxtPost
 
 datatype ocl_ctxt_term = T_pure pure_term
-                       | T_to_be_parsed string
+                       | T_to_be_parsed string (* raw, it includes extra quoting characters like DEL (char 127) *)
+                                        string (* same string but escaped without those quoting characters *)
+                       | T_lambda string ocl_ctxt_term
 
 record ocl_ctxt_pre_post = Ctxt_ty :: string (* class ty *)
                            Ctxt_fun_name :: string (* function name *)
@@ -116,6 +118,10 @@ record ocl_class_raw = ClassRaw_name :: string
 
 datatype ocl_ass_class = OclAssClass ocl_association
                                      ocl_class_raw
+
+subsection{* ... *}
+
+definition "T_lambdas = List.fold T_lambda"
 
 subsection{* Class Translation Preliminaries *}
 

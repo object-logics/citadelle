@@ -118,18 +118,18 @@ Define_pre_post ss \<sigma>\<^sub>1'
 Define_base [ 25, 250.0 ]
 
 Context c: Savings
-  Inv A : `\<zero>.\<zero> <\<^sub>r\<^sub>e\<^sub>a\<^sub>l (c .maximum)`
-  Inv B : `c .moneybalance \<le>\<^sub>r\<^sub>e\<^sub>a\<^sub>l (c .maximum) and \<zero>.\<zero> \<le>\<^sub>r\<^sub>e\<^sub>a\<^sub>l (c .moneybalance)`
+  Inv A : "\<zero>.\<zero> <\<^sub>r\<^sub>e\<^sub>a\<^sub>l (c .maximum)"
+  Inv B : "c .moneybalance \<le>\<^sub>r\<^sub>e\<^sub>a\<^sub>l (c .maximum) and \<zero>.\<zero> \<le>\<^sub>r\<^sub>e\<^sub>a\<^sub>l (c .moneybalance)"
 
 Context c: Current
-  Inv A : `\<two>\<five> <\<^sub>i\<^sub>n\<^sub>t (c .owner .age) implies (c .overdraft \<doteq> \<zero>.\<zero>)`
-  Inv B : `c .owner .age \<le>\<^sub>i\<^sub>n\<^sub>t \<two>\<five> implies (c .overdraft \<doteq> \<zero>.\<zero> -\<^sub>r\<^sub>e\<^sub>a\<^sub>l \<two>\<five>\<zero>.\<zero>)`
+  Inv A : "\<two>\<five> <\<^sub>i\<^sub>n\<^sub>t (c .owner .age) implies (c .overdraft \<doteq> \<zero>.\<zero>)"
+  Inv B : "c .owner .age \<le>\<^sub>i\<^sub>n\<^sub>t \<two>\<five> implies (c .overdraft \<doteq> \<zero>.\<zero> -\<^sub>r\<^sub>e\<^sub>a\<^sub>l \<two>\<five>\<zero>.\<zero>)"
 (*
 Context c: Client
-  Inv A : `c .banks
+  Inv A : "c .banks
     ->forAll\<^sub>S\<^sub>e\<^sub>t(b |
         b .bankaccounts ->select\<^sub>S\<^sub>e\<^sub>t( a | (a .owner \<doteq> c) and (a .oclIsTypeOf(Current)))
-                        ->size\<^sub>S\<^sub>e\<^sub>t() \<le>\<^sub>i\<^sub>n\<^sub>t \<one>)`
+                        ->size\<^sub>S\<^sub>e\<^sub>t() \<le>\<^sub>i\<^sub>n\<^sub>t \<one>)"
 *)
 (*generation_syntax deep flush_all*)
 

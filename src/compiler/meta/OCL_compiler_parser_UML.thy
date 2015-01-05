@@ -197,9 +197,10 @@ definition "i_of_ocl_ctxt_prefix a b = ocl_ctxt_prefix_rec
   (b ''OclCtxtPre'')
   (b ''OclCtxtPost'')"
 
-definition "i_of_ocl_ctxt_term a b = ocl_ctxt_term_rec
+definition "i_of_ocl_ctxt_term a b = (\<lambda>f0 f1 f2. ocl_ctxt_term_rec f0 f1 (co1 K f2))
   (ap1 a (b ''T_pure'') (i_of_pure_term a b))
-  (ap1 a (b ''T_to_be_parsed'') (i_of_string a b))"
+  (ap2 a (b ''T_to_be_parsed'') (i_of_string a b) (i_of_string a b))
+  (ar2 a (b ''T_lambda'') (i_of_string a b))"
 
 definition "i_of_ocl_ctxt_pre_post a b f = ocl_ctxt_pre_post_rec
   (ap6 a (b (ext ''ocl_ctxt_pre_post_ext''))
