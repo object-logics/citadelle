@@ -219,7 +219,7 @@ definition "Expr_inner = Expr_inner0 []"
 definition "Lemmas_simp = Lemmas_simp_opt True"
 definition "Lemmas_nosimp = Lemmas_simp_opt False"
 definition "Consts_value = ''(_)''"
-definition "Consts_raw0 s l e o_arg = Consts_raw s l (e @@ (case o_arg of
+definition "Consts_raw0 s l e o_arg = Consts_raw s l (flatten (List_map (\<lambda>c. if c = Char Nibble5 NibbleF then '''_'' else [c]) e) @@ (case o_arg of
          None \<Rightarrow> ''''
        | Some arg \<Rightarrow>
            let ap = \<lambda>s. '''('' @@ s @@ ''')'' in

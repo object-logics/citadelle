@@ -64,13 +64,14 @@ generation_syntax [ (*deep
 Class Flight
   Attributes
     seats : Integer
-    destifrom : String
-    destito : String
+    "from" : String
+    to : String
 End
 
+term id (* REMARK "id" already exists *)
 Class Reservation
   Attributes
-    ident : Integer
+    id : Integer
 End
 
 Class Person
@@ -97,38 +98,38 @@ Association flights
   Between Flight      [1]
             Role flight
           Reservation [0 \<bullet>\<bullet> *]
-            Role flightreserv Sequence_
+            Role fl_res Sequence_
 End
 
 Association reservations
   Between Client      [1]
             Role client
           Reservation [0 \<bullet>\<bullet> *]
-            Role clientreserv
+            Role cl_res
 End
 
 Association connection
   Between Reservation [0 \<bullet>\<bullet> 1]
-            Role reservnext
+            Role "next"
           Reservation [0 \<bullet>\<bullet> 1]
-            Role reservprev
+            Role prev
 End
 
 (* (* Example of type errors *)
-Instance R00 :: Reservation = [ ident = 00, flight = [ F1 ], reservnext = R11 ]
-     and R11 :: Reservation = [ ident = 11, flight = [ F1, F2 ], reservnext = R00 ]
-     and R22 :: Reservation = [ ident = 22, reservnext = [ R00, R11, R22 ] ]
-     and F1 :: Flight = [ seats = 120, destifrom = "Paris", destito = "London" ]
-     and F2 :: Flight = [ seats = 370, destifrom = "London", destito = "New-York" ]
+Instance R00 :: Reservation = [ id = 00, flight = [ F1 ], "next" = R11 ]
+     and R11 :: Reservation = [ id = 11, flight = [ F1, F2 ], "next" = R00 ]
+     and R22 :: Reservation = [ id = 22, "next" = [ R00, R11, R22 ] ]
+     and F1 :: Flight = [ seats = 120, "from" = "Paris", to = "London" ]
+     and F2 :: Flight = [ seats = 370, "from" = "London", to = "New-York" ]
 *)
 
 Instance S1 :: Staff = [ name = "James" , (**) flights = F1 ]
-     and C1 :: Client = [ name = "Peter" , address = "London" , (**) flights = F1 , (**) clientreserv = R11 ]
-     and C2 :: Client = [ name = "Marie" , address = "Paris" , (**) flights = F1 , (**) clientreserv = R21 ]
-     and R11 :: Reservation = [ ident = 12345 , (**) flight = F1 ]
-     and R21 :: Reservation = [ ident = 98796 , (**) flight = F1 ]
-     and F1 :: Flight = [ seats = 120 , destifrom = "Paris" , destito = "London" ]
-     and F2 :: Flight = [ seats = 370 , destifrom = "London" , destito = "New-York" ]
+     and C1 :: Client = [ name = "Peter" , address = "London" , (**) flights = F1 , (**) cl_res = R11 ]
+     and C2 :: Client = [ name = "Marie" , address = "Paris" , (**) flights = F1 , (**) cl_res = R21 ]
+     and R11 :: Reservation = [ id = 12345 , (**) flight = F1 ]
+     and R21 :: Reservation = [ id = 98796 , (**) flight = F1 ]
+     and F1 :: Flight = [ seats = 120 , "from" = "Paris" , to = "London" ]
+     and F2 :: Flight = [ seats = 370 , "from" = "London" , to = "New-York" ]
 
 Define_state \<sigma>\<^sub>1 =
   [ defines [ S1
@@ -141,26 +142,26 @@ Define_state \<sigma>\<^sub>1 =
 
 Define_state \<sigma>\<^sub>2 =
   [ defines [ S1
-            , ([ name = "Peter" , address = "Dublin" , (**) flights = F1 , (**) clientreserv = R11 ] :: Client)
-            , ([ name = "Marie" , address = "Paris" , (**) flights = [ F1 , F2 ] , (**) clientreserv = [ self 4, self 7 ] ] :: Client)
+            , ([ name = "Peter" , address = "Dublin" , (**) flights = F1 , (**) cl_res = R11 ] :: Client)
+            , ([ name = "Marie" , address = "Paris" , (**) flights = [ F1 , F2 ] , (**) cl_res = [ self 4, self 7 ] ] :: Client)
             , R11
-            , ([ ident = 98796 , (**) flight = F1 , (**) reservnext = self 7 ] :: Reservation)
+            , ([ id = 98796 , (**) flight = F1 , (**) "next" = self 7 ] :: Reservation)
             , F1
             , F2
-            , ([ ident = 98798 , (**) flight = F2 ] :: Reservation) ] ]
+            , ([ id = 98798 , (**) flight = F2 ] :: Reservation) ] ]
 
 Define_pre_post \<sigma>\<^sub>1 \<sigma>\<^sub>2
 
 Context f: Flight
   Inv A : "\<zero> <\<^sub>i\<^sub>n\<^sub>t (f .seats)"
-  Inv B : "f .flightreserv ->size\<^sub>S\<^sub>e\<^sub>q() \<le>\<^sub>i\<^sub>n\<^sub>t (f .seats)"
+  Inv B : "f .fl_res ->size\<^sub>S\<^sub>e\<^sub>q() \<le>\<^sub>i\<^sub>n\<^sub>t (f .seats)"
   Inv C : "f .passengers ->select\<^sub>S\<^sub>e\<^sub>t(p | p .oclIsTypeOf(Client))
-                          \<doteq> ((f .flightreserv)->collect\<^sub>S\<^sub>e\<^sub>q(c | c .oclAsType(Person))->asSet\<^sub>S\<^sub>e\<^sub>q())"
+                          \<doteq> ((f .fl_res)->collect\<^sub>S\<^sub>e\<^sub>q(c | c .oclAsType(Person))->asSet\<^sub>S\<^sub>e\<^sub>q())"
 
 Context r: Reservation
-  Inv A : "\<zero> <\<^sub>i\<^sub>n\<^sub>t (r .ident)"
-  Inv B : "r .reservnext <> null implies (r .flight .destito \<doteq> r .reservnext .flight .destifrom)"
-  Inv C : "r .reservnext <> null implies (r .client \<doteq> r .reservnext .client)"
+  Inv A : "\<zero> <\<^sub>i\<^sub>n\<^sub>t (r .id)"
+  Inv B : "r .next <> null implies (r .flight .to \<doteq> r .next .flight .from)"
+  Inv C : "r .next <> null implies (r .client \<doteq> r .next .client)"
 
 (*generation_syntax deep flush_all*)
 
