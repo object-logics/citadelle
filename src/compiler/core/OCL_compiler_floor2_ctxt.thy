@@ -136,7 +136,7 @@ definition "print_ctxt_pre_post = fold_list (\<lambda>x ocl. (x ocl, ocl)) o (\<
                   (b var_result))))
               ''=''
               (Expr_parenthesis (Expr_if_then_else
-                (f_tau (a unicode_delta (b var_self)))
+                (expr_binop unicode_and (List_map (\<lambda>s. f_tau (a unicode_delta (b s))) (var_self # List_map fst (Ctxt_fun_ty_arg ctxt))))
                 (Expr_warning_parenthesis (Expr_binop
                   (to_s OclCtxtPre (print_ctxt_to_ocl_pre ocl) l_pre)
                   unicode_longrightarrow
