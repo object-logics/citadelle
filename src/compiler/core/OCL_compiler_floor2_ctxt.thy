@@ -118,30 +118,35 @@ definition "print_ctxt_pre_post = fold_list (\<lambda>x ocl. (x ocl, ocl)) o (\<
     ; b = \<lambda>s. Expr_basic [s]
     ; var_tau = unicode_tau
     ; f_tau = \<lambda>s. Expr_warning_parenthesis (Expr_binop (b var_tau) unicode_Turnstile (Expr_warning_parenthesis s))
-    ; expr_binop = \<lambda>s_op. \<lambda> [] \<Rightarrow> b ''True'' | l \<Rightarrow> Expr_parenthesis (expr_binop s_op l)
+    ; expr_binop0 = \<lambda>base u_and. \<lambda> [] \<Rightarrow> b base | l \<Rightarrow> Expr_parenthesis (expr_binop u_and l)
     ; to_s = \<lambda>pref f_to l_pre. 
-        expr_binop unicode_and
+        Expr_parenthesis (expr_binop0 ''true'' ''and''
           (bug_ocaml_extraction
           (List_map
              (bug_ocaml_extraction
              (let nb_var = length (make_ctxt_free_var pref ctxt) in
               (\<lambda>(_, expr) \<Rightarrow> 
-               f_tau (cross_abs (\<lambda>_. id) nb_var (case f_to expr of T_pure expr \<Rightarrow> expr))))) l_pre))
+                 cross_abs (\<lambda>_. id) nb_var (case f_to expr of T_pure expr \<Rightarrow> expr)))) l_pre)))
     ; f = \<lambda> (var_at_when_hol, var_at_when_ocl).
         (\<lambda>ocl. Thy_axiom (Axiom (print_ctxt_pre_post_name attr_n var_at_when_hol)
+         (bug_ocaml_extraction
+         (let if_test = expr_binop0 ''True'' unicode_and (List_map (\<lambda>s. f_tau (a unicode_delta (b s))) (var_self # List_map fst (Ctxt_fun_ty_arg ctxt)))
+            ; if_body = Expr_binop
+                (to_s OclCtxtPre (print_ctxt_to_ocl_pre ocl) l_pre)
+                ''implies''
+                (to_s OclCtxtPost (print_ctxt_to_ocl_post ocl) l_post) in
+          Expr_binop
+            (Expr_parenthesis (Expr_binop if_test unicode_Longrightarrow (f_tau (a unicode_delta if_body))))
+            unicode_Longrightarrow
             (Expr_rewrite
               (Expr_parenthesis (f_tau (Expr_rewrite
                   (Expr_postunary (b var_self) (b (mk_dot_par_gen (flatten [''.'', attr_n, var_at_when_ocl]) (List_map fst (Ctxt_fun_ty_arg ctxt)))))
                   unicode_triangleq
                   (b var_result))))
               ''=''
-              (Expr_parenthesis (Expr_if_then_else
-                (expr_binop unicode_and (List_map (\<lambda>s. f_tau (a unicode_delta (b s))) (var_self # List_map fst (Ctxt_fun_ty_arg ctxt))))
-                (Expr_warning_parenthesis (Expr_binop
-                  (to_s OclCtxtPre (print_ctxt_to_ocl_pre ocl) l_pre)
-                  unicode_longrightarrow
-                  (to_s OclCtxtPost (print_ctxt_to_ocl_post ocl) l_post)))
-                (f_tau (Expr_rewrite (b var_result) unicode_triangleq (b ''invalid''))))))))
+              (Expr_parenthesis (Expr_if_then_else if_test
+                                                   (f_tau if_body)
+                                                   (f_tau (Expr_rewrite (b var_result) unicode_triangleq (b ''invalid''))))))))))
         # raise_ml_unbound
           (\<lambda>n pref. flatten [''('', natural_of_str (n + 1), '') '', if pref = OclCtxtPre then ''pre'' else ''post''])
           (Ctxt_expr ctxt) in
