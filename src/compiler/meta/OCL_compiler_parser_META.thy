@@ -64,26 +64,27 @@ definition "ocl_compiler_config_rec0 f ocl = f
   (D_import_compiler ocl)
   (D_generation_syntax_shallow ocl)
   (D_accessor_rbt ocl)
-  (D_higher_order_ty ocl)"
+  (D_higher_order_ty ocl)
+  (D_sorry_mode ocl)"
 
 definition "ocl_compiler_config_rec f ocl = ocl_compiler_config_rec0 f ocl
   (ocl_compiler_config.more ocl)"
 
 (* *)
 
-lemma [code]: "ocl_compiler_config.extend = (\<lambda>ocl v. ocl_compiler_config_rec0 (co13 (\<lambda>f. f v) ocl_compiler_config_ext) ocl)"
+lemma [code]: "ocl_compiler_config.extend = (\<lambda>ocl v. ocl_compiler_config_rec0 (co14 (\<lambda>f. f v) ocl_compiler_config_ext) ocl)"
 by(intro ext, simp add: ocl_compiler_config_rec0_def
                         ocl_compiler_config.extend_def
-                        co13_def K_def)
-lemma [code]: "ocl_compiler_config.make = co13 (\<lambda>f. f ()) ocl_compiler_config_ext"
+                        co14_def K_def)
+lemma [code]: "ocl_compiler_config.make = co14 (\<lambda>f. f ()) ocl_compiler_config_ext"
 by(intro ext, simp add: ocl_compiler_config.make_def
-                        co13_def)
-lemma [code]: "ocl_compiler_config.truncate = ocl_compiler_config_rec (co13 K ocl_compiler_config.make)"
+                        co14_def)
+lemma [code]: "ocl_compiler_config.truncate = ocl_compiler_config_rec (co14 K ocl_compiler_config.make)"
 by(intro ext, simp add: ocl_compiler_config_rec0_def
                         ocl_compiler_config_rec_def
                         ocl_compiler_config.truncate_def
                         ocl_compiler_config.make_def
-                        co13_def K_def)
+                        co14_def K_def)
 
 subsection{* i of ... *} (* i_of *)
 
@@ -118,7 +119,7 @@ definition "i_of_ocl_deep_mode a b = ocl_deep_mode_rec
   (b ''Gen_analysis'')"
 
 definition "i_of_ocl_compiler_config a b f = ocl_compiler_config_rec
-  (ap14 a (b (ext ''ocl_compiler_config_ext''))
+  (ap15 a (b (ext ''ocl_compiler_config_ext''))
     (i_of_bool b)
     (i_of_option a b (i_of_pair a b (i_of_string a b) (i_of_pair a b (i_of_list a b (i_of_string a b)) (i_of_string a b))))
     (i_of_internal_oids a b)
@@ -132,6 +133,7 @@ definition "i_of_ocl_compiler_config a b f = ocl_compiler_config_rec
     (i_of_bool b)
     (i_of_pair a b (i_of_list a b (i_of_string a b)) (i_of_list a b (i_of_string a b)))
     (i_of_list a b (i_of_pair a b (i_of_string a b) (i_of_ocl_ty a b)))
+    (i_of_bool b)
     (f a b))"
 
 end

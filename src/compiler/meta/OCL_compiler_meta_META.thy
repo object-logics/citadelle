@@ -110,6 +110,7 @@ record ocl_compiler_config =  D_disable_thy_output :: bool
                               D_accessor_rbt :: " string (* name of the constant added *) list (* pre *)
                                                 \<times> string (* name of the constant added *) list (* post *)"
                               D_higher_order_ty :: "(string (* raw HOL name (as key for rbt) *) \<times> ocl_ty) list"
+                              D_sorry_mode :: bool (* true : activate sorry mode for skipping proofs *)
 
 subsection{* Auxilliary *}
 
@@ -157,5 +158,10 @@ definition "Thy_section_title = Isab_thy o Theory_section_title"
 definition "Thy_text = Isab_thy o Theory_text"
 definition "Thy_ml = Isab_thy o Theory_ml"
 definition "Thy_thm = Isab_thy o Theory_thm"
+
+subsection{* ... *}
+
+definition "hol_map_thy f = (\<lambda> Isab_thy x \<Rightarrow> Isab_thy (f x)
+                             | x \<Rightarrow> x)"
 
 end

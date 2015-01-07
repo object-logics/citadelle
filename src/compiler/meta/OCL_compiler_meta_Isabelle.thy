@@ -287,4 +287,9 @@ fun_quick cross_abs_aux where
 
 definition "cross_abs f n l = cross_abs_aux f [] (n, l)"
 
+subsection{* ... *}
+
+definition "hol_map_lemma f = (\<lambda> Theory_lemma_by x \<Rightarrow> Theory_lemma_by (f x)
+                               | x \<Rightarrow> x)"
+
 end

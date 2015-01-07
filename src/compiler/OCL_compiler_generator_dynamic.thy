@@ -57,7 +57,7 @@ imports OCL_compiler_printer
 
            (* hol syntax *)
            "output_directory"
-           "THEORY" "IMPORTS" "SECTION"
+           "THEORY" "IMPORTS" "SECTION" "SORRY"
            "deep" "shallow" "syntax_print" "skip_export"
            "generation_semantics"
            "flush_all"
@@ -549,6 +549,7 @@ val parse_deep =
      Scan.optional (@{keyword "skip_export"} >> K true) false
   -- Scan.optional (((Parse.$$$ "(" -- @{keyword "THEORY"}) |-- Parse.name -- ((Parse.$$$ ")" -- Parse.$$$ "(" -- @{keyword "IMPORTS"}) |-- parse_l' Parse.name -- Parse.name) --| Parse.$$$ ")") >> SOME) NONE
   -- Scan.optional (@{keyword "SECTION"} >> K true) false
+  -- Scan.optional (@{keyword "SORRY"} >> K true) false
   -- (* code_expr_inP *) parse_l1' (@{keyword "in"} |-- (Parse.name
         -- Scan.optional (@{keyword "module_name"} |-- Parse.name) ""
         -- code_expr_argsP))
@@ -560,18 +561,19 @@ val parse_sem_ocl =
   --| (Parse.$$$ "]" -- Parse.$$$ ")")
 
 val mode =
-  let fun mk_ocl disable_thy_output file_out_path_dep oid_start design_analysis =
+  let fun mk_ocl disable_thy_output file_out_path_dep oid_start design_analysis sorry_mode =
     OCL.ocl_compiler_config_empty
                     (From.from_bool disable_thy_output)
                     (From.from_option (From.from_pair From.from_string (From.from_pair (From.from_list From.from_string) From.from_string)) file_out_path_dep)
                     (OCL.oidInit (From.from_internal_oid (From.from_nat oid_start)))
-                    (From.from_design_analysis design_analysis) in
+                    (From.from_design_analysis design_analysis)
+                    (From.from_bool sorry_mode) in
 
-     @{keyword "deep"} |-- parse_sem_ocl -- parse_deep >> (fn ((design_analysis, oid_start), ((((skip_exportation, file_out_path_dep), disable_thy_output), seri_args), filename_thy)) =>
-       Gen_deep ( mk_ocl (not disable_thy_output) file_out_path_dep oid_start design_analysis
+     @{keyword "deep"} |-- parse_sem_ocl -- parse_deep >> (fn ((design_analysis, oid_start), (((((skip_exportation, file_out_path_dep), disable_thy_output), sorry_mode), seri_args), filename_thy)) =>
+       Gen_deep ( mk_ocl (not disable_thy_output) file_out_path_dep oid_start design_analysis sorry_mode
                 , file_out_path_dep, seri_args, filename_thy, Isabelle_System.create_tmp_path "deep_export_code" "", skip_exportation))
-  || @{keyword "shallow"} |-- parse_sem_ocl >> (fn (design_analysis, oid_start) =>
-       Gen_shallow (mk_ocl true NONE oid_start design_analysis, ()))
+  || @{keyword "shallow"} |-- parse_sem_ocl -- Scan.optional (@{keyword "SORRY"} >> K true) false >> (fn ((design_analysis, oid_start), sorry_mode) =>
+       Gen_shallow (mk_ocl true NONE oid_start design_analysis sorry_mode, ()))
   || @{keyword "syntax_print"} >> K Gen_syntax_print
   end
 

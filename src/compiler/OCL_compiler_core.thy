@@ -345,14 +345,15 @@ definition "thy_ctxt_inv n = [ case n of Floor1 \<Rightarrow> OCL_compiler_floor
                                        | Floor2 \<Rightarrow> OCL_compiler_floor2_ctxt.print_ctxt_inv ]"
 definition "thy_flush_all = []"
 
-definition "ocl_compiler_config_empty disable_thy_output file_out_path_dep oid_start design_analysis =
+definition "ocl_compiler_config_empty disable_thy_output file_out_path_dep oid_start design_analysis sorry_mode =
   ocl_compiler_config.make
     disable_thy_output
     file_out_path_dep
     oid_start
     (0, 0)
     design_analysis
-    None [] [] [] False False ([], []) []"
+    None [] [] [] False False ([], []) []
+    sorry_mode"
 
 definition "ocl_compiler_config_reset_no_env ocl =
   ocl_compiler_config_empty
@@ -360,6 +361,7 @@ definition "ocl_compiler_config_reset_no_env ocl =
     (D_file_out_path_dep ocl)
     (oidReinitAll (D_oid_start ocl))
     (D_design_analysis ocl)
+    (D_sorry_mode ocl)
     \<lparr> D_ocl_env := D_ocl_env ocl \<rparr>"
 
 definition "ocl_compiler_config_reset_all ocl =
@@ -373,8 +375,13 @@ definition "ocl_compiler_config_reset_all ocl =
 
 definition "fold_thy0 univ thy_object0 f =
   List.fold (\<lambda>x (acc1, acc2).
-    let (l, acc1) = x univ acc1 in
-    (f l acc1 acc2)) thy_object0"
+    let sorry_mode = D_sorry_mode acc1
+      ; (l, acc1) = x univ acc1 in
+    (f (if sorry_mode then
+          List_map (hol_map_thy (hol_map_lemma (\<lambda> Lemma_by n spec _ _ \<Rightarrow> Lemma_by n spec [] Tacl_sorry
+                                                | Lemma_by_assum n spec1 spec2 _ _ \<Rightarrow> Lemma_by_assum n spec1 spec2 [] Tacl_sorry))) l
+        else
+          l) acc1 acc2)) thy_object0"
 
 definition "ocl_env_class_spec_rm f_fold f ocl_accu =
   (let (ocl, accu) = f_fold f ocl_accu in
