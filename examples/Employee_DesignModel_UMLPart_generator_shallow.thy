@@ -77,7 +77,7 @@ End
 (* wishlist:
 Class Galaxy
   Attributes sound : Set(Set(Integer))
-             outerworld : Galaxy
+             outerworld : Set(Sequence(Galaxy))
 End
 *)
 
