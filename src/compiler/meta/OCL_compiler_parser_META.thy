@@ -115,8 +115,8 @@ definition "i_of_ocl_deep_embed_ast a b = ocl_deep_embed_ast_rec
   (ap1 a (b ''OclAstFlushAll'') (i_of_ocl_flush_all a b))"
 
 definition "i_of_ocl_deep_mode a b = ocl_deep_mode_rec
-  (b ''Gen_design'')
-  (b ''Gen_analysis'')"
+  (b ''Gen_only_design'')
+  (b ''Gen_only_analysis'')"
 
 definition "i_of_ocl_compiler_config a b f = ocl_compiler_config_rec
   (ap15 a (b (ext ''ocl_compiler_config_ext''))
