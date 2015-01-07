@@ -77,10 +77,12 @@ datatype ocl_ty =           OclTy_base_void
                           | OclTy_base_string
                           | OclTy_class ocl_ty_class
                           | OclTy_collection ocl_collection ocl_ty
-                          | OclTy_raw string (* denoting raw HOL-type.*)
+                          | OclTy_raw string (* denoting raw HOL-type *)
+                          | OclTy_object string (* class name *)
 
 
-datatype ocl_association_type = OclAssTy_association
+datatype ocl_association_type = OclAssTy_native_attribute
+                              | OclAssTy_association
                               | OclAssTy_composition
                               | OclAssTy_aggregation
 record ocl_association =        OclAss_type     :: ocl_association_type
@@ -242,7 +244,26 @@ proof -
 qed
 
 definition "class_unflat l_class l_ass =
- (let l =
+ (let (l_class, l_ass) = (* move from classes to associations:
+                            attributes of object types,
+                            + those constructed with at most 1 recursive call to OclTy_collection *)
+        List.fold
+          (\<lambda>c (l_class, l_ass).
+            let f = \<lambda>role t mult_out ty. \<lparr> OclAss_type = OclAssTy_native_attribute
+                                         , OclAss_relation = [(ClassRaw_name c, OclMult [(Mult_star, None)] ty, None)
+                                                             ,(t, OclMult [mult_out] ty, Some role)] \<rparr>
+              ; (l_own, l_ass) =
+                List.fold (\<lambda> (role, OclTy_object t) \<Rightarrow>
+                                  \<lambda> (l_own, l). (l_own, f role t (Mult_nat 0, Some (Mult_nat 1)) Set # l)
+                           | (role, OclTy_collection ty (OclTy_object t)) \<Rightarrow>
+                                  \<lambda> (l_own, l). (l_own, f role t (Mult_star, None) ty # l)
+                           | x \<Rightarrow> \<lambda> (l_own, l). (x # l_own, l))
+                          (ClassRaw_own c)
+                          ([], l_ass) in
+            (c \<lparr> ClassRaw_own := l_own \<rparr> # l_class, l_ass))
+          l_class
+          ([], l_ass)
+    ; l =
     let rbt = (* fold classes:
                  set ''OclAny'' as default inherited class (for all classes linking to zero inherited classes) *)
               insert
@@ -292,6 +313,7 @@ fun_quick str_of_ty where
    |"str_of_ty (OclTy_collection Set ocl_ty) = flatten [''Set('', str_of_ty ocl_ty,'')'']"
    |"str_of_ty (OclTy_collection Sequence ocl_ty) = flatten [''Sequence('', str_of_ty ocl_ty,'')'']"
    |"str_of_ty (OclTy_raw s) = flatten [unicode_acute, s, unicode_acute]"
+   |"str_of_ty (OclTy_object s) = s"
 
 definition "ty_void = str_of_ty OclTy_base_void"
 definition "ty_boolean = str_of_ty OclTy_base_boolean"

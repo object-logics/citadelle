@@ -180,9 +180,11 @@ definition "i_of_ocl_ty a b = (\<lambda>f1 f2 f3 f4 f5 f6 f7. ocl_ty_rec f1 f2 f
   (b ''OclTy_base_string'')
   (ap1 a (b ''OclTy_class'') (i_of_ocl_ty_class a b (K i_of_unit)))
   (ar2 a (b ''OclTy_collection'') (i_of_ocl_collection b))
-  (ap1 a (b ''OclTy_raw'') (i_of_string a b))"
+  (ap1 a (b ''OclTy_raw'') (i_of_string a b))
+  (ap1 a (b ''OclTy_object'') (i_of_string a b))"
 
 definition "i_of_ocl_association_type a b = ocl_association_type_rec
+  (b ''OclAssTy_native_attribute'')
   (b ''OclAssTy_association'')
   (b ''OclAssTy_composition'')
   (b ''OclAssTy_aggregation'')"

@@ -1023,6 +1023,9 @@ structure USE_parse = struct
  val colon = Parse.$$$ ":"
  fun repeat2 scan = scan ::: Scan.repeat1 scan
 
+ fun xml_unescape s = (XML.content_of (YXML.parse_body s), Position.none)
+                      |> Symbol_Pos.explode |> Symbol_Pos.implode |> From.from_string
+
  fun outer_syntax_command2 mk_string cmd_spec cmd_descr parser v_true v_false get_oclclass =
    outer_syntax_command mk_string cmd_spec cmd_descr
      (optional (Parse.$$$ "[" |-- @{keyword "shallow"} --| Parse.$$$ "]") -- parser)
@@ -1031,8 +1034,7 @@ structure USE_parse = struct
           (if is_shallow = NONE then
              ( fn s =>
                  OCL.T_to_be_parsed ( From.from_string s
-                                    , (XML.content_of (YXML.parse_body s), Position.none)
-                                    |> Symbol_Pos.explode |> Symbol_Pos.implode |> From.from_string)
+                                    , xml_unescape s)
              , v_true)
            else
              (From.from_p_term thy, v_false))
@@ -1046,7 +1048,8 @@ structure USE_parse = struct
                     | OclTypeBaseString
                     | OclTypeCollectionSet of use_oclty
                     | OclTypeCollectionSequence of use_oclty
-                    | OclTypeRaw of binding (* FIXME use 'string' and Parse.typ *)
+                    | OclTypeRaw of string
+                    | OclTypeObject of binding
 
  datatype use_opt = Ordered (* ordered set *) | Subsets of binding | Union | Redefines of binding | Derived of string | Qualifier of (binding * use_oclty) list | Nonunique (* bag *) | Sequence
  datatype use_operation_def = Expression of string | BlockStat
@@ -1059,7 +1062,8 @@ structure USE_parse = struct
                       | OclTypeBaseString  => OCL.OclTy_base_string
                       | OclTypeCollectionSet l      => OCL.OclTy_collection (OCL.Set, from_oclty l)
                       | OclTypeCollectionSequence l => OCL.OclTy_collection (OCL.Sequence, from_oclty l)
-                      | OclTypeRaw s       => OCL.OclTy_raw (From.from_binding s)) v
+                      | OclTypeRaw s       => OCL.OclTy_raw (xml_unescape s)
+                      | OclTypeObject s    => OCL.OclTy_object (From.from_binding s)) v
 
  val ident_dot_dot = Parse.sym_ident -- Parse.sym_ident (* "\<bullet>\<bullet>" *)
  val ident_star = Parse.sym_ident (* "*" *)
@@ -1076,8 +1080,11 @@ structure USE_parse = struct
                 || Parse.reserved "Real" >> K OclTypeBaseReal
                 || Parse.reserved "String" >> K OclTypeBaseString
 
-                   (* *)
-                || Parse.sym_ident (* "\<acute>" *) |-- Parse.binding --| Parse.sym_ident (* "\<acute>" *) >> OclTypeRaw) v
+                   (* raw HOL *)
+                || Parse.sym_ident (* "\<acute>" *) |-- Parse.typ --| Parse.sym_ident (* "\<acute>" *) >> OclTypeRaw
+
+                   (* object type *)
+                || Parse.binding >> OclTypeObject) v
 
  val use_expression = Parse.term
  val use_variableDeclaration = Parse.binding --| colon -- use_type
