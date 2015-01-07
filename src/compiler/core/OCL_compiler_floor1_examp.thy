@@ -386,7 +386,7 @@ definition "print_examp_instance_defassoc_typecheck_gen name l_ocli ocl =
                               else
                                 (*10*) \<lambda> [x0, x1] \<Rightarrow> (x1, x0)))
                            l_attr)) rbt [])
-    ; l_spec = filter_ass (fst (find_class_ass ocl))
+    ; l_spec = snd (arrange_ass (fst (find_class_ass ocl)))
     ; l_oid_gen = List_map
         (\<lambda> (ocli, oids).
           ( fst (hd (fold_instance_single (\<lambda>a b. Cons (a, b)) ocli []))

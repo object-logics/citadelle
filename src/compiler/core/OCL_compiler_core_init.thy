@@ -165,9 +165,32 @@ definition "find_class_ass ocl =
        | OclAstAssClass Floor1 (OclAssClass _ class) \<Rightarrow> f class
        | x \<Rightarrow> [x])) l_ocl)))"
 
-definition "filter_ass = List.map_filter (\<lambda> OclAstAssociation ass \<Rightarrow> Some ass
-                                          | OclAstAssClass Floor1 (OclAssClass ass _) \<Rightarrow> Some ass
-                                          | _ \<Rightarrow> None)"
+definition "arrange_ass l_c = 
+   (let l_class = List.map_filter (\<lambda> OclAstClassRaw Floor1 cflat \<Rightarrow> Some cflat
+                                    | OclAstAssClass Floor1 (OclAssClass _ cflat) \<Rightarrow> Some cflat
+                                    | _ \<Rightarrow> None) l_c
+      ; l_ass = List.map_filter (\<lambda> OclAstAssociation ass \<Rightarrow> Some ass
+                                 | OclAstAssClass Floor1 (OclAssClass ass _) \<Rightarrow> Some ass
+                                 | _ \<Rightarrow> None) l_c in
+    (* move from classes to associations:
+         attributes of object types
+         + those constructed with at most 1 recursive call to OclTy_collection *)
+    map_pair rev rev (List.fold
+          (\<lambda>c (l_class, l_ass).
+            let f = \<lambda>role t mult_out ty. \<lparr> OclAss_type = OclAssTy_native_attribute
+                                         , OclAss_relation = [(ClassRaw_name c, OclMult [(Mult_star, None)] ty, None)
+                                                             ,(t, OclMult [mult_out] ty, Some role)] \<rparr>
+              ; (l_own, l_ass) =
+                List.fold (\<lambda> (role, OclTy_object t) \<Rightarrow>
+                                  \<lambda> (l_own, l). (l_own, f role t (Mult_nat 0, Some (Mult_nat 1)) Set # l)
+                           | (role, OclTy_collection ty (OclTy_object t)) \<Rightarrow>
+                                  \<lambda> (l_own, l). (l_own, f role t (Mult_star, None) ty # l)
+                           | x \<Rightarrow> \<lambda> (l_own, l). (x # l_own, l))
+                          (ClassRaw_own c)
+                          ([], l_ass) in
+            (c \<lparr> ClassRaw_own := rev l_own \<rparr> # l_class, l_ass))
+          l_class
+          ([], rev l_ass)))"
 
 subsection{* ... *}
 

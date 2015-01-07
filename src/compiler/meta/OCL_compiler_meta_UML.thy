@@ -243,27 +243,8 @@ proof -
  done
 qed
 
-definition "class_unflat l_class l_ass =
- (let (l_class, l_ass) = (* move from classes to associations:
-                            attributes of object types,
-                            + those constructed with at most 1 recursive call to OclTy_collection *)
-        List.fold
-          (\<lambda>c (l_class, l_ass).
-            let f = \<lambda>role t mult_out ty. \<lparr> OclAss_type = OclAssTy_native_attribute
-                                         , OclAss_relation = [(ClassRaw_name c, OclMult [(Mult_star, None)] ty, None)
-                                                             ,(t, OclMult [mult_out] ty, Some role)] \<rparr>
-              ; (l_own, l_ass) =
-                List.fold (\<lambda> (role, OclTy_object t) \<Rightarrow>
-                                  \<lambda> (l_own, l). (l_own, f role t (Mult_nat 0, Some (Mult_nat 1)) Set # l)
-                           | (role, OclTy_collection ty (OclTy_object t)) \<Rightarrow>
-                                  \<lambda> (l_own, l). (l_own, f role t (Mult_star, None) ty # l)
-                           | x \<Rightarrow> \<lambda> (l_own, l). (x # l_own, l))
-                          (ClassRaw_own c)
-                          ([], l_ass) in
-            (c \<lparr> ClassRaw_own := l_own \<rparr> # l_class, l_ass))
-          l_class
-          ([], l_ass)
-    ; l =
+definition "class_unflat = (\<lambda> (l_class, l_ass).
+  let l =
     let rbt = (* fold classes:
                  set ''OclAny'' as default inherited class (for all classes linking to zero inherited classes) *)
               insert
