@@ -132,7 +132,7 @@ definition "rbt_of_class ocl =
           let (_, accu) =
             List.fold
               (let f_fold = \<lambda>b (n, accu). (Succ n, f b n accu) in
-               if D_design_analysis ocl = Gen_design then
+               if D_design_analysis ocl = Gen_only_design then
                  f_fold
                else
                  \<lambda> Some _ \<Rightarrow> (\<lambda>(n, accu). (Succ n, accu))
@@ -300,7 +300,7 @@ definition "check_export_code f_writeln f_warning f_error f_raise l_report msg_l
     f_raise (nat_of_str (length l_err) @@ msg_last))"
 
 definition "print_examp_instance_defassoc_gen name l_ocli ocl =
- (if D_design_analysis ocl = Gen_analysis then [] else
+ (if D_design_analysis ocl = Gen_only_analysis then [] else
   let a = \<lambda>f x. Expr_apply f [x]
     ; b = \<lambda>s. Expr_basic [s]
     ; (rbt :: _ \<Rightarrow> _ \<times> (_ \<Rightarrow> ((_ \<Rightarrow> natural \<Rightarrow> _ \<Rightarrow> (ocl_ty \<times> ocl_data_shallow) option list) \<Rightarrow> _ \<Rightarrow> _) option)
@@ -461,11 +461,11 @@ definition "print_examp_instance = (\<lambda> OclInstance l \<Rightarrow> \<lamb
       (let a = \<lambda>f x. Expr_apply f [x]
          ; b = \<lambda>s. Expr_basic [s] in
        [ bug_ocaml_extraction (let var_inst_ass = ''inst_assoc'' in
-         (\<lambda> _ isub_name ocli. Expr_basic (print_examp_instance_name isub_name (Inst_name ocli) # (if D_design_analysis ocl = Gen_design then [ var_inst_ass ] else [])),
+         (\<lambda> _ isub_name ocli. Expr_basic (print_examp_instance_name isub_name (Inst_name ocli) # (if D_design_analysis ocl = Gen_only_design then [ var_inst_ass ] else [])),
           print_examp_instance_app_constr2_notmp_norec (rbt, (map_self, map_username)) ocl (b var_inst_ass)))
        , (\<lambda> _ _ ocli. Expr_annot (b (Inst_name ocli)) (Inst_ty ocli),
           \<lambda> ocli isub_name _. Expr_lambda wildcard (Expr_some (Expr_some (let name_pers = print_examp_instance_name isub_name (Inst_name ocli) in
-                                                                          if D_design_analysis ocl = Gen_design then
+                                                                          if D_design_analysis ocl = Gen_only_design then
                                                                             a name_pers (Expr_oid var_inst_assoc (oidGetInh (D_oid_start ocl)))
                                                                           else
                                                                             b name_pers)))) ])
@@ -480,7 +480,7 @@ definition "print_examp_def_st_mapsto_gen f ocl cpt_start = (\<lambda> (rbt, (ma
       ; b = \<lambda>s. Expr_basic [s]
       ; (ocli, exp) = case ocore of
         OclDefCoreBinding (name, ocli) \<Rightarrow> (ocli, let name = print_examp_instance_name (\<lambda>s. s @@ isub_of_str (Inst_ty ocli)) name in
-                                                 if D_design_analysis ocl = Gen_design then
+                                                 if D_design_analysis ocl = Gen_only_design then
                                                    a name cpt_start
                                                  else
                                                    b name)
@@ -535,7 +535,7 @@ definition "print_examp_def_st = (\<lambda> OclDefSt name l \<Rightarrow> \<lamb
    ( [ let s_empty = ''Map.empty'' in
        Definition (Expr_rewrite (b name) ''='' (Expr_apply ''state.make''
         ( Expr_apply s_empty expr_app
-        # [ if D_design_analysis ocl = Gen_analysis then
+        # [ if D_design_analysis ocl = Gen_only_analysis then
               print_examp_def_st_assoc rbt map_self map_username l_assoc
             else
               b s_empty ]))) ]
@@ -549,7 +549,7 @@ definition "print_examp_def_st_inst_var = (\<lambda> OclDefSt name l \<Rightarro
                         | _ \<Rightarrow> None) l in
   (\<lambda>l_res. ((List_map Thy_definition_hol o flatten) l_res, ocl))
     (let ocl = ocl_old in
-     if D_design_analysis ocl = Gen_analysis then [] else
+     if D_design_analysis ocl = Gen_only_analysis then [] else
      fst (fold_list
       (\<lambda> (f1, f2) _.
         let (l, accu) =
@@ -625,7 +625,7 @@ definition "extract_state ocl name_st l_st =
                       , ocli
                       , case ocore of
                           OclDefCoreBinding (name, ocli) \<Rightarrow>
-                            b (if D_design_analysis ocl = Gen_analysis then
+                            b (if D_design_analysis ocl = Gen_only_analysis then
                                  name
                                else
                                  print_examp_def_st_inst_var_name ocli name_st)
@@ -679,7 +679,7 @@ definition "print_examp_def_st_allinst = (\<lambda> _ ocl.
                       , flatten (List_map (\<lambda>(_, ocore, _).
                           case ocore of
                             OclDefCoreBinding (n, ocli) \<Rightarrow>
-                              [if D_design_analysis ocl = Gen_analysis then
+                              [if D_design_analysis ocl = Gen_only_analysis then
                                  n
                                else
                                  print_examp_def_st_inst_var_name ocli name_st]
@@ -774,7 +774,7 @@ definition "print_pre_post_where = (\<lambda> OclDefPP s_pre s_post \<Rightarrow
            ( x_where
            , case ocore of OclDefCoreBinding (name, ocli) \<Rightarrow>
                let name =
-                 if D_design_analysis ocl = Gen_analysis then
+                 if D_design_analysis ocl = Gen_only_analysis then
                    name
                  else
                    print_examp_def_st_inst_var_name ocli name_st in

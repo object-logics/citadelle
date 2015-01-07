@@ -82,7 +82,7 @@ datatype ocl_deep_embed_ast =
 
 (* *)
 
-datatype ocl_deep_mode = Gen_design | Gen_analysis
+datatype ocl_deep_mode = Gen_only_design | Gen_only_analysis
 
 
 record ocl_compiler_config =  D_disable_thy_output :: bool

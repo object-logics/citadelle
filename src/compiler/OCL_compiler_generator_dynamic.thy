@@ -120,7 +120,7 @@ structure From = struct
  val from_list = List.map
  fun from_pair f1 f2 (x, y) = (f1 x, f2 y)
  fun from_pair3 f1 f2 f3 (x, y, z) = (f1 x, f2 y, f3 z)
- val from_design_analysis = fn NONE => Gen_design | _ => Gen_analysis
+ val from_design_analysis = fn NONE => Gen_only_design | _ => Gen_only_analysis
 
  val from_pure_indexname = OCL.PureIndexname o from_pair from_string from_nat
  val from_pure_class = OCL.PureClass o from_string

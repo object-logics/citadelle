@@ -206,7 +206,7 @@ definition "print_access_deref_assocs_name' name_from isub_name isup_attr =
 definition "print_access_deref_assocs_name name_from isub_name attr =
   print_access_deref_assocs_name' name_from isub_name (\<lambda>s. s @@ isup_of_str attr)"
 definition "print_access_deref_assocs = start_map'''' Thy_definition_hol o (\<lambda>expr design_analysis.
-  (if design_analysis = Gen_design then \<lambda>_. [] else (\<lambda>expr. flatten (flatten (map_class (\<lambda>isub_name name l_attr l_inherited _ _.
+  (if design_analysis = Gen_only_design then \<lambda>_. [] else (\<lambda>expr. flatten (flatten (map_class (\<lambda>isub_name name l_attr l_inherited _ _.
   let l_inherited = map_class_inh l_inherited in
   let var_fst_snd = ''fst_snd''
     ; var_f = ''f''
@@ -296,7 +296,7 @@ definition "print_access_select = start_map'' Thy_definition_hol o (\<lambda>exp
     rev l) expr)"
 
 definition "print_access_select_obj = start_map'''' Thy_definition_hol o (\<lambda>expr design_analysis.
-  (if design_analysis = Gen_design then \<lambda>_. [] else (\<lambda>expr. flatten (flatten (map_class (\<lambda>isub_name name l_attr l_inh _ _.
+  (if design_analysis = Gen_only_design then \<lambda>_. [] else (\<lambda>expr. flatten (flatten (map_class (\<lambda>isub_name name l_attr l_inh _ _.
     let l_inh = map_class_inh l_inh in
     flatten (fst (fold_list (fold_list
       (\<lambda> (attr, OclTy_class ty_obj) \<Rightarrow> \<lambda>rbt.
@@ -394,7 +394,7 @@ definition "print_access_dot = start_map'''' Thy_defs_overloaded o (\<lambda>exp
                                                                               | Some orig_n \<Rightarrow> var_deref_oid @@ isub_of_str orig_n) (Expr_basic [var_in_when_state] # l) in
                     deref_oid None
                       [ ( case (design_analysis, attr_ty) of
-                            (Gen_analysis, OclTy_class ty_obj) \<Rightarrow>
+                            (Gen_only_analysis, OclTy_class ty_obj) \<Rightarrow>
                               \<lambda>l. Expr_apply (print_access_deref_assocs_name' (TyObjN_ass_switch (TyObj_from ty_obj)) isub_name isup_attr) (Expr_basic [var_in_when_state] # [l])
                         | _ \<Rightarrow> id)
                           (Expr_apply (isup_attr (isub_name var_select))
@@ -409,7 +409,7 @@ definition "print_access_dot = start_map'''' Thy_defs_overloaded o (\<lambda>exp
                                            | OclTy_class ty_obj \<Rightarrow>
                              let ty_obj = TyObj_to ty_obj
                                ; der_name = deref_oid (Some (TyObjN_role_ty ty_obj)) [] in
-                             if design_analysis = Gen_design then
+                             if design_analysis = Gen_only_design then
                                let obj_mult = TyObjN_role_multip ty_obj
                                  ; (var_select_object_name_any, var_select_object_name) = 
                                      case obj_mult of OclMult _ Set \<Rightarrow> (var_select_object_set_any, var_select_object_set)
@@ -525,7 +525,7 @@ definition "print_access_def_mono = start_map'''' Thy_lemma_by o (\<lambda>expr 
 definition "print_access_is_repr_name isub_name dot_at_when attr_ty isup_attr =
   flatten [ ''is_repr_'', print_access_dot_name isub_name dot_at_when attr_ty isup_attr ]"
 definition "print_access_is_repr = start_map'''' Thy_lemma_by o (\<lambda>expr design_analysis.
-  (if design_analysis = Gen_analysis then \<lambda>_. [] else
+  (if design_analysis = Gen_only_analysis then \<lambda>_. [] else
   map_class_arg_only_var'
     (\<lambda>isub_name name (var_in_when_state, dot_at_when) attr_ty isup_attr dot_attr.
       case attr_ty of OclTy_class ty_obj \<Rightarrow>

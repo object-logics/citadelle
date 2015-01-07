@@ -66,8 +66,8 @@ definition "subsubsection = section_aux 2"
 definition "txt f = start_map'''' Thy_text o (\<lambda>_ design_analysis. [Text (f design_analysis)])"
 definition "txt' s = txt (\<lambda>_. s)"
 definition "txt'' = txt' o flatten"
-definition "txt''d s = txt (\<lambda> Gen_design \<Rightarrow> flatten s | _ \<Rightarrow> [])"
-definition "txt''a s = txt (\<lambda> Gen_analysis \<Rightarrow> flatten s | _ \<Rightarrow> [])"
+definition "txt''d s = txt (\<lambda> Gen_only_design \<Rightarrow> flatten s | _ \<Rightarrow> [])"
+definition "txt''a s = txt (\<lambda> Gen_only_analysis \<Rightarrow> flatten s | _ \<Rightarrow> [])"
 
 definition thy_class ::
   (* polymorphism weakening needed by code_reflect *)
