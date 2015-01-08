@@ -1046,10 +1046,11 @@ structure USE_parse = struct
                     | OclTypeBaseUnlimitednatural
                     | OclTypeBaseReal
                     | OclTypeBaseString
+                    | OclTypeClassPre of binding
+                    (*| OclTypeClass *)
                     | OclTypeCollectionSet of use_oclty
                     | OclTypeCollectionSequence of use_oclty
                     | OclTypeRaw of string
-                    | OclTypeObject of binding
 
  datatype use_opt = Ordered (* ordered set *) | Subsets of binding | Union | Redefines of binding | Derived of string | Qualifier of (binding * use_oclty) list | Nonunique (* bag *) | Sequence
  datatype use_operation_def = Expression of string | BlockStat
@@ -1060,10 +1061,10 @@ structure USE_parse = struct
                       | OclTypeBaseUnlimitednatural => OCL.OclTy_base_unlimitednatural
                       | OclTypeBaseReal    => OCL.OclTy_base_real
                       | OclTypeBaseString  => OCL.OclTy_base_string
+                      | OclTypeClassPre s  => OCL.OclTy_class_pre (From.from_binding s)
                       | OclTypeCollectionSet l      => OCL.OclTy_collection (OCL.Set, from_oclty l)
                       | OclTypeCollectionSequence l => OCL.OclTy_collection (OCL.Sequence, from_oclty l)
-                      | OclTypeRaw s       => OCL.OclTy_raw (xml_unescape s)
-                      | OclTypeObject s    => OCL.OclTy_object (From.from_binding s)) v
+                      | OclTypeRaw s       => OCL.OclTy_raw (xml_unescape s)) v
 
  val ident_dot_dot = Parse.sym_ident -- Parse.sym_ident (* "\<bullet>\<bullet>" *)
  val ident_star = Parse.sym_ident (* "*" *)
@@ -1084,7 +1085,7 @@ structure USE_parse = struct
                 || Parse.sym_ident (* "\<acute>" *) |-- Parse.typ --| Parse.sym_ident (* "\<acute>" *) >> OclTypeRaw
 
                    (* object type *)
-                || Parse.binding >> OclTypeObject) v
+                || Parse.binding >> OclTypeClassPre) v
 
  val use_expression = Parse.term
  val use_variableDeclaration = Parse.binding --| colon -- use_type

@@ -75,10 +75,10 @@ datatype ocl_ty =           OclTy_base_void
                           | OclTy_base_unlimitednatural
                           | OclTy_base_real
                           | OclTy_base_string
-                          | OclTy_class ocl_ty_class
+                          | OclTy_class_pre string (* class name, untyped *) (* FIXME perform the typing separately *)
+                          | OclTy_class ocl_ty_class  (* class name, typed *)
                           | OclTy_collection ocl_collection ocl_ty
                           | OclTy_raw string (* denoting raw HOL-type *)
-                          | OclTy_object string (* class name *)
 
 
 datatype ocl_association_type = OclAssTy_native_attribute
@@ -294,7 +294,6 @@ fun_quick str_of_ty where
    |"str_of_ty (OclTy_collection Set ocl_ty) = flatten [''Set('', str_of_ty ocl_ty,'')'']"
    |"str_of_ty (OclTy_collection Sequence ocl_ty) = flatten [''Sequence('', str_of_ty ocl_ty,'')'']"
    |"str_of_ty (OclTy_raw s) = flatten [unicode_acute, s, unicode_acute]"
-   |"str_of_ty (OclTy_object s) = s"
 
 definition "ty_void = str_of_ty OclTy_base_void"
 definition "ty_boolean = str_of_ty OclTy_base_boolean"

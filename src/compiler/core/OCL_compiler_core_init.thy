@@ -181,9 +181,9 @@ definition "arrange_ass l_c =
                                          , OclAss_relation = [(ClassRaw_name c, OclMult [(Mult_star, None)] ty, None)
                                                              ,(t, OclMult [mult_out] ty, Some role)] \<rparr>
               ; (l_own, l_ass) =
-                List.fold (\<lambda> (role, OclTy_object t) \<Rightarrow>
+                List.fold (\<lambda> (role, OclTy_class_pre t) \<Rightarrow>
                                   \<lambda> (l_own, l). (l_own, f role t (Mult_nat 0, Some (Mult_nat 1)) Set # l)
-                           | (role, OclTy_collection ty (OclTy_object t)) \<Rightarrow>
+                           | (role, OclTy_collection ty (OclTy_class_pre t)) \<Rightarrow>
                                   \<lambda> (l_own, l). (l_own, f role t (Mult_star, None) ty # l)
                            | x \<Rightarrow> \<lambda> (l_own, l). (x # l_own, l))
                           (ClassRaw_own c)
