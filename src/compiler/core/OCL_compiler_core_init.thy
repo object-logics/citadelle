@@ -100,6 +100,8 @@ definition "dot_istypeof = mk_dot_par dot_oclistypeof"
 definition "dot_iskindof = mk_dot_par dot_ocliskindof"
 
 definition "var_reconst_basetype = ''reconst_basetype''"
+definition "var_reconst_basetype_void = ''reconst_basetype'' @@ isub_of_str ''Void''"
+definition "var_Abs_Void = flatten [''Abs_Void'',isub_of_str ''base'']"
 definition "var_oid_uniq = ''oid''"
 definition "var_eval_extract = ''eval_extract''"
 definition "var_deref = ''deref''"

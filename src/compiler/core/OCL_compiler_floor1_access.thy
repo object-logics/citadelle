@@ -89,7 +89,9 @@ definition "print_access_oid_uniq =
                    (Expr_oid '''' cpt_obj)))"
 
 definition "print_access_eval_extract _ = start_map Thy_definition_hol
-  (let lets = \<lambda>var def. Definition (Expr_rewrite (Expr_basic [var]) ''='' (Expr_basic [def])) in
+  (let lets = \<lambda>var def. Definition (Expr_rewrite (Expr_basic [var]) ''='' (Expr_basic [def]))
+     ; a = \<lambda>f x. Expr_apply f [x]
+     ; b = \<lambda>s. Expr_basic [s] in
   [ bug_ocaml_extraction
     (let var_x = ''x''
       ; var_f = ''f''
@@ -104,7 +106,13 @@ definition "print_access_eval_extract _ = start_map Thy_definition_hol
                      , (Expr_basic [wildcard], Expr_basic [''invalid'', var_tau])]))))
   , lets var_in_pre_state ''fst''
   , lets var_in_post_state ''snd''
-  , lets var_reconst_basetype ''id'' ])"
+  , lets var_reconst_basetype ''id''
+  , bug_ocaml_extraction
+    (let var_f = ''f''
+       ; var_x = ''x'' in
+     Definition (Expr_rewrite (Expr_basic [var_reconst_basetype_void])
+                              ''=''
+                              (Expr_lambdas [var_f, var_x] (Expr_binop (Expr_basic [var_Abs_Void]) ''o'' (a var_f (b var_x)))))) ])"
 
 
 definition "print_access_choose_switch
@@ -353,7 +361,10 @@ definition "print_access_dot_consts =
                              else
                                case obj_mult of OclMult _ Set \<Rightarrow> print_infra_type_synonym_class_set_name name
                                               | _ \<Rightarrow> print_infra_type_synonym_class_sequence_name name)
-                | _ \<Rightarrow> ty_base (str_hol_of_ty attr_ty)))
+                | OclTy_base_unlimitednatural \<Rightarrow> ty_base (str_hol_of_ty attr_ty)
+                   (* REMARK Dependencies to UnlimitedNatural.thy can be detected and added
+                             so that this pattern clause would be merged with the default case *)
+                | _ \<Rightarrow> Ty_base (str_of_ty attr_ty)))
             (let dot_name = mk_dot attr_n var_at_when_ocl
                ; mk_par =
                    let esc = \<lambda>s. Char Nibble2 Nibble7 # s in
@@ -400,7 +411,7 @@ definition "print_access_dot = start_map'''' Thy_defs_overloaded o (\<lambda>exp
                           (Expr_apply (isup_attr (isub_name var_select))
                             [let ty_base = Expr_basic [var_reconst_basetype] in
                              case attr_ty of OclTy_raw _ \<Rightarrow> ty_base
-                                           | OclTy_base_void \<Rightarrow> ty_base
+                                           | OclTy_base_void \<Rightarrow> Expr_basic [var_reconst_basetype_void]
                                            | OclTy_base_boolean \<Rightarrow> ty_base
                                            | OclTy_base_integer \<Rightarrow> ty_base
                                            | OclTy_base_unlimitednatural \<Rightarrow> ty_base
