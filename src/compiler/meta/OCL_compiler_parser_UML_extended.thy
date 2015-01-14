@@ -86,14 +86,14 @@ definition "i_of_ocl_def_base a b = ocl_def_base_rec
   (ap1 a (b ''OclDefReal'') (i_of_pair a b (i_of_string a b) (i_of_string a b)))
   (ap1 a (b ''OclDefString'') (i_of_string a b))"
 
-definition "i_of_ocl_data_shallow_base a b = ocl_data_shallow_base_rec
+definition "i_of_ocl_data_shallow a b = (\<lambda>f1 f2 f3 f4 f5 f6. ocl_data_shallow_rec_1 f1 f2 f3 (K f4) f5 (\<lambda>_ _. f6))
   (ap1 a (b ''ShallB_term'') (i_of_ocl_def_base a b))
   (ap1 a (b ''ShallB_str'') (i_of_string a b))
-  (ap1 a (b ''ShallB_self'') (i_of_internal_oid a b))"
-
-definition "i_of_ocl_data_shallow a b = ocl_data_shallow_rec
-  (ap1 a (b ''Shall_base'') (i_of_ocl_data_shallow_base a b))
-  (ap1 a (b ''Shall_list'') (i_of_list a b (i_of_ocl_data_shallow_base a b)))"
+  (ap1 a (b ''ShallB_self'') (i_of_internal_oid a b))
+  (ar1 a (b ''ShallB_list''))
+  (* *)
+  (b i_Nil)
+  (ar2 a (b i_Cons) id)"
 
 definition "i_of_ocl_list_attr a b f = (\<lambda>f0. co4 (\<lambda>f1. ocl_list_attr_rec f0 (\<lambda>s _ a rec. f1 s rec a)) (ap3 a))
   (ap1 a (b ''OclAttrNoCast'') f)
@@ -131,7 +131,6 @@ end
 
 lemmas [code] =
   i_of.i_of_ocl_def_base_def
-  i_of.i_of_ocl_data_shallow_base_def
   i_of.i_of_ocl_data_shallow_def
   i_of.i_of_ocl_list_attr_def
   i_of.i_of_ocl_instance_single_def

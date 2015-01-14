@@ -96,8 +96,8 @@ definition "print_examp_instance_draw_list_attr f_oid =
          (t_obj, None) \<Rightarrow> (case t_obj of Some ty_obj \<Rightarrow> Return_obj ty_obj
                                        | _ \<Rightarrow> Return_exp (b ''None''))
        | (_, Some (OclTy_class ty_obj, _)) \<Rightarrow> Return_obj ty_obj
-       | (_, Some (_, Shall_base (ShallB_term s))) \<Rightarrow> Return_exp (Expr_some (fst (print_examp_oclbase_gen s)))
-       | (_, Some (_, Shall_base (ShallB_str s))) \<Rightarrow> Return_exp (Expr_some (b s))
+       | (_, Some (_, ShallB_term s)) \<Rightarrow> Return_exp (Expr_some (fst (print_examp_oclbase_gen s)))
+       | (_, Some (_, ShallB_str s)) \<Rightarrow> Return_exp (Expr_some (b s))
      of Return_obj ty_obj \<Rightarrow> f_oid ty_obj
       | Return_exp exp \<Rightarrow> exp))"
 
@@ -201,8 +201,8 @@ definition "print_examp_def_st_assoc_build_rbt_gen f rbt map_self map_username l
                modify_def ([], ty_obj) name_attr
                (\<lambda>(l, accu). case let find_map = \<lambda> ShallB_str s \<Rightarrow> map_username s | ShallB_self s \<Rightarrow> map_self s in
                                  case shall of
-                                   Shall_base shall \<Rightarrow> Option.map (\<lambda>x. [x]) (find_map shall)
-                                 | Shall_list l \<Rightarrow> Some (List_map (\<lambda>shall. case find_map shall of Some cpt \<Rightarrow> cpt) l) of
+                                   ShallB_list l \<Rightarrow> Some (List_map (\<lambda>shall. case find_map shall of Some cpt \<Rightarrow> cpt) l)
+                                 | _ \<Rightarrow> Option.map (\<lambda>x. [x]) (find_map shall) of
                       None \<Rightarrow> (l, accu)
                     | Some oid \<Rightarrow> (List_map (List_map oidGetInh) [[cpt], oid] # l, accu))
            | _ \<Rightarrow> id) l_attr)) ocli) l_assoc empty"

@@ -1364,8 +1364,8 @@ local
                            | OclTerm s => OCL.ShallB_str (From.from_binding s)
                            | OclOid n => OCL.ShallB_self (From.from_internal_oid (From.from_nat n))
             val f = map (fn (attr, ocl) => (From.from_binding attr,
-                      case ocl of [x] => OCL.Shall_base (of_base x)
-                                | l => OCL.Shall_list (map of_base l)))
+                      case ocl of [x] => of_base x
+                                | l => OCL.ShallB_list (map of_base l)))
             val l_attr =
               fold
                 (fn b => fn acc => OCL.OclAttrCast (From.from_binding b, acc, []))

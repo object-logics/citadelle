@@ -55,11 +55,10 @@ datatype ocl_def_base = OclDefInteger "string" (* integer digit *)
                       | OclDefReal "string (* integer digit (left) *) \<times> string (* integer digit (right) *)"
                       | OclDefString "string"
 
-datatype ocl_data_shallow_base = ShallB_term ocl_def_base
-                               | ShallB_str string (* binding *)
-                               | ShallB_self internal_oid
-datatype ocl_data_shallow =      Shall_base ocl_data_shallow_base
-                               | Shall_list "ocl_data_shallow_base list"
+datatype ocl_data_shallow = ShallB_term ocl_def_base
+                          | ShallB_str string (* binding *)
+                          | ShallB_self internal_oid
+                          | ShallB_list "ocl_data_shallow list"
 
 datatype 'a ocl_list_attr = OclAttrNoCast 'a (* inh, own *)
                           | OclAttrCast
