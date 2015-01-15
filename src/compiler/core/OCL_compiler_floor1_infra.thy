@@ -54,7 +54,7 @@ subsection{* infrastructure *}
 definition "print_infra_datatype_class = start_map'' Thy_dataty o (\<lambda>expr _ base_attr' _. map_class_gen_h''''
   (\<lambda>isub_name name _ l_attr l_inherited l_cons.
     let (l_attr, l_inherited) = base_attr' (l_attr, of_inh l_inherited)
-      ; map_ty = List_map (Opt o str_hol_of_ty o snd) in
+      ; map_ty = List_map ((\<lambda>x. Ty_apply (Ty_base ''option'') [str_hol_of_ty_all Ty_apply Ty_base x]) o snd) in
     [ Datatype
         (isub_name datatype_ext_name)
         (  (rev_map (\<lambda>x. ( datatype_ext_constr_name @@ mk_constr_name name x
@@ -67,7 +67,7 @@ definition "print_infra_datatype_class = start_map'' Thy_dataty o (\<lambda>expr
 definition "print_latex_infra_datatype_class = start_map'' Thy_dataty o (\<lambda>expr _ base_attr' _. map_class_gen_h''''
   (\<lambda>isub_name name _ l_attr l_inherited l_cons.
     let (l_attr, l_inherited) = base_attr' (l_attr, of_inh l_inherited)
-      ; map_ty = List_map (Opt o str_hol_of_ty o snd) in let c = [Char Nibble5 NibbleC]
+      ; map_ty = List_map ((\<lambda>x. Ty_apply (Ty_base ''option'') [str_hol_of_ty_all Ty_apply Ty_base x]) o snd) in let c = [Char Nibble5 NibbleC]
       ; n1 = ''{ext}''
       ; n2 = ''{ty}'' in
     [ Datatype
@@ -98,17 +98,23 @@ definition "print_infra_type_synonym_class expr = start_map Thy_ty_synonym
      Type_synonym name (Ty_apply (Ty_base ''val'') [Ty_base unicode_AA,
      option (option (Ty_base (isub_name datatype_name))) ])) expr))"
 
-definition "print_infra_type_synonym_class_set = start_map Thy_ty_synonym o
-  map_class (\<lambda>isub_name name _ _ _ _.
-    Type_synonym (print_infra_type_synonym_class_set_name name) (Ty_apply (Ty_base ''Set'') [Ty_base unicode_AA,
-    let option = (\<lambda>x. Ty_apply (Ty_base ''option'') [x]) in
-    option (option (Ty_base (isub_name datatype_name))) ]))"
-
-definition "print_infra_type_synonym_class_sequence = start_map Thy_ty_synonym o
-  map_class (\<lambda>isub_name name _ _ _ _.
-    Type_synonym (print_infra_type_synonym_class_sequence_name name) (Ty_apply (Ty_base ''Sequence'') [Ty_base unicode_AA,
-    let option = (\<lambda>x. Ty_apply (Ty_base ''option'') [x]) in
-    option (option (Ty_base (isub_name datatype_name))) ]))"
+definition "print_infra_type_synonym_class_rec = (\<lambda>expr.
+  Pair (List_map (\<lambda>x. let (tit, body) = print_infra_type_synonym_class_rec_aux [] [] x in
+                      Thy_ty_synonym (Type_synonym tit (Ty_apply (Ty_base ''val'') [Ty_base unicode_AA, body])))
+                 (snd (fold_class (\<lambda>_ _ l_attr _ _ _.
+                                    Pair () o List.fold
+                                      (\<lambda>(_, t) l.
+                                        let f = (* WARNING we may test with RBT instead of List *)
+                                                \<lambda>t l. if List.member l t then l else t # l in
+                                        case t of
+                                          OclTy_class obj \<Rightarrow> 
+                                            let t = OclTy_class_pre (TyObjN_role_ty (TyObj_to obj)) in
+                                            f (OclTy_collection Sequence t) (f (OclTy_collection Set t) l)
+                                        | OclTy_collection _ _ \<Rightarrow> f t l
+                                        | _ \<Rightarrow> l)
+                                      l_attr)
+                                  []
+                                  expr))))"
 
 definition "print_infra_instantiation_class = start_map'' Thy_instantiation_class o (\<lambda>expr _ base_attr' _. map_class_gen_h''''
   (\<lambda>isub_name name _ l_attr l_inherited l_cons.

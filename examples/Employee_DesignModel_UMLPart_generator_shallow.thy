@@ -72,14 +72,8 @@ End
 Class Galaxy
   Attributes sound : Void
              moving : Boolean
+             outer_world : Set(Sequence(Planet))
 End
-
-(* wishlist:
-Class Galaxy
-  Attributes sound : Set(Set(Integer))
-             outerworld : Set(Sequence(Galaxy))
-End
-*)
 
 Instance X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n1 :: Person = [ salary = 1300 , boss = X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2 ]
      and X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2 :: Person = [ salary = 1800 , boss = X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2 ]
@@ -90,6 +84,8 @@ Instance X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n1 :: Person = [ salary
      and X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n7 :: OclAny = ([ salary = 3200 , boss = X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n7 ] :: Person)
      and X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n8 :: OclAny = []
      and X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n9 :: Person = [ salary = 0 ]
+     and X0 :: Person = [ outer_world = [ [ P1 ] ] ]
+     and P1 :: Planet = [ outer_world = [ [ P1 ] , [ self 10 ] ] ]
 
 Define_state \<sigma>\<^sub>1 =
   [ defines [ ([ salary = 1000 , boss = self 1 ] :: Person)

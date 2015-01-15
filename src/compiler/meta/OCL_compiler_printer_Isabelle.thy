@@ -54,6 +54,13 @@ subsection{* s of ... *} (* s_of *)
 
 context s_of
 begin
+fun_quick s_of_rawty where "s_of_rawty e = (\<lambda>
+    Ty_base s \<Rightarrow> To_string s
+  | Ty_apply name l \<Rightarrow> sprintf2 (STR ''%s %s'') (let s = String_concat (STR '', '') (List.map s_of_rawty l) in
+                                                 case l of [_] \<Rightarrow> s | _ \<Rightarrow> sprintf1 (STR ''(%s)'') s)
+                                                (s_of_rawty name)
+  | Ty_apply_bin s ty1 ty2 \<Rightarrow> sprintf3 (STR ''%s %s %s'') (s_of_rawty ty1) (To_string s) (s_of_rawty ty2)) e"
+
 definition "s_of_dataty _ = (\<lambda> Datatype n l \<Rightarrow>
   sprintf2 (STR ''datatype %s = %s'')
     (To_string n)
@@ -63,18 +70,7 @@ definition "s_of_dataty _ = (\<lambda> Datatype n l \<Rightarrow>
         (\<lambda>(n,l).
          sprintf2 (STR ''%s %s'')
            (To_string n)
-           (String_concat (STR '' '')
-            (List_map
-              (\<lambda> Opt o_ \<Rightarrow> sprintf1 (STR ''\"%s option\"'') (To_string o_)
-               | Raw o_ \<Rightarrow> sprintf1 (STR ''%s'') (To_string o_))
-              l))) l) ))"
-
-fun_quick s_of_rawty where "s_of_rawty e = (\<lambda>
-    Ty_base s \<Rightarrow> To_string s
-  | Ty_apply name l \<Rightarrow> sprintf2 (STR ''%s %s'') (let s = String_concat (STR '', '') (List.map s_of_rawty l) in
-                                                 case l of [_] \<Rightarrow> s | _ \<Rightarrow> sprintf1 (STR ''(%s)'') s)
-                                                (s_of_rawty name)
-  | Ty_apply_bin s ty1 ty2 \<Rightarrow> sprintf3 (STR ''%s %s %s'') (s_of_rawty ty1) (To_string s) (s_of_rawty ty2)) e"
+           (String_concat (STR '' '') (List_map (\<lambda>x. sprintf1 (STR ''\"%s\"'') (s_of_rawty x)) l))) l) ))"
 
 definition "s_of_ty_synonym _ = (\<lambda> Type_synonym n l \<Rightarrow>
     sprintf2 (STR ''type_synonym %s = \"%s\"'') (To_string n) (s_of_rawty l))"

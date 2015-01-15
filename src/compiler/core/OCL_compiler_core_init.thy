@@ -91,7 +91,7 @@ definition "const_oclistypeof = ''OclIsTypeOf''"
 definition "const_ocliskindof = ''OclIsKindOf''"
 definition "const_mixfix dot_ocl name = (let t = \<lambda>s. Char Nibble2 Nibble7 # s in
                                          flatten [dot_ocl, t ''('', name, t '')''])"
-definition "const_oid_of s = flatten [''oid_of_'', s]"
+definition "const_oid_of s = ''oid_of_'' @@ s"
 definition "dot_oclastype = ''.oclAsType''"
 definition "dot_oclistypeof = ''.oclIsTypeOf''"
 definition "dot_ocliskindof = ''.oclIsKindOf''"
@@ -101,7 +101,7 @@ definition "dot_iskindof = mk_dot_par dot_ocliskindof"
 
 definition "var_reconst_basetype = ''reconst_basetype''"
 definition "var_reconst_basetype_void = ''reconst_basetype'' @@ isub_of_str ''Void''"
-definition "var_Abs_Void = flatten [''Abs_Void'',isub_of_str ''base'']"
+definition "var_Abs_Void = ''Abs_Void'' @@ isub_of_str ''base''"
 definition "var_oid_uniq = ''oid''"
 definition "var_eval_extract = ''eval_extract''"
 definition "var_deref = ''deref''"
@@ -124,8 +124,10 @@ definition "var_map_of_list = ''map_of_list''"
 definition "var_OclInteger = ''OclInt''"
 definition "var_OclReal = ''OclReal''"
 definition "var_OclString = ''OclString''"
-definition "var_Abs_Set = flatten [''Abs_Set'',isub_of_str ''base'']"
-definition "var_Abs_Set_inverse = flatten [var_Abs_Set, ''_inverse'']"
+definition "var_Abs_Set = ''Abs_Set'' @@ isub_of_str ''base''"
+definition "var_Abs_Set_inverse = var_Abs_Set @@ ''_inverse''"
+definition "var_Set_base = ''Set'' @@ isub_of_str ''base''"
+definition "var_Sequence_base = ''Sequence'' @@ isub_of_str ''base''"
 definition "var_mt_set = ''mtSet''"
 definition "var_ANY_set = ''UML_Set.OclANY''"
 definition "var_OclIncluding_set = ''UML_Set.OclIncluding''"
@@ -232,6 +234,22 @@ definition "start_m'3_gen final print = start_map'' final o (\<lambda>expr base_
 subsection{* ... *}
 
 definition "activate_simp_optimization = True"
+
+subsection{* Infra *}
+
+fun_quick print_infra_type_synonym_class_rec_aux where
+   "print_infra_type_synonym_class_rec_aux l l_ty e =
+   (let add = \<lambda>s l. s # ''_'' # l
+      ; option = \<lambda>x. Ty_apply (Ty_base ''option'') [x]
+      ; mk = \<lambda>s0 s.   let l_ty = (option (option (Ty_base s)) # l_ty) in
+                      ( flatten (tl (* we remove one symbol ''_'' *) (rev (add s0 l)))
+                      , List.fold (\<lambda>x t. Ty_apply x [t]) (tl l_ty) (hd l_ty)) in
+     (\<lambda> OclTy_collection s t \<Rightarrow>
+          print_infra_type_synonym_class_rec_aux (add (if s = Set then ''Set'' else ''Sequence'') l)
+                                                 (Ty_base (if s = Set then var_Set_base else var_Sequence_base) # l_ty)
+                                                 t
+      | OclTy_class_pre s \<Rightarrow> mk s (datatype_name @@ isub_of_str s)
+      | t \<Rightarrow> mk (str_of_ty t) (str_hol_of_ty t)) e)"
 
 subsection{* AsType *}
 

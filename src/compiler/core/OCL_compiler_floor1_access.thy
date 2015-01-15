@@ -364,7 +364,8 @@ definition "print_access_dot_consts =
                 | OclTy_base_unlimitednatural \<Rightarrow> ty_base (str_hol_of_ty attr_ty)
                    (* REMARK Dependencies to UnlimitedNatural.thy can be detected and added
                              so that this pattern clause would be merged with the default case *)
-                | _ \<Rightarrow> Ty_base (str_of_ty attr_ty)))
+                | OclTy_collection _ _ \<Rightarrow> Raw (fst (print_infra_type_synonym_class_rec_aux [] [] attr_ty))
+                | _ \<Rightarrow> Raw (str_of_ty attr_ty)))
             (let dot_name = mk_dot attr_n var_at_when_ocl
                ; mk_par =
                    let esc = \<lambda>s. Char Nibble2 Nibble7 # s in
@@ -386,10 +387,19 @@ definition "print_access_dot_consts =
         , (var_at_when_hol_pre, var_at_when_ocl_pre, update_D_accessor_rbt_pre)]) l_attr))"
 
 definition "print_access_dot_name isub_name dot_at_when attr_ty isup_attr =
-  flatten [isup_attr (let dot_name = isub_name ''dot'' in
-                      case attr_ty of
-                        OclTy_class ty_obj \<Rightarrow> flatten [dot_name, ''_'', natural_of_str (TyObjN_ass_switch (TyObj_from ty_obj)), ''_'']
-                      | _ \<Rightarrow> dot_name), dot_at_when]"
+  flatten [ isup_attr (let dot_name = isub_name ''dot'' in
+                       case attr_ty of
+                         OclTy_class ty_obj \<Rightarrow> flatten [dot_name, ''_'', natural_of_str (TyObjN_ass_switch (TyObj_from ty_obj)), ''_'']
+                       | _ \<Rightarrow> dot_name)
+          , dot_at_when]"
+
+fun_quick print_access_dot_aux where
+   "print_access_dot_aux deref_oid x =
+    (\<lambda> OclTy_collection Set ty \<Rightarrow> Expr_apply var_select_object_set [print_access_dot_aux deref_oid ty]
+     | OclTy_collection Sequence ty \<Rightarrow> Expr_apply var_select_object_sequence [print_access_dot_aux deref_oid ty]
+     | OclTy_class_pre s \<Rightarrow> deref_oid (Some s) []
+     | OclTy_base_void \<Rightarrow> Expr_basic [var_reconst_basetype_void]
+     | _ \<Rightarrow> Expr_basic [var_reconst_basetype]) x"
 
 definition "print_access_dot = start_map'''' Thy_defs_overloaded o (\<lambda>expr design_analysis.
   map_class_arg_only_var'
@@ -409,28 +419,23 @@ definition "print_access_dot = start_map'''' Thy_defs_overloaded o (\<lambda>exp
                               \<lambda>l. Expr_apply (print_access_deref_assocs_name' (TyObjN_ass_switch (TyObj_from ty_obj)) isub_name isup_attr) (Expr_basic [var_in_when_state] # [l])
                         | _ \<Rightarrow> id)
                           (Expr_apply (isup_attr (isub_name var_select))
-                            [let ty_base = Expr_basic [var_reconst_basetype] in
-                             case attr_ty of OclTy_raw _ \<Rightarrow> ty_base
-                                           | OclTy_base_void \<Rightarrow> Expr_basic [var_reconst_basetype_void]
-                                           | OclTy_base_boolean \<Rightarrow> ty_base
-                                           | OclTy_base_integer \<Rightarrow> ty_base
-                                           | OclTy_base_unlimitednatural \<Rightarrow> ty_base
-                                           | OclTy_base_real \<Rightarrow> ty_base
-                                           | OclTy_base_string \<Rightarrow> ty_base
-                                           | OclTy_class ty_obj \<Rightarrow>
-                             let ty_obj = TyObj_to ty_obj
-                               ; der_name = deref_oid (Some (TyObjN_role_ty ty_obj)) [] in
-                             if design_analysis = Gen_only_design then
-                               let obj_mult = TyObjN_role_multip ty_obj
-                                 ; (var_select_object_name_any, var_select_object_name) = 
-                                     case obj_mult of OclMult _ Set \<Rightarrow> (var_select_object_set_any, var_select_object_set)
-                                                    | _ \<Rightarrow> (var_select_object_sequence_any, var_select_object_sequence) in
-                               Expr_apply (if single_multip obj_mult then
-                                             var_select_object_name_any
-                                           else
-                                             var_select_object_name) [der_name]
-                             else
-                               der_name]) ] ])) ]) expr)"
+                            [case attr_ty of
+                               OclTy_raw _ \<Rightarrow> Expr_basic [var_reconst_basetype]
+                             | OclTy_class ty_obj \<Rightarrow>
+                                 let ty_obj = TyObj_to ty_obj
+                                   ; der_name = deref_oid (Some (TyObjN_role_ty ty_obj)) [] in
+                                 if design_analysis = Gen_only_design then
+                                   let obj_mult = TyObjN_role_multip ty_obj
+                                     ; (var_select_object_name_any, var_select_object_name) = 
+                                         case obj_mult of OclMult _ Set \<Rightarrow> (var_select_object_set_any, var_select_object_set)
+                                                        | _ \<Rightarrow> (var_select_object_sequence_any, var_select_object_sequence) in
+                                   Expr_apply (if single_multip obj_mult then
+                                                 var_select_object_name_any
+                                               else
+                                                 var_select_object_name) [der_name]
+                                 else
+                                   der_name
+                             | x \<Rightarrow> print_access_dot_aux deref_oid x ]) ] ])) ]) expr)"
 
 definition "print_access_dot_lemmas_id_set =
   (if activate_simp_optimization then

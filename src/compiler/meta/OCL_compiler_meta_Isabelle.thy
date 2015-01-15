@@ -51,15 +51,12 @@ begin
 section{* Isabelle/HOL Meta-Model aka. AST definition of HOL *}
 subsection{* type definition *}
 
-datatype hol_simplety = Opt string | Raw string
+datatype hol_raw_ty = Ty_apply hol_raw_ty "hol_raw_ty list"
+                    | Ty_apply_bin string (* binop *) hol_raw_ty hol_raw_ty
+                    | Ty_base string
 
 datatype hol_dataty = Datatype string (* name *)
-                           "(string (* name *) \<times> hol_simplety list (* arguments *)) list" (* constructors *)
-
-datatype hol_raw_ty =
-   Ty_apply hol_raw_ty "hol_raw_ty list"
- | Ty_apply_bin string (* binop *) hol_raw_ty hol_raw_ty
- | Ty_base string
+                               "(string (* name *) \<times> hol_raw_ty list (* arguments *)) list" (* constructors *)
 
 datatype hol_ty_synonym = Type_synonym string (* name *)
                                        hol_raw_ty (* content *)
@@ -187,6 +184,8 @@ section{* ... *}
 
 definition "thm_OF s l = List.fold (\<lambda>x acc. Thm_OF acc x) l s"
 definition "thm_simplified s l = List.fold (\<lambda>x acc. Thm_simplified acc x) l s"
+definition "Opt s = Ty_apply (Ty_base ''option'') [Ty_base s]"
+definition "Raw = Ty_base"
 definition "Expr_annot e s = Expr_annot0 e (Ty_base s)"
 definition "Expr_bind symb s e = Expr_bind0 symb (Expr_basic s) e"
 definition "Expr_lambdas = Expr_bind unicode_lambda"

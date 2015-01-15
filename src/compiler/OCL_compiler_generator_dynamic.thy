@@ -783,8 +783,7 @@ val OCL_main_thy = let open OCL open OCL_overload in (*let val f = *)fn
   Theory_dataty (Datatype (n, l)) =>
     (snd oo Datatype.add_datatype_cmd Datatype_Aux.default_config)
       [((To_sbinding n, [], NoSyn),
-       List.map (fn (n, l) => (To_sbinding n, List.map (fn OCL.Opt o_ => To_string o_ ^ " option"
-                                             |   Raw o_ => To_string o_) l, NoSyn)) l)]
+       List.map (fn (n, l) => (To_sbinding n, List.map s_of_rawty l, NoSyn)) l)]
 | Theory_ty_synonym (Type_synonym (n, l)) =>
     (fn thy =>
      let val s_bind = To_sbinding n in
@@ -1316,6 +1315,8 @@ ML{*
 datatype ocl_term = OclTermBase of OCL.ocl_def_base
                   | OclTerm of binding
                   | OclOid of int
+                  | OclList of ocl_term list (* untyped, corresponds to Set or Sequence *)
+                                             (* WARNING for Set: we are describing a finite set *)
 (*
 datatype 'a ocl_l_attr = Ocl_l_attr of 'a
                     | Ocl_l_attr_cast of 'a ocl_prop * binding
@@ -1330,12 +1331,12 @@ val ocl_term0 =
   || Parse.float_number >> (OCL.OclDefReal o (From.from_pair From.from_string From.from_string o
        (fn s => case String.tokens (fn #"." => true | _ => false) s of [l1,l2] => (l1,l2))))
   || Parse.string >> (OCL.OclDefString o From.from_string)
-val ocl_term = ocl_term0 >> OclTermBase
+fun ocl_term x =
+ (   ocl_term0 >> OclTermBase
   || Parse.binding >> OclTerm
   || @{keyword "self"} |-- Parse.nat >> OclOid
-val list_attr0 = Parse.binding -- (Parse.$$$ "=" |--
-  (ocl_term >> (fn x => [x])
-  || parse_l' ocl_term))
+  || parse_l' ocl_term >> OclList) x
+val list_attr0 = Parse.binding -- (Parse.$$$ "=" |-- ocl_term)
 val list_attr00 = parse_l list_attr0
 val list_attr = list_attr00 >> (fn res => (res, [] : binding list))
 fun list_attr_cast00 e =
@@ -1348,7 +1349,7 @@ val () =
     (parse_l' ocl_term0)
     (K o OCL.OclAstDefBaseL o OCL.OclDefBase)
 
-datatype state_content = ST_l_attr of (binding * ocl_term list) list * binding (* ty *)
+datatype state_content = ST_l_attr of (binding * ocl_term) list * binding (* ty *)
                        | ST_skip
                        | ST_binding of binding
 
@@ -1358,14 +1359,14 @@ val state_parse =
   || @{keyword "skip"} >> K [ST_skip]
 
 local
+  fun from_term e = (fn OclTermBase s => OCL.ShallB_term s
+                      | OclTerm s => OCL.ShallB_str (From.from_binding s)
+                      | OclOid n => OCL.ShallB_self (From.from_internal_oid (From.from_nat n))
+                      | OclList l => OCL.ShallB_list (From.from_list from_term l)) e
+
   fun get_oclinst l _ =
     OCL.OclInstance (map (fn ((name,typ), (l_attr, is_cast)) =>
-        let val of_base = fn OclTermBase s => OCL.ShallB_term s
-                           | OclTerm s => OCL.ShallB_str (From.from_binding s)
-                           | OclOid n => OCL.ShallB_self (From.from_internal_oid (From.from_nat n))
-            val f = map (fn (attr, ocl) => (From.from_binding attr,
-                      case ocl of [x] => of_base x
-                                | l => OCL.ShallB_list (map of_base l)))
+        let val f = map (fn (attr, ocl) => (From.from_binding attr, from_term ocl))
             val l_attr =
               fold
                 (fn b => fn acc => OCL.OclAttrCast (From.from_binding b, acc, []))

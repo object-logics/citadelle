@@ -291,6 +291,7 @@ fun_quick str_of_ty where
    |"str_of_ty OclTy_base_unlimitednatural = ''UnlimitedNatural''"
    |"str_of_ty OclTy_base_real = ''Real''"
    |"str_of_ty OclTy_base_string = ''String''"
+   |"str_of_ty (OclTy_class_pre s) = s"
    |"str_of_ty (OclTy_collection Set ocl_ty) = flatten [''Set('', str_of_ty ocl_ty,'')'']"
    |"str_of_ty (OclTy_collection Sequence ocl_ty) = flatten [''Sequence('', str_of_ty ocl_ty,'')'']"
    |"str_of_ty (OclTy_raw s) = flatten [unicode_acute, s, unicode_acute]"
@@ -311,6 +312,12 @@ fun_quick str_hol_of_ty where
    |"str_hol_of_ty OclTy_base_string = ''string''"
    |"str_hol_of_ty (OclTy_class ty_obj) = flatten [TyObj_name ty_obj, '' '', const_oid_list]"
    |"str_hol_of_ty (OclTy_raw s) = s"
+
+fun_quick str_hol_of_ty_all where
+    "str_hol_of_ty_all f b (OclTy_collection _ ty_obj) = 
+       f (b const_oid_list) [str_hol_of_ty_all f b ty_obj]"
+   |"str_hol_of_ty_all f b (OclTy_class_pre _) = b const_oid"
+   |"str_hol_of_ty_all f b s = b (str_hol_of_ty s)"
 
 definition "print_infra_type_synonym_class_set_name name = ''Set_'' @@ name"
 definition "print_infra_type_synonym_class_sequence_name name = ''Sequence_'' @@ name"

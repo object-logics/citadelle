@@ -88,16 +88,27 @@ definition "print_examp_oclbase = (\<lambda> OclDefBase l \<Rightarrow> (start_m
 
 datatype print_examp_instance_draw_list_attr = Return_obj ocl_ty_class | Return_exp hol_expr
 
-definition "print_examp_instance_draw_list_attr f_oid =
-  (let b = \<lambda>s. Expr_basic [s] in
+fun_quick print_examp_instance_draw_list_attr_aux where
+   "print_examp_instance_draw_list_attr_aux f_oid_rec e = 
+    (\<lambda>
+     (* object case 2 *)
+       (OclTy_collection _ ty, ShallB_list l) \<Rightarrow> Expr_list' (\<lambda>e. print_examp_instance_draw_list_attr_aux f_oid_rec (ty, e)) l
+     | (OclTy_class_pre _, shall) \<Rightarrow> f_oid_rec shall
+     (* base cases *)
+     | (_, ShallB_term s) \<Rightarrow> fst (print_examp_oclbase_gen s)
+     (*| (* type error *) *)) e"
+
+definition "print_examp_instance_draw_list_attr = (\<lambda>(f_oid, f_oid_rec).
+  let b = \<lambda>s. Expr_basic [s] in
    List_map (\<lambda> obj.
      case
        case obj of
          (t_obj, None) \<Rightarrow> (case t_obj of Some ty_obj \<Rightarrow> Return_obj ty_obj
                                        | _ \<Rightarrow> Return_exp (b ''None''))
+       (* object case 1 *)
        | (_, Some (OclTy_class ty_obj, _)) \<Rightarrow> Return_obj ty_obj
-       | (_, Some (_, ShallB_term s)) \<Rightarrow> Return_exp (Expr_some (fst (print_examp_oclbase_gen s)))
-       | (_, Some (_, ShallB_str s)) \<Rightarrow> Return_exp (Expr_some (b s))
+       (* *)
+       | (_, Some v) \<Rightarrow> Return_exp (Expr_some (print_examp_instance_draw_list_attr_aux f_oid_rec v))
      of Return_obj ty_obj \<Rightarrow> f_oid ty_obj
       | Return_exp exp \<Rightarrow> exp))"
 
@@ -429,22 +440,28 @@ definition "print_examp_instance_defassoc_typecheck = (\<lambda> OclInstance l \
     (List_map Some l)
     ocl))"
 
-definition "print_examp_instance_app_constr2_notmp_norec = (\<lambda>rbt ocl cpt_start ocli isub_name cpt.
+definition "print_examp_instance_app_constr2_notmp_norec = (\<lambda>(rbt, (map_self, map_username)) ocl cpt_start ocli isub_name cpt.
   print_examp_instance_app_constr2_notmp
     (Inst_ty ocli)
     (split_inh_own rbt (Inst_ty ocli) (Inst_attr ocli))
     isub_name
     cpt
-    (\<lambda>isub_name oid ty_obj.
-      let b = \<lambda>s. Expr_basic [s] in
-      Expr_applys
-        cpt_start
-        (bug_ocaml_extraction
-        (let ty_objfrom = TyObj_from ty_obj
-           ; ty_objto = TyObj_to ty_obj in
-         [ b (print_access_oid_uniq_name (TyObjN_ass_switch ty_objfrom) isub_name (case TyObjN_role_name ty_objto of Some s \<Rightarrow> s))
-         , b (print_access_choose_name (TyObj_ass_arity ty_obj) (TyObjN_ass_switch ty_objfrom) (TyObjN_ass_switch ty_objto))
-         , Expr_oid var_oid_uniq (oidGetInh oid) ]))))"
+    (\<lambda>isub_name oid.
+      ( \<lambda> ty_obj.
+        bug_ocaml_extraction
+          (let b = \<lambda>s. Expr_basic [s] in
+          Expr_applys
+            cpt_start
+            (bug_ocaml_extraction
+            (let ty_objfrom = TyObj_from ty_obj
+               ; ty_objto = TyObj_to ty_obj in
+             [ b (print_access_oid_uniq_name (TyObjN_ass_switch ty_objfrom) isub_name (case TyObjN_role_name ty_objto of Some s \<Rightarrow> s))
+             , b (print_access_choose_name (TyObj_ass_arity ty_obj) (TyObjN_ass_switch ty_objfrom) (TyObjN_ass_switch ty_objto))
+             , Expr_oid var_oid_uniq (oidGetInh oid) ])))
+      , \<lambda> base. 
+           let cpt = case case base of ShallB_str s \<Rightarrow> map_username s
+                                     | ShallB_self cpt1 \<Rightarrow> map_self cpt1 of Some cpt \<Rightarrow> cpt in
+           Expr_oid var_oid_uniq (oidGetInh cpt))))"
 
 definition "print_examp_instance_name = id"
 definition "print_examp_instance = (\<lambda> OclInstance l \<Rightarrow> \<lambda> ocl.
@@ -462,7 +479,7 @@ definition "print_examp_instance = (\<lambda> OclInstance l \<Rightarrow> \<lamb
          ; b = \<lambda>s. Expr_basic [s] in
        [ bug_ocaml_extraction (let var_inst_ass = ''inst_assoc'' in
          (\<lambda> _ isub_name ocli. Expr_basic (print_examp_instance_name isub_name (Inst_name ocli) # (if D_design_analysis ocl = Gen_only_design then [ var_inst_ass ] else [])),
-          print_examp_instance_app_constr2_notmp_norec rbt ocl (b var_inst_ass)))
+          print_examp_instance_app_constr2_notmp_norec (rbt, (map_self, map_username)) ocl (b var_inst_ass)))
        , (\<lambda> _ _ ocli. Expr_annot (b (Inst_name ocli)) (Inst_ty ocli),
           \<lambda> ocli isub_name _. Expr_lambda wildcard (Expr_some (Expr_some (let name_pers = print_examp_instance_name isub_name (Inst_name ocli) in
                                                                           if D_design_analysis ocl = Gen_only_design then
@@ -474,7 +491,7 @@ definition "print_examp_instance = (\<lambda> OclInstance l \<Rightarrow> \<lamb
         let n = Inst_name ocli in
         (n, ocli, case map_username n of Some oid \<Rightarrow> oidGetInh oid) # instance_rbt) l (D_instance_rbt ocl))))"
 
-definition "print_examp_def_st_mapsto_gen f ocl cpt_start rbt =
+definition "print_examp_def_st_mapsto_gen f ocl cpt_start rbt_map =
   List_map (\<lambda>(cpt, ocore).
     let a = \<lambda>f x. Expr_apply f [x]
       ; b = \<lambda>s. Expr_basic [s]
@@ -484,7 +501,7 @@ definition "print_examp_def_st_mapsto_gen f ocl cpt_start rbt =
                                                    a name cpt_start
                                                  else
                                                    b name)
-      | OclDefCoreAdd ocli \<Rightarrow> (ocli, print_examp_instance_app_constr2_notmp_norec rbt ocl cpt_start ocli (\<lambda>s. s @@ isub_of_str (Inst_ty ocli)) cpt) in
+      | OclDefCoreAdd ocli \<Rightarrow> (ocli, print_examp_instance_app_constr2_notmp_norec rbt_map ocl cpt_start ocli (\<lambda>s. s @@ isub_of_str (Inst_ty ocli)) cpt) in
     f ocore cpt ocli exp)"
 
 definition "print_examp_def_st_mapsto =
@@ -530,7 +547,7 @@ definition "print_examp_def_st = (\<lambda> OclDefSt name l \<Rightarrow> \<lamb
                        | OclDefCoreAdd ocli \<Rightarrow> f (OclDefCoreAdd ocli) ocli in
          (def, oidSucInh cpt, case o_ocli of None \<Rightarrow> l_assoc | Some ocli \<Rightarrow> (ocli, cpt) # l_assoc)) l (D_oid_start ocl, [])
      ; l_st = flatten l_st
-     ; expr_app = print_examp_def_st_mapsto ocl (print_examp_def_st_defassoc_name name) rbt l_st in
+     ; expr_app = print_examp_def_st_mapsto ocl (print_examp_def_st_defassoc_name name) (rbt, (map_self, map_username)) l_st in
 
    ( [ let s_empty = ''Map.empty'' in
        Definition (Expr_rewrite (b name) ''='' (Expr_apply ''state.make''
@@ -590,7 +607,13 @@ definition "print_examp_def_st_perm = (\<lambda> _ ocl.
  (\<lambda> l. (List_map Thy_lemma_by l, ocl))
   (let (name, l_st) = hd (D_state_rbt ocl)
      ; expr_app = let ocl = ocl \<lparr> D_oid_start := oidReinitInh (D_oid_start ocl) \<rparr> in
-                  print_examp_def_st_mapsto ocl (print_examp_def_st_defassoc_name name) (rbt_of_class ocl) (rev l_st)
+                  print_examp_def_st_mapsto
+                    ocl
+                    (print_examp_def_st_defassoc_name name)
+                    (init_map_class ocl (List_map (\<lambda> (_, OclDefCoreAdd ocli) \<Rightarrow> ocli
+                                                   | (_, OclDefCoreBinding (_, ocli)) \<Rightarrow> ocli
+                                                   | _ \<Rightarrow> \<lparr> Inst_name = [], Inst_ty = [], Inst_attr = OclAttrNoCast [] \<rparr>) l_st))
+                    (rev l_st)
      ; a = bug_scala_extraction (\<lambda>f x. Expr_apply f [x])
      ; b = \<lambda>s. Expr_basic [s]
      ; d = hol_definition
@@ -626,7 +649,9 @@ definition "extract_state ocl name_st l_st =
                         | _ \<Rightarrow> Expr_lambda wildcard (Expr_some (Expr_some exp))))
                     ocl
                     (print_examp_def_st_defassoc_name name_st)
-                    (rbt_of_class ocl)
+                    (init_map_class ocl (List_map (\<lambda> (_, OclDefCoreAdd ocli) \<Rightarrow> ocli
+                                                   | (_, OclDefCoreBinding (_, ocli)) \<Rightarrow> ocli
+                                                   | _ \<Rightarrow> \<lparr> Inst_name = [], Inst_ty = [], Inst_attr = OclAttrNoCast [] \<rparr>) l_st))
                     l_st)"
 
 definition "print_examp_def_st_allinst = (\<lambda> _ ocl.
