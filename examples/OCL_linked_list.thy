@@ -48,7 +48,9 @@ header{* Part III: OCL Contracts and an Example *}
 theory 
   OCL_linked_list
 imports
-  "../OCL_main" (* Testing *)
+  "../src/UML_Main"
+  "../src/compiler/OCL_compiler_static"
+  "../src/compiler/OCL_compiler_generator_dynamic"
 begin
 
 subsection{* Introduction *}
@@ -73,12 +75,12 @@ text{* Our data universe  consists in the concrete class diagram just of node's,
 and implicitly of the class object. Each class implies the existence of a class 
 type defined for the corresponding object representations as follows: *}
 
-datatype node =  mk\<^isub>n\<^isub>o\<^isub>d\<^isub>e   oid          (* the oid to the node itself *)
+datatype node =  mk\<^sub>n\<^sub>o\<^sub>d\<^sub>e   oid          (* the oid to the node itself *)
                          "int option" (* the attribute "i" or null *) 
                          "oid option" (* the attribute "next" or null *)
 
 
-datatype object= mk\<^isub>o\<^isub>b\<^isub>j\<^isub>e\<^isub>c\<^isub>t oid (* the oid to the object itself *)
+datatype object= mk\<^sub>o\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t oid (* the oid to the object itself *)
                            "(int option \<times> oid option) option" 
                            (* the extensions to "node"; used to denote objects of actual type
                              "node" casted to "object"; in case of existence of several subclasses 
@@ -88,16 +90,16 @@ text{* Now, we construct a concrete "universe of object types" by injection into
 sum type containing the class types. This type of objects will be used as instance
 for all resp. type-variables ...*}
 
-datatype \<AA> = in\<^isub>n\<^isub>o\<^isub>d\<^isub>e node | in\<^isub>o\<^isub>b\<^isub>j\<^isub>e\<^isub>c\<^isub>t object
+datatype \<AA> = in\<^sub>n\<^sub>o\<^sub>d\<^sub>e node | in\<^sub>o\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t object
 
 text{* Recall that in order to denote OCL-types occuring in OCL expressions syntactically 
 --- as, for example,  as "argument" of allInstances --- we use the inverses of the injection 
 functions into the object universes; we show that this is sufficient "characterization". *}
 definition Node :: "\<AA> \<Rightarrow> node"
-where     "Node \<equiv> (the_inv in\<^isub>n\<^isub>o\<^isub>d\<^isub>e)"
+where     "Node \<equiv> (the_inv in\<^sub>n\<^sub>o\<^sub>d\<^sub>e)"
 
 definition Object :: "\<AA> \<Rightarrow> object"
-where     "Object \<equiv> (the_inv in\<^isub>o\<^isub>b\<^isub>j\<^isub>e\<^isub>c\<^isub>t)"
+where     "Object \<equiv> (the_inv in\<^sub>o\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t)"
 
 
 text{* Having fixed the object universe, we can introduce type synonyms that exactly correspond
@@ -119,21 +121,21 @@ to show that the object universe belongs to the type class "object", i.e. each c
 has to provide a function @{term oid_of} yielding the object id (oid) of the object. *}
 instantiation node :: object
 begin
-   definition oid_of_node_def: "oid_of x = (case x of mk\<^isub>n\<^isub>o\<^isub>d\<^isub>e oid _ _ \<Rightarrow> oid)"
+   definition oid_of_node_def: "oid_of x = (case x of mk\<^sub>n\<^sub>o\<^sub>d\<^sub>e oid _ _ \<Rightarrow> oid)"
    instance ..
 end
 
 instantiation object :: object
 begin
-   definition oid_of_object_def: "oid_of x = (case x of mk\<^isub>o\<^isub>b\<^isub>j\<^isub>e\<^isub>c\<^isub>t oid _ \<Rightarrow> oid)"
+   definition oid_of_object_def: "oid_of x = (case x of mk\<^sub>o\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t oid _ \<Rightarrow> oid)"
    instance ..
 end
 
 instantiation \<AA> :: object
 begin
    definition oid_of_\<AA>_def: "oid_of x = (case x of 
-                                             in\<^isub>n\<^isub>o\<^isub>d\<^isub>e node \<Rightarrow> oid_of node
-                                           | in\<^isub>o\<^isub>b\<^isub>j\<^isub>e\<^isub>c\<^isub>t obj \<Rightarrow> oid_of obj)"
+                                             in\<^sub>n\<^sub>o\<^sub>d\<^sub>e node \<Rightarrow> oid_of node
+                                           | in\<^sub>o\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t obj \<Rightarrow> oid_of obj)"
    instance ..
 end
 
@@ -148,33 +150,33 @@ end
 section{* Instantiation of the generic strict equality. We instantiate the referential equality
 on @{text "Node"} and @{text "Object"} *}
 
-defs(overloaded)   StrictRefEq\<^isub>n\<^isub>o\<^isub>d\<^isub>e   :  "(x::Node) \<doteq> y    \<equiv> gen_ref_eq x y"
-defs(overloaded)   StrictRefEq\<^isub>o\<^isub>b\<^isub>j\<^isub>e\<^isub>c\<^isub>t  : "(x::Object) \<doteq> y  \<equiv> gen_ref_eq x y"
+defs(overloaded)   StrictRefEq\<^sub>n\<^sub>o\<^sub>d\<^sub>e   :  "(x::Node) \<doteq> y    \<equiv> gen_ref_eq x y"
+defs(overloaded)   StrictRefEq\<^sub>o\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t  : "(x::Object) \<doteq> y  \<equiv> gen_ref_eq x y"
 
 lemmas strict_eq_node =
     cp_gen_ref_eq_object[of "x::Node" "y::Node" "\<tau>", 
-                         simplified StrictRefEq\<^isub>n\<^isub>o\<^isub>d\<^isub>e[symmetric]]
+                         simplified StrictRefEq\<^sub>n\<^sub>o\<^sub>d\<^sub>e[symmetric]]
     cp_intro(9)         [of "P::Node \<Rightarrow>Node""Q::Node \<Rightarrow>Node",
-                         simplified StrictRefEq\<^isub>n\<^isub>o\<^isub>d\<^isub>e[symmetric] ]
+                         simplified StrictRefEq\<^sub>n\<^sub>o\<^sub>d\<^sub>e[symmetric] ]
     gen_ref_eq_def      [of "x::Node" "y::Node", 
-                         simplified StrictRefEq\<^isub>n\<^isub>o\<^isub>d\<^isub>e[symmetric]]
+                         simplified StrictRefEq\<^sub>n\<^sub>o\<^sub>d\<^sub>e[symmetric]]
     gen_ref_eq_defargs  [of _ "x::Node" "y::Node", 
-                         simplified StrictRefEq\<^isub>n\<^isub>o\<^isub>d\<^isub>e[symmetric]]
+                         simplified StrictRefEq\<^sub>n\<^sub>o\<^sub>d\<^sub>e[symmetric]]
     gen_ref_eq_object_strict1 
                         [of "x::Node",
-                         simplified StrictRefEq\<^isub>n\<^isub>o\<^isub>d\<^isub>e[symmetric]]
+                         simplified StrictRefEq\<^sub>n\<^sub>o\<^sub>d\<^sub>e[symmetric]]
     gen_ref_eq_object_strict2 
                         [of "x::Node",
-                         simplified StrictRefEq\<^isub>n\<^isub>o\<^isub>d\<^isub>e[symmetric]]
+                         simplified StrictRefEq\<^sub>n\<^sub>o\<^sub>d\<^sub>e[symmetric]]
     gen_ref_eq_object_strict3 
                         [of "x::Node",
-                         simplified StrictRefEq\<^isub>n\<^isub>o\<^isub>d\<^isub>e[symmetric]]
+                         simplified StrictRefEq\<^sub>n\<^sub>o\<^sub>d\<^sub>e[symmetric]]
     gen_ref_eq_object_strict3 
                         [of "x::Node",
-                         simplified StrictRefEq\<^isub>n\<^isub>o\<^isub>d\<^isub>e[symmetric]]
+                         simplified StrictRefEq\<^sub>n\<^sub>o\<^sub>d\<^sub>e[symmetric]]
     gen_ref_eq_object_strict4 
                         [of "x::Node",
-                         simplified StrictRefEq\<^isub>n\<^isub>o\<^isub>d\<^isub>e[symmetric]]
+                         simplified StrictRefEq\<^sub>n\<^sub>o\<^sub>d\<^sub>e[symmetric]]
 
 thm strict_eq_node
 (* TODO: Analogue for object. *)
@@ -184,11 +186,11 @@ subsection{* AllInstances *}
 (* IS THIS WHAT WE WANT ? THIS DEFINITION FILTERS OBJECTS THAT ARE BOOKED UNDER
 THEIR APPARENT (STATIC) TYPE INTO THE CONTEXT, NOT BY THEIR ACTUAL (DYNAMIC) TYPE. *)
 lemma "(Node .oclAllInstances()) = 
-             (\<lambda>\<tau>.  Abs_Set_0 \<lfloor>\<lfloor>(Some \<circ> Some \<circ> (the_inv in\<^isub>n\<^isub>o\<^isub>d\<^isub>e))`(ran(snd \<tau>)) \<rfloor>\<rfloor>) "
+             (\<lambda>\<tau>.  Abs_Set_0 \<lfloor>\<lfloor>(Some \<circ> Some \<circ> (the_inv in\<^sub>n\<^sub>o\<^sub>d\<^sub>e))`(ran(snd \<tau>)) \<rfloor>\<rfloor>) "
 by(rule ext, simp add:allinstances_def Node_def)
 
 lemma "(Object .oclAllInstances@pre()) = 
-             (\<lambda>\<tau>.  Abs_Set_0 \<lfloor>\<lfloor>(Some \<circ> Some \<circ> (the_inv in\<^isub>o\<^isub>b\<^isub>j\<^isub>e\<^isub>c\<^isub>t))`(ran(fst \<tau>)) \<rfloor>\<rfloor>) "
+             (\<lambda>\<tau>.  Abs_Set_0 \<lfloor>\<lfloor>(Some \<circ> Some \<circ> (the_inv in\<^sub>o\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t))`(ran(fst \<tau>)) \<rfloor>\<rfloor>) "
 by(rule ext, simp add:allinstancesATpre_def Object_def)
 
 
@@ -209,12 +211,12 @@ fun dot_next:: "Node \<Rightarrow> Node"  ("(1(_).next)" 50)
   where "(X).next = (\<lambda> \<tau>. case X \<tau> of
                \<bottom> \<Rightarrow> invalid \<tau>           (* undefined pointer *)
           | \<lfloor>  \<bottom> \<rfloor> \<Rightarrow> invalid \<tau>         (* dereferencing null pointer *)
-          | \<lfloor>\<lfloor> mk\<^isub>n\<^isub>o\<^isub>d\<^isub>e oid i \<bottom> \<rfloor>\<rfloor> \<Rightarrow> null \<tau>(* object contains null pointer *)
-          | \<lfloor>\<lfloor> mk\<^isub>n\<^isub>o\<^isub>d\<^isub>e oid i \<lfloor>next\<rfloor> \<rfloor>\<rfloor> \<Rightarrow>   (* We assume here that oid is indeed 'the' oid of the Node,
+          | \<lfloor>\<lfloor> mk\<^sub>n\<^sub>o\<^sub>d\<^sub>e oid i \<bottom> \<rfloor>\<rfloor> \<Rightarrow> null \<tau>(* object contains null pointer *)
+          | \<lfloor>\<lfloor> mk\<^sub>n\<^sub>o\<^sub>d\<^sub>e oid i \<lfloor>next\<rfloor> \<rfloor>\<rfloor> \<Rightarrow>   (* We assume here that oid is indeed 'the' oid of the Node,
                                            ie. we assume that  \<tau> is well-formed. *)
                     case (snd \<tau>) next of
                        \<bottom> \<Rightarrow> invalid \<tau> 
-                    | \<lfloor>in\<^isub>n\<^isub>o\<^isub>d\<^isub>e (mk\<^isub>n\<^isub>o\<^isub>d\<^isub>e a b c)\<rfloor> \<Rightarrow> \<lfloor>\<lfloor>mk\<^isub>n\<^isub>o\<^isub>d\<^isub>e a b c \<rfloor>\<rfloor>
+                    | \<lfloor>in\<^sub>n\<^sub>o\<^sub>d\<^sub>e (mk\<^sub>n\<^sub>o\<^sub>d\<^sub>e a b c)\<rfloor> \<Rightarrow> \<lfloor>\<lfloor>mk\<^sub>n\<^sub>o\<^sub>d\<^sub>e a b c \<rfloor>\<rfloor>
                     | \<lfloor> _ \<rfloor>\<Rightarrow> invalid \<tau>)" (* illtyped state, not occuring in 
                                              well-formed, typed states *)
 
@@ -222,32 +224,32 @@ fun dot_i:: "Node \<Rightarrow> Integer"  ("(1(_).i)" 50)
   where "(X).i = (\<lambda> \<tau>. case X \<tau> of
                \<bottom> \<Rightarrow> invalid \<tau> 
           | \<lfloor>  \<bottom> \<rfloor> \<Rightarrow> invalid \<tau> 
-          | \<lfloor>\<lfloor> mk\<^isub>n\<^isub>o\<^isub>d\<^isub>e oid \<bottom> _ \<rfloor>\<rfloor> \<Rightarrow>  null \<tau>
-          | \<lfloor>\<lfloor> mk\<^isub>n\<^isub>o\<^isub>d\<^isub>e oid \<lfloor>i\<rfloor> _ \<rfloor>\<rfloor> \<Rightarrow>  \<lfloor>\<lfloor> i \<rfloor>\<rfloor>)"
+          | \<lfloor>\<lfloor> mk\<^sub>n\<^sub>o\<^sub>d\<^sub>e oid \<bottom> _ \<rfloor>\<rfloor> \<Rightarrow>  null \<tau>
+          | \<lfloor>\<lfloor> mk\<^sub>n\<^sub>o\<^sub>d\<^sub>e oid \<lfloor>i\<rfloor> _ \<rfloor>\<rfloor> \<Rightarrow>  \<lfloor>\<lfloor> i \<rfloor>\<rfloor>)"
 
 fun dot_next_at_pre:: "Node \<Rightarrow> Node"  ("(1(_).next@pre)" 50)
   where "(X).next@pre = (\<lambda> \<tau>. case X \<tau> of
                \<bottom> \<Rightarrow> invalid \<tau>  
           | \<lfloor>  \<bottom> \<rfloor> \<Rightarrow> invalid \<tau> 
-          | \<lfloor>\<lfloor> mk\<^isub>n\<^isub>o\<^isub>d\<^isub>e oid i \<bottom> \<rfloor>\<rfloor> \<Rightarrow> null \<tau>(* object contains null pointer. REALLY ? 
+          | \<lfloor>\<lfloor> mk\<^sub>n\<^sub>o\<^sub>d\<^sub>e oid i \<bottom> \<rfloor>\<rfloor> \<Rightarrow> null \<tau>(* object contains null pointer. REALLY ? 
                                           And if this pointer was defined in the pre-state ?*)
-          | \<lfloor>\<lfloor> mk\<^isub>n\<^isub>o\<^isub>d\<^isub>e oid i \<lfloor>next\<rfloor> \<rfloor>\<rfloor> \<Rightarrow> (* We assume here that oid is indeed 'the' oid of the Node,
+          | \<lfloor>\<lfloor> mk\<^sub>n\<^sub>o\<^sub>d\<^sub>e oid i \<lfloor>next\<rfloor> \<rfloor>\<rfloor> \<Rightarrow> (* We assume here that oid is indeed 'the' oid of the Node,
                                         ie. we assume that  \<tau> is well-formed. *)
                  (case (fst \<tau>) next of
                         \<bottom> \<Rightarrow> invalid \<tau> 
-                     | \<lfloor>in\<^isub>n\<^isub>o\<^isub>d\<^isub>e (mk\<^isub>n\<^isub>o\<^isub>d\<^isub>e a b c)\<rfloor> \<Rightarrow> \<lfloor>\<lfloor>mk\<^isub>n\<^isub>o\<^isub>d\<^isub>e a b c \<rfloor>\<rfloor>
+                     | \<lfloor>in\<^sub>n\<^sub>o\<^sub>d\<^sub>e (mk\<^sub>n\<^sub>o\<^sub>d\<^sub>e a b c)\<rfloor> \<Rightarrow> \<lfloor>\<lfloor>mk\<^sub>n\<^sub>o\<^sub>d\<^sub>e a b c \<rfloor>\<rfloor>
                      | \<lfloor> _ \<rfloor>\<Rightarrow> invalid \<tau>))"
 
 fun dot_i_at_pre:: "Node \<Rightarrow> Integer"  ("(1(_).i@pre)" 50)
 where "(X).i@pre = (\<lambda> \<tau>. case X \<tau> of
               \<bottom> \<Rightarrow> invalid \<tau>
           | \<lfloor>  \<bottom> \<rfloor> \<Rightarrow> invalid \<tau>
-          | \<lfloor>\<lfloor> mk\<^isub>n\<^isub>o\<^isub>d\<^isub>e oid _ _ \<rfloor>\<rfloor> \<Rightarrow> 
+          | \<lfloor>\<lfloor> mk\<^sub>n\<^sub>o\<^sub>d\<^sub>e oid _ _ \<rfloor>\<rfloor> \<Rightarrow> 
                       if oid \<in> dom (fst \<tau>)
                       then (case (fst \<tau>) oid of
                                 \<bottom> \<Rightarrow> invalid \<tau>
-                            | \<lfloor>in\<^isub>n\<^isub>o\<^isub>d\<^isub>e (mk\<^isub>n\<^isub>o\<^isub>d\<^isub>e oid \<bottom> next) \<rfloor> \<Rightarrow> null \<tau>
-                            | \<lfloor>in\<^isub>n\<^isub>o\<^isub>d\<^isub>e (mk\<^isub>n\<^isub>o\<^isub>d\<^isub>e oid \<lfloor>i\<rfloor>next) \<rfloor> \<Rightarrow> \<lfloor>\<lfloor> i \<rfloor>\<rfloor>
+                            | \<lfloor>in\<^sub>n\<^sub>o\<^sub>d\<^sub>e (mk\<^sub>n\<^sub>o\<^sub>d\<^sub>e oid \<bottom> next) \<rfloor> \<Rightarrow> null \<tau>
+                            | \<lfloor>in\<^sub>n\<^sub>o\<^sub>d\<^sub>e (mk\<^sub>n\<^sub>o\<^sub>d\<^sub>e oid \<lfloor>i\<rfloor>next) \<rfloor> \<Rightarrow> \<lfloor>\<lfloor> i \<rfloor>\<rfloor>
                             | \<lfloor> _ \<rfloor>\<Rightarrow> invalid \<tau>)
                       else invalid \<tau>)"
 
@@ -280,85 +282,85 @@ by(rule ext, simp add: null_fun_def null_option_def bot_option_def null_def inva
 
 subsection{* Casts *}
 
-consts oclastype\<^isub>o\<^isub>b\<^isub>j\<^isub>e\<^isub>c\<^isub>t :: "'\<alpha> \<Rightarrow> Object" ("(_) .oclAsType'(Object')")
-consts oclastype\<^isub>n\<^isub>o\<^isub>d\<^isub>e   :: "'\<alpha> \<Rightarrow> Node" ("(_) .oclAsType'(Node')")
+consts oclastype\<^sub>o\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t :: "'\<alpha> \<Rightarrow> Object" ("(_) .oclAsType'(Object')")
+consts oclastype\<^sub>n\<^sub>o\<^sub>d\<^sub>e   :: "'\<alpha> \<Rightarrow> Node" ("(_) .oclAsType'(Node')")
 
-defs (overloaded) oclastype\<^isub>o\<^isub>b\<^isub>j\<^isub>e\<^isub>c\<^isub>t_Object: 
+defs (overloaded) oclastype\<^sub>o\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t_Object: 
         "(X::Object) .oclAsType(Object) \<equiv> 
                    (\<lambda>\<tau>. case X \<tau> of 
                               \<bottom>   \<Rightarrow> invalid \<tau>
                             | \<lfloor>\<bottom>\<rfloor> \<Rightarrow> invalid \<tau>   (* to avoid: null .oclAsType(Object) = null ? *)
-                            | \<lfloor>\<lfloor>mk\<^isub>o\<^isub>b\<^isub>j\<^isub>e\<^isub>c\<^isub>t oid a \<rfloor>\<rfloor> \<Rightarrow>  \<lfloor>\<lfloor>mk\<^isub>o\<^isub>b\<^isub>j\<^isub>e\<^isub>c\<^isub>t oid a \<rfloor>\<rfloor>)"  (* identity *)
+                            | \<lfloor>\<lfloor>mk\<^sub>o\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t oid a \<rfloor>\<rfloor> \<Rightarrow>  \<lfloor>\<lfloor>mk\<^sub>o\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t oid a \<rfloor>\<rfloor>)"  (* identity *)
 
-defs (overloaded) oclastype\<^isub>o\<^isub>b\<^isub>j\<^isub>e\<^isub>c\<^isub>t_Node:  
+defs (overloaded) oclastype\<^sub>o\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t_Node:  
         "(X::Node) .oclAsType(Object) \<equiv> 
                    (\<lambda>\<tau>. case X \<tau> of 
                               \<bottom>   \<Rightarrow> invalid \<tau>
                             | \<lfloor>\<bottom>\<rfloor> \<Rightarrow> invalid \<tau>    (* OTHER POSSIBILITY : null ??? Really excluded 
                                                      by standard *)
-                            | \<lfloor>\<lfloor>mk\<^isub>n\<^isub>o\<^isub>d\<^isub>e oid a b \<rfloor>\<rfloor> \<Rightarrow>  \<lfloor>\<lfloor>  (mk\<^isub>o\<^isub>b\<^isub>j\<^isub>e\<^isub>c\<^isub>t oid \<lfloor>(a,b)\<rfloor>) \<rfloor>\<rfloor>)"
+                            | \<lfloor>\<lfloor>mk\<^sub>n\<^sub>o\<^sub>d\<^sub>e oid a b \<rfloor>\<rfloor> \<Rightarrow>  \<lfloor>\<lfloor>  (mk\<^sub>o\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t oid \<lfloor>(a,b)\<rfloor>) \<rfloor>\<rfloor>)"
 
-defs (overloaded) oclastype\<^isub>n\<^isub>o\<^isub>d\<^isub>e_Object: 
+defs (overloaded) oclastype\<^sub>n\<^sub>o\<^sub>d\<^sub>e_Object: 
         "(X::Object) .oclAsType(Node) \<equiv> 
                    (\<lambda>\<tau>. case X \<tau> of 
                               \<bottom>   \<Rightarrow> invalid \<tau>
                             | \<lfloor>\<bottom>\<rfloor> \<Rightarrow> invalid \<tau>   
-                            | \<lfloor>\<lfloor>mk\<^isub>o\<^isub>b\<^isub>j\<^isub>e\<^isub>c\<^isub>t oid \<bottom> \<rfloor>\<rfloor> \<Rightarrow>  invalid \<tau>   (* down-cast exception *)
-                            | \<lfloor>\<lfloor>mk\<^isub>o\<^isub>b\<^isub>j\<^isub>e\<^isub>c\<^isub>t oid \<lfloor>(a,b)\<rfloor> \<rfloor>\<rfloor> \<Rightarrow>  \<lfloor>\<lfloor>mk\<^isub>n\<^isub>o\<^isub>d\<^isub>e oid a b \<rfloor>\<rfloor>)" 
+                            | \<lfloor>\<lfloor>mk\<^sub>o\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t oid \<bottom> \<rfloor>\<rfloor> \<Rightarrow>  invalid \<tau>   (* down-cast exception *)
+                            | \<lfloor>\<lfloor>mk\<^sub>o\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t oid \<lfloor>(a,b)\<rfloor> \<rfloor>\<rfloor> \<Rightarrow>  \<lfloor>\<lfloor>mk\<^sub>n\<^sub>o\<^sub>d\<^sub>e oid a b \<rfloor>\<rfloor>)" 
 
-defs (overloaded) oclastype\<^isub>n\<^isub>o\<^isub>d\<^isub>e_Node: 
+defs (overloaded) oclastype\<^sub>n\<^sub>o\<^sub>d\<^sub>e_Node: 
         "(X::Node) .oclAsType(Node) \<equiv> 
                    (\<lambda>\<tau>. case X \<tau> of 
                               \<bottom>   \<Rightarrow> invalid \<tau>
                             | \<lfloor>\<bottom>\<rfloor> \<Rightarrow> invalid \<tau>   (* to avoid: null .oclAsType(Object) = null ? *)
-                            | \<lfloor>\<lfloor>mk\<^isub>n\<^isub>o\<^isub>d\<^isub>e oid a b \<rfloor>\<rfloor> \<Rightarrow>  \<lfloor>\<lfloor>mk\<^isub>n\<^isub>o\<^isub>d\<^isub>e oid a b\<rfloor>\<rfloor>)"  (* identity *)
+                            | \<lfloor>\<lfloor>mk\<^sub>n\<^sub>o\<^sub>d\<^sub>e oid a b \<rfloor>\<rfloor> \<Rightarrow>  \<lfloor>\<lfloor>mk\<^sub>n\<^sub>o\<^sub>d\<^sub>e oid a b\<rfloor>\<rfloor>)"  (* identity *)
 
-lemma oclastype\<^isub>o\<^isub>b\<^isub>j\<^isub>e\<^isub>c\<^isub>t_Object_strict[simp] : "(invalid::Object) .oclAsType(Object) = invalid" 
+lemma oclastype\<^sub>o\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t_Object_strict[simp] : "(invalid::Object) .oclAsType(Object) = invalid" 
 by(rule ext, simp add: null_fun_def null_option_def bot_option_def null_def invalid_def
-                       oclastype\<^isub>o\<^isub>b\<^isub>j\<^isub>e\<^isub>c\<^isub>t_Object)
+                       oclastype\<^sub>o\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t_Object)
 
-lemma oclastype\<^isub>o\<^isub>b\<^isub>j\<^isub>e\<^isub>c\<^isub>t_Object_nullstrict[simp] : "(null::Object) .oclAsType(Object) = invalid" 
+lemma oclastype\<^sub>o\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t_Object_nullstrict[simp] : "(null::Object) .oclAsType(Object) = invalid" 
 by(rule ext, simp add: null_fun_def null_option_def bot_option_def null_def invalid_def
-                       oclastype\<^isub>o\<^isub>b\<^isub>j\<^isub>e\<^isub>c\<^isub>t_Object)
+                       oclastype\<^sub>o\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t_Object)
 
-lemma oclastype\<^isub>n\<^isub>o\<^isub>d\<^isub>e_Object_strict[simp] : "(invalid::Node) .oclAsType(Object) = invalid" 
+lemma oclastype\<^sub>n\<^sub>o\<^sub>d\<^sub>e_Object_strict[simp] : "(invalid::Node) .oclAsType(Object) = invalid" 
 by(rule ext, simp add: null_fun_def null_option_def bot_option_def null_def invalid_def
-                       oclastype\<^isub>o\<^isub>b\<^isub>j\<^isub>e\<^isub>c\<^isub>t_Node bot_Boolean_def)
+                       oclastype\<^sub>o\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t_Node bot_Boolean_def)
 
-lemma oclastype\<^isub>n\<^isub>o\<^isub>d\<^isub>e_Object_nullstrict[simp] : "(null::Node) .oclAsType(Object) = invalid" 
+lemma oclastype\<^sub>n\<^sub>o\<^sub>d\<^sub>e_Object_nullstrict[simp] : "(null::Node) .oclAsType(Object) = invalid" 
 by(rule ext, simp add: null_fun_def null_option_def bot_option_def null_def invalid_def
-                       oclastype\<^isub>o\<^isub>b\<^isub>j\<^isub>e\<^isub>c\<^isub>t_Node)
+                       oclastype\<^sub>o\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t_Node)
 
 
 section{* Tests for Actual Types *}
 
-consts oclistypeof\<^isub>o\<^isub>b\<^isub>j\<^isub>e\<^isub>c\<^isub>t :: "'\<alpha> \<Rightarrow> Boolean" ("(_).oclIsTypeOf'(Object')")
-consts oclistypeof\<^isub>n\<^isub>o\<^isub>d\<^isub>e   :: "'\<alpha> \<Rightarrow> Boolean" ("(_).oclIsTypeOf'(Node')")
+consts oclistypeof\<^sub>o\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t :: "'\<alpha> \<Rightarrow> Boolean" ("(_).oclIsTypeOf'(Object')")
+consts oclistypeof\<^sub>n\<^sub>o\<^sub>d\<^sub>e   :: "'\<alpha> \<Rightarrow> Boolean" ("(_).oclIsTypeOf'(Node')")
 
-defs (overloaded) oclistypeof\<^isub>o\<^isub>b\<^isub>j\<^isub>e\<^isub>c\<^isub>t_Object: 
+defs (overloaded) oclistypeof\<^sub>o\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t_Object: 
         "(X::Object) .oclIsTypeOf(Object) \<equiv> 
                    (\<lambda>\<tau>. case X \<tau> of 
                               \<bottom>   \<Rightarrow> invalid \<tau>
                             | \<lfloor>\<bottom>\<rfloor> \<Rightarrow> invalid \<tau>  
-                            | \<lfloor>\<lfloor>mk\<^isub>o\<^isub>b\<^isub>j\<^isub>e\<^isub>c\<^isub>t oid \<bottom> \<rfloor>\<rfloor> \<Rightarrow> true \<tau>
-                            | \<lfloor>\<lfloor>mk\<^isub>o\<^isub>b\<^isub>j\<^isub>e\<^isub>c\<^isub>t oid \<lfloor>_\<rfloor> \<rfloor>\<rfloor> \<Rightarrow> false \<tau>)" 
+                            | \<lfloor>\<lfloor>mk\<^sub>o\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t oid \<bottom> \<rfloor>\<rfloor> \<Rightarrow> true \<tau>
+                            | \<lfloor>\<lfloor>mk\<^sub>o\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t oid \<lfloor>_\<rfloor> \<rfloor>\<rfloor> \<Rightarrow> false \<tau>)" 
 
-defs (overloaded) oclistypeof\<^isub>o\<^isub>b\<^isub>j\<^isub>e\<^isub>c\<^isub>t_Node: 
+defs (overloaded) oclistypeof\<^sub>o\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t_Node: 
         "(X::Node) .oclIsTypeOf(Object) \<equiv> 
                    (\<lambda>\<tau>. case X \<tau> of 
                               \<bottom>   \<Rightarrow> invalid \<tau>
                             | \<lfloor>\<bottom>\<rfloor> \<Rightarrow> invalid \<tau>  
                             | \<lfloor>\<lfloor> _ \<rfloor>\<rfloor> \<Rightarrow> false \<tau>)"  (* must have actual type Node otherwise  *)
 
-defs (overloaded) oclistypeof\<^isub>n\<^isub>o\<^isub>d\<^isub>e_Object: 
+defs (overloaded) oclistypeof\<^sub>n\<^sub>o\<^sub>d\<^sub>e_Object: 
         "(X::Object) .oclIsTypeOf(Node) \<equiv> 
                    (\<lambda>\<tau>. case X \<tau> of 
                               \<bottom>   \<Rightarrow> invalid \<tau>
                             | \<lfloor>\<bottom>\<rfloor> \<Rightarrow> invalid \<tau>  
-                            | \<lfloor>\<lfloor>mk\<^isub>o\<^isub>b\<^isub>j\<^isub>e\<^isub>c\<^isub>t oid \<bottom> \<rfloor>\<rfloor> \<Rightarrow> false \<tau>
-                            | \<lfloor>\<lfloor>mk\<^isub>o\<^isub>b\<^isub>j\<^isub>e\<^isub>c\<^isub>t oid \<lfloor>_\<rfloor> \<rfloor>\<rfloor> \<Rightarrow> true \<tau>)" 
+                            | \<lfloor>\<lfloor>mk\<^sub>o\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t oid \<bottom> \<rfloor>\<rfloor> \<Rightarrow> false \<tau>
+                            | \<lfloor>\<lfloor>mk\<^sub>o\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t oid \<lfloor>_\<rfloor> \<rfloor>\<rfloor> \<Rightarrow> true \<tau>)" 
 
-defs (overloaded) oclistypeof\<^isub>n\<^isub>o\<^isub>d\<^isub>e_Node: 
+defs (overloaded) oclistypeof\<^sub>n\<^sub>o\<^sub>d\<^sub>e_Node: 
         "(X::Node) .oclIsTypeOf(Node) \<equiv> 
                    (\<lambda>\<tau>. case X \<tau> of 
                               \<bottom>   \<Rightarrow> invalid \<tau>
@@ -368,38 +370,38 @@ defs (overloaded) oclistypeof\<^isub>n\<^isub>o\<^isub>d\<^isub>e_Node:
 (* TODO: Missing cp's.*)
 
    
-lemma oclistypeof\<^isub>o\<^isub>b\<^isub>j\<^isub>e\<^isub>c\<^isub>t_Object_strict1[simp]: 
+lemma oclistypeof\<^sub>o\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t_Object_strict1[simp]: 
      "(invalid::Object) .oclIsTypeOf(Object) = invalid"
 by(rule ext, simp add: null_fun_def null_option_def bot_option_def null_def invalid_def
-                       oclistypeof\<^isub>o\<^isub>b\<^isub>j\<^isub>e\<^isub>c\<^isub>t_Object)
-lemma oclistypeof\<^isub>o\<^isub>b\<^isub>j\<^isub>e\<^isub>c\<^isub>t_Object_strict2[simp]: 
+                       oclistypeof\<^sub>o\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t_Object)
+lemma oclistypeof\<^sub>o\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t_Object_strict2[simp]: 
      "(null::Object) .oclIsTypeOf(Object) = invalid"
 by(rule ext, simp add: null_fun_def null_option_def bot_option_def null_def invalid_def
-                       oclistypeof\<^isub>o\<^isub>b\<^isub>j\<^isub>e\<^isub>c\<^isub>t_Object)
-lemma oclistypeof\<^isub>o\<^isub>b\<^isub>j\<^isub>e\<^isub>c\<^isub>t_Node_strict1[simp]: 
+                       oclistypeof\<^sub>o\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t_Object)
+lemma oclistypeof\<^sub>o\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t_Node_strict1[simp]: 
      "(invalid::Node) .oclIsTypeOf(Object) = invalid"
 by(rule ext, simp add: null_fun_def null_option_def bot_option_def null_def invalid_def
-                       oclistypeof\<^isub>o\<^isub>b\<^isub>j\<^isub>e\<^isub>c\<^isub>t_Node)
-lemma oclistypeof\<^isub>o\<^isub>b\<^isub>j\<^isub>e\<^isub>c\<^isub>t_Node_strict2[simp]: 
+                       oclistypeof\<^sub>o\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t_Node)
+lemma oclistypeof\<^sub>o\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t_Node_strict2[simp]: 
      "(null::Node) .oclIsTypeOf(Object) = invalid"
 by(rule ext, simp add: null_fun_def null_option_def bot_option_def null_def invalid_def
-                       oclistypeof\<^isub>o\<^isub>b\<^isub>j\<^isub>e\<^isub>c\<^isub>t_Node)
-lemma oclistypeof\<^isub>n\<^isub>o\<^isub>d\<^isub>e_Object_strict1[simp]: 
+                       oclistypeof\<^sub>o\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t_Node)
+lemma oclistypeof\<^sub>n\<^sub>o\<^sub>d\<^sub>e_Object_strict1[simp]: 
      "(invalid::Object) .oclIsTypeOf(Node) = invalid"
 by(rule ext, simp add: null_fun_def null_option_def bot_option_def null_def invalid_def
-                       oclistypeof\<^isub>n\<^isub>o\<^isub>d\<^isub>e_Object)
-lemma oclistypeof\<^isub>n\<^isub>o\<^isub>d\<^isub>e_Object_strict2[simp]: 
+                       oclistypeof\<^sub>n\<^sub>o\<^sub>d\<^sub>e_Object)
+lemma oclistypeof\<^sub>n\<^sub>o\<^sub>d\<^sub>e_Object_strict2[simp]: 
      "(null::Object) .oclIsTypeOf(Node) = invalid"
 by(rule ext, simp add: null_fun_def null_option_def bot_option_def null_def invalid_def
-                       oclistypeof\<^isub>n\<^isub>o\<^isub>d\<^isub>e_Object)
-lemma oclistypeof\<^isub>n\<^isub>o\<^isub>d\<^isub>e_Node_strict1[simp]: 
+                       oclistypeof\<^sub>n\<^sub>o\<^sub>d\<^sub>e_Object)
+lemma oclistypeof\<^sub>n\<^sub>o\<^sub>d\<^sub>e_Node_strict1[simp]: 
      "(invalid::Node) .oclIsTypeOf(Node) = invalid"
 by(rule ext, simp add: null_fun_def null_option_def bot_option_def null_def invalid_def
-                       oclistypeof\<^isub>n\<^isub>o\<^isub>d\<^isub>e_Node)
-lemma oclistypeof\<^isub>n\<^isub>o\<^isub>d\<^isub>e_Node_strict2[simp]: 
+                       oclistypeof\<^sub>n\<^sub>o\<^sub>d\<^sub>e_Node)
+lemma oclistypeof\<^sub>n\<^sub>o\<^sub>d\<^sub>e_Node_strict2[simp]: 
      "(null::Node) .oclIsTypeOf(Node) = invalid"
 by(rule ext, simp add: null_fun_def null_option_def bot_option_def null_def invalid_def
-                       oclistypeof\<^isub>n\<^isub>o\<^isub>d\<^isub>e_Node)
+                       oclistypeof\<^sub>n\<^sub>o\<^sub>d\<^sub>e_Node)
 
 
 
@@ -408,7 +410,7 @@ assumes isdef: "\<tau> \<Turnstile> (\<delta> X)"
 shows          "\<tau> \<Turnstile> (X::Node) .oclIsTypeOf(Object) \<triangleq> false"
 using isdef
 by(auto simp : bot_fun_def null_fun_def null_option_def bot_option_def null_def invalid_def
-                  oclistypeof\<^isub>o\<^isub>b\<^isub>j\<^isub>e\<^isub>c\<^isub>t_Node foundation22 foundation16
+                  oclistypeof\<^sub>o\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t_Node foundation22 foundation16
            split: option.split object.split node.split)
 
 lemma down_cast: 
@@ -416,16 +418,16 @@ assumes isObject: "\<tau> \<Turnstile> (X::Object) .oclIsTypeOf(Object)"
 shows             "\<tau> \<Turnstile> (X .oclAsType(Node)) \<triangleq> invalid" 
 using isObject
 apply(auto simp : bot_fun_def null_fun_def null_option_def bot_option_def null_def invalid_def
-                  oclastype\<^isub>o\<^isub>b\<^isub>j\<^isub>e\<^isub>c\<^isub>t_Node oclastype\<^isub>n\<^isub>o\<^isub>d\<^isub>e_Object foundation22 foundation16
+                  oclastype\<^sub>o\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t_Node oclastype\<^sub>n\<^sub>o\<^sub>d\<^sub>e_Object foundation22 foundation16
            split: option.split object.split node.split)
-by(simp add: oclistypeof\<^isub>o\<^isub>b\<^isub>j\<^isub>e\<^isub>c\<^isub>t_Object  OclValid_def false_def true_def)
+by(simp add: oclistypeof\<^sub>o\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t_Object  OclValid_def false_def true_def)
 
 lemma up_down_cast : 
 assumes isdef: "\<tau> \<Turnstile> (\<delta> X)"
 shows "\<tau> \<Turnstile> ((X::Node) .oclAsType(Object) .oclAsType(Node) \<triangleq> X)" 
 using isdef
 by(auto simp : null_fun_def null_option_def bot_option_def null_def invalid_def
-               oclastype\<^isub>o\<^isub>b\<^isub>j\<^isub>e\<^isub>c\<^isub>t_Node oclastype\<^isub>n\<^isub>o\<^isub>d\<^isub>e_Object foundation22 foundation16
+               oclastype\<^sub>o\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t_Node oclastype\<^sub>n\<^sub>o\<^sub>d\<^sub>e_Object foundation22 foundation16
         split: option.split node.split)
 
 (* MISSING:  Construction for  ocliskind *)
