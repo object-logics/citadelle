@@ -46,9 +46,9 @@ header{* Part ... *}
 theory
   Employee_AnalysisModel_UMLPart_generator_shallow
 imports
-  "../src/UML_Main"
-  "../src/compiler/OCL_compiler_static"
-  "../src/compiler/OCL_compiler_generator_dynamic"
+  "../../src/UML_Main"
+  "../../src/compiler/OCL_compiler_static"
+  "../../src/compiler/OCL_compiler_generator_dynamic"
 begin
 
 generation_syntax [ shallow (generation_semantics [ analysis ])

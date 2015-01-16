@@ -46,7 +46,7 @@ header{* Part ... *}
 theory
   Employee_AnalysisModel_UMLPart_generator_deep
 imports
-  "../src/compiler/OCL_compiler_generator_dynamic"
+  "../../src/compiler/OCL_compiler_generator_dynamic"
 begin
 
 generation_syntax [ deep
@@ -57,7 +57,7 @@ generation_syntax [ deep
                       SECTION
                       (*SORRY*)
                       [ in SML module_name M (no_signatures) ]
-                      (output_directory "../doc")
+                      (output_directory "../../doc")
                   (*, syntax_print*) ]
 
 Class Person < Planet
