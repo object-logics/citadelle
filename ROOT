@@ -88,12 +88,12 @@ session "OCL-all-dirty" in "src" = HOL +
     "../doc/Employee_AnalysisModel_UMLPart_generated"
     "../doc/Employee_DesignModel_UMLPart_generated"
 
-    "../examples/Bank_AnalysisModel"
+    "../examples/Bank_Model"
     (*"../examples/Employee_Model/Employee_AnalysisModel_UMLPart_generator_deep"*)
     "../examples/Employee_Model/Employee_AnalysisModel_UMLPart_generator_shallow"
     (*"../examples/Employee_Model/Employee_DesignModel_UMLPart_generator_deep"*)
     "../examples/Employee_Model/Employee_DesignModel_UMLPart_generator_shallow"
-    "../examples/Flight_AnalysisModel"
+    "../examples/Flight_Model"
 
     "../src/compiler/OCL_compiler_aux_proof"
     "../src/compiler/OCL_compiler_aux_text"
