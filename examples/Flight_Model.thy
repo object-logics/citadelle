@@ -3,7 +3,7 @@
  *                       for the OMG Standard.
  *                       http://www.brucker.ch/projects/hol-testgen/
  *
- * Flight_AnalysisModel.thy --- OCL Contracts and an Example.
+ * Flight_Model.thy --- OCL Contracts and an Example.
  * This file is part of HOL-TestGen.
  *
  * Copyright (c) 2013-2015 Université Paris-Sud, France
@@ -44,7 +44,7 @@
 header{* Part ... *}
 
 theory
-  Flight_AnalysisModel
+  Flight_Model
 imports
   "../src/UML_Main"
   "../src/compiler/OCL_compiler_static"
@@ -53,7 +53,7 @@ begin
 
 generation_syntax [ (*deep
                       (*(generation_semantics [ analysis (*, oid_start 10*) ])*)
-                      (THEORY Flight_AnalysisModel_generated)
+                      (THEORY Flight_Model_generated)
                       (IMPORTS ["../src/UML_Main", "../src/compiler/OCL_compiler_static"]
                                "../src/compiler/OCL_compiler_generator_dynamic")
                       SECTION
