@@ -186,6 +186,14 @@ Context r: Reservation
   Inv C : "r .next <> null implies (r .client \<doteq> r .next .client)"
 
 (*generation_syntax deep flush_all*)
+(* example for e recursive query *)
+Context Reservation :: connections () : Set(Integer)
+  Post : "result \<triangleq> if (self .next \<doteq> null)
+                   then (Set{}->including\<^sub>S\<^sub>e\<^sub>t(self .id))
+                   else (self .next .connections()->including\<^sub>S\<^sub>e\<^sub>t(self .id))
+                   endif"
+  Pre  : "true"    
+
 
 lemmas [simp,code_unfold] = dot_accessor
 

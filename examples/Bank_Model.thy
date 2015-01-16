@@ -60,8 +60,7 @@ generation_syntax [ (*deep
                       (*SORRY*)
                       [ in SML module_name M (no_signatures) ]
                       (output_directory "../doc")
-                  ,*) shallow 
-                              (*SORRY*) ]
+                  ,*) shallow (*SORRY*) ]
 
 Class Bank
   Attributes name : String
@@ -71,6 +70,7 @@ Class Client
   Attributes clientname : String
              address : String
              age : Integer
+             id  : Integer
 End
 
 Class Account
@@ -132,6 +132,20 @@ Context c: Client
     ->forAll\<^sub>S\<^sub>e\<^sub>t(b |
         b .bankaccounts ->select\<^sub>S\<^sub>e\<^sub>t( a | (a .owner \<doteq> c) and (a .oclIsTypeOf(Current)))
                         ->size\<^sub>S\<^sub>e\<^sub>t() \<le>\<^sub>i\<^sub>n\<^sub>t \<one>)"
+
+(*
+clientname : String
+             address : String
+             age : Integer
+*)
+term "b .clients ->forAll\<^sub>S\<^sub>e\<^sub>t(c | c .name <> name or c .address <> address)"
+term "b .clients ->exists\<^sub>S\<^sub>e\<^sub>t(c | c .name <> name or c .address <> address or c .age <> age)"
+Context Bank :: create_client(name:String, address:String, age:String(*, b:Bank*)) : Integer
+  (*Pre : "b .clients ->forall\<^sub>S\<^sub>e\<^sub>t(c | c .name <> name or c .address <> address c .age <> age)" *)
+  (* Post: "b .clients ->exists\<^sub>S\<^sub>e\<^sub>t(c | c .name <> name or c .address <> address or c .age <> age) "*)
+  Post : "true"
+
+
 
 (*generation_syntax deep flush_all*)
 
