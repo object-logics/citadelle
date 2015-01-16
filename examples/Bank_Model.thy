@@ -70,7 +70,7 @@ Class Client
   Attributes clientname : String
              address : String
              age : Integer
-             id  : Integer
+             (*id  : Integer*)
 End
 
 Class Account
@@ -133,19 +133,12 @@ Context c: Client
         b .bankaccounts ->select\<^sub>S\<^sub>e\<^sub>t( a | (a .owner \<doteq> c) and (a .oclIsTypeOf(Current)))
                         ->size\<^sub>S\<^sub>e\<^sub>t() \<le>\<^sub>i\<^sub>n\<^sub>t \<one>)"
 
-(*
-clientname : String
-             address : String
-             age : Integer
-*)
-term "b .clients ->forAll\<^sub>S\<^sub>e\<^sub>t(c | c .name <> name or c .address <> address)"
-term "b .clients ->exists\<^sub>S\<^sub>e\<^sub>t(c | c .name <> name or c .address <> address or c .age <> age)"
+(* (* TODO *)
 Context Bank :: create_client(name:String, address:String, age:String(*, b:Bank*)) : Integer
-  (*Pre : "b .clients ->forall\<^sub>S\<^sub>e\<^sub>t(c | c .name <> name or c .address <> address c .age <> age)" *)
-  (* Post: "b .clients ->exists\<^sub>S\<^sub>e\<^sub>t(c | c .name <> name or c .address <> address or c .age <> age) "*)
+  Pre : "b .clients ->forAll\<^sub>S\<^sub>e\<^sub>t(c | c .name <> name or c .address <> address)" 
+  Post: "b .clients ->exists\<^sub>S\<^sub>e\<^sub>t(c | c .name <> name or c .address <> address or c .age <> age)"
   Post : "true"
-
-
+*)
 
 (*generation_syntax deep flush_all*)
 

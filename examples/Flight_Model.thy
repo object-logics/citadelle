@@ -60,8 +60,7 @@ generation_syntax [ (*deep
                       (*SORRY*)
                       [ in SML module_name M (no_signatures) ]
                       (output_directory "../doc")
-                  ,*) shallow
-                              (*SORRY*) ]
+                  ,*) shallow (*SORRY*) ]
 
 Class Flight
   Attributes
@@ -185,8 +184,7 @@ Context r: Reservation
   Inv B : "r .next <> null implies (r .flight .to \<doteq> r .next .flight .from)"
   Inv C : "r .next <> null implies (r .client \<doteq> r .next .client)"
 
-(*generation_syntax deep flush_all*)
-(* example for e recursive query *)
+(* example for a recursive query *)
 Context Reservation :: connections () : Set(Integer)
   Post : "result \<triangleq> if (self .next \<doteq> null)
                    then (Set{}->including\<^sub>S\<^sub>e\<^sub>t(self .id))
@@ -194,6 +192,7 @@ Context Reservation :: connections () : Set(Integer)
                    endif"
   Pre  : "true"    
 
+(*generation_syntax deep flush_all*)
 
 lemmas [simp,code_unfold] = dot_accessor
 
