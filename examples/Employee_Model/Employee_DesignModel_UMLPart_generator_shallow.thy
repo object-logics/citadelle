@@ -119,7 +119,7 @@ Context Person :: contents () : Set(Integer)
                    else (self .boss .contents()->including\<^sub>S\<^sub>e\<^sub>t(self .salary))
                    endif"
   Post : "true"
-  Pre  : "false"        
+  Pre  : "false"
 
 Context Person
   Inv a: "self .boss <> null implies (self .salary  \<triangleq>  ((self .boss) .salary))"
