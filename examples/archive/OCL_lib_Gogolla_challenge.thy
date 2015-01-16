@@ -46,7 +46,7 @@ header{* Gogolla's challenge on Sets *}
 theory
   OCL_lib_Gogolla_challenge
 imports
-  "../src/UML_Library"
+  "../../src/UML_Library"
 begin
 
 no_notation None ("\<bottom>")
