@@ -3,7 +3,7 @@
  *                       for the OMG Standard.
  *                       http://www.brucker.ch/projects/hol-testgen/
  *
- * Employee_AnalysisModel_UMLPart_generator_shallow.thy --- OCL Contracts and an Example.
+ * Analysis_deep.thy --- OCL Contracts and an Example.
  * This file is part of HOL-TestGen.
  *
  * Copyright (c) 2013-2015 Université Paris-Sud, France
@@ -44,15 +44,20 @@
 header{* Part ... *}
 
 theory
-  Employee_AnalysisModel_UMLPart_generator_shallow
+  Analysis_deep
 imports
-  "../../src/UML_Main"
-  "../../src/compiler/OCL_compiler_static"
   "../../src/compiler/OCL_compiler_generator_dynamic"
 begin
 
-generation_syntax [ shallow (generation_semantics [ analysis ])
-                            (*SORRY*)
+generation_syntax [ deep
+                      (generation_semantics [ analysis (*, oid_start 10*) ])
+                      (THEORY Employee_AnalysisModel_UMLPart_generated)
+                      (IMPORTS ["../src/UML_Main", "../src/compiler/OCL_compiler_static"]
+                               "../src/compiler/OCL_compiler_generator_dynamic")
+                      SECTION
+                      (*SORRY*)
+                      [ in SML module_name M (no_signatures) ]
+                      (output_directory "../../doc")
                   (*, syntax_print*) ]
 
 Class Person < Planet
@@ -131,6 +136,6 @@ Context Planet
             , 3.14159265
             , "abc", "\<AA>\<BB>\<CC>\<DD>\<EE>\<FF>" ]*)
 
-lemmas [simp,code_unfold] = dot_accessor
+(*generation_syntax deep flush_all*)
 
 end

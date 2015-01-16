@@ -3,7 +3,7 @@
  *                       for the OMG Standard.
  *                       http://www.brucker.ch/projects/hol-testgen/
  *
- * Employee_DesignModel_UMLPart_generator_deep.thy --- OCL Contracts and an Example.
+ * Design_deep.thy --- OCL Contracts and an Example.
  * This file is part of HOL-TestGen.
  *
  * Copyright (c) 2013-2015 Université Paris-Sud, France
@@ -44,7 +44,7 @@
 header{* Part ... *}
 
 theory
-  Employee_DesignModel_UMLPart_generator_deep
+  Design_deep
 imports
   "../../src/compiler/OCL_compiler_generator_dynamic"
 begin
