@@ -51,7 +51,7 @@ imports
   "../../src/compiler/OCL_compiler_generator_dynamic"
 begin
 
-generation_syntax [ shallow (generation_semantics [ analysis ])
+generation_syntax [ shallow (generation_semantics [ design ])
                             (*SORRY*)
                   (*, syntax_print*) ]
 
