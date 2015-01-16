@@ -311,7 +311,7 @@ definition "check_export_code f_writeln f_warning f_error f_raise l_report msg_l
     f_raise (nat_of_str (length l_err) @@ msg_last))"
 
 definition "print_examp_instance_defassoc_gen name l_ocli ocl =
- (if D_design_analysis ocl = Gen_only_analysis then [] else
+ (case D_design_analysis ocl of Gen_only_analysis \<Rightarrow> [] | Gen_default \<Rightarrow> [] | Gen_only_design \<Rightarrow>
   let a = \<lambda>f x. Expr_apply f [x]
     ; b = \<lambda>s. Expr_basic [s]
     ; (rbt :: _ \<Rightarrow> _ \<times> (_ \<Rightarrow> ((_ \<Rightarrow> natural \<Rightarrow> _ \<Rightarrow> (ocl_ty \<times> ocl_data_shallow) option list) \<Rightarrow> _ \<Rightarrow> _) option)
@@ -552,10 +552,10 @@ definition "print_examp_def_st = (\<lambda> OclDefSt name l \<Rightarrow> \<lamb
    ( [ let s_empty = ''Map.empty'' in
        Definition (Expr_rewrite (b name) ''='' (Expr_apply ''state.make''
         ( Expr_apply s_empty expr_app
-        # [ if D_design_analysis ocl = Gen_only_analysis then
-              print_examp_def_st_assoc rbt map_self map_username l_assoc
+        # [ if D_design_analysis ocl = Gen_only_design then
+              b s_empty
             else
-              b s_empty ]))) ]
+              print_examp_def_st_assoc rbt map_self map_username l_assoc ]))) ]
    , l_st)))"
 
 definition "print_examp_def_st_inst_var_name ocli name = flatten [Inst_name ocli, name]"
@@ -566,7 +566,7 @@ definition "print_examp_def_st_inst_var = (\<lambda> OclDefSt name l \<Rightarro
                         | _ \<Rightarrow> None) l in
   (\<lambda>l_res. ((List_map Thy_definition_hol o flatten) l_res, ocl))
     (let ocl = ocl_old in
-     if D_design_analysis ocl = Gen_only_analysis then [] else
+     case D_design_analysis ocl of Gen_only_analysis \<Rightarrow> [] | Gen_default \<Rightarrow> [] | Gen_only_design \<Rightarrow>
      fst (fold_list
       (\<lambda> (f1, f2) _.
         let (l, accu) =
@@ -642,10 +642,10 @@ definition "extract_state ocl name_st l_st =
                       , ocli
                       , case ocore of
                           OclDefCoreBinding (name, ocli) \<Rightarrow>
-                            b (if D_design_analysis ocl = Gen_only_analysis then
-                                 name
+                            b (if D_design_analysis ocl = Gen_only_design then
+                                 print_examp_def_st_inst_var_name ocli name_st
                                else
-                                 print_examp_def_st_inst_var_name ocli name_st)
+                                 name)
                         | _ \<Rightarrow> Expr_lambda wildcard (Expr_some (Expr_some exp))))
                     ocl
                     (print_examp_def_st_defassoc_name name_st)
@@ -696,10 +696,10 @@ definition "print_examp_def_st_allinst = (\<lambda> _ ocl.
                       , flatten (List_map (\<lambda>(_, ocore, _).
                           case ocore of
                             OclDefCoreBinding (n, ocli) \<Rightarrow>
-                              [if D_design_analysis ocl = Gen_only_analysis then
-                                 n
+                              [if D_design_analysis ocl = Gen_only_design then
+                                 print_examp_def_st_inst_var_name ocli name_st
                                else
-                                 print_examp_def_st_inst_var_name ocli name_st]
+                                 n]
                           | _ \<Rightarrow> []) l_body)
                       , flatten (List_map (\<lambda>(cast, ocore, _).
                           if cast then
@@ -791,10 +791,10 @@ definition "print_pre_post_where = (\<lambda> OclDefPP s_pre s_post \<Rightarrow
            ( x_where
            , case ocore of OclDefCoreBinding (name, ocli) \<Rightarrow>
                let name =
-                 if D_design_analysis ocl = Gen_only_analysis then
-                   name
+                 if D_design_analysis ocl = Gen_only_design then
+                   print_examp_def_st_inst_var_name ocli name_st
                  else
-                   print_examp_def_st_inst_var_name ocli name_st in
+                   name in
                (Some (name, print_examp_instance_name (\<lambda>s. s @@ isub_of_str (Inst_ty ocli)) (Inst_name ocli)), b name)) in
          Lemma_by (flatten [var_oid_uniq, natural_of_str (case x_pers_oid of Oid i \<Rightarrow> i), s_pre, s_post, ''_'', name_st, ''_'', x_where])
           [Expr_binop (Expr_pair (b s_pre) (b s_post)) unicode_Turnstile (a x_where (x_pers_expr))]

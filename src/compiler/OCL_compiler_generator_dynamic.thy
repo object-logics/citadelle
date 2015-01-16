@@ -120,7 +120,6 @@ structure From = struct
  val from_list = List.map
  fun from_pair f1 f2 (x, y) = (f1 x, f2 y)
  fun from_pair3 f1 f2 f3 (x, y, z) = (f1 x, f2 y, f3 z)
- val from_design_analysis = fn NONE => Gen_only_design | _ => Gen_only_analysis
 
  val from_pure_indexname = OCL.PureIndexname o from_pair from_string from_nat
  val from_pure_class = OCL.PureClass o from_string
@@ -543,7 +542,7 @@ structure Data_gen = Theory_Data
 
 val code_expr_argsP = Scan.optional (@{keyword "("} |-- Args.parse --| @{keyword ")"}) []
 
-val parse_scheme = @{keyword "design"} >> K NONE || @{keyword "analysis"} >> K (SOME 1)
+val parse_scheme = @{keyword "design"} >> K OCL.Gen_only_design || @{keyword "analysis"} >> K OCL.Gen_only_analysis
 
 val parse_deep =
      Scan.optional (@{keyword "skip_export"} >> K true) false
@@ -556,9 +555,11 @@ val parse_deep =
   -- Scan.optional ((Parse.$$$ "(" -- @{keyword "output_directory"}) |-- Parse.name --| Parse.$$$ ")" >> SOME) NONE
 
 val parse_sem_ocl =
-      (Parse.$$$ "(" -- @{keyword "generation_semantics"} -- Parse.$$$ "[")
-  |-- parse_scheme -- Scan.optional ((Parse.$$$ "," -- @{keyword "oid_start"}) |-- Parse.nat) 0
-  --| (Parse.$$$ "]" -- Parse.$$$ ")")
+  let val z = 0 in
+      Scan.optional ((Parse.$$$ "(" -- @{keyword "generation_semantics"} -- Parse.$$$ "[")
+  |-- parse_scheme -- Scan.optional ((Parse.$$$ "," -- @{keyword "oid_start"}) |-- Parse.nat) z
+  --| (Parse.$$$ "]" -- Parse.$$$ ")")) (OCL.Gen_default, z)
+  end
 
 val mode =
   let fun mk_ocl disable_thy_output file_out_path_dep oid_start design_analysis sorry_mode =
@@ -566,7 +567,7 @@ val mode =
                     (From.from_bool disable_thy_output)
                     (From.from_option (From.from_pair From.from_string (From.from_pair (From.from_list From.from_string) From.from_string)) file_out_path_dep)
                     (OCL.oidInit (From.from_internal_oid (From.from_nat oid_start)))
-                    (From.from_design_analysis design_analysis)
+                    design_analysis
                     (From.from_bool sorry_mode) in
 
      @{keyword "deep"} |-- parse_sem_ocl -- parse_deep >> (fn ((design_analysis, oid_start), (((((skip_exportation, file_out_path_dep), disable_thy_output), sorry_mode), seri_args), filename_thy)) =>

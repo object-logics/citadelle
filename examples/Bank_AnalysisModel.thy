@@ -52,7 +52,7 @@ imports
 begin
 
 generation_syntax [ (*deep
-                      (generation_semantics [ analysis (*, oid_start 10*) ])
+                      (*(generation_semantics [ analysis (*, oid_start 10*) ])*)
                       (THEORY Bank_AnalysisModel_generated)
                       (IMPORTS ["../src/UML_Main", "../src/compiler/OCL_compiler_static"]
                                "../src/compiler/OCL_compiler_generator_dynamic")
@@ -60,7 +60,7 @@ generation_syntax [ (*deep
                       (*SORRY*)
                       [ in SML module_name M (no_signatures) ]
                       (output_directory "../doc")
-                  ,*) shallow (generation_semantics [ analysis ])
+                  ,*) shallow 
                               (*SORRY*) ]
 
 Class Bank

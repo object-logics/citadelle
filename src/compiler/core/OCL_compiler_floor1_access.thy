@@ -414,10 +414,11 @@ definition "print_access_dot = start_map'''' Thy_defs_overloaded o (\<lambda>exp
                     let deref_oid = \<lambda>attr_orig l. Expr_apply (case attr_orig of None \<Rightarrow> isub_name var_deref_oid
                                                                               | Some orig_n \<Rightarrow> var_deref_oid @@ isub_of_str orig_n) (Expr_basic [var_in_when_state] # l) in
                     deref_oid None
-                      [ ( case (design_analysis, attr_ty) of
-                            (Gen_only_analysis, OclTy_class ty_obj) \<Rightarrow>
-                              \<lambda>l. Expr_apply (print_access_deref_assocs_name' (TyObjN_ass_switch (TyObj_from ty_obj)) isub_name isup_attr) (Expr_basic [var_in_when_state] # [l])
-                        | _ \<Rightarrow> id)
+                      [ ( case attr_ty of
+                            OclTy_class ty_obj \<Rightarrow>
+                              if design_analysis = Gen_only_design then id else
+                                (\<lambda>l. Expr_apply (print_access_deref_assocs_name' (TyObjN_ass_switch (TyObj_from ty_obj)) isub_name isup_attr) (Expr_basic [var_in_when_state] # [l]))
+                          | _ \<Rightarrow> id)
                           (Expr_apply (isup_attr (isub_name var_select))
                             [case attr_ty of
                                OclTy_raw _ \<Rightarrow> Expr_basic [var_reconst_basetype]
@@ -541,7 +542,7 @@ definition "print_access_def_mono = start_map'''' Thy_lemma_by o (\<lambda>expr 
 definition "print_access_is_repr_name isub_name dot_at_when attr_ty isup_attr =
   flatten [ ''is_repr_'', print_access_dot_name isub_name dot_at_when attr_ty isup_attr ]"
 definition "print_access_is_repr = start_map'''' Thy_lemma_by o (\<lambda>expr design_analysis.
-  (if design_analysis = Gen_only_analysis then \<lambda>_. [] else
+  (case design_analysis of Gen_only_analysis \<Rightarrow> \<lambda>_. [] | Gen_default \<Rightarrow> \<lambda>_. [] | Gen_only_design \<Rightarrow>
   map_class_arg_only_var'
     (\<lambda>isub_name name (var_in_when_state, dot_at_when) attr_ty isup_attr dot_attr.
       case attr_ty of OclTy_class ty_obj \<Rightarrow>
