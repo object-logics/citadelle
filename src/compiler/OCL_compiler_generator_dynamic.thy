@@ -889,7 +889,7 @@ val OCL_main_thy = let open OCL open OCL_overload in (*let val f = *)fn
               [] => global_terminal_proof o_by
             | _ :: l => let val arg = (NONE, true) in fn st => st
               |> local_terminal_proof o_by
-              |> fold (Proof.local_qed arg oo fold applyE_results) l
+              |> fold (fn l => fold applyE_results l o Proof.local_qed arg) l
               |> Proof.global_qed arg end))
 | Theory_axiom (Axiom (n, e)) => #2 o Specification.axiomatization_cmd
                                      []
