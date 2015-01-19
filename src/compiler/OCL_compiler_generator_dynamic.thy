@@ -637,7 +637,9 @@ structure Shallow_conv = struct
  fun To_binding s = Binding.make (s, Position.none)
  val To_sbinding = To_binding o To_string
 
-fun simp_tac f = Method.Basic (fn ctxt => SIMPLE_METHOD (asm_full_simp_tac (f ctxt) 1))
+fun simp_tac_gen g f = Method.Basic (fn ctxt => SIMPLE_METHOD (g (asm_full_simp_tac (f ctxt))))
+val simp_tac = simp_tac_gen (fn f => f 1)
+val simp_all_tac = simp_tac_gen (CHANGED_PROP o PARALLEL_GOALS o ALLGOALS)
 
 fun m_of_ntheorem ctxt s = let open OCL open OCL_overload in case s of
     Thm_str s => Proof_Context.get_thm ctxt (To_string s)
@@ -667,6 +669,12 @@ fun m_of_ntheorems ctxt = fn OCL.Thms_single thy => [m_of_ntheorem ctxt thy]
 
 fun m_of_ntheorems_l ctxt l = List.concat (map (m_of_ntheorems ctxt) l)
 
+fun s_simp_only l ctxt = clear_simpset ctxt addsimps (m_of_ntheorems_l ctxt l)
+fun s_simp_add_del_split (l_add, l_del, l_split) ctxt =
+  fold Splitter.add_split (m_of_ntheorems_l ctxt l_split)
+                          (ctxt addsimps (m_of_ntheorems_l ctxt l_add)
+                                delsimps (m_of_ntheorems_l ctxt l_del))
+
 fun m_of_tactic expr = let open OCL open Method open OCL_overload in case expr of
     Tact_rule0 o_s => Basic (fn ctxt => rule (case o_s of NONE => [] | SOME s => [m_of_ntheorem ctxt s]))
   | Tact_drule s => Basic (fn ctxt => drule 0 [m_of_ntheorem ctxt s])
@@ -682,12 +690,10 @@ fun m_of_tactic expr = let open OCL open Method open OCL_overload in case expr o
   | Tact_insert l => Basic (fn ctxt => insert (m_of_ntheorems_l ctxt l))
   | Tact_plus t => Repeat1 (Then (List.map m_of_tactic t))
   | Tact_option t => Try (Then (List.map m_of_tactic t))
-  | Tact_one (Simp_only l) => simp_tac (fn ctxt => clear_simpset ctxt addsimps (m_of_ntheorems_l ctxt l))
-  | Tact_one (Simp_add_del_split (l_add, l_del, l_split)) =>
-      simp_tac (fn ctxt => fold Splitter.add_split
-                                (m_of_ntheorems_l ctxt l_split)
-                                (ctxt addsimps (m_of_ntheorems_l ctxt l_add)
-                                      delsimps (m_of_ntheorems_l ctxt l_del)))
+  | Tact_one (Simp_only l) => simp_tac (s_simp_only l)
+  | Tact_one (Simp_add_del_split l) => simp_tac (s_simp_add_del_split l)
+  | Tact_all (Simp_only l) => simp_all_tac (s_simp_only l)
+  | Tact_all (Simp_add_del_split l) => simp_all_tac (s_simp_add_del_split l)
   | Tact_auto_simp_add_split (l_simp, l_split) =>
       Basic (fn ctxt => SIMPLE_METHOD (auto_tac (fold (fn (f, l) => fold f l)
               [(Simplifier.add_simp, m_of_ntheorems_l ctxt l_simp)

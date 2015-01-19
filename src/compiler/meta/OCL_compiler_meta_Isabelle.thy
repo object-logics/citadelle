@@ -122,6 +122,7 @@ datatype hol_tactic = Tact_rule0 "hol_ntheorem option"
                     | Tact_plus "hol_tactic list"
                     | Tact_option "hol_tactic list"
                     | Tact_one hol_tactic_simp
+                    | Tact_all hol_tactic_simp
                     | Tact_auto_simp_add_split hol_ntheorems_l "string list"
                     | Tact_rename_tac "string list"
                     | Tact_case_tac hol_expr
@@ -243,24 +244,31 @@ definition "Tac_subst_l = Tact_subst_l"
 definition "Tac_insert = Tact_insert o List_map Thms_single"
 definition "Tac_plus = Tact_plus"
 definition "Tac_option = Tact_option"
-definition "Tac_simp = Tact_one (Simp_add_del [] [])"
-definition "Tac_simp_add2 l1 l2 = Tact_one (Simp_add_del (flatten [ List_map Thms_mult l1
-                                                                  , List_map (Thms_single o Thm_str) l2])
-                                                         [])"
-definition "Tac_simp_add_del l1 l2 = Tact_one (Simp_add_del (List_map (Thms_single o Thm_str) l1)
-                                                            (List_map (Thms_single o Thm_str) l2))"
-definition "Tac_simp_add_del_split l1 l2 l3 = Tact_one (Simp_add_del_split (List_map Thms_single l1)
-                                                                           (List_map Thms_single l2)
-                                                                           (List_map Thms_single l3))"
-definition "Tac_simp_add_split l1 l2 = Tact_one (Simp_add_del_split (List_map Thms_single l1)
-                                                                    []
-                                                                    (List_map Thms_single l2))"
-definition "Tac_simp_only l = Tact_one (Simp_only (List_map Thms_single l))"
-definition "Tac_simp_add0 l = Tact_one (Simp_add_del (List_map Thms_single l) [])"
+definition "tac_gen_simp = Simp_add_del [] []"
+definition "tac_gen_simp_add2 l1 l2 = Simp_add_del (flatten [ List_map Thms_mult l1
+                                                    , List_map (Thms_single o Thm_str) l2])
+                                           []"
+definition "tac_gen_simp_add_del l1 l2 = Simp_add_del (List_map (Thms_single o Thm_str) l1)
+                                              (List_map (Thms_single o Thm_str) l2)"
+definition "tac_gen_simp_add_del_split l1 l2 l3 = Simp_add_del_split (List_map Thms_single l1)
+                                                             (List_map Thms_single l2)
+                                                             (List_map Thms_single l3)"
+definition "tac_gen_simp_add_split l1 l2 = Simp_add_del_split (List_map Thms_single l1)
+                                                      []
+                                                      (List_map Thms_single l2)"
+definition "tac_gen_simp_only l = Simp_only (List_map Thms_single l)"
+definition "tac_gen_simp_add0 l = Simp_add_del (List_map Thms_single l) []"
+definition "Tac_simp = Tact_one tac_gen_simp"
+definition "Tac_simp_add2 l1 l2 = Tact_one (tac_gen_simp_add2 l1 l2)"
+definition "Tac_simp_add_del l1 l2 = Tact_one (tac_gen_simp_add_del l1 l2)"
+definition "Tac_simp_add_del_split l1 l2 l3 = Tact_one (tac_gen_simp_add_del_split l1 l2 l3)"
+definition "Tac_simp_add_split l1 l2 = Tact_one (tac_gen_simp_add_split l1 l2)"
+definition "Tac_simp_only l = Tact_one (tac_gen_simp_only l)"
+definition "Tac_simp_add0 l = Tact_one (tac_gen_simp_add0 l)"
 definition "Tac_simp_add = Tac_simp_add2 []"
-definition "Tac_simp_all = Tac_plus [Tac_simp]"
-definition "Tac_simp_all_add l = Tac_plus [Tac_simp_add l]"
-definition "Tac_simp_all_only l = Tac_plus [Tac_simp_only l]"
+definition "Tac_simp_all = Tact_all tac_gen_simp"
+definition "Tac_simp_all_add l = Tact_all (tac_gen_simp_add2 [] l)"
+definition "Tac_simp_all_only l = Tact_all (tac_gen_simp_only l)"
 definition "Tac_auto_simp_add2 l1 l2 = Tact_auto_simp_add_split (flatten [ List_map Thms_mult l1
                                                                 , List_map (Thms_single o Thm_str) l2]) []"
 definition "Tac_auto_simp_add_split l = Tact_auto_simp_add_split (List_map Thms_single l)"
