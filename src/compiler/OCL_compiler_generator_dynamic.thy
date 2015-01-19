@@ -1078,6 +1078,7 @@ structure USE_parse = struct
                     (*| OclTypeClass *)
                     | OclTypeCollectionSet of use_oclty
                     | OclTypeCollectionSequence of use_oclty
+                    | OclTypePair of use_oclty * use_oclty
                     | OclTypeRaw of string
 
  datatype use_opt = Ordered (* ordered set *) | Subsets of binding | Union | Redefines of binding | Derived of string | Qualifier of (binding * use_oclty) list | Nonunique (* bag *) | Sequence
@@ -1092,6 +1093,7 @@ structure USE_parse = struct
                       | OclTypeClassPre s  => OCL.OclTy_class_pre (From.from_binding s)
                       | OclTypeCollectionSet l      => OCL.OclTy_collection (OCL.Set, from_oclty l)
                       | OclTypeCollectionSequence l => OCL.OclTy_collection (OCL.Sequence, from_oclty l)
+                      | OclTypePair (s1, s2)        => OCL.OclTy_pair (from_oclty s1, from_oclty s2)
                       | OclTypeRaw s       => OCL.OclTy_raw (xml_unescape s)) v
 
  val ident_dot_dot = Parse.sym_ident -- Parse.sym_ident (* "\<bullet>\<bullet>" *)
@@ -1100,6 +1102,9 @@ structure USE_parse = struct
  fun use_type v = ((* collection *)
                    Parse.reserved "Set" |-- Parse.$$$ "(" |-- use_type --| Parse.$$$ ")" >> OclTypeCollectionSet
                 || Parse.reserved "Sequence" |-- Parse.$$$ "(" |-- use_type --| Parse.$$$ ")" >> OclTypeCollectionSequence
+
+                   (* pair *)
+                || Parse.reserved "Pair" |-- Parse.$$$ "(" |-- use_type --| Parse.$$$ "," -- use_type --| Parse.$$$ ")" >> OclTypePair
 
                    (* base *)
                 || Parse.reserved "Void" >> K OclTypeBaseVoid
@@ -1344,7 +1349,7 @@ ML{*
 datatype ocl_term = OclTermBase of OCL.ocl_def_base
                   | OclTerm of binding
                   | OclOid of int
-                  | OclList of ocl_term list (* untyped, corresponds to Set or Sequence *)
+                  | OclList of ocl_term list (* untyped, corresponds to Set, Sequence or Pair *)
                                              (* WARNING for Set: we are describing a finite set *)
 (*
 datatype 'a ocl_l_attr = Ocl_l_attr of 'a

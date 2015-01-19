@@ -117,6 +117,9 @@ definition "var_select_object_set_any_exec = ''select_object_any_exec'' @@ isub_
 definition "var_select_object_sequence = ''select_object'' @@ isub_of_str ''Seq''"
 definition "var_select_object_sequence_any = ''select_object_any'' @@ isub_of_str ''Seq''"
 definition "var_select_object_sequence_any_exec = ''select_object_any_exec'' @@ isub_of_str ''Seq''"
+definition "var_select_object_pair = ''select_object'' @@ isub_of_str ''Pair''"
+definition "var_select_object_pair_any = ''select_object_any'' @@ isub_of_str ''Pair''"
+definition "var_select_object_pair_any_exec = ''select_object_any_exec'' @@ isub_of_str ''Pair''"
 definition "var_choose = ''choose''"
 definition "var_switch = ''switch''"
 definition "var_assocs = ''assocs''"
@@ -128,6 +131,7 @@ definition "var_Abs_Set = ''Abs_Set'' @@ isub_of_str ''base''"
 definition "var_Abs_Set_inverse = var_Abs_Set @@ ''_inverse''"
 definition "var_Set_base = ''Set'' @@ isub_of_str ''base''"
 definition "var_Sequence_base = ''Sequence'' @@ isub_of_str ''base''"
+definition "var_Pair_base = ''Pair'' @@ isub_of_str ''base''"
 definition "var_mt_set = ''mtSet''"
 definition "var_ANY_set = ''UML_Set.OclANY''"
 definition "var_OclIncluding_set = ''UML_Set.OclIncluding''"
@@ -238,18 +242,19 @@ definition "activate_simp_optimization = True"
 subsection{* Infra *}
 
 fun_quick print_infra_type_synonym_class_rec_aux where
-   "print_infra_type_synonym_class_rec_aux l l_ty e =
-   (let add = \<lambda>s l. s # ''_'' # l
-      ; option = \<lambda>x. Ty_apply (Ty_base ''option'') [x]
-      ; mk = \<lambda>s0 s.   let l_ty = (option (option (Ty_base s)) # l_ty) in
-                      ( flatten (tl (* we remove one symbol ''_'' *) (rev (add s0 l)))
-                      , List.fold (\<lambda>x t. Ty_apply x [t]) (tl l_ty) (hd l_ty)) in
+   "print_infra_type_synonym_class_rec_aux e =
+   (let option = \<lambda>x. Ty_apply (Ty_base ''option'') [x] in
      (\<lambda> OclTy_collection s t \<Rightarrow>
-          print_infra_type_synonym_class_rec_aux (add (if s = Set then ''Set'' else ''Sequence'') l)
-                                                 (Ty_base (if s = Set then var_Set_base else var_Sequence_base) # l_ty)
-                                                 t
-      | OclTy_class_pre s \<Rightarrow> mk s (datatype_name @@ isub_of_str s)
-      | t \<Rightarrow> mk (str_of_ty t) (str_hol_of_ty t)) e)"
+          let (name, ty) = print_infra_type_synonym_class_rec_aux t in
+          ( (if s = Set then ''Set'' else ''Sequence'') @@ ''_'' @@ name
+          , Ty_apply (Ty_base (if s = Set then var_Set_base else var_Sequence_base)) [ty])
+      | OclTy_pair t1 t2 \<Rightarrow>
+          let (name1, ty1) = print_infra_type_synonym_class_rec_aux t1
+            ; (name2, ty2) = print_infra_type_synonym_class_rec_aux t2 in
+          ( ''Pair'' @@ ''_'' @@ name1 @@ ''_'' @@ name2
+          , Ty_apply (Ty_base var_Pair_base) [ty1, ty2])
+      | OclTy_class_pre s \<Rightarrow> (s, option (option (Ty_base (datatype_name @@ isub_of_str s))))
+      | t \<Rightarrow> (str_of_ty t, Ty_base (str_of_ty t @@ isub_of_str ''base''))) e)"
 
 subsection{* AsType *}
 

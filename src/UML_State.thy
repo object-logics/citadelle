@@ -1042,17 +1042,18 @@ of associations, the @{term OclANY}-selector which also handles the
 is for example: *}
 term "(select_object mtSet UML_Set.OclIncluding UML_Set.OclANY f  l oid )::('\<AA>, 'a::null)val"
 
-definition "select_object\<^sub>S\<^sub>e\<^sub>t f p = select_object mtSet UML_Set.OclIncluding id (f p)"
-definition "select_object_any0\<^sub>S\<^sub>e\<^sub>t f p s_set = UML_Set.OclANY (select_object\<^sub>S\<^sub>e\<^sub>t f p s_set)"
-definition "select_object_any\<^sub>S\<^sub>e\<^sub>t f p s_set = 
- (let s = select_object\<^sub>S\<^sub>e\<^sub>t f p s_set in
+definition "select_object\<^sub>S\<^sub>e\<^sub>t = select_object mtSet UML_Set.OclIncluding id"
+definition "select_object_any0\<^sub>S\<^sub>e\<^sub>t f s_set = UML_Set.OclANY (select_object\<^sub>S\<^sub>e\<^sub>t f s_set)"
+definition "select_object_any\<^sub>S\<^sub>e\<^sub>t f s_set = 
+ (let s = select_object\<^sub>S\<^sub>e\<^sub>t f s_set in
   if s->size\<^sub>S\<^sub>e\<^sub>t() \<triangleq> \<one> then
     s->any\<^sub>S\<^sub>e\<^sub>t()
   else
     \<bottom>
   endif)"
-definition "select_object\<^sub>S\<^sub>e\<^sub>q f p = select_object mtSequence UML_Sequence.OclIncluding id (f p)"
-definition "select_object_any\<^sub>S\<^sub>e\<^sub>q f p s_set = UML_Sequence.OclANY (select_object\<^sub>S\<^sub>e\<^sub>q f p s_set)"
+definition "select_object\<^sub>S\<^sub>e\<^sub>q = select_object mtSequence UML_Sequence.OclIncluding id"
+definition "select_object_any\<^sub>S\<^sub>e\<^sub>q f s_set = UML_Sequence.OclANY (select_object\<^sub>S\<^sub>e\<^sub>q f s_set)"
+definition "select_object\<^sub>P\<^sub>a\<^sub>i\<^sub>r f1 f2 = (\<lambda>(a,b). OclPair (f1 a) (f2 b))"
 
 subsection{* Validity and Definedness Properties *}
 
@@ -1111,7 +1112,7 @@ lemma fold_val_elem\<^sub>S\<^sub>e\<^sub>t:
 by(simp add: assms)
 
 lemma select_object_any_defined\<^sub>S\<^sub>e\<^sub>q:
- assumes def_sel: "\<tau> \<Turnstile> \<delta> (select_object_any\<^sub>S\<^sub>e\<^sub>q f p s_set)"
+ assumes def_sel: "\<tau> \<Turnstile> \<delta> (select_object_any\<^sub>S\<^sub>e\<^sub>q f s_set)"
  shows "s_set \<noteq> []"
  apply(insert def_sel, case_tac s_set)
   apply(simp add: select_object_any\<^sub>S\<^sub>e\<^sub>q_def UML_Sequence.OclANY_def select_object\<^sub>S\<^sub>e\<^sub>q_def select_object_def
@@ -1122,7 +1123,7 @@ lemma select_object_any_defined\<^sub>S\<^sub>e\<^sub>q:
 by(simp)
 
 lemma (*select_object_any_defined\<^sub>S\<^sub>e\<^sub>t:*)
- assumes def_sel: "\<tau> \<Turnstile> \<delta> (select_object_any0\<^sub>S\<^sub>e\<^sub>t f p s_set)"
+ assumes def_sel: "\<tau> \<Turnstile> \<delta> (select_object_any0\<^sub>S\<^sub>e\<^sub>t f s_set)"
  shows "s_set \<noteq> []"
  apply(insert def_sel, case_tac s_set)
   apply(simp add: select_object_any0\<^sub>S\<^sub>e\<^sub>t_def UML_Sequence.OclANY_def select_object\<^sub>S\<^sub>e\<^sub>t_def select_object_def
@@ -1132,7 +1133,7 @@ lemma (*select_object_any_defined\<^sub>S\<^sub>e\<^sub>t:*)
 by(simp)
 
 lemma select_object_any_defined\<^sub>S\<^sub>e\<^sub>t:
- assumes def_sel: "\<tau> \<Turnstile> \<delta> (select_object_any\<^sub>S\<^sub>e\<^sub>t f p s_set)"
+ assumes def_sel: "\<tau> \<Turnstile> \<delta> (select_object_any\<^sub>S\<^sub>e\<^sub>t f s_set)"
  shows "s_set \<noteq> []"
  apply(insert def_sel, case_tac s_set)
   apply(simp add: select_object_any\<^sub>S\<^sub>e\<^sub>t_def UML_Sequence.OclANY_def select_object\<^sub>S\<^sub>e\<^sub>t_def select_object_def
@@ -1143,11 +1144,11 @@ lemma select_object_any_defined\<^sub>S\<^sub>e\<^sub>t:
 by(simp)
 
 lemma select_object_any_exec0\<^sub>S\<^sub>e\<^sub>q:
- assumes def_sel: "\<tau> \<Turnstile> \<delta> (select_object_any\<^sub>S\<^sub>e\<^sub>q f p s_set)"
- shows "\<tau> \<Turnstile> (select_object_any\<^sub>S\<^sub>e\<^sub>q f p s_set \<triangleq> f p (hd s_set))"
+ assumes def_sel: "\<tau> \<Turnstile> \<delta> (select_object_any\<^sub>S\<^sub>e\<^sub>q f s_set)"
+ shows "\<tau> \<Turnstile> (select_object_any\<^sub>S\<^sub>e\<^sub>q f s_set \<triangleq> f (hd s_set))"
   apply(insert def_sel[simplified foundation16],
         simp add: select_object_any\<^sub>S\<^sub>e\<^sub>q_def foundation22 UML_Sequence.OclANY_def split: split_if_asm)
-  apply(case_tac "\<lceil>\<lceil>Rep_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e (select_object\<^sub>S\<^sub>e\<^sub>q f p s_set \<tau>)\<rceil>\<rceil>", simp add: bot_option_def, simp)
+  apply(case_tac "\<lceil>\<lceil>Rep_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e (select_object\<^sub>S\<^sub>e\<^sub>q f s_set \<tau>)\<rceil>\<rceil>", simp add: bot_option_def, simp)
   apply(simp add: select_object\<^sub>S\<^sub>e\<^sub>q_def select_object_def)
   apply(subst (asm) select_fold_exec\<^sub>S\<^sub>e\<^sub>q)
    apply(rule fold_val_elem\<^sub>S\<^sub>e\<^sub>q, simp add: foundation18' invalid_def)
@@ -1155,22 +1156,22 @@ lemma select_object_any_exec0\<^sub>S\<^sub>e\<^sub>q:
 by(drule arg_cong[where f = hd], subst (asm) hd_map, simp add: select_object_any_defined\<^sub>S\<^sub>e\<^sub>q[OF def_sel], simp)
 
 lemma select_object_any_exec\<^sub>S\<^sub>e\<^sub>q:
- assumes def_sel: "\<tau> \<Turnstile> \<delta> (select_object_any\<^sub>S\<^sub>e\<^sub>q f p s_set)"
- shows "\<exists>e. List.member s_set e \<and> (\<tau> \<Turnstile> (select_object_any\<^sub>S\<^sub>e\<^sub>q f p s_set \<triangleq> f p e))"
+ assumes def_sel: "\<tau> \<Turnstile> \<delta> (select_object_any\<^sub>S\<^sub>e\<^sub>q f s_set)"
+ shows "\<exists>e. List.member s_set e \<and> (\<tau> \<Turnstile> (select_object_any\<^sub>S\<^sub>e\<^sub>q f s_set \<triangleq> f e))"
  apply(insert select_object_any_exec0\<^sub>S\<^sub>e\<^sub>q[OF def_sel])
  apply(rule exI[where x = "hd s_set"], simp)
  apply(case_tac s_set, simp add: select_object_any_defined\<^sub>S\<^sub>e\<^sub>q[OF def_sel])
 by (metis hd.simps member_rec(1))
 
 lemma (*select_object_any_exec\<^sub>S\<^sub>e\<^sub>t:*)
- assumes def_sel: "\<tau> \<Turnstile> \<delta> (select_object_any0\<^sub>S\<^sub>e\<^sub>t f p s_set)"
- shows "\<exists> e. List.member s_set e \<and> (\<tau> \<Turnstile> (select_object_any0\<^sub>S\<^sub>e\<^sub>t f p s_set \<triangleq> f p e))"
+ assumes def_sel: "\<tau> \<Turnstile> \<delta> (select_object_any0\<^sub>S\<^sub>e\<^sub>t f s_set)"
+ shows "\<exists> e. List.member s_set e \<and> (\<tau> \<Turnstile> (select_object_any0\<^sub>S\<^sub>e\<^sub>t f s_set \<triangleq> f e))"
 proof -
  have list_all_map: "\<And>P f l. list_all P (List.map f l) = list_all (P o f) l"
  by(induct_tac l, simp_all)
 
  fix z
- show " \<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (select_object\<^sub>S\<^sub>e\<^sub>t f p s_set \<tau>)\<rceil>\<rceil> = z \<Longrightarrow> ?thesis"
+ show " \<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (select_object\<^sub>S\<^sub>e\<^sub>t f s_set \<tau>)\<rceil>\<rceil> = z \<Longrightarrow> ?thesis"
   apply(insert def_sel[simplified foundation16],
         simp add: select_object_any0\<^sub>S\<^sub>e\<^sub>t_def foundation22 UML_Set.OclANY_def null_fun_def split: split_if_asm)
 
@@ -1182,29 +1183,29 @@ proof -
   apply(case_tac s_set, simp, simp add: false_def true_def, simp)
 
   proof - fix a l
-  show "insert (f p a \<tau>) ((\<lambda>x. f p x \<tau>) ` set l) = z \<Longrightarrow>
-        \<exists>e. List.member (a # l) e \<and> (SOME y. y \<in> z) = f p e \<tau>"
-   apply(rule list.induct[where P = "\<lambda>l. \<forall>z a. insert (f p a \<tau>) ((\<lambda>x. f p x \<tau>) ` set l) = z \<longrightarrow>
-        (\<exists>e. List.member (a # l) e \<and> ((SOME y. y \<in> z) = f p e \<tau>))", THEN spec, THEN spec, THEN mp], intro allI impI)
-     proof - fix x xa show "insert (f p xa \<tau>) ((\<lambda>x. f p x \<tau>) ` set []) = x \<Longrightarrow> \<exists>e. List.member [xa] e \<and> (SOME y. y \<in> x) = f p e \<tau>"
+  show "insert (f a \<tau>) ((\<lambda>x. f x \<tau>) ` set l) = z \<Longrightarrow>
+        \<exists>e. List.member (a # l) e \<and> (SOME y. y \<in> z) = f e \<tau>"
+   apply(rule list.induct[where P = "\<lambda>l. \<forall>z a. insert (f a \<tau>) ((\<lambda>x. f x \<tau>) ` set l) = z \<longrightarrow>
+        (\<exists>e. List.member (a # l) e \<and> ((SOME y. y \<in> z) = f e \<tau>))", THEN spec, THEN spec, THEN mp], intro allI impI)
+     proof - fix x xa show "insert (f xa \<tau>) ((\<lambda>x. f x \<tau>) ` set []) = x \<Longrightarrow> \<exists>e. List.member [xa] e \<and> (SOME y. y \<in> x) = f e \<tau>"
       apply(rule exI[where x = xa], simp add: List.member_def)
-      apply(subst some_equality[where a = "f p xa \<tau>"])
+      apply(subst some_equality[where a = "f xa \<tau>"])
         apply (metis (mono_tags) insertI1)
        apply (metis (mono_tags) empty_iff insert_iff)
      by(simp)
      apply_end simp
     apply_end(intro allI impI, simp)
     fix x list xa xb
-    show " \<forall>x. \<exists>e. List.member (x # list) e \<and> (SOME y. y = f p x \<tau> \<or> y \<in> (\<lambda>x. f p x \<tau>) ` set list) = f p e \<tau> \<Longrightarrow>
-       insert (f p xb \<tau>) (insert (f p x \<tau>) ((\<lambda>x. f p x \<tau>) ` set list)) = xa \<Longrightarrow>
-       \<exists>e. List.member (xb # x # list) e \<and> (SOME y. y \<in> xa) = f p e \<tau>"
+    show " \<forall>x. \<exists>e. List.member (x # list) e \<and> (SOME y. y = f x \<tau> \<or> y \<in> (\<lambda>x. f x \<tau>) ` set list) = f e \<tau> \<Longrightarrow>
+       insert (f xb \<tau>) (insert (f x \<tau>) ((\<lambda>x. f x \<tau>) ` set list)) = xa \<Longrightarrow>
+       \<exists>e. List.member (xb # x # list) e \<and> (SOME y. y \<in> xa) = f e \<tau>"
      apply(case_tac "x = xb", simp)
       apply(erule allE[where x = xb])
       apply(erule exE)
-      proof - fix e show "insert (f p xb \<tau>) ((\<lambda>x. f p x \<tau>) ` set list) = xa \<Longrightarrow>
+      proof - fix e show "insert (f xb \<tau>) ((\<lambda>x. f x \<tau>) ` set list) = xa \<Longrightarrow>
          x = xb \<Longrightarrow>
-         List.member (xb # list) e \<and> (SOME y. y = f p xb \<tau> \<or> y \<in> (\<lambda>x. f p x \<tau>) ` set list) = f p e \<tau> \<Longrightarrow>
-         \<exists>e. List.member (xb # xb # list) e \<and> (SOME y. y \<in> xa) = f p e \<tau>"
+         List.member (xb # list) e \<and> (SOME y. y = f xb \<tau> \<or> y \<in> (\<lambda>x. f x \<tau>) ` set list) = f e \<tau> \<Longrightarrow>
+         \<exists>e. List.member (xb # xb # list) e \<and> (SOME y. y \<in> xa) = f e \<tau>"
       apply(rule exI[where x = e], auto)
       by (metis member_rec(1))
         apply_end(blast)+
@@ -1212,28 +1213,28 @@ proof -
       apply_end(erule allE[where x = xb])
       apply_end(erule exE)
       fix e
-      let ?P = "\<lambda>y. y = f p xb \<tau> \<or> y \<in> (\<lambda>x. f p x \<tau>) ` set list"
-      show "insert (f p xb \<tau>) (insert (f p x \<tau>) ((\<lambda>x. f p x \<tau>) ` set list)) = xa \<Longrightarrow>
+      let ?P = "\<lambda>y. y = f xb \<tau> \<or> y \<in> (\<lambda>x. f x \<tau>) ` set list"
+      show "insert (f xb \<tau>) (insert (f x \<tau>) ((\<lambda>x. f x \<tau>) ` set list)) = xa \<Longrightarrow>
          x \<noteq> xb \<Longrightarrow>
          List.member list x \<Longrightarrow>
-         List.member (xb # list) e \<and> (SOME y. y = f p xb \<tau> \<or> y \<in> (\<lambda>x. f p x \<tau>) ` set list) = f p e \<tau> \<Longrightarrow>
-         \<exists>e. List.member (xb # x # list) e \<and> (SOME y. y \<in> xa) = f p e \<tau>"
+         List.member (xb # list) e \<and> (SOME y. y = f xb \<tau> \<or> y \<in> (\<lambda>x. f x \<tau>) ` set list) = f e \<tau> \<Longrightarrow>
+         \<exists>e. List.member (xb # x # list) e \<and> (SOME y. y \<in> xa) = f e \<tau>"
        apply(rule exI[where x = e], auto)
         apply (metis member_rec(1))
 
-       apply(subgoal_tac "?P (f p e \<tau>)")
+       apply(subgoal_tac "?P (f e \<tau>)")
         prefer 2
         apply(case_tac "xb = e", simp)
         apply (metis (mono_tags) image_eqI in_set_member member_rec(1)) 
 
-       apply(rule someI2[where a = "f p e \<tau>"])
+       apply(rule someI2[where a = "f e \<tau>"])
         apply(erule disjE, simp)+
         apply(rule disjI2)+ apply(simp)
 oops
 
 lemma select_object_any_exec\<^sub>S\<^sub>e\<^sub>t:
- assumes def_sel: "\<tau> \<Turnstile> \<delta> (select_object_any\<^sub>S\<^sub>e\<^sub>t f p s_set)"
- shows "\<exists> e. List.member s_set e \<and> (\<tau> \<Turnstile> (select_object_any\<^sub>S\<^sub>e\<^sub>t f p s_set \<triangleq> f p e))"
+ assumes def_sel: "\<tau> \<Turnstile> \<delta> (select_object_any\<^sub>S\<^sub>e\<^sub>t f s_set)"
+ shows "\<exists> e. List.member s_set e \<and> (\<tau> \<Turnstile> (select_object_any\<^sub>S\<^sub>e\<^sub>t f s_set \<triangleq> f e))"
 proof -
  have card_singl: "\<And>A a. finite A \<Longrightarrow> card (insert a A) = 1 \<Longrightarrow> A \<subseteq> {a}"
  by (auto, metis Suc_inject card_Suc_eq card_eq_0_iff insert_absorb insert_not_empty singleton_iff)
@@ -1242,7 +1243,7 @@ proof -
  by (metis (full_types) empty_iff imageI in_set_member insert_iff)
 
  fix z
- show " \<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (select_object\<^sub>S\<^sub>e\<^sub>t f p s_set \<tau>)\<rceil>\<rceil> = z \<Longrightarrow> ?thesis"
+ show " \<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (select_object\<^sub>S\<^sub>e\<^sub>t f s_set \<tau>)\<rceil>\<rceil> = z \<Longrightarrow> ?thesis"
   apply(insert def_sel[simplified foundation16],
         simp add: select_object_any\<^sub>S\<^sub>e\<^sub>t_def foundation22
                   Let_def null_fun_def bot_fun_def OclIf_def
@@ -1262,7 +1263,7 @@ proof -
   apply(simp add: comp_def)
 
   apply(case_tac s_set, simp)
-  proof - fix z' a list show "(\<lambda>x. f p x \<tau>) ` set s_set = {z'} \<Longrightarrow> s_set = a # list \<Longrightarrow> \<exists>e. List.member s_set e \<and> z' = f p e \<tau>"
+  proof - fix z' a list show "(\<lambda>x. f x \<tau>) ` set s_set = {z'} \<Longrightarrow> s_set = a # list \<Longrightarrow> \<exists>e. List.member s_set e \<and> z' = f e \<tau>"
     apply(drule list_same[where x = a])
      apply (metis member_rec(1))
    by (metis (hide_lams, mono_tags) ListMem_iff elem in_set_member)

@@ -93,6 +93,8 @@ fun_quick print_examp_instance_draw_list_attr_aux where
     (\<lambda>
      (* object case 2 *)
        (OclTy_collection _ ty, ShallB_list l) \<Rightarrow> Expr_list' (\<lambda>e. print_examp_instance_draw_list_attr_aux f_oid_rec (ty, e)) l
+     | (OclTy_pair ty1 ty2, ShallB_list [e1, e2]) \<Rightarrow> Expr_pair (print_examp_instance_draw_list_attr_aux f_oid_rec (ty1, e1))
+                                                               (print_examp_instance_draw_list_attr_aux f_oid_rec (ty2, e2))
      | (OclTy_class_pre _, shall) \<Rightarrow> f_oid_rec shall
      (* base cases *)
      | (_, ShallB_term s) \<Rightarrow> fst (print_examp_oclbase_gen s)
@@ -325,7 +327,7 @@ definition "print_examp_instance_defassoc_gen name l_ocli ocl =
         ; var_to_from = ''to_from''
         ; var_oid = ''oid''
         ; mk_ty = bug_scala_extraction (\<lambda>l. (flatten o flatten) (List_map (\<lambda>x. ['' '', x, '' '']) l))
-        ; a_l = \<lambda>s. Ty_apply (Ty_base const_oid_list) [s] in
+        ; a_l = \<lambda>s. Ty_apply (Ty_base var_ty_list) [s] in
       Expr_lambdas
         [var_oid_class, var_to_from, var_oid]
         (Expr_annot0 (Expr_case

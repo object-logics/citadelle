@@ -99,7 +99,7 @@ definition "print_infra_type_synonym_class expr = start_map Thy_ty_synonym
      option (option (Ty_base (isub_name datatype_name))) ])) expr))"
 
 definition "print_infra_type_synonym_class_rec = (\<lambda>expr.
-  Pair (List_map (\<lambda>x. let (tit, body) = print_infra_type_synonym_class_rec_aux [] [] x in
+  Pair (List_map (\<lambda>x. let (tit, body) = print_infra_type_synonym_class_rec_aux x in
                       Thy_ty_synonym (Type_synonym tit (Ty_apply (Ty_base ''val'') [Ty_base unicode_AA, body])))
                  (snd (fold_class (\<lambda>_ _ l_attr _ _ _.
                                     Pair () o List.fold
@@ -111,6 +111,7 @@ definition "print_infra_type_synonym_class_rec = (\<lambda>expr.
                                             let t = OclTy_class_pre (TyObjN_role_ty (TyObj_to obj)) in
                                             f (OclTy_collection Sequence t) (f (OclTy_collection Set t) l)
                                         | OclTy_collection _ _ \<Rightarrow> f t l
+                                        | OclTy_pair _ _ \<Rightarrow> f t l
                                         | _ \<Rightarrow> l)
                                       l_attr)
                                   []

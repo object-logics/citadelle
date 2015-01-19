@@ -171,7 +171,7 @@ definition "i_of_ocl_ty_class a b f = ocl_ty_class_rec
     (i_of_ocl_ty_class_node a b (K i_of_unit))
     (f a b))"
 
-definition "i_of_ocl_ty a b = (\<lambda>f1 f2 f3 f4 f5 f6 f7 f8. ocl_ty_rec f1 f2 f3 f4 f5 f6 f7 f8 o co1 K)
+definition "i_of_ocl_ty a b = (\<lambda>f1 f2 f3 f4 f5 f6 f7 f8 f9 f10. ocl_ty_rec f1 f2 f3 f4 f5 f6 f7 f8 (K o f9) (\<lambda>_ _. f10))
   (b ''OclTy_base_void'')
   (b ''OclTy_base_boolean'')
   (b ''OclTy_base_integer'')
@@ -181,6 +181,7 @@ definition "i_of_ocl_ty a b = (\<lambda>f1 f2 f3 f4 f5 f6 f7 f8. ocl_ty_rec f1 f
   (ap1 a (b ''OclTy_class_pre'') (i_of_string a b))
   (ap1 a (b ''OclTy_class'') (i_of_ocl_ty_class a b (K i_of_unit)))
   (ar2 a (b ''OclTy_collection'') (i_of_ocl_collection b))
+  (ar2 a (b ''OclTy_pair'') id)
   (ap1 a (b ''OclTy_raw'') (i_of_string a b))"
 
 definition "i_of_ocl_association_type a b = ocl_association_type_rec
