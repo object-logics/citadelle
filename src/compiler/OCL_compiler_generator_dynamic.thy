@@ -675,8 +675,30 @@ fun s_simp_add_del_split (l_add, l_del, l_split) ctxt =
                           (ctxt addsimps (m_of_ntheorems_l ctxt l_add)
                                 delsimps (m_of_ntheorems_l ctxt l_del))
 
+local
+  val rep_claset_of = Classical.rep_cs o claset_of
+  
+  fun some_rule_tac ctxt facts = SUBGOAL (fn (goal, i) =>
+    let
+      val [rules1, rules2, rules4] = Context_Rules.find_rules false facts goal ctxt;
+      val {xtra_netpair, ...} = rep_claset_of ctxt;
+      val rules3 = Context_Rules.find_rules_netpair true facts goal xtra_netpair;
+      val rules = rules1 @ rules2 @ rules3 @ rules4;
+      val ruleq = Drule.multi_resolves facts rules;
+      val _ = Method.trace ctxt rules;
+    in
+      fn st => Seq.maps (fn rule => rtac rule i st) ruleq
+    end)
+    THEN_ALL_NEW Goal.norm_hhf_tac
+in
+fun rule_tac0 ctxt [] facts = some_rule_tac ctxt facts
+  | rule_tac0 _ rules facts = Method.rule_tac rules facts
+end
+
 fun m_of_tactic expr = let open OCL open Method open OCL_overload in case expr of
-    Tact_rule0 o_s => Basic (fn ctxt => rule (case o_s of NONE => [] | SOME s => [m_of_ntheorem ctxt s]))
+    Tact_rule0 o_s => Basic (fn ctxt => METHOD (HEADGOAL o rule_tac0 ctxt
+                                                  (case o_s of NONE => []
+                                                             | SOME s => [m_of_ntheorem ctxt s])))
   | Tact_drule s => Basic (fn ctxt => drule 0 [m_of_ntheorem ctxt s])
   | Tact_erule s => Basic (fn ctxt => erule 0 [m_of_ntheorem ctxt s])
   | Tact_elim s => Basic (fn ctxt => elim [m_of_ntheorem ctxt s])
