@@ -516,6 +516,10 @@ end
 subsection{* ... *}
 
 ML{*
+fun p_gen f g =  f "[" "]" g
+              (*|| f "{" "}" g*)
+              || f "(" ")" g
+fun paren f = p_gen (fn s1 => fn s2 => fn f => Parse.$$$ s1 |-- f --| Parse.$$$ s2) f
 fun parse_l f = Parse.$$$ "[" |-- Parse.!!! (Parse.list f --| Parse.$$$ "]")
 fun parse_l' f = Parse.$$$ "[" |-- Parse.list f --| Parse.$$$ "]"
 fun parse_l1' f = Parse.$$$ "[" |-- Parse.list1 f --| Parse.$$$ "]"
@@ -556,9 +560,10 @@ val parse_deep =
 
 val parse_sem_ocl =
   let val z = 0 in
-      Scan.optional ((Parse.$$$ "(" -- @{keyword "generation_semantics"} -- Parse.$$$ "[")
-  |-- parse_scheme -- Scan.optional ((Parse.$$$ "," -- @{keyword "oid_start"}) |-- Parse.nat) z
-  --| (Parse.$$$ "]" -- Parse.$$$ ")")) (OCL.Gen_default, z)
+      Scan.optional (paren (@{keyword "generation_semantics"}
+                     |-- paren (parse_scheme
+                                -- Scan.optional ((Parse.$$$ "," -- @{keyword "oid_start"}) |-- Parse.nat) z)))
+                    (OCL.Gen_default, z)
   end
 
 val mode =
@@ -1056,7 +1061,7 @@ structure USE_parse = struct
 
  fun outer_syntax_command2 mk_string cmd_spec cmd_descr parser v_true v_false get_oclclass =
    outer_syntax_command mk_string cmd_spec cmd_descr
-     (optional (Parse.$$$ "[" |-- @{keyword "shallow"} --| Parse.$$$ "]") -- parser)
+     (optional (paren @{keyword "shallow"}) -- parser)
      (fn (is_shallow, use) => fn thy =>
         get_oclclass
           (if is_shallow = NONE then
@@ -1369,7 +1374,7 @@ fun ocl_term x =
  (   ocl_term0 >> OclTermBase
   || Parse.binding >> OclTerm
   || @{keyword "self"} |-- Parse.nat >> OclOid
-  || parse_l' ocl_term >> OclList) x
+  || paren (Parse.list ocl_term) >> OclList) x
 val list_attr0 = Parse.binding -- (Parse.$$$ "=" |-- ocl_term)
 val list_attr00 = parse_l list_attr0
 val list_attr = list_attr00 >> (fn res => (res, [] : binding list))
