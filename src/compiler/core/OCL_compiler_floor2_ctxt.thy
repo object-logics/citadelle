@@ -125,7 +125,7 @@ definition "print_ctxt_pre_post = fold_list (\<lambda>x ocl. (x ocl, ocl)) o (\<
               (\<lambda>(_, expr) \<Rightarrow> 
                  cross_abs (\<lambda>_. id) nb_var (case f_to expr of T_pure expr \<Rightarrow> expr))) l_pre))
     ; f = \<lambda> (var_at_when_hol, var_at_when_ocl).
-        (\<lambda>ocl. Thy_axiom (Axiom (print_ctxt_pre_post_name attr_n var_at_when_hol)
+        (\<lambda>\<^sub>S\<^sub>c\<^sub>a\<^sub>l\<^sub>aocl. Thy_axiom (Axiom (print_ctxt_pre_post_name attr_n var_at_when_hol)
          (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l if_test = expr_binop0 ''True'' unicode_and (List_map (\<lambda>s. f_tau (a unicode_delta (b s))) (var_self # List_map fst (Ctxt_fun_ty_arg ctxt)))
             ; if_body = Expr_binop
                 (to_s OclCtxtPre (print_ctxt_to_ocl_pre ocl) l_pre)
