@@ -57,6 +57,7 @@ generation_syntax [ deep
                       SECTION
                       (*SORRY*)
                       [ (* in Haskell *)
+                        (* in OCaml module_name M (no_signatures) *)
                         (* in Scala module_name M *)
                         in SML module_name M (no_signatures) ]
                       (output_directory "../../doc")
