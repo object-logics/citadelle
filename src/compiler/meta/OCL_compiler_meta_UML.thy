@@ -283,7 +283,7 @@ definition "apply_optim_ass_arity ty_obj v =
 
 definition "is_higher_order = (\<lambda> OclTy_collection _ _ \<Rightarrow> True | _ \<Rightarrow> False)"
 
-definition "parse_ty_raw = (\<lambda> OclTy_raw s \<Rightarrow> (case s of ''int'' \<Rightarrow> OclTy_base_integer)
+definition "parse_ty_raw = (\<lambda> OclTy_raw s \<Rightarrow> if s = ''int'' then OclTy_base_integer else OclTy_raw s
                             | x \<Rightarrow> x)"
 
 fun_quick str_of_ty where
