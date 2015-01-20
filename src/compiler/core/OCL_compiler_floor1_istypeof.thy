@@ -113,14 +113,14 @@ definition "print_istypeof_lemma_cp expr = (start_map Thy_lemma_by o
   (\<lambda>name1 name2 name3.
     Lemma_by
       (flatten [''cp_'', const_oclistypeof, isub_of_str name1, ''_'', name3, ''_'', name2])
-      (bug_ocaml_extraction (let var_p = ''p'' in
+      (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l var_p = ''p'' in
        List_map
          (\<lambda>x. Expr_apply ''cp'' [x])
          [ Expr_basic [var_p]
          , Expr_lam ''x''
              (\<lambda>var_x. Expr_warning_parenthesis (Expr_postunary
                (Expr_annot (Expr_apply var_p [Expr_annot (Expr_basic [var_x]) name3]) name2)
-               (Expr_basic [dot_istypeof name1])))]))
+               (Expr_basic [dot_istypeof name1])))])
       []
       (Tacl_by [Tac_rule (Thm_str ''cpI1''), if check_opt name1 name2 then Tac_simp
                                              else Tac_simp_add [flatten [const_oclistypeof, isub_of_str name1, ''_'', name2]]])

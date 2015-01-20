@@ -160,14 +160,14 @@ definition "print_astype_lemma_cp expr = (start_map Thy_lemma_by o get_hierarchy
   (\<lambda>name1 name2 name3.
     Lemma_by
       (flatten [''cp_'', const_oclastype, isub_of_str name1, ''_'', name3, ''_'', name2])
-      (bug_ocaml_extraction (let var_p = ''p'' in
+      (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l var_p = ''p'' in
        List_map
          (\<lambda>x. Expr_apply ''cp'' [x])
          [ Expr_basic [var_p]
          , Expr_lam ''x''
              (\<lambda>var_x. Expr_warning_parenthesis (Expr_postunary
                (Expr_annot (Expr_apply var_p [Expr_annot (Expr_basic [var_x]) name3]) name2)
-               (Expr_basic [dot_astype name1])))]))
+               (Expr_basic [dot_astype name1])))])
       []
       (Tacl_by [Tac_rule (Thm_str ''cpI1''), if check_opt name1 name2 then Tac_simp
                                              else Tac_simp_add [flatten [const_oclastype, isub_of_str name1, ''_'', name2]]])
@@ -237,9 +237,8 @@ definition "print_astype_up_d_cast0 = start_map Thy_lemma_by o
         (print_astype_up_d_cast0_name name_any name_pers)
         [(var_isdef, False, f (Expr_apply unicode_delta [Expr_basic [var_X]]))]
         (f (Expr_binop
-             (bug_ocaml_extraction (let asty = \<lambda>x ty. Expr_warning_parenthesis (Expr_postunary x
-               (Expr_basic [dot_astype ty])) in
-               asty (asty (Expr_annot (Expr_basic [var_X]) name_pers) name_any) name_pers))
+             (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l asty = \<lambda>x ty. Expr_warning_parenthesis (Expr_postunary x (Expr_basic [dot_astype ty])) in
+              asty (asty (Expr_annot (Expr_basic [var_X]) name_pers) name_any) name_pers)
              unicode_triangleq (Expr_basic [var_X])))
         [App_using [Thm_str var_isdef]]
         (Tacl_by [Tac_auto_simp_add_split
@@ -260,9 +259,8 @@ definition "print_astype_up_d_cast = start_map Thy_lemma_by o
         (flatten [''up'', isub_of_str name_any, ''_down'', isub_of_str name_pers, ''_cast''])
         []
         (Expr_binop
-             (bug_ocaml_extraction (let asty = \<lambda>x ty. Expr_warning_parenthesis (Expr_postunary x
-               (Expr_basic [dot_astype ty])) in
-               asty (asty (Expr_annot (Expr_basic [var_X]) name_pers) name_any) name_pers))
+             (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l asty = \<lambda>x ty. Expr_warning_parenthesis (Expr_postunary x (Expr_basic [dot_astype ty])) in
+              asty (asty (Expr_annot (Expr_basic [var_X]) name_pers) name_any) name_pers)
              ''='' (Expr_basic [var_X]))
         (List_map App
           [[Tac_rule (Thm_str ''ext''), Tac_rename_tac [var_tau]]

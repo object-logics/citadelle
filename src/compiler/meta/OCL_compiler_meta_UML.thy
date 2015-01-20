@@ -151,7 +151,7 @@ function (sequential) class_unflat_aux where
    (case lookup rbt_cycle r of (None (* cycle detection *)) \<Rightarrow>
       OclClass
         r
-        (bug_ocaml_extraction (case lookup rbt r of Some l \<Rightarrow> l))
+        (case\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l lookup rbt r of Some l \<Rightarrow> l)
         (List_map
           (class_unflat_aux rbt rbt_inv (insert r () rbt_cycle))
           (case lookup rbt_inv r of None \<Rightarrow> [] | Some l \<Rightarrow> l)))"
@@ -162,13 +162,13 @@ function (sequential) class_unflat_aux where
 (case lookup rbt_cycle r of (None (* cycle detection *)) \<Rightarrow>
       OclClass
         r
-        (bug_ocaml_extraction (case lookup rbt r of Some l \<Rightarrow> l))
+        (case\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l lookup rbt r of Some l \<Rightarrow> l)
         ( ( [])))
 | Some l \<Rightarrow>
 (case lookup rbt_cycle r of (None (* cycle detection *)) \<Rightarrow>
       OclClass
         r
-        (bug_ocaml_extraction (case lookup rbt r of Some l \<Rightarrow> l))
+        (case\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l lookup rbt r of Some l \<Rightarrow> l)
         (List_map
           (class_unflat_aux rbt rbt_inv (insert r () rbt_cycle))
           ( l))))"
@@ -262,14 +262,14 @@ definition "class_unflat = (\<lambda> (l_class, l_ass).
     List_map snd (entries (List.fold (\<lambda> (ass_oid, ass) \<Rightarrow>
       let l_rel = OclAss_relation ass in
       fold_max
-        (bug_ocaml_extraction (let n_rel = natural_of_nat (List.length l_rel) in
+        (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l n_rel = natural_of_nat (List.length l_rel) in
          \<lambda> (cpt_to, (name_to, multip_to, Some role_to)) \<Rightarrow> List.fold (\<lambda> (cpt_from, (name_from, multip_from, role_from)).
             map_entry name_from (\<lambda>cflat. cflat \<lparr> ClassRaw_own := (role_to,
               OclTy_class (ocl_ty_class_ext const_oid ass_oid n_rel
                 (ocl_ty_class_node_ext cpt_from multip_from role_from name_from ())
                 (ocl_ty_class_node_ext cpt_to multip_to (Some role_to) name_to ())
                 ())) # ClassRaw_own cflat \<rparr>))
-         | _ \<Rightarrow> \<lambda>_. id))
+         | _ \<Rightarrow> \<lambda>_. id)
         l_rel) (List_mapi Pair l_ass) rbt)) in
   class_unflat_aux
     (List.fold (\<lambda> cflat. insert (ClassRaw_name cflat) (ClassRaw_own cflat)) l empty)
@@ -472,10 +472,10 @@ definition "map_class_arg_only_var0 = (\<lambda>f_expr f_app f_lattr isub_name n
             [ case case attr_ty of
                      OclTy_class ty_obj \<Rightarrow>
                        apply_optim_ass_arity ty_obj
-                       (bug_ocaml_extraction (let ty_obj = TyObj_from ty_obj in
+                       (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l ty_obj = TyObj_from ty_obj in
                        case TyObjN_role_name ty_obj of
                           None => natural_of_str (TyObjN_ass_switch ty_obj)
-                        | Some s => s))
+                        | Some s => s)
                    | _ \<Rightarrow> None of
                 None \<Rightarrow> mk_dot attr_name attr_when
               | Some s2 \<Rightarrow> mk_dot_comment attr_name attr_when s2 ])) l_attr)

@@ -102,13 +102,13 @@ definition "print_allinst_exec = start_map Thy_lemma_by o map_class_top (\<lambd
         lem_tit
         []
         lem_spec
-        (bug_ocaml_extraction (let var_S1 = ''S1''
+        (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l var_S1 = ''S1''
            ; var_S2 = ''S2'' in
          [ App_let (Expr_pat var_S1) (Expr_lam unicode_tau (ran_heap var_pre_post))
          , App_let (Expr_pat var_S2) (Expr_lam unicode_tau (\<lambda>var_tau. Expr_binop (Expr_applys (Expr_pat var_S1) [b var_tau]) ''-'' (Expr_paren ''{'' ''}'' (b ''None''))))
          , App_have var_B (f_incl var_S2 var_S1) (Tacl_by [Tac_auto])
          , App_have var_C (f_incl var_S1 var_S2) (Tacl_by [Tac_auto_simp_add [print_allinst_astype_name isub_name]])
-         , App [Tac_simp_add_del [d ''OclValid''] [d ''OclAllInstances_generic'', flatten [isub_name const_ocliskindof, ''_'', name]]] ]))
+         , App [Tac_simp_add_del [d ''OclValid''] [d ''OclAllInstances_generic'', flatten [isub_name const_ocliskindof, ''_'', name]]] ])
         (Tacl_by [Tac_insert [thm_OF (Thm_str ''equalityI'') (List_map Thm_str [var_B, var_C])], Tac_simp]))
     [])"
 
@@ -117,7 +117,7 @@ definition "print_allinst_istypeof_pre_name2 = ''ex_def''"
 definition "print_allinst_istypeof_pre = start_map Thy_lemma_by o (\<lambda>_.
   [ Lemma_by
       print_allinst_istypeof_pre_name1
-      (bug_ocaml_extraction (let var_x = ''x''
+      (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l var_x = ''x''
          ; var_B = ''B''
          ; var_s = ''s''
          ; var_t = ''t''
@@ -127,12 +127,12 @@ definition "print_allinst_istypeof_pre = start_map Thy_lemma_by o (\<lambda>_.
          ; bind = \<lambda>symb. Expr_bind0 symb (Expr_binop (b var_x) unicode_in (b var_B))
          ; f = \<lambda>v. bind unicode_exists (a var_P (a v (b var_x))) in
        [ Expr_bind0 unicode_forall (Expr_binop (b var_x) unicode_in (b var_B)) (Expr_rewrite (a var_s (b var_x)) ''='' (a var_t (b var_x)))
-       , Expr_rewrite (f var_s) ''='' (f var_t) ]))
+       , Expr_rewrite (f var_s) ''='' (f var_t) ])
       []
       (Tacl_by [Tac_simp])
   , Lemma_by
       print_allinst_istypeof_pre_name2
-      (bug_ocaml_extraction (let var_x = ''x''
+      (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l var_x = ''x''
          ; var_X = ''X''
          ; var_y = ''y''
          ; b = \<lambda>s. Expr_basic [s]
@@ -140,7 +140,7 @@ definition "print_allinst_istypeof_pre = start_map Thy_lemma_by o (\<lambda>_.
          ; f = Expr_paren unicode_lfloor unicode_rfloor
          ; p = Expr_paren ''{'' ''}'' in
        [ Expr_binop (b var_x) unicode_in (c (c (f (f (Expr_binop (b ''Some'') ''`'' (Expr_parenthesis (Expr_binop (b var_X) ''-'' (p (b ''None'')))))))))
-       , Expr_bind0 unicode_exists (b var_y) (Expr_rewrite (b var_x) ''='' (f (f (b var_y)))) ]))
+       , Expr_bind0 unicode_exists (b var_y) (Expr_rewrite (b var_x) ''='' (f (f (b var_y)))) ])
       []
       (Tacl_by [Tac_auto_simp_add []]) ])"
 
@@ -195,8 +195,8 @@ definition "print_allinst_istypeof = start_map'' Thy_lemma_by o (\<lambda>expr b
            [('''', True, Expr_And ''x'' (\<lambda>var_x. Expr_rewrite (Expr_apply var_pre_post [Expr_parenthesis (Expr_binop (b var_x) '','' (b var_x))]) ''='' (b var_x)) )]
            lem_spec
            (List_map App
-              [ bug_ocaml_extraction (let var_tau0 = var_tau @@ isub_of_str ''0'' in
-                [Tac_rule (Thm_where (Thm_str ''exI'') [(''x'', b var_tau0)]), Tac_simp_add_del (List_map d [var_tau0, ''OclValid'']) [d ''OclAllInstances_generic'']])
+              [ let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l var_tau0 = var_tau @@ isub_of_str ''0'' in
+                [Tac_rule (Thm_where (Thm_str ''exI'') [(''x'', b var_tau0)]), Tac_simp_add_del (List_map d [var_tau0, ''OclValid'']) [d ''OclAllInstances_generic'']]
               , [Tac_simp_only (flatten [List_map Thm_str [ d var_OclForall_set, ''refl'', ''if_True'' ], [Thm_simplified (Thm_str ''OclAllInstances_generic_defined'') (Thm_str (d ''OclValid''))]])]
               , [Tac_simp_only [Thm_str (d ''OclAllInstances_generic'')]]
               , [s (Thm_str var_Abs_Set_inverse), Tac_simp_add [d ''bot_option'']] ] )
@@ -212,7 +212,7 @@ definition "print_allinst_istypeof = start_map'' Thy_lemma_by o (\<lambda>expr b
            lem_tit
            [('''', True, Expr_And ''x'' (\<lambda>var_x. Expr_rewrite (Expr_apply var_pre_post [Expr_parenthesis (Expr_binop (b var_x) '','' (b var_x))]) ''='' (b var_x)) )]
            lem_spec
-           (bug_ocaml_extraction (let var_oid = ''oid''
+           (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l var_oid = ''oid''
               ; var_a = ''a''
               ; var_t0 = ''t0''
               ; s_empty = ''Map.empty'' in
@@ -223,7 +223,7 @@ definition "print_allinst_istypeof = start_map'' Thy_lemma_by o (\<lambda>expr b
             , App [Tac_rule (Thm_where (Thm_str ''exI'') [(''x'', Expr_parenthesis (Expr_binop (Expr_pat var_t0) '','' (Expr_pat var_t0)))]), Tac_simp_add_del [d ''OclValid''] [d ''OclAllInstances_generic'']]
             , App [Tac_simp_only (flatten [List_map Thm_str [ d var_OclForall_set, ''refl'', ''if_True'' ], [Thm_simplified (Thm_str ''OclAllInstances_generic_defined'') (Thm_str (d ''OclValid''))]])]
             , App [Tac_simp_only (List_map (\<lambda>x. Thm_str (d x)) [''OclAllInstances_generic'', flatten [isub_name const_oclastype, ''_'', unicode_AA]])]
-            , App [s (Thm_str var_Abs_Set_inverse), Tac_simp_add [d ''bot_option'']] ] ))
+            , App [s (Thm_str var_Abs_Set_inverse), Tac_simp_add [d ''bot_option'']] ] )
            (Tacl_by [Tac_simp_add [d ''state.make'', d ''OclNot'']]))
         [Tac_simp]]) expr)"
 

@@ -220,13 +220,13 @@ definition "print_iskindof_up_eq_asty = start_map Thy_lemma_by o map_class_gen_h
                         # l_subst
                         , accu))
                       (OclClass name l_attr next_dataty # rev l_subtree) (1, [])))
-        , [ Tac_auto_simp_add_split (bug_ocaml_extraction (let l =
-                                                      List_map Thm_str (flatten ([''foundation16'', hol_definition ''bot_option'']
-                                                    # List_map
-                                                        (\<lambda> OclClass n _ _ \<Rightarrow> [flatten [const_oclistypeof, isub_of_str n, ''_'', name]])
-                                                        l_subtree)) in
-                                                     if l_subtree = [] then l else Thm_symmetric (Thm_str ''cp_OclOr'') # l))
-                                                    (''option.split'' # flatten (split_ty name # List_map (\<lambda> OclClass n _ _ \<Rightarrow> split_ty n) l_subtree))]])
+        , [ Tac_auto_simp_add_split
+              (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l l = List_map Thm_str (flatten ( [''foundation16'', hol_definition ''bot_option'']
+                                                     # List_map
+                                                         (\<lambda> OclClass n _ _ \<Rightarrow> [flatten [const_oclistypeof, isub_of_str n, ''_'', name]])
+                                                         l_subtree)) in
+               if l_subtree = [] then l else Thm_symmetric (Thm_str ''cp_OclOr'') # l)
+              (''option.split'' # flatten (split_ty name # List_map (\<lambda> OclClass n _ _ \<Rightarrow> split_ty n) l_subtree))]])
         (Tacl_by [Tac_option [Tac_plus [Tac_simp_add (List_map hol_definition [''false'', ''true'', ''OclOr'', ''OclAnd'', ''OclNot''])]]])])"
 
 definition "print_iskindof_up_larger = start_map Thy_lemma_by o

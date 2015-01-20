@@ -329,6 +329,6 @@ lemmas [code] =
 
 (* *)
 
-definition "sml_apply s l = flatten [s, '' ('', bug_ocaml_extraction (case l of x # xs \<Rightarrow> flatten [x, flatten (List_map (\<lambda>s. flatten ['', '', s]) xs)]), '')'' ]"
+definition "sml_apply s l = flatten [s, '' ('', case\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l l of x # xs \<Rightarrow> flatten [x, flatten (List_map (\<lambda>s. flatten ['', '', s]) xs)], '')'' ]"
 
 end

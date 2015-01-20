@@ -69,14 +69,14 @@ definition "write_file ocl = (
     (\<lambda>fprintf1.
       List_iterM (fprintf1 (STR ''%s
 ''                                 ))
-        (bug_ocaml_extraction (let (ocl, l) =
+        (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l (ocl, l) =
            fold_thy'
              (\<lambda>f. f ())
              (\<lambda>_ _. [])
              (\<lambda>x acc1 acc2. (acc1, Cons x acc2))
              l_thy
              (ocl_compiler_config.truncate ocl, []) in
-         s_of_thy_list (ocl_compiler_config_more_map (\<lambda>_. is_file) ocl) (rev l)))))"
+         s_of_thy_list (ocl_compiler_config_more_map (\<lambda>_. is_file) ocl) (rev l))))"
 end
 
 definition "write_file = s_of.write_file implode (ToNat integer_of_natural)"

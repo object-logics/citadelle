@@ -134,11 +134,10 @@ definition "s_of_thy ocl =
 
 definition "s_of_generation_syntax _ = (\<lambda> Generation_syntax_shallow mode \<Rightarrow>
   sprintf1 (STR ''generation_syntax [ shallow%s ]'')
-    (bug_ocaml_extraction
-    (let f = sprintf1 (STR '' (generation_semantics [ %s ])'') in
+    (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l f = sprintf1 (STR '' (generation_semantics [ %s ])'') in
      case mode of Gen_only_design \<Rightarrow> f (STR ''design'')
                 | Gen_only_analysis \<Rightarrow> f (STR ''analysis'')
-                | Gen_default \<Rightarrow> STR '''')))"
+                | Gen_default \<Rightarrow> STR ''''))"
 
 definition "s_of_ml_extended _ = (\<lambda> Ml_extended e \<Rightarrow> sprintf1 (STR ''setup{* %s *}'') (s_of_sexpr_extended e))"
 

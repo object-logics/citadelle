@@ -231,11 +231,11 @@ definition "print_examp_def_st_assoc rbt map_self map_username l_assoc =
          Expr_pair
            (Expr_basic [print_access_oid_uniq_name cpt_from (\<lambda>s. s @@ isub_of_str name) name_attr])
            (Expr_apply ''List.map''
-             [ Expr_binop (bug_ocaml_extraction (let var_x = ''x''
+             [ Expr_binop (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l var_x = ''x''
                              ; var_y = ''y'' in
                            Expr_lambdas0
                              (Expr_pair (b var_x) (b var_y))
-                             (Expr_list [b var_x, b var_y])))
+                             (Expr_list [b var_x, b var_y]))
                           ''o''
                           (b (print_access_choose_name
                                 (TyObj_ass_arity ty_obj)
@@ -280,8 +280,8 @@ definition "check_single = (\<lambda> (name_attr, oid, l_oid) l_mult l.
                                              , '' ''
                                              , case name_attr of None \<Rightarrow> ''/* unnamed attribute */'' | Some s \<Rightarrow> ''.'' @@ s
                                              , '' = Set{''
-                                             , bug_ocaml_extraction (let l = List_map assoc l in
-                                               if l = [] then '''' else '' '' @@ String_concatWith '' , '' l @@ '' '')
+                                             , let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l l = List_map assoc l in
+                                               if l = [] then '''' else '' '' @@ String_concatWith '' , '' l @@ '' ''
                                              , ''}''
                                              , if b then '''' else f msg ]))
                   [(case mult_min of Mult_nat mult_min \<Rightarrow> mult_min \<le> attr_len | _ \<Rightarrow> True, ''minimum'')
@@ -322,11 +322,10 @@ definition "print_examp_instance_defassoc_gen name l_ocli ocl =
   [Definition
      (Expr_rewrite name
      ''=''
-     (bug_ocaml_extraction
-     (let var_oid_class = ''oid_class''
+     (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l var_oid_class = ''oid_class''
         ; var_to_from = ''to_from''
         ; var_oid = ''oid''
-        ; mk_ty = bug_scala_extraction (\<lambda>l. (flatten o flatten) (List_map (\<lambda>x. ['' '', x, '' '']) l))
+        ; mk_ty = \<lambda>\<^sub>S\<^sub>c\<^sub>a\<^sub>l\<^sub>al. (flatten o flatten) (List_map (\<lambda>x. ['' '', x, '' '']) l)
         ; a_l = \<lambda>s. Ty_apply (Ty_base var_ty_list) [s] in
       Expr_lambdas
         [var_oid_class, var_to_from, var_oid]
@@ -343,7 +342,7 @@ definition "print_examp_instance_defassoc_gen name l_ocli ocl =
                            [Expr_annot (b var_oid_class) const_oid])])
           [ (b ''Nil'', b ''None'')
           , let b_l = b ''l'' in
-            (b_l, a ''Some'' b_l)] ) (Ty_apply (Ty_base ''option'') [a_l (Ty_base const_oid)])))))])"
+            (b_l, a ''Some'' b_l)] ) (Ty_apply (Ty_base ''option'') [a_l (Ty_base const_oid)]))))])"
 
 definition "check_single_ty rbt_init rbt' l_attr_gen l_oid x =
  (\<lambda> (ty1, mult1, role1) (ty2, mult2, role2).
@@ -368,14 +367,13 @@ definition "check_single_ty rbt_init rbt' l_attr_gen l_oid x =
               | None \<Rightarrow> f (\<lambda>_. (ty1, role2, id)) role1)
         of
           Some (ty_obj, (f_from, f_to)) \<Rightarrow>
-            bug_ocaml_extraction (
-            let (o_from, o_to) = (f_from ty_obj, f_to ty_obj) in
+            let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l (o_from, o_to) = (f_from ty_obj, f_to ty_obj) in
             ( case (TyObjN_role_name o_from, TyObjN_role_name o_to) of
                 (name_from, name_to) \<Rightarrow> [name_from, name_to]
             , (TyObjN_role_multip o_from, TyObjN_role_multip o_to)
             , deref_assocs_list s x (List_map (if ( TyObjN_ass_switch o_from
                                                   , TyObjN_ass_switch o_to) = (0, 1) then(*01*) id else(*10*) rev)
-                                              (case l_attr_gen (TyObj_ass_id ty_obj) of Some l_attr \<Rightarrow> l_attr))))
+                                              (case l_attr_gen (TyObj_ass_id ty_obj) of Some l_attr \<Rightarrow> l_attr)))
         | None \<Rightarrow> ([role1, role2], (mult1, mult2), []) in
   (\<lambda>acc.
     flatten [ acc
@@ -450,16 +448,14 @@ definition "print_examp_instance_app_constr2_notmp_norec = (\<lambda>(rbt, (map_
     cpt
     (\<lambda>isub_name oid.
       ( \<lambda> ty_obj.
-        bug_ocaml_extraction
-          (let b = \<lambda>s. Expr_basic [s] in
+          let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l b = \<lambda>s. Expr_basic [s] in
           Expr_applys
             cpt_start
-            (bug_ocaml_extraction
-            (let ty_objfrom = TyObj_from ty_obj
+            (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l ty_objfrom = TyObj_from ty_obj
                ; ty_objto = TyObj_to ty_obj in
              [ b (print_access_oid_uniq_name (TyObjN_ass_switch ty_objfrom) isub_name (case TyObjN_role_name ty_objto of Some s \<Rightarrow> s))
              , b (print_access_choose_name (TyObj_ass_arity ty_obj) (TyObjN_ass_switch ty_objfrom) (TyObjN_ass_switch ty_objto))
-             , Expr_oid var_oid_uniq (oidGetInh oid) ])))
+             , Expr_oid var_oid_uniq (oidGetInh oid) ])
       , \<lambda> base. 
            let cpt = case case base of ShallB_str s \<Rightarrow> map_username s
                                      | ShallB_self cpt1 \<Rightarrow> map_self cpt1 of Some cpt \<Rightarrow> cpt in
@@ -479,9 +475,9 @@ definition "print_examp_instance = (\<lambda> OclInstance l \<Rightarrow> \<lamb
           , oidSucInh cpt)) l (D_oid_start ocl))
       (let a = \<lambda>f x. Expr_apply f [x]
          ; b = \<lambda>s. Expr_basic [s] in
-       [ bug_ocaml_extraction (let var_inst_ass = ''inst_assoc'' in
+       [ let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l var_inst_ass = ''inst_assoc'' in
          (\<lambda> _ isub_name ocli. Expr_basic (print_examp_instance_name isub_name (Inst_name ocli) # (if D_design_analysis ocl = Gen_only_design then [ var_inst_ass ] else [])),
-          print_examp_instance_app_constr2_notmp_norec (rbt, (map_self, map_username)) ocl (b var_inst_ass)))
+          print_examp_instance_app_constr2_notmp_norec (rbt, (map_self, map_username)) ocl (b var_inst_ass))
        , (\<lambda> _ _ ocli. Expr_annot (b (Inst_name ocli)) (Inst_ty ocli),
           \<lambda> ocli isub_name _. Expr_lambda wildcard (Expr_some (Expr_some (let name_pers = print_examp_instance_name isub_name (Inst_name ocli) in
                                                                           if D_design_analysis ocl = Gen_only_design then
@@ -573,9 +569,10 @@ definition "print_examp_def_st_inst_var = (\<lambda> OclDefSt name l \<Rightarro
       (\<lambda> (f1, f2) _.
         let (l, accu) =
         fold_list (\<lambda> ocli cpt.
-          ( case ocli of None \<Rightarrow> [] | Some ocli \<Rightarrow> bug_ocaml_extraction (let var_oid = Expr_oid var_oid_uniq (oidGetInh cpt)
-            ; isub_name = \<lambda>s. s @@ isub_of_str (Inst_ty ocli) in
-            [Definition (Expr_rewrite (f1 var_oid isub_name ocli) ''='' (f2 ocli isub_name cpt))])
+          ( case ocli of None \<Rightarrow> [] | Some ocli \<Rightarrow>
+              let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l var_oid = Expr_oid var_oid_uniq (oidGetInh cpt)
+                ; isub_name = \<lambda>s. s @@ isub_of_str (Inst_ty ocli) in
+              [Definition (Expr_rewrite (f1 var_oid isub_name ocli) ''='' (f2 ocli isub_name cpt))]
           , oidSucInh cpt)) l_ocli (D_oid_start ocl) in
           (flatten l, accu))
       (let a = \<lambda>f x. Expr_apply f [x]
@@ -616,7 +613,7 @@ definition "print_examp_def_st_perm = (\<lambda> _ ocl.
                                                    | (_, OclDefCoreBinding (_, ocli)) \<Rightarrow> ocli
                                                    | _ \<Rightarrow> \<lparr> Inst_name = [], Inst_ty = [], Inst_attr = OclAttrNoCast [] \<rparr>) l_st))
                     (rev l_st)
-     ; a = bug_scala_extraction (\<lambda>f x. Expr_apply f [x])
+     ; a = \<lambda>\<^sub>S\<^sub>c\<^sub>a\<^sub>l\<^sub>af x. Expr_apply f [x]
      ; b = \<lambda>s. Expr_basic [s]
      ; d = hol_definition
      ; (l_app, l_last) =

@@ -102,13 +102,12 @@ definition "print_ctxt_to_ocl_pre ocl = print_ctxt_to_ocl_gen (snd (D_accessor_r
 definition "print_ctxt_to_ocl_post ocl = print_ctxt_to_ocl_gen (fst (D_accessor_rbt ocl)) print_ctxt_is_name_at_pre var_at_when_hol_post"
 
 definition "raise_ml_unbound f_msg ctxt = 
-        [ (\<lambda>_. Thy_ml (raise_ml (bug_ocaml_extraction
-                                (let l = flatten (List_mapi (\<lambda> n. \<lambda>(msg, T_pure t) \<Rightarrow> 
+        [ (\<lambda>_. Thy_ml (raise_ml (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l l = flatten (List_mapi (\<lambda> n. \<lambda>(msg, T_pure t) \<Rightarrow> 
                                             let l = 
                                               rev (fold_Free (\<lambda>l s. 
                                                 (Error, flatten [f_msg n msg, '': unbound value '', s]) # l) [] t) in
                                             if l = [] then [(Writeln, f_msg n msg)] else l) ctxt) in
-                                 if list_ex (\<lambda>(Error, _) \<Rightarrow> True | _ \<Rightarrow> False) l then l else []))
+                                 if list_ex (\<lambda>(Error, _) \<Rightarrow> True | _ \<Rightarrow> False) l then l else [])
                                 '' error(s)'')) ]"
 
 definition "print_ctxt_pre_post = fold_list (\<lambda>x ocl. (x ocl, ocl)) o (\<lambda> ctxt.
@@ -121,16 +120,13 @@ definition "print_ctxt_pre_post = fold_list (\<lambda>x ocl. (x ocl, ocl)) o (\<
     ; expr_binop0 = \<lambda>base u_and. \<lambda> [] \<Rightarrow> b base | l \<Rightarrow> Expr_parenthesis (expr_binop u_and l)
     ; to_s = \<lambda>pref f_to l_pre. 
         Expr_parenthesis (expr_binop0 ''true'' ''and''
-          (bug_ocaml_extraction
           (List_map
-             (bug_ocaml_extraction
-             (let nb_var = length (make_ctxt_free_var pref ctxt) in
+             (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l nb_var = length (make_ctxt_free_var pref ctxt) in
               (\<lambda>(_, expr) \<Rightarrow> 
-                 cross_abs (\<lambda>_. id) nb_var (case f_to expr of T_pure expr \<Rightarrow> expr)))) l_pre)))
+                 cross_abs (\<lambda>_. id) nb_var (case f_to expr of T_pure expr \<Rightarrow> expr))) l_pre))
     ; f = \<lambda> (var_at_when_hol, var_at_when_ocl).
         (\<lambda>ocl. Thy_axiom (Axiom (print_ctxt_pre_post_name attr_n var_at_when_hol)
-         (bug_ocaml_extraction
-         (let if_test = expr_binop0 ''True'' unicode_and (List_map (\<lambda>s. f_tau (a unicode_delta (b s))) (var_self # List_map fst (Ctxt_fun_ty_arg ctxt)))
+         (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l if_test = expr_binop0 ''True'' unicode_and (List_map (\<lambda>s. f_tau (a unicode_delta (b s))) (var_self # List_map fst (Ctxt_fun_ty_arg ctxt)))
             ; if_body = Expr_binop
                 (to_s OclCtxtPre (print_ctxt_to_ocl_pre ocl) l_pre)
                 ''implies''
@@ -146,7 +142,7 @@ definition "print_ctxt_pre_post = fold_list (\<lambda>x ocl. (x ocl, ocl)) o (\<
               ''=''
               (Expr_parenthesis (Expr_if_then_else if_test
                                                    (f_tau if_body)
-                                                   (f_tau (Expr_rewrite (b var_result) unicode_triangleq (b ''invalid''))))))))))
+                                                   (f_tau (Expr_rewrite (b var_result) unicode_triangleq (b ''invalid'')))))))))
         # raise_ml_unbound
           (\<lambda>n pref. flatten [''('', natural_of_str (n + 1), '') '', if pref = OclCtxtPre then ''pre'' else ''post''])
           (Ctxt_expr ctxt) in
