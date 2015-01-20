@@ -72,11 +72,11 @@ definition "txt''a s = txt (\<lambda> Gen_only_design \<Rightarrow> [] | _ \<Rig
 definition thy_class ::
   (* polymorphism weakening needed by code_reflect *)
   "(_ \<Rightarrow> ocl_compiler_config \<Rightarrow> _) list" where "thy_class =
-  (let subsection_def = subsection ''Definition''
-     ; subsection_cp = subsection ''Context Passing''
-     ; subsection_exec = subsection ''Execution with Invalid or Null as Argument''
-     ; subsection_up = subsection ''Up Down Casting''
-     ; subsection_defined = subsection ''Validity and Definedness Properties''
+  (let subsection_def = subsection \<langle>''Definition''\<rangle>
+     ; subsection_cp = subsection \<langle>''Context Passing''\<rangle>
+     ; subsection_exec = subsection \<langle>''Execution with Invalid or Null as Argument''\<rangle>
+     ; subsection_up = subsection \<langle>''Up Down Casting''\<rangle>
+     ; subsection_defined = subsection \<langle>''Validity and Definedness Properties''\<rangle>
      ; e = [Char Nibble5 NibbleC]
      ; n = [Char Nibble2 Nibble7]
      ; a = [Char Nibble2 Nibble2] in

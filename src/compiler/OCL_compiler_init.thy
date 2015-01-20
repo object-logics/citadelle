@@ -100,7 +100,7 @@ definition "List_nsplit l c0 = List_replace_gen id l c0 []"
 definition "List_replace = List_replace_gen flatten"
 
 definition "String_concatWith s =
- (\<lambda> [] \<Rightarrow> ''''
+ (\<lambda> [] \<Rightarrow> \<langle>''''\<rangle>
   | x # xs \<Rightarrow> flatten (flatten ([x] # List_map (\<lambda>s0. [s, s0]) xs)))"
 
 section{* Preliminaries *}
@@ -167,19 +167,19 @@ section{* ...  *}
 
 subsection{* ... *}
 
-definition "wildcard = ''_''"
+definition "wildcard = \<langle>''_''\<rangle>"
 
-definition "escape_unicode c = flatten [[Char Nibble5 NibbleC], ''<'', c, ''>'']"
+definition "escape_unicode c = flatten [[Char Nibble5 NibbleC], \<langle>''<''\<rangle>, c, \<langle>''>''\<rangle>]"
 
 definition "lowercase_of_str = List_map (\<lambda>c. let n = nat_of_char c in if n < 97 then char_of_nat (n + 32) else c)"
 definition "uppercase_of_str = List_map (\<lambda>c. let n = nat_of_char c in if n < 97 then c else char_of_nat (n - 32))"
-definition "number_of_str = flatten o List_map (\<lambda>c. escape_unicode ([''zero'', ''one'', ''two'', ''three'', ''four'', ''five'', ''six'', ''seven'', ''eight'', ''nine''] ! (nat_of_char c - 48)))"
+definition "number_of_str = flatten o List_map (\<lambda>c. escape_unicode ([\<langle>''zero''\<rangle>, \<langle>''one''\<rangle>, \<langle>''two''\<rangle>, \<langle>''three''\<rangle>, \<langle>''four''\<rangle>, \<langle>''five''\<rangle>, \<langle>''six''\<rangle>, \<langle>''seven''\<rangle>, \<langle>''eight''\<rangle>, \<langle>''nine''\<rangle>] ! (nat_of_char c - 48)))"
 definition "nat_raw_of_str = List_map (\<lambda>i. char_of_nat (nat_of_char (Char Nibble3 Nibble0) + i))"
 fun_quick nat_of_str_aux where
    "nat_of_str_aux l (n :: Nat.nat) = (if n < 10 then n # l else nat_of_str_aux (n mod 10 # l) (n div 10))"
 definition "nat_of_str n = nat_raw_of_str (nat_of_str_aux [] n)"
 definition "natural_of_str = nat_of_str o nat_of_natural"
-definition "add_0 n = flatten [ flatten (List_map (\<lambda>_. ''0'') (upt 0 (if n < 10 then 2 else if n < 100 then 1 else 0)))
+definition "add_0 n = flatten [ flatten (List_map (\<lambda>_. \<langle>''0''\<rangle>) (upt 0 (if n < 10 then 2 else if n < 100 then 1 else 0)))
           , nat_of_str n ]"
 definition "is_letter n = (n \<ge> 65 & n < 91 | n \<ge> 97 & n < 123)"
 definition "is_digit n = (n \<ge> 48 & n < 58)"
@@ -187,62 +187,62 @@ definition "base255_of_str_gen f0 f = flatten o List_map (\<lambda>c. let n = na
   if is_letter n then f0 c else f (add_0 n))"
 definition "base255_of_str = base255_of_str_gen (\<lambda>c. [c]) id"
 definition "isub_of_str = flatten o List_map (\<lambda>c. let n = nat_of_char c in
-  if is_letter n | is_digit n then escape_unicode ''^sub'' @@ [c] else add_0 n)"
+  if is_letter n | is_digit n then escape_unicode \<langle>''^sub''\<rangle> @@ [c] else add_0 n)"
 definition "isup_of_str = flatten o List_map (\<lambda>c. let n = nat_of_char c in
   if is_letter n then escape_unicode [char_of_nat (nat_of_char c - 32)] else add_0 n)"
-definition "text_of_str str = 
- (let s = ''c''
-    ; ap = '' # '' in
-  flatten [ ''(let '', s, '' = char_of_nat in ''
+definition "text_of_str str =
+ (let s = \<langle>''c''\<rangle>
+    ; ap = \<langle>'' # ''\<rangle> in
+  flatten [ \<langle>''(let ''\<rangle>, s, \<langle>'' = char_of_nat in ''\<rangle>
           , base255_of_str_gen
               (\<lambda>c.
                 let g = [Char Nibble2 Nibble7] in
-                flatten [''CHR '',  g,g,[c],g,g,  ap])
-              (\<lambda>c. flatten [s, '' '', c, ap]) str
-          , ''[])''])"
+                flatten [\<langle>''CHR ''\<rangle>,  g,g,[c],g,g,  ap])
+              (\<lambda>c. flatten [s, \<langle>'' ''\<rangle>, c, ap]) str
+          , \<langle>''[])''\<rangle>])"
 definition "text2_of_str = flatten o List_map (\<lambda>c. escape_unicode [c])"
 
-definition "mk_constr_name name = (\<lambda> x. flatten [isub_of_str name, ''_'', isub_of_str x])"
-definition "mk_dot s1 s2 = flatten [''.'', s1, s2]"
-definition "mk_dot_par_gen dot l_s = flatten [dot, ''('', case l_s of [] \<Rightarrow> '''' | x # xs \<Rightarrow> flatten [x, flatten (List_map (\<lambda>s. '', '' @@ s) xs) ], '')'']"
+definition "mk_constr_name name = (\<lambda> x. flatten [isub_of_str name, \<langle>''_''\<rangle>, isub_of_str x])"
+definition "mk_dot s1 s2 = flatten [\<langle>''.''\<rangle>, s1, s2]"
+definition "mk_dot_par_gen dot l_s = flatten [dot, \<langle>''(''\<rangle>, case l_s of [] \<Rightarrow> \<langle>''''\<rangle> | x # xs \<Rightarrow> flatten [x, flatten (List_map (\<lambda>s. \<langle>'', ''\<rangle> @@ s) xs) ], \<langle>'')''\<rangle>]"
 definition "mk_dot_par dot s = mk_dot_par_gen dot [s]"
-definition "mk_dot_comment s1 s2 s3 = mk_dot s1 (flatten [s2, '' /*'', s3, ''*/''])"
+definition "mk_dot_comment s1 s2 s3 = mk_dot s1 (flatten [s2, \<langle>'' /*''\<rangle>, s3, \<langle>''*/''\<rangle>])"
 
-definition "hol_definition s = flatten [s, ''_def'']"
-definition "hol_split s = flatten [s, ''.split'']"
+definition "hol_definition s = flatten [s, \<langle>''_def''\<rangle>]"
+definition "hol_split s = flatten [s, \<langle>''.split''\<rangle>]"
 
 subsection{* ... *}
 
-definition "unicode_AA = escape_unicode ''AA''"
-definition "unicode_acute = escape_unicode ''acute''"
-definition "unicode_alpha = escape_unicode ''alpha''"
-definition "unicode_and = escape_unicode ''and''"
-definition "unicode_And = escape_unicode ''And''"
-definition "unicode_bottom = escape_unicode ''bottom''"
-definition "unicode_circ = escape_unicode ''circ''"
-definition "unicode_delta = escape_unicode ''delta''"
-definition "unicode_doteq = escape_unicode ''doteq''"
-definition "unicode_equiv = escape_unicode ''equiv''"
-definition "unicode_exists = escape_unicode ''exists''"
-definition "unicode_forall = escape_unicode ''forall''"
-definition "unicode_in = escape_unicode ''in''"
-definition "unicode_lambda = escape_unicode ''lambda''"
-definition "unicode_lceil = escape_unicode ''lceil''"
-definition "unicode_lfloor = escape_unicode ''lfloor''"
-definition "unicode_longrightarrow = escape_unicode ''longrightarrow''"
-definition "unicode_Longrightarrow = escape_unicode ''Longrightarrow''"
-definition "unicode_mapsto = escape_unicode ''mapsto''"
-definition "unicode_noteq = escape_unicode ''noteq''"
-definition "unicode_not = escape_unicode ''not''"
-definition "unicode_or = escape_unicode ''or''"
-definition "unicode_rceil = escape_unicode ''rceil''"
-definition "unicode_rfloor = escape_unicode ''rfloor''"
-definition "unicode_Rightarrow = escape_unicode ''Rightarrow''"
-definition "unicode_subseteq = escape_unicode ''subseteq''"
-definition "unicode_tau = escape_unicode ''tau''"
-definition "unicode_times = escape_unicode ''times''"
-definition "unicode_triangleq = escape_unicode ''triangleq''"
-definition "unicode_Turnstile = escape_unicode ''Turnstile''"
-definition "unicode_upsilon = escape_unicode ''upsilon''"
+definition "unicode_AA = escape_unicode \<langle>''AA''\<rangle>"
+definition "unicode_acute = escape_unicode \<langle>''acute''\<rangle>"
+definition "unicode_alpha = escape_unicode \<langle>''alpha''\<rangle>"
+definition "unicode_and = escape_unicode \<langle>''and''\<rangle>"
+definition "unicode_And = escape_unicode \<langle>''And''\<rangle>"
+definition "unicode_bottom = escape_unicode \<langle>''bottom''\<rangle>"
+definition "unicode_circ = escape_unicode \<langle>''circ''\<rangle>"
+definition "unicode_delta = escape_unicode \<langle>''delta''\<rangle>"
+definition "unicode_doteq = escape_unicode \<langle>''doteq''\<rangle>"
+definition "unicode_equiv = escape_unicode \<langle>''equiv''\<rangle>"
+definition "unicode_exists = escape_unicode \<langle>''exists''\<rangle>"
+definition "unicode_forall = escape_unicode \<langle>''forall''\<rangle>"
+definition "unicode_in = escape_unicode \<langle>''in''\<rangle>"
+definition "unicode_lambda = escape_unicode \<langle>''lambda''\<rangle>"
+definition "unicode_lceil = escape_unicode \<langle>''lceil''\<rangle>"
+definition "unicode_lfloor = escape_unicode \<langle>''lfloor''\<rangle>"
+definition "unicode_longrightarrow = escape_unicode \<langle>''longrightarrow''\<rangle>"
+definition "unicode_Longrightarrow = escape_unicode \<langle>''Longrightarrow''\<rangle>"
+definition "unicode_mapsto = escape_unicode \<langle>''mapsto''\<rangle>"
+definition "unicode_noteq = escape_unicode \<langle>''noteq''\<rangle>"
+definition "unicode_not = escape_unicode \<langle>''not''\<rangle>"
+definition "unicode_or = escape_unicode \<langle>''or''\<rangle>"
+definition "unicode_rceil = escape_unicode \<langle>''rceil''\<rangle>"
+definition "unicode_rfloor = escape_unicode \<langle>''rfloor''\<rangle>"
+definition "unicode_Rightarrow = escape_unicode \<langle>''Rightarrow''\<rangle>"
+definition "unicode_subseteq = escape_unicode \<langle>''subseteq''\<rangle>"
+definition "unicode_tau = escape_unicode \<langle>''tau''\<rangle>"
+definition "unicode_times = escape_unicode \<langle>''times''\<rangle>"
+definition "unicode_triangleq = escape_unicode \<langle>''triangleq''\<rangle>"
+definition "unicode_Turnstile = escape_unicode \<langle>''Turnstile''\<rangle>"
+definition "unicode_upsilon = escape_unicode \<langle>''upsilon''\<rangle>"
 
 end

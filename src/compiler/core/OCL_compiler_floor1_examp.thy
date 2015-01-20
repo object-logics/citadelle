@@ -51,7 +51,7 @@ section{* Translation of AST *}
 
 subsection{* example *}
 
-definition "print_examp_oclbase_gen = 
+definition "print_examp_oclbase_gen =
  (\<lambda> OclDefInteger nb \<Rightarrow>
         let name = var_OclInteger @@ nb
           ; b = \<lambda>s. Expr_basic [s]
@@ -59,17 +59,17 @@ definition "print_examp_oclbase_gen =
         (ab_name, Definition_abbrev0
           name
           (b (number_of_str nb))
-          (Expr_rewrite (b name) ''='' (Expr_lambda wildcard (Expr_some (Expr_some ab_name)))))
+          (Expr_rewrite (b name) \<langle>''=''\<rangle> (Expr_lambda wildcard (Expr_some (Expr_some ab_name)))))
   | OclDefReal (nb0, nb1) \<Rightarrow>
-        let name = flatten [ var_OclReal, nb0, ''_'', nb1 ]
+        let name = flatten [ var_OclReal, nb0, \<langle>''_''\<rangle>, nb1 ]
           ; b = \<lambda>s. Expr_basic [s]
-          ; ab_name = b (flatten [nb0(*(* WARNING 
-                                          uncomment this as soon as OCL_basic_type_Real.thy 
-                                          is not implemented as 'nat' *), ''.'', nb1*)]) in
+          ; ab_name = b (flatten [nb0(*(* WARNING
+                                          uncomment this as soon as OCL_basic_type_Real.thy
+                                          is not implemented as 'nat' *), \<langle>''.''\<rangle>, nb1*)]) in
         (ab_name, Definition_abbrev0
           name
-          (b (flatten [number_of_str nb0, ''.'', number_of_str nb1]))
-          (Expr_rewrite (b name) ''='' (Expr_lambda wildcard (Expr_some (Expr_some ab_name)))))
+          (b (flatten [number_of_str nb0, \<langle>''.''\<rangle>, number_of_str nb1]))
+          (Expr_rewrite (b name) \<langle>''=''\<rangle> (Expr_lambda wildcard (Expr_some (Expr_some ab_name)))))
   | OclDefString nb \<Rightarrow>
         let name = var_OclString @@ base255_of_str nb
           ; b = \<lambda>s. Expr_basic [s] in
@@ -77,19 +77,19 @@ definition "print_examp_oclbase_gen =
           let ab_name = b (let c = [Char Nibble2 Nibble7] in flatten [c,c, nb, c,c]) in
           (ab_name,
           Definition_abbrev0 name (b (text2_of_str nb))
-            (Expr_rewrite (b name) ''='' (Expr_lambda wildcard (Expr_some (Expr_some ab_name)))))
+            (Expr_rewrite (b name) \<langle>''=''\<rangle> (Expr_lambda wildcard (Expr_some (Expr_some ab_name)))))
         else
           let ab_name = b (text_of_str nb) in
           (ab_name,
           Definition
-            (Expr_rewrite (b name) ''='' (Expr_lambda wildcard (Expr_some (Expr_some ab_name))))))"
+            (Expr_rewrite (b name) \<langle>''=''\<rangle> (Expr_lambda wildcard (Expr_some (Expr_some ab_name))))))"
 
 definition "print_examp_oclbase = (\<lambda> OclDefBase l \<Rightarrow> (start_map Thy_definition_hol o List_map (snd o print_examp_oclbase_gen)) l)"
 
 datatype print_examp_instance_draw_list_attr = Return_obj ocl_ty_class | Return_exp hol_expr
 
 fun_quick print_examp_instance_draw_list_attr_aux where
-   "print_examp_instance_draw_list_attr_aux f_oid_rec e = 
+   "print_examp_instance_draw_list_attr_aux f_oid_rec e =
     (\<lambda>
      (* object case 2 *)
        (OclTy_collection _ ty, ShallB_list l) \<Rightarrow> Expr_list' (\<lambda>e. print_examp_instance_draw_list_attr_aux f_oid_rec (ty, e)) l
@@ -106,7 +106,7 @@ definition "print_examp_instance_draw_list_attr = (\<lambda>(f_oid, f_oid_rec).
      case
        case obj of
          (t_obj, None) \<Rightarrow> (case t_obj of Some ty_obj \<Rightarrow> Return_obj ty_obj
-                                       | _ \<Rightarrow> Return_exp (b ''None''))
+                                       | _ \<Rightarrow> Return_exp (b \<langle>''None''\<rangle>))
        (* object case 1 *)
        | (_, Some (OclTy_class ty_obj, _)) \<Rightarrow> Return_obj ty_obj
        (* *)
@@ -230,13 +230,13 @@ definition "print_examp_def_st_assoc rbt map_self map_username l_assoc =
          let cpt_from = TyObjN_ass_switch (TyObj_from ty_obj) in
          Expr_pair
            (Expr_basic [print_access_oid_uniq_name cpt_from (\<lambda>s. s @@ isub_of_str name) name_attr])
-           (Expr_apply ''List.map''
-             [ Expr_binop (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l var_x = ''x''
-                             ; var_y = ''y'' in
+           (Expr_apply \<langle>''List.map''\<rangle>
+             [ Expr_binop (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l var_x = \<langle>''x''\<rangle>
+                             ; var_y = \<langle>''y''\<rangle> in
                            Expr_lambdas0
                              (Expr_pair (b var_x) (b var_y))
                              (Expr_list [b var_x, b var_y]))
-                          ''o''
+                          \<langle>''o''\<rangle>
                           (b (print_access_choose_name
                                 (TyObj_ass_arity ty_obj)
                                 cpt_from
@@ -256,10 +256,10 @@ definition "print_examp_instance_oid l ocl =
               if List.fold (\<lambda>(_, _, cpt0) b. b | cpt0 = oidGetInh cpt) (D_instance_rbt ocl) False
                | List.fold (\<lambda>(_, l). List.fold (\<lambda>(cpt0, _) b. b | cpt0 = cpt) l) (D_state_rbt ocl) False then
                    []
-              else [Definition (Expr_rewrite (f1 var_oid isub_name ocli) ''='' (f2 ocli isub_name cpt))]
+              else [Definition (Expr_rewrite (f1 var_oid isub_name ocli) \<langle>''=''\<rangle> (f2 ocli isub_name cpt))]
             , oidSucInh cpt)) l (D_oid_start ocl))
       [ (\<lambda> var_oid _ _. var_oid,
-         \<lambda> _ _ cpt. Expr_oid '''' (oidGetInh cpt)) ]
+         \<lambda> _ _ cpt. Expr_oid \<langle>''''\<rangle> (oidGetInh cpt)) ]
       (D_oid_start ocl))"
 
 definition "check_single = (\<lambda> (name_attr, oid, l_oid) l_mult l.
@@ -269,23 +269,23 @@ definition "check_single = (\<lambda> (name_attr, oid, l_oid) l_mult l.
     ; l_typed =
        List_map (\<lambda> (mult_min, mult_max0) \<Rightarrow>
          let mult_max = case mult_max0 of None \<Rightarrow> mult_min | Some mult_max \<Rightarrow> mult_max
-           ; s_mult = \<lambda> Mult_nat n \<Rightarrow> natural_of_str n | Mult_star \<Rightarrow> ''*''
-           ; f = \<lambda>s. flatten [ '' // ''
+           ; s_mult = \<lambda> Mult_nat n \<Rightarrow> natural_of_str n | Mult_star \<Rightarrow> \<langle>''*''\<rangle>
+           ; f = \<lambda>s. flatten [ \<langle>'' // ''\<rangle>
                              , s
-                             , '' constraint [''
+                             , \<langle>'' constraint [''\<rangle>
                              , s_mult mult_min
-                             , if mult_max0 = None then '''' else flatten ['' .. '', s_mult mult_max]
-                             , ''] not satisfied'' ] in
+                             , if mult_max0 = None then \<langle>''''\<rangle> else flatten [\<langle>'' .. ''\<rangle>, s_mult mult_max]
+                             , \<langle>''] not satisfied''\<rangle> ] in
          List_map (\<lambda> (b, msg) \<Rightarrow> (b, flatten [ assoc oid
-                                             , '' ''
-                                             , case name_attr of None \<Rightarrow> ''/* unnamed attribute */'' | Some s \<Rightarrow> ''.'' @@ s
-                                             , '' = Set{''
+                                             , \<langle>'' ''\<rangle>
+                                             , case name_attr of None \<Rightarrow> \<langle>''/* unnamed attribute */''\<rangle> | Some s \<Rightarrow> \<langle>''.''\<rangle> @@ s
+                                             , \<langle>'' = Set{''\<rangle>
                                              , let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l l = List_map assoc l in
-                                               if l = [] then '''' else '' '' @@ String_concatWith '' , '' l @@ '' ''
-                                             , ''}''
-                                             , if b then '''' else f msg ]))
-                  [(case mult_min of Mult_nat mult_min \<Rightarrow> mult_min \<le> attr_len | _ \<Rightarrow> True, ''minimum'')
-                  ,(case mult_max of Mult_nat mult_max \<Rightarrow> mult_max \<ge> attr_len | _ \<Rightarrow> True, ''maximum'')]) l_mult
+                                               if l = [] then \<langle>''''\<rangle> else \<langle>'' ''\<rangle> @@ String_concatWith \<langle>'' , ''\<rangle> l @@ \<langle>'' ''\<rangle>
+                                             , \<langle>''}''\<rangle>
+                                             , if b then \<langle>''''\<rangle> else f msg ]))
+                  [(case mult_min of Mult_nat mult_min \<Rightarrow> mult_min \<le> attr_len | _ \<Rightarrow> True, \<langle>''minimum''\<rangle>)
+                  ,(case mult_max of Mult_nat mult_max \<Rightarrow> mult_max \<ge> attr_len | _ \<Rightarrow> True, \<langle>''maximum''\<rangle>)]) l_mult
     ; (stop, l_typed) =
        if list_ex (list_all fst) l_typed then
          ( Warning
@@ -321,11 +321,11 @@ definition "print_examp_instance_defassoc_gen name l_ocli ocl =
         init_map_class ocl (List_map (\<lambda> Some ocli \<Rightarrow> ocli | None \<Rightarrow> \<lparr> Inst_name = [], Inst_ty = [], Inst_attr = OclAttrNoCast [] \<rparr>) l_ocli) in
   [Definition
      (Expr_rewrite name
-     ''=''
-     (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l var_oid_class = ''oid_class''
-        ; var_to_from = ''to_from''
-        ; var_oid = ''oid''
-        ; mk_ty = \<lambda>\<^sub>S\<^sub>c\<^sub>a\<^sub>l\<^sub>al. (flatten o flatten) (List_map (\<lambda>x. ['' '', x, '' '']) l)
+     \<langle>''=''\<rangle>
+     (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l var_oid_class = \<langle>''oid_class''\<rangle>
+        ; var_to_from = \<langle>''to_from''\<rangle>
+        ; var_oid = \<langle>''oid''\<rangle>
+        ; mk_ty = \<lambda>\<^sub>S\<^sub>c\<^sub>a\<^sub>l\<^sub>al. (flatten o flatten) (List_map (\<lambda>x. [\<langle>'' ''\<rangle>, x, \<langle>'' ''\<rangle>]) l)
         ; a_l = \<lambda>s. Ty_apply (Ty_base var_ty_list) [s] in
       Expr_lambdas
         [var_oid_class, var_to_from, var_oid]
@@ -336,13 +336,13 @@ definition "print_examp_instance_defassoc_gen name l_ocli ocl =
                                             (let t = a_l (Ty_base const_oid) in
                                              Ty_times t t))
             , Expr_annot (b var_oid) const_oid
-            , a ''drop''
+            , a \<langle>''drop''\<rangle>
               (Expr_applys (print_examp_def_st_assoc rbt map_self map_username
                              (flatten (fst (fold_list (\<lambda>ocli cpt. (case ocli of None \<Rightarrow> [] | Some ocli \<Rightarrow> [(ocli, cpt)], oidSucInh cpt)) l_ocli (D_oid_start ocl)))))
                            [Expr_annot (b var_oid_class) const_oid])])
-          [ (b ''Nil'', b ''None'')
-          , let b_l = b ''l'' in
-            (b_l, a ''Some'' b_l)] ) (Ty_apply (Ty_base ''option'') [a_l (Ty_base const_oid)]))))])"
+          [ (b \<langle>''Nil''\<rangle>, b \<langle>''None''\<rangle>)
+          , let b_l = b \<langle>''l''\<rangle> in
+            (b_l, a \<langle>''Some''\<rangle> b_l)] ) (Ty_apply (Ty_base \<langle>''option''\<rangle>) [a_l (Ty_base const_oid)]))))])"
 
 definition "check_single_ty rbt_init rbt' l_attr_gen l_oid x =
  (\<lambda> (ty1, mult1, role1) (ty2, mult2, role2).
@@ -421,7 +421,7 @@ definition "print_examp_instance_defassoc_typecheck_gen name l_ocli ocl =
       l_oid_gen
       [] in
 
-  [ raise_ml l_out '' error(s) in multiplicity constraints'' ])"
+  [ raise_ml l_out \<langle>'' error(s) in multiplicity constraints''\<rangle> ])"
 
 definition "print_examp_instance_defassoc = (\<lambda> OclInstance l \<Rightarrow> \<lambda> ocl.
   (\<lambda>l_res.
@@ -456,7 +456,7 @@ definition "print_examp_instance_app_constr2_notmp_norec = (\<lambda>(rbt, (map_
              [ b (print_access_oid_uniq_name (TyObjN_ass_switch ty_objfrom) isub_name (case TyObjN_role_name ty_objto of Some s \<Rightarrow> s))
              , b (print_access_choose_name (TyObj_ass_arity ty_obj) (TyObjN_ass_switch ty_objfrom) (TyObjN_ass_switch ty_objto))
              , Expr_oid var_oid_uniq (oidGetInh oid) ])
-      , \<lambda> base. 
+      , \<lambda> base.
            let cpt = case case base of ShallB_str s \<Rightarrow> map_username s
                                      | ShallB_self cpt1 \<Rightarrow> map_self cpt1 of Some cpt \<Rightarrow> cpt in
            Expr_oid var_oid_uniq (oidGetInh cpt))))"
@@ -471,11 +471,11 @@ definition "print_examp_instance = (\<lambda> OclInstance l \<Rightarrow> \<lamb
         fold_list (\<lambda> ocli cpt.
           let var_oid = Expr_oid var_oid_uniq (oidGetInh cpt)
             ; isub_name = \<lambda>s. s @@ isub_of_str (Inst_ty ocli) in
-          ( Definition (Expr_rewrite (f1 var_oid isub_name ocli) ''='' (f2 ocli isub_name cpt))
+          ( Definition (Expr_rewrite (f1 var_oid isub_name ocli) \<langle>''=''\<rangle> (f2 ocli isub_name cpt))
           , oidSucInh cpt)) l (D_oid_start ocl))
       (let a = \<lambda>f x. Expr_apply f [x]
          ; b = \<lambda>s. Expr_basic [s] in
-       [ let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l var_inst_ass = ''inst_assoc'' in
+       [ let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l var_inst_ass = \<langle>''inst_assoc''\<rangle> in
          (\<lambda> _ isub_name ocli. Expr_basic (print_examp_instance_name isub_name (Inst_name ocli) # (if D_design_analysis ocl = Gen_only_design then [ var_inst_ass ] else [])),
           print_examp_instance_app_constr2_notmp_norec (rbt, (map_self, map_username)) ocl (b var_inst_ass))
        , (\<lambda> _ _ ocli. Expr_annot (b (Inst_name ocli)) (Inst_ty ocli),
@@ -547,8 +547,8 @@ definition "print_examp_def_st = (\<lambda> OclDefSt name l \<Rightarrow> \<lamb
      ; l_st = flatten l_st
      ; expr_app = print_examp_def_st_mapsto ocl (print_examp_def_st_defassoc_name name) (rbt, (map_self, map_username)) l_st in
 
-   ( [ let s_empty = ''Map.empty'' in
-       Definition (Expr_rewrite (b name) ''='' (Expr_apply ''state.make''
+   ( [ let s_empty = \<langle>''Map.empty''\<rangle> in
+       Definition (Expr_rewrite (b name) \<langle>''=''\<rangle> (Expr_apply \<langle>''state.make''\<rangle>
         ( Expr_apply s_empty expr_app
         # [ if D_design_analysis ocl = Gen_only_design then
               b s_empty
@@ -572,7 +572,7 @@ definition "print_examp_def_st_inst_var = (\<lambda> OclDefSt name l \<Rightarro
           ( case ocli of None \<Rightarrow> [] | Some ocli \<Rightarrow>
               let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l var_oid = Expr_oid var_oid_uniq (oidGetInh cpt)
                 ; isub_name = \<lambda>s. s @@ isub_of_str (Inst_ty ocli) in
-              [Definition (Expr_rewrite (f1 var_oid isub_name ocli) ''='' (f2 ocli isub_name cpt))]
+              [Definition (Expr_rewrite (f1 var_oid isub_name ocli) \<langle>''=''\<rangle> (f2 ocli isub_name cpt))]
           , oidSucInh cpt)) l_ocli (D_oid_start ocl) in
           (flatten l, accu))
       (let a = \<lambda>f x. Expr_apply f [x]
@@ -582,7 +582,7 @@ definition "print_examp_def_st_inst_var = (\<lambda> OclDefSt name l \<Rightarro
                                                                             (print_examp_def_st_defassoc_name name))))) ])
       (D_oid_start ocl))))"
 
-definition "print_examp_def_st_dom_name name = flatten [''dom_'', name]"
+definition "print_examp_def_st_dom_name name = flatten [\<langle>''dom_''\<rangle>, name]"
 definition "print_examp_def_st_dom = (\<lambda> _ ocl.
  (\<lambda> l. (List_map Thy_lemma_by l, ocl))
   (let (name, l_st) = hd (D_state_rbt ocl)
@@ -591,17 +591,17 @@ definition "print_examp_def_st_dom = (\<lambda> _ ocl.
      ; d = hol_definition in
    [ Lemma_by
        (print_examp_def_st_dom_name name)
-       [Expr_rewrite (a ''dom'' (a ''heap'' (b name))) ''='' (Expr_set (List_map (\<lambda>(cpt, _). Expr_oid var_oid_uniq (oidGetInh cpt)) l_st))]
+       [Expr_rewrite (a \<langle>''dom''\<rangle> (a \<langle>''heap''\<rangle> (b name))) \<langle>''=''\<rangle> (Expr_set (List_map (\<lambda>(cpt, _). Expr_oid var_oid_uniq (oidGetInh cpt)) l_st))]
        []
        (Tacl_by [Tac_auto_simp_add [d name]])]))"
 
 definition "print_examp_def_st_dom_lemmas = (\<lambda> _ ocl.
  (\<lambda> l. (List_map Thy_lemmas_simp l, ocl))
   (let (name, _) = hd (D_state_rbt ocl) in
-   [ Lemmas_simp ''''
+   [ Lemmas_simp \<langle>''''\<rangle>
        [Thm_str (print_examp_def_st_dom_name name)] ]))"
 
-definition "print_examp_def_st_perm_name name = flatten [''perm_'', name]"
+definition "print_examp_def_st_perm_name name = flatten [\<langle>''perm_''\<rangle>, name]"
 definition "print_examp_def_st_perm = (\<lambda> _ ocl.
  (\<lambda> l. (List_map Thy_lemma_by l, ocl))
   (let (name, l_st) = hd (D_state_rbt ocl)
@@ -621,12 +621,12 @@ definition "print_examp_def_st_perm = (\<lambda> _ ocl.
          | [_] \<Rightarrow> ([], Tacl_by [Tac_simp_add [d name]])
          | _ \<Rightarrow>
            ( [ Tac_simp_add (List_map d (name # List_map (\<lambda>(cpt, _). var_oid_uniq @@ natural_of_str (case oidGetInh cpt of Oid i \<Rightarrow> i)) l_st))]
-             # flatten (List_map (\<lambda>i_max. List_map (\<lambda>i. [Tac_subst_l (List_map nat_of_str [i_max - i]) (Thm_str ''fun_upd_twist''), Tac_simp]) (List.upt 0 i_max)) (List.upt 1 (List.length l_st)))
+             # flatten (List_map (\<lambda>i_max. List_map (\<lambda>i. [Tac_subst_l (List_map nat_of_str [i_max - i]) (Thm_str \<langle>''fun_upd_twist''\<rangle>), Tac_simp]) (List.upt 0 i_max)) (List.upt 1 (List.length l_st)))
            , Tacl_by [Tac_simp]) in
    [ Lemma_by
        (print_examp_def_st_perm_name name)
-       [Expr_rewrite (b name) ''='' (Expr_apply ''state.make''
-          (let s_empty = ''Map.empty'' in
+       [Expr_rewrite (b name) \<langle>''=''\<rangle> (Expr_apply \<langle>''state.make''\<rangle>
+          (let s_empty = \<langle>''Map.empty''\<rangle> in
            Expr_apply s_empty expr_app # [Expr_apply var_assocs [b name]]))]
        l_app
        l_last ]))"
@@ -674,14 +674,14 @@ definition "print_examp_def_st_allinst = (\<lambda> _ ocl.
                 | UN' \<Rightarrow> [])) expr_app
        ; (l_spec, l_body) = List_split (flatten (List_map snd expr_app)) in
      gen_pre_post
-       (\<lambda>s. flatten [ name_st, ''_'', s, ''_exec_'', name ])
+       (\<lambda>s. flatten [ name_st, \<langle>''_''\<rangle>, s, \<langle>''_exec_''\<rangle>, name ])
        (\<lambda>f_expr f_mk _. Expr_binop
             (f_mk (b name_st))
             unicode_Turnstile
             (Expr_binop (f_expr [b name]) unicode_doteq (Expr_oclset l_spec)))
        (\<lambda>lem_tit lem_spec var_pre_post var_mk _. Lemma_by_assum
          lem_tit
-         [('''', True, Expr_And ''a'' (\<lambda>var_a. Expr_rewrite (a var_pre_post (a var_mk (b var_a))) ''='' (b var_a)))]
+         [(\<langle>''''\<rangle>, True, Expr_And \<langle>''a''\<rangle> (\<lambda>var_a. Expr_rewrite (a var_pre_post (a var_mk (b var_a))) \<langle>''=''\<rangle> (b var_a)))]
          lem_spec
          (List_map App
            (flatten
@@ -690,7 +690,7 @@ definition "print_examp_def_st_allinst = (\<lambda> _ ocl.
                  (List_map
                    (Thm_str o d)
                    (flatten
-                      [ [''state.make'']
+                      [ [\<langle>''state.make''\<rangle>]
                       , l_st_oid
                       , flatten (List_map (\<lambda>(_, ocore, _).
                           case ocore of
@@ -709,36 +709,36 @@ definition "print_examp_def_st_allinst = (\<lambda> _ ocl.
                           else []) l_body) ]))]]
             , fst (fold_list (\<lambda> expr l_spec.
                 let mk_StrictRefEq_including = \<lambda>l.
-                      Tac_rule (Thm_str (flatten [''const_StrictRefEq'', isub_of_str ''Set'', ''_including'']))
+                      Tac_rule (Thm_str (flatten [\<langle>''const_StrictRefEq''\<rangle>, isub_of_str \<langle>''Set''\<rangle>, \<langle>''_including''\<rangle>]))
                       # Tac_simp # Tac_simp # Tac_simp # l
                   ; (state_update_vs_allInstances_generic, l_spec, l_print_examp, l_OclIncluding_cong) =
                   case expr of (ocore, []) \<Rightarrow>
-                    ( ''state_update_vs_allInstances_generic_ntc''
+                    ( \<langle>''state_update_vs_allInstances_generic_ntc''\<rangle>
                     , l_spec
                     , case ocore of OclDefCoreBinding (_, ocli) \<Rightarrow> [print_examp_instance_name (\<lambda>s. s @@ isub_of_str (Inst_ty ocli)) (Inst_name ocli)] | _ \<Rightarrow> []
                     , if l_spec = [] then
-                        [Tac_rule (Thm_str (flatten [''const_StrictRefEq'', isub_of_str ''Set'', ''_empty''])), Tac_simp]
+                        [Tac_rule (Thm_str (flatten [\<langle>''const_StrictRefEq''\<rangle>, isub_of_str \<langle>''Set''\<rangle>, \<langle>''_empty''\<rangle>])), Tac_simp]
                       else
                         mk_StrictRefEq_including [])
                   | _ \<Rightarrow>
-                    ( ''state_update_vs_allInstances_generic_tc''
+                    ( \<langle>''state_update_vs_allInstances_generic_tc''\<rangle>
                     , tl l_spec
                     , []
-                    , mk_StrictRefEq_including [ Tac_rule (Thm_str ''OclIncluding_cong''), Tac_simp, Tac_simp ]) in
+                    , mk_StrictRefEq_including [ Tac_rule (Thm_str \<langle>''OclIncluding_cong''\<rangle>), Tac_simp, Tac_simp ]) in
                 ( Tac_subst (Thm_str state_update_vs_allInstances_generic)
                   # Tac_simp # Tac_simp
-                  # Tac_simp_add (List_map d ((flatten [isub_name const_oclastype, ''_'', unicode_AA]) # l_print_examp))
+                  # Tac_simp_add (List_map d ((flatten [isub_name const_oclastype, \<langle>''_''\<rangle>, unicode_AA]) # l_print_examp))
                   # Tac_simp
                   # l_OclIncluding_cong
                 , l_spec) ) expr_app l_spec)
-            , [[Tac_rule (Thm_str ''state_update_vs_allInstances_generic_empty'')]] ]))
+            , [[Tac_rule (Thm_str \<langle>''state_update_vs_allInstances_generic_empty''\<rangle>)]] ]))
          (Tacl_by [ if l_spec = [] then Tac_simp
-                    else Tac_plus [Tac_simp_add [d (flatten [isub_name const_oclastype, ''_'', unicode_AA])]]]) )
+                    else Tac_plus [Tac_simp_add [d (flatten [isub_name const_oclastype, \<langle>''_''\<rangle>, unicode_AA])]]]) )
        [Tac_simp])
      (case D_class_spec ocl of Some class_spec \<Rightarrow> class_spec)))"
 
 definition "print_examp_def_st_defs = (\<lambda> _ \<Rightarrow> start_map Thy_lemmas_simp
-  [ Lemmas_simps '''' [ ''state.defs'', ''const_ss'' ] ])"
+  [ Lemmas_simps \<langle>''''\<rangle> [ \<langle>''state.defs''\<rangle>, \<langle>''const_ss''\<rangle> ] ])"
 
 definition "merge_unique_gen f l = List.fold (List.fold (\<lambda>x. case f x of Some (x, v) \<Rightarrow> insert x v | None \<Rightarrow> id)) l empty"
 definition "merge_unique f l = entries (merge_unique_gen f l)"
@@ -751,11 +751,11 @@ definition "print_pre_post_wff = (\<lambda> OclDefPP s_pre s_post \<Rightarrow> 
      ; l_st = D_state_rbt ocl in
    case (List_assoc s_pre l_st, List_assoc s_post l_st) of (Some l_pre, Some l_post) \<Rightarrow>
    [ Lemma_by
-      (flatten [''basic_'', s_pre, ''_'', s_post, ''_wff''])
-      [a ''WFF'' (Expr_pair (b s_pre) (b s_post))]
+      (flatten [\<langle>''basic_''\<rangle>, s_pre, \<langle>''_''\<rangle>, s_post, \<langle>''_wff''\<rangle>])
+      [a \<langle>''WFF''\<rangle> (Expr_pair (b s_pre) (b s_post))]
       []
       (Tacl_by [Tac_simp_add (List_map d (flatten
-        [ [ ''WFF'', s_pre, s_post, const_oid_of unicode_AA ]
+        [ [ \<langle>''WFF''\<rangle>, s_pre, s_post, const_oid_of unicode_AA ]
         , List_map
             (\<lambda>(cpt, _). var_oid_uniq @@ natural_of_str (case cpt of Oid i \<Rightarrow> i))
             (merge_unique ((\<lambda>x. Some (x, ())) o oidGetInh o fst) [l_pre, l_post])
@@ -775,9 +775,9 @@ definition "print_pre_post_where = (\<lambda> OclDefPP s_pre s_post \<Rightarrow
      ; rbt_pre = merge_unique_gen f_name [l_pre]
      ; rbt_post = merge_unique_gen f_name [l_post]
      ; filter_ocore = \<lambda>x_pers_oid. case (lookup rbt_pre x_pers_oid, lookup rbt_post x_pers_oid) of
-             (Some ocore1, Some ocore2) \<Rightarrow> (''OclIsMaintained'', case (ocore1, ocore2) of (OclDefCoreBinding _, OclDefCoreBinding _) \<Rightarrow> [(ocore1, s_pre), (ocore2, s_post)] | (OclDefCoreBinding _, _) \<Rightarrow> [(ocore1, s_pre)] | _ \<Rightarrow> [(ocore2, s_post)])
-           | (Some ocore, None) \<Rightarrow> (''OclIsDeleted'', [(ocore, s_pre)])
-           | (None, Some ocore) \<Rightarrow> (''OclIsNew'', [(ocore, s_post)])
+             (Some ocore1, Some ocore2) \<Rightarrow> (\<langle>''OclIsMaintained''\<rangle>, case (ocore1, ocore2) of (OclDefCoreBinding _, OclDefCoreBinding _) \<Rightarrow> [(ocore1, s_pre), (ocore2, s_post)] | (OclDefCoreBinding _, _) \<Rightarrow> [(ocore1, s_pre)] | _ \<Rightarrow> [(ocore2, s_post)])
+           | (Some ocore, None) \<Rightarrow> (\<langle>''OclIsDeleted''\<rangle>, [(ocore, s_pre)])
+           | (None, Some ocore) \<Rightarrow> (\<langle>''OclIsNew''\<rangle>, [(ocore, s_post)])
      ; rbt = union rbt_pre rbt_post
      ; l_oid_of = keys (fold (\<lambda>_. \<lambda> OclDefCoreBinding (_, ocli) \<Rightarrow> insert (const_oid_of (datatype_name @@ isub_of_str (Inst_ty ocli))) ()
                             | OclDefCoreAdd ocli \<Rightarrow> insert (const_oid_of (datatype_name @@ isub_of_str (Inst_ty ocli))) ()
@@ -795,12 +795,12 @@ definition "print_pre_post_where = (\<lambda> OclDefPP s_pre s_post \<Rightarrow
                  else
                    name in
                (Some (name, print_examp_instance_name (\<lambda>s. s @@ isub_of_str (Inst_ty ocli)) (Inst_name ocli)), b name)) in
-         Lemma_by (flatten [var_oid_uniq, natural_of_str (case x_pers_oid of Oid i \<Rightarrow> i), s_pre, s_post, ''_'', name_st, ''_'', x_where])
+         Lemma_by (flatten [var_oid_uniq, natural_of_str (case x_pers_oid of Oid i \<Rightarrow> i), s_pre, s_post, \<langle>''_''\<rangle>, name_st, \<langle>''_''\<rangle>, x_where])
           [Expr_binop (Expr_pair (b s_pre) (b s_post)) unicode_Turnstile (a x_where (x_pers_expr))]
           []
           (Tacl_by [Tac_simp_add (List_map d (flatten
             [ case x_name of Some (x_pers, x_name) \<Rightarrow> [x_pers, x_name] | _ \<Rightarrow> []
-            , [ x_where, ''OclValid'', s_pre, s_post, const_oid_of ''option'' ]
+            , [ x_where, \<langle>''OclValid''\<rangle>, s_pre, s_post, const_oid_of \<langle>''option''\<rangle> ]
             , List_map
                 (\<lambda>(cpt, _). var_oid_uniq @@ natural_of_str (case cpt of Oid i \<Rightarrow> i))
                 (merge_unique ((\<lambda>x. Some (x, ())) o oidGetInh o fst) [l_pre, l_post])

@@ -86,67 +86,67 @@ end
 
 subsection{* ... *}
 
-definition "const_oclastype = ''OclAsType''"
-definition "const_oclistypeof = ''OclIsTypeOf''"
-definition "const_ocliskindof = ''OclIsKindOf''"
+definition "const_oclastype = \<langle>''OclAsType''\<rangle>"
+definition "const_oclistypeof = \<langle>''OclIsTypeOf''\<rangle>"
+definition "const_ocliskindof = \<langle>''OclIsKindOf''\<rangle>"
 definition "const_mixfix dot_ocl name = (let t = \<lambda>s. Char Nibble2 Nibble7 # s in
-                                         flatten [dot_ocl, t ''('', name, t '')''])"
-definition "const_oid_of s = ''oid_of_'' @@ s"
-definition "dot_oclastype = ''.oclAsType''"
-definition "dot_oclistypeof = ''.oclIsTypeOf''"
-definition "dot_ocliskindof = ''.oclIsKindOf''"
+                                         flatten [dot_ocl, t \<langle>''(''\<rangle>, name, t \<langle>'')''\<rangle>])"
+definition "const_oid_of s = \<langle>''oid_of_''\<rangle> @@ s"
+definition "dot_oclastype = \<langle>''.oclAsType''\<rangle>"
+definition "dot_oclistypeof = \<langle>''.oclIsTypeOf''\<rangle>"
+definition "dot_ocliskindof = \<langle>''.oclIsKindOf''\<rangle>"
 definition "dot_astype = mk_dot_par dot_oclastype"
 definition "dot_istypeof = mk_dot_par dot_oclistypeof"
 definition "dot_iskindof = mk_dot_par dot_ocliskindof"
 
-definition "var_reconst_basetype = ''reconst_basetype''"
-definition "var_reconst_basetype_void = ''reconst_basetype'' @@ isub_of_str ''Void''"
-definition "var_Abs_Void = ''Abs_Void'' @@ isub_of_str ''base''"
-definition "var_oid_uniq = ''oid''"
-definition "var_eval_extract = ''eval_extract''"
-definition "var_deref = ''deref''"
-definition "var_deref_oid = ''deref_oid''"
-definition "var_deref_assocs = ''deref_assocs''"
-definition "var_deref_assocs_list = ''deref_assocs_list''"
-definition "var_inst_assoc = ''inst_assoc''"
-definition "var_select = ''select''"
-definition "var_select_object = ''select_object''"
-definition "var_select_object_set = ''select_object'' @@ isub_of_str ''Set''"
-definition "var_select_object_set_any = ''select_object_any'' @@ isub_of_str ''Set''"
-definition "var_select_object_set_any_exec = ''select_object_any_exec'' @@ isub_of_str ''Set''"
-definition "var_select_object_sequence = ''select_object'' @@ isub_of_str ''Seq''"
-definition "var_select_object_sequence_any = ''select_object_any'' @@ isub_of_str ''Seq''"
-definition "var_select_object_sequence_any_exec = ''select_object_any_exec'' @@ isub_of_str ''Seq''"
-definition "var_select_object_pair = ''select_object'' @@ isub_of_str ''Pair''"
-definition "var_select_object_pair_any = ''select_object_any'' @@ isub_of_str ''Pair''"
-definition "var_select_object_pair_any_exec = ''select_object_any_exec'' @@ isub_of_str ''Pair''"
-definition "var_choose = ''choose''"
-definition "var_switch = ''switch''"
-definition "var_assocs = ''assocs''"
-definition "var_map_of_list = ''map_of_list''"
-definition "var_OclInteger = ''OclInt''"
-definition "var_OclReal = ''OclReal''"
-definition "var_OclString = ''OclString''"
-definition "var_Abs_Set = ''Abs_Set'' @@ isub_of_str ''base''"
-definition "var_Abs_Set_inverse = var_Abs_Set @@ ''_inverse''"
-definition "var_Set_base = ''Set'' @@ isub_of_str ''base''"
-definition "var_Sequence_base = ''Sequence'' @@ isub_of_str ''base''"
-definition "var_Pair_base = ''Pair'' @@ isub_of_str ''base''"
-definition "var_mt_set = ''mtSet''"
-definition "var_ANY_set = ''UML_Set.OclANY''"
-definition "var_OclIncluding_set = ''UML_Set.OclIncluding''"
-definition "var_OclForall_set = ''UML_Set.OclForall''"
-definition "var_mt_sequence = ''mtSequence''"
-definition "var_ANY_sequence = ''UML_Sequence.OclANY''"
-definition "var_OclIncluding_sequence = ''UML_Sequence.OclIncluding''"
-definition "var_OclForall_sequence = ''UML_Sequence.OclForall''"
-definition "var_self = ''self''"
-definition "var_result = ''result''"
+definition "var_reconst_basetype = \<langle>''reconst_basetype''\<rangle>"
+definition "var_reconst_basetype_void = \<langle>''reconst_basetype''\<rangle> @@ isub_of_str \<langle>''Void''\<rangle>"
+definition "var_Abs_Void = \<langle>''Abs_Void''\<rangle> @@ isub_of_str \<langle>''base''\<rangle>"
+definition "var_oid_uniq = \<langle>''oid''\<rangle>"
+definition "var_eval_extract = \<langle>''eval_extract''\<rangle>"
+definition "var_deref = \<langle>''deref''\<rangle>"
+definition "var_deref_oid = \<langle>''deref_oid''\<rangle>"
+definition "var_deref_assocs = \<langle>''deref_assocs''\<rangle>"
+definition "var_deref_assocs_list = \<langle>''deref_assocs_list''\<rangle>"
+definition "var_inst_assoc = \<langle>''inst_assoc''\<rangle>"
+definition "var_select = \<langle>''select''\<rangle>"
+definition "var_select_object = \<langle>''select_object''\<rangle>"
+definition "var_select_object_set = \<langle>''select_object''\<rangle> @@ isub_of_str \<langle>''Set''\<rangle>"
+definition "var_select_object_set_any = \<langle>''select_object_any''\<rangle> @@ isub_of_str \<langle>''Set''\<rangle>"
+definition "var_select_object_set_any_exec = \<langle>''select_object_any_exec''\<rangle> @@ isub_of_str \<langle>''Set''\<rangle>"
+definition "var_select_object_sequence = \<langle>''select_object''\<rangle> @@ isub_of_str \<langle>''Seq''\<rangle>"
+definition "var_select_object_sequence_any = \<langle>''select_object_any''\<rangle> @@ isub_of_str \<langle>''Seq''\<rangle>"
+definition "var_select_object_sequence_any_exec = \<langle>''select_object_any_exec''\<rangle> @@ isub_of_str \<langle>''Seq''\<rangle>"
+definition "var_select_object_pair = \<langle>''select_object''\<rangle> @@ isub_of_str \<langle>''Pair''\<rangle>"
+definition "var_select_object_pair_any = \<langle>''select_object_any''\<rangle> @@ isub_of_str \<langle>''Pair''\<rangle>"
+definition "var_select_object_pair_any_exec = \<langle>''select_object_any_exec''\<rangle> @@ isub_of_str \<langle>''Pair''\<rangle>"
+definition "var_choose = \<langle>''choose''\<rangle>"
+definition "var_switch = \<langle>''switch''\<rangle>"
+definition "var_assocs = \<langle>''assocs''\<rangle>"
+definition "var_map_of_list = \<langle>''map_of_list''\<rangle>"
+definition "var_OclInteger = \<langle>''OclInt''\<rangle>"
+definition "var_OclReal = \<langle>''OclReal''\<rangle>"
+definition "var_OclString = \<langle>''OclString''\<rangle>"
+definition "var_Abs_Set = \<langle>''Abs_Set''\<rangle> @@ isub_of_str \<langle>''base''\<rangle>"
+definition "var_Abs_Set_inverse = var_Abs_Set @@ \<langle>''_inverse''\<rangle>"
+definition "var_Set_base = \<langle>''Set''\<rangle> @@ isub_of_str \<langle>''base''\<rangle>"
+definition "var_Sequence_base = \<langle>''Sequence''\<rangle> @@ isub_of_str \<langle>''base''\<rangle>"
+definition "var_Pair_base = \<langle>''Pair''\<rangle> @@ isub_of_str \<langle>''base''\<rangle>"
+definition "var_mt_set = \<langle>''mtSet''\<rangle>"
+definition "var_ANY_set = \<langle>''UML_Set.OclANY''\<rangle>"
+definition "var_OclIncluding_set = \<langle>''UML_Set.OclIncluding''\<rangle>"
+definition "var_OclForall_set = \<langle>''UML_Set.OclForall''\<rangle>"
+definition "var_mt_sequence = \<langle>''mtSequence''\<rangle>"
+definition "var_ANY_sequence = \<langle>''UML_Sequence.OclANY''\<rangle>"
+definition "var_OclIncluding_sequence = \<langle>''UML_Sequence.OclIncluding''\<rangle>"
+definition "var_OclForall_sequence = \<langle>''UML_Sequence.OclForall''\<rangle>"
+definition "var_self = \<langle>''self''\<rangle>"
+definition "var_result = \<langle>''result''\<rangle>"
 
 definition "update_D_accessor_rbt_pre f = (\<lambda>(l_pre, l_post). (f l_pre, l_post))"
 definition "update_D_accessor_rbt_post f = (\<lambda>(l_pre, l_post). (l_pre, f l_post))"
 
-definition "Expr_basety = (let var_x = ''x'' in
+definition "Expr_basety = (let var_x = \<langle>''x''\<rangle> in
                            Expr_lambdas [var_x, wildcard] (Expr_some (Expr_some (Expr_basic [var_x]))))"
 
 subsection{* ... *}
@@ -163,14 +163,14 @@ definition "find_class_ass ocl =
                                        | OclAstAssClass Floor1 (OclAssClass ass class) \<Rightarrow> Some (OclAstAssClass Floor1 (OclAssClass ass (f class)))
                                        | _ \<Rightarrow> None) l_ocl]
   , flatten (List_map
-      (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l f = \<lambda>class. 
+      (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l f = \<lambda>class.
           flatten [ List_map (OclAstCtxtPrePost Floor1) (ClassRaw_contract class)
                   , List_map (OclAstCtxtInv Floor1) (ClassRaw_invariant class) ] in
        \<lambda> OclAstClassRaw Floor1 class \<Rightarrow> f class
        | OclAstAssClass Floor1 (OclAssClass _ class) \<Rightarrow> f class
        | x \<Rightarrow> [x]) l_ocl)))"
 
-definition "arrange_ass l_c = 
+definition "arrange_ass l_c =
    (let l_class = List.map_filter (\<lambda> OclAstClassRaw Floor1 cflat \<Rightarrow> Some cflat
                                     | OclAstAssClass Floor1 (OclAssClass _ cflat) \<Rightarrow> Some cflat
                                     | _ \<Rightarrow> None) l_c
@@ -199,11 +199,11 @@ definition "arrange_ass l_c =
 
 subsection{* ... *}
 
-definition "datatype_ext_name = ''type''"
+definition "datatype_ext_name = \<langle>''type''\<rangle>"
 definition "datatype_name = datatype_ext_name @@ const_oid"
-definition "datatype_ext_constr_name = ''mk''"
+definition "datatype_ext_constr_name = \<langle>''mk''\<rangle>"
 definition "datatype_constr_name = datatype_ext_constr_name @@ const_oid"
-definition "datatype_in = ''in''"
+definition "datatype_in = \<langle>''in''\<rangle>"
 
 section{* Translation of AST *}
 
@@ -240,45 +240,45 @@ subsection{* Infra *}
 
 fun_quick print_infra_type_synonym_class_rec_aux where
    "print_infra_type_synonym_class_rec_aux e =
-   (let option = \<lambda>x. Ty_apply (Ty_base ''option'') [x] in
+   (let option = \<lambda>x. Ty_apply (Ty_base \<langle>''option''\<rangle>) [x] in
      (\<lambda> OclTy_collection s t \<Rightarrow>
           let (name, ty) = print_infra_type_synonym_class_rec_aux t in
-          ( (if s = Set then ''Set'' else ''Sequence'') @@ ''_'' @@ name
+          ( (if s = Set then \<langle>''Set''\<rangle> else \<langle>''Sequence''\<rangle>) @@ \<langle>''_''\<rangle> @@ name
           , Ty_apply (Ty_base (if s = Set then var_Set_base else var_Sequence_base)) [ty])
       | OclTy_pair t1 t2 \<Rightarrow>
           let (name1, ty1) = print_infra_type_synonym_class_rec_aux t1
             ; (name2, ty2) = print_infra_type_synonym_class_rec_aux t2 in
-          ( ''Pair'' @@ ''_'' @@ name1 @@ ''_'' @@ name2
+          ( \<langle>''Pair''\<rangle> @@ \<langle>''_''\<rangle> @@ name1 @@ \<langle>''_''\<rangle> @@ name2
           , Ty_apply (Ty_base var_Pair_base) [ty1, ty2])
       | OclTy_class_pre s \<Rightarrow> (s, option (option (Ty_base (datatype_name @@ isub_of_str s))))
-      | t \<Rightarrow> (str_of_ty t, Ty_base (str_of_ty t @@ isub_of_str ''base''))) e)"
+      | t \<Rightarrow> (str_of_ty t, Ty_base (str_of_ty t @@ isub_of_str \<langle>''base''\<rangle>))) e)"
 
 subsection{* AsType *}
 
-definition "print_astype_from_universe_name name = flatten [const_oclastype, isub_of_str name, ''_'', unicode_AA]"
+definition "print_astype_from_universe_name name = flatten [const_oclastype, isub_of_str name, \<langle>''_''\<rangle>, unicode_AA]"
 
 subsection{* IsTypeOf *}
 
-definition "print_istypeof_defined_name isub_name h_name = flatten [isub_name const_oclistypeof, ''_'', h_name, ''_defined'']"
-definition "print_istypeof_defined'_name isub_name h_name = flatten [isub_name const_oclistypeof, ''_'', h_name, ''_defined'',  [Char Nibble2 Nibble7]]"
-definition "print_istypeof_up_d_cast_name name_mid name_any name_pers = flatten [''down_cast_type'', isub_of_str name_mid, ''_from_'', name_any, ''_to_'', name_pers]"
+definition "print_istypeof_defined_name isub_name h_name = flatten [isub_name const_oclistypeof, \<langle>''_''\<rangle>, h_name, \<langle>''_defined''\<rangle>]"
+definition "print_istypeof_defined'_name isub_name h_name = flatten [isub_name const_oclistypeof, \<langle>''_''\<rangle>, h_name, \<langle>''_defined''\<rangle>,  [Char Nibble2 Nibble7]]"
+definition "print_istypeof_up_d_cast_name name_mid name_any name_pers = flatten [\<langle>''down_cast_type''\<rangle>, isub_of_str name_mid, \<langle>''_from_''\<rangle>, name_any, \<langle>''_to_''\<rangle>, name_pers]"
 
 subsection{* IsKindOf *}
 
-definition "print_iskindof_up_eq_asty_name name = (flatten [''actual_eq_static'', isub_of_str name])"
-definition "print_iskindof_up_larger_name name_pers name_any = flatten [''actualKind'', isub_of_str name_pers, ''_larger_staticKind'', isub_of_str name_any]"
+definition "print_iskindof_up_eq_asty_name name = (flatten [\<langle>''actual_eq_static''\<rangle>, isub_of_str name])"
+definition "print_iskindof_up_larger_name name_pers name_any = flatten [\<langle>''actualKind''\<rangle>, isub_of_str name_pers, \<langle>''_larger_staticKind''\<rangle>, isub_of_str name_any]"
 
 subsection{* allInstances *}
 
 definition "gen_pre_post f_tit spec f_lemma tac_last =
   (let b = \<lambda>s. Expr_basic [s]
      ; d = hol_definition
-     ; f_allinst = \<lambda>s. ''OclAllInstances_'' @@ s
+     ; f_allinst = \<lambda>s. \<langle>''OclAllInstances_''\<rangle> @@ s
      ; f_tit = f_tit o f_allinst
-     ; var_pre_post = ''pre_post''
-     ; var_mk = ''mk''
-     ; var_st = ''st''
-     ; s_generic = ''generic''
+     ; var_pre_post = \<langle>''pre_post''\<rangle>
+     ; var_mk = \<langle>''mk''\<rangle>
+     ; var_st = \<langle>''st''\<rangle>
+     ; s_generic = \<langle>''generic''\<rangle>
      ; lem_gen = f_tit s_generic
      ; mk_pre_post = \<lambda>pre_post at_when f_cpl.
          let s_allinst = f_allinst at_when in
@@ -289,18 +289,18 @@ definition "gen_pre_post f_tit spec f_lemma tac_last =
            [App_unfolding [Thm_str (d s_allinst)]]
            (Tacl_by (Tac_rule (Thm_str lem_gen) # tac_last)) in
   [ f_lemma lem_gen (spec (\<lambda>l. Expr_apply (f_allinst s_generic) (b var_pre_post # l)) (\<lambda>e. Expr_apply var_mk [e]) var_pre_post) var_pre_post var_mk var_st
-  , mk_pre_post ''snd'' ''at_post'' (Expr_pair (b var_st))
-  , mk_pre_post ''fst'' ''at_pre'' (\<lambda>e. Expr_pair e (b var_st)) ])"
+  , mk_pre_post \<langle>''snd''\<rangle> \<langle>''at_post''\<rangle> (Expr_pair (b var_st))
+  , mk_pre_post \<langle>''fst''\<rangle> \<langle>''at_pre''\<rangle> (\<lambda>e. Expr_pair e (b var_st)) ])"
 
 subsection{* accessors *}
 
-definition "print_access_oid_uniq_name name_from_nat isub_name attr = flatten [ isub_name var_oid_uniq, ''_'', natural_of_str name_from_nat, ''_'', isup_of_str attr ]"
-definition "print_access_oid_uniq_mlname name_from_nat name attr = flatten [ var_oid_uniq, name, ''_'', natural_of_str name_from_nat, ''_'', attr ]"
+definition "print_access_oid_uniq_name name_from_nat isub_name attr = flatten [ isub_name var_oid_uniq, \<langle>''_''\<rangle>, natural_of_str name_from_nat, \<langle>''_''\<rangle>, isup_of_str attr ]"
+definition "print_access_oid_uniq_mlname name_from_nat name attr = flatten [ var_oid_uniq, name, \<langle>''_''\<rangle>, natural_of_str name_from_nat, \<langle>''_''\<rangle>, attr ]"
 
 definition "print_access_choose_name n i j =
-  flatten [var_switch, isub_of_str (natural_of_str n), ''_'', natural_of_str i, natural_of_str j]"
+  flatten [var_switch, isub_of_str (natural_of_str n), \<langle>''_''\<rangle>, natural_of_str i, natural_of_str j]"
 definition "print_access_choose_mlname n i j =
-  flatten [var_switch, natural_of_str n, ''_'', natural_of_str i, natural_of_str j]"
+  flatten [var_switch, natural_of_str n, \<langle>''_''\<rangle>, natural_of_str i, natural_of_str j]"
 
 subsection{* example *}
 
@@ -311,19 +311,19 @@ datatype reporting = Warning
 definition "raise_ml l_out s = Ml (Sexpr_apply ''Ty'.check''
     [ Sexpr_list'
         (\<lambda>(rep, s).
-          Sexpr_pair (Sexpr_basic [flatten [ ''OCL.''
-                                           , case rep of Warning \<Rightarrow> ''Warning''
-                                                       | Error \<Rightarrow> ''Error''
-                                                       | Writeln \<Rightarrow> ''Writeln'' ]])
+          Sexpr_pair (Sexpr_basic [flatten [ \<langle>''OCL.''\<rangle>
+                                           , case rep of Warning \<Rightarrow> \<langle>''Warning''\<rangle>
+                                                       | Error \<Rightarrow> \<langle>''Error''\<rangle>
+                                                       | Writeln \<Rightarrow> \<langle>''Writeln''\<rangle> ]])
                      (Sexpr_string s))
         l_out
     , Sexpr_string s ])"
 
 subsection{* context *}
 
-definition "print_ctxt_const_name attr_n var_at_when_hol = flatten [ ''dot'', isup_of_str attr_n, var_at_when_hol]"
+definition "print_ctxt_const_name attr_n var_at_when_hol = flatten [ \<langle>''dot''\<rangle>, isup_of_str attr_n, var_at_when_hol]"
 definition "print_ctxt_pre_post_name attr_n var_at_when_hol = hol_definition (print_ctxt_const_name attr_n var_at_when_hol)"
-definition "print_ctxt_inv_name n tit var_at_when = hol_definition (flatten [n, ''_'', tit, var_at_when])"
+definition "print_ctxt_inv_name n tit var_at_when = hol_definition (flatten [n, \<langle>''_''\<rangle>, tit, var_at_when])"
 
 definition "make_ctxt_free_var pref ctxt =
  (let l = var_self # List_map fst (Ctxt_fun_ty_arg ctxt) in

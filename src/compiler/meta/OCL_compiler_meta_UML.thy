@@ -128,10 +128,10 @@ definition "T_lambdas = List.fold T_lambda"
 
 subsection{* Class Translation Preliminaries *}
 
-definition "const_oid = ''oid''"
-definition "var_ty_list = ''list''"
-definition "var_ty_prod = ''prod''"
-definition "const_oclany = ''OclAny''"
+definition "const_oid = \<langle>''oid''\<rangle>"
+definition "var_ty_list = \<langle>''list''\<rangle>"
+definition "var_ty_prod = \<langle>''prod''\<rangle>"
+definition "const_oclany = \<langle>''OclAny''\<rangle>"
 
 definition "single_multip = (\<lambda> OclMult l _ \<Rightarrow>
   List.list_all (\<lambda> (_, Some (Mult_nat n)) \<Rightarrow> n \<le> 1
@@ -248,7 +248,7 @@ qed
 definition "class_unflat = (\<lambda> (l_class, l_ass).
   let l =
     let rbt = (* fold classes:
-                 set ''OclAny'' as default inherited class (for all classes linking to zero inherited classes) *)
+                 set \<langle>''OclAny''\<rangle> as default inherited class (for all classes linking to zero inherited classes) *)
               insert
                 const_oclany
                 (ocl_class_raw.make const_oclany [] [] [] None)
@@ -283,19 +283,19 @@ definition "apply_optim_ass_arity ty_obj v =
 
 definition "is_higher_order = (\<lambda> OclTy_collection _ _ \<Rightarrow> True | _ \<Rightarrow> False)"
 
-definition "parse_ty_raw = (\<lambda> OclTy_raw s \<Rightarrow> if s = ''int'' then OclTy_base_integer else OclTy_raw s
+definition "parse_ty_raw = (\<lambda> OclTy_raw s \<Rightarrow> if s = \<langle>''int''\<rangle> then OclTy_base_integer else OclTy_raw s
                             | x \<Rightarrow> x)"
 
 fun_quick str_of_ty where
-    "str_of_ty OclTy_base_void = ''Void''"
-   |"str_of_ty OclTy_base_boolean = ''Boolean''"
-   |"str_of_ty OclTy_base_integer = ''Integer''"
-   |"str_of_ty OclTy_base_unlimitednatural = ''UnlimitedNatural''"
-   |"str_of_ty OclTy_base_real = ''Real''"
-   |"str_of_ty OclTy_base_string = ''String''"
+    "str_of_ty OclTy_base_void = \<langle>''Void''\<rangle>"
+   |"str_of_ty OclTy_base_boolean = \<langle>''Boolean''\<rangle>"
+   |"str_of_ty OclTy_base_integer = \<langle>''Integer''\<rangle>"
+   |"str_of_ty OclTy_base_unlimitednatural = \<langle>''UnlimitedNatural''\<rangle>"
+   |"str_of_ty OclTy_base_real = \<langle>''Real''\<rangle>"
+   |"str_of_ty OclTy_base_string = \<langle>''String''\<rangle>"
    |"str_of_ty (OclTy_class_pre s) = s"
-   |"str_of_ty (OclTy_collection Set ocl_ty) = flatten [''Set('', str_of_ty ocl_ty,'')'']"
-   |"str_of_ty (OclTy_collection Sequence ocl_ty) = flatten [''Sequence('', str_of_ty ocl_ty,'')'']"
+   |"str_of_ty (OclTy_collection Set ocl_ty) = flatten [\<langle>''Set(''\<rangle>, str_of_ty ocl_ty,\<langle>'')''\<rangle>]"
+   |"str_of_ty (OclTy_collection Sequence ocl_ty) = flatten [\<langle>''Sequence(''\<rangle>, str_of_ty ocl_ty,\<langle>'')''\<rangle>]"
    |"str_of_ty (OclTy_raw s) = flatten [unicode_acute, s, unicode_acute]"
 
 definition "ty_void = str_of_ty OclTy_base_void"
@@ -306,25 +306,25 @@ definition "ty_real = str_of_ty OclTy_base_real"
 definition "ty_string = str_of_ty OclTy_base_string"
 
 fun_quick str_hol_of_ty where
-    "str_hol_of_ty OclTy_base_void = ''unit''"
-   |"str_hol_of_ty OclTy_base_boolean = ''bool''"
-   |"str_hol_of_ty OclTy_base_integer = ''int''"
-   |"str_hol_of_ty OclTy_base_unlimitednatural = ''nat''"
-   |"str_hol_of_ty OclTy_base_real = ''real''"
-   |"str_hol_of_ty OclTy_base_string = ''string''"
-   |"str_hol_of_ty (OclTy_class ty_obj) = flatten [TyObj_name ty_obj, '' '', var_ty_list]"
+    "str_hol_of_ty OclTy_base_void = \<langle>''unit''\<rangle>"
+   |"str_hol_of_ty OclTy_base_boolean = \<langle>''bool''\<rangle>"
+   |"str_hol_of_ty OclTy_base_integer = \<langle>''int''\<rangle>"
+   |"str_hol_of_ty OclTy_base_unlimitednatural = \<langle>''nat''\<rangle>"
+   |"str_hol_of_ty OclTy_base_real = \<langle>''real''\<rangle>"
+   |"str_hol_of_ty OclTy_base_string = \<langle>''string''\<rangle>"
+   |"str_hol_of_ty (OclTy_class ty_obj) = flatten [TyObj_name ty_obj, \<langle>'' ''\<rangle>, var_ty_list]"
    |"str_hol_of_ty (OclTy_raw s) = s"
 
 fun_quick str_hol_of_ty_all where
-    "str_hol_of_ty_all f b (OclTy_collection _ ty) = 
+    "str_hol_of_ty_all f b (OclTy_collection _ ty) =
        f (b var_ty_list) [str_hol_of_ty_all f b ty]"
-   |"str_hol_of_ty_all f b (OclTy_pair ty1 ty2) = 
+   |"str_hol_of_ty_all f b (OclTy_pair ty1 ty2) =
        f (b var_ty_prod) [str_hol_of_ty_all f b ty1, str_hol_of_ty_all f b ty2]"
    |"str_hol_of_ty_all f b (OclTy_class_pre _) = b const_oid"
    |"str_hol_of_ty_all f b s = b (str_hol_of_ty s)"
 
-definition "print_infra_type_synonym_class_set_name name = ''Set_'' @@ name"
-definition "print_infra_type_synonym_class_sequence_name name = ''Sequence_'' @@ name"
+definition "print_infra_type_synonym_class_set_name name = \<langle>''Set_''\<rangle> @@ name"
+definition "print_infra_type_synonym_class_sequence_name name = \<langle>''Sequence_''\<rangle> @@ name"
 
 fun_quick print_ctxt_ty where
    "print_ctxt_ty c = (\<lambda> OclTy_collection Set t \<Rightarrow> print_infra_type_synonym_class_set_name (print_ctxt_ty t)
@@ -368,12 +368,12 @@ definition "fold_less2 = fold_less_gen List.fold"
 
 section{* Translation of AST *}
 
-definition "var_in_pre_state = ''in_pre_state''"
-definition "var_in_post_state = ''in_post_state''"
-definition "var_at_when_hol_post = ''''"
-definition "var_at_when_hol_pre = ''at_pre''"
-definition "var_at_when_ocl_post = ''''"
-definition "var_at_when_ocl_pre = ''@pre''"
+definition "var_in_pre_state = \<langle>''in_pre_state''\<rangle>"
+definition "var_in_post_state = \<langle>''in_post_state''\<rangle>"
+definition "var_at_when_hol_post = \<langle>''''\<rangle>"
+definition "var_at_when_hol_pre = \<langle>''at_pre''\<rangle>"
+definition "var_at_when_ocl_post = \<langle>''''\<rangle>"
+definition "var_at_when_ocl_pre = \<langle>''@pre''\<rangle>"
 
 datatype 'a tmp_sub = Tsub 'a
 record 'a inheritance =

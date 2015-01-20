@@ -70,11 +70,11 @@ definition "print_ctxt_const ctxt ocl =
               (\<lambda> (n, ty) (l, l_isab_ty).
                 if is_higher_order ty & List_assoc n l = None then
                   ( (n, ty) # l
-                  , let option = (\<lambda>x. Ty_apply (Ty_base ''option'') [x])
+                  , let option = (\<lambda>x. Ty_apply (Ty_base \<langle>''option''\<rangle>) [x])
                       ; ty_set = \<lambda>b.
                           Type_synonym
                             n
-                            (Ty_apply (Ty_base ''Set'')
+                            (Ty_apply (Ty_base \<langle>''Set''\<rangle>)
                                [Ty_base unicode_AA, option (option (Ty_base (str_hol_of_ty (parse_ty_raw b)))) ]) in
                     (case ty of OclTy_collection Set OclTy_base_void \<Rightarrow> ty_set OclTy_base_void
                               | OclTy_collection Set OclTy_base_boolean \<Rightarrow> ty_set OclTy_base_boolean
