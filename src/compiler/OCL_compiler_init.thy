@@ -52,6 +52,20 @@ begin
 
 section{* ... *}
 
+syntax "_string1" :: "'a \<Rightarrow> 'a" ("\<langle>(_)\<rangle>")
+translations "\<langle>x\<rangle>" \<rightleftharpoons> "CONST id x"
+
+syntax "_string2" :: "'a \<Rightarrow> 'a" ("\<prec>(_)\<succ>")
+translations "\<prec>x\<succ>" \<rightleftharpoons> "CONST id x"
+
+syntax "_char1" :: "'a \<Rightarrow> 'a" ("\<degree>(_)\<degree>")
+translations "\<degree>x\<degree>" \<rightleftharpoons> "CONST id x"
+
+syntax "_char2" :: "'a \<Rightarrow> 'a" ("\<ordmasculine>(_)\<ordmasculine>")
+translations "\<ordmasculine>x\<ordmasculine>" \<rightleftharpoons> "CONST id x"
+
+section{* ... *}
+
 type_synonym nat = natural
 definition "Succ x = x + 1"
 
