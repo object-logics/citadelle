@@ -80,7 +80,7 @@ definition thy_class ::
      ; e = [Char Nibble5 NibbleC]
      ; n = [Char Nibble2 Nibble7]
      ; a = [Char Nibble2 Nibble2] in
-  flatten
+  List_flatten
           [ [ txt''d [ \<langle>''
    ''\<rangle>, e, \<langle>''label{ex:employee-design:uml} ''\<rangle> ]
             , txt''a [ \<langle>''
@@ -187,8 +187,8 @@ on @{text ''\<rangle>, a, \<langle>''Person''\<rangle>, a, \<langle>''} and @{te
 two operations to declare and to provide two overloading definitions for the two static types.
 ''\<rangle> ] ]
 
-          , flatten (List_map (\<lambda>(title, body_def, body_cp, body_exec, body_defined, body_up).
-              section title # flatten [ subsection_def # body_def
+          , List_flatten (List_map (\<lambda>(title, body_def, body_cp, body_exec, body_defined, body_up).
+              section title # List_flatten [ subsection_def # body_def
                                       , subsection_cp # body_cp
                                       , subsection_exec # body_exec
                                       , subsection_defined # body_defined
@@ -367,7 +367,7 @@ definition "ocl_compiler_config_reset_all ocl =
   (let ocl = ocl_compiler_config_reset_no_env ocl in
    ( ocl \<lparr> D_ocl_env := [] \<rparr>
    , let (l_class, l_ocl) = find_class_ass ocl in
-     flatten
+     List_flatten
        [ l_class
        , List.filter (\<lambda> OclAstFlushAll _ \<Rightarrow> False | _ \<Rightarrow> True) l_ocl
        , [OclAstFlushAll OclFlushAll] ] ))"

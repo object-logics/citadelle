@@ -48,17 +48,17 @@ imports Main
 begin
 
 definition "List_map f l = rev (foldl (\<lambda>l x. f x # l) [] l)"
-definition "flatten l = foldl (\<lambda>acc l. foldl (\<lambda>acc x. x # acc) acc (rev l)) [] (rev l)"
+definition "List_flatten l = foldl (\<lambda>acc l. foldl (\<lambda>acc x. x # acc) acc (rev l)) [] (rev l)"
 
 (* *)
 
 definition "map_of_list = (foldl ((\<lambda>map. (\<lambda>(x , l1). (case (map (x)) of None \<Rightarrow> (map (x \<mapsto> l1))
-    | Some l0 \<Rightarrow> (map (x \<mapsto> (flatten ([l0 , l1])))))))) (Map.empty))"
+    | Some l0 \<Rightarrow> (map (x \<mapsto> (List_flatten ([l0 , l1])))))))) (Map.empty))"
 
 definition "choose_0 = fst"
 definition "choose_1 = snd"
 
 definition "deref_assocs_list to_from oid S =
-  flatten (List_map (choose_1 o to_from) (filter (\<lambda>p. List.member (choose_0 (to_from p)) oid) S))"
+  List_flatten (List_map (choose_1 o to_from) (filter (\<lambda>p. List.member (choose_0 (to_from p)) oid) S))"
 
 end

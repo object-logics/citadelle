@@ -59,7 +59,7 @@ definition "print_ctxt_const ctxt ocl =
         let name = print_ctxt_const_name attr_n var_at_when_hol
           ; l_ty =
               List_map (\<lambda>n. (print_ctxt_ty n, n))
-                (flatten
+                (List_flatten
                   [ List_map snd (Ctxt_fun_ty_arg ctxt)
                   , [ case Ctxt_fun_ty_out ctxt of None \<Rightarrow> OclTy_base_void | Some s \<Rightarrow> s ] ]) in
         ( map_pair
@@ -113,7 +113,7 @@ definition "print_ctxt_gen_syntax_header f_x l ocl =
 definition "print_ctxt_pre_post = (\<lambda>ctxt. print_ctxt_gen_syntax_header
   (\<lambda>l ocl.
     let ((ocl, l_isab_ty), l_isab) = print_ctxt_const ctxt ocl in
-    (flatten [l_isab_ty, l_isab, l], ocl))
+    (List_flatten [l_isab_ty, l_isab, l], ocl))
   [ Isab_thy_ocl_deep_embed_ast (OclAstCtxtPrePost Floor2
       (ctxt \<lparr> Ctxt_expr :=
               List_map (\<lambda> (pref, e) \<Rightarrow> (pref, T_lambdas (make_ctxt_free_var pref ctxt) e))
@@ -126,7 +126,7 @@ definition "print_ctxt_inv = (\<lambda>ctxt. print_ctxt_gen_syntax_header Pair
               List_map (map_pair id (T_lambdas (Ctxt_inv_param ctxt @@@@ [var_self])))
                        (Ctxt_inv_expr ctxt) \<rparr>))
   , print_ctxt_gen_syntax_header_l
-      (flatten (List_map (\<lambda> (tit, _).
+      (List_flatten (List_map (\<lambda> (tit, _).
         List_map (print_ctxt_inv_name (Ctxt_inv_ty ctxt) tit)
           [ var_at_when_hol_pre
           , var_at_when_hol_post ]) (Ctxt_inv_expr ctxt))) ])"

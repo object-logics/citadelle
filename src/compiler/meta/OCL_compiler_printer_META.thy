@@ -152,9 +152,9 @@ definition "s_of_thy_list ocl l_thy =
    | Some (name, fic_import, fic_import_boot) \<Rightarrow>
        ( [ sprint2 ''theory %s imports %s begin''\<acute> (To_string name) (s_of_expr (expr_binop '' '' (List_map Expr_string (fic_import @@@@ (if D_import_compiler ocl | D_generation_syntax_shallow ocl then [fic_import_boot] else []))))) ]
        , [ \<prec>''''\<succ>, \<prec>''end''\<succ> ]) in
-  flatten
+  List_flatten
         [ th_beg
-        , flatten (fst (fold_list (\<lambda>l (i, cpt).
+        , List_flatten (fst (fold_list (\<lambda>l (i, cpt).
             let (l_thy, lg) = fold_list (\<lambda>l n. (s_of_thy_extended ocl l, Succ n)) l 0 in
             (( \<prec>''''\<succ>
              # sprint4 ''%s(* %d ************************************ %d + %d *)''\<acute>

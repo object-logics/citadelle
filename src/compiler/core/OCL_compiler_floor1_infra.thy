@@ -134,7 +134,7 @@ definition "print_infra_instantiation_class = start_map'' Thy_instantiation_clas
                          (Expr_basic [var_oid])
                          ( ( Expr_apply
                                (isub_name datatype_ext_constr_name)
-                               (Expr_basic [var_oid] # flatten (List_map (List_map (\<lambda>_. Expr_basic [wildcard])) l_inherited))
+                               (Expr_basic [var_oid] # List_flatten (List_map (List_map (\<lambda>_. Expr_basic [wildcard])) l_inherited))
                            , Expr_basic [var_oid])
                          # List_map (\<lambda>x. ( Expr_apply (datatype_ext_constr_name @@ mk_constr_name name x) [Expr_basic [var_oid]]
                                          , Expr_apply oid_of [Expr_basic [var_oid]])) (of_sub l_cons)))]))

@@ -245,7 +245,7 @@ definition "Tac_insert = Tact_insert o List_map Thms_single"
 definition "Tac_plus = Tact_plus"
 definition "Tac_option = Tact_option"
 definition "tac_gen_simp = Simp_add_del [] []"
-definition "tac_gen_simp_add2 l1 l2 = Simp_add_del (flatten [ List_map Thms_mult l1
+definition "tac_gen_simp_add2 l1 l2 = Simp_add_del (List_flatten [ List_map Thms_mult l1
                                                     , List_map (Thms_single o Thm_str) l2])
                                            []"
 definition "tac_gen_simp_add_del l1 l2 = Simp_add_del (List_map (Thms_single o Thm_str) l1)
@@ -269,7 +269,7 @@ definition "Tac_simp_add = Tac_simp_add2 []"
 definition "Tac_simp_all = Tact_all tac_gen_simp"
 definition "Tac_simp_all_add l = Tact_all (tac_gen_simp_add2 [] l)"
 definition "Tac_simp_all_only l = Tact_all (tac_gen_simp_only l)"
-definition "Tac_auto_simp_add2 l1 l2 = Tact_auto_simp_add_split (flatten [ List_map Thms_mult l1
+definition "Tac_auto_simp_add2 l1 l2 = Tact_auto_simp_add_split (List_flatten [ List_map Thms_mult l1
                                                                 , List_map (Thms_single o Thm_str) l2]) []"
 definition "Tac_auto_simp_add_split l = Tact_auto_simp_add_split (List_map Thms_single l)"
 definition "Tac_rename_tac = Tact_rename_tac"

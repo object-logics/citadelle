@@ -78,7 +78,7 @@ definition "print_istypeof_class = start_m_gen Thy_defs_overloaded m_class_defau
                                            # List_map (\<lambda>_. Expr_basic [wildcard]) hl_attr))), ocl_tau \<langle>''true''\<rangle>)
                              # (if h_last = [] then [] else l_false)) in
                        case compare
-                       of EQ \<Rightarrow> pattern_complex_gen (flatten (List_map (List_map (\<lambda>_. Expr_basic [wildcard]) o (\<lambda> OclClass _ l _ \<Rightarrow> l)) (of_linh l_inh))) (\<lambda>_. id)
+                       of EQ \<Rightarrow> pattern_complex_gen (List_flatten (List_map (List_map (\<lambda>_. Expr_basic [wildcard]) o (\<lambda> OclClass _ l _ \<Rightarrow> l)) (of_linh l_inh))) (\<lambda>_. id)
                         | GT \<Rightarrow> pattern_complex_gen [] id
                         | _ \<Rightarrow> l_false) ) )))] )"
 

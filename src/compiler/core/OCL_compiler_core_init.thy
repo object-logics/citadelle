@@ -158,13 +158,13 @@ definition "find_class_ass ocl =
                | OclAstAssociation _ \<Rightarrow> True
                | OclAstAssClass Floor1 (OclAssClass _ class) \<Rightarrow> f class
                | _ \<Rightarrow> False) (rev (D_ocl_env ocl)) in
-  ( flatten [l_class, List.map_filter (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l f = \<lambda>class. class \<lparr> ClassRaw_contract := [], ClassRaw_invariant := [] \<rparr> in
+  ( List_flatten [l_class, List.map_filter (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l f = \<lambda>class. class \<lparr> ClassRaw_contract := [], ClassRaw_invariant := [] \<rparr> in
                                        \<lambda> OclAstClassRaw Floor1 c \<Rightarrow> Some (OclAstClassRaw Floor1 (f c))
                                        | OclAstAssClass Floor1 (OclAssClass ass class) \<Rightarrow> Some (OclAstAssClass Floor1 (OclAssClass ass (f class)))
                                        | _ \<Rightarrow> None) l_ocl]
-  , flatten (List_map
+  , List_flatten (List_map
       (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l f = \<lambda>class.
-          flatten [ List_map (OclAstCtxtPrePost Floor1) (ClassRaw_contract class)
+          List_flatten [ List_map (OclAstCtxtPrePost Floor1) (ClassRaw_contract class)
                   , List_map (OclAstCtxtInv Floor1) (ClassRaw_invariant class) ] in
        \<lambda> OclAstClassRaw Floor1 class \<Rightarrow> f class
        | OclAstAssClass Floor1 (OclAssClass _ class) \<Rightarrow> f class

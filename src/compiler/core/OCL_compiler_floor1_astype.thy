@@ -103,7 +103,7 @@ definition "print_astype_from_universe =
     let const_astype = print_astype_from_universe_name name in
     [ Definition (Expr_rewrite (Expr_basic [const_astype]) \<langle>''=''\<rangle>
         (case f_finish l_inh of ((_, finish_with_some2), last_case_none) \<Rightarrow>
-          finish_with_some2 (Expr_function (flatten [l, last_case_none]))))])
+          finish_with_some2 (Expr_function (List_flatten [l, last_case_none]))))])
   (\<lambda> l_inh _ _ compare (_, name, nl_attr). \<lambda> OclClass h_name hl_attr _ \<Rightarrow>
      if compare = UN' then [] else
      let ((finish_with_some1, _), _) = f_finish l_inh
@@ -140,7 +140,7 @@ definition "print_astype_lemmas_id = start_map' (\<lambda>expr.
 definition "print_astype_lemma_cp_set2 =
   (if activate_simp_optimization then
      \<lambda>expr base_attr.
-       flatten (m_class' base_attr (\<lambda> compare (isub_name, name, _). \<lambda> OclClass name2 _ _ \<Rightarrow>
+       List_flatten (m_class' base_attr (\<lambda> compare (isub_name, name, _). \<lambda> OclClass name2 _ _ \<Rightarrow>
          if compare = EQ then
            []
          else

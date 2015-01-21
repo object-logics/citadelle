@@ -102,7 +102,7 @@ definition "print_ctxt_to_ocl_pre ocl = print_ctxt_to_ocl_gen (snd (D_accessor_r
 definition "print_ctxt_to_ocl_post ocl = print_ctxt_to_ocl_gen (fst (D_accessor_rbt ocl)) print_ctxt_is_name_at_pre var_at_when_hol_post"
 
 definition "raise_ml_unbound f_msg ctxt =
-        [ (\<lambda>_. Thy_ml (raise_ml (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l l = flatten (List_mapi (\<lambda> n. \<lambda>(msg, T_pure t) \<Rightarrow>
+        [ (\<lambda>_. Thy_ml (raise_ml (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l l = List_flatten (List_mapi (\<lambda> n. \<lambda>(msg, T_pure t) \<Rightarrow>
                                             let l =
                                               rev (fold_Free (\<lambda>l s.
                                                 (Error, flatten [f_msg n msg, \<langle>'': unbound value ''\<rangle>, s]) # l) [] t) in
@@ -148,7 +148,7 @@ definition "print_ctxt_pre_post = fold_list (\<lambda>x ocl. (x ocl, ocl)) o (\<
           (Ctxt_expr ctxt) in
   f (var_at_when_hol_post, var_at_when_ocl_post))"
 
-definition "print_ctxt_inv = fold_list (\<lambda>x ocl. (x ocl, ocl)) o flatten o flatten o (\<lambda> ctxt.
+definition "print_ctxt_inv = fold_list (\<lambda>x ocl. (x ocl, ocl)) o List_flatten o List_flatten o (\<lambda> ctxt.
   let a = \<lambda>f x. Expr_apply f [x]
     ; b = \<lambda>s. Expr_basic [s]
     ; var_tau = unicode_tau

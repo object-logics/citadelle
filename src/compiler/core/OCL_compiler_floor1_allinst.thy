@@ -156,7 +156,7 @@ definition "print_allinst_istypeof_single isub_name name isub_name2 name2 const_
       lem_tit
       [lem_spec]
       [ [Tac_simp_add_del [d \<langle>''OclValid''\<rangle>] (d \<langle>''OclAllInstances_generic''\<rangle> # f_simp1 [flatten [isub_name2 const_oclisof, \<langle>''_''\<rangle>, name]])]
-      , [Tac_simp_only (flatten [List_map Thm_str [ d var_OclForall_set, \<langle>''refl''\<rangle>, \<langle>''if_True''\<rangle> ], [Thm_simplified (Thm_str \<langle>''OclAllInstances_generic_defined''\<rangle>) (Thm_str (d \<langle>''OclValid''\<rangle>))]])]
+      , [Tac_simp_only (List_flatten [List_map Thm_str [ d var_OclForall_set, \<langle>''refl''\<rangle>, \<langle>''if_True''\<rangle> ], [Thm_simplified (Thm_str \<langle>''OclAllInstances_generic_defined''\<rangle>) (Thm_str (d \<langle>''OclValid''\<rangle>))]])]
       , [Tac_simp_only [Thm_str (d \<langle>''OclAllInstances_generic''\<rangle>)]]
       , [s (Thm_str var_Abs_Set_inverse), Tac_simp_add [d \<langle>''bot_option''\<rangle>]]
       , [s (Thm_where
@@ -183,7 +183,7 @@ definition "print_allinst_istypeof = start_map'' Thy_lemma_by o (\<lambda>expr b
   case next_dataty of [] \<Rightarrow>
     print_allinst_istypeof_single isub_name name isub_name name const_oclistypeof dot_istypeof (\<lambda>_. []) id
   | OclClass name_next _ _ # _ \<Rightarrow>
-    flatten
+    List_flatten
     [ gen_pre_post
         (\<lambda>s. flatten [name, \<langle>''_''\<rangle>, s, \<langle>''_''\<rangle>, isub_name const_oclistypeof, \<langle>''1''\<rangle>])
         (\<lambda>f_expr _ _.
@@ -197,7 +197,7 @@ definition "print_allinst_istypeof = start_map'' Thy_lemma_by o (\<lambda>expr b
            (List_map App
               [ let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l var_tau0 = var_tau @@ isub_of_str \<langle>''0''\<rangle> in
                 [Tac_rule (Thm_where (Thm_str \<langle>''exI''\<rangle>) [(\<langle>''x''\<rangle>, b var_tau0)]), Tac_simp_add_del (List_map d [var_tau0, \<langle>''OclValid''\<rangle>]) [d \<langle>''OclAllInstances_generic''\<rangle>]]
-              , [Tac_simp_only (flatten [List_map Thm_str [ d var_OclForall_set, \<langle>''refl''\<rangle>, \<langle>''if_True''\<rangle> ], [Thm_simplified (Thm_str \<langle>''OclAllInstances_generic_defined''\<rangle>) (Thm_str (d \<langle>''OclValid''\<rangle>))]])]
+              , [Tac_simp_only (List_flatten [List_map Thm_str [ d var_OclForall_set, \<langle>''refl''\<rangle>, \<langle>''if_True''\<rangle> ], [Thm_simplified (Thm_str \<langle>''OclAllInstances_generic_defined''\<rangle>) (Thm_str (d \<langle>''OclValid''\<rangle>))]])]
               , [Tac_simp_only [Thm_str (d \<langle>''OclAllInstances_generic''\<rangle>)]]
               , [s (Thm_str var_Abs_Set_inverse), Tac_simp_add [d \<langle>''bot_option''\<rangle>]] ] )
            (Tacl_by [Tac_simp (*Tac_simp_add [flatten [isub_name const_oclistypeof, \<langle>''_''\<rangle>, name]]*)]))
@@ -221,7 +221,7 @@ definition "print_allinst_istypeof = start_map'' Thy_lemma_by o (\<lambda>expr b
                 [ Expr_apply s_empty [Expr_binop (b var_oid) unicode_mapsto (Expr_apply (isub_name datatype_in) [Expr_apply (isub_name datatype_constr_name) (Expr_apply (datatype_ext_constr_name @@ mk_constr_name name name_next) [b var_a] # List_map (\<lambda>_. b \<langle>''None''\<rangle>) l_attr)])]
                 , b s_empty])
             , App [Tac_rule (Thm_where (Thm_str \<langle>''exI''\<rangle>) [(\<langle>''x''\<rangle>, Expr_parenthesis (Expr_binop (Expr_pat var_t0) \<langle>'',''\<rangle> (Expr_pat var_t0)))]), Tac_simp_add_del [d \<langle>''OclValid''\<rangle>] [d \<langle>''OclAllInstances_generic''\<rangle>]]
-            , App [Tac_simp_only (flatten [List_map Thm_str [ d var_OclForall_set, \<langle>''refl''\<rangle>, \<langle>''if_True''\<rangle> ], [Thm_simplified (Thm_str \<langle>''OclAllInstances_generic_defined''\<rangle>) (Thm_str (d \<langle>''OclValid''\<rangle>))]])]
+            , App [Tac_simp_only (List_flatten [List_map Thm_str [ d var_OclForall_set, \<langle>''refl''\<rangle>, \<langle>''if_True''\<rangle> ], [Thm_simplified (Thm_str \<langle>''OclAllInstances_generic_defined''\<rangle>) (Thm_str (d \<langle>''OclValid''\<rangle>))]])]
             , App [Tac_simp_only (List_map (\<lambda>x. Thm_str (d x)) [\<langle>''OclAllInstances_generic''\<rangle>, flatten [isub_name const_oclastype, \<langle>''_''\<rangle>, unicode_AA]])]
             , App [s (Thm_str var_Abs_Set_inverse), Tac_simp_add [d \<langle>''bot_option''\<rangle>]] ] )
            (Tacl_by [Tac_simp_add [d \<langle>''state.make''\<rangle>, d \<langle>''OclNot''\<rangle>]]))
@@ -230,7 +230,7 @@ definition "print_allinst_istypeof = start_map'' Thy_lemma_by o (\<lambda>expr b
 definition "print_allinst_iskindof_eq = start_map Thy_lemma_by o map_class_gen (\<lambda>isub_name name _ _ _ _.
   print_allinst_istypeof_single isub_name name isub_name name const_ocliskindof dot_iskindof id (\<lambda>_. []))"
 
-definition "print_allinst_iskindof_larger = start_map Thy_lemma_by o flatten o map_class_nupl2'_inh (\<lambda>name name2.
+definition "print_allinst_iskindof_larger = start_map Thy_lemma_by o List_flatten o map_class_nupl2'_inh (\<lambda>name name2.
   print_allinst_istypeof_single (\<lambda>s. s @@ isub_of_str name) name (\<lambda>s. s @@ isub_of_str name2) name2 const_ocliskindof dot_iskindof id (\<lambda>_. []))"
 
 end

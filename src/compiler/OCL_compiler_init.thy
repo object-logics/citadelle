@@ -76,8 +76,8 @@ subsection{* ... *}
 
 definition "List_mapi f l = rev (fst (foldl (\<lambda>(l,cpt) x. (f cpt x # l, Succ cpt)) ([], 0::nat) l))"
 definition "List_iter f = foldl (\<lambda>_. f) ()"
-definition "List_maps f x = flatten (List_map f x)"
-definition List_append (infixr "@@@@" 65) where "List_append a b = flatten [a, b]"
+definition "List_maps f x = List_flatten (List_map f x)"
+definition List_append (infixr "@@@@" 65) where "List_append a b = List_flatten [a, b]"
 definition "List_filter f l = rev (foldl (\<lambda>l x. if f x then x # l else l) [] l)"
 definition "rev_map f = foldl (\<lambda>l x. f x # l) []"
 definition "fold_list f l accu =
@@ -100,8 +100,9 @@ definition "List_replace_gen f_res l c0 lby =
  (case List.fold (\<lambda>c1 (l,lgen). if c1 = c0 then (lby, l # lgen) else (c1 # l, lgen)) (rev l) ([], [])
   of (l, lgen) \<Rightarrow> f_res (l # lgen))"
 definition "List_nsplit l c0 = List_replace_gen id l c0 []"
-definition "List_replace = List_replace_gen flatten"
+definition "List_replace = List_replace_gen List_flatten"
 
+definition "flatten = List_flatten"
 definition String_flatten (infixr "@@" 65) where "String_flatten (a::char list) b = flatten [a, b]"
 definition Stringl_flatten (infixr "@@@" 65) where "Stringl_flatten (a::String.literal list) b = flatten [a, b]"
 definition "String_concatWith s =
