@@ -72,15 +72,17 @@ val _ =
 
 fun of_text s = 
   let val s = String.substring (s, 2, String.size s - 4)
-    ; fun esc n = "'', " ^ n ^ ", ''" in
+      val langle = "\<langle>"
+      val rangle = "\<rangle>"
+      fun esc n = "''" ^ rangle ^ ", " ^ n ^ ", " ^ langle ^ "''" in
   String.concat
-    [ "txt'' [ ''", str #"\n"
+    [ "txt'' [ " ^ langle ^ "''", str #"\n"
     , "  ", translate_string
       (fn "\034" (* " *) => esc "a"
         | "\039" (* ' *) => esc "n"
         | "\092" (* \ *) => esc "e"
         | x => x) s
-    , "'' ]", str #"\n" ]
+    , "''" ^ rangle ^ " ]", str #"\n" ]
   end
 
 fun apply_code_printing thy =
