@@ -59,17 +59,17 @@ definition "s_of_val_fun = (\<lambda> Sval \<Rightarrow> STR ''val''
 
 fun_quick s_of_sexpr where "s_of_sexpr e = (\<lambda>
     Sexpr_string s \<Rightarrow> let c = STR [Char Nibble2 Nibble2] in
-                      sprintf3 (STR ''%s%s%s'') c (To_string s) c
-  | Sexpr_rewrite val_fun e1 symb e2 \<Rightarrow> sprintf4 (STR ''%s %s %s %s'') (s_of_val_fun val_fun) (s_of_sexpr e1) (To_string symb) (s_of_sexpr e2)
-  | Sexpr_basic l \<Rightarrow> sprintf1 (STR ''%s'') (String_concat (STR '' '') (List_map To_string l))
-  | Sexpr_oid tit s \<Rightarrow> sprintf2 (STR ''%s%d'') (To_string tit) (To_oid s)
-  | Sexpr_binop e1 s e2 \<Rightarrow> sprintf3 (STR ''%s %s %s'') (s_of_sexpr e1) (s_of_sexpr (Sexpr_basic [s])) (s_of_sexpr e2)
-  | Sexpr_annot e s \<Rightarrow> sprintf2 (STR ''(%s:%s)'') (s_of_sexpr e) (To_string s)
-  | Sexpr_function l \<Rightarrow> sprintf1 (STR ''(fn %s)'') (String_concat (STR ''
-    | '') (List.map (\<lambda> (s1, s2) \<Rightarrow> sprintf2 (STR ''%s => %s'') (s_of_sexpr s1) (s_of_sexpr s2)) l))
-  | Sexpr_apply s l \<Rightarrow> sprintf2 (STR ''(%s %s)'') (To_string s) (String_concat (STR '' '') (List.map (\<lambda> e \<Rightarrow> sprintf1 (STR ''(%s)'') (s_of_sexpr e)) l))
-  | Sexpr_paren p_left p_right e \<Rightarrow> sprintf3 (STR ''%s%s%s'') (To_string p_left) (s_of_sexpr e) (To_string p_right)
-  | Sexpr_let_open s e \<Rightarrow> sprintf2 (STR ''let open %s in %s end'') (To_string s) (s_of_sexpr e)) e"
+                      sprint3 ''%s%s%s''\<acute> c (To_string s) c
+  | Sexpr_rewrite val_fun e1 symb e2 \<Rightarrow> sprint4 ''%s %s %s %s''\<acute> (s_of_val_fun val_fun) (s_of_sexpr e1) (To_string symb) (s_of_sexpr e2)
+  | Sexpr_basic l \<Rightarrow> sprint1 ''%s''\<acute> (String_concat (STR '' '') (List_map To_string l))
+  | Sexpr_oid tit s \<Rightarrow> sprint2 ''%s%d''\<acute> (To_string tit) (To_oid s)
+  | Sexpr_binop e1 s e2 \<Rightarrow> sprint3 ''%s %s %s''\<acute> (s_of_sexpr e1) (s_of_sexpr (Sexpr_basic [s])) (s_of_sexpr e2)
+  | Sexpr_annot e s \<Rightarrow> sprint2 ''(%s:%s)''\<acute> (s_of_sexpr e) (To_string s)
+  | Sexpr_function l \<Rightarrow> sprint1 ''(fn %s)''\<acute> (String_concat (STR ''
+    | '') (List.map (\<lambda> (s1, s2) \<Rightarrow> sprint2 ''%s => %s''\<acute> (s_of_sexpr s1) (s_of_sexpr s2)) l))
+  | Sexpr_apply s l \<Rightarrow> sprint2 ''(%s %s)''\<acute> (To_string s) (String_concat (STR '' '') (List.map (\<lambda> e \<Rightarrow> sprint1 ''(%s)''\<acute> (s_of_sexpr e)) l))
+  | Sexpr_paren p_left p_right e \<Rightarrow> sprint3 ''%s%s%s''\<acute> (To_string p_left) (s_of_sexpr e) (To_string p_right)
+  | Sexpr_let_open s e \<Rightarrow> sprint2 ''let open %s in %s end''\<acute> (To_string s) (s_of_sexpr e)) e"
 
 end
 

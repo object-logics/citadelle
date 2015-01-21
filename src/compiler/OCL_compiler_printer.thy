@@ -63,7 +63,7 @@ definition "write_file ocl = (
      of (Some (file_out, _), Some dir) \<Rightarrow>
           let dir = To_string dir in
           (True, \<lambda>f. bind (Sys_is_directory2 dir) (\<lambda> Sys_is_directory2_dir.
-                     out_file1 f (if Sys_is_directory2_dir then sprintf2 (STR ''%s/%s.thy'') dir (To_string file_out) else dir)))
+                     out_file1 f (if Sys_is_directory2_dir then sprint2 ''%s/%s.thy''\<acute> dir (To_string file_out) else dir)))
       | _ \<Rightarrow> (False, out_stand1) in
   f_output
     (\<lambda>fprintf1.
