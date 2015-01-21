@@ -256,11 +256,6 @@ associations with a Sequence-like structure).*}
 lazy_text{* The @{text pre_post}-parameter is configured with @{text fst} or
 @{text snd}, the @{text to_from}-parameter either with the identity @{term id} or
 the following combinator @{text switch}: *}
-lazy_text{* The continuation @{text f} is usually instantiated with a smashing
-function which is either the identity @{term id} or, for \inlineocl{0..1} cardinalities
-of associations, the @{term OclANY}-selector which also handles the
-@{term null}-cases appropriately. A standard use-case for this combinator
-is for example: *}
 lazy_text{* pointer undefined in state or not referencing a type conform object representation *}
 lazy_text{*
 The example we are defining in this section comes from the figure~\ref{fig:eam1_system-states}.
