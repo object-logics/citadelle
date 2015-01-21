@@ -460,6 +460,26 @@ code_printing constant ToNat \<rightharpoonup> (Haskell) "CodeConst.To.nat"
 
 subsection{* ... *}
 
+syntax "_sprint0" :: "_ \<Rightarrow> ml_string" ("sprint0 (_)\<acute>")
+translations "sprint0 x\<acute>" \<rightleftharpoons> "CONST sprintf0 (CONST STR x)"
+
+syntax "_sprint1" :: "_ \<Rightarrow> _ \<Rightarrow> ml_string" ("sprint1 (_)\<acute>")
+translations "sprint1 x\<acute>" \<rightleftharpoons> "CONST sprintf1 (CONST STR x)"
+
+syntax "_sprint2" :: "_ \<Rightarrow> _ \<Rightarrow> ml_string" ("sprint2 (_)\<acute>")
+translations "sprint2 x\<acute>" \<rightleftharpoons> "CONST sprintf2 (CONST STR x)"
+
+syntax "_sprint3" :: "_ \<Rightarrow> _ \<Rightarrow> ml_string" ("sprint3 (_)\<acute>")
+translations "sprint3 x\<acute>" \<rightleftharpoons> "CONST sprintf3 (CONST STR x)"
+
+syntax "_sprint4" :: "_ \<Rightarrow> _ \<Rightarrow> ml_string" ("sprint4 (_)\<acute>")
+translations "sprint4 x\<acute>" \<rightleftharpoons> "CONST sprintf4 (CONST STR x)"
+
+syntax "_sprint5" :: "_ \<Rightarrow> _ \<Rightarrow> ml_string" ("sprint5 (_)\<acute>")
+translations "sprint5 x\<acute>" \<rightleftharpoons> "CONST sprintf5 (CONST STR x)"
+
+subsection{* ... *}
+
 locale s_of =
   fixes To_string :: "string \<Rightarrow> ml_string"
   fixes To_nat :: "nat \<Rightarrow> ml_int"
