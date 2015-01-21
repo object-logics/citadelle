@@ -61,7 +61,7 @@ definition "s_of_sexpr_extended = (\<lambda>
 
 definition "s_of_section_title ocl = (\<lambda> Section_title n section_title \<Rightarrow>
   if D_disable_thy_output ocl then
-    STR ''''
+    \<prec>''''\<succ>
   else
     sprint2 ''%s{* %s *}''\<acute>
       (To_string ((if n = 0 then ''''
@@ -84,18 +84,18 @@ definition "s_of_ocl_deep_embed_ast _ =
 %s''\<acute>
         (To_string (Ctxt_ty ctxt))
         (To_string (Ctxt_fun_name ctxt))
-        (String_concat (STR '', '')
+        (String_concat \<prec>'', ''\<succ>
           (List_map
             (\<lambda> (s, ty). sprint2 ''%s : %s''\<acute> (To_string s) (To_string (str_of_ty ty)))
             (Ctxt_fun_ty_arg ctxt)))
-        (case Ctxt_fun_ty_out ctxt of None \<Rightarrow> STR ''''
+        (case Ctxt_fun_ty_out ctxt of None \<Rightarrow> \<prec>''''\<succ>
                                     | Some ty \<Rightarrow> sprint1 '': %s''\<acute> (To_string (str_of_ty ty)))
-        (String_concat (STR ''
-'')
+        (String_concat \<prec>''
+''\<succ>
           (List_map
             (\<lambda> (pref, s). sprint4 ''  %s : %s%s%s''\<acute>
-              (case pref of OclCtxtPre \<Rightarrow> STR ''Pre''
-                          | OclCtxtPost \<Rightarrow> STR ''Post'')
+              (case pref of OclCtxtPre \<Rightarrow> \<prec>''Pre''\<succ>
+                          | OclCtxtPost \<Rightarrow> \<prec>''Post''\<succ>)
               g
               (s_of_ctxt2_term s)
               g)
@@ -105,10 +105,10 @@ definition "s_of_ocl_deep_embed_ast _ =
 %s''\<acute>
         (case Ctxt_inv_param ctxt of
            [] \<Rightarrow> To_string ''''
-         | l \<Rightarrow> sprint1 ''%s:''\<acute> (String_concat (STR '','') (List_map To_string l)))
+         | l \<Rightarrow> sprint1 ''%s:''\<acute> (String_concat \<prec>'',''\<succ> (List_map To_string l)))
         (To_string (Ctxt_inv_ty ctxt))
-        (String_concat (STR ''
-'')
+        (String_concat \<prec>''
+''\<succ>
           (List_map
             (\<lambda> (n, s). sprint4 ''  Inv %s : %s%s%s''\<acute>
               (To_string n)
@@ -135,9 +135,9 @@ definition "s_of_thy ocl =
 definition "s_of_generation_syntax _ = (\<lambda> Generation_syntax_shallow mode \<Rightarrow>
   sprint1 ''generation_syntax [ shallow%s ]''\<acute>
     (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l f = sprint1 '' (generation_semantics [ %s ])''\<acute> in
-     case mode of Gen_only_design \<Rightarrow> f (STR ''design'')
-                | Gen_only_analysis \<Rightarrow> f (STR ''analysis'')
-                | Gen_default \<Rightarrow> STR ''''))"
+     case mode of Gen_only_design \<Rightarrow> f \<prec>''design''\<succ>
+                | Gen_only_analysis \<Rightarrow> f \<prec>''analysis''\<succ>
+                | Gen_default \<Rightarrow> \<prec>''''\<succ>))"
 
 definition "s_of_ml_extended _ = (\<lambda> Ml_extended e \<Rightarrow> sprint1 ''setup{* %s *}''\<acute> (s_of_sexpr_extended e))"
 
@@ -151,12 +151,12 @@ definition "s_of_thy_list ocl l_thy =
   (let (th_beg, th_end) = case D_file_out_path_dep ocl of None \<Rightarrow> ([], [])
    | Some (name, fic_import, fic_import_boot) \<Rightarrow>
        ( [ sprint2 ''theory %s imports %s begin''\<acute> (To_string name) (s_of_expr (expr_binop '' '' (List_map Expr_string (fic_import @@@@ (if D_import_compiler ocl | D_generation_syntax_shallow ocl then [fic_import_boot] else []))))) ]
-       , [ STR '''', STR ''end'' ]) in
+       , [ \<prec>''''\<succ>, \<prec>''end''\<succ> ]) in
   flatten
         [ th_beg
         , flatten (fst (fold_list (\<lambda>l (i, cpt).
             let (l_thy, lg) = fold_list (\<lambda>l n. (s_of_thy_extended ocl l, Succ n)) l 0 in
-            (( STR ''''
+            (( \<prec>''''\<succ>
              # sprint4 ''%s(* %d ************************************ %d + %d *)''\<acute>
                  (To_string (if ocl_compiler_config.more ocl then '''' else [char_escape])) (To_nat (Succ i)) (To_nat cpt) (To_nat lg)
              # l_thy), Succ i, cpt + lg)) l_thy (D_output_position ocl)))
