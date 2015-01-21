@@ -56,7 +56,10 @@ syntax "_string1" :: "'a \<Rightarrow> 'a" ("\<langle>(_)\<rangle>")
 translations "\<langle>x\<rangle>" \<rightleftharpoons> "CONST id x"
 
 syntax "_string2" :: "'a \<Rightarrow> 'a" ("\<prec>(_)\<succ>")
-translations "\<prec>x\<succ>" \<rightleftharpoons> "CONST id x"
+translations "\<prec>x\<succ>" \<rightleftharpoons> "CONST STR x"
+
+syntax "_string3" :: "'a \<Rightarrow> 'a" ("\<lless>(_)\<ggreater>")
+translations "\<lless>x\<ggreater>" \<rightleftharpoons> "CONST id x"
 
 syntax "_char1" :: "'a \<Rightarrow> 'a" ("\<degree>(_)\<degree>")
 translations "\<degree>x\<degree>" \<rightleftharpoons> "CONST id x"
