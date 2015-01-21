@@ -165,7 +165,7 @@ definition "print_ctxt_inv = fold_list (\<lambda>x ocl. (x ocl, ocl)) o flatten 
                                                     (case e ocl of T_pure e \<Rightarrow> e)) ))) ])
       [(\<langle>''OclAllInstances_at_pre''\<rangle>, var_at_when_hol_pre, \<lambda>ocl. print_ctxt_to_ocl_pre ocl (T_pure t))
       ,(\<langle>''OclAllInstances_at_post''\<rangle>, var_at_when_hol_post, \<lambda>ocl. print_ctxt_to_ocl_post ocl (T_pure t))])
-  @@ [raise_ml_unbound (\<lambda>_ pref. flatten [\<langle>''inv ''\<rangle>, pref]) (Ctxt_inv_expr ctxt)] )
+  @@@@ [raise_ml_unbound (\<lambda>_ pref. flatten [\<langle>''inv ''\<rangle>, pref]) (Ctxt_inv_expr ctxt)] )
     (Ctxt_inv_expr ctxt))"
 
 end

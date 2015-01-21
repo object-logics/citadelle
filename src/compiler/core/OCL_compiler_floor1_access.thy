@@ -570,8 +570,8 @@ definition "print_access_is_repr = start_map'''' Thy_lemma_by o (\<lambda>expr d
    ; vs_sel_any = \<langle>''sel_any''\<rangle>
 
      (* *)
-   ; l_thes = \<lambda>l. Some (l @@ [Expr_pat \<langle>''thesis''\<rangle>])
-   ; l_thes0 = \<lambda>l. Some (l @@ [Expr_pat \<langle>''t''\<rangle>])
+   ; l_thes = \<lambda>l. Some (l @@@@ [Expr_pat \<langle>''thesis''\<rangle>])
+   ; l_thes0 = \<lambda>l. Some (l @@@@ [Expr_pat \<langle>''t''\<rangle>])
    ; hol_d = List_map hol_definition
    ; thol_d = List_map (Thm_str o hol_definition)
    ; App_f = \<lambda>l e. App_fix_let l [] e []

@@ -426,7 +426,7 @@ definition "print_examp_instance_defassoc_typecheck_gen name l_ocli ocl =
 definition "print_examp_instance_defassoc = (\<lambda> OclInstance l \<Rightarrow> \<lambda> ocl.
   (\<lambda>l_res.
     ( print_examp_instance_oid (List_map Some l) ocl
-      @@ List_map Thy_definition_hol l_res
+      @@@@ List_map Thy_definition_hol l_res
     , ocl))
   (print_examp_instance_defassoc_gen
     (Expr_oid var_inst_assoc (oidGetInh (D_oid_start ocl)))
@@ -514,7 +514,7 @@ definition "print_examp_def_st_defassoc = (\<lambda> OclDefSt name l \<Rightarro
                                        | OclDefCoreBinding name \<Rightarrow>
                                            (case List_assoc name (D_instance_rbt ocl_old) of Some (ocli, _) \<Rightarrow> Some ocli)
                                        | _ \<Rightarrow> None) l in
- (\<lambda>l. (print_examp_instance_oid l_ocli ocl_old @@ List_map Thy_definition_hol l, ocl))
+ (\<lambda>l. (print_examp_instance_oid l_ocli ocl_old @@@@ List_map Thy_definition_hol l, ocl))
   (print_examp_instance_defassoc_gen
     (print_examp_def_st_defassoc_name name)
     l_ocli

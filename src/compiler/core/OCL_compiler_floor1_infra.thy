@@ -59,7 +59,7 @@ definition "print_infra_datatype_class = start_map'' Thy_dataty o (\<lambda>expr
         (isub_name datatype_ext_name)
         (  (rev_map (\<lambda>x. ( datatype_ext_constr_name @@ mk_constr_name name x
                          , [Raw (datatype_name @@ isub_of_str x)])) (of_sub l_cons))
-        @@ [(isub_name datatype_ext_constr_name, Raw const_oid # List_maps map_ty l_inherited)])
+        @@@@ [(isub_name datatype_ext_constr_name, Raw const_oid # List_maps map_ty l_inherited)])
     , Datatype
         (isub_name datatype_name)
         [ (isub_name datatype_constr_name, Raw (isub_name datatype_ext_name) # map_ty l_attr ) ] ]) expr)"
@@ -74,7 +74,7 @@ definition "print_latex_infra_datatype_class = start_map'' Thy_dataty o (\<lambd
         (\<langle>''''\<rangle>@@c@@\<langle>''operatorname{''\<rangle> @@ name @@ \<langle>''}_''\<rangle> @@ n1 @@ \<langle>''''\<rangle>)
         (  (rev_map (\<lambda>x. ( \<langle>''''\<rangle>@@c@@\<langle>''operatorname{mk}_''\<rangle>@@c@@\<langle>''text{''\<rangle> @@ name @@ \<langle>''''\<rangle>@@c@@\<langle>''_''\<rangle> @@ x @@ \<langle>''}''\<rangle>
                          , [Raw (\<langle>''''\<rangle>@@c@@\<langle>''operatorname{''\<rangle> @@ x @@ \<langle>''}_''\<rangle> @@ n2 @@ \<langle>''''\<rangle>)])) (of_sub l_cons))
-        @@ [(\<langle>''''\<rangle>@@c@@\<langle>''operatorname{mk}_''\<rangle>@@c@@\<langle>''text{''\<rangle> @@ name @@ \<langle>''}''\<rangle>, Raw const_oid # List_maps map_ty l_inherited)])
+        @@@@ [(\<langle>''''\<rangle>@@c@@\<langle>''operatorname{mk}_''\<rangle>@@c@@\<langle>''text{''\<rangle> @@ name @@ \<langle>''}''\<rangle>, Raw const_oid # List_maps map_ty l_inherited)])
     , Datatype
         (\<langle>''''\<rangle>@@c@@\<langle>''operatorname{''\<rangle> @@ name @@ \<langle>''}_''\<rangle> @@ n2 @@ \<langle>''''\<rangle>)
         [ (\<langle>''''\<rangle>@@c@@\<langle>''operatorname{mkoid}_''\<rangle>@@c@@\<langle>''text{''\<rangle> @@ name @@ \<langle>''}''\<rangle>, Raw (\<langle>''''\<rangle>@@c@@\<langle>''operatorname{''\<rangle> @@ name @@ \<langle>''}_''\<rangle> @@ n1 @@ \<langle>''''\<rangle>) # map_ty l_attr ) ] ]) expr)"

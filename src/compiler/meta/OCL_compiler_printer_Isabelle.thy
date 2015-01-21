@@ -307,7 +307,7 @@ assumes %s\"%s\"'')
             (let n = if b then flatten [n, ''[simp]''] else n in
              if n = '''' then STR '''' else sprintf1 (STR ''%s: '') (To_string n))
             (s_of_expr e)) l_spec
-       @@
+       @@@
        [sprintf1 (STR ''
 shows \"%s\"'') (s_of_expr concl)]))
       (String_concat (STR '''') (List_map s_of_tac_apply l_apply))

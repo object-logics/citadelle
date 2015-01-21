@@ -457,7 +457,7 @@ definition "map_class_arg_only' f = map_class_gen (\<lambda> isub_name name l_at
   case filter (\<lambda> OclClass _ [] _ \<Rightarrow> False | _ \<Rightarrow> True) (of_linh (of_inh l_inh)) of
     [] \<Rightarrow> []
   | l \<Rightarrow> f isub_name name (l_attr, Tinh l, l_subtree))"
-definition "map_class_arg_only0 f1 f2 u = map_class_arg_only f1 u @@ map_class_arg_only' f2 u"
+definition "map_class_arg_only0 f1 f2 u = map_class_arg_only f1 u @@@@ map_class_arg_only' f2 u"
 definition "map_class_arg_only_var0 = (\<lambda>f_expr f_app f_lattr isub_name name l_attr.
   flatten (flatten (
     List_map (\<lambda>(var_in_when_state, dot_at_when, attr_when).
