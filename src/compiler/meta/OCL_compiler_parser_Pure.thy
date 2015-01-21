@@ -56,29 +56,29 @@ context i_of
 begin
 
 definition "i_of_pure_indexname a b = pure_indexname_rec
-  (ap2 a (b ''PureIndexname'') (i_of_string a b) (i_of_nat a b))"
+  (ap2 a (b \<langle>''PureIndexname''\<rangle>) (i_of_string a b) (i_of_nat a b))"
 
 definition "i_of_pure_class a b = pure_class_rec
-  (ap1 a (b ''PureClass'') (i_of_string a b))"
+  (ap1 a (b \<langle>''PureClass''\<rangle>) (i_of_string a b))"
 
 definition "i_of_pure_sort a b = pure_sort_rec
-  (ap1 a (b ''PureSort'') (i_of_list a b (i_of_pure_class a b)))"
+  (ap1 a (b \<langle>''PureSort''\<rangle>) (i_of_list a b (i_of_pure_class a b)))"
 
 definition "i_of_pure_typ a b = (\<lambda>f1 f2 f3 f4 f5. pure_typ_rec_1 (co1 K f1) f2 f3 f4 (\<lambda>_ _. f5))
-  (ar2 a (b ''PureType'') (i_of_string a b))
-  (ap2 a (b ''PureTFree'') (i_of_string a b) (i_of_pure_sort a b))
-  (ap2 a (b ''PureTVar'') (i_of_pure_indexname a b) (i_of_pure_sort a b))
+  (ar2 a (b \<langle>''PureType''\<rangle>) (i_of_string a b))
+  (ap2 a (b \<langle>''PureTFree''\<rangle>) (i_of_string a b) (i_of_pure_sort a b))
+  (ap2 a (b \<langle>''PureTVar''\<rangle>) (i_of_pure_indexname a b) (i_of_pure_sort a b))
   (* *)
   (b i_Nil)
   (ar2 a (b i_Cons) id)"
 
 definition "i_of_pure_term a b = (\<lambda>f0 f1 f2 f3 f4 f5. pure_term_rec f0 f1 f2 f3 (co2 K f4) (\<lambda>_ _. f5))
-  (ap2 a (b ''PureConst'') (i_of_string a b) (i_of_pure_typ a b))
-  (ap2 a (b ''PureFree'') (i_of_string a b) (i_of_pure_typ a b))
-  (ap2 a (b ''PureVar'') (i_of_pure_indexname a b) (i_of_pure_typ a b))
-  (ap1 a (b ''PureBound'') (i_of_nat a b))
-  (ar3 a (b ''PureAbs'') (i_of_string a b) (i_of_pure_typ a b))
-  (ar2 a (b ''PureApp'') id)"
+  (ap2 a (b \<langle>''PureConst''\<rangle>) (i_of_string a b) (i_of_pure_typ a b))
+  (ap2 a (b \<langle>''PureFree''\<rangle>) (i_of_string a b) (i_of_pure_typ a b))
+  (ap2 a (b \<langle>''PureVar''\<rangle>) (i_of_pure_indexname a b) (i_of_pure_typ a b))
+  (ap1 a (b \<langle>''PureBound''\<rangle>) (i_of_nat a b))
+  (ar3 a (b \<langle>''PureAbs''\<rangle>) (i_of_string a b) (i_of_pure_typ a b))
+  (ar2 a (b \<langle>''PureApp''\<rangle>) id)"
 
 end
 

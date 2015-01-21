@@ -90,37 +90,37 @@ subsection{* i of ... *} (* i_of *)
 
 subsubsection{* general *}
 
-context i_of 
+context i_of
 begin
 
 definition "i_of_ocl_flush_all a b = ocl_flush_all_rec
-  (b ''OclFlushAll'')"
+  (b \<langle>''OclFlushAll''\<rangle>)"
 
 definition "i_of_floor a b = floor_rec
-  (b ''Floor1'')
-  (b ''Floor2'')
-  (b ''Floor3'')"
+  (b \<langle>''Floor1''\<rangle>)
+  (b \<langle>''Floor2''\<rangle>)
+  (b \<langle>''Floor3''\<rangle>)"
 
 definition "i_of_ocl_deep_embed_ast a b = ocl_deep_embed_ast_rec
-  (ap2 a (b ''OclAstClassRaw'') (i_of_floor a b) (i_of_ocl_class_raw a b (K i_of_unit)))
-  (ap1 a (b ''OclAstAssociation'') (i_of_ocl_association a b (K i_of_unit)))
-  (ap2 a (b ''OclAstAssClass'') (i_of_floor a b) (i_of_ocl_ass_class a b))
-  (ap2 a (b ''OclAstCtxtPrePost'') (i_of_floor a b) (i_of_ocl_ctxt_pre_post a b (K i_of_unit)))
-  (ap2 a (b ''OclAstCtxtInv'') (i_of_floor a b) (i_of_ocl_ctxt_inv a b (K i_of_unit)))
+  (ap2 a (b \<langle>''OclAstClassRaw''\<rangle>) (i_of_floor a b) (i_of_ocl_class_raw a b (K i_of_unit)))
+  (ap1 a (b \<langle>''OclAstAssociation''\<rangle>) (i_of_ocl_association a b (K i_of_unit)))
+  (ap2 a (b \<langle>''OclAstAssClass''\<rangle>) (i_of_floor a b) (i_of_ocl_ass_class a b))
+  (ap2 a (b \<langle>''OclAstCtxtPrePost''\<rangle>) (i_of_floor a b) (i_of_ocl_ctxt_pre_post a b (K i_of_unit)))
+  (ap2 a (b \<langle>''OclAstCtxtInv''\<rangle>) (i_of_floor a b) (i_of_ocl_ctxt_inv a b (K i_of_unit)))
 
-  (ap1 a (b ''OclAstInstance'') (i_of_ocl_instance a b))
-  (ap1 a (b ''OclAstDefBaseL'') (i_of_ocl_def_base_l a b))
-  (ap1 a (b ''OclAstDefState'') (i_of_ocl_def_state a b))
-  (ap1 a (b ''OclAstDefPrePost'') (i_of_ocl_def_pre_post a b))
-  (ap1 a (b ''OclAstFlushAll'') (i_of_ocl_flush_all a b))"
+  (ap1 a (b \<langle>''OclAstInstance''\<rangle>) (i_of_ocl_instance a b))
+  (ap1 a (b \<langle>''OclAstDefBaseL''\<rangle>) (i_of_ocl_def_base_l a b))
+  (ap1 a (b \<langle>''OclAstDefState''\<rangle>) (i_of_ocl_def_state a b))
+  (ap1 a (b \<langle>''OclAstDefPrePost''\<rangle>) (i_of_ocl_def_pre_post a b))
+  (ap1 a (b \<langle>''OclAstFlushAll''\<rangle>) (i_of_ocl_flush_all a b))"
 
 definition "i_of_ocl_deep_mode a b = ocl_deep_mode_rec
-  (b ''Gen_only_design'')
-  (b ''Gen_only_analysis'')
-  (b ''Gen_default'')"
+  (b \<langle>''Gen_only_design''\<rangle>)
+  (b \<langle>''Gen_only_analysis''\<rangle>)
+  (b \<langle>''Gen_default''\<rangle>)"
 
 definition "i_of_ocl_compiler_config a b f = ocl_compiler_config_rec
-  (ap15 a (b (ext ''ocl_compiler_config_ext''))
+  (ap15 a (b (ext \<langle>''ocl_compiler_config_ext''\<rangle>))
     (i_of_bool b)
     (i_of_option a b (i_of_pair a b (i_of_string a b) (i_of_pair a b (i_of_list a b (i_of_string a b)) (i_of_string a b))))
     (i_of_internal_oids a b)
@@ -151,11 +151,11 @@ subsubsection{* Isabelle *}
 locale isabelle_of
 begin
 
-definition "i_Pair = ''Pair''"
-definition "i_Nil = ''Nil''"
-definition "i_Cons = ''Cons''"
-definition "i_None = ''None''"
-definition "i_Some = ''Some''"
+definition "i_Pair = \<langle>''Pair''\<rangle>"
+definition "i_Nil = \<langle>''Nil''\<rangle>"
+definition "i_Cons = \<langle>''Cons''\<rangle>"
+definition "i_None = \<langle>''None''\<rangle>"
+definition "i_Some = \<langle>''Some''\<rangle>"
 
 (* *)
 
@@ -173,32 +173,32 @@ definition "i_of_option a b f = option_rec
 (* *)
 
 definition "i_of_unit b = unit_rec
-  (b ''()'')"
+  (b \<langle>''()''\<rangle>)"
 
 definition "i_of_bool b = bool_rec
-  (b ''True'')
-  (b ''False'')"
+  (b \<langle>''True''\<rangle>)
+  (b \<langle>''False''\<rangle>)"
 
 definition "i_of_nibble b = nibble_rec
-  (b ''Nibble0'')
-  (b ''Nibble1'')
-  (b ''Nibble2'')
-  (b ''Nibble3'')
-  (b ''Nibble4'')
-  (b ''Nibble5'')
-  (b ''Nibble6'')
-  (b ''Nibble7'')
-  (b ''Nibble8'')
-  (b ''Nibble9'')
-  (b ''NibbleA'')
-  (b ''NibbleB'')
-  (b ''NibbleC'')
-  (b ''NibbleD'')
-  (b ''NibbleE'')
-  (b ''NibbleF'')"
+  (b \<langle>''Nibble0''\<rangle>)
+  (b \<langle>''Nibble1''\<rangle>)
+  (b \<langle>''Nibble2''\<rangle>)
+  (b \<langle>''Nibble3''\<rangle>)
+  (b \<langle>''Nibble4''\<rangle>)
+  (b \<langle>''Nibble5''\<rangle>)
+  (b \<langle>''Nibble6''\<rangle>)
+  (b \<langle>''Nibble7''\<rangle>)
+  (b \<langle>''Nibble8''\<rangle>)
+  (b \<langle>''Nibble9''\<rangle>)
+  (b \<langle>''NibbleA''\<rangle>)
+  (b \<langle>''NibbleB''\<rangle>)
+  (b \<langle>''NibbleC''\<rangle>)
+  (b \<langle>''NibbleD''\<rangle>)
+  (b \<langle>''NibbleE''\<rangle>)
+  (b \<langle>''NibbleF''\<rangle>)"
 
 definition "i_of_char a b = char_rec
-  (ap2 a (b ''Char'') (i_of_nibble b) (i_of_nibble b))"
+  (ap2 a (b \<langle>''Char''\<rangle>) (i_of_nibble b) (i_of_nibble b))"
 
 definition "i_of_string a b = i_of_list a b (i_of_char a b)"
 
@@ -249,18 +249,18 @@ lemmas [code] =
 
 (* *)
 
-definition "isabelle_apply s l = flatten [s, flatten (List_map (\<lambda> s. flatten ['' ('', s, '')'']) l)]"
+definition "isabelle_apply s l = flatten [s, flatten (List_map (\<lambda> s. flatten [\<langle>'' (''\<rangle>, s, \<langle>'')''\<rangle>]) l)]"
 
 subsubsection{* SML *}
 
 locale sml_of
 begin
 
-definition "i_Pair = ''I''"
-definition "i_Nil = ''nil''"
-definition "i_Cons = ''uncurry cons''" (* val cons2 = uncurry cons *)
-definition "i_None = ''NONE''"
-definition "i_Some = ''SOME''"
+definition "i_Pair = \<langle>''I''\<rangle>"
+definition "i_Nil = \<langle>''nil''\<rangle>"
+definition "i_Cons = \<langle>''uncurry cons''\<rangle>" (* val cons2 = uncurry cons *)
+definition "i_None = \<langle>''NONE''\<rangle>"
+definition "i_Some = \<langle>''SOME''\<rangle>"
 
 (* *)
 
@@ -278,17 +278,17 @@ definition "i_of_option a b f = option_rec
 (* *)
 
 definition "i_of_unit b = unit_rec
-  (b ''()'')"
+  (b \<langle>''()''\<rangle>)"
 
 definition "i_of_bool b = bool_rec
-  (b ''true'')
-  (b ''false'')"
+  (b \<langle>''true''\<rangle>)
+  (b \<langle>''false''\<rangle>)"
 
 definition "i_of_string a b =
  (let c = [Char Nibble2 Nibble2] in
-  (\<lambda>x. b (flatten [''(String.explode '', c, List_replace x (Char Nibble0 NibbleA) (Char Nibble5 NibbleC # ''n''), c,'')''])))"
+  (\<lambda>x. b (flatten [\<langle>''(String.explode ''\<rangle>, c, List_replace x (Char Nibble0 NibbleA) (Char Nibble5 NibbleC # \<langle>''n''\<rangle>), c,\<langle>'')''\<rangle>])))"
 
-definition "i_of_nat a b = (\<lambda>x. b (flatten [''(Code_Numeral.Nat '', natural_of_str x, '')'']))"
+definition "i_of_nat a b = (\<lambda>x. b (flatten [\<langle>''(Code_Numeral.Nat ''\<rangle>, natural_of_str x, \<langle>'')''\<rangle>]))"
 
 end
 
@@ -329,6 +329,6 @@ lemmas [code] =
 
 (* *)
 
-definition "sml_apply s l = flatten [s, '' ('', case\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l l of x # xs \<Rightarrow> flatten [x, flatten (List_map (\<lambda>s. flatten ['', '', s]) xs)], '')'' ]"
+definition "sml_apply s l = flatten [s, \<langle>'' (''\<rangle>, case\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l l of x # xs \<Rightarrow> flatten [x, flatten (List_map (\<lambda>s. flatten [\<langle>'', ''\<rangle>, s]) xs)], \<langle>'')''\<rangle> ]"
 
 end

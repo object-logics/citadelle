@@ -142,20 +142,20 @@ context i_of
 begin
 
 definition "i_of_ocl_collection b = ocl_collection_rec
-  (b ''Set'')
-  (b ''Sequence'')"
+  (b \<langle>''Set''\<rangle>)
+  (b \<langle>''Sequence''\<rangle>)"
 
 definition "i_of_ocl_multiplicity_single a b = ocl_multiplicity_single_rec
-  (ap1 a (b ''Mult_nat'') (i_of_nat a b))
-  (b ''Mult_star'')"
+  (ap1 a (b \<langle>''Mult_nat''\<rangle>) (i_of_nat a b))
+  (b \<langle>''Mult_star''\<rangle>)"
 
 definition "i_of_ocl_multiplicity a b = ocl_multiplicity_rec
-  (ap2 a (b ''OclMult'')
+  (ap2 a (b \<langle>''OclMult''\<rangle>)
     (i_of_list a b (i_of_pair a b (i_of_ocl_multiplicity_single a b) (i_of_option a b (i_of_ocl_multiplicity_single a b))))
     (i_of_ocl_collection b))"
 
 definition "i_of_ocl_ty_class_node a b f = ocl_ty_class_node_rec
-  (ap5 a (b (ext ''ocl_ty_class_node_ext''))
+  (ap5 a (b (ext \<langle>''ocl_ty_class_node_ext''\<rangle>))
     (i_of_nat a b)
     (i_of_ocl_multiplicity a b)
     (i_of_option a b (i_of_string a b))
@@ -163,7 +163,7 @@ definition "i_of_ocl_ty_class_node a b f = ocl_ty_class_node_rec
     (f a b))"
 
 definition "i_of_ocl_ty_class a b f = ocl_ty_class_rec
-  (ap6 a (b (ext ''ocl_ty_class_ext''))
+  (ap6 a (b (ext \<langle>''ocl_ty_class_ext''\<rangle>))
     (i_of_string a b)
     (i_of_nat a b)
     (i_of_nat a b)
@@ -172,41 +172,41 @@ definition "i_of_ocl_ty_class a b f = ocl_ty_class_rec
     (f a b))"
 
 definition "i_of_ocl_ty a b = (\<lambda>f1 f2 f3 f4 f5 f6 f7 f8 f9 f10. ocl_ty_rec f1 f2 f3 f4 f5 f6 f7 f8 (K o f9) (\<lambda>_ _. f10))
-  (b ''OclTy_base_void'')
-  (b ''OclTy_base_boolean'')
-  (b ''OclTy_base_integer'')
-  (b ''OclTy_base_unlimitednatural'')
-  (b ''OclTy_base_real'')
-  (b ''OclTy_base_string'')
-  (ap1 a (b ''OclTy_class_pre'') (i_of_string a b))
-  (ap1 a (b ''OclTy_class'') (i_of_ocl_ty_class a b (K i_of_unit)))
-  (ar2 a (b ''OclTy_collection'') (i_of_ocl_collection b))
-  (ar2 a (b ''OclTy_pair'') id)
-  (ap1 a (b ''OclTy_raw'') (i_of_string a b))"
+  (b \<langle>''OclTy_base_void''\<rangle>)
+  (b \<langle>''OclTy_base_boolean''\<rangle>)
+  (b \<langle>''OclTy_base_integer''\<rangle>)
+  (b \<langle>''OclTy_base_unlimitednatural''\<rangle>)
+  (b \<langle>''OclTy_base_real''\<rangle>)
+  (b \<langle>''OclTy_base_string''\<rangle>)
+  (ap1 a (b \<langle>''OclTy_class_pre''\<rangle>) (i_of_string a b))
+  (ap1 a (b \<langle>''OclTy_class''\<rangle>) (i_of_ocl_ty_class a b (K i_of_unit)))
+  (ar2 a (b \<langle>''OclTy_collection''\<rangle>) (i_of_ocl_collection b))
+  (ar2 a (b \<langle>''OclTy_pair''\<rangle>) id)
+  (ap1 a (b \<langle>''OclTy_raw''\<rangle>) (i_of_string a b))"
 
 definition "i_of_ocl_association_type a b = ocl_association_type_rec
-  (b ''OclAssTy_native_attribute'')
-  (b ''OclAssTy_association'')
-  (b ''OclAssTy_composition'')
-  (b ''OclAssTy_aggregation'')"
+  (b \<langle>''OclAssTy_native_attribute''\<rangle>)
+  (b \<langle>''OclAssTy_association''\<rangle>)
+  (b \<langle>''OclAssTy_composition''\<rangle>)
+  (b \<langle>''OclAssTy_aggregation''\<rangle>)"
 
 definition "i_of_ocl_association a b f = ocl_association_rec
-  (ap3 a (b (ext ''ocl_association_ext''))
+  (ap3 a (b (ext \<langle>''ocl_association_ext''\<rangle>))
     (i_of_ocl_association_type a b)
     (i_of_list a b (i_of_pair a b (i_of_string a b) (i_of_pair a b (i_of_ocl_multiplicity a b) (i_of_option a b (i_of_string a b)))))
     (f a b))"
 
 definition "i_of_ocl_ctxt_prefix a b = ocl_ctxt_prefix_rec
-  (b ''OclCtxtPre'')
-  (b ''OclCtxtPost'')"
+  (b \<langle>''OclCtxtPre''\<rangle>)
+  (b \<langle>''OclCtxtPost''\<rangle>)"
 
 definition "i_of_ocl_ctxt_term a b = (\<lambda>f0 f1 f2. ocl_ctxt_term_rec f0 f1 (co1 K f2))
-  (ap1 a (b ''T_pure'') (i_of_pure_term a b))
-  (ap2 a (b ''T_to_be_parsed'') (i_of_string a b) (i_of_string a b))
-  (ar2 a (b ''T_lambda'') (i_of_string a b))"
+  (ap1 a (b \<langle>''T_pure''\<rangle>) (i_of_pure_term a b))
+  (ap2 a (b \<langle>''T_to_be_parsed''\<rangle>) (i_of_string a b) (i_of_string a b))
+  (ar2 a (b \<langle>''T_lambda''\<rangle>) (i_of_string a b))"
 
 definition "i_of_ocl_ctxt_pre_post a b f = ocl_ctxt_pre_post_rec
-  (ap6 a (b (ext ''ocl_ctxt_pre_post_ext''))
+  (ap6 a (b (ext \<langle>''ocl_ctxt_pre_post_ext''\<rangle>))
     (i_of_string a b)
     (i_of_string a b)
     (i_of_list a b (i_of_pair a b (i_of_string a b) (i_of_ocl_ty a b)))
@@ -215,14 +215,14 @@ definition "i_of_ocl_ctxt_pre_post a b f = ocl_ctxt_pre_post_rec
     (f a b))"
 
 definition "i_of_ocl_ctxt_inv a b f = ocl_ctxt_inv_rec
-  (ap4 a (b (ext ''ocl_ctxt_inv_ext''))
+  (ap4 a (b (ext \<langle>''ocl_ctxt_inv_ext''\<rangle>))
     (i_of_list a b (i_of_string a b))
     (i_of_string a b)
     (i_of_list a b (i_of_pair a b (i_of_string a b) (i_of_ocl_ctxt_term a b)))
     (f a b))"
 
 definition "i_of_ocl_class a b = (\<lambda>f0 f1 f2 f3 f4. ocl_class_rec_1 (co2 K (ar3 a f0 f1 f2)) f3 (\<lambda>_ _. f4))
-  (b ''OclClass'')
+  (b \<langle>''OclClass''\<rangle>)
     (i_of_string a b)
     (i_of_list a b (i_of_pair a b (i_of_string a b) (i_of_ocl_ty a b)))
     (* *)
@@ -230,7 +230,7 @@ definition "i_of_ocl_class a b = (\<lambda>f0 f1 f2 f3 f4. ocl_class_rec_1 (co2 
     (ar2 a (b i_Cons) id)"
 
 definition "i_of_ocl_class_raw a b f = ocl_class_raw_rec
-  (ap6 a (b (ext ''ocl_class_raw_ext''))
+  (ap6 a (b (ext \<langle>''ocl_class_raw_ext''\<rangle>))
     (i_of_string a b)
     (i_of_list a b (i_of_pair a b (i_of_string a b) (i_of_ocl_ty a b)))
     (i_of_list a b (i_of_ocl_ctxt_pre_post a b (K i_of_unit)))
@@ -239,7 +239,7 @@ definition "i_of_ocl_class_raw a b f = ocl_class_raw_rec
     (f a b))"
 
 definition "i_of_ocl_ass_class a b = ocl_ass_class_rec
-  (ap2 a (b ''OclAssClass'')
+  (ap2 a (b \<langle>''OclAssClass''\<rangle>)
     (i_of_ocl_association a b (K i_of_unit))
     (i_of_ocl_class_raw a b (K i_of_unit)))"
 
