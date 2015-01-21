@@ -295,7 +295,7 @@ definition "print_astype_d_up_cast = start_map Thy_lemma_by o
                  (b var_X))))
       (List_map App
         [[Tac_case_tac (f_tau not_val), Tac_rule (Thm_str \<langle>''foundation25''\<rangle>), Tac_simp]])
-      (Tacl_by [ Tac_rule (Thm_str (flatten [\<langle>''foundation25''\<rangle>, [Char Nibble2 Nibble7]]))
+      (Tacl_by [ Tac_rule (Thm_str (flatten [\<langle>''foundation25''\<rangle>, \<degree>Char Nibble2 Nibble7\<degree>]))
                , Tac_simp_add [ var_def_X
                               , print_astype_up_d_cast_name name_any name_pers
                               , flatten [\<langle>''StrictRefEq''\<rangle>, isub_of_str \<langle>''Object''\<rangle>, \<langle>''_sym''\<rangle>]]]) )"

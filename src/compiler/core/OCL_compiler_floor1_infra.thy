@@ -67,7 +67,7 @@ definition "print_infra_datatype_class = start_map'' Thy_dataty o (\<lambda>expr
 definition "print_latex_infra_datatype_class = start_map'' Thy_dataty o (\<lambda>expr _ base_attr' _. map_class_gen_h''''
   (\<lambda>isub_name name _ l_attr l_inherited l_cons.
     let (l_attr, l_inherited) = base_attr' (l_attr, of_inh l_inherited)
-      ; map_ty = List_map ((\<lambda>x. Ty_apply (Ty_base \<langle>''option''\<rangle>) [str_hol_of_ty_all Ty_apply Ty_base x]) o snd) in let c = [Char Nibble5 NibbleC]
+      ; map_ty = List_map ((\<lambda>x. Ty_apply (Ty_base \<langle>''option''\<rangle>) [str_hol_of_ty_all Ty_apply Ty_base x]) o snd) in let c = \<degree>Char Nibble5 NibbleC\<degree>
       ; n1 = \<langle>''{ext}''\<rangle>
       ; n2 = \<langle>''{ty}''\<rangle> in
     [ Datatype

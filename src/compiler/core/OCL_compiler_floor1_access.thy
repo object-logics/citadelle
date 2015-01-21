@@ -337,7 +337,7 @@ definition "print_access_dot_consts =
           , Consts_raw0
             name
             (Ty_arrow
-              (Ty_apply (Ty_base \<langle>''val''\<rangle>) [Ty_base unicode_AA, Ty_base (Char Nibble2 Nibble7 # unicode_alpha)])
+              (Ty_apply (Ty_base \<langle>''val''\<rangle>) [Ty_base unicode_AA, Ty_base (\<degree>Char Nibble2 Nibble7\<degree> @@ unicode_alpha)])
 
               (let ty_base = \<lambda>attr_ty.
                  Ty_apply (Ty_base \<langle>''val''\<rangle>) [Ty_base unicode_AA,
@@ -362,7 +362,7 @@ definition "print_access_dot_consts =
                 | _ \<Rightarrow> Raw (str_of_ty attr_ty)))
             (let dot_name = mk_dot attr_n var_at_when_ocl
                ; mk_par =
-                   let esc = \<lambda>s. Char Nibble2 Nibble7 # s in
+                   let esc = \<lambda>s. \<degree>Char Nibble2 Nibble7\<degree> @@ s in
                    (\<lambda>s1 s2. flatten [s1, \<langle>'' ''\<rangle>, esc \<langle>''/''\<rangle>, \<langle>''* ''\<rangle>, s2, \<langle>'' *''\<rangle>, esc \<langle>''/''\<rangle>]) in
              case attr_ty of OclTy_class ty_obj \<Rightarrow>
                (case apply_optim_ass_arity
@@ -527,7 +527,7 @@ definition "print_access_def_mono = start_map'''' Thy_lemma_by o (\<lambda>expr 
                                            , (unicode_tau, b unicode_tau)
                                            , (\<langle>''x''\<rangle>, b var_X)
                                            , (\<langle>''y''\<rangle>, b s)]]
-                   , Tac_simp_add [ \<langle>''foundation16''\<rangle> @@ [Char Nibble2 Nibble7]
+                   , Tac_simp_add [ \<langle>''foundation16''\<rangle> @@ \<degree>Char Nibble2 Nibble7\<degree>
                                   , print_access_lemma_strict_name isub_name dot_at_when attr_ty isup_attr s] ] in
                  [ f_tac \<langle>''invalid''\<rangle>
                  , f_tac \<langle>''null''\<rangle> ])

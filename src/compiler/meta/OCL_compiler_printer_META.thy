@@ -158,7 +158,7 @@ definition "s_of_thy_list ocl l_thy =
             let (l_thy, lg) = fold_list (\<lambda>l n. (s_of_thy_extended ocl l, Succ n)) l 0 in
             (( \<prec>''''\<succ>
              # sprint4 ''%s(* %d ************************************ %d + %d *)''\<acute>
-                 (To_string (if ocl_compiler_config.more ocl then '''' else [char_escape])) (To_nat (Succ i)) (To_nat cpt) (To_nat lg)
+                 (To_string (if ocl_compiler_config.more ocl then '''' else \<degree>char_escape\<degree>)) (To_nat (Succ i)) (To_nat cpt) (To_nat lg)
              # l_thy), Succ i, cpt + lg)) l_thy (D_output_position ocl)))
         , th_end ])"
 end

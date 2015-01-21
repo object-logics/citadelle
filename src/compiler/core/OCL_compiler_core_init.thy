@@ -89,7 +89,7 @@ subsection{* ... *}
 definition "const_oclastype = \<langle>''OclAsType''\<rangle>"
 definition "const_oclistypeof = \<langle>''OclIsTypeOf''\<rangle>"
 definition "const_ocliskindof = \<langle>''OclIsKindOf''\<rangle>"
-definition "const_mixfix dot_ocl name = (let t = \<lambda>s. Char Nibble2 Nibble7 # s in
+definition "const_mixfix dot_ocl name = (let t = \<lambda>s. \<degree>Char Nibble2 Nibble7\<degree> @@ s in
                                          flatten [dot_ocl, t \<langle>''(''\<rangle>, name, t \<langle>'')''\<rangle>])"
 definition "const_oid_of s = \<langle>''oid_of_''\<rangle> @@ s"
 definition "dot_oclastype = \<langle>''.oclAsType''\<rangle>"
@@ -260,7 +260,7 @@ definition "print_astype_from_universe_name name = flatten [const_oclastype, isu
 subsection{* IsTypeOf *}
 
 definition "print_istypeof_defined_name isub_name h_name = flatten [isub_name const_oclistypeof, \<langle>''_''\<rangle>, h_name, \<langle>''_defined''\<rangle>]"
-definition "print_istypeof_defined'_name isub_name h_name = flatten [isub_name const_oclistypeof, \<langle>''_''\<rangle>, h_name, \<langle>''_defined''\<rangle>,  [Char Nibble2 Nibble7]]"
+definition "print_istypeof_defined'_name isub_name h_name = flatten [isub_name const_oclistypeof, \<langle>''_''\<rangle>, h_name, \<langle>''_defined''\<rangle>, \<degree>Char Nibble2 Nibble7\<degree>]"
 definition "print_istypeof_up_d_cast_name name_mid name_any name_pers = flatten [\<langle>''down_cast_type''\<rangle>, isub_of_str name_mid, \<langle>''_from_''\<rangle>, name_any, \<langle>''_to_''\<rangle>, name_pers]"
 
 subsection{* IsKindOf *}

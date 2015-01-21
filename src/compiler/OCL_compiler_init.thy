@@ -61,8 +61,8 @@ translations "\<prec>x\<succ>" \<rightleftharpoons> "CONST STR x"
 syntax "_string3" :: "'a \<Rightarrow> 'a" ("\<lless>(_)\<ggreater>")
 translations "\<lless>x\<ggreater>" \<rightleftharpoons> "CONST id x"
 
-syntax "_char1" :: "'a \<Rightarrow> 'a" ("\<degree>(_)\<degree>")
-translations "\<degree>x\<degree>" \<rightleftharpoons> "CONST id x"
+syntax "_char1" :: "'a \<Rightarrow> 'a list" ("\<degree>(_)\<degree>")
+translations "\<degree>x\<degree>" \<rightleftharpoons> "CONST Cons x (CONST Nil)"
 
 syntax "_char2" :: "'a \<Rightarrow> 'a" ("\<ordmasculine>(_)\<ordmasculine>")
 translations "\<ordmasculine>x\<ordmasculine>" \<rightleftharpoons> "CONST id x"
@@ -175,7 +175,7 @@ subsection{* ... *}
 
 definition "wildcard = \<langle>''_''\<rangle>"
 
-definition "escape_unicode c = flatten [[Char Nibble5 NibbleC], \<langle>''<''\<rangle>, c, \<langle>''>''\<rangle>]"
+definition "escape_unicode c = flatten [\<degree>Char Nibble5 NibbleC\<degree>, \<langle>''<''\<rangle>, c, \<langle>''>''\<rangle>]"
 
 definition "lowercase_of_str = List_map (\<lambda>c. let n = nat_of_char c in if n < 97 then char_of_nat (n + 32) else c)"
 definition "uppercase_of_str = List_map (\<lambda>c. let n = nat_of_char c in if n < 97 then c else char_of_nat (n - 32))"
@@ -191,9 +191,9 @@ definition "is_letter n = (n \<ge> 65 & n < 91 | n \<ge> 97 & n < 123)"
 definition "is_digit n = (n \<ge> 48 & n < 58)"
 definition "base255_of_str_gen f0 f = flatten o List_map (\<lambda>c. let n = nat_of_char c in
   if is_letter n then f0 c else f (add_0 n))"
-definition "base255_of_str = base255_of_str_gen (\<lambda>c. [c]) id"
+definition "base255_of_str = base255_of_str_gen (\<lambda>c. \<degree>c\<degree>) id"
 definition "isub_of_str = flatten o List_map (\<lambda>c. let n = nat_of_char c in
-  if is_letter n | is_digit n then escape_unicode \<langle>''^sub''\<rangle> @@ [c] else add_0 n)"
+  if is_letter n | is_digit n then escape_unicode \<langle>''^sub''\<rangle> @@ \<degree>c\<degree> else add_0 n)"
 definition "isup_of_str = flatten o List_map (\<lambda>c. let n = nat_of_char c in
   if is_letter n then escape_unicode [char_of_nat (nat_of_char c - 32)] else add_0 n)"
 definition "text_of_str str =
@@ -203,10 +203,10 @@ definition "text_of_str str =
           , base255_of_str_gen
               (\<lambda>c.
                 let g = [Char Nibble2 Nibble7] in
-                flatten [\<langle>''CHR ''\<rangle>,  g,g,[c],g,g,  ap])
+                flatten [\<langle>''CHR ''\<rangle>,  g,g,\<degree>c\<degree>,g,g,  ap])
               (\<lambda>c. flatten [s, \<langle>'' ''\<rangle>, c, ap]) str
           , \<langle>''[])''\<rangle>])"
-definition "text2_of_str = flatten o List_map (\<lambda>c. escape_unicode [c])"
+definition "text2_of_str = flatten o List_map (\<lambda>c. escape_unicode \<degree>c\<degree>)"
 
 definition "mk_constr_name name = (\<lambda> x. flatten [isub_of_str name, \<langle>''_''\<rangle>, isub_of_str x])"
 definition "mk_dot s1 s2 = flatten [\<langle>''.''\<rangle>, s1, s2]"
