@@ -64,8 +64,8 @@ translations "\<lless>x\<ggreater>" \<rightleftharpoons> "CONST id x"
 syntax "_char1" :: "'a \<Rightarrow> 'a list" ("\<degree>(_)\<degree>")
 translations "\<degree>x\<degree>" \<rightleftharpoons> "CONST Cons x (CONST Nil)"
 
-syntax "_char2" :: "'a \<Rightarrow> 'a" ("\<ordmasculine>(_)\<ordmasculine>")
-translations "\<ordmasculine>x\<ordmasculine>" \<rightleftharpoons> "CONST id x"
+syntax "_char2" :: "'a \<Rightarrow> _" ("\<ordmasculine>(_)\<ordmasculine>")
+translations "\<ordmasculine>x\<ordmasculine>" \<rightleftharpoons> "CONST STR (CONST Cons x (CONST Nil))"
 
 section{* ... *}
 

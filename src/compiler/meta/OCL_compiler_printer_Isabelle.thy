@@ -282,7 +282,7 @@ definition "s_of_tac_apply = (
                                          l_let)))
         (case o_show of None \<Rightarrow> thesis
                       | Some l_show \<Rightarrow>
-                          let g = STR [Char Nibble2 Nibble2] in
+                          let g = \<ordmasculine>Char Nibble2 Nibble2\<ordmasculine> in
                           sprint3 ''%s%s%s''\<acute>
                             g
                             (String_concat (sprint1 '' %s ''\<acute> (To_string unicode_Longrightarrow)) (List_map s_of_expr l_show))

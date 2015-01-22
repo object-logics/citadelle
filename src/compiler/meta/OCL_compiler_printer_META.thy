@@ -78,7 +78,7 @@ fun_quick s_of_ctxt2_term_aux where "s_of_ctxt2_term_aux l e =
 definition "s_of_ctxt2_term = s_of_ctxt2_term_aux []"
 
 definition "s_of_ocl_deep_embed_ast _ =
- (let g = STR [Char Nibble2 Nibble2] in
+ (let g = \<ordmasculine>Char Nibble2 Nibble2\<ordmasculine> in
   \<lambda> OclAstCtxtPrePost Floor2 ctxt \<Rightarrow>
       sprint5 ''Context[shallow] %s :: %s (%s) %s
 %s''\<acute>

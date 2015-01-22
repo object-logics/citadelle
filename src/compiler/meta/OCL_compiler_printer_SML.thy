@@ -58,7 +58,7 @@ definition "s_of_val_fun = (\<lambda> Sval \<Rightarrow> \<prec>''val''\<succ>
                             | Sfun \<Rightarrow> \<prec>''fun''\<succ>)"
 
 fun_quick s_of_sexpr where "s_of_sexpr e = (\<lambda>
-    Sexpr_string s \<Rightarrow> let c = STR [Char Nibble2 Nibble2] in
+    Sexpr_string s \<Rightarrow> let c = \<ordmasculine>Char Nibble2 Nibble2\<ordmasculine> in
                       sprint3 ''%s%s%s''\<acute> c (To_string s) c
   | Sexpr_rewrite val_fun e1 symb e2 \<Rightarrow> sprint4 ''%s %s %s %s''\<acute> (s_of_val_fun val_fun) (s_of_sexpr e1) (To_string symb) (s_of_sexpr e2)
   | Sexpr_basic l \<Rightarrow> sprint1 ''%s''\<acute> (String_concat \<prec>'' ''\<succ> (List_map To_string l))
