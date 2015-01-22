@@ -325,7 +325,6 @@ definition "print_examp_instance_defassoc_gen name l_ocli ocl =
      (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l var_oid_class = \<langle>''oid_class''\<rangle>
         ; var_to_from = \<langle>''to_from''\<rangle>
         ; var_oid = \<langle>''oid''\<rangle>
-        ; mk_ty = \<lambda>\<^sub>S\<^sub>c\<^sub>a\<^sub>l\<^sub>al. (flatten o flatten) (List_map (\<lambda>x. [\<langle>'' ''\<rangle>, x, \<langle>'' ''\<rangle>]) l)
         ; a_l = \<lambda>s. Ty_apply (Ty_base var_ty_list) [s] in
       Expr_lambdas
         [var_oid_class, var_to_from, var_oid]
