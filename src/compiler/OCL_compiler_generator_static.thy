@@ -62,7 +62,7 @@ definition "main = write_file
                                     ,[\<langle>''../src/OCL_main''\<rangle>]
                                     ,\<langle>''../src/compiler/OCL_compiler_generator_dynamic''\<rangle>) \<rparr>)
    ( List_map (OclAstClassRaw Floor1) Employee_DesignModel_UMLPart
-     @@ [ OclAstAssociation (ocl_association.make OclAssTy_association
+     @@@@ [ OclAstAssociation (ocl_association.make OclAssTy_association
             [ (\<langle>''Person''\<rangle>, OclMult [(Mult_star, None)] Set, None)
             , (\<langle>''Person''\<rangle>, OclMult [(Mult_nat 0, Some (Mult_nat 1))] Set, Some \<langle>''boss''\<rangle>)])
         , OclAstFlushAll OclFlushAll]
