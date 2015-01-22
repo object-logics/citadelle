@@ -50,21 +50,21 @@ begin
 subsection{* General Compiling Process: Test Scenario: Deep (without reflection) *}
 
 definition "Employee_DesignModel_UMLPart =
-  [ ocl_class_raw.make ''Galaxy'' [(''sound'', OclTy_raw ''unit''), (''moving'', OclTy_raw ''bool'')] [] [] None
-  , ocl_class_raw.make ''Planet'' [(''weight'', OclTy_raw ''nat'')] [] [] (Some ''Galaxy'')
-  , ocl_class_raw.make ''Person'' [(''salary'', OclTy_raw ''int'')] [] [] (Some ''Planet'') ]"
+  [ ocl_class_raw.make \<langle>''Galaxy''\<rangle> [(\<langle>''sound''\<rangle>, OclTy_raw \<langle>''unit''\<rangle>), (\<langle>''moving''\<rangle>, OclTy_raw \<langle>''bool''\<rangle>)] [] [] None
+  , ocl_class_raw.make \<langle>''Planet''\<rangle> [(\<langle>''weight''\<rangle>, OclTy_raw \<langle>''nat''\<rangle>)] [] [] (Some \<langle>''Galaxy''\<rangle>)
+  , ocl_class_raw.make \<langle>''Person''\<rangle> [(\<langle>''salary''\<rangle>, OclTy_raw \<langle>''int''\<rangle>)] [] [] (Some \<langle>''Planet''\<rangle>) ]"
 
 definition "main = write_file
  (ocl_compiler_config.extend
    (ocl_compiler_config_empty True None (oidInit (Oid 0)) Gen_only_design False
       \<lparr> D_disable_thy_output := False
-      , D_file_out_path_dep := Some (''Employee_DesignModel_UMLPart_generated''
-                                    ,[''../src/OCL_main'']
-                                    ,''../src/compiler/OCL_compiler_generator_dynamic'') \<rparr>)
+      , D_file_out_path_dep := Some (\<langle>''Employee_DesignModel_UMLPart_generated''\<rangle>
+                                    ,[\<langle>''../src/OCL_main''\<rangle>]
+                                    ,\<langle>''../src/compiler/OCL_compiler_generator_dynamic''\<rangle>) \<rparr>)
    ( List_map (OclAstClassRaw Floor1) Employee_DesignModel_UMLPart
      @@ [ OclAstAssociation (ocl_association.make OclAssTy_association
-            [ (''Person'', OclMult [(Mult_star, None)] Set, None)
-            , (''Person'', OclMult [(Mult_nat 0, Some (Mult_nat 1))] Set, Some ''boss'')])
+            [ (\<langle>''Person''\<rangle>, OclMult [(Mult_star, None)] Set, None)
+            , (\<langle>''Person''\<rangle>, OclMult [(Mult_nat 0, Some (Mult_nat 1))] Set, Some \<langle>''boss''\<rangle>)])
         , OclAstFlushAll OclFlushAll]
    , None))"
 (*
