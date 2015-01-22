@@ -66,8 +66,8 @@ definition "subsubsection = section_aux 2"
 definition "txt f = start_map'''' Thy_text o (\<lambda>_ design_analysis. [Text (f design_analysis)])"
 definition "txt' s = txt (\<lambda>_. s)"
 definition "txt'' = txt' o flatten"
-definition "txt''d s = txt (\<lambda> Gen_only_design \<Rightarrow> flatten s | _ \<Rightarrow> [])"
-definition "txt''a s = txt (\<lambda> Gen_only_design \<Rightarrow> [] | _ \<Rightarrow> flatten s)"
+definition "txt''d s = txt (\<lambda> Gen_only_design \<Rightarrow> flatten s | _ \<Rightarrow> \<langle>''''\<rangle>)"
+definition "txt''a s = txt (\<lambda> Gen_only_design \<Rightarrow> \<langle>''''\<rangle> | _ \<Rightarrow> flatten s)"
 
 definition thy_class ::
   (* polymorphism weakening needed by code_reflect *)
@@ -77,9 +77,9 @@ definition thy_class ::
      ; subsection_exec = subsection \<langle>''Execution with Invalid or Null as Argument''\<rangle>
      ; subsection_up = subsection \<langle>''Up Down Casting''\<rangle>
      ; subsection_defined = subsection \<langle>''Validity and Definedness Properties''\<rangle>
-     ; e = [Char Nibble5 NibbleC]
-     ; n = [Char Nibble2 Nibble7]
-     ; a = [Char Nibble2 Nibble2] in
+     ; e = \<langle>[Char Nibble5 NibbleC]\<rangle>
+     ; n = \<langle>[Char Nibble2 Nibble7]\<rangle>
+     ; a = \<langle>[Char Nibble2 Nibble2]\<rangle> in
   List_flatten
           [ [ txt''d [ \<langle>''
    ''\<rangle>, e, \<langle>''label{ex:employee-design:uml} ''\<rangle> ]

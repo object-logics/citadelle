@@ -185,12 +185,12 @@ definition "s_of_ntheorems_l l = String_concat \<prec>'' ''\<succ> (List_map s_o
 
 definition "s_of_lemmas_simp _ = (\<lambda> Lemmas_simp_opt simp s l \<Rightarrow>
     sprint3 ''lemmas%s%s = %s''\<acute>
-      (if s = [] then \<prec>''''\<succ> else To_string ('' '' @@ s))
+      (if s = [] then \<prec>''''\<succ> else To_string (\<langle>'' ''\<rangle> @@ s))
       (if simp then \<prec>''[simp,code_unfold]''\<succ> else \<prec>''''\<succ>)
       (s_of_ntheorem_l l)
                                   | Lemmas_simps s l \<Rightarrow>
     sprint2 ''lemmas%s [simp,code_unfold] = %s''\<acute>
-      (if s = [] then \<prec>''''\<succ> else To_string ('' '' @@ s))
+      (if s = [] then \<prec>''''\<succ> else To_string (\<langle>'' ''\<rangle> @@ s))
       (String_concat \<prec>''
                             ''\<succ> (List_map To_string l)))"
 
@@ -304,7 +304,7 @@ definition "s_of_lemma_by _ =
       (String_concat \<prec>''''\<succ> (List_map (\<lambda>(n, b, e).
           sprint2 ''
 assumes %s\"%s\"''\<acute>
-            (let n = if b then flatten [n, ''[simp]''] else n in
+            (let n = if b then flatten [n, \<langle>''[simp]''\<rangle>] else n in
              if n = '''' then \<prec>''''\<succ> else sprint1 ''%s: ''\<acute> (To_string n))
             (s_of_expr e)) l_spec
        @@@

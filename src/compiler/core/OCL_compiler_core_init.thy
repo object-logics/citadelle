@@ -308,7 +308,7 @@ datatype reporting = Warning
                    | Error
                    | Writeln
 
-definition "raise_ml l_out s = Ml (Sexpr_apply ''Ty'.check''
+definition "raise_ml l_out s = Ml (Sexpr_apply \<langle>''Ty'.check''\<rangle>
     [ Sexpr_list'
         (\<lambda>(rep, s).
           Sexpr_pair (Sexpr_basic [flatten [ \<langle>''OCL.''\<rangle>

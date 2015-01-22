@@ -177,7 +177,7 @@ definition "print_istypeof_defined = start_m Thy_lemma_by m_class_default
           (print_istypeof_defined_name isub_name h_name)
           [(var_isdef, False, f unicode_upsilon (Expr_basic [var_X]))]
           (f unicode_delta (Expr_postunary (Expr_annot (Expr_basic [var_X]) h_name) (Expr_basic [dot_istypeof name])))
-          [App [Tac_insert [Thm_simplified (Thm_str var_isdef) (Thm_str (\<langle>''foundation18''\<rangle> @@ [Char Nibble2 Nibble7])) ]
+          [App [Tac_insert [Thm_simplified (Thm_str var_isdef) (Thm_str (\<langle>''foundation18''\<rangle> @@ \<langle>[Char Nibble2 Nibble7]\<rangle>)) ]
                ,Tac_simp_only [Thm_str (hol_definition \<langle>''OclValid''\<rangle>)]
                ,Tac_subst (Thm_str \<langle>''cp_defined''\<rangle>)]]
           (Tacl_by [Tac_auto_simp_add_split ( Thm_symmetric (Thm_str \<langle>''cp_defined''\<rangle>)

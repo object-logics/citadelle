@@ -285,14 +285,14 @@ definition "i_of_bool b = bool_rec
   (b \<langle>''false''\<rangle>)"
 
 definition "i_of_string a b =
- (let c = [Char Nibble2 Nibble2] in
+ (let c = \<langle>[Char Nibble2 Nibble2]\<rangle> in
   (\<lambda>x. b (flatten [\<langle>''(String.explode ''\<rangle>, c, List_replace x (Char Nibble0 NibbleA) (Char Nibble5 NibbleC # \<langle>''n''\<rangle>), c,\<langle>'')''\<rangle>])))"
 
 definition "i_of_nat a b = (\<lambda>x. b (flatten [\<langle>''(Code_Numeral.Nat ''\<rangle>, natural_of_str x, \<langle>'')''\<rangle>]))"
 
 end
 
-sublocale sml_of < i_of "\<lambda>x # xs \<Rightarrow> flatten [uppercase_of_str [x], xs]"
+sublocale sml_of < i_of "\<lambda>x # xs \<Rightarrow> flatten [uppercase_of_str \<langle>[x]\<rangle>, \<langle>xs\<rangle>]"
                         sml_of.i_of_string
                         sml_of.i_of_nat
                         sml_of.i_of_unit

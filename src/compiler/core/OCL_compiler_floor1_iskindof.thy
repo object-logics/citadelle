@@ -179,7 +179,7 @@ definition "print_iskindof_defined = start_m_gen Thy_lemma_by m_class_default
                          next_dataty
                          (mk_OF (print_istypeof_defined_name isub_name))) ])])"
 
-definition "print_iskindof_defined'_name isub_name h_name = flatten [isub_name const_ocliskindof, \<langle>''_''\<rangle>, h_name, \<langle>''_defined''\<rangle>, [Char Nibble2 Nibble7]]"
+definition "print_iskindof_defined'_name isub_name h_name = flatten [isub_name const_ocliskindof, \<langle>''_''\<rangle>, h_name, \<langle>''_defined''\<rangle>, \<langle>[Char Nibble2 Nibble7]\<rangle>]"
 definition "print_iskindof_defined' = start_m Thy_lemma_by m_class_default
   (\<lambda> _ (isub_name, name, _). \<lambda> OclClass h_name _ _ \<Rightarrow>
       let var_X = \<langle>''X''\<rangle>
@@ -235,7 +235,7 @@ definition "print_iskindof_up_larger = start_map Thy_lemma_by o
       ; var_isdef = \<langle>''isdef''\<rangle>
       ; f = Expr_binop (Expr_basic [unicode_tau]) unicode_Turnstile
       ; disjI1 = \<langle>''foundation25''\<rangle>
-      ; disjI2 = \<langle>''foundation25''\<rangle> @@ [Char Nibble2 Nibble7] in
+      ; disjI2 = \<langle>''foundation25''\<rangle> @@ \<langle>[Char Nibble2 Nibble7]\<rangle> in
     Lemma_by_assum
       (print_iskindof_up_larger_name name_pers name_any)
       [(var_isdef, False, f (Expr_apply unicode_delta [Expr_basic [var_X]]))]

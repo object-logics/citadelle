@@ -74,7 +74,7 @@ definition "print_examp_oclbase_gen =
         let name = var_OclString @@ base255_of_str nb
           ; b = \<lambda>s. Expr_basic [s] in
         if nb \<noteq> [] & list_all (is_letter o nat_of_char) nb then
-          let ab_name = b (let c = [Char Nibble2 Nibble7] in flatten [c,c, nb, c,c]) in
+          let ab_name = b (let c = \<langle>[Char Nibble2 Nibble7]\<rangle> in flatten [c,c, nb, c,c]) in
           (ab_name,
           Definition_abbrev0 name (b (text2_of_str nb))
             (Expr_rewrite (b name) \<langle>''=''\<rangle> (Expr_lambda wildcard (Expr_some (Expr_some ab_name)))))
