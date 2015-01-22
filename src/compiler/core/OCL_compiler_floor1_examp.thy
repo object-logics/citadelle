@@ -155,8 +155,8 @@ definition "rbt_of_class ocl =
 definition "fill_blank f_blank =
   List_map (\<lambda> (attr_ty, l).
     case f_blank attr_ty of Some f_fold \<Rightarrow>
-    let rbt = List.fold (\<lambda> ((ty, _, ident), shallow) \<Rightarrow> insert ident (ty, shallow)) l empty in
-    (attr_ty, rev (f_fold (\<lambda>b n l. (b, lookup rbt (OptIdent n)) # l) [])))"
+    let rbt = List.fold (\<lambda> ((ty, _, ident), shallow) \<Rightarrow> RBT.insert ident (ty, shallow)) l empty in
+    (attr_ty, rev (f_fold (\<lambda>b n l. (b, RBT.lookup rbt (OptIdent n)) # l) [])))"
 
 fun_quick split_inh_own where
    "split_inh_own f_class s_cast l_attr =
@@ -194,13 +194,13 @@ definition "init_map_class ocl l =
   (let (rbt_nat, rbt_str, _, _) =
      List.fold
        (\<lambda> ocl (rbt_nat, rbt_str, oid_start, accu).
-         ( insert (Oid accu) oid_start rbt_nat
+         ( RBT.insert (Oid accu) oid_start rbt_nat
          , insert (Inst_name ocl) oid_start rbt_str
          , oidSucInh oid_start
          , Succ accu))
        l
        (empty, empty, D_oid_start ocl, 0) in
-   (rbt_of_class ocl, lookup rbt_nat, lookup rbt_str))"
+   (rbt_of_class ocl, RBT.lookup rbt_nat, lookup rbt_str))"
 
 definition "print_examp_def_st_assoc_build_rbt_gen f rbt map_self map_username l_assoc =
   List.fold
@@ -263,7 +263,7 @@ definition "print_examp_instance_oid l ocl =
       (D_oid_start ocl))"
 
 definition "check_single = (\<lambda> (name_attr, oid, l_oid) l_mult l.
-  let l = (keys o bulkload o List_map (\<lambda>x. (x, ()))) l
+  let l = (RBT.keys o bulkload o List_map (\<lambda>x. (x, ()))) l
     ; assoc = \<lambda>x. case map_of l_oid x of Some s \<Rightarrow> s
     ; attr_len = natural_of_nat (length l)
     ; l_typed =
@@ -739,8 +739,8 @@ definition "print_examp_def_st_allinst = (\<lambda> _ ocl.
 definition "print_examp_def_st_defs = (\<lambda> _ \<Rightarrow> start_map Thy_lemmas_simp
   [ Lemmas_simps \<langle>''''\<rangle> [ \<langle>''state.defs''\<rangle>, \<langle>''const_ss''\<rangle> ] ])"
 
-definition "merge_unique_gen f l = List.fold (List.fold (\<lambda>x. case f x of Some (x, v) \<Rightarrow> insert x v | None \<Rightarrow> id)) l empty"
-definition "merge_unique f l = entries (merge_unique_gen f l)"
+definition "merge_unique_gen f l = List.fold (List.fold (\<lambda>x. case f x of Some (x, v) \<Rightarrow> RBT.insert x v | None \<Rightarrow> id)) l empty"
+definition "merge_unique f l = RBT.entries (merge_unique_gen f l)"
 
 definition "print_pre_post_wff = (\<lambda> OclDefPP s_pre s_post \<Rightarrow> \<lambda> ocl.
  (\<lambda> l. (List_map Thy_lemma_by l, ocl))
@@ -773,12 +773,12 @@ definition "print_pre_post_where = (\<lambda> OclDefPP s_pre s_post \<Rightarrow
    let f_name = \<lambda>(cpt, ocore). Some (oidGetInh cpt, ocore)
      ; rbt_pre = merge_unique_gen f_name [l_pre]
      ; rbt_post = merge_unique_gen f_name [l_post]
-     ; filter_ocore = \<lambda>x_pers_oid. case (lookup rbt_pre x_pers_oid, lookup rbt_post x_pers_oid) of
+     ; filter_ocore = \<lambda>x_pers_oid. case (RBT.lookup rbt_pre x_pers_oid, RBT.lookup rbt_post x_pers_oid) of
              (Some ocore1, Some ocore2) \<Rightarrow> (\<langle>''OclIsMaintained''\<rangle>, case (ocore1, ocore2) of (OclDefCoreBinding _, OclDefCoreBinding _) \<Rightarrow> [(ocore1, s_pre), (ocore2, s_post)] | (OclDefCoreBinding _, _) \<Rightarrow> [(ocore1, s_pre)] | _ \<Rightarrow> [(ocore2, s_post)])
            | (Some ocore, None) \<Rightarrow> (\<langle>''OclIsDeleted''\<rangle>, [(ocore, s_pre)])
            | (None, Some ocore) \<Rightarrow> (\<langle>''OclIsNew''\<rangle>, [(ocore, s_post)])
      ; rbt = union rbt_pre rbt_post
-     ; l_oid_of = keys (fold (\<lambda>_. \<lambda> OclDefCoreBinding (_, ocli) \<Rightarrow> insert (const_oid_of (datatype_name @@ isub_of_str (Inst_ty ocli))) ()
+     ; l_oid_of = keys (RBT.fold (\<lambda>_. \<lambda> OclDefCoreBinding (_, ocli) \<Rightarrow> insert (const_oid_of (datatype_name @@ isub_of_str (Inst_ty ocli))) ()
                             | OclDefCoreAdd ocli \<Rightarrow> insert (const_oid_of (datatype_name @@ isub_of_str (Inst_ty ocli))) ()
                             | _ \<Rightarrow> id) rbt empty) in
    List_map
@@ -806,6 +806,6 @@ definition "print_pre_post_where = (\<lambda> OclDefPP s_pre s_post \<Rightarrow
             , l_oid_of ]))])) l_ocore)
      (filter (\<lambda>x_pers_oid. list_ex (\<lambda> (OclDefCoreBinding _, _) \<Rightarrow> True | _ \<Rightarrow> False)
        (snd (filter_ocore x_pers_oid)))
-       (keys rbt)) ))"
+       (RBT.keys rbt)) ))"
 
 end

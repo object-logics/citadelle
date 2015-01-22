@@ -60,8 +60,8 @@ definition "print_access_oid_uniq_gen Thy_def D_oid_start_upd def_rewrite =
            (\<lambda> (attr, OclTy_class ty_obj) \<Rightarrow> (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l obj_oid = TyObj_ass_id ty_obj
                                                ; obj_name_from_nat = TyObjN_ass_switch (TyObj_from ty_obj) in \<lambda>(cpt, rbt) \<Rightarrow>
              let (cpt_obj, cpt_rbt) =
-               case lookup rbt obj_oid of
-                 None \<Rightarrow> (cpt, oidSucAssoc cpt, insert obj_oid cpt rbt)
+               case RBT.lookup rbt obj_oid of
+                 None \<Rightarrow> (cpt, oidSucAssoc cpt, RBT.insert obj_oid cpt rbt)
                | Some cpt_obj \<Rightarrow> (cpt_obj, cpt, rbt) in
              ( [def_rewrite obj_name_from_nat name isub_name attr (oidGetAssoc cpt_obj)]
              , cpt_rbt))

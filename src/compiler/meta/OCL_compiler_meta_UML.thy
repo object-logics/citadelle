@@ -182,8 +182,8 @@ proof -
  have arith_less: "\<And>(a:: Nat.nat) b c. b \<ge> max (a + 1) c \<Longrightarrow> a < b"
  by arith
 
- have rbt_length: "\<And>rbt_cycle r v. lookup rbt_cycle r = None \<Longrightarrow>
-     length (keys (insert r v rbt_cycle)) = length (keys rbt_cycle) + 1"
+ have rbt_length: "\<And>rbt_cycle r v. RBT.lookup rbt_cycle r = None \<Longrightarrow>
+     length (RBT.keys (RBT.insert r v rbt_cycle)) = length (RBT.keys rbt_cycle) + 1"
   apply(subst (1 2) distinct_card[symmetric], (rule distinct_keys)+)
   apply(simp only: lookup_keys[symmetric], simp)
  by (metis card_insert_if domIff finite_dom_lookup)
@@ -192,30 +192,30 @@ proof -
  by(auto)
 
  have rbt_fold_union': "\<And>l rbt_inv a.
-       dom (lookup (List.fold (\<lambda>(k, _). RBT.insert k a) l rbt_inv)) =
-       dom (map_of l) \<union> dom (lookup rbt_inv)"
-  apply(rule_tac P = "\<lambda>rbt_inv . dom (lookup (List.fold (\<lambda>(k, _). RBT.insert k a) l rbt_inv)) =
-       dom (map_of l) \<union> dom (lookup rbt_inv)" in allE, simp_all)
+       dom (RBT.lookup (List.fold (\<lambda>(k, _). RBT.insert k a) l rbt_inv)) =
+       dom (map_of l) \<union> dom (RBT.lookup rbt_inv)"
+  apply(rule_tac P = "\<lambda>rbt_inv . dom (RBT.lookup (List.fold (\<lambda>(k, _). RBT.insert k a) l rbt_inv)) =
+       dom (map_of l) \<union> dom (RBT.lookup rbt_inv)" in allE, simp_all)
   apply(induct_tac l, simp, rule allI)
   apply(case_tac aa, simp)
   apply(simp add: rbt_fold_union'')
  done
 
  have rbt_fold_union: "\<And>rbt_cycle rbt_inv a.
-   dom (lookup (RBT.fold (\<lambda>k _. RBT.insert k a) rbt_cycle rbt_inv)) =
-   dom (lookup rbt_cycle) \<union> dom (lookup rbt_inv)"
+   dom (RBT.lookup (RBT.fold (\<lambda>k _. RBT.insert k a) rbt_cycle rbt_inv)) =
+   dom (RBT.lookup rbt_cycle) \<union> dom (RBT.lookup rbt_inv)"
   apply(simp add: fold_fold)
   apply(subst (2) map_of_entries[symmetric])
   apply(rule rbt_fold_union')
  done
 
  have rbt_fold_eq: "\<And>rbt_cycle rbt_inv a b.
-   dom (lookup (RBT.fold (\<lambda>k _. RBT.insert k a) rbt_cycle rbt_inv)) =
-   dom (lookup (RBT.fold (\<lambda>k _. RBT.insert k b) rbt_inv rbt_cycle))"
+   dom (RBT.lookup (RBT.fold (\<lambda>k _. RBT.insert k a) rbt_cycle rbt_inv)) =
+   dom (RBT.lookup (RBT.fold (\<lambda>k _. RBT.insert k b) rbt_inv rbt_cycle))"
  by(simp add: rbt_fold_union Un_commute)
 
- let ?len = "\<lambda>x. length (keys x)"
- let ?len_merge = "\<lambda>rbt_cycle rbt_inv. ?len (fold (\<lambda>k _. insert k []) rbt_cycle rbt_inv)"
+ let ?len = "\<lambda>x. length (RBT.keys x)"
+ let ?len_merge = "\<lambda>rbt_cycle rbt_inv. ?len (RBT.fold (\<lambda>k _. RBT.insert k []) rbt_cycle rbt_inv)"
 
  have rbt_fold_large: "\<And>rbt_cycle rbt_inv. ?len_merge rbt_cycle rbt_inv \<ge> max (?len rbt_cycle) (?len rbt_inv)"
   apply(subst (1 2 3) distinct_card[symmetric], (rule distinct_keys)+)
@@ -225,8 +225,8 @@ proof -
  done
 
  have rbt_fold_eq: "\<And>rbt_cycle rbt_inv r a.
-     lookup rbt_inv r = Some a \<Longrightarrow>
-     ?len_merge (insert r () rbt_cycle) rbt_inv = ?len_merge rbt_cycle rbt_inv"
+     RBT.lookup rbt_inv r = Some a \<Longrightarrow>
+     ?len_merge (RBT.insert r () rbt_cycle) rbt_inv = ?len_merge rbt_cycle rbt_inv"
   apply(subst (1 2) distinct_card[symmetric], (rule distinct_keys)+)
   apply(simp only: lookup_keys[symmetric])
   apply(simp add: rbt_fold_union)
@@ -234,7 +234,7 @@ proof -
 
  show ?thesis
   apply(relation "measure (\<lambda>(_, rbt_inv, rbt_cycle, r).
-    ?len_merge rbt_cycle rbt_inv - length (keys rbt_cycle)
+    ?len_merge rbt_cycle rbt_inv - length (RBT.keys rbt_cycle)
     )", simp+)
   apply(subst rbt_length, simp)
   apply(rule arith_diff)
@@ -493,7 +493,7 @@ definition "get_hierarchy_map f f_l x = List_flatten (List_flatten (
   let (l1, l2, l3) = f_l (List_map fst (get_class_hierarchy x)) in
   List_map (\<lambda>name1. List_map (\<lambda>name2. List_map (f name1 name2) l3) l2) l1))"
 
-definition "class_arity = keys o (\<lambda>l. List.fold (\<lambda>x. insert x ()) l empty) o
+definition "class_arity = RBT.keys o (\<lambda>l. List.fold (\<lambda>x. RBT.insert x ()) l empty) o
   List_flatten o List_flatten o map_class (\<lambda> _ _ l_attr _ _ _.
     List_map (\<lambda> (_, OclTy_class ty_obj) \<Rightarrow> [TyObj_ass_arity ty_obj]
               | _ \<Rightarrow> []) l_attr)"
