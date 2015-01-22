@@ -142,19 +142,25 @@ definition "print_access_choose = start_map'''' Thy_definition_hol o (\<lambda>e
      ; lets = \<lambda>var exp. Definition (Expr_rewrite (Expr_basic [var]) \<langle>''=''\<rangle> exp)
      ; lets' = \<lambda>\<^sub>S\<^sub>c\<^sub>a\<^sub>l\<^sub>avar exp. Definition (Expr_rewrite (Expr_basic [var]) \<langle>''=''\<rangle> (b exp))
      ; lets'' = \<lambda>\<^sub>S\<^sub>c\<^sub>a\<^sub>l\<^sub>avar exp. Definition (Expr_rewrite (Expr_basic [var]) \<langle>''=''\<rangle> (Expr_lam \<langle>''l''\<rangle> (\<lambda>var_l. Expr_binop (b var_l) \<langle>''!''\<rangle> (b exp))))
-     ; l_flatten = \<langle>''List_flatten''\<rangle>
-     ; _(* ignored *) = lets var_map_of_list (Expr_apply \<langle>''foldl''\<rangle>
-      [ Expr_lam \<langle>''map''\<rangle> (\<lambda>var_map.
-          let var_x = \<langle>''x''\<rangle>
-            ; var_l0 = \<langle>''l0''\<rangle>
-            ; var_l1 = \<langle>''l1''\<rangle>
-            ; f_map = a var_map in
-          Expr_lambdas0 (Expr_pair (b var_x) (b var_l1))
-            (Expr_case (f_map (b var_x))
-              (List_map (\<lambda>(pat, e). (pat, f_map (Expr_binop (b var_x) unicode_mapsto e)))
-                [ (b \<langle>''None''\<rangle>, b var_l1)
-                , (Expr_some (b var_l0), a l_flatten (Expr_list (List_map b [var_l0, var_l1])))])))
-      , b \<langle>''Map.empty''\<rangle>]) in
+     ; _(* ignored *) = 
+        let l_flatten = \<langle>''List_flatten''\<rangle> in
+        [ lets l_flatten (let fun_foldl = \<lambda>f base.
+                             Expr_lam \<langle>''l''\<rangle> (\<lambda>var_l. Expr_apply \<langle>''foldl''\<rangle> [Expr_lam \<langle>''acc''\<rangle> f, base, a \<langle>''rev''\<rangle> (b var_l)]) in
+                           fun_foldl (\<lambda>var_acc.
+                             fun_foldl (\<lambda>var_acc.
+                               Expr_lam \<langle>''l''\<rangle> (\<lambda>var_l. Expr_apply \<langle>''Cons''\<rangle> (List_map b [var_l, var_acc]))) (b var_acc)) (b \<langle>''Nil''\<rangle>))
+        , lets var_map_of_list (Expr_apply \<langle>''foldl''\<rangle>
+            [ Expr_lam \<langle>''map''\<rangle> (\<lambda>var_map.
+                let var_x = \<langle>''x''\<rangle>
+                  ; var_l0 = \<langle>''l0''\<rangle>
+                  ; var_l1 = \<langle>''l1''\<rangle>
+                  ; f_map = a var_map in
+                Expr_lambdas0 (Expr_pair (b var_x) (b var_l1))
+                  (Expr_case (f_map (b var_x))
+                    (List_map (\<lambda>(pat, e). (pat, f_map (Expr_binop (b var_x) unicode_mapsto e)))
+                      [ (b \<langle>''None''\<rangle>, b var_l1)
+                      , (Expr_some (b var_l0), a l_flatten (Expr_list (List_map b [var_l0, var_l1])))])))
+            , b \<langle>''Map.empty''\<rangle>])] in
   List_flatten
   [ let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l a = \<lambda>f x. Expr_apply f [x]
       ; b = \<lambda>s. Expr_basic [s]
@@ -164,13 +170,7 @@ definition "print_access_choose = start_map'''' Thy_definition_hol o (\<lambda>e
       lets mk_var expr
       print_access_choose_name
       Expr_list Expr_function Expr_pair
-  ,
-  [ lets l_flatten (let fun_foldl = \<lambda>f base.
-                       Expr_lam \<langle>''l''\<rangle> (\<lambda>var_l. Expr_apply \<langle>''foldl''\<rangle> [Expr_lam \<langle>''acc''\<rangle> f, base, a \<langle>''rev''\<rangle> (b var_l)]) in
-                     fun_foldl (\<lambda>var_acc.
-                       fun_foldl (\<lambda>var_acc.
-                         Expr_lam \<langle>''l''\<rangle> (\<lambda>var_l. Expr_apply \<langle>''Cons''\<rangle> (List_map b [var_l, var_acc]))) (b var_acc)) (b \<langle>''Nil''\<rangle>))
-  ,   let var_pre_post = \<langle>''pre_post''\<rangle>
+  , [ let var_pre_post = \<langle>''pre_post''\<rangle>
         ; var_to_from = \<langle>''to_from''\<rangle>
         ; var_assoc_oid = \<langle>''assoc_oid''\<rangle>
         ; var_f = \<langle>''f''\<rangle>
