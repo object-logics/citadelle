@@ -104,7 +104,7 @@ definition "s_of_ocl_deep_embed_ast _ =
       sprint3 ''Context[shallow] %s%s
 %s''\<acute>
         (case Ctxt_inv_param ctxt of
-           [] \<Rightarrow> To_string ''''
+           [] \<Rightarrow> \<prec>''''\<succ>
          | l \<Rightarrow> sprint1 ''%s:''\<acute> (String_concat \<prec>'',''\<succ> (List_map To_string l)))
         (To_string (Ctxt_inv_ty ctxt))
         (String_concat \<prec>''
