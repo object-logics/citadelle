@@ -500,10 +500,11 @@ definition "class_arity = RBT.keys o (\<lambda>l. List.fold (\<lambda>x. RBT.ins
 
 definition "map_class_gen_h'_inh f =
   map_class_gen_h''''' (\<lambda>isub_name name _ l_inh l_subtree _.
-    let l_mem = \<lambda>l. List.member (List_map (\<lambda> OclClass n _ _ \<Rightarrow> n) l) in
+    let l_mem = \<lambda>l. List.member (List_map (\<lambda> OclClass n _ _ \<Rightarrow> String_to_list n) l) in
     f isub_name
       name
-      (\<lambda>n. if n = name then EQ else
+      (\<lambda>n. let n = String_to_list n in
+           if n = String_to_list name then EQ else
            if l_mem (of_linh l_inh) n then GT else
            if l_mem l_subtree n then LT else
            UN'))"

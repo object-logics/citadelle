@@ -108,6 +108,12 @@ definition Stringl_flatten (infixr "@@@" 65) where "Stringl_flatten (a::String.l
 definition "String_concatWith s =
  (\<lambda> [] \<Rightarrow> \<langle>''''\<rangle>
   | x # xs \<Rightarrow> flatten (flatten ([x] # List_map (\<lambda>s0. [s, s0]) xs)))"
+definition "String_map = List_map"
+definition "String_replace_chars f = List_flatten o List_map f"
+definition "String_all f = list_all (f o nat_of_char)"
+definition "String_length = length"
+definition "String_to_list = id"
+definition "String_is_empty x = (x = [])"
 
 section{* Preliminaries *}
 
@@ -177,9 +183,9 @@ definition "wildcard = \<langle>''_''\<rangle>"
 
 definition "escape_unicode c = flatten [\<degree>Char Nibble5 NibbleC\<degree>, \<langle>''<''\<rangle>, c, \<langle>''>''\<rangle>]"
 
-definition "lowercase_of_str = List_map (\<lambda>c. let n = nat_of_char c in if n < 97 then char_of_nat (n + 32) else c)"
-definition "uppercase_of_str = List_map (\<lambda>c. let n = nat_of_char c in if n < 97 then c else char_of_nat (n - 32))"
-definition "number_of_str = flatten o List_map (\<lambda>c. escape_unicode ([\<langle>''zero''\<rangle>, \<langle>''one''\<rangle>, \<langle>''two''\<rangle>, \<langle>''three''\<rangle>, \<langle>''four''\<rangle>, \<langle>''five''\<rangle>, \<langle>''six''\<rangle>, \<langle>''seven''\<rangle>, \<langle>''eight''\<rangle>, \<langle>''nine''\<rangle>] ! (nat_of_char c - 48)))"
+definition "lowercase_of_str = String_map (\<lambda>c. let n = nat_of_char c in if n < 97 then char_of_nat (n + 32) else c)"
+definition "uppercase_of_str = String_map (\<lambda>c. let n = nat_of_char c in if n < 97 then c else char_of_nat (n - 32))"
+definition "number_of_str = String_replace_chars (\<lambda>c. escape_unicode ([\<langle>''zero''\<rangle>, \<langle>''one''\<rangle>, \<langle>''two''\<rangle>, \<langle>''three''\<rangle>, \<langle>''four''\<rangle>, \<langle>''five''\<rangle>, \<langle>''six''\<rangle>, \<langle>''seven''\<rangle>, \<langle>''eight''\<rangle>, \<langle>''nine''\<rangle>] ! (nat_of_char c - 48)))"
 definition "nat_raw_of_str = List_map (\<lambda>i. char_of_nat (nat_of_char (Char Nibble3 Nibble0) + i))"
 fun_quick nat_of_str_aux where
    "nat_of_str_aux l (n :: Nat.nat) = (if n < 10 then n # l else nat_of_str_aux (n mod 10 # l) (n div 10))"
@@ -189,12 +195,12 @@ definition "add_0 n = flatten [ flatten (List_map (\<lambda>_. \<langle>''0''\<r
           , nat_of_str n ]"
 definition "is_letter n = (n \<ge> 65 & n < 91 | n \<ge> 97 & n < 123)"
 definition "is_digit n = (n \<ge> 48 & n < 58)"
-definition "base255_of_str_gen f0 f = flatten o List_map (\<lambda>c. let n = nat_of_char c in
+definition "base255_of_str_gen f0 f = String_replace_chars (\<lambda>c. let n = nat_of_char c in
   if is_letter n then f0 c else f (add_0 n))"
 definition "base255_of_str = base255_of_str_gen (\<lambda>c. \<degree>c\<degree>) id"
-definition "isub_of_str = flatten o List_map (\<lambda>c. let n = nat_of_char c in
+definition "isub_of_str = String_replace_chars (\<lambda>c. let n = nat_of_char c in
   if is_letter n | is_digit n then escape_unicode \<langle>''^sub''\<rangle> @@ \<degree>c\<degree> else add_0 n)"
-definition "isup_of_str = flatten o List_map (\<lambda>c. let n = nat_of_char c in
+definition "isup_of_str = String_replace_chars (\<lambda>c. let n = nat_of_char c in
   if is_letter n then escape_unicode \<lless>[char_of_nat (nat_of_char c - 32)]\<ggreater> else add_0 n)"
 definition "text_of_str str =
  (let s = \<langle>''c''\<rangle>
@@ -206,7 +212,7 @@ definition "text_of_str str =
                 flatten [\<langle>''CHR ''\<rangle>,  g,g,\<degree>c\<degree>,g,g,  ap])
               (\<lambda>c. flatten [s, \<langle>'' ''\<rangle>, c, ap]) str
           , \<langle>''[])''\<rangle>])"
-definition "text2_of_str = flatten o List_map (\<lambda>c. escape_unicode \<degree>c\<degree>)"
+definition "text2_of_str = String_replace_chars (\<lambda>c. escape_unicode \<degree>c\<degree>)"
 
 definition "mk_constr_name name = (\<lambda> x. flatten [isub_of_str name, \<langle>''_''\<rangle>, isub_of_str x])"
 definition "mk_dot s1 s2 = flatten [\<langle>''.''\<rangle>, s1, s2]"

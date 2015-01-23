@@ -185,12 +185,12 @@ definition "s_of_ntheorems_l l = String_concat \<prec>'' ''\<succ> (List_map s_o
 
 definition "s_of_lemmas_simp _ = (\<lambda> Lemmas_simp_opt simp s l \<Rightarrow>
     sprint3 ''lemmas%s%s = %s''\<acute>
-      (if s = [] then \<prec>''''\<succ> else To_string (\<langle>'' ''\<rangle> @@ s))
+      (if String_is_empty s then \<prec>''''\<succ> else To_string (\<langle>'' ''\<rangle> @@ s))
       (if simp then \<prec>''[simp,code_unfold]''\<succ> else \<prec>''''\<succ>)
       (s_of_ntheorem_l l)
                                   | Lemmas_simps s l \<Rightarrow>
     sprint2 ''lemmas%s [simp,code_unfold] = %s''\<acute>
-      (if s = [] then \<prec>''''\<succ> else To_string (\<langle>'' ''\<rangle> @@ s))
+      (if String_is_empty s then \<prec>''''\<succ> else To_string (\<langle>'' ''\<rangle> @@ s))
       (String_concat \<prec>''
                             ''\<succ> (List_map To_string l)))"
 
@@ -215,7 +215,7 @@ fun_quick s_of_tactic where "s_of_tactic expr = (\<lambda>
   | Tact_elim s \<Rightarrow> sprint1 ''elim %s''\<acute> (s_of_ntheorem s)
   | Tact_subst_l0 asm l s =>
       let s_asm = if asm then \<prec>''(asm) ''\<succ> else \<prec>''''\<succ> in
-      if l = [''0''] then
+      if List_map String_to_list l = [''0''] then
         sprint2 ''subst %s%s''\<acute> s_asm (s_of_ntheorem s)
       else
         sprint3 ''subst %s(%s) %s''\<acute> s_asm (String_concat \<prec>'' ''\<succ> (List_map To_string l)) (s_of_ntheorem s)
@@ -304,10 +304,10 @@ definition "s_of_lemma_by _ =
       (String_concat \<prec>''''\<succ> (List_map (\<lambda>(n, b, e).
           sprint2 ''
 assumes %s\"%s\"''\<acute>
-            (let n = if b then flatten [n, \<langle>''[simp]''\<rangle>] else n in
-             if n = '''' then \<prec>''''\<succ> else sprint1 ''%s: ''\<acute> (To_string n))
+            (let (n, b) = if b then (flatten [n, \<langle>''[simp]''\<rangle>], False) else (n, String_is_empty n) in
+             if b then \<prec>''''\<succ> else sprint1 ''%s: ''\<acute> (To_string n))
             (s_of_expr e)) l_spec
-       @@@
+       @@@@
        [sprint1 ''
 shows \"%s\"''\<acute> (s_of_expr concl)]))
       (String_concat \<prec>''''\<succ> (List_map s_of_tac_apply l_apply))

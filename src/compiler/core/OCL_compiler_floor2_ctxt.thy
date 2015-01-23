@@ -74,7 +74,9 @@ definition "print_ctxt_is_accessor =
    | _ \<Rightarrow> False)"
 *)
 definition "print_ctxt_is_name_at_gen var s =
- (case var of _ # _ \<Rightarrow>
+ (let var = String_to_list var
+    ; s = String_to_list s in
+  case var of _ # _ \<Rightarrow>
     let lg_var = length var in
     if List_take_last lg_var s = var then
       Some \<lless>List_take_first (length s - lg_var) s\<ggreater>
@@ -82,15 +84,15 @@ definition "print_ctxt_is_name_at_gen var s =
       None)"
 
 definition "print_ctxt_is_name_at_pre = print_ctxt_is_name_at_gen var_at_when_hol_pre"
-definition "print_ctxt_is_name_at_post = (case var_at_when_hol_post of [] \<Rightarrow>
+definition "print_ctxt_is_name_at_post = (case String_to_list var_at_when_hol_post of [] \<Rightarrow>
   \<lambda>s. case print_ctxt_is_name_at_pre s of None \<Rightarrow> Some s
                                         | _ \<Rightarrow> None)"
 
 definition "print_ctxt_to_ocl_gen l_access f var = (\<lambda> T_pure t \<Rightarrow>
   T_pure (map_Const (\<lambda> s ty.
     if (*print_ctxt2_is_accessor ty*)
-       list_ex (case List_split_at (\<lambda> s. s = Char Nibble2 NibbleE) s of
-                  (_, Some _, s) \<Rightarrow> \<lambda>n. n = s
+       list_ex (case List_split_at (\<lambda> s. s = Char Nibble2 NibbleE) (String_to_list s) of
+                  (_, Some _, s) \<Rightarrow> \<lambda>n. String_to_list n = s
                 | _ \<Rightarrow> \<lambda>_. False) l_access then
       case f s of
         Some s \<Rightarrow> s @@ var

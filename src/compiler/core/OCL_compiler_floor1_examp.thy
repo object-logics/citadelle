@@ -73,7 +73,7 @@ definition "print_examp_oclbase_gen =
   | OclDefString nb \<Rightarrow>
         let name = var_OclString @@ base255_of_str nb
           ; b = \<lambda>s. Expr_basic [s] in
-        if nb \<noteq> [] & list_all (is_letter o nat_of_char) nb then
+        if \<not> String_is_empty nb & String_all is_letter nb then
           let ab_name = b (let c = \<langle>[Char Nibble2 Nibble7]\<rangle> in flatten [c,c, nb, c,c]) in
           (ab_name,
           Definition_abbrev0 name (b (text2_of_str nb))
@@ -668,7 +668,7 @@ definition "print_examp_def_st_allinst = (\<lambda> _ ocl.
                   EQ \<Rightarrow> [(exp, False, ocore, cpt)]
                 | LT \<Rightarrow> exp_annot
                 | GT \<Rightarrow> (case Inst_attr ocli of OclAttrCast name2 _ _ \<Rightarrow>
-                           if name = name2 then exp_annot
+                           if String_to_list name = String_to_list name2 then exp_annot
                            else [] | _ \<Rightarrow> [])
                 | UN' \<Rightarrow> [])) expr_app
        ; (l_spec, l_body) = List_split (List_flatten (List_map snd expr_app)) in
@@ -741,6 +741,8 @@ definition "print_examp_def_st_defs = (\<lambda> _ \<Rightarrow> start_map Thy_l
 
 definition "merge_unique_gen f l = List.fold (List.fold (\<lambda>x. case f x of Some (x, v) \<Rightarrow> RBT.insert x v | None \<Rightarrow> id)) l empty"
 definition "merge_unique f l = RBT.entries (merge_unique_gen f l)"
+definition "merge_unique' f l = List_map (map_pair (\<lambda>s. \<lless>s\<ggreater>) id)
+                                        (merge_unique (Option.map (map_pair String_to_list id) o f) l)"
 
 definition "print_pre_post_wff = (\<lambda> OclDefPP s_pre s_post \<Rightarrow> \<lambda> ocl.
  (\<lambda> l. (List_map Thy_lemma_by l, ocl))
@@ -758,10 +760,10 @@ definition "print_pre_post_wff = (\<lambda> OclDefPP s_pre s_post \<Rightarrow> 
         , List_map
             (\<lambda>(cpt, _). var_oid_uniq @@ natural_of_str (case cpt of Oid i \<Rightarrow> i))
             (merge_unique ((\<lambda>x. Some (x, ())) o oidGetInh o fst) [l_pre, l_post])
-        , List_map fst (merge_unique (\<lambda>(_, ocore). case ocore of OclDefCoreBinding (_, ocli) \<Rightarrow> Some (print_examp_instance_name (\<lambda>s. s @@ isub_of_str (Inst_ty ocli)) (Inst_name ocli), ()) | _ \<Rightarrow> None) [l_pre, l_post])
+        , List_map fst (merge_unique' (\<lambda>(_, ocore). case ocore of OclDefCoreBinding (_, ocli) \<Rightarrow> Some (print_examp_instance_name (\<lambda>s. s @@ isub_of_str (Inst_ty ocli)) (Inst_name ocli), ()) | _ \<Rightarrow> None) [l_pre, l_post])
         , List_map
             (\<lambda>(s_ty, _). const_oid_of (datatype_name @@ isub_of_str s_ty))
-            (merge_unique (\<lambda>(_, ocore). case ocore of OclDefCoreBinding (_, ocli) \<Rightarrow> Some (Inst_ty ocli, ()) | _ \<Rightarrow> None) [l_pre, l_post]) ]))]) ] ))"
+            (merge_unique' (\<lambda>(_, ocore). case ocore of OclDefCoreBinding (_, ocli) \<Rightarrow> Some (Inst_ty ocli, ()) | _ \<Rightarrow> None) [l_pre, l_post]) ]))]) ] ))"
 
 definition "print_pre_post_where = (\<lambda> OclDefPP s_pre s_post \<Rightarrow> \<lambda> ocl.
  (\<lambda> l. ((List_map Thy_lemma_by o List_flatten) l, ocl))
