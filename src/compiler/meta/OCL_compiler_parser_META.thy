@@ -292,7 +292,7 @@ definition "i_of_nat a b = (\<lambda>x. b (flatten [\<langle>''(Code_Numeral.Nat
 
 end
 
-sublocale sml_of < i_of "\<lambda>x # xs \<Rightarrow> flatten [uppercase_of_str \<langle>[x]\<rangle>, \<langle>xs\<rangle>]"
+sublocale sml_of < i_of "\<lambda>x # xs \<Rightarrow> flatten [uppercase_of_str \<lless>[x]\<ggreater>, \<lless>xs\<ggreater>]"
                         sml_of.i_of_string
                         sml_of.i_of_nat
                         sml_of.i_of_unit

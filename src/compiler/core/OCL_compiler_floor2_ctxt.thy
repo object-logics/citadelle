@@ -77,7 +77,7 @@ definition "print_ctxt_is_name_at_gen var s =
  (case var of _ # _ \<Rightarrow>
     let lg_var = length var in
     if List_take_last lg_var s = var then
-      Some \<langle>List_take_first (length s - lg_var) s\<rangle>
+      Some \<lless>List_take_first (length s - lg_var) s\<ggreater>
     else
       None)"
 

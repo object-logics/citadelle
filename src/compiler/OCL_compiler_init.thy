@@ -183,7 +183,7 @@ definition "number_of_str = flatten o List_map (\<lambda>c. escape_unicode ([\<l
 definition "nat_raw_of_str = List_map (\<lambda>i. char_of_nat (nat_of_char (Char Nibble3 Nibble0) + i))"
 fun_quick nat_of_str_aux where
    "nat_of_str_aux l (n :: Nat.nat) = (if n < 10 then n # l else nat_of_str_aux (n mod 10 # l) (n div 10))"
-definition "nat_of_str n = \<langle>nat_raw_of_str (nat_of_str_aux [] n)\<rangle>"
+definition "nat_of_str n = \<lless>nat_raw_of_str (nat_of_str_aux [] n)\<ggreater>"
 definition "natural_of_str = nat_of_str o nat_of_natural"
 definition "add_0 n = flatten [ flatten (List_map (\<lambda>_. \<langle>''0''\<rangle>) (upt 0 (if n < 10 then 2 else if n < 100 then 1 else 0)))
           , nat_of_str n ]"
@@ -195,7 +195,7 @@ definition "base255_of_str = base255_of_str_gen (\<lambda>c. \<degree>c\<degree>
 definition "isub_of_str = flatten o List_map (\<lambda>c. let n = nat_of_char c in
   if is_letter n | is_digit n then escape_unicode \<langle>''^sub''\<rangle> @@ \<degree>c\<degree> else add_0 n)"
 definition "isup_of_str = flatten o List_map (\<lambda>c. let n = nat_of_char c in
-  if is_letter n then escape_unicode \<langle>[char_of_nat (nat_of_char c - 32)]\<rangle> else add_0 n)"
+  if is_letter n then escape_unicode \<lless>[char_of_nat (nat_of_char c - 32)]\<ggreater> else add_0 n)"
 definition "text_of_str str =
  (let s = \<langle>''c''\<rangle>
     ; ap = \<langle>'' # ''\<rangle> in
