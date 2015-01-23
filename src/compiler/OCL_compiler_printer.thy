@@ -87,4 +87,8 @@ lemmas [code] =
 
   (* fun *)
 
+section{* ... *}  (* garbage collection of aliases *)
+
+no_type_notation natural ("nat")
+
 end

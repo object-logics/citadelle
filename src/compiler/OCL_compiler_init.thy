@@ -69,7 +69,7 @@ translations "\<ordmasculine>x\<ordmasculine>" \<rightleftharpoons> "CONST STR (
 
 section{* ... *}
 
-type_synonym nat = natural
+type_notation natural ("nat")
 definition "Succ x = x + 1"
 
 subsection{* ... *}
