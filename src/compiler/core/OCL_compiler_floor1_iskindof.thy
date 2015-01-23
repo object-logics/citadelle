@@ -227,7 +227,7 @@ definition "print_iskindof_up_eq_asty = start_map Thy_lemma_by o map_class_gen_h
                                                          l_subtree)) in
                if l_subtree = [] then l else Thm_symmetric (Thm_str \<langle>''cp_OclOr''\<rangle>) # l)
               (\<langle>''option.split''\<rangle> # List_flatten (split_ty name # List_map (\<lambda> OclClass n _ _ \<Rightarrow> split_ty n) l_subtree))]])
-        (Tacl_by [Tac_option [Tac_plus [Tac_simp_add (List_map hol_definition [\<langle>''false''\<rangle>, \<langle>''true''\<rangle>, \<langle>''OclOr''\<rangle>, \<langle>''OclAnd''\<rangle>, \<langle>''OclNot''\<rangle>])]]])])"
+        (Tacl_by [Tac_option [Tac_simp_all_add (List_map hol_definition [\<langle>''false''\<rangle>, \<langle>''true''\<rangle>, \<langle>''OclOr''\<rangle>, \<langle>''OclAnd''\<rangle>, \<langle>''OclNot''\<rangle>])]])])"
 
 definition "print_iskindof_up_larger = start_map Thy_lemma_by o
   map_class_nupl2''_inh (\<lambda>name_pers name_any name_pred.

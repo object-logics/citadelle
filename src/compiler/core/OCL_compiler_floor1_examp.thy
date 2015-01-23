@@ -732,7 +732,7 @@ definition "print_examp_def_st_allinst = (\<lambda> _ ocl.
                 , l_spec) ) expr_app l_spec)
             , [[Tac_rule (Thm_str \<langle>''state_update_vs_allInstances_generic_empty''\<rangle>)]] ]))
          (Tacl_by [ if l_spec = [] then Tac_simp
-                    else Tac_plus [Tac_simp_add [d (flatten [isub_name const_oclastype, \<langle>''_''\<rangle>, unicode_AA])]]]) )
+                    else Tac_simp_all_add [d (flatten [isub_name const_oclastype, \<langle>''_''\<rangle>, unicode_AA])]]) )
        [Tac_simp])
      (case D_class_spec ocl of Some class_spec \<Rightarrow> class_spec)))"
 
