@@ -44,7 +44,8 @@
 header{* Part ... *}
 
 theory OCL_compiler_init
-imports OCL_compiler_static
+imports "~~/src/HOL/Library/Code_Char"
+        OCL_compiler_static
   keywords (* hol syntax *)
            "fun_sorry" "fun_quick"
            :: thy_decl
@@ -52,25 +53,32 @@ begin
 
 section{* ... *}
 
-syntax "_string1" :: "'a \<Rightarrow> 'a" ("\<langle>(_)\<rangle>")
-translations "\<langle>x\<rangle>" \<rightleftharpoons> "CONST id x"
-
-syntax "_string2" :: "'a \<Rightarrow> 'a" ("\<prec>(_)\<succ>")
-translations "\<prec>x\<succ>" \<rightleftharpoons> "CONST STR x"
-
-syntax "_string3" :: "'a \<Rightarrow> 'a" ("\<lless>(_)\<ggreater>")
-translations "\<lless>x\<ggreater>" \<rightleftharpoons> "CONST id x"
-
-syntax "_char1" :: "'a \<Rightarrow> 'a list" ("\<degree>(_)\<degree>")
-translations "\<degree>x\<degree>" \<rightleftharpoons> "CONST Cons x (CONST Nil)"
-
-syntax "_char2" :: "'a \<Rightarrow> _" ("\<ordmasculine>(_)\<ordmasculine>")
-translations "\<ordmasculine>x\<ordmasculine>" \<rightleftharpoons> "CONST STR (CONST Cons x (CONST Nil))"
-
-section{* ... *}
-
 type_notation natural ("nat")
 definition "Succ x = x + 1"
+
+datatype abr_string = (* NOTE operations in this datatype must not decrease the size of the string *)
+                      ST String.literal
+                    | ST' "char list"
+                    (* *)
+                    | String_concatWith abr_string "abr_string list"
+                    | String_make nat char
+
+syntax "_string1" :: "_ \<Rightarrow> abr_string" ("\<langle>(_)\<rangle>")
+translations "\<langle>x\<rangle>" \<rightleftharpoons> "CONST ST (CONST STR x)"
+
+syntax "_string2" :: "_ \<Rightarrow> String.literal" ("\<prec>(_)\<succ>")
+translations "\<prec>x\<succ>" \<rightleftharpoons> "CONST STR x"
+
+syntax "_string3" :: "_ \<Rightarrow> abr_string" ("\<lless>(_)\<ggreater>")
+translations "\<lless>x\<ggreater>" \<rightleftharpoons> "CONST ST' x"
+
+syntax "_char1" :: "_ \<Rightarrow> abr_string" ("\<degree>(_)\<degree>")
+translations "\<degree>x\<degree>" \<rightleftharpoons> "CONST String_make 1 x"
+
+syntax "_char2" :: "_ \<Rightarrow> String.literal" ("\<ordmasculine>(_)\<ordmasculine>")
+translations "\<ordmasculine>x\<ordmasculine>" \<rightleftharpoons> "CONST STR ((CONST Cons) x (CONST Nil))"
+
+type_notation abr_string ("string")
 
 subsection{* ... *}
 
@@ -102,18 +110,39 @@ definition "List_replace_gen f_res l c0 lby =
 definition "List_nsplit l c0 = List_replace_gen id l c0 []"
 definition "List_replace = List_replace_gen List_flatten"
 
-definition "flatten = List_flatten"
-definition String_flatten (infixr "@@" 65) where "String_flatten (a::char list) b = flatten [a, b]"
-definition Stringl_flatten (infixr "@@@" 65) where "Stringl_flatten (a::String.literal list) b = flatten [a, b]"
-definition "String_concatWith s =
- (\<lambda> [] \<Rightarrow> \<langle>''''\<rangle>
-  | x # xs \<Rightarrow> flatten (flatten ([x] # List_map (\<lambda>s0. [s, s0]) xs)))"
-definition "String_map = List_map"
-definition "String_replace_chars f = List_flatten o List_map f"
-definition "String_all f = list_all (f o nat_of_char)"
-definition "String_length = length"
-definition "String_to_list = id"
-definition "String_is_empty x = (x = [])"
+definition "flatten = String_concatWith \<langle>''''\<rangle>"
+definition String_flatten (infixr "@@" 65) where "String_flatten a b = flatten [a, b]"
+
+fun String_map_gen where
+   "String_map_gen replace g e =
+     (\<lambda> ST s \<Rightarrow> replace \<langle>''''\<rangle> (Some s) \<langle>''''\<rangle>
+      | ST' s \<Rightarrow> flatten (List_map g s)
+      | String_concatWith abr l \<Rightarrow> String_concatWith (String_map_gen replace g abr) (List.map (String_map_gen replace g) l)
+      | String_make n c \<Rightarrow> flatten (List_map (\<lambda>_. g c) (List_upto 1 n))) e"
+
+definition "String_foldl_one f accu s = foldl f accu (explode s)"
+fun String_foldl where
+   "String_foldl f accu e =
+     (\<lambda> ST s \<Rightarrow> String_foldl_one f accu s
+      | ST' s \<Rightarrow> foldl f accu s
+      | String_concatWith abr l \<Rightarrow>
+        (case l of [] \<Rightarrow> accu
+                 | x # xs \<Rightarrow> foldl (\<lambda>accu. String_foldl f (String_foldl f accu abr)) (String_foldl f accu x) xs)
+      | String_make n c \<Rightarrow> foldl (\<lambda>accu _. f accu c) accu (List_upto 1 n)) e"
+
+definition "replace_chars f s1 s s2 =
+  s1 @@ (case s of None \<Rightarrow> \<langle>''''\<rangle> | Some s \<Rightarrow> flatten (List_map f (explode s))) @@ s2"
+
+definition "String_map f = String_map_gen (replace_chars (\<lambda>c. \<degree>f c\<degree>)) (\<lambda>x. \<degree>f x\<degree>)"
+definition "String_replace_chars f = String_map_gen (replace_chars (\<lambda>c. f c)) f"
+definition "String_all f = String_foldl (\<lambda>b s. b & f s) True"
+definition "String_length = String_foldl (\<lambda>n _. Suc n) 0"
+definition "String_to_list s = rev (String_foldl (\<lambda>l c. c # l) [] s)"
+fun String_is_empty where
+   "String_is_empty e = (\<lambda> ST s \<Rightarrow> s = STR ''''
+                         | ST' s \<Rightarrow> s = []
+                         | String_concatWith _ l \<Rightarrow> list_all String_is_empty l
+                         | String_make n _ \<Rightarrow> n = 0) e"
 
 section{* Preliminaries *}
 
@@ -191,26 +220,28 @@ fun_quick nat_of_str_aux where
    "nat_of_str_aux l (n :: Nat.nat) = (if n < 10 then n # l else nat_of_str_aux (n mod 10 # l) (n div 10))"
 definition "nat_of_str n = \<lless>nat_raw_of_str (nat_of_str_aux [] n)\<ggreater>"
 definition "natural_of_str = nat_of_str o nat_of_natural"
-definition "add_0 n = flatten [ flatten (List_map (\<lambda>_. \<langle>''0''\<rangle>) (upt 0 (if n < 10 then 2 else if n < 100 then 1 else 0)))
-          , nat_of_str n ]"
-definition "is_letter n = (n \<ge> 65 & n < 91 | n \<ge> 97 & n < 123)"
-definition "is_digit n = (n \<ge> 48 & n < 58)"
-definition "base255_of_str_gen f0 f = String_replace_chars (\<lambda>c. let n = nat_of_char c in
-  if is_letter n then f0 c else f (add_0 n))"
-definition "base255_of_str = base255_of_str_gen (\<lambda>c. \<degree>c\<degree>) id"
-definition "isub_of_str = String_replace_chars (\<lambda>c. let n = nat_of_char c in
-  if is_letter n | is_digit n then escape_unicode \<langle>''^sub''\<rangle> @@ \<degree>c\<degree> else add_0 n)"
-definition "isup_of_str = String_replace_chars (\<lambda>c. let n = nat_of_char c in
-  if is_letter n then escape_unicode \<lless>[char_of_nat (nat_of_char c - 32)]\<ggreater> else add_0 n)"
+definition "add_0 n =
+ (let n = nat_of_char n in
+  flatten (List_map (\<lambda>_. \<langle>''0''\<rangle>) (upt 0 (if n < 10 then 2 else if n < 100 then 1 else 0)))
+  @@ nat_of_str n)"
+definition "is_letter n = (n \<ge> CHR ''A'' & n \<le> CHR ''Z'' | n \<ge> CHR ''a'' & n \<le> CHR ''z'')"
+definition "is_digit n = (n \<ge> CHR ''0'' & n \<le> CHR ''9'')"
+definition "base255_of_str = String_replace_chars (\<lambda>c. if is_letter c then \<degree>c\<degree> else add_0 c)"
+definition "isub_of_str = String_replace_chars (\<lambda>c.
+  if is_letter c | is_digit c then escape_unicode \<langle>''^sub''\<rangle> @@ \<degree>c\<degree> else add_0 c)"
+definition "isup_of_str = String_replace_chars (\<lambda>c.
+  if is_letter c then escape_unicode \<lless>[char_of_nat (nat_of_char c - 32)]\<ggreater> else add_0 c)"
 definition "text_of_str str =
  (let s = \<langle>''c''\<rangle>
     ; ap = \<langle>'' # ''\<rangle> in
   flatten [ \<langle>''(let ''\<rangle>, s, \<langle>'' = char_of_nat in ''\<rangle>
-          , base255_of_str_gen
-              (\<lambda>c.
-                let g = \<langle>[Char Nibble2 Nibble7]\<rangle> in
-                flatten [\<langle>''CHR ''\<rangle>,  g,g,\<degree>c\<degree>,g,g,  ap])
-              (\<lambda>c. flatten [s, \<langle>'' ''\<rangle>, c, ap]) str
+          , String_replace_chars (\<lambda>c.
+                                    if is_letter c then
+                                      let g = \<langle>[Char Nibble2 Nibble7]\<rangle> in
+                                      flatten [\<langle>''CHR ''\<rangle>,  g,g,\<degree>c\<degree>,g,g,  ap]
+                                    else
+                                      flatten [s, \<langle>'' ''\<rangle>,  add_0 c, ap])
+                                 str
           , \<langle>''[])''\<rangle>])"
 definition "text2_of_str = String_replace_chars (\<lambda>c. escape_unicode \<degree>c\<degree>)"
 

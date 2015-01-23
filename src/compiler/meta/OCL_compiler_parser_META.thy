@@ -200,7 +200,10 @@ definition "i_of_nibble b = nibble_rec
 definition "i_of_char a b = char_rec
   (ap2 a (b \<langle>''Char''\<rangle>) (i_of_nibble b) (i_of_nibble b))"
 
-definition "i_of_string a b = i_of_list a b (i_of_char a b)"
+definition "i_of_string a b s = 
+  ap1 a (b (\<langle>''OCL_compiler_init.abr_string.ST''\<rangle> @@ \<degree>Char Nibble2 Nibble7\<degree>))
+    (i_of_list a b (i_of_char a b))
+    (String_to_list s)"
 
 definition "i_of_nat a b = b o natural_of_str"
 
@@ -286,7 +289,11 @@ definition "i_of_bool b = bool_rec
 
 definition "i_of_string a b =
  (let c = \<langle>[Char Nibble2 Nibble2]\<rangle> in
-  (\<lambda>x. b (flatten [\<langle>''(String.explode ''\<rangle>, c, List_replace x (Char Nibble0 NibbleA) (Char Nibble5 NibbleC # \<langle>''n''\<rangle>), c,\<langle>'')''\<rangle>])))"
+  (\<lambda>x. b (flatten [\<langle>''(OCL.St ''\<rangle>, c, String_replace_chars ((* (* ERROR code_reflect *)
+                                                            \<lambda> Char Nibble0 NibbleA \<Rightarrow> \<degree>Char Nibble5 NibbleC\<degree> @@ \<langle>''n''\<rangle>
+                                                            | x \<Rightarrow> \<degree>x\<degree>*)
+                                                            \<lambda>x. if x = Char Nibble0 NibbleA then \<degree>Char Nibble5 NibbleC\<degree> @@ \<langle>''n''\<rangle>
+                                                                else \<degree>x\<degree>) x, c,\<langle>'')''\<rangle>])))"
 
 definition "i_of_nat a b = (\<lambda>x. b (flatten [\<langle>''(Code_Numeral.Nat ''\<rangle>, natural_of_str x, \<langle>'')''\<rangle>]))"
 

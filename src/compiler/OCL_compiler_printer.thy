@@ -79,7 +79,7 @@ definition "write_file ocl = (
          s_of_thy_list (ocl_compiler_config_more_map (\<lambda>_. is_file) ocl) (rev l))))"
 end
 
-definition "write_file = s_of.write_file implode (ToNat integer_of_natural)"
+definition "write_file = s_of.write_file (implode o String_to_list) (ToNat integer_of_natural)"
 
 lemmas [code] =
   (* def *)
@@ -90,5 +90,6 @@ lemmas [code] =
 section{* ... *}  (* garbage collection of aliases *)
 
 no_type_notation natural ("nat")
+no_type_notation abr_string ("string")
 
 end

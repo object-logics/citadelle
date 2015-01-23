@@ -44,7 +44,7 @@
 header{* Part ... *}
 
 theory  OCL_compiler_parser_init
-imports Main
+imports "../OCL_compiler_init"
 begin
 
 definition "K x _ = x"
@@ -102,16 +102,16 @@ subsection{* i of ... *} (* i_of *)
 subsubsection{* general *}
 
 locale i_of =
-  fixes ext :: "char list \<Rightarrow> char list"
+  fixes ext :: "string \<Rightarrow> string"
 
   (* (effective) first order *)
-  fixes i_of_string :: "('a \<Rightarrow> 'a list \<Rightarrow> 'a) \<Rightarrow> (char list \<Rightarrow> 'a) \<Rightarrow> char list \<Rightarrow> 'a"
-  fixes i_of_nat :: "('a \<Rightarrow> 'a list \<Rightarrow> 'a) \<Rightarrow> (char list \<Rightarrow> 'a) \<Rightarrow> natural \<Rightarrow> 'a"
-  fixes i_of_unit :: "(char list \<Rightarrow> 'a) \<Rightarrow> unit \<Rightarrow> 'a"
-  fixes i_of_bool :: "(char list \<Rightarrow> 'a) \<Rightarrow> bool \<Rightarrow> 'a"
+  fixes i_of_string :: "('a \<Rightarrow> 'a list \<Rightarrow> 'a) \<Rightarrow> (string \<Rightarrow> 'a) \<Rightarrow> string \<Rightarrow> 'a"
+  fixes i_of_nat :: "('a \<Rightarrow> 'a list \<Rightarrow> 'a) \<Rightarrow> (string \<Rightarrow> 'a) \<Rightarrow> natural \<Rightarrow> 'a"
+  fixes i_of_unit :: "(string \<Rightarrow> 'a) \<Rightarrow> unit \<Rightarrow> 'a"
+  fixes i_of_bool :: "(string \<Rightarrow> 'a) \<Rightarrow> bool \<Rightarrow> 'a"
 
   (* (simulation) higher order *)
-  fixes i_Pair i_Nil i_Cons i_None i_Some :: "char list"
+  fixes i_Pair i_Nil i_Cons i_None i_Some :: string
 begin
 
 definition "i_of_pair a b f1 f2 = (\<lambda>f. \<lambda>(c, d) \<Rightarrow> f c d)

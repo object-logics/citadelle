@@ -101,7 +101,7 @@ code_reflect OCL
              isabelle_apply isabelle_of_ocl_embed
 
 ML{*
- val To_string = implode o map str
+ val To_string0 = String.implode o OCL.string_to_list
  fun To_nat (Code_Numeral.Nat i) = i
 *}
 
@@ -109,7 +109,7 @@ ML{*
 structure From = struct
  open OCL
  val from_char = I
- val from_string = String.explode
+ val from_string = OCL.St
  val from_binding = from_string o Binding.name_of
  fun from_term ctxt s = from_string (XML.content_of (YXML.parse_body (Syntax.string_of_term ctxt s)))
  val from_nat = Code_Numeral.Nat
@@ -151,8 +151,7 @@ fun in_local decl thy =
   |> Local_Theory.exit_global
 *}
 
-ML{* fun List_mapi f = OCL.list_mapi (f o To_nat)
-     val To_string0 = To_string *}
+ML{* fun List_mapi f = OCL.list_mapi (f o To_nat) *}
 
 ML{*
 structure Ty' = struct
@@ -167,7 +166,7 @@ fun check l_oid l =
     (writeln o Markup.markup Markup.bad o Mi)
     (error o To_string0)
     (Ml (Mp I Me) l_oid)
-    (Me l)
+    (OCL.St l)
   end
 end
 *}
@@ -956,7 +955,7 @@ fun exec_deep (ocl, file_out_path_dep, seri_args, filename_thy, tmp_export_code,
   let fun def s = in_local (snd o Specification.definition_cmd (NONE, ((@{binding ""}, []), s)) false) in
   let val name_main = Deep.mk_free (Proof_Context.init_global thy0) Deep0.Export_code_env.Isabelle.argument_main [] in
   thy0 |> def (String.concatWith " " (  "(" (* polymorphism weakening needed by export_code *)
-                                        ^ name_main ^ " :: (_ \<times> char list option) ocl_compiler_config_scheme)"
+                                        ^ name_main ^ " :: (_ \<times> abr_string option) ocl_compiler_config_scheme)"
                                     :: "="
                                     :: To_string0 (i_of_arg (OCL.ocl_compiler_config_more_map (fn () => (l_obj, From.from_option From.from_string (Option.map (fn filename_thy => Deep.absolute_path filename_thy thy0) filename_thy))) ocl))
                                     :: []))
