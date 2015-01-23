@@ -61,7 +61,6 @@ datatype abr_string = (* NOTE operations in this datatype must not decrease the 
                     | ST' "char list"
                     (* *)
                     | String_concatWith abr_string "abr_string list"
-                    | String_make nat char
 
 syntax "_string1" :: "_ \<Rightarrow> abr_string" ("\<langle>(_)\<rangle>")
 translations "\<langle>x\<rangle>" \<rightleftharpoons> "CONST ST (CONST STR x)"
@@ -73,7 +72,7 @@ syntax "_string3" :: "_ \<Rightarrow> abr_string" ("\<lless>(_)\<ggreater>")
 translations "\<lless>x\<ggreater>" \<rightleftharpoons> "CONST ST' x"
 
 syntax "_char1" :: "_ \<Rightarrow> abr_string" ("\<degree>(_)\<degree>")
-translations "\<degree>x\<degree>" \<rightleftharpoons> "CONST String_make 1 x"
+translations "\<degree>x\<degree>" \<rightleftharpoons> "CONST ST' ((CONST Cons) x (CONST Nil))"
 
 syntax "_char2" :: "_ \<Rightarrow> String.literal" ("\<ordmasculine>(_)\<ordmasculine>")
 translations "\<ordmasculine>x\<ordmasculine>" \<rightleftharpoons> "CONST STR ((CONST Cons) x (CONST Nil))"
@@ -104,21 +103,32 @@ definition "List_split_at f l =
 definition "List_take reverse lg l = reverse (snd (List_split (takeWhile (\<lambda>(n, _). n < lg) (enumerate 0 (reverse l)))))"
 definition "List_take_last = List_take rev"
 definition "List_take_first = List_take id"
+datatype ('a, 'b) nsplit = Nsplit_text 'a
+                         | Nsplit_sep 'b
 definition "List_replace_gen f_res l c0 lby =
- (case List.fold (\<lambda>c1 (l,lgen). if c1 = c0 then (lby, l # lgen) else (c1 # l, lgen)) (rev l) ([], [])
-  of (l, lgen) \<Rightarrow> f_res (l # lgen))"
-definition "List_nsplit l c0 = List_replace_gen id l c0 []"
-definition "List_replace = List_replace_gen List_flatten"
+ (let Nsplit_text = \<lambda>l lgen. if l = [] then lgen else Nsplit_text l # lgen in
+  case List.fold
+         (\<lambda> c1 (l, lgen).
+           if c0 c1 then
+             (lby, Nsplit_sep c1 # Nsplit_text l lgen)
+           else
+             (c1 # l, lgen))
+         (rev l)
+         ([], [])
+  of (l, lgen) \<Rightarrow> f_res (Nsplit_text l lgen))"
+definition "List_nsplit_f l c0 = List_replace_gen id l c0 []"
+definition "List_replace = List_replace_gen (List_flatten o List_map (\<lambda> Nsplit_text l \<Rightarrow> l | _ \<Rightarrow> []))"
 
 definition "flatten = String_concatWith \<langle>''''\<rangle>"
 definition String_flatten (infixr "@@" 65) where "String_flatten a b = flatten [a, b]"
+definition "String_make n c = ST' (List_map (\<lambda>_. c) (List_upto 1 n))"
+definition "ST0 c = ST' [c]"
 
 fun String_map_gen where
    "String_map_gen replace g e =
      (\<lambda> ST s \<Rightarrow> replace \<langle>''''\<rangle> (Some s) \<langle>''''\<rangle>
       | ST' s \<Rightarrow> flatten (List_map g s)
-      | String_concatWith abr l \<Rightarrow> String_concatWith (String_map_gen replace g abr) (List.map (String_map_gen replace g) l)
-      | String_make n c \<Rightarrow> flatten (List_map (\<lambda>_. g c) (List_upto 1 n))) e"
+      | String_concatWith abr l \<Rightarrow> String_concatWith (String_map_gen replace g abr) (List.map (String_map_gen replace g) l)) e"
 
 definition "String_foldl_one f accu s = foldl f accu (explode s)"
 fun String_foldl where
@@ -127,8 +137,7 @@ fun String_foldl where
       | ST' s \<Rightarrow> foldl f accu s
       | String_concatWith abr l \<Rightarrow>
         (case l of [] \<Rightarrow> accu
-                 | x # xs \<Rightarrow> foldl (\<lambda>accu. String_foldl f (String_foldl f accu abr)) (String_foldl f accu x) xs)
-      | String_make n c \<Rightarrow> foldl (\<lambda>accu _. f accu c) accu (List_upto 1 n)) e"
+                 | x # xs \<Rightarrow> foldl (\<lambda>accu. String_foldl f (String_foldl f accu abr)) (String_foldl f accu x) xs)) e"
 
 definition "replace_chars f s1 s s2 =
   s1 @@ (case s of None \<Rightarrow> \<langle>''''\<rangle> | Some s \<Rightarrow> flatten (List_map f (explode s))) @@ s2"
@@ -141,8 +150,7 @@ definition "String_to_list s = rev (String_foldl (\<lambda>l c. c # l) [] s)"
 fun String_is_empty where
    "String_is_empty e = (\<lambda> ST s \<Rightarrow> s = STR ''''
                          | ST' s \<Rightarrow> s = []
-                         | String_concatWith _ l \<Rightarrow> list_all String_is_empty l
-                         | String_make n _ \<Rightarrow> n = 0) e"
+                         | String_concatWith _ l \<Rightarrow> list_all String_is_empty l) e"
 
 section{* Preliminaries *}
 
@@ -226,6 +234,7 @@ definition "add_0 n =
   @@ nat_of_str n)"
 definition "is_letter n = (n \<ge> CHR ''A'' & n \<le> CHR ''Z'' | n \<ge> CHR ''a'' & n \<le> CHR ''z'')"
 definition "is_digit n = (n \<ge> CHR ''0'' & n \<le> CHR ''9'')"
+definition "is_special = List.member '' <>^_=-.()''"
 definition "base255_of_str = String_replace_chars (\<lambda>c. if is_letter c then \<degree>c\<degree> else add_0 c)"
 definition "isub_of_str = String_replace_chars (\<lambda>c.
   if is_letter c | is_digit c then escape_unicode \<langle>''^sub''\<rangle> @@ \<degree>c\<degree> else add_0 c)"
@@ -244,6 +253,22 @@ definition "text_of_str str =
                                  str
           , \<langle>''[])''\<rangle>])"
 definition "text2_of_str = String_replace_chars (\<lambda>c. escape_unicode \<degree>c\<degree>)"
+
+definition "textstr_of_str f_flatten f_char f_str str =
+ (let str0 = String_to_list str
+    ; f_letter = \<lambda>c. is_letter c | is_digit c | is_special c
+    ; s = \<langle>''c''\<rangle>
+    ; g = \<langle>[Char Nibble2 Nibble7]\<rangle>
+    ; f_text = \<lambda> Nsplit_text l \<Rightarrow> flatten [f_str (flatten [\<langle>''STR ''\<rangle>,  g,g,\<lless>l\<ggreater>,g,g  ])]
+               | Nsplit_sep c \<Rightarrow> flatten [f_char c]
+    ; str = case List_nsplit_f str0 (Not o f_letter) of
+              [] \<Rightarrow> flatten [f_str (flatten [\<langle>''STR ''\<rangle>,  g,g,g,g  ])]
+            | [x] \<Rightarrow> f_text x
+            | l \<Rightarrow> flatten (List_map (\<lambda>x. \<langle>''(''\<rangle> @@ f_text x @@ \<langle>'') # ''\<rangle>) l) @@ \<langle>''[]''\<rangle> in
+  if list_all f_letter str0 then
+    str
+  else
+    f_flatten (flatten [ \<langle>''(''\<rangle>, str, \<langle>'')''\<rangle> ]))"
 
 definition "mk_constr_name name = (\<lambda> x. flatten [isub_of_str name, \<langle>''_''\<rangle>, isub_of_str x])"
 definition "mk_dot s1 s2 = flatten [\<langle>''.''\<rangle>, s1, s2]"

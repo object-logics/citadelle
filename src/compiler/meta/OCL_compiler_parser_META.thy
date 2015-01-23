@@ -201,9 +201,12 @@ definition "i_of_char a b = char_rec
   (ap2 a (b \<langle>''Char''\<rangle>) (i_of_nibble b) (i_of_nibble b))"
 
 definition "i_of_string a b s = 
-  ap1 a (b (\<langle>''OCL_compiler_init.abr_string.ST''\<rangle> @@ \<degree>Char Nibble2 Nibble7\<degree>))
-    (i_of_list a b (i_of_char a b))
-    (String_to_list s)"
+  b (let s = textstr_of_str (\<lambda>c. \<langle>''(OCL_compiler_init.flatten ''\<rangle> @@ c @@ \<langle>'')''\<rangle>)
+                            (\<lambda>Char n1 n2 \<Rightarrow>
+                                 flatten [ \<langle>''OCL_compiler_init.ST0 (''\<rangle>, \<langle>''Char ''\<rangle>, i_of_nibble id n1, \<langle>'' ''\<rangle>, i_of_nibble id n2, \<langle>'')''\<rangle>])
+                            (\<lambda>c. \<langle>''OCL_compiler_init.abr_string.ST (''\<rangle> @@ c @@ \<langle>'')''\<rangle>)
+                            s in
+     flatten [ \<langle>''(''\<rangle>, s, \<langle>'')''\<rangle> ])"
 
 definition "i_of_nat a b = b o natural_of_str"
 
