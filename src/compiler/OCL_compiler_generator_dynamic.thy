@@ -165,7 +165,7 @@ fun check l_oid l =
     (writeln o Mi)
     (warning o Mi)
     (writeln o Markup.markup Markup.bad o Mi)
-    (error o Mi)
+    (error o To_string0)
     (Ml (Mp I Me) l_oid)
     (Me l)
   end
@@ -922,13 +922,13 @@ fun OCL_main aux ret = let open OCL open OCL_overload in fn
       (fn T_pure x => T_pure x
         | e =>
           let fun aux e = case e of 
-            T_to_be_parsed (s, _) => SOME let val t = Syntax.read_term (Proof_Context.init_global thy) (String.implode s) in
+            T_to_be_parsed (s, _) => SOME let val t = Syntax.read_term (Proof_Context.init_global thy) (To_string0 s) in
                                           (t, Term.add_frees t [])
                                           end
           | T_lambda (a, e) =>
             Option.map
               (fn (e, l_free) => 
-               let val a = String.implode a 
+               let val a = To_string0 a 
                    val (t, l_free) = case List.partition (fn (x, _) => x = a) l_free of
                                        ([], l_free) => (TFree ("'a", ["HOL.type"]), l_free)
                                      | ([(_, t)], l_free) => (t, l_free) in
