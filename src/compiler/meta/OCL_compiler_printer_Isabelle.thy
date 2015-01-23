@@ -194,17 +194,22 @@ definition "s_of_lemmas_simp _ = (\<lambda> Lemmas_simp_opt simp s l \<Rightarro
       (String_concat \<prec>''
                             ''\<succ> (List_map To_string l)))"
 
-definition "s_of_attrib (attr::String.literal) l = (* error reflection: to be merged *)
+definition "(s_of_attrib_genA :: (hol_ntheorems list \<Rightarrow> String.literal)
+   \<Rightarrow> String.literal \<Rightarrow> hol_ntheorems list \<Rightarrow> String.literal) f attr l = (* error reflection: to be merged *)
  (if l = [] then
     \<prec>''''\<succ>
   else
-    sprint2 '' %s: %s''\<acute> attr (s_of_ntheorems_l l))"
+    sprint2 '' %s: %s''\<acute> attr (f l))"
 
-definition "s_of_attrib1 (attr::String.literal) l = (* error reflection: to be merged *)
+definition "(s_of_attrib_genB :: (string list \<Rightarrow> String.literal)
+   \<Rightarrow> String.literal \<Rightarrow> string list \<Rightarrow> String.literal) f attr l = (* error reflection: to be merged *)
  (if l = [] then
     \<prec>''''\<succ>
   else
-    sprint2 '' %s: %s''\<acute> attr (String_concat \<prec>'' ''\<succ> (List_map To_string l)))"
+    sprint2 '' %s: %s''\<acute> attr (f l))"
+
+definition "s_of_attrib = s_of_attrib_genA s_of_ntheorems_l"
+definition "s_of_attrib1 = s_of_attrib_genB (\<lambda>l. String_concat \<prec>'' ''\<succ> (List_map To_string l))"
 
 fun_quick s_of_tactic where "s_of_tactic expr = (\<lambda>
     Tact_rule0 o_s \<Rightarrow> sprint1 ''rule%s''\<acute> (case o_s of None \<Rightarrow> \<prec>''''\<succ>
@@ -352,6 +357,8 @@ lemmas [code] =
   s_of.s_of_ntheorem_l1_def
   s_of.s_of_ntheorems_l_def
   s_of.s_of_lemmas_simp_def
+  s_of.s_of_attrib_genA_def
+  s_of.s_of_attrib_genB_def
   s_of.s_of_attrib_def
   s_of.s_of_attrib1_def
   s_of.s_of_tactic_last_def

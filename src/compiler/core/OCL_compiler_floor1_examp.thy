@@ -318,7 +318,7 @@ definition "print_examp_instance_defassoc_gen name l_ocli ocl =
     ; b = \<lambda>s. Expr_basic [s]
     ; (rbt :: _ \<Rightarrow> _ \<times> (_ \<Rightarrow> ((_ \<Rightarrow> natural \<Rightarrow> _ \<Rightarrow> (ocl_ty \<times> ocl_data_shallow) option list) \<Rightarrow> _ \<Rightarrow> _) option)
       , (map_self, map_username)) =
-        init_map_class ocl (List_map (\<lambda> Some ocli \<Rightarrow> ocli | None \<Rightarrow> \<lparr> Inst_name = [], Inst_ty = [], Inst_attr = OclAttrNoCast [] \<rparr>) l_ocli) in
+        init_map_class ocl (List_map (\<lambda> Some ocli \<Rightarrow> ocli | None \<Rightarrow> ocl_instance_single_empty) l_ocli) in
   [Definition
      (Expr_rewrite name
      \<langle>''=''\<rangle>
@@ -386,7 +386,7 @@ definition "print_examp_instance_defassoc_typecheck_gen name l_ocli ocl =
                                                                 | Some ocli \<Rightarrow> [(ocli, cpt)], oidSucInh cpt)) l_ocli (D_oid_start ocl)))
     ; (rbt_init :: _ \<Rightarrow> _ \<times> (_ \<Rightarrow> ((_ \<Rightarrow> natural \<Rightarrow> _ \<Rightarrow> (ocl_ty \<times> ocl_data_shallow) option list) \<Rightarrow> _ \<Rightarrow> _) option)
                 , (map_self, map_username)) =
-              init_map_class ocl (List_map (\<lambda> Some ocli \<Rightarrow> ocli | None \<Rightarrow> \<lparr> Inst_name = [], Inst_ty = [], Inst_attr = OclAttrNoCast [] \<rparr>) l_ocli)
+              init_map_class ocl (List_map (\<lambda> Some ocli \<Rightarrow> ocli | None \<Rightarrow> ocl_instance_single_empty) l_ocli)
     ; rbt = print_examp_def_st_assoc_build_rbt2 rbt_init map_self map_username l_assoc
     ; l_attr_gen = map_of_list (fold (\<lambda>_ (l_attr, ty_obj).
            Cons ( TyObj_ass_id ty_obj
@@ -529,7 +529,7 @@ definition "print_examp_def_st = (\<lambda> OclDefSt name l \<Rightarrow> \<lamb
   (let ocl = ocl_old
      ; b = \<lambda>s. Expr_basic [s]
      ; (rbt, (map_self, map_username)) =
-         init_map_class ocl (List_map (\<lambda> Some ocli \<Rightarrow> ocli | None \<Rightarrow> \<lparr> Inst_name = [], Inst_ty = [], Inst_attr = OclAttrNoCast [] \<rparr>) l_ocli)
+         init_map_class ocl (List_map (\<lambda> Some ocli \<Rightarrow> ocli | None \<Rightarrow> ocl_instance_single_empty) l_ocli)
      ; (l_st, cpt, l_assoc) = fold_list (\<lambda> ocore (cpt, l_assoc).
          let f = \<lambda>ocore ocli. ([( cpt, ocore )], Some ocli)
            ; (def, o_ocli) = case ocore of OclDefCoreSkip \<Rightarrow> ([], None)
@@ -610,7 +610,7 @@ definition "print_examp_def_st_perm = (\<lambda> _ ocl.
                     (print_examp_def_st_defassoc_name name)
                     (init_map_class ocl (List_map (\<lambda> (_, OclDefCoreAdd ocli) \<Rightarrow> ocli
                                                    | (_, OclDefCoreBinding (_, ocli)) \<Rightarrow> ocli
-                                                   | _ \<Rightarrow> \<lparr> Inst_name = [], Inst_ty = [], Inst_attr = OclAttrNoCast [] \<rparr>) l_st))
+                                                   | _ \<Rightarrow> ocl_instance_single_empty) l_st))
                     (rev l_st)
      ; a = \<lambda>\<^sub>S\<^sub>c\<^sub>a\<^sub>l\<^sub>af x. Expr_apply f [x]
      ; b = \<lambda>s. Expr_basic [s]
@@ -649,7 +649,7 @@ definition "extract_state ocl name_st l_st =
                     (print_examp_def_st_defassoc_name name_st)
                     (init_map_class ocl (List_map (\<lambda> (_, OclDefCoreAdd ocli) \<Rightarrow> ocli
                                                    | (_, OclDefCoreBinding (_, ocli)) \<Rightarrow> ocli
-                                                   | _ \<Rightarrow> \<lparr> Inst_name = [], Inst_ty = [], Inst_attr = OclAttrNoCast [] \<rparr>) l_st))
+                                                   | _ \<Rightarrow> ocl_instance_single_empty) l_st))
                     l_st)"
 
 definition "print_examp_def_st_allinst = (\<lambda> _ ocl.
