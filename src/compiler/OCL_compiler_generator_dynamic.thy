@@ -151,7 +151,8 @@ fun in_local decl thy =
   |> Local_Theory.exit_global
 *}
 
-ML{* fun List_mapi f = OCL.list_mapi (f o To_nat) *}
+ML{* fun List_mapi f = OCL.list_mapi (f o To_nat)
+     val To_string0 = To_string *}
 
 ML{*
 structure Ty' = struct
@@ -631,9 +632,9 @@ subsection{* General Compiling Process: Shallow *}
 
 ML{*
 structure OCL_overload = struct
-  val s_of_rawty = OCL.s_of_rawty To_string
-  val s_of_expr = OCL.s_of_expr To_string (Int.toString o To_nat)
-  val s_of_sexpr = OCL.s_of_sexpr To_string (Int.toString o To_nat)
+  val s_of_rawty = OCL.s_of_rawty To_string0
+  val s_of_expr = OCL.s_of_expr To_string0 (Int.toString o To_nat)
+  val s_of_sexpr = OCL.s_of_sexpr To_string0 (Int.toString o To_nat)
   val fold = fold
 end
 *}
@@ -641,18 +642,18 @@ end
 ML{*
 structure Shallow_conv = struct
  fun To_binding s = Binding.make (s, Position.none)
- val To_sbinding = To_binding o To_string
+ val To_sbinding = To_binding o To_string0
 
 fun simp_tac_gen g f = Method.Basic (fn ctxt => SIMPLE_METHOD (g (asm_full_simp_tac (f ctxt))))
 val simp_tac = simp_tac_gen (fn f => f 1)
 val simp_all_tac = simp_tac_gen (CHANGED_PROP o PARALLEL_GOALS o ALLGOALS)
 
 fun m_of_ntheorem ctxt s = let open OCL open OCL_overload in case s of
-    Thm_str s => Proof_Context.get_thm ctxt (To_string s)
+    Thm_str s => Proof_Context.get_thm ctxt (To_string0 s)
   | Thm_THEN (e1, e2) => m_of_ntheorem ctxt e1 RSN (1, m_of_ntheorem ctxt e2)
   | Thm_simplified (e1, e2) => asm_full_simplify (clear_simpset ctxt addsimps [m_of_ntheorem ctxt e2]) (m_of_ntheorem ctxt e1)
   | Thm_OF (e1, e2) => [m_of_ntheorem ctxt e2] MRS m_of_ntheorem ctxt e1
-  | Thm_where (nth, l) => read_instantiate ctxt (List.map (fn (var, expr) => ((To_string var, 0), s_of_expr expr)) l) (m_of_ntheorem ctxt nth)
+  | Thm_where (nth, l) => read_instantiate ctxt (List.map (fn (var, expr) => ((To_string0 var, 0), s_of_expr expr)) l) (m_of_ntheorem ctxt nth)
   | Thm_symmetric s => m_of_ntheorem ctxt (Thm_THEN (s, Thm_str (From.from_string "sym")))
   | Thm_of (nth, l) =>
       let val thm = m_of_ntheorem ctxt nth
@@ -667,11 +668,11 @@ fun m_of_ntheorem ctxt s = let open OCL open OCL_overload in case s of
 end
 
 fun addsimp (l1, l2) ctxt0 = 
-  fold (fn a => fn ctxt => ctxt addsimps ((Proof_Context.get_thms ctxt0 o To_string) a)) l1
-  (ctxt0 addsimps (List.map (Proof_Context.get_thm ctxt0 o To_string) l2))
+  fold (fn a => fn ctxt => ctxt addsimps ((Proof_Context.get_thms ctxt0 o To_string0) a)) l1
+  (ctxt0 addsimps (List.map (Proof_Context.get_thm ctxt0 o To_string0) l2))
 
 fun m_of_ntheorems ctxt = fn OCL.Thms_single thy => [m_of_ntheorem ctxt thy]
-                           | OCL.Thms_mult thy => Proof_Context.get_thms ctxt (To_string thy)
+                           | OCL.Thms_mult thy => Proof_Context.get_thms ctxt (To_string0 thy)
 
 fun m_of_ntheorems_l ctxt l = List.concat (map (m_of_ntheorems ctxt) l)
 
@@ -713,7 +714,7 @@ fun m_of_tactic expr = let open OCL open Method open OCL_overload in case expr o
       SIMPLE_METHOD' ((if asm then
                          EqSubst.eqsubst_asm_tac
                        else
-                         EqSubst.eqsubst_tac) ctxt (map (fn s => case Int.fromString (To_string s) of
+                         EqSubst.eqsubst_tac) ctxt (map (fn s => case Int.fromString (To_string0 s) of
                                                                    SOME i => i) l) [m_of_ntheorem ctxt s]))
   | Tact_insert l => Basic (fn ctxt => insert (m_of_ntheorems_l ctxt l))
   | Tact_plus t => Repeat1 (Then (List.map m_of_tactic t))
@@ -725,9 +726,9 @@ fun m_of_tactic expr = let open OCL open Method open OCL_overload in case expr o
   | Tact_auto_simp_add_split (l_simp, l_split) =>
       Basic (fn ctxt => SIMPLE_METHOD (auto_tac (fold (fn (f, l) => fold f l)
               [(Simplifier.add_simp, m_of_ntheorems_l ctxt l_simp)
-              ,(Splitter.add_split, List.map (Proof_Context.get_thm ctxt o To_string) l_split)]
+              ,(Splitter.add_split, List.map (Proof_Context.get_thm ctxt o To_string0) l_split)]
               ctxt)))
-  | Tact_rename_tac l => Basic (K (SIMPLE_METHOD' (rename_tac (List.map To_string l))))
+  | Tact_rename_tac l => Basic (K (SIMPLE_METHOD' (rename_tac (List.map To_string0 l))))
   | Tact_case_tac e => Basic (fn ctxt => SIMPLE_METHOD' (Induct_Tacs.case_tac ctxt (s_of_expr e)))
   | Tact_blast n => Basic (case n of NONE => SIMPLE_METHOD' o blast_tac
                                    | SOME lim => fn ctxt => SIMPLE_METHOD' (depth_tac ctxt (To_nat lim)))
@@ -807,7 +808,7 @@ val apply_results = let open OCL_overload
                                                l_let
                                         o Proof.fix_cmd (List.map (fn i => (To_sbinding i, NONE, NoSyn)) l))
                                         (case o_exp of NONE => thesis | SOME l_spec => 
-                                          (String.concatWith (" " ^ (To_string OCL.unicode_Longrightarrow) ^ " ")
+                                          (String.concatWith (" " ^ (To_string0 OCL.unicode_Longrightarrow) ^ " ")
                                                              (List.map s_of_expr l_spec)))
 end
 
@@ -827,7 +828,7 @@ val OCL_main_thy = let open OCL open OCL_overload in (*let val f = *)fn
      end)
 | Theory_instantiation_class (Instantiation (n, n_def, expr)) =>
     (fn thy =>
-     let val name = To_string n in
+     let val name = To_string0 n in
      perform_instantiation
        thy
        [ let val Type (s, _) = (read_typ_syntax NONE thy name) in s end ]
@@ -835,7 +836,7 @@ val OCL_main_thy = let open OCL open OCL_overload in (*let val f = *)fn
        (Syntax.read_sort (Proof_Context.init_global thy) "object")
        (fn _ => fn thy =>
         let val ((_, (_, ty)), thy) = Specification.definition_cmd
-           (NONE, ((To_binding (To_string n_def ^ "_" ^ name ^ "_def"), []), s_of_expr expr)) false thy in
+           (NONE, ((To_binding (To_string0 n_def ^ "_" ^ name ^ "_def"), []), s_of_expr expr)) false thy in
          (ty, thy)
         end)
        (fn thms => Class.intro_classes_tac [] THEN ALLGOALS (Proof_Context.fact_tac thms))
@@ -845,7 +846,7 @@ val OCL_main_thy = let open OCL open OCL_overload in (*let val f = *)fn
 | Theory_consts_class (Consts_raw (n, ty, symb)) =>
     Sign.add_consts [( To_sbinding n
                      , s_of_rawty ty
-                     , Mixfix ("(_) " ^ To_string symb, [], 1000))]
+                     , Mixfix ("(_) " ^ To_string0 symb, [], 1000))]
 | Theory_definition_hol def =>
     let val (def, e) = case def of
         Definition e => (NONE, e)
@@ -870,14 +871,14 @@ val OCL_main_thy = let open OCL open OCL_overload in (*let val f = *)fn
     in_local (fn lthy => (snd o Specification.theorems Thm.lemmaK
       [((To_sbinding s, List.map (fn s => Attrib.intern_src (Proof_Context.theory_of lthy) (Args.src ((s, []), Position.none)))
                           ["simp", "code_unfold"]),
-        List.map (fn x => (Proof_Context.get_thms lthy (To_string x), [])) l)]
+        List.map (fn x => (Proof_Context.get_thms lthy (To_string0 x), [])) l)]
       []
       false) lthy)
 | Theory_lemma_by (Lemma_by (n, l_spec, l_apply, o_by)) =>
       in_local (fn lthy =>
            Specification.theorem_cmd Thm.lemmaK NONE (K I)
              (@{binding ""}, []) [] [] (Element.Shows [((To_sbinding n, [])
-                                                       ,[((String.concatWith (" " ^ (To_string OCL.unicode_Longrightarrow) ^ " ")
+                                                       ,[((String.concatWith (" " ^ (To_string0 OCL.unicode_Longrightarrow) ^ " ")
                                                              (List.map s_of_expr l_spec)), [])])])
              false lthy
         |> fold (apply_results o OCL.App) l_apply
@@ -957,7 +958,7 @@ fun exec_deep (ocl, file_out_path_dep, seri_args, filename_thy, tmp_export_code,
   thy0 |> def (String.concatWith " " (  "(" (* polymorphism weakening needed by export_code *)
                                         ^ name_main ^ " :: (_ \<times> char list option) ocl_compiler_config_scheme)"
                                     :: "="
-                                    :: To_string (i_of_arg (OCL.ocl_compiler_config_more_map (fn () => (l_obj, From.from_option From.from_string (Option.map (fn filename_thy => Deep.absolute_path filename_thy thy0) filename_thy))) ocl))
+                                    :: To_string0 (i_of_arg (OCL.ocl_compiler_config_more_map (fn () => (l_obj, From.from_option From.from_string (Option.map (fn filename_thy => Deep.absolute_path filename_thy thy0) filename_thy))) ocl))
                                     :: []))
        |> Deep.export_code_cmd' seri_args tmp_export_code
             (fn (((_, _), msg), _) => fn err => if err <> 0 then error msg else ()) filename_thy [name_main]

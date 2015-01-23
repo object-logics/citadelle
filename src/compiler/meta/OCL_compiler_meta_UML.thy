@@ -145,6 +145,26 @@ fun_quick fold_max_aux where
 
 definition "fold_max f l = fold_max_aux f (List_mapi Pair l) []"
 
+definition "lookup' m k = lookup m (String_to_list k)"
+definition "insert' k v m = insert (String_to_list k) v m"
+definition "map_entry' k = map_entry (String_to_list k)"
+definition "modify_def' v k = modify_def v (String_to_list k)"
+definition "keys' m = List_map (\<lambda>s. \<lless>s\<ggreater>) (keys m)"
+definition "lookup2' m = (\<lambda>(k1, k2). lookup2 m (String_to_list k1, String_to_list k2))"
+definition "insert2' = (\<lambda>(k1, k2). insert2 (String_to_list k1, String_to_list k2))"
+definition "fold' f m a = fold (\<lambda>c. f \<lless>c\<ggreater>) m a"
+definition "entries' m = List_map (map_pair (\<lambda>c. \<lless>c\<ggreater>) id) (entries m)"
+
+syntax "_rbt_lookup" :: "_ \<Rightarrow> _" ("lookup") translations "lookup" \<rightleftharpoons> "CONST lookup'"
+syntax "_rbt_insert" :: "_ \<Rightarrow> _" ("insert") translations "insert" \<rightleftharpoons> "CONST insert'"
+syntax "_rbt_map_entry" :: "_ \<Rightarrow> _" ("map'_entry") translations "map_entry" \<rightleftharpoons> "CONST map_entry'"
+syntax "_rbt_modify_def" :: "_ \<Rightarrow> _" ("modify'_def") translations "modify_def" \<rightleftharpoons> "CONST modify_def'"
+syntax "_rbt_keys" :: "_ \<Rightarrow> _" ("keys") translations "keys" \<rightleftharpoons> "CONST keys'"
+syntax "_rbt_lookup2" :: "_ \<Rightarrow> _" ("lookup2") translations "lookup2" \<rightleftharpoons> "CONST lookup2'"
+syntax "_rbt_insert2" :: "_ \<Rightarrow> _" ("insert2") translations "insert2" \<rightleftharpoons> "CONST insert2'"
+syntax "_rbt_fold" :: "_ \<Rightarrow> _" ("fold") translations "fold" \<rightleftharpoons> "CONST fold'"
+syntax "_rbt_entries" :: "_ \<Rightarrow> _" ("entries") translations "entries" \<rightleftharpoons> "CONST entries'"
+
 function (sequential) class_unflat_aux where
 (* (* FIXME replace with this simplified form *)
    "class_unflat_aux rbt rbt_inv rbt_cycle r =
@@ -236,6 +256,7 @@ proof -
   apply(relation "measure (\<lambda>(_, rbt_inv, rbt_cycle, r).
     ?len_merge rbt_cycle rbt_inv - length (RBT.keys rbt_cycle)
     )", simp+)
+  unfolding lookup'_def insert'_def
   apply(subst rbt_length, simp)
   apply(rule arith_diff)
   apply(rule rbt_fold_eq, simp)

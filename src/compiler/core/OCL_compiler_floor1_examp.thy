@@ -124,7 +124,7 @@ definition "rbt_of_class ocl =
   (let rbt = (snd o fold_class_gen (\<lambda>_ name l_attr l_inh _ _ rbt.
      ( [()]
      , modify_def (empty, []) name
-         (let fold = \<lambda>tag l rbt.
+         (let f_fold = \<lambda>tag l rbt.
             let (rbt, _, n) = List.fold
                                    (\<lambda> (name_attr, ty) \<Rightarrow> \<lambda>(rbt, cpt, l_obj).
                                      (insert name_attr (ty, tag, OptIdent cpt) rbt, Succ cpt, (case ty of OclTy_class ty_obj \<Rightarrow> Some ty_obj | _ \<Rightarrow> None) # l_obj))
@@ -132,8 +132,8 @@ definition "rbt_of_class ocl =
                                    (rbt, 0, []) in
             (rbt, (tag, n)) in
           (\<lambda>(rbt, _).
-           let (rbt, info_own) = fold OptOwn l_attr rbt in
-           let (rbt, info_inh) = fold OptInh (List_flatten (map_class_inh l_inh)) rbt in
+           let (rbt, info_own) = f_fold OptOwn l_attr rbt in
+           let (rbt, info_inh) = f_fold OptInh (List_flatten (map_class_inh l_inh)) rbt in
            (rbt, [info_own, info_inh])))
          rbt)) empty) (case D_class_spec ocl of Some c \<Rightarrow> c) in
    (\<lambda>name.
