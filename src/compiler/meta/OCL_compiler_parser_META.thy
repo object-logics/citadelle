@@ -65,7 +65,7 @@ definition "ocl_compiler_config_rec0 f ocl = f
   (D_generation_syntax_shallow ocl)
   (D_accessor_rbt ocl)
   (D_higher_order_ty ocl)
-  (D_sorry_mode ocl)"
+  (D_sorry_dirty ocl)"
 
 definition "ocl_compiler_config_rec f ocl = ocl_compiler_config_rec0 f ocl
   (ocl_compiler_config.more ocl)"
@@ -119,6 +119,10 @@ definition "i_of_ocl_deep_mode a b = ocl_deep_mode_rec
   (b \<langle>''Gen_only_analysis''\<rangle>)
   (b \<langle>''Gen_default''\<rangle>)"
 
+definition "i_of_ocl_sorry_mode a b = ocl_sorry_mode_rec
+  (b \<langle>''Gen_sorry''\<rangle>)
+  (b \<langle>''Gen_no_dirty''\<rangle>)"
+
 definition "i_of_ocl_compiler_config a b f = ocl_compiler_config_rec
   (ap15 a (b (ext \<langle>''ocl_compiler_config_ext''\<rangle>))
     (i_of_bool b)
@@ -134,7 +138,7 @@ definition "i_of_ocl_compiler_config a b f = ocl_compiler_config_rec
     (i_of_bool b)
     (i_of_pair a b (i_of_list a b (i_of_string\<^sub>b\<^sub>a\<^sub>s\<^sub>e a b)) (i_of_list a b (i_of_string\<^sub>b\<^sub>a\<^sub>s\<^sub>e a b)))
     (i_of_list a b (i_of_string\<^sub>b\<^sub>a\<^sub>s\<^sub>e a b))
-    (i_of_bool b)
+    (i_of_pair a b (i_of_option a b (i_of_ocl_sorry_mode a b)) (i_of_bool b))
     (f a b))"
 
 end
@@ -144,6 +148,7 @@ lemmas [code] =
   i_of.i_of_floor_def
   i_of.i_of_ocl_deep_embed_ast_def
   i_of.i_of_ocl_deep_mode_def
+  i_of.i_of_ocl_sorry_mode_def
   i_of.i_of_ocl_compiler_config_def
 
 subsubsection{* Isabelle *}

@@ -83,7 +83,7 @@ datatype ocl_deep_embed_ast =
 (* *)
 
 datatype ocl_deep_mode = Gen_only_design | Gen_only_analysis | Gen_default
-
+datatype ocl_sorry_mode = Gen_sorry | Gen_no_dirty
 
 record ocl_compiler_config =  D_disable_thy_output :: bool
                               D_file_out_path_dep :: "(string (* theory *)
@@ -110,7 +110,7 @@ record ocl_compiler_config =  D_disable_thy_output :: bool
                               D_accessor_rbt :: " string\<^sub>b\<^sub>a\<^sub>s\<^sub>e (* name of the constant added *) list (* pre *)
                                                 \<times> string\<^sub>b\<^sub>a\<^sub>s\<^sub>e (* name of the constant added *) list (* post *)"
                               D_higher_order_ty :: "(string\<^sub>b\<^sub>a\<^sub>s\<^sub>e (* raw HOL name (as key for rbt) *)) list"
-                              D_sorry_mode :: bool (* true : activate sorry mode for skipping proofs *)
+                              D_sorry_dirty :: "ocl_sorry_mode option \<times> bool (* dirty *)" (* Some Gen_sorry or None and {dirty}: activate sorry mode for skipping proofs *)
 
 subsection{* Auxilliary *}
 

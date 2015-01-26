@@ -57,7 +57,7 @@ imports OCL_compiler_printer
 
            (* hol syntax *)
            "output_directory"
-           "THEORY" "IMPORTS" "SECTION" "SORRY"
+           "THEORY" "IMPORTS" "SECTION" "SORRY" "NO_DIRTY"
            "deep" "shallow" "syntax_print" "skip_export"
            "generation_semantics"
            "flush_all"
@@ -549,11 +549,15 @@ val code_expr_argsP = Scan.optional (@{keyword "("} |-- Args.parse --| @{keyword
 
 val parse_scheme = @{keyword "design"} >> K OCL.Gen_only_design || @{keyword "analysis"} >> K OCL.Gen_only_analysis
 
+val parse_sorry_mode = 
+  Scan.optional (  @{keyword "SORRY"} >> K (SOME OCL.Gen_sorry)
+                || @{keyword "NO_DIRTY"} >> K (SOME OCL.Gen_no_dirty)) NONE
+
 val parse_deep =
      Scan.optional (@{keyword "skip_export"} >> K true) false
   -- Scan.optional (((Parse.$$$ "(" -- @{keyword "THEORY"}) |-- Parse.name -- ((Parse.$$$ ")" -- Parse.$$$ "(" -- @{keyword "IMPORTS"}) |-- parse_l' Parse.name -- Parse.name) --| Parse.$$$ ")") >> SOME) NONE
   -- Scan.optional (@{keyword "SECTION"} >> K true) false
-  -- Scan.optional (@{keyword "SORRY"} >> K true) false
+  -- parse_sorry_mode
   -- (* code_expr_inP *) parse_l1' (@{keyword "in"} |-- (Parse.name
         -- Scan.optional (@{keyword "module_name"} |-- Parse.name) ""
         -- code_expr_argsP))
@@ -568,20 +572,22 @@ val parse_sem_ocl =
   end
 
 val mode =
-  let fun mk_ocl disable_thy_output file_out_path_dep oid_start design_analysis sorry_mode =
+  let fun mk_ocl disable_thy_output file_out_path_dep oid_start design_analysis sorry_mode dirty =
     OCL.ocl_compiler_config_empty
                     (From.from_bool disable_thy_output)
                     (From.from_option (From.from_pair From.from_string (From.from_pair (From.from_list From.from_string) From.from_string)) file_out_path_dep)
                     (OCL.oidInit (From.from_internal_oid (From.from_nat oid_start)))
                     design_analysis
-                    (From.from_bool sorry_mode) in
+                    (sorry_mode, dirty) in
 
      @{keyword "deep"} |-- parse_sem_ocl -- parse_deep >> (fn ((design_analysis, oid_start), (((((skip_exportation, file_out_path_dep), disable_thy_output), sorry_mode), seri_args), filename_thy)) =>
-       Gen_deep ( mk_ocl (not disable_thy_output) file_out_path_dep oid_start design_analysis sorry_mode
-                , file_out_path_dep, seri_args, filename_thy, Isabelle_System.create_tmp_path "deep_export_code" "", skip_exportation))
-  || @{keyword "shallow"} |-- parse_sem_ocl -- Scan.optional (@{keyword "SORRY"} >> K true) false >> (fn ((design_analysis, oid_start), sorry_mode) =>
-       Gen_shallow (mk_ocl true NONE oid_start design_analysis sorry_mode, ()))
-  || @{keyword "syntax_print"} >> K Gen_syntax_print
+       fn ctxt =>
+         Gen_deep ( mk_ocl (not disable_thy_output) file_out_path_dep oid_start design_analysis sorry_mode (Config.get ctxt quick_and_dirty)
+                  , file_out_path_dep, seri_args, filename_thy, Isabelle_System.create_tmp_path "deep_export_code" "", skip_exportation))
+  || @{keyword "shallow"} |-- parse_sem_ocl -- parse_sorry_mode >> (fn ((design_analysis, oid_start), sorry_mode) =>
+       fn ctxt =>
+       Gen_shallow (mk_ocl true NONE oid_start design_analysis sorry_mode (Config.get ctxt quick_and_dirty), ()))
+  || @{keyword "syntax_print"} >> K (K Gen_syntax_print)
   end
 
 
@@ -611,7 +617,11 @@ fun f_command l_mode =
                               (List.map fst seri_args')
                     val () = fold (fn ((((ml_compiler, ml_module), _), _), mk_fic) => fn _ =>
                       Deep0.find_init ml_compiler mk_fic ml_module Deep.mk_free thy) seri_args' () in
-                (Gen_deep (ocl, file_out_path_dep, seri_args, filename_thy, tmp_export_code, skip_exportation), thy) end) l_mode thy in
+                (Gen_deep (ocl, file_out_path_dep, seri_args, filename_thy, tmp_export_code, skip_exportation), thy) end)
+          let val ctxt = Proof_Context.init_global thy in
+              map (fn f => f ctxt) l_mode
+          end
+          thy in
         Data_gen.map (Symtab.map_default (Deep0.gen_empty, l_mode) (fn _ => l_mode)) thy
         end)
 
