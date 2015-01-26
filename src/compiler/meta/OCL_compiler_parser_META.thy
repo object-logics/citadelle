@@ -133,7 +133,7 @@ definition "i_of_ocl_compiler_config a b f = ocl_compiler_config_rec
     (i_of_bool b)
     (i_of_bool b)
     (i_of_pair a b (i_of_list a b (i_of_string a b)) (i_of_list a b (i_of_string a b)))
-    (i_of_list a b (i_of_pair a b (i_of_string a b) (i_of_ocl_ty a b)))
+    (i_of_list a b (i_of_string a b))
     (i_of_bool b)
     (f a b))"
 

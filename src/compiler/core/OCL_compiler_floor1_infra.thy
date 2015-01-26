@@ -98,9 +98,10 @@ definition "print_infra_type_synonym_class expr = start_map Thy_ty_synonym
      Type_synonym name (Ty_apply (Ty_base \<langle>''val''\<rangle>) [Ty_base unicode_AA,
      option (option (Ty_base (isub_name datatype_name))) ])) expr))"
 
-definition "print_infra_type_synonym_class_rec = (\<lambda>expr.
-  Pair (List_map (\<lambda>x. let (tit, body) = print_infra_type_synonym_class_rec_aux x in
-                      Thy_ty_synonym (Type_synonym tit (Ty_apply (Ty_base \<langle>''val''\<rangle>) [Ty_base unicode_AA, body])))
+definition "print_infra_type_synonym_class_rec = (\<lambda>expr ocl.
+  map_pair id (\<lambda> D_higher_order_ty. ocl \<lparr> D_higher_order_ty := D_higher_order_ty \<rparr>)
+    (List_split (List_map (\<lambda>x. let (tit, body) = print_infra_type_synonym_class_rec_aux x in
+                               (Thy_ty_synonym (Type_synonym tit (Ty_apply (Ty_base \<langle>''val''\<rangle>) [Ty_base unicode_AA, body])), tit))
                  (snd (fold_class (\<lambda>_ _ l_attr _ _ _.
                                     Pair () o List.fold
                                       (\<lambda>(_, t) l.
@@ -115,7 +116,7 @@ definition "print_infra_type_synonym_class_rec = (\<lambda>expr.
                                         | _ \<Rightarrow> l)
                                       l_attr)
                                   []
-                                  expr))))"
+                                  expr)))))"
 
 definition "print_infra_instantiation_class = start_map'' Thy_instantiation_class o (\<lambda>expr _ base_attr' _. map_class_gen_h''''
   (\<lambda>isub_name name _ l_attr l_inherited l_cons.
