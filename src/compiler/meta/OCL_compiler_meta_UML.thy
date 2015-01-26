@@ -302,7 +302,7 @@ definition "apply_optim_ass_arity ty_obj v =
   (if TyObj_ass_arity ty_obj \<le> 2 then None
    else Some v)"
 
-definition "is_higher_order = (\<lambda> OclTy_collection _ _ \<Rightarrow> True | _ \<Rightarrow> False)"
+definition "is_higher_order = (\<lambda> OclTy_collection _ _ \<Rightarrow> True | OclTy_pair _ _ \<Rightarrow> True | _ \<Rightarrow> False)"
 
 definition "parse_ty_raw = (\<lambda> OclTy_raw s \<Rightarrow> if s = \<langle>''int''\<rangle> then OclTy_base_integer else OclTy_raw s
                             | x \<Rightarrow> x)"
@@ -317,6 +317,7 @@ fun_quick str_of_ty where
    |"str_of_ty (OclTy_class_pre s) = s"
    |"str_of_ty (OclTy_collection Set ocl_ty) = flatten [\<langle>''Set(''\<rangle>, str_of_ty ocl_ty,\<langle>'')''\<rangle>]"
    |"str_of_ty (OclTy_collection Sequence ocl_ty) = flatten [\<langle>''Sequence(''\<rangle>, str_of_ty ocl_ty,\<langle>'')''\<rangle>]"
+   |"str_of_ty (OclTy_pair ocl_ty1 ocl_ty2) = flatten [\<langle>''Pair(''\<rangle>, str_of_ty ocl_ty1, \<langle>'',''\<rangle>, str_of_ty ocl_ty2,\<langle>'')''\<rangle>]"
    |"str_of_ty (OclTy_raw s) = flatten [unicode_acute, s, unicode_acute]"
 
 definition "ty_void = str_of_ty OclTy_base_void"
