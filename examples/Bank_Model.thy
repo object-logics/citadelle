@@ -134,9 +134,9 @@ Context c: Client
                         ->size\<^sub>S\<^sub>e\<^sub>t() \<le>\<^sub>i\<^sub>n\<^sub>t \<one>)"
 
 (* (* TODO *)
-Context Bank :: create_client(name:String, address:String, age:String(*, b:Bank*)) : Integer
-  Pre : "b .clients ->forAll\<^sub>S\<^sub>e\<^sub>t(c | c .name <> name or c .address <> address)" 
-  Post: "b .clients ->exists\<^sub>S\<^sub>e\<^sub>t(c | c .name <> name or c .address <> address or c .age <> age)"
+Context Bank :: create_client(name:String, address:String, age:Integer(*, b:Bank*)) : Integer
+  Pre : "b .clients ->forAll\<^sub>S\<^sub>e\<^sub>t(c | c .clientname <> name or c .address <> address)" 
+  Post: "b .clients ->exists\<^sub>S\<^sub>e\<^sub>t(c | c .clientname <> name or c .address <> address or c .age <> age)"
   Post : "true"
 *)
 
