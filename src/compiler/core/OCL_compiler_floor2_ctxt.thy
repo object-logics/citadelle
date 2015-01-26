@@ -92,7 +92,7 @@ definition "print_ctxt_to_ocl_gen l_access f var = (\<lambda> T_pure t \<Rightar
   T_pure (map_Const (\<lambda> s ty.
     if (*print_ctxt2_is_accessor ty*)
        list_ex (case List_split_at (\<lambda> s. s = Char Nibble2 NibbleE) (String_to_list s) of
-                  (_, Some _, s) \<Rightarrow> \<lambda>n. String_to_list n = s
+                  (_, Some _, s) \<Rightarrow> \<lambda>n. String\<^sub>b\<^sub>a\<^sub>s\<^sub>e_to_list n = s
                 | _ \<Rightarrow> \<lambda>_. False) l_access then
       case f s of
         Some s \<Rightarrow> s @@ var

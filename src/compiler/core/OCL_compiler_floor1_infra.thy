@@ -101,22 +101,22 @@ definition "print_infra_type_synonym_class expr = start_map Thy_ty_synonym
 definition "print_infra_type_synonym_class_rec = (\<lambda>expr ocl.
   map_pair id (\<lambda> D_higher_order_ty. ocl \<lparr> D_higher_order_ty := D_higher_order_ty \<rparr>)
     (List_split (List_map (\<lambda>x. let (tit, body) = print_infra_type_synonym_class_rec_aux x in
-                               (Thy_ty_synonym (Type_synonym tit body), tit))
-                 (snd (fold_class (\<lambda>_ _ l_attr _ _ _.
-                                    Pair () o List.fold
-                                      (\<lambda>(_, t) l.
-                                        let f = (* WARNING we may test with RBT instead of List *)
-                                                \<lambda>t l. if List.member l t then l else t # l in
-                                        case t of
-                                          OclTy_class obj \<Rightarrow>
-                                            let t = OclTy_class_pre (TyObjN_role_ty (TyObj_to obj)) in
-                                            f (OclTy_collection Sequence t) (f (OclTy_collection Set t) l)
-                                        | OclTy_collection _ _ \<Rightarrow> f t l
-                                        | OclTy_pair _ _ \<Rightarrow> f t l
-                                        | _ \<Rightarrow> l)
-                                      l_attr)
-                                  []
-                                  expr)))))"
+                               (Thy_ty_synonym (Type_synonym tit body), String_to_String\<^sub>b\<^sub>a\<^sub>s\<^sub>e tit))
+                          (snd (fold_class (\<lambda>_ _ l_attr _ _ _.
+                                             Pair () o List.fold
+                                               (\<lambda>(_, t) l.
+                                                 let f = (* WARNING we may test with RBT instead of List *)
+                                                         \<lambda>t l. if List.member l t then l else t # l in
+                                                 case t of
+                                                   OclTy_class obj \<Rightarrow>
+                                                     let t = OclTy_class_pre (TyObjN_role_ty (TyObj_to obj)) in
+                                                     f (OclTy_collection Sequence t) (f (OclTy_collection Set t) l)
+                                                 | OclTy_collection _ _ \<Rightarrow> f t l
+                                                 | OclTy_pair _ _ \<Rightarrow> f t l
+                                                 | _ \<Rightarrow> l)
+                                               l_attr)
+                                           []
+                                           expr)))))"
 
 definition "print_infra_instantiation_class = start_map'' Thy_instantiation_class o (\<lambda>expr _ base_attr' _. map_class_gen_h''''
   (\<lambda>isub_name name _ l_attr l_inherited l_cons.

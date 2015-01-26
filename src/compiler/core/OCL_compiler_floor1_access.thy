@@ -333,7 +333,7 @@ definition "print_access_dot_consts =
                          OclTy_class ty_obj \<Rightarrow> flatten [\<langle>''_''\<rangle>, natural_of_str (TyObjN_ass_switch (TyObj_from ty_obj)), \<langle>''_''\<rangle>]
                        | _ \<Rightarrow> \<langle>''''\<rangle>
                      , isup_of_str attr_n, var_at_when_hol] in
-          ( f_update_ocl (\<lambda> l. name # l)
+          ( f_update_ocl (\<lambda> l. String_to_String\<^sub>b\<^sub>a\<^sub>s\<^sub>e name # l)
           , Consts_raw0
             name
             (Ty_arrow

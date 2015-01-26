@@ -56,23 +56,24 @@ section{* ... *}
 type_notation natural ("nat")
 definition "Succ x = x + 1"
 
+datatype string\<^sub>b\<^sub>a\<^sub>s\<^sub>e = ST String.literal
+                   | ST' "char list"
+
 datatype abr_string = (* NOTE operations in this datatype must not decrease the size of the string *)
-                      ST String.literal
-                    | ST' "char list"
-                    (* *)
+                      SS_base string\<^sub>b\<^sub>a\<^sub>s\<^sub>e
                     | String_concatWith abr_string "abr_string list"
 
 syntax "_string1" :: "_ \<Rightarrow> abr_string" ("\<langle>(_)\<rangle>")
-translations "\<langle>x\<rangle>" \<rightleftharpoons> "CONST ST (CONST STR x)"
+translations "\<langle>x\<rangle>" \<rightleftharpoons> "CONST SS_base (CONST ST (CONST STR x))"
 
 syntax "_string2" :: "_ \<Rightarrow> String.literal" ("\<prec>(_)\<succ>")
 translations "\<prec>x\<succ>" \<rightleftharpoons> "CONST STR x"
 
 syntax "_string3" :: "_ \<Rightarrow> abr_string" ("\<lless>(_)\<ggreater>")
-translations "\<lless>x\<ggreater>" \<rightleftharpoons> "CONST ST' x"
+translations "\<lless>x\<ggreater>" \<rightleftharpoons> "CONST SS_base (CONST ST' x)"
 
 syntax "_char1" :: "_ \<Rightarrow> abr_string" ("\<degree>(_)\<degree>")
-translations "\<degree>x\<degree>" \<rightleftharpoons> "CONST ST' ((CONST Cons) x (CONST Nil))"
+translations "\<degree>x\<degree>" \<rightleftharpoons> "CONST SS_base (CONST ST' ((CONST Cons) x (CONST Nil)))"
 
 syntax "_char2" :: "_ \<Rightarrow> String.literal" ("\<ordmasculine>(_)\<ordmasculine>")
 translations "\<ordmasculine>x\<ordmasculine>" \<rightleftharpoons> "CONST STR ((CONST Cons) x (CONST Nil))"
@@ -121,20 +122,23 @@ definition "List_replace = List_replace_gen (List_flatten o List_map (\<lambda> 
 
 definition "flatten = String_concatWith \<langle>''''\<rangle>"
 definition String_flatten (infixr "@@" 65) where "String_flatten a b = flatten [a, b]"
-definition "String_make n c = ST' (List_map (\<lambda>_. c) (List_upto 1 n))"
-definition "ST0 c = ST' [c]"
+definition "String_make n c = \<lless>List_map (\<lambda>_. c) (List_upto 1 n)\<ggreater>"
+definition "ST0 c = \<lless>[c]\<ggreater>"
+definition "ST0_base c = ST' [c]"
 
+definition "String\<^sub>b\<^sub>a\<^sub>s\<^sub>e_map_gen replace g = (\<lambda> ST s \<Rightarrow> replace \<langle>''''\<rangle> (Some s) \<langle>''''\<rangle>
+                                           | ST' s \<Rightarrow> flatten (List_map g s))"
 fun String_map_gen where
    "String_map_gen replace g e =
-     (\<lambda> ST s \<Rightarrow> replace \<langle>''''\<rangle> (Some s) \<langle>''''\<rangle>
-      | ST' s \<Rightarrow> flatten (List_map g s)
+     (\<lambda> SS_base s \<Rightarrow> String\<^sub>b\<^sub>a\<^sub>s\<^sub>e_map_gen replace g s
       | String_concatWith abr l \<Rightarrow> String_concatWith (String_map_gen replace g abr) (List.map (String_map_gen replace g) l)) e"
 
 definition "String_foldl_one f accu s = foldl f accu (explode s)"
+definition "String\<^sub>b\<^sub>a\<^sub>s\<^sub>e_foldl f accu = (\<lambda> ST s \<Rightarrow> String_foldl_one f accu s
+                                      | ST' s \<Rightarrow> foldl f accu s)"
 fun String_foldl where
    "String_foldl f accu e =
-     (\<lambda> ST s \<Rightarrow> String_foldl_one f accu s
-      | ST' s \<Rightarrow> foldl f accu s
+     (\<lambda> SS_base s \<Rightarrow> String\<^sub>b\<^sub>a\<^sub>s\<^sub>e_foldl f accu s
       | String_concatWith abr l \<Rightarrow>
         (case l of [] \<Rightarrow> accu
                  | x # xs \<Rightarrow> foldl (\<lambda>accu. String_foldl f (String_foldl f accu abr)) (String_foldl f accu x) xs)) e"
@@ -147,10 +151,25 @@ definition "String_replace_chars f = String_map_gen (replace_chars (\<lambda>c. 
 definition "String_all f = String_foldl (\<lambda>b s. b & f s) True"
 definition "String_length = String_foldl (\<lambda>n _. Suc n) 0"
 definition "String_to_list s = rev (String_foldl (\<lambda>l c. c # l) [] s)"
+definition "String\<^sub>b\<^sub>a\<^sub>s\<^sub>e_to_list = (\<lambda> ST s \<Rightarrow> explode s | ST' l \<Rightarrow> l)"
+definition "String_to_String\<^sub>b\<^sub>a\<^sub>s\<^sub>e = (\<lambda> SS_base s \<Rightarrow> s | s \<Rightarrow> ST' (String_to_list s))"
+definition "String\<^sub>b\<^sub>a\<^sub>s\<^sub>e_to_String = SS_base"
+definition "String\<^sub>b\<^sub>a\<^sub>s\<^sub>e_is_empty = (\<lambda> ST s \<Rightarrow> s = STR ''''
+                                  | ST' s \<Rightarrow> s = [])"
 fun String_is_empty where
-   "String_is_empty e = (\<lambda> ST s \<Rightarrow> s = STR ''''
-                         | ST' s \<Rightarrow> s = []
-                         | String_concatWith _ l \<Rightarrow> list_all String_is_empty l) e"
+   "String_is_empty e = (\<lambda> SS_base s \<Rightarrow> String\<^sub>b\<^sub>a\<^sub>s\<^sub>e_is_empty s | String_concatWith _ l \<Rightarrow> list_all String_is_empty l) e"
+
+(* *)
+
+definition "List_assoc' x l = List_assoc (String_to_list x) (List_map (map_pair String\<^sub>b\<^sub>a\<^sub>s\<^sub>e_to_list id) l)"
+syntax "_list_assoc" :: "string \<Rightarrow> (string\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<times> 'a) list \<Rightarrow> 'a option" ("List.assoc")
+translations "List.assoc" \<rightleftharpoons> "CONST List_assoc'"
+
+definition "List_member' l x = List.member (List_map String\<^sub>b\<^sub>a\<^sub>s\<^sub>e_to_list l) (String_to_list x)"
+syntax "_list_member" :: "string\<^sub>b\<^sub>a\<^sub>s\<^sub>e list \<Rightarrow> string \<Rightarrow> bool" ("List'_member")
+translations "List_member" \<rightleftharpoons> "CONST List_member'"
+
+definition "flatten_base l = String_to_String\<^sub>b\<^sub>a\<^sub>s\<^sub>e (flatten (List_map String\<^sub>b\<^sub>a\<^sub>s\<^sub>e_to_String l))"
 
 section{* Preliminaries *}
 

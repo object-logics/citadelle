@@ -62,8 +62,8 @@ definition "print_ctxt_const ctxt ocl =
                 (\<lambda> ty (l_name, l, l_isab_ty).
                   let (n, isab_ty) = print_infra_type_synonym_class_rec_aux ty in
                   ( n # l_name
-                  , if is_higher_order ty & \<not> List.member l n then
-                      (n # l, Type_synonym n isab_ty # l_isab_ty)
+                  , if is_higher_order ty & \<not> List_member l n then
+                      (String_to_String\<^sub>b\<^sub>a\<^sub>s\<^sub>e n # l, Type_synonym n isab_ty # l_isab_ty)
                     else
                       (l, l_isab_ty)))
                 (List_flatten
@@ -71,7 +71,7 @@ definition "print_ctxt_const ctxt ocl =
                     , [ case Ctxt_fun_ty_out ctxt of None \<Rightarrow> OclTy_base_void | Some s \<Rightarrow> s ] ])
                 ([], D_higher_order_ty ocl, l_isab_ty) in
         ( map_pair
-            (let ocl = ocl \<lparr> D_accessor_rbt := f_update_ocl (\<lambda> l. name # l) (D_accessor_rbt ocl) \<rparr> in
+            (let ocl = ocl \<lparr> D_accessor_rbt := f_update_ocl (\<lambda> l. String_to_String\<^sub>b\<^sub>a\<^sub>s\<^sub>e name # l) (D_accessor_rbt ocl) \<rparr> in
              (\<lambda> D_higher_order_ty. ocl \<lparr> D_higher_order_ty := D_higher_order_ty \<rparr>))
             id
             l

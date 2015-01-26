@@ -95,11 +95,11 @@ record ocl_compiler_config =  D_disable_thy_output :: bool
                               D_class_spec :: "ocl_class option"
                                               (* last class considered for the generation *)
                               D_ocl_env :: "ocl_deep_embed_ast list"
-                              D_instance_rbt :: "(string (* name (as key for rbt) *)
+                              D_instance_rbt :: "(string\<^sub>b\<^sub>a\<^sub>s\<^sub>e (* name (as key for rbt) *)
                                                  \<times> ocl_instance_single
                                                  \<times> internal_oid) list"
                                                 (* instance namespace environment *)
-                              D_state_rbt :: "(string (* name (as key for rbt) *)
+                              D_state_rbt :: "(string\<^sub>b\<^sub>a\<^sub>s\<^sub>e (* name (as key for rbt) *)
                                               \<times> (internal_oids
                                               \<times> (string (* name *)
                                                   \<times> ocl_instance_single (* alias *))
@@ -107,9 +107,9 @@ record ocl_compiler_config =  D_disable_thy_output :: bool
                                              (* state namespace environment *)
                               D_import_compiler :: bool (* true : the header should import the compiler for bootstrapping *)
                               D_generation_syntax_shallow :: bool (* true : add the generation_syntax command *)
-                              D_accessor_rbt :: " string (* name of the constant added *) list (* pre *)
-                                                \<times> string (* name of the constant added *) list (* post *)"
-                              D_higher_order_ty :: "(string (* raw HOL name (as key for rbt) *)) list"
+                              D_accessor_rbt :: " string\<^sub>b\<^sub>a\<^sub>s\<^sub>e (* name of the constant added *) list (* pre *)
+                                                \<times> string\<^sub>b\<^sub>a\<^sub>s\<^sub>e (* name of the constant added *) list (* post *)"
+                              D_higher_order_ty :: "(string\<^sub>b\<^sub>a\<^sub>s\<^sub>e (* raw HOL name (as key for rbt) *)) list"
                               D_sorry_mode :: bool (* true : activate sorry mode for skipping proofs *)
 
 subsection{* Auxilliary *}

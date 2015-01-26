@@ -486,7 +486,7 @@ definition "print_examp_instance = (\<lambda> OclInstance l \<Rightarrow> \<lamb
       (D_oid_start ocl)
     , List.fold (\<lambda>ocli instance_rbt.
         let n = Inst_name ocli in
-        (n, ocli, case map_username n of Some oid \<Rightarrow> oidGetInh oid) # instance_rbt) l (D_instance_rbt ocl))))"
+        (String_to_String\<^sub>b\<^sub>a\<^sub>s\<^sub>e n, ocli, case map_username n of Some oid \<Rightarrow> oidGetInh oid) # instance_rbt) l (D_instance_rbt ocl))))"
 
 definition "print_examp_def_st_mapsto_gen f ocl cpt_start rbt_map =
   List_map (\<lambda>(cpt, ocore).
@@ -511,7 +511,7 @@ definition "print_examp_def_st_defassoc = (\<lambda> OclDefSt name l \<Rightarro
  let ocl_old = ocl \<lparr> D_oid_start := oidReinitInh (D_oid_start ocl) \<rparr>
    ; l_ocli = List_map (\<lambda> OclDefCoreAdd ocli \<Rightarrow> Some ocli
                                        | OclDefCoreBinding name \<Rightarrow>
-                                           (case List_assoc name (D_instance_rbt ocl_old) of Some (ocli, _) \<Rightarrow> Some ocli)
+                                           (case List.assoc name (D_instance_rbt ocl_old) of Some (ocli, _) \<Rightarrow> Some ocli)
                                        | _ \<Rightarrow> None) l in
  (\<lambda>l. (print_examp_instance_oid l_ocli ocl_old @@@@ List_map Thy_definition_hol l, ocl))
   (print_examp_instance_defassoc_gen
@@ -523,9 +523,9 @@ definition "print_examp_def_st = (\<lambda> OclDefSt name l \<Rightarrow> \<lamb
  let ocl_old = ocl \<lparr> D_oid_start := oidReinitInh (D_oid_start ocl) \<rparr>
    ; l_ocli = List_map (\<lambda> OclDefCoreAdd ocli \<Rightarrow> Some ocli
                                        | OclDefCoreBinding name \<Rightarrow>
-                                           (case List_assoc name (D_instance_rbt ocl_old) of Some (ocli, _) \<Rightarrow> Some ocli)
+                                           (case List.assoc name (D_instance_rbt ocl_old) of Some (ocli, _) \<Rightarrow> Some ocli)
                                        | _ \<Rightarrow> None) l in
- (\<lambda>(l, l_st). (List_map Thy_definition_hol l, ocl \<lparr> D_state_rbt := (name, l_st) # D_state_rbt ocl \<rparr>))
+ (\<lambda>(l, l_st). (List_map Thy_definition_hol l, ocl \<lparr> D_state_rbt := (String_to_String\<^sub>b\<^sub>a\<^sub>s\<^sub>e name, l_st) # D_state_rbt ocl \<rparr>))
   (let ocl = ocl_old
      ; b = \<lambda>s. Expr_basic [s]
      ; (rbt, (map_self, map_username)) =
@@ -534,7 +534,7 @@ definition "print_examp_def_st = (\<lambda> OclDefSt name l \<Rightarrow> \<lamb
          let f = \<lambda>ocore ocli. ([( cpt, ocore )], Some ocli)
            ; (def, o_ocli) = case ocore of OclDefCoreSkip \<Rightarrow> ([], None)
                        | OclDefCoreBinding name \<Rightarrow>
-                           case List_assoc name (D_instance_rbt ocl) of Some (ocli, cpt_registered) \<Rightarrow>
+                           case List.assoc name (D_instance_rbt ocl) of Some (ocli, cpt_registered) \<Rightarrow>
                            if oidGetInh cpt = cpt_registered then
                              f (OclDefCoreBinding (name, ocli)) ocli
                            else
@@ -559,7 +559,7 @@ definition "print_examp_def_st_inst_var_name ocli name = flatten [Inst_name ocli
 definition "print_examp_def_st_inst_var = (\<lambda> OclDefSt name l \<Rightarrow> \<lambda> ocl.
  let ocl_old = ocl \<lparr> D_oid_start := oidReinitInh (D_oid_start ocl) \<rparr>
    ; l_ocli = List_map (\<lambda> OclDefCoreBinding name \<Rightarrow>
-                            (case List_assoc name (D_instance_rbt ocl_old) of Some (ocli, _) \<Rightarrow> Some ocli)
+                            (case List.assoc name (D_instance_rbt ocl_old) of Some (ocli, _) \<Rightarrow> Some ocli)
                         | _ \<Rightarrow> None) l in
   (\<lambda>l_res. ((List_map Thy_definition_hol o List_flatten) l_res, ocl))
     (let ocl = ocl_old in
@@ -584,7 +584,7 @@ definition "print_examp_def_st_inst_var = (\<lambda> OclDefSt name l \<Rightarro
 definition "print_examp_def_st_dom_name name = flatten [\<langle>''dom_''\<rangle>, name]"
 definition "print_examp_def_st_dom = (\<lambda> _ ocl.
  (\<lambda> l. (List_map Thy_lemma_by l, ocl))
-  (let (name, l_st) = hd (D_state_rbt ocl)
+  (let (name, l_st) = map_pair String\<^sub>b\<^sub>a\<^sub>s\<^sub>e_to_String id (hd (D_state_rbt ocl))
      ; a = \<lambda>f x. Expr_apply f [x]
      ; b = \<lambda>s. Expr_basic [s]
      ; d = hol_definition in
@@ -598,12 +598,12 @@ definition "print_examp_def_st_dom_lemmas = (\<lambda> _ ocl.
  (\<lambda> l. (List_map Thy_lemmas_simp l, ocl))
   (let (name, _) = hd (D_state_rbt ocl) in
    [ Lemmas_simp \<langle>''''\<rangle>
-       [Thm_str (print_examp_def_st_dom_name name)] ]))"
+       [Thm_str (print_examp_def_st_dom_name (String\<^sub>b\<^sub>a\<^sub>s\<^sub>e_to_String name))] ]))"
 
 definition "print_examp_def_st_perm_name name = flatten [\<langle>''perm_''\<rangle>, name]"
 definition "print_examp_def_st_perm = (\<lambda> _ ocl.
  (\<lambda> l. (List_map Thy_lemma_by l, ocl))
-  (let (name, l_st) = hd (D_state_rbt ocl)
+  (let (name, l_st) = map_pair String\<^sub>b\<^sub>a\<^sub>s\<^sub>e_to_String id (hd (D_state_rbt ocl))
      ; expr_app = let ocl = ocl \<lparr> D_oid_start := oidReinitInh (D_oid_start ocl) \<rparr> in
                   print_examp_def_st_mapsto
                     ocl
@@ -654,7 +654,7 @@ definition "extract_state ocl name_st l_st =
 
 definition "print_examp_def_st_allinst = (\<lambda> _ ocl.
  (\<lambda> l. (List_map Thy_lemma_by l, ocl))
-  (let (name_st, l_st) = hd (D_state_rbt ocl)
+  (let (name_st, l_st) = map_pair String\<^sub>b\<^sub>a\<^sub>s\<^sub>e_to_String id (hd (D_state_rbt ocl))
      ; b = \<lambda>s. Expr_basic [s]
      ; expr_app = extract_state ocl name_st l_st
      ; a = \<lambda>f x. Expr_apply f [x]
@@ -750,7 +750,7 @@ definition "print_pre_post_wff = (\<lambda> OclDefPP s_pre s_post \<Rightarrow> 
      ; b = \<lambda>s. Expr_basic [s]
      ; d = hol_definition
      ; l_st = D_state_rbt ocl in
-   case (List_assoc s_pre l_st, List_assoc s_post l_st) of (Some l_pre, Some l_post) \<Rightarrow>
+   case (List.assoc s_pre l_st, List.assoc s_post l_st) of (Some l_pre, Some l_post) \<Rightarrow>
    [ Lemma_by
       (flatten [\<langle>''basic_''\<rangle>, s_pre, \<langle>''_''\<rangle>, s_post, \<langle>''_wff''\<rangle>])
       [a \<langle>''WFF''\<rangle> (Expr_pair (b s_pre) (b s_post))]
@@ -771,7 +771,7 @@ definition "print_pre_post_where = (\<lambda> OclDefPP s_pre s_post \<Rightarrow
      ; b = \<lambda>s. Expr_basic [s]
      ; d = hol_definition
      ; l_st = D_state_rbt ocl in
-   case (List_assoc s_pre l_st, List_assoc s_post l_st) of (Some l_pre, Some l_post) \<Rightarrow>
+   case (List.assoc s_pre l_st, List.assoc s_post l_st) of (Some l_pre, Some l_post) \<Rightarrow>
    let f_name = \<lambda>(cpt, ocore). Some (oidGetInh cpt, ocore)
      ; rbt_pre = merge_unique_gen f_name [l_pre]
      ; rbt_post = merge_unique_gen f_name [l_post]

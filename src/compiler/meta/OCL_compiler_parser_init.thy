@@ -106,6 +106,7 @@ locale i_of =
 
   (* (effective) first order *)
   fixes i_of_string :: "('a \<Rightarrow> 'a list \<Rightarrow> 'a) \<Rightarrow> (string \<Rightarrow> 'a) \<Rightarrow> string \<Rightarrow> 'a"
+  fixes i_of_string\<^sub>b\<^sub>a\<^sub>s\<^sub>e :: "('a \<Rightarrow> 'a list \<Rightarrow> 'a) \<Rightarrow> (string \<Rightarrow> 'a) \<Rightarrow> string\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<Rightarrow> 'a"
   fixes i_of_nat :: "('a \<Rightarrow> 'a list \<Rightarrow> 'a) \<Rightarrow> (string \<Rightarrow> 'a) \<Rightarrow> natural \<Rightarrow> 'a"
   fixes i_of_unit :: "(string \<Rightarrow> 'a) \<Rightarrow> unit \<Rightarrow> 'a"
   fixes i_of_bool :: "(string \<Rightarrow> 'a) \<Rightarrow> bool \<Rightarrow> 'a"

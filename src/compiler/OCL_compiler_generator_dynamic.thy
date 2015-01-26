@@ -109,7 +109,7 @@ ML{*
 structure From = struct
  open OCL
  val from_char = I
- val from_string = OCL.St
+ val from_string = OCL.SS_base o OCL.St
  val from_binding = from_string o Binding.name_of
  fun from_term ctxt s = from_string (XML.content_of (YXML.parse_body (Syntax.string_of_term ctxt s)))
  val from_nat = Code_Numeral.Nat
@@ -166,7 +166,7 @@ fun check l_oid l =
     (writeln o Markup.markup Markup.bad o Mi)
     (error o To_string0)
     (Ml (Mp I Me) l_oid)
-    (OCL.St l)
+    ((OCL.SS_base o OCL.St) l)
   end
 end
 *}
