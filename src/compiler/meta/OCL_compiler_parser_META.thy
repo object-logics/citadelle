@@ -318,7 +318,7 @@ definition "i_of_string a b =
                                           \<lambda>x. if x = Char Nibble0 NibbleA then \<degree>Char Nibble5 NibbleC\<degree> @@ \<langle>''n''\<rangle>
                                               else \<degree>x\<degree>) x
                   , c
-                  , \<langle>'')''\<rangle>])))"
+                  , \<langle>''))''\<rangle>])))"
 
 definition "i_of_string\<^sub>b\<^sub>a\<^sub>s\<^sub>e a b =
  (let c = \<langle>[Char Nibble2 Nibble2]\<rangle> in
