@@ -253,7 +253,7 @@ definition "add_0 n =
   @@ nat_of_str n)"
 definition "is_letter n = (n \<ge> CHR ''A'' & n \<le> CHR ''Z'' | n \<ge> CHR ''a'' & n \<le> CHR ''z'')"
 definition "is_digit n = (n \<ge> CHR ''0'' & n \<le> CHR ''9'')"
-definition "is_special = List.member '' <>^_=-.()''"
+definition "is_special = List.member '' <>^_=-./(){}''"
 definition "base255_of_str = String_replace_chars (\<lambda>c. if is_letter c then \<degree>c\<degree> else add_0 c)"
 definition "isub_of_str = String_replace_chars (\<lambda>c.
   if is_letter c | is_digit c then escape_unicode \<langle>''^sub''\<rangle> @@ \<degree>c\<degree> else add_0 c)"
