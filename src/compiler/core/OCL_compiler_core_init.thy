@@ -238,20 +238,24 @@ definition "activate_simp_optimization = True"
 
 subsection{* Infra *}
 
-fun_quick print_infra_type_synonym_class_rec_aux where
-   "print_infra_type_synonym_class_rec_aux e =
+fun_quick print_infra_type_synonym_class_rec_aux0 where
+   "print_infra_type_synonym_class_rec_aux0 e =
    (let option = \<lambda>x. Ty_apply (Ty_base \<langle>''option''\<rangle>) [x] in
      (\<lambda> OclTy_collection s t \<Rightarrow>
-          let (name, ty) = print_infra_type_synonym_class_rec_aux t in
+          let (name, ty) = print_infra_type_synonym_class_rec_aux0 t in
           ( (if s = Set then \<langle>''Set''\<rangle> else \<langle>''Sequence''\<rangle>) @@ \<langle>''_''\<rangle> @@ name
           , Ty_apply (Ty_base (if s = Set then var_Set_base else var_Sequence_base)) [ty])
       | OclTy_pair t1 t2 \<Rightarrow>
-          let (name1, ty1) = print_infra_type_synonym_class_rec_aux t1
-            ; (name2, ty2) = print_infra_type_synonym_class_rec_aux t2 in
+          let (name1, ty1) = print_infra_type_synonym_class_rec_aux0 t1
+            ; (name2, ty2) = print_infra_type_synonym_class_rec_aux0 t2 in
           ( \<langle>''Pair''\<rangle> @@ \<langle>''_''\<rangle> @@ name1 @@ \<langle>''_''\<rangle> @@ name2
           , Ty_apply (Ty_base var_Pair_base) [ty1, ty2])
       | OclTy_class_pre s \<Rightarrow> (s, option (option (Ty_base (datatype_name @@ isub_of_str s))))
       | t \<Rightarrow> (str_of_ty t, Ty_base (str_of_ty t @@ isub_of_str \<langle>''base''\<rangle>))) e)"
+
+definition "print_infra_type_synonym_class_rec_aux t =
+ (let (tit, body) = print_infra_type_synonym_class_rec_aux0 t in
+  (tit, Ty_apply (Ty_base \<langle>''val''\<rangle>) [Ty_base unicode_AA, body]))"
 
 subsection{* AsType *}
 

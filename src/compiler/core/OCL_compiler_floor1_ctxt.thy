@@ -57,40 +57,27 @@ definition "print_ctxt_const ctxt ocl =
     (List.fold
       (\<lambda>(var_at_when_hol, var_at_when_ocl, f_update_ocl) ((ocl, l_isab_ty), l_isab_const).
         let name = print_ctxt_const_name attr_n var_at_when_hol
-          ; l_ty =
-              List_map (\<lambda>n. (print_ctxt_ty n, n))
+          ; (l_name, l) =
+              List.fold
+                (\<lambda> ty (l_name, l, l_isab_ty).
+                  let (n, isab_ty) = print_infra_type_synonym_class_rec_aux ty in
+                  ( n # l_name
+                  , if is_higher_order ty & \<not> List.member l n then
+                      (n # l, Type_synonym n isab_ty # l_isab_ty)
+                    else
+                      (l, l_isab_ty)))
                 (List_flatten
-                  [ List_map snd (Ctxt_fun_ty_arg ctxt)
-                  , [ case Ctxt_fun_ty_out ctxt of None \<Rightarrow> OclTy_base_void | Some s \<Rightarrow> s ] ]) in
+                    [ List_map snd (Ctxt_fun_ty_arg ctxt)
+                    , [ case Ctxt_fun_ty_out ctxt of None \<Rightarrow> OclTy_base_void | Some s \<Rightarrow> s ] ])
+                ([], D_higher_order_ty ocl, l_isab_ty) in
         ( map_pair
             (let ocl = ocl \<lparr> D_accessor_rbt := f_update_ocl (\<lambda> l. name # l) (D_accessor_rbt ocl) \<rparr> in
              (\<lambda> D_higher_order_ty. ocl \<lparr> D_higher_order_ty := D_higher_order_ty \<rparr>))
             id
-            (List.fold
-              (\<lambda> (n, ty) (l, l_isab_ty).
-                if is_higher_order ty & \<not> List.member l n then
-                  ( n # l
-                  , let option = (\<lambda>x. Ty_apply (Ty_base \<langle>''option''\<rangle>) [x])
-                      ; ty_set = \<lambda>b.
-                          Type_synonym
-                            n
-                            (Ty_apply (Ty_base \<langle>''Set''\<rangle>)
-                               [Ty_base unicode_AA, option (option (Ty_base (str_hol_of_ty (parse_ty_raw b)))) ]) in
-                    (case ty of OclTy_collection Set OclTy_base_void \<Rightarrow> ty_set OclTy_base_void
-                              | OclTy_collection Set OclTy_base_boolean \<Rightarrow> ty_set OclTy_base_boolean
-                              | OclTy_collection Set OclTy_base_integer \<Rightarrow> ty_set OclTy_base_integer
-                              | OclTy_collection Set OclTy_base_unlimitednatural \<Rightarrow> ty_set OclTy_base_unlimitednatural
-                              | OclTy_collection Set OclTy_base_real \<Rightarrow> ty_set OclTy_base_real
-                              | OclTy_collection Set OclTy_base_string \<Rightarrow> ty_set OclTy_base_string
-                              | OclTy_collection Set (OclTy_raw t) \<Rightarrow> ty_set (OclTy_raw t)
-                              (*| _ \<Rightarrow> (* FIXME generalize to higher order construction *) *)) # l_isab_ty)
-                else
-                  (l, l_isab_ty))
-              l_ty
-              (D_higher_order_ty ocl, l_isab_ty))
+            l
         , Consts_raw0
             name
-            (ty_arrow (List_map Ty_base (Ctxt_ty ctxt # fst (List_split l_ty))))
+            (ty_arrow (List_map Ty_base (Ctxt_ty ctxt # rev l_name)))
             (mk_dot attr_n var_at_when_ocl)
             (Some (natural_of_nat (length (Ctxt_fun_ty_arg ctxt)))) # l_isab_const))
       [ (var_at_when_hol_post, var_at_when_ocl_post, update_D_accessor_rbt_post)

@@ -101,7 +101,7 @@ definition "print_infra_type_synonym_class expr = start_map Thy_ty_synonym
 definition "print_infra_type_synonym_class_rec = (\<lambda>expr ocl.
   map_pair id (\<lambda> D_higher_order_ty. ocl \<lparr> D_higher_order_ty := D_higher_order_ty \<rparr>)
     (List_split (List_map (\<lambda>x. let (tit, body) = print_infra_type_synonym_class_rec_aux x in
-                               (Thy_ty_synonym (Type_synonym tit (Ty_apply (Ty_base \<langle>''val''\<rangle>) [Ty_base unicode_AA, body])), tit))
+                               (Thy_ty_synonym (Type_synonym tit body), tit))
                  (snd (fold_class (\<lambda>_ _ l_attr _ _ _.
                                     Pair () o List.fold
                                       (\<lambda>(_, t) l.
