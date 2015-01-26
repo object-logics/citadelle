@@ -146,13 +146,13 @@ fun_quick fold_max_aux where
 definition "fold_max f l = fold_max_aux f (List_mapi Pair l) []"
 
 definition "lookup' m k = lookup m (String_to_list k)"
-definition "insert' k v m = insert (String_to_list k) v m"
+definition "insert' k = insert (String_to_list k)"
 definition "map_entry' k = map_entry (String_to_list k)"
 definition "modify_def' v k = modify_def v (String_to_list k)"
 definition "keys' m = List_map (\<lambda>s. \<lless>s\<ggreater>) (keys m)"
 definition "lookup2' m = (\<lambda>(k1, k2). lookup2 m (String_to_list k1, String_to_list k2))"
 definition "insert2' = (\<lambda>(k1, k2). insert2 (String_to_list k1, String_to_list k2))"
-definition "fold' f m a = fold (\<lambda>c. f \<lless>c\<ggreater>) m a"
+definition "fold' f = fold (\<lambda>c. f \<lless>c\<ggreater>)"
 definition "entries' m = List_map (map_pair (\<lambda>c. \<lless>c\<ggreater>) id) (entries m)"
 
 syntax "_rbt_lookup" :: "_ \<Rightarrow> _" ("lookup") translations "lookup" \<rightleftharpoons> "CONST lookup'"

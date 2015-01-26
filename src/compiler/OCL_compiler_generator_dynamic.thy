@@ -1105,12 +1105,17 @@ structure USE_parse = struct
  val ident_dot_dot = Parse.sym_ident -- Parse.sym_ident (* "\<bullet>\<bullet>" *)
  val ident_star = Parse.sym_ident (* "*" *)
  (* *)
+ fun use_type_opt1 f = Parse.$$$ "(" |-- f --| Parse.$$$ ")"
+                    || f
+ fun use_type_opt2 f1 f2 = Parse.$$$ "(" |-- f1 --| Parse.$$$ "," -- f2 --| Parse.$$$ ")"
+                     || f1 -- f2
+
  fun use_type v = ((* collection *)
-                   Parse.reserved "Set" |-- Parse.$$$ "(" |-- use_type --| Parse.$$$ ")" >> OclTypeCollectionSet
-                || Parse.reserved "Sequence" |-- Parse.$$$ "(" |-- use_type --| Parse.$$$ ")" >> OclTypeCollectionSequence
+                   Parse.reserved "Set" |-- use_type_opt1 use_type >> OclTypeCollectionSet
+                || Parse.reserved "Sequence" |-- use_type_opt1 use_type >> OclTypeCollectionSequence
 
                    (* pair *)
-                || Parse.reserved "Pair" |-- Parse.$$$ "(" |-- use_type --| Parse.$$$ "," -- use_type --| Parse.$$$ ")" >> OclTypePair
+                || Parse.reserved "Pair" |-- use_type_opt2 use_type use_type >> OclTypePair
 
                    (* base *)
                 || Parse.reserved "Void" >> K OclTypeBaseVoid
@@ -1124,7 +1129,8 @@ structure USE_parse = struct
                 || Parse.sym_ident (* "\<acute>" *) |-- Parse.typ --| Parse.sym_ident (* "\<acute>" *) >> OclTypeRaw
 
                    (* object type *)
-                || Parse.binding >> OclTypeClassPre) v
+                || Parse.binding >> OclTypeClassPre
+                || Parse.$$$ "(" |-- use_type --| Parse.$$$ ")") v
 
  val use_expression = Parse.term
  val use_variableDeclaration = Parse.binding --| colon -- use_type
