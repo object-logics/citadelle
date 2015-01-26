@@ -68,7 +68,7 @@ definition "print_ctxt_const ctxt ocl =
             id
             (List.fold
               (\<lambda> (n, ty) (l, l_isab_ty).
-                if is_higher_order ty & List.member l n then
+                if is_higher_order ty & \<not> List.member l n then
                   ( n # l
                   , let option = (\<lambda>x. Ty_apply (Ty_base \<langle>''option''\<rangle>) [x])
                       ; ty_set = \<lambda>b.
