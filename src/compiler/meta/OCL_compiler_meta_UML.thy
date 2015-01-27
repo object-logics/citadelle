@@ -307,18 +307,19 @@ definition "is_higher_order = (\<lambda> OclTy_collection _ _ \<Rightarrow> True
 definition "parse_ty_raw = (\<lambda> OclTy_raw s \<Rightarrow> if s = \<langle>''int''\<rangle> then OclTy_base_integer else OclTy_raw s
                             | x \<Rightarrow> x)"
 
-fun_quick str_of_ty where
-    "str_of_ty OclTy_base_void = \<langle>''Void''\<rangle>"
-   |"str_of_ty OclTy_base_boolean = \<langle>''Boolean''\<rangle>"
-   |"str_of_ty OclTy_base_integer = \<langle>''Integer''\<rangle>"
-   |"str_of_ty OclTy_base_unlimitednatural = \<langle>''UnlimitedNatural''\<rangle>"
-   |"str_of_ty OclTy_base_real = \<langle>''Real''\<rangle>"
-   |"str_of_ty OclTy_base_string = \<langle>''String''\<rangle>"
-   |"str_of_ty (OclTy_class_pre s) = s"
-   |"str_of_ty (OclTy_collection Set ocl_ty) = flatten [\<langle>''Set(''\<rangle>, str_of_ty ocl_ty,\<langle>'')''\<rangle>]"
-   |"str_of_ty (OclTy_collection Sequence ocl_ty) = flatten [\<langle>''Sequence(''\<rangle>, str_of_ty ocl_ty,\<langle>'')''\<rangle>]"
-   |"str_of_ty (OclTy_pair ocl_ty1 ocl_ty2) = flatten [\<langle>''Pair(''\<rangle>, str_of_ty ocl_ty1, \<langle>'',''\<rangle>, str_of_ty ocl_ty2,\<langle>'')''\<rangle>]"
-   |"str_of_ty (OclTy_raw s) = flatten [unicode_acute, s, unicode_acute]"
+fun_quick str_of_ty where "str_of_ty e =
+ (\<lambda> OclTy_base_void \<Rightarrow> \<langle>''Void''\<rangle>
+  | OclTy_base_boolean \<Rightarrow> \<langle>''Boolean''\<rangle>
+  | OclTy_base_integer \<Rightarrow> \<langle>''Integer''\<rangle>
+  | OclTy_base_unlimitednatural \<Rightarrow> \<langle>''UnlimitedNatural''\<rangle>
+  | OclTy_base_real \<Rightarrow> \<langle>''Real''\<rangle>
+  | OclTy_base_string \<Rightarrow> \<langle>''String''\<rangle>
+  | OclTy_class_pre s \<Rightarrow> s
+  (*| OclTy_class *)
+  | OclTy_collection Set ocl_ty \<Rightarrow> flatten [\<langle>''Set(''\<rangle>, str_of_ty ocl_ty,\<langle>'')''\<rangle>]
+  | OclTy_collection Sequence ocl_ty \<Rightarrow> flatten [\<langle>''Sequence(''\<rangle>, str_of_ty ocl_ty,\<langle>'')''\<rangle>]
+  | OclTy_pair ocl_ty1 ocl_ty2 \<Rightarrow> flatten [\<langle>''Pair(''\<rangle>, str_of_ty ocl_ty1, \<langle>'',''\<rangle>, str_of_ty ocl_ty2,\<langle>'')''\<rangle>]
+  | OclTy_raw s \<Rightarrow> flatten [unicode_acute, s, unicode_acute]) e"
 
 definition "ty_void = str_of_ty OclTy_base_void"
 definition "ty_boolean = str_of_ty OclTy_base_boolean"
@@ -327,36 +328,21 @@ definition "ty_unlimitednatural = str_of_ty OclTy_base_unlimitednatural"
 definition "ty_real = str_of_ty OclTy_base_real"
 definition "ty_string = str_of_ty OclTy_base_string"
 
-fun_quick str_hol_of_ty where
-    "str_hol_of_ty OclTy_base_void = \<langle>''unit''\<rangle>"
-   |"str_hol_of_ty OclTy_base_boolean = \<langle>''bool''\<rangle>"
-   |"str_hol_of_ty OclTy_base_integer = \<langle>''int''\<rangle>"
-   |"str_hol_of_ty OclTy_base_unlimitednatural = \<langle>''nat''\<rangle>"
-   |"str_hol_of_ty OclTy_base_real = \<langle>''real''\<rangle>"
-   |"str_hol_of_ty OclTy_base_string = \<langle>''string''\<rangle>"
-   |"str_hol_of_ty (OclTy_class ty_obj) = flatten [TyObj_name ty_obj, \<langle>'' ''\<rangle>, var_ty_list]"
-   |"str_hol_of_ty (OclTy_raw s) = s"
-
-fun_quick str_hol_of_ty_all where
-    "str_hol_of_ty_all f b (OclTy_collection _ ty) =
-       f (b var_ty_list) [str_hol_of_ty_all f b ty]"
-   |"str_hol_of_ty_all f b (OclTy_pair ty1 ty2) =
-       f (b var_ty_prod) [str_hol_of_ty_all f b ty1, str_hol_of_ty_all f b ty2]"
-   |"str_hol_of_ty_all f b (OclTy_class_pre _) = b const_oid"
-   |"str_hol_of_ty_all f b s = b (str_hol_of_ty s)"
+fun_quick str_hol_of_ty_all where "str_hol_of_ty_all f b e =
+ (\<lambda> OclTy_base_void \<Rightarrow> b \<langle>''unit''\<rangle>
+  | OclTy_base_boolean \<Rightarrow> b \<langle>''bool''\<rangle>
+  | OclTy_base_integer \<Rightarrow> b \<langle>''int''\<rangle>
+  | OclTy_base_unlimitednatural \<Rightarrow> b \<langle>''nat''\<rangle>
+  | OclTy_base_real \<Rightarrow> b \<langle>''real''\<rangle>
+  | OclTy_base_string \<Rightarrow> b \<langle>''string''\<rangle>
+  | OclTy_class_pre _ \<Rightarrow> b const_oid
+  | OclTy_class ty_obj \<Rightarrow> f (b var_ty_list) [b (TyObj_name ty_obj)]
+  | OclTy_collection _ ty \<Rightarrow> f (b var_ty_list) [str_hol_of_ty_all f b ty]
+  | OclTy_pair ty1 ty2 \<Rightarrow> f (b var_ty_prod) [str_hol_of_ty_all f b ty1, str_hol_of_ty_all f b ty2]
+  | OclTy_raw s \<Rightarrow> b s) e"
 
 definition "print_infra_type_synonym_class_set_name name = \<langle>''Set_''\<rangle> @@ name"
 definition "print_infra_type_synonym_class_sequence_name name = \<langle>''Sequence_''\<rangle> @@ name"
-
-fun_quick print_ctxt_ty where
-   "print_ctxt_ty c = (\<lambda> OclTy_collection Set t \<Rightarrow> print_infra_type_synonym_class_set_name (print_ctxt_ty t)
-                       | OclTy_raw t \<Rightarrow> t
-                       | OclTy_base_void \<Rightarrow> str_of_ty c
-                       | OclTy_base_boolean \<Rightarrow> str_of_ty c
-                       | OclTy_base_integer \<Rightarrow> str_of_ty c
-                       | OclTy_base_unlimitednatural \<Rightarrow> str_of_ty c
-                       | OclTy_base_real \<Rightarrow> str_of_ty c
-                       | OclTy_base_string \<Rightarrow> str_of_ty c) c"
 
 fun_quick get_class_hierarchy_strict_aux where
    "get_class_hierarchy_strict_aux dataty l_res =

@@ -354,7 +354,7 @@ definition "print_access_dot_consts =
                              else
                                case obj_mult of OclMult _ Set \<Rightarrow> print_infra_type_synonym_class_set_name name
                                               | _ \<Rightarrow> print_infra_type_synonym_class_sequence_name name)
-                | OclTy_base_unlimitednatural \<Rightarrow> ty_base (str_hol_of_ty attr_ty)
+                | OclTy_base_unlimitednatural \<Rightarrow> str_hol_of_ty_all Ty_apply ty_base attr_ty
                    (* REMARK Dependencies to UnlimitedNatural.thy can be detected and added
                              so that this pattern clause would be merged with the default case *)
                 | OclTy_collection _ _ \<Rightarrow> Raw (fst (print_infra_type_synonym_class_rec_aux attr_ty))

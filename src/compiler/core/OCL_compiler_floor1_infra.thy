@@ -85,7 +85,7 @@ definition "print_infra_datatype_universe expr = start_map Thy_dataty
 
 definition "print_infra_type_synonym_class expr = start_map Thy_ty_synonym
   (let option = (\<lambda>x. Ty_apply (Ty_base \<langle>''option''\<rangle>) [x])
-     ; ty = \<lambda> t s. Type_synonym (print_ctxt_ty t) (Ty_apply (Ty_base s) [Ty_base unicode_AA]) in
+     ; ty = \<lambda> t s. Type_synonym (str_of_ty t) (Ty_apply (Ty_base s) [Ty_base unicode_AA]) in
    (* base type *)
    ty OclTy_base_void ty_void #
    ty OclTy_base_boolean ty_boolean #
