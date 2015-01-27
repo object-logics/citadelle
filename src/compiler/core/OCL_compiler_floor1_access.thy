@@ -389,8 +389,8 @@ definition "print_access_dot_name isub_name dot_at_when attr_ty isup_attr =
 
 fun_quick print_access_dot_aux where
    "print_access_dot_aux deref_oid x =
-    (\<lambda> OclTy_collection Set ty \<Rightarrow> Expr_apply var_select_object_set [print_access_dot_aux deref_oid ty]
-     | OclTy_collection Sequence ty \<Rightarrow> Expr_apply var_select_object_sequence [print_access_dot_aux deref_oid ty]
+    (\<lambda> OclTy_collection (OclMult _ Set) ty \<Rightarrow> Expr_apply var_select_object_set [print_access_dot_aux deref_oid ty]
+     | OclTy_collection (OclMult _ Sequence) ty \<Rightarrow> Expr_apply var_select_object_sequence [print_access_dot_aux deref_oid ty]
      | OclTy_pair ty1 ty2 \<Rightarrow> Expr_apply var_select_object_pair [print_access_dot_aux deref_oid ty1, print_access_dot_aux deref_oid ty2]
      | OclTy_class_pre s \<Rightarrow> deref_oid (Some s) [Expr_basic [var_reconst_basetype]]
      | OclTy_base_void \<Rightarrow> Expr_basic [var_reconst_basetype_void]

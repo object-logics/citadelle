@@ -1107,8 +1107,8 @@ structure USE_parse = struct
                       | OclTypeBaseReal    => OCL.OclTy_base_real
                       | OclTypeBaseString  => OCL.OclTy_base_string
                       | OclTypeClassPre s  => OCL.OclTy_class_pre (From.from_binding s)
-                      | OclTypeCollectionSet l      => OCL.OclTy_collection (OCL.Set, from_oclty l)
-                      | OclTypeCollectionSequence l => OCL.OclTy_collection (OCL.Sequence, from_oclty l)
+                      | OclTypeCollectionSet l      => OCL.OclTy_collection (OCL.OclMult ([], OCL.Set), from_oclty l)
+                      | OclTypeCollectionSequence l => OCL.OclTy_collection (OCL.OclMult ([], OCL.Sequence), from_oclty l)
                       | OclTypePair (s1, s2)        => OCL.OclTy_pair (from_oclty s1, from_oclty s2)
                       | OclTypeRaw s       => OCL.OclTy_raw (xml_unescape s)) v
 

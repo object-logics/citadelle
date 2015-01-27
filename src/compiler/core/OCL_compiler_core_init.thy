@@ -182,14 +182,15 @@ definition "arrange_ass l_c =
          + those constructed with at most 1 recursive call to OclTy_collection *)
     map_pair rev rev (List.fold
           (\<lambda>c (l_class, l_ass).
-            let f = \<lambda>role t mult_out ty. \<lparr> OclAss_type = OclAssTy_native_attribute
-                                         , OclAss_relation = [(ClassRaw_name c, OclMult [(Mult_star, None)] ty, None)
-                                                             ,(t, OclMult [mult_out] ty, Some role)] \<rparr>
+            let default = Set
+              ; f = \<lambda>role t mult_out. \<lparr> OclAss_type = OclAssTy_native_attribute
+                                      , OclAss_relation = [(ClassRaw_name c, OclMult [(Mult_star, None)] default, None)
+                                                          ,(t, mult_out, Some role)] \<rparr>
               ; (l_own, l_ass) =
                 List.fold (\<lambda> (role, OclTy_class_pre t) \<Rightarrow>
-                                  \<lambda> (l_own, l). (l_own, f role t (Mult_nat 0, Some (Mult_nat 1)) Set # l)
-                           | (role, OclTy_collection ty (OclTy_class_pre t)) \<Rightarrow>
-                                  \<lambda> (l_own, l). (l_own, f role t (Mult_star, None) ty # l)
+                                  \<lambda> (l_own, l). (l_own, f role t (OclMult [(Mult_nat 0, Some (Mult_nat 1))] default) # l)
+                           | (role, OclTy_collection mult (OclTy_class_pre t)) \<Rightarrow>
+                                  \<lambda> (l_own, l). (l_own, f role t mult # l)
                            | x \<Rightarrow> \<lambda> (l_own, l). (x # l_own, l))
                           (ClassRaw_own c)
                           ([], l_ass) in
@@ -241,7 +242,7 @@ subsection{* Infra *}
 fun_quick print_infra_type_synonym_class_rec_aux0 where
    "print_infra_type_synonym_class_rec_aux0 e =
    (let option = \<lambda>x. Ty_apply (Ty_base \<langle>''option''\<rangle>) [x] in
-     (\<lambda> OclTy_collection s t \<Rightarrow>
+     (\<lambda> OclTy_collection (OclMult _ s) t \<Rightarrow>
           let (name, ty) = print_infra_type_synonym_class_rec_aux0 t in
           ( (if s = Set then \<langle>''Set''\<rangle> else \<langle>''Sequence''\<rangle>) @@ \<langle>''_''\<rangle> @@ name
           , Ty_apply (Ty_base (if s = Set then var_Set_base else var_Sequence_base)) [ty])

@@ -58,7 +58,7 @@ datatype ocl_multiplicity_single = Mult_nat nat
                                  | Mult_star
 
 datatype ocl_multiplicity = OclMult "(ocl_multiplicity_single \<times> ocl_multiplicity_single option) list"
-                                    ocl_collection (* return type of the association *)
+                                    ocl_collection (* return type of the accessor (constrained by the above multiplicity) *)
 
 record ocl_ty_class_node =  TyObjN_ass_switch :: nat
                             TyObjN_role_multip :: ocl_multiplicity
@@ -77,7 +77,7 @@ datatype ocl_ty =           OclTy_base_void
                           | OclTy_base_string
                           | OclTy_class_pre string (* class name, untyped *) (* FIXME perform the typing separately *)
                           | OclTy_class ocl_ty_class  (* class name, typed *)
-                          | OclTy_collection ocl_collection ocl_ty
+                          | OclTy_collection ocl_multiplicity ocl_ty
                           | OclTy_pair ocl_ty ocl_ty
                           | OclTy_raw string (* denoting raw HOL-type *) (* FIXME to be removed *)
 
@@ -316,8 +316,8 @@ fun_quick str_of_ty where "str_of_ty e =
   | OclTy_base_string \<Rightarrow> \<langle>''String''\<rangle>
   | OclTy_class_pre s \<Rightarrow> s
   (*| OclTy_class *)
-  | OclTy_collection Set ocl_ty \<Rightarrow> flatten [\<langle>''Set(''\<rangle>, str_of_ty ocl_ty,\<langle>'')''\<rangle>]
-  | OclTy_collection Sequence ocl_ty \<Rightarrow> flatten [\<langle>''Sequence(''\<rangle>, str_of_ty ocl_ty,\<langle>'')''\<rangle>]
+  | OclTy_collection (OclMult _ Set) ocl_ty \<Rightarrow> flatten [\<langle>''Set(''\<rangle>, str_of_ty ocl_ty,\<langle>'')''\<rangle>]
+  | OclTy_collection (OclMult _ Sequence) ocl_ty \<Rightarrow> flatten [\<langle>''Sequence(''\<rangle>, str_of_ty ocl_ty,\<langle>'')''\<rangle>]
   | OclTy_pair ocl_ty1 ocl_ty2 \<Rightarrow> flatten [\<langle>''Pair(''\<rangle>, str_of_ty ocl_ty1, \<langle>'',''\<rangle>, str_of_ty ocl_ty2,\<langle>'')''\<rangle>]
   | OclTy_raw s \<Rightarrow> flatten [unicode_acute, s, unicode_acute]) e"
 

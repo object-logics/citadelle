@@ -180,7 +180,7 @@ definition "i_of_ocl_ty a b = (\<lambda>f1 f2 f3 f4 f5 f6 f7 f8 f9 f10. ocl_ty_r
   (b \<langle>''OclTy_base_string''\<rangle>)
   (ap1 a (b \<langle>''OclTy_class_pre''\<rangle>) (i_of_string a b))
   (ap1 a (b \<langle>''OclTy_class''\<rangle>) (i_of_ocl_ty_class a b (K i_of_unit)))
-  (ar2 a (b \<langle>''OclTy_collection''\<rangle>) (i_of_ocl_collection b))
+  (ar2 a (b \<langle>''OclTy_collection''\<rangle>) (i_of_ocl_multiplicity a b))
   (ar2 a (b \<langle>''OclTy_pair''\<rangle>) id)
   (ap1 a (b \<langle>''OclTy_raw''\<rangle>) (i_of_string a b))"
 

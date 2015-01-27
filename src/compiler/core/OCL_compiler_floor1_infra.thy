@@ -100,17 +100,18 @@ definition "print_infra_type_synonym_class expr = start_map Thy_ty_synonym
 
 definition "print_infra_type_synonym_class_rec = (\<lambda>expr ocl.
   map_pair id (\<lambda> D_higher_order_ty. ocl \<lparr> D_higher_order_ty := D_higher_order_ty \<rparr>)
-    (List_split (List_map (\<lambda>x. let (tit, body) = print_infra_type_synonym_class_rec_aux x in
-                               (Thy_ty_synonym (Type_synonym tit body), String_to_String\<^sub>b\<^sub>a\<^sub>s\<^sub>e tit))
+    (List_split (List_map (\<lambda>(tit, body). (Thy_ty_synonym (Type_synonym (String\<^sub>b\<^sub>a\<^sub>s\<^sub>e_to_String tit) body), tit))
                           (snd (fold_class (\<lambda>_ _ l_attr _ _ _.
                                              Pair () o List.fold
                                                (\<lambda>(_, t) l.
                                                  let f = (* WARNING we may test with RBT instead of List *)
-                                                         \<lambda>t l. if List.member l t then l else t # l in
+                                                         \<lambda>t l.
+                                                           let (tit, body) = print_infra_type_synonym_class_rec_aux t in
+                                                           if List.assoc tit l = None then (String_to_String\<^sub>b\<^sub>a\<^sub>s\<^sub>e tit, body) # l else l in
                                                  case t of
                                                    OclTy_class obj \<Rightarrow>
-                                                     let t = OclTy_class_pre (TyObjN_role_ty (TyObj_to obj)) in
-                                                     f (OclTy_collection Sequence t) (f (OclTy_collection Set t) l)
+                                                     let t = \<lambda>ty. OclTy_collection (OclMult [] ty) (OclTy_class_pre (TyObjN_role_ty (TyObj_to obj))) in
+                                                     f (t Sequence) (f (t Set) l)
                                                  | OclTy_collection _ _ \<Rightarrow> f t l
                                                  | OclTy_pair _ _ \<Rightarrow> f t l
                                                  | _ \<Rightarrow> l)
