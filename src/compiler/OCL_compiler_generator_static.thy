@@ -56,7 +56,7 @@ definition "Employee_DesignModel_UMLPart =
 
 definition "main = write_file
  (ocl_compiler_config.extend
-   (ocl_compiler_config_empty True None (oidInit (Oid 0)) Gen_only_design False
+   (ocl_compiler_config_empty True None (oidInit (Oid 0)) Gen_only_design (None, False)
       \<lparr> D_disable_thy_output := False
       , D_file_out_path_dep := Some (\<langle>''Employee_DesignModel_UMLPart_generated''\<rangle>
                                     ,[\<langle>''../src/OCL_main''\<rangle>]
