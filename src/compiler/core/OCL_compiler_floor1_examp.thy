@@ -381,7 +381,7 @@ definition "check_single_ty rbt_init rbt' l_attr_gen l_oid x =
                 ((snd o s') (case (mult_from, mult_to) of (OclMult mult_from _, OclMult mult_to _) \<Rightarrow> [mult_from, mult_to]))
                 l]))"
 
-definition "print_examp_instance_defassoc_typecheck_gen name l_ocli ocl =
+definition "print_examp_instance_defassoc_typecheck_gen l_ocli ocl =
  (let l_assoc = List_flatten (fst (fold_list (\<lambda>ocli cpt. (case ocli of None \<Rightarrow> []
                                                                 | Some ocli \<Rightarrow> [(ocli, cpt)], oidSucInh cpt)) l_ocli (D_oid_start ocl)))
     ; (rbt_init :: _ \<Rightarrow> _ \<times> (_ \<Rightarrow> ((_ \<Rightarrow> natural \<Rightarrow> _ \<Rightarrow> (ocl_ty \<times> ocl_data_shallow) option list) \<Rightarrow> _ \<Rightarrow> _) option)
@@ -396,7 +396,8 @@ definition "print_examp_instance_defassoc_typecheck_gen name l_ocli ocl =
                               else
                                 (*10*) \<lambda> [x0, x1] \<Rightarrow> (x1, x0)))
                            l_attr)) rbt [])
-    ; l_spec = snd (arrange_ass (fst (find_class_ass ocl)))
+    ; (l_spec1, l_spec2) = arrange_ass (fst (find_class_ass ocl))
+    ; spec = class_unflat (l_spec1, l_spec2)
     ; l_oid_gen = List_map
         (\<lambda> (ocli, oids).
           ( fst (hd (fold_instance_single (\<lambda>a b. Cons (a, b)) ocli []))
@@ -407,16 +408,27 @@ definition "print_examp_instance_defassoc_typecheck_gen name l_ocli ocl =
   let l_out =
     List.fold
       (\<lambda> (name, (x, _)).
-        let f = \<lambda>(ty1, mult1, role1).
-          if name = ty1 then
-            check_single_ty rbt_init rbt l_attr_gen l_oid x (ty1, mult1, role1)
-          else
-            (\<lambda>_. id) in
+        let l = find_inh name spec
+          ; f = \<lambda>(ty1, mult1, role1) ty2 accu.
+          fst (List.fold
+            (\<lambda> ty1' (l, b). 
+              if b then 
+                (l, b)
+              else
+                ( check_single_ty rbt_init rbt l_attr_gen l_oid x (ty1', mult1, role1) ty2 l
+                , String_to_list ty1' = String_to_list ty1))
+            (if String_to_list name = String_to_list ty1 then
+               ty1 # l
+             else if list_ex (\<lambda>t. String_to_list t = String_to_list ty1) l then
+               l
+             else
+               [])
+            (accu, False)) in
         List.fold (\<lambda>ass.
                      case OclAss_relation ass of
                        [t1, t2] \<Rightarrow> f t2 t1 o f t1 t2
                      | _ \<Rightarrow> id)
-                  l_spec)
+                  l_spec2)
       l_oid_gen
       [] in
 
@@ -435,7 +447,6 @@ definition "print_examp_instance_defassoc = (\<lambda> OclInstance l \<Rightarro
 definition "print_examp_instance_defassoc_typecheck = (\<lambda> OclInstance l \<Rightarrow> \<lambda> ocl.
   (\<lambda>l_res. (List_map Thy_ml l_res, ocl \<lparr> D_import_compiler := True \<rparr>))
   (print_examp_instance_defassoc_typecheck_gen
-    (Expr_oid var_inst_assoc (oidGetInh (D_oid_start ocl)))
     (List_map Some l)
     ocl))"
 

@@ -639,4 +639,15 @@ definition "map_class_nupl3'_GE_inh = m_class3_GE id id"
 
 definition "map_class_inh l_inherited = List_map (\<lambda> OclClass _ l _ \<Rightarrow> l) (of_inh (map_inh of_linh l_inherited))"
 
+definition "find_inh name univ =
+ (case fold_class
+    (\<lambda>_ name0 _ l_inh _ _ accu.
+      Pair () (if accu = None & String_to_list name = String_to_list name0 then
+                 Some (List_map (\<lambda>OclClass n _ _ \<Rightarrow> n) (of_inh l_inh))
+               else
+                 accu))
+    None
+    univ
+  of (_, Some l) \<Rightarrow> l)"
+
 end
