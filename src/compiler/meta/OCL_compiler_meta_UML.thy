@@ -512,7 +512,7 @@ definition "map_class_gen_h'_inh f =
     f isub_name
       name
       (\<lambda>n. let n = String_to_list n in
-           if n = String_to_list name then EQ else
+           if (* TODO use 'String_equal' *) n = String_to_list name then EQ else
            if l_mem (of_linh l_inh) n then GT else
            if l_mem l_subtree n then LT else
            UN'))"
@@ -642,7 +642,7 @@ definition "map_class_inh l_inherited = List_map (\<lambda> OclClass _ l _ \<Rig
 definition "find_inh name univ =
  (case fold_class
     (\<lambda>_ name0 _ l_inh _ _ accu.
-      Pair () (if accu = None & String_to_list name = String_to_list name0 then
+      Pair () (if accu = None & String_equal name name0 then
                  Some (List_map (\<lambda>OclClass n _ _ \<Rightarrow> n) (of_inh l_inh))
                else
                  accu))

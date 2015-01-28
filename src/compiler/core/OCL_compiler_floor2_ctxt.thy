@@ -78,7 +78,7 @@ definition "print_ctxt_is_name_at_gen var s =
     ; s = String_to_list s in
   case var of _ # _ \<Rightarrow>
     let lg_var = length var in
-    if List_take_last lg_var s = var then
+    if (* TODO use 'String_equal' *) List_take_last lg_var s = var then
       Some \<lless>List_take_first (length s - lg_var) s\<ggreater>
     else
       None)"

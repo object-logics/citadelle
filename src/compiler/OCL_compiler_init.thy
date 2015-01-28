@@ -159,6 +159,8 @@ definition "String\<^sub>b\<^sub>a\<^sub>s\<^sub>e_is_empty = (\<lambda> ST s \<
 fun String_is_empty where
    "String_is_empty e = (\<lambda> SS_base s \<Rightarrow> String\<^sub>b\<^sub>a\<^sub>s\<^sub>e_is_empty s | String_concatWith _ l \<Rightarrow> list_all String_is_empty l) e"
 
+definition "String_equal s1 s2 = (String_to_list s1 = String_to_list s2)"
+
 (* *)
 
 definition "List_assoc' x l = List_assoc (String_to_list x) (List_map (map_pair String\<^sub>b\<^sub>a\<^sub>s\<^sub>e_to_list id) l)"

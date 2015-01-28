@@ -416,10 +416,10 @@ definition "print_examp_instance_defassoc_typecheck_gen l_ocli ocl =
                 (l, b)
               else
                 ( check_single_ty rbt_init rbt l_attr_gen l_oid x (ty1', mult1, role1) ty2 l
-                , String_to_list ty1' = String_to_list ty1))
-            (if String_to_list name = String_to_list ty1 then
+                , String_equal ty1' ty1))
+            (if String_equal name ty1 then
                ty1 # l
-             else if list_ex (\<lambda>t. String_to_list t = String_to_list ty1) l then
+             else if list_ex (String_equal ty1) l then
                l
              else
                [])
@@ -679,7 +679,7 @@ definition "print_examp_def_st_allinst = (\<lambda> _ ocl.
                   EQ \<Rightarrow> [(exp, False, ocore, cpt)]
                 | LT \<Rightarrow> exp_annot
                 | GT \<Rightarrow> (case Inst_attr ocli of OclAttrCast name2 _ _ \<Rightarrow>
-                           if String_to_list name = String_to_list name2 then exp_annot
+                           if String_equal name name2 then exp_annot
                            else [] | _ \<Rightarrow> [])
                 | UN' \<Rightarrow> [])) expr_app
        ; (l_spec, l_body) = List_split (List_flatten (List_map snd expr_app)) in
