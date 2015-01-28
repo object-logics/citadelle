@@ -45,7 +45,6 @@ header{* Part ... *}
 
 theory  Class_model
 imports "../../src/compiler/OCL_compiler_init_rbt"
-        "~~/src/HOL/Library/Code_Char"
 begin
 
 datatype 'a tree = T 'a "'a tree list"
@@ -98,29 +97,29 @@ fun str_of_nat10_aux where (* FIXME merge polymorphically *)
       else
         str_of_nat10_aux (n mod 10 # l) (n div 10))"
 
-definition "str26_of_nat n = nat_raw_of_str26 (str_of_nat26_aux [] n)"
-definition "str10_of_nat n = nat_raw_of_str10 (str_of_nat10_aux [] n)"
+definition "str26_of_nat n = \<lless>nat_raw_of_str26 (str_of_nat26_aux [] n)\<ggreater>"
+definition "str10_of_nat n = \<lless>nat_raw_of_str10 (str_of_nat10_aux [] n)\<ggreater>"
 
 definition "string26_of_nat n =
  (let n = n - 1
     ; s1 = str26_of_nat n in
-  case
-  if n < 26 then
-    let s2 = str26_of_nat (26 - n - 1) in
-    flatten [s1, s1, s2, s2]
-  else
-    flatten [s1, s1]
+  case String_to_list
+         (if n < 26 then
+            let s2 = str26_of_nat (26 - n - 1) in
+            flatten [s1, s1, s2, s2]
+          else
+            flatten [s1, s1])
   of
-  x # xs \<Rightarrow> flatten [uppercase_of_str [x], xs])"
+  x # xs \<Rightarrow> flatten [uppercase_of_str \<lless>[x]\<ggreater>, \<lless>xs\<ggreater>])"
 
 definition "print_class =
- (\<lambda> (OclAny, s) \<Rightarrow> flatten [''Class '', s, '' End'']
-  | (Class s1, s2) \<Rightarrow> flatten [''Class '', s2, '' < '', s1, '' End'']  )"
+ (\<lambda> (OclAny, s) \<Rightarrow> flatten [\<langle>''Class ''\<rangle>, s, \<langle>'' End''\<rangle>]
+  | (Class s1, s2) \<Rightarrow> flatten [\<langle>''Class ''\<rangle>, s2, \<langle>'' < ''\<rangle>, s1, \<langle>'' End''\<rangle>]  )"
 
 definition "print_abr sprintf_int write_file =
   (let sprintf_int = sprintf_int o natural_of_nat
-     ; flatten_n = flatten o List_map (\<lambda>s. flatten [s, [Char Nibble0 NibbleA]]) in
-  flatten o flatten o List_map (\<lambda> (nb_child, deep).
+     ; flatten_n = flatten o List_map (\<lambda>s. flatten [s, \<lless>[Char Nibble0 NibbleA]\<ggreater>]) in
+  List_flatten o List_flatten o List_map (\<lambda> (nb_child, deep).
     let body = (rev o fst)
       (fold_tree
         (\<lambda> l1 l2 (l, map).
@@ -129,51 +128,51 @@ definition "print_abr sprintf_int write_file =
           (print_class (case n1 of 0 \<Rightarrow> OclAny | n \<Rightarrow> Class (string26_of_nat n), string26_of_nat n2) # l, map))
         (mk_tree nb_child deep)
         ([], ident_empty))
-      ; tree_name = flatten [''Tree_'', sprintf_int nb_child, ''_'', sprintf_int deep]
-      ; g = [Char Nibble2 Nibble2] in
+      ; tree_name = flatten [\<langle>''Tree_''\<rangle>, sprintf_int nb_child, \<langle>''_''\<rangle>, sprintf_int deep]
+      ; g = \<lless>[Char Nibble2 Nibble2]\<ggreater> in
 
     List_map
       (\<lambda> ((gen_mode, gen_comp), gen_import, gen_init, gen_flush).
         List_map
           (\<lambda>(comp, comp2).
-            let filename = flatten [tree_name, ''_'', gen_mode, if comp = [] then [] else flatten [''_'', comp]] in
+            let filename = flatten [tree_name, \<langle>''_''\<rangle>, gen_mode, if String_to_list comp = [] then \<langle>''''\<rangle> else flatten [\<langle>''_''\<rangle>, comp]] in
             write_file
-              (flatten [filename, ''.thy''])
-              (flatten
-                [ [ flatten [''theory '', filename, '' imports '', gen_import, '' '', 
-                             g,''../../src/compiler/OCL_compiler_generator_dynamic'',g,
-                             '' begin'']
+              (flatten [filename, \<langle>''.thy''\<rangle>])
+              (List_flatten
+                [ [ flatten [\<langle>''theory ''\<rangle>, filename, \<langle>'' imports ''\<rangle>, gen_import, \<langle>'' ''\<rangle>, 
+                             g,\<langle>''../../src/compiler/OCL_compiler_generator_dynamic''\<rangle>,g,
+                             \<langle>'' begin''\<rangle>]
                   , gen_init comp comp2]
                 , body
-                , [ ''''
-                  , flatten [''(* '', str10_of_nat (length body), '' *)'' ]
-                  , ''''
+                , [ \<langle>''''\<rangle>
+                  , flatten [\<langle>''(* ''\<rangle>, str10_of_nat (length body), \<langle>'' *)''\<rangle> ]
+                  , \<langle>''''\<rangle>
                   , gen_flush
-                  , ''''
-                  , ''end'' ] ])) gen_comp)
-      [ ( (''deep'', [ (''Haskell'', '''')
-                     , (''OCaml'', ''module_name M (no_signatures)'')
-                     , (''Scala'', ''module_name M'')
-                     , (''SML'', ''module_name M (no_signatures)'')])
-        , ''''
+                  , \<langle>''''\<rangle>
+                  , \<langle>''end''\<rangle> ] ])) gen_comp)
+      [ ( (\<langle>''deep''\<rangle>, [ (\<langle>''Haskell''\<rangle>, \<langle>''''\<rangle>)
+                     , (\<langle>''OCaml''\<rangle>, \<langle>''module_name M (no_signatures)''\<rangle>)
+                     , (\<langle>''Scala''\<rangle>, \<langle>''module_name M''\<rangle>)
+                     , (\<langle>''SML''\<rangle>, \<langle>''module_name M (no_signatures)''\<rangle>)])
+        , \<langle>''''\<rangle>
         , \<lambda> comp comp2.
-            flatten_n [          ''generation_syntax [ deep''
-                      ,          ''                      (generation_semantics [ analysis (*, oid_start 10*) ])''
-                      ,          ''                      skip_export''
-                      , flatten [''                      (THEORY '', tree_name, ''_generated'', ''_'', comp, '')'']
-                      , flatten [''                      (IMPORTS ['',g,''../../../src/UML_Main'',g,'', '',g,''../../../src/compiler/OCL_compiler_static'',g,'']'']
-                      , flatten [''                               '',g,''../../../src/compiler/OCL_compiler_generator_dynamic'',g,'')'']
-                      ,          ''                      SECTION''
-                      , flatten [''                      [ in '', comp, '' '', comp2, '' ]'']
-                      , flatten [''                      (output_directory '',g,''./doc'',g,'') ]''] ]
-        , flatten_n [ ''generation_syntax deep flush_all'' ])
-      , ( (''shallow'', [('''', '''')])
-        , flatten [ g,''../../src/UML_Main'',g, '' ''
-                  , g,''../../src/compiler/OCL_compiler_static'',g  ]
-        , \<lambda>_ _. flatten_n [ ''generation_syntax [ shallow (generation_semantics [ analysis ]) ]'' ]
-        , ''Class.end'') ]))"
+            flatten_n [          \<langle>''generation_syntax [ deep''\<rangle>
+                      ,          \<langle>''                      (generation_semantics [ analysis (*, oid_start 10*) ])''\<rangle>
+                      ,          \<langle>''                      skip_export''\<rangle>
+                      , flatten [\<langle>''                      (THEORY ''\<rangle>, tree_name, \<langle>''_generated''\<rangle>, \<langle>''_''\<rangle>, comp, \<langle>'')''\<rangle>]
+                      , flatten [\<langle>''                      (IMPORTS [''\<rangle>,g,\<langle>''../../../src/UML_Main''\<rangle>,g,\<langle>'', ''\<rangle>,g,\<langle>''../../../src/compiler/OCL_compiler_static''\<rangle>,g,\<langle>'']''\<rangle>]
+                      , flatten [\<langle>''                               ''\<rangle>,g,\<langle>''../../../src/compiler/OCL_compiler_generator_dynamic''\<rangle>,g,\<langle>'')''\<rangle>]
+                      ,          \<langle>''                      SECTION''\<rangle>
+                      , flatten [\<langle>''                      [ in ''\<rangle>, comp, \<langle>'' ''\<rangle>, comp2, \<langle>'' ]''\<rangle>]
+                      , flatten [\<langle>''                      (output_directory ''\<rangle>,g,\<langle>''./doc''\<rangle>,g,\<langle>'') ]''\<rangle>] ]
+        , flatten_n [ \<langle>''generation_syntax deep flush_all''\<rangle> ])
+      , ( (\<langle>''shallow''\<rangle>, [(\<langle>''''\<rangle>, \<langle>''''\<rangle>)])
+        , flatten [ g,\<langle>''../../src/UML_Main''\<rangle>,g, \<langle>'' ''\<rangle>
+                  , g,\<langle>''../../src/compiler/OCL_compiler_static''\<rangle>,g  ]
+        , \<lambda>_ _. flatten_n [ \<langle>''generation_syntax [ shallow (generation_semantics [ analysis ]) ]''\<rangle> ]
+        , \<langle>''Class.end''\<rangle>) ]))"
 
-definition "main sprintf_int write_file = print_abr sprintf_int write_file
+definition "main sprintf_int write_file = print_abr (\<lambda>n. \<lless>sprintf_int n\<ggreater>) (\<lambda>f l. write_file (String_to_list f) (List_map String_to_list l))
   [ (1, 0)
   , (1, 1)
   , (1, 2)
