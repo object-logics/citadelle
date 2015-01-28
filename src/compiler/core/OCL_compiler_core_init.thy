@@ -170,33 +170,64 @@ definition "find_class_ass ocl =
        | OclAstAssClass Floor1 (OclAssClass _ class) \<Rightarrow> f class
        | x \<Rightarrow> [x]) l_ocl)))"
 
-definition "arrange_ass l_c =
+definition "arrange_ass with_aggreg l_c =
    (let l_class = List.map_filter (\<lambda> OclAstClassRaw Floor1 cflat \<Rightarrow> Some cflat
                                     | OclAstAssClass Floor1 (OclAssClass _ cflat) \<Rightarrow> Some cflat
                                     | _ \<Rightarrow> None) l_c
       ; l_ass = List.map_filter (\<lambda> OclAstAssociation ass \<Rightarrow> Some ass
                                  | OclAstAssClass Floor1 (OclAssClass ass _) \<Rightarrow> Some ass
-                                 | _ \<Rightarrow> None) l_c in
-    (* move from classes to associations:
-         attributes of object types
-         + those constructed with at most 1 recursive call to OclTy_collection *)
-    map_pair rev rev (List.fold
-          (\<lambda>c (l_class, l_ass).
-            let default = Set
-              ; f = \<lambda>role t mult_out. \<lparr> OclAss_type = OclAssTy_native_attribute
-                                      , OclAss_relation = [(ClassRaw_name c, OclMult [(Mult_star, None)] default, None)
-                                                          ,(t, mult_out, Some role)] \<rparr>
-              ; (l_own, l_ass) =
-                List.fold (\<lambda> (role, OclTy_class_pre t) \<Rightarrow>
-                                  \<lambda> (l_own, l). (l_own, f role t (OclMult [(Mult_nat 0, Some (Mult_nat 1))] default) # l)
-                           | (role, OclTy_collection mult (OclTy_class_pre t)) \<Rightarrow>
-                                  \<lambda> (l_own, l). (l_own, f role t mult # l)
-                           | x \<Rightarrow> \<lambda> (l_own, l). (x # l_own, l))
-                          (ClassRaw_own c)
-                          ([], l_ass) in
-            (c \<lparr> ClassRaw_own := rev l_own \<rparr> # l_class, l_ass))
-          l_class
-          ([], rev l_ass)))"
+                                 | _ \<Rightarrow> None) l_c
+
+      ; (l_class, l_ass0) = 
+          (* move from classes to associations:
+               attributes of object types
+               + those constructed with at most 1 recursive call to OclTy_collection *)
+          map_pair rev rev (List.fold
+                (\<lambda>c (l_class, l_ass).
+                  let default = Set
+                    ; f = \<lambda>role t mult_out. \<lparr> OclAss_type = OclAssTy_native_attribute
+                                            , OclAss_relation = [(ClassRaw_name c, OclMult [(Mult_star, None)] default, None)
+                                                                ,(t, mult_out, Some role)] \<rparr>
+                    ; (l_own, l_ass) =
+                      List.fold (\<lambda> (role, OclTy_class_pre t) \<Rightarrow>
+                                        \<lambda> (l_own, l). (l_own, f role t (OclMult [(Mult_nat 0, Some (Mult_nat 1))] default) # l)
+                                 | (role, OclTy_collection mult (OclTy_class_pre t)) \<Rightarrow>
+                                        \<lambda> (l_own, l). (l_own, f role t mult # l)
+                                 | x \<Rightarrow> \<lambda> (l_own, l). (x # l_own, l))
+                                (ClassRaw_own c)
+                                ([], l_ass) in
+                  (c \<lparr> ClassRaw_own := rev l_own \<rparr> # l_class, l_ass))
+                l_class
+                ([], []))
+      ; (l_class, l_ass) =
+          if with_aggreg then
+            (* move from associations to classes:
+                 attributes of aggregation form *)
+            map_pair rev rev (List.fold
+            (\<lambda>ass (l_class, l_ass).
+              if OclAss_type ass = OclAssTy_aggregation then
+                ( fold_max
+                    (\<lambda> (cpt_to, (name_to, multip_to, Some role_to)) \<Rightarrow>
+                        List.fold (\<lambda> (cpt_from, (name_from, multip_from, role_from)).
+                          List_map_find (\<lambda>cflat.
+                            if ClassRaw_name cflat = name_from then
+                              Some (cflat \<lparr> ClassRaw_own :=
+                                              List_flatten [ ClassRaw_own cflat
+                                                           , [(role_to, let ty = OclTy_class_pre name_to in
+                                                                        if single_multip multip_to then 
+                                                                          ty
+                                                                        else
+                                                                          OclTy_collection multip_to ty)]] \<rparr>)
+                            else None))
+                     | _ \<Rightarrow> \<lambda>_. id)
+                    (OclAss_relation ass)
+                    l_class
+                , l_ass)
+              else
+                (l_class, ass # l_ass)) l_ass (l_class, []))
+          else
+            (l_class, l_ass) in
+    (l_class, List_flatten [l_ass, l_ass0]))"
 
 subsection{* ... *}
 

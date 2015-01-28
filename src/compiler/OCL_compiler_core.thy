@@ -402,7 +402,7 @@ definition "ocl_env_class_spec_mk f_try f_accu_reset f_fold f =
              | OclAstFlushAll univ \<Rightarrow> fold_thy0 univ thy_flush_all)
                   f)
            l_ocl
-           (let univ = class_unflat (arrange_ass l_class)
+           (let univ = class_unflat (arrange_ass True l_class)
               ; (ocl, accu) = fold_thy0 univ thy_class f (let ocl = ocl_compiler_config_reset_no_env ocl in
                                                           (ocl, f_accu_reset ocl accu)) in
             (ocl \<lparr> D_class_spec := Some univ \<rparr>, accu))))))"

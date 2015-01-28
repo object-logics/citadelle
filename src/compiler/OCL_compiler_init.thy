@@ -120,6 +120,12 @@ definition "List_replace_gen f_res l c0 lby =
 definition "List_nsplit_f l c0 = List_replace_gen id l c0 []"
 definition "List_replace = List_replace_gen (List_flatten o List_map (\<lambda> Nsplit_text l \<Rightarrow> l | _ \<Rightarrow> []))"
 
+fun List_map_find_aux where
+   "List_map_find_aux accu f l = (\<lambda> [] \<Rightarrow> []
+                         | x # xs \<Rightarrow> (case f x of Some x \<Rightarrow> List.fold (\<lambda>x xs. x # xs) (x # accu) xs
+                                                | None \<Rightarrow> List_map_find_aux (x # accu) f xs)) l"
+definition "List_map_find = List_map_find_aux []"
+
 definition "flatten = String_concatWith \<langle>''''\<rangle>"
 definition String_flatten (infixr "@@" 65) where "String_flatten a b = flatten [a, b]"
 definition "String_make n c = \<lless>List_map (\<lambda>_. c) (List_upto 1 n)\<ggreater>"

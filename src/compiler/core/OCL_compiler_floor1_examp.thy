@@ -382,7 +382,10 @@ definition "check_single_ty rbt_init rbt' l_attr_gen l_oid x =
                 l]))"
 
 definition "print_examp_instance_defassoc_typecheck_gen l_ocli ocl =
- (let l_assoc = List_flatten (fst (fold_list (\<lambda>ocli cpt. (case ocli of None \<Rightarrow> []
+ (let (l_spec1, l_spec2) = arrange_ass False (fst (find_class_ass ocl))
+    ; spec = class_unflat (l_spec1, l_spec2)
+    ; ocl = ocl \<lparr> D_class_spec := Some spec \<rparr>
+    ; l_assoc = List_flatten (fst (fold_list (\<lambda>ocli cpt. (case ocli of None \<Rightarrow> []
                                                                 | Some ocli \<Rightarrow> [(ocli, cpt)], oidSucInh cpt)) l_ocli (D_oid_start ocl)))
     ; (rbt_init :: _ \<Rightarrow> _ \<times> (_ \<Rightarrow> ((_ \<Rightarrow> natural \<Rightarrow> _ \<Rightarrow> (ocl_ty \<times> ocl_data_shallow) option list) \<Rightarrow> _ \<Rightarrow> _) option)
                 , (map_self, map_username)) =
@@ -396,8 +399,6 @@ definition "print_examp_instance_defassoc_typecheck_gen l_ocli ocl =
                               else
                                 (*10*) \<lambda> [x0, x1] \<Rightarrow> (x1, x0)))
                            l_attr)) rbt [])
-    ; (l_spec1, l_spec2) = arrange_ass (fst (find_class_ass ocl))
-    ; spec = class_unflat (l_spec1, l_spec2)
     ; l_oid_gen = List_map
         (\<lambda> (ocli, oids).
           ( fst (hd (fold_instance_single (\<lambda>a b. Cons (a, b)) ocli []))
