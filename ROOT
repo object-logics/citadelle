@@ -94,6 +94,7 @@ session "OCL-all-dirty" in "src" = HOL +
     (*"../examples/Employee_Model/Design_deep"*)
     "../examples/Employee_Model/Design_shallow"
     "../examples/Flight_Model"
+    "../examples/LinkedList"
 
     "../src/compiler/OCL_compiler_aux_proof"
     "../src/compiler/OCL_compiler_aux_text"
