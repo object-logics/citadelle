@@ -96,8 +96,8 @@ Define_state \<sigma>\<^sub>1' = [ defines [ n1', n2, n3, l1' ] ]
 
 Define_pre_post  \<sigma>\<^sub>1 \<sigma>\<^sub>1'
 
-lemmas [simp,code_unfold] = dot_accessor
-
 section{* Proof of State-Consistency and Implementability of \verb$insert$ *}
+
+lemmas [simp,code_unfold] = dot_accessor
 
 end
