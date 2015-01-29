@@ -132,7 +132,7 @@ definition "i_of_ocl_compiler_config a b f = ocl_compiler_config_rec
     (i_of_ocl_deep_mode a b)
     (i_of_option a b (i_of_ocl_class a b))
     (i_of_list a b (i_of_ocl_deep_embed_ast a b))
-    (i_of_list a b (i_of_pair a b (i_of_string\<^sub>b\<^sub>a\<^sub>s\<^sub>e a b) (i_of_pair a b (i_of_ocl_instance_single a b (K i_of_unit)) (i_of_internal_oid a b))))
+    (i_of_list a b (i_of_pair a b (i_of_string\<^sub>b\<^sub>a\<^sub>s\<^sub>e a b) (i_of_pair a b (i_of_ocl_instance_single a b (K i_of_unit)) (i_of_internal_oids a b))))
     (i_of_list a b (i_of_pair a b (i_of_string\<^sub>b\<^sub>a\<^sub>s\<^sub>e a b) (i_of_list a b (i_of_pair a b (i_of_internal_oids a b) (i_of_ocl_def_state_core a b (i_of_pair a b (i_of_string a b) (i_of_ocl_instance_single a b  (K i_of_unit))))))))
     (i_of_bool b)
     (i_of_bool b)

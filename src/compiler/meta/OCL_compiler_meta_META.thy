@@ -97,7 +97,7 @@ record ocl_compiler_config =  D_disable_thy_output :: bool
                               D_ocl_env :: "ocl_deep_embed_ast list"
                               D_instance_rbt :: "(string\<^sub>b\<^sub>a\<^sub>s\<^sub>e (* name (as key for rbt) *)
                                                  \<times> ocl_instance_single
-                                                 \<times> internal_oid) list"
+                                                 \<times> internal_oids) list"
                                                 (* instance namespace environment *)
                               D_state_rbt :: "(string\<^sub>b\<^sub>a\<^sub>s\<^sub>e (* name (as key for rbt) *)
                                               \<times> (internal_oids

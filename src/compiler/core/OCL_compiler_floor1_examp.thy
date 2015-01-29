@@ -253,7 +253,7 @@ definition "print_examp_instance_oid l ocl =
           | Some ocli \<Rightarrow>
             ( let var_oid = Expr_oid var_oid_uniq (oidGetInh cpt)
                 ; isub_name = \<lambda>s. s @@ isub_of_str (Inst_ty ocli) in
-              if List.fold (\<lambda>(_, _, cpt0) b. b | cpt0 = oidGetInh cpt) (D_instance_rbt ocl) False
+              if List.fold (\<lambda>(_, _, cpt0) b. b | oidGetInh cpt0 = oidGetInh cpt) (D_instance_rbt ocl) False
                | List.fold (\<lambda>(_, l). List.fold (\<lambda>(cpt0, _) b. b | cpt0 = cpt) l) (D_state_rbt ocl) False then
                    []
               else [Definition (Expr_rewrite (f1 var_oid isub_name ocli) \<langle>''=''\<rangle> (f2 ocli isub_name cpt))]
@@ -498,7 +498,7 @@ definition "print_examp_instance = (\<lambda> OclInstance l \<Rightarrow> \<lamb
       (D_oid_start ocl)
     , List.fold (\<lambda>ocli instance_rbt.
         let n = Inst_name ocli in
-        (String_to_String\<^sub>b\<^sub>a\<^sub>s\<^sub>e n, ocli, case map_username n of Some oid \<Rightarrow> oidGetInh oid) # instance_rbt) l (D_instance_rbt ocl))))"
+        (String_to_String\<^sub>b\<^sub>a\<^sub>s\<^sub>e n, ocli, case map_username n of Some oid \<Rightarrow> oid) # instance_rbt) l (D_instance_rbt ocl))))"
 
 definition "print_examp_def_st_mapsto_gen f ocl cpt_start rbt_map =
   List_map (\<lambda>(cpt, ocore).
@@ -547,7 +547,7 @@ definition "print_examp_def_st = (\<lambda> OclDefSt name l \<Rightarrow> \<lamb
            ; (def, o_ocli) = case ocore of OclDefCoreSkip \<Rightarrow> ([], None)
                        | OclDefCoreBinding name \<Rightarrow>
                            case List.assoc name (D_instance_rbt ocl) of Some (ocli, cpt_registered) \<Rightarrow>
-                           if oidGetInh cpt = cpt_registered then
+                           if oidGetInh cpt = oidGetInh cpt_registered then
                              f (OclDefCoreBinding (name, ocli)) ocli
                            else
                              ([], None) (* TODO
