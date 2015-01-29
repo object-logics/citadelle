@@ -45,22 +45,12 @@ header{* Part ... *}
 
 theory
   Flight_Model
+
 imports
-  "../src/UML_Main"
-  "../src/compiler/OCL_compiler_static"
-  "../src/compiler/OCL_compiler_generator_dynamic"
+  "../src/UML_OCL"
+  (* separate compilation : UML_OCL *)
 begin
 
-generation_syntax [ (*deep
-                      (*(generation_semantics [ analysis (*, oid_start 10*) ])*)
-                      (THEORY Flight_Model_generated)
-                      (IMPORTS ["../src/UML_Main", "../src/compiler/OCL_compiler_static"]
-                               "../src/compiler/OCL_compiler_generator_dynamic")
-                      SECTION
-                      (*SORRY*)
-                      [ in SML module_name M (no_signatures) ]
-                      (output_directory "../doc")
-                  ,*) shallow (*SORRY*) ]
 
 Class Flight
   Attributes
@@ -117,7 +107,7 @@ Association connection
 End
 
 (*
-(* Example of type errors *)
+(* Illustration of a wrong model transition: *)
 Instance R00 :: Reservation = [ id = 00, flight = [ F1 ], "next" = R11 ]
      and R11 :: Reservation = [ id = 11, flight = [ F1, F2 ], "next" = R00 ]
      and R22 :: Reservation = [ id = 22, "next" = [ R00, R11, R22 ] ]

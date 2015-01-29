@@ -49,12 +49,9 @@ header{* Part ... *}
 theory
   LinkedList
 imports
-  "../src/UML_Main"
-  "../src/compiler/OCL_compiler_static"
-  "../src/compiler/OCL_compiler_generator_dynamic"
+  "../src/UML_OCL"
+  (* separate compilation : UML_OCL *)
 begin
-
-generation_syntax [ shallow (*SORRY*) ]
 
 Class Node
   Attributes i       : Integer
@@ -65,25 +62,22 @@ Class List
   Attributes content : Node
 End
 
-(* TODO : Work out simple instance
-Instance Node1 :: Node = ([ i = 2 ] :: Savings)
-     and Node2 :: Client = [ clientaccounts = [ Saving1 ] , banks = Bank1 ]
-     and Account1 :: Account = [ ident = 666 , owner = Client1 ]
-     and Bank1 :: Bank = [ bankaccounts = [ Saving1 , Account1 ], name = "\<infinity>\<heartsuit> \<Longleftrightarrow> \<infinity>\<epsilon>" (* (* TODO latex *) \<euro> *) ]
+Instance n1 :: Node = [ i = 2, "next" = n2 ]
+     and n1':: Node = [ i = 2, "next" = n3 ]
+     and n2 :: Node = [ i = 5 (*, "next" = null *) ]   (* problem with syntax *)
+     and n3 :: Node = [ i = 3, "next" = n2 ]
+     and l1 :: List = [ content = n1 ]
+     and l1' :: List = [ content = n1' ]
 
-Define_state \<sigma>\<^sub>1' =
-  [ defines [ Account1
-            , Client1 ]
-  , skip , skip , skip
-  , defines [ Bank1
-            , Saving1 ] ]
+Define_state \<sigma>\<^sub>1 = [ defines [ n1, n2, l1 ] ]
+  
 
-Define_state ss = [] 
+Define_state \<sigma>\<^sub>1' = [ defines [ n1', n2, n3, l1' ] ]
 
-Define_pre_post ss \<sigma>\<^sub>1' 
+Define_pre_post  \<sigma>\<^sub>1 \<sigma>\<^sub>1'
 
-Define_base [ 25, 250.0 ]
-*)
+Context Node 
+  Inv asc : "self .next <> null implies (self .i  \<le>\<^sub>i\<^sub>n\<^sub>t self .next .i) "
 
 Context Node :: contents() : Set(Integer)
   Post : "result \<triangleq> if (self .next \<doteq> null)

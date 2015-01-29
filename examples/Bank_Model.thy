@@ -46,21 +46,9 @@ header{* Part ... *}
 theory
   Bank_Model
 imports
-  "../src/UML_Main"
-  "../src/compiler/OCL_compiler_static"
-  "../src/compiler/OCL_compiler_generator_dynamic"
+  "../src/UML_OCL"
+  (* separate compilation : UML_OCL *)
 begin
-
-generation_syntax [ (*deep
-                      (*(generation_semantics [ analysis (*, oid_start 10*) ])*)
-                      (THEORY Bank_Model_generated)
-                      (IMPORTS ["../src/UML_Main", "../src/compiler/OCL_compiler_static"]
-                               "../src/compiler/OCL_compiler_generator_dynamic")
-                      SECTION
-                      (*SORRY*)
-                      [ in SML module_name M (no_signatures) ]
-                      (output_directory "../doc")
-                  ,*) shallow (*SORRY*) ]
 
 Class Bank
   Attributes name : String
@@ -125,12 +113,11 @@ Context c: Savings
 
 Context c: Current
   Inv A : "\<two>\<five> <\<^sub>i\<^sub>n\<^sub>t (c .owner .age) implies (c .overdraft \<doteq> \<zero>.\<zero>)"
-  Inv B : "c .owner .age \<le>\<^sub>i\<^sub>n\<^sub>t \<two>\<five> implies (c .overdraft \<doteq> \<zero>.\<zero> -\<^sub>r\<^sub>e\<^sub>a\<^sub>l \<two>\<five>\<zero>.\<zero>)"
+  Inv B : "c .owner .age \<le>\<^sub>i\<^sub>n\<^sub>t \<two>\<five> implies   (c .overdraft \<doteq> \<zero>.\<zero> -\<^sub>r\<^sub>e\<^sub>a\<^sub>l \<two>\<five>\<zero>.\<zero>)"
 
 Context c: Client
-  Inv A : "c .banks
-    ->forAll\<^sub>S\<^sub>e\<^sub>t(b |
-        b .bankaccounts ->select\<^sub>S\<^sub>e\<^sub>t( a | (a .owner \<doteq> c) and (a .oclIsTypeOf(Current)))
+  Inv A : "c .banks ->forAll\<^sub>S\<^sub>e\<^sub>t(b | b .bankaccounts ->select\<^sub>S\<^sub>e\<^sub>t(a | (a .owner \<doteq> c) and 
+                                                                  (a .oclIsTypeOf(Current)))
                         ->size\<^sub>S\<^sub>e\<^sub>t() \<le>\<^sub>i\<^sub>n\<^sub>t \<one>)"
 
 Context Bank :: create_client(name:String, address:String, age:Integer, b:Bank) : Integer
