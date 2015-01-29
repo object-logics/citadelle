@@ -3,7 +3,7 @@
  *                       for the OMG Standard.
  *                       http://www.brucker.ch/projects/hol-testgen/
  *
- * LinkedList.thy --- OCL Contracts and Example drawn from 
+ * LinkedList.thy --- OCL Contracts and Example drawn from
  *                     "A Specification-Based Test Case Generation Method for UML/OCL"
  *                     (Brucker, Krieger, Longuet, and  Wolff)
  *
@@ -66,7 +66,7 @@ End
 
 section{* ... and its Annotation by OCL Constraints  *}
 
-Context Node 
+Context Node
   Inv asc : "self .next <> null implies (self .i  \<le>\<^sub>i\<^sub>n\<^sub>t self .next .i) "
 
 Context Node :: contents() : Set(Integer)
@@ -76,7 +76,7 @@ Context Node :: contents() : Set(Integer)
                    endif"
 
 Context List :: insert(x:Integer) : Void
-  Post : "if (self .content \<doteq> null) 
+  Post : "if (self .content \<doteq> null)
           then self .content .contents() \<triangleq> Set{x}
           else self .content .contents() \<triangleq> (self .content@pre .contents@pre())
           endif"
@@ -96,7 +96,7 @@ Define_state \<sigma>\<^sub>1' = [ defines [ n1', n2, n3, l1' ] ]
 
 Define_pre_post  \<sigma>\<^sub>1 \<sigma>\<^sub>1'
 
-section{* Proof of State-Consistency and Implementability of \verb$insert$ *}
+section{* Proof of State-Consistency and Implementability of ``insert'' *}
 
 lemmas [simp,code_unfold] = dot_accessor
 
