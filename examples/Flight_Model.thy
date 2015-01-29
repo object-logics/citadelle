@@ -45,12 +45,10 @@ header{* Part ... *}
 
 theory
   Flight_Model
-
 imports
   "../src/UML_OCL"
   (* separate compilation : UML_OCL *)
 begin
-
 
 Class Flight
   Attributes

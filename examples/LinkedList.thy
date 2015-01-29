@@ -64,7 +64,7 @@ Class List
   Attributes content : Node
 End
 
-section{* ... and its Annotation by OCL Contstraints  *}
+section{* ... and its Annotation by OCL Constraints  *}
 
 Context Node 
   Inv asc : "self .next <> null implies (self .i  \<le>\<^sub>i\<^sub>n\<^sub>t self .next .i) "

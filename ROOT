@@ -112,7 +112,7 @@ session "FOCL" in "src" = HOL +
            document_variants="document=afp,-annexa",
            show_question_marks = false]
   theories
-    "../src/UML_OCL”
+    "../src/UML_OCL"
   files
     "document/root.tex"
     "document/root.bib"
@@ -123,7 +123,7 @@ session "FOCL-dirty" in "src" = HOL +
            document_variants="document=afp,-annexa",
            show_question_marks = false]
   theories
-    "../src/UML_OCL”
+    "../src/UML_OCL"
   files
     "document/root.tex"
     "document/root.bib"
