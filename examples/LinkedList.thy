@@ -44,7 +44,7 @@
  ******************************************************************************)
 (* $Id:$ *)
 
-header{* Part ... *}
+header{* Example: Linked List *}
 
 theory
   LinkedList
@@ -52,6 +52,8 @@ imports
   "../src/UML_OCL"
   (* separate compilation : UML_OCL *)
 begin
+
+section{* The Class Model *}
 
 Class Node
   Attributes i       : Integer
@@ -62,19 +64,7 @@ Class List
   Attributes content : Node
 End
 
-Instance n1 :: Node = [ i = 2, "next" = n2 ]
-     and n1':: Node = [ i = 2, "next" = n3 ]
-     and n2 :: Node = [ i = 5 (*, "next" = null *) ]   (* problem with syntax *)
-     and n3 :: Node = [ i = 3, "next" = n2 ]
-     and l1 :: List = [ content = n1 ]
-     and l1' :: List = [ content = n1' ]
-
-Define_state \<sigma>\<^sub>1 = [ defines [ n1, n2, l1 ] ]
-  
-
-Define_state \<sigma>\<^sub>1' = [ defines [ n1', n2, n3, l1' ] ]
-
-Define_pre_post  \<sigma>\<^sub>1 \<sigma>\<^sub>1'
+section{* ... and its Annotation by OCL Contstraints  *}
 
 Context Node 
   Inv asc : "self .next <> null implies (self .i  \<le>\<^sub>i\<^sub>n\<^sub>t self .next .i) "
@@ -91,6 +81,23 @@ Context List :: insert(x:Integer) : Void
           else self .content .contents() \<triangleq> (self .content@pre .contents@pre())
           endif"
 
+section{* Instances and States of the Class Model  *}
+
+Instance n1  :: Node = [ i = 2, "next" = n2 ]
+     and n1' :: Node = [ i = 2, "next" = n3 ]
+     and n2  :: Node = [ i = 5 (*, "next" = null *) ]   (* problem with syntax *)
+     and n3  :: Node = [ i = 3, "next" = n2 ]
+     and l1  :: List = [ content = n1 ]
+     and l1' :: List = [ content = n1' ]
+
+
+Define_state \<sigma>\<^sub>1  = [ defines [ n1, n2, l1 ] ]
+Define_state \<sigma>\<^sub>1' = [ defines [ n1', n2, n3, l1' ] ]
+
+Define_pre_post  \<sigma>\<^sub>1 \<sigma>\<^sub>1'
+
 lemmas [simp,code_unfold] = dot_accessor
+
+section{* Proof of State-Consistency and Implementability of \verb$insert$ *}
 
 end
