@@ -217,7 +217,10 @@ definition "print_examp_def_st_assoc_build_rbt_gen f rbt map_self map_username l
                modify_def ([], ty_obj) name_attr
                (\<lambda>(l, accu). case let find_map = \<lambda> ShallB_str s \<Rightarrow> map_username s | ShallB_self s \<Rightarrow> map_self s | _ \<Rightarrow> None in
                                  case shall of
-                                   ShallB_list l \<Rightarrow> Some (List.map_filter find_map l)
+                                   ShallB_list l \<Rightarrow> if list_ex (\<lambda>x. find_map x = None) l then
+                                                      None
+                                                    else
+                                                      Some (List.map_filter find_map l)
                                  | _ \<Rightarrow> Option.map (\<lambda>x. [x]) (find_map shall) of
                       None \<Rightarrow> (l, accu)
                     | Some oid \<Rightarrow> (List_map (List_map oidGetInh) [[cpt], oid] # l, accu))
@@ -236,7 +239,7 @@ definition "print_examp_def_st_assoc_build_rbt_gen_typecheck map_self map_userna
         (\<lambda>(_, shall).
           let f = \<lambda>msg. \<lambda> None \<Rightarrow> Some msg | _ \<Rightarrow> None
             ; find_map = \<lambda>x. fold_data_shallow
-                               (\<lambda>s. f s (map_username s))
+                               (\<lambda>s. if String_equal s \<langle>''null''\<rangle> then None else f s (map_username s))
                                (\<lambda>s. f (\<langle>''self ''\<rangle> @@ natural_of_str (case s of Oid n \<Rightarrow> n)) (map_self s))
                                (\<lambda> None \<Rightarrow> id | Some x \<Rightarrow> Cons x)
                                x

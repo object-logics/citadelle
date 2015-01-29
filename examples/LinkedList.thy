@@ -85,7 +85,7 @@ section{* Instances and States of the Class Model  *}
 
 Instance n1  :: Node = [ i = 2, "next" = n2 ]
      and n1' :: Node = [ i = 2, "next" = n3 ]
-     and n2  :: Node = [ i = 5 (*, "next" = null *) ]   (* problem with syntax *)
+     and n2  :: Node = [ i = 5, "next" = null ]
      and n3  :: Node = [ i = 3, "next" = n2 ]
      and l1  :: List = [ content = n1 ]
      and l1' :: List = [ content = n1' ]
