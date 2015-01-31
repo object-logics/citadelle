@@ -533,7 +533,7 @@ ML{*
 fun disp_msg title msg status = title ^ ": '" ^ msg ^ "' " ^ status
 
 fun lemma msg specification_theorem concl in_local thy =
-  SOME
+(*  SOME
     (in_local (fn lthy =>
            specification_theorem Thm.lemmaK NONE (K I) (@{binding ""}, []) [] [] 
              (Element.Shows [((@{binding ""}, []),[(concl lthy, [])])])
@@ -541,7 +541,7 @@ fun lemma msg specification_theorem concl in_local thy =
         |> Proof.global_terminal_proof
              ((Method.Then [Method.Basic (fn ctxt => SIMPLE_METHOD (asm_full_simp_tac ctxt 1))],
                (Position.none, Position.none)), NONE))
-              thy)
+              thy)*) NONE
   handle ERROR s =>
     (warning s; writeln (disp_msg "KO" msg "failed to normalize"); NONE)
 
@@ -575,10 +575,10 @@ fun outer_syntax_command command_spec theory in_local =
 
 fun in_local decl thy =
   thy
-  |> Named_Target.init I ""
+  (*|> Named_Target.init I ""
   |> decl
   |> Local_Theory.exit_global
-
+*)
 val () = outer_syntax_command @{command_spec "Assert"} Toplevel.theory in_local 
 val () = outer_syntax_command @{command_spec "Assert_local"} (Toplevel.local_theory NONE) I
 (* TO BE DONE

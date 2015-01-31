@@ -1161,7 +1161,7 @@ lemma select_object_any_exec\<^sub>S\<^sub>e\<^sub>q:
  apply(insert select_object_any_exec0\<^sub>S\<^sub>e\<^sub>q[OF def_sel])
  apply(rule exI[where x = "hd s_set"], simp)
  apply(case_tac s_set, simp add: select_object_any_defined\<^sub>S\<^sub>e\<^sub>q[OF def_sel])
-by (metis hd.simps member_rec(1))
+by (metis list.sel member_rec(1))
 
 lemma (*select_object_any_exec\<^sub>S\<^sub>e\<^sub>t:*)
  assumes def_sel: "\<tau> \<Turnstile> \<delta> (select_object_any0\<^sub>S\<^sub>e\<^sub>t f s_set)"
