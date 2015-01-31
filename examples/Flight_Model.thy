@@ -67,7 +67,7 @@ End
 
 Class Person
   Attributes
-    name : String
+    name : Pair(String, String)
 End
 
 Class Client < Person
