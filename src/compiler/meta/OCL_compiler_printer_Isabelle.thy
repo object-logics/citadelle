@@ -56,290 +56,290 @@ context s_of
 begin
 fun_quick s_of_rawty where "s_of_rawty e = (\<lambda>
     Ty_base s \<Rightarrow> To_string s
-  | Ty_apply name l \<Rightarrow> sprint2 ''%s %s''\<acute> (let s = String_concat \<prec>'', ''\<succ> (List.map s_of_rawty l) in
-                                                 case l of [_] \<Rightarrow> s | _ \<Rightarrow> sprint1 ''(%s)''\<acute> s)
+  | Ty_apply name l \<Rightarrow> sprint2 \<open>%s %s\<close>\<acute> (let s = String_concat \<open>, \<close> (List.map s_of_rawty l) in
+                                                 case l of [_] \<Rightarrow> s | _ \<Rightarrow> sprint1 \<open>(%s)\<close>\<acute> s)
                                                 (s_of_rawty name)
-  | Ty_apply_bin s ty1 ty2 \<Rightarrow> sprint3 ''%s %s %s''\<acute> (s_of_rawty ty1) (To_string s) (s_of_rawty ty2)) e"
+  | Ty_apply_bin s ty1 ty2 \<Rightarrow> sprint3 \<open>%s %s %s\<close>\<acute> (s_of_rawty ty1) (To_string s) (s_of_rawty ty2)) e"
 
 definition "s_of_dataty _ = (\<lambda> Datatype n l \<Rightarrow>
-  sprint2 ''datatype %s = %s''\<acute>
+  sprint2 \<open>datatype %s = %s\<close>\<acute>
     (To_string n)
-    (String_concat \<prec>''
-                        | ''\<succ>
+    (String_concat \<open>
+                        | \<close>
       (List_map
         (\<lambda>(n,l).
-         sprint2 ''%s %s''\<acute>
+         sprint2 \<open>%s %s\<close>\<acute>
            (To_string n)
-           (String_concat \<prec>'' ''\<succ> (List_map (\<lambda>x. sprint1 ''\"%s\"''\<acute> (s_of_rawty x)) l))) l) ))"
+           (String_concat \<open> \<close> (List_map (\<lambda>x. sprint1 \<open>\"%s\"\<close>\<acute> (s_of_rawty x)) l))) l) ))"
 
 definition "s_of_ty_synonym _ = (\<lambda> Type_synonym n l \<Rightarrow>
-    sprint2 ''type_synonym %s = \"%s\"''\<acute> (To_string n) (s_of_rawty l))"
+    sprint2 \<open>type_synonym %s = \"%s\"\<close>\<acute> (To_string n) (s_of_rawty l))"
 
 fun_quick s_of_expr where "s_of_expr e = (\<lambda>
-    Expr_rewrite e1 symb e2 \<Rightarrow> sprint3 ''%s %s %s''\<acute> (s_of_expr e1) (To_string symb) (s_of_expr e2)
-  | Expr_basic l \<Rightarrow> sprint1 ''%s''\<acute> (String_concat \<prec>'' ''\<succ> (List_map To_string l))
-  | Expr_oid tit s \<Rightarrow> sprint2 ''%s%d''\<acute> (To_string tit) (To_oid s)
-  | Expr_annot0 e s \<Rightarrow> sprint2 ''(%s::%s)''\<acute> (s_of_expr e) (s_of_rawty s)
-  | Expr_bind0 symb e1 e2 \<Rightarrow> sprint3 ''(%s%s. %s)''\<acute> (To_string symb) (s_of_expr e1) (s_of_expr e2)
-  | Expr_function0 e_case l \<Rightarrow> sprint2 ''(%s %s)''\<acute>
+    Expr_rewrite e1 symb e2 \<Rightarrow> sprint3 \<open>%s %s %s\<close>\<acute> (s_of_expr e1) (To_string symb) (s_of_expr e2)
+  | Expr_basic l \<Rightarrow> sprint1 \<open>%s\<close>\<acute> (String_concat \<open> \<close> (List_map To_string l))
+  | Expr_oid tit s \<Rightarrow> sprint2 \<open>%s%d\<close>\<acute> (To_string tit) (To_oid s)
+  | Expr_annot0 e s \<Rightarrow> sprint2 \<open>(%s::%s)\<close>\<acute> (s_of_expr e) (s_of_rawty s)
+  | Expr_bind0 symb e1 e2 \<Rightarrow> sprint3 \<open>(%s%s. %s)\<close>\<acute> (To_string symb) (s_of_expr e1) (s_of_expr e2)
+  | Expr_function0 e_case l \<Rightarrow> sprint2 \<open>(%s %s)\<close>\<acute>
       (case e_case of None \<Rightarrow> To_string unicode_lambda
-                    | Some e \<Rightarrow> sprint1 ''case %s of''\<acute> (s_of_expr e))
-      (String_concat \<prec>''
-    | ''\<succ> (List.map (\<lambda> (s1, s2) \<Rightarrow> sprint3 ''%s %s %s''\<acute> (s_of_expr s1) (To_string unicode_Rightarrow) (s_of_expr s2)) l))
-  | Expr_applys00 e l \<Rightarrow> sprint2 ''%s %s''\<acute> (s_of_expr e) (String_concat \<prec>'' ''\<succ> (List.map (\<lambda> e \<Rightarrow> sprint1 ''%s''\<acute> (s_of_expr e)) l))
-  | Expr_paren p_left p_right e \<Rightarrow> sprint3 ''%s%s%s''\<acute> (To_string p_left) (s_of_expr e) (To_string p_right)
-  | Expr_if_then_else e_if e_then e_else \<Rightarrow> sprint3 ''if %s then %s else %s''\<acute> (s_of_expr e_if) (s_of_expr e_then) (s_of_expr e_else)
+                    | Some e \<Rightarrow> sprint1 \<open>case %s of\<close>\<acute> (s_of_expr e))
+      (String_concat \<open>
+    | \<close> (List.map (\<lambda> (s1, s2) \<Rightarrow> sprint3 \<open>%s %s %s\<close>\<acute> (s_of_expr s1) (To_string unicode_Rightarrow) (s_of_expr s2)) l))
+  | Expr_applys00 e l \<Rightarrow> sprint2 \<open>%s %s\<close>\<acute> (s_of_expr e) (String_concat \<open> \<close> (List.map (\<lambda> e \<Rightarrow> sprint1 \<open>%s\<close>\<acute> (s_of_expr e)) l))
+  | Expr_paren p_left p_right e \<Rightarrow> sprint3 \<open>%s%s%s\<close>\<acute> (To_string p_left) (s_of_expr e) (To_string p_right)
+  | Expr_if_then_else e_if e_then e_else \<Rightarrow> sprint3 \<open>if %s then %s else %s\<close>\<acute> (s_of_expr e_if) (s_of_expr e_then) (s_of_expr e_else)
   | Expr_inner0 l pure \<Rightarrow> s_of_pure_term (List_map To_string l) pure) e"
 
 definition "s_of_instantiation_class _ = (\<lambda> Instantiation n n_def expr \<Rightarrow>
     let name = To_string n in
-    sprint4 ''instantiation %s :: object
+    sprint4 \<open>instantiation %s :: object
 begin
   definition %s_%s_def : \"%s\"
   instance ..
-end''\<acute>
+end\<close>\<acute>
       name
       (To_string n_def)
       name
       (s_of_expr expr))"
 
 definition "s_of_defs_overloaded _ = (\<lambda> Defs_overloaded n e \<Rightarrow>
-    sprint2 ''defs(overloaded) %s : \"%s\"''\<acute> (To_string n) (s_of_expr e))"
+    sprint2 \<open>defs(overloaded) %s : \"%s\"\<close>\<acute> (To_string n) (s_of_expr e))"
 
 definition "s_of_consts_class _ = (\<lambda> Consts_raw n ty symb \<Rightarrow>
-    sprint4 ''consts %s :: \"%s\" (\"%s %s\")''\<acute> (To_string n) (s_of_rawty ty) (To_string Consts_value) (To_string symb))"
+    sprint4 \<open>consts %s :: \"%s\" (\"%s %s\")\<close>\<acute> (To_string n) (s_of_rawty ty) (To_string Consts_value) (To_string symb))"
 
 definition "s_of_definition_hol _ = (\<lambda>
-    Definition e \<Rightarrow> sprint1 ''definition \"%s\"''\<acute> (s_of_expr e)
-  | Definition_abbrev name (abbrev, prio) e \<Rightarrow> sprint4 ''definition %s (\"(1%s)\" %d)
-  where \"%s\"''\<acute> (To_string name) (s_of_expr abbrev) (To_nat prio) (s_of_expr e)
-  | Definition_abbrev0 name abbrev e \<Rightarrow> sprint3 ''definition %s (\"%s\")
-  where \"%s\"''\<acute> (To_string name) (s_of_expr abbrev) (s_of_expr e))"
+    Definition e \<Rightarrow> sprint1 \<open>definition \"%s\"\<close>\<acute> (s_of_expr e)
+  | Definition_abbrev name (abbrev, prio) e \<Rightarrow> sprint4 \<open>definition %s (\"(1%s)\" %d)
+  where \"%s\"\<close>\<acute> (To_string name) (s_of_expr abbrev) (To_nat prio) (s_of_expr e)
+  | Definition_abbrev0 name abbrev e \<Rightarrow> sprint3 \<open>definition %s (\"%s\")
+  where \"%s\"\<close>\<acute> (To_string name) (s_of_expr abbrev) (s_of_expr e))"
 
 fun_quick s_of_ntheorem_aux where "s_of_ntheorem_aux lacc e =
   ((* FIXME regroup all the 'let' declarations at the beginning *)
-   (*let f_where = (\<lambda>l. (\<prec>''where''\<succ>, String_concat \<prec>'' and ''\<succ>
-                                        (List_map (\<lambda>(var, expr). sprint2 ''%s = \"%s\"''\<acute>
+   (*let f_where = (\<lambda>l. (\<open>where\<close>, String_concat \<open> and \<close>
+                                        (List_map (\<lambda>(var, expr). sprint2 \<open>%s = \"%s\"\<close>\<acute>
                                                         (To_string var)
                                                         (s_of_expr expr)) l)))
-     ; f_of = (\<lambda>l. (\<prec>''of''\<succ>, String_concat \<prec>'' ''\<succ>
-                                  (List_map (\<lambda>expr. sprint1 ''\"%s\"''\<acute>
+     ; f_of = (\<lambda>l. (\<open>of\<close>, String_concat \<open> \<close>
+                                  (List_map (\<lambda>expr. sprint1 \<open>\"%s\"\<close>\<acute>
                                                         (s_of_expr expr)) l)))
-     ; f_symmetric = (\<prec>''symmetric''\<succ>, \<prec>''''\<succ>)
-     ; s_base = (\<lambda>s lacc. sprint2 ''%s[%s]''\<acute> (To_string s) (String_concat \<prec>'', ''\<succ> (List_map (\<lambda>(s, x). sprint2 ''%s %s''\<acute> s x) lacc))) in
+     ; f_symmetric = (\<open>symmetric\<close>, \<open>\<close>)
+     ; s_base = (\<lambda>s lacc. sprint2 \<open>%s[%s]\<close>\<acute> (To_string s) (String_concat \<open>, \<close> (List_map (\<lambda>(s, x). sprint2 \<open>%s %s\<close>\<acute> s x) lacc))) in
    *)\<lambda> Thm_str s \<Rightarrow> To_string s
    | Thm_THEN (Thm_str s) e2 \<Rightarrow>
-let s_base = (\<lambda>s lacc. sprint2 ''%s[%s]''\<acute> (To_string s) (String_concat \<prec>'', ''\<succ> (List_map (\<lambda>(s, x). sprint2 ''%s %s''\<acute> s x) lacc))) in
-       s_base s ((\<prec>''THEN''\<succ>, s_of_ntheorem_aux [] e2) # lacc)
-   | Thm_THEN e1 e2 \<Rightarrow> s_of_ntheorem_aux ((\<prec>''THEN''\<succ>, s_of_ntheorem_aux [] e2) # lacc) e1
+let s_base = (\<lambda>s lacc. sprint2 \<open>%s[%s]\<close>\<acute> (To_string s) (String_concat \<open>, \<close> (List_map (\<lambda>(s, x). sprint2 \<open>%s %s\<close>\<acute> s x) lacc))) in
+       s_base s ((\<open>THEN\<close>, s_of_ntheorem_aux [] e2) # lacc)
+   | Thm_THEN e1 e2 \<Rightarrow> s_of_ntheorem_aux ((\<open>THEN\<close>, s_of_ntheorem_aux [] e2) # lacc) e1
    | Thm_simplified (Thm_str s) e2 \<Rightarrow>
-let s_base = (\<lambda>s lacc. sprint2 ''%s[%s]''\<acute> (To_string s) (String_concat \<prec>'', ''\<succ> (List_map (\<lambda>(s, x). sprint2 ''%s %s''\<acute> s x) lacc))) in
-       s_base s ((\<prec>''simplified''\<succ>, s_of_ntheorem_aux [] e2) # lacc)
-   | Thm_simplified e1 e2 \<Rightarrow> s_of_ntheorem_aux ((\<prec>''simplified''\<succ>, s_of_ntheorem_aux [] e2) # lacc) e1
+let s_base = (\<lambda>s lacc. sprint2 \<open>%s[%s]\<close>\<acute> (To_string s) (String_concat \<open>, \<close> (List_map (\<lambda>(s, x). sprint2 \<open>%s %s\<close>\<acute> s x) lacc))) in
+       s_base s ((\<open>simplified\<close>, s_of_ntheorem_aux [] e2) # lacc)
+   | Thm_simplified e1 e2 \<Rightarrow> s_of_ntheorem_aux ((\<open>simplified\<close>, s_of_ntheorem_aux [] e2) # lacc) e1
    | Thm_symmetric (Thm_str s) \<Rightarrow>
-let s_base = (\<lambda>s lacc. sprint2 ''%s[%s]''\<acute> (To_string s) (String_concat \<prec>'', ''\<succ> (List_map (\<lambda>(s, x). sprint2 ''%s %s''\<acute> s x) lacc))) in
-let f_symmetric = (\<prec>''symmetric''\<succ>, \<prec>''''\<succ>) in
+let s_base = (\<lambda>s lacc. sprint2 \<open>%s[%s]\<close>\<acute> (To_string s) (String_concat \<open>, \<close> (List_map (\<lambda>(s, x). sprint2 \<open>%s %s\<close>\<acute> s x) lacc))) in
+let f_symmetric = (\<open>symmetric\<close>, \<open>\<close>) in
        s_base s (f_symmetric # lacc)
    | Thm_symmetric e1 \<Rightarrow>
-let f_symmetric = (\<prec>''symmetric''\<succ>, \<prec>''''\<succ>) in
+let f_symmetric = (\<open>symmetric\<close>, \<open>\<close>) in
        s_of_ntheorem_aux (f_symmetric # lacc) e1
    | Thm_where (Thm_str s) l \<Rightarrow>
-let s_base = (\<lambda>s lacc. sprint2 ''%s[%s]''\<acute> (To_string s) (String_concat \<prec>'', ''\<succ> (List_map (\<lambda>(s, x). sprint2 ''%s %s''\<acute> s x) lacc))) in
-let f_where = (\<lambda>l. (\<prec>''where''\<succ>, String_concat \<prec>'' and ''\<succ>
-                                        (List_map (\<lambda>(var, expr). sprint2 ''%s = \"%s\"''\<acute>
+let s_base = (\<lambda>s lacc. sprint2 \<open>%s[%s]\<close>\<acute> (To_string s) (String_concat \<open>, \<close> (List_map (\<lambda>(s, x). sprint2 \<open>%s %s\<close>\<acute> s x) lacc))) in
+let f_where = (\<lambda>l. (\<open>where\<close>, String_concat \<open> and \<close>
+                                        (List_map (\<lambda>(var, expr). sprint2 \<open>%s = \"%s\"\<close>\<acute>
                                                         (To_string var)
                                                         (s_of_expr expr)) l))) in
        s_base s (f_where l # lacc)
    | Thm_where e1 l \<Rightarrow>
-let f_where = (\<lambda>l. (\<prec>''where''\<succ>, String_concat \<prec>'' and ''\<succ>
-                                        (List_map (\<lambda>(var, expr). sprint2 ''%s = \"%s\"''\<acute>
+let f_where = (\<lambda>l. (\<open>where\<close>, String_concat \<open> and \<close>
+                                        (List_map (\<lambda>(var, expr). sprint2 \<open>%s = \"%s\"\<close>\<acute>
                                                         (To_string var)
                                                         (s_of_expr expr)) l))) in
        s_of_ntheorem_aux (f_where l # lacc) e1
    | Thm_of (Thm_str s) l \<Rightarrow>
-let s_base = (\<lambda>s lacc. sprint2 ''%s[%s]''\<acute> (To_string s) (String_concat \<prec>'', ''\<succ> (List_map (\<lambda>(s, x). sprint2 ''%s %s''\<acute> s x) lacc))) in
-let f_of = (\<lambda>l. (\<prec>''of''\<succ>, String_concat \<prec>'' ''\<succ>
-                                  (List_map (\<lambda>expr. sprint1 ''\"%s\"''\<acute>
+let s_base = (\<lambda>s lacc. sprint2 \<open>%s[%s]\<close>\<acute> (To_string s) (String_concat \<open>, \<close> (List_map (\<lambda>(s, x). sprint2 \<open>%s %s\<close>\<acute> s x) lacc))) in
+let f_of = (\<lambda>l. (\<open>of\<close>, String_concat \<open> \<close>
+                                  (List_map (\<lambda>expr. sprint1 \<open>\"%s\"\<close>\<acute>
                                                         (s_of_expr expr)) l))) in
        s_base s (f_of l # lacc)
    | Thm_of e1 l \<Rightarrow>
-let f_of = (\<lambda>l. (\<prec>''of''\<succ>, String_concat \<prec>'' ''\<succ>
-                                  (List_map (\<lambda>expr. sprint1 ''\"%s\"''\<acute>
+let f_of = (\<lambda>l. (\<open>of\<close>, String_concat \<open> \<close>
+                                  (List_map (\<lambda>expr. sprint1 \<open>\"%s\"\<close>\<acute>
                                                         (s_of_expr expr)) l))) in
        s_of_ntheorem_aux (f_of l # lacc) e1
    | Thm_OF (Thm_str s) e2 \<Rightarrow>
-let s_base = (\<lambda>s lacc. sprint2 ''%s[%s]''\<acute> (To_string s) (String_concat \<prec>'', ''\<succ> (List_map (\<lambda>(s, x). sprint2 ''%s %s''\<acute> s x) lacc))) in
-       s_base s ((\<prec>''OF''\<succ>, s_of_ntheorem_aux [] e2) # lacc)
-   | Thm_OF e1 e2 \<Rightarrow> s_of_ntheorem_aux ((\<prec>''OF''\<succ>, s_of_ntheorem_aux [] e2) # lacc) e1) e"
+let s_base = (\<lambda>s lacc. sprint2 \<open>%s[%s]\<close>\<acute> (To_string s) (String_concat \<open>, \<close> (List_map (\<lambda>(s, x). sprint2 \<open>%s %s\<close>\<acute> s x) lacc))) in
+       s_base s ((\<open>OF\<close>, s_of_ntheorem_aux [] e2) # lacc)
+   | Thm_OF e1 e2 \<Rightarrow> s_of_ntheorem_aux ((\<open>OF\<close>, s_of_ntheorem_aux [] e2) # lacc) e1) e"
 
 definition "s_of_ntheorem = s_of_ntheorem_aux []"
 
 definition "s_of_ntheorems = (\<lambda> Thms_single thy \<Rightarrow> s_of_ntheorem thy
                               | Thms_mult thy \<Rightarrow> To_string thy)"
 
-definition "s_of_ntheorem_l l = String_concat \<prec>''
-                            ''\<succ> (List_map s_of_ntheorem l)"
-definition "s_of_ntheorem_l1 l = String_concat \<prec>'' ''\<succ> (List_map s_of_ntheorem l)"
+definition "s_of_ntheorem_l l = String_concat \<open>
+                            \<close> (List_map s_of_ntheorem l)"
+definition "s_of_ntheorem_l1 l = String_concat \<open> \<close> (List_map s_of_ntheorem l)"
 
-definition "s_of_ntheorems_l l = String_concat \<prec>'' ''\<succ> (List_map s_of_ntheorems l)"
+definition "s_of_ntheorems_l l = String_concat \<open> \<close> (List_map s_of_ntheorems l)"
 
 definition "s_of_lemmas_simp _ = (\<lambda> Lemmas_simp_opt simp s l \<Rightarrow>
-    sprint3 ''lemmas%s%s = %s''\<acute>
-      (if String_is_empty s then \<prec>''''\<succ> else sprint1 '' %s''\<acute> (To_string s))
-      (if simp then \<prec>''[simp,code_unfold]''\<succ> else \<prec>''''\<succ>)
+    sprint3 \<open>lemmas%s%s = %s\<close>\<acute>
+      (if String_is_empty s then \<open>\<close> else sprint1 \<open> %s\<close>\<acute> (To_string s))
+      (if simp then \<open>[simp,code_unfold]\<close> else \<open>\<close>)
       (s_of_ntheorem_l l)
                                   | Lemmas_simps s l \<Rightarrow>
-    sprint2 ''lemmas%s [simp,code_unfold] = %s''\<acute>
-      (if String_is_empty s then \<prec>''''\<succ> else sprint1 '' %s''\<acute> (To_string s))
-      (String_concat \<prec>''
-                            ''\<succ> (List_map To_string l)))"
+    sprint2 \<open>lemmas%s [simp,code_unfold] = %s\<close>\<acute>
+      (if String_is_empty s then \<open>\<close> else sprint1 \<open> %s\<close>\<acute> (To_string s))
+      (String_concat \<open>
+                            \<close> (List_map To_string l)))"
 
 definition "(s_of_attrib_genA :: (hol_ntheorems list \<Rightarrow> String.literal)
    \<Rightarrow> String.literal \<Rightarrow> hol_ntheorems list \<Rightarrow> String.literal) f attr l = (* error reflection: to be merged *)
  (if l = [] then
-    \<prec>''''\<succ>
+    \<open>\<close>
   else
-    sprint2 '' %s: %s''\<acute> attr (f l))"
+    sprint2 \<open> %s: %s\<close>\<acute> attr (f l))"
 
 definition "(s_of_attrib_genB :: (string list \<Rightarrow> String.literal)
    \<Rightarrow> String.literal \<Rightarrow> string list \<Rightarrow> String.literal) f attr l = (* error reflection: to be merged *)
  (if l = [] then
-    \<prec>''''\<succ>
+    \<open>\<close>
   else
-    sprint2 '' %s: %s''\<acute> attr (f l))"
+    sprint2 \<open> %s: %s\<close>\<acute> attr (f l))"
 
 definition "s_of_attrib = s_of_attrib_genA s_of_ntheorems_l"
-definition "s_of_attrib1 = s_of_attrib_genB (\<lambda>l. String_concat \<prec>'' ''\<succ> (List_map To_string l))"
+definition "s_of_attrib1 = s_of_attrib_genB (\<lambda>l. String_concat \<open> \<close> (List_map To_string l))"
 
 fun_quick s_of_tactic where "s_of_tactic expr = (\<lambda>
-    Tact_rule0 o_s \<Rightarrow> sprint1 ''rule%s''\<acute> (case o_s of None \<Rightarrow> \<prec>''''\<succ>
-                                                           | Some s \<Rightarrow> sprint1 '' %s''\<acute> (s_of_ntheorem s))
-  | Tact_drule s \<Rightarrow> sprint1 ''drule %s''\<acute> (s_of_ntheorem s)
-  | Tact_erule s \<Rightarrow> sprint1 ''erule %s''\<acute> (s_of_ntheorem s)
-  | Tact_intro l \<Rightarrow> sprint1 ''intro %s''\<acute> (s_of_ntheorem_l1 l)
-  | Tact_elim s \<Rightarrow> sprint1 ''elim %s''\<acute> (s_of_ntheorem s)
+    Tact_rule0 o_s \<Rightarrow> sprint1 \<open>rule%s\<close>\<acute> (case o_s of None \<Rightarrow> \<open>\<close>
+                                                           | Some s \<Rightarrow> sprint1 \<open> %s\<close>\<acute> (s_of_ntheorem s))
+  | Tact_drule s \<Rightarrow> sprint1 \<open>drule %s\<close>\<acute> (s_of_ntheorem s)
+  | Tact_erule s \<Rightarrow> sprint1 \<open>erule %s\<close>\<acute> (s_of_ntheorem s)
+  | Tact_intro l \<Rightarrow> sprint1 \<open>intro %s\<close>\<acute> (s_of_ntheorem_l1 l)
+  | Tact_elim s \<Rightarrow> sprint1 \<open>elim %s\<close>\<acute> (s_of_ntheorem s)
   | Tact_subst_l0 asm l s =>
-      let s_asm = if asm then \<prec>''(asm) ''\<succ> else \<prec>''''\<succ> in
+      let s_asm = if asm then \<open>(asm) \<close> else \<open>\<close> in
       if List_map String_to_list l = [''0''] then
-        sprint2 ''subst %s%s''\<acute> s_asm (s_of_ntheorem s)
+        sprint2 \<open>subst %s%s\<close>\<acute> s_asm (s_of_ntheorem s)
       else
-        sprint3 ''subst %s(%s) %s''\<acute> s_asm (String_concat \<prec>'' ''\<succ> (List_map To_string l)) (s_of_ntheorem s)
-  | Tact_insert l => sprint1 ''insert %s''\<acute> (s_of_ntheorems_l l)
-  | Tact_plus t \<Rightarrow> sprint1 ''(%s)+''\<acute> (String_concat \<prec>'', ''\<succ> (List.map s_of_tactic t))
-  | Tact_option t \<Rightarrow> sprint1 ''(%s)?''\<acute> (String_concat \<prec>'', ''\<succ> (List.map s_of_tactic t))
-  | Tact_one (Simp_only l) \<Rightarrow> sprint1 ''simp only: %s''\<acute> (s_of_ntheorems_l l)
-  | Tact_one (Simp_add_del_split l1 l2 []) \<Rightarrow> sprint2 ''simp%s%s''\<acute>
-      (s_of_attrib \<prec>''add''\<succ> l1)
-      (s_of_attrib \<prec>''del''\<succ> l2)
-  | Tact_one (Simp_add_del_split l1 l2 l3) \<Rightarrow> sprint3 ''simp%s%s%s''\<acute>
-      (s_of_attrib \<prec>''add''\<succ> l1)
-      (s_of_attrib \<prec>''del''\<succ> l2)
-      (s_of_attrib \<prec>''split''\<succ> l3)
-  | Tact_all (Simp_only l) \<Rightarrow> sprint1 ''simp_all only: %s''\<acute> (s_of_ntheorems_l l)
-  | Tact_all (Simp_add_del_split l1 l2 []) \<Rightarrow> sprint2 ''simp_all%s%s''\<acute>
-      (s_of_attrib \<prec>''add''\<succ> l1)
-      (s_of_attrib \<prec>''del''\<succ> l2)
-  | Tact_all (Simp_add_del_split l1 l2 l3) \<Rightarrow> sprint3 ''simp_all%s%s%s''\<acute>
-      (s_of_attrib \<prec>''add''\<succ> l1)
-      (s_of_attrib \<prec>''del''\<succ> l2)
-      (s_of_attrib \<prec>''split''\<succ> l3)
-  | Tact_auto_simp_add_split l_simp l_split \<Rightarrow> sprint2 ''auto%s%s''\<acute>
-      (s_of_attrib \<prec>''simp''\<succ> l_simp)
-      (s_of_attrib1 \<prec>''split''\<succ> l_split)
-  | Tact_rename_tac l \<Rightarrow> sprint1 ''rename_tac %s''\<acute> (String_concat \<prec>'' ''\<succ> (List_map To_string l))
-  | Tact_case_tac e \<Rightarrow> sprint1 ''case_tac \"%s\"''\<acute> (s_of_expr e)
-  | Tact_blast None \<Rightarrow> sprint0 ''blast''\<acute>
-  | Tact_blast (Some n) \<Rightarrow> sprint1 ''blast %d''\<acute> (To_nat n)
-  | Tact_clarify \<Rightarrow> sprint0 ''clarify''\<acute>) expr"
+        sprint3 \<open>subst %s(%s) %s\<close>\<acute> s_asm (String_concat \<open> \<close> (List_map To_string l)) (s_of_ntheorem s)
+  | Tact_insert l => sprint1 \<open>insert %s\<close>\<acute> (s_of_ntheorems_l l)
+  | Tact_plus t \<Rightarrow> sprint1 \<open>(%s)+\<close>\<acute> (String_concat \<open>, \<close> (List.map s_of_tactic t))
+  | Tact_option t \<Rightarrow> sprint1 \<open>(%s)?\<close>\<acute> (String_concat \<open>, \<close> (List.map s_of_tactic t))
+  | Tact_one (Simp_only l) \<Rightarrow> sprint1 \<open>simp only: %s\<close>\<acute> (s_of_ntheorems_l l)
+  | Tact_one (Simp_add_del_split l1 l2 []) \<Rightarrow> sprint2 \<open>simp%s%s\<close>\<acute>
+      (s_of_attrib \<open>add\<close> l1)
+      (s_of_attrib \<open>del\<close> l2)
+  | Tact_one (Simp_add_del_split l1 l2 l3) \<Rightarrow> sprint3 \<open>simp%s%s%s\<close>\<acute>
+      (s_of_attrib \<open>add\<close> l1)
+      (s_of_attrib \<open>del\<close> l2)
+      (s_of_attrib \<open>split\<close> l3)
+  | Tact_all (Simp_only l) \<Rightarrow> sprint1 \<open>simp_all only: %s\<close>\<acute> (s_of_ntheorems_l l)
+  | Tact_all (Simp_add_del_split l1 l2 []) \<Rightarrow> sprint2 \<open>simp_all%s%s\<close>\<acute>
+      (s_of_attrib \<open>add\<close> l1)
+      (s_of_attrib \<open>del\<close> l2)
+  | Tact_all (Simp_add_del_split l1 l2 l3) \<Rightarrow> sprint3 \<open>simp_all%s%s%s\<close>\<acute>
+      (s_of_attrib \<open>add\<close> l1)
+      (s_of_attrib \<open>del\<close> l2)
+      (s_of_attrib \<open>split\<close> l3)
+  | Tact_auto_simp_add_split l_simp l_split \<Rightarrow> sprint2 \<open>auto%s%s\<close>\<acute>
+      (s_of_attrib \<open>simp\<close> l_simp)
+      (s_of_attrib1 \<open>split\<close> l_split)
+  | Tact_rename_tac l \<Rightarrow> sprint1 \<open>rename_tac %s\<close>\<acute> (String_concat \<open> \<close> (List_map To_string l))
+  | Tact_case_tac e \<Rightarrow> sprint1 \<open>case_tac \"%s\"\<close>\<acute> (s_of_expr e)
+  | Tact_blast None \<Rightarrow> sprint0 \<open>blast\<close>\<acute>
+  | Tact_blast (Some n) \<Rightarrow> sprint1 \<open>blast %d\<close>\<acute> (To_nat n)
+  | Tact_clarify \<Rightarrow> sprint0 \<open>clarify\<close>\<acute>) expr"
 
-definition "s_of_tactic_last = (\<lambda> Tacl_done \<Rightarrow> \<prec>''done''\<succ>
-                                | Tacl_by l_apply \<Rightarrow> sprint1 ''by(%s)''\<acute> (String_concat \<prec>'', ''\<succ> (List_map s_of_tactic l_apply))
-                                | Tacl_sorry \<Rightarrow> \<prec>''sorry''\<succ>)"
+definition "s_of_tactic_last = (\<lambda> Tacl_done \<Rightarrow> \<open>done\<close>
+                                | Tacl_by l_apply \<Rightarrow> sprint1 \<open>by(%s)\<close>\<acute> (String_concat \<open>, \<close> (List_map s_of_tactic l_apply))
+                                | Tacl_sorry \<Rightarrow> \<open>sorry\<close>)"
 
 definition "s_of_tac_apply_end = (
-  \<lambda> AppE [] \<Rightarrow> \<prec>''''\<succ>
-  | AppE l_apply \<Rightarrow> sprint1 ''  apply_end(%s)
-''\<acute> (String_concat \<prec>'', ''\<succ> (List_map s_of_tactic l_apply)))"
+  \<lambda> AppE [] \<Rightarrow> \<open>\<close>
+  | AppE l_apply \<Rightarrow> sprint1 \<open>  apply_end(%s)
+\<close>\<acute> (String_concat \<open>, \<close> (List_map s_of_tactic l_apply)))"
 
 definition "s_of_tac_apply = (
-  let thesis = \<prec>''?thesis''\<succ>
-    ; scope_thesis_gen = sprint2 ''  proof - %s show %s
-''\<acute>
+  let thesis = \<open>?thesis\<close>
+    ; scope_thesis_gen = sprint2 \<open>  proof - %s show %s
+\<close>\<acute>
     ; scope_thesis = \<lambda>s. scope_thesis_gen s thesis in
-  \<lambda> App [] \<Rightarrow> \<prec>''''\<succ>
-  | App l_apply \<Rightarrow> sprint1 ''  apply(%s)
-''\<acute> (String_concat \<prec>'', ''\<succ> (List_map s_of_tactic l_apply))
-  | App_using0 l \<Rightarrow> sprint1 ''  using %s
-''\<acute> (s_of_ntheorems_l l)
-  | App_unfolding0 l \<Rightarrow> sprint1 ''  unfolding %s
-''\<acute> (s_of_ntheorems_l l)
-  | App_let e_name e_body \<Rightarrow> scope_thesis (sprint2 ''let %s = \"%s\"''\<acute> (s_of_expr e_name) (s_of_expr e_body))
-  | App_have n e e_last \<Rightarrow> scope_thesis (sprint3 ''have %s: \"%s\" %s''\<acute> (To_string n) (s_of_expr e) (s_of_tactic_last e_last))
+  \<lambda> App [] \<Rightarrow> \<open>\<close>
+  | App l_apply \<Rightarrow> sprint1 \<open>  apply(%s)
+\<close>\<acute> (String_concat \<open>, \<close> (List_map s_of_tactic l_apply))
+  | App_using0 l \<Rightarrow> sprint1 \<open>  using %s
+\<close>\<acute> (s_of_ntheorems_l l)
+  | App_unfolding0 l \<Rightarrow> sprint1 \<open>  unfolding %s
+\<close>\<acute> (s_of_ntheorems_l l)
+  | App_let e_name e_body \<Rightarrow> scope_thesis (sprint2 \<open>let %s = \"%s\"\<close>\<acute> (s_of_expr e_name) (s_of_expr e_body))
+  | App_have n e e_last \<Rightarrow> scope_thesis (sprint3 \<open>have %s: \"%s\" %s\<close>\<acute> (To_string n) (s_of_expr e) (s_of_tactic_last e_last))
   | App_fix_let l l_let o_show _ \<Rightarrow>
       scope_thesis_gen
-        (sprint2 ''fix %s%s''\<acute> (String_concat \<prec>'' ''\<succ> (List_map To_string l))
+        (sprint2 \<open>fix %s%s\<close>\<acute> (String_concat \<open> \<close> (List_map To_string l))
                                      (String_concat
-                                       (\<prec>''
-''\<succ>                                        )
+                                       (\<open>
+\<close>                                        )
                                        (List_map
                                          (\<lambda>(e_name, e_body).
-                                           sprint2 ''          let %s = \"%s\"''\<acute> (s_of_expr e_name) (s_of_expr e_body))
+                                           sprint2 \<open>          let %s = \"%s\"\<close>\<acute> (s_of_expr e_name) (s_of_expr e_body))
                                          l_let)))
         (case o_show of None \<Rightarrow> thesis
                       | Some l_show \<Rightarrow>
                           let g = \<ordmasculine>Char Nibble2 Nibble2\<ordmasculine> in
-                          sprint3 ''%s%s%s''\<acute>
+                          sprint3 \<open>%s%s%s\<close>\<acute>
                             g
-                            (String_concat (sprint1 '' %s ''\<acute> (To_string unicode_Longrightarrow)) (List_map s_of_expr l_show))
+                            (String_concat (sprint1 \<open> %s \<close>\<acute> (To_string unicode_Longrightarrow)) (List_map s_of_expr l_show))
                             g))"
 
 definition "s_of_lemma_by _ =
  (\<lambda> Lemma_by n l_spec l_apply tactic_last \<Rightarrow>
-    sprint4 ''lemma %s : \"%s\"
-%s%s''\<acute>
+    sprint4 \<open>lemma %s : \"%s\"
+%s%s\<close>\<acute>
       (To_string n)
-      (String_concat (sprint1 '' %s ''\<acute> (To_string unicode_Longrightarrow)) (List_map s_of_expr l_spec))
-      (String_concat \<prec>''''\<succ> (List_map (\<lambda> [] \<Rightarrow> \<prec>''''\<succ> | l_apply \<Rightarrow> sprint1 ''  apply(%s)
-''\<acute> (String_concat \<prec>'', ''\<succ> (List_map s_of_tactic l_apply))) l_apply))
+      (String_concat (sprint1 \<open> %s \<close>\<acute> (To_string unicode_Longrightarrow)) (List_map s_of_expr l_spec))
+      (String_concat \<open>\<close> (List_map (\<lambda> [] \<Rightarrow> \<open>\<close> | l_apply \<Rightarrow> sprint1 \<open>  apply(%s)
+\<close>\<acute> (String_concat \<open>, \<close> (List_map s_of_tactic l_apply))) l_apply))
       (s_of_tactic_last tactic_last)
   | Lemma_by_assum n l_spec concl l_apply tactic_last \<Rightarrow>
-    sprint5 ''lemma %s : %s
-%s%s %s''\<acute>
+    sprint5 \<open>lemma %s : %s
+%s%s %s\<close>\<acute>
       (To_string n)
-      (String_concat \<prec>''''\<succ> (List_map (\<lambda>(n, b, e).
-          sprint2 ''
-assumes %s\"%s\"''\<acute>
-            (let (n, b) = if b then (sprint1 ''%s[simp]''\<acute> (To_string n), False) else (To_string n, String_is_empty n) in
-             if b then \<prec>''''\<succ> else sprint1 ''%s: ''\<acute> n)
+      (String_concat \<open>\<close> (List_map (\<lambda>(n, b, e).
+          sprint2 \<open>
+assumes %s\"%s\"\<close>\<acute>
+            (let (n, b) = if b then (sprint1 \<open>%s[simp]\<close>\<acute> (To_string n), False) else (To_string n, String_is_empty n) in
+             if b then \<open>\<close> else sprint1 \<open>%s: \<close>\<acute> n)
             (s_of_expr e)) l_spec
        @@@@
-       [sprint1 ''
-shows \"%s\"''\<acute> (s_of_expr concl)]))
-      (String_concat \<prec>''''\<succ> (List_map s_of_tac_apply l_apply))
+       [sprint1 \<open>
+shows \"%s\"\<close>\<acute> (s_of_expr concl)]))
+      (String_concat \<open>\<close> (List_map s_of_tac_apply l_apply))
       (s_of_tactic_last tactic_last)
-      (String_concat \<prec>'' ''\<succ>
+      (String_concat \<open> \<close>
         (List_map
           (\<lambda>l_apply_e.
-            sprint1 ''%sqed''\<acute>
+            sprint1 \<open>%sqed\<close>\<acute>
               (if l_apply_e = [] then
-                 \<prec>''''\<succ>
+                 \<open>\<close>
                else
-                 sprint1 ''
-%s ''\<acute> (String_concat \<prec>''''\<succ> (List_map s_of_tac_apply_end l_apply_e))))
+                 sprint1 \<open>
+%s \<close>\<acute> (String_concat \<open>\<close> (List_map s_of_tac_apply_end l_apply_e))))
           (List.map_filter
             (\<lambda> App_let _ _ \<Rightarrow> Some [] | App_have _ _ _ \<Rightarrow> Some [] | App_fix_let _ _ _ l \<Rightarrow> Some l | _ \<Rightarrow> None)
             (rev l_apply)))))"
 
 
-definition "s_of_axiom _ = (\<lambda> Axiom n e \<Rightarrow> sprint2 ''axiomatization where %s:
-\"%s\"''\<acute> (To_string n) (s_of_expr e))"
+definition "s_of_axiom _ = (\<lambda> Axiom n e \<Rightarrow> sprint2 \<open>axiomatization where %s:
+\"%s\"\<close>\<acute> (To_string n) (s_of_expr e))"
 
 
-definition "s_of_text _ = (\<lambda> Text s \<Rightarrow> sprint1 ''text{* %s *}''\<acute> (To_string s))"
+definition "s_of_text _ = (\<lambda> Text s \<Rightarrow> sprint1 \<open>text{* %s *}\<close>\<acute> (To_string s))"
 
-definition "s_of_ml _ = (\<lambda> Ml e \<Rightarrow> sprint1 ''ML{* %s *}''\<acute> (s_of_sexpr e))"
+definition "s_of_ml _ = (\<lambda> Ml e \<Rightarrow> sprint1 \<open>ML{* %s *}\<close>\<acute> (s_of_sexpr e))"
 
-definition "s_of_thm _ = (\<lambda> Thm thm \<Rightarrow> sprint1 ''thm %s''\<acute> (s_of_ntheorem_l1 thm))"
+definition "s_of_thm _ = (\<lambda> Thm thm \<Rightarrow> sprint1 \<open>thm %s\<close>\<acute> (s_of_ntheorem_l1 thm))"
 
 end
 

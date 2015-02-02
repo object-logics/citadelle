@@ -57,11 +57,11 @@ begin
 fun_quick s_of_pure_term where "s_of_pure_term l e = (\<lambda>
     PureConst s _ \<Rightarrow> To_string s
   | PureFree s _ \<Rightarrow> To_string s
-  | PureApp t1 t2 \<Rightarrow> sprint2 ''(%s) (%s)''\<acute> (s_of_pure_term l t1) (s_of_pure_term l t2)
+  | PureApp t1 t2 \<Rightarrow> sprint2 \<open>(%s) (%s)\<close>\<acute> (s_of_pure_term l t1) (s_of_pure_term l t2)
   | PureAbs s _ t \<Rightarrow>
       let s = To_string s in
-      sprint3 ''(%s %s. %s)''\<acute> (To_string unicode_lambda) s (s_of_pure_term (s # l) t)
-  | PureBound n \<Rightarrow> sprint1 ''%s''\<acute> (l ! nat_of_natural n)) e"
+      sprint3 \<open>(%s %s. %s)\<close>\<acute> (To_string unicode_lambda) s (s_of_pure_term (s # l) t)
+  | PureBound n \<Rightarrow> sprint1 \<open>%s\<close>\<acute> (l ! nat_of_natural n)) e"
 
 end
 
