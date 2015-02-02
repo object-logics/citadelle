@@ -67,8 +67,8 @@ definition "write_file ocl = (
       | _ \<Rightarrow> (False, out_stand1) in
   f_output
     (\<lambda>fprintf1.
-      List_iterM (fprintf1 (STR ''%s
-''                                 ))
+      List_iterM (fprintf1 \<open>%s
+\<close>                             )
         (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l (ocl, l) =
            fold_thy'
              (\<lambda>f. f ())

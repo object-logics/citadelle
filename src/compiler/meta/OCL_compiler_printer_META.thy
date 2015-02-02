@@ -71,12 +71,12 @@ declare[[cartouche_type = "String.literal"]]
 
 definition "s_of_section_title ocl = (\<lambda> Section_title n section_title \<Rightarrow>
   if D_disable_thy_output ocl then
-    \<prec>''''\<succ>
+    \<open>\<close>
   else
     sprint2 \<open>%s{* %s *}\<close>\<acute>
       (sprint1 \<open>%ssection\<close>\<acute> (if n = 0 then \<open>\<close>
-                               else if n = 1 then \<open>sub\<close>
-                               else \<open>subsub\<close>))
+                             else if n = 1 then \<open>sub\<close>
+                             else \<open>subsub\<close>))
       (To_string section_title))"
 
 fun_quick s_of_ctxt2_term_aux where "s_of_ctxt2_term_aux l e =
