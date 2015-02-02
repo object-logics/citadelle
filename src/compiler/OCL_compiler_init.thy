@@ -48,6 +48,7 @@ imports "~~/src/HOL/Library/Code_Char"
         OCL_compiler_static
   keywords (* hol syntax *)
            "fun_sorry" "fun_quick"
+           "definition\<acute>"
            :: thy_decl
 begin
 
@@ -79,6 +80,71 @@ syntax "_char2" :: "_ \<Rightarrow> String.literal" ("\<ordmasculine>(_)\<ordmas
 translations "\<ordmasculine>x\<ordmasculine>" \<rightleftharpoons> "CONST STR ((CONST Cons) x (CONST Nil))"
 
 type_notation abr_string ("string")
+
+section{* ... *}
+
+ML {*
+  local
+    val mk_nib =
+      Syntax.const o Lexicon.mark_const o
+        fst o Term.dest_Const o HOLogic.mk_nibble;
+
+    fun mk_char (s, _) accu =
+        fold
+          (fn c => fn l =>
+               Syntax.const @{const_syntax Cons}
+             $ (Syntax.const @{const_syntax Char} $ mk_nib (c div 16) $ mk_nib (c mod 16))
+             $ l)
+          (rev (map Char.ord (String.explode s)))
+          accu;
+
+    fun mk_string [] = Const (@{const_syntax Nil}, @{typ "char list"})
+      | mk_string (s :: ss) = mk_char s (mk_string ss);
+
+  in
+    fun string_tr f content args =
+      let fun err () = raise TERM ("string_tr", args) in
+        (case args of
+          [(c as Const (@{syntax_const "_constrain"}, _)) $ Free (s, _) $ p] =>
+            (case Term_Position.decode_position p of
+              SOME (pos, _) => c $ f (mk_string (content (s, pos))) $ p
+            | NONE => err ())
+        | _ => err ())
+      end;
+  end;
+*}
+
+syntax "_cartouche_string" :: "cartouche_position \<Rightarrow> _"  ("_")
+parse_translation {*
+  [( @{syntax_const "_cartouche_string"}
+   , let val cartouche_type = Attrib.setup_config_string @{binding cartouche_type} (K "char list") in
+       fn ctxt =>
+         string_tr
+           (case Config.get ctxt cartouche_type of
+              "char list" => I
+            | "String.literal" => (fn x => Syntax.const @{const_syntax STR} $ x)
+            | "abr_string" => (fn x => Syntax.const @{const_syntax SS_base}
+                                       $ (Syntax.const @{const_syntax ST}
+                                          $ (Syntax.const @{const_syntax STR}
+                                             $ x)))
+            | s => error ("Unregistered return type for the cartouche: \"" ^ s ^ "\""))
+           (Symbol_Pos.cartouche_content o Symbol_Pos.explode)
+     end)]
+*}
+
+declare[[cartouche_type = "abr_string"]]
+
+section{* ... *}
+
+ML{* 
+local
+val constdef = Scan.option Parse_Spec.constdecl -- (Parse_Spec.opt_thm_name ":" -- Parse.inner_syntax Parse.cartouche);
+in
+val _ =
+  Outer_Syntax.local_theory' @{command_spec "definition\<acute>"} "constant definition"
+    (constdef >> (fn args => #2 oo Specification.definition_cmd args));
+end
+*}
 
 subsection{* ... *}
 

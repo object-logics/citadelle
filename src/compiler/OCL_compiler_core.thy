@@ -69,9 +69,9 @@ definition "txt'' = txt' o flatten"
 definition "txt''d s = txt (\<lambda> Gen_only_design \<Rightarrow> flatten s | _ \<Rightarrow> \<langle>''''\<rangle>)"
 definition "txt''a s = txt (\<lambda> Gen_only_design \<Rightarrow> \<langle>''''\<rangle> | _ \<Rightarrow> flatten s)"
 
-definition thy_class ::
+definition\<acute> thy_class ::
   (* polymorphism weakening needed by code_reflect *)
-  "(_ \<Rightarrow> ocl_compiler_config \<Rightarrow> _) list" where "thy_class =
+  "(_ \<Rightarrow> ocl_compiler_config \<Rightarrow> _) list" where \<open>thy_class =
   (let subsection_def = subsection \<langle>''Definition''\<rangle>
      ; subsection_cp = subsection \<langle>''Context Passing''\<rangle>
      ; subsection_exec = subsection \<langle>''Execution with Invalid or Null as Argument''\<rangle>
@@ -321,7 +321,7 @@ The example we are defining in this section comes from the figure~''\<rangle>, e
 ''\<rangle>, e, \<langle>''end{figure}
 ''\<rangle> ]
             , print_examp_def_st_defs
-            , print_astype_lemmas_id2 ] ])"
+            , print_astype_lemmas_id2 ] ])\<close>
 
 definition "thy_class_flat = []"
 definition "thy_association = []"

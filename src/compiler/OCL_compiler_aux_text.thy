@@ -73,16 +73,9 @@ val _ =
 fun of_text s = 
   let val s = String.substring (s, 2, String.size s - 4)
       val langle = "\<langle>"
-      val rangle = "\<rangle>"
-      fun esc n = "''" ^ rangle ^ ", " ^ n ^ ", " ^ langle ^ "''" in
+      val rangle = "\<rangle>" in
   String.concat
-    [ "txt'' [ " ^ langle ^ "''", str #"\n"
-    , "  ", translate_string
-      (fn "\034" (* " *) => esc "a"
-        | "\039" (* ' *) => esc "n"
-        | "\092" (* \ *) => esc "e"
-        | x => x) s
-    , "''" ^ rangle ^ " ]", str #"\n" ]
+    [ "txt'' [ " ^ langle ^ "\<open>", str #"\n", "  ", s, "\<close>" ^ rangle ^ " ]", str #"\n" ]
   end
 
 fun apply_code_printing thy =
@@ -90,7 +83,7 @@ fun apply_code_printing thy =
   |> (fn l => 
     let val (thy, l) =
       fold (fn Code_printing s => fn (thy, l) => (thy, of_text s :: l)) l (thy, [])
-      ; val _ = writeln (Active.sendback_markup [Markup.padding_command] ("definition \034t txt'' e n a = [\n              " ^ String.concatWith "            , " (rev l) ^ "]\034")) in
+      ; val _ = writeln (Active.sendback_markup [Markup.padding_command] ("definition\<acute> \<open>t txt'' = [\n              " ^ String.concatWith "            , " (rev l) ^ "]\<close>")) in
     thy
     end)
 
