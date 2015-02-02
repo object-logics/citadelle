@@ -6,7 +6,7 @@ generation_syntax [ deep
                       (IMPORTS ["../../../src/UML_Main", "../../../src/compiler/OCL_compiler_static"]
                                "../../../src/compiler/OCL_compiler_generator_dynamic")
                       SECTION
-                      [ in SML module_name M (no_signatures) ]
+                      [ in SML module_name M ]
                       (output_directory "./doc") ]
 
 Class Aazz End
