@@ -128,10 +128,10 @@ definition "T_lambdas = List.fold T_lambda"
 
 subsection{* Class Translation Preliminaries *}
 
-definition "const_oid = \<langle>''oid''\<rangle>"
-definition "var_ty_list = \<langle>''list''\<rangle>"
-definition "var_ty_prod = \<langle>''prod''\<rangle>"
-definition "const_oclany = \<langle>''OclAny''\<rangle>"
+definition "const_oid = \<open>oid\<close>"
+definition "var_ty_list = \<open>list\<close>"
+definition "var_ty_prod = \<open>prod\<close>"
+definition "const_oclany = \<open>OclAny\<close>"
 
 definition "single_multip = (\<lambda> OclMult l _ \<Rightarrow>
   List.list_all (\<lambda> (_, Some (Mult_nat n)) \<Rightarrow> n \<le> 1
@@ -269,7 +269,7 @@ qed
 definition "class_unflat = (\<lambda> (l_class, l_ass).
   let l =
     let rbt = (* fold classes:
-                 set \<langle>''OclAny''\<rangle> as default inherited class (for all classes linking to zero inherited classes) *)
+                 set \<open>OclAny\<close> as default inherited class (for all classes linking to zero inherited classes) *)
               insert
                 const_oclany
                 (ocl_class_raw.make const_oclany [] [] [] None)
@@ -304,21 +304,21 @@ definition "apply_optim_ass_arity ty_obj v =
 
 definition "is_higher_order = (\<lambda> OclTy_collection _ _ \<Rightarrow> True | OclTy_pair _ _ \<Rightarrow> True | _ \<Rightarrow> False)"
 
-definition "parse_ty_raw = (\<lambda> OclTy_raw s \<Rightarrow> if s = \<langle>''int''\<rangle> then OclTy_base_integer else OclTy_raw s
+definition "parse_ty_raw = (\<lambda> OclTy_raw s \<Rightarrow> if s = \<open>int\<close> then OclTy_base_integer else OclTy_raw s
                             | x \<Rightarrow> x)"
 
 fun_quick str_of_ty where "str_of_ty e =
- (\<lambda> OclTy_base_void \<Rightarrow> \<langle>''Void''\<rangle>
-  | OclTy_base_boolean \<Rightarrow> \<langle>''Boolean''\<rangle>
-  | OclTy_base_integer \<Rightarrow> \<langle>''Integer''\<rangle>
-  | OclTy_base_unlimitednatural \<Rightarrow> \<langle>''UnlimitedNatural''\<rangle>
-  | OclTy_base_real \<Rightarrow> \<langle>''Real''\<rangle>
-  | OclTy_base_string \<Rightarrow> \<langle>''String''\<rangle>
+ (\<lambda> OclTy_base_void \<Rightarrow> \<open>Void\<close>
+  | OclTy_base_boolean \<Rightarrow> \<open>Boolean\<close>
+  | OclTy_base_integer \<Rightarrow> \<open>Integer\<close>
+  | OclTy_base_unlimitednatural \<Rightarrow> \<open>UnlimitedNatural\<close>
+  | OclTy_base_real \<Rightarrow> \<open>Real\<close>
+  | OclTy_base_string \<Rightarrow> \<open>String\<close>
   | OclTy_class_pre s \<Rightarrow> s
   (*| OclTy_class *)
-  | OclTy_collection (OclMult _ Set) ocl_ty \<Rightarrow> flatten [\<langle>''Set(''\<rangle>, str_of_ty ocl_ty,\<langle>'')''\<rangle>]
-  | OclTy_collection (OclMult _ Sequence) ocl_ty \<Rightarrow> flatten [\<langle>''Sequence(''\<rangle>, str_of_ty ocl_ty,\<langle>'')''\<rangle>]
-  | OclTy_pair ocl_ty1 ocl_ty2 \<Rightarrow> flatten [\<langle>''Pair(''\<rangle>, str_of_ty ocl_ty1, \<langle>'',''\<rangle>, str_of_ty ocl_ty2,\<langle>'')''\<rangle>]
+  | OclTy_collection (OclMult _ Set) ocl_ty \<Rightarrow> flatten [\<open>Set(\<close>, str_of_ty ocl_ty,\<open>)\<close>]
+  | OclTy_collection (OclMult _ Sequence) ocl_ty \<Rightarrow> flatten [\<open>Sequence(\<close>, str_of_ty ocl_ty,\<open>)\<close>]
+  | OclTy_pair ocl_ty1 ocl_ty2 \<Rightarrow> flatten [\<open>Pair(\<close>, str_of_ty ocl_ty1, \<open>,\<close>, str_of_ty ocl_ty2,\<open>)\<close>]
   | OclTy_raw s \<Rightarrow> flatten [unicode_acute, s, unicode_acute]) e"
 
 definition "ty_void = str_of_ty OclTy_base_void"
@@ -329,20 +329,20 @@ definition "ty_real = str_of_ty OclTy_base_real"
 definition "ty_string = str_of_ty OclTy_base_string"
 
 fun_quick str_hol_of_ty_all where "str_hol_of_ty_all f b e =
- (\<lambda> OclTy_base_void \<Rightarrow> b \<langle>''unit''\<rangle>
-  | OclTy_base_boolean \<Rightarrow> b \<langle>''bool''\<rangle>
-  | OclTy_base_integer \<Rightarrow> b \<langle>''int''\<rangle>
-  | OclTy_base_unlimitednatural \<Rightarrow> b \<langle>''nat''\<rangle>
-  | OclTy_base_real \<Rightarrow> b \<langle>''real''\<rangle>
-  | OclTy_base_string \<Rightarrow> b \<langle>''string''\<rangle>
+ (\<lambda> OclTy_base_void \<Rightarrow> b \<open>unit\<close>
+  | OclTy_base_boolean \<Rightarrow> b \<open>bool\<close>
+  | OclTy_base_integer \<Rightarrow> b \<open>int\<close>
+  | OclTy_base_unlimitednatural \<Rightarrow> b \<open>nat\<close>
+  | OclTy_base_real \<Rightarrow> b \<open>real\<close>
+  | OclTy_base_string \<Rightarrow> b \<open>string\<close>
   | OclTy_class_pre _ \<Rightarrow> b const_oid
   | OclTy_class ty_obj \<Rightarrow> f (b var_ty_list) [b (TyObj_name ty_obj)]
   | OclTy_collection _ ty \<Rightarrow> f (b var_ty_list) [str_hol_of_ty_all f b ty]
   | OclTy_pair ty1 ty2 \<Rightarrow> f (b var_ty_prod) [str_hol_of_ty_all f b ty1, str_hol_of_ty_all f b ty2]
   | OclTy_raw s \<Rightarrow> b s) e"
 
-definition "print_infra_type_synonym_class_set_name name = \<langle>''Set_''\<rangle> @@ name"
-definition "print_infra_type_synonym_class_sequence_name name = \<langle>''Sequence_''\<rangle> @@ name"
+definition "print_infra_type_synonym_class_set_name name = \<open>Set_\<close> @@ name"
+definition "print_infra_type_synonym_class_sequence_name name = \<open>Sequence_\<close> @@ name"
 
 fun_quick get_class_hierarchy_strict_aux where
    "get_class_hierarchy_strict_aux dataty l_res =
@@ -376,12 +376,12 @@ definition "fold_less2 = fold_less_gen List.fold"
 
 section{* Translation of AST *}
 
-definition "var_in_pre_state = \<langle>''in_pre_state''\<rangle>"
-definition "var_in_post_state = \<langle>''in_post_state''\<rangle>"
-definition "var_at_when_hol_post = \<langle>''''\<rangle>"
-definition "var_at_when_hol_pre = \<langle>''at_pre''\<rangle>"
-definition "var_at_when_ocl_post = \<langle>''''\<rangle>"
-definition "var_at_when_ocl_pre = \<langle>''@pre''\<rangle>"
+definition "var_in_pre_state = \<open>in_pre_state\<close>"
+definition "var_in_post_state = \<open>in_post_state\<close>"
+definition "var_at_when_hol_post = \<open>\<close>"
+definition "var_at_when_hol_pre = \<open>at_pre\<close>"
+definition "var_at_when_ocl_post = \<open>\<close>"
+definition "var_at_when_ocl_pre = \<open>@pre\<close>"
 
 datatype 'a tmp_sub = Tsub 'a
 record 'a inheritance =

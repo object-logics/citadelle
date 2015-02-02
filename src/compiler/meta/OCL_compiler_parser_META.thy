@@ -94,37 +94,37 @@ context i_of
 begin
 
 definition "i_of_ocl_flush_all a b = rec_ocl_flush_all
-  (b \<langle>''OclFlushAll''\<rangle>)"
+  (b \<open>OclFlushAll\<close>)"
 
 definition "i_of_floor a b = rec_floor
-  (b \<langle>''Floor1''\<rangle>)
-  (b \<langle>''Floor2''\<rangle>)
-  (b \<langle>''Floor3''\<rangle>)"
+  (b \<open>Floor1\<close>)
+  (b \<open>Floor2\<close>)
+  (b \<open>Floor3\<close>)"
 
 definition "i_of_ocl_deep_embed_ast a b = rec_ocl_deep_embed_ast
-  (ap2 a (b \<langle>''OclAstClassRaw''\<rangle>) (i_of_floor a b) (i_of_ocl_class_raw a b (K i_of_unit)))
-  (ap1 a (b \<langle>''OclAstAssociation''\<rangle>) (i_of_ocl_association a b (K i_of_unit)))
-  (ap2 a (b \<langle>''OclAstAssClass''\<rangle>) (i_of_floor a b) (i_of_ocl_ass_class a b))
-  (ap2 a (b \<langle>''OclAstCtxtPrePost''\<rangle>) (i_of_floor a b) (i_of_ocl_ctxt_pre_post a b (K i_of_unit)))
-  (ap2 a (b \<langle>''OclAstCtxtInv''\<rangle>) (i_of_floor a b) (i_of_ocl_ctxt_inv a b (K i_of_unit)))
+  (ap2 a (b \<open>OclAstClassRaw\<close>) (i_of_floor a b) (i_of_ocl_class_raw a b (K i_of_unit)))
+  (ap1 a (b \<open>OclAstAssociation\<close>) (i_of_ocl_association a b (K i_of_unit)))
+  (ap2 a (b \<open>OclAstAssClass\<close>) (i_of_floor a b) (i_of_ocl_ass_class a b))
+  (ap2 a (b \<open>OclAstCtxtPrePost\<close>) (i_of_floor a b) (i_of_ocl_ctxt_pre_post a b (K i_of_unit)))
+  (ap2 a (b \<open>OclAstCtxtInv\<close>) (i_of_floor a b) (i_of_ocl_ctxt_inv a b (K i_of_unit)))
 
-  (ap1 a (b \<langle>''OclAstInstance''\<rangle>) (i_of_ocl_instance a b))
-  (ap1 a (b \<langle>''OclAstDefBaseL''\<rangle>) (i_of_ocl_def_base_l a b))
-  (ap1 a (b \<langle>''OclAstDefState''\<rangle>) (i_of_ocl_def_state a b))
-  (ap1 a (b \<langle>''OclAstDefPrePost''\<rangle>) (i_of_ocl_def_pre_post a b))
-  (ap1 a (b \<langle>''OclAstFlushAll''\<rangle>) (i_of_ocl_flush_all a b))"
+  (ap1 a (b \<open>OclAstInstance\<close>) (i_of_ocl_instance a b))
+  (ap1 a (b \<open>OclAstDefBaseL\<close>) (i_of_ocl_def_base_l a b))
+  (ap1 a (b \<open>OclAstDefState\<close>) (i_of_ocl_def_state a b))
+  (ap1 a (b \<open>OclAstDefPrePost\<close>) (i_of_ocl_def_pre_post a b))
+  (ap1 a (b \<open>OclAstFlushAll\<close>) (i_of_ocl_flush_all a b))"
 
 definition "i_of_ocl_deep_mode a b = rec_ocl_deep_mode
-  (b \<langle>''Gen_only_design''\<rangle>)
-  (b \<langle>''Gen_only_analysis''\<rangle>)
-  (b \<langle>''Gen_default''\<rangle>)"
+  (b \<open>Gen_only_design\<close>)
+  (b \<open>Gen_only_analysis\<close>)
+  (b \<open>Gen_default\<close>)"
 
 definition "i_of_ocl_sorry_mode a b = rec_ocl_sorry_mode
-  (b \<langle>''Gen_sorry''\<rangle>)
-  (b \<langle>''Gen_no_dirty''\<rangle>)"
+  (b \<open>Gen_sorry\<close>)
+  (b \<open>Gen_no_dirty\<close>)"
 
 definition "i_of_ocl_compiler_config a b f = ocl_compiler_config_rec
-  (ap15 a (b (ext \<langle>''ocl_compiler_config_ext''\<rangle>))
+  (ap15 a (b (ext \<open>ocl_compiler_config_ext\<close>))
     (i_of_bool b)
     (i_of_option a b (i_of_pair a b (i_of_string a b) (i_of_pair a b (i_of_list a b (i_of_string a b)) (i_of_string a b))))
     (i_of_internal_oids a b)
@@ -156,11 +156,11 @@ subsubsection{* Isabelle *}
 locale isabelle_of
 begin
 
-definition "i_Pair = \<langle>''Pair''\<rangle>"
-definition "i_Nil = \<langle>''Nil''\<rangle>"
-definition "i_Cons = \<langle>''Cons''\<rangle>"
-definition "i_None = \<langle>''None''\<rangle>"
-definition "i_Some = \<langle>''Some''\<rangle>"
+definition "i_Pair = \<open>Pair\<close>"
+definition "i_Nil = \<open>Nil\<close>"
+definition "i_Cons = \<open>Cons\<close>"
+definition "i_None = \<open>None\<close>"
+definition "i_Some = \<open>Some\<close>"
 
 (* *)
 
@@ -178,47 +178,47 @@ definition "i_of_option a b f = rec_option
 (* *)
 
 definition "i_of_unit b = case_unit
-  (b \<langle>''()''\<rangle>)"
+  (b \<open>()\<close>)"
 
 definition "i_of_bool b = case_bool
-  (b \<langle>''True''\<rangle>)
-  (b \<langle>''False''\<rangle>)"
+  (b \<open>True\<close>)
+  (b \<open>False\<close>)"
 
 definition "i_of_nibble b = rec_nibble
-  (b \<langle>''Nibble0''\<rangle>)
-  (b \<langle>''Nibble1''\<rangle>)
-  (b \<langle>''Nibble2''\<rangle>)
-  (b \<langle>''Nibble3''\<rangle>)
-  (b \<langle>''Nibble4''\<rangle>)
-  (b \<langle>''Nibble5''\<rangle>)
-  (b \<langle>''Nibble6''\<rangle>)
-  (b \<langle>''Nibble7''\<rangle>)
-  (b \<langle>''Nibble8''\<rangle>)
-  (b \<langle>''Nibble9''\<rangle>)
-  (b \<langle>''NibbleA''\<rangle>)
-  (b \<langle>''NibbleB''\<rangle>)
-  (b \<langle>''NibbleC''\<rangle>)
-  (b \<langle>''NibbleD''\<rangle>)
-  (b \<langle>''NibbleE''\<rangle>)
-  (b \<langle>''NibbleF''\<rangle>)"
+  (b \<open>Nibble0\<close>)
+  (b \<open>Nibble1\<close>)
+  (b \<open>Nibble2\<close>)
+  (b \<open>Nibble3\<close>)
+  (b \<open>Nibble4\<close>)
+  (b \<open>Nibble5\<close>)
+  (b \<open>Nibble6\<close>)
+  (b \<open>Nibble7\<close>)
+  (b \<open>Nibble8\<close>)
+  (b \<open>Nibble9\<close>)
+  (b \<open>NibbleA\<close>)
+  (b \<open>NibbleB\<close>)
+  (b \<open>NibbleC\<close>)
+  (b \<open>NibbleD\<close>)
+  (b \<open>NibbleE\<close>)
+  (b \<open>NibbleF\<close>)"
 
 definition "i_of_char a b = rec_char
-  (ap2 a (b \<langle>''Char''\<rangle>) (i_of_nibble b) (i_of_nibble b))"
+  (ap2 a (b \<open>Char\<close>) (i_of_nibble b) (i_of_nibble b))"
 
 definition "i_of_string_gen s_flatten s_st0 s_st a b s = 
-  b (let s = textstr_of_str (\<lambda>c. \<langle>''(''\<rangle> @@ s_flatten @@ \<langle>'' ''\<rangle> @@ c @@ \<langle>'')''\<rangle>)
+  b (let s = textstr_of_str (\<lambda>c. \<open>(\<close> @@ s_flatten @@ \<open> \<close> @@ c @@ \<open>)\<close>)
                             (\<lambda>Char n1 n2 \<Rightarrow>
-                                 s_st0 (flatten [\<langle>'' (''\<rangle>, \<langle>''Char ''\<rangle>, i_of_nibble id n1, \<langle>'' ''\<rangle>, i_of_nibble id n2, \<langle>'')''\<rangle>]))
-                            (\<lambda>c. s_st (flatten [\<langle>'' (''\<rangle>, c, \<langle>'')''\<rangle>]))
+                                 s_st0 (flatten [\<open> (\<close>, \<open>Char \<close>, i_of_nibble id n1, \<open> \<close>, i_of_nibble id n2, \<open>)\<close>]))
+                            (\<lambda>c. s_st (flatten [\<open> (\<close>, c, \<open>)\<close>]))
                             s in
-     flatten [ \<langle>''(''\<rangle>, s, \<langle>'')''\<rangle> ])"
+     flatten [ \<open>(\<close>, s, \<open>)\<close> ])"
 
-definition "i_of_string = i_of_string_gen \<langle>''OCL_compiler_init.flatten''\<rangle>
-                                          (\<lambda>s. flatten [\<langle>''(OCL_compiler_init.ST0''\<rangle>, s, \<langle>'')''\<rangle>])
-                                          (\<lambda>s. flatten [\<langle>''(OCL_compiler_init.abr_string.SS_base (OCL_compiler_init.string''\<rangle>, isub_of_str \<langle>''base''\<rangle>, \<langle>''.ST''\<rangle>, s, \<langle>''))''\<rangle>])"
-definition "i_of_string\<^sub>b\<^sub>a\<^sub>s\<^sub>e a b s = i_of_string_gen \<langle>''OCL_compiler_init.flatten_base''\<rangle>
-                                                   (\<lambda>s. flatten [\<langle>''(OCL_compiler_init.ST0_base''\<rangle>, s, \<langle>'')''\<rangle>])
-                                                   (\<lambda>s. flatten [\<langle>''(OCL_compiler_init.string''\<rangle>, isub_of_str \<langle>''base''\<rangle>, \<langle>''.ST''\<rangle>, s, \<langle>'')''\<rangle>])
+definition "i_of_string = i_of_string_gen \<open>OCL_compiler_init.flatten\<close>
+                                          (\<lambda>s. flatten [\<open>(OCL_compiler_init.ST0\<close>, s, \<open>)\<close>])
+                                          (\<lambda>s. flatten [\<open>(OCL_compiler_init.abr_string.SS_base (OCL_compiler_init.string\<close>, isub_of_str \<open>base\<close>, \<open>.ST\<close>, s, \<open>))\<close>])"
+definition "i_of_string\<^sub>b\<^sub>a\<^sub>s\<^sub>e a b s = i_of_string_gen \<open>OCL_compiler_init.flatten_base\<close>
+                                                   (\<lambda>s. flatten [\<open>(OCL_compiler_init.ST0_base\<close>, s, \<open>)\<close>])
+                                                   (\<lambda>s. flatten [\<open>(OCL_compiler_init.string\<close>, isub_of_str \<open>base\<close>, \<open>.ST\<close>, s, \<open>)\<close>])
                                                    a
                                                    b
                                                    (String\<^sub>b\<^sub>a\<^sub>s\<^sub>e_to_String s)"
@@ -273,18 +273,18 @@ lemmas [code] =
 
 (* *)
 
-definition "isabelle_apply s l = flatten [s, flatten (List_map (\<lambda> s. flatten [\<langle>'' (''\<rangle>, s, \<langle>'')''\<rangle>]) l)]"
+definition "isabelle_apply s l = flatten [s, flatten (List_map (\<lambda> s. flatten [\<open> (\<close>, s, \<open>)\<close>]) l)]"
 
 subsubsection{* SML *}
 
 locale sml_of
 begin
 
-definition "i_Pair = \<langle>''I''\<rangle>"
-definition "i_Nil = \<langle>''nil''\<rangle>"
-definition "i_Cons = \<langle>''uncurry cons''\<rangle>" (* val cons2 = uncurry cons *)
-definition "i_None = \<langle>''NONE''\<rangle>"
-definition "i_Some = \<langle>''SOME''\<rangle>"
+definition "i_Pair = \<open>I\<close>"
+definition "i_Nil = \<open>nil\<close>"
+definition "i_Cons = \<open>uncurry cons\<close>" (* val cons2 = uncurry cons *)
+definition "i_None = \<open>NONE\<close>"
+definition "i_Some = \<open>SOME\<close>"
 
 (* *)
 
@@ -302,37 +302,37 @@ definition "i_of_option a b f = rec_option
 (* *)
 
 definition "i_of_unit b = case_unit
-  (b \<langle>''()''\<rangle>)"
+  (b \<open>()\<close>)"
 
 definition "i_of_bool b = case_bool
-  (b \<langle>''true''\<rangle>)
-  (b \<langle>''false''\<rangle>)"
+  (b \<open>true\<close>)
+  (b \<open>false\<close>)"
 
 definition "i_of_string a b =
  (let c = \<langle>[Char Nibble2 Nibble2]\<rangle> in
-  (\<lambda>x. b (flatten [ \<langle>''(OCL.SS_base (OCL.ST ''\<rangle>
+  (\<lambda>x. b (flatten [ \<open>(OCL.SS_base (OCL.ST \<close>
                   , c
                   , String_replace_chars ((* (* ERROR code_reflect *)
-                                          \<lambda> Char Nibble0 NibbleA \<Rightarrow> \<degree>Char Nibble5 NibbleC\<degree> @@ \<langle>''n''\<rangle>
+                                          \<lambda> Char Nibble0 NibbleA \<Rightarrow> \<degree>Char Nibble5 NibbleC\<degree> @@ \<open>n\<close>
                                           | x \<Rightarrow> \<degree>x\<degree>*)
-                                          \<lambda>x. if x = Char Nibble0 NibbleA then \<degree>Char Nibble5 NibbleC\<degree> @@ \<langle>''n''\<rangle>
+                                          \<lambda>x. if x = Char Nibble0 NibbleA then \<degree>Char Nibble5 NibbleC\<degree> @@ \<open>n\<close>
                                               else \<degree>x\<degree>) x
                   , c
-                  , \<langle>''))''\<rangle>])))"
+                  , \<open>))\<close>])))"
 
 definition "i_of_string\<^sub>b\<^sub>a\<^sub>s\<^sub>e a b =
  (let c = \<langle>[Char Nibble2 Nibble2]\<rangle> in
-  (\<lambda>x. b (flatten [ \<langle>''(OCL.ST ''\<rangle>
+  (\<lambda>x. b (flatten [ \<open>(OCL.ST \<close>
                   , c
                   , String_replace_chars ((* (* ERROR code_reflect *)
-                                          \<lambda> Char Nibble0 NibbleA \<Rightarrow> \<degree>Char Nibble5 NibbleC\<degree> @@ \<langle>''n''\<rangle>
+                                          \<lambda> Char Nibble0 NibbleA \<Rightarrow> \<degree>Char Nibble5 NibbleC\<degree> @@ \<open>n\<close>
                                           | x \<Rightarrow> \<degree>x\<degree>*)
-                                          \<lambda>x. if x = Char Nibble0 NibbleA then \<degree>Char Nibble5 NibbleC\<degree> @@ \<langle>''n''\<rangle>
+                                          \<lambda>x. if x = Char Nibble0 NibbleA then \<degree>Char Nibble5 NibbleC\<degree> @@ \<open>n\<close>
                                               else \<degree>x\<degree>) (String\<^sub>b\<^sub>a\<^sub>s\<^sub>e_to_String x)
                   , c
-                  , \<langle>'')''\<rangle>])))"
+                  , \<open>)\<close>])))"
 
-definition "i_of_nat a b = (\<lambda>x. b (flatten [\<langle>''(Code_Numeral.Nat ''\<rangle>, natural_of_str x, \<langle>'')''\<rangle>]))"
+definition "i_of_nat a b = (\<lambda>x. b (flatten [\<open>(Code_Numeral.Nat \<close>, natural_of_str x, \<open>)\<close>]))"
 
 end
 
@@ -375,6 +375,6 @@ lemmas [code] =
 
 (* *)
 
-definition "sml_apply s l = flatten [s, \<langle>'' (''\<rangle>, case\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l l of x # xs \<Rightarrow> flatten [x, flatten (List_map (\<lambda>s. flatten [\<langle>'', ''\<rangle>, s]) xs)], \<langle>'')''\<rangle> ]"
+definition "sml_apply s l = flatten [s, \<open> (\<close>, case\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l l of x # xs \<Rightarrow> flatten [x, flatten (List_map (\<lambda>s. flatten [\<open>, \<close>, s]) xs)], \<open>)\<close> ]"
 
 end

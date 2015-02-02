@@ -54,7 +54,7 @@ subsection{* infrastructure *}
 definition "print_infra_datatype_class = start_map'' Thy_dataty o (\<lambda>expr _ base_attr' _. map_class_gen_h''''
   (\<lambda>isub_name name _ l_attr l_inherited l_cons.
     let (l_attr, l_inherited) = base_attr' (l_attr, of_inh l_inherited)
-      ; map_ty = List_map ((\<lambda>x. Ty_apply (Ty_base \<langle>''option''\<rangle>) [str_hol_of_ty_all Ty_apply Ty_base x]) o snd) in
+      ; map_ty = List_map ((\<lambda>x. Ty_apply (Ty_base \<open>option\<close>) [str_hol_of_ty_all Ty_apply Ty_base x]) o snd) in
     [ Datatype
         (isub_name datatype_ext_name)
         (  (rev_map (\<lambda>x. ( datatype_ext_constr_name @@ mk_constr_name name x
@@ -67,24 +67,24 @@ definition "print_infra_datatype_class = start_map'' Thy_dataty o (\<lambda>expr
 definition "print_latex_infra_datatype_class = start_map'' Thy_dataty o (\<lambda>expr _ base_attr' _. map_class_gen_h''''
   (\<lambda>isub_name name _ l_attr l_inherited l_cons.
     let (l_attr, l_inherited) = base_attr' (l_attr, of_inh l_inherited)
-      ; map_ty = List_map ((\<lambda>x. Ty_apply (Ty_base \<langle>''option''\<rangle>) [str_hol_of_ty_all Ty_apply Ty_base x]) o snd) in let c = \<degree>Char Nibble5 NibbleC\<degree>
-      ; n1 = \<langle>''{ext}''\<rangle>
-      ; n2 = \<langle>''{ty}''\<rangle> in
+      ; map_ty = List_map ((\<lambda>x. Ty_apply (Ty_base \<open>option\<close>) [str_hol_of_ty_all Ty_apply Ty_base x]) o snd) in let c = \<degree>Char Nibble5 NibbleC\<degree>
+      ; n1 = \<open>{ext}\<close>
+      ; n2 = \<open>{ty}\<close> in
     [ Datatype
-        (\<langle>''''\<rangle>@@c@@\<langle>''operatorname{''\<rangle> @@ name @@ \<langle>''}_''\<rangle> @@ n1 @@ \<langle>''''\<rangle>)
-        (  (rev_map (\<lambda>x. ( \<langle>''''\<rangle>@@c@@\<langle>''operatorname{mk}_''\<rangle>@@c@@\<langle>''text{''\<rangle> @@ name @@ \<langle>''''\<rangle>@@c@@\<langle>''_''\<rangle> @@ x @@ \<langle>''}''\<rangle>
-                         , [Raw (\<langle>''''\<rangle>@@c@@\<langle>''operatorname{''\<rangle> @@ x @@ \<langle>''}_''\<rangle> @@ n2 @@ \<langle>''''\<rangle>)])) (of_sub l_cons))
-        @@@@ [(\<langle>''''\<rangle>@@c@@\<langle>''operatorname{mk}_''\<rangle>@@c@@\<langle>''text{''\<rangle> @@ name @@ \<langle>''}''\<rangle>, Raw const_oid # List_maps map_ty l_inherited)])
+        (\<open>\<close>@@c@@\<open>operatorname{\<close> @@ name @@ \<open>}_\<close> @@ n1 @@ \<open>\<close>)
+        (  (rev_map (\<lambda>x. ( \<open>\<close>@@c@@\<open>operatorname{mk}_\<close>@@c@@\<open>text{\<close> @@ name @@ \<open>\<close>@@c@@\<open>_\<close> @@ x @@ \<open>}\<close>
+                         , [Raw (\<open>\<close>@@c@@\<open>operatorname{\<close> @@ x @@ \<open>}_\<close> @@ n2 @@ \<open>\<close>)])) (of_sub l_cons))
+        @@@@ [(\<open>\<close>@@c@@\<open>operatorname{mk}_\<close>@@c@@\<open>text{\<close> @@ name @@ \<open>}\<close>, Raw const_oid # List_maps map_ty l_inherited)])
     , Datatype
-        (\<langle>''''\<rangle>@@c@@\<langle>''operatorname{''\<rangle> @@ name @@ \<langle>''}_''\<rangle> @@ n2 @@ \<langle>''''\<rangle>)
-        [ (\<langle>''''\<rangle>@@c@@\<langle>''operatorname{mkoid}_''\<rangle>@@c@@\<langle>''text{''\<rangle> @@ name @@ \<langle>''}''\<rangle>, Raw (\<langle>''''\<rangle>@@c@@\<langle>''operatorname{''\<rangle> @@ name @@ \<langle>''}_''\<rangle> @@ n1 @@ \<langle>''''\<rangle>) # map_ty l_attr ) ] ]) expr)"
+        (\<open>\<close>@@c@@\<open>operatorname{\<close> @@ name @@ \<open>}_\<close> @@ n2 @@ \<open>\<close>)
+        [ (\<open>\<close>@@c@@\<open>operatorname{mkoid}_\<close>@@c@@\<open>text{\<close> @@ name @@ \<open>}\<close>, Raw (\<open>\<close>@@c@@\<open>operatorname{\<close> @@ name @@ \<open>}_\<close> @@ n1 @@ \<open>\<close>) # map_ty l_attr ) ] ]) expr)"
 
 definition "print_infra_datatype_universe expr = start_map Thy_dataty
   [ Datatype unicode_AA
       (map_class (\<lambda>isub_name _ _ _ _ _. (isub_name datatype_in, [Raw (isub_name datatype_name)])) expr) ]"
 
 definition "print_infra_type_synonym_class expr = start_map Thy_ty_synonym
-  (let option = (\<lambda>x. Ty_apply (Ty_base \<langle>''option''\<rangle>) [x])
+  (let option = (\<lambda>x. Ty_apply (Ty_base \<open>option\<close>) [x])
      ; ty = \<lambda> t s. Type_synonym (str_of_ty t) (Ty_apply (Ty_base s) [Ty_base unicode_AA]) in
    (* base type *)
    ty OclTy_base_void ty_void #
@@ -95,7 +95,7 @@ definition "print_infra_type_synonym_class expr = start_map Thy_ty_synonym
    ty OclTy_base_string ty_string #
    (* *)
    (map_class (\<lambda>isub_name name _ _ _ _.
-     Type_synonym name (Ty_apply (Ty_base \<langle>''val''\<rangle>) [Ty_base unicode_AA,
+     Type_synonym name (Ty_apply (Ty_base \<open>val\<close>) [Ty_base unicode_AA,
      option (option (Ty_base (isub_name datatype_name))) ])) expr))"
 
 definition "print_infra_type_synonym_class_rec = (\<lambda>expr ocl.
@@ -122,15 +122,15 @@ definition "print_infra_type_synonym_class_rec = (\<lambda>expr ocl.
 definition "print_infra_instantiation_class = start_map'' Thy_instantiation_class o (\<lambda>expr _ base_attr' _. map_class_gen_h''''
   (\<lambda>isub_name name _ l_attr l_inherited l_cons.
     let (l_attr, l_inherited) = base_attr' (l_attr, of_inh l_inherited) in
-    let oid_of = \<langle>''oid_of''\<rangle> in
+    let oid_of = \<open>oid_of\<close> in
     [Instantiation
       (isub_name datatype_name)
       oid_of
       (Expr_rewrite
         (Expr_basic [oid_of])
-        \<langle>''=''\<rangle>
+        \<open>=\<close>
         (Expr_function
-                   [ let var_oid = \<langle>''t''\<rangle> in
+                   [ let var_oid = \<open>t\<close> in
                      ( Expr_basic (isub_name datatype_constr_name # var_oid # List_map (\<lambda>_. wildcard) l_attr)
                      , Expr_case
                          (Expr_basic [var_oid])
@@ -143,23 +143,23 @@ definition "print_infra_instantiation_class = start_map'' Thy_instantiation_clas
     ]) expr)"
 
 definition "print_infra_instantiation_universe expr = start_map Thy_instantiation_class
-  [ let oid_of = \<langle>''oid_of''\<rangle> in
+  [ let oid_of = \<open>oid_of\<close> in
     Instantiation unicode_AA oid_of
       (Expr_rewrite
         (Expr_basic [oid_of])
-        \<langle>''=''\<rangle>
+        \<open>=\<close>
         (Expr_function (map_class (\<lambda>isub_name name _ _ _ _.
     let esc = (\<lambda>h. Expr_basic (h # [name])) in
     (esc (isub_name datatype_in), esc oid_of)) expr))) ]"
 
 
-definition "print_instantia_def_strictrefeq_name mk_strict name = mk_strict [\<langle>''_''\<rangle>, isub_of_str name]"
+definition "print_instantia_def_strictrefeq_name mk_strict name = mk_strict [\<open>_\<close>, isub_of_str name]"
 definition "print_instantia_def_strictrefeq = start_map Thy_defs_overloaded o
   map_class (\<lambda>isub_name name _ _ _ _.
-    let mk_strict = (\<lambda>l. flatten (\<langle>''StrictRefEq''\<rangle> # isub_of_str \<langle>''Object''\<rangle> # l))
-      ; s_strict = mk_strict [\<langle>''_''\<rangle>, isub_of_str name]
-      ; var_x = \<langle>''x''\<rangle>
-      ; var_y = \<langle>''y''\<rangle> in
+    let mk_strict = (\<lambda>l. flatten (\<open>StrictRefEq\<close> # isub_of_str \<open>Object\<close> # l))
+      ; s_strict = mk_strict [\<open>_\<close>, isub_of_str name]
+      ; var_x = \<open>x\<close>
+      ; var_y = \<open>y\<close> in
     Defs_overloaded
       (print_instantia_def_strictrefeq_name mk_strict name)
       (Expr_rewrite (Expr_binop (Expr_annot (Expr_basic [var_x]) name)
@@ -171,10 +171,10 @@ definition "print_instantia_def_strictrefeq = start_map Thy_defs_overloaded o
 definition "print_instantia_lemmas_strictrefeq = start_map'
   (if activate_simp_optimization then
      \<lambda>expr.
-       let mk_strict = (\<lambda>l. flatten (\<langle>''StrictRefEq''\<rangle> # isub_of_str \<langle>''Object''\<rangle> # l))
+       let mk_strict = (\<lambda>l. flatten (\<open>StrictRefEq\<close> # isub_of_str \<open>Object\<close> # l))
          ; name_set = map_class (\<lambda>_ name _ _ _ _. print_instantia_def_strictrefeq_name mk_strict name) expr in
        case name_set of [] \<Rightarrow> [] | _ \<Rightarrow> List_map Thy_lemmas_simp
-         [ Lemmas_simp \<langle>''''\<rangle> (List_map (Thm_str) name_set) ]
+         [ Lemmas_simp \<open>\<close> (List_map (Thm_str) name_set) ]
   else (\<lambda>_. []))"
 
 end

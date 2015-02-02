@@ -185,12 +185,12 @@ definition "s_of_ntheorems_l l = String_concat \<prec>'' ''\<succ> (List_map s_o
 
 definition "s_of_lemmas_simp _ = (\<lambda> Lemmas_simp_opt simp s l \<Rightarrow>
     sprint3 ''lemmas%s%s = %s''\<acute>
-      (if String_is_empty s then \<prec>''''\<succ> else To_string (\<langle>'' ''\<rangle> @@ s))
+      (if String_is_empty s then \<prec>''''\<succ> else To_string (\<open> \<close> @@ s))
       (if simp then \<prec>''[simp,code_unfold]''\<succ> else \<prec>''''\<succ>)
       (s_of_ntheorem_l l)
                                   | Lemmas_simps s l \<Rightarrow>
     sprint2 ''lemmas%s [simp,code_unfold] = %s''\<acute>
-      (if String_is_empty s then \<prec>''''\<succ> else To_string (\<langle>'' ''\<rangle> @@ s))
+      (if String_is_empty s then \<prec>''''\<succ> else To_string (\<open> \<close> @@ s))
       (String_concat \<prec>''
                             ''\<succ> (List_map To_string l)))"
 
@@ -309,7 +309,7 @@ definition "s_of_lemma_by _ =
       (String_concat \<prec>''''\<succ> (List_map (\<lambda>(n, b, e).
           sprint2 ''
 assumes %s\"%s\"''\<acute>
-            (let (n, b) = if b then (flatten [n, \<langle>''[simp]''\<rangle>], False) else (n, String_is_empty n) in
+            (let (n, b) = if b then (flatten [n, \<open>[simp]\<close>], False) else (n, String_is_empty n) in
              if b then \<prec>''''\<succ> else sprint1 ''%s: ''\<acute> (To_string n))
             (s_of_expr e)) l_spec
        @@@@

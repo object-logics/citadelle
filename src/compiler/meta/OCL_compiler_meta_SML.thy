@@ -66,16 +66,16 @@ datatype sml_expr = Sexpr_string string
 
 section{* ... *}
 
-definition "Sexpr_none = Sexpr_basic [\<langle>''NONE''\<rangle>]"
-definition "Sexpr_some s = Sexpr_apply \<langle>''SOME''\<rangle> [s]"
+definition "Sexpr_none = Sexpr_basic [\<open>NONE\<close>]"
+definition "Sexpr_some s = Sexpr_apply \<open>SOME\<close> [s]"
 definition "Sexpr_option' f l = (case map_option f l of None \<Rightarrow> Sexpr_none | Some s \<Rightarrow> Sexpr_some s)"
 definition "Sexpr_option = Sexpr_option' id"
-definition "Sexpr_parenthesis (* mandatory parenthesis *) = Sexpr_paren \<langle>''(''\<rangle> \<langle>'')''\<rangle>"
+definition "Sexpr_parenthesis (* mandatory parenthesis *) = Sexpr_paren \<open>(\<close> \<open>)\<close>"
 definition "sexpr_binop s l = (case rev l of x # xs \<Rightarrow> List.fold (\<lambda>x. Sexpr_binop x s) xs x)"
-definition "Sexpr_list l = (case l of [] \<Rightarrow> Sexpr_basic [\<langle>''[]''\<rangle>] | _ \<Rightarrow> Sexpr_paren \<langle>''[''\<rangle> \<langle>'']''\<rangle> (sexpr_binop \<langle>'',''\<rangle> l))"
+definition "Sexpr_list l = (case l of [] \<Rightarrow> Sexpr_basic [\<open>[]\<close>] | _ \<Rightarrow> Sexpr_paren \<open>[\<close> \<open>]\<close> (sexpr_binop \<open>,\<close> l))"
 definition "Sexpr_list' f l = Sexpr_list (List_map f l)"
-definition "Sexpr_pair e1 e2 = Sexpr_parenthesis (Sexpr_binop e1 \<langle>'',''\<rangle> e2)"
-definition "Sexpr_pair' f1 f2 = (\<lambda> (e1, e2) \<Rightarrow> Sexpr_parenthesis (Sexpr_binop (f1 e1) \<langle>'',''\<rangle> (f2 e2)))"
+definition "Sexpr_pair e1 e2 = Sexpr_parenthesis (Sexpr_binop e1 \<open>,\<close> e2)"
+definition "Sexpr_pair' f1 f2 = (\<lambda> (e1, e2) \<Rightarrow> Sexpr_parenthesis (Sexpr_binop (f1 e1) \<open>,\<close> (f2 e2)))"
 definition "Sexpr_rewrite_val = Sexpr_rewrite Sval"
 definition "Sexpr_rewrite_fun = Sexpr_rewrite Sfun"
 

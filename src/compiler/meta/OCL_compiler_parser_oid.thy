@@ -56,10 +56,10 @@ context i_of
 begin
 
 definition "i_of_internal_oid a b = rec_internal_oid
-  (ap1 a (b \<langle>''Oid''\<rangle>) (i_of_nat a b))"
+  (ap1 a (b \<open>Oid\<close>) (i_of_nat a b))"
 
 definition "i_of_internal_oids a b = rec_internal_oids
-  (ap3 a (b \<langle>''Oids''\<rangle>)
+  (ap3 a (b \<open>Oids\<close>)
     (i_of_nat a b)
     (i_of_nat a b)
     (i_of_nat a b))"

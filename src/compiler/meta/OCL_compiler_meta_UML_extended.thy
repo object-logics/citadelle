@@ -88,6 +88,6 @@ datatype ocl_def_pre_post = OclDefPP
 
 subsection{* ... *}
 
-definition "ocl_instance_single_empty = \<lparr> Inst_name = \<langle>''''\<rangle>, Inst_ty = \<langle>''''\<rangle>, Inst_attr = OclAttrNoCast [] \<rparr>"
+definition "ocl_instance_single_empty = \<lparr> Inst_name = \<open>\<close>, Inst_ty = \<open>\<close>, Inst_attr = OclAttrNoCast [] \<rparr>"
 
 end

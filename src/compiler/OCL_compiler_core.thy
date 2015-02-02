@@ -66,17 +66,17 @@ definition "subsubsection = section_aux 2"
 definition "txt f = start_map'''' Thy_text o (\<lambda>_ design_analysis. [Text (f design_analysis)])"
 definition "txt' s = txt (\<lambda>_. s)"
 definition "txt'' = txt' o flatten"
-definition "txt''d s = txt (\<lambda> Gen_only_design \<Rightarrow> flatten s | _ \<Rightarrow> \<langle>''''\<rangle>)"
-definition "txt''a s = txt (\<lambda> Gen_only_design \<Rightarrow> \<langle>''''\<rangle> | _ \<Rightarrow> flatten s)"
+definition "txt''d s = txt (\<lambda> Gen_only_design \<Rightarrow> flatten s | _ \<Rightarrow> \<open>\<close>)"
+definition "txt''a s = txt (\<lambda> Gen_only_design \<Rightarrow> \<open>\<close> | _ \<Rightarrow> flatten s)"
 
 definition\<acute> thy_class ::
   (* polymorphism weakening needed by code_reflect *)
   "(_ \<Rightarrow> ocl_compiler_config \<Rightarrow> _) list" where \<open>thy_class =
-  (let subsection_def = subsection \<langle>''Definition''\<rangle>
-     ; subsection_cp = subsection \<langle>''Context Passing''\<rangle>
-     ; subsection_exec = subsection \<langle>''Execution with Invalid or Null as Argument''\<rangle>
-     ; subsection_up = subsection \<langle>''Up Down Casting''\<rangle>
-     ; subsection_defined = subsection \<langle>''Validity and Definedness Properties''\<rangle> in
+  (let subsection_def = subsection \<open>Definition\<close>
+     ; subsection_cp = subsection \<open>Context Passing\<close>
+     ; subsection_exec = subsection \<open>Execution with Invalid or Null as Argument\<close>
+     ; subsection_up = subsection \<open>Up Down Casting\<close>
+     ; subsection_defined = subsection \<open>Validity and Definedness Properties\<close> in
   List_flatten
           [ [ txt''d [ \<open>
    \label{ex:employee-design:uml} \<close> ]

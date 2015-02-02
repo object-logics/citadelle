@@ -56,29 +56,29 @@ context i_of
 begin
 
 definition "i_of_pure_indexname a b = rec_pure_indexname
-  (ap2 a (b \<langle>''PureIndexname''\<rangle>) (i_of_string a b) (i_of_nat a b))"
+  (ap2 a (b \<open>PureIndexname\<close>) (i_of_string a b) (i_of_nat a b))"
 
 definition "i_of_pure_class a b = rec_pure_class
-  (ap1 a (b \<langle>''PureClass''\<rangle>) (i_of_string a b))"
+  (ap1 a (b \<open>PureClass\<close>) (i_of_string a b))"
 
 definition "i_of_pure_sort a b = rec_pure_sort
-  (ap1 a (b \<langle>''PureSort''\<rangle>) (i_of_list a b (i_of_pure_class a b)))"
+  (ap1 a (b \<open>PureSort\<close>) (i_of_list a b (i_of_pure_class a b)))"
 
 definition "i_of_pure_typ a b = (\<lambda>f1 f2 f3 f4 f5. rec_pure_typ_1 (co1 K f1) f2 f3 f4 (\<lambda>_ _. f5))
-  (ar2 a (b \<langle>''PureType''\<rangle>) (i_of_string a b))
-  (ap2 a (b \<langle>''PureTFree''\<rangle>) (i_of_string a b) (i_of_pure_sort a b))
-  (ap2 a (b \<langle>''PureTVar''\<rangle>) (i_of_pure_indexname a b) (i_of_pure_sort a b))
+  (ar2 a (b \<open>PureType\<close>) (i_of_string a b))
+  (ap2 a (b \<open>PureTFree\<close>) (i_of_string a b) (i_of_pure_sort a b))
+  (ap2 a (b \<open>PureTVar\<close>) (i_of_pure_indexname a b) (i_of_pure_sort a b))
   (* *)
   (b i_Nil)
   (ar2 a (b i_Cons) id)"
 
 definition "i_of_pure_term a b = (\<lambda>f0 f1 f2 f3 f4 f5. rec_pure_term f0 f1 f2 f3 (co2 K f4) (\<lambda>_ _. f5))
-  (ap2 a (b \<langle>''PureConst''\<rangle>) (i_of_string a b) (i_of_pure_typ a b))
-  (ap2 a (b \<langle>''PureFree''\<rangle>) (i_of_string a b) (i_of_pure_typ a b))
-  (ap2 a (b \<langle>''PureVar''\<rangle>) (i_of_pure_indexname a b) (i_of_pure_typ a b))
-  (ap1 a (b \<langle>''PureBound''\<rangle>) (i_of_nat a b))
-  (ar3 a (b \<langle>''PureAbs''\<rangle>) (i_of_string a b) (i_of_pure_typ a b))
-  (ar2 a (b \<langle>''PureApp''\<rangle>) id)"
+  (ap2 a (b \<open>PureConst\<close>) (i_of_string a b) (i_of_pure_typ a b))
+  (ap2 a (b \<open>PureFree\<close>) (i_of_string a b) (i_of_pure_typ a b))
+  (ap2 a (b \<open>PureVar\<close>) (i_of_pure_indexname a b) (i_of_pure_typ a b))
+  (ap1 a (b \<open>PureBound\<close>) (i_of_nat a b))
+  (ar3 a (b \<open>PureAbs\<close>) (i_of_string a b) (i_of_pure_typ a b))
+  (ar2 a (b \<open>PureApp\<close>) id)"
 
 end
 

@@ -185,7 +185,7 @@ section{* ... *}
 
 definition "thm_OF s l = List.fold (\<lambda>x acc. Thm_OF acc x) l s"
 definition "thm_simplified s l = List.fold (\<lambda>x acc. Thm_simplified acc x) l s"
-definition "Opt s = Ty_apply (Ty_base \<langle>''option''\<rangle>) [Ty_base s]"
+definition "Opt s = Ty_apply (Ty_base \<open>option\<close>) [Ty_base s]"
 definition "Raw = Ty_base"
 definition "Expr_annot e s = Expr_annot0 e (Ty_base s)"
 definition "Expr_bind symb s e = Expr_bind0 symb (Expr_basic s) e"
@@ -194,7 +194,7 @@ definition "Expr_lambda x = Expr_lambdas [x]"
 definition "Expr_lambdas0 = Expr_bind0 unicode_lambda"
 definition "Expr_lam x f = Expr_lambdas0 (Expr_basic [x]) (f x)"
 definition "Expr_some = Expr_paren unicode_lfloor unicode_rfloor"
-definition "Expr_parenthesis (* mandatory parenthesis *) = Expr_paren \<langle>''(''\<rangle> \<langle>'')''\<rangle>"
+definition "Expr_parenthesis (* mandatory parenthesis *) = Expr_paren \<open>(\<close> \<open>)\<close>"
 definition "Expr_warning_parenthesis (* optional parenthesis that can be removed but a warning will be raised *) = Expr_parenthesis"
 definition "Expr_pat b = Expr_basic [\<degree>Char Nibble3 NibbleF\<degree> @@ b]"
 definition "Expr_And x f = Expr_bind0 unicode_And (Expr_basic [x]) (f x)"
@@ -202,11 +202,11 @@ definition "Expr_exists x f = Expr_bind0 unicode_exists (Expr_basic [x]) (f x)"
 definition "Expr_binop = Expr_rewrite"
 definition "expr_binop s l = (case rev l of x # xs \<Rightarrow> List.fold (\<lambda>x. Expr_binop x s) xs x)"
 definition "expr_binop' s l = (case rev l of x # xs \<Rightarrow> List.fold (\<lambda>x. Expr_parenthesis o Expr_binop x s) xs x)"
-definition "Expr_set l = (case l of [] \<Rightarrow> Expr_basic [\<langle>''{}''\<rangle>] | _ \<Rightarrow> Expr_paren \<langle>''{''\<rangle> \<langle>''}''\<rangle> (expr_binop \<langle>'',''\<rangle> l))"
-definition "Expr_oclset l = (case l of [] \<Rightarrow> Expr_basic [\<langle>''Set{}''\<rangle>] | _ \<Rightarrow> Expr_paren \<langle>''Set{''\<rangle> \<langle>''}''\<rangle> (expr_binop \<langle>'',''\<rangle> l))"
-definition "Expr_list l = (case l of [] \<Rightarrow> Expr_basic [\<langle>''[]''\<rangle>] | _ \<Rightarrow> Expr_paren \<langle>''[''\<rangle> \<langle>'']''\<rangle> (expr_binop \<langle>'',''\<rangle> l))"
+definition "Expr_set l = (case l of [] \<Rightarrow> Expr_basic [\<open>{}\<close>] | _ \<Rightarrow> Expr_paren \<open>{\<close> \<open>}\<close> (expr_binop \<open>,\<close> l))"
+definition "Expr_oclset l = (case l of [] \<Rightarrow> Expr_basic [\<open>Set{}\<close>] | _ \<Rightarrow> Expr_paren \<open>Set{\<close> \<open>}\<close> (expr_binop \<open>,\<close> l))"
+definition "Expr_list l = (case l of [] \<Rightarrow> Expr_basic [\<open>[]\<close>] | _ \<Rightarrow> Expr_paren \<open>[\<close> \<open>]\<close> (expr_binop \<open>,\<close> l))"
 definition "Expr_list' f l = Expr_list (List_map f l)"
-definition "Expr_pair e1 e2 = Expr_parenthesis (Expr_binop e1 \<langle>'',''\<rangle> e2)"
+definition "Expr_pair e1 e2 = Expr_parenthesis (Expr_binop e1 \<open>,\<close> e2)"
 definition "Expr_string s = Expr_basic [flatten [\<degree>Char Nibble2 Nibble2\<degree>, s, \<degree>Char Nibble2 Nibble2\<degree>]]"
 definition "Expr_applys0 e l = Expr_parenthesis (Expr_applys00 e (List_map Expr_parenthesis l))"
 definition "Expr_applys e l = Expr_applys0 (Expr_parenthesis e) l"
@@ -218,15 +218,15 @@ definition "Expr_function = Expr_function0 None"
 definition "Expr_inner = Expr_inner0 []"
 definition "Lemmas_simp = Lemmas_simp_opt True"
 definition "Lemmas_nosimp = Lemmas_simp_opt False"
-definition "Consts_value = \<langle>''(_)''\<rangle>"
-definition "Consts_raw0 s l e o_arg = Consts_raw s l (String_replace_chars (\<lambda>c. if c = Char Nibble5 NibbleF then \<langle>'''_''\<rangle> else \<degree>c\<degree>) e @@ (case o_arg of
-         None \<Rightarrow> \<langle>''''\<rangle>
+definition "Consts_value = \<open>(_)\<close>"
+definition "Consts_raw0 s l e o_arg = Consts_raw s l (String_replace_chars (\<lambda>c. if c = Char Nibble5 NibbleF then \<open>'_\<close> else \<degree>c\<degree>) e @@ (case o_arg of
+         None \<Rightarrow> \<open>\<close>
        | Some arg \<Rightarrow>
-           let ap = \<lambda>s. \<langle>'''(''\<rangle> @@ s @@ \<langle>''')''\<rangle> in
+           let ap = \<lambda>s. \<open>'(\<close> @@ s @@ \<open>')\<close> in
            ap (if arg = 0 then
-                \<langle>''''\<rangle>
+                \<open>\<close>
               else
-                Consts_value @@ (flatten (List_map (\<lambda>_. \<langle>'',''\<rangle> @@ Consts_value) (List_upto 2 arg))))))"
+                Consts_value @@ (flatten (List_map (\<lambda>_. \<open>,\<close> @@ Consts_value) (List_upto 2 arg))))))"
 definition "Ty_arrow = Ty_apply_bin unicode_Rightarrow"
 definition "Ty_times = Ty_apply_bin unicode_times"
 definition "Consts s l e = Consts_raw0 s (Ty_arrow (Ty_base (\<degree>Char Nibble2 Nibble7\<degree> @@ unicode_alpha)) l) e None"
@@ -277,8 +277,8 @@ definition "Tac_case_tac = Tact_case_tac"
 definition "Tac_blast = Tact_blast"
 definition "Tac_clarify = Tact_clarify"
 
-definition "Tac_subst_asm b = Tac_subst_l0 b [\<langle>''0''\<rangle>]"
-definition "Tac_subst = Tac_subst_l [\<langle>''0''\<rangle>]"
+definition "Tac_subst_asm b = Tac_subst_l0 b [\<open>0\<close>]"
+definition "Tac_subst = Tac_subst_l [\<open>0\<close>]"
 definition "Tac_auto_simp_add = Tac_auto_simp_add2 []"
 definition "Tac_auto = Tac_auto_simp_add []"
 definition "ty_arrow l = (case rev l of x # xs \<Rightarrow> List.fold Ty_arrow xs x)"
