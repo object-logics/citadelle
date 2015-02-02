@@ -624,5 +624,8 @@ subsection{* ... *}
 locale s_of =
   fixes To_string :: "string \<Rightarrow> ml_string"
   fixes To_nat :: "nat \<Rightarrow> ml_int"
+begin
+  declare[[cartouche_type = "String.literal"]]
+end
 
 end

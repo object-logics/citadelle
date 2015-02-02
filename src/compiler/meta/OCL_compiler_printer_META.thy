@@ -53,27 +53,35 @@ subsection{* s of ... *} (* s_of *)
 context s_of
 begin
 
+declare[[cartouche_type = "abr_string"]]
+
 definition "s_of_sexpr_extended = (\<lambda>
     Sexpr_extended s \<Rightarrow> s_of_sexpr s
   | Sexpr_ocl ocl \<Rightarrow> s_of_sexpr
      (Sexpr_apply \<open>Generation_mode.update_compiler_config\<close>
        [Sexpr_apply \<open>K\<close> [Sexpr_let_open \<open>OCL\<close> (Sexpr_basic [sml_of_ocl_unit sml_apply id ocl])]]))"
 
+definition "concatWith l =
+ (if l = [] then
+    id
+  else
+    sprint2 ''(%s. (%s))''\<acute> (To_string (String_concatWith \<open> \<close> (unicode_lambda # rev l))))"
+
+declare[[cartouche_type = "String.literal"]]
+
 definition "s_of_section_title ocl = (\<lambda> Section_title n section_title \<Rightarrow>
   if D_disable_thy_output ocl then
     \<prec>''''\<succ>
   else
     sprint2 ''%s{* %s *}''\<acute>
-      (To_string ((if n = 0 then \<open>\<close>
-                   else if n = 1 then \<open>sub\<close>
-                   else \<open>subsub\<close>) @@ \<open>section\<close>))
+      (sprint1 ''%ssection''\<acute> (if n = 0 then \<open>\<close>
+                               else if n = 1 then \<open>sub\<close>
+                               else \<open>subsub\<close>))
       (To_string section_title))"
 
 fun_quick s_of_ctxt2_term_aux where "s_of_ctxt2_term_aux l e =
- (\<lambda> T_pure pure \<Rightarrow> (if l = [] then id else sprint2 ''(%s. (%s))''\<acute> (To_string (String_concatWith \<open> \<close> (unicode_lambda # rev l))))
-                     (s_of_pure_term [] pure)
-  | T_to_be_parsed _ s \<Rightarrow> (if l = [] then id else sprint2 ''(%s. (%s))''\<acute> (To_string (String_concatWith \<open> \<close> (unicode_lambda # rev l))))
-                            (To_string s)
+ (\<lambda> T_pure pure \<Rightarrow> concatWith l (s_of_pure_term [] pure)
+  | T_to_be_parsed _ s \<Rightarrow> concatWith l (To_string s)
   | T_lambda s c \<Rightarrow> s_of_ctxt2_term_aux (s # l) c) e"
 definition "s_of_ctxt2_term = s_of_ctxt2_term_aux []"
 
@@ -150,7 +158,7 @@ definition "s_of_thy_extended ocl = (\<lambda>
 definition "s_of_thy_list ocl l_thy =
   (let (th_beg, th_end) = case D_file_out_path_dep ocl of None \<Rightarrow> ([], [])
    | Some (name, fic_import, fic_import_boot) \<Rightarrow>
-       ( [ sprint2 ''theory %s imports %s begin''\<acute> (To_string name) (s_of_expr (expr_binop \<open> \<close> (List_map Expr_string (fic_import @@@@ (if D_import_compiler ocl | D_generation_syntax_shallow ocl then [fic_import_boot] else []))))) ]
+       ( [ sprint2 ''theory %s imports %s begin''\<acute> (To_string name) (s_of_expr (expr_binop \<langle>'' ''\<rangle> (List_map Expr_string (fic_import @@@@ (if D_import_compiler ocl | D_generation_syntax_shallow ocl then [fic_import_boot] else []))))) ]
        , [ \<prec>''''\<succ>, \<prec>''end''\<succ> ]) in
   List_flatten
         [ th_beg
@@ -158,7 +166,7 @@ definition "s_of_thy_list ocl l_thy =
             let (l_thy, lg) = fold_list (\<lambda>l n. (s_of_thy_extended ocl l, Succ n)) l 0 in
             (( \<prec>''''\<succ>
              # sprint4 ''%s(* %d ************************************ %d + %d *)''\<acute>
-                 (To_string (if ocl_compiler_config.more ocl then \<open>\<close> else \<degree>char_escape\<degree>)) (To_nat (Succ i)) (To_nat cpt) (To_nat lg)
+                 (To_string (if ocl_compiler_config.more ocl then \<langle>''''\<rangle> else \<degree>char_escape\<degree>)) (To_nat (Succ i)) (To_nat cpt) (To_nat lg)
              # l_thy), Succ i, cpt + lg)) l_thy (D_output_position ocl)))
         , th_end ])"
 end
@@ -166,6 +174,7 @@ end
 lemmas [code] =
   (* def *)
   s_of.s_of_sexpr_extended_def
+  s_of.concatWith_def
   s_of.s_of_section_title_def
   s_of.s_of_ctxt2_term_def
   s_of.s_of_ocl_deep_embed_ast_def
