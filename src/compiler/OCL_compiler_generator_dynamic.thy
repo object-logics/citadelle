@@ -452,7 +452,7 @@ fun produce_code thy cs seris =
 
 fun absolute_path filename thy = Path.implode (Path.append (Thy_Load.master_directory thy) (Path.explode filename))
 
-fun export_code_cmd_gen raw_cs thy seris =
+fun export_code_cmd raw_cs thy seris =
   Code_Target.export_code
                   thy
                   (Code_Target.read_const_exprs thy raw_cs)
@@ -481,7 +481,7 @@ fun export_code_cmd' seris tmp_export_code f_err filename_thy raw_cs thy =
   export_code_tmp_file seris
     (fn seris =>
       let val mem_scala = List.exists (fn ((("Scala", _), _), _) => true | _ => false) seris
-          val _ = export_code_cmd_gen
+          val _ = export_code_cmd
         (if mem_scala then Deep0.Export_code_env.Isabelle.function :: raw_cs else raw_cs)
         (let val v = Deep0.apply_hs_code_identifiers Deep0.Export_code_env.Haskell.argument thy in
          if mem_scala then Code_printing.apply_code_printing v else v end)
@@ -611,7 +611,7 @@ fun f_command l_mode =
                                           mk_fic (Deep0.find_function ml_compiler (Deep0.find_ext ml_compiler))))
                         , export_arg), mk_fic)
                       end) seri_args
-                    val _ = Deep.export_code_cmd_gen
+                    val _ = Deep.export_code_cmd
                               [Deep0.Export_code_env.Isabelle.function]
                               (Code_printing.apply_code_printing (Deep0.apply_hs_code_identifiers Deep0.Export_code_env.Haskell.function thy))
                               (List.map fst seri_args')
