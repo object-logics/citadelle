@@ -138,7 +138,7 @@ fun String_map_gen where
      (\<lambda> SS_base s \<Rightarrow> String\<^sub>b\<^sub>a\<^sub>s\<^sub>e_map_gen replace g s
       | String_concatWith abr l \<Rightarrow> String_concatWith (String_map_gen replace g abr) (List.map (String_map_gen replace g) l)) e"
 
-definition "String_foldl_one f accu s = foldl f accu (explode s)"
+definition "String_foldl_one f accu s = foldl f accu (String.explode s)"
 definition "String\<^sub>b\<^sub>a\<^sub>s\<^sub>e_foldl f accu = (\<lambda> ST s \<Rightarrow> String_foldl_one f accu s
                                       | ST' s \<Rightarrow> foldl f accu s)"
 fun String_foldl where
@@ -149,14 +149,14 @@ fun String_foldl where
                  | x # xs \<Rightarrow> foldl (\<lambda>accu. String_foldl f (String_foldl f accu abr)) (String_foldl f accu x) xs)) e"
 
 definition "replace_chars f s1 s s2 =
-  s1 @@ (case s of None \<Rightarrow> \<langle>''''\<rangle> | Some s \<Rightarrow> flatten (List_map f (explode s))) @@ s2"
+  s1 @@ (case s of None \<Rightarrow> \<langle>''''\<rangle> | Some s \<Rightarrow> flatten (List_map f (String.explode s))) @@ s2"
 
 definition "String_map f = String_map_gen (replace_chars (\<lambda>c. \<degree>f c\<degree>)) (\<lambda>x. \<degree>f x\<degree>)"
 definition "String_replace_chars f = String_map_gen (replace_chars (\<lambda>c. f c)) f"
 definition "String_all f = String_foldl (\<lambda>b s. b & f s) True"
 definition "String_length = String_foldl (\<lambda>n _. Suc n) 0"
 definition "String_to_list s = rev (String_foldl (\<lambda>l c. c # l) [] s)"
-definition "String\<^sub>b\<^sub>a\<^sub>s\<^sub>e_to_list = (\<lambda> ST s \<Rightarrow> explode s | ST' l \<Rightarrow> l)"
+definition "String\<^sub>b\<^sub>a\<^sub>s\<^sub>e_to_list = (\<lambda> ST s \<Rightarrow> String.explode s | ST' l \<Rightarrow> l)"
 definition "String_to_String\<^sub>b\<^sub>a\<^sub>s\<^sub>e = (\<lambda> SS_base s \<Rightarrow> s | s \<Rightarrow> ST' (String_to_list s))"
 definition "String\<^sub>b\<^sub>a\<^sub>s\<^sub>e_to_String = SS_base"
 definition "String\<^sub>b\<^sub>a\<^sub>s\<^sub>e_is_empty = (\<lambda> ST s \<Rightarrow> s = STR ''''
@@ -168,7 +168,7 @@ definition "String_equal s1 s2 = (String_to_list s1 = String_to_list s2)"
 
 (* *)
 
-definition "List_assoc' x l = List_assoc (String_to_list x) (List_map (map_pair String\<^sub>b\<^sub>a\<^sub>s\<^sub>e_to_list id) l)"
+definition "List_assoc' x l = List_assoc (String_to_list x) (List_map (map_prod String\<^sub>b\<^sub>a\<^sub>s\<^sub>e_to_list id) l)"
 syntax "_list_assoc" :: "string \<Rightarrow> (string\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<times> 'a) list \<Rightarrow> 'a option" ("List.assoc")
 translations "List.assoc" \<rightleftharpoons> "CONST List_assoc'"
 
@@ -209,8 +209,9 @@ val quick_dirty = false
 
 val proof_by_patauto = Proof.global_terminal_proof
   ( ( Method.Then
-        [ Method.Basic (fn ctxt => SIMPLE_METHOD (Pat_Completeness.pat_completeness_tac ctxt 1) )
-        , Method.Basic (fn ctxt => SIMPLE_METHOD (auto_tac (ctxt addsimps [])))]
+        ( Method.no_combinator_info
+        , [ Method.Basic (fn ctxt => SIMPLE_METHOD (Pat_Completeness.pat_completeness_tac ctxt 1) )
+          , Method.Basic (fn ctxt => SIMPLE_METHOD (auto_tac (ctxt addsimps [])))])
     , (Position.none, Position.none))
   , NONE)
 val proof_by_sorry = Proof.global_skip_proof true

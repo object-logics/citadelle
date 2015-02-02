@@ -182,7 +182,7 @@ definition "arrange_ass with_aggreg l_c =
           (* move from classes to associations:
                attributes of object types
                + those constructed with at most 1 recursive call to OclTy_collection *)
-          map_pair rev rev (List.fold
+          map_prod rev rev (List.fold
                 (\<lambda>c (l_class, l_ass).
                   let default = Set
                     ; f = \<lambda>role t mult_out. \<lparr> OclAss_type = OclAssTy_native_attribute
@@ -203,7 +203,7 @@ definition "arrange_ass with_aggreg l_c =
           if with_aggreg then
             (* move from associations to classes:
                  attributes of aggregation form *)
-            map_pair rev rev (List.fold
+            map_prod rev rev (List.fold
             (\<lambda>ass (l_class, l_ass).
               if OclAss_type ass = OclAssTy_aggregation then
                 ( fold_max

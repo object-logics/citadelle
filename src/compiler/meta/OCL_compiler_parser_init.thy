@@ -118,11 +118,11 @@ begin
 definition "i_of_pair a b f1 f2 = (\<lambda>f. \<lambda>(c, d) \<Rightarrow> f c d)
   (ap2 a (b i_Pair) f1 f2)"
 
-definition "i_of_list a b f = (\<lambda>f0. list_rec f0 o co1 K)
+definition "i_of_list a b f = (\<lambda>f0. rec_list f0 o co1 K)
   (b i_Nil)
   (ar2 a (b i_Cons) f)"
 
-definition "i_of_option a b f = option_rec
+definition "i_of_option a b f = rec_option
   (b i_None)
   (ap1 a (b i_Some) f)"
 

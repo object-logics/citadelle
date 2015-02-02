@@ -87,7 +87,7 @@ apply_code_printing_reflect {*
   (* this variable is not used but needed for well typechecking the reflected SML code *)
   val stdout_file = Unsynchronized.ref ""
 *}
-code_reflect OCL
+code_reflect\<acute> open OCL
    functions (* OCL compiler as monadic combinators for deep and shallow *)
              fold_thy_deep fold_thy_shallow
 
@@ -109,7 +109,7 @@ ML{*
 structure From = struct
  open OCL
  val from_char = I
- val from_string = OCL.SS_base o OCL.St
+ val from_string = OCL.SS_base o OCL.ST
  val from_binding = from_string o Binding.name_of
  fun from_term ctxt s = from_string (XML.content_of (YXML.parse_body (Syntax.string_of_term ctxt s)))
  val from_nat = Code_Numeral.Nat
@@ -146,7 +146,7 @@ end
 ML{*
 fun in_local decl thy =
   thy
-  |> Named_Target.init I ""
+  |> Named_Target.init ""
   |> decl
   |> Local_Theory.exit_global
 *}
@@ -156,7 +156,7 @@ ML{* fun List_mapi f = OCL.list_mapi (f o To_nat) *}
 ML{*
 structure Ty' = struct
 fun check l_oid l =
-  let val Mp = OCL.map_pair
+  let val Mp = OCL.map_prod
       val Me = String.explode
       val Mi = String.implode
       val Ml = map in
@@ -166,7 +166,7 @@ fun check l_oid l =
     (writeln o Markup.markup Markup.bad o Mi)
     (error o To_string0)
     (Ml (Mp I Me) l_oid)
-    ((OCL.SS_base o OCL.St) l)
+    ((OCL.SS_base o OCL.ST) l)
   end
 end
 *}
@@ -362,26 +362,26 @@ val compiler = let open Export_code_env in
               end ]
     , fn mk_fic => fn ml_module => fn mk_free => fn thy =>
          let val esc_star = "*"
-             val esc_accol1 = "{" ^ esc_star
-             val esc_accol2 = esc_star ^ "}" in
+             fun ml l =
+               List.concat
+               [ [ "ML{" ^ esc_star ]
+               , map (fn s => s ^ ";") l
+               , [ esc_star ^ "}"] ] in
          File.write_list (mk_fic (SML.Filename.main_fic ml_ext_thy))
            (map (fn s => s ^ "\n") (List.concat
-           [ [ "theory " ^ SML.main
-             , "imports Main"
-             , "begin"
-             , "ML" ^ esc_accol1]
-           , map (fn s => s ^ ";")
-             let val arg = "argument" in
-             [ "val stdout_file = Unsynchronized.ref (File.read (Path.make [\"" ^ SML.Filename.stdout ml_ext_ml ^ "\"]))"
-             , "print_depth 500" (* any large number so that @{make_string} displays all the expression *)
-             , "use \"" ^ SML.Filename.argument ml_ext_ml ^ "\""
-             , "val " ^ arg ^ " = XML.content_of (YXML.parse_body (@{make_string} (" ^ ml_module ^ "." ^
-               mk_free (Proof_Context.init_global thy) Isabelle.argument_main ([]: (string * string) list) ^ ")))"
-             , "use \"" ^ SML.Filename.function ml_ext_ml ^ "\""
-             , "ML_Context.eval_text false Position.none (\"let open " ^ ml_module ^ " in " ^ Isabelle.function ^ " (\" ^ " ^ arg ^ " ^ \") end\")" ]
-             end
-           , [ esc_accol2
-             , "end"] ]))
+             [ [ "theory " ^ SML.main
+               , "imports Main"
+               , "begin"
+               , "declare [[ML_print_depth = 500]]" (* any large number so that @{make_string} displays all the expression *) ]
+             , ml [ "val stdout_file = Unsynchronized.ref (File.read (Path.make [\"" ^ SML.Filename.stdout ml_ext_ml ^ "\"]))"
+                  , "use \"" ^ SML.Filename.argument ml_ext_ml ^ "\"" ]
+             , ml let val arg = "argument" in
+                  [ "val " ^ arg ^ " = XML.content_of (YXML.parse_body (@{make_string} (" ^ ml_module ^ "." ^
+                    mk_free (Proof_Context.init_global thy) Isabelle.argument_main ([]: (string * string) list) ^ ")))"
+                  , "use \"" ^ SML.Filename.function ml_ext_ml ^ "\""
+                  , "ML_Context.eval_source (ML_Compiler.verbose false ML_Compiler.flags) { delimited = false, text = \"let open " ^ ml_module ^ " in " ^ Isabelle.function ^ " (\" ^ " ^ arg ^ " ^ \") end\", pos = Position.none }" ]
+                  end
+             , [ "end" ]]))
          end
     , fn tmp_export_code => fn tmp_file =>
         let val stdout_file = Isabelle_System.create_tmp_path "stdout_file" "thy"
@@ -389,9 +389,9 @@ val compiler = let open Export_code_env in
             val (l, (_, exit_st)) =
               compile [ "mv " ^ tmp_file ^ " " ^ Path.implode (Path.append tmp_export_code (Path.make [SML.Filename.argument ml_ext_ml]))
                       , "cd " ^ Path.implode tmp_export_code ^
-                        " && cat " ^ SML.Filename.main_fic ml_ext_thy ^
-                        " | " ^
-                        Path.implode (Path.expand (Path.append (Path.variable "ISABELLE_HOME") (Path.make ["bin", "isabelle"]))) ^ " tty" ]
+                        " && echo 'use_thy \"" ^ SML.main ^
+                        "\";' | " ^
+                        Path.implode (Path.expand (Path.append (Path.variable "ISABELLE_HOME") (Path.make ["bin", "isabelle"]))) ^ " console" ]
                       "true"
             val stdout =
               case SOME (File.read stdout_file) handle _ => NONE of
@@ -443,13 +443,12 @@ fun prep_destination "" = NONE
   | prep_destination "-" = (legacy_feature "drop \"file\" argument entirely instead of \"-\""; NONE)
   | prep_destination s = SOME (Path.explode s)
 
-fun absolute_path filename thy = Path.implode (Path.append (Thy_Load.master_directory thy) (Path.explode filename))
+fun absolute_path filename thy = Path.implode (Path.append (Resources.master_directory thy) (Path.explode filename))
 
-fun export_code_cmd raw_cs thy seris =
-  Code_Target.export_code
-                  thy
-                  (Code_Target.read_const_exprs thy raw_cs)
-                  ((map o apfst o apsnd) prep_destination seris)
+fun export_code_cmd all_public raw_cs seris ctxt =
+  Code_Target.export_code ctxt all_public
+    (Code_Thingol.read_const_exprs ctxt raw_cs)
+    ((map o apfst o apsnd) prep_destination seris)
 
 fun export_code_tmp_file seris g =
   fold
@@ -475,10 +474,12 @@ fun export_code_cmd' seris tmp_export_code f_err filename_thy raw_cs thy =
     (fn seris =>
       let val mem_scala = List.exists (fn ((("Scala", _), _), _) => true | _ => false) seris
           val _ = export_code_cmd
+        false
         (if mem_scala then Deep0.Export_code_env.Isabelle.function :: raw_cs else raw_cs)
-        (let val v = Deep0.apply_hs_code_identifiers Deep0.Export_code_env.Haskell.argument thy in
-         if mem_scala then Code_printing.apply_code_printing v else v end)
-        seris in
+        seris
+        (Proof_Context.init_global
+           let val v = Deep0.apply_hs_code_identifiers Deep0.Export_code_env.Haskell.argument thy in
+           if mem_scala then Code_printing.apply_code_printing v else v end) in
       List_mapi
         (fn i => fn seri => case seri of (((ml_compiler, _), filename), _) =>
           let val (l, (out, err)) =
@@ -538,7 +539,7 @@ structure Data_gen = Theory_Data
    val extend = I
    val merge = Symtab.merge (K true))
 
-val code_expr_argsP = Scan.optional (@{keyword "("} |-- Args.parse --| @{keyword ")"}) []
+val code_expr_argsP = Scan.optional (@{keyword "("} |-- Parse.args --| @{keyword ")"}) []
 
 val parse_scheme = @{keyword "design"} >> K OCL.Gen_only_design || @{keyword "analysis"} >> K OCL.Gen_only_analysis
 
@@ -605,9 +606,10 @@ fun f_command l_mode =
                         , export_arg), mk_fic)
                       end) seri_args
                     val _ = Deep.export_code_cmd
+                              (List.exists (fn (((("SML", _), _), _), _) => true | _ => false) seri_args')
                               [Deep0.Export_code_env.Isabelle.function]
-                              (Code_printing.apply_code_printing (Deep0.apply_hs_code_identifiers Deep0.Export_code_env.Haskell.function thy))
                               (List.map fst seri_args')
+                              (Proof_Context.init_global (Code_printing.apply_code_printing (Deep0.apply_hs_code_identifiers Deep0.Export_code_env.Haskell.function thy)))
                     val () = fold (fn ((((ml_compiler, ml_module), _), _), mk_fic) => fn _ =>
                       Deep0.find_init ml_compiler mk_fic ml_module Deep.mk_free thy) seri_args' () in
                 (Gen_deep (ocl, file_out_path_dep, seri_args, filename_thy, tmp_export_code, skip_exportation), thy) end)
@@ -655,18 +657,9 @@ fun m_of_ntheorem ctxt s = let open OCL open OCL_overload in case s of
   | Thm_THEN (e1, e2) => m_of_ntheorem ctxt e1 RSN (1, m_of_ntheorem ctxt e2)
   | Thm_simplified (e1, e2) => asm_full_simplify (clear_simpset ctxt addsimps [m_of_ntheorem ctxt e2]) (m_of_ntheorem ctxt e1)
   | Thm_OF (e1, e2) => [m_of_ntheorem ctxt e2] MRS m_of_ntheorem ctxt e1
-  | Thm_where (nth, l) => read_instantiate ctxt (List.map (fn (var, expr) => ((To_string0 var, 0), s_of_expr expr)) l) (m_of_ntheorem ctxt nth)
+  | Thm_where (nth, l) => Rule_Insts.where_rule ctxt (List.map (fn (var, expr) => ((To_string0 var, 0), s_of_expr expr)) l) [] (m_of_ntheorem ctxt nth)
   | Thm_symmetric s => m_of_ntheorem ctxt (Thm_THEN (s, Thm_str (From.from_string "sym")))
-  | Thm_of (nth, l) =>
-      let val thm = m_of_ntheorem ctxt nth
-          fun zip_vars _ [] = []
-            | zip_vars (_ :: xs) (NONE :: rest) = zip_vars xs rest
-            | zip_vars ((x, _) :: xs) (SOME t :: rest) = (x, t) :: zip_vars xs rest
-            | zip_vars [] _ = error "More instantiations than variables in theorem" in
-      read_instantiate ctxt (List.map (fn (v, expr) => (v, s_of_expr expr))
-                                 (zip_vars (rev (Term.add_vars (Thm.full_prop_of thm) []))
-                                           (List.map SOME l))) thm
-      end
+  | Thm_of (nth, l) => Rule_Insts.of_rule ctxt (List.map (SOME o s_of_expr) l, []) [] (m_of_ntheorem ctxt nth)
 end
 
 fun addsimp (l1, l2) ctxt0 = 
@@ -698,18 +691,18 @@ local
     in
       fn st => Seq.maps (fn rule => rtac rule i st) ruleq
     end)
-    THEN_ALL_NEW Goal.norm_hhf_tac
+    THEN_ALL_NEW Goal.norm_hhf_tac ctxt
 in
 fun rule_tac0 ctxt [] facts = some_rule_tac ctxt facts
-  | rule_tac0 _ rules facts = Method.rule_tac rules facts
+  | rule_tac0 ctxt rules facts = Method.rule_tac ctxt rules facts
 end
 
 fun m_of_tactic expr = let open OCL open Method open OCL_overload in case expr of
     Tact_rule0 o_s => Basic (fn ctxt => METHOD (HEADGOAL o rule_tac0 ctxt
                                                   (case o_s of NONE => []
                                                              | SOME s => [m_of_ntheorem ctxt s])))
-  | Tact_drule s => Basic (fn ctxt => drule 0 [m_of_ntheorem ctxt s])
-  | Tact_erule s => Basic (fn ctxt => erule 0 [m_of_ntheorem ctxt s])
+  | Tact_drule s => Basic (fn ctxt => drule ctxt 0 [m_of_ntheorem ctxt s])
+  | Tact_erule s => Basic (fn ctxt => erule ctxt 0 [m_of_ntheorem ctxt s])
   | Tact_elim s => Basic (fn ctxt => elim [m_of_ntheorem ctxt s])
   | Tact_intro l => Basic (fn ctxt => intro (map (m_of_ntheorem ctxt) l))
   | Tact_subst_l0 (asm, l, s) => Basic (fn ctxt => 
@@ -719,8 +712,8 @@ fun m_of_tactic expr = let open OCL open Method open OCL_overload in case expr o
                          EqSubst.eqsubst_tac) ctxt (map (fn s => case Int.fromString (To_string0 s) of
                                                                    SOME i => i) l) [m_of_ntheorem ctxt s]))
   | Tact_insert l => Basic (fn ctxt => insert (m_of_ntheorems_l ctxt l))
-  | Tact_plus t => Repeat1 (Then (List.map m_of_tactic t))
-  | Tact_option t => Try (Then (List.map m_of_tactic t))
+  | Tact_plus t => Repeat1 (no_combinator_info, Then (no_combinator_info, List.map m_of_tactic t))
+  | Tact_option t => Try (no_combinator_info, Then (no_combinator_info, List.map m_of_tactic t))
   | Tact_one (Simp_only l) => simp_tac (s_simp_only l)
   | Tact_one (Simp_add_del_split l) => simp_tac (s_simp_add_del_split l)
   | Tact_all (Simp_only l) => simp_all_tac (s_simp_only l)
@@ -744,7 +737,7 @@ fun perform_instantiation thy tycos vs f_eq add_def tac (*add_eq_thms*) =
     thy
     |> Class.instantiation (tycos, vs, f_eq)
     |> fold_map add_def tycos
-    |-> Class.prove_instantiation_exit_result (map o Morphism.thm) (fn _ => tac)
+    |-> Class.prove_instantiation_exit_result (map o Morphism.thm) tac
 (*    |-> fold Code.del_eqn
     |> fold add_eq_thms tycos*)
     |-> K I
@@ -754,18 +747,19 @@ fun read_abbrev b ctxt raw_rhs =
     val rhs = Proof_Context.read_typ_syntax (ctxt |> Proof_Context.set_defsort []) raw_rhs;
     val ignored = Term.fold_atyps_sorts (fn (_, []) => I | (T, _) => insert (op =) T) rhs [];
     val _ =
-      if null ignored then ()
-      else Context_Position.if_visible ctxt warning
-        ("Ignoring sort constraints in type variables(s): " ^
-          commas_quote (map (Syntax.string_of_typ ctxt) (rev ignored)) ^
-          "\nin type abbreviation " ^ (case b of NONE => "" | SOME b => Binding.print b));
+      if not (null ignored) andalso Context_Position.is_visible ctxt then
+        warning
+          ("Ignoring sort constraints in type variables(s): " ^
+            commas_quote (map (Syntax.string_of_typ ctxt) (rev ignored)) ^
+            "\nin type abbreviation " ^ (case b of NONE => "" | SOME b => Binding.print b))
+      else ();
   in rhs end
 in
 fun read_typ_syntax b = read_abbrev b
                       o Proof_Context.init_global
 end
 
-fun then_tactic l = (Method.Then (map m_of_tactic l), (Position.none, Position.none))
+fun then_tactic l = (Method.Then (Method.no_combinator_info, map m_of_tactic l), (Position.none, Position.none))
 
 fun local_terminal_proof o_by = let open OCL in case o_by of
    Tacl_done => Proof.local_done_proof
@@ -841,14 +835,14 @@ val OCL_main_thy = let open OCL open OCL_overload in (*let val f = *)fn
            (NONE, ((To_binding (To_string0 n_def ^ "_" ^ name ^ "_def"), []), s_of_expr expr)) false thy in
          (ty, thy)
         end)
-       (fn thms => Class.intro_classes_tac [] THEN ALLGOALS (Proof_Context.fact_tac thms))
+       (fn ctxt => fn thms => Class.intro_classes_tac [] THEN ALLGOALS (Proof_Context.fact_tac ctxt thms))
      end)
 | Theory_defs_overloaded (Defs_overloaded (n, e)) =>
     Isar_Cmd.add_defs ((false, true), [((To_sbinding n, s_of_expr e), [])])
 | Theory_consts_class (Consts_raw (n, ty, symb)) =>
-    Sign.add_consts [( To_sbinding n
-                     , s_of_rawty ty
-                     , Mixfix ("(_) " ^ To_string0 symb, [], 1000))]
+    Sign.add_consts_cmd [( To_sbinding n
+                        , s_of_rawty ty
+                        , Mixfix ("(_) " ^ To_string0 symb, [], 1000))]
 | Theory_definition_hol def =>
     let val (def, e) = case def of
         Definition e => (NONE, e)
@@ -864,14 +858,14 @@ val OCL_main_thy = let open OCL open OCL_overload in (*let val f = *)fn
     end
 | Theory_lemmas_simp (Lemmas_simp_opt (simp, s, l)) =>
     in_local (fn lthy => (snd o Specification.theorems Thm.lemmaK
-      [((To_sbinding s, List.map (fn s => Attrib.intern_src (Proof_Context.theory_of lthy) (Args.src ((s, []), Position.none)))
+      [((To_sbinding s, List.map (fn s => Attrib.check_src lthy (Args.src (s, Position.none) []))
                           (if simp then ["simp", "code_unfold"] else [])),
         List.map (fn x => ([m_of_ntheorem lthy x], [])) l)]
       []
       false) lthy)
 | Theory_lemmas_simp (Lemmas_simps (s, l)) =>
     in_local (fn lthy => (snd o Specification.theorems Thm.lemmaK
-      [((To_sbinding s, List.map (fn s => Attrib.intern_src (Proof_Context.theory_of lthy) (Args.src ((s, []), Position.none)))
+      [((To_sbinding s, List.map (fn s => Attrib.check_src lthy (Args.src (s, Position.none) []))
                           ["simp", "code_unfold"]),
         List.map (fn x => (Proof_Context.get_thms lthy (To_string0 x), [])) l)]
       []
@@ -890,7 +884,7 @@ val OCL_main_thy = let open OCL open OCL_overload in (*let val f = *)fn
            Specification.theorem_cmd Thm.lemmaK NONE (K I)
              (To_sbinding n, [])
              []
-             (List.map (fn (n, (b, e)) => Element.Assumes [((To_sbinding n, if b then [Args.src (("simp", []), Position.none)] else []), [(s_of_expr e, [])])]) l_spec)
+             (List.map (fn (n, (b, e)) => Element.Assumes [((To_sbinding n, if b then [Args.src ("simp", Position.none) []] else []), [(s_of_expr e, [])])]) l_spec)
              (Element.Shows [((@{binding ""}, []),[(s_of_expr concl, [])])])
              false lthy
         |> fold apply_results l_apply
@@ -905,7 +899,7 @@ val OCL_main_thy = let open OCL open OCL_overload in (*let val f = *)fn
                                      [((To_sbinding n, []), [s_of_expr e])]
 | Theory_section_title _ => I
 | Theory_text _ => I
-| Theory_ml ml => Code_printing.reflect_ml (case ml of Ml ml => s_of_sexpr ml)
+| Theory_ml ml => Code_printing.reflect_ml {delimited = false, text = case ml of Ml ml => s_of_sexpr ml, pos = Position.none}
 | Theory_thm (Thm thm) => in_local (fn lthy =>
     let val () = writeln (Pretty.string_of (Proof_Context.pretty_fact lthy ("", List.map (m_of_ntheorem lthy) thm))) in
     lthy

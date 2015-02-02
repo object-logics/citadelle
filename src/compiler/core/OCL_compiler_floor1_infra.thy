@@ -99,7 +99,7 @@ definition "print_infra_type_synonym_class expr = start_map Thy_ty_synonym
      option (option (Ty_base (isub_name datatype_name))) ])) expr))"
 
 definition "print_infra_type_synonym_class_rec = (\<lambda>expr ocl.
-  map_pair id (\<lambda> D_higher_order_ty. ocl \<lparr> D_higher_order_ty := D_higher_order_ty \<rparr>)
+  map_prod id (\<lambda> D_higher_order_ty. ocl \<lparr> D_higher_order_ty := D_higher_order_ty \<rparr>)
     (List_split (List_map (\<lambda>(tit, body). (Thy_ty_synonym (Type_synonym (String\<^sub>b\<^sub>a\<^sub>s\<^sub>e_to_String tit) body), tit))
                           (snd (fold_class (\<lambda>_ _ l_attr _ _ _.
                                              Pair () o List.fold

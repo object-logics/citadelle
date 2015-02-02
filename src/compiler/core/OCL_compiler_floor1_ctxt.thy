@@ -53,7 +53,7 @@ subsection{* context *}
 
 definition "print_ctxt_const ctxt ocl =
  (let attr_n = Ctxt_fun_name ctxt in
-  map_pair (map_pair id (rev o List_map Thy_ty_synonym)) (rev o List_map Thy_consts_class)
+  map_prod (map_prod id (rev o List_map Thy_ty_synonym)) (rev o List_map Thy_consts_class)
     (List.fold
       (\<lambda>(var_at_when_hol, var_at_when_ocl, f_update_ocl) ((ocl, l_isab_ty), l_isab_const).
         let name = print_ctxt_const_name attr_n var_at_when_hol
@@ -70,7 +70,7 @@ definition "print_ctxt_const ctxt ocl =
                     [ List_map snd (Ctxt_fun_ty_arg ctxt)
                     , [ case Ctxt_fun_ty_out ctxt of None \<Rightarrow> OclTy_base_void | Some s \<Rightarrow> s ] ])
                 ([], D_higher_order_ty ocl, l_isab_ty) in
-        ( map_pair
+        ( map_prod
             (let ocl = ocl \<lparr> D_accessor_rbt := f_update_ocl (\<lambda> l. String_to_String\<^sub>b\<^sub>a\<^sub>s\<^sub>e name # l) (D_accessor_rbt ocl) \<rparr> in
              (\<lambda> D_higher_order_ty. ocl \<lparr> D_higher_order_ty := D_higher_order_ty \<rparr>))
             id
@@ -110,7 +110,7 @@ definition "print_ctxt_pre_post = (\<lambda>ctxt. print_ctxt_gen_syntax_header
 definition "print_ctxt_inv = (\<lambda>ctxt. print_ctxt_gen_syntax_header Pair
   [ Isab_thy_ocl_deep_embed_ast (OclAstCtxtInv Floor2
       (ctxt \<lparr> Ctxt_inv_expr :=
-              List_map (map_pair id (T_lambdas (Ctxt_inv_param ctxt @@@@ [var_self])))
+              List_map (map_prod id (T_lambdas (Ctxt_inv_param ctxt @@@@ [var_self])))
                        (Ctxt_inv_expr ctxt) \<rparr>))
   , print_ctxt_gen_syntax_header_l
       (List_flatten (List_map (\<lambda> (tit, _).

@@ -670,7 +670,7 @@ lemma OclOr_null1[simp]: "\<And>\<tau>. X \<tau> \<noteq> true \<tau> \<Longrigh
   apply(auto simp:true_def false_def bot_fun_def bot_option_def null_fun_def null_option_def
              split: option.split option.split_asm)
   apply (metis (full_types) bool.simps(3) bot_option_def null_is_valid null_option_def)
-by (metis (full_types) bool.simps(3) option.distinct(1) the.simps)
+by (metis (full_types) bool.simps(3) option.distinct(1) option.sel)
 
 lemma OclOr_null2[simp]: "\<And>\<tau>. X \<tau> \<noteq> true \<tau> \<Longrightarrow> X \<tau> \<noteq> bot \<tau> \<Longrightarrow> (X or null) \<tau> = null \<tau>"
   by(simp add: OclOr_commute)
@@ -1310,7 +1310,7 @@ lemma const_OclIf :
                  assms[simplified const_def, THEN spec, THEN spec]
                  const_invalid[simplified const_def, THEN spec, THEN spec])
 by (metis (no_types) bot_fun_def OclValid_def const_def const_true defined_def 
-                 foundation16[THEN iffD1,standard]  null_fun_def)
+                 foundation16[THEN iffD1]  null_fun_def)
 
        
 

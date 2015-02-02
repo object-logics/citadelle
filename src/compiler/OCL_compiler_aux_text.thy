@@ -65,9 +65,9 @@ val _ =
   Outer_Syntax.markup_command Thy_Output.MarkupEnv
     @{command_spec "lazy_text"} ""
     (Parse.opt_target -- Parse.document_source
-     >> (fn (_, (code, _)) =>
+     >> (fn (_, code) =>
        let val _ = writeln (@{make_string} code) in
-            Toplevel.theory (Data_code.map (Symtab.map_default (code_empty, []) (fn l => Code_printing code :: l)))
+            Toplevel.theory (Data_code.map (Symtab.map_default (code_empty, []) (fn l => Code_printing (#text code) :: l)))
        end))
 
 fun of_text s = 

@@ -55,10 +55,10 @@ subsubsection{* general *}
 context i_of
 begin
 
-definition "i_of_internal_oid a b = internal_oid_rec
+definition "i_of_internal_oid a b = rec_internal_oid
   (ap1 a (b \<langle>''Oid''\<rangle>) (i_of_nat a b))"
 
-definition "i_of_internal_oids a b = internal_oids_rec
+definition "i_of_internal_oids a b = rec_internal_oids
   (ap3 a (b \<langle>''Oids''\<rangle>)
     (i_of_nat a b)
     (i_of_nat a b)

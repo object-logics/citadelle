@@ -149,9 +149,9 @@ lemma "m1_of_m2 (m2_of_m1 X) = X"
                           , THEN conjunct2, THEN conjunct1, THEN spec, THEN spec, THEN spec, simplified Let_def P_def])
   apply(auto)
   apply(subst m2_of_m1_def, subst m1_of_m2_def, auto)
-  apply (metis (no_types) get2_oid.simps id_get_oid m2_of_m1_ext.simps t1_ext.cases t2.cases)
-  apply (metis (no_types) get2_inh.simps id_get_inh m2_of_m1_ext.simps t1_ext.cases t2.cases)
-  apply (metis (mono_tags) id_rec m1_ext_of_m2.simps m2_of_m1_ext.simps t1_ext.cases t2.cases)
+  apply (metis (no_types) get2_oid.simps id_get_oid m2_of_m1_ext.simps t1_ext.case t2.case)
+  apply (metis (no_types) get2_inh.simps id_get_inh m2_of_m1_ext.simps t1_ext.case t2.case)
+  apply (metis (mono_tags) id_rec m1_ext_of_m2.simps m2_of_m1_ext.simps t1_ext.case t2.case)
 
   apply(simp add: m2_of_m1_def m1_of_m2_def)
  done

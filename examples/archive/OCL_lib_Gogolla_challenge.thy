@@ -1735,7 +1735,7 @@ proof -
   fix x fix S fix \<tau>1 \<tau>2
   show "is_int x \<Longrightarrow> \<forall>\<tau>. all_defined \<tau> S \<Longrightarrow> S \<tau>1 = S \<tau>2 \<Longrightarrow> ((F x S)->including\<^sub>S\<^sub>e\<^sub>t(a)) \<tau>1 = ((F x S)->including\<^sub>S\<^sub>e\<^sub>t(a)) \<tau>2"
    apply(subgoal_tac "x \<tau>1 = x \<tau>2") prefer 2 apply (simp add: is_int_def) apply(metis surj_pair)
-   apply(subgoal_tac "\<And>\<tau>. all_defined \<tau> (F x S)") prefer 2 apply(rule all_def[THEN iffD2], simp only: int_is_valid, blast)
+   apply(subgoal_tac "\<And>\<tau>. all_defined \<tau> (F x S)") prefer 2 apply(rule all_def[THEN iffD2], simp only: int_is_valid)
    apply(subst including_cp_all[of _ _ \<tau>1 \<tau>2]) apply(simp add: a_int) apply(rule all_defined1, blast)
    apply(rule cp_gen, simp, blast, simp)
    apply(simp)

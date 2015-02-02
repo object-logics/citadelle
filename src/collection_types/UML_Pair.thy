@@ -91,7 +91,7 @@ Strong equality is inherited from the OCL core, but we have to consider
 the case of the strict equality. We decide to overload strict equality in the
 same way we do for other value's in OCL:*}
 
-defs  StrictRefEq\<^sub>P\<^sub>a\<^sub>i\<^sub>r :
+defs (overloaded)  StrictRefEq\<^sub>P\<^sub>a\<^sub>i\<^sub>r :
       "((x::('\<AA>,'\<alpha>::null,'\<beta>::null)Pair) \<doteq> y) \<equiv> (\<lambda> \<tau>. if (\<upsilon> x) \<tau> = true \<tau> \<and> (\<upsilon> y) \<tau> = true \<tau>
                                                        then (x \<triangleq> y)\<tau>
                                                        else invalid \<tau>)"

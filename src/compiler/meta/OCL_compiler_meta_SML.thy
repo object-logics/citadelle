@@ -68,7 +68,7 @@ section{* ... *}
 
 definition "Sexpr_none = Sexpr_basic [\<langle>''NONE''\<rangle>]"
 definition "Sexpr_some s = Sexpr_apply \<langle>''SOME''\<rangle> [s]"
-definition "Sexpr_option' f l = (case Option.map f l of None \<Rightarrow> Sexpr_none | Some s \<Rightarrow> Sexpr_some s)"
+definition "Sexpr_option' f l = (case map_option f l of None \<Rightarrow> Sexpr_none | Some s \<Rightarrow> Sexpr_some s)"
 definition "Sexpr_option = Sexpr_option' id"
 definition "Sexpr_parenthesis (* mandatory parenthesis *) = Sexpr_paren \<langle>''(''\<rangle> \<langle>'')''\<rangle>"
 definition "sexpr_binop s l = (case rev l of x # xs \<Rightarrow> List.fold (\<lambda>x. Sexpr_binop x s) xs x)"

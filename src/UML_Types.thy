@@ -539,7 +539,7 @@ fun lemma msg specification_theorem concl in_local thy =
              (Element.Shows [((@{binding ""}, []),[(concl lthy, [])])])
              false lthy
         |> Proof.global_terminal_proof
-             ((Method.Then [Method.Basic (fn ctxt => SIMPLE_METHOD (asm_full_simp_tac ctxt 1))],
+             ((Method.Then (Method.no_combinator_info, [Method.Basic (fn ctxt => SIMPLE_METHOD (asm_full_simp_tac ctxt 1))]),
                (Position.none, Position.none)), NONE))
               thy)
   handle ERROR s =>
@@ -575,7 +575,7 @@ fun outer_syntax_command command_spec theory in_local =
 
 fun in_local decl thy =
   thy
-  |> Named_Target.init I ""
+  |> Named_Target.init ""
   |> decl
   |> Local_Theory.exit_global
 

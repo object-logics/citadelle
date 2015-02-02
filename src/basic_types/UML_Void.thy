@@ -85,7 +85,7 @@ end
 text{* The last basic operation belonging to the fundamental infrastructure
 of a value-type in OCL is the weak equality, which is defined similar
 to the @{typ "('\<AA>)Void"}-case as strict extension of the strong equality:*}
-defs   StrictRefEq\<^sub>V\<^sub>o\<^sub>i\<^sub>d[code_unfold] :
+defs (overloaded)   StrictRefEq\<^sub>V\<^sub>o\<^sub>i\<^sub>d[code_unfold] :
       "(x::('\<AA>)Void) \<doteq> y \<equiv> \<lambda> \<tau>. if (\<upsilon> x) \<tau> = true \<tau> \<and> (\<upsilon> y) \<tau> = true \<tau>
                                  then (x \<triangleq> y) \<tau>
                                  else invalid \<tau>"

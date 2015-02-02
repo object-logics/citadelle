@@ -93,15 +93,15 @@ subsubsection{* general *}
 context i_of
 begin
 
-definition "i_of_ocl_flush_all a b = ocl_flush_all_rec
+definition "i_of_ocl_flush_all a b = rec_ocl_flush_all
   (b \<langle>''OclFlushAll''\<rangle>)"
 
-definition "i_of_floor a b = floor_rec
+definition "i_of_floor a b = rec_floor
   (b \<langle>''Floor1''\<rangle>)
   (b \<langle>''Floor2''\<rangle>)
   (b \<langle>''Floor3''\<rangle>)"
 
-definition "i_of_ocl_deep_embed_ast a b = ocl_deep_embed_ast_rec
+definition "i_of_ocl_deep_embed_ast a b = rec_ocl_deep_embed_ast
   (ap2 a (b \<langle>''OclAstClassRaw''\<rangle>) (i_of_floor a b) (i_of_ocl_class_raw a b (K i_of_unit)))
   (ap1 a (b \<langle>''OclAstAssociation''\<rangle>) (i_of_ocl_association a b (K i_of_unit)))
   (ap2 a (b \<langle>''OclAstAssClass''\<rangle>) (i_of_floor a b) (i_of_ocl_ass_class a b))
@@ -114,12 +114,12 @@ definition "i_of_ocl_deep_embed_ast a b = ocl_deep_embed_ast_rec
   (ap1 a (b \<langle>''OclAstDefPrePost''\<rangle>) (i_of_ocl_def_pre_post a b))
   (ap1 a (b \<langle>''OclAstFlushAll''\<rangle>) (i_of_ocl_flush_all a b))"
 
-definition "i_of_ocl_deep_mode a b = ocl_deep_mode_rec
+definition "i_of_ocl_deep_mode a b = rec_ocl_deep_mode
   (b \<langle>''Gen_only_design''\<rangle>)
   (b \<langle>''Gen_only_analysis''\<rangle>)
   (b \<langle>''Gen_default''\<rangle>)"
 
-definition "i_of_ocl_sorry_mode a b = ocl_sorry_mode_rec
+definition "i_of_ocl_sorry_mode a b = rec_ocl_sorry_mode
   (b \<langle>''Gen_sorry''\<rangle>)
   (b \<langle>''Gen_no_dirty''\<rangle>)"
 
@@ -167,24 +167,24 @@ definition "i_Some = \<langle>''Some''\<rangle>"
 definition "i_of_pair a b f1 f2 = (\<lambda>f. \<lambda>(c, d) \<Rightarrow> f c d)
   (ap2 a (b i_Pair) f1 f2)"
 
-definition "i_of_list a b f = (\<lambda>f0. list_rec f0 o co1 K)
+definition "i_of_list a b f = (\<lambda>f0. rec_list f0 o co1 K)
   (b i_Nil)
   (ar2 a (b i_Cons) f)"
 
-definition "i_of_option a b f = option_rec
+definition "i_of_option a b f = rec_option
   (b i_None)
   (ap1 a (b i_Some) f)"
 
 (* *)
 
-definition "i_of_unit b = unit_rec
+definition "i_of_unit b = case_unit
   (b \<langle>''()''\<rangle>)"
 
-definition "i_of_bool b = bool_rec
+definition "i_of_bool b = case_bool
   (b \<langle>''True''\<rangle>)
   (b \<langle>''False''\<rangle>)"
 
-definition "i_of_nibble b = nibble_rec
+definition "i_of_nibble b = rec_nibble
   (b \<langle>''Nibble0''\<rangle>)
   (b \<langle>''Nibble1''\<rangle>)
   (b \<langle>''Nibble2''\<rangle>)
@@ -202,7 +202,7 @@ definition "i_of_nibble b = nibble_rec
   (b \<langle>''NibbleE''\<rangle>)
   (b \<langle>''NibbleF''\<rangle>)"
 
-definition "i_of_char a b = char_rec
+definition "i_of_char a b = rec_char
   (ap2 a (b \<langle>''Char''\<rangle>) (i_of_nibble b) (i_of_nibble b))"
 
 definition "i_of_string_gen s_flatten s_st0 s_st a b s = 
@@ -291,26 +291,26 @@ definition "i_Some = \<langle>''SOME''\<rangle>"
 definition "i_of_pair a b f1 f2 = (\<lambda>f. \<lambda>(c, d) \<Rightarrow> f c d)
   (ap2 a (b i_Pair) f1 f2)"
 
-definition "i_of_list a b f = (\<lambda>f0. list_rec f0 o co1 K)
+definition "i_of_list a b f = (\<lambda>f0. rec_list f0 o co1 K)
   (b i_Nil)
   (ar2 a (b i_Cons) f)"
 
-definition "i_of_option a b f = option_rec
+definition "i_of_option a b f = rec_option
   (b i_None)
   (ap1 a (b i_Some) f)"
 
 (* *)
 
-definition "i_of_unit b = unit_rec
+definition "i_of_unit b = case_unit
   (b \<langle>''()''\<rangle>)"
 
-definition "i_of_bool b = bool_rec
+definition "i_of_bool b = case_bool
   (b \<langle>''true''\<rangle>)
   (b \<langle>''false''\<rangle>)"
 
 definition "i_of_string a b =
  (let c = \<langle>[Char Nibble2 Nibble2]\<rangle> in
-  (\<lambda>x. b (flatten [ \<langle>''(OCL.SS_base (OCL.St ''\<rangle>
+  (\<lambda>x. b (flatten [ \<langle>''(OCL.SS_base (OCL.ST ''\<rangle>
                   , c
                   , String_replace_chars ((* (* ERROR code_reflect *)
                                           \<lambda> Char Nibble0 NibbleA \<Rightarrow> \<degree>Char Nibble5 NibbleC\<degree> @@ \<langle>''n''\<rangle>
@@ -322,7 +322,7 @@ definition "i_of_string a b =
 
 definition "i_of_string\<^sub>b\<^sub>a\<^sub>s\<^sub>e a b =
  (let c = \<langle>[Char Nibble2 Nibble2]\<rangle> in
-  (\<lambda>x. b (flatten [ \<langle>''(OCL.St ''\<rangle>
+  (\<lambda>x. b (flatten [ \<langle>''(OCL.ST ''\<rangle>
                   , c
                   , String_replace_chars ((* (* ERROR code_reflect *)
                                           \<lambda> Char Nibble0 NibbleA \<Rightarrow> \<degree>Char Nibble5 NibbleC\<degree> @@ \<langle>''n''\<rangle>

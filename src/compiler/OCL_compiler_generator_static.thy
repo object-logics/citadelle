@@ -71,6 +71,5 @@ definition "main = write_file
 apply_code_printing ()
 export_code main
   in OCaml module_name M
-  (no_signatures)
 *)
 end

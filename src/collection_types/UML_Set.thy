@@ -147,7 +147,7 @@ lemma S_lift' :
  assumes S_all_def : "(\<tau> :: '\<AA> st) \<Turnstile> \<delta> S"
    shows "\<exists>S'. (\<lambda>a (_::'\<AA> st). a) ` \<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (S \<tau>)\<rceil>\<rceil> = (\<lambda>a (_::'\<AA> st). \<lfloor>a\<rfloor>) ` S'"
   apply(rule_tac x = "(\<lambda>a. \<lceil>a\<rceil>) ` \<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (S \<tau>)\<rceil>\<rceil>" in exI)
-  apply(simp only: image_comp[symmetric])
+  apply(simp only: image_comp)
   apply(simp add: comp_def)
   apply(rule image_cong, fast)
   (* *)
@@ -177,7 +177,7 @@ Strong equality is inherited from the OCL core, but we have to consider
 the case of the strict equality. We decide to overload strict equality in the
 same way we do for other value's in OCL:*}
 
-defs   StrictRefEq\<^sub>S\<^sub>e\<^sub>t :
+defs (overloaded)   StrictRefEq\<^sub>S\<^sub>e\<^sub>t :
       "(x::('\<AA>,'\<alpha>::null)Set) \<doteq> y \<equiv> \<lambda> \<tau>. if (\<upsilon> x) \<tau> = true \<tau> \<and> (\<upsilon> y) \<tau> = true \<tau>
                                          then (x \<triangleq> y)\<tau>
                                          else invalid \<tau>"
@@ -1407,7 +1407,7 @@ proof -
  show ?thesis
   apply(insert def_X[THEN  foundation13[THEN iffD2]] val_x[THEN  foundation13[THEN iffD2]]
                val_y[THEN  foundation13[THEN iffD2]])
-  apply(simp add: foundation22 OclIncluding_def OclExcluding_def def_X[THEN foundation16[THEN iffD1,standard]])
+  apply(simp add: foundation22 OclIncluding_def OclExcluding_def def_X[THEN foundation16[THEN iffD1]])
   apply(subst cp_defined, simp)+
   apply(simp add: G H Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inverse[OF C] Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inverse[OF D] Z)
   done
@@ -1427,8 +1427,8 @@ proof -
  have G2 : "Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor>\<lfloor>insert (x \<tau>) \<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (X \<tau>)\<rceil>\<rceil>\<rfloor>\<rfloor> \<noteq> Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor>None\<rfloor>"
           by(insert C, simp add: Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inject bot_option_def null_option_def)
  show ?thesis
-   apply(insert def_X[THEN foundation16[THEN iffD1,standard]]
-                val_x[THEN foundation18[THEN iffD1,standard]])
+   apply(insert def_X[THEN foundation16[THEN iffD1]]
+                val_x[THEN foundation18[THEN iffD1]])
    apply(auto simp: OclValid_def bot_fun_def OclIncluding_def OclIncludes_def false_def true_def
                     invalid_def defined_def valid_def bot_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def null_fun_def null_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def
                     StrongEq_def)
@@ -2378,7 +2378,7 @@ proof -
       by(simp add: OclIf_def OclValid_def)
 
  have invert_including : "\<And>P y \<tau>. P \<tau> = \<bottom> \<Longrightarrow> P->including\<^sub>S\<^sub>e\<^sub>t(y) \<tau> = \<bottom>"
-      by (metis (hide_lams, no_types) foundation16[THEN iffD1,standard]
+      by (metis (hide_lams, no_types) foundation16[THEN iffD1]
                 foundation18' OclIncluding_valid_args_valid)
 
  have exclude_defined : "\<And>\<tau>. \<tau> \<Turnstile> \<delta> X \<Longrightarrow>
@@ -2660,10 +2660,10 @@ proof -
   apply(case_tac "X \<tau>", rename_tac X', simp add: mtSet_def Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inject)
   apply(erule disjE, metis (hide_lams, mono_tags) bot_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def bot_option_def foundation16)
   apply(erule disjE, metis (hide_lams, no_types) bot_option_def
-                                                 null_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def null_option_def foundation16[THEN iffD1,standard])
-  apply(case_tac X', simp, metis (hide_lams, no_types) bot_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def foundation16[THEN iffD1,standard])
+                                                 null_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def null_option_def foundation16[THEN iffD1])
+  apply(case_tac X', simp, metis (hide_lams, no_types) bot_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def foundation16[THEN iffD1])
   apply(rename_tac X'', case_tac X'', simp)
-   apply (metis (hide_lams, no_types) foundation16[THEN iffD1,standard] null_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def)
+   apply (metis (hide_lams, no_types) foundation16[THEN iffD1] null_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def)
   apply(simp add: OclIsEmpty_def OclSize_def)
   apply(subst (asm) cp_OclNot, subst (asm) cp_OclOr, subst (asm) StrictRefEq\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r.cp0,
         subst (asm) cp_OclAnd, subst (asm) cp_OclNot)

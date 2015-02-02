@@ -145,15 +145,15 @@ fun_quick fold_max_aux where
 
 definition "fold_max f l = fold_max_aux f (List_mapi Pair l) []"
 
-definition "lookup' m k = lookup m (String_to_list k)"
-definition "insert' k = insert (String_to_list k)"
-definition "map_entry' k = map_entry (String_to_list k)"
+definition "lookup' m k = RBT.lookup m (String_to_list k)"
+definition "insert' k = RBT.insert (String_to_list k)"
+definition "map_entry' k = RBT.map_entry (String_to_list k)"
 definition "modify_def' v k = modify_def v (String_to_list k)"
-definition "keys' m = List_map (\<lambda>s. \<lless>s\<ggreater>) (keys m)"
+definition "keys' m = List_map (\<lambda>s. \<lless>s\<ggreater>) (RBT.keys m)"
 definition "lookup2' m = (\<lambda>(k1, k2). lookup2 m (String_to_list k1, String_to_list k2))"
 definition "insert2' = (\<lambda>(k1, k2). insert2 (String_to_list k1, String_to_list k2))"
-definition "fold' f = fold (\<lambda>c. f \<lless>c\<ggreater>)"
-definition "entries' m = List_map (map_pair (\<lambda>c. \<lless>c\<ggreater>) id) (entries m)"
+definition "fold' f = RBT.fold (\<lambda>c. f \<lless>c\<ggreater>)"
+definition "entries' m = List_map (map_prod (\<lambda>c. \<lless>c\<ggreater>) id) (RBT.entries m)"
 
 syntax "_rbt_lookup" :: "_ \<Rightarrow> _" ("lookup") translations "lookup" \<rightleftharpoons> "CONST lookup'"
 syntax "_rbt_insert" :: "_ \<Rightarrow> _" ("insert") translations "insert" \<rightleftharpoons> "CONST insert'"
@@ -277,7 +277,7 @@ definition "class_unflat = (\<lambda> (l_class, l_ass).
                   (\<lambda> cflat \<Rightarrow>
                     insert (ClassRaw_name cflat) (cflat \<lparr> ClassRaw_inh := case ClassRaw_inh cflat of None \<Rightarrow> Some const_oclany | x \<Rightarrow> x \<rparr>))
                   l_class
-                  empty) in
+                  RBT.empty) in
     (* fold associations:
        add remaining 'object' attributes *)
     List_map snd (entries (List.fold (\<lambda> (ass_oid, ass) \<Rightarrow>
@@ -293,9 +293,9 @@ definition "class_unflat = (\<lambda> (l_class, l_ass).
          | _ \<Rightarrow> \<lambda>_. id)
         l_rel) (List_mapi Pair l_ass) rbt)) in
   class_unflat_aux
-    (List.fold (\<lambda> cflat. insert (ClassRaw_name cflat) (ClassRaw_own cflat)) l empty)
-    (List.fold (\<lambda> cflat. case ClassRaw_inh cflat of Some k \<Rightarrow> modify_def [] k (\<lambda>l. ClassRaw_name cflat # l) | _ \<Rightarrow> id) l empty)
-    empty
+    (List.fold (\<lambda> cflat. insert (ClassRaw_name cflat) (ClassRaw_own cflat)) l RBT.empty)
+    (List.fold (\<lambda> cflat. case ClassRaw_inh cflat of Some k \<Rightarrow> modify_def [] k (\<lambda>l. ClassRaw_name cflat # l) | _ \<Rightarrow> id) l RBT.empty)
+    RBT.empty
     const_oclany)"
 
 definition "apply_optim_ass_arity ty_obj v =
@@ -397,7 +397,7 @@ definition "of_sub = (\<lambda>Tsub l \<Rightarrow> l)"
 definition "of_univ = (\<lambda>Tuniv l \<Rightarrow> l)"
 definition "map_inh f = (\<lambda>Tinh l \<Rightarrow> Tinh (f l))"
 definition "map_linh f cl = \<lparr> Inh = f (Inh cl)
-                            , Inh_sib = List_map (map_pair f (List_map f)) (Inh_sib cl)
+                            , Inh_sib = List_map (map_prod f (List_map f)) (Inh_sib cl)
                             , Inh_sib_unflat = List_map f (Inh_sib_unflat cl) \<rparr>"
 
 fun_quick fold_class_gen_aux where
@@ -501,7 +501,7 @@ definition "get_hierarchy_map f f_l x = List_flatten (List_flatten (
   let (l1, l2, l3) = f_l (List_map fst (get_class_hierarchy x)) in
   List_map (\<lambda>name1. List_map (\<lambda>name2. List_map (f name1 name2) l3) l2) l1))"
 
-definition "class_arity = RBT.keys o (\<lambda>l. List.fold (\<lambda>x. RBT.insert x ()) l empty) o
+definition "class_arity = RBT.keys o (\<lambda>l. List.fold (\<lambda>x. RBT.insert x ()) l RBT.empty) o
   List_flatten o List_flatten o map_class (\<lambda> _ _ l_attr _ _ _.
     List_map (\<lambda> (_, OclTy_class ty_obj) \<Rightarrow> [TyObj_ass_arity ty_obj]
               | _ \<Rightarrow> []) l_attr)"

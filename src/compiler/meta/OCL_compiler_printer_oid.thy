@@ -52,7 +52,7 @@ subsection{* s of ... *} (* s_of *)
 
 context s_of
 begin
-definition "To_oid = internal_oid_rec To_nat"
+definition "To_oid = rec_internal_oid To_nat"
 end
 
 lemmas [code] =

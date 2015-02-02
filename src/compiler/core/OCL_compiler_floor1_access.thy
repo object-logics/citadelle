@@ -67,7 +67,7 @@ definition "print_access_oid_uniq_gen Thy_def D_oid_start_upd def_rewrite =
              , cpt_rbt))
             | _ \<Rightarrow> \<lambda>cpt. ([], cpt)))
            (l_attr # l_inh) cpt in
-         (List_flatten (List_flatten l), cpt)) (D_oid_start ocl, empty) expr in
+         (List_flatten (List_flatten l), cpt)) (D_oid_start ocl, RBT.empty) expr in
        (List_flatten l, acc)))"
 definition "print_access_oid_uniq_ml =
   print_access_oid_uniq_gen
@@ -319,7 +319,7 @@ definition "print_access_select_obj = start_map'''' Thy_definition_hol o (\<lamb
                                , var_f])))], insert2 (name, attr) () rbt)
          else ([], rbt)
        | _ \<Rightarrow> Pair []))
-      (l_attr # l_inh) empty))) expr)))) expr)"
+      (l_attr # l_inh) RBT.empty))) expr)))) expr)"
 
 definition "print_access_dot_consts =
  (fold_list (\<lambda>(f_update, x) ocl. (Thy_consts_class x, ocl \<lparr> D_accessor_rbt := f_update (D_accessor_rbt ocl) \<rparr> ))) o

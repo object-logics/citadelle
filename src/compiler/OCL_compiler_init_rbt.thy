@@ -53,9 +53,9 @@ begin
 subsection{* RBT Miscellaneous *}
 
 definition "modify_def v k f rbt =
-  (case lookup rbt k of None \<Rightarrow> insert k (f v) rbt
-                      | Some _ \<Rightarrow> map_entry k f rbt)"
-definition "lookup2 rbt = (\<lambda>(x1, x2). Option.bind (lookup rbt x1) (\<lambda>rbt. lookup rbt x2))"
-definition "insert2 = (\<lambda>(x1, x2) v. modify_def empty x1 (insert x2 v))"
+  (case RBT.lookup rbt k of None \<Rightarrow> RBT.insert k (f v) rbt
+                      | Some _ \<Rightarrow> RBT.map_entry k f rbt)"
+definition "lookup2 rbt = (\<lambda>(x1, x2). Option.bind (RBT.lookup rbt x1) (\<lambda>rbt. RBT.lookup rbt x2))"
+definition "insert2 = (\<lambda>(x1, x2) v. modify_def RBT.empty x1 (RBT.insert x2 v))"
 
 end

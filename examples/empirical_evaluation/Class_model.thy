@@ -62,10 +62,10 @@ and make_tree' where
 definition "mk_tree = make_tree []"
 
 definition "ident_fresh = (\<lambda>l (map, ident).
-  case lookup map l of None \<Rightarrow> (ident, (insert l ident map, Suc ident))
+  case RBT.lookup map l of None \<Rightarrow> (ident, (RBT.insert l ident map, Suc ident))
   | Some i \<Rightarrow> (i, (map, ident)))"
 
-definition "ident_empty = (empty, 0)"
+definition "ident_empty = (RBT.empty, 0)"
 
 fun fold_tree where
    "fold_tree f t accu =
@@ -151,9 +151,9 @@ definition "print_abr sprintf_int write_file =
                   , \<langle>''''\<rangle>
                   , \<langle>''end''\<rangle> ] ])) gen_comp)
       [ ( (\<langle>''deep''\<rangle>, [ (\<langle>''Haskell''\<rangle>, \<langle>''''\<rangle>)
-                     , (\<langle>''OCaml''\<rangle>, \<langle>''module_name M (no_signatures)''\<rangle>)
+                     , (\<langle>''OCaml''\<rangle>, \<langle>''module_name M''\<rangle>)
                      , (\<langle>''Scala''\<rangle>, \<langle>''module_name M''\<rangle>)
-                     , (\<langle>''SML''\<rangle>, \<langle>''module_name M (no_signatures)''\<rangle>)])
+                     , (\<langle>''SML''\<rangle>, \<langle>''module_name M''\<rangle>)])
         , \<langle>''''\<rangle>
         , \<lambda> comp comp2.
             flatten_n [          \<langle>''generation_syntax [ deep''\<rangle>
@@ -221,8 +221,7 @@ definition "main sprintf_int write_file = print_abr (\<lambda>n. \<lless>sprintf
   , (42, 1)
   , (56, 1) ]"
 (*
-export_code main
+export_code open main
   in OCaml module_name M file "class_model_isabelle.ml"
-  (no_signatures)
 *)
 end

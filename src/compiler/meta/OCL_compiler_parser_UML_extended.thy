@@ -81,12 +81,12 @@ subsubsection{* general *}
 context i_of
 begin
 
-definition "i_of_ocl_def_base a b = ocl_def_base_rec
+definition "i_of_ocl_def_base a b = rec_ocl_def_base
   (ap1 a (b \<langle>''OclDefInteger''\<rangle>) (i_of_string a b))
   (ap1 a (b \<langle>''OclDefReal''\<rangle>) (i_of_pair a b (i_of_string a b) (i_of_string a b)))
   (ap1 a (b \<langle>''OclDefString''\<rangle>) (i_of_string a b))"
 
-definition "i_of_ocl_data_shallow a b = (\<lambda>f1 f2 f3 f4 f5 f6. ocl_data_shallow_rec_1 f1 f2 f3 (K f4) f5 (\<lambda>_ _. f6))
+definition "i_of_ocl_data_shallow a b = (\<lambda>f1 f2 f3 f4 f5 f6. rec_ocl_data_shallow_1 f1 f2 f3 (K f4) f5 (\<lambda>_ _. f6))
   (ap1 a (b \<langle>''ShallB_term''\<rangle>) (i_of_ocl_def_base a b))
   (ap1 a (b \<langle>''ShallB_str''\<rangle>) (i_of_string a b))
   (ap1 a (b \<langle>''ShallB_self''\<rangle>) (i_of_internal_oid a b))
@@ -95,7 +95,7 @@ definition "i_of_ocl_data_shallow a b = (\<lambda>f1 f2 f3 f4 f5 f6. ocl_data_sh
   (b i_Nil)
   (ar2 a (b i_Cons) id)"
 
-definition "i_of_ocl_list_attr a b f = (\<lambda>f0. co4 (\<lambda>f1. ocl_list_attr_rec f0 (\<lambda>s _ a rec. f1 s rec a)) (ap3 a))
+definition "i_of_ocl_list_attr a b f = (\<lambda>f0. co4 (\<lambda>f1. rec_ocl_list_attr f0 (\<lambda>s _ a rec. f1 s rec a)) (ap3 a))
   (ap1 a (b \<langle>''OclAttrNoCast''\<rangle>) f)
   (b \<langle>''OclAttrCast''\<rangle>)
     (i_of_string a b)
@@ -109,22 +109,22 @@ definition "i_of_ocl_instance_single a b f = ocl_instance_single_rec
     (i_of_ocl_list_attr a b (i_of_list a b (i_of_pair a b (i_of_string a b) (i_of_ocl_data_shallow a b))))
     (f a b))"
 
-definition "i_of_ocl_instance a b = ocl_instance_rec
+definition "i_of_ocl_instance a b = rec_ocl_instance
   (ap1 a (b \<langle>''OclInstance''\<rangle>)
     (i_of_list a b (i_of_ocl_instance_single a b (K i_of_unit))))"
 
-definition "i_of_ocl_def_base_l a b = ocl_def_base_l_rec
+definition "i_of_ocl_def_base_l a b = rec_ocl_def_base_l
   (ap1 a (b \<langle>''OclDefBase''\<rangle>) (i_of_list a b (i_of_ocl_def_base a b)))"
 
-definition "i_of_ocl_def_state_core a b f = ocl_def_state_core_rec
+definition "i_of_ocl_def_state_core a b f = rec_ocl_def_state_core
   (ap1 a (b \<langle>''OclDefCoreAdd''\<rangle>) (i_of_ocl_instance_single a b (K i_of_unit)))
   (b \<langle>''OclDefCoreSkip''\<rangle>)
   (ap1 a (b \<langle>''OclDefCoreBinding''\<rangle>) f)"
 
-definition "i_of_ocl_def_state a b = ocl_def_state_rec
+definition "i_of_ocl_def_state a b = rec_ocl_def_state
   (ap2 a (b \<langle>''OclDefSt''\<rangle>) (i_of_string a b) (i_of_list a b (i_of_ocl_def_state_core a b (i_of_string a b))))"
 
-definition "i_of_ocl_def_pre_post a b = ocl_def_pre_post_rec
+definition "i_of_ocl_def_pre_post a b = rec_ocl_def_pre_post
   (ap2 a (b \<langle>''OclDefPP''\<rangle>) (i_of_string a b) (i_of_string a b))"
 
 end

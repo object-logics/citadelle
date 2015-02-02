@@ -123,7 +123,7 @@ definition "print_examp_instance_app_constr_notmp f_oid = (\<lambda>isub_name ap
 definition "rbt_of_class ocl =
   (let rbt = (snd o fold_class_gen (\<lambda>_ name l_attr l_inh _ _ rbt.
      ( [()]
-     , modify_def (empty, []) name
+     , modify_def (RBT.empty, []) name
          (let f_fold = \<lambda>tag l rbt.
             let (rbt, _, n) = List.fold
                                    (\<lambda> (name_attr, ty) \<Rightarrow> \<lambda>(rbt, cpt, l_obj).
@@ -135,13 +135,13 @@ definition "rbt_of_class ocl =
            let (rbt, info_own) = f_fold OptOwn l_attr rbt in
            let (rbt, info_inh) = f_fold OptInh (List_flatten (map_class_inh l_inh)) rbt in
            (rbt, [info_own, info_inh])))
-         rbt)) empty) (case D_class_spec ocl of Some c \<Rightarrow> c) in
+         rbt)) RBT.empty) (case D_class_spec ocl of Some c \<Rightarrow> c) in
    (\<lambda>name.
      let rbt = lookup rbt name in
      ( \<lambda> name_attr.
         Option.bind rbt (\<lambda>(rbt, _). lookup rbt name_attr)
      , \<lambda> v. Option.bind rbt (\<lambda>(_, l).
-        Option.map (\<lambda>l f accu.
+        map_option (\<lambda>l f accu.
           let (_, accu) =
             List.fold
               (let f_fold = \<lambda>b (n, accu). (Succ n, f b n accu) in
@@ -155,7 +155,7 @@ definition "rbt_of_class ocl =
 definition "fill_blank f_blank =
   List_map (\<lambda> (attr_ty, l).
     case f_blank attr_ty of Some f_fold \<Rightarrow>
-    let rbt = List.fold (\<lambda> ((ty, _, ident), shallow) \<Rightarrow> RBT.insert ident (ty, shallow)) l empty in
+    let rbt = List.fold (\<lambda> ((ty, _, ident), shallow) \<Rightarrow> RBT.insert ident (ty, shallow)) l RBT.empty in
     (attr_ty, rev (f_fold (\<lambda>b n l. (b, RBT.lookup rbt (OptIdent n)) # l) [])))"
 
 fun_quick split_inh_own where
@@ -199,8 +199,8 @@ definition "init_map_class ocl l =
          , oidSucInh oid_start
          , Succ accu))
        l
-       ( empty
-       , bulkload (List_map (\<lambda>(k, _, v). (String\<^sub>b\<^sub>a\<^sub>s\<^sub>e_to_list k, v)) (D_instance_rbt ocl))
+       ( RBT.empty
+       , RBT.bulkload (List_map (\<lambda>(k, _, v). (String\<^sub>b\<^sub>a\<^sub>s\<^sub>e_to_list k, v)) (D_instance_rbt ocl))
        , D_oid_start ocl
        , 0) in
    (rbt_of_class ocl, RBT.lookup rbt_nat, lookup rbt_str))"
@@ -221,10 +221,10 @@ definition "print_examp_def_st_assoc_build_rbt_gen f rbt map_self map_username l
                                                       None
                                                     else
                                                       Some (List.map_filter find_map l)
-                                 | _ \<Rightarrow> Option.map (\<lambda>x. [x]) (find_map shall) of
+                                 | _ \<Rightarrow> map_option (\<lambda>x. [x]) (find_map shall) of
                       None \<Rightarrow> (l, accu)
                     | Some oid \<Rightarrow> (List_map (List_map oidGetInh) [[cpt], oid] # l, accu))
-           | _ \<Rightarrow> id) l_attr)) ocli) l_assoc empty"
+           | _ \<Rightarrow> id) l_attr)) ocli) l_assoc RBT.empty"
 
 fun fold_data_shallow where "fold_data_shallow f_str f_self f x accu =
  (\<lambda> ShallB_str s \<Rightarrow> f (f_str s) accu
@@ -250,7 +250,7 @@ definition "print_examp_def_st_assoc_build_rbt_gen_typecheck map_self map_userna
           | l \<Rightarrow> Cons (flatten [ \<langle>''Extra variables on rhs: ''\<rangle>, String_concatWith \<langle>'', ''\<rangle> l
                                , \<langle>'' in the definition of ''\<rangle>, Inst_name ocli ]))) ocli)"
 
-definition "print_examp_def_st_assoc_build_rbt = print_examp_def_st_assoc_build_rbt_gen (modify_def empty)"
+definition "print_examp_def_st_assoc_build_rbt = print_examp_def_st_assoc_build_rbt_gen (modify_def RBT.empty)"
 definition "print_examp_def_st_assoc_build_rbt2 = print_examp_def_st_assoc_build_rbt_gen (\<lambda>_. id)"
 
 definition "print_examp_def_st_assoc rbt map_self map_username l_assoc =
@@ -293,7 +293,7 @@ definition "print_examp_instance_oid l ocl =
       (D_oid_start ocl))"
 
 definition "check_single = (\<lambda> (name_attr, oid, l_oid) l_mult l.
-  let l = (RBT.keys o bulkload o List_map (\<lambda>x. (x, ()))) l
+  let l = (RBT.keys o RBT.bulkload o List_map (\<lambda>x. (x, ()))) l
     ; assoc = \<lambda>x. case map_of l_oid x of Some s \<Rightarrow> s | None \<Rightarrow> case x of Oid n \<Rightarrow> flatten [\<langle>''/*''\<rangle>, natural_of_str n, \<langle>''*/''\<rangle>]
     ; attr_len = natural_of_nat (length l)
     ; l_typed =
@@ -383,7 +383,7 @@ definition "check_single_ty rbt_init rbt' l_attr_gen l_oid x =
           let f = \<lambda>g.
             \<lambda> None \<Rightarrow> None
             | Some role1 \<Rightarrow>
-                Option.map
+                map_option
                   (\<lambda>_. let (ty1, role1, f_swap) = g role1 in
                        ( case fst (rbt_init ty1) role1 of Some (OclTy_class ty_obj, _, _) \<Rightarrow> ty_obj
                        , f_swap (TyObj_from, TyObj_to)))
@@ -629,7 +629,7 @@ definition "print_examp_def_st_inst_var = (\<lambda> OclDefSt name l \<Rightarro
 definition "print_examp_def_st_dom_name name = flatten [\<langle>''dom_''\<rangle>, name]"
 definition "print_examp_def_st_dom = (\<lambda> _ ocl.
  (\<lambda> l. (List_map Thy_lemma_by l, ocl))
-  (let (name, l_st) = map_pair String\<^sub>b\<^sub>a\<^sub>s\<^sub>e_to_String id (hd (D_state_rbt ocl))
+  (let (name, l_st) = map_prod String\<^sub>b\<^sub>a\<^sub>s\<^sub>e_to_String id (hd (D_state_rbt ocl))
      ; a = \<lambda>f x. Expr_apply f [x]
      ; b = \<lambda>s. Expr_basic [s]
      ; d = hol_definition in
@@ -648,7 +648,7 @@ definition "print_examp_def_st_dom_lemmas = (\<lambda> _ ocl.
 definition "print_examp_def_st_perm_name name = flatten [\<langle>''perm_''\<rangle>, name]"
 definition "print_examp_def_st_perm = (\<lambda> _ ocl.
  (\<lambda> l. (List_map Thy_lemma_by l, ocl))
-  (let (name, l_st) = map_pair String\<^sub>b\<^sub>a\<^sub>s\<^sub>e_to_String id (hd (D_state_rbt ocl))
+  (let (name, l_st) = map_prod String\<^sub>b\<^sub>a\<^sub>s\<^sub>e_to_String id (hd (D_state_rbt ocl))
      ; expr_app = let ocl = ocl \<lparr> D_oid_start := oidReinitInh (D_oid_start ocl) \<rparr> in
                   print_examp_def_st_mapsto
                     ocl
@@ -699,7 +699,7 @@ definition "extract_state ocl name_st l_st =
 
 definition "print_examp_def_st_allinst = (\<lambda> _ ocl.
  (\<lambda> l. (List_map Thy_lemma_by l, ocl))
-  (let (name_st, l_st) = map_pair String\<^sub>b\<^sub>a\<^sub>s\<^sub>e_to_String id (hd (D_state_rbt ocl))
+  (let (name_st, l_st) = map_prod String\<^sub>b\<^sub>a\<^sub>s\<^sub>e_to_String id (hd (D_state_rbt ocl))
      ; b = \<lambda>s. Expr_basic [s]
      ; expr_app = extract_state ocl name_st l_st
      ; a = \<lambda>f x. Expr_apply f [x]
@@ -784,10 +784,10 @@ definition "print_examp_def_st_allinst = (\<lambda> _ ocl.
 definition "print_examp_def_st_defs = (\<lambda> _ \<Rightarrow> start_map Thy_lemmas_simp
   [ Lemmas_simps \<langle>''''\<rangle> [ \<langle>''state.defs''\<rangle>, \<langle>''const_ss''\<rangle> ] ])"
 
-definition "merge_unique_gen f l = List.fold (List.fold (\<lambda>x. case f x of Some (x, v) \<Rightarrow> RBT.insert x v | None \<Rightarrow> id)) l empty"
+definition "merge_unique_gen f l = List.fold (List.fold (\<lambda>x. case f x of Some (x, v) \<Rightarrow> RBT.insert x v | None \<Rightarrow> id)) l RBT.empty"
 definition "merge_unique f l = RBT.entries (merge_unique_gen f l)"
-definition "merge_unique' f l = List_map (map_pair (\<lambda>s. \<lless>s\<ggreater>) id)
-                                        (merge_unique (Option.map (map_pair String_to_list id) o f) l)"
+definition "merge_unique' f l = List_map (map_prod (\<lambda>s. \<lless>s\<ggreater>) id)
+                                        (merge_unique (map_option (map_prod String_to_list id) o f) l)"
 
 definition "print_pre_post_wff = (\<lambda> OclDefPP s_pre s_post \<Rightarrow> \<lambda> ocl.
  (\<lambda> l. (List_map Thy_lemma_by l, ocl))
@@ -824,10 +824,10 @@ definition "print_pre_post_where = (\<lambda> OclDefPP s_pre s_post \<Rightarrow
              (Some ocore1, Some ocore2) \<Rightarrow> (\<langle>''OclIsMaintained''\<rangle>, case (ocore1, ocore2) of (OclDefCoreBinding _, OclDefCoreBinding _) \<Rightarrow> [(ocore1, s_pre), (ocore2, s_post)] | (OclDefCoreBinding _, _) \<Rightarrow> [(ocore1, s_pre)] | _ \<Rightarrow> [(ocore2, s_post)])
            | (Some ocore, None) \<Rightarrow> (\<langle>''OclIsDeleted''\<rangle>, [(ocore, s_pre)])
            | (None, Some ocore) \<Rightarrow> (\<langle>''OclIsNew''\<rangle>, [(ocore, s_post)])
-     ; rbt = union rbt_pre rbt_post
+     ; rbt = RBT.union rbt_pre rbt_post
      ; l_oid_of = keys (RBT.fold (\<lambda>_. \<lambda> OclDefCoreBinding (_, ocli) \<Rightarrow> insert (const_oid_of (datatype_name @@ isub_of_str (Inst_ty ocli))) ()
                             | OclDefCoreAdd ocli \<Rightarrow> insert (const_oid_of (datatype_name @@ isub_of_str (Inst_ty ocli))) ()
-                            | _ \<Rightarrow> id) rbt empty) in
+                            | _ \<Rightarrow> id) rbt RBT.empty) in
    List_map
      (\<lambda>x_pers_oid.
        let (x_where, l_ocore) = filter_ocore x_pers_oid in
