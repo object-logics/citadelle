@@ -49,6 +49,7 @@ imports "~~/src/HOL/Library/Code_Char"
   keywords (* hol syntax *)
            "fun_sorry" "fun_quick"
            "definition\<acute>"
+           "fun\<acute>"
            :: thy_decl
 begin
 
@@ -75,9 +76,6 @@ translations "\<lless>x\<ggreater>" \<rightleftharpoons> "CONST SS_base (CONST S
 
 syntax "_char1" :: "_ \<Rightarrow> abr_string" ("\<degree>(_)\<degree>")
 translations "\<degree>x\<degree>" \<rightleftharpoons> "CONST SS_base (CONST ST' ((CONST Cons) x (CONST Nil)))"
-
-syntax "_char2" :: "_ \<Rightarrow> String.literal" ("\<ordmasculine>(_)\<ordmasculine>")
-translations "\<ordmasculine>x\<ordmasculine>" \<rightleftharpoons> "CONST STR ((CONST Cons) x (CONST Nil))"
 
 type_notation abr_string ("string")
 
@@ -138,11 +136,31 @@ section{* ... *}
 
 ML{* 
 local
-val constdef = Scan.option Parse_Spec.constdecl -- (Parse_Spec.opt_thm_name ":" -- Parse.inner_syntax Parse.cartouche);
+  val constdef = Scan.option Parse_Spec.constdecl -- (Parse_Spec.opt_thm_name ":" -- Parse.inner_syntax Parse.cartouche);
 in
-val _ =
-  Outer_Syntax.local_theory' @{command_spec "definition\<acute>"} "constant definition"
-    (constdef >> (fn args => #2 oo Specification.definition_cmd args));
+  val _ =
+    Outer_Syntax.local_theory' @{command_spec "definition\<acute>"} "constant definition"
+      (constdef >> (fn args => #2 oo Specification.definition_cmd args));
+end
+*}
+
+ML{*
+local
+  val spec = Parse_Spec.opt_thm_name ":" -- Parse.inner_syntax Parse.cartouche;
+  
+  val alt_specs =
+    Parse.enum1 "|"
+      (spec --| Scan.option (Scan.ahead (Parse.name || Parse.$$$ "[") -- Parse.!!! (Parse.$$$ "|")));
+  
+  val where_alt_specs = Parse.where_ |-- Parse.!!! alt_specs;
+    val function_parser =
+       Parse.fixes -- where_alt_specs
+in
+  val _ =
+    Outer_Syntax.local_theory' @{command_spec "fun\<acute>"}
+      "define general recursive functions (short version)"
+      (function_parser 
+        >> (fn (fixes, statements) => Function_Fun.add_fun_cmd fixes statements Function_Fun.fun_config))
 end
 *}
 
@@ -311,7 +329,7 @@ subsection{* ... *}
 
 definition "wildcard = \<open>_\<close>"
 
-definition "escape_unicode c = flatten [\<degree>Char Nibble5 NibbleC\<degree>, \<open><\<close>, c, \<open>>\<close>]"
+definition\<acute> \<open>escape_unicode c = flatten [\<open>\\<close>, \<open><\<close>, c, \<open>>\<close>]\<close>
 
 definition "lowercase_of_str = String_map (\<lambda>c. let n = nat_of_char c in if n < 97 then char_of_nat (n + 32) else c)"
 definition "uppercase_of_str = String_map (\<lambda>c. let n = nat_of_char c in if n < 97 then c else char_of_nat (n - 32))"
@@ -369,39 +387,5 @@ definition "mk_dot_comment s1 s2 s3 = mk_dot s1 (flatten [s2, \<open> /*\<close>
 
 definition "hol_definition s = flatten [s, \<open>_def\<close>]"
 definition "hol_split s = flatten [s, \<open>.split\<close>]"
-
-subsection{* ... *}
-
-definition "unicode_AA = \<open>\<AA>\<close>"
-definition "unicode_acute = \<open>\<acute>\<close>"
-definition "unicode_alpha = \<open>\<alpha>\<close>"
-definition "unicode_and = \<open>\<and>\<close>"
-definition "unicode_And = \<open>\<And>\<close>"
-definition "unicode_bottom = \<open>\<bottom>\<close>"
-definition "unicode_circ = \<open>\<circ>\<close>"
-definition "unicode_delta = \<open>\<delta>\<close>"
-definition "unicode_doteq = \<open>\<doteq>\<close>"
-definition "unicode_equiv = \<open>\<equiv>\<close>"
-definition "unicode_exists = \<open>\<exists>\<close>"
-definition "unicode_forall = \<open>\<forall>\<close>"
-definition "unicode_in = \<open>\<in>\<close>"
-definition "unicode_lambda = \<open>\<lambda>\<close>"
-definition "unicode_lceil = \<open>\<lceil>\<close>"
-definition "unicode_lfloor = \<open>\<lfloor>\<close>"
-definition "unicode_longrightarrow = \<open>\<longrightarrow>\<close>"
-definition "unicode_Longrightarrow = \<open>\<Longrightarrow>\<close>"
-definition "unicode_mapsto = \<open>\<mapsto>\<close>"
-definition "unicode_noteq = \<open>\<noteq>\<close>"
-definition "unicode_not = \<open>\<not>\<close>"
-definition "unicode_or = \<open>\<or>\<close>"
-definition "unicode_rceil = \<open>\<rceil>\<close>"
-definition "unicode_rfloor = \<open>\<rfloor>\<close>"
-definition "unicode_Rightarrow = \<open>\<Rightarrow>\<close>"
-definition "unicode_subseteq = \<open>\<subseteq>\<close>"
-definition "unicode_tau = \<open>\<tau>\<close>"
-definition "unicode_times = \<open>\<times>\<close>"
-definition "unicode_triangleq = \<open>\<triangleq>\<close>"
-definition "unicode_Turnstile = \<open>\<Turnstile>\<close>"
-definition "unicode_upsilon = \<open>\<upsilon>\<close>"
 
 end

@@ -82,10 +82,10 @@ fun_quick s_of_expr where "s_of_expr e = (\<lambda>
   | Expr_annot0 e s \<Rightarrow> sprint2 \<open>(%s::%s)\<close>\<acute> (s_of_expr e) (s_of_rawty s)
   | Expr_bind0 symb e1 e2 \<Rightarrow> sprint3 \<open>(%s%s. %s)\<close>\<acute> (To_string symb) (s_of_expr e1) (s_of_expr e2)
   | Expr_function0 e_case l \<Rightarrow> sprint2 \<open>(%s %s)\<close>\<acute>
-      (case e_case of None \<Rightarrow> To_string unicode_lambda
+      (case e_case of None \<Rightarrow> \<open>\<lambda>\<close>
                     | Some e \<Rightarrow> sprint1 \<open>case %s of\<close>\<acute> (s_of_expr e))
       (String_concat \<open>
-    | \<close> (List.map (\<lambda> (s1, s2) \<Rightarrow> sprint3 \<open>%s %s %s\<close>\<acute> (s_of_expr s1) (To_string unicode_Rightarrow) (s_of_expr s2)) l))
+    | \<close> (List.map (\<lambda> (s1, s2) \<Rightarrow> sprint2 \<open>%s \<Rightarrow> %s\<close>\<acute> (s_of_expr s1) (s_of_expr s2)) l))
   | Expr_applys00 e l \<Rightarrow> sprint2 \<open>%s %s\<close>\<acute> (s_of_expr e) (String_concat \<open> \<close> (List.map (\<lambda> e \<Rightarrow> sprint1 \<open>%s\<close>\<acute> (s_of_expr e)) l))
   | Expr_paren p_left p_right e \<Rightarrow> sprint3 \<open>%s%s%s\<close>\<acute> (To_string p_left) (s_of_expr e) (To_string p_right)
   | Expr_if_then_else e_if e_then e_else \<Rightarrow> sprint3 \<open>if %s then %s else %s\<close>\<acute> (s_of_expr e_if) (s_of_expr e_then) (s_of_expr e_else)
@@ -261,7 +261,7 @@ definition "s_of_tac_apply_end = (
   | AppE l_apply \<Rightarrow> sprint1 \<open>  apply_end(%s)
 \<close>\<acute> (String_concat \<open>, \<close> (List_map s_of_tactic l_apply)))"
 
-definition "s_of_tac_apply = (
+definition\<acute> \<open>s_of_tac_apply = (
   let thesis = \<open>?thesis\<close>
     ; scope_thesis_gen = sprint2 \<open>  proof - %s show %s
 \<close>\<acute>
@@ -273,8 +273,8 @@ definition "s_of_tac_apply = (
 \<close>\<acute> (s_of_ntheorems_l l)
   | App_unfolding0 l \<Rightarrow> sprint1 \<open>  unfolding %s
 \<close>\<acute> (s_of_ntheorems_l l)
-  | App_let e_name e_body \<Rightarrow> scope_thesis (sprint2 \<open>let %s = \"%s\"\<close>\<acute> (s_of_expr e_name) (s_of_expr e_body))
-  | App_have n e e_last \<Rightarrow> scope_thesis (sprint3 \<open>have %s: \"%s\" %s\<close>\<acute> (To_string n) (s_of_expr e) (s_of_tactic_last e_last))
+  | App_let e_name e_body \<Rightarrow> scope_thesis (sprint2 \<open>let %s = "%s"\<close>\<acute> (s_of_expr e_name) (s_of_expr e_body))
+  | App_have n e e_last \<Rightarrow> scope_thesis (sprint3 \<open>have %s: "%s" %s\<close>\<acute> (To_string n) (s_of_expr e) (s_of_tactic_last e_last))
   | App_fix_let l l_let o_show _ \<Rightarrow>
       scope_thesis_gen
         (sprint2 \<open>fix %s%s\<close>\<acute> (String_concat \<open> \<close> (List_map To_string l))
@@ -283,22 +283,17 @@ definition "s_of_tac_apply = (
 \<close>                                        )
                                        (List_map
                                          (\<lambda>(e_name, e_body).
-                                           sprint2 \<open>          let %s = \"%s\"\<close>\<acute> (s_of_expr e_name) (s_of_expr e_body))
+                                           sprint2 \<open>          let %s = "%s"\<close>\<acute> (s_of_expr e_name) (s_of_expr e_body))
                                          l_let)))
         (case o_show of None \<Rightarrow> thesis
-                      | Some l_show \<Rightarrow>
-                          let g = \<ordmasculine>Char Nibble2 Nibble2\<ordmasculine> in
-                          sprint3 \<open>%s%s%s\<close>\<acute>
-                            g
-                            (String_concat (sprint1 \<open> %s \<close>\<acute> (To_string unicode_Longrightarrow)) (List_map s_of_expr l_show))
-                            g))"
+                      | Some l_show \<Rightarrow> sprint1 \<open>"%s"\<close>\<acute> (String_concat \<open> \<Longrightarrow> \<close> (List_map s_of_expr l_show))))\<close>
 
 definition "s_of_lemma_by _ =
  (\<lambda> Lemma_by n l_spec l_apply tactic_last \<Rightarrow>
     sprint4 \<open>lemma %s : \"%s\"
 %s%s\<close>\<acute>
       (To_string n)
-      (String_concat (sprint1 \<open> %s \<close>\<acute> (To_string unicode_Longrightarrow)) (List_map s_of_expr l_spec))
+      (String_concat \<open> \<Longrightarrow> \<close> (List_map s_of_expr l_spec))
       (String_concat \<open>\<close> (List_map (\<lambda> [] \<Rightarrow> \<open>\<close> | l_apply \<Rightarrow> sprint1 \<open>  apply(%s)
 \<close>\<acute> (String_concat \<open>, \<close> (List_map s_of_tactic l_apply))) l_apply))
       (s_of_tactic_last tactic_last)

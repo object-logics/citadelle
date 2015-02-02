@@ -804,7 +804,7 @@ val apply_results = let open OCL_overload
                                                l_let
                                         o Proof.fix_cmd (List.map (fn i => (To_sbinding i, NONE, NoSyn)) l))
                                         (case o_exp of NONE => thesis | SOME l_spec => 
-                                          (String.concatWith (" " ^ (To_string0 OCL.unicode_Longrightarrow) ^ " ")
+                                          (String.concatWith (" \<Longrightarrow> ")
                                                              (List.map s_of_expr l_spec)))
 end
 
@@ -874,7 +874,7 @@ val OCL_main_thy = let open OCL open OCL_overload in (*let val f = *)fn
       in_local (fn lthy =>
            Specification.theorem_cmd Thm.lemmaK NONE (K I)
              (@{binding ""}, []) [] [] (Element.Shows [((To_sbinding n, [])
-                                                       ,[((String.concatWith (" " ^ (To_string0 OCL.unicode_Longrightarrow) ^ " ")
+                                                       ,[((String.concatWith (" \<Longrightarrow> ")
                                                              (List.map s_of_expr l_spec)), [])])])
              false lthy
         |> fold (apply_results o OCL.App) l_apply

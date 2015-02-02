@@ -57,9 +57,8 @@ begin
 definition "s_of_val_fun = (\<lambda> Sval \<Rightarrow> \<open>val\<close>
                             | Sfun \<Rightarrow> \<open>fun\<close>)"
 
-fun_quick s_of_sexpr where "s_of_sexpr e = (\<lambda>
-    Sexpr_string s \<Rightarrow> let c = \<ordmasculine>Char Nibble2 Nibble2\<ordmasculine> in
-                      sprint3 \<open>%s%s%s\<close>\<acute> c (To_string s) c
+fun\<acute> s_of_sexpr where \<open>s_of_sexpr e = (\<lambda>
+    Sexpr_string s \<Rightarrow> sprint1 \<open>"%s"\<close>\<acute> (To_string s)
   | Sexpr_rewrite val_fun e1 symb e2 \<Rightarrow> sprint4 \<open>%s %s %s %s\<close>\<acute> (s_of_val_fun val_fun) (s_of_sexpr e1) (To_string symb) (s_of_sexpr e2)
   | Sexpr_basic l \<Rightarrow> sprint1 \<open>%s\<close>\<acute> (String_concat \<open> \<close> (List_map To_string l))
   | Sexpr_oid tit s \<Rightarrow> sprint2 \<open>%s%d\<close>\<acute> (To_string tit) (To_oid s)
@@ -69,7 +68,7 @@ fun_quick s_of_sexpr where "s_of_sexpr e = (\<lambda>
     | \<close> (List.map (\<lambda> (s1, s2) \<Rightarrow> sprint2 \<open>%s => %s\<close>\<acute> (s_of_sexpr s1) (s_of_sexpr s2)) l))
   | Sexpr_apply s l \<Rightarrow> sprint2 \<open>(%s %s)\<close>\<acute> (To_string s) (String_concat \<open> \<close> (List.map (\<lambda> e \<Rightarrow> sprint1 \<open>(%s)\<close>\<acute> (s_of_sexpr e)) l))
   | Sexpr_paren p_left p_right e \<Rightarrow> sprint3 \<open>%s%s%s\<close>\<acute> (To_string p_left) (s_of_sexpr e) (To_string p_right)
-  | Sexpr_let_open s e \<Rightarrow> sprint2 \<open>let open %s in %s end\<close>\<acute> (To_string s) (s_of_sexpr e)) e"
+  | Sexpr_let_open s e \<Rightarrow> sprint2 \<open>let open %s in %s end\<close>\<acute> (To_string s) (s_of_sexpr e)) e\<close>
 
 end
 

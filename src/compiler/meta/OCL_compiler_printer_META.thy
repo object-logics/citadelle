@@ -65,7 +65,7 @@ definition "concatWith l =
  (if l = [] then
     id
   else
-    sprint2 \<prec>''(%s. (%s))''\<succ>\<acute> (To_string (String_concatWith \<open> \<close> (unicode_lambda # rev l))))"
+    sprint2 \<prec>''(%s. (%s))''\<succ>\<acute> (To_string (String_concatWith \<open> \<close> (\<open>\<lambda>\<close> # rev l))))"
 
 declare[[cartouche_type = "String.literal"]]
 
@@ -85,9 +85,8 @@ fun_quick s_of_ctxt2_term_aux where "s_of_ctxt2_term_aux l e =
   | T_lambda s c \<Rightarrow> s_of_ctxt2_term_aux (s # l) c) e"
 definition "s_of_ctxt2_term = s_of_ctxt2_term_aux []"
 
-definition "s_of_ocl_deep_embed_ast _ =
- (let g = \<ordmasculine>Char Nibble2 Nibble2\<ordmasculine> in
-  \<lambda> OclAstCtxtPrePost Floor2 ctxt \<Rightarrow>
+definition\<acute> \<open>s_of_ocl_deep_embed_ast _ =
+ (\<lambda> OclAstCtxtPrePost Floor2 ctxt \<Rightarrow>
       sprint5 \<open>Context[shallow] %s :: %s (%s) %s
 %s\<close>\<acute>
         (To_string (Ctxt_ty ctxt))
@@ -101,12 +100,10 @@ definition "s_of_ocl_deep_embed_ast _ =
         (String_concat \<open>
 \<close>
           (List_map
-            (\<lambda> (pref, s). sprint4 \<open>  %s : %s%s%s\<close>\<acute>
+            (\<lambda> (pref, s). sprint2 \<open>  %s : "%s"\<close>\<acute>
               (case pref of OclCtxtPre \<Rightarrow> \<open>Pre\<close>
                           | OclCtxtPost \<Rightarrow> \<open>Post\<close>)
-              g
-              (s_of_ctxt2_term s)
-              g)
+              (s_of_ctxt2_term s))
             (Ctxt_expr ctxt)))
   | OclAstCtxtInv Floor2 ctxt \<Rightarrow>
       sprint3 \<open>Context[shallow] %s%s
@@ -118,12 +115,10 @@ definition "s_of_ocl_deep_embed_ast _ =
         (String_concat \<open>
 \<close>
           (List_map
-            (\<lambda> (n, s). sprint4 \<open>  Inv %s : %s%s%s\<close>\<acute>
+            (\<lambda> (n, s). sprint2 \<open>  Inv %s : "%s"\<close>\<acute>
               (To_string n)
-              g
-              (s_of_ctxt2_term s)
-              g)
-            (Ctxt_inv_expr ctxt))))"
+              (s_of_ctxt2_term s))
+            (Ctxt_inv_expr ctxt))))\<close>
 
 definition "s_of_thy ocl =
             (\<lambda> Theory_dataty dataty \<Rightarrow> s_of_dataty ocl dataty
