@@ -76,116 +76,113 @@ definition\<acute> thy_class ::
      ; subsection_cp = subsection \<langle>''Context Passing''\<rangle>
      ; subsection_exec = subsection \<langle>''Execution with Invalid or Null as Argument''\<rangle>
      ; subsection_up = subsection \<langle>''Up Down Casting''\<rangle>
-     ; subsection_defined = subsection \<langle>''Validity and Definedness Properties''\<rangle>
-     ; e = \<langle>[Char Nibble5 NibbleC]\<rangle>
-     ; n = \<langle>[Char Nibble2 Nibble7]\<rangle>
-     ; a = \<langle>[Char Nibble2 Nibble2]\<rangle> in
+     ; subsection_defined = subsection \<langle>''Validity and Definedness Properties''\<rangle> in
   List_flatten
-          [ [ txt''d [ \<langle>''
-   ''\<rangle>, e, \<langle>''label{ex:employee-design:uml} ''\<rangle> ]
-            , txt''a [ \<langle>''
-   ''\<rangle>, e, \<langle>''label{ex:employee-analysis:uml} ''\<rangle> ]
-            , section \<langle>''Introduction''\<rangle>
-            , txt'' [ \<langle>''
+          [ [ txt''d [ \<open>
+   \label{ex:employee-design:uml} \<close> ]
+            , txt''a [ \<open>
+   \label{ex:employee-analysis:uml} \<close> ]
+            , section \<open>Introduction\<close>
+            , txt'' [ \<open>
 
   For certain concepts like classes and class-types, only a generic
   definition for its resulting semantics can be given. Generic means,
-  there is a function outside HOL that ``compiles''\<rangle>, n, \<langle>''''\<rangle>, n, \<langle>'' a concrete,
-  closed-world class diagram into a ``theory''\<rangle>, n, \<langle>''''\<rangle>, n, \<langle>'' of this data model,
+  there is a function outside HOL that ``compiles'' a concrete,
+  closed-world class diagram into a ``theory'' of this data model,
   consisting of a bunch of definitions for classes, accessors, method,
   casts, and tests for actual types, as well as proofs for the
   fundamental properties of these operations in this concrete data
-  model. ''\<rangle> ]
-            , txt'' [ \<langle>''
-   Such generic function or ``compiler''\<rangle>, n, \<langle>''''\<rangle>, n, \<langle>'' can be implemented in
+  model. \<close> ]
+            , txt'' [ \<open>
+   Such generic function or ``compiler'' can be implemented in
   Isabelle on the ML level.  This has been done, for a semantics
   following the open-world assumption, for UML 2.0
-  in~''\<rangle>, e, \<langle>''cite{brucker.ea:extensible:2008-b, brucker:interactive:2007}. In
+  in~\cite{brucker.ea:extensible:2008-b, brucker:interactive:2007}. In
   this paper, we follow another approach for UML 2.4: we define the
   concepts of the compilation informally, and present a concrete
-  example which is verified in Isabelle/HOL. ''\<rangle> ]
-            , subsection \<langle>''Outlining the Example''\<rangle>
-            , txt''d [ \<langle>''
-   We are presenting here a ``design-model''\<rangle>, n, \<langle>''''\<rangle>, n, \<langle>'' of the (slightly
+  example which is verified in Isabelle/HOL. \<close> ]
+            , subsection \<open>Outlining the Example\<close>
+            , txt''d [ \<open>
+   We are presenting here a ``design-model'' of the (slightly
 modified) example Figure 7.3, page 20 of
-the OCL standard~''\<rangle>, e, \<langle>''cite{omg:ocl:2012}. To be precise, this theory contains the formalization of
-the data-part covered by the UML class model (see ''\<rangle>, e, \<langle>''autoref{fig:person}):''\<rangle> ]
-            , txt''a [ \<langle>''
-   We are presenting here an ``analysis-model''\<rangle>, n, \<langle>''''\<rangle>, n, \<langle>'' of the (slightly
+the OCL standard~\cite{omg:ocl:2012}. To be precise, this theory contains the formalization of
+the data-part covered by the UML class model (see \autoref{fig:person}):\<close> ]
+            , txt''a [ \<open>
+   We are presenting here an ``analysis-model'' of the (slightly
 modified) example Figure 7.3, page 20 of
-the OCL standard~''\<rangle>, e, \<langle>''cite{omg:ocl:2012}.
+the OCL standard~\cite{omg:ocl:2012}.
 Here, analysis model means that associations
 were really represented as relation on objects on the state---as is
 intended by the standard---rather by pointers between objects as is
-done in our ``design model''\<rangle>, n, \<langle>''''\<rangle>, n, \<langle>'' (see ''\<rangle>, e, \<langle>''autoref{ex:employee-design:uml}).
+done in our ``design model'' (see \autoref{ex:employee-design:uml}).
 To be precise, this theory contains the formalization of the data-part
-covered by the UML class model (see ''\<rangle>, e, \<langle>''autoref{fig:person-ana}):''\<rangle> ]
-            , txt''d [ \<langle>''
+covered by the UML class model (see \autoref{fig:person-ana}):\<close> ]
+            , txt''d [ \<open>
 
-''\<rangle>, e, \<langle>''begin{figure}
-  ''\<rangle>, e, \<langle>''centering''\<rangle>, e, \<langle>''scalebox{.3}{''\<rangle>, e, \<langle>''includegraphics{figures/person.png}}%
-  ''\<rangle>, e, \<langle>''caption{A simple UML class model drawn from Figure 7.3,
-  page 20 of~''\<rangle>, e, \<langle>''cite{omg:ocl:2012}. ''\<rangle>, e, \<langle>''label{fig:person}}
-''\<rangle>, e, \<langle>''end{figure}
-''\<rangle> ]
-            , txt''a [ \<langle>''
+\begin{figure}
+  \centering\scalebox{.3}{\includegraphics{figures/person.png}}%
+  \caption{A simple UML class model drawn from Figure 7.3,
+  page 20 of~\cite{omg:ocl:2012}. \label{fig:person}}
+\end{figure}
+\<close> ]
+            , txt''a [ \<open>
 
-''\<rangle>, e, \<langle>''begin{figure}
-  ''\<rangle>, e, \<langle>''centering''\<rangle>, e, \<langle>''scalebox{.3}{''\<rangle>, e, \<langle>''includegraphics{figures/person.png}}%
-  ''\<rangle>, e, \<langle>''caption{A simple UML class model drawn from Figure 7.3,
-  page 20 of~''\<rangle>, e, \<langle>''cite{omg:ocl:2012}. ''\<rangle>, e, \<langle>''label{fig:person-ana}}
-''\<rangle>, e, \<langle>''end{figure}
-''\<rangle> ]
-            , txt'' [ \<langle>''
+\begin{figure}
+  \centering\scalebox{.3}{\includegraphics{figures/person.png}}%
+  \caption{A simple UML class model drawn from Figure 7.3,
+  page 20 of~\cite{omg:ocl:2012}. \label{fig:person-ana}}
+\end{figure}
+\<close> ]
+            , txt'' [ \<open>
    This means that the association (attached to the association class
-''\<rangle>, e, \<langle>''inlineocl{EmployeeRanking}) with the association ends ''\<rangle>, e, \<langle>''inlineocl+boss+ and ''\<rangle>, e, \<langle>''inlineocl+employees+ is implemented
-by the attribute  ''\<rangle>, e, \<langle>''inlineocl+boss+ and the operation ''\<rangle>, e, \<langle>''inlineocl+employees+ (to be discussed in the OCL part
+\inlineocl{EmployeeRanking}) with the association ends \inlineocl+boss+ and \inlineocl+employees+ is implemented
+by the attribute  \inlineocl+boss+ and the operation \inlineocl+employees+ (to be discussed in the OCL part
 captured by the subsequent theory).
-''\<rangle> ]
-            , section \<langle>''Example Data-Universe and its Infrastructure''\<rangle>
-            (*, txt'' [ \<langle>''
-   Ideally, the following is generated automatically from a UML class model.  ''\<rangle> ]
-            *), txt'' [ \<langle>''
-   Our data universe  consists in the concrete class diagram just of node''\<rangle>, n, \<langle>''s,
+\<close> ]
+            , section \<open>Example Data-Universe and its Infrastructure\<close>
+            (*, txt'' [ \<open>
+   Ideally, the following is generated automatically from a UML class model.  \<close> ]
+            *), txt'' [ \<open>
+   Our data universe  consists in the concrete class diagram just of node's,
 and implicitly of the class object. Each class implies the existence of a class
-type defined for the corresponding object representations as follows: ''\<rangle> ]
+type defined for the corresponding object representations as follows: \<close> ]
             (*, print_latex_infra_datatype_class*)
             , print_infra_datatype_class
-            , txt'' [ \<langle>''
-   Now, we construct a concrete ``universe of OclAny types''\<rangle>, n, \<langle>''''\<rangle>, n, \<langle>'' by injection into a
+            , txt'' [ \<open>
+   Now, we construct a concrete ``universe of OclAny types'' by injection into a
 sum type containing the class types. This type of OclAny will be used as instance
-for all respective type-variables. ''\<rangle> ]
+for all respective type-variables. \<close> ]
             , print_infra_datatype_universe
-            , txt'' [ \<langle>''
+            , txt'' [ \<open>
    Having fixed the object universe, we can introduce type synonyms that exactly correspond
-to OCL types. Again, we exploit that our representation of OCL is a ``shallow embedding''\<rangle>, n, \<langle>''''\<rangle>, n, \<langle>'' with a
-one-to-one correspondance of OCL-types to types of the meta-language HOL. ''\<rangle> ]
+to OCL types. Again, we exploit that our representation of OCL is a ``shallow embedding'' with a
+one-to-one correspondance of OCL-types to types of the meta-language HOL. \<close> ]
             , print_infra_type_synonym_class
             , print_infra_type_synonym_class_rec
-            (*, txt'' [ \<langle>''
-   Just a little check: ''\<rangle> ]
-            *), txt'' [ \<langle>''
+            (*, txt'' [ \<open>
+   Just a little check: \<close> ]
+            *), txt'' [ \<open>
    To reuse key-elements of the library like referential equality, we have
-to show that the object universe belongs to the type class ``oclany,''\<rangle>, n, \<langle>''''\<rangle>, n, \<langle>'' ''\<rangle>, e, \<langle>''ie,
- each class type has to provide a function @{term oid_of} yielding the object id (oid) of the object. ''\<rangle> ]
+to show that the object universe belongs to the type class ``oclany,'' \ie,
+ each class type has to provide a function @{term oid_of} yielding the object id (oid) of the object. \<close> ]
             , print_infra_instantiation_class
             , print_infra_instantiation_universe
 
-            , section \<langle>''Instantiation of the Generic Strict Equality''\<rangle>
-            , txt'' [ \<langle>''
+            , section \<open>Instantiation of the Generic Strict Equality\<close>
+            , txt'' [ \<open>
    We instantiate the referential equality
-on @{text ''\<rangle>, a, \<langle>''Person''\<rangle>, a, \<langle>''} and @{text ''\<rangle>, a, \<langle>''OclAny''\<rangle>, a, \<langle>''} ''\<rangle> ]
+on @{text "Person"} and @{text "OclAny"} \<close> ]
             , print_instantia_def_strictrefeq
             , print_instantia_lemmas_strictrefeq
-            , txt'' [ \<langle>''
-   For each Class ''\<rangle>, e, \<langle>''emph{C}, we will have a casting operation ''\<rangle>, e, \<langle>''inlineocl{.oclAsType($C$)},
-   a test on the actual type ''\<rangle>, e, \<langle>''inlineocl{.oclIsTypeOf($C$)} as well as its relaxed form
-   ''\<rangle>, e, \<langle>''inlineocl{.oclIsKindOf($C$)} (corresponding exactly to Java''\<rangle>, n, \<langle>''s ''\<rangle>, e, \<langle>''verb+instanceof+-operator.
-''\<rangle> ]
-            , txt'' [ \<langle>''
+            , txt'' [ \<open>
+   For each Class \emph{C}, we will have a casting operation \inlineocl{.oclAsType($C$)},
+   a test on the actual type \inlineocl{.oclIsTypeOf($C$)} as well as its relaxed form
+   \inlineocl{.oclIsKindOf($C$)} (corresponding exactly to Java's \verb+instanceof+-operator.
+\<close> ]
+            , txt'' [ \<open>
    Thus, since we have two class-types in our concrete class hierarchy, we have
 two operations to declare and to provide two overloading definitions for the two static types.
-''\<rangle> ] ]
+\<close> ] ]
 
           , List_flatten (List_map (\<lambda>(title, body_def, body_cp, body_exec, body_defined, body_up).
               section title # List_flatten [ subsection_def # body_def
@@ -193,7 +190,7 @@ two operations to declare and to provide two overloading definitions for the two
                                       , subsection_exec # body_exec
                                       , subsection_defined # body_defined
                                       , subsection_up # body_up ])
-          [ (\<langle>''OclAsType''\<rangle>,
+          [ (\<open>OclAsType\<close>,
             [ print_astype_consts
             , print_astype_class
             , print_astype_from_universe
@@ -207,7 +204,7 @@ two operations to declare and to provide two overloading definitions for the two
             , print_astype_up_d_cast
             , print_astype_d_up_cast ])
 
-          , (\<langle>''OclIsTypeOf''\<rangle>,
+          , (\<open>OclIsTypeOf\<close>,
             [ print_istypeof_consts
             , print_istypeof_class
             , print_istypeof_from_universe
@@ -221,7 +218,7 @@ two operations to declare and to provide two overloading definitions for the two
             , [ print_istypeof_up_larger
             , print_istypeof_up_d_cast ])
 
-          , (\<langle>''OclIsKindOf''\<rangle>,
+          , (\<open>OclIsKindOf\<close>,
             [ print_iskindof_consts
             , print_iskindof_class
             , print_iskindof_from_universe
@@ -238,52 +235,52 @@ two operations to declare and to provide two overloading definitions for the two
             , print_iskindof_up_istypeof
             , print_iskindof_up_d_cast ]) ])
 
-          , [ section \<langle>''OclAllInstances''\<rangle>
-            , txt'' [ \<langle>''
+          , [ section \<open>OclAllInstances\<close>
+            , txt'' [ \<open>
    To denote OCL-types occuring in OCL expressions syntactically---as, for example,  as
-``argument''\<rangle>, n, \<langle>''''\<rangle>, n, \<langle>'' of ''\<rangle>, e, \<langle>''inlineisar{oclAllInstances()}---we use the inverses of the injection
-functions into the object universes; we show that this is sufficient ``characterization.''\<rangle>, n, \<langle>''''\<rangle>, n, \<langle>'' ''\<rangle> ]
+``argument'' of \inlineisar{oclAllInstances()}---we use the inverses of the injection
+functions into the object universes; we show that this is sufficient ``characterization.'' \<close> ]
             , print_allinst_def_id
             , print_allinst_lemmas_id
             , print_allinst_astype
             , print_allinst_exec
-            , subsection \<langle>''OclIsTypeOf''\<rangle>
+            , subsection \<open>OclIsTypeOf\<close>
             , print_allinst_istypeof_pre
             , print_allinst_istypeof
-            , subsection \<langle>''OclIsKindOf''\<rangle>
+            , subsection \<open>OclIsKindOf\<close>
             , print_allinst_iskindof_eq
             , print_allinst_iskindof_larger
 
-            , section \<langle>''The Accessors''\<rangle>
-            , txt''d [ \<langle>''
-  ''\<rangle>, e, \<langle>''label{sec:edm-accessors}''\<rangle> ]
-            , txt''a [ \<langle>''
-  ''\<rangle>, e, \<langle>''label{sec:eam-accessors}''\<rangle> ]
-            (*, txt'' [ \<langle>''
-   Should be generated entirely from a class-diagram. ''\<rangle> ]
+            , section \<open>The Accessors\<close>
+            , txt''d [ \<open>
+  \label{sec:edm-accessors}\<close> ]
+            , txt''a [ \<open>
+  \label{sec:eam-accessors}\<close> ]
+            (*, txt'' [ \<open>
+   Should be generated entirely from a class-diagram. \<close> ]
             *), subsection_def
-            , txt''a [ \<langle>''
+            , txt''a [ \<open>
    We start with a oid for the association; this oid can be used
 in presence of association classes to represent the association inside an object,
-pretty much similar to the ''\<rangle>, e, \<langle>''inlineisar+Employee_DesignModel_UMLPart+, where we stored
-an ''\<rangle>, e, \<langle>''verb+oid+ inside the class as ``pointer.''\<rangle>, n, \<langle>''''\<rangle>, n, \<langle>'' ''\<rangle> ]
+pretty much similar to the \inlineisar+Employee_DesignModel_UMLPart+, where we stored
+an \verb+oid+ inside the class as ``pointer.'' \<close> ]
             , print_access_oid_uniq_ml
             , print_access_oid_uniq
-            , txt''a [ \<langle>''
+            , txt''a [ \<open>
    From there on, we can already define an empty state which must contain
-for $''\<rangle>, e, \<langle>''mathit{oid}_{Person}''\<rangle>, e, \<langle>''mathcal{BOSS}$ the empty relation (encoded as association list, since there are
-associations with a Sequence-like structure).''\<rangle> ]
+for $\mathit{oid}_{Person}\mathcal{BOSS}$ the empty relation (encoded as association list, since there are
+associations with a Sequence-like structure).\<close> ]
             , print_access_eval_extract
-            , txt''a [ \<langle>''
+            , txt''a [ \<open>
    The @{text pre_post}-parameter is configured with @{text fst} or
 @{text snd}, the @{text to_from}-parameter either with the identity @{term id} or
-the following combinator @{text switch}: ''\<rangle> ]
+the following combinator @{text switch}: \<close> ]
             , print_access_choose_ml
             , print_access_choose
             , print_access_deref_oid
             , print_access_deref_assocs
-            , txt'' [ \<langle>''
-   pointer undefined in state or not referencing a type conform object representation ''\<rangle> ]
+            , txt'' [ \<open>
+   pointer undefined in state or not referencing a type conform object representation \<close> ]
             , print_access_select
             , print_access_select_obj
             , print_access_dot_consts
@@ -295,31 +292,31 @@ the following combinator @{text switch}: ''\<rangle> ]
             , print_access_dot_lemmas_cp
             , subsection_exec
             , print_access_lemma_strict
-            , subsection \<langle>''Representation in States''\<rangle>
+            , subsection \<open>Representation in States\<close>
             , print_access_def_mono
             , print_access_is_repr
 
-            , section \<langle>''A Little Infra-structure on Example States''\<rangle>
-            , txt''d [ \<langle>''
+            , section \<open>A Little Infra-structure on Example States\<close>
+            , txt''d [ \<open>
 
-The example we are defining in this section comes from the figure~''\<rangle>, e, \<langle>''ref{fig:edm1_system-states}.
-''\<rangle>, e, \<langle>''begin{figure}
-''\<rangle>, e, \<langle>''includegraphics[width=''\<rangle>, e, \<langle>''textwidth]{figures/pre-post.pdf}
-''\<rangle>, e, \<langle>''caption{(a) pre-state $''\<rangle>, e, \<langle>''sigma_1$ and
-  (b) post-state $''\<rangle>, e, \<langle>''sigma_1''\<rangle>, n, \<langle>''$.}
-''\<rangle>, e, \<langle>''label{fig:edm1_system-states}
-''\<rangle>, e, \<langle>''end{figure}
-''\<rangle> ]
-            , txt''a [ \<langle>''
+The example we are defining in this section comes from the figure~\ref{fig:edm1_system-states}.
+\begin{figure}
+\includegraphics[width=\textwidth]{figures/pre-post.pdf}
+\caption{(a) pre-state $\sigma_1$ and
+  (b) post-state $\sigma_1'$.}
+\label{fig:edm1_system-states}
+\end{figure}
+\<close> ]
+            , txt''a [ \<open>
 
-The example we are defining in this section comes from the figure~''\<rangle>, e, \<langle>''ref{fig:eam1_system-states}.
-''\<rangle>, e, \<langle>''begin{figure}
-''\<rangle>, e, \<langle>''includegraphics[width=''\<rangle>, e, \<langle>''textwidth]{figures/pre-post.pdf}
-''\<rangle>, e, \<langle>''caption{(a) pre-state $''\<rangle>, e, \<langle>''sigma_1$ and
-  (b) post-state $''\<rangle>, e, \<langle>''sigma_1''\<rangle>, n, \<langle>''$.}
-''\<rangle>, e, \<langle>''label{fig:eam1_system-states}
-''\<rangle>, e, \<langle>''end{figure}
-''\<rangle> ]
+The example we are defining in this section comes from the figure~\ref{fig:eam1_system-states}.
+\begin{figure}
+\includegraphics[width=\textwidth]{figures/pre-post.pdf}
+\caption{(a) pre-state $\sigma_1$ and
+  (b) post-state $\sigma_1'$.}
+\label{fig:eam1_system-states}
+\end{figure}
+\<close> ]
             , print_examp_def_st_defs
             , print_astype_lemmas_id2 ] ])\<close>
 
