@@ -139,8 +139,8 @@ definition "rbt_of_class ocl =
    (\<lambda>name.
      let rbt = lookup rbt name in
      ( \<lambda> name_attr.
-        Option_bind (\<lambda>(rbt, _). lookup rbt name_attr) rbt
-     , \<lambda> v. Option_bind (\<lambda>(_, l).
+        Option.bind rbt (\<lambda>(rbt, _). lookup rbt name_attr)
+     , \<lambda> v. Option.bind rbt (\<lambda>(_, l).
         Option.map (\<lambda>l f accu.
           let (_, accu) =
             List.fold
@@ -150,7 +150,7 @@ definition "rbt_of_class ocl =
                else
                  \<lambda> Some _ \<Rightarrow> (\<lambda>(n, accu). (Succ n, accu))
                  | None \<Rightarrow> f_fold None) (rev l) (0, accu) in
-          accu) (List_assoc v l)) rbt)))"
+          accu) (List_assoc v l)))))"
 
 definition "fill_blank f_blank =
   List_map (\<lambda> (attr_ty, l).

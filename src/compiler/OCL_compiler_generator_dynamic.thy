@@ -443,13 +443,6 @@ fun prep_destination "" = NONE
   | prep_destination "-" = (legacy_feature "drop \"file\" argument entirely instead of \"-\""; NONE)
   | prep_destination s = SOME (Path.explode s)
 
-fun produce_code thy cs seris =
-  let
-    val (names_cs, (naming, program)) = Code_Thingol.consts_program thy false cs in
-    map (fn (((target, module_name), some_path), args) =>
-      (some_path, Code_Target.produce_code_for thy (*some_path*) target NONE module_name args naming program names_cs)) seris
-  end
-
 fun absolute_path filename thy = Path.implode (Path.append (Thy_Load.master_directory thy) (Path.explode filename))
 
 fun export_code_cmd raw_cs thy seris =

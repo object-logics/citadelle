@@ -92,7 +92,6 @@ definition "fold_list f l accu =
   (let (l, accu) = List.fold (\<lambda>x (l, accu). let (x, accu) = f x accu in (x # l, accu)) l ([], accu) in
    (rev l, accu))"
 definition "char_escape = Char Nibble0 Nibble9"
-definition "Option_bind f = (\<lambda> None \<Rightarrow> None | Some x \<Rightarrow> f x)"
 definition "List_assoc x1 l = List.fold (\<lambda>(x2, v). \<lambda>None \<Rightarrow> if x1 = x2 then Some v else None | x \<Rightarrow> x) l None"
 definition "List_split l = (List_map fst l, List_map snd l)"
 definition "List_upto i j =
