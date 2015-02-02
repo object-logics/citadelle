@@ -315,7 +315,7 @@ definition "escape_unicode c = flatten [\<degree>Char Nibble5 NibbleC\<degree>, 
 
 definition "lowercase_of_str = String_map (\<lambda>c. let n = nat_of_char c in if n < 97 then char_of_nat (n + 32) else c)"
 definition "uppercase_of_str = String_map (\<lambda>c. let n = nat_of_char c in if n < 97 then c else char_of_nat (n - 32))"
-definition "number_of_str = String_replace_chars (\<lambda>c. escape_unicode ([\<open>zero\<close>, \<open>one\<close>, \<open>two\<close>, \<open>three\<close>, \<open>four\<close>, \<open>five\<close>, \<open>six\<close>, \<open>seven\<close>, \<open>eight\<close>, \<open>nine\<close>] ! (nat_of_char c - 48)))"
+definition "number_of_str = String_replace_chars (\<lambda>c. [\<open>\<zero>\<close>, \<open>\<one>\<close>, \<open>\<two>\<close>, \<open>\<three>\<close>, \<open>\<four>\<close>, \<open>\<five>\<close>, \<open>\<six>\<close>, \<open>\<seven>\<close>, \<open>\<eight>\<close>, \<open>\<nine>\<close>] ! (nat_of_char c - 48))"
 definition "nat_raw_of_str = List_map (\<lambda>i. char_of_nat (nat_of_char (Char Nibble3 Nibble0) + i))"
 fun_quick nat_of_str_aux where
    "nat_of_str_aux l (n :: Nat.nat) = (if n < 10 then n # l else nat_of_str_aux (n mod 10 # l) (n div 10))"
@@ -330,7 +330,7 @@ definition "is_digit n = (n \<ge> CHR ''0'' & n \<le> CHR ''9'')"
 definition "is_special = List.member '' <>^_=-./(){}''"
 definition "base255_of_str = String_replace_chars (\<lambda>c. if is_letter c then \<degree>c\<degree> else add_0 c)"
 definition "isub_of_str = String_replace_chars (\<lambda>c.
-  if is_letter c | is_digit c then escape_unicode \<open>^sub\<close> @@ \<degree>c\<degree> else add_0 c)"
+  if is_letter c | is_digit c then \<open>\<^sub>\<close> @@ \<degree>c\<degree> else add_0 c)"
 definition "isup_of_str = String_replace_chars (\<lambda>c.
   if is_letter c then escape_unicode \<lless>[char_of_nat (nat_of_char c - 32)]\<ggreater> else add_0 c)"
 definition "text_of_str str =
@@ -339,8 +339,7 @@ definition "text_of_str str =
   flatten [ \<open>(let \<close>, s, \<open> = char_of_nat in \<close>
           , String_replace_chars (\<lambda>c.
                                     if is_letter c then
-                                      let g = \<langle>[Char Nibble2 Nibble7]\<rangle> in
-                                      flatten [\<open>CHR \<close>,  g,g,\<degree>c\<degree>,g,g,  ap]
+                                      flatten [\<open>CHR ''\<close>,\<degree>c\<degree>,\<open>''\<close>,ap]
                                     else
                                       flatten [s, \<open> \<close>,  add_0 c, ap])
                                  str
@@ -351,11 +350,10 @@ definition "textstr_of_str f_flatten f_char f_str str =
  (let str0 = String_to_list str
     ; f_letter = \<lambda>c. is_letter c | is_digit c | is_special c
     ; s = \<open>c\<close>
-    ; g = \<langle>[Char Nibble2 Nibble7]\<rangle>
-    ; f_text = \<lambda> Nsplit_text l \<Rightarrow> flatten [f_str (flatten [\<open>STR \<close>,  g,g,\<lless>l\<ggreater>,g,g  ])]
+    ; f_text = \<lambda> Nsplit_text l \<Rightarrow> flatten [f_str (flatten [\<open>STR ''\<close>,\<lless>l\<ggreater>,\<open>''\<close>])]
                | Nsplit_sep c \<Rightarrow> flatten [f_char c]
     ; str = case List_nsplit_f str0 (Not o f_letter) of
-              [] \<Rightarrow> flatten [f_str (flatten [\<open>STR \<close>,  g,g,g,g  ])]
+              [] \<Rightarrow> flatten [f_str \<open>STR ''''\<close>]
             | [x] \<Rightarrow> f_text x
             | l \<Rightarrow> flatten (List_map (\<lambda>x. \<open>(\<close> @@ f_text x @@ \<open>) # \<close>) l) @@ \<open>[]\<close> in
   if list_all f_letter str0 then
@@ -374,36 +372,36 @@ definition "hol_split s = flatten [s, \<open>.split\<close>]"
 
 subsection{* ... *}
 
-definition "unicode_AA = escape_unicode \<open>AA\<close>"
-definition "unicode_acute = escape_unicode \<open>acute\<close>"
-definition "unicode_alpha = escape_unicode \<open>alpha\<close>"
-definition "unicode_and = escape_unicode \<open>and\<close>"
-definition "unicode_And = escape_unicode \<open>And\<close>"
-definition "unicode_bottom = escape_unicode \<open>bottom\<close>"
-definition "unicode_circ = escape_unicode \<open>circ\<close>"
-definition "unicode_delta = escape_unicode \<open>delta\<close>"
-definition "unicode_doteq = escape_unicode \<open>doteq\<close>"
-definition "unicode_equiv = escape_unicode \<open>equiv\<close>"
-definition "unicode_exists = escape_unicode \<open>exists\<close>"
-definition "unicode_forall = escape_unicode \<open>forall\<close>"
-definition "unicode_in = escape_unicode \<open>in\<close>"
-definition "unicode_lambda = escape_unicode \<open>lambda\<close>"
-definition "unicode_lceil = escape_unicode \<open>lceil\<close>"
-definition "unicode_lfloor = escape_unicode \<open>lfloor\<close>"
-definition "unicode_longrightarrow = escape_unicode \<open>longrightarrow\<close>"
-definition "unicode_Longrightarrow = escape_unicode \<open>Longrightarrow\<close>"
-definition "unicode_mapsto = escape_unicode \<open>mapsto\<close>"
-definition "unicode_noteq = escape_unicode \<open>noteq\<close>"
-definition "unicode_not = escape_unicode \<open>not\<close>"
-definition "unicode_or = escape_unicode \<open>or\<close>"
-definition "unicode_rceil = escape_unicode \<open>rceil\<close>"
-definition "unicode_rfloor = escape_unicode \<open>rfloor\<close>"
-definition "unicode_Rightarrow = escape_unicode \<open>Rightarrow\<close>"
-definition "unicode_subseteq = escape_unicode \<open>subseteq\<close>"
-definition "unicode_tau = escape_unicode \<open>tau\<close>"
-definition "unicode_times = escape_unicode \<open>times\<close>"
-definition "unicode_triangleq = escape_unicode \<open>triangleq\<close>"
-definition "unicode_Turnstile = escape_unicode \<open>Turnstile\<close>"
-definition "unicode_upsilon = escape_unicode \<open>upsilon\<close>"
+definition "unicode_AA = \<open>\<AA>\<close>"
+definition "unicode_acute = \<open>\<acute>\<close>"
+definition "unicode_alpha = \<open>\<alpha>\<close>"
+definition "unicode_and = \<open>\<and>\<close>"
+definition "unicode_And = \<open>\<And>\<close>"
+definition "unicode_bottom = \<open>\<bottom>\<close>"
+definition "unicode_circ = \<open>\<circ>\<close>"
+definition "unicode_delta = \<open>\<delta>\<close>"
+definition "unicode_doteq = \<open>\<doteq>\<close>"
+definition "unicode_equiv = \<open>\<equiv>\<close>"
+definition "unicode_exists = \<open>\<exists>\<close>"
+definition "unicode_forall = \<open>\<forall>\<close>"
+definition "unicode_in = \<open>\<in>\<close>"
+definition "unicode_lambda = \<open>\<lambda>\<close>"
+definition "unicode_lceil = \<open>\<lceil>\<close>"
+definition "unicode_lfloor = \<open>\<lfloor>\<close>"
+definition "unicode_longrightarrow = \<open>\<longrightarrow>\<close>"
+definition "unicode_Longrightarrow = \<open>\<Longrightarrow>\<close>"
+definition "unicode_mapsto = \<open>\<mapsto>\<close>"
+definition "unicode_noteq = \<open>\<noteq>\<close>"
+definition "unicode_not = \<open>\<not>\<close>"
+definition "unicode_or = \<open>\<or>\<close>"
+definition "unicode_rceil = \<open>\<rceil>\<close>"
+definition "unicode_rfloor = \<open>\<rfloor>\<close>"
+definition "unicode_Rightarrow = \<open>\<Rightarrow>\<close>"
+definition "unicode_subseteq = \<open>\<subseteq>\<close>"
+definition "unicode_tau = \<open>\<tau>\<close>"
+definition "unicode_times = \<open>\<times>\<close>"
+definition "unicode_triangleq = \<open>\<triangleq>\<close>"
+definition "unicode_Turnstile = \<open>\<Turnstile>\<close>"
+definition "unicode_upsilon = \<open>\<upsilon>\<close>"
 
 end

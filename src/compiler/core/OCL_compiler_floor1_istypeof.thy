@@ -61,13 +61,13 @@ definition "print_istypeof_class = start_m_gen Thy_defs_overloaded m_class_defau
           (let var_x = \<open>x\<close> in
            Expr_rewrite
              (Expr_postunary (Expr_annot (Expr_basic [var_x]) h_name) (Expr_basic [dot_istypeof name]))
-             unicode_equiv
-             (Expr_lam unicode_tau
+             \<open>\<equiv>\<close>
+             (Expr_lam \<open>\<tau>\<close>
                   (\<lambda>var_tau. let ocl_tau = (\<lambda>v. Expr_apply v [Expr_basic [var_tau]]) in
                   Expr_case
                     (ocl_tau var_x)
-                    ( (Expr_basic [unicode_bottom], ocl_tau \<open>invalid\<close>)
-                    # (Expr_some (Expr_basic [unicode_bottom]), ocl_tau \<open>true\<close>)
+                    ( (Expr_basic [\<open>\<bottom>\<close>], ocl_tau \<open>invalid\<close>)
+                    # (Expr_some (Expr_basic [\<open>\<bottom>\<close>]), ocl_tau \<open>true\<close>)
                     # (let l_false = [(Expr_basic [wildcard], ocl_tau \<open>false\<close>)]
                          ; pattern_complex_gen = (\<lambda>f1 f2.
                             let isub_h = (\<lambda> s. s @@ isub_of_str h_name) in
@@ -84,7 +84,7 @@ definition "print_istypeof_class = start_m_gen Thy_defs_overloaded m_class_defau
 
 definition "print_istypeof_from_universe = start_m Thy_definition_hol
   (\<lambda> name _ _ l.
-    let const_istypeof = flatten [const_oclistypeof, isub_of_str name, \<open>_\<close>, unicode_AA] in
+    let const_istypeof = flatten [const_oclistypeof, isub_of_str name, \<open>_\<AA>\<close>] in
     [ Definition (Expr_rewrite (Expr_basic [const_istypeof]) \<open>=\<close> (Expr_function l))])
   (\<lambda>_ (_, name, _). \<lambda> OclClass h_name _ _ \<Rightarrow>
      let isub_h = (\<lambda> s. s @@ isub_of_str h_name) in
@@ -172,12 +172,12 @@ definition "print_istypeof_defined = start_m Thy_lemma_by m_class_default
   (\<lambda> _ (isub_name, name, _). \<lambda> OclClass h_name _ _ \<Rightarrow>
       let var_X = \<open>X\<close>
         ; var_isdef = \<open>isdef\<close>
-        ; f = \<lambda>symb e. Expr_binop (Expr_basic [unicode_tau]) unicode_Turnstile (Expr_apply symb [e]) in
+        ; f = \<lambda>symb e. Expr_binop (Expr_basic [\<open>\<tau>\<close>]) \<open>\<Turnstile>\<close> (Expr_apply symb [e]) in
       [ Lemma_by_assum
           (print_istypeof_defined_name isub_name h_name)
-          [(var_isdef, False, f unicode_upsilon (Expr_basic [var_X]))]
-          (f unicode_delta (Expr_postunary (Expr_annot (Expr_basic [var_X]) h_name) (Expr_basic [dot_istypeof name])))
-          [App [Tac_insert [Thm_simplified (Thm_str var_isdef) (Thm_str (\<open>foundation18\<close> @@ \<langle>[Char Nibble2 Nibble7]\<rangle>)) ]
+          [(var_isdef, False, f \<open>\<upsilon>\<close> (Expr_basic [var_X]))]
+          (f \<open>\<delta>\<close> (Expr_postunary (Expr_annot (Expr_basic [var_X]) h_name) (Expr_basic [dot_istypeof name])))
+          [App [Tac_insert [Thm_simplified (Thm_str var_isdef) (Thm_str \<open>foundation18'\<close>) ]
                ,Tac_simp_only [Thm_str (hol_definition \<open>OclValid\<close>)]
                ,Tac_subst (Thm_str \<open>cp_defined\<close>)]]
           (Tacl_by [Tac_auto_simp_add_split ( Thm_symmetric (Thm_str \<open>cp_defined\<close>)
@@ -189,7 +189,7 @@ definition "print_istypeof_defined' = start_m Thy_lemma_by m_class_default
   (\<lambda> _ (isub_name, name, _). \<lambda> OclClass h_name _ _ \<Rightarrow>
       let var_X = \<open>X\<close>
         ; var_isdef = \<open>isdef\<close>
-        ; f = \<lambda>e. Expr_binop (Expr_basic [unicode_tau]) unicode_Turnstile (Expr_apply unicode_delta [e]) in
+        ; f = \<lambda>e. Expr_binop (Expr_basic [\<open>\<tau>\<close>]) \<open>\<Turnstile>\<close> (Expr_apply \<open>\<delta>\<close> [e]) in
       [ Lemma_by_assum
           (print_istypeof_defined'_name isub_name h_name)
           [(var_isdef, False, f (Expr_basic [var_X]))]
@@ -203,14 +203,14 @@ definition "print_istypeof_up_larger = start_map Thy_lemma_by o
   map_class_nupl2'_inh_large (\<lambda>name_pers name_any.
     let var_X = \<open>X\<close>
       ; var_isdef = \<open>isdef\<close>
-      ; f = Expr_binop (Expr_basic [unicode_tau]) unicode_Turnstile in
+      ; f = Expr_binop (Expr_basic [\<open>\<tau>\<close>]) \<open>\<Turnstile>\<close> in
     Lemma_by_assum
         (print_istypeof_up_larger_name name_pers name_any)
-        [(var_isdef, False, f (Expr_apply unicode_delta [Expr_basic [var_X]]))]
+        [(var_isdef, False, f (Expr_apply \<open>\<delta>\<close> [Expr_basic [var_X]]))]
         (f (Expr_binop (Expr_warning_parenthesis (Expr_postunary
                (Expr_annot (Expr_basic [var_X]) name_pers)
                (Expr_basic [dot_istypeof name_any]))
-             ) unicode_triangleq (Expr_basic [\<open>false\<close>])))
+             ) \<open>\<triangleq>\<close> (Expr_basic [\<open>false\<close>])))
         [App_using [Thm_str var_isdef]]
         (Tacl_by [Tac_auto_simp_add ( flatten [const_oclistypeof, isub_of_str name_any, \<open>_\<close>, name_pers]
                                     # \<open>foundation22\<close>
@@ -222,17 +222,17 @@ definition "print_istypeof_up_d_cast expr = (start_map Thy_lemma_by o
     let var_X = \<open>X\<close>
       ; var_istyp = \<open>istyp\<close>
       ; var_isdef = \<open>isdef\<close>
-      ; f = Expr_binop (Expr_basic [unicode_tau]) unicode_Turnstile in
+      ; f = Expr_binop (Expr_basic [\<open>\<tau>\<close>]) \<open>\<Turnstile>\<close> in
     Lemma_by_assum
         (print_istypeof_up_d_cast_name name_mid name_any name_pers)
         [(var_istyp, False, f (Expr_warning_parenthesis (Expr_postunary
                (Expr_annot (Expr_basic [var_X]) name_any)
                (Expr_basic [dot_istypeof name_mid]))))
-        ,(var_isdef, False, f (Expr_apply unicode_delta [Expr_basic [var_X]]))]
+        ,(var_isdef, False, f (Expr_apply \<open>\<delta>\<close> [Expr_basic [var_X]]))]
         (f (Expr_binop (Expr_warning_parenthesis (Expr_postunary
                (Expr_basic [var_X])
                (Expr_basic [dot_astype name_pers]))
-             ) unicode_triangleq (Expr_basic [\<open>invalid\<close>])))
+             ) \<open>\<triangleq>\<close> (Expr_basic [\<open>invalid\<close>])))
         [App_using (List_map Thm_str [var_istyp, var_isdef])
         ,App [Tac_auto_simp_add_split (List_map Thm_str
                                       ( flatten [const_oclastype, isub_of_str name_pers, \<open>_\<close>, name_any]

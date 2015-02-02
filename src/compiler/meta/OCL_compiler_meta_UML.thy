@@ -319,7 +319,7 @@ fun_quick str_of_ty where "str_of_ty e =
   | OclTy_collection (OclMult _ Set) ocl_ty \<Rightarrow> flatten [\<open>Set(\<close>, str_of_ty ocl_ty,\<open>)\<close>]
   | OclTy_collection (OclMult _ Sequence) ocl_ty \<Rightarrow> flatten [\<open>Sequence(\<close>, str_of_ty ocl_ty,\<open>)\<close>]
   | OclTy_pair ocl_ty1 ocl_ty2 \<Rightarrow> flatten [\<open>Pair(\<close>, str_of_ty ocl_ty1, \<open>,\<close>, str_of_ty ocl_ty2,\<open>)\<close>]
-  | OclTy_raw s \<Rightarrow> flatten [unicode_acute, s, unicode_acute]) e"
+  | OclTy_raw s \<Rightarrow> flatten [\<open>\<acute>\<close>, s, \<open>\<acute>\<close>]) e"
 
 definition "ty_void = str_of_ty OclTy_base_void"
 definition "ty_boolean = str_of_ty OclTy_base_boolean"

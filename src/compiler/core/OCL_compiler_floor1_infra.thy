@@ -64,28 +64,28 @@ definition "print_infra_datatype_class = start_map'' Thy_dataty o (\<lambda>expr
         (isub_name datatype_name)
         [ (isub_name datatype_constr_name, Raw (isub_name datatype_ext_name) # map_ty l_attr ) ] ]) expr)"
 
-definition "print_latex_infra_datatype_class = start_map'' Thy_dataty o (\<lambda>expr _ base_attr' _. map_class_gen_h''''
+definition\<acute> \<open>print_latex_infra_datatype_class = start_map'' Thy_dataty o (\<lambda>expr _ base_attr' _. map_class_gen_h''''
   (\<lambda>isub_name name _ l_attr l_inherited l_cons.
     let (l_attr, l_inherited) = base_attr' (l_attr, of_inh l_inherited)
-      ; map_ty = List_map ((\<lambda>x. Ty_apply (Ty_base \<open>option\<close>) [str_hol_of_ty_all Ty_apply Ty_base x]) o snd) in let c = \<degree>Char Nibble5 NibbleC\<degree>
+      ; map_ty = List_map ((\<lambda>x. Ty_apply (Ty_base \<open>option\<close>) [str_hol_of_ty_all Ty_apply Ty_base x]) o snd)
       ; n1 = \<open>{ext}\<close>
       ; n2 = \<open>{ty}\<close> in
     [ Datatype
-        (\<open>\<close>@@c@@\<open>operatorname{\<close> @@ name @@ \<open>}_\<close> @@ n1 @@ \<open>\<close>)
-        (  (rev_map (\<lambda>x. ( \<open>\<close>@@c@@\<open>operatorname{mk}_\<close>@@c@@\<open>text{\<close> @@ name @@ \<open>\<close>@@c@@\<open>_\<close> @@ x @@ \<open>}\<close>
-                         , [Raw (\<open>\<close>@@c@@\<open>operatorname{\<close> @@ x @@ \<open>}_\<close> @@ n2 @@ \<open>\<close>)])) (of_sub l_cons))
-        @@@@ [(\<open>\<close>@@c@@\<open>operatorname{mk}_\<close>@@c@@\<open>text{\<close> @@ name @@ \<open>}\<close>, Raw const_oid # List_maps map_ty l_inherited)])
+        (\<open>\operatorname{\<close> @@ name @@ \<open>}_\<close> @@ n1 @@ \<open>\<close>)
+        (  (rev_map (\<lambda>x. ( \<open>\operatorname{mk}_\text{\<close> @@ name @@ \<open>\_\<close> @@ x @@ \<open>}\<close>
+                         , [Raw (\<open>\operatorname{\<close> @@ x @@ \<open>}_\<close> @@ n2 @@ \<open>\<close>)])) (of_sub l_cons))
+        @@@@ [(\<open>\operatorname{mk}_\text{\<close> @@ name @@ \<open>}\<close>, Raw const_oid # List_maps map_ty l_inherited)])
     , Datatype
-        (\<open>\<close>@@c@@\<open>operatorname{\<close> @@ name @@ \<open>}_\<close> @@ n2 @@ \<open>\<close>)
-        [ (\<open>\<close>@@c@@\<open>operatorname{mkoid}_\<close>@@c@@\<open>text{\<close> @@ name @@ \<open>}\<close>, Raw (\<open>\<close>@@c@@\<open>operatorname{\<close> @@ name @@ \<open>}_\<close> @@ n1 @@ \<open>\<close>) # map_ty l_attr ) ] ]) expr)"
+        (\<open>\operatorname{\<close> @@ name @@ \<open>}_\<close> @@ n2 @@ \<open>\<close>)
+        [ (\<open>\operatorname{mkoid}_\text{\<close> @@ name @@ \<open>}\<close>, Raw (\<open>\operatorname{\<close> @@ name @@ \<open>}_\<close> @@ n1 @@ \<open>\<close>) # map_ty l_attr ) ] ]) expr)\<close>
 
 definition "print_infra_datatype_universe expr = start_map Thy_dataty
-  [ Datatype unicode_AA
+  [ Datatype \<open>\<AA>\<close>
       (map_class (\<lambda>isub_name _ _ _ _ _. (isub_name datatype_in, [Raw (isub_name datatype_name)])) expr) ]"
 
 definition "print_infra_type_synonym_class expr = start_map Thy_ty_synonym
   (let option = (\<lambda>x. Ty_apply (Ty_base \<open>option\<close>) [x])
-     ; ty = \<lambda> t s. Type_synonym (str_of_ty t) (Ty_apply (Ty_base s) [Ty_base unicode_AA]) in
+     ; ty = \<lambda> t s. Type_synonym (str_of_ty t) (Ty_apply (Ty_base s) [Ty_base \<open>\<AA>\<close>]) in
    (* base type *)
    ty OclTy_base_void ty_void #
    ty OclTy_base_boolean ty_boolean #
@@ -95,7 +95,7 @@ definition "print_infra_type_synonym_class expr = start_map Thy_ty_synonym
    ty OclTy_base_string ty_string #
    (* *)
    (map_class (\<lambda>isub_name name _ _ _ _.
-     Type_synonym name (Ty_apply (Ty_base \<open>val\<close>) [Ty_base unicode_AA,
+     Type_synonym name (Ty_apply (Ty_base \<open>val\<close>) [Ty_base \<open>\<AA>\<close>,
      option (option (Ty_base (isub_name datatype_name))) ])) expr))"
 
 definition "print_infra_type_synonym_class_rec = (\<lambda>expr ocl.
@@ -144,7 +144,7 @@ definition "print_infra_instantiation_class = start_map'' Thy_instantiation_clas
 
 definition "print_infra_instantiation_universe expr = start_map Thy_instantiation_class
   [ let oid_of = \<open>oid_of\<close> in
-    Instantiation unicode_AA oid_of
+    Instantiation \<open>\<AA>\<close> oid_of
       (Expr_rewrite
         (Expr_basic [oid_of])
         \<open>=\<close>
@@ -163,9 +163,9 @@ definition "print_instantia_def_strictrefeq = start_map Thy_defs_overloaded o
     Defs_overloaded
       (print_instantia_def_strictrefeq_name mk_strict name)
       (Expr_rewrite (Expr_binop (Expr_annot (Expr_basic [var_x]) name)
-                                unicode_doteq
+                                \<open>\<doteq>\<close>
                                 (Expr_basic [var_y]))
-                    unicode_equiv
+                    \<open>\<equiv>\<close>
                     (Expr_basic [mk_strict [], var_x, var_y])) )"
 
 definition "print_instantia_lemmas_strictrefeq = start_map'

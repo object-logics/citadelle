@@ -62,17 +62,17 @@ definition "print_astype_class = start_m' Thy_defs_overloaded
           (let var_x = \<open>x\<close> in
            Expr_rewrite
              (Expr_postunary (Expr_annot (Expr_basic [var_x]) h_name) (Expr_basic [dot_astype name]))
-             unicode_equiv
+             \<open>\<equiv>\<close>
              (case compare
               of EQ \<Rightarrow>
                 Expr_basic [var_x]
               | x \<Rightarrow>
-                Expr_lam unicode_tau
+                Expr_lam \<open>\<tau>\<close>
                   (\<lambda>var_tau. let val_invalid = Expr_apply \<open>invalid\<close> [Expr_basic [var_tau]] in
                   Expr_case
                     (Expr_apply var_x [Expr_basic [var_tau]])
-                    ( (Expr_basic [unicode_bottom], val_invalid)
-                    # (Expr_some (Expr_basic [unicode_bottom]), Expr_apply \<open>null\<close> [Expr_basic [var_tau]])
+                    ( (Expr_basic [\<open>\<bottom>\<close>], val_invalid)
+                    # (Expr_some (Expr_basic [\<open>\<bottom>\<close>]), Expr_apply \<open>null\<close> [Expr_basic [var_tau]])
                     # (let pattern_complex = (\<lambda>h_name name l_extra.
                             let isub_h = (\<lambda> s. s @@ isub_of_str h_name)
                               ; isub_name = (\<lambda>s. s @@ isub_of_str name)
@@ -215,7 +215,7 @@ definition "print_astype_defined = start_m Thy_lemma_by m_class_default
   (\<lambda> compare (isub_name, name, _). \<lambda> OclClass h_name _ _ \<Rightarrow>
      let var_X = \<open>X\<close>
        ; var_isdef = \<open>isdef\<close>
-       ; f = \<lambda>e. Expr_binop (Expr_basic [unicode_tau]) unicode_Turnstile (Expr_apply unicode_delta [e]) in
+       ; f = \<lambda>e. Expr_binop (Expr_basic [\<open>\<tau>\<close>]) \<open>\<Turnstile>\<close> (Expr_apply \<open>\<delta>\<close> [e]) in
      case compare of LT \<Rightarrow>
         [ Lemma_by_assum
           (flatten [isub_name const_oclastype, \<open>_\<close>, h_name, \<open>_defined\<close>])
@@ -232,14 +232,14 @@ definition "print_astype_up_d_cast0 = start_map Thy_lemma_by o
   map_class_nupl2'_inh (\<lambda>name_pers name_any.
     let var_X = \<open>X\<close>
       ; var_isdef = \<open>isdef\<close>
-      ; f = Expr_binop (Expr_basic [unicode_tau]) unicode_Turnstile in
+      ; f = Expr_binop (Expr_basic [\<open>\<tau>\<close>]) \<open>\<Turnstile>\<close> in
     Lemma_by_assum
         (print_astype_up_d_cast0_name name_any name_pers)
-        [(var_isdef, False, f (Expr_apply unicode_delta [Expr_basic [var_X]]))]
+        [(var_isdef, False, f (Expr_apply \<open>\<delta>\<close> [Expr_basic [var_X]]))]
         (f (Expr_binop
              (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l asty = \<lambda>x ty. Expr_warning_parenthesis (Expr_postunary x (Expr_basic [dot_astype ty])) in
               asty (asty (Expr_annot (Expr_basic [var_X]) name_pers) name_any) name_pers)
-             unicode_triangleq (Expr_basic [var_X])))
+             \<open>\<triangleq>\<close> (Expr_basic [var_X])))
         [App_using [Thm_str var_isdef]]
         (Tacl_by [Tac_auto_simp_add_split
                                     (List_map Thm_str
@@ -254,7 +254,7 @@ definition "print_astype_up_d_cast_name name_any name_pers = flatten [\<open>up\
 definition "print_astype_up_d_cast = start_map Thy_lemma_by o
   map_class_nupl2'_inh (\<lambda>name_pers name_any.
     let var_X = \<open>X\<close>
-      ; var_tau = unicode_tau in
+      ; var_tau = \<open>\<tau>\<close> in
     Lemma_by_assum
         (flatten [\<open>up\<close>, isub_of_str name_any, \<open>_down\<close>, isub_of_str name_pers, \<open>_cast\<close>])
         []
@@ -265,8 +265,8 @@ definition "print_astype_up_d_cast = start_map Thy_lemma_by o
         (List_map App
           [[Tac_rule (Thm_str \<open>ext\<close>), Tac_rename_tac [var_tau]]
           ,[Tac_rule (Thm_THEN (Thm_str \<open>foundation22\<close>) (Thm_str \<open>iffD1\<close>))]
-          ,[Tac_case_tac (Expr_binop (Expr_basic [var_tau]) unicode_Turnstile
-              (Expr_apply unicode_delta [Expr_basic [var_X]])), Tac_simp_add [print_astype_up_d_cast0_name name_any name_pers]]
+          ,[Tac_case_tac (Expr_binop (Expr_basic [var_tau]) \<open>\<Turnstile>\<close>
+              (Expr_apply \<open>\<delta>\<close> [Expr_basic [var_X]])), Tac_simp_add [print_astype_up_d_cast0_name name_any name_pers]]
           ,[Tac_simp_add [\<open>defined_split\<close>], Tac_elim (Thm_str \<open>disjE\<close>)]
           ,[Tac_plus [Tac_erule (Thm_str \<open>StrongEq_L_subst2_rev\<close>), Tac_simp, Tac_simp]]])
         Tacl_done)"
@@ -277,11 +277,11 @@ definition "print_astype_d_up_cast = start_map Thy_lemma_by o
       ; var_Y = \<open>Y\<close>
       ; a = \<lambda>f x. Expr_apply f [x]
       ; b = \<lambda>s. Expr_basic [s]
-      ; var_tau = unicode_tau
-      ; f_tau = \<lambda>s. Expr_warning_parenthesis (Expr_binop (b var_tau) unicode_Turnstile (Expr_warning_parenthesis s))
+      ; var_tau = \<open>\<tau>\<close>
+      ; f_tau = \<lambda>s. Expr_warning_parenthesis (Expr_binop (b var_tau) \<open>\<Turnstile>\<close> (Expr_warning_parenthesis s))
       ; var_def_X = \<open>def_X\<close>
       ; asty = \<lambda>x ty. Expr_warning_parenthesis (Expr_postunary x (Expr_basic [dot_astype ty]))
-      ; not_val = a \<open>not\<close> (a unicode_upsilon (b var_X)) in
+      ; not_val = a \<open>not\<close> (a \<open>\<upsilon>\<close> (b var_X)) in
     Lemma_by_assum
       (flatten [\<open>down\<close>, isub_of_str name_pers, \<open>_up\<close>, isub_of_str name_any, \<open>_cast\<close>])
       [(var_def_X, False, Expr_binop
@@ -291,13 +291,13 @@ definition "print_astype_d_up_cast = start_map Thy_lemma_by o
       (f_tau (Expr_binop not_val \<open>or\<close>
                (Expr_binop
                  (asty (asty (Expr_basic [var_X]) name_pers) name_any)
-                 unicode_doteq
+                 \<open>\<doteq>\<close>
                  (b var_X))))
       (List_map App
         [[Tac_case_tac (f_tau not_val), Tac_rule (Thm_str \<open>foundation25\<close>), Tac_simp]])
-      (Tacl_by [ Tac_rule (Thm_str (flatten [\<open>foundation25\<close>, \<degree>Char Nibble2 Nibble7\<degree>]))
+      (Tacl_by [ Tac_rule (Thm_str \<open>foundation25'\<close>)
                , Tac_simp_add [ var_def_X
                               , print_astype_up_d_cast_name name_any name_pers
-                              , flatten [\<open>StrictRefEq\<close>, isub_of_str \<open>Object\<close>, \<open>_sym\<close>]]]) )"
+                              , \<open>StrictRefEq\<^sub>O\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t_sym\<close>]]) )"
 
 end

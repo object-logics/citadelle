@@ -99,7 +99,7 @@ definition "print_access_eval_extract _ = start_map Thy_definition_hol
     Definition (Expr_rewrite
                   (Expr_basic [var_eval_extract, var_x, var_f])
                   \<open>=\<close>
-                  (Expr_lam unicode_tau
+                  (Expr_lam \<open>\<tau>\<close>
                      (\<lambda>var_tau. Expr_case (Expr_basic [var_x, var_tau])
                      [ (some_some (Expr_basic [var_obj]), Expr_apply var_f [Expr_apply \<open>oid_of\<close> [Expr_basic [var_obj]], Expr_basic [var_tau]])
                      , (Expr_basic [wildcard], Expr_basic [\<open>invalid\<close>, var_tau])])))
@@ -157,7 +157,7 @@ definition "print_access_choose = start_map'''' Thy_definition_hol o (\<lambda>e
                   ; f_map = a var_map in
                 Expr_lambdas0 (Expr_pair (b var_x) (b var_l1))
                   (Expr_case (f_map (b var_x))
-                    (List_map (\<lambda>(pat, e). (pat, f_map (Expr_binop (b var_x) unicode_mapsto e)))
+                    (List_map (\<lambda>(pat, e). (pat, f_map (Expr_binop (b var_x) \<open>\<mapsto>\<close> e)))
                       [ (b \<open>None\<close>, b var_l1)
                       , (Expr_some (b var_l0), a l_flatten (Expr_list (List_map b [var_l0, var_l1])))])))
             , b \<open>Map.empty\<close>])] in
@@ -179,7 +179,7 @@ definition "print_access_choose = start_map'''' Thy_definition_hol o (\<lambda>e
         (Expr_basic [var_deref_assocs, var_pre_post, var_to_from, var_assoc_oid, var_f, var_oid ])
         \<open>=\<close>
         (Expr_lam
-           unicode_tau
+           \<open>\<tau>\<close>
            (\<lambda>var_tau.
            Expr_case (Expr_apply var_assocs [Expr_apply var_pre_post [Expr_basic [var_tau]]
                                                                       ,Expr_basic [var_assoc_oid]])
@@ -200,7 +200,7 @@ definition "print_access_deref_oid = start_map Thy_definition_hol o
     Definition (Expr_rewrite
                   (Expr_basic [print_access_deref_oid_name isub_name, var_fs, var_f, var_oid])
                   \<open>=\<close>
-                  (Expr_lam unicode_tau
+                  (Expr_lam \<open>\<tau>\<close>
                      (\<lambda>var_tau. Expr_case (Expr_apply \<open>heap\<close> [Expr_basic [var_fs, var_tau], Expr_basic [var_oid]])
                      [ (Expr_some (Expr_basic [isub_name datatype_in, var_obj]), Expr_basic [var_f, var_obj, var_tau])
                      , (Expr_basic [wildcard], Expr_basic [\<open>invalid\<close>, var_tau]) ]))))"
@@ -228,7 +228,7 @@ definition "print_access_deref_assocs = start_map'''' Thy_definition_hol o (\<la
                                , print_access_choose_name (TyObj_ass_arity ty_obj) name_from (TyObjN_ass_switch (TyObj_to ty_obj))
                                , print_access_oid_uniq_name name_from isub_name attr
                                , var_f ]))
-                    unicode_circ
+                    \<open>\<circ>\<close>
                     (b \<open>oid_of\<close>)))]
        | _ \<Rightarrow> []))
       (l_attr # l_inherited))) expr)))) expr)"
@@ -255,7 +255,7 @@ definition "print_access_select = start_map'' Thy_definition_hol o (\<lambda>exp
                                                          ( wildc
                                                          # List_flatten [l_wildl, [lhs], l_wildr])
                                                      , rhs))
-                            [ ( Expr_basic [unicode_bottom], Expr_basic [\<open>null\<close>] )
+                            [ ( Expr_basic [\<open>\<bottom>\<close>], Expr_basic [\<open>null\<close>] )
                             , ( Expr_some var_attr
                               , Expr_apply var_f [var_attr]) ]))) # l_acc))
       ([], List_map (\<lambda>_. wildc) (tl l_attr), [])
@@ -282,7 +282,7 @@ definition "print_access_select = start_map'' Thy_definition_hol o (\<lambda>exp
                                                              (wildc # List_flatten [l_wildl, [lhs], l_wildr])
                                                          # List_map (\<lambda>_. wildc) l_attr)
                                                      , rhs))
-                            [ ( Expr_basic [unicode_bottom], Expr_basic [\<open>null\<close>] )
+                            [ ( Expr_basic [\<open>\<bottom>\<close>], Expr_basic [\<open>null\<close>] )
                             , ( Expr_some var_attr
                               , Expr_apply var_f [var_attr]) ]
                             # (List_map (\<lambda> OclClass x _ _ \<Rightarrow> let var_x = lowercase_of_str x in
@@ -337,10 +337,10 @@ definition "print_access_dot_consts =
           , Consts_raw0
             name
             (Ty_arrow
-              (Ty_apply (Ty_base \<open>val\<close>) [Ty_base unicode_AA, Ty_base (\<degree>Char Nibble2 Nibble7\<degree> @@ unicode_alpha)])
+              (Ty_apply (Ty_base \<open>val\<close>) [Ty_base \<open>\<AA>\<close>, Ty_base \<open>'\<alpha>\<close>])
 
               (let ty_base = \<lambda>attr_ty.
-                 Ty_apply (Ty_base \<open>val\<close>) [Ty_base unicode_AA,
+                 Ty_apply (Ty_base \<open>val\<close>) [Ty_base \<open>\<AA>\<close>,
                     let option = \<lambda>x. Ty_apply (Ty_base \<open>option\<close>) [x] in
                     option (option (Ty_base attr_ty))] in
                case attr_ty of
@@ -361,9 +361,7 @@ definition "print_access_dot_consts =
                 | OclTy_pair _ _ \<Rightarrow> Raw (fst (print_infra_type_synonym_class_rec_aux attr_ty))
                 | _ \<Rightarrow> Raw (str_of_ty attr_ty)))
             (let dot_name = mk_dot attr_n var_at_when_ocl
-               ; mk_par =
-                   let esc = \<lambda>s. \<degree>Char Nibble2 Nibble7\<degree> @@ s in
-                   (\<lambda>s1 s2. flatten [s1, \<open> \<close>, esc \<open>/\<close>, \<open>* \<close>, s2, \<open> *\<close>, esc \<open>/\<close>]) in
+               ; mk_par = \<lambda>s1 s2. flatten [s1, \<open> '/* \<close>, s2, \<open> *'/\<close>] in
              case attr_ty of OclTy_class ty_obj \<Rightarrow>
                (case apply_optim_ass_arity
                        ty_obj
@@ -404,7 +402,7 @@ definition "print_access_dot = start_map'''' Thy_defs_overloaded o (\<lambda>exp
                 (let var_x = \<open>x\<close> in
                  Expr_rewrite
                    (dot_attr (Expr_annot (Expr_basic [var_x]) name))
-                   unicode_equiv
+                   \<open>\<equiv>\<close>
                    (Expr_apply var_eval_extract [Expr_basic [var_x],
                     let deref_oid = \<lambda>attr_orig l. Expr_apply (case attr_orig of None \<Rightarrow> isub_name var_deref_oid
                                                                               | Some orig_n \<Rightarrow> var_deref_oid @@ isub_of_str orig_n) (Expr_basic [var_in_when_state] # l) in
@@ -511,23 +509,23 @@ definition "print_access_def_mono = start_map'''' Thy_lemma_by o (\<lambda>expr 
   map_class_arg_only_var'
     (\<lambda>isub_name name (_, dot_at_when) attr_ty isup_attr dot_attr.
       let var_X = \<open>X\<close>
-        ; var_tau = unicode_tau
+        ; var_tau = \<open>\<tau>\<close>
         ; a = \<lambda>f x. Expr_apply f [x]
         ; b = \<lambda>s. Expr_basic [s]
-        ; f0 = \<lambda>e. Expr_binop (Expr_basic [var_tau]) unicode_Turnstile e
-        ; f = \<lambda>e. f0 (Expr_apply unicode_delta [e]) in
+        ; f0 = \<lambda>e. Expr_binop (Expr_basic [var_tau]) \<open>\<Turnstile>\<close> e
+        ; f = \<lambda>e. f0 (Expr_apply \<open>\<delta>\<close> [e]) in
             [ Lemma_by
                 (print_access_def_mono_name isub_name dot_at_when attr_ty isup_attr)
                 (List_map f [ dot_attr (Expr_annot (b var_X) name)
                             , b var_X ])
                 (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l f_tac = \<lambda>s.
-                   [ Tac_case_tac (f0 (Expr_warning_parenthesis (Expr_rewrite (b var_X) unicode_triangleq (b s))))
+                   [ Tac_case_tac (f0 (Expr_warning_parenthesis (Expr_rewrite (b var_X) \<open>\<triangleq>\<close> (b s))))
                    , Tac_insert [Thm_where (Thm_str \<open>StrongEq_L_subst2\<close>)
-                                           [ (\<open>P\<close>, Expr_lam \<open>x\<close> (\<lambda>var_X. a unicode_delta (dot_attr (b var_X))))
-                                           , (unicode_tau, b unicode_tau)
+                                           [ (\<open>P\<close>, Expr_lam \<open>x\<close> (\<lambda>var_X. a \<open>\<delta>\<close> (dot_attr (b var_X))))
+                                           , (\<open>\<tau>\<close>, b \<open>\<tau>\<close>)
                                            , (\<open>x\<close>, b var_X)
                                            , (\<open>y\<close>, b s)]]
-                   , Tac_simp_add [ \<open>foundation16\<close> @@ \<degree>Char Nibble2 Nibble7\<degree>
+                   , Tac_simp_add [ \<open>foundation16'\<close>
                                   , print_access_lemma_strict_name isub_name dot_at_when attr_ty isup_attr s] ] in
                  [ f_tac \<open>invalid\<close>
                  , f_tac \<open>null\<close> ])
@@ -541,14 +539,14 @@ definition "print_access_is_repr = start_map'''' Thy_lemma_by o (\<lambda>expr d
     (\<lambda>isub_name name (var_in_when_state, dot_at_when) attr_ty isup_attr dot_attr.
       case attr_ty of OclTy_class ty_obj \<Rightarrow>
       let var_X = \<open>X\<close>
-        ; var_tau = unicode_tau
+        ; var_tau = \<open>\<tau>\<close>
         ; var_def_dot = \<open>def_dot\<close>
         ; a = \<lambda>f x. Expr_apply f [x]
         ; ap = \<lambda>f x. Expr_applys (Expr_pat f) [x]
         ; ap' = \<lambda>f x. Expr_applys (Expr_pat f) x
         ; b = \<lambda>s. Expr_basic [s]
-        ; f0 = \<lambda>e. Expr_binop (Expr_basic [var_tau]) unicode_Turnstile e
-        ; f = \<lambda>e. f0 (Expr_apply unicode_delta [e])
+        ; f0 = \<lambda>e. Expr_binop (Expr_basic [var_tau]) \<open>\<Turnstile>\<close> e
+        ; f = \<lambda>e. f0 (Expr_apply \<open>\<delta>\<close> [e])
         ; attr_ty' = case TyObjN_role_multip (TyObj_to ty_obj) of OclMult _ x \<Rightarrow> x in
             [ Lemma_by_assum
                 (print_access_is_repr_name isub_name dot_at_when attr_ty isup_attr)
@@ -583,7 +581,7 @@ definition "print_access_is_repr = start_map'''' Thy_lemma_by o (\<lambda>expr d
  , App [Tac_case_tac (a var_X (b var_tau)), Tac_simp_add [hol_definition \<open>bot_option\<close>]]
  (* *)
  , App_f' [v_a0]
-          (l_thes [ Expr_binop (a var_X (b var_tau)) unicode_noteq (b \<open>null\<close>)
+          (l_thes [ Expr_binop (a var_X (b var_tau)) \<open>\<noteq>\<close> (b \<open>null\<close>)
                   , Expr_binop (a var_X (b var_tau)) \<open>=\<close> (a \<open>Some\<close> (b v_a0)) ])
           [AppE [Tac_simp_all]]
  , App [Tac_case_tac (b v_a0), Tac_simp_add (List_map hol_definition [\<open>null_option\<close>, \<open>bot_option\<close>]), Tac_clarify]
@@ -615,7 +613,7 @@ definition "print_access_is_repr = start_map'''' Thy_lemma_by o (\<lambda>expr d
  , App_fix_let
      [v_r, v_typeoid]
      [ ( Expr_pat vs_t
-       , Expr_rewrite (f_ss v_r) unicode_in (Expr_binop
+       , Expr_rewrite (f_ss v_r) \<open>\<in>\<close> (Expr_binop
                                               (Expr_parenthesis
                                                 (Expr_binop (b \<open>Some\<close>) \<open>o\<close> (b (print_astype_from_universe_name name))))
                                               \<open>`\<close>
@@ -644,7 +642,7 @@ definition "print_access_is_repr = start_map'''' Thy_lemma_by o (\<lambda>expr d
  (* *)
  , App_f' [v_aa]
      (l_thes0
-       [ Expr_binop (b var_tau) unicode_Turnstile (a unicode_delta (ap vs_sel_any (b v_aa)))
+       [ Expr_binop (b var_tau) \<open>\<Turnstile>\<close> (a \<open>\<delta>\<close> (ap vs_sel_any (b v_aa)))
        , Expr_rewrite (ap' vs_sel_any [ b v_aa, b var_tau ]) \<open>=\<close> (f_ss v_r) ])
      [ AppE [ Tac_simp_all_only [] ]
      , AppE [ Tac_simp_add (\<open>foundation16\<close> # hol_d [\<open>bot_option\<close>, \<open>null_option\<close>]) ] ]

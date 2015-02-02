@@ -215,10 +215,10 @@ definition "i_of_string_gen s_flatten s_st0 s_st a b s =
 
 definition "i_of_string = i_of_string_gen \<open>OCL_compiler_init.flatten\<close>
                                           (\<lambda>s. flatten [\<open>(OCL_compiler_init.ST0\<close>, s, \<open>)\<close>])
-                                          (\<lambda>s. flatten [\<open>(OCL_compiler_init.abr_string.SS_base (OCL_compiler_init.string\<close>, isub_of_str \<open>base\<close>, \<open>.ST\<close>, s, \<open>))\<close>])"
+                                          (\<lambda>s. flatten [\<open>(OCL_compiler_init.abr_string.SS_base (OCL_compiler_init.string\<^sub>b\<^sub>a\<^sub>s\<^sub>e.ST\<close>, s, \<open>))\<close>])"
 definition "i_of_string\<^sub>b\<^sub>a\<^sub>s\<^sub>e a b s = i_of_string_gen \<open>OCL_compiler_init.flatten_base\<close>
                                                    (\<lambda>s. flatten [\<open>(OCL_compiler_init.ST0_base\<close>, s, \<open>)\<close>])
-                                                   (\<lambda>s. flatten [\<open>(OCL_compiler_init.string\<close>, isub_of_str \<open>base\<close>, \<open>.ST\<close>, s, \<open>)\<close>])
+                                                   (\<lambda>s. flatten [\<open>(OCL_compiler_init.string\<^sub>b\<^sub>a\<^sub>s\<^sub>e.ST\<close>, s, \<open>)\<close>])
                                                    a
                                                    b
                                                    (String\<^sub>b\<^sub>a\<^sub>s\<^sub>e_to_String s)"
@@ -308,29 +308,23 @@ definition "i_of_bool b = case_bool
   (b \<open>true\<close>)
   (b \<open>false\<close>)"
 
-definition "i_of_string a b =
- (let c = \<langle>[Char Nibble2 Nibble2]\<rangle> in
-  (\<lambda>x. b (flatten [ \<open>(OCL.SS_base (OCL.ST \<close>
-                  , c
+definition\<acute> \<open>i_of_string a b =
+ (\<lambda>x. b (flatten [ \<open>(OCL.SS_base (OCL.ST "\<close>
                   , String_replace_chars ((* (* ERROR code_reflect *)
-                                          \<lambda> Char Nibble0 NibbleA \<Rightarrow> \<degree>Char Nibble5 NibbleC\<degree> @@ \<open>n\<close>
+                                          \<lambda> Char Nibble0 NibbleA \<Rightarrow> \<open>\n\<close>
                                           | x \<Rightarrow> \<degree>x\<degree>*)
-                                          \<lambda>x. if x = Char Nibble0 NibbleA then \<degree>Char Nibble5 NibbleC\<degree> @@ \<open>n\<close>
+                                          \<lambda>x. if x = Char Nibble0 NibbleA then \<open>\n\<close>
                                               else \<degree>x\<degree>) x
-                  , c
-                  , \<open>))\<close>])))"
+                  , \<open>"))\<close>]))\<close>
 
-definition "i_of_string\<^sub>b\<^sub>a\<^sub>s\<^sub>e a b =
- (let c = \<langle>[Char Nibble2 Nibble2]\<rangle> in
-  (\<lambda>x. b (flatten [ \<open>(OCL.ST \<close>
-                  , c
+definition\<acute> \<open>i_of_string\<^sub>b\<^sub>a\<^sub>s\<^sub>e a b =
+ (\<lambda>x. b (flatten [ \<open>(OCL.ST "\<close>
                   , String_replace_chars ((* (* ERROR code_reflect *)
-                                          \<lambda> Char Nibble0 NibbleA \<Rightarrow> \<degree>Char Nibble5 NibbleC\<degree> @@ \<open>n\<close>
+                                          \<lambda> Char Nibble0 NibbleA \<Rightarrow> \<open>\n\<close>
                                           | x \<Rightarrow> \<degree>x\<degree>*)
-                                          \<lambda>x. if x = Char Nibble0 NibbleA then \<degree>Char Nibble5 NibbleC\<degree> @@ \<open>n\<close>
+                                          \<lambda>x. if x = Char Nibble0 NibbleA then \<open>\n\<close>
                                               else \<degree>x\<degree>) (String\<^sub>b\<^sub>a\<^sub>s\<^sub>e_to_String x)
-                  , c
-                  , \<open>)\<close>])))"
+                  , \<open>")\<close>]))\<close>
 
 definition "i_of_nat a b = (\<lambda>x. b (flatten [\<open>(Code_Numeral.Nat \<close>, natural_of_str x, \<open>)\<close>]))"
 

@@ -117,8 +117,8 @@ definition "print_ctxt_pre_post = fold_list (\<lambda>x ocl. (x ocl, ocl)) o (\<
     ; attr_n = Ctxt_fun_name ctxt
     ; a = \<lambda>f x. Expr_apply f [x]
     ; b = \<lambda>s. Expr_basic [s]
-    ; var_tau = unicode_tau
-    ; f_tau = \<lambda>s. Expr_warning_parenthesis (Expr_binop (b var_tau) unicode_Turnstile (Expr_warning_parenthesis s))
+    ; var_tau = \<open>\<tau>\<close>
+    ; f_tau = \<lambda>s. Expr_warning_parenthesis (Expr_binop (b var_tau) \<open>\<Turnstile>\<close> (Expr_warning_parenthesis s))
     ; expr_binop0 = \<lambda>base u_and. \<lambda> [] \<Rightarrow> b base | l \<Rightarrow> Expr_parenthesis (expr_binop u_and l)
     ; to_s = \<lambda>pref f_to l_pre.
         Expr_parenthesis (expr_binop0 \<open>true\<close> \<open>and\<close>
@@ -128,23 +128,23 @@ definition "print_ctxt_pre_post = fold_list (\<lambda>x ocl. (x ocl, ocl)) o (\<
                  cross_abs (\<lambda>_. id) nb_var (case f_to expr of T_pure expr \<Rightarrow> expr))) l_pre))
     ; f = \<lambda> (var_at_when_hol, var_at_when_ocl).
         (\<lambda>\<^sub>S\<^sub>c\<^sub>a\<^sub>l\<^sub>aocl. Thy_axiom (Axiom (print_ctxt_pre_post_name attr_n var_at_when_hol)
-         (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l if_test = expr_binop0 \<open>True\<close> unicode_and (List_map (\<lambda>s. f_tau (a unicode_delta (b s))) (var_self # List_map fst (Ctxt_fun_ty_arg ctxt)))
+         (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l if_test = expr_binop0 \<open>True\<close> \<open>\<and>\<close> (List_map (\<lambda>s. f_tau (a \<open>\<delta>\<close> (b s))) (var_self # List_map fst (Ctxt_fun_ty_arg ctxt)))
             ; if_body = Expr_binop
                 (to_s OclCtxtPre (print_ctxt_to_ocl_pre ocl) l_pre)
                 \<open>implies\<close>
                 (to_s OclCtxtPost (print_ctxt_to_ocl_post ocl) l_post) in
           Expr_binop
-            (Expr_parenthesis (Expr_binop if_test unicode_Longrightarrow (f_tau (a unicode_delta if_body))))
-            unicode_Longrightarrow
+            (Expr_parenthesis (Expr_binop if_test \<open>\<Longrightarrow>\<close> (f_tau (a \<open>\<delta>\<close> if_body))))
+            \<open>\<Longrightarrow>\<close>
             (Expr_rewrite
               (Expr_parenthesis (f_tau (Expr_rewrite
                   (Expr_postunary (b var_self) (b (mk_dot_par_gen (flatten [\<open>.\<close>, attr_n, var_at_when_ocl]) (List_map fst (Ctxt_fun_ty_arg ctxt)))))
-                  unicode_triangleq
+                  \<open>\<triangleq>\<close>
                   (b var_result))))
               \<open>=\<close>
               (Expr_parenthesis (Expr_if_then_else if_test
                                                    (f_tau if_body)
-                                                   (f_tau (Expr_rewrite (b var_result) unicode_triangleq (b \<open>invalid\<close>)))))))))
+                                                   (f_tau (Expr_rewrite (b var_result) \<open>\<triangleq>\<close> (b \<open>invalid\<close>)))))))))
         # raise_ml_unbound
           (\<lambda>n pref. flatten [\<open>(\<close>, natural_of_str (n + 1), \<open>) \<close>, if pref = OclCtxtPre then \<open>pre\<close> else \<open>post\<close>])
           (Ctxt_expr ctxt) in
@@ -153,8 +153,8 @@ definition "print_ctxt_pre_post = fold_list (\<lambda>x ocl. (x ocl, ocl)) o (\<
 definition "print_ctxt_inv = fold_list (\<lambda>x ocl. (x ocl, ocl)) o List_flatten o List_flatten o (\<lambda> ctxt.
   let a = \<lambda>f x. Expr_apply f [x]
     ; b = \<lambda>s. Expr_basic [s]
-    ; var_tau = unicode_tau
-    ; f_tau = \<lambda>s. Expr_warning_parenthesis (Expr_binop (b var_tau) unicode_Turnstile s)
+    ; var_tau = \<open>\<tau>\<close>
+    ; f_tau = \<lambda>s. Expr_warning_parenthesis (Expr_binop (b var_tau) \<open>\<Turnstile>\<close> s)
     ; nb_var = length (Ctxt_inv_param ctxt) in
   List_map (\<lambda> (tit, T_pure t) \<Rightarrow>
     (List_map

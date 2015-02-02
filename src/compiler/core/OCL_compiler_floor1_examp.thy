@@ -74,7 +74,7 @@ definition "print_examp_oclbase_gen =
         let name = var_OclString @@ base255_of_str nb
           ; b = \<lambda>s. Expr_basic [s] in
         if \<not> String_is_empty nb & String_all is_letter nb then
-          let ab_name = b (let c = \<langle>[Char Nibble2 Nibble7]\<rangle> in flatten [c,c, nb, c,c]) in
+          let ab_name = b (flatten [\<open>''\<close>, nb, \<open>''\<close>]) in
           (ab_name,
           Definition_abbrev0 name (b (text2_of_str nb))
             (Expr_rewrite (b name) \<open>=\<close> (Expr_lambda wildcard (Expr_some (Expr_some ab_name)))))
@@ -549,7 +549,7 @@ definition "print_examp_def_st_mapsto_gen f ocl cpt_start rbt_map =
 definition "print_examp_def_st_mapsto =
   print_examp_def_st_mapsto_gen
     (\<lambda>_ cpt ocli exp.
-      Expr_binop (Expr_oid var_oid_uniq (oidGetInh cpt)) unicode_mapsto (Expr_apply (datatype_in @@ isub_of_str (Inst_ty ocli)) [exp]))"
+      Expr_binop (Expr_oid var_oid_uniq (oidGetInh cpt)) \<open>\<mapsto>\<close> (Expr_apply (datatype_in @@ isub_of_str (Inst_ty ocli)) [exp]))"
 
 definition "print_examp_def_st_defassoc_name name = Expr_basic [flatten [var_inst_assoc, name]]"
 definition "print_examp_def_st_defassoc = (\<lambda> OclDefSt name l \<Rightarrow> \<lambda>ocl.
@@ -721,8 +721,8 @@ definition "print_examp_def_st_allinst = (\<lambda> _ ocl.
        (\<lambda>s. flatten [ name_st, \<open>_\<close>, s, \<open>_exec_\<close>, name ])
        (\<lambda>f_expr f_mk _. Expr_binop
             (f_mk (b name_st))
-            unicode_Turnstile
-            (Expr_binop (f_expr [b name]) unicode_doteq (Expr_oclset l_spec)))
+            \<open>\<Turnstile>\<close>
+            (Expr_binop (f_expr [b name]) \<open>\<doteq>\<close> (Expr_oclset l_spec)))
        (\<lambda>lem_tit lem_spec var_pre_post var_mk _. Lemma_by_assum
          lem_tit
          [(\<open>\<close>, True, Expr_And \<open>a\<close> (\<lambda>var_a. Expr_rewrite (a var_pre_post (a var_mk (b var_a))) \<open>=\<close> (b var_a)))]
@@ -753,7 +753,7 @@ definition "print_examp_def_st_allinst = (\<lambda> _ ocl.
                           else []) l_body) ]))]]
             , fst (fold_list (\<lambda> expr l_spec.
                 let mk_StrictRefEq_including = \<lambda>l.
-                      Tac_rule (Thm_str (flatten [\<open>const_StrictRefEq\<close>, isub_of_str \<open>Set\<close>, \<open>_including\<close>]))
+                      Tac_rule (Thm_str \<open>const_StrictRefEq\<^sub>S\<^sub>e\<^sub>t_including\<close>)
                       # Tac_simp # Tac_simp # Tac_simp # l
                   ; (state_update_vs_allInstances_generic, l_spec, l_print_examp, l_OclIncluding_cong) =
                   case expr of (ocore, []) \<Rightarrow>
@@ -761,7 +761,7 @@ definition "print_examp_def_st_allinst = (\<lambda> _ ocl.
                     , l_spec
                     , case ocore of OclDefCoreBinding (_, ocli) \<Rightarrow> [print_examp_instance_name (\<lambda>s. s @@ isub_of_str (Inst_ty ocli)) (Inst_name ocli)] | _ \<Rightarrow> []
                     , if l_spec = [] then
-                        [Tac_rule (Thm_str (flatten [\<open>const_StrictRefEq\<close>, isub_of_str \<open>Set\<close>, \<open>_empty\<close>])), Tac_simp]
+                        [Tac_rule (Thm_str \<open>const_StrictRefEq\<^sub>S\<^sub>e\<^sub>t_empty\<close>), Tac_simp]
                       else
                         mk_StrictRefEq_including [])
                   | _ \<Rightarrow>
@@ -771,13 +771,13 @@ definition "print_examp_def_st_allinst = (\<lambda> _ ocl.
                     , mk_StrictRefEq_including [ Tac_rule (Thm_str \<open>OclIncluding_cong\<close>), Tac_simp, Tac_simp ]) in
                 ( Tac_subst (Thm_str state_update_vs_allInstances_generic)
                   # Tac_simp # Tac_simp
-                  # Tac_simp_add (List_map d ((flatten [isub_name const_oclastype, \<open>_\<close>, unicode_AA]) # l_print_examp))
+                  # Tac_simp_add (List_map d ((flatten [isub_name const_oclastype, \<open>_\<AA>\<close>]) # l_print_examp))
                   # Tac_simp
                   # l_OclIncluding_cong
                 , l_spec) ) expr_app l_spec)
             , [[Tac_rule (Thm_str \<open>state_update_vs_allInstances_generic_empty\<close>)]] ]))
          (Tacl_by [ if l_spec = [] then Tac_simp
-                    else Tac_simp_all_add [d (flatten [isub_name const_oclastype, \<open>_\<close>, unicode_AA])]]) )
+                    else Tac_simp_all_add [d (flatten [isub_name const_oclastype, \<open>_\<AA>\<close>])]]) )
        [Tac_simp])
      (case D_class_spec ocl of Some class_spec \<Rightarrow> class_spec)))"
 
@@ -801,7 +801,7 @@ definition "print_pre_post_wff = (\<lambda> OclDefPP s_pre s_post \<Rightarrow> 
       [a \<open>WFF\<close> (Expr_pair (b s_pre) (b s_post))]
       []
       (Tacl_by [Tac_simp_add (List_map d (List_flatten
-        [ [ \<open>WFF\<close>, s_pre, s_post, const_oid_of unicode_AA ]
+        [ [ \<open>WFF\<close>, s_pre, s_post, const_oid_of \<open>\<AA>\<close> ]
         , List_map
             (\<lambda>(cpt, _). var_oid_uniq @@ natural_of_str (case cpt of Oid i \<Rightarrow> i))
             (merge_unique ((\<lambda>x. Some (x, ())) o oidGetInh o fst) [l_pre, l_post])
@@ -842,7 +842,7 @@ definition "print_pre_post_where = (\<lambda> OclDefPP s_pre s_post \<Rightarrow
                    name in
                (Some (name, print_examp_instance_name (\<lambda>s. s @@ isub_of_str (Inst_ty ocli)) (Inst_name ocli)), b name)) in
          Lemma_by (flatten [var_oid_uniq, natural_of_str (case x_pers_oid of Oid i \<Rightarrow> i), s_pre, s_post, \<open>_\<close>, name_st, \<open>_\<close>, x_where])
-          [Expr_binop (Expr_pair (b s_pre) (b s_post)) unicode_Turnstile (a x_where (x_pers_expr))]
+          [Expr_binop (Expr_pair (b s_pre) (b s_post)) \<open>\<Turnstile>\<close> (a x_where (x_pers_expr))]
           []
           (Tacl_by [Tac_simp_add (List_map d (List_flatten
             [ case x_name of Some (x_pers, x_name) \<Rightarrow> [x_pers, x_name] | _ \<Rightarrow> []
