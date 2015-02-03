@@ -54,7 +54,7 @@ subsection{* s of ... *} (* s_of *)
 
 context s_of
 begin
-fun_quick s_of_rawty where "s_of_rawty e = (\<lambda>
+fun s_of_rawty where "s_of_rawty e = (\<lambda>
     Ty_base s \<Rightarrow> To_string s
   | Ty_apply name l \<Rightarrow> sprint2 \<open>%s %s\<close>\<acute> (let s = String_concat \<open>, \<close> (List.map s_of_rawty l) in
                                                  case l of [_] \<Rightarrow> s | _ \<Rightarrow> sprint1 \<open>(%s)\<close>\<acute> s)
@@ -75,7 +75,7 @@ definition "s_of_dataty _ = (\<lambda> Datatype n l \<Rightarrow>
 definition "s_of_ty_synonym _ = (\<lambda> Type_synonym n l \<Rightarrow>
     sprint2 \<open>type_synonym %s = \"%s\"\<close>\<acute> (To_string n) (s_of_rawty l))"
 
-fun_quick s_of_expr where "s_of_expr e = (\<lambda>
+fun s_of_expr where "s_of_expr e = (\<lambda>
     Expr_rewrite e1 symb e2 \<Rightarrow> sprint3 \<open>%s %s %s\<close>\<acute> (s_of_expr e1) (To_string symb) (s_of_expr e2)
   | Expr_basic l \<Rightarrow> sprint1 \<open>%s\<close>\<acute> (String_concat \<open> \<close> (List_map To_string l))
   | Expr_oid tit s \<Rightarrow> sprint2 \<open>%s%d\<close>\<acute> (To_string tit) (To_oid s)
@@ -116,7 +116,7 @@ definition "s_of_definition_hol _ = (\<lambda>
   | Definition_abbrev0 name abbrev e \<Rightarrow> sprint3 \<open>definition %s (\"%s\")
   where \"%s\"\<close>\<acute> (To_string name) (s_of_expr abbrev) (s_of_expr e))"
 
-fun_quick s_of_ntheorem_aux where "s_of_ntheorem_aux lacc e =
+fun s_of_ntheorem_aux where "s_of_ntheorem_aux lacc e =
   ((* FIXME regroup all the 'let' declarations at the beginning *)
    (*let f_where = (\<lambda>l. (\<open>where\<close>, String_concat \<open> and \<close>
                                         (List_map (\<lambda>(var, expr). sprint2 \<open>%s = \"%s\"\<close>\<acute>
@@ -211,7 +211,7 @@ definition "(s_of_attrib_genB :: (string list \<Rightarrow> String.literal)
 definition "s_of_attrib = s_of_attrib_genA s_of_ntheorems_l"
 definition "s_of_attrib1 = s_of_attrib_genB (\<lambda>l. String_concat \<open> \<close> (List_map To_string l))"
 
-fun_quick s_of_tactic where "s_of_tactic expr = (\<lambda>
+fun s_of_tactic where "s_of_tactic expr = (\<lambda>
     Tact_rule0 o_s \<Rightarrow> sprint1 \<open>rule%s\<close>\<acute> (case o_s of None \<Rightarrow> \<open>\<close>
                                                            | Some s \<Rightarrow> sprint1 \<open> %s\<close>\<acute> (s_of_ntheorem s))
   | Tact_drule s \<Rightarrow> sprint1 \<open>drule %s\<close>\<acute> (s_of_ntheorem s)

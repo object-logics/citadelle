@@ -270,7 +270,7 @@ datatype ('a, 'b, 'c, 'd, 'e) print_iskindof_up_istypeof_output
   | I_simp 'd
   | I_blast 'e
 
-fun_quick print_iskindof_up_istypeof_child
+fun print_iskindof_up_istypeof_child
       and print_iskindof_up_istypeof_child_l where
  (* *)
  "print_iskindof_up_istypeof_child l = (case l of

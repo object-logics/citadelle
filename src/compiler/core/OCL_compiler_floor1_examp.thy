@@ -88,7 +88,7 @@ definition "print_examp_oclbase = (\<lambda> OclDefBase l \<Rightarrow> (start_m
 
 datatype print_examp_instance_draw_list_attr = Return_obj ocl_ty_class | Return_exp hol_expr
 
-fun_quick print_examp_instance_draw_list_attr_aux where
+fun print_examp_instance_draw_list_attr_aux where
    "print_examp_instance_draw_list_attr_aux f_oid_rec e =
     (\<lambda>
      (* object case 2 *)
@@ -158,7 +158,7 @@ definition "fill_blank f_blank =
     let rbt = List.fold (\<lambda> ((ty, _, ident), shallow) \<Rightarrow> RBT.insert ident (ty, shallow)) l RBT.empty in
     (attr_ty, rev (f_fold (\<lambda>b n l. (b, RBT.lookup rbt (OptIdent n)) # l) [])))"
 
-fun_quick split_inh_own where
+fun split_inh_own where
    "split_inh_own f_class s_cast l_attr =
   (let (f_attr, f_blank) = f_class s_cast
      ; split = \<lambda>l. List.partition (\<lambda>((_, OptOwn, _), _) \<Rightarrow> True | _ \<Rightarrow> False) (List.map (\<lambda>(name_attr, data). (case f_attr name_attr of Some x \<Rightarrow> x, data)) l) in
@@ -170,7 +170,7 @@ fun_quick split_inh_own where
        case split l of (l_own, []) \<Rightarrow>
        OclAttrCast s_cast (split_inh_own f_class s_cast l_attr) (fill_blank f_blank [(OptOwn, l_own)]))"
 
-fun_quick print_examp_instance_app_constr2_notmp where
+fun print_examp_instance_app_constr2_notmp where
    "print_examp_instance_app_constr2_notmp ty l_attr isub_name cpt f_oid =
   (let (l_inh, l_own) =
      let var_oid = Expr_oid var_oid_uniq (oidGetInh cpt) in
@@ -183,7 +183,7 @@ fun_quick print_examp_instance_app_constr2_notmp where
                           print_examp_instance_app_constr2_notmp x l_attr isub_name cpt f_oid ], l_own) in
    print_examp_instance_app_constr_notmp (f_oid isub_name cpt) isub_name l_inh l_own)"
 
-fun_quick fold_list_attr where
+fun fold_list_attr where
    "fold_list_attr cast_from f l_attr accu = (case l_attr of
         OclAttrNoCast x \<Rightarrow> f cast_from x accu
       | OclAttrCast c_from l_attr x \<Rightarrow> fold_list_attr c_from f l_attr (f cast_from x accu))"

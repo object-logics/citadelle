@@ -97,6 +97,7 @@ session "OCL-all-dirty" in "src" = HOL +
     "../examples/LinkedList"
 
     "../src/compiler/OCL_compiler_aux_proof"
+    "../src/compiler/OCL_compiler_aux_tactic"
     "../src/compiler/OCL_compiler_aux_text"
 
     "../examples/archive/OCL_lib_Gogolla_challenge_integer"

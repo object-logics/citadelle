@@ -47,7 +47,6 @@ theory OCL_compiler_init
 imports "~~/src/HOL/Library/Code_Char"
         OCL_compiler_static
   keywords (* hol syntax *)
-           "fun_sorry" "fun_quick"
            "definition\<acute>"
            "fun\<acute>"
            :: thy_decl
@@ -283,46 +282,6 @@ syntax "_Lambda\<^sub>S\<^sub>c\<^sub>a\<^sub>l\<^sub>a" :: "[pttrn, bool] \<Rig
 translations "\<lambda>\<^sub>S\<^sub>c\<^sub>a\<^sub>l\<^sub>a x y. P" \<rightleftharpoons> "CONST id (%x y. P)"
              "\<lambda>\<^sub>S\<^sub>c\<^sub>a\<^sub>l\<^sub>a x. P" \<rightleftharpoons> "CONST id (%x. P)"
 
-subsection{* Infra-structure that skip lengthy termination proofs *}
-
-ML{*
-structure Fun_quick = struct
-val quick_dirty = false
-  (* false: "fun_quick" behaves as "fun"
-     true: "fun_quick" behaves as "fun", but it proves completeness and termination with "sorry" *)
-
-val proof_by_patauto = Proof.global_terminal_proof
-  ( ( Method.Then
-        ( Method.no_combinator_info
-        , [ Method.Basic (fn ctxt => SIMPLE_METHOD (Pat_Completeness.pat_completeness_tac ctxt 1) )
-          , Method.Basic (fn ctxt => SIMPLE_METHOD (auto_tac (ctxt addsimps [])))])
-    , (Position.none, Position.none))
-  , NONE)
-val proof_by_sorry = Proof.global_skip_proof true
-
-fun mk_fun quick_dirty cmd_spec tac =
-  Outer_Syntax.local_theory' cmd_spec
-    "define general recursive functions (short version)"
-    (Function_Common.function_parser
-      (if quick_dirty then
-         Function_Common.FunctionConfig { sequential=true, default=NONE
-                                        , domintros=false, partials=true}
-       else
-         Function_Fun.fun_config)
-      >> (if quick_dirty then
-            fn ((config, fixes), statements) => fn b => fn ctxt =>
-            ctxt |> Function.function_cmd fixes statements config b
-                 |> tac
-                 |> Function.termination_cmd NONE
-                 |> proof_by_sorry
-          else
-            fn ((config, fixes), statements) => Function_Fun.add_fun_cmd fixes statements config))
-
-val () = mk_fun quick_dirty @{command_spec "fun_quick"} proof_by_sorry
-val () = mk_fun true @{command_spec "fun_sorry"} proof_by_patauto
-end
-*}
-
 section{* ...  *}
 
 subsection{* ... *}
@@ -335,7 +294,7 @@ definition "lowercase_of_str = String_map (\<lambda>c. let n = nat_of_char c in 
 definition "uppercase_of_str = String_map (\<lambda>c. let n = nat_of_char c in if n < 97 then c else char_of_nat (n - 32))"
 definition "number_of_str = String_replace_chars (\<lambda>c. [\<open>\<zero>\<close>, \<open>\<one>\<close>, \<open>\<two>\<close>, \<open>\<three>\<close>, \<open>\<four>\<close>, \<open>\<five>\<close>, \<open>\<six>\<close>, \<open>\<seven>\<close>, \<open>\<eight>\<close>, \<open>\<nine>\<close>] ! (nat_of_char c - 48))"
 definition "nat_raw_of_str = List_map (\<lambda>i. char_of_nat (nat_of_char (Char Nibble3 Nibble0) + i))"
-fun_quick nat_of_str_aux where
+fun nat_of_str_aux where
    "nat_of_str_aux l (n :: Nat.nat) = (if n < 10 then n # l else nat_of_str_aux (n mod 10 # l) (n div 10))"
 definition "nat_of_str n = \<lless>nat_raw_of_str (nat_of_str_aux [] n)\<ggreater>"
 definition "natural_of_str = nat_of_str o nat_of_natural"

@@ -385,7 +385,7 @@ definition "print_access_dot_name isub_name dot_at_when attr_ty isup_attr =
                        | _ \<Rightarrow> dot_name)
           , dot_at_when]"
 
-fun_quick print_access_dot_aux where
+fun print_access_dot_aux where
    "print_access_dot_aux deref_oid x =
     (\<lambda> OclTy_collection (OclMult _ Set) ty \<Rightarrow> Expr_apply var_select_object_set [print_access_dot_aux deref_oid ty]
      | OclTy_collection (OclMult _ Sequence) ty \<Rightarrow> Expr_apply var_select_object_sequence [print_access_dot_aux deref_oid ty]

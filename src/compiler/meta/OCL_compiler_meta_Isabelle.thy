@@ -287,7 +287,7 @@ definition "App_using = App_using0 o List_map Thms_single"
 definition "App_unfolding = App_unfolding0 o List_map Thms_single"
 definition "App_fix l = App_fix_let l [] None []"
 
-fun_quick cross_abs_aux where
+fun cross_abs_aux where
    "cross_abs_aux f l x = (\<lambda> (Suc n, PureAbs s _ t) \<Rightarrow> f s (cross_abs_aux f (s # l) (n, t))
                          | (_, e) \<Rightarrow> Expr_inner0 l e)
                          x"

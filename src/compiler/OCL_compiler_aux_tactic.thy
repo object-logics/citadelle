@@ -3,7 +3,7 @@
  *                       for the OMG Standard.
  *                       http://www.brucker.ch/projects/hol-testgen/
  *
- * OCL_compiler_meta_Pure.thy ---
+ * OCL_compiler_aux_tactic.thy ---
  * This file is part of HOL-TestGen.
  *
  * Copyright (c) 2013-2015 Université Paris-Sud, France
@@ -43,46 +43,50 @@
 
 header{* Part ... *}
 
-theory  OCL_compiler_meta_Pure
-imports "../OCL_compiler_init"
+theory OCL_compiler_aux_tactic
+imports Main
+  keywords "fun_sorry" "fun_quick"
+           :: thy_decl
 begin
 
-section{* \text{Lambda\_pure} Meta-Model aka. AST definition of \text{Lambda\_pure} *}
+subsection{* Infra-structure that skip lengthy termination proofs *}
 
-subsection{* type definition *}
+ML{*
+structure Fun_quick = struct
+val quick_dirty = false
+  (* false: "fun_quick" behaves as "fun"
+     true: "fun_quick" behaves as "fun", but it proves completeness and termination with "sorry" *)
 
-datatype pure_indexname = PureIndexname string nat
-datatype pure_class = PureClass string
-datatype pure_sort = PureSort "pure_class list"
-datatype pure_typ =
-  PureType string "pure_typ list" |
-  PureTFree string pure_sort |
-  PureTVar pure_indexname pure_sort
-datatype pure_term =
-  PureConst string pure_typ |
-  PureFree string pure_typ |
-  PureVar pure_indexname pure_typ |
-  PureBound nat |
-  PureAbs string pure_typ pure_term |
-  PureApp pure_term pure_term (infixl "$" 200)
+val proof_by_patauto = Proof.global_terminal_proof
+  ( ( Method.Then
+        ( Method.no_combinator_info
+        , [ Method.Basic (fn ctxt => SIMPLE_METHOD (Pat_Completeness.pat_completeness_tac ctxt 1) )
+          , Method.Basic (fn ctxt => SIMPLE_METHOD (auto_tac (ctxt addsimps [])))])
+    , (Position.none, Position.none))
+  , NONE)
+val proof_by_sorry = Proof.global_skip_proof true
 
-subsection{* *}
+fun mk_fun quick_dirty cmd_spec tac =
+  Outer_Syntax.local_theory' cmd_spec
+    "define general recursive functions (short version)"
+    (Function_Common.function_parser
+      (if quick_dirty then
+         Function_Common.FunctionConfig { sequential=true, default=NONE
+                                        , domintros=false, partials=true}
+       else
+         Function_Fun.fun_config)
+      >> (if quick_dirty then
+            fn ((config, fixes), statements) => fn b => fn ctxt =>
+            ctxt |> Function.function_cmd fixes statements config b
+                 |> tac
+                 |> Function.termination_cmd NONE
+                 |> proof_by_sorry
+          else
+            fn ((config, fixes), statements) => Function_Fun.add_fun_cmd fixes statements config))
 
-fun map_Const where
-   "map_Const f expr = (\<lambda> PureConst s ty \<Rightarrow> PureConst (f s ty) ty
-                        | PureFree s ty \<Rightarrow> PureFree s ty
-                        | PureVar i ty \<Rightarrow> PureVar i ty
-                        | PureBound n \<Rightarrow> PureBound n
-                        | PureAbs s ty term \<Rightarrow> PureAbs s ty (map_Const f term)
-                        | PureApp term1 term2 \<Rightarrow> PureApp (map_Const f term1)
-                                                         (map_Const f term2))
-                        expr"
-
-fun fold_Free where
-   "fold_Free f accu expr = (\<lambda> PureFree s ty \<Rightarrow> f accu s 
-                        | PureAbs _ _ term \<Rightarrow> fold_Free f accu term
-                        | PureApp term1 term2 \<Rightarrow> fold_Free f (fold_Free f accu term1) term2
-                        | _ \<Rightarrow> accu)
-                        expr"
+val () = mk_fun quick_dirty @{command_spec "fun_quick"} proof_by_sorry
+val () = mk_fun true @{command_spec "fun_sorry"} proof_by_patauto
+end
+*}
 
 end

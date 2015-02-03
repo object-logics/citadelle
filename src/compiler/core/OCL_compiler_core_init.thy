@@ -269,7 +269,7 @@ definition "activate_simp_optimization = True"
 
 subsection{* Infra *}
 
-fun_quick print_infra_type_synonym_class_rec_aux0 where
+fun print_infra_type_synonym_class_rec_aux0 where
    "print_infra_type_synonym_class_rec_aux0 e =
    (let option = \<lambda>x. Ty_apply (Ty_base \<open>option\<close>) [x] in
      (\<lambda> OclTy_collection (OclMult _ s) t \<Rightarrow>

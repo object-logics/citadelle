@@ -54,7 +54,7 @@ subsection{* s of ... *} (* s_of *)
 context s_of
 begin
 
-fun_quick s_of_pure_term where "s_of_pure_term l e = (\<lambda>
+fun s_of_pure_term where "s_of_pure_term l e = (\<lambda>
     PureConst s _ \<Rightarrow> To_string s
   | PureFree s _ \<Rightarrow> To_string s
   | PureApp t1 t2 \<Rightarrow> sprint2 \<open>(%s) (%s)\<close>\<acute> (s_of_pure_term l t1) (s_of_pure_term l t2)

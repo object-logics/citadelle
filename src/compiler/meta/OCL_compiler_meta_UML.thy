@@ -138,7 +138,7 @@ definition "single_multip = (\<lambda> OclMult l _ \<Rightarrow>
                  | (Mult_nat n, None) \<Rightarrow> n \<le> 1
                  | _ \<Rightarrow> False) l)"
 
-fun_quick fold_max_aux where
+fun fold_max_aux where
    "fold_max_aux f l l_acc accu = (case l of
       [] \<Rightarrow> accu
     | x # xs \<Rightarrow> fold_max_aux f xs (x # l_acc) (f x (List_flatten [rev l_acc, xs]) accu))"
@@ -307,7 +307,7 @@ definition "is_higher_order = (\<lambda> OclTy_collection _ _ \<Rightarrow> True
 definition "parse_ty_raw = (\<lambda> OclTy_raw s \<Rightarrow> if s = \<open>int\<close> then OclTy_base_integer else OclTy_raw s
                             | x \<Rightarrow> x)"
 
-fun_quick str_of_ty where "str_of_ty e =
+fun str_of_ty where "str_of_ty e =
  (\<lambda> OclTy_base_void \<Rightarrow> \<open>Void\<close>
   | OclTy_base_boolean \<Rightarrow> \<open>Boolean\<close>
   | OclTy_base_integer \<Rightarrow> \<open>Integer\<close>
@@ -328,7 +328,7 @@ definition "ty_unlimitednatural = str_of_ty OclTy_base_unlimitednatural"
 definition "ty_real = str_of_ty OclTy_base_real"
 definition "ty_string = str_of_ty OclTy_base_string"
 
-fun_quick str_hol_of_ty_all where "str_hol_of_ty_all f b e =
+fun str_hol_of_ty_all where "str_hol_of_ty_all f b e =
  (\<lambda> OclTy_base_void \<Rightarrow> b \<open>unit\<close>
   | OclTy_base_boolean \<Rightarrow> b \<open>bool\<close>
   | OclTy_base_integer \<Rightarrow> b \<open>int\<close>
@@ -344,7 +344,7 @@ fun_quick str_hol_of_ty_all where "str_hol_of_ty_all f b e =
 definition "print_infra_type_synonym_class_set_name name = \<open>Set_\<close> @@ name"
 definition "print_infra_type_synonym_class_sequence_name name = \<open>Sequence_\<close> @@ name"
 
-fun_quick get_class_hierarchy_strict_aux where
+fun get_class_hierarchy_strict_aux where
    "get_class_hierarchy_strict_aux dataty l_res =
    (List.fold
      (\<lambda> OclClass name l_attr dataty \<Rightarrow> \<lambda> l_res.
@@ -353,7 +353,7 @@ fun_quick get_class_hierarchy_strict_aux where
      l_res)"
 definition "get_class_hierarchy_strict d = get_class_hierarchy_strict_aux d []"
 
-fun_quick get_class_hierarchy'_aux where
+fun get_class_hierarchy'_aux where
    "get_class_hierarchy'_aux l_res (OclClass name l_attr dataty) =
    (let l_res = OclClass name l_attr dataty # l_res in
     case dataty of [] \<Rightarrow> rev l_res
@@ -368,7 +368,7 @@ definition "get_class_hierarchy_sub' = (\<lambda> None \<Rightarrow> []
 
 datatype position = EQ (* equal *) | LT (* less *) | GT (* greater *) | UN' (* uncomparable *)
 
-fun_quick fold_less_gen where "fold_less_gen f_gen f_jump f l = (case l of
+fun fold_less_gen where "fold_less_gen f_gen f_jump f l = (case l of
     x # xs \<Rightarrow> \<lambda>acc. fold_less_gen f_gen f_jump f xs (f_gen (f x) xs (f_jump acc))
   | [] \<Rightarrow> id)"
 
@@ -400,7 +400,7 @@ definition "map_linh f cl = \<lparr> Inh = f (Inh cl)
                             , Inh_sib = List_map (map_prod f (List_map f)) (Inh_sib cl)
                             , Inh_sib_unflat = List_map f (Inh_sib_unflat cl) \<rparr>"
 
-fun_quick fold_class_gen_aux where
+fun fold_class_gen_aux where
    "fold_class_gen_aux l_inh f accu (OclClass name l_attr dataty) =
  (let accu = f (\<lambda>s. s @@ isub_of_str name)
                name

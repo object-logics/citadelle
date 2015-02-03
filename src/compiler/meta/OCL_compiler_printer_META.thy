@@ -79,7 +79,7 @@ definition "s_of_section_title ocl = (\<lambda> Section_title n section_title \<
                              else \<open>subsub\<close>))
       (To_string section_title))"
 
-fun_quick s_of_ctxt2_term_aux where "s_of_ctxt2_term_aux l e =
+fun s_of_ctxt2_term_aux where "s_of_ctxt2_term_aux l e =
  (\<lambda> T_pure pure \<Rightarrow> concatWith l (s_of_pure_term [] pure)
   | T_to_be_parsed _ s \<Rightarrow> concatWith l (To_string s)
   | T_lambda s c \<Rightarrow> s_of_ctxt2_term_aux (s # l) c) e"
