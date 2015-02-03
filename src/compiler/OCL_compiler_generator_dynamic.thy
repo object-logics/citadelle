@@ -439,16 +439,7 @@ end
 ML{*
 structure Deep = struct
 
-fun prep_destination "" = NONE
-  | prep_destination "-" = (legacy_feature "drop \"file\" argument entirely instead of \"-\""; NONE)
-  | prep_destination s = SOME (Path.explode s)
-
 fun absolute_path filename thy = Path.implode (Path.append (Resources.master_directory thy) (Path.explode filename))
-
-fun export_code_cmd all_public raw_cs seris ctxt =
-  Code_Target.export_code ctxt all_public
-    (Code_Thingol.read_const_exprs ctxt raw_cs)
-    ((map o apfst o apsnd) prep_destination seris)
 
 fun export_code_tmp_file seris g =
   fold
@@ -473,7 +464,7 @@ fun export_code_cmd' seris tmp_export_code f_err filename_thy raw_cs thy =
   export_code_tmp_file seris
     (fn seris =>
       let val mem_scala = List.exists (fn ((("Scala", _), _), _) => true | _ => false) seris
-          val _ = export_code_cmd
+          val _ = Isabelle_Code_Target.export_code_cmd
         false
         (if mem_scala then Deep0.Export_code_env.Isabelle.function :: raw_cs else raw_cs)
         seris
@@ -605,7 +596,7 @@ fun f_command l_mode =
                                           mk_fic (Deep0.find_function ml_compiler (Deep0.find_ext ml_compiler))))
                         , export_arg), mk_fic)
                       end) seri_args
-                    val _ = Deep.export_code_cmd
+                    val _ = Isabelle_Code_Target.export_code_cmd
                               (List.exists (fn (((("SML", _), _), _), _) => true | _ => false) seri_args')
                               [Deep0.Export_code_env.Isabelle.function]
                               (List.map fst seri_args')

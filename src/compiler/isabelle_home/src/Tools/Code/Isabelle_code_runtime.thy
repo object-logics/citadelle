@@ -49,16 +49,52 @@ imports Main
 begin
 
 ML{*
-structure Code_reflect = struct
+structure Code_Runtime =
+struct
 
-local
-open Basic_Code_Symbol
-open Basic_Code_Thingol
+open Basic_Code_Symbol;
+open Basic_Code_Thingol;
+
+(** evaluation **)
+
+(* technical prerequisites *)
+
 val trace = Attrib.setup_config_bool @{binding "code_runtime_trace"} (K false);
 
 fun exec ctxt verbose code =
   (if Config.get ctxt trace then tracing code else ();
   ML_Context.exec (fn () => Secure.use_text ML_Env.local_context (0, "generated code") verbose code));
+
+(* evaluation into target language values *)
+
+(* evaluation for truth or nothing *)
+
+
+(** instrumentalization **)
+
+fun evaluation_code ctxt module_name tycos consts all_public =
+  let
+    val thy = Proof_Context.theory_of ctxt;
+    val program = Code_Thingol.consts_program thy consts;
+    val (ml_modules, target_names) =
+      Code_Target.produce_code_for ctxt
+        Code_Runtime.target NONE module_name [] program all_public (map Constant consts @ map Type_Constructor tycos);
+    val ml_code = space_implode "\n\n" (map snd ml_modules);
+    val (consts', tycos') = chop (length consts) target_names;
+    val consts_map = map2 (fn const =>
+      fn NONE =>
+          error ("Constant " ^ (quote o Code.string_of_const thy) const ^
+            "\nhas a user-defined serialization")
+       | SOME const' => (const, const')) consts consts'
+    val tycos_map = map2 (fn tyco =>
+      fn NONE =>
+          error ("Type " ^ quote (Proof_Context.markup_type ctxt tyco) ^
+            "\nhas a user-defined serialization")
+        | SOME tyco' => (tyco, tyco')) tycos tycos';
+  in (ml_code, (tycos_map, consts_map)) end;
+
+
+(* by antiquotation *)
 
 (* reflection support *)
 
@@ -125,27 +161,6 @@ fun process_reflection (code, (tyco_map, (constr_map, const_map))) module_name N
         thy
       end;
 
-fun evaluation_code ctxt module_name tycos consts all_public =
-  let
-    val thy = Proof_Context.theory_of ctxt;
-    val program = Code_Thingol.consts_program thy consts;
-    val (ml_modules, target_names) =
-      Code_Target.produce_code_for ctxt
-        Code_Runtime.target NONE module_name [] program all_public (map Constant consts @ map Type_Constructor tycos);
-    val ml_code = space_implode "\n\n" (map snd ml_modules);
-    val (consts', tycos') = chop (length consts) target_names;
-    val consts_map = map2 (fn const =>
-      fn NONE =>
-          error ("Constant " ^ (quote o Code.string_of_const thy) const ^
-            "\nhas a user-defined serialization")
-       | SOME const' => (const, const')) consts consts'
-    val tycos_map = map2 (fn tyco =>
-      fn NONE =>
-          error ("Type " ^ quote (Proof_Context.markup_type ctxt tyco) ^
-            "\nhas a user-defined serialization")
-        | SOME tyco' => (tyco, tyco')) tycos tycos';
-  in (ml_code, (tycos_map, consts_map)) end;
-
 fun gen_code_reflect prep_type prep_const all_public raw_datatypes raw_functions module_name some_file thy  =
   let
     val ctxt = Proof_Context.init_global thy;
@@ -162,6 +177,11 @@ fun gen_code_reflect prep_type prep_const all_public raw_datatypes raw_functions
   end;
 
 val code_reflect_cmd = gen_code_reflect Code_Target.read_tyco Code.read_const;
+
+
+(** Isar setup **)
+
+local
 
 val parse_datatype =
   Parse.name --| @{keyword "="} --
@@ -180,10 +200,10 @@ val _ =
     -- Scan.option (@{keyword "file"} |-- Parse.!!! Parse.name)
     >> (fn ((((all_public, module_name), raw_datatypes), raw_functions), some_file) => Toplevel.theory
       (code_reflect_cmd all_public raw_datatypes raw_functions module_name some_file)))
-end
+
+end; (*local*)
 
 end
-
 *}
 
 end

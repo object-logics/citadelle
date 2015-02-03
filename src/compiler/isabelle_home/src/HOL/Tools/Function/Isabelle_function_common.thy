@@ -3,7 +3,7 @@
  *                       for the OMG Standard.
  *                       http://www.brucker.ch/projects/hol-testgen/
  *
- * Isabelle_fun.thy ---
+ * Isabelle_function_common.thy ---
  * This file is part of HOL-TestGen.
  *
  * Copyright (c) 2013-2015 Université Paris-Sud, France
@@ -43,21 +43,17 @@
 
 header{* Part ... *}
 
-theory Isabelle_fun
-imports Isabelle_function_common
-  keywords "fun\<acute>" :: thy_decl
+theory Isabelle_function_common
+imports "../../../Pure/Isar/Isabelle_parse_spec"
 begin
 
 section{* ... *}
 
 ML{*
-structure Isabelle_Function_Fun =
+structure Isabelle_Function_Common =
 struct
-  val _ =
-    Outer_Syntax.local_theory' @{command_spec "fun\<acute>"}
-      "define general recursive functions (short version)"
-      (Isabelle_Function_Common.function_parser 
-        >> (fn (fixes, statements) => Function_Fun.add_fun_cmd fixes statements Function_Fun.fun_config))
+  val function_parser =
+      (* config_parser default_cfg -- *) Parse.fixes -- Isabelle_Parse_Spec.where_alt_specs
 end
 *}
 
