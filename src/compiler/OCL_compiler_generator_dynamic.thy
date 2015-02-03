@@ -45,6 +45,7 @@ header{* Part ... *}
 
 theory OCL_compiler_generator_dynamic
 imports OCL_compiler_printer
+        "isabelle_home/src/HOL/Isabelle_Main2"
   keywords (* ocl (USE tool) *)
            "Between" "End"
            "Attributes" "Operations" "Constraints"
@@ -668,28 +669,8 @@ fun s_simp_add_del_split (l_add, l_del, l_split) ctxt =
                           (ctxt addsimps (m_of_ntheorems_l ctxt l_add)
                                 delsimps (m_of_ntheorems_l ctxt l_del))
 
-local
-  val rep_claset_of = Classical.rep_cs o claset_of
-  
-  fun some_rule_tac ctxt facts = SUBGOAL (fn (goal, i) =>
-    let
-      val [rules1, rules2, rules4] = Context_Rules.find_rules false facts goal ctxt;
-      val {xtra_netpair, ...} = rep_claset_of ctxt;
-      val rules3 = Context_Rules.find_rules_netpair true facts goal xtra_netpair;
-      val rules = rules1 @ rules2 @ rules3 @ rules4;
-      val ruleq = Drule.multi_resolves facts rules;
-      val _ = Method.trace ctxt rules;
-    in
-      fn st => Seq.maps (fn rule => rtac rule i st) ruleq
-    end)
-    THEN_ALL_NEW Goal.norm_hhf_tac ctxt
-in
-fun rule_tac0 ctxt [] facts = some_rule_tac ctxt facts
-  | rule_tac0 ctxt rules facts = Method.rule_tac ctxt rules facts
-end
-
 fun m_of_tactic expr = let open OCL open Method open OCL_overload in case expr of
-    Tact_rule0 o_s => Basic (fn ctxt => METHOD (HEADGOAL o rule_tac0 ctxt
+    Tact_rule0 o_s => Basic (fn ctxt => METHOD (HEADGOAL o Isabelle_Classical.rule_tac ctxt
                                                   (case o_s of NONE => []
                                                              | SOME s => [m_of_ntheorem ctxt s])))
   | Tact_drule s => Basic (fn ctxt => drule ctxt 0 [m_of_ntheorem ctxt s])
@@ -732,23 +713,6 @@ fun perform_instantiation thy tycos vs f_eq add_def tac (*add_eq_thms*) =
 (*    |-> fold Code.del_eqn
     |> fold add_eq_thms tycos*)
     |-> K I
-local
-fun read_abbrev b ctxt raw_rhs =
-  let
-    val rhs = Proof_Context.read_typ_syntax (ctxt |> Proof_Context.set_defsort []) raw_rhs;
-    val ignored = Term.fold_atyps_sorts (fn (_, []) => I | (T, _) => insert (op =) T) rhs [];
-    val _ =
-      if not (null ignored) andalso Context_Position.is_visible ctxt then
-        warning
-          ("Ignoring sort constraints in type variables(s): " ^
-            commas_quote (map (Syntax.string_of_typ ctxt) (rev ignored)) ^
-            "\nin type abbreviation " ^ (case b of NONE => "" | SOME b => Binding.print b))
-      else ();
-  in rhs end
-in
-fun read_typ_syntax b = read_abbrev b
-                      o Proof_Context.init_global
-end
 
 fun then_tactic l = (Method.Then (Method.no_combinator_info, map m_of_tactic l), (Position.none, Position.none))
 
@@ -811,14 +775,14 @@ val OCL_main_thy = let open OCL open OCL_overload in (*let val f = *)fn
     (fn thy =>
      let val s_bind = To_sbinding n in
      (snd o Typedecl.abbrev_global (s_bind, [], NoSyn)
-                                   (read_typ_syntax (SOME s_bind) thy (s_of_rawty l))) thy
+                                   (Isabelle_Typedecl.abbrev_cmd0 (SOME s_bind) thy (s_of_rawty l))) thy
      end)
 | Theory_instantiation_class (Instantiation (n, n_def, expr)) =>
     (fn thy =>
      let val name = To_string0 n in
      perform_instantiation
        thy
-       [ let val Type (s, _) = (read_typ_syntax NONE thy name) in s end ]
+       [ let val Type (s, _) = (Isabelle_Typedecl.abbrev_cmd0 NONE thy name) in s end ]
        []
        (Syntax.read_sort (Proof_Context.init_global thy) "object")
        (fn _ => fn thy =>
