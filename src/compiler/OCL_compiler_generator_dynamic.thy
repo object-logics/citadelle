@@ -180,44 +180,11 @@ structure Deep0 = struct
 fun apply_hs_code_identifiers ml_module thy =
   let fun mod_hs (fic, ml_module) = Code_Symbol.Module (fic, [("Haskell", SOME ml_module)]) in
   fold (Code_Target.set_identifiers o mod_hs)
-    ( ( case Properties.get (snd (Theory.get_markup thy)) "name" of
-                 SOME s => s
-      , ml_module)
-    :: map (fn x => (x, ml_module))
+    (map (fn x => (Context.theory_name x, ml_module))
          (* list of .hs files that will be merged together in "ml_module" *)
-         [ "OCL_compiler_core"
-         , "OCL_compiler_core_init"
-         , "OCL_compiler_floor1_access"
-         , "OCL_compiler_floor1_allinst"
-         , "OCL_compiler_floor1_astype"
-         , "OCL_compiler_floor1_ctxt"
-         , "OCL_compiler_floor1_examp"
-         , "OCL_compiler_floor1_infra"
-         , "OCL_compiler_floor1_iskindof"
-         , "OCL_compiler_floor1_istypeof"
-         , "OCL_compiler_floor2_ctxt"
-         , "OCL_compiler_init"
-         , "OCL_compiler_init_rbt"
-         , "OCL_compiler_meta_Isabelle"
-         , "OCL_compiler_meta_META"
-         , "OCL_compiler_meta_oid"
-         , "OCL_compiler_meta_Pure"
-         , "OCL_compiler_meta_SML"
-         , "OCL_compiler_meta_UML_extended"
-         , "OCL_compiler_meta_UML"
-         , "OCL_compiler_parser_init"
-         , "OCL_compiler_parser_META"
-         , "OCL_compiler_parser_oid"
-         , "OCL_compiler_parser_Pure"
-         , "OCL_compiler_parser_UML_extended"
-         , "OCL_compiler_parser_UML"
-         , "OCL_compiler_printer"
-         , "OCL_compiler_printer_Isabelle"
-         , "OCL_compiler_printer_META"
-         , "OCL_compiler_printer_oid"
-         , "OCL_compiler_printer_Pure"
-         , "OCL_compiler_printer_SML"
-         , "OCL_compiler_static" ]) thy end
+         ( thy
+           :: (* we over-approximate the set of compiler files *)
+              Context.ancestors_of thy)) thy end
 
 val gen_empty = ""
 
@@ -446,7 +413,7 @@ fun export_code_tmp_file seris g =
   fold
     (fn ((ml_compiler, ml_module), export_arg) => fn f => fn g =>
       f (fn accu =>
-        let val tmp_name = "OCL_compiler_generator_dynamic" in
+        let val tmp_name = Context.theory_name @{theory} in
         (if Deep0.find_export_mode ml_compiler = Deep0.Export_code_env.Directory then
            Isabelle_System.with_tmp_dir tmp_name
          else
@@ -584,7 +551,7 @@ fun f_command l_mode =
                                        fn thy => (Gen_shallow (ocl, thy0), thy) end
             | Gen_syntax_print => (fn thy => (Gen_syntax_print, thy))
             | Gen_deep (ocl, file_out_path_dep, seri_args, filename_thy, tmp_export_code, skip_exportation) => fn thy =>
-                let val _ = warning ("remove the directory (at the end): " ^ Path.implode tmp_export_code)
+                let val _ = warning ("remove the directory (at the end): " ^ Path.implode (Path.expand tmp_export_code))
                     val seri_args' = List_mapi (fn i => fn ((ml_compiler, ml_module), export_arg) =>
                       let val tmp_export_code = Deep.mk_path_export_code tmp_export_code ml_compiler i
                           fun mk_fic s = Path.append tmp_export_code (Path.make [s])
