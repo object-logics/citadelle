@@ -45,11 +45,9 @@ header{* Part ... *}
 
 theory OCL_compiler_init
 imports "~~/src/HOL/Library/Code_Char"
+        "isabelle_home/src/HOL/Isabelle_Main0"
         OCL_compiler_static
-  keywords (* hol syntax *)
-           "definition\<acute>"
-           "fun\<acute>"
-           :: thy_decl
+
 begin
 
 section{* ... *}
@@ -80,38 +78,6 @@ type_notation abr_string ("string")
 
 section{* ... *}
 
-ML {*
-  local
-    val mk_nib =
-      Syntax.const o Lexicon.mark_const o
-        fst o Term.dest_Const o HOLogic.mk_nibble;
-
-    fun mk_char (s, _) accu =
-        fold
-          (fn c => fn l =>
-               Syntax.const @{const_syntax Cons}
-             $ (Syntax.const @{const_syntax Char} $ mk_nib (c div 16) $ mk_nib (c mod 16))
-             $ l)
-          (rev (map Char.ord (String.explode s)))
-          accu;
-
-    fun mk_string [] = Const (@{const_syntax Nil}, @{typ "char list"})
-      | mk_string (s :: ss) = mk_char s (mk_string ss);
-
-  in
-    fun string_tr f content args =
-      let fun err () = raise TERM ("string_tr", args) in
-        (case args of
-          [(c as Const (@{syntax_const "_constrain"}, _)) $ Free (s, _) $ p] =>
-            (case Term_Position.decode_position p of
-              SOME (pos, _) => c $ f (mk_string (content (s, pos))) $ p
-            | NONE => err ())
-        | _ => err ())
-      end;
-  end;
-*}
-
-syntax "_cartouche_string" :: "cartouche_position \<Rightarrow> _"  ("_")
 parse_translation {*
   [( @{syntax_const "_cartouche_string"}
    , let val cartouche_type = Attrib.setup_config_string @{binding cartouche_type} (K "char list") in
@@ -130,38 +96,6 @@ parse_translation {*
 *}
 
 declare[[cartouche_type = "abr_string"]]
-
-section{* ... *}
-
-ML{* 
-local
-  val constdef = Scan.option Parse_Spec.constdecl -- (Parse_Spec.opt_thm_name ":" -- Parse.inner_syntax Parse.cartouche);
-in
-  val _ =
-    Outer_Syntax.local_theory' @{command_spec "definition\<acute>"} "constant definition"
-      (constdef >> (fn args => #2 oo Specification.definition_cmd args));
-end
-*}
-
-ML{*
-local
-  val spec = Parse_Spec.opt_thm_name ":" -- Parse.inner_syntax Parse.cartouche;
-  
-  val alt_specs =
-    Parse.enum1 "|"
-      (spec --| Scan.option (Scan.ahead (Parse.name || Parse.$$$ "[") -- Parse.!!! (Parse.$$$ "|")));
-  
-  val where_alt_specs = Parse.where_ |-- Parse.!!! alt_specs;
-    val function_parser =
-       Parse.fixes -- where_alt_specs
-in
-  val _ =
-    Outer_Syntax.local_theory' @{command_spec "fun\<acute>"}
-      "define general recursive functions (short version)"
-      (function_parser 
-        >> (fn (fixes, statements) => Function_Fun.add_fun_cmd fixes statements Function_Fun.fun_config))
-end
-*}
 
 subsection{* ... *}
 
