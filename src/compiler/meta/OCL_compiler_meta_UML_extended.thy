@@ -75,9 +75,7 @@ datatype ocl_instance = OclInstance "ocl_instance_single list" (* mutual recursi
 
 datatype ocl_def_base_l = OclDefBase "ocl_def_base list"
 
-datatype 'a ocl_def_state_core = OclDefCoreAdd ocl_instance_single
-                               | OclDefCoreSkip
-                               | OclDefCoreBinding 'a
+datatype 'a ocl_def_state_core = OclDefCoreBinding 'a
 
 datatype ocl_def_state = OclDefSt  string (* name *)
                                   "string (* name *) ocl_def_state_core list"

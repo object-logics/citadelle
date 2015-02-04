@@ -117,8 +117,6 @@ definition "i_of_ocl_def_base_l a b = rec_ocl_def_base_l
   (ap1 a (b \<open>OclDefBase\<close>) (i_of_list a b (i_of_ocl_def_base a b)))"
 
 definition "i_of_ocl_def_state_core a b f = rec_ocl_def_state_core
-  (ap1 a (b \<open>OclDefCoreAdd\<close>) (i_of_ocl_instance_single a b (K i_of_unit)))
-  (b \<open>OclDefCoreSkip\<close>)
   (ap1 a (b \<open>OclDefCoreBinding\<close>) f)"
 
 definition "i_of_ocl_def_state a b = rec_ocl_def_state

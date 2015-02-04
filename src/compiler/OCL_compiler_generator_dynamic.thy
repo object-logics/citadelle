@@ -1353,9 +1353,7 @@ val () =
      -- parse_l' state_parse)
      (fn (name, l) => fn thy =>
       OCL.OclAstDefState (OCL.OclDefSt (From.from_binding name,
-        map (fn ST_l_attr (l, ty) => OCL.OclDefCoreAdd (case get_oclinst [((@{binding ""}, ty), (l, []))] thy of OCL.OclInstance [x] => x)
-              | ST_skip => OCL.OclDefCoreSkip
-              | ST_binding b => OCL.OclDefCoreBinding (From.from_binding b)) (List.concat l))))
+        map (fn ST_binding b => OCL.OclDefCoreBinding (From.from_binding b)) (List.concat l))))
 end
 *}
 
