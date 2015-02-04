@@ -95,15 +95,14 @@ Instance Saving1 :: Account = ([ maximum = 2000 ] :: Savings)
      and Bank1 :: Bank = [ bankaccounts = [ Saving1 , Account1 ], name = "\<infinity>\<heartsuit> \<Longleftrightarrow> \<infinity>\<epsilon>" (* (* TODO latex *) \<euro> *) ]
 
 Define_state \<sigma>\<^sub>1' =
-  [ defines [ Account1
-            , Client1 ]
-  , skip , skip , skip
-  , defines [ Bank1
-            , Saving1 ] ]
+  [ Account1
+  , Client1
+  , Bank1
+  , Saving1 ]
 
-Define_state ss = [] 
+Define_state ss = []
 
-Define_pre_post ss \<sigma>\<^sub>1' 
+Define_pre_post ss \<sigma>\<^sub>1'
 
 Define_base [ 25, 250.0 ]
 
@@ -116,12 +115,12 @@ Context c: Current
   Inv B : "c .owner .age \<le>\<^sub>i\<^sub>n\<^sub>t \<two>\<five> implies   (c .overdraft \<doteq> \<zero>.\<zero> -\<^sub>r\<^sub>e\<^sub>a\<^sub>l \<two>\<five>\<zero>.\<zero>)"
 
 Context c: Client
-  Inv A : "c .banks ->forAll\<^sub>S\<^sub>e\<^sub>t(b | b .bankaccounts ->select\<^sub>S\<^sub>e\<^sub>t(a | (a .owner \<doteq> c) and 
+  Inv A : "c .banks ->forAll\<^sub>S\<^sub>e\<^sub>t(b | b .bankaccounts ->select\<^sub>S\<^sub>e\<^sub>t(a | (a .owner \<doteq> c) and
                                                                   (a .oclIsTypeOf(Current)))
                         ->size\<^sub>S\<^sub>e\<^sub>t() \<le>\<^sub>i\<^sub>n\<^sub>t \<one>)"
 
 Context Bank :: create_client(name:String, address:String, age:Integer, b:Bank) : Integer
-  Pre : "b .clients ->forAll\<^sub>S\<^sub>e\<^sub>t(c | c .clientname <> name or c .address <> address)" 
+  Pre : "b .clients ->forAll\<^sub>S\<^sub>e\<^sub>t(c | c .clientname <> name or c .address <> address)"
   Post: "b .clients ->exists\<^sub>S\<^sub>e\<^sub>t(c | c .clientname <> name or c .address <> address or c .age <> age)"
   Post : "true"
 

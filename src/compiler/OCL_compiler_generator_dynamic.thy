@@ -53,7 +53,7 @@ imports OCL_compiler_printer
            "Ordered" "Subsets" "Union" "Redefines" "Derived" "Qualifier"
            "Existential" "Inv" "Pre" "Post"
            (* ocl (added) *)
-           "skip" "self"
+           "self"
            "Nonunique" "Sequence_"
 
            (* hol syntax *)
@@ -1315,13 +1315,7 @@ val () =
     (K o OCL.OclAstDefBaseL o OCL.OclDefBase)
 
 datatype state_content = ST_l_attr of (binding * ocl_term) list * binding (* ty *)
-                       | ST_skip
                        | ST_binding of binding
-
-val state_parse =
-  (@{keyword "defines"} |-- parse_l' (list_attr_cast00 >> (fn (res, [x]) => ST_l_attr (res, x))
-                                     || Parse.binding >> ST_binding))
-  || @{keyword "skip"} >> K [ST_skip]
 
 local
   fun from_term e = (fn OclTermBase s => OCL.ShallB_term s
@@ -1350,10 +1344,11 @@ val () =
 val () =
   outer_syntax_command @{make_string} @{command_spec "Define_state"} ""
     (Parse.binding --| @{keyword "="}
-     -- parse_l' state_parse)
+     -- parse_l' (   list_attr_cast00 >> (fn (res, [x]) => ST_l_attr (res, x))
+                  || Parse.binding >> ST_binding))
      (fn (name, l) => fn thy =>
       OCL.OclAstDefState (OCL.OclDefSt (From.from_binding name,
-        map (fn ST_binding b => OCL.OclDefCoreBinding (From.from_binding b)) (List.concat l))))
+        map (fn ST_binding b => OCL.OclDefCoreBinding (From.from_binding b)) l)))
 end
 *}
 

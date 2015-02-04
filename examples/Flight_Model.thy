@@ -114,22 +114,22 @@ Instance R00 :: Reservation = [ id = 00, flight = [ F1 ], "next" = R11 ]
      and F1 :: Flight = [ seats = 120, "from" = "Ostrava", to = "Plzen" ]
      and F2 :: Flight = [ seats = 370, "from" = "Plzen", to = "Brno" ]
 (*
-R00 .flight = Set{ F1 } 
-R00 .client = Set{} // minimum constraint [1] not satisfied 
-R00 .prev = Set{ R11 , R22 } // maximum constraint [0 .. 1] not satisfied 
-R00 .next = Set{ R11 } 
-R11 .flight = Set{ F1 , F2 } // maximum constraint [1] not satisfied 
-R11 .client = Set{} // minimum constraint [1] not satisfied 
-R11 .prev = Set{ R00 , R22 } // maximum constraint [0 .. 1] not satisfied 
-R11 .next = Set{ R00 } 
-R22 .flight = Set{} // minimum constraint [1] not satisfied 
-R22 .client = Set{} // minimum constraint [1] not satisfied 
-R22 .prev = Set{ R22 } 
-R22 .next = Set{ R00 , R11 , R22 } // maximum constraint [0 .. 1] not satisfied 
-F1 .passengers = Set{} 
-F1 .fl_res = Set{ R00 , R11 } 
-F2 .passengers = Set{} 
-F2 .fl_res = Set{ R11 } 
+R00 .flight = Set{ F1 }
+R00 .client = Set{} // minimum constraint [1] not satisfied
+R00 .prev = Set{ R11 , R22 } // maximum constraint [0 .. 1] not satisfied
+R00 .next = Set{ R11 }
+R11 .flight = Set{ F1 , F2 } // maximum constraint [1] not satisfied
+R11 .client = Set{} // minimum constraint [1] not satisfied
+R11 .prev = Set{ R00 , R22 } // maximum constraint [0 .. 1] not satisfied
+R11 .next = Set{ R00 }
+R22 .flight = Set{} // minimum constraint [1] not satisfied
+R22 .client = Set{} // minimum constraint [1] not satisfied
+R22 .prev = Set{ R22 }
+R22 .next = Set{ R00 , R11 , R22 } // maximum constraint [0 .. 1] not satisfied
+F1 .passengers = Set{}
+F1 .fl_res = Set{ R00 , R11 }
+F2 .passengers = Set{}
+F2 .fl_res = Set{ R11 }
 8 error(s) in multiplicity constraints
 *)
 *)
@@ -145,17 +145,17 @@ Instance S1  :: Staff  = [ name = "Mallory" , flights = F1 ]
      and F2  :: Flight = [ seats = 370 , "from" = "Plzen" , to = "Brno" ]
 
 Define_state \<sigma>\<^sub>1 =
-  [ defines [ S1, C1, C2, R11, R21, F1, F2 ] ]
+  [ S1, C1, C2, R11, R21, F1, F2 ]
 
 Define_state \<sigma>\<^sub>2 =
-  [ defines[ S1
-           , ([ name = "Bob", address = "Praha" , flights = F1 , cl_res = R11 ] :: Client)
-           , ([ name = "Alice",address = "Ostrava",flights=[F1,F2],cl_res=[self 4,self 7]]::Client)
-           , R11
-           , ([ id = 98765 , flight = F1 , "next" = self 7] :: Reservation)
-           , F1
-           , F2
-           , ([ id = 19283 , flight = F2 ] :: Reservation) ] ]
+  [ S1
+  , ([ name = "Bob", address = "Praha" , flights = F1 , cl_res = R11 ] :: Client)
+  , ([ name = "Alice",address = "Ostrava",flights=[F1,F2],cl_res=[self 4,self 7]]::Client)
+  , R11
+  , ([ id = 98765 , flight = F1 , "next" = self 7] :: Reservation)
+  , F1
+  , F2
+  , ([ id = 19283 , flight = F2 ] :: Reservation) ]
 
 Define_pre_post \<sigma>\<^sub>1 \<sigma>\<^sub>2
 
@@ -178,7 +178,7 @@ Context Reservation :: connections () : Set(Integer)
                    then (Set{}->including\<^sub>S\<^sub>e\<^sub>t(self .id))
                    else (self .next .connections()->including\<^sub>S\<^sub>e\<^sub>t(self .id))
                    endif"
-  Pre  : "true"    
+  Pre  : "true"
 
 
 lemmas [simp,code_unfold] = dot_accessor
