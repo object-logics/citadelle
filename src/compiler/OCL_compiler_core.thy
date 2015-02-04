@@ -332,7 +332,8 @@ definition "thy_def_state = [ print_examp_def_st_defassoc
                             , print_examp_def_st_dom
                             , print_examp_def_st_dom_lemmas
                             , print_examp_def_st_perm
-                            , print_examp_def_st_allinst ]"
+                            , print_examp_def_st_allinst
+                            , print_examp_def_st_defassoc_typecheck ]"
 definition "thy_def_pre_post = [ print_pre_post_wff
                                , print_pre_post_where ]"
 definition "thy_ctxt_pre_post n = [ case n of Floor1 \<Rightarrow> OCL_compiler_floor1_ctxt.print_ctxt_pre_post

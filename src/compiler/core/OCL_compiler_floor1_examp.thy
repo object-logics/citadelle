@@ -565,6 +565,35 @@ definition "print_examp_instance = (\<lambda> OclInstance l \<Rightarrow> \<lamb
         let n = Inst_name ocli in
         (String_to_String\<^sub>b\<^sub>a\<^sub>s\<^sub>e n, ocli, case map_username n of Some oid \<Rightarrow> oid) # instance_rbt) l (D_instance_rbt ocl))))"
 
+definition "print_examp_def_st_defassoc_typecheck_gen l ocl =
+ ([ raise_ml
+      (case
+         List.fold
+           (\<lambda> OclDefCoreBinding name \<Rightarrow>
+            \<lambda>(l, rbt).
+             ( ( (if List.assoc name (D_instance_rbt ocl) = None then
+                    Cons (Error, name)
+                  else
+                    id)
+               o (if lookup rbt name = None then
+                    id
+                  else
+                    Cons (Warning, name))) l
+             , insert name () rbt))
+           l
+           ([], RBT.empty)
+       of
+         ([], _) \<Rightarrow> []
+       | (l, _) \<Rightarrow> rev_map (\<lambda> (Error, n) \<Rightarrow> (Error, \<open>Extra variables on rhs: \<close> @@ n)
+                            | (Warning, n) \<Rightarrow> (Warning, \<open>Duplicate variables on rhs: \<close> @@ n)) l)
+      \<open> error(s)\<close> ])"
+
+definition "print_examp_def_st_defassoc_typecheck = (\<lambda> OclDefSt _ l \<Rightarrow> \<lambda> ocl.
+  (\<lambda>l_res. (List_map Thy_ml l_res, ocl \<lparr> D_import_compiler := True \<rparr>))
+  (print_examp_def_st_defassoc_typecheck_gen
+    l
+    ocl))"
+
 definition "print_examp_def_st_mapsto_gen f ocl cpt_start =
   List_map
     (\<lambda>(cpt, ocore).
