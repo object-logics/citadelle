@@ -307,5 +307,75 @@ definition "print_examp_def_st_allinst = (\<lambda> _ ocl.
                     else Tac_simp_all_add [d (flatten [isub_name const_oclastype, \<open>_\<AA>\<close>])]]) )
        [Tac_simp])
      (case D_class_spec ocl of Some class_spec \<Rightarrow> class_spec)))"
+(*
+definition "merge_unique_gen f l = List.fold (List.fold (\<lambda>x. case f x of Some (x, v) \<Rightarrow> RBT.insert x v | None \<Rightarrow> id)) l RBT.empty"
+definition "merge_unique f l = RBT.entries (merge_unique_gen f l)"
+definition "merge_unique' f l = List_map (map_prod (\<lambda>s. \<lless>s\<ggreater>) id)
+                                        (merge_unique (map_option (map_prod String_to_list id) o f) l)"
 
+definition "print_pre_post_wff = (\<lambda> OclDefPP s_pre s_post \<Rightarrow> \<lambda> ocl.
+ (\<lambda> l. (List_map Thy_lemma_by l, ocl))
+  (let a = \<lambda>f x. Expr_apply f [x]
+     ; b = \<lambda>s. Expr_basic [s]
+     ; d = hol_definition
+     ; l_st = D_state_rbt ocl in
+   case (List.assoc s_pre l_st, List.assoc s_post l_st) of (Some l_pre, Some l_post) \<Rightarrow>
+   [ Lemma_by
+      (flatten [\<open>basic_\<close>, s_pre, \<open>_\<close>, s_post, \<open>_wff\<close>])
+      [a \<open>WFF\<close> (Expr_pair (b s_pre) (b s_post))]
+      []
+      (Tacl_by [Tac_simp_add (List_map d (List_flatten
+        [ [ \<open>WFF\<close>, s_pre, s_post, const_oid_of \<open>\<AA>\<close> ]
+        , List_map
+            (\<lambda>(cpt, _). var_oid_uniq @@ natural_of_str (case cpt of Oid i \<Rightarrow> i))
+            (merge_unique ((\<lambda>x. Some (x, ())) o oidGetInh o fst) [l_pre, l_post])
+        , List_map fst (merge_unique' (\<lambda>(_, ocore). case ocore of OclDefCoreBinding (_, ocli) \<Rightarrow> Some (print_examp_instance_name (\<lambda>s. s @@ isub_of_str (Inst_ty ocli)) (inst_name ocli), ())) [l_pre, l_post])
+        , List_map
+            (\<lambda>(s_ty, _). const_oid_of (datatype_name @@ isub_of_str s_ty))
+            (merge_unique' (\<lambda>(_, ocore). case ocore of OclDefCoreBinding (_, ocli) \<Rightarrow> Some (Inst_ty ocli, ())) [l_pre, l_post]) ]))]) ] ))"
+
+definition "print_pre_post_where = (\<lambda> OclDefPP s_pre s_post \<Rightarrow> \<lambda> ocl.
+ (\<lambda> l. ((List_map Thy_lemma_by o List_flatten) l, ocl))
+  (let a = \<lambda>f x. Expr_apply f [x]
+     ; b = \<lambda>s. Expr_basic [s]
+     ; d = hol_definition
+     ; l_st = D_state_rbt ocl in
+   case (List.assoc s_pre l_st, List.assoc s_post l_st) of (Some l_pre, Some l_post) \<Rightarrow>
+   let f_name = \<lambda>(cpt, ocore). Some (oidGetInh cpt, ocore)
+     ; rbt_pre = merge_unique_gen f_name [l_pre]
+     ; rbt_post = merge_unique_gen f_name [l_post]
+     ; filter_ocore = \<lambda>x_pers_oid. case (RBT.lookup rbt_pre x_pers_oid, RBT.lookup rbt_post x_pers_oid) of
+             (Some ocore1, Some ocore2) \<Rightarrow> (\<open>OclIsMaintained\<close>, case (ocore1, ocore2) of (OclDefCoreBinding _, OclDefCoreBinding _) \<Rightarrow> [(ocore1, s_pre), (ocore2, s_post)]
+)
+           | (Some ocore, None) \<Rightarrow> (\<open>OclIsDeleted\<close>, [(ocore, s_pre)])
+           | (None, Some ocore) \<Rightarrow> (\<open>OclIsNew\<close>, [(ocore, s_post)])
+     ; rbt = RBT.union rbt_pre rbt_post
+     ; l_oid_of = keys (RBT.fold (\<lambda>_. \<lambda> OclDefCoreBinding (_, ocli) \<Rightarrow> insert (const_oid_of (datatype_name @@ isub_of_str (Inst_ty ocli))) ()) rbt RBT.empty) in
+   List_map
+     (\<lambda>x_pers_oid.
+       let (x_where, l_ocore) = filter_ocore x_pers_oid in
+       List_map (\<lambda>(ocore, name_st).
+         let (x_where, x_name, x_pers_expr) =
+           ( x_where
+           , case ocore of OclDefCoreBinding (name, ocli) \<Rightarrow>
+               let name =
+                 if D_design_analysis ocl = Gen_only_design then
+                   print_examp_def_st_inst_var_name ocli name_st
+                 else
+                   name in
+               (Some (name, print_examp_instance_name (\<lambda>s. s @@ isub_of_str (Inst_ty ocli)) (inst_name ocli)), b name)) in
+         Lemma_by (flatten [var_oid_uniq, natural_of_str (case x_pers_oid of Oid i \<Rightarrow> i), s_pre, s_post, \<open>_\<close>, name_st, \<open>_\<close>, x_where])
+          [Expr_binop (Expr_pair (b s_pre) (b s_post)) \<open>\<Turnstile>\<close> (a x_where (x_pers_expr))]
+          []
+          (Tacl_by [Tac_simp_add (List_map d (List_flatten
+            [ case x_name of Some (x_pers, x_name) \<Rightarrow> [x_pers, x_name] | _ \<Rightarrow> []
+            , [ x_where, \<open>OclValid\<close>, s_pre, s_post, const_oid_of \<open>option\<close> ]
+            , List_map
+                (\<lambda>(cpt, _). var_oid_uniq @@ natural_of_str (case cpt of Oid i \<Rightarrow> i))
+                (merge_unique ((\<lambda>x. Some (x, ())) o oidGetInh o fst) [l_pre, l_post])
+            , l_oid_of ]))])) l_ocore)
+     (filter (\<lambda>x_pers_oid. list_ex (\<lambda> (OclDefCoreBinding _, _) \<Rightarrow> True)
+       (snd (filter_ocore x_pers_oid)))
+       (RBT.keys rbt)) ))"
+*)
 end
