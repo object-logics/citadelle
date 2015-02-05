@@ -1314,7 +1314,7 @@ val () =
     (parse_l' ocl_term0)
     (K o OCL.OclAstDefBaseL o OCL.OclDefBase)
 
-datatype state_content = ST_l_attr of (binding * ocl_term) list * binding (* ty *)
+datatype state_content = ST_l_attr of (binding * ocl_term) list * binding list
                        | ST_binding of binding
 
 local
@@ -1332,23 +1332,29 @@ local
                 is_cast
                 (OCL.OclAttrNoCast (f l_attr)) in
         OCL.Ocl_instance_single_ext
-          (From.from_binding name, From.from_binding typ, l_attr, From.from_unit ()) end) l)
+          (From.from_option From.from_binding name, From.from_binding typ, l_attr, From.from_unit ()) end) l)
 in
 val () =
   outer_syntax_command @{make_string} @{command_spec "Instance"} ""
-    (Parse.and_list (Parse.binding --| @{keyword "::"}
+    (Parse.and_list ((Parse.binding >> SOME) --| @{keyword "::"}
                      -- Parse.binding --| @{keyword "="}
                      -- (list_attr || list_attr_cast)))
     (OCL.OclAstInstance oo get_oclinst)
 
 val () =
   outer_syntax_command @{make_string} @{command_spec "Define_state"} ""
-    (Parse.binding --| @{keyword "="}
-     -- parse_l' (   list_attr_cast00 >> (fn (res, [x]) => ST_l_attr (res, x))
+    (USE_parse.optional (paren @{keyword "shallow"}) -- Parse.binding --| @{keyword "="}
+     -- parse_l' (   list_attr_cast00 >> ST_l_attr
                   || Parse.binding >> ST_binding))
-     (fn (name, l) => fn thy =>
-      OCL.OclAstDefState (OCL.OclDefSt (From.from_binding name,
-        map (fn ST_binding b => OCL.OclDefCoreBinding (From.from_binding b)) l)))
+     (fn ((is_shallow, name), l) => fn thy =>
+      OCL.OclAstDefState
+        ( if is_shallow = NONE then OCL.Floor1 else OCL.Floor2
+        , OCL.OclDefSt
+            ( From.from_binding name
+            , map (fn ST_l_attr l => OCL.OclDefCoreAdd (case get_oclinst (map (fn (l_i, l_ty) => ((NONE, hd l_ty), (l_i, rev (tl l_ty)))) [l]) thy of
+                                                          OCL.OclInstance [x] => x)
+                    | ST_binding b => OCL.OclDefCoreBinding (From.from_binding b))
+                  l)))
 end
 *}
 

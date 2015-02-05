@@ -51,6 +51,7 @@ imports "core/OCL_compiler_floor1_infra"
         "core/OCL_compiler_floor1_allinst"
         "core/OCL_compiler_floor1_access"
         "core/OCL_compiler_floor1_examp"
+        "core/OCL_compiler_floor2_examp"
         "core/OCL_compiler_floor1_ctxt"
         "core/OCL_compiler_floor2_ctxt"
 begin
@@ -326,14 +327,15 @@ definition "thy_instance = [ print_examp_instance_defassoc
                            , print_examp_instance
                            , print_examp_instance_defassoc_typecheck ]"
 definition "thy_def_base_l = [ print_examp_oclbase ]"
-definition "thy_def_state = [ print_examp_def_st_defassoc
-                            , print_examp_def_st
-                            , print_examp_def_st_inst_var
-                            , print_examp_def_st_dom
-                            , print_examp_def_st_dom_lemmas
-                            , print_examp_def_st_perm
-                            , print_examp_def_st_allinst
-                            , print_examp_def_st_defassoc_typecheck ]"
+definition "thy_def_state = (\<lambda> Floor1 \<Rightarrow> [ OCL_compiler_floor1_examp.print_examp_def_st1 ]
+                             | Floor2 \<Rightarrow> [ OCL_compiler_floor2_examp.print_examp_def_st_defassoc
+                                         , OCL_compiler_floor2_examp.print_examp_def_st2
+                                         , OCL_compiler_floor2_examp.print_examp_def_st_inst_var
+                                         , OCL_compiler_floor2_examp.print_examp_def_st_dom
+                                         , OCL_compiler_floor2_examp.print_examp_def_st_dom_lemmas
+                                         , OCL_compiler_floor2_examp.print_examp_def_st_perm
+                                         , OCL_compiler_floor2_examp.print_examp_def_st_allinst
+                                         , OCL_compiler_floor2_examp.print_examp_def_st_defassoc_typecheck ])"
 definition "thy_def_pre_post = [ print_pre_post_wff
                                , print_pre_post_where ]"
 definition "thy_ctxt_pre_post n = [ case n of Floor1 \<Rightarrow> OCL_compiler_floor1_ctxt.print_ctxt_pre_post
@@ -393,7 +395,7 @@ definition "ocl_env_class_spec_mk f_try f_accu_reset f_fold f =
            (\<lambda>ast. (case ast of
                OclAstInstance meta \<Rightarrow> fold_thy0 meta thy_instance
              | OclAstDefBaseL meta \<Rightarrow> fold_thy0 meta thy_def_base_l
-             | OclAstDefState meta \<Rightarrow> fold_thy0 meta thy_def_state
+             | OclAstDefState floor meta \<Rightarrow> fold_thy0 meta (thy_def_state floor)
              | OclAstDefPrePost meta \<Rightarrow> fold_thy0 meta thy_def_pre_post
              | OclAstCtxtPrePost floor meta \<Rightarrow> fold_thy0 meta (thy_ctxt_pre_post floor)
              | OclAstCtxtInv floor meta \<Rightarrow> fold_thy0 meta (thy_ctxt_inv floor)
@@ -423,7 +425,7 @@ definition "fold_thy' f_try f_accu_reset f =
                                                       , fold_thy0 meta_class thy_class_flat ])
    | OclAstInstance meta \<Rightarrow> ocl_env_class_spec_mk (fold_thy0 meta thy_instance)
    | OclAstDefBaseL meta \<Rightarrow> fold_thy0 meta thy_def_base_l
-   | OclAstDefState meta \<Rightarrow> ocl_env_class_spec_mk (fold_thy0 meta thy_def_state)
+   | OclAstDefState floor meta \<Rightarrow> ocl_env_class_spec_mk (fold_thy0 meta (thy_def_state floor))
    | OclAstDefPrePost meta \<Rightarrow> fold_thy0 meta thy_def_pre_post
    | OclAstCtxtPrePost floor meta \<Rightarrow> ocl_env_class_spec_mk (fold_thy0 meta (thy_ctxt_pre_post floor))
    | OclAstCtxtInv floor meta \<Rightarrow> ocl_env_class_spec_mk (fold_thy0 meta (thy_ctxt_inv floor))

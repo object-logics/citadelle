@@ -66,7 +66,7 @@ datatype 'a ocl_list_attr = OclAttrNoCast 'a (* inh, own *)
                               "'a ocl_list_attr" (* cast entity *)
                               'a (* inh, own *)
 
-record ocl_instance_single = Inst_name :: string
+record ocl_instance_single = Inst_name :: "string option" (* None: fresh name to be generated *)
                              Inst_ty :: string (* type *)
                              Inst_attr :: "((string (*name*) \<times> ocl_data_shallow) list) (* inh and own *)
                                            ocl_list_attr"
@@ -75,7 +75,8 @@ datatype ocl_instance = OclInstance "ocl_instance_single list" (* mutual recursi
 
 datatype ocl_def_base_l = OclDefBase "ocl_def_base list"
 
-datatype 'a ocl_def_state_core = OclDefCoreBinding 'a
+datatype 'a ocl_def_state_core = OclDefCoreAdd ocl_instance_single
+                               | OclDefCoreBinding 'a
 
 datatype ocl_def_state = OclDefSt  string (* name *)
                                   "string (* name *) ocl_def_state_core list"
@@ -86,6 +87,25 @@ datatype ocl_def_pre_post = OclDefPP
 
 subsection{* ... *}
 
-definition "ocl_instance_single_empty = \<lparr> Inst_name = \<open>\<close>, Inst_ty = \<open>\<close>, Inst_attr = OclAttrNoCast [] \<rparr>"
+definition "ocl_instance_single_empty = \<lparr> Inst_name = None, Inst_ty = \<open>\<close>, Inst_attr = OclAttrNoCast [] \<rparr>"
+
+fun map_data_shallow_self where
+   "map_data_shallow_self f e = (\<lambda> ShallB_self s \<Rightarrow> f s
+                                 | ShallB_list l \<Rightarrow> ShallB_list (List.map (map_data_shallow_self f) l)
+                                 | x \<Rightarrow> x) e"
+
+fun map_list_attr where
+   "map_list_attr f e = 
+     (\<lambda> OclAttrNoCast x \<Rightarrow> OclAttrNoCast (f x)
+      | OclAttrCast c_from l_attr x \<Rightarrow> OclAttrCast c_from (map_list_attr f l_attr) (f x)) e"
+
+definition "map_instance_single f ocli = ocli \<lparr> Inst_attr := map_list_attr (List_map f) (Inst_attr ocli) \<rparr>"
+
+fun fold_list_attr where
+   "fold_list_attr cast_from f l_attr accu = (case l_attr of
+        OclAttrNoCast x \<Rightarrow> f cast_from x accu
+      | OclAttrCast c_from l_attr x \<Rightarrow> fold_list_attr c_from f l_attr (f cast_from x accu))"
+
+definition "fold_instance_single f ocli = fold_list_attr (Inst_ty ocli) f (Inst_attr ocli)"
 
 end

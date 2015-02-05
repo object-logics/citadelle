@@ -85,6 +85,30 @@ fun s_of_ctxt2_term_aux where "s_of_ctxt2_term_aux l e =
   | T_lambda s c \<Rightarrow> s_of_ctxt2_term_aux (s # l) c) e"
 definition "s_of_ctxt2_term = s_of_ctxt2_term_aux []"
 
+fun s_of_ocl_list_attr where
+   "s_of_ocl_list_attr f e = (\<lambda> OclAttrNoCast x \<Rightarrow> f x
+                              | OclAttrCast ty l _ \<Rightarrow> sprint2 \<open>(%s :: %s)\<close>\<acute> (s_of_ocl_list_attr f l) (To_string ty)) e"
+
+definition\<acute> \<open>s_of_ocl_def_base = (\<lambda> OclDefInteger i \<Rightarrow> To_string i
+                                  | OclDefReal (i1, i2) \<Rightarrow> sprint2 \<open>%s.%s\<close>\<acute> (To_string i1) (To_string i2)
+                                  | OclDefString s \<Rightarrow> sprint1 \<open>"%s"\<close>\<acute> (To_string s))\<close>
+
+fun s_of_ocl_data_shallow where
+   "s_of_ocl_data_shallow e = (\<lambda> ShallB_term b \<Rightarrow> s_of_ocl_def_base b
+                               | ShallB_str s \<Rightarrow> To_string s
+                               | ShallB_self s \<Rightarrow> sprint1 \<open>self %d\<close>\<acute> (To_oid s)
+                               | ShallB_list l \<Rightarrow> sprint1 \<open>[ %s ]\<close>\<acute> (String_concat \<open>, \<close> (List.map s_of_ocl_data_shallow l))) e"
+
+definition\<acute> \<open>s_of_ocl_instance_single ocli =
+  sprint3 \<open>%s :: %s = %s\<close>\<acute>
+    (case Inst_name ocli of Some s \<Rightarrow> To_string s)
+    (To_string (Inst_ty ocli))
+    (s_of_ocl_list_attr
+      (\<lambda>l. sprint1 \<open>[ %s ]\<close>\<acute>
+             (String_concat \<open>, \<close> (List_map (\<lambda>(attr, v).
+                                              sprint2 \<open>"%s" = %s\<close>\<acute> (To_string attr) (s_of_ocl_data_shallow v)) l)))
+      (Inst_attr ocli))\<close>
+
 definition\<acute> \<open>s_of_ocl_deep_embed_ast _ =
  (\<lambda> OclAstCtxtPrePost Floor2 ctxt \<Rightarrow>
       sprint5 \<open>Context[shallow] %s :: %s (%s) %s
@@ -118,7 +142,15 @@ definition\<acute> \<open>s_of_ocl_deep_embed_ast _ =
             (\<lambda> (n, s). sprint2 \<open>  Inv %s : "%s"\<close>\<acute>
               (To_string n)
               (s_of_ctxt2_term s))
-            (Ctxt_inv_expr ctxt))))\<close>
+            (Ctxt_inv_expr ctxt)))
+  | OclAstInstance (OclInstance l) \<Rightarrow>
+      sprint1 \<open>Instance %s\<close>\<acute> (String_concat \<open>
+     and \<close> (List_map s_of_ocl_instance_single l))
+  | OclAstDefState Floor2 (OclDefSt n l) \<Rightarrow> 
+      sprint2 \<open>Define_state[shallow] %s = [ %s ]\<close>\<acute>
+        (To_string n)
+        (String_concat \<open>, \<close> (List_map (\<lambda> OclDefCoreBinding s \<Rightarrow> To_string s
+                                       | OclDefCoreAdd ocli \<Rightarrow> s_of_ocl_instance_single ocli) l)))\<close>
 
 definition "s_of_thy ocl =
             (\<lambda> Theory_dataty dataty \<Rightarrow> s_of_dataty ocl dataty
@@ -172,6 +204,8 @@ lemmas [code] =
   s_of.concatWith_def
   s_of.s_of_section_title_def
   s_of.s_of_ctxt2_term_def
+  s_of.s_of_ocl_def_base_def
+  s_of.s_of_ocl_instance_single_def
   s_of.s_of_ocl_deep_embed_ast_def
   s_of.s_of_thy_def
   s_of.s_of_generation_syntax_def
@@ -181,5 +215,7 @@ lemmas [code] =
 
   (* fun *)
   s_of.s_of_ctxt2_term_aux.simps
+  s_of.s_of_ocl_list_attr.simps
+  s_of.s_of_ocl_data_shallow.simps
 
 end

@@ -104,7 +104,7 @@ definition "i_of_ocl_list_attr a b f = (\<lambda>f0. co4 (\<lambda>f1. rec_ocl_l
 
 definition "i_of_ocl_instance_single a b f = ocl_instance_single_rec
   (ap4 a (b (ext \<open>ocl_instance_single_ext\<close>))
-    (i_of_string a b)
+    (i_of_option a b (i_of_string a b))
     (i_of_string a b)
     (i_of_ocl_list_attr a b (i_of_list a b (i_of_pair a b (i_of_string a b) (i_of_ocl_data_shallow a b))))
     (f a b))"
@@ -117,6 +117,7 @@ definition "i_of_ocl_def_base_l a b = rec_ocl_def_base_l
   (ap1 a (b \<open>OclDefBase\<close>) (i_of_list a b (i_of_ocl_def_base a b)))"
 
 definition "i_of_ocl_def_state_core a b f = rec_ocl_def_state_core
+  (ap1 a (b \<open>OclDefCoreAdd\<close>) (i_of_ocl_instance_single a b (K i_of_unit)))
   (ap1 a (b \<open>OclDefCoreBinding\<close>) f)"
 
 definition "i_of_ocl_def_state a b = rec_ocl_def_state

@@ -85,19 +85,8 @@ definition "print_ctxt_const ctxt ocl =
       ((ocl, []), [])))"
 
 definition "print_ctxt_gen_syntax_header_l l = Isab_thy (Theory_thm (Thm (List_map Thm_str l)))"
-definition "print_ctxt_gen_syntax_header f_x l ocl =
- (let (l, ocl) = f_x l ocl in
-  ( if D_generation_syntax_shallow ocl then
-      l
-    else
-      Isab_thy_generation_syntax (Generation_syntax_shallow (D_design_analysis ocl))
-      # Isab_thy_ml_extended (Ml_extended (Sexpr_ocl (ocl \<lparr> D_disable_thy_output := True
-                                                          , D_file_out_path_dep := None
-                                                          , D_output_position := (0, 0) \<rparr>) ))
-      # l
-  , ocl \<lparr> D_generation_syntax_shallow := True \<rparr> ))"
 
-definition "print_ctxt_pre_post = (\<lambda>ctxt. print_ctxt_gen_syntax_header
+definition "print_ctxt_pre_post = (\<lambda>ctxt. bootstrap_floor
   (\<lambda>l ocl.
     let ((ocl, l_isab_ty), l_isab) = print_ctxt_const ctxt ocl in
     (List_flatten [l_isab_ty, l_isab, l], ocl))
@@ -107,7 +96,7 @@ definition "print_ctxt_pre_post = (\<lambda>ctxt. print_ctxt_gen_syntax_header
                        (Ctxt_expr ctxt) \<rparr>))
   , print_ctxt_gen_syntax_header_l [print_ctxt_pre_post_name (Ctxt_fun_name ctxt) var_at_when_hol_post] ])"
 
-definition "print_ctxt_inv = (\<lambda>ctxt. print_ctxt_gen_syntax_header Pair
+definition "print_ctxt_inv = (\<lambda>ctxt. bootstrap_floor Pair
   [ Isab_thy_ocl_deep_embed_ast (OclAstCtxtInv Floor2
       (ctxt \<lparr> Ctxt_inv_expr :=
               List_map (map_prod id (T_lambdas (Ctxt_inv_param ctxt @@@@ [var_self])))

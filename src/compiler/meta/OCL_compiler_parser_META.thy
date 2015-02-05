@@ -110,7 +110,7 @@ definition "i_of_ocl_deep_embed_ast a b = rec_ocl_deep_embed_ast
 
   (ap1 a (b \<open>OclAstInstance\<close>) (i_of_ocl_instance a b))
   (ap1 a (b \<open>OclAstDefBaseL\<close>) (i_of_ocl_def_base_l a b))
-  (ap1 a (b \<open>OclAstDefState\<close>) (i_of_ocl_def_state a b))
+  (ap2 a (b \<open>OclAstDefState\<close>) (i_of_floor a b) (i_of_ocl_def_state a b))
   (ap1 a (b \<open>OclAstDefPrePost\<close>) (i_of_ocl_def_pre_post a b))
   (ap1 a (b \<open>OclAstFlushAll\<close>) (i_of_ocl_flush_all a b))"
 
