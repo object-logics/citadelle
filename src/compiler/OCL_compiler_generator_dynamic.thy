@@ -1336,9 +1336,9 @@ local
 in
 val () =
   outer_syntax_command @{make_string} @{command_spec "Instance"} ""
-    (Parse.and_list1 (Parse.binding --| @{keyword "::"}
-                      -- Parse.binding --| @{keyword "="}
-                      -- (list_attr || list_attr_cast)))
+    (Parse.and_list (Parse.binding --| @{keyword "::"}
+                     -- Parse.binding --| @{keyword "="}
+                     -- (list_attr || list_attr_cast)))
     (OCL.OclAstInstance oo get_oclinst)
 
 val () =
