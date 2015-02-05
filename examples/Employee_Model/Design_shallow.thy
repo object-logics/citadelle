@@ -91,9 +91,9 @@ Define_state \<sigma>\<^sub>1 =
   [ ([ salary = 1000 , boss = self 1 ] :: Person)
   , ([ salary = 1200 ] :: Person)
   (* *)
-  , ([ salary = 2600 , boss = self 4 ] :: Person)
+  , ([ salary = 2600 , boss = self 3 ] :: Person)
   , X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n5
-  , ([ salary = 2300 , boss = self 3 ] :: Person)
+  , ([ salary = 2300 , boss = self 2 ] :: Person)
   (* *)
   (* *)
   , X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n9 ]
