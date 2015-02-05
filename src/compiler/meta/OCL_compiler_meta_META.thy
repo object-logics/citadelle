@@ -77,7 +77,7 @@ datatype ocl_deep_embed_ast =
                             | OclAstInstance ocl_instance
                             | OclAstDefBaseL ocl_def_base_l
                             | OclAstDefState floor ocl_def_state
-                            | OclAstDefPrePost ocl_def_pre_post
+                            | OclAstDefPrePost floor ocl_def_pre_post
                             | OclAstFlushAll ocl_flush_all
 
 (* *)

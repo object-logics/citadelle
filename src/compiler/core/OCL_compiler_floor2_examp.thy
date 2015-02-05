@@ -307,19 +307,23 @@ definition "print_examp_def_st_allinst = (\<lambda> _ ocl.
                     else Tac_simp_all_add [d (flatten [isub_name const_oclastype, \<open>_\<AA>\<close>])]]) )
        [Tac_simp])
      (case D_class_spec ocl of Some class_spec \<Rightarrow> class_spec)))"
-(*
+
 definition "merge_unique_gen f l = List.fold (List.fold (\<lambda>x. case f x of Some (x, v) \<Rightarrow> RBT.insert x v | None \<Rightarrow> id)) l RBT.empty"
 definition "merge_unique f l = RBT.entries (merge_unique_gen f l)"
 definition "merge_unique' f l = List_map (map_prod (\<lambda>s. \<lless>s\<ggreater>) id)
                                         (merge_unique (map_option (map_prod String_to_list id) o f) l)"
 
-definition "print_pre_post_wff = (\<lambda> OclDefPP s_pre s_post \<Rightarrow> \<lambda> ocl.
+definition "get_state f = (\<lambda> OclDefPP _ s_pre s_post \<Rightarrow> \<lambda> ocl. 
+  let l_st = D_state_rbt ocl
+    ; get_state = \<lambda>OclDefPPCoreBinding s \<Rightarrow> (s, case List.assoc s l_st of None \<Rightarrow> [] | Some l \<Rightarrow> l)
+    ; (s_pre, l_pre) = get_state s_pre in
+  f (s_pre, l_pre) (case s_post of None \<Rightarrow> (s_pre, l_pre) | Some s_post \<Rightarrow> get_state s_post) ocl)"
+
+definition "print_pre_post_wff = get_state (\<lambda> (s_pre, l_pre) (s_post, l_post) ocl.
  (\<lambda> l. (List_map Thy_lemma_by l, ocl))
   (let a = \<lambda>f x. Expr_apply f [x]
      ; b = \<lambda>s. Expr_basic [s]
-     ; d = hol_definition
-     ; l_st = D_state_rbt ocl in
-   case (List.assoc s_pre l_st, List.assoc s_post l_st) of (Some l_pre, Some l_post) \<Rightarrow>
+     ; d = hol_definition in
    [ Lemma_by
       (flatten [\<open>basic_\<close>, s_pre, \<open>_\<close>, s_post, \<open>_wff\<close>])
       [a \<open>WFF\<close> (Expr_pair (b s_pre) (b s_post))]
@@ -334,19 +338,18 @@ definition "print_pre_post_wff = (\<lambda> OclDefPP s_pre s_post \<Rightarrow> 
             (\<lambda>(s_ty, _). const_oid_of (datatype_name @@ isub_of_str s_ty))
             (merge_unique' (\<lambda>(_, ocore). case ocore of OclDefCoreBinding (_, ocli) \<Rightarrow> Some (Inst_ty ocli, ())) [l_pre, l_post]) ]))]) ] ))"
 
-definition "print_pre_post_where = (\<lambda> OclDefPP s_pre s_post \<Rightarrow> \<lambda> ocl.
+definition "print_pre_post_where = get_state (\<lambda> (s_pre, l_pre) (s_post, l_post) ocl.
  (\<lambda> l. ((List_map Thy_lemma_by o List_flatten) l, ocl))
   (let a = \<lambda>f x. Expr_apply f [x]
      ; b = \<lambda>s. Expr_basic [s]
-     ; d = hol_definition
-     ; l_st = D_state_rbt ocl in
-   case (List.assoc s_pre l_st, List.assoc s_post l_st) of (Some l_pre, Some l_post) \<Rightarrow>
+     ; d = hol_definition in
    let f_name = \<lambda>(cpt, ocore). Some (oidGetInh cpt, ocore)
      ; rbt_pre = merge_unique_gen f_name [l_pre]
      ; rbt_post = merge_unique_gen f_name [l_post]
      ; filter_ocore = \<lambda>x_pers_oid. case (RBT.lookup rbt_pre x_pers_oid, RBT.lookup rbt_post x_pers_oid) of
-             (Some ocore1, Some ocore2) \<Rightarrow> (\<open>OclIsMaintained\<close>, case (ocore1, ocore2) of (OclDefCoreBinding _, OclDefCoreBinding _) \<Rightarrow> [(ocore1, s_pre), (ocore2, s_post)]
-)
+             (Some ocore1, Some ocore2) \<Rightarrow> (\<open>OclIsMaintained\<close>, case (ocore1, ocore2) of (OclDefCoreBinding _, OclDefCoreBinding _) \<Rightarrow>
+                                                                 let l = [(ocore1, s_pre), (ocore2, s_post)] in
+                                                                 if String_to_list s_pre = String_to_list s_post then [hd l] else l)
            | (Some ocore, None) \<Rightarrow> (\<open>OclIsDeleted\<close>, [(ocore, s_pre)])
            | (None, Some ocore) \<Rightarrow> (\<open>OclIsNew\<close>, [(ocore, s_post)])
      ; rbt = RBT.union rbt_pre rbt_post
@@ -377,5 +380,4 @@ definition "print_pre_post_where = (\<lambda> OclDefPP s_pre s_post \<Rightarrow
      (filter (\<lambda>x_pers_oid. list_ex (\<lambda> (OclDefCoreBinding _, _) \<Rightarrow> True)
        (snd (filter_ocore x_pers_oid)))
        (RBT.keys rbt)) ))"
-*)
 end

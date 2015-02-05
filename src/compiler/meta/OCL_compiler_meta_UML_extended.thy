@@ -81,9 +81,13 @@ datatype 'a ocl_def_state_core = OclDefCoreAdd ocl_instance_single
 datatype ocl_def_state = OclDefSt  string (* name *)
                                   "string (* name *) ocl_def_state_core list"
 
+datatype ocl_def_pp_core = OclDefPPCoreAdd "string (* name *) ocl_def_state_core list"
+                         | OclDefPPCoreBinding string (* name *)
+
 datatype ocl_def_pre_post = OclDefPP
-                              string (* pre *)
-                              string (* post *)
+                              "string option" (* None: fresh name to be generated *)
+                              ocl_def_pp_core (* pre *)
+                              "ocl_def_pp_core option" (* post *) (* None: same as pre *)
 
 subsection{* ... *}
 

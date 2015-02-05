@@ -1317,6 +1317,9 @@ val () =
 datatype state_content = ST_l_attr of (binding * ocl_term) list * binding list
                        | ST_binding of binding
 
+val state_parse = parse_l' (   list_attr_cast00 >> ST_l_attr
+                            || Parse.binding >> ST_binding)
+
 local
   fun from_term e = (fn OclTermBase s => OCL.ShallB_term s
                       | OclTerm s => OCL.ShallB_str (From.from_binding s)
@@ -1334,6 +1337,11 @@ local
         OCL.Ocl_instance_single_ext
           (From.from_option From.from_binding name, From.from_binding typ, l_attr, From.from_unit ()) end) l)
 in
+
+fun mk_state thy = map (fn ST_l_attr l => OCL.OclDefCoreAdd (case get_oclinst (map (fn (l_i, l_ty) => ((NONE, hd l_ty), (l_i, rev (tl l_ty)))) [l]) thy of
+                                                               OCL.OclInstance [x] => x)
+                         | ST_binding b => OCL.OclDefCoreBinding (From.from_binding b))
+
 val () =
   outer_syntax_command @{make_string} @{command_spec "Instance"} ""
     (Parse.and_list ((Parse.binding >> SOME) --| @{keyword "::"}
@@ -1344,28 +1352,39 @@ val () =
 val () =
   outer_syntax_command @{make_string} @{command_spec "Define_state"} ""
     (USE_parse.optional (paren @{keyword "shallow"}) -- Parse.binding --| @{keyword "="}
-     -- parse_l' (   list_attr_cast00 >> ST_l_attr
-                  || Parse.binding >> ST_binding))
+     -- state_parse)
      (fn ((is_shallow, name), l) => fn thy =>
       OCL.OclAstDefState
         ( if is_shallow = NONE then OCL.Floor1 else OCL.Floor2
-        , OCL.OclDefSt
-            ( From.from_binding name
-            , map (fn ST_l_attr l => OCL.OclDefCoreAdd (case get_oclinst (map (fn (l_i, l_ty) => ((NONE, hd l_ty), (l_i, rev (tl l_ty)))) [l]) thy of
-                                                          OCL.OclInstance [x] => x)
-                    | ST_binding b => OCL.OclDefCoreBinding (From.from_binding b))
-                  l)))
+        , OCL.OclDefSt (From.from_binding name, mk_state thy l)))
 end
 *}
 
 subsection{* Outer Syntax: \text{Define\_pre\_post} *}
 
 ML{*
+
+datatype state_pp_content = ST_PP_l_attr of state_content list
+                          | ST_PP_binding of binding
+
+val state_pp_parse = state_parse >> ST_PP_l_attr
+                     || Parse.binding >> ST_PP_binding
+
+fun mk_pp_state thy = fn ST_PP_l_attr l => OCL.OclDefPPCoreAdd (mk_state thy l)
+                       | ST_PP_binding s => OCL.OclDefPPCoreBinding (From.from_binding s)
+
 val () =
   outer_syntax_command @{make_string} @{command_spec "Define_pre_post"} ""
-    (Parse.binding -- Parse.binding)
-    (fn (s_pre, s_post) => fn _ =>
-      OCL.OclAstDefPrePost (OCL.OclDefPP (From.from_binding s_pre, From.from_binding s_post)))
+    (USE_parse.optional (paren @{keyword "shallow"})
+     -- USE_parse.optional (Parse.binding --| @{keyword "="})
+     -- state_pp_parse
+     -- USE_parse.optional state_pp_parse)
+    (fn (((is_shallow, n), s_pre), s_post) => fn thy =>
+      OCL.OclAstDefPrePost
+        ( if is_shallow = NONE then OCL.Floor1 else OCL.Floor2
+        , OCL.OclDefPP ( From.from_option From.from_binding n
+                       , mk_pp_state thy s_pre
+                       , From.from_option (mk_pp_state thy) s_post)))
 
 (*val _ = print_depth 100*)
 *}

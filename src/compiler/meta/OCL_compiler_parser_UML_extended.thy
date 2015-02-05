@@ -123,8 +123,15 @@ definition "i_of_ocl_def_state_core a b f = rec_ocl_def_state_core
 definition "i_of_ocl_def_state a b = rec_ocl_def_state
   (ap2 a (b \<open>OclDefSt\<close>) (i_of_string a b) (i_of_list a b (i_of_ocl_def_state_core a b (i_of_string a b))))"
 
+definition "i_of_ocl_def_pp_core a b = rec_ocl_def_pp_core
+  (ap1 a (b \<open>OclDefPPCoreAdd\<close>) (i_of_list a b (i_of_ocl_def_state_core a b (i_of_string a b))))
+  (ap1 a (b \<open>OclDefPPCoreBinding\<close>) (i_of_string a b))"
+
 definition "i_of_ocl_def_pre_post a b = rec_ocl_def_pre_post
-  (ap2 a (b \<open>OclDefPP\<close>) (i_of_string a b) (i_of_string a b))"
+  (ap3 a (b \<open>OclDefPP\<close>)
+    (i_of_option a b (i_of_string a b))
+    (i_of_ocl_def_pp_core a b)
+    (i_of_option a b (i_of_ocl_def_pp_core a b)))"
 
 end
 
@@ -137,6 +144,7 @@ lemmas [code] =
   i_of.i_of_ocl_def_base_l_def
   i_of.i_of_ocl_def_state_core_def
   i_of.i_of_ocl_def_state_def
+  i_of.i_of_ocl_def_pp_core_def
   i_of.i_of_ocl_def_pre_post_def
 
 end

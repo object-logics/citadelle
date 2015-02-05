@@ -109,6 +109,13 @@ definition\<acute> \<open>s_of_ocl_instance_single ocli =
                                               sprint2 \<open>"%s" = %s\<close>\<acute> (To_string attr) (s_of_ocl_data_shallow v)) l)))
       (Inst_attr ocli))\<close>
 
+definition "s_of_def_state l =
+  String_concat \<open>, \<close> (List_map (\<lambda> OclDefCoreBinding s \<Rightarrow> To_string s
+                                | OclDefCoreAdd ocli \<Rightarrow> s_of_ocl_instance_single ocli) l)"
+
+definition "s_of_def_pp_core = (\<lambda> OclDefPPCoreBinding s \<Rightarrow> To_string s
+                                | OclDefPPCoreAdd l \<Rightarrow> sprint1 \<open>[ %s ]\<close>\<acute> (s_of_def_state l))"
+
 definition\<acute> \<open>s_of_ocl_deep_embed_ast _ =
  (\<lambda> OclAstCtxtPrePost Floor2 ctxt \<Rightarrow>
       sprint5 \<open>Context[shallow] %s :: %s (%s) %s
@@ -149,8 +156,12 @@ definition\<acute> \<open>s_of_ocl_deep_embed_ast _ =
   | OclAstDefState Floor2 (OclDefSt n l) \<Rightarrow> 
       sprint2 \<open>Define_state[shallow] %s = [ %s ]\<close>\<acute>
         (To_string n)
-        (String_concat \<open>, \<close> (List_map (\<lambda> OclDefCoreBinding s \<Rightarrow> To_string s
-                                       | OclDefCoreAdd ocli \<Rightarrow> s_of_ocl_instance_single ocli) l)))\<close>
+        (s_of_def_state l)
+  | OclAstDefPrePost Floor2 (OclDefPP n s_pre s_post) \<Rightarrow>
+      sprint3 \<open>Define_pre_post[shallow] %s%s%s\<close>\<acute>
+        (case n of None \<Rightarrow> \<open>\<close> | Some n \<Rightarrow> sprint1 \<open>%s = \<close>\<acute> (To_string n))
+        (s_of_def_pp_core s_pre)
+        (case s_post of None \<Rightarrow> \<open>\<close> | Some s_post \<Rightarrow> sprint1 \<open> %s\<close>\<acute> (s_of_def_pp_core s_post)))\<close>
 
 definition "s_of_thy ocl =
             (\<lambda> Theory_dataty dataty \<Rightarrow> s_of_dataty ocl dataty
@@ -206,6 +217,8 @@ lemmas [code] =
   s_of.s_of_ctxt2_term_def
   s_of.s_of_ocl_def_base_def
   s_of.s_of_ocl_instance_single_def
+  s_of.s_of_def_state_def
+  s_of.s_of_def_pp_core_def
   s_of.s_of_ocl_deep_embed_ast_def
   s_of.s_of_thy_def
   s_of.s_of_generation_syntax_def

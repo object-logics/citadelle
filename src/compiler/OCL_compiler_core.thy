@@ -336,8 +336,9 @@ definition "thy_def_state = (\<lambda> Floor1 \<Rightarrow> [ OCL_compiler_floor
                                          , OCL_compiler_floor2_examp.print_examp_def_st_perm
                                          , OCL_compiler_floor2_examp.print_examp_def_st_allinst
                                          , OCL_compiler_floor2_examp.print_examp_def_st_defassoc_typecheck ])"
-definition "thy_def_pre_post = [ print_pre_post_wff
-                               , print_pre_post_where ]"
+definition "thy_def_pre_post = (\<lambda> Floor1 \<Rightarrow> [ OCL_compiler_floor1_examp.print_pre_post ]
+                                | Floor2 \<Rightarrow> [ OCL_compiler_floor2_examp.print_pre_post_wff
+                                            , OCL_compiler_floor2_examp.print_pre_post_where ])"
 definition "thy_ctxt_pre_post n = [ case n of Floor1 \<Rightarrow> OCL_compiler_floor1_ctxt.print_ctxt_pre_post
                                             | Floor2 \<Rightarrow> OCL_compiler_floor2_ctxt.print_ctxt_pre_post ]"
 definition "thy_ctxt_inv n = [ case n of Floor1 \<Rightarrow> OCL_compiler_floor1_ctxt.print_ctxt_inv
@@ -396,7 +397,7 @@ definition "ocl_env_class_spec_mk f_try f_accu_reset f_fold f =
                OclAstInstance meta \<Rightarrow> fold_thy0 meta thy_instance
              | OclAstDefBaseL meta \<Rightarrow> fold_thy0 meta thy_def_base_l
              | OclAstDefState floor meta \<Rightarrow> fold_thy0 meta (thy_def_state floor)
-             | OclAstDefPrePost meta \<Rightarrow> fold_thy0 meta thy_def_pre_post
+             | OclAstDefPrePost floor meta \<Rightarrow> fold_thy0 meta (thy_def_pre_post floor)
              | OclAstCtxtPrePost floor meta \<Rightarrow> fold_thy0 meta (thy_ctxt_pre_post floor)
              | OclAstCtxtInv floor meta \<Rightarrow> fold_thy0 meta (thy_ctxt_inv floor)
              | OclAstFlushAll meta \<Rightarrow> fold_thy0 meta thy_flush_all)
@@ -426,7 +427,7 @@ definition "fold_thy' f_try f_accu_reset f =
    | OclAstInstance meta \<Rightarrow> ocl_env_class_spec_mk (fold_thy0 meta thy_instance)
    | OclAstDefBaseL meta \<Rightarrow> fold_thy0 meta thy_def_base_l
    | OclAstDefState floor meta \<Rightarrow> ocl_env_class_spec_mk (fold_thy0 meta (thy_def_state floor))
-   | OclAstDefPrePost meta \<Rightarrow> fold_thy0 meta thy_def_pre_post
+   | OclAstDefPrePost floor meta \<Rightarrow> fold_thy0 meta (thy_def_pre_post floor)
    | OclAstCtxtPrePost floor meta \<Rightarrow> ocl_env_class_spec_mk (fold_thy0 meta (thy_ctxt_pre_post floor))
    | OclAstCtxtInv floor meta \<Rightarrow> ocl_env_class_spec_mk (fold_thy0 meta (thy_ctxt_inv floor))
    | OclAstFlushAll meta \<Rightarrow> ocl_env_class_spec_mk (fold_thy0 meta thy_flush_all)) f))"
