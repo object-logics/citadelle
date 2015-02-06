@@ -169,7 +169,7 @@ definition "find_class_ass ocl =
        | OclAstAssClass Floor1 (OclAssClass _ class) \<Rightarrow> f class
        | x \<Rightarrow> [x]) l_ocl)))"
 
-definition "arrange_ass with_aggreg l_c =
+definition "arrange_ass with_aggreg with_optim_ass l_c =
    (let l_class = List.map_filter (\<lambda> OclAstClassRaw Floor1 cflat \<Rightarrow> Some cflat
                                     | OclAstAssClass Floor1 (OclAssClass _ cflat) \<Rightarrow> Some cflat
                                     | _ \<Rightarrow> None) l_c
@@ -178,26 +178,29 @@ definition "arrange_ass with_aggreg l_c =
                                  | _ \<Rightarrow> None) l_c
 
       ; (l_class, l_ass0) = 
-          (* move from classes to associations:
-               attributes of object types
-               + those constructed with at most 1 recursive call to OclTy_collection *)
-          map_prod rev rev (List.fold
-                (\<lambda>c (l_class, l_ass).
-                  let default = Set
-                    ; f = \<lambda>role t mult_out. \<lparr> OclAss_type = OclAssTy_native_attribute
-                                            , OclAss_relation = [(ClassRaw_name c, OclMult [(Mult_star, None)] default, None)
-                                                                ,(t, mult_out, Some role)] \<rparr>
-                    ; (l_own, l_ass) =
-                      List.fold (\<lambda> (role, OclTy_class_pre t) \<Rightarrow>
-                                        \<lambda> (l_own, l). (l_own, f role t (OclMult [(Mult_nat 0, Some (Mult_nat 1))] default) # l)
-                                 | (role, OclTy_collection mult (OclTy_class_pre t)) \<Rightarrow>
-                                        \<lambda> (l_own, l). (l_own, f role t mult # l)
-                                 | x \<Rightarrow> \<lambda> (l_own, l). (x # l_own, l))
-                                (ClassRaw_own c)
-                                ([], l_ass) in
-                  (c \<lparr> ClassRaw_own := rev l_own \<rparr> # l_class, l_ass))
-                l_class
-                ([], []))
+          if with_optim_ass then
+            (* move from classes to associations:
+                 attributes of object types
+                 + those constructed with at most 1 recursive call to OclTy_collection *)
+            map_prod rev rev (List.fold
+                  (\<lambda>c (l_class, l_ass).
+                    let default = Set
+                      ; f = \<lambda>role t mult_out. \<lparr> OclAss_type = OclAssTy_native_attribute
+                                              , OclAss_relation = [(ClassRaw_name c, OclMult [(Mult_star, None)] default, None)
+                                                                  ,(t, mult_out, Some role)] \<rparr>
+                      ; (l_own, l_ass) =
+                        List.fold (\<lambda> (role, OclTy_class_pre t) \<Rightarrow>
+                                          \<lambda> (l_own, l). (l_own, f role t (OclMult [(Mult_nat 0, Some (Mult_nat 1))] default) # l)
+                                   | (role, OclTy_collection mult (OclTy_class_pre t)) \<Rightarrow>
+                                          \<lambda> (l_own, l). (l_own, f role t mult # l)
+                                   | x \<Rightarrow> \<lambda> (l_own, l). (x # l_own, l))
+                                  (ClassRaw_own c)
+                                  ([], l_ass) in
+                    (c \<lparr> ClassRaw_own := rev l_own \<rparr> # l_class, l_ass))
+                  l_class
+                  ([], []))
+          else
+            (l_class, [])
       ; (l_class, l_ass) =
           if with_aggreg then
             (* move from associations to classes:
