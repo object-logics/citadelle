@@ -333,10 +333,18 @@ definition "print_pre_post_wff = get_state (\<lambda> (s_pre, l_pre) (s_post, l_
         , List_map
             (\<lambda>(cpt, _). var_oid_uniq @@ natural_of_str (case cpt of Oid i \<Rightarrow> i))
             (merge_unique ((\<lambda>x. Some (x, ())) o oidGetInh o fst) [l_pre, l_post])
-        , List_map fst (merge_unique' (\<lambda>(_, ocore). case ocore of OclDefCoreBinding (_, ocli) \<Rightarrow> Some (print_examp_instance_name (\<lambda>s. s @@ isub_of_str (Inst_ty ocli)) (inst_name ocli), ())) [l_pre, l_post])
-        , List_map
-            (\<lambda>(s_ty, _). const_oid_of (datatype_name @@ isub_of_str s_ty))
-            (merge_unique' (\<lambda>(_, ocore). case ocore of OclDefCoreBinding (_, ocli) \<Rightarrow> Some (Inst_ty ocli, ())) [l_pre, l_post]) ]))]) ] ))"
+        , List_map fst
+            (merge_unique'
+              (\<lambda>(_, ocore). case ocore of OclDefCoreBinding (_, ocli) \<Rightarrow>
+                Some (print_examp_instance_name (\<lambda>s. s @@ isub_of_str (Inst_ty ocli)) (inst_name ocli), ()))
+              [l_pre, l_post])
+        , (* over-approximation of classes to unfold (inherited ones need to be taken into account) *)
+          (* NOTE can be moved to a global ''lemmas'' *)
+          List_map
+            (\<lambda> isub_name. const_oid_of (isub_name datatype_name))
+            (snd (fold_class (\<lambda>isub_name _ _ _ _ _ l. Pair () (isub_name # l))
+                             []
+                             (case D_class_spec ocl of Some c \<Rightarrow> c))) ]))]) ] ))"
 
 definition "print_pre_post_where = get_state (\<lambda> (s_pre, l_pre) (s_post, l_post) ocl.
  (\<lambda> l. ((List_map Thy_lemma_by o List_flatten) l, ocl))
