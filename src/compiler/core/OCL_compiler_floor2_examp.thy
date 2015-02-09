@@ -319,6 +319,15 @@ definition "get_state f = (\<lambda> OclDefPP _ s_pre s_post \<Rightarrow> \<lam
     ; (s_pre, l_pre) = get_state s_pre in
   f (s_pre, l_pre) (case s_post of None \<Rightarrow> (s_pre, l_pre) | Some s_post \<Rightarrow> get_state s_post) ocl)"
 
+definition "l_const_oid_of ocl =
+          (* over-approximation of classes to unfold (inherited ones need to be taken into account) *)
+          (* NOTE can be moved to a global ''lemmas'' *)
+          List_map
+            (\<lambda> isub_name. const_oid_of (isub_name datatype_name))
+            (snd (fold_class (\<lambda>isub_name _ _ _ _ _ l. Pair () (isub_name # l))
+                             []
+                             (case D_class_spec ocl of Some c \<Rightarrow> c)))"
+
 definition "print_pre_post_wff = get_state (\<lambda> (s_pre, l_pre) (s_post, l_post) ocl.
  (\<lambda> l. (List_map Thy_lemma_by l, ocl))
   (let a = \<lambda>f x. Expr_apply f [x]
@@ -338,13 +347,7 @@ definition "print_pre_post_wff = get_state (\<lambda> (s_pre, l_pre) (s_post, l_
               (\<lambda>(_, ocore). case ocore of OclDefCoreBinding (_, ocli) \<Rightarrow>
                 Some (print_examp_instance_name (\<lambda>s. s @@ isub_of_str (Inst_ty ocli)) (inst_name ocli), ()))
               [l_pre, l_post])
-        , (* over-approximation of classes to unfold (inherited ones need to be taken into account) *)
-          (* NOTE can be moved to a global ''lemmas'' *)
-          List_map
-            (\<lambda> isub_name. const_oid_of (isub_name datatype_name))
-            (snd (fold_class (\<lambda>isub_name _ _ _ _ _ l. Pair () (isub_name # l))
-                             []
-                             (case D_class_spec ocl of Some c \<Rightarrow> c))) ]))]) ] ))"
+        , l_const_oid_of ocl ]))]) ] ))"
 
 definition "print_pre_post_where = get_state (\<lambda> (s_pre, l_pre) (s_post, l_post) ocl.
  (\<lambda> l. ((List_map Thy_lemma_by o List_flatten) l, ocl))
@@ -360,8 +363,7 @@ definition "print_pre_post_where = get_state (\<lambda> (s_pre, l_pre) (s_post, 
                                                                  if String_to_list s_pre = String_to_list s_post then [hd l] else l)
            | (Some ocore, None) \<Rightarrow> (\<open>OclIsDeleted\<close>, [(ocore, s_pre)])
            | (None, Some ocore) \<Rightarrow> (\<open>OclIsNew\<close>, [(ocore, s_post)])
-     ; rbt = RBT.union rbt_pre rbt_post
-     ; l_oid_of = keys (RBT.fold (\<lambda>_. \<lambda> OclDefCoreBinding (_, ocli) \<Rightarrow> insert (const_oid_of (datatype_name @@ isub_of_str (Inst_ty ocli))) ()) rbt RBT.empty) in
+     ; l_oid_of = l_const_oid_of ocl in
    List_map
      (\<lambda>x_pers_oid.
        let (x_where, l_ocore) = filter_ocore x_pers_oid in
@@ -387,5 +389,5 @@ definition "print_pre_post_where = get_state (\<lambda> (s_pre, l_pre) (s_post, 
             , l_oid_of ]))])) l_ocore)
      (filter (\<lambda>x_pers_oid. list_ex (\<lambda> (OclDefCoreBinding _, _) \<Rightarrow> True)
        (snd (filter_ocore x_pers_oid)))
-       (RBT.keys rbt)) ))"
+       (RBT.keys (RBT.union rbt_pre rbt_post))) ))"
 end
