@@ -103,7 +103,7 @@ text {*
 @{rail \<open>
   (  @@{command Class}
    | @@{command Abstract_class})
-                    @{syntax object}
+                    @{syntax type_object}
                     @{syntax class}
                     @'End'?
   ;
@@ -134,7 +134,7 @@ text {*
                @'Between' @{syntax association_end} (@{syntax association_end}+)
   ;
   @{syntax_def association_end}:
-               @{syntax object}
+               @{syntax type_object}
                @{syntax category}
                ';'?
   ;
@@ -149,7 +149,7 @@ text {*
 
 @{rail \<open>
   (  @@{command Associationclass}
-   | @@{command Abstract_associationclass}) @{syntax object} \<newline>
+   | @@{command Abstract_associationclass}) @{syntax type_object} \<newline>
                                             @{syntax association} @{syntax class} ('aggregation' | 'composition')? @'End'?
   ;
 \<close>}
@@ -184,16 +184,14 @@ text {*
 \end{matharray}
 
 @{rail \<open>
-  @@{command Instance} ((binding '::' @{syntax object} '=' @{syntax attribute}) * ('and'?))
+  @@{command Instance} ((binding '::' @{syntax type_object} '=' @{syntax term_object}) * ('and'?))
   ;
-  @{syntax_def attribute}:
-               @{syntax attribute_simple} | @{syntax attribute_cast}
+  @{syntax_def term_object}:
+                 ('[' ((binding '=' @{syntax uml_term}) * ',') ']')
+               | @{syntax object_cast}
   ;
-  @{syntax_def attribute_simple}:
-               '[' ((binding '=' @{syntax uml_term}) * ',') ']'
-  ;
-  @{syntax_def attribute_cast}:
-               '(' @{syntax attribute} '::' @{syntax object} ')'
+  @{syntax_def object_cast}:
+               '(' @{syntax term_object} '::' @{syntax type_object} ')'
   ;
 \<close>}
 *}
@@ -207,7 +205,7 @@ text {*
   @@{command Define_state} ('[' @'shallow' ']')? binding ('=' @{syntax state})?
   ;
   @{syntax_def state}:
-               '[' ((binding | @{syntax attribute_cast}) * ',') ']'
+               '[' ((binding | @{syntax object_cast}) * ',') ']'
   ;
 \<close>}
 *}
@@ -239,7 +237,7 @@ text {*
                | string
   ;
   @{syntax_def multiplicity}:
-               '[' ((unlimited_natural ('\<bullet>\<bullet>' unlimited_natural)?) + ',') ']'
+               '[' ((@{syntax unlimited_natural} ('\<bullet>\<bullet>' @{syntax unlimited_natural})?) + ',') ']'
   ;
   @{syntax_def uml_term}:
                  @{syntax term_base}
@@ -253,7 +251,7 @@ text {*
 
                | '\<langle>' term '\<rangle>'
   ;
-  @{syntax_def object}:
+  @{syntax_def type_object}:
                binding (('<' (binding + ',')) * ())
   ;
   @{syntax_def uml_type}:
@@ -264,7 +262,7 @@ text {*
                | 'Real'
                | 'String'
 
-               | @{syntax object}
+               | @{syntax type_object}
 
                | ('Sequence' | 'Set' | @{syntax category}) @{syntax uml_type}
                | 'Pair' @{syntax uml_type} @{syntax uml_type}
@@ -285,7 +283,7 @@ text {*
                 | @'Union') * ())
   ;
   @{syntax_def use_prop}:
-                 @{syntax object}
+                 @{syntax type_object}
                | @{syntax association}
                | (binding? ':')? prop
   ;
