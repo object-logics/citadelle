@@ -86,31 +86,49 @@ definition "print_examp_oclbase_gen =
 
 definition "print_examp_oclbase = (\<lambda> OclDefBase l \<Rightarrow> (start_map Thy_definition_hol o List_map (snd o print_examp_oclbase_gen)) l)"
 
-datatype print_examp_instance_draw_list_attr = Return_obj ocl_ty_class | Return_exp hol_expr
+datatype print_examp_instance_draw_list_attr = Return_obj ocl_ty_class
+                                             | Return_exp hol_expr
+datatype print_examp_instance_draw_list_attr_err = Return_err_ty
+                                                 | Return_term_not_yet_supported
+                                                 | Return_err_l "print_examp_instance_draw_list_attr_err list"
+datatype 'a print_examp_instance_draw_list_attr' = Return_val 'a
+                                                 | Return_err print_examp_instance_draw_list_attr_err
+
+fun has_ty_err where
+   "has_ty_err e = (\<lambda> Return_err_ty \<Rightarrow> True
+                    | Return_err_l l \<Rightarrow> list_ex has_ty_err l
+                    | _ \<Rightarrow> False) e"
 
 definition "list_bind f0 f l =
  (let l = List_map f0 l in
-  if list_ex (\<lambda>None \<Rightarrow> True | _ \<Rightarrow> False) l then
+  if list_ex (\<lambda> None \<Rightarrow> True | _ \<Rightarrow> False) l then
     None
   else
     Some (f (List.map_filter id l)))"
+
+definition "list_bind' f0 f l =
+ (case List.partition (\<lambda> Return_err _ \<Rightarrow> True | _ \<Rightarrow> False) (List_map f0 l) of
+    ([], l) \<Rightarrow> Return_val (f (List_map (\<lambda> Return_val e \<Rightarrow> e) l))
+  | (l, _) \<Rightarrow> Return_err (Return_err_l (List_map (\<lambda> Return_err e \<Rightarrow> e) l)))"
 
 fun print_examp_instance_draw_list_attr_aux where
    "print_examp_instance_draw_list_attr_aux f_oid_rec e =
     (\<lambda>
      (* object case 2 *)
        (OclTy_collection _ ty, ShallB_list l) \<Rightarrow> 
-         list_bind (\<lambda>e. print_examp_instance_draw_list_attr_aux f_oid_rec (ty, e)) Expr_list l
+         list_bind' (\<lambda>e. print_examp_instance_draw_list_attr_aux f_oid_rec (ty, e)) Expr_list l
      | (OclTy_pair ty1 ty2, ShallB_list [e1, e2]) \<Rightarrow> 
-         (case ( print_examp_instance_draw_list_attr_aux f_oid_rec (ty1, e1)
-               , print_examp_instance_draw_list_attr_aux f_oid_rec (ty2, e2)) of
-            (Some e1, Some e2) \<Rightarrow> Some (Expr_pair e1 e2)
-          | _ \<Rightarrow> None)
-     | (OclTy_class_pre _, shall) \<Rightarrow> Some (f_oid_rec shall)
+         list_bind' id
+                    (\<lambda> [e1, e2] \<Rightarrow> Expr_pair e1 e2)
+                    [ print_examp_instance_draw_list_attr_aux f_oid_rec (ty1, e1)
+                    , print_examp_instance_draw_list_attr_aux f_oid_rec (ty2, e2) ]
+     | (OclTy_class_pre _, shall) \<Rightarrow> case f_oid_rec shall of
+                                       Some a \<Rightarrow> Return_val a
+                                     | None \<Rightarrow> Return_err Return_term_not_yet_supported
      (* base cases *)
-     | (_, ShallB_term s) \<Rightarrow> Some (fst (print_examp_oclbase_gen s))
+     | (_, ShallB_term s) \<Rightarrow> Return_val (fst (print_examp_oclbase_gen s))
      (* type error *)
-     | _ \<Rightarrow> None) e"
+     | _ \<Rightarrow> Return_err Return_err_ty) e"
 
 definition "print_examp_instance_draw_list_attr = (\<lambda>(f_oid, f_oid_rec).
   let b = \<lambda>s. Expr_basic [s] in
@@ -125,8 +143,14 @@ definition "print_examp_instance_draw_list_attr = (\<lambda>(f_oid, f_oid_rec).
        (* object case 1 *)
        | (_, Some (OclTy_class ty_obj, _)) \<Rightarrow> Some (Return_obj ty_obj)
        (* *)
-       | (_, Some v) \<Rightarrow> map_option (Return_exp o Expr_some)
-                                   (print_examp_instance_draw_list_attr_aux f_oid_rec v)))
+       | (_, Some v) \<Rightarrow>
+         map_option Return_exp
+           (case print_examp_instance_draw_list_attr_aux f_oid_rec v of
+               Return_val v \<Rightarrow> Some (Expr_some v)
+             | Return_err err \<Rightarrow> if has_ty_err err then
+                                   None
+                                 else
+                                   Some (b \<open>None\<close>))))
    id)"
 
 definition "print_examp_instance_app_constr_notmp f_oid = (\<lambda>isub_name app_x l_attr.
@@ -528,9 +552,9 @@ definition "print_examp_instance_app_constr2_notmp_norec = (\<lambda>(rbt, (map_
              , b (print_access_choose_name (TyObj_ass_arity ty_obj) (TyObjN_ass_switch ty_objfrom) (TyObjN_ass_switch ty_objto))
              , Expr_oid var_oid_uniq (oidGetInh oid) ])
       , \<lambda> base.
-           let cpt = case case base of ShallB_str s \<Rightarrow> map_username s
-                                     | ShallB_self cpt1 \<Rightarrow> map_self cpt1 of Some cpt \<Rightarrow> cpt in
-           Expr_oid var_oid_uniq (oidGetInh cpt))))"
+          map_option (Expr_oid var_oid_uniq o oidGetInh)
+                     (case base of ShallB_str s \<Rightarrow> map_username s
+                                 | ShallB_self cpt1 \<Rightarrow> map_self cpt1))))"
 
 definition "print_examp_instance_name = id"
 definition "print_examp_instance = (\<lambda> OclInstance l \<Rightarrow> \<lambda> ocl.
