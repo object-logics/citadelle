@@ -350,7 +350,7 @@ definition "check_single = (\<lambda> (name_attr, oid, l_oid) l_mult l.
     ; l_typed =
        List_map (\<lambda> (mult_min, mult_max0) \<Rightarrow>
          let mult_max = case mult_max0 of None \<Rightarrow> mult_min | Some mult_max \<Rightarrow> mult_max
-           ; s_mult = \<lambda> Mult_nat n \<Rightarrow> natural_of_str n | Mult_star \<Rightarrow> \<open>*\<close>
+           ; s_mult = \<lambda> Mult_nat n \<Rightarrow> natural_of_str n | Mult_star \<Rightarrow> \<open>*\<close> | Mult_infinity \<Rightarrow> \<open>\<infinity>\<close>
            ; f = \<lambda>s. flatten [ \<open> // \<close>
                              , s
                              , \<open> constraint [\<close>
@@ -424,8 +424,10 @@ definition "print_examp_instance_defassoc_gen name l_ocli ocl =
             (b_l, a \<open>Some\<close> b_l)] ) (Ty_apply (Ty_base \<open>option\<close>) [a_l (Ty_base const_oid)]))))])"
 
 definition "check_single_ty rbt_init rbt' l_attr_gen l_oid x =
- (\<lambda> (ty1, mult1, role1) (ty2, mult2, role2).
-  let s = (*01*) \<lambda> [x0, x1] \<Rightarrow> (x0, x1)
+ (\<lambda> (ty1, mult1) (ty2, mult2).
+  let role1 = TyRole mult1
+    ; role2 = TyRole mult2
+    ; s = (*01*) \<lambda> [x0, x1] \<Rightarrow> (x0, x1)
     ; s' = (*01*) \<lambda> [x0, x1] \<Rightarrow> (x0, x1)
     ; s'' = (*01*) \<lambda> [x0, x1] \<Rightarrow> (x0, x1)
     ; (name, (mult_from, mult_to), l) =
@@ -458,7 +460,7 @@ definition "check_single_ty rbt_init rbt' l_attr_gen l_oid x =
     List_flatten [ acc
             , check_single
                 ((snd o s'') name, x, l_oid)
-                ((snd o s') (case (mult_from, mult_to) of (OclMult mult_from _, OclMult mult_to _) \<Rightarrow> [mult_from, mult_to]))
+                ((snd o s') ([TyMult mult_from, TyMult mult_to]))
                 l]))"
 
 definition "print_examp_instance_defassoc_typecheck_gen l_ocli ocl =
@@ -490,13 +492,13 @@ definition "print_examp_instance_defassoc_typecheck_gen l_ocli ocl =
     List.fold
       (\<lambda> (name, (x, _)).
         let l = find_inh name spec
-          ; f = \<lambda>(ty1, mult1, role1) ty2 accu.
+          ; f = \<lambda>(ty1, mult1) ty2 accu.
           fst (List.fold
             (\<lambda> ty1' (l, b). 
               if b then 
                 (l, b)
               else
-                ( check_single_ty rbt_init rbt l_attr_gen l_oid x (ty1', mult1, role1) ty2 l
+                ( check_single_ty rbt_init rbt l_attr_gen l_oid x (ty1', mult1) ty2 l
                 , String_equal ty1' ty1))
             (if String_equal name ty1 then
                ty1 # l

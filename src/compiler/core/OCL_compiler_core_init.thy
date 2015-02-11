@@ -176,7 +176,7 @@ definition "arrange_ass with_aggreg with_optim_ass l_c =
       ; l_ass = List.map_filter (\<lambda> OclAstAssociation ass \<Rightarrow> Some ass
                                  | OclAstAssClass Floor1 (OclAssClass ass _) \<Rightarrow> Some ass
                                  | _ \<Rightarrow> None) l_c
-
+      ; OclMult = \<lambda>l set. ocl_multiplicity_ext l None set ()
       ; (l_class, l_ass0) = 
           if with_optim_ass then
             (* move from classes to associations:
@@ -186,8 +186,8 @@ definition "arrange_ass with_aggreg with_optim_ass l_c =
                   (\<lambda>c (l_class, l_ass).
                     let default = Set
                       ; f = \<lambda>role t mult_out. \<lparr> OclAss_type = OclAssTy_native_attribute
-                                              , OclAss_relation = [(ClassRaw_name c, OclMult [(Mult_star, None)] default, None)
-                                                                  ,(t, mult_out, Some role)] \<rparr>
+                                              , OclAss_relation = [(ClassRaw_name c, OclMult [(Mult_star, None)] default)
+                                                                  ,(t, mult_out \<lparr> TyRole := Some role \<rparr>)] \<rparr>
                       ; (l_own, l_ass) =
                         List.fold (\<lambda> (role, OclTy_class_pre t) \<Rightarrow>
                                           \<lambda> (l_own, l). (l_own, f role t (OclMult [(Mult_nat 0, Some (Mult_nat 1))] default) # l)
@@ -209,17 +209,19 @@ definition "arrange_ass with_aggreg with_optim_ass l_c =
             (\<lambda>ass (l_class, l_ass).
               if OclAss_type ass = OclAssTy_aggregation then
                 ( fold_max
-                    (\<lambda> (cpt_to, (name_to, multip_to, Some role_to)) \<Rightarrow>
-                        List.fold (\<lambda> (cpt_from, (name_from, multip_from, role_from)).
+                    (\<lambda> (cpt_to, (name_to, category_to)).
+                      case TyRole category_to of
+                        Some role_to \<Rightarrow>
+                        List.fold (\<lambda> (cpt_from, (name_from, multip_from)).
                           List_map_find (\<lambda>cflat.
                             if ClassRaw_name cflat = name_from then
                               Some (cflat \<lparr> ClassRaw_own :=
                                               List_flatten [ ClassRaw_own cflat
                                                            , [(role_to, let ty = OclTy_class_pre name_to in
-                                                                        if single_multip multip_to then 
+                                                                        if single_multip category_to then 
                                                                           ty
                                                                         else
-                                                                          OclTy_collection multip_to ty)]] \<rparr>)
+                                                                          OclTy_collection category_to ty)]] \<rparr>)
                             else None))
                      | _ \<Rightarrow> \<lambda>_. id)
                     (OclAss_relation ass)
@@ -287,8 +289,9 @@ subsection{* Infra *}
 fun print_infra_type_synonym_class_rec_aux0 where
    "print_infra_type_synonym_class_rec_aux0 e =
    (let option = \<lambda>x. Ty_apply (Ty_base \<open>option\<close>) [x] in
-     (\<lambda> OclTy_collection (OclMult _ s) t \<Rightarrow>
-          let (name, ty) = print_infra_type_synonym_class_rec_aux0 t in
+     (\<lambda> OclTy_collection c t \<Rightarrow>
+          let s = TyCollect c
+            ; (name, ty) = print_infra_type_synonym_class_rec_aux0 t in
           ( (if s = Set then \<open>Set\<close> else \<open>Sequence\<close>) @@ \<open>_\<close> @@ name
           , Ty_apply (Ty_base (if s = Set then var_Set_base else var_Sequence_base)) [ty])
       | OclTy_pair t1 t2 \<Rightarrow>

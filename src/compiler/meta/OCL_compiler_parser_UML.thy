@@ -50,10 +50,17 @@ begin
 
 section{* Generation to both Form (setup part) *}
 
+definition "ocl_multiplicity_rec0 f ocl = f
+  (TyMult ocl)
+  (TyRole ocl)
+  (TyCollect ocl)"
+
+definition "ocl_multiplicity_rec f ocl = ocl_multiplicity_rec0 f ocl
+  (ocl_multiplicity.more ocl)"
+
 definition "ocl_ty_class_node_rec0 f ocl = f
   (TyObjN_ass_switch ocl)
   (TyObjN_role_multip ocl)
-  (TyObjN_role_name ocl)
   (TyObjN_role_ty ocl)"
 
 definition "ocl_ty_class_node_rec f ocl = ocl_ty_class_node_rec0 f ocl
@@ -147,18 +154,20 @@ definition "i_of_ocl_collection b = rec_ocl_collection
 
 definition "i_of_ocl_multiplicity_single a b = rec_ocl_multiplicity_single
   (ap1 a (b \<open>Mult_nat\<close>) (i_of_nat a b))
-  (b \<open>Mult_star\<close>)"
+  (b \<open>Mult_star\<close>)
+  (b \<open>Mult_infinity\<close>)"
 
-definition "i_of_ocl_multiplicity a b = rec_ocl_multiplicity
-  (ap2 a (b \<open>OclMult\<close>)
+definition "i_of_ocl_multiplicity a b f = ocl_multiplicity_rec
+  (ap4 a (b (ext \<open>ocl_multiplicity_ext\<close>))
     (i_of_list a b (i_of_pair a b (i_of_ocl_multiplicity_single a b) (i_of_option a b (i_of_ocl_multiplicity_single a b))))
-    (i_of_ocl_collection b))"
+    (i_of_option a b (i_of_string a b))
+    (i_of_ocl_collection b)
+    (f a b))"
 
 definition "i_of_ocl_ty_class_node a b f = ocl_ty_class_node_rec
-  (ap5 a (b (ext \<open>ocl_ty_class_node_ext\<close>))
+  (ap4 a (b (ext \<open>ocl_ty_class_node_ext\<close>))
     (i_of_nat a b)
-    (i_of_ocl_multiplicity a b)
-    (i_of_option a b (i_of_string a b))
+    (i_of_ocl_multiplicity a b (K i_of_unit))
     (i_of_string a b)
     (f a b))"
 
@@ -180,7 +189,7 @@ definition "i_of_ocl_ty a b = (\<lambda>f1 f2 f3 f4 f5 f6 f7 f8 f9 f10. rec_ocl_
   (b \<open>OclTy_base_string\<close>)
   (ap1 a (b \<open>OclTy_class_pre\<close>) (i_of_string a b))
   (ap1 a (b \<open>OclTy_class\<close>) (i_of_ocl_ty_class a b (K i_of_unit)))
-  (ar2 a (b \<open>OclTy_collection\<close>) (i_of_ocl_multiplicity a b))
+  (ar2 a (b \<open>OclTy_collection\<close>) (i_of_ocl_multiplicity a b (K i_of_unit)))
   (ar2 a (b \<open>OclTy_pair\<close>) id)
   (ap1 a (b \<open>OclTy_raw\<close>) (i_of_string a b))"
 
@@ -193,7 +202,7 @@ definition "i_of_ocl_association_type a b = rec_ocl_association_type
 definition "i_of_ocl_association a b f = ocl_association_rec
   (ap3 a (b (ext \<open>ocl_association_ext\<close>))
     (i_of_ocl_association_type a b)
-    (i_of_list a b (i_of_pair a b (i_of_string a b) (i_of_pair a b (i_of_ocl_multiplicity a b) (i_of_option a b (i_of_string a b)))))
+    (i_of_list a b (i_of_pair a b (i_of_string a b) (i_of_ocl_multiplicity a b (K i_of_unit))))
     (f a b))"
 
 definition "i_of_ocl_ctxt_prefix a b = rec_ocl_ctxt_prefix

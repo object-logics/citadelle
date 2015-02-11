@@ -1016,8 +1016,8 @@ structure USE_parse = struct
                       | OclTypeBaseReal    => OCL.OclTy_base_real
                       | OclTypeBaseString  => OCL.OclTy_base_string
                       | OclTypeClassPre s  => OCL.OclTy_class_pre (From.from_binding s)
-                      | OclTypeCollectionSet l      => OCL.OclTy_collection (OCL.OclMult ([], OCL.Set), from_oclty l)
-                      | OclTypeCollectionSequence l => OCL.OclTy_collection (OCL.OclMult ([], OCL.Sequence), from_oclty l)
+                      | OclTypeCollectionSet l      => OCL.OclTy_collection (OCL.Ocl_multiplicity_ext ([], NONE, OCL.Set, ()), from_oclty l)
+                      | OclTypeCollectionSequence l => OCL.OclTy_collection (OCL.Ocl_multiplicity_ext ([], NONE, OCL.Sequence, ()), from_oclty l)
                       | OclTypePair (s1, s2)        => OCL.OclTy_pair (from_oclty s1, from_oclty s2)
                       | OclTypeRaw s       => OCL.OclTy_raw (xml_unescape s)) v
 
@@ -1166,6 +1166,7 @@ subsection{* Outer Syntax: association, composition, aggregation *}
 ML{*
 structure Outer_syntax_Association = struct
   val mk_mult = fn "*" => OCL.Mult_star
+                 | "\<infinity>" => OCL.Mult_infinity
                  | s => OCL.Mult_nat (case Int.fromString s of SOME i => From.from_nat i)
 
   fun make ass_ty l =
@@ -1173,9 +1174,11 @@ structure Outer_syntax_Association = struct
         ( ass_ty
         , List.map (fn (((cl_from, cl_mult), o_cl_attr), l_set) =>
             ( From.from_binding cl_from
-            , ( OCL.OclMult ( List.map (From.from_pair mk_mult (From.from_option mk_mult)) cl_mult
-                            , if l_set = [] then OCL.Set else OCL.Sequence)
-              , From.from_option From.from_binding o_cl_attr))) l
+            , ( OCL.Ocl_multiplicity_ext
+                            ( List.map (From.from_pair mk_mult (From.from_option mk_mult)) cl_mult
+                            , From.from_option From.from_binding o_cl_attr
+                            , if l_set = [] then OCL.Set else OCL.Sequence
+                            , ())))) l
         , From.from_unit ())
 end
 

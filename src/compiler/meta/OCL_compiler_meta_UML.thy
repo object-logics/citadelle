@@ -56,13 +56,14 @@ datatype ocl_collection =   Set | Sequence
 
 datatype ocl_multiplicity_single = Mult_nat nat
                                  | Mult_star
+                                 | Mult_infinity
 
-datatype ocl_multiplicity = OclMult "(ocl_multiplicity_single \<times> ocl_multiplicity_single option) list"
-                                    ocl_collection (* return type of the accessor (constrained by the above multiplicity) *)
+record ocl_multiplicity = TyMult :: "(ocl_multiplicity_single \<times> ocl_multiplicity_single option) list"
+                          TyRole :: "string option"
+                          TyCollect :: ocl_collection (* return type of the accessor (constrained by the above multiplicity) *)
 
 record ocl_ty_class_node =  TyObjN_ass_switch :: nat
                             TyObjN_role_multip :: ocl_multiplicity
-                            TyObjN_role_name :: "string option"
                             TyObjN_role_ty :: string
 record ocl_ty_class =       TyObj_name :: string
                             TyObj_ass_id :: nat
@@ -88,8 +89,7 @@ datatype ocl_association_type = OclAssTy_native_attribute
                               | OclAssTy_aggregation
 record ocl_association =        OclAss_type     :: ocl_association_type
                                 OclAss_relation :: "( string (* name class *)
-                                                    \<times> ocl_multiplicity (* multiplicity *)
-                                                    \<times> string option (* role *)) list"
+                                                    \<times> ocl_multiplicity (* multiplicity *)) list"
 
 datatype ocl_ctxt_prefix = OclCtxtPre | OclCtxtPost
 
@@ -125,6 +125,7 @@ datatype ocl_ass_class = OclAssClass ocl_association
 subsection{* ... *}
 
 definition "T_lambdas = List.fold T_lambda"
+definition "TyObjN_role_name = TyRole o TyObjN_role_multip"
 
 subsection{* Class Translation Preliminaries *}
 
@@ -133,10 +134,10 @@ definition "var_ty_list = \<open>list\<close>"
 definition "var_ty_prod = \<open>prod\<close>"
 definition "const_oclany = \<open>OclAny\<close>"
 
-definition "single_multip = (\<lambda> OclMult l _ \<Rightarrow>
+definition "single_multip = 
   List.list_all (\<lambda> (_, Some (Mult_nat n)) \<Rightarrow> n \<le> 1
                  | (Mult_nat n, None) \<Rightarrow> n \<le> 1
-                 | _ \<Rightarrow> False) l)"
+                 | _ \<Rightarrow> False) o TyMult"
 
 fun fold_max_aux where
    "fold_max_aux f l l_acc accu = (case l of
@@ -284,13 +285,16 @@ definition "class_unflat = (\<lambda> (l_class, l_ass).
       let l_rel = OclAss_relation ass in
       fold_max
         (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l n_rel = natural_of_nat (List.length l_rel) in
-         \<lambda> (cpt_to, (name_to, multip_to, Some role_to)) \<Rightarrow> List.fold (\<lambda> (cpt_from, (name_from, multip_from, role_from)).
-            map_entry name_from (\<lambda>cflat. cflat \<lparr> ClassRaw_own := (role_to,
-              OclTy_class (ocl_ty_class_ext const_oid ass_oid n_rel
-                (ocl_ty_class_node_ext cpt_from multip_from role_from name_from ())
-                (ocl_ty_class_node_ext cpt_to multip_to (Some role_to) name_to ())
-                ())) # ClassRaw_own cflat \<rparr>))
-         | _ \<Rightarrow> \<lambda>_. id)
+         (\<lambda> (cpt_to, (name_to, category_to)).
+           case TyRole category_to of
+             Some role_to \<Rightarrow>
+               List.fold (\<lambda> (cpt_from, (name_from, mult_from)).
+                 map_entry name_from (\<lambda>cflat. cflat \<lparr> ClassRaw_own := (role_to,
+                   OclTy_class (ocl_ty_class_ext const_oid ass_oid n_rel
+                     (ocl_ty_class_node_ext cpt_from mult_from name_from ())
+                     (ocl_ty_class_node_ext cpt_to category_to name_to ())
+                     ())) # ClassRaw_own cflat \<rparr>))
+           | _ \<Rightarrow> \<lambda>_. id))
         l_rel) (List_mapi Pair l_ass) rbt)) in
   class_unflat_aux
     (List.fold (\<lambda> cflat. insert (ClassRaw_name cflat) (ClassRaw_own cflat)) l RBT.empty)
@@ -316,8 +320,8 @@ fun str_of_ty where "str_of_ty e =
   | OclTy_base_string \<Rightarrow> \<open>String\<close>
   | OclTy_class_pre s \<Rightarrow> s
   (*| OclTy_class *)
-  | OclTy_collection (OclMult _ Set) ocl_ty \<Rightarrow> flatten [\<open>Set(\<close>, str_of_ty ocl_ty,\<open>)\<close>]
-  | OclTy_collection (OclMult _ Sequence) ocl_ty \<Rightarrow> flatten [\<open>Sequence(\<close>, str_of_ty ocl_ty,\<open>)\<close>]
+  | OclTy_collection t ocl_ty \<Rightarrow> (case TyCollect t of Set \<Rightarrow> flatten [\<open>Set(\<close>, str_of_ty ocl_ty,\<open>)\<close>]
+                                                    | Sequence \<Rightarrow> flatten [\<open>Sequence(\<close>, str_of_ty ocl_ty,\<open>)\<close>])
   | OclTy_pair ocl_ty1 ocl_ty2 \<Rightarrow> flatten [\<open>Pair(\<close>, str_of_ty ocl_ty1, \<open>,\<close>, str_of_ty ocl_ty2,\<open>)\<close>]
   | OclTy_raw s \<Rightarrow> flatten [\<open>\<acute>\<close>, s, \<open>\<acute>\<close>]) e"
 
