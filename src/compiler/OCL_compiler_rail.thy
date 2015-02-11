@@ -108,12 +108,12 @@ text {*
                     @'End'?
   ;
   @{syntax_def class}:
-               (@'Attributes' ((binding ':' @{syntax uml_type}) * (';'?)))? \<newline>
-               (@'Operations' ((binding @{syntax uml_type} \<newline>
-                                ('=' term | term)? \<newline>
-                                (@{syntax pre_post} *)
-                                ) * (';'?)))? \<newline>
-               (@'Constraints' ((@{syntax invariant})*))?
+               (@'Attributes'? ((binding ':' @{syntax uml_type}) * (';'?)))? \<newline>
+               (@'Operations'? ((binding @{syntax uml_type} \<newline>
+                                 ('=' term | term)? \<newline>
+                                 (@{syntax pre_post} *)
+                                 ) * (';'?)))? \<newline>
+               (@'Constraints'? ((@{syntax invariant})*))?
   ;
 \<close>}
 *}
@@ -128,10 +128,10 @@ text {*
 @{rail \<open>
   (  @@{command Aggregation}
    | @@{command Association}
-   | @@{command Composition}) binding @{syntax association} @'End'?
+   | @@{command Composition}) binding? @{syntax association} @'End'?
   ;
   @{syntax_def association}:
-               @'Between' @{syntax association_end} (@{syntax association_end}+)
+               @'Between'? @{syntax association_end} (@{syntax association_end}+)
   ;
   @{syntax_def association_end}:
                @{syntax type_object}
