@@ -80,8 +80,7 @@ definition "ocl_class_raw_rec0 f ocl = f
   (ClassRaw_name ocl)
   (ClassRaw_own ocl)
   (ClassRaw_contract ocl)
-  (ClassRaw_invariant ocl)
-  (ClassRaw_inh ocl)"
+  (ClassRaw_invariant ocl)"
 
 definition "ocl_class_raw_rec f ocl = ocl_class_raw_rec0 f ocl
   (ocl_class_raw.more ocl)"
@@ -113,19 +112,19 @@ definition "ocl_ctxt_inv_rec f ocl = ocl_ctxt_inv_rec0 f ocl
 
 (* *)
 
-lemma [code]: "ocl_class_raw.extend = (\<lambda>ocl v. ocl_class_raw_rec0 (co5 (\<lambda>f. f v) ocl_class_raw_ext) ocl)"
+lemma [code]: "ocl_class_raw.extend = (\<lambda>ocl v. ocl_class_raw_rec0 (co4 (\<lambda>f. f v) ocl_class_raw_ext) ocl)"
 by(intro ext, simp add: ocl_class_raw_rec0_def
                         ocl_class_raw.extend_def
-                        co5_def K_def)
-lemma [code]: "ocl_class_raw.make = co5 (\<lambda>f. f ()) ocl_class_raw_ext"
+                        co4_def K_def)
+lemma [code]: "ocl_class_raw.make = co4 (\<lambda>f. f ()) ocl_class_raw_ext"
 by(intro ext, simp add: ocl_class_raw.make_def
-                        co5_def)
-lemma [code]: "ocl_class_raw.truncate = ocl_class_raw_rec (co5 K ocl_class_raw.make)"
+                        co4_def)
+lemma [code]: "ocl_class_raw.truncate = ocl_class_raw_rec (co4 K ocl_class_raw.make)"
 by(intro ext, simp add: ocl_class_raw_rec0_def
                         ocl_class_raw_rec_def
                         ocl_class_raw.truncate_def
                         ocl_class_raw.make_def
-                        co5_def K_def)
+                        co4_def K_def)
 
 lemma [code]: "ocl_association.extend = (\<lambda>ocl v. ocl_association_rec0 (co2 (\<lambda>f. f v) ocl_association_ext) ocl)"
 by(intro ext, simp add: ocl_association_rec0_def
@@ -180,15 +179,21 @@ definition "i_of_ocl_ty_class a b f = ocl_ty_class_rec
     (i_of_ocl_ty_class_node a b (K i_of_unit))
     (f a b))"
 
-definition "i_of_ocl_ty a b = (\<lambda>f1 f2 f3 f4 f5 f6 f7 f8 f9 f10. rec_ocl_ty f1 f2 f3 f4 f5 f6 f7 f8 (K o f9) (\<lambda>_ _. f10))
+definition "i_of_ocl_ty_obj_core a b = rec_ocl_ty_obj_core
+  (ap1 a (b \<open>OclTyCore_pre\<close>) (i_of_string a b))
+  (ap1 a (b \<open>OclTyCore\<close>) (i_of_ocl_ty_class a b (K i_of_unit)))"
+
+definition "i_of_ocl_ty_obj a b = rec_ocl_ty_obj
+  (ap2 a (b \<open>OclTyObj\<close>) (i_of_ocl_ty_obj_core a b) (i_of_list a b (i_of_list a b (i_of_ocl_ty_obj_core a b))))"
+
+definition "i_of_ocl_ty a b = (\<lambda>f1 f2 f3 f4 f5 f6 f7 f8 f9. rec_ocl_ty f1 f2 f3 f4 f5 f6 f7 (K o f8) (\<lambda>_ _. f9))
   (b \<open>OclTy_base_void\<close>)
   (b \<open>OclTy_base_boolean\<close>)
   (b \<open>OclTy_base_integer\<close>)
   (b \<open>OclTy_base_unlimitednatural\<close>)
   (b \<open>OclTy_base_real\<close>)
   (b \<open>OclTy_base_string\<close>)
-  (ap1 a (b \<open>OclTy_class_pre\<close>) (i_of_string a b))
-  (ap1 a (b \<open>OclTy_class\<close>) (i_of_ocl_ty_class a b (K i_of_unit)))
+  (ap1 a (b \<open>OclTy_object\<close>) (i_of_ocl_ty_obj a b))
   (ar2 a (b \<open>OclTy_collection\<close>) (i_of_ocl_multiplicity a b (K i_of_unit)))
   (ar2 a (b \<open>OclTy_pair\<close>) id)
   (ap1 a (b \<open>OclTy_raw\<close>) (i_of_string a b))"
@@ -239,12 +244,11 @@ definition "i_of_ocl_class a b = (\<lambda>f0 f1 f2 f3 f4. rec_ocl_class_1 (co2 
     (ar2 a (b i_Cons) id)"
 
 definition "i_of_ocl_class_raw a b f = ocl_class_raw_rec
-  (ap6 a (b (ext \<open>ocl_class_raw_ext\<close>))
-    (i_of_string a b)
+  (ap5 a (b (ext \<open>ocl_class_raw_ext\<close>))
+    (i_of_ocl_ty_obj a b)
     (i_of_list a b (i_of_pair a b (i_of_string a b) (i_of_ocl_ty a b)))
     (i_of_list a b (i_of_ocl_ctxt_pre_post a b (K i_of_unit)))
     (i_of_list a b (i_of_ocl_ctxt_inv a b (K i_of_unit)))
-    (i_of_option a b (i_of_string a b))
     (f a b))"
 
 definition "i_of_ocl_ass_class a b = rec_ocl_ass_class
@@ -260,6 +264,8 @@ lemmas [code] =
   i_of.i_of_ocl_multiplicity_def
   i_of.i_of_ocl_ty_class_node_def
   i_of.i_of_ocl_ty_class_def
+  i_of.i_of_ocl_ty_obj_core_def
+  i_of.i_of_ocl_ty_obj_def
   i_of.i_of_ocl_ty_def
   i_of.i_of_ocl_association_type_def
   i_of.i_of_ocl_association_def

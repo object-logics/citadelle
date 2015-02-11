@@ -122,7 +122,7 @@ fun print_examp_instance_draw_list_attr_aux where
                     (\<lambda> [e1, e2] \<Rightarrow> Expr_pair e1 e2)
                     [ print_examp_instance_draw_list_attr_aux f_oid_rec (ty1, e1)
                     , print_examp_instance_draw_list_attr_aux f_oid_rec (ty2, e2) ]
-     | (OclTy_class_pre _, shall) \<Rightarrow> case f_oid_rec shall of
+     | (OclTy_object (OclTyObj (OclTyCore_pre _) _), shall) \<Rightarrow> case f_oid_rec shall of
                                        Some a \<Rightarrow> Return_val a
                                      | None \<Rightarrow> Return_err Return_term_not_yet_supported
      (* base cases *)
@@ -141,7 +141,7 @@ definition "print_examp_instance_draw_list_attr = (\<lambda>(f_oid, f_oid_rec).
          (t_obj, None) \<Rightarrow> Some (case t_obj of Some ty_obj \<Rightarrow> Return_obj ty_obj
                                            | _ \<Rightarrow> Return_exp (b \<open>None\<close>))
        (* object case 1 *)
-       | (_, Some (OclTy_class ty_obj, _)) \<Rightarrow> Some (Return_obj ty_obj)
+       | (_, Some (OclTy_object (OclTyObj (OclTyCore ty_obj) _), _)) \<Rightarrow> Some (Return_obj ty_obj)
        (* *)
        | (_, Some v) \<Rightarrow>
          map_option Return_exp
@@ -165,7 +165,7 @@ definition "rbt_of_class ocl =
          (let f_fold = \<lambda>tag l rbt.
             let (rbt, _, n) = List.fold
                                    (\<lambda> (name_attr, ty) \<Rightarrow> \<lambda>(rbt, cpt, l_obj).
-                                     (insert name_attr (ty, tag, OptIdent cpt) rbt, Succ cpt, (case ty of OclTy_class ty_obj \<Rightarrow> Some ty_obj | _ \<Rightarrow> None) # l_obj))
+                                     (insert name_attr (ty, tag, OptIdent cpt) rbt, Succ cpt, (case ty of OclTy_object (OclTyObj (OclTyCore ty_obj) _) \<Rightarrow> Some ty_obj | _ \<Rightarrow> None) # l_obj))
                                    l
                                    (rbt, 0, []) in
             (rbt, (tag, n)) in
@@ -250,7 +250,7 @@ definition "print_examp_def_st_assoc_build_rbt_gen f rbt map_self map_username l
          f ty
          (List.fold (\<lambda>(name_attr, shall).
            case f_attr_ty name_attr of
-             Some (OclTy_class ty_obj, _, _) \<Rightarrow>
+             Some (OclTy_object (OclTyObj (OclTyCore ty_obj) _), _, _) \<Rightarrow>
                modify_def ([], ty_obj) name_attr
                (\<lambda>(l, accu). case let find_map = \<lambda> ShallB_str s \<Rightarrow> map_username s | ShallB_self s \<Rightarrow> map_self s | _ \<Rightarrow> None in
                                  case shall of
@@ -437,7 +437,7 @@ definition "check_single_ty rbt_init rbt' l_attr_gen l_oid x =
             | Some role1 \<Rightarrow>
                 map_option
                   (\<lambda>_. let (ty1, role1, f_swap) = g role1 in
-                       ( case fst (rbt_init ty1) role1 of Some (OclTy_class ty_obj, _, _) \<Rightarrow> ty_obj
+                       ( case fst (rbt_init ty1) role1 of Some (OclTy_object (OclTyObj (OclTyCore ty_obj) _), _, _) \<Rightarrow> ty_obj
                        , f_swap (TyObj_from, TyObj_to)))
                   (lookup rbt' role1) in
           case role2 of

@@ -186,12 +186,12 @@ definition "arrange_ass with_aggreg with_optim_ass l_c =
                   (\<lambda>c (l_class, l_ass).
                     let default = Set
                       ; f = \<lambda>role t mult_out. \<lparr> OclAss_type = OclAssTy_native_attribute
-                                              , OclAss_relation = [(ClassRaw_name c, OclMult [(Mult_star, None)] default)
+                                              , OclAss_relation = [(cl_name_to_string c, OclMult [(Mult_star, None)] default)
                                                                   ,(t, mult_out \<lparr> TyRole := Some role \<rparr>)] \<rparr>
                       ; (l_own, l_ass) =
-                        List.fold (\<lambda> (role, OclTy_class_pre t) \<Rightarrow>
+                        List.fold (\<lambda> (role, OclTy_object (OclTyObj (OclTyCore_pre t) _)) \<Rightarrow>
                                           \<lambda> (l_own, l). (l_own, f role t (OclMult [(Mult_nat 0, Some (Mult_nat 1))] default) # l)
-                                   | (role, OclTy_collection mult (OclTy_class_pre t)) \<Rightarrow>
+                                   | (role, OclTy_collection mult (OclTy_object (OclTyObj (OclTyCore_pre t) _))) \<Rightarrow>
                                           \<lambda> (l_own, l). (l_own, f role t mult # l)
                                    | x \<Rightarrow> \<lambda> (l_own, l). (x # l_own, l))
                                   (ClassRaw_own c)
@@ -214,7 +214,7 @@ definition "arrange_ass with_aggreg with_optim_ass l_c =
                         Some role_to \<Rightarrow>
                         List.fold (\<lambda> (cpt_from, (name_from, multip_from)).
                           List_map_find (\<lambda>cflat.
-                            if ClassRaw_name cflat = name_from then
+                            if String_equal (cl_name_to_string cflat) name_from then
                               Some (cflat \<lparr> ClassRaw_own :=
                                               List_flatten [ ClassRaw_own cflat
                                                            , [(role_to, let ty = OclTy_class_pre name_to in
@@ -252,7 +252,7 @@ definition "start_map f = fold_list (\<lambda>x acc. (f x, acc))"
 definition "start_map' f x accu = (f x, accu)"
 definition "start_map''' f fl = (\<lambda> ocl.
   let design_analysis = D_design_analysis ocl
-    ; base_attr = (if design_analysis = Gen_only_design then id else List_filter (\<lambda> (_, OclTy_class _) \<Rightarrow> False | _ \<Rightarrow> True))
+    ; base_attr = (if design_analysis = Gen_only_design then id else List_filter (\<lambda> (_, OclTy_object (OclTyObj (OclTyCore _) _)) \<Rightarrow> False | _ \<Rightarrow> True))
     ; base_attr' = (\<lambda> (l_attr, l_inh). (base_attr l_attr, List_map base_attr l_inh))
     ; base_attr'' = (\<lambda> (l_attr, l_inh). (base_attr l_attr, base_attr l_inh)) in
   start_map f (fl design_analysis base_attr base_attr' base_attr'') ocl)"
@@ -299,7 +299,7 @@ fun print_infra_type_synonym_class_rec_aux0 where
             ; (name2, ty2) = print_infra_type_synonym_class_rec_aux0 t2 in
           ( \<open>Pair\<close> @@ \<open>_\<close> @@ name1 @@ \<open>_\<close> @@ name2
           , Ty_apply (Ty_base var_Pair_base) [ty1, ty2])
-      | OclTy_class_pre s \<Rightarrow> (s, option (option (Ty_base (datatype_name @@ isub_of_str s))))
+      | OclTy_object (OclTyObj (OclTyCore_pre s) _) \<Rightarrow> (s, option (option (Ty_base (datatype_name @@ isub_of_str s))))
       | t \<Rightarrow> (str_of_ty t, Ty_base (str_of_ty t @@ isub_of_str \<open>base\<close>))) e)"
 
 definition "print_infra_type_synonym_class_rec_aux t =
