@@ -75,7 +75,7 @@ datatype ocl_ty_obj_core =  OclTyCore_pre string (* class name, untyped *) (* FI
 datatype ocl_ty_obj =       OclTyObj  ocl_ty_obj_core
                                      "ocl_ty_obj_core list (* the 'and' semantics *)
                                                            list (* 'x # ...' means 'x < ...' *)" (* superclass *)
-datatype ocl_ty =           OclTy_base_void
+datatype ocl_ty =           OclTy_base_void (* NOTE can be merged in a generic tuple *)
                           | OclTy_base_boolean
                           | OclTy_base_integer
                           | OclTy_base_unlimitednatural
@@ -83,7 +83,10 @@ datatype ocl_ty =           OclTy_base_void
                           | OclTy_base_string
                           | OclTy_object ocl_ty_obj
                           | OclTy_collection ocl_multiplicity ocl_ty
-                          | OclTy_pair ocl_ty ocl_ty
+                          | OclTy_pair "string option (* name *) \<times> ocl_ty"
+                                       "string option (* name *) \<times> ocl_ty" (* NOTE can be merged in a generic tuple *)
+                          | OclTy_pair1 "string option (* name *) \<times> ocl_ty" (* NOTE can be merged in a generic tuple *)
+                          | OclTy_arrow ocl_ty ocl_ty
                           | OclTy_raw string (* denoting raw HOL-type *) (* FIXME to be removed *)
 
 
@@ -92,7 +95,7 @@ datatype ocl_association_type = OclAssTy_native_attribute
                               | OclAssTy_composition
                               | OclAssTy_aggregation
 record ocl_association =        OclAss_type     :: ocl_association_type
-                                OclAss_relation :: "( string (* name class *)
+                                OclAss_relation :: "( ocl_ty_obj (* name class *)
                                                     \<times> ocl_multiplicity (* multiplicity *)) list"
 
 datatype ocl_ctxt_prefix = OclCtxtPre | OclCtxtPost
@@ -121,6 +124,7 @@ record ocl_class_raw = ClassRaw_name :: ocl_ty_obj
                        ClassRaw_own :: "(string (* name *) \<times> ocl_ty) list" (* attribute *)
                        ClassRaw_contract :: "ocl_ctxt_pre_post list" (* contract *)
                        ClassRaw_invariant :: "ocl_ctxt_inv list" (* invariant *)
+                       ClassRaw_abstract :: bool (* True: abstract *)
 
 datatype ocl_ass_class = OclAssClass ocl_association
                                      ocl_class_raw
@@ -271,7 +275,8 @@ proof -
   apply(rule rbt_fold_large)
  done
 qed
-definition "cl_name_to_string = (\<lambda>OclTyObj (OclTyCore_pre s) _ \<Rightarrow> s) o ClassRaw_name"
+definition "ty_obj_to_string = (\<lambda>OclTyObj (OclTyCore_pre s) _ \<Rightarrow> s)"
+definition "cl_name_to_string = ty_obj_to_string o ClassRaw_name"
 definition "class_unflat = (\<lambda> (l_class, l_ass).
   let l =
     let const_oclany' = OclTyCore_pre const_oclany
@@ -279,7 +284,7 @@ definition "class_unflat = (\<lambda> (l_class, l_ass).
                  set \<open>OclAny\<close> as default inherited class (for all classes linking to zero inherited classes) *)
               insert
                 const_oclany
-                (ocl_class_raw.make (OclTyObj const_oclany' []) [] [] [])
+                (ocl_class_raw.make (OclTyObj const_oclany' []) [] [] [] False)
                 (List.fold
                   (\<lambda> cflat \<Rightarrow>
                     insert (cl_name_to_string cflat) (cflat \<lparr> ClassRaw_name := case ClassRaw_name cflat of OclTyObj n [] \<Rightarrow> OclTyObj n [[const_oclany']] | x \<Rightarrow> x \<rparr>))
@@ -295,10 +300,11 @@ definition "class_unflat = (\<lambda> (l_class, l_ass).
            case TyRole category_to of
              Some role_to \<Rightarrow>
                List.fold (\<lambda> (cpt_from, (name_from, mult_from)).
+                 let name_from = ty_obj_to_string name_from in
                  map_entry name_from (\<lambda>cflat. cflat \<lparr> ClassRaw_own := (role_to,
                    OclTy_class (ocl_ty_class_ext const_oid ass_oid n_rel
                      (ocl_ty_class_node_ext cpt_from mult_from name_from ())
-                     (ocl_ty_class_node_ext cpt_to category_to name_to ())
+                     (ocl_ty_class_node_ext cpt_to category_to (ty_obj_to_string name_to) ())
                      ())) # ClassRaw_own cflat \<rparr>))
            | _ \<Rightarrow> \<lambda>_. id))
         l_rel) (List_mapi Pair l_ass) rbt)) in
@@ -341,7 +347,7 @@ fun str_of_ty where "str_of_ty e =
   (*| OclTy_object (OclTyObj (OclTyCore ty_obj) _)*)
   | OclTy_collection t ocl_ty \<Rightarrow> (case TyCollect t of Set \<Rightarrow> flatten [\<open>Set(\<close>, str_of_ty ocl_ty,\<open>)\<close>]
                                                     | Sequence \<Rightarrow> flatten [\<open>Sequence(\<close>, str_of_ty ocl_ty,\<open>)\<close>])
-  | OclTy_pair ocl_ty1 ocl_ty2 \<Rightarrow> flatten [\<open>Pair(\<close>, str_of_ty ocl_ty1, \<open>,\<close>, str_of_ty ocl_ty2,\<open>)\<close>]
+  | OclTy_pair (_, ocl_ty1) (_, ocl_ty2) \<Rightarrow> flatten [\<open>Pair(\<close>, str_of_ty ocl_ty1, \<open>,\<close>, str_of_ty ocl_ty2,\<open>)\<close>]
   | OclTy_raw s \<Rightarrow> flatten [\<open>\<acute>\<close>, s, \<open>\<acute>\<close>]) e"
 
 definition "ty_void = str_of_ty OclTy_base_void"
@@ -361,7 +367,7 @@ fun str_hol_of_ty_all where "str_hol_of_ty_all f b e =
   | OclTy_object (OclTyObj (OclTyCore_pre s) _) \<Rightarrow> b const_oid
   | OclTy_object (OclTyObj (OclTyCore ty_obj) _) \<Rightarrow> f (b var_ty_list) [b (TyObj_name ty_obj)]
   | OclTy_collection _ ty \<Rightarrow> f (b var_ty_list) [str_hol_of_ty_all f b ty]
-  | OclTy_pair ty1 ty2 \<Rightarrow> f (b var_ty_prod) [str_hol_of_ty_all f b ty1, str_hol_of_ty_all f b ty2]
+  | OclTy_pair (_, ty1) (_, ty2) \<Rightarrow> f (b var_ty_prod) [str_hol_of_ty_all f b ty1, str_hol_of_ty_all f b ty2]
   | OclTy_raw s \<Rightarrow> b s) e"
 
 definition "print_infra_type_synonym_class_set_name name = \<open>Set_\<close> @@ name"

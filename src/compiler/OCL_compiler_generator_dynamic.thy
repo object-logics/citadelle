@@ -1018,7 +1018,7 @@ structure USE_parse = struct
                       | OclTypeClassPre s  => OCL.oclTy_class_pre (From.from_binding s)
                       | OclTypeCollectionSet l      => OCL.OclTy_collection (OCL.Ocl_multiplicity_ext ([], NONE, OCL.Set, ()), from_oclty l)
                       | OclTypeCollectionSequence l => OCL.OclTy_collection (OCL.Ocl_multiplicity_ext ([], NONE, OCL.Sequence, ()), from_oclty l)
-                      | OclTypePair (s1, s2)        => OCL.OclTy_pair (from_oclty s1, from_oclty s2)
+                      | OclTypePair (s1, s2)        => OCL.OclTy_pair ((NONE, from_oclty s1), (NONE, from_oclty s2))
                       | OclTypeRaw s       => OCL.OclTy_raw (xml_unescape s)) v
 
  val ident_dot_dot = Parse.sym_ident -- Parse.sym_ident (* "\<bullet>\<bullet>" *)
@@ -1129,13 +1129,14 @@ structure Outer_syntax_Inv = struct
 end
 
 structure Outer_syntax_Class = struct
-  fun make from_expr binding child attribute oper constr =
+  fun make from_expr abstract binding child attribute oper constr =
     let fun to_pre binding = OCL.OclTyCore_pre (From.from_binding binding) in
     (OCL.Ocl_class_raw_ext
          ( OCL.OclTyObj (to_pre binding, map (map to_pre) child)
          , From.from_list (From.from_pair From.from_binding USE_parse.from_oclty) attribute
          , Outer_syntax_Pre_Post.make2 from_expr binding oper
          , Outer_syntax_Inv.make2 from_expr [] binding constr
+         , abstract
          , From.from_unit ()))
     end
 end
@@ -1143,7 +1144,7 @@ end
 local
  open USE_parse
 
- fun mk_classDefinition _ cmd_spec =
+ fun mk_classDefinition abstract cmd_spec =
    outer_syntax_command2 @{make_string} cmd_spec "Class generation"
     (   Parse.binding
      -- class_def_list
@@ -1155,7 +1156,7 @@ local
     (curry OCL.OclAstClassRaw OCL.Floor2)
     (fn (from_expr, OclAstClassRaw) =>
      fn ((((binding, child), attribute), oper), constr) =>
-       OclAstClassRaw (Outer_syntax_Class.make from_expr binding child attribute oper constr))
+       OclAstClassRaw (Outer_syntax_Class.make from_expr (abstract = USE_class_abstract) binding child attribute oper constr))
 in
 val () = mk_classDefinition USE_class @{command_spec "Class"}
 val () = mk_classDefinition USE_class_abstract @{command_spec "Abstract_class"}
@@ -1174,7 +1175,7 @@ structure Outer_syntax_Association = struct
     OCL.Ocl_association_ext
         ( ass_ty
         , List.map (fn (((cl_from, cl_mult), o_cl_attr), l_set) =>
-            ( From.from_binding cl_from
+            ( OCL.OclTyObj (OCL.OclTyCore_pre (From.from_binding cl_from), [])
             , ( OCL.Ocl_multiplicity_ext
                             ( List.map (From.from_pair mk_mult (From.from_option mk_mult)) cl_mult
                             , From.from_option From.from_binding o_cl_attr
@@ -1209,7 +1210,7 @@ datatype use_associationClassDefinition = USE_associationclass | USE_association
 local
  open USE_parse
 
- fun mk_associationClassDefinition f cmd_spec =
+ fun mk_associationClassDefinition abstract cmd_spec =
   outer_syntax_command2 @{make_string} cmd_spec ""
     (   Parse.binding
      -- class_def_list
@@ -1225,7 +1226,7 @@ local
     (fn (from_expr, OclAstAssClass) =>
      fn ((((((binding, child), o_l), attribute), oper), constr), _) =>
         OclAstAssClass (OCL.OclAssClass ( Outer_syntax_Association.make OCL.OclAssTy_association (case o_l of NONE => [] | SOME l => l)
-                                          , Outer_syntax_Class.make from_expr binding child attribute oper constr)))
+                                          , Outer_syntax_Class.make from_expr (abstract = USE_associationclass_abstract) binding child attribute oper constr)))
 in
 val () = mk_associationClassDefinition USE_associationclass @{command_spec "Associationclass"}
 val () = mk_associationClassDefinition USE_associationclass_abstract @{command_spec "Abstract_associationclass"}

@@ -390,7 +390,7 @@ fun print_access_dot_aux where
    "print_access_dot_aux deref_oid x =
     (\<lambda> OclTy_collection c ty \<Rightarrow> (case TyCollect c of Set \<Rightarrow> Expr_apply var_select_object_set [print_access_dot_aux deref_oid ty]
                                                   | Sequence \<Rightarrow> Expr_apply var_select_object_sequence [print_access_dot_aux deref_oid ty])
-     | OclTy_pair ty1 ty2 \<Rightarrow> Expr_apply var_select_object_pair [print_access_dot_aux deref_oid ty1, print_access_dot_aux deref_oid ty2]
+     | OclTy_pair (_, ty1) (_, ty2) \<Rightarrow> Expr_apply var_select_object_pair [print_access_dot_aux deref_oid ty1, print_access_dot_aux deref_oid ty2]
      | OclTy_object (OclTyObj (OclTyCore_pre s) _) \<Rightarrow> deref_oid (Some s) [Expr_basic [var_reconst_basetype]]
      | OclTy_base_void \<Rightarrow> Expr_basic [var_reconst_basetype_void]
      | _ \<Rightarrow> Expr_basic [var_reconst_basetype]) x"

@@ -186,12 +186,12 @@ definition "arrange_ass with_aggreg with_optim_ass l_c =
                   (\<lambda>c (l_class, l_ass).
                     let default = Set
                       ; f = \<lambda>role t mult_out. \<lparr> OclAss_type = OclAssTy_native_attribute
-                                              , OclAss_relation = [(cl_name_to_string c, OclMult [(Mult_star, None)] default)
+                                              , OclAss_relation = [(ClassRaw_name c, OclMult [(Mult_star, None)] default)
                                                                   ,(t, mult_out \<lparr> TyRole := Some role \<rparr>)] \<rparr>
                       ; (l_own, l_ass) =
-                        List.fold (\<lambda> (role, OclTy_object (OclTyObj (OclTyCore_pre t) _)) \<Rightarrow>
+                        List.fold (\<lambda> (role, OclTy_object t) \<Rightarrow>
                                           \<lambda> (l_own, l). (l_own, f role t (OclMult [(Mult_nat 0, Some (Mult_nat 1))] default) # l)
-                                   | (role, OclTy_collection mult (OclTy_object (OclTyObj (OclTyCore_pre t) _))) \<Rightarrow>
+                                   | (role, OclTy_collection mult (OclTy_object t)) \<Rightarrow>
                                           \<lambda> (l_own, l). (l_own, f role t mult # l)
                                    | x \<Rightarrow> \<lambda> (l_own, l). (x # l_own, l))
                                   (ClassRaw_own c)
@@ -214,10 +214,10 @@ definition "arrange_ass with_aggreg with_optim_ass l_c =
                         Some role_to \<Rightarrow>
                         List.fold (\<lambda> (cpt_from, (name_from, multip_from)).
                           List_map_find (\<lambda>cflat.
-                            if String_equal (cl_name_to_string cflat) name_from then
+                            if String_equal (cl_name_to_string cflat) (ty_obj_to_string name_from) then
                               Some (cflat \<lparr> ClassRaw_own :=
                                               List_flatten [ ClassRaw_own cflat
-                                                           , [(role_to, let ty = OclTy_class_pre name_to in
+                                                           , [(role_to, let ty = OclTy_object name_to in
                                                                         if single_multip category_to then 
                                                                           ty
                                                                         else
@@ -294,7 +294,7 @@ fun print_infra_type_synonym_class_rec_aux0 where
             ; (name, ty) = print_infra_type_synonym_class_rec_aux0 t in
           ( (if s = Set then \<open>Set\<close> else \<open>Sequence\<close>) @@ \<open>_\<close> @@ name
           , Ty_apply (Ty_base (if s = Set then var_Set_base else var_Sequence_base)) [ty])
-      | OclTy_pair t1 t2 \<Rightarrow>
+      | OclTy_pair (_, t1) (_, t2) \<Rightarrow>
           let (name1, ty1) = print_infra_type_synonym_class_rec_aux0 t1
             ; (name2, ty2) = print_infra_type_synonym_class_rec_aux0 t2 in
           ( \<open>Pair\<close> @@ \<open>_\<close> @@ name1 @@ \<open>_\<close> @@ name2

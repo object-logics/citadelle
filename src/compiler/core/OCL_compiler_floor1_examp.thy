@@ -117,7 +117,7 @@ fun print_examp_instance_draw_list_attr_aux where
      (* object case 2 *)
        (OclTy_collection _ ty, ShallB_list l) \<Rightarrow> 
          list_bind' (\<lambda>e. print_examp_instance_draw_list_attr_aux f_oid_rec (ty, e)) Expr_list l
-     | (OclTy_pair ty1 ty2, ShallB_list [e1, e2]) \<Rightarrow> 
+     | (OclTy_pair (_, ty1) (_, ty2), ShallB_list [e1, e2]) \<Rightarrow> 
          list_bind' id
                     (\<lambda> [e1, e2] \<Rightarrow> Expr_pair e1 e2)
                     [ print_examp_instance_draw_list_attr_aux f_oid_rec (ty1, e1)
@@ -508,7 +508,7 @@ definition "print_examp_instance_defassoc_typecheck_gen l_ocli ocl =
                [])
             (accu, False)) in
         List.fold (\<lambda>ass.
-                     case OclAss_relation ass of
+                     case List_map (map_prod ty_obj_to_string id) (OclAss_relation ass) of
                        [t1, t2] \<Rightarrow> f t2 t1 o f t1 t2
                      | _ \<Rightarrow> id)
                   l_spec2)
