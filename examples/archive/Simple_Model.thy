@@ -44,7 +44,7 @@
 header{* Part ... *}
 
 theory Simple_Model
-  imports "../src/UML_OCL"
+  imports "../../src/UML_OCL"
 begin
 
 Class A
