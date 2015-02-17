@@ -105,8 +105,7 @@ definition "i_of_ocl_deep_embed_ast a b = rec_ocl_deep_embed_ast
   (ap2 a (b \<open>OclAstClassRaw\<close>) (i_of_floor a b) (i_of_ocl_class_raw a b (K i_of_unit)))
   (ap1 a (b \<open>OclAstAssociation\<close>) (i_of_ocl_association a b (K i_of_unit)))
   (ap2 a (b \<open>OclAstAssClass\<close>) (i_of_floor a b) (i_of_ocl_ass_class a b))
-  (ap2 a (b \<open>OclAstCtxtPrePost\<close>) (i_of_floor a b) (i_of_ocl_ctxt_pre_post a b (K i_of_unit)))
-  (ap2 a (b \<open>OclAstCtxtInv\<close>) (i_of_floor a b) (i_of_ocl_ctxt_inv a b (K i_of_unit)))
+  (ap2 a (b \<open>OclAstCtxt\<close>) (i_of_floor a b) (i_of_ocl_ctxt a b (K i_of_unit)))
 
   (ap1 a (b \<open>OclAstInstance\<close>) (i_of_ocl_instance a b))
   (ap1 a (b \<open>OclAstDefBaseL\<close>) (i_of_ocl_def_base_l a b))

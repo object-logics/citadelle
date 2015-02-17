@@ -52,59 +52,61 @@ section{* Translation of AST *}
 subsection{* context *}
 
 definition "print_ctxt_const ctxt ocl =
- (let attr_n = Ctxt_fun_name ctxt in
+ (let Ctxt_ty_f = ty_obj_to_string (Ctxt_ty ctxt) in
   map_prod (map_prod id (rev o List_map Thy_ty_synonym)) (rev o List_map Thy_consts_class)
     (List.fold
-      (\<lambda>(var_at_when_hol, var_at_when_ocl, f_update_ocl) ((ocl, l_isab_ty), l_isab_const).
-        let name = print_ctxt_const_name attr_n var_at_when_hol
-          ; (l_name, l) =
-              List.fold
-                (\<lambda> ty (l_name, l, l_isab_ty).
-                  let (n, isab_ty) = print_infra_type_synonym_class_rec_aux ty in
-                  ( n # l_name
-                  , if is_higher_order ty & \<not> List_member l n then
-                      (String_to_String\<^sub>b\<^sub>a\<^sub>s\<^sub>e n # l, Type_synonym n isab_ty # l_isab_ty)
-                    else
-                      (l, l_isab_ty)))
-                (List_flatten
-                    [ List_map snd (Ctxt_fun_ty_arg ctxt)
-                    , [ case Ctxt_fun_ty_out ctxt of None \<Rightarrow> OclTy_base_void | Some s \<Rightarrow> s ] ])
-                ([], D_higher_order_ty ocl, l_isab_ty) in
-        ( map_prod
-            (let ocl = ocl \<lparr> D_accessor_rbt := f_update_ocl (\<lambda> l. String_to_String\<^sub>b\<^sub>a\<^sub>s\<^sub>e name # l) (D_accessor_rbt ocl) \<rparr> in
-             (\<lambda> D_higher_order_ty. ocl \<lparr> D_higher_order_ty := D_higher_order_ty \<rparr>))
-            id
-            l
-        , Consts_raw0
-            name
-            (ty_arrow (List_map Ty_base (Ctxt_ty ctxt # rev l_name)))
-            (mk_dot attr_n var_at_when_ocl)
-            (Some (natural_of_nat (length (Ctxt_fun_ty_arg ctxt)))) # l_isab_const))
-      [ (var_at_when_hol_post, var_at_when_ocl_post, update_D_accessor_rbt_post)
-      , (var_at_when_hol_pre, var_at_when_ocl_pre, update_D_accessor_rbt_pre)]
+      (\<lambda> Ctxt_inv _ \<Rightarrow> id
+       | Ctxt_pp ctxt \<Rightarrow>
+          let attr_n = Ctxt_fun_name ctxt in
+          List.fold
+            (\<lambda>(var_at_when_hol, var_at_when_ocl, f_update_ocl) ((ocl, l_isab_ty), l_isab_const).
+              let name = print_ctxt_const_name attr_n var_at_when_hol
+                ; (l_name, l) =
+                    List.fold
+                      (\<lambda> ty (l_name, l, l_isab_ty).
+                        let (n, isab_ty) = print_infra_type_synonym_class_rec_aux ty in
+                        ( n # l_name
+                        , if is_higher_order ty & \<not> List_member l n then
+                            (String_to_String\<^sub>b\<^sub>a\<^sub>s\<^sub>e n # l, Type_synonym n isab_ty # l_isab_ty)
+                          else
+                            (l, l_isab_ty)))
+                      (List_flatten
+                          [ List_map snd (Ctxt_fun_ty_arg ctxt)
+                          , [ case Ctxt_fun_ty_out ctxt of None \<Rightarrow> OclTy_base_void | Some s \<Rightarrow> s ] ])
+                      ([], D_higher_order_ty ocl, l_isab_ty) in
+              ( map_prod
+                  (let ocl = ocl \<lparr> D_accessor_rbt := f_update_ocl (\<lambda> l. String_to_String\<^sub>b\<^sub>a\<^sub>s\<^sub>e name # l) (D_accessor_rbt ocl) \<rparr> in
+                   (\<lambda> D_higher_order_ty. ocl \<lparr> D_higher_order_ty := D_higher_order_ty \<rparr>))
+                  id
+                  l
+              , Consts_raw0
+                  name
+                  (ty_arrow (List_map Ty_base (Ctxt_ty_f # rev l_name)))
+                  (mk_dot attr_n var_at_when_ocl)
+                  (Some (natural_of_nat (length (Ctxt_fun_ty_arg ctxt)))) # l_isab_const))
+            [ (var_at_when_hol_post, var_at_when_ocl_post, update_D_accessor_rbt_post)
+            , (var_at_when_hol_pre, var_at_when_ocl_pre, update_D_accessor_rbt_pre)])
+      (Ctxt_clause ctxt)
       ((ocl, []), [])))"
 
 definition "print_ctxt_gen_syntax_header_l l = Isab_thy (Theory_thm (Thm (List_map Thm_str l)))"
 
-definition "print_ctxt_pre_post = (\<lambda>ctxt. bootstrap_floor
+definition "print_ctxt = (\<lambda>ctxt. bootstrap_floor
   (\<lambda>l ocl.
     let ((ocl, l_isab_ty), l_isab) = print_ctxt_const ctxt ocl in
     (List_flatten [l_isab_ty, l_isab, l], ocl))
-  [ Isab_thy_ocl_deep_embed_ast (OclAstCtxtPrePost Floor2
-      (ctxt \<lparr> Ctxt_expr :=
-              List_map (\<lambda> (pref, e) \<Rightarrow> (pref, T_lambdas (make_ctxt_free_var pref ctxt) e))
-                       (Ctxt_expr ctxt) \<rparr>))
-  , print_ctxt_gen_syntax_header_l [print_ctxt_pre_post_name (Ctxt_fun_name ctxt) var_at_when_hol_post] ])"
-
-definition "print_ctxt_inv = (\<lambda>ctxt. bootstrap_floor Pair
-  [ Isab_thy_ocl_deep_embed_ast (OclAstCtxtInv Floor2
-      (ctxt \<lparr> Ctxt_inv_expr :=
-              List_map (map_prod id (T_lambdas (Ctxt_inv_param ctxt @@@@ [var_self])))
-                       (Ctxt_inv_expr ctxt) \<rparr>))
+  [ Isab_thy_ocl_deep_embed_ast (OclAstCtxt Floor2
+      (map_invariant (\<lambda>T_inv b (OclProp_ctxt n p) \<Rightarrow>
+                       T_inv b (OclProp_ctxt n (T_lambdas (Ctxt_param ctxt @@@@ [var_self]) p)))
+                     (map_pre_post (\<lambda>pref ctxt. T_lambdas (make_ctxt_free_var pref ctxt))
+                                   ctxt)))
   , print_ctxt_gen_syntax_header_l
-      (List_flatten (List_map (\<lambda> (tit, _).
-        List_map (print_ctxt_inv_name (Ctxt_inv_ty ctxt) tit)
-          [ var_at_when_hol_pre
-          , var_at_when_hol_post ]) (Ctxt_inv_expr ctxt))) ])"
+      (List_flatten [ List.map_filter (\<lambda> Ctxt_pp ctxt \<Rightarrow> Some (print_ctxt_pre_post_name (Ctxt_fun_name ctxt) var_at_when_hol_post)
+                                       | _ \<Rightarrow> None)
+                                      (Ctxt_clause ctxt)
+                    , List_flatten (List_map (\<lambda>(tit, _). List_map (print_ctxt_inv_name (ty_obj_to_string (Ctxt_ty ctxt)) tit)
+                                                                  [ var_at_when_hol_pre
+                                                                  , var_at_when_hol_post ])
+                                             (fold_invariant' ctxt)) ]) ])"
 
 end

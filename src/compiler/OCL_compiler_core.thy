@@ -339,10 +339,9 @@ definition "thy_def_state = (\<lambda> Floor1 \<Rightarrow> [ OCL_compiler_floor
 definition "thy_def_pre_post = (\<lambda> Floor1 \<Rightarrow> [ OCL_compiler_floor1_examp.print_pre_post ]
                                 | Floor2 \<Rightarrow> [ OCL_compiler_floor2_examp.print_pre_post_wff
                                             , OCL_compiler_floor2_examp.print_pre_post_where ])"
-definition "thy_ctxt_pre_post n = [ case n of Floor1 \<Rightarrow> OCL_compiler_floor1_ctxt.print_ctxt_pre_post
-                                            | Floor2 \<Rightarrow> OCL_compiler_floor2_ctxt.print_ctxt_pre_post ]"
-definition "thy_ctxt_inv n = [ case n of Floor1 \<Rightarrow> OCL_compiler_floor1_ctxt.print_ctxt_inv
-                                       | Floor2 \<Rightarrow> OCL_compiler_floor2_ctxt.print_ctxt_inv ]"
+definition "thy_ctxt = (\<lambda> Floor1 \<Rightarrow> [ OCL_compiler_floor1_ctxt.print_ctxt ]
+                        | Floor2 \<Rightarrow> [ OCL_compiler_floor2_ctxt.print_ctxt_pre_post
+                                    , OCL_compiler_floor2_ctxt.print_ctxt_inv ])"
 definition "thy_flush_all = []"
 
 definition "ocl_compiler_config_empty disable_thy_output file_out_path_dep oid_start design_analysis sorry_dirty =
@@ -398,8 +397,7 @@ definition "ocl_env_class_spec_mk f_try f_accu_reset f_fold f =
              | OclAstDefBaseL meta \<Rightarrow> fold_thy0 meta thy_def_base_l
              | OclAstDefState floor meta \<Rightarrow> fold_thy0 meta (thy_def_state floor)
              | OclAstDefPrePost floor meta \<Rightarrow> fold_thy0 meta (thy_def_pre_post floor)
-             | OclAstCtxtPrePost floor meta \<Rightarrow> fold_thy0 meta (thy_ctxt_pre_post floor)
-             | OclAstCtxtInv floor meta \<Rightarrow> fold_thy0 meta (thy_ctxt_inv floor)
+             | OclAstCtxt floor meta \<Rightarrow> fold_thy0 meta (thy_ctxt floor)
              | OclAstFlushAll meta \<Rightarrow> fold_thy0 meta thy_flush_all)
                   f)
            l_ocl
@@ -428,8 +426,7 @@ definition "fold_thy' f_try f_accu_reset f =
    | OclAstDefBaseL meta \<Rightarrow> fold_thy0 meta thy_def_base_l
    | OclAstDefState floor meta \<Rightarrow> ocl_env_class_spec_mk (fold_thy0 meta (thy_def_state floor))
    | OclAstDefPrePost floor meta \<Rightarrow> fold_thy0 meta (thy_def_pre_post floor)
-   | OclAstCtxtPrePost floor meta \<Rightarrow> ocl_env_class_spec_mk (fold_thy0 meta (thy_ctxt_pre_post floor))
-   | OclAstCtxtInv floor meta \<Rightarrow> ocl_env_class_spec_mk (fold_thy0 meta (thy_ctxt_inv floor))
+   | OclAstCtxt floor meta \<Rightarrow> ocl_env_class_spec_mk (fold_thy0 meta (thy_ctxt floor))
    | OclAstFlushAll meta \<Rightarrow> ocl_env_class_spec_mk (fold_thy0 meta thy_flush_all)) f))"
 
 definition "fold_thy_shallow f_try f_accu_reset x = fold_thy' f_try f_accu_reset (\<lambda>l acc1. List.fold x l o Pair acc1)"

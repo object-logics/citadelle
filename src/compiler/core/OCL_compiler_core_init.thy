@@ -152,19 +152,17 @@ subsection{* ... *}
 
 definition "find_class_ass ocl =
  (let (l_class, l_ocl) =
-    partition (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l f = \<lambda>class. ClassRaw_contract class = [] & ClassRaw_invariant class = [] in
+    partition (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l f = \<lambda>class. ClassRaw_clause class = [] in
                \<lambda> OclAstClassRaw Floor1 class \<Rightarrow> f class
                | OclAstAssociation _ \<Rightarrow> True
                | OclAstAssClass Floor1 (OclAssClass _ class) \<Rightarrow> f class
                | _ \<Rightarrow> False) (rev (D_ocl_env ocl)) in
-  ( List_flatten [l_class, List.map_filter (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l f = \<lambda>class. class \<lparr> ClassRaw_contract := [], ClassRaw_invariant := [] \<rparr> in
+  ( List_flatten [l_class, List.map_filter (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l f = \<lambda>class. class \<lparr> ClassRaw_clause := [] \<rparr> in
                                        \<lambda> OclAstClassRaw Floor1 c \<Rightarrow> Some (OclAstClassRaw Floor1 (f c))
                                        | OclAstAssClass Floor1 (OclAssClass ass class) \<Rightarrow> Some (OclAstAssClass Floor1 (OclAssClass ass (f class)))
                                        | _ \<Rightarrow> None) l_ocl]
   , List_flatten (List_map
-      (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l f = \<lambda>class.
-          List_flatten [ List_map (OclAstCtxtPrePost Floor1) (ClassRaw_contract class)
-                  , List_map (OclAstCtxtInv Floor1) (ClassRaw_invariant class) ] in
+      (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l f = \<lambda>class. [ OclAstCtxt Floor1 (ocl_ctxt_ext [] (ClassRaw_name class) (ClassRaw_clause class) ()) ] in
        \<lambda> OclAstClassRaw Floor1 class \<Rightarrow> f class
        | OclAstAssClass Floor1 (OclAssClass _ class) \<Rightarrow> f class
        | x \<Rightarrow> [x]) l_ocl)))"
@@ -186,8 +184,8 @@ definition "arrange_ass with_aggreg with_optim_ass l_c =
                   (\<lambda>c (l_class, l_ass).
                     let default = Set
                       ; f = \<lambda>role t mult_out. \<lparr> OclAss_type = OclAssTy_native_attribute
-                                              , OclAss_relation = [(ClassRaw_name c, OclMult [(Mult_star, None)] default)
-                                                                  ,(t, mult_out \<lparr> TyRole := Some role \<rparr>)] \<rparr>
+                                              , OclAss_relation = OclAssRel [(ClassRaw_name c, OclMult [(Mult_star, None)] default)
+                                                                            ,(t, mult_out \<lparr> TyRole := Some role \<rparr>)] \<rparr>
                       ; (l_own, l_ass) =
                         List.fold (\<lambda> (role, OclTy_object t) \<Rightarrow>
                                           \<lambda> (l_own, l). (l_own, f role t (OclMult [(Mult_nat 0, Some (Mult_nat 1))] default) # l)
@@ -224,7 +222,7 @@ definition "arrange_ass with_aggreg with_optim_ass l_c =
                                                                           OclTy_collection category_to ty)]] \<rparr>)
                             else None))
                      | _ \<Rightarrow> \<lambda>_. id)
-                    (OclAss_relation ass)
+                    (OclAss_relation' ass)
                     l_class
                 , l_ass)
               else
@@ -294,7 +292,7 @@ fun print_infra_type_synonym_class_rec_aux0 where
             ; (name, ty) = print_infra_type_synonym_class_rec_aux0 t in
           ( (if s = Set then \<open>Set\<close> else \<open>Sequence\<close>) @@ \<open>_\<close> @@ name
           , Ty_apply (Ty_base (if s = Set then var_Set_base else var_Sequence_base)) [ty])
-      | OclTy_pair (_, t1) (_, t2) \<Rightarrow>
+      | OclTy_pair t1 t2 \<Rightarrow>
           let (name1, ty1) = print_infra_type_synonym_class_rec_aux0 t1
             ; (name2, ty2) = print_infra_type_synonym_class_rec_aux0 t2 in
           ( \<open>Pair\<close> @@ \<open>_\<close> @@ name1 @@ \<open>_\<close> @@ name2

@@ -70,8 +70,7 @@ datatype ocl_deep_embed_ast =
                               OclAstClassRaw floor ocl_class_raw
                             | OclAstAssociation ocl_association
                             | OclAstAssClass floor ocl_ass_class
-                            | OclAstCtxtPrePost floor ocl_ctxt_pre_post
-                            | OclAstCtxtInv floor ocl_ctxt_inv
+                            | OclAstCtxt floor ocl_ctxt
 
                               (* invented *)
                             | OclAstInstance ocl_instance
@@ -114,9 +113,15 @@ record ocl_compiler_config =  D_disable_thy_output :: bool
 
 subsection{* Auxilliary *}
 
-definition "map2_ctxt_term f = (\<lambda>
-    OclAstCtxtPrePost Floor2 ocl \<Rightarrow> OclAstCtxtPrePost Floor2 (Ctxt_expr_update (List_map (\<lambda>(s, x). (s, f x))) ocl)
-  | OclAstCtxtInv Floor2 ocl \<Rightarrow> OclAstCtxtInv Floor2 (Ctxt_inv_expr_update (List_map (\<lambda>(s, x). (s, f x))) ocl)
+definition "map2_ctxt_term f =
+ (let f_prop = \<lambda> OclProp_ctxt n prop \<Rightarrow> OclProp_ctxt n (f prop)
+    ; f_inva = \<lambda> T_inv b prop \<Rightarrow> T_inv b (f_prop prop) in
+  \<lambda> OclAstCtxt Floor2 c \<Rightarrow>
+    OclAstCtxt Floor2
+      (Ctxt_clause_update
+        (List_map (\<lambda> Ctxt_pp pp \<Rightarrow> Ctxt_pp (Ctxt_expr_update (List_map (\<lambda> T_pp pref prop \<Rightarrow> T_pp pref (f_prop prop)
+                                                                        | T_invariant inva \<Rightarrow> T_invariant (f_inva inva))) pp)
+                   | Ctxt_inv l_inv \<Rightarrow> Ctxt_inv (f_inva l_inv))) c)
   | x \<Rightarrow> x)"
 
 definition "ocl_compiler_config_more_map f ocl =

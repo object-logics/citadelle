@@ -51,7 +51,10 @@ begin
 section{* OCL Meta-Model aka. AST definition of OCL *}
 
 subsection{* type definition *}
-
+(*
+ datatype use_opt = Ordered (* ordered set *) | Subsets of binding | Union | Redefines of binding | Derived of string | Qualifier of (binding * use_oclty) list | Nonunique (* bag *) | Sequence
+ datatype use_operation_def = Expression of string | BlockStat
+*)
 datatype ocl_collection =   Set | Sequence
 
 datatype ocl_multiplicity_single = Mult_nat nat
@@ -83,9 +86,8 @@ datatype ocl_ty =           OclTy_base_void (* NOTE can be merged in a generic t
                           | OclTy_base_string
                           | OclTy_object ocl_ty_obj
                           | OclTy_collection ocl_multiplicity ocl_ty
-                          | OclTy_pair "string option (* name *) \<times> ocl_ty"
-                                       "string option (* name *) \<times> ocl_ty" (* NOTE can be merged in a generic tuple *)
-                          | OclTy_pair1 "string option (* name *) \<times> ocl_ty" (* NOTE can be merged in a generic tuple *)
+                          | OclTy_pair ocl_ty ocl_ty (* NOTE can be merged in a generic tuple *)
+                          | OclTy_binding "string option (* name *) \<times> ocl_ty" (* NOTE can be merged in a generic tuple *)
                           | OclTy_arrow ocl_ty ocl_ty
                           | OclTy_raw string (* denoting raw HOL-type *) (* FIXME to be removed *)
 
@@ -94,9 +96,9 @@ datatype ocl_association_type = OclAssTy_native_attribute
                               | OclAssTy_association
                               | OclAssTy_composition
                               | OclAssTy_aggregation
+datatype ocl_association_relation = OclAssRel "(ocl_ty_obj \<times> ocl_multiplicity) list"
 record ocl_association =        OclAss_type     :: ocl_association_type
-                                OclAss_relation :: "( ocl_ty_obj (* name class *)
-                                                    \<times> ocl_multiplicity (* multiplicity *)) list"
+                                OclAss_relation :: ocl_association_relation
 
 datatype ocl_ctxt_prefix = OclCtxtPre | OclCtxtPost
 
@@ -104,16 +106,22 @@ datatype ocl_ctxt_term = T_pure pure_term
                        | T_to_be_parsed string (* raw, it includes extra quoting characters like DEL (char 127) *)
                                         string (* same string but escaped without those quoting characters *)
                        | T_lambda string ocl_ctxt_term
+datatype ocl_prop = OclProp_ctxt "string option" (* name *) ocl_ctxt_term
+                  (*| OclProp_rel ocl_ty_obj (* states that the constraint should be true *)
+                  | OclProp_ass ocl_association_relation (* states the relation as true *)*)
+datatype ocl_ctxt_term_inv = T_inv bool (* True: existential *) ocl_prop
+datatype ocl_ctxt_term_pp = T_pp ocl_ctxt_prefix ocl_prop
+                          | T_invariant ocl_ctxt_term_inv
 
-record ocl_ctxt_pre_post = Ctxt_ty :: string (* class ty *)
-                           Ctxt_fun_name :: string (* function name *)
-                           Ctxt_fun_ty_arg :: "(string (* arg name *) \<times> ocl_ty) list"
-                           Ctxt_fun_ty_out :: "ocl_ty option" (* None : Void *)
-                           Ctxt_expr :: "(ocl_ctxt_prefix \<times> ocl_ctxt_term (* expr *)) list"
+record ocl_ctxt_pre_post = Ctxt_fun_name :: string (* function name *)
+                           Ctxt_fun_ty :: ocl_ty
+                           Ctxt_expr :: "ocl_ctxt_term_pp list"
 
-record ocl_ctxt_inv =      Ctxt_inv_param :: "string list"
-                           Ctxt_inv_ty :: string
-                           Ctxt_inv_expr :: "(string (* name *) \<times> ocl_ctxt_term (* expr *)) list"
+datatype ocl_ctxt_clause = Ctxt_pp ocl_ctxt_pre_post
+                         | Ctxt_inv ocl_ctxt_term_inv
+record ocl_ctxt = Ctxt_param :: "string list" (* param *)
+                  Ctxt_ty :: ocl_ty_obj
+                  Ctxt_clause :: "ocl_ctxt_clause list"
 
 datatype ocl_class =   OclClass
                          string (* name of the class *)
@@ -122,8 +130,7 @@ datatype ocl_class =   OclClass
 
 record ocl_class_raw = ClassRaw_name :: ocl_ty_obj
                        ClassRaw_own :: "(string (* name *) \<times> ocl_ty) list" (* attribute *)
-                       ClassRaw_contract :: "ocl_ctxt_pre_post list" (* contract *)
-                       ClassRaw_invariant :: "ocl_ctxt_inv list" (* invariant *)
+                       ClassRaw_clause :: "ocl_ctxt_clause list"
                        ClassRaw_abstract :: bool (* True: abstract *)
 
 datatype ocl_ass_class = OclAssClass ocl_association
@@ -135,6 +142,81 @@ definition "T_lambdas = List.fold T_lambda"
 definition "TyObjN_role_name = TyRole o TyObjN_role_multip"
 definition "OclTy_class c = OclTy_object (OclTyObj (OclTyCore c) [])"
 definition "OclTy_class_pre c = OclTy_object (OclTyObj (OclTyCore_pre c) [])"
+definition "OclAss_relation' l = (case OclAss_relation l of OclAssRel l \<Rightarrow> l)"
+
+fun fold_pair_var where
+   "fold_pair_var f t accu = (case t of
+    OclTy_pair t1 t2 \<Rightarrow> Option.bind (fold_pair_var f t1 accu) (fold_pair_var f t2)
+  | OclTy_binding (v, t) \<Rightarrow> fold_pair_var f t (f (v, t) accu)
+  | OclTy_collection _ t \<Rightarrow> fold_pair_var f t accu
+  | OclTy_arrow _ _ \<Rightarrow> None
+  | _ \<Rightarrow> Some accu)"
+
+definition "Ctxt_fun_ty_arg ctxt =
+ (case 
+    fold_pair_var
+      (\<lambda> (Some v, t) \<Rightarrow> Cons (v, t))
+      (case Ctxt_fun_ty ctxt of OclTy_arrow t _ \<Rightarrow> t
+                              | t \<Rightarrow> t)
+      []
+  of Some l \<Rightarrow> rev l)"
+
+definition "Ctxt_fun_ty_out ctxt =
+ (case Ctxt_fun_ty ctxt of OclTy_arrow _ t \<Rightarrow> Some t
+                         | _ \<Rightarrow> None)"
+
+definition "map_pre_post f = 
+             Ctxt_clause_update
+               (List_map 
+                  (\<lambda> Ctxt_pp ctxt \<Rightarrow>
+                     Ctxt_pp (Ctxt_expr_update
+                               (List_map
+                                  (\<lambda> T_pp pref (OclProp_ctxt n e) \<Rightarrow>
+                                     T_pp pref (OclProp_ctxt n (f pref ctxt e))
+                                   | x \<Rightarrow> x))
+                               ctxt)
+                   | x \<Rightarrow> x))"
+
+definition "fold_pre_post f ctxt = 
+              List.fold 
+                (\<lambda> Ctxt_pp ctxt \<Rightarrow> 
+                     f (rev (List.fold
+                       (\<lambda> T_pp pref (OclProp_ctxt n e) \<Rightarrow> Cons (pref, n, e)
+                        | _ \<Rightarrow> id)
+                       (Ctxt_expr ctxt) [])) ctxt
+                 | _ \<Rightarrow> id)
+                (Ctxt_clause ctxt)"
+
+definition "map_invariant f_inv =
+             Ctxt_clause_update
+               (List_map 
+                  (\<lambda> Ctxt_pp ctxt \<Rightarrow>
+                     Ctxt_pp (Ctxt_expr_update
+                               (List_map
+                                 (\<lambda> T_invariant ctxt \<Rightarrow> T_invariant (f_inv ctxt)
+                                  | x \<Rightarrow> x))
+                               ctxt)
+                   | Ctxt_inv ctxt \<Rightarrow> Ctxt_inv (f_inv ctxt)))"
+
+definition "fold_invariant f_inv ctxt =
+              List.fold
+                (\<lambda> Ctxt_pp ctxt \<Rightarrow>
+                             List.fold
+                               (\<lambda> T_invariant ctxt \<Rightarrow> f_inv ctxt
+                                | _ \<Rightarrow> id)
+                              (Ctxt_expr ctxt)
+                 | Ctxt_inv ctxt \<Rightarrow> f_inv ctxt)
+                (Ctxt_clause ctxt)"
+
+definition "fold_invariant' inva =
+  rev (fst (fold_invariant (\<lambda>(T_inv _ (OclProp_ctxt tit inva)) \<Rightarrow> \<lambda> (accu, n).
+                               ( (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l tit = case tit of None \<Rightarrow> nat_of_str n
+                                                          | Some tit \<Rightarrow> tit in
+                                  (tit, inva))
+                                 # accu
+                               , Suc n))
+                           inva
+                           ([], 0)))"
 
 subsection{* Class Translation Preliminaries *}
 
@@ -284,7 +366,7 @@ definition "class_unflat = (\<lambda> (l_class, l_ass).
                  set \<open>OclAny\<close> as default inherited class (for all classes linking to zero inherited classes) *)
               insert
                 const_oclany
-                (ocl_class_raw.make (OclTyObj const_oclany' []) [] [] [] False)
+                (ocl_class_raw.make (OclTyObj const_oclany' []) [] [] False)
                 (List.fold
                   (\<lambda> cflat \<Rightarrow>
                     insert (cl_name_to_string cflat) (cflat \<lparr> ClassRaw_name := case ClassRaw_name cflat of OclTyObj n [] \<Rightarrow> OclTyObj n [[const_oclany']] | x \<Rightarrow> x \<rparr>))
@@ -293,7 +375,7 @@ definition "class_unflat = (\<lambda> (l_class, l_ass).
     (* fold associations:
        add remaining 'object' attributes *)
     List_map snd (entries (List.fold (\<lambda> (ass_oid, ass) \<Rightarrow>
-      let l_rel = OclAss_relation ass in
+      let l_rel = OclAss_relation' ass in
       fold_max
         (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l n_rel = natural_of_nat (List.length l_rel) in
          (\<lambda> (cpt_to, (name_to, category_to)).
@@ -347,7 +429,7 @@ fun str_of_ty where "str_of_ty e =
   (*| OclTy_object (OclTyObj (OclTyCore ty_obj) _)*)
   | OclTy_collection t ocl_ty \<Rightarrow> (case TyCollect t of Set \<Rightarrow> flatten [\<open>Set(\<close>, str_of_ty ocl_ty,\<open>)\<close>]
                                                     | Sequence \<Rightarrow> flatten [\<open>Sequence(\<close>, str_of_ty ocl_ty,\<open>)\<close>])
-  | OclTy_pair (_, ocl_ty1) (_, ocl_ty2) \<Rightarrow> flatten [\<open>Pair(\<close>, str_of_ty ocl_ty1, \<open>,\<close>, str_of_ty ocl_ty2,\<open>)\<close>]
+  | OclTy_pair ocl_ty1 ocl_ty2 \<Rightarrow> flatten [\<open>Pair(\<close>, str_of_ty ocl_ty1, \<open>,\<close>, str_of_ty ocl_ty2,\<open>)\<close>]
   | OclTy_raw s \<Rightarrow> flatten [\<open>\<acute>\<close>, s, \<open>\<acute>\<close>]) e"
 
 definition "ty_void = str_of_ty OclTy_base_void"
@@ -367,7 +449,7 @@ fun str_hol_of_ty_all where "str_hol_of_ty_all f b e =
   | OclTy_object (OclTyObj (OclTyCore_pre s) _) \<Rightarrow> b const_oid
   | OclTy_object (OclTyObj (OclTyCore ty_obj) _) \<Rightarrow> f (b var_ty_list) [b (TyObj_name ty_obj)]
   | OclTy_collection _ ty \<Rightarrow> f (b var_ty_list) [str_hol_of_ty_all f b ty]
-  | OclTy_pair (_, ty1) (_, ty2) \<Rightarrow> f (b var_ty_prod) [str_hol_of_ty_all f b ty1, str_hol_of_ty_all f b ty2]
+  | OclTy_pair ty1 ty2 \<Rightarrow> f (b var_ty_prod) [str_hol_of_ty_all f b ty1, str_hol_of_ty_all f b ty2]
   | OclTy_raw s \<Rightarrow> b s) e"
 
 definition "print_infra_type_synonym_class_set_name name = \<open>Set_\<close> @@ name"

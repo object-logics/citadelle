@@ -117,10 +117,20 @@ definition "s_of_def_pp_core = (\<lambda> OclDefPPCoreBinding s \<Rightarrow> To
                                 | OclDefPPCoreAdd l \<Rightarrow> sprint1 \<open>[ %s ]\<close>\<acute> (s_of_def_state l))"
 
 definition\<acute> \<open>s_of_ocl_deep_embed_ast _ =
- (\<lambda> OclAstCtxtPrePost Floor2 ctxt \<Rightarrow>
-      sprint5 \<open>Context[shallow] %s :: %s (%s) %s
+ (\<lambda> OclAstCtxt Floor2 ctxt \<Rightarrow>
+    let f_inv = \<lambda> T_inv b (OclProp_ctxt n s) \<Rightarrow> sprint3 \<open>  %sInv %s : "%s"\<close>\<acute>
+              (if b then \<open>Existential\<close> else \<open>\<close>)
+              (case n of None \<Rightarrow> \<open>\<close> | Some s \<Rightarrow> To_string s)
+              (s_of_ctxt2_term s) in
+      sprint3 \<open>Context[shallow] %s%s %s\<close>\<acute>
+        (case Ctxt_param ctxt of
+           [] \<Rightarrow> \<open>\<close>
+         | l \<Rightarrow> sprint1 \<open>%s : \<close>\<acute> (String_concat \<open>, \<close> (List_map To_string l)))
+        (To_string (ty_obj_to_string (Ctxt_ty ctxt)))
+(String_concat \<open>
+\<close> (List_map (\<lambda> Ctxt_pp ctxt \<Rightarrow>
+                sprint4 \<open>:: %s (%s) %s
 %s\<close>\<acute>
-        (To_string (Ctxt_ty ctxt))
         (To_string (Ctxt_fun_name ctxt))
         (String_concat \<open>, \<close>
           (List_map
@@ -131,25 +141,17 @@ definition\<acute> \<open>s_of_ocl_deep_embed_ast _ =
         (String_concat \<open>
 \<close>
           (List_map
-            (\<lambda> (pref, s). sprint2 \<open>  %s : "%s"\<close>\<acute>
-              (case pref of OclCtxtPre \<Rightarrow> \<open>Pre\<close>
-                          | OclCtxtPost \<Rightarrow> \<open>Post\<close>)
-              (s_of_ctxt2_term s))
+            (\<lambda> T_pp pref (OclProp_ctxt n s) \<Rightarrow> sprint3 \<open>  %s %s: "%s"\<close>\<acute>
+                (case pref of OclCtxtPre \<Rightarrow> \<open>Pre\<close>
+                            | OclCtxtPost \<Rightarrow> \<open>Post\<close>)
+                (case n of None \<Rightarrow> \<open>\<close> | Some s \<Rightarrow> To_string s)
+                (s_of_ctxt2_term s)
+             | T_invariant inva \<Rightarrow> f_inv inva
+              )
             (Ctxt_expr ctxt)))
-  | OclAstCtxtInv Floor2 ctxt \<Rightarrow>
-      sprint3 \<open>Context[shallow] %s%s
-%s\<close>\<acute>
-        (case Ctxt_inv_param ctxt of
-           [] \<Rightarrow> \<open>\<close>
-         | l \<Rightarrow> sprint1 \<open>%s:\<close>\<acute> (String_concat \<open>,\<close> (List_map To_string l)))
-        (To_string (Ctxt_inv_ty ctxt))
-        (String_concat \<open>
-\<close>
-          (List_map
-            (\<lambda> (n, s). sprint2 \<open>  Inv %s : "%s"\<close>\<acute>
-              (To_string n)
-              (s_of_ctxt2_term s))
-            (Ctxt_inv_expr ctxt)))
+          | Ctxt_inv inva \<Rightarrow> f_inv inva
+) (Ctxt_clause ctxt)))
+
   | OclAstInstance (OclInstance l) \<Rightarrow>
       sprint1 \<open>Instance %s\<close>\<acute> (String_concat \<open>
      and \<close> (List_map s_of_ocl_instance_single l))
