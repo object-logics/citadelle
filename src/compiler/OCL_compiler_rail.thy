@@ -109,11 +109,18 @@ text {*
   ;
   @{syntax_def class}:
                (@'Attributes'? ((binding ':' @{syntax uml_type}) * (';'?)))? \<newline>
-               (@'Operations'? ((binding @{syntax uml_type} \<newline>
-                                 ('=' term | term)? \<newline>
-                                 (@{syntax pre_post} *)
-                                 ) * (';'?)))? \<newline>
-               (@'Constraints'? ((@{syntax invariant})*))?
+               @{syntax context}
+  ;
+  @{syntax_def context}:
+            (( ((() | @'Operations' | '::')
+                binding @{syntax uml_type} \<newline>
+                ('=' term | term)? (((@'Pre' | @'Post') @{syntax use_prop}
+                                    | @{syntax invariant}) * ())
+               )
+             | @{syntax invariant}) * ())
+  ;
+  @{syntax_def invariant}:
+               @'Constraints'? @'Existential'? @'Inv' @{syntax use_prop}
   ;
 \<close>}
 *}
@@ -161,17 +168,7 @@ text {*
 \end{matharray}
 
 @{rail \<open>
-  @@{command Context} ('[' @'shallow' ']')? \<newline>
-    ((binding + ',') ':')? @{syntax uml_type} \<newline>
-    (('::' binding @{syntax uml_type} (@{syntax pre_post} *)
-      | @{syntax invariant}) * ())
-  ;
-  @{syntax_def pre_post}:
-               ((@'Pre' | @'Post') @{syntax use_prop}
-               | @{syntax invariant})
-  ;
-  @{syntax_def invariant}:
-               @'Existential'? @'Inv' @{syntax use_prop}
+  @@{command Context} ('[' @'shallow' ']')? @{syntax type_object} @{syntax context}
   ;
 \<close>}
 *}
@@ -252,7 +249,10 @@ text {*
                | '\<langle>' term '\<rangle>'
   ;
   @{syntax_def type_object}:
-               binding (('<' (binding + ',')) * ())
+               @{syntax name_object} (('<' (@{syntax name_object} + ',')) * ())
+  ;
+  @{syntax_def name_object}:
+               ((binding + ',') ':')? binding
   ;
   @{syntax_def uml_type}:
                  'Void'
@@ -283,9 +283,9 @@ text {*
                 | @'Union') * ())
   ;
   @{syntax_def use_prop}:
-                 @{syntax type_object}
+              (  @{syntax type_object}
                | @{syntax association}
-               | (binding? ':')? prop
+               | (binding? ':')? prop) (';'?)
   ;
 \<close>}
 *}
