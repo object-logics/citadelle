@@ -58,7 +58,7 @@ imports OCL_compiler_printer
 
            (* hol syntax *)
            "output_directory"
-           "THEORY" "IMPORTS" "SECTION" "SORRY" "NO_DIRTY"
+           "THEORY" "IMPORTS" "SECTION" "SORRY" "no_dirty"
            "deep" "shallow" "syntax_print" "skip_export"
            "generation_semantics"
            "flush_all"
@@ -504,7 +504,7 @@ val parse_scheme = @{keyword "design"} >> K OCL.Gen_only_design || @{keyword "an
 
 val parse_sorry_mode = 
   Scan.optional (  @{keyword "SORRY"} >> K (SOME OCL.Gen_sorry)
-                || @{keyword "NO_DIRTY"} >> K (SOME OCL.Gen_no_dirty)) NONE
+                || @{keyword "no_dirty"} >> K (SOME OCL.Gen_no_dirty)) NONE
 
 val parse_deep =
      Scan.optional (@{keyword "skip_export"} >> K true) false

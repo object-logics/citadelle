@@ -52,7 +52,7 @@ imports
 begin
 
 generation_syntax [ shallow (generation_semantics [ design ])
-                            (*SORRY*) (*NO_DIRTY*)
+                            (*SORRY*) (*no_dirty*)
                   (*, syntax_print*) ]
 
 Class Person < Planet
