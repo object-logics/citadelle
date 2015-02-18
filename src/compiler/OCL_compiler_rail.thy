@@ -92,7 +92,7 @@ text {*
 \<close>}
 *}
 
-section{* UML/OCL: USE Grammar *}
+section{* UML/OCL: Extended USE Grammar *}
 subsection{* ....................................................................................................................................... *}
 text {*
 \begin{matharray}{rcl}
@@ -108,7 +108,7 @@ text {*
                     @'End'?
   ;
   @{syntax_def class}:
-               (@'Attributes'? ((binding ':' @{syntax uml_type}) * (';'?)))? \<newline>
+               @'Attributes'? ((binding ':' @{syntax uml_type}) * (';'?)) \<newline>
                @{syntax context}
   ;
   @{syntax_def context}:
@@ -138,7 +138,7 @@ text {*
    | @@{command Composition}) binding? @{syntax association} @'End'?
   ;
   @{syntax_def association}:
-               @'Between'? @{syntax association_end} (@{syntax association_end}+)
+               @'Between'? (@{syntax association_end} (@{syntax association_end}+))?
   ;
   @{syntax_def association_end}:
                @{syntax type_object}
@@ -157,7 +157,7 @@ text {*
 @{rail \<open>
   (  @@{command Associationclass}
    | @@{command Abstract_associationclass}) @{syntax type_object} \<newline>
-                                            @{syntax association} @{syntax class} ('aggregation' | 'composition')? @'End'?
+                                            @{syntax association} @{syntax class} (() | 'aggregation' | 'composition') @'End'?
   ;
 \<close>}
 *}
@@ -173,7 +173,6 @@ text {*
 \<close>}
 *}
 
-section{* UML/OCL: USE Grammar Extended *}
 subsection{* ....................................................................................................................................... *}
 text {*
 \begin{matharray}{rcl}
@@ -214,8 +213,12 @@ text {*
 
 @{rail \<open>
   @@{command Define_pre_post} ('[' @'shallow' ']')? (binding '=')? \<newline>
-    (binding | @{syntax state})
-    (binding | @{syntax state})?
+    @{syntax pre_post}
+    @{syntax pre_post}?
+  ;
+  @{syntax_def pre_post}:
+               binding | @{syntax state}
+  ;
 \<close>}
 *}
 
@@ -234,7 +237,7 @@ text {*
                | string
   ;
   @{syntax_def multiplicity}:
-               '[' ((@{syntax unlimited_natural} ('\<bullet>\<bullet>' @{syntax unlimited_natural})?) + ',') ']'
+               '[' ((@{syntax unlimited_natural} ('\<bullet>\<bullet>' @{syntax unlimited_natural})?) * ',') ']'
   ;
   @{syntax_def uml_term}:
                  @{syntax term_base}
@@ -248,11 +251,23 @@ text {*
 
                | '\<langle>' term '\<rangle>'
   ;
+  @{syntax_def name_object}:
+               ((binding + ',') ':')? binding
+  ;
   @{syntax_def type_object}:
                @{syntax name_object} (('<' (@{syntax name_object} + ',')) * ())
   ;
-  @{syntax_def name_object}:
-               ((binding + ',') ':')? binding
+  @{syntax_def category}:
+               @{syntax multiplicity} \<newline>
+               (@'Role' binding)? 
+               (( @'Derived' '=' term
+                | @'Nonunique'
+                | @'Ordered'
+                | @'Qualifier' @{syntax uml_type}
+                | @'Redefines' binding
+                | @'Sequence_'
+                | @'Subsets' binding
+                | @'Union') * ())
   ;
   @{syntax_def uml_type}:
                  'Void'
@@ -269,18 +284,6 @@ text {*
                | '(' (((binding ':')? @{syntax uml_type}) * ',') ')' (':' @{syntax uml_type})?
 
                | '\<langle>' type '\<rangle>'
-  ;
-  @{syntax_def category}:
-               @{syntax multiplicity} \<newline>
-               (@'Role' binding)? 
-               (( @'Derived' '=' term
-                | @'Nonunique'
-                | @'Ordered'
-                | @'Qualifier' @{syntax uml_type}
-                | @'Redefines' binding
-                | @'Sequence_'
-                | @'Subsets' binding
-                | @'Union') * ())
   ;
   @{syntax_def use_prop}:
               (  @{syntax type_object}
