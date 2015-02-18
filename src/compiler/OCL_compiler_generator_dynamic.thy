@@ -947,8 +947,9 @@ subsection{* ... *}
 ML{*
 val () = let open Generation_mode in
   Outer_Syntax.command @{command_spec "generation_syntax"} "set the generating list"
-    ((   parse_l' mode >> SOME
-     || @{keyword "deep"} -- @{keyword "flush_all"} >> K NONE) >>
+    ((   mode >> (fn x => SOME [x])
+      || parse_l' mode >> SOME
+      || @{keyword "deep"} -- @{keyword "flush_all"} >> K NONE) >>
     (fn SOME x => f_command x
       | NONE =>
       Toplevel.theory (fn thy =>
@@ -972,167 +973,247 @@ subsection{* ... *}
 
 ML{*
 structure USE_parse = struct
- fun optional f = Scan.optional (f >> SOME) NONE
- val colon = Parse.$$$ ":"
- fun repeat2 scan = scan ::: Scan.repeat1 scan
+  datatype ('a, 'b) use_context = USE_context_invariant of 'a
+                                | USE_context_pre_post of 'b
 
- fun xml_unescape s = (XML.content_of (YXML.parse_body s), Position.none)
-                      |> Symbol_Pos.explode |> Symbol_Pos.implode |> From.from_string
+  fun optional f = Scan.optional (f >> SOME) NONE
+  val colon = Parse.$$$ ":"
+  fun repeat2 scan = scan ::: Scan.repeat1 scan
 
- fun outer_syntax_command2 mk_string cmd_spec cmd_descr parser v_true v_false get_oclclass =
-   outer_syntax_command mk_string cmd_spec cmd_descr
-     (optional (paren @{keyword "shallow"}) -- parser)
-     (fn (is_shallow, use) => fn thy =>
-        get_oclclass
-          (if is_shallow = NONE then
-             ( fn s =>
-                 OCL.T_to_be_parsed ( From.from_string s
-                                    , xml_unescape s)
-             , v_true)
-           else
-             (From.from_p_term thy, v_false))
-          use)
- (* *)
- val ident_dot_dot = Parse.sym_ident -- Parse.sym_ident (* "\<bullet>\<bullet>" *)
- val ident_star = Parse.sym_ident (* "*" *)
- (* *)
- datatype ('a, 'b) use_context = USE_context_invariant of 'a
-                               | USE_context_pre_post of 'b
+  fun xml_unescape s = (XML.content_of (YXML.parse_body s), Position.none)
+                       |> Symbol_Pos.explode |> Symbol_Pos.implode |> From.from_string
 
- fun use_type_opt1 f = Parse.$$$ "(" |-- f --| Parse.$$$ ")"
-                    || f
- fun use_type_opt2 f1 f2 = Parse.$$$ "(" |-- f1 --| Parse.$$$ "," -- f2 --| Parse.$$$ ")"
-                     || f1 -- f2
+  fun outer_syntax_command2 mk_string cmd_spec cmd_descr parser v_true v_false get_oclclass =
+    outer_syntax_command mk_string cmd_spec cmd_descr
+      (optional (paren @{keyword "shallow"}) -- parser)
+      (fn (is_shallow, use) => fn thy =>
+         get_oclclass
+           (if is_shallow = NONE then
+              ( fn s =>
+                  OCL.T_to_be_parsed ( From.from_string s
+                                     , xml_unescape s)
+              , v_true)
+            else
+              (From.from_p_term thy, v_false))
+           use)
 
- fun use_type v = ((* collection *)
-                   Parse.reserved "Set" |-- use_type >> 
-                     (fn l => OCL.OclTy_collection (OCL.Ocl_multiplicity_ext ([], NONE, OCL.Set, ()), l))
-                || Parse.reserved "Sequence" |-- use_type >>
-                     (fn l => OCL.OclTy_collection (OCL.Ocl_multiplicity_ext ([], NONE, OCL.Sequence, ()), l))
+  (* *)
 
-                   (* pair *)
-                || Parse.reserved "Pair" |-- use_type -- use_type >> OCL.OclTy_pair
+  val ident_dot_dot = Parse.sym_ident -- Parse.sym_ident (* "\<bullet>\<bullet>" *)
+  val ident_star = Parse.sym_ident (* "*" *)
 
-                   (* base *)
-                || Parse.reserved "Void" >> K OCL.OclTy_base_void
-                || Parse.reserved "Boolean" >> K OCL.OclTy_base_boolean
-                || Parse.reserved "Integer" >> K OCL.OclTy_base_integer
-                || Parse.reserved "UnlimitedNatural" >> K OCL.OclTy_base_unlimitednatural
-                || Parse.reserved "Real" >> K OCL.OclTy_base_real
-                || Parse.reserved "String" >> K OCL.OclTy_base_string
+  (* *)
 
-                   (* raw HOL *)
-                || Parse.sym_ident (* "\<acute>" *) |-- Parse.typ --| Parse.sym_ident (* "\<acute>" *) >>
-                     (OCL.OclTy_raw o xml_unescape)
+  val unlimited_natural =  ident_star >> (fn "*" => OCL.Mult_star
+                                           | "\<infinity>" => OCL.Mult_infinity
+                                           | _ => Scan.fail "Syntax error")
+                        || Parse.number >> (fn s => OCL.Mult_nat (case Int.fromString s of SOME i => From.from_nat i
+                                                                                         | NONE => Scan.fail "Syntax error"))
+  val term_base =
+       Parse.number >> (OCL.OclDefInteger o From.from_string)
+    || Parse.float_number >> (OCL.OclDefReal o (From.from_pair From.from_string From.from_string o
+         (fn s => case String.tokens (fn #"." => true | _ => false) s of [l1,l2] => (l1,l2)
+                                                                       | _ => Scan.fail "Syntax error")))
+    || Parse.string >> (OCL.OclDefString o From.from_string)
 
-                   (* object type *)
-                || Parse.binding >> (fn s => OCL.OclTy_object (OCL.OclTyObj (OCL.OclTyCore_pre (From.from_binding s), [])))
-                || Parse.$$$ "(" |-- use_type --| Parse.$$$ ")") v
+  val multiplicity = parse_l' (unlimited_natural -- optional (ident_dot_dot |-- unlimited_natural))
 
- val use_expression = Parse.term
- val use_variableDeclaration = Parse.binding --| colon -- use_type
- val use_paramList = Parse.$$$ "(" |-- Parse.list use_variableDeclaration --| Parse.$$$ ")"
- val use_multiplicitySpec = ident_star || Parse.number
- val use_multiplicity = use_multiplicitySpec -- optional (ident_dot_dot |-- use_multiplicitySpec)
- val use_associationEnd =
-      Parse.binding
-   -- parse_l1' use_multiplicity
-   -- optional (@{keyword "Role"} |-- Parse.binding)
-   -- Scan.repeat (  (* @{keyword "Ordered"} >> K Ordered
-                   || @{keyword "Subsets"} |-- Parse.binding >> Subsets
-                   || @{keyword "Union"} >> K Union
-                   || @{keyword "Redefines"} |-- Parse.binding >> Redefines
-                   || @{keyword "Derived"} -- Parse.$$$ "=" |-- use_expression >> Derived
-                   || @{keyword "Qualifier"} |-- use_paramList >> Qualifier
-                   || @{keyword "Nonunique"} >> K Nonunique
-                   ||*) @{keyword "Sequence_"} >> K OCL.Sequence)
-   --| optional Parse.semicolon
- val use_blockStat = Parse.alt_string
- val use_invariantClause = 
-        Scan.optional (@{keyword "Existential"} >> K true) false
-    --| @{keyword "Inv"}
-    --  Parse.binding
-    --| colon
-    --  use_expression
- val use_prePostClause =
-   Scan.repeat
-     (   (   (@{keyword "Pre"} || @{keyword "Post"})
-          -- optional Parse.binding
-          --| colon
-          -- use_expression) >> USE_context_pre_post
-      || use_invariantClause >> USE_context_invariant)
- (* *)
- val class_def_list = Scan.repeat (Parse.$$$ "<" |-- Parse.list1 Parse.binding)
- val class_def_attr = Scan.optional (@{keyword "Attributes"}
-   |-- Scan.repeat (Parse.binding --| colon -- use_type
-                    --| optional Parse.semicolon)) []
+  fun uml_term x =
+   (   term_base >> OCL.ShallB_term
+    || Parse.binding >> (OCL.ShallB_str o From.from_binding)
+    || @{keyword "self"} |-- Parse.nat >> (fn n => OCL.ShallB_self (From.from_internal_oid (From.from_nat n)))
+    || paren (Parse.list uml_term) >> (* untyped, corresponds to Set, Sequence or Pair *)
+                                      (* WARNING for Set: we are describing a finite set *)
+                                      OCL.ShallB_list) x
 
- fun class_def_op_inv ((b, name), expr) from_expr =
-   OCL.T_inv (From.from_bool b, (OCL.OclProp_ctxt (SOME (From.from_binding name), from_expr expr)))
+  val name_object = optional (Parse.list1 Parse.binding --| colon) -- Parse.binding
 
- fun class_def_op_pp (((name_fun, ty_arg), ty_out), expr) from_expr =
-   let fun from_b (s, x) = OCL.OclTy_binding (SOME (From.from_binding s), x)
-       val ty_arg =
-             case rev ty_arg of [] => OCL.OclTy_base_void
-                              | ty_arg => fold (fn x => fn acc => OCL.OclTy_pair (from_b x, acc))
-                                          (tl ty_arg)
-                                          (from_b (hd ty_arg)) in
-   OCL.Ctxt_pp
-     (OCL.Ocl_ctxt_pre_post_ext
-       ( From.from_binding name_fun
-       , case ty_out of NONE => ty_arg
-                      | SOME ty_out => OCL.OclTy_arrow (ty_arg, ty_out)
-       , From.from_list (fn USE_context_pre_post ((pp, name), expr) => OCL.T_pp (if pp = "Pre" then OCL.OclCtxtPre else OCL.OclCtxtPost, OCL.OclProp_ctxt (From.from_option From.from_binding name, from_expr expr))
-                          | USE_context_invariant x => OCL.T_invariant (class_def_op_inv x from_expr)) expr
-       , ()))
-   end
+  val type_object = name_object -- Scan.repeat (Parse.$$$ "<" |-- Parse.list1 name_object) >>
+    let val f = fn (_, s) => OCL.OclTyCore_pre (From.from_binding s) in
+    fn (s, l) => OCL.OclTyObj (f s, map (map f) l)
+    end
 
- val class_def_op =
-   Scan.repeat
-     ((   optional (@{keyword "Operations"} || Parse.$$$ "::")
-       |-- Parse.binding
-       -- use_paramList
-       -- optional (colon |-- use_type)
-       --| optional (Parse.$$$ "=" |-- use_expression || use_blockStat)
-       -- use_prePostClause
-       --| optional Parse.semicolon) >> class_def_op_pp
-      ||
-      (optional @{keyword "Constraints"} |-- use_invariantClause >> (fn x => OCL.Ctxt_inv o class_def_op_inv x)))
+  val category = 
+       multiplicity
+    -- optional (@{keyword "Role"} |-- Parse.binding)
+    -- Scan.repeat (   @{keyword "Ordered"} >> K OCL.Ordered0
+                    || @{keyword "Subsets"} |-- Parse.binding >> K OCL.Subsets0
+                    || @{keyword "Union"} >> K OCL.Union0
+                    || @{keyword "Redefines"} |-- Parse.binding >> K OCL.Redefines0
+                    || @{keyword "Derived"} -- Parse.$$$ "=" |-- Parse.term >> K OCL.Derived0
+                    || @{keyword "Qualifier"} |-- Parse.term >> K OCL.Qualifier0
+                    || @{keyword "Nonunique"} >> K OCL.Nonunique0
+                    || @{keyword "Sequence_"} >> K OCL.Sequence) >>
+    (fn ((l_mult, role), l) =>
+       OCL.Ocl_multiplicity_ext (l_mult, From.from_option From.from_binding role, l, ()))
+
+  fun use_type v = ((* collection *)
+                    Parse.reserved "Set" |-- use_type >> 
+                      (fn l => OCL.OclTy_collection (OCL.Ocl_multiplicity_ext ([], NONE, [OCL.Set], ()), l))
+                 || Parse.reserved "Sequence" |-- use_type >>
+                      (fn l => OCL.OclTy_collection (OCL.Ocl_multiplicity_ext ([], NONE, [OCL.Sequence], ()), l))
+                 || category -- use_type >> OCL.OclTy_collection
+
+                    (* pair *)
+                 || Parse.reserved "Pair" |-- use_type >> I
+
+                    (* base *)
+                 || Parse.reserved "Void" >> K OCL.OclTy_base_void
+                 || Parse.reserved "Boolean" >> K OCL.OclTy_base_boolean
+                 || Parse.reserved "Integer" >> K OCL.OclTy_base_integer
+                 || Parse.reserved "UnlimitedNatural" >> K OCL.OclTy_base_unlimitednatural
+                 || Parse.reserved "Real" >> K OCL.OclTy_base_real
+                 || Parse.reserved "String" >> K OCL.OclTy_base_string
+
+                    (* raw HOL *)
+                 || Parse.sym_ident (* "\<acute>" *) |-- Parse.typ --| Parse.sym_ident (* "\<acute>" *) >>
+                      (OCL.OclTy_raw o xml_unescape)
+
+                    (* object type *)
+                 || type_object >> OCL.OclTy_object
+
+                 || ((Parse.$$$ "(" |-- Parse.list (   (optional (Parse.binding --| colon) >> From.from_option From.from_binding)
+                                                     -- use_type >> OCL.OclTy_binding) --| Parse.$$$ ")"
+                      >> (fn ty_arg => case rev ty_arg of
+                            [] => OCL.OclTy_base_void
+                          | ty_arg => fold (fn x => fn acc => OCL.OclTy_pair (x, acc))
+                                           (tl ty_arg)
+                                           (hd ty_arg)))
+                     -- optional (colon |-- use_type))
+                    >> (fn (ty_arg, ty_out) => case ty_out of NONE => ty_arg
+                                                            | SOME ty_out => OCL.OclTy_arrow (ty_arg, ty_out))) v
+
+  val use_prop =    (optional (optional (Parse.binding >> From.from_binding) --| Parse.$$$ ":") >> (fn NONE => NONE | SOME x => x))
+                 -- Parse.term --| optional Parse.semicolon >> (fn (n, e) => fn from_expr => OCL.OclProp_ctxt (n, from_expr e))
+
+  (* *)
+
+  val association_end =
+       type_object
+    -- category
+    --| optional Parse.semicolon
+
+  val association = optional @{keyword "Between"} |-- Scan.optional (repeat2 association_end) []
+
+  val invariant = 
+         optional @{keyword "Constraints"}
+     |-- Scan.optional (@{keyword "Existential"} >> K true) false
+     --| @{keyword "Inv"}
+     --  use_prop
+
+  structure Outer_syntax_Association = struct
+    fun make ass_ty l = OCL.Ocl_association_ext (ass_ty, OCL.OclAssRel l, ())
+  end
+
+  (* *)
+
+  val context =
+    Scan.repeat
+      ((   optional (@{keyword "Operations"} || Parse.$$$ "::")
+        |-- Parse.binding
+        -- use_type
+        --| optional (Parse.$$$ "=" |-- Parse.term || Parse.term)
+        -- Scan.repeat
+              (      (@{keyword "Pre"} || @{keyword "Post"})
+                  -- use_prop >> USE_context_pre_post
+               || invariant >> USE_context_invariant)
+        --| optional Parse.semicolon) >>
+              (fn ((name_fun, ty), expr) => fn from_expr =>
+                OCL.Ctxt_pp
+                  (OCL.Ocl_ctxt_pre_post_ext
+                    ( From.from_binding name_fun
+                    , ty
+                    , From.from_list (fn USE_context_pre_post (pp, expr) =>
+                                           OCL.T_pp (if pp = "Pre" then OCL.OclCtxtPre else OCL.OclCtxtPost, expr from_expr)
+                                       | USE_context_invariant (b, expr) => OCL.T_invariant (OCL.T_inv (b, expr from_expr))) expr
+                    , ())))
+       ||
+       invariant >> (fn (b, expr) => fn from_expr => OCL.Ctxt_inv (OCL.T_inv (b, expr from_expr))))
+
+  val class =
+        optional @{keyword "Attributes"}
+    |-- Scan.repeat (Parse.binding --| colon -- use_type
+                     --| optional Parse.semicolon)
+    -- context
+
+  datatype use_classDefinition = USE_class | USE_class_abstract
+  
+  structure Outer_syntax_Class = struct
+    fun make from_expr abstract ty_object attribute oper =
+      OCL.Ocl_class_raw_ext
+        ( ty_object
+        , From.from_list (From.from_pair From.from_binding I) attribute
+        , From.from_list (fn f => f from_expr) oper
+        , abstract
+        , ())
+  end
+
+  (* *)
+
+  val term_object = parse_l (Parse.binding -- (Parse.$$$ "=" |-- uml_term))
+  val list_attr' = term_object >> (fn res => (res, [] : binding list))
+  fun object_cast e =
+    (annot_ty term_object >> (fn (res, x) => (res, [x]))
+    || annot_ty object_cast >> (fn ((res, xs), x) => (res, x :: xs))) e
+  val object_cast' = object_cast >> (fn (res, l) => (res, rev l))
+
+  fun get_oclinst l _ =
+    OCL.OclInstance (map (fn ((name,typ), (l_attr, is_cast)) =>
+        let val f = map (fn (attr, ocl) => (From.from_binding attr, ocl))
+            val l_attr =
+              fold
+                (fn b => fn acc => OCL.OclAttrCast (From.from_binding b, acc, []))
+                is_cast
+                (OCL.OclAttrNoCast (f l_attr)) in
+        OCL.Ocl_instance_single_ext
+          (From.from_option From.from_binding name, From.from_binding typ, l_attr, From.from_unit ()) end) l)
+
+  val parse_instance = (Parse.binding >> SOME)
+                     --| @{keyword "::"}
+                     -- Parse.binding --| @{keyword "="}
+                     -- (list_attr' || object_cast')
+
+  (* *)
+
+  datatype state_content = ST_l_attr of (binding * OCL.ocl_data_shallow) list * binding list
+                         | ST_binding of binding
+  
+  val state_parse = parse_l' (   object_cast >> ST_l_attr
+                              || Parse.binding >> ST_binding)
+
+  fun mk_state thy = map (fn ST_l_attr l => OCL.OclDefCoreAdd (case get_oclinst (map (fn (l_i, l_ty) => ((NONE, hd l_ty), (l_i, rev (tl l_ty)))) [l]) thy of
+                                                                 OCL.OclInstance [x] => x)
+                           | ST_binding b => OCL.OclDefCoreBinding (From.from_binding b))
+
+  (* *)
+
+  datatype state_pp_content = ST_PP_l_attr of state_content list
+                            | ST_PP_binding of binding
+  
+  val state_pp_parse = state_parse >> ST_PP_l_attr
+                       || Parse.binding >> ST_PP_binding
+
+  fun mk_pp_state thy = fn ST_PP_l_attr l => OCL.OclDefPPCoreAdd (mk_state thy l)
+                         | ST_PP_binding s => OCL.OclDefPPCoreBinding (From.from_binding s)
 end
 *}
 
 subsection{* Outer Syntax: (abstract) class *}
 
 ML{*
-datatype use_classDefinition = USE_class | USE_class_abstract
-
-structure Outer_syntax_Class = struct
-  fun make from_expr abstract binding child attribute oper =
-    let fun to_pre binding = OCL.OclTyCore_pre (From.from_binding binding) in
-    (OCL.Ocl_class_raw_ext
-         ( OCL.OclTyObj (to_pre binding, map (map to_pre) child)
-         , From.from_list (From.from_pair From.from_binding I) attribute
-         , From.from_list (fn f => f from_expr) oper
-         , abstract
-         , From.from_unit ()))
-    end
-end
-
 local
- open USE_parse
+  open USE_parse
 
- fun mk_classDefinition abstract cmd_spec =
-   outer_syntax_command2 @{make_string} cmd_spec "Class generation"
-    (   Parse.binding
-     -- class_def_list
-     -- class_def_attr
-     -- class_def_op
-     --| @{keyword "End"})
-    (curry OCL.OclAstClassRaw OCL.Floor1)
-    (curry OCL.OclAstClassRaw OCL.Floor2)
-    (fn (from_expr, OclAstClassRaw) =>
-     fn (((binding, child), attribute), oper) =>
-       OclAstClassRaw (Outer_syntax_Class.make from_expr (abstract = USE_class_abstract) binding child attribute oper))
+  fun mk_classDefinition abstract cmd_spec =
+    outer_syntax_command2 @{make_string} cmd_spec "Class generation"
+      (   type_object
+       -- class
+       --| optional @{keyword "End"})
+      (curry OCL.OclAstClassRaw OCL.Floor1)
+      (curry OCL.OclAstClassRaw OCL.Floor2)
+      (fn (from_expr, OclAstClassRaw) =>
+       fn (ty_object, (attribute, oper)) =>
+         OclAstClassRaw (Outer_syntax_Class.make from_expr (abstract = USE_class_abstract) ty_object attribute oper))
 in
 val () = mk_classDefinition USE_class @{command_spec "Class"}
 val () = mk_classDefinition USE_class_abstract @{command_spec "Abstract_class"}
@@ -1142,35 +1223,17 @@ end
 subsection{* Outer Syntax: association, composition, aggregation *}
 
 ML{*
-structure Outer_syntax_Association = struct
-  val mk_mult = fn "*" => OCL.Mult_star
-                 | "\<infinity>" => OCL.Mult_infinity
-                 | s => OCL.Mult_nat (case Int.fromString s of SOME i => From.from_nat i)
-
-  fun make ass_ty l =
-    OCL.Ocl_association_ext
-        ( ass_ty
-        , OCL.OclAssRel (List.map (fn (((cl_from, cl_mult), o_cl_attr), l_set) =>
-            ( OCL.OclTyObj (OCL.OclTyCore_pre (From.from_binding cl_from), [])
-            , ( OCL.Ocl_multiplicity_ext
-                            ( List.map (From.from_pair mk_mult (From.from_option mk_mult)) cl_mult
-                            , From.from_option From.from_binding o_cl_attr
-                            , if l_set = [] then OCL.Set else OCL.Sequence
-                            , ())))) l)
-        , From.from_unit ())
-end
-
 local
- open USE_parse
+  open USE_parse
 
- fun mk_associationDefinition ass_ty cmd_spec =
-  outer_syntax_command @{make_string} cmd_spec ""
-    (    Parse.binding
-     --| @{keyword "Between"}
-     -- repeat2 use_associationEnd
-     --| @{keyword "End"})
-    (fn (_, l) => fn _ =>
-      OCL.OclAstAssociation (Outer_syntax_Association.make ass_ty l))
+  fun mk_associationDefinition ass_ty cmd_spec =
+    outer_syntax_command @{make_string} cmd_spec ""
+      (   repeat2 association_end
+       ||     optional Parse.binding
+          |-- association
+          --| optional @{keyword "End"})
+      (fn l => fn _ =>
+        OCL.OclAstAssociation (Outer_syntax_Association.make ass_ty l))
 in
 val () = mk_associationDefinition OCL.OclAssTy_association @{command_spec "Association"}
 val () = mk_associationDefinition OCL.OclAssTy_composition @{command_spec "Composition"}
@@ -1181,27 +1244,28 @@ end
 subsection{* Outer Syntax: (abstract) associationclass *}
 
 ML{*
-datatype use_associationClassDefinition = USE_associationclass | USE_associationclass_abstract
 
 local
- open USE_parse
+  open USE_parse
 
- fun mk_associationClassDefinition abstract cmd_spec =
-  outer_syntax_command2 @{make_string} cmd_spec ""
-    (   Parse.binding
-     -- class_def_list
-     -- (Scan.optional (@{keyword "Between"}
-                        |-- repeat2 use_associationEnd >> SOME) NONE)
-     -- class_def_attr
-     -- class_def_op
-     -- optional Parse.alt_string
-     --| @{keyword "End"})
-    (curry OCL.OclAstAssClass OCL.Floor1)
-    (curry OCL.OclAstAssClass OCL.Floor2)
-    (fn (from_expr, OclAstAssClass) =>
-     fn (((((binding, child), o_l), attribute), oper), _) =>
-        OclAstAssClass (OCL.OclAssClass ( Outer_syntax_Association.make OCL.OclAssTy_association (case o_l of NONE => [] | SOME l => l)
-                                          , Outer_syntax_Class.make from_expr (abstract = USE_associationclass_abstract) binding child attribute oper)))
+  datatype use_associationClassDefinition = USE_associationclass | USE_associationclass_abstract
+
+  fun mk_associationClassDefinition abstract cmd_spec =
+    outer_syntax_command2 @{make_string} cmd_spec ""
+      (   type_object
+       -- association
+       -- class
+       -- optional (Parse.reserved "aggregation" || Parse.reserved "composition")
+       --| optional @{keyword "End"})
+      (curry OCL.OclAstAssClass OCL.Floor1)
+      (curry OCL.OclAstAssClass OCL.Floor2)
+      (fn (from_expr, OclAstAssClass) =>
+       fn (((ty_object, l_ass), (attribute, oper)), assty) =>
+          OclAstAssClass (OCL.OclAssClass ( Outer_syntax_Association.make (case assty of SOME "aggregation" => OCL.OclAssTy_aggregation
+                                                                                       | SOME "composition" => OCL.OclAssTy_composition
+                                                                                       | _ => OCL.OclAssTy_association)
+                                                                          l_ass
+                                          , Outer_syntax_Class.make from_expr (abstract = USE_associationclass_abstract) ty_object attribute oper)))
 in
 val () = mk_associationClassDefinition USE_associationclass @{command_spec "Associationclass"}
 val () = mk_associationClassDefinition USE_associationclass_abstract @{command_spec "Abstract_associationclass"}
@@ -1218,7 +1282,7 @@ val () =
   outer_syntax_command2 @{make_string} @{command_spec "Context"} ""
     (optional (Parse.list1 Parse.binding --| colon)
      -- Parse.binding
-     -- class_def_op)
+     -- context)
     (curry OCL.OclAstCtxt OCL.Floor1)
     (curry OCL.OclAstCtxt OCL.Floor2)
     (fn (from_expr, OclAstCtxt) =>
@@ -1245,69 +1309,18 @@ val () =
 subsection{* Outer Syntax: \text{Define\_base}, Instance, \text{Define\_state} *}
 
 ML{*
-
-datatype ocl_term = OclTermBase of OCL.ocl_def_base
-                  | OclTerm of binding
-                  | OclOid of int
-                  | OclList of ocl_term list (* untyped, corresponds to Set, Sequence or Pair *)
-                                             (* WARNING for Set: we are describing a finite set *)
-
-val ocl_term0 =
-     Parse.number >> (OCL.OclDefInteger o From.from_string)
-  || Parse.float_number >> (OCL.OclDefReal o (From.from_pair From.from_string From.from_string o
-       (fn s => case String.tokens (fn #"." => true | _ => false) s of [l1,l2] => (l1,l2))))
-  || Parse.string >> (OCL.OclDefString o From.from_string)
-fun ocl_term x =
- (   ocl_term0 >> OclTermBase
-  || Parse.binding >> OclTerm
-  || @{keyword "self"} |-- Parse.nat >> OclOid
-  || paren (Parse.list ocl_term) >> OclList) x
-val list_attr0 = Parse.binding -- (Parse.$$$ "=" |-- ocl_term)
-val list_attr00 = parse_l list_attr0
-val list_attr = list_attr00 >> (fn res => (res, [] : binding list))
-fun list_attr_cast00 e =
-  (annot_ty list_attr00 >> (fn (res, x) => (res, [x]))
-  || annot_ty list_attr_cast00 >> (fn ((res, xs), x) => (res, x :: xs))) e
-val list_attr_cast = list_attr_cast00 >> (fn (res, l) => (res, rev l))
-
 val () =
   outer_syntax_command @{make_string} @{command_spec "Define_base"} ""
-    (parse_l' ocl_term0)
+    (parse_l' USE_parse.term_base)
     (K o OCL.OclAstDefBaseL o OCL.OclDefBase)
 
-datatype state_content = ST_l_attr of (binding * ocl_term) list * binding list
-                       | ST_binding of binding
-
-val state_parse = parse_l' (   list_attr_cast00 >> ST_l_attr
-                            || Parse.binding >> ST_binding)
-
 local
-  fun from_term e = (fn OclTermBase s => OCL.ShallB_term s
-                      | OclTerm s => OCL.ShallB_str (From.from_binding s)
-                      | OclOid n => OCL.ShallB_self (From.from_internal_oid (From.from_nat n))
-                      | OclList l => OCL.ShallB_list (From.from_list from_term l)) e
-
-  fun get_oclinst l _ =
-    OCL.OclInstance (map (fn ((name,typ), (l_attr, is_cast)) =>
-        let val f = map (fn (attr, ocl) => (From.from_binding attr, from_term ocl))
-            val l_attr =
-              fold
-                (fn b => fn acc => OCL.OclAttrCast (From.from_binding b, acc, []))
-                is_cast
-                (OCL.OclAttrNoCast (f l_attr)) in
-        OCL.Ocl_instance_single_ext
-          (From.from_option From.from_binding name, From.from_binding typ, l_attr, From.from_unit ()) end) l)
+  open USE_parse
 in
-
-fun mk_state thy = map (fn ST_l_attr l => OCL.OclDefCoreAdd (case get_oclinst (map (fn (l_i, l_ty) => ((NONE, hd l_ty), (l_i, rev (tl l_ty)))) [l]) thy of
-                                                               OCL.OclInstance [x] => x)
-                         | ST_binding b => OCL.OclDefCoreBinding (From.from_binding b))
-
 val () =
   outer_syntax_command @{make_string} @{command_spec "Instance"} ""
-    (Parse.and_list ((Parse.binding >> SOME) --| @{keyword "::"}
-                     -- Parse.binding --| @{keyword "="}
-                     -- (list_attr || list_attr_cast)))
+    (Parse.and_list parse_instance
+     || Scan.repeat parse_instance)
     (OCL.OclAstInstance oo get_oclinst)
 
 val () =
@@ -1324,16 +1337,9 @@ end
 subsection{* Outer Syntax: \text{Define\_pre\_post} *}
 
 ML{*
-
-datatype state_pp_content = ST_PP_l_attr of state_content list
-                          | ST_PP_binding of binding
-
-val state_pp_parse = state_parse >> ST_PP_l_attr
-                     || Parse.binding >> ST_PP_binding
-
-fun mk_pp_state thy = fn ST_PP_l_attr l => OCL.OclDefPPCoreAdd (mk_state thy l)
-                       | ST_PP_binding s => OCL.OclDefPPCoreBinding (From.from_binding s)
-
+local
+  open USE_parse
+in
 val () =
   outer_syntax_command @{make_string} @{command_spec "Define_pre_post"} ""
     (USE_parse.optional (paren @{keyword "shallow"})
@@ -1346,7 +1352,7 @@ val () =
         , OCL.OclDefPP ( From.from_option From.from_binding n
                        , mk_pp_state thy s_pre
                        , From.from_option (mk_pp_state thy) s_post)))
-
+end
 (*val _ = print_depth 100*)
 *}
 

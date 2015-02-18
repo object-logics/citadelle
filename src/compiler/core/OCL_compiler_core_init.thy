@@ -182,7 +182,7 @@ definition "arrange_ass with_aggreg with_optim_ass l_c =
                  + those constructed with at most 1 recursive call to OclTy_collection *)
             map_prod rev rev (List.fold
                   (\<lambda>c (l_class, l_ass).
-                    let default = Set
+                    let default = [Set]
                       ; f = \<lambda>role t mult_out. \<lparr> OclAss_type = OclAssTy_native_attribute
                                               , OclAss_relation = OclAssRel [(ClassRaw_name c, OclMult [(Mult_star, None)] default)
                                                                             ,(t, mult_out \<lparr> TyRole := Some role \<rparr>)] \<rparr>
@@ -288,10 +288,9 @@ fun print_infra_type_synonym_class_rec_aux0 where
    "print_infra_type_synonym_class_rec_aux0 e =
    (let option = \<lambda>x. Ty_apply (Ty_base \<open>option\<close>) [x] in
      (\<lambda> OclTy_collection c t \<Rightarrow>
-          let s = TyCollect c
-            ; (name, ty) = print_infra_type_synonym_class_rec_aux0 t in
-          ( (if s = Set then \<open>Set\<close> else \<open>Sequence\<close>) @@ \<open>_\<close> @@ name
-          , Ty_apply (Ty_base (if s = Set then var_Set_base else var_Sequence_base)) [ty])
+          let (name, ty) = print_infra_type_synonym_class_rec_aux0 t in
+          ( (if is_sequence c then \<open>Sequence\<close> else \<open>Set\<close>) @@ \<open>_\<close> @@ name
+          , Ty_apply (Ty_base (if is_sequence c then var_Sequence_base else var_Set_base)) [ty])
       | OclTy_pair t1 t2 \<Rightarrow>
           let (name1, ty1) = print_infra_type_synonym_class_rec_aux0 t1
             ; (name2, ty2) = print_infra_type_synonym_class_rec_aux0 t2 in

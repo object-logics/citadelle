@@ -110,7 +110,7 @@ definition "print_infra_type_synonym_class_rec = (\<lambda>expr ocl.
                                                            if List.assoc tit l = None then (String_to_String\<^sub>b\<^sub>a\<^sub>s\<^sub>e tit, body) # l else l in
                                                  case t of
                                                    OclTy_object (OclTyObj (OclTyCore obj) _) \<Rightarrow>
-                                                     let t = \<lambda>ty. OclTy_collection (ocl_multiplicity_ext [] None ty ()) (OclTy_class_pre (TyObjN_role_ty (TyObj_to obj))) in
+                                                     let t = \<lambda>ty. OclTy_collection (ocl_multiplicity_ext [] None [ty] ()) (OclTy_class_pre (TyObjN_role_ty (TyObj_to obj))) in
                                                      f (t Sequence) (f (t Set) l)
                                                  | OclTy_collection _ _ \<Rightarrow> f t l
                                                  | OclTy_pair _ _ \<Rightarrow> f t l

@@ -147,7 +147,14 @@ begin
 
 definition "i_of_ocl_collection b = rec_ocl_collection
   (b \<open>Set\<close>)
-  (b \<open>Sequence\<close>)"
+  (b \<open>Sequence\<close>)
+  (b \<open>Ordered0\<close>)
+  (b \<open>Subsets0\<close>)
+  (b \<open>Union0\<close>)
+  (b \<open>Redefines0\<close>)
+  (b \<open>Derived0\<close>)
+  (b \<open>Qualifier0\<close>)
+  (b \<open>Nonunique0\<close>)"
 
 definition "i_of_ocl_multiplicity_single a b = rec_ocl_multiplicity_single
   (ap1 a (b \<open>Mult_nat\<close>) (i_of_nat a b))
@@ -158,7 +165,7 @@ definition "i_of_ocl_multiplicity a b f = ocl_multiplicity_rec
   (ap4 a (b (ext \<open>ocl_multiplicity_ext\<close>))
     (i_of_list a b (i_of_pair a b (i_of_ocl_multiplicity_single a b) (i_of_option a b (i_of_ocl_multiplicity_single a b))))
     (i_of_option a b (i_of_string a b))
-    (i_of_ocl_collection b)
+    (i_of_list a b (i_of_ocl_collection b))
     (f a b))"
 
 definition "i_of_ocl_ty_class_node a b f = ocl_ty_class_node_rec

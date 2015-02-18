@@ -51,11 +51,16 @@ begin
 section{* OCL Meta-Model aka. AST definition of OCL *}
 
 subsection{* type definition *}
-(*
- datatype use_opt = Ordered (* ordered set *) | Subsets of binding | Union | Redefines of binding | Derived of string | Qualifier of (binding * use_oclty) list | Nonunique (* bag *) | Sequence
- datatype use_operation_def = Expression of string | BlockStat
-*)
-datatype ocl_collection =   Set | Sequence
+
+datatype ocl_collection = Set
+                        | Sequence
+                        | Ordered0 (* ordered set *)
+                        | Subsets0 (*binding*)
+                        | Union0
+                        | Redefines0 (*binding*)
+                        | Derived0 (*string*)
+                        | Qualifier0 (*binding \<times> use_oclty*)
+                        | Nonunique0 (*bag*)
 
 datatype ocl_multiplicity_single = Mult_nat nat
                                  | Mult_star
@@ -63,7 +68,7 @@ datatype ocl_multiplicity_single = Mult_nat nat
 
 record ocl_multiplicity = TyMult :: "(ocl_multiplicity_single \<times> ocl_multiplicity_single option) list"
                           TyRole :: "string option"
-                          TyCollect :: ocl_collection (* return type of the accessor (constrained by the above multiplicity) *)
+                          TyCollect :: "ocl_collection list" (* return type of the accessor (constrained by the above multiplicity) *)
 
 record ocl_ty_class_node =  TyObjN_ass_switch :: nat
                             TyObjN_role_multip :: ocl_multiplicity
@@ -217,6 +222,13 @@ definition "fold_invariant' inva =
                                , Suc n))
                            inva
                            ([], 0)))"
+
+fun remove_binding where
+   "remove_binding e = (\<lambda> OclTy_collection m ty \<Rightarrow> OclTy_collection m (remove_binding ty)
+                        | OclTy_pair ty1 ty2 \<Rightarrow> OclTy_pair (remove_binding ty1) (remove_binding ty2)
+                        | OclTy_binding (_, ty) \<Rightarrow> remove_binding ty
+                        | OclTy_arrow ty1 ty2 \<Rightarrow> OclTy_arrow (remove_binding ty1) (remove_binding ty2)
+                        | x \<Rightarrow> x) e"
 
 subsection{* Class Translation Preliminaries *}
 
@@ -391,7 +403,7 @@ definition "class_unflat = (\<lambda> (l_class, l_ass).
            | _ \<Rightarrow> \<lambda>_. id))
         l_rel) (List_mapi Pair l_ass) rbt)) in
   class_unflat_aux
-    (List.fold (\<lambda> cflat. insert (cl_name_to_string cflat) (ClassRaw_own cflat)) l RBT.empty)
+    (List.fold (\<lambda> cflat. insert (cl_name_to_string cflat) (List_map (map_prod id remove_binding) (ClassRaw_own cflat))) l RBT.empty)
     (List.fold
       (\<lambda> cflat.
         case ClassRaw_name cflat of
@@ -418,6 +430,8 @@ definition "is_higher_order = (\<lambda> OclTy_collection _ _ \<Rightarrow> True
 definition "parse_ty_raw = (\<lambda> OclTy_raw s \<Rightarrow> if s = \<open>int\<close> then OclTy_base_integer else OclTy_raw s
                             | x \<Rightarrow> x)"
 
+definition "is_sequence = list_ex (\<lambda> Sequence \<Rightarrow> True | _ \<Rightarrow> False) o TyCollect"
+
 fun str_of_ty where "str_of_ty e =
  (\<lambda> OclTy_base_void \<Rightarrow> \<open>Void\<close>
   | OclTy_base_boolean \<Rightarrow> \<open>Boolean\<close>
@@ -427,9 +441,12 @@ fun str_of_ty where "str_of_ty e =
   | OclTy_base_string \<Rightarrow> \<open>String\<close>
   | OclTy_object (OclTyObj (OclTyCore_pre s) _) \<Rightarrow> s
   (*| OclTy_object (OclTyObj (OclTyCore ty_obj) _)*)
-  | OclTy_collection t ocl_ty \<Rightarrow> (case TyCollect t of Set \<Rightarrow> flatten [\<open>Set(\<close>, str_of_ty ocl_ty,\<open>)\<close>]
-                                                    | Sequence \<Rightarrow> flatten [\<open>Sequence(\<close>, str_of_ty ocl_ty,\<open>)\<close>])
+  | OclTy_collection t ocl_ty \<Rightarrow> (if is_sequence t then
+                                    flatten [\<open>Sequence(\<close>, str_of_ty ocl_ty,\<open>)\<close>]
+                                  else
+                                    flatten [\<open>Set(\<close>, str_of_ty ocl_ty,\<open>)\<close>])
   | OclTy_pair ocl_ty1 ocl_ty2 \<Rightarrow> flatten [\<open>Pair(\<close>, str_of_ty ocl_ty1, \<open>,\<close>, str_of_ty ocl_ty2,\<open>)\<close>]
+  | OclTy_binding (_, ocl_ty) \<Rightarrow> str_of_ty ocl_ty
   | OclTy_raw s \<Rightarrow> flatten [\<open>\<acute>\<close>, s, \<open>\<acute>\<close>]) e"
 
 definition "ty_void = str_of_ty OclTy_base_void"
@@ -450,6 +467,7 @@ fun str_hol_of_ty_all where "str_hol_of_ty_all f b e =
   | OclTy_object (OclTyObj (OclTyCore ty_obj) _) \<Rightarrow> f (b var_ty_list) [b (TyObj_name ty_obj)]
   | OclTy_collection _ ty \<Rightarrow> f (b var_ty_list) [str_hol_of_ty_all f b ty]
   | OclTy_pair ty1 ty2 \<Rightarrow> f (b var_ty_prod) [str_hol_of_ty_all f b ty1, str_hol_of_ty_all f b ty2]
+  | OclTy_binding (_, t) \<Rightarrow> str_hol_of_ty_all f b t
   | OclTy_raw s \<Rightarrow> b s) e"
 
 definition "print_infra_type_synonym_class_set_name name = \<open>Set_\<close> @@ name"

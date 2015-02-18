@@ -312,8 +312,10 @@ definition "print_access_select_obj = start_map'''' Thy_definition_hol o (\<lamb
                   (Expr_apply var_select_object
                    (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l obj_mult = TyObjN_role_multip (TyObj_to ty_obj)
                       ; (var_mt, var_OclIncluding, var_ANY) =
-                          case TyCollect obj_mult of Set \<Rightarrow> (var_mt_set, var_OclIncluding_set, var_ANY_set)
-                                                   | _ \<Rightarrow> (var_mt_sequence, var_OclIncluding_sequence, var_ANY_sequence) in
+                          if is_sequence obj_mult then
+                            (var_mt_sequence, var_OclIncluding_sequence, var_ANY_sequence)
+                          else
+                            (var_mt_set, var_OclIncluding_set, var_ANY_set) in
                     List_map b [ var_mt
                                , var_OclIncluding
                                , if single_multip obj_mult then var_ANY else \<open>id\<close>
@@ -352,9 +354,10 @@ definition "print_access_dot_consts =
                       ; obj_mult = TyObjN_role_multip ty_obj in
                     Ty_base (if single_multip obj_mult then
                                name
+                             else if is_sequence obj_mult then
+                               print_infra_type_synonym_class_sequence_name name
                              else
-                               case TyCollect obj_mult of Set \<Rightarrow> print_infra_type_synonym_class_set_name name
-                                                        | _ \<Rightarrow> print_infra_type_synonym_class_sequence_name name)
+                               print_infra_type_synonym_class_set_name name)
                 | OclTy_base_unlimitednatural \<Rightarrow> str_hol_of_ty_all Ty_apply ty_base attr_ty
                    (* REMARK Dependencies to UnlimitedNatural.thy can be detected and added
                              so that this pattern clause would be merged with the default case *)
@@ -388,8 +391,9 @@ definition "print_access_dot_name isub_name dot_at_when attr_ty isup_attr =
 
 fun print_access_dot_aux where
    "print_access_dot_aux deref_oid x =
-    (\<lambda> OclTy_collection c ty \<Rightarrow> (case TyCollect c of Set \<Rightarrow> Expr_apply var_select_object_set [print_access_dot_aux deref_oid ty]
-                                                  | Sequence \<Rightarrow> Expr_apply var_select_object_sequence [print_access_dot_aux deref_oid ty])
+    (\<lambda> OclTy_collection c ty \<Rightarrow>
+         Expr_apply (if is_sequence c then var_select_object_sequence else var_select_object_set)
+                    [print_access_dot_aux deref_oid ty]
      | OclTy_pair ty1 ty2 \<Rightarrow> Expr_apply var_select_object_pair [print_access_dot_aux deref_oid ty1, print_access_dot_aux deref_oid ty2]
      | OclTy_object (OclTyObj (OclTyCore_pre s) _) \<Rightarrow> deref_oid (Some s) [Expr_basic [var_reconst_basetype]]
      | OclTy_base_void \<Rightarrow> Expr_basic [var_reconst_basetype_void]
@@ -422,8 +426,10 @@ definition "print_access_dot = start_map'''' Thy_defs_overloaded o (\<lambda>exp
                                  if design_analysis = Gen_only_design then
                                    let obj_mult = TyObjN_role_multip ty_obj
                                      ; (var_select_object_name_any, var_select_object_name) =
-                                         case TyCollect obj_mult of Set \<Rightarrow> (var_select_object_set_any, var_select_object_set)
-                                                                  | _ \<Rightarrow> (var_select_object_sequence_any, var_select_object_sequence) in
+                                         if is_sequence obj_mult then
+                                           (var_select_object_sequence_any, var_select_object_sequence)
+                                         else
+                                           (var_select_object_set_any, var_select_object_set) in
                                    Expr_apply (if single_multip obj_mult then
                                                  var_select_object_name_any
                                                else
@@ -548,7 +554,7 @@ definition "print_access_is_repr = start_map'''' Thy_lemma_by o (\<lambda>expr d
         ; b = \<lambda>s. Expr_basic [s]
         ; f0 = \<lambda>e. Expr_binop (Expr_basic [var_tau]) \<open>\<Turnstile>\<close> e
         ; f = \<lambda>e. f0 (Expr_apply \<open>\<delta>\<close> [e])
-        ; attr_ty' = TyCollect (TyObjN_role_multip (TyObj_to ty_obj)) in
+        ; attr_ty' = is_sequence (TyObjN_role_multip (TyObj_to ty_obj)) in
             [ Lemma_by_assum
                 (print_access_is_repr_name isub_name dot_at_when attr_ty isup_attr)
                 [ (var_def_dot, False, f (dot_attr (Expr_annot (b var_X) name))) ]
@@ -620,7 +626,7 @@ definition "print_access_is_repr = start_map'''' Thy_lemma_by o (\<lambda>expr d
                                               \<open>`\<close>
                                               (a \<open>ran\<close> (a \<open>heap\<close> (a var_in_when_state (b var_tau))))))
      , ( Expr_pat vs_sel_any
-       , Expr_apply (case attr_ty' of Set \<Rightarrow> var_select_object_set_any | Sequence \<Rightarrow> var_select_object_sequence_any)
+       , Expr_apply (if attr_ty' then var_select_object_sequence_any else var_select_object_set_any)
                     [ Expr_apply (print_access_deref_oid_name isub_name) [b var_in_when_state, b var_reconst_basetype] ])]
      (Some [ Expr_rewrite (Expr_apply (print_access_select_name isup_attr isub_name)
                                       [ Expr_pat vs_sel_any
@@ -647,8 +653,10 @@ definition "print_access_is_repr = start_map'''' Thy_lemma_by o (\<lambda>expr d
        , Expr_rewrite (ap' vs_sel_any [ b v_aa, b var_tau ]) \<open>=\<close> (f_ss v_r) ])
      [ AppE [ Tac_simp_all_only [] ]
      , AppE [ Tac_simp_add (\<open>foundation16\<close> # hol_d [\<open>bot_option\<close>, \<open>null_option\<close>]) ] ]
- , App [ Tac_drule (Thm_simplified (Thm_str (case attr_ty' of Set \<Rightarrow> var_select_object_set_any_exec
-                                                            | Sequence \<Rightarrow> var_select_object_sequence_any_exec))
+ , App [ Tac_drule (Thm_simplified (Thm_str (if attr_ty' then
+                                               var_select_object_sequence_any_exec
+                                             else
+                                               var_select_object_set_any_exec))
                                    (Thm_str \<open>foundation22\<close>)), Tac_erule (Thm_str \<open>exE\<close>) ]
  (* *)
  , App_f' [v_e]
