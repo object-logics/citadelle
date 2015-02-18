@@ -1319,7 +1319,7 @@ local
 in
 val () =
   outer_syntax_command @{make_string} @{command_spec "Instance"} ""
-    (parse_instance -- Scan.repeat (optional @{keyword "and"} |-- parse_instance) >> (fn (x, xs) => x :: xs))
+    (Scan.optional (parse_instance -- Scan.repeat (optional @{keyword "and"} |-- parse_instance) >> (fn (x, xs) => x :: xs)) [])
     (OCL.OclAstInstance oo get_oclinst)
 
 val () =
