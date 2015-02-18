@@ -1251,14 +1251,6 @@ datatype ocl_term = OclTermBase of OCL.ocl_def_base
                   | OclOid of int
                   | OclList of ocl_term list (* untyped, corresponds to Set, Sequence or Pair *)
                                              (* WARNING for Set: we are describing a finite set *)
-(*
-datatype 'a ocl_l_attr = Ocl_l_attr of 'a
-                    | Ocl_l_attr_cast of 'a ocl_prop * binding
-
-and 'a ocl_prop = Ocl_prop of 'a ocl_l_attr (* l_inh *) * 'a (* l_attr *)
-
-datatype ocl_prop_main = Ocl_prop_main of ((binding * ocl_term) list) ocl_prop
-*)
 
 val ocl_term0 =
      Parse.number >> (OCL.OclDefInteger o From.from_string)
