@@ -493,7 +493,7 @@ datatype 'a generation_mode = Gen_deep of unit OCL.ocl_compiler_config_ext
                                         * internal_deep
                             | Gen_shallow of unit OCL.ocl_compiler_config_ext
                                            * 'a (* theory init *)
-                            | Gen_syntax_print
+                            | Gen_syntax_print of int option
 
 structure Data_gen = Theory_Data
   (type T = theory generation_mode list Symtab.table
@@ -543,7 +543,7 @@ val mode =
   || @{keyword "shallow"} |-- parse_sem_ocl -- parse_sorry_mode >> (fn ((design_analysis, oid_start), sorry_mode) =>
        fn ctxt =>
        Gen_shallow (mk_ocl true NONE oid_start design_analysis sorry_mode (Config.get ctxt quick_and_dirty), ()))
-  || @{keyword "syntax_print"} >> K (K Gen_syntax_print)
+  || (@{keyword "syntax_print"} |-- Scan.optional (Parse.number >> SOME) NONE) >> (fn n => K (Gen_syntax_print (case n of NONE => NONE | SOME n => Int.fromString n)))
   end
 
 
@@ -552,7 +552,7 @@ fun f_command l_mode =
         let val (l_mode, thy) = OCL.fold_list
           (fn Gen_shallow (ocl, ()) => let val thy0 = thy in
                                        fn thy => (Gen_shallow (ocl, thy0), thy) end
-            | Gen_syntax_print => (fn thy => (Gen_syntax_print, thy))
+            | Gen_syntax_print n => (fn thy => (Gen_syntax_print n, thy))
             | Gen_deep (ocl, Internal_deep (file_out_path_dep, seri_args, filename_thy, tmp_export_code, skip_exportation)) => fn thy =>
                 let val _ = warning ("remove the directory (at the end): " ^ Path.implode (Path.expand tmp_export_code))
                     val seri_args' = List_mapi (fn i => fn ((ml_compiler, ml_module), export_arg) =>
@@ -589,7 +589,7 @@ fun update_compiler_config f =
       (fn l_mode =>
         map (fn Gen_deep (ocl, d) => Gen_deep (OCL.ocl_compiler_config_update f ocl, d)
               | Gen_shallow (ocl, thy) => Gen_shallow (OCL.ocl_compiler_config_update f ocl, thy)
-              | Gen_syntax_print => Gen_syntax_print) l_mode))
+              | Gen_syntax_print n => Gen_syntax_print n) l_mode))
 end
 *}
 
@@ -868,6 +868,8 @@ end
 
 subsection{* ... *}
 
+setup{* ML_Antiquotation.inline @{binding mk_string} (Scan.succeed "(fn ctxt => fn x => Pretty.string_of (Pretty.from_ML (pretty_ml (PolyML.prettyRepresentation (x, Config.get ctxt ML_Options.print_depth)))))") *}
+
 ML{*
 
 fun exec_deep (ocl, file_out_path_dep, seri_args, filename_thy, tmp_export_code, l_obj) thy0 =
@@ -908,7 +910,16 @@ fun outer_syntax_command mk_string cmd_spec cmd_descr parser get_oclclass =
         OCL.fold_list
 
           let val get_oclclass = get_oclclass name in
-          fn Gen_syntax_print => (fn thy => let val _ = writeln (mk_string name) in (Gen_syntax_print, thy) end)
+          fn Gen_syntax_print n =>
+               (fn thy =>
+                  let val _ = writeln
+                                (mk_string
+                                  (Proof_Context.init_global
+                                    (case n of NONE => thy
+                                             | SOME n => Config.put_global ML_Options.print_depth n thy))
+                                  name) in
+                  (Gen_syntax_print n, thy)
+                  end)
            | Gen_deep (ocl, Internal_deep (file_out_path_dep, seri_args, filename_thy, tmp_export_code, skip_exportation)) =>
               (fn thy0 =>
                 let val obj = get_oclclass thy0
@@ -937,7 +948,7 @@ fun outer_syntax_command mk_string cmd_spec cmd_descr parser get_oclclass =
              end
           end
 
-          (case Symtab.lookup (Data_gen.get thy) Deep0.gen_empty of SOME l => l | _ => [Gen_syntax_print])
+          (case Symtab.lookup (Data_gen.get thy) Deep0.gen_empty of SOME l => l | _ => [Gen_syntax_print NONE])
           thy
         in
         Data_gen.map (Symtab.update (Deep0.gen_empty, ocl)) thy end)))
@@ -1207,7 +1218,7 @@ local
   open USE_parse
 
   fun mk_classDefinition abstract cmd_spec =
-    outer_syntax_command2 @{make_string} cmd_spec "Class generation"
+    outer_syntax_command2 @{mk_string} cmd_spec "Class generation"
       (   type_object
        -- class
        --| optional @{keyword "End"})
@@ -1229,7 +1240,7 @@ local
   open USE_parse
 
   fun mk_associationDefinition ass_ty cmd_spec =
-    outer_syntax_command @{make_string} cmd_spec ""
+    outer_syntax_command @{mk_string} cmd_spec ""
       (   repeat2 association_end
        ||     optional Parse.binding
           |-- association
@@ -1253,7 +1264,7 @@ local
   datatype use_associationClassDefinition = USE_associationclass | USE_associationclass_abstract
 
   fun mk_associationClassDefinition abstract cmd_spec =
-    outer_syntax_command2 @{make_string} cmd_spec ""
+    outer_syntax_command2 @{mk_string} cmd_spec ""
       (   type_object
        -- association
        -- class
@@ -1281,7 +1292,7 @@ local
  open USE_parse
 in
 val () =
-  outer_syntax_command2 @{make_string} @{command_spec "Context"} ""
+  outer_syntax_command2 @{mk_string} @{command_spec "Context"} ""
     (optional (Parse.list1 Parse.binding --| colon)
      -- Parse.binding
      -- context)
@@ -1302,7 +1313,7 @@ subsection{* Outer Syntax: Class.end *}
 
 ML{*
 val () =
-  outer_syntax_command @{make_string} @{command_spec "Class.end"} "Class generation"
+  outer_syntax_command @{mk_string} @{command_spec "Class.end"} "Class generation"
     (Scan.optional (Parse.binding >> SOME) NONE)
     (fn _ => fn _ =>
        OCL.OclAstFlushAll (OCL.OclFlushAll))
@@ -1312,7 +1323,7 @@ subsection{* Outer Syntax: \text{Define\_base}, Instance, \text{Define\_state} *
 
 ML{*
 val () =
-  outer_syntax_command @{make_string} @{command_spec "Define_base"} ""
+  outer_syntax_command @{mk_string} @{command_spec "Define_base"} ""
     (parse_l' USE_parse.term_base)
     (K o OCL.OclAstDefBaseL o OCL.OclDefBase)
 
@@ -1320,12 +1331,12 @@ local
   open USE_parse
 in
 val () =
-  outer_syntax_command @{make_string} @{command_spec "Instance"} ""
+  outer_syntax_command @{mk_string} @{command_spec "Instance"} ""
     (Scan.optional (parse_instance -- Scan.repeat (optional @{keyword "and"} |-- parse_instance) >> (fn (x, xs) => x :: xs)) [])
     (OCL.OclAstInstance oo get_oclinst)
 
 val () =
-  outer_syntax_command @{make_string} @{command_spec "Define_state"} ""
+  outer_syntax_command @{mk_string} @{command_spec "Define_state"} ""
     (USE_parse.optional (paren @{keyword "shallow"}) -- Parse.binding --| @{keyword "="}
      -- state_parse)
      (fn ((is_shallow, name), l) => fn thy =>
@@ -1342,7 +1353,7 @@ local
   open USE_parse
 in
 val () =
-  outer_syntax_command @{make_string} @{command_spec "Define_pre_post"} ""
+  outer_syntax_command @{mk_string} @{command_spec "Define_pre_post"} ""
     (USE_parse.optional (paren @{keyword "shallow"})
      -- USE_parse.optional (Parse.binding --| @{keyword "="})
      -- state_pp_parse

@@ -65,7 +65,7 @@ text {*
   @{syntax_def syntax}:
                  @'deep' @{syntax semantics} @{syntax deep_embedding}
                | @'shallow' @{syntax semantics} @{syntax long_or_dirty}
-               | @'syntax_print'
+               | @'syntax_print' number?
   ;
   @{syntax_def semantics}:
                ('(' @'generation_semantics' \<newline>
