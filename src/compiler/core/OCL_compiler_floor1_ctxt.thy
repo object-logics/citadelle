@@ -89,8 +89,6 @@ definition "print_ctxt_const ctxt ocl =
       (Ctxt_clause ctxt)
       ((ocl, []), [])))"
 
-definition "print_ctxt_gen_syntax_header_l l = Isab_thy (Theory_thm (Thm (List_map Thm_str l)))"
-
 definition "print_ctxt = (\<lambda>ctxt. bootstrap_floor
   (\<lambda>l ocl.
     let ((ocl, l_isab_ty), l_isab) = print_ctxt_const ctxt ocl in
@@ -99,14 +97,6 @@ definition "print_ctxt = (\<lambda>ctxt. bootstrap_floor
       (map_invariant (\<lambda>T_inv b (OclProp_ctxt n p) \<Rightarrow>
                        T_inv b (OclProp_ctxt n (T_lambdas (Ctxt_param ctxt @@@@ [var_self]) p)))
                      (map_pre_post (\<lambda>pref ctxt. T_lambdas (make_ctxt_free_var pref ctxt))
-                                   ctxt)))
-  , print_ctxt_gen_syntax_header_l
-      (List_flatten [ List.map_filter (\<lambda> Ctxt_pp ctxt \<Rightarrow> Some (print_ctxt_pre_post_name (Ctxt_fun_name ctxt) var_at_when_hol_post)
-                                       | _ \<Rightarrow> None)
-                                      (Ctxt_clause ctxt)
-                    , List_flatten (List_map (\<lambda>(tit, _). List_map (print_ctxt_inv_name (ty_obj_to_string (Ctxt_ty ctxt)) tit)
-                                                                  [ var_at_when_hol_pre
-                                                                  , var_at_when_hol_post ])
-                                             (fold_invariant' ctxt)) ]) ])"
+                                   ctxt))) ])"
 
 end

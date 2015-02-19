@@ -341,7 +341,8 @@ definition "thy_def_pre_post = (\<lambda> Floor1 \<Rightarrow> [ OCL_compiler_fl
                                             , OCL_compiler_floor2_examp.print_pre_post_where ])"
 definition "thy_ctxt = (\<lambda> Floor1 \<Rightarrow> [ OCL_compiler_floor1_ctxt.print_ctxt ]
                         | Floor2 \<Rightarrow> [ OCL_compiler_floor2_ctxt.print_ctxt_pre_post
-                                    , OCL_compiler_floor2_ctxt.print_ctxt_inv ])"
+                                    , OCL_compiler_floor2_ctxt.print_ctxt_inv
+                                    , OCL_compiler_floor2_ctxt.print_ctxt_thm ])"
 definition "thy_flush_all = []"
 
 definition "ocl_compiler_config_empty disable_thy_output file_out_path_dep oid_start design_analysis sorry_dirty =
