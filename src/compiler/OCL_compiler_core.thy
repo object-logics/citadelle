@@ -372,6 +372,14 @@ definition "ocl_compiler_config_reset_all ocl =
        , List.filter (\<lambda> OclAstFlushAll _ \<Rightarrow> False | _ \<Rightarrow> True) l_ocl
        , [OclAstFlushAll OclFlushAll] ] ))"
 
+definition "ocl_compiler_config_update f ocl =
+  f ocl
+    \<lparr> D_disable_thy_output := D_disable_thy_output ocl
+    , D_file_out_path_dep := D_file_out_path_dep ocl
+    , D_oid_start := D_oid_start ocl
+    , D_design_analysis := D_design_analysis ocl
+    , D_sorry_dirty := D_sorry_dirty ocl \<rparr>"
+
 definition "fold_thy0 meta thy_object0 f =
   List.fold (\<lambda>x (acc1, acc2).
     let (sorry, dirty) = D_sorry_dirty acc1
