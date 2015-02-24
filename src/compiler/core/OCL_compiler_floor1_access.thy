@@ -298,28 +298,26 @@ definition "print_access_select = start_map'' Thy_definition_hol o (\<lambda>exp
       l_inherited) in
     rev l) expr)"
 
+definition "print_access_select_obj_name' isub_name attr = isub_name var_select @@ attr"
+definition "print_access_select_obj_name isub_name attr = print_access_select_obj_name' isub_name (isup_of_str attr)"
 definition "print_access_select_obj = start_map'''' Thy_definition_hol o (\<lambda>expr design_analysis.
   (if design_analysis = Gen_only_design then \<lambda>_. [] else (\<lambda>expr. List_flatten (List_flatten (map_class (\<lambda>isub_name name l_attr l_inh _ _.
     let l_inh = map_class_inh l_inh in
     List_flatten (fst (fold_list (fold_list
       (\<lambda> (attr, OclTy_object (OclTyObj (OclTyCore ty_obj) _)) \<Rightarrow> \<lambda>rbt.
           if lookup2 rbt (name, attr) = None then
-           ([Definition (let var_f = \<open>f\<close>
-                          ; b = \<lambda>s. Expr_basic [s] in
-              Expr_rewrite
-                  (Expr_basic [isub_name var_select @@ isup_of_str attr, var_f])
+           ( [ Definition
+                (let b = \<lambda>s. Expr_basic [s] in
+                 Expr_rewrite
+                  (b (isub_name var_select @@ isup_of_str attr))
                   \<open>=\<close>
-                  (Expr_apply var_select_object
-                   (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l obj_mult = TyObjN_role_multip (TyObj_to ty_obj)
-                      ; (var_mt, var_OclIncluding, var_ANY) =
-                          if is_sequence obj_mult then
-                            (var_mt_sequence, var_OclIncluding_sequence, var_ANY_sequence)
-                          else
-                            (var_mt_set, var_OclIncluding_set, var_ANY_set) in
-                    List_map b [ var_mt
-                               , var_OclIncluding
-                               , if single_multip obj_mult then var_ANY else \<open>id\<close>
-                               , var_f])))], insert2 (name, attr) () rbt)
+                  (b (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l obj_mult = TyObjN_role_multip (TyObj_to ty_obj) in
+                      case (is_sequence obj_mult, single_multip obj_mult) of
+                        (True, True) \<Rightarrow> var_select_object_sequence_any
+                      | (True, False) \<Rightarrow> var_select_object_sequence
+                      | (False, True) \<Rightarrow> var_select_object_set_any
+                      | (False, False) \<Rightarrow> var_select_object_set)))]
+           , insert2 (name, attr) () rbt)
          else ([], rbt)
        | _ \<Rightarrow> Pair []))
       (l_attr # l_inh) RBT.empty))) expr)))) expr)"
@@ -541,7 +539,9 @@ definition "print_access_def_mono = start_map'''' Thy_lemma_by o (\<lambda>expr 
 definition "print_access_is_repr_name isub_name dot_at_when attr_ty isup_attr =
   flatten [ \<open>is_repr_\<close>, print_access_dot_name isub_name dot_at_when attr_ty isup_attr ]"
 definition "print_access_is_repr = start_map'''' Thy_lemma_by o (\<lambda>expr design_analysis.
-  (case design_analysis of Gen_only_analysis \<Rightarrow> \<lambda>_. [] | Gen_default \<Rightarrow> \<lambda>_. [] | Gen_only_design \<Rightarrow>
+ (let is_analysis = design_analysis = Gen_only_design
+    ; App_a = \<lambda>l. App (if is_analysis then l else [])
+    ; App_d = \<lambda>l. App (if is_analysis then [] else l) in
   map_class_arg_only_var'
     (\<lambda>isub_name name (var_in_when_state, dot_at_when) attr_ty isup_attr dot_attr.
       case attr_ty of OclTy_object (OclTyObj (OclTyCore ty_obj) _) \<Rightarrow>
@@ -554,7 +554,8 @@ definition "print_access_is_repr = start_map'''' Thy_lemma_by o (\<lambda>expr d
         ; b = \<lambda>s. Expr_basic [s]
         ; f0 = \<lambda>e. Expr_binop (Expr_basic [var_tau]) \<open>\<Turnstile>\<close> e
         ; f = \<lambda>e. f0 (Expr_apply \<open>\<delta>\<close> [e])
-        ; attr_ty' = is_sequence (TyObjN_role_multip (TyObj_to ty_obj)) in
+        ; attr_ty' = is_sequence (TyObjN_role_multip (TyObj_to ty_obj))
+        ; name_from = TyObjN_ass_switch (TyObj_from ty_obj) in
             [ Lemma_by_assum
                 (print_access_is_repr_name isub_name dot_at_when attr_ty isup_attr)
                 [ (var_def_dot, False, f (dot_attr (Expr_annot (b var_X) name))) ]
@@ -580,6 +581,7 @@ definition "print_access_is_repr = start_map'''' Thy_lemma_by o (\<lambda>expr d
    ; hol_d = List_map hol_definition
    ; thol_d = List_map (Thm_str o hol_definition)
    ; App_f = \<lambda>l e. App_fix_let l [] e []
+   ; App_d_f = \<lambda>l . App_f (if is_analysis then [] else l)
    ; App_f' = \<lambda>l. App_fix_let l []
    ; f_ss = \<lambda>v. a \<open>Some\<close> (a \<open>Some\<close> (b v)) in
  [ App [Tac_insert [Thm_simplified (Thm_OF (Thm_str (print_access_def_mono_name isub_name dot_at_when attr_ty isup_attr))
@@ -616,6 +618,11 @@ definition "print_access_is_repr = start_map'''' Thy_lemma_by o (\<lambda>expr d
                                    , print_access_deref_oid_name isub_name
                                    , \<open>bot_option\<close>, \<open>null_option\<close>])]
  , App [ Tac_case_tac (b v_b), Tac_simp_all_add (hol_d [\<open>invalid\<close>, \<open>bot_option\<close>]) ]
+ , App_a [ Tac_simp_add (hol_d [print_access_deref_assocs_name' name_from isub_name isup_attr, var_deref_assocs]) ]
+ , App_a [ Tac_case_tac (Expr_apply (\<open>assocs\<close>) [ a var_in_when_state (b var_tau)
+                                               , b (print_access_oid_uniq_name' name_from isub_name (isup_attr \<open>\<close>)) ])
+         , Tac_simp_add (hol_d [\<open>invalid\<close>, \<open>bot_option\<close>])
+         , Tac_simp_add (hol_d [print_access_select_obj_name' isub_name (isup_attr \<open>\<close>)]) ]
  (* *)
  , App_fix_let
      [v_r, v_typeoid]
@@ -628,15 +635,20 @@ definition "print_access_is_repr = start_map'''' Thy_lemma_by o (\<lambda>expr d
      , ( Expr_pat vs_sel_any
        , Expr_apply (if attr_ty' then var_select_object_sequence_any else var_select_object_set_any)
                     [ Expr_apply (print_access_deref_oid_name isub_name) [b var_in_when_state, b var_reconst_basetype] ])]
-     (Some [ Expr_rewrite (Expr_apply (print_access_select_name isup_attr isub_name)
+     (Some [ Expr_rewrite (if is_analysis then
+                             Expr_applys (Expr_pat vs_sel_any)
+                                      [ b v_typeoid
+                                      , b var_tau ]
+                           else
+                             Expr_apply (print_access_select_name isup_attr isub_name)
                                       [ Expr_pat vs_sel_any
                                       , b v_typeoid
                                       , b var_tau ]) \<open>=\<close> (f_ss v_r)
            , Expr_pat vs_t ])
      []
- , App [ Tac_case_tac (b v_typeoid), Tac_simp_add (hol_d [print_access_select_name isup_attr isub_name]) ]
+ , App_d [ Tac_case_tac (b v_typeoid), Tac_simp_add (hol_d [print_access_select_name isup_attr isub_name]) ]
  (* *)
- , App_f [v_opt]
+ , App_d_f [v_opt]
      (l_thes0
        [ Expr_rewrite (Expr_applys (Expr_case (b v_opt)
                                               [ (b \<open>None\<close>, b \<open>null\<close>)
@@ -645,7 +657,7 @@ definition "print_access_is_repr = start_map'''' Thy_lemma_by o (\<lambda>expr d
                                    [ b var_tau ])
                       \<open>=\<close>
                       (f_ss v_r) ])
- , App [ Tac_case_tac (b v_opt), Tac_auto_simp_add (hol_d [\<open>null_fun\<close>, \<open>null_option\<close>, \<open>bot_option\<close>]) ]
+ , App_d [ Tac_case_tac (b v_opt), Tac_auto_simp_add (hol_d [\<open>null_fun\<close>, \<open>null_option\<close>, \<open>bot_option\<close>]) ]
  (* *)
  , App_f' [v_aa]
      (l_thes0

@@ -344,7 +344,8 @@ definition "gen_pre_post f_tit spec f_lemma tac_last =
 
 subsection{* accessors *}
 
-definition "print_access_oid_uniq_name name_from_nat isub_name attr = flatten [ isub_name var_oid_uniq, \<open>_\<close>, natural_of_str name_from_nat, \<open>_\<close>, isup_of_str attr ]"
+definition "print_access_oid_uniq_name' name_from_nat isub_name attr = flatten [ isub_name var_oid_uniq, \<open>_\<close>, natural_of_str name_from_nat, \<open>_\<close>, attr ]"
+definition "print_access_oid_uniq_name name_from_nat isub_name attr = print_access_oid_uniq_name' name_from_nat isub_name (isup_of_str attr)"
 definition "print_access_oid_uniq_mlname name_from_nat name attr = flatten [ var_oid_uniq, name, \<open>_\<close>, natural_of_str name_from_nat, \<open>_\<close>, attr ]"
 
 definition "print_access_choose_name n i j =
