@@ -539,9 +539,9 @@ definition "print_access_def_mono = start_map'''' Thy_lemma_by o (\<lambda>expr 
 definition "print_access_is_repr_name isub_name dot_at_when attr_ty isup_attr =
   flatten [ \<open>is_repr_\<close>, print_access_dot_name isub_name dot_at_when attr_ty isup_attr ]"
 definition "print_access_is_repr = start_map'''' Thy_lemma_by o (\<lambda>expr design_analysis.
- (let is_analysis = design_analysis = Gen_only_design
-    ; App_a = \<lambda>l. App (if is_analysis then l else [])
-    ; App_d = \<lambda>l. App (if is_analysis then [] else l) in
+ (let is_design = design_analysis = Gen_only_design
+    ; App_a = \<lambda>l. App (if is_design then [] else l)
+    ; App_d = \<lambda>l. App (if is_design then l else []) in
   map_class_arg_only_var'
     (\<lambda>isub_name name (var_in_when_state, dot_at_when) attr_ty isup_attr dot_attr.
       case attr_ty of OclTy_object (OclTyObj (OclTyCore ty_obj) _) \<Rightarrow>
@@ -581,7 +581,7 @@ definition "print_access_is_repr = start_map'''' Thy_lemma_by o (\<lambda>expr d
    ; hol_d = List_map hol_definition
    ; thol_d = List_map (Thm_str o hol_definition)
    ; App_f = \<lambda>l e. App_fix_let l [] e []
-   ; App_d_f = \<lambda>l . App_f (if is_analysis then [] else l)
+   ; App_d_f = \<lambda>l . App_f (if is_design then l else [])
    ; App_f' = \<lambda>l. App_fix_let l []
    ; f_ss = \<lambda>v. a \<open>Some\<close> (a \<open>Some\<close> (b v)) in
  [ App [Tac_insert [Thm_simplified (Thm_OF (Thm_str (print_access_def_mono_name isub_name dot_at_when attr_ty isup_attr))
@@ -635,14 +635,14 @@ definition "print_access_is_repr = start_map'''' Thy_lemma_by o (\<lambda>expr d
      , ( Expr_pat vs_sel_any
        , Expr_apply (if attr_ty' then var_select_object_sequence_any else var_select_object_set_any)
                     [ Expr_apply (print_access_deref_oid_name isub_name) [b var_in_when_state, b var_reconst_basetype] ])]
-     (Some [ Expr_rewrite (if is_analysis then
-                             Expr_applys (Expr_pat vs_sel_any)
-                                      [ b v_typeoid
-                                      , b var_tau ]
-                           else
+     (Some [ Expr_rewrite (if is_design then
                              Expr_apply (print_access_select_name isup_attr isub_name)
                                       [ Expr_pat vs_sel_any
                                       , b v_typeoid
+                                      , b var_tau ]
+                           else
+                             Expr_applys (Expr_pat vs_sel_any)
+                                      [ b v_typeoid
                                       , b var_tau ]) \<open>=\<close> (f_ss v_r)
            , Expr_pat vs_t ])
      []
