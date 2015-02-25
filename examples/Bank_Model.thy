@@ -95,10 +95,7 @@ Instance Saving1 :: Account = ([ maximum = 2000 ] :: Savings)
      and Bank1 :: Bank = [ bankaccounts = [ Saving1 , Account1 ], name = "\<infinity>\<heartsuit> \<Longleftrightarrow> \<infinity>\<epsilon>" (* (* TODO latex *) \<euro> *) ]
 
 Define_state \<sigma>\<^sub>1' =
-  [ Account1
-  , Client1
-  , Bank1
-  , Saving1 ]
+  [ Account1, Client1, Bank1, Saving1 ]
 
 Define_state ss = []
 

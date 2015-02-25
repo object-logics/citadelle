@@ -68,6 +68,7 @@ section{* ... and its Annotation by OCL Constraints  *}
 
 Context Node
   Inv asc : "self .next <> null implies (self .i  \<le>\<^sub>i\<^sub>n\<^sub>t self .next .i) "
+  Inv pos : "\<zero> \<le>\<^sub>i\<^sub>n\<^sub>t (self .i)"
 
 Context Node :: contents() : Set(Integer)
   Post : "result \<triangleq> if (self .next \<doteq> null)

@@ -248,5 +248,139 @@ Assert    "\<tau> \<Turnstile> (Sequence{null}->select\<^sub>S\<^sub>e\<^sub>q(x
 lemma     "const (Sequence{Sequence{\<two>,null}, invalid})" by(simp add: const_ss)
 
 
+section{* Experiment with Cartouches *}
+
+(* String Parsing Setup *)
+(* ML{* open HOLogic ; *} *)
+ML {*
+  local
+    val mk_nib =
+      Syntax.const o Lexicon.mark_const o
+        fst o Term.dest_Const o HOLogic.mk_nibble;
+
+    fun mk_char (s, _) accu =
+        fold
+          (fn c => fn l =>
+               Syntax.const @{const_syntax Cons}
+             $ (Syntax.const @{const_syntax Char} $ mk_nib (c div 16) $ mk_nib (c mod 16))
+             $ l)
+          (rev (map Char.ord (String.explode s)))
+          accu;
+
+    fun mk_string [] = Const (@{const_syntax Nil}, @{typ "char list"})
+      | mk_string (s :: ss) = mk_char s (mk_string ss);
+
+    fun mk_int [] = raise TERM ("int_tr", [])
+      | mk_int S = let val s = implode(map fst S) in
+                    case Int.fromString s of 
+                            NONE => raise TERM (" int_tr", [])
+                         |  SOME(i) => HOLogic.mk_number HOLogic.intT i
+                   end
+     
+    fun mk_number i =
+      let
+        fun mk 1 = Syntax.const @{const_syntax Num.One}
+          | mk i =
+              let
+                val (q, r) = Integer.div_mod i 2;
+                val bit = if r = 0 then @{const_syntax Num.Bit0} else @{const_syntax Num.Bit1};
+              in Syntax.const bit $ (mk q) end;
+      in
+        if i = 0 then Syntax.const @{const_syntax Groups.zero}
+        else if i > 0 then Syntax.const @{const_syntax Num.numeral} $ mk i
+        else
+          Syntax.const @{const_syntax Groups.uminus} $
+            (Syntax.const @{const_syntax Num.numeral} $ mk (~ i))
+      end;
+
+    fun mk_frac str =
+      let
+        val {mant = i, exp = n} = Lexicon.read_float str;
+        val exp = Syntax.const @{const_syntax Power.power};
+        val ten = mk_number 10;
+        val exp10 = if n = 1 then ten else exp $ ten $ mk_number n;
+      in Syntax.const @{const_syntax divide} $ mk_number i $ exp10 end;
+
+  in
+    val POKE = Unsynchronized.ref ([]:term list)
+    fun string_tr f content args =
+      let fun err () = raise TERM ("string_tr", args) in
+        (case args of
+          [(c as Const (@{syntax_const "_constrain"}, _)) $ Free (s, _) $ p] =>
+            (case Term_Position.decode_position p of
+              SOME (pos, _) => c $ f (mk_string (content (s, pos))) $ p
+            | NONE => err ())
+        | _ => err ())
+      end;
+
+   fun int_tr f content args =
+      let fun err () = raise TERM ("int_tr", args) in
+        (case args of
+          [(c as Const (@{syntax_const "_constrain"}, _)) $ Free (s, _) $ p] =>
+            (case Term_Position.decode_position p of
+              SOME (pos, _) => c $ f (mk_int (content (s, pos))) $ p
+            | NONE => err ())
+        | _ => err ())
+      end;
+
+   fun float_tr f [(c as Const (@{syntax_const "_constrain"}, _)) $ t $ u $ p] = 
+                 c $ f (float_tr f [t]) $ u
+      | float_tr _ [Const (str, _)] = mk_frac str
+      | float_tr _ ts = (POKE:=ts;raise TERM ("float_tr", ts));
+ (* in [(@{syntax_const "_Float"}, K float_tr)] end *)
+                                        
+  end;
+*}
+
+term "123"
+
+(*  
+term "\<open>abc\<close>"
+term "\<open>123\<close>"
+term "\<open>12,24\<close>"
+term "\<open>-12.24\<close>"
+*)
+
+syntax "_cartouche_oclstring" :: "cartouche_position \<Rightarrow> _"  ("_")
+
+section{* Experiment with Cartouches *}
+
+parse_translation {*
+  [( @{syntax_const "_cartouche_oclstring"}
+   , let val cartouche_type = Attrib.setup_config_string @{binding cartouche_type} (K "String") in
+       fn ctxt =>
+         
+           (case Config.get ctxt cartouche_type of
+              "String" => (string_tr
+                             (fn x => Abs("_",dummyT,
+                                    Syntax.const @{const_syntax Some} $
+                                       ( Syntax.const @{const_syntax Some} $ x)))
+                             (Symbol_Pos.cartouche_content o Symbol_Pos.explode))
+            | "Integer" => int_tr
+                             (fn x => Abs("_",dummyT,
+                                    Syntax.const @{const_syntax Some} $
+                                       ( Syntax.const @{const_syntax Some} $ x)))
+                             (Symbol_Pos.cartouche_content o Symbol_Pos.explode)
+            | "Real" => float_tr (fn x => Abs("_",dummyT,
+                                    Syntax.const @{const_syntax Some} $
+                                       ( Syntax.const @{const_syntax Some} $ x)))
+            | s => error ("Unregistered return type for the cartouche: \"" ^ s ^ "\""))
+           
+     end)]
+*}
+
+term "\<open>abc\<close>" 
+declare [[cartouche_type="Integer"]]
+term "\<open>-123\<close>" 
+declare [[cartouche_type="Real"]]
+term "\<open>-123.23\<close>" 
+ML{* !POKE 
+so, the cartouche invocation yields:
+val it = [Const ("_constrain" , "_") $ Free ("\<open>-123.23\<close>", "_") $ Free ("<markup>", "_")]: term list
+*}
+
+syntax
+  "_ocl_denotation" :: "str_position => string"    ("'_'")
+
 
 end

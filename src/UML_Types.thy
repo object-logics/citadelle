@@ -581,8 +581,7 @@ fun in_local decl thy =
 
 val () = outer_syntax_command @{command_spec "Assert"} Toplevel.theory in_local 
 val () = outer_syntax_command @{command_spec "Assert_local"} (Toplevel.local_theory NONE) I
-(* TO BE DONE
-   merge the two commands together *)
+(* TO BE DONE  merge the two commands together *)
 *}
 (*>*)
 
