@@ -250,8 +250,8 @@ lemma     "const (Sequence{Sequence{\<two>,null}, invalid})" by(simp add: const_
 
 section{* Experiment with Cartouches *}
 
-(* String Parsing Setup *)
-(* ML{* open HOLogic ; *} *)
+subsection{* ... *}
+
 ML {*
   local
     val mk_nib =
@@ -343,7 +343,7 @@ term "\<open>-12.24\<close>"
 
 syntax "_cartouche_oclstring" :: "cartouche_position \<Rightarrow> _"  ("_")
 
-section{* Experiment with Cartouches *}
+subsection{* ... *}
 
 parse_translation {*
   [( @{syntax_const "_cartouche_oclstring"}
@@ -373,14 +373,13 @@ term "\<open>abc\<close>"
 declare [[cartouche_type="Integer"]]
 term "\<open>-123\<close>" 
 declare [[cartouche_type="Real"]]
-term "\<open>-123.23\<close>" 
-ML{* !POKE 
-so, the cartouche invocation yields:
+(*term "\<open>-123.23\<close>" 
+ML{* (*!POKE 
+so, the cartouche invocation yields:*)
 val it = [Const ("_constrain" , "_") $ Free ("\<open>-123.23\<close>", "_") $ Free ("<markup>", "_")]: term list
-*}
+*}*)
 
 syntax
   "_ocl_denotation" :: "str_position => string"    ("'_'")
-
 
 end

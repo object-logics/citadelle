@@ -97,8 +97,6 @@ parse_translation {*
 
 declare[[cartouche_type = "abr_string"]]
 
-
-term "\<open>abc\<close>"
 subsection{* ... *}
 
 definition "List_mapi f l = rev (fst (foldl (\<lambda>(l,cpt) x. (f cpt x # l, Succ cpt)) ([], 0::nat) l))"
