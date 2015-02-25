@@ -581,7 +581,7 @@ definition "print_access_is_repr = start_map'''' Thy_lemma_by o (\<lambda>expr d
    ; hol_d = List_map hol_definition
    ; thol_d = List_map (Thm_str o hol_definition)
    ; App_f = \<lambda>l e. App_fix_let l [] e []
-   ; App_d_f = \<lambda>l . App_f (if is_design then l else [])
+   ; App_d_f = \<lambda>l e. if is_design then App_f l e else App []
    ; App_f' = \<lambda>l. App_fix_let l []
    ; f_ss = \<lambda>v. a \<open>Some\<close> (a \<open>Some\<close> (b v)) in
  [ App [Tac_insert [Thm_simplified (Thm_OF (Thm_str (print_access_def_mono_name isub_name dot_at_when attr_ty isup_attr))
