@@ -144,10 +144,10 @@ Instance S1  :: Staff  = [ name = "Mallory" , flights = F1 ]
      and F1  :: Flight = [ seats = 120 , "from" = "Ostrava" , to = "Plzen" ]
      and F2  :: Flight = [ seats = 370 , "from" = "Plzen" , to = "Brno" ]
 
-Define_state \<sigma>\<^sub>1 =
+State \<sigma>\<^sub>1 =
   [ S1, C1, C2, R11, R21, F1, F2 ]
 
-Define_state \<sigma>\<^sub>2 =
+State \<sigma>\<^sub>2 =
   [ S1
   , ([ name = "Bob", address = "Praha" , flights = F1 , cl_res = R11 ] :: Client)
   , ([ name = "Alice",address = "Ostrava",flights=[F1,F2],cl_res=[self 4,self 7]]::Client)
@@ -157,7 +157,7 @@ Define_state \<sigma>\<^sub>2 =
   , F2
   , ([ id = 19283 , flight = F2 ] :: Reservation) ]
 
-Define_pre_post \<sigma>\<^sub>1 \<sigma>\<^sub>2
+PrePost \<sigma>\<^sub>1 \<sigma>\<^sub>2
 
 section{* Annotations of the Class Model in OCL *}
 

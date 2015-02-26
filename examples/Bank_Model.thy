@@ -94,14 +94,14 @@ Instance Saving1 :: Account = ([ maximum = 2000 ] :: Savings)
      and Account1 :: Account = [ ident = 666 , owner = Client1 ]
      and Bank1 :: Bank = [ bankaccounts = [ Saving1 , Account1 ], name = "\<infinity>\<heartsuit> \<Longleftrightarrow> \<infinity>\<epsilon>" (* (* TODO latex *) \<euro> *) ]
 
-Define_state \<sigma>\<^sub>1' =
+State \<sigma>\<^sub>1' =
   [ Account1, Client1, Bank1, Saving1 ]
 
-Define_state ss = []
+State ss = []
 
-Define_pre_post ss \<sigma>\<^sub>1'
+PrePost ss \<sigma>\<^sub>1'
 
-Define_base [ 25, 250.0 ]
+BaseType [ 25, 250.0 ]
 
 Context c: Savings
   Inv A : "\<zero>.\<zero> <\<^sub>r\<^sub>e\<^sub>a\<^sub>l (c .maximum)"

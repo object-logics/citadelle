@@ -92,10 +92,10 @@ Instance n1  :: Node = [ i = 2, "next" = n2 ]
      and l1' :: List = [ content = n1' ]
 
 
-Define_state \<sigma>\<^sub>1  = [ n1, n2, l1 ]
-Define_state \<sigma>\<^sub>1' = [ n1', n2, n3, l1' ]
+State \<sigma>\<^sub>1  = [ n1, n2, l1 ]
+State \<sigma>\<^sub>1' = [ n1', n2, n3, l1' ]
 
-Define_pre_post  \<sigma>\<^sub>1 \<sigma>\<^sub>1'
+PrePost  \<sigma>\<^sub>1 \<sigma>\<^sub>1'
 
 section{* Proof of State-Consistency and Implementability of ``insert'' *}
 

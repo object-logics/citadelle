@@ -87,7 +87,7 @@ Instance X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n1 :: Person = [ salary
      and X0 :: Person = [ outer_world = [ [ P1 ] ] ]
      and P1 :: Planet = [ outer_world = [ [ P1 ] , [ self 10 ] ] ]
 
-Define_state \<sigma>\<^sub>1 =
+State \<sigma>\<^sub>1 =
   [ ([ salary = 1000 , boss = self 1 ] :: Person)
   , ([ salary = 1200 ] :: Person)
   (* *)
@@ -98,7 +98,7 @@ Define_state \<sigma>\<^sub>1 =
   (* *)
   , X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n9 ]
 
-Define_state \<sigma>\<^sub>1' =
+State \<sigma>\<^sub>1' =
   [ X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n1
   , X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2
   , X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n3
@@ -109,9 +109,9 @@ Define_state \<sigma>\<^sub>1' =
   , X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n8
   , X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n9 ]
 
-(*Define_state \<sigma>\<^sub>0 = []*)
+(*State \<sigma>\<^sub>0 = []*)
 
-Define_pre_post \<sigma>\<^sub>1 \<sigma>\<^sub>1'
+PrePost \<sigma>\<^sub>1 \<sigma>\<^sub>1'
 
 Context Person :: contents () : Set(Integer)
   Post : "result \<triangleq> if (self .boss \<doteq> null)
@@ -127,7 +127,7 @@ Context Person
 Context Planet
   Inv A : "true and (self .weight \<le>\<^sub>i\<^sub>n\<^sub>t \<zero>)"
 
-(*Define_base [ 1000, 1200, 1300, 1800, 2600, 2900, 3200, 3500
+(*BaseType [ 1000, 1200, 1300, 1800, 2600, 2900, 3200, 3500
             , 3.14159265
             , "abc", "\<AA>\<BB>\<CC>\<DD>\<EE>\<FF>" ]*)
 

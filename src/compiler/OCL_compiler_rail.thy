@@ -194,11 +194,11 @@ text {*
 subsection{* ....................................................................................................................................... *}
 text {*
 \begin{matharray}{rcl}
-  @{command_def Define_state} & : & @{text "theory \<rightarrow> theory"}
+  @{command_def State} & : & @{text "theory \<rightarrow> theory"}
 \end{matharray}
 
 @{rail \<open>
-  @@{command Define_state} ('[' @'shallow' ']')? binding ('=' @{syntax state})?
+  @@{command State} ('[' @'shallow' ']')? binding ('=' @{syntax state})?
   ;
   @{syntax_def state}:
                '[' ((binding | @{syntax object_cast}) * ',') ']'
@@ -208,11 +208,11 @@ text {*
 subsection{* ....................................................................................................................................... *}
 text {*
 \begin{matharray}{rcl}
-  @{command_def Define_pre_post} & : & @{text "theory \<rightarrow> theory"}
+  @{command_def PrePost} & : & @{text "theory \<rightarrow> theory"}
 \end{matharray}
 
 @{rail \<open>
-  @@{command Define_pre_post} ('[' @'shallow' ']')? (binding '=')? \<newline>
+  @@{command PrePost} ('[' @'shallow' ']')? (binding '=')? \<newline>
     @{syntax pre_post}
     @{syntax pre_post}?
   ;
@@ -307,11 +307,11 @@ text {*
 subsection{* ....................................................................................................................................... *}
 text {*
 \begin{matharray}{rcl}
-  @{command_def Define_base} & : & @{text "theory \<rightarrow> theory"}
+  @{command_def BaseType} & : & @{text "theory \<rightarrow> theory"}
 \end{matharray}
 
 @{rail \<open>
-  @@{command Define_base} '[' (@{syntax term_base} * ',') ']'
+  @@{command BaseType} '[' (@{syntax term_base} * ',') ']'
   ;
 \<close>}
 *}

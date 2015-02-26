@@ -156,11 +156,11 @@ definition\<acute> \<open>s_of_ocl_deep_embed_ast _ =
       sprint1 \<open>Instance %s\<close>\<acute> (String_concat \<open>
      and \<close> (List_map s_of_ocl_instance_single l))
   | OclAstDefState Floor2 (OclDefSt n l) \<Rightarrow> 
-      sprint2 \<open>Define_state[shallow] %s = [ %s ]\<close>\<acute>
+      sprint2 \<open>State[shallow] %s = [ %s ]\<close>\<acute>
         (To_string n)
         (s_of_def_state l)
   | OclAstDefPrePost Floor2 (OclDefPP n s_pre s_post) \<Rightarrow>
-      sprint3 \<open>Define_pre_post[shallow] %s%s%s\<close>\<acute>
+      sprint3 \<open>PrePost[shallow] %s%s%s\<close>\<acute>
         (case n of None \<Rightarrow> \<open>\<close> | Some n \<Rightarrow> sprint1 \<open>%s = \<close>\<acute> (To_string n))
         (s_of_def_pp_core s_pre)
         (case s_post of None \<Rightarrow> \<open>\<close> | Some s_post \<Rightarrow> sprint1 \<open> %s\<close>\<acute> (s_of_def_pp_core s_post)))\<close>

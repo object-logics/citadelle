@@ -72,7 +72,7 @@ imports OCL_compiler_printer
            "Abstract_associationclass" "Associationclass"
            "Context"
            (* ocl (added) *)
-           "Class.end" "Instance" "Define_base" "Define_state" "Define_pre_post"
+           "Class.end" "Instance" "BaseType" "State" "PrePost"
 
            (* hol syntax *)
            "generation_syntax"
@@ -1319,11 +1319,11 @@ val () =
        OCL.OclAstFlushAll (OCL.OclFlushAll))
 *}
 
-subsection{* Outer Syntax: \text{Define\_base}, Instance, \text{Define\_state} *}
+subsection{* Outer Syntax: BaseType, Instance, State *}
 
 ML{*
 val () =
-  outer_syntax_command @{mk_string} @{command_spec "Define_base"} ""
+  outer_syntax_command @{mk_string} @{command_spec "BaseType"} ""
     (parse_l' USE_parse.term_base)
     (K o OCL.OclAstDefBaseL o OCL.OclDefBase)
 
@@ -1336,7 +1336,7 @@ val () =
     (OCL.OclAstInstance oo get_oclinst)
 
 val () =
-  outer_syntax_command @{mk_string} @{command_spec "Define_state"} ""
+  outer_syntax_command @{mk_string} @{command_spec "State"} ""
     (USE_parse.optional (paren @{keyword "shallow"}) -- Parse.binding --| @{keyword "="}
      -- state_parse)
      (fn ((is_shallow, name), l) => fn thy =>
@@ -1346,14 +1346,14 @@ val () =
 end
 *}
 
-subsection{* Outer Syntax: \text{Define\_pre\_post} *}
+subsection{* Outer Syntax: PrePost *}
 
 ML{*
 local
   open USE_parse
 in
 val () =
-  outer_syntax_command @{mk_string} @{command_spec "Define_pre_post"} ""
+  outer_syntax_command @{mk_string} @{command_spec "PrePost"} ""
     (USE_parse.optional (paren @{keyword "shallow"})
      -- USE_parse.optional (Parse.binding --| @{keyword "="})
      -- state_pp_parse
