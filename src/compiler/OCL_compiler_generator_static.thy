@@ -50,23 +50,29 @@ begin
 subsection{* General Compiling Process: Test Scenario: Deep (without reflection) *}
 
 definition "Employee_DesignModel_UMLPart =
-  [ ocl_class_raw.make \<langle>''Galaxy''\<rangle> [(\<langle>''sound''\<rangle>, OclTy_raw \<langle>''unit''\<rangle>), (\<langle>''moving''\<rangle>, OclTy_raw \<langle>''bool''\<rangle>)] [] [] None
-  , ocl_class_raw.make \<langle>''Planet''\<rangle> [(\<langle>''weight''\<rangle>, OclTy_raw \<langle>''nat''\<rangle>)] [] [] (Some \<langle>''Galaxy''\<rangle>)
-  , ocl_class_raw.make \<langle>''Person''\<rangle> [(\<langle>''salary''\<rangle>, OclTy_raw \<langle>''int''\<rangle>)] [] [] (Some \<langle>''Planet''\<rangle>) ]"
+ (let n = \<lambda>n1 n2. OclTyObj (OclTyCore_pre n1) (case n2 of None \<Rightarrow> [] | Some n2 \<Rightarrow> [[OclTyCore_pre n2]])
+    ; mk = \<lambda>n l. ocl_class_raw.make n l [] False in
+  [ mk (n \<langle>''Galaxy''\<rangle> None) [(\<langle>''sound''\<rangle>, OclTy_raw \<langle>''unit''\<rangle>), (\<langle>''moving''\<rangle>, OclTy_raw \<langle>''bool''\<rangle>)]
+  , mk (n \<langle>''Planet''\<rangle> (Some \<langle>''Galaxy''\<rangle>)) [(\<langle>''weight''\<rangle>, OclTy_raw \<langle>''nat''\<rangle>)]
+  , mk (n \<langle>''Person''\<rangle> (Some \<langle>''Planet''\<rangle>)) [(\<langle>''salary''\<rangle>, OclTy_raw \<langle>''int''\<rangle>)] ])"
 
-definition "main = write_file
- (ocl_compiler_config.extend
-   (ocl_compiler_config_empty True None (oidInit (Oid 0)) Gen_only_design (None, False)
-      \<lparr> D_disable_thy_output := False
-      , D_file_out_path_dep := Some (\<langle>''Employee_DesignModel_UMLPart_generated''\<rangle>
-                                    ,[\<langle>''../src/OCL_main''\<rangle>]
-                                    ,\<langle>''../src/compiler/OCL_compiler_generator_dynamic''\<rangle>) \<rparr>)
-   ( List_map (OclAstClassRaw Floor1) Employee_DesignModel_UMLPart
-     @@@@ [ OclAstAssociation (ocl_association.make OclAssTy_association
-            [ (\<langle>''Person''\<rangle>, OclMult [(Mult_star, None)] Set, None)
-            , (\<langle>''Person''\<rangle>, OclMult [(Mult_nat 0, Some (Mult_nat 1))] Set, Some \<langle>''boss''\<rangle>)])
-        , OclAstFlushAll OclFlushAll]
-   , None))"
+definition "main =
+ (let n = \<lambda>n1 n2. OclTyObj (OclTyCore_pre n1) (case n2 of None \<Rightarrow> [] | Some n2 \<Rightarrow> [[OclTyCore_pre n2]])
+    ; OclMult = \<lambda>m. ocl_multiplicity.make [m] None [Set] in
+  write_file
+   (ocl_compiler_config.extend
+     (ocl_compiler_config_empty True None (oidInit (Oid 0)) Gen_only_design (None, False)
+        \<lparr> D_disable_thy_output := False
+        , D_file_out_path_dep := Some (\<langle>''Employee_DesignModel_UMLPart_generated''\<rangle>
+                                      ,[\<langle>''../src/OCL_main''\<rangle>]
+                                      ,\<langle>''../src/compiler/OCL_compiler_generator_dynamic''\<rangle>) \<rparr>)
+     ( List_map (OclAstClassRaw Floor1) Employee_DesignModel_UMLPart
+       @@@@ [ OclAstAssociation (ocl_association.make
+                                  OclAssTy_association
+                                  (OclAssRel [ (n \<langle>''Person''\<rangle> None, OclMult (Mult_star, None))
+                                             , (n \<langle>''Person''\<rangle> (Some \<langle>''boss''\<rangle>), OclMult (Mult_nat 0, Some (Mult_nat 1)))]))
+          , OclAstFlushAll OclFlushAll]
+     , None)))"
 (*
 apply_code_printing ()
 export_code main
