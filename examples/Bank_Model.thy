@@ -47,52 +47,46 @@ theory
   Bank_Model
 imports
   "../src/UML_OCL"
-  (* separate compilation : UML_OCL *)
 begin
 
 Class Bank
   Attributes name : String
-End
 
 Class Client
   Attributes clientname : String
              address : String
              age : Integer
-             (*id  : Integer*)
-End
+
+term id
 
 Class Account
-  Attributes ident : Integer
-             moneybalance : Real
-End
+  Attributes id : Integer
+             balance : Real
 
 Association clients
   Between Bank [1 \<bullet>\<bullet> *] Role banks
           Client [1 \<bullet>\<bullet> *] Role clients
-End
 
-Association accounts
-  Between Account [1 \<bullet>\<bullet> *] Role clientaccounts
+Association owner
+  Between Account [1 \<bullet>\<bullet> *] Role c_accounts
           Client [1] Role owner
-End
 
-Association bankaccounts
-  Between Account [1 \<bullet>\<bullet> *] Role bankaccounts
+Association bank
+  Between Account [1 \<bullet>\<bullet> *] Role b_accounts
           Bank [1] Role bank
-End
+
+term max
 
 Class Savings < Account
-  Attributes maximum : Real
-End
+  Attributes max : Real
 
 Class Current < Account
   Attributes overdraft : Real
-End
 
-Instance Saving1 :: Account = ([ maximum = 2000 ] :: Savings)
-     and Client1 :: Client = [ clientaccounts = [ Saving1 ] , banks = Bank1 ]
-     and Account1 :: Account = [ ident = 666 , owner = Client1 ]
-     and Bank1 :: Bank = [ bankaccounts = [ Saving1 , Account1 ], name = "\<infinity>\<heartsuit> \<Longleftrightarrow> \<infinity>\<epsilon>" (* (* TODO latex *) \<euro> *) ]
+Instance Saving1 :: Account = ([ max = 2000 ] :: Savings)
+     and Client1 :: Client = [ c_accounts = Saving1 , banks = Bank1 ]
+     and Account1 :: Account = [ id = 250 , owner = Client1 ]
+     and Bank1 :: Bank = [ b_accounts = [ Saving1 , Account1 ], name = "\<infinity>\<heartsuit> \<Longleftrightarrow> \<infinity>\<epsilon>" (* (* TODO latex *) \<euro> *) ]
 
 State \<sigma>\<^sub>1' =
   [ Account1, Client1, Bank1, Saving1 ]
@@ -104,22 +98,22 @@ PrePost ss \<sigma>\<^sub>1'
 BaseType [ 25, 250.0 ]
 
 Context c: Savings
-  Inv A : "\<zero>.\<zero> <\<^sub>r\<^sub>e\<^sub>a\<^sub>l (c .maximum)"
-  Inv B : "c .moneybalance \<le>\<^sub>r\<^sub>e\<^sub>a\<^sub>l (c .maximum) and \<zero>.\<zero> \<le>\<^sub>r\<^sub>e\<^sub>a\<^sub>l (c .moneybalance)"
+  Inv "\<zero>.\<zero> <\<^sub>r\<^sub>e\<^sub>a\<^sub>l (c .max)"
+  Inv "c .balance \<le>\<^sub>r\<^sub>e\<^sub>a\<^sub>l (c .max) and \<zero>.\<zero> \<le>\<^sub>r\<^sub>e\<^sub>a\<^sub>l (c .balance)"
 
 Context c: Current
-  Inv A : "\<two>\<five> <\<^sub>i\<^sub>n\<^sub>t (c .owner .age) implies (c .overdraft \<doteq> \<zero>.\<zero>)"
-  Inv B : "c .owner .age \<le>\<^sub>i\<^sub>n\<^sub>t \<two>\<five> implies   (c .overdraft \<doteq> \<zero>.\<zero> -\<^sub>r\<^sub>e\<^sub>a\<^sub>l \<two>\<five>\<zero>.\<zero>)"
+  Inv "\<two>\<five> \<le>\<^sub>i\<^sub>n\<^sub>t (c .owner .age) implies (c .overdraft \<doteq> \<two>\<five>\<zero>.\<zero>)"
+  Inv "c .owner .age <\<^sub>i\<^sub>n\<^sub>t \<two>\<five>   implies (c .overdraft \<doteq> \<zero>.\<zero>)"
 
 Context c: Client
-  Inv A : "c .banks ->forAll\<^sub>S\<^sub>e\<^sub>t(b | b .bankaccounts ->select\<^sub>S\<^sub>e\<^sub>t(a | (a .owner \<doteq> c) and
+  Inv "c .banks ->forAll\<^sub>S\<^sub>e\<^sub>t(b | b .b_accounts ->select\<^sub>S\<^sub>e\<^sub>t(a | (a .owner \<doteq> c) and
                                                                   (a .oclIsTypeOf(Current)))
-                        ->size\<^sub>S\<^sub>e\<^sub>t() \<le>\<^sub>i\<^sub>n\<^sub>t \<one>)"
+                                             ->size\<^sub>S\<^sub>e\<^sub>t() \<le>\<^sub>i\<^sub>n\<^sub>t \<one>)"
 
 Context Bank :: create_client(name:String, address:String, age:Integer, b:Bank) : Integer
-  Pre : "b .clients ->forAll\<^sub>S\<^sub>e\<^sub>t(c | c .clientname <> name or c .address <> address)"
-  Post: "b .clients ->exists\<^sub>S\<^sub>e\<^sub>t(c | c .clientname <> name or c .address <> address or c .age <> age)"
-  Post : "true"
+  Pre  "b .clients ->forAll\<^sub>S\<^sub>e\<^sub>t(c | c .clientname <> name or c .address <> address)"
+  Post "b .clients ->exists\<^sub>S\<^sub>e\<^sub>t(c | c .clientname <> name or c .address <> address or c .age <> age)"
+  Post "true"
 
 (*generation_syntax deep flush_all*)
 
