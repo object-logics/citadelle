@@ -83,6 +83,8 @@ session "OCL-all-dirty" in "src" = HOL +
 
     "../examples/empirical_evaluation/Class_model"
 
+    "../src/compiler/OCL_compiler_generator_static"
+
     "../examples/Employee_Model/Analysis/Analysis_OCL"
     "../examples/Employee_Model/Design/Design_OCL"
     "../doc/Employee_AnalysisModel_UMLPart_generated"
