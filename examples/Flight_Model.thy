@@ -165,7 +165,7 @@ Context f: Flight
   Inv A : "\<zero> <\<^sub>i\<^sub>n\<^sub>t (f .seats)"
   Inv B : "f .fl_res ->size\<^sub>S\<^sub>e\<^sub>q() \<le>\<^sub>i\<^sub>n\<^sub>t (f .seats)"
   Inv C : "f .passengers ->select\<^sub>S\<^sub>e\<^sub>t(p | p .oclIsTypeOf(Client))
-                          \<doteq> ((f .fl_res)->collect\<^sub>S\<^sub>e\<^sub>q(c | c .oclAsType(Person))->asSet\<^sub>S\<^sub>e\<^sub>q())"
+                          \<doteq> ((f .fl_res)->collect\<^sub>S\<^sub>e\<^sub>q(c | c .client .oclAsType(Person))->asSet\<^sub>S\<^sub>e\<^sub>q())"
 
 Context r: Reservation
   Inv A : "\<zero> <\<^sub>i\<^sub>n\<^sub>t (r .id)"
