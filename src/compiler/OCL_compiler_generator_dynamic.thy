@@ -1085,7 +1085,7 @@ structure USE_parse = struct
                     (* object type *)
                  || type_object >> OCL.OclTy_object
 
-                 || ((Parse.$$$ "(" |-- Parse.list (   (optional (Parse.binding --| colon) >> From.from_option From.from_binding)
+                 || ((Parse.$$$ "(" |-- Parse.list (   (Parse.binding --| colon >> (From.from_option From.from_binding o SOME))
                                                     -- (   Parse.$$$ "(" |-- use_type --| Parse.$$$ ")"
                                                         || Parse.binding >> (fn s => OCL.OclTy_object (OCL.OclTyObj (OCL.OclTyCore_pre (From.from_binding s), [])))) >> OCL.OclTy_binding
                                                     ) --| Parse.$$$ ")"
@@ -1096,7 +1096,8 @@ structure USE_parse = struct
                                            (hd ty_arg)))
                      -- optional (colon |-- use_type))
                     >> (fn (ty_arg, ty_out) => case ty_out of NONE => ty_arg
-                                                            | SOME ty_out => OCL.OclTy_arrow (ty_arg, ty_out))) v
+                                                            | SOME ty_out => OCL.OclTy_arrow (ty_arg, ty_out))
+                 || (Parse.$$$ "(" |-- use_type --| Parse.$$$ ")" >> (fn s => OCL.OclTy_binding (NONE, s)))) v
 
   val use_prop =    (optional (optional (Parse.binding >> From.from_binding) --| Parse.$$$ ":") >> (fn NONE => NONE | SOME x => x))
                  -- Parse.term --| optional Parse.semicolon >> (fn (n, e) => fn from_expr => OCL.OclProp_ctxt (n, from_expr e))

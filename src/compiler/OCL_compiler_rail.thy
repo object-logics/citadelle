@@ -281,7 +281,8 @@ text {*
 
                | ('Sequence' | 'Set' | @{syntax category}) @{syntax uml_type}
                | 'Pair' @{syntax uml_type} @{syntax uml_type}
-               | '(' (((binding ':')? ('(' @{syntax uml_type} ')' | binding)) * ',') ')' (':' @{syntax uml_type})?
+               | '(' ((binding ':' ('(' @{syntax uml_type} ')' | binding)) * ',') ')' (':' @{syntax uml_type})?
+               | '(' @{syntax uml_type} ')'
 
                | '\<langle>' type '\<rangle>'
   ;
