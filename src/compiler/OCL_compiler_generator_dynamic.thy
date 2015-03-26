@@ -1086,7 +1086,9 @@ structure USE_parse = struct
                  || type_object >> OCL.OclTy_object
 
                  || ((Parse.$$$ "(" |-- Parse.list (   (optional (Parse.binding --| colon) >> From.from_option From.from_binding)
-                                                     -- use_type >> OCL.OclTy_binding) --| Parse.$$$ ")"
+                                                    -- (   Parse.$$$ "(" |-- use_type --| Parse.$$$ ")"
+                                                        || Parse.binding >> (fn s => OCL.OclTy_object (OCL.OclTyObj (OCL.OclTyCore_pre (From.from_binding s), [])))) >> OCL.OclTy_binding
+                                                    ) --| Parse.$$$ ")"
                       >> (fn ty_arg => case rev ty_arg of
                             [] => OCL.OclTy_base_void
                           | ty_arg => fold (fn x => fn acc => OCL.OclTy_pair (x, acc))
