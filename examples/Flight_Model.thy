@@ -181,6 +181,17 @@ Context Client :: book (f : Flight)
               and (r .prev \<doteq> null)
               and (r .next \<doteq> null))"
 
+Context Client :: booknext (f : Flight, r : Reservation)
+  Pre : "f .passengers ->excludes\<^sub>S\<^sub>e\<^sub>t(self .oclAsType(Person))
+         and (f .fl_res ->size\<^sub>S\<^sub>e\<^sub>q() <\<^sub>i\<^sub>n\<^sub>t (f .seats))
+         and (r .client \<doteq> self)
+         and (f .from \<doteq> (r .flight .to))"
+  Post: "f .passengers \<doteq> (f .passengers@pre ->including\<^sub>S\<^sub>e\<^sub>t(self .oclAsType(Person)))
+         and (let r = self .cl_res ->select\<^sub>S\<^sub>e\<^sub>t(r | r .flight \<doteq> f)->any\<^sub>S\<^sub>e\<^sub>t() in
+              (r .oclIsNew())
+              and (r .prev \<doteq> r)
+              and (r .next \<doteq> null))"
+
 Context Client :: cancel (r : Reservation)
   Pre : "r .client \<doteq> self"
   Post: "self .cl_res ->select\<^sub>S\<^sub>e\<^sub>t(res | res .flight \<doteq> r .flight@pre)
