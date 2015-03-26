@@ -334,7 +334,26 @@ val compiler = let open Export_code_env in
                List.concat
                [ [ "ML{" ^ esc_star ]
                , map (fn s => s ^ ";") l
-               , [ esc_star ^ "}"] ] in
+               , [ esc_star ^ "}"] ]
+             val () = 
+               let val fic = mk_fic (SML.Filename.function ml_ext_ml)
+                   val _ = if File.exists fic then () else error "zzzzzz" in
+               (* replace ("\\" ^ "<") by ("\\\060") in 'fic' *)
+               File.write_list fic
+                 (map (fn s => 
+                         (if s = "" then
+                           ""
+                         else
+                           String.concatWith "\\"
+                             (map (fn s => 
+                                     let val l = String.size s in
+                                     if l > 0 andalso String.sub (s,0) = #"<" then
+                                       "\\060" ^ String.substring (s, 1, String.size s - 1)
+                                     else
+                                       s end)
+                                  (String.fields (fn c => c = #"\\") s))) ^ "\n")
+                      (File.read_lines fic))
+               end in
          File.write_list (mk_fic (SML.Filename.main_fic ml_ext_thy))
            (map (fn s => s ^ "\n") (List.concat
              [ [ "theory " ^ SML.main
