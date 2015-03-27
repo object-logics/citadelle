@@ -115,6 +115,20 @@ Context Bank :: create_client(name:String, address:String, age:Integer, b:Bank) 
   Post "b .clients ->exists\<^sub>S\<^sub>e\<^sub>t(c | c .clientname <> name or c .address <> address or c .age <> age)"
   Post "true"
 
+
+Context Account :: get_balance (c : String, no : Integer) : Real
+  Pre  "self .id \<doteq> no and ((self .owner .clientname) \<doteq> c)"
+  Post "result \<doteq> (self .balance)"
+
+Context Account :: deposit (c : String, no : Integer, amount:Real) : Real
+  Pre  "self .id \<doteq> no and ((self .owner .clientname) \<doteq> c) and (\<zero>.\<zero>  \<le>\<^sub>r\<^sub>e\<^sub>a\<^sub>l amount)"
+  Post "self .balance \<doteq> (self .balance@pre +\<^sub>r\<^sub>e\<^sub>a\<^sub>l amount)"
+
+Context Account :: withdraw (c : String, no : Integer, amount:Real) : Real
+  Pre  "self .id \<doteq> no and ((self .owner .clientname) \<doteq> c) and (\<zero>.\<zero>  \<le>\<^sub>r\<^sub>e\<^sub>a\<^sub>l amount)"
+  Post "self .balance \<doteq> (self .balance@pre -\<^sub>r\<^sub>e\<^sub>a\<^sub>l amount)"
+
+
 (*generation_syntax deep flush_all*)
 
 lemmas [simp,code_unfold] = dot_accessor
