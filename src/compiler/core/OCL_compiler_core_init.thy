@@ -233,10 +233,10 @@ definition "arrange_ass with_aggreg with_optim_ass l_c =
 
 subsection{* ... *}
 
-definition "datatype_ext_name = \<open>type\<close>"
-definition "datatype_name = datatype_ext_name @@ const_oid"
-definition "datatype_ext_constr_name = \<open>mk\<close>"
-definition "datatype_constr_name = datatype_ext_constr_name @@ const_oid"
+definition "datatype_name = \<open>ty\<close>"
+definition "datatype_ext_name = datatype_name @@ \<open>\<E>\<X>\<T>\<close>"
+definition "datatype_constr_name = \<open>mk\<close>"
+definition "datatype_ext_constr_name = datatype_constr_name @@ \<open>\<E>\<X>\<T>\<close>"
 definition "datatype_in = \<open>in\<close>"
 
 section{* Translation of AST *}
