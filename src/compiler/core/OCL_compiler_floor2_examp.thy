@@ -274,7 +274,7 @@ definition "print_examp_def_st_allinst = (\<lambda> _ ocl.
                       , List_flatten (List_map (\<lambda>(cast, ocore).
                           if cast then
                             case
-                              case ocore of OclDefCoreBinding (_, ocli) \<Rightarrow> Some ocli
+                              case\<^sub>S\<^sub>c\<^sub>a\<^sub>l\<^sub>a ocore of OclDefCoreBinding (_, ocli) \<Rightarrow> Some ocli
                             of Some ocli \<Rightarrow> [print_examp_instance_name (\<lambda>s. s @@ isub_of_str (Inst_ty ocli)) (inst_name ocli)]
                              | None \<Rightarrow> []
                           else []) l_body) ]))]]
