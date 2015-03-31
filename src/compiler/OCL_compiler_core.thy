@@ -374,10 +374,10 @@ definition "ocl_compiler_config_reset_all ocl =
        , [OclAstFlushAll OclFlushAll] ] ))"
 
 definition "ocl_compiler_config_update f ocl =
+  (* WARNING The semantics of the meta-embedded language is not intended to be reset here (like oid_start), only syntactic configurations of the compiler (path, etc...) *)
   f ocl
     \<lparr> D_disable_thy_output := D_disable_thy_output ocl
     , D_file_out_path_dep := D_file_out_path_dep ocl
-    , D_oid_start := D_oid_start ocl
     , D_design_analysis := D_design_analysis ocl
     , D_sorry_dirty := D_sorry_dirty ocl \<rparr>"
 
