@@ -46,7 +46,7 @@ header{* Part ... *}
 theory
   Bank_Model
 imports
-  "../src/UML_OCL"
+  "archive/UML_OCL_Bank"
 begin
 
 Class Bank
@@ -61,7 +61,7 @@ term id
 
 Class Account
   Attributes id : Integer
-             balance : Real
+             balance : \<acute>Currency\<acute>
 
 Association clients
   Between Bank [1 \<bullet>\<bullet> *] Role banks
@@ -78,10 +78,10 @@ Association bank
 term max
 
 Class Savings < Account
-  Attributes max : Real
+  Attributes max : \<acute>Currency\<acute>
 
 Class Current < Account
-  Attributes overdraft : Real
+  Attributes overdraft : \<acute>Currency\<acute>
 
 Instance Saving1 :: Account = ([ max = 2000 ] :: Savings)
      and Client1 :: Client = [ c_accounts = Saving1 , banks = Bank1 ]
