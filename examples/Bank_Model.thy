@@ -110,10 +110,9 @@ Context c: Client
                                                                   (a .oclIsTypeOf(Current)))
                                              ->size\<^sub>S\<^sub>e\<^sub>t() \<le>\<^sub>i\<^sub>n\<^sub>t \<one>)"
 
-Context Bank :: create_client(name:String, address:String, age:Integer, b:Bank) : Integer
-  Pre  "b .clients ->forAll\<^sub>S\<^sub>e\<^sub>t(c | c .clientname <> name or c .address <> address)"
-  Post "b .clients ->exists\<^sub>S\<^sub>e\<^sub>t(c | c .clientname <> name or c .address <> address or c .age <> age)"
-  Post "true"
+Context Bank :: create_client (clientname : String, age : Integer, bank : Bank) : Integer
+  Pre  "bank .clients ->forAll\<^sub>S\<^sub>e\<^sub>t(c | c .clientname <> clientname or c .age <> age)"
+  Post "bank .clients ->exists\<^sub>S\<^sub>e\<^sub>t(c | c .clientname \<doteq> clientname and c .age \<doteq> age)"
 
 
 Context Account :: get_balance (c : String, no : Integer) : Real
