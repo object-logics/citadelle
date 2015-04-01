@@ -229,7 +229,7 @@ text {*
 \end{matharray}
 
 @{rail \<open>
-  @@{command Enum} ( '(' 'synonym' ')' binding '=' binding
+  @@{command Enum} ( '(' 'synonym' ')' binding '=' @{syntax type_base}
                    | binding '[' (binding * ',') ']')
   ;
 \<close>}
@@ -267,6 +267,14 @@ text {*
   @{syntax_def name_object}:
                ((binding + ',') ':')? binding
   ;
+  @{syntax_def type_base}:
+                 'Void'
+               | 'Boolean'
+               | 'UnlimitedNatural'
+               | 'Integer'
+               | 'Real'
+               | 'String'
+  ;
   @{syntax_def type_object}:
                @{syntax name_object} (('<' (@{syntax name_object} + ',')) * ())
   ;
@@ -283,13 +291,7 @@ text {*
                 | @'Union') * ())
   ;
   @{syntax_def uml_type}:
-                 'Void'
-               | 'Boolean'
-               | 'UnlimitedNatural'
-               | 'Integer'
-               | 'Real'
-               | 'String'
-
+                 @{syntax type_base}
                | @{syntax type_object}
 
                | ('Sequence' | 'Set' | @{syntax category}) @{syntax uml_type}
