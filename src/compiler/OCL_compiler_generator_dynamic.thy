@@ -1080,6 +1080,13 @@ structure USE_parse = struct
     (fn ((l_mult, role), l) =>
        OCL.Ocl_multiplicity_ext (l_mult, From.from_option From.from_binding role, l, ()))
 
+  val type_base =   Parse.reserved "Void" >> K OCL.OclTy_base_void
+                 || Parse.reserved "Boolean" >> K OCL.OclTy_base_boolean
+                 || Parse.reserved "Integer" >> K OCL.OclTy_base_integer
+                 || Parse.reserved "UnlimitedNatural" >> K OCL.OclTy_base_unlimitednatural
+                 || Parse.reserved "Real" >> K OCL.OclTy_base_real
+                 || Parse.reserved "String" >> K OCL.OclTy_base_string
+
   fun use_type v = ((* collection *)
                     Parse.reserved "Set" |-- use_type >> 
                       (fn l => OCL.OclTy_collection (OCL.Ocl_multiplicity_ext ([], NONE, [OCL.Set], ()), l))
@@ -1091,12 +1098,7 @@ structure USE_parse = struct
                  || Parse.reserved "Pair" |-- use_type >> I
 
                     (* base *)
-                 || Parse.reserved "Void" >> K OCL.OclTy_base_void
-                 || Parse.reserved "Boolean" >> K OCL.OclTy_base_boolean
-                 || Parse.reserved "Integer" >> K OCL.OclTy_base_integer
-                 || Parse.reserved "UnlimitedNatural" >> K OCL.OclTy_base_unlimitednatural
-                 || Parse.reserved "Real" >> K OCL.OclTy_base_real
-                 || Parse.reserved "String" >> K OCL.OclTy_base_string
+                 || type_base
 
                     (* raw HOL *)
                  || Parse.sym_ident (* "\<acute>" *) |-- Parse.typ --| Parse.sym_ident (* "\<acute>" *) >>
@@ -1239,9 +1241,9 @@ subsection{* Outer Syntax: enum *}
 ML{*
 val () =
   outer_syntax_command @{mk_string} @{command_spec "Enum"} ""
-    (Parse.$$$ "(" -- Parse.reserved "synonym" -- Parse.$$$ ")" |-- Parse.binding --| Parse.$$$ "=" -- Parse.binding)
+    (Parse.$$$ "(" -- Parse.reserved "synonym" -- Parse.$$$ ")" |-- Parse.binding --| Parse.$$$ "=" -- USE_parse.type_base)
     (fn (n1, n2) => 
-      K (OCL.OclAstEnum (OCL.OclEnumSynonym (From.from_binding n1, From.from_binding n2))))
+      K (OCL.OclAstEnum (OCL.OclEnumSynonym (From.from_binding n1, n2))))
 *}
 
 subsection{* Outer Syntax: (abstract) class *}
