@@ -44,7 +44,8 @@
 header{* Part ... *}
 
 theory  OCL_compiler_core
-imports "core/OCL_compiler_floor1_infra"
+imports "core/OCL_compiler_floor1_enum"
+        "core/OCL_compiler_floor1_infra"
         "core/OCL_compiler_floor1_astype"
         "core/OCL_compiler_floor1_istypeof"
         "core/OCL_compiler_floor1_iskindof"
@@ -79,7 +80,8 @@ definition\<acute> thy_class ::
      ; subsection_up = subsection \<open>Up Down Casting\<close>
      ; subsection_defined = subsection \<open>Validity and Definedness Properties\<close> in
   List_flatten
-          [ [ txt''d [ \<open>
+          [ [ print_enum_synonym ]
+            , [ txt''d [ \<open>
    \label{ex:employee-design:uml} \<close> ]
             , txt''a [ \<open>
    \label{ex:employee-analysis:uml} \<close> ]
@@ -321,6 +323,7 @@ The example we are defining in this section comes from the figure~\ref{fig:eam1_
             , print_examp_def_st_defs
             , print_astype_lemmas_id2 ] ])\<close>
 
+definition "thy_enum = []"
 definition "thy_class_flat = []"
 definition "thy_association = []"
 definition "thy_instance = [ print_examp_instance_defassoc
@@ -426,7 +429,8 @@ definition "fold_thy' f_try f_accu_reset f =
  (let ocl_env_class_spec_mk = ocl_env_class_spec_mk f_try f_accu_reset in
   List.fold (\<lambda> ast.
     ocl_env_save ast (case ast of
-     OclAstClassRaw Floor1 meta \<Rightarrow> ocl_env_class_spec_rm (fold_thy0 meta thy_class_flat)
+     OclAstEnum meta \<Rightarrow> ocl_env_class_spec_rm (fold_thy0 meta thy_enum)
+   | OclAstClassRaw Floor1 meta \<Rightarrow> ocl_env_class_spec_rm (fold_thy0 meta thy_class_flat)
    | OclAstAssociation meta \<Rightarrow> ocl_env_class_spec_rm (fold_thy0 meta thy_association)
    | OclAstAssClass Floor1 (OclAssClass meta_ass meta_class) \<Rightarrow>
        ocl_env_class_spec_rm (ocl_env_class_spec_bind [ fold_thy0 meta_ass thy_association

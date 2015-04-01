@@ -46,7 +46,7 @@ header{* Part ... *}
 theory
   Bank_Model
 imports
-  "archive/UML_OCL_Bank"
+  "../src/UML_OCL"
 begin
 
 Class Bank
@@ -82,6 +82,8 @@ Class Savings < Account
 
 Class Current < Account
   Attributes overdraft : \<acute>Currency\<acute>
+
+Enum (synonym) Currency = real
 
 Instance Saving1 :: Account = ([ max = 2000 ] :: Savings)
      and Client1 :: Client = [ c_accounts = Saving1 , banks = Bank1 ]

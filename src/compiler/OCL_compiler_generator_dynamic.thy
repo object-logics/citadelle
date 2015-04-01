@@ -67,6 +67,7 @@ imports OCL_compiler_printer
            "design" "analysis" "oid_start"
 
        and (* ocl (USE tool) *)
+           "Enum"
            "Abstract_class" "Class"
            "Association" "Composition" "Aggregation"
            "Abstract_associationclass" "Associationclass"
@@ -1231,6 +1232,16 @@ structure USE_parse = struct
   fun mk_pp_state thy = fn ST_PP_l_attr l => OCL.OclDefPPCoreAdd (mk_state thy l)
                          | ST_PP_binding s => OCL.OclDefPPCoreBinding (From.from_binding s)
 end
+*}
+
+subsection{* Outer Syntax: enum *}
+
+ML{*
+val () =
+  outer_syntax_command @{mk_string} @{command_spec "Enum"} ""
+    (Parse.$$$ "(" -- Parse.reserved "synonym" -- Parse.$$$ ")" |-- Parse.binding --| Parse.$$$ "=" -- Parse.binding)
+    (fn (n1, n2) => 
+      K (OCL.OclAstEnum (OCL.OclEnumSynonym (From.from_binding n1, From.from_binding n2))))
 *}
 
 subsection{* Outer Syntax: (abstract) class *}

@@ -156,6 +156,7 @@ definition "find_class_ass ocl =
                \<lambda> OclAstClassRaw Floor1 class \<Rightarrow> f class
                | OclAstAssociation _ \<Rightarrow> True
                | OclAstAssClass Floor1 (OclAssClass _ class) \<Rightarrow> f class
+               | OclAstEnum _ \<Rightarrow> True
                | _ \<Rightarrow> False) (rev (D_ocl_env ocl)) in
   ( List_flatten [l_class, List.map_filter (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l f = \<lambda>class. class \<lparr> ClassRaw_clause := [] \<rparr> in
                                        \<lambda> OclAstClassRaw Floor1 c \<Rightarrow> Some (OclAstClassRaw Floor1 (f c))

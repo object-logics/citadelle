@@ -141,6 +141,9 @@ record ocl_class_raw = ClassRaw_name :: ocl_ty_obj
 datatype ocl_ass_class = OclAssClass ocl_association
                                      ocl_class_raw
 
+datatype ocl_enum = OclEnumSynonym string (* name alias *) string (* name HOL *)
+                  | OclEnum string (* name *) "string (* constructor name *) list"
+
 subsection{* ... *}
 
 definition "T_lambdas = List.fold T_lambda"

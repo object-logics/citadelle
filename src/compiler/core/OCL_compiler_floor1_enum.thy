@@ -3,7 +3,7 @@
  *                       for the OMG Standard.
  *                       http://www.brucker.ch/projects/hol-testgen/
  *
- * UML_OCL_Bank.thy ---
+ * OCL_compiler_floor1_enum.thy ---
  * This file is part of HOL-TestGen.
  *
  * Copyright (c) 2013-2015 Université Paris-Sud, France
@@ -41,23 +41,17 @@
  ******************************************************************************)
 (* $Id:$ *)
 
-theory   UML_OCL_Bank
-imports  "../../src/UML_Main"
-         "../../src/compiler/OCL_compiler_static"
-         "../../src/compiler/OCL_compiler_generator_dynamic"
+header{* Part ... *}
+
+theory  OCL_compiler_floor1_enum
+imports OCL_compiler_core_init
 begin
 
-type_synonym Currency = real
+section{* Translation of AST *}
 
-generation_syntax [ (*deep
-                      (*(generation_semantics [ analysis (*, oid_start 10*) ])*)
-                      (THEORY Model_generated)
-                      (IMPORTS ["../src/UML_Main", "../src/compiler/OCL_compiler_static"]
-                               "../src/compiler/OCL_compiler_generator_dynamic")
-                      SECTION
-                      (*SORRY*)
-                      [ in SML module_name M ]
-                      (output_directory "../doc")
-                  ,*) shallow (*SORRY*) ]
+definition "print_enum_synonym _ ocl =
+ (List.map_filter (\<lambda> OclAstEnum (OclEnumSynonym n1 n2) \<Rightarrow> Some (Thy_ty_synonym (Type_synonym n1 (Ty_base n2)))
+                   | _ \<Rightarrow> None)
+                  (fst (find_class_ass ocl)), ocl)"
 
 end

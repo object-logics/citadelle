@@ -284,6 +284,14 @@ definition "i_of_ocl_ass_class a b = rec_ocl_ass_class
     (i_of_ocl_association a b (K i_of_unit))
     (i_of_ocl_class_raw a b (K i_of_unit)))"
 
+definition "i_of_ocl_enum a b = rec_ocl_enum
+  (ap2 a (b \<open>OclEnumSynonym\<close>)
+    (i_of_string a b)
+    (i_of_string a b))
+  (ap2 a (b \<open>OclEnum\<close>)
+    (i_of_string a b)
+    (i_of_list a b (i_of_string a b)))"
+
 end
 
 lemmas [code] =
@@ -309,5 +317,6 @@ lemmas [code] =
   i_of.i_of_ocl_class_def
   i_of.i_of_ocl_class_raw_def
   i_of.i_of_ocl_ass_class_def
+  i_of.i_of_ocl_enum_def
 
 end

@@ -64,10 +64,11 @@ datatype floor = Floor1 | Floor2 | Floor3
 datatype ocl_deep_embed_ast =
   (* For the following constructors, if they are preceded by an additional
      'floor' field, then it indicates the degre of reflection
-     (otherwise degre = 1 by default). *)
+     (otherwise degre = Floor1 by default). *)
 
                               (* USE *)
-                              OclAstClassRaw floor ocl_class_raw
+                              OclAstEnum ocl_enum
+                            | OclAstClassRaw floor ocl_class_raw
                             | OclAstAssociation ocl_association
                             | OclAstAssClass floor ocl_ass_class
                             | OclAstCtxt floor ocl_ctxt
