@@ -230,7 +230,9 @@ definition "arrange_ass with_aggreg with_optim_ass l_c =
                 (l_class, ass # l_ass)) l_ass (l_class, []))
           else
             (l_class, l_ass) in
-    (l_class, List_flatten [l_ass, l_ass0]))"
+    ( List.map_filter (\<lambda> OclAstEnum e \<Rightarrow> Some e | _ \<Rightarrow> None) l_c
+    , l_class
+    , List_flatten [l_ass, l_ass0]))"
 
 subsection{* ... *}
 

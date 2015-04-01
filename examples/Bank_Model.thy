@@ -61,7 +61,7 @@ term id
 
 Class Account
   Attributes id : Integer
-             balance : \<acute>Currency\<acute>
+             balance : Currency
 
 Association clients
   Between Bank [1 \<bullet>\<bullet> *] Role banks
@@ -78,10 +78,10 @@ Association bank
 term max
 
 Class Savings < Account
-  Attributes max : \<acute>Currency\<acute>
+  Attributes max : Currency
 
 Class Current < Account
-  Attributes overdraft : \<acute>Currency\<acute>
+  Attributes overdraft : Currency
 
 Enum (synonym) Currency = real
 
