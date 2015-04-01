@@ -222,6 +222,19 @@ text {*
 \<close>}
 *}
 
+subsection{* ....................................................................................................................................... *}
+text {*
+\begin{matharray}{rcl}
+  @{command_def Enum} & : & @{text "theory \<rightarrow> theory"}
+\end{matharray}
+
+@{rail \<open>
+  @@{command Enum} ( '(' 'synonym' ')' binding '=' binding
+                   | binding '[' (binding * ',') ']')
+  ;
+\<close>}
+*}
+
 section{* UML/OCL: Type System *}
 subsection{* ....................................................................................................................................... *}
 text {*
