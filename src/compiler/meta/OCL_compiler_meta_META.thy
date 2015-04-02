@@ -114,6 +114,13 @@ record ocl_compiler_config =  D_disable_thy_output :: bool
 
 subsection{* Auxilliary *}
 
+definition "generate_meta = (\<lambda> OclAstClassRaw Floor1 _ \<Rightarrow> True
+                            | OclAstAssClass Floor1 _ \<Rightarrow> True
+                            | OclAstCtxt Floor1 _ \<Rightarrow> True
+                            | OclAstDefState Floor1 _ \<Rightarrow> True
+                            | OclAstDefPrePost Floor1 _ \<Rightarrow> True
+                            | _ \<Rightarrow> False)"
+
 definition "map2_ctxt_term f =
  (let f_prop = \<lambda> OclProp_ctxt n prop \<Rightarrow> OclProp_ctxt n (f prop)
     ; f_inva = \<lambda> T_inv b prop \<Rightarrow> T_inv b (f_prop prop) in

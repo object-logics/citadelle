@@ -398,29 +398,35 @@ definition "ocl_env_class_spec_rm f_fold f ocl_accu =
   (let (ocl, accu) = f_fold f ocl_accu in
    (ocl \<lparr> D_class_spec := None \<rparr>, accu))"
 
+definition "ocl_env_save ast f_fold f ocl_accu =
+  (let (ocl, accu) = f_fold f ocl_accu in
+   (ocl \<lparr> D_ocl_env := ast # D_ocl_env ocl \<rparr>, accu))"
+
 definition "ocl_env_class_spec_mk f_try f_accu_reset f_fold f =
   (\<lambda> (ocl, accu).
     f_fold f
       (case D_class_spec ocl of Some _ \<Rightarrow> (ocl, accu) | None \<Rightarrow>
        let (l_class, l_ocl) = find_class_ass ocl in
-       (f_try (\<lambda> () \<Rightarrow> List.fold
-           (\<lambda>ast. (case ast of
-               OclAstInstance meta \<Rightarrow> fold_thy0 meta thy_instance
-             | OclAstDefBaseL meta \<Rightarrow> fold_thy0 meta thy_def_base_l
-             | OclAstDefState floor meta \<Rightarrow> fold_thy0 meta (thy_def_state floor)
-             | OclAstDefPrePost floor meta \<Rightarrow> fold_thy0 meta (thy_def_pre_post floor)
-             | OclAstCtxt floor meta \<Rightarrow> fold_thy0 meta (thy_ctxt floor)
-             | OclAstFlushAll meta \<Rightarrow> fold_thy0 meta thy_flush_all)
-                  f)
-           l_ocl
-           (let meta = class_unflat (arrange_ass True (D_design_analysis ocl \<noteq> Gen_default) l_class)
-              ; (ocl, accu) = fold_thy0 meta thy_class f (let ocl = ocl_compiler_config_reset_no_env ocl in
-                                                          (ocl, f_accu_reset ocl accu)) in
-            (ocl \<lparr> D_class_spec := Some meta \<rparr>, accu))))))"
-
-definition "ocl_env_save ast f_fold f ocl_accu =
-  (let (ocl, accu) = f_fold f ocl_accu in
-   (ocl \<lparr> D_ocl_env := ast # D_ocl_env ocl \<rparr>, accu))"
+       (f_try (\<lambda> () \<Rightarrow>
+         let (ocl, accu) =
+               let meta = class_unflat (arrange_ass True (D_design_analysis ocl \<noteq> Gen_default) l_class)
+                 ; (ocl, accu) = fold_thy0 meta thy_class f (let ocl = ocl_compiler_config_reset_no_env ocl in
+                                                             (ocl, f_accu_reset ocl accu)) in
+               (ocl \<lparr> D_class_spec := Some meta \<rparr>, accu)
+           ; D_ocl_env0 = D_ocl_env ocl
+           ; (ocl, accu) =
+               List.fold
+                 (\<lambda>ast. ocl_env_save ast (case ast of
+                     OclAstInstance meta \<Rightarrow> fold_thy0 meta thy_instance
+                   | OclAstDefBaseL meta \<Rightarrow> fold_thy0 meta thy_def_base_l
+                   | OclAstDefState floor meta \<Rightarrow> fold_thy0 meta (thy_def_state floor)
+                   | OclAstDefPrePost floor meta \<Rightarrow> fold_thy0 meta (thy_def_pre_post floor)
+                   | OclAstCtxt floor meta \<Rightarrow> fold_thy0 meta (thy_ctxt floor)
+                   | OclAstFlushAll meta \<Rightarrow> fold_thy0 meta thy_flush_all)
+                        f)
+                 l_ocl
+                 (ocl \<lparr> D_ocl_env := l_class \<rparr>, accu) in
+          (ocl \<lparr> D_ocl_env := D_ocl_env0 \<rparr>, accu)))))"
 
 definition "ocl_env_class_spec_bind l f =
   List.fold (\<lambda>x. x f) l"

@@ -275,15 +275,19 @@ definition "activate_simp_optimization = True"
 
 definition "bootstrap_floor f_x l ocl =
  (let (l, ocl) = f_x l ocl
-    ; l = Isab_thy_ml_extended (Ml_extended (Sexpr_ocl (ocl \<lparr> D_disable_thy_output := True
-                                                          , D_file_out_path_dep := None
-                                                          , D_output_position := (0, 0) \<rparr>) ))
-          # l in
+    ; l_setup = Isab_thy_ml_extended (Ml_extended (Sexpr_ocl (ocl \<lparr> D_disable_thy_output := True
+                                                              , D_file_out_path_dep := None
+                                                              , D_output_position := (0, 0) \<rparr>) ))
+            # l
+    ; l = if case D_ocl_env ocl of [] \<Rightarrow> True | x # _ \<Rightarrow> generate_meta x then
+            l
+          else
+            l_setup in
   ( if D_generation_syntax_shallow ocl then
       l
     else
       Isab_thy_generation_syntax (Generation_syntax_shallow (D_design_analysis ocl))
-      # l
+      # l_setup
   , ocl \<lparr> D_generation_syntax_shallow := True \<rparr> ))"
 
 subsection{* Infra *}
