@@ -308,22 +308,27 @@ definition "i_of_bool b = case_bool
   (b \<open>true\<close>)
   (b \<open>false\<close>)"
 
+definition\<acute> \<open>sml_escape =
+  String_replace_chars ((* (* ERROR code_reflect *)
+                        \<lambda> Char Nibble0 NibbleA \<Rightarrow> \<open>\n\<close>
+                        | Char Nibble0 Nibble5 \<Rightarrow> \<open>\005\<close>
+                        | Char Nibble0 Nibble6 \<Rightarrow> \<open>\006\<close>
+                        | Char Nibble7 NibbleF \<Rightarrow> \<open>\127\<close>
+                        | x \<Rightarrow> \<degree>x\<degree>*)
+                        \<lambda>x. if x = Char Nibble0 NibbleA then \<open>\n\<close>
+                            else if x = Char Nibble0 Nibble5 then \<open>\005\<close>
+                            else if x = Char Nibble0 Nibble6 then \<open>\006\<close>
+                            else if x = Char Nibble7 NibbleF then \<open>\127\<close>
+                            else \<degree>x\<degree>)\<close>
+
 definition\<acute> \<open>i_of_string a b =
  (\<lambda>x. b (flatten [ \<open>(OCL.SS_base (OCL.ST "\<close>
-                  , String_replace_chars ((* (* ERROR code_reflect *)
-                                          \<lambda> Char Nibble0 NibbleA \<Rightarrow> \<open>\n\<close>
-                                          | x \<Rightarrow> \<degree>x\<degree>*)
-                                          \<lambda>x. if x = Char Nibble0 NibbleA then \<open>\n\<close>
-                                              else \<degree>x\<degree>) x
+                  , sml_escape x
                   , \<open>"))\<close>]))\<close>
 
 definition\<acute> \<open>i_of_string\<^sub>b\<^sub>a\<^sub>s\<^sub>e a b =
  (\<lambda>x. b (flatten [ \<open>(OCL.ST "\<close>
-                  , String_replace_chars ((* (* ERROR code_reflect *)
-                                          \<lambda> Char Nibble0 NibbleA \<Rightarrow> \<open>\n\<close>
-                                          | x \<Rightarrow> \<degree>x\<degree>*)
-                                          \<lambda>x. if x = Char Nibble0 NibbleA then \<open>\n\<close>
-                                              else \<degree>x\<degree>) (String\<^sub>b\<^sub>a\<^sub>s\<^sub>e_to_String x)
+                  , sml_escape (String\<^sub>b\<^sub>a\<^sub>s\<^sub>e_to_String x)
                   , \<open>")\<close>]))\<close>
 
 definition "i_of_nat a b = (\<lambda>x. b (flatten [\<open>(Code_Numeral.Nat \<close>, natural_of_str x, \<open>)\<close>]))"
@@ -365,6 +370,7 @@ lemmas [code] =
   sml_of.i_of_string\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def
   sml_of.i_of_nat_def
 
+  sml_of.sml_escape_def
   sml_of.ocl_unit_def
 
 (* *)
