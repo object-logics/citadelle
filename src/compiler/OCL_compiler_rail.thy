@@ -45,7 +45,9 @@ header{* Part ... *}
 
 (*<*)
 theory OCL_compiler_rail
-imports OCL_compiler_generator_dynamic
+imports "../UML_Types"
+        OCL_compiler_aux_text
+        OCL_compiler_generator_dynamic
 begin
 ML_file "~~/src/Doc/antiquote_setup.ML"
 (*>*)
@@ -296,7 +298,8 @@ text {*
 
                | ('Sequence' | 'Set' | @{syntax category}) @{syntax uml_type}
                | 'Pair' @{syntax uml_type} @{syntax uml_type}
-               | '(' ((binding ':' ('(' @{syntax uml_type} ')' | binding)) * ',') ')' (':' @{syntax uml_type})?
+               | '(' ((binding ':' ('(' @{syntax uml_type} ')' | binding)) * ',') ')' \<newline>
+                 (':' @{syntax uml_type})?
                | '(' @{syntax uml_type} ')'
 
                | '\<langle>' type '\<rangle>'
@@ -328,6 +331,83 @@ text {*
 
 @{rail \<open>
   @@{command BaseType} '[' (@{syntax term_base} * ',') ']'
+  ;
+\<close>}
+*}
+
+section{* Featherweight OCL: Library *}
+text {*
+\begin{matharray}{rcl}
+  @{command_def Assert} & : & @{text "theory \<rightarrow> theory"} \\
+  @{command_def Assert_local} & : & @{text "local_theory \<rightarrow> local_theory"}
+\end{matharray}
+
+@{rail \<open>
+  @@{command Assert} term
+  ;
+  @@{command Assert_local} term
+  ;
+\<close>}
+*}
+
+section{* Featherweight OCL: Auxiliary *}
+text {*
+\begin{matharray}{rcl}
+  @{command_def lazy_text} & : & @{text "local_theory \<rightarrow> local_theory"} \\
+  @{command_def apply_text} & : & @{text "local_theory \<rightarrow> local_theory"} \\
+  @{command_def reset_text} & : & @{text "local_theory \<rightarrow> local_theory"}
+\end{matharray}
+
+@{rail \<open>
+  @@{command lazy_text} target? text
+  ;
+  @@{command apply_text} '(' ')'
+  ;
+  @@{command reset_text} '(' ')'
+  ;
+\<close>}
+*}
+
+section{* Featherweight OCL: Compiler *}
+subsection{* ....................................................................................................................................... *}
+text {*
+\begin{matharray}{rcl}
+  @{command_def "fun'"} & : & @{text "local_theory \<rightarrow> local_theory"} \\
+  @{command_def "definition'"} & : & @{text "local_theory \<rightarrow> local_theory"} \\
+  @{command_def "code_reflect'"} & : & @{text "theory \<rightarrow> theory"}
+\end{matharray}
+
+@{rail \<open>
+  @@{command "fun'"} target? functionopts? fixes \<newline>
+                     @'where' equations
+  ;
+  @@{command "definition'"} target? \<newline>
+                            (decl @'where')? thmdecl prop
+  ;
+  @@{command "code_reflect'"} @'open'? @{syntax string} \<newline>
+    ( @'datatypes' ( string '=' ( '_' | ( string + '|' ) + @'and' ) ) ) ? \<newline>
+    ( @'functions' ( string + ) ) ? ( @'file' string ) ?
+  ;
+\<close>}
+*}
+
+subsection{* ....................................................................................................................................... *}
+text {*
+\begin{matharray}{rcl}
+  @{command_def lazy_code_printing} & : & @{text "theory \<rightarrow> theory"} \\
+  @{command_def apply_code_printing} & : & @{text "theory \<rightarrow> theory"} \\
+  @{command_def apply_code_printing_reflect} & : & @{text "local_theory \<rightarrow> local_theory"}
+\end{matharray}
+
+@{rail \<open>
+  @@{command lazy_code_printing}
+      ( ( printing_const | printing_typeconstructor
+      | printing_class | printing_class_relation | printing_class_instance
+      | printing_module ) + '|' )
+  ;
+  @@{command apply_code_printing} '(' ')'
+  ;
+  @@{command apply_code_printing_reflect} text
   ;
 \<close>}
 *}
