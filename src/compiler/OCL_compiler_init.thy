@@ -226,7 +226,7 @@ subsection{* ... *}
 
 definition "wildcard = \<open>_\<close>"
 
-definition\<acute> \<open>escape_unicode c = flatten [\<open>\\<close>, \<open><\<close>, c, \<open>>\<close>]\<close>
+definition' \<open>escape_unicode c = flatten [\<open>\\<close>, \<open><\<close>, c, \<open>>\<close>]\<close>
 
 definition "lowercase_of_str = String_map (\<lambda>c. let n = nat_of_char c in if n < 97 then char_of_nat (n + 32) else c)"
 definition "uppercase_of_str = String_map (\<lambda>c. let n = nat_of_char c in if n < 97 then c else char_of_nat (n - 32))"

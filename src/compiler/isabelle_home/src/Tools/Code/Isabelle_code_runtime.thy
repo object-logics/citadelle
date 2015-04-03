@@ -45,7 +45,7 @@ header{* Part ... *}
 
 theory  Isabelle_code_runtime
 imports Main
-  keywords "code_reflect\<acute>" :: thy_decl
+  keywords "code_reflect'" :: thy_decl
 begin
 
 ML{*
@@ -191,7 +191,7 @@ val parse_datatype =
 in
 
 val _ =
-  Outer_Syntax.command @{command_spec "code_reflect\<acute>"}
+  Outer_Syntax.command @{command_spec "code_reflect'"}
     "enrich runtime environment with generated code"
     (Scan.optional (@{keyword "open"} |-- Scan.succeed true) false --
      Parse.name -- Scan.optional (@{keyword "datatypes"} |-- Parse.!!!  (parse_datatype

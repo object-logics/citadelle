@@ -308,7 +308,7 @@ definition "i_of_bool b = case_bool
   (b \<open>true\<close>)
   (b \<open>false\<close>)"
 
-definition\<acute> \<open>sml_escape =
+definition' \<open>sml_escape =
   String_replace_chars ((* (* ERROR code_reflect *)
                         \<lambda> Char Nibble0 NibbleA \<Rightarrow> \<open>\n\<close>
                         | Char Nibble0 Nibble5 \<Rightarrow> \<open>\005\<close>
@@ -321,12 +321,12 @@ definition\<acute> \<open>sml_escape =
                             else if x = Char Nibble7 NibbleF then \<open>\127\<close>
                             else \<degree>x\<degree>)\<close>
 
-definition\<acute> \<open>i_of_string a b =
+definition' \<open>i_of_string a b =
  (\<lambda>x. b (flatten [ \<open>(OCL.SS_base (OCL.ST "\<close>
                   , sml_escape x
                   , \<open>"))\<close>]))\<close>
 
-definition\<acute> \<open>i_of_string\<^sub>b\<^sub>a\<^sub>s\<^sub>e a b =
+definition' \<open>i_of_string\<^sub>b\<^sub>a\<^sub>s\<^sub>e a b =
  (\<lambda>x. b (flatten [ \<open>(OCL.ST "\<close>
                   , sml_escape (String\<^sub>b\<^sub>a\<^sub>s\<^sub>e_to_String x)
                   , \<open>")\<close>]))\<close>

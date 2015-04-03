@@ -370,21 +370,23 @@ text {*
 
 section{* Featherweight OCL: Compiler *}
 subsection{* ....................................................................................................................................... *}
+(* WARNING syntax errors during the extraction to LaTeX for the symbol "acute":
+           fun\<acute>, definition\<acute> or code_reflect\<acute> *)
 text {*
 \begin{matharray}{rcl}
-  @{command_def "fun\<acute>"} & : & @{text "local_theory \<rightarrow> local_theory"} \\
-  @{command_def "definition\<acute>"} & : & @{text "local_theory \<rightarrow> local_theory"} \\
-  @{command_def "code_reflect\<acute>"} & : & @{text "theory \<rightarrow> theory"}
+  @{command_def "fun'"} & : & @{text "local_theory \<rightarrow> local_theory"} \\
+  @{command_def "definition'"} & : & @{text "local_theory \<rightarrow> local_theory"} \\
+  @{command_def "code_reflect'"} & : & @{text "theory \<rightarrow> theory"}
 \end{matharray}
 
 @{rail \<open>
-  @@{command "fun\<acute>"} target? functionopts? fixes \<newline>
+  @@{command "fun'"} target? functionopts? fixes \<newline>
                      @'where' equations
   ;
-  @@{command "definition\<acute>"} target? \<newline>
+  @@{command "definition'"} target? \<newline>
                             (decl @'where')? thmdecl prop
   ;
-  @@{command "code_reflect\<acute>"} @'open'? @{syntax string} \<newline>
+  @@{command "code_reflect'"} @'open'? @{syntax string} \<newline>
     ( @'datatypes' ( string '=' ( '_' | ( string + '|' ) + @'and' ) ) ) ? \<newline>
     ( @'functions' ( string + ) ) ? ( @'file' string ) ?
   ;

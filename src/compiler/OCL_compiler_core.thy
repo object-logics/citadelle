@@ -71,7 +71,7 @@ definition "txt'' = txt' o flatten"
 definition "txt''d s = txt (\<lambda> Gen_only_design \<Rightarrow> flatten s | _ \<Rightarrow> \<open>\<close>)"
 definition "txt''a s = txt (\<lambda> Gen_only_design \<Rightarrow> \<open>\<close> | _ \<Rightarrow> flatten s)"
 
-definition\<acute> thy_class ::
+definition' thy_class ::
   (* polymorphism weakening needed by code_reflect *)
   "(_ \<Rightarrow> ocl_compiler_config \<Rightarrow> _) list" where \<open>thy_class =
   (let subsection_def = subsection \<open>Definition\<close>

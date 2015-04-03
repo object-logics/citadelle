@@ -45,14 +45,14 @@ header{* Part ... *}
 
 theory Isabelle_isar_syn
   imports Isabelle_parse_spec
-  keywords "definition\<acute>" :: thy_decl
+  keywords "definition'" :: thy_decl
 begin
 
 ML{* 
 structure Isabelle_Isar_Syn =
 struct
   val _ =
-    Outer_Syntax.local_theory' @{command_spec "definition\<acute>"} "constant definition"
+    Outer_Syntax.local_theory' @{command_spec "definition'"} "constant definition"
       (Isabelle_Parse_Spec.constdef >> (fn args => #2 oo Specification.definition_cmd args));
 end
 *}

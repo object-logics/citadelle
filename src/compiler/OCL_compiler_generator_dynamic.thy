@@ -89,7 +89,7 @@ apply_code_printing_reflect {*
   (* this variable is not used but needed for well typechecking the reflected SML code *)
   val stdout_file = Unsynchronized.ref ""
 *}
-code_reflect\<acute> open OCL
+code_reflect' open OCL
    functions (* OCL compiler as monadic combinators for deep and shallow *)
              fold_thy_deep fold_thy_shallow
 

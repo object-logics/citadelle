@@ -261,7 +261,7 @@ definition "s_of_tac_apply_end = (
   | AppE l_apply \<Rightarrow> sprint1 \<open>  apply_end(%s)
 \<close>\<acute> (String_concat \<open>, \<close> (List_map s_of_tactic l_apply)))"
 
-definition\<acute> \<open>s_of_tac_apply = (
+definition' \<open>s_of_tac_apply = (
   let thesis = \<open>?thesis\<close>
     ; scope_thesis_gen = sprint2 \<open>  proof - %s show %s
 \<close>\<acute>

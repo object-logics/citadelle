@@ -89,7 +89,7 @@ fun s_of_ocl_list_attr where
    "s_of_ocl_list_attr f e = (\<lambda> OclAttrNoCast x \<Rightarrow> f x
                               | OclAttrCast ty l _ \<Rightarrow> sprint2 \<open>(%s :: %s)\<close>\<acute> (s_of_ocl_list_attr f l) (To_string ty)) e"
 
-definition\<acute> \<open>s_of_ocl_def_base = (\<lambda> OclDefInteger i \<Rightarrow> To_string i
+definition' \<open>s_of_ocl_def_base = (\<lambda> OclDefInteger i \<Rightarrow> To_string i
                                   | OclDefReal (i1, i2) \<Rightarrow> sprint2 \<open>%s.%s\<close>\<acute> (To_string i1) (To_string i2)
                                   | OclDefString s \<Rightarrow> sprint1 \<open>"%s"\<close>\<acute> (To_string s))\<close>
 
@@ -99,7 +99,7 @@ fun s_of_ocl_data_shallow where
                                | ShallB_self s \<Rightarrow> sprint1 \<open>self %d\<close>\<acute> (To_oid s)
                                | ShallB_list l \<Rightarrow> sprint1 \<open>[ %s ]\<close>\<acute> (String_concat \<open>, \<close> (List.map s_of_ocl_data_shallow l))) e"
 
-definition\<acute> \<open>s_of_ocl_instance_single ocli =
+definition' \<open>s_of_ocl_instance_single ocli =
   sprint3 \<open>%s :: %s = %s\<close>\<acute>
     (case Inst_name ocli of Some s \<Rightarrow> To_string s)
     (To_string (Inst_ty ocli))
@@ -116,7 +116,7 @@ definition "s_of_def_state l =
 definition "s_of_def_pp_core = (\<lambda> OclDefPPCoreBinding s \<Rightarrow> To_string s
                                 | OclDefPPCoreAdd l \<Rightarrow> sprint1 \<open>[ %s ]\<close>\<acute> (s_of_def_state l))"
 
-definition\<acute> \<open>s_of_ocl_deep_embed_ast _ =
+definition' \<open>s_of_ocl_deep_embed_ast _ =
  (\<lambda> OclAstCtxt Floor2 ctxt \<Rightarrow>
     let f_inv = \<lambda> T_inv b (OclProp_ctxt n s) \<Rightarrow> sprint3 \<open>  %sInv %s : "%s"\<close>\<acute>
               (if b then \<open>Existential\<close> else \<open>\<close>)

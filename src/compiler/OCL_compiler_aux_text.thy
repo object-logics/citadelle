@@ -83,7 +83,7 @@ fun apply_code_printing thy =
   |> (fn l => 
     let val (thy, l) =
       fold (fn Code_printing s => fn (thy, l) => (thy, of_text s :: l)) l (thy, [])
-      ; val _ = writeln (Active.sendback_markup [Markup.padding_command] ("definition\<acute> \<open>t txt'' = [\n              " ^ String.concatWith "            , " (rev l) ^ "]\<close>")) in
+      ; val _ = writeln (Active.sendback_markup [Markup.padding_command] ("definition' \<open>t txt'' = [\n              " ^ String.concatWith "            , " (rev l) ^ "]\<close>")) in
     thy
     end)
 
