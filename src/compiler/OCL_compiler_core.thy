@@ -448,7 +448,15 @@ definition "fold_thy' f_try f_accu_reset f =
    | OclAstCtxt floor meta \<Rightarrow> ocl_env_class_spec_mk (fold_thy0 meta (thy_ctxt floor))
    | OclAstFlushAll meta \<Rightarrow> ocl_env_class_spec_mk (fold_thy0 meta thy_flush_all)) f))"
 
-definition "fold_thy_shallow f_try f_accu_reset x = fold_thy' f_try f_accu_reset (\<lambda>l acc1. List.fold x l o Pair acc1)"
+definition "fold_thy_shallow f_try f_accu_reset x = 
+  fold_thy'
+    f_try
+    f_accu_reset
+    (\<lambda>l acc1.
+      map_prod (\<lambda> ocl. ocl \<lparr> D_ocl_env := D_ocl_env acc1 \<rparr>) id
+      o List.fold x l
+      o Pair acc1)"
+
 definition "fold_thy_deep obj ocl =
   (case fold_thy'
           (\<lambda>f. f ())
