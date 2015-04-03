@@ -386,7 +386,7 @@ text {*
   @@{command "definition'"} target? \<newline>
                             (decl @'where')? thmdecl prop
   ;
-  @@{command "code_reflect'"} @'open'? @{syntax string} \<newline>
+  @@{command "code_reflect'"} @'open'? string \<newline>
     ( @'datatypes' ( string '=' ( '_' | ( string + '|' ) + @'and' ) ) ) ? \<newline>
     ( @'functions' ( string + ) ) ? ( @'file' string ) ?
   ;
