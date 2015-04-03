@@ -372,19 +372,19 @@ section{* Featherweight OCL: Compiler *}
 subsection{* ....................................................................................................................................... *}
 text {*
 \begin{matharray}{rcl}
-  @{command_def "fun'"} & : & @{text "local_theory \<rightarrow> local_theory"} \\
-  @{command_def "definition'"} & : & @{text "local_theory \<rightarrow> local_theory"} \\
-  @{command_def "code_reflect'"} & : & @{text "theory \<rightarrow> theory"}
+  @{command_def "fun\<acute>"} & : & @{text "local_theory \<rightarrow> local_theory"} \\
+  @{command_def "definition\<acute>"} & : & @{text "local_theory \<rightarrow> local_theory"} \\
+  @{command_def "code_reflect\<acute>"} & : & @{text "theory \<rightarrow> theory"}
 \end{matharray}
 
 @{rail \<open>
-  @@{command "fun'"} target? functionopts? fixes \<newline>
+  @@{command "fun\<acute>"} target? functionopts? fixes \<newline>
                      @'where' equations
   ;
-  @@{command "definition'"} target? \<newline>
+  @@{command "definition\<acute>"} target? \<newline>
                             (decl @'where')? thmdecl prop
   ;
-  @@{command "code_reflect'"} @'open'? @{syntax string} \<newline>
+  @@{command "code_reflect\<acute>"} @'open'? @{syntax string} \<newline>
     ( @'datatypes' ( string '=' ( '_' | ( string + '|' ) + @'and' ) ) ) ? \<newline>
     ( @'functions' ( string + ) ) ? ( @'file' string ) ?
   ;
