@@ -61,6 +61,7 @@ text{*
 no_notation ceiling  ("\<lceil>_\<rceil>") (* For Real Numbers only ... Otherwise has unfortunate side-effects on syntax. *)
 no_notation floor  ("\<lfloor>_\<rfloor>") (* For Real Numbers only ... Otherwise has unfortunate side-effects on syntax. *)
 
+type_notation option ("\<langle>_\<rangle>\<^sub>\<bottom>") (* NOTE: "_\<^sub>\<bottom>" also works *)
 notation Some ("\<lfloor>(_)\<rfloor>")
 notation None ("\<bottom>")
 
