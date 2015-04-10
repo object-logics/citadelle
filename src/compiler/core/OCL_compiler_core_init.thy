@@ -141,7 +141,7 @@ definition "var_OclIncluding_sequence = \<open>UML_Sequence.OclIncluding\<close>
 definition "var_OclForall_sequence = \<open>UML_Sequence.OclForall\<close>"
 definition "var_self = \<open>self\<close>"
 definition "var_result = \<open>result\<close>"
-
+definition "var_val' = \<open>val'\<close>"
 definition "update_D_accessor_rbt_pre f = (\<lambda>(l_pre, l_post). (f l_pre, l_post))"
 definition "update_D_accessor_rbt_post f = (\<lambda>(l_pre, l_post). (l_pre, f l_post))"
 

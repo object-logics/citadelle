@@ -59,7 +59,8 @@ fun s_of_rawty where "s_of_rawty e = (\<lambda>
   | Ty_apply name l \<Rightarrow> sprint2 \<open>%s %s\<close>\<acute> (let s = String_concat \<open>, \<close> (List.map s_of_rawty l) in
                                                  case l of [_] \<Rightarrow> s | _ \<Rightarrow> sprint1 \<open>(%s)\<close>\<acute> s)
                                                 (s_of_rawty name)
-  | Ty_apply_bin s ty1 ty2 \<Rightarrow> sprint3 \<open>%s %s %s\<close>\<acute> (s_of_rawty ty1) (To_string s) (s_of_rawty ty2)) e"
+  | Ty_apply_bin s ty1 ty2 \<Rightarrow> sprint3 \<open>%s %s %s\<close>\<acute> (s_of_rawty ty1) (To_string s) (s_of_rawty ty2)
+  | Ty_apply_paren s1 s2 ty \<Rightarrow> sprint3 \<open>%s%s%s\<close>\<acute> (To_string s1) (s_of_rawty ty) (To_string s2)) e"
 
 definition "s_of_dataty _ = (\<lambda> Datatype n l \<Rightarrow>
   sprint2 \<open>datatype %s = %s\<close>\<acute>
@@ -72,8 +73,12 @@ definition "s_of_dataty _ = (\<lambda> Datatype n l \<Rightarrow>
            (To_string n)
            (String_concat \<open> \<close> (List_map (\<lambda>x. sprint1 \<open>\"%s\"\<close>\<acute> (s_of_rawty x)) l))) l) ))"
 
-definition "s_of_ty_synonym _ = (\<lambda> Type_synonym n l \<Rightarrow>
-    sprint2 \<open>type_synonym %s = \"%s\"\<close>\<acute> (To_string n) (s_of_rawty l))"
+definition "s_of_ty_synonym _ = (\<lambda> Type_synonym00 n v l \<Rightarrow>
+    sprint2 \<open>type_synonym %s = \"%s\"\<close>\<acute> (if v = [] then 
+                                           To_string n
+                                         else
+                                           s_of_rawty (Ty_apply (Ty_base n) (List_map Ty_base v)))
+                                        (s_of_rawty l))"
 
 fun s_of_expr where "s_of_expr e = (\<lambda>
     Expr_rewrite e1 symb e2 \<Rightarrow> sprint3 \<open>%s %s %s\<close>\<acute> (s_of_expr e1) (To_string symb) (s_of_expr e2)
@@ -90,6 +95,9 @@ fun s_of_expr where "s_of_expr e = (\<lambda>
   | Expr_paren p_left p_right e \<Rightarrow> sprint3 \<open>%s%s%s\<close>\<acute> (To_string p_left) (s_of_expr e) (To_string p_right)
   | Expr_if_then_else e_if e_then e_else \<Rightarrow> sprint3 \<open>if %s then %s else %s\<close>\<acute> (s_of_expr e_if) (s_of_expr e_then) (s_of_expr e_else)
   | Expr_inner0 l pure \<Rightarrow> s_of_pure_term (List_map To_string l) pure) e"
+
+definition "s_of_ty_notation _ = (\<lambda> Type_notation n e \<Rightarrow>
+    sprint2 \<open>type_notation %s (\"%s\")\<close>\<acute> (To_string n) (To_string e))"
 
 definition "s_of_instantiation_class _ = (\<lambda> Instantiation n n_def expr \<Rightarrow>
     let name = To_string n in
@@ -342,6 +350,7 @@ lemmas [code] =
   (* def *)
   s_of.s_of_dataty_def
   s_of.s_of_ty_synonym_def
+  s_of.s_of_ty_notation_def
   s_of.s_of_instantiation_class_def
   s_of.s_of_defs_overloaded_def
   s_of.s_of_consts_class_def

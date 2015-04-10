@@ -156,7 +156,7 @@ definition "print_examp_def_st_inst_var = (\<lambda> OclDefSt name l \<Rightarro
           (List_flatten l, accu))
       (let a = \<lambda>f x. Expr_apply f [x]
          ; b = \<lambda>s. Expr_basic [s] in
-       [ (\<lambda> _ _ ocli. Expr_annot (b (flatten [inst_name ocli, name])) (Inst_ty ocli),
+       [ (\<lambda> _ _ ocli. Expr_annot_ocl (b (flatten [inst_name ocli, name])) (Inst_ty ocli),
           \<lambda> ocli isub_name _. Expr_lambda wildcard (Expr_some (Expr_some (a (print_examp_instance_name isub_name (inst_name ocli))
                                                                             (print_examp_def_st_defassoc_name name))))) ])
       (D_oid_start ocl))))"

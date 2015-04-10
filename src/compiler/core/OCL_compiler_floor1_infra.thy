@@ -83,20 +83,32 @@ definition "print_infra_datatype_universe expr = start_map Thy_dataty
   [ Datatype \<open>\<AA>\<close>
       (map_class (\<lambda>isub_name _ _ _ _ _. (isub_name datatype_in, [Raw (isub_name datatype_name)])) expr) ]"
 
-definition "print_infra_type_synonym_class expr = start_map Thy_ty_synonym
-  (let option = (\<lambda>x. Ty_apply (Ty_base \<open>option\<close>) [x])
-     ; ty = \<lambda> t s. Type_synonym (str_of_ty t) (Ty_apply (Ty_base s) [Ty_base \<open>\<AA>\<close>]) in
-   (* base type *)
-   ty OclTy_base_void ty_void #
-   ty OclTy_base_boolean ty_boolean #
-   ty OclTy_base_integer ty_integer #
-   (*ty OclTy_base_unlimitednatural ty_unlimitednatural #*)
-   ty OclTy_base_real ty_real #
-   ty OclTy_base_string ty_string #
-   (* *)
-   (map_class (\<lambda>isub_name name _ _ _ _.
-     Type_synonym name (Ty_apply (Ty_base \<open>val\<close>) [Ty_base \<open>\<AA>\<close>,
-     option (option (Ty_base (isub_name datatype_name))) ])) expr))"
+definition "print_infra_type_synonym_class _ = start_map id
+  (List_map Thy_ty_synonym
+    (let ty = \<lambda> t s. Type_synonym (str_of_ty t) (Ty_apply (Ty_base s) [Ty_base \<open>\<AA>\<close>]) in
+     (* base type *)
+     ty OclTy_base_void ty_void #
+     ty OclTy_base_boolean ty_boolean #
+     ty OclTy_base_integer ty_integer #
+     (*ty OclTy_base_unlimitednatural ty_unlimitednatural #*)
+     ty OclTy_base_real ty_real #
+     ty OclTy_base_string ty_string #
+     (* *)
+     Type_synonym0 var_val' [\<open>'\<alpha>\<close>] (\<lambda> [alpha] \<Rightarrow> Ty_apply (Ty_base \<open>val\<close>) [Ty_base \<open>\<AA>\<close>, Ty_base alpha ]) #
+     [])
+   @@@@
+   List_map Thy_ty_notation
+     [ Type_notation var_val' \<open>\<cdot>(_)\<close> ])"
+
+definition "print_infra_type_synonym_class_higher expr = start_map Thy_ty_synonym
+ (let option = Ty_apply_paren \<open>\<langle>\<close> \<open>\<rangle>\<^sub>\<bottom>\<close> in
+  List_flatten
+    (map_class
+      (\<lambda>isub_name name _ _ _ _.
+        [ Type_synonym (wrap_oclty name)
+                       (option (option (Ty_base (isub_name datatype_name))))
+        (*, Type_synonym name (Ty_apply_paren \<open>\<cdot>\<close> \<open>\<close> (Ty_base (name @@ \<open>'\<close>)))*)])
+      expr))"
 
 definition "print_infra_type_synonym_class_rec = (\<lambda>expr ocl.
   map_prod id (\<lambda> D_higher_order_ty. ocl \<lparr> D_higher_order_ty := D_higher_order_ty \<rparr>)
@@ -162,7 +174,7 @@ definition "print_instantia_def_strictrefeq = start_map Thy_defs_overloaded o
       ; var_y = \<open>y\<close> in
     Defs_overloaded
       (print_instantia_def_strictrefeq_name mk_strict name)
-      (Expr_rewrite (Expr_binop (Expr_annot (Expr_basic [var_x]) name)
+      (Expr_rewrite (Expr_binop (Expr_annot_ocl (Expr_basic [var_x]) name)
                                 \<open>\<doteq>\<close>
                                 (Expr_basic [var_y]))
                     \<open>\<equiv>\<close>

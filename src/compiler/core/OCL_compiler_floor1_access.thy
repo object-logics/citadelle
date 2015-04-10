@@ -351,7 +351,7 @@ definition "print_access_dot_consts =
                       ; name = TyObjN_role_ty ty_obj
                       ; obj_mult = TyObjN_role_multip ty_obj in
                     Ty_base (if single_multip obj_mult then
-                               name
+                               wrap_oclty name
                              else if is_sequence obj_mult then
                                print_infra_type_synonym_class_sequence_name name
                              else
@@ -404,7 +404,7 @@ definition "print_access_dot = start_map'''' Thy_defs_overloaded o (\<lambda>exp
                 (print_access_dot_name isub_name dot_at_when attr_ty isup_attr)
                 (let var_x = \<open>x\<close> in
                  Expr_rewrite
-                   (dot_attr (Expr_annot (Expr_basic [var_x]) name))
+                   (dot_attr (Expr_annot_ocl (Expr_basic [var_x]) name))
                    \<open>\<equiv>\<close>
                    (Expr_apply var_eval_extract [Expr_basic [var_x],
                     let deref_oid = \<lambda>attr_orig l. Expr_apply (case attr_orig of None \<Rightarrow> isub_name var_deref_oid
@@ -461,7 +461,7 @@ definition "print_access_dot_lemma_cp = start_map Thy_lemma_by o
     (\<lambda>isub_name name (_, dot_at_when) attr_ty isup_attr dot_attr.
             [ Lemma_by
                 (print_access_dot_lemma_cp_name isub_name dot_at_when attr_ty isup_attr)
-                [Expr_apply \<open>cp\<close> [Expr_lam \<open>X\<close> (\<lambda>var_x. dot_attr (Expr_annot (Expr_basic [var_x]) name)) ]]
+                [Expr_apply \<open>cp\<close> [Expr_lam \<open>X\<close> (\<lambda>var_x. dot_attr (Expr_annot_ocl (Expr_basic [var_x]) name)) ]]
                 []
                 (Tacl_by [auto (if print_access_dot_cp_lemmas_set = [] then
                                   [var_eval_extract, flatten [isup_attr (isub_name \<open>dot\<close>), dot_at_when]]
@@ -470,7 +470,7 @@ definition "print_access_dot_lemma_cp = start_map Thy_lemma_by o
     (\<lambda>isub_name name (_, dot_at_when) attr_ty isup_attr dot_attr.
             [ Lemma_by
                 (print_access_dot_lemma_cp_name isub_name dot_at_when attr_ty isup_attr)
-                [Expr_apply \<open>cp\<close> [Expr_lam \<open>X\<close> (\<lambda>var_x. dot_attr (Expr_annot (Expr_basic [var_x]) name)) ]]
+                [Expr_apply \<open>cp\<close> [Expr_lam \<open>X\<close> (\<lambda>var_x. dot_attr (Expr_annot_ocl (Expr_basic [var_x]) name)) ]]
                 []
                 (if print_access_dot_cp_lemmas_set = [] then Tacl_sorry (* fold l_hierarchy, take only subclass, unfold the corresponding definition *)
                  else Tacl_by [auto []]) ]))"
@@ -489,7 +489,7 @@ definition "print_access_lemma_strict expr = (start_map Thy_lemma_by o
             List_map (\<lambda>(name_invalid, tac_invalid). Lemma_by
                   (print_access_lemma_strict_name isub_name dot_at_when attr_ty isup_attr name_invalid)
                   [Expr_rewrite
-                     (dot_attr (Expr_annot (Expr_basic [name_invalid]) name))
+                     (dot_attr (Expr_annot_ocl (Expr_basic [name_invalid]) name))
                      \<open>=\<close>
                      (Expr_basic [\<open>invalid\<close>])]
                   []
@@ -521,7 +521,7 @@ definition "print_access_def_mono = start_map'''' Thy_lemma_by o (\<lambda>expr 
         ; f = \<lambda>e. f0 (Expr_apply \<open>\<delta>\<close> [e]) in
             [ Lemma_by
                 (print_access_def_mono_name isub_name dot_at_when attr_ty isup_attr)
-                (List_map f [ dot_attr (Expr_annot (b var_X) name)
+                (List_map f [ dot_attr (Expr_annot_ocl (b var_X) name)
                             , b var_X ])
                 (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l f_tac = \<lambda>s.
                    [ Tac_case_tac (f0 (Expr_warning_parenthesis (Expr_rewrite (b var_X) \<open>\<triangleq>\<close> (b s))))
@@ -562,7 +562,7 @@ definition "print_access_is_repr = start_map'''' Thy_lemma_by o (\<lambda>expr d
         ; isub_name_to = \<lambda>s. s @@ isub_of_str name_to in
             [ Lemma_by_assum
                 (print_access_is_repr_name isub_name dot_at_when attr_ty isup_attr)
-                [ (var_def_dot, False, f (dot_attr (Expr_annot (b var_X) name))) ]
+                [ (var_def_dot, False, f (dot_attr (Expr_annot_ocl (b var_X) name))) ]
                 (Expr_apply \<open>is_represented_in_state\<close> [b var_in_when_state, dot_attr (Expr_basic [var_X]), b name_to, b var_tau])
 (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l (* existential variables *)
      v_a0 = \<open>a0\<close>

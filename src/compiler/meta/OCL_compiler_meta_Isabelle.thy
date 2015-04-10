@@ -53,13 +53,15 @@ subsection{* type definition *}
 
 datatype hol_raw_ty = Ty_apply hol_raw_ty "hol_raw_ty list"
                     | Ty_apply_bin string (* binop *) hol_raw_ty hol_raw_ty
+                    | Ty_apply_paren string (* left *) string (* right *) hol_raw_ty
                     | Ty_base string
 
 datatype hol_dataty = Datatype string (* name *)
                                "(string (* name *) \<times> hol_raw_ty list (* arguments *)) list" (* constructors *)
 
-datatype hol_ty_synonym = Type_synonym string (* name *)
-                                       hol_raw_ty (* content *)
+datatype hol_ty_synonym = Type_synonym00 string (* name *)
+                                         "string list" (* parametric variables *)
+                                         hol_raw_ty (* content *)
 
 datatype hol_expr = Expr_rewrite hol_expr (* left *) string (* symb rewriting *) hol_expr (* right *)
                   | Expr_basic "string list"
@@ -72,6 +74,9 @@ datatype hol_expr = Expr_rewrite hol_expr (* left *) string (* symb rewriting *)
                   | Expr_if_then_else hol_expr hol_expr hol_expr
                   | Expr_inner0 "string list" (* simulate a pre-initialized context (de bruijn variables under "lam") *)
                                 pure_term (* usual continuation of inner syntax term *)
+
+datatype hol_ty_notation = Type_notation string (* name *)
+                                         string (* content *)
 
 datatype hol_instantiation_class = Instantiation string (* name *)
                                                  string (* name in definition *)
@@ -169,6 +174,7 @@ datatype hol_thm = Thm "hol_ntheorem list"
 
 datatype hol_thy = Theory_dataty hol_dataty
                  | Theory_ty_synonym hol_ty_synonym
+                 | Theory_ty_notation hol_ty_notation
                  | Theory_instantiation_class hol_instantiation_class
                  | Theory_defs_overloaded hol_defs_overloaded
                  | Theory_consts_class hol_consts_class
@@ -187,7 +193,11 @@ definition "thm_OF s l = List.fold (\<lambda>x acc. Thm_OF acc x) l s"
 definition "thm_simplified s l = List.fold (\<lambda>x acc. Thm_simplified acc x) l s"
 definition "Opt s = Ty_apply (Ty_base \<open>option\<close>) [Ty_base s]"
 definition "Raw = Ty_base"
+definition "Type_synonym n = Type_synonym00 n []"
+definition "Type_synonym0 n l f = Type_synonym00 n l (f l)"
 definition "Expr_annot e s = Expr_annot0 e (Ty_base s)"
+definition "wrap_oclty x = \<open>\<cdot>\<close> @@ x @@ \<open>'\<close>"
+definition "Expr_annot_ocl e s = Expr_annot e (wrap_oclty s)"
 definition "Expr_bind symb s e = Expr_bind0 symb (Expr_basic s) e"
 definition "Expr_lambdas = Expr_bind \<open>\<lambda>\<close>"
 definition "Expr_lambda x = Expr_lambdas [x]"

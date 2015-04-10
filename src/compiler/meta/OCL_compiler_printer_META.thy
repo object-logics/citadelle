@@ -168,6 +168,7 @@ definition' \<open>s_of_ocl_deep_embed_ast _ =
 definition "s_of_thy ocl =
             (\<lambda> Theory_dataty dataty \<Rightarrow> s_of_dataty ocl dataty
              | Theory_ty_synonym ty_synonym \<Rightarrow> s_of_ty_synonym ocl ty_synonym
+             | Theory_ty_notation ty_notation \<Rightarrow> s_of_ty_notation ocl ty_notation
              | Theory_instantiation_class instantiation_class \<Rightarrow> s_of_instantiation_class ocl instantiation_class
              | Theory_defs_overloaded defs_overloaded \<Rightarrow> s_of_defs_overloaded ocl defs_overloaded
              | Theory_consts_class consts_class \<Rightarrow> s_of_consts_class ocl consts_class

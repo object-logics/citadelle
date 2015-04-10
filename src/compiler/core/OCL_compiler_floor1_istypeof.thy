@@ -60,7 +60,7 @@ definition "print_istypeof_class = start_m_gen Thy_defs_overloaded m_class_defau
           (flatten [isub_name const_oclistypeof, \<open>_\<close>, h_name])
           (let var_x = \<open>x\<close> in
            Expr_rewrite
-             (Expr_postunary (Expr_annot (Expr_basic [var_x]) h_name) (Expr_basic [dot_istypeof name]))
+             (Expr_postunary (Expr_annot_ocl (Expr_basic [var_x]) h_name) (Expr_basic [dot_istypeof name]))
              \<open>\<equiv>\<close>
              (Expr_lam \<open>\<tau>\<close>
                   (\<lambda>var_tau. let ocl_tau = (\<lambda>v. Expr_apply v [Expr_basic [var_tau]]) in
@@ -90,7 +90,7 @@ definition "print_istypeof_from_universe = start_m Thy_definition_hol
      let isub_h = (\<lambda> s. s @@ isub_of_str h_name) in
      [( Expr_apply (isub_h datatype_in) [Expr_basic [h_name]]
       , Expr_warning_parenthesis
-        (Expr_postunary (Expr_annot (Expr_applys Expr_basety [Expr_basic [h_name]])
+        (Expr_postunary (Expr_annot_ocl (Expr_applys Expr_basety [Expr_basic [h_name]])
                                     h_name)
                         (Expr_basic [dot_istypeof name])))])"
 
@@ -119,7 +119,7 @@ definition "print_istypeof_lemma_cp expr = (start_map Thy_lemma_by o
          [ Expr_basic [var_p]
          , Expr_lam \<open>x\<close>
              (\<lambda>var_x. Expr_warning_parenthesis (Expr_postunary
-               (Expr_annot (Expr_apply var_p [Expr_annot (Expr_basic [var_x]) name3]) name2)
+               (Expr_annot_ocl (Expr_apply var_p [Expr_annot_ocl (Expr_basic [var_x]) name3]) name2)
                (Expr_basic [dot_istypeof name1])))])
       []
       (Tacl_by [Tac_rule (Thm_str \<open>cpI1\<close>), if check_opt name1 name2 then Tac_simp
@@ -144,7 +144,7 @@ definition "print_istypeof_lemma_strict expr = (start_map Thy_lemma_by o
       (flatten [const_oclistypeof, isub_of_str name1, \<open>_\<close>, name3, \<open>_\<close>, name2])
       [ Expr_rewrite
              (Expr_warning_parenthesis (Expr_postunary
-               (Expr_annot (Expr_basic [name2]) name3)
+               (Expr_annot_ocl (Expr_basic [name2]) name3)
                (Expr_basic [dot_istypeof name1])))
              \<open>=\<close>
              (Expr_basic [name2'])]
@@ -176,7 +176,7 @@ definition "print_istypeof_defined = start_m Thy_lemma_by m_class_default
       [ Lemma_by_assum
           (print_istypeof_defined_name isub_name h_name)
           [(var_isdef, False, f \<open>\<upsilon>\<close> (Expr_basic [var_X]))]
-          (f \<open>\<delta>\<close> (Expr_postunary (Expr_annot (Expr_basic [var_X]) h_name) (Expr_basic [dot_istypeof name])))
+          (f \<open>\<delta>\<close> (Expr_postunary (Expr_annot_ocl (Expr_basic [var_X]) h_name) (Expr_basic [dot_istypeof name])))
           [App [Tac_insert [Thm_simplified (Thm_str var_isdef) (Thm_str \<open>foundation18'\<close>) ]
                ,Tac_simp_only [Thm_str (hol_definition \<open>OclValid\<close>)]
                ,Tac_subst (Thm_str \<open>cp_defined\<close>)]]
@@ -193,7 +193,7 @@ definition "print_istypeof_defined' = start_m Thy_lemma_by m_class_default
       [ Lemma_by_assum
           (print_istypeof_defined'_name isub_name h_name)
           [(var_isdef, False, f (Expr_basic [var_X]))]
-          (f (Expr_postunary (Expr_annot (Expr_basic [var_X]) h_name) (Expr_basic [dot_istypeof name])))
+          (f (Expr_postunary (Expr_annot_ocl (Expr_basic [var_X]) h_name) (Expr_basic [dot_istypeof name])))
           []
           (Tacl_by [Tac_rule (Thm_OF (Thm_str (print_istypeof_defined_name isub_name h_name))
                                      (Thm_THEN (Thm_str var_isdef) (Thm_str \<open>foundation20\<close>)))]) ])"
@@ -208,7 +208,7 @@ definition "print_istypeof_up_larger = start_map Thy_lemma_by o
         (print_istypeof_up_larger_name name_pers name_any)
         [(var_isdef, False, f (Expr_apply \<open>\<delta>\<close> [Expr_basic [var_X]]))]
         (f (Expr_binop (Expr_warning_parenthesis (Expr_postunary
-               (Expr_annot (Expr_basic [var_X]) name_pers)
+               (Expr_annot_ocl (Expr_basic [var_X]) name_pers)
                (Expr_basic [dot_istypeof name_any]))
              ) \<open>\<triangleq>\<close> (Expr_basic [\<open>false\<close>])))
         [App_using [Thm_str var_isdef]]
@@ -226,7 +226,7 @@ definition "print_istypeof_up_d_cast expr = (start_map Thy_lemma_by o
     Lemma_by_assum
         (print_istypeof_up_d_cast_name name_mid name_any name_pers)
         [(var_istyp, False, f (Expr_warning_parenthesis (Expr_postunary
-               (Expr_annot (Expr_basic [var_X]) name_any)
+               (Expr_annot_ocl (Expr_basic [var_X]) name_any)
                (Expr_basic [dot_istypeof name_mid]))))
         ,(var_isdef, False, f (Expr_apply \<open>\<delta>\<close> [Expr_basic [var_X]]))]
         (f (Expr_binop (Expr_warning_parenthesis (Expr_postunary

@@ -52,7 +52,8 @@ section{* Translation of AST *}
 subsection{* context *}
 
 definition "print_ctxt_const ctxt ocl =
- (let Ctxt_ty_f = ty_obj_to_string (Ctxt_ty ctxt) in
+ (let Ctxt_ty_f = Ty_apply_paren \<open>(\<close> \<open>)\<close> (* because of potential ambiguities *)
+                    (Ty_base (wrap_oclty (ty_obj_to_string (Ctxt_ty ctxt)))) in
   map_prod (map_prod id (rev o List_map Thy_ty_synonym)) (rev o List_map Thy_consts_class)
     (List.fold
       (\<lambda> Ctxt_inv _ \<Rightarrow> id
@@ -81,7 +82,7 @@ definition "print_ctxt_const ctxt ocl =
                   l
               , Consts_raw0
                   name
-                  (ty_arrow (List_map Ty_base (Ctxt_ty_f # rev l_name)))
+                  (ty_arrow (Ctxt_ty_f # List_map Ty_base (rev l_name)))
                   (mk_dot attr_n var_at_when_ocl)
                   (Some (natural_of_nat (length (Ctxt_fun_ty_arg ctxt)))) # l_isab_const))
             [ (var_at_when_hol_post, var_at_when_ocl_post, update_D_accessor_rbt_post)

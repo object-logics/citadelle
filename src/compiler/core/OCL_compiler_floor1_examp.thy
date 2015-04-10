@@ -575,7 +575,7 @@ definition "print_examp_instance = (\<lambda> OclInstance l \<Rightarrow> \<lamb
       ([ let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l var_inst_ass = \<open>inst_assoc\<close> in
          (\<lambda> _ isub_name ocli. Expr_basic (print_examp_instance_name isub_name (inst_name ocli) # (if D_design_analysis ocl = Gen_only_design then [ var_inst_ass ] else [])),
           print_examp_instance_app_constr2_notmp_norec (rbt, (map_self, map_username)) ocl (b var_inst_ass))
-       , (\<lambda> _ _ ocli. Expr_annot (b (inst_name ocli)) (Inst_ty ocli),
+       , (\<lambda> _ _ ocli. Expr_annot_ocl (b (inst_name ocli)) (Inst_ty ocli),
           \<lambda> ocli isub_name _. Some (Expr_lambda wildcard (Expr_some (Expr_some (let name_pers = print_examp_instance_name isub_name (inst_name ocli) in
                                                                           if D_design_analysis ocl = Gen_only_design then
                                                                             a name_pers (Expr_oid var_inst_assoc (oidGetInh (D_oid_start ocl)))

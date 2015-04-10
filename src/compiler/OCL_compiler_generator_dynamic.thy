@@ -760,12 +760,14 @@ val OCL_main_thy = let open OCL open OCL_overload in (*let val f = *)fn
     (snd oo Datatype.add_datatype_cmd Datatype_Aux.default_config)
       [((To_sbinding n, [], NoSyn),
        List.map (fn (n, l) => (To_sbinding n, List.map s_of_rawty l, NoSyn)) l)]
-| Theory_ty_synonym (Type_synonym (n, l)) =>
+| Theory_ty_synonym (Type_synonym00 (n, v, l)) =>
     (fn thy =>
      let val s_bind = To_sbinding n in
-     (snd o Typedecl.abbrev_global (s_bind, [], NoSyn)
+     (snd o Typedecl.abbrev_global (s_bind, map To_string0 v, NoSyn)
                                    (Isabelle_Typedecl.abbrev_cmd0 (SOME s_bind) thy (s_of_rawty l))) thy
      end)
+| Theory_ty_notation (Type_notation (n, e)) =>
+    in_local (Specification.type_notation_cmd true ("", true) [(To_string0 n, Mixfix (To_string0 e, [], 1000))])
 | Theory_instantiation_class (Instantiation (n, n_def, expr)) =>
     (fn thy =>
      let val name = To_string0 n in

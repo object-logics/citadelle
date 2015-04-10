@@ -53,7 +53,7 @@ subsection{* AsType *}
 
 definition "print_astype_consts = start_map Thy_consts_class o
   map_class (\<lambda>isub_name name _ _ _ _.
-    Consts (isub_name const_oclastype) (Ty_base name) (const_mixfix dot_oclastype name))"
+    Consts (isub_name const_oclastype) (Ty_base (wrap_oclty name)) (const_mixfix dot_oclastype name))"
 
 definition "print_astype_class = start_m' Thy_defs_overloaded
   (\<lambda> compare (isub_name, name, nl_attr). \<lambda> OclClass h_name hl_attr _ \<Rightarrow>
@@ -61,7 +61,7 @@ definition "print_astype_class = start_m' Thy_defs_overloaded
           (flatten [isub_name const_oclastype, \<open>_\<close>, h_name])
           (let var_x = \<open>x\<close> in
            Expr_rewrite
-             (Expr_postunary (Expr_annot (Expr_basic [var_x]) h_name) (Expr_basic [dot_astype name]))
+             (Expr_postunary (Expr_annot_ocl (Expr_basic [var_x]) h_name) (Expr_basic [dot_astype name]))
              \<open>\<equiv>\<close>
              (case compare
               of EQ \<Rightarrow>
@@ -166,7 +166,7 @@ definition "print_astype_lemma_cp expr = (start_map Thy_lemma_by o get_hierarchy
          [ Expr_basic [var_p]
          , Expr_lam \<open>x\<close>
              (\<lambda>var_x. Expr_warning_parenthesis (Expr_postunary
-               (Expr_annot (Expr_apply var_p [Expr_annot (Expr_basic [var_x]) name3]) name2)
+               (Expr_annot_ocl (Expr_apply var_p [Expr_annot_ocl (Expr_basic [var_x]) name3]) name2)
                (Expr_basic [dot_astype name1])))])
       []
       (Tacl_by [Tac_rule (Thm_str \<open>cpI1\<close>), if check_opt name1 name2 then Tac_simp
@@ -191,7 +191,7 @@ definition "print_astype_lemma_strict expr = (start_map Thy_lemma_by o
       (flatten [const_oclastype, isub_of_str name1, \<open>_\<close>, name3, \<open>_\<close>, name2])
       [ Expr_rewrite
              (Expr_warning_parenthesis (Expr_postunary
-               (Expr_annot (Expr_basic [name2]) name3)
+               (Expr_annot_ocl (Expr_basic [name2]) name3)
                (Expr_basic [dot_astype name1])))
              \<open>=\<close>
              (Expr_basic [name2])]
@@ -220,7 +220,7 @@ definition "print_astype_defined = start_m Thy_lemma_by m_class_default
         [ Lemma_by_assum
           (flatten [isub_name const_oclastype, \<open>_\<close>, h_name, \<open>_defined\<close>])
           [(var_isdef, False, f (Expr_basic [var_X]))]
-          (f (Expr_postunary (Expr_annot (Expr_basic [var_X]) h_name) (Expr_basic [dot_astype name])))
+          (f (Expr_postunary (Expr_annot_ocl (Expr_basic [var_X]) h_name) (Expr_basic [dot_astype name])))
           [App_using [Thm_str var_isdef]]
           (Tacl_by [Tac_auto_simp_add (flatten [isub_name const_oclastype, \<open>_\<close>, h_name]
                                         # \<open>foundation16\<close>
@@ -238,7 +238,7 @@ definition "print_astype_up_d_cast0 = start_map Thy_lemma_by o
         [(var_isdef, False, f (Expr_apply \<open>\<delta>\<close> [Expr_basic [var_X]]))]
         (f (Expr_binop
              (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l asty = \<lambda>x ty. Expr_warning_parenthesis (Expr_postunary x (Expr_basic [dot_astype ty])) in
-              asty (asty (Expr_annot (Expr_basic [var_X]) name_pers) name_any) name_pers)
+              asty (asty (Expr_annot_ocl (Expr_basic [var_X]) name_pers) name_any) name_pers)
              \<open>\<triangleq>\<close> (Expr_basic [var_X])))
         [App_using [Thm_str var_isdef]]
         (Tacl_by [Tac_auto_simp_add_split
@@ -260,7 +260,7 @@ definition "print_astype_up_d_cast = start_map Thy_lemma_by o
         []
         (Expr_binop
              (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l asty = \<lambda>x ty. Expr_warning_parenthesis (Expr_postunary x (Expr_basic [dot_astype ty])) in
-              asty (asty (Expr_annot (Expr_basic [var_X]) name_pers) name_any) name_pers)
+              asty (asty (Expr_annot_ocl (Expr_basic [var_X]) name_pers) name_any) name_pers)
              \<open>=\<close> (Expr_basic [var_X]))
         (List_map App
           [[Tac_rule (Thm_str \<open>ext\<close>), Tac_rename_tac [var_tau]]
@@ -287,7 +287,7 @@ definition "print_astype_d_up_cast = start_map Thy_lemma_by o
       [(var_def_X, False, Expr_binop
              (Expr_basic [var_X])
              \<open>=\<close>
-             (asty (Expr_annot (Expr_basic [var_Y]) name_pers) name_any))]
+             (asty (Expr_annot_ocl (Expr_basic [var_Y]) name_pers) name_any))]
       (f_tau (Expr_binop not_val \<open>or\<close>
                (Expr_binop
                  (asty (asty (Expr_basic [var_X]) name_pers) name_any)

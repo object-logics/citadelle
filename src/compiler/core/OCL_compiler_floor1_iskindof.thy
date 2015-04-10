@@ -62,7 +62,7 @@ definition "print_iskindof_class = start_m_gen Thy_defs_overloaded m_class_defau
           (print_iskindof_class_name isub_name h_name)
           (let var_x = \<open>x\<close> in
            Expr_rewrite
-             (Expr_postunary (Expr_annot (Expr_basic [var_x]) h_name) (Expr_basic [dot_iskindof name]))
+             (Expr_postunary (Expr_annot_ocl (Expr_basic [var_x]) h_name) (Expr_basic [dot_iskindof name]))
              \<open>\<equiv>\<close>
              (let isof = (\<lambda>f name. Expr_warning_parenthesis (Expr_postunary (Expr_basic [var_x]) (Expr_basic [f name]))) in
               expr_binop \<open>or\<close> (isof dot_istypeof name # List_map (\<lambda> OclClass name_past _ _ \<Rightarrow> isof dot_iskindof name_past) next_dataty)))])"
@@ -75,7 +75,7 @@ definition "print_iskindof_from_universe = start_m Thy_definition_hol
     let isub_h = (\<lambda> s. s @@ isub_of_str h_name) in
     [ ( Expr_apply (isub_h datatype_in) [Expr_basic [h_name]]
       , Expr_warning_parenthesis
-        (Expr_postunary (Expr_annot (Expr_applys Expr_basety [Expr_basic [h_name]])
+        (Expr_postunary (Expr_annot_ocl (Expr_applys Expr_basety [Expr_basic [h_name]])
                                     h_name)
                         (Expr_basic [dot_iskindof name])))])"
 
@@ -99,7 +99,7 @@ definition "print_iskindof_lemma_cp = start_m'3_gen Thy_lemma_by
          [ Expr_basic [var_p]
          , Expr_lam \<open>x\<close>
              (\<lambda>var_x. Expr_warning_parenthesis (Expr_postunary
-               (Expr_annot (Expr_apply var_p [Expr_annot (Expr_basic [var_x]) name3]) name2)
+               (Expr_annot_ocl (Expr_apply var_p [Expr_annot_ocl (Expr_basic [var_x]) name3]) name2)
                (Expr_basic [dot_iskindof name1])))]
       ; lem_simp1 = Tac_simp_only [Thm_str (flatten [const_ocliskindof, isub_of_str name1, \<open>_\<close>, name2])]
       ; lem_simp2 = Tac_simp_only [Thm_str (flatten [\<open>cp_\<close>, const_oclistypeof, isub_of_str name1, \<open>_\<close>, name3, \<open>_\<close>, name2])] in
@@ -132,7 +132,7 @@ definition "print_iskindof_lemma_strict = start_m_gen Thy_lemma_by m_class_defau
       (flatten [const_ocliskindof, isub_of_str name1, \<open>_\<close>, name3, \<open>_\<close>, name2])
       [ Expr_rewrite
              (Expr_warning_parenthesis (Expr_postunary
-               (Expr_annot (Expr_basic [name2]) name3)
+               (Expr_annot_ocl (Expr_basic [name2]) name3)
                (Expr_basic [dot_iskindof name1])))
              \<open>=\<close>
              (Expr_basic [name2'])]
@@ -165,7 +165,7 @@ definition "print_iskindof_defined = start_m_gen Thy_lemma_by m_class_default
       [ Lemma_by_assum
           (print_iskindof_defined_name isub_name h_name)
           [(var_isdef, False, f \<open>\<upsilon>\<close> (Expr_basic [var_X]))]
-          (f \<open>\<delta>\<close> (Expr_postunary (Expr_annot (Expr_basic [var_X]) h_name) (Expr_basic [dot_iskindof name])))
+          (f \<open>\<delta>\<close> (Expr_postunary (Expr_annot_ocl (Expr_basic [var_X]) h_name) (Expr_basic [dot_iskindof name])))
           []
           (Tacl_by [ Tac_simp_only [Thm_str (flatten [isub_name const_ocliskindof, \<open>_\<close>, h_name])]
                    , Tac_rule
@@ -188,7 +188,7 @@ definition "print_iskindof_defined' = start_m Thy_lemma_by m_class_default
       [ Lemma_by_assum
           (print_iskindof_defined'_name isub_name h_name)
           [(var_isdef, False, f (Expr_basic [var_X]))]
-          (f (Expr_postunary (Expr_annot (Expr_basic [var_X]) h_name) (Expr_basic [dot_iskindof name])))
+          (f (Expr_postunary (Expr_annot_ocl (Expr_basic [var_X]) h_name) (Expr_basic [dot_iskindof name])))
           []
           (Tacl_by [Tac_rule (Thm_OF (Thm_str (print_iskindof_defined_name isub_name h_name))
                                      (Thm_THEN (Thm_str var_isdef) (Thm_str \<open>foundation20\<close>)))]) ])"
@@ -202,7 +202,7 @@ definition "print_iskindof_up_eq_asty = start_map Thy_lemma_by o map_class_gen_h
         (print_iskindof_up_eq_asty_name name)
         [(var_isdef, False, f (Expr_apply \<open>\<delta>\<close> [Expr_basic [var_X]]))]
         (f (Expr_warning_parenthesis (Expr_postunary
-               (Expr_annot (Expr_basic [var_X]) name)
+               (Expr_annot_ocl (Expr_basic [var_X]) name)
                (Expr_basic [dot_iskindof name]))))
         (List_map App
         [ [ Tac_simp_only [Thm_str (hol_definition \<open>OclValid\<close>)]
@@ -240,7 +240,7 @@ definition "print_iskindof_up_larger = start_map Thy_lemma_by o
       (print_iskindof_up_larger_name name_pers name_any)
       [(var_isdef, False, f (Expr_apply \<open>\<delta>\<close> [Expr_basic [var_X]]))]
       (f (Expr_warning_parenthesis (Expr_postunary
-             (Expr_annot (Expr_basic [var_X]) name_pers)
+             (Expr_annot_ocl (Expr_basic [var_X]) name_pers)
              (Expr_basic [dot_iskindof name_any]))))
       [App [Tac_simp_only [Thm_str (flatten [const_ocliskindof, isub_of_str name_any, \<open>_\<close>, name_pers])]] ]
       (Tacl_by
@@ -320,13 +320,13 @@ definition "print_iskindof_up_istypeof_unfold = start_m_gen Thy_lemma_by m_class
         (print_iskindof_up_istypeof_unfold_name name_pers name_any)
         [(var_isdef, False, f id (Expr_apply \<open>\<delta>\<close> [Expr_basic [var_X]]))
         ,(var_iskin, False, f id (Expr_warning_parenthesis (Expr_postunary
-               (Expr_annot (Expr_basic [var_X]) name_any)
+               (Expr_annot_ocl (Expr_basic [var_X]) name_any)
                  (Expr_basic [dot_iskindof name_pers]))))]
         (expr_binop' \<open>\<or>\<close>
           (List_flatten
             (List_map (\<lambda>(f_dot, l). List_map
                  (\<lambda>name_pred. f id (Expr_warning_parenthesis (Expr_postunary
-                   (Expr_annot (Expr_basic [var_X]) name_any)
+                   (Expr_annot_ocl (Expr_basic [var_X]) name_any)
                    (Expr_basic [f_dot name_pred])))) l)
                [ (dot_istypeof, name_pers # List_map (\<lambda> OclClass n _ _ \<Rightarrow> n) name_pred0) ])))
         (App_using [Thm_str var_iskin]
@@ -356,14 +356,14 @@ definition "print_iskindof_up_istypeof = start_map Thy_lemma_by o
     Lemma_by_assum
       (print_iskindof_up_istypeof_name name_pers name_any)
       [(var_iskin, False, f (Expr_preunary (Expr_basic [\<open>\<not>\<close>])) (Expr_warning_parenthesis (Expr_postunary
-             (Expr_annot (Expr_basic [var_X]) name_any)
+             (Expr_annot_ocl (Expr_basic [var_X]) name_any)
                (Expr_basic [dot_iskindof name_pers]))))
       ,(var_isdef, False, f id (Expr_apply \<open>\<delta>\<close> [Expr_basic [var_X]]))]
       (expr_binop' \<open>\<or>\<close>
         (List_flatten
           (List_map (\<lambda>(f_dot, l). List_map
                (\<lambda>name_pred. f id (Expr_warning_parenthesis (Expr_postunary
-                 (Expr_annot (Expr_basic [var_X]) name_any)
+                 (Expr_annot_ocl (Expr_basic [var_X]) name_any)
                  (Expr_basic [f_dot name_pred])))) l)
              [ (dot_istypeof, List_map (\<lambda> (name_pred, _). case Inh name_pred of OclClass n _ _ \<Rightarrow> n) name_pred0)
              , (dot_iskindof, List_flatten (List_map (\<lambda> (name_pred, _). case Inh_sib_unflat name_pred of l \<Rightarrow> List_map (\<lambda> OclClass n _ _ \<Rightarrow> n) l) name_pred0)) ])))
@@ -389,7 +389,7 @@ definition "print_iskindof_up_d_cast = start_map Thy_lemma_by o
     Lemma_by_assum
         (flatten [\<open>down_cast_kind\<close>, isub_of_str name_mid, \<open>_from_\<close>, name_any, \<open>_to_\<close>, name_pers])
         [(var_iskin, False, f (Expr_preunary (Expr_basic [\<open>\<not>\<close>])) (Expr_warning_parenthesis (Expr_postunary
-               (Expr_annot (Expr_basic [var_X]) name_any)
+               (Expr_annot_ocl (Expr_basic [var_X]) name_any)
                (Expr_basic [dot_iskindof name_mid]))))
         ,(var_isdef, False, f id (Expr_apply \<open>\<delta>\<close> [Expr_basic [var_X]]))]
         (f id (Expr_binop (Expr_warning_parenthesis (Expr_postunary

@@ -161,6 +161,7 @@ for all respective type-variables. \<close> ]
 to OCL types. Again, we exploit that our representation of OCL is a ``shallow embedding'' with a
 one-to-one correspondance of OCL-types to types of the meta-language HOL. \<close> ]
             , print_infra_type_synonym_class
+            , print_infra_type_synonym_class_higher
             , print_infra_type_synonym_class_rec
             (*, txt'' [ \<open>
    Just a little check: \<close> ]

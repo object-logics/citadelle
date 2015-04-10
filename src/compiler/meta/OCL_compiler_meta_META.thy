@@ -160,6 +160,7 @@ subsection{* ... *}
 
 definition "Thy_dataty = Isab_thy o Theory_dataty"
 definition "Thy_ty_synonym = Isab_thy o Theory_ty_synonym"
+definition "Thy_ty_notation = Isab_thy o Theory_ty_notation"
 definition "Thy_instantiation_class = Isab_thy o Theory_instantiation_class"
 definition "Thy_defs_overloaded = Isab_thy o Theory_defs_overloaded"
 definition "Thy_consts_class = Isab_thy o Theory_consts_class"
