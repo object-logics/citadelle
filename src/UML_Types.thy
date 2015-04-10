@@ -395,6 +395,7 @@ end
 
 text{* ...  and lifting this type to the format of a valuation gives us:*}
 type_synonym    ('\<AA>,'\<alpha>,'\<beta>) Pair  = "('\<AA>, ('\<alpha>,'\<beta>) Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e) val"
+type_notation   Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e ("Pair'(_,_')")
 
 subsection{* The Construction of the Set Type *}
 
@@ -434,6 +435,7 @@ end
 
 text{* ...  and lifting this type to the format of a valuation gives us:*}
 type_synonym    ('\<AA>,'\<alpha>) Set  = "('\<AA>, '\<alpha> Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e) val"
+type_notation   Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e ("Set'(_')")
 
 subsection{* The Construction of the Sequence Type *}
 
@@ -473,6 +475,7 @@ end
 
 text{* ...  and lifting this type to the format of a valuation gives us:*}
 type_synonym    ('\<AA>,'\<alpha>) Sequence  = "('\<AA>, '\<alpha> Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e) val"
+type_notation   Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e ("Sequence'(_')")
 
 subsection{* Discussion: The Representation of UML/OCL Types in Featherweight OCL *}
 text{* In the introduction, we mentioned that there is an ``injective representation
