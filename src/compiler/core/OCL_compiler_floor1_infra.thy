@@ -105,7 +105,7 @@ definition "print_infra_type_synonym_class_higher expr = start_map Thy_ty_synony
   List_flatten
     (map_class
       (\<lambda>isub_name name _ _ _ _.
-        [ Type_synonym (wrap_oclty name)
+        [ Type_synonym name
                        (option (option (Ty_base (isub_name datatype_name))))
         (*, Type_synonym name (Ty_apply_paren \<open>\<cdot>\<close> \<open>\<close> (Ty_base (name @@ \<open>'\<close>)))*)])
       expr))"
