@@ -58,6 +58,22 @@ begin
 
 section{* Miscellaneous Stuff*}
 
+subsection{* Definition: asInt *}
+
+definition OclAsInt\<^sub>R\<^sub>e\<^sub>a\<^sub>l  :: "('\<AA>) Real \<Rightarrow> ('\<AA>) Integer" ("(_)->asInt\<^sub>R\<^sub>e\<^sub>a\<^sub>l'(')")
+where     "OclAsInt\<^sub>R\<^sub>e\<^sub>a\<^sub>l X = (\<lambda>\<tau>. if (\<delta> X) \<tau> = true \<tau> 
+                              then \<lfloor>\<lfloor>floor_ceiling_real_inst.floor_real \<lceil>\<lceil>X \<tau>\<rceil>\<rceil>\<rfloor>\<rfloor>
+                              else invalid \<tau>) "
+
+(*
+interpretation OclAsInt\<^sub>R\<^sub>e\<^sub>a\<^sub>l : profile_single
+
+ "floor_ceiling_real_inst.floor_real" 
+
+                                           "\<lambda> x. \<lfloor>\<lfloor>floor_ceiling_real_inst.floor_real \<lceil>\<lceil>x\<rceil>\<rceil>\<rfloor>\<rfloor>"
+         by unfold_locales (auto simp:OclAdd\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r_def bot_option_def null_option_def)
+*)
+
 subsection{* Definition: asPair *}
 
 definition OclAsPair\<^sub>S\<^sub>e\<^sub>q   :: "[('\<AA>,'\<alpha>::null)Sequence]\<Rightarrow>('\<AA>,'\<alpha>::null,'\<alpha>::null) Pair" ("(_)->asPair\<^sub>S\<^sub>e\<^sub>q'(')")
