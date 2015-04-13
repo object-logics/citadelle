@@ -361,6 +361,31 @@ definition "print_access_choose_name n i j =
 definition "print_access_choose_mlname n i j =
   flatten [var_switch, natural_of_str n, \<open>_\<close>, natural_of_str i, natural_of_str j]"
 
+definition "print_access_dot_consts_ty attr_ty =
+              (let ty_base = \<lambda>attr_ty.
+                 Ty_apply (Ty_base \<open>val\<close>) [Ty_base \<open>\<AA>\<close>,
+                    let option = \<lambda>x. Ty_apply (Ty_base \<open>option\<close>) [x] in
+                    option (option (Ty_base attr_ty))] in
+               case attr_ty of
+                  OclTy_raw attr_ty \<Rightarrow> ty_base attr_ty
+                | OclTy_object (OclTyObj (OclTyCore ty_obj) _) \<Rightarrow>
+                    let ty_obj = TyObj_to ty_obj
+                      ; name = TyObjN_role_ty ty_obj
+                      ; obj_mult = TyObjN_role_multip ty_obj in
+                    Ty_base (if single_multip obj_mult then
+                               wrap_oclty name
+                             else if is_sequence obj_mult then
+                               print_infra_type_synonym_class_sequence_name name
+                             else
+                               print_infra_type_synonym_class_set_name name)
+                | OclTy_object (OclTyObj (OclTyCore_pre s) _) \<Rightarrow> Raw (wrap_oclty s)
+                | OclTy_base_unlimitednatural \<Rightarrow> str_hol_of_ty_all Ty_apply ty_base attr_ty
+                   (* REMARK Dependencies to UnlimitedNatural.thy can be detected and added
+                             so that this pattern clause would be merged with the default case *)
+                | OclTy_collection _ _ \<Rightarrow> Raw (fst (print_infra_type_synonym_class_rec_aux attr_ty))
+                | OclTy_pair _ _ \<Rightarrow> Raw (fst (print_infra_type_synonym_class_rec_aux attr_ty))
+                | _ \<Rightarrow> Raw (str_of_ty attr_ty))"
+
 subsection{* example *}
 
 datatype reporting = Warning

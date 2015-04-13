@@ -339,29 +339,7 @@ definition "print_access_dot_consts =
             name
             (Ty_arrow
               (Ty_apply (Ty_base \<open>val\<close>) [Ty_base \<open>\<AA>\<close>, Ty_base \<open>'\<alpha>\<close>])
-
-              (let ty_base = \<lambda>attr_ty.
-                 Ty_apply (Ty_base \<open>val\<close>) [Ty_base \<open>\<AA>\<close>,
-                    let option = \<lambda>x. Ty_apply (Ty_base \<open>option\<close>) [x] in
-                    option (option (Ty_base attr_ty))] in
-               case attr_ty of
-                  OclTy_raw attr_ty \<Rightarrow> ty_base attr_ty
-                | OclTy_object (OclTyObj (OclTyCore ty_obj) _) \<Rightarrow>
-                    let ty_obj = TyObj_to ty_obj
-                      ; name = TyObjN_role_ty ty_obj
-                      ; obj_mult = TyObjN_role_multip ty_obj in
-                    Ty_base (if single_multip obj_mult then
-                               wrap_oclty name
-                             else if is_sequence obj_mult then
-                               print_infra_type_synonym_class_sequence_name name
-                             else
-                               print_infra_type_synonym_class_set_name name)
-                | OclTy_base_unlimitednatural \<Rightarrow> str_hol_of_ty_all Ty_apply ty_base attr_ty
-                   (* REMARK Dependencies to UnlimitedNatural.thy can be detected and added
-                             so that this pattern clause would be merged with the default case *)
-                | OclTy_collection _ _ \<Rightarrow> Raw (fst (print_infra_type_synonym_class_rec_aux attr_ty))
-                | OclTy_pair _ _ \<Rightarrow> Raw (fst (print_infra_type_synonym_class_rec_aux attr_ty))
-                | _ \<Rightarrow> Raw (str_of_ty attr_ty)))
+              (print_access_dot_consts_ty attr_ty))
             (let dot_name = mk_dot attr_n var_at_when_ocl
                ; mk_par = \<lambda>s1 s2. flatten [s1, \<open> '/* \<close>, s2, \<open> *'/\<close>] in
              case attr_ty of OclTy_object (OclTyObj (OclTyCore ty_obj) _) \<Rightarrow>

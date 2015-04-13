@@ -52,7 +52,8 @@ section{* Translation of AST *}
 subsection{* context *}
 
 definition "print_ctxt_const ctxt ocl =
- (let Ctxt_ty_f = Ty_apply_paren \<open>(\<close> \<open>)\<close> (* because of potential ambiguities *)
+ (let Ty_par = Ty_apply_paren \<open>(\<close> \<open>)\<close> (* because of potential ambiguities *)
+    ; Ctxt_ty_f = Ty_par
                     (Ty_base (wrap_oclty (ty_obj_to_string (Ctxt_ty ctxt)))) in
   map_prod (map_prod id (rev o List_map Thy_ty_synonym)) (rev o List_map Thy_consts_class)
     (List.fold
@@ -66,7 +67,7 @@ definition "print_ctxt_const ctxt ocl =
                     List.fold
                       (\<lambda> ty (l_name, l, l_isab_ty).
                         let (n, isab_ty) = print_infra_type_synonym_class_rec_aux ty in
-                        ( n # l_name
+                        ( Ty_par (print_access_dot_consts_ty ty) # l_name
                         , if is_higher_order ty & \<not> List_member l n then
                             (String_to_String\<^sub>b\<^sub>a\<^sub>s\<^sub>e n # l, Type_synonym n isab_ty # l_isab_ty)
                           else
@@ -82,7 +83,7 @@ definition "print_ctxt_const ctxt ocl =
                   l
               , Consts_raw0
                   name
-                  (ty_arrow (Ctxt_ty_f # List_map Ty_base (rev l_name)))
+                  (ty_arrow (Ctxt_ty_f # rev l_name))
                   (mk_dot attr_n var_at_when_ocl)
                   (Some (natural_of_nat (length (Ctxt_fun_ty_arg ctxt)))) # l_isab_const))
             [ (var_at_when_hol_post, var_at_when_ocl_post, update_D_accessor_rbt_post)
