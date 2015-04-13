@@ -1063,6 +1063,14 @@ structure USE_parse = struct
 
   val name_object = optional (Parse.list1 Parse.binding --| colon) -- Parse.binding
 
+  val type_object_weak = 
+    let val name_object = Parse.binding >> (fn s => (NONE, s)) in
+                    name_object -- Scan.repeat (Parse.$$$ "<" |-- Parse.list1 name_object) >>
+    let val f = fn (_, s) => OCL.OclTyCore_pre (From.from_binding s) in
+    fn (s, l) => OCL.OclTyObj (f s, map (map f) l)
+    end
+    end
+
   val type_object = name_object -- Scan.repeat (Parse.$$$ "<" |-- Parse.list1 name_object) >>
     let val f = fn (_, s) => OCL.OclTyCore_pre (From.from_binding s) in
     fn (s, l) => OCL.OclTyObj (f s, map (map f) l)
@@ -1089,7 +1097,8 @@ structure USE_parse = struct
                  || Parse.reserved "Real" >> K OCL.OclTy_base_real
                  || Parse.reserved "String" >> K OCL.OclTy_base_string
 
-  fun use_type v = ((* collection *)
+  fun use_type_gen type_object v =
+                   ((* collection *)
                     Parse.reserved "Set" |-- use_type >> 
                       (fn l => OCL.OclTy_collection (OCL.Ocl_multiplicity_ext ([], NONE, [OCL.Set], ()), l))
                  || Parse.reserved "Sequence" |-- use_type >>
@@ -1111,7 +1120,7 @@ structure USE_parse = struct
 
                  || ((Parse.$$$ "(" |-- Parse.list (   (Parse.binding --| colon >> (From.from_option From.from_binding o SOME))
                                                     -- (   Parse.$$$ "(" |-- use_type --| Parse.$$$ ")"
-                                                        || Parse.binding >> (fn s => OCL.OclTy_object (OCL.OclTyObj (OCL.OclTyCore_pre (From.from_binding s), [])))) >> OCL.OclTy_binding
+                                                        || use_type_gen type_object_weak) >> OCL.OclTy_binding
                                                     ) --| Parse.$$$ ")"
                       >> (fn ty_arg => case rev ty_arg of
                             [] => OCL.OclTy_base_void
@@ -1122,6 +1131,7 @@ structure USE_parse = struct
                     >> (fn (ty_arg, ty_out) => case ty_out of NONE => ty_arg
                                                             | SOME ty_out => OCL.OclTy_arrow (ty_arg, ty_out))
                  || (Parse.$$$ "(" |-- use_type --| Parse.$$$ ")" >> (fn s => OCL.OclTy_binding (NONE, s)))) v
+  and use_type x = use_type_gen type_object x
 
   val use_prop =    (optional (optional (Parse.binding >> From.from_binding) --| Parse.$$$ ":") >> (fn NONE => NONE | SOME x => x))
                  -- Parse.term --| optional Parse.semicolon >> (fn (n, e) => fn from_expr => OCL.OclProp_ctxt (n, from_expr e))

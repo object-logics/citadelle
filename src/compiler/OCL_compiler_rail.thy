@@ -298,7 +298,7 @@ text {*
 
                | ('Sequence' | 'Set' | @{syntax category}) @{syntax uml_type}
                | 'Pair' @{syntax uml_type} @{syntax uml_type}
-               | '(' ((binding ':' ('(' @{syntax uml_type} ')' | binding)) * ',') ')' \<newline>
+               | '(' ((binding ':' ('(' @{syntax uml_type} ')' | uml_type_weak)) * ',') ')' \<newline>
                  (':' @{syntax uml_type})?
                | '(' @{syntax uml_type} ')'
 
@@ -311,6 +311,7 @@ text {*
   ;
 \<close>}
 *}
+text{* uml\_type\_weak is like uml\_type except that type\_object can not contain quantified names. *}
 
 section{* UML/OCL: Miscellaneous *}
 subsection{* ....................................................................................................................................... *}
