@@ -3,7 +3,7 @@
  *                       for the OMG Standard.
  *                       http://www.brucker.ch/projects/hol-testgen/
  *
- * Bank_Model.thy --- OCL Contracts and an Example.
+ * Clocks_Lib_Model.thy --- OCL Contracts and an Example.
  * This file is part of HOL-TestGen.
  *
  * Copyright (c) 2013-2015 Université Paris-Sud, France
@@ -44,7 +44,8 @@
 header{* Part ... *}
 
 theory   Clocks_Lib_Model
-imports  (* UML_OCL *)              "../src/UML_OCL" 
+imports
+  "../src/UML_OCL"
 begin
 
 Class Clock
@@ -93,90 +94,6 @@ Class PeriodicContClock < Clock
 Context c: GlobalTime
   Inv "GlobalTime .allInstances(GlobalTime) ->size() \<doteq> \<one>"
 
-(*
-Class Bank
-  Attributes name : String
-
-Class Client
-  Attributes clientname : String
-             address : String
-             age : Integer
-
-term id
-
-Class Account
-  Attributes id : Integer
-             balance : Currency
-
-Association clients
-  Between Bank [1 \<bullet>\<bullet> *] Role banks
-          Client [1 \<bullet>\<bullet> *] Role clients
-
-Association owner
-  Between Account [1 \<bullet>\<bullet> *] Role c_accounts
-          Client [1] Role owner
-
-Association bank
-  Between Account [1 \<bullet>\<bullet> *] Role b_accounts
-          Bank [1] Role bank
-
-term max
-
-Class Savings < Account
-  Attributes max : Currency
-
-Class Current < Account
-  Attributes overdraft : Currency
-
-Enum (synonym) Currency = Real
-
-Instance Saving1 :: Account = ([ max = 2000 ] :: Savings)
-     and Client1 :: Client = [ c_accounts = Saving1 , banks = Bank1 ]
-     and Account1 :: Account = [ id = 250 , owner = Client1 ]
-     and Bank1 :: Bank = [ b_accounts = [ Saving1 , Account1 ], name = "\<infinity>\<heartsuit> \<Longleftrightarrow> \<infinity>\<epsilon>" (* (* TODO latex *) \<euro> *) ]
-
-State \<sigma>\<^sub>1' =
-  [ Account1, Client1, Bank1, Saving1 ]
-
-State ss = []
-
-PrePost ss \<sigma>\<^sub>1'
-
-BaseType [ 25, 250.0 ]
-
-Context c: Savings
-  Inv "\<zero>.\<zero> <\<^sub>r\<^sub>e\<^sub>a\<^sub>l (c .max)"
-  Inv "c .balance \<le>\<^sub>r\<^sub>e\<^sub>a\<^sub>l (c .max) and \<zero>.\<zero> \<le>\<^sub>r\<^sub>e\<^sub>a\<^sub>l (c .balance)"
-
-Context c: Current
-  Inv "\<two>\<five> \<le>\<^sub>i\<^sub>n\<^sub>t (c .owner .age) implies (c .overdraft \<doteq> \<two>\<five>\<zero>.\<zero>)"
-  Inv "c .owner .age <\<^sub>i\<^sub>n\<^sub>t \<two>\<five>   implies (c .overdraft \<doteq> \<zero>.\<zero>)"
-
-Context c: Client
-  Inv "c .banks ->forAll\<^sub>S\<^sub>e\<^sub>t(b | b .b_accounts ->select\<^sub>S\<^sub>e\<^sub>t(a | (a .owner \<doteq> c) and
-                                                                  (a .oclIsTypeOf(Current)))
-                                             ->size\<^sub>S\<^sub>e\<^sub>t() \<le>\<^sub>i\<^sub>n\<^sub>t \<one>)"
-
-Context Bank :: create_client (clientname : String, age : Integer, bank : Bank) : Integer
-  Pre  "bank .clients ->forAll\<^sub>S\<^sub>e\<^sub>t(c | c .clientname <> clientname or (c .age <> age))"
-  Post "bank .clients ->exists\<^sub>S\<^sub>e\<^sub>t(c | c .clientname \<doteq> clientname and (c .age \<doteq> age))"
-
-
-Context Account :: get_balance (c : String, no : Integer) : Real
-  Pre  "self .id \<doteq> no and ((self .owner .clientname) \<doteq> c)"
-  Post "result \<doteq> (self .balance)"
-
-Context Account :: deposit (c : String, no : Integer, amount:Real) : Real
-  Pre  "self .id \<doteq> no and ((self .owner .clientname) \<doteq> c) and (\<zero>.\<zero>  \<le>\<^sub>r\<^sub>e\<^sub>a\<^sub>l amount)"
-  Post "self .balance \<doteq> (self .balance@pre +\<^sub>r\<^sub>e\<^sub>a\<^sub>l amount)"
-
-Context Account :: withdraw (c : String, no : Integer, amount:Real) : Real
-  Pre  "self .id \<doteq> no and ((self .owner .clientname) \<doteq> c) and (\<zero>.\<zero>  \<le>\<^sub>r\<^sub>e\<^sub>a\<^sub>l amount)"
-  Post "self .balance \<doteq> (self .balance@pre -\<^sub>r\<^sub>e\<^sub>a\<^sub>l amount)"
-*)
-
-(*generation_syntax deep flush_all*)
-
-lemmas [simp,code_unfold] = dot_accessor
+(*lemmas [simp,code_unfold] = dot_accessor*)
 
 end
