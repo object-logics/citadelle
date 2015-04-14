@@ -94,6 +94,6 @@ Class PeriodicContClock < Clock
 Context c: GlobalTime
   Inv "GlobalTime .allInstances(GlobalTime) ->size() \<doteq> \<one>"
 
-(*lemmas [simp,code_unfold] = dot_accessor*)
+lemmas [simp,code_unfold] = dot_accessor
 
 end
