@@ -60,12 +60,11 @@ Class WorldClock < Clock
 Class DiscreteClock < Clock
   Operations create() 
              Post: "self .oclIsNew() and 
-                    (self .created_at) \<doteq>
-                    (((WorldClock .allInstances(WorldClock)) ->any()) .created_at)"
+                    (self .created_at \<doteq> (WorldClock .allInstances() ->any\<^sub>S\<^sub>e\<^sub>t() .created_at))"
   Operations get_time() : Integer
-             Post: "result \<doteq> (((WorldClock .allInstances(WorldClock)) ->any() .created_at)->asInt\<^sub>R\<^sub>e\<^sub>a\<^sub>l())
+             Post: "result \<doteq> (WorldClock .allInstances() ->any\<^sub>S\<^sub>e\<^sub>t() .created_at ->asInt\<^sub>R\<^sub>e\<^sub>a\<^sub>l())
                                -\<^sub>i\<^sub>n\<^sub>t 
-                               ((self .created_at) ->asInt\<^sub>R\<^sub>e\<^sub>a\<^sub>l())" 
+                               (self .created_at ->asInt\<^sub>R\<^sub>e\<^sub>a\<^sub>l())" 
 
 
 Class PeriodicDiscreteClock < DiscreteClock
@@ -76,14 +75,12 @@ Class PeriodicDiscreteClock < DiscreteClock
 
 Class ContClock < Clock
   Operations create() 
-             Pre : "true"
              Post: "self .oclIsNew() and 
-                    self .created_at \<doteq> ((WorldClock .allInstances(WorldClock)) 
-                                                     ->any() .created_at).time"
+                    (self .created_at \<doteq> (WorldClock .allInstances() ->any\<^sub>S\<^sub>e\<^sub>t() .created_at))"
   Operations get_time() : Real
-             Post: "result \<doteq> (((WorldClock .allInstances(WorldClock)) ->any() .created_at)
+             Post: "result \<doteq> (WorldClock .allInstances() ->any\<^sub>S\<^sub>e\<^sub>t() .created_at)
                                -\<^sub>r\<^sub>e\<^sub>a\<^sub>l 
-                               (self .created_at))" 
+                               (self .created_at)" 
 
 Class PeriodicContClock < Clock
   Attributes periode : Real
@@ -92,7 +89,7 @@ Class PeriodicContClock < Clock
              Post: "self .periode \<doteq> p"
 
 Context c: GlobalTime
-  Inv "GlobalTime .allInstances(GlobalTime) ->size() \<doteq> \<one>"
+  Inv "GlobalTime .allInstances() ->size\<^sub>S\<^sub>e\<^sub>t() \<doteq> \<one>"
 
 lemmas [simp,code_unfold] = dot_accessor
 
