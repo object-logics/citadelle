@@ -83,7 +83,7 @@ Class Savings < Account
 Class Current < Account
   Attributes overdraft : Currency
 
-Enum (synonym) Currency = Real
+Class Currency = Real
 
 Instance Saving1 :: Account = ([ max = 2000 ] :: Savings)
      and Client1 :: Client = [ c_accounts = Saving1 , banks = Bank1 ]

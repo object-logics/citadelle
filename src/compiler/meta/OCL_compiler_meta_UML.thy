@@ -141,7 +141,7 @@ record ocl_class_raw = ClassRaw_name :: ocl_ty_obj
 datatype ocl_ass_class = OclAssClass ocl_association
                                      ocl_class_raw
 
-datatype ocl_enum = OclEnumSynonym string (* name alias *) ocl_ty
+datatype ocl_class_synonym = OclClassSynonym string (* name alias *) ocl_ty
                   | OclEnum string (* name *) "string (* constructor name *) list"
 
 subsection{* ... *}
@@ -384,7 +384,7 @@ definition "class_unflat = (\<lambda> (l_enum, l_class, l_ass).
                       List_map (map_prod
                                  id
                                  (\<lambda> OclTy_object (OclTyObj (OclTyCore_pre s) []) \<Rightarrow> 
-                                      if list_ex (\<lambda>enum. String_equal s (case enum of OclEnumSynonym n _ \<Rightarrow> n | OclEnum n _ \<Rightarrow> n)) l_enum then
+                                      if list_ex (\<lambda>enum. String_equal s (case enum of OclClassSynonym n _ \<Rightarrow> n | OclEnum n _ \<Rightarrow> n)) l_enum then
                                         OclTy_raw s
                                       else
                                         OclTy_object (OclTyObj (OclTyCore_pre s) [])

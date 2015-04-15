@@ -436,7 +436,7 @@ definition "fold_thy' f_try f_accu_reset f =
  (let ocl_env_class_spec_mk = ocl_env_class_spec_mk f_try f_accu_reset in
   List.fold (\<lambda> ast.
     ocl_env_save ast (case ast of
-     OclAstEnum meta \<Rightarrow> ocl_env_class_spec_rm (fold_thy0 meta thy_enum)
+     OclAstClassSynonym meta \<Rightarrow> ocl_env_class_spec_rm (fold_thy0 meta thy_enum)
    | OclAstClassRaw Floor1 meta \<Rightarrow> ocl_env_class_spec_rm (fold_thy0 meta thy_class_flat)
    | OclAstAssociation meta \<Rightarrow> ocl_env_class_spec_rm (fold_thy0 meta thy_association)
    | OclAstAssClass Floor1 (OclAssClass meta_ass meta_class) \<Rightarrow>

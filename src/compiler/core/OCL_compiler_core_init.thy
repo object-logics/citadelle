@@ -156,7 +156,7 @@ definition "find_class_ass ocl =
                \<lambda> OclAstClassRaw Floor1 class \<Rightarrow> f class
                | OclAstAssociation _ \<Rightarrow> True
                | OclAstAssClass Floor1 (OclAssClass _ class) \<Rightarrow> f class
-               | OclAstEnum _ \<Rightarrow> True
+               | OclAstClassSynonym _ \<Rightarrow> True
                | _ \<Rightarrow> False) (rev (D_ocl_env ocl)) in
   ( List_flatten [l_class, List.map_filter (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l f = \<lambda>class. class \<lparr> ClassRaw_clause := [] \<rparr> in
                                        \<lambda> OclAstClassRaw Floor1 c \<Rightarrow> Some (OclAstClassRaw Floor1 (f c))
@@ -230,7 +230,7 @@ definition "arrange_ass with_aggreg with_optim_ass l_c =
                 (l_class, ass # l_ass)) l_ass (l_class, []))
           else
             (l_class, l_ass) in
-    ( List.map_filter (\<lambda> OclAstEnum e \<Rightarrow> Some e | _ \<Rightarrow> None) l_c
+    ( List.map_filter (\<lambda> OclAstClassSynonym e \<Rightarrow> Some e | _ \<Rightarrow> None) l_c
     , l_class
     , List_flatten [l_ass, l_ass0]))"
 

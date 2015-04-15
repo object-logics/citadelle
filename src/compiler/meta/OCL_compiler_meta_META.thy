@@ -67,7 +67,7 @@ datatype ocl_deep_embed_ast =
      (otherwise degre = Floor1 by default). *)
 
                               (* USE *)
-                              OclAstEnum ocl_enum
+                              OclAstClassSynonym ocl_class_synonym
                             | OclAstClassRaw floor ocl_class_raw
                             | OclAstAssociation ocl_association
                             | OclAstAssClass floor ocl_ass_class

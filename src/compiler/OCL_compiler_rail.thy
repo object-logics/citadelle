@@ -105,9 +105,10 @@ text {*
 @{rail \<open>
   (  @@{command Class}
    | @@{command Abstract_class})
-                    @{syntax type_object}
-                    @{syntax class}
-                    @'End'?
+                   (  binding '=' @{syntax type_base}
+                    | @{syntax type_object}
+                      @{syntax class}
+                      @'End'?)
   ;
   @{syntax_def class}:
                @'Attributes'? ((binding ':' @{syntax uml_type}) * (';'?)) \<newline>
@@ -231,8 +232,7 @@ text {*
 \end{matharray}
 
 @{rail \<open>
-  @@{command Enum} ( '(' 'synonym' ')' binding '=' @{syntax type_base}
-                   | binding '[' (binding * ',') ']')
+  @@{command Enum} binding '[' (binding * ',') ']'
   ;
 \<close>}
 *}

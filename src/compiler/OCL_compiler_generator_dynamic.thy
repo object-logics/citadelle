@@ -1187,6 +1187,7 @@ structure USE_parse = struct
     -- context
 
   datatype use_classDefinition = USE_class | USE_class_abstract
+  datatype ('a, 'b) use_classDefinition_content = USE_class_content of 'a | USE_class_synonym of 'b
   
   structure Outer_syntax_Class = struct
     fun make from_expr abstract ty_object attribute oper =
@@ -1250,14 +1251,6 @@ end
 
 subsection{* Outer Syntax: enum *}
 
-ML{*
-val () =
-  outer_syntax_command @{mk_string} @{command_spec "Enum"} ""
-    (Parse.$$$ "(" -- Parse.reserved "synonym" -- Parse.$$$ ")" |-- Parse.binding --| Parse.$$$ "=" -- USE_parse.type_base)
-    (fn (n1, n2) => 
-      K (OCL.OclAstEnum (OCL.OclEnumSynonym (From.from_binding n1, n2))))
-*}
-
 subsection{* Outer Syntax: (abstract) class *}
 
 ML{*
@@ -1266,14 +1259,17 @@ local
 
   fun mk_classDefinition abstract cmd_spec =
     outer_syntax_command2 @{mk_string} cmd_spec "Class generation"
-      (   type_object
-       -- class
-       --| optional @{keyword "End"})
+      (   Parse.binding --| Parse.$$$ "=" -- USE_parse.type_base >> USE_class_synonym
+       ||    type_object
+          -- class
+          --| optional @{keyword "End"} >> USE_class_content)
       (curry OCL.OclAstClassRaw OCL.Floor1)
       (curry OCL.OclAstClassRaw OCL.Floor2)
       (fn (from_expr, OclAstClassRaw) =>
-       fn (ty_object, (attribute, oper)) =>
-         OclAstClassRaw (Outer_syntax_Class.make from_expr (abstract = USE_class_abstract) ty_object attribute oper))
+       fn USE_class_content (ty_object, (attribute, oper)) =>
+            OclAstClassRaw (Outer_syntax_Class.make from_expr (abstract = USE_class_abstract) ty_object attribute oper)
+        | USE_class_synonym (n1, n2) => 
+            OCL.OclAstClassSynonym (OCL.OclClassSynonym (From.from_binding n1, n2)))
 in
 val () = mk_classDefinition USE_class @{command_spec "Class"}
 val () = mk_classDefinition USE_class_abstract @{command_spec "Abstract_class"}
