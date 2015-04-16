@@ -67,7 +67,7 @@ imports OCL_compiler_printer
            "design" "analysis" "oid_start"
 
        and (* ocl (USE tool) *)
-           "Enum"
+           (*"Enum"*)
            "Abstract_class" "Class"
            "Association" "Composition" "Aggregation"
            "Abstract_associationclass" "Associationclass"
