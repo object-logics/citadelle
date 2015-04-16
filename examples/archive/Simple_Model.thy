@@ -59,7 +59,7 @@ Class C2 < A
   Attributes b : Boolean
 End
 
-Class.end
+END
 
 declare   OclAsType\<^sub>A_C1[simp del]
 declare   OclAsType\<^sub>C\<^sub>1_A[simp del]

@@ -317,11 +317,11 @@ section{* UML/OCL: Miscellaneous *}
 subsection{* ....................................................................................................................................... *}
 text {*
 \begin{matharray}{rcl}
-  @{command_def Class.end} & : & @{text "theory \<rightarrow> theory"}
+  @{command_def END} & : & @{text "theory \<rightarrow> theory"}
 \end{matharray}
 
 @{rail \<open>
-  @@{command Class.end}
+  @@{command END}
 \<close>}
 *}
 subsection{* ....................................................................................................................................... *}

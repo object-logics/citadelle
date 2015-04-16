@@ -73,7 +73,7 @@ imports OCL_compiler_printer
            "Abstract_associationclass" "Associationclass"
            "Context"
            (* ocl (added) *)
-           "Class.end" "Instance" "BaseType" "State" "PrePost"
+           "END" "Instance" "BaseType" "State" "PrePost"
 
            (* hol syntax *)
            "generation_syntax"
@@ -1352,11 +1352,11 @@ val () =
 end
 *}
 
-subsection{* Outer Syntax: Class.end *}
+subsection{* Outer Syntax: END *}
 
 ML{*
 val () =
-  outer_syntax_command @{mk_string} @{command_spec "Class.end"} "Class generation"
+  outer_syntax_command @{mk_string} @{command_spec "END"} "Class generation"
     (Scan.optional (Parse.binding >> SOME) NONE)
     (fn _ => fn _ =>
        OCL.OclAstFlushAll (OCL.OclFlushAll))
