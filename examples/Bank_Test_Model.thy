@@ -71,7 +71,7 @@ Association manages
 Class Bank 
 Attributes bank_name : String
 
-End (* forces generation of the oo - datatype theory *)
+End! (* forces generation of the oo - datatype theory *)
 
 Context Bank :: deposit (c : Client, account_id : Integer, amount:Integer)
   Pre  "\<zero> \<le>\<^sub>i\<^sub>n\<^sub>t amount"

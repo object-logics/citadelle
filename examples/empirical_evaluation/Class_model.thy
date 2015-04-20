@@ -170,7 +170,7 @@ definition "print_abr sprintf_int write_file =
         , flatten [ g,\<langle>''../../src/UML_Main''\<rangle>,g, \<langle>'' ''\<rangle>
                   , g,\<langle>''../../src/compiler/OCL_compiler_static''\<rangle>,g  ]
         , \<lambda>_ _. flatten_n [ \<langle>''generation_syntax [ shallow (generation_semantics [ analysis ]) ]''\<rangle> ]
-        , \<langle>''End''\<rangle>) ]))"
+        , \<langle>''End!''\<rangle>) ]))"
 
 definition "main sprintf_int write_file = print_abr (\<lambda>n. \<lless>sprintf_int n\<ggreater>) (\<lambda>f l. write_file (String_to_list f) (List_map String_to_list l))
   [ (1, 0)
