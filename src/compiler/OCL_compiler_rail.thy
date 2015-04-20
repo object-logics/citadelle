@@ -107,8 +107,7 @@ text {*
    | @@{command Abstract_class})
                    (  binding '=' @{syntax type_base}
                     | @{syntax type_object}
-                      @{syntax class}
-                      @'End'?)
+                      @{syntax class})
   ;
   @{syntax_def class}:
                @'Attributes'? ((binding ':' @{syntax uml_type}) * (';'?)) \<newline>
@@ -138,7 +137,7 @@ text {*
 @{rail \<open>
   (  @@{command Aggregation}
    | @@{command Association}
-   | @@{command Composition}) binding? @{syntax association} @'End'?
+   | @@{command Composition}) binding? @{syntax association}
   ;
   @{syntax_def association}:
                @'Between'? (@{syntax association_end} (@{syntax association_end}+))?
@@ -160,7 +159,7 @@ text {*
 @{rail \<open>
   (  @@{command Associationclass}
    | @@{command Abstract_associationclass}) @{syntax type_object} \<newline>
-                                            @{syntax association} @{syntax class} (() | 'aggregation' | 'composition') @'End'?
+                                            @{syntax association} @{syntax class} (() | 'aggregation' | 'composition')
   ;
 \<close>}
 *}
@@ -224,7 +223,7 @@ text {*
   ;
 \<close>}
 *}
-
+(*
 subsection{* ....................................................................................................................................... *}
 text {*
 \begin{matharray}{rcl}
@@ -236,7 +235,7 @@ text {*
   ;
 \<close>}
 *}
-
+*)
 section{* UML/OCL: Type System *}
 subsection{* ....................................................................................................................................... *}
 text {*
@@ -321,7 +320,7 @@ text {*
 \end{matharray}
 
 @{rail \<open>
-  @@{command END}
+  @@{command END} ('[' 'forced' ']' | '!')?
 \<close>}
 *}
 subsection{* ....................................................................................................................................... *}

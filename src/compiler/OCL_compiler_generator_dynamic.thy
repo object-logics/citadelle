@@ -47,7 +47,7 @@ theory OCL_compiler_generator_dynamic
 imports OCL_compiler_printer
         "isabelle_home/src/HOL/Isabelle_Main2"
   keywords (* ocl (USE tool) *)
-           "Between" "End"
+           "Between"
            "Attributes" "Operations" "Constraints"
            "Role"
            "Ordered" "Subsets" "Union" "Redefines" "Derived" "Qualifier"
@@ -923,7 +923,7 @@ fun exec_deep (ocl, file_out_path_dep, seri_args, filename_thy, tmp_export_code,
 
   end end end end
 
-fun outer_syntax_command mk_string cmd_spec cmd_descr parser get_oclclass =
+fun outer_syntax_command0 mk_string cmd_spec cmd_descr parser get_oclclass =
   let open Generation_mode in
   Outer_Syntax.command cmd_spec cmd_descr
     (parser >> (fn name =>
@@ -944,8 +944,7 @@ fun outer_syntax_command mk_string cmd_spec cmd_descr parser get_oclclass =
                   end)
            | Gen_deep (ocl, Internal_deep (file_out_path_dep, seri_args, filename_thy, tmp_export_code, skip_exportation)) =>
               (fn thy0 =>
-                let val obj = get_oclclass thy0
-                  ; val l_obj = [obj] in
+                let val l_obj = get_oclclass thy0 in
                 thy0 |> (if skip_exportation then
                            K ()
                          else
@@ -962,8 +961,8 @@ fun outer_syntax_command mk_string cmd_spec cmd_descr parser get_oclclass =
                      ; error e))
                    (fn _ => fn _ => thy0)
                    (fn l => fn (ocl, thy) =>
-                     Shallow_main.OCL_main (fn x => fn thy => aux (ocl, thy) x) (pair ocl) l thy)
-                   [x]
+                     Shallow_main.OCL_main (fn x => fn thy => aux (ocl, thy) [x]) (pair ocl) l thy)
+                   x
                    (ocl, thy)
                  val (ocl, thy) = aux (ocl, thy) (get_oclclass thy) in
              (Gen_shallow (ocl, thy0), thy)
@@ -975,6 +974,10 @@ fun outer_syntax_command mk_string cmd_spec cmd_descr parser get_oclclass =
         in
         Data_gen.map (Symtab.update (Deep0.gen_empty, ocl)) thy end)))
   end
+
+fun outer_syntax_command mk_string cmd_spec cmd_descr parser get_oclclass =
+ outer_syntax_command0 mk_string cmd_spec cmd_descr parser (fn a => fn thy => [get_oclclass a thy])
+
 *}
 
 subsection{* ... *}
@@ -1261,8 +1264,7 @@ local
     outer_syntax_command2 @{mk_string} cmd_spec "Class generation"
       (   Parse.binding --| Parse.$$$ "=" -- USE_parse.type_base >> USE_class_synonym
        ||    type_object
-          -- class
-          --| optional @{keyword "End"} >> USE_class_content)
+          -- class >> USE_class_content)
       (curry OCL.OclAstClassRaw OCL.Floor1)
       (curry OCL.OclAstClassRaw OCL.Floor2)
       (fn (from_expr, OclAstClassRaw) =>
@@ -1286,8 +1288,7 @@ local
     outer_syntax_command @{mk_string} cmd_spec ""
       (   repeat2 association_end
        ||     optional Parse.binding
-          |-- association
-          --| optional @{keyword "End"})
+          |-- association)
       (fn l => fn _ =>
         OCL.OclAstAssociation (Outer_syntax_Association.make ass_ty l))
 in
@@ -1311,8 +1312,7 @@ local
       (   type_object
        -- association
        -- class
-       -- optional (Parse.reserved "aggregation" || Parse.reserved "composition")
-       --| optional @{keyword "End"})
+       -- optional (Parse.reserved "aggregation" || Parse.reserved "composition"))
       (curry OCL.OclAstAssClass OCL.Floor1)
       (curry OCL.OclAstAssClass OCL.Floor2)
       (fn (from_expr, OclAstAssClass) =>
@@ -1356,10 +1356,14 @@ subsection{* Outer Syntax: END *}
 
 ML{*
 val () =
-  outer_syntax_command @{mk_string} @{command_spec "END"} "Class generation"
-    (Scan.optional (Parse.binding >> SOME) NONE)
-    (fn _ => fn _ =>
-       OCL.OclAstFlushAll (OCL.OclFlushAll))
+  outer_syntax_command0 @{mk_string} @{command_spec "END"} "Class generation"
+    (Scan.optional ( Parse.$$$ "[" -- Parse.reserved "forced" -- Parse.$$$ "]" >> K true
+                    || Parse.$$$ "!" >> K true) false)
+    (fn b => fn _ =>
+       if b then
+         [OCL.OclAstFlushAll OCL.OclFlushAll]
+       else
+         [])
 *}
 
 subsection{* Outer Syntax: BaseType, Instance, State *}
