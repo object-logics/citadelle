@@ -316,11 +316,11 @@ section{* UML/OCL: Miscellaneous *}
 subsection{* ....................................................................................................................................... *}
 text {*
 \begin{matharray}{rcl}
-  @{command_def END} & : & @{text "theory \<rightarrow> theory"}
+  @{command_def End} & : & @{text "theory \<rightarrow> theory"}
 \end{matharray}
 
 @{rail \<open>
-  @@{command END} ('[' 'forced' ']' | '!')?
+  @@{command End} ('[' 'forced' ']' | '!')?
 \<close>}
 *}
 subsection{* ....................................................................................................................................... *}
