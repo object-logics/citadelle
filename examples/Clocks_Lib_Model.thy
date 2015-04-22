@@ -88,8 +88,8 @@ Class PeriodicContClock < Clock
              Pre : "\<zero> \<le>\<^sub>r\<^sub>e\<^sub>a\<^sub>l p"
              Post: "self .periode \<doteq> p"
 
-Context c: GlobalTime
-  Inv "GlobalTime .allInstances() ->size\<^sub>S\<^sub>e\<^sub>t() \<doteq> \<one>"
+Context c: Clock
+  Inv "Clock .allInstances() ->size\<^sub>S\<^sub>e\<^sub>t() \<doteq> \<one>"
 
 lemmas [simp,code_unfold] = dot_accessor
 
