@@ -129,7 +129,7 @@ definition "print_ctxt_pre_post = (\<lambda>f. map_prod List_flatten id o f) o f
               (\<lambda>(_, expr) \<Rightarrow>
                  cross_abs (\<lambda>_. id) nb_var (case f_to expr of T_pure expr \<Rightarrow> expr))) l_pre))
     ; f = \<lambda> (var_at_when_hol, var_at_when_ocl).
-        let dot_expr = \<lambda>e. Expr_postunary e (b (mk_dot_par_gen (flatten [\<open>.\<close>, attr_n, var_at_when_ocl]) (List_map fst (Ctxt_fun_ty_arg ctxt)))) in
+        let dot_expr = \<lambda>e f_escape. Expr_postunary e (b (mk_dot_par_gen (flatten [\<open>.\<close>, attr_n, var_at_when_ocl]) (List_map (f_escape o fst) (Ctxt_fun_ty_arg ctxt)))) in
         (\<lambda>\<^sub>S\<^sub>c\<^sub>a\<^sub>l\<^sub>aocl. [Thy_axiom (Axiom (print_ctxt_pre_post_name attr_n var_at_when_hol)
          (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l if_test = expr_binop0 \<open>True\<close> \<open>\<and>\<close> (List_map (\<lambda>s. f_tau (a \<open>\<delta>\<close> (b s))) (var_self # List_map fst (Ctxt_fun_ty_arg ctxt)))
             ; if_body = Expr_binop
@@ -141,7 +141,7 @@ definition "print_ctxt_pre_post = (\<lambda>f. map_prod List_flatten id o f) o f
             \<open>\<Longrightarrow>\<close>
             (Expr_rewrite
               (Expr_parenthesis (f_tau (Expr_rewrite
-                  (dot_expr (b var_self))
+                  (dot_expr (b var_self) id)
                   \<open>\<triangleq>\<close>
                   (b var_result))))
               \<open>=\<close>
@@ -153,13 +153,14 @@ definition "print_ctxt_pre_post = (\<lambda>f. map_prod List_flatten id o f) o f
               Pair (if String_equal ty_name name then
                       []
                     else
-                      let var_x = \<open>x\<close> in
+                      let var_x = \<open>x\<close>
+                        ; f_escape = \<lambda>s. var_x @@ isub_of_str s in
                       [ Thy_defs_overloaded
                           (Defs_overloaded (flatten [ \<open>dot\<close>, isup_of_str attr_n, var_at_when_hol, \<open>_\<close>, name])
                                            (Expr_rewrite
-                                             (dot_expr (Expr_annot_ocl (b var_x) name))
+                                             (dot_expr (Expr_annot_ocl (b var_x) name) f_escape)
                                              \<open>\<equiv>\<close>
-                                             (dot_expr (Expr_postunary (b var_x) (b (dot_astype ty_name)))))) ]))
+                                             (dot_expr (Expr_postunary (b var_x) (b (dot_astype ty_name))) f_escape))) ]))
                   ()
                   (case D_class_spec ocl of Some class_spec \<Rightarrow> class_spec))))
         # raise_ml_unbound
