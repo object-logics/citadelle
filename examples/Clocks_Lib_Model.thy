@@ -58,35 +58,35 @@ Class WorldClock < Clock
              Pre : "true"
   
 Class DiscreteClock < Clock
-  Operations create() 
+  Operations create\<^sub>D\<^sub>i\<^sub>s\<^sub>c\<^sub>r\<^sub>e\<^sub>t\<^sub>e() 
              Post: "self .oclIsNew() and 
                     (self .created_at \<doteq> (WorldClock .allInstances() ->any\<^sub>S\<^sub>e\<^sub>t() .created_at))"
-  Operations get_time() : Integer
+  Operations get_time\<^sub>D\<^sub>i\<^sub>s\<^sub>c\<^sub>r\<^sub>e\<^sub>t\<^sub>e() : Integer
              Post: "result \<doteq> (WorldClock .allInstances() ->any\<^sub>S\<^sub>e\<^sub>t() .created_at ->asInt\<^sub>R\<^sub>e\<^sub>a\<^sub>l())
                                -\<^sub>i\<^sub>n\<^sub>t 
                                (self .created_at ->asInt\<^sub>R\<^sub>e\<^sub>a\<^sub>l())" 
 
 
 Class PeriodicDiscreteClock < DiscreteClock
-  Attributes period : Integer
-  Operations create_period_clock(p : Integer)
+  Attributes period\<^sub>D\<^sub>i\<^sub>s\<^sub>c\<^sub>r\<^sub>e\<^sub>t\<^sub>e : Integer
+  Operations create_period_clock\<^sub>D\<^sub>i\<^sub>s\<^sub>c\<^sub>r\<^sub>e\<^sub>t\<^sub>e(p : Integer)
              Pre : "\<zero> \<le>\<^sub>i\<^sub>n\<^sub>t p"
-             Post: "self .period \<doteq> p"
+             Post: "self .period\<^sub>D\<^sub>i\<^sub>s\<^sub>c\<^sub>r\<^sub>e\<^sub>t\<^sub>e \<doteq> p"
 
 Class ContClock < Clock
-  Operations create() 
+  Operations create\<^sub>C\<^sub>o\<^sub>n\<^sub>t() 
              Post: "self .oclIsNew() and 
                     (self .created_at \<doteq> (WorldClock .allInstances() ->any\<^sub>S\<^sub>e\<^sub>t() .created_at))"
-  Operations get_time() : Real
+  Operations get_time\<^sub>C\<^sub>o\<^sub>n\<^sub>t() : Real
              Post: "result \<doteq> (WorldClock .allInstances() ->any\<^sub>S\<^sub>e\<^sub>t() .created_at)
                                -\<^sub>r\<^sub>e\<^sub>a\<^sub>l 
                                (self .created_at)" 
 
 Class PeriodicContClock < Clock
-  Attributes periode : Real
-  Operations create_period_clock(p : Real)
-             Pre : "\<zero> \<le>\<^sub>r\<^sub>e\<^sub>a\<^sub>l p"
-             Post: "self .periode \<doteq> p"
+  Attributes period\<^sub>C\<^sub>o\<^sub>n\<^sub>t : Real
+  Operations create_period_clock\<^sub>C\<^sub>o\<^sub>n\<^sub>t(p : Real)
+             Pre : "\<zero>.\<zero> \<le>\<^sub>r\<^sub>e\<^sub>a\<^sub>l p"
+             Post: "self .period\<^sub>C\<^sub>o\<^sub>n\<^sub>t \<doteq> p"
 
 Context c: Clock
   Inv "Clock .allInstances() ->size\<^sub>S\<^sub>e\<^sub>t() \<doteq> \<one>"
