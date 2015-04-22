@@ -247,7 +247,7 @@ definition "base255_of_str = String_replace_chars (\<lambda>c. if is_letter c th
 definition "isub_of_str = String_replace_chars (\<lambda>c.
   if is_letter c | is_digit c then \<open>\<^sub>\<close> @@ \<degree>c\<degree> else add_0 c)"
 definition "isup_of_str = String_replace_chars (\<lambda>c.
-  if is_letter c then escape_unicode \<lless>[char_of_nat (nat_of_char c - 32)]\<ggreater> else add_0 c)"
+  if is_letter c then escape_unicode \<lless>[c]\<ggreater> else add_0 c)"
 definition "text_of_str str =
  (let s = \<open>c\<close>
     ; ap = \<open> # \<close> in
