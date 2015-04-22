@@ -3356,8 +3356,8 @@ PrePost[shallow] \<sigma>\<^sub>1 \<sigma>\<^sub>1'
 
 (* 140 ************************************ 899 + 4 *)
 type_synonym Set_Integer = "(\<AA>, Integer\<^sub>b\<^sub>a\<^sub>s\<^sub>e Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e) val"
-consts dot\<C>\<O>\<N>\<T>\<E>\<N>\<T>\<S> :: "(\<cdot>Person) \<Rightarrow> (Set_Integer)" ("(_) .contents'(')")
-consts dot\<C>\<O>\<N>\<T>\<E>\<N>\<T>\<S>at_pre :: "(\<cdot>Person) \<Rightarrow> (Set_Integer)" ("(_) .contents@pre'(')")
+consts dot\<C>\<O>\<N>\<T>\<E>\<N>\<T>\<S> :: "(\<AA>, '\<alpha>) val \<Rightarrow> (Set_Integer)" ("(_) .contents'(')")
+consts dot\<C>\<O>\<N>\<T>\<E>\<N>\<T>\<S>at_pre :: "(\<AA>, '\<alpha>) val \<Rightarrow> (Set_Integer)" ("(_) .contents@pre'(')")
 Context[shallow] Person :: contents () : Set(Integer)
   Post : "(\<lambda> self result. (result \<triangleq> if (self .boss \<doteq> null)
                    then (Set{}->including\<^sub>S\<^sub>e\<^sub>t(self .salary))

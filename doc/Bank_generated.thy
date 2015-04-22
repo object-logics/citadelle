@@ -6718,29 +6718,29 @@ Context[shallow] c : Client   Inv  : "(\<lambda> self c. (c .banks ->forAll\<^su
                                              ->size\<^sub>S\<^sub>e\<^sub>t() \<le>\<^sub>i\<^sub>n\<^sub>t \<one>)))"
 
 (* 144 ************************************ 1815 + 3 *)
-consts dot\<C>\<R>\<E>\<A>\<T>\<E>095\<C>\<L>\<I>\<E>\<N>\<T> :: "(\<cdot>Bank) \<Rightarrow> (String) \<Rightarrow> (Integer) \<Rightarrow> (\<cdot>Bank) \<Rightarrow> (Integer)" ("(_) .create'_client'((_),(_),(_)')")
-consts dot\<C>\<R>\<E>\<A>\<T>\<E>095\<C>\<L>\<I>\<E>\<N>\<T>at_pre :: "(\<cdot>Bank) \<Rightarrow> (String) \<Rightarrow> (Integer) \<Rightarrow> (\<cdot>Bank) \<Rightarrow> (Integer)" ("(_) .create'_client@pre'((_),(_),(_)')")
+consts dot\<C>\<R>\<E>\<A>\<T>\<E>095\<C>\<L>\<I>\<E>\<N>\<T> :: "(\<AA>, '\<alpha>) val \<Rightarrow> (String) \<Rightarrow> (Integer) \<Rightarrow> (\<cdot>Bank) \<Rightarrow> (Integer)" ("(_) .create'_client'((_),(_),(_)')")
+consts dot\<C>\<R>\<E>\<A>\<T>\<E>095\<C>\<L>\<I>\<E>\<N>\<T>at_pre :: "(\<AA>, '\<alpha>) val \<Rightarrow> (String) \<Rightarrow> (Integer) \<Rightarrow> (\<cdot>Bank) \<Rightarrow> (Integer)" ("(_) .create'_client@pre'((_),(_),(_)')")
 Context[shallow] Bank :: create_client (clientname : String, age : Integer, bank : Bank) : Integer
   Pre : "(\<lambda> bank age clientname self. (bank .clients ->forAll\<^sub>S\<^sub>e\<^sub>t(c | c .clientname <> clientname or (c .age <> age))))"
   Post : "(\<lambda> bank age clientname self result. (bank .clients ->exists\<^sub>S\<^sub>e\<^sub>t(c | c .clientname \<doteq> clientname and (c .age \<doteq> age))))"
 
 (* 145 ************************************ 1818 + 3 *)
-consts dot\<G>\<E>\<T>095\<B>\<A>\<L>\<A>\<N>\<C>\<E> :: "(\<cdot>Account) \<Rightarrow> (String) \<Rightarrow> (Integer) \<Rightarrow> (Real)" ("(_) .get'_balance'((_),(_)')")
-consts dot\<G>\<E>\<T>095\<B>\<A>\<L>\<A>\<N>\<C>\<E>at_pre :: "(\<cdot>Account) \<Rightarrow> (String) \<Rightarrow> (Integer) \<Rightarrow> (Real)" ("(_) .get'_balance@pre'((_),(_)')")
+consts dot\<G>\<E>\<T>095\<B>\<A>\<L>\<A>\<N>\<C>\<E> :: "(\<AA>, '\<alpha>) val \<Rightarrow> (String) \<Rightarrow> (Integer) \<Rightarrow> (Real)" ("(_) .get'_balance'((_),(_)')")
+consts dot\<G>\<E>\<T>095\<B>\<A>\<L>\<A>\<N>\<C>\<E>at_pre :: "(\<AA>, '\<alpha>) val \<Rightarrow> (String) \<Rightarrow> (Integer) \<Rightarrow> (Real)" ("(_) .get'_balance@pre'((_),(_)')")
 Context[shallow] Account :: get_balance (c : String, no : Integer) : Real
   Pre : "(\<lambda> no c self. (self .id \<doteq> no and ((self .owner .clientname) \<doteq> c)))"
   Post : "(\<lambda> no c self result. (result \<doteq> (self .balance)))"
 
 (* 146 ************************************ 1821 + 3 *)
-consts dot\<D>\<E>\<P>\<O>\<S>\<I>\<T> :: "(\<cdot>Account) \<Rightarrow> (String) \<Rightarrow> (Integer) \<Rightarrow> (Real) \<Rightarrow> (Real)" ("(_) .deposit'((_),(_),(_)')")
-consts dot\<D>\<E>\<P>\<O>\<S>\<I>\<T>at_pre :: "(\<cdot>Account) \<Rightarrow> (String) \<Rightarrow> (Integer) \<Rightarrow> (Real) \<Rightarrow> (Real)" ("(_) .deposit@pre'((_),(_),(_)')")
+consts dot\<D>\<E>\<P>\<O>\<S>\<I>\<T> :: "(\<AA>, '\<alpha>) val \<Rightarrow> (String) \<Rightarrow> (Integer) \<Rightarrow> (Real) \<Rightarrow> (Real)" ("(_) .deposit'((_),(_),(_)')")
+consts dot\<D>\<E>\<P>\<O>\<S>\<I>\<T>at_pre :: "(\<AA>, '\<alpha>) val \<Rightarrow> (String) \<Rightarrow> (Integer) \<Rightarrow> (Real) \<Rightarrow> (Real)" ("(_) .deposit@pre'((_),(_),(_)')")
 Context[shallow] Account :: deposit (c : String, no : Integer, amount : Real) : Real
   Pre : "(\<lambda> amount no c self. (self .id \<doteq> no and ((self .owner .clientname) \<doteq> c) and (\<zero>.\<zero>  \<le>\<^sub>r\<^sub>e\<^sub>a\<^sub>l amount)))"
   Post : "(\<lambda> amount no c self result. (self .balance \<doteq> (self .balance@pre +\<^sub>r\<^sub>e\<^sub>a\<^sub>l amount)))"
 
 (* 147 ************************************ 1824 + 3 *)
-consts dot\<W>\<I>\<T>\<H>\<D>\<R>\<A>\<W> :: "(\<cdot>Account) \<Rightarrow> (String) \<Rightarrow> (Integer) \<Rightarrow> (Real) \<Rightarrow> (Real)" ("(_) .withdraw'((_),(_),(_)')")
-consts dot\<W>\<I>\<T>\<H>\<D>\<R>\<A>\<W>at_pre :: "(\<cdot>Account) \<Rightarrow> (String) \<Rightarrow> (Integer) \<Rightarrow> (Real) \<Rightarrow> (Real)" ("(_) .withdraw@pre'((_),(_),(_)')")
+consts dot\<W>\<I>\<T>\<H>\<D>\<R>\<A>\<W> :: "(\<AA>, '\<alpha>) val \<Rightarrow> (String) \<Rightarrow> (Integer) \<Rightarrow> (Real) \<Rightarrow> (Real)" ("(_) .withdraw'((_),(_),(_)')")
+consts dot\<W>\<I>\<T>\<H>\<D>\<R>\<A>\<W>at_pre :: "(\<AA>, '\<alpha>) val \<Rightarrow> (String) \<Rightarrow> (Integer) \<Rightarrow> (Real) \<Rightarrow> (Real)" ("(_) .withdraw@pre'((_),(_),(_)')")
 Context[shallow] Account :: withdraw (c : String, no : Integer, amount : Real) : Real
   Pre : "(\<lambda> amount no c self. (self .id \<doteq> no and ((self .owner .clientname) \<doteq> c) and (\<zero>.\<zero>  \<le>\<^sub>r\<^sub>e\<^sub>a\<^sub>l amount)))"
   Post : "(\<lambda> amount no c self result. (self .balance \<doteq> (self .balance@pre -\<^sub>r\<^sub>e\<^sub>a\<^sub>l amount)))"
