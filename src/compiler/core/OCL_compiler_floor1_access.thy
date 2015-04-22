@@ -249,7 +249,7 @@ definition "print_access_select = start_map'' Thy_definition_hol o (\<lambda>exp
         , Definition (Expr_rewrite
                        (Expr_basic [print_access_select_name isup_attr isub_name, var_f])
                        \<open>=\<close>
-                       (let var_attr = b (isup_of_str attr) in
+                       (let var_attr = b (\<open>x_\<close> @@ isup_of_str attr) in
                         Expr_function
                           (List_map (\<lambda>(lhs,rhs). ( Expr_apply
                                                          (isub_name datatype_constr_name)
@@ -275,7 +275,7 @@ definition "print_access_select = start_map'' Thy_definition_hol o (\<lambda>exp
         , Definition (Expr_rewrite
                        (Expr_basic [isup_attr (isub_name var_select), var_f])
                        \<open>=\<close>
-                       (let var_attr = b (isup_of_str attr) in
+                       (let var_attr = b (\<open>x_\<close> @@ isup_of_str attr) in
                         Expr_function
                           (List_flatten (List_map (\<lambda>(lhs,rhs). ( Expr_apply
                                                          (isub_name datatype_constr_name)
