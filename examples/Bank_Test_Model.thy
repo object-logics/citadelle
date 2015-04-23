@@ -101,14 +101,6 @@ Context Bank :: get_balance (c : Client, account_id : Integer) : Integer
                                         ->any\<^sub>S\<^sub>e\<^sub>t()
         in  result \<doteq> (A .balance)"
 
-
-
 lemmas [simp,code_unfold] = dot_accessor
-
-(* MOVE to lib *)
-lemma OclImplies_true2 [simp]:"(true implies X) = X"
-by(simp add: OclImplies_def)
-lemma OclImplies_false2 [simp]:"(false implies X) = true"
-by(simp add: OclImplies_def)
 
 end

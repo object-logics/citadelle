@@ -678,15 +678,20 @@ lemma OclOr_null2[simp]: "\<And>\<tau>. X \<tau> \<noteq> true \<tau> \<Longrigh
 lemma OclOr_assoc: "(X or (Y or Z)) = (X or Y or Z)"
   by(simp add: OclOr_def OclAnd_assoc)
 
-lemma OclImplies_true: "(X implies true) = true"
-  by (simp add: OclImplies_def OclOr_true2)
-
 lemma deMorgan1: "not(X and Y) = ((not X) or (not Y))"
   by(simp add: OclOr_def)
 
 lemma deMorgan2: "not(X or Y) = ((not X) and (not Y))"
   by(simp add: OclOr_def)
 
+lemma OclImplies_true1[simp]:"(true implies X) = X"
+  by(simp add: OclImplies_def)
+
+lemma OclImplies_true2[simp]: "(X implies true) = true"
+  by(simp add: OclImplies_def OclOr_true2)
+
+lemma OclImplies_false1[simp]:"(false implies X) = true"
+  by(simp add: OclImplies_def)
 
 subsection{* A Standard Logical Calculus for OCL *}
 (* Besides the need for algebraic laws for OCL in order to normalize *)
