@@ -466,7 +466,7 @@ shows   "\<tau> \<Turnstile> (X .oclIsTypeOf(Person) implies (X .oclAsType(OclAn
  apply(subst cp_OclImplies)
  apply(simp add: StrictRefEq\<^sub>O\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t_\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n StrictRefEq\<^sub>O\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t_sym[OF assms, simplified OclValid_def])
  apply(subst cp_OclImplies[symmetric])
-by (simp add: OclImplies_true)
+by simp
 
 
 section{* OclIsKindOf *}
