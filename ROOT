@@ -91,6 +91,7 @@ session "OCL-all-dirty" in "src" = HOL +
     "../doc/Employee_DesignModel_UMLPart_generated"
 
     "../examples/Bank_Model"
+    "../doc/Bank_generated"
     "../examples/Bank_Test_Model"
     "../examples/Clocks_Lib_Model"
     (*"../examples/Employee_Model/Analysis_deep"*)
