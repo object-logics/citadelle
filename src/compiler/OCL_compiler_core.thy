@@ -80,7 +80,7 @@ definition' thy_class ::
      ; subsection_up = subsection \<open>Up Down Casting\<close>
      ; subsection_defined = subsection \<open>Validity and Definedness Properties\<close> in
   List_flatten
-          [ [ print_enum_synonym ]
+          [ [ print_infra_enum_synonym ]
             , [ txt''d [ \<open>
    \label{ex:employee-design:uml} \<close> ]
             , txt''a [ \<open>

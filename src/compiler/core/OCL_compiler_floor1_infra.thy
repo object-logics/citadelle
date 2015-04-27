@@ -51,6 +51,11 @@ section{* Translation of AST *}
 
 subsection{* infrastructure *}
 
+definition "print_infra_enum_synonym _ ocl =
+ (List.map_filter (\<lambda> OclAstClassSynonym (OclClassSynonym n1 n2) \<Rightarrow> Some (Thy_ty_synonym (Type_synonym n1 (Ty_base (str_hol_of_ty_all (\<lambda>a _. a) id n2))))
+                   | _ \<Rightarrow> None)
+                  (fst (find_class_ass ocl)), ocl)"
+
 definition "print_infra_datatype_class = start_map'' Thy_dataty o (\<lambda>expr _ base_attr' _. map_class_gen_h''''
   (\<lambda>isub_name name _ l_attr l_inherited l_cons.
     let (l_attr, l_inherited) = base_attr' (l_attr, of_inh l_inherited)

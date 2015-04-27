@@ -49,9 +49,4 @@ begin
 
 section{* Translation of AST *}
 
-definition "print_enum_synonym _ ocl =
- (List.map_filter (\<lambda> OclAstClassSynonym (OclClassSynonym n1 n2) \<Rightarrow> Some (Thy_ty_synonym (Type_synonym n1 (Ty_base (str_hol_of_ty_all (\<lambda>a _. a) id n2))))
-                   | _ \<Rightarrow> None)
-                  (fst (find_class_ass ocl)), ocl)"
-
 end
