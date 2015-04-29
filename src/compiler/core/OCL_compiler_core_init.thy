@@ -168,8 +168,8 @@ definition "find_class_ass ocl =
        | OclAstAssClass Floor1 (OclAssClass _ class) \<Rightarrow> f class
        | x \<Rightarrow> [x]) l_ocl)))"
 
-definition "arrange_ass with_aggreg with_optim_ass l_c =
-   (let l_enum = List.map_filter (\<lambda> OclAstClassSynonym e \<Rightarrow> Some e
+definition "arrange_ass with_aggreg with_optim_ass l_c l_enum =
+   (let l_syn = List.map_filter (\<lambda> OclAstClassSynonym e \<Rightarrow> Some e
                                   | _ \<Rightarrow> None) l_c
       ; l_class = List.map_filter (\<lambda> OclAstClassRaw Floor1 cflat \<Rightarrow> Some cflat
                                    | OclAstAssClass Floor1 (OclAssClass _ cflat) \<Rightarrow> Some cflat
@@ -182,8 +182,10 @@ definition "arrange_ass with_aggreg with_optim_ass l_c =
                       List_map (map_prod
                                  id
                                  (\<lambda> OclTy_object (OclTyObj (OclTyCore_pre s) []) \<Rightarrow> 
-                                      if list_ex (\<lambda>enum. String_equal s (case enum of OclClassSynonym n _ \<Rightarrow> n | OclEnum n _ \<Rightarrow> n)) l_enum then
-                                        OclTy_raw s
+                                      if list_ex (\<lambda>syn. String_equal s (case syn of OclClassSynonym n _ \<Rightarrow> n)) l_syn then
+                                        OclTy_class_syn s
+                                      else if list_ex (\<lambda>enum. String_equal s (case enum of OclEnum n _ \<Rightarrow> n)) l_enum then
+                                        OclTy_enum s
                                       else
                                         OclTy_object (OclTyObj (OclTyCore_pre s) [])
                                   | x \<Rightarrow> x))
@@ -325,6 +327,8 @@ fun print_infra_type_synonym_class_rec_aux0 where
 definition "print_infra_type_synonym_class_rec_aux t =
  (let (tit, body) = print_infra_type_synonym_class_rec_aux0 t in
   (tit, Ty_apply (Ty_base \<open>val\<close>) [Ty_base \<open>\<AA>\<close>, body]))"
+
+definition "print_enum_generic name_ty = name_ty @@ isub_of_str \<open>generic\<close>"
 
 subsection{* AsType *}
 

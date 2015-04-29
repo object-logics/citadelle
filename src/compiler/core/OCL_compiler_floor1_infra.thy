@@ -88,6 +88,12 @@ definition "print_infra_datatype_universe expr = start_map Thy_dataty
   [ Datatype \<open>\<AA>\<close>
       (map_class (\<lambda>isub_name _ _ _ _ _. (isub_name datatype_in, [Raw (isub_name datatype_name)])) expr) ]"
 
+definition "print_infra_enum _ ocl = (\<lambda>f. (f (D_ocl_env ocl), ocl))
+ (List.map_filter
+    (\<lambda> OclAstEnum (OclEnum name_ty _) \<Rightarrow>
+         Some (Thy_ty_synonym (Type_synonym name_ty (Ty_apply (Ty_base (print_enum_generic name_ty)) [Ty_base \<open>\<AA>\<close>])))
+     | _ \<Rightarrow> None))"
+
 definition "print_infra_type_synonym_class _ = start_map id
   (List_map Thy_ty_synonym
     (let ty = \<lambda> t s. Type_synonym (str_of_ty t) (Ty_apply (Ty_base s) [Ty_base \<open>\<AA>\<close>]) in

@@ -102,12 +102,13 @@ definition "i_of_floor a b = rec_floor
   (b \<open>Floor3\<close>)"
 
 definition "i_of_ocl_deep_embed_ast a b = rec_ocl_deep_embed_ast
-  (ap1 a (b \<open>OclAstClassSynonym\<close>) (i_of_ocl_class_synonym a b))
+  (ap1 a (b \<open>OclAstEnum\<close>) (i_of_ocl_enum a b))
   (ap2 a (b \<open>OclAstClassRaw\<close>) (i_of_floor a b) (i_of_ocl_class_raw a b (K i_of_unit)))
   (ap1 a (b \<open>OclAstAssociation\<close>) (i_of_ocl_association a b (K i_of_unit)))
   (ap2 a (b \<open>OclAstAssClass\<close>) (i_of_floor a b) (i_of_ocl_ass_class a b))
   (ap2 a (b \<open>OclAstCtxt\<close>) (i_of_floor a b) (i_of_ocl_ctxt a b (K i_of_unit)))
 
+  (ap1 a (b \<open>OclAstClassSynonym\<close>) (i_of_ocl_class_synonym a b))
   (ap1 a (b \<open>OclAstInstance\<close>) (i_of_ocl_instance a b))
   (ap1 a (b \<open>OclAstDefBaseL\<close>) (i_of_ocl_def_base_l a b))
   (ap2 a (b \<open>OclAstDefState\<close>) (i_of_floor a b) (i_of_ocl_def_state a b))

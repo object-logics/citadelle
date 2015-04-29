@@ -49,4 +49,39 @@ begin
 
 section{* Translation of AST *}
 
+definition "print_enum = (\<lambda> OclEnum name_ty l \<Rightarrow> Pair
+ (let a = \<lambda>f x. Expr_apply f [x]
+    ; a' = Expr_apply
+    ; b = \<lambda>s. Expr_basic [s]
+    ; pref_constr = \<lambda>s. \<open>constr\<close> @@ isub_of_str s
+    ; option = Ty_apply_paren \<open>\<langle>\<close> \<open>\<rangle>\<^sub>\<bottom>\<close>
+    ; name_ty_base = name_ty @@ isub_of_str \<open>base\<close>
+    ; name_ty_base' = print_enum_generic name_ty
+    ; uu = \<open>'\<AA>\<close> in
+  List_flatten
+  [ [ Thy_dataty (Datatype (print_enum_pref_ty name_ty) (List_map (\<lambda>constr. (pref_constr constr, [])) l))
+    , Thy_ty_synonym (Type_synonym name_ty_base (option (option (Ty_base (print_enum_pref_ty name_ty)))))
+    , Thy_ty_synonym (Type_synonym0 name_ty_base' [uu] (\<lambda> [u] \<Rightarrow> Ty_apply (Ty_base \<open>val\<close>) [Ty_base u, Ty_base name_ty_base]))
+    , Thy_defs_overloaded
+        (Defs_overloaded
+          (\<open>StrictRefEq\<close> @@ isub_of_str name_ty)
+          (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l var_x = \<open>x\<close>
+             ; var_y = \<open>y\<close> in
+           Expr_rewrite
+            (Expr_rewrite (Expr_annot0 (b var_x) (Ty_apply (Ty_base name_ty_base') [Ty_base uu])) \<open>\<doteq>\<close> (b var_y))
+            \<open>\<equiv>\<close>
+            (Expr_lam \<open>\<tau>\<close>
+              (\<lambda>var_tau.
+                Expr_if_then_else
+                  (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l f = \<lambda>v. Expr_rewrite (Expr_applys (a \<open>\<upsilon>\<close> (b v)) [b var_tau]) \<open>=\<close> (a \<open>true\<close> (b var_tau)) in
+                   Expr_binop (f var_x) \<open>\<and>\<close> (f var_y))
+                  (Expr_applys (Expr_rewrite (b var_x) \<open>\<triangleq>\<close> (b var_y)) [b var_tau])
+                  (a \<open>invalid\<close> (b var_tau)))))) ]
+  , List_map
+      (\<lambda>constr.
+        Thy_definition_hol
+          (Definition (Expr_rewrite (b constr)
+                                    \<open>=\<close>
+                                    (Expr_lam \<open>_\<close> (\<lambda>_. Expr_some (Expr_some (Expr_annot (b (pref_constr constr)) (print_enum_pref_ty name_ty)))))))) l ]))"
+
 end

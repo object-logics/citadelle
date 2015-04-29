@@ -464,7 +464,7 @@ definition "check_single_ty rbt_init rbt' l_attr_gen l_oid x =
                 l]))"
 
 definition "print_examp_instance_defassoc_typecheck_gen l_ocli ocl =
- (let (l_spec1, l_spec2) = arrange_ass False True (fst (find_class_ass ocl))
+ (let (l_spec1, l_spec2) = arrange_ass False True (fst (find_class_ass ocl)) (List.map_filter (\<lambda>OclAstEnum e \<Rightarrow> Some e | _ \<Rightarrow> None) (D_ocl_env ocl))
     ; spec = class_unflat (l_spec1, l_spec2)
     ; ocl = ocl \<lparr> D_class_spec := Some spec \<rparr>
     ; l_assoc = List_flatten (fst (fold_list (\<lambda>ocli cpt. (case ocli of None \<Rightarrow> []

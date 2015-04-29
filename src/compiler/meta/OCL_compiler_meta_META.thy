@@ -65,15 +65,17 @@ datatype ocl_deep_embed_ast =
   (* For the following constructors, if they are preceded by an additional
      'floor' field, then it indicates the degre of reflection
      (otherwise degre = Floor1 by default). *)
+  (* TODO: we can merge Enum and ClassRaw into a common record *)
 
                               (* USE *)
-                              OclAstClassSynonym ocl_class_synonym
+                              OclAstEnum ocl_enum
                             | OclAstClassRaw floor ocl_class_raw
                             | OclAstAssociation ocl_association
                             | OclAstAssClass floor ocl_ass_class
                             | OclAstCtxt floor ocl_ctxt
 
                               (* invented *)
+                            | OclAstClassSynonym ocl_class_synonym
                             | OclAstInstance ocl_instance
                             | OclAstDefBaseL ocl_def_base_l
                             | OclAstDefState floor ocl_def_state

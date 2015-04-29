@@ -67,7 +67,7 @@ imports OCL_compiler_printer
            "design" "analysis" "oid_start"
 
        and (* ocl (USE tool) *)
-           (*"Enum"*)
+           "Enum"
            "Abstract_class" "Class"
            "Association" "Composition" "Aggregation"
            "Abstract_associationclass" "Associationclass"
@@ -1253,6 +1253,14 @@ end
 *}
 
 subsection{* Outer Syntax: enum *}
+
+ML{*
+val () =
+  outer_syntax_command @{mk_string} @{command_spec "Enum"} ""
+    (Parse.binding -- parse_l Parse.binding)
+    (fn (n1, n2) => 
+      K (OCL.OclAstEnum (OCL.OclEnum (From.from_binding n1, From.from_list From.from_binding n2))))
+*}
 
 subsection{* Outer Syntax: (abstract) class *}
 

@@ -191,10 +191,10 @@ definition "i_of_ocl_ty_obj_core a b = rec_ocl_ty_obj_core
 definition "i_of_ocl_ty_obj a b = rec_ocl_ty_obj
   (ap2 a (b \<open>OclTyObj\<close>) (i_of_ocl_ty_obj_core a b) (i_of_list a b (i_of_list a b (i_of_ocl_ty_obj_core a b))))"
 
-definition "i_of_ocl_ty a b = (\<lambda>f1 f2 f3 f4 f5 f6 f7 f8 f9 f10 f11 f12 f13.
+definition "i_of_ocl_ty a b = (\<lambda>f1 f2 f3 f4 f5 f6 f7 f8 f9 f10 f11 f12 f13 f14 f15.
                                     rec_ocl_ty_1 f1 f2 f3 f4 f5 f6
-                                                 f7 (K o f8) (\<lambda>_ _. f9) (\<lambda>_. f10) (\<lambda>_ _. f11) f12
-                                                 (K o f13))
+                                                 f7 (K o f8) (\<lambda>_ _. f9) (\<lambda>_. f10) (\<lambda>_ _. f11) f12 f13 f14
+                                                 (K o f15))
   (b \<open>OclTy_base_void\<close>)
   (b \<open>OclTy_base_boolean\<close>)
   (b \<open>OclTy_base_integer\<close>)
@@ -206,6 +206,8 @@ definition "i_of_ocl_ty a b = (\<lambda>f1 f2 f3 f4 f5 f6 f7 f8 f9 f10 f11 f12 f
   (ar2 a (b \<open>OclTy_pair\<close>) id)
   (ar1 a (b \<open>OclTy_binding\<close>))
   (ar2 a (b \<open>OclTy_arrow\<close>) id)
+  (ap1 a (b \<open>OclTy_class_ty\<close>) (i_of_string a b))
+  (ap1 a (b \<open>OclTy_enum\<close>) (i_of_string a b))
   (ap1 a (b \<open>OclTy_raw\<close>) (i_of_string a b))
   (* *)
   (curry (i_of_pair a b (i_of_option a b (i_of_string a b)) id))"
@@ -287,7 +289,9 @@ definition "i_of_ocl_ass_class a b = rec_ocl_ass_class
 definition "i_of_ocl_class_synonym a b = rec_ocl_class_synonym
   (ap2 a (b \<open>OclClassSynonym\<close>)
     (i_of_string a b)
-    (i_of_ocl_ty a b))
+    (i_of_ocl_ty a b))"
+
+definition "i_of_ocl_enum a b = rec_ocl_enum
   (ap2 a (b \<open>OclEnum\<close>)
     (i_of_string a b)
     (i_of_list a b (i_of_string a b)))"
@@ -318,5 +322,6 @@ lemmas [code] =
   i_of.i_of_ocl_class_raw_def
   i_of.i_of_ocl_ass_class_def
   i_of.i_of_ocl_class_synonym_def
+  i_of.i_of_ocl_enum_def
 
 end

@@ -94,6 +94,8 @@ datatype ocl_ty =           OclTy_base_void (* NOTE can be merged in a generic t
                           | OclTy_pair ocl_ty ocl_ty (* NOTE can be merged in a generic tuple *)
                           | OclTy_binding "string option (* name *) \<times> ocl_ty" (* NOTE can be merged in a generic tuple *)
                           | OclTy_arrow ocl_ty ocl_ty
+                          | OclTy_class_syn string
+                          | OclTy_enum string
                           | OclTy_raw string (* denoting raw HOL-type *) (* FIXME to be removed *)
 
 
@@ -142,7 +144,8 @@ datatype ocl_ass_class = OclAssClass ocl_association
                                      ocl_class_raw
 
 datatype ocl_class_synonym = OclClassSynonym string (* name alias *) ocl_ty
-                  | OclEnum string (* name *) "string (* constructor name *) list"
+
+datatype ocl_enum = OclEnum string (* name *) "string (* constructor name *) list"
 
 subsection{* ... *}
 
@@ -451,6 +454,8 @@ fun str_of_ty where "str_of_ty e =
                                     flatten [\<open>Set(\<close>, str_of_ty ocl_ty,\<open>)\<close>])
   | OclTy_pair ocl_ty1 ocl_ty2 \<Rightarrow> flatten [\<open>Pair(\<close>, str_of_ty ocl_ty1, \<open>,\<close>, str_of_ty ocl_ty2,\<open>)\<close>]
   | OclTy_binding (_, ocl_ty) \<Rightarrow> str_of_ty ocl_ty
+  | OclTy_class_syn s \<Rightarrow> s
+  | OclTy_enum s \<Rightarrow> s
   | OclTy_raw s \<Rightarrow> flatten [\<open>\<acute>\<close>, s, \<open>\<acute>\<close>]) e"
 
 definition "ty_void = str_of_ty OclTy_base_void"
@@ -459,6 +464,8 @@ definition "ty_integer = str_of_ty OclTy_base_integer"
 definition "ty_unlimitednatural = str_of_ty OclTy_base_unlimitednatural"
 definition "ty_real = str_of_ty OclTy_base_real"
 definition "ty_string = str_of_ty OclTy_base_string"
+
+definition "print_enum_pref_ty s = \<open>ty\<close> @@ isub_of_str s"
 
 fun str_hol_of_ty_all where "str_hol_of_ty_all f b e =
  (\<lambda> OclTy_base_void \<Rightarrow> b \<open>unit\<close>
@@ -472,6 +479,8 @@ fun str_hol_of_ty_all where "str_hol_of_ty_all f b e =
   | OclTy_collection _ ty \<Rightarrow> f (b var_ty_list) [str_hol_of_ty_all f b ty]
   | OclTy_pair ty1 ty2 \<Rightarrow> f (b var_ty_prod) [str_hol_of_ty_all f b ty1, str_hol_of_ty_all f b ty2]
   | OclTy_binding (_, t) \<Rightarrow> str_hol_of_ty_all f b t
+  | OclTy_class_syn s \<Rightarrow> b s
+  | OclTy_enum s \<Rightarrow> b (print_enum_pref_ty s)
   | OclTy_raw s \<Rightarrow> b s) e"
 
 definition "print_infra_type_synonym_class_set_name name = \<open>Set_\<close> @@ name"

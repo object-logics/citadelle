@@ -163,6 +163,7 @@ one-to-one correspondance of OCL-types to types of the meta-language HOL. \<clos
             , print_infra_type_synonym_class
             , print_infra_type_synonym_class_higher
             , print_infra_type_synonym_class_rec
+            , print_infra_enum
             (*, txt'' [ \<open>
    Just a little check: \<close> ]
             *), txt'' [ \<open>
@@ -324,7 +325,9 @@ The example we are defining in this section comes from the figure~\ref{fig:eam1_
             , print_examp_def_st_defs
             , print_astype_lemmas_id2 ] ])\<close>
 
-definition "thy_enum = []"
+definition "thy_enum_flat = []"
+definition "thy_enum = [ print_enum ]"
+definition "thy_class_synonym = []"
 definition "thy_class_flat = []"
 definition "thy_association = []"
 definition "thy_instance = [ print_examp_instance_defassoc
@@ -407,14 +410,18 @@ definition "ocl_env_class_spec_mk f_try f_accu_reset f_fold f =
   (\<lambda> (ocl, accu).
     f_fold f
       (case D_class_spec ocl of Some _ \<Rightarrow> (ocl, accu) | None \<Rightarrow>
-       let (l_class, l_ocl) = find_class_ass ocl in
+       let (l_class, l_ocl) = find_class_ass ocl
+         ; (l_enum, l_ocl) = partition (\<lambda>OclAstEnum _ \<Rightarrow> True | _ \<Rightarrow> False) l_ocl in
        (f_try (\<lambda> () \<Rightarrow>
-         let (ocl, accu) =
-               let meta = class_unflat (arrange_ass True (D_design_analysis ocl \<noteq> Gen_default) l_class)
-                 ; (ocl, accu) = fold_thy0 meta thy_class f (let ocl = ocl_compiler_config_reset_no_env ocl in
-                                                             (ocl, f_accu_reset ocl accu)) in
+         let D_ocl_env0 = D_ocl_env ocl
+           ; (ocl, accu) =
+               let meta = class_unflat (arrange_ass True (D_design_analysis ocl \<noteq> Gen_default) l_class (List_map (\<lambda> OclAstEnum e \<Rightarrow> e) l_enum))
+                 ; (ocl, accu) = List.fold (\<lambda> ast. ocl_env_save ast (case ast of OclAstEnum meta \<Rightarrow> fold_thy0 meta thy_enum) f)
+                                           l_enum
+                                           (let ocl = ocl_compiler_config_reset_no_env ocl in
+                                            (ocl \<lparr> D_ocl_env := List.filter (\<lambda> OclAstEnum _ \<Rightarrow> False | _ \<Rightarrow> True) (D_ocl_env ocl) \<rparr>, f_accu_reset ocl accu))
+                 ; (ocl, accu) = fold_thy0 meta thy_class f (ocl, accu) in
                (ocl \<lparr> D_class_spec := Some meta \<rparr>, accu)
-           ; D_ocl_env0 = D_ocl_env ocl
            ; (ocl, accu) =
                List.fold
                  (\<lambda>ast. ocl_env_save ast (case ast of
@@ -426,7 +433,7 @@ definition "ocl_env_class_spec_mk f_try f_accu_reset f_fold f =
                    | OclAstFlushAll meta \<Rightarrow> fold_thy0 meta thy_flush_all)
                         f)
                  l_ocl
-                 (ocl \<lparr> D_ocl_env := l_class \<rparr>, accu) in
+                 (ocl \<lparr> D_ocl_env := List_flatten [l_class, l_enum] \<rparr>, accu) in
           (ocl \<lparr> D_ocl_env := D_ocl_env0 \<rparr>, accu)))))"
 
 definition "ocl_env_class_spec_bind l f =
@@ -436,12 +443,13 @@ definition "fold_thy' f_try f_accu_reset f =
  (let ocl_env_class_spec_mk = ocl_env_class_spec_mk f_try f_accu_reset in
   List.fold (\<lambda> ast.
     ocl_env_save ast (case ast of
-     OclAstClassSynonym meta \<Rightarrow> ocl_env_class_spec_rm (fold_thy0 meta thy_enum)
+     OclAstEnum meta \<Rightarrow> ocl_env_class_spec_rm (fold_thy0 meta thy_enum_flat)
    | OclAstClassRaw Floor1 meta \<Rightarrow> ocl_env_class_spec_rm (fold_thy0 meta thy_class_flat)
    | OclAstAssociation meta \<Rightarrow> ocl_env_class_spec_rm (fold_thy0 meta thy_association)
    | OclAstAssClass Floor1 (OclAssClass meta_ass meta_class) \<Rightarrow>
        ocl_env_class_spec_rm (ocl_env_class_spec_bind [ fold_thy0 meta_ass thy_association
                                                       , fold_thy0 meta_class thy_class_flat ])
+   | OclAstClassSynonym meta \<Rightarrow> ocl_env_class_spec_rm (fold_thy0 meta thy_class_synonym)
    | OclAstInstance meta \<Rightarrow> ocl_env_class_spec_mk (fold_thy0 meta thy_instance)
    | OclAstDefBaseL meta \<Rightarrow> fold_thy0 meta thy_def_base_l
    | OclAstDefState floor meta \<Rightarrow> ocl_env_class_spec_mk (fold_thy0 meta (thy_def_state floor))
