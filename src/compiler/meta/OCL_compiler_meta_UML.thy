@@ -375,22 +375,8 @@ qed
 definition "ty_obj_to_string = (\<lambda>OclTyObj (OclTyCore_pre s) _ \<Rightarrow> s)"
 definition "cl_name_to_string = ty_obj_to_string o ClassRaw_name"
 
-definition "class_unflat = (\<lambda> (l_enum, l_class, l_ass).
-  let l_class = (* map classes: change the (enumeration) type of every attributes to 'raw'
-                                instead of the default 'object' type *)
-        List_map
-          (\<lambda> cflat \<Rightarrow>
-            cflat \<lparr> ClassRaw_own :=
-                      List_map (map_prod
-                                 id
-                                 (\<lambda> OclTy_object (OclTyObj (OclTyCore_pre s) []) \<Rightarrow> 
-                                      if list_ex (\<lambda>enum. String_equal s (case enum of OclClassSynonym n _ \<Rightarrow> n | OclEnum n _ \<Rightarrow> n)) l_enum then
-                                        OclTy_raw s
-                                      else
-                                        OclTy_object (OclTyObj (OclTyCore_pre s) [])
-                                  | x \<Rightarrow> x))
-                               (ClassRaw_own cflat) \<rparr>) l_class
-    ; l =
+definition "class_unflat = (\<lambda> (l_class, l_ass).
+  let l =
     let const_oclany' = OclTyCore_pre const_oclany
       ; rbt = (* fold classes:
                  set \<open>OclAny\<close> as default inherited class (for all classes linking to zero inherited classes) *)

@@ -169,10 +169,26 @@ definition "find_class_ass ocl =
        | x \<Rightarrow> [x]) l_ocl)))"
 
 definition "arrange_ass with_aggreg with_optim_ass l_c =
-   (let l_class = List.map_filter (\<lambda> OclAstClassRaw Floor1 cflat \<Rightarrow> Some cflat
-                                    | OclAstAssClass Floor1 (OclAssClass _ cflat) \<Rightarrow> Some cflat
-                                    | _ \<Rightarrow> None) l_c
-      ; l_ass = List.map_filter (\<lambda> OclAstAssociation ass \<Rightarrow> Some ass
+   (let l_enum = List.map_filter (\<lambda> OclAstClassSynonym e \<Rightarrow> Some e
+                                  | _ \<Rightarrow> None) l_c
+      ; l_class = List.map_filter (\<lambda> OclAstClassRaw Floor1 cflat \<Rightarrow> Some cflat
+                                   | OclAstAssClass Floor1 (OclAssClass _ cflat) \<Rightarrow> Some cflat
+                                   | _ \<Rightarrow> None) l_c
+      ; l_class = (* map classes: change the (enumeration) type of every attributes to 'raw'
+                                instead of the default 'object' type *)
+        List_map
+          (\<lambda> cflat \<Rightarrow>
+            cflat \<lparr> ClassRaw_own :=
+                      List_map (map_prod
+                                 id
+                                 (\<lambda> OclTy_object (OclTyObj (OclTyCore_pre s) []) \<Rightarrow> 
+                                      if list_ex (\<lambda>enum. String_equal s (case enum of OclClassSynonym n _ \<Rightarrow> n | OclEnum n _ \<Rightarrow> n)) l_enum then
+                                        OclTy_raw s
+                                      else
+                                        OclTy_object (OclTyObj (OclTyCore_pre s) [])
+                                  | x \<Rightarrow> x))
+                               (ClassRaw_own cflat) \<rparr>) l_class
+    ; l_ass = List.map_filter (\<lambda> OclAstAssociation ass \<Rightarrow> Some ass
                                  | OclAstAssClass Floor1 (OclAssClass ass _) \<Rightarrow> Some ass
                                  | _ \<Rightarrow> None) l_c
       ; OclMult = \<lambda>l set. ocl_multiplicity_ext l None set ()
@@ -230,8 +246,7 @@ definition "arrange_ass with_aggreg with_optim_ass l_c =
                 (l_class, ass # l_ass)) l_ass (l_class, []))
           else
             (l_class, l_ass) in
-    ( List.map_filter (\<lambda> OclAstClassSynonym e \<Rightarrow> Some e | _ \<Rightarrow> None) l_c
-    , l_class
+    ( l_class
     , List_flatten [l_ass, l_ass0]))"
 
 subsection{* ... *}
