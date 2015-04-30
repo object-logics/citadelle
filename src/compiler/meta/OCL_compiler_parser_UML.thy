@@ -206,7 +206,7 @@ definition "i_of_ocl_ty a b = (\<lambda>f1 f2 f3 f4 f5 f6 f7 f8 f9 f10 f11 f12 f
   (ar2 a (b \<open>OclTy_pair\<close>) id)
   (ar1 a (b \<open>OclTy_binding\<close>))
   (ar2 a (b \<open>OclTy_arrow\<close>) id)
-  (ap1 a (b \<open>OclTy_class_ty\<close>) (i_of_string a b))
+  (ap1 a (b \<open>OclTy_class_syn\<close>) (i_of_string a b))
   (ap1 a (b \<open>OclTy_enum\<close>) (i_of_string a b))
   (ap1 a (b \<open>OclTy_raw\<close>) (i_of_string a b))
   (* *)
