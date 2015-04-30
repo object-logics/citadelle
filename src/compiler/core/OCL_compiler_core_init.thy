@@ -168,9 +168,19 @@ definition "find_class_ass ocl =
        | OclAstAssClass Floor1 (OclAssClass _ class) \<Rightarrow> f class
        | x \<Rightarrow> [x]) l_ocl)))"
 
+definition "map_enum_syn l_enum l_syn =
+ (\<lambda> OclTy_object (OclTyObj (OclTyCore_pre s) []) \<Rightarrow> 
+      if list_ex (\<lambda>syn. String_equal s (case syn of OclClassSynonym n _ \<Rightarrow> n)) l_syn then
+        OclTy_class_syn s
+      else if list_ex (\<lambda>enum. String_equal s (case enum of OclEnum n _ \<Rightarrow> n)) l_enum then
+        OclTy_enum s
+      else
+        OclTy_object (OclTyObj (OclTyCore_pre s) [])
+  | x \<Rightarrow> x)"
+
 definition "arrange_ass with_aggreg with_optim_ass l_c l_enum =
    (let l_syn = List.map_filter (\<lambda> OclAstClassSynonym e \<Rightarrow> Some e
-                                  | _ \<Rightarrow> None) l_c
+                                 | _ \<Rightarrow> None) l_c
       ; l_class = List.map_filter (\<lambda> OclAstClassRaw Floor1 cflat \<Rightarrow> Some cflat
                                    | OclAstAssClass Floor1 (OclAssClass _ cflat) \<Rightarrow> Some cflat
                                    | _ \<Rightarrow> None) l_c
@@ -179,16 +189,7 @@ definition "arrange_ass with_aggreg with_optim_ass l_c l_enum =
         List_map
           (\<lambda> cflat \<Rightarrow>
             cflat \<lparr> ClassRaw_own :=
-                      List_map (map_prod
-                                 id
-                                 (\<lambda> OclTy_object (OclTyObj (OclTyCore_pre s) []) \<Rightarrow> 
-                                      if list_ex (\<lambda>syn. String_equal s (case syn of OclClassSynonym n _ \<Rightarrow> n)) l_syn then
-                                        OclTy_class_syn s
-                                      else if list_ex (\<lambda>enum. String_equal s (case enum of OclEnum n _ \<Rightarrow> n)) l_enum then
-                                        OclTy_enum s
-                                      else
-                                        OclTy_object (OclTyObj (OclTyCore_pre s) [])
-                                  | x \<Rightarrow> x))
+                      List_map (map_prod id (map_enum_syn l_enum l_syn))
                                (ClassRaw_own cflat) \<rparr>) l_class
     ; l_ass = List.map_filter (\<lambda> OclAstAssociation ass \<Rightarrow> Some ass
                                  | OclAstAssClass Floor1 (OclAssClass ass _) \<Rightarrow> Some ass

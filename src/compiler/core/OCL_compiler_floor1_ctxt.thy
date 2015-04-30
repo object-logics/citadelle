@@ -52,7 +52,9 @@ section{* Translation of AST *}
 subsection{* context *}
 
 definition "print_ctxt_const ctxt ocl =
- (let Ty_par = Ty_apply_paren \<open>(\<close> \<open>)\<close> (* because of potential ambiguities *) in
+ (let Ty_par = Ty_apply_paren \<open>(\<close> \<open>)\<close> (* because of potential ambiguities *)
+    ; l_enum = List.map_filter (\<lambda> OclAstEnum e \<Rightarrow> Some e | _ \<Rightarrow> None) (D_ocl_env ocl)
+    ; l_syn = List.map_filter (\<lambda> OclAstClassSynonym c \<Rightarrow> Some c | _ \<Rightarrow> None) (D_ocl_env ocl) in
   map_prod (map_prod id (rev o List_map Thy_ty_synonym)) (rev o List_map Thy_consts_class)
     (List.fold
       (\<lambda> Ctxt_inv _ \<Rightarrow> id
@@ -64,7 +66,8 @@ definition "print_ctxt_const ctxt ocl =
                 ; (l_name, l) =
                     List.fold
                       (\<lambda> ty (l_name, l, l_isab_ty).
-                        let (n, isab_ty) = print_infra_type_synonym_class_rec_aux ty in
+                        let ty = map_enum_syn l_enum l_syn ty
+                          ; (n, isab_ty) = print_infra_type_synonym_class_rec_aux ty in
                         ( Ty_par (print_access_dot_consts_ty ty) # l_name
                         , if is_higher_order ty & \<not> List_member l n then
                             (String_to_String\<^sub>b\<^sub>a\<^sub>s\<^sub>e n # l, Type_synonym n isab_ty # l_isab_ty)
