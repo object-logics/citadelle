@@ -328,7 +328,7 @@ definition "print_infra_type_synonym_class_rec_aux t =
  (let (tit, body) = print_infra_type_synonym_class_rec_aux0 t in
   (tit, Ty_apply (Ty_base \<open>val\<close>) [Ty_base \<open>\<AA>\<close>, body]))"
 
-definition "print_enum_generic name_ty = name_ty @@ isub_of_str \<open>generic\<close>"
+definition "pref_generic_enum name_ty = name_ty @@ isub_of_str \<open>generic\<close>"
 
 subsection{* AsType *}
 

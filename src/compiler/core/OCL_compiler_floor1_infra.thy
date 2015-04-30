@@ -51,10 +51,12 @@ section{* Translation of AST *}
 
 subsection{* infrastructure *}
 
-definition "print_infra_enum_synonym _ ocl =
- (List.map_filter (\<lambda> OclAstClassSynonym (OclClassSynonym n1 n2) \<Rightarrow> Some (Thy_ty_synonym (Type_synonym n1 (Ty_base (str_hol_of_ty_all (\<lambda>a _. a) id n2))))
-                   | _ \<Rightarrow> None)
-                  (fst (find_class_ass ocl)), ocl)"
+definition "print_infra_enum_synonym _ ocl = (\<lambda>f. (f (fst (find_class_ass ocl)), ocl))
+ (List_flatten o List_map
+   (\<lambda> OclAstClassSynonym (OclClassSynonym n1 n2) \<Rightarrow>
+        let option = Ty_apply_paren \<open>\<langle>\<close> \<open>\<rangle>\<^sub>\<bottom>\<close> in
+        [ Thy_ty_synonym (Type_synonym (pref_ty_syn n1) (Ty_base (str_hol_of_ty_all (\<lambda>a _. a) id n2))) ]
+    | _ \<Rightarrow> []))"
 
 definition "print_infra_datatype_class = start_map'' Thy_dataty o (\<lambda>expr _ base_attr' _. map_class_gen_h''''
   (\<lambda>isub_name name _ l_attr l_inherited l_cons.
@@ -88,11 +90,15 @@ definition "print_infra_datatype_universe expr = start_map Thy_dataty
   [ Datatype \<open>\<AA>\<close>
       (map_class (\<lambda>isub_name _ _ _ _ _. (isub_name datatype_in, [Raw (isub_name datatype_name)])) expr) ]"
 
-definition "print_infra_enum _ ocl = (\<lambda>f. (f (D_ocl_env ocl), ocl))
- (List.map_filter
+definition "print_infra_enum_syn _ ocl = (\<lambda>f1 f2. (List_flatten [f1 (D_ocl_env ocl), f2 (fst (find_class_ass ocl))], ocl))
+ (List_flatten o List_map
     (\<lambda> OclAstEnum (OclEnum name_ty _) \<Rightarrow>
-         Some (Thy_ty_synonym (Type_synonym name_ty (Ty_apply (Ty_base (print_enum_generic name_ty)) [Ty_base \<open>\<AA>\<close>])))
-     | _ \<Rightarrow> None))"
+         [Thy_ty_synonym (Type_synonym name_ty (Ty_apply (Ty_base (pref_generic_enum name_ty)) [Ty_base \<open>\<AA>\<close>]))]
+     | _ \<Rightarrow> []))
+ (List_flatten o List_map
+    (\<lambda> OclAstClassSynonym (OclClassSynonym name_ty ty) \<Rightarrow>
+         [Thy_ty_synonym (Type_synonym name_ty (Ty_base (str_of_ty ty)))]
+     | _ \<Rightarrow> []))"
 
 definition "print_infra_type_synonym_class _ = start_map id
   (List_map Thy_ty_synonym

@@ -465,7 +465,8 @@ definition "ty_unlimitednatural = str_of_ty OclTy_base_unlimitednatural"
 definition "ty_real = str_of_ty OclTy_base_real"
 definition "ty_string = str_of_ty OclTy_base_string"
 
-definition "print_enum_pref_ty s = \<open>ty\<close> @@ isub_of_str s"
+definition "pref_ty_enum s = \<open>ty_enum\<close> @@ isub_of_str s"
+definition "pref_ty_syn s = \<open>ty_syn\<close> @@ isub_of_str s"
 
 fun str_hol_of_ty_all where "str_hol_of_ty_all f b e =
  (\<lambda> OclTy_base_void \<Rightarrow> b \<open>unit\<close>
@@ -479,8 +480,8 @@ fun str_hol_of_ty_all where "str_hol_of_ty_all f b e =
   | OclTy_collection _ ty \<Rightarrow> f (b var_ty_list) [str_hol_of_ty_all f b ty]
   | OclTy_pair ty1 ty2 \<Rightarrow> f (b var_ty_prod) [str_hol_of_ty_all f b ty1, str_hol_of_ty_all f b ty2]
   | OclTy_binding (_, t) \<Rightarrow> str_hol_of_ty_all f b t
-  | OclTy_class_syn s \<Rightarrow> b s
-  | OclTy_enum s \<Rightarrow> b (print_enum_pref_ty s)
+  | OclTy_class_syn s \<Rightarrow> b (pref_ty_syn s)
+  | OclTy_enum s \<Rightarrow> b (pref_ty_enum s)
   | OclTy_raw s \<Rightarrow> b s) e"
 
 definition "print_infra_type_synonym_class_set_name name = \<open>Set_\<close> @@ name"

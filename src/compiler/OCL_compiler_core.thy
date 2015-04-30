@@ -163,7 +163,7 @@ one-to-one correspondance of OCL-types to types of the meta-language HOL. \<clos
             , print_infra_type_synonym_class
             , print_infra_type_synonym_class_higher
             , print_infra_type_synonym_class_rec
-            , print_infra_enum
+            , print_infra_enum_syn
             (*, txt'' [ \<open>
    Just a little check: \<close> ]
             *), txt'' [ \<open>
