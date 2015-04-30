@@ -1,7 +1,7 @@
 theory Bank_generated imports "../src/UML_Main"   "../src/compiler/OCL_compiler_static"   "../src/compiler/OCL_compiler_generator_dynamic" begin
 
 (* 1 ************************************ 0 + 1 *)
-type_synonym Currency = "real"
+type_synonym ty_syn\<^sub>C\<^sub>u\<^sub>r\<^sub>r\<^sub>e\<^sub>n\<^sub>c\<^sub>y = "real"
 
 (* 2 ************************************ 1 + 1 *)
 text{*  *}
@@ -84,14 +84,14 @@ and implicitly of the class object. Each class implies the existence of a class
 type defined for the corresponding object representations as follows:  *}
 
 (* 15 ************************************ 14 + 12 *)
-datatype ty\<E>\<X>\<T>\<^sub>C\<^sub>u\<^sub>r\<^sub>r\<^sub>e\<^sub>n\<^sub>t = mk\<E>\<X>\<T>\<^sub>C\<^sub>u\<^sub>r\<^sub>r\<^sub>e\<^sub>n\<^sub>t "oid" "int option" "Currency option"
-datatype ty\<^sub>C\<^sub>u\<^sub>r\<^sub>r\<^sub>e\<^sub>n\<^sub>t = mk\<^sub>C\<^sub>u\<^sub>r\<^sub>r\<^sub>e\<^sub>n\<^sub>t "ty\<E>\<X>\<T>\<^sub>C\<^sub>u\<^sub>r\<^sub>r\<^sub>e\<^sub>n\<^sub>t" "Currency option"
-datatype ty\<E>\<X>\<T>\<^sub>S\<^sub>a\<^sub>v\<^sub>i\<^sub>n\<^sub>g\<^sub>s = mk\<E>\<X>\<T>\<^sub>S\<^sub>a\<^sub>v\<^sub>i\<^sub>n\<^sub>g\<^sub>s "oid" "int option" "Currency option"
-datatype ty\<^sub>S\<^sub>a\<^sub>v\<^sub>i\<^sub>n\<^sub>g\<^sub>s = mk\<^sub>S\<^sub>a\<^sub>v\<^sub>i\<^sub>n\<^sub>g\<^sub>s "ty\<E>\<X>\<T>\<^sub>S\<^sub>a\<^sub>v\<^sub>i\<^sub>n\<^sub>g\<^sub>s" "Currency option"
+datatype ty\<E>\<X>\<T>\<^sub>C\<^sub>u\<^sub>r\<^sub>r\<^sub>e\<^sub>n\<^sub>t = mk\<E>\<X>\<T>\<^sub>C\<^sub>u\<^sub>r\<^sub>r\<^sub>e\<^sub>n\<^sub>t "oid" "int option" "ty_syn\<^sub>C\<^sub>u\<^sub>r\<^sub>r\<^sub>e\<^sub>n\<^sub>c\<^sub>y option"
+datatype ty\<^sub>C\<^sub>u\<^sub>r\<^sub>r\<^sub>e\<^sub>n\<^sub>t = mk\<^sub>C\<^sub>u\<^sub>r\<^sub>r\<^sub>e\<^sub>n\<^sub>t "ty\<E>\<X>\<T>\<^sub>C\<^sub>u\<^sub>r\<^sub>r\<^sub>e\<^sub>n\<^sub>t" "ty_syn\<^sub>C\<^sub>u\<^sub>r\<^sub>r\<^sub>e\<^sub>n\<^sub>c\<^sub>y option"
+datatype ty\<E>\<X>\<T>\<^sub>S\<^sub>a\<^sub>v\<^sub>i\<^sub>n\<^sub>g\<^sub>s = mk\<E>\<X>\<T>\<^sub>S\<^sub>a\<^sub>v\<^sub>i\<^sub>n\<^sub>g\<^sub>s "oid" "int option" "ty_syn\<^sub>C\<^sub>u\<^sub>r\<^sub>r\<^sub>e\<^sub>n\<^sub>c\<^sub>y option"
+datatype ty\<^sub>S\<^sub>a\<^sub>v\<^sub>i\<^sub>n\<^sub>g\<^sub>s = mk\<^sub>S\<^sub>a\<^sub>v\<^sub>i\<^sub>n\<^sub>g\<^sub>s "ty\<E>\<X>\<T>\<^sub>S\<^sub>a\<^sub>v\<^sub>i\<^sub>n\<^sub>g\<^sub>s" "ty_syn\<^sub>C\<^sub>u\<^sub>r\<^sub>r\<^sub>e\<^sub>n\<^sub>c\<^sub>y option"
 datatype ty\<E>\<X>\<T>\<^sub>A\<^sub>c\<^sub>c\<^sub>o\<^sub>u\<^sub>n\<^sub>t = mk\<E>\<X>\<T>\<^sub>A\<^sub>c\<^sub>c\<^sub>o\<^sub>u\<^sub>n\<^sub>t_\<^sub>S\<^sub>a\<^sub>v\<^sub>i\<^sub>n\<^sub>g\<^sub>s "ty\<^sub>S\<^sub>a\<^sub>v\<^sub>i\<^sub>n\<^sub>g\<^sub>s"
                         | mk\<E>\<X>\<T>\<^sub>A\<^sub>c\<^sub>c\<^sub>o\<^sub>u\<^sub>n\<^sub>t_\<^sub>C\<^sub>u\<^sub>r\<^sub>r\<^sub>e\<^sub>n\<^sub>t "ty\<^sub>C\<^sub>u\<^sub>r\<^sub>r\<^sub>e\<^sub>n\<^sub>t"
                         | mk\<E>\<X>\<T>\<^sub>A\<^sub>c\<^sub>c\<^sub>o\<^sub>u\<^sub>n\<^sub>t "oid"
-datatype ty\<^sub>A\<^sub>c\<^sub>c\<^sub>o\<^sub>u\<^sub>n\<^sub>t = mk\<^sub>A\<^sub>c\<^sub>c\<^sub>o\<^sub>u\<^sub>n\<^sub>t "ty\<E>\<X>\<T>\<^sub>A\<^sub>c\<^sub>c\<^sub>o\<^sub>u\<^sub>n\<^sub>t" "int option" "Currency option"
+datatype ty\<^sub>A\<^sub>c\<^sub>c\<^sub>o\<^sub>u\<^sub>n\<^sub>t = mk\<^sub>A\<^sub>c\<^sub>c\<^sub>o\<^sub>u\<^sub>n\<^sub>t "ty\<E>\<X>\<T>\<^sub>A\<^sub>c\<^sub>c\<^sub>o\<^sub>u\<^sub>n\<^sub>t" "int option" "ty_syn\<^sub>C\<^sub>u\<^sub>r\<^sub>r\<^sub>e\<^sub>n\<^sub>c\<^sub>y option"
 datatype ty\<E>\<X>\<T>\<^sub>B\<^sub>a\<^sub>n\<^sub>k = mk\<E>\<X>\<T>\<^sub>B\<^sub>a\<^sub>n\<^sub>k "oid"
 datatype ty\<^sub>B\<^sub>a\<^sub>n\<^sub>k = mk\<^sub>B\<^sub>a\<^sub>n\<^sub>k "ty\<E>\<X>\<T>\<^sub>B\<^sub>a\<^sub>n\<^sub>k" "string option"
 datatype ty\<E>\<X>\<T>\<^sub>C\<^sub>l\<^sub>i\<^sub>e\<^sub>n\<^sub>t = mk\<E>\<X>\<T>\<^sub>C\<^sub>l\<^sub>i\<^sub>e\<^sub>n\<^sub>t "oid"
@@ -150,12 +150,15 @@ type_synonym Sequence_Account = "(\<AA>, ty\<^sub>A\<^sub>c\<^sub>c\<^sub>o\<^su
 type_synonym Set_Account = "(\<AA>, ty\<^sub>A\<^sub>c\<^sub>c\<^sub>o\<^sub>u\<^sub>n\<^sub>t option option Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e) val"
 
 (* 22 ************************************ 48 + 1 *)
+type_synonym Currency = "Real"
+
+(* 23 ************************************ 49 + 1 *)
 text{* 
    To reuse key-elements of the library like referential equality, we have
 to show that the object universe belongs to the type class ``oclany,'' \ie,
  each class type has to provide a function @{term oid_of} yielding the object id (oid) of the object.  *}
 
-(* 23 ************************************ 49 + 6 *)
+(* 24 ************************************ 50 + 6 *)
 instantiation ty\<^sub>C\<^sub>u\<^sub>r\<^sub>r\<^sub>e\<^sub>n\<^sub>t :: object
 begin
   definition oid_of_ty\<^sub>C\<^sub>u\<^sub>r\<^sub>r\<^sub>e\<^sub>n\<^sub>t_def : "oid_of = (\<lambda> mk\<^sub>C\<^sub>u\<^sub>r\<^sub>r\<^sub>e\<^sub>n\<^sub>t t _ \<Rightarrow> (case t of (mk\<E>\<X>\<T>\<^sub>C\<^sub>u\<^sub>r\<^sub>r\<^sub>e\<^sub>n\<^sub>t (t) (_) (_)) \<Rightarrow> t))"
@@ -194,7 +197,7 @@ begin
   instance ..
 end
 
-(* 24 ************************************ 55 + 1 *)
+(* 25 ************************************ 56 + 1 *)
 instantiation \<AA> :: object
 begin
   definition oid_of_\<AA>_def : "oid_of = (\<lambda> in\<^sub>C\<^sub>u\<^sub>r\<^sub>r\<^sub>e\<^sub>n\<^sub>t Current \<Rightarrow> oid_of Current
@@ -206,15 +209,15 @@ begin
   instance ..
 end
 
-(* 25 ************************************ 56 + 1 *)
+(* 26 ************************************ 57 + 1 *)
 section{* Instantiation of the Generic Strict Equality *}
 
-(* 26 ************************************ 57 + 1 *)
+(* 27 ************************************ 58 + 1 *)
 text{* 
    We instantiate the referential equality
 on @{text "Person"} and @{text "OclAny"}  *}
 
-(* 27 ************************************ 58 + 6 *)
+(* 28 ************************************ 59 + 6 *)
 defs(overloaded) StrictRefEq\<^sub>O\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t_\<^sub>C\<^sub>u\<^sub>r\<^sub>r\<^sub>e\<^sub>n\<^sub>t : "(x::\<cdot>Current) \<doteq> y \<equiv> StrictRefEq\<^sub>O\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t x y"
 defs(overloaded) StrictRefEq\<^sub>O\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t_\<^sub>S\<^sub>a\<^sub>v\<^sub>i\<^sub>n\<^sub>g\<^sub>s : "(x::\<cdot>Savings) \<doteq> y \<equiv> StrictRefEq\<^sub>O\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t x y"
 defs(overloaded) StrictRefEq\<^sub>O\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t_\<^sub>A\<^sub>c\<^sub>c\<^sub>o\<^sub>u\<^sub>n\<^sub>t : "(x::\<cdot>Account) \<doteq> y \<equiv> StrictRefEq\<^sub>O\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t x y"
@@ -222,7 +225,7 @@ defs(overloaded) StrictRefEq\<^sub>O\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t_\<^
 defs(overloaded) StrictRefEq\<^sub>O\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t_\<^sub>C\<^sub>l\<^sub>i\<^sub>e\<^sub>n\<^sub>t : "(x::\<cdot>Client) \<doteq> y \<equiv> StrictRefEq\<^sub>O\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t x y"
 defs(overloaded) StrictRefEq\<^sub>O\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t_\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y : "(x::\<cdot>OclAny) \<doteq> y \<equiv> StrictRefEq\<^sub>O\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t x y"
 
-(* 28 ************************************ 64 + 1 *)
+(* 29 ************************************ 65 + 1 *)
 lemmas[simp,code_unfold] = StrictRefEq\<^sub>O\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t_\<^sub>C\<^sub>u\<^sub>r\<^sub>r\<^sub>e\<^sub>n\<^sub>t
                             StrictRefEq\<^sub>O\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t_\<^sub>S\<^sub>a\<^sub>v\<^sub>i\<^sub>n\<^sub>g\<^sub>s
                             StrictRefEq\<^sub>O\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t_\<^sub>A\<^sub>c\<^sub>c\<^sub>o\<^sub>u\<^sub>n\<^sub>t
@@ -230,26 +233,26 @@ lemmas[simp,code_unfold] = StrictRefEq\<^sub>O\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<
                             StrictRefEq\<^sub>O\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t_\<^sub>C\<^sub>l\<^sub>i\<^sub>e\<^sub>n\<^sub>t
                             StrictRefEq\<^sub>O\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t_\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y
 
-(* 29 ************************************ 65 + 1 *)
+(* 30 ************************************ 66 + 1 *)
 text{* 
    For each Class \emph{C}, we will have a casting operation \inlineocl{.oclAsType($C$)},
    a test on the actual type \inlineocl{.oclIsTypeOf($C$)} as well as its relaxed form
    \inlineocl{.oclIsKindOf($C$)} (corresponding exactly to Java's \verb+instanceof+-operator.
  *}
 
-(* 30 ************************************ 66 + 1 *)
+(* 31 ************************************ 67 + 1 *)
 text{* 
    Thus, since we have two class-types in our concrete class hierarchy, we have
 two operations to declare and to provide two overloading definitions for the two static types.
  *}
 
-(* 31 ************************************ 67 + 1 *)
+(* 32 ************************************ 68 + 1 *)
 section{* OclAsType *}
 
-(* 32 ************************************ 68 + 1 *)
+(* 33 ************************************ 69 + 1 *)
 subsection{* Definition *}
 
-(* 33 ************************************ 69 + 6 *)
+(* 34 ************************************ 70 + 6 *)
 consts OclAsType\<^sub>C\<^sub>u\<^sub>r\<^sub>r\<^sub>e\<^sub>n\<^sub>t :: "'\<alpha> \<Rightarrow> \<cdot>Current" ("(_) .oclAsType'(Current')")
 consts OclAsType\<^sub>S\<^sub>a\<^sub>v\<^sub>i\<^sub>n\<^sub>g\<^sub>s :: "'\<alpha> \<Rightarrow> \<cdot>Savings" ("(_) .oclAsType'(Savings')")
 consts OclAsType\<^sub>A\<^sub>c\<^sub>c\<^sub>o\<^sub>u\<^sub>n\<^sub>t :: "'\<alpha> \<Rightarrow> \<cdot>Account" ("(_) .oclAsType'(Account')")
@@ -257,7 +260,7 @@ consts OclAsType\<^sub>B\<^sub>a\<^sub>n\<^sub>k :: "'\<alpha> \<Rightarrow> \<c
 consts OclAsType\<^sub>C\<^sub>l\<^sub>i\<^sub>e\<^sub>n\<^sub>t :: "'\<alpha> \<Rightarrow> \<cdot>Client" ("(_) .oclAsType'(Client')")
 consts OclAsType\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y :: "'\<alpha> \<Rightarrow> \<cdot>OclAny" ("(_) .oclAsType'(OclAny')")
 
-(* 34 ************************************ 75 + 36 *)
+(* 35 ************************************ 76 + 36 *)
 defs(overloaded) OclAsType\<^sub>C\<^sub>u\<^sub>r\<^sub>r\<^sub>e\<^sub>n\<^sub>t_Current : "(x::\<cdot>Current) .oclAsType(Current) \<equiv> x"
 defs(overloaded) OclAsType\<^sub>C\<^sub>u\<^sub>r\<^sub>r\<^sub>e\<^sub>n\<^sub>t_Account : "(x::\<cdot>Account) .oclAsType(Current) \<equiv> (\<lambda>\<tau>. (case (x (\<tau>)) of \<bottom> \<Rightarrow> (invalid (\<tau>))
     | \<lfloor>\<bottom>\<rfloor> \<Rightarrow> (null (\<tau>))
@@ -362,7 +365,7 @@ defs(overloaded) OclAsType\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_Clien
     | \<lfloor>\<bottom>\<rfloor> \<Rightarrow> (null (\<tau>))
     | \<lfloor>\<lfloor>Client\<rfloor>\<rfloor> \<Rightarrow> \<lfloor>\<lfloor>(mk\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y ((mk\<E>\<X>\<T>\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_\<^sub>C\<^sub>l\<^sub>i\<^sub>e\<^sub>n\<^sub>t (Client))))\<rfloor>\<rfloor>))"
 
-(* 35 ************************************ 111 + 6 *)
+(* 36 ************************************ 112 + 6 *)
 definition "OclAsType\<^sub>C\<^sub>u\<^sub>r\<^sub>r\<^sub>e\<^sub>n\<^sub>t_\<AA> = (\<lambda> (in\<^sub>C\<^sub>u\<^sub>r\<^sub>r\<^sub>e\<^sub>n\<^sub>t (Current)) \<Rightarrow> \<lfloor>Current\<rfloor>
     | (in\<^sub>A\<^sub>c\<^sub>c\<^sub>o\<^sub>u\<^sub>n\<^sub>t ((mk\<^sub>A\<^sub>c\<^sub>c\<^sub>o\<^sub>u\<^sub>n\<^sub>t ((mk\<E>\<X>\<T>\<^sub>A\<^sub>c\<^sub>c\<^sub>o\<^sub>u\<^sub>n\<^sub>t_\<^sub>C\<^sub>u\<^sub>r\<^sub>r\<^sub>e\<^sub>n\<^sub>t (Current))) (_) (_)))) \<Rightarrow> \<lfloor>Current\<rfloor>
     | (in\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y ((mk\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y ((mk\<E>\<X>\<T>\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_\<^sub>C\<^sub>u\<^sub>r\<^sub>r\<^sub>e\<^sub>n\<^sub>t (Current)))))) \<Rightarrow> \<lfloor>Current\<rfloor>
@@ -389,7 +392,7 @@ definition "OclAsType\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_\<AA> = So
     | (in\<^sub>B\<^sub>a\<^sub>n\<^sub>k (Bank)) \<Rightarrow> (mk\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y ((mk\<E>\<X>\<T>\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_\<^sub>B\<^sub>a\<^sub>n\<^sub>k (Bank))))
     | (in\<^sub>C\<^sub>l\<^sub>i\<^sub>e\<^sub>n\<^sub>t (Client)) \<Rightarrow> (mk\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y ((mk\<E>\<X>\<T>\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_\<^sub>C\<^sub>l\<^sub>i\<^sub>e\<^sub>n\<^sub>t (Client)))))"
 
-(* 36 ************************************ 117 + 1 *)
+(* 37 ************************************ 118 + 1 *)
 lemmas[simp,code_unfold] = OclAsType\<^sub>C\<^sub>u\<^sub>r\<^sub>r\<^sub>e\<^sub>n\<^sub>t_Current
                             OclAsType\<^sub>S\<^sub>a\<^sub>v\<^sub>i\<^sub>n\<^sub>g\<^sub>s_Savings
                             OclAsType\<^sub>A\<^sub>c\<^sub>c\<^sub>o\<^sub>u\<^sub>n\<^sub>t_Account
@@ -397,10 +400,10 @@ lemmas[simp,code_unfold] = OclAsType\<^sub>C\<^sub>u\<^sub>r\<^sub>r\<^sub>e\<^s
                             OclAsType\<^sub>C\<^sub>l\<^sub>i\<^sub>e\<^sub>n\<^sub>t_Client
                             OclAsType\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_OclAny
 
-(* 37 ************************************ 118 + 1 *)
+(* 38 ************************************ 119 + 1 *)
 subsection{* Context Passing *}
 
-(* 38 ************************************ 119 + 216 *)
+(* 39 ************************************ 120 + 216 *)
 lemma cp_OclAsType\<^sub>S\<^sub>a\<^sub>v\<^sub>i\<^sub>n\<^sub>g\<^sub>s_Savings_Savings : "(cp (p)) \<Longrightarrow> (cp ((\<lambda>x. (((p ((x::\<cdot>Savings)))::\<cdot>Savings) .oclAsType(Savings)))))"
 by(rule cpI1, simp)
 lemma cp_OclAsType\<^sub>S\<^sub>a\<^sub>v\<^sub>i\<^sub>n\<^sub>g\<^sub>s_Account_Savings : "(cp (p)) \<Longrightarrow> (cp ((\<lambda>x. (((p ((x::\<cdot>Account)))::\<cdot>Savings) .oclAsType(Savings)))))"
@@ -834,7 +837,7 @@ by(rule cpI1, simp)
 lemma cp_OclAsType\<^sub>C\<^sub>u\<^sub>r\<^sub>r\<^sub>e\<^sub>n\<^sub>t_Current_Current : "(cp (p)) \<Longrightarrow> (cp ((\<lambda>x. (((p ((x::\<cdot>Current)))::\<cdot>Current) .oclAsType(Current)))))"
 by(rule cpI1, simp)
 
-(* 39 ************************************ 335 + 1 *)
+(* 40 ************************************ 336 + 1 *)
 lemmas[simp,code_unfold] = cp_OclAsType\<^sub>S\<^sub>a\<^sub>v\<^sub>i\<^sub>n\<^sub>g\<^sub>s_Savings_Savings
                             cp_OclAsType\<^sub>S\<^sub>a\<^sub>v\<^sub>i\<^sub>n\<^sub>g\<^sub>s_Account_Savings
                             cp_OclAsType\<^sub>S\<^sub>a\<^sub>v\<^sub>i\<^sub>n\<^sub>g\<^sub>s_Client_Savings
@@ -1052,10 +1055,10 @@ lemmas[simp,code_unfold] = cp_OclAsType\<^sub>S\<^sub>a\<^sub>v\<^sub>i\<^sub>n\
                             cp_OclAsType\<^sub>C\<^sub>u\<^sub>r\<^sub>r\<^sub>e\<^sub>n\<^sub>t_Bank_Current
                             cp_OclAsType\<^sub>C\<^sub>u\<^sub>r\<^sub>r\<^sub>e\<^sub>n\<^sub>t_Current_Current
 
-(* 40 ************************************ 336 + 1 *)
+(* 41 ************************************ 337 + 1 *)
 subsection{* Execution with Invalid or Null as Argument *}
 
-(* 41 ************************************ 337 + 72 *)
+(* 42 ************************************ 338 + 72 *)
 lemma OclAsType\<^sub>S\<^sub>a\<^sub>v\<^sub>i\<^sub>n\<^sub>g\<^sub>s_Savings_invalid : "((invalid::\<cdot>Savings) .oclAsType(Savings)) = invalid"
 by(simp)
 lemma OclAsType\<^sub>S\<^sub>a\<^sub>v\<^sub>i\<^sub>n\<^sub>g\<^sub>s_Account_invalid : "((invalid::\<cdot>Account) .oclAsType(Savings)) = invalid"
@@ -1201,7 +1204,7 @@ by(rule ext, simp add: OclAsType\<^sub>C\<^sub>u\<^sub>r\<^sub>r\<^sub>e\<^sub>n
 lemma OclAsType\<^sub>C\<^sub>u\<^sub>r\<^sub>r\<^sub>e\<^sub>n\<^sub>t_Current_null : "((null::\<cdot>Current) .oclAsType(Current)) = null"
 by(simp)
 
-(* 42 ************************************ 409 + 1 *)
+(* 43 ************************************ 410 + 1 *)
 lemmas[simp,code_unfold] = OclAsType\<^sub>S\<^sub>a\<^sub>v\<^sub>i\<^sub>n\<^sub>g\<^sub>s_Savings_invalid
                             OclAsType\<^sub>S\<^sub>a\<^sub>v\<^sub>i\<^sub>n\<^sub>g\<^sub>s_Account_invalid
                             OclAsType\<^sub>S\<^sub>a\<^sub>v\<^sub>i\<^sub>n\<^sub>g\<^sub>s_Client_invalid
@@ -1275,10 +1278,10 @@ lemmas[simp,code_unfold] = OclAsType\<^sub>S\<^sub>a\<^sub>v\<^sub>i\<^sub>n\<^s
                             OclAsType\<^sub>C\<^sub>u\<^sub>r\<^sub>r\<^sub>e\<^sub>n\<^sub>t_Bank_null
                             OclAsType\<^sub>C\<^sub>u\<^sub>r\<^sub>r\<^sub>e\<^sub>n\<^sub>t_Current_null
 
-(* 43 ************************************ 410 + 1 *)
+(* 44 ************************************ 411 + 1 *)
 subsection{* Validity and Definedness Properties *}
 
-(* 44 ************************************ 411 + 7 *)
+(* 45 ************************************ 412 + 7 *)
 lemma OclAsType\<^sub>A\<^sub>c\<^sub>c\<^sub>o\<^sub>u\<^sub>n\<^sub>t_Current_defined : 
 assumes isdef: "\<tau> \<Turnstile> (\<delta> (X))"
 shows "\<tau> \<Turnstile> (\<delta> ((X::\<cdot>Current) .oclAsType(Account)))"
@@ -1315,10 +1318,10 @@ shows "\<tau> \<Turnstile> (\<delta> ((X::\<cdot>Client) .oclAsType(OclAny)))"
   using isdef
 by(auto simp: OclAsType\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_Client foundation16 null_option_def bot_option_def) 
 
-(* 45 ************************************ 418 + 1 *)
+(* 46 ************************************ 419 + 1 *)
 subsection{* Up Down Casting *}
 
-(* 46 ************************************ 419 + 7 *)
+(* 47 ************************************ 420 + 7 *)
 lemma up\<^sub>A\<^sub>c\<^sub>c\<^sub>o\<^sub>u\<^sub>n\<^sub>t_down\<^sub>C\<^sub>u\<^sub>r\<^sub>r\<^sub>e\<^sub>n\<^sub>t_cast0 : 
 assumes isdef: "\<tau> \<Turnstile> (\<delta> (X))"
 shows "\<tau> \<Turnstile> (((X::\<cdot>Current) .oclAsType(Account)) .oclAsType(Current)) \<triangleq> X"
@@ -1355,7 +1358,7 @@ shows "\<tau> \<Turnstile> (((X::\<cdot>Client) .oclAsType(OclAny)) .oclAsType(C
   using isdef
 by(auto simp: OclAsType\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_Client OclAsType\<^sub>C\<^sub>l\<^sub>i\<^sub>e\<^sub>n\<^sub>t_OclAny foundation22 foundation16 null_option_def bot_option_def split: ty\<E>\<X>\<T>\<^sub>C\<^sub>l\<^sub>i\<^sub>e\<^sub>n\<^sub>t.split ty\<^sub>C\<^sub>l\<^sub>i\<^sub>e\<^sub>n\<^sub>t.split) 
 
-(* 47 ************************************ 426 + 7 *)
+(* 48 ************************************ 427 + 7 *)
 lemma up\<^sub>A\<^sub>c\<^sub>c\<^sub>o\<^sub>u\<^sub>n\<^sub>t_down\<^sub>C\<^sub>u\<^sub>r\<^sub>r\<^sub>e\<^sub>n\<^sub>t_cast : 
 shows "(((X::\<cdot>Current) .oclAsType(Account)) .oclAsType(Current)) = X"
   apply(rule ext, rename_tac \<tau>)
@@ -1413,7 +1416,7 @@ shows "(((X::\<cdot>Client) .oclAsType(OclAny)) .oclAsType(Client)) = X"
   apply((erule StrongEq_L_subst2_rev, simp, simp)+)
 done 
 
-(* 48 ************************************ 433 + 7 *)
+(* 49 ************************************ 434 + 7 *)
 lemma down\<^sub>C\<^sub>u\<^sub>r\<^sub>r\<^sub>e\<^sub>n\<^sub>t_up\<^sub>A\<^sub>c\<^sub>c\<^sub>o\<^sub>u\<^sub>n\<^sub>t_cast : 
 assumes def_X: "X = ((Y::\<cdot>Current) .oclAsType(Account))"
 shows "(\<tau> \<Turnstile> ((not ((\<upsilon> (X)))) or ((X .oclAsType(Current)) .oclAsType(Account)) \<doteq> X))"
@@ -1450,13 +1453,13 @@ shows "(\<tau> \<Turnstile> ((not ((\<upsilon> (X)))) or ((X .oclAsType(Client))
   apply(case_tac "(\<tau> \<Turnstile> ((not ((\<upsilon> (X))))))", rule foundation25, simp)
 by(rule foundation25', simp add: def_X up\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_down\<^sub>C\<^sub>l\<^sub>i\<^sub>e\<^sub>n\<^sub>t_cast StrictRefEq\<^sub>O\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t_sym) 
 
-(* 49 ************************************ 440 + 1 *)
+(* 50 ************************************ 441 + 1 *)
 section{* OclIsTypeOf *}
 
-(* 50 ************************************ 441 + 1 *)
+(* 51 ************************************ 442 + 1 *)
 subsection{* Definition *}
 
-(* 51 ************************************ 442 + 6 *)
+(* 52 ************************************ 443 + 6 *)
 consts OclIsTypeOf\<^sub>C\<^sub>u\<^sub>r\<^sub>r\<^sub>e\<^sub>n\<^sub>t :: "'\<alpha> \<Rightarrow> Boolean" ("(_) .oclIsTypeOf'(Current')")
 consts OclIsTypeOf\<^sub>S\<^sub>a\<^sub>v\<^sub>i\<^sub>n\<^sub>g\<^sub>s :: "'\<alpha> \<Rightarrow> Boolean" ("(_) .oclIsTypeOf'(Savings')")
 consts OclIsTypeOf\<^sub>A\<^sub>c\<^sub>c\<^sub>o\<^sub>u\<^sub>n\<^sub>t :: "'\<alpha> \<Rightarrow> Boolean" ("(_) .oclIsTypeOf'(Account')")
@@ -1464,7 +1467,7 @@ consts OclIsTypeOf\<^sub>B\<^sub>a\<^sub>n\<^sub>k :: "'\<alpha> \<Rightarrow> B
 consts OclIsTypeOf\<^sub>C\<^sub>l\<^sub>i\<^sub>e\<^sub>n\<^sub>t :: "'\<alpha> \<Rightarrow> Boolean" ("(_) .oclIsTypeOf'(Client')")
 consts OclIsTypeOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y :: "'\<alpha> \<Rightarrow> Boolean" ("(_) .oclIsTypeOf'(OclAny')")
 
-(* 52 ************************************ 448 + 36 *)
+(* 53 ************************************ 449 + 36 *)
 defs(overloaded) OclIsTypeOf\<^sub>C\<^sub>u\<^sub>r\<^sub>r\<^sub>e\<^sub>n\<^sub>t_Current : "(x::\<cdot>Current) .oclIsTypeOf(Current) \<equiv> (\<lambda>\<tau>. (case (x (\<tau>)) of \<bottom> \<Rightarrow> (invalid (\<tau>))
     | \<lfloor>\<bottom>\<rfloor> \<Rightarrow> (true (\<tau>))
     | \<lfloor>\<lfloor>(mk\<^sub>C\<^sub>u\<^sub>r\<^sub>r\<^sub>e\<^sub>n\<^sub>t ((mk\<E>\<X>\<T>\<^sub>C\<^sub>u\<^sub>r\<^sub>r\<^sub>e\<^sub>n\<^sub>t (_) (_) (_))) (_))\<rfloor>\<rfloor> \<Rightarrow> (true (\<tau>))))"
@@ -1583,7 +1586,7 @@ defs(overloaded) OclIsTypeOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_Cli
     | \<lfloor>\<bottom>\<rfloor> \<Rightarrow> (true (\<tau>))
     | _ \<Rightarrow> (false (\<tau>))))"
 
-(* 53 ************************************ 484 + 6 *)
+(* 54 ************************************ 485 + 6 *)
 definition "OclIsTypeOf\<^sub>C\<^sub>u\<^sub>r\<^sub>r\<^sub>e\<^sub>n\<^sub>t_\<AA> = (\<lambda> (in\<^sub>C\<^sub>u\<^sub>r\<^sub>r\<^sub>e\<^sub>n\<^sub>t (Current)) \<Rightarrow> (((((\<lambda>x _. \<lfloor>\<lfloor>x\<rfloor>\<rfloor>)) (Current))::\<cdot>Current) .oclIsTypeOf(Current))
     | (in\<^sub>A\<^sub>c\<^sub>c\<^sub>o\<^sub>u\<^sub>n\<^sub>t (Account)) \<Rightarrow> (((((\<lambda>x _. \<lfloor>\<lfloor>x\<rfloor>\<rfloor>)) (Account))::\<cdot>Account) .oclIsTypeOf(Current))
     | (in\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y (OclAny)) \<Rightarrow> (((((\<lambda>x _. \<lfloor>\<lfloor>x\<rfloor>\<rfloor>)) (OclAny))::\<cdot>OclAny) .oclIsTypeOf(Current))
@@ -1621,7 +1624,7 @@ definition "OclIsTypeOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_\<AA> = 
     | (in\<^sub>B\<^sub>a\<^sub>n\<^sub>k (Bank)) \<Rightarrow> (((((\<lambda>x _. \<lfloor>\<lfloor>x\<rfloor>\<rfloor>)) (Bank))::\<cdot>Bank) .oclIsTypeOf(OclAny))
     | (in\<^sub>C\<^sub>l\<^sub>i\<^sub>e\<^sub>n\<^sub>t (Client)) \<Rightarrow> (((((\<lambda>x _. \<lfloor>\<lfloor>x\<rfloor>\<rfloor>)) (Client))::\<cdot>Client) .oclIsTypeOf(OclAny)))"
 
-(* 54 ************************************ 490 + 1 *)
+(* 55 ************************************ 491 + 1 *)
 lemmas[simp,code_unfold] = OclIsTypeOf\<^sub>C\<^sub>u\<^sub>r\<^sub>r\<^sub>e\<^sub>n\<^sub>t_Current
                             OclIsTypeOf\<^sub>S\<^sub>a\<^sub>v\<^sub>i\<^sub>n\<^sub>g\<^sub>s_Savings
                             OclIsTypeOf\<^sub>A\<^sub>c\<^sub>c\<^sub>o\<^sub>u\<^sub>n\<^sub>t_Account
@@ -1629,10 +1632,10 @@ lemmas[simp,code_unfold] = OclIsTypeOf\<^sub>C\<^sub>u\<^sub>r\<^sub>r\<^sub>e\<
                             OclIsTypeOf\<^sub>C\<^sub>l\<^sub>i\<^sub>e\<^sub>n\<^sub>t_Client
                             OclIsTypeOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_OclAny
 
-(* 55 ************************************ 491 + 1 *)
+(* 56 ************************************ 492 + 1 *)
 subsection{* Context Passing *}
 
-(* 56 ************************************ 492 + 216 *)
+(* 57 ************************************ 493 + 216 *)
 lemma cp_OclIsTypeOf\<^sub>S\<^sub>a\<^sub>v\<^sub>i\<^sub>n\<^sub>g\<^sub>s_Savings_Savings : "(cp (p)) \<Longrightarrow> (cp ((\<lambda>x. (((p ((x::\<cdot>Savings)))::\<cdot>Savings) .oclIsTypeOf(Savings)))))"
 by(rule cpI1, simp)
 lemma cp_OclIsTypeOf\<^sub>S\<^sub>a\<^sub>v\<^sub>i\<^sub>n\<^sub>g\<^sub>s_Account_Savings : "(cp (p)) \<Longrightarrow> (cp ((\<lambda>x. (((p ((x::\<cdot>Account)))::\<cdot>Savings) .oclIsTypeOf(Savings)))))"
@@ -2066,7 +2069,7 @@ by(rule cpI1, simp)
 lemma cp_OclIsTypeOf\<^sub>C\<^sub>u\<^sub>r\<^sub>r\<^sub>e\<^sub>n\<^sub>t_Current_Current : "(cp (p)) \<Longrightarrow> (cp ((\<lambda>x. (((p ((x::\<cdot>Current)))::\<cdot>Current) .oclIsTypeOf(Current)))))"
 by(rule cpI1, simp)
 
-(* 57 ************************************ 708 + 1 *)
+(* 58 ************************************ 709 + 1 *)
 lemmas[simp,code_unfold] = cp_OclIsTypeOf\<^sub>S\<^sub>a\<^sub>v\<^sub>i\<^sub>n\<^sub>g\<^sub>s_Savings_Savings
                             cp_OclIsTypeOf\<^sub>S\<^sub>a\<^sub>v\<^sub>i\<^sub>n\<^sub>g\<^sub>s_Account_Savings
                             cp_OclIsTypeOf\<^sub>S\<^sub>a\<^sub>v\<^sub>i\<^sub>n\<^sub>g\<^sub>s_Client_Savings
@@ -2284,10 +2287,10 @@ lemmas[simp,code_unfold] = cp_OclIsTypeOf\<^sub>S\<^sub>a\<^sub>v\<^sub>i\<^sub>
                             cp_OclIsTypeOf\<^sub>C\<^sub>u\<^sub>r\<^sub>r\<^sub>e\<^sub>n\<^sub>t_Bank_Current
                             cp_OclIsTypeOf\<^sub>C\<^sub>u\<^sub>r\<^sub>r\<^sub>e\<^sub>n\<^sub>t_Current_Current
 
-(* 58 ************************************ 709 + 1 *)
+(* 59 ************************************ 710 + 1 *)
 subsection{* Execution with Invalid or Null as Argument *}
 
-(* 59 ************************************ 710 + 72 *)
+(* 60 ************************************ 711 + 72 *)
 lemma OclIsTypeOf\<^sub>S\<^sub>a\<^sub>v\<^sub>i\<^sub>n\<^sub>g\<^sub>s_Savings_invalid : "((invalid::\<cdot>Savings) .oclIsTypeOf(Savings)) = invalid"
 by(rule ext, simp add: bot_option_def invalid_def)
 lemma OclIsTypeOf\<^sub>S\<^sub>a\<^sub>v\<^sub>i\<^sub>n\<^sub>g\<^sub>s_Account_invalid : "((invalid::\<cdot>Account) .oclIsTypeOf(Savings)) = invalid"
@@ -2433,7 +2436,7 @@ by(rule ext, simp add: OclIsTypeOf\<^sub>C\<^sub>u\<^sub>r\<^sub>r\<^sub>e\<^sub
 lemma OclIsTypeOf\<^sub>C\<^sub>u\<^sub>r\<^sub>r\<^sub>e\<^sub>n\<^sub>t_Current_null : "((null::\<cdot>Current) .oclIsTypeOf(Current)) = true"
 by(rule ext, simp add: bot_option_def null_fun_def null_option_def)
 
-(* 60 ************************************ 782 + 1 *)
+(* 61 ************************************ 783 + 1 *)
 lemmas[simp,code_unfold] = OclIsTypeOf\<^sub>S\<^sub>a\<^sub>v\<^sub>i\<^sub>n\<^sub>g\<^sub>s_Savings_invalid
                             OclIsTypeOf\<^sub>S\<^sub>a\<^sub>v\<^sub>i\<^sub>n\<^sub>g\<^sub>s_Account_invalid
                             OclIsTypeOf\<^sub>S\<^sub>a\<^sub>v\<^sub>i\<^sub>n\<^sub>g\<^sub>s_Client_invalid
@@ -2507,10 +2510,10 @@ lemmas[simp,code_unfold] = OclIsTypeOf\<^sub>S\<^sub>a\<^sub>v\<^sub>i\<^sub>n\<
                             OclIsTypeOf\<^sub>C\<^sub>u\<^sub>r\<^sub>r\<^sub>e\<^sub>n\<^sub>t_Bank_null
                             OclIsTypeOf\<^sub>C\<^sub>u\<^sub>r\<^sub>r\<^sub>e\<^sub>n\<^sub>t_Current_null
 
-(* 61 ************************************ 783 + 1 *)
+(* 62 ************************************ 784 + 1 *)
 subsection{* Validity and Definedness Properties *}
 
-(* 62 ************************************ 784 + 36 *)
+(* 63 ************************************ 785 + 36 *)
 lemma OclIsTypeOf\<^sub>C\<^sub>u\<^sub>r\<^sub>r\<^sub>e\<^sub>n\<^sub>t_Current_defined : 
 assumes isdef: "\<tau> \<Turnstile> (\<upsilon> (X))"
 shows "\<tau> \<Turnstile> (\<delta> ((X::\<cdot>Current) .oclIsTypeOf(Current)))"
@@ -2692,7 +2695,7 @@ shows "\<tau> \<Turnstile> (\<delta> ((X::\<cdot>Client) .oclIsTypeOf(OclAny)))"
   apply(insert isdef[simplified foundation18'], simp only: OclValid_def, subst cp_defined)
 by(auto simp: cp_defined[symmetric ] bot_option_def OclIsTypeOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_Client split: option.split ty\<E>\<X>\<T>\<^sub>C\<^sub>l\<^sub>i\<^sub>e\<^sub>n\<^sub>t.split ty\<^sub>C\<^sub>l\<^sub>i\<^sub>e\<^sub>n\<^sub>t.split) 
 
-(* 63 ************************************ 820 + 36 *)
+(* 64 ************************************ 821 + 36 *)
 lemma OclIsTypeOf\<^sub>C\<^sub>u\<^sub>r\<^sub>r\<^sub>e\<^sub>n\<^sub>t_Current_defined' : 
 assumes isdef: "\<tau> \<Turnstile> (\<delta> (X))"
 shows "\<tau> \<Turnstile> (\<delta> ((X::\<cdot>Current) .oclIsTypeOf(Current)))"
@@ -2838,10 +2841,10 @@ assumes isdef: "\<tau> \<Turnstile> (\<delta> (X))"
 shows "\<tau> \<Turnstile> (\<delta> ((X::\<cdot>Client) .oclIsTypeOf(OclAny)))"
 by(rule OclIsTypeOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_Client_defined[OF isdef[THEN foundation20]]) 
 
-(* 64 ************************************ 856 + 1 *)
+(* 65 ************************************ 857 + 1 *)
 subsection{* Up Down Casting *}
 
-(* 65 ************************************ 857 + 23 *)
+(* 66 ************************************ 858 + 23 *)
 lemma actualType\<^sub>C\<^sub>u\<^sub>r\<^sub>r\<^sub>e\<^sub>n\<^sub>t_larger_staticType\<^sub>A\<^sub>c\<^sub>c\<^sub>o\<^sub>u\<^sub>n\<^sub>t : 
 assumes isdef: "\<tau> \<Turnstile> (\<delta> (X))"
 shows "\<tau> \<Turnstile> ((X::\<cdot>Current) .oclIsTypeOf(Account)) \<triangleq> false"
@@ -2958,7 +2961,7 @@ shows "\<tau> \<Turnstile> ((X::\<cdot>Client) .oclIsTypeOf(Current)) \<triangle
   using isdef
 by(auto simp: OclIsTypeOf\<^sub>C\<^sub>u\<^sub>r\<^sub>r\<^sub>e\<^sub>n\<^sub>t_Client foundation22 foundation16 null_option_def bot_option_def) 
 
-(* 66 ************************************ 880 + 31 *)
+(* 67 ************************************ 881 + 31 *)
 lemma down_cast_type\<^sub>A\<^sub>c\<^sub>c\<^sub>o\<^sub>u\<^sub>n\<^sub>t_from_Account_to_Current : 
 assumes istyp: "\<tau> \<Turnstile> ((X::\<cdot>Account) .oclIsTypeOf(Account))"
 assumes isdef: "\<tau> \<Turnstile> (\<delta> (X))"
@@ -3177,13 +3180,13 @@ shows "\<tau> \<Turnstile> (X .oclAsType(Client)) \<triangleq> invalid"
   apply(auto simp: OclAsType\<^sub>C\<^sub>l\<^sub>i\<^sub>e\<^sub>n\<^sub>t_OclAny foundation22 foundation16 null_option_def bot_option_def split: ty\<E>\<X>\<T>\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y.split ty\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y.split)
 by(simp add: OclIsTypeOf\<^sub>C\<^sub>u\<^sub>r\<^sub>r\<^sub>e\<^sub>n\<^sub>t_OclAny OclValid_def false_def true_def) 
 
-(* 67 ************************************ 911 + 1 *)
+(* 68 ************************************ 912 + 1 *)
 section{* OclIsKindOf *}
 
-(* 68 ************************************ 912 + 1 *)
+(* 69 ************************************ 913 + 1 *)
 subsection{* Definition *}
 
-(* 69 ************************************ 913 + 6 *)
+(* 70 ************************************ 914 + 6 *)
 consts OclIsKindOf\<^sub>C\<^sub>u\<^sub>r\<^sub>r\<^sub>e\<^sub>n\<^sub>t :: "'\<alpha> \<Rightarrow> Boolean" ("(_) .oclIsKindOf'(Current')")
 consts OclIsKindOf\<^sub>S\<^sub>a\<^sub>v\<^sub>i\<^sub>n\<^sub>g\<^sub>s :: "'\<alpha> \<Rightarrow> Boolean" ("(_) .oclIsKindOf'(Savings')")
 consts OclIsKindOf\<^sub>A\<^sub>c\<^sub>c\<^sub>o\<^sub>u\<^sub>n\<^sub>t :: "'\<alpha> \<Rightarrow> Boolean" ("(_) .oclIsKindOf'(Account')")
@@ -3191,7 +3194,7 @@ consts OclIsKindOf\<^sub>B\<^sub>a\<^sub>n\<^sub>k :: "'\<alpha> \<Rightarrow> B
 consts OclIsKindOf\<^sub>C\<^sub>l\<^sub>i\<^sub>e\<^sub>n\<^sub>t :: "'\<alpha> \<Rightarrow> Boolean" ("(_) .oclIsKindOf'(Client')")
 consts OclIsKindOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y :: "'\<alpha> \<Rightarrow> Boolean" ("(_) .oclIsKindOf'(OclAny')")
 
-(* 70 ************************************ 919 + 36 *)
+(* 71 ************************************ 920 + 36 *)
 defs(overloaded) OclIsKindOf\<^sub>C\<^sub>u\<^sub>r\<^sub>r\<^sub>e\<^sub>n\<^sub>t_Current : "(x::\<cdot>Current) .oclIsKindOf(Current) \<equiv> (x .oclIsTypeOf(Current))"
 defs(overloaded) OclIsKindOf\<^sub>C\<^sub>u\<^sub>r\<^sub>r\<^sub>e\<^sub>n\<^sub>t_Account : "(x::\<cdot>Account) .oclIsKindOf(Current) \<equiv> (x .oclIsTypeOf(Current))"
 defs(overloaded) OclIsKindOf\<^sub>C\<^sub>u\<^sub>r\<^sub>r\<^sub>e\<^sub>n\<^sub>t_OclAny : "(x::\<cdot>OclAny) .oclIsKindOf(Current) \<equiv> (x .oclIsTypeOf(Current))"
@@ -3229,7 +3232,7 @@ defs(overloaded) OclIsKindOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_Acc
 defs(overloaded) OclIsKindOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_Bank : "(x::\<cdot>Bank) .oclIsKindOf(OclAny) \<equiv> (x .oclIsTypeOf(OclAny)) or (x .oclIsKindOf(Client)) or (x .oclIsKindOf(Bank)) or (x .oclIsKindOf(Account))"
 defs(overloaded) OclIsKindOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_Client : "(x::\<cdot>Client) .oclIsKindOf(OclAny) \<equiv> (x .oclIsTypeOf(OclAny)) or (x .oclIsKindOf(Client)) or (x .oclIsKindOf(Bank)) or (x .oclIsKindOf(Account))"
 
-(* 71 ************************************ 955 + 6 *)
+(* 72 ************************************ 956 + 6 *)
 definition "OclIsKindOf\<^sub>C\<^sub>u\<^sub>r\<^sub>r\<^sub>e\<^sub>n\<^sub>t_\<AA> = (\<lambda> (in\<^sub>C\<^sub>u\<^sub>r\<^sub>r\<^sub>e\<^sub>n\<^sub>t (Current)) \<Rightarrow> (((((\<lambda>x _. \<lfloor>\<lfloor>x\<rfloor>\<rfloor>)) (Current))::\<cdot>Current) .oclIsKindOf(Current))
     | (in\<^sub>A\<^sub>c\<^sub>c\<^sub>o\<^sub>u\<^sub>n\<^sub>t (Account)) \<Rightarrow> (((((\<lambda>x _. \<lfloor>\<lfloor>x\<rfloor>\<rfloor>)) (Account))::\<cdot>Account) .oclIsKindOf(Current))
     | (in\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y (OclAny)) \<Rightarrow> (((((\<lambda>x _. \<lfloor>\<lfloor>x\<rfloor>\<rfloor>)) (OclAny))::\<cdot>OclAny) .oclIsKindOf(Current))
@@ -3267,7 +3270,7 @@ definition "OclIsKindOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_\<AA> = 
     | (in\<^sub>B\<^sub>a\<^sub>n\<^sub>k (Bank)) \<Rightarrow> (((((\<lambda>x _. \<lfloor>\<lfloor>x\<rfloor>\<rfloor>)) (Bank))::\<cdot>Bank) .oclIsKindOf(OclAny))
     | (in\<^sub>C\<^sub>l\<^sub>i\<^sub>e\<^sub>n\<^sub>t (Client)) \<Rightarrow> (((((\<lambda>x _. \<lfloor>\<lfloor>x\<rfloor>\<rfloor>)) (Client))::\<cdot>Client) .oclIsKindOf(OclAny)))"
 
-(* 72 ************************************ 961 + 1 *)
+(* 73 ************************************ 962 + 1 *)
 lemmas[simp,code_unfold] = OclIsKindOf\<^sub>C\<^sub>u\<^sub>r\<^sub>r\<^sub>e\<^sub>n\<^sub>t_Current
                             OclIsKindOf\<^sub>S\<^sub>a\<^sub>v\<^sub>i\<^sub>n\<^sub>g\<^sub>s_Savings
                             OclIsKindOf\<^sub>A\<^sub>c\<^sub>c\<^sub>o\<^sub>u\<^sub>n\<^sub>t_Account
@@ -3275,10 +3278,10 @@ lemmas[simp,code_unfold] = OclIsKindOf\<^sub>C\<^sub>u\<^sub>r\<^sub>r\<^sub>e\<
                             OclIsKindOf\<^sub>C\<^sub>l\<^sub>i\<^sub>e\<^sub>n\<^sub>t_Client
                             OclIsKindOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_OclAny
 
-(* 73 ************************************ 962 + 1 *)
+(* 74 ************************************ 963 + 1 *)
 subsection{* Context Passing *}
 
-(* 74 ************************************ 963 + 216 *)
+(* 75 ************************************ 964 + 216 *)
 lemma cp_OclIsKindOf\<^sub>C\<^sub>u\<^sub>r\<^sub>r\<^sub>e\<^sub>n\<^sub>t_Current_Current : "(cp (p)) \<Longrightarrow> (cp ((\<lambda>x. (((p ((x::\<cdot>Current)))::\<cdot>Current) .oclIsKindOf(Current)))))"
 by(simp only: OclIsKindOf\<^sub>C\<^sub>u\<^sub>r\<^sub>r\<^sub>e\<^sub>n\<^sub>t_Current, simp only: cp_OclIsTypeOf\<^sub>C\<^sub>u\<^sub>r\<^sub>r\<^sub>e\<^sub>n\<^sub>t_Current_Current)
 lemma cp_OclIsKindOf\<^sub>C\<^sub>u\<^sub>r\<^sub>r\<^sub>e\<^sub>n\<^sub>t_Account_Current : "(cp (p)) \<Longrightarrow> (cp ((\<lambda>x. (((p ((x::\<cdot>Account)))::\<cdot>Current) .oclIsKindOf(Current)))))"
@@ -3928,7 +3931,7 @@ lemma cp_OclIsKindOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_Client_Clie
   apply(simp only: cp_OclIsTypeOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_Client_Client)
 by(simp only: cp_OclIsKindOf\<^sub>C\<^sub>l\<^sub>i\<^sub>e\<^sub>n\<^sub>t_Client_Client, simp only: cp_OclIsKindOf\<^sub>B\<^sub>a\<^sub>n\<^sub>k_Client_Client, simp only: cp_OclIsKindOf\<^sub>A\<^sub>c\<^sub>c\<^sub>o\<^sub>u\<^sub>n\<^sub>t_Client_Client)
 
-(* 75 ************************************ 1179 + 1 *)
+(* 76 ************************************ 1180 + 1 *)
 lemmas[simp,code_unfold] = cp_OclIsKindOf\<^sub>S\<^sub>a\<^sub>v\<^sub>i\<^sub>n\<^sub>g\<^sub>s_Savings_Savings
                             cp_OclIsKindOf\<^sub>S\<^sub>a\<^sub>v\<^sub>i\<^sub>n\<^sub>g\<^sub>s_Account_Savings
                             cp_OclIsKindOf\<^sub>S\<^sub>a\<^sub>v\<^sub>i\<^sub>n\<^sub>g\<^sub>s_Client_Savings
@@ -4146,10 +4149,10 @@ lemmas[simp,code_unfold] = cp_OclIsKindOf\<^sub>S\<^sub>a\<^sub>v\<^sub>i\<^sub>
                             cp_OclIsKindOf\<^sub>C\<^sub>u\<^sub>r\<^sub>r\<^sub>e\<^sub>n\<^sub>t_Bank_Current
                             cp_OclIsKindOf\<^sub>C\<^sub>u\<^sub>r\<^sub>r\<^sub>e\<^sub>n\<^sub>t_Current_Current
 
-(* 76 ************************************ 1180 + 1 *)
+(* 77 ************************************ 1181 + 1 *)
 subsection{* Execution with Invalid or Null as Argument *}
 
-(* 77 ************************************ 1181 + 72 *)
+(* 78 ************************************ 1182 + 72 *)
 lemma OclIsKindOf\<^sub>C\<^sub>u\<^sub>r\<^sub>r\<^sub>e\<^sub>n\<^sub>t_Current_invalid : "((invalid::\<cdot>Current) .oclIsKindOf(Current)) = invalid"
 by(simp only: OclIsKindOf\<^sub>C\<^sub>u\<^sub>r\<^sub>r\<^sub>e\<^sub>n\<^sub>t_Current OclIsTypeOf\<^sub>C\<^sub>u\<^sub>r\<^sub>r\<^sub>e\<^sub>n\<^sub>t_Current_invalid)
 lemma OclIsKindOf\<^sub>C\<^sub>u\<^sub>r\<^sub>r\<^sub>e\<^sub>n\<^sub>t_Current_null : "((null::\<cdot>Current) .oclIsKindOf(Current)) = true"
@@ -4295,7 +4298,7 @@ by(simp only: OclIsKindOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_Client
 lemma OclIsKindOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_Client_null : "((null::\<cdot>Client) .oclIsKindOf(OclAny)) = true"
 by(simp only: OclIsKindOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_Client OclIsTypeOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_Client_null OclIsKindOf\<^sub>C\<^sub>l\<^sub>i\<^sub>e\<^sub>n\<^sub>t_Client_null OclIsKindOf\<^sub>B\<^sub>a\<^sub>n\<^sub>k_Client_null OclIsKindOf\<^sub>A\<^sub>c\<^sub>c\<^sub>o\<^sub>u\<^sub>n\<^sub>t_Client_null, simp)
 
-(* 78 ************************************ 1253 + 1 *)
+(* 79 ************************************ 1254 + 1 *)
 lemmas[simp,code_unfold] = OclIsKindOf\<^sub>S\<^sub>a\<^sub>v\<^sub>i\<^sub>n\<^sub>g\<^sub>s_Savings_invalid
                             OclIsKindOf\<^sub>S\<^sub>a\<^sub>v\<^sub>i\<^sub>n\<^sub>g\<^sub>s_Account_invalid
                             OclIsKindOf\<^sub>S\<^sub>a\<^sub>v\<^sub>i\<^sub>n\<^sub>g\<^sub>s_Client_invalid
@@ -4369,10 +4372,10 @@ lemmas[simp,code_unfold] = OclIsKindOf\<^sub>S\<^sub>a\<^sub>v\<^sub>i\<^sub>n\<
                             OclIsKindOf\<^sub>C\<^sub>u\<^sub>r\<^sub>r\<^sub>e\<^sub>n\<^sub>t_Bank_null
                             OclIsKindOf\<^sub>C\<^sub>u\<^sub>r\<^sub>r\<^sub>e\<^sub>n\<^sub>t_Current_null
 
-(* 79 ************************************ 1254 + 1 *)
+(* 80 ************************************ 1255 + 1 *)
 subsection{* Validity and Definedness Properties *}
 
-(* 80 ************************************ 1255 + 36 *)
+(* 81 ************************************ 1256 + 36 *)
 lemma OclIsKindOf\<^sub>C\<^sub>u\<^sub>r\<^sub>r\<^sub>e\<^sub>n\<^sub>t_Current_defined : 
 assumes isdef: "\<tau> \<Turnstile> (\<upsilon> (X))"
 shows "\<tau> \<Turnstile> (\<delta> ((X::\<cdot>Current) .oclIsKindOf(Current)))"
@@ -4518,7 +4521,7 @@ assumes isdef: "\<tau> \<Turnstile> (\<upsilon> (X))"
 shows "\<tau> \<Turnstile> (\<delta> ((X::\<cdot>Client) .oclIsKindOf(OclAny)))"
 by(simp only: OclIsKindOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_Client, rule defined_or_I[OF defined_or_I[OF defined_or_I[OF OclIsTypeOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_Client_defined[OF isdef], OF OclIsKindOf\<^sub>C\<^sub>l\<^sub>i\<^sub>e\<^sub>n\<^sub>t_Client_defined[OF isdef]], OF OclIsKindOf\<^sub>B\<^sub>a\<^sub>n\<^sub>k_Client_defined[OF isdef]], OF OclIsKindOf\<^sub>A\<^sub>c\<^sub>c\<^sub>o\<^sub>u\<^sub>n\<^sub>t_Client_defined[OF isdef]]) 
 
-(* 81 ************************************ 1291 + 36 *)
+(* 82 ************************************ 1292 + 36 *)
 lemma OclIsKindOf\<^sub>C\<^sub>u\<^sub>r\<^sub>r\<^sub>e\<^sub>n\<^sub>t_Current_defined' : 
 assumes isdef: "\<tau> \<Turnstile> (\<delta> (X))"
 shows "\<tau> \<Turnstile> (\<delta> ((X::\<cdot>Current) .oclIsKindOf(Current)))"
@@ -4664,10 +4667,10 @@ assumes isdef: "\<tau> \<Turnstile> (\<delta> (X))"
 shows "\<tau> \<Turnstile> (\<delta> ((X::\<cdot>Client) .oclIsKindOf(OclAny)))"
 by(rule OclIsKindOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_Client_defined[OF isdef[THEN foundation20]]) 
 
-(* 82 ************************************ 1327 + 1 *)
+(* 83 ************************************ 1328 + 1 *)
 subsection{* Up Down Casting *}
 
-(* 83 ************************************ 1328 + 6 *)
+(* 84 ************************************ 1329 + 6 *)
 lemma actual_eq_static\<^sub>C\<^sub>u\<^sub>r\<^sub>r\<^sub>e\<^sub>n\<^sub>t : 
 assumes isdef: "\<tau> \<Turnstile> (\<delta> (X))"
 shows "\<tau> \<Turnstile> ((X::\<cdot>Current) .oclIsKindOf(Current))"
@@ -4711,7 +4714,7 @@ shows "\<tau> \<Turnstile> ((X::\<cdot>OclAny) .oclIsKindOf(OclAny))"
   apply(auto simp: cp_OclOr[symmetric ] foundation16 bot_option_def OclIsTypeOf\<^sub>C\<^sub>u\<^sub>r\<^sub>r\<^sub>e\<^sub>n\<^sub>t_OclAny OclIsTypeOf\<^sub>S\<^sub>a\<^sub>v\<^sub>i\<^sub>n\<^sub>g\<^sub>s_OclAny OclIsTypeOf\<^sub>A\<^sub>c\<^sub>c\<^sub>o\<^sub>u\<^sub>n\<^sub>t_OclAny OclIsTypeOf\<^sub>B\<^sub>a\<^sub>n\<^sub>k_OclAny OclIsTypeOf\<^sub>C\<^sub>l\<^sub>i\<^sub>e\<^sub>n\<^sub>t_OclAny split: option.split ty\<E>\<X>\<T>\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y.split ty\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y.split ty\<E>\<X>\<T>\<^sub>C\<^sub>u\<^sub>r\<^sub>r\<^sub>e\<^sub>n\<^sub>t.split ty\<^sub>C\<^sub>u\<^sub>r\<^sub>r\<^sub>e\<^sub>n\<^sub>t.split ty\<E>\<X>\<T>\<^sub>S\<^sub>a\<^sub>v\<^sub>i\<^sub>n\<^sub>g\<^sub>s.split ty\<^sub>S\<^sub>a\<^sub>v\<^sub>i\<^sub>n\<^sub>g\<^sub>s.split ty\<E>\<X>\<T>\<^sub>A\<^sub>c\<^sub>c\<^sub>o\<^sub>u\<^sub>n\<^sub>t.split ty\<^sub>A\<^sub>c\<^sub>c\<^sub>o\<^sub>u\<^sub>n\<^sub>t.split ty\<E>\<X>\<T>\<^sub>B\<^sub>a\<^sub>n\<^sub>k.split ty\<^sub>B\<^sub>a\<^sub>n\<^sub>k.split ty\<E>\<X>\<T>\<^sub>C\<^sub>l\<^sub>i\<^sub>e\<^sub>n\<^sub>t.split ty\<^sub>C\<^sub>l\<^sub>i\<^sub>e\<^sub>n\<^sub>t.split)
 by((simp_all add: false_def true_def OclOr_def OclAnd_def OclNot_def)?) 
 
-(* 84 ************************************ 1334 + 7 *)
+(* 85 ************************************ 1335 + 7 *)
 lemma actualKind\<^sub>C\<^sub>u\<^sub>r\<^sub>r\<^sub>e\<^sub>n\<^sub>t_larger_staticKind\<^sub>A\<^sub>c\<^sub>c\<^sub>o\<^sub>u\<^sub>n\<^sub>t : 
 assumes isdef: "\<tau> \<Turnstile> (\<delta> (X))"
 shows "\<tau> \<Turnstile> ((X::\<cdot>Current) .oclIsKindOf(Account))"
@@ -4748,7 +4751,7 @@ shows "\<tau> \<Turnstile> ((X::\<cdot>Client) .oclIsKindOf(OclAny))"
   apply(simp only: OclIsKindOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_Client)
 by(rule foundation25, rule foundation25, rule foundation25', rule actual_eq_static\<^sub>C\<^sub>l\<^sub>i\<^sub>e\<^sub>n\<^sub>t[OF isdef]) 
 
-(* 85 ************************************ 1341 + 7 *)
+(* 86 ************************************ 1342 + 7 *)
 lemma not_OclIsKindOf\<^sub>C\<^sub>u\<^sub>r\<^sub>r\<^sub>e\<^sub>n\<^sub>t_then_Account_OclIsTypeOf_others_unfold : 
 assumes isdef: "(\<tau> \<Turnstile> (\<delta> (X)))"
 assumes iskin: "(\<tau> \<Turnstile> ((X::\<cdot>Account) .oclIsKindOf(Current)))"
@@ -4804,7 +4807,7 @@ shows "(\<tau> \<Turnstile> ((X::\<cdot>OclAny) .oclIsTypeOf(Client)))"
   apply(simp only: OclIsKindOf\<^sub>C\<^sub>l\<^sub>i\<^sub>e\<^sub>n\<^sub>t_OclAny)
 done 
 
-(* 86 ************************************ 1348 + 7 *)
+(* 87 ************************************ 1349 + 7 *)
 lemma not_OclIsKindOf\<^sub>C\<^sub>u\<^sub>r\<^sub>r\<^sub>e\<^sub>n\<^sub>t_then_Account_OclIsTypeOf_others : 
 assumes iskin: "\<not> \<tau> \<Turnstile> ((X::\<cdot>Account) .oclIsKindOf(Current))"
 assumes isdef: "\<tau> \<Turnstile> (\<delta> (X))"
@@ -4910,7 +4913,7 @@ shows "(\<tau> \<Turnstile> ((X::\<cdot>OclAny) .oclIsTypeOf(OclAny)) \<or> (\<t
   apply(simp)
 done 
 
-(* 87 ************************************ 1355 + 9 *)
+(* 88 ************************************ 1356 + 9 *)
 lemma down_cast_kind\<^sub>C\<^sub>u\<^sub>r\<^sub>r\<^sub>e\<^sub>n\<^sub>t_from_Account_to_Current : 
 assumes iskin: "\<not> \<tau> \<Turnstile> ((X::\<cdot>Account) .oclIsKindOf(Current))"
 assumes isdef: "\<tau> \<Turnstile> (\<delta> (X))"
@@ -5013,16 +5016,16 @@ shows "\<tau> \<Turnstile> (X .oclAsType(Client)) \<triangleq> invalid"
   apply(auto simp: isdef down_cast_type\<^sub>S\<^sub>a\<^sub>v\<^sub>i\<^sub>n\<^sub>g\<^sub>s_from_OclAny_to_Client down_cast_type\<^sub>A\<^sub>c\<^sub>c\<^sub>o\<^sub>u\<^sub>n\<^sub>t_from_OclAny_to_Client down_cast_type\<^sub>C\<^sub>u\<^sub>r\<^sub>r\<^sub>e\<^sub>n\<^sub>t_from_OclAny_to_Client)
 done 
 
-(* 88 ************************************ 1364 + 1 *)
+(* 89 ************************************ 1365 + 1 *)
 section{* OclAllInstances *}
 
-(* 89 ************************************ 1365 + 1 *)
+(* 90 ************************************ 1366 + 1 *)
 text{* 
    To denote OCL-types occuring in OCL expressions syntactically---as, for example,  as
 ``argument'' of \inlineisar{oclAllInstances()}---we use the inverses of the injection
 functions into the object universes; we show that this is sufficient ``characterization.''  *}
 
-(* 90 ************************************ 1366 + 6 *)
+(* 91 ************************************ 1367 + 6 *)
 definition "Current = OclAsType\<^sub>C\<^sub>u\<^sub>r\<^sub>r\<^sub>e\<^sub>n\<^sub>t_\<AA>"
 definition "Savings = OclAsType\<^sub>S\<^sub>a\<^sub>v\<^sub>i\<^sub>n\<^sub>g\<^sub>s_\<AA>"
 definition "Account = OclAsType\<^sub>A\<^sub>c\<^sub>c\<^sub>o\<^sub>u\<^sub>n\<^sub>t_\<AA>"
@@ -5030,7 +5033,7 @@ definition "Bank = OclAsType\<^sub>B\<^sub>a\<^sub>n\<^sub>k_\<AA>"
 definition "Client = OclAsType\<^sub>C\<^sub>l\<^sub>i\<^sub>e\<^sub>n\<^sub>t_\<AA>"
 definition "OclAny = OclAsType\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_\<AA>"
 
-(* 91 ************************************ 1372 + 1 *)
+(* 92 ************************************ 1373 + 1 *)
 lemmas[simp,code_unfold] = Current_def
                             Savings_def
                             Account_def
@@ -5038,11 +5041,11 @@ lemmas[simp,code_unfold] = Current_def
                             Client_def
                             OclAny_def
 
-(* 92 ************************************ 1373 + 1 *)
+(* 93 ************************************ 1374 + 1 *)
 lemma OclAsType\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_\<AA>_some : "(OclAsType\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_\<AA> (x)) \<noteq> None"
 by(simp add: OclAsType\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_\<AA>_def)
 
-(* 93 ************************************ 1374 + 3 *)
+(* 94 ************************************ 1375 + 3 *)
 lemma OclAllInstances_generic\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_exec : 
 shows "(OclAllInstances_generic (pre_post) (OclAny)) = (\<lambda>\<tau>. (Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (\<lfloor>\<lfloor>Some ` OclAny ` (ran ((heap ((pre_post (\<tau>))))))\<rfloor>\<rfloor>)))"
   proof - let ?S1 = "(\<lambda>\<tau>. OclAny ` (ran ((heap ((pre_post (\<tau>)))))))" show ?thesis
@@ -5060,16 +5063,16 @@ shows "(OclAllInstances_at_pre (OclAny)) = (\<lambda>\<tau>. (Abs_Set\<^sub>b\<^
   unfolding OclAllInstances_at_pre_def
 by(rule OclAllInstances_generic\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_exec) 
 
-(* 94 ************************************ 1377 + 1 *)
+(* 95 ************************************ 1378 + 1 *)
 subsection{* OclIsTypeOf *}
 
-(* 95 ************************************ 1378 + 2 *)
+(* 96 ************************************ 1379 + 2 *)
 lemma ex_ssubst : "(\<forall>x \<in> B. (s (x)) = (t (x))) \<Longrightarrow> (\<exists>x \<in> B. (P ((s (x))))) = (\<exists>x \<in> B. (P ((t (x)))))"
 by(simp)
 lemma ex_def : "x \<in> \<lceil>\<lceil>\<lfloor>\<lfloor>Some ` (X - {None})\<rfloor>\<rfloor>\<rceil>\<rceil> \<Longrightarrow> (\<exists>y. x = \<lfloor>\<lfloor>y\<rfloor>\<rfloor>)"
 by(auto)
 
-(* 96 ************************************ 1380 + 24 *)
+(* 97 ************************************ 1381 + 24 *)
 lemma Current_OclAllInstances_generic_OclIsTypeOf\<^sub>C\<^sub>u\<^sub>r\<^sub>r\<^sub>e\<^sub>n\<^sub>t : "\<tau> \<Turnstile> (UML_Set.OclForall ((OclAllInstances_generic (pre_post) (Current))) (OclIsTypeOf\<^sub>C\<^sub>u\<^sub>r\<^sub>r\<^sub>e\<^sub>n\<^sub>t))"
   apply(simp add: OclValid_def del: OclAllInstances_generic_def)
   apply(simp only: UML_Set.OclForall_def refl if_True OclAllInstances_generic_defined[simplified OclValid_def])
@@ -5207,10 +5210,10 @@ shows "(\<exists>\<tau>. \<tau> \<Turnstile> (not ((UML_Set.OclForall ((OclAllIn
   unfolding OclAllInstances_at_pre_def
 by(rule OclAny_OclAllInstances_generic_OclIsTypeOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y2, simp) 
 
-(* 97 ************************************ 1404 + 1 *)
+(* 98 ************************************ 1405 + 1 *)
 subsection{* OclIsKindOf *}
 
-(* 98 ************************************ 1405 + 18 *)
+(* 99 ************************************ 1406 + 18 *)
 lemma Current_OclAllInstances_generic_OclIsKindOf\<^sub>C\<^sub>u\<^sub>r\<^sub>r\<^sub>e\<^sub>n\<^sub>t : "\<tau> \<Turnstile> (UML_Set.OclForall ((OclAllInstances_generic (pre_post) (Current))) (OclIsKindOf\<^sub>C\<^sub>u\<^sub>r\<^sub>r\<^sub>e\<^sub>n\<^sub>t))"
   apply(simp add: OclValid_def del: OclAllInstances_generic_def OclIsKindOf\<^sub>C\<^sub>u\<^sub>r\<^sub>r\<^sub>e\<^sub>n\<^sub>t_Current)
   apply(simp only: UML_Set.OclForall_def refl if_True OclAllInstances_generic_defined[simplified OclValid_def])
@@ -5314,7 +5317,7 @@ shows "\<tau> \<Turnstile> (UML_Set.OclForall ((OclAllInstances_at_pre (OclAny))
   unfolding OclAllInstances_at_pre_def
 by(rule OclAny_OclAllInstances_generic_OclIsKindOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y) 
 
-(* 99 ************************************ 1423 + 21 *)
+(* 100 ************************************ 1424 + 21 *)
 lemma Current_OclAllInstances_generic_OclIsKindOf\<^sub>A\<^sub>c\<^sub>c\<^sub>o\<^sub>u\<^sub>n\<^sub>t : "\<tau> \<Turnstile> (UML_Set.OclForall ((OclAllInstances_generic (pre_post) (Current))) (OclIsKindOf\<^sub>A\<^sub>c\<^sub>c\<^sub>o\<^sub>u\<^sub>n\<^sub>t))"
   apply(simp add: OclValid_def del: OclAllInstances_generic_def OclIsKindOf\<^sub>A\<^sub>c\<^sub>c\<^sub>o\<^sub>u\<^sub>n\<^sub>t_Current)
   apply(simp only: UML_Set.OclForall_def refl if_True OclAllInstances_generic_defined[simplified OclValid_def])
@@ -5435,27 +5438,27 @@ shows "\<tau> \<Turnstile> (UML_Set.OclForall ((OclAllInstances_at_pre (Client))
   unfolding OclAllInstances_at_pre_def
 by(rule Client_OclAllInstances_generic_OclIsKindOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y) 
 
-(* 100 ************************************ 1444 + 1 *)
+(* 101 ************************************ 1445 + 1 *)
 section{* The Accessors *}
 
-(* 101 ************************************ 1445 + 1 *)
+(* 102 ************************************ 1446 + 1 *)
 text{*  *}
 
-(* 102 ************************************ 1446 + 1 *)
+(* 103 ************************************ 1447 + 1 *)
 text{* 
   \label{sec:eam-accessors} *}
 
-(* 103 ************************************ 1447 + 1 *)
+(* 104 ************************************ 1448 + 1 *)
 subsection{* Definition *}
 
-(* 104 ************************************ 1448 + 1 *)
+(* 105 ************************************ 1449 + 1 *)
 text{* 
    We start with a oid for the association; this oid can be used
 in presence of association classes to represent the association inside an object,
 pretty much similar to the \inlineisar+Employee_DesignModel_UMLPart+, where we stored
 an \verb+oid+ inside the class as ``pointer.''  *}
 
-(* 105 ************************************ 1449 + 10 *)
+(* 106 ************************************ 1450 + 10 *)
 ML{* val oidCurrent_0_bank = 2 *}
 ML{* val oidCurrent_0_owner = 0 *}
 ML{* val oidSavings_0_bank = 2 *}
@@ -5467,7 +5470,7 @@ ML{* val oidBank_0_clients = 1 *}
 ML{* val oidClient_1_c_accounts = 0 *}
 ML{* val oidClient_1_banks = 1 *}
 
-(* 106 ************************************ 1459 + 10 *)
+(* 107 ************************************ 1460 + 10 *)
 definition "oid\<^sub>C\<^sub>u\<^sub>r\<^sub>r\<^sub>e\<^sub>n\<^sub>t_0_\<b>\<a>\<n>\<k> = 2"
 definition "oid\<^sub>C\<^sub>u\<^sub>r\<^sub>r\<^sub>e\<^sub>n\<^sub>t_0_\<o>\<w>\<n>\<e>\<r> = 0"
 definition "oid\<^sub>S\<^sub>a\<^sub>v\<^sub>i\<^sub>n\<^sub>g\<^sub>s_0_\<b>\<a>\<n>\<k> = 2"
@@ -5479,13 +5482,13 @@ definition "oid\<^sub>B\<^sub>a\<^sub>n\<^sub>k_0_\<c>\<l>\<i>\<e>\<n>\<t>\<s> =
 definition "oid\<^sub>C\<^sub>l\<^sub>i\<^sub>e\<^sub>n\<^sub>t_1_\<c>095\<a>\<c>\<c>\<o>\<u>\<n>\<t>\<s> = 0"
 definition "oid\<^sub>C\<^sub>l\<^sub>i\<^sub>e\<^sub>n\<^sub>t_1_\<b>\<a>\<n>\<k>\<s> = 1"
 
-(* 107 ************************************ 1469 + 1 *)
+(* 108 ************************************ 1470 + 1 *)
 text{* 
    From there on, we can already define an empty state which must contain
 for $\mathit{oid}_{Person}\mathcal{BOSS}$ the empty relation (encoded as association list, since there are
 associations with a Sequence-like structure). *}
 
-(* 108 ************************************ 1470 + 5 *)
+(* 109 ************************************ 1471 + 5 *)
 definition "eval_extract x f = (\<lambda>\<tau>. (case x \<tau> of \<lfloor>\<lfloor>obj\<rfloor>\<rfloor> \<Rightarrow> (f ((oid_of (obj))) (\<tau>))
     | _ \<Rightarrow> invalid \<tau>))"
 definition "in_pre_state = fst"
@@ -5493,23 +5496,23 @@ definition "in_post_state = snd"
 definition "reconst_basetype = (\<lambda>x _. \<lfloor>\<lfloor>x\<rfloor>\<rfloor>)"
 definition "reconst_basetype\<^sub>V\<^sub>o\<^sub>i\<^sub>d x = Abs_Void\<^sub>b\<^sub>a\<^sub>s\<^sub>e o (reconst_basetype (x))"
 
-(* 109 ************************************ 1475 + 1 *)
+(* 110 ************************************ 1476 + 1 *)
 text{* 
    The @{text pre_post}-parameter is configured with @{text fst} or
 @{text snd}, the @{text to_from}-parameter either with the identity @{term id} or
 the following combinator @{text switch}:  *}
 
-(* 110 ************************************ 1476 + 2 *)
+(* 111 ************************************ 1477 + 2 *)
 ML{* val switch2_01 = (fn [x0 , x1] => (x0 , x1)) *}
 ML{* val switch2_10 = (fn [x0 , x1] => (x1 , x0)) *}
 
-(* 111 ************************************ 1478 + 3 *)
+(* 112 ************************************ 1479 + 3 *)
 definition "switch\<^sub>2_01 = (\<lambda> [x0 , x1] \<Rightarrow> (x0 , x1))"
 definition "switch\<^sub>2_10 = (\<lambda> [x0 , x1] \<Rightarrow> (x1 , x0))"
 definition "deref_assocs pre_post to_from assoc_oid f oid = (\<lambda>\<tau>. (case (assocs ((pre_post (\<tau>))) (assoc_oid)) of \<lfloor>S\<rfloor> \<Rightarrow> (f ((deref_assocs_list (to_from) (oid) (S))) (\<tau>))
     | _ \<Rightarrow> (invalid (\<tau>))))"
 
-(* 112 ************************************ 1481 + 6 *)
+(* 113 ************************************ 1482 + 6 *)
 definition "deref_oid\<^sub>C\<^sub>u\<^sub>r\<^sub>r\<^sub>e\<^sub>n\<^sub>t fst_snd f oid = (\<lambda>\<tau>. (case (heap (fst_snd \<tau>) (oid)) of \<lfloor>in\<^sub>C\<^sub>u\<^sub>r\<^sub>r\<^sub>e\<^sub>n\<^sub>t obj\<rfloor> \<Rightarrow> f obj \<tau>
     | _ \<Rightarrow> invalid \<tau>))"
 definition "deref_oid\<^sub>S\<^sub>a\<^sub>v\<^sub>i\<^sub>n\<^sub>g\<^sub>s fst_snd f oid = (\<lambda>\<tau>. (case (heap (fst_snd \<tau>) (oid)) of \<lfloor>in\<^sub>S\<^sub>a\<^sub>v\<^sub>i\<^sub>n\<^sub>g\<^sub>s obj\<rfloor> \<Rightarrow> f obj \<tau>
@@ -5523,7 +5526,7 @@ definition "deref_oid\<^sub>C\<^sub>l\<^sub>i\<^sub>e\<^sub>n\<^sub>t fst_snd f 
 definition "deref_oid\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y fst_snd f oid = (\<lambda>\<tau>. (case (heap (fst_snd \<tau>) (oid)) of \<lfloor>in\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y obj\<rfloor> \<Rightarrow> f obj \<tau>
     | _ \<Rightarrow> invalid \<tau>))"
 
-(* 113 ************************************ 1487 + 10 *)
+(* 114 ************************************ 1488 + 10 *)
 definition "deref_assocs\<^sub>C\<^sub>u\<^sub>r\<^sub>r\<^sub>e\<^sub>n\<^sub>t_0_\<b>\<a>\<n>\<k> fst_snd f = (deref_assocs (fst_snd) (switch\<^sub>2_01) (oid\<^sub>C\<^sub>u\<^sub>r\<^sub>r\<^sub>e\<^sub>n\<^sub>t_0_\<b>\<a>\<n>\<k>) (f)) \<circ> oid_of"
 definition "deref_assocs\<^sub>C\<^sub>u\<^sub>r\<^sub>r\<^sub>e\<^sub>n\<^sub>t_0_\<o>\<w>\<n>\<e>\<r> fst_snd f = (deref_assocs (fst_snd) (switch\<^sub>2_01) (oid\<^sub>C\<^sub>u\<^sub>r\<^sub>r\<^sub>e\<^sub>n\<^sub>t_0_\<o>\<w>\<n>\<e>\<r>) (f)) \<circ> oid_of"
 definition "deref_assocs\<^sub>S\<^sub>a\<^sub>v\<^sub>i\<^sub>n\<^sub>g\<^sub>s_0_\<b>\<a>\<n>\<k> fst_snd f = (deref_assocs (fst_snd) (switch\<^sub>2_01) (oid\<^sub>S\<^sub>a\<^sub>v\<^sub>i\<^sub>n\<^sub>g\<^sub>s_0_\<b>\<a>\<n>\<k>) (f)) \<circ> oid_of"
@@ -5535,11 +5538,11 @@ definition "deref_assocs\<^sub>B\<^sub>a\<^sub>n\<^sub>k_0_\<c>\<l>\<i>\<e>\<n>\
 definition "deref_assocs\<^sub>C\<^sub>l\<^sub>i\<^sub>e\<^sub>n\<^sub>t_1_\<c>095\<a>\<c>\<c>\<o>\<u>\<n>\<t>\<s> fst_snd f = (deref_assocs (fst_snd) (switch\<^sub>2_10) (oid\<^sub>C\<^sub>l\<^sub>i\<^sub>e\<^sub>n\<^sub>t_1_\<c>095\<a>\<c>\<c>\<o>\<u>\<n>\<t>\<s>) (f)) \<circ> oid_of"
 definition "deref_assocs\<^sub>C\<^sub>l\<^sub>i\<^sub>e\<^sub>n\<^sub>t_1_\<b>\<a>\<n>\<k>\<s> fst_snd f = (deref_assocs (fst_snd) (switch\<^sub>2_10) (oid\<^sub>C\<^sub>l\<^sub>i\<^sub>e\<^sub>n\<^sub>t_1_\<b>\<a>\<n>\<k>\<s>) (f)) \<circ> oid_of"
 
-(* 114 ************************************ 1497 + 1 *)
+(* 115 ************************************ 1498 + 1 *)
 text{* 
    pointer undefined in state or not referencing a type conform object representation  *}
 
-(* 115 ************************************ 1498 + 12 *)
+(* 116 ************************************ 1499 + 12 *)
 definition "select\<^sub>C\<^sub>u\<^sub>r\<^sub>r\<^sub>e\<^sub>n\<^sub>t\<o>\<v>\<e>\<r>\<d>\<r>\<a>\<f>\<t> f = (\<lambda> (mk\<^sub>C\<^sub>u\<^sub>r\<^sub>r\<^sub>e\<^sub>n\<^sub>t (_) (\<bottom>)) \<Rightarrow> null
     | (mk\<^sub>C\<^sub>u\<^sub>r\<^sub>r\<^sub>e\<^sub>n\<^sub>t (_) (\<lfloor>x_\<o>\<v>\<e>\<r>\<d>\<r>\<a>\<f>\<t>\<rfloor>)) \<Rightarrow> (f (x_\<o>\<v>\<e>\<r>\<d>\<r>\<a>\<f>\<t>)))"
 definition "select\<^sub>S\<^sub>a\<^sub>v\<^sub>i\<^sub>n\<^sub>g\<^sub>s\<m>\<a>\<x> f = (\<lambda> (mk\<^sub>S\<^sub>a\<^sub>v\<^sub>i\<^sub>n\<^sub>g\<^sub>s (_) (\<bottom>)) \<Rightarrow> null
@@ -5565,7 +5568,7 @@ definition "select\<^sub>S\<^sub>a\<^sub>v\<^sub>i\<^sub>n\<^sub>g\<^sub>s\<i>\<
 definition "select\<^sub>S\<^sub>a\<^sub>v\<^sub>i\<^sub>n\<^sub>g\<^sub>s\<b>\<a>\<l>\<a>\<n>\<c>\<e> f = (\<lambda> (mk\<^sub>S\<^sub>a\<^sub>v\<^sub>i\<^sub>n\<^sub>g\<^sub>s ((mk\<E>\<X>\<T>\<^sub>S\<^sub>a\<^sub>v\<^sub>i\<^sub>n\<^sub>g\<^sub>s (_) (_) (\<bottom>))) (_)) \<Rightarrow> null
     | (mk\<^sub>S\<^sub>a\<^sub>v\<^sub>i\<^sub>n\<^sub>g\<^sub>s ((mk\<E>\<X>\<T>\<^sub>S\<^sub>a\<^sub>v\<^sub>i\<^sub>n\<^sub>g\<^sub>s (_) (_) (\<lfloor>x_\<b>\<a>\<l>\<a>\<n>\<c>\<e>\<rfloor>))) (_)) \<Rightarrow> (f (x_\<b>\<a>\<l>\<a>\<n>\<c>\<e>)))"
 
-(* 116 ************************************ 1510 + 10 *)
+(* 117 ************************************ 1511 + 10 *)
 definition "select\<^sub>C\<^sub>u\<^sub>r\<^sub>r\<^sub>e\<^sub>n\<^sub>t\<b>\<a>\<n>\<k> = select_object_any\<^sub>S\<^sub>e\<^sub>t"
 definition "select\<^sub>C\<^sub>u\<^sub>r\<^sub>r\<^sub>e\<^sub>n\<^sub>t\<o>\<w>\<n>\<e>\<r> = select_object_any\<^sub>S\<^sub>e\<^sub>t"
 definition "select\<^sub>S\<^sub>a\<^sub>v\<^sub>i\<^sub>n\<^sub>g\<^sub>s\<b>\<a>\<n>\<k> = select_object_any\<^sub>S\<^sub>e\<^sub>t"
@@ -5577,19 +5580,19 @@ definition "select\<^sub>B\<^sub>a\<^sub>n\<^sub>k\<c>\<l>\<i>\<e>\<n>\<t>\<s> =
 definition "select\<^sub>C\<^sub>l\<^sub>i\<^sub>e\<^sub>n\<^sub>t\<c>095\<a>\<c>\<c>\<o>\<u>\<n>\<t>\<s> = select_object\<^sub>S\<^sub>e\<^sub>t"
 definition "select\<^sub>C\<^sub>l\<^sub>i\<^sub>e\<^sub>n\<^sub>t\<b>\<a>\<n>\<k>\<s> = select_object\<^sub>S\<^sub>e\<^sub>t"
 
-(* 117 ************************************ 1520 + 28 *)
-consts dot\<o>\<v>\<e>\<r>\<d>\<r>\<a>\<f>\<t> :: "(\<AA>, '\<alpha>) val \<Rightarrow> (\<AA>, Currency option option) val" ("(_) .overdraft")
-consts dot\<o>\<v>\<e>\<r>\<d>\<r>\<a>\<f>\<t>at_pre :: "(\<AA>, '\<alpha>) val \<Rightarrow> (\<AA>, Currency option option) val" ("(_) .overdraft@pre")
-consts dot\<m>\<a>\<x> :: "(\<AA>, '\<alpha>) val \<Rightarrow> (\<AA>, Currency option option) val" ("(_) .max")
-consts dot\<m>\<a>\<x>at_pre :: "(\<AA>, '\<alpha>) val \<Rightarrow> (\<AA>, Currency option option) val" ("(_) .max@pre")
+(* 118 ************************************ 1521 + 28 *)
+consts dot\<o>\<v>\<e>\<r>\<d>\<r>\<a>\<f>\<t> :: "(\<AA>, '\<alpha>) val \<Rightarrow> Currency" ("(_) .overdraft")
+consts dot\<o>\<v>\<e>\<r>\<d>\<r>\<a>\<f>\<t>at_pre :: "(\<AA>, '\<alpha>) val \<Rightarrow> Currency" ("(_) .overdraft@pre")
+consts dot\<m>\<a>\<x> :: "(\<AA>, '\<alpha>) val \<Rightarrow> Currency" ("(_) .max")
+consts dot\<m>\<a>\<x>at_pre :: "(\<AA>, '\<alpha>) val \<Rightarrow> Currency" ("(_) .max@pre")
 consts dot_0_\<b>\<a>\<n>\<k> :: "(\<AA>, '\<alpha>) val \<Rightarrow> \<cdot>Bank" ("(_) .bank")
 consts dot_0_\<b>\<a>\<n>\<k>at_pre :: "(\<AA>, '\<alpha>) val \<Rightarrow> \<cdot>Bank" ("(_) .bank@pre")
 consts dot_0_\<o>\<w>\<n>\<e>\<r> :: "(\<AA>, '\<alpha>) val \<Rightarrow> \<cdot>Client" ("(_) .owner")
 consts dot_0_\<o>\<w>\<n>\<e>\<r>at_pre :: "(\<AA>, '\<alpha>) val \<Rightarrow> \<cdot>Client" ("(_) .owner@pre")
 consts dot\<i>\<d> :: "(\<AA>, '\<alpha>) val \<Rightarrow> Integer" ("(_) .id")
 consts dot\<i>\<d>at_pre :: "(\<AA>, '\<alpha>) val \<Rightarrow> Integer" ("(_) .id@pre")
-consts dot\<b>\<a>\<l>\<a>\<n>\<c>\<e> :: "(\<AA>, '\<alpha>) val \<Rightarrow> (\<AA>, Currency option option) val" ("(_) .balance")
-consts dot\<b>\<a>\<l>\<a>\<n>\<c>\<e>at_pre :: "(\<AA>, '\<alpha>) val \<Rightarrow> (\<AA>, Currency option option) val" ("(_) .balance@pre")
+consts dot\<b>\<a>\<l>\<a>\<n>\<c>\<e> :: "(\<AA>, '\<alpha>) val \<Rightarrow> Currency" ("(_) .balance")
+consts dot\<b>\<a>\<l>\<a>\<n>\<c>\<e>at_pre :: "(\<AA>, '\<alpha>) val \<Rightarrow> Currency" ("(_) .balance@pre")
 consts dot_1_\<b>095\<a>\<c>\<c>\<o>\<u>\<n>\<t>\<s> :: "(\<AA>, '\<alpha>) val \<Rightarrow> Set_Account" ("(_) .b'_accounts")
 consts dot_1_\<b>095\<a>\<c>\<c>\<o>\<u>\<n>\<t>\<s>at_pre :: "(\<AA>, '\<alpha>) val \<Rightarrow> Set_Account" ("(_) .b'_accounts@pre")
 consts dot_0_\<c>\<l>\<i>\<e>\<n>\<t>\<s> :: "(\<AA>, '\<alpha>) val \<Rightarrow> Set_Client" ("(_) .clients")
@@ -5607,7 +5610,7 @@ consts dot\<a>\<d>\<d>\<r>\<e>\<s>\<s>at_pre :: "(\<AA>, '\<alpha>) val \<Righta
 consts dot\<a>\<g>\<e> :: "(\<AA>, '\<alpha>) val \<Rightarrow> Integer" ("(_) .age")
 consts dot\<a>\<g>\<e>at_pre :: "(\<AA>, '\<alpha>) val \<Rightarrow> Integer" ("(_) .age@pre")
 
-(* 118 ************************************ 1548 + 44 *)
+(* 119 ************************************ 1549 + 44 *)
 defs(overloaded) dot\<^sub>C\<^sub>u\<^sub>r\<^sub>r\<^sub>e\<^sub>n\<^sub>t\<o>\<v>\<e>\<r>\<d>\<r>\<a>\<f>\<t> : "(x::\<cdot>Current) .overdraft \<equiv> (eval_extract (x) ((deref_oid\<^sub>C\<^sub>u\<^sub>r\<^sub>r\<^sub>e\<^sub>n\<^sub>t (in_post_state) ((select\<^sub>C\<^sub>u\<^sub>r\<^sub>r\<^sub>e\<^sub>n\<^sub>t\<o>\<v>\<e>\<r>\<d>\<r>\<a>\<f>\<t> (reconst_basetype))))))"
 defs(overloaded) dot\<^sub>C\<^sub>u\<^sub>r\<^sub>r\<^sub>e\<^sub>n\<^sub>t\<o>\<v>\<e>\<r>\<d>\<r>\<a>\<f>\<t>at_pre : "(x::\<cdot>Current) .overdraft@pre \<equiv> (eval_extract (x) ((deref_oid\<^sub>C\<^sub>u\<^sub>r\<^sub>r\<^sub>e\<^sub>n\<^sub>t (in_pre_state) ((select\<^sub>C\<^sub>u\<^sub>r\<^sub>r\<^sub>e\<^sub>n\<^sub>t\<o>\<v>\<e>\<r>\<d>\<r>\<a>\<f>\<t> (reconst_basetype))))))"
 defs(overloaded) dot\<^sub>S\<^sub>a\<^sub>v\<^sub>i\<^sub>n\<^sub>g\<^sub>s\<m>\<a>\<x> : "(x::\<cdot>Savings) .max \<equiv> (eval_extract (x) ((deref_oid\<^sub>S\<^sub>a\<^sub>v\<^sub>i\<^sub>n\<^sub>g\<^sub>s (in_post_state) ((select\<^sub>S\<^sub>a\<^sub>v\<^sub>i\<^sub>n\<^sub>g\<^sub>s\<m>\<a>\<x> (reconst_basetype))))))"
@@ -5653,7 +5656,7 @@ defs(overloaded) dot\<^sub>S\<^sub>a\<^sub>v\<^sub>i\<^sub>n\<^sub>g\<^sub>s_0_\
 defs(overloaded) dot\<^sub>S\<^sub>a\<^sub>v\<^sub>i\<^sub>n\<^sub>g\<^sub>s\<i>\<d>at_pre : "(x::\<cdot>Savings) .id@pre \<equiv> (eval_extract (x) ((deref_oid\<^sub>S\<^sub>a\<^sub>v\<^sub>i\<^sub>n\<^sub>g\<^sub>s (in_pre_state) ((select\<^sub>S\<^sub>a\<^sub>v\<^sub>i\<^sub>n\<^sub>g\<^sub>s\<i>\<d> (reconst_basetype))))))"
 defs(overloaded) dot\<^sub>S\<^sub>a\<^sub>v\<^sub>i\<^sub>n\<^sub>g\<^sub>s\<b>\<a>\<l>\<a>\<n>\<c>\<e>at_pre : "(x::\<cdot>Savings) .balance@pre \<equiv> (eval_extract (x) ((deref_oid\<^sub>S\<^sub>a\<^sub>v\<^sub>i\<^sub>n\<^sub>g\<^sub>s (in_pre_state) ((select\<^sub>S\<^sub>a\<^sub>v\<^sub>i\<^sub>n\<^sub>g\<^sub>s\<b>\<a>\<l>\<a>\<n>\<c>\<e> (reconst_basetype))))))"
 
-(* 119 ************************************ 1592 + 1 *)
+(* 120 ************************************ 1593 + 1 *)
 lemmas dot_accessor = dot\<^sub>C\<^sub>u\<^sub>r\<^sub>r\<^sub>e\<^sub>n\<^sub>t\<o>\<v>\<e>\<r>\<d>\<r>\<a>\<f>\<t>
                             dot\<^sub>C\<^sub>u\<^sub>r\<^sub>r\<^sub>e\<^sub>n\<^sub>t\<o>\<v>\<e>\<r>\<d>\<r>\<a>\<f>\<t>at_pre
                             dot\<^sub>S\<^sub>a\<^sub>v\<^sub>i\<^sub>n\<^sub>g\<^sub>s\<m>\<a>\<x>
@@ -5699,13 +5702,13 @@ lemmas dot_accessor = dot\<^sub>C\<^sub>u\<^sub>r\<^sub>r\<^sub>e\<^sub>n\<^sub>
                             dot\<^sub>S\<^sub>a\<^sub>v\<^sub>i\<^sub>n\<^sub>g\<^sub>s\<i>\<d>at_pre
                             dot\<^sub>S\<^sub>a\<^sub>v\<^sub>i\<^sub>n\<^sub>g\<^sub>s\<b>\<a>\<l>\<a>\<n>\<c>\<e>at_pre
 
-(* 120 ************************************ 1593 + 1 *)
+(* 121 ************************************ 1594 + 1 *)
 subsection{* Context Passing *}
 
-(* 121 ************************************ 1594 + 1 *)
+(* 122 ************************************ 1595 + 1 *)
 lemmas[simp,code_unfold] = eval_extract_def
 
-(* 122 ************************************ 1595 + 44 *)
+(* 123 ************************************ 1596 + 44 *)
 lemma cp_dot\<^sub>C\<^sub>u\<^sub>r\<^sub>r\<^sub>e\<^sub>n\<^sub>t\<o>\<v>\<e>\<r>\<d>\<r>\<a>\<f>\<t> : "(cp ((\<lambda>X. (X::\<cdot>Current) .overdraft)))"
 by(auto simp: dot_accessor cp_def)
 lemma cp_dot\<^sub>C\<^sub>u\<^sub>r\<^sub>r\<^sub>e\<^sub>n\<^sub>t\<o>\<v>\<e>\<r>\<d>\<r>\<a>\<f>\<t>at_pre : "(cp ((\<lambda>X. (X::\<cdot>Current) .overdraft@pre)))"
@@ -5795,7 +5798,7 @@ by(auto simp: dot_accessor cp_def)
 lemma cp_dot\<^sub>S\<^sub>a\<^sub>v\<^sub>i\<^sub>n\<^sub>g\<^sub>s\<b>\<a>\<l>\<a>\<n>\<c>\<e>at_pre : "(cp ((\<lambda>X. (X::\<cdot>Savings) .balance@pre)))"
 by(auto simp: dot_accessor cp_def)
 
-(* 123 ************************************ 1639 + 1 *)
+(* 124 ************************************ 1640 + 1 *)
 lemmas[simp,code_unfold] = cp_dot\<^sub>C\<^sub>u\<^sub>r\<^sub>r\<^sub>e\<^sub>n\<^sub>t\<o>\<v>\<e>\<r>\<d>\<r>\<a>\<f>\<t>
                             cp_dot\<^sub>C\<^sub>u\<^sub>r\<^sub>r\<^sub>e\<^sub>n\<^sub>t\<o>\<v>\<e>\<r>\<d>\<r>\<a>\<f>\<t>at_pre
                             cp_dot\<^sub>S\<^sub>a\<^sub>v\<^sub>i\<^sub>n\<^sub>g\<^sub>s\<m>\<a>\<x>
@@ -5841,10 +5844,10 @@ lemmas[simp,code_unfold] = cp_dot\<^sub>C\<^sub>u\<^sub>r\<^sub>r\<^sub>e\<^sub>
                             cp_dot\<^sub>S\<^sub>a\<^sub>v\<^sub>i\<^sub>n\<^sub>g\<^sub>s\<i>\<d>at_pre
                             cp_dot\<^sub>S\<^sub>a\<^sub>v\<^sub>i\<^sub>n\<^sub>g\<^sub>s\<b>\<a>\<l>\<a>\<n>\<c>\<e>at_pre
 
-(* 124 ************************************ 1640 + 1 *)
+(* 125 ************************************ 1641 + 1 *)
 subsection{* Execution with Invalid or Null as Argument *}
 
-(* 125 ************************************ 1641 + 88 *)
+(* 126 ************************************ 1642 + 88 *)
 lemma dot\<^sub>C\<^sub>u\<^sub>r\<^sub>r\<^sub>e\<^sub>n\<^sub>t\<o>\<v>\<e>\<r>\<d>\<r>\<a>\<f>\<t>_invalid : "(invalid::\<cdot>Current) .overdraft = invalid"
 by(rule ext, simp add: dot_accessor bot_option_def invalid_def)
 lemma dot\<^sub>C\<^sub>u\<^sub>r\<^sub>r\<^sub>e\<^sub>n\<^sub>t\<o>\<v>\<e>\<r>\<d>\<r>\<a>\<f>\<t>_null : "(null::\<cdot>Current) .overdraft = invalid"
@@ -6022,10 +6025,10 @@ by(rule ext, simp add: dot_accessor bot_option_def invalid_def)
 lemma dot\<^sub>S\<^sub>a\<^sub>v\<^sub>i\<^sub>n\<^sub>g\<^sub>s\<b>\<a>\<l>\<a>\<n>\<c>\<e>at_pre_null : "(null::\<cdot>Savings) .balance@pre = invalid"
 by(rule ext, simp add: dot_accessor bot_option_def null_fun_def null_option_def)
 
-(* 126 ************************************ 1729 + 1 *)
+(* 127 ************************************ 1730 + 1 *)
 subsection{* Representation in States *}
 
-(* 127 ************************************ 1730 + 44 *)
+(* 128 ************************************ 1731 + 44 *)
 lemma defined_mono_dot\<^sub>C\<^sub>u\<^sub>r\<^sub>r\<^sub>e\<^sub>n\<^sub>t\<o>\<v>\<e>\<r>\<d>\<r>\<a>\<f>\<t> : "\<tau> \<Turnstile> (\<delta> ((X::\<cdot>Current) .overdraft)) \<Longrightarrow> \<tau> \<Turnstile> (\<delta> (X))"
   apply(case_tac "\<tau> \<Turnstile> (X \<triangleq> invalid)", insert StrongEq_L_subst2[where P = "(\<lambda>x. (\<delta> (x .overdraft)))" and \<tau> = "\<tau>" and x = "X" and y = "invalid"], simp add: foundation16' dot\<^sub>C\<^sub>u\<^sub>r\<^sub>r\<^sub>e\<^sub>n\<^sub>t\<o>\<v>\<e>\<r>\<d>\<r>\<a>\<f>\<t>_invalid)
   apply(case_tac "\<tau> \<Turnstile> (X \<triangleq> null)", insert StrongEq_L_subst2[where P = "(\<lambda>x. (\<delta> (x .overdraft)))" and \<tau> = "\<tau>" and x = "X" and y = "null"], simp add: foundation16' dot\<^sub>C\<^sub>u\<^sub>r\<^sub>r\<^sub>e\<^sub>n\<^sub>t\<o>\<v>\<e>\<r>\<d>\<r>\<a>\<f>\<t>_null)
@@ -6203,7 +6206,7 @@ lemma defined_mono_dot\<^sub>S\<^sub>a\<^sub>v\<^sub>i\<^sub>n\<^sub>g\<^sub>s\<
   apply(case_tac "\<tau> \<Turnstile> (X \<triangleq> null)", insert StrongEq_L_subst2[where P = "(\<lambda>x. (\<delta> (x .balance@pre)))" and \<tau> = "\<tau>" and x = "X" and y = "null"], simp add: foundation16' dot\<^sub>S\<^sub>a\<^sub>v\<^sub>i\<^sub>n\<^sub>g\<^sub>s\<b>\<a>\<l>\<a>\<n>\<c>\<e>at_pre_null)
 by(simp add: defined_split)
 
-(* 128 ************************************ 1774 + 12 *)
+(* 129 ************************************ 1775 + 12 *)
 lemma is_repr_dot\<^sub>A\<^sub>c\<^sub>c\<^sub>o\<^sub>u\<^sub>n\<^sub>t_0_\<b>\<a>\<n>\<k> : 
 assumes def_dot: "\<tau> \<Turnstile> (\<delta> ((X::\<cdot>Account) .bank))"
 shows "(is_represented_in_state (in_post_state) (X .bank) (Bank) (\<tau>))"
@@ -6613,13 +6616,13 @@ by(rule) qed
   apply_end(simp_all)
  qed
 
-(* 129 ************************************ 1786 + 1 *)
+(* 130 ************************************ 1787 + 1 *)
 section{* A Little Infra-structure on Example States *}
 
-(* 130 ************************************ 1787 + 1 *)
+(* 131 ************************************ 1788 + 1 *)
 text{*  *}
 
-(* 131 ************************************ 1788 + 1 *)
+(* 132 ************************************ 1789 + 1 *)
 text{* 
 
 The example we are defining in this section comes from the figure~\ref{fig:eam1_system-states}.
@@ -6631,11 +6634,11 @@ The example we are defining in this section comes from the figure~\ref{fig:eam1_
 \end{figure}
  *}
 
-(* 132 ************************************ 1789 + 1 *)
+(* 133 ************************************ 1790 + 1 *)
 lemmas [simp,code_unfold] = state.defs
                             const_ss
 
-(* 133 ************************************ 1790 + 1 *)
+(* 134 ************************************ 1791 + 1 *)
 lemmas[simp,code_unfold] = OclAsType\<^sub>C\<^sub>u\<^sub>r\<^sub>r\<^sub>e\<^sub>n\<^sub>t_Account
                             OclAsType\<^sub>C\<^sub>u\<^sub>r\<^sub>r\<^sub>e\<^sub>n\<^sub>t_OclAny
                             OclAsType\<^sub>C\<^sub>u\<^sub>r\<^sub>r\<^sub>e\<^sub>n\<^sub>t_Savings
@@ -6667,13 +6670,13 @@ lemmas[simp,code_unfold] = OclAsType\<^sub>C\<^sub>u\<^sub>r\<^sub>r\<^sub>e\<^s
                             OclAsType\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_Bank
                             OclAsType\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_Client
 
-(* 134 ************************************ 1791 + 4 *)
+(* 135 ************************************ 1792 + 4 *)
 definition "oid3 = 3"
 definition "oid4 = 4"
 definition "oid5 = 5"
 definition "oid6 = 6"
 
-(* 135 ************************************ 1795 + 8 *)
+(* 136 ************************************ 1796 + 8 *)
 definition "Saving1\<^sub>A\<^sub>c\<^sub>c\<^sub>o\<^sub>u\<^sub>n\<^sub>t = (mk\<^sub>A\<^sub>c\<^sub>c\<^sub>o\<^sub>u\<^sub>n\<^sub>t ((mk\<E>\<X>\<T>\<^sub>A\<^sub>c\<^sub>c\<^sub>o\<^sub>u\<^sub>n\<^sub>t_\<^sub>S\<^sub>a\<^sub>v\<^sub>i\<^sub>n\<^sub>g\<^sub>s ((mk\<^sub>S\<^sub>a\<^sub>v\<^sub>i\<^sub>n\<^sub>g\<^sub>s ((mk\<E>\<X>\<T>\<^sub>S\<^sub>a\<^sub>v\<^sub>i\<^sub>n\<^sub>g\<^sub>s (oid3) (None) (None))) (\<lfloor>2000\<rfloor>))))) (None) (None))"
 definition "Client1\<^sub>C\<^sub>l\<^sub>i\<^sub>e\<^sub>n\<^sub>t = (mk\<^sub>C\<^sub>l\<^sub>i\<^sub>e\<^sub>n\<^sub>t ((mk\<E>\<X>\<T>\<^sub>C\<^sub>l\<^sub>i\<^sub>e\<^sub>n\<^sub>t (oid4))) (None) (None) (None))"
 definition "Account1\<^sub>A\<^sub>c\<^sub>c\<^sub>o\<^sub>u\<^sub>n\<^sub>t = (mk\<^sub>A\<^sub>c\<^sub>c\<^sub>o\<^sub>u\<^sub>n\<^sub>t ((mk\<E>\<X>\<T>\<^sub>A\<^sub>c\<^sub>c\<^sub>o\<^sub>u\<^sub>n\<^sub>t (oid5))) (\<lfloor>250\<rfloor>) (None))"
@@ -6683,62 +6686,62 @@ definition "(Client1::\<cdot>Client) = (\<lambda>_. \<lfloor>\<lfloor>Client1\<^
 definition "(Account1::\<cdot>Account) = (\<lambda>_. \<lfloor>\<lfloor>Account1\<^sub>A\<^sub>c\<^sub>c\<^sub>o\<^sub>u\<^sub>n\<^sub>t\<rfloor>\<rfloor>)"
 definition "(Bank1::\<cdot>Bank) = (\<lambda>_. \<lfloor>\<lfloor>Bank1\<^sub>B\<^sub>a\<^sub>n\<^sub>k\<rfloor>\<rfloor>)"
 
-(* 136 ************************************ 1803 + 1 *)
-ML{* (Ty'.check ([(OCL.Writeln , "Saving1 .owner = Set{ Client1 }") , (OCL.Writeln , "Saving1 .bank = Set{ Bank1 }") , (OCL.Writeln , "Saving1 .balance = Set{}") , (OCL.Writeln , "Saving1 .max = Set{}") , (OCL.Writeln , "Client1 .banks = Set{ Bank1 }") , (OCL.Writeln , "Client1 .c_accounts = Set{ Saving1 , Account1 }") , (OCL.Writeln , "Account1 .owner = Set{ Client1 }") , (OCL.Writeln , "Account1 .bank = Set{ Bank1 }") , (OCL.Writeln , "Account1 .balance = Set{}") , (OCL.Writeln , "Bank1 .clients = Set{ Client1 }") , (OCL.Writeln , "Bank1 .b_accounts = Set{ Saving1 , Account1 }")]) (" error(s)")) *}
+(* 137 ************************************ 1804 + 1 *)
+ML{* (Ty'.check ([(OCL.Writeln , "Saving1 .owner = Set{ Client1 }") , (OCL.Writeln , "Saving1 .bank = Set{ Bank1 }") , (OCL.Writeln , "Client1 .banks = Set{ Bank1 }") , (OCL.Writeln , "Client1 .c_accounts = Set{ Saving1 , Account1 }") , (OCL.Writeln , "Account1 .owner = Set{ Client1 }") , (OCL.Writeln , "Account1 .bank = Set{ Bank1 }") , (OCL.Writeln , "Bank1 .clients = Set{ Client1 }") , (OCL.Writeln , "Bank1 .b_accounts = Set{ Saving1 , Account1 }")]) (" error(s)")) *}
 
-(* 137 ************************************ 1804 + 3 *)
+(* 138 ************************************ 1805 + 3 *)
 generation_syntax [ shallow ]
-setup{* (Generation_mode.update_compiler_config ((K (let open OCL in Ocl_compiler_config_ext (true, NONE, Oids ((Code_Numeral.Nat 0), (Code_Numeral.Nat 3), (Code_Numeral.Nat 7)), I ((Code_Numeral.Nat 0), (Code_Numeral.Nat 0)), Gen_default, SOME (OclClass ((OCL.SS_base (OCL.ST "OclAny")), nil, uncurry cons (OclClass ((OCL.SS_base (OCL.ST "Client")), uncurry cons (I ((OCL.SS_base (OCL.ST "c_accounts")), OclTy_object (OclTyObj (OclTyCore (Ocl_ty_class_ext ((OCL.SS_base (OCL.ST "oid")), (Code_Numeral.Nat 1), (Code_Numeral.Nat 2), Ocl_ty_class_node_ext ((Code_Numeral.Nat 1), Ocl_multiplicity_ext (uncurry cons (I (Mult_nat ((Code_Numeral.Nat 1)), NONE), nil), SOME ((OCL.SS_base (OCL.ST "owner"))), nil, ()), (OCL.SS_base (OCL.ST "Client")), ()), Ocl_ty_class_node_ext ((Code_Numeral.Nat 0), Ocl_multiplicity_ext (uncurry cons (I (Mult_nat ((Code_Numeral.Nat 1)), SOME (Mult_star)), nil), SOME ((OCL.SS_base (OCL.ST "c_accounts"))), nil, ()), (OCL.SS_base (OCL.ST "Account")), ()), ())), nil))), uncurry cons (I ((OCL.SS_base (OCL.ST "banks")), OclTy_object (OclTyObj (OclTyCore (Ocl_ty_class_ext ((OCL.SS_base (OCL.ST "oid")), (Code_Numeral.Nat 0), (Code_Numeral.Nat 2), Ocl_ty_class_node_ext ((Code_Numeral.Nat 1), Ocl_multiplicity_ext (uncurry cons (I (Mult_nat ((Code_Numeral.Nat 1)), SOME (Mult_star)), nil), SOME ((OCL.SS_base (OCL.ST "clients"))), nil, ()), (OCL.SS_base (OCL.ST "Client")), ()), Ocl_ty_class_node_ext ((Code_Numeral.Nat 0), Ocl_multiplicity_ext (uncurry cons (I (Mult_nat ((Code_Numeral.Nat 1)), SOME (Mult_star)), nil), SOME ((OCL.SS_base (OCL.ST "banks"))), nil, ()), (OCL.SS_base (OCL.ST "Bank")), ()), ())), nil))), uncurry cons (I ((OCL.SS_base (OCL.ST "clientname")), OclTy_base_string), uncurry cons (I ((OCL.SS_base (OCL.ST "address")), OclTy_base_string), uncurry cons (I ((OCL.SS_base (OCL.ST "age")), OclTy_base_integer), nil))))), nil), uncurry cons (OclClass ((OCL.SS_base (OCL.ST "Bank")), uncurry cons (I ((OCL.SS_base (OCL.ST "b_accounts")), OclTy_object (OclTyObj (OclTyCore (Ocl_ty_class_ext ((OCL.SS_base (OCL.ST "oid")), (Code_Numeral.Nat 2), (Code_Numeral.Nat 2), Ocl_ty_class_node_ext ((Code_Numeral.Nat 1), Ocl_multiplicity_ext (uncurry cons (I (Mult_nat ((Code_Numeral.Nat 1)), NONE), nil), SOME ((OCL.SS_base (OCL.ST "bank"))), nil, ()), (OCL.SS_base (OCL.ST "Bank")), ()), Ocl_ty_class_node_ext ((Code_Numeral.Nat 0), Ocl_multiplicity_ext (uncurry cons (I (Mult_nat ((Code_Numeral.Nat 1)), SOME (Mult_star)), nil), SOME ((OCL.SS_base (OCL.ST "b_accounts"))), nil, ()), (OCL.SS_base (OCL.ST "Account")), ()), ())), nil))), uncurry cons (I ((OCL.SS_base (OCL.ST "clients")), OclTy_object (OclTyObj (OclTyCore (Ocl_ty_class_ext ((OCL.SS_base (OCL.ST "oid")), (Code_Numeral.Nat 0), (Code_Numeral.Nat 2), Ocl_ty_class_node_ext ((Code_Numeral.Nat 0), Ocl_multiplicity_ext (uncurry cons (I (Mult_nat ((Code_Numeral.Nat 1)), SOME (Mult_star)), nil), SOME ((OCL.SS_base (OCL.ST "banks"))), nil, ()), (OCL.SS_base (OCL.ST "Bank")), ()), Ocl_ty_class_node_ext ((Code_Numeral.Nat 1), Ocl_multiplicity_ext (uncurry cons (I (Mult_nat ((Code_Numeral.Nat 1)), SOME (Mult_star)), nil), SOME ((OCL.SS_base (OCL.ST "clients"))), nil, ()), (OCL.SS_base (OCL.ST "Client")), ()), ())), nil))), uncurry cons (I ((OCL.SS_base (OCL.ST "name")), OclTy_base_string), nil))), nil), uncurry cons (OclClass ((OCL.SS_base (OCL.ST "Account")), uncurry cons (I ((OCL.SS_base (OCL.ST "bank")), OclTy_object (OclTyObj (OclTyCore (Ocl_ty_class_ext ((OCL.SS_base (OCL.ST "oid")), (Code_Numeral.Nat 2), (Code_Numeral.Nat 2), Ocl_ty_class_node_ext ((Code_Numeral.Nat 0), Ocl_multiplicity_ext (uncurry cons (I (Mult_nat ((Code_Numeral.Nat 1)), SOME (Mult_star)), nil), SOME ((OCL.SS_base (OCL.ST "b_accounts"))), nil, ()), (OCL.SS_base (OCL.ST "Account")), ()), Ocl_ty_class_node_ext ((Code_Numeral.Nat 1), Ocl_multiplicity_ext (uncurry cons (I (Mult_nat ((Code_Numeral.Nat 1)), NONE), nil), SOME ((OCL.SS_base (OCL.ST "bank"))), nil, ()), (OCL.SS_base (OCL.ST "Bank")), ()), ())), nil))), uncurry cons (I ((OCL.SS_base (OCL.ST "owner")), OclTy_object (OclTyObj (OclTyCore (Ocl_ty_class_ext ((OCL.SS_base (OCL.ST "oid")), (Code_Numeral.Nat 1), (Code_Numeral.Nat 2), Ocl_ty_class_node_ext ((Code_Numeral.Nat 0), Ocl_multiplicity_ext (uncurry cons (I (Mult_nat ((Code_Numeral.Nat 1)), SOME (Mult_star)), nil), SOME ((OCL.SS_base (OCL.ST "c_accounts"))), nil, ()), (OCL.SS_base (OCL.ST "Account")), ()), Ocl_ty_class_node_ext ((Code_Numeral.Nat 1), Ocl_multiplicity_ext (uncurry cons (I (Mult_nat ((Code_Numeral.Nat 1)), NONE), nil), SOME ((OCL.SS_base (OCL.ST "owner"))), nil, ()), (OCL.SS_base (OCL.ST "Client")), ()), ())), nil))), uncurry cons (I ((OCL.SS_base (OCL.ST "id")), OclTy_base_integer), uncurry cons (I ((OCL.SS_base (OCL.ST "balance")), OclTy_raw ((OCL.SS_base (OCL.ST "Currency")))), nil)))), uncurry cons (OclClass ((OCL.SS_base (OCL.ST "Savings")), uncurry cons (I ((OCL.SS_base (OCL.ST "max")), OclTy_raw ((OCL.SS_base (OCL.ST "Currency")))), nil), nil), uncurry cons (OclClass ((OCL.SS_base (OCL.ST "Current")), uncurry cons (I ((OCL.SS_base (OCL.ST "overdraft")), OclTy_raw ((OCL.SS_base (OCL.ST "Currency")))), nil), nil), nil))), nil))))), uncurry cons (OclAstInstance (OclInstance (uncurry cons (Ocl_instance_single_ext (SOME ((OCL.SS_base (OCL.ST "Saving1"))), (OCL.SS_base (OCL.ST "Account")), OclAttrCast ((OCL.SS_base (OCL.ST "Savings")), OclAttrNoCast (uncurry cons (I ((OCL.SS_base (OCL.ST "max")), ShallB_term (OclDefInteger ((OCL.SS_base (OCL.ST "2000"))))), nil)), nil), ()), uncurry cons (Ocl_instance_single_ext (SOME ((OCL.SS_base (OCL.ST "Client1"))), (OCL.SS_base (OCL.ST "Client")), OclAttrNoCast (uncurry cons (I ((OCL.SS_base (OCL.ST "c_accounts")), ShallB_str ((OCL.SS_base (OCL.ST "Saving1")))), uncurry cons (I ((OCL.SS_base (OCL.ST "banks")), ShallB_str ((OCL.SS_base (OCL.ST "Bank1")))), nil))), ()), uncurry cons (Ocl_instance_single_ext (SOME ((OCL.SS_base (OCL.ST "Account1"))), (OCL.SS_base (OCL.ST "Account")), OclAttrNoCast (uncurry cons (I ((OCL.SS_base (OCL.ST "id")), ShallB_term (OclDefInteger ((OCL.SS_base (OCL.ST "250"))))), uncurry cons (I ((OCL.SS_base (OCL.ST "owner")), ShallB_str ((OCL.SS_base (OCL.ST "Client1")))), nil))), ()), uncurry cons (Ocl_instance_single_ext (SOME ((OCL.SS_base (OCL.ST "Bank1"))), (OCL.SS_base (OCL.ST "Bank")), OclAttrNoCast (uncurry cons (I ((OCL.SS_base (OCL.ST "b_accounts")), ShallB_list (uncurry cons (ShallB_str ((OCL.SS_base (OCL.ST "Saving1"))), uncurry cons (ShallB_str ((OCL.SS_base (OCL.ST "Account1"))), nil)))), uncurry cons (I ((OCL.SS_base (OCL.ST "name")), ShallB_term (OclDefString ((OCL.SS_base (OCL.ST "\<infinity>\<heartsuit> \<Longleftrightarrow> \<infinity>\<epsilon>"))))), nil))), ()), nil)))))), uncurry cons (OclAstClassSynonym (OclClassSynonym ((OCL.SS_base (OCL.ST "Currency")), OclTy_base_real)), uncurry cons (OclAstClassRaw (Floor1, Ocl_class_raw_ext (OclTyObj (OclTyCore_pre ((OCL.SS_base (OCL.ST "Current"))), uncurry cons (uncurry cons (OclTyCore_pre ((OCL.SS_base (OCL.ST "Account"))), nil), nil)), uncurry cons (I ((OCL.SS_base (OCL.ST "overdraft")), OclTy_object (OclTyObj (OclTyCore_pre ((OCL.SS_base (OCL.ST "Currency"))), nil))), nil), nil, false, ())), uncurry cons (OclAstClassRaw (Floor1, Ocl_class_raw_ext (OclTyObj (OclTyCore_pre ((OCL.SS_base (OCL.ST "Savings"))), uncurry cons (uncurry cons (OclTyCore_pre ((OCL.SS_base (OCL.ST "Account"))), nil), nil)), uncurry cons (I ((OCL.SS_base (OCL.ST "max")), OclTy_object (OclTyObj (OclTyCore_pre ((OCL.SS_base (OCL.ST "Currency"))), nil))), nil), nil, false, ())), uncurry cons (OclAstAssociation (Ocl_association_ext (OclAssTy_association, OclAssRel (uncurry cons (I (OclTyObj (OclTyCore_pre ((OCL.SS_base (OCL.ST "Account"))), nil), Ocl_multiplicity_ext (uncurry cons (I (Mult_nat ((Code_Numeral.Nat 1)), SOME (Mult_star)), nil), SOME ((OCL.SS_base (OCL.ST "b_accounts"))), nil, ())), uncurry cons (I (OclTyObj (OclTyCore_pre ((OCL.SS_base (OCL.ST "Bank"))), nil), Ocl_multiplicity_ext (uncurry cons (I (Mult_nat ((Code_Numeral.Nat 1)), NONE), nil), SOME ((OCL.SS_base (OCL.ST "bank"))), nil, ())), nil))), ())), uncurry cons (OclAstAssociation (Ocl_association_ext (OclAssTy_association, OclAssRel (uncurry cons (I (OclTyObj (OclTyCore_pre ((OCL.SS_base (OCL.ST "Account"))), nil), Ocl_multiplicity_ext (uncurry cons (I (Mult_nat ((Code_Numeral.Nat 1)), SOME (Mult_star)), nil), SOME ((OCL.SS_base (OCL.ST "c_accounts"))), nil, ())), uncurry cons (I (OclTyObj (OclTyCore_pre ((OCL.SS_base (OCL.ST "Client"))), nil), Ocl_multiplicity_ext (uncurry cons (I (Mult_nat ((Code_Numeral.Nat 1)), NONE), nil), SOME ((OCL.SS_base (OCL.ST "owner"))), nil, ())), nil))), ())), uncurry cons (OclAstAssociation (Ocl_association_ext (OclAssTy_association, OclAssRel (uncurry cons (I (OclTyObj (OclTyCore_pre ((OCL.SS_base (OCL.ST "Bank"))), nil), Ocl_multiplicity_ext (uncurry cons (I (Mult_nat ((Code_Numeral.Nat 1)), SOME (Mult_star)), nil), SOME ((OCL.SS_base (OCL.ST "banks"))), nil, ())), uncurry cons (I (OclTyObj (OclTyCore_pre ((OCL.SS_base (OCL.ST "Client"))), nil), Ocl_multiplicity_ext (uncurry cons (I (Mult_nat ((Code_Numeral.Nat 1)), SOME (Mult_star)), nil), SOME ((OCL.SS_base (OCL.ST "clients"))), nil, ())), nil))), ())), uncurry cons (OclAstClassRaw (Floor1, Ocl_class_raw_ext (OclTyObj (OclTyCore_pre ((OCL.SS_base (OCL.ST "Account"))), nil), uncurry cons (I ((OCL.SS_base (OCL.ST "id")), OclTy_base_integer), uncurry cons (I ((OCL.SS_base (OCL.ST "balance")), OclTy_object (OclTyObj (OclTyCore_pre ((OCL.SS_base (OCL.ST "Currency"))), nil))), nil)), nil, false, ())), uncurry cons (OclAstClassRaw (Floor1, Ocl_class_raw_ext (OclTyObj (OclTyCore_pre ((OCL.SS_base (OCL.ST "Client"))), nil), uncurry cons (I ((OCL.SS_base (OCL.ST "clientname")), OclTy_base_string), uncurry cons (I ((OCL.SS_base (OCL.ST "address")), OclTy_base_string), uncurry cons (I ((OCL.SS_base (OCL.ST "age")), OclTy_base_integer), nil))), nil, false, ())), uncurry cons (OclAstClassRaw (Floor1, Ocl_class_raw_ext (OclTyObj (OclTyCore_pre ((OCL.SS_base (OCL.ST "Bank"))), nil), uncurry cons (I ((OCL.SS_base (OCL.ST "name")), OclTy_base_string), nil), nil, false, ())), nil)))))))))), uncurry cons (I ((OCL.ST "Bank1"), I (Ocl_instance_single_ext (SOME ((OCL.SS_base (OCL.ST "Bank1"))), (OCL.SS_base (OCL.ST "Bank")), OclAttrNoCast (uncurry cons (I ((OCL.SS_base (OCL.ST "b_accounts")), ShallB_list (uncurry cons (ShallB_str ((OCL.SS_base (OCL.ST "Saving1"))), uncurry cons (ShallB_str ((OCL.SS_base (OCL.ST "Account1"))), nil)))), uncurry cons (I ((OCL.SS_base (OCL.ST "name")), ShallB_term (OclDefString ((OCL.SS_base (OCL.ST "\<infinity>\<heartsuit> \<Longleftrightarrow> \<infinity>\<epsilon>"))))), nil))), ()), Oids ((Code_Numeral.Nat 0), (Code_Numeral.Nat 3), (Code_Numeral.Nat 6)))), uncurry cons (I ((OCL.ST "Account1"), I (Ocl_instance_single_ext (SOME ((OCL.SS_base (OCL.ST "Account1"))), (OCL.SS_base (OCL.ST "Account")), OclAttrNoCast (uncurry cons (I ((OCL.SS_base (OCL.ST "id")), ShallB_term (OclDefInteger ((OCL.SS_base (OCL.ST "250"))))), uncurry cons (I ((OCL.SS_base (OCL.ST "owner")), ShallB_str ((OCL.SS_base (OCL.ST "Client1")))), nil))), ()), Oids ((Code_Numeral.Nat 0), (Code_Numeral.Nat 3), (Code_Numeral.Nat 5)))), uncurry cons (I ((OCL.ST "Client1"), I (Ocl_instance_single_ext (SOME ((OCL.SS_base (OCL.ST "Client1"))), (OCL.SS_base (OCL.ST "Client")), OclAttrNoCast (uncurry cons (I ((OCL.SS_base (OCL.ST "c_accounts")), ShallB_str ((OCL.SS_base (OCL.ST "Saving1")))), uncurry cons (I ((OCL.SS_base (OCL.ST "banks")), ShallB_str ((OCL.SS_base (OCL.ST "Bank1")))), nil))), ()), Oids ((Code_Numeral.Nat 0), (Code_Numeral.Nat 3), (Code_Numeral.Nat 4)))), uncurry cons (I ((OCL.ST "Saving1"), I (Ocl_instance_single_ext (SOME ((OCL.SS_base (OCL.ST "Saving1"))), (OCL.SS_base (OCL.ST "Account")), OclAttrCast ((OCL.SS_base (OCL.ST "Savings")), OclAttrNoCast (uncurry cons (I ((OCL.SS_base (OCL.ST "max")), ShallB_term (OclDefInteger ((OCL.SS_base (OCL.ST "2000"))))), nil)), nil), ()), Oids ((Code_Numeral.Nat 0), (Code_Numeral.Nat 3), (Code_Numeral.Nat 3)))), nil)))), nil, true, false, I (uncurry cons ((OCL.ST "dot\<a>\<g>\<e>at_pre"), uncurry cons ((OCL.ST "dot\<a>\<d>\<d>\<r>\<e>\<s>\<s>at_pre"), uncurry cons ((OCL.ST "dot\<c>\<l>\<i>\<e>\<n>\<t>\<n>\<a>\<m>\<e>at_pre"), uncurry cons ((OCL.ST "dot_1_\<b>\<a>\<n>\<k>\<s>at_pre"), uncurry cons ((OCL.ST "dot_1_\<c>095\<a>\<c>\<c>\<o>\<u>\<n>\<t>\<s>at_pre"), uncurry cons ((OCL.ST "dot\<n>\<a>\<m>\<e>at_pre"), uncurry cons ((OCL.ST "dot_0_\<c>\<l>\<i>\<e>\<n>\<t>\<s>at_pre"), uncurry cons ((OCL.ST "dot_1_\<b>095\<a>\<c>\<c>\<o>\<u>\<n>\<t>\<s>at_pre"), uncurry cons ((OCL.ST "dot\<b>\<a>\<l>\<a>\<n>\<c>\<e>at_pre"), uncurry cons ((OCL.ST "dot\<i>\<d>at_pre"), uncurry cons ((OCL.ST "dot_0_\<o>\<w>\<n>\<e>\<r>at_pre"), uncurry cons ((OCL.ST "dot_0_\<b>\<a>\<n>\<k>at_pre"), uncurry cons ((OCL.ST "dot\<m>\<a>\<x>at_pre"), uncurry cons ((OCL.ST "dot\<o>\<v>\<e>\<r>\<d>\<r>\<a>\<f>\<t>at_pre"), nil)))))))))))))), uncurry cons ((OCL.ST "dot\<a>\<g>\<e>"), uncurry cons ((OCL.ST "dot\<a>\<d>\<d>\<r>\<e>\<s>\<s>"), uncurry cons ((OCL.ST "dot\<c>\<l>\<i>\<e>\<n>\<t>\<n>\<a>\<m>\<e>"), uncurry cons ((OCL.ST "dot_1_\<b>\<a>\<n>\<k>\<s>"), uncurry cons ((OCL.ST "dot_1_\<c>095\<a>\<c>\<c>\<o>\<u>\<n>\<t>\<s>"), uncurry cons ((OCL.ST "dot\<n>\<a>\<m>\<e>"), uncurry cons ((OCL.ST "dot_0_\<c>\<l>\<i>\<e>\<n>\<t>\<s>"), uncurry cons ((OCL.ST "dot_1_\<b>095\<a>\<c>\<c>\<o>\<u>\<n>\<t>\<s>"), uncurry cons ((OCL.ST "dot\<b>\<a>\<l>\<a>\<n>\<c>\<e>"), uncurry cons ((OCL.ST "dot\<i>\<d>"), uncurry cons ((OCL.ST "dot_0_\<o>\<w>\<n>\<e>\<r>"), uncurry cons ((OCL.ST "dot_0_\<b>\<a>\<n>\<k>"), uncurry cons ((OCL.ST "dot\<m>\<a>\<x>"), uncurry cons ((OCL.ST "dot\<o>\<v>\<e>\<r>\<d>\<r>\<a>\<f>\<t>"), nil))))))))))))))), uncurry cons ((OCL.ST "Sequence_Client"), uncurry cons ((OCL.ST "Set_Client"), uncurry cons ((OCL.ST "Sequence_Bank"), uncurry cons ((OCL.ST "Set_Bank"), uncurry cons ((OCL.ST "Sequence_Account"), uncurry cons ((OCL.ST "Set_Account"), nil)))))), I (NONE, false), ()) end)))) *}
+setup{* (Generation_mode.update_compiler_config ((K (let open OCL in Ocl_compiler_config_ext (true, NONE, Oids ((Code_Numeral.Nat 0), (Code_Numeral.Nat 3), (Code_Numeral.Nat 7)), I ((Code_Numeral.Nat 0), (Code_Numeral.Nat 0)), Gen_default, SOME (OclClass ((OCL.SS_base (OCL.ST "OclAny")), nil, uncurry cons (OclClass ((OCL.SS_base (OCL.ST "Client")), uncurry cons (I ((OCL.SS_base (OCL.ST "c_accounts")), OclTy_object (OclTyObj (OclTyCore (Ocl_ty_class_ext ((OCL.SS_base (OCL.ST "oid")), (Code_Numeral.Nat 1), (Code_Numeral.Nat 2), Ocl_ty_class_node_ext ((Code_Numeral.Nat 1), Ocl_multiplicity_ext (uncurry cons (I (Mult_nat ((Code_Numeral.Nat 1)), NONE), nil), SOME ((OCL.SS_base (OCL.ST "owner"))), nil, ()), (OCL.SS_base (OCL.ST "Client")), ()), Ocl_ty_class_node_ext ((Code_Numeral.Nat 0), Ocl_multiplicity_ext (uncurry cons (I (Mult_nat ((Code_Numeral.Nat 1)), SOME (Mult_star)), nil), SOME ((OCL.SS_base (OCL.ST "c_accounts"))), nil, ()), (OCL.SS_base (OCL.ST "Account")), ()), ())), nil))), uncurry cons (I ((OCL.SS_base (OCL.ST "banks")), OclTy_object (OclTyObj (OclTyCore (Ocl_ty_class_ext ((OCL.SS_base (OCL.ST "oid")), (Code_Numeral.Nat 0), (Code_Numeral.Nat 2), Ocl_ty_class_node_ext ((Code_Numeral.Nat 1), Ocl_multiplicity_ext (uncurry cons (I (Mult_nat ((Code_Numeral.Nat 1)), SOME (Mult_star)), nil), SOME ((OCL.SS_base (OCL.ST "clients"))), nil, ()), (OCL.SS_base (OCL.ST "Client")), ()), Ocl_ty_class_node_ext ((Code_Numeral.Nat 0), Ocl_multiplicity_ext (uncurry cons (I (Mult_nat ((Code_Numeral.Nat 1)), SOME (Mult_star)), nil), SOME ((OCL.SS_base (OCL.ST "banks"))), nil, ()), (OCL.SS_base (OCL.ST "Bank")), ()), ())), nil))), uncurry cons (I ((OCL.SS_base (OCL.ST "clientname")), OclTy_base_string), uncurry cons (I ((OCL.SS_base (OCL.ST "address")), OclTy_base_string), uncurry cons (I ((OCL.SS_base (OCL.ST "age")), OclTy_base_integer), nil))))), nil), uncurry cons (OclClass ((OCL.SS_base (OCL.ST "Bank")), uncurry cons (I ((OCL.SS_base (OCL.ST "b_accounts")), OclTy_object (OclTyObj (OclTyCore (Ocl_ty_class_ext ((OCL.SS_base (OCL.ST "oid")), (Code_Numeral.Nat 2), (Code_Numeral.Nat 2), Ocl_ty_class_node_ext ((Code_Numeral.Nat 1), Ocl_multiplicity_ext (uncurry cons (I (Mult_nat ((Code_Numeral.Nat 1)), NONE), nil), SOME ((OCL.SS_base (OCL.ST "bank"))), nil, ()), (OCL.SS_base (OCL.ST "Bank")), ()), Ocl_ty_class_node_ext ((Code_Numeral.Nat 0), Ocl_multiplicity_ext (uncurry cons (I (Mult_nat ((Code_Numeral.Nat 1)), SOME (Mult_star)), nil), SOME ((OCL.SS_base (OCL.ST "b_accounts"))), nil, ()), (OCL.SS_base (OCL.ST "Account")), ()), ())), nil))), uncurry cons (I ((OCL.SS_base (OCL.ST "clients")), OclTy_object (OclTyObj (OclTyCore (Ocl_ty_class_ext ((OCL.SS_base (OCL.ST "oid")), (Code_Numeral.Nat 0), (Code_Numeral.Nat 2), Ocl_ty_class_node_ext ((Code_Numeral.Nat 0), Ocl_multiplicity_ext (uncurry cons (I (Mult_nat ((Code_Numeral.Nat 1)), SOME (Mult_star)), nil), SOME ((OCL.SS_base (OCL.ST "banks"))), nil, ()), (OCL.SS_base (OCL.ST "Bank")), ()), Ocl_ty_class_node_ext ((Code_Numeral.Nat 1), Ocl_multiplicity_ext (uncurry cons (I (Mult_nat ((Code_Numeral.Nat 1)), SOME (Mult_star)), nil), SOME ((OCL.SS_base (OCL.ST "clients"))), nil, ()), (OCL.SS_base (OCL.ST "Client")), ()), ())), nil))), uncurry cons (I ((OCL.SS_base (OCL.ST "name")), OclTy_base_string), nil))), nil), uncurry cons (OclClass ((OCL.SS_base (OCL.ST "Account")), uncurry cons (I ((OCL.SS_base (OCL.ST "bank")), OclTy_object (OclTyObj (OclTyCore (Ocl_ty_class_ext ((OCL.SS_base (OCL.ST "oid")), (Code_Numeral.Nat 2), (Code_Numeral.Nat 2), Ocl_ty_class_node_ext ((Code_Numeral.Nat 0), Ocl_multiplicity_ext (uncurry cons (I (Mult_nat ((Code_Numeral.Nat 1)), SOME (Mult_star)), nil), SOME ((OCL.SS_base (OCL.ST "b_accounts"))), nil, ()), (OCL.SS_base (OCL.ST "Account")), ()), Ocl_ty_class_node_ext ((Code_Numeral.Nat 1), Ocl_multiplicity_ext (uncurry cons (I (Mult_nat ((Code_Numeral.Nat 1)), NONE), nil), SOME ((OCL.SS_base (OCL.ST "bank"))), nil, ()), (OCL.SS_base (OCL.ST "Bank")), ()), ())), nil))), uncurry cons (I ((OCL.SS_base (OCL.ST "owner")), OclTy_object (OclTyObj (OclTyCore (Ocl_ty_class_ext ((OCL.SS_base (OCL.ST "oid")), (Code_Numeral.Nat 1), (Code_Numeral.Nat 2), Ocl_ty_class_node_ext ((Code_Numeral.Nat 0), Ocl_multiplicity_ext (uncurry cons (I (Mult_nat ((Code_Numeral.Nat 1)), SOME (Mult_star)), nil), SOME ((OCL.SS_base (OCL.ST "c_accounts"))), nil, ()), (OCL.SS_base (OCL.ST "Account")), ()), Ocl_ty_class_node_ext ((Code_Numeral.Nat 1), Ocl_multiplicity_ext (uncurry cons (I (Mult_nat ((Code_Numeral.Nat 1)), NONE), nil), SOME ((OCL.SS_base (OCL.ST "owner"))), nil, ()), (OCL.SS_base (OCL.ST "Client")), ()), ())), nil))), uncurry cons (I ((OCL.SS_base (OCL.ST "id")), OclTy_base_integer), uncurry cons (I ((OCL.SS_base (OCL.ST "balance")), OclTy_class_syn ((OCL.SS_base (OCL.ST "Currency")))), nil)))), uncurry cons (OclClass ((OCL.SS_base (OCL.ST "Savings")), uncurry cons (I ((OCL.SS_base (OCL.ST "max")), OclTy_class_syn ((OCL.SS_base (OCL.ST "Currency")))), nil), nil), uncurry cons (OclClass ((OCL.SS_base (OCL.ST "Current")), uncurry cons (I ((OCL.SS_base (OCL.ST "overdraft")), OclTy_class_syn ((OCL.SS_base (OCL.ST "Currency")))), nil), nil), nil))), nil))))), uncurry cons (OclAstInstance (OclInstance (uncurry cons (Ocl_instance_single_ext (SOME ((OCL.SS_base (OCL.ST "Saving1"))), (OCL.SS_base (OCL.ST "Account")), OclAttrCast ((OCL.SS_base (OCL.ST "Savings")), OclAttrNoCast (uncurry cons (I ((OCL.SS_base (OCL.ST "max")), ShallB_term (OclDefInteger ((OCL.SS_base (OCL.ST "2000"))))), nil)), nil), ()), uncurry cons (Ocl_instance_single_ext (SOME ((OCL.SS_base (OCL.ST "Client1"))), (OCL.SS_base (OCL.ST "Client")), OclAttrNoCast (uncurry cons (I ((OCL.SS_base (OCL.ST "c_accounts")), ShallB_str ((OCL.SS_base (OCL.ST "Saving1")))), uncurry cons (I ((OCL.SS_base (OCL.ST "banks")), ShallB_str ((OCL.SS_base (OCL.ST "Bank1")))), nil))), ()), uncurry cons (Ocl_instance_single_ext (SOME ((OCL.SS_base (OCL.ST "Account1"))), (OCL.SS_base (OCL.ST "Account")), OclAttrNoCast (uncurry cons (I ((OCL.SS_base (OCL.ST "id")), ShallB_term (OclDefInteger ((OCL.SS_base (OCL.ST "250"))))), uncurry cons (I ((OCL.SS_base (OCL.ST "owner")), ShallB_str ((OCL.SS_base (OCL.ST "Client1")))), nil))), ()), uncurry cons (Ocl_instance_single_ext (SOME ((OCL.SS_base (OCL.ST "Bank1"))), (OCL.SS_base (OCL.ST "Bank")), OclAttrNoCast (uncurry cons (I ((OCL.SS_base (OCL.ST "b_accounts")), ShallB_list (uncurry cons (ShallB_str ((OCL.SS_base (OCL.ST "Saving1"))), uncurry cons (ShallB_str ((OCL.SS_base (OCL.ST "Account1"))), nil)))), uncurry cons (I ((OCL.SS_base (OCL.ST "name")), ShallB_term (OclDefString ((OCL.SS_base (OCL.ST "\<infinity>\<heartsuit> \<Longleftrightarrow> \<infinity>\<epsilon>"))))), nil))), ()), nil)))))), uncurry cons (OclAstClassSynonym (OclClassSynonym ((OCL.SS_base (OCL.ST "Currency")), OclTy_base_real)), uncurry cons (OclAstClassRaw (Floor1, Ocl_class_raw_ext (OclTyObj (OclTyCore_pre ((OCL.SS_base (OCL.ST "Current"))), uncurry cons (uncurry cons (OclTyCore_pre ((OCL.SS_base (OCL.ST "Account"))), nil), nil)), uncurry cons (I ((OCL.SS_base (OCL.ST "overdraft")), OclTy_object (OclTyObj (OclTyCore_pre ((OCL.SS_base (OCL.ST "Currency"))), nil))), nil), nil, false, ())), uncurry cons (OclAstClassRaw (Floor1, Ocl_class_raw_ext (OclTyObj (OclTyCore_pre ((OCL.SS_base (OCL.ST "Savings"))), uncurry cons (uncurry cons (OclTyCore_pre ((OCL.SS_base (OCL.ST "Account"))), nil), nil)), uncurry cons (I ((OCL.SS_base (OCL.ST "max")), OclTy_object (OclTyObj (OclTyCore_pre ((OCL.SS_base (OCL.ST "Currency"))), nil))), nil), nil, false, ())), uncurry cons (OclAstAssociation (Ocl_association_ext (OclAssTy_association, OclAssRel (uncurry cons (I (OclTyObj (OclTyCore_pre ((OCL.SS_base (OCL.ST "Account"))), nil), Ocl_multiplicity_ext (uncurry cons (I (Mult_nat ((Code_Numeral.Nat 1)), SOME (Mult_star)), nil), SOME ((OCL.SS_base (OCL.ST "b_accounts"))), nil, ())), uncurry cons (I (OclTyObj (OclTyCore_pre ((OCL.SS_base (OCL.ST "Bank"))), nil), Ocl_multiplicity_ext (uncurry cons (I (Mult_nat ((Code_Numeral.Nat 1)), NONE), nil), SOME ((OCL.SS_base (OCL.ST "bank"))), nil, ())), nil))), ())), uncurry cons (OclAstAssociation (Ocl_association_ext (OclAssTy_association, OclAssRel (uncurry cons (I (OclTyObj (OclTyCore_pre ((OCL.SS_base (OCL.ST "Account"))), nil), Ocl_multiplicity_ext (uncurry cons (I (Mult_nat ((Code_Numeral.Nat 1)), SOME (Mult_star)), nil), SOME ((OCL.SS_base (OCL.ST "c_accounts"))), nil, ())), uncurry cons (I (OclTyObj (OclTyCore_pre ((OCL.SS_base (OCL.ST "Client"))), nil), Ocl_multiplicity_ext (uncurry cons (I (Mult_nat ((Code_Numeral.Nat 1)), NONE), nil), SOME ((OCL.SS_base (OCL.ST "owner"))), nil, ())), nil))), ())), uncurry cons (OclAstAssociation (Ocl_association_ext (OclAssTy_association, OclAssRel (uncurry cons (I (OclTyObj (OclTyCore_pre ((OCL.SS_base (OCL.ST "Bank"))), nil), Ocl_multiplicity_ext (uncurry cons (I (Mult_nat ((Code_Numeral.Nat 1)), SOME (Mult_star)), nil), SOME ((OCL.SS_base (OCL.ST "banks"))), nil, ())), uncurry cons (I (OclTyObj (OclTyCore_pre ((OCL.SS_base (OCL.ST "Client"))), nil), Ocl_multiplicity_ext (uncurry cons (I (Mult_nat ((Code_Numeral.Nat 1)), SOME (Mult_star)), nil), SOME ((OCL.SS_base (OCL.ST "clients"))), nil, ())), nil))), ())), uncurry cons (OclAstClassRaw (Floor1, Ocl_class_raw_ext (OclTyObj (OclTyCore_pre ((OCL.SS_base (OCL.ST "Account"))), nil), uncurry cons (I ((OCL.SS_base (OCL.ST "id")), OclTy_base_integer), uncurry cons (I ((OCL.SS_base (OCL.ST "balance")), OclTy_object (OclTyObj (OclTyCore_pre ((OCL.SS_base (OCL.ST "Currency"))), nil))), nil)), nil, false, ())), uncurry cons (OclAstClassRaw (Floor1, Ocl_class_raw_ext (OclTyObj (OclTyCore_pre ((OCL.SS_base (OCL.ST "Client"))), nil), uncurry cons (I ((OCL.SS_base (OCL.ST "clientname")), OclTy_base_string), uncurry cons (I ((OCL.SS_base (OCL.ST "address")), OclTy_base_string), uncurry cons (I ((OCL.SS_base (OCL.ST "age")), OclTy_base_integer), nil))), nil, false, ())), uncurry cons (OclAstClassRaw (Floor1, Ocl_class_raw_ext (OclTyObj (OclTyCore_pre ((OCL.SS_base (OCL.ST "Bank"))), nil), uncurry cons (I ((OCL.SS_base (OCL.ST "name")), OclTy_base_string), nil), nil, false, ())), nil)))))))))), uncurry cons (I ((OCL.ST "Bank1"), I (Ocl_instance_single_ext (SOME ((OCL.SS_base (OCL.ST "Bank1"))), (OCL.SS_base (OCL.ST "Bank")), OclAttrNoCast (uncurry cons (I ((OCL.SS_base (OCL.ST "b_accounts")), ShallB_list (uncurry cons (ShallB_str ((OCL.SS_base (OCL.ST "Saving1"))), uncurry cons (ShallB_str ((OCL.SS_base (OCL.ST "Account1"))), nil)))), uncurry cons (I ((OCL.SS_base (OCL.ST "name")), ShallB_term (OclDefString ((OCL.SS_base (OCL.ST "\<infinity>\<heartsuit> \<Longleftrightarrow> \<infinity>\<epsilon>"))))), nil))), ()), Oids ((Code_Numeral.Nat 0), (Code_Numeral.Nat 3), (Code_Numeral.Nat 6)))), uncurry cons (I ((OCL.ST "Account1"), I (Ocl_instance_single_ext (SOME ((OCL.SS_base (OCL.ST "Account1"))), (OCL.SS_base (OCL.ST "Account")), OclAttrNoCast (uncurry cons (I ((OCL.SS_base (OCL.ST "id")), ShallB_term (OclDefInteger ((OCL.SS_base (OCL.ST "250"))))), uncurry cons (I ((OCL.SS_base (OCL.ST "owner")), ShallB_str ((OCL.SS_base (OCL.ST "Client1")))), nil))), ()), Oids ((Code_Numeral.Nat 0), (Code_Numeral.Nat 3), (Code_Numeral.Nat 5)))), uncurry cons (I ((OCL.ST "Client1"), I (Ocl_instance_single_ext (SOME ((OCL.SS_base (OCL.ST "Client1"))), (OCL.SS_base (OCL.ST "Client")), OclAttrNoCast (uncurry cons (I ((OCL.SS_base (OCL.ST "c_accounts")), ShallB_str ((OCL.SS_base (OCL.ST "Saving1")))), uncurry cons (I ((OCL.SS_base (OCL.ST "banks")), ShallB_str ((OCL.SS_base (OCL.ST "Bank1")))), nil))), ()), Oids ((Code_Numeral.Nat 0), (Code_Numeral.Nat 3), (Code_Numeral.Nat 4)))), uncurry cons (I ((OCL.ST "Saving1"), I (Ocl_instance_single_ext (SOME ((OCL.SS_base (OCL.ST "Saving1"))), (OCL.SS_base (OCL.ST "Account")), OclAttrCast ((OCL.SS_base (OCL.ST "Savings")), OclAttrNoCast (uncurry cons (I ((OCL.SS_base (OCL.ST "max")), ShallB_term (OclDefInteger ((OCL.SS_base (OCL.ST "2000"))))), nil)), nil), ()), Oids ((Code_Numeral.Nat 0), (Code_Numeral.Nat 3), (Code_Numeral.Nat 3)))), nil)))), nil, true, false, I (uncurry cons ((OCL.ST "dot\<a>\<g>\<e>at_pre"), uncurry cons ((OCL.ST "dot\<a>\<d>\<d>\<r>\<e>\<s>\<s>at_pre"), uncurry cons ((OCL.ST "dot\<c>\<l>\<i>\<e>\<n>\<t>\<n>\<a>\<m>\<e>at_pre"), uncurry cons ((OCL.ST "dot_1_\<b>\<a>\<n>\<k>\<s>at_pre"), uncurry cons ((OCL.ST "dot_1_\<c>095\<a>\<c>\<c>\<o>\<u>\<n>\<t>\<s>at_pre"), uncurry cons ((OCL.ST "dot\<n>\<a>\<m>\<e>at_pre"), uncurry cons ((OCL.ST "dot_0_\<c>\<l>\<i>\<e>\<n>\<t>\<s>at_pre"), uncurry cons ((OCL.ST "dot_1_\<b>095\<a>\<c>\<c>\<o>\<u>\<n>\<t>\<s>at_pre"), uncurry cons ((OCL.ST "dot\<b>\<a>\<l>\<a>\<n>\<c>\<e>at_pre"), uncurry cons ((OCL.ST "dot\<i>\<d>at_pre"), uncurry cons ((OCL.ST "dot_0_\<o>\<w>\<n>\<e>\<r>at_pre"), uncurry cons ((OCL.ST "dot_0_\<b>\<a>\<n>\<k>at_pre"), uncurry cons ((OCL.ST "dot\<m>\<a>\<x>at_pre"), uncurry cons ((OCL.ST "dot\<o>\<v>\<e>\<r>\<d>\<r>\<a>\<f>\<t>at_pre"), nil)))))))))))))), uncurry cons ((OCL.ST "dot\<a>\<g>\<e>"), uncurry cons ((OCL.ST "dot\<a>\<d>\<d>\<r>\<e>\<s>\<s>"), uncurry cons ((OCL.ST "dot\<c>\<l>\<i>\<e>\<n>\<t>\<n>\<a>\<m>\<e>"), uncurry cons ((OCL.ST "dot_1_\<b>\<a>\<n>\<k>\<s>"), uncurry cons ((OCL.ST "dot_1_\<c>095\<a>\<c>\<c>\<o>\<u>\<n>\<t>\<s>"), uncurry cons ((OCL.ST "dot\<n>\<a>\<m>\<e>"), uncurry cons ((OCL.ST "dot_0_\<c>\<l>\<i>\<e>\<n>\<t>\<s>"), uncurry cons ((OCL.ST "dot_1_\<b>095\<a>\<c>\<c>\<o>\<u>\<n>\<t>\<s>"), uncurry cons ((OCL.ST "dot\<b>\<a>\<l>\<a>\<n>\<c>\<e>"), uncurry cons ((OCL.ST "dot\<i>\<d>"), uncurry cons ((OCL.ST "dot_0_\<o>\<w>\<n>\<e>\<r>"), uncurry cons ((OCL.ST "dot_0_\<b>\<a>\<n>\<k>"), uncurry cons ((OCL.ST "dot\<m>\<a>\<x>"), uncurry cons ((OCL.ST "dot\<o>\<v>\<e>\<r>\<d>\<r>\<a>\<f>\<t>"), nil))))))))))))))), uncurry cons ((OCL.ST "Sequence_Client"), uncurry cons ((OCL.ST "Set_Client"), uncurry cons ((OCL.ST "Sequence_Bank"), uncurry cons ((OCL.ST "Set_Bank"), uncurry cons ((OCL.ST "Sequence_Account"), uncurry cons ((OCL.ST "Set_Account"), nil)))))), I (NONE, false), ()) end)))) *}
 State[shallow] \<sigma>\<^sub>1' = [ Account1, Client1, Bank1, Saving1 ]
 
-(* 138 ************************************ 1807 + 1 *)
+(* 139 ************************************ 1808 + 1 *)
 State[shallow] ss = [  ]
 
-(* 139 ************************************ 1808 + 1 *)
+(* 140 ************************************ 1809 + 1 *)
 PrePost[shallow] ss \<sigma>\<^sub>1'
 
-(* 140 ************************************ 1809 + 2 *)
+(* 141 ************************************ 1810 + 2 *)
 definition OclInt25 ("\<two>\<five>")
   where "OclInt25 = (\<lambda>_. \<lfloor>\<lfloor>25\<rfloor>\<rfloor>)"
 definition OclReal250_0 ("\<two>\<five>\<zero>.\<zero>")
   where "OclReal250_0 = (\<lambda>_. \<lfloor>\<lfloor>250\<rfloor>\<rfloor>)"
 
-(* 141 ************************************ 1811 + 2 *)
-setup{* (Generation_mode.update_compiler_config ((K (let open OCL in Ocl_compiler_config_ext (true, NONE, Oids ((Code_Numeral.Nat 0), (Code_Numeral.Nat 3), (Code_Numeral.Nat 7)), I ((Code_Numeral.Nat 0), (Code_Numeral.Nat 0)), Gen_default, SOME (OclClass ((OCL.SS_base (OCL.ST "OclAny")), nil, uncurry cons (OclClass ((OCL.SS_base (OCL.ST "Client")), uncurry cons (I ((OCL.SS_base (OCL.ST "c_accounts")), OclTy_object (OclTyObj (OclTyCore (Ocl_ty_class_ext ((OCL.SS_base (OCL.ST "oid")), (Code_Numeral.Nat 1), (Code_Numeral.Nat 2), Ocl_ty_class_node_ext ((Code_Numeral.Nat 1), Ocl_multiplicity_ext (uncurry cons (I (Mult_nat ((Code_Numeral.Nat 1)), NONE), nil), SOME ((OCL.SS_base (OCL.ST "owner"))), nil, ()), (OCL.SS_base (OCL.ST "Client")), ()), Ocl_ty_class_node_ext ((Code_Numeral.Nat 0), Ocl_multiplicity_ext (uncurry cons (I (Mult_nat ((Code_Numeral.Nat 1)), SOME (Mult_star)), nil), SOME ((OCL.SS_base (OCL.ST "c_accounts"))), nil, ()), (OCL.SS_base (OCL.ST "Account")), ()), ())), nil))), uncurry cons (I ((OCL.SS_base (OCL.ST "banks")), OclTy_object (OclTyObj (OclTyCore (Ocl_ty_class_ext ((OCL.SS_base (OCL.ST "oid")), (Code_Numeral.Nat 0), (Code_Numeral.Nat 2), Ocl_ty_class_node_ext ((Code_Numeral.Nat 1), Ocl_multiplicity_ext (uncurry cons (I (Mult_nat ((Code_Numeral.Nat 1)), SOME (Mult_star)), nil), SOME ((OCL.SS_base (OCL.ST "clients"))), nil, ()), (OCL.SS_base (OCL.ST "Client")), ()), Ocl_ty_class_node_ext ((Code_Numeral.Nat 0), Ocl_multiplicity_ext (uncurry cons (I (Mult_nat ((Code_Numeral.Nat 1)), SOME (Mult_star)), nil), SOME ((OCL.SS_base (OCL.ST "banks"))), nil, ()), (OCL.SS_base (OCL.ST "Bank")), ()), ())), nil))), uncurry cons (I ((OCL.SS_base (OCL.ST "clientname")), OclTy_base_string), uncurry cons (I ((OCL.SS_base (OCL.ST "address")), OclTy_base_string), uncurry cons (I ((OCL.SS_base (OCL.ST "age")), OclTy_base_integer), nil))))), nil), uncurry cons (OclClass ((OCL.SS_base (OCL.ST "Bank")), uncurry cons (I ((OCL.SS_base (OCL.ST "b_accounts")), OclTy_object (OclTyObj (OclTyCore (Ocl_ty_class_ext ((OCL.SS_base (OCL.ST "oid")), (Code_Numeral.Nat 2), (Code_Numeral.Nat 2), Ocl_ty_class_node_ext ((Code_Numeral.Nat 1), Ocl_multiplicity_ext (uncurry cons (I (Mult_nat ((Code_Numeral.Nat 1)), NONE), nil), SOME ((OCL.SS_base (OCL.ST "bank"))), nil, ()), (OCL.SS_base (OCL.ST "Bank")), ()), Ocl_ty_class_node_ext ((Code_Numeral.Nat 0), Ocl_multiplicity_ext (uncurry cons (I (Mult_nat ((Code_Numeral.Nat 1)), SOME (Mult_star)), nil), SOME ((OCL.SS_base (OCL.ST "b_accounts"))), nil, ()), (OCL.SS_base (OCL.ST "Account")), ()), ())), nil))), uncurry cons (I ((OCL.SS_base (OCL.ST "clients")), OclTy_object (OclTyObj (OclTyCore (Ocl_ty_class_ext ((OCL.SS_base (OCL.ST "oid")), (Code_Numeral.Nat 0), (Code_Numeral.Nat 2), Ocl_ty_class_node_ext ((Code_Numeral.Nat 0), Ocl_multiplicity_ext (uncurry cons (I (Mult_nat ((Code_Numeral.Nat 1)), SOME (Mult_star)), nil), SOME ((OCL.SS_base (OCL.ST "banks"))), nil, ()), (OCL.SS_base (OCL.ST "Bank")), ()), Ocl_ty_class_node_ext ((Code_Numeral.Nat 1), Ocl_multiplicity_ext (uncurry cons (I (Mult_nat ((Code_Numeral.Nat 1)), SOME (Mult_star)), nil), SOME ((OCL.SS_base (OCL.ST "clients"))), nil, ()), (OCL.SS_base (OCL.ST "Client")), ()), ())), nil))), uncurry cons (I ((OCL.SS_base (OCL.ST "name")), OclTy_base_string), nil))), nil), uncurry cons (OclClass ((OCL.SS_base (OCL.ST "Account")), uncurry cons (I ((OCL.SS_base (OCL.ST "bank")), OclTy_object (OclTyObj (OclTyCore (Ocl_ty_class_ext ((OCL.SS_base (OCL.ST "oid")), (Code_Numeral.Nat 2), (Code_Numeral.Nat 2), Ocl_ty_class_node_ext ((Code_Numeral.Nat 0), Ocl_multiplicity_ext (uncurry cons (I (Mult_nat ((Code_Numeral.Nat 1)), SOME (Mult_star)), nil), SOME ((OCL.SS_base (OCL.ST "b_accounts"))), nil, ()), (OCL.SS_base (OCL.ST "Account")), ()), Ocl_ty_class_node_ext ((Code_Numeral.Nat 1), Ocl_multiplicity_ext (uncurry cons (I (Mult_nat ((Code_Numeral.Nat 1)), NONE), nil), SOME ((OCL.SS_base (OCL.ST "bank"))), nil, ()), (OCL.SS_base (OCL.ST "Bank")), ()), ())), nil))), uncurry cons (I ((OCL.SS_base (OCL.ST "owner")), OclTy_object (OclTyObj (OclTyCore (Ocl_ty_class_ext ((OCL.SS_base (OCL.ST "oid")), (Code_Numeral.Nat 1), (Code_Numeral.Nat 2), Ocl_ty_class_node_ext ((Code_Numeral.Nat 0), Ocl_multiplicity_ext (uncurry cons (I (Mult_nat ((Code_Numeral.Nat 1)), SOME (Mult_star)), nil), SOME ((OCL.SS_base (OCL.ST "c_accounts"))), nil, ()), (OCL.SS_base (OCL.ST "Account")), ()), Ocl_ty_class_node_ext ((Code_Numeral.Nat 1), Ocl_multiplicity_ext (uncurry cons (I (Mult_nat ((Code_Numeral.Nat 1)), NONE), nil), SOME ((OCL.SS_base (OCL.ST "owner"))), nil, ()), (OCL.SS_base (OCL.ST "Client")), ()), ())), nil))), uncurry cons (I ((OCL.SS_base (OCL.ST "id")), OclTy_base_integer), uncurry cons (I ((OCL.SS_base (OCL.ST "balance")), OclTy_raw ((OCL.SS_base (OCL.ST "Currency")))), nil)))), uncurry cons (OclClass ((OCL.SS_base (OCL.ST "Savings")), uncurry cons (I ((OCL.SS_base (OCL.ST "max")), OclTy_raw ((OCL.SS_base (OCL.ST "Currency")))), nil), nil), uncurry cons (OclClass ((OCL.SS_base (OCL.ST "Current")), uncurry cons (I ((OCL.SS_base (OCL.ST "overdraft")), OclTy_raw ((OCL.SS_base (OCL.ST "Currency")))), nil), nil), nil))), nil))))), uncurry cons (OclAstDefBaseL (OclDefBase (uncurry cons (OclDefInteger ((OCL.SS_base (OCL.ST "25"))), uncurry cons (OclDefReal (I ((OCL.SS_base (OCL.ST "250")), (OCL.SS_base (OCL.ST "0")))), nil)))), uncurry cons (OclAstDefPrePost (Floor1, OclDefPP (NONE, OclDefPPCoreBinding ((OCL.SS_base (OCL.ST "ss"))), SOME (OclDefPPCoreBinding ((OCL.SS_base (OCL.ST "\<sigma>\<^sub>1'")))))), uncurry cons (OclAstDefState (Floor1, OclDefSt ((OCL.SS_base (OCL.ST "ss")), nil)), uncurry cons (OclAstDefState (Floor1, OclDefSt ((OCL.SS_base (OCL.ST "\<sigma>\<^sub>1'")), uncurry cons (OclDefCoreBinding ((OCL.SS_base (OCL.ST "Account1"))), uncurry cons (OclDefCoreBinding ((OCL.SS_base (OCL.ST "Client1"))), uncurry cons (OclDefCoreBinding ((OCL.SS_base (OCL.ST "Bank1"))), uncurry cons (OclDefCoreBinding ((OCL.SS_base (OCL.ST "Saving1"))), nil)))))), uncurry cons (OclAstInstance (OclInstance (uncurry cons (Ocl_instance_single_ext (SOME ((OCL.SS_base (OCL.ST "Saving1"))), (OCL.SS_base (OCL.ST "Account")), OclAttrCast ((OCL.SS_base (OCL.ST "Savings")), OclAttrNoCast (uncurry cons (I ((OCL.SS_base (OCL.ST "max")), ShallB_term (OclDefInteger ((OCL.SS_base (OCL.ST "2000"))))), nil)), nil), ()), uncurry cons (Ocl_instance_single_ext (SOME ((OCL.SS_base (OCL.ST "Client1"))), (OCL.SS_base (OCL.ST "Client")), OclAttrNoCast (uncurry cons (I ((OCL.SS_base (OCL.ST "c_accounts")), ShallB_str ((OCL.SS_base (OCL.ST "Saving1")))), uncurry cons (I ((OCL.SS_base (OCL.ST "banks")), ShallB_str ((OCL.SS_base (OCL.ST "Bank1")))), nil))), ()), uncurry cons (Ocl_instance_single_ext (SOME ((OCL.SS_base (OCL.ST "Account1"))), (OCL.SS_base (OCL.ST "Account")), OclAttrNoCast (uncurry cons (I ((OCL.SS_base (OCL.ST "id")), ShallB_term (OclDefInteger ((OCL.SS_base (OCL.ST "250"))))), uncurry cons (I ((OCL.SS_base (OCL.ST "owner")), ShallB_str ((OCL.SS_base (OCL.ST "Client1")))), nil))), ()), uncurry cons (Ocl_instance_single_ext (SOME ((OCL.SS_base (OCL.ST "Bank1"))), (OCL.SS_base (OCL.ST "Bank")), OclAttrNoCast (uncurry cons (I ((OCL.SS_base (OCL.ST "b_accounts")), ShallB_list (uncurry cons (ShallB_str ((OCL.SS_base (OCL.ST "Saving1"))), uncurry cons (ShallB_str ((OCL.SS_base (OCL.ST "Account1"))), nil)))), uncurry cons (I ((OCL.SS_base (OCL.ST "name")), ShallB_term (OclDefString ((OCL.SS_base (OCL.ST "\<infinity>\<heartsuit> \<Longleftrightarrow> \<infinity>\<epsilon>"))))), nil))), ()), nil)))))), uncurry cons (OclAstClassSynonym (OclClassSynonym ((OCL.SS_base (OCL.ST "Currency")), OclTy_base_real)), uncurry cons (OclAstClassRaw (Floor1, Ocl_class_raw_ext (OclTyObj (OclTyCore_pre ((OCL.SS_base (OCL.ST "Current"))), uncurry cons (uncurry cons (OclTyCore_pre ((OCL.SS_base (OCL.ST "Account"))), nil), nil)), uncurry cons (I ((OCL.SS_base (OCL.ST "overdraft")), OclTy_object (OclTyObj (OclTyCore_pre ((OCL.SS_base (OCL.ST "Currency"))), nil))), nil), nil, false, ())), uncurry cons (OclAstClassRaw (Floor1, Ocl_class_raw_ext (OclTyObj (OclTyCore_pre ((OCL.SS_base (OCL.ST "Savings"))), uncurry cons (uncurry cons (OclTyCore_pre ((OCL.SS_base (OCL.ST "Account"))), nil), nil)), uncurry cons (I ((OCL.SS_base (OCL.ST "max")), OclTy_object (OclTyObj (OclTyCore_pre ((OCL.SS_base (OCL.ST "Currency"))), nil))), nil), nil, false, ())), uncurry cons (OclAstAssociation (Ocl_association_ext (OclAssTy_association, OclAssRel (uncurry cons (I (OclTyObj (OclTyCore_pre ((OCL.SS_base (OCL.ST "Account"))), nil), Ocl_multiplicity_ext (uncurry cons (I (Mult_nat ((Code_Numeral.Nat 1)), SOME (Mult_star)), nil), SOME ((OCL.SS_base (OCL.ST "b_accounts"))), nil, ())), uncurry cons (I (OclTyObj (OclTyCore_pre ((OCL.SS_base (OCL.ST "Bank"))), nil), Ocl_multiplicity_ext (uncurry cons (I (Mult_nat ((Code_Numeral.Nat 1)), NONE), nil), SOME ((OCL.SS_base (OCL.ST "bank"))), nil, ())), nil))), ())), uncurry cons (OclAstAssociation (Ocl_association_ext (OclAssTy_association, OclAssRel (uncurry cons (I (OclTyObj (OclTyCore_pre ((OCL.SS_base (OCL.ST "Account"))), nil), Ocl_multiplicity_ext (uncurry cons (I (Mult_nat ((Code_Numeral.Nat 1)), SOME (Mult_star)), nil), SOME ((OCL.SS_base (OCL.ST "c_accounts"))), nil, ())), uncurry cons (I (OclTyObj (OclTyCore_pre ((OCL.SS_base (OCL.ST "Client"))), nil), Ocl_multiplicity_ext (uncurry cons (I (Mult_nat ((Code_Numeral.Nat 1)), NONE), nil), SOME ((OCL.SS_base (OCL.ST "owner"))), nil, ())), nil))), ())), uncurry cons (OclAstAssociation (Ocl_association_ext (OclAssTy_association, OclAssRel (uncurry cons (I (OclTyObj (OclTyCore_pre ((OCL.SS_base (OCL.ST "Bank"))), nil), Ocl_multiplicity_ext (uncurry cons (I (Mult_nat ((Code_Numeral.Nat 1)), SOME (Mult_star)), nil), SOME ((OCL.SS_base (OCL.ST "banks"))), nil, ())), uncurry cons (I (OclTyObj (OclTyCore_pre ((OCL.SS_base (OCL.ST "Client"))), nil), Ocl_multiplicity_ext (uncurry cons (I (Mult_nat ((Code_Numeral.Nat 1)), SOME (Mult_star)), nil), SOME ((OCL.SS_base (OCL.ST "clients"))), nil, ())), nil))), ())), uncurry cons (OclAstClassRaw (Floor1, Ocl_class_raw_ext (OclTyObj (OclTyCore_pre ((OCL.SS_base (OCL.ST "Account"))), nil), uncurry cons (I ((OCL.SS_base (OCL.ST "id")), OclTy_base_integer), uncurry cons (I ((OCL.SS_base (OCL.ST "balance")), OclTy_object (OclTyObj (OclTyCore_pre ((OCL.SS_base (OCL.ST "Currency"))), nil))), nil)), nil, false, ())), uncurry cons (OclAstClassRaw (Floor1, Ocl_class_raw_ext (OclTyObj (OclTyCore_pre ((OCL.SS_base (OCL.ST "Client"))), nil), uncurry cons (I ((OCL.SS_base (OCL.ST "clientname")), OclTy_base_string), uncurry cons (I ((OCL.SS_base (OCL.ST "address")), OclTy_base_string), uncurry cons (I ((OCL.SS_base (OCL.ST "age")), OclTy_base_integer), nil))), nil, false, ())), uncurry cons (OclAstClassRaw (Floor1, Ocl_class_raw_ext (OclTyObj (OclTyCore_pre ((OCL.SS_base (OCL.ST "Bank"))), nil), uncurry cons (I ((OCL.SS_base (OCL.ST "name")), OclTy_base_string), nil), nil, false, ())), nil)))))))))))))), uncurry cons (I ((OCL.ST "Bank1"), I (Ocl_instance_single_ext (SOME ((OCL.SS_base (OCL.ST "Bank1"))), (OCL.SS_base (OCL.ST "Bank")), OclAttrNoCast (uncurry cons (I ((OCL.SS_base (OCL.ST "b_accounts")), ShallB_list (uncurry cons (ShallB_str ((OCL.SS_base (OCL.ST "Saving1"))), uncurry cons (ShallB_str ((OCL.SS_base (OCL.ST "Account1"))), nil)))), uncurry cons (I ((OCL.SS_base (OCL.ST "name")), ShallB_term (OclDefString ((OCL.SS_base (OCL.ST "\<infinity>\<heartsuit> \<Longleftrightarrow> \<infinity>\<epsilon>"))))), nil))), ()), Oids ((Code_Numeral.Nat 0), (Code_Numeral.Nat 3), (Code_Numeral.Nat 6)))), uncurry cons (I ((OCL.ST "Account1"), I (Ocl_instance_single_ext (SOME ((OCL.SS_base (OCL.ST "Account1"))), (OCL.SS_base (OCL.ST "Account")), OclAttrNoCast (uncurry cons (I ((OCL.SS_base (OCL.ST "id")), ShallB_term (OclDefInteger ((OCL.SS_base (OCL.ST "250"))))), uncurry cons (I ((OCL.SS_base (OCL.ST "owner")), ShallB_str ((OCL.SS_base (OCL.ST "Client1")))), nil))), ()), Oids ((Code_Numeral.Nat 0), (Code_Numeral.Nat 3), (Code_Numeral.Nat 5)))), uncurry cons (I ((OCL.ST "Client1"), I (Ocl_instance_single_ext (SOME ((OCL.SS_base (OCL.ST "Client1"))), (OCL.SS_base (OCL.ST "Client")), OclAttrNoCast (uncurry cons (I ((OCL.SS_base (OCL.ST "c_accounts")), ShallB_str ((OCL.SS_base (OCL.ST "Saving1")))), uncurry cons (I ((OCL.SS_base (OCL.ST "banks")), ShallB_str ((OCL.SS_base (OCL.ST "Bank1")))), nil))), ()), Oids ((Code_Numeral.Nat 0), (Code_Numeral.Nat 3), (Code_Numeral.Nat 4)))), uncurry cons (I ((OCL.ST "Saving1"), I (Ocl_instance_single_ext (SOME ((OCL.SS_base (OCL.ST "Saving1"))), (OCL.SS_base (OCL.ST "Account")), OclAttrCast ((OCL.SS_base (OCL.ST "Savings")), OclAttrNoCast (uncurry cons (I ((OCL.SS_base (OCL.ST "max")), ShallB_term (OclDefInteger ((OCL.SS_base (OCL.ST "2000"))))), nil)), nil), ()), Oids ((Code_Numeral.Nat 0), (Code_Numeral.Nat 3), (Code_Numeral.Nat 3)))), nil)))), nil, true, true, I (uncurry cons ((OCL.ST "dot\<a>\<g>\<e>at_pre"), uncurry cons ((OCL.ST "dot\<a>\<d>\<d>\<r>\<e>\<s>\<s>at_pre"), uncurry cons ((OCL.ST "dot\<c>\<l>\<i>\<e>\<n>\<t>\<n>\<a>\<m>\<e>at_pre"), uncurry cons ((OCL.ST "dot_1_\<b>\<a>\<n>\<k>\<s>at_pre"), uncurry cons ((OCL.ST "dot_1_\<c>095\<a>\<c>\<c>\<o>\<u>\<n>\<t>\<s>at_pre"), uncurry cons ((OCL.ST "dot\<n>\<a>\<m>\<e>at_pre"), uncurry cons ((OCL.ST "dot_0_\<c>\<l>\<i>\<e>\<n>\<t>\<s>at_pre"), uncurry cons ((OCL.ST "dot_1_\<b>095\<a>\<c>\<c>\<o>\<u>\<n>\<t>\<s>at_pre"), uncurry cons ((OCL.ST "dot\<b>\<a>\<l>\<a>\<n>\<c>\<e>at_pre"), uncurry cons ((OCL.ST "dot\<i>\<d>at_pre"), uncurry cons ((OCL.ST "dot_0_\<o>\<w>\<n>\<e>\<r>at_pre"), uncurry cons ((OCL.ST "dot_0_\<b>\<a>\<n>\<k>at_pre"), uncurry cons ((OCL.ST "dot\<m>\<a>\<x>at_pre"), uncurry cons ((OCL.ST "dot\<o>\<v>\<e>\<r>\<d>\<r>\<a>\<f>\<t>at_pre"), nil)))))))))))))), uncurry cons ((OCL.ST "dot\<a>\<g>\<e>"), uncurry cons ((OCL.ST "dot\<a>\<d>\<d>\<r>\<e>\<s>\<s>"), uncurry cons ((OCL.ST "dot\<c>\<l>\<i>\<e>\<n>\<t>\<n>\<a>\<m>\<e>"), uncurry cons ((OCL.ST "dot_1_\<b>\<a>\<n>\<k>\<s>"), uncurry cons ((OCL.ST "dot_1_\<c>095\<a>\<c>\<c>\<o>\<u>\<n>\<t>\<s>"), uncurry cons ((OCL.ST "dot\<n>\<a>\<m>\<e>"), uncurry cons ((OCL.ST "dot_0_\<c>\<l>\<i>\<e>\<n>\<t>\<s>"), uncurry cons ((OCL.ST "dot_1_\<b>095\<a>\<c>\<c>\<o>\<u>\<n>\<t>\<s>"), uncurry cons ((OCL.ST "dot\<b>\<a>\<l>\<a>\<n>\<c>\<e>"), uncurry cons ((OCL.ST "dot\<i>\<d>"), uncurry cons ((OCL.ST "dot_0_\<o>\<w>\<n>\<e>\<r>"), uncurry cons ((OCL.ST "dot_0_\<b>\<a>\<n>\<k>"), uncurry cons ((OCL.ST "dot\<m>\<a>\<x>"), uncurry cons ((OCL.ST "dot\<o>\<v>\<e>\<r>\<d>\<r>\<a>\<f>\<t>"), nil))))))))))))))), uncurry cons ((OCL.ST "Sequence_Client"), uncurry cons ((OCL.ST "Set_Client"), uncurry cons ((OCL.ST "Sequence_Bank"), uncurry cons ((OCL.ST "Set_Bank"), uncurry cons ((OCL.ST "Sequence_Account"), uncurry cons ((OCL.ST "Set_Account"), nil)))))), I (NONE, false), ()) end)))) *}
+(* 142 ************************************ 1812 + 2 *)
+setup{* (Generation_mode.update_compiler_config ((K (let open OCL in Ocl_compiler_config_ext (true, NONE, Oids ((Code_Numeral.Nat 0), (Code_Numeral.Nat 3), (Code_Numeral.Nat 7)), I ((Code_Numeral.Nat 0), (Code_Numeral.Nat 0)), Gen_default, SOME (OclClass ((OCL.SS_base (OCL.ST "OclAny")), nil, uncurry cons (OclClass ((OCL.SS_base (OCL.ST "Client")), uncurry cons (I ((OCL.SS_base (OCL.ST "c_accounts")), OclTy_object (OclTyObj (OclTyCore (Ocl_ty_class_ext ((OCL.SS_base (OCL.ST "oid")), (Code_Numeral.Nat 1), (Code_Numeral.Nat 2), Ocl_ty_class_node_ext ((Code_Numeral.Nat 1), Ocl_multiplicity_ext (uncurry cons (I (Mult_nat ((Code_Numeral.Nat 1)), NONE), nil), SOME ((OCL.SS_base (OCL.ST "owner"))), nil, ()), (OCL.SS_base (OCL.ST "Client")), ()), Ocl_ty_class_node_ext ((Code_Numeral.Nat 0), Ocl_multiplicity_ext (uncurry cons (I (Mult_nat ((Code_Numeral.Nat 1)), SOME (Mult_star)), nil), SOME ((OCL.SS_base (OCL.ST "c_accounts"))), nil, ()), (OCL.SS_base (OCL.ST "Account")), ()), ())), nil))), uncurry cons (I ((OCL.SS_base (OCL.ST "banks")), OclTy_object (OclTyObj (OclTyCore (Ocl_ty_class_ext ((OCL.SS_base (OCL.ST "oid")), (Code_Numeral.Nat 0), (Code_Numeral.Nat 2), Ocl_ty_class_node_ext ((Code_Numeral.Nat 1), Ocl_multiplicity_ext (uncurry cons (I (Mult_nat ((Code_Numeral.Nat 1)), SOME (Mult_star)), nil), SOME ((OCL.SS_base (OCL.ST "clients"))), nil, ()), (OCL.SS_base (OCL.ST "Client")), ()), Ocl_ty_class_node_ext ((Code_Numeral.Nat 0), Ocl_multiplicity_ext (uncurry cons (I (Mult_nat ((Code_Numeral.Nat 1)), SOME (Mult_star)), nil), SOME ((OCL.SS_base (OCL.ST "banks"))), nil, ()), (OCL.SS_base (OCL.ST "Bank")), ()), ())), nil))), uncurry cons (I ((OCL.SS_base (OCL.ST "clientname")), OclTy_base_string), uncurry cons (I ((OCL.SS_base (OCL.ST "address")), OclTy_base_string), uncurry cons (I ((OCL.SS_base (OCL.ST "age")), OclTy_base_integer), nil))))), nil), uncurry cons (OclClass ((OCL.SS_base (OCL.ST "Bank")), uncurry cons (I ((OCL.SS_base (OCL.ST "b_accounts")), OclTy_object (OclTyObj (OclTyCore (Ocl_ty_class_ext ((OCL.SS_base (OCL.ST "oid")), (Code_Numeral.Nat 2), (Code_Numeral.Nat 2), Ocl_ty_class_node_ext ((Code_Numeral.Nat 1), Ocl_multiplicity_ext (uncurry cons (I (Mult_nat ((Code_Numeral.Nat 1)), NONE), nil), SOME ((OCL.SS_base (OCL.ST "bank"))), nil, ()), (OCL.SS_base (OCL.ST "Bank")), ()), Ocl_ty_class_node_ext ((Code_Numeral.Nat 0), Ocl_multiplicity_ext (uncurry cons (I (Mult_nat ((Code_Numeral.Nat 1)), SOME (Mult_star)), nil), SOME ((OCL.SS_base (OCL.ST "b_accounts"))), nil, ()), (OCL.SS_base (OCL.ST "Account")), ()), ())), nil))), uncurry cons (I ((OCL.SS_base (OCL.ST "clients")), OclTy_object (OclTyObj (OclTyCore (Ocl_ty_class_ext ((OCL.SS_base (OCL.ST "oid")), (Code_Numeral.Nat 0), (Code_Numeral.Nat 2), Ocl_ty_class_node_ext ((Code_Numeral.Nat 0), Ocl_multiplicity_ext (uncurry cons (I (Mult_nat ((Code_Numeral.Nat 1)), SOME (Mult_star)), nil), SOME ((OCL.SS_base (OCL.ST "banks"))), nil, ()), (OCL.SS_base (OCL.ST "Bank")), ()), Ocl_ty_class_node_ext ((Code_Numeral.Nat 1), Ocl_multiplicity_ext (uncurry cons (I (Mult_nat ((Code_Numeral.Nat 1)), SOME (Mult_star)), nil), SOME ((OCL.SS_base (OCL.ST "clients"))), nil, ()), (OCL.SS_base (OCL.ST "Client")), ()), ())), nil))), uncurry cons (I ((OCL.SS_base (OCL.ST "name")), OclTy_base_string), nil))), nil), uncurry cons (OclClass ((OCL.SS_base (OCL.ST "Account")), uncurry cons (I ((OCL.SS_base (OCL.ST "bank")), OclTy_object (OclTyObj (OclTyCore (Ocl_ty_class_ext ((OCL.SS_base (OCL.ST "oid")), (Code_Numeral.Nat 2), (Code_Numeral.Nat 2), Ocl_ty_class_node_ext ((Code_Numeral.Nat 0), Ocl_multiplicity_ext (uncurry cons (I (Mult_nat ((Code_Numeral.Nat 1)), SOME (Mult_star)), nil), SOME ((OCL.SS_base (OCL.ST "b_accounts"))), nil, ()), (OCL.SS_base (OCL.ST "Account")), ()), Ocl_ty_class_node_ext ((Code_Numeral.Nat 1), Ocl_multiplicity_ext (uncurry cons (I (Mult_nat ((Code_Numeral.Nat 1)), NONE), nil), SOME ((OCL.SS_base (OCL.ST "bank"))), nil, ()), (OCL.SS_base (OCL.ST "Bank")), ()), ())), nil))), uncurry cons (I ((OCL.SS_base (OCL.ST "owner")), OclTy_object (OclTyObj (OclTyCore (Ocl_ty_class_ext ((OCL.SS_base (OCL.ST "oid")), (Code_Numeral.Nat 1), (Code_Numeral.Nat 2), Ocl_ty_class_node_ext ((Code_Numeral.Nat 0), Ocl_multiplicity_ext (uncurry cons (I (Mult_nat ((Code_Numeral.Nat 1)), SOME (Mult_star)), nil), SOME ((OCL.SS_base (OCL.ST "c_accounts"))), nil, ()), (OCL.SS_base (OCL.ST "Account")), ()), Ocl_ty_class_node_ext ((Code_Numeral.Nat 1), Ocl_multiplicity_ext (uncurry cons (I (Mult_nat ((Code_Numeral.Nat 1)), NONE), nil), SOME ((OCL.SS_base (OCL.ST "owner"))), nil, ()), (OCL.SS_base (OCL.ST "Client")), ()), ())), nil))), uncurry cons (I ((OCL.SS_base (OCL.ST "id")), OclTy_base_integer), uncurry cons (I ((OCL.SS_base (OCL.ST "balance")), OclTy_class_syn ((OCL.SS_base (OCL.ST "Currency")))), nil)))), uncurry cons (OclClass ((OCL.SS_base (OCL.ST "Savings")), uncurry cons (I ((OCL.SS_base (OCL.ST "max")), OclTy_class_syn ((OCL.SS_base (OCL.ST "Currency")))), nil), nil), uncurry cons (OclClass ((OCL.SS_base (OCL.ST "Current")), uncurry cons (I ((OCL.SS_base (OCL.ST "overdraft")), OclTy_class_syn ((OCL.SS_base (OCL.ST "Currency")))), nil), nil), nil))), nil))))), uncurry cons (OclAstDefBaseL (OclDefBase (uncurry cons (OclDefInteger ((OCL.SS_base (OCL.ST "25"))), uncurry cons (OclDefReal (I ((OCL.SS_base (OCL.ST "250")), (OCL.SS_base (OCL.ST "0")))), nil)))), uncurry cons (OclAstDefPrePost (Floor1, OclDefPP (NONE, OclDefPPCoreBinding ((OCL.SS_base (OCL.ST "ss"))), SOME (OclDefPPCoreBinding ((OCL.SS_base (OCL.ST "\<sigma>\<^sub>1'")))))), uncurry cons (OclAstDefState (Floor1, OclDefSt ((OCL.SS_base (OCL.ST "ss")), nil)), uncurry cons (OclAstDefState (Floor1, OclDefSt ((OCL.SS_base (OCL.ST "\<sigma>\<^sub>1'")), uncurry cons (OclDefCoreBinding ((OCL.SS_base (OCL.ST "Account1"))), uncurry cons (OclDefCoreBinding ((OCL.SS_base (OCL.ST "Client1"))), uncurry cons (OclDefCoreBinding ((OCL.SS_base (OCL.ST "Bank1"))), uncurry cons (OclDefCoreBinding ((OCL.SS_base (OCL.ST "Saving1"))), nil)))))), uncurry cons (OclAstInstance (OclInstance (uncurry cons (Ocl_instance_single_ext (SOME ((OCL.SS_base (OCL.ST "Saving1"))), (OCL.SS_base (OCL.ST "Account")), OclAttrCast ((OCL.SS_base (OCL.ST "Savings")), OclAttrNoCast (uncurry cons (I ((OCL.SS_base (OCL.ST "max")), ShallB_term (OclDefInteger ((OCL.SS_base (OCL.ST "2000"))))), nil)), nil), ()), uncurry cons (Ocl_instance_single_ext (SOME ((OCL.SS_base (OCL.ST "Client1"))), (OCL.SS_base (OCL.ST "Client")), OclAttrNoCast (uncurry cons (I ((OCL.SS_base (OCL.ST "c_accounts")), ShallB_str ((OCL.SS_base (OCL.ST "Saving1")))), uncurry cons (I ((OCL.SS_base (OCL.ST "banks")), ShallB_str ((OCL.SS_base (OCL.ST "Bank1")))), nil))), ()), uncurry cons (Ocl_instance_single_ext (SOME ((OCL.SS_base (OCL.ST "Account1"))), (OCL.SS_base (OCL.ST "Account")), OclAttrNoCast (uncurry cons (I ((OCL.SS_base (OCL.ST "id")), ShallB_term (OclDefInteger ((OCL.SS_base (OCL.ST "250"))))), uncurry cons (I ((OCL.SS_base (OCL.ST "owner")), ShallB_str ((OCL.SS_base (OCL.ST "Client1")))), nil))), ()), uncurry cons (Ocl_instance_single_ext (SOME ((OCL.SS_base (OCL.ST "Bank1"))), (OCL.SS_base (OCL.ST "Bank")), OclAttrNoCast (uncurry cons (I ((OCL.SS_base (OCL.ST "b_accounts")), ShallB_list (uncurry cons (ShallB_str ((OCL.SS_base (OCL.ST "Saving1"))), uncurry cons (ShallB_str ((OCL.SS_base (OCL.ST "Account1"))), nil)))), uncurry cons (I ((OCL.SS_base (OCL.ST "name")), ShallB_term (OclDefString ((OCL.SS_base (OCL.ST "\<infinity>\<heartsuit> \<Longleftrightarrow> \<infinity>\<epsilon>"))))), nil))), ()), nil)))))), uncurry cons (OclAstClassSynonym (OclClassSynonym ((OCL.SS_base (OCL.ST "Currency")), OclTy_base_real)), uncurry cons (OclAstClassRaw (Floor1, Ocl_class_raw_ext (OclTyObj (OclTyCore_pre ((OCL.SS_base (OCL.ST "Current"))), uncurry cons (uncurry cons (OclTyCore_pre ((OCL.SS_base (OCL.ST "Account"))), nil), nil)), uncurry cons (I ((OCL.SS_base (OCL.ST "overdraft")), OclTy_object (OclTyObj (OclTyCore_pre ((OCL.SS_base (OCL.ST "Currency"))), nil))), nil), nil, false, ())), uncurry cons (OclAstClassRaw (Floor1, Ocl_class_raw_ext (OclTyObj (OclTyCore_pre ((OCL.SS_base (OCL.ST "Savings"))), uncurry cons (uncurry cons (OclTyCore_pre ((OCL.SS_base (OCL.ST "Account"))), nil), nil)), uncurry cons (I ((OCL.SS_base (OCL.ST "max")), OclTy_object (OclTyObj (OclTyCore_pre ((OCL.SS_base (OCL.ST "Currency"))), nil))), nil), nil, false, ())), uncurry cons (OclAstAssociation (Ocl_association_ext (OclAssTy_association, OclAssRel (uncurry cons (I (OclTyObj (OclTyCore_pre ((OCL.SS_base (OCL.ST "Account"))), nil), Ocl_multiplicity_ext (uncurry cons (I (Mult_nat ((Code_Numeral.Nat 1)), SOME (Mult_star)), nil), SOME ((OCL.SS_base (OCL.ST "b_accounts"))), nil, ())), uncurry cons (I (OclTyObj (OclTyCore_pre ((OCL.SS_base (OCL.ST "Bank"))), nil), Ocl_multiplicity_ext (uncurry cons (I (Mult_nat ((Code_Numeral.Nat 1)), NONE), nil), SOME ((OCL.SS_base (OCL.ST "bank"))), nil, ())), nil))), ())), uncurry cons (OclAstAssociation (Ocl_association_ext (OclAssTy_association, OclAssRel (uncurry cons (I (OclTyObj (OclTyCore_pre ((OCL.SS_base (OCL.ST "Account"))), nil), Ocl_multiplicity_ext (uncurry cons (I (Mult_nat ((Code_Numeral.Nat 1)), SOME (Mult_star)), nil), SOME ((OCL.SS_base (OCL.ST "c_accounts"))), nil, ())), uncurry cons (I (OclTyObj (OclTyCore_pre ((OCL.SS_base (OCL.ST "Client"))), nil), Ocl_multiplicity_ext (uncurry cons (I (Mult_nat ((Code_Numeral.Nat 1)), NONE), nil), SOME ((OCL.SS_base (OCL.ST "owner"))), nil, ())), nil))), ())), uncurry cons (OclAstAssociation (Ocl_association_ext (OclAssTy_association, OclAssRel (uncurry cons (I (OclTyObj (OclTyCore_pre ((OCL.SS_base (OCL.ST "Bank"))), nil), Ocl_multiplicity_ext (uncurry cons (I (Mult_nat ((Code_Numeral.Nat 1)), SOME (Mult_star)), nil), SOME ((OCL.SS_base (OCL.ST "banks"))), nil, ())), uncurry cons (I (OclTyObj (OclTyCore_pre ((OCL.SS_base (OCL.ST "Client"))), nil), Ocl_multiplicity_ext (uncurry cons (I (Mult_nat ((Code_Numeral.Nat 1)), SOME (Mult_star)), nil), SOME ((OCL.SS_base (OCL.ST "clients"))), nil, ())), nil))), ())), uncurry cons (OclAstClassRaw (Floor1, Ocl_class_raw_ext (OclTyObj (OclTyCore_pre ((OCL.SS_base (OCL.ST "Account"))), nil), uncurry cons (I ((OCL.SS_base (OCL.ST "id")), OclTy_base_integer), uncurry cons (I ((OCL.SS_base (OCL.ST "balance")), OclTy_object (OclTyObj (OclTyCore_pre ((OCL.SS_base (OCL.ST "Currency"))), nil))), nil)), nil, false, ())), uncurry cons (OclAstClassRaw (Floor1, Ocl_class_raw_ext (OclTyObj (OclTyCore_pre ((OCL.SS_base (OCL.ST "Client"))), nil), uncurry cons (I ((OCL.SS_base (OCL.ST "clientname")), OclTy_base_string), uncurry cons (I ((OCL.SS_base (OCL.ST "address")), OclTy_base_string), uncurry cons (I ((OCL.SS_base (OCL.ST "age")), OclTy_base_integer), nil))), nil, false, ())), uncurry cons (OclAstClassRaw (Floor1, Ocl_class_raw_ext (OclTyObj (OclTyCore_pre ((OCL.SS_base (OCL.ST "Bank"))), nil), uncurry cons (I ((OCL.SS_base (OCL.ST "name")), OclTy_base_string), nil), nil, false, ())), nil)))))))))))))), uncurry cons (I ((OCL.ST "Bank1"), I (Ocl_instance_single_ext (SOME ((OCL.SS_base (OCL.ST "Bank1"))), (OCL.SS_base (OCL.ST "Bank")), OclAttrNoCast (uncurry cons (I ((OCL.SS_base (OCL.ST "b_accounts")), ShallB_list (uncurry cons (ShallB_str ((OCL.SS_base (OCL.ST "Saving1"))), uncurry cons (ShallB_str ((OCL.SS_base (OCL.ST "Account1"))), nil)))), uncurry cons (I ((OCL.SS_base (OCL.ST "name")), ShallB_term (OclDefString ((OCL.SS_base (OCL.ST "\<infinity>\<heartsuit> \<Longleftrightarrow> \<infinity>\<epsilon>"))))), nil))), ()), Oids ((Code_Numeral.Nat 0), (Code_Numeral.Nat 3), (Code_Numeral.Nat 6)))), uncurry cons (I ((OCL.ST "Account1"), I (Ocl_instance_single_ext (SOME ((OCL.SS_base (OCL.ST "Account1"))), (OCL.SS_base (OCL.ST "Account")), OclAttrNoCast (uncurry cons (I ((OCL.SS_base (OCL.ST "id")), ShallB_term (OclDefInteger ((OCL.SS_base (OCL.ST "250"))))), uncurry cons (I ((OCL.SS_base (OCL.ST "owner")), ShallB_str ((OCL.SS_base (OCL.ST "Client1")))), nil))), ()), Oids ((Code_Numeral.Nat 0), (Code_Numeral.Nat 3), (Code_Numeral.Nat 5)))), uncurry cons (I ((OCL.ST "Client1"), I (Ocl_instance_single_ext (SOME ((OCL.SS_base (OCL.ST "Client1"))), (OCL.SS_base (OCL.ST "Client")), OclAttrNoCast (uncurry cons (I ((OCL.SS_base (OCL.ST "c_accounts")), ShallB_str ((OCL.SS_base (OCL.ST "Saving1")))), uncurry cons (I ((OCL.SS_base (OCL.ST "banks")), ShallB_str ((OCL.SS_base (OCL.ST "Bank1")))), nil))), ()), Oids ((Code_Numeral.Nat 0), (Code_Numeral.Nat 3), (Code_Numeral.Nat 4)))), uncurry cons (I ((OCL.ST "Saving1"), I (Ocl_instance_single_ext (SOME ((OCL.SS_base (OCL.ST "Saving1"))), (OCL.SS_base (OCL.ST "Account")), OclAttrCast ((OCL.SS_base (OCL.ST "Savings")), OclAttrNoCast (uncurry cons (I ((OCL.SS_base (OCL.ST "max")), ShallB_term (OclDefInteger ((OCL.SS_base (OCL.ST "2000"))))), nil)), nil), ()), Oids ((Code_Numeral.Nat 0), (Code_Numeral.Nat 3), (Code_Numeral.Nat 3)))), nil)))), nil, true, true, I (uncurry cons ((OCL.ST "dot\<a>\<g>\<e>at_pre"), uncurry cons ((OCL.ST "dot\<a>\<d>\<d>\<r>\<e>\<s>\<s>at_pre"), uncurry cons ((OCL.ST "dot\<c>\<l>\<i>\<e>\<n>\<t>\<n>\<a>\<m>\<e>at_pre"), uncurry cons ((OCL.ST "dot_1_\<b>\<a>\<n>\<k>\<s>at_pre"), uncurry cons ((OCL.ST "dot_1_\<c>095\<a>\<c>\<c>\<o>\<u>\<n>\<t>\<s>at_pre"), uncurry cons ((OCL.ST "dot\<n>\<a>\<m>\<e>at_pre"), uncurry cons ((OCL.ST "dot_0_\<c>\<l>\<i>\<e>\<n>\<t>\<s>at_pre"), uncurry cons ((OCL.ST "dot_1_\<b>095\<a>\<c>\<c>\<o>\<u>\<n>\<t>\<s>at_pre"), uncurry cons ((OCL.ST "dot\<b>\<a>\<l>\<a>\<n>\<c>\<e>at_pre"), uncurry cons ((OCL.ST "dot\<i>\<d>at_pre"), uncurry cons ((OCL.ST "dot_0_\<o>\<w>\<n>\<e>\<r>at_pre"), uncurry cons ((OCL.ST "dot_0_\<b>\<a>\<n>\<k>at_pre"), uncurry cons ((OCL.ST "dot\<m>\<a>\<x>at_pre"), uncurry cons ((OCL.ST "dot\<o>\<v>\<e>\<r>\<d>\<r>\<a>\<f>\<t>at_pre"), nil)))))))))))))), uncurry cons ((OCL.ST "dot\<a>\<g>\<e>"), uncurry cons ((OCL.ST "dot\<a>\<d>\<d>\<r>\<e>\<s>\<s>"), uncurry cons ((OCL.ST "dot\<c>\<l>\<i>\<e>\<n>\<t>\<n>\<a>\<m>\<e>"), uncurry cons ((OCL.ST "dot_1_\<b>\<a>\<n>\<k>\<s>"), uncurry cons ((OCL.ST "dot_1_\<c>095\<a>\<c>\<c>\<o>\<u>\<n>\<t>\<s>"), uncurry cons ((OCL.ST "dot\<n>\<a>\<m>\<e>"), uncurry cons ((OCL.ST "dot_0_\<c>\<l>\<i>\<e>\<n>\<t>\<s>"), uncurry cons ((OCL.ST "dot_1_\<b>095\<a>\<c>\<c>\<o>\<u>\<n>\<t>\<s>"), uncurry cons ((OCL.ST "dot\<b>\<a>\<l>\<a>\<n>\<c>\<e>"), uncurry cons ((OCL.ST "dot\<i>\<d>"), uncurry cons ((OCL.ST "dot_0_\<o>\<w>\<n>\<e>\<r>"), uncurry cons ((OCL.ST "dot_0_\<b>\<a>\<n>\<k>"), uncurry cons ((OCL.ST "dot\<m>\<a>\<x>"), uncurry cons ((OCL.ST "dot\<o>\<v>\<e>\<r>\<d>\<r>\<a>\<f>\<t>"), nil))))))))))))))), uncurry cons ((OCL.ST "Sequence_Client"), uncurry cons ((OCL.ST "Set_Client"), uncurry cons ((OCL.ST "Sequence_Bank"), uncurry cons ((OCL.ST "Set_Bank"), uncurry cons ((OCL.ST "Sequence_Account"), uncurry cons ((OCL.ST "Set_Account"), nil)))))), I (NONE, false), ()) end)))) *}
 Context[shallow] c : Savings   Inv  : "(\<lambda> self c. (\<zero>.\<zero> <\<^sub>r\<^sub>e\<^sub>a\<^sub>l (c .max)))"
   Inv  : "(\<lambda> self c. (c .balance \<le>\<^sub>r\<^sub>e\<^sub>a\<^sub>l (c .max) and \<zero>.\<zero> \<le>\<^sub>r\<^sub>e\<^sub>a\<^sub>l (c .balance)))"
 
-(* 142 ************************************ 1813 + 1 *)
+(* 143 ************************************ 1814 + 1 *)
 Context[shallow] c : Current   Inv  : "(\<lambda> self c. (\<two>\<five> \<le>\<^sub>i\<^sub>n\<^sub>t (c .owner .age) implies (c .overdraft \<doteq> \<two>\<five>\<zero>.\<zero>)))"
   Inv  : "(\<lambda> self c. (c .owner .age <\<^sub>i\<^sub>n\<^sub>t \<two>\<five>   implies (c .overdraft \<doteq> \<zero>.\<zero>)))"
 
-(* 143 ************************************ 1814 + 1 *)
+(* 144 ************************************ 1815 + 1 *)
 Context[shallow] c : Client   Inv  : "(\<lambda> self c. (c .banks ->forAll\<^sub>S\<^sub>e\<^sub>t(b | b .b_accounts ->select\<^sub>S\<^sub>e\<^sub>t(a | (a .owner \<doteq> c) and
                                                                   (a .oclIsTypeOf(Current)))
                                              ->size\<^sub>S\<^sub>e\<^sub>t() \<le>\<^sub>i\<^sub>n\<^sub>t \<one>)))"
 
-(* 144 ************************************ 1815 + 3 *)
+(* 145 ************************************ 1816 + 3 *)
 consts dot\<c>\<r>\<e>\<a>\<t>\<e>095\<c>\<l>\<i>\<e>\<n>\<t> :: "(\<AA>, '\<alpha>) val \<Rightarrow> (String) \<Rightarrow> (Integer) \<Rightarrow> (\<cdot>Bank) \<Rightarrow> (Integer)" ("(_) .create'_client'((_),(_),(_)')")
 consts dot\<c>\<r>\<e>\<a>\<t>\<e>095\<c>\<l>\<i>\<e>\<n>\<t>at_pre :: "(\<AA>, '\<alpha>) val \<Rightarrow> (String) \<Rightarrow> (Integer) \<Rightarrow> (\<cdot>Bank) \<Rightarrow> (Integer)" ("(_) .create'_client@pre'((_),(_),(_)')")
 Context[shallow] Bank :: create_client (clientname : String, age : Integer, bank : Bank) : Integer
   Pre : "(\<lambda> bank age clientname self. (bank .clients ->forAll\<^sub>S\<^sub>e\<^sub>t(c | c .clientname <> clientname or (c .age <> age))))"
   Post : "(\<lambda> bank age clientname self result. (bank .clients ->exists\<^sub>S\<^sub>e\<^sub>t(c | c .clientname \<doteq> clientname and (c .age \<doteq> age))))"
 
-(* 145 ************************************ 1818 + 3 *)
+(* 146 ************************************ 1819 + 3 *)
 consts dot\<g>\<e>\<t>095\<b>\<a>\<l>\<a>\<n>\<c>\<e> :: "(\<AA>, '\<alpha>) val \<Rightarrow> (String) \<Rightarrow> (Integer) \<Rightarrow> (Real)" ("(_) .get'_balance'((_),(_)')")
 consts dot\<g>\<e>\<t>095\<b>\<a>\<l>\<a>\<n>\<c>\<e>at_pre :: "(\<AA>, '\<alpha>) val \<Rightarrow> (String) \<Rightarrow> (Integer) \<Rightarrow> (Real)" ("(_) .get'_balance@pre'((_),(_)')")
 Context[shallow] Account :: get_balance (c : String, no : Integer) : Real
   Pre : "(\<lambda> no c self. (self .id \<doteq> no and ((self .owner .clientname) \<doteq> c)))"
   Post : "(\<lambda> no c self result. (result \<doteq> (self .balance)))"
 
-(* 146 ************************************ 1821 + 3 *)
+(* 147 ************************************ 1822 + 3 *)
 consts dot\<d>\<e>\<p>\<o>\<s>\<i>\<t> :: "(\<AA>, '\<alpha>) val \<Rightarrow> (String) \<Rightarrow> (Integer) \<Rightarrow> (Real) \<Rightarrow> (Real)" ("(_) .deposit'((_),(_),(_)')")
 consts dot\<d>\<e>\<p>\<o>\<s>\<i>\<t>at_pre :: "(\<AA>, '\<alpha>) val \<Rightarrow> (String) \<Rightarrow> (Integer) \<Rightarrow> (Real) \<Rightarrow> (Real)" ("(_) .deposit@pre'((_),(_),(_)')")
 Context[shallow] Account :: deposit (c : String, no : Integer, amount : Real) : Real
   Pre : "(\<lambda> amount no c self. (self .id \<doteq> no and ((self .owner .clientname) \<doteq> c) and (\<zero>.\<zero>  \<le>\<^sub>r\<^sub>e\<^sub>a\<^sub>l amount)))"
   Post : "(\<lambda> amount no c self result. (self .balance \<doteq> (self .balance@pre +\<^sub>r\<^sub>e\<^sub>a\<^sub>l amount)))"
 
-(* 147 ************************************ 1824 + 3 *)
+(* 148 ************************************ 1825 + 3 *)
 consts dot\<w>\<i>\<t>\<h>\<d>\<r>\<a>\<w> :: "(\<AA>, '\<alpha>) val \<Rightarrow> (String) \<Rightarrow> (Integer) \<Rightarrow> (Real) \<Rightarrow> (Real)" ("(_) .withdraw'((_),(_),(_)')")
 consts dot\<w>\<i>\<t>\<h>\<d>\<r>\<a>\<w>at_pre :: "(\<AA>, '\<alpha>) val \<Rightarrow> (String) \<Rightarrow> (Integer) \<Rightarrow> (Real) \<Rightarrow> (Real)" ("(_) .withdraw@pre'((_),(_),(_)')")
 Context[shallow] Account :: withdraw (c : String, no : Integer, amount : Real) : Real
