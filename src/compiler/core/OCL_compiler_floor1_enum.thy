@@ -53,7 +53,6 @@ definition "print_enum = (\<lambda> OclEnum name_ty l \<Rightarrow> Pair
  (let a = \<lambda>f x. Expr_apply f [x]
     ; a' = Expr_apply
     ; b = \<lambda>s. Expr_basic [s]
-    ; pref_constr_enum = \<lambda>s. \<open>constr\<close> @@ isub_of_str s
     ; option = Ty_apply_paren \<open>\<langle>\<close> \<open>\<rangle>\<^sub>\<bottom>\<close>
     ; name_ty_base = name_ty @@ isub_of_str \<open>base\<close>
     ; name_ty_base' = pref_generic_enum name_ty

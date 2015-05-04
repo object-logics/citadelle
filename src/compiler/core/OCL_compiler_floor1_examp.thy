@@ -146,6 +146,9 @@ fun print_examp_instance_draw_list_attr_aux where
      | (OclTy_base_integer, t) \<Rightarrow> print_examp_instance_draw_list_attr_aux_base t
      | (OclTy_base_real, t) \<Rightarrow> print_examp_instance_draw_list_attr_aux_base t
      | (OclTy_base_string, t) \<Rightarrow> print_examp_instance_draw_list_attr_aux_base t
+     | (OclTy_class_syn _, t) \<Rightarrow> print_examp_instance_draw_list_attr_aux_base t
+     (* enum case *)
+     | (OclTy_enum _, ShallB_str s) \<Rightarrow> filter_ocl_exn s (Return_val (Expr_basic [pref_constr_enum s]))
      (* type error *)
      | _ \<Rightarrow> Return_err Return_err_ty) e"
 
@@ -288,7 +291,7 @@ fun fold_data_shallow where "fold_data_shallow f_str f_self f x accu =
   | ShallB_list l \<Rightarrow> List.fold (fold_data_shallow f_str f_self f) l accu
   | _ \<Rightarrow> accu) x"
 
-definition "print_examp_def_st_assoc_build_rbt_gen_typecheck map_self map_username l accu =
+definition "print_examp_def_st_assoc_build_rbt_gen_typecheck map_self map_username l_enum l accu =
  (let v_null = \<open>null\<close>
     ; v_invalid = \<open>invalid\<close> in
   fst (
@@ -301,7 +304,9 @@ definition "print_examp_def_st_assoc_build_rbt_gen_typecheck map_self map_userna
                     let f = \<lambda>msg. \<lambda> None \<Rightarrow> Some msg | _ \<Rightarrow> None
                       ; find_map = \<lambda>x. fold_data_shallow
                                          (\<lambda>s. if String_equal s v_null
-                                               | String_equal s v_invalid then None else f s (map_username s))
+                                               | String_equal s v_invalid
+                                               | list_ex (\<lambda>OclEnum _ l \<Rightarrow> list_ex (String_equal s) l) l_enum then None
+                                              else f s (map_username s))
                                          (\<lambda>s. f (\<open>self \<close> @@ natural_of_str (case s of Oid n \<Rightarrow> n)) (map_self s))
                                          (\<lambda> None \<Rightarrow> id | Some x \<Rightarrow> Cons x)
                                          x
@@ -486,7 +491,8 @@ definition "check_single_ty rbt_init rbt' l_attr_gen l_oid x =
                 l]))"
 
 definition "print_examp_instance_defassoc_typecheck_gen l_ocli ocl =
- (let (l_spec1, l_spec2) = arrange_ass False True (fst (find_class_ass ocl)) (List.map_filter (\<lambda>OclAstEnum e \<Rightarrow> Some e | _ \<Rightarrow> None) (D_ocl_env ocl))
+ (let l_enum = List.map_filter (\<lambda>OclAstEnum e \<Rightarrow> Some e | _ \<Rightarrow> None) (D_ocl_env ocl)
+    ; (l_spec1, l_spec2) = arrange_ass False True (fst (find_class_ass ocl)) l_enum
     ; spec = class_unflat (l_spec1, l_spec2)
     ; ocl = ocl \<lparr> D_class_spec := Some spec \<rparr>
     ; l_assoc = List_flatten (fst (fold_list (\<lambda>ocli cpt. (case ocli of None \<Rightarrow> []
@@ -538,7 +544,7 @@ definition "print_examp_instance_defassoc_typecheck_gen l_ocli ocl =
       [] in
 
   [ raise_ml
-      (List_flatten [ rev (print_examp_def_st_assoc_build_rbt_gen_typecheck map_self map_username l_assoc [])
+      (List_flatten [ rev (print_examp_def_st_assoc_build_rbt_gen_typecheck map_self map_username l_enum l_assoc [])
                     , l_out])
       \<open> error(s)\<close> ])"
 

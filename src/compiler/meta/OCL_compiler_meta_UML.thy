@@ -467,6 +467,7 @@ definition "ty_string = str_of_ty OclTy_base_string"
 
 definition "pref_ty_enum s = \<open>ty_enum\<close> @@ isub_of_str s"
 definition "pref_ty_syn s = \<open>ty_syn\<close> @@ isub_of_str s"
+definition "pref_constr_enum s = \<open>constr\<close> @@ isub_of_str s"
 
 fun str_hol_of_ty_all where "str_hol_of_ty_all f b e =
  (\<lambda> OclTy_base_void \<Rightarrow> b \<open>unit\<close>
