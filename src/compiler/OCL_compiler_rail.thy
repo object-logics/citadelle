@@ -185,7 +185,8 @@ text {*
   @@{command Instance} ((binding '::' @{syntax type_object} '=' @{syntax term_object}) * ('and'?))
   ;
   @{syntax_def term_object}:
-                 ('[' ((binding '=' @{syntax uml_term}) * ',') ']')
+                 ('[' ((('(' binding ',' binding ')' '|=')? \<newline>
+                        binding '=' @{syntax uml_term}) * ',') ']')
                | @{syntax object_cast}
   ;
   @{syntax_def object_cast}:

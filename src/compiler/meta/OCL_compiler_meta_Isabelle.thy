@@ -217,6 +217,7 @@ definition "Expr_oclset l = (case l of [] \<Rightarrow> Expr_basic [\<open>Set{}
 definition "Expr_list l = (case l of [] \<Rightarrow> Expr_basic [\<open>[]\<close>] | _ \<Rightarrow> Expr_paren \<open>[\<close> \<open>]\<close> (expr_binop \<open>,\<close> l))"
 definition "Expr_list' f l = Expr_list (List_map f l)"
 definition "Expr_pair e1 e2 = Expr_parenthesis (Expr_binop e1 \<open>,\<close> e2)"
+definition "Expr_pair' l = (case l of [] \<Rightarrow> Expr_basic [\<open>()\<close>] | _ \<Rightarrow> Expr_paren \<open>(\<close> \<open>)\<close> (expr_binop \<open>,\<close> l))"
 definition' \<open>Expr_string s = Expr_basic [flatten [\<open>"\<close>, s, \<open>"\<close>]]\<close>
 definition "Expr_applys0 e l = Expr_parenthesis (Expr_applys00 e (List_map Expr_parenthesis l))"
 definition "Expr_applys e l = Expr_applys0 (Expr_parenthesis e) l"

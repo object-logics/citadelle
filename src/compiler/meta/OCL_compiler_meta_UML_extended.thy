@@ -68,7 +68,10 @@ datatype 'a ocl_list_attr = OclAttrNoCast 'a (* inh, own *)
 
 record ocl_instance_single = Inst_name :: "string option" (* None: fresh name to be generated *)
                              Inst_ty :: string (* type *)
-                             Inst_attr :: "((string (*name*) \<times> ocl_data_shallow) list) (* inh and own *)
+                             Inst_attr :: "((  (string (* pre state *) \<times> string (* post state *)) option
+                                               (* state used when ocl_data_shallow is an object variable (for retrieving its oid) *)
+                                             \<times> string (*name*)
+                                             \<times> ocl_data_shallow) list) (* inh and own *)
                                            ocl_list_attr"
 
 datatype ocl_instance = OclInstance "ocl_instance_single list" (* mutual recursive *)

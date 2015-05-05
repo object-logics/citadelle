@@ -1204,7 +1204,16 @@ structure USE_parse = struct
 
   (* *)
 
-  val term_object = parse_l (Parse.binding -- (Parse.$$$ "=" |-- uml_term))
+  val term_object = parse_l (   optional (    Parse.$$$ "("
+                                          |-- Parse.binding
+                                          --| Parse.$$$ ","
+                                          -- Parse.binding
+                                          --| Parse.$$$ ")"
+                                          --| (Parse.sym_ident >> (fn "|=" => Scan.succeed | _ => Scan.fail "")))
+                             -- Parse.binding
+                             -- (    Parse.$$$ "="
+                                 |-- uml_term))
+
   val list_attr' = term_object >> (fn res => (res, [] : binding list))
   fun object_cast e =
     (annot_ty term_object >> (fn (res, x) => (res, [x]))
@@ -1213,7 +1222,10 @@ structure USE_parse = struct
 
   fun get_oclinst l _ =
     OCL.OclInstance (map (fn ((name,typ), (l_attr, is_cast)) =>
-        let val f = map (fn (attr, ocl) => (From.from_binding attr, ocl))
+        let val f = map (fn ((pre_post, attr), ocl) =>
+                              ( From.from_option (From.from_pair From.from_binding From.from_binding) pre_post
+                              , ( From.from_binding attr
+                                , ocl)))
             val l_attr =
               fold
                 (fn b => fn acc => OCL.OclAttrCast (From.from_binding b, acc, []))
@@ -1229,7 +1241,7 @@ structure USE_parse = struct
 
   (* *)
 
-  datatype state_content = ST_l_attr of (binding * OCL.ocl_data_shallow) list * binding list
+  datatype state_content = ST_l_attr of (((binding * binding) option * binding) * OCL.ocl_data_shallow) list * binding list
                          | ST_binding of binding
   
   val state_parse = parse_l' (   object_cast >> ST_l_attr

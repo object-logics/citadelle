@@ -105,8 +105,13 @@ definition' \<open>s_of_ocl_instance_single ocli =
     (To_string (Inst_ty ocli))
     (s_of_ocl_list_attr
       (\<lambda>l. sprint1 \<open>[ %s ]\<close>\<acute>
-             (String_concat \<open>, \<close> (List_map (\<lambda>(attr, v).
-                                              sprint2 \<open>"%s" = %s\<close>\<acute> (To_string attr) (s_of_ocl_data_shallow v)) l)))
+             (String_concat \<open>, \<close>
+               (List_map (\<lambda>(pre_post, attr, v).
+                            sprint3 \<open>%s"%s" = %s\<close>\<acute> (case pre_post of None \<Rightarrow> \<open>\<close>
+                                                                   | Some (s1, s2) \<Rightarrow> sprint2 \<open>("%s", "%s") |= \<close>\<acute> (To_string s1) (To_string s2))
+                                                   (To_string attr)
+                                                   (s_of_ocl_data_shallow v))
+                         l)))
       (Inst_attr ocli))\<close>
 
 definition "s_of_def_state l =

@@ -89,9 +89,9 @@ definition "print_examp_oclbase = (\<lambda> OclDefBase l \<Rightarrow> (start_m
 datatype print_examp_instance_draw_list_attr = Return_obj ocl_ty_class
                                              | Return_exp hol_expr
 datatype print_examp_instance_draw_list_attr_err = Return_err_ty
-                                                 | Return_term_not_yet_supported
                                                  | Return_ocl_null
                                                  | Return_ocl_invalid
+                                                 | Return_object_variable string
                                                  | Return_err_l "print_examp_instance_draw_list_attr_err list"
 datatype 'a print_examp_instance_draw_list_attr' = Return_val 'a
                                                  | Return_err print_examp_instance_draw_list_attr_err
@@ -139,9 +139,7 @@ fun print_examp_instance_draw_list_attr_aux where
                     (\<lambda> [e1, e2] \<Rightarrow> Expr_pair e1 e2)
                     [ print_examp_instance_draw_list_attr_aux f_oid_rec (ty1, e1)
                     , print_examp_instance_draw_list_attr_aux f_oid_rec (ty2, e2) ]
-     | (OclTy_object (OclTyObj (OclTyCore_pre _) _), shall) \<Rightarrow> case f_oid_rec shall of
-                                       Some a \<Rightarrow> Return_val a
-                                     | None \<Rightarrow> Return_err Return_term_not_yet_supported
+     | (OclTy_object (OclTyObj (OclTyCore_pre _) _), shall) \<Rightarrow> f_oid_rec shall
      (* base cases *)
      | (OclTy_base_integer, t) \<Rightarrow> print_examp_instance_draw_list_attr_aux_base t
      | (OclTy_base_real, t) \<Rightarrow> print_examp_instance_draw_list_attr_aux_base t
@@ -153,26 +151,29 @@ fun print_examp_instance_draw_list_attr_aux where
      | _ \<Rightarrow> Return_err Return_err_ty) e"
 
 definition "print_examp_instance_draw_list_attr = (\<lambda>(f_oid, f_oid_rec).
-  let b = \<lambda>s. Expr_basic [s] in
+  let a = \<lambda>f x. Expr_apply f [x]
+    ; b = \<lambda>s. Expr_basic [s]
+    ; filter_ty_err = \<lambda>pre_post f.
+             \<lambda> Return_val v \<Rightarrow> Some (f v)
+             | Return_err err \<Rightarrow> if has_ty_err_or_invalid err then
+                                   None
+                                 else
+                                   case (pre_post, err) of (Some (pre, post), Return_object_variable s) \<Rightarrow>
+                                                             Some (a \<open>Some\<close> (a \<open>oid_of\<close> (Expr_apply s [Expr_pair (b pre) (b post)])))
+                                                         | _ \<Rightarrow> Some (b \<open>None\<close>) in
   list_bind
    (\<lambda> obj.
-    map_option
-     (\<lambda> Return_obj ty_obj \<Rightarrow> f_oid ty_obj
-      | Return_exp exp \<Rightarrow> exp)
+    Option.bind
      ( case obj of
          (t_obj, None) \<Rightarrow> Some (case t_obj of Some ty_obj \<Rightarrow> Return_obj ty_obj
                                            | _ \<Rightarrow> Return_exp (b \<open>None\<close>))
        (* object case 1 *)
        | (_, Some (OclTy_object (OclTyObj (OclTyCore ty_obj) _), _)) \<Rightarrow> Some (Return_obj ty_obj)
        (* *)
-       | (_, Some v) \<Rightarrow>
-         map_option Return_exp
-           (case print_examp_instance_draw_list_attr_aux f_oid_rec v of
-               Return_val v \<Rightarrow> Some (Expr_some v)
-             | Return_err err \<Rightarrow> if has_ty_err_or_invalid err then
-                                   None
-                                 else
-                                   Some (b \<open>None\<close>))))
+       | (_, Some (ty, pre_post, shallow)) \<Rightarrow>
+         map_option Return_exp (filter_ty_err pre_post Expr_some (print_examp_instance_draw_list_attr_aux f_oid_rec (ty, shallow))))
+     (\<lambda> Return_obj ty_obj \<Rightarrow> filter_ty_err None id (f_oid ty_obj)
+      | Return_exp exp \<Rightarrow> Some exp))
    id)"
 
 definition "print_examp_instance_app_constr_notmp f_oid = (\<lambda>isub_name app_x l_attr.
@@ -221,7 +222,7 @@ definition "fill_blank f_blank =
 fun split_inh_own where
    "split_inh_own f_class s_cast l_attr =
   (let (f_attr, f_blank) = f_class s_cast
-     ; split = \<lambda>l. List.partition (\<lambda>((_, OptOwn, _), _) \<Rightarrow> True | _ \<Rightarrow> False) (List.map (\<lambda>(name_attr, data). (case f_attr name_attr of Some x \<Rightarrow> x, data)) l) in
+     ; split = \<lambda>l. List.partition (\<lambda>((_, OptOwn, _), _) \<Rightarrow> True | _ \<Rightarrow> False) (List.map (\<lambda>(pre_post, name_attr, data). (case f_attr name_attr of Some x \<Rightarrow> x, (pre_post, data))) l) in
    case l_attr of
      OclAttrNoCast l \<Rightarrow>
        let (l_own, l_inh) = split l in
@@ -270,7 +271,7 @@ definition "print_examp_def_st_assoc_build_rbt_gen f rbt map_self map_username l
        (\<lambda> ty l_attr.
          let (f_attr_ty, _) = rbt ty in
          f ty
-         (List.fold (\<lambda>(name_attr, shall).
+         (List.fold (\<lambda>(_, name_attr, shall).
            case f_attr_ty name_attr of
              Some (OclTy_object (OclTyObj (OclTyCore ty_obj) _), _, _) \<Rightarrow>
                modify_def ([], ty_obj) name_attr
@@ -300,7 +301,7 @@ definition "print_examp_def_st_assoc_build_rbt_gen_typecheck map_self map_userna
       let Inst_name_ocli = inst_name ocli
         ; l = fold_instance_single
                 (\<lambda> _ l accu. fst (List.fold
-                  (\<lambda>(name_attr, shall) (accu, rbt).
+                  (\<lambda>(pre_post, name_attr, shall) (accu, rbt).
                     let f = \<lambda>msg. \<lambda> None \<Rightarrow> Some msg | _ \<Rightarrow> None
                       ; find_map = \<lambda>x. fold_data_shallow
                                          (\<lambda>s. if String_equal s v_null
@@ -315,8 +316,12 @@ definition "print_examp_def_st_assoc_build_rbt_gen_typecheck map_self map_userna
                           case case shall of ShallB_list l \<Rightarrow> List_flatten (List_map find_map l)
                                            | _ \<Rightarrow> find_map shall of
                             [] \<Rightarrow> (accu, rbt)
-                          | l \<Rightarrow> ((Error, flatten [ \<open>Extra variables on rhs: \<close>, String_concatWith \<open>, \<close> l
-                                                  , \<open> in the definition of \<close>, Inst_name_ocli ]) # accu, rbt) in
+                          | l \<Rightarrow> (* some rhs variables are authorized because some could have been introduced in HOL side (between 2 meta embedded commands) *)
+                                 ( if pre_post = None then 
+                                     (Error, flatten [ \<open>Extra variables on rhs: \<close>, String_concatWith \<open>, \<close> l
+                                                     , \<open> in the definition of \<close>, Inst_name_ocli ]) # accu
+                                   else accu
+                                 , rbt) in
                     if lookup rbt name_attr = None then
                       (accu, insert name_attr () rbt)
                     else
@@ -559,6 +564,26 @@ definition "print_examp_instance_defassoc = (\<lambda> OclInstance l \<Rightarro
     l
     ocl))"
 
+definition "print_examp_instance_defassoc_typecheck_var = (\<lambda> OclInstance l \<Rightarrow>
+ (let b = \<lambda>s. Expr_basic [s]
+    ; l_var = List.fold (\<lambda>ocli. case Inst_name ocli of None \<Rightarrow> id | Some n \<Rightarrow> Cons n) l [] in
+  Pair
+    [ Thy_definition_hol
+        (Definition
+          (Expr_rewrite
+            (b (\<open>instance\<close> @@ isub_of_str (String_concatWith \<open>_\<close> l_var)))
+            \<open>=\<close> 
+            (Expr_lambdas
+              l_var
+              (Expr_pair'
+                (List.fold
+                  (fold_instance_single (\<lambda>_. List.fold (\<lambda> (_, _, d). fold_data_shallow Some
+                                                                                       (\<lambda>_. None)
+                                                                                       (\<lambda> Some s \<Rightarrow> Cons (b s) | None \<Rightarrow> id)
+                                                                                       d)))
+                  l
+                  [])))))]))"
+
 definition "print_examp_instance_defassoc_typecheck = (\<lambda> OclInstance l \<Rightarrow> \<lambda> ocl.
   (\<lambda>l_res. (List_map Thy_ml l_res, ocl \<lparr> D_import_compiler := True \<rparr>))
   (print_examp_instance_defassoc_typecheck_gen
@@ -574,17 +599,20 @@ definition "print_examp_instance_app_constr2_notmp_norec = (\<lambda>(rbt, (map_
     (\<lambda>isub_name oid.
       ( \<lambda> ty_obj.
           let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l b = \<lambda>s. Expr_basic [s] in
-          Expr_applys
-            cpt_start
-            (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l ty_objfrom = TyObj_from ty_obj
-               ; ty_objto = TyObj_to ty_obj in
-             [ b (print_access_oid_uniq_name (TyObjN_ass_switch ty_objfrom) isub_name (case TyObjN_role_name ty_objto of Some s \<Rightarrow> s))
-             , b (print_access_choose_name (TyObj_ass_arity ty_obj) (TyObjN_ass_switch ty_objfrom) (TyObjN_ass_switch ty_objto))
-             , Expr_oid var_oid_uniq (oidGetInh oid) ])
+          Return_val
+            (Expr_applys
+              cpt_start
+              (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l ty_objfrom = TyObj_from ty_obj
+                 ; ty_objto = TyObj_to ty_obj in
+               [ b (print_access_oid_uniq_name (TyObjN_ass_switch ty_objfrom) isub_name (case TyObjN_role_name ty_objto of Some s \<Rightarrow> s))
+               , b (print_access_choose_name (TyObj_ass_arity ty_obj) (TyObjN_ass_switch ty_objfrom) (TyObjN_ass_switch ty_objto))
+               , Expr_oid var_oid_uniq (oidGetInh oid) ]))
       , \<lambda> base.
-          map_option (Expr_oid var_oid_uniq o oidGetInh)
-                     (case base of ShallB_str s \<Rightarrow> map_username s
-                                 | ShallB_self cpt1 \<Rightarrow> map_self cpt1))))"
+          let f = \<lambda>v. \<lambda> None \<Rightarrow> Return_err v
+                      | Some s \<Rightarrow> Return_val ((Expr_oid var_oid_uniq o oidGetInh) s) in
+          case base of ShallB_str s \<Rightarrow> f (Return_object_variable s) (map_username s)
+                     | ShallB_self cpt1 \<Rightarrow> f Return_err_ty (map_self cpt1)
+                     | _ \<Rightarrow> Return_err Return_err_ty)))"
 
 definition "print_examp_instance_name = id"
 definition "print_examp_instance = (\<lambda> OclInstance l \<Rightarrow> \<lambda> ocl.
@@ -636,11 +664,11 @@ definition "print_examp_def_st1 = (\<lambda> OclDefSt name l \<Rightarrow> boots
         ; (l_inst, l_defst) =
         List.fold (\<lambda> (pos, _, OclDefCoreAdd ocli) \<Rightarrow> \<lambda>(l_inst, l_defst).
                      let i_name = case Inst_name ocli of Some x \<Rightarrow> x | None \<Rightarrow> flatten [name, \<open>_object\<close>, natural_of_str pos] in
-                       ( map_instance_single (map_prod id (map_data_shallow_self (\<lambda>Oid self \<Rightarrow>
+                       ( map_instance_single (map_prod id (map_prod id (map_data_shallow_self (\<lambda>Oid self \<Rightarrow>
                            (case List_assoc self l of
                               Some (_, OclDefCoreBinding name) \<Rightarrow> ShallB_str name
                             | Some (p, _) \<Rightarrow> ShallB_self (Oid p)
-                            | _ \<Rightarrow> ShallB_list [])))) ocli 
+                            | _ \<Rightarrow> ShallB_list []))))) ocli 
                          \<lparr> Inst_name := Some i_name \<rparr>
                        # l_inst
                        , OclDefCoreBinding i_name # l_defst)
