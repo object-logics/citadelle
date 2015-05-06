@@ -330,9 +330,9 @@ definition "thy_enum = [ print_enum ]"
 definition "thy_class_synonym = []"
 definition "thy_class_flat = []"
 definition "thy_association = []"
-definition "thy_instance = [ print_examp_instance_defassoc
+definition "thy_instance = [ print_examp_instance_defassoc_typecheck_var
+                           , print_examp_instance_defassoc
                            , print_examp_instance
-                           , print_examp_instance_defassoc_typecheck_var
                            , print_examp_instance_defassoc_typecheck ]"
 definition "thy_def_base_l = [ print_examp_oclbase ]"
 definition "thy_def_state = (\<lambda> Floor1 \<Rightarrow> [ OCL_compiler_floor1_examp.print_examp_def_st1 ]
@@ -352,6 +352,7 @@ definition "thy_ctxt = (\<lambda> Floor1 \<Rightarrow> [ OCL_compiler_floor1_ctx
                                     , OCL_compiler_floor2_ctxt.print_ctxt_inv
                                     , OCL_compiler_floor2_ctxt.print_ctxt_thm ])"
 definition "thy_flush_all = []"
+(* NOTE typechecking functions can be put at the end, however checking already defined constants can be done earlier *)
 
 definition "ocl_compiler_config_empty disable_thy_output file_out_path_dep oid_start design_analysis sorry_dirty =
   ocl_compiler_config.make

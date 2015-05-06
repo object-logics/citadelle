@@ -245,7 +245,7 @@ definition "is_digit n = (n \<ge> CHR ''0'' & n \<le> CHR ''9'')"
 definition "is_special = List.member '' <>^_=-./(){}''"
 definition "base255_of_str = String_replace_chars (\<lambda>c. if is_letter c then \<degree>c\<degree> else add_0 c)"
 definition "isub_of_str = String_replace_chars (\<lambda>c.
-  if is_letter c | is_digit c then \<open>\<^sub>\<close> @@ \<degree>c\<degree> else add_0 c)"
+  if is_letter c | is_digit c | List.member ''_'' c then \<open>\<^sub>\<close> @@ \<degree>c\<degree> else add_0 c)"
 definition "isup_of_str = String_replace_chars (\<lambda>c.
   if is_letter c then escape_unicode \<lless>[c]\<ggreater> else add_0 c)"
 definition "text_of_str str =

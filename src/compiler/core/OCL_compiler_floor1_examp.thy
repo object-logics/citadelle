@@ -513,7 +513,7 @@ definition "print_examp_instance_defassoc_typecheck_var = (\<lambda> OclInstance
     [ Thy_definition_hol
         (Definition
           (Expr_rewrite
-            (b (\<open>instance\<close> @@ isub_of_str (String_concatWith \<open>_\<close> l_var)))
+            (b (\<open>typecheck_instance_extra_variables_on_rhs\<close> @@ isub_of_str (String_concatWith \<open>_\<close> l_var)))
             \<open>=\<close> 
             (Expr_lambdas
               l_var
