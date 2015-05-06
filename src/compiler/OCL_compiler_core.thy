@@ -335,7 +335,8 @@ definition "thy_instance = [ print_examp_instance_defassoc_typecheck_var
                            , print_examp_instance
                            , print_examp_instance_defassoc_typecheck ]"
 definition "thy_def_base_l = [ print_examp_oclbase ]"
-definition "thy_def_state = (\<lambda> Floor1 \<Rightarrow> [ OCL_compiler_floor1_examp.print_examp_def_st1 ]
+definition "thy_def_state = (\<lambda> Floor1 \<Rightarrow> [ OCL_compiler_floor1_examp.print_examp_def_st_typecheck_var
+                                         , OCL_compiler_floor1_examp.print_examp_def_st1 ]
                              | Floor2 \<Rightarrow> [ OCL_compiler_floor2_examp.print_examp_def_st_defassoc
                                          , OCL_compiler_floor2_examp.print_examp_def_st2
                                          , OCL_compiler_floor2_examp.print_examp_def_st_inst_var

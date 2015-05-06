@@ -508,12 +508,19 @@ definition "print_examp_instance_defassoc = (\<lambda> OclInstance l \<Rightarro
 
 definition "print_examp_instance_defassoc_typecheck_var = (\<lambda> OclInstance l \<Rightarrow>
  (let b = \<lambda>s. Expr_basic [s]
-    ; l_var = List.fold (\<lambda>ocli. case Inst_name ocli of None \<Rightarrow> id | Some n \<Rightarrow> Cons n) l [] in
+    ; l_var = List.fold (\<lambda>ocli. case Inst_name ocli of None \<Rightarrow> id | Some n \<Rightarrow> Cons n) l []
+    ; n = isub_of_str (String_concatWith \<open>_\<close> l_var) in
   Pair
     [ Thy_definition_hol
         (Definition
           (Expr_rewrite
-            (b (\<open>typecheck_instance_extra_variables_on_rhs\<close> @@ isub_of_str (String_concatWith \<open>_\<close> l_var)))
+            (Expr_apply (\<open>typecheck_instance_bad_head_on_lhs\<close> @@ n) (List_map b l_var))
+            \<open>=\<close> 
+            (Expr_pair' [])))
+    , Thy_definition_hol
+        (Definition
+          (Expr_rewrite
+            (b (\<open>typecheck_instance_extra_variables_on_rhs\<close> @@ n))
             \<open>=\<close> 
             (Expr_lambdas
               l_var
@@ -651,6 +658,18 @@ definition "print_examp_instance = (\<lambda> OclInstance l \<Rightarrow> \<lamb
    , List.fold (\<lambda>ocli instance_rbt.
        let n = inst_name ocli in
        (String_to_String\<^sub>b\<^sub>a\<^sub>s\<^sub>e n, ocli, case map_username n of Some oid \<Rightarrow> oid) # instance_rbt) l (D_instance_rbt ocl))))"
+
+definition "print_examp_def_st_typecheck_var = (\<lambda> OclDefSt name _ \<Rightarrow> 
+ (let b = \<lambda>s. Expr_basic [s]
+    ; l_var = [name]
+    ; n = isub_of_str (String_concatWith \<open>_\<close> l_var) in
+  Pair
+    [ Thy_definition_hol
+        (Definition
+          (Expr_rewrite
+            (Expr_apply (\<open>typecheck_state_bad_head_on_lhs\<close> @@ n) (List_map b l_var))
+            \<open>=\<close> 
+            (Expr_pair' [])))]))"
 
 definition "print_examp_def_st1 = (\<lambda> OclDefSt name l \<Rightarrow> bootstrap_floor
   (\<lambda>l ocl. (List_flatten [l], ocl))
