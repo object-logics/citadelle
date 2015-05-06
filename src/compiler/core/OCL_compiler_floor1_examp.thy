@@ -495,6 +495,61 @@ definition "check_single_ty rbt_init rbt' l_attr_gen l_oid x =
                 ((snd o s') ([TyMult mult_from, TyMult mult_to]))
                 l]))"
 
+definition "print_examp_instance_defassoc = (\<lambda> OclInstance l \<Rightarrow> \<lambda> ocl.
+  let l = List_flatten (fst (fold_list (\<lambda>ocli cpt. ([(ocli, cpt)], oidSucInh cpt)) l (D_oid_start ocl))) in
+  (\<lambda>l_res.
+    ( print_examp_instance_oid l ocl
+      @@@@ List_map Thy_definition_hol l_res
+    , ocl))
+  (print_examp_instance_defassoc_gen
+    (Expr_oid var_inst_assoc (oidGetInh (D_oid_start ocl)))
+    l
+    ocl))"
+
+definition "print_examp_instance_defassoc_typecheck_var = (\<lambda> OclInstance l \<Rightarrow>
+ (let b = \<lambda>s. Expr_basic [s]
+    ; l_var = List.fold (\<lambda>ocli. case Inst_name ocli of None \<Rightarrow> id | Some n \<Rightarrow> Cons n) l [] in
+  Pair
+    [ Thy_definition_hol
+        (Definition
+          (Expr_rewrite
+            (b (\<open>instance\<close> @@ isub_of_str (String_concatWith \<open>_\<close> l_var)))
+            \<open>=\<close> 
+            (Expr_lambdas
+              l_var
+              (Expr_pair'
+                (List.fold
+                  (fold_instance_single (\<lambda>_. List.fold (\<lambda> (_, _, d). fold_data_shallow Some
+                                                                                       (\<lambda>_. None)
+                                                                                       (\<lambda> Some s \<Rightarrow> Cons (b s) | None \<Rightarrow> id)
+                                                                                       d)))
+                  l
+                  [])))))]))"
+
+definition "print_examp_instance_app_constr2_notmp_norec = (\<lambda>(rbt, (map_self, map_username)) ocl cpt_start ocli isub_name cpt.
+  print_examp_instance_app_constr2_notmp
+    (Inst_ty ocli)
+    (split_inh_own rbt (Inst_ty ocli) (Inst_attr ocli))
+    isub_name
+    cpt
+    (\<lambda>isub_name oid.
+      ( \<lambda> ty_obj.
+          let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l b = \<lambda>s. Expr_basic [s] in
+          Return_val
+            (Expr_applys
+              cpt_start
+              (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l ty_objfrom = TyObj_from ty_obj
+                 ; ty_objto = TyObj_to ty_obj in
+               [ b (print_access_oid_uniq_name (TyObjN_ass_switch ty_objfrom) isub_name (case TyObjN_role_name ty_objto of Some s \<Rightarrow> s))
+               , b (print_access_choose_name (TyObj_ass_arity ty_obj) (TyObjN_ass_switch ty_objfrom) (TyObjN_ass_switch ty_objto))
+               , Expr_oid var_oid_uniq (oidGetInh oid) ]))
+      , \<lambda> base.
+          let f = \<lambda>v. \<lambda> None \<Rightarrow> Return_err v
+                      | Some s \<Rightarrow> Return_val ((Expr_oid var_oid_uniq o oidGetInh) s) in
+          case base of ShallB_str s \<Rightarrow> f (Return_object_variable s) (map_username s)
+                     | ShallB_self cpt1 \<Rightarrow> f Return_err_ty (map_self cpt1)
+                     | _ \<Rightarrow> Return_err Return_err_ty)))"
+
 definition "print_examp_instance_defassoc_typecheck_gen l_ocli ocl =
  (let l_enum = List.map_filter (\<lambda>OclAstEnum e \<Rightarrow> Some e | _ \<Rightarrow> None) (D_ocl_env ocl)
     ; (l_spec1, l_spec2) = arrange_ass False True (fst (find_class_ass ocl)) l_enum
@@ -553,66 +608,11 @@ definition "print_examp_instance_defassoc_typecheck_gen l_ocli ocl =
                     , l_out])
       \<open> error(s)\<close> ])"
 
-definition "print_examp_instance_defassoc = (\<lambda> OclInstance l \<Rightarrow> \<lambda> ocl.
-  let l = List_flatten (fst (fold_list (\<lambda>ocli cpt. ([(ocli, cpt)], oidSucInh cpt)) l (D_oid_start ocl))) in
-  (\<lambda>l_res.
-    ( print_examp_instance_oid l ocl
-      @@@@ List_map Thy_definition_hol l_res
-    , ocl))
-  (print_examp_instance_defassoc_gen
-    (Expr_oid var_inst_assoc (oidGetInh (D_oid_start ocl)))
-    l
-    ocl))"
-
-definition "print_examp_instance_defassoc_typecheck_var = (\<lambda> OclInstance l \<Rightarrow>
- (let b = \<lambda>s. Expr_basic [s]
-    ; l_var = List.fold (\<lambda>ocli. case Inst_name ocli of None \<Rightarrow> id | Some n \<Rightarrow> Cons n) l [] in
-  Pair
-    [ Thy_definition_hol
-        (Definition
-          (Expr_rewrite
-            (b (\<open>instance\<close> @@ isub_of_str (String_concatWith \<open>_\<close> l_var)))
-            \<open>=\<close> 
-            (Expr_lambdas
-              l_var
-              (Expr_pair'
-                (List.fold
-                  (fold_instance_single (\<lambda>_. List.fold (\<lambda> (_, _, d). fold_data_shallow Some
-                                                                                       (\<lambda>_. None)
-                                                                                       (\<lambda> Some s \<Rightarrow> Cons (b s) | None \<Rightarrow> id)
-                                                                                       d)))
-                  l
-                  [])))))]))"
-
 definition "print_examp_instance_defassoc_typecheck = (\<lambda> OclInstance l \<Rightarrow> \<lambda> ocl.
   (\<lambda>l_res. (List_map Thy_ml l_res, ocl \<lparr> D_import_compiler := True \<rparr>))
   (print_examp_instance_defassoc_typecheck_gen
     (List_map Some l)
     ocl))"
-
-definition "print_examp_instance_app_constr2_notmp_norec = (\<lambda>(rbt, (map_self, map_username)) ocl cpt_start ocli isub_name cpt.
-  print_examp_instance_app_constr2_notmp
-    (Inst_ty ocli)
-    (split_inh_own rbt (Inst_ty ocli) (Inst_attr ocli))
-    isub_name
-    cpt
-    (\<lambda>isub_name oid.
-      ( \<lambda> ty_obj.
-          let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l b = \<lambda>s. Expr_basic [s] in
-          Return_val
-            (Expr_applys
-              cpt_start
-              (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l ty_objfrom = TyObj_from ty_obj
-                 ; ty_objto = TyObj_to ty_obj in
-               [ b (print_access_oid_uniq_name (TyObjN_ass_switch ty_objfrom) isub_name (case TyObjN_role_name ty_objto of Some s \<Rightarrow> s))
-               , b (print_access_choose_name (TyObj_ass_arity ty_obj) (TyObjN_ass_switch ty_objfrom) (TyObjN_ass_switch ty_objto))
-               , Expr_oid var_oid_uniq (oidGetInh oid) ]))
-      , \<lambda> base.
-          let f = \<lambda>v. \<lambda> None \<Rightarrow> Return_err v
-                      | Some s \<Rightarrow> Return_val ((Expr_oid var_oid_uniq o oidGetInh) s) in
-          case base of ShallB_str s \<Rightarrow> f (Return_object_variable s) (map_username s)
-                     | ShallB_self cpt1 \<Rightarrow> f Return_err_ty (map_self cpt1)
-                     | _ \<Rightarrow> Return_err Return_err_ty)))"
 
 definition "print_examp_instance_name = id"
 definition "print_examp_instance = (\<lambda> OclInstance l \<Rightarrow> \<lambda> ocl.
