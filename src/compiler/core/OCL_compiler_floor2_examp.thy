@@ -119,7 +119,7 @@ definition "print_examp_def_st2 = (\<lambda> OclDefSt name l \<Rightarrow> \<lam
          (init_map_class 
            (ocl \<lparr> D_oid_start := oidReinitInh (D_oid_start ocl) \<rparr>)
            (List_map (\<lambda> Some (_, ocli, _) \<Rightarrow> ocli | None \<Rightarrow> ocl_instance_single_empty) l)
-          :: (_ \<Rightarrow> _ \<times> (_ \<Rightarrow> ((_ \<Rightarrow> nat \<Rightarrow> _ \<Rightarrow> _) \<Rightarrow> _
+          :: (_ \<Rightarrow> _ \<times> _ \<times> (_ \<Rightarrow> ((_ \<Rightarrow> nat \<Rightarrow> _ \<Rightarrow> _) \<Rightarrow> _
                         \<Rightarrow> (ocl_ty_class option \<times> (ocl_ty \<times> ocl_data_shallow) option) list) option)) \<times> _ \<times> _)
      ; (l_st, l_assoc) = fold_list (\<lambda> o_n l_assoc.
            case o_n of
@@ -134,7 +134,7 @@ definition "print_examp_def_st2 = (\<lambda> OclDefSt name l \<Rightarrow> \<lam
         # [ if D_design_analysis ocl = Gen_only_design then
               b s_empty
             else
-              print_examp_def_st_assoc rbt map_self map_username l_assoc ]))) ]
+              print_examp_def_st_assoc (snd o rbt) map_self map_username l_assoc ]))) ]
    , l_st)))"
 
 definition "print_examp_def_st_inst_var = (\<lambda> OclDefSt name l \<Rightarrow> \<lambda> ocl.

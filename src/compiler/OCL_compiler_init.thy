@@ -276,6 +276,10 @@ definition "textstr_of_str f_flatten f_char f_str str =
   else
     f_flatten (flatten [ \<open>(\<close>, str, \<open>)\<close> ]))"
 
+definition' \<open>escape_sml = String_replace_chars ((* (* ERROR code_reflect *)
+                                                \<lambda> Char Nibble2 Nibble2 \<Rightarrow> \<open>\"\<close> | x \<Rightarrow> \<degree>x\<degree>*)
+                                                \<lambda>x. if x = Char Nibble2 Nibble2 then \<open>\"\<close> else \<degree>x\<degree>)\<close>
+
 definition "mk_constr_name name = (\<lambda> x. flatten [isub_of_str name, \<open>_\<close>, isub_of_str x])"
 definition "mk_dot s1 s2 = flatten [\<open>.\<close>, s1, s2]"
 definition "mk_dot_par_gen dot l_s = flatten [dot, \<open>(\<close>, case l_s of [] \<Rightarrow> \<open>\<close> | x # xs \<Rightarrow> flatten [x, flatten (List_map (\<lambda>s. \<open>, \<close> @@ s) xs) ], \<open>)\<close>]"

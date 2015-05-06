@@ -58,7 +58,7 @@ definition "s_of_val_fun = (\<lambda> Sval \<Rightarrow> \<open>val\<close>
                             | Sfun \<Rightarrow> \<open>fun\<close>)"
 
 fun' s_of_sexpr where \<open>s_of_sexpr e = (\<lambda>
-    Sexpr_string s \<Rightarrow> sprint1 \<open>"%s"\<close>\<acute> (To_string s)
+    Sexpr_string s \<Rightarrow> sprint1 \<open>"%s"\<close>\<acute> (To_string (escape_sml s))
   | Sexpr_rewrite val_fun e1 symb e2 \<Rightarrow> sprint4 \<open>%s %s %s %s\<close>\<acute> (s_of_val_fun val_fun) (s_of_sexpr e1) (To_string symb) (s_of_sexpr e2)
   | Sexpr_basic l \<Rightarrow> sprint1 \<open>%s\<close>\<acute> (String_concat \<open> \<close> (List_map To_string l))
   | Sexpr_oid tit s \<Rightarrow> sprint2 \<open>%s%d\<close>\<acute> (To_string tit) (To_oid s)
