@@ -58,21 +58,43 @@ begin
 
 section{* Miscellaneous Stuff*}
 
-subsection{* Definition: asInt *}
+subsection{* Definition: asBoolean *}
 
-definition OclAsInt\<^sub>R\<^sub>e\<^sub>a\<^sub>l  :: "('\<AA>) Real \<Rightarrow> ('\<AA>) Integer" ("(_)->asInt\<^sub>R\<^sub>e\<^sub>a\<^sub>l'(')")
-where     "OclAsInt\<^sub>R\<^sub>e\<^sub>a\<^sub>l X = (\<lambda>\<tau>. if (\<delta> X) \<tau> = true \<tau> 
+definition OclAsBoolean\<^sub>I\<^sub>n\<^sub>t  :: "('\<AA>) Integer \<Rightarrow> ('\<AA>) Boolean" ("(_)->asBoolean\<^sub>I\<^sub>n\<^sub>t'(')")
+where     "OclAsBoolean\<^sub>I\<^sub>n\<^sub>t X = (\<lambda>\<tau>. if (\<delta> X) \<tau> = true \<tau> 
+                              then \<lfloor>\<lfloor>\<lceil>\<lceil>X \<tau>\<rceil>\<rceil> \<noteq> 0\<rfloor>\<rfloor>
+                              else invalid \<tau>)"
+
+interpretation OclAsBoolean\<^sub>I\<^sub>n\<^sub>t : profile_mono\<^sub>d OclAsBoolean\<^sub>I\<^sub>n\<^sub>t "\<lambda>x. \<lfloor>\<lfloor>\<lceil>\<lceil>x\<rceil>\<rceil> \<noteq> 0\<rfloor>\<rfloor>"
+                                by unfold_locales (auto simp: OclAsBoolean\<^sub>I\<^sub>n\<^sub>t_def bot_option_def)
+
+definition OclAsBoolean\<^sub>R\<^sub>e\<^sub>a\<^sub>l  :: "('\<AA>) Real \<Rightarrow> ('\<AA>) Boolean" ("(_)->asBoolean\<^sub>R\<^sub>e\<^sub>a\<^sub>l'(')")
+where     "OclAsBoolean\<^sub>R\<^sub>e\<^sub>a\<^sub>l X = (\<lambda>\<tau>. if (\<delta> X) \<tau> = true \<tau> 
+                              then \<lfloor>\<lfloor>\<lceil>\<lceil>X \<tau>\<rceil>\<rceil> \<noteq> 0\<rfloor>\<rfloor>
+                              else invalid \<tau>)"
+
+interpretation OclAsBoolean\<^sub>R\<^sub>e\<^sub>a\<^sub>l : profile_mono\<^sub>d OclAsBoolean\<^sub>R\<^sub>e\<^sub>a\<^sub>l "\<lambda>x. \<lfloor>\<lfloor>\<lceil>\<lceil>x\<rceil>\<rceil> \<noteq> 0\<rfloor>\<rfloor>"
+                                 by unfold_locales (auto simp: OclAsBoolean\<^sub>R\<^sub>e\<^sub>a\<^sub>l_def bot_option_def)
+
+subsection{* Definition: asInteger *}
+
+definition OclAsInteger\<^sub>R\<^sub>e\<^sub>a\<^sub>l  :: "('\<AA>) Real \<Rightarrow> ('\<AA>) Integer" ("(_)->asInteger\<^sub>R\<^sub>e\<^sub>a\<^sub>l'(')")
+where     "OclAsInteger\<^sub>R\<^sub>e\<^sub>a\<^sub>l X = (\<lambda>\<tau>. if (\<delta> X) \<tau> = true \<tau> 
                               then \<lfloor>\<lfloor>floor_ceiling_real_inst.floor_real \<lceil>\<lceil>X \<tau>\<rceil>\<rceil>\<rfloor>\<rfloor>
-                              else invalid \<tau>) "
+                              else invalid \<tau>)"
 
-(*
-interpretation OclAsInt\<^sub>R\<^sub>e\<^sub>a\<^sub>l : profile_single
+interpretation OclAsInteger\<^sub>R\<^sub>e\<^sub>a\<^sub>l : profile_mono\<^sub>d OclAsInteger\<^sub>R\<^sub>e\<^sub>a\<^sub>l "\<lambda>x. \<lfloor>\<lfloor>floor_ceiling_real_inst.floor_real \<lceil>\<lceil>x\<rceil>\<rceil>\<rfloor>\<rfloor>"
+                                 by unfold_locales (auto simp: OclAsInteger\<^sub>R\<^sub>e\<^sub>a\<^sub>l_def bot_option_def)
 
- "floor_ceiling_real_inst.floor_real" 
+subsection{* Definition: asReal *}
 
-                                           "\<lambda> x. \<lfloor>\<lfloor>floor_ceiling_real_inst.floor_real \<lceil>\<lceil>x\<rceil>\<rceil>\<rfloor>\<rfloor>"
-         by unfold_locales (auto simp:OclAdd\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r_def bot_option_def null_option_def)
-*)
+definition OclAsReal\<^sub>I\<^sub>n\<^sub>t  :: "('\<AA>) Integer \<Rightarrow> ('\<AA>) Real" ("(_)->asReal\<^sub>I\<^sub>n\<^sub>t'(')")
+where     "OclAsReal\<^sub>I\<^sub>n\<^sub>t X = (\<lambda>\<tau>. if (\<delta> X) \<tau> = true \<tau> 
+                              then \<lfloor>\<lfloor>real_of_int \<lceil>\<lceil>X \<tau>\<rceil>\<rceil>\<rfloor>\<rfloor>
+                              else invalid \<tau>)"
+
+interpretation OclAsReal\<^sub>I\<^sub>n\<^sub>t : profile_mono\<^sub>d OclAsReal\<^sub>I\<^sub>n\<^sub>t "\<lambda>x. \<lfloor>\<lfloor>real_of_int \<lceil>\<lceil>x\<rceil>\<rceil>\<rfloor>\<rfloor>"
+                             by unfold_locales (auto simp: OclAsReal\<^sub>I\<^sub>n\<^sub>t_def bot_option_def)
 
 subsection{* Definition: asPair *}
 
