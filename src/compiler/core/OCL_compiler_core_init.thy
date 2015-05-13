@@ -423,7 +423,7 @@ definition "raise_ml l_out s = Ml (Sexpr_apply \<open>Ty'.check\<close>
         l_out
     , Sexpr_string s ])"
 
-definition "print_examp_def_st_inst_var_name ocli name = flatten [case Inst_name ocli of Some n \<Rightarrow> n, name]"
+definition "print_examp_def_st_inst_var_name ocli name = flatten [case\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l Inst_name ocli of Some n \<Rightarrow> n, name]"
 
 subsection{* context *}
 
