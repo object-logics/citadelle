@@ -71,7 +71,7 @@ Association manages
 Class Bank 
 Attributes bank_name : String
 
-End! (* forces generation of the oo - datatype theory *)
+End! (* Bang forces generation of the oo - datatype theory *)
 
 Context Bank :: deposit (c : Client, account_id : Integer, amount:Integer)
   Pre  "\<zero> \<le>\<^sub>i\<^sub>n\<^sub>t amount"
@@ -102,5 +102,14 @@ Context Bank :: get_balance (c : Client, account_id : Integer) : Integer
         in  result \<doteq> (A .balance)"
 
 lemmas [simp,code_unfold] = dot_accessor
+
+term "(\<sigma>',\<sigma>'') \<Turnstile> (bank .deposit(c, a1, a) \<triangleq> null)"
+lemma 
+assumes  "(\<sigma>,\<sigma>')   \<Turnstile> (bank .get_balance(c , a1) \<triangleq> d)"
+and      "(\<sigma>',\<sigma>'') \<Turnstile> (bank .deposit(c, a1, a) \<triangleq> null)"
+and      "(\<sigma>'',\<sigma>''') \<Turnstile> (bank .withdraw(c , a1, b)\<triangleq> null)"
+shows    "(\<sigma>''',\<sigma>'''') \<Turnstile> ((bank .get_balance(c , a1)) \<triangleq> d +\<^sub>i\<^sub>n\<^sub>t a -\<^sub>i\<^sub>n\<^sub>t b)"
+
+by auto
 
 end

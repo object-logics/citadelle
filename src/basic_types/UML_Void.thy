@@ -96,11 +96,6 @@ interpretation   StrictRefEq\<^sub>V\<^sub>o\<^sub>i\<^sub>d : profile_bin\<^sub
                                     
 subsection{* Basic Void Constants *}
 
-text{* Although the remaining part of this library reasons about
-voids abstractly, we provide here as example some convenient shortcuts. *}
-
-definition OclVoid0 ::"('\<AA>)Void" ("\<lbrakk>\<rbrakk>")  where      "\<lbrakk>\<rbrakk> = (\<lambda> _ . Abs_Void\<^sub>b\<^sub>a\<^sub>s\<^sub>e None)"
-definition OclVoid1 ::"('\<AA>)Void" ("\<lbrace>\<rbrace>")  where      "\<lbrace>\<rbrace> = (\<lambda> _ . Abs_Void\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor>None\<rfloor>)"
 
 subsection{* Validity and Definedness Properties *}
 
@@ -131,11 +126,6 @@ apply(simp add:valid_def true_def
 apply(rule ext, simp split:, intro conjI impI)
 by(metis null_Void_def null_is_valid, simp add: true_def)
 
-(* ecclectic proofs to make examples executable *)
-lemma [simp,code_unfold]: "\<delta> \<lbrakk>\<rbrakk> = false" by(simp add:OclVoid0_def)
-lemma [simp,code_unfold]: "\<upsilon> \<lbrakk>\<rbrakk> = false" by(simp add:OclVoid0_def)
-lemma [simp,code_unfold]: "\<delta> \<lbrace>\<rbrace> = false" by(simp add:OclVoid1_def)
-lemma [simp,code_unfold]: "\<upsilon> \<lbrace>\<rbrace> = true" by(simp add:OclVoid1_def)
 
 subsection{* Test Statements *}
 
