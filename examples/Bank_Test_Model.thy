@@ -103,13 +103,16 @@ Context Bank :: get_balance (c : Client, account_id : Integer) : Integer
 
 lemmas [simp,code_unfold] = dot_accessor
 
-term "(\<sigma>',\<sigma>'') \<Turnstile> (bank .deposit(c, a1, a) \<triangleq> null)"
+term "(\<sigma>',\<sigma>'') \<Turnstile> ((bank :: \<cdot>Bank) .deposit(c, a1, a) \<triangleq> null)"
 lemma 
-assumes  "(\<sigma>,\<sigma>')   \<Turnstile> (bank .get_balance(c , a1) \<triangleq> d)"
-and      "(\<sigma>',\<sigma>'') \<Turnstile> (bank .deposit(c, a1, a) \<triangleq> null)"
-and      "(\<sigma>'',\<sigma>''') \<Turnstile> (bank .withdraw(c , a1, b)\<triangleq> null)"
-shows    "(\<sigma>''',\<sigma>'''') \<Turnstile> ((bank .get_balance(c , a1)) \<triangleq> d +\<^sub>i\<^sub>n\<^sub>t a -\<^sub>i\<^sub>n\<^sub>t b)"
+assumes  *: "(\<sigma>,\<sigma>')   \<Turnstile> ((bank :: \<cdot>Bank) .get_balance(c , a1) \<triangleq> d)"
+and      **: "(\<sigma>',\<sigma>'') \<Turnstile> (bank .deposit(c, a1, a) \<triangleq> null)"
+and      ***:"(\<sigma>'',\<sigma>''') \<Turnstile> (bank .withdraw(c , a1, b)\<triangleq> null)"
+shows    "(\<sigma>''',\<sigma>'''') \<Turnstile> ((bank .get_balance(c , a1)) \<triangleq> (d +\<^sub>i\<^sub>n\<^sub>t a -\<^sub>i\<^sub>n\<^sub>t b))"
+apply(insert * ** ***) 
 
-by auto
+apply(subst UML_OCL.dot\<g>\<e>\<t>095\<b>\<a>\<l>\<a>\<n>\<c>\<e>_def  )
+
+sorry
 
 end
