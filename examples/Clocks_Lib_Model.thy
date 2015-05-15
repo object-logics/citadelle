@@ -62,10 +62,9 @@ Class DiscreteClock < Clock
              Post: "self .oclIsNew() and 
                     (self .created_at \<doteq> (WorldClock .allInstances() ->any\<^sub>S\<^sub>e\<^sub>t() .created_at))"
   Operations get_time\<^sub>D\<^sub>i\<^sub>s\<^sub>c\<^sub>r\<^sub>e\<^sub>t\<^sub>e() : Integer
-             Post: "result \<doteq> (WorldClock .allInstances() ->any\<^sub>S\<^sub>e\<^sub>t() .created_at ->asInt\<^sub>R\<^sub>e\<^sub>a\<^sub>l())
+             Post: "result \<doteq> (WorldClock .allInstances() ->any\<^sub>S\<^sub>e\<^sub>t() .created_at ->asInteger\<^sub>R\<^sub>e\<^sub>a\<^sub>l())
                                -\<^sub>i\<^sub>n\<^sub>t 
-                               (self .created_at ->asInt\<^sub>R\<^sub>e\<^sub>a\<^sub>l())" 
-
+                               (self .created_at ->asInteger\<^sub>R\<^sub>e\<^sub>a\<^sub>l())" 
 
 Class PeriodicDiscreteClock < DiscreteClock
   Attributes period\<^sub>D\<^sub>i\<^sub>s\<^sub>c\<^sub>r\<^sub>e\<^sub>t\<^sub>e : Integer
@@ -88,8 +87,14 @@ Class PeriodicContClock < Clock
              Pre : "\<zero>.\<zero> \<le>\<^sub>r\<^sub>e\<^sub>a\<^sub>l p"
              Post: "self .period\<^sub>C\<^sub>o\<^sub>n\<^sub>t \<doteq> p"
 
+End!
+
+
+
 Context c: Clock
-  Inv "Clock .allInstances() ->size\<^sub>S\<^sub>e\<^sub>t() \<doteq> \<one>"
+  Inv "(Clock .allInstances()) ->size\<^sub>S\<^sub>e\<^sub>t() \<doteq> \<one>"
+
+
 
 lemmas [simp,code_unfold] = dot_accessor
 

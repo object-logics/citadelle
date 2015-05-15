@@ -63,6 +63,7 @@ term id (* REMARK "id" already exists *)
 Class Reservation
   Attributes
     id : Integer
+    date : Week
 End
 
 Class Person
@@ -106,6 +107,10 @@ Association connection
             Role prev
 End
 
+Enum Week 
+  [ Mon, Tue, Wed, Thu, Fri, Sat, Sun ]
+End
+
 (*
 (* Illustration of a wrong model transition: *)
 Instance R00 :: Reservation = [ id = 00, flight = [ F1 ], "next" = R11 ]
@@ -139,7 +144,7 @@ section{* Two State Instances of the Class Model *}
 Instance S1  :: Staff  = [ name = "Mallory" , flights = F1 ]
      and C1  :: Client = [ name = "Bob" , address = "Plzen" , flights = F1 , cl_res = R11 ]
      and C2  :: Client = [ name = "Alice" , address = "Ostrava" , flights = F1 , cl_res = R21 ]
-     and R11 :: Reservation = [ id = 12345 , flight = F1 ]
+     and R11 :: Reservation = [ id = 12345 , flight = F1 , date = Mon ]
      and R21 :: Reservation = [ id = 98765 , flight = F1 ]
      and F1  :: Flight = [ seats = 120 , "from" = "Ostrava" , to = "Plzen" ]
      and F2  :: Flight = [ seats = 370 , "from" = "Plzen" , to = "Brno" ]
