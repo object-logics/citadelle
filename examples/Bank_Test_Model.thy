@@ -45,8 +45,15 @@ header{* Part ... *}
 
 theory   Bank_Test_Model
 imports
-  "../src/UML_OCL" (*"../../../src/Monads" (*To be uncommented as soon as we have no errors with Isabelle 2014 *)*)
+  
+  "../src/UML_OCL" 
+   (*To be uncommented as soon as we have no errors with Isabelle 2014 *)
 begin
+End!
+
+thm assert_intro
+typ "('o, '\<sigma>) MON\<^sub>S\<^sub>E"
+
 
 Class Account 
 Attributes account_id : Integer
@@ -114,5 +121,18 @@ apply(insert * ** ***)
 apply(subst UML_OCL.dot\<g>\<e>\<t>095\<b>\<a>\<l>\<a>\<n>\<c>\<e>_def  )
 
 sorry
+
+typ "('o, '\<sigma>) MON\<^sub>S\<^sub>E"
+
+definition val2Mon :: "('\<sigma>, '\<alpha>::null)val \<Rightarrow>  ('\<alpha>,'\<sigma> state)MON\<^sub>S\<^sub>E"
+where "val2Mon f \<equiv> (\<lambda>\<sigma>. if \<exists>\<sigma>'. \<exists>d.  ((\<sigma>,\<sigma>') \<Turnstile> (f \<triangleq> d)) 
+                        then Some(SOME(d,\<sigma>'). ((\<sigma>,\<sigma>') \<Turnstile> (f \<triangleq> (\<lambda>_. d)))) 
+                        else None)"
+
+term "\<sigma> \<Turnstile> (( r \<leftarrow> (val2Mon ((bank :: \<cdot>Bank) .get_balance(c , a1))) ;
+              _ \<leftarrow> (val2Mon ((bank :: \<cdot>Bank) .deposit(c, a1, a))) ;
+              _ \<leftarrow> (val2Mon ((bank .withdraw(c , a1, b)))) ;
+              r' \<leftarrow> (val2Mon ((bank :: \<cdot>Bank) .get_balance(c , a1))) ; 
+             return (r = r')))"
 
 end

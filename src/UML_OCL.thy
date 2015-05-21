@@ -43,6 +43,7 @@
 
 theory   UML_OCL
 imports  "UML_Main"
+         "../examples/Monads"
          "compiler/OCL_compiler_static"
          "compiler/OCL_compiler_generator_dynamic"
 begin
