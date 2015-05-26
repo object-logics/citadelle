@@ -1,9 +1,9 @@
 (*****************************************************************************
- * Featherweight-OCL --- A Formal Semantics for UML-OCL Version OCL 2.5 
+ * Featherweight-OCL --- A Formal Semantics for UML-OCL Version OCL 2.5
  *                       for the OMG Standard.
  *                       http://www.brucker.ch/projects/hol-testgen/
  *
- * Isabelle_Main2.thy --- 
+ * Isabelle_metis_tactic.thy ---
  * This file is part of HOL-TestGen.
  *
  * Copyright (c) 2013-2015 Université Paris-Sud, France
@@ -41,9 +41,32 @@
  ******************************************************************************)
 (* $Id:$ *)
 
-theory   Isabelle_Main2
-imports  "../Provers/Isabelle_classical"
-         "../Pure/Isar/Isabelle_typedecl"
-         "../HOL/Tools/Metis/Isabelle_metis_tactic"
+header{* Part ... *}
+
+theory Isabelle_metis_tactic
+imports Main
 begin
+
+section{* ... *}
+
+ML{*
+structure Isabelle_Metis_Tactic =
+struct
+open ATP_Proof_Reconstruct
+
+(* Whenever "X" has schematic type variables, we treat "using X by metis" as "by (metis X)" to
+   prevent "Subgoal.FOCUS" from freezing the type variables. We don't do it for nonschematic facts
+   "X" because this breaks a few proofs (in the rare and subtle case where a proof relied on
+   extensionality not being applied) and brings few benefits. *)
+val has_tvar = exists_type (exists_subtype (fn TVar _ => true | _ => false)) o prop_of
+
+fun metis_method ((override_type_encs, lam_trans), ths) ctxt facts =
+  let val (schem_facts, nonschem_facts) = List.partition has_tvar facts in
+    HEADGOAL (Method.insert_tac nonschem_facts THEN'
+      CHANGED_PROP o Metis_Tactic.metis_tac (these override_type_encs)
+        (the_default default_metis_lam_trans lam_trans) ctxt (schem_facts @ ths))
+  end
+end
+*}
+
 end

@@ -689,6 +689,11 @@ fun m_of_tactic expr = let open OCL open Method open OCL_overload in case expr o
   | Tact_blast n => Basic (case n of NONE => SIMPLE_METHOD' o blast_tac
                                    | SOME lim => fn ctxt => SIMPLE_METHOD' (depth_tac ctxt (To_nat lim)))
   | Tact_clarify => Basic (fn ctxt => (SIMPLE_METHOD' (fn i => CHANGED_PROP (clarify_tac ctxt i))))
+  | Tact_metis0 (l_opt, l) =>
+      Basic (fn ctxt => (METHOD oo Isabelle_Metis_Tactic.metis_method)
+                          ( (if l_opt = [] then NONE else SOME (map To_string0 l_opt), NONE)
+                          , map (m_of_ntheorem ctxt) l)
+                          ctxt)
 end
 
 end

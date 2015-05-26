@@ -258,7 +258,10 @@ fun s_of_tactic where "s_of_tactic expr = (\<lambda>
   | Tact_case_tac e \<Rightarrow> sprint1 \<open>case_tac \"%s\"\<close>\<acute> (s_of_expr e)
   | Tact_blast None \<Rightarrow> sprint0 \<open>blast\<close>\<acute>
   | Tact_blast (Some n) \<Rightarrow> sprint1 \<open>blast %d\<close>\<acute> (To_nat n)
-  | Tact_clarify \<Rightarrow> sprint0 \<open>clarify\<close>\<acute>) expr"
+  | Tact_clarify \<Rightarrow> sprint0 \<open>clarify\<close>\<acute>
+  | Tact_metis0 l_opt l \<Rightarrow> sprint2 \<open>metis %s%s\<close>\<acute> (if l_opt = [] then \<open>\<close>
+                                                   else
+                                                     sprint1 \<open>(%s) \<close>\<acute> (String_concat \<open>, \<close> (List_map To_string l_opt))) (s_of_ntheorem_l1 l)) expr"
 
 definition "s_of_tactic_last = (\<lambda> Tacl_done \<Rightarrow> \<open>done\<close>
                                 | Tacl_by l_apply \<Rightarrow> sprint1 \<open>by(%s)\<close>\<acute> (String_concat \<open>, \<close> (List_map s_of_tactic l_apply))

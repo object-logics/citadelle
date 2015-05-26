@@ -133,6 +133,8 @@ datatype hol_tactic = Tact_rule0 "hol_ntheorem option"
                     | Tact_case_tac hol_expr
                     | Tact_blast "nat option"
                     | Tact_clarify
+                    | Tact_metis0 "string list" (* e.g. "no_types" (override_type_encs) *)
+                                  "hol_ntheorem list"
 
 datatype hol_tactic_last = Tacl_done
                          | Tacl_by "hol_tactic list"
@@ -287,6 +289,8 @@ definition "Tac_rename_tac = Tact_rename_tac"
 definition "Tac_case_tac = Tact_case_tac"
 definition "Tac_blast = Tact_blast"
 definition "Tac_clarify = Tact_clarify"
+definition "Tac_metis = Tact_metis0 []"
+definition "Tac_metis0 = Tact_metis0"
 
 definition "Tac_subst_asm b = Tac_subst_l0 b [\<open>0\<close>]"
 definition "Tac_subst = Tac_subst_l [\<open>0\<close>]"
