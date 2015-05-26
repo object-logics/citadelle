@@ -766,8 +766,9 @@ val apply_results = let open OCL_overload
                          Proof.unfolding [map (fn s => ([s], [])) (m_of_ntheorems_l ctxt l)] st
                          end)
                      | OCL.App_let (e1, e2) => proof_show (Proof.let_bind_cmd [([s_of_expr e1], s_of_expr e2)])
-                     | OCL.App_have (n, e, e_pr) => proof_show (fn st => st
-                         |> Isar_Cmd.have [((To_sbinding n, []), [(s_of_expr e, [])])] true
+                     | OCL.App_have0 (n, b, e, e_pr) => proof_show (fn st => st
+                         |> Isar_Cmd.have [( (To_sbinding n, if b then [Args.src ("simp", Position.none) []] else [])
+                                           , [(s_of_expr e, [])])] true
                          |> local_terminal_proof e_pr)
                      | OCL.App_fix_let (l, l_let, o_exp, _) =>
                          proof_show_gen ( fold (fn (e1, e2) =>
@@ -861,7 +862,7 @@ fun OCL_main_thy in_theory in_local = let open OCL open OCL_overload in (*let va
              (Element.Shows [((@{binding ""}, []),[(s_of_expr concl, [])])])
              false
         |> fold apply_results l_apply
-        |> (case map_filter (fn OCL.App_let _ => SOME [] | OCL.App_have _ => SOME [] | OCL.App_fix_let (_, _, _, l) => SOME l | _ => NONE) (rev l_apply) of
+        |> (case map_filter (fn OCL.App_let _ => SOME [] | OCL.App_have0 _ => SOME [] | OCL.App_fix_let (_, _, _, l) => SOME l | _ => NONE) (rev l_apply) of
               [] => global_terminal_proof o_by
             | _ :: l => let val arg = (NONE, true) in fn st => st
               |> local_terminal_proof o_by

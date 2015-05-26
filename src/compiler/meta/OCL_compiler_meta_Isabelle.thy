@@ -148,7 +148,10 @@ datatype hol_tac_apply = App "hol_tactic list" (* apply (... ',' ...) *)
                        | App_using0 hol_ntheorems_l (* using ... *)
                        | App_unfolding0 hol_ntheorems_l (* unfolding ... *)
                        | App_let hol_expr (* name *) hol_expr
-                       | App_have string (* name *) hol_expr hol_tactic_last
+                       | App_have0 string (* name *)
+                                   bool (* true: add [simp] *)
+                                   hol_expr
+                                   hol_tactic_last
                        | App_fix_let "string list"
                                      "(hol_expr (* name *) \<times> hol_expr) list" (* let statements *) (* TODO merge recursively *)
                                      "hol_expr list option" (* None => ?thesis
@@ -315,6 +318,7 @@ definition "ty_arrow l = (case rev l of x # xs \<Rightarrow> List.fold Ty_arrow 
 definition "App_using = App_using0 o List_map Thms_single"
 definition "App_unfolding = App_unfolding0 o List_map Thms_single"
 definition "App_fix l = App_fix_let l [] None []"
+definition "App_have n = App_have0 n False"
 
 fun cross_abs_aux where
    "cross_abs_aux f l x = (\<lambda> (Suc n, PureAbs s _ t) \<Rightarrow> f s (cross_abs_aux f (s # l) (n, t))

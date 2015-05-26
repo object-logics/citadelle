@@ -280,7 +280,7 @@ definition' \<open>s_of_tac_apply = (
   | App_unfolding0 l \<Rightarrow> sprint1 \<open>  unfolding %s
 \<close>\<acute> (s_of_ntheorems_l l)
   | App_let e_name e_body \<Rightarrow> scope_thesis (sprint2 \<open>let %s = "%s"\<close>\<acute> (s_of_expr e_name) (s_of_expr e_body))
-  | App_have n e e_last \<Rightarrow> scope_thesis (sprint3 \<open>have %s: "%s" %s\<close>\<acute> (To_string n) (s_of_expr e) (s_of_tactic_last e_last))
+  | App_have0 n b e e_last \<Rightarrow> scope_thesis (sprint4 \<open>have %s%s: "%s" %s\<close>\<acute> (To_string n) (if b then \<open>[simp]\<close> else \<open>\<close>) (s_of_expr e) (s_of_tactic_last e_last))
   | App_fix_let l l_let o_show _ \<Rightarrow>
       scope_thesis_gen
         (sprint2 \<open>fix %s%s\<close>\<acute> (String_concat \<open> \<close> (List_map To_string l))
@@ -328,7 +328,7 @@ shows \"%s\"\<close>\<acute> (s_of_expr concl)]))
                  sprint1 \<open>
 %s \<close>\<acute> (String_concat \<open>\<close> (List_map s_of_tac_apply_end l_apply_e))))
           (List.map_filter
-            (\<lambda> App_let _ _ \<Rightarrow> Some [] | App_have _ _ _ \<Rightarrow> Some [] | App_fix_let _ _ _ l \<Rightarrow> Some l | _ \<Rightarrow> None)
+            (\<lambda> App_let _ _ \<Rightarrow> Some [] | App_have0 _ _ _ _ \<Rightarrow> Some [] | App_fix_let _ _ _ l \<Rightarrow> Some l | _ \<Rightarrow> None)
             (rev l_apply)))))"
 
 
