@@ -361,18 +361,19 @@ definition "thy_def_state = (\<lambda> Floor1 \<Rightarrow> Hol_theory_ext
                                            , OCL_compiler_floor1_examp.print_examp_def_st1 ]
                              | Floor2 \<Rightarrow> Hol_theory_locale
                                            OCL_compiler_floor2_examp.print_examp_def_st_locale
-                                           (*[ OCL_compiler_floor2_examp.print_examp_def_st2
+                                           [ OCL_compiler_floor2_examp.print_examp_def_st2
                                            , OCL_compiler_floor2_examp.print_examp_def_st_dom
                                            , OCL_compiler_floor2_examp.print_examp_def_st_dom_lemmas
                                            , OCL_compiler_floor2_examp.print_examp_def_st_perm
                                            , OCL_compiler_floor2_examp.print_examp_def_st_allinst
-                                           , OCL_compiler_floor2_examp.print_examp_def_st_defassoc_typecheck ]*)[])"
+                                           , OCL_compiler_floor2_examp.print_examp_def_st_defassoc_typecheck ])"
 definition "thy_def_pre_post = (\<lambda> Floor1 \<Rightarrow> Hol_theory_ext 
                                               [ OCL_compiler_floor1_examp.print_pre_post ]
                                 | Floor2 \<Rightarrow> Hol_theory_locale
                                               OCL_compiler_floor2_examp.print_pre_post_locale
-                                              (*[ OCL_compiler_floor2_examp.print_pre_post_wff
-                                              , OCL_compiler_floor2_examp.print_pre_post_where ]*)[])"
+                                              [ OCL_compiler_floor2_examp.print_pre_post_interp
+                                              , OCL_compiler_floor2_examp.print_pre_post_wff
+                                              , OCL_compiler_floor2_examp.print_pre_post_where ])"
 definition "thy_ctxt = (\<lambda> Floor1 \<Rightarrow> Hol_theory_ext 
                                       [ OCL_compiler_floor1_ctxt.print_ctxt ]
                         | Floor2 \<Rightarrow> Hol_theory_ext 
