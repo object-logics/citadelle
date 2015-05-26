@@ -174,6 +174,7 @@ definition "Thy_section_title = Isab_thy o H_thy_simple o Theory_section_title"
 definition "Thy_text = Isab_thy o H_thy_simple o Theory_text"
 definition "Thy_ml = Isab_thy o H_thy_simple o Theory_ml"
 definition "Thy_thm = Isab_thy o H_thy_simple o Theory_thm"
+definition "Thy_interpretation = Isab_thy o H_thy_simple o Theory_interpretation"
 
 definition "Thy_dataty' = Theory_dataty"
 definition "Thy_ty_synonym' = Theory_ty_synonym"
@@ -189,6 +190,7 @@ definition "Thy_section_title' = Theory_section_title"
 definition "Thy_text' = Theory_text"
 definition "Thy_ml' = Theory_ml"
 definition "Thy_thm' = Theory_thm"
+definition "Thy_interpretation' = Theory_interpretation"
 
 subsection{* ... *}
 

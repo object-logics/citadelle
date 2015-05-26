@@ -880,6 +880,17 @@ fun OCL_main_thy in_theory in_local = let open OCL open OCL_overload in (*let va
     let val () = writeln (Pretty.string_of (Proof_Context.pretty_fact lthy ("", List.map (m_of_ntheorem lthy) thm))) in
     lthy
     end)
+| Theory_interpretation (Interpretation (n, loc_n, loc_param, o_by)) => in_local
+   (fn lthy => lthy
+    |> Expression.interpretation_cmd ( [ ( (To_string0 loc_n, Position.none)
+                                         , ( (To_string0 n, true)
+                                           , if loc_param = [] then
+                                               Expression.Named []
+                                             else
+                                               Expression.Positional (map (SOME o s_of_expr) loc_param)))]
+                                     , [])
+                                     []
+    |> global_terminal_proof o_by)
 (*in fn t => fn thy => f t thy handle ERROR s => (warning s; thy)
  end*)
 end

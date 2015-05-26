@@ -187,7 +187,8 @@ definition "s_of_t ocl =
              | Theory_section_title section_title \<Rightarrow> s_of_section_title ocl section_title
              | Theory_text text \<Rightarrow> s_of_text ocl text
              | Theory_ml ml \<Rightarrow> s_of_ml ocl ml
-             | Theory_thm thm \<Rightarrow> s_of_thm ocl thm)"
+             | Theory_thm thm \<Rightarrow> s_of_thm ocl thm
+             | Theory_interpretation thm \<Rightarrow> s_of_interpretation ocl thm)"
 
 definition' \<open>s_of_thy ocl =
  (\<lambda> H_thy_simple t \<Rightarrow> s_of_t ocl t

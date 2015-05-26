@@ -179,6 +179,11 @@ datatype hol_ml = Ml sml_expr
 
 datatype hol_thm = Thm "hol_ntheorem list"
 
+datatype hol_interpretation = Interpretation string (* name *)
+                                             string (* locale name *)
+                                             "hol_expr list" (* locale param *)
+                                             hol_tactic_last
+
 datatype hol_t = Theory_dataty hol_dataty
                | Theory_ty_synonym hol_ty_synonym
                | Theory_ty_notation hol_ty_notation
@@ -193,6 +198,7 @@ datatype hol_t = Theory_dataty hol_dataty
                | Theory_text hol_text
                | Theory_ml hol_ml
                | Theory_thm hol_thm
+               | Theory_interpretation hol_interpretation
 
 record hol_thy_locale = 
   HolThyLocale_name :: string

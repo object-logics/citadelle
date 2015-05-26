@@ -342,6 +342,13 @@ definition "s_of_ml _ = (\<lambda> Ml e \<Rightarrow> sprint1 \<open>ML{* %s *}\
 
 definition "s_of_thm _ = (\<lambda> Thm thm \<Rightarrow> sprint1 \<open>thm %s\<close>\<acute> (s_of_ntheorem_l1 thm))"
 
+definition' \<open>s_of_interpretation _ = (\<lambda> Interpretation n loc_n loc_param tac \<Rightarrow>
+  sprint4 \<open>interpretation %s: %s%s
+%s\<close>\<acute> (To_string n)
+     (To_string loc_n)
+     (String_concat \<open>\<close> (List_map (\<lambda>s. sprint1 \<open> "%s"\<close>\<acute> (s_of_expr s)) loc_param))
+     (s_of_tactic_last tac))\<close>
+
 end
 
 lemmas [code] =
@@ -374,6 +381,7 @@ lemmas [code] =
   s_of.s_of_text_def
   s_of.s_of_ml_def
   s_of.s_of_thm_def
+  s_of.s_of_interpretation_def
 
   (* fun *)
   s_of.s_of_rawty.simps
