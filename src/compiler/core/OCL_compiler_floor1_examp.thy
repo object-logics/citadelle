@@ -408,7 +408,7 @@ definition "print_examp_def_st_assoc rbt map_self map_username l_assoc =
              , Expr_list' (Expr_list' (Expr_list' (Expr_oid var_oid_uniq))) l_attr ])
          # l_cons)) rbt [])])"
 
-definition "print_examp_instance_oid l ocl = (List_map Thy_definition_hol o List_flatten)
+definition "print_examp_instance_oid thy_definition_hol l ocl = (List_map thy_definition_hol o List_flatten)
  (let (f1, f2) = (\<lambda> var_oid _ _. var_oid, \<lambda> _ _ cpt. Expr_oid \<open>\<close> (oidGetInh cpt)) in
   List_map (\<lambda> (ocli, cpt).
     if List.fold (\<lambda>(_, _, cpt0) b. b | oidGetInh cpt0 = oidGetInh cpt) (D_instance_rbt ocl) False then
@@ -541,7 +541,7 @@ definition "check_single_ty rbt_init rbt' l_attr_gen l_oid x =
 definition "print_examp_instance_defassoc = (\<lambda> OclInstance l \<Rightarrow> \<lambda> ocl.
   let l = List_flatten (fst (fold_list (\<lambda>ocli cpt. ([(ocli, cpt)], oidSucInh cpt)) l (D_oid_start ocl))) in
   (\<lambda>l_res.
-    ( print_examp_instance_oid l ocl
+    ( print_examp_instance_oid Thy_definition_hol l ocl
       @@@@ List_map Thy_definition_hol l_res
     , ocl))
   (print_examp_instance_defassoc_gen

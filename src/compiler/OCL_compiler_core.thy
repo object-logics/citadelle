@@ -359,7 +359,8 @@ definition "thy_def_base_l = Hol_theory_ext [ print_examp_oclbase ]"
 definition "thy_def_state = (\<lambda> Floor1 \<Rightarrow> Hol_theory_ext 
                                            [ OCL_compiler_floor1_examp.print_examp_def_st_typecheck_var
                                            , OCL_compiler_floor1_examp.print_examp_def_st1 ]
-                             | Floor2 \<Rightarrow> Hol_theory_ext
+                             | Floor2 \<Rightarrow> Hol_theory_locale
+                                           OCL_compiler_floor2_examp.print_examp_def_st_locale
                                            [ OCL_compiler_floor2_examp.print_examp_def_st_defassoc
                                            , OCL_compiler_floor2_examp.print_examp_def_st2
                                            , OCL_compiler_floor2_examp.print_examp_def_st_inst_var
@@ -370,9 +371,10 @@ definition "thy_def_state = (\<lambda> Floor1 \<Rightarrow> Hol_theory_ext
                                            , OCL_compiler_floor2_examp.print_examp_def_st_defassoc_typecheck ])"
 definition "thy_def_pre_post = (\<lambda> Floor1 \<Rightarrow> Hol_theory_ext 
                                               [ OCL_compiler_floor1_examp.print_pre_post ]
-                                | Floor2 \<Rightarrow> Hol_theory_ext
-                                              [ OCL_compiler_floor2_examp.print_pre_post_wff
-                                              , OCL_compiler_floor2_examp.print_pre_post_where ])"
+                                | Floor2 \<Rightarrow> Hol_theory_locale
+                                              OCL_compiler_floor2_examp.print_pre_post_locale
+                                              (*[ OCL_compiler_floor2_examp.print_pre_post_wff
+                                              , OCL_compiler_floor2_examp.print_pre_post_where ]*)[])"
 definition "thy_ctxt = (\<lambda> Floor1 \<Rightarrow> Hol_theory_ext 
                                       [ OCL_compiler_floor1_ctxt.print_ctxt ]
                         | Floor2 \<Rightarrow> Hol_theory_ext 

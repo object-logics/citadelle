@@ -51,6 +51,11 @@ section{* Translation of AST *}
 
 subsection{* example *}
 
+definition "print_examp_def_st_locale = (\<lambda> OclDefSt n l \<Rightarrow> \<lambda>ocl.
+ (\<lambda>d. (d, ocl))
+  \<lparr> HolThyLocale_name = \<open>state_\<close> @@ n
+  , HolThyLocale_header = [] \<rparr>)"
+
 definition "print_examp_def_st_defassoc_typecheck_gen l ocl =
  ([ raise_ml
       (case
@@ -75,7 +80,7 @@ definition "print_examp_def_st_defassoc_typecheck_gen l ocl =
       \<open> error(s)\<close> ])"
 
 definition "print_examp_def_st_defassoc_typecheck = (\<lambda> OclDefSt _ l \<Rightarrow> \<lambda> ocl.
-  (\<lambda>l_res. (List_map Thy_ml l_res, ocl \<lparr> D_import_compiler := True \<rparr>))
+  (\<lambda>l_res. (List_map Thy_ml' l_res, ocl \<lparr> D_import_compiler := True \<rparr>))
   (print_examp_def_st_defassoc_typecheck_gen
     l
     ocl))"
@@ -105,14 +110,14 @@ definition "print_examp_def_st_defassoc_name name = Expr_basic [flatten [var_ins
 definition "print_examp_def_st_defassoc = (\<lambda> OclDefSt name l \<Rightarrow> \<lambda>ocl.
  let l_ocli = List.map_filter (\<lambda> OclDefCoreBinding name \<Rightarrow>
                                    List.assoc name (D_instance_rbt ocl)) l in
- (\<lambda>l. (print_examp_instance_oid l_ocli ocl @@@@ List_map Thy_definition_hol l, ocl))
+ (\<lambda>l. (print_examp_instance_oid Thy_definition_hol' l_ocli ocl @@@@ List_map Thy_definition_hol' l, ocl))
   (print_examp_instance_defassoc_gen
     (print_examp_def_st_defassoc_name name)
     l_ocli
     (ocl \<lparr> D_oid_start := oidReinitInh (D_oid_start ocl) \<rparr>)))"
 
 definition "print_examp_def_st2 = (\<lambda> OclDefSt name l \<Rightarrow> \<lambda>ocl.
- (\<lambda>(l, l_st). (List_map Thy_definition_hol l, ocl \<lparr> D_state_rbt := (String_to_String\<^sub>b\<^sub>a\<^sub>s\<^sub>e name, l_st) # D_state_rbt ocl \<rparr>))
+ (\<lambda>(l, l_st). (List_map Thy_definition_hol' l, ocl \<lparr> D_state_rbt := (String_to_String\<^sub>b\<^sub>a\<^sub>s\<^sub>e name, l_st) # D_state_rbt ocl \<rparr>))
   (let b = \<lambda>s. Expr_basic [s]
      ; l = List_map (\<lambda> OclDefCoreBinding name \<Rightarrow> map_option (Pair name) (List.assoc name (D_instance_rbt ocl))) l
      ; (rbt, (map_self, map_username)) =
@@ -141,7 +146,7 @@ definition "print_examp_def_st_inst_var = (\<lambda> OclDefSt name l \<Rightarro
  let ocl_old = ocl \<lparr> D_oid_start := oidReinitInh (D_oid_start ocl) \<rparr>
    ; l_ocli = List_map (\<lambda> OclDefCoreBinding name \<Rightarrow>
                             map_option fst (List.assoc name (D_instance_rbt ocl_old))) l in
-  (\<lambda>l_res. ((List_map Thy_definition_hol o List_flatten) l_res, ocl))
+  (\<lambda>l_res. ((List_map Thy_definition_hol' o List_flatten) l_res, ocl))
     (let ocl = ocl_old in
      case D_design_analysis ocl of Gen_only_analysis \<Rightarrow> [] | Gen_default \<Rightarrow> [] | Gen_only_design \<Rightarrow>
      fst (fold_list
@@ -163,7 +168,7 @@ definition "print_examp_def_st_inst_var = (\<lambda> OclDefSt name l \<Rightarro
 
 definition "print_examp_def_st_dom_name name = flatten [\<open>dom_\<close>, name]"
 definition "print_examp_def_st_dom = (\<lambda> _ ocl.
- (\<lambda> l. (List_map Thy_lemma_by l, ocl))
+ (\<lambda> l. (List_map Thy_lemma_by' l, ocl))
   (let (name, l_st) = map_prod String\<^sub>b\<^sub>a\<^sub>s\<^sub>e_to_String id (hd (D_state_rbt ocl))
      ; a = \<lambda>f x. Expr_apply f [x]
      ; b = \<lambda>s. Expr_basic [s]
@@ -175,14 +180,14 @@ definition "print_examp_def_st_dom = (\<lambda> _ ocl.
        (Tacl_by [Tac_auto_simp_add [d name]])]))"
 
 definition "print_examp_def_st_dom_lemmas = (\<lambda> _ ocl.
- (\<lambda> l. (List_map Thy_lemmas_simp l, ocl))
+ (\<lambda> l. (List_map Thy_lemmas_simp' l, ocl))
   (let (name, _) = hd (D_state_rbt ocl) in
    [ Lemmas_simp \<open>\<close>
        [Thm_str (print_examp_def_st_dom_name (String\<^sub>b\<^sub>a\<^sub>s\<^sub>e_to_String name))] ]))"
 
 definition "print_examp_def_st_perm_name name = flatten [\<open>perm_\<close>, name]"
 definition "print_examp_def_st_perm = (\<lambda> _ ocl.
- (\<lambda> l. (List_map Thy_lemma_by l, ocl))
+ (\<lambda> l. (List_map Thy_lemma_by' l, ocl))
   (let (name, l_st) = map_prod String\<^sub>b\<^sub>a\<^sub>s\<^sub>e_to_String id (hd (D_state_rbt ocl))
      ; expr_app = let ocl = ocl \<lparr> D_oid_start := oidReinitInh (D_oid_start ocl) \<rparr> in
                   print_examp_def_st_mapsto
@@ -226,7 +231,7 @@ definition "extract_state ocl name_st l_st =
                     l_st)"
 
 definition "print_examp_def_st_allinst = (\<lambda> _ ocl.
- (\<lambda> l. (List_map Thy_lemma_by l, ocl))
+ (\<lambda> l. (List_map Thy_lemma_by' l, ocl))
   (let (name_st, l_st) = map_prod String\<^sub>b\<^sub>a\<^sub>s\<^sub>e_to_String id (hd (D_state_rbt ocl))
      ; b = \<lambda>s. Expr_basic [s]
      ; expr_app = extract_state ocl name_st l_st
@@ -328,8 +333,12 @@ definition "l_const_oid_of ocl =
                              []
                              (case D_class_spec ocl of Some c \<Rightarrow> c)))"
 
+definition "print_pre_post_locale = get_state (\<lambda> (s_pre, l_pre) (s_post, l_post). Pair
+  \<lparr> HolThyLocale_name = \<open>pre_post_\<close> @@ s_pre @@ \<open>_\<close> @@ s_post
+  , HolThyLocale_header = [] \<rparr>)"
+
 definition "print_pre_post_wff = get_state (\<lambda> (s_pre, l_pre) (s_post, l_post) ocl.
- (\<lambda> l. (List_map Thy_lemma_by l, ocl))
+ (\<lambda> l. (List_map Thy_lemma_by' l, ocl))
   (let a = \<lambda>f x. Expr_apply f [x]
      ; b = \<lambda>s. Expr_basic [s]
      ; d = hol_definition in
@@ -350,7 +359,7 @@ definition "print_pre_post_wff = get_state (\<lambda> (s_pre, l_pre) (s_post, l_
         , l_const_oid_of ocl ]))]) ] ))"
 
 definition "print_pre_post_where = get_state (\<lambda> (s_pre, l_pre) (s_post, l_post) ocl.
- (\<lambda> l. ((List_map Thy_lemma_by o List_flatten) l, ocl))
+ (\<lambda> l. ((List_map Thy_lemma_by' o List_flatten) l, ocl))
   (let a = \<lambda>f x. Expr_apply f [x]
      ; b = \<lambda>s. Expr_basic [s]
      ; d = hol_definition in
