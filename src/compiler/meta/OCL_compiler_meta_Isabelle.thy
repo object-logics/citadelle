@@ -92,7 +92,8 @@ datatype hol_definition_hol = Definition hol_expr
                             | Definition_abbrev string (* name *) "hol_expr (* syntax extension *) \<times> nat (* priority *)" hol_expr
                             | Definition_abbrev0 string (* name *) hol_expr (* syntax extension *) hol_expr
 
-datatype hol_ntheorem = Thm_str string
+datatype hol_ntheorem = Thm_str string (* represents a single thm *)
+                      | Thm_strs string (* represents several thms *)
                       | Thm_THEN hol_ntheorem hol_ntheorem
                       | Thm_simplified hol_ntheorem hol_ntheorem
                       | Thm_symmetric hol_ntheorem
@@ -101,7 +102,7 @@ datatype hol_ntheorem = Thm_str string
                       | Thm_OF hol_ntheorem hol_ntheorem
 
 datatype hol_ntheorems = Thms_single hol_ntheorem
-                       | Thms_mult string
+                       | Thms_mult hol_ntheorem
 
 type_synonym hol_ntheorems_l = "hol_ntheorems list"
 
@@ -278,6 +279,7 @@ definition "tac_gen_simp_add_split l1 l2 = Simp_add_del_split (List_map Thms_sin
                                                       []
                                                       (List_map Thms_single l2)"
 definition "tac_gen_simp_only l = Simp_only (List_map Thms_single l)"
+definition "tac_gen_simp_only' l = Simp_only (List_map Thms_mult l)"
 definition "tac_gen_simp_add0 l = Simp_add_del (List_map Thms_single l) []"
 definition "Tac_simp = Tact_one tac_gen_simp"
 definition "Tac_simp_add2 l1 l2 = Tact_one (tac_gen_simp_add2 l1 l2)"
@@ -285,11 +287,13 @@ definition "Tac_simp_add_del l1 l2 = Tact_one (tac_gen_simp_add_del l1 l2)"
 definition "Tac_simp_add_del_split l1 l2 l3 = Tact_one (tac_gen_simp_add_del_split l1 l2 l3)"
 definition "Tac_simp_add_split l1 l2 = Tact_one (tac_gen_simp_add_split l1 l2)"
 definition "Tac_simp_only l = Tact_one (tac_gen_simp_only l)"
+definition "Tac_simp_only' l = Tact_one (tac_gen_simp_only' l)"
 definition "Tac_simp_add0 l = Tact_one (tac_gen_simp_add0 l)"
 definition "Tac_simp_add = Tac_simp_add2 []"
 definition "Tac_simp_all = Tact_all tac_gen_simp"
 definition "Tac_simp_all_add l = Tact_all (tac_gen_simp_add2 [] l)"
 definition "Tac_simp_all_only l = Tact_all (tac_gen_simp_only l)"
+definition "Tac_simp_all_only' l = Tact_all (tac_gen_simp_only' l)"
 definition "Tac_auto_simp_add2 l1 l2 = Tact_auto_simp_add_split (List_flatten [ List_map Thms_mult l1
                                                                 , List_map (Thms_single o Thm_str) l2]) []"
 definition "Tac_auto_simp_add_split l = Tact_auto_simp_add_split (List_map Thms_single l)"

@@ -434,7 +434,7 @@ definition "print_access_dot_cp_lemmas = start_map' (\<lambda>_.
 
 definition "print_access_dot_lemma_cp_name isub_name dot_at_when attr_ty isup_attr = flatten [\<open>cp_\<close>, print_access_dot_name isub_name dot_at_when attr_ty isup_attr]"
 definition "print_access_dot_lemma_cp = start_map Thy_lemma_by o
- (let auto = \<lambda>l. Tac_auto_simp_add2 [print_access_dot_lemmas_id_name] (List_map hol_definition (\<open>cp\<close> # l)) in
+ (let auto = \<lambda>l. Tac_auto_simp_add2 [Thm_strs print_access_dot_lemmas_id_name] (List_map hol_definition (\<open>cp\<close> # l)) in
   map_class_arg_only_var
     (\<lambda>isub_name name (_, dot_at_when) attr_ty isup_attr dot_attr.
             [ Lemma_by
@@ -474,7 +474,7 @@ definition "print_access_lemma_strict expr = (start_map Thy_lemma_by o
                   (if print_access_dot_lemmas_id_set expr = [] | print_access_dot_cp_lemmas_set = [] then
                      Tacl_sorry else
                    Tacl_by [ Tac_rule (Thm_str \<open>ext\<close>),
-                             Tac_simp_add2 [print_access_dot_lemmas_id_name]
+                             Tac_simp_add2 [Thm_strs print_access_dot_lemmas_id_name]
                                            (List_map hol_definition
                                              (let l = (let l = (\<open>bot_option\<close> # tac_invalid) in
                                               if print_access_dot_lemmas_id_set expr = [] then

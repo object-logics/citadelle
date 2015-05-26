@@ -633,22 +633,43 @@ fun simp_tac_gen g f = Method.Basic (fn ctxt => SIMPLE_METHOD (g (asm_full_simp_
 val simp_tac = simp_tac_gen (fn f => f 1)
 val simp_all_tac = simp_tac_gen (CHANGED_PROP o PARALLEL_GOALS o ALLGOALS)
 
-fun m_of_ntheorem ctxt s = let open OCL open OCL_overload in case s of
-    Thm_str s => Proof_Context.get_thm ctxt (To_string0 s)
-  | Thm_THEN (e1, e2) => m_of_ntheorem ctxt e1 RSN (1, m_of_ntheorem ctxt e2)
-  | Thm_simplified (e1, e2) => asm_full_simplify (clear_simpset ctxt addsimps [m_of_ntheorem ctxt e2]) (m_of_ntheorem ctxt e1)
-  | Thm_OF (e1, e2) => [m_of_ntheorem ctxt e2] MRS m_of_ntheorem ctxt e1
-  | Thm_where (nth, l) => Rule_Insts.where_rule ctxt (List.map (fn (var, expr) => ((To_string0 var, 0), s_of_expr expr)) l) [] (m_of_ntheorem ctxt nth)
-  | Thm_symmetric s => m_of_ntheorem ctxt (Thm_THEN (s, Thm_str (From.from_string "sym")))
-  | Thm_of (nth, l) => Rule_Insts.of_rule ctxt (List.map (SOME o s_of_expr) l, []) [] (m_of_ntheorem ctxt nth)
+datatype ty_thm = Thm_single of thm
+                | Thm_mult of thm list
+
+fun m_of_ntheorem0 ctxt = let open OCL open OCL_overload val S = fn Thm_single t => t
+                                                         val M = fn Thm_mult t => t in
+ fn Thm_str s => Thm_single (Proof_Context.get_thm ctxt (To_string0 s))
+  | Thm_strs s => Thm_mult (Proof_Context.get_thms ctxt (To_string0 s))
+  | Thm_THEN (e1, e2) => 
+      (case (m_of_ntheorem0 ctxt e1, m_of_ntheorem0 ctxt e2) of
+         (Thm_single e1, Thm_single e2) => Thm_single (e1 RSN (1, e2))
+       | (Thm_mult e1, Thm_mult e2) => Thm_mult (e1 RLN (1, e2)))
+  | Thm_simplified (e1, e2) => Thm_single (asm_full_simplify (clear_simpset ctxt addsimps [S (m_of_ntheorem0 ctxt e2)]) (S (m_of_ntheorem0 ctxt e1)))
+  | Thm_OF (e1, e2) => Thm_single ([S (m_of_ntheorem0 ctxt e2)] MRS (S (m_of_ntheorem0 ctxt e1)))
+  | Thm_where (nth, l) => Thm_single (Rule_Insts.where_rule ctxt (List.map (fn (var, expr) => ((To_string0 var, 0), s_of_expr expr)) l) [] (S (m_of_ntheorem0 ctxt nth)))
+  | Thm_symmetric e1 => 
+      let val e2 = S (m_of_ntheorem0 ctxt (Thm_str (From.from_string "sym"))) in
+        case m_of_ntheorem0 ctxt e1 of
+          Thm_single e1 => Thm_single (e1 RSN (1, e2))
+        | Thm_mult e1 => Thm_mult (e1 RLN (1, [e2]))
+      end
+  | Thm_of (nth, l) => Thm_single (Rule_Insts.of_rule ctxt (List.map (SOME o s_of_expr) l, []) [] (S (m_of_ntheorem0 ctxt nth)))
 end
+
+fun m_of_ntheorem ctxt s = case (m_of_ntheorem0 ctxt s) of Thm_single t => t
 
 fun addsimp (l1, l2) ctxt0 = 
   fold (fn a => fn ctxt => ctxt addsimps ((Proof_Context.get_thms ctxt0 o To_string0) a)) l1
   (ctxt0 addsimps (List.map (Proof_Context.get_thm ctxt0 o To_string0) l2))
 
-fun m_of_ntheorems ctxt = fn OCL.Thms_single thy => [m_of_ntheorem ctxt thy]
-                           | OCL.Thms_mult thy => Proof_Context.get_thms ctxt (To_string0 thy)
+fun m_of_ntheorems ctxt =
+  let fun f thy = case (m_of_ntheorem0 ctxt thy) of Thm_mult t => t
+                                                  | Thm_single t => [t] in
+  fn OCL.Thms_single thy => f thy
+   | OCL.Thms_mult thy => f thy
+  end
+
+fun m_of_ntheorems' ctxt = m_of_ntheorems ctxt o OCL.Thms_single
 
 fun m_of_ntheorems_l ctxt l = List.concat (map (m_of_ntheorems ctxt) l)
 

@@ -148,29 +148,36 @@ fun s_of_ntheorem_aux where "s_of_ntheorem_aux lacc e =
      ; f_symmetric = (\<open>symmetric\<close>, \<open>\<close>)
      ; s_base = (\<lambda>s lacc. sprint2 \<open>%s[%s]\<close>\<acute> (To_string s) (String_concat \<open>, \<close> (List_map (\<lambda>(s, x). sprint2 \<open>%s %s\<close>\<acute> s x) lacc))) in
    *)\<lambda> Thm_str s \<Rightarrow> To_string s
+   | Thm_strs s \<Rightarrow> To_string s
 
    | Thm_THEN (Thm_str s) e2 \<Rightarrow> s_of_ntheorem_aux_gen (\<open>THEN\<close>, s_of_ntheorem_aux [] e2) lacc s
+   | Thm_THEN (Thm_strs s) e2 \<Rightarrow> s_of_ntheorem_aux_gen (\<open>THEN\<close>, s_of_ntheorem_aux [] e2) lacc s
    | Thm_THEN e1 e2 \<Rightarrow> s_of_ntheorem_aux ((\<open>THEN\<close>, s_of_ntheorem_aux [] e2) # lacc) e1
 
    | Thm_simplified (Thm_str s) e2 \<Rightarrow> s_of_ntheorem_aux_gen (\<open>simplified\<close>, s_of_ntheorem_aux [] e2) lacc s
+   | Thm_simplified (Thm_strs s) e2 \<Rightarrow> s_of_ntheorem_aux_gen (\<open>simplified\<close>, s_of_ntheorem_aux [] e2) lacc s
    | Thm_simplified e1 e2 \<Rightarrow> s_of_ntheorem_aux ((\<open>simplified\<close>, s_of_ntheorem_aux [] e2) # lacc) e1
 
    | Thm_symmetric (Thm_str s) \<Rightarrow> s_of_ntheorem_aux_gen (\<open>symmetric\<close>, \<open>\<close>) lacc s 
+   | Thm_symmetric (Thm_strs s) \<Rightarrow> s_of_ntheorem_aux_gen (\<open>symmetric\<close>, \<open>\<close>) lacc s
    | Thm_symmetric e1 \<Rightarrow> s_of_ntheorem_aux ((\<open>symmetric\<close>, \<open>\<close>) # lacc) e1
 
    | Thm_where (Thm_str s) l \<Rightarrow> s_of_ntheorem_aux_gen (s_of_ntheorem_aux_gen_where l) lacc s
+   | Thm_where (Thm_strs s) l \<Rightarrow> s_of_ntheorem_aux_gen (s_of_ntheorem_aux_gen_where l) lacc s
    | Thm_where e1 l \<Rightarrow> s_of_ntheorem_aux (s_of_ntheorem_aux_gen_where l # lacc) e1
 
    | Thm_of (Thm_str s) l \<Rightarrow> s_of_ntheorem_aux_gen (s_of_ntheorem_aux_gen_of l) lacc s
+   | Thm_of (Thm_strs s) l \<Rightarrow> s_of_ntheorem_aux_gen (s_of_ntheorem_aux_gen_of l) lacc s
    | Thm_of e1 l \<Rightarrow> s_of_ntheorem_aux (s_of_ntheorem_aux_gen_of l # lacc) e1
 
    | Thm_OF (Thm_str s) e2 \<Rightarrow> s_of_ntheorem_aux_gen (\<open>OF\<close>, s_of_ntheorem_aux [] e2) lacc s
+   | Thm_OF (Thm_strs s) e2 \<Rightarrow> s_of_ntheorem_aux_gen (\<open>OF\<close>, s_of_ntheorem_aux [] e2) lacc s
    | Thm_OF e1 e2 \<Rightarrow> s_of_ntheorem_aux ((\<open>OF\<close>, s_of_ntheorem_aux [] e2) # lacc) e1) e"
 
 definition "s_of_ntheorem = s_of_ntheorem_aux []"
 
 definition "s_of_ntheorems = (\<lambda> Thms_single thy \<Rightarrow> s_of_ntheorem thy
-                              | Thms_mult thy \<Rightarrow> To_string thy)"
+                              | Thms_mult thy \<Rightarrow> s_of_ntheorem thy)"
 
 definition "s_of_ntheorem_l l = String_concat \<open>
                             \<close> (List_map s_of_ntheorem l)"
