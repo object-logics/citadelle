@@ -45,15 +45,8 @@ header{* Part ... *}
 
 theory   Bank_Test_Model
 imports
-  
   "../src/UML_OCL" 
-   (*To be uncommented as soon as we have no errors with Isabelle 2014 *)
 begin
-End!
-
-thm assert_intro
-typ "('o, '\<sigma>) MON\<^sub>S\<^sub>E"
-
 
 Class Account 
 Attributes account_id : Integer
@@ -110,7 +103,6 @@ Context Bank :: get_balance (c : Client, account_id : Integer) : Integer
 
 lemmas [simp,code_unfold] = dot_accessor
 
-term "(\<sigma>',\<sigma>'') \<Turnstile> ((bank :: \<cdot>Bank) .deposit(c, a1, a) \<triangleq> null)"
 lemma 
 assumes  *: "(\<sigma>,\<sigma>')   \<Turnstile> ((bank :: \<cdot>Bank) .get_balance(c , a1) \<triangleq> d)"
 and      **: "(\<sigma>',\<sigma>'') \<Turnstile> (bank .deposit(c, a1, a) \<triangleq> null)"
@@ -120,9 +112,7 @@ apply(insert * ** ***)
 
 apply(subst UML_OCL.dot\<g>\<e>\<t>095\<b>\<a>\<l>\<a>\<n>\<c>\<e>_def  )
 
-sorry
-
-typ "('o, '\<sigma>) MON\<^sub>S\<^sub>E"
+oops
 
 definition val2Mon :: "('\<sigma>, '\<alpha>::null)val \<Rightarrow>  ('\<alpha>,'\<sigma> state)MON\<^sub>S\<^sub>E"
 where "val2Mon f \<equiv> (\<lambda>\<sigma>. if \<exists>\<sigma>'. \<exists>d.  ((\<sigma>,\<sigma>') \<Turnstile> (f \<triangleq> d)) 
