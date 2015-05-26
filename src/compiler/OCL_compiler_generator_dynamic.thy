@@ -696,6 +696,7 @@ fun m_of_tactic expr = let open OCL open Method open OCL_overload in case expr o
   | Tact_insert l => Basic (fn ctxt => insert (m_of_ntheorems_l ctxt l))
   | Tact_plus t => Repeat1 (no_combinator_info, Then (no_combinator_info, List.map m_of_tactic t))
   | Tact_option t => Try (no_combinator_info, Then (no_combinator_info, List.map m_of_tactic t))
+  | Tact_or t => Orelse (no_combinator_info, List.map m_of_tactic t)
   | Tact_one (Simp_only l) => simp_tac (s_simp_only l)
   | Tact_one (Simp_add_del_split l) => simp_tac (s_simp_add_del_split l)
   | Tact_all (Simp_only l) => simp_all_tac (s_simp_only l)

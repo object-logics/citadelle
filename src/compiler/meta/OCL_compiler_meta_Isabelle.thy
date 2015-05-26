@@ -127,6 +127,7 @@ datatype hol_tactic = Tact_rule0 "hol_ntheorem option"
                     | Tact_insert hol_ntheorems_l
                     | Tact_plus "hol_tactic list"
                     | Tact_option "hol_tactic list"
+                    | Tact_or "hol_tactic list"
                     | Tact_one hol_tactic_simp
                     | Tact_all hol_tactic_simp
                     | Tact_auto_simp_add_split hol_ntheorems_l "string list"
@@ -266,6 +267,7 @@ definition "Tac_subst_l = Tact_subst_l"
 definition "Tac_insert = Tact_insert o List_map Thms_single"
 definition "Tac_plus = Tact_plus"
 definition "Tac_option = Tact_option"
+definition "Tac_or = Tact_or"
 definition "tac_gen_simp = Simp_add_del [] []"
 definition "tac_gen_simp_add2 l1 l2 = Simp_add_del (List_flatten [ List_map Thms_mult l1
                                                     , List_map (Thms_single o Thm_str) l2])

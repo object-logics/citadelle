@@ -229,6 +229,7 @@ fun s_of_tactic where "s_of_tactic expr = (\<lambda>
   | Tact_insert l => sprint1 \<open>insert %s\<close>\<acute> (s_of_ntheorems_l l)
   | Tact_plus t \<Rightarrow> sprint1 \<open>(%s)+\<close>\<acute> (String_concat \<open>, \<close> (List.map s_of_tactic t))
   | Tact_option t \<Rightarrow> sprint1 \<open>(%s)?\<close>\<acute> (String_concat \<open>, \<close> (List.map s_of_tactic t))
+  | Tact_or t \<Rightarrow> sprint1 \<open>(%s)\<close>\<acute> (String_concat \<open> | \<close> (List.map s_of_tactic t))
   | Tact_one (Simp_only l) \<Rightarrow> sprint1 \<open>simp only: %s\<close>\<acute> (s_of_ntheorems_l l)
   | Tact_one (Simp_add_del_split l1 l2 []) \<Rightarrow> sprint2 \<open>simp%s%s\<close>\<acute>
       (s_of_attrib \<open>add\<close> l1)
