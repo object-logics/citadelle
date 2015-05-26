@@ -85,36 +85,21 @@ definition "print_examp_def_st_defassoc_typecheck = (\<lambda> OclDefSt _ l \<Ri
     l
     ocl))"
 
-definition "print_examp_def_st_mapsto_gen f ocl cpt_start =
+definition "print_examp_def_st_mapsto_gen f ocl =
   List_map
     (\<lambda>(cpt, ocore).
-        let a = \<lambda>f x. Expr_apply f [x]
-          ; b = \<lambda>s. Expr_basic [s]
+        let b = \<lambda>s. Expr_basic [s]
           ; (ocli, exp) = case ocore of
-            OclDefCoreBinding (name, ocli) \<Rightarrow> (ocli, Some (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l name = print_examp_instance_name (\<lambda>s. s @@ isub_of_str (Inst_ty ocli)) name in
-                                                           if D_design_analysis ocl = Gen_only_design then
-                                                             a name cpt_start
-                                                           else
-                                                             b name)) in
+               OclDefCoreBinding (name, ocli) \<Rightarrow>
+                 (ocli, Some (b (print_examp_instance_name (\<lambda>s. s @@ isub_of_str (Inst_ty ocli)) name))) in
         f (cpt, ocore) ocli exp)"
 
-definition "print_examp_def_st_mapsto ocl name l =
-  list_bind id id (print_examp_def_st_mapsto_gen
+definition "print_examp_def_st_mapsto ocl l = list_bind id id
+ (print_examp_def_st_mapsto_gen
     (\<lambda>(cpt, _) ocli. map_option (\<lambda>exp.
       Expr_binop (Expr_oid var_oid_uniq (oidGetInh cpt)) \<open>\<mapsto>\<close> (Expr_apply (datatype_in @@ isub_of_str (Inst_ty ocli)) [exp])))
     ocl
-    name
     l)"
-
-definition "print_examp_def_st_defassoc_name name = Expr_basic [flatten [var_inst_assoc, name]]"
-definition "print_examp_def_st_defassoc = (\<lambda> OclDefSt name l \<Rightarrow> \<lambda>ocl.
- let l_ocli = List.map_filter (\<lambda> OclDefCoreBinding name \<Rightarrow>
-                                   List.assoc name (D_instance_rbt ocl)) l in
- (\<lambda>l. (print_examp_instance_oid Thy_definition_hol' l_ocli ocl @@@@ List_map Thy_definition_hol' l, ocl))
-  (print_examp_instance_defassoc_gen
-    (print_examp_def_st_defassoc_name name)
-    l_ocli
-    (ocl \<lparr> D_oid_start := oidReinitInh (D_oid_start ocl) \<rparr>)))"
 
 definition "print_examp_def_st2 = (\<lambda> OclDefSt name l \<Rightarrow> \<lambda>ocl.
  (\<lambda>(l, l_st). (List_map Thy_definition_hol' l, ocl \<lparr> D_state_rbt := (String_to_String\<^sub>b\<^sub>a\<^sub>s\<^sub>e name, l_st) # D_state_rbt ocl \<rparr>))
@@ -130,41 +115,12 @@ definition "print_examp_def_st2 = (\<lambda> OclDefSt name l \<Rightarrow> \<lam
            case o_n of
               Some (name, ocli, cpt) \<Rightarrow> ([(cpt, OclDefCoreBinding (name, ocli))], (ocli, cpt) # l_assoc)
             | None \<Rightarrow> ([], l_assoc)) l []
-     ; l_st = List_unique oidGetInh (List_flatten l_st)
-     ; expr_app = print_examp_def_st_mapsto ocl (print_examp_def_st_defassoc_name name) l_st in
+     ; l_st = List_unique oidGetInh (List_flatten l_st) in
 
-   ( [ let s_empty = \<open>Map.empty\<close> in
-       Definition (Expr_rewrite (b name) \<open>=\<close> (Expr_apply \<open>state.make\<close>
-        ( Expr_apply s_empty (case expr_app of None \<Rightarrow> [] | Some l \<Rightarrow> l)
-        # [ if D_design_analysis ocl = Gen_only_design then
-              b s_empty
-            else
-              print_examp_def_st_assoc (snd o rbt) map_self map_username l_assoc ]))) ]
+   ( [ Definition (Expr_rewrite (b name) \<open>=\<close> (Expr_apply \<open>state.make\<close>
+        ( Expr_apply \<open>Map.empty\<close> (case print_examp_def_st_mapsto ocl l_st of None \<Rightarrow> [] | Some l \<Rightarrow> l)
+        # [ print_examp_def_st_assoc (snd o rbt) map_self map_username l_assoc ]))) ]
    , l_st)))"
-
-definition "print_examp_def_st_inst_var = (\<lambda> OclDefSt name l \<Rightarrow> \<lambda> ocl.
- let ocl_old = ocl \<lparr> D_oid_start := oidReinitInh (D_oid_start ocl) \<rparr>
-   ; l_ocli = List_map (\<lambda> OclDefCoreBinding name \<Rightarrow>
-                            map_option fst (List.assoc name (D_instance_rbt ocl_old))) l in
-  (\<lambda>l_res. ((List_map Thy_definition_hol' o List_flatten) l_res, ocl))
-    (let ocl = ocl_old in
-     case D_design_analysis ocl of Gen_only_analysis \<Rightarrow> [] | Gen_default \<Rightarrow> [] | Gen_only_design \<Rightarrow>
-     fst (fold_list
-      (\<lambda> (f1, f2) _.
-        let (l, accu) =
-        fold_list (\<lambda> ocli cpt.
-          ( case ocli of None \<Rightarrow> [] | Some ocli \<Rightarrow>
-              let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l var_oid = Expr_oid var_oid_uniq (oidGetInh cpt)
-                ; isub_name = \<lambda>s. s @@ isub_of_str (Inst_ty ocli) in
-              [Definition (Expr_rewrite (f1 var_oid isub_name ocli) \<open>=\<close> (f2 ocli isub_name cpt))]
-          , oidSucInh cpt)) l_ocli (D_oid_start ocl) in
-          (List_flatten l, accu))
-      (let a = \<lambda>f x. Expr_apply f [x]
-         ; b = \<lambda>s. Expr_basic [s] in
-       [ (\<lambda> _ _ ocli. Expr_annot_ocl (b (flatten [inst_name ocli, name])) (Inst_ty ocli),
-          \<lambda> ocli isub_name _. Expr_lambda wildcard (Expr_some (Expr_some (a (print_examp_instance_name isub_name (inst_name ocli))
-                                                                            (print_examp_def_st_defassoc_name name))))) ])
-      (D_oid_start ocl))))"
 
 definition "print_examp_def_st_dom_name name = flatten [\<open>dom_\<close>, name]"
 definition "print_examp_def_st_dom = (\<lambda> _ ocl.
@@ -192,9 +148,7 @@ definition "print_examp_def_st_perm = (\<lambda> _ ocl.
      ; expr_app = let ocl = ocl \<lparr> D_oid_start := oidReinitInh (D_oid_start ocl) \<rparr> in
                   print_examp_def_st_mapsto
                     ocl
-                    (print_examp_def_st_defassoc_name name)
                     (rev l_st)
-     ; a = \<lambda>\<^sub>S\<^sub>c\<^sub>a\<^sub>l\<^sub>af x. Expr_apply f [x]
      ; b = \<lambda>s. Expr_basic [s]
      ; d = hol_definition
      ; (l_app, l_last) =
@@ -222,12 +176,8 @@ definition "extract_state ocl name_st l_st =
                       , ocli
                       , case ocore of
                           OclDefCoreBinding (name, ocli) \<Rightarrow>
-                            b (if D_design_analysis ocl = Gen_only_design then
-                                 print_examp_def_st_inst_var_name ocli name_st
-                               else
-                                 name)))
+                            b name))
                     ocl
-                    (print_examp_def_st_defassoc_name name_st)
                     l_st)"
 
 definition "print_examp_def_st_allinst = (\<lambda> _ ocl.
