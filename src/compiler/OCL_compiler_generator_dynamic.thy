@@ -148,7 +148,7 @@ end
 ML{*
 fun in_local decl thy =
   thy
-  |> Named_Target.init ""
+  |> Named_Target.theory_init
   |> decl
   |> Local_Theory.exit_global
 *}
