@@ -345,6 +345,9 @@ lemmas [code] =
   s_of.s_of_defs_overloaded_def
   s_of.s_of_consts_class_def
   s_of.s_of_definition_hol_def
+  s_of.s_of_ntheorem_aux_gen_def
+  s_of.s_of_ntheorem_aux_gen_where_def
+  s_of.s_of_ntheorem_aux_gen_of_def
   s_of.s_of_ntheorem_def
   s_of.s_of_ntheorems_def
   s_of.s_of_ntheorem_l_def

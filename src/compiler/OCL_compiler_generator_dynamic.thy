@@ -766,15 +766,15 @@ val OCL_main_thy = let open OCL open OCL_overload in (*let val f = *)fn
       [((To_sbinding n, [], NoSyn),
        List.map (fn (n, l) => (To_sbinding n, List.map s_of_rawty l, NoSyn)) l)]
 | Theory_ty_synonym (Type_synonym00 (n, v, l)) =>
-    (fn thy =>
+   (fn thy =>
      let val s_bind = To_sbinding n in
      (snd o Typedecl.abbrev_global (s_bind, map To_string0 v, NoSyn)
                                    (Isabelle_Typedecl.abbrev_cmd0 (SOME s_bind) thy (s_of_rawty l))) thy
      end)
-| Theory_ty_notation (Type_notation (n, e)) =>
-    in_local (Specification.type_notation_cmd true ("", true) [(To_string0 n, Mixfix (To_string0 e, [], 1000))])
+| Theory_ty_notation (Type_notation (n, e)) => in_local
+   (Specification.type_notation_cmd true ("", true) [(To_string0 n, Mixfix (To_string0 e, [], 1000))])
 | Theory_instantiation_class (Instantiation (n, n_def, expr)) =>
-    (fn thy =>
+   (fn thy =>
      let val name = To_string0 n in
      perform_instantiation
        thy
@@ -789,12 +789,12 @@ val OCL_main_thy = let open OCL open OCL_overload in (*let val f = *)fn
        (fn ctxt => fn thms => Class.intro_classes_tac [] THEN ALLGOALS (Proof_Context.fact_tac ctxt thms))
      end)
 | Theory_defs_overloaded (Defs_overloaded (n, e)) =>
-    Isar_Cmd.add_defs ((false, true), [((To_sbinding n, s_of_expr e), [])])
+   Isar_Cmd.add_defs ((false, true), [((To_sbinding n, s_of_expr e), [])])
 | Theory_consts_class (Consts_raw (n, ty, symb)) =>
-    Sign.add_consts_cmd [( To_sbinding n
+   Sign.add_consts_cmd [( To_sbinding n
                         , s_of_rawty ty
                         , Mixfix ("(_) " ^ To_string0 symb, [], 1000))]
-| Theory_definition_hol def =>
+| Theory_definition_hol def => in_local
     let val (def, e) = case def of
         Definition e => (NONE, e)
       | Definition_abbrev (name, (abbrev, prio), e) =>
@@ -805,24 +805,24 @@ val OCL_main_thy = let open OCL open OCL_overload in (*let val f = *)fn
           (SOME ( To_sbinding name
                 , NONE
                 , Mixfix ("(" ^ s_of_expr abbrev ^ ")", [], 1000)), e) in
-    in_local (snd o Specification.definition_cmd (def, ((@{binding ""}, []), s_of_expr e)) false)
+    (snd o Specification.definition_cmd (def, ((@{binding ""}, []), s_of_expr e)) false)
     end
-| Theory_lemmas_simp (Lemmas_simp_opt (simp, s, l)) =>
-    in_local (fn lthy => (snd o Specification.theorems Thm.lemmaK
+| Theory_lemmas_simp (Lemmas_simp_opt (simp, s, l)) => in_local
+   (fn lthy => (snd o Specification.theorems Thm.lemmaK
       [((To_sbinding s, List.map (fn s => Attrib.check_src lthy (Args.src (s, Position.none) []))
                           (if simp then ["simp", "code_unfold"] else [])),
         List.map (fn x => ([m_of_ntheorem lthy x], [])) l)]
       []
       false) lthy)
-| Theory_lemmas_simp (Lemmas_simps (s, l)) =>
-    in_local (fn lthy => (snd o Specification.theorems Thm.lemmaK
+| Theory_lemmas_simp (Lemmas_simps (s, l)) => in_local
+   (fn lthy => (snd o Specification.theorems Thm.lemmaK
       [((To_sbinding s, List.map (fn s => Attrib.check_src lthy (Args.src (s, Position.none) []))
                           ["simp", "code_unfold"]),
         List.map (fn x => (Proof_Context.get_thms lthy (To_string0 x), [])) l)]
       []
       false) lthy)
-| Theory_lemma_by (Lemma_by (n, l_spec, l_apply, o_by)) =>
-      in_local (fn lthy =>
+| Theory_lemma_by (Lemma_by (n, l_spec, l_apply, o_by)) => in_local
+   (fn lthy =>
            Specification.theorem_cmd Thm.lemmaK NONE (K I)
              (@{binding ""}, []) [] [] (Element.Shows [((To_sbinding n, [])
                                                        ,[((String.concatWith (" \<Longrightarrow> ")
@@ -830,14 +830,14 @@ val OCL_main_thy = let open OCL open OCL_overload in (*let val f = *)fn
              false lthy
         |> fold (apply_results o OCL.App) l_apply
         |> global_terminal_proof o_by)
-| Theory_lemma_by (Lemma_by_assum (n, l_spec, concl, l_apply, o_by)) =>
-      in_local (fn lthy =>
-           Specification.theorem_cmd Thm.lemmaK NONE (K I)
+| Theory_lemma_by (Lemma_by_assum (n, l_spec, concl, l_apply, o_by)) => in_local
+   (fn lthy => lthy
+        |> Specification.theorem_cmd Thm.lemmaK NONE (K I)
              (To_sbinding n, [])
              []
              (List.map (fn (n, (b, e)) => Element.Assumes [((To_sbinding n, if b then [Args.src ("simp", Position.none) []] else []), [(s_of_expr e, [])])]) l_spec)
              (Element.Shows [((@{binding ""}, []),[(s_of_expr concl, [])])])
-             false lthy
+             false
         |> fold apply_results l_apply
         |> (case map_filter (fn OCL.App_let _ => SOME [] | OCL.App_have _ => SOME [] | OCL.App_fix_let (_, _, _, l) => SOME l | _ => NONE) (rev l_apply) of
               [] => global_terminal_proof o_by

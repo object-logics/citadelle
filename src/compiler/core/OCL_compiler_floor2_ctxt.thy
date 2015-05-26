@@ -193,13 +193,13 @@ definition "print_ctxt_inv = (\<lambda>f. map_prod List_flatten id o f) o fold_l
     l)"
 
 definition "print_ctxt_thm ctxt = Pair
-  [ Isab_thy (Theory_thm (Thm (List_map Thm_str
+  [ Thy_thm (Thm (List_map Thm_str
       (List_flatten [ List.map_filter (\<lambda> Ctxt_pp ctxt \<Rightarrow> Some (print_ctxt_pre_post_name (Ctxt_fun_name ctxt) var_at_when_hol_post)
                                        | _ \<Rightarrow> None)
                                       (Ctxt_clause ctxt)
                     , List_flatten (List_map (\<lambda>(tit, _). List_map (print_ctxt_inv_name (ty_obj_to_string (Ctxt_ty ctxt)) tit)
                                                                   [ var_at_when_hol_pre
                                                                   , var_at_when_hol_post ])
-                                             (fold_invariant' ctxt)) ]))))]"
+                                             (fold_invariant' ctxt)) ])))]"
 
 end
