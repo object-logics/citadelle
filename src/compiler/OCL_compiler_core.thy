@@ -77,8 +77,9 @@ definition' thy_class ::
   (let subsection_def = subsection \<open>Definition\<close>
      ; subsection_cp = subsection \<open>Context Passing\<close>
      ; subsection_exec = subsection \<open>Execution with Invalid or Null as Argument\<close>
+     ; subsection_defined = subsection \<open>Validity and Definedness Properties\<close>
      ; subsection_up = subsection \<open>Up Down Casting\<close>
-     ; subsection_defined = subsection \<open>Validity and Definedness Properties\<close> in
+     ; subsection_const = subsection \<open>Const\<close> in
   List_flatten
           [ [ print_infra_enum_synonym ]
             , [ txt''d [ \<open>
@@ -189,12 +190,13 @@ on @{text "Person"} and @{text "OclAny"} \<close> ]
 two operations to declare and to provide two overloading definitions for the two static types.
 \<close> ] ]
 
-          , List_flatten (List_map (\<lambda>(title, body_def, body_cp, body_exec, body_defined, body_up).
+          , List_flatten (List_map (\<lambda>(title, body_def, body_cp, body_exec, body_defined, body_up, body_const).
               section title # List_flatten [ subsection_def # body_def
                                       , subsection_cp # body_cp
                                       , subsection_exec # body_exec
                                       , subsection_defined # body_defined
-                                      , subsection_up # body_up ])
+                                      , subsection_up # body_up
+                                      , subsection_const # body_const ])
           [ (\<open>OclAsType\<close>,
             [ print_astype_consts
             , print_astype_class
@@ -207,7 +209,9 @@ two operations to declare and to provide two overloading definitions for the two
             , [ print_astype_defined ]
             , [ print_astype_up_d_cast0
             , print_astype_up_d_cast
-            , print_astype_d_up_cast ])
+            , print_astype_d_up_cast ]
+            , [ print_astype_lemma_const
+              , print_astype_lemmas_const ])
 
           , (\<open>OclIsTypeOf\<close>,
             [ print_istypeof_consts
@@ -221,7 +225,8 @@ two operations to declare and to provide two overloading definitions for the two
             , [ print_istypeof_defined
             , print_istypeof_defined' ]
             , [ print_istypeof_up_larger
-            , print_istypeof_up_d_cast ])
+            , print_istypeof_up_d_cast ]
+            , [])
 
           , (\<open>OclIsKindOf\<close>,
             [ print_iskindof_consts
@@ -238,7 +243,8 @@ two operations to declare and to provide two overloading definitions for the two
             , print_iskindof_up_larger
             , print_iskindof_up_istypeof_unfold
             , print_iskindof_up_istypeof
-            , print_iskindof_up_d_cast ]) ])
+            , print_iskindof_up_d_cast ]
+            , []) ])
 
           , [ section \<open>OclAllInstances\<close>
             , txt'' [ \<open>

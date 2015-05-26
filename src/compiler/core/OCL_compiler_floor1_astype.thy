@@ -300,4 +300,34 @@ definition "print_astype_d_up_cast = start_map Thy_lemma_by o
                               , print_astype_up_d_cast_name name_any name_pers
                               , \<open>StrictRefEq\<^sub>O\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t_sym\<close>]]) )"
 
+definition "print_astype_lemma_const expr = (start_map Thy_lemma_by o
+  get_hierarchy_map
+   (let a = \<lambda>f x. Expr_apply f [x]
+      ; b = \<lambda>s. Expr_basic [s]
+      ; d = hol_definition
+      ; check_opt =
+          let set = print_astype_lemma_cp_set expr in
+          (\<lambda>n1 n2. list_ex (\<lambda>((_, name1), name2). name1 = n1 & name2 = n2) set)
+      ; var_X = \<open>X\<close> in
+    (\<lambda>name1 name2 name3.
+      let n = flatten [const_oclastype, isub_of_str name1, \<open>_\<close>, name3] in
+      Lemma_by
+        (flatten [n, \<open>_\<close>, name2])
+        (List_map (a \<open>const\<close>)
+          [ Expr_annot (b var_X) (wrap_oclty name3)
+          , Expr_postunary
+                   (b var_X)
+                   (Expr_basic [dot_astype name1]) ])
+        []
+        (Tacl_by [ Tac_simp_add [d \<open>const\<close>]
+                 , Tac_option [Tac_metis0 [\<open>no_types\<close>] (List_map Thm_str (n # \<open>prod.collapse\<close> # List_map d [\<open>bot_option\<close>, \<open>invalid\<close>, \<open>null_fun\<close>, \<open>null_option\<close>]))]])))
+   (\<lambda>x. (x, [\<open>const\<close>], x))) expr"
+
+definition "print_astype_lemmas_const = start_map'
+ (if activate_simp_optimization then List_map Thy_lemmas_simp o
+  (\<lambda>expr. [ Lemmas_simp \<open>\<close> (get_hierarchy_map (\<lambda>name1 name2 name3.
+        Thm_str (flatten [const_oclastype, isub_of_str name1, \<open>_\<close>, name3, \<open>_\<close>, name2])
+      ) (\<lambda>x. (x, [\<open>const\<close>], x)) expr)])
+  else (\<lambda>_. []))"
+
 end
