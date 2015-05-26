@@ -61,6 +61,20 @@ section{* Translation of AST *}
 
 subsection{* Conclusion *}
 
+datatype ('a, 'b) hol_theory = Hol_theory_ext "('a \<Rightarrow> 'b \<Rightarrow> hol_thy_extended list \<times> 'b) list"
+                             | Hol_theory_locale "'a \<Rightarrow> 'b \<Rightarrow> hol_thy_locale \<times> 'b"
+                                                 "('a \<Rightarrow> 'b \<Rightarrow> hol_t list \<times> 'b) list"
+
+type_synonym 'a h_theory = "('a, ocl_compiler_config) hol_theory" (* polymorphism weakening needed by code_reflect *)
+
+definition "L_fold f =
+ (\<lambda> Hol_theory_ext l \<Rightarrow> List.fold f l
+  | Hol_theory_locale loc_data l \<Rightarrow>
+      f (\<lambda>a b.
+          let (loc_data, b) = loc_data a b
+            ; (l, b) = List.fold (\<lambda>f0. \<lambda>(l, b) \<Rightarrow> let (x, b) = f0 a b in (x # l, b)) l ([], b) in
+          ([Isab_thy (H_thy_locale loc_data (rev l))], b)))"
+
 definition "section_aux n s = start_map' (\<lambda>_. [ Thy_section_title (Section_title n s) ])"
 definition "section = section_aux 0"
 definition "subsection = section_aux 1"
@@ -73,14 +87,14 @@ definition "txt''a s = txt (\<lambda> Gen_only_design \<Rightarrow> \<open>\<clo
 
 definition' thy_class ::
   (* polymorphism weakening needed by code_reflect *)
-  "(_ \<Rightarrow> ocl_compiler_config \<Rightarrow> _) list" where \<open>thy_class =
+  "_ h_theory" where \<open>thy_class =
   (let subsection_def = subsection \<open>Definition\<close>
      ; subsection_cp = subsection \<open>Context Passing\<close>
      ; subsection_exec = subsection \<open>Execution with Invalid or Null as Argument\<close>
      ; subsection_defined = subsection \<open>Validity and Definedness Properties\<close>
      ; subsection_up = subsection \<open>Up Down Casting\<close>
      ; subsection_const = subsection \<open>Const\<close> in
-  List_flatten
+  (Hol_theory_ext o List_flatten)
           [ [ print_infra_enum_synonym ]
             , [ txt''d [ \<open>
    \label{ex:employee-design:uml} \<close> ]
@@ -331,34 +345,41 @@ The example we are defining in this section comes from the figure~\ref{fig:eam1_
             , print_examp_def_st_defs
             , print_astype_lemmas_id2 ] ])\<close>
 
-definition "thy_enum_flat = []"
-definition "thy_enum = [ print_enum ]"
-definition "thy_class_synonym = []"
-definition "thy_class_flat = []"
-definition "thy_association = []"
-definition "thy_instance = [ print_examp_instance_defassoc_typecheck_var
-                           , print_examp_instance_defassoc
-                           , print_examp_instance
-                           , print_examp_instance_defassoc_typecheck ]"
-definition "thy_def_base_l = [ print_examp_oclbase ]"
-definition "thy_def_state = (\<lambda> Floor1 \<Rightarrow> [ OCL_compiler_floor1_examp.print_examp_def_st_typecheck_var
-                                         , OCL_compiler_floor1_examp.print_examp_def_st1 ]
-                             | Floor2 \<Rightarrow> [ OCL_compiler_floor2_examp.print_examp_def_st_defassoc
-                                         , OCL_compiler_floor2_examp.print_examp_def_st2
-                                         , OCL_compiler_floor2_examp.print_examp_def_st_inst_var
-                                         , OCL_compiler_floor2_examp.print_examp_def_st_dom
-                                         , OCL_compiler_floor2_examp.print_examp_def_st_dom_lemmas
-                                         , OCL_compiler_floor2_examp.print_examp_def_st_perm
-                                         , OCL_compiler_floor2_examp.print_examp_def_st_allinst
-                                         , OCL_compiler_floor2_examp.print_examp_def_st_defassoc_typecheck ])"
-definition "thy_def_pre_post = (\<lambda> Floor1 \<Rightarrow> [ OCL_compiler_floor1_examp.print_pre_post ]
-                                | Floor2 \<Rightarrow> [ OCL_compiler_floor2_examp.print_pre_post_wff
-                                            , OCL_compiler_floor2_examp.print_pre_post_where ])"
-definition "thy_ctxt = (\<lambda> Floor1 \<Rightarrow> [ OCL_compiler_floor1_ctxt.print_ctxt ]
-                        | Floor2 \<Rightarrow> [ OCL_compiler_floor2_ctxt.print_ctxt_pre_post
-                                    , OCL_compiler_floor2_ctxt.print_ctxt_inv
-                                    , OCL_compiler_floor2_ctxt.print_ctxt_thm ])"
-definition "thy_flush_all = []"
+definition "thy_enum_flat = Hol_theory_ext []"
+definition "thy_enum = Hol_theory_ext [ print_enum ]"
+definition "thy_class_synonym = Hol_theory_ext []"
+definition "thy_class_flat = Hol_theory_ext []"
+definition "thy_association = Hol_theory_ext []"
+definition "thy_instance = Hol_theory_ext 
+                             [ print_examp_instance_defassoc_typecheck_var
+                             , print_examp_instance_defassoc
+                             , print_examp_instance
+                             , print_examp_instance_defassoc_typecheck ]"
+definition "thy_def_base_l = Hol_theory_ext [ print_examp_oclbase ]"
+definition "thy_def_state = (\<lambda> Floor1 \<Rightarrow> Hol_theory_ext 
+                                           [ OCL_compiler_floor1_examp.print_examp_def_st_typecheck_var
+                                           , OCL_compiler_floor1_examp.print_examp_def_st1 ]
+                             | Floor2 \<Rightarrow> Hol_theory_ext
+                                           [ OCL_compiler_floor2_examp.print_examp_def_st_defassoc
+                                           , OCL_compiler_floor2_examp.print_examp_def_st2
+                                           , OCL_compiler_floor2_examp.print_examp_def_st_inst_var
+                                           , OCL_compiler_floor2_examp.print_examp_def_st_dom
+                                           , OCL_compiler_floor2_examp.print_examp_def_st_dom_lemmas
+                                           , OCL_compiler_floor2_examp.print_examp_def_st_perm
+                                           , OCL_compiler_floor2_examp.print_examp_def_st_allinst
+                                           , OCL_compiler_floor2_examp.print_examp_def_st_defassoc_typecheck ])"
+definition "thy_def_pre_post = (\<lambda> Floor1 \<Rightarrow> Hol_theory_ext 
+                                              [ OCL_compiler_floor1_examp.print_pre_post ]
+                                | Floor2 \<Rightarrow> Hol_theory_ext
+                                              [ OCL_compiler_floor2_examp.print_pre_post_wff
+                                              , OCL_compiler_floor2_examp.print_pre_post_where ])"
+definition "thy_ctxt = (\<lambda> Floor1 \<Rightarrow> Hol_theory_ext 
+                                      [ OCL_compiler_floor1_ctxt.print_ctxt ]
+                        | Floor2 \<Rightarrow> Hol_theory_ext 
+                                      [ OCL_compiler_floor2_ctxt.print_ctxt_pre_post
+                                      , OCL_compiler_floor2_ctxt.print_ctxt_inv
+                                      , OCL_compiler_floor2_ctxt.print_ctxt_thm ])"
+definition "thy_flush_all = Hol_theory_ext []"
 (* NOTE typechecking functions can be put at the end, however checking already defined constants can be done earlier *)
 
 definition "ocl_compiler_config_empty disable_thy_output file_out_path_dep oid_start design_analysis sorry_dirty =
@@ -398,7 +419,7 @@ definition "ocl_compiler_config_update f ocl =
     , D_sorry_dirty := D_sorry_dirty ocl \<rparr>"
 
 definition "fold_thy0 meta thy_object0 f =
-  List.fold (\<lambda>x (acc1, acc2).
+  L_fold (\<lambda>x (acc1, acc2).
     let (sorry, dirty) = D_sorry_dirty acc1
       ; (l, acc1) = x meta acc1 in
     (f (if sorry = Some Gen_sorry | sorry = None & dirty then

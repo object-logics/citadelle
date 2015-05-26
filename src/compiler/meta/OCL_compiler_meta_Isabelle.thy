@@ -174,20 +174,28 @@ datatype hol_ml = Ml sml_expr
 
 datatype hol_thm = Thm "hol_ntheorem list"
 
-datatype hol_thy = Theory_dataty hol_dataty
-                 | Theory_ty_synonym hol_ty_synonym
-                 | Theory_ty_notation hol_ty_notation
-                 | Theory_instantiation_class hol_instantiation_class
-                 | Theory_defs_overloaded hol_defs_overloaded
-                 | Theory_consts_class hol_consts_class
-                 | Theory_definition_hol hol_definition_hol
-                 | Theory_lemmas_simp hol_lemmas_simp
-                 | Theory_lemma_by hol_lemma_by
-                 | Theory_axiom hol_axiom
-                 | Theory_section_title hol_section_title
-                 | Theory_text hol_text
-                 | Theory_ml hol_ml
-                 | Theory_thm hol_thm
+datatype hol_t = Theory_dataty hol_dataty
+               | Theory_ty_synonym hol_ty_synonym
+               | Theory_ty_notation hol_ty_notation
+               | Theory_instantiation_class hol_instantiation_class
+               | Theory_defs_overloaded hol_defs_overloaded
+               | Theory_consts_class hol_consts_class
+               | Theory_definition_hol hol_definition_hol
+               | Theory_lemmas_simp hol_lemmas_simp
+               | Theory_lemma_by hol_lemma_by
+               | Theory_axiom hol_axiom
+               | Theory_section_title hol_section_title
+               | Theory_text hol_text
+               | Theory_ml hol_ml
+               | Theory_thm hol_thm
+
+record hol_thy_locale = 
+  HolThyLocale_name :: string
+  HolThyLocale_header :: "( (hol_expr (* name *) \<times> hol_raw_ty (* 'fix' statement *)) list
+                          \<times> (string (* name *) \<times> hol_expr (* 'assumes' statement *)) option (* None: no 'assumes' to generate *)) list"
+
+datatype hol_thy = H_thy_simple hol_t
+                 | H_thy_locale hol_thy_locale "hol_t list (* positioning comments can occur before and after this group of commands *) list"
 
 section{* ... *}
 

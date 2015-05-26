@@ -67,6 +67,8 @@ definition "concatWith l =
   else
     sprint2 \<prec>''(%s. (%s))''\<succ>\<acute> (To_string (String_concatWith \<open> \<close> (\<open>\<lambda>\<close> # rev l))))"
 
+definition "String_concat_map s f l = String_concat s (List_map f l)"
+
 declare[[cartouche_type = "String.literal"]]
 
 definition "s_of_section_title ocl = (\<lambda> Section_title n section_title \<Rightarrow>
@@ -170,7 +172,8 @@ definition' \<open>s_of_ocl_deep_embed_ast _ =
         (s_of_def_pp_core s_pre)
         (case s_post of None \<Rightarrow> \<open>\<close> | Some s_post \<Rightarrow> sprint1 \<open> %s\<close>\<acute> (s_of_def_pp_core s_post)))\<close>
 
-definition "s_of_thy ocl =
+(* FIXME move to Isabelle? *)
+definition "s_of_t ocl =
             (\<lambda> Theory_dataty dataty \<Rightarrow> s_of_dataty ocl dataty
              | Theory_ty_synonym ty_synonym \<Rightarrow> s_of_ty_synonym ocl ty_synonym
              | Theory_ty_notation ty_notation \<Rightarrow> s_of_ty_notation ocl ty_notation
@@ -185,6 +188,30 @@ definition "s_of_thy ocl =
              | Theory_text text \<Rightarrow> s_of_text ocl text
              | Theory_ml ml \<Rightarrow> s_of_ml ocl ml
              | Theory_thm thm \<Rightarrow> s_of_thm ocl thm)"
+
+definition' \<open>s_of_thy ocl =
+ (\<lambda> H_thy_simple t \<Rightarrow> s_of_t ocl t
+  | H_thy_locale data l \<Rightarrow> 
+      sprint3 \<open>locale %s =
+%s
+begin
+%s
+end\<close>\<acute>   (To_string (HolThyLocale_name data))
+        (String_concat_map
+           \<open>
+\<close>
+           (\<lambda> (l_fix, o_assum).
+                sprint2 \<open>%s%s\<close>\<acute> (String_concat_map \<open>
+\<close> (\<lambda>(e, ty). sprint2 \<open>fixes "%s" :: "%s"\<close>\<acute> (s_of_expr e) (s_of_rawty ty)) l_fix)
+                                (case o_assum of None \<Rightarrow> \<open>\<close>
+                                               | Some (name, e) \<Rightarrow> sprint2 \<open>
+assumes %s: "%s"\<close>\<acute> (To_string name) (s_of_expr e)))
+           (HolThyLocale_header data))
+        (String_concat_map \<open>
+
+\<close> (String_concat_map \<open>
+
+\<close> (s_of_t ocl)) l))\<close>
 
 definition "s_of_generation_syntax _ = (\<lambda> Generation_syntax_shallow mode \<Rightarrow>
   sprint1 \<open>generation_syntax [ shallow%s ]\<close>\<acute>
@@ -221,6 +248,7 @@ lemmas [code] =
   (* def *)
   s_of.s_of_sexpr_extended_def
   s_of.concatWith_def
+  s_of.String_concat_map_def
   s_of.s_of_section_title_def
   s_of.s_of_ctxt2_term_def
   s_of.s_of_ocl_def_base_def
@@ -229,6 +257,7 @@ lemmas [code] =
   s_of.s_of_def_pp_core_def
   s_of.s_of_ocl_deep_embed_ast_def
   s_of.s_of_thy_def
+  s_of.s_of_t_def
   s_of.s_of_generation_syntax_def
   s_of.s_of_ml_extended_def
   s_of.s_of_thy_extended_def

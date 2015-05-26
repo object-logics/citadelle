@@ -760,12 +760,12 @@ end
 end
 
 structure Shallow_main = struct open Shallow_conv open Shallow_ml
-val OCL_main_thy = let open OCL open OCL_overload in (*let val f = *)fn
-  Theory_dataty (Datatype (n, l)) =>
-    (snd oo Datatype.add_datatype_cmd Datatype_Aux.default_config)
+fun OCL_main_thy in_theory in_local = let open OCL open OCL_overload in (*let val f = *)fn
+  Theory_dataty (Datatype (n, l)) => in_theory
+   ((snd oo Datatype.add_datatype_cmd Datatype_Aux.default_config)
       [((To_sbinding n, [], NoSyn),
-       List.map (fn (n, l) => (To_sbinding n, List.map s_of_rawty l, NoSyn)) l)]
-| Theory_ty_synonym (Type_synonym00 (n, v, l)) =>
+       List.map (fn (n, l) => (To_sbinding n, List.map s_of_rawty l, NoSyn)) l)])
+| Theory_ty_synonym (Type_synonym00 (n, v, l)) => in_theory
    (fn thy =>
      let val s_bind = To_sbinding n in
      (snd o Typedecl.abbrev_global (s_bind, map To_string0 v, NoSyn)
@@ -773,7 +773,7 @@ val OCL_main_thy = let open OCL open OCL_overload in (*let val f = *)fn
      end)
 | Theory_ty_notation (Type_notation (n, e)) => in_local
    (Specification.type_notation_cmd true ("", true) [(To_string0 n, Mixfix (To_string0 e, [], 1000))])
-| Theory_instantiation_class (Instantiation (n, n_def, expr)) =>
+| Theory_instantiation_class (Instantiation (n, n_def, expr)) => in_theory
    (fn thy =>
      let val name = To_string0 n in
      perform_instantiation
@@ -788,12 +788,12 @@ val OCL_main_thy = let open OCL open OCL_overload in (*let val f = *)fn
         end)
        (fn ctxt => fn thms => Class.intro_classes_tac [] THEN ALLGOALS (Proof_Context.fact_tac ctxt thms))
      end)
-| Theory_defs_overloaded (Defs_overloaded (n, e)) =>
-   Isar_Cmd.add_defs ((false, true), [((To_sbinding n, s_of_expr e), [])])
-| Theory_consts_class (Consts_raw (n, ty, symb)) =>
-   Sign.add_consts_cmd [( To_sbinding n
+| Theory_defs_overloaded (Defs_overloaded (n, e)) => in_theory
+   (Isar_Cmd.add_defs ((false, true), [((To_sbinding n, s_of_expr e), [])]))
+| Theory_consts_class (Consts_raw (n, ty, symb)) => in_theory
+   (Sign.add_consts_cmd [( To_sbinding n
                         , s_of_rawty ty
-                        , Mixfix ("(_) " ^ To_string0 symb, [], 1000))]
+                        , Mixfix ("(_) " ^ To_string0 symb, [], 1000))])
 | Theory_definition_hol def => in_local
     let val (def, e) = case def of
         Definition e => (NONE, e)
@@ -845,13 +845,15 @@ val OCL_main_thy = let open OCL open OCL_overload in (*let val f = *)fn
               |> local_terminal_proof o_by
               |> fold (fn l => fold applyE_results l o Proof.local_qed arg) l
               |> Proof.global_qed arg end))
-| Theory_axiom (Axiom (n, e)) => #2 o Specification.axiomatization_cmd
+| Theory_axiom (Axiom (n, e)) => in_theory
+   (#2 o Specification.axiomatization_cmd
                                      []
-                                     [((To_sbinding n, []), [s_of_expr e])]
-| Theory_section_title _ => I
-| Theory_text _ => I
-| Theory_ml ml => Code_printing.reflect_ml {delimited = false, text = case ml of Ml ml => s_of_sexpr ml, pos = Position.none}
-| Theory_thm (Thm thm) => in_local (fn lthy =>
+                                     [((To_sbinding n, []), [s_of_expr e])])
+| Theory_section_title _ => in_theory I
+| Theory_text _ => in_theory I
+| Theory_ml ml => in_theory (Code_printing.reflect_ml {delimited = false, text = case ml of Ml ml => s_of_sexpr ml, pos = Position.none})
+| Theory_thm (Thm thm) => in_local
+   (fn lthy =>
     let val () = writeln (Pretty.string_of (Proof_Context.pretty_fact lthy ("", List.map (m_of_ntheorem lthy) thm))) in
     lthy
     end)
@@ -860,7 +862,28 @@ val OCL_main_thy = let open OCL open OCL_overload in (*let val f = *)fn
 end
 
 fun OCL_main aux ret = let open OCL open OCL_overload in fn
-  Isab_thy thy => ret o (OCL_main_thy thy)
+  Isab_thy thy =>
+    ret o (case thy of H_thy_simple thy => OCL_main_thy I in_local thy
+                     | H_thy_locale (data, l) => fn thy => thy
+                       |> (   Expression.add_locale_cmd
+                                (To_sbinding (OCL.holThyLocale_name data))
+                                Binding.empty
+                                ([], [])
+                                (List.concat
+                                  (map
+                                    (fn (fixes, assumes) => List.concat
+                                      [ map (fn (e,ty) => Element.Fixes [(To_binding (s_of_expr e), SOME (s_of_rawty ty), NoSyn)]) fixes
+                                      , case assumes of NONE => []
+                                                      | SOME (n, e) => [Element.Assumes [((To_sbinding n, []), [(s_of_expr e, [])])]]])
+                                    (OCL.holThyLocale_header data)))
+                           #> snd)
+                       |> fold (fold (OCL_main_thy Local_Theory.background_theory
+                                                   (fn f => fn lthy => lthy
+                                                     |> Local_Theory.new_group
+                                                     |> f
+                                                     |> Local_Theory.reset_group
+                                                     |> Local_Theory.restore))) l
+                       |> Local_Theory.exit_global)
 | Isab_thy_generation_syntax _ => ret o I
 | Isab_thy_ml_extended _ => ret o I
 | Isab_thy_ocl_deep_embed_ast ocl => fn thy =>
