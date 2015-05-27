@@ -89,7 +89,8 @@ definition "s_of_ctxt2_term = s_of_ctxt2_term_aux []"
 
 fun s_of_ocl_list_attr where
    "s_of_ocl_list_attr f e = (\<lambda> OclAttrNoCast x \<Rightarrow> f x
-                              | OclAttrCast ty l _ \<Rightarrow> sprint2 \<open>(%s :: %s)\<close>\<acute> (s_of_ocl_list_attr f l) (To_string ty)) e"
+                              | OclAttrCast ty (OclAttrNoCast x) _ \<Rightarrow> sprint2 \<open>(%s :: %s)\<close>\<acute> (f x) (To_string ty)
+                              | OclAttrCast ty l _ \<Rightarrow> sprint2 \<open>%s \<rightarrow> oclAsType( %s )\<close>\<acute> (s_of_ocl_list_attr f l) (To_string ty)) e"
 
 definition' \<open>s_of_ocl_def_base = (\<lambda> OclDefInteger i \<Rightarrow> To_string i
                                   | OclDefReal (i1, i2) \<Rightarrow> sprint2 \<open>%s.%s\<close>\<acute> (To_string i1) (To_string i2)
@@ -102,9 +103,9 @@ fun s_of_ocl_data_shallow where
                                | ShallB_list l \<Rightarrow> sprint1 \<open>[ %s ]\<close>\<acute> (String_concat \<open>, \<close> (List.map s_of_ocl_data_shallow l))) e"
 
 definition' \<open>s_of_ocl_instance_single ocli =
-  sprint3 \<open>%s :: %s = %s\<close>\<acute>
+  sprint3 \<open>%s%s = %s\<close>\<acute>
     (case Inst_name ocli of Some s \<Rightarrow> To_string s)
-    (To_string (Inst_ty ocli))
+    (case Inst_ty ocli of None \<Rightarrow> \<open>\<close> | Some ty \<Rightarrow> sprint1 \<open> :: %s\<close>\<acute> (To_string ty))
     (s_of_ocl_list_attr
       (\<lambda>l. sprint1 \<open>[ %s ]\<close>\<acute>
              (String_concat \<open>, \<close>

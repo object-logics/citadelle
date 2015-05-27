@@ -85,7 +85,7 @@ Class Current < Account
 
 Class Currency = Real
 
-Instance Saving1 :: Account = ([ max = 2000 ] :: Savings)
+Instance Saving1 = ([ max = 2000 ] :: Savings) \<rightarrow> oclAsType( Account )
      and Client1 :: Client = [ c_accounts = Saving1 , banks = Bank1 ]
      and Account1 :: Account = [ id = 250 , owner = Client1 ]
      and Bank1 :: Bank = [ b_accounts = [ Saving1 , Account1 ], name = "\<infinity>\<heartsuit> \<Longleftrightarrow> \<infinity>\<epsilon>" (* (* TODO latex *) \<euro> *) ]

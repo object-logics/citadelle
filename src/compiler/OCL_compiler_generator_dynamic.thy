@@ -1099,7 +1099,7 @@ structure USE_parse = struct
 
   (* *)
 
-  val ident_dot_dot = Parse.sym_ident -- Parse.sym_ident (* "\<bullet>\<bullet>" *)
+  val ident_dot_dot = let val f = Parse.sym_ident >> (fn "\<bullet>" => "\<bullet>" | _ => Scan.fail "Syntax error") in f -- f end
   val ident_star = Parse.sym_ident (* "*" *)
 
   (* *)
@@ -1278,8 +1278,16 @@ structure USE_parse = struct
 
   val list_attr' = term_object >> (fn res => (res, [] : binding list))
   fun object_cast e =
-    (annot_ty term_object >> (fn (res, x) => (res, [x]))
-    || annot_ty object_cast >> (fn ((res, xs), x) => (res, x :: xs))) e
+    (   annot_ty term_object
+     -- Scan.repeat (    (Parse.sym_ident >> (fn "->" => Scan.succeed
+                                               | "\<leadsto>" => Scan.succeed
+                                               | "\<rightarrow>" => Scan.succeed
+                                               | _ => Scan.fail ""))
+                     |-- (   Parse.reserved "oclAsType"
+                             |-- Parse.$$$ "("
+                             |-- Parse.binding
+                             --| Parse.$$$ ")"
+                          || Parse.binding)) >> (fn ((res, x), l) => (res, rev (x :: l)))) e
   val object_cast' = object_cast >> (fn (res, l) => (res, rev l))
 
   fun get_oclinst l _ =
@@ -1294,11 +1302,10 @@ structure USE_parse = struct
                 is_cast
                 (OCL.OclAttrNoCast (f l_attr)) in
         OCL.Ocl_instance_single_ext
-          (From.from_option From.from_binding name, From.from_binding typ, l_attr, From.from_unit ()) end) l)
+          (From.from_option From.from_binding name, From.from_option From.from_binding typ, l_attr, From.from_unit ()) end) l)
 
   val parse_instance = (Parse.binding >> SOME)
-                     --| @{keyword "::"}
-                     -- Parse.binding --| @{keyword "="}
+                     -- optional (@{keyword "::"} |-- Parse.binding) --| @{keyword "="}
                      -- (list_attr' || object_cast')
 
   (* *)
@@ -1309,7 +1316,7 @@ structure USE_parse = struct
   val state_parse = parse_l' (   object_cast >> ST_l_attr
                               || Parse.binding >> ST_binding)
 
-  fun mk_state thy = map (fn ST_l_attr l => OCL.OclDefCoreAdd (case get_oclinst (map (fn (l_i, l_ty) => ((NONE, hd l_ty), (l_i, rev (tl l_ty)))) [l]) thy of
+  fun mk_state thy = map (fn ST_l_attr l => OCL.OclDefCoreAdd (case get_oclinst (map (fn (l_i, l_ty) => ((NONE, SOME (hd l_ty)), (l_i, rev (tl l_ty)))) [l]) thy of
                                                                  OCL.OclInstance [x] => x)
                            | ST_binding b => OCL.OclDefCoreBinding (From.from_binding b))
 

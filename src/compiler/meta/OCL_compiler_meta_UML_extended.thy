@@ -67,7 +67,7 @@ datatype 'a ocl_list_attr = OclAttrNoCast 'a (* inh, own *)
                               'a (* inh, own *)
 
 record ocl_instance_single = Inst_name :: "string option" (* None: fresh name to be generated *)
-                             Inst_ty :: string (* type *)
+                             Inst_ty :: "string option" (* type *)
                              Inst_attr :: "((  (string (* pre state *) \<times> string (* post state *)) option
                                                (* state used when ocl_data_shallow is an object variable (for retrieving its oid) *)
                                              \<times> string (*name*)
@@ -94,7 +94,7 @@ datatype ocl_def_pre_post = OclDefPP
 
 subsection{* ... *}
 
-definition "ocl_instance_single_empty = \<lparr> Inst_name = None, Inst_ty = \<open>\<close>, Inst_attr = OclAttrNoCast [] \<rparr>"
+definition "ocl_instance_single_empty = \<lparr> Inst_name = None, Inst_ty = None, Inst_attr = OclAttrNoCast [] \<rparr>"
 
 fun map_data_shallow_self where
    "map_data_shallow_self f e = (\<lambda> ShallB_self s \<Rightarrow> f s
@@ -111,9 +111,15 @@ definition "map_instance_single f ocli = ocli \<lparr> Inst_attr := map_list_att
 fun fold_list_attr where
    "fold_list_attr cast_from f l_attr accu = (case l_attr of
         OclAttrNoCast x \<Rightarrow> f cast_from x accu
-      | OclAttrCast c_from l_attr x \<Rightarrow> fold_list_attr c_from f l_attr (f cast_from x accu))"
+      | OclAttrCast c_from l_attr x \<Rightarrow> fold_list_attr (Some c_from) f l_attr (f cast_from x accu))"
 
-definition "fold_instance_single f ocli = fold_list_attr (Inst_ty ocli) f (Inst_attr ocli)"
+definition "inst_ty0 ocli = (case Inst_ty ocli of Some ty \<Rightarrow> Some ty
+                                                | None \<Rightarrow> (case Inst_attr ocli of OclAttrCast ty _ _ \<Rightarrow> Some ty
+                                                                                | _ \<Rightarrow> None))"
+definition "inst_ty ocli = (case inst_ty0 ocli of Some ty \<Rightarrow> ty)"
+
+definition "fold_instance_single f ocli = fold_list_attr (inst_ty0 ocli) (\<lambda> Some x \<Rightarrow> f x) (Inst_attr ocli)"
+definition "fold_instance_single' f ocli = fold_list_attr (Inst_ty ocli) f (Inst_attr ocli)"
 
 definition "str_of_def_base = (\<lambda> OclDefInteger _ \<Rightarrow> \<open>Integer\<close>
                                | OclDefReal _ \<Rightarrow> \<open>Real\<close>

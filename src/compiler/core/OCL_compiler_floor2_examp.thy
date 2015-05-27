@@ -63,7 +63,7 @@ definition "print_examp_def_st_locale_aux f_ocli l =
         (\<lambda> name.
            let (ocli, cpt) = f_ocli name 
              ; n = inst_name ocli
-             ; ty = Inst_ty ocli
+             ; ty = inst_ty ocli
              ; f = \<lambda>s. s @@ isub_of_str ty
              ; name_pers = print_examp_instance_name f n in
            ( Expr_oid var_oid_uniq (oidGetInh cpt)
@@ -127,13 +127,13 @@ definition "print_examp_def_st_mapsto_gen f ocl =
         let b = \<lambda>s. Expr_basic [s]
           ; (ocli, exp) = case ocore of
                OclDefCoreBinding (name, ocli) \<Rightarrow>
-                 (ocli, Some (b (print_examp_instance_name (\<lambda>s. s @@ isub_of_str (Inst_ty ocli)) name))) in
+                 (ocli, Some (b (print_examp_instance_name (\<lambda>s. s @@ isub_of_str (inst_ty ocli)) name))) in
         f (cpt, ocore) ocli exp)"
 
 definition "print_examp_def_st_mapsto ocl l = list_bind id id
  (print_examp_def_st_mapsto_gen
     (\<lambda>(cpt, _) ocli. map_option (\<lambda>exp.
-      Expr_binop (Expr_oid var_oid_uniq (oidGetInh cpt)) \<open>\<mapsto>\<close> (Expr_apply (datatype_in @@ isub_of_str (Inst_ty ocli)) [exp])))
+      Expr_binop (Expr_oid var_oid_uniq (oidGetInh cpt)) \<open>\<mapsto>\<close> (Expr_apply (datatype_in @@ isub_of_str (inst_ty ocli)) [exp])))
     ocl
     l)"
 
@@ -218,21 +218,21 @@ definition "print_examp_def_st_allinst = (\<lambda> _ ocl.
              (ocl \<lparr> D_oid_start := oidReinitInh (D_oid_start ocl) \<rparr>))
            (hd (D_state_rbt ocl)) in
    map_class_gen_h'_inh (\<lambda> isub_name name compare.
-     let in_name = \<lambda>ocli. b (print_examp_instance_name (\<lambda>s. s @@ isub_of_str (Inst_ty ocli)) (inst_name ocli))
-       ; in_pers = \<lambda>ocli. a name (a (datatype_in @@ isub_of_str (Inst_ty ocli)) (in_name ocli))
+     let in_name = \<lambda>ocli. b (print_examp_instance_name (\<lambda>s. s @@ isub_of_str (inst_ty ocli)) (inst_name ocli))
+       ; in_pers = \<lambda>ocli. a name (a (datatype_in @@ isub_of_str (inst_ty ocli)) (in_name ocli))
        ; expr_app = List_map (\<lambda>(ocore, ocli, exp).
               ( (ocore, ocli)
               , let asty = \<lambda>e. Expr_postunary e (b (dot_astype name))
-                  ; exp_annot = [( [flatten [const_oclastype, isub_of_str name, \<open>_\<close>, Inst_ty ocli]]
+                  ; exp_annot = [( [flatten [const_oclastype, isub_of_str name, \<open>_\<close>, inst_ty ocli]]
                                  , ( asty (case ocore of OclDefCoreBinding _ \<Rightarrow> exp)
                                    , Some (let und = \<lambda>e. Expr_lam \<open>_\<close> (\<lambda>_. Expr_some e) in
                                            Expr_rewrite (und (in_pers ocli))
                                                         \<open>=\<close>
                                                         (Expr_warning_parenthesis (asty (Expr_parenthesis
-                                                                                          (Expr_annot (und (Expr_some (in_name ocli))) (wrap_oclty (Inst_ty ocli))))))))
+                                                                                          (Expr_annot (und (Expr_some (in_name ocli))) (wrap_oclty (inst_ty ocli))))))))
                                  , True
                                  , ocore)] in
-                case compare (Inst_ty ocli) of
+                case compare (inst_ty ocli) of
                   EQ \<Rightarrow> [([], (exp, None), False, ocore)]
                 | LT \<Rightarrow> exp_annot
                 | GT \<Rightarrow> (case Inst_attr ocli of OclAttrCast name2 _ _ \<Rightarrow>
@@ -346,7 +346,7 @@ definition "print_pre_post_wff = get_state (\<lambda> (s_pre, l_pre) (s_post, l_
    [ Lemma_by_assum
        (flatten [\<open>basic_\<close>, s_pre, \<open>_\<close>, s_post, \<open>_wff\<close>])
        (List_map (\<lambda> (cpt, OclDefCoreBinding (_, ocli)) \<Rightarrow>
-                    let ty = \<lambda>s. s @@ isub_of_str (Inst_ty ocli)
+                    let ty = \<lambda>s. s @@ isub_of_str (inst_ty ocli)
                       ; n = inst_name ocli in
                     (\<open>\<close>, True, Expr_rewrite 
                                  (a \<open>oid_of\<close> (a (ty datatype_in) (b (print_examp_instance_name ty n))))
@@ -389,7 +389,7 @@ definition "print_pre_post_where = get_state (\<lambda> (s_pre, l_pre) (s_post, 
          (\<lambda> (OclDefCoreBinding (name, ocli), name_st) \<Rightarrow>
            Lemma_by_assum
              (flatten [var_oid_uniq, natural_of_str (case x_pers_oid of Oid i \<Rightarrow> i), s_pre, s_post, \<open>_\<close>, name_st, \<open>_\<close>, x_where])
-             [(\<open>\<close>, True, Expr_rewrite (a \<open>oid_of\<close> (b (print_examp_instance_name (\<lambda>s. s @@ isub_of_str (Inst_ty ocli)) (inst_name ocli))))
+             [(\<open>\<close>, True, Expr_rewrite (a \<open>oid_of\<close> (b (print_examp_instance_name (\<lambda>s. s @@ isub_of_str (inst_ty ocli)) (inst_name ocli))))
                                       \<open>=\<close>
                                       (Expr_oid var_oid_uniq x_pers_oid))]
              (Expr_binop (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l mk_n = b o mk_n in Expr_pair (mk_n s_pre) (mk_n s_post))
