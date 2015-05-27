@@ -235,7 +235,7 @@ definition "print_examp_def_st_allinst = (\<lambda> _ ocl.
                 case compare (inst_ty ocli) of
                   EQ \<Rightarrow> [([], (exp, None), False, ocore)]
                 | LT \<Rightarrow> exp_annot
-                | GT \<Rightarrow> (case Inst_attr ocli of OclAttrCast name2 _ _ \<Rightarrow>
+                | GT \<Rightarrow> (case fold_list_attr None (\<lambda>ty _. Cons ty) (Inst_attr ocli) [] of Some name2 # _ \<Rightarrow>
                            if String_equal name name2 then exp_annot
                            else [] | _ \<Rightarrow> [])
                 | UN' \<Rightarrow> [])) expr_app
