@@ -182,15 +182,16 @@ text {*
 \end{matharray}
 
 @{rail \<open>
-  @@{command Instance} ((binding '::' @{syntax type_object} '=' @{syntax term_object}) * ('and'?))
+  @@{command Instance} ((binding ('::' @{syntax type_object})? '=' \<newline>
+                         (@{syntax term_object} | @{syntax object_cast})) * ('and'?))
   ;
   @{syntax_def term_object}:
                  ('[' ((('(' binding ',' binding ')' '|=')? \<newline>
                         binding '=' @{syntax uml_term}) * ',') ']')
-               | @{syntax object_cast}
   ;
   @{syntax_def object_cast}:
-               '(' @{syntax term_object} '::' @{syntax type_object} ')'
+               '(' @{syntax term_object} '::' @{syntax type_object} ')' \<newline>
+               (('\<rightarrow>' 'oclAsType' '(' @{syntax type_object} ')') * ())
   ;
 \<close>}
 *}
