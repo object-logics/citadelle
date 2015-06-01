@@ -301,18 +301,38 @@ lemma Rel2Mon_homomorphism:
   assumes determ_X: "single_valued X" and determ_Y: "single_valued Y"
   shows   "Rel2Mon (X O Y) = (Rel2Mon X) ;- (Rel2Mon Y)"
 proof - 
-    have  relational_partial_next_in_O: "!!x E F. (\<exists>y. (x, y) \<in> (E O F)) 
-                                                  \<Longrightarrow> (\<exists>y. (x, y) \<in> E)" by (auto)
+    have relational_partial_next_in_O: "!!x E F. (\<exists>y. (x, y) \<in> (E O F)) \<Longrightarrow> (\<exists>y. (x, y) \<in> E)" 
+                        by (auto)
+    have some_eq_intro: "\<And>X x y . single_valued X \<Longrightarrow> (x, y) \<in> X \<Longrightarrow> (SOME y. (x, y) \<in> X) = y"
+                        by (auto simp: single_valued_def)
+
 show ?thesis
 apply (simp add: Rel2Mon_def seq_SE_def bind_SE_def)
-apply (rule ext)
+apply (rule ext, rename_tac "\<sigma>")
 apply (case_tac " \<exists>\<sigma>'. (\<sigma>, \<sigma>') \<in> X O Y")
 apply (simp only: HOL.if_True)
 apply (frule relational_partial_next_in_O)
 apply (auto)
 apply (insert determ_X determ_Y)
 
-defer 1
+apply (subgoal_tac "(SOME \<sigma>'. (x, \<sigma>') \<in> X) = y")
+apply (simp)
+      apply (subgoal_tac "(SOME \<sigma>'. (y, \<sigma>') \<in> Y) = z")
+      apply (simp)
+            apply (subgoal_tac "(SOME \<sigma>'. (x, \<sigma>') \<in> X O Y) = z")
+            apply (simp)
+      apply (auto simp: single_valued_def)
+apply (subgoal_tac "(SOME \<sigma>'. (x, \<sigma>') \<in> X) = ya")
+      apply (simp_all)
+apply (subgoal_tac "(SOME \<sigma>'. (ya, \<sigma>') \<in> Y) = \<sigma>''")
+      apply (simp_all)
+apply (subgoal_tac "(SOME \<sigma>'. (x, \<sigma>') \<in> X O Y) = \<sigma>''")
+      apply (assumption)
+apply (subgoal_tac "single_valued (X O Y)")
+      apply (fold single_valued_def)
+      apply (subgoal_tac "(x, \<sigma>'') \<in> X O Y")
+            apply (auto, rule some_eq_intro)
+            apply (auto, rule Relation.relcomp.relcompI Relation.single_valued_relcomp, auto)
 
 apply (rule_tac x=z in exI)
 apply (rule someI2)
@@ -326,22 +346,7 @@ apply (rule_tac x=\<sigma>' in exI)
     apply (subgoal_tac "(SOME \<sigma>'. (\<sigma>, \<sigma>') \<in> X) = \<sigma>''")
     apply (auto)
   apply (auto simp: single_valued_def)
-apply (fold single_valued_def)
-
-    apply (subgoal_tac "(SOME \<sigma>'. (x, \<sigma>') \<in> X) = y")
-    apply (simp)
-          apply (subgoal_tac "(SOME \<sigma>'. (y, \<sigma>') \<in> Y) = z")
-          apply (simp)
-                apply (subgoal_tac "(SOME \<sigma>'. (x, \<sigma>') \<in> X O Y) = z")
-                apply (simp)
-           apply (auto simp: single_valued_def)
-           (* TODO IMPORTANT *)
-
-    apply (rule someI2)
-    apply (assumption)
-    apply (rule someI2)
-    apply (auto)
-sorry
+done
 qed
 
 text{* Putting everything together, the theory of embedding and the invariance of
