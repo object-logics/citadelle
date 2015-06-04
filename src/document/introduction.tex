@@ -544,10 +544,10 @@ for membership is as follows:\footnote{To increase readability, we use
 \begin{gather}
   \begin{array}{lrll}
     \types& \alpha \HolSet            &= \alpha \Rightarrow \HolBoolean\\[.5ex]
-    \definitionS &\operatorname{Collect}&\ofType (\alpha \Rightarrow
+    \isardef &\operatorname{Collect}&\ofType (\alpha \Rightarrow
      \HolBoolean) \Rightarrow \HolSet{\alpha}  &\qquad\text{--- set comprehension}\\
     \where &\operatorname{Collect}\ap S      &\equiv S\\[.5ex]
-     \definitionS &\operatorname{member}           &\ofType \alpha \Rightarrow
+     \isardef &\operatorname{member}           &\ofType \alpha \Rightarrow
      \alpha \Rightarrow \HolBoolean &\qquad\text{---
        membership test}\\
      \where &\operatorname{member}\ap s\ap S &\equiv S s\\
@@ -1522,7 +1522,7 @@ This implies the following scheme for an accessor:
 
 The first phase directly translates into the following formalization:
 \begin{multline}
-  \shoveleft{\definitionS}\quad\\
+  \shoveleft{\isardef}\quad\\
   \begin{array}{rllr}
  \operatorname{eval\_extract} X\ap f = (\lambda \tau\spot \HolCase
  X\ap
@@ -1537,7 +1537,7 @@ The first phase directly translates into the following formalization:
 For each class $C$, we introduce the dereferentiation phase of this
 form:
 \begin{multline}
-  \definitionS \ap
+  \isardef \ap
   \operatorname{deref\_oid}_C \ap \mathit{fst\_snd}\ap f\ap \mathit{oid} =
                      (\lambda \tau\spot \HolCase\ap (\operatorname{heap}\ap
                      (\mathit{fst\_snd}\ap \tau))\ap \mathit{oid}\ap
@@ -1559,7 +1559,7 @@ and each attribute $a$ in this class,
 we introduce the selection phase of this form:
 \begin{gather}
   \begin{array}{rlcll}
-  \definitionS \ap
+  \isardef \ap
     \operatorname{select}_a \ap f = (\lambda &
                   \operatorname{mk}_C \ap oid & \cdots \bottom \cdots & C_{X\text{ext}} & \Rightarrow \mocl{null}\\
                   |& \operatorname{mk}_C \ap oid & \cdots \lift{a} \cdots & C_{X\text{ext}}
@@ -1573,9 +1573,9 @@ references in which the $a$ is of type $\oid$.  To increase
 readability, we introduce the functions:
 \begin{gather}
 \begin{array}{llrlr}
-\qquad\qquad&\definitionS\enspace&\operatorname{in\_pre\_state}    &= \operatorname{fst} & \qquad \text{first component}\\
-\qquad\qquad&\definitionS\enspace&\operatorname{in\_post\_state}   &= \operatorname{snd} & \qquad \text{second component} \\
-\qquad\qquad&\definitionS\enspace&\operatorname{reconst\_basetype} &= \operatorname{id} & \qquad \text{identity function}
+\qquad\qquad&\isardef\enspace&\operatorname{in\_pre\_state}    &= \operatorname{fst} & \qquad \text{first component}\\
+\qquad\qquad&\isardef\enspace&\operatorname{in\_post\_state}   &= \operatorname{snd} & \qquad \text{second component} \\
+\qquad\qquad&\isardef\enspace&\operatorname{reconst\_basetype} &= \operatorname{id} & \qquad \text{identity function}
 \end{array}
 \end{gather}
 
@@ -1584,7 +1584,7 @@ Let \_\inlineocl{.getBase} be an accessor of class $C$ yielding a
 value of base-type $A_{base}$. Then its definition is of the form:
 \begin{gather}
 \begin{array}{lll}
-\definitionS&\_\mocl{.getBase} &\ofType \ap C \Rightarrow A_{base}\\
+\isardef&\_\mocl{.getBase} &\ofType \ap C \Rightarrow A_{base}\\
 \where\enspace&X\mocl{.getBase} &= \operatorname{eval\_extract}\ap X\ap
                        (\operatorname{deref\_oid}_C\ap \operatorname{in\_post\_state}\ap\\
               &          &\quad   (\operatorname{select}_\text{getBase}\ap \operatorname{reconst\_basetype}))
@@ -1595,7 +1595,7 @@ Let \_\inlineocl{.getObject} be an accessor of class $C$ yielding a
 value of object-type $A_{object}$. Then its definition is of the form:
 \begin{gather}
 \begin{array}{lll}
-\definitionS&\_\mocl{.getObject} &\ofType \ap C \Rightarrow A_{object}\\
+\isardef&\_\mocl{.getObject} &\ofType \ap C \Rightarrow A_{object}\\
 \where\enspace&X\mocl{.getObject} &= \operatorname{eval\_extract}\ap X\ap
                         (\operatorname{deref\_oid}_C\ap \operatorname{in\_post\_state}\ap\\
      &                    &\quad (\operatorname{select}_\text{getObject}\ap
