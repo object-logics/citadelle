@@ -158,7 +158,8 @@ definition "OclAss_relation' l = (case OclAss_relation l of OclAssRel l \<Righta
 fun fold_pair_var where
    "fold_pair_var f t accu = (case t of
     OclTy_pair t1 t2 \<Rightarrow> Option.bind (fold_pair_var f t1 accu) (fold_pair_var f t2)
-  | OclTy_binding (v, t) \<Rightarrow> fold_pair_var f t (f (v, t) accu)
+  | OclTy_binding (Some v, t) \<Rightarrow> fold_pair_var f t (f (v, t) accu)
+  | OclTy_binding (None, t) \<Rightarrow> fold_pair_var f t accu
   | OclTy_collection _ t \<Rightarrow> fold_pair_var f t accu
   | OclTy_arrow _ _ \<Rightarrow> None
   | _ \<Rightarrow> Some accu)"
@@ -166,7 +167,7 @@ fun fold_pair_var where
 definition "Ctxt_fun_ty_arg ctxt =
  (case 
     fold_pair_var
-      (\<lambda> (Some v, t) \<Rightarrow> Cons (v, t))
+      Cons
       (case Ctxt_fun_ty ctxt of OclTy_arrow t _ \<Rightarrow> t
                               | t \<Rightarrow> t)
       []
