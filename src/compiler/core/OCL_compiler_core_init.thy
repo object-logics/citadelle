@@ -431,7 +431,7 @@ subsection{* context *}
 
 definition "print_ctxt_const_name attr_n var_at_when_hol = flatten [ \<open>dot\<close>, isup_of_str attr_n, var_at_when_hol]"
 definition "print_ctxt_pre_post_name attr_n var_at_when_hol = hol_definition (print_ctxt_const_name attr_n var_at_when_hol)"
-definition "print_ctxt_inv_name n tit var_at_when = hol_definition (flatten [n, \<open>_\<close>, tit, var_at_when])"
+definition "print_ctxt_inv_name n tit var_at_when = flatten [n, \<open>_\<close>, tit, var_at_when]"
 
 definition "make_ctxt_free_var pref ctxt =
  (let l = var_self # List_map fst (Ctxt_fun_ty_arg ctxt) in

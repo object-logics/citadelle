@@ -172,8 +172,7 @@ definition "print_ctxt_pre_post = (\<lambda>f. map_prod List_flatten id o f) o f
 definition "print_ctxt_inv = (\<lambda>f. map_prod List_flatten id o f) o fold_list (\<lambda>x ocl. (x ocl, ocl)) o List_flatten o List_flatten o (\<lambda> ctxt.
   let a = \<lambda>f x. Expr_apply f [x]
     ; b = \<lambda>s. Expr_basic [s]
-    ; var_tau = \<open>\<tau>\<close>
-    ; f_tau = \<lambda>s. Expr_warning_parenthesis (Expr_binop (b var_tau) \<open>\<Turnstile>\<close> s)
+    ; f_tau = \<lambda>s. Expr_lam \<open>\<tau>\<close> (\<lambda>var_tau. Expr_warning_parenthesis (Expr_binop (b var_tau) \<open>\<Turnstile>\<close> s))
     ; nb_var = length (Ctxt_param ctxt)
     ; Ctxt_ty_n = ty_obj_to_string (Ctxt_ty ctxt)
     ; l = fold_invariant' ctxt in
@@ -181,12 +180,15 @@ definition "print_ctxt_inv = (\<lambda>f. map_prod List_flatten id o f) o fold_l
  List_map (\<lambda> (tit, T_pure t) \<Rightarrow>
     (List_map
       (\<lambda> (allinst_at_when, var_at_when, e) \<Rightarrow>
-        [ (\<lambda>ocl. [Thy_axiom (Axiom (print_ctxt_inv_name Ctxt_ty_n tit var_at_when)
-                                  (f_tau (cross_abs (\<lambda>s x. Expr_apply var_OclForall_set
-                                                            [ a allinst_at_when (b Ctxt_ty_n)
-                                                            , Expr_lambda s x])
-                                                    (Suc nb_var (* nb_var + \<open>self\<close> *))
-                                                    (case e ocl of T_pure e \<Rightarrow> e)) ))]) ])
+        [ (\<lambda>ocl. [ Thy_definition_hol
+                     (Definition (Expr_rewrite
+                                   (b (print_ctxt_inv_name Ctxt_ty_n tit var_at_when))
+                                   \<open>=\<close>
+                                   (f_tau (cross_abs (\<lambda>s x. Expr_apply var_OclForall_set
+                                                              [ a allinst_at_when (b Ctxt_ty_n)
+                                                              , Expr_lambda s x])
+                                                     (Suc nb_var (* nb_var + \<open>self\<close> *))
+                                                     (case e ocl of T_pure e \<Rightarrow> e)) )))]) ])
       [(\<open>OclAllInstances_at_pre\<close>, var_at_when_hol_pre, \<lambda>ocl. print_ctxt_to_ocl_pre ocl (T_pure t))
       ,(\<open>OclAllInstances_at_post\<close>, var_at_when_hol_post, \<lambda>ocl. print_ctxt_to_ocl_post ocl (T_pure t))])
   @@@@ [raise_ml_unbound (\<lambda>_ pref. flatten [\<open>inv \<close>, pref]) l])
@@ -197,7 +199,7 @@ definition "print_ctxt_thm ctxt = Pair
       (List_flatten [ List.map_filter (\<lambda> Ctxt_pp ctxt \<Rightarrow> Some (print_ctxt_pre_post_name (Ctxt_fun_name ctxt) var_at_when_hol_post)
                                        | _ \<Rightarrow> None)
                                       (Ctxt_clause ctxt)
-                    , List_flatten (List_map (\<lambda>(tit, _). List_map (print_ctxt_inv_name (ty_obj_to_string (Ctxt_ty ctxt)) tit)
+                    , List_flatten (List_map (\<lambda>(tit, _). List_map (hol_definition o print_ctxt_inv_name (ty_obj_to_string (Ctxt_ty ctxt)) tit)
                                                                   [ var_at_when_hol_pre
                                                                   , var_at_when_hol_post ])
                                              (fold_invariant' ctxt)) ])))]"
