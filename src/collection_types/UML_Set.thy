@@ -43,8 +43,11 @@
 
 
 theory  UML_Set
-imports "../basic_types/UML_Boolean"
+imports "../basic_types/UML_Void"
+        "../basic_types/UML_Boolean"
         "../basic_types/UML_Integer"
+        "../basic_types/UML_String"
+        "../basic_types/UML_Real"
 begin
 
 no_notation None ("\<bottom>")
@@ -99,8 +102,118 @@ and
 which characterize the infiniteness of these sets by a recursive property on these sets.
 *}
 
-         
-         
+text{* In the same spirit, we proceed similarly for the remaining base types: *}
+
+definition Void\<^sub>n\<^sub>u\<^sub>l\<^sub>l :: "('\<AA>,Void\<^sub>b\<^sub>a\<^sub>s\<^sub>e) Set"
+where     "Void\<^sub>n\<^sub>u\<^sub>l\<^sub>l \<equiv> (\<lambda> \<tau>. (Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e o Some o Some) {Abs_Void\<^sub>b\<^sub>a\<^sub>s\<^sub>e (Some None)})"
+
+definition Void\<^sub>e\<^sub>m\<^sub>p\<^sub>t\<^sub>y :: "('\<AA>,Void\<^sub>b\<^sub>a\<^sub>s\<^sub>e) Set"
+where     "Void\<^sub>e\<^sub>m\<^sub>p\<^sub>t\<^sub>y \<equiv> (\<lambda> \<tau>. (Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e o Some o Some) {})"
+
+lemma Void\<^sub>n\<^sub>u\<^sub>l\<^sub>l_defined : "\<delta> Void\<^sub>n\<^sub>u\<^sub>l\<^sub>l = true"
+apply(rule ext, auto simp: Void\<^sub>n\<^sub>u\<^sub>l\<^sub>l_def defined_def false_def true_def
+                           bot_fun_def null_fun_def null_option_def
+                           bot_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def null_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def)
+by((subst (asm) Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inject, auto simp add: bot_option_def null_option_def bot_Void_def),
+   (subst (asm) Abs_Void\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inject, auto simp add: bot_option_def null_option_def))+
+
+lemma Void\<^sub>e\<^sub>m\<^sub>p\<^sub>t\<^sub>y_defined : "\<delta> Void\<^sub>e\<^sub>m\<^sub>p\<^sub>t\<^sub>y = true"
+apply(rule ext, auto simp: Void\<^sub>e\<^sub>m\<^sub>p\<^sub>t\<^sub>y_def defined_def false_def true_def
+                           bot_fun_def null_fun_def null_option_def
+                           bot_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def null_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def)
+by((subst (asm) Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inject, auto simp add: bot_option_def null_option_def bot_Void_def))+
+
+lemma assumes "\<tau> \<Turnstile> \<delta> (V :: ('\<AA>,Void\<^sub>b\<^sub>a\<^sub>s\<^sub>e) Set)"
+      shows   "\<tau> \<Turnstile> V \<triangleq> Void\<^sub>n\<^sub>u\<^sub>l\<^sub>l \<or> \<tau> \<Turnstile> V \<triangleq> Void\<^sub>e\<^sub>m\<^sub>p\<^sub>t\<^sub>y"
+proof -
+  have A:"\<And>x y. x \<noteq> {} \<Longrightarrow> \<exists>y. y\<in> x"
+  by (metis all_not_in_conv)
+show "?thesis"
+  apply(case_tac "V \<tau>")
+  proof - fix y show "V \<tau> = Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e y \<Longrightarrow>
+                      y \<in> {X. X = \<bottom> \<or> X = null \<or> (\<forall>x\<in>\<lceil>\<lceil>X\<rceil>\<rceil>. x \<noteq> \<bottom>)} \<Longrightarrow>
+                      \<tau> \<Turnstile> V \<triangleq> Void\<^sub>n\<^sub>u\<^sub>l\<^sub>l \<or> \<tau> \<Turnstile> V \<triangleq> Void\<^sub>e\<^sub>m\<^sub>p\<^sub>t\<^sub>y"
+  apply(insert assms, case_tac y, simp add: bot_option_def, simp add: bot_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def foundation16)
+  apply(simp add: bot_option_def null_option_def)
+  apply(erule disjE, metis OclValid_def defined_def foundation2 null_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def null_fun_def true_def)
+  proof - fix a show "V \<tau> = Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor>a\<rfloor> \<Longrightarrow> \<forall>x\<in>\<lceil>a\<rceil>. x \<noteq> \<bottom> \<Longrightarrow> \<tau> \<Turnstile> V \<triangleq> Void\<^sub>n\<^sub>u\<^sub>l\<^sub>l \<or> \<tau> \<Turnstile> V \<triangleq> Void\<^sub>e\<^sub>m\<^sub>p\<^sub>t\<^sub>y"
+  apply(case_tac a, simp, insert assms, metis OclValid_def foundation16 null_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def true_def)
+  apply(simp)
+  proof - fix aa show " V \<tau> = Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor>\<lfloor>aa\<rfloor>\<rfloor> \<Longrightarrow> \<forall>x\<in>aa. x \<noteq> \<bottom> \<Longrightarrow> \<tau> \<Turnstile> V \<triangleq> Void\<^sub>n\<^sub>u\<^sub>l\<^sub>l \<or> \<tau> \<Turnstile> V \<triangleq> Void\<^sub>e\<^sub>m\<^sub>p\<^sub>t\<^sub>y"
+  apply(case_tac "aa = {}",
+        rule disjI2,
+        insert assms,
+        simp add: Void\<^sub>e\<^sub>m\<^sub>p\<^sub>t\<^sub>y_def OclValid_def StrongEq_def true_def,
+        rule disjI1)
+  apply(subgoal_tac "aa = {Abs_Void\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor>None\<rfloor>}", simp add: StrongEq_def OclValid_def true_def Void\<^sub>n\<^sub>u\<^sub>l\<^sub>l_def)
+  apply(drule A, erule exE)
+  proof - fix y show "V \<tau> = Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor>\<lfloor>aa\<rfloor>\<rfloor> \<Longrightarrow>
+                      \<forall>x\<in>aa. x \<noteq> \<bottom> \<Longrightarrow>
+                      \<tau> \<Turnstile> \<delta> V \<Longrightarrow>
+                      y \<in> aa \<Longrightarrow>
+                      aa = {Abs_Void\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor>None\<rfloor>}"  
+  apply(rule equalityI, rule subsetI, simp)
+    proof - fix x show " V \<tau> = Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor>\<lfloor>aa\<rfloor>\<rfloor> \<Longrightarrow>
+             \<forall>x\<in>aa. x \<noteq> \<bottom> \<Longrightarrow> \<tau> \<Turnstile> \<delta> V \<Longrightarrow> y \<in> aa \<Longrightarrow> x \<in> aa \<Longrightarrow> x = Abs_Void\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor>None\<rfloor>"
+    apply(case_tac x, simp)
+    by (metis bot_Void_def bot_option_def null_option_def)
+  apply_end(simp_all)
+  
+  apply_end(erule ballE[where x = y], simp_all)
+  apply_end(case_tac y,
+            simp add: bot_option_def null_option_def OclValid_def defined_def split: split_if_asm,
+            simp add: false_def true_def)
+  apply_end(erule disjE, simp add: bot_Void_def, simp)
+qed qed qed qed qed qed
+
+definition Boolean :: "('\<AA>,Boolean\<^sub>b\<^sub>a\<^sub>s\<^sub>e) Set"
+where     "Boolean \<equiv> (\<lambda> \<tau>. (Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e o Some o Some)  ((Some o Some) ` (UNIV::bool set)))"
+
+definition Boolean\<^sub>n\<^sub>u\<^sub>l\<^sub>l :: "('\<AA>,Boolean\<^sub>b\<^sub>a\<^sub>s\<^sub>e) Set"
+where     "Boolean\<^sub>n\<^sub>u\<^sub>l\<^sub>l \<equiv> (\<lambda> \<tau>. (Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e o Some o Some)  (Some ` (UNIV::bool option set)))"
+
+lemma Boolean_defined : "\<delta> Boolean = true"
+apply(rule ext, auto simp: Boolean_def defined_def false_def true_def
+                           bot_fun_def null_fun_def null_option_def)
+by(simp_all add: Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inject bot_option_def bot_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def null_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def null_option_def)
+
+lemma Boolean\<^sub>n\<^sub>u\<^sub>l\<^sub>l_defined : "\<delta> Boolean\<^sub>n\<^sub>u\<^sub>l\<^sub>l = true"
+apply(rule ext, auto simp: Boolean\<^sub>n\<^sub>u\<^sub>l\<^sub>l_def defined_def false_def true_def
+                           bot_fun_def null_fun_def null_option_def)
+by(simp_all add: Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inject bot_option_def bot_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def null_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def null_option_def)
+
+definition String :: "('\<AA>,String\<^sub>b\<^sub>a\<^sub>s\<^sub>e) Set"
+where     "String \<equiv> (\<lambda> \<tau>. (Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e o Some o Some)  ((Some o Some) ` (UNIV::string set)))"
+
+definition String\<^sub>n\<^sub>u\<^sub>l\<^sub>l :: "('\<AA>,String\<^sub>b\<^sub>a\<^sub>s\<^sub>e) Set"
+where     "String\<^sub>n\<^sub>u\<^sub>l\<^sub>l \<equiv> (\<lambda> \<tau>. (Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e o Some o Some)  (Some ` (UNIV::string option set)))"
+
+lemma String_defined : "\<delta> String = true"
+apply(rule ext, auto simp: String_def defined_def false_def true_def
+                           bot_fun_def null_fun_def null_option_def)
+by(simp_all add: Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inject bot_option_def bot_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def null_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def null_option_def)
+
+lemma String\<^sub>n\<^sub>u\<^sub>l\<^sub>l_defined : "\<delta> String\<^sub>n\<^sub>u\<^sub>l\<^sub>l = true"
+apply(rule ext, auto simp: String\<^sub>n\<^sub>u\<^sub>l\<^sub>l_def defined_def false_def true_def
+                           bot_fun_def null_fun_def null_option_def)
+by(simp_all add: Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inject bot_option_def bot_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def null_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def null_option_def)
+
+definition Real :: "('\<AA>,Real\<^sub>b\<^sub>a\<^sub>s\<^sub>e) Set"
+where     "Real \<equiv> (\<lambda> \<tau>. (Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e o Some o Some)  ((Some o Some) ` (UNIV::real set)))"
+
+definition Real\<^sub>n\<^sub>u\<^sub>l\<^sub>l :: "('\<AA>,Real\<^sub>b\<^sub>a\<^sub>s\<^sub>e) Set"
+where     "Real\<^sub>n\<^sub>u\<^sub>l\<^sub>l \<equiv> (\<lambda> \<tau>. (Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e o Some o Some)  (Some ` (UNIV::real option set)))"
+
+lemma Real_defined : "\<delta> Real = true"
+apply(rule ext, auto simp: Real_def defined_def false_def true_def
+                           bot_fun_def null_fun_def null_option_def)
+by(simp_all add: Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inject bot_option_def bot_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def null_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def null_option_def)
+
+lemma Real\<^sub>n\<^sub>u\<^sub>l\<^sub>l_defined : "\<delta> Real\<^sub>n\<^sub>u\<^sub>l\<^sub>l = true"
+apply(rule ext, auto simp: Real\<^sub>n\<^sub>u\<^sub>l\<^sub>l_def defined_def false_def true_def
+                           bot_fun_def null_fun_def null_option_def)
+by(simp_all add: Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inject bot_option_def bot_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def null_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def null_option_def)
+
 subsection{* Basic Properties of the Set Type*}
 
 text{* Every element in a defined set is valid. *}
