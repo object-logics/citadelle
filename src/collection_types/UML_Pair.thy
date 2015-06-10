@@ -42,8 +42,7 @@
 (* $Id:$ *)
 
 theory  UML_Pair
-imports "../basic_types/UML_Boolean"
-        "../basic_types/UML_Integer"
+imports "../UML_PropertyProfiles"
 begin
 
 section{* Collection Type Pairs: Operations \label{sec:collection_pairs} *}
