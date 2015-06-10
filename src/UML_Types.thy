@@ -437,6 +437,47 @@ text{* ...  and lifting this type to the format of a valuation gives us:*}
 type_synonym    ('\<AA>,'\<alpha>) Set  = "('\<AA>, '\<alpha> Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e) val"
 type_notation   Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e ("Set'(_')")
 
+subsection{* The Construction of the Bag Type *}
+text{* The core of an own type construction is done via a type
+  definition which provides the raw-type @{text "'\<alpha> Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e"}
+  based on multi-sets from the \HOL library. As in Sets, it
+  is shown that this type ``fits'' indeed into the abstract type
+  interface discussed in the previous section, and as in sets, we make 
+  no restriction whatsoever to \emph{finite} multi-sets; while with 
+  the standards type-constructors only finite sets can be denoted,
+  there is the possibility to define in fact infinite 
+  type constructors in \FOCL (c.f. \autoref{sec:type-extensions}). *}
+
+typedef '\<alpha> Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e ="{X::('\<alpha>\<Colon>null \<Rightarrow> nat) option option. True}"
+          by (rule_tac x="bot" in exI, simp)
+
+instantiation   Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e  :: (null)bot
+begin
+
+   definition bot_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def: "(bot::('a::null) Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e) \<equiv> Abs_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e None"
+
+   instance proof show "\<exists>x\<Colon>'a Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e. x \<noteq> bot"
+                  apply(rule_tac x="Abs_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor>None\<rfloor>" in exI)
+                  by(simp add: bot_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def Abs_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inject 
+                               null_option_def bot_option_def)
+            qed
+end
+
+instantiation   Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e  :: (null)null
+begin
+
+   definition null_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def: "(null::('a::null) Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e) \<equiv> Abs_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor> None \<rfloor>"
+
+   instance proof show "(null::('a::null) Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e) \<noteq> bot"
+                  by(simp add:null_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def bot_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def Abs_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inject 
+                              null_option_def bot_option_def)
+            qed
+end
+
+text{* ...  and lifting this type to the format of a valuation gives us:*}
+type_synonym    ('\<AA>,'\<alpha>) Bag  = "('\<AA>, '\<alpha> Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e) val"
+type_notation   Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e ("Bag'(_')")
+
 subsection{* The Construction of the Sequence Type *}
 
 text{* The core of an own type construction is done via a type

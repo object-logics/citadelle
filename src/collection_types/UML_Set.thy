@@ -434,7 +434,7 @@ where     "OclIntersection x y = (\<lambda> \<tau>.  if (\<delta> x) \<tau> = tr
 notation   OclIntersection("_->intersection\<^sub>S\<^sub>e\<^sub>t'(_')"   (*[71,70]70*))
 (* TODO locale instatiation *)
 
-subsection{* Definition (futur operators) *}
+subsection{* Definition (future operators) *}
 
 consts (* abstract set collection operations *)
     OclCount       :: "[('\<AA>,'\<alpha>::null) Set,('\<AA>,'\<alpha>) Set] \<Rightarrow> '\<AA> Integer"
