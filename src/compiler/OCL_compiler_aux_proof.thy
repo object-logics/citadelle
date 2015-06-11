@@ -127,13 +127,19 @@ lemma "m1_of_m2 (m2_of_m1 X) = X"
  have id_get_inh : "\<And>oid inh m1. get2_inh (m2_of_m1_ext oid inh m1) = inh"
  by (metis (full_types) attr_inh.exhaust)
 
+ have t1_ext_induct : "\<And> P1 P2 P3 t1_ext option recurse. ((\<And>attr_own option. P2 option \<Longrightarrow> P1 (T1_ext attr_own option)) \<Longrightarrow>
+  P2 None \<Longrightarrow>
+  (\<And>recurse. P3 recurse \<Longrightarrow> P2 (Some recurse)) \<Longrightarrow>
+  (\<And>nat t1_ext. P1 t1_ext \<Longrightarrow> P3 (R nat t1_ext)) \<Longrightarrow> P1 t1_ext \<and> P2 option \<and> P3 recurse)"
+ sorry
+
  have id_rec : "\<And>oid inh m1. m1_ext_of_m2 (m2_of_m1_ext oid inh m1) = m1"
   apply(case_tac m1, simp only:)
   proof -
   fix oid inh attr_own option
   def P \<equiv> "\<lambda>m1. m1_ext_of_m2 (m2_of_m1_ext oid inh m1) = m1"
   show "m1_ext_of_m2 (m2_of_m1_ext oid inh (T1_ext attr_own option)) = T1_ext attr_own option"
-   apply(rule t1_ext.induct[ of "\<lambda>option. \<forall>oid attr_own attr_inh. P (T1_ext attr_own option)"
+   apply(rule t1_ext_induct[ of "\<lambda>option. \<forall>oid attr_own attr_inh. P (T1_ext attr_own option)"
                                 "\<lambda>t1_ext. \<forall>nat oid attr_own attr_inh. P (T1_ext attr_own (Some (R nat t1_ext)))"
                                 "\<lambda>recurse. \<forall>oid attr_own attr_inh. P (T1_ext attr_own (Some recurse))"
                            , THEN conjunct2, THEN conjunct1, THEN spec, THEN spec, THEN spec, simplified Let_def P_def])
@@ -143,7 +149,7 @@ lemma "m1_of_m2 (m2_of_m1 X) = X"
  fix oid attr_own attr_inh option
  def P \<equiv> "\<lambda>X. m1_of_m2 (m2_of_m1 X) = X"
  show "m1_of_m2 (m2_of_m1 (T1 oid attr_own attr_inh option)) = T1 oid attr_own attr_inh option"
-  apply(rule t1_ext.induct[ of "\<lambda>option. \<forall>oid attr_own attr_inh. P (T1 oid attr_own attr_inh option)"
+  apply(rule t1_ext_induct[ of "\<lambda>option. \<forall>oid attr_own attr_inh. P (T1 oid attr_own attr_inh option)"
                                "\<lambda>t1_ext. \<forall>nat oid attr_own attr_inh. P (T1 oid attr_own attr_inh (Some (R nat t1_ext)))"
                                "\<lambda>recurse. \<forall>oid attr_own attr_inh. P (T1 oid attr_own attr_inh (Some recurse))"
                           , THEN conjunct2, THEN conjunct1, THEN spec, THEN spec, THEN spec, simplified Let_def P_def])
@@ -160,10 +166,16 @@ qed
 lemma "m2_of_m1 (m1_of_m2 X) = X"
  apply(case_tac X, simp)
  proof -
+  have t2_ext_t2_induct : "(\<And>P1 P2 P3 t2_ext t2_0 recurse. (\<And>oid attr_inh. P1 (T2_ext_oid oid attr_inh)) \<Longrightarrow>
+    (\<And>recurse. P3 recurse \<Longrightarrow> P1 (T2_ext_rec recurse)) \<Longrightarrow>
+    (\<And>t2_ext attr_own. P1 t2_ext \<Longrightarrow> P2 (T2 t2_ext attr_own)) \<Longrightarrow>
+    (\<And>nat t2. P2 t2 \<Longrightarrow> P3 (R nat t2)) \<Longrightarrow> P1 t2_ext \<and> P2 t2_0 \<and> P3 recurse)"
+  sorry
+
   fix t2_ext attr_own
   def P \<equiv> "\<lambda>X. m2_of_m1 (m1_of_m2 X) = X"
   show "m2_of_m1 (m1_of_m2 (T2 t2_ext attr_own)) = T2 t2_ext attr_own"
-   apply(rule t2_ext_t2.induct[ of "\<lambda>t2_ext. \<forall>attr_own. P (T2 t2_ext attr_own)"
+   apply(rule t2_ext_t2_induct[ of "\<lambda>t2_ext. \<forall>attr_own. P (T2 t2_ext attr_own)"
                                    "\<lambda>recurse. \<forall>attr_own. P (T2 (T2_ext_rec recurse) attr_own)"
                                    "\<lambda>option. \<forall>nat attr_own. P (T2 (T2_ext_rec (R nat option)) attr_own)"
                               , THEN conjunct1, THEN spec, simplified Let_def P_def])
@@ -176,7 +188,7 @@ lemma "m2_of_m1 (m1_of_m2 X) = X"
 
     T2 (case t2_ext of T2_ext_oid _ _ \<Rightarrow> T2_ext_oid oid inh | T2_ext_rec (R ide m2) \<Rightarrow> T2_ext_rec (R ide (m2_of_m1_ext oid inh (m1_ext_of_m2 m2))) ) x) =
            T2 t2_ext x")
-   apply(simp add: Let_def) apply(case_tac t2_ext, simp, simp) apply(case_tac recurse, simp)
+   apply(simp add: Let_def) apply(case_tac t2_ext, simp, simp) apply(case_tac x2, simp)
 
    apply(case_tac t2_ext, simp, simp)
    apply(subst (asm) m2_of_m1_def, subst (asm) m1_of_m2_def, simp)
@@ -185,7 +197,7 @@ lemma "m2_of_m1 (m1_of_m2 X) = X"
           T2_ext_rec recurse"
    fix recurse
    show "P recurse"
-   apply(rule t2_ext_t2.induct[ of "\<lambda>t2_ext. \<forall>nat attr_own. P (R nat (T2 t2_ext attr_own))"
+   apply(rule t2_ext_t2_induct[ of "\<lambda>t2_ext. \<forall>nat attr_own. P (R nat (T2 t2_ext attr_own))"
                                    "\<lambda>recurse. P recurse"
                                    "\<lambda>t2. \<forall>nat attr_own. P (R nat t2)"
                               , THEN conjunct2, THEN conjunct2], simp_all add: P_def)

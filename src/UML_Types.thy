@@ -584,7 +584,9 @@ fun lemma msg specification_theorem concl in_local thy =
              (Element.Shows [((@{binding ""}, []),[(concl lthy, [])])])
              false lthy
         |> Proof.global_terminal_proof
-             ((Method.Then (Method.no_combinator_info, [Method.Basic (fn ctxt => SIMPLE_METHOD (asm_full_simp_tac ctxt 1))]),
+             ((Method.Combinator ( Method.no_combinator_info
+                                 , Method.Then
+                                 , [Method.Basic (fn ctxt => SIMPLE_METHOD (asm_full_simp_tac ctxt 1))]),
                (Position.none, Position.none)), NONE))
               thy)
   handle ERROR s =>
@@ -624,8 +626,8 @@ fun in_local decl thy =
   |> decl
   |> Local_Theory.exit_global
 
-val () = outer_syntax_command @{command_spec "Assert"} Toplevel.theory in_local 
-val () = outer_syntax_command @{command_spec "Assert_local"} (Toplevel.local_theory NONE) I
+val () = outer_syntax_command @{command_keyword Assert} Toplevel.theory in_local 
+val () = outer_syntax_command @{command_keyword Assert_local} (Toplevel.local_theory NONE NONE) I
 (* TO BE DONE  merge the two commands together *)
 *}
 (*>*)

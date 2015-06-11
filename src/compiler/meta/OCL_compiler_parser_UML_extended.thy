@@ -86,14 +86,11 @@ definition "i_of_ocl_def_base a b = rec_ocl_def_base
   (ap1 a (b \<open>OclDefReal\<close>) (i_of_pair a b (i_of_string a b) (i_of_string a b)))
   (ap1 a (b \<open>OclDefString\<close>) (i_of_string a b))"
 
-definition "i_of_ocl_data_shallow a b = (\<lambda>f1 f2 f3 f4 f5 f6. rec_ocl_data_shallow_1 f1 f2 f3 (K f4) f5 (\<lambda>_ _. f6))
+definition "i_of_ocl_data_shallow a b = rec_ocl_data_shallow
   (ap1 a (b \<open>ShallB_term\<close>) (i_of_ocl_def_base a b))
   (ap1 a (b \<open>ShallB_str\<close>) (i_of_string a b))
   (ap1 a (b \<open>ShallB_self\<close>) (i_of_internal_oid a b))
-  (ar1 a (b \<open>ShallB_list\<close>))
-  (* *)
-  (b i_Nil)
-  (ar2 a (b i_Cons) id)"
+  (ap1 a (b \<open>ShallB_list\<close>) (i_of_list a b snd))"
 
 definition "i_of_ocl_list_attr a b f = (\<lambda>f0. co4 (\<lambda>f1. rec_ocl_list_attr f0 (\<lambda>s _ a rec. f1 s rec a)) (ap3 a))
   (ap1 a (b \<open>OclAttrNoCast\<close>) f)

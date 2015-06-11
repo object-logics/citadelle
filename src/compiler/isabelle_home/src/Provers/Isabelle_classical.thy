@@ -76,10 +76,10 @@ fun some_rule_tac ctxt facts = SUBGOAL (fn (goal, i) =>
     val {xtra_netpair, ...} = rep_claset_of ctxt;
     val rules3 = Context_Rules.find_rules_netpair true facts goal xtra_netpair;
     val rules = rules1 @ rules2 @ rules3 @ rules4;
-    val ruleq = Drule.multi_resolves facts rules;
+    val ruleq = Drule.multi_resolves (SOME ctxt) facts rules;
     val _ = Method.trace ctxt rules;
   in
-    fn st => Seq.maps (fn rule => rtac rule i st) ruleq
+    fn st => Seq.maps (fn rule => resolve_tac ctxt [rule] i st) ruleq
   end)
   THEN_ALL_NEW Goal.norm_hhf_tac ctxt;
 

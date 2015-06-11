@@ -114,21 +114,23 @@ interpretation OclIncluding :
                                                       ((y):=\<lceil>\<lceil>Rep_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e(x)\<rceil>\<rceil>(y )+1) 
                                                     \<rfloor>\<rfloor>"
 proof -  
-   show "profile_bin\<^sub>d_\<^sub>v OclIncluding (\<lambda>x y. Abs_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor>\<lfloor> \<lceil>\<lceil>Rep_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e(x)\<rceil>\<rceil> 
-                                                         ((y):=\<lceil>\<lceil>Rep_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e(x)\<rceil>\<rceil>( y )+1) 
-                                                    \<rfloor>\<rfloor>)"
+   let ?X = "\<lambda>x y. \<lceil>\<lceil>Rep_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e(x)\<rceil>\<rceil> ((y):=\<lceil>\<lceil>Rep_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e(x)\<rceil>\<rceil>( y )+1)"
+   show "profile_bin\<^sub>d_\<^sub>v OclIncluding (\<lambda>x y. Abs_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor>\<lfloor> ?X x y \<rfloor>\<rfloor>)"
          apply unfold_locales  
           apply(auto simp:OclIncluding_def bot_option_def null_option_def 
                                            bot_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def null_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def)
-          apply(erule_tac Q="Abs_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor>\<lfloor>?X\<rfloor>\<rfloor> = Abs_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e None" 
-                in contrapos_pp)
-          apply(subst Abs_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inject)
-             apply(simp_all add:  null_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def bot_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def bot_option_def)
-         apply(erule_tac Q="Abs_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e\<lfloor>\<lfloor>?X\<rfloor>\<rfloor> = Abs_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor>None\<rfloor>" 
-               in contrapos_pp)
-          apply(subst Abs_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inject)
-            apply(simp_all add:  bot_option_def null_option_def)
-         done
+          proof - fix x y show "Abs_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor>\<lfloor>?X x y\<rfloor>\<rfloor> = Abs_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e None \<Longrightarrow> False"
+          apply(rule contrapos_pp[where Q="Abs_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor>\<lfloor>?X x y\<rfloor>\<rfloor> = Abs_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e None", simplified], simp)
+          apply(subst (asm) Abs_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inject)
+            by(simp_all add:  null_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def bot_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def bot_option_def)
+         apply_end(simp_all)
+
+         fix x y show "Abs_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor>\<lfloor>?X x y\<rfloor>\<rfloor> = Abs_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor>None\<rfloor> \<Longrightarrow> False"
+          apply(rule contrapos_pp[where Q="Abs_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor>\<lfloor>?X x y\<rfloor>\<rfloor> = Abs_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor>None\<rfloor>", simplified], simp)
+          apply(subst (asm) Abs_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inject)
+            by(simp_all add:  null_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def bot_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def bot_option_def)
+         apply_end(simp)
+   qed
 qed
 
 

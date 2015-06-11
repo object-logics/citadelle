@@ -192,9 +192,8 @@ definition "i_of_ocl_ty_obj a b = rec_ocl_ty_obj
   (ap2 a (b \<open>OclTyObj\<close>) (i_of_ocl_ty_obj_core a b) (i_of_list a b (i_of_list a b (i_of_ocl_ty_obj_core a b))))"
 
 definition "i_of_ocl_ty a b = (\<lambda>f1 f2 f3 f4 f5 f6 f7 f8 f9 f10 f11 f12 f13 f14 f15.
-                                    rec_ocl_ty_1 f1 f2 f3 f4 f5 f6
-                                                 f7 (K o f8) (\<lambda>_ _. f9) (\<lambda>_. f10) (\<lambda>_ _. f11) f12 f13 f14
-                                                 (K o f15))
+                                    rec_ocl_ty f1 f2 f3 f4 f5 f6
+                                               f7 (K o f8) (\<lambda>_ _. f9) (f10 o map_prod id snd) (\<lambda>_ _. f11) f12 f13 f14 f15)
   (b \<open>OclTy_base_void\<close>)
   (b \<open>OclTy_base_boolean\<close>)
   (b \<open>OclTy_base_integer\<close>)
@@ -204,13 +203,11 @@ definition "i_of_ocl_ty a b = (\<lambda>f1 f2 f3 f4 f5 f6 f7 f8 f9 f10 f11 f12 f
   (ap1 a (b \<open>OclTy_object\<close>) (i_of_ocl_ty_obj a b))
   (ar2 a (b \<open>OclTy_collection\<close>) (i_of_ocl_multiplicity a b (K i_of_unit)))
   (ar2 a (b \<open>OclTy_pair\<close>) id)
-  (ar1 a (b \<open>OclTy_binding\<close>))
+  (ap1 a (b \<open>OclTy_binding\<close>) (i_of_pair a b (i_of_option a b (i_of_string a b)) id))
   (ar2 a (b \<open>OclTy_arrow\<close>) id)
   (ap1 a (b \<open>OclTy_class_syn\<close>) (i_of_string a b))
   (ap1 a (b \<open>OclTy_enum\<close>) (i_of_string a b))
-  (ap1 a (b \<open>OclTy_raw\<close>) (i_of_string a b))
-  (* *)
-  (curry (i_of_pair a b (i_of_option a b (i_of_string a b)) id))"
+  (ap1 a (b \<open>OclTy_raw\<close>) (i_of_string a b))"
 
 definition "i_of_ocl_association_type a b = rec_ocl_association_type
   (b \<open>OclAssTy_native_attribute\<close>)
@@ -265,13 +262,11 @@ definition "i_of_ocl_ctxt a b f = ocl_ctxt_rec
     (i_of_list a b (i_of_ocl_ctxt_clause a b))
     (f a b))"
 
-definition "i_of_ocl_class a b = (\<lambda>f0 f1 f2 f3 f4. rec_ocl_class_1 (co2 K (ar3 a f0 f1 f2)) f3 (\<lambda>_ _. f4))
+definition "i_of_ocl_class a b = (\<lambda>f0 f1 f2 f3. rec_ocl_class (ap3 a f0 f1 f2 f3))
   (b \<open>OclClass\<close>)
     (i_of_string a b)
     (i_of_list a b (i_of_pair a b (i_of_string a b) (i_of_ocl_ty a b)))
-    (* *)
-    (b i_Nil)
-    (ar2 a (b i_Cons) id)"
+    (i_of_list a b snd)"
 
 definition "i_of_ocl_class_raw a b f = ocl_class_raw_rec
   (ap5 a (b (ext \<open>ocl_class_raw_ext\<close>))

@@ -54,7 +54,7 @@ ML{*
 structure Isabelle_Function_Fun =
 struct
   val _ =
-    Outer_Syntax.local_theory' @{command_spec "fun'"}
+    Outer_Syntax.local_theory' @{command_keyword fun'}
       "define general recursive functions (short version)"
       (Isabelle_Function_Common.function_parser 
         >> (fn (fixes, statements) => Function_Fun.add_fun_cmd fixes statements Function_Fun.fun_config))

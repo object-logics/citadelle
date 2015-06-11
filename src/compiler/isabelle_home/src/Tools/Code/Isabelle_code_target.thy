@@ -172,7 +172,7 @@ structure Data_code = Theory_Data
 val code_empty = ""
 
 val () =
-  Outer_Syntax.command @{command_spec "lazy_code_printing"} "declare dedicated printing for code symbols"
+  Outer_Syntax.command @{command_keyword lazy_code_printing} "declare dedicated printing for code symbols"
     (Isabelle_Code_Target.parse_symbol_pragmas (Code_Printer.parse_const_syntax) (Code_Printer.parse_tyco_syntax)
       Parse.string (Parse.minus >> K ()) (Parse.minus >> K ())
       (Parse.text -- Scan.optional (@{keyword "attach"} |-- Scan.repeat1 Parse.term) [])
@@ -184,7 +184,7 @@ fun apply_code_printing thy =
  |> (fn l => fold (fn Code_printing l => fold Code_Target.set_printings l) l thy)
 
 val () =
-  Outer_Syntax.command @{command_spec "apply_code_printing"} "apply dedicated printing for code symbols"
+  Outer_Syntax.command @{command_keyword apply_code_printing} "apply dedicated printing for code symbols"
     (Parse.$$$ "(" -- Parse.$$$ ")" >> K (Toplevel.theory apply_code_printing))
 
 fun reflect_ml source thy =
@@ -196,12 +196,12 @@ fun apply_code_printing_reflect thy =
     (case Symtab.lookup (Data_code.get thy) code_empty of SOME l => rev l | _ => [])
  |> (fn l => fold (fn Code_printing l =>
       fold (fn Code_Symbol.Module (_, l) =>
-                 fold (fn ("SML", SOME (txt, _)) => reflect_ml {delimited = false, text = txt, pos = Position.none}
+                 fold (fn ("SML", SOME (txt, _)) => reflect_ml (Input.source false txt (Position.none, Position.none))
                         | _ => I) l
              | _ => I) l) l thy)
 
 val () =
-  Outer_Syntax.command @{command_spec "apply_code_printing_reflect"} "apply dedicated printing for code symbols"
+  Outer_Syntax.command @{command_keyword apply_code_printing_reflect} "apply dedicated printing for code symbols"
     (Parse.ML_source >> (fn src => Toplevel.theory (apply_code_printing_reflect o reflect_ml src)))
 
 end

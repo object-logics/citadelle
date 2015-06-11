@@ -58,7 +58,7 @@ open ATP_Proof_Reconstruct
    prevent "Subgoal.FOCUS" from freezing the type variables. We don't do it for nonschematic facts
    "X" because this breaks a few proofs (in the rare and subtle case where a proof relied on
    extensionality not being applied) and brings few benefits. *)
-val has_tvar = exists_type (exists_subtype (fn TVar _ => true | _ => false)) o prop_of
+val has_tvar = exists_type (exists_subtype (fn TVar _ => true | _ => false)) o Thm.prop_of
 
 fun metis_method ((override_type_encs, lam_trans), ths) ctxt facts =
   let val (schem_facts, nonschem_facts) = List.partition has_tvar facts in

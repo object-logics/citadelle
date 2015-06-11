@@ -2563,7 +2563,7 @@ proof -
   apply(rule allI, rename_tac SS, rule impI)
   apply(drule all_def_to_all_int_)+
   apply(subst EQ_comp_fun_commute.fold_insert[where f = "(\<lambda>j r2. (r2->including\<^sub>S\<^sub>e\<^sub>t(j)))", OF including_commute])
-  apply(metis PairE)
+  apply(case_tac \<tau>', simp only:)
   apply(simp)+
   apply(rule invert_int, simp)
 

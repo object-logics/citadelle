@@ -471,7 +471,13 @@ fun export_code_cmd' seris tmp_export_code f_err filename_thy raw_cs thy =
           end) seris
       end)
 
-fun mk_term ctxt s = fst (Scan.pass (Context.Proof ctxt) Args.term (Outer_Syntax.scan Position.none s))
+fun scan thy pos str =
+  Source.of_string str
+  |> Symbol.source
+  |> Token.source (Thy_Header.get_keywords' thy) pos
+  |> Source.exhaust;
+
+fun mk_term ctxt s = fst (Scan.pass (Context.Proof ctxt) Args.term (scan ctxt Position.none s))
 
 fun mk_free ctxt s l =
   let val t_s = mk_term ctxt s in
@@ -646,7 +652,7 @@ fun m_of_ntheorem0 ctxt = let open OCL open OCL_overload val S = fn Thm_single t
        | (Thm_mult e1, Thm_mult e2) => Thm_mult (e1 RLN (1, e2)))
   | Thm_simplified (e1, e2) => Thm_single (asm_full_simplify (clear_simpset ctxt addsimps [S (m_of_ntheorem0 ctxt e2)]) (S (m_of_ntheorem0 ctxt e1)))
   | Thm_OF (e1, e2) => Thm_single ([S (m_of_ntheorem0 ctxt e2)] MRS (S (m_of_ntheorem0 ctxt e1)))
-  | Thm_where (nth, l) => Thm_single (Rule_Insts.where_rule ctxt (List.map (fn (var, expr) => ((To_string0 var, 0), s_of_expr expr)) l) [] (S (m_of_ntheorem0 ctxt nth)))
+  | Thm_where (nth, l) => Thm_single (Rule_Insts.where_rule ctxt (List.map (fn (var, expr) => (((To_string0 var, 0), Position.none), s_of_expr expr)) l) [] (S (m_of_ntheorem0 ctxt nth)))
   | Thm_symmetric e1 => 
       let val e2 = S (m_of_ntheorem0 ctxt (Thm_str (From.from_string "sym"))) in
         case m_of_ntheorem0 ctxt e1 of
@@ -685,8 +691,8 @@ fun m_of_tactic expr = let open OCL open Method open OCL_overload in case expr o
                                                              | SOME s => [m_of_ntheorem ctxt s])))
   | Tact_drule s => Basic (fn ctxt => drule ctxt 0 [m_of_ntheorem ctxt s])
   | Tact_erule s => Basic (fn ctxt => erule ctxt 0 [m_of_ntheorem ctxt s])
-  | Tact_elim s => Basic (fn ctxt => elim [m_of_ntheorem ctxt s])
-  | Tact_intro l => Basic (fn ctxt => intro (map (m_of_ntheorem ctxt) l))
+  | Tact_elim s => Basic (fn ctxt => elim ctxt [m_of_ntheorem ctxt s])
+  | Tact_intro l => Basic (fn ctxt => intro ctxt (map (m_of_ntheorem ctxt) l))
   | Tact_subst_l0 (asm, l, s) => Basic (fn ctxt => 
       SIMPLE_METHOD' ((if asm then
                          EqSubst.eqsubst_asm_tac
@@ -694,9 +700,9 @@ fun m_of_tactic expr = let open OCL open Method open OCL_overload in case expr o
                          EqSubst.eqsubst_tac) ctxt (map (fn s => case Int.fromString (To_string0 s) of
                                                                    SOME i => i) l) [m_of_ntheorem ctxt s]))
   | Tact_insert l => Basic (fn ctxt => insert (m_of_ntheorems_l ctxt l))
-  | Tact_plus t => Repeat1 (no_combinator_info, Then (no_combinator_info, List.map m_of_tactic t))
-  | Tact_option t => Try (no_combinator_info, Then (no_combinator_info, List.map m_of_tactic t))
-  | Tact_or t => Orelse (no_combinator_info, List.map m_of_tactic t)
+  | Tact_plus t => Combinator (no_combinator_info, Repeat1, [Combinator (no_combinator_info, Then, List.map m_of_tactic t)])
+  | Tact_option t => Combinator (no_combinator_info, Try, [Combinator (no_combinator_info, Then, List.map m_of_tactic t)])
+  | Tact_or t => Combinator (no_combinator_info, Orelse, List.map m_of_tactic t)
   | Tact_one (Simp_only l) => simp_tac (s_simp_only l)
   | Tact_one (Simp_add_del_split l) => simp_tac (s_simp_add_del_split l)
   | Tact_all (Simp_only l) => simp_all_tac (s_simp_only l)
@@ -707,7 +713,7 @@ fun m_of_tactic expr = let open OCL open Method open OCL_overload in case expr o
               ,(Splitter.add_split, List.map (Proof_Context.get_thm ctxt o To_string0) l_split)]
               ctxt)))
   | Tact_rename_tac l => Basic (K (SIMPLE_METHOD' (rename_tac (List.map To_string0 l))))
-  | Tact_case_tac e => Basic (fn ctxt => SIMPLE_METHOD' (Induct_Tacs.case_tac ctxt (s_of_expr e)))
+  | Tact_case_tac e => Basic (fn ctxt => SIMPLE_METHOD' (Induct_Tacs.case_tac ctxt (s_of_expr e) [] NONE))
   | Tact_blast n => Basic (case n of NONE => SIMPLE_METHOD' o blast_tac
                                    | SOME lim => fn ctxt => SIMPLE_METHOD' (depth_tac ctxt (To_nat lim)))
   | Tact_clarify => Basic (fn ctxt => (SIMPLE_METHOD' (fn i => CHANGED_PROP (clarify_tac ctxt i))))
@@ -730,7 +736,7 @@ fun perform_instantiation thy tycos vs f_eq add_def tac (*add_eq_thms*) =
     |> fold add_eq_thms tycos*)
     |-> K I
 
-fun then_tactic l = (Method.Then (Method.no_combinator_info, map m_of_tactic l), (Position.none, Position.none))
+fun then_tactic l = let open Method in (Combinator (no_combinator_info, Then, map m_of_tactic l), (Position.none, Position.none)) end
 
 fun local_terminal_proof o_by = let open OCL in case o_by of
    Tacl_done => Proof.local_done_proof
@@ -767,7 +773,7 @@ val apply_results = let open OCL_overload
                          end)
                      | OCL.App_let (e1, e2) => proof_show (Proof.let_bind_cmd [([s_of_expr e1], s_of_expr e2)])
                      | OCL.App_have0 (n, b, e, e_pr) => proof_show (fn st => st
-                         |> Isar_Cmd.have [( (To_sbinding n, if b then [Args.src ("simp", Position.none) []] else [])
+                         |> Isar_Cmd.have [( (To_sbinding n, if b then [Token.src ("simp", Position.none) []] else [])
                                            , [(s_of_expr e, [])])] true
                          |> local_terminal_proof e_pr)
                      | OCL.App_fix_let (l, l_let, o_exp, _) =>
@@ -784,10 +790,17 @@ end
 
 structure Shallow_main = struct open Shallow_conv open Shallow_ml
 fun OCL_main_thy in_theory in_local = let open OCL open OCL_overload in (*let val f = *)fn
-  Theory_dataty (Datatype (n, l)) => in_theory
-   ((snd oo Datatype.add_datatype_cmd Datatype_Aux.default_config)
-      [((To_sbinding n, [], NoSyn),
-       List.map (fn (n, l) => (To_sbinding n, List.map s_of_rawty l, NoSyn)) l)])
+  Theory_dataty (Datatype (n, l)) => in_local
+   (Isabelle_BNF_FP_Def_Sugar.co_datatype_cmd
+      BNF_Util.Least_FP
+      BNF_LFP.construct_lfp
+      (Ctr_Sugar.default_ctr_options_cmd,
+       [( ( ( (([], To_sbinding n), NoSyn)
+            , List.map (fn (n, l) => ( ( (To_binding "", To_sbinding n)
+                                       , List.map (fn s => (To_binding "", s_of_rawty s)) l)
+                                     , NoSyn)) l)
+          , (To_binding "", To_binding ""))
+        , [])]))
 | Theory_ty_synonym (Type_synonym00 (n, v, l)) => in_theory
    (fn thy =>
      let val s_bind = To_sbinding n in
@@ -809,7 +822,7 @@ fun OCL_main_thy in_theory in_local = let open OCL open OCL_overload in (*let va
            (NONE, ((To_binding (To_string0 n_def ^ "_" ^ name ^ "_def"), []), s_of_expr expr)) false thy in
          (ty, thy)
         end)
-       (fn ctxt => fn thms => Class.intro_classes_tac [] THEN ALLGOALS (Proof_Context.fact_tac ctxt thms))
+       (fn ctxt => fn thms => Class.intro_classes_tac ctxt [] THEN ALLGOALS (Proof_Context.fact_tac ctxt thms))
      end)
 | Theory_defs_overloaded (Defs_overloaded (n, e)) => in_theory
    (Isar_Cmd.add_defs ((false, true), [((To_sbinding n, s_of_expr e), [])]))
@@ -832,14 +845,14 @@ fun OCL_main_thy in_theory in_local = let open OCL open OCL_overload in (*let va
     end
 | Theory_lemmas_simp (Lemmas_simp_opt (simp, s, l)) => in_local
    (fn lthy => (snd o Specification.theorems Thm.lemmaK
-      [((To_sbinding s, List.map (fn s => Attrib.check_src lthy (Args.src (s, Position.none) []))
+      [((To_sbinding s, List.map (fn s => Attrib.check_src lthy (Token.src (s, Position.none) []))
                           (if simp then ["simp", "code_unfold"] else [])),
         List.map (fn x => ([m_of_ntheorem lthy x], [])) l)]
       []
       false) lthy)
 | Theory_lemmas_simp (Lemmas_simps (s, l)) => in_local
    (fn lthy => (snd o Specification.theorems Thm.lemmaK
-      [((To_sbinding s, List.map (fn s => Attrib.check_src lthy (Args.src (s, Position.none) []))
+      [((To_sbinding s, List.map (fn s => Attrib.check_src lthy (Token.src (s, Position.none) []))
                           ["simp", "code_unfold"]),
         List.map (fn x => (Proof_Context.get_thms lthy (To_string0 x), [])) l)]
       []
@@ -858,7 +871,7 @@ fun OCL_main_thy in_theory in_local = let open OCL open OCL_overload in (*let va
         |> Specification.theorem_cmd Thm.lemmaK NONE (K I)
              (To_sbinding n, [])
              []
-             (List.map (fn (n, (b, e)) => Element.Assumes [((To_sbinding n, if b then [Args.src ("simp", Position.none) []] else []), [(s_of_expr e, [])])]) l_spec)
+             (List.map (fn (n, (b, e)) => Element.Assumes [((To_sbinding n, if b then [Token.src ("simp", Position.none) []] else []), [(s_of_expr e, [])])]) l_spec)
              (Element.Shows [((@{binding ""}, []),[(s_of_expr concl, [])])])
              false
         |> fold apply_results l_apply
@@ -874,7 +887,7 @@ fun OCL_main_thy in_theory in_local = let open OCL open OCL_overload in (*let va
                                      [((To_sbinding n, []), [s_of_expr e])])
 | Theory_section_title _ => in_theory I
 | Theory_text _ => in_theory I
-| Theory_ml ml => in_theory (Code_printing.reflect_ml {delimited = false, text = case ml of Ml ml => s_of_sexpr ml, pos = Position.none})
+| Theory_ml ml => in_theory (Code_printing.reflect_ml (Input.source false (case ml of Ml ml => s_of_sexpr ml) (Position.none, Position.none)))
 | Theory_thm (Thm thm) => in_local
    (fn lthy =>
     let val () = writeln (Pretty.string_of (Proof_Context.pretty_fact lthy ("", List.map (m_of_ntheorem lthy) thm))) in
@@ -1046,7 +1059,7 @@ subsection{* ... *}
 
 ML{*
 val () = let open Generation_mode in
-  Outer_Syntax.command @{command_spec "generation_syntax"} "set the generating list"
+  Outer_Syntax.command @{command_keyword generation_syntax} "set the generating list"
     ((   mode >> (fn x => SOME [x])
       || parse_l' mode >> SOME
       || @{keyword "deep"} -- @{keyword "flush_all"} >> K NONE) >>
@@ -1199,14 +1212,14 @@ structure USE_parse = struct
   and use_type x = use_type_gen type_object x
 
   val use_prop =    (optional (optional (Parse.binding >> From.from_binding) --| Parse.$$$ ":") >> (fn NONE => NONE | SOME x => x))
-                 -- Parse.term --| optional Parse.semicolon >> (fn (n, e) => fn from_expr => OCL.OclProp_ctxt (n, from_expr e))
+                 -- Parse.term --| optional (Parse.$$$ ";") >> (fn (n, e) => fn from_expr => OCL.OclProp_ctxt (n, from_expr e))
 
   (* *)
 
   val association_end =
        type_object
     -- category
-    --| optional Parse.semicolon
+    --| optional (Parse.$$$ ";")
 
   val association = optional @{keyword "Between"} |-- Scan.optional (repeat2 association_end) []
 
@@ -1232,7 +1245,7 @@ structure USE_parse = struct
               (      (@{keyword "Pre"} || @{keyword "Post"})
                   -- use_prop >> USE_context_pre_post
                || invariant >> USE_context_invariant)
-        --| optional Parse.semicolon) >>
+        --| optional (Parse.$$$ ";")) >>
               (fn ((name_fun, ty), expr) => fn from_expr =>
                 OCL.Ctxt_pp
                   (OCL.Ocl_ctxt_pre_post_ext
@@ -1248,7 +1261,7 @@ structure USE_parse = struct
   val class =
         optional @{keyword "Attributes"}
     |-- Scan.repeat (Parse.binding --| colon -- use_type
-                     --| optional Parse.semicolon)
+                     --| optional (Parse.$$$ ";"))
     -- context
 
   datatype use_classDefinition = USE_class | USE_class_abstract
@@ -1337,7 +1350,7 @@ subsection{* Outer Syntax: enum *}
 
 ML{*
 val () =
-  outer_syntax_command @{mk_string} @{command_spec "Enum"} ""
+  outer_syntax_command @{mk_string} @{command_keyword Enum} ""
     (Parse.binding -- parse_l1' Parse.binding)
     (fn (n1, n2) => 
       K (OCL.OclAstEnum (OCL.OclEnum (From.from_binding n1, From.from_list From.from_binding n2))))
@@ -1362,8 +1375,8 @@ local
         | USE_class_synonym (n1, n2) => 
             OCL.OclAstClassSynonym (OCL.OclClassSynonym (From.from_binding n1, n2)))
 in
-val () = mk_classDefinition USE_class @{command_spec "Class"}
-val () = mk_classDefinition USE_class_abstract @{command_spec "Abstract_class"}
+val () = mk_classDefinition USE_class @{command_keyword Class}
+val () = mk_classDefinition USE_class_abstract @{command_keyword Abstract_class}
 end
 *}
 
@@ -1381,9 +1394,9 @@ local
       (fn l => fn _ =>
         OCL.OclAstAssociation (Outer_syntax_Association.make ass_ty l))
 in
-val () = mk_associationDefinition OCL.OclAssTy_association @{command_spec "Association"}
-val () = mk_associationDefinition OCL.OclAssTy_composition @{command_spec "Composition"}
-val () = mk_associationDefinition OCL.OclAssTy_aggregation @{command_spec "Aggregation"}
+val () = mk_associationDefinition OCL.OclAssTy_association @{command_keyword Association}
+val () = mk_associationDefinition OCL.OclAssTy_composition @{command_keyword Composition}
+val () = mk_associationDefinition OCL.OclAssTy_aggregation @{command_keyword Aggregation}
 end
 *}
 
@@ -1412,8 +1425,8 @@ local
                                                                           l_ass
                                           , Outer_syntax_Class.make from_expr (abstract = USE_associationclass_abstract) ty_object attribute oper)))
 in
-val () = mk_associationClassDefinition USE_associationclass @{command_spec "Associationclass"}
-val () = mk_associationClassDefinition USE_associationclass_abstract @{command_spec "Abstract_associationclass"}
+val () = mk_associationClassDefinition USE_associationclass @{command_keyword Associationclass}
+val () = mk_associationClassDefinition USE_associationclass_abstract @{command_keyword Abstract_associationclass}
 end
 *}
 
@@ -1424,7 +1437,7 @@ local
  open USE_parse
 in
 val () =
-  outer_syntax_command2 @{mk_string} @{command_spec "Context"} ""
+  outer_syntax_command2 @{mk_string} @{command_keyword Context} ""
     (optional (Parse.list1 Parse.binding --| colon)
      -- Parse.binding
      -- context)
@@ -1445,7 +1458,7 @@ subsection{* Outer Syntax: End *}
 
 ML{*
 val () =
-  outer_syntax_command0 @{mk_string} @{command_spec "End"} "Class generation"
+  outer_syntax_command0 @{mk_string} @{command_keyword End} "Class generation"
     (Scan.optional ( Parse.$$$ "[" -- Parse.reserved "forced" -- Parse.$$$ "]" >> K true
                     || Parse.$$$ "!" >> K true) false)
     (fn b => fn _ =>
@@ -1459,7 +1472,7 @@ subsection{* Outer Syntax: BaseType, Instance, State *}
 
 ML{*
 val () =
-  outer_syntax_command @{mk_string} @{command_spec "BaseType"} ""
+  outer_syntax_command @{mk_string} @{command_keyword BaseType} ""
     (parse_l' USE_parse.term_base)
     (K o OCL.OclAstDefBaseL o OCL.OclDefBase)
 
@@ -1467,12 +1480,12 @@ local
   open USE_parse
 in
 val () =
-  outer_syntax_command @{mk_string} @{command_spec "Instance"} ""
+  outer_syntax_command @{mk_string} @{command_keyword Instance} ""
     (Scan.optional (parse_instance -- Scan.repeat (optional @{keyword "and"} |-- parse_instance) >> (fn (x, xs) => x :: xs)) [])
     (OCL.OclAstInstance oo get_oclinst)
 
 val () =
-  outer_syntax_command @{mk_string} @{command_spec "State"} ""
+  outer_syntax_command @{mk_string} @{command_keyword State} ""
     (USE_parse.optional (paren @{keyword "shallow"}) -- Parse.binding --| @{keyword "="}
      -- state_parse)
      (fn ((is_shallow, name), l) => fn thy =>
@@ -1489,7 +1502,7 @@ local
   open USE_parse
 in
 val () =
-  outer_syntax_command @{mk_string} @{command_spec "PrePost"} ""
+  outer_syntax_command @{mk_string} @{command_keyword PrePost} ""
     (USE_parse.optional (paren @{keyword "shallow"})
      -- USE_parse.optional (Parse.binding --| @{keyword "="})
      -- state_pp_parse

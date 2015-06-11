@@ -50,9 +50,21 @@ session "OCL-dirty" in "src" = HOL +
     "../src/UML_Main"
     "../examples/Employee_Model/Analysis/Analysis_OCL"
     "../examples/Employee_Model/Design/Design_OCL"
-  files
-    "document/root.tex"
-    "document/root.bib"
+  document_files
+    "conclusion.tex"
+    "figures/AbstractSimpleChair.pdf"
+    "figures/jedit.png"
+    "figures/pdf.png"
+    "figures/person.png"
+    "figures/pre-post.pdf"
+    "fixme.sty"
+    "hol-ocl-isar.sty"
+    "introduction.tex"
+    "lstisar.sty"
+    "omg.sty"
+    "prooftree.sty"
+    "root.bib"
+    "root.tex"
 
 
 session "OCL" in "src" = HOL +
@@ -65,9 +77,21 @@ session "OCL" in "src" = HOL +
   theories
     "../src/UML_Main"
     "../examples/Employee_Model/Analysis/Analysis_OCL"
-  files
-    "document/root.tex"
-    "document/root.bib"
+  document_files
+    "conclusion.tex"
+    "figures/AbstractSimpleChair.pdf"
+    "figures/jedit.png"
+    "figures/pdf.png"
+    "figures/person.png"
+    "figures/pre-post.pdf"
+    "fixme.sty"
+    "hol-ocl-isar.sty"
+    "introduction.tex"
+    "lstisar.sty"
+    "omg.sty"
+    "prooftree.sty"
+    "root.bib"
+    "root.tex"
 
 
 (******************************************************)
@@ -107,9 +131,21 @@ session "OCL-all-dirty" in "src" = HOL +
     "../src/compiler/OCL_compiler_rail"
 
     "../examples/archive/OCL_lib_Gogolla_challenge_integer"
-  files
-    "document/root.tex"
-    "document/root.bib"
+  document_files
+    "conclusion.tex"
+    "figures/AbstractSimpleChair.pdf"
+    "figures/jedit.png"
+    "figures/pdf.png"
+    "figures/person.png"
+    "figures/pre-post.pdf"
+    "fixme.sty"
+    "hol-ocl-isar.sty"
+    "introduction.tex"
+    "lstisar.sty"
+    "omg.sty"
+    "prooftree.sty"
+    "root.bib"
+    "root.tex"
 
 
 (******************************************************)
@@ -121,9 +157,21 @@ session "FOCL" in "src" = HOL +
            show_question_marks = false]
   theories
     UML_OCL
-  files
-    "document/root.tex"
-    "document/root.bib"
+  document_files
+    "conclusion.tex"
+    "figures/AbstractSimpleChair.pdf"
+    "figures/jedit.png"
+    "figures/pdf.png"
+    "figures/person.png"
+    "figures/pre-post.pdf"
+    "fixme.sty"
+    "hol-ocl-isar.sty"
+    "introduction.tex"
+    "lstisar.sty"
+    "omg.sty"
+    "prooftree.sty"
+    "root.bib"
+    "root.tex"
 
 session "FOCL-dirty" in "src" = HOL +
   description {* Featherweight OCL (Compiler) *}
@@ -132,6 +180,18 @@ session "FOCL-dirty" in "src" = HOL +
            show_question_marks = false]
   theories
     UML_OCL
-  files
-    "document/root.tex"
-    "document/root.bib"
+  document_files
+    "conclusion.tex"
+    "figures/AbstractSimpleChair.pdf"
+    "figures/jedit.png"
+    "figures/pdf.png"
+    "figures/person.png"
+    "figures/pre-post.pdf"
+    "fixme.sty"
+    "hol-ocl-isar.sty"
+    "introduction.tex"
+    "lstisar.sty"
+    "omg.sty"
+    "prooftree.sty"
+    "root.bib"
+    "root.tex"

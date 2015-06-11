@@ -62,12 +62,12 @@ structure Data_code = Theory_Data
 val code_empty = ""
 
 val _ =
-  Outer_Syntax.markup_command Thy_Output.MarkupEnv
-    @{command_spec "lazy_text"} ""
+  Outer_Syntax.command 
+    @{command_keyword lazy_text} ""
     (Parse.opt_target -- Parse.document_source
      >> (fn (_, code) =>
        let val _ = writeln (@{make_string} code) in
-            Toplevel.theory (Data_code.map (Symtab.map_default (code_empty, []) (fn l => Code_printing (#text code) :: l)))
+            Toplevel.theory (Data_code.map (Symtab.map_default (code_empty, []) (fn l => Code_printing (Input.source_content code) :: l)))
        end))
 
 fun of_text s = 
@@ -88,11 +88,11 @@ fun apply_code_printing thy =
     end)
 
 val () =
-  Outer_Syntax.command @{command_spec "apply_text"} ""
+  Outer_Syntax.command @{command_keyword apply_text} ""
     (Parse.$$$ "(" -- Parse.$$$ ")" >> K (Toplevel.theory apply_code_printing))
 
 val () =
-  Outer_Syntax.command @{command_spec "reset_text"} ""
+  Outer_Syntax.command @{command_keyword reset_text} ""
     (Parse.$$$ "(" -- Parse.$$$ ")" >> K (Toplevel.theory (Data_code.map (Symtab.map_default (code_empty, []) (fn _ => [])))))
 *}
 

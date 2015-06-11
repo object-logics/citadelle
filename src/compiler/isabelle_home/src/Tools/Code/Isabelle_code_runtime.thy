@@ -59,23 +59,28 @@ open Basic_Code_Thingol;
 
 (* technical prerequisites *)
 
+
 val trace = Attrib.setup_config_bool @{binding "code_runtime_trace"} (K false);
 
 fun exec ctxt verbose code =
   (if Config.get ctxt trace then tracing code else ();
   ML_Context.exec (fn () => Secure.use_text ML_Env.local_context (0, "generated code") verbose code));
 
+
+
 (* evaluation into target language values *)
+
+
 
 (* evaluation for truth or nothing *)
 
 
-(** instrumentalization **)
 
-fun evaluation_code ctxt module_name tycos consts all_public =
+(** full static evaluation -- still with limited coverage! **)
+
+fun evaluation_code ctxt module_name program tycos consts all_public =
   let
     val thy = Proof_Context.theory_of ctxt;
-    val program = Code_Thingol.consts_program thy consts;
     val (ml_modules, target_names) =
       Code_Target.produce_code_for ctxt
         Code_Runtime.target NONE module_name [] program all_public (map Constant consts @ map Type_Constructor tycos);
@@ -94,9 +99,12 @@ fun evaluation_code ctxt module_name tycos consts all_public =
   in (ml_code, (tycos_map, consts_map)) end;
 
 
-(* by antiquotation *)
 
-(* reflection support *)
+(** code antiquotation **)
+
+
+
+(** reflection support **)
 
 fun check_datatype thy tyco some_consts =
   let
@@ -169,7 +177,9 @@ fun gen_code_reflect prep_type prep_const all_public raw_datatypes raw_functions
     val (tycos, constrs) = map_split (uncurry (check_datatype thy)) datatypes
       |> apsnd flat;
     val functions = map (prep_const thy) raw_functions;
-    val result = evaluation_code ctxt module_name tycos (constrs @ functions) all_public
+    val consts = constrs @ functions;
+    val program = Code_Thingol.consts_program (Proof_Context.theory_of ctxt) consts;
+    val result = evaluation_code ctxt module_name program tycos consts all_public
       |> (apsnd o apsnd) (chop (length constrs));
   in
     thy
@@ -191,7 +201,7 @@ val parse_datatype =
 in
 
 val _ =
-  Outer_Syntax.command @{command_spec "code_reflect'"}
+  Outer_Syntax.command @{command_keyword code_reflect'}
     "enrich runtime environment with generated code"
     (Scan.optional (@{keyword "open"} |-- Scan.succeed true) false --
      Parse.name -- Scan.optional (@{keyword "datatypes"} |-- Parse.!!!  (parse_datatype

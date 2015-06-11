@@ -58,11 +58,13 @@ val quick_dirty = false
      true: "fun_quick" behaves as "fun", but it proves completeness and termination with "sorry" *)
 
 val proof_by_patauto = Proof.global_terminal_proof
-  ( ( Method.Then
-        ( Method.no_combinator_info
-        , [ Method.Basic (fn ctxt => SIMPLE_METHOD (Pat_Completeness.pat_completeness_tac ctxt 1) )
-          , Method.Basic (fn ctxt => SIMPLE_METHOD (auto_tac (ctxt addsimps [])))])
-    , (Position.none, Position.none))
+  ( let open Method in
+    ( Combinator
+        ( no_combinator_info
+        , Then
+        , [ Basic (fn ctxt => SIMPLE_METHOD (Pat_Completeness.pat_completeness_tac ctxt 1) )
+          , Basic (fn ctxt => SIMPLE_METHOD (auto_tac (ctxt addsimps [])))])
+    , (Position.none, Position.none)) end
   , NONE)
 val proof_by_sorry = Proof.global_skip_proof true
 
@@ -84,8 +86,8 @@ fun mk_fun quick_dirty cmd_spec tac =
           else
             fn ((config, fixes), statements) => Function_Fun.add_fun_cmd fixes statements config))
 
-val () = mk_fun quick_dirty @{command_spec "fun_quick"} proof_by_sorry
-val () = mk_fun true @{command_spec "fun_sorry"} proof_by_patauto
+val () = mk_fun quick_dirty @{command_keyword fun_quick} proof_by_sorry
+val () = mk_fun true @{command_keyword fun_sorry} proof_by_patauto
 end
 *}
 
