@@ -367,7 +367,7 @@ val compiler = let open Export_code_env in
                   [ "val " ^ arg ^ " = XML.content_of (YXML.parse_body (@{make_string} (" ^ ml_module ^ "." ^
                     mk_free (Proof_Context.init_global thy) Isabelle.argument_main ([]: (string * string) list) ^ ")))"
                   , "use \"" ^ SML.Filename.function ml_ext_ml ^ "\""
-                  , "ML_Context.eval_source (ML_Compiler.verbose false ML_Compiler.flags) { delimited = false, text = \"let open " ^ ml_module ^ " in " ^ Isabelle.function ^ " (\" ^ " ^ arg ^ " ^ \") end\", pos = Position.none }" ]
+                  , "ML_Context.eval_source (ML_Compiler.verbose false ML_Compiler.flags) (Input.source false (\"let open " ^ ml_module ^ " in " ^ Isabelle.function ^ " (\" ^ " ^ arg ^ " ^ \") end\") (Position.none, Position.none) )" ]
                   end
              , [ "end" ]]))
          end
