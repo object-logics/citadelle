@@ -561,7 +561,7 @@ definition "print_examp_instance_defassoc = (\<lambda> OclInstance l \<Rightarro
 definition "print_examp_instance_defassoc_typecheck_var = (\<lambda> OclInstance l \<Rightarrow>
  (let b = \<lambda>s. Expr_basic [s]
     ; l_var = List.fold (\<lambda>ocli. case Inst_name ocli of None \<Rightarrow> id | Some n \<Rightarrow> Cons n) l []
-    ; n = isub_of_str (String_concatWith \<open>_\<close> l_var) in
+    ; n = \<open>_\<close> @@ String_concatWith \<open>_\<close> l_var in
   Pair
     [ Thy_definition_hol
         (Definition
@@ -734,7 +734,7 @@ definition "print_examp_instance = (\<lambda> OclInstance l \<Rightarrow> \<lamb
 definition "print_examp_def_st_typecheck_var = (\<lambda> OclDefSt name _ \<Rightarrow> 
  (let b = \<lambda>s. Expr_basic [s]
     ; l_var = [name]
-    ; n = isub_of_str (String_concatWith \<open>_\<close> l_var) in
+    ; n = \<open>_\<close> @@ String_concatWith \<open>_\<close> l_var in
   Pair
     [ Thy_definition_hol
         (Definition
