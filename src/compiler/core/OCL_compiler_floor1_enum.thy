@@ -51,7 +51,6 @@ section{* Translation of AST *}
 
 definition "print_enum = (\<lambda> OclEnum name_ty l \<Rightarrow> Pair
  (let a = \<lambda>f x. Expr_apply f [x]
-    ; a' = Expr_apply
     ; b = \<lambda>s. Expr_basic [s]
     ; option = Ty_apply_paren \<open>\<langle>\<close> \<open>\<rangle>\<^sub>\<bottom>\<close>
     ; name_ty_base = name_ty @@ isub_of_str \<open>base\<close>

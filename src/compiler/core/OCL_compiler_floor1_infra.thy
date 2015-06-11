@@ -54,7 +54,6 @@ subsection{* infrastructure *}
 definition "print_infra_enum_synonym _ ocl = (\<lambda>f. (f (fst (find_class_ass ocl)), ocl))
  (List_flatten o List_map
    (\<lambda> OclAstClassSynonym (OclClassSynonym n1 n2) \<Rightarrow>
-        let option = Ty_apply_paren \<open>\<langle>\<close> \<open>\<rangle>\<^sub>\<bottom>\<close> in
         [ Thy_ty_synonym (Type_synonym (pref_ty_syn n1) (Ty_base (str_hol_of_ty_all (\<lambda>a _. a) id n2))) ]
     | _ \<Rightarrow> []))"
 
