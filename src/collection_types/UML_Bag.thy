@@ -3,10 +3,10 @@
  *                       for the OMG Standard.
  *                       http://www.brucker.ch/projects/hol-testgen/
  *
- * UML_Sequence.thy --- Library definitions.
+ * UML_Bag.thy --- Library definitions.
  * This file is part of HOL-TestGen.
  *
- * Copyright (c) 2012-2015 Université Paris-Sud, France
+ * Copyright (c) 2013-2015 Université Paris-Sud, France
  *               2013-2015 IRT SystemX, France
  *
  * All rights reserved.
@@ -48,7 +48,7 @@ imports "../basic_types/UML_Boolean"
 begin
 
 no_notation None ("\<bottom>")
-section{* Collection Type Sequence: Operations *}
+section{* Collection Type Bag: Operations *}
 
 subsection{* Definition: Strict Equality \label{sec:seq-strict-equality}*}
 
@@ -74,17 +74,17 @@ definition mtBag ::"('\<AA>,'\<alpha>::null) Bag"  ("Bag{}")
 where     "Bag{} \<equiv> (\<lambda> \<tau>.  Abs_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor>\<lfloor>\<lambda>_. 0::nat\<rfloor>\<rfloor> )"
 
 
-lemma mtSequence_defined[simp,code_unfold]:"\<delta>(Bag{}) = true"
+lemma mtBag_defined[simp,code_unfold]:"\<delta>(Bag{}) = true"
 apply(rule ext, auto simp: mtBag_def defined_def null_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def
                            bot_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def bot_fun_def null_fun_def)
 by(simp_all add: Abs_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inject bot_option_def null_option_def)
 
-lemma mtSequence_valid[simp,code_unfold]:"\<upsilon>(Bag{}) = true"
-apply(rule ext,auto simp: mtBag_def valid_def null_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def
+lemma mtBag_valid[simp,code_unfold]:"\<upsilon>(Bag{}) = true"
+apply(rule ext,auto simp: mtBag_def valid_def
                           bot_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def bot_fun_def null_fun_def)
 by(simp_all add: Abs_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inject bot_option_def null_option_def)
 
-lemma mtSequence_rep_set: "\<lceil>\<lceil>Rep_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e (Bag{} \<tau>)\<rceil>\<rceil> = (\<lambda> _. 0)"
+lemma mtBag_rep_set: "\<lceil>\<lceil>Rep_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e (Bag{} \<tau>)\<rceil>\<rceil> = (\<lambda> _. 0)"
  apply(simp add: mtBag_def, subst Abs_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inverse)
 by(simp add: bot_option_def)+
 
@@ -181,7 +181,7 @@ proof -
       simp_all add: bot_option_def null_option_def)+
 qed
 
-subsection{* Definition: At *}
+subsection{* Definition: Count *}
 definition OclCount   :: "[('\<AA>,'\<alpha>::null) Bag,('\<AA>,'\<alpha>) val] \<Rightarrow> ('\<AA>) Integer"
 where     "OclCount x y = (\<lambda> \<tau>. if (\<delta> x) \<tau> = true \<tau> \<and> (\<delta> y) \<tau> = true \<tau>
                              then  \<lfloor>\<lfloor>int(\<lceil>\<lceil>Rep_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e (x \<tau>)\<rceil>\<rceil> (y \<tau>))\<rfloor>\<rfloor> 
@@ -192,16 +192,17 @@ notation   OclCount ("_->count\<^sub>B\<^sub>a\<^sub>g'(_')")
 
 subsection{* Definition: Iterate *}
 
-definition OclIterate :: "[('\<AA>,'\<alpha>::null) Sequence,('\<AA>,'\<beta>::null)val,
+definition OclIterate :: "[('\<AA>,'\<alpha>::null) Bag,('\<AA>,'\<beta>::null)val,
                            ('\<AA>,'\<alpha>)val\<Rightarrow>('\<AA>,'\<beta>)val\<Rightarrow>('\<AA>,'\<beta>)val] \<Rightarrow> ('\<AA>,'\<beta>)val"
-where     "OclIterate S A F = (\<lambda> \<tau>. if (\<delta> S) \<tau> = true \<tau> \<and> (\<upsilon> A) \<tau> = true \<tau> 
-                                    then (foldr (F) (map (\<lambda>a \<tau>. a) \<lceil>\<lceil>Rep_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e (S \<tau>)\<rceil>\<rceil>))(A)\<tau>
+where     "OclIterate S A F = (\<lambda> \<tau>. let Rep = {(x0, y). y < \<lceil>\<lceil>Rep_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e (S \<tau>)\<rceil>\<rceil> x0 } in
+                                    if (\<delta> S) \<tau> = true \<tau> \<and> (\<upsilon> A) \<tau> = true \<tau> \<and> finite Rep
+                                    then (Finite_Set.fold (F o (\<lambda>a \<tau>. a) o fst) A Rep)\<tau>
                                     else \<bottom>)"
 syntax  
-  "_OclIterateSeq"  :: "[('\<AA>,'\<alpha>::null) Sequence, idt, idt, '\<alpha>, '\<beta>] => ('\<AA>,'\<gamma>)val"
-                        ("_ ->iterate\<^sub>S\<^sub>e\<^sub>q'(_;_=_ | _')" (*[71,100,70]50*))
+  "_OclIterateBag"  :: "[('\<AA>,'\<alpha>::null) Bag, idt, idt, '\<alpha>, '\<beta>] => ('\<AA>,'\<gamma>)val"
+                        ("_ ->iterate\<^sub>B\<^sub>a\<^sub>g'(_;_=_ | _')" (*[71,100,70]50*))
 translations
-  "X->iterate\<^sub>S\<^sub>e\<^sub>q(a; x = A | P)" == "CONST OclIterate X A (%a. (% x. P))"
+  "X->iterate\<^sub>B\<^sub>a\<^sub>g(a; x = A | P)" == "CONST OclIterate X A (%a. (% x. P))"
 
 (*TODO Locale - Equivalent*)  
 
@@ -266,8 +267,8 @@ subsection{* Definition: Any *}
 
 definition "OclANY x = (\<lambda> \<tau>.
   if x \<tau> = invalid \<tau> then
-    \<bottom>
-  else
+                            \<bottom>
+                          else
     case drop (drop (Rep_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e (x \<tau>))) of [] \<Rightarrow> \<bottom>
                                               | l \<Rightarrow> hd l)"
 notation   OclANY   ("_->any\<^sub>S\<^sub>e\<^sub>q'(')")
