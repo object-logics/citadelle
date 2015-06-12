@@ -246,33 +246,38 @@ syntax
   "_OclSelectSeq" :: "[('\<AA>,'\<alpha>::null) Sequence,id,('\<AA>)Boolean] \<Rightarrow> '\<AA> Boolean"  ("(_)->select\<^sub>S\<^sub>e\<^sub>q'(_|_')")
 translations
   "X->select\<^sub>S\<^sub>e\<^sub>q(x | P)" == "CONST UML_Sequence.OclSelect X (%x. P)"
-
+*)
 
 subsection{* Definition: Size *}
-definition OclSize     :: "[('\<AA>,'\<alpha>::null)Sequence]\<Rightarrow>('\<AA>)Integer" ("(_)->size\<^sub>S\<^sub>e\<^sub>q'(')")
-where     "OclSize S = (S->iterate\<^sub>S\<^sub>e\<^sub>q(b; x = \<zero> | x +\<^sub>i\<^sub>n\<^sub>t \<one> ))"
+definition OclSize     :: "('\<AA>,'\<alpha>::null)Bag \<Rightarrow> '\<AA> Integer"
+where     "OclSize x = (\<lambda> \<tau>. if (\<delta> x) \<tau> = true \<tau> \<and> finite({y. \<lceil>\<lceil>Rep_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e (x \<tau>)\<rceil>\<rceil> y \<noteq> 0})
+                             then \<lfloor>\<lfloor> int(card ({(x0, y). y < \<lceil>\<lceil>Rep_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e (x \<tau>)\<rceil>\<rceil> x0 })) \<rfloor>\<rfloor>
+                             else \<bottom> )"
+notation  (* standard ascii syntax *)
+           OclSize        ("_->size\<^sub>B\<^sub>a\<^sub>g'(')" (*[66]*))
+
 
 subsection{* Definition: IsEmpty *}
-definition OclIsEmpty   :: "('\<AA>,'\<alpha>::null) Sequence \<Rightarrow> '\<AA> Boolean"
+definition OclIsEmpty   :: "('\<AA>,'\<alpha>::null) Bag \<Rightarrow> '\<AA> Boolean"
 where     "OclIsEmpty x =  ((\<upsilon> x and not (\<delta> x)) or ((OclSize x) \<doteq> \<zero>))"
-notation   OclIsEmpty     ("_->isEmpty\<^sub>S\<^sub>e\<^sub>q'(')" (*[66]*))
+notation   OclIsEmpty     ("_->isEmpty\<^sub>B\<^sub>a\<^sub>g'(')" (*[66]*))
 
 subsection{* Definition: NotEmpty *}
 
-definition OclNotEmpty   :: "('\<AA>,'\<alpha>::null) Sequence \<Rightarrow> '\<AA> Boolean"
+definition OclNotEmpty   :: "('\<AA>,'\<alpha>::null) Bag \<Rightarrow> '\<AA> Boolean"
 where     "OclNotEmpty x =  not(OclIsEmpty x)"
-notation   OclNotEmpty    ("_->notEmpty\<^sub>S\<^sub>e\<^sub>q'(')" (*[66]*))
+notation   OclNotEmpty    ("_->notEmpty\<^sub>B\<^sub>a\<^sub>g'(')" (*[66]*))
 
 subsection{* Definition: Any *}
 
-definition "OclANY x = (\<lambda> \<tau>.
-  if x \<tau> = invalid \<tau> then
+definition  OclANY :: "('\<AA>,'\<alpha>::null) Bag \<Rightarrow> ('\<AA>,'\<alpha>::null) val"
+where      "OclANY x = (\<lambda> \<tau>.
+                          if x \<tau> = invalid \<tau> \<and> OclNotEmpty x \<tau> = true \<tau> then
                             \<bottom>
                           else
-    case drop (drop (Rep_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e (x \<tau>))) of [] \<Rightarrow> \<bottom>
-                                              | l \<Rightarrow> hd l)"
-notation   OclANY   ("_->any\<^sub>S\<^sub>e\<^sub>q'(')")
-
+                            (SOME x0. (\<lceil>\<lceil>Rep_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e (x \<tau>)\<rceil>\<rceil> x0) \<noteq> 0))"
+notation   OclANY   ("_->any\<^sub>B\<^sub>a\<^sub>g'(')")
+(*
 subsection{* Logical Properties *}
 
 subsection{* Execution Laws with Invalid or Null as Argument *}
