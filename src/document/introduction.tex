@@ -419,16 +419,76 @@ tantamount for the foundation of the entire method.
 
 \subsection{Formal Foundation}
 
-
-\subsubsection{Isabelle}
+\subsubsection{A Gentle Introduction to Isabelle}
 Isabelle~\cite{nipkow.ea:isabelle:2002} is a \emph{generic} theorem
 prover. New object logics can be introduced by specifying their syntax
 and natural deduction inference rules. Among other logics, Isabelle
 supports first-order logic, Zermelo-Fraenkel set theory and the
 instance for Church's higher-order logic (HOL).
 
-Isabelle's inference rules are based on the built-in meta-level
-implication $\_ \Implies \_$ allowing to form constructs like $A_1
+The core language of Isabelle is a typed $\lambda$-calculus providing
+a uniform term language in which all logical entities where represented:
+\[
+   \operatorname{term} ::= C | V | \lambda~V. \operatorname{term} | \operatorname{term}~\operatorname{term}
+\] \footnote{In the Isabelle implementation, there are actually two further variants
+which were irrelevant for this presentation and are therefore ommitted.}
+where:
+\begin{itemize}
+\item $C$ is the set of \emph{constant symbols}
+      like $\operatorname{fst}$ or $\operatorname{snd}$ as operators on pairs. Note that
+       Isabelle's syntax engine supports mixfix-notation for terms: 
+       "$(\_ \Longleftarrow \_)~A~B$" or  "$(\_ + \_)~A~B$" 
+       can be parsed and printed as 
+       "$A \Longleftarrow B$" or  "$A + B$", respectively.
+\item $V$ is the set of \emph{variable symbols} like "$x$", "$y$", "$z$", ...
+      Variables standing in the scope of a $\lambda$-operator were called
+      \emph{bound} variables, all others are \emph{free} variables.
+\item $\lambda~V. \operatorname{term}$ is called $\lambda$-abstraction; example: $\lambda~x. x$.
+      A $\lambda$-abstraction forms a scope for the variable $V$.
+\item $E~E'$ is called an \emph{application}.  
+\end{itemize}
+These concepts are not at all Isabelle specific and can be found in many modern programming
+languages ranging from Haskell over Phyton to Java.
+
+Terms where associated to \emph{types} by a set of \emph{type inference rules} (similar to
+\url{https://en.wikipedia.org/wiki/Hindley–Milner_type_system}); only terms for which 
+a type can be inferred --- \ie{} for \emph{typed terms} --- were considered as legal input
+to the Isabelle system. The type-terms $\tau$ for $\lambda$-terms are defined as:
+\[  \tau ::= TV | TV :: \Xi | \tau~\Rightarrow~\tau | (\tau, ..., \tau)TC\]
+\footnote{Again, the Isabelle implementation is actually slightly different;
+ our presentation is an abstraction in order to improve readability.}
+\begin{itemize}
+\item $TV$ is the set of \emph{type variables} like "$'\alpha$", "$'\beta$", ...
+  Note that the syntactic categories $V$ and $TV$ are disjoint; thus,
+  $'x$ is a perfectly possible type variable.
+\item $\Xi$ is a set of \emph{type-classes} like \emph{ord},\emph{order},\emph{linorder}. 
+  This feature
+  in the Isabelle type system is inspired by Haskell type classes
+  \url{https://en.wikipedia.org/wiki/Type_class}.
+  A \emph{type class constraint} such as "$\alpha::\operatorname{order}$" expresses that
+  the type variable $'\alpha$ may range over any type that has the algebraic
+  structure of a partial ordering (as it is configured in the Isabelle/\HOL library).
+\item The type "$'\alpha \Rightarrow '\beta$" denotes the total function space from
+  $'\alpha$ to $'\beta$.
+\item $TC$ is a set of \emph{type constructors} like "$('\alpha)\operatorname{list}$" or
+  "$('\alpha)\operatorname{tree}$". Again, Isabelle's syntax engine supports mixfix-notation 
+  for type terms: cartesian products $'\alpha \times '\beta $ or type sums 
+  $'\alpha + '\beta $ can be represented by $('\alpha,'\beta)(\_ \ < \operatorname{times} > \_)$ or 
+  $('\alpha,'\beta)(\_ + \_)$, respectively. Also null-ary type-constructors like 
+  $()\operatorname{bool}$,$()\operatorname{nat}$ and $()\operatorname{int}$ are possible;
+  not that the paranthesises of null-ary type constructors are usually ommitted.
+\end{itemize}.
+
+Isabelle accepts also the notation $t :: \tau$ as type assertion in the term-language;
+$t :: \tau$ means "t is required to have type $\tau$".
+
+An environment providing $\Xi$, $TC$ as well as a map from constant symbols $C$ to types (built
+over these $\Xi$ and $TC$) is called a \emph{global context}; it provides a kind of signature, 
+\ie{} syntactic material of a logical theory.
+
+The most basic (built-in) global context of Isabelle provides just a language to construct
+logical rules. More concretely, it provides a constant definition  for 
+the (built-in) \emph{meta-level implication} $\_ \Implies \_$ allowing to form constructs like $A_1
 \Implies \cdots \Implies A_n \Implies A_{n+1}$, which are viewed as a
 \emph{rule} of the form ``from assumptions $A_1$ to $A_n$, infer
 conclusion $A_{n+1}$'' and which is written in Isabelle as
@@ -444,7 +504,8 @@ conclusion $A_{n+1}$'' and which is written in Isabelle as
     \ptmi{.}
   \end{prooftree}
 \end{gather}
-The built-in meta-level quantification $\Forall x\spot  x$ captures
+Moreover, the built-in meta-level quantification $\operatorname{Forall} (\lambda~x.~E~x)$
+(pretty-printed and parsed as $\Forall x\spot E~x$ captures
 the usual side-constraints ``$x$ must not occur free in the
 assumptions'' for quantifier rules; meta-quantified variables can be
 considered as ``fresh'' free variables. Meta-level quantification
@@ -455,8 +516,8 @@ A_{n+1}\mi{.}
 \end{gather}
 
 Isabelle supports forward- and backward reasoning on rules.  For
-backward-reasoning, a \emph{proof-state} can be initialized and
-further transformed into others. For example, a proof of $\phi$, using
+backward-reasoning, a \emph{proof-state} can be initialized in a given 
+global context and further transformed into others. For example, a proof of $\phi$, using
 the Isar~\cite{wenzel:isabelleisar:2002} language, will look as
 follows in Isabelle:
 \begin{gather}
@@ -488,28 +549,57 @@ Isabelle supports meta-variables (written $\meta{x}, \meta{y},
 substituted. Meta-variables are instantiated by Isabelle's built-in
 higher-order unification.
 
+By extensions of global contexts with axioms and proofs over then,
+\emph{theories} can be constructed step by step. Beyond the basic
+mechanisms to extend a global context by a type-constructor-, type-class-
+constant-definition ar an axiom, Isabelle offers a number of 
+\emph{commands} that allow for more complex extensions of theories in
+a logically safe way.
+
 \subsubsection{Higher-order Logic (HOL)}
 \emph{Higher-order logic}
 (HOL)~\cite{church:types:1940,andrews:introduction:2002} is a
-classical logic based on a simple type system.  It provides the usual
+classical logic based on a simple type system. Isabelle/\HOL is
+a theory extension of the basic Isabelle core-language with
+operators and the 7 axioms of HOL; together with large libraries
+this constitutes an implementation of HOL. 
+Isabelle/\HOL provides the usual
 logical connectives like $\_ \land \_$, $\_ \implies\_$, $\lnot \_ $
 as well as the object-logical quantifiers $\forall x\spot P\ap x$ and
 $\exists x\spot P\ap x$; in contrast to first-order logic, quantifiers
 may range over arbitrary types, including total functions
 $f\ofType\alpha \Rightarrow \beta$. HOL is centered around
 extensional equality $\_ = \_ \ofType \alpha \Rightarrow \alpha
-\Rightarrow \text{bool}$.  HOL is more expressive than first-order
-logic, since, \eg, induction schemes can be expressed inside the
-logic. Being based on some polymorphically typed $\lambda$-calculus,
-HOL can be viewed as a combination of a programming language
-like SML or Haskell and a specification language providing
-powerful logical quantifiers ranging over elementary and function
-types.
+\Rightarrow \text{bool}$. Extensional equality means that two functions $f$ and $g$
+are equal iff they are pointwise equal; this is captured by the rule:
+$(\Forall~x\spot f~x = g~x) \Leftrightarrow f = g$.
+HOL is more expressive than first-order
+logic, since, among many other things, induction schemes can be expressed inside the
+logic. For example, the standard induction rule on natural numbers in HOL:
+\[P~0 \Longrightarrow (\Forall~x\spot P~x \Longrightarrow P~(x+1)) \Longrightarrow P~x\]
+is just an ordinary rule in Isabelle which is in fact a proven theorem
+in the theory of natural numbers. This example exemplifies an important
+design principle of Isabelle: theorems and rules are technically the
+same, paving the way to \emph{derived rules} and automated 
+decision procedures based on them. This has the consequence that
+that these procedures are consequently sound by construction
+with resepct to their logical aspects (they may be incomplete
+or failing, though).
 
-Isabelle/HOL is a logical embedding of HOL into Isabelle.  The
-(original) simple-type system underlying HOL has been extended by
-Hindley-Milner style polymorphism with type-classes similar to
-Haskell.  While Isabelle/HOL is usually seen as proof assistant, we
+On the other hand, Isabelle/\HOL can also be viewed as a 
+combination of a functional programming language
+like SML or Haskell. Usually, Isabelle/\HOL definitions can be 
+read just as another functional \textbf{programming} language;
+if not interested in proofs and the possibilities of a 
+\textbf{specification} language providing
+powerful logical quantifiers or equivalent free variables, 
+the reader can just ignore these aspects in definitions.
+
+%Isabelle/HOL is a logical embedding of HOL into Isabelle.  The
+%(original) simple-type system underlying HOL has been extended by
+%Hindley-Milner style polymorphism with type-classes similar to
+%Haskell.  
+While Isabelle/HOL is usually seen as proof assistant, we
 use it as symbolic computation environment. Implementations on top of
 Isabelle/HOL can re-use existing powerful deduction mechanisms such as
 higher-order resolution, tableaux-based reasoners, rewriting
@@ -518,7 +608,7 @@ mechanisms, also external provers such as
 Vampire~\cite{riazanov.ea:vampire:1999} and the SMT-solver
 Z3~\cite{moura.ea:z3:2008}.
 
-Isabelle/HOL offers support for a particular methodology to extend
+Isabelle/\HOL offers support for a particular methodology to extend
 given theories in a logically safe way: A theory-extension is
 \emph{conservative} if the extended theory is consistent provided that
 the original theory was consistent.  Conservative extensions can be
