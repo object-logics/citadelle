@@ -474,7 +474,7 @@ to the Isabelle system. The type-terms $\tau$ for $\lambda$-terms are defined as
 \item $TC$ is a set of \emph{type constructors} like "$('\alpha)\operatorname{list}$" or
   "$('\alpha)\operatorname{tree}$". Again, Isabelle's syntax engine supports mixfix-notation 
   for type terms: cartesian products $'\alpha \times '\beta $ or type sums 
-  $'\alpha + '\beta $ are notations for $('\alpha,'\beta)(\_ \ < \operatorname{times} > \_)$ or 
+  $'\alpha + '\beta $ are notations for $('\alpha,'\beta)(\_ \backslash<\operatorname{times}> \_)$ or 
   $('\alpha,'\beta)(\_ + \_)$, respectively. Also null-ary type-constructors like 
   $()\operatorname{bool}$,$()\operatorname{nat}$ and $()\operatorname{int}$ are possible;
   note that the paranthesises of null-ary type constructors are usually ommitted.
@@ -740,7 +740,7 @@ Thus, Isabelle/\HOL also provides a large collection of theories like
 sets, lists, orderings, and various arithmetic theories
 which only contain rules derived from conservative definitions. 
 This library constitutes a comfortable basis for defining the OCL
-library and language costructs.
+library and language constructs.
 
 In particular, Isabelle manages a set of \emph{executable types and
   operators}, \ie, types and operators for which a compilation to
@@ -928,7 +928,7 @@ defined as follows:
 \item $C \subseteq \text{TYPES}(C)$
 \item $\text{Boolean}$, $\text{Integer}$, $\text{Real}$, $\text{Void}$, ... are elements
       of $\text{TYPES}(C)$
-\item $\text{Sequence}(X)$, $\text{Set}(X)$, et $\text{Pair}(X,Y)$ (as example for a Tuple-type)
+\item $\text{Set}(X)$, $\text{Bag}(X)$, $\text{Sequence}(X)$,  and $\text{Pair}(X,Y)$ (as example for a Tuple-type)
       are in  $\text{TYPES}(C)$ (if $X, Y \in \text{TYPES}(C)$).
 \end{itemize}
 
@@ -987,7 +987,9 @@ and more details can be found in  \autoref{sec:focl-types}.
 \subsection{Denotational Semantics of Constants and Operations}
 We use the notation $I\semantics{E}\tau$ for the semantic interpretation function as
 commonly used in mathematical textbooks and the variable $\tau$ standing for pairs of
-pre- and post state $(\sigma, \sigma')$. \OCL provides for all \OCL types the
+pre- and post state $(\sigma, \sigma')$. Note that we will also use $\tau$ to denota the
+\emph{type} of a state-pair; since both syntactic categories are independent, we can
+do so without arising confusion. \OCL provides for all \OCL types the
  constants \mocl{invalid} for the exceptional computation result and \mocl{null} for
  the non-existing value. Thus we define:
 \begin{gather*}
