@@ -54,7 +54,7 @@ session "OCL-dirty" in "src" = HOL +
     "conclusion.tex"
     "figures/AbstractSimpleChair.pdf"
     "figures/jedit.png"
-    "figures/logo_focl.pdf"
+    (*"figures/logo_focl.pdf"*)
     "figures/pdf.png"
     "figures/person.png"
     "figures/pre-post.pdf"
@@ -82,7 +82,7 @@ session "OCL" in "src" = HOL +
     "conclusion.tex"
     "figures/AbstractSimpleChair.pdf"
     "figures/jedit.png"
-    "figures/logo_focl.pdf"
+    (*"figures/logo_focl.pdf"*)
     "figures/pdf.png"
     "figures/person.png"
     "figures/pre-post.pdf"
@@ -137,7 +137,7 @@ session "OCL-all-dirty" in "src" = HOL +
     "conclusion.tex"
     "figures/AbstractSimpleChair.pdf"
     "figures/jedit.png"
-    "figures/logo_focl.pdf"
+    (*"figures/logo_focl.pdf"*)
     "figures/pdf.png"
     "figures/person.png"
     "figures/pre-post.pdf"
@@ -164,7 +164,7 @@ session "FOCL" in "src" = HOL +
     "conclusion.tex"
     "figures/AbstractSimpleChair.pdf"
     "figures/jedit.png"
-    "figures/logo_focl.pdf"
+    (*"figures/logo_focl.pdf"*)
     "figures/pdf.png"
     "figures/person.png"
     "figures/pre-post.pdf"
@@ -188,7 +188,7 @@ session "FOCL-dirty" in "src" = HOL +
     "conclusion.tex"
     "figures/AbstractSimpleChair.pdf"
     "figures/jedit.png"
-    "figures/logo_focl.pdf"
+    (*"figures/logo_focl.pdf"*)
     "figures/pdf.png"
     "figures/person.png"
     "figures/pre-post.pdf"
