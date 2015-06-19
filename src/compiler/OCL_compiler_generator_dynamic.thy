@@ -1184,7 +1184,8 @@ structure USE_parse = struct
                  || category -- use_type >> OCL.OclTy_collection
 
                     (* pair *)
-                 || Parse.reserved "Pair" |-- use_type >> I
+                 || Parse.reserved "Pair" |-- (   use_type -- use_type
+                                               || Parse.$$$ "(" |-- use_type --| Parse.$$$ "," -- use_type --| Parse.$$$ ")") >> OCL.OclTy_pair
 
                     (* base *)
                  || type_base

@@ -298,7 +298,8 @@ text {*
                | @{syntax type_object}
 
                | ('Sequence' | 'Set' | @{syntax category}) @{syntax uml_type}
-               | 'Pair' @{syntax uml_type} @{syntax uml_type}
+               | 'Pair' ( @{syntax uml_type} @{syntax uml_type}
+                        | '(' @{syntax uml_type} ',' @{syntax uml_type} ')')
                | '(' ((binding ':' ('(' @{syntax uml_type} ')' | uml_type_weak)) * ',') ')' \<newline>
                  (':' @{syntax uml_type})?
                | '(' @{syntax uml_type} ')'
