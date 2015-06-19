@@ -1053,6 +1053,14 @@ apply(auto simp: cp_def)
 apply(rule exI, (rule allI)+)
 by(erule_tac x="P X" in allE, auto)
 
+lemma cpI5:
+"(\<forall> V W X Y Z \<tau>. f V W X Y Z \<tau> = f(\<lambda>_. V \<tau>) (\<lambda>_. W \<tau>)(\<lambda>_. X \<tau>)(\<lambda>_. Y \<tau>)(\<lambda>_. Z \<tau>) \<tau>) \<Longrightarrow>
+ cp N \<Longrightarrow> cp P \<Longrightarrow> cp Q \<Longrightarrow> cp R \<Longrightarrow> cp S \<Longrightarrow> cp(\<lambda>X. f (N X) (P X) (Q X) (R X) (S X))"
+apply(auto simp: cp_def)
+apply(rule exI, (rule allI)+)
+by(erule_tac x="N X" in allE, auto)
+
+
 lemma cp_const : "cp(\<lambda>_. c)"
   by (simp add: cp_def, fast)
 

@@ -389,8 +389,8 @@ where     "OclExcluding x y = (\<lambda> \<tau>.  if (\<delta> x) \<tau> = true 
                                      else invalid \<tau> )"
 notation   OclExcluding   ("_->excluding\<^sub>B\<^sub>a\<^sub>g'(_')")
 
-interpretation OclExcluding:profile_bin\<^sub>d_\<^sub>v OclExcluding  
-                                          "\<lambda>x y. Abs_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor>\<lfloor>\<lceil>\<lceil>Rep_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e(x)\<rceil>\<rceil>(y:=0::nat)\<rfloor>\<rfloor>"
+interpretation OclExcluding: profile_bin\<^sub>d_\<^sub>v OclExcluding  
+                            "\<lambda>x y. Abs_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor>\<lfloor>\<lceil>\<lceil>Rep_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e(x)\<rceil>\<rceil>(y:=0::nat)\<rfloor>\<rfloor>"
 proof -
     show "profile_bin\<^sub>d_\<^sub>v OclExcluding (\<lambda>x y. Abs_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor>\<lfloor>\<lceil>\<lceil>Rep_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e x\<rceil>\<rceil>(y := 0)\<rfloor>\<rfloor>)"
          apply unfold_locales  
@@ -409,6 +409,8 @@ where     "OclIncludes x y = (\<lambda> \<tau>.   if (\<delta> x) \<tau> = true 
                                      else \<bottom>  )"
 notation   OclIncludes    ("_->includes\<^sub>B\<^sub>a\<^sub>g'(_')" (*[66,65]65*))
 
+(* TODO : locale interpretation *)
+
 subsection{* Definition: Excludes *}
 
 definition OclExcludes   :: "[('\<AA>,'\<alpha>::null) Bag,('\<AA>,'\<alpha>) val] \<Rightarrow> '\<AA> Boolean"
@@ -420,6 +422,8 @@ explicitly in Featherweight OCL the possibility of infinite sets. For
 the size definition, this requires an extra condition that assures
 that the cardinality of the set is actually a defined integer. *}
 
+(* TODO : locale interpretation *)
+
 subsection{* Definition: Size *}
 
 definition OclSize     :: "('\<AA>,'\<alpha>::null)Bag \<Rightarrow> '\<AA> Integer"
@@ -428,6 +432,8 @@ where     "OclSize x = (\<lambda> \<tau>. if (\<delta> x) \<tau> = true \<tau> \
                              else \<bottom> )"
 notation  (* standard ascii syntax *)
            OclSize        ("_->size\<^sub>B\<^sub>a\<^sub>g'(')" (*[66]*))
+
+(* TODO : locale interpretation *)
 
 text{* The following definition follows the requirement of the
 standard to treat null as neutral element of bags. It is
@@ -441,12 +447,15 @@ definition OclIsEmpty   :: "('\<AA>,'\<alpha>::null) Bag \<Rightarrow> '\<AA> Bo
 where     "OclIsEmpty x =  ((\<upsilon> x and not (\<delta> x)) or ((OclSize x) \<doteq> \<zero>))"
 notation   OclIsEmpty     ("_->isEmpty\<^sub>B\<^sub>a\<^sub>g'(')" (*[66]*))
 
+(* TODO : locale interpretation *)
+
 subsection{* Definition: NotEmpty *}
 
 definition OclNotEmpty   :: "('\<AA>,'\<alpha>::null) Bag \<Rightarrow> '\<AA> Boolean"
 where     "OclNotEmpty x =  not(OclIsEmpty x)"
 notation   OclNotEmpty    ("_->notEmpty\<^sub>B\<^sub>a\<^sub>g'(')" (*[66]*))
 
+(* TODO : locale interpretation *)
 
 subsection{* Definition: Any *}
 
@@ -565,6 +574,7 @@ where     "OclUnion x y = (\<lambda> \<tau>. if (\<delta> x) \<tau> = true \<tau
                                                        \<lceil>\<lceil>Rep_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e (y \<tau>)\<rceil>\<rceil> X\<rfloor>\<rfloor>
                                 else invalid \<tau> )"
 notation   OclUnion       ("_->union\<^sub>B\<^sub>a\<^sub>g'(_')"          (*[66,65]65*))
+subsection{* Definition: Union *}
 
 interpretation OclUnion : 
                profile_bin\<^sub>d_\<^sub>d OclUnion "\<lambda>x y. Abs_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor>\<lfloor> \<lambda> X. \<lceil>\<lceil>Rep_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e x\<rceil>\<rceil> X + 

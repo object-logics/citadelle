@@ -103,21 +103,59 @@ Context Bank :: get_balance (c : Client, account_id : Integer) : Integer
 
 lemmas [simp,code_unfold] = dot_accessor
 
-lemma 
-assumes  *: "(\<sigma>,\<sigma>')   \<Turnstile> ((bank :: \<cdot>Bank) .get_balance(c , a1) \<triangleq> d)"
-and      **: "(\<sigma>',\<sigma>'') \<Turnstile> (bank .deposit(c, a1, a) \<triangleq> null)"
-and      ***:"(\<sigma>'',\<sigma>''') \<Turnstile> (bank .withdraw(c , a1, b)\<triangleq> null)"
-shows    "(\<sigma>''',\<sigma>'''') \<Turnstile> ((bank .get_balance(c , a1)) \<triangleq> (d +\<^sub>i\<^sub>n\<^sub>t a -\<^sub>i\<^sub>n\<^sub>t b))"
-apply(insert * ** ***) 
+lemma XXX: "\<tau> \<Turnstile>  (X \<triangleq> null) \<Longrightarrow>  \<tau> \<Turnstile>  \<upsilon>(X)" 
+by (metis foundation18 foundation22 valid2 valid_bool_split)
 
-apply(subst UML_OCL.dot\<g>\<e>\<t>095\<b>\<a>\<l>\<a>\<n>\<c>\<e>_def  )
+lemma YYY: "\<tau> \<Turnstile> \<upsilon> bank .withdraw(c,a1,b) \<Longrightarrow> (\<tau> \<Turnstile> \<delta> bank) \<and> (\<tau> \<Turnstile> \<upsilon> c) \<and> (\<tau> \<Turnstile> \<upsilon> a1) \<and> (\<tau> \<Turnstile> \<upsilon> b)"
+sorry
+
+lemma 
+assumes  *:   "(\<sigma>,\<sigma>')       \<Turnstile> ((bank :: \<cdot>Bank) .get_balance(c , a1) \<triangleq> d)"
+and      **:  "(\<sigma>',\<sigma>'')     \<Turnstile>  (bank .deposit(c, a1, a)    \<triangleq> null)"
+and      ***: "(\<sigma>'',\<sigma>''')   \<Turnstile>  (bank .withdraw(c, a1, b)   \<triangleq> null)"
+shows         "(\<sigma>''',\<sigma>'''') \<Turnstile> ((bank .get_balance(c , a1)) \<triangleq> (d +\<^sub>i\<^sub>n\<^sub>t a -\<^sub>i\<^sub>n\<^sub>t b))"
+apply(insert * ** ***) 
+apply(frule XXX) back
+apply(frule YYY) 
+apply(subst UML_OCL.dot\<g>\<e>\<t>095\<b>\<a>\<l>\<a>\<n>\<c>\<e>_def)
 
 oops
 
+(* TODO : Use Locales. *)
+(* Definition (and this MUST be a definition, since it is not a recursive query) must be:
+
+UML_OCL.dot\<d>\<e>\<p>\<o>\<s>\<i>\<t>_def:
+    (?\<tau> \<Turnstile> \<delta> ?self \<and> ?\<tau> \<Turnstile> \<upsilon> ?c \<and> ?\<tau> \<Turnstile> \<upsilon> ?account_id \<and> ?\<tau> \<Turnstile> \<upsilon> ?amount \<Longrightarrow>
+     ?\<tau> \<Turnstile> \<delta> (\<zero> \<le>\<^sub>i\<^sub>n\<^sub>t ?amount and
+              ?self .managed_accounts@pre->exists\<^sub>S\<^sub>e\<^sub>t(X|X .owner@pre \<doteq> ?c and
+     (X .account_id@pre \<doteq> ?account_id)) implies
+              (let A' = ?self .managed_accounts->select\<^sub>S\<^sub>e\<^sub>t(X|X .owner \<doteq> ?c and
+           (X .account_id \<doteq> ?account_id))->any\<^sub>S\<^sub>e\<^sub>t();
+                   A = ?self .managed_accounts->select\<^sub>S\<^sub>e\<^sub>t(X|X .owner \<doteq> ?c and
+          (X .account_id \<doteq> ?account_id))->any\<^sub>S\<^sub>e\<^sub>t()
+               in A' .balance \<doteq> A .balance +\<^sub>i\<^sub>n\<^sub>t ?amount))) \<Longrightarrow>
+    (?\<tau> \<Turnstile> ?self .deposit(?c,?account_id,?amount) \<triangleq> ?result) =
+    (if ?\<tau> \<Turnstile> \<delta> ?self \<and> ?\<tau> \<Turnstile> \<upsilon> ?c \<and> ?\<tau> \<Turnstile> \<upsilon> ?account_id \<and> ?\<tau> \<Turnstile> \<upsilon> ?amount
+     then ?\<tau> \<Turnstile> \<zero> \<le>\<^sub>i\<^sub>n\<^sub>t ?amount and
+                ?self .managed_accounts@pre->exists\<^sub>S\<^sub>e\<^sub>t(X|X .owner@pre \<doteq> ?c and
+       (X .account_id@pre \<doteq> ?account_id)) implies
+                (let A' = ?self .managed_accounts->select\<^sub>S\<^sub>e\<^sub>t(X|X .owner \<doteq> ?c and
+             (X .account_id \<doteq> ?account_id))->any\<^sub>S\<^sub>e\<^sub>t();
+                     A = ?self .managed_accounts->select\<^sub>S\<^sub>e\<^sub>t(X|X .owner \<doteq> ?c and
+            (X .account_id \<doteq> ?account_id))->any\<^sub>S\<^sub>e\<^sub>t()
+                 in A' .balance \<doteq> A .balance +\<^sub>i\<^sub>n\<^sub>t ?amount)
+     else ?\<tau> \<Turnstile> ?result \<triangleq> invalid)
+
+   *)
+
+
+find_theorems (100) "dot\<g>\<e>\<t>095\<b>\<a>\<l>\<a>\<n>\<c>\<e>"
+find_theorems (100) name:"\<d>\<e>\<p>\<o>\<s>\<i>\<t>"
+
 definition val2Mon :: "('\<sigma>, '\<alpha>::null)val \<Rightarrow>  ('\<alpha>,'\<sigma> state)MON\<^sub>S\<^sub>E"
-where "val2Mon f \<equiv> (\<lambda>\<sigma>. if \<exists>\<sigma>'. \<exists>d.  ((\<sigma>,\<sigma>') \<Turnstile> (f \<triangleq> d)) 
-                        then Some(SOME(d,\<sigma>'). ((\<sigma>,\<sigma>') \<Turnstile> (f \<triangleq> (\<lambda>_. d)))) 
-                        else None)"
+where     "val2Mon f \<equiv> (\<lambda>\<sigma>. if \<exists>\<sigma>'. \<exists>d.  ((\<sigma>,\<sigma>') \<Turnstile> (f \<triangleq> d)) 
+                             then Some(SOME(d,\<sigma>'). ((\<sigma>,\<sigma>') \<Turnstile> (f \<triangleq> (\<lambda>_. d)))) 
+                             else None)"
 
 term "\<sigma> \<Turnstile> (( r \<leftarrow> (val2Mon ((bank :: \<cdot>Bank) .get_balance(c , a1))) ;
               _ \<leftarrow> (val2Mon ((bank :: \<cdot>Bank) .deposit(c, a1, a))) ;

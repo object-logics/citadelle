@@ -303,4 +303,100 @@ begin
       by((rule assms)+)
 end
 
+
+
+
+locale contract3 =
+   fixes f   :: "('\<AA>,'\<alpha>0::null)val \<Rightarrow>            
+                  ('\<AA>,'\<alpha>1::null)val \<Rightarrow> 
+                  ('\<AA>,'\<alpha>2::null)val \<Rightarrow>
+                  ('\<AA>,'\<alpha>3::null)val \<Rightarrow>
+                  ('\<AA>,'res::null)val"
+   fixes PRE 
+   fixes POST 
+   assumes def_scheme: "f self a1 a2 a3 \<equiv> 
+                               (\<lambda> \<tau>. if (\<tau> \<Turnstile> (\<delta> self)) \<and>  (\<tau> \<Turnstile> \<upsilon> a1) \<and>  (\<tau> \<Turnstile> \<upsilon> a2) \<and>  (\<tau> \<Turnstile> \<upsilon> a3)
+                                     then SOME res. (\<tau> \<Turnstile> PRE self a1 a2 a3) \<and>
+                                                    (\<tau> \<Turnstile> POST self a1 a2 a3 (\<lambda> _. res))
+                                     else invalid \<tau>) "
+   assumes all_post: "\<forall> \<sigma> \<sigma>' \<sigma>''.  ((\<sigma>,\<sigma>') \<Turnstile> PRE self a1 a2 a3) = ((\<sigma>,\<sigma>'') \<Turnstile> PRE self a1 a2 a3)"
+           (* PRE is really a pre-condition semantically,
+              i.e. it does not depend on the post-state. ... *)
+   assumes cp\<^sub>P\<^sub>R\<^sub>E: "PRE (self) (a1) (a2) (a3) \<tau> = PRE (\<lambda> _. self \<tau>) (\<lambda> _. a1 \<tau>) (\<lambda> _. a2 \<tau>) (\<lambda> _. a3 \<tau>) \<tau> "
+           (* this interface is preferable than :
+              assumes "cp self' \<Longrightarrow> cp a1' \<Longrightarrow> cp a2' \<Longrightarrow> cp a3' \<Longrightarrow> cp (\<lambda>X. PRE (self' X) (a1' X) (a2' X) (a3' X) )"
+              which is too polymorphic. *)
+   assumes cp\<^sub>P\<^sub>O\<^sub>S\<^sub>T:"\<And>res. POST (self) (a1) (a2) (a3) (res) \<tau> = 
+                         POST (\<lambda> _. self \<tau>)(\<lambda> _. a1 \<tau>)(\<lambda> _. a2 \<tau>)(\<lambda> _. a3 \<tau>) (\<lambda> _. res \<tau>) \<tau>"
+
+
+sublocale contract3 < contract_scheme "\<lambda>(a1,a2,a3) \<tau>. (\<tau> \<Turnstile> \<upsilon> a1) \<and> (\<tau> \<Turnstile> \<upsilon> a2)\<and> (\<tau> \<Turnstile> \<upsilon> a3)" 
+                                      "\<lambda>(a1,a2,a3) \<tau>. (\<lambda> _.a1 \<tau>, \<lambda> _.a2 \<tau>, \<lambda> _.a3 \<tau>)"
+                                      "(\<lambda>x (a,b,c). f x a b c)"
+                                      "(\<lambda>x (a,b,c). PRE x a b c)"
+                                      "(\<lambda>x (a,b,c). POST x a b c)"
+ apply(unfold_locales)
+     apply(auto simp add: def_scheme)
+        apply (metis all_post, metis all_post)
+      apply(subst cp\<^sub>P\<^sub>R\<^sub>E, simp)
+     apply(subst cp\<^sub>P\<^sub>O\<^sub>S\<^sub>T, simp)
+by(simp_all add: OclValid_def cp_valid[symmetric])
+
+context contract3
+begin thm strict0
+   lemma strict0[simp] : "f invalid X Y Z = invalid"
+   apply(insert strict0[of "(X,Y,Z)"])
+   sorry
+
+   lemma nullstrict0[simp]: "f null X Y Z = invalid"
+   apply(insert nullstrict0[of "(X,Y,Z)"], simp) sorry
+
+   lemma strict1[simp]: "f self invalid Y Z = invalid"
+   by(rule ext, rename_tac "\<tau>", simp add: def_scheme)
+
+   lemma strict2[simp]: "f self X invalid Z = invalid"
+   by(rule ext, rename_tac "\<tau>", simp add: def_scheme)
+
+   lemma defined_mono : "\<tau> \<Turnstile>\<upsilon>(f X Y Z Z') \<Longrightarrow>  (\<tau> \<Turnstile>\<delta> (X)) \<and> (\<tau> \<Turnstile>\<upsilon> Y) \<and> (\<tau> \<Turnstile>\<upsilon> Y) \<and> (\<tau> \<Turnstile>\<upsilon> Z) \<and> (\<tau> \<Turnstile>\<upsilon> Z')"
+   by (metis (no_types) invalid_def def_scheme foundation18')
+
+   
+   lemma cp_pre: "cp self' \<Longrightarrow> cp a1' \<Longrightarrow> cp a2'\<Longrightarrow> cp a3' 
+                  \<Longrightarrow> cp (\<lambda>X. PRE (self' X) (a1' X) (a2' X) (a3' X) )"
+   by(rule_tac f=PRE in cpI4, auto intro: cp\<^sub>P\<^sub>R\<^sub>E)
+  
+   lemma cp_post: "cp self' \<Longrightarrow> cp a1' \<Longrightarrow> cp a2' \<Longrightarrow> cp a3' \<Longrightarrow> cp res'
+                   \<Longrightarrow> cp (\<lambda>X. POST (self' X) (a1' X) (a2' X) (a3' X)  (res' X))"
+   by(rule_tac f=POST in cpI5, auto intro: cp\<^sub>P\<^sub>O\<^sub>S\<^sub>T)  
+   
+   lemma cp0 : "f self a1 a2 a3 \<tau> = f (\<lambda> _. self \<tau>) (\<lambda> _. a1 \<tau>) (\<lambda> _. a2 \<tau>) (\<lambda> _. a3 \<tau>) \<tau>"
+   by (rule cp0[of _ "(a1,a2,a3)", simplified])
+      
+   lemma cp [simp]:  "cp self' \<Longrightarrow> cp a1' \<Longrightarrow> cp a2' \<Longrightarrow> cp a3' \<Longrightarrow> cp res'
+                       \<Longrightarrow> cp (\<lambda>X. f (self' X) (a1' X) (a2' X) (a3' X))"
+      by(rule_tac f=f in cpI4, auto intro:cp0)  
+
+   theorem unfold : 
+      assumes                "cp E"
+      and                    "(\<tau> \<Turnstile> \<delta> self) \<and> (\<tau> \<Turnstile> \<upsilon> a1) \<and>  (\<tau> \<Turnstile> \<upsilon> a2) \<and>  (\<tau> \<Turnstile> \<upsilon> a3)"
+      and                    "\<tau> \<Turnstile> PRE self a1 a2 a3"
+      and                    " \<exists>res. (\<tau> \<Turnstile> POST self a1 a2 a3 (\<lambda> _. res))"
+      and                    "(\<And>res. \<tau> \<Turnstile> POST self a1 a2 a3 (\<lambda> _. res)  \<Longrightarrow> \<tau> \<Turnstile> E (\<lambda> _. res))"
+      shows                  "\<tau> \<Turnstile> E(f self a1 a2 a3)"
+      apply(rule unfold'[of _ _ _ "(a1, a2,a3)", simplified])
+      by((rule assms)+)
+
+   lemma unfold2 :
+      assumes                  "cp E"
+      and                      "(\<tau> \<Turnstile> \<delta> self) \<and> (\<tau> \<Turnstile> \<upsilon> a1) \<and>  (\<tau> \<Turnstile> \<upsilon> a2) \<and>  (\<tau> \<Turnstile> \<upsilon> a3)"
+      and                      "\<tau> \<Turnstile> PRE self a1 a2 a3"
+      and                      "\<tau> \<Turnstile> POST' self a1 a2 a3" (* split constraint holds on post-state *)
+      and                      "\<And> res. (POST self a1 a2 a3 res) = 
+                                       ((POST' self a1 a2 a3)  and (res \<triangleq> (BODY self a1 a2 a3)))"
+      shows "(\<tau> \<Turnstile> E(f self a1 a2 a3)) = (\<tau> \<Turnstile> E(BODY self a1 a2 a3))"
+      apply(rule unfold2'[of _ _ _ "(a1, a2, a3)", simplified])
+      by((rule assms)+)
+end
+
+
 end
