@@ -3,7 +3,7 @@
  *                       for the OMG Standard.
  *                       http://www.brucker.ch/projects/hol-testgen/
  *
- * UML_Set.thy --- Library definitions.
+ * UML_Bag.thy --- Library definitions.
  * This file is part of HOL-TestGen.
  *
  * Copyright (c) 2012-2015 Université Paris-Sud, France
@@ -42,17 +42,17 @@
 (* $Id:$ *)
 
 
-theory  UML_Set
-imports "../basic_types/UML_Void"
+theory  UML_Bag
+imports (*"../basic_types/UML_Void"*)
         "../basic_types/UML_Boolean"
         "../basic_types/UML_Integer"
-        "../basic_types/UML_String"
-        "../basic_types/UML_Real"
+        (*"../basic_types/UML_String"
+        "../basic_types/UML_Real"*)
 begin
 
 no_notation None ("\<bottom>")
-section{* Collection Type Set: Operations \label{formal-set}*}
-
+section{* Collection Type Bag: Operations *}
+(*
 subsection{* As a Motivation for the (infinite) Type Construction: Type-Extensions as Sets 
              \label{sec:type-extensions}*}
 
@@ -282,7 +282,7 @@ corresponding exactly to Set(Set(Integer)) in OCL notation. Note that the parame
 @{text "'\<AA>"} still refers to the object universe; making the OCL semantics entirely parametric
 in the object universe makes it possible to study (and prove) its properties
 independently from a concrete class diagram. *}
-
+*)
 subsection{* Definition: Strict Equality \label{sec:set-strict-equality}*}
 
 text{* After the part of foundational operations on sets, we detail here equality on sets.
@@ -377,7 +377,7 @@ where     "OclExcluding x y = (\<lambda> \<tau>.  if (\<delta> x) \<tau> = true 
                                      then Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor>\<lfloor> \<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (x \<tau>)\<rceil>\<rceil> - {y \<tau>} \<rfloor>\<rfloor>
                                      else \<bottom> )"
 notation   OclExcluding   ("_->excluding\<^sub>S\<^sub>e\<^sub>t'(_')")
-
+(*
 subsection{* Definition: Includes *}
 
 definition OclIncludes   :: "[('\<AA>,'\<alpha>::null) Set,('\<AA>,'\<alpha>) val] \<Rightarrow> '\<AA> Boolean"
@@ -396,7 +396,7 @@ text{* The case of the size definition is somewhat special, we admit
 explicitly in Featherweight OCL the possibility of infinite sets. For
 the size definition, this requires an extra condition that assures
 that the cardinality of the set is actually a defined integer. *}
-
+*)
 subsection{* Definition: Size *}
 
 definition OclSize     :: "('\<AA>,'\<alpha>::null)Set \<Rightarrow> '\<AA> Integer"
@@ -441,7 +441,7 @@ a (totally correct) high-level definition
 source->any\<^sub>S\<^sub>e\<^sub>t(iterator | body) =
 source->select(iterator | body)->asSequence()->first(). Since we don't have sequences,
 we have to go for a direct---restricted---definition. *)
-
+(*
 subsection{* Definition: Forall *}
 
 text{* The definition of OclForall mimics the one of @{term "OclAnd"}:
@@ -459,19 +459,19 @@ where     "OclForall S P = (\<lambda> \<tau>. if (\<delta> S) \<tau> = true \<ta
 syntax
   "_OclForallSet" :: "[('\<AA>,'\<alpha>::null) Set,id,('\<AA>)Boolean] \<Rightarrow> '\<AA> Boolean"    ("(_)->forAll\<^sub>S\<^sub>e\<^sub>t'(_|_')")
 translations
-  "X->forAll\<^sub>S\<^sub>e\<^sub>t(x | P)" == "CONST UML_Set.OclForall X (%x. P)"
+  "X->forAll\<^sub>S\<^sub>e\<^sub>t(x | P)" == "CONST UML_Bag.OclForall X (%x. P)"
 
 subsection{* Definition: Exists *}
   
 text{* Like OclForall, OclExists is also not strict. *}
 definition OclExists     :: "[('\<AA>,'\<alpha>::null) Set,('\<AA>,'\<alpha>)val\<Rightarrow>('\<AA>)Boolean] \<Rightarrow> '\<AA> Boolean"
-where     "OclExists S P = not(UML_Set.OclForall S (\<lambda> X. not (P X)))"
+where     "OclExists S P = not(UML_Bag.OclForall S (\<lambda> X. not (P X)))"
 
 syntax
   "_OclExistSet" :: "[('\<AA>,'\<alpha>::null) Set,id,('\<AA>)Boolean] \<Rightarrow> '\<AA> Boolean"    ("(_)->exists\<^sub>S\<^sub>e\<^sub>t'(_|_')")
 translations
-  "X->exists\<^sub>S\<^sub>e\<^sub>t(x | P)" == "CONST UML_Set.OclExists X (%x. P)"
-
+  "X->exists\<^sub>S\<^sub>e\<^sub>t(x | P)" == "CONST UML_Bag.OclExists X (%x. P)"
+*)
   
 subsection{* Definition: Iterate *}
 
@@ -486,7 +486,7 @@ syntax
 translations
   "X->iterate\<^sub>S\<^sub>e\<^sub>t(a; x = A | P)" == "CONST OclIterate X A (%a. (% x. P))"
 
-  
+  (*
 subsection{* Definition: Select *}
   
   
@@ -527,7 +527,7 @@ where     "OclExcludesAll x y = (\<lambda> \<tau>.   if (\<delta> x) \<tau> = tr
                                         else \<bottom>  )"
 notation  OclExcludesAll ("_->excludesAll\<^sub>S\<^sub>e\<^sub>t'(_')" (*[66,65]65*))
 (* TODO locale instatiation *)
-
+*)
 subsection{* Definition: Union *}
 
 definition OclUnion   :: "[('\<AA>,'\<alpha>::null) Set,('\<AA>,'\<alpha>) Set] \<Rightarrow> ('\<AA>,'\<alpha>) Set"
@@ -536,7 +536,7 @@ where     "OclUnion x y = (\<lambda> \<tau>.   if (\<delta> x) \<tau> = true \<t
                                         else \<bottom>  )"
 notation   OclUnion       ("_->union\<^sub>S\<^sub>e\<^sub>t'(_')"          (*[66,65]65*))
 (* TODO locale instatiation *)
-
+(*
 subsection{* Definition: Intersection *}
 
 definition OclIntersection   :: "[('\<AA>,'\<alpha>::null) Set,('\<AA>,'\<alpha>) Set] \<Rightarrow> ('\<AA>,'\<alpha>) Set"
@@ -1246,19 +1246,19 @@ proof -
                   true_def OclValid_def StrongEq_def)
      apply(subst cp_defined,
            simp add: S_def[simplified OclValid_def]
-                     i_val[simplified OclValid_def] j_val[simplified OclValid_def] true_def *)
+                     i_val[simplified OclValid_def] j_val[simplified OclValid_def] true_def * )
      apply(subst cp_defined,
            simp add: S_def[simplified OclValid_def]
-                     i_val[simplified OclValid_def] j_val[simplified OclValid_def] true_def ** ***)
-     apply(subst cp_defined,
-           simp add: S_def[simplified OclValid_def]
-                     i_val[simplified OclValid_def] j_val[simplified OclValid_def] true_def *)
+                     i_val[simplified OclValid_def] j_val[simplified OclValid_def] true_def ** *** )
      apply(subst cp_defined,
            simp add: S_def[simplified OclValid_def]
                      i_val[simplified OclValid_def] j_val[simplified OclValid_def] true_def * )
      apply(subst cp_defined,
            simp add: S_def[simplified OclValid_def]
-                     i_val[simplified OclValid_def] j_val[simplified OclValid_def] true_def * **)
+                     i_val[simplified OclValid_def] j_val[simplified OclValid_def] true_def * )
+     apply(subst cp_defined,
+           simp add: S_def[simplified OclValid_def]
+                     i_val[simplified OclValid_def] j_val[simplified OclValid_def] true_def * ** )
      done
 qed
 
@@ -1405,19 +1405,19 @@ proof -
                   true_def OclValid_def StrongEq_def)
      apply(subst cp_defined,
            simp add: S_def[simplified OclValid_def]
-                     i_val[simplified OclValid_def] j_val[simplified OclValid_def] true_def *)
+                     i_val[simplified OclValid_def] j_val[simplified OclValid_def] true_def * )
      apply(subst cp_defined,
            simp add: S_def[simplified OclValid_def]
-                     i_val[simplified OclValid_def] j_val[simplified OclValid_def] true_def ** ***)
-     apply(subst cp_defined,
-           simp add: S_def[simplified OclValid_def]
-                     i_val[simplified OclValid_def] j_val[simplified OclValid_def] true_def *)
+                     i_val[simplified OclValid_def] j_val[simplified OclValid_def] true_def ** *** )
      apply(subst cp_defined,
            simp add: S_def[simplified OclValid_def]
                      i_val[simplified OclValid_def] j_val[simplified OclValid_def] true_def * )
      apply(subst cp_defined,
            simp add: S_def[simplified OclValid_def]
-                     i_val[simplified OclValid_def] j_val[simplified OclValid_def] true_def * **)
+                     i_val[simplified OclValid_def] j_val[simplified OclValid_def] true_def * )
+     apply(subst cp_defined,
+           simp add: S_def[simplified OclValid_def]
+                     i_val[simplified OclValid_def] j_val[simplified OclValid_def] true_def * ** )
      done
 qed
 
@@ -3230,7 +3230,7 @@ lemma const_StrictRefEq\<^sub>S\<^sub>e\<^sub>t_including :
  "const a \<Longrightarrow> const S \<Longrightarrow> const X \<Longrightarrow>  const (X \<doteq> S->including\<^sub>S\<^sub>e\<^sub>t(a))"
  apply(rule StrictRefEq\<^sub>S\<^sub>e\<^sub>t.const, assumption)
 by(rule const_OclIncluding)
-
+*)
 subsection{* Test Statements *}
 
 Assert   "(\<tau> \<Turnstile> (Set{\<lambda>_. \<lfloor>\<lfloor>x\<rfloor>\<rfloor>} \<doteq> Set{\<lambda>_. \<lfloor>\<lfloor>x\<rfloor>\<rfloor>}))"
