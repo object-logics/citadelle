@@ -57,8 +57,8 @@ definition "Employee_DesignModel_UMLPart =
   , mk (n \<langle>''Person''\<rangle> (Some \<langle>''Planet''\<rangle>)) [(\<langle>''salary''\<rangle>, OclTy_raw \<langle>''int''\<rangle>)] ])"
 
 definition "main =
- (let n = \<lambda>n1 n2. OclTyObj (OclTyCore_pre n1) (case n2 of None \<Rightarrow> [] | Some n2 \<Rightarrow> [[OclTyCore_pre n2]])
-    ; OclMult = \<lambda>m. ocl_multiplicity.make [m] None [Set] in
+ (let n = \<lambda>n1. OclTyObj (OclTyCore_pre n1) []
+    ; OclMult = \<lambda>m r. ocl_multiplicity.make [m] r [Set] in
   write_file
    (ocl_compiler_config.extend
      (ocl_compiler_config_empty True None (oidInit (Oid 0)) Gen_only_design (None, False)
@@ -69,8 +69,8 @@ definition "main =
      ( List_map (OclAstClassRaw Floor1) Employee_DesignModel_UMLPart
        @@@@ [ OclAstAssociation (ocl_association.make
                                   OclAssTy_association
-                                  (OclAssRel [ (n \<langle>''Person''\<rangle> None, OclMult (Mult_star, None))
-                                             , (n \<langle>''Person''\<rangle> (Some \<langle>''boss''\<rangle>), OclMult (Mult_nat 0, Some (Mult_nat 1)))]))
+                                  (OclAssRel [ (n \<langle>''Person''\<rangle>, OclMult (Mult_star, None) None)
+                                             , (n \<langle>''Person''\<rangle>, OclMult (Mult_nat 0, Some (Mult_nat 1)) (Some \<langle>''boss''\<rangle>))]))
           , OclAstFlushAll OclFlushAll]
      , None)))"
 (*
