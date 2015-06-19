@@ -52,6 +52,10 @@ begin
 
 no_notation None ("\<bottom>")
 section{* Collection Type Bag: Operations *}
+
+definition "Rep_Bag_base x \<tau> = {(x0, y). y < \<lceil>\<lceil>Rep_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e (x \<tau>)\<rceil>\<rceil> x0 }"
+definition "Rep_Set_base x \<tau> = fst ` {(x0, y). y < \<lceil>\<lceil>Rep_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e (x \<tau>)\<rceil>\<rceil> x0 }"
+
 (*
 subsection{* As a Motivation for the (infinite) Type Construction: Type-Extensions as Sets 
              \label{sec:type-extensions}*}
@@ -447,10 +451,11 @@ subsection{* Definition: Any *}
 
 (* Slight breach of naming convention in order to avoid naming conflict on constant.*)
 definition OclANY   :: "[('\<AA>,'\<alpha>::null) Bag] \<Rightarrow> ('\<AA>,'\<alpha>) val"
-where     "OclANY x = (\<lambda> \<tau>. if x \<tau> = invalid \<tau> \<and> OclNotEmpty x \<tau> = true \<tau> then
-                            \<bottom>
-                          else
-                            (SOME x0. (\<lceil>\<lceil>Rep_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e (x \<tau>)\<rceil>\<rceil> x0) \<noteq> 0) )"
+where     "OclANY x = (\<lambda> \<tau>. if (\<upsilon> x) \<tau> = true \<tau>
+                            then if (\<delta> x and OclNotEmpty x) \<tau> = true \<tau>
+                                 then SOME y. y \<in> (Rep_Set_base x \<tau>)
+                                 else null \<tau>
+                            else \<bottom> )"
 notation   OclANY   ("_->any\<^sub>B\<^sub>a\<^sub>g'(')")
 
 (* actually, this definition covers only: X->any\<^sub>S\<^sub>e\<^sub>t(true) of the standard, which foresees
