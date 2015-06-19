@@ -400,30 +400,31 @@ proof -
                simp_all add: bot_option_def null_option_def)+
    done
 qed
-(*
+
 subsection{* Definition: Includes *}
 
-definition OclIncludes   :: "[('\<AA>,'\<alpha>::null) Set,('\<AA>,'\<alpha>) val] \<Rightarrow> '\<AA> Boolean"
+definition OclIncludes   :: "[('\<AA>,'\<alpha>::null) Bag,('\<AA>,'\<alpha>) val] \<Rightarrow> '\<AA> Boolean"
 where     "OclIncludes x y = (\<lambda> \<tau>.   if (\<delta> x) \<tau> = true \<tau> \<and> (\<upsilon> y) \<tau> = true \<tau>
-                                     then \<lfloor>\<lfloor>(y \<tau>) \<in> \<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (x \<tau>)\<rceil>\<rceil> \<rfloor>\<rfloor>
+                                     then \<lfloor>\<lfloor> \<lceil>\<lceil>Rep_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e (x \<tau>)\<rceil>\<rceil> (y \<tau>) > 0 \<rfloor>\<rfloor>
                                      else \<bottom>  )"
-notation   OclIncludes    ("_->includes\<^sub>S\<^sub>e\<^sub>t'(_')" (*[66,65]65*))
+notation   OclIncludes    ("_->includes\<^sub>B\<^sub>a\<^sub>g'(_')" (*[66,65]65*))
 
 subsection{* Definition: Excludes *}
 
-definition OclExcludes   :: "[('\<AA>,'\<alpha>::null) Set,('\<AA>,'\<alpha>) val] \<Rightarrow> '\<AA> Boolean"
+definition OclExcludes   :: "[('\<AA>,'\<alpha>::null) Bag,('\<AA>,'\<alpha>) val] \<Rightarrow> '\<AA> Boolean"
 where     "OclExcludes x y = (not(OclIncludes x y))"
-notation   OclExcludes    ("_->excludes\<^sub>S\<^sub>e\<^sub>t'(_')" (*[66,65]65*))
+notation   OclExcludes    ("_->excludes\<^sub>B\<^sub>a\<^sub>g'(_')" (*[66,65]65*))
 
 text{* The case of the size definition is somewhat special, we admit
 explicitly in Featherweight OCL the possibility of infinite sets. For
 the size definition, this requires an extra condition that assures
 that the cardinality of the set is actually a defined integer. *}
-*)
+
 subsection{* Definition: Size *}
+
 definition OclSize     :: "('\<AA>,'\<alpha>::null)Bag \<Rightarrow> '\<AA> Integer"
-where     "OclSize x = (\<lambda> \<tau>. if (\<delta> x) \<tau> = true \<tau> \<and> finite({y. \<lceil>\<lceil>Rep_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e (x \<tau>)\<rceil>\<rceil> y \<noteq> 0})
-                             then \<lfloor>\<lfloor> int(card ({(x0, y). y < \<lceil>\<lceil>Rep_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e (x \<tau>)\<rceil>\<rceil> x0 })) \<rfloor>\<rfloor>
+where     "OclSize x = (\<lambda> \<tau>. if (\<delta> x) \<tau> = true \<tau> \<and> finite (Rep_Bag_base x \<tau>)
+                             then \<lfloor>\<lfloor> int (card (Rep_Bag_base x \<tau>)) \<rfloor>\<rfloor>
                              else \<bottom> )"
 notation  (* standard ascii syntax *)
            OclSize        ("_->size\<^sub>B\<^sub>a\<^sub>g'(')" (*[66]*))
@@ -458,50 +459,49 @@ where     "OclANY x = (\<lambda> \<tau>. if (\<upsilon> x) \<tau> = true \<tau>
                             else \<bottom> )"
 notation   OclANY   ("_->any\<^sub>B\<^sub>a\<^sub>g'(')")
 
-(* actually, this definition covers only: X->any\<^sub>S\<^sub>e\<^sub>t(true) of the standard, which foresees
+(* actually, this definition covers only: X->any\<^sub>B\<^sub>a\<^sub>g(true) of the standard, which foresees
 a (totally correct) high-level definition
-source->any\<^sub>S\<^sub>e\<^sub>t(iterator | body) =
+source->any\<^sub>B\<^sub>a\<^sub>g(iterator | body) =
 source->select(iterator | body)->asSequence()->first(). Since we don't have sequences,
 we have to go for a direct---restricted---definition. *)
-(*
+
 subsection{* Definition: Forall *}
 
 text{* The definition of OclForall mimics the one of @{term "OclAnd"}:
 OclForall is not a strict operation. *}
-definition OclForall     :: "[('\<AA>,'\<alpha>::null)Set,('\<AA>,'\<alpha>)val\<Rightarrow>('\<AA>)Boolean] \<Rightarrow> '\<AA> Boolean"
+definition OclForall     :: "[('\<AA>,'\<alpha>::null)Bag,('\<AA>,'\<alpha>)val\<Rightarrow>('\<AA>)Boolean] \<Rightarrow> '\<AA> Boolean"
 where     "OclForall S P = (\<lambda> \<tau>. if (\<delta> S) \<tau> = true \<tau>
-                                 then if (\<exists>x\<in>\<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (S \<tau>)\<rceil>\<rceil>. P(\<lambda> _. x) \<tau> = false \<tau>)
+                                 then if (\<exists>x\<in>Rep_Set_base S \<tau>. P (\<lambda>_. x) \<tau> = false \<tau>)
                                       then false \<tau>
-                                      else if (\<exists>x\<in>\<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (S \<tau>)\<rceil>\<rceil>. P(\<lambda> _. x) \<tau> = invalid \<tau>)
+                                      else if (\<exists>x\<in>Rep_Set_base S \<tau>. P (\<lambda>_. x) \<tau> = invalid \<tau>)
                                            then invalid \<tau>
-                                           else if (\<exists>x\<in>\<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (S \<tau>)\<rceil>\<rceil>. P(\<lambda> _. x) \<tau> = null \<tau>)
+                                           else if (\<exists>x\<in>Rep_Set_base S \<tau>. P (\<lambda>_. x) \<tau> = null \<tau>)
                                                 then null \<tau>
                                                 else true \<tau>
                                  else \<bottom>)"
 syntax
-  "_OclForallSet" :: "[('\<AA>,'\<alpha>::null) Set,id,('\<AA>)Boolean] \<Rightarrow> '\<AA> Boolean"    ("(_)->forAll\<^sub>S\<^sub>e\<^sub>t'(_|_')")
+  "_OclForallBag" :: "[('\<AA>,'\<alpha>::null) Bag,id,('\<AA>)Boolean] \<Rightarrow> '\<AA> Boolean"    ("(_)->forAll\<^sub>B\<^sub>a\<^sub>g'(_|_')")
 translations
-  "X->forAll\<^sub>S\<^sub>e\<^sub>t(x | P)" == "CONST UML_Bag.OclForall X (%x. P)"
+  "X->forAll\<^sub>B\<^sub>a\<^sub>g(x | P)" == "CONST UML_Bag.OclForall X (%x. P)"
 
 subsection{* Definition: Exists *}
   
 text{* Like OclForall, OclExists is also not strict. *}
-definition OclExists     :: "[('\<AA>,'\<alpha>::null) Set,('\<AA>,'\<alpha>)val\<Rightarrow>('\<AA>)Boolean] \<Rightarrow> '\<AA> Boolean"
+definition OclExists     :: "[('\<AA>,'\<alpha>::null) Bag,('\<AA>,'\<alpha>)val\<Rightarrow>('\<AA>)Boolean] \<Rightarrow> '\<AA> Boolean"
 where     "OclExists S P = not(UML_Bag.OclForall S (\<lambda> X. not (P X)))"
 
 syntax
-  "_OclExistSet" :: "[('\<AA>,'\<alpha>::null) Set,id,('\<AA>)Boolean] \<Rightarrow> '\<AA> Boolean"    ("(_)->exists\<^sub>S\<^sub>e\<^sub>t'(_|_')")
+  "_OclExistBag" :: "[('\<AA>,'\<alpha>::null) Bag,id,('\<AA>)Boolean] \<Rightarrow> '\<AA> Boolean"    ("(_)->exists\<^sub>B\<^sub>a\<^sub>g'(_|_')")
 translations
-  "X->exists\<^sub>S\<^sub>e\<^sub>t(x | P)" == "CONST UML_Bag.OclExists X (%x. P)"
-*)
+  "X->exists\<^sub>B\<^sub>a\<^sub>g(x | P)" == "CONST UML_Bag.OclExists X (%x. P)"
+
   
 subsection{* Definition: Iterate *}
 
 definition OclIterate :: "[('\<AA>,'\<alpha>::null) Bag,('\<AA>,'\<beta>::null)val,
-                             ('\<AA>,'\<alpha>)val\<Rightarrow>('\<AA>,'\<beta>)val\<Rightarrow>('\<AA>,'\<beta>)val] \<Rightarrow> ('\<AA>,'\<beta>)val"
-where "OclIterate S A F = (\<lambda> \<tau>. let Rep = {(x0, y). y < \<lceil>\<lceil>Rep_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e (S \<tau>)\<rceil>\<rceil> x0 } in
-                                    if (\<delta> S) \<tau> = true \<tau> \<and> (\<upsilon> A) \<tau> = true \<tau> \<and> finite Rep
-                                    then (Finite_Set.fold (F o (\<lambda>a \<tau>. a) o fst) A Rep)\<tau>
+                           ('\<AA>,'\<alpha>)val\<Rightarrow>('\<AA>,'\<beta>)val\<Rightarrow>('\<AA>,'\<beta>)val] \<Rightarrow> ('\<AA>,'\<beta>)val"
+where     "OclIterate S A F = (\<lambda> \<tau>. if (\<delta> S) \<tau> = true \<tau> \<and> (\<upsilon> A) \<tau> = true \<tau> \<and> finite (Rep_Bag_base S \<tau>)
+                                    then Finite_Set.fold (F o (\<lambda>a \<tau>. a) o fst) A (Rep_Bag_base S \<tau>) \<tau>
                                     else \<bottom>)"
 syntax
   "_OclIterateBag"  :: "[('\<AA>,'\<alpha>::null) Bag, idt, idt, '\<alpha>, '\<beta>] => ('\<AA>,'\<gamma>)val"
@@ -509,48 +509,54 @@ syntax
 translations
   "X->iterate\<^sub>B\<^sub>a\<^sub>g(a; x = A | P)" == "CONST OclIterate X A (%a. (% x. P))"
 
-  (*
+(*TODO Locale - Equivalent*)  
+
 subsection{* Definition: Select *}
   
   
-definition OclSelect :: "[('\<AA>,'\<alpha>::null)Set,('\<AA>,'\<alpha>)val\<Rightarrow>('\<AA>)Boolean] \<Rightarrow> ('\<AA>,'\<alpha>)Set"
+definition OclSelect :: "[('\<AA>,'\<alpha>::null)Bag,('\<AA>,'\<alpha>)val\<Rightarrow>('\<AA>)Boolean] \<Rightarrow> ('\<AA>,'\<alpha>)Bag"
 where "OclSelect S P = (\<lambda>\<tau>. if (\<delta> S) \<tau> = true \<tau>
-                              then if (\<exists>x\<in>\<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (S \<tau>)\<rceil>\<rceil>. P(\<lambda> _. x) \<tau> = invalid \<tau>)
+                              then if (\<exists>x\<in>Rep_Set_base S \<tau>. P(\<lambda> _. x) \<tau> = invalid \<tau>)
                                    then invalid \<tau>
-                                   else Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor>\<lfloor>{x\<in>\<lceil>\<lceil> Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (S \<tau>)\<rceil>\<rceil>. P (\<lambda>_. x) \<tau> \<noteq> false \<tau>}\<rfloor>\<rfloor>
+                                   else Abs_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor>\<lfloor>\<lambda>x. 
+                                          let n = \<lceil>\<lceil> Rep_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e (S \<tau>) \<rceil>\<rceil> x in
+                                          if n = 0 | P (\<lambda>_. x) \<tau> = false \<tau> then
+                                            0
+                                          else
+                                            n\<rfloor>\<rfloor>
                               else invalid \<tau>)"
 syntax
-  "_OclSelectSet" :: "[('\<AA>,'\<alpha>::null) Set,id,('\<AA>)Boolean] \<Rightarrow> '\<AA> Boolean"    ("(_)->select\<^sub>S\<^sub>e\<^sub>t'(_|_')")
+  "_OclSelectBag" :: "[('\<AA>,'\<alpha>::null) Bag,id,('\<AA>)Boolean] \<Rightarrow> '\<AA> Boolean"    ("(_)->select\<^sub>B\<^sub>a\<^sub>g'(_|_')")
 translations
-  "X->select\<^sub>S\<^sub>e\<^sub>t(x | P)" == "CONST OclSelect X (% x. P)"
+  "X->select\<^sub>B\<^sub>a\<^sub>g(x | P)" == "CONST OclSelect X (% x. P)"
 
 subsection{* Definition: Reject *}
 
-definition OclReject :: "[('\<AA>,'\<alpha>::null)Set,('\<AA>,'\<alpha>)val\<Rightarrow>('\<AA>)Boolean] \<Rightarrow> ('\<AA>,'\<alpha>::null)Set"
+definition OclReject :: "[('\<AA>,'\<alpha>::null)Bag,('\<AA>,'\<alpha>)val\<Rightarrow>('\<AA>)Boolean] \<Rightarrow> ('\<AA>,'\<alpha>::null)Bag"
 where "OclReject S P = OclSelect S (not o P)"
 syntax
-  "_OclRejectSet" :: "[('\<AA>,'\<alpha>::null) Set,id,('\<AA>)Boolean] \<Rightarrow> '\<AA> Boolean"    ("(_)->reject\<^sub>S\<^sub>e\<^sub>t'(_|_')")
+  "_OclRejectBag" :: "[('\<AA>,'\<alpha>::null) Bag,id,('\<AA>)Boolean] \<Rightarrow> '\<AA> Boolean"    ("(_)->reject\<^sub>B\<^sub>a\<^sub>g'(_|_')")
 translations
-  "X->reject\<^sub>S\<^sub>e\<^sub>t(x | P)" == "CONST OclReject X (% x. P)"
+  "X->reject\<^sub>B\<^sub>a\<^sub>g(x | P)" == "CONST OclReject X (% x. P)"
 
 subsection{* Definition: IncludesAll *}
 
-definition OclIncludesAll   :: "[('\<AA>,'\<alpha>::null) Set,('\<AA>,'\<alpha>) Set] \<Rightarrow> '\<AA> Boolean"
+definition OclIncludesAll   :: "[('\<AA>,'\<alpha>::null) Bag,('\<AA>,'\<alpha>) Bag] \<Rightarrow> '\<AA> Boolean"
 where     "OclIncludesAll x y = (\<lambda> \<tau>.   if (\<delta> x) \<tau> = true \<tau> \<and> (\<delta> y) \<tau> = true \<tau>
-                                        then \<lfloor>\<lfloor>\<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (y \<tau>)\<rceil>\<rceil> \<subseteq> \<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (x \<tau>)\<rceil>\<rceil> \<rfloor>\<rfloor>
+                                        then \<lfloor>\<lfloor>Rep_Bag_base y \<tau> \<subseteq> Rep_Bag_base x \<tau> \<rfloor>\<rfloor>
                                         else \<bottom>  )"
-notation   OclIncludesAll ("_->includesAll\<^sub>S\<^sub>e\<^sub>t'(_')" (*[66,65]65*))
+notation   OclIncludesAll ("_->includesAll\<^sub>B\<^sub>a\<^sub>g'(_')" (*[66,65]65*))
 (* TODO locale instatiation *)
 
 subsection{* Definition: ExcludesAll *}
 
-definition OclExcludesAll   :: "[('\<AA>,'\<alpha>::null) Set,('\<AA>,'\<alpha>) Set] \<Rightarrow> '\<AA> Boolean"
+definition OclExcludesAll   :: "[('\<AA>,'\<alpha>::null) Bag,('\<AA>,'\<alpha>) Bag] \<Rightarrow> '\<AA> Boolean"
 where     "OclExcludesAll x y = (\<lambda> \<tau>.   if (\<delta> x) \<tau> = true \<tau> \<and> (\<delta> y) \<tau> = true \<tau>
-                                        then \<lfloor>\<lfloor>\<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (y \<tau>)\<rceil>\<rceil> \<inter> \<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (x \<tau>)\<rceil>\<rceil> = {} \<rfloor>\<rfloor>
+                                        then \<lfloor>\<lfloor>Rep_Bag_base y \<tau> \<inter> Rep_Bag_base x \<tau> = {} \<rfloor>\<rfloor>
                                         else \<bottom>  )"
-notation  OclExcludesAll ("_->excludesAll\<^sub>S\<^sub>e\<^sub>t'(_')" (*[66,65]65*))
+notation  OclExcludesAll ("_->excludesAll\<^sub>B\<^sub>a\<^sub>g'(_')" (*[66,65]65*))
 (* TODO locale instatiation *)
-*)
+
 subsection{* Definition: Union *}
 
 definition OclUnion   :: "[('\<AA>,'\<alpha>::null) Bag,('\<AA>,'\<alpha>) Bag] \<Rightarrow> ('\<AA>,'\<alpha>) Bag"
@@ -571,17 +577,17 @@ proof -
    by(subst (asm) Abs_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inject,
       simp_all add: bot_option_def null_option_def)+
 qed
-(*
+
 subsection{* Definition: Intersection *}
 
-definition OclIntersection   :: "[('\<AA>,'\<alpha>::null) Set,('\<AA>,'\<alpha>) Set] \<Rightarrow> ('\<AA>,'\<alpha>) Set"
+definition OclIntersection   :: "[('\<AA>,'\<alpha>::null) Bag,('\<AA>,'\<alpha>) Bag] \<Rightarrow> ('\<AA>,'\<alpha>) Bag"
 where     "OclIntersection x y = (\<lambda> \<tau>.  if (\<delta> x) \<tau> = true \<tau> \<and> (\<delta> y) \<tau> = true \<tau>
-                                        then Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e\<lfloor>\<lfloor>\<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (y \<tau>)\<rceil>\<rceil> 
-                                                         \<inter> \<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (x \<tau>)\<rceil>\<rceil>\<rfloor>\<rfloor>
+                                        then Abs_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e\<lfloor>\<lfloor> \<lambda> X. min (\<lceil>\<lceil>Rep_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e (x \<tau>)\<rceil>\<rceil> X) 
+                                                       (\<lceil>\<lceil>Rep_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e (y \<tau>)\<rceil>\<rceil> X)\<rfloor>\<rfloor>
                                         else \<bottom>  )"
-notation   OclIntersection("_->intersection\<^sub>S\<^sub>e\<^sub>t'(_')"   (*[71,70]70*))
+notation   OclIntersection("_->intersection\<^sub>B\<^sub>a\<^sub>g'(_')"   (*[71,70]70*))
 (* TODO locale instatiation *)
-*)
+
 subsection{* Definition: Count *}
 
 definition OclCount   :: "[('\<AA>,'\<alpha>::null) Bag,('\<AA>,'\<alpha>) val] \<Rightarrow> ('\<AA>) Integer"
@@ -594,9 +600,9 @@ notation   OclCount ("_->count\<^sub>B\<^sub>a\<^sub>g'(_')"  (*[66,65]65*))
 subsection{* Definition (future operators) *}
 
 consts (* abstract set collection operations *)
-    OclSum         :: " ('\<AA>,'\<alpha>::null) Set \<Rightarrow> '\<AA> Integer"
+    OclSum         :: " ('\<AA>,'\<alpha>::null) Bag \<Rightarrow> '\<AA> Integer"
   
-notation  OclSum         ("_->sum\<^sub>S\<^sub>e\<^sub>t'(')" (*[66]*))
+notation  OclSum         ("_->sum\<^sub>B\<^sub>a\<^sub>g'(')" (*[66]*))
 (*
 subsection{* Logical Properties *}
 
@@ -3279,7 +3285,7 @@ subsection{* Test Statements *}
 Assert   "(\<tau> \<Turnstile> (Bag{\<lambda>_. \<lfloor>x\<rfloor>} \<doteq> Bag{\<lambda>_. \<lfloor>x\<rfloor>}))"*)
 
 (* (*TODO.*)  
-open problem: An executable code-generator setup for the Set type. Some bits and pieces
+open problem: An executable code-generator setup for the Bag type. Some bits and pieces
 so far : 
 instantiation int :: equal
 begin
