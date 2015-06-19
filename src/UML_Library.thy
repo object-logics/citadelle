@@ -52,8 +52,8 @@ imports (* Basic Type Operations *)
         
         (* Collection Type Operations *)
         "collection_types/UML_Pair"
-        "collection_types/UML_Set"
         "collection_types/UML_Bag"
+        "collection_types/UML_Set"
         "collection_types/UML_Sequence"
 begin
 
