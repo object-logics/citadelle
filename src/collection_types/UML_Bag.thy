@@ -574,7 +574,6 @@ where     "OclUnion x y = (\<lambda> \<tau>. if (\<delta> x) \<tau> = true \<tau
                                                        \<lceil>\<lceil>Rep_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e (y \<tau>)\<rceil>\<rceil> X\<rfloor>\<rfloor>
                                 else invalid \<tau> )"
 notation   OclUnion       ("_->union\<^sub>B\<^sub>a\<^sub>g'(_')"          (*[66,65]65*))
-subsection{* Definition: Union *}
 
 interpretation OclUnion : 
                profile_bin\<^sub>d_\<^sub>d OclUnion "\<lambda>x y. Abs_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor>\<lfloor> \<lambda> X. \<lceil>\<lceil>Rep_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e x\<rceil>\<rceil> X + 

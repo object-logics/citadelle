@@ -205,6 +205,9 @@ begin
    lemma strict1[simp]: "f self invalid = invalid"
    by(rule ext, rename_tac "\<tau>", simp add: def_scheme)
 
+   lemma defined_mono : "\<tau> \<Turnstile>\<upsilon>(f Y Z) \<Longrightarrow> (\<tau> \<Turnstile>\<delta> Y) \<and> (\<tau> \<Turnstile>\<upsilon> Z)"
+   by(metis (no_types) invalid_def def_scheme foundation18')
+   
    lemma cp_pre: "cp self' \<Longrightarrow> cp a1' \<Longrightarrow>  cp (\<lambda>X. PRE (self' X) (a1' X)  )"
    by(rule_tac f=PRE in cpI2, auto intro: cp\<^sub>P\<^sub>R\<^sub>E)
      
@@ -267,6 +270,9 @@ begin
    lemma strict2[simp]: "f self X invalid = invalid"
    by(rule ext, rename_tac "\<tau>", simp add: def_scheme)
    
+   lemma defined_mono : "\<tau> \<Turnstile>\<upsilon>(f X Y Z) \<Longrightarrow> (\<tau> \<Turnstile>\<delta> X) \<and> (\<tau> \<Turnstile>\<upsilon> Y) \<and> (\<tau> \<Turnstile>\<upsilon> Z)"
+   by(metis (no_types) invalid_def def_scheme foundation18')
+   
    lemma cp_pre: "cp self' \<Longrightarrow> cp a1' \<Longrightarrow> cp a2' \<Longrightarrow> cp (\<lambda>X. PRE (self' X) (a1' X) (a2' X) )"
    by(rule_tac f=PRE in cpI3, auto intro: cp\<^sub>P\<^sub>R\<^sub>E)
   
@@ -302,9 +308,6 @@ begin
       apply(rule unfold2'[of _ _ _ "(a1, a2)", simplified])
       by((rule assms)+)
 end
-
-
-
 
 locale contract3 =
    fixes f   :: "('\<AA>,'\<alpha>0::null)val \<Rightarrow>            
@@ -343,13 +346,12 @@ sublocale contract3 < contract_scheme "\<lambda>(a1,a2,a3) \<tau>. (\<tau> \<Tur
 by(simp_all add: OclValid_def cp_valid[symmetric])
 
 context contract3
-begin thm strict0
+begin
    lemma strict0[simp] : "f invalid X Y Z = invalid"
-   apply(insert strict0[of "(X,Y,Z)"])
-   sorry
+   by(rule ext, rename_tac "\<tau>", simp add: def_scheme)
 
    lemma nullstrict0[simp]: "f null X Y Z = invalid"
-   apply(insert nullstrict0[of "(X,Y,Z)"], simp) sorry
+   by(rule ext, rename_tac "\<tau>", simp add: def_scheme)
 
    lemma strict1[simp]: "f self invalid Y Z = invalid"
    by(rule ext, rename_tac "\<tau>", simp add: def_scheme)
@@ -357,9 +359,8 @@ begin thm strict0
    lemma strict2[simp]: "f self X invalid Z = invalid"
    by(rule ext, rename_tac "\<tau>", simp add: def_scheme)
 
-   lemma defined_mono : "\<tau> \<Turnstile>\<upsilon>(f X Y Z Z') \<Longrightarrow>  (\<tau> \<Turnstile>\<delta> (X)) \<and> (\<tau> \<Turnstile>\<upsilon> Y) \<and> (\<tau> \<Turnstile>\<upsilon> Y) \<and> (\<tau> \<Turnstile>\<upsilon> Z) \<and> (\<tau> \<Turnstile>\<upsilon> Z')"
-   by (metis (no_types) invalid_def def_scheme foundation18')
-
+   lemma defined_mono : "\<tau> \<Turnstile>\<upsilon>(f W X Y Z) \<Longrightarrow> (\<tau> \<Turnstile>\<delta> W) \<and> (\<tau> \<Turnstile>\<upsilon> X) \<and> (\<tau> \<Turnstile>\<upsilon> Y) \<and> (\<tau> \<Turnstile>\<upsilon> Z)"
+   by(metis (no_types) invalid_def def_scheme foundation18')
    
    lemma cp_pre: "cp self' \<Longrightarrow> cp a1' \<Longrightarrow> cp a2'\<Longrightarrow> cp a3' 
                   \<Longrightarrow> cp (\<lambda>X. PRE (self' X) (a1' X) (a2' X) (a3' X) )"
@@ -383,7 +384,7 @@ begin thm strict0
       and                    " \<exists>res. (\<tau> \<Turnstile> POST self a1 a2 a3 (\<lambda> _. res))"
       and                    "(\<And>res. \<tau> \<Turnstile> POST self a1 a2 a3 (\<lambda> _. res)  \<Longrightarrow> \<tau> \<Turnstile> E (\<lambda> _. res))"
       shows                  "\<tau> \<Turnstile> E(f self a1 a2 a3)"
-      apply(rule unfold'[of _ _ _ "(a1, a2,a3)", simplified])
+      apply(rule unfold'[of _ _ _ "(a1, a2, a3)", simplified])
       by((rule assms)+)
 
    lemma unfold2 :

@@ -107,7 +107,7 @@ lemma XXX: "\<tau> \<Turnstile>  (X \<triangleq> null) \<Longrightarrow>  \<tau>
 by (metis foundation18 foundation22 valid2 valid_bool_split)
 
 lemma YYY: "\<tau> \<Turnstile> \<upsilon> bank .withdraw(c,a1,b) \<Longrightarrow> (\<tau> \<Turnstile> \<delta> bank) \<and> (\<tau> \<Turnstile> \<upsilon> c) \<and> (\<tau> \<Turnstile> \<upsilon> a1) \<and> (\<tau> \<Turnstile> \<upsilon> b)"
-sorry
+oops
 
 lemma 
 assumes  *:   "(\<sigma>,\<sigma>')       \<Turnstile> ((bank :: \<cdot>Bank) .get_balance(c , a1) \<triangleq> d)"
