@@ -116,8 +116,8 @@ and      ***: "(\<sigma>'',\<sigma>''')   \<Turnstile>  (bank .withdraw(c, a1, b
 shows         "(\<sigma>''',\<sigma>'''') \<Turnstile> ((bank .get_balance(c , a1)) \<triangleq> (d +\<^sub>i\<^sub>n\<^sub>t a -\<^sub>i\<^sub>n\<^sub>t b))"
 apply(insert * ** ***) 
 apply(frule XXX) back
-apply(frule YYY) 
-apply(subst UML_OCL.dot\<g>\<e>\<t>095\<b>\<a>\<l>\<a>\<n>\<c>\<e>_def)
+(*apply(frule YYY) 
+apply(subst UML_OCL.dot\<g>\<e>\<t>095\<b>\<a>\<l>\<a>\<n>\<c>\<e>_def)*)
 
 oops
 
