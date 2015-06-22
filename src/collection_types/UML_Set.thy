@@ -378,6 +378,8 @@ where     "OclExcluding x y = (\<lambda> \<tau>.  if (\<delta> x) \<tau> = true 
                                      else \<bottom> )"
 notation   OclExcluding   ("_->excluding\<^sub>S\<^sub>e\<^sub>t'(_')")
 
+(* TODO : Locale *)
+
 subsection{* Definition: Includes *}
 
 definition OclIncludes   :: "[('\<AA>,'\<alpha>::null) Set,('\<AA>,'\<alpha>) val] \<Rightarrow> '\<AA> Boolean"
@@ -385,6 +387,9 @@ where     "OclIncludes x y = (\<lambda> \<tau>.   if (\<delta> x) \<tau> = true 
                                      then \<lfloor>\<lfloor>(y \<tau>) \<in> \<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (x \<tau>)\<rceil>\<rceil> \<rfloor>\<rfloor>
                                      else \<bottom>  )"
 notation   OclIncludes    ("_->includes\<^sub>S\<^sub>e\<^sub>t'(_')" (*[66,65]65*))
+
+(* TODO : Locale *)
+
 
 subsection{* Definition: Excludes *}
 
@@ -396,6 +401,9 @@ text{* The case of the size definition is somewhat special, we admit
 explicitly in Featherweight OCL the possibility of infinite sets. For
 the size definition, this requires an extra condition that assures
 that the cardinality of the set is actually a defined integer. *}
+
+(* TODO : Locale *)
+
 
 subsection{* Definition: Size *}
 
@@ -412,11 +420,17 @@ a well-documented exception from the general strictness
 rule and the rule that the distinguished argument self should
 be non-null. *}
 
+(* TODO : Locale *)
+
+
 subsection{* Definition: IsEmpty *}
 
 definition OclIsEmpty   :: "('\<AA>,'\<alpha>::null) Set \<Rightarrow> '\<AA> Boolean"
 where     "OclIsEmpty x =  ((\<upsilon> x and not (\<delta> x)) or ((OclSize x) \<doteq> \<zero>))"
 notation   OclIsEmpty     ("_->isEmpty\<^sub>S\<^sub>e\<^sub>t'(')" (*[66]*))
+
+(* TODO : Locale *)
+
 
 subsection{* Definition: NotEmpty *}
 
@@ -424,6 +438,7 @@ definition OclNotEmpty   :: "('\<AA>,'\<alpha>::null) Set \<Rightarrow> '\<AA> B
 where     "OclNotEmpty x =  not(OclIsEmpty x)"
 notation   OclNotEmpty    ("_->notEmpty\<^sub>S\<^sub>e\<^sub>t'(')" (*[66]*))
 
+(* TODO : Locale *)
 
 subsection{* Definition: Any *}
 
@@ -441,6 +456,8 @@ a (totally correct) high-level definition
 source->any\<^sub>S\<^sub>e\<^sub>t(iterator | body) =
 source->select(iterator | body)->asSequence()->first(). Since we don't have sequences,
 we have to go for a direct---restricted---definition. *)
+
+
 
 subsection{* Definition: Forall *}
 
