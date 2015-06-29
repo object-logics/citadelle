@@ -97,7 +97,7 @@ fun show_text l =
                         Symtab.insert (op =) (s_of_name gram_name, ()))
                      l
                      terminals
-      val s = String.concat (map_filter (fn ((((gram_name, l), rew), prio), doc) => 
+      val s = String.concat (List.concat (map (fn ((((gram_name, l), rew), prio), doc) => 
         let val l = map (fn HOL s => if Symtab.lookup tab (s_of_name s) = NONE then
                                        HOL s
                                      else
@@ -109,7 +109,7 @@ fun show_text l =
               (if Symtab.lookup terminals s0 = NONE then s else "\\fbox{" ^ s ^ "}") ^ " "
               end
             fun output_text f =
-                         SOME ( "text\<open>{\\color{Gray}($\\text{@{text \""
+                              [ "text\<open>{\\color{Gray}($\\text{@{text \""
                               ^ s_of_name gram_name ^ "\"}}^{\\text{\\color{GreenYellow}" ^ Int.toString prio ^ "}}$"
                               ^ ")} "
                               ^ String.concat (map (fn Grammar (t, p) => gram t (SOME p)
@@ -126,12 +126,14 @@ fun show_text l =
                                                 | SOME ty => "\\fbox{\\small @{text \"" ^ s ^ "\"}}\\text{\\space\\color{Black}@{text \"" ^ ty ^ "\"}}")
                                     ^ "}"
                                     end)
-                              ^ "\<close>\n") in
-        case doc of SOME Gen_remove => NONE
+                              ^ "\<close>\n" ] in
+        case doc of SOME Gen_remove => []
                   | SOME Gen_add_raw => output_text (fn "\<^bsub>" => "\\rotatebox[origin=c]{315}{$\\Rightarrow$}"
                                                       | "\<^esub>" => "\\rotatebox[origin=c]{45}{$\\Leftarrow$}")
-                  | _ => output_text (fn s => "@{text \"" ^ s ^ "\"}")
-        end) l) in
+                  | _ => List.concat [ output_text (fn s => "@{text \"" ^ s ^ "\"}")
+                                     , case doc of SOME (Gen_add s) => [ "(* *) text\<open>" ^ Input.source_content s ^ "\<close>\n" ]
+                                                 | _ => []]
+        end) l)) in
   writeln (Active.sendback_markup [Markup.padding_command] s) 
   end
 
