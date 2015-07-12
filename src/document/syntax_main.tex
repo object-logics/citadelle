@@ -1,0 +1,77 @@
+\documentclass[10pt,DIV12,a4paper,openright,twoside,abstracton]{scrreprt}
+\usepackage{fixltx2e}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{textcomp}
+\usepackage{isabelle}
+\usepackage{longtable}
+\usepackage[nocolortable, noaclist,isasymonly]{hol-ocl-isar}
+
+\renewcommand{\lfloor}{\isasymHolOclLiftLeft}
+\renewcommand{\rfloor}{\isasymHolOclLiftRight}
+\renewcommand{\lceil}{\isasymHolOclDropLeft}
+\renewcommand{\rceil}{\isasymHolOclDropRight}
+
+\usepackage[]{mathtools}
+
+\newcommand{\HOL}{HOL\xspace}
+\newcommand{\OCL}{OCL\xspace}
+\newcommand{\UML}{UML\xspace}
+\newcommand{\HOLOCL}{HOL-OCL\xspace}
+\newcommand{\FOCL}{Featherweight OCL\xspace}
+\newcommand{\ptmi}[1]{\using{\mi{#1}}}
+\newcommand{\Lemma}[1]{{\color{BrickRed}%
+    \mathbf{\operatorname{lemma}}}~\text{#1:}\quad}
+\newcommand{\done}{{\color{OliveGreen}\operatorname{done}}}
+\newcommand{\apply}[1]{{\holoclthykeywordstyle%
+    \operatorname{apply}}(\text{#1})}
+\newcommand{\fun} {{\holoclthykeywordstyle\operatorname{fun}}}
+\newcommand{\isardef} {{\holoclthykeywordstyle\operatorname{definition}}}
+\newcommand{\where} {{\holoclthykeywordstyle\operatorname{where}}}
+\newcommand{\datatype} {{\holoclthykeywordstyle\operatorname{datatype}}}
+\newcommand{\types} {{\holoclthykeywordstyle\operatorname{types}}}
+\newcommand{\pglabel}[1]{\text{#1}}
+\renewcommand{\isasymOclUndefined}{\ensuremath{\mathtt{invalid}}}
+\newcommand{\isasymOclNull}{\ensuremath{\mathtt{null}}}
+\newcommand{\isasymOclInvalid}{\isasymOclUndefined}
+\DeclareMathOperator{\inv}{inv}
+\newcommand{\Null}[1]{{\ensuremath{\mathtt{null}_\text{{#1}}}}}
+\newcommand{\testgen}{HOL-TestGen\xspace}
+\newcommand{\HolOption}{\mathrm{option}}
+\newcommand{\ran}{\mathrm{ran}}
+\newcommand{\dom}{\mathrm{dom}}
+\newcommand{\typedef}{\mathrm{typedef}}
+\newcommand{\typesynonym}{\mathrm{type\_synonym}}
+\newcommand{\mi}[1]{\,\text{#1}}
+\newcommand{\state}[1]{\ifthenelse{\equal{}{#1}}%
+  {\operatorname{state}}%
+  {\operatorname{\mathit{state}}(#1)}%
+}
+\newcommand{\mocl}[1]{\text{\inlineocl|#1|}}
+\DeclareMathOperator{\TCnull}{null}
+\DeclareMathOperator{\HolNull}{null}
+\DeclareMathOperator{\HolBot}{bot}
+\newcommand{\isaAA}{\mathfrak{A}}
+
+% urls in roman style, theory text in math-similar italics
+\newcommand{\ie}{i.\,e.\xspace}
+\newcommand{\eg}{e.\,g.\xspace}
+
+\newenvironment{isamarkuplazy_text}{\par \isacommand{lazy{\isacharunderscore}text}\isamarkupfalse\isacharverbatimopen\isastyletext\begin{isapar}}{\end{isapar}\isacharverbatimclose}
+\renewcommand{\isasymguillemotleft}{\isatext{\textquotedblleft}}
+\renewcommand{\isasymguillemotright}{\isatext{\textquotedblright}}
+\newcommand{\isactrlconst}{isactrlconst}
+\newcommand{\isactrltype}{isactrltype}
+\begin{document}
+
+\newenvironment{matharray}[1]{\[\begin{array}{#1}}{\end{array}\]} % from 'iman.sty'
+
+\input{FOCL_Syntax}
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:
+
+%  LocalWords:  implementors denotational OCL UML
