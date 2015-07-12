@@ -3,9 +3,16 @@
 \usepackage[T1]{fontenc}
 \usepackage[utf8]{inputenc}
 \usepackage{textcomp}
-\usepackage{booktabs}
 \usepackage{isabelle}
-\usepackage{longtable}
+\usepackage{%
+  multirow,
+  paralist,
+  booktabs,     %       "        "      "
+  threeparttable,
+  longtable,    % Mehrseitige Tabellen 
+}
+
+
 \usepackage[nocolortable, noaclist,isasymonly]{hol-ocl-isar}
 
 \renewcommand{\lfloor}{\isasymHolOclLiftLeft}
