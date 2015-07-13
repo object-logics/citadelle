@@ -25,8 +25,68 @@ l% >{$}l<{$}%
 \endfoot
   \bottomrule
   \endlastfoot
-%%%%
-%%%%
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  %%%% 11.3.1 OclAny
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  \multirow{8}{*}{\rotatebox{90}{OclAny}}
+  &\footnotesize\inlineocl"_ = _"
+  & \hide{\color{Gray}($\text{\isaFS{logic}}^{\text{\color{GreenYellow}1000}}$)} \foclcolorbox{Apricot}{\isaFS{op}} \foclcolorbox{Apricot}{\isaFS{{\isasymtriangleq}}} & {{\isaFS{UML{\isacharunderscore}Logic{\isachardot}StrongEq}}\hideT{\text{\space\color{Black}\isaFS{const}}}}%
+  \\
+& \footnotesize\inlineocl"_ <> _"
+& \hide{\color{Gray}($\text{\isaFS{logic}}^{\text{\color{GreenYellow}1000}}$)} \foclcolorbox{Apricot}{\isaFS{op}} \foclcolorbox{Apricot}{\isaFS{{\isacharless}{\isachargreater}}} & {{\color{Gray} \isaFS{notequal}}}%
+  \\
+&\footnotesize\inlineocl"_ .oclIsNew()"
+& \hide{\color{Gray}($\text{\isaFS{logic}}^{\text{\color{GreenYellow}1000}}$)}\simpleArgs{$\text{\isaFS{logic}}^{\text{\color{GreenYellow}0}}$} \foclcolorbox{Apricot}{\isaFS{{\isachardot}oclIsNew{\isacharparenleft}{\isacharparenright}}} & {{ \isaFS{UML{\isacharunderscore}State{\isachardot}OclIsNew}}\hideT{\text{\space\color{Black}\isaFS{const}}}}%
+\\
+  %
+&\footnotesize\inlineocl"not ( _ ->oclIsUndefined() )"
+& \hide{\color{Gray}($\text{\isaFS{logic}}^{\text{\color{GreenYellow}100}}$)} \foclcolorbox{Apricot}{\isaFS{{\isasymdelta}}}\simpleArgs{$\text{\isaFS{logic}}^{\text{\color{GreenYellow}100}}$} & {{ \isaFS{UML{\isacharunderscore}Logic{\isachardot}defined}}\hideT{\text{\space\color{Black}\isaFS{const}}}}%
+\\
+
+%
+  
+&\footnotesize\inlineocl"not ( _ ->oclIsInvalid() )"
+& \hide{\color{Gray}($\text{\isaFS{logic}}^{\text{\color{GreenYellow}100}}$)} \foclcolorbox{Apricot}{\isaFS{{\isasymupsilon}}}\simpleArgs{$\text{\isaFS{logic}}^{\text{\color{GreenYellow}100}}$} & {{ \isaFS{UML{\isacharunderscore}Logic{\isachardot}valid}}\hideT{\text{\space\color{Black}\isaFS{const}}}}%
+\\
+&\footnotesize\inlineocl"_ ->oclAsType( _ )"&&\\
+&\footnotesize\inlineocl"_ ->oclIsTypeOf( _ )"&&\\
+&\footnotesize\inlineocl"_ ->oclIsKindOf( _ )"&&\\
+&\footnotesize\inlineocl"_ ->oclIsInState( _ )"&&\\
+&\footnotesize\inlineocl"_ ->oclType()"&&\\
+&\footnotesize\inlineocl"_ ->oclLocale()"&&\\
+
+  \cmidrule{1-4}
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  %%%% 11.3.2 OclVoid
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  \multirow{1}{*}{\rotatebox{90}{OclVoid}}
+  &\footnotesize\inlineocl"_ = _"
+  & \hide{\color{Gray}($\text{\isaFS{logic}}^{\text{\color{GreenYellow}1000}}$)} \foclcolorbox{Apricot}{\isaFS{op}} \foclcolorbox{Apricot}{\isaFS{{\isasymtriangleq}}} & {{\isaFS{UML{\isacharunderscore}Logic{\isachardot}StrongEq}}\hideT{\text{\space\color{Black}\isaFS{const}}}}%
+  \\
+  \cmidrule{1-4}
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  %%%% 11.3.3 OclMessage
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  
 %%%%
 \multirow{6}{*}{\rotatebox{90}{Boolean}}
 &\footnotesize\inlineocl"_ = _"
@@ -763,14 +823,7 @@ l% >{$}l<{$}%
 &
 & \hide{\color{Gray}($\text{\isaFS{logic}}^{\text{\color{GreenYellow}1000}}$)} \foclcolorbox{Apricot}{\isaFS{I{\isasymlbrakk}}} $\text{\isaFS{any}}^{\text{\color{GreenYellow}0}}$ \foclcolorbox{Apricot}{\isaFS{{\isasymrbrakk}}} & {{ \isaFS{UML{\isacharunderscore}Types{\isachardot}Sem}}\hideT{\text{\space\color{Black}\isaFS{const}}}}%
 \\
-%
-&\footnotesize\inlineocl"not ( _ ->oclIsInvalid() )"
-& \hide{\color{Gray}($\text{\isaFS{logic}}^{\text{\color{GreenYellow}100}}$)} \foclcolorbox{Apricot}{\isaFS{{\isasymupsilon}}}\simpleArgs{$\text{\isaFS{logic}}^{\text{\color{GreenYellow}100}}$} & {{ \isaFS{UML{\isacharunderscore}Logic{\isachardot}valid}}\hideT{\text{\space\color{Black}\isaFS{const}}}}%
-\\
-%
-&\footnotesize\inlineocl"not ( _ ->oclIsUndefined() )"
-& \hide{\color{Gray}($\text{\isaFS{logic}}^{\text{\color{GreenYellow}100}}$)} \foclcolorbox{Apricot}{\isaFS{{\isasymdelta}}}\simpleArgs{$\text{\isaFS{logic}}^{\text{\color{GreenYellow}100}}$} & {{ \isaFS{UML{\isacharunderscore}Logic{\isachardot}defined}}\hideT{\text{\space\color{Black}\isaFS{const}}}}%
-\\
+
 
 %
 &
@@ -821,9 +874,6 @@ l% >{$}l<{$}%
 
 %
 
-&\footnotesize\inlineocl"_ .oclIsNew()"
-& \hide{\color{Gray}($\text{\isaFS{logic}}^{\text{\color{GreenYellow}1000}}$)}\simpleArgs{$\text{\isaFS{logic}}^{\text{\color{GreenYellow}0}}$} \foclcolorbox{Apricot}{\isaFS{{\isachardot}oclIsNew{\isacharparenleft}{\isacharparenright}}} & {{ \isaFS{UML{\isacharunderscore}State{\isachardot}OclIsNew}}\hideT{\text{\space\color{Black}\isaFS{const}}}}%
-\\
 
 %
 
