@@ -143,32 +143,42 @@ l% >{$}l<{$}%
 &\footnotesize\inlineocl"_ * _"
 & \hide{\color{Gray}($\text{\isaFS{logic}}^{\text{\color{GreenYellow}1000}}$)} \foclcolorbox{Apricot}{\isaFS{op}} \foclcolorbox{Apricot}{\isaFS{{\isacharasterisk}\isactrlsub r\isactrlsub e\isactrlsub a\isactrlsub l}} & {{ \isaFS{UML{\isacharunderscore}Real{\isachardot}OclMult\isactrlsub R\isactrlsub e\isactrlsub a\isactrlsub l}}\hideT{\text{\space\color{Black}\isaFS{const}}}}%
 \\
-%
-&\footnotesize\inlineocl"_ div _"
-& \hide{\color{Gray}($\text{\isaFS{logic}}^{\text{\color{GreenYellow}1000}}$)} \foclcolorbox{Apricot}{\isaFS{op}} \foclcolorbox{Apricot}{\isaFS{div\isactrlsub r\isactrlsub e\isactrlsub a\isactrlsub l}} & {{ \isaFS{UML{\isacharunderscore}Real{\isachardot}OclDivision\isactrlsub R\isactrlsub e\isactrlsub a\isactrlsub l}}\hideT{\text{\space\color{Black}\isaFS{const}}}}%
-\\
-%
-&\footnotesize\inlineocl"_ mod _"
-& \hide{\color{Gray}($\text{\isaFS{logic}}^{\text{\color{GreenYellow}1000}}$)} \foclcolorbox{Apricot}{\isaFS{op}} \foclcolorbox{Apricot}{\isaFS{mod\isactrlsub r\isactrlsub e\isactrlsub a\isactrlsub l}} & {{ \isaFS{UML{\isacharunderscore}Real{\isachardot}OclModulus\isactrlsub R\isactrlsub e\isactrlsub a\isactrlsub l}}\hideT{\text{\space\color{Black}\isaFS{const}}}}%
-\\
+& \footnotesize\inlineocl"- _" &&\\
+& \footnotesize\inlineocl"_ / _" &&\\
+& \footnotesize\inlineocl"_ ->abs()" &&\\
+& \footnotesize\inlineocl"_ ->floor()" &&\\
+& \footnotesize\inlineocl"_ ->round()" &&\\
+& \footnotesize\inlineocl"_ ->max()" &&\\
+& \footnotesize\inlineocl"_ ->min()" &&\\
 %
 &\footnotesize\inlineocl"_ < _"
 & \hide{\color{Gray}($\text{\isaFS{logic}}^{\text{\color{GreenYellow}1000}}$)} \foclcolorbox{Apricot}{\isaFS{op}} \foclcolorbox{Apricot}{\isaFS{{\isacharless}\isactrlsub r\isactrlsub e\isactrlsub a\isactrlsub l}} & {{ \isaFS{UML{\isacharunderscore}Real{\isachardot}OclLess\isactrlsub R\isactrlsub e\isactrlsub a\isactrlsub l}}\hideT{\text{\space\color{Black}\isaFS{const}}}}%
 \\
-%
+& \footnotesize\inlineocl"_ > _" & &\\
 &\footnotesize\inlineocl"_ <= _"
 & \hide{\color{Gray}($\text{\isaFS{logic}}^{\text{\color{GreenYellow}1000}}$)} \foclcolorbox{Apricot}{\isaFS{op}} \foclcolorbox{Apricot}{\isaFS{{\isasymle}\isactrlsub r\isactrlsub e\isactrlsub a\isactrlsub l}} & {{ \isaFS{UML{\isacharunderscore}Real{\isachardot}OclLe\isactrlsub R\isactrlsub e\isactrlsub a\isactrlsub l}}\hideT{\text{\space\color{Black}\isaFS{const}}}}%
   \\
+& \footnotesize\inlineocl"_ >= _" & &\\
+& \footnotesize\inlineocl"_ ->toString()" &&\\
+%
+&\footnotesize\textcolor{Gray}{\inlineocl"_ div _"}
+& \hide{\color{Gray}($\text{\isaFS{logic}}^{\text{\color{GreenYellow}1000}}$)} \foclcolorbox{Apricot}{\isaFS{op}} \foclcolorbox{Apricot}{\isaFS{div\isactrlsub r\isactrlsub e\isactrlsub a\isactrlsub l}} & {{ \isaFS{UML{\isacharunderscore}Real{\isachardot}OclDivision\isactrlsub R\isactrlsub e\isactrlsub a\isactrlsub l}}\hideT{\text{\space\color{Black}\isaFS{const}}}}%
+\\
+%
+&\footnotesize\textcolor{Gray}{\inlineocl"_ mod _"}
+& \hide{\color{Gray}($\text{\isaFS{logic}}^{\text{\color{GreenYellow}1000}}$)} \foclcolorbox{Apricot}{\isaFS{op}} \foclcolorbox{Apricot}{\isaFS{mod\isactrlsub r\isactrlsub e\isactrlsub a\isactrlsub l}} & {{ \isaFS{UML{\isacharunderscore}Real{\isachardot}OclModulus\isactrlsub R\isactrlsub e\isactrlsub a\isactrlsub l}}\hideT{\text{\space\color{Black}\isaFS{const}}}}%
+\\
+%
 
   %
 
-&\footnotesize\inlineocl"_ ->oclAsType(Integer)"
+&\footnotesize\textcolor{Gray}{\footnotesize\inlineocl"_ ->oclAsType(Integer)"}
 & \hide{\color{Gray}($\text{\isaFS{logic}}^{\text{\color{GreenYellow}1000}}$)}\simpleArgs{$\text{\isaFS{logic}}^{\text{\color{GreenYellow}0}}$} \foclcolorbox{Apricot}{\isaFS{{\isacharminus}{\isachargreater}asInteger\isactrlsub R\isactrlsub e\isactrlsub a\isactrlsub l{\isacharparenleft}{\isacharparenright}}} & {{ \isaFS{UML{\isacharunderscore}Library{\isachardot}OclAsInteger\isactrlsub R\isactrlsub e\isactrlsub a\isactrlsub l}}\hideT{\text{\space\color{Black}\isaFS{const}}}}%
 \\
 
 %
 
-&\footnotesize\inlineocl"_ ->oclAsType(Boolean)"
+&\footnotesize\textcolor{Gray}{\footnotesize\inlineocl"_ ->oclAsType(Boolean)"}
 & \hide{\color{Gray}($\text{\isaFS{logic}}^{\text{\color{GreenYellow}1000}}$)}\simpleArgs{$\text{\isaFS{logic}}^{\text{\color{GreenYellow}0}}$} \foclcolorbox{Apricot}{\isaFS{{\isacharminus}{\isachargreater}asBoolean\isactrlsub R\isactrlsub e\isactrlsub a\isactrlsub l{\isacharparenleft}{\isacharparenright}}} & {{ \isaFS{UML{\isacharunderscore}Library{\isachardot}OclAsBoolean\isactrlsub R\isactrlsub e\isactrlsub a\isactrlsub l}}\hideT{\text{\space\color{Black}\isaFS{const}}}}%
 \\
 \cmidrule{1-4}
