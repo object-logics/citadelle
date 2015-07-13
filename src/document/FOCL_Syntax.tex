@@ -1,3 +1,4 @@
+\chapter{The OCL And Featherweight OCL Syntax}
 \newcommand{\simpleArgs}[1]{\_}
 \newcommand{\hide}[1]{}
 \newcommand{\hideT}[1]{}
@@ -401,7 +402,7 @@ l% >{$}l<{$}%
   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
   %%%% 11.5.4 Boolean
   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\multirow{6}{*}{\rotatebox{90}{Boolean}}
+\multirow{6}{*}{\rotatebox{90}{Boolean and Core Logic}}
 %
 & \footnotesize\inlineocl"_ or _"
 & \hide{\color{Gray}($\text{\isaFS{logic}}^{\text{\color{GreenYellow}1000}}$)} \foclcolorbox{Apricot}{\isaFS{op}} \foclcolorbox{Apricot}{\isaFS{or}} & {{ \isaFS{UML{\isacharunderscore}Logic{\isachardot}OclOr}}\hideT{\text{\space\color{Black}\isaFS{const}}}}%
@@ -420,6 +421,30 @@ l% >{$}l<{$}%
 & \hide{\color{Gray}($\text{\isaFS{logic}}^{\text{\color{GreenYellow}1000}}$)} \foclcolorbox{Apricot}{\isaFS{op}} \foclcolorbox{Apricot}{\isaFS{implies}} & {{ \isaFS{UML{\isacharunderscore}Logic{\isachardot}OclImplies}}\hideT{\text{\space\color{Black}\isaFS{const}}}}%
 \\
 &\footnotesize\inlineocl"_ .toString()"&&\\
+  &\footnotesize\inlineocl"if _  then _ else _ endif"
+& \hide{\color{Gray}($\text{\isaFS{logic}}^{\text{\color{GreenYellow}50}}$)} \foclcolorbox{Apricot}{\isaFS{if}}\simpleArgs{$\text{\isaFS{logic}}^{\text{\color{GreenYellow}10}}$} \foclcolorbox{Apricot}{\isaFS{then}} \simpleArgs{$\text{\isaFS{logic}}^{\text{\color{GreenYellow}10}}$} \foclcolorbox{Apricot}{\isaFS{else}} \simpleArgs{$\text{\isaFS{logic}}^{\text{\color{GreenYellow}10}}$} \foclcolorbox{Apricot}{\isaFS{endif}} & {{ \isaFS{UML{\isacharunderscore}Logic{\isachardot}OclIf}}\hideT{\text{\space\color{Black}\isaFS{const}}}}%
+\\
+& \footnotesize\inlineocl"_ = _"
+& \hide{\color{Gray}($\text{\isaFS{logic}}^{\text{\color{GreenYellow}1000}}$)} \foclcolorbox{Apricot}{\isaFS{op}} \foclcolorbox{Apricot}{\isaFS{{\isasymdoteq}}} & {{ \isaFS{UML{\isacharunderscore}Logic{\isachardot}StrictRefEq}}\hideT{\text{\space\color{Black}\isaFS{const}}}}%
+\\
+%
+& \footnotesize\inlineocl"_ <> _"
+& \hide{\color{Gray}($\text{\isaFS{logic}}^{\text{\color{GreenYellow}1000}}$)} \foclcolorbox{Apricot}{\isaFS{op}} \foclcolorbox{Apricot}{\isaFS{{\isacharless}{\isachargreater}}} & {{\color{Gray} \isaFS{notequal}}}%
+  \\
+%
+  %
+&
+& \hide{\color{Gray}($\text{\isaFS{logic}}^{\text{\color{GreenYellow}50}}$)}\simpleArgs{$\text{\isaFS{logic}}^{\text{\color{GreenYellow}0}}$} \foclcolorbox{Apricot}{\isaFS{{\isacharbar}{\isasymnoteq}}} \simpleArgs{$\text{\isaFS{logic}}^{\text{\color{GreenYellow}0}}$} & {{\color{Gray} \isaFS{OclNonValid}}}%
+\\
+%
+&
+& \hide{\color{Gray}($\text{\isaFS{logic}}^{\text{\color{GreenYellow}50}}$)}\simpleArgs{$\text{\isaFS{logic}}^{\text{\color{GreenYellow}0}}$} \foclcolorbox{Apricot}{\isaFS{{\isasymTurnstile}}} \simpleArgs{$\text{\isaFS{logic}}^{\text{\color{GreenYellow}0}}$} & {{ \isaFS{UML{\isacharunderscore}Logic{\isachardot}OclValid}}\hideT{\text{\space\color{Black}\isaFS{const}}}}%
+\\
+&\footnotesize\textcolor{Gray}{\inlineocl"_ = _"}
+& \hide{\color{Gray}($\text{\isaFS{logic}}^{\text{\color{GreenYellow}1000}}$)} \foclcolorbox{Apricot}{\isaFS{op}} \foclcolorbox{Apricot}{\isaFS{{\isasymtriangleq}}} & {{\isaFS{UML{\isacharunderscore}Logic{\isachardot}StrongEq}}\hideT{\text{\space\color{Black}\isaFS{const}}}}%
+\\
+%
+
 \cmidrule{1-4}
   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
   %%%% 11.5.5 UnlimitedNatural
@@ -433,6 +458,12 @@ l% >{$}l<{$}%
   %%%% 11.7.2 Set
   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
   \multirow{12}{*}{\rotatebox{90}{Set and Iterators on Set}}
+&\footnotesize\inlineocl"Set ( _ )"
+& \hide{\color{Gray}($\text{\isaFS{type}}^{\text{\color{GreenYellow}1000}}$)} \foclcolorbox{Apricot}{\isaFS{Set{\isacharparenleft}}} $\text{\isaFS{type}}^{\text{\color{GreenYellow}0}}$ \foclcolorbox{Apricot}{\isaFS{{\isacharparenright}}} & {{ \isaFS{UML{\isacharunderscore}Types{\isachardot}Set\isactrlsub b\isactrlsub a\isactrlsub s\isactrlsub e}}\text{\space\color{Black}\isaFS{type}}}%
+\\
+
+%
+
 &\footnotesize\inlineocl"Set{}"
        & \hide{\color{Gray}($\text{\isaFS{logic}}^{\text{\color{GreenYellow}1000}}$)} \foclcolorbox{Apricot}{\isaFS{Set{\isacharbraceleft}{\isacharbraceright}}} & {{ \isaFS{UML{\isacharunderscore}Set{\isachardot}mtSet}}\hideT{\text{\space\color{Black}\isaFS{const}}}}%
 \\
@@ -582,8 +613,12 @@ l% >{$}l<{$}%
   %%%% 11.7.2 Sequence
   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \multirow{15}{*}{\rotatebox{90}{Sequence and Iterators on Sequence}}
+
+&\footnotesize\inlineocl"Sequence ( _ )"
+& \hide{\color{Gray}($\text{\isaFS{type}}^{\text{\color{GreenYellow}1000}}$)} \foclcolorbox{Apricot}{\isaFS{Sequence{\isacharparenleft}}} $\text{\isaFS{type}}^{\text{\color{GreenYellow}0}}$ \foclcolorbox{Apricot}{\isaFS{{\isacharparenright}}} & {{ \isaFS{UML{\isacharunderscore}Types{\isachardot}Sequence\isactrlsub b\isactrlsub a\isactrlsub s\isactrlsub e}}\text{\space\color{Black}\isaFS{type}}}%
+  \\
 &\footnotesize\inlineocl"Sequence{}"
-& \hide{\color{Gray}($\text{\isaFS{logic}}^{\text{\color{GreenYellow}1000}}$)} \foclcolorbox{Apricot}{\isaFS{Sequence{\isacharbraceleft}{\isacharbraceright}}} & {{ \isaFS{UML{\isacharunderscore}Sequence{\isachardot}mtSequence}}\hideT{\text{\space\color{Black}\isaFS{const}}}}%
+       & \hide{\color{Gray}($\text{\isaFS{logic}}^{\text{\color{GreenYellow}1000}}$)} \foclcolorbox{Apricot}{\isaFS{Sequence{\isacharbraceleft}{\isacharbraceright}}} & {{ \isaFS{UML{\isacharunderscore}Sequence{\isachardot}mtSequence}}\hideT{\text{\space\color{Black}\isaFS{const}}}}%
 \\
 
 %
@@ -700,16 +735,18 @@ l% >{$}l<{$}%
   
 %
 %
-\cmidrule{1-4}
-
-
-
 
 \cmidrule{1-4}
   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
   %%%% 11.7.3 Bag
   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \multirow{15}{*}{\rotatebox{90}{Bag and Iterators on Bag}}
+%
+
+&\footnotesize\inlineocl"Bag ( _ )"
+& \hide{\color{Gray}($\text{\isaFS{type}}^{\text{\color{GreenYellow}1000}}$)} \foclcolorbox{Apricot}{\isaFS{Bag{\isacharparenleft}}} $\text{\isaFS{type}}^{\text{\color{GreenYellow}0}}$ \foclcolorbox{Apricot}{\isaFS{{\isacharparenright}}} & {{ \isaFS{UML{\isacharunderscore}Types{\isachardot}Bag\isactrlsub b\isactrlsub a\isactrlsub s\isactrlsub e}}\text{\space\color{Black}\isaFS{type}}}%
+\\
+
 %
 %
 &\footnotesize\inlineocl"Bag{}"
@@ -837,35 +874,9 @@ l% >{$}l<{$}%
 
 
 \cmidrule{1-4}
-
-%%%% 
-%%%%
-%%%%
-%%%%
-%%%%
-%%%%
-%%%%
-%%%%
-%%%%
-%%%%
-%%%%
-%%%%
-%%%%
-%%%%
-%%%%
-%%%%
-%%%%  
-%%%%
-%%%%
-%%%%
-%%%%  
-%%%%
-%%%%
-%%%%
-%%%%  
-%%%%
-%%%%
-%%%%
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
+  %%%% Pair
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \multirow{3}{*}{\rotatebox{90}{Pair}}
 
 &\footnotesize\inlineocl""
@@ -900,64 +911,11 @@ l% >{$}l<{$}%
 \\
 
 
-\cmidrule{1-4}
-%%%%  
-%%%%
-%%%%
-%%%%
-
-  \multirow{7}{*}{\rotatebox{90}{Unsorted}}
-
-%
-
-
-  
-&
-& \hide{\color{Gray}($\text{\isaFS{logic}}^{\text{\color{GreenYellow}1000}}$)} \foclcolorbox{Apricot}{\isaFS{{\isasymlceil}}}\simpleArgs{$\text{\isaFS{logic}}^{\text{\color{GreenYellow}0}}$} \foclcolorbox{Apricot}{\isaFS{{\isasymrceil}}} & {{ \isaFS{UML{\isacharunderscore}Types{\isachardot}drop}}\hideT{\text{\space\color{Black}\isaFS{const}}}}%
-\\
-%
-&
-& \hide{\color{Gray}($\text{\isaFS{logic}}^{\text{\color{GreenYellow}1000}}$)} \foclcolorbox{Apricot}{\isaFS{I{\isasymlbrakk}}} $\text{\isaFS{any}}^{\text{\color{GreenYellow}0}}$ \foclcolorbox{Apricot}{\isaFS{{\isasymrbrakk}}} & {{ \isaFS{UML{\isacharunderscore}Types{\isachardot}Sem}}\hideT{\text{\space\color{Black}\isaFS{const}}}}%
-\\
-
-
-%
-&
-& \hide{\color{Gray}($\text{\isaFS{logic}}^{\text{\color{GreenYellow}1000}}$)} \foclcolorbox{Apricot}{\isaFS{{\isasymbottom}}} & {{ \isaFS{UML{\isacharunderscore}Types{\isachardot}bot{\isacharunderscore}class{\isachardot}bot}}\hideT{\text{\space\color{Black}\isaFS{const}}}}%
-\\
-
-%
-
-  
-%
-&
-& \hide{\color{Gray}($\text{\isaFS{logic}}^{\text{\color{GreenYellow}1000}}$)} \foclcolorbox{Apricot}{\isaFS{{\isasymbottom}}} & {{ \isaFS{Option{\isachardot}option{\isachardot}None}}\hideT{\text{\space\color{Black}\isaFS{const}}}}%
-\\
-
-
-
-
-%
-
-
-%
-
-
-%
-
-%
-% & \hide{\color{Gray}($\text{\isaFS{logic}}^{\text{\color{GreenYellow}1000}}$)} $\text{\isaFS{cartouche{\isacharunderscore}position}}^{\text{\color{GreenYellow}0}}$ & {{\color{Gray} \isaFS{cartouche{\isacharunderscore}oclstring}}}%
-% \\
-
-%
-&
-& \hide{\color{Gray}($\text{\isaFS{logic}}^{\text{\color{GreenYellow}1000}}$)} \foclcolorbox{Apricot}{\isaFS{{\isacharunderscore}{\isacharprime}}} & {{\color{Gray} \isaFS{ocl{\isacharunderscore}denotation}}}%
-\\
-
-
-%
-%
-
+  \cmidrule{1-4}
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
+  %%%% Pair
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\multirow{3}{*}{\rotatebox{90}{State Access}}
 
 &\footnotesize\inlineocl"_ .allInstances()"
 & \hide{\color{Gray}($\text{\isaFS{logic}}^{\text{\color{GreenYellow}1000}}$)}\simpleArgs{$\text{\isaFS{logic}}^{\text{\color{GreenYellow}0}}$} \foclcolorbox{Apricot}{\isaFS{{\isachardot}allInstances{\isacharparenleft}{\isacharparenright}}} & {{ \isaFS{UML{\isacharunderscore}State{\isachardot}OclAllInstances{\isacharunderscore}at{\isacharunderscore}post}}\hideT{\text{\space\color{Black}\isaFS{const}}}}%
@@ -973,19 +931,19 @@ l% >{$}l<{$}%
 
 %
 
-&\footnotesize\inlineocl"_ .oclIsDeleted()"
+&
 & \hide{\color{Gray}($\text{\isaFS{logic}}^{\text{\color{GreenYellow}1000}}$)}\simpleArgs{$\text{\isaFS{logic}}^{\text{\color{GreenYellow}0}}$} \foclcolorbox{Apricot}{\isaFS{{\isachardot}oclIsDeleted{\isacharparenleft}{\isacharparenright}}} & {{ \isaFS{UML{\isacharunderscore}State{\isachardot}OclIsDeleted}}\hideT{\text{\space\color{Black}\isaFS{const}}}}%
 \\
 
 %
 
-&\footnotesize\inlineocl"_ .oclIsMaintained()"
+&
 & \hide{\color{Gray}($\text{\isaFS{logic}}^{\text{\color{GreenYellow}1000}}$)}\simpleArgs{$\text{\isaFS{logic}}^{\text{\color{GreenYellow}0}}$} \foclcolorbox{Apricot}{\isaFS{{\isachardot}oclIsMaintained{\isacharparenleft}{\isacharparenright}}} & {{ \isaFS{UML{\isacharunderscore}State{\isachardot}OclIsMaintained}}\hideT{\text{\space\color{Black}\isaFS{const}}}}%
 \\
 
 %
 
-&\footnotesize\inlineocl"_ .oclIsAbsent()"
+&
 & \hide{\color{Gray}($\text{\isaFS{logic}}^{\text{\color{GreenYellow}1000}}$)}\simpleArgs{$\text{\isaFS{logic}}^{\text{\color{GreenYellow}0}}$} \foclcolorbox{Apricot}{\isaFS{{\isachardot}oclIsAbsent{\isacharparenleft}{\isacharparenright}}} & {{ \isaFS{UML{\isacharunderscore}State{\isachardot}OclIsAbsent}}\hideT{\text{\space\color{Black}\isaFS{const}}}}%
 \\
 
@@ -1005,10 +963,68 @@ l% >{$}l<{$}%
 & \hide{\color{Gray}($\text{\isaFS{logic}}^{\text{\color{GreenYellow}1000}}$)}\simpleArgs{$\text{\isaFS{logic}}^{\text{\color{GreenYellow}0}}$} \foclcolorbox{Apricot}{\isaFS{{\isacharat}post}} \simpleArgs{$\text{\isaFS{logic}}^{\text{\color{GreenYellow}0}}$} & {{ \isaFS{UML{\isacharunderscore}State{\isachardot}OclSelf{\isacharunderscore}at{\isacharunderscore}post}}\hideT{\text{\space\color{Black}\isaFS{const}}}}%
 \\
 
+
+
+  \cmidrule{1-4}
+  
+%%%%  
+%%%%
+%%%%  Other Stuff
+%%%%
+
+%  \multirow{7}{*}{\rotatebox{90}{Unsorted}}
+
 %
-&
-& \hide{\color{Gray}($\text{\isaFS{type}}^{\text{\color{GreenYellow}1000}}$)} \foclcolorbox{Apricot}{\isaFS{{\isasymlangle}}} $\text{\isaFS{type}}^{\text{\color{GreenYellow}0}}$ \foclcolorbox{Apricot}{\isaFS{{\isasymrangle}\isactrlsub {\isasymbottom}}} & {{ \isaFS{Option{\isachardot}option}}\text{\space\color{Black}\isaFS{type}}}%
-\\
+% &
+% & \hide{\color{Gray}($\text{\isaFS{logic}}^{\text{\color{GreenYellow}1000}}$)} \foclcolorbox{Apricot}{\isaFS{{\isasymlceil}}}\simpleArgs{$\text{\isaFS{logic}}^{\text{\color{GreenYellow}0}}$} \foclcolorbox{Apricot}{\isaFS{{\isasymrceil}}} & {{ \isaFS{UML{\isacharunderscore}Types{\isachardot}drop}}\hideT{\text{\space\color{Black}\isaFS{const}}}}%
+% \\
+% %
+% &
+% & \hide{\color{Gray}($\text{\isaFS{logic}}^{\text{\color{GreenYellow}1000}}$)} \foclcolorbox{Apricot}{\isaFS{I{\isasymlbrakk}}} $\text{\isaFS{any}}^{\text{\color{GreenYellow}0}}$ \foclcolorbox{Apricot}{\isaFS{{\isasymrbrakk}}} & {{ \isaFS{UML{\isacharunderscore}Types{\isachardot}Sem}}\hideT{\text{\space\color{Black}\isaFS{const}}}}%
+% \\
+
+
+% %
+% &
+% & \hide{\color{Gray}($\text{\isaFS{logic}}^{\text{\color{GreenYellow}1000}}$)} \foclcolorbox{Apricot}{\isaFS{{\isasymbottom}}} & {{ \isaFS{UML{\isacharunderscore}Types{\isachardot}bot{\isacharunderscore}class{\isachardot}bot}}\hideT{\text{\space\color{Black}\isaFS{const}}}}%
+% \\
+
+% %
+
+  
+% %
+% &
+% & \hide{\color{Gray}($\text{\isaFS{logic}}^{\text{\color{GreenYellow}1000}}$)} \foclcolorbox{Apricot}{\isaFS{{\isasymbottom}}} & {{ \isaFS{Option{\isachardot}option{\isachardot}None}}\hideT{\text{\space\color{Black}\isaFS{const}}}}%
+% \\
+
+
+
+
+% %
+
+
+% %
+
+
+% %
+
+% %
+% % & \hide{\color{Gray}($\text{\isaFS{logic}}^{\text{\color{GreenYellow}1000}}$)} $\text{\isaFS{cartouche{\isacharunderscore}position}}^{\text{\color{GreenYellow}0}}$ & {{\color{Gray} \isaFS{cartouche{\isacharunderscore}oclstring}}}%
+% % \\
+
+% %
+% &
+% & \hide{\color{Gray}($\text{\isaFS{logic}}^{\text{\color{GreenYellow}1000}}$)} \foclcolorbox{Apricot}{\isaFS{{\isacharunderscore}{\isacharprime}}} & {{\color{Gray} \isaFS{ocl{\isacharunderscore}denotation}}}%
+% \\
+
+
+% %
+% %
+
+% %
+% &
+% & \hide{\color{Gray}($\text{\isaFS{type}}^{\text{\color{GreenYellow}1000}}$)} \foclcolorbox{Apricot}{\isaFS{{\isasymlangle}}} $\text{\isaFS{type}}^{\text{\color{GreenYellow}0}}$ \foclcolorbox{Apricot}{\isaFS{{\isasymrangle}\isactrlsub {\isasymbottom}}} & {{ \isaFS{Option{\isachardot}option}}\text{\space\color{Black}\isaFS{type}}}%
+% \\
 
 %
 
@@ -1016,21 +1032,6 @@ l% >{$}l<{$}%
   
 %
 
-&\footnotesize\inlineocl"Set ( _ )"
-& \hide{\color{Gray}($\text{\isaFS{type}}^{\text{\color{GreenYellow}1000}}$)} \foclcolorbox{Apricot}{\isaFS{Set{\isacharparenleft}}} $\text{\isaFS{type}}^{\text{\color{GreenYellow}0}}$ \foclcolorbox{Apricot}{\isaFS{{\isacharparenright}}} & {{ \isaFS{UML{\isacharunderscore}Types{\isachardot}Set\isactrlsub b\isactrlsub a\isactrlsub s\isactrlsub e}}\text{\space\color{Black}\isaFS{type}}}%
-\\
-
-%
-
-&\footnotesize\inlineocl"Bag ( _ )"
-& \hide{\color{Gray}($\text{\isaFS{type}}^{\text{\color{GreenYellow}1000}}$)} \foclcolorbox{Apricot}{\isaFS{Bag{\isacharparenleft}}} $\text{\isaFS{type}}^{\text{\color{GreenYellow}0}}$ \foclcolorbox{Apricot}{\isaFS{{\isacharparenright}}} & {{ \isaFS{UML{\isacharunderscore}Types{\isachardot}Bag\isactrlsub b\isactrlsub a\isactrlsub s\isactrlsub e}}\text{\space\color{Black}\isaFS{type}}}%
-\\
-
-%
-
-&\footnotesize\inlineocl"sequence ( _ )"
-& \hide{\color{Gray}($\text{\isaFS{type}}^{\text{\color{GreenYellow}1000}}$)} \foclcolorbox{Apricot}{\isaFS{Sequence{\isacharparenleft}}} $\text{\isaFS{type}}^{\text{\color{GreenYellow}0}}$ \foclcolorbox{Apricot}{\isaFS{{\isacharparenright}}} & {{ \isaFS{UML{\isacharunderscore}Types{\isachardot}Sequence\isactrlsub b\isactrlsub a\isactrlsub s\isactrlsub e}}\text{\space\color{Black}\isaFS{type}}}%
-  \\
 
 
 
@@ -1044,30 +1045,6 @@ l% >{$}l<{$}%
 
   
   
-& \footnotesize\inlineocl"_ = _"
-& \hide{\color{Gray}($\text{\isaFS{logic}}^{\text{\color{GreenYellow}1000}}$)} \foclcolorbox{Apricot}{\isaFS{op}} \foclcolorbox{Apricot}{\isaFS{{\isasymdoteq}}} & {{ \isaFS{UML{\isacharunderscore}Logic{\isachardot}StrictRefEq}}\hideT{\text{\space\color{Black}\isaFS{const}}}}%
-\\
-%
-& \footnotesize\inlineocl"_ <> _"
-& \hide{\color{Gray}($\text{\isaFS{logic}}^{\text{\color{GreenYellow}1000}}$)} \foclcolorbox{Apricot}{\isaFS{op}} \foclcolorbox{Apricot}{\isaFS{{\isacharless}{\isachargreater}}} & {{\color{Gray} \isaFS{notequal}}}%
-  \\
-&\footnotesize\inlineocl"if _  then _ else _ endif"
-& \hide{\color{Gray}($\text{\isaFS{logic}}^{\text{\color{GreenYellow}50}}$)} \foclcolorbox{Apricot}{\isaFS{if}}\simpleArgs{$\text{\isaFS{logic}}^{\text{\color{GreenYellow}10}}$} \foclcolorbox{Apricot}{\isaFS{then}} \simpleArgs{$\text{\isaFS{logic}}^{\text{\color{GreenYellow}10}}$} \foclcolorbox{Apricot}{\isaFS{else}} \simpleArgs{$\text{\isaFS{logic}}^{\text{\color{GreenYellow}10}}$} \foclcolorbox{Apricot}{\isaFS{endif}} & {{ \isaFS{UML{\isacharunderscore}Logic{\isachardot}OclIf}}\hideT{\text{\space\color{Black}\isaFS{const}}}}%
-\\
-%
-  %
-&
-& \hide{\color{Gray}($\text{\isaFS{logic}}^{\text{\color{GreenYellow}50}}$)}\simpleArgs{$\text{\isaFS{logic}}^{\text{\color{GreenYellow}0}}$} \foclcolorbox{Apricot}{\isaFS{{\isacharbar}{\isasymnoteq}}} \simpleArgs{$\text{\isaFS{logic}}^{\text{\color{GreenYellow}0}}$} & {{\color{Gray} \isaFS{OclNonValid}}}%
-\\
-
-%
-&
-& \hide{\color{Gray}($\text{\isaFS{logic}}^{\text{\color{GreenYellow}50}}$)}\simpleArgs{$\text{\isaFS{logic}}^{\text{\color{GreenYellow}0}}$} \foclcolorbox{Apricot}{\isaFS{{\isasymTurnstile}}} \simpleArgs{$\text{\isaFS{logic}}^{\text{\color{GreenYellow}0}}$} & {{ \isaFS{UML{\isacharunderscore}Logic{\isachardot}OclValid}}\hideT{\text{\space\color{Black}\isaFS{const}}}}%
-\\
-&\footnotesize\textcolor{Gray}{\inlineocl"_ = _"}
-& \hide{\color{Gray}($\text{\isaFS{logic}}^{\text{\color{GreenYellow}1000}}$)} \foclcolorbox{Apricot}{\isaFS{op}} \foclcolorbox{Apricot}{\isaFS{{\isasymtriangleq}}} & {{\isaFS{UML{\isacharunderscore}Logic{\isachardot}StrongEq}}\hideT{\text{\space\color{Black}\isaFS{const}}}}%
-\\
-%
 
   
 \end{longtable}

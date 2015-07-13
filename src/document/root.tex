@@ -25,7 +25,16 @@
 \usepackage{lstisar}
 \usepackage{railsetup}
 \usepackage[]{mathtools}
-\usepackage{booktabs}
+\usepackage{%
+  multirow,
+  paralist,
+  booktabs,     %       "        "      "
+  threeparttable,
+  longtable,    % Mehrseitige Tabellen 
+}
+
+
+
 \usepackage{graphicx}
 \usepackage[numbers, sort&compress, sectionbib]{natbib}
 \usepackage{chapterbib}
@@ -229,6 +238,10 @@
 \endisatagafp
 \bibliographystyle{abbrvnat}
 \bibliography{root}
+
+\appendix
+\part{Appendix}
+\input{FOCL_Syntax}
 
 \isatagannexa
   \clearpage {\small \tableofcontents }

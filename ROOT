@@ -66,6 +66,7 @@ session "OCL-dirty" in "src" = HOL +
     "prooftree.sty"
     "root.bib"
     "root.tex"
+    "FOCL_Syntax.tex"
 
 
 session "OCL" in "src" = HOL +
@@ -94,6 +95,7 @@ session "OCL" in "src" = HOL +
     "prooftree.sty"
     "root.bib"
     "root.tex"
+    "FOCL_Syntax.tex"
 
 
 (******************************************************)
@@ -149,6 +151,7 @@ session "OCL-all-dirty" in "src" = HOL +
     "prooftree.sty"
     "root.bib"
     "root.tex"
+    "FOCL_Syntax.tex"
 
 
 (******************************************************)
@@ -176,6 +179,7 @@ session "FOCL" in "src" = HOL +
     "prooftree.sty"
     "root.bib"
     "root.tex"
+    "FOCL_Syntax.tex"
 
 session "FOCL-dirty" in "src" = HOL +
   description {* Featherweight OCL (Compiler) *}
@@ -200,3 +204,4 @@ session "FOCL-dirty" in "src" = HOL +
     "prooftree.sty"
     "root.bib"
     "root.tex"
+    "FOCL_Syntax.tex"
