@@ -81,10 +81,10 @@ subsection{* Definition: asInteger *}
 
 definition OclAsInteger\<^sub>R\<^sub>e\<^sub>a\<^sub>l  :: "('\<AA>) Real \<Rightarrow> ('\<AA>) Integer" ("(_)->oclAsType\<^sub>R\<^sub>e\<^sub>a\<^sub>l'(Integer')")
 where     "OclAsInteger\<^sub>R\<^sub>e\<^sub>a\<^sub>l X = (\<lambda>\<tau>. if (\<delta> X) \<tau> = true \<tau> 
-                              then \<lfloor>\<lfloor>floor_ceiling_real_inst.floor_real \<lceil>\<lceil>X \<tau>\<rceil>\<rceil>\<rfloor>\<rfloor>
+                              then \<lfloor>\<lfloor>floor \<lceil>\<lceil>X \<tau>\<rceil>\<rceil>\<rfloor>\<rfloor>
                               else invalid \<tau>)"
 
-interpretation OclAsInteger\<^sub>R\<^sub>e\<^sub>a\<^sub>l : profile_mono\<^sub>d OclAsInteger\<^sub>R\<^sub>e\<^sub>a\<^sub>l "\<lambda>x. \<lfloor>\<lfloor>floor_ceiling_real_inst.floor_real \<lceil>\<lceil>x\<rceil>\<rceil>\<rfloor>\<rfloor>"
+interpretation OclAsInteger\<^sub>R\<^sub>e\<^sub>a\<^sub>l : profile_mono\<^sub>d OclAsInteger\<^sub>R\<^sub>e\<^sub>a\<^sub>l "\<lambda>x. \<lfloor>\<lfloor>floor \<lceil>\<lceil>x\<rceil>\<rceil>\<rfloor>\<rfloor>"
                                  by unfold_locales (auto simp: OclAsInteger\<^sub>R\<^sub>e\<^sub>a\<^sub>l_def bot_option_def)
 
 subsection{* Definition: asReal *}
@@ -96,6 +96,13 @@ where     "OclAsReal\<^sub>I\<^sub>n\<^sub>t X = (\<lambda>\<tau>. if (\<delta> 
 
 interpretation OclAsReal\<^sub>I\<^sub>n\<^sub>t : profile_mono\<^sub>d OclAsReal\<^sub>I\<^sub>n\<^sub>t "\<lambda>x. \<lfloor>\<lfloor>real_of_int \<lceil>\<lceil>x\<rceil>\<rceil>\<rfloor>\<rfloor>"
                              by unfold_locales (auto simp: OclAsReal\<^sub>I\<^sub>n\<^sub>t_def bot_option_def)
+
+lemma Integer_subtype_of_Real: 
+  assumes "\<tau> \<Turnstile> \<delta> X"
+  shows   "\<tau> \<Turnstile> X ->oclAsType\<^sub>I\<^sub>n\<^sub>t(Real) ->oclAsType\<^sub>R\<^sub>e\<^sub>a\<^sub>l(Integer) \<triangleq> X"
+  apply(insert assms,  simp add: OclAsInteger\<^sub>R\<^sub>e\<^sub>a\<^sub>l_def OclAsReal\<^sub>I\<^sub>n\<^sub>t_def OclValid_def StrongEq_def)
+  apply(subst (2 4) cp_defined, simp add: true_def)
+  by (metis assms bot_option_def drop.elims foundation16 null_option_def)
 
 subsection{* Definition: asPair *}
 
