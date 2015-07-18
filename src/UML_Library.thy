@@ -119,6 +119,13 @@ where     "OclAsPair\<^sub>S\<^sub>e\<^sub>t S = (if S->size\<^sub>S\<^sub>e\<^s
                             else invalid
                             endif)"
 
+definition OclAsPair\<^sub>B\<^sub>a\<^sub>g   :: "[('\<AA>,'\<alpha>::null)Bag]\<Rightarrow>('\<AA>,'\<alpha>::null,'\<alpha>::null) Pair" ("(_)->asPair\<^sub>B\<^sub>a\<^sub>g'(')")
+where     "OclAsPair\<^sub>B\<^sub>a\<^sub>g S = (if S->size\<^sub>B\<^sub>a\<^sub>g() \<doteq> \<two>
+                            then let v = S->any\<^sub>B\<^sub>a\<^sub>g() in
+                                 Pair{v,S->excluding\<^sub>B\<^sub>a\<^sub>g(v)->any\<^sub>B\<^sub>a\<^sub>g()}
+                            else invalid
+                            endif)"
+
 subsection{* Definition: asSet *}
 
 definition OclAsSet\<^sub>S\<^sub>e\<^sub>q   :: "[('\<AA>,'\<alpha>::null)Sequence]\<Rightarrow>('\<AA>,'\<alpha>)Set" ("(_)->asSet\<^sub>S\<^sub>e\<^sub>q'(')")
@@ -127,13 +134,37 @@ where     "OclAsSet\<^sub>S\<^sub>e\<^sub>q S = (S->iterate\<^sub>S\<^sub>e\<^su
 definition OclAsSet\<^sub>P\<^sub>a\<^sub>i\<^sub>r   :: "[('\<AA>,'\<alpha>::null,'\<alpha>::null) Pair]\<Rightarrow>('\<AA>,'\<alpha>)Set" ("(_)->asSet\<^sub>P\<^sub>a\<^sub>i\<^sub>r'(')")
 where     "OclAsSet\<^sub>P\<^sub>a\<^sub>i\<^sub>r S = Set{S .First(), S .Second()}"
 
+definition OclAsSet\<^sub>B\<^sub>a\<^sub>g   :: "('\<AA>,'\<alpha>::null) Bag\<Rightarrow>('\<AA>,'\<alpha>)Set" ("(_)->asSet\<^sub>B\<^sub>a\<^sub>g'(')")
+where     "OclAsSet\<^sub>B\<^sub>a\<^sub>g S =  (\<lambda> \<tau>. if (\<delta> S) \<tau> = true \<tau> 
+                                 then Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e\<lfloor>\<lfloor> Rep_Set_base S \<tau> \<rfloor>\<rfloor> 
+                                 else if (\<upsilon> S) \<tau> = true \<tau> then null \<tau> 
+                                                          else invalid \<tau>)"
+
 subsection{* Definition: asSequence *}
 
 definition OclAsSeq\<^sub>S\<^sub>e\<^sub>t   :: "[('\<AA>,'\<alpha>::null)Set]\<Rightarrow>('\<AA>,'\<alpha>)Sequence" ("(_)->asSequence\<^sub>S\<^sub>e\<^sub>t'(')")
 where     "OclAsSeq\<^sub>S\<^sub>e\<^sub>t S = (S->iterate\<^sub>S\<^sub>e\<^sub>t(b; x = Sequence{} | x ->including\<^sub>S\<^sub>e\<^sub>q(b)))"
 
+definition OclAsSeq\<^sub>B\<^sub>a\<^sub>g   :: "[('\<AA>,'\<alpha>::null)Bag]\<Rightarrow>('\<AA>,'\<alpha>)Sequence" ("(_)->asSequence\<^sub>B\<^sub>a\<^sub>g'(')")
+where     "OclAsSeq\<^sub>B\<^sub>a\<^sub>g S = (S->iterate\<^sub>B\<^sub>a\<^sub>g(b; x = Sequence{} | x ->including\<^sub>S\<^sub>e\<^sub>q(b)))"
+
 definition OclAsSeq\<^sub>P\<^sub>a\<^sub>i\<^sub>r   :: "[('\<AA>,'\<alpha>::null,'\<alpha>::null) Pair]\<Rightarrow>('\<AA>,'\<alpha>)Sequence" ("(_)->asSequence\<^sub>P\<^sub>a\<^sub>i\<^sub>r'(')")
 where     "OclAsSeq\<^sub>P\<^sub>a\<^sub>i\<^sub>r S = Sequence{S .First(), S .Second()}"
+
+subsection{* Definition: asBag *}
+
+definition OclAsBag\<^sub>S\<^sub>e\<^sub>q   :: "[('\<AA>,'\<alpha>::null)Sequence]\<Rightarrow>('\<AA>,'\<alpha>)Bag" ("(_)->asBag\<^sub>S\<^sub>e\<^sub>q'(')")
+where     "OclAsBag\<^sub>S\<^sub>e\<^sub>q S = (\<lambda>\<tau>. Abs_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor>\<lfloor>\<lambda>s. if list_ex (op = s) \<lceil>\<lceil>Rep_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e (S \<tau>)\<rceil>\<rceil> then 1 else 0\<rfloor>\<rfloor>)"
+
+definition OclAsBag\<^sub>S\<^sub>e\<^sub>t   :: "[('\<AA>,'\<alpha>::null)Set]\<Rightarrow>('\<AA>,'\<alpha>)Bag" ("(_)->asBag\<^sub>S\<^sub>e\<^sub>t'(')")
+where     "OclAsBag\<^sub>S\<^sub>e\<^sub>t S = (\<lambda>\<tau>. Abs_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor>\<lfloor>\<lambda>s. if s \<in> \<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (S \<tau>)\<rceil>\<rceil> then 1 else 0\<rfloor>\<rfloor>)"
+
+lemma assumes "\<tau> \<Turnstile> \<delta> (S ->size\<^sub>S\<^sub>e\<^sub>t())" (* S is finite *)
+      shows "OclAsBag\<^sub>S\<^sub>e\<^sub>t S = (S->iterate\<^sub>S\<^sub>e\<^sub>t(b; x = Bag{} | x ->including\<^sub>B\<^sub>a\<^sub>g(b)))"
+oops
+
+definition OclAsBag\<^sub>P\<^sub>a\<^sub>i\<^sub>r   :: "[('\<AA>,'\<alpha>::null,'\<alpha>::null) Pair]\<Rightarrow>('\<AA>,'\<alpha>)Bag" ("(_)->asBag\<^sub>P\<^sub>a\<^sub>i\<^sub>r'(')")
+where     "OclAsBag\<^sub>P\<^sub>a\<^sub>i\<^sub>r S = Bag{S .First(), S .Second()}"
 
 subsection{*  Properties on Collection Types: Strict Equality *}
 
