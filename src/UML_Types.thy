@@ -446,9 +446,12 @@ text{* The core of an own type construction is done via a type
   no restriction whatsoever to \emph{finite} multi-sets; while with 
   the standards type-constructors only finite sets can be denoted,
   there is the possibility to define in fact infinite 
-  type constructors in \FOCL (c.f. \autoref{sec:type-extensions}). *}
+  type constructors in \FOCL (c.f. \autoref{sec:type-extensions}). 
+  However, while several @{text null} elements are possible in a Bag, there
+  can't be no bottom (invalid) element in them.
+*}
 
-typedef '\<alpha> Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e ="{X::('\<alpha>\<Colon>null \<Rightarrow> nat) option option. True}"
+typedef '\<alpha> Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e ="{X::('\<alpha>\<Colon>null \<Rightarrow> nat) option option. X = bot \<or> X = null \<or> \<lceil>\<lceil>X\<rceil>\<rceil> bot = 0 }"
           by (rule_tac x="bot" in exI, simp)
 
 instantiation   Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e  :: (null)bot
