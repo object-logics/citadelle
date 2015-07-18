@@ -483,25 +483,37 @@ prods:
   logic = "Sequence{" args[0] "}" => "_OclFinsequence" (1000)
   logic = cartouche_position[0] => "_cartouche_oclstring" (1000)
   logic = "_'" => "_ocl_denotation" (1000)
+  logic = logic[0] "->asBag\<^sub>P\<^sub>a\<^sub>i\<^sub>r()" => "\<^const>UML_Library.OclAsBag\<^sub>P\<^sub>a\<^sub>i\<^sub>r"
+    (1000)
+  logic = logic[0] "->asBag\<^sub>S\<^sub>e\<^sub>t()" => "\<^const>UML_Library.OclAsBag\<^sub>S\<^sub>e\<^sub>t"
+    (1000)
+  logic = logic[0] "->asBag\<^sub>S\<^sub>e\<^sub>q()" => "\<^const>UML_Library.OclAsBag\<^sub>S\<^sub>e\<^sub>q"
+    (1000)
   logic = logic[0] "->asSequence\<^sub>P\<^sub>a\<^sub>i\<^sub>r()"
     => "\<^const>UML_Library.OclAsSeq\<^sub>P\<^sub>a\<^sub>i\<^sub>r" (1000)
+  logic = logic[0] "->asSequence\<^sub>B\<^sub>a\<^sub>g()" => "\<^const>UML_Library.OclAsSeq\<^sub>B\<^sub>a\<^sub>g"
+    (1000)
   logic = logic[0] "->asSequence\<^sub>S\<^sub>e\<^sub>t()" => "\<^const>UML_Library.OclAsSeq\<^sub>S\<^sub>e\<^sub>t"
+    (1000)
+  logic = logic[0] "->asSet\<^sub>B\<^sub>a\<^sub>g()" => "\<^const>UML_Library.OclAsSet\<^sub>B\<^sub>a\<^sub>g"
     (1000)
   logic = logic[0] "->asSet\<^sub>P\<^sub>a\<^sub>i\<^sub>r()" => "\<^const>UML_Library.OclAsSet\<^sub>P\<^sub>a\<^sub>i\<^sub>r"
     (1000)
   logic = logic[0] "->asSet\<^sub>S\<^sub>e\<^sub>q()" => "\<^const>UML_Library.OclAsSet\<^sub>S\<^sub>e\<^sub>q"
     (1000)
+  logic = logic[0] "->asPair\<^sub>B\<^sub>a\<^sub>g()" => "\<^const>UML_Library.OclAsPair\<^sub>B\<^sub>a\<^sub>g"
+    (1000)
   logic = logic[0] "->asPair\<^sub>S\<^sub>e\<^sub>t()" => "\<^const>UML_Library.OclAsPair\<^sub>S\<^sub>e\<^sub>t"
     (1000)
   logic = logic[0] "->asPair\<^sub>S\<^sub>e\<^sub>q()" => "\<^const>UML_Library.OclAsPair\<^sub>S\<^sub>e\<^sub>q"
     (1000)
-  logic = logic[0] "->asReal\<^sub>I\<^sub>n\<^sub>t()" => "\<^const>UML_Library.OclAsReal\<^sub>I\<^sub>n\<^sub>t"
-    (1000)
-  logic = logic[0] "->asInteger\<^sub>R\<^sub>e\<^sub>a\<^sub>l()"
+  logic = logic[0] "->oclAsType\<^sub>I\<^sub>n\<^sub>t(Real)"
+    => "\<^const>UML_Library.OclAsReal\<^sub>I\<^sub>n\<^sub>t" (1000)
+  logic = logic[0] "->oclAsType\<^sub>R\<^sub>e\<^sub>a\<^sub>l(Integer)"
     => "\<^const>UML_Library.OclAsInteger\<^sub>R\<^sub>e\<^sub>a\<^sub>l" (1000)
-  logic = logic[0] "->asBoolean\<^sub>R\<^sub>e\<^sub>a\<^sub>l()"
+  logic = logic[0] "->oclAsType\<^sub>R\<^sub>e\<^sub>a\<^sub>l(Boolean)"
     => "\<^const>UML_Library.OclAsBoolean\<^sub>R\<^sub>e\<^sub>a\<^sub>l" (1000)
-  logic = logic[0] "->asBoolean\<^sub>I\<^sub>n\<^sub>t()"
+  logic = logic[0] "->oclAsType\<^sub>I\<^sub>n\<^sub>t(Boolean)"
     => "\<^const>UML_Library.OclAsBoolean\<^sub>I\<^sub>n\<^sub>t" (1000)
   logic = logic[0] "->any\<^sub>S\<^sub>e\<^sub>q()" => "\<^const>UML_Sequence.OclANY" (1000)
   logic = logic[0] "->notEmpty\<^sub>S\<^sub>e\<^sub>q()" => "\<^const>UML_Sequence.OclNotEmpty"
