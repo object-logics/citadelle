@@ -65,9 +65,9 @@ type_notation option ("\<langle>_\<rangle>\<^sub>\<bottom>") (* NOTE: "_\<^sub>\
 notation Some ("\<lfloor>(_)\<rfloor>")
 notation None ("\<bottom>")
 
-text{* These commands introduce an alternative, more compact notation for
-the constructors @{term "Some X"} and @{term "None"} of the type @{typ "\<alpha> option"},
-namely @{term "\<lfloor>X\<rfloor>"} and @{term "\<bottom>"}. *}
+text{* These commands introduce an alternative, more compact notation for the type constructor
+ @{typ "'\<alpha> option"}, namely @{typ "\<langle>'\<alpha>\<rangle>\<^sub>\<bottom>"}. Furthermore, the constructors @{term "Some X"} and 
+ @{term "None"} of the type @{typ "'\<alpha> option"}, namely @{term "\<lfloor>X\<rfloor>"} and @{term "\<bottom>"}. *}
 
 text{* 
   The following function (corresponding to @{term the} in the Isabelle/HOL library)
