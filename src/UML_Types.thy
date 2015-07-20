@@ -65,7 +65,11 @@ type_notation option ("\<langle>_\<rangle>\<^sub>\<bottom>") (* NOTE: "_\<^sub>\
 notation Some ("\<lfloor>(_)\<rfloor>")
 notation None ("\<bottom>")
 
-text{*
+text{* These commands introduce an alternative, more compact notation for
+the constructors @{term Some} and @{term None} of the type @{typ "\<alpha> option"},
+namely @{term "\<lfloor> _ \<rfloor>"} and @{term "\<bottom>"}. *}
+
+text{* 
   The following function (corresponding to @{term the} in the Isabelle/HOL library)
   is defined as the inverse of the injection @{term Some}.
 *}
