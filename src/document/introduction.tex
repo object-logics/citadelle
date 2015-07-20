@@ -930,8 +930,8 @@ overall construction. The denotational definitions of types, constants
 and operations, and \OCL contracts represent the ``gold standard'' of the
 semantics. The second layer, called \emph{logical layer},
 is derived from the former and centered around the notion of validity
-of an \OCL formula $P$ for a state-transition from pre-state $\sigma$
-to post-state $\sigma'$, validity statements were written $(\sigma,
+of an \OCL formula $P$. For a state-transition from pre-state $\sigma$
+to post-state $\sigma'$, a validity statement is written $(\sigma,
 \sigma') \isasymMathOclValid P$. Its major purpose is to logically establish facts
 (lemmas and theorems) about the denotational definitions.
 The third layer, called \emph{algebraic layer},
@@ -1378,10 +1378,9 @@ can be re-formulated in the following ground equations:
 \end{gather*}
 as well as the dual equalities for \inlineocl|_ or _| and the De Morgan
 rules.  This wealth of algebraic properties makes the understanding of
-the logic easier as well as automated analysis possible: it allows
-for, for example, computing a DNF of invariant systems (by
-clever term-rewriting techniques) which are a prerequisite for
-$\delta$-closures.
+the logic easier as well as automated analysis possible: for example, it allows
+for computing a DNF of invariant systems (by term-rewriting techniques) 
+which are a prerequisite for $\delta$-closures.
 
 The above equations explain the behavior for the most-important
 non-strict operations. The clarification of the exceptional behaviors
@@ -1509,17 +1508,17 @@ A class model is a four-tuple $(C, \_ < \_, Attrib, Assoc)$ where:
 Assuming a strong static type discipline in the sense of
 Hindley-Milner types,  \FOCL has no ``syntactic
 subtyping.''  In contrast, sub-typing can be expressed
-\emph{semantically} in  \FOCL; by adding suitable casts which do
-have a formal semantics, sub-typing becomes an issue of the front-end that can
-make implicit type-coercions explicit by introducing explicit
-type-casts. Our perspective shifts the emphasis on the semantic
-properties of casting, and the necessary universe of object
-representations (induced by a class model) that allows to establish
+\emph{semantically} in  \FOCL by adding suitable type-casts which do
+have a formal semantics. Thus, sub-typing becomes an issue of the front-end 
+that can make implicit type-coercions explicit. Our perspective shifts the 
+emphasis on the semantic properties of casting, and the necessary universe of 
+object representations (induced by a class model) that allows to establish
 them.
 
 As a pre-requisite of a denotational semantics for these operations induced
 by a class-model, we need an \emph{object-universe} in which these operations can
 be defined in a denotational manner and from which the necessary properties
+for constructors, accessors, tests and casts
 can be derived. A concrete universe constructed from a class model will be
 used to instantiate the implicit type parameter $\isaAA$ of all \OCL operations
 discussed so far.
@@ -1530,12 +1529,12 @@ It is natural to construct system states by a set of partial functions
 $f$ that map object identifiers $\oid$ to some representations of
 objects:
 \begin{gather}
-       \typedef \qquad \alpha~\state{} \defeq \{ \sigma ::
+       \typedef \qquad \mathfrak{A}~\state{} \defeq \{ \sigma ::
         \oid \isasymrightharpoonup \alpha \ap|\ap \inv_\sigma(\sigma) \}
 \end{gather}
 where $\inv_\sigma$ is a to be discussed invariant on states.
 
-The key point is that we need a common type $\alpha$ for the set of all
+The key point is that we need a common type $\mathfrak{A}$ for the set of all
 possible \emph{object representations}.  Object representations model
 ``a piece of typed memory,'' \ie, a kind of record comprising
 administration information and the information for all attributes of
@@ -1582,7 +1581,7 @@ and casting down will \emph{not} give the required identity:
    X \\
    \qquad \qquad  \qquad \qquad  \qquad \qquad \text{whenever $C_k  < C_i$ and $X$ is valid.}
 \end{gather}
-
+/fixme{LaTeX : could we elmiminate the label A 17 which is generated from this ?}
 
 To overcome this limitation, we introduce an auxiliary type
 $C_{i\text{ext}}$ for \emph{class type extension}; together, they were
@@ -1829,8 +1828,9 @@ upper bounds to be defined for multiplicities.\footnote{We are however aware
   that a well-formedness rule of the \UML standard does define a default bound
   of one in case a lower or upper bound is not specified.} In case a
 multiplicity is specified for an attribute, \ie, a lower and an upper bound
-are provided, we require any collection the attribute evaluates to not
-contain $\isasymOclNull$. This allows for a straightforward interpretation of
+are provided, we require for any collection the attribute evaluates to 
+a collection not containing $\isasymOclNull$. This allows for a straight-forward 
+interpretation of
 the multiplicity constraint. If bounds are not provided for an attribute, we
 consider the attribute values to not be restricted in any way. Because in
 particular the cardinality of the attribute's values is not bounded, the result
