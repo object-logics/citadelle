@@ -417,7 +417,7 @@ context Session::findRole(person:Person):Role
   pre:  participates.person->includes(person)
   post: result=participants->one(p:Participant |
                                 p.person = person ).role
-        and participants = self.participants@pre
+        and participants = participants@pre
         and name = name@pre
 \end{ocl}
 
@@ -501,7 +501,7 @@ to the Isabelle system. The type-terms $\tau$ for $\lambda$-terms are defined as
   $'\alpha + '\beta $ are notations for $('\alpha,'\beta)(\_ \backslash<\operatorname{times}> \_)$ or 
   $('\alpha,'\beta)(\_ + \_)$, respectively. Also null-ary type-constructors like 
   $()\operatorname{bool}$,$()\operatorname{nat}$ and $()\operatorname{int}$ are possible;
-  note that the paranthesis' of null-ary type constructors are usually omitted.
+  note that the paranthesis of null-ary type constructors are usually omitted.
 \end{itemize}
 
 Isabelle accepts also the notation $t :: \tau$ as type assertion in the term-language;
@@ -524,7 +524,7 @@ logical rules. More concretely, it provides a constant declaration  for
 the (built-in) \emph{meta-level implication} $\_ \Implies \_$ allowing to form constructs like $A_1
 \Implies \cdots \Implies A_n \Implies A_{n+1}$, which are viewed as a
 \emph{rule} of the form ``from assumptions $A_1$ to $A_n$, infer
-conclusion $A_{n+1}$'' and which is written in Isabelle syntax as as
+conclusion $A_{n+1}$'' and which is written in Isabelle syntax as
 \begin{gather}
   \semantics{A_1 ; \ldots; A_n}\Implies A_{n+1}
   \qquad
