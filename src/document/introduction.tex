@@ -226,7 +226,7 @@ Here is a feature-list of  \FOCL:
          powerful semantic meta-language and
          environment, namely Isabelle/\HOL~\cite{nipkow.ea:isabelle:2002}.
          It is a so-called \emph{shallow embedding} in \HOL; this means that types
-         in \OCL were \emph{injectively} represented by types in Isabelle/\HOL.
+         in \OCL were mapped one-to-one to types in Isabelle/\HOL.
          Ill-typed \OCL specifications can therefore not be represented in
           \FOCL and a type in  \FOCL contains exactly
          the values that are possible in \OCL\@.
@@ -455,7 +455,7 @@ a uniform term language $T$ in which all logical entities where represented:
 \[
    T~~ ::=~~ C~~ |~~ V ~~|~~ \lambda~V.~~ T ~~|~~ T~T
 \] \footnote{In the Isabelle implementation, there are actually two further variants
-which were irrelevant for this presentation and are therefore ommitted.}
+which were irrelevant for this presentation and are therefore omitted.}
 where:
 \begin{itemize}
 \item $C$ is the set of \emph{constant symbols}
@@ -501,13 +501,13 @@ to the Isabelle system. The type-terms $\tau$ for $\lambda$-terms are defined as
   $'\alpha + '\beta $ are notations for $('\alpha,'\beta)(\_ \backslash<\operatorname{times}> \_)$ or 
   $('\alpha,'\beta)(\_ + \_)$, respectively. Also null-ary type-constructors like 
   $()\operatorname{bool}$,$()\operatorname{nat}$ and $()\operatorname{int}$ are possible;
-  note that the paranthesises of null-ary type constructors are usually ommitted.
+  note that the paranthesis' of null-ary type constructors are usually omitted.
 \end{itemize}
 
 Isabelle accepts also the notation $t :: \tau$ as type assertion in the term-language;
 $t :: \tau$ means "t is required to have type $\tau$". Note that typed terms \emph{can} 
 contain free variables; terms like $x + y = y + x$ reflecting common mathematical
-notation (and the convention that free variables are implicitely universally quantified)
+notation (and the convention that free variables are implicitly universally quantified)
 are possible and common in Isabelle theories.\footnote{Here, we assume that $\_ + \_$ and
 $\_ = \_$ are declared constant symbols having type 
 $\operatorname{int} \Rightarrow \operatorname{int} \Rightarrow \operatorname{int}$ 
@@ -647,7 +647,7 @@ given theories in a logically safe way: A theory-extension is
 the original theory was consistent.  Conservative extensions can be
 \emph{constant definitions}, \emph{type definitions}, \emph{datatype
   definitions}, \emph{primitive recursive definitions} and
-\emph{wellfounded recursive definitions}.
+\emph{well founded recursive definitions}.
 
 For instance, the library includes the type constructor $\up{\tau} :=
 \isasymbottom ~ | ~ \lift{\_} : \alpha$ that assigns to each type
@@ -726,9 +726,9 @@ automatically derived. We show only the case for lists:
     \semantics{ P~[] ; \forall~at\spot  P~t \implies P (a\#t) } \Longrightarrow P~x      &\text{-- induct}
   \end{array}
 \end{gather}
-Finally, there is a compiler for primitive and wellfounded recursive
+Finally, there is a compiler for primitive and well founded recursive
 function definitions. For example, we may define the
-$\operatorname{sort}$ operation on linearly orderd lists by:
+$\operatorname{sort}$ operation on linearly ordered lists by:
 \begin{gather}\label{eq:sortdef}
   \begin{array}{lll}
     \fun
@@ -879,7 +879,7 @@ Featherweight OCL is based on the following principles:
   \inlineocl{Set(A)}.
 \item It is a strongly typed language in the Hindley-Milner tradition.
   We assume that a pre-process eliminates all implicit conversions due
-  to subtyping by introducing explicit casts (\eg,
+  to sub-typing by introducing explicit casts (\eg,
   \inlineocl{oclAsType()}). The details of such a pre-processing are
   described in~\cite{brucker:interactive:2007}.  Casts are semantic
   functions, typically injections, that may convert data between the
@@ -900,9 +900,9 @@ Featherweight OCL is based on the following principles:
 \item It supports equational reasoning and congruence reasoning, but
   this requires a differentiation of the different equalities like
   strict equality, strong equality, meta-equality (HOL). Strict
-  equality and strong equality require a subcalculus, ``cp'' (a
+  equality and strong equality require a sub-calculus, ``cp'' (a
   detailed discussion of the different equalities as well as the
-  subcalculus ``cp''---for three-valued OCL 2.0---is given
+  sub-calculus ``cp''---for three-valued OCL 2.0---is given
   in~\cite{brucker.ea:semantics:2009}), which is nasty but can be
   hidden from the user inside tools.
 \end{enumerate}
@@ -1014,7 +1014,7 @@ semantics of types), and more details can be found in  \autoref{sec:focl-types}.
 We use the notation $I\semantics{E}\tau$ for the semantic interpretation 
 function as commonly used in mathematical textbooks and the variable $\tau$ 
 standing for pairs of pre- and post state $(\sigma, \sigma')$. Note that we will 
-also use $\tau$ to denota the \emph{type} of a state-pair; since both syntactic 
+also use $\tau$ to denote the \emph{type} of a state-pair; since both syntactic 
 categories are independent, we can do so without arising confusion. \OCL 
 provides for all \OCL types the constants \mocl{invalid} for the exceptional 
 computation result and \mocl{null} for the non-existing value. Thus we define:
@@ -1232,7 +1232,7 @@ confusions, we will use the following notations for equality:
 \end{enumerate}
 
 The strong logical equality is a polymorphic
-concept which is defined polymorphically for all \OCL types by:
+concept which is defined using polymorphism for all \OCL types by:
 \begin{gather*}
   I\semantics{X \triangleq  Y}  \tau  \equiv
   \lift { \lift{ I\semantics{X}  \tau = I\semantics{Y} \tau  }}
@@ -1504,9 +1504,9 @@ A class model is a four-tuple $(C, \_ < \_, Attrib, Assoc)$ where:
 
 Assuming a strong static type discipline in the sense of
 Hindley-Milner types,  \FOCL has no ``syntactic
-subtyping.''  In contrast, subtyping can be expressed
+subtyping.''  In contrast, sub-typing can be expressed
 \emph{semantically} in  \FOCL; by adding suitable casts which do
-have a formal semantics, subtyping becomes an issue of the front-end that can
+have a formal semantics, sub-typing becomes an issue of the front-end that can
 make implicit type-coercions explicit by introducing explicit
 type-casts. Our perspective shifts the emphasis on the semantic
 properties of casting, and the necessary universe of object
@@ -1541,7 +1541,7 @@ collections over them are represented by $\oid$'s (respectively lifted
 collections over them).
 
 In a shallow embedding which must represent
-\UML types injectively by HOL types, there are two fundamentally
+\UML types one-to-one by HOL types, there are two fundamentally
 different ways to construct such a set of object representations,
 which we call an \emph{object universe} $\mathfrak{A}$:
 \begin{enumerate}
@@ -1657,7 +1657,7 @@ This implies the following scheme for an accessor:
   evaluation results in an object representation, the $\oid$ is
   extracted, if not, exceptional cases like \inlineocl{invalid} are
   reported.
-\item The \emph{dereferentiation} phase. The $\oid$ is interpreted in
+\item The \emph{de-referentiation} phase. The $\oid$ is interpreted in
   the pre- or post-state, %(depending on the suffix of accessor),
   the resulting object is cast to the expected format.  The
   exceptional case of non-existence in this state must be treated.
@@ -1666,7 +1666,7 @@ This implies the following scheme for an accessor:
 \item The \emph{re-construction} phase.  The resulting value has to be
   embedded in the adequate HOL type.  If an attribute has the type of
   an object (not value), it is represented by an optional (set of)
-  $\oid$, which must be converted via dereferentiation in one of the
+  $\oid$, which must be converted via de-referentiation in one of the
   states to produce an object representation again. The
   exceptional case of non-existence in this state must be treated.
 \end{itemize}
@@ -1685,7 +1685,7 @@ The first phase directly translates into the following formalization:
   \end{array}
 \end{multline}
 
-For each class $C$, we introduce the dereferentiation phase of this
+For each class $C$, we introduce the de-referentiation phase of this
 form:
 \begin{multline}
   \isardef \ap
