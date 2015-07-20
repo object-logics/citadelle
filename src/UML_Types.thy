@@ -66,8 +66,8 @@ notation Some ("\<lfloor>(_)\<rfloor>")
 notation None ("\<bottom>")
 
 text{* These commands introduce an alternative, more compact notation for
-the constructors @{term Some} and @{term None} of the type @{typ "\<alpha> option"},
-namely @{term "\<lfloor> _ \<rfloor>"} and @{term "\<bottom>"}. *}
+the constructors @{term "Some X"} and @{term "None"} of the type @{typ "\<alpha> option"},
+namely @{term "\<lfloor>X\<rfloor>"} and @{term "\<bottom>"}. *}
 
 text{* 
   The following function (corresponding to @{term the} in the Isabelle/HOL library)
