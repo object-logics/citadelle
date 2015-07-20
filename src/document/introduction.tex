@@ -3,7 +3,7 @@
 The Unified Modeling Language
 (UML)~\cite{omg:uml-infrastructure:2011,omg:uml-superstructure:2011}
 is one of the few modeling languages that is widely used in
-industry. UML is defined, in an open process, by the Object Management
+industry. UML is defined in an open process by the Object Management
 Group (OMG), \ie, an industry consortium.  While UML is mostly known
 as diagrammatic modeling language (\eg, visualizing class models), it
 also comprises a textual language, called Object Constraint Language
@@ -31,7 +31,7 @@ comprises four layers:
   \inlineocl{Integer}, or typed sets (\inlineocl{Set(_)}.
 \item Operators on the user-defined data model (\eg, defined as part
   of a UML class model) such as accessors, type casts and tests.
-\item Arbitrary, user-defined, side-effect-free methods,
+\item Arbitrary, user-defined, side-effect-free methods called \emph{queries},
 \item Specification for invariants on states and contracts for
   operations to be specified via pre- and post-conditions.
 \end{enumerate}
@@ -74,11 +74,12 @@ called \emph{Featherweight OCL}, since it focuses on a formal
 treatment of the key-elements of the language (rather than a full
 treatment of all operators and thus, a ``complete''
 implementation). In contrast to full OCL, it comprises just the logic
-captured in \verb+Boolean+, the basic data type \verb+Integer+, the
-collection type \verb+Set+, as well as the generic construction
-principle of class models, which is instantiated and demonstrated for
-two examples (an automated support for this type-safe construction is
-again out of the scope of Featherweight OCL).  This formal semantics
+captured in \verb+Boolean+, the basic data types \verb+Integer+ \verb+Real+ and 
+\verb+String+, the collection types \verb+Set+, \verb+Sequence+ and \verb+Bag+, 
+as well as the generic construction principle of class models, which is 
+instantiated and demonstrated for two examples (an automated support for 
+this type-safe construction is out of the scope of Featherweight OCL).  
+This formal semantics
 definition is intended to be a proposal for the standardization
 process of OCL 2.5, which should ultimately replace parts of the
 mandatory part of the standard document~\cite{omg:ocl:2012} as well as
@@ -183,13 +184,15 @@ the latter induces a sub-type relation between the corresponding types.
 Here is a feature-list of  \FOCL:
 \begin{itemize}
  \item it specifies key built-in types such as \inlineocl+Boolean+,
-         \inlineocl+Void+, \inlineocl+Integer+, \inlineocl+Real+ and \inlineocl+String+
-         as well as generic types such as \inlineocl+Pair(T,T')+, \inlineocl+Sequence(T)+ and \inlineocl+Set(T)+.
- \item it defines the semantics of the operations of these types in \emph{denotational form}
-         --- see explanation below ---,
-         and thus in an unambiguous (and in Isabelle/\HOL executable or animatable) way.
- \item it develops the \emph{theory} of these definitions, i.e. the collection of lemmas and theorems that
-         can be proven from these definitions.
+         \inlineocl+Void+, \inlineocl+Integer+, \inlineocl+Real+ and 
+         \inlineocl+String+ as well as generic types such as 
+         \inlineocl+Pair(T,T')+, \inlineocl+Sequence(T)+ and \inlineocl+Set(T)+.
+ \item it defines the semantics of the operations of these types in 
+         \emph{denotational form}  --- see explanation below ---,
+         and thus in an unambiguous (and in Isabelle/\HOL executable or 
+         animatable) way.
+ \item it develops the \emph{theory} of these definitions, i.e. the collection 
+         of lemmas and theorems that can be proven from these definitions.
  \item all types in  \FOCL contain the elements \inlineocl{null} and \inlineocl{invalid};
          since this extends to \inlineocl+Boolean+ type, this results
          in a four-valued logic. Consequently,  \FOCL contains
@@ -202,8 +205,8 @@ Here is a feature-list of  \FOCL:
          the Hindley-Milner tradition.
          We assume that a pre-process for full \OCL eliminates all implicit
          conversions due to subtyping by introducing explicit casts (\eg,
-         \inlineocl{oclAsType(Class)}). \footnote{The details of such a pre-processing are
-         described in~\cite{brucker:interactive:2007}.}
+         \inlineocl{oclAsType(Class)}). \footnote{The details of such a 
+         pre-processing are  described in~\cite{brucker:interactive:2007}.}
  \item  \FOCL types may be arbitrarily nested. For example,
          the expression
          \inlineocl|Set{Set{1,2}} = Set{Set{2,1}}| is legal and true.
@@ -218,13 +221,13 @@ Here is a feature-list of  \FOCL:
          computable strict equality using the object references for comparison,
          and the not necessarily computable logical equality, which expresses
          the Leibniz principle that `equals may be replaced by equals' in
-         \OCL terms.
+         \OCL terms. 
  \item Technically,  \FOCL is a \emph{semantic embedding} into a
          powerful semantic meta-language and
          environment, namely Isabelle/\HOL~\cite{nipkow.ea:isabelle:2002}.
          It is a so-called \emph{shallow embedding} in \HOL; this means that types
          in \OCL were \emph{injectively} represented by types in Isabelle/\HOL.
-         Ill-typed \OCL specifications cannot therefore be represented in
+         Ill-typed \OCL specifications can therefore not be represented in
           \FOCL and a type in  \FOCL contains exactly
          the values that are possible in \OCL\@.
 % \item It supports equational reasoning and congruence reasoning, but

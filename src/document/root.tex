@@ -134,7 +134,7 @@
 \endisatagafp
 \isatagannexa
   \title{A Formal Machine-Checked Semantics for OCL}
-  \subtitle{A Draft Proposal for Annex A of the OCL Standard}
+  \subtitle{A Proposal for the "Annex A" of the OCL Standard 2.5}
 \endisatagannexa
 \author{%
   \href{http://www.brucker.ch/}{Achim D. Brucker}\footnotemark[1]
@@ -168,19 +168,19 @@
     languages that is widely used in industry. While UML is mostly known
     as diagrammatic modeling language (\eg, visualizing class models),
     it is complemented by a textual language, called Object Constraint
-    Language (OCL). OCL is a textual annotation language, based on a
+    Language (OCL). OCL is a textual annotation language, originally based on a
     three-valued logic, that turns UML into a formal language.
     Unfortunately the semantics of this specification language, captured
     in the ``Annex A'' of the OCL standard, leads to different
     interpretations of corner cases.  Many of these corner cases had
     been subject to formal analysis since more than ten years.
 
-    The situation complicated when with version 2.3 the OCL was aligned
-    with the latest version of UML: this led to the extension of the
-    three-valued logic by a second exception element, called
+    The situation complicated with the arrival of version 2.3 of the OCL 
+    standard. OCL was aligned with the latest version of UML: this led to the 
+    extension of the three-valued logic by a second exception element, called
     \inlineocl{null}.  While the first exception element
     \inlineocl{invalid} has a strict semantics, \inlineocl{null} has a
-    non strict semantic interpretation. These semantic difficulties lead
+    non strict interpretation. The combination of these semantic features lead
     to remarkable confusion for implementors of OCL compilers and
     interpreters.
 
@@ -188,10 +188,13 @@
     HOL\@. It provides denotational definitions, a logical calculus and
     operational rules that allow for the execution of OCL expressions by
     a mixture of term rewriting and code compilation. Moreover, we describe
-    a coding-scheme (an implementation has been undertaken, its
-    its description is however not included in this document) for UML
-    class models that were annotated by code-invariants and code
-    contracts.
+    a coding-scheme for UML class models that were annotated by 
+    code-invariants and code contracts. An implementation of this coding-scheme
+    has been undertaken: in consists of a kind of compiler that takes a UML class
+    model and translates it into a family of definitions and derived
+    theorems over them capturing the properties of constructors and selectors,
+    tests and casts resulting from the class model. However, this compiler
+    is \emph{not} included in this document.
 
     Our formalization reveals several inconsistencies and contradictions
     in the current version of the OCL standard.  They reflect a challenge
