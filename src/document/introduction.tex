@@ -400,7 +400,27 @@ context Session::findRole(person:Person):Role
         and self.name = self.name@pre
 \end{ocl}
 where in post-conditions, the operator \inlineocl{@pre} allows for
-accessing the previous state.
+accessing the previous state. Note that:
+\begin{ocl}
+  pre:  self.participates.person->includes(person)
+\end{ocl}
+is actually a syntactic abbreviation for a contraint referring to
+the previous state:
+\begin{ocl}
+        self.participates@pre.person@pre->includes(person).
+\end{ocl}
+Note, further, that conventions for full-\OCL permit the suppression
+of the \inlineocl$self$-parameter, following similar syntactic conventions
+in other object-oriented languages such as Java:
+\begin{ocl}
+context Session::findRole(person:Person):Role
+  pre:  participates.person->includes(person)
+  post: result=participants->one(p:Participant |
+                                p.person = person ).role
+        and participants = self.participants@pre
+        and name = name@pre
+\end{ocl}
+
 
 In \UML, classes can contain attributes of the type of the
 defining class.  Thus, \UML can represent (mutually) recursive
@@ -412,8 +432,9 @@ SecureUML~\cite{brucker.ea:transformation:2006} is to translate the
 diagrammatic \UML features into a combination of more elementary
 features of \UML and \OCL
 expressions~\cite{gogolla.ea:expressing:2001}. For example,
-associations are usually represented by collection-valued class
-attributes together with \OCL constraints expressing the
+associations (\ie{} relations on objects) can be implemented in
+specifications at the design level by aggregations, \ie{} collection-valued 
+class attributes together with \OCL constraints expressing the
 multiplicity. Thus, having a semantics for a subset of \UML and \OCL is
 tantamount for the foundation of the entire method.
 \endisatagafp
@@ -491,7 +512,7 @@ are possible and common in Isabelle theories.\footnote{Here, we assume that $\_ 
 $\_ = \_$ are declared constant symbols having type 
 $\operatorname{int} \Rightarrow \operatorname{int} \Rightarrow \operatorname{int}$ 
 and
-$'\alpha \Rightarrow '\alpha \Rightarrow \operatorname{bool}$, respectively}.
+$'\alpha \Rightarrow '\alpha \Rightarrow \operatorname{bool}$, respectively.}.
 
 
 An environment providing $\Xi$, $TC$ as well as a map from constant symbols $C$ to types (built
@@ -499,11 +520,11 @@ over these $\Xi$ and $TC$) is called a \emph{global context}; it provides a kind
 \ie{} a mechanism to construct the syntactic material of a logical theory.
 
 The most basic (built-in) global context of Isabelle provides just a language to construct
-logical rules. More concretely, it provides a constant definition  for 
+logical rules. More concretely, it provides a constant declaration  for 
 the (built-in) \emph{meta-level implication} $\_ \Implies \_$ allowing to form constructs like $A_1
 \Implies \cdots \Implies A_n \Implies A_{n+1}$, which are viewed as a
 \emph{rule} of the form ``from assumptions $A_1$ to $A_n$, infer
-conclusion $A_{n+1}$'' and which is written in Isabelle as
+conclusion $A_{n+1}$'' and which is written in Isabelle syntax as as
 \begin{gather}
   \semantics{A_1 ; \ldots; A_n}\Implies A_{n+1}
   \qquad
@@ -659,17 +680,17 @@ Isabelle's syntax engine is instructed to accept the notation
 $\{x \mid P\}$ for $\operatorname{Collect}\ap\lambda x\spot P$ and the
 notation $s \in S$ for $\operatorname{member}\ap s\ap S$. As can be
 inferred from the example, constant definitions are axioms that
-introduce a fresh constant symbol by some closed, non-recursive
-expressions; this type of axiom is logically safe since it works
+introduce a fresh constant symbol by some non-recursive expressions not 
+containing free variables; this type of axiom is logically safe since it works
 like an abbreviation. The syntactic side conditions of this axiom are
-mechanically checked, of course. It is straightforward to express the
+mechanically checked. It is straightforward to express the
 usual operations on sets like $\_ \cup \_,
 \_\cap\_\ofType\HolSet{\alpha} \Rightarrow \HolSet{\alpha} \Rightarrow
 \HolSet{\alpha}$ as conservative extensions, too, while the rules of
 typed set theory were derived by proofs from these definitions.
 
-Similarly, a logical compiler is invoked for the following statements introducing
-the types option and list:
+Similarly, a logical compiler is invoked for the following statements 
+introducing the types option and list:
 \begin{gather}
   \begin{array}{lrll}
     \datatype & \HolOption       &= \HolNone \mid \HolSome{\alpha}\\[.5ex]
@@ -922,24 +943,25 @@ of the semantic construction for sets and the handling of objects and
 object universes were excluded from a presentation here.
 
 \subsubsection{Denotational Semantics of Types}
-The syntactic material for type expressions, called $\text{TYPES}(C)$, is inductively
-defined as follows:
+The syntactic material for type expressions, called $\text{TYPES}(C)$, is 
+inductively defined as follows:
 \isatagafp
  \fxnote{should we use expliucit definitions ?}
 \endisatagafp
 \begin{itemize}
 \item $C \subseteq \text{TYPES}(C)$
-\item $\text{Boolean}$, $\text{Integer}$, $\text{Real}$, $\text{Void}$, ... are elements
-      of $\text{TYPES}(C)$
-\item $\text{Set}(X)$, $\text{Bag}(X)$, $\text{Sequence}(X)$,  and $\text{Pair}(X,Y)$ (as example for a Tuple-type)
+\item $\text{Boolean}$, $\text{Integer}$, $\text{Real}$, $\text{Void}$, ... 
+      are elements of $\text{TYPES}(C)$
+\item $\text{Set}(X)$, $\text{Bag}(X)$, $\text{Sequence}(X)$,  and 
+      $\text{Pair}(X,Y)$ (as example for a Tuple-type)
       are in  $\text{TYPES}(C)$ (if $X, Y \in \text{TYPES}(C)$).
 \end{itemize}
 
 Types were directly represented in \FOCL by types in \HOL; consequently,
 any \FOCL type must provide elements for a bottom element (also denoted $\bot$)
 and a null element; this is enforced in Isabelle by a type-class $\TCnull$ that
-contains two distinguishable elements $\HolBot$ and $\HolNull$ (see \autoref{sec:focl-types}
-  for the details of the construction).
+contains two distinguishable elements $\HolBot$ and $\HolNull$ 
+(see \autoref{sec:focl-types} for the details of the construction).
 
 Moreover, the representation mapping from \OCL types to \FOCL is
 one-to-one (\ie{} injective), and the corresponding \FOCL types were
@@ -952,27 +974,28 @@ base type is lifted to a \emph{valuation} type that we use for type-checking
 that some \UML-\OCL functions of its \OCL type (namely: accessors in path-expressions)
 depend on a pre- and a post-state.
 
-For most base types like $\text{Boolean}_{\text{base}}$ or $\text{Integer}_{\text{base}}$, it suffices
-to double-lift a \HOL library type:
+For most base types like $\text{Boolean}_{\text{base}}$ or 
+$\text{Integer}_{\text{base}}$, it suffices to double-lift a \HOL library type:
 \begin{equation}
 \typesynonym \qquad  \text{Boolean}_{\text{base}} \defeq \up{{\up{bool}}}
 \end{equation}
 As a consequence of this definition of the type, we have the elements
-$\isasymbottom, \lift{\isasymbottom}, \lift{\lift{\HolTrue}},\lift{\lift{\HolFalse}}$
-in the carrier-set of  $\text{Boolean}_{\text{base}}$. We can therefore use the element
-$\isasymbottom$ to define the generic type class element $\bot$ and $\lift{\bot}$ for the
-generic type class $\HolNull$.
+$\isasymbottom, \lift{\isasymbottom}, \lift{\lift{\HolTrue}},
+\lift{\lift{\HolFalse}}$ in the carrier-set of  $\text{Boolean}_{\text{base}}$. 
+We can therefore use the element$\isasymbottom$ to define the generic type 
+class element $\bot$ and $\lift{\bot}$ for the generic type class $\HolNull$.
 For collection types and object types this definition
 is more evolved (see \autoref{sec:focl-types}).
 
-For object base types, we assume a typed universe $\isaAA$ of objects to be discussed later,
-for the moment we will refer it by its polymorphic variable.
+For object base types, we assume a typed universe $\isaAA$ of objects to be 
+discussed later, for the moment we will refer it by its polymorphic variable.
 
-With respect the valuation types for \OCL expression in general and Boolean expressions in
-particular, they depend on the pair $(\sigma, \sigma')$ of pre-and post-state.
-Thus, we define valuation types by the synonym:
+With respect the valuation types for \OCL expression in general and Boolean 
+expressions in particular, they depend on the pair $(\sigma, \sigma')$ of 
+pre-and post-state. Thus, we define valuation types by the synonym:
 \begin{equation}
-\typesynonym \qquad  \V{\isaAA}{\alpha} \defeq \state{\isaAA} \times \state{\isaAA} \to \alpha \ofType \TCnull \mi{.}
+\typesynonym \qquad  \V{\isaAA}{\alpha} \defeq \state{\isaAA} \times 
+                                \state{\isaAA} \to \alpha \ofType \TCnull \mi{.}
 \end{equation}
 The valuation type for boolean,integer, etc. \OCL terms is therefore defined as:
 \begin{gather*}
@@ -980,30 +1003,30 @@ The valuation type for boolean,integer, etc. \OCL terms is therefore defined as:
 \typesynonym \qquad \text{Integer}_{\isaAA} \defeq  \V{\isaAA}{\text{Integer}_{\text{base}}} \\
 \ldots
 \end{gather*}
-the other cases are analogous. In the subsequent subsections, we will drop the index $\isaAA$ since
-it is constant in all formulas and expressions except for operations related to the object universe
-construction in \autoref{sec:universe}
+the other cases are analogous. In the subsequent subsections, we will drop the 
+index $\isaAA$ since it is constant in all formulas and expressions except for 
+operations related to the object universe construction in \autoref{sec:universe}
 
-The rules of the logical layer (there are no algebraic rules related to the semantics of types),
-and more details can be found in  \autoref{sec:focl-types}.
+The rules of the logical layer (there are no algebraic rules related to the 
+semantics of types), and more details can be found in  \autoref{sec:focl-types}.
 
 \subsection{Denotational Semantics of Constants and Operations}
-We use the notation $I\semantics{E}\tau$ for the semantic interpretation function as
-commonly used in mathematical textbooks and the variable $\tau$ standing for pairs of
-pre- and post state $(\sigma, \sigma')$. Note that we will also use $\tau$ to denota the
-\emph{type} of a state-pair; since both syntactic categories are independent, we can
-do so without arising confusion. \OCL provides for all \OCL types the
- constants \mocl{invalid} for the exceptional computation result and \mocl{null} for
- the non-existing value. Thus we define:
+We use the notation $I\semantics{E}\tau$ for the semantic interpretation 
+function as commonly used in mathematical textbooks and the variable $\tau$ 
+standing for pairs of pre- and post state $(\sigma, \sigma')$. Note that we will 
+also use $\tau$ to denota the \emph{type} of a state-pair; since both syntactic 
+categories are independent, we can do so without arising confusion. \OCL 
+provides for all \OCL types the constants \mocl{invalid} for the exceptional 
+computation result and \mocl{null} for the non-existing value. Thus we define:
 \begin{gather*}
 \begin{alignedat}{3}
 I\semantics{\mocl{invalid}\ofType V(\alpha)} \tau &\equiv \HolBot &
 \qquad I\semantics{\mocl{null}\ofType V(\alpha)}  \tau    &\equiv \HolNull\\
 \end{alignedat}
 \end{gather*}
-For the concrete \mocl{Boolean}-type, we define similarly the boolean constants $\mocl{true}$ and
-$\mocl{false}$ as well as the fundamental tests for definedness and validity (generically
-  defined for all types):
+For the concrete \mocl{Boolean}-type, we define similarly the boolean constants 
+$\mocl{true}$ and $\mocl{false}$ as well as the fundamental tests for definedness 
+and validity (generically defined for all types):
 \begin{gather*}
 \begin{alignedat}{3}
 I\semantics{\mocl{true}\ofType\mocl{Boolean}} \tau &= \lift{\lift{\HolTrue}} &
@@ -1015,12 +1038,13 @@ I\semantics{X\mocl{.oclIsUndefined()}} \tau =
     (\HolIf I\semantics{X}\tau = \HolBot \HolThen I\semantics{\mocl{true}}\tau \HolElse I\semantics{\mocl{false}}\tau)
 \end{gather*}
 
-For reasons of conciseness, we will write $\delta~X$ for $\mocl{not}(X\mocl{.oclIsUndefined())}$
-and $\upsilon~X$ for $\mocl{not}(X\mocl{.oclIsInvalid())}$ throughout this document.
+For reasons of conciseness, we will write $\delta~X$ for 
+$\mocl{not}(X\mocl{.oclIsUndefined())}$ and $\upsilon~X$ for 
+$\mocl{not}(X\mocl{.oclIsInvalid())}$ throughout this document.
 
-Due to the used style of
-semantic representation (a shallow embedding) $I$ is in fact
-superfluous and defined semantically as the identity $\lambda x. x$; instead of:
+Due to the used style of semantic representation (a shallow embedding) $I$ is 
+in fact superfluous and defined semantically as the identity $\lambda x. x$; 
+instead of:
 \begin{gather*}
 I\semantics{\mocl{true}\ofType\mocl{Boolean}} \tau = \lift{\lift{\HolTrue}}
 \shortintertext{we can therefore write:}
@@ -1031,13 +1055,14 @@ paves the way for an automatic check that the underlying equation
 has the form of an \emph{axiomatic definition} and is therefore logically safe.
 
 \isatagannexa
-Since all operators of the assertion language depend on the context $\tau$ = $(\sigma,
-\sigma')$ and result in values that can be $\isasymbottom$, all expressions can
-be viewed as \emph{evaluations} from $(\sigma, \sigma')$ to a type $\alpha$
-which must posses a $\bottom$ and a $\text{null}$-element. Given that such
-constraints can be expressed in Isabelle/HOL via \emph{type classes} (written: $\alpha::\kappa$),
-all types for OCL-expressions are of a form captured by
- \begin{equation*}
+Since all operators of the assertion language depend on the context 
+$\tau$ = $(\sigma, \sigma')$ and result in values that can be $\isasymbottom$, 
+all expressions can be viewed as \emph{evaluations} from $(\sigma, \sigma')$ to 
+a type $\alpha$ which must posses a $\bottom$ and a $\text{null}$-element. Given 
+that such constraints can be expressed in Isabelle/HOL via \emph{type classes} 
+(written: $\alpha::\kappa$), all types for OCL-expressions are of a form captured 
+by
+\begin{equation*}
  \V{}{\alpha} \defeq \state{} \times \state{} \to \alpha::\{bot,null\}  \mi{,}
  \end{equation*}
 where $\state{}$ stands for the system state and $\state{} \times
@@ -1115,8 +1140,8 @@ and $\mocl{and}$ as follows:
                    \end{array}\\
 \end{array}
 \end{gather*}
-These non-strict operations were used to define the other logical connectives in the
-usual classical way: $X\; \mocl{or}\; Y \equiv (\mocl{not}\; X)\;
+These non-strict operations were used to define the other logical connectives in 
+the usual classical way: $X\; \mocl{or}\; Y \equiv (\mocl{not}\; X)\;
 \mocl{and}\; (\mocl{not}\; Y)$ or
 $X\;\mocl{implies}\;Y \equiv (\mocl{not}\; X)\;\mocl{or}\; Y$.
 
@@ -1132,10 +1157,12 @@ The definition of the addition for integers as default variant reads as follows:
                 &\HolElse \bottom
    \end{array}
 \end{gather*}
- where the operator ``\mocl{+}'' on the left-hand
- side of the equation denotes the \OCL addition of type
- $\mocl{Integer} \Rightarrow \mocl{Integer} \Rightarrow \mocl{Integer}$ while the ``$+$'' on the
- right-hand side of the equation of type $[\HolInteger,\HolInteger]\Rightarrow \HolInteger$ denotes the integer-addition from the HOL library.
+where the operator ``\mocl{+}'' on the left-hand
+side of the equation denotes the \OCL addition of type
+$\mocl{Integer} \Rightarrow \mocl{Integer} \Rightarrow \mocl{Integer}$ while 
+the ``$+$'' on the right-hand side of the equation of type 
+$[\HolInteger,\HolInteger]\Rightarrow \HolInteger$ denotes the integer-addition 
+from the HOL library.
 
 \subsection{Logical Layer}
 The topmost goal of the logic for OCL is to define the \emph{validity statement}:
@@ -1223,8 +1250,8 @@ automated; the reader interested in the details is referred to
 \autoref{sec:equality}.
 
 The strong logical equality of \FOCL give rise to a number
-of further rules and derived properties, that clarify the role of strong logical equality and
-the boolean constants in \OCL specifications:
+of further rules and derived properties, that clarify the role of strong 
+logical equality and the boolean constants in \OCL specifications:
 \begin{gather*}
 \tau \isasymMathOclValid \delta \ap x \lor \tau \isasymMathOclValid x \triangleq \mocl{invalid} \lor \tau \isasymMathOclValid x \triangleq \mocl{null} \mi{,}\\
 (\tau \isasymMathOclValid A \triangleq \mocl{invalid}) = (\tau \isasymMathOclValid \mocl{not} (\upsilon A))\\
@@ -1261,16 +1288,18 @@ variables in a formula can be performed; due to strictness rules,
 formulae containing somewhere a variable $x$ that is known to be
 $\mocl{invalid}$ or $\mocl{null}$ reduce usually quickly to
 contradictions.  For example, we can infer from an invariant $\tau
-\isasymMathOclValid x \isasymMathOclStrictEq y \;\mocl{-}\; \mocl{3}$ that we have $\tau
-\isasymMathOclValid x \isasymMathOclStrictEq y \;\mocl{-}\; \mocl{3} \land \tau \isasymMathOclValid
-\delta \ap x \land \tau \isasymMathOclValid \delta \ap y$.  We call the latter formula the
-$\delta$-closure of the former.  Now, we can convert a formula like
+\isasymMathOclValid x \isasymMathOclStrictEq y \;\mocl{-}\; \mocl{3}$ 
+that we have 
+$\tau \isasymMathOclValid x \isasymMathOclStrictEq y \;\mocl{-}\; \mocl{3} \land \tau \isasymMathOclValid
+\delta \ap x \land \tau \isasymMathOclValid \delta \ap y$.  
+We call the latter formula the $\delta$-closure of the former.  Now, we  can 
+convert a formula like 
 $\tau \isasymMathOclValid x \;\mocl{>}\; \mocl{0} \ap\mocl{or}\ap \mocl{3} \;\mocl{*}\; y \;\mocl{>}\;
 x \;\mocl{*}\; x$ into the equivalent formula
 $\tau \isasymMathOclValid x \;\mocl{>}\; \mocl{0} \lor \tau
-\isasymMathOclValid \mocl{3} \;\mocl{*}\; y \;\mocl{>}\; x \;\mocl{*}\; x$ and thus internalize the
-\OCL-logic into a classical (and more tool-conform) logic. This
-works---for the price of a potential, but due to the usually ``rich''
+\isasymMathOclValid \mocl{3} \;\mocl{*}\; y \;\mocl{>}\; x \;\mocl{*}\; x$ and 
+thus internalize the \OCL-logic into a classical (and more tool-conform) logic. 
+This works---for the price of a potential, but due to the usually ``rich''
 $\delta$-closures of invariants rare---exponential blow-up of the
 formula for all \OCL formulas.
 
