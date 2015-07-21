@@ -1465,10 +1465,6 @@ given \OCL invariant or operation contract
 produces several implicit operations which
 become accessible via appropriate \OCL syntax.
 A class model is a four-tuple $(C, \_ < \_, Attrib, Assoc)$ where:
-
-\isatagafp
-\fxfatal{TODO}
-\endisatagafp
 \begin{enumerate}
 \item $C$ is a  set of class names (written as $\{C_1, \ldots, C_n\}$). To each class
   name a type of data in \OCL is associated. Moreover, class names declare two projector
@@ -1574,14 +1570,11 @@ equality on this object universe. However, the treatment of type casts
 and type tests cannot be faithful with common object-oriented
 semantics, be it in \UML or Java: casting up along the class hierarchy
 can only be implemented by loosing information, such that casting up
-and casting down will \emph{not} give the required identity:
-
+and casting down will \emph{not} give the required identity, whenever $C_k  < C_i$ and $X$ is valid:
 \begin{gather}
         X.\mocl{oclIsTypeOf(}C_k\mocl{)} ~ ~  \mocl{implies} ~ ~ X\mocl{.oclAsType(}C_i\mocl{)}\mocl{.oclAsType(}C_k\mocl{)} \isasymMathOclStrictEq
-   X \\
-   \qquad \qquad  \qquad \qquad  \qquad \qquad \text{whenever $C_k  < C_i$ and $X$ is valid.}
+   X
 \end{gather}
-\fixme{LaTeX : could we elmiminate the label A 17 which is generated from this ?}
 
 To overcome this limitation, we introduce an auxiliary type
 $C_{i\text{ext}}$ for \emph{class type extension}; together, they were
