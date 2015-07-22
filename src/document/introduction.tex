@@ -87,7 +87,7 @@ replace completely its informative ``Annex A.''
 \endisatagafp
 %%
 \isatagannexa
-This annex chapter formally defines the semantics of \OCL. This
+This annex chapter formally defines the semantics of \OCL\@. This
 chapter is a, to a large extend automatically generated, summary of a
 formal semantics of the core of OCL, called \FOCL\footnote{An updated,
   machine-checked version and formally complete version of the
@@ -105,12 +105,12 @@ arbitrary manner always yielding the same result. Moreover, except in
 pathological cases, this result should be unambiguously defined, \ie,
 represent a value.
 
-In order to motivate the need for logical consistency and also the
-magnitude of the problem, we focus on one particular feature of the
-language as example: \inlineocl{Tuples}. Recall that tuples (in other
-languages known as \emph{records}) are $n$-ary Cartesian products with
-named components, where the component names are used also as
-projection functions: the special case %
+To motivate the need for logical consistency and also the magnitude of
+the problem, we focus on one particular feature of the language as
+example: \inlineocl{Tuples}. Recall that tuples (in other languages
+known as \emph{records}) are $n$-ary Cartesian products with named
+components, where the component names are used also as projection
+functions: the special case %
 \inlineocl+Pair{x:First, y:Second}+ stands for the usual binary
 pairing operator \inlineocl+Pair{true,null}+ and the two projection
 functions \inlineocl+x.First()+ and \inlineocl+x.Second()+. For a
@@ -160,28 +160,28 @@ implementor.
 
 \OCL is an annotation language for \UML models, in particular class
 models allowing for specifying data and operations on them. As such,
-it is a \emph{typed} object-oriented language. This means that it is
---- like Java or C++ --- based on the concept of a \emph{static type},
+it is a \emph{typed} object-oriented language. This means that it
+is---like Java or C++---based on the concept of a \emph{static type},
 that is the type that the type-checker infers from a \UML class model
 and its \OCL annotation, as well as a \emph{dynamic type}, that is the
-type at which an object is dynamically created \footnote{As
+type at which an object is dynamically created\footnote{As
   side-effect free language, \OCL has no object-constructors, but with
   \inlineocl+OclIsNew()+, the effect of object creation can be
   expressed in a declarative way.}. Types are not only a means for
 efficient compilation and a support of separation of concerns in
 programming, there are of fundamental importance for our goal of
 logical consistency: it is impossible to have sets that contain
-themselves, i.e. to state Russels Paradox in \OCL typed set-theory.
+themselves, \ie, to state Russels Paradox in \OCL typed set-theory.
 Moreover, object-oriented typing means that types there can be in
 sub-typing relation; technically speaking, this means that they can be
-\emph{cast} via \inlineocl+oclIsTypeOf(T)+ one to the other, and
-under particular conditions to be described in detail later, these
-casts are semantically \emph{lossless}, \ie{}
+\emph{cast} via \inlineocl+oclIsTypeOf(T)+ one to the other, and under
+particular conditions to be described in detail later, these casts are
+semantically \emph{lossless}, \ie,
 \begin{equation}
  (X.oclAsType(C_j).oclAsType(C_i) = X)
 \end{equation}
 (where $C_j$ and $C_i$ are class types.)
-Furthermore, object-orientedness means that operations and object-types can be
+Furthermore, object-oriented means that operations and object-types can be
 grouped to \emph{classes} on which an inheritance relation can be established;
 the latter induces a sub-type relation between the corresponding types.
 
@@ -192,10 +192,10 @@ Here is a feature-list of  \FOCL:
          \inlineocl+String+ as well as generic types such as 
          \inlineocl+Pair(T,T')+, \inlineocl+Sequence(T)+ and \inlineocl+Set(T)+.
  \item it defines the semantics of the operations of these types in 
-         \emph{denotational form}  --- see explanation below ---,
+         \emph{denotational form}---see explanation below---,
          and thus in an unambiguous (and in Isabelle/\HOL executable or 
          animatable) way.
- \item it develops the \emph{theory} of these definitions, i.e. the collection 
+       \item it develops the \emph{theory} of these definitions, \ie, the collection 
          of lemmas and theorems that can be proven from these definitions.
  \item all types in  \FOCL contain the elements \inlineocl{null} and \inlineocl{invalid};
          since this extends to \inlineocl+Boolean+ type, this results
@@ -209,7 +209,7 @@ Here is a feature-list of  \FOCL:
          the Hindley-Milner tradition.
          We assume that a pre-process for full \OCL eliminates all implicit
          conversions due to subtyping by introducing explicit casts (\eg,
-         \inlineocl{oclAsType(Class)}). \footnote{The details of such a 
+         \inlineocl{oclAsType(Class)}).\footnote{The details of such a 
          pre-processing are  described in~\cite{brucker:interactive:2007}.}
  \item  \FOCL types may be arbitrarily nested. For example,
          the expression
@@ -244,7 +244,7 @@ Here is a feature-list of  \FOCL:
 %         hidden from the user inside tools.
 \end{itemize}
 
-\paragraph{Context.} This document stands in a more than fifteen years
+\paragraph*{Context.} This document stands in a more than fifteen years
 tradition of giving a formal semantics to the core of \UML and its
 annotation language \OCL, starting from \citet{richters:precise:2002}
 and~\cite{hamie.ea:reflections:1998,mandel.ea:ocl:1999,cook.ea::amsterdam:2002},
@@ -266,7 +266,7 @@ machine-check, to ensure the absence of syntax errors, the consistency
 of the formal semantics, as well as provide a a suite of corner-cases
 relevant for \OCL tool implementors.
 
-\paragraph{Organization of this document.}
+\paragraph*{Organization of this document.}
 This document is organized as follows. After a brief background section
 introducing a running example and basic knowledge on Isabelle/\HOL and its formal
 notations, we present the formal semantics of  \FOCL introducing:
@@ -276,12 +276,12 @@ notations, we present the formal semantics of  \FOCL introducing:
 \item A detailed formal description. This covers:
 \begin{enumerate}
 \item \OCL Types and their presentation in Isabelle/\HOL,
-\item \OCL Terms, \ie{} the semantics of library operators,
+\item \OCL Terms, \ie, the semantics of library operators,
         together with definitions, lemmas, and test cases for the implementor,
-\item \UML/\OCL Constructs, \ie{} a core of \UML class models plus user-defined
+\item \UML/\OCL Constructs, \ie, a core of \UML class models plus user-defined
         constructions on them such as class-invariants and operation contracts.
 \end{enumerate}
-\item Since the latter, \ie{} the construction of \UML class models, has to be done on the meta-level
+\item Since the latter, \ie, the construction of \UML class models, has to be done on the meta-level
 (so not \emph{inside} \HOL, rather on the level of a pre-compiler), we will describe this process
 with two larger examples, namely formalizations of our running example.
 \end{enumerate}
@@ -436,8 +436,8 @@ SecureUML~\cite{brucker.ea:transformation:2006} is to translate the
 diagrammatic \UML features into a combination of more elementary
 features of \UML and \OCL
 expressions~\cite{gogolla.ea:expressing:2001}. For example,
-associations (\ie{} relations on objects) can be implemented in
-specifications at the design level by aggregations, \ie{} collection-valued 
+associations (\ie, relations on objects) can be implemented in
+specifications at the design level by aggregations, \ie, collection-valued 
 class attributes together with \OCL constraints expressing the
 multiplicity. Thus, having a semantics for a subset of \UML and \OCL is
 tantamount for the foundation of the entire method.
@@ -455,11 +455,13 @@ supports first-order logic, Zermelo-Fraenkel set theory and the
 instance for Church's higher-order logic (HOL).
 
 The core language of Isabelle is a typed $\lambda$-calculus providing
-a uniform term language $T$ in which all logical entities where represented:
-\[
+a uniform term language $T$ in which all logical entities where
+represented:\footnote{In the Isabelle implementation, there are
+  actually two further variants which were irrelevant for this
+  presentation and are therefore omitted.}
+\begin{gather*}
    T~~ ::=~~ C~~ |~~ V ~~|~~ \lambda~V.~~ T ~~|~~ T~T
-\] \footnote{In the Isabelle implementation, there are actually two further variants
-which were irrelevant for this presentation and are therefore omitted.}
+\end{gather*}
 where:
 \begin{itemize}
 \item $C$ is the set of \emph{constant symbols}
@@ -468,7 +470,7 @@ where:
        "$(\_ \Longrightarrow \_)~A~B$" or  "$(\_ + \_)~A~B$" 
        can be parsed and printed as 
        "$A \Longrightarrow B$" or  "$A + B$", respectively.
-\item $V$ is the set of \emph{variable symbols} like "$x$", "$y$", "$z$", ...
+\item $V$ is the set of \emph{variable symbols} like "$x$", "$y$", "$z$", \ldots
       Variables standing in the scope of a $\lambda$-operator were called
       \emph{bound} variables, all others are \emph{free} variables.
 \item "$\lambda~V.~~T$" is called $\lambda$-abstraction. For example, consider the
@@ -477,27 +479,33 @@ where:
 \item $T~T'$ is called an \emph{application}.  
 \end{itemize}
 These concepts are not at all Isabelle specific and can be found in many modern programming
-languages ranging from Haskell over Phyton to Java.
+languages ranging from Haskell over Python to Java.
 
-Terms where associated to \emph{types} by a set of \emph{type inference rules} (similar to
-\url{https://en.wikipedia.org/wiki/Hindley-Milner_type_system}); only terms for which 
-a type can be inferred --- \ie{} for \emph{typed terms} --- were considered as legal input
-to the Isabelle system. The type-terms $\tau$ for $\lambda$-terms are defined as:
-\[  \tau~~ ::=~~ TV~~ |~~ TV :: \Xi~~ |~~ \tau~\Rightarrow~\tau~~ |~~ (\tau, ..., \tau)TC\]
-\footnote{Again, the Isabelle implementation is actually slightly different;
- our presentation is an abstraction in order to improve readability.}
+Terms where associated to \emph{types} by a set of \emph{type
+  inference rules}\footnote{Similar to
+\url{https://en.wikipedia.org/w/index.php?title=Hindley\%E2\%80\%93Milner_type_system&oldid=668548458}}; only
+terms for which a type can be inferred---\ie, for \emph{typed
+  terms}---were considered as legal input to the Isabelle
+system. The type-terms $\tau$ for $\lambda$-terms are defined
+as:\footnote{Again, the Isabelle implementation is actually slightly
+  different; our presentation is an abstraction in order to improve
+  readability.}
+\begin{gather}
+\tau~~ ::=~~ TV~~ |~~ TV :: \Xi~~ |~~ \tau~\Rightarrow~\tau~~ |~~ (\tau, \ldots, \tau)TC  
+\end{gather}
 \begin{itemize}
-\item $TV$ is the set of \emph{type variables} like "$'\alpha$", "$'\beta$", ...
-  Note that the syntactic categories $V$ and $TV$ are disjoint; thus,
+\item $TV$ is the set of \emph{type variables} like $'\alpha$,
+  $'\beta$, \ldots
+  The syntactic categories $V$ and $TV$ are disjoint; thus,
   $'x$ is a perfectly possible type variable.
-\item $\Xi$ is a set of \emph{type-classes} like \emph{ord}, \emph{order}, \emph{linorder}... 
+\item $\Xi$ is a set of \emph{type-classes} like \emph{ord},
+  \emph{order}, \emph{linorder}, \ldots
   This feature
-  in the Isabelle type system is inspired by Haskell type classes
-  (cf. \url{https://en.wikipedia.org/wiki/Type_class}).
+  in the Isabelle type system is inspired by Haskell type classes.\footnote{See \url{https://en.wikipedia.org/w/index.php?title=Type_class&oldid=672053941}.}
   A \emph{type class constraint} such as "$\alpha::\operatorname{order}$" expresses that
   the type variable $'\alpha$ may range over any type that has the algebraic
   structure of a partial ordering (as it is configured in the Isabelle/\HOL library).
-\item The type "$'\alpha \Rightarrow '\beta$" denotes the total function space from
+\item The type  $'\alpha \Rightarrow '\beta$  denotes the total function space from
   $'\alpha$ to $'\beta$.
 \item $TC$ is a set of \emph{type constructors} like "$('\alpha)\operatorname{list}$" or
   "$('\alpha)\operatorname{tree}$". Again, Isabelle's syntax engine supports mixfix-notation 
@@ -508,26 +516,31 @@ to the Isabelle system. The type-terms $\tau$ for $\lambda$-terms are defined as
   note that the parentheses of null-ary type constructors are usually omitted.
 \end{itemize}
 
-Isabelle accepts also the notation $t :: \tau$ as type assertion in the term-language;
-$t :: \tau$ means "t is required to have type $\tau$". Note that typed terms \emph{can} 
-contain free variables; terms like $x + y = y + x$ reflecting common mathematical
-notation (and the convention that free variables are implicitly universally quantified)
-are possible and common in Isabelle theories.\footnote{Here, we assume that $\_ + \_$ and
-$\_ = \_$ are declared constant symbols having type 
-$\operatorname{int} \Rightarrow \operatorname{int} \Rightarrow \operatorname{int}$ 
-and
-$'\alpha \Rightarrow '\alpha \Rightarrow \operatorname{bool}$, respectively.}.
+Isabelle accepts also the notation $t :: \tau$ as type assertion in
+the term-language; $t :: \tau$ means "t is required to have type
+$\tau$". Note that typed terms \emph{can} contain free variables;
+terms like $x + y = y + x$ reflecting common mathematical notation
+(and the convention that free variables are implicitly universally
+quantified) are possible and common in Isabelle
+theories.\footnote{Here, we assume that $\_ + \_$ and $\_ = \_$ are
+  declared constant symbols having type
+  $\operatorname{int} \Rightarrow \operatorname{int} \Rightarrow
+  \operatorname{int}$
+  and $'\alpha \Rightarrow '\alpha \Rightarrow \operatorname{bool}$,
+  respectively.}.
 
 
-An environment providing $\Xi$, $TC$ as well as a map from constant symbols $C$ to types (built
-over these $\Xi$ and $TC$) is called a \emph{global context}; it provides a kind of signature, 
-\ie{} a mechanism to construct the syntactic material of a logical theory.
+An environment providing $\Xi$, $TC$ as well as a map from constant
+symbols $C$ to types (built over these $\Xi$ and $TC$) is called a
+\emph{global context}; it provides a kind of signature, \ie, a
+mechanism to construct the syntactic material of a logical theory.
 
-The most basic (built-in) global context of Isabelle provides just a language to construct
-logical rules. More concretely, it provides a constant declaration  for 
-the (built-in) \emph{meta-level implication} $\_ \Implies \_$ allowing to form constructs like $A_1
-\Implies \cdots \Implies A_n \Implies A_{n+1}$, which are viewed as a
-\emph{rule} of the form ``from assumptions $A_1$ to $A_n$, infer
+The most basic (built-in) global context of Isabelle provides just a
+language to construct logical rules. More concretely, it provides a
+constant declaration for the (built-in) \emph{meta-level implication}
+$\_ \Implies \_$ allowing to form constructs like
+$A_1 \Implies \cdots \Implies A_n \Implies A_{n+1}$, which are viewed
+as a \emph{rule} of the form ``from assumptions $A_1$ to $A_n$, infer
 conclusion $A_{n+1}$'' and which is written in Isabelle syntax as
 \begin{gather}
   \semantics{A_1 ; \ldots; A_n}\Implies A_{n+1}
@@ -609,19 +622,21 @@ may range over arbitrary types, including total functions
 $f\ofType\alpha \Rightarrow \beta$. HOL is centered around
 extensional equality $\_ = \_ \ofType \alpha \Rightarrow \alpha
 \Rightarrow \text{bool}$. Extensional equality means that two functions $f$ and $g$
-are equal iff they are pointwise equal; this is captured by the rule:
+are equal if and only if they are point-wise equal; this is captured by the rule:
 $(\Forall~x\spot f~x = g~x) \Longrightarrow f = g$.
 HOL is more expressive than first-order
 logic, since, among many other things, induction schemes can be expressed inside the
 logic. For example, the standard induction rule on natural numbers in HOL:
-\[P~0 \Longrightarrow (\Forall~x\spot P~x \Longrightarrow P~(x+1)) \Longrightarrow P~x\]
+\begin{gather*}
+  P~0 \Longrightarrow (\Forall~x\spot P~x \Longrightarrow P~(x+1)) \Longrightarrow P~x
+\end{gather*}
 is just an ordinary rule in Isabelle which is in fact a proven theorem
 in the theory of natural numbers. This example exemplifies an important
 design principle of Isabelle: theorems and rules are technically the
 same, paving the way to \emph{derived rules} and automated 
 decision procedures based on them. This has the consequence that
 that these procedures are consequently sound by construction
-with resepct to their logical aspects (they may be incomplete
+with respect to their logical aspects (they may be incomplete
 or failing, though).
 
 On the other hand, Isabelle/\HOL can also be viewed as a functional programming language
@@ -726,8 +741,8 @@ automatically derived. We show only the case for lists:
     (\HolCase \ap  b\#t  \ap \HolOf  \ap [] \Rightarrow F  \ap  | \ap
     (a\#r) \Rightarrow G\ap a\ap r) = G~b~t &\\ %
     \mbox{}[] \neq a\#t    &\text{-- distinctness} \\
-    \semantics{ a = [] \implies P ; \exists~x~t\spot  a = x\#t \implies P } \Longrightarrow P &\text{-- exhaust} \\
-    \semantics{ P~[] ; \forall~at\spot  P~t \implies P (a\#t) } \Longrightarrow P~x      &\text{-- induct}
+    \semantics{a = [] \implies P ; \exists~x~t\spot  a = x\#t \implies P } \Longrightarrow P &\text{-- exhaust} \\
+    \semantics{P~[] ; \forall~at\spot  P~t \implies P (a\#t) } \Longrightarrow P~x      &\text{-- induct}
   \end{array}
 \end{gather}
 Finally, there is a compiler for primitive and well founded recursive
@@ -918,7 +933,7 @@ Aachen~\cite{brucker.ea:summary-aachen:2013}.
 
 \section{The Essence of UML-OCL Semantics}
 \isatagafp
-\fxnote{Generate this chapter from Isabelle theories ? Just for principle ?}
+\fxnote{Generate this chapter from Isabelle theories? Just for principle?}
 \endisatagafp
 \subsection{The Theory Organization}
 The semantic theory is organized in a quite conventional manner in
@@ -949,12 +964,12 @@ object universes were excluded from a presentation here.
 \subsubsection{Denotational Semantics of Types}
 The syntactic material for type expressions, called $\text{TYPES}(C)$, is 
 inductively defined as follows:
-\isatagafp
- \fxnote{should we use expliucit definitions ?}
-\endisatagafp
+ \isatagafp
+  \fxnote{should we use explicit definitions?}
+ \endisatagafp
 \begin{itemize}
 \item $C \subseteq \text{TYPES}(C)$
-\item $\text{Boolean}$, $\text{Integer}$, $\text{Real}$, $\text{Void}$, ... 
+\item $\text{Boolean}$, $\text{Integer}$, $\text{Real}$, $\text{Void}$, \ldots
       are elements of $\text{TYPES}(C)$
 \item $\text{Set}(X)$, $\text{Bag}(X)$, $\text{Sequence}(X)$,  and 
       $\text{Pair}(X,Y)$ (as example for a Tuple-type)
@@ -968,7 +983,7 @@ contains two distinguishable elements $\HolBot$ and $\HolNull$
 (see \autoref{sec:focl-types} for the details of the construction).
 
 Moreover, the representation mapping from \OCL types to \FOCL is
-one-to-one (\ie{} injective), and the corresponding \FOCL types were
+one-to-one (\ie, injective), and the corresponding \FOCL types were
 constructed to represent \emph{exactly} the elements (``no junk, no confusion
   elements'') of their \OCL counterparts. The corresponding \FOCL types were
 constructed in two stages: First, a \emph{base type} is constructed whose
@@ -1047,7 +1062,7 @@ $\mocl{not}(X\mocl{.oclIsUndefined())}$ and $\upsilon~X$ for
 $\mocl{not}(X\mocl{.oclIsInvalid())}$ throughout this document.
 
 Due to the used style of semantic representation (a shallow embedding) $I$ is 
-in fact superfluous and defined semantically as the identity $\lambda x. x$; 
+in fact superfluous and defined semantically as the identity $\lambda x.~x$; 
 instead of:
 \begin{gather*}
 I\semantics{\mocl{true}\ofType\mocl{Boolean}} \tau = \lift{\lift{\HolTrue}}
@@ -1174,11 +1189,11 @@ The topmost goal of the logic for OCL is to define the \emph{validity statement}
    (\sigma, \sigma') \isasymMathOclValid P\mi{,}
 \end{equation*}
 where $\sigma$ is the pre-state and $\sigma'$ the post-state of the
-underlying system and $P$ is a formula, \ie{} and \OCL expression of type \mocl{Boolean}.
+underlying system and $P$ is a formula, \ie, and \OCL expression of type \mocl{Boolean}.
 Informally, a formula $P$ is valid if and only if its evaluation in
 $(\sigma, \sigma')$ (\ie, $\tau$ for short) yields true. Formally this means:
 \begin{equation*}
-\tau \isasymMathOclValid P \equiv \bigl(I\semantics{P} \tau = \lift{ \lift{\HolTrue }} \bigr)\mi{.}
+\tau \isasymMathOclValid P \equiv \bigl(I\semantics{P} \tau = \lift{\lift{\HolTrue }} \bigr)\mi{.}
 \end{equation*}
 On this basis, classical, two-valued inference rules can be established for
 reasoning over the logical connectives, the different notions of equality,
@@ -1224,14 +1239,13 @@ when comparing objects, similarly to C++ or Java. In order to avoid
 confusions, we will use the following notations for equality:
 \begin{enumerate}
 \item The symbol $\_ = \_$ remains to be reserved to the \HOL equality,
-      \ie{} the equality of our semantic meta-language,
+      \ie, the equality of our semantic meta-language,
 \item The symbol $\_ \isasymMathOclStrongEq \_$ will be used for
       the \emph{strong logical equality},  which follows the general
-      logical principle that ``equals can be replaced by equals,''
-      \footnote{Strong logical equality is also referred as ``Leibniz''-equality.}
+      logical principle that ``equals can be replaced by equals,''\footnote{Strong logical equality is also referred as ``Leibniz''-equality.}
       and is at the heart of the \OCL logic,
 \item The symbol $\_ \isasymMathOclStrictEq \_$ is used for the
-      strict referential equality, \ie{} the equality the mandatory part
+      strict referential equality, \ie, the equality the mandatory part
       of the \OCL standard refers to by the \mocl{_ = _}- symbol.
 \end{enumerate}
 
@@ -1239,7 +1253,7 @@ The strong logical equality is a polymorphic
 concept which is defined using polymorphism for all \OCL types by:
 \begin{gather*}
   I\semantics{X \triangleq  Y}  \tau  \equiv
-  \lift { \lift{ I\semantics{X}  \tau = I\semantics{Y} \tau  }}
+  \lift {\lift{I\semantics{X}  \tau = I\semantics{Y} \tau  }}
 \shortintertext{It enjoys nearly the laws of a congruence:}
 \tau \isasymMathOclValid (x \triangleq x)\\
 \tau \isasymMathOclValid (x \triangleq y) \Longrightarrow \tau \isasymMathOclValid (y \triangleq x)\\
@@ -1255,7 +1269,7 @@ automated; the reader interested in the details is referred to
 
 The strong logical equality of \FOCL give rise to a number
 of further rules and derived properties, that clarify the role of strong 
-logical equality and the boolean constants in \OCL specifications:
+logical equality and the Boolean constants in \OCL specifications:
 \begin{gather*}
 \tau \isasymMathOclValid \delta \ap x \lor \tau \isasymMathOclValid x \triangleq \mocl{invalid} \lor \tau \isasymMathOclValid x \triangleq \mocl{null} \mi{,}\\
 (\tau \isasymMathOclValid A \triangleq \mocl{invalid}) = (\tau \isasymMathOclValid \mocl{not} (\upsilon A))\\
@@ -1478,8 +1492,7 @@ A class model is a four-tuple $(C, \_ < \_, Attrib, Assoc)$ where:
   $\getAttrib{X}{\text{$a$}}               :: C_i \rightarrow A $ and
   $\getAttrib{X}{\text{$a$}\isasymOclATpre}:: C_i \rightarrow A $ for
   $A\in TYPES(C)$),
-\item $Assoc(C_i,C_j)$ is a collection of associations
-  \footnote{Given the fact that there is at present no consensus on the
+\item $Assoc(C_i,C_j)$ is a collection of associations\footnote{Given the fact that there is at present no consensus on the
   semantics of n-ary associations, \FOCL{} restricts itself to binary associations. }.
    An association $(n, rn_{from}, rn_{to})\in Assoc(C_i,C_j)$ between to classes
    $C_i$ and $C_j$ is a triple consisting of a (unique) association name $n$,
@@ -1525,7 +1538,7 @@ It is natural to construct system states by a set of partial functions
 $f$ that map object identifiers $\oid$ to some representations of
 objects:
 \begin{gather}
-       \typedef \qquad \mathfrak{A}~\state{} \defeq \{ \sigma ::
+       \typedef \qquad \mathfrak{A}~\state{} \defeq \{\sigma ::
         \oid \isasymrightharpoonup \alpha \ap|\ap \inv_\sigma(\sigma) \}
 \end{gather}
 where $\inv_\sigma$ is a to be discussed invariant on states.
@@ -1892,7 +1905,7 @@ The operations induced from a class-model have the following properties:
  \tau \isasymMathOclValid Person \mocl{.allInstances()->forAll(}X\mocl{|}X \mocl{.oclIsKindOf(}C_i\mocl{))} \\
  \tau \isasymMathOclValid Person \mocl{.allInstances@pre()->forAll(}X\mocl{|}X \mocl{.oclIsKindOf(}C_i\mocl{))} \\
  \tau \isasymMathOclValid (X::C_i)\mocl{.oclIsTypeOf(}C_j\mocl{)} \Longrightarrow \tau \isasymMathOclValid \mocl{(}X::C_i\mocl{).oclIsKindOf(}C_i\mocl{)} \\
-(\tau \isasymMathOclValid (X::C_j) \isasymMathOclStrictEq X) = (\tau \isasymMathOclValid \mocl{if } \upsilon X \mocl{ then true else invalid endif}) \\
+(\tau \isasymMathOclValid (X::C_j) \isasymMathOclStrictEq X) = (\tau \isasymMathOclValid \mocl{if } \upsilon X \mocl{then true else invalid endif}) \\
  \tau \isasymMathOclValid (X::C_j) \isasymMathOclStrictEq Y \Longrightarrow  \tau \isasymMathOclValid Y \isasymMathOclStrictEq X \\
  \tau \isasymMathOclValid (X::C_j) \isasymMathOclStrictEq Y \Longrightarrow  \tau \isasymMathOclValid Y \isasymMathOclStrictEq Z  \Longrightarrow   \tau \isasymMathOclValid X \isasymMathOclStrictEq Z
 \end{gather*}
@@ -1973,7 +1986,7 @@ the \inlineocl|isQuery| property is true. So, whenever we have $ \tau
 
 \subsection{Data Invariants}
 \label{sec:invlogic}
-Since the present \OCL semantics uses one interpretation function \footnote{This has been handled
+Since the present \OCL semantics uses one interpretation function\footnote{This has been handled
 differently in previous versions of the Annex A.}, we express the effect of \OCL terms
 occurring in preconditions and invariants by a syntactic transformation $\__\text{pre}$ which
 replaces:
@@ -1982,7 +1995,7 @@ replaces:
 counterparts $\getAttrib{\_}{i\isasymOclATpre}$. For example, $(\getAttrib{\self}{salary} >
 500)_\text{pre}$ is transformed to $(\getAttrib{\self}{salary\isasymOclATpre} > 500)$.
 \item all role accessor functions  $\getRole{\_}{rn_{from}}$ or  $\getRole{\_}{rn_{to}}$
-      within the class model (\ie{} $(id, rn_{from},  rn_{to}) \in Assoc(C_i, C_j)$)
+      within the class model (\ie, $(id, rn_{from},  rn_{to}) \in Assoc(C_i, C_j)$)
       were replaced by their counterparts $\getRole{\_}{rn\isasymOclATpre}$.
       For example, $(\getAttrib{\self}{boss} = null)_\text{pre}$ is transformed to
       $\getAttrib{\self}{boss\isasymOclATpre} = null$.
@@ -2004,11 +2017,11 @@ invariants or preconditions are syntactically forbidden; thus, mixed forms canno
 
 \subsection{Operation Contracts}
 \isatagafp
-\fxnote{Should we add in our notion of Class-Model also the Operations ?}
+\fxnote{Should we add in our notion of Class-Model also the Operations?}
 \endisatagafp
 Since operations have strict semantics in \OCL, we have to distinguish for a specification of an
 operation $\mathit{op}$ with the arguments $a_1$, \ldots, $a_n$ the
-two cases where all arguments are valid and additionally, $\self$ is non-null (\ie{} it must be defined), or not.
+two cases where all arguments are valid and additionally, $\self$ is non-null (\ie, it must be defined), or not.
 In former case, a method call can be replaced by a $\mathit{result}$
 that satisfies the contract, in the latter case the result is
 \mocl{invalid}. This is reflected by the following definition of the contract semantics:
@@ -2036,13 +2049,13 @@ to a function definition:
     f_{op}  \equiv I\semantics{ \mathtt{context}~C~:: \mathit{op}(a_1, \ldots, a_n) : T \ldots }
 \end{gather}
 provided that neither $\phi$  nor $\psi$ contain recursive method calls of $\mathit{op}$.
-In the case of a query operation (\ie{} $\tau$ must have the form: $(\sigma,\sigma)$, which
+In the case of a query operation (\ie, $\tau$ must have the form: $(\sigma,\sigma)$, which
 means that query operations do not change the state; c.f. \mocl{oclIsModifiedOnly()} in
 \autoref{sec:otherStateOperations}), this constraint can be relaxed: the above
 equation is then stated as \emph{axiom}. Note however, that the consistency of the overall
 theory is for recursive query contracts left to the user (it can be shown, for example, by a proof
-of termination, \ie{} by showing that all recursive calls were applied to  argument vectors that are
-smaller wrt. to a well-founded ordering). Under this condition, an $f_{op}$ resulting from recursive
+of termination, \ie, by showing that all recursive calls were applied to  argument vectors that are
+smaller wrt. a well-founded ordering). Under this condition, an $f_{op}$ resulting from recursive
 query operations can be used safely inside pre- and post-conditions of other contracts.
 
 For the general case of a user-defined contract, the following rule can be established
@@ -2073,7 +2086,8 @@ executable ``unfolding principle'':
   \tau \isasymMathOclValid \phi~self~a_1\ldots a_n
   \justifies
   (\tau \isasymMathOclValid E(f_{op}~self~a_1\ldots a_n)) = e
-   (\tau \isasymMathOclValid E (BODY~self~a_1 ... a_n))
+  (\tau \isasymMathOclValid E (BODY~self~a_1
+  \cdots a_n))
   \end{prooftree}
 \end{gather}
 where
@@ -2085,9 +2099,11 @@ where
       into: \\
       $\psi'~self~a_1~\ldots a_n$ and $result \isasymMathOclStrongEq BODY~self~a_1~\ldots~a_n$.
 \end{itemize}
-\isatagafp
-\fxwarning{correct? What should be checked? Achim: Description of Liskov is IMHO correct,
-but the simulation of a vtable using oclIsKindOf is at leat tedious. One should, imho, add a vtable for modelling overridding properly (informally, we had this already in HOL-OCL)}
+\isatagafp \fxwarning{correct? What should be checked? Achim:
+  Description of Liskov is IMHO correct, but the simulation of a
+  vtable using oclIsKindOf is at least tedious. One should, imho, add
+  a vtable for modelling overridding properly (informally, we had this
+  already in HOL-OCL)}
 \endisatagafp
 We do not model \emph{overriding} of operations as in Java or C++
 explicitly in \FOCL.  However, it is easy expressed in this
