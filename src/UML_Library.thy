@@ -324,7 +324,7 @@ Assert    "\<tau> \<Turnstile> (Sequence{null}->select\<^sub>S\<^sub>e\<^sub>q(x
 
 lemma     "const (Sequence{Sequence{\<two>,null}, invalid})" by(simp add: const_ss)
 
-
+(*<*)
 section{* Experiment with Cartouches *}
 
 subsection{* ... *}
@@ -459,4 +459,5 @@ val it = [Const ("_constrain" , "_") $ Free ("\<open>-123.23\<close>", "_") $ Fr
 syntax
   "_ocl_denotation" :: "str_position => string"    ("'_'")
 
+(*>*)
 end
