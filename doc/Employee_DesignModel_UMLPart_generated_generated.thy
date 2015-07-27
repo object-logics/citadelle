@@ -2741,7 +2741,7 @@ text{*  *}
 ML{* val oidPerson_0_boss = 0 *}
 
 (* 112 ************************************ 668 + 1 *)
-definition "oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0_\<b>\<o>\<s>\<s> = 0"
+definition "oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0___boss = 0"
 
 (* 113 ************************************ 669 + 1 *)
 text{*  *}
@@ -2784,121 +2784,121 @@ text{*
    pointer undefined in state or not referencing a type conform object representation  *}
 
 (* 121 ************************************ 686 + 15 *)
-definition "select\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<b>\<o>\<s>\<s> f = (\<lambda> (mk\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (_) (\<bottom>) (_)) \<Rightarrow> null
-    | (mk\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (_) (\<lfloor>x_\<b>\<o>\<s>\<s>\<rfloor>) (_)) \<Rightarrow> (f (x_\<b>\<o>\<s>\<s>)))"
-definition "select\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<s>\<a>\<l>\<a>\<r>\<y> f = (\<lambda> (mk\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (_) (_) (\<bottom>)) \<Rightarrow> null
-    | (mk\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (_) (_) (\<lfloor>x_\<s>\<a>\<l>\<a>\<r>\<y>\<rfloor>)) \<Rightarrow> (f (x_\<s>\<a>\<l>\<a>\<r>\<y>)))"
-definition "select\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t\<w>\<o>\<r>\<m>\<h>\<o>\<l>\<e> f = (\<lambda> (mk\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t (_) (\<bottom>) (_)) \<Rightarrow> null
-    | (mk\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t (_) (\<lfloor>x_\<w>\<o>\<r>\<m>\<h>\<o>\<l>\<e>\<rfloor>) (_)) \<Rightarrow> (f (x_\<w>\<o>\<r>\<m>\<h>\<o>\<l>\<e>)))"
-definition "select\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t\<w>\<e>\<i>\<g>\<h>\<t> f = (\<lambda> (mk\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t (_) (_) (\<bottom>)) \<Rightarrow> null
-    | (mk\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t (_) (_) (\<lfloor>x_\<w>\<e>\<i>\<g>\<h>\<t>\<rfloor>)) \<Rightarrow> (f (x_\<w>\<e>\<i>\<g>\<h>\<t>)))"
-definition "select\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y\<s>\<o>\<u>\<n>\<d> f = (\<lambda> (mk\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y (_) (\<bottom>) (_) (_)) \<Rightarrow> null
-    | (mk\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y (_) (\<lfloor>x_\<s>\<o>\<u>\<n>\<d>\<rfloor>) (_) (_)) \<Rightarrow> (f (x_\<s>\<o>\<u>\<n>\<d>)))"
-definition "select\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y\<m>\<o>\<v>\<i>\<n>\<g> f = (\<lambda> (mk\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y (_) (_) (\<bottom>) (_)) \<Rightarrow> null
-    | (mk\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y (_) (_) (\<lfloor>x_\<m>\<o>\<v>\<i>\<n>\<g>\<rfloor>) (_)) \<Rightarrow> (f (x_\<m>\<o>\<v>\<i>\<n>\<g>)))"
-definition "select\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y\<o>\<u>\<t>\<e>\<r>095\<w>\<o>\<r>\<l>\<d> f = (\<lambda> (mk\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y (_) (_) (_) (\<bottom>)) \<Rightarrow> null
-    | (mk\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y (_) (_) (_) (\<lfloor>x_\<o>\<u>\<t>\<e>\<r>095\<w>\<o>\<r>\<l>\<d>\<rfloor>)) \<Rightarrow> (f (x_\<o>\<u>\<t>\<e>\<r>095\<w>\<o>\<r>\<l>\<d>)))"
-definition "select\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<w>\<o>\<r>\<m>\<h>\<o>\<l>\<e> f = (\<lambda> (mk\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n ((mk\<E>\<X>\<T>\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (_) (\<bottom>) (_) (_) (_) (_))) (_) (_)) \<Rightarrow> null
-    | (mk\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n ((mk\<E>\<X>\<T>\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (_) (\<lfloor>x_\<w>\<o>\<r>\<m>\<h>\<o>\<l>\<e>\<rfloor>) (_) (_) (_) (_))) (_) (_)) \<Rightarrow> (f (x_\<w>\<o>\<r>\<m>\<h>\<o>\<l>\<e>)))"
-definition "select\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<w>\<e>\<i>\<g>\<h>\<t> f = (\<lambda> (mk\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n ((mk\<E>\<X>\<T>\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (_) (_) (\<bottom>) (_) (_) (_))) (_) (_)) \<Rightarrow> null
-    | (mk\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n ((mk\<E>\<X>\<T>\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (_) (_) (\<lfloor>x_\<w>\<e>\<i>\<g>\<h>\<t>\<rfloor>) (_) (_) (_))) (_) (_)) \<Rightarrow> (f (x_\<w>\<e>\<i>\<g>\<h>\<t>)))"
-definition "select\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<s>\<o>\<u>\<n>\<d> f = (\<lambda> (mk\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n ((mk\<E>\<X>\<T>\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (_) (_) (_) (\<bottom>) (_) (_))) (_) (_)) \<Rightarrow> null
-    | (mk\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n ((mk\<E>\<X>\<T>\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (_) (_) (_) (\<lfloor>x_\<s>\<o>\<u>\<n>\<d>\<rfloor>) (_) (_))) (_) (_)) \<Rightarrow> (f (x_\<s>\<o>\<u>\<n>\<d>)))"
-definition "select\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<m>\<o>\<v>\<i>\<n>\<g> f = (\<lambda> (mk\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n ((mk\<E>\<X>\<T>\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (_) (_) (_) (_) (\<bottom>) (_))) (_) (_)) \<Rightarrow> null
-    | (mk\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n ((mk\<E>\<X>\<T>\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (_) (_) (_) (_) (\<lfloor>x_\<m>\<o>\<v>\<i>\<n>\<g>\<rfloor>) (_))) (_) (_)) \<Rightarrow> (f (x_\<m>\<o>\<v>\<i>\<n>\<g>)))"
-definition "select\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<o>\<u>\<t>\<e>\<r>095\<w>\<o>\<r>\<l>\<d> f = (\<lambda> (mk\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n ((mk\<E>\<X>\<T>\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (_) (_) (_) (_) (_) (\<bottom>))) (_) (_)) \<Rightarrow> null
-    | (mk\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n ((mk\<E>\<X>\<T>\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (_) (_) (_) (_) (_) (\<lfloor>x_\<o>\<u>\<t>\<e>\<r>095\<w>\<o>\<r>\<l>\<d>\<rfloor>))) (_) (_)) \<Rightarrow> (f (x_\<o>\<u>\<t>\<e>\<r>095\<w>\<o>\<r>\<l>\<d>)))"
-definition "select\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t\<s>\<o>\<u>\<n>\<d> f = (\<lambda> (mk\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t ((mk\<E>\<X>\<T>\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t (_) (\<bottom>) (_) (_))) (_) (_)) \<Rightarrow> null
-    | (mk\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t ((mk\<E>\<X>\<T>\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t (_) (\<lfloor>x_\<s>\<o>\<u>\<n>\<d>\<rfloor>) (_) (_))) (_) (_)) \<Rightarrow> (f (x_\<s>\<o>\<u>\<n>\<d>))
-    | (mk\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t ((mk\<E>\<X>\<T>\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t_\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (person))) (_) (_)) \<Rightarrow> (select\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<s>\<o>\<u>\<n>\<d> (f) (person)))"
-definition "select\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t\<m>\<o>\<v>\<i>\<n>\<g> f = (\<lambda> (mk\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t ((mk\<E>\<X>\<T>\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t (_) (_) (\<bottom>) (_))) (_) (_)) \<Rightarrow> null
-    | (mk\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t ((mk\<E>\<X>\<T>\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t (_) (_) (\<lfloor>x_\<m>\<o>\<v>\<i>\<n>\<g>\<rfloor>) (_))) (_) (_)) \<Rightarrow> (f (x_\<m>\<o>\<v>\<i>\<n>\<g>))
-    | (mk\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t ((mk\<E>\<X>\<T>\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t_\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (person))) (_) (_)) \<Rightarrow> (select\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<m>\<o>\<v>\<i>\<n>\<g> (f) (person)))"
-definition "select\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t\<o>\<u>\<t>\<e>\<r>095\<w>\<o>\<r>\<l>\<d> f = (\<lambda> (mk\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t ((mk\<E>\<X>\<T>\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t (_) (_) (_) (\<bottom>))) (_) (_)) \<Rightarrow> null
-    | (mk\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t ((mk\<E>\<X>\<T>\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t (_) (_) (_) (\<lfloor>x_\<o>\<u>\<t>\<e>\<r>095\<w>\<o>\<r>\<l>\<d>\<rfloor>))) (_) (_)) \<Rightarrow> (f (x_\<o>\<u>\<t>\<e>\<r>095\<w>\<o>\<r>\<l>\<d>))
-    | (mk\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t ((mk\<E>\<X>\<T>\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t_\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (person))) (_) (_)) \<Rightarrow> (select\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<o>\<u>\<t>\<e>\<r>095\<w>\<o>\<r>\<l>\<d> (f) (person)))"
+definition "select\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__boss f = (\<lambda> (mk\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (_) (\<bottom>) (_)) \<Rightarrow> null
+    | (mk\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (_) (\<lfloor>x___boss\<rfloor>) (_)) \<Rightarrow> (f (x___boss)))"
+definition "select\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__salary f = (\<lambda> (mk\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (_) (_) (\<bottom>)) \<Rightarrow> null
+    | (mk\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (_) (_) (\<lfloor>x___salary\<rfloor>)) \<Rightarrow> (f (x___salary)))"
+definition "select\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t__wormhole f = (\<lambda> (mk\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t (_) (\<bottom>) (_)) \<Rightarrow> null
+    | (mk\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t (_) (\<lfloor>x___wormhole\<rfloor>) (_)) \<Rightarrow> (f (x___wormhole)))"
+definition "select\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t__weight f = (\<lambda> (mk\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t (_) (_) (\<bottom>)) \<Rightarrow> null
+    | (mk\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t (_) (_) (\<lfloor>x___weight\<rfloor>)) \<Rightarrow> (f (x___weight)))"
+definition "select\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y__sound f = (\<lambda> (mk\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y (_) (\<bottom>) (_) (_)) \<Rightarrow> null
+    | (mk\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y (_) (\<lfloor>x___sound\<rfloor>) (_) (_)) \<Rightarrow> (f (x___sound)))"
+definition "select\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y__moving f = (\<lambda> (mk\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y (_) (_) (\<bottom>) (_)) \<Rightarrow> null
+    | (mk\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y (_) (_) (\<lfloor>x___moving\<rfloor>) (_)) \<Rightarrow> (f (x___moving)))"
+definition "select\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y__outer095world f = (\<lambda> (mk\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y (_) (_) (_) (\<bottom>)) \<Rightarrow> null
+    | (mk\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y (_) (_) (_) (\<lfloor>x___outer095world\<rfloor>)) \<Rightarrow> (f (x___outer095world)))"
+definition "select\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__wormhole f = (\<lambda> (mk\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n ((mk\<E>\<X>\<T>\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (_) (\<bottom>) (_) (_) (_) (_))) (_) (_)) \<Rightarrow> null
+    | (mk\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n ((mk\<E>\<X>\<T>\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (_) (\<lfloor>x___wormhole\<rfloor>) (_) (_) (_) (_))) (_) (_)) \<Rightarrow> (f (x___wormhole)))"
+definition "select\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__weight f = (\<lambda> (mk\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n ((mk\<E>\<X>\<T>\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (_) (_) (\<bottom>) (_) (_) (_))) (_) (_)) \<Rightarrow> null
+    | (mk\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n ((mk\<E>\<X>\<T>\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (_) (_) (\<lfloor>x___weight\<rfloor>) (_) (_) (_))) (_) (_)) \<Rightarrow> (f (x___weight)))"
+definition "select\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__sound f = (\<lambda> (mk\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n ((mk\<E>\<X>\<T>\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (_) (_) (_) (\<bottom>) (_) (_))) (_) (_)) \<Rightarrow> null
+    | (mk\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n ((mk\<E>\<X>\<T>\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (_) (_) (_) (\<lfloor>x___sound\<rfloor>) (_) (_))) (_) (_)) \<Rightarrow> (f (x___sound)))"
+definition "select\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__moving f = (\<lambda> (mk\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n ((mk\<E>\<X>\<T>\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (_) (_) (_) (_) (\<bottom>) (_))) (_) (_)) \<Rightarrow> null
+    | (mk\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n ((mk\<E>\<X>\<T>\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (_) (_) (_) (_) (\<lfloor>x___moving\<rfloor>) (_))) (_) (_)) \<Rightarrow> (f (x___moving)))"
+definition "select\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__outer095world f = (\<lambda> (mk\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n ((mk\<E>\<X>\<T>\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (_) (_) (_) (_) (_) (\<bottom>))) (_) (_)) \<Rightarrow> null
+    | (mk\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n ((mk\<E>\<X>\<T>\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (_) (_) (_) (_) (_) (\<lfloor>x___outer095world\<rfloor>))) (_) (_)) \<Rightarrow> (f (x___outer095world)))"
+definition "select\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t__sound f = (\<lambda> (mk\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t ((mk\<E>\<X>\<T>\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t (_) (\<bottom>) (_) (_))) (_) (_)) \<Rightarrow> null
+    | (mk\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t ((mk\<E>\<X>\<T>\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t (_) (\<lfloor>x___sound\<rfloor>) (_) (_))) (_) (_)) \<Rightarrow> (f (x___sound))
+    | (mk\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t ((mk\<E>\<X>\<T>\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t_\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (person))) (_) (_)) \<Rightarrow> (select\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__sound (f) (person)))"
+definition "select\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t__moving f = (\<lambda> (mk\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t ((mk\<E>\<X>\<T>\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t (_) (_) (\<bottom>) (_))) (_) (_)) \<Rightarrow> null
+    | (mk\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t ((mk\<E>\<X>\<T>\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t (_) (_) (\<lfloor>x___moving\<rfloor>) (_))) (_) (_)) \<Rightarrow> (f (x___moving))
+    | (mk\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t ((mk\<E>\<X>\<T>\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t_\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (person))) (_) (_)) \<Rightarrow> (select\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__moving (f) (person)))"
+definition "select\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t__outer095world f = (\<lambda> (mk\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t ((mk\<E>\<X>\<T>\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t (_) (_) (_) (\<bottom>))) (_) (_)) \<Rightarrow> null
+    | (mk\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t ((mk\<E>\<X>\<T>\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t (_) (_) (_) (\<lfloor>x___outer095world\<rfloor>))) (_) (_)) \<Rightarrow> (f (x___outer095world))
+    | (mk\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t ((mk\<E>\<X>\<T>\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t_\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (person))) (_) (_)) \<Rightarrow> (select\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__outer095world (f) (person)))"
 
 (* 122 ************************************ 701 + 0 *)
 
 (* 123 ************************************ 701 + 14 *)
-consts dot_0_\<b>\<o>\<s>\<s> :: "(\<AA>, '\<alpha>) val \<Rightarrow> \<cdot>Person" ("(_) .boss")
-consts dot_0_\<b>\<o>\<s>\<s>at_pre :: "(\<AA>, '\<alpha>) val \<Rightarrow> \<cdot>Person" ("(_) .boss@pre")
-consts dot\<s>\<a>\<l>\<a>\<r>\<y> :: "(\<AA>, '\<alpha>) val \<Rightarrow> Integer" ("(_) .salary")
-consts dot\<s>\<a>\<l>\<a>\<r>\<y>at_pre :: "(\<AA>, '\<alpha>) val \<Rightarrow> Integer" ("(_) .salary@pre")
-consts dot\<w>\<o>\<r>\<m>\<h>\<o>\<l>\<e> :: "(\<AA>, '\<alpha>) val \<Rightarrow> (\<AA>, nat option option) val" ("(_) .wormhole")
-consts dot\<w>\<o>\<r>\<m>\<h>\<o>\<l>\<e>at_pre :: "(\<AA>, '\<alpha>) val \<Rightarrow> (\<AA>, nat option option) val" ("(_) .wormhole@pre")
-consts dot\<w>\<e>\<i>\<g>\<h>\<t> :: "(\<AA>, '\<alpha>) val \<Rightarrow> Integer" ("(_) .weight")
-consts dot\<w>\<e>\<i>\<g>\<h>\<t>at_pre :: "(\<AA>, '\<alpha>) val \<Rightarrow> Integer" ("(_) .weight@pre")
-consts dot\<s>\<o>\<u>\<n>\<d> :: "(\<AA>, '\<alpha>) val \<Rightarrow> Void" ("(_) .sound")
-consts dot\<s>\<o>\<u>\<n>\<d>at_pre :: "(\<AA>, '\<alpha>) val \<Rightarrow> Void" ("(_) .sound@pre")
-consts dot\<m>\<o>\<v>\<i>\<n>\<g> :: "(\<AA>, '\<alpha>) val \<Rightarrow> Boolean" ("(_) .moving")
-consts dot\<m>\<o>\<v>\<i>\<n>\<g>at_pre :: "(\<AA>, '\<alpha>) val \<Rightarrow> Boolean" ("(_) .moving@pre")
-consts dot\<o>\<u>\<t>\<e>\<r>095\<w>\<o>\<r>\<l>\<d> :: "(\<AA>, '\<alpha>) val \<Rightarrow> Set_Sequence_Planet" ("(_) .outer'_world")
-consts dot\<o>\<u>\<t>\<e>\<r>095\<w>\<o>\<r>\<l>\<d>at_pre :: "(\<AA>, '\<alpha>) val \<Rightarrow> Set_Sequence_Planet" ("(_) .outer'_world@pre")
+consts dot_0___boss :: "(\<AA>, '\<alpha>) val \<Rightarrow> \<cdot>Person" ("(_) .boss")
+consts dot_0___bossat_pre :: "(\<AA>, '\<alpha>) val \<Rightarrow> \<cdot>Person" ("(_) .boss@pre")
+consts dot__salary :: "(\<AA>, '\<alpha>) val \<Rightarrow> Integer" ("(_) .salary")
+consts dot__salaryat_pre :: "(\<AA>, '\<alpha>) val \<Rightarrow> Integer" ("(_) .salary@pre")
+consts dot__wormhole :: "(\<AA>, '\<alpha>) val \<Rightarrow> (\<AA>, nat option option) val" ("(_) .wormhole")
+consts dot__wormholeat_pre :: "(\<AA>, '\<alpha>) val \<Rightarrow> (\<AA>, nat option option) val" ("(_) .wormhole@pre")
+consts dot__weight :: "(\<AA>, '\<alpha>) val \<Rightarrow> Integer" ("(_) .weight")
+consts dot__weightat_pre :: "(\<AA>, '\<alpha>) val \<Rightarrow> Integer" ("(_) .weight@pre")
+consts dot__sound :: "(\<AA>, '\<alpha>) val \<Rightarrow> Void" ("(_) .sound")
+consts dot__soundat_pre :: "(\<AA>, '\<alpha>) val \<Rightarrow> Void" ("(_) .sound@pre")
+consts dot__moving :: "(\<AA>, '\<alpha>) val \<Rightarrow> Boolean" ("(_) .moving")
+consts dot__movingat_pre :: "(\<AA>, '\<alpha>) val \<Rightarrow> Boolean" ("(_) .moving@pre")
+consts dot__outer095world :: "(\<AA>, '\<alpha>) val \<Rightarrow> Set_Sequence_Planet" ("(_) .outer'_world")
+consts dot__outer095worldat_pre :: "(\<AA>, '\<alpha>) val \<Rightarrow> Set_Sequence_Planet" ("(_) .outer'_world@pre")
 
 (* 124 ************************************ 715 + 30 *)
-defs(overloaded) dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0_\<b>\<o>\<s>\<s> : "(x::\<cdot>Person) .boss \<equiv> (eval_extract (x) ((deref_oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (in_post_state) ((select\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<b>\<o>\<s>\<s> ((select_object_any\<^sub>S\<^sub>e\<^sub>t ((deref_oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (in_post_state) (reconst_basetype))))))))))"
-defs(overloaded) dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<s>\<a>\<l>\<a>\<r>\<y> : "(x::\<cdot>Person) .salary \<equiv> (eval_extract (x) ((deref_oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (in_post_state) ((select\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<s>\<a>\<l>\<a>\<r>\<y> (reconst_basetype))))))"
-defs(overloaded) dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0_\<b>\<o>\<s>\<s>at_pre : "(x::\<cdot>Person) .boss@pre \<equiv> (eval_extract (x) ((deref_oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (in_pre_state) ((select\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<b>\<o>\<s>\<s> ((select_object_any\<^sub>S\<^sub>e\<^sub>t ((deref_oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (in_pre_state) (reconst_basetype))))))))))"
-defs(overloaded) dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<s>\<a>\<l>\<a>\<r>\<y>at_pre : "(x::\<cdot>Person) .salary@pre \<equiv> (eval_extract (x) ((deref_oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (in_pre_state) ((select\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<s>\<a>\<l>\<a>\<r>\<y> (reconst_basetype))))))"
-defs(overloaded) dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t\<w>\<o>\<r>\<m>\<h>\<o>\<l>\<e> : "(x::\<cdot>Planet) .wormhole \<equiv> (eval_extract (x) ((deref_oid\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t (in_post_state) ((select\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t\<w>\<o>\<r>\<m>\<h>\<o>\<l>\<e> (reconst_basetype))))))"
-defs(overloaded) dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t\<w>\<e>\<i>\<g>\<h>\<t> : "(x::\<cdot>Planet) .weight \<equiv> (eval_extract (x) ((deref_oid\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t (in_post_state) ((select\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t\<w>\<e>\<i>\<g>\<h>\<t> (reconst_basetype))))))"
-defs(overloaded) dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t\<w>\<o>\<r>\<m>\<h>\<o>\<l>\<e>at_pre : "(x::\<cdot>Planet) .wormhole@pre \<equiv> (eval_extract (x) ((deref_oid\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t (in_pre_state) ((select\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t\<w>\<o>\<r>\<m>\<h>\<o>\<l>\<e> (reconst_basetype))))))"
-defs(overloaded) dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t\<w>\<e>\<i>\<g>\<h>\<t>at_pre : "(x::\<cdot>Planet) .weight@pre \<equiv> (eval_extract (x) ((deref_oid\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t (in_pre_state) ((select\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t\<w>\<e>\<i>\<g>\<h>\<t> (reconst_basetype))))))"
-defs(overloaded) dot\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y\<s>\<o>\<u>\<n>\<d> : "(x::\<cdot>Galaxy) .sound \<equiv> (eval_extract (x) ((deref_oid\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y (in_post_state) ((select\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y\<s>\<o>\<u>\<n>\<d> (reconst_basetype\<^sub>V\<^sub>o\<^sub>i\<^sub>d))))))"
-defs(overloaded) dot\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y\<m>\<o>\<v>\<i>\<n>\<g> : "(x::\<cdot>Galaxy) .moving \<equiv> (eval_extract (x) ((deref_oid\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y (in_post_state) ((select\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y\<m>\<o>\<v>\<i>\<n>\<g> (reconst_basetype))))))"
-defs(overloaded) dot\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y\<o>\<u>\<t>\<e>\<r>095\<w>\<o>\<r>\<l>\<d> : "(x::\<cdot>Galaxy) .outer_world \<equiv> (eval_extract (x) ((deref_oid\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y (in_post_state) ((select\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y\<o>\<u>\<t>\<e>\<r>095\<w>\<o>\<r>\<l>\<d> ((select_object\<^sub>S\<^sub>e\<^sub>t ((select_object\<^sub>S\<^sub>e\<^sub>q ((deref_oid\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t (in_post_state) (reconst_basetype))))))))))))"
-defs(overloaded) dot\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y\<s>\<o>\<u>\<n>\<d>at_pre : "(x::\<cdot>Galaxy) .sound@pre \<equiv> (eval_extract (x) ((deref_oid\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y (in_pre_state) ((select\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y\<s>\<o>\<u>\<n>\<d> (reconst_basetype\<^sub>V\<^sub>o\<^sub>i\<^sub>d))))))"
-defs(overloaded) dot\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y\<m>\<o>\<v>\<i>\<n>\<g>at_pre : "(x::\<cdot>Galaxy) .moving@pre \<equiv> (eval_extract (x) ((deref_oid\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y (in_pre_state) ((select\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y\<m>\<o>\<v>\<i>\<n>\<g> (reconst_basetype))))))"
-defs(overloaded) dot\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y\<o>\<u>\<t>\<e>\<r>095\<w>\<o>\<r>\<l>\<d>at_pre : "(x::\<cdot>Galaxy) .outer_world@pre \<equiv> (eval_extract (x) ((deref_oid\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y (in_pre_state) ((select\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y\<o>\<u>\<t>\<e>\<r>095\<w>\<o>\<r>\<l>\<d> ((select_object\<^sub>S\<^sub>e\<^sub>t ((select_object\<^sub>S\<^sub>e\<^sub>q ((deref_oid\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t (in_pre_state) (reconst_basetype))))))))))))"
-defs(overloaded) dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<w>\<o>\<r>\<m>\<h>\<o>\<l>\<e> : "(x::\<cdot>Person) .wormhole \<equiv> (eval_extract (x) ((deref_oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (in_post_state) ((select\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<w>\<o>\<r>\<m>\<h>\<o>\<l>\<e> (reconst_basetype))))))"
-defs(overloaded) dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<w>\<e>\<i>\<g>\<h>\<t> : "(x::\<cdot>Person) .weight \<equiv> (eval_extract (x) ((deref_oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (in_post_state) ((select\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<w>\<e>\<i>\<g>\<h>\<t> (reconst_basetype))))))"
-defs(overloaded) dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<s>\<o>\<u>\<n>\<d> : "(x::\<cdot>Person) .sound \<equiv> (eval_extract (x) ((deref_oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (in_post_state) ((select\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<s>\<o>\<u>\<n>\<d> (reconst_basetype\<^sub>V\<^sub>o\<^sub>i\<^sub>d))))))"
-defs(overloaded) dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<m>\<o>\<v>\<i>\<n>\<g> : "(x::\<cdot>Person) .moving \<equiv> (eval_extract (x) ((deref_oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (in_post_state) ((select\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<m>\<o>\<v>\<i>\<n>\<g> (reconst_basetype))))))"
-defs(overloaded) dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<o>\<u>\<t>\<e>\<r>095\<w>\<o>\<r>\<l>\<d> : "(x::\<cdot>Person) .outer_world \<equiv> (eval_extract (x) ((deref_oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (in_post_state) ((select\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<o>\<u>\<t>\<e>\<r>095\<w>\<o>\<r>\<l>\<d> ((select_object\<^sub>S\<^sub>e\<^sub>t ((select_object\<^sub>S\<^sub>e\<^sub>q ((deref_oid\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t (in_post_state) (reconst_basetype))))))))))))"
-defs(overloaded) dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<w>\<o>\<r>\<m>\<h>\<o>\<l>\<e>at_pre : "(x::\<cdot>Person) .wormhole@pre \<equiv> (eval_extract (x) ((deref_oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (in_pre_state) ((select\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<w>\<o>\<r>\<m>\<h>\<o>\<l>\<e> (reconst_basetype))))))"
-defs(overloaded) dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<w>\<e>\<i>\<g>\<h>\<t>at_pre : "(x::\<cdot>Person) .weight@pre \<equiv> (eval_extract (x) ((deref_oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (in_pre_state) ((select\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<w>\<e>\<i>\<g>\<h>\<t> (reconst_basetype))))))"
-defs(overloaded) dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<s>\<o>\<u>\<n>\<d>at_pre : "(x::\<cdot>Person) .sound@pre \<equiv> (eval_extract (x) ((deref_oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (in_pre_state) ((select\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<s>\<o>\<u>\<n>\<d> (reconst_basetype\<^sub>V\<^sub>o\<^sub>i\<^sub>d))))))"
-defs(overloaded) dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<m>\<o>\<v>\<i>\<n>\<g>at_pre : "(x::\<cdot>Person) .moving@pre \<equiv> (eval_extract (x) ((deref_oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (in_pre_state) ((select\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<m>\<o>\<v>\<i>\<n>\<g> (reconst_basetype))))))"
-defs(overloaded) dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<o>\<u>\<t>\<e>\<r>095\<w>\<o>\<r>\<l>\<d>at_pre : "(x::\<cdot>Person) .outer_world@pre \<equiv> (eval_extract (x) ((deref_oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (in_pre_state) ((select\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<o>\<u>\<t>\<e>\<r>095\<w>\<o>\<r>\<l>\<d> ((select_object\<^sub>S\<^sub>e\<^sub>t ((select_object\<^sub>S\<^sub>e\<^sub>q ((deref_oid\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t (in_pre_state) (reconst_basetype))))))))))))"
-defs(overloaded) dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t\<s>\<o>\<u>\<n>\<d> : "(x::\<cdot>Planet) .sound \<equiv> (eval_extract (x) ((deref_oid\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t (in_post_state) ((select\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t\<s>\<o>\<u>\<n>\<d> (reconst_basetype\<^sub>V\<^sub>o\<^sub>i\<^sub>d))))))"
-defs(overloaded) dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t\<m>\<o>\<v>\<i>\<n>\<g> : "(x::\<cdot>Planet) .moving \<equiv> (eval_extract (x) ((deref_oid\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t (in_post_state) ((select\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t\<m>\<o>\<v>\<i>\<n>\<g> (reconst_basetype))))))"
-defs(overloaded) dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t\<o>\<u>\<t>\<e>\<r>095\<w>\<o>\<r>\<l>\<d> : "(x::\<cdot>Planet) .outer_world \<equiv> (eval_extract (x) ((deref_oid\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t (in_post_state) ((select\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t\<o>\<u>\<t>\<e>\<r>095\<w>\<o>\<r>\<l>\<d> ((select_object\<^sub>S\<^sub>e\<^sub>t ((select_object\<^sub>S\<^sub>e\<^sub>q ((deref_oid\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t (in_post_state) (reconst_basetype))))))))))))"
-defs(overloaded) dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t\<s>\<o>\<u>\<n>\<d>at_pre : "(x::\<cdot>Planet) .sound@pre \<equiv> (eval_extract (x) ((deref_oid\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t (in_pre_state) ((select\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t\<s>\<o>\<u>\<n>\<d> (reconst_basetype\<^sub>V\<^sub>o\<^sub>i\<^sub>d))))))"
-defs(overloaded) dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t\<m>\<o>\<v>\<i>\<n>\<g>at_pre : "(x::\<cdot>Planet) .moving@pre \<equiv> (eval_extract (x) ((deref_oid\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t (in_pre_state) ((select\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t\<m>\<o>\<v>\<i>\<n>\<g> (reconst_basetype))))))"
-defs(overloaded) dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t\<o>\<u>\<t>\<e>\<r>095\<w>\<o>\<r>\<l>\<d>at_pre : "(x::\<cdot>Planet) .outer_world@pre \<equiv> (eval_extract (x) ((deref_oid\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t (in_pre_state) ((select\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t\<o>\<u>\<t>\<e>\<r>095\<w>\<o>\<r>\<l>\<d> ((select_object\<^sub>S\<^sub>e\<^sub>t ((select_object\<^sub>S\<^sub>e\<^sub>q ((deref_oid\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t (in_pre_state) (reconst_basetype))))))))))))"
+defs(overloaded) dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0___boss : "(x::\<cdot>Person) .boss \<equiv> (eval_extract (x) ((deref_oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (in_post_state) ((select\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__boss ((select_object_any\<^sub>S\<^sub>e\<^sub>t ((deref_oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (in_post_state) (reconst_basetype))))))))))"
+defs(overloaded) dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__salary : "(x::\<cdot>Person) .salary \<equiv> (eval_extract (x) ((deref_oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (in_post_state) ((select\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__salary (reconst_basetype))))))"
+defs(overloaded) dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0___bossat_pre : "(x::\<cdot>Person) .boss@pre \<equiv> (eval_extract (x) ((deref_oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (in_pre_state) ((select\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__boss ((select_object_any\<^sub>S\<^sub>e\<^sub>t ((deref_oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (in_pre_state) (reconst_basetype))))))))))"
+defs(overloaded) dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__salaryat_pre : "(x::\<cdot>Person) .salary@pre \<equiv> (eval_extract (x) ((deref_oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (in_pre_state) ((select\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__salary (reconst_basetype))))))"
+defs(overloaded) dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t__wormhole : "(x::\<cdot>Planet) .wormhole \<equiv> (eval_extract (x) ((deref_oid\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t (in_post_state) ((select\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t__wormhole (reconst_basetype))))))"
+defs(overloaded) dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t__weight : "(x::\<cdot>Planet) .weight \<equiv> (eval_extract (x) ((deref_oid\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t (in_post_state) ((select\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t__weight (reconst_basetype))))))"
+defs(overloaded) dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t__wormholeat_pre : "(x::\<cdot>Planet) .wormhole@pre \<equiv> (eval_extract (x) ((deref_oid\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t (in_pre_state) ((select\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t__wormhole (reconst_basetype))))))"
+defs(overloaded) dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t__weightat_pre : "(x::\<cdot>Planet) .weight@pre \<equiv> (eval_extract (x) ((deref_oid\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t (in_pre_state) ((select\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t__weight (reconst_basetype))))))"
+defs(overloaded) dot\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y__sound : "(x::\<cdot>Galaxy) .sound \<equiv> (eval_extract (x) ((deref_oid\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y (in_post_state) ((select\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y__sound (reconst_basetype\<^sub>V\<^sub>o\<^sub>i\<^sub>d))))))"
+defs(overloaded) dot\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y__moving : "(x::\<cdot>Galaxy) .moving \<equiv> (eval_extract (x) ((deref_oid\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y (in_post_state) ((select\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y__moving (reconst_basetype))))))"
+defs(overloaded) dot\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y__outer095world : "(x::\<cdot>Galaxy) .outer_world \<equiv> (eval_extract (x) ((deref_oid\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y (in_post_state) ((select\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y__outer095world ((select_object\<^sub>S\<^sub>e\<^sub>t ((select_object\<^sub>S\<^sub>e\<^sub>q ((deref_oid\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t (in_post_state) (reconst_basetype))))))))))))"
+defs(overloaded) dot\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y__soundat_pre : "(x::\<cdot>Galaxy) .sound@pre \<equiv> (eval_extract (x) ((deref_oid\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y (in_pre_state) ((select\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y__sound (reconst_basetype\<^sub>V\<^sub>o\<^sub>i\<^sub>d))))))"
+defs(overloaded) dot\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y__movingat_pre : "(x::\<cdot>Galaxy) .moving@pre \<equiv> (eval_extract (x) ((deref_oid\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y (in_pre_state) ((select\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y__moving (reconst_basetype))))))"
+defs(overloaded) dot\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y__outer095worldat_pre : "(x::\<cdot>Galaxy) .outer_world@pre \<equiv> (eval_extract (x) ((deref_oid\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y (in_pre_state) ((select\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y__outer095world ((select_object\<^sub>S\<^sub>e\<^sub>t ((select_object\<^sub>S\<^sub>e\<^sub>q ((deref_oid\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t (in_pre_state) (reconst_basetype))))))))))))"
+defs(overloaded) dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__wormhole : "(x::\<cdot>Person) .wormhole \<equiv> (eval_extract (x) ((deref_oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (in_post_state) ((select\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__wormhole (reconst_basetype))))))"
+defs(overloaded) dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__weight : "(x::\<cdot>Person) .weight \<equiv> (eval_extract (x) ((deref_oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (in_post_state) ((select\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__weight (reconst_basetype))))))"
+defs(overloaded) dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__sound : "(x::\<cdot>Person) .sound \<equiv> (eval_extract (x) ((deref_oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (in_post_state) ((select\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__sound (reconst_basetype\<^sub>V\<^sub>o\<^sub>i\<^sub>d))))))"
+defs(overloaded) dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__moving : "(x::\<cdot>Person) .moving \<equiv> (eval_extract (x) ((deref_oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (in_post_state) ((select\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__moving (reconst_basetype))))))"
+defs(overloaded) dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__outer095world : "(x::\<cdot>Person) .outer_world \<equiv> (eval_extract (x) ((deref_oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (in_post_state) ((select\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__outer095world ((select_object\<^sub>S\<^sub>e\<^sub>t ((select_object\<^sub>S\<^sub>e\<^sub>q ((deref_oid\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t (in_post_state) (reconst_basetype))))))))))))"
+defs(overloaded) dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__wormholeat_pre : "(x::\<cdot>Person) .wormhole@pre \<equiv> (eval_extract (x) ((deref_oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (in_pre_state) ((select\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__wormhole (reconst_basetype))))))"
+defs(overloaded) dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__weightat_pre : "(x::\<cdot>Person) .weight@pre \<equiv> (eval_extract (x) ((deref_oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (in_pre_state) ((select\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__weight (reconst_basetype))))))"
+defs(overloaded) dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__soundat_pre : "(x::\<cdot>Person) .sound@pre \<equiv> (eval_extract (x) ((deref_oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (in_pre_state) ((select\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__sound (reconst_basetype\<^sub>V\<^sub>o\<^sub>i\<^sub>d))))))"
+defs(overloaded) dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__movingat_pre : "(x::\<cdot>Person) .moving@pre \<equiv> (eval_extract (x) ((deref_oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (in_pre_state) ((select\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__moving (reconst_basetype))))))"
+defs(overloaded) dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__outer095worldat_pre : "(x::\<cdot>Person) .outer_world@pre \<equiv> (eval_extract (x) ((deref_oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (in_pre_state) ((select\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__outer095world ((select_object\<^sub>S\<^sub>e\<^sub>t ((select_object\<^sub>S\<^sub>e\<^sub>q ((deref_oid\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t (in_pre_state) (reconst_basetype))))))))))))"
+defs(overloaded) dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t__sound : "(x::\<cdot>Planet) .sound \<equiv> (eval_extract (x) ((deref_oid\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t (in_post_state) ((select\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t__sound (reconst_basetype\<^sub>V\<^sub>o\<^sub>i\<^sub>d))))))"
+defs(overloaded) dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t__moving : "(x::\<cdot>Planet) .moving \<equiv> (eval_extract (x) ((deref_oid\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t (in_post_state) ((select\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t__moving (reconst_basetype))))))"
+defs(overloaded) dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t__outer095world : "(x::\<cdot>Planet) .outer_world \<equiv> (eval_extract (x) ((deref_oid\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t (in_post_state) ((select\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t__outer095world ((select_object\<^sub>S\<^sub>e\<^sub>t ((select_object\<^sub>S\<^sub>e\<^sub>q ((deref_oid\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t (in_post_state) (reconst_basetype))))))))))))"
+defs(overloaded) dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t__soundat_pre : "(x::\<cdot>Planet) .sound@pre \<equiv> (eval_extract (x) ((deref_oid\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t (in_pre_state) ((select\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t__sound (reconst_basetype\<^sub>V\<^sub>o\<^sub>i\<^sub>d))))))"
+defs(overloaded) dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t__movingat_pre : "(x::\<cdot>Planet) .moving@pre \<equiv> (eval_extract (x) ((deref_oid\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t (in_pre_state) ((select\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t__moving (reconst_basetype))))))"
+defs(overloaded) dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t__outer095worldat_pre : "(x::\<cdot>Planet) .outer_world@pre \<equiv> (eval_extract (x) ((deref_oid\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t (in_pre_state) ((select\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t__outer095world ((select_object\<^sub>S\<^sub>e\<^sub>t ((select_object\<^sub>S\<^sub>e\<^sub>q ((deref_oid\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t (in_pre_state) (reconst_basetype))))))))))))"
 
 (* 125 ************************************ 745 + 1 *)
-lemmas dot_accessor = dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0_\<b>\<o>\<s>\<s>
-                            dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<s>\<a>\<l>\<a>\<r>\<y>
-                            dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0_\<b>\<o>\<s>\<s>at_pre
-                            dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<s>\<a>\<l>\<a>\<r>\<y>at_pre
-                            dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t\<w>\<o>\<r>\<m>\<h>\<o>\<l>\<e>
-                            dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t\<w>\<e>\<i>\<g>\<h>\<t>
-                            dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t\<w>\<o>\<r>\<m>\<h>\<o>\<l>\<e>at_pre
-                            dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t\<w>\<e>\<i>\<g>\<h>\<t>at_pre
-                            dot\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y\<s>\<o>\<u>\<n>\<d>
-                            dot\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y\<m>\<o>\<v>\<i>\<n>\<g>
-                            dot\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y\<o>\<u>\<t>\<e>\<r>095\<w>\<o>\<r>\<l>\<d>
-                            dot\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y\<s>\<o>\<u>\<n>\<d>at_pre
-                            dot\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y\<m>\<o>\<v>\<i>\<n>\<g>at_pre
-                            dot\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y\<o>\<u>\<t>\<e>\<r>095\<w>\<o>\<r>\<l>\<d>at_pre
-                            dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<w>\<o>\<r>\<m>\<h>\<o>\<l>\<e>
-                            dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<w>\<e>\<i>\<g>\<h>\<t>
-                            dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<s>\<o>\<u>\<n>\<d>
-                            dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<m>\<o>\<v>\<i>\<n>\<g>
-                            dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<o>\<u>\<t>\<e>\<r>095\<w>\<o>\<r>\<l>\<d>
-                            dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<w>\<o>\<r>\<m>\<h>\<o>\<l>\<e>at_pre
-                            dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<w>\<e>\<i>\<g>\<h>\<t>at_pre
-                            dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<s>\<o>\<u>\<n>\<d>at_pre
-                            dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<m>\<o>\<v>\<i>\<n>\<g>at_pre
-                            dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<o>\<u>\<t>\<e>\<r>095\<w>\<o>\<r>\<l>\<d>at_pre
-                            dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t\<s>\<o>\<u>\<n>\<d>
-                            dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t\<m>\<o>\<v>\<i>\<n>\<g>
-                            dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t\<o>\<u>\<t>\<e>\<r>095\<w>\<o>\<r>\<l>\<d>
-                            dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t\<s>\<o>\<u>\<n>\<d>at_pre
-                            dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t\<m>\<o>\<v>\<i>\<n>\<g>at_pre
-                            dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t\<o>\<u>\<t>\<e>\<r>095\<w>\<o>\<r>\<l>\<d>at_pre
+lemmas dot_accessor = dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0___boss
+                            dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__salary
+                            dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0___bossat_pre
+                            dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__salaryat_pre
+                            dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t__wormhole
+                            dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t__weight
+                            dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t__wormholeat_pre
+                            dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t__weightat_pre
+                            dot\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y__sound
+                            dot\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y__moving
+                            dot\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y__outer095world
+                            dot\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y__soundat_pre
+                            dot\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y__movingat_pre
+                            dot\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y__outer095worldat_pre
+                            dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__wormhole
+                            dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__weight
+                            dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__sound
+                            dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__moving
+                            dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__outer095world
+                            dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__wormholeat_pre
+                            dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__weightat_pre
+                            dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__soundat_pre
+                            dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__movingat_pre
+                            dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__outer095worldat_pre
+                            dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t__sound
+                            dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t__moving
+                            dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t__outer095world
+                            dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t__soundat_pre
+                            dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t__movingat_pre
+                            dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t__outer095worldat_pre
 
 (* 126 ************************************ 746 + 1 *)
 subsection{* Context Passing *}
@@ -2907,366 +2907,366 @@ subsection{* Context Passing *}
 lemmas[simp,code_unfold] = eval_extract_def
 
 (* 128 ************************************ 748 + 30 *)
-lemma cp_dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0_\<b>\<o>\<s>\<s> : "(cp ((\<lambda>X. (X::\<cdot>Person) .boss)))"
+lemma cp_dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0___boss : "(cp ((\<lambda>X. (X::\<cdot>Person) .boss)))"
 by(auto simp: dot_accessor cp_def)
-lemma cp_dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<s>\<a>\<l>\<a>\<r>\<y> : "(cp ((\<lambda>X. (X::\<cdot>Person) .salary)))"
+lemma cp_dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__salary : "(cp ((\<lambda>X. (X::\<cdot>Person) .salary)))"
 by(auto simp: dot_accessor cp_def)
-lemma cp_dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0_\<b>\<o>\<s>\<s>at_pre : "(cp ((\<lambda>X. (X::\<cdot>Person) .boss@pre)))"
+lemma cp_dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0___bossat_pre : "(cp ((\<lambda>X. (X::\<cdot>Person) .boss@pre)))"
 by(auto simp: dot_accessor cp_def)
-lemma cp_dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<s>\<a>\<l>\<a>\<r>\<y>at_pre : "(cp ((\<lambda>X. (X::\<cdot>Person) .salary@pre)))"
+lemma cp_dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__salaryat_pre : "(cp ((\<lambda>X. (X::\<cdot>Person) .salary@pre)))"
 by(auto simp: dot_accessor cp_def)
-lemma cp_dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t\<w>\<o>\<r>\<m>\<h>\<o>\<l>\<e> : "(cp ((\<lambda>X. (X::\<cdot>Planet) .wormhole)))"
+lemma cp_dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t__wormhole : "(cp ((\<lambda>X. (X::\<cdot>Planet) .wormhole)))"
 by(auto simp: dot_accessor cp_def)
-lemma cp_dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t\<w>\<e>\<i>\<g>\<h>\<t> : "(cp ((\<lambda>X. (X::\<cdot>Planet) .weight)))"
+lemma cp_dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t__weight : "(cp ((\<lambda>X. (X::\<cdot>Planet) .weight)))"
 by(auto simp: dot_accessor cp_def)
-lemma cp_dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t\<w>\<o>\<r>\<m>\<h>\<o>\<l>\<e>at_pre : "(cp ((\<lambda>X. (X::\<cdot>Planet) .wormhole@pre)))"
+lemma cp_dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t__wormholeat_pre : "(cp ((\<lambda>X. (X::\<cdot>Planet) .wormhole@pre)))"
 by(auto simp: dot_accessor cp_def)
-lemma cp_dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t\<w>\<e>\<i>\<g>\<h>\<t>at_pre : "(cp ((\<lambda>X. (X::\<cdot>Planet) .weight@pre)))"
+lemma cp_dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t__weightat_pre : "(cp ((\<lambda>X. (X::\<cdot>Planet) .weight@pre)))"
 by(auto simp: dot_accessor cp_def)
-lemma cp_dot\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y\<s>\<o>\<u>\<n>\<d> : "(cp ((\<lambda>X. (X::\<cdot>Galaxy) .sound)))"
+lemma cp_dot\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y__sound : "(cp ((\<lambda>X. (X::\<cdot>Galaxy) .sound)))"
 by(auto simp: dot_accessor cp_def)
-lemma cp_dot\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y\<m>\<o>\<v>\<i>\<n>\<g> : "(cp ((\<lambda>X. (X::\<cdot>Galaxy) .moving)))"
+lemma cp_dot\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y__moving : "(cp ((\<lambda>X. (X::\<cdot>Galaxy) .moving)))"
 by(auto simp: dot_accessor cp_def)
-lemma cp_dot\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y\<o>\<u>\<t>\<e>\<r>095\<w>\<o>\<r>\<l>\<d> : "(cp ((\<lambda>X. (X::\<cdot>Galaxy) .outer_world)))"
+lemma cp_dot\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y__outer095world : "(cp ((\<lambda>X. (X::\<cdot>Galaxy) .outer_world)))"
 by(auto simp: dot_accessor cp_def)
-lemma cp_dot\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y\<s>\<o>\<u>\<n>\<d>at_pre : "(cp ((\<lambda>X. (X::\<cdot>Galaxy) .sound@pre)))"
+lemma cp_dot\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y__soundat_pre : "(cp ((\<lambda>X. (X::\<cdot>Galaxy) .sound@pre)))"
 by(auto simp: dot_accessor cp_def)
-lemma cp_dot\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y\<m>\<o>\<v>\<i>\<n>\<g>at_pre : "(cp ((\<lambda>X. (X::\<cdot>Galaxy) .moving@pre)))"
+lemma cp_dot\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y__movingat_pre : "(cp ((\<lambda>X. (X::\<cdot>Galaxy) .moving@pre)))"
 by(auto simp: dot_accessor cp_def)
-lemma cp_dot\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y\<o>\<u>\<t>\<e>\<r>095\<w>\<o>\<r>\<l>\<d>at_pre : "(cp ((\<lambda>X. (X::\<cdot>Galaxy) .outer_world@pre)))"
+lemma cp_dot\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y__outer095worldat_pre : "(cp ((\<lambda>X. (X::\<cdot>Galaxy) .outer_world@pre)))"
 by(auto simp: dot_accessor cp_def)
-lemma cp_dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<w>\<o>\<r>\<m>\<h>\<o>\<l>\<e> : "(cp ((\<lambda>X. (X::\<cdot>Person) .wormhole)))"
+lemma cp_dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__wormhole : "(cp ((\<lambda>X. (X::\<cdot>Person) .wormhole)))"
 by(auto simp: dot_accessor cp_def)
-lemma cp_dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<w>\<e>\<i>\<g>\<h>\<t> : "(cp ((\<lambda>X. (X::\<cdot>Person) .weight)))"
+lemma cp_dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__weight : "(cp ((\<lambda>X. (X::\<cdot>Person) .weight)))"
 by(auto simp: dot_accessor cp_def)
-lemma cp_dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<s>\<o>\<u>\<n>\<d> : "(cp ((\<lambda>X. (X::\<cdot>Person) .sound)))"
+lemma cp_dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__sound : "(cp ((\<lambda>X. (X::\<cdot>Person) .sound)))"
 by(auto simp: dot_accessor cp_def)
-lemma cp_dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<m>\<o>\<v>\<i>\<n>\<g> : "(cp ((\<lambda>X. (X::\<cdot>Person) .moving)))"
+lemma cp_dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__moving : "(cp ((\<lambda>X. (X::\<cdot>Person) .moving)))"
 by(auto simp: dot_accessor cp_def)
-lemma cp_dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<o>\<u>\<t>\<e>\<r>095\<w>\<o>\<r>\<l>\<d> : "(cp ((\<lambda>X. (X::\<cdot>Person) .outer_world)))"
+lemma cp_dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__outer095world : "(cp ((\<lambda>X. (X::\<cdot>Person) .outer_world)))"
 by(auto simp: dot_accessor cp_def)
-lemma cp_dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<w>\<o>\<r>\<m>\<h>\<o>\<l>\<e>at_pre : "(cp ((\<lambda>X. (X::\<cdot>Person) .wormhole@pre)))"
+lemma cp_dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__wormholeat_pre : "(cp ((\<lambda>X. (X::\<cdot>Person) .wormhole@pre)))"
 by(auto simp: dot_accessor cp_def)
-lemma cp_dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<w>\<e>\<i>\<g>\<h>\<t>at_pre : "(cp ((\<lambda>X. (X::\<cdot>Person) .weight@pre)))"
+lemma cp_dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__weightat_pre : "(cp ((\<lambda>X. (X::\<cdot>Person) .weight@pre)))"
 by(auto simp: dot_accessor cp_def)
-lemma cp_dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<s>\<o>\<u>\<n>\<d>at_pre : "(cp ((\<lambda>X. (X::\<cdot>Person) .sound@pre)))"
+lemma cp_dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__soundat_pre : "(cp ((\<lambda>X. (X::\<cdot>Person) .sound@pre)))"
 by(auto simp: dot_accessor cp_def)
-lemma cp_dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<m>\<o>\<v>\<i>\<n>\<g>at_pre : "(cp ((\<lambda>X. (X::\<cdot>Person) .moving@pre)))"
+lemma cp_dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__movingat_pre : "(cp ((\<lambda>X. (X::\<cdot>Person) .moving@pre)))"
 by(auto simp: dot_accessor cp_def)
-lemma cp_dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<o>\<u>\<t>\<e>\<r>095\<w>\<o>\<r>\<l>\<d>at_pre : "(cp ((\<lambda>X. (X::\<cdot>Person) .outer_world@pre)))"
+lemma cp_dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__outer095worldat_pre : "(cp ((\<lambda>X. (X::\<cdot>Person) .outer_world@pre)))"
 by(auto simp: dot_accessor cp_def)
-lemma cp_dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t\<s>\<o>\<u>\<n>\<d> : "(cp ((\<lambda>X. (X::\<cdot>Planet) .sound)))"
+lemma cp_dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t__sound : "(cp ((\<lambda>X. (X::\<cdot>Planet) .sound)))"
 by(auto simp: dot_accessor cp_def)
-lemma cp_dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t\<m>\<o>\<v>\<i>\<n>\<g> : "(cp ((\<lambda>X. (X::\<cdot>Planet) .moving)))"
+lemma cp_dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t__moving : "(cp ((\<lambda>X. (X::\<cdot>Planet) .moving)))"
 by(auto simp: dot_accessor cp_def)
-lemma cp_dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t\<o>\<u>\<t>\<e>\<r>095\<w>\<o>\<r>\<l>\<d> : "(cp ((\<lambda>X. (X::\<cdot>Planet) .outer_world)))"
+lemma cp_dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t__outer095world : "(cp ((\<lambda>X. (X::\<cdot>Planet) .outer_world)))"
 by(auto simp: dot_accessor cp_def)
-lemma cp_dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t\<s>\<o>\<u>\<n>\<d>at_pre : "(cp ((\<lambda>X. (X::\<cdot>Planet) .sound@pre)))"
+lemma cp_dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t__soundat_pre : "(cp ((\<lambda>X. (X::\<cdot>Planet) .sound@pre)))"
 by(auto simp: dot_accessor cp_def)
-lemma cp_dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t\<m>\<o>\<v>\<i>\<n>\<g>at_pre : "(cp ((\<lambda>X. (X::\<cdot>Planet) .moving@pre)))"
+lemma cp_dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t__movingat_pre : "(cp ((\<lambda>X. (X::\<cdot>Planet) .moving@pre)))"
 by(auto simp: dot_accessor cp_def)
-lemma cp_dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t\<o>\<u>\<t>\<e>\<r>095\<w>\<o>\<r>\<l>\<d>at_pre : "(cp ((\<lambda>X. (X::\<cdot>Planet) .outer_world@pre)))"
+lemma cp_dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t__outer095worldat_pre : "(cp ((\<lambda>X. (X::\<cdot>Planet) .outer_world@pre)))"
 by(auto simp: dot_accessor cp_def)
 
 (* 129 ************************************ 778 + 1 *)
-lemmas[simp,code_unfold] = cp_dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0_\<b>\<o>\<s>\<s>
-                            cp_dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<s>\<a>\<l>\<a>\<r>\<y>
-                            cp_dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0_\<b>\<o>\<s>\<s>at_pre
-                            cp_dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<s>\<a>\<l>\<a>\<r>\<y>at_pre
-                            cp_dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t\<w>\<o>\<r>\<m>\<h>\<o>\<l>\<e>
-                            cp_dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t\<w>\<e>\<i>\<g>\<h>\<t>
-                            cp_dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t\<w>\<o>\<r>\<m>\<h>\<o>\<l>\<e>at_pre
-                            cp_dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t\<w>\<e>\<i>\<g>\<h>\<t>at_pre
-                            cp_dot\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y\<s>\<o>\<u>\<n>\<d>
-                            cp_dot\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y\<m>\<o>\<v>\<i>\<n>\<g>
-                            cp_dot\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y\<o>\<u>\<t>\<e>\<r>095\<w>\<o>\<r>\<l>\<d>
-                            cp_dot\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y\<s>\<o>\<u>\<n>\<d>at_pre
-                            cp_dot\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y\<m>\<o>\<v>\<i>\<n>\<g>at_pre
-                            cp_dot\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y\<o>\<u>\<t>\<e>\<r>095\<w>\<o>\<r>\<l>\<d>at_pre
-                            cp_dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<w>\<o>\<r>\<m>\<h>\<o>\<l>\<e>
-                            cp_dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<w>\<e>\<i>\<g>\<h>\<t>
-                            cp_dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<s>\<o>\<u>\<n>\<d>
-                            cp_dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<m>\<o>\<v>\<i>\<n>\<g>
-                            cp_dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<o>\<u>\<t>\<e>\<r>095\<w>\<o>\<r>\<l>\<d>
-                            cp_dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<w>\<o>\<r>\<m>\<h>\<o>\<l>\<e>at_pre
-                            cp_dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<w>\<e>\<i>\<g>\<h>\<t>at_pre
-                            cp_dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<s>\<o>\<u>\<n>\<d>at_pre
-                            cp_dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<m>\<o>\<v>\<i>\<n>\<g>at_pre
-                            cp_dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<o>\<u>\<t>\<e>\<r>095\<w>\<o>\<r>\<l>\<d>at_pre
-                            cp_dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t\<s>\<o>\<u>\<n>\<d>
-                            cp_dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t\<m>\<o>\<v>\<i>\<n>\<g>
-                            cp_dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t\<o>\<u>\<t>\<e>\<r>095\<w>\<o>\<r>\<l>\<d>
-                            cp_dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t\<s>\<o>\<u>\<n>\<d>at_pre
-                            cp_dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t\<m>\<o>\<v>\<i>\<n>\<g>at_pre
-                            cp_dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t\<o>\<u>\<t>\<e>\<r>095\<w>\<o>\<r>\<l>\<d>at_pre
+lemmas[simp,code_unfold] = cp_dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0___boss
+                            cp_dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__salary
+                            cp_dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0___bossat_pre
+                            cp_dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__salaryat_pre
+                            cp_dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t__wormhole
+                            cp_dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t__weight
+                            cp_dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t__wormholeat_pre
+                            cp_dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t__weightat_pre
+                            cp_dot\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y__sound
+                            cp_dot\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y__moving
+                            cp_dot\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y__outer095world
+                            cp_dot\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y__soundat_pre
+                            cp_dot\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y__movingat_pre
+                            cp_dot\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y__outer095worldat_pre
+                            cp_dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__wormhole
+                            cp_dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__weight
+                            cp_dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__sound
+                            cp_dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__moving
+                            cp_dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__outer095world
+                            cp_dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__wormholeat_pre
+                            cp_dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__weightat_pre
+                            cp_dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__soundat_pre
+                            cp_dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__movingat_pre
+                            cp_dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__outer095worldat_pre
+                            cp_dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t__sound
+                            cp_dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t__moving
+                            cp_dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t__outer095world
+                            cp_dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t__soundat_pre
+                            cp_dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t__movingat_pre
+                            cp_dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t__outer095worldat_pre
 
 (* 130 ************************************ 779 + 1 *)
 subsection{* Execution with Invalid or Null as Argument *}
 
 (* 131 ************************************ 780 + 60 *)
-lemma dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0_\<b>\<o>\<s>\<s>_invalid : "(invalid::\<cdot>Person) .boss = invalid"
+lemma dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0___boss_invalid : "(invalid::\<cdot>Person) .boss = invalid"
 by(rule ext, simp add: dot_accessor bot_option_def invalid_def)
-lemma dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0_\<b>\<o>\<s>\<s>_null : "(null::\<cdot>Person) .boss = invalid"
+lemma dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0___boss_null : "(null::\<cdot>Person) .boss = invalid"
 by(rule ext, simp add: dot_accessor bot_option_def null_fun_def null_option_def)
-lemma dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<s>\<a>\<l>\<a>\<r>\<y>_invalid : "(invalid::\<cdot>Person) .salary = invalid"
+lemma dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__salary_invalid : "(invalid::\<cdot>Person) .salary = invalid"
 by(rule ext, simp add: dot_accessor bot_option_def invalid_def)
-lemma dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<s>\<a>\<l>\<a>\<r>\<y>_null : "(null::\<cdot>Person) .salary = invalid"
+lemma dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__salary_null : "(null::\<cdot>Person) .salary = invalid"
 by(rule ext, simp add: dot_accessor bot_option_def null_fun_def null_option_def)
-lemma dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0_\<b>\<o>\<s>\<s>at_pre_invalid : "(invalid::\<cdot>Person) .boss@pre = invalid"
+lemma dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0___bossat_pre_invalid : "(invalid::\<cdot>Person) .boss@pre = invalid"
 by(rule ext, simp add: dot_accessor bot_option_def invalid_def)
-lemma dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0_\<b>\<o>\<s>\<s>at_pre_null : "(null::\<cdot>Person) .boss@pre = invalid"
+lemma dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0___bossat_pre_null : "(null::\<cdot>Person) .boss@pre = invalid"
 by(rule ext, simp add: dot_accessor bot_option_def null_fun_def null_option_def)
-lemma dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<s>\<a>\<l>\<a>\<r>\<y>at_pre_invalid : "(invalid::\<cdot>Person) .salary@pre = invalid"
+lemma dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__salaryat_pre_invalid : "(invalid::\<cdot>Person) .salary@pre = invalid"
 by(rule ext, simp add: dot_accessor bot_option_def invalid_def)
-lemma dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<s>\<a>\<l>\<a>\<r>\<y>at_pre_null : "(null::\<cdot>Person) .salary@pre = invalid"
+lemma dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__salaryat_pre_null : "(null::\<cdot>Person) .salary@pre = invalid"
 by(rule ext, simp add: dot_accessor bot_option_def null_fun_def null_option_def)
-lemma dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t\<w>\<o>\<r>\<m>\<h>\<o>\<l>\<e>_invalid : "(invalid::\<cdot>Planet) .wormhole = invalid"
+lemma dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t__wormhole_invalid : "(invalid::\<cdot>Planet) .wormhole = invalid"
 by(rule ext, simp add: dot_accessor bot_option_def invalid_def)
-lemma dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t\<w>\<o>\<r>\<m>\<h>\<o>\<l>\<e>_null : "(null::\<cdot>Planet) .wormhole = invalid"
+lemma dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t__wormhole_null : "(null::\<cdot>Planet) .wormhole = invalid"
 by(rule ext, simp add: dot_accessor bot_option_def null_fun_def null_option_def)
-lemma dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t\<w>\<e>\<i>\<g>\<h>\<t>_invalid : "(invalid::\<cdot>Planet) .weight = invalid"
+lemma dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t__weight_invalid : "(invalid::\<cdot>Planet) .weight = invalid"
 by(rule ext, simp add: dot_accessor bot_option_def invalid_def)
-lemma dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t\<w>\<e>\<i>\<g>\<h>\<t>_null : "(null::\<cdot>Planet) .weight = invalid"
+lemma dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t__weight_null : "(null::\<cdot>Planet) .weight = invalid"
 by(rule ext, simp add: dot_accessor bot_option_def null_fun_def null_option_def)
-lemma dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t\<w>\<o>\<r>\<m>\<h>\<o>\<l>\<e>at_pre_invalid : "(invalid::\<cdot>Planet) .wormhole@pre = invalid"
+lemma dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t__wormholeat_pre_invalid : "(invalid::\<cdot>Planet) .wormhole@pre = invalid"
 by(rule ext, simp add: dot_accessor bot_option_def invalid_def)
-lemma dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t\<w>\<o>\<r>\<m>\<h>\<o>\<l>\<e>at_pre_null : "(null::\<cdot>Planet) .wormhole@pre = invalid"
+lemma dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t__wormholeat_pre_null : "(null::\<cdot>Planet) .wormhole@pre = invalid"
 by(rule ext, simp add: dot_accessor bot_option_def null_fun_def null_option_def)
-lemma dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t\<w>\<e>\<i>\<g>\<h>\<t>at_pre_invalid : "(invalid::\<cdot>Planet) .weight@pre = invalid"
+lemma dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t__weightat_pre_invalid : "(invalid::\<cdot>Planet) .weight@pre = invalid"
 by(rule ext, simp add: dot_accessor bot_option_def invalid_def)
-lemma dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t\<w>\<e>\<i>\<g>\<h>\<t>at_pre_null : "(null::\<cdot>Planet) .weight@pre = invalid"
+lemma dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t__weightat_pre_null : "(null::\<cdot>Planet) .weight@pre = invalid"
 by(rule ext, simp add: dot_accessor bot_option_def null_fun_def null_option_def)
-lemma dot\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y\<s>\<o>\<u>\<n>\<d>_invalid : "(invalid::\<cdot>Galaxy) .sound = invalid"
+lemma dot\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y__sound_invalid : "(invalid::\<cdot>Galaxy) .sound = invalid"
 by(rule ext, simp add: dot_accessor bot_option_def invalid_def)
-lemma dot\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y\<s>\<o>\<u>\<n>\<d>_null : "(null::\<cdot>Galaxy) .sound = invalid"
+lemma dot\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y__sound_null : "(null::\<cdot>Galaxy) .sound = invalid"
 by(rule ext, simp add: dot_accessor bot_option_def null_fun_def null_option_def)
-lemma dot\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y\<m>\<o>\<v>\<i>\<n>\<g>_invalid : "(invalid::\<cdot>Galaxy) .moving = invalid"
+lemma dot\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y__moving_invalid : "(invalid::\<cdot>Galaxy) .moving = invalid"
 by(rule ext, simp add: dot_accessor bot_option_def invalid_def)
-lemma dot\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y\<m>\<o>\<v>\<i>\<n>\<g>_null : "(null::\<cdot>Galaxy) .moving = invalid"
+lemma dot\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y__moving_null : "(null::\<cdot>Galaxy) .moving = invalid"
 by(rule ext, simp add: dot_accessor bot_option_def null_fun_def null_option_def)
-lemma dot\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y\<o>\<u>\<t>\<e>\<r>095\<w>\<o>\<r>\<l>\<d>_invalid : "(invalid::\<cdot>Galaxy) .outer_world = invalid"
+lemma dot\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y__outer095world_invalid : "(invalid::\<cdot>Galaxy) .outer_world = invalid"
 by(rule ext, simp add: dot_accessor bot_option_def invalid_def)
-lemma dot\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y\<o>\<u>\<t>\<e>\<r>095\<w>\<o>\<r>\<l>\<d>_null : "(null::\<cdot>Galaxy) .outer_world = invalid"
+lemma dot\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y__outer095world_null : "(null::\<cdot>Galaxy) .outer_world = invalid"
 by(rule ext, simp add: dot_accessor bot_option_def null_fun_def null_option_def)
-lemma dot\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y\<s>\<o>\<u>\<n>\<d>at_pre_invalid : "(invalid::\<cdot>Galaxy) .sound@pre = invalid"
+lemma dot\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y__soundat_pre_invalid : "(invalid::\<cdot>Galaxy) .sound@pre = invalid"
 by(rule ext, simp add: dot_accessor bot_option_def invalid_def)
-lemma dot\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y\<s>\<o>\<u>\<n>\<d>at_pre_null : "(null::\<cdot>Galaxy) .sound@pre = invalid"
+lemma dot\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y__soundat_pre_null : "(null::\<cdot>Galaxy) .sound@pre = invalid"
 by(rule ext, simp add: dot_accessor bot_option_def null_fun_def null_option_def)
-lemma dot\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y\<m>\<o>\<v>\<i>\<n>\<g>at_pre_invalid : "(invalid::\<cdot>Galaxy) .moving@pre = invalid"
+lemma dot\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y__movingat_pre_invalid : "(invalid::\<cdot>Galaxy) .moving@pre = invalid"
 by(rule ext, simp add: dot_accessor bot_option_def invalid_def)
-lemma dot\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y\<m>\<o>\<v>\<i>\<n>\<g>at_pre_null : "(null::\<cdot>Galaxy) .moving@pre = invalid"
+lemma dot\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y__movingat_pre_null : "(null::\<cdot>Galaxy) .moving@pre = invalid"
 by(rule ext, simp add: dot_accessor bot_option_def null_fun_def null_option_def)
-lemma dot\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y\<o>\<u>\<t>\<e>\<r>095\<w>\<o>\<r>\<l>\<d>at_pre_invalid : "(invalid::\<cdot>Galaxy) .outer_world@pre = invalid"
+lemma dot\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y__outer095worldat_pre_invalid : "(invalid::\<cdot>Galaxy) .outer_world@pre = invalid"
 by(rule ext, simp add: dot_accessor bot_option_def invalid_def)
-lemma dot\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y\<o>\<u>\<t>\<e>\<r>095\<w>\<o>\<r>\<l>\<d>at_pre_null : "(null::\<cdot>Galaxy) .outer_world@pre = invalid"
+lemma dot\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y__outer095worldat_pre_null : "(null::\<cdot>Galaxy) .outer_world@pre = invalid"
 by(rule ext, simp add: dot_accessor bot_option_def null_fun_def null_option_def)
-lemma dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<w>\<o>\<r>\<m>\<h>\<o>\<l>\<e>_invalid : "(invalid::\<cdot>Person) .wormhole = invalid"
+lemma dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__wormhole_invalid : "(invalid::\<cdot>Person) .wormhole = invalid"
 by(rule ext, simp add: dot_accessor bot_option_def invalid_def)
-lemma dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<w>\<o>\<r>\<m>\<h>\<o>\<l>\<e>_null : "(null::\<cdot>Person) .wormhole = invalid"
+lemma dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__wormhole_null : "(null::\<cdot>Person) .wormhole = invalid"
 by(rule ext, simp add: dot_accessor bot_option_def null_fun_def null_option_def)
-lemma dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<w>\<e>\<i>\<g>\<h>\<t>_invalid : "(invalid::\<cdot>Person) .weight = invalid"
+lemma dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__weight_invalid : "(invalid::\<cdot>Person) .weight = invalid"
 by(rule ext, simp add: dot_accessor bot_option_def invalid_def)
-lemma dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<w>\<e>\<i>\<g>\<h>\<t>_null : "(null::\<cdot>Person) .weight = invalid"
+lemma dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__weight_null : "(null::\<cdot>Person) .weight = invalid"
 by(rule ext, simp add: dot_accessor bot_option_def null_fun_def null_option_def)
-lemma dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<s>\<o>\<u>\<n>\<d>_invalid : "(invalid::\<cdot>Person) .sound = invalid"
+lemma dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__sound_invalid : "(invalid::\<cdot>Person) .sound = invalid"
 by(rule ext, simp add: dot_accessor bot_option_def invalid_def)
-lemma dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<s>\<o>\<u>\<n>\<d>_null : "(null::\<cdot>Person) .sound = invalid"
+lemma dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__sound_null : "(null::\<cdot>Person) .sound = invalid"
 by(rule ext, simp add: dot_accessor bot_option_def null_fun_def null_option_def)
-lemma dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<m>\<o>\<v>\<i>\<n>\<g>_invalid : "(invalid::\<cdot>Person) .moving = invalid"
+lemma dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__moving_invalid : "(invalid::\<cdot>Person) .moving = invalid"
 by(rule ext, simp add: dot_accessor bot_option_def invalid_def)
-lemma dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<m>\<o>\<v>\<i>\<n>\<g>_null : "(null::\<cdot>Person) .moving = invalid"
+lemma dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__moving_null : "(null::\<cdot>Person) .moving = invalid"
 by(rule ext, simp add: dot_accessor bot_option_def null_fun_def null_option_def)
-lemma dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<o>\<u>\<t>\<e>\<r>095\<w>\<o>\<r>\<l>\<d>_invalid : "(invalid::\<cdot>Person) .outer_world = invalid"
+lemma dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__outer095world_invalid : "(invalid::\<cdot>Person) .outer_world = invalid"
 by(rule ext, simp add: dot_accessor bot_option_def invalid_def)
-lemma dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<o>\<u>\<t>\<e>\<r>095\<w>\<o>\<r>\<l>\<d>_null : "(null::\<cdot>Person) .outer_world = invalid"
+lemma dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__outer095world_null : "(null::\<cdot>Person) .outer_world = invalid"
 by(rule ext, simp add: dot_accessor bot_option_def null_fun_def null_option_def)
-lemma dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<w>\<o>\<r>\<m>\<h>\<o>\<l>\<e>at_pre_invalid : "(invalid::\<cdot>Person) .wormhole@pre = invalid"
+lemma dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__wormholeat_pre_invalid : "(invalid::\<cdot>Person) .wormhole@pre = invalid"
 by(rule ext, simp add: dot_accessor bot_option_def invalid_def)
-lemma dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<w>\<o>\<r>\<m>\<h>\<o>\<l>\<e>at_pre_null : "(null::\<cdot>Person) .wormhole@pre = invalid"
+lemma dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__wormholeat_pre_null : "(null::\<cdot>Person) .wormhole@pre = invalid"
 by(rule ext, simp add: dot_accessor bot_option_def null_fun_def null_option_def)
-lemma dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<w>\<e>\<i>\<g>\<h>\<t>at_pre_invalid : "(invalid::\<cdot>Person) .weight@pre = invalid"
+lemma dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__weightat_pre_invalid : "(invalid::\<cdot>Person) .weight@pre = invalid"
 by(rule ext, simp add: dot_accessor bot_option_def invalid_def)
-lemma dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<w>\<e>\<i>\<g>\<h>\<t>at_pre_null : "(null::\<cdot>Person) .weight@pre = invalid"
+lemma dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__weightat_pre_null : "(null::\<cdot>Person) .weight@pre = invalid"
 by(rule ext, simp add: dot_accessor bot_option_def null_fun_def null_option_def)
-lemma dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<s>\<o>\<u>\<n>\<d>at_pre_invalid : "(invalid::\<cdot>Person) .sound@pre = invalid"
+lemma dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__soundat_pre_invalid : "(invalid::\<cdot>Person) .sound@pre = invalid"
 by(rule ext, simp add: dot_accessor bot_option_def invalid_def)
-lemma dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<s>\<o>\<u>\<n>\<d>at_pre_null : "(null::\<cdot>Person) .sound@pre = invalid"
+lemma dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__soundat_pre_null : "(null::\<cdot>Person) .sound@pre = invalid"
 by(rule ext, simp add: dot_accessor bot_option_def null_fun_def null_option_def)
-lemma dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<m>\<o>\<v>\<i>\<n>\<g>at_pre_invalid : "(invalid::\<cdot>Person) .moving@pre = invalid"
+lemma dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__movingat_pre_invalid : "(invalid::\<cdot>Person) .moving@pre = invalid"
 by(rule ext, simp add: dot_accessor bot_option_def invalid_def)
-lemma dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<m>\<o>\<v>\<i>\<n>\<g>at_pre_null : "(null::\<cdot>Person) .moving@pre = invalid"
+lemma dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__movingat_pre_null : "(null::\<cdot>Person) .moving@pre = invalid"
 by(rule ext, simp add: dot_accessor bot_option_def null_fun_def null_option_def)
-lemma dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<o>\<u>\<t>\<e>\<r>095\<w>\<o>\<r>\<l>\<d>at_pre_invalid : "(invalid::\<cdot>Person) .outer_world@pre = invalid"
+lemma dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__outer095worldat_pre_invalid : "(invalid::\<cdot>Person) .outer_world@pre = invalid"
 by(rule ext, simp add: dot_accessor bot_option_def invalid_def)
-lemma dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<o>\<u>\<t>\<e>\<r>095\<w>\<o>\<r>\<l>\<d>at_pre_null : "(null::\<cdot>Person) .outer_world@pre = invalid"
+lemma dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__outer095worldat_pre_null : "(null::\<cdot>Person) .outer_world@pre = invalid"
 by(rule ext, simp add: dot_accessor bot_option_def null_fun_def null_option_def)
-lemma dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t\<s>\<o>\<u>\<n>\<d>_invalid : "(invalid::\<cdot>Planet) .sound = invalid"
+lemma dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t__sound_invalid : "(invalid::\<cdot>Planet) .sound = invalid"
 by(rule ext, simp add: dot_accessor bot_option_def invalid_def)
-lemma dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t\<s>\<o>\<u>\<n>\<d>_null : "(null::\<cdot>Planet) .sound = invalid"
+lemma dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t__sound_null : "(null::\<cdot>Planet) .sound = invalid"
 by(rule ext, simp add: dot_accessor bot_option_def null_fun_def null_option_def)
-lemma dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t\<m>\<o>\<v>\<i>\<n>\<g>_invalid : "(invalid::\<cdot>Planet) .moving = invalid"
+lemma dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t__moving_invalid : "(invalid::\<cdot>Planet) .moving = invalid"
 by(rule ext, simp add: dot_accessor bot_option_def invalid_def)
-lemma dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t\<m>\<o>\<v>\<i>\<n>\<g>_null : "(null::\<cdot>Planet) .moving = invalid"
+lemma dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t__moving_null : "(null::\<cdot>Planet) .moving = invalid"
 by(rule ext, simp add: dot_accessor bot_option_def null_fun_def null_option_def)
-lemma dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t\<o>\<u>\<t>\<e>\<r>095\<w>\<o>\<r>\<l>\<d>_invalid : "(invalid::\<cdot>Planet) .outer_world = invalid"
+lemma dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t__outer095world_invalid : "(invalid::\<cdot>Planet) .outer_world = invalid"
 by(rule ext, simp add: dot_accessor bot_option_def invalid_def)
-lemma dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t\<o>\<u>\<t>\<e>\<r>095\<w>\<o>\<r>\<l>\<d>_null : "(null::\<cdot>Planet) .outer_world = invalid"
+lemma dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t__outer095world_null : "(null::\<cdot>Planet) .outer_world = invalid"
 by(rule ext, simp add: dot_accessor bot_option_def null_fun_def null_option_def)
-lemma dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t\<s>\<o>\<u>\<n>\<d>at_pre_invalid : "(invalid::\<cdot>Planet) .sound@pre = invalid"
+lemma dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t__soundat_pre_invalid : "(invalid::\<cdot>Planet) .sound@pre = invalid"
 by(rule ext, simp add: dot_accessor bot_option_def invalid_def)
-lemma dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t\<s>\<o>\<u>\<n>\<d>at_pre_null : "(null::\<cdot>Planet) .sound@pre = invalid"
+lemma dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t__soundat_pre_null : "(null::\<cdot>Planet) .sound@pre = invalid"
 by(rule ext, simp add: dot_accessor bot_option_def null_fun_def null_option_def)
-lemma dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t\<m>\<o>\<v>\<i>\<n>\<g>at_pre_invalid : "(invalid::\<cdot>Planet) .moving@pre = invalid"
+lemma dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t__movingat_pre_invalid : "(invalid::\<cdot>Planet) .moving@pre = invalid"
 by(rule ext, simp add: dot_accessor bot_option_def invalid_def)
-lemma dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t\<m>\<o>\<v>\<i>\<n>\<g>at_pre_null : "(null::\<cdot>Planet) .moving@pre = invalid"
+lemma dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t__movingat_pre_null : "(null::\<cdot>Planet) .moving@pre = invalid"
 by(rule ext, simp add: dot_accessor bot_option_def null_fun_def null_option_def)
-lemma dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t\<o>\<u>\<t>\<e>\<r>095\<w>\<o>\<r>\<l>\<d>at_pre_invalid : "(invalid::\<cdot>Planet) .outer_world@pre = invalid"
+lemma dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t__outer095worldat_pre_invalid : "(invalid::\<cdot>Planet) .outer_world@pre = invalid"
 by(rule ext, simp add: dot_accessor bot_option_def invalid_def)
-lemma dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t\<o>\<u>\<t>\<e>\<r>095\<w>\<o>\<r>\<l>\<d>at_pre_null : "(null::\<cdot>Planet) .outer_world@pre = invalid"
+lemma dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t__outer095worldat_pre_null : "(null::\<cdot>Planet) .outer_world@pre = invalid"
 by(rule ext, simp add: dot_accessor bot_option_def null_fun_def null_option_def)
 
 (* 132 ************************************ 840 + 1 *)
 subsection{* Representation in States *}
 
 (* 133 ************************************ 841 + 30 *)
-lemma defined_mono_dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0_\<b>\<o>\<s>\<s> : "\<tau> \<Turnstile> (\<delta> ((X::\<cdot>Person) .boss)) \<Longrightarrow> \<tau> \<Turnstile> (\<delta> (X))"
-  apply(case_tac "\<tau> \<Turnstile> (X \<triangleq> invalid)", insert StrongEq_L_subst2[where P = "(\<lambda>x. (\<delta> (x .boss)))" and \<tau> = "\<tau>" and x = "X" and y = "invalid"], simp add: foundation16' dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0_\<b>\<o>\<s>\<s>_invalid)
-  apply(case_tac "\<tau> \<Turnstile> (X \<triangleq> null)", insert StrongEq_L_subst2[where P = "(\<lambda>x. (\<delta> (x .boss)))" and \<tau> = "\<tau>" and x = "X" and y = "null"], simp add: foundation16' dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0_\<b>\<o>\<s>\<s>_null)
+lemma defined_mono_dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0___boss : "\<tau> \<Turnstile> (\<delta> ((X::\<cdot>Person) .boss)) \<Longrightarrow> \<tau> \<Turnstile> (\<delta> (X))"
+  apply(case_tac "\<tau> \<Turnstile> (X \<triangleq> invalid)", insert StrongEq_L_subst2[where P = "(\<lambda>x. (\<delta> (x .boss)))" and \<tau> = "\<tau>" and x = "X" and y = "invalid"], simp add: foundation16' dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0___boss_invalid)
+  apply(case_tac "\<tau> \<Turnstile> (X \<triangleq> null)", insert StrongEq_L_subst2[where P = "(\<lambda>x. (\<delta> (x .boss)))" and \<tau> = "\<tau>" and x = "X" and y = "null"], simp add: foundation16' dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0___boss_null)
 by(simp add: defined_split)
-lemma defined_mono_dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<s>\<a>\<l>\<a>\<r>\<y> : "\<tau> \<Turnstile> (\<delta> ((X::\<cdot>Person) .salary)) \<Longrightarrow> \<tau> \<Turnstile> (\<delta> (X))"
-  apply(case_tac "\<tau> \<Turnstile> (X \<triangleq> invalid)", insert StrongEq_L_subst2[where P = "(\<lambda>x. (\<delta> (x .salary)))" and \<tau> = "\<tau>" and x = "X" and y = "invalid"], simp add: foundation16' dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<s>\<a>\<l>\<a>\<r>\<y>_invalid)
-  apply(case_tac "\<tau> \<Turnstile> (X \<triangleq> null)", insert StrongEq_L_subst2[where P = "(\<lambda>x. (\<delta> (x .salary)))" and \<tau> = "\<tau>" and x = "X" and y = "null"], simp add: foundation16' dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<s>\<a>\<l>\<a>\<r>\<y>_null)
+lemma defined_mono_dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__salary : "\<tau> \<Turnstile> (\<delta> ((X::\<cdot>Person) .salary)) \<Longrightarrow> \<tau> \<Turnstile> (\<delta> (X))"
+  apply(case_tac "\<tau> \<Turnstile> (X \<triangleq> invalid)", insert StrongEq_L_subst2[where P = "(\<lambda>x. (\<delta> (x .salary)))" and \<tau> = "\<tau>" and x = "X" and y = "invalid"], simp add: foundation16' dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__salary_invalid)
+  apply(case_tac "\<tau> \<Turnstile> (X \<triangleq> null)", insert StrongEq_L_subst2[where P = "(\<lambda>x. (\<delta> (x .salary)))" and \<tau> = "\<tau>" and x = "X" and y = "null"], simp add: foundation16' dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__salary_null)
 by(simp add: defined_split)
-lemma defined_mono_dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0_\<b>\<o>\<s>\<s>at_pre : "\<tau> \<Turnstile> (\<delta> ((X::\<cdot>Person) .boss@pre)) \<Longrightarrow> \<tau> \<Turnstile> (\<delta> (X))"
-  apply(case_tac "\<tau> \<Turnstile> (X \<triangleq> invalid)", insert StrongEq_L_subst2[where P = "(\<lambda>x. (\<delta> (x .boss@pre)))" and \<tau> = "\<tau>" and x = "X" and y = "invalid"], simp add: foundation16' dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0_\<b>\<o>\<s>\<s>at_pre_invalid)
-  apply(case_tac "\<tau> \<Turnstile> (X \<triangleq> null)", insert StrongEq_L_subst2[where P = "(\<lambda>x. (\<delta> (x .boss@pre)))" and \<tau> = "\<tau>" and x = "X" and y = "null"], simp add: foundation16' dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0_\<b>\<o>\<s>\<s>at_pre_null)
+lemma defined_mono_dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0___bossat_pre : "\<tau> \<Turnstile> (\<delta> ((X::\<cdot>Person) .boss@pre)) \<Longrightarrow> \<tau> \<Turnstile> (\<delta> (X))"
+  apply(case_tac "\<tau> \<Turnstile> (X \<triangleq> invalid)", insert StrongEq_L_subst2[where P = "(\<lambda>x. (\<delta> (x .boss@pre)))" and \<tau> = "\<tau>" and x = "X" and y = "invalid"], simp add: foundation16' dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0___bossat_pre_invalid)
+  apply(case_tac "\<tau> \<Turnstile> (X \<triangleq> null)", insert StrongEq_L_subst2[where P = "(\<lambda>x. (\<delta> (x .boss@pre)))" and \<tau> = "\<tau>" and x = "X" and y = "null"], simp add: foundation16' dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0___bossat_pre_null)
 by(simp add: defined_split)
-lemma defined_mono_dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<s>\<a>\<l>\<a>\<r>\<y>at_pre : "\<tau> \<Turnstile> (\<delta> ((X::\<cdot>Person) .salary@pre)) \<Longrightarrow> \<tau> \<Turnstile> (\<delta> (X))"
-  apply(case_tac "\<tau> \<Turnstile> (X \<triangleq> invalid)", insert StrongEq_L_subst2[where P = "(\<lambda>x. (\<delta> (x .salary@pre)))" and \<tau> = "\<tau>" and x = "X" and y = "invalid"], simp add: foundation16' dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<s>\<a>\<l>\<a>\<r>\<y>at_pre_invalid)
-  apply(case_tac "\<tau> \<Turnstile> (X \<triangleq> null)", insert StrongEq_L_subst2[where P = "(\<lambda>x. (\<delta> (x .salary@pre)))" and \<tau> = "\<tau>" and x = "X" and y = "null"], simp add: foundation16' dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<s>\<a>\<l>\<a>\<r>\<y>at_pre_null)
+lemma defined_mono_dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__salaryat_pre : "\<tau> \<Turnstile> (\<delta> ((X::\<cdot>Person) .salary@pre)) \<Longrightarrow> \<tau> \<Turnstile> (\<delta> (X))"
+  apply(case_tac "\<tau> \<Turnstile> (X \<triangleq> invalid)", insert StrongEq_L_subst2[where P = "(\<lambda>x. (\<delta> (x .salary@pre)))" and \<tau> = "\<tau>" and x = "X" and y = "invalid"], simp add: foundation16' dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__salaryat_pre_invalid)
+  apply(case_tac "\<tau> \<Turnstile> (X \<triangleq> null)", insert StrongEq_L_subst2[where P = "(\<lambda>x. (\<delta> (x .salary@pre)))" and \<tau> = "\<tau>" and x = "X" and y = "null"], simp add: foundation16' dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__salaryat_pre_null)
 by(simp add: defined_split)
-lemma defined_mono_dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t\<w>\<o>\<r>\<m>\<h>\<o>\<l>\<e> : "\<tau> \<Turnstile> (\<delta> ((X::\<cdot>Planet) .wormhole)) \<Longrightarrow> \<tau> \<Turnstile> (\<delta> (X))"
-  apply(case_tac "\<tau> \<Turnstile> (X \<triangleq> invalid)", insert StrongEq_L_subst2[where P = "(\<lambda>x. (\<delta> (x .wormhole)))" and \<tau> = "\<tau>" and x = "X" and y = "invalid"], simp add: foundation16' dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t\<w>\<o>\<r>\<m>\<h>\<o>\<l>\<e>_invalid)
-  apply(case_tac "\<tau> \<Turnstile> (X \<triangleq> null)", insert StrongEq_L_subst2[where P = "(\<lambda>x. (\<delta> (x .wormhole)))" and \<tau> = "\<tau>" and x = "X" and y = "null"], simp add: foundation16' dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t\<w>\<o>\<r>\<m>\<h>\<o>\<l>\<e>_null)
+lemma defined_mono_dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t__wormhole : "\<tau> \<Turnstile> (\<delta> ((X::\<cdot>Planet) .wormhole)) \<Longrightarrow> \<tau> \<Turnstile> (\<delta> (X))"
+  apply(case_tac "\<tau> \<Turnstile> (X \<triangleq> invalid)", insert StrongEq_L_subst2[where P = "(\<lambda>x. (\<delta> (x .wormhole)))" and \<tau> = "\<tau>" and x = "X" and y = "invalid"], simp add: foundation16' dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t__wormhole_invalid)
+  apply(case_tac "\<tau> \<Turnstile> (X \<triangleq> null)", insert StrongEq_L_subst2[where P = "(\<lambda>x. (\<delta> (x .wormhole)))" and \<tau> = "\<tau>" and x = "X" and y = "null"], simp add: foundation16' dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t__wormhole_null)
 by(simp add: defined_split)
-lemma defined_mono_dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t\<w>\<e>\<i>\<g>\<h>\<t> : "\<tau> \<Turnstile> (\<delta> ((X::\<cdot>Planet) .weight)) \<Longrightarrow> \<tau> \<Turnstile> (\<delta> (X))"
-  apply(case_tac "\<tau> \<Turnstile> (X \<triangleq> invalid)", insert StrongEq_L_subst2[where P = "(\<lambda>x. (\<delta> (x .weight)))" and \<tau> = "\<tau>" and x = "X" and y = "invalid"], simp add: foundation16' dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t\<w>\<e>\<i>\<g>\<h>\<t>_invalid)
-  apply(case_tac "\<tau> \<Turnstile> (X \<triangleq> null)", insert StrongEq_L_subst2[where P = "(\<lambda>x. (\<delta> (x .weight)))" and \<tau> = "\<tau>" and x = "X" and y = "null"], simp add: foundation16' dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t\<w>\<e>\<i>\<g>\<h>\<t>_null)
+lemma defined_mono_dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t__weight : "\<tau> \<Turnstile> (\<delta> ((X::\<cdot>Planet) .weight)) \<Longrightarrow> \<tau> \<Turnstile> (\<delta> (X))"
+  apply(case_tac "\<tau> \<Turnstile> (X \<triangleq> invalid)", insert StrongEq_L_subst2[where P = "(\<lambda>x. (\<delta> (x .weight)))" and \<tau> = "\<tau>" and x = "X" and y = "invalid"], simp add: foundation16' dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t__weight_invalid)
+  apply(case_tac "\<tau> \<Turnstile> (X \<triangleq> null)", insert StrongEq_L_subst2[where P = "(\<lambda>x. (\<delta> (x .weight)))" and \<tau> = "\<tau>" and x = "X" and y = "null"], simp add: foundation16' dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t__weight_null)
 by(simp add: defined_split)
-lemma defined_mono_dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t\<w>\<o>\<r>\<m>\<h>\<o>\<l>\<e>at_pre : "\<tau> \<Turnstile> (\<delta> ((X::\<cdot>Planet) .wormhole@pre)) \<Longrightarrow> \<tau> \<Turnstile> (\<delta> (X))"
-  apply(case_tac "\<tau> \<Turnstile> (X \<triangleq> invalid)", insert StrongEq_L_subst2[where P = "(\<lambda>x. (\<delta> (x .wormhole@pre)))" and \<tau> = "\<tau>" and x = "X" and y = "invalid"], simp add: foundation16' dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t\<w>\<o>\<r>\<m>\<h>\<o>\<l>\<e>at_pre_invalid)
-  apply(case_tac "\<tau> \<Turnstile> (X \<triangleq> null)", insert StrongEq_L_subst2[where P = "(\<lambda>x. (\<delta> (x .wormhole@pre)))" and \<tau> = "\<tau>" and x = "X" and y = "null"], simp add: foundation16' dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t\<w>\<o>\<r>\<m>\<h>\<o>\<l>\<e>at_pre_null)
+lemma defined_mono_dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t__wormholeat_pre : "\<tau> \<Turnstile> (\<delta> ((X::\<cdot>Planet) .wormhole@pre)) \<Longrightarrow> \<tau> \<Turnstile> (\<delta> (X))"
+  apply(case_tac "\<tau> \<Turnstile> (X \<triangleq> invalid)", insert StrongEq_L_subst2[where P = "(\<lambda>x. (\<delta> (x .wormhole@pre)))" and \<tau> = "\<tau>" and x = "X" and y = "invalid"], simp add: foundation16' dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t__wormholeat_pre_invalid)
+  apply(case_tac "\<tau> \<Turnstile> (X \<triangleq> null)", insert StrongEq_L_subst2[where P = "(\<lambda>x. (\<delta> (x .wormhole@pre)))" and \<tau> = "\<tau>" and x = "X" and y = "null"], simp add: foundation16' dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t__wormholeat_pre_null)
 by(simp add: defined_split)
-lemma defined_mono_dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t\<w>\<e>\<i>\<g>\<h>\<t>at_pre : "\<tau> \<Turnstile> (\<delta> ((X::\<cdot>Planet) .weight@pre)) \<Longrightarrow> \<tau> \<Turnstile> (\<delta> (X))"
-  apply(case_tac "\<tau> \<Turnstile> (X \<triangleq> invalid)", insert StrongEq_L_subst2[where P = "(\<lambda>x. (\<delta> (x .weight@pre)))" and \<tau> = "\<tau>" and x = "X" and y = "invalid"], simp add: foundation16' dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t\<w>\<e>\<i>\<g>\<h>\<t>at_pre_invalid)
-  apply(case_tac "\<tau> \<Turnstile> (X \<triangleq> null)", insert StrongEq_L_subst2[where P = "(\<lambda>x. (\<delta> (x .weight@pre)))" and \<tau> = "\<tau>" and x = "X" and y = "null"], simp add: foundation16' dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t\<w>\<e>\<i>\<g>\<h>\<t>at_pre_null)
+lemma defined_mono_dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t__weightat_pre : "\<tau> \<Turnstile> (\<delta> ((X::\<cdot>Planet) .weight@pre)) \<Longrightarrow> \<tau> \<Turnstile> (\<delta> (X))"
+  apply(case_tac "\<tau> \<Turnstile> (X \<triangleq> invalid)", insert StrongEq_L_subst2[where P = "(\<lambda>x. (\<delta> (x .weight@pre)))" and \<tau> = "\<tau>" and x = "X" and y = "invalid"], simp add: foundation16' dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t__weightat_pre_invalid)
+  apply(case_tac "\<tau> \<Turnstile> (X \<triangleq> null)", insert StrongEq_L_subst2[where P = "(\<lambda>x. (\<delta> (x .weight@pre)))" and \<tau> = "\<tau>" and x = "X" and y = "null"], simp add: foundation16' dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t__weightat_pre_null)
 by(simp add: defined_split)
-lemma defined_mono_dot\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y\<s>\<o>\<u>\<n>\<d> : "\<tau> \<Turnstile> (\<delta> ((X::\<cdot>Galaxy) .sound)) \<Longrightarrow> \<tau> \<Turnstile> (\<delta> (X))"
-  apply(case_tac "\<tau> \<Turnstile> (X \<triangleq> invalid)", insert StrongEq_L_subst2[where P = "(\<lambda>x. (\<delta> (x .sound)))" and \<tau> = "\<tau>" and x = "X" and y = "invalid"], simp add: foundation16' dot\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y\<s>\<o>\<u>\<n>\<d>_invalid)
-  apply(case_tac "\<tau> \<Turnstile> (X \<triangleq> null)", insert StrongEq_L_subst2[where P = "(\<lambda>x. (\<delta> (x .sound)))" and \<tau> = "\<tau>" and x = "X" and y = "null"], simp add: foundation16' dot\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y\<s>\<o>\<u>\<n>\<d>_null)
+lemma defined_mono_dot\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y__sound : "\<tau> \<Turnstile> (\<delta> ((X::\<cdot>Galaxy) .sound)) \<Longrightarrow> \<tau> \<Turnstile> (\<delta> (X))"
+  apply(case_tac "\<tau> \<Turnstile> (X \<triangleq> invalid)", insert StrongEq_L_subst2[where P = "(\<lambda>x. (\<delta> (x .sound)))" and \<tau> = "\<tau>" and x = "X" and y = "invalid"], simp add: foundation16' dot\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y__sound_invalid)
+  apply(case_tac "\<tau> \<Turnstile> (X \<triangleq> null)", insert StrongEq_L_subst2[where P = "(\<lambda>x. (\<delta> (x .sound)))" and \<tau> = "\<tau>" and x = "X" and y = "null"], simp add: foundation16' dot\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y__sound_null)
 by(simp add: defined_split)
-lemma defined_mono_dot\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y\<m>\<o>\<v>\<i>\<n>\<g> : "\<tau> \<Turnstile> (\<delta> ((X::\<cdot>Galaxy) .moving)) \<Longrightarrow> \<tau> \<Turnstile> (\<delta> (X))"
-  apply(case_tac "\<tau> \<Turnstile> (X \<triangleq> invalid)", insert StrongEq_L_subst2[where P = "(\<lambda>x. (\<delta> (x .moving)))" and \<tau> = "\<tau>" and x = "X" and y = "invalid"], simp add: foundation16' dot\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y\<m>\<o>\<v>\<i>\<n>\<g>_invalid)
-  apply(case_tac "\<tau> \<Turnstile> (X \<triangleq> null)", insert StrongEq_L_subst2[where P = "(\<lambda>x. (\<delta> (x .moving)))" and \<tau> = "\<tau>" and x = "X" and y = "null"], simp add: foundation16' dot\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y\<m>\<o>\<v>\<i>\<n>\<g>_null)
+lemma defined_mono_dot\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y__moving : "\<tau> \<Turnstile> (\<delta> ((X::\<cdot>Galaxy) .moving)) \<Longrightarrow> \<tau> \<Turnstile> (\<delta> (X))"
+  apply(case_tac "\<tau> \<Turnstile> (X \<triangleq> invalid)", insert StrongEq_L_subst2[where P = "(\<lambda>x. (\<delta> (x .moving)))" and \<tau> = "\<tau>" and x = "X" and y = "invalid"], simp add: foundation16' dot\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y__moving_invalid)
+  apply(case_tac "\<tau> \<Turnstile> (X \<triangleq> null)", insert StrongEq_L_subst2[where P = "(\<lambda>x. (\<delta> (x .moving)))" and \<tau> = "\<tau>" and x = "X" and y = "null"], simp add: foundation16' dot\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y__moving_null)
 by(simp add: defined_split)
-lemma defined_mono_dot\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y\<o>\<u>\<t>\<e>\<r>095\<w>\<o>\<r>\<l>\<d> : "\<tau> \<Turnstile> (\<delta> ((X::\<cdot>Galaxy) .outer_world)) \<Longrightarrow> \<tau> \<Turnstile> (\<delta> (X))"
-  apply(case_tac "\<tau> \<Turnstile> (X \<triangleq> invalid)", insert StrongEq_L_subst2[where P = "(\<lambda>x. (\<delta> (x .outer_world)))" and \<tau> = "\<tau>" and x = "X" and y = "invalid"], simp add: foundation16' dot\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y\<o>\<u>\<t>\<e>\<r>095\<w>\<o>\<r>\<l>\<d>_invalid)
-  apply(case_tac "\<tau> \<Turnstile> (X \<triangleq> null)", insert StrongEq_L_subst2[where P = "(\<lambda>x. (\<delta> (x .outer_world)))" and \<tau> = "\<tau>" and x = "X" and y = "null"], simp add: foundation16' dot\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y\<o>\<u>\<t>\<e>\<r>095\<w>\<o>\<r>\<l>\<d>_null)
+lemma defined_mono_dot\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y__outer095world : "\<tau> \<Turnstile> (\<delta> ((X::\<cdot>Galaxy) .outer_world)) \<Longrightarrow> \<tau> \<Turnstile> (\<delta> (X))"
+  apply(case_tac "\<tau> \<Turnstile> (X \<triangleq> invalid)", insert StrongEq_L_subst2[where P = "(\<lambda>x. (\<delta> (x .outer_world)))" and \<tau> = "\<tau>" and x = "X" and y = "invalid"], simp add: foundation16' dot\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y__outer095world_invalid)
+  apply(case_tac "\<tau> \<Turnstile> (X \<triangleq> null)", insert StrongEq_L_subst2[where P = "(\<lambda>x. (\<delta> (x .outer_world)))" and \<tau> = "\<tau>" and x = "X" and y = "null"], simp add: foundation16' dot\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y__outer095world_null)
 by(simp add: defined_split)
-lemma defined_mono_dot\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y\<s>\<o>\<u>\<n>\<d>at_pre : "\<tau> \<Turnstile> (\<delta> ((X::\<cdot>Galaxy) .sound@pre)) \<Longrightarrow> \<tau> \<Turnstile> (\<delta> (X))"
-  apply(case_tac "\<tau> \<Turnstile> (X \<triangleq> invalid)", insert StrongEq_L_subst2[where P = "(\<lambda>x. (\<delta> (x .sound@pre)))" and \<tau> = "\<tau>" and x = "X" and y = "invalid"], simp add: foundation16' dot\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y\<s>\<o>\<u>\<n>\<d>at_pre_invalid)
-  apply(case_tac "\<tau> \<Turnstile> (X \<triangleq> null)", insert StrongEq_L_subst2[where P = "(\<lambda>x. (\<delta> (x .sound@pre)))" and \<tau> = "\<tau>" and x = "X" and y = "null"], simp add: foundation16' dot\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y\<s>\<o>\<u>\<n>\<d>at_pre_null)
+lemma defined_mono_dot\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y__soundat_pre : "\<tau> \<Turnstile> (\<delta> ((X::\<cdot>Galaxy) .sound@pre)) \<Longrightarrow> \<tau> \<Turnstile> (\<delta> (X))"
+  apply(case_tac "\<tau> \<Turnstile> (X \<triangleq> invalid)", insert StrongEq_L_subst2[where P = "(\<lambda>x. (\<delta> (x .sound@pre)))" and \<tau> = "\<tau>" and x = "X" and y = "invalid"], simp add: foundation16' dot\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y__soundat_pre_invalid)
+  apply(case_tac "\<tau> \<Turnstile> (X \<triangleq> null)", insert StrongEq_L_subst2[where P = "(\<lambda>x. (\<delta> (x .sound@pre)))" and \<tau> = "\<tau>" and x = "X" and y = "null"], simp add: foundation16' dot\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y__soundat_pre_null)
 by(simp add: defined_split)
-lemma defined_mono_dot\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y\<m>\<o>\<v>\<i>\<n>\<g>at_pre : "\<tau> \<Turnstile> (\<delta> ((X::\<cdot>Galaxy) .moving@pre)) \<Longrightarrow> \<tau> \<Turnstile> (\<delta> (X))"
-  apply(case_tac "\<tau> \<Turnstile> (X \<triangleq> invalid)", insert StrongEq_L_subst2[where P = "(\<lambda>x. (\<delta> (x .moving@pre)))" and \<tau> = "\<tau>" and x = "X" and y = "invalid"], simp add: foundation16' dot\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y\<m>\<o>\<v>\<i>\<n>\<g>at_pre_invalid)
-  apply(case_tac "\<tau> \<Turnstile> (X \<triangleq> null)", insert StrongEq_L_subst2[where P = "(\<lambda>x. (\<delta> (x .moving@pre)))" and \<tau> = "\<tau>" and x = "X" and y = "null"], simp add: foundation16' dot\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y\<m>\<o>\<v>\<i>\<n>\<g>at_pre_null)
+lemma defined_mono_dot\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y__movingat_pre : "\<tau> \<Turnstile> (\<delta> ((X::\<cdot>Galaxy) .moving@pre)) \<Longrightarrow> \<tau> \<Turnstile> (\<delta> (X))"
+  apply(case_tac "\<tau> \<Turnstile> (X \<triangleq> invalid)", insert StrongEq_L_subst2[where P = "(\<lambda>x. (\<delta> (x .moving@pre)))" and \<tau> = "\<tau>" and x = "X" and y = "invalid"], simp add: foundation16' dot\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y__movingat_pre_invalid)
+  apply(case_tac "\<tau> \<Turnstile> (X \<triangleq> null)", insert StrongEq_L_subst2[where P = "(\<lambda>x. (\<delta> (x .moving@pre)))" and \<tau> = "\<tau>" and x = "X" and y = "null"], simp add: foundation16' dot\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y__movingat_pre_null)
 by(simp add: defined_split)
-lemma defined_mono_dot\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y\<o>\<u>\<t>\<e>\<r>095\<w>\<o>\<r>\<l>\<d>at_pre : "\<tau> \<Turnstile> (\<delta> ((X::\<cdot>Galaxy) .outer_world@pre)) \<Longrightarrow> \<tau> \<Turnstile> (\<delta> (X))"
-  apply(case_tac "\<tau> \<Turnstile> (X \<triangleq> invalid)", insert StrongEq_L_subst2[where P = "(\<lambda>x. (\<delta> (x .outer_world@pre)))" and \<tau> = "\<tau>" and x = "X" and y = "invalid"], simp add: foundation16' dot\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y\<o>\<u>\<t>\<e>\<r>095\<w>\<o>\<r>\<l>\<d>at_pre_invalid)
-  apply(case_tac "\<tau> \<Turnstile> (X \<triangleq> null)", insert StrongEq_L_subst2[where P = "(\<lambda>x. (\<delta> (x .outer_world@pre)))" and \<tau> = "\<tau>" and x = "X" and y = "null"], simp add: foundation16' dot\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y\<o>\<u>\<t>\<e>\<r>095\<w>\<o>\<r>\<l>\<d>at_pre_null)
+lemma defined_mono_dot\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y__outer095worldat_pre : "\<tau> \<Turnstile> (\<delta> ((X::\<cdot>Galaxy) .outer_world@pre)) \<Longrightarrow> \<tau> \<Turnstile> (\<delta> (X))"
+  apply(case_tac "\<tau> \<Turnstile> (X \<triangleq> invalid)", insert StrongEq_L_subst2[where P = "(\<lambda>x. (\<delta> (x .outer_world@pre)))" and \<tau> = "\<tau>" and x = "X" and y = "invalid"], simp add: foundation16' dot\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y__outer095worldat_pre_invalid)
+  apply(case_tac "\<tau> \<Turnstile> (X \<triangleq> null)", insert StrongEq_L_subst2[where P = "(\<lambda>x. (\<delta> (x .outer_world@pre)))" and \<tau> = "\<tau>" and x = "X" and y = "null"], simp add: foundation16' dot\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y__outer095worldat_pre_null)
 by(simp add: defined_split)
-lemma defined_mono_dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<w>\<o>\<r>\<m>\<h>\<o>\<l>\<e> : "\<tau> \<Turnstile> (\<delta> ((X::\<cdot>Person) .wormhole)) \<Longrightarrow> \<tau> \<Turnstile> (\<delta> (X))"
-  apply(case_tac "\<tau> \<Turnstile> (X \<triangleq> invalid)", insert StrongEq_L_subst2[where P = "(\<lambda>x. (\<delta> (x .wormhole)))" and \<tau> = "\<tau>" and x = "X" and y = "invalid"], simp add: foundation16' dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<w>\<o>\<r>\<m>\<h>\<o>\<l>\<e>_invalid)
-  apply(case_tac "\<tau> \<Turnstile> (X \<triangleq> null)", insert StrongEq_L_subst2[where P = "(\<lambda>x. (\<delta> (x .wormhole)))" and \<tau> = "\<tau>" and x = "X" and y = "null"], simp add: foundation16' dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<w>\<o>\<r>\<m>\<h>\<o>\<l>\<e>_null)
+lemma defined_mono_dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__wormhole : "\<tau> \<Turnstile> (\<delta> ((X::\<cdot>Person) .wormhole)) \<Longrightarrow> \<tau> \<Turnstile> (\<delta> (X))"
+  apply(case_tac "\<tau> \<Turnstile> (X \<triangleq> invalid)", insert StrongEq_L_subst2[where P = "(\<lambda>x. (\<delta> (x .wormhole)))" and \<tau> = "\<tau>" and x = "X" and y = "invalid"], simp add: foundation16' dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__wormhole_invalid)
+  apply(case_tac "\<tau> \<Turnstile> (X \<triangleq> null)", insert StrongEq_L_subst2[where P = "(\<lambda>x. (\<delta> (x .wormhole)))" and \<tau> = "\<tau>" and x = "X" and y = "null"], simp add: foundation16' dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__wormhole_null)
 by(simp add: defined_split)
-lemma defined_mono_dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<w>\<e>\<i>\<g>\<h>\<t> : "\<tau> \<Turnstile> (\<delta> ((X::\<cdot>Person) .weight)) \<Longrightarrow> \<tau> \<Turnstile> (\<delta> (X))"
-  apply(case_tac "\<tau> \<Turnstile> (X \<triangleq> invalid)", insert StrongEq_L_subst2[where P = "(\<lambda>x. (\<delta> (x .weight)))" and \<tau> = "\<tau>" and x = "X" and y = "invalid"], simp add: foundation16' dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<w>\<e>\<i>\<g>\<h>\<t>_invalid)
-  apply(case_tac "\<tau> \<Turnstile> (X \<triangleq> null)", insert StrongEq_L_subst2[where P = "(\<lambda>x. (\<delta> (x .weight)))" and \<tau> = "\<tau>" and x = "X" and y = "null"], simp add: foundation16' dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<w>\<e>\<i>\<g>\<h>\<t>_null)
+lemma defined_mono_dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__weight : "\<tau> \<Turnstile> (\<delta> ((X::\<cdot>Person) .weight)) \<Longrightarrow> \<tau> \<Turnstile> (\<delta> (X))"
+  apply(case_tac "\<tau> \<Turnstile> (X \<triangleq> invalid)", insert StrongEq_L_subst2[where P = "(\<lambda>x. (\<delta> (x .weight)))" and \<tau> = "\<tau>" and x = "X" and y = "invalid"], simp add: foundation16' dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__weight_invalid)
+  apply(case_tac "\<tau> \<Turnstile> (X \<triangleq> null)", insert StrongEq_L_subst2[where P = "(\<lambda>x. (\<delta> (x .weight)))" and \<tau> = "\<tau>" and x = "X" and y = "null"], simp add: foundation16' dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__weight_null)
 by(simp add: defined_split)
-lemma defined_mono_dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<s>\<o>\<u>\<n>\<d> : "\<tau> \<Turnstile> (\<delta> ((X::\<cdot>Person) .sound)) \<Longrightarrow> \<tau> \<Turnstile> (\<delta> (X))"
-  apply(case_tac "\<tau> \<Turnstile> (X \<triangleq> invalid)", insert StrongEq_L_subst2[where P = "(\<lambda>x. (\<delta> (x .sound)))" and \<tau> = "\<tau>" and x = "X" and y = "invalid"], simp add: foundation16' dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<s>\<o>\<u>\<n>\<d>_invalid)
-  apply(case_tac "\<tau> \<Turnstile> (X \<triangleq> null)", insert StrongEq_L_subst2[where P = "(\<lambda>x. (\<delta> (x .sound)))" and \<tau> = "\<tau>" and x = "X" and y = "null"], simp add: foundation16' dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<s>\<o>\<u>\<n>\<d>_null)
+lemma defined_mono_dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__sound : "\<tau> \<Turnstile> (\<delta> ((X::\<cdot>Person) .sound)) \<Longrightarrow> \<tau> \<Turnstile> (\<delta> (X))"
+  apply(case_tac "\<tau> \<Turnstile> (X \<triangleq> invalid)", insert StrongEq_L_subst2[where P = "(\<lambda>x. (\<delta> (x .sound)))" and \<tau> = "\<tau>" and x = "X" and y = "invalid"], simp add: foundation16' dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__sound_invalid)
+  apply(case_tac "\<tau> \<Turnstile> (X \<triangleq> null)", insert StrongEq_L_subst2[where P = "(\<lambda>x. (\<delta> (x .sound)))" and \<tau> = "\<tau>" and x = "X" and y = "null"], simp add: foundation16' dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__sound_null)
 by(simp add: defined_split)
-lemma defined_mono_dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<m>\<o>\<v>\<i>\<n>\<g> : "\<tau> \<Turnstile> (\<delta> ((X::\<cdot>Person) .moving)) \<Longrightarrow> \<tau> \<Turnstile> (\<delta> (X))"
-  apply(case_tac "\<tau> \<Turnstile> (X \<triangleq> invalid)", insert StrongEq_L_subst2[where P = "(\<lambda>x. (\<delta> (x .moving)))" and \<tau> = "\<tau>" and x = "X" and y = "invalid"], simp add: foundation16' dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<m>\<o>\<v>\<i>\<n>\<g>_invalid)
-  apply(case_tac "\<tau> \<Turnstile> (X \<triangleq> null)", insert StrongEq_L_subst2[where P = "(\<lambda>x. (\<delta> (x .moving)))" and \<tau> = "\<tau>" and x = "X" and y = "null"], simp add: foundation16' dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<m>\<o>\<v>\<i>\<n>\<g>_null)
+lemma defined_mono_dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__moving : "\<tau> \<Turnstile> (\<delta> ((X::\<cdot>Person) .moving)) \<Longrightarrow> \<tau> \<Turnstile> (\<delta> (X))"
+  apply(case_tac "\<tau> \<Turnstile> (X \<triangleq> invalid)", insert StrongEq_L_subst2[where P = "(\<lambda>x. (\<delta> (x .moving)))" and \<tau> = "\<tau>" and x = "X" and y = "invalid"], simp add: foundation16' dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__moving_invalid)
+  apply(case_tac "\<tau> \<Turnstile> (X \<triangleq> null)", insert StrongEq_L_subst2[where P = "(\<lambda>x. (\<delta> (x .moving)))" and \<tau> = "\<tau>" and x = "X" and y = "null"], simp add: foundation16' dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__moving_null)
 by(simp add: defined_split)
-lemma defined_mono_dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<o>\<u>\<t>\<e>\<r>095\<w>\<o>\<r>\<l>\<d> : "\<tau> \<Turnstile> (\<delta> ((X::\<cdot>Person) .outer_world)) \<Longrightarrow> \<tau> \<Turnstile> (\<delta> (X))"
-  apply(case_tac "\<tau> \<Turnstile> (X \<triangleq> invalid)", insert StrongEq_L_subst2[where P = "(\<lambda>x. (\<delta> (x .outer_world)))" and \<tau> = "\<tau>" and x = "X" and y = "invalid"], simp add: foundation16' dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<o>\<u>\<t>\<e>\<r>095\<w>\<o>\<r>\<l>\<d>_invalid)
-  apply(case_tac "\<tau> \<Turnstile> (X \<triangleq> null)", insert StrongEq_L_subst2[where P = "(\<lambda>x. (\<delta> (x .outer_world)))" and \<tau> = "\<tau>" and x = "X" and y = "null"], simp add: foundation16' dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<o>\<u>\<t>\<e>\<r>095\<w>\<o>\<r>\<l>\<d>_null)
+lemma defined_mono_dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__outer095world : "\<tau> \<Turnstile> (\<delta> ((X::\<cdot>Person) .outer_world)) \<Longrightarrow> \<tau> \<Turnstile> (\<delta> (X))"
+  apply(case_tac "\<tau> \<Turnstile> (X \<triangleq> invalid)", insert StrongEq_L_subst2[where P = "(\<lambda>x. (\<delta> (x .outer_world)))" and \<tau> = "\<tau>" and x = "X" and y = "invalid"], simp add: foundation16' dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__outer095world_invalid)
+  apply(case_tac "\<tau> \<Turnstile> (X \<triangleq> null)", insert StrongEq_L_subst2[where P = "(\<lambda>x. (\<delta> (x .outer_world)))" and \<tau> = "\<tau>" and x = "X" and y = "null"], simp add: foundation16' dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__outer095world_null)
 by(simp add: defined_split)
-lemma defined_mono_dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<w>\<o>\<r>\<m>\<h>\<o>\<l>\<e>at_pre : "\<tau> \<Turnstile> (\<delta> ((X::\<cdot>Person) .wormhole@pre)) \<Longrightarrow> \<tau> \<Turnstile> (\<delta> (X))"
-  apply(case_tac "\<tau> \<Turnstile> (X \<triangleq> invalid)", insert StrongEq_L_subst2[where P = "(\<lambda>x. (\<delta> (x .wormhole@pre)))" and \<tau> = "\<tau>" and x = "X" and y = "invalid"], simp add: foundation16' dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<w>\<o>\<r>\<m>\<h>\<o>\<l>\<e>at_pre_invalid)
-  apply(case_tac "\<tau> \<Turnstile> (X \<triangleq> null)", insert StrongEq_L_subst2[where P = "(\<lambda>x. (\<delta> (x .wormhole@pre)))" and \<tau> = "\<tau>" and x = "X" and y = "null"], simp add: foundation16' dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<w>\<o>\<r>\<m>\<h>\<o>\<l>\<e>at_pre_null)
+lemma defined_mono_dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__wormholeat_pre : "\<tau> \<Turnstile> (\<delta> ((X::\<cdot>Person) .wormhole@pre)) \<Longrightarrow> \<tau> \<Turnstile> (\<delta> (X))"
+  apply(case_tac "\<tau> \<Turnstile> (X \<triangleq> invalid)", insert StrongEq_L_subst2[where P = "(\<lambda>x. (\<delta> (x .wormhole@pre)))" and \<tau> = "\<tau>" and x = "X" and y = "invalid"], simp add: foundation16' dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__wormholeat_pre_invalid)
+  apply(case_tac "\<tau> \<Turnstile> (X \<triangleq> null)", insert StrongEq_L_subst2[where P = "(\<lambda>x. (\<delta> (x .wormhole@pre)))" and \<tau> = "\<tau>" and x = "X" and y = "null"], simp add: foundation16' dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__wormholeat_pre_null)
 by(simp add: defined_split)
-lemma defined_mono_dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<w>\<e>\<i>\<g>\<h>\<t>at_pre : "\<tau> \<Turnstile> (\<delta> ((X::\<cdot>Person) .weight@pre)) \<Longrightarrow> \<tau> \<Turnstile> (\<delta> (X))"
-  apply(case_tac "\<tau> \<Turnstile> (X \<triangleq> invalid)", insert StrongEq_L_subst2[where P = "(\<lambda>x. (\<delta> (x .weight@pre)))" and \<tau> = "\<tau>" and x = "X" and y = "invalid"], simp add: foundation16' dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<w>\<e>\<i>\<g>\<h>\<t>at_pre_invalid)
-  apply(case_tac "\<tau> \<Turnstile> (X \<triangleq> null)", insert StrongEq_L_subst2[where P = "(\<lambda>x. (\<delta> (x .weight@pre)))" and \<tau> = "\<tau>" and x = "X" and y = "null"], simp add: foundation16' dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<w>\<e>\<i>\<g>\<h>\<t>at_pre_null)
+lemma defined_mono_dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__weightat_pre : "\<tau> \<Turnstile> (\<delta> ((X::\<cdot>Person) .weight@pre)) \<Longrightarrow> \<tau> \<Turnstile> (\<delta> (X))"
+  apply(case_tac "\<tau> \<Turnstile> (X \<triangleq> invalid)", insert StrongEq_L_subst2[where P = "(\<lambda>x. (\<delta> (x .weight@pre)))" and \<tau> = "\<tau>" and x = "X" and y = "invalid"], simp add: foundation16' dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__weightat_pre_invalid)
+  apply(case_tac "\<tau> \<Turnstile> (X \<triangleq> null)", insert StrongEq_L_subst2[where P = "(\<lambda>x. (\<delta> (x .weight@pre)))" and \<tau> = "\<tau>" and x = "X" and y = "null"], simp add: foundation16' dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__weightat_pre_null)
 by(simp add: defined_split)
-lemma defined_mono_dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<s>\<o>\<u>\<n>\<d>at_pre : "\<tau> \<Turnstile> (\<delta> ((X::\<cdot>Person) .sound@pre)) \<Longrightarrow> \<tau> \<Turnstile> (\<delta> (X))"
-  apply(case_tac "\<tau> \<Turnstile> (X \<triangleq> invalid)", insert StrongEq_L_subst2[where P = "(\<lambda>x. (\<delta> (x .sound@pre)))" and \<tau> = "\<tau>" and x = "X" and y = "invalid"], simp add: foundation16' dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<s>\<o>\<u>\<n>\<d>at_pre_invalid)
-  apply(case_tac "\<tau> \<Turnstile> (X \<triangleq> null)", insert StrongEq_L_subst2[where P = "(\<lambda>x. (\<delta> (x .sound@pre)))" and \<tau> = "\<tau>" and x = "X" and y = "null"], simp add: foundation16' dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<s>\<o>\<u>\<n>\<d>at_pre_null)
+lemma defined_mono_dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__soundat_pre : "\<tau> \<Turnstile> (\<delta> ((X::\<cdot>Person) .sound@pre)) \<Longrightarrow> \<tau> \<Turnstile> (\<delta> (X))"
+  apply(case_tac "\<tau> \<Turnstile> (X \<triangleq> invalid)", insert StrongEq_L_subst2[where P = "(\<lambda>x. (\<delta> (x .sound@pre)))" and \<tau> = "\<tau>" and x = "X" and y = "invalid"], simp add: foundation16' dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__soundat_pre_invalid)
+  apply(case_tac "\<tau> \<Turnstile> (X \<triangleq> null)", insert StrongEq_L_subst2[where P = "(\<lambda>x. (\<delta> (x .sound@pre)))" and \<tau> = "\<tau>" and x = "X" and y = "null"], simp add: foundation16' dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__soundat_pre_null)
 by(simp add: defined_split)
-lemma defined_mono_dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<m>\<o>\<v>\<i>\<n>\<g>at_pre : "\<tau> \<Turnstile> (\<delta> ((X::\<cdot>Person) .moving@pre)) \<Longrightarrow> \<tau> \<Turnstile> (\<delta> (X))"
-  apply(case_tac "\<tau> \<Turnstile> (X \<triangleq> invalid)", insert StrongEq_L_subst2[where P = "(\<lambda>x. (\<delta> (x .moving@pre)))" and \<tau> = "\<tau>" and x = "X" and y = "invalid"], simp add: foundation16' dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<m>\<o>\<v>\<i>\<n>\<g>at_pre_invalid)
-  apply(case_tac "\<tau> \<Turnstile> (X \<triangleq> null)", insert StrongEq_L_subst2[where P = "(\<lambda>x. (\<delta> (x .moving@pre)))" and \<tau> = "\<tau>" and x = "X" and y = "null"], simp add: foundation16' dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<m>\<o>\<v>\<i>\<n>\<g>at_pre_null)
+lemma defined_mono_dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__movingat_pre : "\<tau> \<Turnstile> (\<delta> ((X::\<cdot>Person) .moving@pre)) \<Longrightarrow> \<tau> \<Turnstile> (\<delta> (X))"
+  apply(case_tac "\<tau> \<Turnstile> (X \<triangleq> invalid)", insert StrongEq_L_subst2[where P = "(\<lambda>x. (\<delta> (x .moving@pre)))" and \<tau> = "\<tau>" and x = "X" and y = "invalid"], simp add: foundation16' dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__movingat_pre_invalid)
+  apply(case_tac "\<tau> \<Turnstile> (X \<triangleq> null)", insert StrongEq_L_subst2[where P = "(\<lambda>x. (\<delta> (x .moving@pre)))" and \<tau> = "\<tau>" and x = "X" and y = "null"], simp add: foundation16' dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__movingat_pre_null)
 by(simp add: defined_split)
-lemma defined_mono_dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<o>\<u>\<t>\<e>\<r>095\<w>\<o>\<r>\<l>\<d>at_pre : "\<tau> \<Turnstile> (\<delta> ((X::\<cdot>Person) .outer_world@pre)) \<Longrightarrow> \<tau> \<Turnstile> (\<delta> (X))"
-  apply(case_tac "\<tau> \<Turnstile> (X \<triangleq> invalid)", insert StrongEq_L_subst2[where P = "(\<lambda>x. (\<delta> (x .outer_world@pre)))" and \<tau> = "\<tau>" and x = "X" and y = "invalid"], simp add: foundation16' dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<o>\<u>\<t>\<e>\<r>095\<w>\<o>\<r>\<l>\<d>at_pre_invalid)
-  apply(case_tac "\<tau> \<Turnstile> (X \<triangleq> null)", insert StrongEq_L_subst2[where P = "(\<lambda>x. (\<delta> (x .outer_world@pre)))" and \<tau> = "\<tau>" and x = "X" and y = "null"], simp add: foundation16' dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<o>\<u>\<t>\<e>\<r>095\<w>\<o>\<r>\<l>\<d>at_pre_null)
+lemma defined_mono_dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__outer095worldat_pre : "\<tau> \<Turnstile> (\<delta> ((X::\<cdot>Person) .outer_world@pre)) \<Longrightarrow> \<tau> \<Turnstile> (\<delta> (X))"
+  apply(case_tac "\<tau> \<Turnstile> (X \<triangleq> invalid)", insert StrongEq_L_subst2[where P = "(\<lambda>x. (\<delta> (x .outer_world@pre)))" and \<tau> = "\<tau>" and x = "X" and y = "invalid"], simp add: foundation16' dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__outer095worldat_pre_invalid)
+  apply(case_tac "\<tau> \<Turnstile> (X \<triangleq> null)", insert StrongEq_L_subst2[where P = "(\<lambda>x. (\<delta> (x .outer_world@pre)))" and \<tau> = "\<tau>" and x = "X" and y = "null"], simp add: foundation16' dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__outer095worldat_pre_null)
 by(simp add: defined_split)
-lemma defined_mono_dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t\<s>\<o>\<u>\<n>\<d> : "\<tau> \<Turnstile> (\<delta> ((X::\<cdot>Planet) .sound)) \<Longrightarrow> \<tau> \<Turnstile> (\<delta> (X))"
-  apply(case_tac "\<tau> \<Turnstile> (X \<triangleq> invalid)", insert StrongEq_L_subst2[where P = "(\<lambda>x. (\<delta> (x .sound)))" and \<tau> = "\<tau>" and x = "X" and y = "invalid"], simp add: foundation16' dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t\<s>\<o>\<u>\<n>\<d>_invalid)
-  apply(case_tac "\<tau> \<Turnstile> (X \<triangleq> null)", insert StrongEq_L_subst2[where P = "(\<lambda>x. (\<delta> (x .sound)))" and \<tau> = "\<tau>" and x = "X" and y = "null"], simp add: foundation16' dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t\<s>\<o>\<u>\<n>\<d>_null)
+lemma defined_mono_dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t__sound : "\<tau> \<Turnstile> (\<delta> ((X::\<cdot>Planet) .sound)) \<Longrightarrow> \<tau> \<Turnstile> (\<delta> (X))"
+  apply(case_tac "\<tau> \<Turnstile> (X \<triangleq> invalid)", insert StrongEq_L_subst2[where P = "(\<lambda>x. (\<delta> (x .sound)))" and \<tau> = "\<tau>" and x = "X" and y = "invalid"], simp add: foundation16' dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t__sound_invalid)
+  apply(case_tac "\<tau> \<Turnstile> (X \<triangleq> null)", insert StrongEq_L_subst2[where P = "(\<lambda>x. (\<delta> (x .sound)))" and \<tau> = "\<tau>" and x = "X" and y = "null"], simp add: foundation16' dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t__sound_null)
 by(simp add: defined_split)
-lemma defined_mono_dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t\<m>\<o>\<v>\<i>\<n>\<g> : "\<tau> \<Turnstile> (\<delta> ((X::\<cdot>Planet) .moving)) \<Longrightarrow> \<tau> \<Turnstile> (\<delta> (X))"
-  apply(case_tac "\<tau> \<Turnstile> (X \<triangleq> invalid)", insert StrongEq_L_subst2[where P = "(\<lambda>x. (\<delta> (x .moving)))" and \<tau> = "\<tau>" and x = "X" and y = "invalid"], simp add: foundation16' dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t\<m>\<o>\<v>\<i>\<n>\<g>_invalid)
-  apply(case_tac "\<tau> \<Turnstile> (X \<triangleq> null)", insert StrongEq_L_subst2[where P = "(\<lambda>x. (\<delta> (x .moving)))" and \<tau> = "\<tau>" and x = "X" and y = "null"], simp add: foundation16' dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t\<m>\<o>\<v>\<i>\<n>\<g>_null)
+lemma defined_mono_dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t__moving : "\<tau> \<Turnstile> (\<delta> ((X::\<cdot>Planet) .moving)) \<Longrightarrow> \<tau> \<Turnstile> (\<delta> (X))"
+  apply(case_tac "\<tau> \<Turnstile> (X \<triangleq> invalid)", insert StrongEq_L_subst2[where P = "(\<lambda>x. (\<delta> (x .moving)))" and \<tau> = "\<tau>" and x = "X" and y = "invalid"], simp add: foundation16' dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t__moving_invalid)
+  apply(case_tac "\<tau> \<Turnstile> (X \<triangleq> null)", insert StrongEq_L_subst2[where P = "(\<lambda>x. (\<delta> (x .moving)))" and \<tau> = "\<tau>" and x = "X" and y = "null"], simp add: foundation16' dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t__moving_null)
 by(simp add: defined_split)
-lemma defined_mono_dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t\<o>\<u>\<t>\<e>\<r>095\<w>\<o>\<r>\<l>\<d> : "\<tau> \<Turnstile> (\<delta> ((X::\<cdot>Planet) .outer_world)) \<Longrightarrow> \<tau> \<Turnstile> (\<delta> (X))"
-  apply(case_tac "\<tau> \<Turnstile> (X \<triangleq> invalid)", insert StrongEq_L_subst2[where P = "(\<lambda>x. (\<delta> (x .outer_world)))" and \<tau> = "\<tau>" and x = "X" and y = "invalid"], simp add: foundation16' dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t\<o>\<u>\<t>\<e>\<r>095\<w>\<o>\<r>\<l>\<d>_invalid)
-  apply(case_tac "\<tau> \<Turnstile> (X \<triangleq> null)", insert StrongEq_L_subst2[where P = "(\<lambda>x. (\<delta> (x .outer_world)))" and \<tau> = "\<tau>" and x = "X" and y = "null"], simp add: foundation16' dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t\<o>\<u>\<t>\<e>\<r>095\<w>\<o>\<r>\<l>\<d>_null)
+lemma defined_mono_dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t__outer095world : "\<tau> \<Turnstile> (\<delta> ((X::\<cdot>Planet) .outer_world)) \<Longrightarrow> \<tau> \<Turnstile> (\<delta> (X))"
+  apply(case_tac "\<tau> \<Turnstile> (X \<triangleq> invalid)", insert StrongEq_L_subst2[where P = "(\<lambda>x. (\<delta> (x .outer_world)))" and \<tau> = "\<tau>" and x = "X" and y = "invalid"], simp add: foundation16' dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t__outer095world_invalid)
+  apply(case_tac "\<tau> \<Turnstile> (X \<triangleq> null)", insert StrongEq_L_subst2[where P = "(\<lambda>x. (\<delta> (x .outer_world)))" and \<tau> = "\<tau>" and x = "X" and y = "null"], simp add: foundation16' dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t__outer095world_null)
 by(simp add: defined_split)
-lemma defined_mono_dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t\<s>\<o>\<u>\<n>\<d>at_pre : "\<tau> \<Turnstile> (\<delta> ((X::\<cdot>Planet) .sound@pre)) \<Longrightarrow> \<tau> \<Turnstile> (\<delta> (X))"
-  apply(case_tac "\<tau> \<Turnstile> (X \<triangleq> invalid)", insert StrongEq_L_subst2[where P = "(\<lambda>x. (\<delta> (x .sound@pre)))" and \<tau> = "\<tau>" and x = "X" and y = "invalid"], simp add: foundation16' dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t\<s>\<o>\<u>\<n>\<d>at_pre_invalid)
-  apply(case_tac "\<tau> \<Turnstile> (X \<triangleq> null)", insert StrongEq_L_subst2[where P = "(\<lambda>x. (\<delta> (x .sound@pre)))" and \<tau> = "\<tau>" and x = "X" and y = "null"], simp add: foundation16' dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t\<s>\<o>\<u>\<n>\<d>at_pre_null)
+lemma defined_mono_dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t__soundat_pre : "\<tau> \<Turnstile> (\<delta> ((X::\<cdot>Planet) .sound@pre)) \<Longrightarrow> \<tau> \<Turnstile> (\<delta> (X))"
+  apply(case_tac "\<tau> \<Turnstile> (X \<triangleq> invalid)", insert StrongEq_L_subst2[where P = "(\<lambda>x. (\<delta> (x .sound@pre)))" and \<tau> = "\<tau>" and x = "X" and y = "invalid"], simp add: foundation16' dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t__soundat_pre_invalid)
+  apply(case_tac "\<tau> \<Turnstile> (X \<triangleq> null)", insert StrongEq_L_subst2[where P = "(\<lambda>x. (\<delta> (x .sound@pre)))" and \<tau> = "\<tau>" and x = "X" and y = "null"], simp add: foundation16' dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t__soundat_pre_null)
 by(simp add: defined_split)
-lemma defined_mono_dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t\<m>\<o>\<v>\<i>\<n>\<g>at_pre : "\<tau> \<Turnstile> (\<delta> ((X::\<cdot>Planet) .moving@pre)) \<Longrightarrow> \<tau> \<Turnstile> (\<delta> (X))"
-  apply(case_tac "\<tau> \<Turnstile> (X \<triangleq> invalid)", insert StrongEq_L_subst2[where P = "(\<lambda>x. (\<delta> (x .moving@pre)))" and \<tau> = "\<tau>" and x = "X" and y = "invalid"], simp add: foundation16' dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t\<m>\<o>\<v>\<i>\<n>\<g>at_pre_invalid)
-  apply(case_tac "\<tau> \<Turnstile> (X \<triangleq> null)", insert StrongEq_L_subst2[where P = "(\<lambda>x. (\<delta> (x .moving@pre)))" and \<tau> = "\<tau>" and x = "X" and y = "null"], simp add: foundation16' dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t\<m>\<o>\<v>\<i>\<n>\<g>at_pre_null)
+lemma defined_mono_dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t__movingat_pre : "\<tau> \<Turnstile> (\<delta> ((X::\<cdot>Planet) .moving@pre)) \<Longrightarrow> \<tau> \<Turnstile> (\<delta> (X))"
+  apply(case_tac "\<tau> \<Turnstile> (X \<triangleq> invalid)", insert StrongEq_L_subst2[where P = "(\<lambda>x. (\<delta> (x .moving@pre)))" and \<tau> = "\<tau>" and x = "X" and y = "invalid"], simp add: foundation16' dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t__movingat_pre_invalid)
+  apply(case_tac "\<tau> \<Turnstile> (X \<triangleq> null)", insert StrongEq_L_subst2[where P = "(\<lambda>x. (\<delta> (x .moving@pre)))" and \<tau> = "\<tau>" and x = "X" and y = "null"], simp add: foundation16' dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t__movingat_pre_null)
 by(simp add: defined_split)
-lemma defined_mono_dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t\<o>\<u>\<t>\<e>\<r>095\<w>\<o>\<r>\<l>\<d>at_pre : "\<tau> \<Turnstile> (\<delta> ((X::\<cdot>Planet) .outer_world@pre)) \<Longrightarrow> \<tau> \<Turnstile> (\<delta> (X))"
-  apply(case_tac "\<tau> \<Turnstile> (X \<triangleq> invalid)", insert StrongEq_L_subst2[where P = "(\<lambda>x. (\<delta> (x .outer_world@pre)))" and \<tau> = "\<tau>" and x = "X" and y = "invalid"], simp add: foundation16' dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t\<o>\<u>\<t>\<e>\<r>095\<w>\<o>\<r>\<l>\<d>at_pre_invalid)
-  apply(case_tac "\<tau> \<Turnstile> (X \<triangleq> null)", insert StrongEq_L_subst2[where P = "(\<lambda>x. (\<delta> (x .outer_world@pre)))" and \<tau> = "\<tau>" and x = "X" and y = "null"], simp add: foundation16' dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t\<o>\<u>\<t>\<e>\<r>095\<w>\<o>\<r>\<l>\<d>at_pre_null)
+lemma defined_mono_dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t__outer095worldat_pre : "\<tau> \<Turnstile> (\<delta> ((X::\<cdot>Planet) .outer_world@pre)) \<Longrightarrow> \<tau> \<Turnstile> (\<delta> (X))"
+  apply(case_tac "\<tau> \<Turnstile> (X \<triangleq> invalid)", insert StrongEq_L_subst2[where P = "(\<lambda>x. (\<delta> (x .outer_world@pre)))" and \<tau> = "\<tau>" and x = "X" and y = "invalid"], simp add: foundation16' dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t__outer095worldat_pre_invalid)
+  apply(case_tac "\<tau> \<Turnstile> (X \<triangleq> null)", insert StrongEq_L_subst2[where P = "(\<lambda>x. (\<delta> (x .outer_world@pre)))" and \<tau> = "\<tau>" and x = "X" and y = "null"], simp add: foundation16' dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t__outer095worldat_pre_null)
 by(simp add: defined_split)
 
 (* 134 ************************************ 871 + 2 *)
-lemma is_repr_dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0_\<b>\<o>\<s>\<s> : 
+lemma is_repr_dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0___boss : 
 assumes def_dot: "\<tau> \<Turnstile> (\<delta> ((X::\<cdot>Person) .boss))"
 shows "(is_represented_in_state (in_post_state) (X .boss) (Person) (\<tau>))"
-  apply(insert defined_mono_dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0_\<b>\<o>\<s>\<s>[OF def_dot, simplified foundation16])
+  apply(insert defined_mono_dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0___boss[OF def_dot, simplified foundation16])
   apply(case_tac "(X (\<tau>))", simp add: bot_option_def)
   proof - fix a0 show "(X (\<tau>)) \<noteq> null \<Longrightarrow> (X (\<tau>)) = (Some (a0)) \<Longrightarrow> ?thesis"
   apply(case_tac "a0", simp add: null_option_def bot_option_def, clarify)
   proof - fix a show "(X (\<tau>)) = (Some ((Some (a)))) \<Longrightarrow> ?thesis"
   apply(case_tac "(heap ((in_post_state (\<tau>))) ((oid_of (a))))", simp add: invalid_def bot_option_def)
-  apply(insert def_dot, simp add: dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0_\<b>\<o>\<s>\<s> is_represented_in_state_def select\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<b>\<o>\<s>\<s>_def deref_oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_def in_post_state_def defined_def OclValid_def false_def true_def invalid_def bot_fun_def split: split_if_asm)
+  apply(insert def_dot, simp add: dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0___boss is_represented_in_state_def select\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__boss_def deref_oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_def in_post_state_def defined_def OclValid_def false_def true_def invalid_def bot_fun_def split: split_if_asm)
   proof - fix b show "(X (\<tau>)) = (Some ((Some (a)))) \<Longrightarrow> (heap ((in_post_state (\<tau>))) ((oid_of (a)))) = (Some (b)) \<Longrightarrow> ?thesis"
-  apply(insert def_dot[simplified foundation16], auto simp: dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0_\<b>\<o>\<s>\<s> is_represented_in_state_def deref_oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_def bot_option_def null_option_def)
+  apply(insert def_dot[simplified foundation16], auto simp: dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0___boss is_represented_in_state_def deref_oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_def bot_option_def null_option_def)
   apply(case_tac "b", simp_all add: invalid_def bot_option_def)
   proof - fix r typeoid          let ?t = "(Some ((Some (r)))) \<in> (Some o OclAsType\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_\<AA>) ` (ran ((heap ((in_post_state (\<tau>))))))"
-          let ?sel_any = "(select_object_any\<^sub>S\<^sub>e\<^sub>t ((deref_oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (in_post_state) (reconst_basetype))))" show "(select\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<b>\<o>\<s>\<s> (?sel_any) (typeoid) (\<tau>)) = (Some ((Some (r)))) \<Longrightarrow> ?t"
-  apply(case_tac "typeoid", simp add: select\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<b>\<o>\<s>\<s>_def)
+          let ?sel_any = "(select_object_any\<^sub>S\<^sub>e\<^sub>t ((deref_oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (in_post_state) (reconst_basetype))))" show "(select\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__boss (?sel_any) (typeoid) (\<tau>)) = (Some ((Some (r)))) \<Longrightarrow> ?t"
+  apply(case_tac "typeoid", simp add: select\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__boss_def)
   proof - fix opt show "(((case opt of None \<Rightarrow> null
     | (Some (x)) \<Rightarrow> ((?sel_any) (x)))) (\<tau>)) = (Some ((Some (r)))) \<Longrightarrow> ?t"
   apply(case_tac "opt", auto simp: null_fun_def null_option_def bot_option_def)
@@ -3287,22 +3287,22 @@ by(rule) qed
  qed qed qed qed qed 
   apply_end(simp_all)
  qed
-lemma is_repr_dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0_\<b>\<o>\<s>\<s>at_pre : 
+lemma is_repr_dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0___bossat_pre : 
 assumes def_dot: "\<tau> \<Turnstile> (\<delta> ((X::\<cdot>Person) .boss@pre))"
 shows "(is_represented_in_state (in_pre_state) (X .boss@pre) (Person) (\<tau>))"
-  apply(insert defined_mono_dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0_\<b>\<o>\<s>\<s>at_pre[OF def_dot, simplified foundation16])
+  apply(insert defined_mono_dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0___bossat_pre[OF def_dot, simplified foundation16])
   apply(case_tac "(X (\<tau>))", simp add: bot_option_def)
   proof - fix a0 show "(X (\<tau>)) \<noteq> null \<Longrightarrow> (X (\<tau>)) = (Some (a0)) \<Longrightarrow> ?thesis"
   apply(case_tac "a0", simp add: null_option_def bot_option_def, clarify)
   proof - fix a show "(X (\<tau>)) = (Some ((Some (a)))) \<Longrightarrow> ?thesis"
   apply(case_tac "(heap ((in_pre_state (\<tau>))) ((oid_of (a))))", simp add: invalid_def bot_option_def)
-  apply(insert def_dot, simp add: dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0_\<b>\<o>\<s>\<s>at_pre is_represented_in_state_def select\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<b>\<o>\<s>\<s>_def deref_oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_def in_pre_state_def defined_def OclValid_def false_def true_def invalid_def bot_fun_def split: split_if_asm)
+  apply(insert def_dot, simp add: dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0___bossat_pre is_represented_in_state_def select\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__boss_def deref_oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_def in_pre_state_def defined_def OclValid_def false_def true_def invalid_def bot_fun_def split: split_if_asm)
   proof - fix b show "(X (\<tau>)) = (Some ((Some (a)))) \<Longrightarrow> (heap ((in_pre_state (\<tau>))) ((oid_of (a)))) = (Some (b)) \<Longrightarrow> ?thesis"
-  apply(insert def_dot[simplified foundation16], auto simp: dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0_\<b>\<o>\<s>\<s>at_pre is_represented_in_state_def deref_oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_def bot_option_def null_option_def)
+  apply(insert def_dot[simplified foundation16], auto simp: dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0___bossat_pre is_represented_in_state_def deref_oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_def bot_option_def null_option_def)
   apply(case_tac "b", simp_all add: invalid_def bot_option_def)
   proof - fix r typeoid          let ?t = "(Some ((Some (r)))) \<in> (Some o OclAsType\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_\<AA>) ` (ran ((heap ((in_pre_state (\<tau>))))))"
-          let ?sel_any = "(select_object_any\<^sub>S\<^sub>e\<^sub>t ((deref_oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (in_pre_state) (reconst_basetype))))" show "(select\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<b>\<o>\<s>\<s> (?sel_any) (typeoid) (\<tau>)) = (Some ((Some (r)))) \<Longrightarrow> ?t"
-  apply(case_tac "typeoid", simp add: select\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<b>\<o>\<s>\<s>_def)
+          let ?sel_any = "(select_object_any\<^sub>S\<^sub>e\<^sub>t ((deref_oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (in_pre_state) (reconst_basetype))))" show "(select\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__boss (?sel_any) (typeoid) (\<tau>)) = (Some ((Some (r)))) \<Longrightarrow> ?t"
+  apply(case_tac "typeoid", simp add: select\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__boss_def)
   proof - fix opt show "(((case opt of None \<Rightarrow> null
     | (Some (x)) \<Rightarrow> ((?sel_any) (x)))) (\<tau>)) = (Some ((Some (r)))) \<Longrightarrow> ?t"
   apply(case_tac "opt", auto simp: null_fun_def null_option_def bot_option_def)
@@ -3361,8 +3361,8 @@ lemmas[simp,code_unfold] = OclAsType\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^s
                             OclAsType\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_Galaxy
 
 (* 140 ************************************ 878 + 2 *)
-definition "(typecheck_instance_bad_head_on_lhs\<^sub>P\<^sub>1\<^sub>_\<^sub>X\<^sub>0\<^sub>_\<^sub>X092060094\<^sub>s\<^sub>u\<^sub>b062\<^sub>P092060094\<^sub>s\<^sub>u\<^sub>b062\<^sub>e092060094\<^sub>s\<^sub>u\<^sub>b062\<^sub>r092060094\<^sub>s\<^sub>u\<^sub>b062\<^sub>s092060094\<^sub>s\<^sub>u\<^sub>b062\<^sub>o092060094\<^sub>s\<^sub>u\<^sub>b062\<^sub>n\<^sub>9\<^sub>_\<^sub>X092060094\<^sub>s\<^sub>u\<^sub>b062\<^sub>P092060094\<^sub>s\<^sub>u\<^sub>b062\<^sub>e092060094\<^sub>s\<^sub>u\<^sub>b062\<^sub>r092060094\<^sub>s\<^sub>u\<^sub>b062\<^sub>s092060094\<^sub>s\<^sub>u\<^sub>b062\<^sub>o092060094\<^sub>s\<^sub>u\<^sub>b062\<^sub>n\<^sub>8\<^sub>_\<^sub>X092060094\<^sub>s\<^sub>u\<^sub>b062\<^sub>P092060094\<^sub>s\<^sub>u\<^sub>b062\<^sub>e092060094\<^sub>s\<^sub>u\<^sub>b062\<^sub>r092060094\<^sub>s\<^sub>u\<^sub>b062\<^sub>s092060094\<^sub>s\<^sub>u\<^sub>b062\<^sub>o092060094\<^sub>s\<^sub>u\<^sub>b062\<^sub>n\<^sub>7\<^sub>_\<^sub>X092060094\<^sub>s\<^sub>u\<^sub>b062\<^sub>P092060094\<^sub>s\<^sub>u\<^sub>b062\<^sub>e092060094\<^sub>s\<^sub>u\<^sub>b062\<^sub>r092060094\<^sub>s\<^sub>u\<^sub>b062\<^sub>s092060094\<^sub>s\<^sub>u\<^sub>b062\<^sub>o092060094\<^sub>s\<^sub>u\<^sub>b062\<^sub>n\<^sub>6\<^sub>_\<^sub>X092060094\<^sub>s\<^sub>u\<^sub>b062\<^sub>P092060094\<^sub>s\<^sub>u\<^sub>b062\<^sub>e092060094\<^sub>s\<^sub>u\<^sub>b062\<^sub>r092060094\<^sub>s\<^sub>u\<^sub>b062\<^sub>s092060094\<^sub>s\<^sub>u\<^sub>b062\<^sub>o092060094\<^sub>s\<^sub>u\<^sub>b062\<^sub>n\<^sub>5\<^sub>_\<^sub>X092060094\<^sub>s\<^sub>u\<^sub>b062\<^sub>P092060094\<^sub>s\<^sub>u\<^sub>b062\<^sub>e092060094\<^sub>s\<^sub>u\<^sub>b062\<^sub>r092060094\<^sub>s\<^sub>u\<^sub>b062\<^sub>s092060094\<^sub>s\<^sub>u\<^sub>b062\<^sub>o092060094\<^sub>s\<^sub>u\<^sub>b062\<^sub>n\<^sub>4\<^sub>_\<^sub>X092060094\<^sub>s\<^sub>u\<^sub>b062\<^sub>P092060094\<^sub>s\<^sub>u\<^sub>b062\<^sub>e092060094\<^sub>s\<^sub>u\<^sub>b062\<^sub>r092060094\<^sub>s\<^sub>u\<^sub>b062\<^sub>s092060094\<^sub>s\<^sub>u\<^sub>b062\<^sub>o092060094\<^sub>s\<^sub>u\<^sub>b062\<^sub>n\<^sub>3\<^sub>_\<^sub>X092060094\<^sub>s\<^sub>u\<^sub>b062\<^sub>P092060094\<^sub>s\<^sub>u\<^sub>b062\<^sub>e092060094\<^sub>s\<^sub>u\<^sub>b062\<^sub>r092060094\<^sub>s\<^sub>u\<^sub>b062\<^sub>s092060094\<^sub>s\<^sub>u\<^sub>b062\<^sub>o092060094\<^sub>s\<^sub>u\<^sub>b062\<^sub>n\<^sub>2\<^sub>_\<^sub>X092060094\<^sub>s\<^sub>u\<^sub>b062\<^sub>P092060094\<^sub>s\<^sub>u\<^sub>b062\<^sub>e092060094\<^sub>s\<^sub>u\<^sub>b062\<^sub>r092060094\<^sub>s\<^sub>u\<^sub>b062\<^sub>s092060094\<^sub>s\<^sub>u\<^sub>b062\<^sub>o092060094\<^sub>s\<^sub>u\<^sub>b062\<^sub>n\<^sub>1 (P1) (X0) (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n9) (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n8) (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n7) (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n6) (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n5) (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n4) (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n3) (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2) (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n1)) = ()"
-definition "typecheck_instance_extra_variables_on_rhs\<^sub>P\<^sub>1\<^sub>_\<^sub>X\<^sub>0\<^sub>_\<^sub>X092060094\<^sub>s\<^sub>u\<^sub>b062\<^sub>P092060094\<^sub>s\<^sub>u\<^sub>b062\<^sub>e092060094\<^sub>s\<^sub>u\<^sub>b062\<^sub>r092060094\<^sub>s\<^sub>u\<^sub>b062\<^sub>s092060094\<^sub>s\<^sub>u\<^sub>b062\<^sub>o092060094\<^sub>s\<^sub>u\<^sub>b062\<^sub>n\<^sub>9\<^sub>_\<^sub>X092060094\<^sub>s\<^sub>u\<^sub>b062\<^sub>P092060094\<^sub>s\<^sub>u\<^sub>b062\<^sub>e092060094\<^sub>s\<^sub>u\<^sub>b062\<^sub>r092060094\<^sub>s\<^sub>u\<^sub>b062\<^sub>s092060094\<^sub>s\<^sub>u\<^sub>b062\<^sub>o092060094\<^sub>s\<^sub>u\<^sub>b062\<^sub>n\<^sub>8\<^sub>_\<^sub>X092060094\<^sub>s\<^sub>u\<^sub>b062\<^sub>P092060094\<^sub>s\<^sub>u\<^sub>b062\<^sub>e092060094\<^sub>s\<^sub>u\<^sub>b062\<^sub>r092060094\<^sub>s\<^sub>u\<^sub>b062\<^sub>s092060094\<^sub>s\<^sub>u\<^sub>b062\<^sub>o092060094\<^sub>s\<^sub>u\<^sub>b062\<^sub>n\<^sub>7\<^sub>_\<^sub>X092060094\<^sub>s\<^sub>u\<^sub>b062\<^sub>P092060094\<^sub>s\<^sub>u\<^sub>b062\<^sub>e092060094\<^sub>s\<^sub>u\<^sub>b062\<^sub>r092060094\<^sub>s\<^sub>u\<^sub>b062\<^sub>s092060094\<^sub>s\<^sub>u\<^sub>b062\<^sub>o092060094\<^sub>s\<^sub>u\<^sub>b062\<^sub>n\<^sub>6\<^sub>_\<^sub>X092060094\<^sub>s\<^sub>u\<^sub>b062\<^sub>P092060094\<^sub>s\<^sub>u\<^sub>b062\<^sub>e092060094\<^sub>s\<^sub>u\<^sub>b062\<^sub>r092060094\<^sub>s\<^sub>u\<^sub>b062\<^sub>s092060094\<^sub>s\<^sub>u\<^sub>b062\<^sub>o092060094\<^sub>s\<^sub>u\<^sub>b062\<^sub>n\<^sub>5\<^sub>_\<^sub>X092060094\<^sub>s\<^sub>u\<^sub>b062\<^sub>P092060094\<^sub>s\<^sub>u\<^sub>b062\<^sub>e092060094\<^sub>s\<^sub>u\<^sub>b062\<^sub>r092060094\<^sub>s\<^sub>u\<^sub>b062\<^sub>s092060094\<^sub>s\<^sub>u\<^sub>b062\<^sub>o092060094\<^sub>s\<^sub>u\<^sub>b062\<^sub>n\<^sub>4\<^sub>_\<^sub>X092060094\<^sub>s\<^sub>u\<^sub>b062\<^sub>P092060094\<^sub>s\<^sub>u\<^sub>b062\<^sub>e092060094\<^sub>s\<^sub>u\<^sub>b062\<^sub>r092060094\<^sub>s\<^sub>u\<^sub>b062\<^sub>s092060094\<^sub>s\<^sub>u\<^sub>b062\<^sub>o092060094\<^sub>s\<^sub>u\<^sub>b062\<^sub>n\<^sub>3\<^sub>_\<^sub>X092060094\<^sub>s\<^sub>u\<^sub>b062\<^sub>P092060094\<^sub>s\<^sub>u\<^sub>b062\<^sub>e092060094\<^sub>s\<^sub>u\<^sub>b062\<^sub>r092060094\<^sub>s\<^sub>u\<^sub>b062\<^sub>s092060094\<^sub>s\<^sub>u\<^sub>b062\<^sub>o092060094\<^sub>s\<^sub>u\<^sub>b062\<^sub>n\<^sub>2\<^sub>_\<^sub>X092060094\<^sub>s\<^sub>u\<^sub>b062\<^sub>P092060094\<^sub>s\<^sub>u\<^sub>b062\<^sub>e092060094\<^sub>s\<^sub>u\<^sub>b062\<^sub>r092060094\<^sub>s\<^sub>u\<^sub>b062\<^sub>s092060094\<^sub>s\<^sub>u\<^sub>b062\<^sub>o092060094\<^sub>s\<^sub>u\<^sub>b062\<^sub>n\<^sub>1 = (\<lambda>P1 X0 X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n9 X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n8 X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n7 X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n6 X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n5 X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n4 X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n3 X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2 X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n1. (P1 , P1 , X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n7 , X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n7 , X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2 , X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2))"
+definition "(typecheck_instance_bad_head_on_lhs_P1_X0_X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n9_X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n8_X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n7_X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n6_X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n5_X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n4_X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n3_X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2_X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n1 (P1) (X0) (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n9) (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n8) (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n7) (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n6) (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n5) (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n4) (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n3) (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2) (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n1)) = ()"
+definition "typecheck_instance_extra_variables_on_rhs_P1_X0_X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n9_X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n8_X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n7_X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n6_X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n5_X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n4_X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n3_X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2_X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n1 = (\<lambda>P1 X0 X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n9 X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n8 X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n7 X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n6 X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n5 X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n4 X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n3 X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2 X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n1. (P1 , P1 , X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n7 , X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n7 , X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2 , X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2))"
 
 (* 141 ************************************ 880 + 12 *)
 definition "oid1 = 1"
@@ -3376,29 +3376,29 @@ definition "oid8 = 8"
 definition "oid9 = 9"
 definition "oid10 = 10"
 definition "oid11 = 11"
-definition "inst_assoc1 = (\<lambda>oid_class to_from oid. ((case (deref_assocs_list ((to_from::oid list list \<Rightarrow> oid list \<times> oid list)) ((oid::oid)) ((drop ((((map_of_list ([(oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0_\<b>\<o>\<s>\<s> , (List.map ((\<lambda>(x , y). [x , y]) o switch\<^sub>2_01) ([[[oid7] , [oid7]] , [[oid6] , [oid7]] , [[oid2] , [oid2]] , [[oid1] , [oid2]]])))]))) ((oid_class::oid))))))) of Nil \<Rightarrow> None
+definition "inst_assoc1 = (\<lambda>oid_class to_from oid. ((case (deref_assocs_list ((to_from::oid list list \<Rightarrow> oid list \<times> oid list)) ((oid::oid)) ((drop ((((map_of_list ([(oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0___boss , (List.map ((\<lambda>(x , y). [x , y]) o switch\<^sub>2_01) ([[[oid7] , [oid7]] , [[oid6] , [oid7]] , [[oid2] , [oid2]] , [[oid1] , [oid2]]])))]))) ((oid_class::oid))))))) of Nil \<Rightarrow> None
     | l \<Rightarrow> (Some (l)))::oid list option))"
 
 (* 142 ************************************ 892 + 22 *)
-definition "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n1\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n inst_assoc = (mk\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n ((mk\<E>\<X>\<T>\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (oid1) (None) (None) (None) (None) (None))) (((inst_assoc) (oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0_\<b>\<o>\<s>\<s>) (switch\<^sub>2_01) (oid1))) (\<lfloor>1300\<rfloor>))"
+definition "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n1\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n inst_assoc = (mk\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n ((mk\<E>\<X>\<T>\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (oid1) (None) (None) (None) (None) (None))) (((inst_assoc) (oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0___boss) (switch\<^sub>2_01) (oid1))) (\<lfloor>1300\<rfloor>))"
 definition "(X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n1::\<cdot>Person) = ((\<lambda>_. \<lfloor>\<lfloor>(X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n1\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (inst_assoc1))\<rfloor>\<rfloor>))"
-definition "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n inst_assoc = (mk\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n ((mk\<E>\<X>\<T>\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (oid2) (None) (None) (None) (None) (None))) (((inst_assoc) (oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0_\<b>\<o>\<s>\<s>) (switch\<^sub>2_01) (oid2))) (\<lfloor>1800\<rfloor>))"
+definition "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n inst_assoc = (mk\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n ((mk\<E>\<X>\<T>\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (oid2) (None) (None) (None) (None) (None))) (((inst_assoc) (oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0___boss) (switch\<^sub>2_01) (oid2))) (\<lfloor>1800\<rfloor>))"
 definition "(X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2::\<cdot>Person) = ((\<lambda>_. \<lfloor>\<lfloor>(X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (inst_assoc1))\<rfloor>\<rfloor>))"
-definition "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n3\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n inst_assoc = (mk\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n ((mk\<E>\<X>\<T>\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (oid3) (None) (None) (None) (None) (None))) (((inst_assoc) (oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0_\<b>\<o>\<s>\<s>) (switch\<^sub>2_01) (oid3))) (None))"
+definition "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n3\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n inst_assoc = (mk\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n ((mk\<E>\<X>\<T>\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (oid3) (None) (None) (None) (None) (None))) (((inst_assoc) (oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0___boss) (switch\<^sub>2_01) (oid3))) (None))"
 definition "(X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n3::\<cdot>Person) = ((\<lambda>_. \<lfloor>\<lfloor>(X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n3\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (inst_assoc1))\<rfloor>\<rfloor>))"
-definition "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n4\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n inst_assoc = (mk\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n ((mk\<E>\<X>\<T>\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (oid4) (None) (None) (None) (None) (None))) (((inst_assoc) (oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0_\<b>\<o>\<s>\<s>) (switch\<^sub>2_01) (oid4))) (\<lfloor>2900\<rfloor>))"
+definition "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n4\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n inst_assoc = (mk\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n ((mk\<E>\<X>\<T>\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (oid4) (None) (None) (None) (None) (None))) (((inst_assoc) (oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0___boss) (switch\<^sub>2_01) (oid4))) (\<lfloor>2900\<rfloor>))"
 definition "(X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n4::\<cdot>Person) = ((\<lambda>_. \<lfloor>\<lfloor>(X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n4\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (inst_assoc1))\<rfloor>\<rfloor>))"
-definition "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n5\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n inst_assoc = (mk\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n ((mk\<E>\<X>\<T>\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (oid5) (None) (None) (None) (None) (None))) (((inst_assoc) (oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0_\<b>\<o>\<s>\<s>) (switch\<^sub>2_01) (oid5))) (\<lfloor>3500\<rfloor>))"
+definition "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n5\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n inst_assoc = (mk\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n ((mk\<E>\<X>\<T>\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (oid5) (None) (None) (None) (None) (None))) (((inst_assoc) (oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0___boss) (switch\<^sub>2_01) (oid5))) (\<lfloor>3500\<rfloor>))"
 definition "(X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n5::\<cdot>Person) = ((\<lambda>_. \<lfloor>\<lfloor>(X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n5\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (inst_assoc1))\<rfloor>\<rfloor>))"
-definition "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n6\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n inst_assoc = (mk\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n ((mk\<E>\<X>\<T>\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (oid6) (None) (None) (None) (None) (None))) (((inst_assoc) (oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0_\<b>\<o>\<s>\<s>) (switch\<^sub>2_01) (oid6))) (\<lfloor>2500\<rfloor>))"
+definition "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n6\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n inst_assoc = (mk\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n ((mk\<E>\<X>\<T>\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (oid6) (None) (None) (None) (None) (None))) (((inst_assoc) (oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0___boss) (switch\<^sub>2_01) (oid6))) (\<lfloor>2500\<rfloor>))"
 definition "(X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n6::\<cdot>Person) = ((\<lambda>_. \<lfloor>\<lfloor>(X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n6\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (inst_assoc1))\<rfloor>\<rfloor>))"
-definition "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n7\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y inst_assoc = (mk\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n ((mk\<E>\<X>\<T>\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (oid7) (None) (None) (None) (None) (None))) (((inst_assoc) (oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0_\<b>\<o>\<s>\<s>) (switch\<^sub>2_01) (oid7))) (\<lfloor>3200\<rfloor>))"
+definition "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n7\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y inst_assoc = (mk\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n ((mk\<E>\<X>\<T>\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (oid7) (None) (None) (None) (None) (None))) (((inst_assoc) (oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0___boss) (switch\<^sub>2_01) (oid7))) (\<lfloor>3200\<rfloor>))"
 definition "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n7 = ((((\<lambda>_. \<lfloor>\<lfloor>(X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n7\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y (inst_assoc1))\<rfloor>\<rfloor>)::\<cdot>Person)) .oclAsType(OclAny))"
 definition "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n8\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y inst_assoc = (mk\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y ((mk\<E>\<X>\<T>\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y (oid8))))"
 definition "(X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n8::\<cdot>OclAny) = ((\<lambda>_. \<lfloor>\<lfloor>(X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n8\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y (inst_assoc1))\<rfloor>\<rfloor>))"
-definition "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n9\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n inst_assoc = (mk\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n ((mk\<E>\<X>\<T>\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (oid9) (None) (None) (None) (None) (None))) (((inst_assoc) (oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0_\<b>\<o>\<s>\<s>) (switch\<^sub>2_01) (oid9))) (\<lfloor>0\<rfloor>))"
+definition "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n9\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n inst_assoc = (mk\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n ((mk\<E>\<X>\<T>\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (oid9) (None) (None) (None) (None) (None))) (((inst_assoc) (oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0___boss) (switch\<^sub>2_01) (oid9))) (\<lfloor>0\<rfloor>))"
 definition "(X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n9::\<cdot>Person) = ((\<lambda>_. \<lfloor>\<lfloor>(X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n9\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (inst_assoc1))\<rfloor>\<rfloor>))"
-definition "X0\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n inst_assoc = (mk\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n ((mk\<E>\<X>\<T>\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (oid10) (None) (None) (None) (None) (\<lfloor>[[oid11]]\<rfloor>))) (((inst_assoc) (oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0_\<b>\<o>\<s>\<s>) (switch\<^sub>2_01) (oid10))) (None))"
+definition "X0\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n inst_assoc = (mk\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n ((mk\<E>\<X>\<T>\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (oid10) (None) (None) (None) (None) (\<lfloor>[[oid11]]\<rfloor>))) (((inst_assoc) (oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0___boss) (switch\<^sub>2_01) (oid10))) (None))"
 definition "(X0::\<cdot>Person) = ((\<lambda>_. \<lfloor>\<lfloor>(X0\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (inst_assoc1))\<rfloor>\<rfloor>))"
 definition "P1\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t inst_assoc = (mk\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t ((mk\<E>\<X>\<T>\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t (oid11) (None) (None) (\<lfloor>[[oid11] , [oid11]]\<rfloor>))) (None) (None))"
 definition "(P1::\<cdot>Planet) = ((\<lambda>_. \<lfloor>\<lfloor>(P1\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t (inst_assoc1))\<rfloor>\<rfloor>))"
@@ -3407,25 +3407,25 @@ definition "(P1::\<cdot>Planet) = ((\<lambda>_. \<lfloor>\<lfloor>(P1\<^sub>P\<^
 ML{* (Ty'.check ([(OCL.Writeln , "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n1 .boss \<cong> Set{ X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2 }") , (OCL.Writeln , "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n1 /* unnamed attribute */ \<cong> Set{}") , (OCL.Writeln , "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2 .boss \<cong> Set{ X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2 }") , (OCL.Writeln , "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2 /* unnamed attribute */ \<cong> Set{ X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n1 , X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2 }") , (OCL.Writeln , "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n3 .boss \<cong> Set{}") , (OCL.Writeln , "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n3 /* unnamed attribute */ \<cong> Set{}") , (OCL.Writeln , "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n4 .boss \<cong> Set{}") , (OCL.Writeln , "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n4 /* unnamed attribute */ \<cong> Set{}") , (OCL.Writeln , "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n5 .boss \<cong> Set{}") , (OCL.Writeln , "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n5 /* unnamed attribute */ \<cong> Set{}") , (OCL.Writeln , "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n6 .boss \<cong> Set{ X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n7 }") , (OCL.Writeln , "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n6 /* unnamed attribute */ \<cong> Set{}") , (OCL.Writeln , "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n7 .boss \<cong> Set{ X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n7 }") , (OCL.Writeln , "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n7 /* unnamed attribute */ \<cong> Set{ X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n6 , X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n7 }") , (OCL.Writeln , "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n9 .boss \<cong> Set{}") , (OCL.Writeln , "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n9 /* unnamed attribute */ \<cong> Set{}") , (OCL.Writeln , "X0 .boss \<cong> Set{}") , (OCL.Writeln , "X0 /* unnamed attribute */ \<cong> Set{}")]) (" error(s)")) *}
 
 (* 144 ************************************ 915 + 2 *)
-definition "(typecheck_instance_bad_head_on_lhs092060\<^sub>s\<^sub>i\<^sub>g\<^sub>m\<^sub>a062092060094\<^sub>s\<^sub>u\<^sub>b062\<^sub>1\<^sub>_\<^sub>o\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t\<^sub>4\<^sub>_092060\<^sub>s\<^sub>i\<^sub>g\<^sub>m\<^sub>a062092060094\<^sub>s\<^sub>u\<^sub>b062\<^sub>1\<^sub>_\<^sub>o\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t\<^sub>2\<^sub>_092060\<^sub>s\<^sub>i\<^sub>g\<^sub>m\<^sub>a062092060094\<^sub>s\<^sub>u\<^sub>b062\<^sub>1\<^sub>_\<^sub>o\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t\<^sub>1\<^sub>_092060\<^sub>s\<^sub>i\<^sub>g\<^sub>m\<^sub>a062092060094\<^sub>s\<^sub>u\<^sub>b062\<^sub>1\<^sub>_\<^sub>o\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t\<^sub>0 (\<sigma>\<^sub>1_object4) (\<sigma>\<^sub>1_object2) (\<sigma>\<^sub>1_object1) (\<sigma>\<^sub>1_object0)) = ()"
-definition "typecheck_instance_extra_variables_on_rhs092060\<^sub>s\<^sub>i\<^sub>g\<^sub>m\<^sub>a062092060094\<^sub>s\<^sub>u\<^sub>b062\<^sub>1\<^sub>_\<^sub>o\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t\<^sub>4\<^sub>_092060\<^sub>s\<^sub>i\<^sub>g\<^sub>m\<^sub>a062092060094\<^sub>s\<^sub>u\<^sub>b062\<^sub>1\<^sub>_\<^sub>o\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t\<^sub>2\<^sub>_092060\<^sub>s\<^sub>i\<^sub>g\<^sub>m\<^sub>a062092060094\<^sub>s\<^sub>u\<^sub>b062\<^sub>1\<^sub>_\<^sub>o\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t\<^sub>1\<^sub>_092060\<^sub>s\<^sub>i\<^sub>g\<^sub>m\<^sub>a062092060094\<^sub>s\<^sub>u\<^sub>b062\<^sub>1\<^sub>_\<^sub>o\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t\<^sub>0 = (\<lambda>\<sigma>\<^sub>1_object4 \<sigma>\<^sub>1_object2 \<sigma>\<^sub>1_object1 \<sigma>\<^sub>1_object0. (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n5))"
+definition "(typecheck_instance_bad_head_on_lhs_\<sigma>\<^sub>1_object4_\<sigma>\<^sub>1_object2_\<sigma>\<^sub>1_object1_\<sigma>\<^sub>1_object0 (\<sigma>\<^sub>1_object4) (\<sigma>\<^sub>1_object2) (\<sigma>\<^sub>1_object1) (\<sigma>\<^sub>1_object0)) = ()"
+definition "typecheck_instance_extra_variables_on_rhs_\<sigma>\<^sub>1_object4_\<sigma>\<^sub>1_object2_\<sigma>\<^sub>1_object1_\<sigma>\<^sub>1_object0 = (\<lambda>\<sigma>\<^sub>1_object4 \<sigma>\<^sub>1_object2 \<sigma>\<^sub>1_object1 \<sigma>\<^sub>1_object0. (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n5))"
 
 (* 145 ************************************ 917 + 5 *)
 definition "oid12 = 12"
 definition "oid13 = 13"
 definition "oid14 = 14"
 definition "oid15 = 15"
-definition "inst_assoc12 = (\<lambda>oid_class to_from oid. ((case (deref_assocs_list ((to_from::oid list list \<Rightarrow> oid list \<times> oid list)) ((oid::oid)) ((drop ((((map_of_list ([(oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0_\<b>\<o>\<s>\<s> , (List.map ((\<lambda>(x , y). [x , y]) o switch\<^sub>2_01) ([[[oid15] , [oid14]] , [[oid14] , [oid5]] , [[oid12] , [oid13]]])))]))) ((oid_class::oid))))))) of Nil \<Rightarrow> None
+definition "inst_assoc12 = (\<lambda>oid_class to_from oid. ((case (deref_assocs_list ((to_from::oid list list \<Rightarrow> oid list \<times> oid list)) ((oid::oid)) ((drop ((((map_of_list ([(oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0___boss , (List.map ((\<lambda>(x , y). [x , y]) o switch\<^sub>2_01) ([[[oid15] , [oid14]] , [[oid14] , [oid5]] , [[oid12] , [oid13]]])))]))) ((oid_class::oid))))))) of Nil \<Rightarrow> None
     | l \<Rightarrow> (Some (l)))::oid list option))"
 
 (* 146 ************************************ 922 + 8 *)
-definition "\<sigma>\<^sub>1_object0\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n inst_assoc = (mk\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n ((mk\<E>\<X>\<T>\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (oid12) (None) (None) (None) (None) (None))) (((inst_assoc) (oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0_\<b>\<o>\<s>\<s>) (switch\<^sub>2_01) (oid12))) (\<lfloor>1000\<rfloor>))"
+definition "\<sigma>\<^sub>1_object0\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n inst_assoc = (mk\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n ((mk\<E>\<X>\<T>\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (oid12) (None) (None) (None) (None) (None))) (((inst_assoc) (oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0___boss) (switch\<^sub>2_01) (oid12))) (\<lfloor>1000\<rfloor>))"
 definition "(\<sigma>\<^sub>1_object0::\<cdot>Person) = ((\<lambda>_. \<lfloor>\<lfloor>(\<sigma>\<^sub>1_object0\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (inst_assoc12))\<rfloor>\<rfloor>))"
-definition "\<sigma>\<^sub>1_object1\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n inst_assoc = (mk\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n ((mk\<E>\<X>\<T>\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (oid13) (None) (None) (None) (None) (None))) (((inst_assoc) (oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0_\<b>\<o>\<s>\<s>) (switch\<^sub>2_01) (oid13))) (\<lfloor>1200\<rfloor>))"
+definition "\<sigma>\<^sub>1_object1\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n inst_assoc = (mk\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n ((mk\<E>\<X>\<T>\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (oid13) (None) (None) (None) (None) (None))) (((inst_assoc) (oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0___boss) (switch\<^sub>2_01) (oid13))) (\<lfloor>1200\<rfloor>))"
 definition "(\<sigma>\<^sub>1_object1::\<cdot>Person) = ((\<lambda>_. \<lfloor>\<lfloor>(\<sigma>\<^sub>1_object1\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (inst_assoc12))\<rfloor>\<rfloor>))"
-definition "\<sigma>\<^sub>1_object2\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n inst_assoc = (mk\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n ((mk\<E>\<X>\<T>\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (oid14) (None) (None) (None) (None) (None))) (((inst_assoc) (oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0_\<b>\<o>\<s>\<s>) (switch\<^sub>2_01) (oid14))) (\<lfloor>2600\<rfloor>))"
+definition "\<sigma>\<^sub>1_object2\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n inst_assoc = (mk\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n ((mk\<E>\<X>\<T>\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (oid14) (None) (None) (None) (None) (None))) (((inst_assoc) (oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0___boss) (switch\<^sub>2_01) (oid14))) (\<lfloor>2600\<rfloor>))"
 definition "(\<sigma>\<^sub>1_object2::\<cdot>Person) = ((\<lambda>_. \<lfloor>\<lfloor>(\<sigma>\<^sub>1_object2\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (inst_assoc12))\<rfloor>\<rfloor>))"
-definition "\<sigma>\<^sub>1_object4\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n inst_assoc = (mk\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n ((mk\<E>\<X>\<T>\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (oid15) (None) (None) (None) (None) (None))) (((inst_assoc) (oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0_\<b>\<o>\<s>\<s>) (switch\<^sub>2_01) (oid15))) (\<lfloor>2300\<rfloor>))"
+definition "\<sigma>\<^sub>1_object4\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n inst_assoc = (mk\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n ((mk\<E>\<X>\<T>\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (oid15) (None) (None) (None) (None) (None))) (((inst_assoc) (oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0___boss) (switch\<^sub>2_01) (oid15))) (\<lfloor>2300\<rfloor>))"
 definition "(\<sigma>\<^sub>1_object4::\<cdot>Person) = ((\<lambda>_. \<lfloor>\<lfloor>(\<sigma>\<^sub>1_object4\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (inst_assoc12))\<rfloor>\<rfloor>))"
 
 (* 147 ************************************ 930 + 1 *)
@@ -3459,7 +3459,7 @@ fixes "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n9\<^sub>P\<^sub>e\<^sub>
 fixes "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n9" :: "\<cdot>Person"
 assumes X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n9_def: "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n9 = (\<lambda>_. \<lfloor>\<lfloor>X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n9\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<rfloor>\<rfloor>)"
 begin
-definition "\<sigma>\<^sub>1 = (state.make ((Map.empty (oid12 \<mapsto> (in\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (\<sigma>\<^sub>1_object0\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n))) (oid13 \<mapsto> (in\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (\<sigma>\<^sub>1_object1\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n))) (oid14 \<mapsto> (in\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (\<sigma>\<^sub>1_object2\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n))) (oid5 \<mapsto> (in\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n5\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n))) (oid15 \<mapsto> (in\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (\<sigma>\<^sub>1_object4\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n))) (oid9 \<mapsto> (in\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n9\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n))))) ((map_of_list ([(oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0_\<b>\<o>\<s>\<s> , (List.map ((\<lambda>(x , y). [x , y]) o switch\<^sub>2_01) ([[[oid12] , [oid2]] , [[oid14] , [oid4]] , [[oid15] , [oid3]]])))]))))"
+definition "\<sigma>\<^sub>1 = (state.make ((Map.empty (oid12 \<mapsto> (in\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (\<sigma>\<^sub>1_object0\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n))) (oid13 \<mapsto> (in\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (\<sigma>\<^sub>1_object1\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n))) (oid14 \<mapsto> (in\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (\<sigma>\<^sub>1_object2\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n))) (oid5 \<mapsto> (in\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n5\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n))) (oid15 \<mapsto> (in\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (\<sigma>\<^sub>1_object4\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n))) (oid9 \<mapsto> (in\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n9\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n))))) ((map_of_list ([(oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0___boss , (List.map ((\<lambda>(x , y). [x , y]) o switch\<^sub>2_01) ([[[oid12] , [oid2]] , [[oid14] , [oid4]] , [[oid15] , [oid3]]])))]))))"
 
 lemma dom_\<sigma>\<^sub>1 : "(dom ((heap (\<sigma>\<^sub>1)))) = {oid12 , oid13 , oid14 , oid5 , oid15 , oid9}"
 by(auto simp: \<sigma>\<^sub>1_def)
@@ -3746,7 +3746,7 @@ fixes "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n9\<^sub>P\<^sub>e\<^sub>
 fixes "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n9" :: "\<cdot>Person"
 assumes X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n9_def: "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n9 = (\<lambda>_. \<lfloor>\<lfloor>X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n9\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<rfloor>\<rfloor>)"
 begin
-definition "\<sigma>\<^sub>1' = (state.make ((Map.empty (oid1 \<mapsto> (in\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n1\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n))) (oid2 \<mapsto> (in\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n))) (oid3 \<mapsto> (in\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n3\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n))) (oid4 \<mapsto> (in\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n4\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n))) (oid6 \<mapsto> (in\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n6\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n))) (oid7 \<mapsto> (in\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n7\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y))) (oid8 \<mapsto> (in\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n8\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y))) (oid9 \<mapsto> (in\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n9\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n))))) ((map_of_list ([(oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0_\<b>\<o>\<s>\<s> , (List.map ((\<lambda>(x , y). [x , y]) o switch\<^sub>2_01) ([[[oid1] , [oid2]] , [[oid2] , [oid2]] , [[oid6] , [oid6]] , [[oid7] , [oid6]]])))]))))"
+definition "\<sigma>\<^sub>1' = (state.make ((Map.empty (oid1 \<mapsto> (in\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n1\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n))) (oid2 \<mapsto> (in\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n))) (oid3 \<mapsto> (in\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n3\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n))) (oid4 \<mapsto> (in\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n4\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n))) (oid6 \<mapsto> (in\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n6\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n))) (oid7 \<mapsto> (in\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n7\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y))) (oid8 \<mapsto> (in\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n8\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y))) (oid9 \<mapsto> (in\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n9\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n))))) ((map_of_list ([(oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0___boss , (List.map ((\<lambda>(x , y). [x , y]) o switch\<^sub>2_01) ([[[oid1] , [oid2]] , [[oid2] , [oid2]] , [[oid6] , [oid6]] , [[oid7] , [oid6]]])))]))))"
 
 lemma dom_\<sigma>\<^sub>1' : "(dom ((heap (\<sigma>\<^sub>1')))) = {oid1 , oid2 , oid3 , oid4 , oid6 , oid7 , oid8 , oid9}"
 by(auto simp: \<sigma>\<^sub>1'_def)
@@ -4370,25 +4370,23 @@ by((metis distinct_oid distinct_length_2_or_more)?)
 end
 
 (* 151 ************************************ 934 + 5 *)
-axiomatization where dot\<c>\<o>\<n>\<t>\<e>\<n>\<t>\<s>_def:
-"(((\<tau> \<Turnstile> ((\<delta> (self))))) \<Longrightarrow> (\<tau> \<Turnstile> ((\<delta> (((UML_Logic.false)) implies ((((UML_Logic.StrongEq) (result)) ((((UML_Logic.OclIf) (((UML_Logic.StrictRefEq) ((Employee_DesignModel_UMLPart_generated.dot_0_\<b>\<o>\<s>\<s>) (self))) (UML_Types.null_class.null))) (((UML_Set.OclIncluding) (UML_Set.mtSet)) ((Employee_DesignModel_UMLPart_generated.dot\<s>\<a>\<l>\<a>\<r>\<y>) (self)))) (((UML_Set.OclIncluding) ((Employee_DesignModel_UMLPart_generated.dot\<c>\<o>\<n>\<t>\<e>\<n>\<t>\<s>) ((Employee_DesignModel_UMLPart_generated.dot_0_\<b>\<o>\<s>\<s>) (self)))) ((Employee_DesignModel_UMLPart_generated.dot\<s>\<a>\<l>\<a>\<r>\<y>) (self)))) and UML_Logic.true))))))) \<Longrightarrow> ((\<tau> \<Turnstile> (self .contents() \<triangleq> result))) = (if ((\<tau> \<Turnstile> ((\<delta> (self))))) then (\<tau> \<Turnstile> (((UML_Logic.false)) implies ((((UML_Logic.StrongEq) (result)) ((((UML_Logic.OclIf) (((UML_Logic.StrictRefEq) ((Employee_DesignModel_UMLPart_generated.dot_0_\<b>\<o>\<s>\<s>) (self))) (UML_Types.null_class.null))) (((UML_Set.OclIncluding) (UML_Set.mtSet)) ((Employee_DesignModel_UMLPart_generated.dot\<s>\<a>\<l>\<a>\<r>\<y>) (self)))) (((UML_Set.OclIncluding) ((Employee_DesignModel_UMLPart_generated.dot\<c>\<o>\<n>\<t>\<e>\<n>\<t>\<s>) ((Employee_DesignModel_UMLPart_generated.dot_0_\<b>\<o>\<s>\<s>) (self)))) ((Employee_DesignModel_UMLPart_generated.dot\<s>\<a>\<l>\<a>\<r>\<y>) (self)))) and UML_Logic.true)))) else (\<tau> \<Turnstile> (result \<triangleq> invalid)))"
-defs(overloaded) dot\<c>\<o>\<n>\<t>\<e>\<n>\<t>\<s>_Planet : "(x::\<cdot>Planet) .contents() \<equiv> x .oclAsType(Person) .contents()"
-defs(overloaded) dot\<c>\<o>\<n>\<t>\<e>\<n>\<t>\<s>_Galaxy : "(x::\<cdot>Galaxy) .contents() \<equiv> x .oclAsType(Person) .contents()"
-defs(overloaded) dot\<c>\<o>\<n>\<t>\<e>\<n>\<t>\<s>_OclAny : "(x::\<cdot>OclAny) .contents() \<equiv> x .oclAsType(Person) .contents()"
+axiomatization where dot__contents_def:
+"(((\<tau> \<Turnstile> ((\<delta> (self))))) \<Longrightarrow> (\<tau> \<Turnstile> ((\<delta> (((UML_Logic.false)) implies ((((UML_Logic.StrongEq) (result)) ((((UML_Logic.OclIf) (((UML_Logic.StrictRefEq) ((Employee_DesignModel_UMLPart_generated.dot_0___boss) (self))) (UML_Types.null_class.null))) (((UML_Set.OclIncluding) (UML_Set.mtSet)) ((Employee_DesignModel_UMLPart_generated.dot__salary) (self)))) (((UML_Set.OclIncluding) ((Employee_DesignModel_UMLPart_generated.dot__contents) ((Employee_DesignModel_UMLPart_generated.dot_0___boss) (self)))) ((Employee_DesignModel_UMLPart_generated.dot__salary) (self)))) and UML_Logic.true))))))) \<Longrightarrow> ((\<tau> \<Turnstile> (self .contents() \<triangleq> result))) = (if ((\<tau> \<Turnstile> ((\<delta> (self))))) then (\<tau> \<Turnstile> (((UML_Logic.false)) implies ((((UML_Logic.StrongEq) (result)) ((((UML_Logic.OclIf) (((UML_Logic.StrictRefEq) ((Employee_DesignModel_UMLPart_generated.dot_0___boss) (self))) (UML_Types.null_class.null))) (((UML_Set.OclIncluding) (UML_Set.mtSet)) ((Employee_DesignModel_UMLPart_generated.dot__salary) (self)))) (((UML_Set.OclIncluding) ((Employee_DesignModel_UMLPart_generated.dot__contents) ((Employee_DesignModel_UMLPart_generated.dot_0___boss) (self)))) ((Employee_DesignModel_UMLPart_generated.dot__salary) (self)))) and UML_Logic.true)))) else (\<tau> \<Turnstile> (result \<triangleq> invalid)))"
+defs(overloaded) dot__contents_Planet : "(x::\<cdot>Planet) .contents() \<equiv> x .oclAsType(Person) .contents()"
+defs(overloaded) dot__contents_Galaxy : "(x::\<cdot>Galaxy) .contents() \<equiv> x .oclAsType(Person) .contents()"
+defs(overloaded) dot__contents_OclAny : "(x::\<cdot>OclAny) .contents() \<equiv> x .oclAsType(Person) .contents()"
 ML{* (Ty'.check ([]) (" error(s)")) *}
 
 (* 152 ************************************ 939 + 0 *)
 
 (* 153 ************************************ 939 + 1 *)
-thm dot\<c>\<o>\<n>\<t>\<e>\<n>\<t>\<s>_def
+thm dot__contents_def
 
 (* 154 ************************************ 940 + 0 *)
 
 (* 155 ************************************ 940 + 3 *)
-axiomatization where Person_aat_pre_def:
-"(\<tau> \<Turnstile> (UML_Set.OclForall ((OclAllInstances_at_pre (Person))) ((\<lambda>self. ((UML_Logic.OclImplies) ((UML_Logic.OclNot) (((UML_Logic.StrictRefEq) ((Employee_DesignModel_UMLPart_generated.dot_0_\<b>\<o>\<s>\<s>at_pre) (self))) (UML_Types.null_class.null)))) (((UML_Logic.StrongEq) ((Employee_DesignModel_UMLPart_generated.dot\<s>\<a>\<l>\<a>\<r>\<y>at_pre) (self))) ((Employee_DesignModel_UMLPart_generated.dot\<s>\<a>\<l>\<a>\<r>\<y>at_pre) ((Employee_DesignModel_UMLPart_generated.dot_0_\<b>\<o>\<s>\<s>at_pre) (self))))))))"
-axiomatization where Person_a_def:
-"(\<tau> \<Turnstile> (UML_Set.OclForall ((OclAllInstances_at_post (Person))) ((\<lambda>self. ((UML_Logic.OclImplies) ((UML_Logic.OclNot) (((UML_Logic.StrictRefEq) ((Employee_DesignModel_UMLPart_generated.dot_0_\<b>\<o>\<s>\<s>) (self))) (UML_Types.null_class.null)))) (((UML_Logic.StrongEq) ((Employee_DesignModel_UMLPart_generated.dot\<s>\<a>\<l>\<a>\<r>\<y>) (self))) ((Employee_DesignModel_UMLPart_generated.dot\<s>\<a>\<l>\<a>\<r>\<y>) ((Employee_DesignModel_UMLPart_generated.dot_0_\<b>\<o>\<s>\<s>) (self))))))))"
+definition "Person_aat_pre = (\<lambda>\<tau>. (\<tau> \<Turnstile> (UML_Set.OclForall ((OclAllInstances_at_pre (Person))) ((\<lambda>self. ((UML_Logic.OclImplies) ((UML_Logic.OclNot) (((UML_Logic.StrictRefEq) ((Employee_DesignModel_UMLPart_generated.dot_0___bossat_pre) (self))) (UML_Types.null_class.null)))) (((UML_Logic.StrongEq) ((Employee_DesignModel_UMLPart_generated.dot__salaryat_pre) (self))) ((Employee_DesignModel_UMLPart_generated.dot__salaryat_pre) ((Employee_DesignModel_UMLPart_generated.dot_0___bossat_pre) (self)))))))))"
+definition "Person_a = (\<lambda>\<tau>. (\<tau> \<Turnstile> (UML_Set.OclForall ((OclAllInstances_at_post (Person))) ((\<lambda>self. ((UML_Logic.OclImplies) ((UML_Logic.OclNot) (((UML_Logic.StrictRefEq) ((Employee_DesignModel_UMLPart_generated.dot_0___boss) (self))) (UML_Types.null_class.null)))) (((UML_Logic.StrongEq) ((Employee_DesignModel_UMLPart_generated.dot__salary) (self))) ((Employee_DesignModel_UMLPart_generated.dot__salary) ((Employee_DesignModel_UMLPart_generated.dot_0___boss) (self)))))))))"
 ML{* (Ty'.check ([]) (" error(s)")) *}
 
 (* 156 ************************************ 943 + 1 *)
@@ -4397,10 +4395,8 @@ thm Person_aat_pre_def Person_a_def
 (* 157 ************************************ 944 + 0 *)
 
 (* 158 ************************************ 944 + 3 *)
-axiomatization where Planet_Aat_pre_def:
-"(\<tau> \<Turnstile> (UML_Set.OclForall ((OclAllInstances_at_pre (Planet))) ((\<lambda>self. ((UML_Logic.OclAnd) (UML_Logic.true)) (((UML_Integer.OclLe\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r) ((Employee_DesignModel_UMLPart_generated.dot\<w>\<e>\<i>\<g>\<h>\<t>at_pre) (self))) (UML_Integer.OclInt0))))))"
-axiomatization where Planet_A_def:
-"(\<tau> \<Turnstile> (UML_Set.OclForall ((OclAllInstances_at_post (Planet))) ((\<lambda>self. ((UML_Logic.OclAnd) (UML_Logic.true)) (((UML_Integer.OclLe\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r) ((Employee_DesignModel_UMLPart_generated.dot\<w>\<e>\<i>\<g>\<h>\<t>) (self))) (UML_Integer.OclInt0))))))"
+definition "Planet_Aat_pre = (\<lambda>\<tau>. (\<tau> \<Turnstile> (UML_Set.OclForall ((OclAllInstances_at_pre (Planet))) ((\<lambda>self. ((UML_Logic.OclAnd) (UML_Logic.true)) (((UML_Integer.OclLe\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r) ((Employee_DesignModel_UMLPart_generated.dot__weightat_pre) (self))) (UML_Integer.OclInt0)))))))"
+definition "Planet_A = (\<lambda>\<tau>. (\<tau> \<Turnstile> (UML_Set.OclForall ((OclAllInstances_at_post (Planet))) ((\<lambda>self. ((UML_Logic.OclAnd) (UML_Logic.true)) (((UML_Integer.OclLe\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r) ((Employee_DesignModel_UMLPart_generated.dot__weight) (self))) (UML_Integer.OclInt0)))))))"
 ML{* (Ty'.check ([]) (" error(s)")) *}
 
 (* 159 ************************************ 947 + 1 *)
