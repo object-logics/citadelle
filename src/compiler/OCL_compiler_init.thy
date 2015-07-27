@@ -226,8 +226,6 @@ subsection{* ... *}
 
 definition "wildcard = \<open>_\<close>"
 
-definition' \<open>escape_unicode c = flatten [\<open>\\<close>, \<open><\<close>, c, \<open>>\<close>]\<close>
-
 definition "lowercase_of_str = String_map (\<lambda>c. let n = nat_of_char c in if n < 97 then char_of_nat (n + 32) else c)"
 definition "uppercase_of_str = String_map (\<lambda>c. let n = nat_of_char c in if n < 97 then c else char_of_nat (n - 32))"
 definition "number_of_str = String_replace_chars (\<lambda>c. [\<open>\<zero>\<close>, \<open>\<one>\<close>, \<open>\<two>\<close>, \<open>\<three>\<close>, \<open>\<four>\<close>, \<open>\<five>\<close>, \<open>\<six>\<close>, \<open>\<seven>\<close>, \<open>\<eight>\<close>, \<open>\<nine>\<close>] ! (nat_of_char c - 48))"
@@ -246,8 +244,8 @@ definition "is_special = List.member '' <>^_=-./(){}''"
 definition "base255_of_str = String_replace_chars (\<lambda>c. if is_letter c then \<degree>c\<degree> else add_0 c)"
 definition "isub_of_str = String_replace_chars (\<lambda>c.
   if is_letter c | is_digit c | List.member ''_'' c then \<open>\<^sub>\<close> @@ \<degree>c\<degree> else add_0 c)"
-definition "isup_of_str = String_replace_chars (\<lambda>c.
-  if is_letter c then escape_unicode \<lless>[c]\<ggreater> else add_0 c)"
+definition "isup_of_str s = \<open>__\<close> @@ String_replace_chars (\<lambda>c.
+  if is_letter c then \<lless>[c]\<ggreater> else add_0 c) s"
 definition "text_of_str str =
  (let s = \<open>c\<close>
     ; ap = \<open> # \<close> in
@@ -259,7 +257,7 @@ definition "text_of_str str =
                                       flatten [s, \<open> \<close>,  add_0 c, ap])
                                  str
           , \<open>[])\<close>])"
-definition "text2_of_str = String_replace_chars (\<lambda>c. escape_unicode \<degree>c\<degree>)"
+definition' \<open>text2_of_str = String_replace_chars (\<lambda>c. flatten [\<open>\\<close>, \<open><\<close>, \<degree>c\<degree>, \<open>>\<close>])\<close>
 
 definition "textstr_of_str f_flatten f_char f_str str =
  (let str0 = String_to_list str
