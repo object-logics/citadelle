@@ -62,7 +62,7 @@ definition "print_ctxt_const ctxt ocl =
           let attr_n = Ctxt_fun_name ctxt in
           List.fold
             (\<lambda>(var_at_when_hol, var_at_when_ocl, f_update_ocl) ((ocl, l_isab_ty), l_isab_const).
-              let name = print_ctxt_const_name attr_n var_at_when_hol
+              let name = print_ctxt_const_name attr_n var_at_when_hol None
                 ; (l_name, l) =
                     List.fold
                       (\<lambda> ty (l_name, l, l_isab_ty).

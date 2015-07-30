@@ -78,11 +78,18 @@ fun map_Const where
                                                          (map_Const f term2))
                         expr"
 
+fun fold_Const where
+   "fold_Const f accu expr = (\<lambda> PureConst s _ \<Rightarrow> f accu s 
+                              | PureAbs _ _ term \<Rightarrow> fold_Const f accu term
+                              | PureApp term1 term2 \<Rightarrow> fold_Const f (fold_Const f accu term1) term2
+                              | _ \<Rightarrow> accu)
+                               expr"
+
 fun fold_Free where
-   "fold_Free f accu expr = (\<lambda> PureFree s ty \<Rightarrow> f accu s 
-                        | PureAbs _ _ term \<Rightarrow> fold_Free f accu term
-                        | PureApp term1 term2 \<Rightarrow> fold_Free f (fold_Free f accu term1) term2
-                        | _ \<Rightarrow> accu)
-                        expr"
+   "fold_Free f accu expr = (\<lambda> PureFree s _ \<Rightarrow> f accu s 
+                             | PureAbs _ _ term \<Rightarrow> fold_Free f accu term
+                             | PureApp term1 term2 \<Rightarrow> fold_Free f (fold_Free f accu term1) term2
+                             | _ \<Rightarrow> accu)
+                              expr"
 
 end
