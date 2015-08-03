@@ -135,7 +135,7 @@ definition "print_ctxt_pre_post = (\<lambda>f. map_prod List_flatten id o f) o f
     ; f = \<lambda> (var_at_when_hol, var_at_when_ocl).
         let dot_expr = \<lambda>e f_escape. Expr_postunary e (b (mk_dot_par_gen (flatten [\<open>.\<close>, attr_n, var_at_when_ocl]) (List_map (f_escape o fst) (Ctxt_fun_ty_arg ctxt)))) in
         (\<lambda>\<^sub>S\<^sub>c\<^sub>a\<^sub>l\<^sub>aocl.
-          [ let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l var_r = var_result
+            let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l var_r = var_result
               ; expr = 
               Expr_rewrite
                 (dot_expr (Expr_annot_ocl (b var_self) ty_name) id)
@@ -151,22 +151,26 @@ definition "print_ctxt_pre_post = (\<lambda>f. map_prod List_flatten id o f) o f
                                                                                                       (to_s OclCtxtPre (print_ctxt_to_ocl_pre ocl) l_pre)
                                                                                                       \<open>implies\<close>
                                                                                                       (to_s OclCtxtPost (print_ctxt_to_ocl_post ocl) l_post)))
-                                                                                             (f_tau (Expr_rewrite (b var_result) \<open>\<triangleq>\<close> (b \<open>invalid\<close>)))))])))) in
-            if
-              List.fold (\<lambda> (_, T_pure t) \<Rightarrow> \<lambda> b \<Rightarrow>
-                           b | fold_Const (\<lambda> b s. b | (case print_ctxt_to_ocl_gen_split s of
-                                                         None \<Rightarrow> False
-                                                       | Some s \<Rightarrow> 
-                                                           let f_eq = \<lambda>a. String_to_list (print_ctxt_const_name attr_n a None) = s in
-                                                           f_eq var_at_when_hol_post | f_eq var_at_when_hol_pre))
-                                          False
-                                          t)
-                        l_ctxt
-                        False
-            then
-              Thy_axiom (Axiom (print_ctxt_pre_post_name attr_n var_at_when_hol (Some ty_name)) expr)
-            else
-              Thy_defs_overloaded (Defs_overloaded (print_ctxt_const_name attr_n var_at_when_hol (Some ty_name)) expr) ])
+                                                                                             (f_tau (Expr_rewrite (b var_result) \<open>\<triangleq>\<close> (b \<open>invalid\<close>)))))]))))
+              ; (name, def) =
+                 (if 
+                    List.fold (\<lambda> (_, T_pure t) \<Rightarrow> \<lambda> b \<Rightarrow>
+                                 b | fold_Const (\<lambda> b s. b | (case print_ctxt_to_ocl_gen_split s of
+                                                               None \<Rightarrow> False
+                                                             | Some s \<Rightarrow> 
+                                                                 let f_eq = \<lambda>a. String_to_list (print_ctxt_const_name attr_n a None) = s in
+                                                                 f_eq var_at_when_hol_post | f_eq var_at_when_hol_pre))
+                                                False
+                                                t)
+                              l_ctxt
+                              False
+                  then
+                    ( print_ctxt_pre_post_name attr_n var_at_when_hol (Some ty_name)
+                    , Thy_axiom (Axiom (print_ctxt_pre_post_name attr_n var_at_when_hol (Some ty_name)) expr))
+                  else
+                    ( print_ctxt_const_name attr_n var_at_when_hol (Some ty_name)
+                    , Thy_defs_overloaded (Defs_overloaded (print_ctxt_const_name attr_n var_at_when_hol (Some ty_name)) expr))) in
+            def # [Thy_thm (Thm [Thm_str name])])
         # (\<lambda>\<^sub>S\<^sub>c\<^sub>a\<^sub>l\<^sub>aocl. 
             List_flatten (fst (fold_class (\<lambda>_ name _ _ _ _.
               Pair (if String_equal ty_name name then
@@ -214,13 +218,11 @@ definition "print_ctxt_inv = (\<lambda>f. map_prod List_flatten id o f) o fold_l
     l)"
 
 definition "print_ctxt_thm ctxt = Pair
-  [ Thy_thm (Thm (List_map Thm_str
-      (List_flatten [ List.map_filter (\<lambda> Ctxt_pp c \<Rightarrow> Some (print_ctxt_pre_post_name (Ctxt_fun_name c) var_at_when_hol_post (Some (ty_obj_to_string (Ctxt_ty ctxt))))
-                                       | _ \<Rightarrow> None)
-                                      (Ctxt_clause ctxt)
-                    , List_flatten (List_map (\<lambda>(tit, _). List_map (hol_definition o print_ctxt_inv_name (ty_obj_to_string (Ctxt_ty ctxt)) tit)
-                                                                  [ var_at_when_hol_pre
-                                                                  , var_at_when_hol_post ])
-                                             (fold_invariant' ctxt)) ]))) ]"
+ (case List_flatten (List_map (\<lambda>(tit, _). List_map (hol_definition o print_ctxt_inv_name (ty_obj_to_string (Ctxt_ty ctxt)) tit)
+                                                   [ var_at_when_hol_pre
+                                                   , var_at_when_hol_post ])
+                              (fold_invariant' ctxt)) of 
+    [] \<Rightarrow> []
+  | l \<Rightarrow> [ Thy_thm (Thm (List_map Thm_str l)) ])"
 
 end
