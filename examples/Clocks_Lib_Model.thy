@@ -62,9 +62,9 @@ Class DiscreteClock < Clock
              Post: "self .oclIsNew() and 
                     (self .created_at \<doteq> (WorldClock .allInstances() ->any\<^sub>S\<^sub>e\<^sub>t() .created_at))"
   Operations get_time\<^sub>D\<^sub>i\<^sub>s\<^sub>c\<^sub>r\<^sub>e\<^sub>t\<^sub>e() : Integer
-             Post: "result \<doteq> (WorldClock .allInstances() ->any\<^sub>S\<^sub>e\<^sub>t() .created_at ->asInteger\<^sub>R\<^sub>e\<^sub>a\<^sub>l())
+             Post: "result \<doteq> (WorldClock .allInstances() ->any\<^sub>S\<^sub>e\<^sub>t() .created_at ->oclAsType\<^sub>R\<^sub>e\<^sub>a\<^sub>l(Integer))
                                -\<^sub>i\<^sub>n\<^sub>t 
-                               (self .created_at ->asInteger\<^sub>R\<^sub>e\<^sub>a\<^sub>l())" 
+                               (self .created_at ->oclAsType\<^sub>R\<^sub>e\<^sub>a\<^sub>l(Integer))" 
 
 Class PeriodicDiscreteClock < DiscreteClock
   Attributes period\<^sub>D\<^sub>i\<^sub>s\<^sub>c\<^sub>r\<^sub>e\<^sub>t\<^sub>e : Integer
