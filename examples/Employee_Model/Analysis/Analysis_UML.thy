@@ -1272,7 +1272,7 @@ proof -
                     person1_def person2_def person3_def person4_def
                     person5_def person6_def person7_def person8_def person9_def
                     OclAsType\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_Person)
-   apply(subst cp_OclIsModifiedOnly, subst cp_OclExcluding,
+   apply(subst cp_OclIsModifiedOnly, subst UML_Set.OclExcluding.cp0,
      subst (asm) cp_OclIsModifiedOnly, simp add: including4 excluding1)
 
   apply(simp only: X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n1_def X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2_def X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n3_def X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n4_def

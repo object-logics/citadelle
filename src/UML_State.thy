@@ -241,11 +241,10 @@ assumes A: "\<tau> \<Turnstile> ((OclAllInstances_generic pre_post (H::('\<AA>::
 shows      "\<tau> \<Turnstile> not(x \<triangleq> null)"
 proof -
     have B: "\<tau> \<Turnstile> \<delta> (OclAllInstances_generic pre_post H)"
-         by(insert  A[THEN foundation6,
-                      simplified OclIncludes_defined_args_valid], auto)
+         by (simp add: OclAllInstances_generic_defined)
     have C: "\<tau> \<Turnstile> \<upsilon> x"
-         by(insert  A[THEN foundation6,
-                      simplified OclIncludes_defined_args_valid], auto)
+         by (metis OclIncludes.def_valid_then_def
+                   OclIncludes_valid_args_valid A foundation6)
     show ?thesis
     apply(insert A)
     apply(simp add: StrongEq_def  OclValid_def
@@ -262,11 +261,9 @@ qed
 lemma represented_generic_objects_defined:
 assumes A: "\<tau> \<Turnstile> ((OclAllInstances_generic pre_post (H::('\<AA>::object \<rightharpoonup> '\<alpha>))) ->includes\<^sub>S\<^sub>e\<^sub>t(x))"
 shows      "\<tau> \<Turnstile> \<delta> (OclAllInstances_generic pre_post H) \<and> \<tau> \<Turnstile> \<delta> x"
-apply(insert  A[THEN foundation6,
-                simplified OclIncludes_defined_args_valid])
-apply(simp add: foundation16 foundation18 invalid_def, erule conjE)
-apply(insert A[THEN represented_generic_objects_nonnull])
-by(simp add: foundation24 null_fun_def)
+by (metis OclAllInstances_generic_defined
+          A[THEN represented_generic_objects_nonnull] OclIncludes.defined_args_valid
+          A foundation16' foundation18 foundation24 foundation6)
 
 
 text{* One way to establish the actual presence of an object representation in a state is:*}
@@ -280,9 +277,7 @@ proof -
    have B: "(\<delta> (OclAllInstances_generic pre_post H)) \<tau> = true \<tau>"
            by(simp add: OclValid_def[symmetric] OclAllInstances_generic_defined)
    have C: "(\<upsilon> x) \<tau> = true \<tau>"
-           by(insert  A[THEN foundation6,
-                           simplified OclIncludes_defined_args_valid],
-                 auto simp: OclValid_def)
+           by (metis OclValid_def UML_Set.OclIncludes_def assms bot_option_def option.distinct(1) true_def)
    have F: "Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor>\<lfloor>Some ` (H ` ran (heap (pre_post \<tau>)) - {None})\<rfloor>\<rfloor>) =
             \<lfloor>\<lfloor>Some ` (H ` ran (heap (pre_post \<tau>)) - {None})\<rfloor>\<rfloor>"
            by(subst Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e.Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inverse,simp_all add: bot_option_def)
@@ -366,7 +361,7 @@ shows   "(OclAllInstances_generic pre_post Type)
                  (mk \<lparr>heap=\<sigma>', assocs=A\<rparr>))->including\<^sub>S\<^sub>e\<^sub>t(\<lambda> _. \<lfloor>\<lfloor> drop (Type Object) \<rfloor>\<rfloor>))
          (mk \<lparr>heap=\<sigma>'(oid\<mapsto>Object), assocs=A\<rparr>)"
  apply(subst state_update_vs_allInstances_generic_including', (simp add: assms)+,
-       subst UML_Set.cp_OclIncluding,
+       subst UML_Set.OclIncluding.cp0,
        simp add: UML_Set.OclIncluding_def)
  apply(subst (1 3) cp_defined[symmetric],
        simp add: OclAllInstances_generic_defined[simplified OclValid_def])
@@ -469,7 +464,7 @@ proof -
  also have   "... = ((\<lambda>_. ?allInstances ?\<tau>')->including\<^sub>S\<^sub>e\<^sub>t(\<lambda>_. (\<lambda>_.\<lfloor>\<lfloor>\<lceil>Type Object\<rceil>\<rfloor>\<rfloor>) ?\<tau>') ?\<tau>')"
              by(subst const_OclIncluding[simplified const_def], simp+)
  also have   "... = (?allInstances->including\<^sub>S\<^sub>e\<^sub>t(\<lambda> _. \<lfloor>Type Object\<rfloor>) ?\<tau>')"
-             apply(subst UML_Set.cp_OclIncluding[symmetric])
+             apply(subst UML_Set.OclIncluding.cp0[symmetric])
              by(insert type_conform, auto)
  finally have Y : "?allInstances ?\<tau> = (?allInstances->including\<^sub>S\<^sub>e\<^sub>t(\<lambda> _. \<lfloor>Type Object\<rfloor>) ?\<tau>')"
              by auto

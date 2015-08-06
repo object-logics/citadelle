@@ -194,7 +194,7 @@ lemma including_swap__generic :
      and j_val : "\<tau> \<Turnstile> \<upsilon> j"
    shows "\<tau> \<Turnstile> ((S :: ('\<AA>, 'a::null) Set)->including\<^sub>S\<^sub>e\<^sub>t(i)->including\<^sub>S\<^sub>e\<^sub>t(j) \<doteq> (S->including\<^sub>S\<^sub>e\<^sub>t(j)->including\<^sub>S\<^sub>e\<^sub>t(i)))"
  apply(simp only: OclIncluding_commute StrictRefEq\<^sub>S\<^sub>e\<^sub>t.refl_ext)
-by (metis (hide_lams, no_types) EQ_sym UML_Set.OclIncluding_defined_args_valid S_def StrictRefEq\<^sub>S\<^sub>e\<^sub>t.refl_ext foundation20 i_val j_val)
+by (metis "UML_Set.OclIncluding.1" OclIf_true' OclIncluding_valid_args_valid OclValid_def S_def i_val j_val)
 
 subsection{* Congruence *}
 
@@ -207,7 +207,7 @@ lemma including_subst_set'' : "\<tau> \<Turnstile> \<delta> s \<Longrightarrow> 
  apply(frule including_subst_set'[where s = s and t = t and x = x], simp_all del: StrictRefEq\<^sub>S\<^sub>e\<^sub>t_exec)
  apply(simp add: StrictRefEq\<^sub>S\<^sub>e\<^sub>t OclValid_def del: StrictRefEq\<^sub>S\<^sub>e\<^sub>t_exec)
  apply (metis (hide_lams, no_types) OclValid_def foundation20 foundation22)
-by (metis UML_Set.cp_OclIncluding)
+by (metis UML_Set.OclIncluding.cp0)
 
 
 subsection{* all defined (construction) *}
@@ -305,7 +305,7 @@ subsection{* Preservation of cp *}
 
 lemma including_cp_gen : "cp f \<Longrightarrow> cp (\<lambda>r2. ((f r2)->including\<^sub>S\<^sub>e\<^sub>t(x)))"
  apply(unfold cp_def)
- apply(subst UML_Set.cp_OclIncluding[of _ x])
+ apply(subst UML_Set.OclIncluding.cp0[of _ x])
  apply(drule exE) prefer 2 apply assumption
  apply(rule_tac x = "\<lambda> X_\<tau> \<tau>. ((\<lambda>_. fa X_\<tau> \<tau>)->including\<^sub>S\<^sub>e\<^sub>t(\<lambda>_. x \<tau>)) \<tau>" in exI, simp)
 done
@@ -315,7 +315,7 @@ by(rule including_cp_gen, simp)
 
 lemma including_cp' : "cp (UML_Set.OclIncluding S)"
  apply(unfold cp_def)
- apply(subst UML_Set.cp_OclIncluding)
+ apply(subst UML_Set.OclIncluding.cp0)
  apply(rule_tac x = "\<lambda> X_\<tau> \<tau>. ((\<lambda>_. S \<tau>)->including\<^sub>S\<^sub>e\<^sub>t(\<lambda>_. X_\<tau>)) \<tau>" in exI, simp)
 done
 
@@ -1697,7 +1697,7 @@ proof -
   apply(rule allI)+
   apply(rule ext, rename_tac S)
   apply(rule ext, rename_tac \<tau>)
-  apply(subst (1 2) UML_Set.cp_OclIncluding)
+  apply(subst (1 2) UML_Set.OclIncluding.cp0)
   apply(subst f_out)
   apply(subst comm)
   apply(subst f_out[symmetric], simp)
@@ -1723,12 +1723,12 @@ proof -
   apply(rule allI)+
 
   proof - fix x S \<tau> show "(F x S)->including\<^sub>S\<^sub>e\<^sub>t(a) \<tau> = (F (\<lambda>_. x \<tau>) S)->including\<^sub>S\<^sub>e\<^sub>t(a) \<tau>"
-  by(subst (1 2) UML_Set.cp_OclIncluding, subst F_cp, simp)
+  by(subst (1 2) UML_Set.OclIncluding.cp0, subst F_cp, simp)
 
   apply_end(rule conjI)+ apply_end(rule allI)+
 
   fix x S \<tau> show "(F x S)->including\<^sub>S\<^sub>e\<^sub>t(a) \<tau> = (F x (\<lambda>_. S \<tau>))->including\<^sub>S\<^sub>e\<^sub>t(a) \<tau>"
-  by(subst (1 2) UML_Set.cp_OclIncluding, subst F_cp_set, simp)
+  by(subst (1 2) UML_Set.OclIncluding.cp0, subst F_cp_set, simp)
 
   apply_end(rule allI)+ apply_end(rule impI)+
 
@@ -1770,8 +1770,8 @@ proof -
    apply(subst f_out)
    apply(rule all_defined1, simp add: all_def, simp)
    apply(simp add: int_is_valid[OF a_int])
-   apply(subst UML_Set.cp_OclIncluding)
-   apply(subst commute, simp_all add: UML_Set.cp_OclIncluding[symmetric] f_out[symmetric])
+   apply(subst UML_Set.OclIncluding.cp0)
+   apply(subst commute, simp_all add: UML_Set.OclIncluding.cp0[symmetric] f_out[symmetric])
    apply(subst f_out[symmetric])
    apply(rule all_defined1, simp add: all_def, simp)
    apply(simp add: int_is_valid[OF a_int])
@@ -1793,7 +1793,7 @@ proof -
  have all_defined1 : "\<And>r2 \<tau>. all_defined \<tau> r2 \<Longrightarrow> \<tau> \<Turnstile> \<delta> r2" by(simp add: all_defined_def)
  show ?thesis
   apply(simp only: EQ_comp_fun_commute_def including_cp including_cp')
-  apply(rule conjI, rule conjI) apply(subst (1 2) UML_Set.cp_OclIncluding, simp) apply(rule conjI) apply(subst (1 2) UML_Set.cp_OclIncluding, simp) apply(rule allI)+
+  apply(rule conjI, rule conjI) apply(subst (1 2) UML_Set.OclIncluding.cp0, simp) apply(rule conjI) apply(subst (1 2) UML_Set.OclIncluding.cp0, simp) apply(rule allI)+
   apply(rule impI)+
   apply(rule including_cp_all) apply(simp) apply(rule all_defined1, blast) apply(simp)
   apply(rule conjI) apply(rule allI)+
@@ -1821,14 +1821,14 @@ proof -
  have i_val : "\<And>\<tau>. \<tau> \<Turnstile> \<upsilon> i" by (simp add: int_is_valid[OF i_int])
  show ?thesis
   apply(simp only: EQ_comp_fun_commute_def including_cp2 including_cp')
-  apply(rule conjI, rule conjI) apply(subst (1 2) UML_Set.cp_OclIncluding, simp) apply(rule conjI) apply(subst (1 2) UML_Set.cp_OclIncluding, subst (1 3) UML_Set.cp_OclIncluding, simp) apply(rule allI)+
+  apply(rule conjI, rule conjI) apply(subst (1 2) UML_Set.OclIncluding.cp0, simp) apply(rule conjI) apply(subst (1 2) UML_Set.OclIncluding.cp0, subst (1 3) UML_Set.OclIncluding.cp0, simp) apply(rule allI)+
   apply(rule impI)+
-  apply(rule including_cp_all) apply(simp) apply (metis (hide_lams, no_types) all_defined1 foundation10 foundation6 i_val UML_Set.OclIncluding_defined_args_valid')
+  apply(rule including_cp_all) apply(simp) using all_defined1 cons_all_def' i_int int_is_valid apply blast
   apply(rule including_cp_all) apply(simp add: i_int) apply(rule all_defined1, blast) apply(simp)
   apply(rule conjI) apply(rule allI)+
 
   apply(rule impI)+
-  apply(rule including_notempty) apply (metis (hide_lams, no_types) all_defined1 foundation10 foundation6 i_val UML_Set.OclIncluding_defined_args_valid') apply(simp)
+  apply(rule including_notempty) using all_defined1 cons_all_def' i_int int_is_valid apply blast apply(simp)
   apply(rule including_notempty) apply(rule all_defined1, blast) apply(simp add: i_val) apply(simp)
   apply(rule conjI) apply(rule allI)+
 
@@ -1882,8 +1882,8 @@ proof -
  have j_val : "\<And>\<tau>. \<tau> \<Turnstile> \<upsilon> j" by (simp add: int_is_valid[OF j_int])
  show ?thesis
   apply(simp only: EQ_comp_fun_commute_def including_cp3 including_cp''')
-  apply(rule conjI, rule conjI) apply(subst (1 2) UML_Set.cp_OclIncluding, simp)
-  apply(rule conjI) apply(subst (1 2) UML_Set.cp_OclIncluding, subst (1 3) UML_Set.cp_OclIncluding, subst (1 4) UML_Set.cp_OclIncluding, simp) apply(rule allI)+
+  apply(rule conjI, rule conjI) apply(subst (1 2) UML_Set.OclIncluding.cp0, simp)
+  apply(rule conjI) apply(subst (1 2) UML_Set.OclIncluding.cp0, subst (1 3) UML_Set.OclIncluding.cp0, subst (1 4) UML_Set.OclIncluding.cp0, simp) apply(rule allI)+
   apply(rule impI)+
   apply(rule including_cp_all) apply(simp) apply (metis (hide_lams, no_types) all_defined1 cons_all_def i_val j_val)
   apply(rule including_cp_all) apply(simp) apply(simp add: j_int)  apply (metis (hide_lams, no_types) all_defined1 cons_all_def i_val)
@@ -2792,7 +2792,7 @@ proof -
  show ?thesis
   apply(simp only: EQ_comp_fun_commute0_def)
   apply(rule conjI)+ apply(rule allI)+ apply(rule impI)+
-  apply(subst (1 2) UML_Set.cp_OclIncluding, subst cp_OclIterate1[OF f_comm[THEN c0'_of_c0]], blast, simp)
+  apply(subst (1 2) UML_Set.OclIncluding.cp0, subst cp_OclIterate1[OF f_comm[THEN c0'_of_c0]], blast, simp)
   apply(rule allI)+ apply(rule impI)+
   apply(rule including_cp_all, simp, rule all_defined1, rule i_cons_all_def, simp add: f_comm, blast)
   apply(rule iterate_cp_all, simp add: f_comm, simp, simp)
@@ -2816,18 +2816,18 @@ proof -
   apply(metis (hide_lams, no_types) abs_rep_simp' all_defined_def)
   apply(simp add: mtSet_def)
 
-  apply(subst (1 2) UML_Set.cp_OclIncluding)
+  apply(subst (1 2) UML_Set.OclIncluding.cp0)
   apply(subst (1 2) cp_OclIterate1[OF f_comm[THEN c0'_of_c0]])
    apply(rule cons_all_def') apply(rule i_cons_all_def'[where F = F, OF f_comm[THEN c0'_of_c0]], blast)+ apply(simp add: int_is_valid)
    apply(rule cons_all_def') apply(rule i_cons_all_def'[where F = F, OF f_comm[THEN c0'_of_c0]], blast)+ apply(simp add: int_is_valid)
-  apply(subst (1 2 3 4 5 6) UML_Set.cp_OclIncluding)
+  apply(subst (1 2 3 4 5 6) UML_Set.OclIncluding.cp0)
   apply(subst (1 2 4 5) cp_OclIterate1[OF f_comm[THEN c0'_of_c0]], blast)
   apply(simp)
   apply(subst (1 2 4 5) cp_OclIterate1[OF f_comm[THEN c0'_of_c0], symmetric], simp add: mtSet_all_def)
   apply(simp)
-  apply(subst (1 2 4 5) UML_Set.cp_OclIncluding[symmetric])
+  apply(subst (1 2 4 5) UML_Set.OclIncluding.cp0[symmetric])
   apply(subst (1 2 3 4) cp_singleton)
-  apply(subst (1 2) UML_Set.cp_OclIncluding[symmetric])
+  apply(subst (1 2) UML_Set.OclIncluding.cp0[symmetric])
   apply(subst f_empty, simp_all)
 
   apply(rule com, simp_all)
@@ -2857,7 +2857,7 @@ proof -
  show ?thesis
   apply(simp only: EQ_comp_fun_commute0_def)
   apply(rule conjI)+ apply(rule allI)+ apply(rule impI)+
-  apply(subst (1 2) UML_Set.cp_OclIncluding, subst (1 2 3 4) UML_Set.cp_OclIncluding, subst cp_OclIterate1[OF f_comm[THEN c0'_of_c0]], blast, simp)
+  apply(subst (1 2) UML_Set.OclIncluding.cp0, subst (1 2 3 4) UML_Set.OclIncluding.cp0, subst cp_OclIterate1[OF f_comm[THEN c0'_of_c0]], blast, simp)
   apply(rule allI)+ apply(rule impI)+
   apply(rule including_cp_all, simp, rule all_defined1, rule cons_all_def, rule i_cons_all_def, simp add: f_comm, blast, simp add: a_int int_is_valid)
   apply(rule including_cp_all, simp add: a_int, rule all_defined1, rule i_cons_all_def, simp add: f_comm, blast, simp add: a_int int_is_valid)
@@ -2886,21 +2886,21 @@ proof -
   apply(simp add: mtSet_def)
 
 
-  apply(subst (1 2) UML_Set.cp_OclIncluding)
-  apply(subst (1 2 3 4) UML_Set.cp_OclIncluding)
+  apply(subst (1 2) UML_Set.OclIncluding.cp0)
+  apply(subst (1 2 3 4) UML_Set.OclIncluding.cp0)
   apply(subst (1 2) cp_OclIterate1[OF f_comm[THEN c0'_of_c0]])
    apply(rule cons_all_def')+ apply(rule i_cons_all_def'[where F = F, OF f_comm[THEN c0'_of_c0]], metis surj_pair) apply(simp add: a_int int_is_valid)+
    apply(rule cons_all_def')+ apply(rule i_cons_all_def'[where F = F, OF f_comm[THEN c0'_of_c0]], metis surj_pair) apply(simp add: a_int int_is_valid)+
-  apply(subst (1 2 3 4 5 6 7 8) UML_Set.cp_OclIncluding)
-  apply(subst (1 2 3 4 5 6 7 8 9 10 11 12) UML_Set.cp_OclIncluding)
+  apply(subst (1 2 3 4 5 6 7 8) UML_Set.OclIncluding.cp0)
+  apply(subst (1 2 3 4 5 6 7 8 9 10 11 12) UML_Set.OclIncluding.cp0)
 
   apply(subst (1 2 4 5) cp_OclIterate1[OF f_comm[THEN c0'_of_c0]], metis surj_pair)
   apply(simp)
   apply(subst (1 2 4 5) cp_OclIterate1[OF f_comm[THEN c0'_of_c0], symmetric], simp add: mtSet_all_def)
   apply(simp)
-  apply(subst (1 2 3 4 7 8 9 10) UML_Set.cp_OclIncluding[symmetric])
+  apply(subst (1 2 3 4 7 8 9 10) UML_Set.OclIncluding.cp0[symmetric])
   apply(subst (1 2 3 4) cp_doubleton, simp add: int_is_const[OF a_int])
-  apply(subst (1 2 3 4) UML_Set.cp_OclIncluding[symmetric])
+  apply(subst (1 2 3 4) UML_Set.OclIncluding.cp0[symmetric])
 
   apply(subst (3 6) OclIncluding_commute)
   apply(rule including_subst_set'')
@@ -3201,7 +3201,7 @@ proof -
   apply(simp)
 
   apply(rule all_def_to_all_int, simp add: S_all_def)
-  apply(simp add: UML_Set.cp_OclIncluding[of _ i])
+  apply(simp add: UML_Set.OclIncluding.cp0[of _ i])
 
   (* *)
   apply(rule impI)+ apply(erule conjE)+
@@ -3243,7 +3243,7 @@ proof -
   apply(simp add: UML_Set.OclIterate_def)
   apply(simp add: S_all_def[simplified all_defined_def all_defined_set'_def] all_defined1[OF S_all_def, simplified OclValid_def] all_defined1[OF A_all_def, THEN foundation20, simplified OclValid_def])
   apply(drule i_out1)
-  apply(simp add: UML_Set.cp_OclIncluding[of _ i])
+  apply(simp add: UML_Set.OclIncluding.cp0[of _ i])
  done
 qed
 
@@ -3380,7 +3380,7 @@ proof -
   apply(simp)
 
   apply(rule all_def_to_all_int, simp add: S_all_def)
-  apply(simp add: UML_Set.cp_OclIncluding[of _ i])
+  apply(simp add: UML_Set.OclIncluding.cp0[of _ i])
 
   (* *)
   apply(rule impI)+ apply(erule conjE)+
@@ -3425,7 +3425,7 @@ proof -
   apply(simp add: S_all_def[simplified all_defined_def all_defined_set'_def] all_defined1[OF S_all_def, simplified OclValid_def] all_defined1[OF A_all_def, THEN foundation20, simplified OclValid_def]
              del: OclIncluding_commute)
   apply(simp add: i_out1 del: OclIncluding_commute)
-  apply(simp add: UML_Set.cp_OclIncluding[of _ i] UML_Set.cp_OclIncluding[of _ x0])
+  apply(simp add: UML_Set.OclIncluding.cp0[of _ i] UML_Set.OclIncluding.cp0[of _ x0])
  done
 qed
 
@@ -3449,8 +3449,8 @@ proof -
  have all_defined1 : "\<And>r2 \<tau>. all_defined \<tau> r2 \<Longrightarrow> \<tau> \<Turnstile> \<delta> r2" by(simp add: all_defined_def)
 
  have Sa_include : "\<And>a' \<tau> \<tau>'. (\<lambda>_. a') = a \<Longrightarrow> S->including\<^sub>S\<^sub>e\<^sub>t(a) \<tau> = S->including\<^sub>S\<^sub>e\<^sub>t(a) \<tau>'"
- apply(simp add: UML_Set.cp_OclIncluding[of _ a])
- apply(drule sym[of _ a], simp add: UML_Set.cp_OclIncluding[symmetric])
+ apply(simp add: UML_Set.OclIncluding.cp0[of _ a])
+ apply(drule sym[of _ a], simp add: UML_Set.OclIncluding.cp0[symmetric])
   proof - fix a' \<tau> \<tau>' show "a = (\<lambda>_. a') \<Longrightarrow> \<lambda>_. S \<tau>->including\<^sub>S\<^sub>e\<^sub>t(\<lambda>_. a') \<tau> = \<lambda>_. S \<tau>'->including\<^sub>S\<^sub>e\<^sub>t(\<lambda>_. a') \<tau>'"
    apply(simp add: UML_Set.OclIncluding_def)
    apply(drule sym[of a])
@@ -3684,113 +3684,113 @@ proof -
  have commute5: "EQ_comp_fun_commute0 (\<lambda>x r1. r1 ->iterate\<^sub>S\<^sub>e\<^sub>t(j;r2=r1 | r2->including\<^sub>S\<^sub>e\<^sub>t(zero)->including\<^sub>S\<^sub>e\<^sub>t(j))->including\<^sub>S\<^sub>e\<^sub>t(\<lambda>(_:: '\<AA> st). x))"
   apply(rule iterate_including_commute, rule commute8[THEN c0_of_c])
   apply(rule ext, rename_tac \<tau>)
-  apply(subst (1 2) UML_Set.cp_OclIncluding)
+  apply(subst (1 2) UML_Set.OclIncluding.cp0)
   apply(subst iterate_including_id_out)
    apply (metis cons_all_def' is_int_def mtSet_all_def)
    apply(simp add: OclInt0_int)
    apply (metis including_notempty' is_int_def)
-  apply(rule sym, subst UML_Set.cp_OclIncluding)
+  apply(rule sym, subst UML_Set.OclIncluding.cp0)
   apply(subst iterate_including_id_out)
    apply (metis cons_all_def' is_int_def mtSet_all_def)
    apply(simp add: OclInt0_int)
    apply (metis including_notempty' is_int_def)
   (* *)
-   apply(subst (1 2) UML_Set.cp_OclIncluding[symmetric], simp)
+   apply(subst (1 2) UML_Set.OclIncluding.cp0[symmetric], simp)
 
   (* *)
-  apply(subst (1 2) UML_Set.cp_OclIncluding)
+  apply(subst (1 2) UML_Set.OclIncluding.cp0)
   apply(subst (1 2) cp_OclIterate1[OF including_commute3[THEN c0_of_c, THEN c0'_of_c0]], simp add: OclInt0_int)
    apply(rule cons_all_def') apply(rule i_cons_all_def) apply(rule including_commute3[THEN c0_of_c], simp add: OclInt0_int, blast, simp add: int_is_valid)
    apply(rule cons_all_def') apply(rule i_cons_all_def) apply(rule including_commute3[THEN c0_of_c], simp add: OclInt0_int, blast, simp add: int_is_valid)
-  apply(subst (1 2 3 4 5 6) UML_Set.cp_OclIncluding)
+  apply(subst (1 2 3 4 5 6) UML_Set.OclIncluding.cp0)
 
   apply(subst (1 2 3 4 5) iterate_including_id_out)
 
   apply(metis surj_pair, simp add: OclInt0_int, simp)
-  apply(subst UML_Set.cp_OclIncluding[symmetric], rule cp_all_def[THEN iffD1])
+  apply(subst UML_Set.OclIncluding.cp0[symmetric], rule cp_all_def[THEN iffD1])
   apply(rule cons_all_def', rule i_cons_all_def, rule commute8[THEN c0_of_c], metis surj_pair, simp add: int_is_valid, simp add: OclInt0_int)
 
   apply(rule including_notempty)
   apply(rule all_defined1, rule cp_all_def[THEN iffD1], rule i_cons_all_def, rule commute8[THEN c0_of_c], metis surj_pair, simp add: int_is_valid, simp add: OclInt0_int)
   apply(rule iterate_notempty, rule commute7[THEN c0_of_c], metis surj_pair, simp add: int_is_valid, simp add: OclInt0_int)
-  apply(subst UML_Set.cp_OclIncluding[symmetric], rule cp_all_def[THEN iffD1]) apply(rule cons_all_def)+ apply(metis surj_pair, simp add: OclInt0_int, simp add: int_is_valid)
+  apply(subst UML_Set.OclIncluding.cp0[symmetric], rule cp_all_def[THEN iffD1]) apply(rule cons_all_def)+ apply(metis surj_pair, simp add: OclInt0_int, simp add: int_is_valid)
   apply(rule including_notempty, rule all_defined1, rule cp_all_def[THEN iffD1]) apply(rule cons_all_def)+ apply(metis surj_pair, simp add: OclInt0_int, simp add: int_is_valid)
   apply(rule including_notempty, rule all_defined1) apply(metis surj_pair, simp add: OclInt0_int, simp add: int_is_valid)
 
-  apply(subst (1 2 3 4 5 6 7 8) UML_Set.cp_OclIncluding)
-  apply(subst (1 2 3 4 5 6 7 8) UML_Set.cp_OclIncluding[symmetric])
+  apply(subst (1 2 3 4 5 6 7 8) UML_Set.OclIncluding.cp0)
+  apply(subst (1 2 3 4 5 6 7 8) UML_Set.OclIncluding.cp0[symmetric])
   apply(subst swap1, simp_all)
  done
 
  have commute6: "EQ_comp_fun_commute0 (\<lambda>x r1. r1 ->iterate\<^sub>S\<^sub>e\<^sub>t(j;r2=r1 | r2->including\<^sub>S\<^sub>e\<^sub>t(j)->including\<^sub>S\<^sub>e\<^sub>t(zero))->including\<^sub>S\<^sub>e\<^sub>t(\<lambda>(_:: '\<AA> st). x))"
   apply(rule iterate_including_commute, rule commute7[THEN c0_of_c])
   apply(rule ext, rename_tac \<tau>)
-  apply(subst (1 2) UML_Set.cp_OclIncluding)
+  apply(subst (1 2) UML_Set.OclIncluding.cp0)
   apply(subst iterate_including_id_out')
    apply (metis cons_all_def' is_int_def mtSet_all_def)
    apply(simp add: OclInt0_int)
    apply (metis including_notempty' is_int_def)
-  apply(rule sym, subst UML_Set.cp_OclIncluding)
+  apply(rule sym, subst UML_Set.OclIncluding.cp0)
   apply(subst iterate_including_id_out')
    apply (metis cons_all_def' is_int_def mtSet_all_def)
    apply(simp add: OclInt0_int)
    apply (metis including_notempty' is_int_def)
   (* *)
-   apply(subst (1 2) UML_Set.cp_OclIncluding[symmetric], simp)
+   apply(subst (1 2) UML_Set.OclIncluding.cp0[symmetric], simp)
   (* *)
-  apply(subst (1 2) UML_Set.cp_OclIncluding)
+  apply(subst (1 2) UML_Set.OclIncluding.cp0)
   apply(subst (1 2) cp_OclIterate1[OF including_commute2[THEN c0_of_c, THEN c0'_of_c0]], simp add: OclInt0_int)
    apply(rule cons_all_def') apply(rule i_cons_all_def) apply(rule including_commute2[THEN c0_of_c], simp add: OclInt0_int, blast, simp add: int_is_valid)
    apply(rule cons_all_def') apply(rule i_cons_all_def) apply(rule including_commute2[THEN c0_of_c], simp add: OclInt0_int, blast, simp add: int_is_valid)
-  apply(subst (1 2 3 4 5 6) UML_Set.cp_OclIncluding)
+  apply(subst (1 2 3 4 5 6) UML_Set.OclIncluding.cp0)
 
   apply(subst (1 2 3 4 5) iterate_including_id_out')
 
   apply(metis surj_pair, simp add: OclInt0_int, simp)
-  apply(subst UML_Set.cp_OclIncluding[symmetric], rule cp_all_def[THEN iffD1])
+  apply(subst UML_Set.OclIncluding.cp0[symmetric], rule cp_all_def[THEN iffD1])
   apply(rule cons_all_def', rule i_cons_all_def, rule commute7[THEN c0_of_c], metis surj_pair, simp add: int_is_valid, simp add: OclInt0_int)
 
   apply(rule including_notempty)
   apply(rule all_defined1, rule cp_all_def[THEN iffD1], rule i_cons_all_def, rule commute7[THEN c0_of_c], metis surj_pair, simp add: int_is_valid, simp add: OclInt0_int)
   apply(rule iterate_notempty, rule commute7[THEN c0_of_c], metis surj_pair, simp add: int_is_valid, simp add: OclInt0_int)
-  apply(subst UML_Set.cp_OclIncluding[symmetric], rule cp_all_def[THEN iffD1]) apply(rule cons_all_def)+ apply(metis surj_pair, simp add: OclInt0_int, simp add: int_is_valid)
+  apply(subst UML_Set.OclIncluding.cp0[symmetric], rule cp_all_def[THEN iffD1]) apply(rule cons_all_def)+ apply(metis surj_pair, simp add: OclInt0_int, simp add: int_is_valid)
   apply(rule including_notempty, rule all_defined1, rule cp_all_def[THEN iffD1]) apply(rule cons_all_def)+ apply(metis surj_pair, simp add: OclInt0_int, simp add: int_is_valid)
   apply(rule including_notempty, rule all_defined1) apply(metis surj_pair, simp add: OclInt0_int, simp add: int_is_valid)
 
-  apply(subst (1 2 3 4 5 6 7 8) UML_Set.cp_OclIncluding)
-  apply(subst (1 2 3 4 5 6 7 8) UML_Set.cp_OclIncluding[symmetric])
+  apply(subst (1 2 3 4 5 6 7 8) UML_Set.OclIncluding.cp0)
+  apply(subst (1 2 3 4 5 6 7 8) UML_Set.OclIncluding.cp0[symmetric])
   apply(subst swap1, simp_all)
  done
 
  have commute9: "EQ_comp_fun_commute0 (\<lambda>x r1. r1 ->iterate\<^sub>S\<^sub>e\<^sub>t(j;r2=r1 | r2->including\<^sub>S\<^sub>e\<^sub>t(j))->including\<^sub>S\<^sub>e\<^sub>t(zero)->including\<^sub>S\<^sub>e\<^sub>t(\<lambda>_. x))"
   apply(rule iterate_including_commute_var, rule including_commute[THEN c0_of_c])
   apply(rule ext, rename_tac \<tau>)
-  apply(subst (1 2) UML_Set.cp_OclIncluding)
+  apply(subst (1 2) UML_Set.OclIncluding.cp0)
   apply(subst (1 2) iterate_including_id)
    apply (metis OclInt0_int cons_all_def' is_int_def mtSet_all_def)
    apply (metis OclInt0_int cons_all_def' is_int_def mtSet_all_def)
 
-    apply(subst (1 2) UML_Set.cp_OclIncluding[symmetric], simp)
+    apply(subst (1 2) UML_Set.OclIncluding.cp0[symmetric], simp)
   (* *)
-  apply(subst (1 2) UML_Set.cp_OclIncluding)
+  apply(subst (1 2) UML_Set.OclIncluding.cp0)
   apply(subst (1 2) cp_OclIterate1, rule including_commute[THEN c0_of_c, THEN c0'_of_c0])
    apply(rule cons_all_def')+ apply(rule i_cons_all_def) apply(rule including_commute[THEN c0_of_c], blast, simp, simp add: int_is_valid)
    apply(rule cons_all_def')+ apply(rule i_cons_all_def) apply(rule including_commute[THEN c0_of_c], blast, simp, simp add: int_is_valid)
-  apply(subst (1 2 3 4 5 6) UML_Set.cp_OclIncluding)
+  apply(subst (1 2 3 4 5 6) UML_Set.OclIncluding.cp0)
 
 
-  apply(subst (1 2 3 4 5 6) UML_Set.cp_OclIncluding)
-  apply(subst (1 2 3 4 5 6 7 8 9 10) UML_Set.cp_OclIncluding)
+  apply(subst (1 2 3 4 5 6) UML_Set.OclIncluding.cp0)
+  apply(subst (1 2 3 4 5 6 7 8 9 10) UML_Set.OclIncluding.cp0)
   apply(subst (1 2 3 4 5) iterate_including_id)
 
   apply(metis surj_pair)
-  apply(subst (1 2) UML_Set.cp_OclIncluding[symmetric], rule cp_all_def[THEN iffD1])
+  apply(subst (1 2) UML_Set.OclIncluding.cp0[symmetric], rule cp_all_def[THEN iffD1])
   apply(rule cons_all_def', rule cons_all_def', rule i_cons_all_def, rule including_commute[THEN c0_of_c], metis surj_pair) apply(simp add: int_is_valid)+
-  apply(subst (1 2) UML_Set.cp_OclIncluding[symmetric], rule cp_all_def[THEN iffD1])
+  apply(subst (1 2) UML_Set.OclIncluding.cp0[symmetric], rule cp_all_def[THEN iffD1])
   apply(rule cons_all_def', rule cons_all_def', metis surj_pair) apply(simp add: int_is_valid)+ apply(metis surj_pair)
 
-  apply(subst (1 2 3 4 5 6) UML_Set.cp_OclIncluding)
-  apply(subst (1 2 3 4 5 6) UML_Set.cp_OclIncluding[symmetric])
+  apply(subst (1 2 3 4 5 6) UML_Set.OclIncluding.cp0)
+  apply(subst (1 2 3 4 5 6) UML_Set.OclIncluding.cp0[symmetric])
   apply(simp add: int_is_valid OclInt0_int)+
  done
 
@@ -3824,9 +3824,9 @@ proof -
    apply(rule all_defined1)
    apply(metis surj_pair)
    apply(simp add: int_is_valid)+
-  apply(subst (1 2 3 4) UML_Set.cp_OclIncluding)
-  apply(subst (1 2 3 4 5 6 7 8) UML_Set.cp_OclIncluding)
-  apply(subst (1 2 3 4 5 6 7 8) UML_Set.cp_OclIncluding[symmetric])
+  apply(subst (1 2 3 4) UML_Set.OclIncluding.cp0)
+  apply(subst (1 2 3 4 5 6 7 8) UML_Set.OclIncluding.cp0)
+  apply(subst (1 2 3 4 5 6 7 8) UML_Set.OclIncluding.cp0[symmetric])
   apply(subst swap1, simp_all)
  done
 
@@ -3860,9 +3860,9 @@ proof -
    apply(rule all_defined1)
    apply(metis surj_pair)
    apply(simp add: int_is_valid)+
-  apply(subst (1 2 3 4) UML_Set.cp_OclIncluding)
-  apply(subst (1 2 3 4 5 6 7 8) UML_Set.cp_OclIncluding)
-  apply(subst (1 2 3 4 5 6 7 8) UML_Set.cp_OclIncluding[symmetric])
+  apply(subst (1 2 3 4) UML_Set.OclIncluding.cp0)
+  apply(subst (1 2 3 4 5 6 7 8) UML_Set.OclIncluding.cp0)
+  apply(subst (1 2 3 4 5 6 7 8) UML_Set.OclIncluding.cp0[symmetric])
   apply(subst swap1, simp_all)
  done
 
@@ -3936,7 +3936,7 @@ proof -
   (* *)
   apply(rule including_subst_set'')
    apply(rule all_defined1, rule i_cons_all_def'', rule including_commute[THEN c0_of_c, THEN c0'_of_c0], simp add: all_defined_68, simp add: all_defined_9)
-   apply (metis (hide_lams, no_types) all_defined1 all_defined_68 all_defined_9 UML_Set.OclIncluding_defined_args_valid)
+   apply (metis "UML_Set.OclIncluding.1" OclANY_singleton_exec OclANY_valid_args_valid'' OclInt6_int OclInt8_int OclInt9_int UML_Set.OclIncluding.def_valid_then_def int_is_valid)
    apply(simp)
   (* *)
   apply(subst including_out0[OF all_defined_68 set68_cp set68_notempty OclInt9_int])
@@ -4048,7 +4048,7 @@ proof -
 
   apply(simp add: cp_OclIf[symmetric])
   apply(drule sym, drule sym) (* SYM 1/2 *)
-  apply(subst (1 2) UML_Set.cp_OclIncluding)
+  apply(subst (1 2) UML_Set.OclIncluding.cp0)
   apply(subgoal_tac "((\<lambda>_. Finite_Set.fold (OclSelect_body P) Set{} ((\<lambda>a \<tau>. a) ` F) \<tau>)->including\<^sub>S\<^sub>e\<^sub>t(\<lambda>\<tau>. x)) \<tau>
                      =
                      ((\<lambda>_. if \<exists>x\<in>F. P (\<lambda>_. x) \<tau> = invalid \<tau> then invalid \<tau> else Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor>\<lfloor>{x \<in> F. P (\<lambda>_. x) \<tau> \<noteq> false \<tau>}\<rfloor>\<rfloor>)->including\<^sub>S\<^sub>e\<^sub>t(\<lambda>\<tau>. x)) \<tau>")
@@ -4057,7 +4057,7 @@ proof -
   apply(simp add: )
 
   apply(rule conjI)
-  apply (metis (no_types) UML_Set.OclIncluding.cp0 OclIncluding_invalid)
+  apply (metis (no_types, lifting) OclValid_def UML_Set.OclIncluding_def defined_def invalid_set_OclNot_defined not_strongeq)
 
   apply(rule impI, subst UML_Set.OclIncluding_def, subst Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inverse, simp add: bot_option_def null_option_def)
   apply(rule allI, rule impI)
