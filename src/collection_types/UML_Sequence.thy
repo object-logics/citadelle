@@ -287,14 +287,22 @@ notation   OclAt ("_->at\<^sub>S\<^sub>e\<^sub>q'(_')")
 
 subsection{* Definition: First *}
 definition OclFirst   :: "[('\<AA>,'\<alpha>::null) Sequence] \<Rightarrow> ('\<AA>,'\<alpha>) val"
-where     "OclFirst x = (\<lambda> \<tau>. if (\<delta> x) \<tau> = true \<tau> then hd \<lceil>\<lceil>Rep_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e (x \<tau>)\<rceil>\<rceil>  else invalid \<tau> )"
+where     "OclFirst x = (\<lambda> \<tau>. if (\<delta> x) \<tau> = true \<tau> then
+                                case \<lceil>\<lceil>Rep_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e (x \<tau>)\<rceil>\<rceil> of [] \<Rightarrow> invalid \<tau>
+                                                               | x # _ \<Rightarrow> x
+                              else invalid \<tau> )"
 notation   OclFirst   ("_->first\<^sub>S\<^sub>e\<^sub>q'(_')")
 (*TODO Locale.*)  
 
 
 subsection{* Definition: Last *}
 definition OclLast   :: "[('\<AA>,'\<alpha>::null) Sequence] \<Rightarrow> ('\<AA>,'\<alpha>) val"
-where     "OclLast x = (\<lambda> \<tau>. if (\<delta> x) \<tau> = true \<tau> then last \<lceil>\<lceil>Rep_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e (x \<tau>)\<rceil>\<rceil> else invalid \<tau> )"
+where     "OclLast x = (\<lambda> \<tau>. if (\<delta> x) \<tau> = true \<tau> then
+                               if \<lceil>\<lceil>Rep_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e (x \<tau>)\<rceil>\<rceil> = [] then
+                                 invalid \<tau>
+                               else
+                                 last \<lceil>\<lceil>Rep_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e (x \<tau>)\<rceil>\<rceil>
+                             else invalid \<tau> )"
 notation   OclLast   ("_->last\<^sub>S\<^sub>e\<^sub>q'(_')")
 (*TODO Locale.*)  
 
