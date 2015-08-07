@@ -53,6 +53,7 @@ begin
 no_notation None ("\<bottom>")
 section{* Collection Type Bag: Operations *}
 
+definition "Rep_Bag_base' x = {(x0, y). y < \<lceil>\<lceil>Rep_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e x\<rceil>\<rceil> x0 }"
 definition "Rep_Bag_base x \<tau> = {(x0, y). y < \<lceil>\<lceil>Rep_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e (x \<tau>)\<rceil>\<rceil> x0 }"
 definition "Rep_Set_base x \<tau> = fst ` {(x0, y). y < \<lceil>\<lceil>Rep_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e (x \<tau>)\<rceil>\<rceil> x0 }"
 
@@ -401,7 +402,8 @@ where     "OclIncludes x y = (\<lambda> \<tau>.   if (\<delta> x) \<tau> = true 
                                      else \<bottom>  )"
 notation   OclIncludes    ("_->includes\<^sub>B\<^sub>a\<^sub>g'(_')" (*[66,65]65*))
 
-(* TODO : locale interpretation *)
+interpretation OclIncludes : profile_bin\<^sub>d_\<^sub>v OclIncludes "\<lambda>x y. \<lfloor>\<lfloor> \<lceil>\<lceil>Rep_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e x\<rceil>\<rceil> y > 0 \<rfloor>\<rfloor>"
+by(unfold_locales, auto simp:OclIncludes_def bot_option_def null_option_def invalid_def)
 
 subsection{* Definition: Excludes *}
 
@@ -414,7 +416,8 @@ explicitly in Featherweight OCL the possibility of infinite sets. For
 the size definition, this requires an extra condition that assures
 that the cardinality of the set is actually a defined integer. *}
 
-(* TODO : locale interpretation *)
+interpretation OclExcludes : profile_bin\<^sub>d_\<^sub>v OclExcludes "\<lambda>x y. \<lfloor>\<lfloor> \<lceil>\<lceil>Rep_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e x\<rceil>\<rceil> y \<le> 0 \<rfloor>\<rfloor>"
+by(unfold_locales, auto simp:OclExcludes_def OclIncludes_def OclNot_def bot_option_def null_option_def invalid_def)
 
 subsection{* Definition: Size *}
 
@@ -425,13 +428,14 @@ where     "OclSize x = (\<lambda> \<tau>. if (\<delta> x) \<tau> = true \<tau> \
 notation  (* standard ascii syntax *)
            OclSize        ("_->size\<^sub>B\<^sub>a\<^sub>g'(')" (*[66]*))
 
-(* TODO : locale interpretation *)
-
 text{* The following definition follows the requirement of the
 standard to treat null as neutral element of bags. It is
 a well-documented exception from the general strictness
 rule and the rule that the distinguished argument self should
 be non-null. *}
+
+(*TODO Locale - Equivalent*)  
+
 
 subsection{* Definition: IsEmpty *}
 
@@ -439,7 +443,7 @@ definition OclIsEmpty   :: "('\<AA>,'\<alpha>::null) Bag \<Rightarrow> '\<AA> Bo
 where     "OclIsEmpty x =  ((\<upsilon> x and not (\<delta> x)) or ((OclSize x) \<doteq> \<zero>))"
 notation   OclIsEmpty     ("_->isEmpty\<^sub>B\<^sub>a\<^sub>g'(')" (*[66]*))
 
-(* TODO : locale interpretation *)
+(*TODO Locale - Equivalent*)  
 
 subsection{* Definition: NotEmpty *}
 
@@ -447,7 +451,7 @@ definition OclNotEmpty   :: "('\<AA>,'\<alpha>::null) Bag \<Rightarrow> '\<AA> B
 where     "OclNotEmpty x =  not(OclIsEmpty x)"
 notation   OclNotEmpty    ("_->notEmpty\<^sub>B\<^sub>a\<^sub>g'(')" (*[66]*))
 
-(* TODO : locale interpretation *)
+(*TODO Locale - Equivalent*)  
 
 subsection{* Definition: Any *}
 
@@ -459,6 +463,8 @@ where     "OclANY x = (\<lambda> \<tau>. if (\<upsilon> x) \<tau> = true \<tau>
                                  else null \<tau>
                             else \<bottom> )"
 notation   OclANY   ("_->any\<^sub>B\<^sub>a\<^sub>g'(')")
+
+(*TODO Locale - Equivalent*)  
 
 (* actually, this definition covers only: X->any\<^sub>B\<^sub>a\<^sub>g(true) of the standard, which foresees
 a (totally correct) high-level definition
@@ -485,6 +491,8 @@ syntax
 translations
   "X->forAll\<^sub>B\<^sub>a\<^sub>g(x | P)" == "CONST UML_Bag.OclForall X (%x. P)"
 
+(*TODO Locale - Equivalent*)  
+
 subsection{* Definition: Exists *}
   
 text{* Like OclForall, OclExists is also not strict. *}
@@ -496,6 +504,7 @@ syntax
 translations
   "X->exists\<^sub>B\<^sub>a\<^sub>g(x | P)" == "CONST UML_Bag.OclExists X (%x. P)"
 
+(*TODO Locale - Equivalent*)  
   
 subsection{* Definition: Iterate *}
 
@@ -531,6 +540,8 @@ syntax
 translations
   "X->select\<^sub>B\<^sub>a\<^sub>g(x | P)" == "CONST OclSelect X (% x. P)"
 
+(*TODO Locale - Equivalent*)  
+
 subsection{* Definition: Reject *}
 
 definition OclReject :: "[('\<AA>,'\<alpha>::null)Bag,('\<AA>,'\<alpha>)val\<Rightarrow>('\<AA>)Boolean] \<Rightarrow> ('\<AA>,'\<alpha>::null)Bag"
@@ -540,6 +551,8 @@ syntax
 translations
   "X->reject\<^sub>B\<^sub>a\<^sub>g(x | P)" == "CONST OclReject X (% x. P)"
 
+(*TODO Locale - Equivalent*)  
+
 subsection{* Definition: IncludesAll *}
 
 definition OclIncludesAll   :: "[('\<AA>,'\<alpha>::null) Bag,('\<AA>,'\<alpha>) Bag] \<Rightarrow> '\<AA> Boolean"
@@ -547,7 +560,10 @@ where     "OclIncludesAll x y = (\<lambda> \<tau>.   if (\<delta> x) \<tau> = tr
                                         then \<lfloor>\<lfloor>Rep_Bag_base y \<tau> \<subseteq> Rep_Bag_base x \<tau> \<rfloor>\<rfloor>
                                         else \<bottom>  )"
 notation   OclIncludesAll ("_->includesAll\<^sub>B\<^sub>a\<^sub>g'(_')" (*[66,65]65*))
-(* TODO locale instatiation *)
+
+interpretation OclIncludesAll : profile_bin\<^sub>d_\<^sub>d OclIncludesAll "\<lambda>x y. \<lfloor>\<lfloor>Rep_Bag_base' y \<subseteq> Rep_Bag_base' x \<rfloor>\<rfloor>"
+by(unfold_locales, auto simp:OclIncludesAll_def bot_option_def null_option_def invalid_def
+                             Rep_Bag_base_def Rep_Bag_base'_def)
 
 subsection{* Definition: ExcludesAll *}
 
@@ -556,7 +572,10 @@ where     "OclExcludesAll x y = (\<lambda> \<tau>.   if (\<delta> x) \<tau> = tr
                                         then \<lfloor>\<lfloor>Rep_Bag_base y \<tau> \<inter> Rep_Bag_base x \<tau> = {} \<rfloor>\<rfloor>
                                         else \<bottom>  )"
 notation  OclExcludesAll ("_->excludesAll\<^sub>B\<^sub>a\<^sub>g'(_')" (*[66,65]65*))
-(* TODO locale instatiation *)
+
+interpretation OclExcludesAll : profile_bin\<^sub>d_\<^sub>d OclExcludesAll "\<lambda>x y. \<lfloor>\<lfloor>Rep_Bag_base' y \<inter> Rep_Bag_base' x = {} \<rfloor>\<rfloor>"
+by(unfold_locales, auto simp:OclExcludesAll_def bot_option_def null_option_def invalid_def
+                             Rep_Bag_base_def Rep_Bag_base'_def)
 
 subsection{* Definition: Union *}
 
@@ -589,7 +608,21 @@ where     "OclIntersection x y = (\<lambda> \<tau>.  if (\<delta> x) \<tau> = tr
                                                        (\<lceil>\<lceil>Rep_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e (y \<tau>)\<rceil>\<rceil> X)\<rfloor>\<rfloor>
                                         else \<bottom>  )"
 notation   OclIntersection("_->intersection\<^sub>B\<^sub>a\<^sub>g'(_')"   (*[71,70]70*))
-(* TODO locale instatiation *)
+
+interpretation OclIntersection : 
+               profile_bin\<^sub>d_\<^sub>d OclIntersection "\<lambda>x y. Abs_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor>\<lfloor> \<lambda> X. min (\<lceil>\<lceil>Rep_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e x\<rceil>\<rceil> X) 
+                                                                (\<lceil>\<lceil>Rep_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e y\<rceil>\<rceil> X)\<rfloor>\<rfloor>"
+proof -  
+   show "profile_bin\<^sub>d_\<^sub>d OclIntersection (\<lambda>x y. Abs_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor>\<lfloor> \<lambda> X. min (\<lceil>\<lceil>Rep_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e x\<rceil>\<rceil> X) 
+                                                                (\<lceil>\<lceil>Rep_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e y\<rceil>\<rceil> X)\<rfloor>\<rfloor>)"
+   apply unfold_locales 
+   apply(auto simp:OclIntersection_def bot_option_def null_option_def 
+                   null_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def bot_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def invalid_def)
+   by(subst (asm) Abs_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inject,
+      simp_all add: bot_option_def null_option_def, 
+      metis (mono_tags, lifting) Rep_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e Rep_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inverse bot_option_def mem_Collect_eq min_0R
+                                 null_option_def)+
+qed
 
 subsection{* Definition: Count *}
 
@@ -598,7 +631,9 @@ where     "OclCount x y = (\<lambda> \<tau>. if (\<delta> x) \<tau> = true \<tau
                              then  \<lfloor>\<lfloor>int(\<lceil>\<lceil>Rep_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e (x \<tau>)\<rceil>\<rceil> (y \<tau>))\<rfloor>\<rfloor> 
                              else invalid \<tau> )"
 notation   OclCount ("_->count\<^sub>B\<^sub>a\<^sub>g'(_')"  (*[66,65]65*))
-(*TODO Locale.*)  
+
+interpretation OclCount : profile_bin\<^sub>d_\<^sub>d OclCount "\<lambda>x y. \<lfloor>\<lfloor>int(\<lceil>\<lceil>Rep_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e x\<rceil>\<rceil> y)\<rfloor>\<rfloor>"
+by(unfold_locales, auto simp:OclCount_def bot_option_def null_option_def)
 
 subsection{* Definition (future operators) *}
 
