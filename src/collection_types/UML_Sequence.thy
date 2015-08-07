@@ -282,7 +282,7 @@ where     "OclAt x y = (\<lambda> \<tau>. if (\<delta> x) \<tau> = true \<tau> \
                                   else invalid \<tau>
                              else invalid \<tau> )"
 notation   OclAt ("_->at\<^sub>S\<^sub>e\<^sub>q'(_')")
-(*TODO Locale.*)  
+(*TODO Locale - Equivalent*)  
 
 
 subsection{* Definition: First *}
@@ -292,7 +292,7 @@ where     "OclFirst x = (\<lambda> \<tau>. if (\<delta> x) \<tau> = true \<tau> 
                                                                | x # _ \<Rightarrow> x
                               else invalid \<tau> )"
 notation   OclFirst   ("_->first\<^sub>S\<^sub>e\<^sub>q'(_')")
-(*TODO Locale.*)  
+(*TODO Locale - Equivalent*)  
 
 
 subsection{* Definition: Last *}
@@ -304,10 +304,7 @@ where     "OclLast x = (\<lambda> \<tau>. if (\<delta> x) \<tau> = true \<tau> t
                                  last \<lceil>\<lceil>Rep_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e (x \<tau>)\<rceil>\<rceil>
                              else invalid \<tau> )"
 notation   OclLast   ("_->last\<^sub>S\<^sub>e\<^sub>q'(_')")
-(*TODO Locale.*)  
-
-subsection{* Definition: SubSequence *}
-(*TODO.*)  
+(*TODO Locale - Equivalent*)  
 
 subsection{* Definition: Iterate *}
 
@@ -335,6 +332,8 @@ syntax
 translations
   "X->forAll\<^sub>S\<^sub>e\<^sub>q(x | P)" == "CONST UML_Sequence.OclForall X (%x. P)"
 
+(*TODO Locale - Equivalent*)  
+
 subsection{* Definition: Exists *}
 definition OclExists     :: "[('\<AA>,'\<alpha>::null) Sequence,('\<AA>,'\<alpha>)val\<Rightarrow>('\<AA>)Boolean] \<Rightarrow> '\<AA> Boolean"
 where     "OclExists S P = (S->iterate\<^sub>S\<^sub>e\<^sub>q(b; x = false | x or (P b)))"
@@ -344,6 +343,7 @@ syntax
 translations
   "X->exists\<^sub>S\<^sub>e\<^sub>q(x | P)" == "CONST OclExists X (%x. P)"
 
+(*TODO Locale - Equivalent*)  
 
 subsection{* Definition: Collect *}
 definition OclCollect     :: "[('\<AA>,'\<alpha>::null)Sequence,('\<AA>,'\<alpha>)val\<Rightarrow>('\<AA>,'\<beta>)val]\<Rightarrow>('\<AA>,'\<beta>::null)Sequence"
@@ -354,6 +354,7 @@ syntax
 translations
   "X->collect\<^sub>S\<^sub>e\<^sub>q(x | P)" == "CONST OclCollect X (%x. P)"
 
+(*TODO Locale - Equivalent*)  
 
 subsection{* Definition: Select *}
 definition OclSelect     :: "[('\<AA>,'\<alpha>::null)Sequence,('\<AA>,'\<alpha>)val\<Rightarrow>('\<AA>)Boolean]\<Rightarrow>('\<AA>,'\<alpha>::null)Sequence"
@@ -365,21 +366,28 @@ syntax
 translations
   "X->select\<^sub>S\<^sub>e\<^sub>q(x | P)" == "CONST UML_Sequence.OclSelect X (%x. P)"
 
+(*TODO Locale - Equivalent*)  
 
 subsection{* Definition: Size *}
 definition OclSize     :: "[('\<AA>,'\<alpha>::null)Sequence]\<Rightarrow>('\<AA>)Integer" ("(_)->size\<^sub>S\<^sub>e\<^sub>q'(')")
 where     "OclSize S = (S->iterate\<^sub>S\<^sub>e\<^sub>q(b; x = \<zero> | x +\<^sub>i\<^sub>n\<^sub>t \<one> ))"
+
+(*TODO Locale - Equivalent*)  
 
 subsection{* Definition: IsEmpty *}
 definition OclIsEmpty   :: "('\<AA>,'\<alpha>::null) Sequence \<Rightarrow> '\<AA> Boolean"
 where     "OclIsEmpty x =  ((\<upsilon> x and not (\<delta> x)) or ((OclSize x) \<doteq> \<zero>))"
 notation   OclIsEmpty     ("_->isEmpty\<^sub>S\<^sub>e\<^sub>q'(')" (*[66]*))
 
+(*TODO Locale - Equivalent*)  
+
 subsection{* Definition: NotEmpty *}
 
 definition OclNotEmpty   :: "('\<AA>,'\<alpha>::null) Sequence \<Rightarrow> '\<AA> Boolean"
 where     "OclNotEmpty x =  not(OclIsEmpty x)"
 notation   OclNotEmpty    ("_->notEmpty\<^sub>S\<^sub>e\<^sub>q'(')" (*[66]*))
+
+(*TODO Locale - Equivalent*)  
 
 subsection{* Definition: Any *}
 
@@ -390,6 +398,22 @@ definition "OclANY x = (\<lambda> \<tau>.
     case drop (drop (Rep_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e (x \<tau>))) of [] \<Rightarrow> \<bottom>
                                               | l \<Rightarrow> hd l)"
 notation   OclANY   ("_->any\<^sub>S\<^sub>e\<^sub>q'(')")
+
+(*TODO Locale - Equivalent*)  
+
+subsection{* Definition (future operators) *}
+
+consts (* abstract set collection operations *)
+    OclCount       :: "[('\<AA>,'\<alpha>::null) Sequence,('\<AA>,'\<alpha>) Sequence] \<Rightarrow> '\<AA> Integer"
+  (*OclFlatten*)
+  (*OclInsertAt*)
+  (*OclSubSequence*)
+  (*OclIndexOf*)
+  (*OclReverse*)
+    OclSum         :: " ('\<AA>,'\<alpha>::null) Sequence \<Rightarrow> '\<AA> Integer"
+  
+notation  OclCount       ("_->count\<^sub>S\<^sub>e\<^sub>q'(_')" (*[66,65]65*))
+notation  OclSum         ("_->sum\<^sub>S\<^sub>e\<^sub>q'(')" (*[66]*))
 
 subsection{* Logical Properties *}
 

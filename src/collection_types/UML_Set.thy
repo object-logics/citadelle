@@ -446,7 +446,7 @@ a well-documented exception from the general strictness
 rule and the rule that the distinguished argument self should
 be non-null. *}
 
-(* TODO : Locale *)
+(*TODO Locale - Equivalent*)  
 
 
 subsection{* Definition: IsEmpty *}
@@ -455,7 +455,7 @@ definition OclIsEmpty   :: "('\<AA>,'\<alpha>::null) Set \<Rightarrow> '\<AA> Bo
 where     "OclIsEmpty x =  ((\<upsilon> x and not (\<delta> x)) or ((OclSize x) \<doteq> \<zero>))"
 notation   OclIsEmpty     ("_->isEmpty\<^sub>S\<^sub>e\<^sub>t'(')" (*[66]*))
 
-(* TODO : Locale *)
+(*TODO Locale - Equivalent*)  
 
 
 subsection{* Definition: NotEmpty *}
@@ -464,7 +464,7 @@ definition OclNotEmpty   :: "('\<AA>,'\<alpha>::null) Set \<Rightarrow> '\<AA> B
 where     "OclNotEmpty x =  not(OclIsEmpty x)"
 notation   OclNotEmpty    ("_->notEmpty\<^sub>S\<^sub>e\<^sub>t'(')" (*[66]*))
 
-(* TODO : Locale *)
+(*TODO Locale - Equivalent*)  
 
 subsection{* Definition: Any *}
 
@@ -476,6 +476,8 @@ where     "OclANY x = (\<lambda> \<tau>. if (\<upsilon> x) \<tau> = true \<tau>
                                  else null \<tau>
                             else \<bottom> )"
 notation   OclANY   ("_->any\<^sub>S\<^sub>e\<^sub>t'(')")
+
+(*TODO Locale - Equivalent*)  
 
 (* actually, this definition covers only: X->any\<^sub>S\<^sub>e\<^sub>t(true) of the standard, which foresees
 a (totally correct) high-level definition
@@ -504,6 +506,8 @@ syntax
 translations
   "X->forAll\<^sub>S\<^sub>e\<^sub>t(x | P)" == "CONST UML_Set.OclForall X (%x. P)"
 
+(*TODO Locale - Equivalent*)  
+
 subsection{* Definition: Exists *}
   
 text{* Like OclForall, OclExists is also not strict. *}
@@ -515,6 +519,7 @@ syntax
 translations
   "X->exists\<^sub>S\<^sub>e\<^sub>t(x | P)" == "CONST UML_Set.OclExists X (%x. P)"
 
+(*TODO Locale - Equivalent*)  
   
 subsection{* Definition: Iterate *}
 
@@ -529,10 +534,10 @@ syntax
 translations
   "X->iterate\<^sub>S\<^sub>e\<^sub>t(a; x = A | P)" == "CONST OclIterate X A (%a. (% x. P))"
 
+(*TODO Locale - Equivalent*)  
   
 subsection{* Definition: Select *}
-  
-  
+
 definition OclSelect :: "[('\<AA>,'\<alpha>::null)Set,('\<AA>,'\<alpha>)val\<Rightarrow>('\<AA>)Boolean] \<Rightarrow> ('\<AA>,'\<alpha>)Set"
 where "OclSelect S P = (\<lambda>\<tau>. if (\<delta> S) \<tau> = true \<tau>
                               then if (\<exists>x\<in>\<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (S \<tau>)\<rceil>\<rceil>. P(\<lambda> _. x) \<tau> = invalid \<tau>)
@@ -544,6 +549,8 @@ syntax
 translations
   "X->select\<^sub>S\<^sub>e\<^sub>t(x | P)" == "CONST OclSelect X (% x. P)"
 
+(*TODO Locale - Equivalent*)  
+
 subsection{* Definition: Reject *}
 
 definition OclReject :: "[('\<AA>,'\<alpha>::null)Set,('\<AA>,'\<alpha>)val\<Rightarrow>('\<AA>)Boolean] \<Rightarrow> ('\<AA>,'\<alpha>::null)Set"
@@ -552,6 +559,8 @@ syntax
   "_OclRejectSet" :: "[('\<AA>,'\<alpha>::null) Set,id,('\<AA>)Boolean] \<Rightarrow> '\<AA> Boolean"    ("(_)->reject\<^sub>S\<^sub>e\<^sub>t'(_|_')")
 translations
   "X->reject\<^sub>S\<^sub>e\<^sub>t(x | P)" == "CONST OclReject X (% x. P)"
+
+(*TODO Locale - Equivalent*)  
 
 subsection{* Definition: IncludesAll *}
 
