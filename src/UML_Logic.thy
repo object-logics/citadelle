@@ -930,9 +930,6 @@ assumes Q: "\<tau> \<Turnstile> Q \<Longrightarrow> R"
 shows "R"
 by(insert H, subst (asm) foundation11[OF defP defQ], erule disjE, simp_all add: P Q)
 
-lemma foundation27: "(\<tau> \<Turnstile> (A and B)) = ((\<tau> \<Turnstile> A) \<and> (\<tau> \<Turnstile> B))" (* stronger than foundation !*)
-by(auto dest:foundation5 simp:foundation6 foundation10)
-
 
 
 lemma defined_not_I : "\<tau> \<Turnstile> \<delta> (x) \<Longrightarrow> \<tau> \<Turnstile> \<delta> (not x)"

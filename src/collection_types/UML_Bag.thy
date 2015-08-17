@@ -2259,7 +2259,7 @@ proof -
            apply(subgoal_tac "OclForall S P \<tau> = false \<tau>")
             apply(simp only: cp_OclAnd[symmetric], simp)
            apply(simp add: OclForall_def)
-           apply(fold OclValid_def, simp add:  foundation27)
+           apply(fold OclValid_def, simp add:  foundation10')
            done
 
    have C2 : "\<And>\<tau>. \<tau> \<Turnstile> (\<delta> S and \<upsilon> x) \<Longrightarrow>
@@ -2268,7 +2268,7 @@ proof -
                   \<forall>x\<in>\<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (S->including\<^sub>S\<^sub>e\<^sub>t(x) \<tau>)\<rceil>\<rceil>. P (\<lambda>_. x) \<tau> \<noteq> false \<tau> \<Longrightarrow>
                   invalid \<tau> = (P x and OclForall S P) \<tau>"
            apply(subgoal_tac "(\<delta> S)\<tau> = true \<tau>")
-            prefer 2 apply(simp add: foundation27, simp add: OclValid_def)
+            prefer 2 apply(simp add: foundation10', simp add: OclValid_def)
            apply(drule forall_including_invert[of "\<lambda> x \<tau>. P x \<tau> \<noteq> false \<tau>", OF cp_OclNot_eq, THEN iffD1])
             apply(assumption)
            apply(simp add: cp_OclAnd[of "P x"],elim disjE, simp_all)
@@ -2303,7 +2303,7 @@ proof -
                      apply(subst forall_including_invert[of "\<lambda> x \<tau>. P x \<tau> \<noteq> null \<tau>",symmetric])
                      by(simp_all add: cp_OclNot_eq 0)
                  have 7 : "(\<delta> S) \<tau> = true \<tau>"
-                     by(insert 0, simp add: foundation27, simp add: OclValid_def)
+                     by(insert 0, simp add: foundation10', simp add: OclValid_def)
          show "?thesis \<tau>"
            apply(subst OclForall_def)
            apply(simp add: cp_OclAnd[THEN sym] OclValid_def contradict_Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e)
@@ -2612,7 +2612,7 @@ proof -
 
  have d_and_v_inject : "\<And>\<tau> X y. (\<delta> X and \<upsilon> y) \<tau> \<noteq> true \<tau> \<Longrightarrow> (\<delta> X and \<upsilon> y) \<tau> = false \<tau>"
       apply(fold OclValid_def, subst foundation22[symmetric])
-      apply(auto simp:foundation27  defined_split)
+      apply(auto simp:foundation10'  defined_split)
         apply(erule StrongEq_L_subst2_rev,simp,simp)
        apply(erule StrongEq_L_subst2_rev,simp,simp)
       by(erule foundation7'[THEN iffD2, THEN foundation15[THEN iffD2,

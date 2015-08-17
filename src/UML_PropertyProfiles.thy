@@ -210,7 +210,7 @@ begin
          by (metis "1" OclValid_def def_scheme'' foundation16 true_def)
 
       lemma defined_args_valid: "(\<tau> \<Turnstile> \<delta> (f x y)) = ((\<tau> \<Turnstile> d\<^sub>x x) \<and> (\<tau> \<Turnstile> d\<^sub>y y))"
-         by(simp add: foundation27)
+         by(simp add: foundation10')
 
       lemma const[simp,code_unfold] : 
           assumes C1 :"const X" and C2 : "const Y"

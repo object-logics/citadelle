@@ -118,7 +118,7 @@ begin
       show ?thesis
          apply(simp add: OclValid_def, subst cp0, fold OclValid_def)      
          apply(simp add:def_scheme' args_def_or_valid pre_satisfied 
-                        post_decomposable postsplit_satisfied foundation27)
+                        post_decomposable postsplit_satisfied foundation10')
          apply(subst some_equality)
          apply(simp add: OclValid_def StrongEq_def true_def)+
          by(subst (2) cp0, rule refl)
