@@ -3324,10 +3324,12 @@ by(rule) qed
   apply_end(simp_all)
  qed
 
-(* 135 ************************************ 873 + 1 *)
+(* 135 ************************************ 873 + 0 *)
+
+(* 136 ************************************ 873 + 1 *)
 section{* A Little Infra-structure on Example States *}
 
-(* 136 ************************************ 874 + 1 *)
+(* 137 ************************************ 874 + 1 *)
 text{* 
 
 The example we are defining in this section comes from the figure~\ref{fig:edm1_system-states}.
@@ -3339,14 +3341,14 @@ The example we are defining in this section comes from the figure~\ref{fig:edm1_
 \end{figure}
  *}
 
-(* 137 ************************************ 875 + 1 *)
+(* 138 ************************************ 875 + 1 *)
 text{*  *}
 
-(* 138 ************************************ 876 + 1 *)
+(* 139 ************************************ 876 + 1 *)
 lemmas [simp,code_unfold] = state.defs
                             const_ss
 
-(* 139 ************************************ 877 + 1 *)
+(* 140 ************************************ 877 + 1 *)
 lemmas[simp,code_unfold] = OclAsType\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_Planet
                             OclAsType\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_Galaxy
                             OclAsType\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_OclAny
@@ -3360,11 +3362,11 @@ lemmas[simp,code_unfold] = OclAsType\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^s
                             OclAsType\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_Planet
                             OclAsType\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_Galaxy
 
-(* 140 ************************************ 878 + 2 *)
+(* 141 ************************************ 878 + 2 *)
 definition "(typecheck_instance_bad_head_on_lhs_P1_X0_X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n9_X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n8_X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n7_X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n6_X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n5_X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n4_X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n3_X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2_X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n1 (P1) (X0) (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n9) (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n8) (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n7) (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n6) (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n5) (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n4) (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n3) (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2) (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n1)) = ()"
 definition "typecheck_instance_extra_variables_on_rhs_P1_X0_X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n9_X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n8_X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n7_X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n6_X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n5_X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n4_X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n3_X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2_X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n1 = (\<lambda>P1 X0 X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n9 X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n8 X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n7 X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n6 X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n5 X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n4 X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n3 X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2 X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n1. (P1 , P1 , X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n7 , X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n7 , X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2 , X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2))"
 
-(* 141 ************************************ 880 + 12 *)
+(* 142 ************************************ 880 + 12 *)
 definition "oid1 = 1"
 definition "oid2 = 2"
 definition "oid3 = 3"
@@ -3379,7 +3381,7 @@ definition "oid11 = 11"
 definition "inst_assoc1 = (\<lambda>oid_class to_from oid. ((case (deref_assocs_list ((to_from::oid list list \<Rightarrow> oid list \<times> oid list)) ((oid::oid)) ((drop ((((map_of_list ([(oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0___boss , (List.map ((\<lambda>(x , y). [x , y]) o switch\<^sub>2_01) ([[[oid7] , [oid7]] , [[oid6] , [oid7]] , [[oid2] , [oid2]] , [[oid1] , [oid2]]])))]))) ((oid_class::oid))))))) of Nil \<Rightarrow> None
     | l \<Rightarrow> (Some (l)))::oid list option))"
 
-(* 142 ************************************ 892 + 22 *)
+(* 143 ************************************ 892 + 22 *)
 definition "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n1\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n inst_assoc = (mk\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n ((mk\<E>\<X>\<T>\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (oid1) (None) (None) (None) (None) (None))) (((inst_assoc) (oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0___boss) (switch\<^sub>2_01) (oid1))) (\<lfloor>1300\<rfloor>))"
 definition "(X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n1::\<cdot>Person) = ((\<lambda>_. \<lfloor>\<lfloor>(X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n1\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (inst_assoc1))\<rfloor>\<rfloor>))"
 definition "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n inst_assoc = (mk\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n ((mk\<E>\<X>\<T>\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (oid2) (None) (None) (None) (None) (None))) (((inst_assoc) (oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0___boss) (switch\<^sub>2_01) (oid2))) (\<lfloor>1800\<rfloor>))"
@@ -3403,14 +3405,14 @@ definition "(X0::\<cdot>Person) = ((\<lambda>_. \<lfloor>\<lfloor>(X0\<^sub>P\<^
 definition "P1\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t inst_assoc = (mk\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t ((mk\<E>\<X>\<T>\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t (oid11) (None) (None) (\<lfloor>[[oid11] , [oid11]]\<rfloor>))) (None) (None))"
 definition "(P1::\<cdot>Planet) = ((\<lambda>_. \<lfloor>\<lfloor>(P1\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t (inst_assoc1))\<rfloor>\<rfloor>))"
 
-(* 143 ************************************ 914 + 1 *)
+(* 144 ************************************ 914 + 1 *)
 ML{* (Ty'.check ([(OCL.Writeln , "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n1 .boss \<cong> Set{ X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2 }") , (OCL.Writeln , "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n1 /* unnamed attribute */ \<cong> Set{}") , (OCL.Writeln , "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2 .boss \<cong> Set{ X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2 }") , (OCL.Writeln , "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2 /* unnamed attribute */ \<cong> Set{ X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n1 , X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2 }") , (OCL.Writeln , "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n3 .boss \<cong> Set{}") , (OCL.Writeln , "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n3 /* unnamed attribute */ \<cong> Set{}") , (OCL.Writeln , "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n4 .boss \<cong> Set{}") , (OCL.Writeln , "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n4 /* unnamed attribute */ \<cong> Set{}") , (OCL.Writeln , "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n5 .boss \<cong> Set{}") , (OCL.Writeln , "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n5 /* unnamed attribute */ \<cong> Set{}") , (OCL.Writeln , "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n6 .boss \<cong> Set{ X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n7 }") , (OCL.Writeln , "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n6 /* unnamed attribute */ \<cong> Set{}") , (OCL.Writeln , "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n7 .boss \<cong> Set{ X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n7 }") , (OCL.Writeln , "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n7 /* unnamed attribute */ \<cong> Set{ X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n6 , X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n7 }") , (OCL.Writeln , "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n9 .boss \<cong> Set{}") , (OCL.Writeln , "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n9 /* unnamed attribute */ \<cong> Set{}") , (OCL.Writeln , "X0 .boss \<cong> Set{}") , (OCL.Writeln , "X0 /* unnamed attribute */ \<cong> Set{}")]) (" error(s)")) *}
 
-(* 144 ************************************ 915 + 2 *)
+(* 145 ************************************ 915 + 2 *)
 definition "(typecheck_instance_bad_head_on_lhs_\<sigma>\<^sub>1_object4_\<sigma>\<^sub>1_object2_\<sigma>\<^sub>1_object1_\<sigma>\<^sub>1_object0 (\<sigma>\<^sub>1_object4) (\<sigma>\<^sub>1_object2) (\<sigma>\<^sub>1_object1) (\<sigma>\<^sub>1_object0)) = ()"
 definition "typecheck_instance_extra_variables_on_rhs_\<sigma>\<^sub>1_object4_\<sigma>\<^sub>1_object2_\<sigma>\<^sub>1_object1_\<sigma>\<^sub>1_object0 = (\<lambda>\<sigma>\<^sub>1_object4 \<sigma>\<^sub>1_object2 \<sigma>\<^sub>1_object1 \<sigma>\<^sub>1_object0. (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n5))"
 
-(* 145 ************************************ 917 + 5 *)
+(* 146 ************************************ 917 + 5 *)
 definition "oid12 = 12"
 definition "oid13 = 13"
 definition "oid14 = 14"
@@ -3418,7 +3420,7 @@ definition "oid15 = 15"
 definition "inst_assoc12 = (\<lambda>oid_class to_from oid. ((case (deref_assocs_list ((to_from::oid list list \<Rightarrow> oid list \<times> oid list)) ((oid::oid)) ((drop ((((map_of_list ([(oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0___boss , (List.map ((\<lambda>(x , y). [x , y]) o switch\<^sub>2_01) ([[[oid15] , [oid14]] , [[oid14] , [oid5]] , [[oid12] , [oid13]]])))]))) ((oid_class::oid))))))) of Nil \<Rightarrow> None
     | l \<Rightarrow> (Some (l)))::oid list option))"
 
-(* 146 ************************************ 922 + 8 *)
+(* 147 ************************************ 922 + 8 *)
 definition "\<sigma>\<^sub>1_object0\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n inst_assoc = (mk\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n ((mk\<E>\<X>\<T>\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (oid12) (None) (None) (None) (None) (None))) (((inst_assoc) (oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0___boss) (switch\<^sub>2_01) (oid12))) (\<lfloor>1000\<rfloor>))"
 definition "(\<sigma>\<^sub>1_object0::\<cdot>Person) = ((\<lambda>_. \<lfloor>\<lfloor>(\<sigma>\<^sub>1_object0\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (inst_assoc12))\<rfloor>\<rfloor>))"
 definition "\<sigma>\<^sub>1_object1\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n inst_assoc = (mk\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n ((mk\<E>\<X>\<T>\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (oid13) (None) (None) (None) (None) (None))) (((inst_assoc) (oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0___boss) (switch\<^sub>2_01) (oid13))) (\<lfloor>1200\<rfloor>))"
@@ -3428,10 +3430,10 @@ definition "(\<sigma>\<^sub>1_object2::\<cdot>Person) = ((\<lambda>_. \<lfloor>\
 definition "\<sigma>\<^sub>1_object4\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n inst_assoc = (mk\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n ((mk\<E>\<X>\<T>\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (oid15) (None) (None) (None) (None) (None))) (((inst_assoc) (oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0___boss) (switch\<^sub>2_01) (oid15))) (\<lfloor>2300\<rfloor>))"
 definition "(\<sigma>\<^sub>1_object4::\<cdot>Person) = ((\<lambda>_. \<lfloor>\<lfloor>(\<sigma>\<^sub>1_object4\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (inst_assoc12))\<rfloor>\<rfloor>))"
 
-(* 147 ************************************ 930 + 1 *)
+(* 148 ************************************ 930 + 1 *)
 ML{* (Ty'.check ([(OCL.Writeln , "\<sigma>\<^sub>1_object0 .boss \<cong> Set{ \<sigma>\<^sub>1_object1 }") , (OCL.Writeln , "\<sigma>\<^sub>1_object0 /* unnamed attribute */ \<cong> Set{}") , (OCL.Writeln , "\<sigma>\<^sub>1_object1 .boss \<cong> Set{}") , (OCL.Writeln , "\<sigma>\<^sub>1_object1 /* unnamed attribute */ \<cong> Set{ \<sigma>\<^sub>1_object0 }") , (OCL.Writeln , "\<sigma>\<^sub>1_object2 .boss \<cong> Set{ /*5*/ }") , (OCL.Writeln , "\<sigma>\<^sub>1_object2 /* unnamed attribute */ \<cong> Set{ \<sigma>\<^sub>1_object4 }") , (OCL.Writeln , "\<sigma>\<^sub>1_object4 .boss \<cong> Set{ \<sigma>\<^sub>1_object2 }") , (OCL.Writeln , "\<sigma>\<^sub>1_object4 /* unnamed attribute */ \<cong> Set{}")]) (" error(s)")) *}
 
-(* 148 ************************************ 931 + 1 *)
+(* 149 ************************************ 931 + 1 *)
 locale state_\<sigma>\<^sub>1 =
 fixes "oid12" :: "nat"
 fixes "oid13" :: "nat"
@@ -3710,7 +3712,7 @@ by(rule \<sigma>\<^sub>1_OclAllInstances_generic_exec_OclAny, simp_all only: ass
 ML{* (Ty'.check ([]) (" error(s)")) *}
 end
 
-(* 149 ************************************ 932 + 1 *)
+(* 150 ************************************ 932 + 1 *)
 locale state_\<sigma>\<^sub>1' =
 fixes "oid1" :: "nat"
 fixes "oid2" :: "nat"
@@ -4045,7 +4047,7 @@ by(rule \<sigma>\<^sub>1'_OclAllInstances_generic_exec_OclAny, simp_all only: as
 ML{* (Ty'.check ([]) (" error(s)")) *}
 end
 
-(* 150 ************************************ 933 + 1 *)
+(* 151 ************************************ 933 + 1 *)
 locale pre_post_\<sigma>\<^sub>1_\<sigma>\<^sub>1' =
 fixes "oid1" :: "nat"
 fixes "oid2" :: "nat"
@@ -4369,37 +4371,37 @@ shows "(state_\<sigma>\<^sub>1.\<sigma>\<^sub>1 , state_\<sigma>\<^sub>1'.\<sigm
 by((metis distinct_oid distinct_length_2_or_more)?) 
 end
 
-(* 151 ************************************ 934 + 6 *)
+(* 152 ************************************ 934 + 6 *)
 axiomatization where dot__contents_Person_def:
-"(self::\<cdot>Person) .contents() \<equiv> (\<lambda>\<tau>. (Eps ((\<lambda>result. (Let ((\<lambda>_. result)) ((\<lambda>result. (if ((\<tau> \<Turnstile> ((\<delta> (self))))) then (\<tau> \<Turnstile> (((UML_Logic.false)) implies ((((UML_Logic.StrongEq) (result)) ((((UML_Logic.OclIf) (((UML_Logic.StrictRefEq) ((Employee_DesignModel_UMLPart_generated.dot_0___boss) (self))) (UML_Types.null_class.null))) (((UML_Set.OclIncluding) (UML_Set.mtSet)) ((Employee_DesignModel_UMLPart_generated.dot__salary) (self)))) (((UML_Set.OclIncluding) ((Employee_DesignModel_UMLPart_generated.dot__contents) ((Employee_DesignModel_UMLPart_generated.dot_0___boss) (self)))) ((Employee_DesignModel_UMLPart_generated.dot__salary) (self)))) and UML_Logic.true)))) else (\<tau> \<Turnstile> (result \<triangleq> invalid))))))))))"
+"(self::\<cdot>Person) .contents() \<equiv> (\<lambda>\<tau>. (Eps ((\<lambda>result. (Let ((\<lambda>_. result)) ((\<lambda>result. (if ((\<tau> \<Turnstile> ((\<delta> (self))))) then (\<tau> \<Turnstile> (((UML_Logic.false)))) \<and> (\<tau> \<Turnstile> (((((UML_Logic.StrongEq) (result)) ((((UML_Logic.OclIf) (((UML_Logic.StrictRefEq) ((Employee_DesignModel_UMLPart_generated.dot_0___boss) (self))) (UML_Types.null_class.null))) (((UML_Set.OclIncluding) (UML_Set.mtSet)) ((Employee_DesignModel_UMLPart_generated.dot__salary) (self)))) (((UML_Set.OclIncluding) ((Employee_DesignModel_UMLPart_generated.dot__contents) ((Employee_DesignModel_UMLPart_generated.dot_0___boss) (self)))) ((Employee_DesignModel_UMLPart_generated.dot__salary) (self)))) and UML_Logic.true)))) else (\<tau> \<Turnstile> (result \<triangleq> invalid))))))))))"
 thm dot__contents_Person_def
 defs(overloaded) dot__contents_Planet : "(x::\<cdot>Planet) .contents() \<equiv> x .oclAsType(Person) .contents()"
 defs(overloaded) dot__contents_Galaxy : "(x::\<cdot>Galaxy) .contents() \<equiv> x .oclAsType(Person) .contents()"
 defs(overloaded) dot__contents_OclAny : "(x::\<cdot>OclAny) .contents() \<equiv> x .oclAsType(Person) .contents()"
 ML{* (Ty'.check ([]) (" error(s)")) *}
 
-(* 152 ************************************ 940 + 0 *)
-
 (* 153 ************************************ 940 + 0 *)
 
 (* 154 ************************************ 940 + 0 *)
 
-(* 155 ************************************ 940 + 3 *)
+(* 155 ************************************ 940 + 0 *)
+
+(* 156 ************************************ 940 + 3 *)
 definition "Person_aat_pre = (\<lambda>\<tau>. (\<tau> \<Turnstile> (UML_Set.OclForall ((OclAllInstances_at_pre (Person))) ((\<lambda>self. ((UML_Logic.OclImplies) ((UML_Logic.OclNot) (((UML_Logic.StrictRefEq) ((Employee_DesignModel_UMLPart_generated.dot_0___bossat_pre) (self))) (UML_Types.null_class.null)))) (((UML_Logic.StrongEq) ((Employee_DesignModel_UMLPart_generated.dot__salaryat_pre) (self))) ((Employee_DesignModel_UMLPart_generated.dot__salaryat_pre) ((Employee_DesignModel_UMLPart_generated.dot_0___bossat_pre) (self)))))))))"
 definition "Person_a = (\<lambda>\<tau>. (\<tau> \<Turnstile> (UML_Set.OclForall ((OclAllInstances_at_post (Person))) ((\<lambda>self. ((UML_Logic.OclImplies) ((UML_Logic.OclNot) (((UML_Logic.StrictRefEq) ((Employee_DesignModel_UMLPart_generated.dot_0___boss) (self))) (UML_Types.null_class.null)))) (((UML_Logic.StrongEq) ((Employee_DesignModel_UMLPart_generated.dot__salary) (self))) ((Employee_DesignModel_UMLPart_generated.dot__salary) ((Employee_DesignModel_UMLPart_generated.dot_0___boss) (self)))))))))"
 ML{* (Ty'.check ([]) (" error(s)")) *}
 
-(* 156 ************************************ 943 + 1 *)
+(* 157 ************************************ 943 + 1 *)
 thm Person_aat_pre_def Person_a_def
 
-(* 157 ************************************ 944 + 0 *)
+(* 158 ************************************ 944 + 0 *)
 
-(* 158 ************************************ 944 + 3 *)
+(* 159 ************************************ 944 + 3 *)
 definition "Planet_Aat_pre = (\<lambda>\<tau>. (\<tau> \<Turnstile> (UML_Set.OclForall ((OclAllInstances_at_pre (Planet))) ((\<lambda>self. ((UML_Logic.OclAnd) (UML_Logic.true)) (((UML_Integer.OclLe\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r) ((Employee_DesignModel_UMLPart_generated.dot__weightat_pre) (self))) (UML_Integer.OclInt0)))))))"
 definition "Planet_A = (\<lambda>\<tau>. (\<tau> \<Turnstile> (UML_Set.OclForall ((OclAllInstances_at_post (Planet))) ((\<lambda>self. ((UML_Logic.OclAnd) (UML_Logic.true)) (((UML_Integer.OclLe\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r) ((Employee_DesignModel_UMLPart_generated.dot__weight) (self))) (UML_Integer.OclInt0)))))))"
 ML{* (Ty'.check ([]) (" error(s)")) *}
 
-(* 159 ************************************ 947 + 1 *)
+(* 160 ************************************ 947 + 1 *)
 thm Planet_Aat_pre_def Planet_A_def
 
 end
