@@ -56,10 +56,11 @@ locale contract_scheme =
                   ('\<AA>,'res::null)val"
    fixes PRE
    fixes POST
-   assumes def_scheme': "f self x \<equiv>  (\<lambda> \<tau>. if (\<tau> \<Turnstile> (\<delta> self)) \<and> f_\<upsilon> x \<tau>
-                                         then SOME res. (\<tau> \<Turnstile> PRE self x) \<and>
-                                                        (\<tau> \<Turnstile> POST self x (\<lambda> _. res))
-                                         else invalid \<tau>)"
+   assumes def_scheme': "f self x \<equiv>  (\<lambda> \<tau>. SOME res. let res = \<lambda> _. res in
+                                           if (\<tau> \<Turnstile> (\<delta> self)) \<and> f_\<upsilon> x \<tau>
+                                           then (\<tau> \<Turnstile> PRE self x) \<and>
+                                                (\<tau> \<Turnstile> POST self x res)
+                                           else \<tau> \<Turnstile> res \<triangleq> invalid)"
    assumes all_post': "\<forall> \<sigma> \<sigma>' \<sigma>''. ((\<sigma>,\<sigma>') \<Turnstile> PRE self x) = ((\<sigma>,\<sigma>'') \<Turnstile> PRE self x)"
            (* PRE is really a pre-condition semantically,
               i.e. it does not depend on the post-state. ... *)
@@ -71,10 +72,10 @@ locale contract_scheme =
    assumes f_\<upsilon>_val: "\<And>a1. f_\<upsilon> (f_lam a1 \<tau>) \<tau> = f_\<upsilon> a1 \<tau>"
 begin  
    lemma strict0 [simp]: "f invalid X = invalid"
-   by(rule ext, rename_tac "\<tau>", simp add: def_scheme')
+   by(rule ext, rename_tac "\<tau>", simp add: def_scheme' StrongEq_def OclValid_def false_def true_def)
 
    lemma nullstrict0[simp]: "f null X = invalid"
-   by(rule ext, rename_tac "\<tau>", simp add: def_scheme')
+   by(rule ext, rename_tac "\<tau>", simp add: def_scheme' StrongEq_def OclValid_def false_def true_def)
     
    lemma cp0 : "f self a1 \<tau> = f (\<lambda> _. self \<tau>) (f_lam a1 \<tau>) \<tau>"
    proof -
@@ -131,10 +132,11 @@ locale contract0 =
                   ('\<AA>,'res::null)val"
    fixes PRE
    fixes POST
-   assumes def_scheme: "f self \<equiv>  (\<lambda> \<tau>. if (\<tau> \<Turnstile> (\<delta> self))
-                                         then SOME res. (\<tau> \<Turnstile> PRE self) \<and>
-                                                        (\<tau> \<Turnstile> POST self (\<lambda> _. res))
-                                         else invalid \<tau>)"
+   assumes def_scheme: "f self \<equiv>  (\<lambda> \<tau>. SOME res. let res = \<lambda> _. res in
+                                        if (\<tau> \<Turnstile> (\<delta> self))
+                                        then (\<tau> \<Turnstile> PRE self) \<and>
+                                             (\<tau> \<Turnstile> POST self res)
+                                        else \<tau> \<Turnstile> res \<triangleq> invalid)"
    assumes all_post: "\<forall> \<sigma> \<sigma>' \<sigma>''. ((\<sigma>,\<sigma>') \<Turnstile> PRE self) = ((\<sigma>,\<sigma>'') \<Turnstile> PRE self)"
            (* PRE is really a pre-condition semantically,
               i.e. it does not depend on the post-state. ... *)
@@ -182,10 +184,11 @@ locale contract1 =
    fixes PRE
    fixes POST 
    assumes def_scheme: "f self a1 \<equiv> 
-                               (\<lambda> \<tau>. if (\<tau> \<Turnstile> (\<delta> self)) \<and>  (\<tau> \<Turnstile> \<upsilon> a1)
-                                     then SOME res. (\<tau> \<Turnstile> PRE self a1) \<and>
-                                                    (\<tau> \<Turnstile> POST self a1 (\<lambda> _. res))
-                                     else invalid \<tau>) "
+                               (\<lambda> \<tau>. SOME res. let res = \<lambda> _. res in
+                                     if (\<tau> \<Turnstile> (\<delta> self)) \<and>  (\<tau> \<Turnstile> \<upsilon> a1)
+                                     then (\<tau> \<Turnstile> PRE self a1) \<and>
+                                          (\<tau> \<Turnstile> POST self a1 res)
+                                     else \<tau> \<Turnstile> res \<triangleq> invalid) "
    assumes all_post: "\<forall> \<sigma> \<sigma>' \<sigma>''.  ((\<sigma>,\<sigma>') \<Turnstile> PRE self a1) = ((\<sigma>,\<sigma>'') \<Turnstile> PRE self a1)"
            (* PRE is really a pre-condition semantically,
               i.e. it does not depend on the post-state. ... *)
@@ -203,10 +206,12 @@ by(simp add: OclValid_def cp_valid[symmetric])
 context contract1
 begin
    lemma strict1[simp]: "f self invalid = invalid"
-   by(rule ext, rename_tac "\<tau>", simp add: def_scheme)
+   by(rule ext, rename_tac "\<tau>", simp add: def_scheme StrongEq_def OclValid_def false_def true_def)
 
    lemma defined_mono : "\<tau> \<Turnstile>\<upsilon>(f Y Z) \<Longrightarrow> (\<tau> \<Turnstile>\<delta> Y) \<and> (\<tau> \<Turnstile>\<upsilon> Z)"
-   by(metis (no_types) invalid_def def_scheme foundation18')
+   by(auto simp: valid_def bot_fun_def invalid_def 
+                 def_scheme StrongEq_def OclValid_def false_def true_def
+           split: split_if_asm)
    
    lemma cp_pre: "cp self' \<Longrightarrow> cp a1' \<Longrightarrow>  cp (\<lambda>X. PRE (self' X) (a1' X)  )"
    by(rule_tac f=PRE in cpI2, auto intro: cp\<^sub>P\<^sub>R\<^sub>E)
@@ -229,10 +234,11 @@ locale contract2 =
    fixes PRE 
    fixes POST 
    assumes def_scheme: "f self a1 a2 \<equiv> 
-                               (\<lambda> \<tau>. if (\<tau> \<Turnstile> (\<delta> self)) \<and>  (\<tau> \<Turnstile> \<upsilon> a1) \<and>  (\<tau> \<Turnstile> \<upsilon> a2)
-                                     then SOME res. (\<tau> \<Turnstile> PRE self a1 a2) \<and>
-                                                    (\<tau> \<Turnstile> POST self a1 a2 (\<lambda> _. res))
-                                     else invalid \<tau>) "
+                               (\<lambda> \<tau>. SOME res. let res = \<lambda> _. res in
+                                     if (\<tau> \<Turnstile> (\<delta> self)) \<and>  (\<tau> \<Turnstile> \<upsilon> a1) \<and>  (\<tau> \<Turnstile> \<upsilon> a2)
+                                     then (\<tau> \<Turnstile> PRE self a1 a2) \<and>
+                                          (\<tau> \<Turnstile> POST self a1 a2 res)
+                                     else \<tau> \<Turnstile> res \<triangleq> invalid) "
    assumes all_post: "\<forall> \<sigma> \<sigma>' \<sigma>''.  ((\<sigma>,\<sigma>') \<Turnstile> PRE self a1 a2) = ((\<sigma>,\<sigma>'') \<Turnstile> PRE self a1 a2)"
            (* PRE is really a pre-condition semantically,
               i.e. it does not depend on the post-state. ... *)
@@ -265,13 +271,15 @@ begin
    by(insert nullstrict0[of "(X,Y)"], simp)
 
    lemma strict1[simp]: "f self invalid Y = invalid"
-   by(rule ext, rename_tac "\<tau>", simp add: def_scheme)
+   by(rule ext, rename_tac "\<tau>", simp add: def_scheme StrongEq_def OclValid_def false_def true_def)
 
    lemma strict2[simp]: "f self X invalid = invalid"
-   by(rule ext, rename_tac "\<tau>", simp add: def_scheme)
+   by(rule ext, rename_tac "\<tau>", simp add: def_scheme StrongEq_def OclValid_def false_def true_def)
    
    lemma defined_mono : "\<tau> \<Turnstile>\<upsilon>(f X Y Z) \<Longrightarrow> (\<tau> \<Turnstile>\<delta> X) \<and> (\<tau> \<Turnstile>\<upsilon> Y) \<and> (\<tau> \<Turnstile>\<upsilon> Z)"
-   by(metis (no_types) invalid_def def_scheme foundation18')
+   by(auto simp: valid_def bot_fun_def invalid_def 
+                 def_scheme StrongEq_def OclValid_def false_def true_def
+           split: split_if_asm)
    
    lemma cp_pre: "cp self' \<Longrightarrow> cp a1' \<Longrightarrow> cp a2' \<Longrightarrow> cp (\<lambda>X. PRE (self' X) (a1' X) (a2' X) )"
    by(rule_tac f=PRE in cpI3, auto intro: cp\<^sub>P\<^sub>R\<^sub>E)
@@ -318,10 +326,11 @@ locale contract3 =
    fixes PRE 
    fixes POST 
    assumes def_scheme: "f self a1 a2 a3 \<equiv> 
-                               (\<lambda> \<tau>. if (\<tau> \<Turnstile> (\<delta> self)) \<and>  (\<tau> \<Turnstile> \<upsilon> a1) \<and>  (\<tau> \<Turnstile> \<upsilon> a2) \<and>  (\<tau> \<Turnstile> \<upsilon> a3)
-                                     then SOME res. (\<tau> \<Turnstile> PRE self a1 a2 a3) \<and>
-                                                    (\<tau> \<Turnstile> POST self a1 a2 a3 (\<lambda> _. res))
-                                     else invalid \<tau>) "
+                               (\<lambda> \<tau>. SOME res. let res = \<lambda> _. res in
+                                     if (\<tau> \<Turnstile> (\<delta> self)) \<and>  (\<tau> \<Turnstile> \<upsilon> a1) \<and>  (\<tau> \<Turnstile> \<upsilon> a2) \<and>  (\<tau> \<Turnstile> \<upsilon> a3)
+                                     then (\<tau> \<Turnstile> PRE self a1 a2 a3) \<and>
+                                          (\<tau> \<Turnstile> POST self a1 a2 a3 res)
+                                     else \<tau> \<Turnstile> res \<triangleq> invalid) "
    assumes all_post: "\<forall> \<sigma> \<sigma>' \<sigma>''.  ((\<sigma>,\<sigma>') \<Turnstile> PRE self a1 a2 a3) = ((\<sigma>,\<sigma>'') \<Turnstile> PRE self a1 a2 a3)"
            (* PRE is really a pre-condition semantically,
               i.e. it does not depend on the post-state. ... *)
@@ -348,19 +357,21 @@ by(simp_all add: OclValid_def cp_valid[symmetric])
 context contract3
 begin
    lemma strict0'[simp] : "f invalid X Y Z = invalid"
-   by(rule ext, rename_tac "\<tau>", simp add: def_scheme)
+   by(rule ext, rename_tac "\<tau>", simp add: def_scheme StrongEq_def OclValid_def false_def true_def)
 
    lemma nullstrict0'[simp]: "f null X Y Z = invalid"
-   by(rule ext, rename_tac "\<tau>", simp add: def_scheme)
+   by(rule ext, rename_tac "\<tau>", simp add: def_scheme StrongEq_def OclValid_def false_def true_def)
 
    lemma strict1[simp]: "f self invalid Y Z = invalid"
-   by(rule ext, rename_tac "\<tau>", simp add: def_scheme)
+   by(rule ext, rename_tac "\<tau>", simp add: def_scheme StrongEq_def OclValid_def false_def true_def)
 
    lemma strict2[simp]: "f self X invalid Z = invalid"
-   by(rule ext, rename_tac "\<tau>", simp add: def_scheme)
+   by(rule ext, rename_tac "\<tau>", simp add: def_scheme StrongEq_def OclValid_def false_def true_def)
 
    lemma defined_mono : "\<tau> \<Turnstile>\<upsilon>(f W X Y Z) \<Longrightarrow> (\<tau> \<Turnstile>\<delta> W) \<and> (\<tau> \<Turnstile>\<upsilon> X) \<and> (\<tau> \<Turnstile>\<upsilon> Y) \<and> (\<tau> \<Turnstile>\<upsilon> Z)"
-   by(metis (no_types) invalid_def def_scheme foundation18')
+   by(auto simp: valid_def bot_fun_def invalid_def 
+                 def_scheme StrongEq_def OclValid_def false_def true_def
+           split: split_if_asm)
    
    lemma cp_pre: "cp self' \<Longrightarrow> cp a1' \<Longrightarrow> cp a2'\<Longrightarrow> cp a3' 
                   \<Longrightarrow> cp (\<lambda>X. PRE (self' X) (a1' X) (a2' X) (a3' X) )"
