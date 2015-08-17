@@ -258,10 +258,10 @@ by(simp_all add: OclValid_def cp_valid[symmetric])
 
 context contract2
 begin
-   lemma strict0[simp] : "f invalid X Y = invalid"
+   lemma strict0'[simp] : "f invalid X Y = invalid"
    by(insert strict0[of "(X,Y)"], simp)
 
-   lemma nullstrict0[simp]: "f null X Y = invalid"
+   lemma nullstrict0'[simp]: "f null X Y = invalid"
    by(insert nullstrict0[of "(X,Y)"], simp)
 
    lemma strict1[simp]: "f self invalid Y = invalid"
@@ -280,12 +280,12 @@ begin
                    \<Longrightarrow> cp (\<lambda>X. POST (self' X) (a1' X) (a2' X) (res' X))"
    by(rule_tac f=POST in cpI4, auto intro: cp\<^sub>P\<^sub>O\<^sub>S\<^sub>T)  
    
-   lemma cp0 : "f self a1 a2 \<tau> = f (\<lambda> _. self \<tau>) (\<lambda> _. a1 \<tau>) (\<lambda> _. a2 \<tau>) \<tau>"
+   lemma cp0' : "f self a1 a2 \<tau> = f (\<lambda> _. self \<tau>) (\<lambda> _. a1 \<tau>) (\<lambda> _. a2 \<tau>) \<tau>"
    by (rule cp0[of _ "(a1,a2)", simplified])
       
    lemma cp [simp]:  "cp self' \<Longrightarrow> cp a1' \<Longrightarrow> cp a2' \<Longrightarrow> cp res'
                        \<Longrightarrow> cp (\<lambda>X. f (self' X) (a1' X) (a2' X))"
-      by(rule_tac f=f in cpI3, auto intro:cp0)  
+      by(rule_tac f=f in cpI3, auto intro:cp0')  
 
    theorem unfold : 
       assumes                "cp E"
@@ -347,10 +347,10 @@ by(simp_all add: OclValid_def cp_valid[symmetric])
 
 context contract3
 begin
-   lemma strict0[simp] : "f invalid X Y Z = invalid"
+   lemma strict0'[simp] : "f invalid X Y Z = invalid"
    by(rule ext, rename_tac "\<tau>", simp add: def_scheme)
 
-   lemma nullstrict0[simp]: "f null X Y Z = invalid"
+   lemma nullstrict0'[simp]: "f null X Y Z = invalid"
    by(rule ext, rename_tac "\<tau>", simp add: def_scheme)
 
    lemma strict1[simp]: "f self invalid Y Z = invalid"
@@ -370,12 +370,12 @@ begin
                    \<Longrightarrow> cp (\<lambda>X. POST (self' X) (a1' X) (a2' X) (a3' X)  (res' X))"
    by(rule_tac f=POST in cpI5, auto intro: cp\<^sub>P\<^sub>O\<^sub>S\<^sub>T)  
    
-   lemma cp0 : "f self a1 a2 a3 \<tau> = f (\<lambda> _. self \<tau>) (\<lambda> _. a1 \<tau>) (\<lambda> _. a2 \<tau>) (\<lambda> _. a3 \<tau>) \<tau>"
+   lemma cp0' : "f self a1 a2 a3 \<tau> = f (\<lambda> _. self \<tau>) (\<lambda> _. a1 \<tau>) (\<lambda> _. a2 \<tau>) (\<lambda> _. a3 \<tau>) \<tau>"
    by (rule cp0[of _ "(a1,a2,a3)", simplified])
       
    lemma cp [simp]:  "cp self' \<Longrightarrow> cp a1' \<Longrightarrow> cp a2' \<Longrightarrow> cp a3' \<Longrightarrow> cp res'
                        \<Longrightarrow> cp (\<lambda>X. f (self' X) (a1' X) (a2' X) (a3' X))"
-      by(rule_tac f=f in cpI4, auto intro:cp0)  
+      by(rule_tac f=f in cpI4, auto intro:cp0')  
 
    theorem unfold : 
       assumes                "cp E"
