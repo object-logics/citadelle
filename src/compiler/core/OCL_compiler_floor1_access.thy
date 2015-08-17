@@ -686,4 +686,45 @@ definition "print_access_is_repr = start_map'''' Thy_lemma_by o (\<lambda>expr d
                 (Tacl_by [ Tac_rule' ]) ] else [] (* TODO *))
       | _ \<Rightarrow> [] (* TODO *))) expr)"
 
+definition "print_access_repr_allinst = start_map''''' Thy_lemma_by o (\<lambda>expr (sorry, dirty) design_analysis.
+  if sorry = Some Gen_sorry | sorry = None & dirty then 
+  map_class_arg_only_var'
+    (\<lambda>isub_name name (var_in_when_state, dot_at_when) attr_ty isup_attr dot_attr.
+      case attr_ty of OclTy_object (OclTyObj (OclTyCore ty_obj) _) \<Rightarrow>
+        let var_tau = \<open>\<tau>\<close>
+          ; f = \<lambda>e. Expr_binop (Expr_basic [var_tau]) \<open>\<Turnstile>\<close> e
+          ; a = \<lambda>f x. Expr_apply f [x]
+          ; b = \<lambda>s. Expr_basic [s]
+          ; var_x = \<open>x\<close> in
+            [ Lemma_by
+                (flatten [ isup_attr (flatten [isub_name \<open>dot_repr\<close>, \<open>_\<close>, natural_of_str (TyObjN_ass_switch (TyObj_from ty_obj)), \<open>_\<close>])
+                         , dot_at_when])
+                ([ f (a \<open>\<delta>\<close> (dot_attr (Expr_annot_ocl (Expr_basic [var_x]) name)))
+                 , let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l all_inst = if String_equal var_in_when_state var_in_pre_state then
+                                        \<open>OclAllInstances_at_pre\<close>
+                                      else
+                                        \<open>OclAllInstances_at_post\<close> in
+                   Expr_binop
+                      (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l ty_obj = TyObj_to ty_obj
+                         ; name' = TyObjN_role_ty ty_obj
+                         ; obj_mult = TyObjN_role_multip ty_obj in
+                       f (Expr_apply
+                            (if single_multip obj_mult then
+                               \<open>UML_Set.OclIncludes\<close>
+                             else
+                               \<open>UML_Set.OclIncludesAll\<close>)
+                            [ a all_inst (b name')
+                            , let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l x = dot_attr (b var_x) in
+                              if is_sequence obj_mult then
+                                a \<open>OclAsSet\<^sub>S\<^sub>e\<^sub>q\<close> x
+                              else
+                                x ]))
+                      \<open>\<and>\<close>
+                      (f (Expr_apply \<open>UML_Set.OclIncludes\<close> [ a all_inst (b name)
+                                                           , b var_x ]))])
+                []
+                Tacl_sorry ]
+      | _ \<Rightarrow> []) expr
+  else [])"
+
 end

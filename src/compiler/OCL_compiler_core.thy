@@ -320,6 +320,7 @@ the following combinator @{text switch}: \<close> ]
             , subsection \<open>Representation in States\<close>
             , print_access_def_mono
             , print_access_is_repr
+            , print_access_repr_allinst
 
             , section \<open>A Little Infra-structure on Example States\<close>
             , txt''d [ \<open>

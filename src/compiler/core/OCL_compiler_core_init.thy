@@ -277,6 +277,7 @@ definition "start_map''' f fl = (\<lambda> ocl.
   start_map f (fl design_analysis base_attr base_attr' base_attr'') ocl)"
 definition "start_map'' f fl e = start_map''' f (\<lambda>_. fl) e"
 definition "start_map'''' f fl = (\<lambda> ocl. start_map f (fl (D_design_analysis ocl)) ocl)"
+definition "start_map''''' f fl = (\<lambda> ocl. start_map f (fl (D_sorry_dirty ocl) (D_design_analysis ocl)) ocl)"
 
 definition "start_m_gen final f print = start_map'' final o (\<lambda>expr base_attr _ _.
   m_class_gen2 base_attr f print expr)"
@@ -435,8 +436,8 @@ definition "print_ctxt_pre_post_name attr_n var_at_when_hol name = hol_definitio
 definition "print_ctxt_inv_name n tit var_at_when = flatten [n, \<open>_\<close>, tit, var_at_when]"
 
 definition "make_ctxt_free_var pref ctxt =
- (let l = var_self # List_map fst (Ctxt_fun_ty_arg ctxt) in
-  if pref = OclCtxtPre then l else var_result # l)"
+ (var_self # List_flatten [ List_map fst (Ctxt_fun_ty_arg ctxt)
+                          , if pref = OclCtxtPre then [] else [var_result] ])"
 
 subsection{* context2 *}
 
