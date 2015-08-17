@@ -141,16 +141,15 @@ definition "print_ctxt_pre_post = (\<lambda>f. map_prod List_flatten id o f) o f
                 (dot_expr (Expr_annot_ocl (b var_self) ty_name) id)
                 \<open>\<equiv>\<close>
                 (Expr_lambda var_tau
-                  (a \<open>Eps\<close>
-                      (Expr_lambda
-                        var_r
-                        (Expr_apply \<open>Let\<close> [ Expr_lambda \<open>_\<close> (b var_r)
+                  (a \<open>Eps\<close> (Expr_lambda var_r
+                                        (Expr_apply \<open>Let\<close>
+                                          [ Expr_lambda \<open>_\<close> (b var_r)
                                           , Expr_lambda var_result
                                                         (Expr_parenthesis (Expr_if_then_else (expr_binop0 \<open>True\<close> \<open>\<and>\<close> (List_map (\<lambda>s. f_tau (a \<open>\<delta>\<close> (b s))) (var_self # List_map fst (Ctxt_fun_ty_arg ctxt))))
-                                                                                             (f_tau (Expr_binop
-                                                                                                      (to_s OclCtxtPre (print_ctxt_to_ocl_pre ocl) l_pre)
-                                                                                                      \<open>implies\<close>
-                                                                                                      (to_s OclCtxtPost (print_ctxt_to_ocl_post ocl) l_post)))
+                                                                                             (Expr_binop
+                                                                                               (f_tau (to_s OclCtxtPre (print_ctxt_to_ocl_pre ocl) l_pre))
+                                                                                               \<open>\<and>\<close>
+                                                                                               (f_tau (to_s OclCtxtPost (print_ctxt_to_ocl_post ocl) l_post)))
                                                                                              (f_tau (Expr_rewrite (b var_result) \<open>\<triangleq>\<close> (b \<open>invalid\<close>)))))]))))
               ; (name, def) =
                  (if 
