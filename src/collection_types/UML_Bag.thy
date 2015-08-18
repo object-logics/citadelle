@@ -43,11 +43,11 @@
 
 
 theory  UML_Bag
-imports (*"../basic_types/UML_Void"*)
+imports "../basic_types/UML_Void"
         "../basic_types/UML_Boolean"
         "../basic_types/UML_Integer"
-        (*"../basic_types/UML_String"
-        "../basic_types/UML_Real"*)
+        "../basic_types/UML_String"
+        "../basic_types/UML_Real"
 begin
 
 no_notation None ("\<bottom>")
@@ -57,237 +57,229 @@ definition "Rep_Bag_base' x = {(x0, y). y < \<lceil>\<lceil>Rep_Bag\<^sub>b\<^su
 definition "Rep_Bag_base x \<tau> = {(x0, y). y < \<lceil>\<lceil>Rep_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e (x \<tau>)\<rceil>\<rceil> x0 }"
 definition "Rep_Set_base x \<tau> = fst ` {(x0, y). y < \<lceil>\<lceil>Rep_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e (x \<tau>)\<rceil>\<rceil> x0 }"
 
-(*
-subsection{* As a Motivation for the (infinite) Type Construction: Type-Extensions as Sets 
+definition ApproxEq (infixl "\<cong>" 30)
+where     "X \<cong> Y \<equiv>  \<lambda> \<tau>. \<lfloor>\<lfloor>Rep_Set_base X \<tau> = Rep_Set_base Y \<tau> \<rfloor>\<rfloor>"
+
+
+subsection{* As a Motivation for the (infinite) Type Construction: Type-Extensions as Bags 
              \label{sec:type-extensions}*}
 
-text{* Our notion of typed set goes beyond the usual notion of a finite executable set and
+text{* Our notion of typed bag goes beyond the usual notion of a finite executable bag and
 is powerful enough to capture \emph{the extension of a type} in UML and OCL. This means
-we can have in Featherweight OCL Sets containing all possible elements of a type, not only
+we can have in Featherweight OCL Bags containing all possible elements of a type, not only
 those (finite) ones representable in a state. This holds for base types as well as class types,
 although the notion for class-types --- involving object id's not occuring in a state ---
 requires some care.
 
 In a world with @{term invalid} and @{term null}, there are two notions extensions possible:
 \begin{enumerate}
-\item the set of all \emph{defined} values of a type @{term T}
+\item the bag of all \emph{defined} values of a type @{term T}
       (for which we will introduce the constant  @{term T})
-\item the set of all \emph{valid} values of a type @{term T}, so including @{term null}
+\item the bag of all \emph{valid} values of a type @{term T}, so including @{term null}
       (for which we will introduce the constant  @{term T\<^sub>n\<^sub>u\<^sub>l\<^sub>l}).
 \end{enumerate}
 *}
 
-text{* We define the set extensions for the base type @{term Integer} as follows: *}
-definition Integer :: "('\<AA>,Integer\<^sub>b\<^sub>a\<^sub>s\<^sub>e) Set"
-where     "Integer \<equiv> (\<lambda> \<tau>. (Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e o Some o Some)  ((Some o Some) ` (UNIV::int set)))"
+text{* We define the bag extensions for the base type @{term Integer} as follows: *}
+definition Integer :: "('\<AA>,Integer\<^sub>b\<^sub>a\<^sub>s\<^sub>e) Bag"
+where     "Integer \<equiv> (\<lambda> \<tau>. (Abs_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e o Some o Some)  (\<lambda> None \<Rightarrow> 0 | Some None \<Rightarrow> 0 | _ \<Rightarrow> 1))"
 
-definition Integer\<^sub>n\<^sub>u\<^sub>l\<^sub>l :: "('\<AA>,Integer\<^sub>b\<^sub>a\<^sub>s\<^sub>e) Set"
-where     "Integer\<^sub>n\<^sub>u\<^sub>l\<^sub>l \<equiv> (\<lambda> \<tau>. (Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e o Some o Some)  (Some ` (UNIV::int option set)))"
+definition Integer\<^sub>n\<^sub>u\<^sub>l\<^sub>l :: "('\<AA>,Integer\<^sub>b\<^sub>a\<^sub>s\<^sub>e) Bag"
+where     "Integer\<^sub>n\<^sub>u\<^sub>l\<^sub>l \<equiv> (\<lambda> \<tau>. (Abs_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e o Some o Some)  (\<lambda> None \<Rightarrow> 0 | _ \<Rightarrow> 1))"
 
 lemma Integer_defined : "\<delta> Integer = true"
 apply(rule ext, auto simp: Integer_def defined_def false_def true_def
                            bot_fun_def null_fun_def null_option_def)
-by(simp_all add: Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inject bot_option_def bot_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def null_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def null_option_def)
+by(simp_all add: Abs_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inject bot_option_def bot_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def null_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def null_option_def)
 
 lemma Integer\<^sub>n\<^sub>u\<^sub>l\<^sub>l_defined : "\<delta> Integer\<^sub>n\<^sub>u\<^sub>l\<^sub>l = true"
 apply(rule ext, auto simp: Integer\<^sub>n\<^sub>u\<^sub>l\<^sub>l_def defined_def false_def true_def
                            bot_fun_def null_fun_def null_option_def)
-by(simp_all add: Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inject bot_option_def bot_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def null_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def null_option_def)
+by(simp_all add: Abs_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inject bot_option_def bot_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def null_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def null_option_def)
 
 text{* This allows the theorems:
 
-      @{text "\<tau> \<Turnstile> \<delta> x  \<Longrightarrow> \<tau> \<Turnstile> (Integer->includes\<^sub>S\<^sub>e\<^sub>t(x))"}
-      @{text "\<tau> \<Turnstile> \<delta> x  \<Longrightarrow> \<tau> \<Turnstile> Integer  \<triangleq> (Integer->including\<^sub>S\<^sub>e\<^sub>t(x))"}
+      @{text "\<tau> \<Turnstile> \<delta> x  \<Longrightarrow> \<tau> \<Turnstile> (Integer->includes\<^sub>B\<^sub>a\<^sub>g(x))"}
+      @{text "\<tau> \<Turnstile> \<delta> x  \<Longrightarrow> \<tau> \<Turnstile> Integer  \<triangleq> (Integer->including\<^sub>B\<^sub>a\<^sub>g(x))"}
 
 and
 
-      @{text "\<tau> \<Turnstile> \<upsilon> x  \<Longrightarrow> \<tau> \<Turnstile> (Integer\<^sub>n\<^sub>u\<^sub>l\<^sub>l->includes\<^sub>S\<^sub>e\<^sub>t(x))"}
-      @{text "\<tau> \<Turnstile> \<upsilon> x  \<Longrightarrow> \<tau> \<Turnstile> Integer\<^sub>n\<^sub>u\<^sub>l\<^sub>l  \<triangleq> (Integer\<^sub>n\<^sub>u\<^sub>l\<^sub>l->including\<^sub>S\<^sub>e\<^sub>t(x))"}
+      @{text "\<tau> \<Turnstile> \<upsilon> x  \<Longrightarrow> \<tau> \<Turnstile> (Integer\<^sub>n\<^sub>u\<^sub>l\<^sub>l->includes\<^sub>B\<^sub>a\<^sub>g(x))"}
+      @{text "\<tau> \<Turnstile> \<upsilon> x  \<Longrightarrow> \<tau> \<Turnstile> Integer\<^sub>n\<^sub>u\<^sub>l\<^sub>l  \<triangleq> (Integer\<^sub>n\<^sub>u\<^sub>l\<^sub>l->including\<^sub>B\<^sub>a\<^sub>g(x))"}
 
-which characterize the infiniteness of these sets by a recursive property on these sets.
+which characterize the infiniteness of these bags by a recursive property on these bags.
 *}
 
 text{* In the same spirit, we proceed similarly for the remaining base types: *}
 
-definition Void\<^sub>n\<^sub>u\<^sub>l\<^sub>l :: "('\<AA>,Void\<^sub>b\<^sub>a\<^sub>s\<^sub>e) Set"
-where     "Void\<^sub>n\<^sub>u\<^sub>l\<^sub>l \<equiv> (\<lambda> \<tau>. (Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e o Some o Some) {Abs_Void\<^sub>b\<^sub>a\<^sub>s\<^sub>e (Some None)})"
+definition Void\<^sub>n\<^sub>u\<^sub>l\<^sub>l :: "('\<AA>,Void\<^sub>b\<^sub>a\<^sub>s\<^sub>e) Bag"
+where     "Void\<^sub>n\<^sub>u\<^sub>l\<^sub>l \<equiv> (\<lambda> \<tau>. (Abs_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e o Some o Some) (\<lambda> x. if x = Abs_Void\<^sub>b\<^sub>a\<^sub>s\<^sub>e (Some None) then 1 else 0))"
 
-definition Void\<^sub>e\<^sub>m\<^sub>p\<^sub>t\<^sub>y :: "('\<AA>,Void\<^sub>b\<^sub>a\<^sub>s\<^sub>e) Set"
-where     "Void\<^sub>e\<^sub>m\<^sub>p\<^sub>t\<^sub>y \<equiv> (\<lambda> \<tau>. (Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e o Some o Some) {})"
+definition Void\<^sub>e\<^sub>m\<^sub>p\<^sub>t\<^sub>y :: "('\<AA>,Void\<^sub>b\<^sub>a\<^sub>s\<^sub>e) Bag"
+where     "Void\<^sub>e\<^sub>m\<^sub>p\<^sub>t\<^sub>y \<equiv> (\<lambda> \<tau>. (Abs_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e o Some o Some) (\<lambda>_. 0))"
 
 lemma Void\<^sub>n\<^sub>u\<^sub>l\<^sub>l_defined : "\<delta> Void\<^sub>n\<^sub>u\<^sub>l\<^sub>l = true"
 apply(rule ext, auto simp: Void\<^sub>n\<^sub>u\<^sub>l\<^sub>l_def defined_def false_def true_def
                            bot_fun_def null_fun_def null_option_def
-                           bot_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def null_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def)
-by((subst (asm) Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inject, auto simp add: bot_option_def null_option_def bot_Void_def),
+                           bot_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def null_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def)
+by((subst (asm) Abs_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inject, auto simp add: bot_option_def null_option_def bot_Void_def),
    (subst (asm) Abs_Void\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inject, auto simp add: bot_option_def null_option_def))+
 
 lemma Void\<^sub>e\<^sub>m\<^sub>p\<^sub>t\<^sub>y_defined : "\<delta> Void\<^sub>e\<^sub>m\<^sub>p\<^sub>t\<^sub>y = true"
 apply(rule ext, auto simp: Void\<^sub>e\<^sub>m\<^sub>p\<^sub>t\<^sub>y_def defined_def false_def true_def
                            bot_fun_def null_fun_def null_option_def
-                           bot_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def null_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def)
-by((subst (asm) Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inject, auto simp add: bot_option_def null_option_def bot_Void_def))+
+                           bot_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def null_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def)
+by((subst (asm) Abs_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inject, auto simp add: bot_option_def null_option_def bot_Void_def))+
 
-lemma assumes "\<tau> \<Turnstile> \<delta> (V :: ('\<AA>,Void\<^sub>b\<^sub>a\<^sub>s\<^sub>e) Set)"
-      shows   "\<tau> \<Turnstile> V \<triangleq> Void\<^sub>n\<^sub>u\<^sub>l\<^sub>l \<or> \<tau> \<Turnstile> V \<triangleq> Void\<^sub>e\<^sub>m\<^sub>p\<^sub>t\<^sub>y"
+lemma assumes "\<tau> \<Turnstile> \<delta> (V :: ('\<AA>,Void\<^sub>b\<^sub>a\<^sub>s\<^sub>e) Bag)"
+      shows   "\<tau> \<Turnstile> V \<cong> Void\<^sub>n\<^sub>u\<^sub>l\<^sub>l \<or> \<tau> \<Turnstile> V \<cong> Void\<^sub>e\<^sub>m\<^sub>p\<^sub>t\<^sub>y"
 proof -
   have A:"\<And>x y. x \<noteq> {} \<Longrightarrow> \<exists>y. y\<in> x"
   by (metis all_not_in_conv)
 show "?thesis"
   apply(case_tac "V \<tau>")
-  proof - fix y show "V \<tau> = Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e y \<Longrightarrow>
-                      y \<in> {X. X = \<bottom> \<or> X = null \<or> (\<forall>x\<in>\<lceil>\<lceil>X\<rceil>\<rceil>. x \<noteq> \<bottom>)} \<Longrightarrow>
-                      \<tau> \<Turnstile> V \<triangleq> Void\<^sub>n\<^sub>u\<^sub>l\<^sub>l \<or> \<tau> \<Turnstile> V \<triangleq> Void\<^sub>e\<^sub>m\<^sub>p\<^sub>t\<^sub>y"
-  apply(insert assms, case_tac y, simp add: bot_option_def, simp add: bot_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def foundation16)
+  proof - fix y show "V \<tau> = Abs_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e y \<Longrightarrow>
+                      y \<in> {X. X = \<bottom> \<or> X = null \<or> \<lceil>\<lceil>X\<rceil>\<rceil> \<bottom> = 0} \<Longrightarrow>
+                      \<tau> \<Turnstile> V \<cong> Void\<^sub>n\<^sub>u\<^sub>l\<^sub>l \<or> \<tau> \<Turnstile> V \<cong> Void\<^sub>e\<^sub>m\<^sub>p\<^sub>t\<^sub>y"
+  apply(insert assms, case_tac y, simp add: bot_option_def, simp add: bot_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def foundation16)
   apply(simp add: bot_option_def null_option_def)
-  apply(erule disjE, metis OclValid_def defined_def foundation2 null_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def null_fun_def true_def)
-  proof - fix a show "V \<tau> = Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor>a\<rfloor> \<Longrightarrow> \<forall>x\<in>\<lceil>a\<rceil>. x \<noteq> \<bottom> \<Longrightarrow> \<tau> \<Turnstile> V \<triangleq> Void\<^sub>n\<^sub>u\<^sub>l\<^sub>l \<or> \<tau> \<Turnstile> V \<triangleq> Void\<^sub>e\<^sub>m\<^sub>p\<^sub>t\<^sub>y"
-  apply(case_tac a, simp, insert assms, metis OclValid_def foundation16 null_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def true_def)
+  apply(erule disjE, metis OclValid_def defined_def foundation2 null_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def null_fun_def true_def)
+  proof - fix a show "V \<tau> = Abs_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor>a\<rfloor> \<Longrightarrow> \<lceil>a\<rceil> \<bottom> = 0 \<Longrightarrow> \<tau> \<Turnstile> V \<cong> Void\<^sub>n\<^sub>u\<^sub>l\<^sub>l \<or> \<tau> \<Turnstile> V \<cong> Void\<^sub>e\<^sub>m\<^sub>p\<^sub>t\<^sub>y"
+  apply(case_tac a, simp, insert assms, metis OclValid_def foundation16 null_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def true_def)
   apply(simp)
-  proof - fix aa show " V \<tau> = Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor>\<lfloor>aa\<rfloor>\<rfloor> \<Longrightarrow> \<forall>x\<in>aa. x \<noteq> \<bottom> \<Longrightarrow> \<tau> \<Turnstile> V \<triangleq> Void\<^sub>n\<^sub>u\<^sub>l\<^sub>l \<or> \<tau> \<Turnstile> V \<triangleq> Void\<^sub>e\<^sub>m\<^sub>p\<^sub>t\<^sub>y"
-  apply(case_tac "aa = {}",
+  proof - fix aa show " V \<tau> = Abs_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor>\<lfloor>aa\<rfloor>\<rfloor> \<Longrightarrow> aa \<bottom> = 0 \<Longrightarrow> \<tau> \<Turnstile> V \<cong> Void\<^sub>n\<^sub>u\<^sub>l\<^sub>l \<or> \<tau> \<Turnstile> V \<cong> Void\<^sub>e\<^sub>m\<^sub>p\<^sub>t\<^sub>y"
+  apply(case_tac "aa (Abs_Void\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor>None\<rfloor>) = 0",
         rule disjI2,
         insert assms,
-        simp add: Void\<^sub>e\<^sub>m\<^sub>p\<^sub>t\<^sub>y_def OclValid_def StrongEq_def true_def,
-        rule disjI1)
-  apply(subgoal_tac "aa = {Abs_Void\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor>None\<rfloor>}", simp add: StrongEq_def OclValid_def true_def Void\<^sub>n\<^sub>u\<^sub>l\<^sub>l_def)
-  apply(drule A, erule exE)
-  proof - fix y show "V \<tau> = Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor>\<lfloor>aa\<rfloor>\<rfloor> \<Longrightarrow>
-                      \<forall>x\<in>aa. x \<noteq> \<bottom> \<Longrightarrow>
-                      \<tau> \<Turnstile> \<delta> V \<Longrightarrow>
-                      y \<in> aa \<Longrightarrow>
-                      aa = {Abs_Void\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor>None\<rfloor>}"  
+        simp add: Void\<^sub>e\<^sub>m\<^sub>p\<^sub>t\<^sub>y_def OclValid_def ApproxEq_def Rep_Set_base_def true_def Abs_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inverse image_def)
+  apply(intro allI)
+  proof - fix x fix b show " V \<tau> = Abs_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor>\<lfloor>aa\<rfloor>\<rfloor> \<Longrightarrow> aa \<bottom> = 0 \<Longrightarrow> aa (Abs_Void\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor>None\<rfloor>) = 0 \<Longrightarrow> (\<delta> V) \<tau> = \<lfloor>\<lfloor>True\<rfloor>\<rfloor> \<Longrightarrow> \<not> b < aa x"
+    apply (case_tac x, auto)
+     apply (simp add: bot_Void_def bot_option_def)
+    apply (simp add: bot_option_def null_option_def)
+  done
+  apply_end(simp+, rule disjI1)
+  show "V \<tau> = Abs_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor>\<lfloor>aa\<rfloor>\<rfloor> \<Longrightarrow> aa \<bottom> = 0 \<Longrightarrow> 0 < aa (Abs_Void\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor>None\<rfloor>) \<Longrightarrow> \<tau> \<Turnstile> \<delta> V \<Longrightarrow> \<tau> \<Turnstile> V \<cong> Void\<^sub>n\<^sub>u\<^sub>l\<^sub>l"
+  apply(simp add: Void\<^sub>n\<^sub>u\<^sub>l\<^sub>l_def OclValid_def ApproxEq_def Rep_Set_base_def true_def Abs_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inverse image_def,
+        subst Abs_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inverse, simp)
+  using bot_Void_def apply auto[1]
+  apply(simp)
   apply(rule equalityI, rule subsetI, simp)
-    proof - fix x show " V \<tau> = Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor>\<lfloor>aa\<rfloor>\<rfloor> \<Longrightarrow>
-             \<forall>x\<in>aa. x \<noteq> \<bottom> \<Longrightarrow> \<tau> \<Turnstile> \<delta> V \<Longrightarrow> y \<in> aa \<Longrightarrow> x \<in> aa \<Longrightarrow> x = Abs_Void\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor>None\<rfloor>"
-    apply(case_tac x, simp)
-    by (metis bot_Void_def bot_option_def null_option_def)
-  apply_end(simp_all)
-  
-  apply_end(erule ballE[where x = y], simp_all)
-  apply_end(case_tac y,
-            simp add: bot_option_def null_option_def OclValid_def defined_def split: split_if_asm,
-            simp add: false_def true_def)
-  apply_end(erule disjE, simp add: bot_Void_def, simp)
+   proof - fix x show "V \<tau> = Abs_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor>\<lfloor>aa\<rfloor>\<rfloor> \<Longrightarrow>
+            aa \<bottom> = 0 \<Longrightarrow> 0 < aa (Abs_Void\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor>None\<rfloor>) \<Longrightarrow> (\<delta> V) \<tau> = \<lfloor>\<lfloor>True\<rfloor>\<rfloor> \<Longrightarrow> \<exists>b. b < aa x \<Longrightarrow> x = Abs_Void\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor>None\<rfloor>"
+   apply( case_tac x, auto)
+    apply (simp add: bot_Void_def bot_option_def)
+   apply (simp add: bot_option_def null_option_def)
+   done
+  apply_end (simp add: bot_Void_def bot_option_def)+
+  apply_end blast
 qed qed qed qed qed qed
 
-definition Boolean :: "('\<AA>,Boolean\<^sub>b\<^sub>a\<^sub>s\<^sub>e) Set"
-where     "Boolean \<equiv> (\<lambda> \<tau>. (Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e o Some o Some)  ((Some o Some) ` (UNIV::bool set)))"
+definition Boolean :: "('\<AA>,Boolean\<^sub>b\<^sub>a\<^sub>s\<^sub>e) Bag"
+where     "Boolean \<equiv> (\<lambda> \<tau>. (Abs_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e o Some o Some)  (\<lambda> None \<Rightarrow> 0 | Some None \<Rightarrow> 0 | _ \<Rightarrow> 1))"
 
-definition Boolean\<^sub>n\<^sub>u\<^sub>l\<^sub>l :: "('\<AA>,Boolean\<^sub>b\<^sub>a\<^sub>s\<^sub>e) Set"
-where     "Boolean\<^sub>n\<^sub>u\<^sub>l\<^sub>l \<equiv> (\<lambda> \<tau>. (Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e o Some o Some)  (Some ` (UNIV::bool option set)))"
+definition Boolean\<^sub>n\<^sub>u\<^sub>l\<^sub>l :: "('\<AA>,Boolean\<^sub>b\<^sub>a\<^sub>s\<^sub>e) Bag"
+where     "Boolean\<^sub>n\<^sub>u\<^sub>l\<^sub>l \<equiv> (\<lambda> \<tau>. (Abs_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e o Some o Some)  (\<lambda> None \<Rightarrow> 0 | _ \<Rightarrow> 1))"
 
 lemma Boolean_defined : "\<delta> Boolean = true"
 apply(rule ext, auto simp: Boolean_def defined_def false_def true_def
                            bot_fun_def null_fun_def null_option_def)
-by(simp_all add: Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inject bot_option_def bot_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def null_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def null_option_def)
+by(simp_all add: Abs_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inject bot_option_def bot_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def null_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def null_option_def)
 
 lemma Boolean\<^sub>n\<^sub>u\<^sub>l\<^sub>l_defined : "\<delta> Boolean\<^sub>n\<^sub>u\<^sub>l\<^sub>l = true"
 apply(rule ext, auto simp: Boolean\<^sub>n\<^sub>u\<^sub>l\<^sub>l_def defined_def false_def true_def
                            bot_fun_def null_fun_def null_option_def)
-by(simp_all add: Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inject bot_option_def bot_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def null_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def null_option_def)
+by(simp_all add: Abs_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inject bot_option_def bot_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def null_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def null_option_def)
 
-definition String :: "('\<AA>,String\<^sub>b\<^sub>a\<^sub>s\<^sub>e) Set"
-where     "String \<equiv> (\<lambda> \<tau>. (Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e o Some o Some)  ((Some o Some) ` (UNIV::string set)))"
+definition String :: "('\<AA>,String\<^sub>b\<^sub>a\<^sub>s\<^sub>e) Bag"
+where     "String \<equiv> (\<lambda> \<tau>. (Abs_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e o Some o Some)  (\<lambda> None \<Rightarrow> 0 | Some None \<Rightarrow> 0 | _ \<Rightarrow> 1))"
 
-definition String\<^sub>n\<^sub>u\<^sub>l\<^sub>l :: "('\<AA>,String\<^sub>b\<^sub>a\<^sub>s\<^sub>e) Set"
-where     "String\<^sub>n\<^sub>u\<^sub>l\<^sub>l \<equiv> (\<lambda> \<tau>. (Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e o Some o Some)  (Some ` (UNIV::string option set)))"
+definition String\<^sub>n\<^sub>u\<^sub>l\<^sub>l :: "('\<AA>,String\<^sub>b\<^sub>a\<^sub>s\<^sub>e) Bag"
+where     "String\<^sub>n\<^sub>u\<^sub>l\<^sub>l \<equiv> (\<lambda> \<tau>. (Abs_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e o Some o Some)  (\<lambda> None \<Rightarrow> 0 | _ \<Rightarrow> 1))"
 
 lemma String_defined : "\<delta> String = true"
 apply(rule ext, auto simp: String_def defined_def false_def true_def
                            bot_fun_def null_fun_def null_option_def)
-by(simp_all add: Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inject bot_option_def bot_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def null_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def null_option_def)
+by(simp_all add: Abs_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inject bot_option_def bot_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def null_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def null_option_def)
 
 lemma String\<^sub>n\<^sub>u\<^sub>l\<^sub>l_defined : "\<delta> String\<^sub>n\<^sub>u\<^sub>l\<^sub>l = true"
 apply(rule ext, auto simp: String\<^sub>n\<^sub>u\<^sub>l\<^sub>l_def defined_def false_def true_def
                            bot_fun_def null_fun_def null_option_def)
-by(simp_all add: Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inject bot_option_def bot_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def null_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def null_option_def)
+by(simp_all add: Abs_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inject bot_option_def bot_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def null_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def null_option_def)
 
-definition Real :: "('\<AA>,Real\<^sub>b\<^sub>a\<^sub>s\<^sub>e) Set"
-where     "Real \<equiv> (\<lambda> \<tau>. (Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e o Some o Some)  ((Some o Some) ` (UNIV::real set)))"
+definition Real :: "('\<AA>,Real\<^sub>b\<^sub>a\<^sub>s\<^sub>e) Bag"
+where     "Real \<equiv> (\<lambda> \<tau>. (Abs_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e o Some o Some)  (\<lambda> None \<Rightarrow> 0 | Some None \<Rightarrow> 0 | _ \<Rightarrow> 1))"
 
-definition Real\<^sub>n\<^sub>u\<^sub>l\<^sub>l :: "('\<AA>,Real\<^sub>b\<^sub>a\<^sub>s\<^sub>e) Set"
-where     "Real\<^sub>n\<^sub>u\<^sub>l\<^sub>l \<equiv> (\<lambda> \<tau>. (Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e o Some o Some)  (Some ` (UNIV::real option set)))"
+definition Real\<^sub>n\<^sub>u\<^sub>l\<^sub>l :: "('\<AA>,Real\<^sub>b\<^sub>a\<^sub>s\<^sub>e) Bag"
+where     "Real\<^sub>n\<^sub>u\<^sub>l\<^sub>l \<equiv> (\<lambda> \<tau>. (Abs_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e o Some o Some)  (\<lambda> None \<Rightarrow> 0 | _ \<Rightarrow> 1))"
 
 lemma Real_defined : "\<delta> Real = true"
 apply(rule ext, auto simp: Real_def defined_def false_def true_def
                            bot_fun_def null_fun_def null_option_def)
-by(simp_all add: Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inject bot_option_def bot_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def null_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def null_option_def)
+by(simp_all add: Abs_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inject bot_option_def bot_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def null_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def null_option_def)
 
 lemma Real\<^sub>n\<^sub>u\<^sub>l\<^sub>l_defined : "\<delta> Real\<^sub>n\<^sub>u\<^sub>l\<^sub>l = true"
 apply(rule ext, auto simp: Real\<^sub>n\<^sub>u\<^sub>l\<^sub>l_def defined_def false_def true_def
                            bot_fun_def null_fun_def null_option_def)
-by(simp_all add: Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inject bot_option_def bot_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def null_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def null_option_def)
+by(simp_all add: Abs_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inject bot_option_def bot_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def null_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def null_option_def)
 
-subsection{* Basic Properties of the Set Type*}
+subsection{* Basic Properties of the Bag Type*}
 
-text{* Every element in a defined set is valid. *}
+text{* Every element in a defined bag is valid. *}
 
-lemma Set_inv_lemma: "\<tau> \<Turnstile> (\<delta> X) \<Longrightarrow> \<forall>x\<in>\<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (X \<tau>)\<rceil>\<rceil>. x \<noteq> bot"
-apply(insert Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e [of "X \<tau>"], simp)
+lemma Bag_inv_lemma: "\<tau> \<Turnstile> (\<delta> X) \<Longrightarrow> \<lceil>\<lceil>Rep_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e (X \<tau>)\<rceil>\<rceil> bot = 0"
+apply(insert Rep_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e [of "X \<tau>"], simp)
 apply(auto simp: OclValid_def defined_def false_def true_def cp_def
-                 bot_fun_def bot_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def null_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def null_fun_def
+                 bot_fun_def bot_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def null_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def null_fun_def
            split:split_if_asm)
- apply(erule contrapos_pp [of "Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (X \<tau>) = bot"])
- apply(subst Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inject[symmetric], rule Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e, simp)
- apply(simp add: Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inverse bot_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def bot_option_def)
-apply(erule contrapos_pp [of "Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (X \<tau>) = null"])
-apply(subst Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inject[symmetric], rule Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e, simp)
-apply(simp add: Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inverse  null_option_def)
+ apply(erule contrapos_pp [of "Rep_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e (X \<tau>) = bot"])
+ apply(subst Abs_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inject[symmetric], rule Rep_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e, simp)
+ apply(simp add: Rep_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inverse bot_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def bot_option_def)
+apply(erule contrapos_pp [of "Rep_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e (X \<tau>) = null"])
+apply(subst Abs_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inject[symmetric], rule Rep_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e, simp)
+apply(simp add: Rep_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inverse  null_option_def)
 by (simp add: bot_option_def)
 
-lemma Set_inv_lemma' :
+lemma Bag_inv_lemma' :
  assumes x_def : "\<tau> \<Turnstile> \<delta> X"
-     and e_mem : "e \<in> \<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (X \<tau>)\<rceil>\<rceil>"
+     and e_mem : "\<lceil>\<lceil>Rep_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e (X \<tau>)\<rceil>\<rceil> e \<ge> 1"
    shows "\<tau> \<Turnstile> \<upsilon> (\<lambda>_. e)"
- apply(rule Set_inv_lemma[OF x_def, THEN ballE[where x = e]])
-  apply(simp add: foundation18')
-by(simp add: e_mem)
+apply(case_tac "e = bot", insert assms, drule Bag_inv_lemma, simp)
+by (simp add: foundation18')
 
 lemma abs_rep_simp' :
  assumes S_all_def : "\<tau> \<Turnstile> \<delta> S"
-   shows "Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor>\<lfloor>\<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (S \<tau>)\<rceil>\<rceil>\<rfloor>\<rfloor> = S \<tau>"
+   shows "Abs_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor>\<lfloor>\<lceil>\<lceil>Rep_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e (S \<tau>)\<rceil>\<rceil>\<rfloor>\<rfloor> = S \<tau>"
 proof -
  have discr_eq_false_true : "\<And>\<tau>. (false \<tau> = true \<tau>) = False" by(simp add: false_def true_def)
  show ?thesis
   apply(insert S_all_def, simp add: OclValid_def defined_def)
-  apply(rule mp[OF Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_induct[where P = "\<lambda>S. (if S = \<bottom> \<tau> \<or> S = null \<tau>
+  apply(rule mp[OF Abs_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e_induct[where P = "\<lambda>S. (if S = \<bottom> \<tau> \<or> S = null \<tau>
                                                     then false \<tau> else true \<tau>) = true \<tau> \<longrightarrow>
-                                                   Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor>\<lfloor>\<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e S\<rceil>\<rceil>\<rfloor>\<rfloor> = S"]],
+                                                   Abs_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor>\<lfloor>\<lceil>\<lceil>Rep_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e S\<rceil>\<rceil>\<rfloor>\<rfloor> = S"]],
         rename_tac S')
-   apply(simp add: Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inverse discr_eq_false_true)
-   apply(case_tac S') apply(simp add: bot_fun_def bot_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def)+
-   apply(rename_tac S'', case_tac S'') apply(simp add: null_fun_def null_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def)+
+   apply(simp add: Abs_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inverse discr_eq_false_true)
+   apply(case_tac S') apply(simp add: bot_fun_def bot_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def)+
+   apply(rename_tac S'', case_tac S'') apply(simp add: null_fun_def null_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def)+
  done
 qed
 
-lemma S_lift' :
- assumes S_all_def : "(\<tau> :: '\<AA> st) \<Turnstile> \<delta> S"
-   shows "\<exists>S'. (\<lambda>a (_::'\<AA> st). a) ` \<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (S \<tau>)\<rceil>\<rceil> = (\<lambda>a (_::'\<AA> st). \<lfloor>a\<rfloor>) ` S'"
-  apply(rule_tac x = "(\<lambda>a. \<lceil>a\<rceil>) ` \<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (S \<tau>)\<rceil>\<rceil>" in exI)
-  apply(simp only: image_comp)
-  apply(simp add: comp_def)
-  apply(rule image_cong, fast)
-  (* *)
-  apply(drule Set_inv_lemma'[OF S_all_def])
-by(case_tac x, (simp add: bot_option_def foundation18')+)
-
-lemma invalid_set_OclNot_defined [simp,code_unfold]:"\<delta>(invalid::('\<AA>,'\<alpha>::null) Set) = false" by simp
-lemma null_set_OclNot_defined [simp,code_unfold]:"\<delta>(null::('\<AA>,'\<alpha>::null) Set) = false"
+lemma invalid_bag_OclNot_defined [simp,code_unfold]:"\<delta>(invalid::('\<AA>,'\<alpha>::null) Bag) = false" by simp
+lemma null_bag_OclNot_defined [simp,code_unfold]:"\<delta>(null::('\<AA>,'\<alpha>::null) Bag) = false"
 by(simp add: defined_def null_fun_def)
-lemma invalid_set_valid [simp,code_unfold]:"\<upsilon>(invalid::('\<AA>,'\<alpha>::null) Set) = false"
+lemma invalid_bag_valid [simp,code_unfold]:"\<upsilon>(invalid::('\<AA>,'\<alpha>::null) Bag) = false"
 by simp
-lemma null_set_valid [simp,code_unfold]:"\<upsilon>(null::('\<AA>,'\<alpha>::null) Set) = true"
-apply(simp add: valid_def null_fun_def bot_fun_def bot_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def null_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def)
-apply(subst Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inject,simp_all add: null_option_def bot_option_def)
+lemma null_bag_valid [simp,code_unfold]:"\<upsilon>(null::('\<AA>,'\<alpha>::null) Bag) = true"
+apply(simp add: valid_def null_fun_def bot_fun_def bot_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def null_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def)
+apply(subst Abs_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inject,simp_all add: null_option_def bot_option_def)
 done
 
-text{* ... which means that we can have a type @{text "('\<AA>,('\<AA>,('\<AA>) Integer) Set) Set"}
-corresponding exactly to Set(Set(Integer)) in OCL notation. Note that the parameter
+text{* ... which means that we can have a type @{text "('\<AA>,('\<AA>,('\<AA>) Integer) Bag) Bag"}
+corresponding exactly to Bag(Bag(Integer)) in OCL notation. Note that the parameter
 @{text "'\<AA>"} still refers to the object universe; making the OCL semantics entirely parametric
 in the object universe makes it possible to study (and prove) its properties
 independently from a concrete class diagram. *}
-*)
+
 subsection{* Definition: Strict Equality \label{sec:bag-strict-equality}*}
 
 text{* After the part of foundational operations on bags, we detail here equality on bags.
@@ -412,9 +404,9 @@ where     "OclExcludes x y = (not(OclIncludes x y))"
 notation   OclExcludes    ("_->excludes\<^sub>B\<^sub>a\<^sub>g'(_')" (*[66,65]65*))
 
 text{* The case of the size definition is somewhat special, we admit
-explicitly in Featherweight OCL the possibility of infinite sets. For
+explicitly in Featherweight OCL the possibility of infinite bags. For
 the size definition, this requires an extra condition that assures
-that the cardinality of the set is actually a defined integer. *}
+that the cardinality of the bag is actually a defined integer. *}
 
 interpretation OclExcludes : profile_bin\<^sub>d_\<^sub>v OclExcludes "\<lambda>x y. \<lfloor>\<lfloor> \<lceil>\<lceil>Rep_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e x\<rceil>\<rceil> y \<le> 0 \<rfloor>\<rfloor>"
 by(unfold_locales, auto simp:OclExcludes_def OclIncludes_def OclNot_def bot_option_def null_option_def invalid_def)
@@ -637,7 +629,7 @@ by(unfold_locales, auto simp:OclCount_def bot_option_def null_option_def)
 
 subsection{* Definition (future operators) *}
 
-consts (* abstract set collection operations *)
+consts (* abstract bag collection operations *)
     OclSum         :: " ('\<AA>,'\<alpha>::null) Bag \<Rightarrow> '\<AA> Integer"
   
 notation  OclSum         ("_->sum\<^sub>B\<^sub>a\<^sub>g'(')" (*[66]*))
