@@ -122,31 +122,6 @@ apply(subst UML_OCL.dot\<g>\<e>\<t>095\<b>\<a>\<l>\<a>\<n>\<c>\<e>_def)*)
 oops
 
 (* TODO : Use Locales. *)
-(* Definition (and this MUST be a definition, since it is not a recursive query) must be:
-
-UML_OCL.dot\<d>\<e>\<p>\<o>\<s>\<i>\<t>_def:
-    (?\<tau> \<Turnstile> \<delta> ?self \<and> ?\<tau> \<Turnstile> \<upsilon> ?c \<and> ?\<tau> \<Turnstile> \<upsilon> ?account_id \<and> ?\<tau> \<Turnstile> \<upsilon> ?amount \<Longrightarrow>
-     ?\<tau> \<Turnstile> \<delta> (\<zero> \<le>\<^sub>i\<^sub>n\<^sub>t ?amount and
-              ?self .managed_accounts@pre->exists\<^sub>S\<^sub>e\<^sub>t(X|X .owner@pre \<doteq> ?c and
-     (X .account_id@pre \<doteq> ?account_id)) implies
-              (let A' = ?self .managed_accounts->select\<^sub>S\<^sub>e\<^sub>t(X|X .owner \<doteq> ?c and
-           (X .account_id \<doteq> ?account_id))->any\<^sub>S\<^sub>e\<^sub>t();
-                   A = ?self .managed_accounts->select\<^sub>S\<^sub>e\<^sub>t(X|X .owner \<doteq> ?c and
-          (X .account_id \<doteq> ?account_id))->any\<^sub>S\<^sub>e\<^sub>t()
-               in A' .balance \<doteq> A .balance +\<^sub>i\<^sub>n\<^sub>t ?amount))) \<Longrightarrow>
-    (?\<tau> \<Turnstile> ?self .deposit(?c,?account_id,?amount) \<triangleq> ?result) =
-    (if ?\<tau> \<Turnstile> \<delta> ?self \<and> ?\<tau> \<Turnstile> \<upsilon> ?c \<and> ?\<tau> \<Turnstile> \<upsilon> ?account_id \<and> ?\<tau> \<Turnstile> \<upsilon> ?amount
-     then ?\<tau> \<Turnstile> \<zero> \<le>\<^sub>i\<^sub>n\<^sub>t ?amount and
-                ?self .managed_accounts@pre->exists\<^sub>S\<^sub>e\<^sub>t(X|X .owner@pre \<doteq> ?c and
-       (X .account_id@pre \<doteq> ?account_id)) implies
-                (let A' = ?self .managed_accounts->select\<^sub>S\<^sub>e\<^sub>t(X|X .owner \<doteq> ?c and
-             (X .account_id \<doteq> ?account_id))->any\<^sub>S\<^sub>e\<^sub>t();
-                     A = ?self .managed_accounts->select\<^sub>S\<^sub>e\<^sub>t(X|X .owner \<doteq> ?c and
-            (X .account_id \<doteq> ?account_id))->any\<^sub>S\<^sub>e\<^sub>t()
-                 in A' .balance \<doteq> A .balance +\<^sub>i\<^sub>n\<^sub>t ?amount)
-     else ?\<tau> \<Turnstile> ?result \<triangleq> invalid)
-
-   *)
 
 
 find_theorems (100) "dot\<g>\<e>\<t>095\<b>\<a>\<l>\<a>\<n>\<c>\<e>"
