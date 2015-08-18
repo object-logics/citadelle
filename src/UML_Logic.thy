@@ -930,7 +930,8 @@ assumes Q: "\<tau> \<Turnstile> Q \<Longrightarrow> R"
 shows "R"
 by(insert H, subst (asm) foundation11[OF defP defQ], erule disjE, simp_all add: P Q)
 
-
+lemma foundation27: "\<tau> \<Turnstile> A \<Longrightarrow> (\<tau> \<Turnstile> A implies B) = (\<tau> \<Turnstile> B)" 
+by (simp add: foundation12 foundation6)
 
 lemma defined_not_I : "\<tau> \<Turnstile> \<delta> (x) \<Longrightarrow> \<tau> \<Turnstile> \<delta> (not x)"
   by(auto simp: OclNot_def null_def invalid_def defined_def valid_def OclValid_def
