@@ -154,35 +154,38 @@ text{* For the case of recursive queries, we use at present just axiomatizations
                   
 axiomatization contents :: "Person \<Rightarrow> Set_Integer"  ("(1(_).contents'('))" 50)
 where contents_def:
-"(self .contents()) = (\<lambda> \<tau>. (if \<tau> \<Turnstile> (\<delta> self)
-                             then SOME res.((\<tau> \<Turnstile> true) \<and>
-                                            (\<tau> \<Turnstile> (\<lambda>_ . res) \<triangleq> if (self .boss \<doteq> null)
-                                                               then (Set{self .salary})
-                                                               else (self .boss .contents()
-                                                                        ->including\<^sub>S\<^sub>e\<^sub>t(self .salary))
-                                                               endif))
-                             else invalid \<tau>))"
+"(self .contents()) = (\<lambda> \<tau>. SOME res. let res = \<lambda> _. res in
+                            if \<tau> \<Turnstile> (\<delta> self)
+                            then ((\<tau> \<Turnstile> true) \<and>
+                                  (\<tau> \<Turnstile> res \<triangleq> if (self .boss \<doteq> null)
+                                              then (Set{self .salary})
+                                              else (self .boss .contents()
+                                                       ->including\<^sub>S\<^sub>e\<^sub>t(self .salary))
+                                              endif))
+                            else \<tau> \<Turnstile> res \<triangleq> invalid)"
 and cp0_contents:"(X .contents()) \<tau> = ((\<lambda>_. X \<tau>) .contents()) \<tau>"
 
 interpretation contents : contract0 "contents" "\<lambda> self. true"  
                           "\<lambda> self res.  res \<triangleq> if (self .boss \<doteq> null)
-                                                               then (Set{self .salary})
-                                                               else (self .boss .contents()
-                                                                        ->including\<^sub>S\<^sub>e\<^sub>t(self .salary))
-                                                               endif"  
+                                              then (Set{self .salary})
+                                              else (self .boss .contents()
+                                                       ->including\<^sub>S\<^sub>e\<^sub>t(self .salary))
+                                              endif"  
          proof (unfold_locales)
             show "\<And>self \<tau>. true \<tau> = true \<tau>" by auto
          next
             show "\<And>self. \<forall>\<sigma> \<sigma>' \<sigma>''. ((\<sigma>, \<sigma>') \<Turnstile> true) = ((\<sigma>, \<sigma>'') \<Turnstile> true)" by auto
          next
             show "\<And>self. self .contents() \<equiv>
-                         \<lambda>\<tau>. if \<tau> \<Turnstile> \<delta> self
-                             then SOME res. 
-                                      \<tau> \<Turnstile> true \<and>
-                                      \<tau> \<Turnstile> (\<lambda>_. res) \<triangleq> (if self .boss \<doteq> null then Set{self .salary} 
-                                              else self .boss .contents()->including\<^sub>S\<^sub>e\<^sub>t(self .salary) 
-                                              endif)
-                             else invalid \<tau>"
+                       \<lambda> \<tau>. SOME res. let res = \<lambda> _. res in
+                            if \<tau> \<Turnstile> (\<delta> self)
+                            then ((\<tau> \<Turnstile> true) \<and>
+                                  (\<tau> \<Turnstile> res \<triangleq> if (self .boss \<doteq> null)
+                                              then (Set{self .salary})
+                                              else (self .boss .contents()
+                                                       ->including\<^sub>S\<^sub>e\<^sub>t(self .salary))
+                                              endif))
+                            else \<tau> \<Turnstile> res \<triangleq> invalid"
                   by(auto simp: contents_def )
          next
             have A:"\<And>self \<tau>. ((\<lambda>_. self \<tau>) .boss \<doteq> null) \<tau> = (\<lambda>_. (self .boss \<doteq> null) \<tau>) \<tau>" 
@@ -229,14 +232,15 @@ consts contentsATpre :: "Person \<Rightarrow> Set_Integer"  ("(1(_).contents@pre
 
 axiomatization where contentsATpre_def:
 " (self).contents@pre() = (\<lambda> \<tau>.
-      (if \<tau> \<Turnstile> (\<delta> self)
-       then SOME res.((\<tau> \<Turnstile> true) \<and>                                  (* pre *)
-                      (\<tau> \<Turnstile> ((\<lambda>_. res) \<triangleq> if (self).boss@pre \<doteq> null  (* post *)
-                                         then Set{(self).salary@pre}
-                                         else (self).boss@pre .contents@pre()
-                                                    ->including\<^sub>S\<^sub>e\<^sub>t(self .salary@pre)
-                                         endif)))
-        else invalid \<tau>))"
+      SOME res. let res = \<lambda> _. res in
+      if \<tau> \<Turnstile> (\<delta> self)
+      then ((\<tau> \<Turnstile> true) \<and>                                  (* pre *)
+            (\<tau> \<Turnstile> (res \<triangleq> if (self).boss@pre \<doteq> null  (* post *)
+                         then Set{(self).salary@pre}
+                         else (self).boss@pre .contents@pre()
+                                    ->including\<^sub>S\<^sub>e\<^sub>t(self .salary@pre)
+                         endif)))
+      else \<tau> \<Turnstile> res \<triangleq> invalid)"
 and cp0_contents_at_pre:"(X .contents@pre()) \<tau> = ((\<lambda>_. X \<tau>) .contents@pre()) \<tau>"
 
 interpretation contentsATpre : contract0 "contentsATpre" "\<lambda> self. true"  
@@ -251,13 +255,13 @@ interpretation contentsATpre : contract0 "contentsATpre" "\<lambda> self. true"
             show "\<And>self. \<forall>\<sigma> \<sigma>' \<sigma>''. ((\<sigma>, \<sigma>') \<Turnstile> true) = ((\<sigma>, \<sigma>'') \<Turnstile> true)" by auto
          next
             show "\<And>self. self .contents@pre() \<equiv>
-                         \<lambda>\<tau>. if \<tau> \<Turnstile> \<delta> self
-                             then SOME res. 
-                                      \<tau> \<Turnstile> true \<and>
-                                      \<tau> \<Turnstile> (\<lambda>_. res) \<triangleq> (if self .boss@pre \<doteq> null then Set{self .salary@pre} 
+                         \<lambda>\<tau>. SOME res. let res = \<lambda> _. res in
+                             if \<tau> \<Turnstile> \<delta> self
+                             then \<tau> \<Turnstile> true \<and>
+                                  \<tau> \<Turnstile> res \<triangleq> (if self .boss@pre \<doteq> null then Set{self .salary@pre} 
                                               else self .boss@pre .contents@pre()->including\<^sub>S\<^sub>e\<^sub>t(self .salary@pre) 
                                               endif)
-                             else invalid \<tau>"
+                             else \<tau> \<Turnstile> res \<triangleq> invalid"
                   by(auto simp: contentsATpre_def)
          next
             have A:"\<And>self \<tau>. ((\<lambda>_. self \<tau>) .boss@pre \<doteq> null) \<tau> = (\<lambda>_. (self .boss@pre \<doteq> null) \<tau>) \<tau>" 
@@ -316,10 +320,11 @@ This boils down to:
 
 definition insert :: "Person \<Rightarrow>Integer \<Rightarrow> Void"  ("(1(_).insert'(_'))" 50)
 where "self .insert(x) \<equiv> 
-            (\<lambda> \<tau>. if (\<tau> \<Turnstile> (\<delta> self)) \<and>  (\<tau> \<Turnstile> \<upsilon> x)
-                  then SOME res. (\<tau> \<Turnstile> true \<and>  
-                                 (\<tau> \<Turnstile> ((self).contents() \<triangleq> (self).contents@pre()->including\<^sub>S\<^sub>e\<^sub>t(x))))
-                  else invalid \<tau>)"  
+            (\<lambda> \<tau>. SOME res. let res = \<lambda> _. res in
+                  if (\<tau> \<Turnstile> (\<delta> self)) \<and>  (\<tau> \<Turnstile> \<upsilon> x)
+                  then (\<tau> \<Turnstile> true \<and>  
+                       (\<tau> \<Turnstile> ((self).contents() \<triangleq> (self).contents@pre()->including\<^sub>S\<^sub>e\<^sub>t(x))))
+                  else \<tau> \<Turnstile> res \<triangleq> invalid)"  
 
 text{* The semantic consequences of this definition were computed inside this locale interpretation:*}
 interpretation insert : contract1 "insert" "\<lambda> self x. true" 
