@@ -103,22 +103,37 @@ Context Bank :: get_balance (c : Client, account_id : Integer) : Integer
 
 lemmas [simp,code_unfold] = dot_accessor
 
-lemma XXX: "\<tau> \<Turnstile>  (X \<triangleq> null) \<Longrightarrow>  \<tau> \<Turnstile>  \<upsilon>(X)" 
-by (metis foundation18 foundation22 valid2 valid_bool_split)
-
-lemma YYY: "\<tau> \<Turnstile> \<upsilon> bank .withdraw(c,a1,b) \<Longrightarrow> (\<tau> \<Turnstile> \<delta> bank) \<and> (\<tau> \<Turnstile> \<upsilon> c) \<and> (\<tau> \<Turnstile> \<upsilon> a1) \<and> (\<tau> \<Turnstile> \<upsilon> b)"
-oops
-
 lemma 
+assumes const_bank : "const bank"
+assumes const_c : "const c"
+assumes const_a1 : "const a1"
 assumes  *:   "(\<sigma>,\<sigma>')       \<Turnstile> ((bank :: \<cdot>Bank) .get_balance(c , a1) \<triangleq> d)"
 and      **:  "(\<sigma>',\<sigma>'')     \<Turnstile>  (bank .deposit(c, a1, a)    \<triangleq> null)"
 and      ***: "(\<sigma>'',\<sigma>''')   \<Turnstile>  (bank .withdraw(c, a1, b)   \<triangleq> null)"
 shows         "(\<sigma>''',\<sigma>'''') \<Turnstile> ((bank .get_balance(c , a1)) \<triangleq> (d +\<^sub>i\<^sub>n\<^sub>t a -\<^sub>i\<^sub>n\<^sub>t b))"
+proof - 
+have XXX: "\<And>\<tau> X. \<tau> \<Turnstile>  (X \<triangleq> null) \<Longrightarrow>  \<tau> \<Turnstile>  \<upsilon>(X)" 
+by (metis foundation18 foundation22 valid2 valid_bool_split)
+show "?thesis"
 apply(insert * ** ***) 
 apply(frule XXX) back
-(*apply(frule YYY) 
-apply(subst UML_OCL.dot\<g>\<e>\<t>095\<b>\<a>\<l>\<a>\<n>\<c>\<e>_def)*)
+(*(* from this point, the SORRY flag (or declare [[quick_and_dirty = true]]) is currently needed for the following to work *)
+apply(drule dot__withdraw.defined_mono) 
 
+apply(subst UML_OCL.dot__get_balance_Bank, subst OclValid_def, subst (2) StrongEq_def, subst true_def,
+      simp only: option.inject eq_True Let_def)
+apply(subgoal_tac "(\<sigma>''', \<sigma>'''') \<Turnstile> \<delta> bank \<and> (\<sigma>''', \<sigma>'''') \<Turnstile> \<upsilon> c \<and> (\<sigma>''', \<sigma>'''') \<Turnstile> \<upsilon> a1")
+ prefer 2
+ apply (meson const_OclValid1 const_OclValid2 const_a1 const_bank const_c)
+apply(simp only: simp_thms if_True)
+
+apply(subst (asm) UML_OCL.dot__get_balance_Bank, subst (asm) OclValid_def, subst (asm) (2) StrongEq_def, subst (asm) true_def,
+      simp only: option.inject eq_True Let_def)
+apply(subgoal_tac "(\<sigma>, \<sigma>') \<Turnstile> \<delta> bank \<and> (\<sigma>, \<sigma>') \<Turnstile> \<upsilon> c \<and> (\<sigma>, \<sigma>') \<Turnstile> \<upsilon> a1")
+ prefer 2
+ apply (meson const_OclValid1 const_OclValid2 const_a1 const_bank const_c)
+apply(simp only: simp_thms if_True)
+*)
 oops
 
 (* TODO : Use Locales. *)
