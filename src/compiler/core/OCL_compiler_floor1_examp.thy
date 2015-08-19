@@ -87,7 +87,7 @@ definition "print_examp_oclbase_gen =
 definition "print_examp_oclbase = (\<lambda> OclDefBase l \<Rightarrow> (start_map Thy_definition_hol o List_map (snd o print_examp_oclbase_gen)) l)"
 
 datatype print_examp_instance_draw_list_attr = Return_obj ocl_ty_class
-                                             | Return_exp hol_expr
+                                             | Return_exp hol_'expr
 datatype print_examp_instance_draw_list_attr_err = Return_err_ty "ocl_ty \<times> ocl_data_shallow"
                                                  | Return_err_ty_auto (* automated type reconstruction failed *)
                                                  | Return_ocl_null

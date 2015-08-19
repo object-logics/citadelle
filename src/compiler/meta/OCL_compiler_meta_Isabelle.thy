@@ -51,162 +51,162 @@ begin
 section{* Isabelle/HOL Meta-Model aka. AST definition of HOL *}
 subsection{* type definition *}
 
-datatype hol_raw_ty = Ty_apply hol_raw_ty "hol_raw_ty list"
-                    | Ty_apply_bin string (* binop *) hol_raw_ty hol_raw_ty
-                    | Ty_apply_paren string (* left *) string (* right *) hol_raw_ty
-                    | Ty_base string
+datatype hol_'type = Ty_apply hol_'type "hol_'type list"
+                   | Ty_apply_bin string (* binop *) hol_'type hol_'type
+                   | Ty_apply_paren string (* left *) string (* right *) hol_'type
+                   | Ty_base string
 
-datatype hol_dataty = Datatype string (* name *)
-                               "(string (* name *) \<times> hol_raw_ty list (* arguments *)) list" (* constructors *)
+datatype hol_datatype = Datatype string (* name *)
+                                 "(string (* name *) \<times> hol_'type list (* arguments *)) list" (* constructors *)
 
-datatype hol_ty_synonym = Type_synonym00 string (* name *)
-                                         "string list" (* parametric variables *)
-                                         hol_raw_ty (* content *)
+datatype hol_type_synonym = Type_synonym00 string (* name *)
+                                           "string list" (* parametric variables *)
+                                           hol_'type (* content *)
 
-datatype hol_expr = Expr_rewrite hol_expr (* left *) string (* symb rewriting *) hol_expr (* right *)
-                  | Expr_basic "string list"
-                  | Expr_oid string (* prefix *) internal_oid
-                  | Expr_annot0 hol_expr hol_raw_ty
-                  | Expr_bind0 string (* symbol *) hol_expr (* arg *) hol_expr
-                  | Expr_function0 "hol_expr (* value *) option" (* none: function *) "(hol_expr (* pattern *) \<times> hol_expr (* to return *)) list"
-                  | Expr_applys00 hol_expr "hol_expr list"
-                  | Expr_paren string (* left *) string (* right *) hol_expr
-                  | Expr_if_then_else hol_expr hol_expr hol_expr
-                  | Expr_inner0 "string list" (* simulate a pre-initialized context (de bruijn variables under "lam") *)
-                                pure_term (* usual continuation of inner syntax term *)
+datatype hol_'expr = Expr_rewrite hol_'expr (* left *) string (* symb rewriting *) hol_'expr (* right *)
+                   | Expr_basic "string list"
+                   | Expr_oid string (* prefix *) internal_oid
+                   | Expr_annot0 hol_'expr hol_'type
+                   | Expr_bind0 string (* symbol *) hol_'expr (* arg *) hol_'expr
+                   | Expr_function0 "hol_'expr (* value *) option" (* none: function *) "(hol_'expr (* pattern *) \<times> hol_'expr (* to return *)) list"
+                   | Expr_applys00 hol_'expr "hol_'expr list"
+                   | Expr_paren string (* left *) string (* right *) hol_'expr
+                   | Expr_if_then_else hol_'expr hol_'expr hol_'expr
+                   | Expr_inner0 "string list" (* simulate a pre-initialized context (de bruijn variables under "lam") *)
+                                 pure_term (* usual continuation of inner syntax term *)
 
-datatype hol_ty_notation = Type_notation string (* name *)
-                                         string (* content *)
-
-datatype hol_instantiation_class = Instantiation string (* name *)
-                                                 string (* name in definition *)
-                                                 hol_expr
-
-datatype hol_defs_overloaded = Defs_overloaded string (* name *) hol_expr (* content *)
-
-datatype hol_consts_class = Consts_raw string (* name *)
-                                       hol_raw_ty
-                                       string (* ocl 'post' mixfix *)
-
-datatype hol_definition_hol = Definition hol_expr
-                            | Definition_abbrev string (* name *) "hol_expr (* syntax extension *) \<times> nat (* priority *)" hol_expr
-                            | Definition_abbrev0 string (* name *) hol_expr (* syntax extension *) hol_expr
-
-datatype hol_ntheorem = Thm_str string (* represents a single thm *)
-                      | Thm_strs string (* represents several thms *)
-                      | Thm_THEN hol_ntheorem hol_ntheorem
-                      | Thm_simplified hol_ntheorem hol_ntheorem
-                      | Thm_symmetric hol_ntheorem
-                      | Thm_where hol_ntheorem "(string \<times> hol_expr) list"
-                      | Thm_of hol_ntheorem "hol_expr list"
-                      | Thm_OF hol_ntheorem hol_ntheorem
-
-datatype hol_ntheorems = Thms_single hol_ntheorem
-                       | Thms_mult hol_ntheorem
-
-type_synonym hol_ntheorems_l = "hol_ntheorems list"
-
-datatype hol_lemmas_simp = Lemmas_simp_opt
-                                       bool (* True : simp *)
-                                       string (* name *)
-                                       "hol_ntheorem list"
-                         | Lemmas_simps string (* name *)
-                                        "string (* thms *) list"
-
-datatype hol_tactic_simp = Simp_only hol_ntheorems_l
-                         | Simp_add_del_split hol_ntheorems_l (* add *) hol_ntheorems_l (* del *) hol_ntheorems_l (* split *)
-
-datatype hol_tactic = Tact_rule0 "hol_ntheorem option"
-                    | Tact_drule hol_ntheorem
-                    | Tact_erule hol_ntheorem
-                    | Tact_intro "hol_ntheorem list"
-                    | Tact_elim hol_ntheorem
-                    | Tact_subst_l0 bool (* asm *)
-                                    "string (* nat *) list" (* pos *)
-                                    hol_ntheorem
-                    | Tact_insert hol_ntheorems_l
-                    | Tact_plus "hol_tactic list"
-                    | Tact_option "hol_tactic list"
-                    | Tact_or "hol_tactic list"
-                    | Tact_one hol_tactic_simp
-                    | Tact_all hol_tactic_simp
-                    | Tact_auto_simp_add_split hol_ntheorems_l "string list"
-                    | Tact_rename_tac "string list"
-                    | Tact_case_tac hol_expr
-                    | Tact_blast "nat option"
-                    | Tact_clarify
-                    | Tact_metis0 "string list" (* e.g. "no_types" (override_type_encs) *)
-                                  "hol_ntheorem list"
-
-datatype hol_tactic_last = Tacl_done
-                         | Tacl_by "hol_tactic list"
-                         | Tacl_sorry
-
-datatype hol_tac_apply_end = AppE "hol_tactic list" (* apply_end (... ',' ...) *)
-
-datatype hol_tac_apply = App "hol_tactic list" (* apply (... ',' ...) *)
-                       | App_using0 hol_ntheorems_l (* using ... *)
-                       | App_unfolding0 hol_ntheorems_l (* unfolding ... *)
-                       | App_let hol_expr (* name *) hol_expr
-                       | App_have0 string (* name *)
-                                   bool (* true: add [simp] *)
-                                   hol_expr
-                                   hol_tactic_last
-                       | App_fix_let "string list"
-                                     "(hol_expr (* name *) \<times> hol_expr) list" (* let statements *) (* TODO merge recursively *)
-                                     "hol_expr list option" (* None => ?thesis
-                                                               Some l => "... ==> ..." *)
-                                     "hol_tac_apply_end list" (* qed apply_end ... *)
-
-datatype hol_lemma_by = Lemma_by string (* name *) "hol_expr list" (* specification to prove *)
-                          "hol_tactic list list" (* tactics : apply (... ',' ...) '\n' apply ... *)
-                          hol_tactic_last
-                      | Lemma_by_assum string (* name *)
-                          "(string (* name *) \<times> bool (* true: add [simp] *) \<times> hol_expr) list" (* specification to prove (assms) *)
-                          hol_expr (* specification to prove (conclusion) *)
-                          "hol_tac_apply list"
-                          hol_tactic_last
-
-datatype hol_axiom = Axiom string (* name *)
-                           hol_expr
-
-datatype hol_section_title = Section_title nat (* nesting level *)
+datatype hol_type_notation = Type_notation string (* name *)
                                            string (* content *)
+
+datatype hol_instantiation = Instantiation string (* name *)
+                                           string (* name in definition *)
+                                           hol_'expr
+
+datatype hol_defs = Defs_overloaded string (* name *) hol_'expr (* content *)
+
+datatype hol_consts = Consts_raw string (* name *)
+                                 hol_'type
+                                 string (* ocl 'post' mixfix *)
+
+datatype hol_definition = Definition hol_'expr
+                        | Definition_abbrev string (* name *) "hol_'expr (* syntax extension *) \<times> nat (* priority *)" hol_'expr
+                        | Definition_abbrev0 string (* name *) hol_'expr (* syntax extension *) hol_'expr
+
+datatype hol_'ntheorem = Thm_str string (* represents a single thm *)
+                       | Thm_strs string (* represents several thms *)
+                       | Thm_THEN hol_'ntheorem hol_'ntheorem
+                       | Thm_simplified hol_'ntheorem hol_'ntheorem
+                       | Thm_symmetric hol_'ntheorem
+                       | Thm_where hol_'ntheorem "(string \<times> hol_'expr) list"
+                       | Thm_of hol_'ntheorem "hol_'expr list"
+                       | Thm_OF hol_'ntheorem hol_'ntheorem
+
+datatype hol_'ntheorems = Thms_single hol_'ntheorem
+                        | Thms_mult hol_'ntheorem
+
+type_synonym hol_'ntheorems_l = "hol_'ntheorems list"
+
+datatype hol_lemmas = Lemmas_simp_opt
+                                      bool (* True : simp *)
+                                      string (* name *)
+                                      "hol_'ntheorem list"
+                    | Lemmas_simps string (* name *)
+                                   "string (* thms *) list"
+
+datatype hol_'tactic_simp = Simp_only hol_'ntheorems_l
+                          | Simp_add_del_split hol_'ntheorems_l (* add *) hol_'ntheorems_l (* del *) hol_'ntheorems_l (* split *)
+
+datatype hol_'tactic = Tact_rule0 "hol_'ntheorem option"
+                     | Tact_drule hol_'ntheorem
+                     | Tact_erule hol_'ntheorem
+                     | Tact_intro "hol_'ntheorem list"
+                     | Tact_elim hol_'ntheorem
+                     | Tact_subst_l0 bool (* asm *)
+                                     "string (* nat *) list" (* pos *)
+                                     hol_'ntheorem
+                     | Tact_insert hol_'ntheorems_l
+                     | Tact_plus "hol_'tactic list"
+                     | Tact_option "hol_'tactic list"
+                     | Tact_or "hol_'tactic list"
+                     | Tact_one hol_'tactic_simp
+                     | Tact_all hol_'tactic_simp
+                     | Tact_auto_simp_add_split hol_'ntheorems_l "string list"
+                     | Tact_rename_tac "string list"
+                     | Tact_case_tac hol_'expr
+                     | Tact_blast "nat option"
+                     | Tact_clarify
+                     | Tact_metis0 "string list" (* e.g. "no_types" (override_type_encs) *)
+                                   "hol_'ntheorem list"
+
+datatype hol_'tactic_last = Tacl_done
+                          | Tacl_by "hol_'tactic list"
+                          | Tacl_sorry
+
+datatype hol_'tac_apply_end = AppE "hol_'tactic list" (* apply_end (... ',' ...) *)
+
+datatype hol_'tac_apply = App "hol_'tactic list" (* apply (... ',' ...) *)
+                        | App_using0 hol_'ntheorems_l (* using ... *)
+                        | App_unfolding0 hol_'ntheorems_l (* unfolding ... *)
+                        | App_let hol_'expr (* name *) hol_'expr
+                        | App_have0 string (* name *)
+                                    bool (* true: add [simp] *)
+                                    hol_'expr
+                                    hol_'tactic_last
+                        | App_fix_let "string list"
+                                      "(hol_'expr (* name *) \<times> hol_'expr) list" (* let statements *) (* TODO merge recursively *)
+                                      "hol_'expr list option" (* None => ?thesis
+                                                                 Some l => "... ==> ..." *)
+                                      "hol_'tac_apply_end list" (* qed apply_end ... *)
+
+datatype hol_lemma = Lemma_by string (* name *) "hol_'expr list" (* specification to prove *)
+                              "hol_'tactic list list" (* tactics : apply (... ',' ...) '\n' apply ... *)
+                              hol_'tactic_last
+                   | Lemma_by_assum string (* name *)
+                                    "(string (* name *) \<times> bool (* true: add [simp] *) \<times> hol_'expr) list" (* specification to prove (assms) *)
+                                    hol_'expr (* specification to prove (conclusion) *)
+                                    "hol_'tac_apply list"
+                                    hol_'tactic_last
+
+datatype hol_axiomatization = Axiom string (* name *)
+                                    hol_'expr
+
+datatype hol_section = Section_title nat (* nesting level *)
+                                     string (* content *)
 
 datatype hol_text = Text string
 
-datatype hol_ml = Ml sml_expr
+datatype hol_ML = Ml sml_expr
 
-datatype hol_thm = Thm "hol_ntheorem list"
+datatype hol_thm = Thm "hol_'ntheorem list"
 
 datatype hol_interpretation = Interpretation string (* name *)
                                              string (* locale name *)
-                                             "hol_expr list" (* locale param *)
-                                             hol_tactic_last
+                                             "hol_'expr list" (* locale param *)
+                                             hol_'tactic_last
 
-datatype hol_t = Theory_dataty hol_dataty
-               | Theory_ty_synonym hol_ty_synonym
-               | Theory_ty_notation hol_ty_notation
-               | Theory_instantiation_class hol_instantiation_class
-               | Theory_defs_overloaded hol_defs_overloaded
-               | Theory_consts_class hol_consts_class
-               | Theory_definition_hol hol_definition_hol
-               | Theory_lemmas_simp hol_lemmas_simp
-               | Theory_lemma_by hol_lemma_by
-               | Theory_axiom hol_axiom
-               | Theory_section_title hol_section_title
-               | Theory_text hol_text
-               | Theory_ml hol_ml
-               | Theory_thm hol_thm
-               | Theory_interpretation hol_interpretation
+datatype hol_'t = Theory_dataty hol_datatype
+                | Theory_ty_synonym hol_type_synonym
+                | Theory_ty_notation hol_type_notation
+                | Theory_instantiation_class hol_instantiation
+                | Theory_defs_overloaded hol_defs
+                | Theory_consts_class hol_consts
+                | Theory_definition_hol hol_definition
+                | Theory_lemmas_simp hol_lemmas
+                | Theory_lemma_by hol_lemma
+                | Theory_axiom hol_axiomatization
+                | Theory_section_title hol_section
+                | Theory_text hol_text
+                | Theory_ml hol_ML
+                | Theory_thm hol_thm
+                | Theory_interpretation hol_interpretation
 
-record hol_thy_locale = 
+record hol_'thy_locale = 
   HolThyLocale_name :: string
-  HolThyLocale_header :: "( (hol_expr (* name *) \<times> hol_raw_ty (* 'fix' statement *)) list
-                          \<times> (string (* name *) \<times> hol_expr (* 'assumes' statement *)) option (* None: no 'assumes' to generate *)) list"
+  HolThyLocale_header :: "( (hol_'expr (* name *) \<times> hol_'type (* 'fix' statement *)) list
+                          \<times> (string (* name *) \<times> hol_'expr (* 'assumes' statement *)) option (* None: no 'assumes' to generate *)) list"
 
-datatype hol_thy = H_thy_simple hol_t
-                 | H_thy_locale hol_thy_locale "hol_t list (* positioning comments can occur before and after this group of commands *) list"
+datatype hol_'thy = H_thy_simple hol_'t
+                  | H_thy_locale hol_'thy_locale "hol_'t list (* positioning comments can occur before and after this group of commands *) list"
 
 section{* ... *}
 

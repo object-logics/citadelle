@@ -62,8 +62,8 @@ section{* Translation of AST *}
 subsection{* Conclusion *}
 
 datatype ('a, 'b) hol_theory = Hol_theory_ext "('a \<Rightarrow> 'b \<Rightarrow> hol_thy_extended list \<times> 'b) list"
-                             | Hol_theory_locale "'a \<Rightarrow> 'b \<Rightarrow> hol_thy_locale \<times> 'b"
-                                                 "('a \<Rightarrow> 'b \<Rightarrow> hol_t list \<times> 'b) list"
+                             | Hol_theory_locale "'a \<Rightarrow> 'b \<Rightarrow> hol_'thy_locale \<times> 'b"
+                                                 "('a \<Rightarrow> 'b \<Rightarrow> hol_'t list \<times> 'b) list"
 
 type_synonym 'a h_theory = "('a, ocl_compiler_config) hol_theory" (* polymorphism weakening needed by code_reflect *)
 

@@ -196,8 +196,8 @@ definition "s_of_lemmas_simp _ = (\<lambda> Lemmas_simp_opt simp s l \<Rightarro
       (String_concat \<open>
                             \<close> (List_map To_string l)))"
 
-definition "(s_of_attrib_genA :: (hol_ntheorems list \<Rightarrow> String.literal)
-   \<Rightarrow> String.literal \<Rightarrow> hol_ntheorems list \<Rightarrow> String.literal) f attr l = (* error reflection: to be merged *)
+definition "(s_of_attrib_genA :: (hol_'ntheorems list \<Rightarrow> String.literal)
+   \<Rightarrow> String.literal \<Rightarrow> hol_'ntheorems list \<Rightarrow> String.literal) f attr l = (* error reflection: to be merged *)
  (if l = [] then
     \<open>\<close>
   else

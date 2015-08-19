@@ -151,7 +151,7 @@ datatype hol_generation_syntax = Generation_syntax_shallow ocl_deep_mode
 datatype hol_ml_extended = Ml_extended sml_expr_extended
 
 datatype hol_thy_extended = (* pure Isabelle *)
-                            Isab_thy hol_thy
+                            Isab_thy hol_'thy
 
                             (* bootstrapping embedded languages *)
                           | Isab_thy_generation_syntax hol_generation_syntax
