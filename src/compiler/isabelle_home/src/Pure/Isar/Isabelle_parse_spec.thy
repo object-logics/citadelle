@@ -1,12 +1,10 @@
 (*****************************************************************************
- * Featherweight-OCL --- A Formal Semantics for UML-OCL Version OCL 2.5
- *                       for the OMG Standard.
- *                       http://www.brucker.ch/projects/hol-testgen/
+ * ISABELLE COPYRIGHT NOTICE, LICENCE AND DISCLAIMER.
  *
- * Isabelle_parse_spec.thy ---
- * This file is part of HOL-TestGen.
- *
- * Copyright (c) 2013-2015 Université Paris-Sud, France
+ * Copyright (c) 1986-2015 University of Cambridge,
+ *                         Technische Universitaet Muenchen,
+ *                         and contributors.
+ *               2013-2015 Université Paris-Sud, France
  *               2013-2015 IRT SystemX, France
  *
  * All rights reserved.
@@ -50,6 +48,11 @@ begin
 ML{* 
 structure Isabelle_Parse_Spec =
 struct
+(*  Title:      Pure/Isar/parse_spec.ML
+    Author:     Makarius
+
+Parsers for complex specifications.
+*)
   val spec = Parse_Spec.opt_thm_name ":" -- Parse.inner_syntax Parse.cartouche;
   
   val alt_specs =

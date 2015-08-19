@@ -1,12 +1,10 @@
 (*****************************************************************************
- * Featherweight-OCL --- A Formal Semantics for UML-OCL Version OCL 2.5
- *                       for the OMG Standard.
- *                       http://www.brucker.ch/projects/hol-testgen/
+ * ISABELLE COPYRIGHT NOTICE, LICENCE AND DISCLAIMER.
  *
- * Isabelle_code_runtime.thy ---
- * This file is part of HOL-TestGen.
- *
- * Copyright (c) 2013-2015 Université Paris-Sud, France
+ * Copyright (c) 1986-2015 University of Cambridge,
+ *                         Technische Universitaet Muenchen,
+ *                         and contributors.
+ *               2013-2015 Université Paris-Sud, France
  *               2013-2015 IRT SystemX, France
  *
  * All rights reserved.
@@ -51,6 +49,11 @@ begin
 ML{*
 structure Code_Runtime =
 struct
+(*  Title:      Tools/Code/code_runtime.ML
+    Author:     Florian Haftmann, TU Muenchen
+
+Runtime services building on code generation into implementation language SML.
+*)
 
 open Basic_Code_Symbol;
 open Basic_Code_Thingol;

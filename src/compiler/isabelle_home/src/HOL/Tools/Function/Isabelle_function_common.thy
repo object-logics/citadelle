@@ -1,12 +1,10 @@
 (*****************************************************************************
- * Featherweight-OCL --- A Formal Semantics for UML-OCL Version OCL 2.5
- *                       for the OMG Standard.
- *                       http://www.brucker.ch/projects/hol-testgen/
+ * ISABELLE COPYRIGHT NOTICE, LICENCE AND DISCLAIMER.
  *
- * Isabelle_function_common.thy ---
- * This file is part of HOL-TestGen.
- *
- * Copyright (c) 2013-2015 Université Paris-Sud, France
+ * Copyright (c) 1986-2015 University of Cambridge,
+ *                         Technische Universitaet Muenchen,
+ *                         and contributors.
+ *               2013-2015 Université Paris-Sud, France
  *               2013-2015 IRT SystemX, France
  *
  * All rights reserved.
@@ -52,6 +50,11 @@ section{* ... *}
 ML{*
 structure Isabelle_Function_Common =
 struct
+(*  Title:      HOL/Tools/Function/function_common.ML
+    Author:     Alexander Krauss, TU Muenchen
+
+Common definitions and other infrastructure for the function package.
+*)
   val function_parser =
       (* config_parser default_cfg -- *) Parse.fixes -- Isabelle_Parse_Spec.where_alt_specs
 end

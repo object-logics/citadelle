@@ -1,12 +1,10 @@
 (*****************************************************************************
- * Featherweight-OCL --- A Formal Semantics for UML-OCL Version OCL 2.5
- *                       for the OMG Standard.
- *                       http://www.brucker.ch/projects/hol-testgen/
- *
- * Isabelle_Cartouche_Examples.thy ---
- * This file is part of HOL-TestGen.
- *
- * Copyright (c) 2013-2015 Université Paris-Sud, France
+ * ISABELLE COPYRIGHT NOTICE, LICENCE AND DISCLAIMER.
+ * 
+ * Copyright (c) 1986-2015 University of Cambridge,
+ *                         Technische Universitaet Muenchen,
+ *                         and contributors.
+ *               2013-2015 Université Paris-Sud, France
  *               2013-2015 IRT SystemX, France
  *
  * All rights reserved.
@@ -48,6 +46,9 @@ imports Main
 begin
 
 ML {*
+(*  Title:      HOL/ex/Cartouche_Examples.thy
+    Author:     Makarius
+*)
   local
     val mk_nib =
       Syntax.const o Lexicon.mark_const o

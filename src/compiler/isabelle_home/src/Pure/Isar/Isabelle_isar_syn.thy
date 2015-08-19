@@ -1,12 +1,10 @@
 (*****************************************************************************
- * Featherweight-OCL --- A Formal Semantics for UML-OCL Version OCL 2.5
- *                       for the OMG Standard.
- *                       http://www.brucker.ch/projects/hol-testgen/
+ * ISABELLE COPYRIGHT NOTICE, LICENCE AND DISCLAIMER.
  *
- * Isabelle_isar_syn.thy ---
- * This file is part of HOL-TestGen.
- *
- * Copyright (c) 2013-2015 Université Paris-Sud, France
+ * Copyright (c) 1986-2015 University of Cambridge,
+ *                         Technische Universitaet Muenchen,
+ *                         and contributors.
+ *               2013-2015 Université Paris-Sud, France
  *               2013-2015 IRT SystemX, France
  *
  * All rights reserved.
@@ -51,6 +49,11 @@ begin
 ML{* 
 structure Isabelle_Isar_Syn =
 struct
+(*  Title:      Pure/Isar/isar_syn.ML
+    Author:     Makarius
+
+Outer syntax for Isabelle/Pure.
+*)
   val _ =
     Outer_Syntax.local_theory' @{command_keyword definition'} "constant definition"
       (Isabelle_Parse_Spec.constdef >> (fn args => #2 oo Specification.definition_cmd args));

@@ -1,12 +1,10 @@
 (*****************************************************************************
- * Featherweight-OCL --- A Formal Semantics for UML-OCL Version OCL 2.5
- *                       for the OMG Standard.
- *                       http://www.brucker.ch/projects/hol-testgen/
+ * ISABELLE COPYRIGHT NOTICE, LICENCE AND DISCLAIMER.
  *
- * Isabelle_bnf_fp_def_sugar.thy ---
- * This file is part of HOL-TestGen.
- *
- * Copyright (c) 2013-2015 Université Paris-Sud, France
+ * Copyright (c) 1986-2015 University of Cambridge,
+ *                         Technische Universitaet Muenchen,
+ *                         and contributors.
+ *               2013-2015 Université Paris-Sud, France
  *               2013-2015 IRT SystemX, France
  *
  * All rights reserved.
@@ -52,6 +50,13 @@ section{* ... *}
 ML{*
 structure Isabelle_BNF_FP_Def_Sugar =
 struct
+(*  Title:      HOL/Tools/BNF/bnf_fp_def_sugar.ML
+    Author:     Jasmin Blanchette, TU Muenchen
+    Author:     Martin Desharnais, TU Muenchen
+    Copyright   2012, 2013, 2014
+
+Sugared datatype and codatatype constructions.
+*)
 
 open Ctr_Sugar
 open BNF_FP_Rec_Sugar_Util

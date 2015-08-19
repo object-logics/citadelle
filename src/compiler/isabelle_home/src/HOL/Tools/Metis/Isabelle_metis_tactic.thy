@@ -1,12 +1,10 @@
 (*****************************************************************************
- * Featherweight-OCL --- A Formal Semantics for UML-OCL Version OCL 2.5
- *                       for the OMG Standard.
- *                       http://www.brucker.ch/projects/hol-testgen/
+ * ISABELLE COPYRIGHT NOTICE, LICENCE AND DISCLAIMER.
  *
- * Isabelle_metis_tactic.thy ---
- * This file is part of HOL-TestGen.
- *
- * Copyright (c) 2013-2015 Université Paris-Sud, France
+ * Copyright (c) 1986-2015 University of Cambridge,
+ *                         Technische Universitaet Muenchen,
+ *                         and contributors.
+ *               2013-2015 Université Paris-Sud, France
  *               2013-2015 IRT SystemX, France
  *
  * All rights reserved.
@@ -52,6 +50,14 @@ section{* ... *}
 ML{*
 structure Isabelle_Metis_Tactic =
 struct
+(*  Title:      HOL/Tools/Metis/metis_tactic.ML
+    Author:     Kong W. Susanto, Cambridge University Computer Laboratory
+    Author:     Lawrence C. Paulson, Cambridge University Computer Laboratory
+    Author:     Jasmin Blanchette, TU Muenchen
+    Copyright   Cambridge University 2007
+
+HOL setup for the Metis prover.
+*)
 open ATP_Proof_Reconstruct
 
 (* Whenever "X" has schematic type variables, we treat "using X by metis" as "by (metis X)" to

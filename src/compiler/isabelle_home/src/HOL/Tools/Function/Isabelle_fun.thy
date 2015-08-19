@@ -1,12 +1,10 @@
 (*****************************************************************************
- * Featherweight-OCL --- A Formal Semantics for UML-OCL Version OCL 2.5
- *                       for the OMG Standard.
- *                       http://www.brucker.ch/projects/hol-testgen/
+ * ISABELLE COPYRIGHT NOTICE, LICENCE AND DISCLAIMER.
  *
- * Isabelle_fun.thy ---
- * This file is part of HOL-TestGen.
- *
- * Copyright (c) 2013-2015 Université Paris-Sud, France
+ * Copyright (c) 1986-2015 University of Cambridge,
+ *                         Technische Universitaet Muenchen,
+ *                         and contributors.
+ *               2013-2015 Université Paris-Sud, France
  *               2013-2015 IRT SystemX, France
  *
  * All rights reserved.
@@ -53,6 +51,12 @@ section{* ... *}
 ML{*
 structure Isabelle_Function_Fun =
 struct
+(*  Title:      HOL/Tools/Function/fun.ML
+    Author:     Alexander Krauss, TU Muenchen
+
+Command "fun": Function definitions with pattern splitting/completion
+and automated termination proofs.
+*)
   val _ =
     Outer_Syntax.local_theory' @{command_keyword fun'}
       "define general recursive functions (short version)"

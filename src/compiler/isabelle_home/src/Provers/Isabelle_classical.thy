@@ -1,12 +1,10 @@
 (*****************************************************************************
- * Featherweight-OCL --- A Formal Semantics for UML-OCL Version OCL 2.5
- *                       for the OMG Standard.
- *                       http://www.brucker.ch/projects/hol-testgen/
+ * ISABELLE COPYRIGHT NOTICE, LICENCE AND DISCLAIMER.
  *
- * Isabelle_classical.thy ---
- * This file is part of HOL-TestGen.
- *
- * Copyright (c) 2013-2015 Université Paris-Sud, France
+ * Copyright (c) 1986-2015 University of Cambridge,
+ *                         Technische Universitaet Muenchen,
+ *                         and contributors.
+ *               2013-2015 Université Paris-Sud, France
  *               2013-2015 IRT SystemX, France
  *
  * All rights reserved.
@@ -49,6 +47,19 @@ begin
 ML{*
 structure Isabelle_Classical =
 struct
+(*  Title:      Provers/classical.ML
+    Author:     Lawrence C Paulson, Cambridge University Computer Laboratory
+
+Theorem prover for classical reasoning, including predicate calculus, set
+theory, etc.
+
+Rules must be classified as intro, elim, safe, hazardous (unsafe).
+
+A rule is unsafe unless it can be applied blindly without harmful results.
+For a rule to be safe, its premises and conclusion should be logically
+equivalent.  There should be no variables in the premises that are not in
+the conclusion.
+*)
 
 (** classical elimination rules **)
 
