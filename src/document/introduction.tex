@@ -932,9 +932,6 @@ Aachen~\cite{brucker.ea:summary-aachen:2013}.
 
 
 \section{The Essence of UML-OCL Semantics}
-\isatagafp
-\fxnote{Generate this chapter from Isabelle theories? Just for principle?}
-\endisatagafp
 \subsection{The Theory Organization}
 The semantic theory is organized in a quite conventional manner in
 three layers. The first layer, called the \emph{denotational
@@ -964,9 +961,6 @@ object universes were excluded from a presentation here.
 \subsubsection{Denotational Semantics of Types}
 The syntactic material for type expressions, called $\text{TYPES}(C)$, is 
 inductively defined as follows:
- \isatagafp
-  \fxnote{should we use explicit definitions?}
- \endisatagafp
 \begin{itemize}
 \item $C \subseteq \text{TYPES}(C)$
 \item $\text{Boolean}$, $\text{Integer}$, $\text{Real}$, $\text{Void}$, \ldots
@@ -2016,9 +2010,6 @@ Recall that  expressions containing $\isasymOclATpre$ constructs in
 invariants or preconditions are syntactically forbidden; thus, mixed forms cannot arise.
 
 \subsection{Operation Contracts}
-\isatagafp
-\fxnote{Should we add in our notion of Class-Model also the Operations?}
-\endisatagafp
 Since operations have strict semantics in \OCL, we have to distinguish for a specification of an
 operation $\mathit{op}$ with the arguments $a_1$, \ldots, $a_n$ the
 two cases where all arguments are valid and additionally, $\self$ is non-null (\ie, it must be defined), or not.
@@ -2099,8 +2090,6 @@ where
       into: \\
       $\psi'~self~a_1~\ldots a_n$ and $result \isasymMathOclStrongEq BODY~self~a_1~\ldots~a_n$.
 \end{itemize}
-\isatagafp \fxwarning{Please check!}
-\endisatagafp
 Currently, \FOCL neither supports overloading nor overriding for
 user-defined operations: the \FOCL compiler needs to be extended to
 generate pre-conditions that constrain the classes on which an
