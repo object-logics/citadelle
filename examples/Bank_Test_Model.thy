@@ -147,10 +147,19 @@ where     "val2Mon f \<equiv> (\<lambda>\<sigma>. if \<exists>\<sigma>'. \<exist
                              then Some(SOME(d,\<sigma>'). ((\<sigma>,\<sigma>') \<Turnstile> (f \<triangleq> (\<lambda>_. d)))) 
                              else None)"
 
-term "\<sigma> \<Turnstile> (( r \<leftarrow> (val2Mon ((bank :: \<cdot>Bank) .get_balance(c , a1))) ;
-              _ \<leftarrow> (val2Mon ((bank :: \<cdot>Bank) .deposit(c, a1, a))) ;
-              _ \<leftarrow> (val2Mon ((bank .withdraw(c , a1, b)))) ;
-              r' \<leftarrow> (val2Mon ((bank :: \<cdot>Bank) .get_balance(c , a1))) ; 
-             return (r = r')))"
+syntax    (xsymbols)
+          "_bind_SE'" :: "[pttrn,('o,'\<sigma>)MON\<^sub>S\<^sub>E,('o','\<sigma>)MON\<^sub>S\<^sub>E] \<Rightarrow> ('o','\<sigma>)MON\<^sub>S\<^sub>E" 
+          ("(2 _ \<longleftarrow> _; _)" [5,8,8]8)
+translations 
+          "x \<longleftarrow> f; g" == "CONST bind_SE (CONST val2Mon (f)) (% x . g)"
+
+no_notation valid_SE (infix "\<Turnstile>" 15)
+notation valid_SE (infix "\<TTurnstile>" 15)
+
+term "\<sigma> \<TTurnstile> ( r \<longleftarrow> (bank :: \<cdot>Bank) .get_balance(c , a1) ;
+             _ \<longleftarrow> bank .deposit(c, a1, a) ;
+             _ \<longleftarrow> bank .withdraw(c , a1, b) ;
+             r' \<longleftarrow> bank .get_balance(c , a1) ; 
+             return (\<exists> \<tau>. (\<tau> \<Turnstile> ((\<lambda>_. r) +\<^sub>i\<^sub>n\<^sub>t a -\<^sub>i\<^sub>n\<^sub>t b \<doteq> (\<lambda>_. r')))))"
 
 end
