@@ -826,7 +826,7 @@ fun OCL_main_thy in_theory in_local = let open OCL open OCL_overload in (*let va
      end)
 | Theory_defs_overloaded (Defs_overloaded (n, e)) => in_theory
    (Isar_Cmd.add_defs ((false, true), [((To_sbinding n, s_of_expr e), [])]))
-| Theory_consts_class (Consts_raw (n, ty, symb)) => in_theory
+| Theory_consts_class (Consts (n, ty, symb)) => in_theory
    (Sign.add_consts_cmd [( To_sbinding n
                         , s_of_rawty ty
                         , Mixfix ("(_) " ^ To_string0 symb, [], 1000))])

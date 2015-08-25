@@ -85,16 +85,16 @@ fun s_of_expr where "s_of_expr e = (\<lambda>
   | Expr_basic l \<Rightarrow> sprint1 \<open>%s\<close>\<acute> (String_concat \<open> \<close> (List_map To_string l))
   | Expr_oid tit s \<Rightarrow> sprint2 \<open>%s%d\<close>\<acute> (To_string tit) (To_oid s)
   | Expr_annot e s \<Rightarrow> sprint2 \<open>(%s::%s)\<close>\<acute> (s_of_expr e) (s_of_rawty s)
-  | Expr_bind0 symb e1 e2 \<Rightarrow> sprint3 \<open>(%s%s. %s)\<close>\<acute> (To_string symb) (s_of_expr e1) (s_of_expr e2)
-  | Expr_function0 e_case l \<Rightarrow> sprint2 \<open>(%s %s)\<close>\<acute>
+  | Expr_bind symb e1 e2 \<Rightarrow> sprint3 \<open>(%s%s. %s)\<close>\<acute> (To_string symb) (s_of_expr e1) (s_of_expr e2)
+  | Expr_fun_case e_case l \<Rightarrow> sprint2 \<open>(%s %s)\<close>\<acute>
       (case e_case of None \<Rightarrow> \<open>\<lambda>\<close>
                     | Some e \<Rightarrow> sprint1 \<open>case %s of\<close>\<acute> (s_of_expr e))
       (String_concat \<open>
     | \<close> (List.map (\<lambda> (s1, s2) \<Rightarrow> sprint2 \<open>%s \<Rightarrow> %s\<close>\<acute> (s_of_expr s1) (s_of_expr s2)) l))
-  | Expr_applys00 e l \<Rightarrow> sprint2 \<open>%s %s\<close>\<acute> (s_of_expr e) (String_concat \<open> \<close> (List.map (\<lambda> e \<Rightarrow> sprint1 \<open>%s\<close>\<acute> (s_of_expr e)) l))
+  | Expr_apply e l \<Rightarrow> sprint2 \<open>%s %s\<close>\<acute> (s_of_expr e) (String_concat \<open> \<close> (List.map (\<lambda> e \<Rightarrow> sprint1 \<open>%s\<close>\<acute> (s_of_expr e)) l))
   | Expr_paren p_left p_right e \<Rightarrow> sprint3 \<open>%s%s%s\<close>\<acute> (To_string p_left) (s_of_expr e) (To_string p_right)
   | Expr_if_then_else e_if e_then e_else \<Rightarrow> sprint3 \<open>if %s then %s else %s\<close>\<acute> (s_of_expr e_if) (s_of_expr e_then) (s_of_expr e_else)
-  | Expr_inner0 l pure \<Rightarrow> s_of_pure_term (List_map To_string l) pure) e"
+  | Expr_pure l pure \<Rightarrow> s_of_pure_term (List_map To_string l) pure) e"
 
 definition "s_of_ty_notation _ = (\<lambda> Type_notation n e \<Rightarrow>
     sprint2 \<open>type_notation %s (\"%s\")\<close>\<acute> (To_string n) (To_string e))"
@@ -114,7 +114,7 @@ end\<close>\<acute>
 definition "s_of_defs_overloaded _ = (\<lambda> Defs_overloaded n e \<Rightarrow>
     sprint2 \<open>defs(overloaded) %s : \"%s\"\<close>\<acute> (To_string n) (s_of_expr e))"
 
-definition "s_of_consts_class _ = (\<lambda> Consts_raw n ty symb \<Rightarrow>
+definition "s_of_consts_class _ = (\<lambda> Consts n ty symb \<Rightarrow>
     sprint4 \<open>consts %s :: \"%s\" (\"%s %s\")\<close>\<acute> (To_string n) (s_of_rawty ty) (To_string Consts_value) (To_string symb))"
 
 definition "s_of_definition_hol _ = (\<lambda>

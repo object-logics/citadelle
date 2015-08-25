@@ -169,7 +169,7 @@ fun print_examp_instance_draw_list_attr_aux where
      | e \<Rightarrow> Return_err (Return_err_ty e)) e"
 
 definition "print_examp_instance_draw_list_attr = (\<lambda>(f_oid, f_oid_rec).
-  let a = \<lambda>f x. Expr_apply f [x]
+  let a = \<lambda>f x. Expr_app f [x]
     ; b = \<lambda>s. Expr_basic [s]
     ; filter_ty_err = \<lambda>pre_post f.
              \<lambda> Return_val v \<Rightarrow> Return_val (f v)
@@ -177,7 +177,7 @@ definition "print_examp_instance_draw_list_attr = (\<lambda>(f_oid, f_oid_rec).
                                    Return_err err
                                  else
                                    case (pre_post, err) of (Some (pre, post), Return_object_variable s) \<Rightarrow>
-                                                             Return_val (a \<open>Some\<close> (a \<open>oid_of\<close> (Expr_apply s [Expr_pair (b pre) (b post)])))
+                                                             Return_val (a \<open>Some\<close> (a \<open>oid_of\<close> (Expr_app s [Expr_pair (b pre) (b post)])))
                                                          | _ \<Rightarrow> Return_val (b \<open>None\<close>) in
   list_bind\<^sub>e\<^sub>r\<^sub>r
    (\<lambda> obj.
@@ -196,7 +196,7 @@ definition "print_examp_instance_draw_list_attr = (\<lambda>(f_oid, f_oid_rec).
 
 definition "print_examp_instance_app_constr_notmp f_oid = (\<lambda>isub_name app_x l_attr.
   map\<^sub>e\<^sub>r\<^sub>r
-    (\<lambda>l. Expr_apply (isub_name datatype_constr_name) (app_x # l))
+    (\<lambda>l. Expr_app (isub_name datatype_constr_name) (app_x # l))
     (print_examp_instance_draw_list_attr f_oid l_attr))"
 
 definition "rbt_of_class ocl =
@@ -258,7 +258,7 @@ fun print_examp_instance_app_constr2_notmp where
     bind\<^sub>e\<^sub>r\<^sub>r
       (map\<^sub>e\<^sub>r\<^sub>r
         (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l var_oid = Expr_oid var_oid_uniq (oidGetInh cpt) in
-         (\<lambda>l. (Expr_apply (isub_name datatype_ext_constr_name) (var_oid # l), l_own)))
+         (\<lambda>l. (Expr_app (isub_name datatype_ext_constr_name) (var_oid # l), l_own)))
         (print_examp_instance_draw_list_attr (f_oid isub_name cpt) l_inh))
       (\<lambda>(l_inh, l_own).
         print_examp_instance_app_constr_notmp (f_oid isub_name cpt) isub_name l_inh l_own)
@@ -398,11 +398,11 @@ definition "print_examp_def_st_assoc_build_rbt2 = print_examp_def_st_assoc_build
 definition "print_examp_def_st_assoc rbt map_self map_username l_assoc =
   (let b = \<lambda>s. Expr_basic [s]
      ; rbt = print_examp_def_st_assoc_build_rbt rbt map_self map_username l_assoc in
-   Expr_apply var_map_of_list [Expr_list (fold (\<lambda>name. fold (\<lambda>name_attr (l_attr, ty_obj) l_cons.
+   Expr_app var_map_of_list [Expr_list (fold (\<lambda>name. fold (\<lambda>name_attr (l_attr, ty_obj) l_cons.
          let cpt_from = TyObjN_ass_switch (TyObj_from ty_obj) in
          Expr_pair
            (Expr_basic [print_access_oid_uniq_name cpt_from (\<lambda>s. s @@ isub_of_str name) name_attr])
-           (Expr_apply \<open>List.map\<close>
+           (Expr_app \<open>List.map\<close>
              [ Expr_binop (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l var_x = \<open>x\<close>
                              ; var_y = \<open>y\<close> in
                            Expr_lambdas0
@@ -478,7 +478,7 @@ definition "check_export_code f_writeln f_warning f_error f_raise l_report msg_l
 
 definition "print_examp_instance_defassoc_gen name l_ocli ocl =
  (case D_design_analysis ocl of Gen_only_analysis \<Rightarrow> [] | Gen_default \<Rightarrow> [] | Gen_only_design \<Rightarrow>
-  let a = \<lambda>f x. Expr_apply f [x]
+  let a = \<lambda>f x. Expr_app f [x]
     ; b = \<lambda>s. Expr_basic [s]
     ; (rbt :: _ \<Rightarrow> _ \<times> _ \<times> (_ \<Rightarrow> ((_ \<Rightarrow> natural \<Rightarrow> _ \<Rightarrow> (ocl_ty \<times> ocl_data_shallow) option list) \<Rightarrow> _ \<Rightarrow> _) option)
       , (map_self, map_username)) =
@@ -494,7 +494,7 @@ definition "print_examp_instance_defassoc_gen name l_ocli ocl =
       Expr_lambdas
         [var_oid_class, var_to_from, var_oid]
         (Expr_annot (Expr_case
-          (Expr_apply var_deref_assocs_list
+          (Expr_app var_deref_assocs_list
             [ Expr_annot (b var_to_from) (Ty_arrow
                                             (a_l (a_l (Ty_base const_oid)))
                                             (let t = a_l (Ty_base const_oid) in
@@ -566,7 +566,7 @@ definition "print_examp_instance_defassoc_typecheck_var = (\<lambda> OclInstance
     [ Thy_definition_hol
         (Definition
           (Expr_rewrite
-            (Expr_apply (\<open>typecheck_instance_bad_head_on_lhs\<close> @@ n) (List_map b l_var))
+            (Expr_app (\<open>typecheck_instance_bad_head_on_lhs\<close> @@ n) (List_map b l_var))
             \<open>=\<close> 
             (Expr_pair' [])))
     , Thy_definition_hol
@@ -691,7 +691,7 @@ definition "print_examp_instance = (\<lambda> OclInstance l \<Rightarrow> \<lamb
  (\<lambda> ((l_res, oid_start), instance_rbt).
     ((List_map Thy_definition_hol o List_flatten) l_res, ocl \<lparr> D_oid_start := oid_start, D_instance_rbt := instance_rbt \<rparr>))
   (let (rbt, (map_self, map_username)) = init_map_class ocl l
-     ; a = \<lambda>f x. Expr_apply f [x]
+     ; a = \<lambda>f x. Expr_app f [x]
      ; b = \<lambda>s. Expr_basic [s] in
    ( let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l var_inst_ass = \<open>inst_assoc\<close> in
      fold_list
@@ -739,7 +739,7 @@ definition "print_examp_def_st_typecheck_var = (\<lambda> OclDefSt name _ \<Righ
     [ Thy_definition_hol
         (Definition
           (Expr_rewrite
-            (Expr_apply (\<open>typecheck_state_bad_head_on_lhs\<close> @@ n) (List_map b l_var))
+            (Expr_app (\<open>typecheck_state_bad_head_on_lhs\<close> @@ n) (List_map b l_var))
             \<open>=\<close> 
             (Expr_pair' [])))]))"
 

@@ -67,13 +67,13 @@ datatype hol_'expr = Expr_rewrite hol_'expr (* left *) string (* symb rewriting 
                    | Expr_basic "string list"
                    | Expr_oid string (* prefix *) internal_oid
                    | Expr_annot hol_'expr hol_'type
-                   | Expr_bind0 string (* symbol *) hol_'expr (* arg *) hol_'expr
-                   | Expr_function0 "hol_'expr (* value *) option" (* none: function *) "(hol_'expr (* pattern *) \<times> hol_'expr (* to return *)) list"
-                   | Expr_applys00 hol_'expr "hol_'expr list"
+                   | Expr_bind string (* symbol *) hol_'expr (* arg *) hol_'expr
+                   | Expr_fun_case "hol_'expr (* value *) option" (* none: function *) "(hol_'expr (* pattern *) \<times> hol_'expr (* to return *)) list"
+                   | Expr_apply hol_'expr "hol_'expr list"
                    | Expr_paren string (* left *) string (* right *) hol_'expr
                    | Expr_if_then_else hol_'expr hol_'expr hol_'expr
-                   | Expr_inner0 "string list" (* simulate a pre-initialized context (de bruijn variables under "lam") *)
-                                 pure_term (* usual continuation of inner syntax term *)
+                   | Expr_pure "string list" (* simulate a pre-initialized context (de bruijn variables under "lam") *)
+                               pure_term (* usual continuation of inner syntax term *)
 
 datatype hol_type_notation = Type_notation string (* name *)
                                            string (* content *)
@@ -84,7 +84,7 @@ datatype hol_instantiation = Instantiation string (* name *)
 
 datatype hol_defs = Defs_overloaded string (* name *) hol_'expr (* content *)
 
-datatype hol_consts = Consts_raw string (* name *)
+datatype hol_consts = Consts string (* name *)
                                  hol_'type
                                  string (* ocl 'post' mixfix *)
 
@@ -219,16 +219,16 @@ definition "Type_synonym0 n l f = Type_synonym n l (f l)"
 definition "Expr_annot' e s = Expr_annot e (Ty_base s)"
 definition "wrap_oclty x = \<open>\<cdot>\<close> @@ x"
 definition "Expr_annot_ocl e s = Expr_annot' e (wrap_oclty s)"
-definition "Expr_lambdas s = Expr_bind0 \<open>\<lambda>\<close> (Expr_basic s)"
+definition "Expr_lambdas s = Expr_bind \<open>\<lambda>\<close> (Expr_basic s)"
 definition "Expr_lambda x = Expr_lambdas [x]"
-definition "Expr_lambdas0 = Expr_bind0 \<open>\<lambda>\<close>"
+definition "Expr_lambdas0 = Expr_bind \<open>\<lambda>\<close>"
 definition "Expr_lam x f = Expr_lambdas0 (Expr_basic [x]) (f x)"
 definition "Expr_some = Expr_paren \<open>\<lfloor>\<close> \<open>\<rfloor>\<close>"
 definition "Expr_parenthesis (* mandatory parenthesis *) = Expr_paren \<open>(\<close> \<open>)\<close>"
 definition "Expr_warning_parenthesis (* optional parenthesis that can be removed but a warning will be raised *) = Expr_parenthesis"
 definition "Expr_pat b = Expr_basic [\<open>?\<close> @@ b]"
-definition "Expr_And x f = Expr_bind0 \<open>\<And>\<close> (Expr_basic [x]) (f x)"
-definition "Expr_exists x f = Expr_bind0 \<open>\<exists>\<close> (Expr_basic [x]) (f x)"
+definition "Expr_And x f = Expr_bind \<open>\<And>\<close> (Expr_basic [x]) (f x)"
+definition "Expr_exists x f = Expr_bind \<open>\<exists>\<close> (Expr_basic [x]) (f x)"
 definition "Expr_binop = Expr_rewrite"
 definition "expr_binop s l = (case rev l of x # xs \<Rightarrow> List.fold (\<lambda>x. Expr_binop x s) xs x)"
 definition "expr_binop' s l = (case rev l of x # xs \<Rightarrow> List.fold (\<lambda>x. Expr_parenthesis o Expr_binop x s) xs x)"
@@ -239,18 +239,18 @@ definition "Expr_list' f l = Expr_list (List_map f l)"
 definition "Expr_pair e1 e2 = Expr_parenthesis (Expr_binop e1 \<open>,\<close> e2)"
 definition "Expr_pair' l = (case l of [] \<Rightarrow> Expr_basic [\<open>()\<close>] | _ \<Rightarrow> Expr_paren \<open>(\<close> \<open>)\<close> (expr_binop \<open>,\<close> l))"
 definition' \<open>Expr_string s = Expr_basic [flatten [\<open>"\<close>, s, \<open>"\<close>]]\<close>
-definition "Expr_applys0 e l = Expr_parenthesis (Expr_applys00 e (List_map Expr_parenthesis l))"
+definition "Expr_applys0 e l = Expr_parenthesis (Expr_apply e (List_map Expr_parenthesis l))"
 definition "Expr_applys e l = Expr_applys0 (Expr_parenthesis e) l"
-definition "Expr_apply e = Expr_applys0 (Expr_basic [e])"
-definition "Expr_preunary e1 e2 = Expr_applys00 e1 [e2]" (* no parenthesis and separated with one space *)
-definition "Expr_postunary e1 e2 = Expr_applys00 e1 [e2]" (* no parenthesis and separated with one space *)
-definition "Expr_case = Expr_function0 o Some"
-definition "Expr_function = Expr_function0 None"
-definition "Expr_inner = Expr_inner0 []"
+definition "Expr_app e = Expr_applys0 (Expr_basic [e])"
+definition "Expr_preunary e1 e2 = Expr_apply e1 [e2]" (* no parenthesis and separated with one space *)
+definition "Expr_postunary e1 e2 = Expr_apply e1 [e2]" (* no parenthesis and separated with one space *)
+definition "Expr_case = Expr_fun_case o Some"
+definition "Expr_function = Expr_fun_case None"
+definition "Expr_pure' = Expr_pure []"
 definition "Lemmas_simp = Lemmas_simp_opt True"
 definition "Lemmas_nosimp = Lemmas_simp_opt False"
 definition "Consts_value = \<open>(_)\<close>"
-definition "Consts_raw0 s l e o_arg = Consts_raw s l (String_replace_chars (\<lambda>c. if c = Char Nibble5 NibbleF then \<open>'_\<close> else \<degree>c\<degree>) e @@ (case o_arg of
+definition "Consts_raw0 s l e o_arg = Consts s l (String_replace_chars (\<lambda>c. if c = Char Nibble5 NibbleF then \<open>'_\<close> else \<degree>c\<degree>) e @@ (case o_arg of
          None \<Rightarrow> \<open>\<close>
        | Some arg \<Rightarrow>
            let ap = \<lambda>s. \<open>'(\<close> @@ s @@ \<open>')\<close> in
@@ -260,7 +260,7 @@ definition "Consts_raw0 s l e o_arg = Consts_raw s l (String_replace_chars (\<la
                 Consts_value @@ (flatten (List_map (\<lambda>_. \<open>,\<close> @@ Consts_value) (List_upto 2 arg))))))"
 definition "Ty_arrow = Ty_apply_bin \<open>\<Rightarrow>\<close>"
 definition "Ty_times = Ty_apply_bin \<open>\<times>\<close>"
-definition "Consts s l e = Consts_raw0 s (Ty_arrow (Ty_base \<open>'\<alpha>\<close>) l) e None"
+definition "Consts' s l e = Consts_raw0 s (Ty_arrow (Ty_base \<open>'\<alpha>\<close>) l) e None"
 definition "Simp_add_del l_a l_d = Simp_add_del_split l_a l_d []"
 definition "Tact_subst_l = Tact_subst_l0 False"
 
@@ -327,7 +327,7 @@ definition "App_have n = App_have0 n False"
 
 fun cross_abs_aux where
    "cross_abs_aux f l x = (\<lambda> (Suc n, PureAbs s _ t) \<Rightarrow> f s (cross_abs_aux f (s # l) (n, t))
-                         | (_, e) \<Rightarrow> Expr_inner0 l e)
+                         | (_, e) \<Rightarrow> Expr_pure l e)
                          x"
 
 definition "cross_abs f n l = cross_abs_aux f [] (n, l)"

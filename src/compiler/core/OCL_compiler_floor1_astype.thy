@@ -53,7 +53,7 @@ subsection{* AsType *}
 
 definition "print_astype_consts = start_map Thy_consts_class o
   map_class (\<lambda>isub_name name _ _ _ _.
-    Consts (isub_name const_oclastype) (Ty_base (wrap_oclty name)) (const_mixfix dot_oclastype name))"
+    Consts' (isub_name const_oclastype) (Ty_base (wrap_oclty name)) (const_mixfix dot_oclastype name))"
 
 definition "print_astype_class = start_m' Thy_defs_overloaded
   (\<lambda> compare (isub_name, name, nl_attr). \<lambda> OclClass h_name hl_attr _ \<Rightarrow>
@@ -68,18 +68,18 @@ definition "print_astype_class = start_m' Thy_defs_overloaded
                 Expr_basic [var_x]
               | x \<Rightarrow>
                 Expr_lam \<open>\<tau>\<close>
-                  (\<lambda>var_tau. let val_invalid = Expr_apply \<open>invalid\<close> [Expr_basic [var_tau]] in
+                  (\<lambda>var_tau. let val_invalid = Expr_app \<open>invalid\<close> [Expr_basic [var_tau]] in
                   Expr_case
-                    (Expr_apply var_x [Expr_basic [var_tau]])
+                    (Expr_app var_x [Expr_basic [var_tau]])
                     ( (Expr_basic [\<open>\<bottom>\<close>], val_invalid)
-                    # (Expr_some (Expr_basic [\<open>\<bottom>\<close>]), Expr_apply \<open>null\<close> [Expr_basic [var_tau]])
+                    # (Expr_some (Expr_basic [\<open>\<bottom>\<close>]), Expr_app \<open>null\<close> [Expr_basic [var_tau]])
                     # (let pattern_complex = (\<lambda>h_name name l_extra.
                             let isub_h = (\<lambda> s. s @@ isub_of_str h_name)
                               ; isub_name = (\<lambda>s. s @@ isub_of_str name)
                               ; isub_n = (\<lambda>s. isub_name (s @@ \<open>_\<close>))
                               ; var_name = name in
-                             Expr_apply (isub_h datatype_constr_name)
-                                        ( Expr_apply (isub_n (isub_h datatype_ext_constr_name)) [Expr_basic [var_name]]
+                             Expr_app (isub_h datatype_constr_name)
+                                        ( Expr_app (isub_n (isub_h datatype_ext_constr_name)) [Expr_basic [var_name]]
                                         # l_extra) )
                          ; pattern_simple = (\<lambda> name.
                             let isub_name = (\<lambda>s. s @@ isub_of_str name)
@@ -113,14 +113,14 @@ definition "print_astype_from_universe =
                               ; isub_name = (\<lambda>s. s @@ isub_of_str name)
                               ; isub_n = (\<lambda>s. isub_name (s @@ \<open>_\<close>))
                               ; var_name = name in
-                             Expr_apply (isub_h datatype_constr_name)
-                                        ( Expr_apply (isub_n (isub_h datatype_ext_constr_name)) [Expr_basic [var_name]]
+                             Expr_app (isub_h datatype_constr_name)
+                                        ( Expr_app (isub_n (isub_h datatype_ext_constr_name)) [Expr_basic [var_name]]
                                         # l_extra ))
        ; pattern_simple = (\<lambda> name.
                             let isub_name = (\<lambda>s. s @@ isub_of_str name)
                               ; var_name = name in
                              Expr_basic [var_name])
-       ; case_branch = (\<lambda>pat res. [(Expr_apply (isub_h datatype_in) [pat], finish_with_some1 res)]) in
+       ; case_branch = (\<lambda>pat res. [(Expr_app (isub_h datatype_in) [pat], finish_with_some1 res)]) in
              case compare
              of GT \<Rightarrow> case_branch (pattern_complex h_name name (List_map (\<lambda>_. Expr_basic [wildcard]) hl_attr)) (pattern_simple name)
               | EQ \<Rightarrow> let n = Expr_basic [name] in case_branch n n
@@ -162,11 +162,11 @@ definition "print_astype_lemma_cp expr = (start_map Thy_lemma_by o get_hierarchy
       (flatten [\<open>cp_\<close>, const_oclastype, isub_of_str name1, \<open>_\<close>, name3, \<open>_\<close>, name2])
       (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l var_p = \<open>p\<close> in
        List_map
-         (\<lambda>x. Expr_apply \<open>cp\<close> [x])
+         (\<lambda>x. Expr_app \<open>cp\<close> [x])
          [ Expr_basic [var_p]
          , Expr_lam \<open>x\<close>
              (\<lambda>var_x. Expr_warning_parenthesis (Expr_postunary
-               (Expr_annot_ocl (Expr_apply var_p [Expr_annot_ocl (Expr_basic [var_x]) name3]) name2)
+               (Expr_annot_ocl (Expr_app var_p [Expr_annot_ocl (Expr_basic [var_x]) name3]) name2)
                (Expr_basic [dot_astype name1])))])
       []
       (Tacl_by [Tac_rule (Thm_str \<open>cpI1\<close>), if check_opt name1 name2 then Tac_simp
@@ -215,7 +215,7 @@ definition "print_astype_defined = start_m Thy_lemma_by m_class_default
   (\<lambda> compare (isub_name, name, _). \<lambda> OclClass h_name _ _ \<Rightarrow>
      let var_X = \<open>X\<close>
        ; var_isdef = \<open>isdef\<close>
-       ; f = \<lambda>e. Expr_binop (Expr_basic [\<open>\<tau>\<close>]) \<open>\<Turnstile>\<close> (Expr_apply \<open>\<delta>\<close> [e]) in
+       ; f = \<lambda>e. Expr_binop (Expr_basic [\<open>\<tau>\<close>]) \<open>\<Turnstile>\<close> (Expr_app \<open>\<delta>\<close> [e]) in
      case compare of LT \<Rightarrow>
         [ Lemma_by_assum
           (flatten [isub_name const_oclastype, \<open>_\<close>, h_name, \<open>_defined\<close>])
@@ -235,7 +235,7 @@ definition "print_astype_up_d_cast0 = start_map Thy_lemma_by o
       ; f = Expr_binop (Expr_basic [\<open>\<tau>\<close>]) \<open>\<Turnstile>\<close> in
     Lemma_by_assum
         (print_astype_up_d_cast0_name name_any name_pers)
-        [(var_isdef, False, f (Expr_apply \<open>\<delta>\<close> [Expr_basic [var_X]]))]
+        [(var_isdef, False, f (Expr_app \<open>\<delta>\<close> [Expr_basic [var_X]]))]
         (f (Expr_binop
              (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l asty = \<lambda>x ty. Expr_warning_parenthesis (Expr_postunary x (Expr_basic [dot_astype ty])) in
               asty (asty (Expr_annot_ocl (Expr_basic [var_X]) name_pers) name_any) name_pers)
@@ -266,7 +266,7 @@ definition "print_astype_up_d_cast = start_map Thy_lemma_by o
           [[Tac_rule (Thm_str \<open>ext\<close>), Tac_rename_tac [var_tau]]
           ,[Tac_rule (Thm_THEN (Thm_str \<open>foundation22\<close>) (Thm_str \<open>iffD1\<close>))]
           ,[Tac_case_tac (Expr_binop (Expr_basic [var_tau]) \<open>\<Turnstile>\<close>
-              (Expr_apply \<open>\<delta>\<close> [Expr_basic [var_X]])), Tac_simp_add [print_astype_up_d_cast0_name name_any name_pers]]
+              (Expr_app \<open>\<delta>\<close> [Expr_basic [var_X]])), Tac_simp_add [print_astype_up_d_cast0_name name_any name_pers]]
           ,[Tac_simp_add [\<open>defined_split\<close>], Tac_elim (Thm_str \<open>disjE\<close>)]
           ,[Tac_plus [Tac_erule (Thm_str \<open>StrongEq_L_subst2_rev\<close>), Tac_simp, Tac_simp]]])
         Tacl_done)"
@@ -275,7 +275,7 @@ definition "print_astype_d_up_cast = start_map Thy_lemma_by o
   map_class_nupl2'_inh (\<lambda>name_pers name_any.
     let var_X = \<open>X\<close>
       ; var_Y = \<open>Y\<close>
-      ; a = \<lambda>f x. Expr_apply f [x]
+      ; a = \<lambda>f x. Expr_app f [x]
       ; b = \<lambda>s. Expr_basic [s]
       ; var_tau = \<open>\<tau>\<close>
       ; f_tau = \<lambda>s. Expr_warning_parenthesis (Expr_binop (b var_tau) \<open>\<Turnstile>\<close> (Expr_warning_parenthesis s))
@@ -302,7 +302,7 @@ definition "print_astype_d_up_cast = start_map Thy_lemma_by o
 
 definition "print_astype_lemma_const expr = (start_map Thy_lemma_by o
   get_hierarchy_map
-   (let a = \<lambda>f x. Expr_apply f [x]
+   (let a = \<lambda>f x. Expr_app f [x]
       ; b = \<lambda>s. Expr_basic [s]
       ; d = hol_definition
       ; check_opt =

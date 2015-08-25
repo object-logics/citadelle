@@ -78,7 +78,7 @@ definition "print_examp_def_st_locale_make f_name f_ocli f_spec l =
   , HolThyLocale_header = List_flatten
                             [ [ ( List_map (\<lambda>x. (x, Ty_base ty_n)) oid
                                 , Some ( print_examp_def_st_locale_distinct
-                                       , Expr_apply \<open>distinct\<close> [let e = Expr_list oid in
+                                       , Expr_app \<open>distinct\<close> [let e = Expr_list oid in
                                                                 if oid = [] then Expr_annot' e (ty_n @@ \<open> list\<close>) else e])) ]
                             , l_fix_assum
                             , f_spec ] \<rparr>)"
@@ -133,7 +133,7 @@ definition "print_examp_def_st_mapsto_gen f ocl =
 definition "print_examp_def_st_mapsto ocl l = list_bind id id
  (print_examp_def_st_mapsto_gen
     (\<lambda>(cpt, _) ocli. map_option (\<lambda>exp.
-      Expr_binop (Expr_oid var_oid_uniq (oidGetInh cpt)) \<open>\<mapsto>\<close> (Expr_apply (datatype_in @@ isub_of_str (inst_ty ocli)) [exp])))
+      Expr_binop (Expr_oid var_oid_uniq (oidGetInh cpt)) \<open>\<mapsto>\<close> (Expr_app (datatype_in @@ isub_of_str (inst_ty ocli)) [exp])))
     ocl
     l)"
 
@@ -153,8 +153,8 @@ definition "print_examp_def_st2 = (\<lambda> OclDefSt name l \<Rightarrow> \<lam
             | None \<Rightarrow> ([], l_assoc)) l []
      ; l_st = List_unique oidGetInh (List_flatten l_st) in
 
-   ( [ Definition (Expr_rewrite (b name) \<open>=\<close> (Expr_apply \<open>state.make\<close>
-        ( Expr_apply \<open>Map.empty\<close> (case print_examp_def_st_mapsto ocl l_st of None \<Rightarrow> [] | Some l \<Rightarrow> l)
+   ( [ Definition (Expr_rewrite (b name) \<open>=\<close> (Expr_app \<open>state.make\<close>
+        ( Expr_app \<open>Map.empty\<close> (case print_examp_def_st_mapsto ocl l_st of None \<Rightarrow> [] | Some l \<Rightarrow> l)
         # [ print_examp_def_st_assoc (snd o rbt) map_self map_username l_assoc ]))) ]
    , l_st)))"
 
@@ -162,7 +162,7 @@ definition "print_examp_def_st_dom_name name = flatten [\<open>dom_\<close>, nam
 definition "print_examp_def_st_dom = (\<lambda> _ ocl.
  (\<lambda> l. (List_map Thy_lemma_by' l, ocl))
   (let (name, l_st) = map_prod String\<^sub>b\<^sub>a\<^sub>s\<^sub>e_to_String id (hd (D_state_rbt ocl))
-     ; a = \<lambda>f x. Expr_apply f [x]
+     ; a = \<lambda>f x. Expr_app f [x]
      ; b = \<lambda>s. Expr_basic [s]
      ; d = hol_definition in
    [ Lemma_by
@@ -197,14 +197,14 @@ definition "print_examp_def_st_perm = (\<lambda> _ ocl.
    case expr_app of None \<Rightarrow> [] | Some expr_app \<Rightarrow>
    [ Lemma_by
        (print_examp_def_st_perm_name name)
-       [Expr_rewrite (b name) \<open>=\<close> (Expr_apply \<open>state.make\<close>
-          (Expr_apply \<open>Map.empty\<close> expr_app # [Expr_apply var_assocs [b name]]))]
+       [Expr_rewrite (b name) \<open>=\<close> (Expr_app \<open>state.make\<close>
+          (Expr_app \<open>Map.empty\<close> expr_app # [Expr_app var_assocs [b name]]))]
        l_app
        l_last ]))"
 
 definition "print_examp_def_st_allinst = (\<lambda> _ ocl.
  (\<lambda> l. (List_map Thy_lemma_by' l, ocl))
-  (let a = \<lambda>f x. Expr_apply f [x]
+  (let a = \<lambda>f x. Expr_app f [x]
      ; b = \<lambda>s. Expr_basic [s]
      ; d = hol_definition
      ; (name_st, expr_app) =
@@ -325,7 +325,7 @@ definition "print_pre_post_locale = get_state (\<lambda> (s_pre, l_pre) (s_post,
   print_examp_def_st_locale_make
     (\<open>pre_post_\<close> @@ s_pre @@ \<open>_\<close> @@ s_post)
     f_ocli
-    (List_map (\<lambda>(s, l). ([], Some (s, Expr_apply
+    (List_map (\<lambda>(s, l). ([], Some (s, Expr_app
                                         (print_examp_def_st_locale_name s)
                                         (print_pre_post_locale_aux f_ocli l))))
               l_pre_post)
@@ -339,7 +339,7 @@ definition "print_pre_post_interp = get_state (\<lambda> _ _.
 
 definition "print_pre_post_wff = get_state (\<lambda> (s_pre, l_pre) (s_post, l_post) l_pre_post ocl.
  (\<lambda> l. (List_map Thy_lemma_by' l, ocl))
-  (let a = \<lambda>f x. Expr_apply f [x]
+  (let a = \<lambda>f x. Expr_app f [x]
      ; b = \<lambda>s. Expr_basic [s]
      ; d = hol_definition
      ; mk_n = \<lambda>s. print_examp_def_st_locale_name s @@ \<open>.\<close> @@ s in
@@ -370,7 +370,7 @@ definition "print_pre_post_wff = get_state (\<lambda> (s_pre, l_pre) (s_post, l_
 
 definition "print_pre_post_where = get_state (\<lambda> (s_pre, l_pre) (s_post, l_post) l_pre_post ocl.
  (\<lambda> l. ((List_map Thy_lemma_by' o List_flatten) l, ocl))
-  (let a = \<lambda>f x. Expr_apply f [x]
+  (let a = \<lambda>f x. Expr_app f [x]
      ; b = \<lambda>s. Expr_basic [s]
      ; d = hol_definition
      ; mk_n = \<lambda>s. print_examp_def_st_locale_name s @@ \<open>.\<close> @@ s

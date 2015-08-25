@@ -52,7 +52,7 @@ section{* Translation of AST *}
 subsection{* IsTypeOf *}
 definition "print_istypeof_consts = start_map Thy_consts_class o
   map_class (\<lambda>isub_name name _ _ _ _.
-    Consts (isub_name const_oclistypeof) (Ty_base ty_boolean) (const_mixfix dot_oclistypeof name))"
+    Consts' (isub_name const_oclistypeof) (Ty_base ty_boolean) (const_mixfix dot_oclistypeof name))"
 
 definition "print_istypeof_class = start_m_gen Thy_defs_overloaded m_class_default
   (\<lambda> l_inh _ _ compare (isub_name, name, _). \<lambda> OclClass h_name hl_attr h_last \<Rightarrow>
@@ -63,7 +63,7 @@ definition "print_istypeof_class = start_m_gen Thy_defs_overloaded m_class_defau
              (Expr_postunary (Expr_annot_ocl (Expr_basic [var_x]) h_name) (Expr_basic [dot_istypeof name]))
              \<open>\<equiv>\<close>
              (Expr_lam \<open>\<tau>\<close>
-                  (\<lambda>var_tau. let ocl_tau = (\<lambda>v. Expr_apply v [Expr_basic [var_tau]]) in
+                  (\<lambda>var_tau. let ocl_tau = (\<lambda>v. Expr_app v [Expr_basic [var_tau]]) in
                   Expr_case
                     (ocl_tau var_x)
                     ( (Expr_basic [\<open>\<bottom>\<close>], ocl_tau \<open>invalid\<close>)
@@ -72,8 +72,8 @@ definition "print_istypeof_class = start_m_gen Thy_defs_overloaded m_class_defau
                          ; pattern_complex_gen = (\<lambda>f1 f2.
                             let isub_h = (\<lambda> s. s @@ isub_of_str h_name) in
                              (Expr_some (Expr_some
-                               (Expr_apply (isub_h datatype_constr_name)
-                                           ( Expr_apply (f2 (\<lambda>s. isub_name (s @@ \<open>_\<close>)) (isub_h datatype_ext_constr_name))
+                               (Expr_app (isub_h datatype_constr_name)
+                                           ( Expr_app (f2 (\<lambda>s. isub_name (s @@ \<open>_\<close>)) (isub_h datatype_ext_constr_name))
                                                         (Expr_basic [wildcard] # f1)
                                            # List_map (\<lambda>_. Expr_basic [wildcard]) hl_attr))), ocl_tau \<open>true\<close>)
                              # (if h_last = [] then [] else l_false)) in
@@ -88,7 +88,7 @@ definition "print_istypeof_from_universe = start_m Thy_definition_hol
     [ Definition (Expr_rewrite (Expr_basic [const_istypeof]) \<open>=\<close> (Expr_function l))])
   (\<lambda>_ (_, name, _). \<lambda> OclClass h_name _ _ \<Rightarrow>
      let isub_h = (\<lambda> s. s @@ isub_of_str h_name) in
-     [( Expr_apply (isub_h datatype_in) [Expr_basic [h_name]]
+     [( Expr_app (isub_h datatype_in) [Expr_basic [h_name]]
       , Expr_warning_parenthesis
         (Expr_postunary (Expr_annot_ocl (Expr_applys Expr_basety [Expr_basic [h_name]])
                                     h_name)
@@ -115,11 +115,11 @@ definition "print_istypeof_lemma_cp expr = (start_map Thy_lemma_by o
       (flatten [\<open>cp_\<close>, const_oclistypeof, isub_of_str name1, \<open>_\<close>, name3, \<open>_\<close>, name2])
       (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l var_p = \<open>p\<close> in
        List_map
-         (\<lambda>x. Expr_apply \<open>cp\<close> [x])
+         (\<lambda>x. Expr_app \<open>cp\<close> [x])
          [ Expr_basic [var_p]
          , Expr_lam \<open>x\<close>
              (\<lambda>var_x. Expr_warning_parenthesis (Expr_postunary
-               (Expr_annot_ocl (Expr_apply var_p [Expr_annot_ocl (Expr_basic [var_x]) name3]) name2)
+               (Expr_annot_ocl (Expr_app var_p [Expr_annot_ocl (Expr_basic [var_x]) name3]) name2)
                (Expr_basic [dot_istypeof name1])))])
       []
       (Tacl_by [Tac_rule (Thm_str \<open>cpI1\<close>), if check_opt name1 name2 then Tac_simp
@@ -172,7 +172,7 @@ definition "print_istypeof_defined = start_m Thy_lemma_by m_class_default
   (\<lambda> _ (isub_name, name, _). \<lambda> OclClass h_name _ _ \<Rightarrow>
       let var_X = \<open>X\<close>
         ; var_isdef = \<open>isdef\<close>
-        ; f = \<lambda>symb e. Expr_binop (Expr_basic [\<open>\<tau>\<close>]) \<open>\<Turnstile>\<close> (Expr_apply symb [e]) in
+        ; f = \<lambda>symb e. Expr_binop (Expr_basic [\<open>\<tau>\<close>]) \<open>\<Turnstile>\<close> (Expr_app symb [e]) in
       [ Lemma_by_assum
           (print_istypeof_defined_name isub_name h_name)
           [(var_isdef, False, f \<open>\<upsilon>\<close> (Expr_basic [var_X]))]
@@ -189,7 +189,7 @@ definition "print_istypeof_defined' = start_m Thy_lemma_by m_class_default
   (\<lambda> _ (isub_name, name, _). \<lambda> OclClass h_name _ _ \<Rightarrow>
       let var_X = \<open>X\<close>
         ; var_isdef = \<open>isdef\<close>
-        ; f = \<lambda>e. Expr_binop (Expr_basic [\<open>\<tau>\<close>]) \<open>\<Turnstile>\<close> (Expr_apply \<open>\<delta>\<close> [e]) in
+        ; f = \<lambda>e. Expr_binop (Expr_basic [\<open>\<tau>\<close>]) \<open>\<Turnstile>\<close> (Expr_app \<open>\<delta>\<close> [e]) in
       [ Lemma_by_assum
           (print_istypeof_defined'_name isub_name h_name)
           [(var_isdef, False, f (Expr_basic [var_X]))]
@@ -206,7 +206,7 @@ definition "print_istypeof_up_larger = start_map Thy_lemma_by o
       ; f = Expr_binop (Expr_basic [\<open>\<tau>\<close>]) \<open>\<Turnstile>\<close> in
     Lemma_by_assum
         (print_istypeof_up_larger_name name_pers name_any)
-        [(var_isdef, False, f (Expr_apply \<open>\<delta>\<close> [Expr_basic [var_X]]))]
+        [(var_isdef, False, f (Expr_app \<open>\<delta>\<close> [Expr_basic [var_X]]))]
         (f (Expr_binop (Expr_warning_parenthesis (Expr_postunary
                (Expr_annot_ocl (Expr_basic [var_X]) name_pers)
                (Expr_basic [dot_istypeof name_any]))
@@ -228,7 +228,7 @@ definition "print_istypeof_up_d_cast expr = (start_map Thy_lemma_by o
         [(var_istyp, False, f (Expr_warning_parenthesis (Expr_postunary
                (Expr_annot_ocl (Expr_basic [var_X]) name_any)
                (Expr_basic [dot_istypeof name_mid]))))
-        ,(var_isdef, False, f (Expr_apply \<open>\<delta>\<close> [Expr_basic [var_X]]))]
+        ,(var_isdef, False, f (Expr_app \<open>\<delta>\<close> [Expr_basic [var_X]]))]
         (f (Expr_binop (Expr_warning_parenthesis (Expr_postunary
                (Expr_basic [var_X])
                (Expr_basic [dot_astype name_pers]))

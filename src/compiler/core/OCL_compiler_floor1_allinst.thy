@@ -72,7 +72,7 @@ definition "print_allinst_astype = start_map Thy_lemma_by o map_class_top (\<lam
   [Lemma_by
     (print_allinst_astype_name isub_name)
     [ Expr_rewrite
-        (Expr_apply (flatten [isub_name const_oclastype, \<open>_\<AA>\<close>]) [b var_x])
+        (Expr_app (flatten [isub_name const_oclastype, \<open>_\<AA>\<close>]) [b var_x])
         \<open>\<noteq>\<close>
         (b \<open>None\<close>)]
     []
@@ -80,14 +80,14 @@ definition "print_allinst_astype = start_map Thy_lemma_by o map_class_top (\<lam
 
 definition "print_allinst_exec = start_map Thy_lemma_by o map_class_top (\<lambda>isub_name name _ _ _ _.
   let b = \<lambda>s. Expr_basic [s]
-    ; a = \<lambda>f x. Expr_apply f [x]
+    ; a = \<lambda>f x. Expr_app f [x]
     ; d = hol_definition
     ; f = Expr_paren \<open>\<lfloor>\<close> \<open>\<rfloor>\<close>
     ; f_img = \<lambda>e1. Expr_binop (b e1) \<open>`\<close>
-    ; ran_heap = \<lambda>var_pre_post var_tau. f_img name (a \<open>ran\<close> (a \<open>heap\<close> (Expr_apply var_pre_post [b var_tau])))
+    ; ran_heap = \<lambda>var_pre_post var_tau. f_img name (a \<open>ran\<close> (a \<open>heap\<close> (Expr_app var_pre_post [b var_tau])))
     ; f_incl = \<lambda>v1 v2.
         let var_tau = \<open>\<tau>\<close> in
-        Expr_bind0 \<open>\<And>\<close> (b var_tau) (Expr_binop (Expr_applys (Expr_pat v1) [b var_tau]) \<open>\<subseteq>\<close> (Expr_applys (Expr_pat v2) [b var_tau]))
+        Expr_bind \<open>\<And>\<close> (b var_tau) (Expr_binop (Expr_applys (Expr_pat v1) [b var_tau]) \<open>\<subseteq>\<close> (Expr_applys (Expr_pat v2) [b var_tau]))
     ; var_B = \<open>B\<close>
     ; var_C = \<open>C\<close> in
   gen_pre_post
@@ -96,7 +96,7 @@ definition "print_allinst_exec = start_map Thy_lemma_by o map_class_top (\<lambd
       Expr_rewrite
        (f_expr [b name])
        \<open>=\<close>
-       (Expr_lam \<open>\<tau>\<close> (\<lambda>var_tau. Expr_apply var_Abs_Set [f (f (f_img \<open>Some\<close> (ran_heap var_pre_post var_tau))) ])))
+       (Expr_lam \<open>\<tau>\<close> (\<lambda>var_tau. Expr_app var_Abs_Set [f (f (f_img \<open>Some\<close> (ran_heap var_pre_post var_tau))) ])))
     (\<lambda>lem_tit lem_spec var_pre_post _ _.
       Lemma_by_assum
         lem_tit
@@ -123,10 +123,10 @@ definition "print_allinst_istypeof_pre = start_map Thy_lemma_by o (\<lambda>_.
          ; var_t = \<open>t\<close>
          ; var_P = \<open>P\<close>
          ; b = \<lambda>s. Expr_basic [s]
-         ; a = \<lambda>f x. Expr_apply f [x]
-         ; bind = \<lambda>symb. Expr_bind0 symb (Expr_binop (b var_x) \<open>\<in>\<close> (b var_B))
+         ; a = \<lambda>f x. Expr_app f [x]
+         ; bind = \<lambda>symb. Expr_bind symb (Expr_binop (b var_x) \<open>\<in>\<close> (b var_B))
          ; f = \<lambda>v. bind \<open>\<exists>\<close> (a var_P (a v (b var_x))) in
-       [ Expr_bind0 \<open>\<forall>\<close> (Expr_binop (b var_x) \<open>\<in>\<close> (b var_B)) (Expr_rewrite (a var_s (b var_x)) \<open>=\<close> (a var_t (b var_x)))
+       [ Expr_bind \<open>\<forall>\<close> (Expr_binop (b var_x) \<open>\<in>\<close> (b var_B)) (Expr_rewrite (a var_s (b var_x)) \<open>=\<close> (a var_t (b var_x)))
        , Expr_rewrite (f var_s) \<open>=\<close> (f var_t) ])
       []
       (Tacl_by [Tac_simp])
@@ -140,7 +140,7 @@ definition "print_allinst_istypeof_pre = start_map Thy_lemma_by o (\<lambda>_.
          ; f = Expr_paren \<open>\<lfloor>\<close> \<open>\<rfloor>\<close>
          ; p = Expr_paren \<open>{\<close> \<open>}\<close> in
        [ Expr_binop (b var_x) \<open>\<in>\<close> (c (c (f (f (Expr_binop (b \<open>Some\<close>) \<open>`\<close> (Expr_parenthesis (Expr_binop (b var_X) \<open>-\<close> (p (b \<open>None\<close>)))))))))
-       , Expr_bind0 \<open>\<exists>\<close> (b var_y) (Expr_rewrite (b var_x) \<open>=\<close> (f (f (b var_y)))) ])
+       , Expr_bind \<open>\<exists>\<close> (b var_y) (Expr_rewrite (b var_x) \<open>=\<close> (f (f (b var_y)))) ])
       []
       (Tacl_by [Tac_auto_simp_add []]) ])"
 
@@ -151,7 +151,7 @@ definition "print_allinst_istypeof_single isub_name name isub_name2 name2 const_
     ; var_tau = \<open>\<tau>\<close> in
   gen_pre_post
     (\<lambda>s. flatten [name, \<open>_\<close>, s, \<open>_\<close>, isub_name2 const_oclisof])
-    (\<lambda>f_expr _ _. Expr_binop (b var_tau) \<open>\<Turnstile>\<close> (Expr_apply var_OclForall_set [f_expr [b name], b (isub_name2 const_oclisof) ]))
+    (\<lambda>f_expr _ _. Expr_binop (b var_tau) \<open>\<Turnstile>\<close> (Expr_app var_OclForall_set [f_expr [b name], b (isub_name2 const_oclisof) ]))
     (\<lambda>lem_tit lem_spec _ _ _. Lemma_by
       lem_tit
       [lem_spec]
@@ -162,7 +162,7 @@ definition "print_allinst_istypeof_single isub_name name isub_name2 name2 const_
       , [s (Thm_where
              (Thm_str print_allinst_istypeof_pre_name1)
              [ (\<open>s\<close>, Expr_lam \<open>x\<close> (\<lambda>var_x. Expr_applys (Expr_postunary (Expr_lambda wildcard (b var_x)) (b (dot_isof name2))) [b var_tau]))
-             , (\<open>t\<close>, Expr_lambda wildcard (Expr_apply \<open>true\<close> [b var_tau]))])]
+             , (\<open>t\<close>, Expr_lambda wildcard (Expr_app \<open>true\<close> [b var_tau]))])]
       , [Tac_intro [ Thm_str \<open>ballI\<close>
                    , thm_simplified
                        (Thm_str (if name = name2 then
@@ -189,10 +189,10 @@ definition "print_allinst_istypeof = start_map'' Thy_lemma_by o (\<lambda>expr b
         (\<lambda>f_expr _ _.
            Expr_exists
              \<open>\<tau>\<close>
-             (\<lambda>var_tau. Expr_binop (b var_tau) \<open>\<Turnstile>\<close> (Expr_apply var_OclForall_set [f_expr [b name], b (isub_name const_oclistypeof) ])))
+             (\<lambda>var_tau. Expr_binop (b var_tau) \<open>\<Turnstile>\<close> (Expr_app var_OclForall_set [f_expr [b name], b (isub_name const_oclistypeof) ])))
         (\<lambda>lem_tit lem_spec var_pre_post _ _. Lemma_by_assum
            lem_tit
-           [(\<open>\<close>, True, Expr_And \<open>x\<close> (\<lambda>var_x. Expr_rewrite (Expr_apply var_pre_post [Expr_parenthesis (Expr_binop (b var_x) \<open>,\<close> (b var_x))]) \<open>=\<close> (b var_x)) )]
+           [(\<open>\<close>, True, Expr_And \<open>x\<close> (\<lambda>var_x. Expr_rewrite (Expr_app var_pre_post [Expr_parenthesis (Expr_binop (b var_x) \<open>,\<close> (b var_x))]) \<open>=\<close> (b var_x)) )]
            lem_spec
            (List_map App
               [ let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l var_tau0 = var_tau @@ isub_of_str \<open>0\<close> in
@@ -207,18 +207,18 @@ definition "print_allinst_istypeof = start_map'' Thy_lemma_by o (\<lambda>expr b
         (\<lambda>f_expr _ _.
            Expr_exists
              \<open>\<tau>\<close>
-             (\<lambda>var_tau. Expr_binop (b var_tau) \<open>\<Turnstile>\<close> (Expr_apply \<open>not\<close> [Expr_apply var_OclForall_set [f_expr [b name], b (isub_name const_oclistypeof) ]])))
+             (\<lambda>var_tau. Expr_binop (b var_tau) \<open>\<Turnstile>\<close> (Expr_app \<open>not\<close> [Expr_app var_OclForall_set [f_expr [b name], b (isub_name const_oclistypeof) ]])))
         (\<lambda>lem_tit lem_spec var_pre_post _ _. Lemma_by_assum
            lem_tit
-           [(\<open>\<close>, True, Expr_And \<open>x\<close> (\<lambda>var_x. Expr_rewrite (Expr_apply var_pre_post [Expr_parenthesis (Expr_binop (b var_x) \<open>,\<close> (b var_x))]) \<open>=\<close> (b var_x)) )]
+           [(\<open>\<close>, True, Expr_And \<open>x\<close> (\<lambda>var_x. Expr_rewrite (Expr_app var_pre_post [Expr_parenthesis (Expr_binop (b var_x) \<open>,\<close> (b var_x))]) \<open>=\<close> (b var_x)) )]
            lem_spec
            (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l var_oid = \<open>oid\<close>
               ; var_a = \<open>a\<close>
               ; var_t0 = \<open>t0\<close>
               ; s_empty = \<open>Map.empty\<close> in
             [ App_fix [var_oid, var_a]
-            , App_let (Expr_pat var_t0) (Expr_apply \<open>state.make\<close>
-                [ Expr_apply s_empty [Expr_binop (b var_oid) \<open>\<mapsto>\<close> (Expr_apply (isub_name datatype_in) [Expr_apply (isub_name datatype_constr_name) (Expr_apply (datatype_ext_constr_name @@ mk_constr_name name name_next) [b var_a] # List_map (\<lambda>_. b \<open>None\<close>) l_attr)])]
+            , App_let (Expr_pat var_t0) (Expr_app \<open>state.make\<close>
+                [ Expr_app s_empty [Expr_binop (b var_oid) \<open>\<mapsto>\<close> (Expr_app (isub_name datatype_in) [Expr_app (isub_name datatype_constr_name) (Expr_app (datatype_ext_constr_name @@ mk_constr_name name name_next) [b var_a] # List_map (\<lambda>_. b \<open>None\<close>) l_attr)])]
                 , b s_empty])
             , App [Tac_rule (Thm_where (Thm_str \<open>exI\<close>) [(\<open>x\<close>, Expr_parenthesis (Expr_binop (Expr_pat var_t0) \<open>,\<close> (Expr_pat var_t0)))]), Tac_simp_add_del [d \<open>OclValid\<close>] [d \<open>OclAllInstances_generic\<close>]]
             , App [Tac_simp_only (List_flatten [List_map Thm_str [ d var_OclForall_set, \<open>refl\<close>, \<open>if_True\<close> ], [Thm_simplified (Thm_str \<open>OclAllInstances_generic_defined\<close>) (Thm_str (d \<open>OclValid\<close>))]])]
