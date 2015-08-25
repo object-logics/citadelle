@@ -79,7 +79,7 @@ definition "print_examp_def_st_locale_make f_name f_ocli f_spec l =
                             [ [ ( List_map (\<lambda>x. (x, Ty_base ty_n)) oid
                                 , Some ( print_examp_def_st_locale_distinct
                                        , Expr_apply \<open>distinct\<close> [let e = Expr_list oid in
-                                                                if oid = [] then Expr_annot e (ty_n @@ \<open> list\<close>) else e])) ]
+                                                                if oid = [] then Expr_annot' e (ty_n @@ \<open> list\<close>) else e])) ]
                             , l_fix_assum
                             , f_spec ] \<rparr>)"
 
@@ -229,7 +229,7 @@ definition "print_examp_def_st_allinst = (\<lambda> _ ocl.
                                            Expr_rewrite (und (in_pers ocli))
                                                         \<open>=\<close>
                                                         (Expr_warning_parenthesis (asty (Expr_parenthesis
-                                                                                          (Expr_annot (und (Expr_some (in_name ocli))) (wrap_oclty (inst_ty ocli))))))))
+                                                                                          (Expr_annot' (und (Expr_some (in_name ocli))) (wrap_oclty (inst_ty ocli))))))))
                                  , True
                                  , ocore)] in
                 case compare (inst_ty ocli) of

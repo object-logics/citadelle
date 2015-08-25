@@ -54,7 +54,7 @@ subsection{* infrastructure *}
 definition "print_infra_enum_synonym _ ocl = (\<lambda>f. (f (fst (find_class_ass ocl)), ocl))
  (List_flatten o List_map
    (\<lambda> OclAstClassSynonym (OclClassSynonym n1 n2) \<Rightarrow>
-        [ Thy_ty_synonym (Type_synonym (pref_ty_syn n1) (Ty_base (str_hol_of_ty_all (\<lambda>a _. a) id n2))) ]
+        [ Thy_ty_synonym (Type_synonym' (pref_ty_syn n1) (Ty_base (str_hol_of_ty_all (\<lambda>a _. a) id n2))) ]
     | _ \<Rightarrow> []))"
 
 definition "print_infra_datatype_class = start_map'' Thy_dataty o (\<lambda>expr _ base_attr' _. map_class_gen_h''''
@@ -92,16 +92,16 @@ definition "print_infra_datatype_universe expr = start_map Thy_dataty
 definition "print_infra_enum_syn _ ocl = (\<lambda>f1 f2. (List_flatten [f1 (D_ocl_env ocl), f2 (fst (find_class_ass ocl))], ocl))
  (List_flatten o List_map
     (\<lambda> OclAstEnum (OclEnum name_ty _) \<Rightarrow>
-         [Thy_ty_synonym (Type_synonym name_ty (Ty_apply (Ty_base (pref_generic_enum name_ty)) [Ty_base \<open>\<AA>\<close>]))]
+         [Thy_ty_synonym (Type_synonym' name_ty (Ty_apply (Ty_base (pref_generic_enum name_ty)) [Ty_base \<open>\<AA>\<close>]))]
      | _ \<Rightarrow> []))
  (List_flatten o List_map
     (\<lambda> OclAstClassSynonym (OclClassSynonym name_ty ty) \<Rightarrow>
-         [Thy_ty_synonym (Type_synonym name_ty (Ty_base (str_of_ty ty)))]
+         [Thy_ty_synonym (Type_synonym' name_ty (Ty_base (str_of_ty ty)))]
      | _ \<Rightarrow> []))"
 
 definition "print_infra_type_synonym_class _ = start_map id
   (List_map Thy_ty_synonym
-    (let ty = \<lambda> t s. Type_synonym (str_of_ty t) (Ty_apply (Ty_base s) [Ty_base \<open>\<AA>\<close>]) in
+    (let ty = \<lambda> t s. Type_synonym' (str_of_ty t) (Ty_apply (Ty_base s) [Ty_base \<open>\<AA>\<close>]) in
      (* base type *)
      ty OclTy_base_void ty_void #
      ty OclTy_base_boolean ty_boolean #
@@ -121,14 +121,14 @@ definition "print_infra_type_synonym_class_higher expr = start_map Thy_ty_synony
   List_flatten
     (map_class
       (\<lambda>isub_name name _ _ _ _.
-        [ Type_synonym name
+        [ Type_synonym' name
                        (option (option (Ty_base (isub_name datatype_name))))
-        (*, Type_synonym name (Ty_apply_paren \<open>\<cdot>\<close> \<open>\<close> (Ty_base (name @@ \<open>'\<close>)))*)])
+        (*, Type_synonym' name (Ty_apply_paren \<open>\<cdot>\<close> \<open>\<close> (Ty_base (name @@ \<open>'\<close>)))*)])
       expr))"
 
 definition "print_infra_type_synonym_class_rec = (\<lambda>expr ocl.
   map_prod id (\<lambda> D_higher_order_ty. ocl \<lparr> D_higher_order_ty := D_higher_order_ty \<rparr>)
-    (List_split (List_map (\<lambda>(tit, body). (Thy_ty_synonym (Type_synonym (String\<^sub>b\<^sub>a\<^sub>s\<^sub>e_to_String tit) body), tit))
+    (List_split (List_map (\<lambda>(tit, body). (Thy_ty_synonym (Type_synonym' (String\<^sub>b\<^sub>a\<^sub>s\<^sub>e_to_String tit) body), tit))
                           (snd (fold_class (\<lambda>_ _ l_attr _ _ _.
                                              Pair () o List.fold
                                                (\<lambda>(_, t) l.

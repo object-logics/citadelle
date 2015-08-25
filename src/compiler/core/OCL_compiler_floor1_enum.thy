@@ -58,7 +58,7 @@ definition "print_enum = (\<lambda> OclEnum name_ty l \<Rightarrow> Pair
     ; uu = \<open>'\<AA>\<close> in
   List_flatten
   [ [ Thy_dataty (Datatype (pref_ty_enum name_ty) (List_map (\<lambda>constr. (pref_constr_enum constr, [])) l))
-    , Thy_ty_synonym (Type_synonym name_ty_base (option (option (Ty_base (pref_ty_enum name_ty)))))
+    , Thy_ty_synonym (Type_synonym' name_ty_base (option (option (Ty_base (pref_ty_enum name_ty)))))
     , Thy_ty_synonym (Type_synonym0 name_ty_base' [uu] (\<lambda> [u] \<Rightarrow> Ty_apply (Ty_base \<open>val\<close>) [Ty_base u, Ty_base name_ty_base]))
     , Thy_defs_overloaded
         (Defs_overloaded
@@ -66,7 +66,7 @@ definition "print_enum = (\<lambda> OclEnum name_ty l \<Rightarrow> Pair
           (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l var_x = \<open>x\<close>
              ; var_y = \<open>y\<close> in
            Expr_rewrite
-            (Expr_rewrite (Expr_annot0 (b var_x) (Ty_apply (Ty_base name_ty_base') [Ty_base uu])) \<open>\<doteq>\<close> (b var_y))
+            (Expr_rewrite (Expr_annot (b var_x) (Ty_apply (Ty_base name_ty_base') [Ty_base uu])) \<open>\<doteq>\<close> (b var_y))
             \<open>\<equiv>\<close>
             (Expr_lam \<open>\<tau>\<close>
               (\<lambda>var_tau.
@@ -80,6 +80,6 @@ definition "print_enum = (\<lambda> OclEnum name_ty l \<Rightarrow> Pair
         Thy_definition_hol
           (Definition (Expr_rewrite (b constr)
                                     \<open>=\<close>
-                                    (Expr_lam \<open>_\<close> (\<lambda>_. Expr_some (Expr_some (Expr_annot (b (pref_constr_enum constr)) (pref_ty_enum name_ty)))))))) l ]))"
+                                    (Expr_lam \<open>_\<close> (\<lambda>_. Expr_some (Expr_some (Expr_annot' (b (pref_constr_enum constr)) (pref_ty_enum name_ty)))))))) l ]))"
 
 end

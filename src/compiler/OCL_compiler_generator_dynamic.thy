@@ -801,7 +801,7 @@ fun OCL_main_thy in_theory in_local = let open OCL open OCL_overload in (*let va
                                      , NoSyn)) l)
           , (To_binding "", To_binding ""))
         , [])]))
-| Theory_ty_synonym (Type_synonym00 (n, v, l)) => in_theory
+| Theory_ty_synonym (Type_synonym (n, v, l)) => in_theory
    (fn thy =>
      let val s_bind = To_sbinding n in
      (snd o Typedecl.abbrev_global (s_bind, map To_string0 v, NoSyn)

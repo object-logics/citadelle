@@ -59,14 +59,14 @@ datatype hol_'type = Ty_apply hol_'type "hol_'type list"
 datatype hol_datatype = Datatype string (* name *)
                                  "(string (* name *) \<times> hol_'type list (* arguments *)) list" (* constructors *)
 
-datatype hol_type_synonym = Type_synonym00 string (* name *)
+datatype hol_type_synonym = Type_synonym string (* name *)
                                            "string list" (* parametric variables *)
                                            hol_'type (* content *)
 
 datatype hol_'expr = Expr_rewrite hol_'expr (* left *) string (* symb rewriting *) hol_'expr (* right *)
                    | Expr_basic "string list"
                    | Expr_oid string (* prefix *) internal_oid
-                   | Expr_annot0 hol_'expr hol_'type
+                   | Expr_annot hol_'expr hol_'type
                    | Expr_bind0 string (* symbol *) hol_'expr (* arg *) hol_'expr
                    | Expr_function0 "hol_'expr (* value *) option" (* none: function *) "(hol_'expr (* pattern *) \<times> hol_'expr (* to return *)) list"
                    | Expr_applys00 hol_'expr "hol_'expr list"
@@ -214,11 +214,11 @@ definition "thm_OF s l = List.fold (\<lambda>x acc. Thm_OF acc x) l s"
 definition "thm_simplified s l = List.fold (\<lambda>x acc. Thm_simplified acc x) l s"
 definition "Opt s = Ty_apply (Ty_base \<open>option\<close>) [Ty_base s]"
 definition "Raw = Ty_base"
-definition "Type_synonym n = Type_synonym00 n []"
-definition "Type_synonym0 n l f = Type_synonym00 n l (f l)"
-definition "Expr_annot e s = Expr_annot0 e (Ty_base s)"
+definition "Type_synonym' n = Type_synonym n []"
+definition "Type_synonym0 n l f = Type_synonym n l (f l)"
+definition "Expr_annot' e s = Expr_annot e (Ty_base s)"
 definition "wrap_oclty x = \<open>\<cdot>\<close> @@ x"
-definition "Expr_annot_ocl e s = Expr_annot e (wrap_oclty s)"
+definition "Expr_annot_ocl e s = Expr_annot' e (wrap_oclty s)"
 definition "Expr_bind symb s e = Expr_bind0 symb (Expr_basic s) e"
 definition "Expr_lambdas = Expr_bind \<open>\<lambda>\<close>"
 definition "Expr_lambda x = Expr_lambdas [x]"

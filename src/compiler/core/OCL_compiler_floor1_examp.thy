@@ -269,7 +269,7 @@ fun print_examp_instance_app_constr2_notmp' where
    "print_examp_instance_app_constr2_notmp' l_attr e =
  (case l_attr of
     OclAttrNoCast _ \<Rightarrow> e (* NOTE: to be enclosed in a potentially not mandatory parenthesis *)
-  | OclAttrCast ty (OclAttrNoCast _) _ \<Rightarrow> Expr_annot e (wrap_oclty ty) (* NOTE: to be enclosed in a mandatory parenthesis *)
+  | OclAttrCast ty (OclAttrNoCast _) _ \<Rightarrow> Expr_annot' e (wrap_oclty ty) (* NOTE: to be enclosed in a mandatory parenthesis *)
   | OclAttrCast ty l_attr _ \<Rightarrow> 
       Expr_postunary (Expr_parenthesis (print_examp_instance_app_constr2_notmp' l_attr e)) (Expr_basic [dot_astype ty]))"
 
@@ -493,16 +493,16 @@ definition "print_examp_instance_defassoc_gen name l_ocli ocl =
         ; a_l = \<lambda>s. Ty_apply (Ty_base var_ty_list) [s] in
       Expr_lambdas
         [var_oid_class, var_to_from, var_oid]
-        (Expr_annot0 (Expr_case
+        (Expr_annot (Expr_case
           (Expr_apply var_deref_assocs_list
-            [ Expr_annot0 (b var_to_from) (Ty_arrow
+            [ Expr_annot (b var_to_from) (Ty_arrow
                                             (a_l (a_l (Ty_base const_oid)))
                                             (let t = a_l (Ty_base const_oid) in
                                              Ty_times t t))
-            , Expr_annot (b var_oid) const_oid
+            , Expr_annot' (b var_oid) const_oid
             , a \<open>drop\<close>
               (Expr_applys (print_examp_def_st_assoc (snd o rbt) map_self map_username l_ocli)
-                           [Expr_annot (b var_oid_class) const_oid])])
+                           [Expr_annot' (b var_oid_class) const_oid])])
           [ (b \<open>Nil\<close>, b \<open>None\<close>)
           , let b_l = b \<open>l\<close> in
             (b_l, a \<open>Some\<close> b_l)] ) (Ty_apply (Ty_base \<open>option\<close>) [a_l (Ty_base const_oid)]))))])"

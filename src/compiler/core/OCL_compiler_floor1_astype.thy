@@ -314,7 +314,7 @@ definition "print_astype_lemma_const expr = (start_map Thy_lemma_by o
       Lemma_by
         (flatten [n, \<open>_\<close>, name2])
         (List_map (a \<open>const\<close>)
-          [ Expr_annot (b var_X) (wrap_oclty name3)
+          [ Expr_annot' (b var_X) (wrap_oclty name3)
           , Expr_postunary
                    (b var_X)
                    (Expr_basic [dot_astype name1]) ])
