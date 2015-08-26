@@ -262,12 +262,12 @@ definition "s_of_tactic_last = (\<lambda> Comm_done \<Rightarrow> \<open>done\<c
                                 | Comm_by l_apply \<Rightarrow> sprint1 \<open>by(%s)\<close>\<acute> (String_concat \<open>, \<close> (List_map s_of_tactic l_apply))
                                 | Comm_sorry \<Rightarrow> \<open>sorry\<close>)"
 
-definition "s_of_tac_apply_end = (
+definition "s_of_meth_apply_end = (
   \<lambda> Comm_apply_end [] \<Rightarrow> \<open>\<close>
   | Comm_apply_end l_apply \<Rightarrow> sprint1 \<open>  apply_end(%s)
 \<close>\<acute> (String_concat \<open>, \<close> (List_map s_of_tactic l_apply)))"
 
-definition' \<open>s_of_tac_apply = (
+definition' \<open>s_of_meth_apply = (
   let thesis = \<open>?thesis\<close>
     ; scope_thesis_gen = sprint2 \<open>  proof - %s show %s
 \<close>\<acute>
@@ -316,7 +316,7 @@ assumes %s\"%s\"\<close>\<acute>
        @@@@
        [sprint1 \<open>
 shows \"%s\"\<close>\<acute> (s_of_expr concl)]))
-      (String_concat \<open>\<close> (List_map s_of_tac_apply l_apply))
+      (String_concat \<open>\<close> (List_map s_of_meth_apply l_apply))
       (s_of_tactic_last tactic_last)
       (String_concat \<open> \<close>
         (List_map
@@ -326,7 +326,7 @@ shows \"%s\"\<close>\<acute> (s_of_expr concl)]))
                  \<open>\<close>
                else
                  sprint1 \<open>
-%s \<close>\<acute> (String_concat \<open>\<close> (List_map s_of_tac_apply_end l_apply_e))))
+%s \<close>\<acute> (String_concat \<open>\<close> (List_map s_of_meth_apply_end l_apply_e))))
           (List.map_filter
             (\<lambda> Comm_let _ _ \<Rightarrow> Some [] | Comm_have _ _ _ _ \<Rightarrow> Some [] | Comm_fix_let _ _ _ l \<Rightarrow> Some l | _ \<Rightarrow> None)
             (rev l_apply)))))"
@@ -374,8 +374,8 @@ lemmas [code] =
   s_of.s_of_attrib_def
   s_of.s_of_attrib1_def
   s_of.s_of_tactic_last_def
-  s_of.s_of_tac_apply_end_def
-  s_of.s_of_tac_apply_def
+  s_of.s_of_meth_apply_end_def
+  s_of.s_of_meth_apply_def
   s_of.s_of_lemma_by_def
   s_of.s_of_axiom_def
   s_of.s_of_text_def

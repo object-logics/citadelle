@@ -635,9 +635,9 @@ structure Shallow_conv = struct
  fun To_binding s = Binding.make (s, Position.none)
  val To_sbinding = To_binding o To_string0
 
-fun simp_tac_gen g f = Method.Basic (fn ctxt => SIMPLE_METHOD (g (asm_full_simp_tac (f ctxt))))
-val simp_tac = simp_tac_gen (fn f => f 1)
-val simp_all_tac = simp_tac_gen (CHANGED_PROP o PARALLEL_GOALS o ALLGOALS)
+fun simp_meth_gen g f = Method.Basic (fn ctxt => SIMPLE_METHOD (g (asm_full_simp_tac (f ctxt))))
+val simp_tac = simp_meth_gen (fn f => f 1)
+val simp_all_tac = simp_meth_gen (CHANGED_PROP o PARALLEL_GOALS o ALLGOALS)
 
 datatype ty_thm = Thm_single of thm
                 | Thm_mult of thm list

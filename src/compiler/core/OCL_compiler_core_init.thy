@@ -349,7 +349,7 @@ definition "print_iskindof_up_larger_name name_pers name_any = flatten [\<open>a
 
 subsection{* allInstances *}
 
-definition "gen_pre_post0 f_tit f_assum spec f_lemma tac_last =
+definition "gen_pre_post0 f_tit f_assum spec f_lemma meth_last =
   (let b = \<lambda>s. Expr_basic [s]
      ; d = hol_definition
      ; f_allinst = \<lambda>s. \<open>OclAllInstances_\<close> @@ s
@@ -366,7 +366,7 @@ definition "gen_pre_post0 f_tit f_assum spec f_lemma tac_last =
            f_assum
            (spec (Expr_app s_allinst) f_cpl pre_post)
            [App_unfolding [Thm_str (d s_allinst)]]
-           (Comm_by (Tac_rule (Thm_str lem_gen) # tac_last)) in
+           (Comm_by (M_rule (Thm_str lem_gen) # meth_last)) in
   [ f_lemma lem_gen f_assum (spec (\<lambda>l. Expr_app (f_allinst s_generic) (b var_pre_post # l)) (\<lambda>e. Expr_app var_mk [e]) var_pre_post) var_pre_post var_mk var_st
   , mk_pre_post \<open>snd\<close> \<open>at_post\<close> (Expr_pair (b var_st))
   , mk_pre_post \<open>fst\<close> \<open>at_pre\<close> (\<lambda>e. Expr_pair e (b var_st)) ])"

@@ -52,7 +52,7 @@ section{* Translation of AST *}
 subsection{* example *}
 
 definition "print_examp_def_st_locale_distinct = \<open>distinct_oid\<close>"
-definition "print_examp_def_st_locale_metis = Tac_metis (List_map Thm_str [print_examp_def_st_locale_distinct, \<open>distinct_length_2_or_more\<close>])"
+definition "print_examp_def_st_locale_metis = M_metis (List_map Thm_str [print_examp_def_st_locale_distinct, \<open>distinct_length_2_or_more\<close>])"
 definition "print_examp_def_st_locale_aux f_ocli l = 
  (let b = \<lambda>s. Expr_basic [s] in
   map_prod
@@ -169,7 +169,7 @@ definition "print_examp_def_st_dom = (\<lambda> _ ocl.
        (print_examp_def_st_dom_name name)
        [Expr_rewrite (a \<open>dom\<close> (a \<open>heap\<close> (b name))) \<open>=\<close> (Expr_set (List_map (\<lambda>(cpt, _). Expr_oid var_oid_uniq (oidGetInh cpt)) l_st))]
        []
-       (Comm_by [Tac_auto_simp_add [d name]])]))"
+       (Comm_by [M_auto_simp_add [d name]])]))"
 
 definition "print_examp_def_st_dom_lemmas = (\<lambda> _ ocl.
  (\<lambda> l. (List_map Thy_lemmas_simp' l, ocl))
@@ -188,12 +188,12 @@ definition "print_examp_def_st_perm = (\<lambda> _ ocl.
      ; b = \<lambda>s. Expr_basic [s]
      ; d = hol_definition
      ; (l_app, l_last) =
-         case l_st of [] \<Rightarrow> ([], Comm_by [Tac_simp_add [d name]])
-         | [_] \<Rightarrow> ([], Comm_by [Tac_simp_add [d name]])
+         case l_st of [] \<Rightarrow> ([], Comm_by [M_simp_add [d name]])
+         | [_] \<Rightarrow> ([], Comm_by [M_simp_add [d name]])
          | _ \<Rightarrow>
-           ( [ Tac_simp_add [d name]]
-             # List_flatten (List_map (\<lambda>i_max. List_map (\<lambda>i. [Tac_subst_l (List_map nat_of_str [i_max - i]) (Thm_str \<open>fun_upd_twist\<close>), print_examp_def_st_locale_metis]) (List.upt 0 i_max)) (List.upt 1 (List.length l_st)))
-           , Comm_by [Tac_simp]) in
+           ( [ M_simp_add [d name]]
+             # List_flatten (List_map (\<lambda>i_max. List_map (\<lambda>i. [M_subst_l (List_map nat_of_str [i_max - i]) (Thm_str \<open>fun_upd_twist\<close>), print_examp_def_st_locale_metis]) (List.upt 0 i_max)) (List.upt 1 (List.length l_st)))
+           , Comm_by [M_simp]) in
    case expr_app of None \<Rightarrow> [] | Some expr_app \<Rightarrow>
    [ Lemma
        (print_examp_def_st_perm_name name)
@@ -239,10 +239,10 @@ definition "print_examp_def_st_allinst = (\<lambda> _ ocl.
                            if String_equal name name2 then exp_annot
                            else [] | _ \<Rightarrow> [])
                 | UN' \<Rightarrow> [])) expr_app
-       ; (l_asty, ((l_spec, l_spec'), l_body)) = map_prod (Tac_simp_add_del [] o List_flatten)
+       ; (l_asty, ((l_spec, l_spec'), l_body)) = map_prod (M_simp_add_del [] o List_flatten)
                                                           (map_prod List_split id o List_split)
                                                           (List_split (List_flatten (List_map snd expr_app)))
-       ; only_assms = Cons (Tac_simp_all_only' [ Thm_strs \<open>assms\<close> ])
+       ; only_assms = Cons (M_simp_all_only' [ Thm_strs \<open>assms\<close> ])
        ; l_assum = List_flatten [ List_map (\<lambda> ((_, ocli), l).
                                               (\<open>\<close>, True, Expr_rewrite (in_pers ocli) (if l = [] then \<open>=\<close> else \<open>\<noteq>\<close>) (b \<open>None\<close>)))
                                            expr_app
@@ -261,43 +261,43 @@ definition "print_examp_def_st_allinst = (\<lambda> _ ocl.
          lem_spec
          (List_map Comm_apply
            (List_flatten
-            [ [[Tac_subst (Thm_str (print_examp_def_st_perm_name name_st))]]
-            , [[Tac_simp_only (List_map (Thm_str o d)
+            [ [[M_subst (Thm_str (print_examp_def_st_perm_name name_st))]]
+            , [[M_simp_only (List_map (Thm_str o d)
                                         (\<open>state.make\<close> # List_map (\<lambda>(_, OclDefCoreBinding (n, _)) \<Rightarrow> n) l_body))]]
             , fst (fold_list (\<lambda> expr l_spec.
-                let mk_StrictRefEq_including = \<lambda>l.  Tac_rule (Thm_str \<open>const_StrictRefEq\<^sub>S\<^sub>e\<^sub>t_including\<close>)
+                let mk_StrictRefEq_including = \<lambda>l.  M_rule (Thm_str \<open>const_StrictRefEq\<^sub>S\<^sub>e\<^sub>t_including\<close>)
                                                   # l_asty
                                                   # l_asty
-                                                  # Tac_simp
+                                                  # M_simp
                                                   # l
                   ; (state_update_vs_allInstances_generic, l_spec, l_OclIncluding_cong) =
-                      let f = Cons Tac_simp in
+                      let f = Cons M_simp in
                       case expr of ((ocore, _), []) \<Rightarrow>
                         ( \<open>state_update_vs_allInstances_generic_ntc\<close>
                         , l_spec
                         , f (if l_spec = [] then
-                               [Tac_rule (Thm_str \<open>const_StrictRefEq\<^sub>S\<^sub>e\<^sub>t_empty\<close>), Tac_simp]
+                               [M_rule (Thm_str \<open>const_StrictRefEq\<^sub>S\<^sub>e\<^sub>t_empty\<close>), M_simp]
                              else
                                mk_StrictRefEq_including []))
                       | _ \<Rightarrow>
                         ( \<open>state_update_vs_allInstances_generic_tc\<close>
                         , tl l_spec
-                        , ( Tac_blast None
-                          # f (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l f = \<lambda>l.  Tac_option [Tac_simp_only [Thm_symmetric (Thm_strs \<open>assms\<close>)]]
-                                              # Tac_simp_add (List_map d [\<open>valid\<close>, \<open>OclValid\<close>, \<open>bot_fun\<close>, \<open>bot_option\<close>])
+                        , ( M_blast None
+                          # f (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l f = \<lambda>l.  M_option [M_simp_only [Thm_symmetric (Thm_strs \<open>assms\<close>)]]
+                                              # M_simp_add (List_map d [\<open>valid\<close>, \<open>OclValid\<close>, \<open>bot_fun\<close>, \<open>bot_option\<close>])
                                               # l in
-                               mk_StrictRefEq_including (Tac_rule (Thm_str \<open>OclIncluding_cong\<close>) # f (f []))))) in
-                ( Tac_subst (Thm_str state_update_vs_allInstances_generic)
-                  # Tac_simp
-                  # Tac_simp
-                  # Tac_option [print_examp_def_st_locale_metis]
-                  # Tac_simp_only' [ Thm_strs \<open>assms\<close> ]
+                               mk_StrictRefEq_including (M_rule (Thm_str \<open>OclIncluding_cong\<close>) # f (f []))))) in
+                ( M_subst (Thm_str state_update_vs_allInstances_generic)
+                  # M_simp
+                  # M_simp
+                  # M_option [print_examp_def_st_locale_metis]
+                  # M_simp_only' [ Thm_strs \<open>assms\<close> ]
                   # l_OclIncluding_cong
                 , l_spec) ) expr_app l_spec)
-            , [[Tac_rule (Thm_str \<open>state_update_vs_allInstances_generic_empty\<close>)]] ]))
-         (Comm_by (if l_spec = [] then [ Tac_simp ]
-                   else only_assms [ Tac_option [Tac_simp_all_add [d (flatten [isub_name const_oclastype, \<open>_\<AA>\<close>])]]])) )
-       (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l l = [ Tac_simp_all ] in if l_assum = [] then l else only_assms l))
+            , [[M_rule (Thm_str \<open>state_update_vs_allInstances_generic_empty\<close>)]] ]))
+         (Comm_by (if l_spec = [] then [ M_simp ]
+                   else only_assms [ M_option [M_simp_all_add [d (flatten [isub_name const_oclastype, \<open>_\<AA>\<close>])]]])) )
+       (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l l = [ M_simp_all ] in if l_assum = [] then l else only_assms l))
      (case D_class_spec ocl of Some class_spec \<Rightarrow> class_spec)))"
 
 definition "merge_unique_gen f l = List.fold (List.fold (\<lambda>x. case f x of Some (x, v) \<Rightarrow> RBT.insert x v | None \<Rightarrow> id)) l RBT.empty"
@@ -335,7 +335,7 @@ definition "print_pre_post_interp = get_state (\<lambda> _ _.
  Pair o List_map Thy_interpretation' o List_map
   (\<lambda>(s, l).
     let n = print_examp_def_st_locale_name s in
-    Interpretation n n (print_pre_post_locale_aux (\<lambda>(cpt, OclDefCoreBinding (_, ocli)) \<Rightarrow> (ocli, cpt)) l) (Comm_by [Tac_rule (Thm_str s)])))"
+    Interpretation n n (print_pre_post_locale_aux (\<lambda>(cpt, OclDefCoreBinding (_, ocli)) \<Rightarrow> (ocli, cpt)) l) (Comm_by [M_rule (Thm_str s)])))"
 
 definition "print_pre_post_wff = get_state (\<lambda> (s_pre, l_pre) (s_post, l_post) l_pre_post ocl.
  (\<lambda> l. (List_map Thy_lemma_by' l, ocl))
@@ -366,7 +366,7 @@ definition "print_pre_post_wff = get_state (\<lambda> (s_pre, l_pre) (s_post, l_
                                              (Comm_by [print_examp_def_st_locale_metis])))
                        [List.n_lists 2 (List_map (oidGetInh o fst)
                                                  (List_flatten (List_map snd l_pre_post)))]))
-       (Comm_by [Tac_auto_simp_add (List_map d (\<open>WFF\<close> # List_map (mk_n o fst) l_pre_post))])] ))"
+       (Comm_by [M_auto_simp_add (List_map d (\<open>WFF\<close> # List_map (mk_n o fst) l_pre_post))])] ))"
 
 definition "print_pre_post_where = get_state (\<lambda> (s_pre, l_pre) (s_post, l_post) l_pre_post ocl.
  (\<lambda> l. ((List_map Thy_lemma_by' o List_flatten) l, ocl))
@@ -395,9 +395,9 @@ definition "print_pre_post_where = get_state (\<lambda> (s_pre, l_pre) (s_post, 
              (Expr_binop (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l mk_n = b o mk_n in Expr_pair (mk_n s_pre) (mk_n s_post))
                          \<open>\<Turnstile>\<close>
                          (a x_where (b name)))
-             [Comm_apply [Tac_simp_add (List_map d (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l l = [ mk_n s_post, name, x_where, \<open>OclValid\<close>, const_oid_of \<open>option\<close> ] in
+             [Comm_apply [M_simp_add (List_map d (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l l = [ mk_n s_post, name, x_where, \<open>OclValid\<close>, const_oid_of \<open>option\<close> ] in
                                              case l_pre_post of [_] \<Rightarrow> l | _ \<Rightarrow> mk_n s_pre # l))]]
-             (Comm_by [Tac_option [print_examp_def_st_locale_metis]]))
+             (Comm_by [M_option [print_examp_def_st_locale_metis]]))
          l_ocore)
      (RBT.keys (RBT.union rbt_pre rbt_post)) ))"
 
