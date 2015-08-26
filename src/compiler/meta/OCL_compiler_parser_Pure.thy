@@ -75,7 +75,7 @@ definition "i_of_pure_term a b = (\<lambda>f0 f1 f2 f3 f4 f5. rec_pure_term f0 f
   (ap2 a (b \<open>PureVar\<close>) (i_of_pure_indexname a b) (i_of_pure_typ a b))
   (ap1 a (b \<open>PureBound\<close>) (i_of_nat a b))
   (ar3 a (b \<open>PureAbs\<close>) (i_of_string a b) (i_of_pure_typ a b))
-  (ar2 a (b \<open>PureApp \<close>) id)"
+  (ar2 a (b \<open>PureApp\<close>) id)"
 
 end
 
