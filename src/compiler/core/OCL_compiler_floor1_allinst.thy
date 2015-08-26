@@ -106,10 +106,10 @@ definition "print_allinst_exec = start_map Thy_lemma_by o map_class_top (\<lambd
            ; var_S2 = \<open>S2\<close> in
          [ Comm_let (Expr_pat var_S1) (Expr_lam \<open>\<tau>\<close> (ran_heap var_pre_post))
          , Comm_let (Expr_pat var_S2) (Expr_lam \<open>\<tau>\<close> (\<lambda>var_tau. Expr_binop (Expr_applys (Expr_pat var_S1) [b var_tau]) \<open>-\<close> (Expr_paren \<open>{\<close> \<open>}\<close> (b \<open>None\<close>))))
-         , App_have var_B (f_incl var_S2 var_S1) (Comm_by [M_auto])
-         , App_have var_C (f_incl var_S1 var_S2) (Comm_by [M_auto_simp_add [print_allinst_astype_name isub_name]])
+         , C_have var_B (f_incl var_S2 var_S1) (Comm_by [M_auto])
+         , C_have var_C (f_incl var_S1 var_S2) (Comm_by [M_auto_simp_add [print_allinst_astype_name isub_name]])
          , Comm_apply [M_simp_add_del [d \<open>OclValid\<close>] [d \<open>OclAllInstances_generic\<close>, flatten [isub_name const_ocliskindof, \<open>_\<close>, name]]] ])
-        (Comm_by [M_insert [thm_OF (Thm_str \<open>equalityI\<close>) (List_map Thm_str [var_B, var_C])], M_simp]))
+        (Comm_by [M_insert [Thm_OF_l (Thm_str \<open>equalityI\<close>) (List_map Thm_str [var_B, var_C])], M_simp]))
     [])"
 
 definition "print_allinst_istypeof_pre_name1 = \<open>ex_ssubst\<close>"
@@ -164,7 +164,7 @@ definition "print_allinst_istypeof_single isub_name name isub_name2 name2 const_
              [ (\<open>s\<close>, Expr_lam \<open>x\<close> (\<lambda>var_x. Expr_applys (Expr_postunary (Expr_lambda wildcard (b var_x)) (b (dot_isof name2))) [b var_tau]))
              , (\<open>t\<close>, Expr_lambda wildcard (Expr_app \<open>true\<close> [b var_tau]))])]
       , [M_intro [ Thm_str \<open>ballI\<close>
-                   , thm_simplified
+                   , Thm_simplified_l
                        (Thm_str (if name = name2 then
                                    print_iskindof_up_eq_asty_name name
                                  else
@@ -216,7 +216,7 @@ definition "print_allinst_istypeof = start_map'' Thy_lemma_by o (\<lambda>expr b
               ; var_a = \<open>a\<close>
               ; var_t0 = \<open>t0\<close>
               ; s_empty = \<open>Map.empty\<close> in
-            [ App_fix [var_oid, var_a]
+            [ C_fix [var_oid, var_a]
             , Comm_let (Expr_pat var_t0) (Expr_app \<open>state.make\<close>
                 [ Expr_app s_empty [Expr_binop (b var_oid) \<open>\<mapsto>\<close> (Expr_app (isub_name datatype_in) [Expr_app (isub_name datatype_constr_name) (Expr_app (datatype_ext_constr_name @@ mk_constr_name name name_next) [b var_a] # List_map (\<lambda>_. b \<open>None\<close>) l_attr)])]
                 , b s_empty])

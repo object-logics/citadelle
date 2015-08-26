@@ -59,7 +59,7 @@ definition "print_enum = (\<lambda> OclEnum name_ty l \<Rightarrow> Pair
   List_flatten
   [ [ Thy_dataty (Datatype (pref_ty_enum name_ty) (List_map (\<lambda>constr. (pref_constr_enum constr, [])) l))
     , Thy_ty_synonym (Type_synonym' name_ty_base (option (option (Ty_base (pref_ty_enum name_ty)))))
-    , Thy_ty_synonym (Type_synonym0 name_ty_base' [uu] (\<lambda> [u] \<Rightarrow> Ty_apply (Ty_base \<open>val\<close>) [Ty_base u, Ty_base name_ty_base]))
+    , Thy_ty_synonym (Type_synonym'' name_ty_base' [uu] (\<lambda> [u] \<Rightarrow> Ty_apply (Ty_base \<open>val\<close>) [Ty_base u, Ty_base name_ty_base]))
     , Thy_defs_overloaded
         (Defs_overloaded
           (\<open>StrictRefEq\<close> @@ isub_of_str name_ty)

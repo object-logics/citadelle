@@ -211,7 +211,7 @@ definition "print_istypeof_up_larger = start_map Thy_lemma_by o
                (Expr_annot_ocl (Expr_basic [var_X]) name_pers)
                (Expr_basic [dot_istypeof name_any]))
              ) \<open>\<triangleq>\<close> (Expr_basic [\<open>false\<close>])))
-        [App_using [Thm_str var_isdef]]
+        [C_using [Thm_str var_isdef]]
         (Comm_by [M_auto_simp_add ( flatten [const_oclistypeof, isub_of_str name_any, \<open>_\<close>, name_pers]
                                     # \<open>foundation22\<close>
                                     # \<open>foundation16\<close>
@@ -233,7 +233,7 @@ definition "print_istypeof_up_d_cast expr = (start_map Thy_lemma_by o
                (Expr_basic [var_X])
                (Expr_basic [dot_astype name_pers]))
              ) \<open>\<triangleq>\<close> (Expr_basic [\<open>invalid\<close>])))
-        [App_using (List_map Thm_str [var_istyp, var_isdef])
+        [C_using (List_map Thm_str [var_istyp, var_isdef])
         ,Comm_apply [M_auto_simp_add_split (List_map Thm_str
                                       ( flatten [const_oclastype, isub_of_str name_pers, \<open>_\<close>, name_any]
                                       # \<open>foundation22\<close>

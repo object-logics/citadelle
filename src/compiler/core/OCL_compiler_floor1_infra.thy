@@ -110,7 +110,7 @@ definition "print_infra_type_synonym_class _ = start_map id
      ty OclTy_base_real ty_real #
      ty OclTy_base_string ty_string #
      (* *)
-     Type_synonym0 var_val' [\<open>'\<alpha>\<close>] (\<lambda> [alpha] \<Rightarrow> Ty_apply (Ty_base \<open>val\<close>) [Ty_base \<open>\<AA>\<close>, Ty_base alpha ]) #
+     Type_synonym'' var_val' [\<open>'\<alpha>\<close>] (\<lambda> [alpha] \<Rightarrow> Ty_apply (Ty_base \<open>val\<close>) [Ty_base \<open>\<AA>\<close>, Ty_base alpha ]) #
      [])
    @@@@
    List_map Thy_ty_notation

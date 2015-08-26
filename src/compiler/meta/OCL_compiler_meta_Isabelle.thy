@@ -209,12 +209,12 @@ datatype hol__thy = H_thy_simple hol__t
 
 section{* ... *}
 
-definition "thm_OF s l = List.fold (\<lambda>x acc. Thm_OF acc x) l s"
-definition "thm_simplified s l = List.fold (\<lambda>x acc. Thm_simplified acc x) l s"
+definition "Thm_OF_l s l = List.fold (\<lambda>x acc. Thm_OF acc x) l s"
+definition "Thm_simplified_l s l = List.fold (\<lambda>x acc. Thm_simplified acc x) l s"
 definition "Opt s = Ty_apply (Ty_base \<open>option\<close>) [Ty_base s]"
 definition "Raw = Ty_base"
 definition "Type_synonym' n = Type_synonym n []"
-definition "Type_synonym0 n l f = Type_synonym n l (f l)"
+definition "Type_synonym'' n l f = Type_synonym n l (f l)"
 definition "Expr_annot' e s = Expr_annot e (Ty_base s)"
 definition "wrap_oclty x = \<open>\<cdot>\<close> @@ x"
 definition "Expr_annot_ocl e s = Expr_annot' e (wrap_oclty s)"
@@ -319,10 +319,10 @@ definition "M_auto_simp_add = M_auto_simp_add2 []"
 definition "M_auto = M_auto_simp_add []"
 definition "ty_arrow l = (case rev l of x # xs \<Rightarrow> List.fold Ty_arrow xs x)"
 
-definition "App_using = Comm_using o List_map Thms_single"
-definition "App_unfolding = Comm_unfolding o List_map Thms_single"
-definition "App_fix l = Comm_fix_let l [] None []"
-definition "App_have n = Comm_have n False"
+definition "C_using = Comm_using o List_map Thms_single"
+definition "C_unfolding = Comm_unfolding o List_map Thms_single"
+definition "C_fix l = Comm_fix_let l [] None []"
+definition "C_have n = Comm_have n False"
 
 fun cross_abs_aux where
    "cross_abs_aux f l x = (\<lambda> (Suc n, PureAbs s _ t) \<Rightarrow> f s (cross_abs_aux f (s # l) (n, t))

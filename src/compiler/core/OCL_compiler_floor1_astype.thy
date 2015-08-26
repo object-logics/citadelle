@@ -221,7 +221,7 @@ definition "print_astype_defined = start_m Thy_lemma_by m_class_default
           (flatten [isub_name const_oclastype, \<open>_\<close>, h_name, \<open>_defined\<close>])
           [(var_isdef, False, f (Expr_basic [var_X]))]
           (f (Expr_postunary (Expr_annot_ocl (Expr_basic [var_X]) h_name) (Expr_basic [dot_astype name])))
-          [App_using [Thm_str var_isdef]]
+          [C_using [Thm_str var_isdef]]
           (Comm_by [M_auto_simp_add (flatten [isub_name const_oclastype, \<open>_\<close>, h_name]
                                         # \<open>foundation16\<close>
                                         # List_map hol_definition [\<open>null_option\<close>, \<open>bot_option\<close> ])]) ]
@@ -240,7 +240,7 @@ definition "print_astype_up_d_cast0 = start_map Thy_lemma_by o
              (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l asty = \<lambda>x ty. Expr_warning_parenthesis (Expr_postunary x (Expr_basic [dot_astype ty])) in
               asty (asty (Expr_annot_ocl (Expr_basic [var_X]) name_pers) name_any) name_pers)
              \<open>\<triangleq>\<close> (Expr_basic [var_X])))
-        [App_using [Thm_str var_isdef]]
+        [C_using [Thm_str var_isdef]]
         (Comm_by [M_auto_simp_add_split
                                     (List_map Thm_str
                                     ( flatten [const_oclastype, isub_of_str name_any, \<open>_\<close>, name_pers]
