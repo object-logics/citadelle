@@ -62,8 +62,8 @@ section{* Translation of AST *}
 subsection{* Conclusion *}
 
 datatype ('a, 'b) hol_theory = Hol_theory_ext "('a \<Rightarrow> 'b \<Rightarrow> hol_thy_extended list \<times> 'b) list"
-                             | Hol_theory_locale "'a \<Rightarrow> 'b \<Rightarrow> hol_'thy_locale \<times> 'b"
-                                                 "('a \<Rightarrow> 'b \<Rightarrow> hol_'t list \<times> 'b) list"
+                             | Hol_theory_locale "'a \<Rightarrow> 'b \<Rightarrow> hol__thy_locale \<times> 'b"
+                                                 "('a \<Rightarrow> 'b \<Rightarrow> hol__t list \<times> 'b) list"
 
 type_synonym 'a h_theory = "('a, ocl_compiler_config) hol_theory" (* polymorphism weakening needed by code_reflect *)
 
@@ -75,7 +75,7 @@ definition "L_fold f =
             ; (l, b) = List.fold (\<lambda>f0. \<lambda>(l, b) \<Rightarrow> let (x, b) = f0 a b in (x # l, b)) l ([], b) in
           ([Isab_thy (H_thy_locale loc_data (rev l))], b)))"
 
-definition "section_aux n s = start_map' (\<lambda>_. [ Thy_section_title (Section_title n s) ])"
+definition "section_aux n s = start_map' (\<lambda>_. [ Thy_section_title (Section n s) ])"
 definition "section = section_aux 0"
 definition "subsection = section_aux 1"
 definition "subsubsection = section_aux 2"
@@ -425,8 +425,8 @@ definition "fold_thy0 meta thy_object0 f =
     let (sorry, dirty) = D_sorry_dirty acc1
       ; (l, acc1) = x meta acc1 in
     (f (if sorry = Some Gen_sorry | sorry = None & dirty then
-          List_map (hol_map_thy (hol_map_lemma (\<lambda> Lemma_by n spec _ _ \<Rightarrow> Lemma_by n spec [] Tacl_sorry
-                                                | Lemma_by_assum n spec1 spec2 _ _ \<Rightarrow> Lemma_by_assum n spec1 spec2 [] Tacl_sorry))) l
+          List_map (hol_map_thy (hol_map_lemma (\<lambda> Lemma n spec _ _ \<Rightarrow> Lemma n spec [] Comm_sorry
+                                                | Lemma_assumes n spec1 spec2 _ _ \<Rightarrow> Lemma_assumes n spec1 spec2 [] Comm_sorry))) l
         else
           l) acc1 acc2)) thy_object0"
 

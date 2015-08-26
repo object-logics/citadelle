@@ -151,7 +151,7 @@ datatype hol_generation_syntax = Generation_syntax_shallow ocl_deep_mode
 datatype hol_ml_extended = Ml_extended sml_expr_extended
 
 datatype hol_thy_extended = (* pure Isabelle *)
-                            Isab_thy hol_'thy
+                            Isab_thy hol__thy
 
                             (* bootstrapping embedded languages *)
                           | Isab_thy_generation_syntax hol_generation_syntax
@@ -160,35 +160,35 @@ datatype hol_thy_extended = (* pure Isabelle *)
 
 subsection{* ... *}
 
-definition "Thy_dataty = Isab_thy o H_thy_simple o Theory_dataty"
-definition "Thy_ty_synonym = Isab_thy o H_thy_simple o Theory_ty_synonym"
-definition "Thy_ty_notation = Isab_thy o H_thy_simple o Theory_ty_notation"
-definition "Thy_instantiation_class = Isab_thy o H_thy_simple o Theory_instantiation_class"
-definition "Thy_defs_overloaded = Isab_thy o H_thy_simple o Theory_defs_overloaded"
-definition "Thy_consts_class = Isab_thy o H_thy_simple o Theory_consts_class"
-definition "Thy_definition_hol = Isab_thy o H_thy_simple o Theory_definition_hol"
-definition "Thy_lemmas_simp = Isab_thy o H_thy_simple o Theory_lemmas_simp"
-definition "Thy_lemma_by = Isab_thy o H_thy_simple o Theory_lemma_by"
-definition "Thy_axiom = Isab_thy o H_thy_simple o Theory_axiom"
-definition "Thy_section_title = Isab_thy o H_thy_simple o Theory_section_title"
+definition "Thy_dataty = Isab_thy o H_thy_simple o Theory_datatype"
+definition "Thy_ty_synonym = Isab_thy o H_thy_simple o Theory_type_synonym"
+definition "Thy_ty_notation = Isab_thy o H_thy_simple o Theory_type_notation"
+definition "Thy_instantiation_class = Isab_thy o H_thy_simple o Theory_instantiation"
+definition "Thy_defs_overloaded = Isab_thy o H_thy_simple o Theory_defs"
+definition "Thy_consts_class = Isab_thy o H_thy_simple o Theory_consts"
+definition "Thy_definition_hol = Isab_thy o H_thy_simple o Theory_definition"
+definition "Thy_lemmas_simp = Isab_thy o H_thy_simple o Theory_lemmas"
+definition "Thy_lemma_by = Isab_thy o H_thy_simple o Theory_lemma"
+definition "Thy_axiom = Isab_thy o H_thy_simple o Theory_axiomatization"
+definition "Thy_section_title = Isab_thy o H_thy_simple o Theory_section"
 definition "Thy_text = Isab_thy o H_thy_simple o Theory_text"
-definition "Thy_ml = Isab_thy o H_thy_simple o Theory_ml"
+definition "Thy_ml = Isab_thy o H_thy_simple o Theory_ML"
 definition "Thy_thm = Isab_thy o H_thy_simple o Theory_thm"
 definition "Thy_interpretation = Isab_thy o H_thy_simple o Theory_interpretation"
 
-definition "Thy_dataty' = Theory_dataty"
-definition "Thy_ty_synonym' = Theory_ty_synonym"
-definition "Thy_ty_notation' = Theory_ty_notation"
-definition "Thy_instantiation_class' = Theory_instantiation_class"
-definition "Thy_defs_overloaded' = Theory_defs_overloaded"
-definition "Thy_consts_class' = Theory_consts_class"
-definition "Thy_definition_hol' = Theory_definition_hol"
-definition "Thy_lemmas_simp' = Theory_lemmas_simp"
-definition "Thy_lemma_by' = Theory_lemma_by"
-definition "Thy_axiom' = Theory_axiom"
-definition "Thy_section_title' = Theory_section_title"
+definition "Thy_dataty' = Theory_datatype"
+definition "Thy_ty_synonym' = Theory_type_synonym"
+definition "Thy_ty_notation' = Theory_type_notation"
+definition "Thy_instantiation_class' = Theory_instantiation"
+definition "Thy_defs_overloaded' = Theory_defs"
+definition "Thy_consts_class' = Theory_consts"
+definition "Thy_definition_hol' = Theory_definition"
+definition "Thy_lemmas_simp' = Theory_lemmas"
+definition "Thy_lemma_by' = Theory_lemma"
+definition "Thy_axiom' = Theory_axiomatization"
+definition "Thy_section_title' = Theory_section"
 definition "Thy_text' = Theory_text"
-definition "Thy_ml' = Theory_ml"
+definition "Thy_ml' = Theory_ML"
 definition "Thy_thm' = Theory_thm"
 definition "Thy_interpretation' = Theory_interpretation"
 

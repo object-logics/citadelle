@@ -119,9 +119,9 @@ definition "s_of_consts_class _ = (\<lambda> Consts n ty symb \<Rightarrow>
 
 definition "s_of_definition_hol _ = (\<lambda>
     Definition e \<Rightarrow> sprint1 \<open>definition \"%s\"\<close>\<acute> (s_of_expr e)
-  | Definition_abbrev name (abbrev, prio) e \<Rightarrow> sprint4 \<open>definition %s (\"(1%s)\" %d)
+  | Definition_where1 name (abbrev, prio) e \<Rightarrow> sprint4 \<open>definition %s (\"(1%s)\" %d)
   where \"%s\"\<close>\<acute> (To_string name) (s_of_expr abbrev) (To_nat prio) (s_of_expr e)
-  | Definition_abbrev0 name abbrev e \<Rightarrow> sprint3 \<open>definition %s (\"%s\")
+  | Definition_where2 name abbrev e \<Rightarrow> sprint3 \<open>definition %s (\"%s\")
   where \"%s\"\<close>\<acute> (To_string name) (s_of_expr abbrev) (s_of_expr e))"
 
 definition "(s_of_ntheorem_aux_gen :: String.literal \<times> String.literal \<Rightarrow> _ \<Rightarrow> _ \<Rightarrow> _) m lacc s = 
@@ -185,19 +185,19 @@ definition "s_of_ntheorem_l1 l = String_concat \<open> \<close> (List_map s_of_n
 
 definition "s_of_ntheorems_l l = String_concat \<open> \<close> (List_map s_of_ntheorems l)"
 
-definition "s_of_lemmas_simp _ = (\<lambda> Lemmas_simp_opt simp s l \<Rightarrow>
+definition "s_of_lemmas_simp _ = (\<lambda> Lemmas_simp_thm simp s l \<Rightarrow>
     sprint3 \<open>lemmas%s%s = %s\<close>\<acute>
       (if String_is_empty s then \<open>\<close> else sprint1 \<open> %s\<close>\<acute> (To_string s))
       (if simp then \<open>[simp,code_unfold]\<close> else \<open>\<close>)
       (s_of_ntheorem_l l)
-                                  | Lemmas_simps s l \<Rightarrow>
+                                  | Lemmas_simp_thms s l \<Rightarrow>
     sprint2 \<open>lemmas%s [simp,code_unfold] = %s\<close>\<acute>
       (if String_is_empty s then \<open>\<close> else sprint1 \<open> %s\<close>\<acute> (To_string s))
       (String_concat \<open>
                             \<close> (List_map To_string l)))"
 
-definition "(s_of_attrib_genA :: (hol_'ntheorems list \<Rightarrow> String.literal)
-   \<Rightarrow> String.literal \<Rightarrow> hol_'ntheorems list \<Rightarrow> String.literal) f attr l = (* error reflection: to be merged *)
+definition "(s_of_attrib_genA :: (hol__thm list \<Rightarrow> String.literal)
+   \<Rightarrow> String.literal \<Rightarrow> hol__thm list \<Rightarrow> String.literal) f attr l = (* error reflection: to be merged *)
  (if l = [] then
     \<open>\<close>
   else
@@ -214,57 +214,57 @@ definition "s_of_attrib = s_of_attrib_genA s_of_ntheorems_l"
 definition "s_of_attrib1 = s_of_attrib_genB (\<lambda>l. String_concat \<open> \<close> (List_map To_string l))"
 
 fun s_of_tactic where "s_of_tactic expr = (\<lambda>
-    Tact_rule0 o_s \<Rightarrow> sprint1 \<open>rule%s\<close>\<acute> (case o_s of None \<Rightarrow> \<open>\<close>
+    Meth_rule o_s \<Rightarrow> sprint1 \<open>rule%s\<close>\<acute> (case o_s of None \<Rightarrow> \<open>\<close>
                                                            | Some s \<Rightarrow> sprint1 \<open> %s\<close>\<acute> (s_of_ntheorem s))
-  | Tact_drule s \<Rightarrow> sprint1 \<open>drule %s\<close>\<acute> (s_of_ntheorem s)
-  | Tact_erule s \<Rightarrow> sprint1 \<open>erule %s\<close>\<acute> (s_of_ntheorem s)
-  | Tact_intro l \<Rightarrow> sprint1 \<open>intro %s\<close>\<acute> (s_of_ntheorem_l1 l)
-  | Tact_elim s \<Rightarrow> sprint1 \<open>elim %s\<close>\<acute> (s_of_ntheorem s)
-  | Tact_subst_l0 asm l s =>
+  | Meth_drule s \<Rightarrow> sprint1 \<open>drule %s\<close>\<acute> (s_of_ntheorem s)
+  | Meth_erule s \<Rightarrow> sprint1 \<open>erule %s\<close>\<acute> (s_of_ntheorem s)
+  | Meth_intro l \<Rightarrow> sprint1 \<open>intro %s\<close>\<acute> (s_of_ntheorem_l1 l)
+  | Meth_elim s \<Rightarrow> sprint1 \<open>elim %s\<close>\<acute> (s_of_ntheorem s)
+  | Meth_subst asm l s =>
       let s_asm = if asm then \<open>(asm) \<close> else \<open>\<close> in
       if List_map String_to_list l = [''0''] then
         sprint2 \<open>subst %s%s\<close>\<acute> s_asm (s_of_ntheorem s)
       else
         sprint3 \<open>subst %s(%s) %s\<close>\<acute> s_asm (String_concat \<open> \<close> (List_map To_string l)) (s_of_ntheorem s)
-  | Tact_insert l => sprint1 \<open>insert %s\<close>\<acute> (s_of_ntheorems_l l)
-  | Tact_plus t \<Rightarrow> sprint1 \<open>(%s)+\<close>\<acute> (String_concat \<open>, \<close> (List.map s_of_tactic t))
-  | Tact_option t \<Rightarrow> sprint1 \<open>(%s)?\<close>\<acute> (String_concat \<open>, \<close> (List.map s_of_tactic t))
-  | Tact_or t \<Rightarrow> sprint1 \<open>(%s)\<close>\<acute> (String_concat \<open> | \<close> (List.map s_of_tactic t))
-  | Tact_one (Simp_only l) \<Rightarrow> sprint1 \<open>simp only: %s\<close>\<acute> (s_of_ntheorems_l l)
-  | Tact_one (Simp_add_del_split l1 l2 []) \<Rightarrow> sprint2 \<open>simp%s%s\<close>\<acute>
+  | Meth_insert l => sprint1 \<open>insert %s\<close>\<acute> (s_of_ntheorems_l l)
+  | Meth_plus t \<Rightarrow> sprint1 \<open>(%s)+\<close>\<acute> (String_concat \<open>, \<close> (List.map s_of_tactic t))
+  | Meth_option t \<Rightarrow> sprint1 \<open>(%s)?\<close>\<acute> (String_concat \<open>, \<close> (List.map s_of_tactic t))
+  | Meth_or t \<Rightarrow> sprint1 \<open>(%s)\<close>\<acute> (String_concat \<open> | \<close> (List.map s_of_tactic t))
+  | Meth_one (Meth_simp_only l) \<Rightarrow> sprint1 \<open>simp only: %s\<close>\<acute> (s_of_ntheorems_l l)
+  | Meth_one (Meth_simp_add_del_split l1 l2 []) \<Rightarrow> sprint2 \<open>simp%s%s\<close>\<acute>
       (s_of_attrib \<open>add\<close> l1)
       (s_of_attrib \<open>del\<close> l2)
-  | Tact_one (Simp_add_del_split l1 l2 l3) \<Rightarrow> sprint3 \<open>simp%s%s%s\<close>\<acute>
-      (s_of_attrib \<open>add\<close> l1)
-      (s_of_attrib \<open>del\<close> l2)
-      (s_of_attrib \<open>split\<close> l3)
-  | Tact_all (Simp_only l) \<Rightarrow> sprint1 \<open>simp_all only: %s\<close>\<acute> (s_of_ntheorems_l l)
-  | Tact_all (Simp_add_del_split l1 l2 []) \<Rightarrow> sprint2 \<open>simp_all%s%s\<close>\<acute>
-      (s_of_attrib \<open>add\<close> l1)
-      (s_of_attrib \<open>del\<close> l2)
-  | Tact_all (Simp_add_del_split l1 l2 l3) \<Rightarrow> sprint3 \<open>simp_all%s%s%s\<close>\<acute>
+  | Meth_one (Meth_simp_add_del_split l1 l2 l3) \<Rightarrow> sprint3 \<open>simp%s%s%s\<close>\<acute>
       (s_of_attrib \<open>add\<close> l1)
       (s_of_attrib \<open>del\<close> l2)
       (s_of_attrib \<open>split\<close> l3)
-  | Tact_auto_simp_add_split l_simp l_split \<Rightarrow> sprint2 \<open>auto%s%s\<close>\<acute>
+  | Meth_all (Meth_simp_only l) \<Rightarrow> sprint1 \<open>simp_all only: %s\<close>\<acute> (s_of_ntheorems_l l)
+  | Meth_all (Meth_simp_add_del_split l1 l2 []) \<Rightarrow> sprint2 \<open>simp_all%s%s\<close>\<acute>
+      (s_of_attrib \<open>add\<close> l1)
+      (s_of_attrib \<open>del\<close> l2)
+  | Meth_all (Meth_simp_add_del_split l1 l2 l3) \<Rightarrow> sprint3 \<open>simp_all%s%s%s\<close>\<acute>
+      (s_of_attrib \<open>add\<close> l1)
+      (s_of_attrib \<open>del\<close> l2)
+      (s_of_attrib \<open>split\<close> l3)
+  | Meth_auto_simp_add_split l_simp l_split \<Rightarrow> sprint2 \<open>auto%s%s\<close>\<acute>
       (s_of_attrib \<open>simp\<close> l_simp)
       (s_of_attrib1 \<open>split\<close> l_split)
-  | Tact_rename_tac l \<Rightarrow> sprint1 \<open>rename_tac %s\<close>\<acute> (String_concat \<open> \<close> (List_map To_string l))
-  | Tact_case_tac e \<Rightarrow> sprint1 \<open>case_tac \"%s\"\<close>\<acute> (s_of_expr e)
-  | Tact_blast None \<Rightarrow> sprint0 \<open>blast\<close>\<acute>
-  | Tact_blast (Some n) \<Rightarrow> sprint1 \<open>blast %d\<close>\<acute> (To_nat n)
-  | Tact_clarify \<Rightarrow> sprint0 \<open>clarify\<close>\<acute>
-  | Tact_metis0 l_opt l \<Rightarrow> sprint2 \<open>metis %s%s\<close>\<acute> (if l_opt = [] then \<open>\<close>
+  | Meth_rename_tac l \<Rightarrow> sprint1 \<open>rename_tac %s\<close>\<acute> (String_concat \<open> \<close> (List_map To_string l))
+  | Meth_case_tac e \<Rightarrow> sprint1 \<open>case_tac \"%s\"\<close>\<acute> (s_of_expr e)
+  | Meth_blast None \<Rightarrow> sprint0 \<open>blast\<close>\<acute>
+  | Meth_blast (Some n) \<Rightarrow> sprint1 \<open>blast %d\<close>\<acute> (To_nat n)
+  | Meth_clarify \<Rightarrow> sprint0 \<open>clarify\<close>\<acute>
+  | Meth_metis l_opt l \<Rightarrow> sprint2 \<open>metis %s%s\<close>\<acute> (if l_opt = [] then \<open>\<close>
                                                    else
                                                      sprint1 \<open>(%s) \<close>\<acute> (String_concat \<open>, \<close> (List_map To_string l_opt))) (s_of_ntheorem_l1 l)) expr"
 
-definition "s_of_tactic_last = (\<lambda> Tacl_done \<Rightarrow> \<open>done\<close>
-                                | Tacl_by l_apply \<Rightarrow> sprint1 \<open>by(%s)\<close>\<acute> (String_concat \<open>, \<close> (List_map s_of_tactic l_apply))
-                                | Tacl_sorry \<Rightarrow> \<open>sorry\<close>)"
+definition "s_of_tactic_last = (\<lambda> Comm_done \<Rightarrow> \<open>done\<close>
+                                | Comm_by l_apply \<Rightarrow> sprint1 \<open>by(%s)\<close>\<acute> (String_concat \<open>, \<close> (List_map s_of_tactic l_apply))
+                                | Comm_sorry \<Rightarrow> \<open>sorry\<close>)"
 
 definition "s_of_tac_apply_end = (
-  \<lambda> AppE [] \<Rightarrow> \<open>\<close>
-  | AppE l_apply \<Rightarrow> sprint1 \<open>  apply_end(%s)
+  \<lambda> Comm_apply_end [] \<Rightarrow> \<open>\<close>
+  | Comm_apply_end l_apply \<Rightarrow> sprint1 \<open>  apply_end(%s)
 \<close>\<acute> (String_concat \<open>, \<close> (List_map s_of_tactic l_apply)))"
 
 definition' \<open>s_of_tac_apply = (
@@ -272,16 +272,16 @@ definition' \<open>s_of_tac_apply = (
     ; scope_thesis_gen = sprint2 \<open>  proof - %s show %s
 \<close>\<acute>
     ; scope_thesis = \<lambda>s. scope_thesis_gen s thesis in
-  \<lambda> App [] \<Rightarrow> \<open>\<close>
-  | App l_apply \<Rightarrow> sprint1 \<open>  apply(%s)
+  \<lambda> Comm_apply [] \<Rightarrow> \<open>\<close>
+  | Comm_apply l_apply \<Rightarrow> sprint1 \<open>  apply(%s)
 \<close>\<acute> (String_concat \<open>, \<close> (List_map s_of_tactic l_apply))
-  | App_using0 l \<Rightarrow> sprint1 \<open>  using %s
+  | Comm_using l \<Rightarrow> sprint1 \<open>  using %s
 \<close>\<acute> (s_of_ntheorems_l l)
-  | App_unfolding0 l \<Rightarrow> sprint1 \<open>  unfolding %s
+  | Comm_unfolding l \<Rightarrow> sprint1 \<open>  unfolding %s
 \<close>\<acute> (s_of_ntheorems_l l)
-  | App_let e_name e_body \<Rightarrow> scope_thesis (sprint2 \<open>let %s = "%s"\<close>\<acute> (s_of_expr e_name) (s_of_expr e_body))
-  | App_have0 n b e e_last \<Rightarrow> scope_thesis (sprint4 \<open>have %s%s: "%s" %s\<close>\<acute> (To_string n) (if b then \<open>[simp]\<close> else \<open>\<close>) (s_of_expr e) (s_of_tactic_last e_last))
-  | App_fix_let l l_let o_show _ \<Rightarrow>
+  | Comm_let e_name e_body \<Rightarrow> scope_thesis (sprint2 \<open>let %s = "%s"\<close>\<acute> (s_of_expr e_name) (s_of_expr e_body))
+  | Comm_have n b e e_last \<Rightarrow> scope_thesis (sprint4 \<open>have %s%s: "%s" %s\<close>\<acute> (To_string n) (if b then \<open>[simp]\<close> else \<open>\<close>) (s_of_expr e) (s_of_tactic_last e_last))
+  | Comm_fix_let l l_let o_show _ \<Rightarrow>
       scope_thesis_gen
         (sprint2 \<open>fix %s%s\<close>\<acute> (String_concat \<open> \<close> (List_map To_string l))
                                      (String_concat
@@ -295,7 +295,7 @@ definition' \<open>s_of_tac_apply = (
                       | Some l_show \<Rightarrow> sprint1 \<open>"%s"\<close>\<acute> (String_concat \<open> \<Longrightarrow> \<close> (List_map s_of_expr l_show))))\<close>
 
 definition "s_of_lemma_by _ =
- (\<lambda> Lemma_by n l_spec l_apply tactic_last \<Rightarrow>
+ (\<lambda> Lemma n l_spec l_apply tactic_last \<Rightarrow>
     sprint4 \<open>lemma %s : \"%s\"
 %s%s\<close>\<acute>
       (To_string n)
@@ -303,7 +303,7 @@ definition "s_of_lemma_by _ =
       (String_concat \<open>\<close> (List_map (\<lambda> [] \<Rightarrow> \<open>\<close> | l_apply \<Rightarrow> sprint1 \<open>  apply(%s)
 \<close>\<acute> (String_concat \<open>, \<close> (List_map s_of_tactic l_apply))) l_apply))
       (s_of_tactic_last tactic_last)
-  | Lemma_by_assum n l_spec concl l_apply tactic_last \<Rightarrow>
+  | Lemma_assumes n l_spec concl l_apply tactic_last \<Rightarrow>
     sprint5 \<open>lemma %s : %s
 %s%s %s\<close>\<acute>
       (To_string n)
@@ -328,17 +328,17 @@ shows \"%s\"\<close>\<acute> (s_of_expr concl)]))
                  sprint1 \<open>
 %s \<close>\<acute> (String_concat \<open>\<close> (List_map s_of_tac_apply_end l_apply_e))))
           (List.map_filter
-            (\<lambda> App_let _ _ \<Rightarrow> Some [] | App_have0 _ _ _ _ \<Rightarrow> Some [] | App_fix_let _ _ _ l \<Rightarrow> Some l | _ \<Rightarrow> None)
+            (\<lambda> Comm_let _ _ \<Rightarrow> Some [] | Comm_have _ _ _ _ \<Rightarrow> Some [] | Comm_fix_let _ _ _ l \<Rightarrow> Some l | _ \<Rightarrow> None)
             (rev l_apply)))))"
 
 
-definition "s_of_axiom _ = (\<lambda> Axiom n e \<Rightarrow> sprint2 \<open>axiomatization where %s:
+definition "s_of_axiom _ = (\<lambda> Axiomatization n e \<Rightarrow> sprint2 \<open>axiomatization where %s:
 \"%s\"\<close>\<acute> (To_string n) (s_of_expr e))"
 
 
 definition "s_of_text _ = (\<lambda> Text s \<Rightarrow> sprint1 \<open>text{* %s *}\<close>\<acute> (To_string s))"
 
-definition "s_of_ml _ = (\<lambda> Ml e \<Rightarrow> sprint1 \<open>ML{* %s *}\<close>\<acute> (s_of_sexpr e))"
+definition "s_of_ml _ = (\<lambda> ML e \<Rightarrow> sprint1 \<open>ML{* %s *}\<close>\<acute> (s_of_sexpr e))"
 
 definition "s_of_thm _ = (\<lambda> Thm thm \<Rightarrow> sprint1 \<open>thm %s\<close>\<acute> (s_of_ntheorem_l1 thm))"
 

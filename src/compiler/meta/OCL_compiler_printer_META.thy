@@ -71,7 +71,7 @@ definition "String_concat_map s f l = String_concat s (List_map f l)"
 
 declare[[cartouche_type = "String.literal"]]
 
-definition "s_of_section_title ocl = (\<lambda> Section_title n section_title \<Rightarrow>
+definition "s_of_section_title ocl = (\<lambda> Section n section_title \<Rightarrow>
   if D_disable_thy_output ocl then
     \<open>\<close>
   else
@@ -175,19 +175,19 @@ definition' \<open>s_of_ocl_deep_embed_ast _ =
 
 (* FIXME move to Isabelle? *)
 definition "s_of_t ocl =
-            (\<lambda> Theory_dataty dataty \<Rightarrow> s_of_dataty ocl dataty
-             | Theory_ty_synonym ty_synonym \<Rightarrow> s_of_ty_synonym ocl ty_synonym
-             | Theory_ty_notation ty_notation \<Rightarrow> s_of_ty_notation ocl ty_notation
-             | Theory_instantiation_class instantiation_class \<Rightarrow> s_of_instantiation_class ocl instantiation_class
-             | Theory_defs_overloaded defs_overloaded \<Rightarrow> s_of_defs_overloaded ocl defs_overloaded
-             | Theory_consts_class consts_class \<Rightarrow> s_of_consts_class ocl consts_class
-             | Theory_definition_hol definition_hol \<Rightarrow> s_of_definition_hol ocl definition_hol
-             | Theory_lemmas_simp lemmas_simp \<Rightarrow> s_of_lemmas_simp ocl lemmas_simp
-             | Theory_lemma_by lemma_by \<Rightarrow> s_of_lemma_by ocl lemma_by
-             | Theory_axiom axiom \<Rightarrow> s_of_axiom ocl axiom
-             | Theory_section_title section_title \<Rightarrow> s_of_section_title ocl section_title
+            (\<lambda> Theory_datatype dataty \<Rightarrow> s_of_dataty ocl dataty
+             | Theory_type_synonym ty_synonym \<Rightarrow> s_of_ty_synonym ocl ty_synonym
+             | Theory_type_notation ty_notation \<Rightarrow> s_of_ty_notation ocl ty_notation
+             | Theory_instantiation instantiation_class \<Rightarrow> s_of_instantiation_class ocl instantiation_class
+             | Theory_defs defs_overloaded \<Rightarrow> s_of_defs_overloaded ocl defs_overloaded
+             | Theory_consts consts_class \<Rightarrow> s_of_consts_class ocl consts_class
+             | Theory_definition definition_hol \<Rightarrow> s_of_definition_hol ocl definition_hol
+             | Theory_lemmas lemmas_simp \<Rightarrow> s_of_lemmas_simp ocl lemmas_simp
+             | Theory_lemma lemma_by \<Rightarrow> s_of_lemma_by ocl lemma_by
+             | Theory_axiomatization axiom \<Rightarrow> s_of_axiom ocl axiom
+             | Theory_section section_title \<Rightarrow> s_of_section_title ocl section_title
              | Theory_text text \<Rightarrow> s_of_text ocl text
-             | Theory_ml ml \<Rightarrow> s_of_ml ocl ml
+             | Theory_ML ml \<Rightarrow> s_of_ml ocl ml
              | Theory_thm thm \<Rightarrow> s_of_thm ocl thm
              | Theory_interpretation thm \<Rightarrow> s_of_interpretation ocl thm)"
 

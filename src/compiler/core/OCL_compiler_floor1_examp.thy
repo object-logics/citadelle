@@ -56,7 +56,7 @@ definition "print_examp_oclbase_gen =
         let name = var_OclInteger @@ nb
           ; b = \<lambda>s. Expr_basic [s]
           ; ab_name = b nb in
-        (ab_name, Definition_abbrev0
+        (ab_name, Definition_where2
           name
           (b (number_of_str nb))
           (Expr_rewrite (b name) \<open>=\<close> (Expr_lambda wildcard (Expr_some (Expr_some ab_name)))))
@@ -66,7 +66,7 @@ definition "print_examp_oclbase_gen =
           ; ab_name = b (flatten [nb0(*(* WARNING
                                           uncomment this as soon as OCL_basic_type_Real.thy
                                           is not implemented as 'nat' *), \<open>.\<close>, nb1*)]) in
-        (ab_name, Definition_abbrev0
+        (ab_name, Definition_where2
           name
           (b (flatten [number_of_str nb0, \<open>.\<close>, number_of_str nb1]))
           (Expr_rewrite (b name) \<open>=\<close> (Expr_lambda wildcard (Expr_some (Expr_some ab_name)))))
@@ -76,7 +76,7 @@ definition "print_examp_oclbase_gen =
         if \<not> String_is_empty nb & String_all is_letter nb then
           let ab_name = b (flatten [\<open>''\<close>, nb, \<open>''\<close>]) in
           (ab_name,
-          Definition_abbrev0 name (b (text2_of_str nb))
+          Definition_where2 name (b (text2_of_str nb))
             (Expr_rewrite (b name) \<open>=\<close> (Expr_lambda wildcard (Expr_some (Expr_some ab_name)))))
         else
           let ab_name = b (text_of_str nb) in
@@ -87,7 +87,7 @@ definition "print_examp_oclbase_gen =
 definition "print_examp_oclbase = (\<lambda> OclDefBase l \<Rightarrow> (start_map Thy_definition_hol o List_map (snd o print_examp_oclbase_gen)) l)"
 
 datatype print_examp_instance_draw_list_attr = Return_obj ocl_ty_class
-                                             | Return_exp hol_'expr
+                                             | Return_exp hol__expr
 datatype print_examp_instance_draw_list_attr_err = Return_err_ty "ocl_ty \<times> ocl_data_shallow"
                                                  | Return_err_ty_auto (* automated type reconstruction failed *)
                                                  | Return_ocl_null
@@ -775,7 +775,7 @@ definition "print_examp_def_st1 = (\<lambda> OclDefSt name l \<Rightarrow> boots
         OclAstInstance (OclInstance l_inst) # l)))"
 
 definition "print_examp_def_st_defs = (\<lambda> _ \<Rightarrow> start_map Thy_lemmas_simp
-  [ Lemmas_simps \<open>\<close> [ \<open>state.defs\<close>, \<open>const_ss\<close> ] ])"
+  [ Lemmas_simp_thms \<open>\<close> [ \<open>state.defs\<close>, \<open>const_ss\<close> ] ])"
 
 definition "print_pre_post = (\<lambda> OclDefPP name s_pre s_post \<Rightarrow> bootstrap_floor
   (\<lambda>f ocl. (List_flatten [f ocl], ocl))

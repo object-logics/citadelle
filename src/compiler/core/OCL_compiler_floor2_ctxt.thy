@@ -130,7 +130,7 @@ definition "print_ctxt_pre_post_interp = (\<lambda>(sorry, dirty) name ctxt e_na
         , f e_pre
         , f e_post ]
         (*apply(unfold_locales, simp only: dot__aaa_Person Let_def, auto)*)
-        Tacl_sorry))
+        Comm_sorry))
   else
     None (* not yet implemented *))"
 
@@ -183,7 +183,7 @@ definition "print_ctxt_pre_post = (\<lambda>f. map_prod List_flatten id o f) o f
                               False
                   then
                     ( print_ctxt_pre_post_name attr_n var_at_when_hol
-                    , Thy_axiom (Axiom (print_ctxt_pre_post_name attr_n var_at_when_hol (Some ty_name)) expr))
+                    , Thy_axiom (Axiomatization (print_ctxt_pre_post_name attr_n var_at_when_hol (Some ty_name)) expr))
                   else
                     ( print_ctxt_const_name attr_n var_at_when_hol
                     , Thy_defs_overloaded (Defs_overloaded (print_ctxt_const_name attr_n var_at_when_hol (Some ty_name)) expr)))
