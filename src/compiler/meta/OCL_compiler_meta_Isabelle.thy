@@ -260,21 +260,24 @@ definition "Consts_raw0 s l e o_arg = Consts s l (String_replace_chars (\<lambda
 definition "Ty_arrow = Ty_apply_bin \<open>\<Rightarrow>\<close>"
 definition "Ty_times = Ty_apply_bin \<open>\<times>\<close>"
 definition "Consts' s l e = Consts_raw0 s (Ty_arrow (Ty_base \<open>'\<alpha>\<close>) l) e None"
+
+locale M
+begin
 definition "Meth_simp_add_del l_a l_d = Meth_simp_add_del_split l_a l_d []"
 definition "Meth_subst_l = Meth_subst False"
 
-definition "M_rule' = Meth_rule None"
-definition "M_rule = Meth_rule o Some"
-definition "M_drule = Meth_drule"
-definition "M_erule = Meth_erule"
-definition "M_intro = Meth_intro"
-definition "M_elim = Meth_elim"
-definition "M_subst_l0 = Meth_subst"
-definition "M_subst_l = Meth_subst_l"
-definition "M_insert = Meth_insert o List_map Thms_single"
-definition "M_plus = Meth_plus"
-definition "M_option = Meth_option"
-definition "M_or = Meth_or"
+definition "rule' = Meth_rule None"
+definition "rule = Meth_rule o Some"
+definition "drule = Meth_drule"
+definition "erule = Meth_erule"
+definition "intro = Meth_intro"
+definition "elim = Meth_elim"
+definition "subst_l0 = Meth_subst"
+definition "subst_l = Meth_subst_l"
+definition "insert' = Meth_insert o List_map Thms_single"
+definition "plus' = Meth_plus"
+definition "option = Meth_option"
+definition "or = Meth_or"
 definition "meth_gen_simp = Meth_simp_add_del [] []"
 definition "meth_gen_simp_add2 l1 l2 = Meth_simp_add_del (List_flatten [ List_map Thms_mult l1
                                                     , List_map (Thms_single o Thm_str) l2])
@@ -290,33 +293,85 @@ definition "meth_gen_simp_add_split l1 l2 = Meth_simp_add_del_split (List_map Th
 definition "meth_gen_simp_only l = Meth_simp_only (List_map Thms_single l)"
 definition "meth_gen_simp_only' l = Meth_simp_only (List_map Thms_mult l)"
 definition "meth_gen_simp_add0 l = Meth_simp_add_del (List_map Thms_single l) []"
-definition "M_simp = Meth_one meth_gen_simp"
-definition "M_simp_add2 l1 l2 = Meth_one (meth_gen_simp_add2 l1 l2)"
-definition "M_simp_add_del l1 l2 = Meth_one (meth_gen_simp_add_del l1 l2)"
-definition "M_simp_add_del_split l1 l2 l3 = Meth_one (meth_gen_simp_add_del_split l1 l2 l3)"
-definition "M_simp_add_split l1 l2 = Meth_one (meth_gen_simp_add_split l1 l2)"
-definition "M_simp_only l = Meth_one (meth_gen_simp_only l)"
-definition "M_simp_only' l = Meth_one (meth_gen_simp_only' l)"
-definition "M_simp_add0 l = Meth_one (meth_gen_simp_add0 l)"
-definition "M_simp_add = M_simp_add2 []"
-definition "M_simp_all = Meth_all meth_gen_simp"
-definition "M_simp_all_add l = Meth_all (meth_gen_simp_add2 [] l)"
-definition "M_simp_all_only l = Meth_all (meth_gen_simp_only l)"
-definition "M_simp_all_only' l = Meth_all (meth_gen_simp_only' l)"
-definition "M_auto_simp_add2 l1 l2 = Meth_auto_simp_add_split (List_flatten [ List_map Thms_mult l1
+definition "simp = Meth_one meth_gen_simp"
+definition "simp_add2 l1 l2 = Meth_one (meth_gen_simp_add2 l1 l2)"
+definition "simp_add_del l1 l2 = Meth_one (meth_gen_simp_add_del l1 l2)"
+definition "simp_add_del_split l1 l2 l3 = Meth_one (meth_gen_simp_add_del_split l1 l2 l3)"
+definition "simp_add_split l1 l2 = Meth_one (meth_gen_simp_add_split l1 l2)"
+definition "simp_only l = Meth_one (meth_gen_simp_only l)"
+definition "simp_only' l = Meth_one (meth_gen_simp_only' l)"
+definition "simp_add0 l = Meth_one (meth_gen_simp_add0 l)"
+definition "simp_add = simp_add2 []"
+definition "simp_all = Meth_all meth_gen_simp"
+definition "simp_all_add l = Meth_all (meth_gen_simp_add2 [] l)"
+definition "simp_all_only l = Meth_all (meth_gen_simp_only l)"
+definition "simp_all_only' l = Meth_all (meth_gen_simp_only' l)"
+definition "auto_simp_add2 l1 l2 = Meth_auto_simp_add_split (List_flatten [ List_map Thms_mult l1
                                                                 , List_map (Thms_single o Thm_str) l2]) []"
-definition "M_auto_simp_add_split l = Meth_auto_simp_add_split (List_map Thms_single l)"
-definition "M_rename_tac = Meth_rename_tac"
-definition "M_case_tac = Meth_case_tac"
-definition "M_blast = Meth_blast"
-definition "M_clarify = Meth_clarify"
-definition "M_metis = Meth_metis []"
-definition "M_metis0 = Meth_metis"
+definition "auto_simp_add_split l = Meth_auto_simp_add_split (List_map Thms_single l)"
+definition "rename_tac = Meth_rename_tac"
+definition "case_tac = Meth_case_tac"
+definition "blast = Meth_blast"
+definition "clarify = Meth_clarify"
+definition "metis = Meth_metis []"
+definition "metis0 = Meth_metis"
 
-definition "M_subst_asm b = M_subst_l0 b [\<open>0\<close>]"
-definition "M_subst = M_subst_l [\<open>0\<close>]"
-definition "M_auto_simp_add = M_auto_simp_add2 []"
-definition "M_auto = M_auto_simp_add []"
+definition "subst_asm b = subst_l0 b [\<open>0\<close>]"
+definition "subst = subst_l [\<open>0\<close>]"
+definition "auto_simp_add = auto_simp_add2 []"
+definition "auto = auto_simp_add []"
+end
+
+lemmas [code] =
+  (* def *)
+  M.Meth_simp_add_del_def
+  M.Meth_subst_l_def
+  M.rule'_def
+  M.rule_def
+  M.drule_def
+  M.erule_def
+  M.intro_def
+  M.elim_def
+  M.subst_l0_def
+  M.subst_l_def
+  M.insert'_def
+  M.plus'_def
+  M.option_def
+  M.or_def
+  M.meth_gen_simp_def
+  M.meth_gen_simp_add2_def
+  M.meth_gen_simp_add_del_def
+  M.meth_gen_simp_add_del_split_def
+  M.meth_gen_simp_add_split_def
+  M.meth_gen_simp_only_def
+  M.meth_gen_simp_only'_def
+  M.meth_gen_simp_add0_def
+  M.simp_def
+  M.simp_add2_def
+  M.simp_add_del_def
+  M.simp_add_del_split_def
+  M.simp_add_split_def
+  M.simp_only_def
+  M.simp_only'_def
+  M.simp_add0_def
+  M.simp_add_def
+  M.simp_all_def
+  M.simp_all_add_def
+  M.simp_all_only_def
+  M.simp_all_only'_def
+  M.auto_simp_add2_def
+  M.auto_simp_add_split_def
+  M.rename_tac_def
+  M.case_tac_def
+  M.blast_def
+  M.clarify_def
+  M.metis_def
+  M.metis0_def
+  M.subst_asm_def
+  M.subst_def
+  M.auto_simp_add_def
+  M.auto_def
+
 definition "ty_arrow l = (case rev l of x # xs \<Rightarrow> List.fold Ty_arrow xs x)"
 
 locale C 

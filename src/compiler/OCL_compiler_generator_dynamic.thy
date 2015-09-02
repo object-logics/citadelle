@@ -712,7 +712,7 @@ fun m_of_tactic expr = let open OCL open Method open OCL_overload in case expr o
               [(Simplifier.add_simp, m_of_ntheorems_l ctxt l_simp)
               ,(Splitter.add_split, List.map (Proof_Context.get_thm ctxt o To_string0) l_split)]
               ctxt)))
-  | Meth_rename_tac l => Basic (K (SIMPLE_METHOD' (rename_tac (List.map To_string0 l))))
+  | Meth_rename_tac l => Basic (K (SIMPLE_METHOD' (Tactic.rename_tac (List.map To_string0 l))))
   | Meth_case_tac e => Basic (fn ctxt => SIMPLE_METHOD' (Induct_Tacs.case_tac ctxt (s_of_expr e) [] NONE))
   | Meth_blast n => Basic (case n of NONE => SIMPLE_METHOD' o blast_tac
                                    | SOME lim => fn ctxt => SIMPLE_METHOD' (depth_tac ctxt (To_nat lim)))

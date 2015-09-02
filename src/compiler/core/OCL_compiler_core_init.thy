@@ -366,7 +366,7 @@ definition "gen_pre_post0 f_tit f_assum spec f_lemma meth_last =
            f_assum
            (spec (Expr_app s_allinst) f_cpl pre_post)
            [C.unfolding [Thm_str (d s_allinst)]]
-           (C.by (M_rule (Thm_str lem_gen) # meth_last)) in
+           (C.by (M.rule (Thm_str lem_gen) # meth_last)) in
   [ f_lemma lem_gen f_assum (spec (\<lambda>l. Expr_app (f_allinst s_generic) (b var_pre_post # l)) (\<lambda>e. Expr_app var_mk [e]) var_pre_post) var_pre_post var_mk var_st
   , mk_pre_post \<open>snd\<close> \<open>at_post\<close> (Expr_pair (b var_st))
   , mk_pre_post \<open>fst\<close> \<open>at_pre\<close> (\<lambda>e. Expr_pair e (b var_st)) ])"
