@@ -425,8 +425,8 @@ definition "fold_thy0 meta thy_object0 f =
     let (sorry, dirty) = D_sorry_dirty acc1
       ; (l, acc1) = x meta acc1 in
     (f (if sorry = Some Gen_sorry | sorry = None & dirty then
-          List_map (hol_map_thy (hol_map_lemma (\<lambda> Lemma n spec _ _ \<Rightarrow> Lemma n spec [] Comm_sorry
-                                                | Lemma_assumes n spec1 spec2 _ _ \<Rightarrow> Lemma_assumes n spec1 spec2 [] Comm_sorry))) l
+          List_map (hol_map_thy (hol_map_lemma (\<lambda> Lemma n spec _ _ \<Rightarrow> Lemma n spec [] C_sorry
+                                                | Lemma_assumes n spec1 spec2 _ _ \<Rightarrow> Lemma_assumes n spec1 spec2 [] C_sorry))) l
         else
           l) acc1 acc2)) thy_object0"
 

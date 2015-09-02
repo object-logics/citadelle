@@ -169,7 +169,7 @@ definition "print_examp_def_st_dom = (\<lambda> _ ocl.
        (print_examp_def_st_dom_name name)
        [Expr_rewrite (a \<open>dom\<close> (a \<open>heap\<close> (b name))) \<open>=\<close> (Expr_set (List_map (\<lambda>(cpt, _). Expr_oid var_oid_uniq (oidGetInh cpt)) l_st))]
        []
-       (Comm_by [M_auto_simp_add [d name]])]))"
+       (C_by [M_auto_simp_add [d name]])]))"
 
 definition "print_examp_def_st_dom_lemmas = (\<lambda> _ ocl.
  (\<lambda> l. (List_map Thy_lemmas_simp' l, ocl))
@@ -188,12 +188,12 @@ definition "print_examp_def_st_perm = (\<lambda> _ ocl.
      ; b = \<lambda>s. Expr_basic [s]
      ; d = hol_definition
      ; (l_app, l_last) =
-         case l_st of [] \<Rightarrow> ([], Comm_by [M_simp_add [d name]])
-         | [_] \<Rightarrow> ([], Comm_by [M_simp_add [d name]])
+         case l_st of [] \<Rightarrow> ([], C_by [M_simp_add [d name]])
+         | [_] \<Rightarrow> ([], C_by [M_simp_add [d name]])
          | _ \<Rightarrow>
            ( [ M_simp_add [d name]]
              # List_flatten (List_map (\<lambda>i_max. List_map (\<lambda>i. [M_subst_l (List_map nat_of_str [i_max - i]) (Thm_str \<open>fun_upd_twist\<close>), print_examp_def_st_locale_metis]) (List.upt 0 i_max)) (List.upt 1 (List.length l_st)))
-           , Comm_by [M_simp]) in
+           , C_by [M_simp]) in
    case expr_app of None \<Rightarrow> [] | Some expr_app \<Rightarrow>
    [ Lemma
        (print_examp_def_st_perm_name name)
@@ -259,7 +259,7 @@ definition "print_examp_def_st_allinst = (\<lambda> _ ocl.
          (List_flatten [ lem_assum
                        , [(\<open>\<close>, True, Expr_And \<open>a\<close> (\<lambda>var_a. Expr_rewrite (a var_pre_post (a var_mk (b var_a))) \<open>=\<close> (b var_a)))]])
          lem_spec
-         (List_map Comm_apply
+         (List_map C_apply
            (List_flatten
             [ [[M_subst (Thm_str (print_examp_def_st_perm_name name_st))]]
             , [[M_simp_only (List_map (Thm_str o d)
@@ -295,7 +295,7 @@ definition "print_examp_def_st_allinst = (\<lambda> _ ocl.
                   # l_OclIncluding_cong
                 , l_spec) ) expr_app l_spec)
             , [[M_rule (Thm_str \<open>state_update_vs_allInstances_generic_empty\<close>)]] ]))
-         (Comm_by (if l_spec = [] then [ M_simp ]
+         (C_by (if l_spec = [] then [ M_simp ]
                    else only_assms [ M_option [M_simp_all_add [d (flatten [isub_name const_oclastype, \<open>_\<AA>\<close>])]]])) )
        (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l l = [ M_simp_all ] in if l_assum = [] then l else only_assms l))
      (case D_class_spec ocl of Some class_spec \<Rightarrow> class_spec)))"
@@ -335,7 +335,7 @@ definition "print_pre_post_interp = get_state (\<lambda> _ _.
  Pair o List_map Thy_interpretation' o List_map
   (\<lambda>(s, l).
     let n = print_examp_def_st_locale_name s in
-    Interpretation n n (print_pre_post_locale_aux (\<lambda>(cpt, OclDefCoreBinding (_, ocli)) \<Rightarrow> (ocli, cpt)) l) (Comm_by [M_rule (Thm_str s)])))"
+    Interpretation n n (print_pre_post_locale_aux (\<lambda>(cpt, OclDefCoreBinding (_, ocli)) \<Rightarrow> (ocli, cpt)) l) (C_by [M_rule (Thm_str s)])))"
 
 definition "print_pre_post_wff = get_state (\<lambda> (s_pre, l_pre) (s_post, l_post) l_pre_post ocl.
  (\<lambda> l. (List_map Thy_lemma_by' l, ocl))
@@ -360,13 +360,13 @@ definition "print_pre_post_wff = get_state (\<lambda> (s_pre, l_pre) (s_post, l_
                             None
                           else
                             Some ( [oid_a, oid_b]
-                                 , Comm_have \<open>\<close>
-                                             True
-                                             (Expr_rewrite (Expr_oid var_oid_uniq oid_a) \<open>\<noteq>\<close> (Expr_oid var_oid_uniq oid_b))
-                                             (Comm_by [print_examp_def_st_locale_metis])))
+                                 , C_have0 \<open>\<close>
+                                           True
+                                           (Expr_rewrite (Expr_oid var_oid_uniq oid_a) \<open>\<noteq>\<close> (Expr_oid var_oid_uniq oid_b))
+                                           (C_by [print_examp_def_st_locale_metis])))
                        [List.n_lists 2 (List_map (oidGetInh o fst)
                                                  (List_flatten (List_map snd l_pre_post)))]))
-       (Comm_by [M_auto_simp_add (List_map d (\<open>WFF\<close> # List_map (mk_n o fst) l_pre_post))])] ))"
+       (C_by [M_auto_simp_add (List_map d (\<open>WFF\<close> # List_map (mk_n o fst) l_pre_post))])] ))"
 
 definition "print_pre_post_where = get_state (\<lambda> (s_pre, l_pre) (s_post, l_post) l_pre_post ocl.
  (\<lambda> l. ((List_map Thy_lemma_by' o List_flatten) l, ocl))
@@ -395,9 +395,9 @@ definition "print_pre_post_where = get_state (\<lambda> (s_pre, l_pre) (s_post, 
              (Expr_binop (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l mk_n = b o mk_n in Expr_pair (mk_n s_pre) (mk_n s_post))
                          \<open>\<Turnstile>\<close>
                          (a x_where (b name)))
-             [Comm_apply [M_simp_add (List_map d (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l l = [ mk_n s_post, name, x_where, \<open>OclValid\<close>, const_oid_of \<open>option\<close> ] in
+             [C_apply [M_simp_add (List_map d (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l l = [ mk_n s_post, name, x_where, \<open>OclValid\<close>, const_oid_of \<open>option\<close> ] in
                                              case l_pre_post of [_] \<Rightarrow> l | _ \<Rightarrow> mk_n s_pre # l))]]
-             (Comm_by [M_option [print_examp_def_st_locale_metis]]))
+             (C_by [M_option [print_examp_def_st_locale_metis]]))
          l_ocore)
      (RBT.keys (RBT.union rbt_pre rbt_post)) ))"
 
