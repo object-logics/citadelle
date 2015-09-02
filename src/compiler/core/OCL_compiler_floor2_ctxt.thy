@@ -130,7 +130,7 @@ definition "print_ctxt_pre_post_interp = (\<lambda>(sorry, dirty) name ctxt e_na
         , f e_pre
         , f e_post ]
         (*apply(unfold_locales, simp only: dot__aaa_Person Let_def, auto)*)
-        C_sorry))
+        C.sorry))
   else
     None (* not yet implemented *))"
 

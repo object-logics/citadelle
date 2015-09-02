@@ -319,18 +319,36 @@ definition "M_auto_simp_add = M_auto_simp_add2 []"
 definition "M_auto = M_auto_simp_add []"
 definition "ty_arrow l = (case rev l of x # xs \<Rightarrow> List.fold Ty_arrow xs x)"
 
-definition "C_done = Comm_done"
-definition "C_by = Comm_by"
-definition "C_sorry = Comm_sorry"
-definition "C_apply_end = Comm_apply_end"
-definition "C_apply = Comm_apply"
-definition "C_using = Comm_using o List_map Thms_single"
-definition "C_unfolding = Comm_unfolding o List_map Thms_single"
-definition "C_let = Comm_let"
-definition "C_fix_let = Comm_fix_let"
-definition "C_fix l = Comm_fix_let l [] None []"
-definition "C_have n = Comm_have n False"
-definition "C_have0 = Comm_have"
+locale C 
+begin
+definition "done = Comm_done"
+definition "by = Comm_by"
+definition "sorry = Comm_sorry"
+definition "apply_end = Comm_apply_end"
+definition "apply = Comm_apply"
+definition "using = Comm_using o List_map Thms_single"
+definition "unfolding = Comm_unfolding o List_map Thms_single"
+definition "let' = Comm_let"
+definition "fix_let = Comm_fix_let"
+definition "fix l = Comm_fix_let l [] None []"
+definition "have n = Comm_have n False"
+definition "have0 = Comm_have"
+end
+
+lemmas [code] =
+  (* def *)
+  C.done_def
+  C.by_def
+  C.sorry_def
+  C.apply_end_def
+  C.apply_def
+  C.using_def
+  C.unfolding_def
+  C.let'_def
+  C.fix_let_def
+  C.fix_def
+  C.have_def
+  C.have0_def
 
 fun cross_abs_aux where
    "cross_abs_aux f l x = (\<lambda> (Suc n, PureAbs s _ t) \<Rightarrow> f s (cross_abs_aux f (s # l) (n, t))
