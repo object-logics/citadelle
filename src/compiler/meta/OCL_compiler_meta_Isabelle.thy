@@ -92,8 +92,8 @@ datatype hol_definition = Definition hol__expr
                         | Definition_where1 string (* name *) "hol__expr (* syntax extension *) \<times> nat (* priority *)" hol__expr
                         | Definition_where2 string (* name *) hol__expr (* syntax extension *) hol__expr
 
-datatype hol__thm_attribute = Thm_str string (* represents a single thm *)
-                            | Thm_strs string (* represents several thms *)
+datatype hol__thm_attribute = Thm_thm string (* represents a single thm *)
+                            | Thm_thms string (* represents several thms *)
                             | Thm_THEN hol__thm_attribute hol__thm_attribute
                             | Thm_simplified hol__thm_attribute hol__thm_attribute
                             | Thm_symmetric hol__thm_attribute
@@ -112,46 +112,46 @@ datatype hol_lemmas = Lemmas_simp_thm bool (* True : simp *)
                     | Lemmas_simp_thms string (* name *)
                                        "string (* thms *) list"
 
-datatype hol__method_simp = Meth_simp_only hol__thm_l
-                          | Meth_simp_add_del_split hol__thm_l (* add *) hol__thm_l (* del *) hol__thm_l (* split *)
+datatype hol__method_simp = Method_simp_only hol__thm_l
+                          | Method_simp_add_del_split hol__thm_l (* add *) hol__thm_l (* del *) hol__thm_l (* split *)
 
-datatype hol__method = Meth_rule "hol__thm_attribute option"
-                     | Meth_drule hol__thm_attribute
-                     | Meth_erule hol__thm_attribute
-                     | Meth_intro "hol__thm_attribute list"
-                     | Meth_elim hol__thm_attribute
-                     | Meth_subst bool (* asm *)
+datatype hol__method = Method_rule "hol__thm_attribute option"
+                     | Method_drule hol__thm_attribute
+                     | Method_erule hol__thm_attribute
+                     | Method_intro "hol__thm_attribute list"
+                     | Method_elim hol__thm_attribute
+                     | Method_subst bool (* asm *)
                                   "string (* nat *) list" (* pos *)
                                   hol__thm_attribute
-                     | Meth_insert hol__thm_l
-                     | Meth_plus "hol__method list"
-                     | Meth_option "hol__method list"
-                     | Meth_or "hol__method list"
-                     | Meth_one hol__method_simp
-                     | Meth_all hol__method_simp
-                     | Meth_auto_simp_add_split hol__thm_l "string list"
-                     | Meth_rename_tac "string list"
-                     | Meth_case_tac hol__expr
-                     | Meth_blast "nat option"
-                     | Meth_clarify
-                     | Meth_metis "string list" (* e.g. "no_types" (override_type_encs) *)
+                     | Method_insert hol__thm_l
+                     | Method_plus "hol__method list"
+                     | Method_option "hol__method list"
+                     | Method_or "hol__method list"
+                     | Method_one hol__method_simp
+                     | Method_all hol__method_simp
+                     | Method_auto_simp_add_split hol__thm_l "string list"
+                     | Method_rename_tac "string list"
+                     | Method_case_tac hol__expr
+                     | Method_blast "nat option"
+                     | Method_clarify
+                     | Method_metis "string list" (* e.g. "no_types" (override_type_encs) *)
                                   "hol__thm_attribute list"
 
-datatype hol__command_final = Comm_done
-                            | Comm_by "hol__method list"
-                            | Comm_sorry
+datatype hol__command_final = Command_done
+                            | Command_by "hol__method list"
+                            | Command_sorry
 
-datatype hol__command_state = Comm_apply_end "hol__method list" (* apply_end (... ',' ...) *)
+datatype hol__command_state = Command_apply_end "hol__method list" (* apply_end (... ',' ...) *)
 
-datatype hol__command_proof = Comm_apply "hol__method list" (* apply (... ',' ...) *)
-                            | Comm_using hol__thm_l (* using ... *)
-                            | Comm_unfolding hol__thm_l (* unfolding ... *)
-                            | Comm_let hol__expr (* name *) hol__expr
-                            | Comm_have string (* name *)
+datatype hol__command_proof = Command_apply "hol__method list" (* apply (... ',' ...) *)
+                            | Command_using hol__thm_l (* using ... *)
+                            | Command_unfolding hol__thm_l (* unfolding ... *)
+                            | Command_let hol__expr (* name *) hol__expr
+                            | Command_have string (* name *)
                                         bool (* true: add [simp] *)
                                         hol__expr
                                         hol__command_final
-                            | Comm_fix_let "string list"
+                            | Command_fix_let "string list"
                                            "(hol__expr (* name *) \<times> hol__expr) list" (* let statements *) (* TODO merge recursively *)
                                            "hol__expr list option" (* None => ?thesis
                                                                       Some l => "... ==> ..." *)
@@ -263,58 +263,58 @@ definition "Consts' s l e = Consts_raw0 s (Ty_arrow (Ty_base \<open>'\<alpha>\<c
 
 locale M
 begin
-definition "Meth_simp_add_del l_a l_d = Meth_simp_add_del_split l_a l_d []"
-definition "Meth_subst_l = Meth_subst False"
+definition "Method_simp_add_del l_a l_d = Method_simp_add_del_split l_a l_d []"
+definition "Method_subst_l = Method_subst False"
 
-definition "rule' = Meth_rule None"
-definition "rule = Meth_rule o Some"
-definition "drule = Meth_drule"
-definition "erule = Meth_erule"
-definition "intro = Meth_intro"
-definition "elim = Meth_elim"
-definition "subst_l0 = Meth_subst"
-definition "subst_l = Meth_subst_l"
-definition "insert' = Meth_insert o List_map Thms_single"
-definition "plus' = Meth_plus"
-definition "option = Meth_option"
-definition "or = Meth_or"
-definition "meth_gen_simp = Meth_simp_add_del [] []"
-definition "meth_gen_simp_add2 l1 l2 = Meth_simp_add_del (List_flatten [ List_map Thms_mult l1
-                                                    , List_map (Thms_single o Thm_str) l2])
+definition "rule' = Method_rule None"
+definition "rule = Method_rule o Some"
+definition "drule = Method_drule"
+definition "erule = Method_erule"
+definition "intro = Method_intro"
+definition "elim = Method_elim"
+definition "subst_l0 = Method_subst"
+definition "subst_l = Method_subst_l"
+definition "insert' = Method_insert o List_map Thms_single"
+definition "plus' = Method_plus"
+definition "option = Method_option"
+definition "or = Method_or"
+definition "meth_gen_simp = Method_simp_add_del [] []"
+definition "meth_gen_simp_add2 l1 l2 = Method_simp_add_del (List_flatten [ List_map Thms_mult l1
+                                                    , List_map (Thms_single o Thm_thm) l2])
                                            []"
-definition "meth_gen_simp_add_del l1 l2 = Meth_simp_add_del (List_map (Thms_single o Thm_str) l1)
-                                              (List_map (Thms_single o Thm_str) l2)"
-definition "meth_gen_simp_add_del_split l1 l2 l3 = Meth_simp_add_del_split (List_map Thms_single l1)
+definition "meth_gen_simp_add_del l1 l2 = Method_simp_add_del (List_map (Thms_single o Thm_thm) l1)
+                                              (List_map (Thms_single o Thm_thm) l2)"
+definition "meth_gen_simp_add_del_split l1 l2 l3 = Method_simp_add_del_split (List_map Thms_single l1)
                                                              (List_map Thms_single l2)
                                                              (List_map Thms_single l3)"
-definition "meth_gen_simp_add_split l1 l2 = Meth_simp_add_del_split (List_map Thms_single l1)
+definition "meth_gen_simp_add_split l1 l2 = Method_simp_add_del_split (List_map Thms_single l1)
                                                       []
                                                       (List_map Thms_single l2)"
-definition "meth_gen_simp_only l = Meth_simp_only (List_map Thms_single l)"
-definition "meth_gen_simp_only' l = Meth_simp_only (List_map Thms_mult l)"
-definition "meth_gen_simp_add0 l = Meth_simp_add_del (List_map Thms_single l) []"
-definition "simp = Meth_one meth_gen_simp"
-definition "simp_add2 l1 l2 = Meth_one (meth_gen_simp_add2 l1 l2)"
-definition "simp_add_del l1 l2 = Meth_one (meth_gen_simp_add_del l1 l2)"
-definition "simp_add_del_split l1 l2 l3 = Meth_one (meth_gen_simp_add_del_split l1 l2 l3)"
-definition "simp_add_split l1 l2 = Meth_one (meth_gen_simp_add_split l1 l2)"
-definition "simp_only l = Meth_one (meth_gen_simp_only l)"
-definition "simp_only' l = Meth_one (meth_gen_simp_only' l)"
-definition "simp_add0 l = Meth_one (meth_gen_simp_add0 l)"
+definition "meth_gen_simp_only l = Method_simp_only (List_map Thms_single l)"
+definition "meth_gen_simp_only' l = Method_simp_only (List_map Thms_mult l)"
+definition "meth_gen_simp_add0 l = Method_simp_add_del (List_map Thms_single l) []"
+definition "simp = Method_one meth_gen_simp"
+definition "simp_add2 l1 l2 = Method_one (meth_gen_simp_add2 l1 l2)"
+definition "simp_add_del l1 l2 = Method_one (meth_gen_simp_add_del l1 l2)"
+definition "simp_add_del_split l1 l2 l3 = Method_one (meth_gen_simp_add_del_split l1 l2 l3)"
+definition "simp_add_split l1 l2 = Method_one (meth_gen_simp_add_split l1 l2)"
+definition "simp_only l = Method_one (meth_gen_simp_only l)"
+definition "simp_only' l = Method_one (meth_gen_simp_only' l)"
+definition "simp_add0 l = Method_one (meth_gen_simp_add0 l)"
 definition "simp_add = simp_add2 []"
-definition "simp_all = Meth_all meth_gen_simp"
-definition "simp_all_add l = Meth_all (meth_gen_simp_add2 [] l)"
-definition "simp_all_only l = Meth_all (meth_gen_simp_only l)"
-definition "simp_all_only' l = Meth_all (meth_gen_simp_only' l)"
-definition "auto_simp_add2 l1 l2 = Meth_auto_simp_add_split (List_flatten [ List_map Thms_mult l1
-                                                                , List_map (Thms_single o Thm_str) l2]) []"
-definition "auto_simp_add_split l = Meth_auto_simp_add_split (List_map Thms_single l)"
-definition "rename_tac = Meth_rename_tac"
-definition "case_tac = Meth_case_tac"
-definition "blast = Meth_blast"
-definition "clarify = Meth_clarify"
-definition "metis = Meth_metis []"
-definition "metis0 = Meth_metis"
+definition "simp_all = Method_all meth_gen_simp"
+definition "simp_all_add l = Method_all (meth_gen_simp_add2 [] l)"
+definition "simp_all_only l = Method_all (meth_gen_simp_only l)"
+definition "simp_all_only' l = Method_all (meth_gen_simp_only' l)"
+definition "auto_simp_add2 l1 l2 = Method_auto_simp_add_split (List_flatten [ List_map Thms_mult l1
+                                                                , List_map (Thms_single o Thm_thm) l2]) []"
+definition "auto_simp_add_split l = Method_auto_simp_add_split (List_map Thms_single l)"
+definition "rename_tac = Method_rename_tac"
+definition "case_tac = Method_case_tac"
+definition "blast = Method_blast"
+definition "clarify = Method_clarify"
+definition "metis = Method_metis []"
+definition "metis0 = Method_metis"
 
 definition "subst_asm b = subst_l0 b [\<open>0\<close>]"
 definition "subst = subst_l [\<open>0\<close>]"
@@ -324,8 +324,8 @@ end
 
 lemmas [code] =
   (* def *)
-  M.Meth_simp_add_del_def
-  M.Meth_subst_l_def
+  M.Method_simp_add_del_def
+  M.Method_subst_l_def
   M.rule'_def
   M.rule_def
   M.drule_def
@@ -376,18 +376,18 @@ definition "ty_arrow l = (case rev l of x # xs \<Rightarrow> List.fold Ty_arrow 
 
 locale C 
 begin
-definition "done = Comm_done"
-definition "by = Comm_by"
-definition "sorry = Comm_sorry"
-definition "apply_end = Comm_apply_end"
-definition "apply = Comm_apply"
-definition "using = Comm_using o List_map Thms_single"
-definition "unfolding = Comm_unfolding o List_map Thms_single"
-definition "let' = Comm_let"
-definition "fix_let = Comm_fix_let"
-definition "fix l = Comm_fix_let l [] None []"
-definition "have n = Comm_have n False"
-definition "have0 = Comm_have"
+definition "done = Command_done"
+definition "by = Command_by"
+definition "sorry = Command_sorry"
+definition "apply_end = Command_apply_end"
+definition "apply = Command_apply"
+definition "using = Command_using o List_map Thms_single"
+definition "unfolding = Command_unfolding o List_map Thms_single"
+definition "let' = Command_let"
+definition "fix_let = Command_fix_let"
+definition "fix l = Command_fix_let l [] None []"
+definition "have n = Command_have n False"
+definition "have0 = Command_have"
 end
 
 lemmas [code] =

@@ -644,8 +644,8 @@ datatype ty_thm = Thm_single of thm
 
 fun m_of_ntheorem0 ctxt = let open OCL open OCL_overload val S = fn Thm_single t => t
                                                          val M = fn Thm_mult t => t in
- fn Thm_str s => Thm_single (Proof_Context.get_thm ctxt (To_string0 s))
-  | Thm_strs s => Thm_mult (Proof_Context.get_thms ctxt (To_string0 s))
+ fn Thm_thm s => Thm_single (Proof_Context.get_thm ctxt (To_string0 s))
+  | Thm_thms s => Thm_mult (Proof_Context.get_thms ctxt (To_string0 s))
   | Thm_THEN (e1, e2) => 
       (case (m_of_ntheorem0 ctxt e1, m_of_ntheorem0 ctxt e2) of
          (Thm_single e1, Thm_single e2) => Thm_single (e1 RSN (1, e2))
@@ -654,7 +654,7 @@ fun m_of_ntheorem0 ctxt = let open OCL open OCL_overload val S = fn Thm_single t
   | Thm_OF (e1, e2) => Thm_single ([S (m_of_ntheorem0 ctxt e2)] MRS (S (m_of_ntheorem0 ctxt e1)))
   | Thm_where (nth, l) => Thm_single (Rule_Insts.where_rule ctxt (List.map (fn (var, expr) => (((To_string0 var, 0), Position.none), s_of_expr expr)) l) [] (S (m_of_ntheorem0 ctxt nth)))
   | Thm_symmetric e1 => 
-      let val e2 = S (m_of_ntheorem0 ctxt (Thm_str (From.from_string "sym"))) in
+      let val e2 = S (m_of_ntheorem0 ctxt (Thm_thm (From.from_string "sym"))) in
         case m_of_ntheorem0 ctxt e1 of
           Thm_single e1 => Thm_single (e1 RSN (1, e2))
         | Thm_mult e1 => Thm_mult (e1 RLN (1, [e2]))
@@ -686,38 +686,38 @@ fun s_simp_add_del_split (l_add, l_del, l_split) ctxt =
                                 delsimps (m_of_ntheorems_l ctxt l_del))
 
 fun m_of_tactic expr = let open OCL open Method open OCL_overload in case expr of
-    Meth_rule o_s => Basic (fn ctxt => METHOD (HEADGOAL o Isabelle_Classical.rule_tac ctxt
+    Method_rule o_s => Basic (fn ctxt => METHOD (HEADGOAL o Isabelle_Classical.rule_tac ctxt
                                                   (case o_s of NONE => []
                                                              | SOME s => [m_of_ntheorem ctxt s])))
-  | Meth_drule s => Basic (fn ctxt => drule ctxt 0 [m_of_ntheorem ctxt s])
-  | Meth_erule s => Basic (fn ctxt => erule ctxt 0 [m_of_ntheorem ctxt s])
-  | Meth_elim s => Basic (fn ctxt => elim ctxt [m_of_ntheorem ctxt s])
-  | Meth_intro l => Basic (fn ctxt => intro ctxt (map (m_of_ntheorem ctxt) l))
-  | Meth_subst (asm, l, s) => Basic (fn ctxt => 
+  | Method_drule s => Basic (fn ctxt => drule ctxt 0 [m_of_ntheorem ctxt s])
+  | Method_erule s => Basic (fn ctxt => erule ctxt 0 [m_of_ntheorem ctxt s])
+  | Method_elim s => Basic (fn ctxt => elim ctxt [m_of_ntheorem ctxt s])
+  | Method_intro l => Basic (fn ctxt => intro ctxt (map (m_of_ntheorem ctxt) l))
+  | Method_subst (asm, l, s) => Basic (fn ctxt => 
       SIMPLE_METHOD' ((if asm then
                          EqSubst.eqsubst_asm_tac
                        else
                          EqSubst.eqsubst_tac) ctxt (map (fn s => case Int.fromString (To_string0 s) of
                                                                    SOME i => i) l) [m_of_ntheorem ctxt s]))
-  | Meth_insert l => Basic (fn ctxt => insert (m_of_ntheorems_l ctxt l))
-  | Meth_plus t => Combinator (no_combinator_info, Repeat1, [Combinator (no_combinator_info, Then, List.map m_of_tactic t)])
-  | Meth_option t => Combinator (no_combinator_info, Try, [Combinator (no_combinator_info, Then, List.map m_of_tactic t)])
-  | Meth_or t => Combinator (no_combinator_info, Orelse, List.map m_of_tactic t)
-  | Meth_one (Meth_simp_only l) => simp_tac (s_simp_only l)
-  | Meth_one (Meth_simp_add_del_split l) => simp_tac (s_simp_add_del_split l)
-  | Meth_all (Meth_simp_only l) => simp_all_tac (s_simp_only l)
-  | Meth_all (Meth_simp_add_del_split l) => simp_all_tac (s_simp_add_del_split l)
-  | Meth_auto_simp_add_split (l_simp, l_split) =>
+  | Method_insert l => Basic (fn ctxt => insert (m_of_ntheorems_l ctxt l))
+  | Method_plus t => Combinator (no_combinator_info, Repeat1, [Combinator (no_combinator_info, Then, List.map m_of_tactic t)])
+  | Method_option t => Combinator (no_combinator_info, Try, [Combinator (no_combinator_info, Then, List.map m_of_tactic t)])
+  | Method_or t => Combinator (no_combinator_info, Orelse, List.map m_of_tactic t)
+  | Method_one (Method_simp_only l) => simp_tac (s_simp_only l)
+  | Method_one (Method_simp_add_del_split l) => simp_tac (s_simp_add_del_split l)
+  | Method_all (Method_simp_only l) => simp_all_tac (s_simp_only l)
+  | Method_all (Method_simp_add_del_split l) => simp_all_tac (s_simp_add_del_split l)
+  | Method_auto_simp_add_split (l_simp, l_split) =>
       Basic (fn ctxt => SIMPLE_METHOD (auto_tac (fold (fn (f, l) => fold f l)
               [(Simplifier.add_simp, m_of_ntheorems_l ctxt l_simp)
               ,(Splitter.add_split, List.map (Proof_Context.get_thm ctxt o To_string0) l_split)]
               ctxt)))
-  | Meth_rename_tac l => Basic (K (SIMPLE_METHOD' (Tactic.rename_tac (List.map To_string0 l))))
-  | Meth_case_tac e => Basic (fn ctxt => SIMPLE_METHOD' (Induct_Tacs.case_tac ctxt (s_of_expr e) [] NONE))
-  | Meth_blast n => Basic (case n of NONE => SIMPLE_METHOD' o blast_tac
+  | Method_rename_tac l => Basic (K (SIMPLE_METHOD' (Tactic.rename_tac (List.map To_string0 l))))
+  | Method_case_tac e => Basic (fn ctxt => SIMPLE_METHOD' (Induct_Tacs.case_tac ctxt (s_of_expr e) [] NONE))
+  | Method_blast n => Basic (case n of NONE => SIMPLE_METHOD' o blast_tac
                                    | SOME lim => fn ctxt => SIMPLE_METHOD' (depth_tac ctxt (To_nat lim)))
-  | Meth_clarify => Basic (fn ctxt => (SIMPLE_METHOD' (fn i => CHANGED_PROP (clarify_tac ctxt i))))
-  | Meth_metis (l_opt, l) =>
+  | Method_clarify => Basic (fn ctxt => (SIMPLE_METHOD' (fn i => CHANGED_PROP (clarify_tac ctxt i))))
+  | Method_metis (l_opt, l) =>
       Basic (fn ctxt => (METHOD oo Isabelle_Metis_Tactic.metis_method)
                           ( (if l_opt = [] then NONE else SOME (map To_string0 l_opt), NONE)
                           , map (m_of_ntheorem ctxt) l)
@@ -739,15 +739,15 @@ fun perform_instantiation thy tycos vs f_eq add_def tac (*add_eq_thms*) =
 fun then_tactic l = let open Method in (Combinator (no_combinator_info, Then, map m_of_tactic l), (Position.none, Position.none)) end
 
 fun local_terminal_proof o_by = let open OCL in case o_by of
-   Comm_done => Proof.local_done_proof
- | Comm_sorry => Proof.local_skip_proof true
- | Comm_by l_apply => Proof.local_terminal_proof (then_tactic l_apply, NONE)
+   Command_done => Proof.local_done_proof
+ | Command_sorry => Proof.local_skip_proof true
+ | Command_by l_apply => Proof.local_terminal_proof (then_tactic l_apply, NONE)
 end
 
 fun global_terminal_proof o_by = let open OCL in case o_by of
-   Comm_done => Proof.global_done_proof
- | Comm_sorry => Proof.global_skip_proof true
- | Comm_by l_apply => Proof.global_terminal_proof (then_tactic l_apply, NONE)
+   Command_done => Proof.global_done_proof
+ | Command_sorry => Proof.global_skip_proof true
+ | Command_by l_apply => Proof.global_terminal_proof (then_tactic l_apply, NONE)
 end
 
 fun proof_show_gen f thes st = st
@@ -756,27 +756,27 @@ fun proof_show_gen f thes st = st
   |> Isar_Cmd.show [((@{binding ""}, []), [(thes, [])])] true
 
 val applyE_results = let open OCL_overload in
-                     fn OCL.Comm_apply_end l => (fn st => st |> (Proof.apply_end_results (then_tactic l)) |> Seq.the_result "")
+                     fn OCL.Command_apply_end l => (fn st => st |> (Proof.apply_end_results (then_tactic l)) |> Seq.the_result "")
 end
 
 val apply_results = let open OCL_overload
                         val thesis = "?thesis"
                         fun proof_show f = proof_show_gen f thesis in
-                    fn OCL.Comm_apply l => (fn st => st |> (Proof.apply_results (then_tactic l)) |> Seq.the_result "")
-                     | OCL.Comm_using l => (fn st =>
+                    fn OCL.Command_apply l => (fn st => st |> (Proof.apply_results (then_tactic l)) |> Seq.the_result "")
+                     | OCL.Command_using l => (fn st =>
                          let val ctxt = Proof.context_of st in
                          Proof.using [map (fn s => ([ s], [])) (m_of_ntheorems_l ctxt l)] st
                          end)
-                     | OCL.Comm_unfolding l => (fn st =>
+                     | OCL.Command_unfolding l => (fn st =>
                          let val ctxt = Proof.context_of st in
                          Proof.unfolding [map (fn s => ([s], [])) (m_of_ntheorems_l ctxt l)] st
                          end)
-                     | OCL.Comm_let (e1, e2) => proof_show (Proof.let_bind_cmd [([s_of_expr e1], s_of_expr e2)])
-                     | OCL.Comm_have (n, b, e, e_pr) => proof_show (fn st => st
+                     | OCL.Command_let (e1, e2) => proof_show (Proof.let_bind_cmd [([s_of_expr e1], s_of_expr e2)])
+                     | OCL.Command_have (n, b, e, e_pr) => proof_show (fn st => st
                          |> Isar_Cmd.have [( (To_sbinding n, if b then [Token.src ("simp", Position.none) []] else [])
                                            , [(s_of_expr e, [])])] true
                          |> local_terminal_proof e_pr)
-                     | OCL.Comm_fix_let (l, l_let, o_exp, _) =>
+                     | OCL.Command_fix_let (l, l_let, o_exp, _) =>
                          proof_show_gen ( fold (fn (e1, e2) =>
                                                   Proof.let_bind_cmd [([s_of_expr e1], s_of_expr e2)])
                                                l_let
@@ -864,7 +864,7 @@ fun OCL_main_thy in_theory in_local = let open OCL open OCL_overload in (*let va
                                                        ,[((String.concatWith (" \<Longrightarrow> ")
                                                              (List.map s_of_expr l_spec)), [])])])
              false lthy
-        |> fold (apply_results o OCL.Comm_apply) l_apply
+        |> fold (apply_results o OCL.Command_apply) l_apply
         |> global_terminal_proof o_by)
 | Theory_lemma (Lemma_assumes (n, l_spec, concl, l_apply, o_by)) => in_local
    (fn lthy => lthy
@@ -875,7 +875,7 @@ fun OCL_main_thy in_theory in_local = let open OCL open OCL_overload in (*let va
              (Element.Shows [((@{binding ""}, []),[(s_of_expr concl, [])])])
              false
         |> fold apply_results l_apply
-        |> (case map_filter (fn OCL.Comm_let _ => SOME [] | OCL.Comm_have _ => SOME [] | OCL.Comm_fix_let (_, _, _, l) => SOME l | _ => NONE) (rev l_apply) of
+        |> (case map_filter (fn OCL.Command_let _ => SOME [] | OCL.Command_have _ => SOME [] | OCL.Command_fix_let (_, _, _, l) => SOME l | _ => NONE) (rev l_apply) of
               [] => global_terminal_proof o_by
             | _ :: l => let val arg = (NONE, true) in fn st => st
               |> local_terminal_proof o_by

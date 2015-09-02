@@ -202,7 +202,7 @@ definition "print_instantia_lemmas_strictrefeq = start_map'
        let mk_strict = (\<lambda>l. flatten (\<open>StrictRefEq\<close> # isub_of_str \<open>Object\<close> # l))
          ; name_set = map_class (\<lambda>_ name _ _ _ _. print_instantia_def_strictrefeq_name mk_strict name) expr in
        case name_set of [] \<Rightarrow> [] | _ \<Rightarrow> List_map Thy_lemmas_simp
-         [ Lemmas_simp \<open>\<close> (List_map (Thm_str) name_set) ]
+         [ Lemmas_simp \<open>\<close> (List_map (Thm_thm) name_set) ]
   else (\<lambda>_. []))"
 
 end

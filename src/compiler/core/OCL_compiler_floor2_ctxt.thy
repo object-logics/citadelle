@@ -189,7 +189,7 @@ definition "print_ctxt_pre_post = (\<lambda>f. map_prod List_flatten id o f) o f
                     , Thy_defs_overloaded (Defs_overloaded (print_ctxt_const_name attr_n var_at_when_hol (Some ty_name)) expr)))
               ; name = name0 (Some ty_name) in
             def
-            # Thy_thm (Thm [Thm_str name])
+            # Thy_thm (Thm [Thm_thm name])
             # (case let name = name0 None in
                     print_ctxt_pre_post_interp
                       (D_sorry_dirty ocl)
@@ -253,6 +253,6 @@ definition "print_ctxt_thm ctxt = Pair
                                                    , var_at_when_hol_post ])
                               (fold_invariant' ctxt)) of 
     [] \<Rightarrow> []
-  | l \<Rightarrow> [ Thy_thm (Thm (List_map Thm_str l)) ])"
+  | l \<Rightarrow> [ Thy_thm (Thm (List_map Thm_thm l)) ])"
 
 end
