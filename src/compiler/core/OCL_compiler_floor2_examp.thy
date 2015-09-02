@@ -52,7 +52,7 @@ section{* Translation of AST *}
 subsection{* example *}
 
 definition "print_examp_def_st_locale_distinct = \<open>distinct_oid\<close>"
-definition "print_examp_def_st_locale_metis = M.metis (List_map Thm_thm [print_examp_def_st_locale_distinct, \<open>distinct_length_2_or_more\<close>])"
+definition "print_examp_def_st_locale_metis = M.metis (List_map T.thm [print_examp_def_st_locale_distinct, \<open>distinct_length_2_or_more\<close>])"
 definition "print_examp_def_st_locale_aux f_ocli l = 
  (let b = \<lambda>s. Expr_basic [s] in
   map_prod
@@ -175,7 +175,7 @@ definition "print_examp_def_st_dom_lemmas = (\<lambda> _ ocl.
  (\<lambda> l. (List_map Thy_lemmas_simp' l, ocl))
   (let (name, _) = hd (D_state_rbt ocl) in
    [ Lemmas_simp \<open>\<close>
-       [Thm_thm (print_examp_def_st_dom_name (String\<^sub>b\<^sub>a\<^sub>s\<^sub>e_to_String name))] ]))"
+       [T.thm (print_examp_def_st_dom_name (String\<^sub>b\<^sub>a\<^sub>s\<^sub>e_to_String name))] ]))"
 
 definition "print_examp_def_st_perm_name name = flatten [\<open>perm_\<close>, name]"
 definition "print_examp_def_st_perm = (\<lambda> _ ocl.
@@ -192,7 +192,7 @@ definition "print_examp_def_st_perm = (\<lambda> _ ocl.
          | [_] \<Rightarrow> ([], C.by [M.simp_add [d name]])
          | _ \<Rightarrow>
            ( [ M.simp_add [d name]]
-             # List_flatten (List_map (\<lambda>i_max. List_map (\<lambda>i. [M.subst_l (List_map nat_of_str [i_max - i]) (Thm_thm \<open>fun_upd_twist\<close>), print_examp_def_st_locale_metis]) (List.upt 0 i_max)) (List.upt 1 (List.length l_st)))
+             # List_flatten (List_map (\<lambda>i_max. List_map (\<lambda>i. [M.subst_l (List_map nat_of_str [i_max - i]) (T.thm \<open>fun_upd_twist\<close>), print_examp_def_st_locale_metis]) (List.upt 0 i_max)) (List.upt 1 (List.length l_st)))
            , C.by [M.simp]) in
    case expr_app of None \<Rightarrow> [] | Some expr_app \<Rightarrow>
    [ Lemma
@@ -242,7 +242,7 @@ definition "print_examp_def_st_allinst = (\<lambda> _ ocl.
        ; (l_asty, ((l_spec, l_spec'), l_body)) = map_prod (M.simp_add_del [] o List_flatten)
                                                           (map_prod List_split id o List_split)
                                                           (List_split (List_flatten (List_map snd expr_app)))
-       ; only_assms = Cons (M.simp_all_only' [ Thm_thms \<open>assms\<close> ])
+       ; only_assms = Cons (M.simp_all_only' [ T.thms \<open>assms\<close> ])
        ; l_assum = List_flatten [ List_map (\<lambda> ((_, ocli), l).
                                               (\<open>\<close>, True, Expr_rewrite (in_pers ocli) (if l = [] then \<open>=\<close> else \<open>\<noteq>\<close>) (b \<open>None\<close>)))
                                            expr_app
@@ -261,11 +261,11 @@ definition "print_examp_def_st_allinst = (\<lambda> _ ocl.
          lem_spec
          (List_map C.apply
            (List_flatten
-            [ [[M.subst (Thm_thm (print_examp_def_st_perm_name name_st))]]
-            , [[M.simp_only (List_map (Thm_thm o d)
+            [ [[M.subst (T.thm (print_examp_def_st_perm_name name_st))]]
+            , [[M.simp_only (List_map (T.thm o d)
                                         (\<open>state.make\<close> # List_map (\<lambda>(_, OclDefCoreBinding (n, _)) \<Rightarrow> n) l_body))]]
             , fst (fold_list (\<lambda> expr l_spec.
-                let mk_StrictRefEq_including = \<lambda>l.  M.rule (Thm_thm \<open>const_StrictRefEq\<^sub>S\<^sub>e\<^sub>t_including\<close>)
+                let mk_StrictRefEq_including = \<lambda>l.  M.rule (T.thm \<open>const_StrictRefEq\<^sub>S\<^sub>e\<^sub>t_including\<close>)
                                                   # l_asty
                                                   # l_asty
                                                   # M.simp
@@ -276,25 +276,25 @@ definition "print_examp_def_st_allinst = (\<lambda> _ ocl.
                         ( \<open>state_update_vs_allInstances_generic_ntc\<close>
                         , l_spec
                         , f (if l_spec = [] then
-                               [M.rule (Thm_thm \<open>const_StrictRefEq\<^sub>S\<^sub>e\<^sub>t_empty\<close>), M.simp]
+                               [M.rule (T.thm \<open>const_StrictRefEq\<^sub>S\<^sub>e\<^sub>t_empty\<close>), M.simp]
                              else
                                mk_StrictRefEq_including []))
                       | _ \<Rightarrow>
                         ( \<open>state_update_vs_allInstances_generic_tc\<close>
                         , tl l_spec
                         , ( M.blast None
-                          # f (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l f = \<lambda>l.  M.option [M.simp_only [Thm_symmetric (Thm_thms \<open>assms\<close>)]]
+                          # f (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l f = \<lambda>l.  M.option [M.simp_only [T.symmetric (T.thms \<open>assms\<close>)]]
                                               # M.simp_add (List_map d [\<open>valid\<close>, \<open>OclValid\<close>, \<open>bot_fun\<close>, \<open>bot_option\<close>])
                                               # l in
-                               mk_StrictRefEq_including (M.rule (Thm_thm \<open>OclIncluding_cong\<close>) # f (f []))))) in
-                ( M.subst (Thm_thm state_update_vs_allInstances_generic)
+                               mk_StrictRefEq_including (M.rule (T.thm \<open>OclIncluding_cong\<close>) # f (f []))))) in
+                ( M.subst (T.thm state_update_vs_allInstances_generic)
                   # M.simp
                   # M.simp
                   # M.option [print_examp_def_st_locale_metis]
-                  # M.simp_only' [ Thm_thms \<open>assms\<close> ]
+                  # M.simp_only' [ T.thms \<open>assms\<close> ]
                   # l_OclIncluding_cong
                 , l_spec) ) expr_app l_spec)
-            , [[M.rule (Thm_thm \<open>state_update_vs_allInstances_generic_empty\<close>)]] ]))
+            , [[M.rule (T.thm \<open>state_update_vs_allInstances_generic_empty\<close>)]] ]))
          (C.by (if l_spec = [] then [ M.simp ]
                    else only_assms [ M.option [M.simp_all_add [d (flatten [isub_name const_oclastype, \<open>_\<AA>\<close>])]]])) )
        (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l l = [ M.simp_all ] in if l_assum = [] then l else only_assms l))
@@ -335,7 +335,7 @@ definition "print_pre_post_interp = get_state (\<lambda> _ _.
  Pair o List_map Thy_interpretation' o List_map
   (\<lambda>(s, l).
     let n = print_examp_def_st_locale_name s in
-    Interpretation n n (print_pre_post_locale_aux (\<lambda>(cpt, OclDefCoreBinding (_, ocli)) \<Rightarrow> (ocli, cpt)) l) (C.by [M.rule (Thm_thm s)])))"
+    Interpretation n n (print_pre_post_locale_aux (\<lambda>(cpt, OclDefCoreBinding (_, ocli)) \<Rightarrow> (ocli, cpt)) l) (C.by [M.rule (T.thm s)])))"
 
 definition "print_pre_post_wff = get_state (\<lambda> (s_pre, l_pre) (s_post, l_post) l_pre_post ocl.
  (\<lambda> l. (List_map Thy_lemma_by' l, ocl))

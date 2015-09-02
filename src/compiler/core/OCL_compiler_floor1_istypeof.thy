@@ -103,7 +103,7 @@ definition "print_istypeof_lemmas_id = start_map' (\<lambda>expr.
   (let name_set = print_istypeof_lemma_cp_set expr in
    case name_set of [] \<Rightarrow> [] | _ \<Rightarrow> List_map Thy_lemmas_simp
   [ Lemmas_simp \<open>\<close> (List_map (\<lambda>((isub_name, _), name).
-    Thm_thm (flatten [isub_name const_oclistypeof, \<open>_\<close>, name] )) name_set) ]))"
+    T.thm (flatten [isub_name const_oclistypeof, \<open>_\<close>, name] )) name_set) ]))"
 
 definition "print_istypeof_lemma_cp expr = (start_map Thy_lemma_by o
   (get_hierarchy_map (
@@ -122,7 +122,7 @@ definition "print_istypeof_lemma_cp expr = (start_map Thy_lemma_by o
                (Expr_annot_ocl (Expr_app var_p [Expr_annot_ocl (Expr_basic [var_x]) name3]) name2)
                (Expr_basic [dot_istypeof name1])))])
       []
-      (C.by [M.rule (Thm_thm \<open>cpI1\<close>), if check_opt name1 name2 then M.simp
+      (C.by [M.rule (T.thm \<open>cpI1\<close>), if check_opt name1 name2 then M.simp
                                              else M.simp_add [flatten [const_oclistypeof, isub_of_str name1, \<open>_\<close>, name2]]])
   )) (\<lambda>x. (x, x, x))) ) expr"
 
@@ -130,7 +130,7 @@ definition "print_istypeof_lemmas_cp = start_map'
  (if activate_simp_optimization then List_map Thy_lemmas_simp o
     (\<lambda>expr. [Lemmas_simp \<open>\<close>
   (get_hierarchy_map (\<lambda>name1 name2 name3.
-      Thm_thm (flatten [\<open>cp_\<close>, const_oclistypeof, isub_of_str name1, \<open>_\<close>, name3, \<open>_\<close>, name2]))
+      T.thm (flatten [\<open>cp_\<close>, const_oclistypeof, isub_of_str name1, \<open>_\<close>, name3, \<open>_\<close>, name2]))
    (\<lambda>x. (x, x, x)) expr)])
   else (\<lambda>_. []))"
 
@@ -151,7 +151,7 @@ definition "print_istypeof_lemma_strict expr = (start_map Thy_lemma_by o
       []
       (C.by (let l = List_map hol_definition (\<open>bot_option\<close> # (if name2 = \<open>invalid\<close> then [\<open>invalid\<close>]
                                                               else [\<open>null_fun\<close>,\<open>null_option\<close>])) in
-                [M.rule (Thm_thm \<open>ext\<close>), M.simp_add (if check_opt name1 name3 then l
+                [M.rule (T.thm \<open>ext\<close>), M.simp_add (if check_opt name1 name3 then l
                                                            else flatten [const_oclistypeof, isub_of_str name1, \<open>_\<close>, name3] # l)]))
   )) (\<lambda>x. (x, [(\<open>invalid\<close>,\<open>invalid\<close>),(\<open>null\<close>,\<open>true\<close>)], x))) expr"
 
@@ -165,7 +165,7 @@ definition "print_istypeof_lemmas_strict expr = start_map Thy_lemmas_simp
    of [] \<Rightarrow> []
     | l \<Rightarrow> [ Lemmas_simp \<open>\<close> (List_map
       (\<lambda>(name1, name3, name2).
-        Thm_thm (flatten [const_oclistypeof, isub_of_str name1, \<open>_\<close>, name3, \<open>_\<close>, name2]))
+        T.thm (flatten [const_oclistypeof, isub_of_str name1, \<open>_\<close>, name3, \<open>_\<close>, name2]))
       l) ])"
 
 definition "print_istypeof_defined = start_m Thy_lemma_by m_class_default
@@ -177,11 +177,11 @@ definition "print_istypeof_defined = start_m Thy_lemma_by m_class_default
           (print_istypeof_defined_name isub_name h_name)
           [(var_isdef, False, f \<open>\<upsilon>\<close> (Expr_basic [var_X]))]
           (f \<open>\<delta>\<close> (Expr_postunary (Expr_annot_ocl (Expr_basic [var_X]) h_name) (Expr_basic [dot_istypeof name])))
-          [C.apply [M.insert' [Thm_simplified (Thm_thm var_isdef) (Thm_thm \<open>foundation18'\<close>) ]
-               ,M.simp_only [Thm_thm (hol_definition \<open>OclValid\<close>)]
-               ,M.subst (Thm_thm \<open>cp_defined\<close>)]]
-          (C.by [M.auto_simp_add_split ( Thm_symmetric (Thm_thm \<open>cp_defined\<close>)
-                                            # List_map Thm_thm ( hol_definition \<open>bot_option\<close>
+          [C.apply [M.insert' [T.simplified (T.thm var_isdef) (T.thm \<open>foundation18'\<close>) ]
+               ,M.simp_only [T.thm (hol_definition \<open>OclValid\<close>)]
+               ,M.subst (T.thm \<open>cp_defined\<close>)]]
+          (C.by [M.auto_simp_add_split ( T.symmetric (T.thm \<open>cp_defined\<close>)
+                                            # List_map T.thm ( hol_definition \<open>bot_option\<close>
                                                           # [ flatten [isub_name const_oclistypeof, \<open>_\<close>, h_name] ]))
                                             (\<open>option.split\<close> # split_ty h_name) ]) ])"
 
@@ -195,8 +195,8 @@ definition "print_istypeof_defined' = start_m Thy_lemma_by m_class_default
           [(var_isdef, False, f (Expr_basic [var_X]))]
           (f (Expr_postunary (Expr_annot_ocl (Expr_basic [var_X]) h_name) (Expr_basic [dot_istypeof name])))
           []
-          (C.by [M.rule (Thm_OF (Thm_thm (print_istypeof_defined_name isub_name h_name))
-                                     (Thm_THEN (Thm_thm var_isdef) (Thm_thm \<open>foundation20\<close>)))]) ])"
+          (C.by [M.rule (T.OF (T.thm (print_istypeof_defined_name isub_name h_name))
+                                     (T.THEN (T.thm var_isdef) (T.thm \<open>foundation20\<close>)))]) ])"
 
 definition "print_istypeof_up_larger_name name_pers name_any = flatten [\<open>actualType\<close>, isub_of_str name_pers, \<open>_larger_staticType\<close>, isub_of_str name_any]"
 definition "print_istypeof_up_larger = start_map Thy_lemma_by o
@@ -211,7 +211,7 @@ definition "print_istypeof_up_larger = start_map Thy_lemma_by o
                (Expr_annot_ocl (Expr_basic [var_X]) name_pers)
                (Expr_basic [dot_istypeof name_any]))
              ) \<open>\<triangleq>\<close> (Expr_basic [\<open>false\<close>])))
-        [C.using [Thm_thm var_isdef]]
+        [C.using [T.thm var_isdef]]
         (C.by [M.auto_simp_add ( flatten [const_oclistypeof, isub_of_str name_any, \<open>_\<close>, name_pers]
                                     # \<open>foundation22\<close>
                                     # \<open>foundation16\<close>
@@ -233,8 +233,8 @@ definition "print_istypeof_up_d_cast expr = (start_map Thy_lemma_by o
                (Expr_basic [var_X])
                (Expr_basic [dot_astype name_pers]))
              ) \<open>\<triangleq>\<close> (Expr_basic [\<open>invalid\<close>])))
-        [C.using (List_map Thm_thm [var_istyp, var_isdef])
-        ,C.apply [M.auto_simp_add_split (List_map Thm_thm
+        [C.using (List_map T.thm [var_istyp, var_isdef])
+        ,C.apply [M.auto_simp_add_split (List_map T.thm
                                       ( flatten [const_oclastype, isub_of_str name_pers, \<open>_\<close>, name_any]
                                       # \<open>foundation22\<close>
                                       # \<open>foundation16\<close>

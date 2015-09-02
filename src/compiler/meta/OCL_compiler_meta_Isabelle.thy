@@ -209,8 +209,33 @@ datatype hol__thy = H_thy_simple hol__t
 
 section{* ... *}
 
-definition "Thm_OF_l s l = List.fold (\<lambda>x acc. Thm_OF acc x) l s"
-definition "Thm_simplified_l s l = List.fold (\<lambda>x acc. Thm_simplified acc x) l s"
+locale T
+begin
+definition "thm = Thm_thm"
+definition "thms = Thm_thms"
+definition "THEN = Thm_THEN"
+definition "simplified = Thm_simplified"
+definition "symmetric = Thm_symmetric"
+definition "where = Thm_where"
+definition "of' = Thm_of"
+definition "OF = Thm_OF"
+definition "OF_l s l = List.fold (\<lambda>x acc. Thm_OF acc x) l s"
+definition "simplified_l s l = List.fold (\<lambda>x acc. Thm_simplified acc x) l s"
+end
+
+lemmas [code] =
+  (* def *)
+  T.thm_def
+  T.thms_def
+  T.THEN_def
+  T.simplified_def
+  T.symmetric_def
+  T.where_def
+  T.of'_def
+  T.OF_def
+  T.OF_l_def
+  T.simplified_l_def
+
 definition "Opt s = Ty_apply (Ty_base \<open>option\<close>) [Ty_base s]"
 definition "Raw = Ty_base"
 definition "Type_synonym' n = Type_synonym n []"

@@ -61,7 +61,7 @@ definition "print_allinst_lemmas_id = start_map'
      \<lambda>expr.
        let name_set = map_class (\<lambda>_ name _ _ _ _. name) expr in
        case name_set of [] \<Rightarrow> [] | _ \<Rightarrow> List_map Thy_lemmas_simp
-         [ Lemmas_simp \<open>\<close> (List_map (Thm_thm o hol_definition) name_set) ]
+         [ Lemmas_simp \<open>\<close> (List_map (T.thm o hol_definition) name_set) ]
   else (\<lambda>_. []))"
 
 definition "print_allinst_astype_name isub_name = flatten [isub_name const_oclastype, \<open>_\<AA>\<close>, \<open>_some\<close>]"
@@ -109,7 +109,7 @@ definition "print_allinst_exec = start_map Thy_lemma_by o map_class_top (\<lambd
          , C.have var_B (f_incl var_S2 var_S1) (C.by [M.auto])
          , C.have var_C (f_incl var_S1 var_S2) (C.by [M.auto_simp_add [print_allinst_astype_name isub_name]])
          , C.apply [M.simp_add_del [d \<open>OclValid\<close>] [d \<open>OclAllInstances_generic\<close>, flatten [isub_name const_ocliskindof, \<open>_\<close>, name]]] ])
-        (C.by [M.insert' [Thm_OF_l (Thm_thm \<open>equalityI\<close>) (List_map Thm_thm [var_B, var_C])], M.simp]))
+        (C.by [M.insert' [T.OF_l (T.thm \<open>equalityI\<close>) (List_map T.thm [var_B, var_C])], M.simp]))
     [])"
 
 definition "print_allinst_istypeof_pre_name1 = \<open>ex_ssubst\<close>"
@@ -156,21 +156,21 @@ definition "print_allinst_istypeof_single isub_name name isub_name2 name2 const_
       lem_tit
       [lem_spec]
       [ [M.simp_add_del [d \<open>OclValid\<close>] (d \<open>OclAllInstances_generic\<close> # f_simp1 [flatten [isub_name2 const_oclisof, \<open>_\<close>, name]])]
-      , [M.simp_only (List_flatten [List_map Thm_thm [ d var_OclForall_set, \<open>refl\<close>, \<open>if_True\<close> ], [Thm_simplified (Thm_thm \<open>OclAllInstances_generic_defined\<close>) (Thm_thm (d \<open>OclValid\<close>))]])]
-      , [M.simp_only [Thm_thm (d \<open>OclAllInstances_generic\<close>)]]
-      , [s (Thm_thm var_Abs_Set_inverse), M.simp_add [d \<open>bot_option\<close>]]
-      , [s (Thm_where
-             (Thm_thm print_allinst_istypeof_pre_name1)
+      , [M.simp_only (List_flatten [List_map T.thm [ d var_OclForall_set, \<open>refl\<close>, \<open>if_True\<close> ], [T.simplified (T.thm \<open>OclAllInstances_generic_defined\<close>) (T.thm (d \<open>OclValid\<close>))]])]
+      , [M.simp_only [T.thm (d \<open>OclAllInstances_generic\<close>)]]
+      , [s (T.thm var_Abs_Set_inverse), M.simp_add [d \<open>bot_option\<close>]]
+      , [s (T.where
+             (T.thm print_allinst_istypeof_pre_name1)
              [ (\<open>s\<close>, Expr_lam \<open>x\<close> (\<lambda>var_x. Expr_applys (Expr_postunary (Expr_lambda wildcard (b var_x)) (b (dot_isof name2))) [b var_tau]))
              , (\<open>t\<close>, Expr_lambda wildcard (Expr_app \<open>true\<close> [b var_tau]))])]
-      , [M.intro [ Thm_thm \<open>ballI\<close>
-                   , Thm_simplified_l
-                       (Thm_thm (if name = name2 then
+      , [M.intro [ T.thm \<open>ballI\<close>
+                   , T.simplified_l
+                       (T.thm (if name = name2 then
                                    print_iskindof_up_eq_asty_name name
                                  else
                                    print_iskindof_up_larger_name name name2))
-                       (List_map Thm_thm (d \<open>OclValid\<close> # f_simp2 [flatten [isub_name const_ocliskindof, \<open>_\<close>, name]]))]]
-      , [M.drule (Thm_thm print_allinst_istypeof_pre_name2), M.erule (Thm_thm (\<open>exE\<close>)), M.simp]]
+                       (List_map T.thm (d \<open>OclValid\<close> # f_simp2 [flatten [isub_name const_ocliskindof, \<open>_\<close>, name]]))]]
+      , [M.drule (T.thm print_allinst_istypeof_pre_name2), M.erule (T.thm (\<open>exE\<close>)), M.simp]]
       (C.by [M.simp]))
       [])"
 
@@ -196,10 +196,10 @@ definition "print_allinst_istypeof = start_map'' Thy_lemma_by o (\<lambda>expr b
            lem_spec
            (List_map C.apply
               [ let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l var_tau0 = var_tau @@ isub_of_str \<open>0\<close> in
-                [M.rule (Thm_where (Thm_thm \<open>exI\<close>) [(\<open>x\<close>, b var_tau0)]), M.simp_add_del (List_map d [var_tau0, \<open>OclValid\<close>]) [d \<open>OclAllInstances_generic\<close>]]
-              , [M.simp_only (List_flatten [List_map Thm_thm [ d var_OclForall_set, \<open>refl\<close>, \<open>if_True\<close> ], [Thm_simplified (Thm_thm \<open>OclAllInstances_generic_defined\<close>) (Thm_thm (d \<open>OclValid\<close>))]])]
-              , [M.simp_only [Thm_thm (d \<open>OclAllInstances_generic\<close>)]]
-              , [s (Thm_thm var_Abs_Set_inverse), M.simp_add [d \<open>bot_option\<close>]] ] )
+                [M.rule (T.where (T.thm \<open>exI\<close>) [(\<open>x\<close>, b var_tau0)]), M.simp_add_del (List_map d [var_tau0, \<open>OclValid\<close>]) [d \<open>OclAllInstances_generic\<close>]]
+              , [M.simp_only (List_flatten [List_map T.thm [ d var_OclForall_set, \<open>refl\<close>, \<open>if_True\<close> ], [T.simplified (T.thm \<open>OclAllInstances_generic_defined\<close>) (T.thm (d \<open>OclValid\<close>))]])]
+              , [M.simp_only [T.thm (d \<open>OclAllInstances_generic\<close>)]]
+              , [s (T.thm var_Abs_Set_inverse), M.simp_add [d \<open>bot_option\<close>]] ] )
            (C.by [M.simp (*M.simp_add [flatten [isub_name const_oclistypeof, \<open>_\<close>, name]]*)]))
         [M.simp]
     , gen_pre_post
@@ -220,10 +220,10 @@ definition "print_allinst_istypeof = start_map'' Thy_lemma_by o (\<lambda>expr b
             , C.let' (Expr_pat var_t0) (Expr_app \<open>state.make\<close>
                 [ Expr_app s_empty [Expr_binop (b var_oid) \<open>\<mapsto>\<close> (Expr_app (isub_name datatype_in) [Expr_app (isub_name datatype_constr_name) (Expr_app (datatype_ext_constr_name @@ mk_constr_name name name_next) [b var_a] # List_map (\<lambda>_. b \<open>None\<close>) l_attr)])]
                 , b s_empty])
-            , C.apply [M.rule (Thm_where (Thm_thm \<open>exI\<close>) [(\<open>x\<close>, Expr_parenthesis (Expr_binop (Expr_pat var_t0) \<open>,\<close> (Expr_pat var_t0)))]), M.simp_add_del [d \<open>OclValid\<close>] [d \<open>OclAllInstances_generic\<close>]]
-            , C.apply [M.simp_only (List_flatten [List_map Thm_thm [ d var_OclForall_set, \<open>refl\<close>, \<open>if_True\<close> ], [Thm_simplified (Thm_thm \<open>OclAllInstances_generic_defined\<close>) (Thm_thm (d \<open>OclValid\<close>))]])]
-            , C.apply [M.simp_only (List_map (\<lambda>x. Thm_thm (d x)) [\<open>OclAllInstances_generic\<close>, flatten [isub_name const_oclastype, \<open>_\<AA>\<close>]])]
-            , C.apply [s (Thm_thm var_Abs_Set_inverse), M.simp_add [d \<open>bot_option\<close>]] ] )
+            , C.apply [M.rule (T.where (T.thm \<open>exI\<close>) [(\<open>x\<close>, Expr_parenthesis (Expr_binop (Expr_pat var_t0) \<open>,\<close> (Expr_pat var_t0)))]), M.simp_add_del [d \<open>OclValid\<close>] [d \<open>OclAllInstances_generic\<close>]]
+            , C.apply [M.simp_only (List_flatten [List_map T.thm [ d var_OclForall_set, \<open>refl\<close>, \<open>if_True\<close> ], [T.simplified (T.thm \<open>OclAllInstances_generic_defined\<close>) (T.thm (d \<open>OclValid\<close>))]])]
+            , C.apply [M.simp_only (List_map (\<lambda>x. T.thm (d x)) [\<open>OclAllInstances_generic\<close>, flatten [isub_name const_oclastype, \<open>_\<AA>\<close>]])]
+            , C.apply [s (T.thm var_Abs_Set_inverse), M.simp_add [d \<open>bot_option\<close>]] ] )
            (C.by [M.simp_add [d \<open>state.make\<close>, d \<open>OclNot\<close>]]))
         [M.simp]]) expr)"
 

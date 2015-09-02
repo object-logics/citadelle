@@ -424,17 +424,17 @@ definition "print_access_dot_lemmas_id_name = \<open>dot_accessor\<close>"
 definition "print_access_dot_lemmas_id = start_map' (\<lambda>expr.
        (let name_set = print_access_dot_lemmas_id_set expr in
        case name_set of [] \<Rightarrow> [] | _ \<Rightarrow> List_map Thy_lemmas_simp
-         [ Lemmas_nosimp print_access_dot_lemmas_id_name (List_map Thm_thm name_set) ]))"
+         [ Lemmas_nosimp print_access_dot_lemmas_id_name (List_map T.thm name_set) ]))"
 
 definition "print_access_dot_cp_lemmas_set =
   (if activate_simp_optimization then [hol_definition var_eval_extract] else [])"
 
 definition "print_access_dot_cp_lemmas = start_map' (\<lambda>_.
-  List_map (\<lambda>x. Thy_lemmas_simp (Lemmas_simp \<open>\<close> [Thm_thm x])) print_access_dot_cp_lemmas_set)"
+  List_map (\<lambda>x. Thy_lemmas_simp (Lemmas_simp \<open>\<close> [T.thm x])) print_access_dot_cp_lemmas_set)"
 
 definition "print_access_dot_lemma_cp_name isub_name dot_at_when attr_ty isup_attr = flatten [\<open>cp_\<close>, print_access_dot_name isub_name dot_at_when attr_ty isup_attr]"
 definition "print_access_dot_lemma_cp = start_map Thy_lemma_by o
- (let auto = \<lambda>l. M.auto_simp_add2 [Thm_thms print_access_dot_lemmas_id_name] (List_map hol_definition (\<open>cp\<close> # l)) in
+ (let auto = \<lambda>l. M.auto_simp_add2 [T.thms print_access_dot_lemmas_id_name] (List_map hol_definition (\<open>cp\<close> # l)) in
   map_class_arg_only_var
     (\<lambda>isub_name name (_, dot_at_when) attr_ty isup_attr dot_attr.
             [ Lemma
@@ -456,7 +456,7 @@ definition "print_access_dot_lemma_cp = start_map Thy_lemma_by o
 definition "print_access_dot_lemmas_cp = start_map Thy_lemmas_simp o (\<lambda>expr.
   case map_class_arg_only_var'
     (\<lambda>isub_name _ (_, dot_at_when) attr_ty isup_attr _.
-      [Thm_thm (print_access_dot_lemma_cp_name isub_name dot_at_when attr_ty isup_attr) ])
+      [T.thm (print_access_dot_lemma_cp_name isub_name dot_at_when attr_ty isup_attr) ])
     expr
   of [] \<Rightarrow> []
    | l \<Rightarrow> [Lemmas_simp \<open>\<close> l])"
@@ -473,8 +473,8 @@ definition "print_access_lemma_strict expr = (start_map Thy_lemma_by o
                   []
                   (if print_access_dot_lemmas_id_set expr = [] | print_access_dot_cp_lemmas_set = [] then
                      C.sorry else
-                   C.by [ M.rule (Thm_thm \<open>ext\<close>),
-                             M.simp_add2 [Thm_thms print_access_dot_lemmas_id_name]
+                   C.by [ M.rule (T.thm \<open>ext\<close>),
+                             M.simp_add2 [T.thms print_access_dot_lemmas_id_name]
                                            (List_map hol_definition
                                              (let l = (let l = (\<open>bot_option\<close> # meth_invalid) in
                                               if print_access_dot_lemmas_id_set expr = [] then
@@ -503,7 +503,7 @@ definition "print_access_def_mono = start_map'''' Thy_lemma_by o (\<lambda>expr 
                             , b var_X ])
                 (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l f_tac = \<lambda>s.
                    [ M.case_tac (f0 (Expr_warning_parenthesis (Expr_rewrite (b var_X) \<open>\<triangleq>\<close> (b s))))
-                   , M.insert' [Thm_where (Thm_thm \<open>StrongEq_L_subst2\<close>)
+                   , M.insert' [T.where (T.thm \<open>StrongEq_L_subst2\<close>)
                                            [ (\<open>P\<close>, Expr_lam \<open>x\<close> (\<lambda>var_X. a \<open>\<delta>\<close> (dot_attr (b var_X))))
                                            , (\<open>\<tau>\<close>, b \<open>\<tau>\<close>)
                                            , (\<open>x\<close>, b var_X)
@@ -561,14 +561,14 @@ definition "print_access_is_repr = start_map'''' Thy_lemma_by o (\<lambda>expr d
    ; l_thes = \<lambda>l. Some (l @@@@ [Expr_pat \<open>thesis\<close>])
    ; l_thes0 = \<lambda>l. Some (l @@@@ [Expr_pat \<open>t\<close>])
    ; hol_d = List_map hol_definition
-   ; thol_d = List_map (Thm_thm o hol_definition)
+   ; thol_d = List_map (T.thm o hol_definition)
    ; App_f = \<lambda>l e. C.fix_let l [] e []
    ; App_d_f = \<lambda>l e. if is_design then App_f l e else C.apply []
    ; App_f' = \<lambda>l. C.fix_let l []
    ; f_ss = \<lambda>v. a \<open>Some\<close> (a \<open>Some\<close> (b v)) in
- [ C.apply [M.insert' [Thm_simplified (Thm_OF (Thm_thm (print_access_def_mono_name isub_name dot_at_when attr_ty isup_attr))
-                                           (Thm_thm var_def_dot))
-                                   (Thm_thm \<open>foundation16\<close>)]]
+ [ C.apply [M.insert' [T.simplified (T.OF (T.thm (print_access_def_mono_name isub_name dot_at_when attr_ty isup_attr))
+                                           (T.thm var_def_dot))
+                                   (T.thm \<open>foundation16\<close>)]]
  , C.apply [M.case_tac (a var_X (b var_tau)), M.simp_add [hol_definition \<open>bot_option\<close>]]
  (* *)
  , App_f' [v_a0]
@@ -580,21 +580,21 @@ definition "print_access_is_repr = start_map'''' Thy_lemma_by o (\<lambda>expr d
  , App_f [v_a] (l_thes [ Expr_binop (a var_X (b var_tau)) \<open>=\<close> (f_ss v_a) ])
  , C.apply [M.case_tac (Expr_app \<open>heap\<close> [ a var_in_when_state (b var_tau)
                                           , a \<open>oid_of\<close> (b v_a)]), M.simp_add (hol_d [\<open>invalid\<close>, \<open>bot_option\<close>])]
- , C.apply [ M.insert' [Thm_thm \<open>def_dot\<close>]
-       , M.simp_add_split ( Thm_thm (print_access_dot_name isub_name dot_at_when attr_ty isup_attr)
+ , C.apply [ M.insert' [T.thm \<open>def_dot\<close>]
+       , M.simp_add_split ( T.thm (print_access_dot_name isub_name dot_at_when attr_ty isup_attr)
                             # thol_d [ \<open>is_represented_in_state\<close>
                                      , print_access_select_name isup_attr isub_name
                                      , print_access_deref_oid_name isub_name
                                      , var_in_when_state
                                      , \<open>defined\<close>, \<open>OclValid\<close>, \<open>false\<close>, \<open>true\<close>, \<open>invalid\<close>, \<open>bot_fun\<close>])
-                            [Thm_thm \<open>split_if_asm\<close>]]
+                            [T.thm \<open>split_if_asm\<close>]]
  (* *)
  , App_f [v_b] (l_thes [ Expr_binop (a var_X (b var_tau)) \<open>=\<close> (f_ss v_a)
                        , Expr_rewrite (Expr_app \<open>heap\<close> [ a var_in_when_state (b var_tau)
                                                            , a \<open>oid_of\<close> (b v_a)])
                                       \<open>=\<close>
                                       (a \<open>Some\<close> (b v_b)) ])
- , C.apply [ M.insert' [Thm_simplified (Thm_thm \<open>def_dot\<close>) (Thm_thm \<open>foundation16\<close>)]
+ , C.apply [ M.insert' [T.simplified (T.thm \<open>def_dot\<close>) (T.thm \<open>foundation16\<close>)]
        , M.auto_simp_add ( print_access_dot_name isub_name dot_at_when attr_ty isup_attr
                            # hol_d [ \<open>is_represented_in_state\<close>
                                    , print_access_deref_oid_name isub_name
@@ -647,11 +647,11 @@ definition "print_access_is_repr = start_map'''' Thy_lemma_by o (\<lambda>expr d
        , Expr_rewrite (ap' vs_sel_any [ b v_aa, b var_tau ]) \<open>=\<close> (f_ss v_r) ])
      [ C.apply_end [ M.simp_all_only [] ]
      , C.apply_end [ M.simp_add (\<open>foundation16\<close> # hol_d [\<open>bot_option\<close>, \<open>null_option\<close>]) ] ]
- , C.apply [ M.drule (Thm_simplified (Thm_thm (if attr_ty' then
+ , C.apply [ M.drule (T.simplified (T.thm (if attr_ty' then
                                                var_select_object_sequence_any_exec
                                              else
                                                var_select_object_set_any_exec))
-                                   (Thm_thm \<open>foundation22\<close>)), M.erule (Thm_thm \<open>exE\<close>) ]
+                                   (T.thm \<open>foundation22\<close>)), M.erule (T.thm \<open>exE\<close>) ]
  (* *)
  , App_f' [v_e]
      (l_thes0
@@ -680,9 +680,9 @@ definition "print_access_is_repr = start_map'''' Thy_lemma_by o (\<lambda>expr d
                       \<open>=\<close>
                       (a \<open>Some\<close> (b v_aaa)) ])
  , C.apply [ M.case_tac (b v_aaa), M.auto_simp_add (hol_d [\<open>invalid\<close>, \<open>bot_option\<close>, \<open>image\<close>, \<open>ran\<close>]) ]
- , C.apply [ M.rule (Thm_where (Thm_thm \<open>exI\<close>) [(\<open>x\<close>, a (isub_name_to datatype_in) (b v_r))])
+ , C.apply [ M.rule (T.where (T.thm \<open>exI\<close>) [(\<open>x\<close>, a (isub_name_to datatype_in) (b v_r))])
        , M.simp_add_split (thol_d [print_astype_from_universe_name name_to, \<open>Let\<close>, var_reconst_basetype])
-                            [Thm_thm \<open>split_if_asm\<close>] ] ])
+                            [T.thm \<open>split_if_asm\<close>] ] ])
                 (C.by [ M.rule' ]) ] else [] (* TODO *))
       | _ \<Rightarrow> [] (* TODO *))) expr)"
 
