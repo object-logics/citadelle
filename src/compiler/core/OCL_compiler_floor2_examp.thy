@@ -88,7 +88,7 @@ definition "print_examp_def_st_locale = (\<lambda> OclDefSt n l \<Rightarrow> \<
  (\<lambda>d. (d, ocl))
   (print_examp_def_st_locale_make
     (\<open>state_\<close> @@ n)
-    (\<lambda> OclDefCoreBinding name \<Rightarrow> case List.assoc name (D_instance_rbt ocl) of Some n \<Rightarrow> n)
+    (\<lambda> OclDefCoreBinding name \<Rightarrow> case List.assoc name (D_input_instance ocl) of Some n \<Rightarrow> n)
     []
     l))"
 
@@ -98,7 +98,7 @@ definition "print_examp_def_st_defassoc_typecheck_gen l ocl =
          List.fold
            (\<lambda> OclDefCoreBinding name \<Rightarrow>
             \<lambda>(l, rbt).
-             ( ( (if List.assoc name (D_instance_rbt ocl) = None then
+             ( ( (if List.assoc name (D_input_instance ocl) = None then
                     Cons (Error, name)
                   else
                     id)
@@ -116,7 +116,7 @@ definition "print_examp_def_st_defassoc_typecheck_gen l ocl =
       \<open> error(s)\<close> ])"
 
 definition "print_examp_def_st_defassoc_typecheck = (\<lambda> OclDefSt _ l \<Rightarrow> \<lambda> ocl.
-  (\<lambda>l_res. (List_map Thy_ml' l_res, ocl \<lparr> D_import_compiler := True \<rparr>))
+  (\<lambda>l_res. (List_map Thy_ml' l_res, ocl \<lparr> D_output_header_force := True \<rparr>))
   (print_examp_def_st_defassoc_typecheck_gen
     l
     ocl))"
@@ -138,12 +138,12 @@ definition "print_examp_def_st_mapsto ocl l = list_bind id id
     l)"
 
 definition "print_examp_def_st2 = (\<lambda> OclDefSt name l \<Rightarrow> \<lambda>ocl.
- (\<lambda>(l, l_st). (List_map Thy_definition_hol' l, ocl \<lparr> D_state_rbt := (String_to_String\<^sub>b\<^sub>a\<^sub>s\<^sub>e name, l_st) # D_state_rbt ocl \<rparr>))
+ (\<lambda>(l, l_st). (List_map Thy_definition_hol' l, ocl \<lparr> D_input_state := (String_to_String\<^sub>b\<^sub>a\<^sub>s\<^sub>e name, l_st) # D_input_state ocl \<rparr>))
   (let b = \<lambda>s. Expr_basic [s]
-     ; l = List_map (\<lambda> OclDefCoreBinding name \<Rightarrow> map_option (Pair name) (List.assoc name (D_instance_rbt ocl))) l
+     ; l = List_map (\<lambda> OclDefCoreBinding name \<Rightarrow> map_option (Pair name) (List.assoc name (D_input_instance ocl))) l
      ; (rbt, (map_self, map_username)) =
          (init_map_class 
-           (ocl \<lparr> D_oid_start := oidReinitInh (D_oid_start ocl) \<rparr>)
+           (ocl \<lparr> D_ocl_oid_start := oidReinitInh (D_ocl_oid_start ocl) \<rparr>)
            (List_map (\<lambda> Some (_, ocli, _) \<Rightarrow> ocli | None \<Rightarrow> ocl_instance_single_empty) l)
           :: (_ \<Rightarrow> _ \<times> _ \<times> (_ \<Rightarrow> ((_ \<Rightarrow> nat \<Rightarrow> _ \<Rightarrow> _) \<Rightarrow> _
                         \<Rightarrow> (ocl_ty_class option \<times> (ocl_ty \<times> ocl_data_shallow) option) list) option)) \<times> _ \<times> _)
@@ -161,7 +161,7 @@ definition "print_examp_def_st2 = (\<lambda> OclDefSt name l \<Rightarrow> \<lam
 definition "print_examp_def_st_dom_name name = flatten [\<open>dom_\<close>, name]"
 definition "print_examp_def_st_dom = (\<lambda> _ ocl.
  (\<lambda> l. (List_map Thy_lemma_by' l, ocl))
-  (let (name, l_st) = map_prod String\<^sub>b\<^sub>a\<^sub>s\<^sub>e_to_String id (hd (D_state_rbt ocl))
+  (let (name, l_st) = map_prod String\<^sub>b\<^sub>a\<^sub>s\<^sub>e_to_String id (hd (D_input_state ocl))
      ; a = \<lambda>f x. Expr_app f [x]
      ; b = \<lambda>s. Expr_basic [s]
      ; d = hol_definition in
@@ -173,15 +173,15 @@ definition "print_examp_def_st_dom = (\<lambda> _ ocl.
 
 definition "print_examp_def_st_dom_lemmas = (\<lambda> _ ocl.
  (\<lambda> l. (List_map Thy_lemmas_simp' l, ocl))
-  (let (name, _) = hd (D_state_rbt ocl) in
+  (let (name, _) = hd (D_input_state ocl) in
    [ Lemmas_simp \<open>\<close>
        [T.thm (print_examp_def_st_dom_name (String\<^sub>b\<^sub>a\<^sub>s\<^sub>e_to_String name))] ]))"
 
 definition "print_examp_def_st_perm_name name = flatten [\<open>perm_\<close>, name]"
 definition "print_examp_def_st_perm = (\<lambda> _ ocl.
  (\<lambda> l. (List_map Thy_lemma_by' l, ocl))
-  (let (name, l_st) = map_prod String\<^sub>b\<^sub>a\<^sub>s\<^sub>e_to_String id (hd (D_state_rbt ocl))
-     ; expr_app = let ocl = ocl \<lparr> D_oid_start := oidReinitInh (D_oid_start ocl) \<rparr> in
+  (let (name, l_st) = map_prod String\<^sub>b\<^sub>a\<^sub>s\<^sub>e_to_String id (hd (D_input_state ocl))
+     ; expr_app = let ocl = ocl \<lparr> D_ocl_oid_start := oidReinitInh (D_ocl_oid_start ocl) \<rparr> in
                   print_examp_def_st_mapsto
                     ocl
                     (rev l_st)
@@ -215,8 +215,8 @@ definition "print_examp_def_st_allinst = (\<lambda> _ ocl.
                ( ocore
                , ocli
                , case ocore of OclDefCoreBinding (name, _) \<Rightarrow> b name))
-             (ocl \<lparr> D_oid_start := oidReinitInh (D_oid_start ocl) \<rparr>))
-           (hd (D_state_rbt ocl)) in
+             (ocl \<lparr> D_ocl_oid_start := oidReinitInh (D_ocl_oid_start ocl) \<rparr>))
+           (hd (D_input_state ocl)) in
    map_class_gen_h'_inh (\<lambda> isub_name name compare.
      let in_name = \<lambda>ocli. b (print_examp_instance_name (\<lambda>s. s @@ isub_of_str (inst_ty ocli)) (inst_name ocli))
        ; in_pers = \<lambda>ocli. a name (a (datatype_in @@ isub_of_str (inst_ty ocli)) (in_name ocli))
@@ -298,14 +298,14 @@ definition "print_examp_def_st_allinst = (\<lambda> _ ocl.
          (C.by (if l_spec = [] then [ M.simp ]
                    else only_assms [ M.option [M.simp_all_add [d (flatten [isub_name const_oclastype, \<open>_\<AA>\<close>])]]])) )
        (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l l = [ M.simp_all ] in if l_assum = [] then l else only_assms l))
-     (case D_class_spec ocl of Some class_spec \<Rightarrow> class_spec)))"
+     (case D_input_class ocl of Some class_spec \<Rightarrow> class_spec)))"
 
 definition "merge_unique_gen f l = List.fold (List.fold (\<lambda>x. case f x of Some (x, v) \<Rightarrow> RBT.insert x v | None \<Rightarrow> id)) l RBT.empty"
 definition "merge_unique f l = RBT.entries (merge_unique_gen f l)"
 definition "merge_unique' = List_map snd o merge_unique (\<lambda> (a, b). ((\<lambda>x. Some (x, (a, b))) o oidGetInh) a)"
 
 definition "get_state f = (\<lambda> OclDefPP _ s_pre s_post \<Rightarrow> \<lambda> ocl. 
-  let get_state = let l_st = D_state_rbt ocl in \<lambda>OclDefPPCoreBinding s \<Rightarrow> (s, case List.assoc s l_st of None \<Rightarrow> [] | Some l \<Rightarrow> l)
+  let get_state = let l_st = D_input_state ocl in \<lambda>OclDefPPCoreBinding s \<Rightarrow> (s, case List.assoc s l_st of None \<Rightarrow> [] | Some l \<Rightarrow> l)
     ; (s_pre, l_pre) = get_state s_pre
     ; (s_post, l_post) = case s_post of None \<Rightarrow> (s_pre, l_pre) | Some s_post \<Rightarrow> get_state s_post in
   f (s_pre, l_pre)

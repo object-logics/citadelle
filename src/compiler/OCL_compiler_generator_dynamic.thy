@@ -97,7 +97,7 @@ code_reflect' open OCL
              write_file
 
              (* manipulating the compiling environment *)
-             ocl_compiler_config_reset_all ocl_compiler_config_update oidInit D_file_out_path_dep_update map2_ctxt_term check_export_code
+             compiler_env_config_reset_all compiler_env_config_update oidInit D_output_header_thy_update map2_ctxt_term check_export_code
 
              (* printing the OCL AST to (deep Isabelle) string *)
              isabelle_apply isabelle_of_ocl_embed
@@ -515,9 +515,9 @@ datatype internal_deep = Internal_deep of (string * (string list (* imports *) *
                                         * Path.T (* tmp dir export_code *)
                                         * bool (* true: skip preview of code exportation *)
 
-datatype 'a generation_mode = Gen_deep of unit OCL.ocl_compiler_config_ext
+datatype 'a generation_mode = Gen_deep of unit OCL.compiler_env_config_ext
                                         * internal_deep
-                            | Gen_shallow of unit OCL.ocl_compiler_config_ext
+                            | Gen_shallow of unit OCL.compiler_env_config_ext
                                            * 'a (* theory init *)
                             | Gen_syntax_print of int option
 
@@ -554,18 +554,18 @@ val parse_sem_ocl =
   end
 
 val mode =
-  let fun mk_ocl disable_thy_output file_out_path_dep oid_start design_analysis sorry_mode dirty =
-    OCL.ocl_compiler_config_empty
-                    (From.from_bool disable_thy_output)
-                    (From.from_option (From.from_pair From.from_string (From.from_pair (From.from_list From.from_string) From.from_string)) file_out_path_dep)
+  let fun mk_ocl output_disable_thy output_header_thy oid_start design_analysis sorry_mode dirty =
+    OCL.compiler_env_config_empty
+                    (From.from_bool output_disable_thy)
+                    (From.from_option (From.from_pair From.from_string (From.from_pair (From.from_list From.from_string) From.from_string)) output_header_thy)
                     (OCL.oidInit (From.from_internal_oid (From.from_nat oid_start)))
                     design_analysis
                     (sorry_mode, dirty) in
 
-     @{keyword "deep"} |-- parse_sem_ocl -- parse_deep >> (fn ((design_analysis, oid_start), (((((skip_exportation, file_out_path_dep), disable_thy_output), sorry_mode), seri_args), filename_thy)) =>
+     @{keyword "deep"} |-- parse_sem_ocl -- parse_deep >> (fn ((design_analysis, oid_start), (((((skip_exportation, output_header_thy), output_disable_thy), sorry_mode), seri_args), filename_thy)) =>
        fn ctxt =>
-         Gen_deep ( mk_ocl (not disable_thy_output) file_out_path_dep oid_start design_analysis sorry_mode (Config.get ctxt quick_and_dirty)
-                  , Internal_deep (file_out_path_dep, seri_args, filename_thy, Isabelle_System.create_tmp_path "deep_export_code" "", skip_exportation)))
+         Gen_deep ( mk_ocl (not output_disable_thy) output_header_thy oid_start design_analysis sorry_mode (Config.get ctxt quick_and_dirty)
+                  , Internal_deep (output_header_thy, seri_args, filename_thy, Isabelle_System.create_tmp_path "deep_export_code" "", skip_exportation)))
   || @{keyword "shallow"} |-- parse_sem_ocl -- parse_sorry_mode >> (fn ((design_analysis, oid_start), sorry_mode) =>
        fn ctxt =>
        Gen_shallow (mk_ocl true NONE oid_start design_analysis sorry_mode (Config.get ctxt quick_and_dirty), ()))
@@ -579,7 +579,7 @@ fun f_command l_mode =
           (fn Gen_shallow (ocl, ()) => let val thy0 = thy in
                                        fn thy => (Gen_shallow (ocl, thy0), thy) end
             | Gen_syntax_print n => (fn thy => (Gen_syntax_print n, thy))
-            | Gen_deep (ocl, Internal_deep (file_out_path_dep, seri_args, filename_thy, tmp_export_code, skip_exportation)) => fn thy =>
+            | Gen_deep (ocl, Internal_deep (output_header_thy, seri_args, filename_thy, tmp_export_code, skip_exportation)) => fn thy =>
                 let val _ = warning ("remove the directory (at the end): " ^ Path.implode (Path.expand tmp_export_code))
                     val seri_args' = List_mapi (fn i => fn ((ml_compiler, ml_module), export_arg) =>
                       let val tmp_export_code = Deep.mk_path_export_code tmp_export_code ml_compiler i
@@ -600,7 +600,7 @@ fun f_command l_mode =
                               (Proof_Context.init_global (Code_printing.apply_code_printing (Deep0.apply_hs_code_identifiers Deep0.Export_code_env.Haskell.function thy)))
                     val () = fold (fn ((((ml_compiler, ml_module), _), _), mk_fic) => fn _ =>
                       Deep0.find_init ml_compiler mk_fic ml_module Deep.mk_free thy) seri_args' () in
-                (Gen_deep (ocl, Internal_deep (file_out_path_dep, seri_args, filename_thy, tmp_export_code, skip_exportation)), thy) end)
+                (Gen_deep (ocl, Internal_deep (output_header_thy, seri_args, filename_thy, tmp_export_code, skip_exportation)), thy) end)
           let val ctxt = Proof_Context.init_global thy in
               map (fn f => f ctxt) l_mode
           end
@@ -613,8 +613,8 @@ fun update_compiler_config f =
     (Symtab.map_entry
       Deep0.gen_empty
       (fn l_mode =>
-        map (fn Gen_deep (ocl, d) => Gen_deep (OCL.ocl_compiler_config_update f ocl, d)
-              | Gen_shallow (ocl, thy) => Gen_shallow (OCL.ocl_compiler_config_update f ocl, thy)
+        map (fn Gen_deep (ocl, d) => Gen_deep (OCL.compiler_env_config_update f ocl, d)
+              | Gen_shallow (ocl, thy) => Gen_shallow (OCL.compiler_env_config_update f ocl, thy)
               | Gen_syntax_print n => Gen_syntax_print n) l_mode))
 end
 *}
@@ -933,7 +933,7 @@ fun OCL_main aux ret = let open OCL open OCL_overload in fn
                        |> Local_Theory.exit_global)
 | Isab_thy_generation_syntax _ => ret o I
 | Isab_thy_ml_extended _ => ret o I
-| Isab_thy_ocl_deep_embed_ast ocl => fn thy =>
+| Isab_thy_all_meta_embedding ocl => fn thy =>
   aux
     (map2_ctxt_term
       (fn T_pure x => T_pure x
@@ -969,15 +969,15 @@ setup{* ML_Antiquotation.inline @{binding mk_string} (Scan.succeed "(fn ctxt => 
 
 ML{*
 
-fun exec_deep (ocl, file_out_path_dep, seri_args, filename_thy, tmp_export_code, l_obj) thy0 =
+fun exec_deep (ocl, output_header_thy, seri_args, filename_thy, tmp_export_code, l_obj) thy0 =
   let open Generation_mode in
   let val i_of_arg = OCL.isabelle_of_ocl_embed OCL.isabelle_apply I in
   let fun def s = in_local (snd o Specification.definition_cmd (NONE, ((@{binding ""}, []), s)) false) in
   let val name_main = Deep.mk_free (Proof_Context.init_global thy0) Deep0.Export_code_env.Isabelle.argument_main [] in
   thy0 |> def (String.concatWith " " (  "(" (* polymorphism weakening needed by export_code *)
-                                        ^ name_main ^ " :: (_ \<times> abr_string option) ocl_compiler_config_scheme)"
+                                        ^ name_main ^ " :: (_ \<times> abr_string option) compiler_env_config_scheme)"
                                     :: "="
-                                    :: To_string0 (i_of_arg (OCL.ocl_compiler_config_more_map (fn () => (l_obj, From.from_option From.from_string (Option.map (fn filename_thy => Deep.absolute_path filename_thy thy0) filename_thy))) ocl))
+                                    :: To_string0 (i_of_arg (OCL.compiler_env_config_more_map (fn () => (l_obj, From.from_option From.from_string (Option.map (fn filename_thy => Deep.absolute_path filename_thy thy0) filename_thy))) ocl))
                                     :: []))
        |> Deep.export_code_cmd' seri_args tmp_export_code
             (fn (((_, _), msg), _) => fn err => if err <> 0 then error msg else ()) filename_thy [name_main]
@@ -987,7 +987,7 @@ fun exec_deep (ocl, file_out_path_dep, seri_args, filename_thy, tmp_export_code,
              end)
        |> (fn (l_warn, s) =>
              let val () = writeln
-               (case (file_out_path_dep, filename_thy) of
+               (case (output_header_thy, filename_thy) of
                   (SOME _, SOME _) => s
                 | _ => String.concat (map ((fn s => s ^ "\n") o Active.sendback_markup [Markup.padding_command] o trim_line)
                    (String.tokens (fn c => From.from_char c = OCL.char_escape) s))) in
@@ -1017,14 +1017,14 @@ fun outer_syntax_command0 mk_string cmd_spec cmd_descr parser get_oclclass =
                                   name) in
                   (Gen_syntax_print n, thy)
                   end)
-           | Gen_deep (ocl, Internal_deep (file_out_path_dep, seri_args, filename_thy, tmp_export_code, skip_exportation)) =>
+           | Gen_deep (ocl, Internal_deep (output_header_thy, seri_args, filename_thy, tmp_export_code, skip_exportation)) =>
               (fn thy0 =>
                 let val l_obj = get_oclclass thy0 in
                 thy0 |> (if skip_exportation then
                            K ()
                          else
-                           exec_deep (OCL.d_file_out_path_dep_update (fn _ => NONE) ocl, file_out_path_dep, seri_args, NONE, tmp_export_code, l_obj))
-                     |> K (Gen_deep (OCL.fold_thy_deep l_obj ocl, Internal_deep (file_out_path_dep, seri_args, filename_thy, tmp_export_code, skip_exportation)), thy0)
+                           exec_deep (OCL.d_output_header_thy_update (fn _ => NONE) ocl, output_header_thy, seri_args, NONE, tmp_export_code, l_obj))
+                     |> K (Gen_deep (OCL.fold_thy_deep l_obj ocl, Internal_deep (output_header_thy, seri_args, filename_thy, tmp_export_code, skip_exportation)), thy0)
                 end)
            | Gen_shallow (ocl, thy0) => fn thy =>
              let fun aux (ocl, thy) x =
@@ -1071,9 +1071,9 @@ val () = let open Generation_mode in
             val _ = case l of [] => warning "Nothing to perform." | _ => ()
             val thy =
         fold
-          (fn (ocl, Internal_deep (file_out_path_dep, seri_args, filename_thy, tmp_export_code, _)) => fn thy0 =>
-                thy0 |> let val (ocl, l_exec) = OCL.ocl_compiler_config_reset_all ocl in
-                        exec_deep (ocl, file_out_path_dep, seri_args, filename_thy, tmp_export_code, l_exec) end
+          (fn (ocl, Internal_deep (output_header_thy, seri_args, filename_thy, tmp_export_code, _)) => fn thy0 =>
+                thy0 |> let val (ocl, l_exec) = OCL.compiler_env_config_reset_all ocl in
+                        exec_deep (ocl, output_header_thy, seri_args, filename_thy, tmp_export_code, l_exec) end
                      |> K thy0)
           l
           thy
@@ -1354,7 +1354,7 @@ val () =
   outer_syntax_command @{mk_string} @{command_keyword Enum} ""
     (Parse.binding -- parse_l1' Parse.binding)
     (fn (n1, n2) => 
-      K (OCL.OclAstEnum (OCL.OclEnum (From.from_binding n1, From.from_list From.from_binding n2))))
+      K (OCL.META_enum (OCL.OclEnum (From.from_binding n1, From.from_list From.from_binding n2))))
 *}
 
 subsection{* Outer Syntax: (abstract) class *}
@@ -1368,13 +1368,13 @@ local
       (   Parse.binding --| Parse.$$$ "=" -- USE_parse.type_base >> USE_class_synonym
        ||    type_object
           -- class >> USE_class_content)
-      (curry OCL.OclAstClassRaw OCL.Floor1)
-      (curry OCL.OclAstClassRaw OCL.Floor2)
-      (fn (from_expr, OclAstClassRaw) =>
+      (curry OCL.META_class_raw OCL.Floor1)
+      (curry OCL.META_class_raw OCL.Floor2)
+      (fn (from_expr, META_class_raw) =>
        fn USE_class_content (ty_object, (attribute, oper)) =>
-            OclAstClassRaw (Outer_syntax_Class.make from_expr (abstract = USE_class_abstract) ty_object attribute oper)
+            META_class_raw (Outer_syntax_Class.make from_expr (abstract = USE_class_abstract) ty_object attribute oper)
         | USE_class_synonym (n1, n2) => 
-            OCL.OclAstClassSynonym (OCL.OclClassSynonym (From.from_binding n1, n2)))
+            OCL.META_class_synonym (OCL.OclClassSynonym (From.from_binding n1, n2)))
 in
 val () = mk_classDefinition USE_class @{command_keyword Class}
 val () = mk_classDefinition USE_class_abstract @{command_keyword Abstract_class}
@@ -1393,7 +1393,7 @@ local
        ||     optional Parse.binding
           |-- association)
       (fn l => fn _ =>
-        OCL.OclAstAssociation (Outer_syntax_Association.make ass_ty l))
+        OCL.META_association (Outer_syntax_Association.make ass_ty l))
 in
 val () = mk_associationDefinition OCL.OclAssTy_association @{command_keyword Association}
 val () = mk_associationDefinition OCL.OclAssTy_composition @{command_keyword Composition}
@@ -1416,11 +1416,11 @@ local
        -- association
        -- class
        -- optional (Parse.reserved "aggregation" || Parse.reserved "composition"))
-      (curry OCL.OclAstAssClass OCL.Floor1)
-      (curry OCL.OclAstAssClass OCL.Floor2)
-      (fn (from_expr, OclAstAssClass) =>
+      (curry OCL.META_ass_class OCL.Floor1)
+      (curry OCL.META_ass_class OCL.Floor2)
+      (fn (from_expr, META_ass_class) =>
        fn (((ty_object, l_ass), (attribute, oper)), assty) =>
-          OclAstAssClass (OCL.OclAssClass ( Outer_syntax_Association.make (case assty of SOME "aggregation" => OCL.OclAssTy_aggregation
+          META_ass_class (OCL.OclAssClass ( Outer_syntax_Association.make (case assty of SOME "aggregation" => OCL.OclAssTy_aggregation
                                                                                        | SOME "composition" => OCL.OclAssTy_composition
                                                                                        | _ => OCL.OclAssTy_association)
                                                                           l_ass
@@ -1442,11 +1442,11 @@ val () =
     (optional (Parse.list1 Parse.binding --| colon)
      -- Parse.binding
      -- context)
-    (curry OCL.OclAstCtxt OCL.Floor1)
-    (curry OCL.OclAstCtxt OCL.Floor2)
-    (fn (from_expr, OclAstCtxt) =>
+    (curry OCL.META_ctxt OCL.Floor1)
+    (curry OCL.META_ctxt OCL.Floor2)
+    (fn (from_expr, META_ctxt) =>
     (fn ((l_param, name), l) => 
-    OclAstCtxt
+    META_ctxt
       (OCL.Ocl_ctxt_ext
         ( case l_param of NONE => [] | SOME l => From.from_list From.from_binding l
         , OCL.OclTyObj (OCL.OclTyCore_pre (From.from_binding name), [])
@@ -1464,7 +1464,7 @@ val () =
                     || Parse.$$$ "!" >> K true) false)
     (fn b => fn _ =>
        if b then
-         [OCL.OclAstFlushAll OCL.OclFlushAll]
+         [OCL.META_flush_all OCL.OclFlushAll]
        else
          [])
 *}
@@ -1475,7 +1475,7 @@ ML{*
 val () =
   outer_syntax_command @{mk_string} @{command_keyword BaseType} ""
     (parse_l' USE_parse.term_base)
-    (K o OCL.OclAstDefBaseL o OCL.OclDefBase)
+    (K o OCL.META_def_base_l o OCL.OclDefBase)
 
 local
   open USE_parse
@@ -1483,14 +1483,14 @@ in
 val () =
   outer_syntax_command @{mk_string} @{command_keyword Instance} ""
     (Scan.optional (parse_instance -- Scan.repeat (optional @{keyword "and"} |-- parse_instance) >> (fn (x, xs) => x :: xs)) [])
-    (OCL.OclAstInstance oo get_oclinst)
+    (OCL.META_instance oo get_oclinst)
 
 val () =
   outer_syntax_command @{mk_string} @{command_keyword State} ""
     (USE_parse.optional (paren @{keyword "shallow"}) -- Parse.binding --| @{keyword "="}
      -- state_parse)
      (fn ((is_shallow, name), l) => fn thy =>
-      OCL.OclAstDefState
+      OCL.META_def_state
         ( if is_shallow = NONE then OCL.Floor1 else OCL.Floor2
         , OCL.OclDefSt (From.from_binding name, mk_state thy l)))
 end
@@ -1509,7 +1509,7 @@ val () =
      -- state_pp_parse
      -- USE_parse.optional state_pp_parse)
     (fn (((is_shallow, n), s_pre), s_post) => fn thy =>
-      OCL.OclAstDefPrePost
+      OCL.META_def_pre_post
         ( if is_shallow = NONE then OCL.Floor1 else OCL.Floor2
         , OCL.OclDefPP ( From.from_option From.from_binding n
                        , mk_pp_state thy s_pre

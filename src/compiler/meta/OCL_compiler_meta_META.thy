@@ -61,94 +61,94 @@ datatype floor = Floor1 | Floor2 | Floor3
 (* *)
 
 (* le meta-model de "tout le monde" - frederic. *)
-datatype ocl_deep_embed_ast =
+datatype all_meta_embedding =
   (* For the following constructors, if they are preceded by an additional
      'floor' field, then it indicates the degre of reflection
      (otherwise degre = Floor1 by default). *)
   (* TODO: we can merge Enum and ClassRaw into a common record *)
 
                               (* USE *)
-                              OclAstEnum ocl_enum
-                            | OclAstClassRaw floor ocl_class_raw
-                            | OclAstAssociation ocl_association
-                            | OclAstAssClass floor ocl_ass_class
-                            | OclAstCtxt floor ocl_ctxt
+                              META_enum ocl_enum
+                            | META_class_raw floor ocl_class_raw
+                            | META_association ocl_association
+                            | META_ass_class floor ocl_ass_class
+                            | META_ctxt floor ocl_ctxt
 
                               (* invented *)
-                            | OclAstClassSynonym ocl_class_synonym
-                            | OclAstInstance ocl_instance
-                            | OclAstDefBaseL ocl_def_base_l
-                            | OclAstDefState floor ocl_def_state
-                            | OclAstDefPrePost floor ocl_def_pre_post
-                            | OclAstFlushAll ocl_flush_all
+                            | META_class_synonym ocl_class_synonym
+                            | META_instance ocl_instance
+                            | META_def_base_l ocl_def_base_l
+                            | META_def_state floor ocl_def_state
+                            | META_def_pre_post floor ocl_def_pre_post
+                            | META_flush_all ocl_flush_all
 
 (* *)
 
-datatype ocl_deep_mode = Gen_only_design | Gen_only_analysis | Gen_default
-datatype ocl_sorry_mode = Gen_sorry | Gen_no_dirty
+datatype generation_semantics_ocl = Gen_only_design | Gen_only_analysis | Gen_default
+datatype generation_lemma_mode = Gen_sorry | Gen_no_dirty
 
-record ocl_compiler_config =  D_disable_thy_output :: bool
-                              D_file_out_path_dep :: "(string (* theory *)
+record compiler_env_config =  D_output_disable_thy :: bool
+                              D_output_header_thy :: "(string (* theory *)
                                                       \<times> string list (* imports *)
                                                       \<times> string (* import optional (compiler bootstrap) *)) option"
-                              D_oid_start :: internal_oids
+                              D_ocl_oid_start :: internal_oids
                               D_output_position :: "nat \<times> nat"
-                              D_design_analysis :: ocl_deep_mode
-                              D_class_spec :: "ocl_class option"
-                                              (* last class considered for the generation *)
-                              D_ocl_env :: "ocl_deep_embed_ast list"
-                              D_instance_rbt :: "(string\<^sub>b\<^sub>a\<^sub>s\<^sub>e (* name (as key for rbt) *)
-                                                 \<times> ocl_instance_single
-                                                 \<times> internal_oids) list"
-                                                (* instance namespace environment *)
-                              D_state_rbt :: "(string\<^sub>b\<^sub>a\<^sub>s\<^sub>e (* name (as key for rbt) *)
-                                              \<times> (internal_oids
-                                              \<times> (string (* name *)
+                              D_ocl_semantics :: generation_semantics_ocl
+                              D_input_class :: "ocl_class option"
+                                               (* last class considered for the generation *)
+                              D_input_meta :: "all_meta_embedding list"
+                              D_input_instance :: "(string\<^sub>b\<^sub>a\<^sub>s\<^sub>e (* name (as key for rbt) *)
+                                                   \<times> ocl_instance_single
+                                                   \<times> internal_oids) list"
+                                                  (* instance namespace environment *)
+                              D_input_state :: "(string\<^sub>b\<^sub>a\<^sub>s\<^sub>e (* name (as key for rbt) *)
+                                                \<times> (internal_oids
+                                                \<times> (string (* name *)
                                                   \<times> ocl_instance_single (* alias *))
-                                                      ocl_def_state_core) list) list"
-                                             (* state namespace environment *)
-                              D_import_compiler :: bool (* true : the header should import the compiler for bootstrapping *)
-                              D_generation_syntax_shallow :: bool (* true : add the generation_syntax command *)
-                              D_accessor_rbt :: " string\<^sub>b\<^sub>a\<^sub>s\<^sub>e (* name of the constant added *) list (* pre *)
+                                                  ocl_def_state_core) list) list"
+                                               (* state namespace environment *)
+                              D_output_header_force :: bool (* true : the header should import the compiler for bootstrapping *)
+                              D_output_auto_bootstrap :: bool (* true : add the generation_syntax command *)
+                              D_ocl_accessor :: " string\<^sub>b\<^sub>a\<^sub>s\<^sub>e (* name of the constant added *) list (* pre *)
                                                 \<times> string\<^sub>b\<^sub>a\<^sub>s\<^sub>e (* name of the constant added *) list (* post *)"
-                              D_higher_order_ty :: "(string\<^sub>b\<^sub>a\<^sub>s\<^sub>e (* raw HOL name (as key for rbt) *)) list"
-                              D_sorry_dirty :: "ocl_sorry_mode option \<times> bool (* dirty *)" (* Some Gen_sorry or None and {dirty}: activate sorry mode for skipping proofs *)
+                              D_ocl_HO_type :: "(string\<^sub>b\<^sub>a\<^sub>s\<^sub>e (* raw HOL name (as key for rbt) *)) list"
+                              D_output_sorry_dirty :: "generation_lemma_mode option \<times> bool (* dirty *)" (* Some Gen_sorry or None and {dirty}: activate sorry mode for skipping proofs *)
 
 subsection{* Auxilliary *}
 
-definition "generate_meta = (\<lambda> OclAstClassRaw Floor1 _ \<Rightarrow> True
-                            | OclAstAssClass Floor1 _ \<Rightarrow> True
-                            | OclAstCtxt Floor1 _ \<Rightarrow> True
-                            | OclAstDefState Floor1 _ \<Rightarrow> True
-                            | OclAstDefPrePost Floor1 _ \<Rightarrow> True
-                            | _ \<Rightarrow> False)"
+definition "ignore_meta_header = (\<lambda> META_class_raw Floor1 _ \<Rightarrow> True
+                                  | META_ass_class Floor1 _ \<Rightarrow> True
+                                  | META_ctxt Floor1 _ \<Rightarrow> True
+                                  | META_def_state Floor1 _ \<Rightarrow> True
+                                  | META_def_pre_post Floor1 _ \<Rightarrow> True
+                                  | _ \<Rightarrow> False)"
 
 definition "map2_ctxt_term f =
  (let f_prop = \<lambda> OclProp_ctxt n prop \<Rightarrow> OclProp_ctxt n (f prop)
     ; f_inva = \<lambda> T_inv b prop \<Rightarrow> T_inv b (f_prop prop) in
-  \<lambda> OclAstCtxt Floor2 c \<Rightarrow>
-    OclAstCtxt Floor2
+  \<lambda> META_ctxt Floor2 c \<Rightarrow>
+    META_ctxt Floor2
       (Ctxt_clause_update
         (List_map (\<lambda> Ctxt_pp pp \<Rightarrow> Ctxt_pp (Ctxt_expr_update (List_map (\<lambda> T_pp pref prop \<Rightarrow> T_pp pref (f_prop prop)
                                                                         | T_invariant inva \<Rightarrow> T_invariant (f_inva inva))) pp)
                    | Ctxt_inv l_inv \<Rightarrow> Ctxt_inv (f_inva l_inv))) c)
   | x \<Rightarrow> x)"
 
-definition "ocl_compiler_config_more_map f ocl =
-            ocl_compiler_config.extend  (ocl_compiler_config.truncate ocl) (f (ocl_compiler_config.more ocl))"
+definition "compiler_env_config_more_map f ocl =
+            compiler_env_config.extend  (compiler_env_config.truncate ocl) (f (compiler_env_config.more ocl))"
 
 section{* SML Meta-Model (extended) *}
 subsection{* type definition *}
 
-datatype sml_expr_extended = Sexpr_extended sml_expr
-                           | Sexpr_ocl ocl_compiler_config
+datatype sml_extended = SML_extended sml_expr
+                      | SML_ocl compiler_env_config
 
 section{* Isabelle/HOL Meta-Model (extended) *}
 subsection{* type definition *}
 
-datatype hol_generation_syntax = Generation_syntax_shallow ocl_deep_mode
+datatype hol_generation_syntax = Gen_semantics generation_semantics_ocl
 
-datatype hol_ml_extended = Ml_extended sml_expr_extended
+datatype hol_ml_extended = Ml_extended sml_extended
 
 datatype hol_thy_extended = (* pure Isabelle *)
                             Isab_thy hol__thy
@@ -156,7 +156,7 @@ datatype hol_thy_extended = (* pure Isabelle *)
                             (* bootstrapping embedded languages *)
                           | Isab_thy_generation_syntax hol_generation_syntax
                           | Isab_thy_ml_extended hol_ml_extended
-                          | Isab_thy_ocl_deep_embed_ast ocl_deep_embed_ast
+                          | Isab_thy_all_meta_embedding all_meta_embedding
 
 subsection{* ... *}
 

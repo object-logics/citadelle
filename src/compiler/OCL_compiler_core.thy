@@ -65,7 +65,7 @@ datatype ('a, 'b) hol_theory = Hol_theory_ext "('a \<Rightarrow> 'b \<Rightarrow
                              | Hol_theory_locale "'a \<Rightarrow> 'b \<Rightarrow> hol__thy_locale \<times> 'b"
                                                  "('a \<Rightarrow> 'b \<Rightarrow> hol__t list \<times> 'b) list"
 
-type_synonym 'a h_theory = "('a, ocl_compiler_config) hol_theory" (* polymorphism weakening needed by code_reflect *)
+type_synonym 'a h_theory = "('a, compiler_env_config) hol_theory" (* polymorphism weakening needed by code_reflect *)
 
 definition "L_fold f =
  (\<lambda> Hol_theory_ext l \<Rightarrow> List.fold f l
@@ -384,45 +384,45 @@ definition "thy_ctxt = (\<lambda> Floor1 \<Rightarrow> Hol_theory_ext
 definition "thy_flush_all = Hol_theory_ext []"
 (* NOTE typechecking functions can be put at the end, however checking already defined constants can be done earlier *)
 
-definition "ocl_compiler_config_empty disable_thy_output file_out_path_dep oid_start design_analysis sorry_dirty =
-  ocl_compiler_config.make
-    disable_thy_output
-    file_out_path_dep
+definition "compiler_env_config_empty output_disable_thy output_header_thy oid_start design_analysis sorry_dirty =
+  compiler_env_config.make
+    output_disable_thy
+    output_header_thy
     oid_start
     (0, 0)
     design_analysis
     None [] [] [] False False ([], []) []
     sorry_dirty"
 
-definition "ocl_compiler_config_reset_no_env ocl =
-  ocl_compiler_config_empty
-    (D_disable_thy_output ocl)
-    (D_file_out_path_dep ocl)
-    (oidReinitAll (D_oid_start ocl))
-    (D_design_analysis ocl)
-    (D_sorry_dirty ocl)
-    \<lparr> D_ocl_env := D_ocl_env ocl \<rparr>"
+definition "compiler_env_config_reset_no_env ocl =
+  compiler_env_config_empty
+    (D_output_disable_thy ocl)
+    (D_output_header_thy ocl)
+    (oidReinitAll (D_ocl_oid_start ocl))
+    (D_ocl_semantics ocl)
+    (D_output_sorry_dirty ocl)
+    \<lparr> D_input_meta := D_input_meta ocl \<rparr>"
 
-definition "ocl_compiler_config_reset_all ocl =
-  (let ocl = ocl_compiler_config_reset_no_env ocl in
-   ( ocl \<lparr> D_ocl_env := [] \<rparr>
+definition "compiler_env_config_reset_all ocl =
+  (let ocl = compiler_env_config_reset_no_env ocl in
+   ( ocl \<lparr> D_input_meta := [] \<rparr>
    , let (l_class, l_ocl) = find_class_ass ocl in
      List_flatten
        [ l_class
-       , List.filter (\<lambda> OclAstFlushAll _ \<Rightarrow> False | _ \<Rightarrow> True) l_ocl
-       , [OclAstFlushAll OclFlushAll] ] ))"
+       , List.filter (\<lambda> META_flush_all _ \<Rightarrow> False | _ \<Rightarrow> True) l_ocl
+       , [META_flush_all OclFlushAll] ] ))"
 
-definition "ocl_compiler_config_update f ocl =
+definition "compiler_env_config_update f ocl =
   (* WARNING The semantics of the meta-embedded language is not intended to be reset here (like oid_start), only syntactic configurations of the compiler (path, etc...) *)
   f ocl
-    \<lparr> D_disable_thy_output := D_disable_thy_output ocl
-    , D_file_out_path_dep := D_file_out_path_dep ocl
-    , D_design_analysis := D_design_analysis ocl
-    , D_sorry_dirty := D_sorry_dirty ocl \<rparr>"
+    \<lparr> D_output_disable_thy := D_output_disable_thy ocl
+    , D_output_header_thy := D_output_header_thy ocl
+    , D_ocl_semantics := D_ocl_semantics ocl
+    , D_output_sorry_dirty := D_output_sorry_dirty ocl \<rparr>"
 
 definition "fold_thy0 meta thy_object0 f =
   L_fold (\<lambda>x (acc1, acc2).
-    let (sorry, dirty) = D_sorry_dirty acc1
+    let (sorry, dirty) = D_output_sorry_dirty acc1
       ; (l, acc1) = x meta acc1 in
     (f (if sorry = Some Gen_sorry | sorry = None & dirty then
           List_map (hol_map_thy (hol_map_lemma (\<lambda> Lemma n spec _ _ \<Rightarrow> Lemma n spec [] C.sorry
@@ -432,41 +432,41 @@ definition "fold_thy0 meta thy_object0 f =
 
 definition "ocl_env_class_spec_rm f_fold f ocl_accu =
   (let (ocl, accu) = f_fold f ocl_accu in
-   (ocl \<lparr> D_class_spec := None \<rparr>, accu))"
+   (ocl \<lparr> D_input_class := None \<rparr>, accu))"
 
 definition "ocl_env_save ast f_fold f ocl_accu =
   (let (ocl, accu) = f_fold f ocl_accu in
-   (ocl \<lparr> D_ocl_env := ast # D_ocl_env ocl \<rparr>, accu))"
+   (ocl \<lparr> D_input_meta := ast # D_input_meta ocl \<rparr>, accu))"
 
 definition "ocl_env_class_spec_mk f_try f_accu_reset f_fold f =
   (\<lambda> (ocl, accu).
     f_fold f
-      (case D_class_spec ocl of Some _ \<Rightarrow> (ocl, accu) | None \<Rightarrow>
+      (case D_input_class ocl of Some _ \<Rightarrow> (ocl, accu) | None \<Rightarrow>
        let (l_class, l_ocl) = find_class_ass ocl
-         ; (l_enum, l_ocl) = partition (\<lambda>OclAstEnum _ \<Rightarrow> True | _ \<Rightarrow> False) l_ocl in
+         ; (l_enum, l_ocl) = partition (\<lambda>META_enum _ \<Rightarrow> True | _ \<Rightarrow> False) l_ocl in
        (f_try (\<lambda> () \<Rightarrow>
-         let D_ocl_env0 = D_ocl_env ocl
+         let D_input_meta0 = D_input_meta ocl
            ; (ocl, accu) =
-               let meta = class_unflat (arrange_ass True (D_design_analysis ocl \<noteq> Gen_default) l_class (List_map (\<lambda> OclAstEnum e \<Rightarrow> e) l_enum))
-                 ; (ocl, accu) = List.fold (\<lambda> ast. ocl_env_save ast (case ast of OclAstEnum meta \<Rightarrow> fold_thy0 meta thy_enum) f)
+               let meta = class_unflat (arrange_ass True (D_ocl_semantics ocl \<noteq> Gen_default) l_class (List_map (\<lambda> META_enum e \<Rightarrow> e) l_enum))
+                 ; (ocl, accu) = List.fold (\<lambda> ast. ocl_env_save ast (case ast of META_enum meta \<Rightarrow> fold_thy0 meta thy_enum) f)
                                            l_enum
-                                           (let ocl = ocl_compiler_config_reset_no_env ocl in
-                                            (ocl \<lparr> D_ocl_env := List.filter (\<lambda> OclAstEnum _ \<Rightarrow> False | _ \<Rightarrow> True) (D_ocl_env ocl) \<rparr>, f_accu_reset ocl accu))
+                                           (let ocl = compiler_env_config_reset_no_env ocl in
+                                            (ocl \<lparr> D_input_meta := List.filter (\<lambda> META_enum _ \<Rightarrow> False | _ \<Rightarrow> True) (D_input_meta ocl) \<rparr>, f_accu_reset ocl accu))
                  ; (ocl, accu) = fold_thy0 meta thy_class f (ocl, accu) in
-               (ocl \<lparr> D_class_spec := Some meta \<rparr>, accu)
+               (ocl \<lparr> D_input_class := Some meta \<rparr>, accu)
            ; (ocl, accu) =
                List.fold
                  (\<lambda>ast. ocl_env_save ast (case ast of
-                     OclAstInstance meta \<Rightarrow> fold_thy0 meta thy_instance
-                   | OclAstDefBaseL meta \<Rightarrow> fold_thy0 meta thy_def_base_l
-                   | OclAstDefState floor meta \<Rightarrow> fold_thy0 meta (thy_def_state floor)
-                   | OclAstDefPrePost floor meta \<Rightarrow> fold_thy0 meta (thy_def_pre_post floor)
-                   | OclAstCtxt floor meta \<Rightarrow> fold_thy0 meta (thy_ctxt floor)
-                   | OclAstFlushAll meta \<Rightarrow> fold_thy0 meta thy_flush_all)
+                     META_instance meta \<Rightarrow> fold_thy0 meta thy_instance
+                   | META_def_base_l meta \<Rightarrow> fold_thy0 meta thy_def_base_l
+                   | META_def_state floor meta \<Rightarrow> fold_thy0 meta (thy_def_state floor)
+                   | META_def_pre_post floor meta \<Rightarrow> fold_thy0 meta (thy_def_pre_post floor)
+                   | META_ctxt floor meta \<Rightarrow> fold_thy0 meta (thy_ctxt floor)
+                   | META_flush_all meta \<Rightarrow> fold_thy0 meta thy_flush_all)
                         f)
                  l_ocl
-                 (ocl \<lparr> D_ocl_env := List_flatten [l_class, l_enum] \<rparr>, accu) in
-          (ocl \<lparr> D_ocl_env := D_ocl_env0 \<rparr>, accu)))))"
+                 (ocl \<lparr> D_input_meta := List_flatten [l_class, l_enum] \<rparr>, accu) in
+          (ocl \<lparr> D_input_meta := D_input_meta0 \<rparr>, accu)))))"
 
 definition "ocl_env_class_spec_bind l f =
   List.fold (\<lambda>x. x f) l"
@@ -475,26 +475,26 @@ definition "fold_thy' f_try f_accu_reset f =
  (let ocl_env_class_spec_mk = ocl_env_class_spec_mk f_try f_accu_reset in
   List.fold (\<lambda> ast.
     ocl_env_save ast (case ast of
-     OclAstEnum meta \<Rightarrow> ocl_env_class_spec_rm (fold_thy0 meta thy_enum_flat)
-   | OclAstClassRaw Floor1 meta \<Rightarrow> ocl_env_class_spec_rm (fold_thy0 meta thy_class_flat)
-   | OclAstAssociation meta \<Rightarrow> ocl_env_class_spec_rm (fold_thy0 meta thy_association)
-   | OclAstAssClass Floor1 (OclAssClass meta_ass meta_class) \<Rightarrow>
+     META_enum meta \<Rightarrow> ocl_env_class_spec_rm (fold_thy0 meta thy_enum_flat)
+   | META_class_raw Floor1 meta \<Rightarrow> ocl_env_class_spec_rm (fold_thy0 meta thy_class_flat)
+   | META_association meta \<Rightarrow> ocl_env_class_spec_rm (fold_thy0 meta thy_association)
+   | META_ass_class Floor1 (OclAssClass meta_ass meta_class) \<Rightarrow>
        ocl_env_class_spec_rm (ocl_env_class_spec_bind [ fold_thy0 meta_ass thy_association
                                                       , fold_thy0 meta_class thy_class_flat ])
-   | OclAstClassSynonym meta \<Rightarrow> ocl_env_class_spec_rm (fold_thy0 meta thy_class_synonym)
-   | OclAstInstance meta \<Rightarrow> ocl_env_class_spec_mk (fold_thy0 meta thy_instance)
-   | OclAstDefBaseL meta \<Rightarrow> fold_thy0 meta thy_def_base_l
-   | OclAstDefState floor meta \<Rightarrow> ocl_env_class_spec_mk (fold_thy0 meta (thy_def_state floor))
-   | OclAstDefPrePost floor meta \<Rightarrow> fold_thy0 meta (thy_def_pre_post floor)
-   | OclAstCtxt floor meta \<Rightarrow> ocl_env_class_spec_mk (fold_thy0 meta (thy_ctxt floor))
-   | OclAstFlushAll meta \<Rightarrow> ocl_env_class_spec_mk (fold_thy0 meta thy_flush_all)) f))"
+   | META_class_synonym meta \<Rightarrow> ocl_env_class_spec_rm (fold_thy0 meta thy_class_synonym)
+   | META_instance meta \<Rightarrow> ocl_env_class_spec_mk (fold_thy0 meta thy_instance)
+   | META_def_base_l meta \<Rightarrow> fold_thy0 meta thy_def_base_l
+   | META_def_state floor meta \<Rightarrow> ocl_env_class_spec_mk (fold_thy0 meta (thy_def_state floor))
+   | META_def_pre_post floor meta \<Rightarrow> fold_thy0 meta (thy_def_pre_post floor)
+   | META_ctxt floor meta \<Rightarrow> ocl_env_class_spec_mk (fold_thy0 meta (thy_ctxt floor))
+   | META_flush_all meta \<Rightarrow> ocl_env_class_spec_mk (fold_thy0 meta thy_flush_all)) f))"
 
 definition "fold_thy_shallow f_try f_accu_reset x = 
   fold_thy'
     f_try
     f_accu_reset
     (\<lambda>l acc1.
-      map_prod (\<lambda> ocl. ocl \<lparr> D_ocl_env := D_ocl_env acc1 \<rparr>) id
+      map_prod (\<lambda> ocl. ocl \<lparr> D_input_meta := D_input_meta acc1 \<rparr>) id
       o List.fold x l
       o Pair acc1)"
 

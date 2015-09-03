@@ -53,8 +53,8 @@ subsection{* context *}
 
 definition "print_ctxt_const ctxt ocl =
  (let Ty_par = Ty_apply_paren \<open>(\<close> \<open>)\<close> (* because of potential ambiguities *)
-    ; l_enum = List.map_filter (\<lambda> OclAstEnum e \<Rightarrow> Some e | _ \<Rightarrow> None) (D_ocl_env ocl)
-    ; l_syn = List.map_filter (\<lambda> OclAstClassSynonym c \<Rightarrow> Some c | _ \<Rightarrow> None) (D_ocl_env ocl) in
+    ; l_enum = List.map_filter (\<lambda> META_enum e \<Rightarrow> Some e | _ \<Rightarrow> None) (D_input_meta ocl)
+    ; l_syn = List.map_filter (\<lambda> META_class_synonym c \<Rightarrow> Some c | _ \<Rightarrow> None) (D_input_meta ocl) in
   map_prod (map_prod id (rev o List_map Thy_ty_synonym)) (rev o List_map Thy_consts_class)
     (List.fold
       (\<lambda> Ctxt_inv _ \<Rightarrow> id
@@ -76,10 +76,10 @@ definition "print_ctxt_const ctxt ocl =
                       (List_flatten
                           [ List_map snd (Ctxt_fun_ty_arg ctxt)
                           , [ case Ctxt_fun_ty_out ctxt of None \<Rightarrow> OclTy_base_void | Some s \<Rightarrow> s ] ])
-                      ([], D_higher_order_ty ocl, l_isab_ty) in
+                      ([], D_ocl_HO_type ocl, l_isab_ty) in
               ( map_prod
-                  (let ocl = ocl \<lparr> D_accessor_rbt := f_update_ocl (\<lambda> l. String_to_String\<^sub>b\<^sub>a\<^sub>s\<^sub>e name # l) (D_accessor_rbt ocl) \<rparr> in
-                   (\<lambda> D_higher_order_ty. ocl \<lparr> D_higher_order_ty := D_higher_order_ty \<rparr>))
+                  (let ocl = ocl \<lparr> D_ocl_accessor := f_update_ocl (\<lambda> l. String_to_String\<^sub>b\<^sub>a\<^sub>s\<^sub>e name # l) (D_ocl_accessor ocl) \<rparr> in
+                   (\<lambda> D_ocl_HO_type. ocl \<lparr> D_ocl_HO_type := D_ocl_HO_type \<rparr>))
                   id
                   l
               , Consts_raw0
@@ -87,8 +87,8 @@ definition "print_ctxt_const ctxt ocl =
                   (ty_arrow (Ty_apply (Ty_base \<open>val\<close>) [Ty_base \<open>\<AA>\<close>, Ty_base \<open>'\<alpha>\<close>] # rev l_name))
                   (mk_dot attr_n var_at_when_ocl)
                   (Some (natural_of_nat (length (Ctxt_fun_ty_arg ctxt)))) # l_isab_const))
-            [ (var_at_when_hol_post, var_at_when_ocl_post, update_D_accessor_rbt_post)
-            , (var_at_when_hol_pre, var_at_when_ocl_pre, update_D_accessor_rbt_pre)])
+            [ (var_at_when_hol_post, var_at_when_ocl_post, update_D_ocl_accessor_post)
+            , (var_at_when_hol_pre, var_at_when_ocl_pre, update_D_ocl_accessor_pre)])
       (Ctxt_clause ctxt)
       ((ocl, []), [])))"
 
@@ -96,7 +96,7 @@ definition "print_ctxt = (\<lambda>ctxt. bootstrap_floor
   (\<lambda>l ocl.
     let ((ocl, l_isab_ty), l_isab) = print_ctxt_const ctxt ocl in
     (List_flatten [l_isab_ty, l_isab, l], ocl))
-  [ Isab_thy_ocl_deep_embed_ast (OclAstCtxt Floor2
+  [ Isab_thy_all_meta_embedding (META_ctxt Floor2
       (map_invariant (\<lambda>T_inv b (OclProp_ctxt n p) \<Rightarrow>
                        T_inv b (OclProp_ctxt n (T_lambdas (Ctxt_param ctxt @@@@ [var_self]) p)))
                      (map_pre_post (\<lambda>pref ctxt. T_lambdas (make_ctxt_free_var pref ctxt))

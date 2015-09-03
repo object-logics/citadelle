@@ -53,31 +53,31 @@ subsection{* type definition *}
 datatype sml_val_fun = Sval
                      | Sfun
 
-datatype sml_expr = Sexpr_string string
-                  | Sexpr_rewrite sml_val_fun sml_expr (* left *) string (* symb rewriting *) sml_expr (* right *)
-                  | Sexpr_basic "string list"
-                  | Sexpr_oid string (* prefix *) internal_oid
-                  | Sexpr_binop sml_expr string sml_expr
-                  | Sexpr_annot sml_expr string (* type *)
-                  | Sexpr_function "(sml_expr (* pattern *) \<times> sml_expr (* to return *)) list"
-                  | Sexpr_apply string "sml_expr list"
-                  | Sexpr_paren string (* left *) string (* right *) sml_expr
-                  | Sexpr_let_open string sml_expr
+datatype sml_expr = SML_string string
+                  | SML_rewrite sml_val_fun sml_expr (* left *) string (* symb rewriting *) sml_expr (* right *)
+                  | SML_basic "string list"
+                  | SML_oid string (* prefix *) internal_oid
+                  | SML_binop sml_expr string sml_expr
+                  | SML_annot sml_expr string (* type *)
+                  | SML_function "(sml_expr (* pattern *) \<times> sml_expr (* to return *)) list"
+                  | SML_apply string "sml_expr list"
+                  | SML_paren string (* left *) string (* right *) sml_expr
+                  | SML_let_open string sml_expr
 
 section{* ... *}
 
 locale SML
 begin
-definition "string' = Sexpr_string"
-definition "rewrite = Sexpr_rewrite"
-definition "basic = Sexpr_basic"
-definition "oid = Sexpr_oid"
-definition "binop = Sexpr_binop"
-definition "annot = Sexpr_annot"
-definition "function = Sexpr_function"
-definition "apply = Sexpr_apply"
-definition "paren = Sexpr_paren"
-definition "let_open = Sexpr_let_open"
+definition "string' = SML_string"
+definition "rewrite = SML_rewrite"
+definition "basic = SML_basic"
+definition "oid = SML_oid"
+definition "binop = SML_binop"
+definition "annot = SML_annot"
+definition "function = SML_function"
+definition "apply = SML_apply"
+definition "paren = SML_paren"
+definition "let_open = SML_let_open"
 
 definition "none = basic [\<open>NONE\<close>]"
 definition "some s = apply \<open>SOME\<close> [s]"

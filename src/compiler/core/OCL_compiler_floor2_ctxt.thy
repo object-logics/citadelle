@@ -104,8 +104,8 @@ definition "print_ctxt_to_ocl_gen l_access f var = (\<lambda> T_pure t \<Rightar
     else
       s) t))"
 
-definition "print_ctxt_to_ocl_pre ocl = print_ctxt_to_ocl_gen (snd (D_accessor_rbt ocl)) print_ctxt_is_name_at_post var_at_when_hol_pre"
-definition "print_ctxt_to_ocl_post ocl = print_ctxt_to_ocl_gen (fst (D_accessor_rbt ocl)) print_ctxt_is_name_at_pre var_at_when_hol_post"
+definition "print_ctxt_to_ocl_pre ocl = print_ctxt_to_ocl_gen (snd (D_ocl_accessor ocl)) print_ctxt_is_name_at_post var_at_when_hol_pre"
+definition "print_ctxt_to_ocl_post ocl = print_ctxt_to_ocl_gen (fst (D_ocl_accessor ocl)) print_ctxt_is_name_at_pre var_at_when_hol_post"
 
 definition "raise_ml_unbound f_msg ctxt =
         [ (\<lambda>_. [Thy_ml (raise_ml (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l l = List_flatten (List_mapi (\<lambda> n. \<lambda>(msg, T_pure t) \<Rightarrow>
@@ -192,7 +192,7 @@ definition "print_ctxt_pre_post = (\<lambda>f. map_prod List_flatten id o f) o f
             # Thy_thm (Thm [T.thm name])
             # (case let name = name0 None in
                     print_ctxt_pre_post_interp
-                      (D_sorry_dirty ocl)
+                      (D_output_sorry_dirty ocl)
                       name
                       ctxt
                       (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l v = b var_self in
@@ -215,7 +215,7 @@ definition "print_ctxt_pre_post = (\<lambda>f. map_prod List_flatten id o f) o f
                                              \<open>\<equiv>\<close>
                                              (dot_expr (Expr_postunary (b var_x) (b (dot_astype ty_name))) f_escape))) ]))
                   ()
-                  (case D_class_spec ocl of Some class_spec \<Rightarrow> class_spec))))
+                  (case D_input_class ocl of Some class_spec \<Rightarrow> class_spec))))
         # raise_ml_unbound
           (\<lambda>n pref. flatten [\<open>(\<close>, natural_of_str (n + 1), \<open>) \<close>, if pref = OclCtxtPre then \<open>pre\<close> else \<open>post\<close>])
           l_ctxt in

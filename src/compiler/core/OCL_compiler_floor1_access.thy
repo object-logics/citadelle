@@ -51,9 +51,9 @@ section{* Translation of AST *}
 
 subsection{* accessors *}
 
-definition "print_access_oid_uniq_gen Thy_def D_oid_start_upd def_rewrite =
+definition "print_access_oid_uniq_gen Thy_def D_ocl_oid_start_upd def_rewrite =
   (\<lambda>expr ocl.
-      (\<lambda>(l, oid_start). (List_map Thy_def l, D_oid_start_upd ocl oid_start))
+      (\<lambda>(l, oid_start). (List_map Thy_def l, D_ocl_oid_start_upd ocl oid_start))
       (let (l, (acc, _)) = fold_class (\<lambda>isub_name name l_attr l_inh _ _ cpt.
          let l_inh = List_map (\<lambda> OclClass _ l _ \<Rightarrow> l) (of_inh l_inh) in
          let (l, cpt) = fold_list (fold_list
@@ -68,7 +68,7 @@ definition "print_access_oid_uniq_gen Thy_def D_oid_start_upd def_rewrite =
              , cpt_rbt))
             | _ \<Rightarrow> \<lambda>cpt. ([], cpt)))
            (l_attr # l_inh) cpt in
-         (List_flatten (List_flatten l), cpt)) (D_oid_start ocl, RBT.empty) expr in
+         (List_flatten (List_flatten l), cpt)) (D_ocl_oid_start ocl, RBT.empty) expr in
        (List_flatten l, acc)))"
 definition "print_access_oid_uniq_ml =
   print_access_oid_uniq_gen
@@ -82,7 +82,7 @@ definition "print_access_oid_uniq_ml =
 definition "print_access_oid_uniq =
   print_access_oid_uniq_gen
     Thy_definition_hol
-    (\<lambda>ocl oid_start. ocl \<lparr> D_oid_start := oid_start \<rparr>)
+    (\<lambda>ocl oid_start. ocl \<lparr> D_ocl_oid_start := oid_start \<rparr>)
     (\<lambda>obj_name_from_nat _ isub_name attr cpt_obj.
       Definition (Expr_rewrite
                    (Expr_basic [print_access_oid_uniq_name obj_name_from_nat isub_name attr])
@@ -323,7 +323,7 @@ definition "print_access_select_obj = start_map'''' Thy_definition_hol o (\<lamb
       (l_attr # l_inh) RBT.empty))) expr)))) expr)"
 
 definition "print_access_dot_consts =
- (fold_list (\<lambda>(f_update, x) ocl. (Thy_consts_class x, ocl \<lparr> D_accessor_rbt := f_update (D_accessor_rbt ocl) \<rparr> ))) o
+ (fold_list (\<lambda>(f_update, x) ocl. (Thy_consts_class x, ocl \<lparr> D_ocl_accessor := f_update (D_ocl_accessor ocl) \<rparr> ))) o
   (List_flatten o List_flatten o map_class (\<lambda>isub_name name l_attr _ _ _.
     List_map (\<lambda>(attr_n, attr_ty).
       List_map
@@ -355,8 +355,8 @@ definition "print_access_dot_consts =
                 | Some dot_name \<Rightarrow> dot_name)
                            | _ \<Rightarrow> dot_name)
             None))
-        [ (var_at_when_hol_post, var_at_when_ocl_post, update_D_accessor_rbt_post)
-        , (var_at_when_hol_pre, var_at_when_ocl_pre, update_D_accessor_rbt_pre)]) l_attr))"
+        [ (var_at_when_hol_post, var_at_when_ocl_post, update_D_ocl_accessor_post)
+        , (var_at_when_hol_pre, var_at_when_ocl_pre, update_D_ocl_accessor_pre)]) l_attr))"
 
 definition "print_access_dot_name isub_name dot_at_when attr_ty isup_attr =
   flatten [ isup_attr (let dot_name = isub_name \<open>dot\<close> in

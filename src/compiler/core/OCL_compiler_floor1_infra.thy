@@ -53,7 +53,7 @@ subsection{* infrastructure *}
 
 definition "print_infra_enum_synonym _ ocl = (\<lambda>f. (f (fst (find_class_ass ocl)), ocl))
  (List_flatten o List_map
-   (\<lambda> OclAstClassSynonym (OclClassSynonym n1 n2) \<Rightarrow>
+   (\<lambda> META_class_synonym (OclClassSynonym n1 n2) \<Rightarrow>
         [ Thy_ty_synonym (Type_synonym' (pref_ty_syn n1) (Ty_base (str_hol_of_ty_all (\<lambda>a _. a) id n2))) ]
     | _ \<Rightarrow> []))"
 
@@ -89,13 +89,13 @@ definition "print_infra_datatype_universe expr = start_map Thy_dataty
   [ Datatype \<open>\<AA>\<close>
       (map_class (\<lambda>isub_name _ _ _ _ _. (isub_name datatype_in, [Raw (isub_name datatype_name)])) expr) ]"
 
-definition "print_infra_enum_syn _ ocl = (\<lambda>f1 f2. (List_flatten [f1 (D_ocl_env ocl), f2 (fst (find_class_ass ocl))], ocl))
+definition "print_infra_enum_syn _ ocl = (\<lambda>f1 f2. (List_flatten [f1 (D_input_meta ocl), f2 (fst (find_class_ass ocl))], ocl))
  (List_flatten o List_map
-    (\<lambda> OclAstEnum (OclEnum name_ty _) \<Rightarrow>
+    (\<lambda> META_enum (OclEnum name_ty _) \<Rightarrow>
          [Thy_ty_synonym (Type_synonym' name_ty (Ty_apply (Ty_base (pref_generic_enum name_ty)) [Ty_base \<open>\<AA>\<close>]))]
      | _ \<Rightarrow> []))
  (List_flatten o List_map
-    (\<lambda> OclAstClassSynonym (OclClassSynonym name_ty ty) \<Rightarrow>
+    (\<lambda> META_class_synonym (OclClassSynonym name_ty ty) \<Rightarrow>
          [Thy_ty_synonym (Type_synonym' name_ty (Ty_base (str_of_ty ty)))]
      | _ \<Rightarrow> []))"
 
@@ -127,7 +127,7 @@ definition "print_infra_type_synonym_class_higher expr = start_map Thy_ty_synony
       expr))"
 
 definition "print_infra_type_synonym_class_rec = (\<lambda>expr ocl.
-  map_prod id (\<lambda> D_higher_order_ty. ocl \<lparr> D_higher_order_ty := D_higher_order_ty \<rparr>)
+  map_prod id (\<lambda> D_ocl_HO_type. ocl \<lparr> D_ocl_HO_type := D_ocl_HO_type \<rparr>)
     (List_split (List_map (\<lambda>(tit, body). (Thy_ty_synonym (Type_synonym' (String\<^sub>b\<^sub>a\<^sub>s\<^sub>e_to_String tit) body), tit))
                           (snd (fold_class (\<lambda>_ _ l_attr _ _ _.
                                              Pair () o List.fold

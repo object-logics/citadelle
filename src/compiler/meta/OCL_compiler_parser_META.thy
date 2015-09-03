@@ -51,39 +51,39 @@ begin
 
 section{* Generation to both Form (setup part) *}
 
-definition "ocl_compiler_config_rec0 f ocl = f
-  (D_disable_thy_output ocl)
-  (D_file_out_path_dep ocl)
-  (D_oid_start ocl)
+definition "compiler_env_config_rec0 f ocl = f
+  (D_output_disable_thy ocl)
+  (D_output_header_thy ocl)
+  (D_ocl_oid_start ocl)
   (D_output_position ocl)
-  (D_design_analysis ocl)
-  (D_class_spec ocl)
-  (D_ocl_env ocl)
-  (D_instance_rbt ocl)
-  (D_state_rbt ocl)
-  (D_import_compiler ocl)
-  (D_generation_syntax_shallow ocl)
-  (D_accessor_rbt ocl)
-  (D_higher_order_ty ocl)
-  (D_sorry_dirty ocl)"
+  (D_ocl_semantics ocl)
+  (D_input_class ocl)
+  (D_input_meta ocl)
+  (D_input_instance ocl)
+  (D_input_state ocl)
+  (D_output_header_force ocl)
+  (D_output_auto_bootstrap ocl)
+  (D_ocl_accessor ocl)
+  (D_ocl_HO_type ocl)
+  (D_output_sorry_dirty ocl)"
 
-definition "ocl_compiler_config_rec f ocl = ocl_compiler_config_rec0 f ocl
-  (ocl_compiler_config.more ocl)"
+definition "compiler_env_config_rec f ocl = compiler_env_config_rec0 f ocl
+  (compiler_env_config.more ocl)"
 
 (* *)
 
-lemma [code]: "ocl_compiler_config.extend = (\<lambda>ocl v. ocl_compiler_config_rec0 (co14 (\<lambda>f. f v) ocl_compiler_config_ext) ocl)"
-by(intro ext, simp add: ocl_compiler_config_rec0_def
-                        ocl_compiler_config.extend_def
+lemma [code]: "compiler_env_config.extend = (\<lambda>ocl v. compiler_env_config_rec0 (co14 (\<lambda>f. f v) compiler_env_config_ext) ocl)"
+by(intro ext, simp add: compiler_env_config_rec0_def
+                        compiler_env_config.extend_def
                         co14_def K_def)
-lemma [code]: "ocl_compiler_config.make = co14 (\<lambda>f. f ()) ocl_compiler_config_ext"
-by(intro ext, simp add: ocl_compiler_config.make_def
+lemma [code]: "compiler_env_config.make = co14 (\<lambda>f. f ()) compiler_env_config_ext"
+by(intro ext, simp add: compiler_env_config.make_def
                         co14_def)
-lemma [code]: "ocl_compiler_config.truncate = ocl_compiler_config_rec (co14 K ocl_compiler_config.make)"
-by(intro ext, simp add: ocl_compiler_config_rec0_def
-                        ocl_compiler_config_rec_def
-                        ocl_compiler_config.truncate_def
-                        ocl_compiler_config.make_def
+lemma [code]: "compiler_env_config.truncate = compiler_env_config_rec (co14 K compiler_env_config.make)"
+by(intro ext, simp add: compiler_env_config_rec0_def
+                        compiler_env_config_rec_def
+                        compiler_env_config.truncate_def
+                        compiler_env_config.make_def
                         co14_def K_def)
 
 subsection{* i of ... *} (* i_of *)
@@ -101,45 +101,45 @@ definition "i_of_floor a b = rec_floor
   (b \<open>Floor2\<close>)
   (b \<open>Floor3\<close>)"
 
-definition "i_of_ocl_deep_embed_ast a b = rec_ocl_deep_embed_ast
-  (ap1 a (b \<open>OclAstEnum\<close>) (i_of_ocl_enum a b))
-  (ap2 a (b \<open>OclAstClassRaw\<close>) (i_of_floor a b) (i_of_ocl_class_raw a b (K i_of_unit)))
-  (ap1 a (b \<open>OclAstAssociation\<close>) (i_of_ocl_association a b (K i_of_unit)))
-  (ap2 a (b \<open>OclAstAssClass\<close>) (i_of_floor a b) (i_of_ocl_ass_class a b))
-  (ap2 a (b \<open>OclAstCtxt\<close>) (i_of_floor a b) (i_of_ocl_ctxt a b (K i_of_unit)))
+definition "i_of_all_meta_embedding a b = rec_all_meta_embedding
+  (ap1 a (b \<open>META_enum\<close>) (i_of_ocl_enum a b))
+  (ap2 a (b \<open>META_class_raw\<close>) (i_of_floor a b) (i_of_ocl_class_raw a b (K i_of_unit)))
+  (ap1 a (b \<open>META_association\<close>) (i_of_ocl_association a b (K i_of_unit)))
+  (ap2 a (b \<open>META_ass_class\<close>) (i_of_floor a b) (i_of_ocl_ass_class a b))
+  (ap2 a (b \<open>META_ctxt\<close>) (i_of_floor a b) (i_of_ocl_ctxt a b (K i_of_unit)))
 
-  (ap1 a (b \<open>OclAstClassSynonym\<close>) (i_of_ocl_class_synonym a b))
-  (ap1 a (b \<open>OclAstInstance\<close>) (i_of_ocl_instance a b))
-  (ap1 a (b \<open>OclAstDefBaseL\<close>) (i_of_ocl_def_base_l a b))
-  (ap2 a (b \<open>OclAstDefState\<close>) (i_of_floor a b) (i_of_ocl_def_state a b))
-  (ap2 a (b \<open>OclAstDefPrePost\<close>) (i_of_floor a b) (i_of_ocl_def_pre_post a b))
-  (ap1 a (b \<open>OclAstFlushAll\<close>) (i_of_ocl_flush_all a b))"
+  (ap1 a (b \<open>META_class_synonym\<close>) (i_of_ocl_class_synonym a b))
+  (ap1 a (b \<open>META_instance\<close>) (i_of_ocl_instance a b))
+  (ap1 a (b \<open>META_def_base_l\<close>) (i_of_ocl_def_base_l a b))
+  (ap2 a (b \<open>META_def_state\<close>) (i_of_floor a b) (i_of_ocl_def_state a b))
+  (ap2 a (b \<open>META_def_pre_post\<close>) (i_of_floor a b) (i_of_ocl_def_pre_post a b))
+  (ap1 a (b \<open>META_flush_all\<close>) (i_of_ocl_flush_all a b))"
 
-definition "i_of_ocl_deep_mode a b = rec_ocl_deep_mode
+definition "i_of_generation_semantics_ocl a b = rec_generation_semantics_ocl
   (b \<open>Gen_only_design\<close>)
   (b \<open>Gen_only_analysis\<close>)
   (b \<open>Gen_default\<close>)"
 
-definition "i_of_ocl_sorry_mode a b = rec_ocl_sorry_mode
+definition "i_of_generation_lemma_mode a b = rec_generation_lemma_mode
   (b \<open>Gen_sorry\<close>)
   (b \<open>Gen_no_dirty\<close>)"
 
-definition "i_of_ocl_compiler_config a b f = ocl_compiler_config_rec
-  (ap15 a (b (ext \<open>ocl_compiler_config_ext\<close>))
+definition "i_of_compiler_env_config a b f = compiler_env_config_rec
+  (ap15 a (b (ext \<open>compiler_env_config_ext\<close>))
     (i_of_bool b)
     (i_of_option a b (i_of_pair a b (i_of_string a b) (i_of_pair a b (i_of_list a b (i_of_string a b)) (i_of_string a b))))
     (i_of_internal_oids a b)
     (i_of_pair a b (i_of_nat a b) (i_of_nat a b))
-    (i_of_ocl_deep_mode a b)
+    (i_of_generation_semantics_ocl a b)
     (i_of_option a b (i_of_ocl_class a b))
-    (i_of_list a b (i_of_ocl_deep_embed_ast a b))
+    (i_of_list a b (i_of_all_meta_embedding a b))
     (i_of_list a b (i_of_pair a b (i_of_string\<^sub>b\<^sub>a\<^sub>s\<^sub>e a b) (i_of_pair a b (i_of_ocl_instance_single a b (K i_of_unit)) (i_of_internal_oids a b))))
     (i_of_list a b (i_of_pair a b (i_of_string\<^sub>b\<^sub>a\<^sub>s\<^sub>e a b) (i_of_list a b (i_of_pair a b (i_of_internal_oids a b) (i_of_ocl_def_state_core a b (i_of_pair a b (i_of_string a b) (i_of_ocl_instance_single a b  (K i_of_unit))))))))
     (i_of_bool b)
     (i_of_bool b)
     (i_of_pair a b (i_of_list a b (i_of_string\<^sub>b\<^sub>a\<^sub>s\<^sub>e a b)) (i_of_list a b (i_of_string\<^sub>b\<^sub>a\<^sub>s\<^sub>e a b)))
     (i_of_list a b (i_of_string\<^sub>b\<^sub>a\<^sub>s\<^sub>e a b))
-    (i_of_pair a b (i_of_option a b (i_of_ocl_sorry_mode a b)) (i_of_bool b))
+    (i_of_pair a b (i_of_option a b (i_of_generation_lemma_mode a b)) (i_of_bool b))
     (f a b))"
 
 end
@@ -147,10 +147,10 @@ end
 lemmas [code] =
   i_of.i_of_ocl_flush_all_def
   i_of.i_of_floor_def
-  i_of.i_of_ocl_deep_embed_ast_def
-  i_of.i_of_ocl_deep_mode_def
-  i_of.i_of_ocl_sorry_mode_def
-  i_of.i_of_ocl_compiler_config_def
+  i_of.i_of_all_meta_embedding_def
+  i_of.i_of_generation_semantics_ocl_def
+  i_of.i_of_generation_lemma_mode_def
+  i_of.i_of_compiler_env_config_def
 
 subsubsection{* Isabelle *}
 
@@ -243,9 +243,9 @@ done
 
 context isabelle_of begin
   definition "ocl_embed a b =
-    i_of_ocl_compiler_config a b (\<lambda> a b.
+    i_of_compiler_env_config a b (\<lambda> a b.
       i_of_pair a b
-        (i_of_list a b (i_of_ocl_deep_embed_ast a b))
+        (i_of_list a b (i_of_all_meta_embedding a b))
         (i_of_option a b (i_of_string a b)))"
 end
 
@@ -350,7 +350,7 @@ sublocale sml_of < i_of "\<lambda>c. case String_to_list c of x # xs \<Rightarro
 done
 
 context sml_of begin
-  definition "ocl_unit a b = i_of_ocl_compiler_config a b (\<lambda> _. i_of_unit)"
+  definition "ocl_unit a b = i_of_compiler_env_config a b (\<lambda> _. i_of_unit)"
 end
 
 definition "sml_of_ocl_unit = sml_of.ocl_unit"

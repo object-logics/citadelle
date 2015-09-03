@@ -142,8 +142,8 @@ definition "var_OclForall_sequence = \<open>UML_Sequence.OclForall\<close>"
 definition "var_self = \<open>self\<close>"
 definition "var_result = \<open>result\<close>"
 definition "var_val' = \<open>val'\<close>"
-definition "update_D_accessor_rbt_pre f = (\<lambda>(l_pre, l_post). (f l_pre, l_post))"
-definition "update_D_accessor_rbt_post f = (\<lambda>(l_pre, l_post). (l_pre, f l_post))"
+definition "update_D_ocl_accessor_pre f = (\<lambda>(l_pre, l_post). (f l_pre, l_post))"
+definition "update_D_ocl_accessor_post f = (\<lambda>(l_pre, l_post). (l_pre, f l_post))"
 
 definition "Expr_basety = (let var_x = \<open>x\<close> in
                            Expr_lambdas [var_x, wildcard] (Expr_some (Expr_some (Expr_basic [var_x]))))"
@@ -153,19 +153,19 @@ subsection{* ... *}
 definition "find_class_ass ocl =
  (let (l_class, l_ocl) =
     partition (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l f = \<lambda>class. ClassRaw_clause class = [] in
-               \<lambda> OclAstClassRaw Floor1 class \<Rightarrow> f class
-               | OclAstAssociation _ \<Rightarrow> True
-               | OclAstAssClass Floor1 (OclAssClass _ class) \<Rightarrow> f class
-               | OclAstClassSynonym _ \<Rightarrow> True
-               | _ \<Rightarrow> False) (rev (D_ocl_env ocl)) in
+               \<lambda> META_class_raw Floor1 class \<Rightarrow> f class
+               | META_association _ \<Rightarrow> True
+               | META_ass_class Floor1 (OclAssClass _ class) \<Rightarrow> f class
+               | META_class_synonym _ \<Rightarrow> True
+               | _ \<Rightarrow> False) (rev (D_input_meta ocl)) in
   ( List_flatten [l_class, List.map_filter (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l f = \<lambda>class. class \<lparr> ClassRaw_clause := [] \<rparr> in
-                                       \<lambda> OclAstClassRaw Floor1 c \<Rightarrow> Some (OclAstClassRaw Floor1 (f c))
-                                       | OclAstAssClass Floor1 (OclAssClass ass class) \<Rightarrow> Some (OclAstAssClass Floor1 (OclAssClass ass (f class)))
+                                       \<lambda> META_class_raw Floor1 c \<Rightarrow> Some (META_class_raw Floor1 (f c))
+                                       | META_ass_class Floor1 (OclAssClass ass class) \<Rightarrow> Some (META_ass_class Floor1 (OclAssClass ass (f class)))
                                        | _ \<Rightarrow> None) l_ocl]
   , List_flatten (List_map
-      (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l f = \<lambda>class. [ OclAstCtxt Floor1 (ocl_ctxt_ext [] (ClassRaw_name class) (ClassRaw_clause class) ()) ] in
-       \<lambda> OclAstClassRaw Floor1 class \<Rightarrow> f class
-       | OclAstAssClass Floor1 (OclAssClass _ class) \<Rightarrow> f class
+      (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l f = \<lambda>class. [ META_ctxt Floor1 (ocl_ctxt_ext [] (ClassRaw_name class) (ClassRaw_clause class) ()) ] in
+       \<lambda> META_class_raw Floor1 class \<Rightarrow> f class
+       | META_ass_class Floor1 (OclAssClass _ class) \<Rightarrow> f class
        | x \<Rightarrow> [x]) l_ocl)))"
 
 definition "map_enum_syn l_enum l_syn =
@@ -179,10 +179,10 @@ definition "map_enum_syn l_enum l_syn =
   | x \<Rightarrow> x)"
 
 definition "arrange_ass with_aggreg with_optim_ass l_c l_enum =
-   (let l_syn = List.map_filter (\<lambda> OclAstClassSynonym e \<Rightarrow> Some e
+   (let l_syn = List.map_filter (\<lambda> META_class_synonym e \<Rightarrow> Some e
                                  | _ \<Rightarrow> None) l_c
-      ; l_class = List.map_filter (\<lambda> OclAstClassRaw Floor1 cflat \<Rightarrow> Some cflat
-                                   | OclAstAssClass Floor1 (OclAssClass _ cflat) \<Rightarrow> Some cflat
+      ; l_class = List.map_filter (\<lambda> META_class_raw Floor1 cflat \<Rightarrow> Some cflat
+                                   | META_ass_class Floor1 (OclAssClass _ cflat) \<Rightarrow> Some cflat
                                    | _ \<Rightarrow> None) l_c
       ; l_class = (* map classes: change the (enumeration) type of every attributes to 'raw'
                                 instead of the default 'object' type *)
@@ -191,8 +191,8 @@ definition "arrange_ass with_aggreg with_optim_ass l_c l_enum =
             cflat \<lparr> ClassRaw_own :=
                       List_map (map_prod id (map_enum_syn l_enum l_syn))
                                (ClassRaw_own cflat) \<rparr>) l_class
-    ; l_ass = List.map_filter (\<lambda> OclAstAssociation ass \<Rightarrow> Some ass
-                                 | OclAstAssClass Floor1 (OclAssClass ass _) \<Rightarrow> Some ass
+    ; l_ass = List.map_filter (\<lambda> META_association ass \<Rightarrow> Some ass
+                                 | META_ass_class Floor1 (OclAssClass ass _) \<Rightarrow> Some ass
                                  | _ \<Rightarrow> None) l_c
       ; OclMult = \<lambda>l set. ocl_multiplicity_ext l None set ()
       ; (l_class, l_ass0) = 
@@ -270,14 +270,14 @@ definition "split_ty name = List_map (\<lambda>s. hol_split (s @@ isub_of_str na
 definition "start_map f = fold_list (\<lambda>x acc. (f x, acc))"
 definition "start_map' f x accu = (f x, accu)"
 definition "start_map''' f fl = (\<lambda> ocl.
-  let design_analysis = D_design_analysis ocl
+  let design_analysis = D_ocl_semantics ocl
     ; base_attr = (if design_analysis = Gen_only_design then id else List_filter (\<lambda> (_, OclTy_object (OclTyObj (OclTyCore _) _)) \<Rightarrow> False | _ \<Rightarrow> True))
     ; base_attr' = (\<lambda> (l_attr, l_inh). (base_attr l_attr, List_map base_attr l_inh))
     ; base_attr'' = (\<lambda> (l_attr, l_inh). (base_attr l_attr, base_attr l_inh)) in
   start_map f (fl design_analysis base_attr base_attr' base_attr'') ocl)"
 definition "start_map'' f fl e = start_map''' f (\<lambda>_. fl) e"
-definition "start_map'''' f fl = (\<lambda> ocl. start_map f (fl (D_design_analysis ocl)) ocl)"
-definition "start_map''''' f fl = (\<lambda> ocl. start_map f (fl (D_sorry_dirty ocl) (D_design_analysis ocl)) ocl)"
+definition "start_map'''' f fl = (\<lambda> ocl. start_map f (fl (D_ocl_semantics ocl)) ocl)"
+definition "start_map''''' f fl = (\<lambda> ocl. start_map f (fl (D_output_sorry_dirty ocl) (D_ocl_semantics ocl)) ocl)"
 
 definition "start_m_gen final f print = start_map'' final o (\<lambda>expr base_attr _ _.
   m_class_gen2 base_attr f print expr)"
@@ -294,20 +294,20 @@ definition "activate_simp_optimization = True"
 
 definition "bootstrap_floor f_x l ocl =
  (let (l, ocl) = f_x l ocl
-    ; l_setup = Isab_thy_ml_extended (Ml_extended (Sexpr_ocl (ocl \<lparr> D_disable_thy_output := True
-                                                              , D_file_out_path_dep := None
+    ; l_setup = Isab_thy_ml_extended (Ml_extended (SML_ocl (ocl \<lparr> D_output_disable_thy := True
+                                                              , D_output_header_thy := None
                                                               , D_output_position := (0, 0) \<rparr>) ))
             # l
-    ; l = if case D_ocl_env ocl of [] \<Rightarrow> True | x # _ \<Rightarrow> generate_meta x then
+    ; l = if case D_input_meta ocl of [] \<Rightarrow> True | x # _ \<Rightarrow> ignore_meta_header x then
             l
           else
             l_setup in
-  ( if D_generation_syntax_shallow ocl then
+  ( if D_output_auto_bootstrap ocl then
       l
     else
-      Isab_thy_generation_syntax (Generation_syntax_shallow (D_design_analysis ocl))
+      Isab_thy_generation_syntax (Gen_semantics (D_ocl_semantics ocl))
       # l_setup
-  , ocl \<lparr> D_generation_syntax_shallow := True \<rparr> ))"
+  , ocl \<lparr> D_output_auto_bootstrap := True \<rparr> ))"
 
 subsection{* Infra *}
 

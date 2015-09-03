@@ -58,8 +58,8 @@ definition "List_iterM f l =
 context s_of
 begin
 definition "write_file ocl = (
-  let (l_thy, Sys_argv) = ocl_compiler_config.more ocl
-    ; (is_file, f_output) = case (D_file_out_path_dep ocl, Sys_argv)
+  let (l_thy, Sys_argv) = compiler_env_config.more ocl
+    ; (is_file, f_output) = case (D_output_header_thy ocl, Sys_argv)
      of (Some (file_out, _), Some dir) \<Rightarrow>
           let dir = To_string dir in
           (True, \<lambda>f. bind (Sys_is_directory2 dir) (\<lambda> Sys_is_directory2_dir.
@@ -75,8 +75,8 @@ definition "write_file ocl = (
              (\<lambda>_ _. [])
              (\<lambda>x acc1 acc2. (acc1, Cons x acc2))
              l_thy
-             (ocl_compiler_config.truncate ocl, []) in
-         s_of_thy_list (ocl_compiler_config_more_map (\<lambda>_. is_file) ocl) (rev l))))"
+             (compiler_env_config.truncate ocl, []) in
+         s_of_thy_list (compiler_env_config_more_map (\<lambda>_. is_file) ocl) (rev l))))"
 end
 
 definition "write_file = s_of.write_file (String.implode o String_to_list) (ToNat integer_of_natural)"
