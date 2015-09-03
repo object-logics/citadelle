@@ -268,7 +268,7 @@ definition "print_astype_up_d_cast = start_map O.lemma o
           ,[M.case_tac (Expr_binop (Expr_basic [var_tau]) \<open>\<Turnstile>\<close>
               (Expr_app \<open>\<delta>\<close> [Expr_basic [var_X]])), M.simp_add [print_astype_up_d_cast0_name name_any name_pers]]
           ,[M.simp_add [\<open>defined_split\<close>], M.elim (T.thm \<open>disjE\<close>)]
-          ,[M.plus' [M.erule (T.thm \<open>StrongEq_L_subst2_rev\<close>), M.simp, M.simp]]])
+          ,[M.plus [M.erule (T.thm \<open>StrongEq_L_subst2_rev\<close>), M.simp, M.simp]]])
         C.done)"
 
 definition "print_astype_d_up_cast = start_map O.lemma o

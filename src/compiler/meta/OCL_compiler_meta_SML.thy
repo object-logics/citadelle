@@ -68,7 +68,7 @@ section{* ... *}
 
 locale SML
 begin
-definition "string' = SML_string"
+no_type_notation abr_string ("string") definition "string = SML_string"
 definition "rewrite = SML_rewrite"
 definition "basic = SML_basic"
 definition "oid = SML_oid"
@@ -95,7 +95,7 @@ end
 
 lemmas [code] =
   (*def*)
-  SML.string'_def
+  SML.string_def
   SML.rewrite_def
   SML.basic_def
   SML.oid_def

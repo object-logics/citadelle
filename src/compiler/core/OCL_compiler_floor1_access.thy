@@ -503,7 +503,7 @@ definition "print_access_def_mono = start_map'''' O.lemma o (\<lambda>expr _.
                             , b var_X ])
                 (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l f_tac = \<lambda>s.
                    [ M.case_tac (f0 (Expr_warning_parenthesis (Expr_rewrite (b var_X) \<open>\<triangleq>\<close> (b s))))
-                   , M.insert' [T.where (T.thm \<open>StrongEq_L_subst2\<close>)
+                   , M.insert [T.where (T.thm \<open>StrongEq_L_subst2\<close>)
                                            [ (\<open>P\<close>, Expr_lam \<open>x\<close> (\<lambda>var_X. a \<open>\<delta>\<close> (dot_attr (b var_X))))
                                            , (\<open>\<tau>\<close>, b \<open>\<tau>\<close>)
                                            , (\<open>x\<close>, b var_X)
@@ -566,7 +566,7 @@ definition "print_access_is_repr = start_map'''' O.lemma o (\<lambda>expr design
    ; App_d_f = \<lambda>l e. if is_design then App_f l e else C.apply []
    ; App_f' = \<lambda>l. C.fix_let l []
    ; f_ss = \<lambda>v. a \<open>Some\<close> (a \<open>Some\<close> (b v)) in
- [ C.apply [M.insert' [T.simplified (T.OF (T.thm (print_access_def_mono_name isub_name dot_at_when attr_ty isup_attr))
+ [ C.apply [M.insert [T.simplified (T.OF (T.thm (print_access_def_mono_name isub_name dot_at_when attr_ty isup_attr))
                                            (T.thm var_def_dot))
                                    (T.thm \<open>foundation16\<close>)]]
  , C.apply [M.case_tac (a var_X (b var_tau)), M.simp_add [hol_definition \<open>bot_option\<close>]]
@@ -580,7 +580,7 @@ definition "print_access_is_repr = start_map'''' O.lemma o (\<lambda>expr design
  , App_f [v_a] (l_thes [ Expr_binop (a var_X (b var_tau)) \<open>=\<close> (f_ss v_a) ])
  , C.apply [M.case_tac (Expr_app \<open>heap\<close> [ a var_in_when_state (b var_tau)
                                           , a \<open>oid_of\<close> (b v_a)]), M.simp_add (hol_d [\<open>invalid\<close>, \<open>bot_option\<close>])]
- , C.apply [ M.insert' [T.thm \<open>def_dot\<close>]
+ , C.apply [ M.insert [T.thm \<open>def_dot\<close>]
        , M.simp_add_split ( T.thm (print_access_dot_name isub_name dot_at_when attr_ty isup_attr)
                             # thol_d [ \<open>is_represented_in_state\<close>
                                      , print_access_select_name isup_attr isub_name
@@ -594,7 +594,7 @@ definition "print_access_is_repr = start_map'''' O.lemma o (\<lambda>expr design
                                                            , a \<open>oid_of\<close> (b v_a)])
                                       \<open>=\<close>
                                       (a \<open>Some\<close> (b v_b)) ])
- , C.apply [ M.insert' [T.simplified (T.thm \<open>def_dot\<close>) (T.thm \<open>foundation16\<close>)]
+ , C.apply [ M.insert [T.simplified (T.thm \<open>def_dot\<close>) (T.thm \<open>foundation16\<close>)]
        , M.auto_simp_add ( print_access_dot_name isub_name dot_at_when attr_ty isup_attr
                            # hol_d [ \<open>is_represented_in_state\<close>
                                    , print_access_deref_oid_name isub_name
@@ -663,7 +663,7 @@ definition "print_access_is_repr = start_map'''' O.lemma o (\<lambda>expr design
                                               , var_reconst_basetype
                                               , v_e
                                               , var_tau ])) ])
-     [ C.apply_end [ M.plus' [M.blast None] ] ]
+     [ C.apply_end [ M.plus [M.blast None] ] ]
  , C.apply [ M.simp_add (hol_d [print_access_deref_oid_name isub_name_to]) ]
  , C.apply [ M.case_tac (Expr_app \<open>heap\<close> [ a var_in_when_state (b var_tau), b v_e ])
        , M.simp_add (hol_d [\<open>invalid\<close>, \<open>bot_option\<close>]), M.simp ]

@@ -177,7 +177,7 @@ definition "print_istypeof_defined = start_m O.lemma m_class_default
           (print_istypeof_defined_name isub_name h_name)
           [(var_isdef, False, f \<open>\<upsilon>\<close> (Expr_basic [var_X]))]
           (f \<open>\<delta>\<close> (Expr_postunary (Expr_annot_ocl (Expr_basic [var_X]) h_name) (Expr_basic [dot_istypeof name])))
-          [C.apply [M.insert' [T.simplified (T.thm var_isdef) (T.thm \<open>foundation18'\<close>) ]
+          [C.apply [M.insert [T.simplified (T.thm var_isdef) (T.thm \<open>foundation18'\<close>) ]
                ,M.simp_only [T.thm (hol_definition \<open>OclValid\<close>)]
                ,M.subst (T.thm \<open>cp_defined\<close>)]]
           (C.by [M.auto_simp_add_split ( T.symmetric (T.thm \<open>cp_defined\<close>)

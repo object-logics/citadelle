@@ -107,9 +107,9 @@ definition "print_iskindof_lemma_cp = start_m'3_gen O.lemma
       if next_dataty = [] then ([], C.by [ lem_simp1 , lem_simp2 ])
       else
       ( [ [ lem_simp1 ]
-        , [ M.plus'
+        , [ M.plus
             [ M.rule (T.where (T.thm \<open>cpI2\<close>) [(\<open>f\<close>, Expr_preunary (Expr_basic [\<open>op\<close>]) (Expr_basic [\<open>or\<close>]))])
-            , M.plus' [M.rule (T.thm \<open>allI\<close>)]
+            , M.plus [M.rule (T.thm \<open>allI\<close>)]
             , M.rule (T.thm \<open>cp_OclOr\<close>) ]]
         , [ lem_simp2 ] ]
       , C.by (List_map
@@ -206,7 +206,7 @@ definition "print_iskindof_up_eq_asty = start_map O.lemma o map_class_gen_h'''''
                (Expr_basic [dot_iskindof name]))))
         (List_map C.apply
         [ [ M.simp_only [T.thm (hol_definition \<open>OclValid\<close>)]
-          , M.insert' [T.thm var_isdef]]
+          , M.insert [T.thm var_isdef]]
         , List_flatten (fst (fold_list
                       (\<lambda> OclClass n _ next \<Rightarrow> \<lambda>accu.
                         let (l_subst, accu) = fold_list (\<lambda> _ (cpt, l_sub).
@@ -404,7 +404,7 @@ definition "print_iskindof_up_d_cast = start_map O.lemma o
                                 [ M.rule (T.thm (print_istypeof_up_d_cast_name name_pred name_any name_pers))
                                 , M.simp_only [] (* FIXME use wildcard *)
                                 , M.simp_only [T.thm var_isdef]] in
-           [ C.apply (  M.insert' [T.OF_l (T.thm (print_iskindof_up_istypeof_name name_mid name_any)) (List_map T.thm [var_iskin, var_isdef])]
+           [ C.apply (  M.insert [T.OF_l (T.thm (print_iskindof_up_istypeof_name name_mid name_any)) (List_map T.thm [var_iskin, var_isdef])]
                   # (case List_flatten [ name_pred_inh, name_pred_inh_sib ]
                      of [] \<Rightarrow> [] | [_] \<Rightarrow> [] | _ \<Rightarrow> [ M.elim (T.thm \<open>disjE\<close>) ]))]
            # List_map (C.apply o f0) name_pred_inh

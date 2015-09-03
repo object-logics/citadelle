@@ -109,7 +109,7 @@ definition "print_allinst_exec = start_map O.lemma o map_class_top (\<lambda>isu
          , C.have var_B (f_incl var_S2 var_S1) (C.by [M.auto])
          , C.have var_C (f_incl var_S1 var_S2) (C.by [M.auto_simp_add [print_allinst_astype_name isub_name]])
          , C.apply [M.simp_add_del [d \<open>OclValid\<close>] [d \<open>OclAllInstances_generic\<close>, flatten [isub_name const_ocliskindof, \<open>_\<close>, name]]] ])
-        (C.by [M.insert' [T.OF_l (T.thm \<open>equalityI\<close>) (List_map T.thm [var_B, var_C])], M.simp]))
+        (C.by [M.insert [T.OF_l (T.thm \<open>equalityI\<close>) (List_map T.thm [var_B, var_C])], M.simp]))
     [])"
 
 definition "print_allinst_istypeof_pre_name1 = \<open>ex_ssubst\<close>"

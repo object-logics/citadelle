@@ -422,9 +422,9 @@ definition "raise_ml l_out s = SML (SML.apply \<open>Ty'.check\<close>
                                            , case rep of Warning \<Rightarrow> \<open>Warning\<close>
                                                        | Error \<Rightarrow> \<open>Error\<close>
                                                        | Writeln \<Rightarrow> \<open>Writeln\<close> ]])
-                     (SML.string' s))
+                     (SML.string s))
         l_out
-    , SML.string' s ])"
+    , SML.string s ])"
 
 definition "print_examp_def_st_inst_var_name ocli name = flatten [case\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l Inst_name ocli of Some n \<Rightarrow> n, name]"
 
