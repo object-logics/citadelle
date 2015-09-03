@@ -51,7 +51,7 @@ section{* Translation of AST *}
 
 subsection{* allInstances *}
 
-definition "print_allinst_def_id = start_map Thy_definition_hol o
+definition "print_allinst_def_id = start_map O.definition_hol o
   map_class (\<lambda>isub_name name _ _ _ _.
     let const_astype = flatten [const_oclastype, isub_of_str name, \<open>_\<AA>\<close>] in
     Definition (Expr_rewrite (Expr_basic [name]) \<open>=\<close> (Expr_basic [const_astype])))"
@@ -60,12 +60,12 @@ definition "print_allinst_lemmas_id = start_map'
   (if activate_simp_optimization then
      \<lambda>expr.
        let name_set = map_class (\<lambda>_ name _ _ _ _. name) expr in
-       case name_set of [] \<Rightarrow> [] | _ \<Rightarrow> List_map Thy_lemmas_simp
+       case name_set of [] \<Rightarrow> [] | _ \<Rightarrow> List_map O.lemmas_simp
          [ Lemmas_simp \<open>\<close> (List_map (T.thm o hol_definition) name_set) ]
   else (\<lambda>_. []))"
 
 definition "print_allinst_astype_name isub_name = flatten [isub_name const_oclastype, \<open>_\<AA>\<close>, \<open>_some\<close>]"
-definition "print_allinst_astype = start_map Thy_lemma_by o map_class_top (\<lambda>isub_name name _ _ _ _.
+definition "print_allinst_astype = start_map O.lemma_by o map_class_top (\<lambda>isub_name name _ _ _ _.
   let b = \<lambda>s. Expr_basic [s]
     ; var_x = \<open>x\<close>
     ; d = hol_definition in
@@ -78,7 +78,7 @@ definition "print_allinst_astype = start_map Thy_lemma_by o map_class_top (\<lam
     []
     (C.by [M.simp_add [d (flatten [isub_name const_oclastype, \<open>_\<AA>\<close>])]])])"
 
-definition "print_allinst_exec = start_map Thy_lemma_by o map_class_top (\<lambda>isub_name name _ _ _ _.
+definition "print_allinst_exec = start_map O.lemma_by o map_class_top (\<lambda>isub_name name _ _ _ _.
   let b = \<lambda>s. Expr_basic [s]
     ; a = \<lambda>f x. Expr_app f [x]
     ; d = hol_definition
@@ -114,7 +114,7 @@ definition "print_allinst_exec = start_map Thy_lemma_by o map_class_top (\<lambd
 
 definition "print_allinst_istypeof_pre_name1 = \<open>ex_ssubst\<close>"
 definition "print_allinst_istypeof_pre_name2 = \<open>ex_def\<close>"
-definition "print_allinst_istypeof_pre = start_map Thy_lemma_by o (\<lambda>_.
+definition "print_allinst_istypeof_pre = start_map O.lemma_by o (\<lambda>_.
   [ Lemma
       print_allinst_istypeof_pre_name1
       (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l var_x = \<open>x\<close>
@@ -174,7 +174,7 @@ definition "print_allinst_istypeof_single isub_name name isub_name2 name2 const_
       (C.by [M.simp]))
       [])"
 
-definition "print_allinst_istypeof = start_map'' Thy_lemma_by o (\<lambda>expr base_attr _ _. map_class_gen (\<lambda>isub_name name l_attr _ _ next_dataty.
+definition "print_allinst_istypeof = start_map'' O.lemma_by o (\<lambda>expr base_attr _ _. map_class_gen (\<lambda>isub_name name l_attr _ _ next_dataty.
   let l_attr = base_attr l_attr in
   let b = \<lambda>s. Expr_basic [s]
     ; d = hol_definition
@@ -227,10 +227,10 @@ definition "print_allinst_istypeof = start_map'' Thy_lemma_by o (\<lambda>expr b
            (C.by [M.simp_add [d \<open>state.make\<close>, d \<open>OclNot\<close>]]))
         [M.simp]]) expr)"
 
-definition "print_allinst_iskindof_eq = start_map Thy_lemma_by o map_class_gen (\<lambda>isub_name name _ _ _ _.
+definition "print_allinst_iskindof_eq = start_map O.lemma_by o map_class_gen (\<lambda>isub_name name _ _ _ _.
   print_allinst_istypeof_single isub_name name isub_name name const_ocliskindof dot_iskindof id (\<lambda>_. []))"
 
-definition "print_allinst_iskindof_larger = start_map Thy_lemma_by o List_flatten o map_class_nupl2'_inh (\<lambda>name name2.
+definition "print_allinst_iskindof_larger = start_map O.lemma_by o List_flatten o map_class_nupl2'_inh (\<lambda>name name2.
   print_allinst_istypeof_single (\<lambda>s. s @@ isub_of_str name) name (\<lambda>s. s @@ isub_of_str name2) name2 const_ocliskindof dot_iskindof id (\<lambda>_. []))"
 
 end

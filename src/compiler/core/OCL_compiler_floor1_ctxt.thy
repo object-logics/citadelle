@@ -55,7 +55,7 @@ definition "print_ctxt_const ctxt ocl =
  (let Ty_par = Ty_apply_paren \<open>(\<close> \<open>)\<close> (* because of potential ambiguities *)
     ; l_enum = List.map_filter (\<lambda> META_enum e \<Rightarrow> Some e | _ \<Rightarrow> None) (D_input_meta ocl)
     ; l_syn = List.map_filter (\<lambda> META_class_synonym c \<Rightarrow> Some c | _ \<Rightarrow> None) (D_input_meta ocl) in
-  map_prod (map_prod id (rev o List_map Thy_ty_synonym)) (rev o List_map Thy_consts_class)
+  map_prod (map_prod id (rev o List_map O.ty_synonym)) (rev o List_map O.consts_class)
     (List.fold
       (\<lambda> Ctxt_inv _ \<Rightarrow> id
        | Ctxt_pp ctxt \<Rightarrow>

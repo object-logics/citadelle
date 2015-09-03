@@ -108,7 +108,7 @@ definition "print_ctxt_to_ocl_pre ocl = print_ctxt_to_ocl_gen (snd (D_ocl_access
 definition "print_ctxt_to_ocl_post ocl = print_ctxt_to_ocl_gen (fst (D_ocl_accessor ocl)) print_ctxt_is_name_at_pre var_at_when_hol_post"
 
 definition "raise_ml_unbound f_msg ctxt =
-        [ (\<lambda>_. [Thy_ml (raise_ml (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l l = List_flatten (List_mapi (\<lambda> n. \<lambda>(msg, T_pure t) \<Rightarrow>
+        [ (\<lambda>_. [O.ml (raise_ml (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l l = List_flatten (List_mapi (\<lambda> n. \<lambda>(msg, T_pure t) \<Rightarrow>
                                             let l =
                                               rev (P.fold_Free (\<lambda>l s.
                                                 (Error, flatten [f_msg n msg, \<open>: unbound value \<close>, s]) # l) [] t) in
@@ -122,7 +122,7 @@ definition "print_ctxt_pre_post_interp = (\<lambda>(sorry, dirty) name ctxt e_na
     ; f = \<lambda>(pref, e). List.foldr Expr_lambda (make_ctxt_free_var pref ctxt) e
     ; lg = length (Ctxt_fun_ty_arg ctxt) in
   if (sorry = Some Gen_sorry | sorry = None & dirty) & lg \<le> 3 then
-    Some (Thy_interpretation
+    Some (O.interpretation
       (Interpretation
         name
         (\<open>contract\<close> @@ nat_of_str lg)
@@ -183,13 +183,13 @@ definition "print_ctxt_pre_post = (\<lambda>f. map_prod List_flatten id o f) o f
                               False
                   then
                     ( print_ctxt_pre_post_name attr_n var_at_when_hol
-                    , Thy_axiom (Axiomatization (print_ctxt_pre_post_name attr_n var_at_when_hol (Some ty_name)) expr))
+                    , O.axiom (Axiomatization (print_ctxt_pre_post_name attr_n var_at_when_hol (Some ty_name)) expr))
                   else
                     ( print_ctxt_const_name attr_n var_at_when_hol
-                    , Thy_defs_overloaded (Defs_overloaded (print_ctxt_const_name attr_n var_at_when_hol (Some ty_name)) expr)))
+                    , O.defs_overloaded (Defs_overloaded (print_ctxt_const_name attr_n var_at_when_hol (Some ty_name)) expr)))
               ; name = name0 (Some ty_name) in
             def
-            # Thy_thm (Thm [T.thm name])
+            # O.thm (Thm [T.thm name])
             # (case let name = name0 None in
                     print_ctxt_pre_post_interp
                       (D_output_sorry_dirty ocl)
@@ -208,7 +208,7 @@ definition "print_ctxt_pre_post = (\<lambda>f. map_prod List_flatten id o f) o f
                     else
                       let var_x = \<open>x\<close>
                         ; f_escape = \<lambda>s. var_x @@ isub_of_str s in
-                      [ Thy_defs_overloaded
+                      [ O.defs_overloaded
                           (Defs_overloaded (flatten [ \<open>dot\<close>, isup_of_str attr_n, var_at_when_hol, \<open>_\<close>, name])
                                            (Expr_rewrite
                                              (dot_expr (Expr_annot_ocl (b var_x) name) f_escape)
@@ -233,7 +233,7 @@ definition "print_ctxt_inv = (\<lambda>f. map_prod List_flatten id o f) o fold_l
  List_map (\<lambda> (tit, T_pure t) \<Rightarrow>
     (List_map
       (\<lambda> (allinst_at_when, var_at_when, e) \<Rightarrow>
-        [ (\<lambda>ocl. [ Thy_definition_hol
+        [ (\<lambda>ocl. [ O.definition_hol
                      (Definition (Expr_rewrite
                                    (b (print_ctxt_inv_name Ctxt_ty_n tit var_at_when))
                                    \<open>=\<close>
@@ -253,6 +253,6 @@ definition "print_ctxt_thm ctxt = Pair
                                                    , var_at_when_hol_post ])
                               (fold_invariant' ctxt)) of 
     [] \<Rightarrow> []
-  | l \<Rightarrow> [ Thy_thm (Thm (List_map T.thm l)) ])"
+  | l \<Rightarrow> [ O.thm (Thm (List_map T.thm l)) ])"
 
 end

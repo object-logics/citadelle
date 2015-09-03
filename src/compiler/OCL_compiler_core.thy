@@ -75,11 +75,11 @@ definition "L_fold f =
             ; (l, b) = List.fold (\<lambda>f0. \<lambda>(l, b) \<Rightarrow> let (x, b) = f0 a b in (x # l, b)) l ([], b) in
           ([Isab_thy (H_thy_locale loc_data (rev l))], b)))"
 
-definition "section_aux n s = start_map' (\<lambda>_. [ Thy_section_title (Section n s) ])"
+definition "section_aux n s = start_map' (\<lambda>_. [ O.section_title (Section n s) ])"
 definition "section = section_aux 0"
 definition "subsection = section_aux 1"
 definition "subsubsection = section_aux 2"
-definition "txt f = start_map'''' Thy_text o (\<lambda>_ design_analysis. [Text (f design_analysis)])"
+definition "txt f = start_map'''' O.text o (\<lambda>_ design_analysis. [Text (f design_analysis)])"
 definition "txt' s = txt (\<lambda>_. s)"
 definition "txt'' = txt' o flatten"
 definition "txt''d s = txt (\<lambda> Gen_only_design \<Rightarrow> flatten s | _ \<Rightarrow> \<open>\<close>)"

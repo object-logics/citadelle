@@ -84,7 +84,7 @@ definition "print_examp_oclbase_gen =
           Definition
             (Expr_rewrite (b name) \<open>=\<close> (Expr_lambda wildcard (Expr_some (Expr_some ab_name))))))"
 
-definition "print_examp_oclbase = (\<lambda> OclDefBase l \<Rightarrow> (start_map Thy_definition_hol o List_map (snd o print_examp_oclbase_gen)) l)"
+definition "print_examp_oclbase = (\<lambda> OclDefBase l \<Rightarrow> (start_map O.definition_hol o List_map (snd o print_examp_oclbase_gen)) l)"
 
 datatype print_examp_instance_draw_list_attr = Return_obj ocl_ty_class
                                              | Return_exp hol__expr
@@ -550,8 +550,8 @@ definition "check_single_ty rbt_init rbt' l_attr_gen l_oid x =
 definition "print_examp_instance_defassoc = (\<lambda> OclInstance l \<Rightarrow> \<lambda> ocl.
   let l = List_flatten (fst (fold_list (\<lambda>ocli cpt. ([(ocli, cpt)], oidSucInh cpt)) l (D_ocl_oid_start ocl))) in
   (\<lambda>l_res.
-    ( print_examp_instance_oid Thy_definition_hol l ocl
-      @@@@ List_map Thy_definition_hol l_res
+    ( print_examp_instance_oid O.definition_hol l ocl
+      @@@@ List_map O.definition_hol l_res
     , ocl))
   (print_examp_instance_defassoc_gen
     (Expr_oid var_inst_assoc (oidGetInh (D_ocl_oid_start ocl)))
@@ -563,13 +563,13 @@ definition "print_examp_instance_defassoc_typecheck_var = (\<lambda> OclInstance
     ; l_var = List.fold (\<lambda>ocli. case Inst_name ocli of None \<Rightarrow> id | Some n \<Rightarrow> Cons n) l []
     ; n = \<open>_\<close> @@ String_concatWith \<open>_\<close> l_var in
   Pair
-    [ Thy_definition_hol
+    [ O.definition_hol
         (Definition
           (Expr_rewrite
             (Expr_app (\<open>typecheck_instance_bad_head_on_lhs\<close> @@ n) (List_map b l_var))
             \<open>=\<close> 
             (Expr_pair' [])))
-    , Thy_definition_hol
+    , O.definition_hol
         (Definition
           (Expr_rewrite
             (b (\<open>typecheck_instance_extra_variables_on_rhs\<close> @@ n))
@@ -681,7 +681,7 @@ definition' \<open>print_examp_instance_defassoc_typecheck_gen l_ocli ocl =
         \<open> error(s)\<close> ])\<close>
 
 definition "print_examp_instance_defassoc_typecheck = (\<lambda> OclInstance l \<Rightarrow> \<lambda> ocl.
-  (\<lambda>l_res. (List_map Thy_ml l_res, ocl \<lparr> D_output_header_force := True \<rparr>))
+  (\<lambda>l_res. (List_map O.ml l_res, ocl \<lparr> D_output_header_force := True \<rparr>))
   (print_examp_instance_defassoc_typecheck_gen
     (List_map Some l)
     ocl))"
@@ -689,7 +689,7 @@ definition "print_examp_instance_defassoc_typecheck = (\<lambda> OclInstance l \
 definition "print_examp_instance_name = id"
 definition "print_examp_instance = (\<lambda> OclInstance l \<Rightarrow> \<lambda> ocl.
  (\<lambda> ((l_res, oid_start), instance_rbt).
-    ((List_map Thy_definition_hol o List_flatten) l_res, ocl \<lparr> D_ocl_oid_start := oid_start, D_input_instance := instance_rbt \<rparr>))
+    ((List_map O.definition_hol o List_flatten) l_res, ocl \<lparr> D_ocl_oid_start := oid_start, D_input_instance := instance_rbt \<rparr>))
   (let (rbt, (map_self, map_username)) = init_map_class ocl l
      ; a = \<lambda>f x. Expr_app f [x]
      ; b = \<lambda>s. Expr_basic [s] in
@@ -736,7 +736,7 @@ definition "print_examp_def_st_typecheck_var = (\<lambda> OclDefSt name _ \<Righ
     ; l_var = [name]
     ; n = \<open>_\<close> @@ String_concatWith \<open>_\<close> l_var in
   Pair
-    [ Thy_definition_hol
+    [ O.definition_hol
         (Definition
           (Expr_rewrite
             (Expr_app (\<open>typecheck_state_bad_head_on_lhs\<close> @@ n) (List_map b l_var))
@@ -774,7 +774,7 @@ definition "print_examp_def_st1 = (\<lambda> OclDefSt name l \<Rightarrow> boots
       else
         META_instance (OclInstance l_inst) # l)))"
 
-definition "print_examp_def_st_defs = (\<lambda> _ \<Rightarrow> start_map Thy_lemmas_simp
+definition "print_examp_def_st_defs = (\<lambda> _ \<Rightarrow> start_map O.lemmas_simp
   [ Lemmas_simp_thms \<open>\<close> [ \<open>state.defs\<close>, \<open>const_ss\<close> ] ])"
 
 definition "print_pre_post = (\<lambda> OclDefPP name s_pre s_post \<Rightarrow> bootstrap_floor

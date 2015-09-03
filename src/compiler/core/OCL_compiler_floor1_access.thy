@@ -72,7 +72,7 @@ definition "print_access_oid_uniq_gen Thy_def D_ocl_oid_start_upd def_rewrite =
        (List_flatten l, acc)))"
 definition "print_access_oid_uniq_ml =
   print_access_oid_uniq_gen
-    Thy_ml
+    O.ml
     (\<lambda>x _. x)
     (\<lambda>obj_name_from_nat name _ attr cpt_obj.
       ML (SML.rewrite_val
@@ -81,7 +81,7 @@ definition "print_access_oid_uniq_ml =
                    (SML.oid \<open>\<close> cpt_obj)))"
 definition "print_access_oid_uniq =
   print_access_oid_uniq_gen
-    Thy_definition_hol
+    O.definition_hol
     (\<lambda>ocl oid_start. ocl \<lparr> D_ocl_oid_start := oid_start \<rparr>)
     (\<lambda>obj_name_from_nat _ isub_name attr cpt_obj.
       Definition (Expr_rewrite
@@ -89,7 +89,7 @@ definition "print_access_oid_uniq =
                    \<open>=\<close>
                    (Expr_oid \<open>\<close> cpt_obj)))"
 
-definition "print_access_eval_extract _ = start_map Thy_definition_hol
+definition "print_access_eval_extract _ = start_map O.definition_hol
   (let lets = \<lambda>var def. Definition (Expr_rewrite (Expr_basic [var]) \<open>=\<close> def)
      ; a = \<lambda>f x. Expr_app f [x]
      ; b = \<lambda>s. Expr_basic [s] in
@@ -127,7 +127,7 @@ definition "print_access_choose_switch
                 (sexpr_function [(l, (sexpr_pair (mk_var i) (mk_var j)))]))))
              ((List_flatten o List_flatten) (List_map (\<lambda>i. List_map (\<lambda>j. if i = j then [] else [(i, j)]) l) l)))
           (class_arity expr))"
-definition "print_access_choose_ml = start_map'''' Thy_ml o (\<lambda>expr _.
+definition "print_access_choose_ml = start_map'''' O.ml o (\<lambda>expr _.
   (let a = \<lambda>f x. SML.apply f [x]
      ; b = \<lambda>s. SML.basic [s]
      ; lets = \<lambda>var exp. ML (SML.rewrite_val (SML.basic [var]) \<open>=\<close> exp)
@@ -137,7 +137,7 @@ definition "print_access_choose_ml = start_map'''' Thy_ml o (\<lambda>expr _.
        lets mk_var expr
        print_access_choose_mlname
        SML.list SML.function SML.pair ]))"
-definition "print_access_choose = start_map'''' Thy_definition_hol o (\<lambda>expr _.
+definition "print_access_choose = start_map'''' O.definition_hol o (\<lambda>expr _.
   (let a = \<lambda>f x. Expr_app f [x]
      ; b = \<lambda>s. Expr_basic [s]
      ; lets = \<lambda>var exp. Definition (Expr_rewrite (Expr_basic [var]) \<open>=\<close> exp)
@@ -192,7 +192,7 @@ definition "print_access_choose = start_map'''' Thy_definition_hol o (\<lambda>e
              , (Expr_basic[wildcard], Expr_app \<open>invalid\<close> [Expr_basic [var_tau]]) ]))) ]] ))"
 
 definition "print_access_deref_oid_name isub_name = isub_name var_deref_oid"
-definition "print_access_deref_oid = start_map Thy_definition_hol o
+definition "print_access_deref_oid = start_map O.definition_hol o
   map_class (\<lambda>isub_name _ _ _ _ _.
     let var_fs = \<open>fst_snd\<close>
       ; var_f = \<open>f\<close>
@@ -210,7 +210,7 @@ definition "print_access_deref_assocs_name' name_from isub_name isup_attr =
   flatten [var_deref, \<open>_\<close>, isub_name var_assocs, \<open>_\<close>, natural_of_str name_from, isup_attr \<open>_\<close>]"
 definition "print_access_deref_assocs_name name_from isub_name attr =
   print_access_deref_assocs_name' name_from isub_name (\<lambda>s. s @@ isup_of_str attr)"
-definition "print_access_deref_assocs = start_map'''' Thy_definition_hol o (\<lambda>expr design_analysis.
+definition "print_access_deref_assocs = start_map'''' O.definition_hol o (\<lambda>expr design_analysis.
   (if design_analysis = Gen_only_design then \<lambda>_. [] else (\<lambda>expr. List_flatten (List_flatten (map_class (\<lambda>isub_name name l_attr l_inherited _ _.
   let l_inherited = map_class_inh l_inherited in
   let var_fst_snd = \<open>fst_snd\<close>
@@ -235,7 +235,7 @@ definition "print_access_deref_assocs = start_map'''' Thy_definition_hol o (\<la
       (l_attr # l_inherited))) expr)))) expr)"
 
 definition "print_access_select_name isup_attr isub_name = isup_attr (isub_name var_select)"
-definition "print_access_select = start_map'' Thy_definition_hol o (\<lambda>expr base_attr _ base_attr''.
+definition "print_access_select = start_map'' O.definition_hol o (\<lambda>expr base_attr _ base_attr''.
   let b = \<lambda>s. Expr_basic [s] in
   map_class_arg_only0 (\<lambda>isub_name name l_attr.
     let l_attr = base_attr l_attr in
@@ -300,7 +300,7 @@ definition "print_access_select = start_map'' Thy_definition_hol o (\<lambda>exp
 
 definition "print_access_select_obj_name' isub_name attr = isub_name var_select @@ attr"
 definition "print_access_select_obj_name isub_name attr = print_access_select_obj_name' isub_name (isup_of_str attr)"
-definition "print_access_select_obj = start_map'''' Thy_definition_hol o (\<lambda>expr design_analysis.
+definition "print_access_select_obj = start_map'''' O.definition_hol o (\<lambda>expr design_analysis.
   (if design_analysis = Gen_only_design then \<lambda>_. [] else (\<lambda>expr. List_flatten (List_flatten (map_class (\<lambda>isub_name name l_attr l_inh _ _.
     let l_inh = map_class_inh l_inh in
     List_flatten (fst (fold_list (fold_list
@@ -323,7 +323,7 @@ definition "print_access_select_obj = start_map'''' Thy_definition_hol o (\<lamb
       (l_attr # l_inh) RBT.empty))) expr)))) expr)"
 
 definition "print_access_dot_consts =
- (fold_list (\<lambda>(f_update, x) ocl. (Thy_consts_class x, ocl \<lparr> D_ocl_accessor := f_update (D_ocl_accessor ocl) \<rparr> ))) o
+ (fold_list (\<lambda>(f_update, x) ocl. (O.consts_class x, ocl \<lparr> D_ocl_accessor := f_update (D_ocl_accessor ocl) \<rparr> ))) o
   (List_flatten o List_flatten o map_class (\<lambda>isub_name name l_attr _ _ _.
     List_map (\<lambda>(attr_n, attr_ty).
       List_map
@@ -375,7 +375,7 @@ fun print_access_dot_aux where
      | OclTy_base_void \<Rightarrow> Expr_basic [var_reconst_basetype_void]
      | _ \<Rightarrow> Expr_basic [var_reconst_basetype]) x"
 
-definition "print_access_dot = start_map'''' Thy_defs_overloaded o (\<lambda>expr design_analysis.
+definition "print_access_dot = start_map'''' O.defs_overloaded o (\<lambda>expr design_analysis.
   map_class_arg_only_var'
     (\<lambda>isub_name name (var_in_when_state, dot_at_when) attr_ty isup_attr dot_attr.
             [ Defs_overloaded
@@ -423,17 +423,17 @@ definition "print_access_dot_lemmas_id_set =
 definition "print_access_dot_lemmas_id_name = \<open>dot_accessor\<close>"
 definition "print_access_dot_lemmas_id = start_map' (\<lambda>expr.
        (let name_set = print_access_dot_lemmas_id_set expr in
-       case name_set of [] \<Rightarrow> [] | _ \<Rightarrow> List_map Thy_lemmas_simp
+       case name_set of [] \<Rightarrow> [] | _ \<Rightarrow> List_map O.lemmas_simp
          [ Lemmas_nosimp print_access_dot_lemmas_id_name (List_map T.thm name_set) ]))"
 
 definition "print_access_dot_cp_lemmas_set =
   (if activate_simp_optimization then [hol_definition var_eval_extract] else [])"
 
 definition "print_access_dot_cp_lemmas = start_map' (\<lambda>_.
-  List_map (\<lambda>x. Thy_lemmas_simp (Lemmas_simp \<open>\<close> [T.thm x])) print_access_dot_cp_lemmas_set)"
+  List_map (\<lambda>x. O.lemmas_simp (Lemmas_simp \<open>\<close> [T.thm x])) print_access_dot_cp_lemmas_set)"
 
 definition "print_access_dot_lemma_cp_name isub_name dot_at_when attr_ty isup_attr = flatten [\<open>cp_\<close>, print_access_dot_name isub_name dot_at_when attr_ty isup_attr]"
-definition "print_access_dot_lemma_cp = start_map Thy_lemma_by o
+definition "print_access_dot_lemma_cp = start_map O.lemma_by o
  (let auto = \<lambda>l. M.auto_simp_add2 [T.thms print_access_dot_lemmas_id_name] (List_map hol_definition (\<open>cp\<close> # l)) in
   map_class_arg_only_var
     (\<lambda>isub_name name (_, dot_at_when) attr_ty isup_attr dot_attr.
@@ -453,7 +453,7 @@ definition "print_access_dot_lemma_cp = start_map Thy_lemma_by o
                 (if print_access_dot_cp_lemmas_set = [] then C.sorry (* fold l_hierarchy, take only subclass, unfold the corresponding definition *)
                  else C.by [auto []]) ]))"
 
-definition "print_access_dot_lemmas_cp = start_map Thy_lemmas_simp o (\<lambda>expr.
+definition "print_access_dot_lemmas_cp = start_map O.lemmas_simp o (\<lambda>expr.
   case map_class_arg_only_var'
     (\<lambda>isub_name _ (_, dot_at_when) attr_ty isup_attr _.
       [T.thm (print_access_dot_lemma_cp_name isub_name dot_at_when attr_ty isup_attr) ])
@@ -462,7 +462,7 @@ definition "print_access_dot_lemmas_cp = start_map Thy_lemmas_simp o (\<lambda>e
    | l \<Rightarrow> [Lemmas_simp \<open>\<close> l])"
 
 definition "print_access_lemma_strict_name isub_name dot_at_when attr_ty isup_attr name_invalid = flatten [print_access_dot_name isub_name dot_at_when attr_ty isup_attr, \<open>_\<close>, name_invalid]"
-definition "print_access_lemma_strict expr = (start_map Thy_lemma_by o
+definition "print_access_lemma_strict expr = (start_map O.lemma_by o
   map_class_arg_only_var' (\<lambda>isub_name name (_, dot_at_when) attr_ty isup_attr dot_attr.
             List_map (\<lambda>(name_invalid, meth_invalid). Lemma
                   (print_access_lemma_strict_name isub_name dot_at_when attr_ty isup_attr name_invalid)
@@ -488,7 +488,7 @@ definition "print_access_lemma_strict expr = (start_map Thy_lemma_by o
 
 definition "print_access_def_mono_name isub_name dot_at_when attr_ty isup_attr =
   flatten [ \<open>defined_mono_\<close>, print_access_dot_name isub_name dot_at_when attr_ty isup_attr ]"
-definition "print_access_def_mono = start_map'''' Thy_lemma_by o (\<lambda>expr _.
+definition "print_access_def_mono = start_map'''' O.lemma_by o (\<lambda>expr _.
   map_class_arg_only_var'
     (\<lambda>isub_name name (_, dot_at_when) attr_ty isup_attr dot_attr.
       let var_X = \<open>X\<close>
@@ -516,7 +516,7 @@ definition "print_access_def_mono = start_map'''' Thy_lemma_by o (\<lambda>expr 
 
 definition "print_access_is_repr_name isub_name dot_at_when attr_ty isup_attr =
   flatten [ \<open>is_repr_\<close>, print_access_dot_name isub_name dot_at_when attr_ty isup_attr ]"
-definition "print_access_is_repr = start_map'''' Thy_lemma_by o (\<lambda>expr design_analysis.
+definition "print_access_is_repr = start_map'''' O.lemma_by o (\<lambda>expr design_analysis.
  (let is_design = design_analysis = Gen_only_design
     ; App_a = \<lambda>l. C.apply (if is_design then [] else l)
     ; App_d = \<lambda>l. C.apply (if is_design then l else []) in
@@ -686,7 +686,7 @@ definition "print_access_is_repr = start_map'''' Thy_lemma_by o (\<lambda>expr d
                 (C.by [ M.rule' ]) ] else [] (* TODO *))
       | _ \<Rightarrow> [] (* TODO *))) expr)"
 
-definition "print_access_repr_allinst = start_map''''' Thy_lemma_by o (\<lambda>expr (sorry, dirty) design_analysis.
+definition "print_access_repr_allinst = start_map''''' O.lemma_by o (\<lambda>expr (sorry, dirty) design_analysis.
   if sorry = Some Gen_sorry | sorry = None & dirty then 
   map_class_arg_only_var'
     (\<lambda>isub_name name (var_in_when_state, dot_at_when) attr_ty isup_attr dot_attr.
