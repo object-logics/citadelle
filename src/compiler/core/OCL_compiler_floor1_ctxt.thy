@@ -69,7 +69,7 @@ definition "print_ctxt_const ctxt ocl =
                         let ty = map_enum_syn l_enum l_syn ty
                           ; (n, isab_ty) = print_infra_type_synonym_class_rec_aux ty in
                         ( Ty_par (print_access_dot_consts_ty ty) # l_name
-                        , if is_higher_order ty & \<not> List_member l n then
+                        , if is_higher_order ty & \<not> String.member l n then
                             (String.to_String\<^sub>b\<^sub>a\<^sub>s\<^sub>e n # l, Type_synonym' n isab_ty # l_isab_ty)
                           else
                             (l, l_isab_ty)))

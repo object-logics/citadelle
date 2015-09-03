@@ -135,7 +135,7 @@ definition "print_infra_type_synonym_class_rec = (\<lambda>expr ocl.
                                                  let f = (* WARNING we may test with RBT instead of List *)
                                                          \<lambda>t l.
                                                            let (tit, body) = print_infra_type_synonym_class_rec_aux t in
-                                                           if List.assoc tit l = None then (String.to_String\<^sub>b\<^sub>a\<^sub>s\<^sub>e tit, body) # l else l in
+                                                           if String.assoc tit l = None then (String.to_String\<^sub>b\<^sub>a\<^sub>s\<^sub>e tit, body) # l else l in
                                                  case t of
                                                    OclTy_object (OclTyObj (OclTyCore obj) _) \<Rightarrow>
                                                      let t = \<lambda>ty. OclTy_collection (ocl_multiplicity_ext [] None [ty] ()) (OclTy_class_pre (TyObjN_role_ty (TyObj_to obj))) in

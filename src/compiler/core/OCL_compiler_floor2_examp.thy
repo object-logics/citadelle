@@ -88,7 +88,7 @@ definition "print_examp_def_st_locale = (\<lambda> OclDefSt n l \<Rightarrow> \<
  (\<lambda>d. (d, ocl))
   (print_examp_def_st_locale_make
     (\<open>state_\<close> @@ n)
-    (\<lambda> OclDefCoreBinding name \<Rightarrow> case List.assoc name (D_input_instance ocl) of Some n \<Rightarrow> n)
+    (\<lambda> OclDefCoreBinding name \<Rightarrow> case String.assoc name (D_input_instance ocl) of Some n \<Rightarrow> n)
     []
     l))"
 
@@ -98,7 +98,7 @@ definition "print_examp_def_st_defassoc_typecheck_gen l ocl =
          List.fold
            (\<lambda> OclDefCoreBinding name \<Rightarrow>
             \<lambda>(l, rbt).
-             ( ( (if List.assoc name (D_input_instance ocl) = None then
+             ( ( (if String.assoc name (D_input_instance ocl) = None then
                     Cons (Error, name)
                   else
                     id)
@@ -140,7 +140,7 @@ definition "print_examp_def_st_mapsto ocl l = list_bind id id
 definition "print_examp_def_st2 = (\<lambda> OclDefSt name l \<Rightarrow> \<lambda>ocl.
  (\<lambda>(l, l_st). (L.map O'.definition l, ocl \<lparr> D_input_state := (String.to_String\<^sub>b\<^sub>a\<^sub>s\<^sub>e name, l_st) # D_input_state ocl \<rparr>))
   (let b = \<lambda>s. Expr_basic [s]
-     ; l = L.map (\<lambda> OclDefCoreBinding name \<Rightarrow> map_option (Pair name) (List.assoc name (D_input_instance ocl))) l
+     ; l = L.map (\<lambda> OclDefCoreBinding name \<Rightarrow> map_option (Pair name) (String.assoc name (D_input_instance ocl))) l
      ; (rbt, (map_self, map_username)) =
          (init_map_class 
            (ocl \<lparr> D_ocl_oid_start := oidReinitInh (D_ocl_oid_start ocl) \<rparr>)
@@ -305,7 +305,7 @@ definition "merge_unique f l = RBT.entries (merge_unique_gen f l)"
 definition "merge_unique' = L.map snd o merge_unique (\<lambda> (a, b). ((\<lambda>x. Some (x, (a, b))) o oidGetInh) a)"
 
 definition "get_state f = (\<lambda> OclDefPP _ s_pre s_post \<Rightarrow> \<lambda> ocl. 
-  let get_state = let l_st = D_input_state ocl in \<lambda>OclDefPPCoreBinding s \<Rightarrow> (s, case List.assoc s l_st of None \<Rightarrow> [] | Some l \<Rightarrow> l)
+  let get_state = let l_st = D_input_state ocl in \<lambda>OclDefPPCoreBinding s \<Rightarrow> (s, case String.assoc s l_st of None \<Rightarrow> [] | Some l \<Rightarrow> l)
     ; (s_pre, l_pre) = get_state s_pre
     ; (s_post, l_post) = case s_post of None \<Rightarrow> (s_pre, l_pre) | Some s_post \<Rightarrow> get_state s_post in
   f (s_pre, l_pre)

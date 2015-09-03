@@ -170,7 +170,13 @@ lemmas [code] =
   (*fun*)
   L.map_find_aux.simps
 
+subsection{* ... *}
+
 definition "char_escape = Char Nibble0 Nibble9"
+definition "ST0 c = \<lless>[c]\<ggreater>"
+definition "ST0_base c = ST' [c]"
+
+subsection{* ... *}
 
 locale S
 locale String
@@ -180,16 +186,12 @@ definition (in S) "flatten = String_concatWith \<open>\<close>"
 definition (in String) "flatten a b = S.flatten [a, b]"
 notation String.flatten (infixr "@@" 65)
 definition (in String) "make n c = \<lless>L.map (\<lambda>_. c) (L.upto 1 n)\<ggreater>"
-definition "ST0 c = \<lless>[c]\<ggreater>"
-definition "ST0_base c = ST' [c]"
-
 definition (in String\<^sub>b\<^sub>a\<^sub>s\<^sub>e) "map_gen replace g = (\<lambda> ST s \<Rightarrow> replace \<open>\<close> (Some s) \<open>\<close>
                                                 | ST' s \<Rightarrow> S.flatten (L.map g s))"
 fun (in String) map_gen where
    "map_gen replace g e =
      (\<lambda> SS_base s \<Rightarrow> String\<^sub>b\<^sub>a\<^sub>s\<^sub>e.map_gen replace g s
       | String_concatWith abr l \<Rightarrow> String_concatWith (map_gen replace g abr) (List.map (map_gen replace g) l)) e"
-
 definition (in String) "foldl_one f accu s = foldl f accu (String.explode s)"
 definition (in String\<^sub>b\<^sub>a\<^sub>s\<^sub>e) foldl where "foldl f accu = (\<lambda> ST s \<Rightarrow> String.foldl_one f accu s
                                                        | ST' s \<Rightarrow> List.foldl f accu s)"
@@ -199,10 +201,8 @@ fun (in String) foldl where
       | String_concatWith abr l \<Rightarrow>
         (case l of [] \<Rightarrow> accu
                  | x # xs \<Rightarrow> List.foldl (\<lambda>accu. foldl f (foldl f accu abr)) (foldl f accu x) xs)) e"
-
 definition (in S) "replace_chars f s1 s s2 =
   s1 @@ (case s of None \<Rightarrow> \<open>\<close> | Some s \<Rightarrow> flatten (L.map f (String.explode s))) @@ s2"
-
 definition (in String) map where "map f = map_gen (S.replace_chars (\<lambda>c. \<degree>f c\<degree>)) (\<lambda>x. \<degree>f x\<degree>)"
 definition (in String) "replace_chars f = map_gen (S.replace_chars (\<lambda>c. f c)) f"
 definition (in String) "all f = foldl (\<lambda>b s. b & f s) True"
@@ -215,9 +215,11 @@ definition (in String\<^sub>b\<^sub>a\<^sub>s\<^sub>e) "is_empty = (\<lambda> ST
                                        | ST' s \<Rightarrow> s = [])"
 fun (in String) is_empty where
    "is_empty e = (\<lambda> SS_base s \<Rightarrow> String\<^sub>b\<^sub>a\<^sub>s\<^sub>e.is_empty s | String_concatWith _ l \<Rightarrow> list_all is_empty l) e"
-
 definition (in String) "equal s1 s2 = (to_list s1 = to_list s2)"
 notation String.equal (infixl "\<triangleq>" 50)
+definition (in String) "assoc x l = L.assoc (to_list x) (L.map (map_prod String\<^sub>b\<^sub>a\<^sub>s\<^sub>e.to_list id) l)"
+definition (in String) "member l x = List.member (L.map String\<^sub>b\<^sub>a\<^sub>s\<^sub>e.to_list l) (to_list x)"
+definition (in String\<^sub>b\<^sub>a\<^sub>s\<^sub>e) "flatten l = String.to_String\<^sub>b\<^sub>a\<^sub>s\<^sub>e (S.flatten (L.map to_String l))"
 
 lemmas [code] =
   (*def*)
@@ -238,23 +240,14 @@ lemmas [code] =
   String\<^sub>b\<^sub>a\<^sub>s\<^sub>e.to_String_def
   String\<^sub>b\<^sub>a\<^sub>s\<^sub>e.is_empty_def
   String.equal_def
+  String.assoc_def
+  String.member_def
+  String\<^sub>b\<^sub>a\<^sub>s\<^sub>e.flatten_def
 
   (*fun*)
   String.map_gen.simps
   String.foldl.simps
   String.is_empty.simps
-
-(* *)
-
-definition "List_assoc' x l = L.assoc (String.to_list x) (L.map (map_prod String\<^sub>b\<^sub>a\<^sub>s\<^sub>e.to_list id) l)"
-syntax "_list_assoc" :: "string \<Rightarrow> (string\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<times> 'a) list \<Rightarrow> 'a option" ("List.assoc")
-translations "List.assoc" \<rightleftharpoons> "CONST List_assoc'"
-
-definition "List_member' l x = List.member (L.map String\<^sub>b\<^sub>a\<^sub>s\<^sub>e.to_list l) (String.to_list x)"
-syntax "_list_member" :: "string\<^sub>b\<^sub>a\<^sub>s\<^sub>e list \<Rightarrow> string \<Rightarrow> bool" ("List'_member")
-translations "List_member" \<rightleftharpoons> "CONST List_member'"
-
-definition "flatten_base l = String.to_String\<^sub>b\<^sub>a\<^sub>s\<^sub>e (S.flatten (L.map String\<^sub>b\<^sub>a\<^sub>s\<^sub>e.to_String l))"
 
 section{* Preliminaries *}
 
