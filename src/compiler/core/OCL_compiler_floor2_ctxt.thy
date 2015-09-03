@@ -53,22 +53,22 @@ subsection{* context2 *}
 
 (* (* ERROR this lambda term type-checks expensively *)
 definition "print_ctxt_is_accessor =
-  (\<lambda> PureType \<open>fun\<close>
-               [PureType \<open>fun\<close>
-                       [PureType \<open>Product_Type.prod\<close>
-                               [PureType \<open>OCL_core.state.state_ext\<close>
-                                       [PureType _ (* AA *) [], PureType \<open>Product_Type.unit\<close> []],
-                                PureType \<open>OCL_core.state.state_ext\<close>
-                                       [PureType _ (* AA *) [], PureType \<open>Product_Type.unit\<close> []]],
-                        PureTFree _ (* 'a *) (PureSort [PureClass \<open>HOL.type\<close>])],
-                PureType \<open>fun\<close>
-                       [PureType \<open>Product_Type.prod\<close>
-                               [PureType \<open>OCL_core.state.state_ext\<close>
-                                       [PureType _ (* AA *) [], PureType \<open>Product_Type.unit\<close> []],
-                                PureType \<open>OCL_core.state.state_ext\<close>
-                                       [PureType _ (* AA *) [], PureType \<open>Product_Type.unit\<close> []]],
-                        PureType \<open>Option.option\<close>
-                               [PureType \<open>Option.option\<close>
+  (\<lambda> PureType \<lless>''fun''\<ggreater>
+               [PureType \<lless>''fun''\<ggreater>
+                       [PureType \<lless>''Product_Type.prod''\<ggreater>
+                               [PureType \<lless>''OCL_core.state.state_ext''\<ggreater>
+                                       [PureType _ (* AA *) [], PureType \<lless>''Product_Type.unit''\<ggreater> []],
+                                PureType \<lless>''OCL_core.state.state_ext''\<ggreater>
+                                       [PureType _ (* AA *) [], PureType \<lless>''Product_Type.unit''\<ggreater> []]],
+                        PureTFree _ (* 'a *) (PureSort [PureClass \<lless>''HOL.type''\<ggreater>])],
+                PureType \<lless>''fun''\<ggreater>
+                       [PureType \<lless>''Product_Type.prod''\<ggreater>
+                               [PureType \<lless>''OCL_core.state.state_ext''\<ggreater>
+                                       [PureType _ (* AA *) [], PureType \<lless>''Product_Type.unit''\<ggreater> []],
+                                PureType \<lless>''OCL_core.state.state_ext''\<ggreater>
+                                       [PureType _ (* AA *) [], PureType \<lless>''Product_Type.unit''\<ggreater> []]],
+                        PureType \<lless>''Option.option''\<ggreater>
+                               [PureType \<lless>''Option.option''\<ggreater>
                                        [PureType _ (* class name *) []]]]]
        \<Rightarrow> True
    | _ \<Rightarrow> False)"
