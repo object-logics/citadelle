@@ -123,21 +123,21 @@ structure From = struct
  fun from_pair f1 f2 (x, y) = (f1 x, f2 y)
  fun from_pair3 f1 f2 f3 (x, y, z) = (f1 x, f2 y, f3 z)
 
- val from_pure_indexname = OCL.PureIndexname o from_pair from_string from_nat
- val from_pure_class = OCL.PureClass o from_string
- val from_pure_sort = OCL.PureSort o from_list from_pure_class
+ val from_pure_indexname = OCL.Pure_Indexname o from_pair from_string from_nat
+ val from_pure_class = OCL.Pure_Class o from_string
+ val from_pure_sort = OCL.Pure_Sort o from_list from_pure_class
  fun from_pure_typ e = (fn
-     Type (s, l) => (OCL.PureType o from_pair from_string (from_list from_pure_typ)) (s, l)
-   | TFree (s, sort) => (OCL.PureTFree o from_pair from_string from_pure_sort) (s, sort)
-   | TVar (i, sort) => (OCL.PureTVar o from_pair from_pure_indexname from_pure_sort) (i, sort)
+     Type (s, l) => (OCL.Pure_Type o from_pair from_string (from_list from_pure_typ)) (s, l)
+   | TFree (s, sort) => (OCL.Pure_TFree o from_pair from_string from_pure_sort) (s, sort)
+   | TVar (i, sort) => (OCL.Pure_TVar o from_pair from_pure_indexname from_pure_sort) (i, sort)
   ) e
  fun from_pure_term e = (fn
-     Const (s, typ) => (OCL.PureConst o from_pair from_string from_pure_typ) (s, typ)
-   | Free (s, typ) => (OCL.PureFree o from_pair from_string from_pure_typ) (s, typ)
-   | Var (i, typ) => (OCL.PureVar o from_pair from_pure_indexname from_pure_typ) (i, typ)
-   | Bound i => (OCL.PureBound o from_nat) i
-   | Abs (s, typ, term) => (OCL.PureAbs o from_pair3 from_string from_pure_typ from_pure_term) (s, typ, term)
-   | op $ (term1, term2) => (OCL.PureApp o from_pair from_pure_term from_pure_term) (term1, term2)
+     Const (s, typ) => (OCL.Pure_Const o from_pair from_string from_pure_typ) (s, typ)
+   | Free (s, typ) => (OCL.Pure_Free o from_pair from_string from_pure_typ) (s, typ)
+   | Var (i, typ) => (OCL.Pure_Var o from_pair from_pure_indexname from_pure_typ) (i, typ)
+   | Bound i => (OCL.Pure_Bound o from_nat) i
+   | Abs (s, typ, term) => (OCL.Pure_Abs o from_pair3 from_string from_pure_typ from_pure_term) (s, typ, term)
+   | op $ (term1, term2) => (OCL.Pure_App o from_pair from_pure_term from_pure_term) (term1, term2)
   ) e
 
  fun from_p_term thy expr =

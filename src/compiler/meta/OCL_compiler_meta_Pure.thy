@@ -51,45 +51,69 @@ section{* \text{Lambda\_pure} Meta-Model aka. AST definition of \text{Lambda\_pu
 
 subsection{* type definition *}
 
-datatype pure_indexname = PureIndexname string nat
-datatype pure_class = PureClass string
-datatype pure_sort = PureSort "pure_class list"
+datatype pure_indexname = Pure_Indexname string nat
+datatype pure_class = Pure_Class string
+datatype pure_sort = Pure_Sort "pure_class list"
 datatype pure_typ =
-  PureType string "pure_typ list" |
-  PureTFree string pure_sort |
-  PureTVar pure_indexname pure_sort
+  Pure_Type string "pure_typ list" |
+  Pure_TFree string pure_sort |
+  Pure_TVar pure_indexname pure_sort
 datatype pure_term =
-  PureConst string pure_typ |
-  PureFree string pure_typ |
-  PureVar pure_indexname pure_typ |
-  PureBound nat |
-  PureAbs string pure_typ pure_term |
-  PureApp pure_term pure_term (infixl "$" 200)
+  Pure_Const string pure_typ |
+  Pure_Free string pure_typ |
+  Pure_Var pure_indexname pure_typ |
+  Pure_Bound nat |
+  Pure_Abs string pure_typ pure_term |
+  Pure_App pure_term pure_term (infixl "$" 200)
 
 subsection{* *}
 
+locale P
+begin (* TODO move datatypes in the locale (when terminations will not be needed to be proved by hand anymore) *)
+definition "Const = Pure_Const"
+definition "Free = Pure_Free"
+definition "Var = Pure_Var"
+definition "Bound = Pure_Bound"
+definition "Abs = Pure_Abs"
+definition "App = Pure_App"
+
 fun map_Const where
-   "map_Const f expr = (\<lambda> PureConst s ty \<Rightarrow> PureConst (f s ty) ty
-                        | PureFree s ty \<Rightarrow> PureFree s ty
-                        | PureVar i ty \<Rightarrow> PureVar i ty
-                        | PureBound n \<Rightarrow> PureBound n
-                        | PureAbs s ty term \<Rightarrow> PureAbs s ty (map_Const f term)
-                        | PureApp term1 term2 \<Rightarrow> PureApp (map_Const f term1)
+   "map_Const f expr = (\<lambda> Pure_Const s ty \<Rightarrow> Const (f s ty) ty
+                        | Pure_Free s ty \<Rightarrow> Free s ty
+                        | Pure_Var i ty \<Rightarrow> Var i ty
+                        | Pure_Bound n \<Rightarrow> Bound n
+                        | Pure_Abs s ty term \<Rightarrow> Abs s ty (map_Const f term)
+                        | Pure_App term1 term2 \<Rightarrow> App (map_Const f term1)
                                                          (map_Const f term2))
                         expr"
 
 fun fold_Const where
-   "fold_Const f accu expr = (\<lambda> PureConst s _ \<Rightarrow> f accu s 
-                              | PureAbs _ _ term \<Rightarrow> fold_Const f accu term
-                              | PureApp term1 term2 \<Rightarrow> fold_Const f (fold_Const f accu term1) term2
+   "fold_Const f accu expr = (\<lambda> Pure_Const s _ \<Rightarrow> f accu s 
+                              | Pure_Abs _ _ term \<Rightarrow> fold_Const f accu term
+                              | Pure_App term1 term2 \<Rightarrow> fold_Const f (fold_Const f accu term1) term2
                               | _ \<Rightarrow> accu)
                                expr"
 
 fun fold_Free where
-   "fold_Free f accu expr = (\<lambda> PureFree s _ \<Rightarrow> f accu s 
-                             | PureAbs _ _ term \<Rightarrow> fold_Free f accu term
-                             | PureApp term1 term2 \<Rightarrow> fold_Free f (fold_Free f accu term1) term2
+   "fold_Free f accu expr = (\<lambda> Pure_Free s _ \<Rightarrow> f accu s 
+                             | Pure_Abs _ _ term \<Rightarrow> fold_Free f accu term
+                             | Pure_App term1 term2 \<Rightarrow> fold_Free f (fold_Free f accu term1) term2
                              | _ \<Rightarrow> accu)
                               expr"
+end
+
+lemmas [code] =
+  (*def*)
+  P.Const_def
+  P.Free_def
+  P.Var_def
+  P.Bound_def
+  P.Abs_def
+  P.App_def
+
+  (*fun*)
+  P.map_Const.simps
+  P.fold_Const.simps
+  P.fold_Free.simps
 
 end

@@ -55,13 +55,13 @@ context s_of
 begin
 
 fun s_of_pure_term where "s_of_pure_term l e = (\<lambda>
-    PureConst s _ \<Rightarrow> To_string s
-  | PureFree s _ \<Rightarrow> To_string s
-  | PureApp t1 t2 \<Rightarrow> sprint2 \<open>(%s) (%s)\<close>\<acute> (s_of_pure_term l t1) (s_of_pure_term l t2)
-  | PureAbs s _ t \<Rightarrow>
+    Pure_Const s _ \<Rightarrow> To_string s
+  | Pure_Free s _ \<Rightarrow> To_string s
+  | Pure_App t1 t2 \<Rightarrow> sprint2 \<open>(%s) (%s)\<close>\<acute> (s_of_pure_term l t1) (s_of_pure_term l t2)
+  | Pure_Abs s _ t \<Rightarrow>
       let s = To_string s in
       sprint2 \<open>(\<lambda> %s. %s)\<close>\<acute> s (s_of_pure_term (s # l) t)
-  | PureBound n \<Rightarrow> sprint1 \<open>%s\<close>\<acute> (l ! nat_of_natural n)) e"
+  | Pure_Bound n \<Rightarrow> sprint1 \<open>%s\<close>\<acute> (l ! nat_of_natural n)) e"
 
 end
 

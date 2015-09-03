@@ -53,23 +53,23 @@ subsection{* context2 *}
 
 (* (* ERROR this lambda term type-checks expensively *)
 definition "print_ctxt_is_accessor =
-  (\<lambda> PureType \<lless>''fun''\<ggreater>
-               [PureType \<lless>''fun''\<ggreater>
-                       [PureType \<lless>''Product_Type.prod''\<ggreater>
-                               [PureType \<lless>''OCL_core.state.state_ext''\<ggreater>
-                                       [PureType _ (* AA *) [], PureType \<lless>''Product_Type.unit''\<ggreater> []],
-                                PureType \<lless>''OCL_core.state.state_ext''\<ggreater>
-                                       [PureType _ (* AA *) [], PureType \<lless>''Product_Type.unit''\<ggreater> []]],
-                        PureTFree _ (* 'a *) (PureSort [PureClass \<lless>''HOL.type''\<ggreater>])],
-                PureType \<lless>''fun''\<ggreater>
-                       [PureType \<lless>''Product_Type.prod''\<ggreater>
-                               [PureType \<lless>''OCL_core.state.state_ext''\<ggreater>
-                                       [PureType _ (* AA *) [], PureType \<lless>''Product_Type.unit''\<ggreater> []],
-                                PureType \<lless>''OCL_core.state.state_ext''\<ggreater>
-                                       [PureType _ (* AA *) [], PureType \<lless>''Product_Type.unit''\<ggreater> []]],
-                        PureType \<lless>''Option.option''\<ggreater>
-                               [PureType \<lless>''Option.option''\<ggreater>
-                                       [PureType _ (* class name *) []]]]]
+  (\<lambda> Pure_Type \<lless>''fun''\<ggreater>
+               [Pure_Type \<lless>''fun''\<ggreater>
+                       [Pure_Type \<lless>''Product_Type.prod''\<ggreater>
+                               [Pure_Type \<lless>''OCL_core.state.state_ext''\<ggreater>
+                                       [Pure_Type _ (* AA *) [], Pure_Type \<lless>''Product_Type.unit''\<ggreater> []],
+                                Pure_Type \<lless>''OCL_core.state.state_ext''\<ggreater>
+                                       [Pure_Type _ (* AA *) [], Pure_Type \<lless>''Product_Type.unit''\<ggreater> []]],
+                        Pure_TFree _ (* 'a *) (Pure_Sort [Pure_Class \<lless>''HOL.type''\<ggreater>])],
+                Pure_Type \<lless>''fun''\<ggreater>
+                       [Pure_Type \<lless>''Product_Type.prod''\<ggreater>
+                               [Pure_Type \<lless>''OCL_core.state.state_ext''\<ggreater>
+                                       [Pure_Type _ (* AA *) [], Pure_Type \<lless>''Product_Type.unit''\<ggreater> []],
+                                Pure_Type \<lless>''OCL_core.state.state_ext''\<ggreater>
+                                       [Pure_Type _ (* AA *) [], Pure_Type \<lless>''Product_Type.unit''\<ggreater> []]],
+                        Pure_Type \<lless>''Option.option''\<ggreater>
+                               [Pure_Type \<lless>''Option.option''\<ggreater>
+                                       [Pure_Type _ (* class name *) []]]]]
        \<Rightarrow> True
    | _ \<Rightarrow> False)"
 *)
@@ -93,7 +93,7 @@ definition "print_ctxt_to_ocl_gen_split s =
     (_, Some _, s) \<Rightarrow> Some s
   | _ \<Rightarrow> None)"
 definition "print_ctxt_to_ocl_gen l_access f var = (\<lambda> T_pure t \<Rightarrow>
-  T_pure (map_Const (\<lambda> s ty.
+  T_pure (P.map_Const (\<lambda> s ty.
     if (*print_ctxt2_is_accessor ty*)
        list_ex (case print_ctxt_to_ocl_gen_split s of
                   Some s \<Rightarrow> \<lambda>n. String\<^sub>b\<^sub>a\<^sub>s\<^sub>e_to_list n = s
@@ -110,7 +110,7 @@ definition "print_ctxt_to_ocl_post ocl = print_ctxt_to_ocl_gen (fst (D_accessor_
 definition "raise_ml_unbound f_msg ctxt =
         [ (\<lambda>_. [Thy_ml (raise_ml (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l l = List_flatten (List_mapi (\<lambda> n. \<lambda>(msg, T_pure t) \<Rightarrow>
                                             let l =
-                                              rev (fold_Free (\<lambda>l s.
+                                              rev (P.fold_Free (\<lambda>l s.
                                                 (Error, flatten [f_msg n msg, \<open>: unbound value \<close>, s]) # l) [] t) in
                                             if l = [] then [(Writeln, f_msg n msg)] else l) ctxt) in
                                  if list_ex (\<lambda>(Error, _) \<Rightarrow> True | _ \<Rightarrow> False) l then l else [])
@@ -172,7 +172,7 @@ definition "print_ctxt_pre_post = (\<lambda>f. map_prod List_flatten id o f) o f
               ; (name0, def) =
                  (if 
                     List.fold (\<lambda> (_, T_pure t) \<Rightarrow> \<lambda> b \<Rightarrow>
-                                 b | fold_Const (\<lambda> b s. b | (case print_ctxt_to_ocl_gen_split s of
+                                 b | P.fold_Const (\<lambda> b s. b | (case print_ctxt_to_ocl_gen_split s of
                                                                None \<Rightarrow> False
                                                              | Some s \<Rightarrow> 
                                                                  let f_eq = \<lambda>a. String_to_list (print_ctxt_const_name attr_n a None) = s in
