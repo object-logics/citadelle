@@ -59,7 +59,7 @@ definition "lookup2 rbt = (\<lambda>(x1, x2). Option.bind (RBT.lookup rbt x1) (\
 definition "insert2 = (\<lambda>(x1, x2) v. modify_def RBT.empty x1 (RBT.insert x2 v))"
 
 definition "List_unique f l = List.map_filter id (fst
-  (fold_list
+  (L.mapM
     (\<lambda> (cpt, v) rbt. 
       let f_cpt = f cpt in
       if RBT.lookup rbt f_cpt = None then

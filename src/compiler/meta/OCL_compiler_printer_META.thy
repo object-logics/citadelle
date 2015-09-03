@@ -67,7 +67,7 @@ definition "concatWith l =
   else
     sprint2 \<prec>''(%s. (%s))''\<succ>\<acute> (To_string (String_concatWith \<open> \<close> (\<open>\<lambda>\<close> # rev l))))"
 
-definition "String_concat_map s f l = String_concat s (List_map f l)"
+definition "String_concat_map s f l = String_concat s (L.map f l)"
 
 declare[[cartouche_type = "String.literal"]]
 
@@ -109,7 +109,7 @@ definition' \<open>s_of_ocl_instance_single ocli =
     (s_of_ocl_list_attr
       (\<lambda>l. sprint1 \<open>[ %s ]\<close>\<acute>
              (String_concat \<open>, \<close>
-               (List_map (\<lambda>(pre_post, attr, v).
+               (L.map (\<lambda>(pre_post, attr, v).
                             sprint3 \<open>%s"%s" = %s\<close>\<acute> (case pre_post of None \<Rightarrow> \<open>\<close>
                                                                    | Some (s1, s2) \<Rightarrow> sprint2 \<open>("%s", "%s") |= \<close>\<acute> (To_string s1) (To_string s2))
                                                    (To_string attr)
@@ -118,7 +118,7 @@ definition' \<open>s_of_ocl_instance_single ocli =
       (Inst_attr ocli))\<close>
 
 definition "s_of_def_state l =
-  String_concat \<open>, \<close> (List_map (\<lambda> OclDefCoreBinding s \<Rightarrow> To_string s
+  String_concat \<open>, \<close> (L.map (\<lambda> OclDefCoreBinding s \<Rightarrow> To_string s
                                 | OclDefCoreAdd ocli \<Rightarrow> s_of_ocl_instance_single ocli) l)"
 
 definition "s_of_def_pp_core = (\<lambda> OclDefPPCoreBinding s \<Rightarrow> To_string s
@@ -133,22 +133,22 @@ definition' \<open>s_of_all_meta_embedding _ =
       sprint3 \<open>Context[shallow] %s%s %s\<close>\<acute>
         (case Ctxt_param ctxt of
            [] \<Rightarrow> \<open>\<close>
-         | l \<Rightarrow> sprint1 \<open>%s : \<close>\<acute> (String_concat \<open>, \<close> (List_map To_string l)))
+         | l \<Rightarrow> sprint1 \<open>%s : \<close>\<acute> (String_concat \<open>, \<close> (L.map To_string l)))
         (To_string (ty_obj_to_string (Ctxt_ty ctxt)))
 (String_concat \<open>
-\<close> (List_map (\<lambda> Ctxt_pp ctxt \<Rightarrow>
+\<close> (L.map (\<lambda> Ctxt_pp ctxt \<Rightarrow>
                 sprint4 \<open>:: %s (%s) %s
 %s\<close>\<acute>
         (To_string (Ctxt_fun_name ctxt))
         (String_concat \<open>, \<close>
-          (List_map
+          (L.map
             (\<lambda> (s, ty). sprint2 \<open>%s : %s\<close>\<acute> (To_string s) (To_string (str_of_ty ty)))
             (Ctxt_fun_ty_arg ctxt)))
         (case Ctxt_fun_ty_out ctxt of None \<Rightarrow> \<open>\<close>
                                     | Some ty \<Rightarrow> sprint1 \<open>: %s\<close>\<acute> (To_string (str_of_ty ty)))
         (String_concat \<open>
 \<close>
-          (List_map
+          (L.map
             (\<lambda> T_pp pref (OclProp_ctxt n s) \<Rightarrow> sprint3 \<open>  %s %s: "%s"\<close>\<acute>
                 (case pref of OclCtxtPre \<Rightarrow> \<open>Pre\<close>
                             | OclCtxtPost \<Rightarrow> \<open>Post\<close>)
@@ -162,7 +162,7 @@ definition' \<open>s_of_all_meta_embedding _ =
 
   | META_instance (OclInstance l) \<Rightarrow>
       sprint1 \<open>Instance %s\<close>\<acute> (String_concat \<open>
-     and \<close> (List_map s_of_ocl_instance_single l))
+     and \<close> (L.map s_of_ocl_instance_single l))
   | META_def_state Floor2 (OclDefSt n l) \<Rightarrow> 
       sprint2 \<open>State[shallow] %s = [ %s ]\<close>\<acute>
         (To_string n)
@@ -233,12 +233,12 @@ definition "s_of_thy_extended ocl = (\<lambda>
 definition "s_of_thy_list ocl l_thy =
   (let (th_beg, th_end) = case D_output_header_thy ocl of None \<Rightarrow> ([], [])
    | Some (name, fic_import, fic_import_boot) \<Rightarrow>
-       ( [ sprint2 \<open>theory %s imports %s begin\<close>\<acute> (To_string name) (s_of_expr (expr_binop \<langle>'' ''\<rangle> (List_map Expr_string (fic_import @@@@ (if D_output_header_force ocl | D_output_auto_bootstrap ocl then [fic_import_boot] else []))))) ]
+       ( [ sprint2 \<open>theory %s imports %s begin\<close>\<acute> (To_string name) (s_of_expr (expr_binop \<langle>'' ''\<rangle> (L.map Expr_string (fic_import @@@@ (if D_output_header_force ocl | D_output_auto_bootstrap ocl then [fic_import_boot] else []))))) ]
        , [ \<open>\<close>, \<open>end\<close> ]) in
-  List_flatten
+  L.flatten
         [ th_beg
-        , List_flatten (fst (fold_list (\<lambda>l (i, cpt).
-            let (l_thy, lg) = fold_list (\<lambda>l n. (s_of_thy_extended ocl l, Succ n)) l 0 in
+        , L.flatten (fst (L.mapM (\<lambda>l (i, cpt).
+            let (l_thy, lg) = L.mapM (\<lambda>l n. (s_of_thy_extended ocl l, Succ n)) l 0 in
             (( \<open>\<close>
              # sprint4 \<open>%s(* %d ************************************ %d + %d *)\<close>\<acute>
                  (To_string (if compiler_env_config.more ocl then \<langle>''''\<rangle> else \<degree>char_escape\<degree>)) (To_nat (Succ i)) (To_nat cpt) (To_nat lg)

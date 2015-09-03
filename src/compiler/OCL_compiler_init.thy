@@ -99,30 +99,31 @@ declare[[cartouche_type = "abr_string"]]
 
 subsection{* ... *}
 
-definition "List_mapi f l = rev (fst (foldl (\<lambda>(l,cpt) x. (f cpt x # l, Succ cpt)) ([], 0::nat) l))"
-definition "List_iter f = foldl (\<lambda>_. f) ()"
-definition "List_maps f x = List_flatten (List_map f x)"
-definition List_append (infixr "@@@@" 65) where "List_append a b = List_flatten [a, b]"
-definition "List_filter f l = rev (foldl (\<lambda>l x. if f x then x # l else l) [] l)"
-definition "rev_map f = foldl (\<lambda>l x. f x # l) []"
-definition "fold_list f l accu =
-  (let (l, accu) = List.fold (\<lambda>x (l, accu). let (x, accu) = f x accu in (x # l, accu)) l ([], accu) in
-   (rev l, accu))"
-definition "char_escape = Char Nibble0 Nibble9"
-definition "List_assoc x1 l = List.fold (\<lambda>(x2, v). \<lambda>None \<Rightarrow> if x1 = x2 then Some v else None | x \<Rightarrow> x) l None"
-definition "List_split l = (List_map fst l, List_map snd l)"
-definition "List_upto i j =
- (let to_i = \<lambda>n. int_of_integer (integer_of_natural n) in
-  List_map (natural_of_integer o integer_of_int) (upto (to_i i) (to_i j)))"
-definition "List_split_at f l =
- (let f = \<lambda>x. \<not> f x in
-  (takeWhile f l, case dropWhile f l of [] \<Rightarrow> (None, []) | x # xs \<Rightarrow> (Some x, xs)))"
-definition "List_take reverse lg l = reverse (snd (List_split (takeWhile (\<lambda>(n, _). n < lg) (enumerate 0 (reverse l)))))"
-definition "List_take_last = List_take rev"
-definition "List_take_first = List_take id"
 datatype ('a, 'b) nsplit = Nsplit_text 'a
                          | Nsplit_sep 'b
-definition "List_replace_gen f_res l c0 lby =
+context L
+begin
+definition "mapi f l = rev (fst (foldl (\<lambda>(l,cpt) x. (f cpt x # l, Succ cpt)) ([], 0::nat) l))"
+definition "iter f = foldl (\<lambda>_. f) ()"
+definition "maps f x = L.flatten (L.map f x)"
+definition append where "append a b = L.flatten [a, b]"
+definition filter where "filter f l = rev (foldl (\<lambda>l x. if f x then x # l else l) [] l)"
+definition "rev_map f = foldl (\<lambda>l x. f x # l) []"
+definition "mapM f l accu =
+  (let (l, accu) = List.fold (\<lambda>x (l, accu). let (x, accu) = f x accu in (x # l, accu)) l ([], accu) in
+   (rev l, accu))"
+definition "assoc x1 l = List.fold (\<lambda>(x2, v). \<lambda>None \<Rightarrow> if x1 = x2 then Some v else None | x \<Rightarrow> x) l None"
+definition split where "split l = (L.map fst l, L.map snd l)"
+definition upto where "upto i j =
+ (let to_i = \<lambda>n. int_of_integer (integer_of_natural n) in
+  L.map (natural_of_integer o integer_of_int) (List.upto (to_i i) (to_i j)))"
+definition "split_at f l =
+ (let f = \<lambda>x. \<not> f x in
+  (takeWhile f l, case dropWhile f l of [] \<Rightarrow> (None, []) | x # xs \<Rightarrow> (Some x, xs)))"
+definition take where "take reverse lg l = reverse (snd (L.split (takeWhile (\<lambda>(n, _). n < lg) (enumerate 0 (reverse l)))))"
+definition "take_last = take rev"
+definition "take_first = take id"
+definition "replace_gen f_res l c0 lby =
  (let Nsplit_text = \<lambda>l lgen. if l = [] then lgen else Nsplit_text l # lgen in
   case List.fold
          (\<lambda> c1 (l, lgen).
@@ -133,23 +134,51 @@ definition "List_replace_gen f_res l c0 lby =
          (rev l)
          ([], [])
   of (l, lgen) \<Rightarrow> f_res (Nsplit_text l lgen))"
-definition "List_nsplit_f l c0 = List_replace_gen id l c0 []"
-definition "List_replace = List_replace_gen (List_flatten o List_map (\<lambda> Nsplit_text l \<Rightarrow> l | _ \<Rightarrow> []))"
+definition "nsplit_f l c0 = replace_gen id l c0 []"
+definition "replace = replace_gen (L.flatten o L.map (\<lambda> Nsplit_text l \<Rightarrow> l | _ \<Rightarrow> []))"
 
-fun List_map_find_aux where
-   "List_map_find_aux accu f l = (\<lambda> [] \<Rightarrow> List.rev accu
+fun map_find_aux where
+   "map_find_aux accu f l = (\<lambda> [] \<Rightarrow> List.rev accu
                          | x # xs \<Rightarrow> (case f x of Some x \<Rightarrow> List.fold Cons accu (x # xs)
-                                                | None \<Rightarrow> List_map_find_aux (x # accu) f xs)) l"
-definition "List_map_find = List_map_find_aux []"
+                                                | None \<Rightarrow> map_find_aux (x # accu) f xs)) l"
+definition "map_find = map_find_aux []"
 
+end
+notation L.append (infixr "@@@@" 65)
+
+lemmas [code] =
+  (*def*)
+  L.mapi_def
+  L.iter_def
+  L.maps_def
+  L.append_def
+  L.filter_def
+  L.rev_map_def
+  L.mapM_def
+  L.assoc_def
+  L.split_def
+  L.upto_def
+  L.split_at_def
+  L.take_def
+  L.take_last_def
+  L.take_first_def
+  L.replace_gen_def
+  L.nsplit_f_def
+  L.replace_def
+  L.map_find_def
+
+  (*fun*)
+  L.map_find_aux.simps
+
+definition "char_escape = Char Nibble0 Nibble9"
 definition "flatten = String_concatWith \<open>\<close>"
 definition String_flatten (infixr "@@" 65) where "String_flatten a b = flatten [a, b]"
-definition "String_make n c = \<lless>List_map (\<lambda>_. c) (List_upto 1 n)\<ggreater>"
+definition "String_make n c = \<lless>L.map (\<lambda>_. c) (L.upto 1 n)\<ggreater>"
 definition "ST0 c = \<lless>[c]\<ggreater>"
 definition "ST0_base c = ST' [c]"
 
 definition "String\<^sub>b\<^sub>a\<^sub>s\<^sub>e_map_gen replace g = (\<lambda> ST s \<Rightarrow> replace \<open>\<close> (Some s) \<open>\<close>
-                                           | ST' s \<Rightarrow> flatten (List_map g s))"
+                                           | ST' s \<Rightarrow> flatten (L.map g s))"
 fun String_map_gen where
    "String_map_gen replace g e =
      (\<lambda> SS_base s \<Rightarrow> String\<^sub>b\<^sub>a\<^sub>s\<^sub>e_map_gen replace g s
@@ -166,7 +195,7 @@ fun String_foldl where
                  | x # xs \<Rightarrow> foldl (\<lambda>accu. String_foldl f (String_foldl f accu abr)) (String_foldl f accu x) xs)) e"
 
 definition "replace_chars f s1 s s2 =
-  s1 @@ (case s of None \<Rightarrow> \<open>\<close> | Some s \<Rightarrow> flatten (List_map f (String.explode s))) @@ s2"
+  s1 @@ (case s of None \<Rightarrow> \<open>\<close> | Some s \<Rightarrow> flatten (L.map f (String.explode s))) @@ s2"
 
 definition "String_map f = String_map_gen (replace_chars (\<lambda>c. \<degree>f c\<degree>)) (\<lambda>x. \<degree>f x\<degree>)"
 definition "String_replace_chars f = String_map_gen (replace_chars (\<lambda>c. f c)) f"
@@ -185,15 +214,15 @@ definition "String_equal s1 s2 = (String_to_list s1 = String_to_list s2)"
 
 (* *)
 
-definition "List_assoc' x l = List_assoc (String_to_list x) (List_map (map_prod String\<^sub>b\<^sub>a\<^sub>s\<^sub>e_to_list id) l)"
+definition "List_assoc' x l = L.assoc (String_to_list x) (L.map (map_prod String\<^sub>b\<^sub>a\<^sub>s\<^sub>e_to_list id) l)"
 syntax "_list_assoc" :: "string \<Rightarrow> (string\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<times> 'a) list \<Rightarrow> 'a option" ("List.assoc")
 translations "List.assoc" \<rightleftharpoons> "CONST List_assoc'"
 
-definition "List_member' l x = List.member (List_map String\<^sub>b\<^sub>a\<^sub>s\<^sub>e_to_list l) (String_to_list x)"
+definition "List_member' l x = List.member (L.map String\<^sub>b\<^sub>a\<^sub>s\<^sub>e_to_list l) (String_to_list x)"
 syntax "_list_member" :: "string\<^sub>b\<^sub>a\<^sub>s\<^sub>e list \<Rightarrow> string \<Rightarrow> bool" ("List'_member")
 translations "List_member" \<rightleftharpoons> "CONST List_member'"
 
-definition "flatten_base l = String_to_String\<^sub>b\<^sub>a\<^sub>s\<^sub>e (flatten (List_map String\<^sub>b\<^sub>a\<^sub>s\<^sub>e_to_String l))"
+definition "flatten_base l = String_to_String\<^sub>b\<^sub>a\<^sub>s\<^sub>e (flatten (L.map String\<^sub>b\<^sub>a\<^sub>s\<^sub>e_to_String l))"
 
 section{* Preliminaries *}
 
@@ -229,14 +258,14 @@ definition "wildcard = \<open>_\<close>"
 definition "lowercase_of_str = String_map (\<lambda>c. let n = nat_of_char c in if n < 97 then char_of_nat (n + 32) else c)"
 definition "uppercase_of_str = String_map (\<lambda>c. let n = nat_of_char c in if n < 97 then c else char_of_nat (n - 32))"
 definition "number_of_str = String_replace_chars (\<lambda>c. [\<open>\<zero>\<close>, \<open>\<one>\<close>, \<open>\<two>\<close>, \<open>\<three>\<close>, \<open>\<four>\<close>, \<open>\<five>\<close>, \<open>\<six>\<close>, \<open>\<seven>\<close>, \<open>\<eight>\<close>, \<open>\<nine>\<close>] ! (nat_of_char c - 48))"
-definition "nat_raw_of_str = List_map (\<lambda>i. char_of_nat (nat_of_char (Char Nibble3 Nibble0) + i))"
+definition "nat_raw_of_str = L.map (\<lambda>i. char_of_nat (nat_of_char (Char Nibble3 Nibble0) + i))"
 fun nat_of_str_aux where
    "nat_of_str_aux l (n :: Nat.nat) = (if n < 10 then n # l else nat_of_str_aux (n mod 10 # l) (n div 10))"
 definition "nat_of_str n = \<lless>nat_raw_of_str (nat_of_str_aux [] n)\<ggreater>"
 definition "natural_of_str = nat_of_str o nat_of_natural"
 definition "add_0 n =
  (let n = nat_of_char n in
-  flatten (List_map (\<lambda>_. \<open>0\<close>) (upt 0 (if n < 10 then 2 else if n < 100 then 1 else 0)))
+  flatten (L.map (\<lambda>_. \<open>0\<close>) (upt 0 (if n < 10 then 2 else if n < 100 then 1 else 0)))
   @@ nat_of_str n)"
 definition "is_letter n = (n \<ge> CHR ''A'' & n \<le> CHR ''Z'' | n \<ge> CHR ''a'' & n \<le> CHR ''z'')"
 definition "is_digit n = (n \<ge> CHR ''0'' & n \<le> CHR ''9'')"
@@ -264,10 +293,10 @@ definition "textstr_of_str f_flatten f_char f_str str =
     ; s = \<open>c\<close>
     ; f_text = \<lambda> Nsplit_text l \<Rightarrow> flatten [f_str (flatten [\<open>STR ''\<close>,\<lless>l\<ggreater>,\<open>''\<close>])]
                | Nsplit_sep c \<Rightarrow> flatten [f_char c]
-    ; str = case List_nsplit_f str0 (Not o f_letter) of
+    ; str = case L.nsplit_f str0 (Not o f_letter) of
               [] \<Rightarrow> flatten [f_str \<open>STR ''''\<close>]
             | [x] \<Rightarrow> f_text x
-            | l \<Rightarrow> flatten (List_map (\<lambda>x. \<open>(\<close> @@ f_text x @@ \<open>) # \<close>) l) @@ \<open>[]\<close> in
+            | l \<Rightarrow> flatten (L.map (\<lambda>x. \<open>(\<close> @@ f_text x @@ \<open>) # \<close>) l) @@ \<open>[]\<close> in
   if list_all f_letter str0 then
     str
   else
@@ -279,7 +308,7 @@ definition' \<open>escape_sml = String_replace_chars ((* (* ERROR code_reflect *
 
 definition "mk_constr_name name = (\<lambda> x. flatten [isub_of_str name, \<open>_\<close>, isub_of_str x])"
 definition "mk_dot s1 s2 = flatten [\<open>.\<close>, s1, s2]"
-definition "mk_dot_par_gen dot l_s = flatten [dot, \<open>(\<close>, case l_s of [] \<Rightarrow> \<open>\<close> | x # xs \<Rightarrow> flatten [x, flatten (List_map (\<lambda>s. \<open>, \<close> @@ s) xs) ], \<open>)\<close>]"
+definition "mk_dot_par_gen dot l_s = flatten [dot, \<open>(\<close>, case l_s of [] \<Rightarrow> \<open>\<close> | x # xs \<Rightarrow> flatten [x, flatten (L.map (\<lambda>s. \<open>, \<close> @@ s) xs) ], \<open>)\<close>]"
 definition "mk_dot_par dot s = mk_dot_par_gen dot [s]"
 definition "mk_dot_comment s1 s2 s3 = mk_dot s1 (flatten [s2, \<open> /*\<close>, s3, \<open>*/\<close>])"
 

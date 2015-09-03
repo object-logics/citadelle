@@ -52,7 +52,7 @@ section{* Translation of AST *}
 subsection{* infrastructure *}
 
 definition "print_infra_enum_synonym _ ocl = (\<lambda>f. (f (fst (find_class_ass ocl)), ocl))
- (List_flatten o List_map
+ (L.flatten o L.map
    (\<lambda> META_class_synonym (OclClassSynonym n1 n2) \<Rightarrow>
         [ O.type_synonym (Type_synonym' (pref_ty_syn n1) (Ty_base (str_hol_of_ty_all (\<lambda>a _. a) id n2))) ]
     | _ \<Rightarrow> []))"
@@ -60,12 +60,12 @@ definition "print_infra_enum_synonym _ ocl = (\<lambda>f. (f (fst (find_class_as
 definition "print_infra_datatype_class = start_map'' O.datatype o (\<lambda>expr _ base_attr' _. map_class_gen_h''''
   (\<lambda>isub_name name _ l_attr l_inherited l_cons.
     let (l_attr, l_inherited) = base_attr' (l_attr, of_inh l_inherited)
-      ; map_ty = List_map ((\<lambda>x. Ty_apply (Ty_base \<open>option\<close>) [str_hol_of_ty_all Ty_apply Ty_base x]) o snd) in
+      ; map_ty = L.map ((\<lambda>x. Ty_apply (Ty_base \<open>option\<close>) [str_hol_of_ty_all Ty_apply Ty_base x]) o snd) in
     [ Datatype
         (isub_name datatype_ext_name)
-        (  (rev_map (\<lambda>x. ( datatype_ext_constr_name @@ mk_constr_name name x
+        (  (L.rev_map (\<lambda>x. ( datatype_ext_constr_name @@ mk_constr_name name x
                          , [Raw (datatype_name @@ isub_of_str x)])) (of_sub l_cons))
-        @@@@ [(isub_name datatype_ext_constr_name, Raw const_oid # List_maps map_ty l_inherited)])
+        @@@@ [(isub_name datatype_ext_constr_name, Raw const_oid # L.maps map_ty l_inherited)])
     , Datatype
         (isub_name datatype_name)
         [ (isub_name datatype_constr_name, Raw (isub_name datatype_ext_name) # map_ty l_attr ) ] ]) expr)"
@@ -73,14 +73,14 @@ definition "print_infra_datatype_class = start_map'' O.datatype o (\<lambda>expr
 definition' \<open>print_latex_infra_datatype_class = start_map'' O.datatype o (\<lambda>expr _ base_attr' _. map_class_gen_h''''
   (\<lambda>isub_name name _ l_attr l_inherited l_cons.
     let (l_attr, l_inherited) = base_attr' (l_attr, of_inh l_inherited)
-      ; map_ty = List_map ((\<lambda>x. Ty_apply (Ty_base \<open>option\<close>) [str_hol_of_ty_all Ty_apply Ty_base x]) o snd)
+      ; map_ty = L.map ((\<lambda>x. Ty_apply (Ty_base \<open>option\<close>) [str_hol_of_ty_all Ty_apply Ty_base x]) o snd)
       ; n1 = \<open>{ext}\<close>
       ; n2 = \<open>{ty}\<close> in
     [ Datatype
         (\<open>\operatorname{\<close> @@ name @@ \<open>}_\<close> @@ n1 @@ \<open>\<close>)
-        (  (rev_map (\<lambda>x. ( \<open>\operatorname{mk}_\text{\<close> @@ name @@ \<open>\_\<close> @@ x @@ \<open>}\<close>
+        (  (L.rev_map (\<lambda>x. ( \<open>\operatorname{mk}_\text{\<close> @@ name @@ \<open>\_\<close> @@ x @@ \<open>}\<close>
                          , [Raw (\<open>\operatorname{\<close> @@ x @@ \<open>}_\<close> @@ n2 @@ \<open>\<close>)])) (of_sub l_cons))
-        @@@@ [(\<open>\operatorname{mk}_\text{\<close> @@ name @@ \<open>}\<close>, Raw const_oid # List_maps map_ty l_inherited)])
+        @@@@ [(\<open>\operatorname{mk}_\text{\<close> @@ name @@ \<open>}\<close>, Raw const_oid # L.maps map_ty l_inherited)])
     , Datatype
         (\<open>\operatorname{\<close> @@ name @@ \<open>}_\<close> @@ n2 @@ \<open>\<close>)
         [ (\<open>\operatorname{mkoid}_\text{\<close> @@ name @@ \<open>}\<close>, Raw (\<open>\operatorname{\<close> @@ name @@ \<open>}_\<close> @@ n1 @@ \<open>\<close>) # map_ty l_attr ) ] ]) expr)\<close>
@@ -89,18 +89,18 @@ definition "print_infra_datatype_universe expr = start_map O.datatype
   [ Datatype \<open>\<AA>\<close>
       (map_class (\<lambda>isub_name _ _ _ _ _. (isub_name datatype_in, [Raw (isub_name datatype_name)])) expr) ]"
 
-definition "print_infra_enum_syn _ ocl = (\<lambda>f1 f2. (List_flatten [f1 (D_input_meta ocl), f2 (fst (find_class_ass ocl))], ocl))
- (List_flatten o List_map
+definition "print_infra_enum_syn _ ocl = (\<lambda>f1 f2. (L.flatten [f1 (D_input_meta ocl), f2 (fst (find_class_ass ocl))], ocl))
+ (L.flatten o L.map
     (\<lambda> META_enum (OclEnum name_ty _) \<Rightarrow>
          [O.type_synonym (Type_synonym' name_ty (Ty_apply (Ty_base (pref_generic_enum name_ty)) [Ty_base \<open>\<AA>\<close>]))]
      | _ \<Rightarrow> []))
- (List_flatten o List_map
+ (L.flatten o L.map
     (\<lambda> META_class_synonym (OclClassSynonym name_ty ty) \<Rightarrow>
          [O.type_synonym (Type_synonym' name_ty (Ty_base (str_of_ty ty)))]
      | _ \<Rightarrow> []))"
 
 definition "print_infra_type_synonym_class _ = start_map id
-  (List_map O.type_synonym
+  (L.map O.type_synonym
     (let ty = \<lambda> t s. Type_synonym' (str_of_ty t) (Ty_apply (Ty_base s) [Ty_base \<open>\<AA>\<close>]) in
      (* base type *)
      ty OclTy_base_void ty_void #
@@ -113,12 +113,12 @@ definition "print_infra_type_synonym_class _ = start_map id
      Type_synonym'' var_val' [\<open>'\<alpha>\<close>] (\<lambda> [alpha] \<Rightarrow> Ty_apply (Ty_base \<open>val\<close>) [Ty_base \<open>\<AA>\<close>, Ty_base alpha ]) #
      [])
    @@@@
-   List_map O.type_notation
+   L.map O.type_notation
      [ Type_notation var_val' \<open>\<cdot>(_)\<close> ])"
 
 definition "print_infra_type_synonym_class_higher expr = start_map O.type_synonym
  (let option = Ty_apply_paren \<open>\<langle>\<close> \<open>\<rangle>\<^sub>\<bottom>\<close> in
-  List_flatten
+  L.flatten
     (map_class
       (\<lambda>isub_name name _ _ _ _.
         [ Type_synonym' name
@@ -128,7 +128,7 @@ definition "print_infra_type_synonym_class_higher expr = start_map O.type_synony
 
 definition "print_infra_type_synonym_class_rec = (\<lambda>expr ocl.
   map_prod id (\<lambda> D_ocl_HO_type. ocl \<lparr> D_ocl_HO_type := D_ocl_HO_type \<rparr>)
-    (List_split (List_map (\<lambda>(tit, body). (O.type_synonym (Type_synonym' (String\<^sub>b\<^sub>a\<^sub>s\<^sub>e_to_String tit) body), tit))
+    (L.split (L.map (\<lambda>(tit, body). (O.type_synonym (Type_synonym' (String\<^sub>b\<^sub>a\<^sub>s\<^sub>e_to_String tit) body), tit))
                           (snd (fold_class (\<lambda>_ _ l_attr _ _ _.
                                              Pair () o List.fold
                                                (\<lambda>(_, t) l.
@@ -159,14 +159,14 @@ definition "print_infra_instantiation_class = start_map'' O.instantiation o (\<l
         \<open>=\<close>
         (Expr_function
                    [ let var_oid = \<open>t\<close> in
-                     ( Expr_basic (isub_name datatype_constr_name # var_oid # List_map (\<lambda>_. wildcard) l_attr)
+                     ( Expr_basic (isub_name datatype_constr_name # var_oid # L.map (\<lambda>_. wildcard) l_attr)
                      , Expr_case
                          (Expr_basic [var_oid])
                          ( ( Expr_app
                                (isub_name datatype_ext_constr_name)
-                               (Expr_basic [var_oid] # List_flatten (List_map (List_map (\<lambda>_. Expr_basic [wildcard])) l_inherited))
+                               (Expr_basic [var_oid] # L.flatten (L.map (L.map (\<lambda>_. Expr_basic [wildcard])) l_inherited))
                            , Expr_basic [var_oid])
-                         # List_map (\<lambda>x. ( Expr_app (datatype_ext_constr_name @@ mk_constr_name name x) [Expr_basic [var_oid]]
+                         # L.map (\<lambda>x. ( Expr_app (datatype_ext_constr_name @@ mk_constr_name name x) [Expr_basic [var_oid]]
                                          , Expr_app oid_of [Expr_basic [var_oid]])) (of_sub l_cons)))]))
     ]) expr)"
 
@@ -201,8 +201,8 @@ definition "print_instantia_lemmas_strictrefeq = start_map'
      \<lambda>expr.
        let mk_strict = (\<lambda>l. flatten (\<open>StrictRefEq\<close> # isub_of_str \<open>Object\<close> # l))
          ; name_set = map_class (\<lambda>_ name _ _ _ _. print_instantia_def_strictrefeq_name mk_strict name) expr in
-       case name_set of [] \<Rightarrow> [] | _ \<Rightarrow> List_map O.lemmas
-         [ Lemmas_simp \<open>\<close> (List_map (T.thm) name_set) ]
+       case name_set of [] \<Rightarrow> [] | _ \<Rightarrow> L.map O.lemmas
+         [ Lemmas_simp \<open>\<close> (L.map (T.thm) name_set) ]
   else (\<lambda>_. []))"
 
 end

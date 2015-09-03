@@ -56,8 +56,8 @@ definition "print_enum = (\<lambda> OclEnum name_ty l \<Rightarrow> Pair
     ; name_ty_base = name_ty @@ isub_of_str \<open>base\<close>
     ; name_ty_base' = pref_generic_enum name_ty
     ; uu = \<open>'\<AA>\<close> in
-  List_flatten
-  [ [ O.datatype (Datatype (pref_ty_enum name_ty) (List_map (\<lambda>constr. (pref_constr_enum constr, [])) l))
+  L.flatten
+  [ [ O.datatype (Datatype (pref_ty_enum name_ty) (L.map (\<lambda>constr. (pref_constr_enum constr, [])) l))
     , O.type_synonym (Type_synonym' name_ty_base (option (option (Ty_base (pref_ty_enum name_ty)))))
     , O.type_synonym (Type_synonym'' name_ty_base' [uu] (\<lambda> [u] \<Rightarrow> Ty_apply (Ty_base \<open>val\<close>) [Ty_base u, Ty_base name_ty_base]))
     , O.defs
@@ -75,7 +75,7 @@ definition "print_enum = (\<lambda> OclEnum name_ty l \<Rightarrow> Pair
                    Expr_binop (f var_x) \<open>\<and>\<close> (f var_y))
                   (Expr_applys (Expr_rewrite (b var_x) \<open>\<triangleq>\<close> (b var_y)) [b var_tau])
                   (a \<open>invalid\<close> (b var_tau)))))) ]
-  , List_map
+  , L.map
       (\<lambda>constr.
         O.definition
           (Definition (Expr_rewrite (b constr)

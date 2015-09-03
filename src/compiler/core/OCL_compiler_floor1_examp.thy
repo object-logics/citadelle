@@ -84,7 +84,7 @@ definition "print_examp_oclbase_gen =
           Definition
             (Expr_rewrite (b name) \<open>=\<close> (Expr_lambda wildcard (Expr_some (Expr_some ab_name))))))"
 
-definition "print_examp_oclbase = (\<lambda> OclDefBase l \<Rightarrow> (start_map O.definition o List_map (snd o print_examp_oclbase_gen)) l)"
+definition "print_examp_oclbase = (\<lambda> OclDefBase l \<Rightarrow> (start_map O.definition o L.map (snd o print_examp_oclbase_gen)) l)"
 
 datatype print_examp_instance_draw_list_attr = Return_obj ocl_ty_class
                                              | Return_exp hol__expr
@@ -121,16 +121,16 @@ fun has_invalid where
                      | _ \<Rightarrow> False) e"
 
 definition "list_bind f0 f l =
- (let l = List_map f0 l in
+ (let l = L.map f0 l in
   if list_ex (\<lambda> None \<Rightarrow> True | _ \<Rightarrow> False) l then
     None
   else
     Some (f (List.map_filter id l)))"
 
 definition "list_bind\<^sub>e\<^sub>r\<^sub>r f0 f l =
- (case List.partition (\<lambda> Return_err _ \<Rightarrow> True | _ \<Rightarrow> False) (List_map f0 l) of
-    ([], l) \<Rightarrow> Return_val (f (List_map (\<lambda> Return_val e \<Rightarrow> e) l))
-  | (l, _) \<Rightarrow> Return_err (Return_err_l (List_map (\<lambda> Return_err e \<Rightarrow> e) l)))"
+ (case List.partition (\<lambda> Return_err _ \<Rightarrow> True | _ \<Rightarrow> False) (L.map f0 l) of
+    ([], l) \<Rightarrow> Return_val (f (L.map (\<lambda> Return_val e \<Rightarrow> e) l))
+  | (l, _) \<Rightarrow> Return_err (Return_err_l (L.map (\<lambda> Return_err e \<Rightarrow> e) l)))"
 
 definition "filter_ocl_exn s v = 
      (if String_equal s \<open>null\<close> then
@@ -212,7 +212,7 @@ definition "rbt_of_class ocl =
             (rbt, (tag, n)) in
           (\<lambda>(rbt, _).
            let (rbt, info_own) = f_fold OptOwn l_attr rbt in
-           let (rbt, info_inh) = f_fold OptInh (List_flatten (map_class_inh l_inh)) rbt in
+           let (rbt, info_inh) = f_fold OptInh (L.flatten (map_class_inh l_inh)) rbt in
            (rbt, [info_own, info_inh])))
          rbt)) RBT.empty) (case D_input_class ocl of Some c \<Rightarrow> c) in
    (\<lambda>name.
@@ -230,10 +230,10 @@ definition "rbt_of_class ocl =
                else
                  \<lambda> Some _ \<Rightarrow> (\<lambda>(n, accu). (Succ n, accu))
                  | None \<Rightarrow> f_fold None) (rev l) (0, accu) in
-          accu) (List_assoc v l)))))"
+          accu) (L.assoc v l)))))"
 
 definition "fill_blank f_blank =
-  List_map (\<lambda> (attr_ty, l).
+  L.map (\<lambda> (attr_ty, l).
     case f_blank attr_ty of Some f_fold \<Rightarrow>
     let rbt = List.fold (\<lambda> ((ty, _, ident), shallow) \<Rightarrow> RBT.insert ident (ty, shallow)) l RBT.empty in
     (attr_ty, rev (f_fold (\<lambda>b n l. (b, RBT.lookup rbt (OptIdent n)) # l) [])))"
@@ -285,7 +285,7 @@ definition "init_map_class ocl l =
          , Succ accu))
        l
        ( RBT.empty
-       , RBT.bulkload (List_map (\<lambda>(k, _, v). (String\<^sub>b\<^sub>a\<^sub>s\<^sub>e_to_list k, v)) (D_input_instance ocl))
+       , RBT.bulkload (L.map (\<lambda>(k, _, v). (String\<^sub>b\<^sub>a\<^sub>s\<^sub>e_to_list k, v)) (D_input_instance ocl))
        , D_ocl_oid_start ocl
        , 0) in
    (rbt_of_class ocl, RBT.lookup rbt_nat, lookup rbt_str))"
@@ -308,7 +308,7 @@ definition "print_examp_def_st_assoc_build_rbt_gen f rbt map_self map_username l
                                                       Some (List.map_filter find_map l)
                                  | _ \<Rightarrow> map_option (\<lambda>x. [x]) (find_map shall) of
                       None \<Rightarrow> (l, accu)
-                    | Some oid \<Rightarrow> (List_map (List_map oidGetInh) [[cpt], oid] # l, accu))
+                    | Some oid \<Rightarrow> (L.map (L.map oidGetInh) [[cpt], oid] # l, accu))
            | _ \<Rightarrow> id) l_attr)) ocli) l_assoc RBT.empty"
 
 fun fold_data_shallow where "fold_data_shallow f_str f_self f x accu =
@@ -340,12 +340,12 @@ definition' \<open>print_examp_def_st_assoc_build_rbt_gen_typecheck check_ty f_a
                                          x
                                          []
                       ; (accu, rbt) =
-                          case case shall of ShallB_list l \<Rightarrow> List_flatten (List_map find_map l)
+                          case case shall of ShallB_list l \<Rightarrow> L.flatten (L.map find_map l)
                                            | _ \<Rightarrow> find_map shall of
                             [] \<Rightarrow> (accu, rbt)
                           | l \<Rightarrow> (* some rhs variables are authorized because some could have been introduced in HOL side (between 2 meta embedded commands) *)
                                  ( if pre_post = None then 
-                                     (Error, flatten [ \<open>Extra variables on rhs: \<close>, String_concatWith \<open>, \<close> (List_map (\<lambda>s. \<open>"\<close> @@ s @@ \<open>"\<close>) l)
+                                     (Error, flatten [ \<open>Extra variables on rhs: \<close>, String_concatWith \<open>, \<close> (L.map (\<lambda>s. \<open>"\<close> @@ s @@ \<open>"\<close>) l)
                                                      , \<open> in the definition of "\<close>, Inst_name_ocli, \<open>"\<close> ]) # accu
                                    else accu
                                  , rbt)
@@ -416,9 +416,9 @@ definition "print_examp_def_st_assoc rbt map_self map_username l_assoc =
              , Expr_list' (Expr_list' (Expr_list' (Expr_oid var_oid_uniq))) l_attr ])
          # l_cons)) rbt [])])"
 
-definition "print_examp_instance_oid thy_definition_hol l ocl = (List_map thy_definition_hol o List_flatten)
+definition "print_examp_instance_oid thy_definition_hol l ocl = (L.map thy_definition_hol o L.flatten)
  (let (f1, f2) = (\<lambda> var_oid _ _. var_oid, \<lambda> _ _ cpt. Expr_oid \<open>\<close> (oidGetInh cpt)) in
-  List_map (\<lambda> (ocli, cpt).
+  L.map (\<lambda> (ocli, cpt).
     if List.fold (\<lambda>(_, _, cpt0) b. b | oidGetInh cpt0 = oidGetInh cpt) (D_input_instance ocl) False then
       []
     else
@@ -427,11 +427,11 @@ definition "print_examp_instance_oid thy_definition_hol l ocl = (List_map thy_de
       [Definition (Expr_rewrite (f1 var_oid isub_name ocli) \<open>=\<close> (f2 ocli isub_name cpt))]) l)"
 
 definition "check_single = (\<lambda> (name_attr, oid, l_oid) l_mult l.
-  let l = (RBT.keys o RBT.bulkload o List_map (\<lambda>x. (x, ()))) l
+  let l = (RBT.keys o RBT.bulkload o L.map (\<lambda>x. (x, ()))) l
     ; assoc = \<lambda>x. case map_of l_oid x of Some s \<Rightarrow> s | None \<Rightarrow> case x of Oid n \<Rightarrow> flatten [\<open>/*\<close>, natural_of_str n, \<open>*/\<close>]
     ; attr_len = natural_of_nat (length l)
     ; l_typed =
-       List_map (\<lambda> (mult_min, mult_max0) \<Rightarrow>
+       L.map (\<lambda> (mult_min, mult_max0) \<Rightarrow>
          let mult_max = case mult_max0 of None \<Rightarrow> mult_min | Some mult_max \<Rightarrow> mult_max
            ; s_mult = \<lambda> Mult_nat n \<Rightarrow> natural_of_str n | Mult_star \<Rightarrow> \<open>*\<close> | Mult_infinity \<Rightarrow> \<open>\<infinity>\<close>
            ; f = \<lambda>s. flatten [ \<open> // \<close>
@@ -440,11 +440,11 @@ definition "check_single = (\<lambda> (name_attr, oid, l_oid) l_mult l.
                              , s_mult mult_min
                              , if mult_max0 = None then \<open>\<close> else flatten [\<open> .. \<close>, s_mult mult_max]
                              , \<open>] not satisfied\<close> ] in
-         List_map (\<lambda> (b, msg) \<Rightarrow> (b, flatten [ assoc oid
+         L.map (\<lambda> (b, msg) \<Rightarrow> (b, flatten [ assoc oid
                                              , \<open> \<close>
                                              , case name_attr of None \<Rightarrow> \<open>/* unnamed attribute */\<close> | Some s \<Rightarrow> \<open>.\<close> @@ s
                                              , \<open> \<cong> Set{\<close> (* '\<cong>' instead of '=' because the lhs can be 'invalid' or 'null'! *)
-                                             , let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l l = List_map assoc l in
+                                             , let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l l = L.map assoc l in
                                                if l = [] then \<open>\<close> else \<open> \<close> @@ String_concatWith \<open> , \<close> l @@ \<open> \<close>
                                              , \<open>}\<close>
                                              , if b then \<open>\<close> else f msg ]))
@@ -455,13 +455,13 @@ definition "check_single = (\<lambda> (name_attr, oid, l_oid) l_mult l.
          ( Warning
          , if list_ex (list_ex (Not o fst)) l_typed then
              (* at least 1 warning *)
-             List_map (filter (Not o fst)) l_typed
+             L.map (filter (Not o fst)) l_typed
            else
              (* 0 warning *)
              [[hd (hd l_typed)]])
        else
-         (Error, List_map (filter (Not o fst)) l_typed) in
-  List_flatten (List_map (List_map (\<lambda> (b, s) \<Rightarrow> (if b then Writeln else stop, s))) l_typed))"
+         (Error, L.map (filter (Not o fst)) l_typed) in
+  L.flatten (L.map (L.map (\<lambda> (b, s) \<Rightarrow> (if b then Writeln else stop, s))) l_typed))"
 
 definition "check_export_code f_writeln f_warning f_error f_raise l_report msg_last =
  (let l_err =
@@ -482,7 +482,7 @@ definition "print_examp_instance_defassoc_gen name l_ocli ocl =
     ; b = \<lambda>s. Expr_basic [s]
     ; (rbt :: _ \<Rightarrow> _ \<times> _ \<times> (_ \<Rightarrow> ((_ \<Rightarrow> natural \<Rightarrow> _ \<Rightarrow> (ocl_ty \<times> ocl_data_shallow) option list) \<Rightarrow> _ \<Rightarrow> _) option)
       , (map_self, map_username)) =
-        init_map_class ocl (fst (List_split l_ocli))
+        init_map_class ocl (fst (L.split l_ocli))
     ; l_ocli = if list_ex (\<lambda>(ocli, _). inst_ty0 ocli = None) l_ocli then [] else l_ocli in
   [Definition
      (Expr_rewrite name
@@ -536,22 +536,22 @@ definition "check_single_ty rbt_init rbt' l_attr_gen l_oid x =
             ( case (TyObjN_role_name o_from, TyObjN_role_name o_to) of
                 (name_from, name_to) \<Rightarrow> [name_from, name_to]
             , (TyObjN_role_multip o_from, TyObjN_role_multip o_to)
-            , deref_assocs_list s x (List_map (if ( TyObjN_ass_switch o_from
+            , deref_assocs_list s x (L.map (if ( TyObjN_ass_switch o_from
                                                   , TyObjN_ass_switch o_to) = (0, 1) then(*01*) id else(*10*) rev)
                                               (case l_attr_gen (TyObj_ass_id ty_obj) of Some l_attr \<Rightarrow> l_attr)))
         | None \<Rightarrow> ([role1, role2], (mult1, mult2), []) in
   (\<lambda>acc.
-    List_flatten [ acc
+    L.flatten [ acc
             , check_single
                 ((snd o s'') name, x, l_oid)
                 ((snd o s') ([TyMult mult_from, TyMult mult_to]))
                 l]))"
 
 definition "print_examp_instance_defassoc = (\<lambda> OclInstance l \<Rightarrow> \<lambda> ocl.
-  let l = List_flatten (fst (fold_list (\<lambda>ocli cpt. ([(ocli, cpt)], oidSucInh cpt)) l (D_ocl_oid_start ocl))) in
+  let l = L.flatten (fst (L.mapM (\<lambda>ocli cpt. ([(ocli, cpt)], oidSucInh cpt)) l (D_ocl_oid_start ocl))) in
   (\<lambda>l_res.
     ( print_examp_instance_oid O.definition l ocl
-      @@@@ List_map O.definition l_res
+      @@@@ L.map O.definition l_res
     , ocl))
   (print_examp_instance_defassoc_gen
     (Expr_oid var_inst_assoc (oidGetInh (D_ocl_oid_start ocl)))
@@ -566,7 +566,7 @@ definition "print_examp_instance_defassoc_typecheck_var = (\<lambda> OclInstance
     [ O.definition
         (Definition
           (Expr_rewrite
-            (Expr_app (\<open>typecheck_instance_bad_head_on_lhs\<close> @@ n) (List_map b l_var))
+            (Expr_app (\<open>typecheck_instance_bad_head_on_lhs\<close> @@ n) (L.map b l_var))
             \<open>=\<close> 
             (Expr_pair' [])))
     , O.definition
@@ -615,31 +615,31 @@ definition' \<open>print_examp_instance_defassoc_typecheck_gen l_ocli ocl =
     ; (l_spec1, l_spec2) = arrange_ass False True (fst (find_class_ass ocl)) l_enum
     ; spec = class_unflat (l_spec1, l_spec2)
     ; ocl = ocl \<lparr> D_input_class := Some spec \<rparr>
-    ; l_assoc = List_flatten (fst (fold_list (\<lambda>ocli cpt. (case ocli of None \<Rightarrow> []
+    ; l_assoc = L.flatten (fst (L.mapM (\<lambda>ocli cpt. (case ocli of None \<Rightarrow> []
                                                                 | Some ocli \<Rightarrow> [(ocli, cpt)], oidSucInh cpt)) l_ocli (D_ocl_oid_start ocl))) in
   if list_ex (\<lambda>(ocli, _). inst_ty0 ocli = None) l_assoc then
     [ raise_ml
         (List.map_filter (\<lambda>(ocli, _). if inst_ty0 ocli = None then Some (Error, \<open>Missing type annotation in the definition of "\<close> @@ inst_name ocli @@ \<open>"\<close>) else None) l_assoc)
         \<open> error(s)\<close>]
   else
-    let (rbt_init0, (map_self, map_username)) = init_map_class ocl (List_map (\<lambda> Some ocli \<Rightarrow> ocli | None \<Rightarrow> ocl_instance_single_empty) l_ocli)
+    let (rbt_init0, (map_self, map_username)) = init_map_class ocl (L.map (\<lambda> Some ocli \<Rightarrow> ocli | None \<Rightarrow> ocl_instance_single_empty) l_ocli)
       ; rbt_init = snd o rbt_init0
       ; rbt = print_examp_def_st_assoc_build_rbt2 rbt_init map_self map_username l_assoc
       ; l_attr_gen = map_of_list (fold (\<lambda>_ (l_attr, ty_obj).
              Cons ( TyObj_ass_id ty_obj
-                  , List_map ( (\<lambda>(x , y). [x , y])
+                  , L.map ( (\<lambda>(x , y). [x , y])
                              o (if TyObjN_ass_switch (TyObj_from ty_obj) < TyObjN_ass_switch (TyObj_to ty_obj) then
                                   (*01*) \<lambda> [x0, x1] \<Rightarrow> (x0, x1)
                                 else
                                   (*10*) \<lambda> [x0, x1] \<Rightarrow> (x1, x0)))
                              l_attr)) rbt [])
-      ; l_oid_gen = List_map
+      ; l_oid_gen = L.map
           (\<lambda> (ocli, oids).
             ( fst (hd (fold_instance_single (\<lambda>a b. Cons (a, b)) ocli []))
             , case oidGetInh oids of oid \<Rightarrow> oid
             , inst_name ocli ))
           l_assoc in
-    case List_split l_oid_gen of (_, l_oid) \<Rightarrow>
+    case L.split l_oid_gen of (_, l_oid) \<Rightarrow>
     let l_out =
       List.fold
         (\<lambda> (name, (x, _)).
@@ -660,7 +660,7 @@ definition' \<open>print_examp_instance_defassoc_typecheck_gen l_ocli ocl =
                  [])
               (accu, False)) in
           List.fold (\<lambda>ass.
-                       case List_map (map_prod ty_obj_to_string id) (OclAss_relation' ass) of
+                       case L.map (map_prod ty_obj_to_string id) (OclAss_relation' ass) of
                          [t1, t2] \<Rightarrow> f t2 t1 o f t1 t2
                        | _ \<Rightarrow> id)
                     l_spec2)
@@ -668,7 +668,7 @@ definition' \<open>print_examp_instance_defassoc_typecheck_gen l_ocli ocl =
         [] in
   
     [ raise_ml
-        (List_flatten [ rev (print_examp_def_st_assoc_build_rbt_gen_typecheck 
+        (L.flatten [ rev (print_examp_def_st_assoc_build_rbt_gen_typecheck 
                                (\<lambda>ocli. fst o print_examp_instance_app_constr2_notmp_norec (snd o rbt_init0, (map_self, map_username)) ocl (Expr_basic []) ocli id)
                                (fst o rbt_init0)
                                (fst o rbt_init)
@@ -681,20 +681,20 @@ definition' \<open>print_examp_instance_defassoc_typecheck_gen l_ocli ocl =
         \<open> error(s)\<close> ])\<close>
 
 definition "print_examp_instance_defassoc_typecheck = (\<lambda> OclInstance l \<Rightarrow> \<lambda> ocl.
-  (\<lambda>l_res. (List_map O.ML l_res, ocl \<lparr> D_output_header_force := True \<rparr>))
+  (\<lambda>l_res. (L.map O.ML l_res, ocl \<lparr> D_output_header_force := True \<rparr>))
   (print_examp_instance_defassoc_typecheck_gen
-    (List_map Some l)
+    (L.map Some l)
     ocl))"
 
 definition "print_examp_instance_name = id"
 definition "print_examp_instance = (\<lambda> OclInstance l \<Rightarrow> \<lambda> ocl.
  (\<lambda> ((l_res, oid_start), instance_rbt).
-    ((List_map O.definition o List_flatten) l_res, ocl \<lparr> D_ocl_oid_start := oid_start, D_input_instance := instance_rbt \<rparr>))
+    ((L.map O.definition o L.flatten) l_res, ocl \<lparr> D_ocl_oid_start := oid_start, D_input_instance := instance_rbt \<rparr>))
   (let (rbt, (map_self, map_username)) = init_map_class ocl l
      ; a = \<lambda>f x. Expr_app f [x]
      ; b = \<lambda>s. Expr_basic [s] in
    ( let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l var_inst_ass = \<open>inst_assoc\<close> in
-     fold_list
+     L.mapM
        (\<lambda> ocli cpt.
          let var_oid = Expr_oid var_oid_uniq (oidGetInh cpt)
            ; (isub_name, body2, body2') = 
@@ -739,24 +739,24 @@ definition "print_examp_def_st_typecheck_var = (\<lambda> OclDefSt name _ \<Righ
     [ O.definition
         (Definition
           (Expr_rewrite
-            (Expr_app (\<open>typecheck_state_bad_head_on_lhs\<close> @@ n) (List_map b l_var))
+            (Expr_app (\<open>typecheck_state_bad_head_on_lhs\<close> @@ n) (L.map b l_var))
             \<open>=\<close> 
             (Expr_pair' [])))]))"
 
 definition "print_examp_def_st1 = (\<lambda> OclDefSt name l \<Rightarrow> bootstrap_floor
-  (\<lambda>l ocl. (List_flatten [l], ocl))
-  (List_map Isab_thy_all_meta_embedding
+  (\<lambda>l ocl. (L.flatten [l], ocl))
+  (L.map Isab_thy_all_meta_embedding
      (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l (l, _) = List.fold (\<lambda> (pos, core) (l, n).
                                           ((pos, pos - n, core) # l, 
                                             case core of OclDefCoreAdd _ \<Rightarrow> n
                                             | OclDefCoreBinding _ \<Rightarrow> Succ n))
-                                 (List_mapi Pair l)
+                                 (L.mapi Pair l)
                                  ([], 0)
         ; (l_inst, l_defst) =
         List.fold (\<lambda> (pos, _, OclDefCoreAdd ocli) \<Rightarrow> \<lambda>(l_inst, l_defst).
                      let i_name = case Inst_name ocli of Some x \<Rightarrow> x | None \<Rightarrow> flatten [name, \<open>_object\<close>, natural_of_str pos] in
                        ( map_instance_single (map_prod id (map_prod id (map_data_shallow_self (\<lambda>Oid self \<Rightarrow>
-                           (case List_assoc self l of
+                           (case L.assoc self l of
                               Some (_, OclDefCoreBinding name) \<Rightarrow> ShallB_str name
                             | Some (p, _) \<Rightarrow> ShallB_self (Oid p)
                             | _ \<Rightarrow> ShallB_list []))))) ocli 
@@ -778,7 +778,7 @@ definition "print_examp_def_st_defs = (\<lambda> _ \<Rightarrow> start_map O.lem
   [ Lemmas_simp_thms \<open>\<close> [ \<open>state.defs\<close>, \<open>const_ss\<close> ] ])"
 
 definition "print_pre_post = (\<lambda> OclDefPP name s_pre s_post \<Rightarrow> bootstrap_floor
-  (\<lambda>f ocl. (List_flatten [f ocl], ocl))
+  (\<lambda>f ocl. (L.flatten [f ocl], ocl))
   (\<lambda>ocl.
     let pref_name = case name of Some n \<Rightarrow> n
                                | None \<Rightarrow> \<open>WFF_\<close> @@ nat_of_str (length (D_input_meta ocl))
@@ -788,7 +788,7 @@ definition "print_pre_post = (\<lambda> OclDefPP name s_pre s_post \<Rightarrow>
               let n = pref_name @@ msg in
               (OclDefPPCoreBinding n, Cons (META_def_state Floor1 (OclDefSt n ocl_def_state)))
           | s \<Rightarrow> (s, id) in
-    List_map
+    L.map
       Isab_thy_all_meta_embedding
       (let o_pre = Some (f_conv \<open>_pre\<close> s_pre)
          ; o_post = map_option (f_conv \<open>_post\<close>) s_post in

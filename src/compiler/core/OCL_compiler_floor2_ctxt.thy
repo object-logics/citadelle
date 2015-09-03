@@ -78,8 +78,8 @@ definition "print_ctxt_is_name_at_gen var s =
     ; s = String_to_list s in
   case var of _ # _ \<Rightarrow>
     let lg_var = length var in
-    if (* TODO use 'String_equal' *) List_take_last lg_var s = var then
-      Some \<lless>List_take_first (length s - lg_var) s\<ggreater>
+    if (* TODO use 'String_equal' *) L.take_last lg_var s = var then
+      Some \<lless>L.take_first (length s - lg_var) s\<ggreater>
     else
       None)"
 
@@ -89,7 +89,7 @@ definition "print_ctxt_is_name_at_post = (case String_to_list var_at_when_hol_po
                                         | _ \<Rightarrow> None)"
 
 definition "print_ctxt_to_ocl_gen_split s = 
- (case List_split_at (\<lambda> s. s = Char Nibble2 NibbleE) (String_to_list s) of
+ (case L.split_at (\<lambda> s. s = Char Nibble2 NibbleE) (String_to_list s) of
     (_, Some _, s) \<Rightarrow> Some s
   | _ \<Rightarrow> None)"
 definition "print_ctxt_to_ocl_gen l_access f var = (\<lambda> T_pure t \<Rightarrow>
@@ -108,7 +108,7 @@ definition "print_ctxt_to_ocl_pre ocl = print_ctxt_to_ocl_gen (snd (D_ocl_access
 definition "print_ctxt_to_ocl_post ocl = print_ctxt_to_ocl_gen (fst (D_ocl_accessor ocl)) print_ctxt_is_name_at_pre var_at_when_hol_post"
 
 definition "raise_ml_unbound f_msg ctxt =
-        [ (\<lambda>_. [O.ML (raise_ml (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l l = List_flatten (List_mapi (\<lambda> n. \<lambda>(msg, T_pure t) \<Rightarrow>
+        [ (\<lambda>_. [O.ML (raise_ml (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l l = L.flatten (L.mapi (\<lambda> n. \<lambda>(msg, T_pure t) \<Rightarrow>
                                             let l =
                                               rev (P.fold_Free (\<lambda>l s.
                                                 (Error, flatten [f_msg n msg, \<open>: unbound value \<close>, s]) # l) [] t) in
@@ -134,9 +134,9 @@ definition "print_ctxt_pre_post_interp = (\<lambda>(sorry, dirty) name ctxt e_na
   else
     None (* not yet implemented *))"
 
-definition "print_ctxt_pre_post = (\<lambda>f. map_prod List_flatten id o f) o fold_list (\<lambda>x ocl. (x ocl, ocl)) o (\<lambda> ctxt. 
+definition "print_ctxt_pre_post = (\<lambda>f. map_prod L.flatten id o f) o L.mapM (\<lambda>x ocl. (x ocl, ocl)) o (\<lambda> ctxt. 
  let ty_name = ty_obj_to_string (Ctxt_ty ctxt) in
- List_flatten (List_map (\<lambda> (l_ctxt, ctxt).
+ L.flatten (L.map (\<lambda> (l_ctxt, ctxt).
   let (l_pre, l_post) = List.partition (\<lambda> (OclCtxtPre, _) \<Rightarrow> True | _ \<Rightarrow> False) l_ctxt
     ; attr_n = Ctxt_fun_name ctxt
     ; a = \<lambda>f x. Expr_app f [x]
@@ -146,12 +146,12 @@ definition "print_ctxt_pre_post = (\<lambda>f. map_prod List_flatten id o f) o f
     ; expr_binop0 = \<lambda>base u_and. \<lambda> [] \<Rightarrow> b base | l \<Rightarrow> Expr_parenthesis (expr_binop u_and l)
     ; to_s = \<lambda>pref f_to l_pre.
         Expr_parenthesis (expr_binop0 \<open>true\<close> \<open>and\<close>
-          (List_map
+          (L.map
              (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l nb_var = length (make_ctxt_free_var pref ctxt) in
               (\<lambda>(_, expr) \<Rightarrow>
                  cross_abs (\<lambda>_. id) nb_var (case f_to expr of T_pure expr \<Rightarrow> expr))) l_pre))
     ; f = \<lambda> (var_at_when_hol, var_at_when_ocl).
-        let dot_expr = \<lambda>e f_escape. Expr_postunary e (b (mk_dot_par_gen (flatten [\<open>.\<close>, attr_n, var_at_when_ocl]) (List_map (f_escape o fst) (Ctxt_fun_ty_arg ctxt)))) in
+        let dot_expr = \<lambda>e f_escape. Expr_postunary e (b (mk_dot_par_gen (flatten [\<open>.\<close>, attr_n, var_at_when_ocl]) (L.map (f_escape o fst) (Ctxt_fun_ty_arg ctxt)))) in
         (\<lambda>\<^sub>S\<^sub>c\<^sub>a\<^sub>l\<^sub>aocl.
             let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l var_r = var_result
               ; expr = 
@@ -163,7 +163,7 @@ definition "print_ctxt_pre_post = (\<lambda>f. map_prod List_flatten id o f) o f
                                         (Expr_app \<open>Let\<close>
                                           [ Expr_lambda \<open>_\<close> (b var_r)
                                           , Expr_lambda var_result
-                                                        (Expr_parenthesis (Expr_if_then_else (expr_binop0 \<open>True\<close> \<open>\<and>\<close> (f_tau (a \<open>\<delta>\<close> (b var_self)) # List_map (\<lambda>s. f_tau (a \<open>\<upsilon>\<close> (b (fst s)))) (Ctxt_fun_ty_arg ctxt)))
+                                                        (Expr_parenthesis (Expr_if_then_else (expr_binop0 \<open>True\<close> \<open>\<and>\<close> (f_tau (a \<open>\<delta>\<close> (b var_self)) # L.map (\<lambda>s. f_tau (a \<open>\<upsilon>\<close> (b (fst s)))) (Ctxt_fun_ty_arg ctxt)))
                                                                                              (Expr_binop
                                                                                                (f_tau (to_s OclCtxtPre (print_ctxt_to_ocl_pre ocl) l_pre))
                                                                                                \<open>\<and>\<close>
@@ -202,7 +202,7 @@ definition "print_ctxt_pre_post = (\<lambda>f. map_prod List_flatten id o f) o f
                  None \<Rightarrow> []
                | Some x \<Rightarrow> [x]))
         # (\<lambda>\<^sub>S\<^sub>c\<^sub>a\<^sub>l\<^sub>aocl. 
-            List_flatten (fst (fold_class (\<lambda>_ name _ _ _ _.
+            L.flatten (fst (fold_class (\<lambda>_ name _ _ _ _.
               Pair (if String_equal ty_name name then
                       []
                     else
@@ -220,9 +220,9 @@ definition "print_ctxt_pre_post = (\<lambda>f. map_prod List_flatten id o f) o f
           (\<lambda>n pref. flatten [\<open>(\<close>, natural_of_str (n + 1), \<open>) \<close>, if pref = OclCtxtPre then \<open>pre\<close> else \<open>post\<close>])
           l_ctxt in
   f (var_at_when_hol_post, var_at_when_ocl_post))
-  (rev (fold_pre_post (\<lambda> l c. Cons (List_map (map_prod id snd) l, c)) ctxt []))))"
+  (rev (fold_pre_post (\<lambda> l c. Cons (L.map (map_prod id snd) l, c)) ctxt []))))"
 
-definition "print_ctxt_inv = (\<lambda>f. map_prod List_flatten id o f) o fold_list (\<lambda>x ocl. (x ocl, ocl)) o List_flatten o List_flatten o (\<lambda> ctxt.
+definition "print_ctxt_inv = (\<lambda>f. map_prod L.flatten id o f) o L.mapM (\<lambda>x ocl. (x ocl, ocl)) o L.flatten o L.flatten o (\<lambda> ctxt.
   let a = \<lambda>f x. Expr_app f [x]
     ; b = \<lambda>s. Expr_basic [s]
     ; f_tau = \<lambda>s. Expr_lam \<open>\<tau>\<close> (\<lambda>var_tau. Expr_warning_parenthesis (Expr_binop (b var_tau) \<open>\<Turnstile>\<close> s))
@@ -230,8 +230,8 @@ definition "print_ctxt_inv = (\<lambda>f. map_prod List_flatten id o f) o fold_l
     ; Ctxt_ty_n = ty_obj_to_string (Ctxt_ty ctxt)
     ; l = fold_invariant' ctxt in
 
- List_map (\<lambda> (tit, T_pure t) \<Rightarrow>
-    (List_map
+ L.map (\<lambda> (tit, T_pure t) \<Rightarrow>
+    (L.map
       (\<lambda> (allinst_at_when, var_at_when, e) \<Rightarrow>
         [ (\<lambda>ocl. [ O.definition
                      (Definition (Expr_rewrite
@@ -248,11 +248,11 @@ definition "print_ctxt_inv = (\<lambda>f. map_prod List_flatten id o f) o fold_l
     l)"
 
 definition "print_ctxt_thm ctxt = Pair
- (case List_flatten (List_map (\<lambda>(tit, _). List_map (hol_definition o print_ctxt_inv_name (ty_obj_to_string (Ctxt_ty ctxt)) tit)
+ (case L.flatten (L.map (\<lambda>(tit, _). L.map (hol_definition o print_ctxt_inv_name (ty_obj_to_string (Ctxt_ty ctxt)) tit)
                                                    [ var_at_when_hol_pre
                                                    , var_at_when_hol_post ])
                               (fold_invariant' ctxt)) of 
     [] \<Rightarrow> []
-  | l \<Rightarrow> [ O.thm (Thm (List_map T.thm l)) ])"
+  | l \<Rightarrow> [ O.thm (Thm (L.map T.thm l)) ])"
 
 end

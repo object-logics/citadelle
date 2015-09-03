@@ -259,11 +259,11 @@ definition "expr_binop' s l = (case rev l of x # xs \<Rightarrow> List.fold (\<l
 definition "Expr_set l = (case l of [] \<Rightarrow> Expr_basic [\<open>{}\<close>] | _ \<Rightarrow> Expr_paren \<open>{\<close> \<open>}\<close> (expr_binop \<open>,\<close> l))"
 definition "Expr_oclset l = (case l of [] \<Rightarrow> Expr_basic [\<open>Set{}\<close>] | _ \<Rightarrow> Expr_paren \<open>Set{\<close> \<open>}\<close> (expr_binop \<open>,\<close> l))"
 definition "Expr_list l = (case l of [] \<Rightarrow> Expr_basic [\<open>[]\<close>] | _ \<Rightarrow> Expr_paren \<open>[\<close> \<open>]\<close> (expr_binop \<open>,\<close> l))"
-definition "Expr_list' f l = Expr_list (List_map f l)"
+definition "Expr_list' f l = Expr_list (L.map f l)"
 definition "Expr_pair e1 e2 = Expr_parenthesis (Expr_binop e1 \<open>,\<close> e2)"
 definition "Expr_pair' l = (case l of [] \<Rightarrow> Expr_basic [\<open>()\<close>] | _ \<Rightarrow> Expr_paren \<open>(\<close> \<open>)\<close> (expr_binop \<open>,\<close> l))"
 definition' \<open>Expr_string s = Expr_basic [flatten [\<open>"\<close>, s, \<open>"\<close>]]\<close>
-definition "Expr_applys0 e l = Expr_parenthesis (Expr_apply e (List_map Expr_parenthesis l))"
+definition "Expr_applys0 e l = Expr_parenthesis (Expr_apply e (L.map Expr_parenthesis l))"
 definition "Expr_applys e l = Expr_applys0 (Expr_parenthesis e) l"
 definition "Expr_app e = Expr_applys0 (Expr_basic [e])"
 definition "Expr_preunary e1 e2 = Expr_apply e1 [e2]" (* no parenthesis and separated with one space *)
@@ -281,7 +281,7 @@ definition "Consts_raw0 s l e o_arg = Consts s l (String_replace_chars (\<lambda
            ap (if arg = 0 then
                 \<open>\<close>
               else
-                Consts_value @@ (flatten (List_map (\<lambda>_. \<open>,\<close> @@ Consts_value) (List_upto 2 arg))))))"
+                Consts_value @@ (flatten (L.map (\<lambda>_. \<open>,\<close> @@ Consts_value) (L.upto 2 arg))))))"
 definition "Ty_arrow = Ty_apply_bin \<open>\<Rightarrow>\<close>"
 definition "Ty_times = Ty_apply_bin \<open>\<times>\<close>"
 definition "Consts' s l e = Consts_raw0 s (Ty_arrow (Ty_base \<open>'\<alpha>\<close>) l) e None"
@@ -301,25 +301,25 @@ definition "intro = Method_intro"
 definition "elim = Method_elim"
 definition "subst_l0 = Method_subst"
 definition "subst_l = Method_subst_l"
-definition "insert = Method_insert o List_map Thms_single"
+definition "insert = Method_insert o L.map Thms_single"
 definition "plus = Method_plus"
 definition "option = Method_option"
 definition "or = Method_or"
 definition "meth_gen_simp = Method_simp_add_del [] []"
-definition "meth_gen_simp_add2 l1 l2 = Method_simp_add_del (List_flatten [ List_map Thms_mult l1
-                                                    , List_map (Thms_single o Thm_thm) l2])
+definition "meth_gen_simp_add2 l1 l2 = Method_simp_add_del (L.flatten [ L.map Thms_mult l1
+                                                    , L.map (Thms_single o Thm_thm) l2])
                                            []"
-definition "meth_gen_simp_add_del l1 l2 = Method_simp_add_del (List_map (Thms_single o Thm_thm) l1)
-                                              (List_map (Thms_single o Thm_thm) l2)"
-definition "meth_gen_simp_add_del_split l1 l2 l3 = Method_simp_add_del_split (List_map Thms_single l1)
-                                                             (List_map Thms_single l2)
-                                                             (List_map Thms_single l3)"
-definition "meth_gen_simp_add_split l1 l2 = Method_simp_add_del_split (List_map Thms_single l1)
+definition "meth_gen_simp_add_del l1 l2 = Method_simp_add_del (L.map (Thms_single o Thm_thm) l1)
+                                              (L.map (Thms_single o Thm_thm) l2)"
+definition "meth_gen_simp_add_del_split l1 l2 l3 = Method_simp_add_del_split (L.map Thms_single l1)
+                                                             (L.map Thms_single l2)
+                                                             (L.map Thms_single l3)"
+definition "meth_gen_simp_add_split l1 l2 = Method_simp_add_del_split (L.map Thms_single l1)
                                                       []
-                                                      (List_map Thms_single l2)"
-definition "meth_gen_simp_only l = Method_simp_only (List_map Thms_single l)"
-definition "meth_gen_simp_only' l = Method_simp_only (List_map Thms_mult l)"
-definition "meth_gen_simp_add0 l = Method_simp_add_del (List_map Thms_single l) []"
+                                                      (L.map Thms_single l2)"
+definition "meth_gen_simp_only l = Method_simp_only (L.map Thms_single l)"
+definition "meth_gen_simp_only' l = Method_simp_only (L.map Thms_mult l)"
+definition "meth_gen_simp_add0 l = Method_simp_add_del (L.map Thms_single l) []"
 definition "simp = Method_one meth_gen_simp"
 definition "simp_add2 l1 l2 = Method_one (meth_gen_simp_add2 l1 l2)"
 definition "simp_add_del l1 l2 = Method_one (meth_gen_simp_add_del l1 l2)"
@@ -333,9 +333,9 @@ definition "simp_all = Method_all meth_gen_simp"
 definition "simp_all_add l = Method_all (meth_gen_simp_add2 [] l)"
 definition "simp_all_only l = Method_all (meth_gen_simp_only l)"
 definition "simp_all_only' l = Method_all (meth_gen_simp_only' l)"
-definition "auto_simp_add2 l1 l2 = Method_auto_simp_add_split (List_flatten [ List_map Thms_mult l1
-                                                                , List_map (Thms_single o Thm_thm) l2]) []"
-definition "auto_simp_add_split l = Method_auto_simp_add_split (List_map Thms_single l)"
+definition "auto_simp_add2 l1 l2 = Method_auto_simp_add_split (L.flatten [ L.map Thms_mult l1
+                                                                , L.map (Thms_single o Thm_thm) l2]) []"
+definition "auto_simp_add_split l = Method_auto_simp_add_split (L.map Thms_single l)"
 definition "rename_tac = Method_rename_tac"
 definition "case_tac = Method_case_tac"
 definition "blast = Method_blast"
@@ -408,8 +408,8 @@ definition "by = Command_by"
 definition "sorry = Command_sorry"
 definition "apply_end = Command_apply_end"
 definition "apply = Command_apply"
-definition "using = Command_using o List_map Thms_single"
-definition "unfolding = Command_unfolding o List_map Thms_single"
+definition "using = Command_using o L.map Thms_single"
+definition "unfolding = Command_unfolding o L.map Thms_single"
 definition "let' = Command_let"
 definition "fix_let = Command_fix_let"
 definition "fix l = Command_fix_let l [] None []"

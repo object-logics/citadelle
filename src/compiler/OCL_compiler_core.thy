@@ -94,7 +94,7 @@ definition' thy_class ::
      ; subsection_defined = subsection \<open>Validity and Definedness Properties\<close>
      ; subsection_up = subsection \<open>Up Down Casting\<close>
      ; subsection_const = subsection \<open>Const\<close> in
-  (Hol_theory_ext o List_flatten)
+  (Hol_theory_ext o L.flatten)
           [ [ print_infra_enum_synonym ]
             , [ txt''d [ \<open>
    \label{ex:employee-design:uml} \<close> ]
@@ -204,8 +204,8 @@ on @{text "Person"} and @{text "OclAny"} \<close> ]
 two operations to declare and to provide two overloading definitions for the two static types.
 \<close> ] ]
 
-          , List_flatten (List_map (\<lambda>(title, body_def, body_cp, body_exec, body_defined, body_up, body_const).
-              section title # List_flatten [ subsection_def # body_def
+          , L.flatten (L.map (\<lambda>(title, body_def, body_cp, body_exec, body_defined, body_up, body_const).
+              section title # L.flatten [ subsection_def # body_def
                                       , subsection_cp # body_cp
                                       , subsection_exec # body_exec
                                       , subsection_defined # body_defined
@@ -407,7 +407,7 @@ definition "compiler_env_config_reset_all ocl =
   (let ocl = compiler_env_config_reset_no_env ocl in
    ( ocl \<lparr> D_input_meta := [] \<rparr>
    , let (l_class, l_ocl) = find_class_ass ocl in
-     List_flatten
+     L.flatten
        [ l_class
        , List.filter (\<lambda> META_flush_all _ \<Rightarrow> False | _ \<Rightarrow> True) l_ocl
        , [META_flush_all OclFlushAll] ] ))"
@@ -425,7 +425,7 @@ definition "fold_thy0 meta thy_object0 f =
     let (sorry, dirty) = D_output_sorry_dirty acc1
       ; (l, acc1) = x meta acc1 in
     (f (if sorry = Some Gen_sorry | sorry = None & dirty then
-          List_map (hol_map_thy (hol_map_lemma (\<lambda> Lemma n spec _ _ \<Rightarrow> Lemma n spec [] C.sorry
+          L.map (hol_map_thy (hol_map_lemma (\<lambda> Lemma n spec _ _ \<Rightarrow> Lemma n spec [] C.sorry
                                                 | Lemma_assumes n spec1 spec2 _ _ \<Rightarrow> Lemma_assumes n spec1 spec2 [] C.sorry))) l
         else
           l) acc1 acc2)) thy_object0"
@@ -447,7 +447,7 @@ definition "ocl_env_class_spec_mk f_try f_accu_reset f_fold f =
        (f_try (\<lambda> () \<Rightarrow>
          let D_input_meta0 = D_input_meta ocl
            ; (ocl, accu) =
-               let meta = class_unflat (arrange_ass True (D_ocl_semantics ocl \<noteq> Gen_default) l_class (List_map (\<lambda> META_enum e \<Rightarrow> e) l_enum))
+               let meta = class_unflat (arrange_ass True (D_ocl_semantics ocl \<noteq> Gen_default) l_class (L.map (\<lambda> META_enum e \<Rightarrow> e) l_enum))
                  ; (ocl, accu) = List.fold (\<lambda> ast. ocl_env_save ast (case ast of META_enum meta \<Rightarrow> fold_thy0 meta thy_enum) f)
                                            l_enum
                                            (let ocl = compiler_env_config_reset_no_env ocl in
@@ -465,7 +465,7 @@ definition "ocl_env_class_spec_mk f_try f_accu_reset f_fold f =
                    | META_flush_all meta \<Rightarrow> fold_thy0 meta thy_flush_all)
                         f)
                  l_ocl
-                 (ocl \<lparr> D_input_meta := List_flatten [l_class, l_enum] \<rparr>, accu) in
+                 (ocl \<lparr> D_input_meta := L.flatten [l_class, l_enum] \<rparr>, accu) in
           (ocl \<lparr> D_input_meta := D_input_meta0 \<rparr>, accu)))))"
 
 definition "ocl_env_class_spec_bind l f =

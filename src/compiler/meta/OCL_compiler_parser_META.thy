@@ -274,7 +274,7 @@ lemmas [code] =
 
 (* *)
 
-definition "isabelle_apply s l = flatten [s, flatten (List_map (\<lambda> s. flatten [\<open> (\<close>, s, \<open>)\<close>]) l)]"
+definition "isabelle_apply s l = flatten [s, flatten (L.map (\<lambda> s. flatten [\<open> (\<close>, s, \<open>)\<close>]) l)]"
 
 subsubsection{* SML *}
 
@@ -376,6 +376,6 @@ lemmas [code] =
 
 (* *)
 
-definition "sml_apply s l = flatten [s, \<open> (\<close>, case\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l l of x # xs \<Rightarrow> flatten [x, flatten (List_map (\<lambda>s. flatten [\<open>, \<close>, s]) xs)], \<open>)\<close> ]"
+definition "sml_apply s l = flatten [s, \<open> (\<close>, case\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l l of x # xs \<Rightarrow> flatten [x, flatten (L.map (\<lambda>s. flatten [\<open>, \<close>, s]) xs)], \<open>)\<close> ]"
 
 end

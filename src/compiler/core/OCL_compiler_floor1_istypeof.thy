@@ -75,10 +75,10 @@ definition "print_istypeof_class = start_m_gen O.defs m_class_default
                                (Expr_app (isub_h datatype_constr_name)
                                            ( Expr_app (f2 (\<lambda>s. isub_name (s @@ \<open>_\<close>)) (isub_h datatype_ext_constr_name))
                                                         (Expr_basic [wildcard] # f1)
-                                           # List_map (\<lambda>_. Expr_basic [wildcard]) hl_attr))), ocl_tau \<open>true\<close>)
+                                           # L.map (\<lambda>_. Expr_basic [wildcard]) hl_attr))), ocl_tau \<open>true\<close>)
                              # (if h_last = [] then [] else l_false)) in
                        case compare
-                       of EQ \<Rightarrow> pattern_complex_gen (List_flatten (List_map (List_map (\<lambda>_. Expr_basic [wildcard]) o (\<lambda> OclClass _ l _ \<Rightarrow> l)) (of_linh l_inh))) (\<lambda>_. id)
+                       of EQ \<Rightarrow> pattern_complex_gen (L.flatten (L.map (L.map (\<lambda>_. Expr_basic [wildcard]) o (\<lambda> OclClass _ l _ \<Rightarrow> l)) (of_linh l_inh))) (\<lambda>_. id)
                         | GT \<Rightarrow> pattern_complex_gen [] id
                         | _ \<Rightarrow> l_false) ) )))] )"
 
@@ -101,8 +101,8 @@ definition "print_istypeof_lemma_cp_set =
 
 definition "print_istypeof_lemmas_id = start_map' (\<lambda>expr.
   (let name_set = print_istypeof_lemma_cp_set expr in
-   case name_set of [] \<Rightarrow> [] | _ \<Rightarrow> List_map O.lemmas
-  [ Lemmas_simp \<open>\<close> (List_map (\<lambda>((isub_name, _), name).
+   case name_set of [] \<Rightarrow> [] | _ \<Rightarrow> L.map O.lemmas
+  [ Lemmas_simp \<open>\<close> (L.map (\<lambda>((isub_name, _), name).
     T.thm (flatten [isub_name const_oclistypeof, \<open>_\<close>, name] )) name_set) ]))"
 
 definition "print_istypeof_lemma_cp expr = (start_map O.lemma o
@@ -114,7 +114,7 @@ definition "print_istypeof_lemma_cp expr = (start_map O.lemma o
     Lemma
       (flatten [\<open>cp_\<close>, const_oclistypeof, isub_of_str name1, \<open>_\<close>, name3, \<open>_\<close>, name2])
       (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l var_p = \<open>p\<close> in
-       List_map
+       L.map
          (\<lambda>x. Expr_app \<open>cp\<close> [x])
          [ Expr_basic [var_p]
          , Expr_lam \<open>x\<close>
@@ -127,7 +127,7 @@ definition "print_istypeof_lemma_cp expr = (start_map O.lemma o
   )) (\<lambda>x. (x, x, x))) ) expr"
 
 definition "print_istypeof_lemmas_cp = start_map'
- (if activate_simp_optimization then List_map O.lemmas o
+ (if activate_simp_optimization then L.map O.lemmas o
     (\<lambda>expr. [Lemmas_simp \<open>\<close>
   (get_hierarchy_map (\<lambda>name1 name2 name3.
       T.thm (flatten [\<open>cp_\<close>, const_oclistypeof, isub_of_str name1, \<open>_\<close>, name3, \<open>_\<close>, name2]))
@@ -149,7 +149,7 @@ definition "print_istypeof_lemma_strict expr = (start_map O.lemma o
              \<open>=\<close>
              (Expr_basic [name2'])]
       []
-      (C.by (let l = List_map hol_definition (\<open>bot_option\<close> # (if name2 = \<open>invalid\<close> then [\<open>invalid\<close>]
+      (C.by (let l = L.map hol_definition (\<open>bot_option\<close> # (if name2 = \<open>invalid\<close> then [\<open>invalid\<close>]
                                                               else [\<open>null_fun\<close>,\<open>null_option\<close>])) in
                 [M.rule (T.thm \<open>ext\<close>), M.simp_add (if check_opt name1 name3 then l
                                                            else flatten [const_oclistypeof, isub_of_str name1, \<open>_\<close>, name3] # l)]))
@@ -163,7 +163,7 @@ definition "print_istypeof_lemmas_strict_set =
 definition "print_istypeof_lemmas_strict expr = start_map O.lemmas
   (case print_istypeof_lemmas_strict_set expr
    of [] \<Rightarrow> []
-    | l \<Rightarrow> [ Lemmas_simp \<open>\<close> (List_map
+    | l \<Rightarrow> [ Lemmas_simp \<open>\<close> (L.map
       (\<lambda>(name1, name3, name2).
         T.thm (flatten [const_oclistypeof, isub_of_str name1, \<open>_\<close>, name3, \<open>_\<close>, name2]))
       l) ])"
@@ -181,7 +181,7 @@ definition "print_istypeof_defined = start_m O.lemma m_class_default
                ,M.simp_only [T.thm (hol_definition \<open>OclValid\<close>)]
                ,M.subst (T.thm \<open>cp_defined\<close>)]]
           (C.by [M.auto_simp_add_split ( T.symmetric (T.thm \<open>cp_defined\<close>)
-                                            # List_map T.thm ( hol_definition \<open>bot_option\<close>
+                                            # L.map T.thm ( hol_definition \<open>bot_option\<close>
                                                           # [ flatten [isub_name const_oclistypeof, \<open>_\<close>, h_name] ]))
                                             (\<open>option.split\<close> # split_ty h_name) ]) ])"
 
@@ -215,7 +215,7 @@ definition "print_istypeof_up_larger = start_map O.lemma o
         (C.by [M.auto_simp_add ( flatten [const_oclistypeof, isub_of_str name_any, \<open>_\<close>, name_pers]
                                     # \<open>foundation22\<close>
                                     # \<open>foundation16\<close>
-                                    # List_map hol_definition [\<open>null_option\<close>, \<open>bot_option\<close> ])]))"
+                                    # L.map hol_definition [\<open>null_option\<close>, \<open>bot_option\<close> ])]))"
 
 definition "print_istypeof_up_d_cast expr = (start_map O.lemma o
   map_class_nupl3'_GE_inh (\<lambda>name_pers name_mid name_any.
@@ -233,14 +233,14 @@ definition "print_istypeof_up_d_cast expr = (start_map O.lemma o
                (Expr_basic [var_X])
                (Expr_basic [dot_astype name_pers]))
              ) \<open>\<triangleq>\<close> (Expr_basic [\<open>invalid\<close>])))
-        [C.using (List_map T.thm [var_istyp, var_isdef])
-        ,C.apply [M.auto_simp_add_split (List_map T.thm
+        [C.using (L.map T.thm [var_istyp, var_isdef])
+        ,C.apply [M.auto_simp_add_split (L.map T.thm
                                       ( flatten [const_oclastype, isub_of_str name_pers, \<open>_\<close>, name_any]
                                       # \<open>foundation22\<close>
                                       # \<open>foundation16\<close>
-                                      # List_map hol_definition [\<open>null_option\<close>, \<open>bot_option\<close> ]))
+                                      # L.map hol_definition [\<open>null_option\<close>, \<open>bot_option\<close> ]))
                                       (split_ty name_any) ]]
-        (C.by [M.simp_add (let l = List_map hol_definition [\<open>OclValid\<close>, \<open>false\<close>, \<open>true\<close>] in
+        (C.by [M.simp_add (let l = L.map hol_definition [\<open>OclValid\<close>, \<open>false\<close>, \<open>true\<close>] in
                                 if name_mid = name_any & ~(print_istypeof_lemma_cp_set expr = []) then
                                   l
                                 else

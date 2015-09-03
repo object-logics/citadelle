@@ -153,7 +153,7 @@ fun in_local decl thy =
   |> Local_Theory.exit_global
 *}
 
-ML{* fun List_mapi f = OCL.list_mapi (f o To_nat) *}
+ML{* fun List_mapi f = OCL.mapi (f o To_nat) *}
 
 ML{*
 structure Ty' = struct
@@ -575,7 +575,7 @@ val mode =
 
 fun f_command l_mode =
       Toplevel.theory (fn thy =>
-        let val (l_mode, thy) = OCL.fold_list
+        let val (l_mode, thy) = OCL.mapM
           (fn Gen_shallow (ocl, ()) => let val thy0 = thy in
                                        fn thy => (Gen_shallow (ocl, thy0), thy) end
             | Gen_syntax_print n => (fn thy => (Gen_syntax_print n, thy))
@@ -1004,7 +1004,7 @@ fun outer_syntax_command0 mk_string cmd_spec cmd_descr parser get_oclclass =
     (parser >> (fn name =>
       Toplevel.theory (fn thy =>
         let val (ocl, thy) =
-        OCL.fold_list
+        OCL.mapM
 
           let val get_oclclass = get_oclclass name in
           fn Gen_syntax_print n =>

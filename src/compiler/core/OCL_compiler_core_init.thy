@@ -158,11 +158,11 @@ definition "find_class_ass ocl =
                | META_ass_class Floor1 (OclAssClass _ class) \<Rightarrow> f class
                | META_class_synonym _ \<Rightarrow> True
                | _ \<Rightarrow> False) (rev (D_input_meta ocl)) in
-  ( List_flatten [l_class, List.map_filter (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l f = \<lambda>class. class \<lparr> ClassRaw_clause := [] \<rparr> in
+  ( L.flatten [l_class, List.map_filter (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l f = \<lambda>class. class \<lparr> ClassRaw_clause := [] \<rparr> in
                                        \<lambda> META_class_raw Floor1 c \<Rightarrow> Some (META_class_raw Floor1 (f c))
                                        | META_ass_class Floor1 (OclAssClass ass class) \<Rightarrow> Some (META_ass_class Floor1 (OclAssClass ass (f class)))
                                        | _ \<Rightarrow> None) l_ocl]
-  , List_flatten (List_map
+  , L.flatten (L.map
       (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l f = \<lambda>class. [ META_ctxt Floor1 (ocl_ctxt_ext [] (ClassRaw_name class) (ClassRaw_clause class) ()) ] in
        \<lambda> META_class_raw Floor1 class \<Rightarrow> f class
        | META_ass_class Floor1 (OclAssClass _ class) \<Rightarrow> f class
@@ -186,10 +186,10 @@ definition "arrange_ass with_aggreg with_optim_ass l_c l_enum =
                                    | _ \<Rightarrow> None) l_c
       ; l_class = (* map classes: change the (enumeration) type of every attributes to 'raw'
                                 instead of the default 'object' type *)
-        List_map
+        L.map
           (\<lambda> cflat \<Rightarrow>
             cflat \<lparr> ClassRaw_own :=
-                      List_map (map_prod id (map_enum_syn l_enum l_syn))
+                      L.map (map_prod id (map_enum_syn l_enum l_syn))
                                (ClassRaw_own cflat) \<rparr>) l_class
     ; l_ass = List.map_filter (\<lambda> META_association ass \<Rightarrow> Some ass
                                  | META_ass_class Floor1 (OclAssClass ass _) \<Rightarrow> Some ass
@@ -231,10 +231,10 @@ definition "arrange_ass with_aggreg with_optim_ass l_c l_enum =
                       case TyRole category_to of
                         Some role_to \<Rightarrow>
                         List.fold (\<lambda> (cpt_from, (name_from, multip_from)).
-                          List_map_find (\<lambda>cflat.
+                          L.map_find (\<lambda>cflat.
                             if String_equal (cl_name_to_string cflat) (ty_obj_to_string name_from) then
                               Some (cflat \<lparr> ClassRaw_own :=
-                                              List_flatten [ ClassRaw_own cflat
+                                              L.flatten [ ClassRaw_own cflat
                                                            , [(role_to, let ty = OclTy_object name_to in
                                                                         if single_multip category_to then 
                                                                           ty
@@ -250,7 +250,7 @@ definition "arrange_ass with_aggreg with_optim_ass l_c l_enum =
           else
             (l_class, l_ass) in
     ( l_class
-    , List_flatten [l_ass, l_ass0]))"
+    , L.flatten [l_ass, l_ass0]))"
 
 subsection{* ... *}
 
@@ -265,14 +265,14 @@ section{* Translation of AST *}
 definition "map_class_arg_only_var = map_class_arg_only_var_gen (\<lambda>s e. Expr_postunary s (Expr_basic e))"
 definition "map_class_arg_only_var' = map_class_arg_only_var'_gen (\<lambda>s e. Expr_postunary s (Expr_basic e))"
 
-definition "split_ty name = List_map (\<lambda>s. hol_split (s @@ isub_of_str name)) [datatype_ext_name, datatype_name]"
+definition "split_ty name = L.map (\<lambda>s. hol_split (s @@ isub_of_str name)) [datatype_ext_name, datatype_name]"
 
-definition "start_map f = fold_list (\<lambda>x acc. (f x, acc))"
+definition "start_map f = L.mapM (\<lambda>x acc. (f x, acc))"
 definition "start_map' f x accu = (f x, accu)"
 definition "start_map''' f fl = (\<lambda> ocl.
   let design_analysis = D_ocl_semantics ocl
-    ; base_attr = (if design_analysis = Gen_only_design then id else List_filter (\<lambda> (_, OclTy_object (OclTyObj (OclTyCore _) _)) \<Rightarrow> False | _ \<Rightarrow> True))
-    ; base_attr' = (\<lambda> (l_attr, l_inh). (base_attr l_attr, List_map base_attr l_inh))
+    ; base_attr = (if design_analysis = Gen_only_design then id else L.filter (\<lambda> (_, OclTy_object (OclTyObj (OclTyCore _) _)) \<Rightarrow> False | _ \<Rightarrow> True))
+    ; base_attr' = (\<lambda> (l_attr, l_inh). (base_attr l_attr, L.map base_attr l_inh))
     ; base_attr'' = (\<lambda> (l_attr, l_inh). (base_attr l_attr, base_attr l_inh)) in
   start_map f (fl design_analysis base_attr base_attr' base_attr'') ocl)"
 definition "start_map'' f fl e = start_map''' f (\<lambda>_. fl) e"
@@ -436,7 +436,7 @@ definition "print_ctxt_pre_post_name attr_n var_at_when_hol name = hol_definitio
 definition "print_ctxt_inv_name n tit var_at_when = flatten [n, \<open>_\<close>, tit, var_at_when]"
 
 definition "make_ctxt_free_var pref ctxt =
- (var_self # List_flatten [ List_map fst (Ctxt_fun_ty_arg ctxt)
+ (var_self # L.flatten [ L.map fst (Ctxt_fun_ty_arg ctxt)
                           , if pref = OclCtxtPre then [] else [var_result] ])"
 
 subsection{* context2 *}

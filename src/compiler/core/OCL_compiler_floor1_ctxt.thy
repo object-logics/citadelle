@@ -55,7 +55,7 @@ definition "print_ctxt_const ctxt ocl =
  (let Ty_par = Ty_apply_paren \<open>(\<close> \<open>)\<close> (* because of potential ambiguities *)
     ; l_enum = List.map_filter (\<lambda> META_enum e \<Rightarrow> Some e | _ \<Rightarrow> None) (D_input_meta ocl)
     ; l_syn = List.map_filter (\<lambda> META_class_synonym c \<Rightarrow> Some c | _ \<Rightarrow> None) (D_input_meta ocl) in
-  map_prod (map_prod id (rev o List_map O.type_synonym)) (rev o List_map O.consts)
+  map_prod (map_prod id (rev o L.map O.type_synonym)) (rev o L.map O.consts)
     (List.fold
       (\<lambda> Ctxt_inv _ \<Rightarrow> id
        | Ctxt_pp ctxt \<Rightarrow>
@@ -73,8 +73,8 @@ definition "print_ctxt_const ctxt ocl =
                             (String_to_String\<^sub>b\<^sub>a\<^sub>s\<^sub>e n # l, Type_synonym' n isab_ty # l_isab_ty)
                           else
                             (l, l_isab_ty)))
-                      (List_flatten
-                          [ List_map snd (Ctxt_fun_ty_arg ctxt)
+                      (L.flatten
+                          [ L.map snd (Ctxt_fun_ty_arg ctxt)
                           , [ case Ctxt_fun_ty_out ctxt of None \<Rightarrow> OclTy_base_void | Some s \<Rightarrow> s ] ])
                       ([], D_ocl_HO_type ocl, l_isab_ty) in
               ( map_prod
@@ -95,7 +95,7 @@ definition "print_ctxt_const ctxt ocl =
 definition "print_ctxt = (\<lambda>ctxt. bootstrap_floor
   (\<lambda>l ocl.
     let ((ocl, l_isab_ty), l_isab) = print_ctxt_const ctxt ocl in
-    (List_flatten [l_isab_ty, l_isab, l], ocl))
+    (L.flatten [l_isab_ty, l_isab, l], ocl))
   [ Isab_thy_all_meta_embedding (META_ctxt Floor2
       (map_invariant (\<lambda>T_inv b (OclProp_ctxt n p) \<Rightarrow>
                        T_inv b (OclProp_ctxt n (T_lambdas (Ctxt_param ctxt @@@@ [var_self]) p)))

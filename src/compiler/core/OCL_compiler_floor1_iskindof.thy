@@ -65,7 +65,7 @@ definition "print_iskindof_class = start_m_gen O.defs m_class_default
              (Expr_postunary (Expr_annot_ocl (Expr_basic [var_x]) h_name) (Expr_basic [dot_iskindof name]))
              \<open>\<equiv>\<close>
              (let isof = (\<lambda>f name. Expr_warning_parenthesis (Expr_postunary (Expr_basic [var_x]) (Expr_basic [f name]))) in
-              expr_binop \<open>or\<close> (isof dot_istypeof name # List_map (\<lambda> OclClass name_past _ _ \<Rightarrow> isof dot_iskindof name_past) next_dataty)))])"
+              expr_binop \<open>or\<close> (isof dot_istypeof name # L.map (\<lambda> OclClass name_past _ _ \<Rightarrow> isof dot_iskindof name_past) next_dataty)))])"
 
 definition "print_iskindof_from_universe = start_m O.definition
   (\<lambda>name _ _ l.
@@ -86,15 +86,15 @@ definition "print_iskindof_lemma_cp_set =
 
 definition "print_iskindof_lemmas_id = start_map' (\<lambda>expr.
   (let name_set = print_iskindof_lemma_cp_set expr in
-   case name_set of [] \<Rightarrow> [] | _ \<Rightarrow> List_map O.lemmas
-  [ Lemmas_simp \<open>\<close> (List_map (\<lambda>((isub_name, _), name).
+   case name_set of [] \<Rightarrow> [] | _ \<Rightarrow> L.map O.lemmas
+  [ Lemmas_simp \<open>\<close> (L.map (\<lambda>((isub_name, _), name).
     T.thm (flatten [isub_name const_ocliskindof, \<open>_\<close>, name] )) name_set) ]))"
 
 definition "print_iskindof_lemma_cp = start_m'3_gen O.lemma
  (\<lambda> _ _ next_dataty name1 name2 name3.
     let lemma_name = flatten [\<open>cp_\<close>, const_ocliskindof, isub_of_str name1, \<open>_\<close>, name3, \<open>_\<close>, name2]
       ; lemma_spec = let var_p = \<open>p\<close> in
-       List_map
+       L.map
          (\<lambda>x. Expr_app \<open>cp\<close> [x])
          [ Expr_basic [var_p]
          , Expr_lam \<open>x\<close>
@@ -112,13 +112,13 @@ definition "print_iskindof_lemma_cp = start_m'3_gen O.lemma
             , M.plus [M.rule (T.thm \<open>allI\<close>)]
             , M.rule (T.thm \<open>cp_OclOr\<close>) ]]
         , [ lem_simp2 ] ]
-      , C.by (List_map
+      , C.by (L.map
             (\<lambda> OclClass n _ _ \<Rightarrow> M.simp_only [T.thm (flatten [\<open>cp_\<close>, const_ocliskindof, isub_of_str n, \<open>_\<close>, name3, \<open>_\<close>, name2])] )
             next_dataty))
     in Lemma lemma_name lemma_spec tac1 tac2)"
 
 definition "print_iskindof_lemmas_cp = start_map'
- (if activate_simp_optimization then List_map O.lemmas o
+ (if activate_simp_optimization then L.map O.lemmas o
     (\<lambda>expr. [Lemmas_simp \<open>\<close>
   (get_hierarchy_map (\<lambda>name1 name2 name3.
       T.thm (flatten [\<open>cp_\<close>, const_ocliskindof, isub_of_str name1, \<open>_\<close>, name3, \<open>_\<close>, name2])
@@ -127,7 +127,7 @@ definition "print_iskindof_lemmas_cp = start_map'
 
 definition "print_iskindof_lemma_strict = start_m_gen O.lemma m_class_default
  (\<lambda> _ _ next_dataty _ (_, name1, _). \<lambda> OclClass name3 _ _ \<Rightarrow>
-  List_map (\<lambda>(name2, name2').
+  L.map (\<lambda>(name2, name2').
     Lemma
       (flatten [const_ocliskindof, isub_of_str name1, \<open>_\<close>, name3, \<open>_\<close>, name2])
       [ Expr_rewrite
@@ -139,10 +139,10 @@ definition "print_iskindof_lemma_strict = start_m_gen O.lemma m_class_default
       []
       (C.by
         (M.simp_only
-           (List_map T.thm (List_flatten
+           (L.map T.thm (L.flatten
               [ [flatten [const_ocliskindof, isub_of_str name1, \<open>_\<close>, name3]]
               , [flatten [const_oclistypeof, isub_of_str name1, \<open>_\<close>, name3, \<open>_\<close>, name2]]
-              , List_map
+              , L.map
                   (\<lambda> OclClass n _ _ \<Rightarrow>
                     flatten [const_ocliskindof, isub_of_str n, \<open>_\<close>, name3, \<open>_\<close>, name2])
                   next_dataty ]))
@@ -150,7 +150,7 @@ definition "print_iskindof_lemma_strict = start_m_gen O.lemma m_class_default
     [(\<open>invalid\<close>,\<open>invalid\<close>),(\<open>null\<close>,\<open>true\<close>)])"
 
 definition "print_iskindof_lemmas_strict = start_map'
- (if activate_simp_optimization then List_map O.lemmas o
+ (if activate_simp_optimization then L.map O.lemmas o
   (\<lambda>expr. [ Lemmas_simp \<open>\<close> (get_hierarchy_map (\<lambda>name1 name2 name3.
       T.thm (flatten [const_ocliskindof, isub_of_str name1, \<open>_\<close>, name3, \<open>_\<close>, name2])
   ) (\<lambda>x. (x, [\<open>invalid\<close>,\<open>null\<close>], x)) expr)])
@@ -204,12 +204,12 @@ definition "print_iskindof_up_eq_asty = start_map O.lemma o map_class_gen_h'''''
         (f (Expr_warning_parenthesis (Expr_postunary
                (Expr_annot_ocl (Expr_basic [var_X]) name)
                (Expr_basic [dot_iskindof name]))))
-        (List_map C.apply
+        (L.map C.apply
         [ [ M.simp_only [T.thm (hol_definition \<open>OclValid\<close>)]
           , M.insert [T.thm var_isdef]]
-        , List_flatten (fst (fold_list
+        , L.flatten (fst (L.mapM
                       (\<lambda> OclClass n _ next \<Rightarrow> \<lambda>accu.
-                        let (l_subst, accu) = fold_list (\<lambda> _ (cpt, l_sub).
+                        let (l_subst, accu) = L.mapM (\<lambda> _ (cpt, l_sub).
                           let l_sub = natural_of_str cpt # l_sub in
                           ( M.subst_l
                               l_sub (* subst could fail without the list of integers *)
@@ -221,13 +221,13 @@ definition "print_iskindof_up_eq_asty = start_map O.lemma o map_class_gen_h'''''
                         , accu))
                       (OclClass name l_attr next_dataty # rev l_subtree) (1, [])))
         , [ M.auto_simp_add_split
-              (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l l = List_map T.thm (List_flatten ( [\<open>foundation16\<close>, hol_definition \<open>bot_option\<close>]
-                                                     # List_map
+              (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l l = L.map T.thm (L.flatten ( [\<open>foundation16\<close>, hol_definition \<open>bot_option\<close>]
+                                                     # L.map
                                                          (\<lambda> OclClass n _ _ \<Rightarrow> [flatten [const_oclistypeof, isub_of_str n, \<open>_\<close>, name]])
                                                          l_subtree)) in
                if l_subtree = [] then l else T.symmetric (T.thm \<open>cp_OclOr\<close>) # l)
-              (\<open>option.split\<close> # List_flatten (split_ty name # List_map (\<lambda> OclClass n _ _ \<Rightarrow> split_ty n) l_subtree))]])
-        (C.by [M.option [M.simp_all_add (List_map hol_definition [\<open>false\<close>, \<open>true\<close>, \<open>OclOr\<close>, \<open>OclAnd\<close>, \<open>OclNot\<close>])]])])"
+              (\<open>option.split\<close> # L.flatten (split_ty name # L.map (\<lambda> OclClass n _ _ \<Rightarrow> split_ty n) l_subtree))]])
+        (C.by [M.option [M.simp_all_add (L.map hol_definition [\<open>false\<close>, \<open>true\<close>, \<open>OclOr\<close>, \<open>OclAnd\<close>, \<open>OclNot\<close>])]])])"
 
 definition "print_iskindof_up_larger = start_map O.lemma o
   map_class_nupl2''_inh (\<lambda>name_pers name_any name_pred.
@@ -258,8 +258,8 @@ definition "print_iskindof_up_larger = start_map O.lemma o
               (rev (* priority of '_ or _' is right to left so we reverse *) name_pred)
               ([], False))
          of Some meth_last # l \<Rightarrow>
-           List_map M.rule
-             (List_flatten [ List_map (\<lambda>_. T.thm disjI1) l
+           L.map M.rule
+             (L.flatten [ L.map (\<lambda>_. T.thm disjI1) l
                       , [ T.thm disjI2]
                       , [ T.OF (T.thm meth_last) (T.thm var_isdef)] ]))))"
 
@@ -284,10 +284,10 @@ fun print_iskindof_up_istypeof_child
  | (x, path_inh) # next_dataty \<Rightarrow>
     let get_n = \<lambda> OclClass n _ _ \<Rightarrow> n
       ; n = get_n x in
-    List_flatten [ [I_erule (name_pred, (x, path_inh) # next_dataty)]
+    L.flatten [ [I_erule (name_pred, (x, path_inh) # next_dataty)]
             , if next_dataty = [] then [I_blast n] else []
             , print_iskindof_up_istypeof_child_l name_pred l
-                (List_flatten [ if path_inh then
+                (L.flatten [ if path_inh then
                              if l = [] then
                                [I_simp_add_iskin n]
                              else print_iskindof_up_istypeof_child l
@@ -298,7 +298,7 @@ fun print_iskindof_up_istypeof_child
 definition "print_iskindof_up_istypeof_erule var_isdef next_dataty name_pers name_any =
  (let mk_OF = \<lambda>f. T.OF (T.thm (f name_any)) (T.thm var_isdef)
     ; next_dataty = case next_dataty of x # xs \<Rightarrow>
-                      rev ((\<open>foundation26\<close>, x) # List_map (Pair \<open>defined_or_I\<close>) xs) in
+                      rev ((\<open>foundation26\<close>, x) # L.map (Pair \<open>defined_or_I\<close>) xs) in
   M.erule (List.fold
               (\<lambda> (rule_name, OclClass n _ _) \<Rightarrow> \<lambda> prf.
                 T.OF_l
@@ -323,23 +323,23 @@ definition "print_iskindof_up_istypeof_unfold = start_m_gen O.lemma m_class_defa
                (Expr_annot_ocl (Expr_basic [var_X]) name_any)
                  (Expr_basic [dot_iskindof name_pers]))))]
         (expr_binop' \<open>\<or>\<close>
-          (List_flatten
-            (List_map (\<lambda>(f_dot, l). List_map
+          (L.flatten
+            (L.map (\<lambda>(f_dot, l). L.map
                  (\<lambda>name_pred. f id (Expr_warning_parenthesis (Expr_postunary
                    (Expr_annot_ocl (Expr_basic [var_X]) name_any)
                    (Expr_basic [f_dot name_pred])))) l)
-               [ (dot_istypeof, name_pers # List_map (\<lambda> OclClass n _ _ \<Rightarrow> n) name_pred0) ])))
+               [ (dot_istypeof, name_pers # L.map (\<lambda> OclClass n _ _ \<Rightarrow> n) name_pred0) ])))
         (C.using [T.thm var_iskin]
          # C.apply [M.simp_only [T.thm (flatten [isub_name const_ocliskindof, \<open>_\<close>, name_any])]]
-         # (if next_dataty = [] then [] else List_flatten
-              [ fst (fold_list
+         # (if next_dataty = [] then [] else L.flatten
+              [ fst (L.mapM
                   (\<lambda>_ next_dataty.
                       ( C.apply [print_iskindof_up_istypeof_erule var_isdef next_dataty name_pers name_any]
                       , tl next_dataty))
                   next_dataty
                   (rev next_dataty))
               , [ C.apply [M.simp] ]
-              , List_map (\<lambda> OclClass n _ _ \<Rightarrow>
+              , L.map (\<lambda> OclClass n _ _ \<Rightarrow>
                   C.apply [M.drule (T.OF (T.thm (print_iskindof_up_istypeof_unfold_name n name_any)) (T.thm var_isdef)), M.blast None]) next_dataty ]))
         C.done ]
   else [])"
@@ -360,19 +360,19 @@ definition "print_iskindof_up_istypeof = start_map O.lemma o
                (Expr_basic [dot_iskindof name_pers]))))
       ,(var_isdef, False, f id (Expr_app \<open>\<delta>\<close> [Expr_basic [var_X]]))]
       (expr_binop' \<open>\<or>\<close>
-        (List_flatten
-          (List_map (\<lambda>(f_dot, l). List_map
+        (L.flatten
+          (L.map (\<lambda>(f_dot, l). L.map
                (\<lambda>name_pred. f id (Expr_warning_parenthesis (Expr_postunary
                  (Expr_annot_ocl (Expr_basic [var_X]) name_any)
                  (Expr_basic [f_dot name_pred])))) l)
-             [ (dot_istypeof, List_map (\<lambda> (name_pred, _). case Inh name_pred of OclClass n _ _ \<Rightarrow> n) name_pred0)
-             , (dot_iskindof, List_flatten (List_map (\<lambda> (name_pred, _). case Inh_sib_unflat name_pred of l \<Rightarrow> List_map (\<lambda> OclClass n _ _ \<Rightarrow> n) l) name_pred0)) ])))
+             [ (dot_istypeof, L.map (\<lambda> (name_pred, _). case Inh name_pred of OclClass n _ _ \<Rightarrow> n) name_pred0)
+             , (dot_iskindof, L.flatten (L.map (\<lambda> (name_pred, _). case Inh_sib_unflat name_pred of l \<Rightarrow> L.map (\<lambda> OclClass n _ _ \<Rightarrow> n) l) name_pred0)) ])))
       (C.using [T.OF (T.thm (print_iskindof_up_eq_asty_name name_any)) (T.thm var_isdef)]
-       # List_map (\<lambda>x. C.apply [x])
-         (List_map
+       # L.map (\<lambda>x. C.apply [x])
+         (L.map
            (\<lambda> I_simp_only name_pred \<Rightarrow> M.simp_only [T.thm (print_iskindof_class_name (\<lambda>s. s @@ isub_of_str name_pred) name_any)]
             | I_erule (name_pred, next_dataty) \<Rightarrow>
-                print_iskindof_up_istypeof_erule var_isdef (List_map fst next_dataty) name_pred name_any
+                print_iskindof_up_istypeof_erule var_isdef (L.map fst next_dataty) name_pred name_any
             | I_simp_add_iskin _ \<Rightarrow> M.simp_add [var_iskin]
             | _ \<Rightarrow> M.simp)
            (print_iskindof_up_istypeof_child name_pred0)))
@@ -396,26 +396,26 @@ definition "print_iskindof_up_d_cast = start_map O.lemma o
                (Expr_basic [var_X])
                (Expr_basic [dot_astype name_pers]))
              ) \<open>\<triangleq>\<close> (Expr_basic [\<open>invalid\<close>])))
-        (List_flatten
-          (let name_pred_inh = List_map (\<lambda> (name_pred, _). Inh name_pred) name_pred0
-             ; name_pred_inh_sib_gen = List_flatten (List_map (\<lambda> (name_pred, _). case Inh_sib name_pred of l \<Rightarrow> l) name_pred0)
-             ; name_pred_inh_sib = List_map fst name_pred_inh_sib_gen
+        (L.flatten
+          (let name_pred_inh = L.map (\<lambda> (name_pred, _). Inh name_pred) name_pred0
+             ; name_pred_inh_sib_gen = L.flatten (L.map (\<lambda> (name_pred, _). case Inh_sib name_pred of l \<Rightarrow> l) name_pred0)
+             ; name_pred_inh_sib = L.map fst name_pred_inh_sib_gen
              ; f0 = \<lambda>name_pred. let name_pred = case name_pred of OclClass n _ _ \<Rightarrow> n in
                                 [ M.rule (T.thm (print_istypeof_up_d_cast_name name_pred name_any name_pers))
                                 , M.simp_only [] (* FIXME use wildcard *)
                                 , M.simp_only [T.thm var_isdef]] in
-           [ C.apply (  M.insert [T.OF_l (T.thm (print_iskindof_up_istypeof_name name_mid name_any)) (List_map T.thm [var_iskin, var_isdef])]
-                  # (case List_flatten [ name_pred_inh, name_pred_inh_sib ]
+           [ C.apply (  M.insert [T.OF_l (T.thm (print_iskindof_up_istypeof_name name_mid name_any)) (L.map T.thm [var_iskin, var_isdef])]
+                  # (case L.flatten [ name_pred_inh, name_pred_inh_sib ]
                      of [] \<Rightarrow> [] | [_] \<Rightarrow> [] | _ \<Rightarrow> [ M.elim (T.thm \<open>disjE\<close>) ]))]
-           # List_map (C.apply o f0) name_pred_inh
-           # List_map (\<lambda> (OclClass name_pred l_attr next_d, l_subtree) \<Rightarrow>
-                         List_map C.apply
+           # L.map (C.apply o f0) name_pred_inh
+           # L.map (\<lambda> (OclClass name_pred l_attr next_d, l_subtree) \<Rightarrow>
+                         L.map C.apply
                            [ [ M.drule (T.OF (T.thm (print_iskindof_up_istypeof_unfold_name name_pred name_any)) (T.thm var_isdef))]
                            , if next_d = [] then
                                f0 (OclClass name_pred l_attr next_d)
                              else
                                [ M.auto_simp_add
-                                 (var_isdef # List_map
+                                 (var_isdef # L.map
                                                 (\<lambda> OclClass name_pred _ _ \<Rightarrow>
                                                   print_istypeof_up_d_cast_name name_pred name_any name_pers)
                                                 l_subtree)] ])

@@ -129,7 +129,7 @@ definition "map2_ctxt_term f =
   \<lambda> META_ctxt Floor2 c \<Rightarrow>
     META_ctxt Floor2
       (Ctxt_clause_update
-        (List_map (\<lambda> Ctxt_pp pp \<Rightarrow> Ctxt_pp (Ctxt_expr_update (List_map (\<lambda> T_pp pref prop \<Rightarrow> T_pp pref (f_prop prop)
+        (L.map (\<lambda> Ctxt_pp pp \<Rightarrow> Ctxt_pp (Ctxt_expr_update (L.map (\<lambda> T_pp pref prop \<Rightarrow> T_pp pref (f_prop prop)
                                                                         | T_invariant inva \<Rightarrow> T_invariant (f_inva inva))) pp)
                    | Ctxt_inv l_inv \<Rightarrow> Ctxt_inv (f_inva l_inv))) c)
   | x \<Rightarrow> x)"
@@ -239,7 +239,7 @@ lemmas [code] =
 subsection{* ... *}
 
 definition "hol_map_thy f = (\<lambda> Isab_thy (H_thy_simple x) \<Rightarrow> Isab_thy (H_thy_simple (f x))
-                             | Isab_thy (H_thy_locale data l) \<Rightarrow> Isab_thy (H_thy_locale data (List_map (List_map f) l))
+                             | Isab_thy (H_thy_locale data l) \<Rightarrow> Isab_thy (H_thy_locale data (L.map (L.map f) l))
                              | x \<Rightarrow> x)"
 
 end

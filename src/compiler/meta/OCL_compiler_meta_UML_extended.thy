@@ -106,7 +106,7 @@ fun map_list_attr where
      (\<lambda> OclAttrNoCast x \<Rightarrow> OclAttrNoCast (f x)
       | OclAttrCast c_from l_attr x \<Rightarrow> OclAttrCast c_from (map_list_attr f l_attr) (f x)) e"
 
-definition "map_instance_single f ocli = ocli \<lparr> Inst_attr := map_list_attr (List_map f) (Inst_attr ocli) \<rparr>"
+definition "map_instance_single f ocli = ocli \<lparr> Inst_attr := map_list_attr (L.map f) (Inst_attr ocli) \<rparr>"
 
 fun fold_list_attr where
    "fold_list_attr cast_from f l_attr accu = (case l_attr of
