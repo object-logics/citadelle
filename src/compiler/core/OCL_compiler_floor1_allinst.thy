@@ -53,7 +53,7 @@ subsection{* allInstances *}
 
 definition "print_allinst_def_id = start_map O.definition o
   map_class (\<lambda>isub_name name _ _ _ _.
-    let const_astype = S.flatten [const_oclastype, isub_of_str name, \<open>_\<AA>\<close>] in
+    let const_astype = S.flatten [const_oclastype, String.isub name, \<open>_\<AA>\<close>] in
     Definition (Expr_rewrite (Expr_basic [name]) \<open>=\<close> (Expr_basic [const_astype])))"
 
 definition "print_allinst_lemmas_id = start_map'
@@ -195,7 +195,7 @@ definition "print_allinst_istypeof = start_map'' O.lemma o (\<lambda>expr base_a
            [(\<open>\<close>, True, Expr_And \<open>x\<close> (\<lambda>var_x. Expr_rewrite (Expr_app var_pre_post [Expr_parenthesis (Expr_binop (b var_x) \<open>,\<close> (b var_x))]) \<open>=\<close> (b var_x)) )]
            lem_spec
            (L.map C.apply
-              [ let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l var_tau0 = var_tau @@ isub_of_str \<open>0\<close> in
+              [ let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l var_tau0 = var_tau @@ String.isub \<open>0\<close> in
                 [M.rule (T.where (T.thm \<open>exI\<close>) [(\<open>x\<close>, b var_tau0)]), M.simp_add_del (L.map d [var_tau0, \<open>OclValid\<close>]) [d \<open>OclAllInstances_generic\<close>]]
               , [M.simp_only (L.flatten [L.map T.thm [ d var_OclForall_set, \<open>refl\<close>, \<open>if_True\<close> ], [T.simplified (T.thm \<open>OclAllInstances_generic_defined\<close>) (T.thm (d \<open>OclValid\<close>))]])]
               , [M.simp_only [T.thm (d \<open>OclAllInstances_generic\<close>)]]
@@ -231,6 +231,6 @@ definition "print_allinst_iskindof_eq = start_map O.lemma o map_class_gen (\<lam
   print_allinst_istypeof_single isub_name name isub_name name const_ocliskindof dot_iskindof id (\<lambda>_. []))"
 
 definition "print_allinst_iskindof_larger = start_map O.lemma o L.flatten o map_class_nupl2'_inh (\<lambda>name name2.
-  print_allinst_istypeof_single (\<lambda>s. s @@ isub_of_str name) name (\<lambda>s. s @@ isub_of_str name2) name2 const_ocliskindof dot_iskindof id (\<lambda>_. []))"
+  print_allinst_istypeof_single (\<lambda>s. s @@ String.isub name) name (\<lambda>s. s @@ String.isub name2) name2 const_ocliskindof dot_iskindof id (\<lambda>_. []))"
 
 end

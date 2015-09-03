@@ -280,25 +280,48 @@ subsection{* ... *}
 
 definition "wildcard = \<open>_\<close>"
 
-definition "lowercase_of_str = String.map (\<lambda>c. let n = nat_of_char c in if n < 97 then char_of_nat (n + 32) else c)"
-definition "uppercase_of_str = String.map (\<lambda>c. let n = nat_of_char c in if n < 97 then c else char_of_nat (n - 32))"
-definition "number_of_str = String.replace_chars (\<lambda>c. [\<open>\<zero>\<close>, \<open>\<one>\<close>, \<open>\<two>\<close>, \<open>\<three>\<close>, \<open>\<four>\<close>, \<open>\<five>\<close>, \<open>\<six>\<close>, \<open>\<seven>\<close>, \<open>\<eight>\<close>, \<open>\<nine>\<close>] ! (nat_of_char c - 48))"
-definition "nat_raw_of_str = L.map (\<lambda>i. char_of_nat (nat_of_char (Char Nibble3 Nibble0) + i))"
-fun nat_of_str_aux where
-   "nat_of_str_aux l (n :: Nat.nat) = (if n < 10 then n # l else nat_of_str_aux (n mod 10 # l) (n div 10))"
-definition "nat_of_str n = \<lless>nat_raw_of_str (nat_of_str_aux [] n)\<ggreater>"
-definition "natural_of_str = nat_of_str o nat_of_natural"
+definition "nat_raw_to_str = L.map (\<lambda>i. char_of_nat (nat_of_char (Char Nibble3 Nibble0) + i))"
+context String
+begin
+definition "lowercase = map (\<lambda>c. let n = nat_of_char c in if n < 97 then char_of_nat (n + 32) else c)"
+definition "uppercase = map (\<lambda>c. let n = nat_of_char c in if n < 97 then c else char_of_nat (n - 32))"
+definition "to_bold_number = replace_chars (\<lambda>c. [\<open>\<zero>\<close>, \<open>\<one>\<close>, \<open>\<two>\<close>, \<open>\<three>\<close>, \<open>\<four>\<close>, \<open>\<five>\<close>, \<open>\<six>\<close>, \<open>\<seven>\<close>, \<open>\<eight>\<close>, \<open>\<nine>\<close>] ! (nat_of_char c - 48))"
+fun of_nat_aux where
+   "of_nat_aux l (n :: Nat.nat) = (if n < 10 then n # l else of_nat_aux (n mod 10 # l) (n div 10))"
+definition of_nat where "of_nat n = \<lless>nat_raw_to_str (of_nat_aux [] n)\<ggreater>"
+definition "of_natural = of_nat o nat_of_natural"
+end
+lemmas [code] =
+  (*def*)
+  String.lowercase_def
+  String.uppercase_def
+  String.to_bold_number_def
+  String.of_nat_def
+  String.of_natural_def
+
+  (*fun*)
+  String.of_nat_aux.simps
+
 definition "add_0 n =
  (let n = nat_of_char n in
   S.flatten (L.map (\<lambda>_. \<open>0\<close>) (upt 0 (if n < 10 then 2 else if n < 100 then 1 else 0)))
-  @@ nat_of_str n)"
+  @@ String.of_nat n)"
 definition "is_letter n = (n \<ge> CHR ''A'' & n \<le> CHR ''Z'' | n \<ge> CHR ''a'' & n \<le> CHR ''z'')"
 definition "is_digit n = (n \<ge> CHR ''0'' & n \<le> CHR ''9'')"
 definition "is_special = List.member '' <>^_=-./(){}''"
-definition "base255_of_str = String.replace_chars (\<lambda>c. if is_letter c then \<degree>c\<degree> else add_0 c)"
-definition "isub_of_str = String.replace_chars (\<lambda>c.
+context String
+begin
+definition "base255 = replace_chars (\<lambda>c. if is_letter c then \<degree>c\<degree> else add_0 c)"
+definition "isub = replace_chars (\<lambda>c.
   if is_letter c | is_digit c | List.member ''_'' c then \<open>\<^sub>\<close> @@ \<degree>c\<degree> else add_0 c)"
-definition "isup_of_str s = \<open>__\<close> @@ s"
+definition "isup s = \<open>__\<close> @@ s"
+end
+lemmas [code] =
+  (*def*)
+  String.base255_def
+  String.isub_def
+  String.isup_def
+
 definition "text_of_str str =
  (let s = \<open>c\<close>
     ; ap = \<open> # \<close> in
@@ -331,7 +354,7 @@ definition' \<open>escape_sml = String.replace_chars ((* (* ERROR code_reflect *
                                                 \<lambda> Char Nibble2 Nibble2 \<Rightarrow> \<open>\"\<close> | x \<Rightarrow> \<degree>x\<degree>*)
                                                 \<lambda>x. if x = Char Nibble2 Nibble2 then \<open>\"\<close> else \<degree>x\<degree>)\<close>
 
-definition "mk_constr_name name = (\<lambda> x. S.flatten [isub_of_str name, \<open>_\<close>, isub_of_str x])"
+definition "mk_constr_name name = (\<lambda> x. S.flatten [String.isub name, \<open>_\<close>, String.isub x])"
 definition "mk_dot s1 s2 = S.flatten [\<open>.\<close>, s1, s2]"
 definition "mk_dot_par_gen dot l_s = S.flatten [dot, \<open>(\<close>, case l_s of [] \<Rightarrow> \<open>\<close> | x # xs \<Rightarrow> S.flatten [x, S.flatten (L.map (\<lambda>s. \<open>, \<close> @@ s) xs) ], \<open>)\<close>]"
 definition "mk_dot_par dot s = mk_dot_par_gen dot [s]"

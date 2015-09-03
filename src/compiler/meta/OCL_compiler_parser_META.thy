@@ -224,7 +224,7 @@ definition "i_of_string\<^sub>b\<^sub>a\<^sub>s\<^sub>e a b s = i_of_string_gen 
                                                    b
                                                    (String\<^sub>b\<^sub>a\<^sub>s\<^sub>e.to_String s)"
 
-definition "i_of_nat a b = b o natural_of_str"
+definition "i_of_nat a b = b o String.of_natural"
 
 end
 
@@ -332,11 +332,11 @@ definition' \<open>i_of_string\<^sub>b\<^sub>a\<^sub>s\<^sub>e a b =
                   , sml_escape (String\<^sub>b\<^sub>a\<^sub>s\<^sub>e.to_String x)
                   , \<open>")\<close>]))\<close>
 
-definition "i_of_nat a b = (\<lambda>x. b (S.flatten [\<open>(Code_Numeral.Nat \<close>, natural_of_str x, \<open>)\<close>]))"
+definition "i_of_nat a b = (\<lambda>x. b (S.flatten [\<open>(Code_Numeral.Nat \<close>, String.of_natural x, \<open>)\<close>]))"
 
 end
 
-sublocale sml_of < i_of "\<lambda>c. case String.to_list c of x # xs \<Rightarrow> S.flatten [uppercase_of_str \<lless>[x]\<ggreater>, \<lless>xs\<ggreater>]"
+sublocale sml_of < i_of "\<lambda>c. case String.to_list c of x # xs \<Rightarrow> S.flatten [String.uppercase \<lless>[x]\<ggreater>, \<lless>xs\<ggreater>]"
                         sml_of.i_of_string
                         sml_of.i_of_string\<^sub>b\<^sub>a\<^sub>s\<^sub>e
                         sml_of.i_of_nat

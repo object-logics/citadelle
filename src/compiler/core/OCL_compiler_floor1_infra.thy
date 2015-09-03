@@ -64,7 +64,7 @@ definition "print_infra_datatype_class = start_map'' O.datatype o (\<lambda>expr
     [ Datatype
         (isub_name datatype_ext_name)
         (  (L.rev_map (\<lambda>x. ( datatype_ext_constr_name @@ mk_constr_name name x
-                         , [Raw (datatype_name @@ isub_of_str x)])) (of_sub l_cons))
+                         , [Raw (datatype_name @@ String.isub x)])) (of_sub l_cons))
         @@@@ [(isub_name datatype_ext_constr_name, Raw const_oid # L.maps map_ty l_inherited)])
     , Datatype
         (isub_name datatype_name)
@@ -181,11 +181,11 @@ definition "print_infra_instantiation_universe expr = start_map O.instantiation
     (esc (isub_name datatype_in), esc oid_of)) expr))) ]"
 
 
-definition "print_instantia_def_strictrefeq_name mk_strict name = mk_strict [\<open>_\<close>, isub_of_str name]"
+definition "print_instantia_def_strictrefeq_name mk_strict name = mk_strict [\<open>_\<close>, String.isub name]"
 definition "print_instantia_def_strictrefeq = start_map O.defs o
   map_class (\<lambda>isub_name name _ _ _ _.
-    let mk_strict = (\<lambda>l. S.flatten (\<open>StrictRefEq\<close> # isub_of_str \<open>Object\<close> # l))
-      ; s_strict = mk_strict [\<open>_\<close>, isub_of_str name]
+    let mk_strict = (\<lambda>l. S.flatten (\<open>StrictRefEq\<close> # String.isub \<open>Object\<close> # l))
+      ; s_strict = mk_strict [\<open>_\<close>, String.isub name]
       ; var_x = \<open>x\<close>
       ; var_y = \<open>y\<close> in
     Defs_overloaded
@@ -199,7 +199,7 @@ definition "print_instantia_def_strictrefeq = start_map O.defs o
 definition "print_instantia_lemmas_strictrefeq = start_map'
   (if activate_simp_optimization then
      \<lambda>expr.
-       let mk_strict = (\<lambda>l. S.flatten (\<open>StrictRefEq\<close> # isub_of_str \<open>Object\<close> # l))
+       let mk_strict = (\<lambda>l. S.flatten (\<open>StrictRefEq\<close> # String.isub \<open>Object\<close> # l))
          ; name_set = map_class (\<lambda>_ name _ _ _ _. print_instantia_def_strictrefeq_name mk_strict name) expr in
        case name_set of [] \<Rightarrow> [] | _ \<Rightarrow> L.map O.lemmas
          [ Lemmas_simp \<open>\<close> (L.map (T.thm) name_set) ]

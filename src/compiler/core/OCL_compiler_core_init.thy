@@ -265,7 +265,7 @@ section{* Translation of AST *}
 definition "map_class_arg_only_var = map_class_arg_only_var_gen (\<lambda>s e. Expr_postunary s (Expr_basic e))"
 definition "map_class_arg_only_var' = map_class_arg_only_var'_gen (\<lambda>s e. Expr_postunary s (Expr_basic e))"
 
-definition "split_ty name = L.map (\<lambda>s. hol_split (s @@ isub_of_str name)) [datatype_ext_name, datatype_name]"
+definition "split_ty name = L.map (\<lambda>s. hol_split (s @@ String.isub name)) [datatype_ext_name, datatype_name]"
 
 definition "start_map f = L.mapM (\<lambda>x acc. (f x, acc))"
 definition "start_map' f x accu = (f x, accu)"
@@ -323,29 +323,29 @@ fun print_infra_type_synonym_class_rec_aux0 where
             ; (name2, ty2) = print_infra_type_synonym_class_rec_aux0 t2 in
           ( \<open>Pair\<close> @@ \<open>_\<close> @@ name1 @@ \<open>_\<close> @@ name2
           , Ty_apply (Ty_base var_Pair_base) [ty1, ty2])
-      | OclTy_object (OclTyObj (OclTyCore_pre s) _) \<Rightarrow> (s, option (option (Ty_base (datatype_name @@ isub_of_str s))))
-      | t \<Rightarrow> (str_of_ty t, Ty_base (str_of_ty t @@ isub_of_str \<open>base\<close>))) e)"
+      | OclTy_object (OclTyObj (OclTyCore_pre s) _) \<Rightarrow> (s, option (option (Ty_base (datatype_name @@ String.isub s))))
+      | t \<Rightarrow> (str_of_ty t, Ty_base (str_of_ty t @@ String.isub \<open>base\<close>))) e)"
 
 definition "print_infra_type_synonym_class_rec_aux t =
  (let (tit, body) = print_infra_type_synonym_class_rec_aux0 t in
   (tit, Ty_apply (Ty_base \<open>val\<close>) [Ty_base \<open>\<AA>\<close>, body]))"
 
-definition "pref_generic_enum name_ty = name_ty @@ isub_of_str \<open>generic\<close>"
+definition "pref_generic_enum name_ty = name_ty @@ String.isub \<open>generic\<close>"
 
 subsection{* AsType *}
 
-definition "print_astype_from_universe_name name = S.flatten [const_oclastype, isub_of_str name, \<open>_\<AA>\<close>]"
+definition "print_astype_from_universe_name name = S.flatten [const_oclastype, String.isub name, \<open>_\<AA>\<close>]"
 
 subsection{* IsTypeOf *}
 
 definition "print_istypeof_defined_name isub_name h_name = S.flatten [isub_name const_oclistypeof, \<open>_\<close>, h_name, \<open>_defined\<close>]"
 definition "print_istypeof_defined'_name isub_name h_name = S.flatten [isub_name const_oclistypeof, \<open>_\<close>, h_name, \<open>_defined'\<close>]"
-definition "print_istypeof_up_d_cast_name name_mid name_any name_pers = S.flatten [\<open>down_cast_type\<close>, isub_of_str name_mid, \<open>_from_\<close>, name_any, \<open>_to_\<close>, name_pers]"
+definition "print_istypeof_up_d_cast_name name_mid name_any name_pers = S.flatten [\<open>down_cast_type\<close>, String.isub name_mid, \<open>_from_\<close>, name_any, \<open>_to_\<close>, name_pers]"
 
 subsection{* IsKindOf *}
 
-definition "print_iskindof_up_eq_asty_name name = (S.flatten [\<open>actual_eq_static\<close>, isub_of_str name])"
-definition "print_iskindof_up_larger_name name_pers name_any = S.flatten [\<open>actualKind\<close>, isub_of_str name_pers, \<open>_larger_staticKind\<close>, isub_of_str name_any]"
+definition "print_iskindof_up_eq_asty_name name = (S.flatten [\<open>actual_eq_static\<close>, String.isub name])"
+definition "print_iskindof_up_larger_name name_pers name_any = S.flatten [\<open>actualKind\<close>, String.isub name_pers, \<open>_larger_staticKind\<close>, String.isub name_any]"
 
 subsection{* allInstances *}
 
@@ -375,14 +375,14 @@ definition "gen_pre_post f_tit spec f_lemma = gen_pre_post0 f_tit [] spec (\<lam
 
 subsection{* accessors *}
 
-definition "print_access_oid_uniq_name' name_from_nat isub_name attr = S.flatten [ isub_name var_oid_uniq, \<open>_\<close>, natural_of_str name_from_nat, \<open>_\<close>, attr ]"
-definition "print_access_oid_uniq_name name_from_nat isub_name attr = print_access_oid_uniq_name' name_from_nat isub_name (isup_of_str attr)"
-definition "print_access_oid_uniq_mlname name_from_nat name attr = S.flatten [ var_oid_uniq, name, \<open>_\<close>, natural_of_str name_from_nat, \<open>_\<close>, attr ]"
+definition "print_access_oid_uniq_name' name_from_nat isub_name attr = S.flatten [ isub_name var_oid_uniq, \<open>_\<close>, String.of_natural name_from_nat, \<open>_\<close>, attr ]"
+definition "print_access_oid_uniq_name name_from_nat isub_name attr = print_access_oid_uniq_name' name_from_nat isub_name (String.isup attr)"
+definition "print_access_oid_uniq_mlname name_from_nat name attr = S.flatten [ var_oid_uniq, name, \<open>_\<close>, String.of_natural name_from_nat, \<open>_\<close>, attr ]"
 
 definition "print_access_choose_name n i j =
-  S.flatten [var_switch, isub_of_str (natural_of_str n), \<open>_\<close>, natural_of_str i, natural_of_str j]"
+  S.flatten [var_switch, String.isub (String.of_natural n), \<open>_\<close>, String.of_natural i, String.of_natural j]"
 definition "print_access_choose_mlname n i j =
-  S.flatten [var_switch, natural_of_str n, \<open>_\<close>, natural_of_str i, natural_of_str j]"
+  S.flatten [var_switch, String.of_natural n, \<open>_\<close>, String.of_natural i, String.of_natural j]"
 
 definition "print_access_dot_consts_ty attr_ty =
               (let ty_base = \<lambda>attr_ty.
@@ -431,7 +431,7 @@ definition "print_examp_def_st_inst_var_name ocli name = S.flatten [case\<^sub>O
 subsection{* context *}
 
 definition "print_ctxt_const_name attr_n var_at_when_hol name =
-  S.flatten [ \<open>dot\<close>, isup_of_str attr_n, var_at_when_hol] @@ (case name of None \<Rightarrow> \<open>\<close> | Some name \<Rightarrow> \<open>_\<close> @@ name)"
+  S.flatten [ \<open>dot\<close>, String.isup attr_n, var_at_when_hol] @@ (case name of None \<Rightarrow> \<open>\<close> | Some name \<Rightarrow> \<open>_\<close> @@ name)"
 definition "print_ctxt_pre_post_name attr_n var_at_when_hol name = hol_definition (print_ctxt_const_name attr_n var_at_when_hol name)"
 definition "print_ctxt_inv_name n tit var_at_when = S.flatten [n, \<open>_\<close>, tit, var_at_when]"
 

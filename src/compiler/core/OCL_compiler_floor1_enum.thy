@@ -53,7 +53,7 @@ definition "print_enum = (\<lambda> OclEnum name_ty l \<Rightarrow> Pair
  (let a = \<lambda>f x. Expr_app f [x]
     ; b = \<lambda>s. Expr_basic [s]
     ; option = Ty_apply_paren \<open>\<langle>\<close> \<open>\<rangle>\<^sub>\<bottom>\<close>
-    ; name_ty_base = name_ty @@ isub_of_str \<open>base\<close>
+    ; name_ty_base = name_ty @@ String.isub \<open>base\<close>
     ; name_ty_base' = pref_generic_enum name_ty
     ; uu = \<open>'\<AA>\<close> in
   L.flatten
@@ -62,7 +62,7 @@ definition "print_enum = (\<lambda> OclEnum name_ty l \<Rightarrow> Pair
     , O.type_synonym (Type_synonym'' name_ty_base' [uu] (\<lambda> [u] \<Rightarrow> Ty_apply (Ty_base \<open>val\<close>) [Ty_base u, Ty_base name_ty_base]))
     , O.defs
         (Defs_overloaded
-          (\<open>StrictRefEq\<close> @@ isub_of_str name_ty)
+          (\<open>StrictRefEq\<close> @@ String.isub name_ty)
           (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l var_x = \<open>x\<close>
              ; var_y = \<open>y\<close> in
            Expr_rewrite

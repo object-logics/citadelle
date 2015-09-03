@@ -58,7 +58,7 @@ definition "print_examp_oclbase_gen =
           ; ab_name = b nb in
         (ab_name, Definition_where2
           name
-          (b (number_of_str nb))
+          (b (String.to_bold_number nb))
           (Expr_rewrite (b name) \<open>=\<close> (Expr_lambda wildcard (Expr_some (Expr_some ab_name)))))
   | OclDefReal (nb0, nb1) \<Rightarrow>
         let name = S.flatten [ var_OclReal, nb0, \<open>_\<close>, nb1 ]
@@ -68,10 +68,10 @@ definition "print_examp_oclbase_gen =
                                           is not implemented as 'nat' *), \<open>.\<close>, nb1*)]) in
         (ab_name, Definition_where2
           name
-          (b (S.flatten [number_of_str nb0, \<open>.\<close>, number_of_str nb1]))
+          (b (S.flatten [String.to_bold_number nb0, \<open>.\<close>, String.to_bold_number nb1]))
           (Expr_rewrite (b name) \<open>=\<close> (Expr_lambda wildcard (Expr_some (Expr_some ab_name)))))
   | OclDefString nb \<Rightarrow>
-        let name = var_OclString @@ base255_of_str nb
+        let name = var_OclString @@ String.base255 nb
           ; b = \<lambda>s. Expr_basic [s] in
         if \<not> String.is_empty nb & String.all is_letter nb then
           let ab_name = b (S.flatten [\<open>''\<close>, nb, \<open>''\<close>]) in
@@ -263,7 +263,7 @@ fun print_examp_instance_app_constr2_notmp where
       (\<lambda>(l_inh, l_own).
         print_examp_instance_app_constr_notmp (f_oid isub_name cpt) isub_name l_inh l_own)
   | OclAttrCast x l_attr _ \<Rightarrow>
-    print_examp_instance_app_constr2_notmp l_attr (\<lambda>s. s @@ isub_of_str x) cpt f_oid)"
+    print_examp_instance_app_constr2_notmp l_attr (\<lambda>s. s @@ String.isub x) cpt f_oid)"
 
 fun print_examp_instance_app_constr2_notmp' where
    "print_examp_instance_app_constr2_notmp' l_attr e =
@@ -335,7 +335,7 @@ definition' \<open>print_examp_def_st_assoc_build_rbt_gen_typecheck check_ty f_a
                                                | s \<triangleq> v_invalid
                                                | list_ex (\<lambda>OclEnum _ l \<Rightarrow> list_ex (op \<triangleq> s) l) l_enum then None
                                               else f s (map_username s))
-                                         (\<lambda>s. f (\<open>self \<close> @@ natural_of_str (case s of Oid n \<Rightarrow> n)) (map_self s))
+                                         (\<lambda>s. f (\<open>self \<close> @@ String.of_natural (case s of Oid n \<Rightarrow> n)) (map_self s))
                                          (\<lambda> None \<Rightarrow> id | Some x \<Rightarrow> Cons x)
                                          x
                                          []
@@ -401,7 +401,7 @@ definition "print_examp_def_st_assoc rbt map_self map_username l_assoc =
    Expr_app var_map_of_list [Expr_list (fold (\<lambda>name. fold (\<lambda>name_attr (l_attr, ty_obj) l_cons.
          let cpt_from = TyObjN_ass_switch (TyObj_from ty_obj) in
          Expr_pair
-           (Expr_basic [print_access_oid_uniq_name cpt_from (\<lambda>s. s @@ isub_of_str name) name_attr])
+           (Expr_basic [print_access_oid_uniq_name cpt_from (\<lambda>s. s @@ String.isub name) name_attr])
            (Expr_app \<open>List.map\<close>
              [ Expr_binop (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l var_x = \<open>x\<close>
                              ; var_y = \<open>y\<close> in
@@ -423,17 +423,17 @@ definition "print_examp_instance_oid thy_definition_hol l ocl = (L.map thy_defin
       []
     else
       let var_oid = Expr_oid var_oid_uniq (oidGetInh cpt)
-        ; isub_name = \<lambda>s. s @@ isub_of_str (inst_ty ocli) in
+        ; isub_name = \<lambda>s. s @@ String.isub (inst_ty ocli) in
       [Definition (Expr_rewrite (f1 var_oid isub_name ocli) \<open>=\<close> (f2 ocli isub_name cpt))]) l)"
 
 definition "check_single = (\<lambda> (name_attr, oid, l_oid) l_mult l.
   let l = (RBT.keys o RBT.bulkload o L.map (\<lambda>x. (x, ()))) l
-    ; assoc = \<lambda>x. case map_of l_oid x of Some s \<Rightarrow> s | None \<Rightarrow> case x of Oid n \<Rightarrow> S.flatten [\<open>/*\<close>, natural_of_str n, \<open>*/\<close>]
+    ; assoc = \<lambda>x. case map_of l_oid x of Some s \<Rightarrow> s | None \<Rightarrow> case x of Oid n \<Rightarrow> S.flatten [\<open>/*\<close>, String.of_natural n, \<open>*/\<close>]
     ; attr_len = natural_of_nat (length l)
     ; l_typed =
        L.map (\<lambda> (mult_min, mult_max0) \<Rightarrow>
          let mult_max = case mult_max0 of None \<Rightarrow> mult_min | Some mult_max \<Rightarrow> mult_max
-           ; s_mult = \<lambda> Mult_nat n \<Rightarrow> natural_of_str n | Mult_star \<Rightarrow> \<open>*\<close> | Mult_infinity \<Rightarrow> \<open>\<infinity>\<close>
+           ; s_mult = \<lambda> Mult_nat n \<Rightarrow> String.of_natural n | Mult_star \<Rightarrow> \<open>*\<close> | Mult_infinity \<Rightarrow> \<open>\<infinity>\<close>
            ; f = \<lambda>s. S.flatten [ \<open> // \<close>
                              , s
                              , \<open> constraint [\<close>
@@ -474,7 +474,7 @@ definition "check_export_code f_writeln f_warning f_error f_raise l_report msg_l
   if l_err = [] then
     ()
   else
-    f_raise (nat_of_str (length l_err) @@ msg_last))"
+    f_raise (String.of_nat (length l_err) @@ msg_last))"
 
 definition "print_examp_instance_defassoc_gen name l_ocli ocl =
  (case D_ocl_semantics ocl of Gen_only_analysis \<Rightarrow> [] | Gen_default \<Rightarrow> [] | Gen_only_design \<Rightarrow>
@@ -700,7 +700,7 @@ definition "print_examp_instance = (\<lambda> OclInstance l \<Rightarrow> \<lamb
            ; (isub_name, body2, body2') = 
                case inst_ty0 ocli of
                  Some ty \<Rightarrow> 
-                     let isub_name = \<lambda>s. s @@ isub_of_str (inst_ty ocli) in
+                     let isub_name = \<lambda>s. s @@ String.isub (inst_ty ocli) in
                      (isub_name, print_examp_instance_app_constr2_notmp_norec (snd o rbt, (map_self, map_username)) ocl (b var_inst_ass) ocli isub_name cpt)
                | None \<Rightarrow> (id, (Return_err Return_err_ty_auto, id)) in
          ( let l =
@@ -754,7 +754,7 @@ definition "print_examp_def_st1 = (\<lambda> OclDefSt name l \<Rightarrow> boots
                                  ([], 0)
         ; (l_inst, l_defst) =
         List.fold (\<lambda> (pos, _, OclDefCoreAdd ocli) \<Rightarrow> \<lambda>(l_inst, l_defst).
-                     let i_name = case Inst_name ocli of Some x \<Rightarrow> x | None \<Rightarrow> S.flatten [name, \<open>_object\<close>, natural_of_str pos] in
+                     let i_name = case Inst_name ocli of Some x \<Rightarrow> x | None \<Rightarrow> S.flatten [name, \<open>_object\<close>, String.of_natural pos] in
                        ( map_instance_single (map_prod id (map_prod id (map_data_shallow_self (\<lambda>Oid self \<Rightarrow>
                            (case L.assoc self l of
                               Some (_, OclDefCoreBinding name) \<Rightarrow> ShallB_str name
@@ -781,7 +781,7 @@ definition "print_pre_post = (\<lambda> OclDefPP name s_pre s_post \<Rightarrow>
   (\<lambda>f ocl. (L.flatten [f ocl], ocl))
   (\<lambda>ocl.
     let pref_name = case name of Some n \<Rightarrow> n
-                               | None \<Rightarrow> \<open>WFF_\<close> @@ nat_of_str (length (D_input_meta ocl))
+                               | None \<Rightarrow> \<open>WFF_\<close> @@ String.of_nat (length (D_input_meta ocl))
       ; f_comp = \<lambda>None \<Rightarrow> id | Some (_, f) \<Rightarrow> f
       ; f_conv = \<lambda>msg.
           \<lambda> OclDefPPCoreAdd ocl_def_state \<Rightarrow>

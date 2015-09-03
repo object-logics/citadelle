@@ -52,14 +52,24 @@ begin
 
 subsection{* RBT Miscellaneous *}
 
+locale RBT
+begin
 definition "modify_def v k f rbt =
   (case RBT.lookup rbt k of None \<Rightarrow> RBT.insert k (f v) rbt
                       | Some _ \<Rightarrow> RBT.map_entry k f rbt)"
 definition "lookup2 rbt = (\<lambda>(x1, x2). Option.bind (RBT.lookup rbt x1) (\<lambda>rbt. RBT.lookup rbt x2))"
-definition "insert2 = (\<lambda>(x1, x2) v. modify_def RBT.empty x1 (RBT.insert x2 v))"
+definition "insert2 = (\<lambda>(x1, x2) v. RBT.modify_def RBT.empty x1 (RBT.insert x2 v))"
+end
+lemmas [code] =
+  (*def*)
+  RBT.modify_def_def
+  RBT.lookup2_def
+  RBT.insert2_def
 
-definition "List_unique f l = List.map_filter id (fst
-  (L.mapM
+context L
+begin
+definition "unique f l = List.map_filter id (fst
+  (mapM
     (\<lambda> (cpt, v) rbt. 
       let f_cpt = f cpt in
       if RBT.lookup rbt f_cpt = None then
@@ -68,5 +78,9 @@ definition "List_unique f l = List.map_filter id (fst
         (None, rbt))
     l
     RBT.empty))"
+end
+lemmas [code] =
+  (*def*)
+  L.unique_def
 
 end

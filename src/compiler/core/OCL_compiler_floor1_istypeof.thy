@@ -70,7 +70,7 @@ definition "print_istypeof_class = start_m_gen O.defs m_class_default
                     # (Expr_some (Expr_basic [\<open>\<bottom>\<close>]), ocl_tau \<open>true\<close>)
                     # (let l_false = [(Expr_basic [wildcard], ocl_tau \<open>false\<close>)]
                          ; pattern_complex_gen = (\<lambda>f1 f2.
-                            let isub_h = (\<lambda> s. s @@ isub_of_str h_name) in
+                            let isub_h = (\<lambda> s. s @@ String.isub h_name) in
                              (Expr_some (Expr_some
                                (Expr_app (isub_h datatype_constr_name)
                                            ( Expr_app (f2 (\<lambda>s. isub_name (s @@ \<open>_\<close>)) (isub_h datatype_ext_constr_name))
@@ -84,10 +84,10 @@ definition "print_istypeof_class = start_m_gen O.defs m_class_default
 
 definition "print_istypeof_from_universe = start_m O.definition
   (\<lambda> name _ _ l.
-    let const_istypeof = S.flatten [const_oclistypeof, isub_of_str name, \<open>_\<AA>\<close>] in
+    let const_istypeof = S.flatten [const_oclistypeof, String.isub name, \<open>_\<AA>\<close>] in
     [ Definition (Expr_rewrite (Expr_basic [const_istypeof]) \<open>=\<close> (Expr_function l))])
   (\<lambda>_ (_, name, _). \<lambda> OclClass h_name _ _ \<Rightarrow>
-     let isub_h = (\<lambda> s. s @@ isub_of_str h_name) in
+     let isub_h = (\<lambda> s. s @@ String.isub h_name) in
      [( Expr_app (isub_h datatype_in) [Expr_basic [h_name]]
       , Expr_warning_parenthesis
         (Expr_postunary (Expr_annot_ocl (Expr_applys Expr_basety [Expr_basic [h_name]])
@@ -112,7 +112,7 @@ definition "print_istypeof_lemma_cp expr = (start_map O.lemma o
     (\<lambda>n1 n2. list_ex (\<lambda>((_, name1), name2). name1 = n1 & name2 = n2) set) in
   (\<lambda>name1 name2 name3.
     Lemma
-      (S.flatten [\<open>cp_\<close>, const_oclistypeof, isub_of_str name1, \<open>_\<close>, name3, \<open>_\<close>, name2])
+      (S.flatten [\<open>cp_\<close>, const_oclistypeof, String.isub name1, \<open>_\<close>, name3, \<open>_\<close>, name2])
       (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l var_p = \<open>p\<close> in
        L.map
          (\<lambda>x. Expr_app \<open>cp\<close> [x])
@@ -123,14 +123,14 @@ definition "print_istypeof_lemma_cp expr = (start_map O.lemma o
                (Expr_basic [dot_istypeof name1])))])
       []
       (C.by [M.rule (T.thm \<open>cpI1\<close>), if check_opt name1 name2 then M.simp
-                                             else M.simp_add [S.flatten [const_oclistypeof, isub_of_str name1, \<open>_\<close>, name2]]])
+                                             else M.simp_add [S.flatten [const_oclistypeof, String.isub name1, \<open>_\<close>, name2]]])
   )) (\<lambda>x. (x, x, x))) ) expr"
 
 definition "print_istypeof_lemmas_cp = start_map'
  (if activate_simp_optimization then L.map O.lemmas o
     (\<lambda>expr. [Lemmas_simp \<open>\<close>
   (get_hierarchy_map (\<lambda>name1 name2 name3.
-      T.thm (S.flatten [\<open>cp_\<close>, const_oclistypeof, isub_of_str name1, \<open>_\<close>, name3, \<open>_\<close>, name2]))
+      T.thm (S.flatten [\<open>cp_\<close>, const_oclistypeof, String.isub name1, \<open>_\<close>, name3, \<open>_\<close>, name2]))
    (\<lambda>x. (x, x, x)) expr)])
   else (\<lambda>_. []))"
 
@@ -141,7 +141,7 @@ definition "print_istypeof_lemma_strict expr = (start_map O.lemma o
     (\<lambda>n1 n2. list_ex (\<lambda>((_, name1), name2). name1 = n1 & name2 = n2) set) in
   (\<lambda>name1 (name2,name2') name3.
     Lemma
-      (S.flatten [const_oclistypeof, isub_of_str name1, \<open>_\<close>, name3, \<open>_\<close>, name2])
+      (S.flatten [const_oclistypeof, String.isub name1, \<open>_\<close>, name3, \<open>_\<close>, name2])
       [ Expr_rewrite
              (Expr_warning_parenthesis (Expr_postunary
                (Expr_annot_ocl (Expr_basic [name2]) name3)
@@ -152,7 +152,7 @@ definition "print_istypeof_lemma_strict expr = (start_map O.lemma o
       (C.by (let l = L.map hol_definition (\<open>bot_option\<close> # (if name2 = \<open>invalid\<close> then [\<open>invalid\<close>]
                                                               else [\<open>null_fun\<close>,\<open>null_option\<close>])) in
                 [M.rule (T.thm \<open>ext\<close>), M.simp_add (if check_opt name1 name3 then l
-                                                           else S.flatten [const_oclistypeof, isub_of_str name1, \<open>_\<close>, name3] # l)]))
+                                                           else S.flatten [const_oclistypeof, String.isub name1, \<open>_\<close>, name3] # l)]))
   )) (\<lambda>x. (x, [(\<open>invalid\<close>,\<open>invalid\<close>),(\<open>null\<close>,\<open>true\<close>)], x))) expr"
 
 definition "print_istypeof_lemmas_strict_set =
@@ -165,7 +165,7 @@ definition "print_istypeof_lemmas_strict expr = start_map O.lemmas
    of [] \<Rightarrow> []
     | l \<Rightarrow> [ Lemmas_simp \<open>\<close> (L.map
       (\<lambda>(name1, name3, name2).
-        T.thm (S.flatten [const_oclistypeof, isub_of_str name1, \<open>_\<close>, name3, \<open>_\<close>, name2]))
+        T.thm (S.flatten [const_oclistypeof, String.isub name1, \<open>_\<close>, name3, \<open>_\<close>, name2]))
       l) ])"
 
 definition "print_istypeof_defined = start_m O.lemma m_class_default
@@ -198,7 +198,7 @@ definition "print_istypeof_defined' = start_m O.lemma m_class_default
           (C.by [M.rule (T.OF (T.thm (print_istypeof_defined_name isub_name h_name))
                                      (T.THEN (T.thm var_isdef) (T.thm \<open>foundation20\<close>)))]) ])"
 
-definition "print_istypeof_up_larger_name name_pers name_any = S.flatten [\<open>actualType\<close>, isub_of_str name_pers, \<open>_larger_staticType\<close>, isub_of_str name_any]"
+definition "print_istypeof_up_larger_name name_pers name_any = S.flatten [\<open>actualType\<close>, String.isub name_pers, \<open>_larger_staticType\<close>, String.isub name_any]"
 definition "print_istypeof_up_larger = start_map O.lemma o
   map_class_nupl2'_inh_large (\<lambda>name_pers name_any.
     let var_X = \<open>X\<close>
@@ -212,7 +212,7 @@ definition "print_istypeof_up_larger = start_map O.lemma o
                (Expr_basic [dot_istypeof name_any]))
              ) \<open>\<triangleq>\<close> (Expr_basic [\<open>false\<close>])))
         [C.using [T.thm var_isdef]]
-        (C.by [M.auto_simp_add ( S.flatten [const_oclistypeof, isub_of_str name_any, \<open>_\<close>, name_pers]
+        (C.by [M.auto_simp_add ( S.flatten [const_oclistypeof, String.isub name_any, \<open>_\<close>, name_pers]
                                     # \<open>foundation22\<close>
                                     # \<open>foundation16\<close>
                                     # L.map hol_definition [\<open>null_option\<close>, \<open>bot_option\<close> ])]))"
@@ -235,7 +235,7 @@ definition "print_istypeof_up_d_cast expr = (start_map O.lemma o
              ) \<open>\<triangleq>\<close> (Expr_basic [\<open>invalid\<close>])))
         [C.using (L.map T.thm [var_istyp, var_isdef])
         ,C.apply [M.auto_simp_add_split (L.map T.thm
-                                      ( S.flatten [const_oclastype, isub_of_str name_pers, \<open>_\<close>, name_any]
+                                      ( S.flatten [const_oclastype, String.isub name_pers, \<open>_\<close>, name_any]
                                       # \<open>foundation22\<close>
                                       # \<open>foundation16\<close>
                                       # L.map hol_definition [\<open>null_option\<close>, \<open>bot_option\<close> ]))
@@ -244,6 +244,6 @@ definition "print_istypeof_up_d_cast expr = (start_map O.lemma o
                                 if name_mid = name_any & ~(print_istypeof_lemma_cp_set expr = []) then
                                   l
                                 else
-                                  S.flatten [const_oclistypeof, isub_of_str name_mid, \<open>_\<close>, name_any] # l)]))) expr"
+                                  S.flatten [const_oclistypeof, String.isub name_mid, \<open>_\<close>, name_any] # l)]))) expr"
 
 end

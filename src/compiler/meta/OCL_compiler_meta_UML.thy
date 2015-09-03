@@ -222,7 +222,7 @@ definition "fold_invariant f_inv ctxt =
 
 definition "fold_invariant' inva =
   rev (fst (fold_invariant (\<lambda>(T_inv _ (OclProp_ctxt tit inva)) \<Rightarrow> \<lambda> (accu, n).
-                               ( (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l tit = case tit of None \<Rightarrow> nat_of_str n
+                               ( (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l tit = case tit of None \<Rightarrow> String.of_nat n
                                                           | Some tit \<Rightarrow> tit in
                                   (tit, inva))
                                  # accu
@@ -256,25 +256,39 @@ fun fold_max_aux where
 
 definition "fold_max f l = fold_max_aux f (L.mapi Pair l) []"
 
-definition "lookup' m k = RBT.lookup m (String.to_list k)"
-definition "insert' k = RBT.insert (String.to_list k)"
-definition "map_entry' k = RBT.map_entry (String.to_list k)"
-definition "modify_def' v k = modify_def v (String.to_list k)"
-definition "keys' m = L.map (\<lambda>s. \<lless>s\<ggreater>) (RBT.keys m)"
-definition "lookup2' m = (\<lambda>(k1, k2). lookup2 m (String.to_list k1, String.to_list k2))"
-definition "insert2' = (\<lambda>(k1, k2). insert2 (String.to_list k1, String.to_list k2))"
-definition "fold' f = RBT.fold (\<lambda>c. f \<lless>c\<ggreater>)"
-definition "entries' m = L.map (map_prod (\<lambda>c. \<lless>c\<ggreater>) id) (RBT.entries m)"
+locale RBTS
+begin
+definition "lookup m k = RBT.lookup m (String.to_list k)"
+definition insert where "insert k = RBT.insert (String.to_list k)"
+definition "map_entry k = RBT.map_entry (String.to_list k)"
+definition "modify_def v k = RBT.modify_def v (String.to_list k)"
+definition "keys m = L.map (\<lambda>s. \<lless>s\<ggreater>) (RBT.keys m)"
+definition "lookup2 m = (\<lambda>(k1, k2). RBT.lookup2 m (String.to_list k1, String.to_list k2))"
+definition "insert2 = (\<lambda>(k1, k2). RBT.insert2 (String.to_list k1, String.to_list k2))"
+definition fold where "fold f = RBT.fold (\<lambda>c. f \<lless>c\<ggreater>)"
+definition "entries m = L.map (map_prod (\<lambda>c. \<lless>c\<ggreater>) id) (RBT.entries m)"
+end
+lemmas [code] =
+  (*def*)
+  RBTS.lookup_def
+  RBTS.insert_def
+  RBTS.map_entry_def
+  RBTS.modify_def_def
+  RBTS.keys_def
+  RBTS.lookup2_def
+  RBTS.insert2_def
+  RBTS.fold_def
+  RBTS.entries_def
 
-syntax "_rbt_lookup" :: "_ \<Rightarrow> _" ("lookup") translations "lookup" \<rightleftharpoons> "CONST lookup'"
-syntax "_rbt_insert" :: "_ \<Rightarrow> _" ("insert") translations "insert" \<rightleftharpoons> "CONST insert'"
-syntax "_rbt_map_entry" :: "_ \<Rightarrow> _" ("map'_entry") translations "map_entry" \<rightleftharpoons> "CONST map_entry'"
-syntax "_rbt_modify_def" :: "_ \<Rightarrow> _" ("modify'_def") translations "modify_def" \<rightleftharpoons> "CONST modify_def'"
-syntax "_rbt_keys" :: "_ \<Rightarrow> _" ("keys") translations "keys" \<rightleftharpoons> "CONST keys'"
-syntax "_rbt_lookup2" :: "_ \<Rightarrow> _" ("lookup2") translations "lookup2" \<rightleftharpoons> "CONST lookup2'"
-syntax "_rbt_insert2" :: "_ \<Rightarrow> _" ("insert2") translations "insert2" \<rightleftharpoons> "CONST insert2'"
-syntax "_rbt_fold" :: "_ \<Rightarrow> _" ("fold") translations "fold" \<rightleftharpoons> "CONST fold'"
-syntax "_rbt_entries" :: "_ \<Rightarrow> _" ("entries") translations "entries" \<rightleftharpoons> "CONST entries'"
+syntax "_rbt_lookup" :: "_ \<Rightarrow> _" ("lookup") translations "lookup" \<rightleftharpoons> "CONST RBTS.lookup"
+syntax "_rbt_insert" :: "_ \<Rightarrow> _" ("insert") translations "insert" \<rightleftharpoons> "CONST RBTS.insert"
+syntax "_rbt_map_entry" :: "_ \<Rightarrow> _" ("map'_entry") translations "map_entry" \<rightleftharpoons> "CONST RBTS.map_entry"
+syntax "_rbt_modify_def" :: "_ \<Rightarrow> _" ("modify'_def") translations "modify_def" \<rightleftharpoons> "CONST RBTS.modify_def"
+syntax "_rbt_keys" :: "_ \<Rightarrow> _" ("keys") translations "keys" \<rightleftharpoons> "CONST RBTS.keys"
+syntax "_rbt_lookup2" :: "_ \<Rightarrow> _" ("lookup2") translations "lookup2" \<rightleftharpoons> "CONST RBTS.lookup2"
+syntax "_rbt_insert2" :: "_ \<Rightarrow> _" ("insert2") translations "insert2" \<rightleftharpoons> "CONST RBTS.insert2"
+syntax "_rbt_fold" :: "_ \<Rightarrow> _" ("fold") translations "fold" \<rightleftharpoons> "CONST RBTS.fold"
+syntax "_rbt_entries" :: "_ \<Rightarrow> _" ("entries") translations "entries" \<rightleftharpoons> "CONST RBTS.entries"
 
 function (sequential) class_unflat_aux where
 (* (* FIXME replace with this simplified form *)
@@ -367,7 +381,7 @@ proof -
   apply(relation "measure (\<lambda>(_, rbt_inv, rbt_cycle, r).
     ?len_merge rbt_cycle rbt_inv - length (RBT.keys rbt_cycle)
     )", simp+)
-  unfolding lookup'_def insert'_def
+  unfolding RBTS.lookup_def RBTS.insert_def
   apply(subst rbt_length, simp)
   apply(rule arith_diff)
   apply(rule rbt_fold_eq, simp)
@@ -466,9 +480,9 @@ definition "ty_unlimitednatural = str_of_ty OclTy_base_unlimitednatural"
 definition "ty_real = str_of_ty OclTy_base_real"
 definition "ty_string = str_of_ty OclTy_base_string"
 
-definition "pref_ty_enum s = \<open>ty_enum\<close> @@ isub_of_str s"
-definition "pref_ty_syn s = \<open>ty_syn\<close> @@ isub_of_str s"
-definition "pref_constr_enum s = \<open>constr\<close> @@ isub_of_str s"
+definition "pref_ty_enum s = \<open>ty_enum\<close> @@ String.isub s"
+definition "pref_ty_syn s = \<open>ty_syn\<close> @@ String.isub s"
+definition "pref_constr_enum s = \<open>constr\<close> @@ String.isub s"
 
 fun str_hol_of_ty_all where "str_hol_of_ty_all f b e =
  (\<lambda> OclTy_base_void \<Rightarrow> b \<open>unit\<close>
@@ -547,7 +561,7 @@ definition "map_linh f cl = \<lparr> Inh = f (Inh cl)
 
 fun fold_class_gen_aux where
    "fold_class_gen_aux l_inh f accu (OclClass name l_attr dataty) =
- (let accu = f (\<lambda>s. s @@ isub_of_str name)
+ (let accu = f (\<lambda>s. s @@ String.isub name)
                name
                l_attr
                (Tinh l_inh)
@@ -620,14 +634,14 @@ definition "map_class_arg_only_var0 = (\<lambda>f_expr f_app f_lattr isub_name n
           name
           (var_in_when_state, dot_at_when)
           attr_ty
-          (\<lambda>s. s @@ isup_of_str attr_name)
+          (\<lambda>s. s @@ String.isup attr_name)
           (\<lambda>s. f_expr s
             [ case case attr_ty of
                      OclTy_object (OclTyObj (OclTyCore ty_obj) _) \<Rightarrow>
                        apply_optim_ass_arity ty_obj
                        (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l ty_obj = TyObj_from ty_obj in
                        case TyObjN_role_name ty_obj of
-                          None => natural_of_str (TyObjN_ass_switch ty_obj)
+                          None => String.of_natural (TyObjN_ass_switch ty_obj)
                         | Some s => s)
                    | _ \<Rightarrow> None of
                 None \<Rightarrow> mk_dot attr_name attr_when

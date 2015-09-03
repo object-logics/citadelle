@@ -131,7 +131,7 @@ definition "print_access_choose_ml = start_map'''' O.ML o (\<lambda>expr _.
   (let a = \<lambda>f x. SML.apply f [x]
      ; b = \<lambda>s. SML.basic [s]
      ; lets = \<lambda>var exp. SML (SML.rewrite_val (SML.basic [var]) \<open>=\<close> exp)
-     ; mk_var = \<lambda>i. b (S.flatten [\<open>x\<close>, natural_of_str i]) in
+     ; mk_var = \<lambda>i. b (S.flatten [\<open>x\<close>, String.of_natural i]) in
    L.flatten
    [ print_access_choose_switch
        lets mk_var expr
@@ -166,7 +166,7 @@ definition "print_access_choose = start_map'''' O.definition o (\<lambda>expr _.
   [ let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l a = \<lambda>f x. Expr_app f [x]
       ; b = \<lambda>s. Expr_basic [s]
       ; lets = \<lambda>var exp. Definition (Expr_rewrite (Expr_basic [var]) \<open>=\<close> exp)
-      ; mk_var = \<lambda>i. b (S.flatten [\<open>x\<close>, natural_of_str i]) in
+      ; mk_var = \<lambda>i. b (S.flatten [\<open>x\<close>, String.of_natural i]) in
     print_access_choose_switch
       lets mk_var expr
       print_access_choose_name
@@ -207,9 +207,9 @@ definition "print_access_deref_oid = start_map O.definition o
                      , (Expr_basic [wildcard], Expr_basic [\<open>invalid\<close>, var_tau]) ]))))"
 
 definition "print_access_deref_assocs_name' name_from isub_name isup_attr =
-  S.flatten [var_deref, \<open>_\<close>, isub_name var_assocs, \<open>_\<close>, natural_of_str name_from, isup_attr \<open>_\<close>]"
+  S.flatten [var_deref, \<open>_\<close>, isub_name var_assocs, \<open>_\<close>, String.of_natural name_from, isup_attr \<open>_\<close>]"
 definition "print_access_deref_assocs_name name_from isub_name attr =
-  print_access_deref_assocs_name' name_from isub_name (\<lambda>s. s @@ isup_of_str attr)"
+  print_access_deref_assocs_name' name_from isub_name (\<lambda>s. s @@ String.isup attr)"
 definition "print_access_deref_assocs = start_map'''' O.definition o (\<lambda>expr design_analysis.
   (if design_analysis = Gen_only_design then \<lambda>_. [] else (\<lambda>expr. L.flatten (L.flatten (map_class (\<lambda>isub_name name l_attr l_inherited _ _.
   let l_inherited = map_class_inh l_inherited in
@@ -243,13 +243,13 @@ definition "print_access_select = start_map'' O.definition o (\<lambda>expr base
       ; wildc = Expr_basic [wildcard] in
     let (_, _, l) = (foldl
       (\<lambda>(l_wildl, l_wildr, l_acc) (attr, _).
-        let isup_attr = (\<lambda>s. s @@ isup_of_str attr) in
+        let isup_attr = (\<lambda>s. s @@ String.isup attr) in
         ( wildc # l_wildl
         , tl l_wildr
         , Definition (Expr_rewrite
                        (Expr_basic [print_access_select_name isup_attr isub_name, var_f])
                        \<open>=\<close>
-                       (let var_attr = b (\<open>x_\<close> @@ isup_of_str attr) in
+                       (let var_attr = b (\<open>x_\<close> @@ String.isup attr) in
                         Expr_function
                           (L.map (\<lambda>(lhs,rhs). ( Expr_app
                                                          (isub_name datatype_constr_name)
@@ -269,13 +269,13 @@ definition "print_access_select = start_map'' O.definition o (\<lambda>expr base
       ; wildc = Expr_basic [wildcard] in
     let (_, _, l) = (foldl
       (\<lambda>(l_wildl, l_wildr, l_acc) (attr, _).
-        let isup_attr = (\<lambda>s. s @@ isup_of_str attr) in
+        let isup_attr = (\<lambda>s. s @@ String.isup attr) in
         ( wildc # l_wildl
         , tl l_wildr
         , Definition (Expr_rewrite
                        (Expr_basic [isup_attr (isub_name var_select), var_f])
                        \<open>=\<close>
-                       (let var_attr = b (\<open>x_\<close> @@ isup_of_str attr) in
+                       (let var_attr = b (\<open>x_\<close> @@ String.isup attr) in
                         Expr_function
                           (L.flatten (L.map (\<lambda>(lhs,rhs). ( Expr_app
                                                          (isub_name datatype_constr_name)
@@ -286,12 +286,12 @@ definition "print_access_select = start_map'' O.definition o (\<lambda>expr base
                             [ ( Expr_basic [\<open>\<bottom>\<close>], Expr_basic [\<open>null\<close>] )
                             , ( Expr_some var_attr
                               , Expr_app var_f [var_attr]) ]
-                            # (L.map (\<lambda> OclClass x _ _ \<Rightarrow> let var_x = lowercase_of_str x in
+                            # (L.map (\<lambda> OclClass x _ _ \<Rightarrow> let var_x = String.lowercase x in
                                              (Expr_app
                                                          (isub_name datatype_constr_name)
                                                          ( Expr_app (datatype_ext_constr_name @@ mk_constr_name name x)
                                                              [Expr_basic [var_x]]
-                                                         # L.map (\<lambda>_. wildc) l_attr), (Expr_app (isup_attr (var_select @@ isub_of_str x))
+                                                         # L.map (\<lambda>_. wildc) l_attr), (Expr_app (isup_attr (var_select @@ String.isub x))
                                                                                                      (L.map (\<lambda>x. Expr_basic [x]) [var_f, var_x]) ))) (of_sub l_cons))
                             # [])))) # l_acc))
       ([], L.map (\<lambda>_. wildc) (tl l_inherited), [])
@@ -299,7 +299,7 @@ definition "print_access_select = start_map'' O.definition o (\<lambda>expr base
     rev l) expr)"
 
 definition "print_access_select_obj_name' isub_name attr = isub_name var_select @@ attr"
-definition "print_access_select_obj_name isub_name attr = print_access_select_obj_name' isub_name (isup_of_str attr)"
+definition "print_access_select_obj_name isub_name attr = print_access_select_obj_name' isub_name (String.isup attr)"
 definition "print_access_select_obj = start_map'''' O.definition o (\<lambda>expr design_analysis.
   (if design_analysis = Gen_only_design then \<lambda>_. [] else (\<lambda>expr. L.flatten (L.flatten (map_class (\<lambda>isub_name name l_attr l_inh _ _.
     let l_inh = map_class_inh l_inh in
@@ -309,7 +309,7 @@ definition "print_access_select_obj = start_map'''' O.definition o (\<lambda>exp
            ( [ Definition
                 (let b = \<lambda>s. Expr_basic [s] in
                  Expr_rewrite
-                  (b (isub_name var_select @@ isup_of_str attr))
+                  (b (isub_name var_select @@ String.isup attr))
                   \<open>=\<close>
                   (b (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l obj_mult = TyObjN_role_multip (TyObj_to ty_obj) in
                       case (is_sequence obj_mult, single_multip obj_mult) of
@@ -331,9 +331,9 @@ definition "print_access_dot_consts =
           let name =
              S.flatten [ \<open>dot\<close>
                      , case attr_ty of
-                         OclTy_object (OclTyObj (OclTyCore ty_obj) _) \<Rightarrow> S.flatten [\<open>_\<close>, natural_of_str (TyObjN_ass_switch (TyObj_from ty_obj)), \<open>_\<close>]
+                         OclTy_object (OclTyObj (OclTyCore ty_obj) _) \<Rightarrow> S.flatten [\<open>_\<close>, String.of_natural (TyObjN_ass_switch (TyObj_from ty_obj)), \<open>_\<close>]
                        | _ \<Rightarrow> \<open>\<close>
-                     , isup_of_str attr_n, var_at_when_hol] in
+                     , String.isup attr_n, var_at_when_hol] in
           ( f_update_ocl (\<lambda> l. String.to_String\<^sub>b\<^sub>a\<^sub>s\<^sub>e name # l)
           , Consts_raw0
             name
@@ -349,7 +349,7 @@ definition "print_access_dot_consts =
                           dot_name
                           (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l ty_obj = TyObj_from ty_obj in
                            case TyObjN_role_name ty_obj of
-                                None => natural_of_str (TyObjN_ass_switch ty_obj)
+                                None => String.of_natural (TyObjN_ass_switch ty_obj)
                               | Some s => s)) of
                   None \<Rightarrow> dot_name
                 | Some dot_name \<Rightarrow> dot_name)
@@ -361,7 +361,7 @@ definition "print_access_dot_consts =
 definition "print_access_dot_name isub_name dot_at_when attr_ty isup_attr =
   S.flatten [ isup_attr (let dot_name = isub_name \<open>dot\<close> in
                        case attr_ty of
-                         OclTy_object (OclTyObj (OclTyCore ty_obj) _) \<Rightarrow> S.flatten [dot_name, \<open>_\<close>, natural_of_str (TyObjN_ass_switch (TyObj_from ty_obj)), \<open>_\<close>]
+                         OclTy_object (OclTyObj (OclTyCore ty_obj) _) \<Rightarrow> S.flatten [dot_name, \<open>_\<close>, String.of_natural (TyObjN_ass_switch (TyObj_from ty_obj)), \<open>_\<close>]
                        | _ \<Rightarrow> dot_name)
           , dot_at_when]"
 
@@ -386,7 +386,7 @@ definition "print_access_dot = start_map'''' O.defs o (\<lambda>expr design_anal
                    \<open>\<equiv>\<close>
                    (Expr_app var_eval_extract [Expr_basic [var_x],
                     let deref_oid = \<lambda>attr_orig l. Expr_app (case attr_orig of None \<Rightarrow> isub_name var_deref_oid
-                                                                              | Some orig_n \<Rightarrow> var_deref_oid @@ isub_of_str orig_n) (Expr_basic [var_in_when_state] # l) in
+                                                                              | Some orig_n \<Rightarrow> var_deref_oid @@ String.isub orig_n) (Expr_basic [var_in_when_state] # l) in
                     deref_oid None
                       [ ( case attr_ty of
                             OclTy_object (OclTyObj (OclTyCore ty_obj) _) \<Rightarrow>
@@ -537,7 +537,7 @@ definition "print_access_is_repr = start_map'''' O.lemma o (\<lambda>expr design
         ; attr_ty' = is_sequence ty_mult
         ; name_from = TyObjN_ass_switch (TyObj_from ty_obj)
         ; name_to = TyObjN_role_ty (TyObj_to ty_obj)
-        ; isub_name_to = \<lambda>s. s @@ isub_of_str name_to in
+        ; isub_name_to = \<lambda>s. s @@ String.isub name_to in
             [ Lemma_assumes
                 (print_access_is_repr_name isub_name dot_at_when attr_ty isup_attr)
                 [ (var_def_dot, False, f (dot_attr (Expr_annot_ocl (b var_X) name))) ]
@@ -697,7 +697,7 @@ definition "print_access_repr_allinst = start_map''''' O.lemma o (\<lambda>expr 
           ; b = \<lambda>s. Expr_basic [s]
           ; var_x = \<open>x\<close> in
             [ Lemma
-                (S.flatten [ isup_attr (S.flatten [isub_name \<open>dot_repr\<close>, \<open>_\<close>, natural_of_str (TyObjN_ass_switch (TyObj_from ty_obj)), \<open>_\<close>])
+                (S.flatten [ isup_attr (S.flatten [isub_name \<open>dot_repr\<close>, \<open>_\<close>, String.of_natural (TyObjN_ass_switch (TyObj_from ty_obj)), \<open>_\<close>])
                          , dot_at_when])
                 ([ f (a \<open>\<delta>\<close> (dot_attr (Expr_annot_ocl (Expr_basic [var_x]) name)))
                  , let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l all_inst = if var_in_when_state \<triangleq> var_in_pre_state then

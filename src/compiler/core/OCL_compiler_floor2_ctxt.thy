@@ -125,7 +125,7 @@ definition "print_ctxt_pre_post_interp = (\<lambda>(sorry, dirty) name ctxt e_na
     Some (O.interpretation
       (Interpretation
         name
-        (\<open>contract\<close> @@ nat_of_str lg)
+        (\<open>contract\<close> @@ String.of_nat lg)
         [ e_name
         , f e_pre
         , f e_post ]
@@ -207,9 +207,9 @@ definition "print_ctxt_pre_post = (\<lambda>f. map_prod L.flatten id o f) o L.ma
                       []
                     else
                       let var_x = \<open>x\<close>
-                        ; f_escape = \<lambda>s. var_x @@ isub_of_str s in
+                        ; f_escape = \<lambda>s. var_x @@ String.isub s in
                       [ O.defs
-                          (Defs_overloaded (S.flatten [ \<open>dot\<close>, isup_of_str attr_n, var_at_when_hol, \<open>_\<close>, name])
+                          (Defs_overloaded (S.flatten [ \<open>dot\<close>, String.isup attr_n, var_at_when_hol, \<open>_\<close>, name])
                                            (Expr_rewrite
                                              (dot_expr (Expr_annot_ocl (b var_x) name) f_escape)
                                              \<open>\<equiv>\<close>
@@ -217,7 +217,7 @@ definition "print_ctxt_pre_post = (\<lambda>f. map_prod L.flatten id o f) o L.ma
                   ()
                   (case D_input_class ocl of Some class_spec \<Rightarrow> class_spec))))
         # raise_ml_unbound
-          (\<lambda>n pref. S.flatten [\<open>(\<close>, natural_of_str (n + 1), \<open>) \<close>, if pref = OclCtxtPre then \<open>pre\<close> else \<open>post\<close>])
+          (\<lambda>n pref. S.flatten [\<open>(\<close>, String.of_natural (n + 1), \<open>) \<close>, if pref = OclCtxtPre then \<open>pre\<close> else \<open>post\<close>])
           l_ctxt in
   f (var_at_when_hol_post, var_at_when_ocl_post))
   (rev (fold_pre_post (\<lambda> l c. Cons (L.map (map_prod id snd) l, c)) ctxt []))))"
