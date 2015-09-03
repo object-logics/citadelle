@@ -286,8 +286,6 @@ definition "Ty_arrow = Ty_apply_bin \<open>\<Rightarrow>\<close>"
 definition "Ty_times = Ty_apply_bin \<open>\<times>\<close>"
 definition "Consts' s l e = Consts_raw0 s (Ty_arrow (Ty_base \<open>'\<alpha>\<close>) l) e None"
 
-hide_const (open) insert
-hide_const (open) plus
 locale M
 begin
 definition "Method_simp_add_del l_a l_d = Method_simp_add_del_split l_a l_d []"
@@ -301,8 +299,8 @@ definition "intro = Method_intro"
 definition "elim = Method_elim"
 definition "subst_l0 = Method_subst"
 definition "subst_l = Method_subst_l"
-definition "insert = Method_insert o L.map Thms_single"
-definition "plus = Method_plus"
+definition insert where "insert = Method_insert o L.map Thms_single"
+definition plus where "plus = Method_plus"
 definition "option = Method_option"
 definition "or = Method_or"
 definition "meth_gen_simp = Method_simp_add_del [] []"
