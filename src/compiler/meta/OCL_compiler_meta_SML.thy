@@ -66,17 +66,56 @@ datatype sml_expr = Sexpr_string string
 
 section{* ... *}
 
-definition "Sexpr_none = Sexpr_basic [\<open>NONE\<close>]"
-definition "Sexpr_some s = Sexpr_apply \<open>SOME\<close> [s]"
-definition "Sexpr_option' f l = (case map_option f l of None \<Rightarrow> Sexpr_none | Some s \<Rightarrow> Sexpr_some s)"
-definition "Sexpr_option = Sexpr_option' id"
-definition "Sexpr_parenthesis (* mandatory parenthesis *) = Sexpr_paren \<open>(\<close> \<open>)\<close>"
-definition "sexpr_binop s l = (case rev l of x # xs \<Rightarrow> List.fold (\<lambda>x. Sexpr_binop x s) xs x)"
-definition "Sexpr_list l = (case l of [] \<Rightarrow> Sexpr_basic [\<open>[]\<close>] | _ \<Rightarrow> Sexpr_paren \<open>[\<close> \<open>]\<close> (sexpr_binop \<open>,\<close> l))"
-definition "Sexpr_list' f l = Sexpr_list (List_map f l)"
-definition "Sexpr_pair e1 e2 = Sexpr_parenthesis (Sexpr_binop e1 \<open>,\<close> e2)"
-definition "Sexpr_pair' f1 f2 = (\<lambda> (e1, e2) \<Rightarrow> Sexpr_parenthesis (Sexpr_binop (f1 e1) \<open>,\<close> (f2 e2)))"
-definition "Sexpr_rewrite_val = Sexpr_rewrite Sval"
-definition "Sexpr_rewrite_fun = Sexpr_rewrite Sfun"
+locale SML
+begin
+definition "string' = Sexpr_string"
+definition "rewrite = Sexpr_rewrite"
+definition "basic = Sexpr_basic"
+definition "oid = Sexpr_oid"
+definition "binop = Sexpr_binop"
+definition "annot = Sexpr_annot"
+definition "function = Sexpr_function"
+definition "apply = Sexpr_apply"
+definition "paren = Sexpr_paren"
+definition "let_open = Sexpr_let_open"
+
+definition "none = basic [\<open>NONE\<close>]"
+definition "some s = apply \<open>SOME\<close> [s]"
+definition "option' f l = (case map_option f l of None \<Rightarrow> none | Some s \<Rightarrow> some s)"
+definition "option = option' id"
+definition "parenthesis (* mandatory parenthesis *) = paren \<open>(\<close> \<open>)\<close>"
+definition "binop_l s l = (case rev l of x # xs \<Rightarrow> List.fold (\<lambda>x. binop x s) xs x)"
+definition "list l = (case l of [] \<Rightarrow> basic [\<open>[]\<close>] | _ \<Rightarrow> paren \<open>[\<close> \<open>]\<close> (binop_l \<open>,\<close> l))"
+definition "list' f l = list (List_map f l)"
+definition "pair e1 e2 = parenthesis (binop e1 \<open>,\<close> e2)"
+definition "pair' f1 f2 = (\<lambda> (e1, e2) \<Rightarrow> parenthesis (binop (f1 e1) \<open>,\<close> (f2 e2)))"
+definition "rewrite_val = rewrite Sval"
+definition "rewrite_fun = rewrite Sfun"
+end
+
+lemmas [code] =
+  (*def*)
+  SML.string'_def
+  SML.rewrite_def
+  SML.basic_def
+  SML.oid_def
+  SML.binop_def
+  SML.annot_def
+  SML.function_def
+  SML.apply_def
+  SML.paren_def
+  SML.let_open_def
+  SML.none_def
+  SML.some_def
+  SML.option'_def
+  SML.option_def
+  SML.parenthesis_def
+  SML.binop_l_def
+  SML.list_def
+  SML.list'_def
+  SML.pair_def
+  SML.pair'_def
+  SML.rewrite_val_def
+  SML.rewrite_fun_def
 
 end

@@ -75,10 +75,10 @@ definition "print_access_oid_uniq_ml =
     Thy_ml
     (\<lambda>x _. x)
     (\<lambda>obj_name_from_nat name _ attr cpt_obj.
-      ML (Sexpr_rewrite_val
-                   (Sexpr_basic [print_access_oid_uniq_mlname obj_name_from_nat name attr])
+      ML (SML.rewrite_val
+                   (SML.basic [print_access_oid_uniq_mlname obj_name_from_nat name attr])
                    \<open>=\<close>
-                   (Sexpr_oid \<open>\<close> cpt_obj)))"
+                   (SML.oid \<open>\<close> cpt_obj)))"
 definition "print_access_oid_uniq =
   print_access_oid_uniq_gen
     Thy_definition_hol
@@ -128,15 +128,15 @@ definition "print_access_choose_switch
              ((List_flatten o List_flatten) (List_map (\<lambda>i. List_map (\<lambda>j. if i = j then [] else [(i, j)]) l) l)))
           (class_arity expr))"
 definition "print_access_choose_ml = start_map'''' Thy_ml o (\<lambda>expr _.
-  (let a = \<lambda>f x. Sexpr_apply f [x]
-     ; b = \<lambda>s. Sexpr_basic [s]
-     ; lets = \<lambda>var exp. ML (Sexpr_rewrite_val (Sexpr_basic [var]) \<open>=\<close> exp)
+  (let a = \<lambda>f x. SML.apply f [x]
+     ; b = \<lambda>s. SML.basic [s]
+     ; lets = \<lambda>var exp. ML (SML.rewrite_val (SML.basic [var]) \<open>=\<close> exp)
      ; mk_var = \<lambda>i. b (flatten [\<open>x\<close>, natural_of_str i]) in
    List_flatten
    [ print_access_choose_switch
        lets mk_var expr
        print_access_choose_mlname
-       Sexpr_list Sexpr_function Sexpr_pair ]))"
+       SML.list SML.function SML.pair ]))"
 definition "print_access_choose = start_map'''' Thy_definition_hol o (\<lambda>expr _.
   (let a = \<lambda>f x. Expr_app f [x]
      ; b = \<lambda>s. Expr_basic [s]

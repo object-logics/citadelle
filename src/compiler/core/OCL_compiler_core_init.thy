@@ -415,16 +415,16 @@ datatype reporting = Warning
                    | Error
                    | Writeln
 
-definition "raise_ml l_out s = ML (Sexpr_apply \<open>Ty'.check\<close>
-    [ Sexpr_list'
+definition "raise_ml l_out s = ML (SML.apply \<open>Ty'.check\<close>
+    [ SML.list'
         (\<lambda>(rep, s).
-          Sexpr_pair (Sexpr_basic [flatten [ \<open>OCL.\<close>
+          SML.pair (SML.basic [flatten [ \<open>OCL.\<close>
                                            , case rep of Warning \<Rightarrow> \<open>Warning\<close>
                                                        | Error \<Rightarrow> \<open>Error\<close>
                                                        | Writeln \<Rightarrow> \<open>Writeln\<close> ]])
-                     (Sexpr_string s))
+                     (SML.string' s))
         l_out
-    , Sexpr_string s ])"
+    , SML.string' s ])"
 
 definition "print_examp_def_st_inst_var_name ocli name = flatten [case\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l Inst_name ocli of Some n \<Rightarrow> n, name]"
 
