@@ -415,7 +415,7 @@ datatype reporting = Warning
                    | Error
                    | Writeln
 
-definition "raise_ml l_out s = ML (SML.apply \<open>Ty'.check\<close>
+definition "raise_ml l_out s = SML (SML.apply \<open>Ty'.check\<close>
     [ SML.list'
         (\<lambda>(rep, s).
           SML.pair (SML.basic [flatten [ \<open>OCL.\<close>

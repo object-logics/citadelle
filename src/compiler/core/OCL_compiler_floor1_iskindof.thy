@@ -51,12 +51,12 @@ section{* Translation of AST *}
 
 subsection{* IsKindOf *}
 
-definition "print_iskindof_consts = start_map O.consts_class o
+definition "print_iskindof_consts = start_map O.consts o
   map_class (\<lambda>isub_name name _ _ _ _.
     Consts' (isub_name const_ocliskindof) (Ty_base ty_boolean) (const_mixfix dot_ocliskindof name))"
 
 definition "print_iskindof_class_name isub_name h_name = flatten [isub_name const_ocliskindof, \<open>_\<close>, h_name]"
-definition "print_iskindof_class = start_m_gen O.defs_overloaded m_class_default
+definition "print_iskindof_class = start_m_gen O.defs m_class_default
   (\<lambda> _ _ next_dataty _ (isub_name, name, _). \<lambda> OclClass h_name _ _ \<Rightarrow>
     [ Defs_overloaded
           (print_iskindof_class_name isub_name h_name)
@@ -67,7 +67,7 @@ definition "print_iskindof_class = start_m_gen O.defs_overloaded m_class_default
              (let isof = (\<lambda>f name. Expr_warning_parenthesis (Expr_postunary (Expr_basic [var_x]) (Expr_basic [f name]))) in
               expr_binop \<open>or\<close> (isof dot_istypeof name # List_map (\<lambda> OclClass name_past _ _ \<Rightarrow> isof dot_iskindof name_past) next_dataty)))])"
 
-definition "print_iskindof_from_universe = start_m O.definition_hol
+definition "print_iskindof_from_universe = start_m O.definition
   (\<lambda>name _ _ l.
     let const_iskindof = flatten [const_ocliskindof, isub_of_str name, \<open>_\<AA>\<close>] in
     [ Definition (Expr_rewrite (Expr_basic [const_iskindof]) \<open>=\<close> (Expr_function l)) ])
@@ -86,11 +86,11 @@ definition "print_iskindof_lemma_cp_set =
 
 definition "print_iskindof_lemmas_id = start_map' (\<lambda>expr.
   (let name_set = print_iskindof_lemma_cp_set expr in
-   case name_set of [] \<Rightarrow> [] | _ \<Rightarrow> List_map O.lemmas_simp
+   case name_set of [] \<Rightarrow> [] | _ \<Rightarrow> List_map O.lemmas
   [ Lemmas_simp \<open>\<close> (List_map (\<lambda>((isub_name, _), name).
     T.thm (flatten [isub_name const_ocliskindof, \<open>_\<close>, name] )) name_set) ]))"
 
-definition "print_iskindof_lemma_cp = start_m'3_gen O.lemma_by
+definition "print_iskindof_lemma_cp = start_m'3_gen O.lemma
  (\<lambda> _ _ next_dataty name1 name2 name3.
     let lemma_name = flatten [\<open>cp_\<close>, const_ocliskindof, isub_of_str name1, \<open>_\<close>, name3, \<open>_\<close>, name2]
       ; lemma_spec = let var_p = \<open>p\<close> in
@@ -118,14 +118,14 @@ definition "print_iskindof_lemma_cp = start_m'3_gen O.lemma_by
     in Lemma lemma_name lemma_spec tac1 tac2)"
 
 definition "print_iskindof_lemmas_cp = start_map'
- (if activate_simp_optimization then List_map O.lemmas_simp o
+ (if activate_simp_optimization then List_map O.lemmas o
     (\<lambda>expr. [Lemmas_simp \<open>\<close>
   (get_hierarchy_map (\<lambda>name1 name2 name3.
       T.thm (flatten [\<open>cp_\<close>, const_ocliskindof, isub_of_str name1, \<open>_\<close>, name3, \<open>_\<close>, name2])
   ) (\<lambda>x. (x, x, x)) expr)])
   else (\<lambda>_. []))"
 
-definition "print_iskindof_lemma_strict = start_m_gen O.lemma_by m_class_default
+definition "print_iskindof_lemma_strict = start_m_gen O.lemma m_class_default
  (\<lambda> _ _ next_dataty _ (_, name1, _). \<lambda> OclClass name3 _ _ \<Rightarrow>
   List_map (\<lambda>(name2, name2').
     Lemma
@@ -150,14 +150,14 @@ definition "print_iskindof_lemma_strict = start_m_gen O.lemma_by m_class_default
     [(\<open>invalid\<close>,\<open>invalid\<close>),(\<open>null\<close>,\<open>true\<close>)])"
 
 definition "print_iskindof_lemmas_strict = start_map'
- (if activate_simp_optimization then List_map O.lemmas_simp o
+ (if activate_simp_optimization then List_map O.lemmas o
   (\<lambda>expr. [ Lemmas_simp \<open>\<close> (get_hierarchy_map (\<lambda>name1 name2 name3.
       T.thm (flatten [const_ocliskindof, isub_of_str name1, \<open>_\<close>, name3, \<open>_\<close>, name2])
   ) (\<lambda>x. (x, [\<open>invalid\<close>,\<open>null\<close>], x)) expr)])
   else (\<lambda>_. []))"
 
 definition "print_iskindof_defined_name isub_name h_name = flatten [isub_name const_ocliskindof, \<open>_\<close>, h_name, \<open>_defined\<close>]"
-definition "print_iskindof_defined = start_m_gen O.lemma_by m_class_default
+definition "print_iskindof_defined = start_m_gen O.lemma m_class_default
   (\<lambda> _ _ next_dataty _ (isub_name, name, _). \<lambda> OclClass h_name _ _ \<Rightarrow>
       let var_X = \<open>X\<close>
         ; var_isdef = \<open>isdef\<close>
@@ -180,7 +180,7 @@ definition "print_iskindof_defined = start_m_gen O.lemma_by m_class_default
                          (mk_OF (print_istypeof_defined_name isub_name))) ])])"
 
 definition "print_iskindof_defined'_name isub_name h_name = flatten [isub_name const_ocliskindof, \<open>_\<close>, h_name, \<open>_defined'\<close>]"
-definition "print_iskindof_defined' = start_m O.lemma_by m_class_default
+definition "print_iskindof_defined' = start_m O.lemma m_class_default
   (\<lambda> _ (isub_name, name, _). \<lambda> OclClass h_name _ _ \<Rightarrow>
       let var_X = \<open>X\<close>
         ; var_isdef = \<open>isdef\<close>
@@ -193,7 +193,7 @@ definition "print_iskindof_defined' = start_m O.lemma_by m_class_default
           (C.by [M.rule (T.OF (T.thm (print_iskindof_defined_name isub_name h_name))
                                      (T.THEN (T.thm var_isdef) (T.thm \<open>foundation20\<close>)))]) ])"
 
-definition "print_iskindof_up_eq_asty = start_map O.lemma_by o map_class_gen_h'''''
+definition "print_iskindof_up_eq_asty = start_map O.lemma o map_class_gen_h'''''
   (\<lambda> _ name l_attr _ l_subtree next_dataty.
     let var_X = \<open>X\<close>
       ; var_isdef = \<open>isdef\<close>
@@ -229,7 +229,7 @@ definition "print_iskindof_up_eq_asty = start_map O.lemma_by o map_class_gen_h''
               (\<open>option.split\<close> # List_flatten (split_ty name # List_map (\<lambda> OclClass n _ _ \<Rightarrow> split_ty n) l_subtree))]])
         (C.by [M.option [M.simp_all_add (List_map hol_definition [\<open>false\<close>, \<open>true\<close>, \<open>OclOr\<close>, \<open>OclAnd\<close>, \<open>OclNot\<close>])]])])"
 
-definition "print_iskindof_up_larger = start_map O.lemma_by o
+definition "print_iskindof_up_larger = start_map O.lemma o
   map_class_nupl2''_inh (\<lambda>name_pers name_any name_pred.
     let var_X = \<open>X\<close>
       ; var_isdef = \<open>isdef\<close>
@@ -309,7 +309,7 @@ definition "print_iskindof_up_istypeof_erule var_isdef next_dataty name_pers nam
               (mk_OF (print_istypeof_defined'_name (\<lambda>name. name @@ isub_of_str name_pers)))))"
 
 definition "print_iskindof_up_istypeof_unfold_name name_pers name_any = flatten [\<open>not_\<close>, const_ocliskindof, isub_of_str name_pers, \<open>_then_\<close>, name_any, \<open>_\<close>, const_oclistypeof, \<open>_others_unfold\<close>]"
-definition "print_iskindof_up_istypeof_unfold = start_m_gen O.lemma_by m_class_default
+definition "print_iskindof_up_istypeof_unfold = start_m_gen O.lemma m_class_default
   (\<lambda> _ name_pred0 next_dataty compare (isub_name, name_pers, _). \<lambda> OclClass name_any _ _ \<Rightarrow>
   if compare = GT then
     let var_X = \<open>X\<close>
@@ -345,7 +345,7 @@ definition "print_iskindof_up_istypeof_unfold = start_m_gen O.lemma_by m_class_d
   else [])"
 
 definition "print_iskindof_up_istypeof_name name_pers name_any = flatten [\<open>not_\<close>, const_ocliskindof, isub_of_str name_pers, \<open>_then_\<close>, name_any, \<open>_\<close>, const_oclistypeof, \<open>_others\<close>]"
-definition "print_iskindof_up_istypeof = start_map O.lemma_by o
+definition "print_iskindof_up_istypeof = start_map O.lemma o
   map_class_nupl2l'_inh (\<lambda>name_pers name_pred0.
     case name_pred0 of (name_any, _) # name_pred \<Rightarrow>
     let name_any = case Inh name_any of OclClass name_any _ _ \<Rightarrow> name_any
@@ -378,7 +378,7 @@ definition "print_iskindof_up_istypeof = start_map O.lemma_by o
            (print_iskindof_up_istypeof_child name_pred0)))
         C.done)"
 
-definition "print_iskindof_up_d_cast = start_map O.lemma_by o
+definition "print_iskindof_up_d_cast = start_map O.lemma o
   map_class_nupl3'_LE'_inh (\<lambda>name_pers name_mid name_pred0.
     case name_pred0 of (name_any, _) # name_pred \<Rightarrow>
     let name_any = case Inh name_any of OclClass name_any _ _ \<Rightarrow> name_any

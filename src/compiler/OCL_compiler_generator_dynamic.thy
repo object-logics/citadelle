@@ -887,7 +887,7 @@ fun OCL_main_thy in_theory in_local = let open OCL open OCL_overload in (*let va
                                      [((To_sbinding n, []), [s_of_expr e])])
 | Theory_section _ => in_theory I
 | Theory_text _ => in_theory I
-| Theory_ML ml => in_theory (Code_printing.reflect_ml (Input.source false (case ml of ML ml => s_of_sexpr ml) (Position.none, Position.none)))
+| Theory_ML ml => in_theory (Code_printing.reflect_ml (Input.source false (case ml of SML ml => s_of_sexpr ml) (Position.none, Position.none)))
 | Theory_thm (Thm thm) => in_local
    (fn lthy =>
     let val () = writeln (Pretty.string_of (Proof_Context.pretty_fact lthy ("", List.map (m_of_ntheorem lthy) thm))) in

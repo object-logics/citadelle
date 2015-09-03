@@ -174,7 +174,7 @@ datatype hol_section = Section nat (* nesting level *)
 
 datatype hol_text = Text string
 
-datatype hol_ML = "ML" sml_expr
+datatype hol_ML = SML sml_expr
 
 datatype hol_thm = Thm "hol__thm_attribute list"
 

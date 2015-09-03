@@ -162,75 +162,75 @@ subsection{* ... *}
 
 locale O
 begin
-definition "dataty = Isab_thy o H_thy_simple o Theory_datatype"
-definition "ty_synonym = Isab_thy o H_thy_simple o Theory_type_synonym"
-definition "ty_notation = Isab_thy o H_thy_simple o Theory_type_notation"
-definition "instantiation_class = Isab_thy o H_thy_simple o Theory_instantiation"
-definition "defs_overloaded = Isab_thy o H_thy_simple o Theory_defs"
-definition "consts_class = Isab_thy o H_thy_simple o Theory_consts"
-definition "definition_hol = Isab_thy o H_thy_simple o Theory_definition"
-definition "lemmas_simp = Isab_thy o H_thy_simple o Theory_lemmas"
-definition "lemma_by = Isab_thy o H_thy_simple o Theory_lemma"
-definition "axiom = Isab_thy o H_thy_simple o Theory_axiomatization"
-definition "section_title = Isab_thy o H_thy_simple o Theory_section"
+definition "datatype = Isab_thy o H_thy_simple o Theory_datatype"
+definition "type_synonym = Isab_thy o H_thy_simple o Theory_type_synonym"
+definition "type_notation = Isab_thy o H_thy_simple o Theory_type_notation"
+definition "instantiation = Isab_thy o H_thy_simple o Theory_instantiation"
+definition "defs = Isab_thy o H_thy_simple o Theory_defs"
+definition "consts = Isab_thy o H_thy_simple o Theory_consts"
+definition "definition = Isab_thy o H_thy_simple o Theory_definition"
+definition "lemmas = Isab_thy o H_thy_simple o Theory_lemmas"
+definition "lemma = Isab_thy o H_thy_simple o Theory_lemma"
+definition "axiomatization = Isab_thy o H_thy_simple o Theory_axiomatization"
+definition "section = Isab_thy o H_thy_simple o Theory_section"
 definition "text = Isab_thy o H_thy_simple o Theory_text"
-definition "ml = Isab_thy o H_thy_simple o Theory_ML"
+definition "ML = Isab_thy o H_thy_simple o Theory_ML"
 definition "thm = Isab_thy o H_thy_simple o Theory_thm"
 definition "interpretation = Isab_thy o H_thy_simple o Theory_interpretation"
 end
 
 lemmas [code] =
   (*def*)
-  O.dataty_def
-  O.ty_synonym_def
-  O.ty_notation_def
-  O.instantiation_class_def
-  O.defs_overloaded_def
-  O.consts_class_def
-  O.definition_hol_def
-  O.lemmas_simp_def
-  O.lemma_by_def
-  O.axiom_def
-  O.section_title_def
+  O.datatype_def
+  O.type_synonym_def
+  O.type_notation_def
+  O.instantiation_def
+  O.defs_def
+  O.consts_def
+  O.definition_def
+  O.lemmas_def
+  O.lemma_def
+  O.axiomatization_def
+  O.section_def
   O.text_def
-  O.ml_def
+  O.ML_def
   O.thm_def
   O.interpretation_def
 
 locale O'
 begin
-definition "dataty = Theory_datatype"
-definition "ty_synonym = Theory_type_synonym"
-definition "ty_notation = Theory_type_notation"
-definition "instantiation_class = Theory_instantiation"
-definition "defs_overloaded = Theory_defs"
-definition "consts_class = Theory_consts"
-definition "definition_hol = Theory_definition"
-definition "lemmas_simp = Theory_lemmas"
-definition "lemma_by = Theory_lemma"
-definition "axiom = Theory_axiomatization"
-definition "section_title = Theory_section"
+definition "datatype = Theory_datatype"
+definition "type_synonym = Theory_type_synonym"
+definition "type_notation = Theory_type_notation"
+definition "instantiation = Theory_instantiation"
+definition "defs = Theory_defs"
+definition "consts = Theory_consts"
+definition "definition = Theory_definition"
+definition "lemmas = Theory_lemmas"
+definition "lemma = Theory_lemma"
+definition "axiomatization = Theory_axiomatization"
+definition "section = Theory_section"
 definition "text = Theory_text"
-definition "ml = Theory_ML"
+definition "ML = Theory_ML"
 definition "thm = Theory_thm"
 definition "interpretation = Theory_interpretation"
 end
 
 lemmas [code] =
   (*def*)
-  O'.dataty_def
-  O'.ty_synonym_def
-  O'.ty_notation_def
-  O'.instantiation_class_def
-  O'.defs_overloaded_def
-  O'.consts_class_def
-  O'.definition_hol_def
-  O'.lemmas_simp_def
-  O'.lemma_by_def
-  O'.axiom_def
-  O'.section_title_def
+  O'.datatype_def
+  O'.type_synonym_def
+  O'.type_notation_def
+  O'.instantiation_def
+  O'.defs_def
+  O'.consts_def
+  O'.definition_def
+  O'.lemmas_def
+  O'.lemma_def
+  O'.axiomatization_def
+  O'.section_def
   O'.text_def
-  O'.ml_def
+  O'.ML_def
   O'.thm_def
   O'.interpretation_def
 

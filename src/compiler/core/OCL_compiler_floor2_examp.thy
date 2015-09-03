@@ -116,7 +116,7 @@ definition "print_examp_def_st_defassoc_typecheck_gen l ocl =
       \<open> error(s)\<close> ])"
 
 definition "print_examp_def_st_defassoc_typecheck = (\<lambda> OclDefSt _ l \<Rightarrow> \<lambda> ocl.
-  (\<lambda>l_res. (List_map O'.ml l_res, ocl \<lparr> D_output_header_force := True \<rparr>))
+  (\<lambda>l_res. (List_map O'.ML l_res, ocl \<lparr> D_output_header_force := True \<rparr>))
   (print_examp_def_st_defassoc_typecheck_gen
     l
     ocl))"
@@ -138,7 +138,7 @@ definition "print_examp_def_st_mapsto ocl l = list_bind id id
     l)"
 
 definition "print_examp_def_st2 = (\<lambda> OclDefSt name l \<Rightarrow> \<lambda>ocl.
- (\<lambda>(l, l_st). (List_map O'.definition_hol l, ocl \<lparr> D_input_state := (String_to_String\<^sub>b\<^sub>a\<^sub>s\<^sub>e name, l_st) # D_input_state ocl \<rparr>))
+ (\<lambda>(l, l_st). (List_map O'.definition l, ocl \<lparr> D_input_state := (String_to_String\<^sub>b\<^sub>a\<^sub>s\<^sub>e name, l_st) # D_input_state ocl \<rparr>))
   (let b = \<lambda>s. Expr_basic [s]
      ; l = List_map (\<lambda> OclDefCoreBinding name \<Rightarrow> map_option (Pair name) (List.assoc name (D_input_instance ocl))) l
      ; (rbt, (map_self, map_username)) =
@@ -160,7 +160,7 @@ definition "print_examp_def_st2 = (\<lambda> OclDefSt name l \<Rightarrow> \<lam
 
 definition "print_examp_def_st_dom_name name = flatten [\<open>dom_\<close>, name]"
 definition "print_examp_def_st_dom = (\<lambda> _ ocl.
- (\<lambda> l. (List_map O'.lemma_by l, ocl))
+ (\<lambda> l. (List_map O'.lemma l, ocl))
   (let (name, l_st) = map_prod String\<^sub>b\<^sub>a\<^sub>s\<^sub>e_to_String id (hd (D_input_state ocl))
      ; a = \<lambda>f x. Expr_app f [x]
      ; b = \<lambda>s. Expr_basic [s]
@@ -172,14 +172,14 @@ definition "print_examp_def_st_dom = (\<lambda> _ ocl.
        (C.by [M.auto_simp_add [d name]])]))"
 
 definition "print_examp_def_st_dom_lemmas = (\<lambda> _ ocl.
- (\<lambda> l. (List_map O'.lemmas_simp l, ocl))
+ (\<lambda> l. (List_map O'.lemmas l, ocl))
   (let (name, _) = hd (D_input_state ocl) in
    [ Lemmas_simp \<open>\<close>
        [T.thm (print_examp_def_st_dom_name (String\<^sub>b\<^sub>a\<^sub>s\<^sub>e_to_String name))] ]))"
 
 definition "print_examp_def_st_perm_name name = flatten [\<open>perm_\<close>, name]"
 definition "print_examp_def_st_perm = (\<lambda> _ ocl.
- (\<lambda> l. (List_map O'.lemma_by l, ocl))
+ (\<lambda> l. (List_map O'.lemma l, ocl))
   (let (name, l_st) = map_prod String\<^sub>b\<^sub>a\<^sub>s\<^sub>e_to_String id (hd (D_input_state ocl))
      ; expr_app = let ocl = ocl \<lparr> D_ocl_oid_start := oidReinitInh (D_ocl_oid_start ocl) \<rparr> in
                   print_examp_def_st_mapsto
@@ -203,7 +203,7 @@ definition "print_examp_def_st_perm = (\<lambda> _ ocl.
        l_last ]))"
 
 definition "print_examp_def_st_allinst = (\<lambda> _ ocl.
- (\<lambda> l. (List_map O'.lemma_by l, ocl))
+ (\<lambda> l. (List_map O'.lemma l, ocl))
   (let a = \<lambda>f x. Expr_app f [x]
      ; b = \<lambda>s. Expr_basic [s]
      ; d = hol_definition
@@ -338,7 +338,7 @@ definition "print_pre_post_interp = get_state (\<lambda> _ _.
     Interpretation n n (print_pre_post_locale_aux (\<lambda>(cpt, OclDefCoreBinding (_, ocli)) \<Rightarrow> (ocli, cpt)) l) (C.by [M.rule (T.thm s)])))"
 
 definition "print_pre_post_wff = get_state (\<lambda> (s_pre, l_pre) (s_post, l_post) l_pre_post ocl.
- (\<lambda> l. (List_map O'.lemma_by l, ocl))
+ (\<lambda> l. (List_map O'.lemma l, ocl))
   (let a = \<lambda>f x. Expr_app f [x]
      ; b = \<lambda>s. Expr_basic [s]
      ; d = hol_definition
@@ -369,7 +369,7 @@ definition "print_pre_post_wff = get_state (\<lambda> (s_pre, l_pre) (s_post, l_
        (C.by [M.auto_simp_add (List_map d (\<open>WFF\<close> # List_map (mk_n o fst) l_pre_post))])] ))"
 
 definition "print_pre_post_where = get_state (\<lambda> (s_pre, l_pre) (s_post, l_post) l_pre_post ocl.
- (\<lambda> l. ((List_map O'.lemma_by o List_flatten) l, ocl))
+ (\<lambda> l. ((List_map O'.lemma o List_flatten) l, ocl))
   (let a = \<lambda>f x. Expr_app f [x]
      ; b = \<lambda>s. Expr_basic [s]
      ; d = hol_definition

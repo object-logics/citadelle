@@ -54,10 +54,10 @@ subsection{* infrastructure *}
 definition "print_infra_enum_synonym _ ocl = (\<lambda>f. (f (fst (find_class_ass ocl)), ocl))
  (List_flatten o List_map
    (\<lambda> META_class_synonym (OclClassSynonym n1 n2) \<Rightarrow>
-        [ O.ty_synonym (Type_synonym' (pref_ty_syn n1) (Ty_base (str_hol_of_ty_all (\<lambda>a _. a) id n2))) ]
+        [ O.type_synonym (Type_synonym' (pref_ty_syn n1) (Ty_base (str_hol_of_ty_all (\<lambda>a _. a) id n2))) ]
     | _ \<Rightarrow> []))"
 
-definition "print_infra_datatype_class = start_map'' O.dataty o (\<lambda>expr _ base_attr' _. map_class_gen_h''''
+definition "print_infra_datatype_class = start_map'' O.datatype o (\<lambda>expr _ base_attr' _. map_class_gen_h''''
   (\<lambda>isub_name name _ l_attr l_inherited l_cons.
     let (l_attr, l_inherited) = base_attr' (l_attr, of_inh l_inherited)
       ; map_ty = List_map ((\<lambda>x. Ty_apply (Ty_base \<open>option\<close>) [str_hol_of_ty_all Ty_apply Ty_base x]) o snd) in
@@ -70,7 +70,7 @@ definition "print_infra_datatype_class = start_map'' O.dataty o (\<lambda>expr _
         (isub_name datatype_name)
         [ (isub_name datatype_constr_name, Raw (isub_name datatype_ext_name) # map_ty l_attr ) ] ]) expr)"
 
-definition' \<open>print_latex_infra_datatype_class = start_map'' O.dataty o (\<lambda>expr _ base_attr' _. map_class_gen_h''''
+definition' \<open>print_latex_infra_datatype_class = start_map'' O.datatype o (\<lambda>expr _ base_attr' _. map_class_gen_h''''
   (\<lambda>isub_name name _ l_attr l_inherited l_cons.
     let (l_attr, l_inherited) = base_attr' (l_attr, of_inh l_inherited)
       ; map_ty = List_map ((\<lambda>x. Ty_apply (Ty_base \<open>option\<close>) [str_hol_of_ty_all Ty_apply Ty_base x]) o snd)
@@ -85,22 +85,22 @@ definition' \<open>print_latex_infra_datatype_class = start_map'' O.dataty o (\<
         (\<open>\operatorname{\<close> @@ name @@ \<open>}_\<close> @@ n2 @@ \<open>\<close>)
         [ (\<open>\operatorname{mkoid}_\text{\<close> @@ name @@ \<open>}\<close>, Raw (\<open>\operatorname{\<close> @@ name @@ \<open>}_\<close> @@ n1 @@ \<open>\<close>) # map_ty l_attr ) ] ]) expr)\<close>
 
-definition "print_infra_datatype_universe expr = start_map O.dataty
+definition "print_infra_datatype_universe expr = start_map O.datatype
   [ Datatype \<open>\<AA>\<close>
       (map_class (\<lambda>isub_name _ _ _ _ _. (isub_name datatype_in, [Raw (isub_name datatype_name)])) expr) ]"
 
 definition "print_infra_enum_syn _ ocl = (\<lambda>f1 f2. (List_flatten [f1 (D_input_meta ocl), f2 (fst (find_class_ass ocl))], ocl))
  (List_flatten o List_map
     (\<lambda> META_enum (OclEnum name_ty _) \<Rightarrow>
-         [O.ty_synonym (Type_synonym' name_ty (Ty_apply (Ty_base (pref_generic_enum name_ty)) [Ty_base \<open>\<AA>\<close>]))]
+         [O.type_synonym (Type_synonym' name_ty (Ty_apply (Ty_base (pref_generic_enum name_ty)) [Ty_base \<open>\<AA>\<close>]))]
      | _ \<Rightarrow> []))
  (List_flatten o List_map
     (\<lambda> META_class_synonym (OclClassSynonym name_ty ty) \<Rightarrow>
-         [O.ty_synonym (Type_synonym' name_ty (Ty_base (str_of_ty ty)))]
+         [O.type_synonym (Type_synonym' name_ty (Ty_base (str_of_ty ty)))]
      | _ \<Rightarrow> []))"
 
 definition "print_infra_type_synonym_class _ = start_map id
-  (List_map O.ty_synonym
+  (List_map O.type_synonym
     (let ty = \<lambda> t s. Type_synonym' (str_of_ty t) (Ty_apply (Ty_base s) [Ty_base \<open>\<AA>\<close>]) in
      (* base type *)
      ty OclTy_base_void ty_void #
@@ -113,10 +113,10 @@ definition "print_infra_type_synonym_class _ = start_map id
      Type_synonym'' var_val' [\<open>'\<alpha>\<close>] (\<lambda> [alpha] \<Rightarrow> Ty_apply (Ty_base \<open>val\<close>) [Ty_base \<open>\<AA>\<close>, Ty_base alpha ]) #
      [])
    @@@@
-   List_map O.ty_notation
+   List_map O.type_notation
      [ Type_notation var_val' \<open>\<cdot>(_)\<close> ])"
 
-definition "print_infra_type_synonym_class_higher expr = start_map O.ty_synonym
+definition "print_infra_type_synonym_class_higher expr = start_map O.type_synonym
  (let option = Ty_apply_paren \<open>\<langle>\<close> \<open>\<rangle>\<^sub>\<bottom>\<close> in
   List_flatten
     (map_class
@@ -128,7 +128,7 @@ definition "print_infra_type_synonym_class_higher expr = start_map O.ty_synonym
 
 definition "print_infra_type_synonym_class_rec = (\<lambda>expr ocl.
   map_prod id (\<lambda> D_ocl_HO_type. ocl \<lparr> D_ocl_HO_type := D_ocl_HO_type \<rparr>)
-    (List_split (List_map (\<lambda>(tit, body). (O.ty_synonym (Type_synonym' (String\<^sub>b\<^sub>a\<^sub>s\<^sub>e_to_String tit) body), tit))
+    (List_split (List_map (\<lambda>(tit, body). (O.type_synonym (Type_synonym' (String\<^sub>b\<^sub>a\<^sub>s\<^sub>e_to_String tit) body), tit))
                           (snd (fold_class (\<lambda>_ _ l_attr _ _ _.
                                              Pair () o List.fold
                                                (\<lambda>(_, t) l.
@@ -147,7 +147,7 @@ definition "print_infra_type_synonym_class_rec = (\<lambda>expr ocl.
                                            []
                                            expr)))))"
 
-definition "print_infra_instantiation_class = start_map'' O.instantiation_class o (\<lambda>expr _ base_attr' _. map_class_gen_h''''
+definition "print_infra_instantiation_class = start_map'' O.instantiation o (\<lambda>expr _ base_attr' _. map_class_gen_h''''
   (\<lambda>isub_name name _ l_attr l_inherited l_cons.
     let (l_attr, l_inherited) = base_attr' (l_attr, of_inh l_inherited) in
     let oid_of = \<open>oid_of\<close> in
@@ -170,7 +170,7 @@ definition "print_infra_instantiation_class = start_map'' O.instantiation_class 
                                          , Expr_app oid_of [Expr_basic [var_oid]])) (of_sub l_cons)))]))
     ]) expr)"
 
-definition "print_infra_instantiation_universe expr = start_map O.instantiation_class
+definition "print_infra_instantiation_universe expr = start_map O.instantiation
   [ let oid_of = \<open>oid_of\<close> in
     Instantiation \<open>\<AA>\<close> oid_of
       (Expr_rewrite
@@ -182,7 +182,7 @@ definition "print_infra_instantiation_universe expr = start_map O.instantiation_
 
 
 definition "print_instantia_def_strictrefeq_name mk_strict name = mk_strict [\<open>_\<close>, isub_of_str name]"
-definition "print_instantia_def_strictrefeq = start_map O.defs_overloaded o
+definition "print_instantia_def_strictrefeq = start_map O.defs o
   map_class (\<lambda>isub_name name _ _ _ _.
     let mk_strict = (\<lambda>l. flatten (\<open>StrictRefEq\<close> # isub_of_str \<open>Object\<close> # l))
       ; s_strict = mk_strict [\<open>_\<close>, isub_of_str name]
@@ -201,7 +201,7 @@ definition "print_instantia_lemmas_strictrefeq = start_map'
      \<lambda>expr.
        let mk_strict = (\<lambda>l. flatten (\<open>StrictRefEq\<close> # isub_of_str \<open>Object\<close> # l))
          ; name_set = map_class (\<lambda>_ name _ _ _ _. print_instantia_def_strictrefeq_name mk_strict name) expr in
-       case name_set of [] \<Rightarrow> [] | _ \<Rightarrow> List_map O.lemmas_simp
+       case name_set of [] \<Rightarrow> [] | _ \<Rightarrow> List_map O.lemmas
          [ Lemmas_simp \<open>\<close> (List_map (T.thm) name_set) ]
   else (\<lambda>_. []))"
 

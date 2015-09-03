@@ -50,11 +50,11 @@ begin
 section{* Translation of AST *}
 
 subsection{* IsTypeOf *}
-definition "print_istypeof_consts = start_map O.consts_class o
+definition "print_istypeof_consts = start_map O.consts o
   map_class (\<lambda>isub_name name _ _ _ _.
     Consts' (isub_name const_oclistypeof) (Ty_base ty_boolean) (const_mixfix dot_oclistypeof name))"
 
-definition "print_istypeof_class = start_m_gen O.defs_overloaded m_class_default
+definition "print_istypeof_class = start_m_gen O.defs m_class_default
   (\<lambda> l_inh _ _ compare (isub_name, name, _). \<lambda> OclClass h_name hl_attr h_last \<Rightarrow>
    [Defs_overloaded
           (flatten [isub_name const_oclistypeof, \<open>_\<close>, h_name])
@@ -82,7 +82,7 @@ definition "print_istypeof_class = start_m_gen O.defs_overloaded m_class_default
                         | GT \<Rightarrow> pattern_complex_gen [] id
                         | _ \<Rightarrow> l_false) ) )))] )"
 
-definition "print_istypeof_from_universe = start_m O.definition_hol
+definition "print_istypeof_from_universe = start_m O.definition
   (\<lambda> name _ _ l.
     let const_istypeof = flatten [const_oclistypeof, isub_of_str name, \<open>_\<AA>\<close>] in
     [ Definition (Expr_rewrite (Expr_basic [const_istypeof]) \<open>=\<close> (Expr_function l))])
@@ -101,11 +101,11 @@ definition "print_istypeof_lemma_cp_set =
 
 definition "print_istypeof_lemmas_id = start_map' (\<lambda>expr.
   (let name_set = print_istypeof_lemma_cp_set expr in
-   case name_set of [] \<Rightarrow> [] | _ \<Rightarrow> List_map O.lemmas_simp
+   case name_set of [] \<Rightarrow> [] | _ \<Rightarrow> List_map O.lemmas
   [ Lemmas_simp \<open>\<close> (List_map (\<lambda>((isub_name, _), name).
     T.thm (flatten [isub_name const_oclistypeof, \<open>_\<close>, name] )) name_set) ]))"
 
-definition "print_istypeof_lemma_cp expr = (start_map O.lemma_by o
+definition "print_istypeof_lemma_cp expr = (start_map O.lemma o
   (get_hierarchy_map (
   let check_opt =
     let set = print_istypeof_lemma_cp_set expr in
@@ -127,14 +127,14 @@ definition "print_istypeof_lemma_cp expr = (start_map O.lemma_by o
   )) (\<lambda>x. (x, x, x))) ) expr"
 
 definition "print_istypeof_lemmas_cp = start_map'
- (if activate_simp_optimization then List_map O.lemmas_simp o
+ (if activate_simp_optimization then List_map O.lemmas o
     (\<lambda>expr. [Lemmas_simp \<open>\<close>
   (get_hierarchy_map (\<lambda>name1 name2 name3.
       T.thm (flatten [\<open>cp_\<close>, const_oclistypeof, isub_of_str name1, \<open>_\<close>, name3, \<open>_\<close>, name2]))
    (\<lambda>x. (x, x, x)) expr)])
   else (\<lambda>_. []))"
 
-definition "print_istypeof_lemma_strict expr = (start_map O.lemma_by o
+definition "print_istypeof_lemma_strict expr = (start_map O.lemma o
   get_hierarchy_map (
   let check_opt =
     let set = print_istypeof_lemma_cp_set expr in
@@ -160,7 +160,7 @@ definition "print_istypeof_lemmas_strict_set =
     get_hierarchy_map (\<lambda>name1 name2 name3. (name1, name3, name2)) (\<lambda>x. (x, [\<open>invalid\<close>,\<open>null\<close>], x))
    else (\<lambda>_. []))"
 
-definition "print_istypeof_lemmas_strict expr = start_map O.lemmas_simp
+definition "print_istypeof_lemmas_strict expr = start_map O.lemmas
   (case print_istypeof_lemmas_strict_set expr
    of [] \<Rightarrow> []
     | l \<Rightarrow> [ Lemmas_simp \<open>\<close> (List_map
@@ -168,7 +168,7 @@ definition "print_istypeof_lemmas_strict expr = start_map O.lemmas_simp
         T.thm (flatten [const_oclistypeof, isub_of_str name1, \<open>_\<close>, name3, \<open>_\<close>, name2]))
       l) ])"
 
-definition "print_istypeof_defined = start_m O.lemma_by m_class_default
+definition "print_istypeof_defined = start_m O.lemma m_class_default
   (\<lambda> _ (isub_name, name, _). \<lambda> OclClass h_name _ _ \<Rightarrow>
       let var_X = \<open>X\<close>
         ; var_isdef = \<open>isdef\<close>
@@ -185,7 +185,7 @@ definition "print_istypeof_defined = start_m O.lemma_by m_class_default
                                                           # [ flatten [isub_name const_oclistypeof, \<open>_\<close>, h_name] ]))
                                             (\<open>option.split\<close> # split_ty h_name) ]) ])"
 
-definition "print_istypeof_defined' = start_m O.lemma_by m_class_default
+definition "print_istypeof_defined' = start_m O.lemma m_class_default
   (\<lambda> _ (isub_name, name, _). \<lambda> OclClass h_name _ _ \<Rightarrow>
       let var_X = \<open>X\<close>
         ; var_isdef = \<open>isdef\<close>
@@ -199,7 +199,7 @@ definition "print_istypeof_defined' = start_m O.lemma_by m_class_default
                                      (T.THEN (T.thm var_isdef) (T.thm \<open>foundation20\<close>)))]) ])"
 
 definition "print_istypeof_up_larger_name name_pers name_any = flatten [\<open>actualType\<close>, isub_of_str name_pers, \<open>_larger_staticType\<close>, isub_of_str name_any]"
-definition "print_istypeof_up_larger = start_map O.lemma_by o
+definition "print_istypeof_up_larger = start_map O.lemma o
   map_class_nupl2'_inh_large (\<lambda>name_pers name_any.
     let var_X = \<open>X\<close>
       ; var_isdef = \<open>isdef\<close>
@@ -217,7 +217,7 @@ definition "print_istypeof_up_larger = start_map O.lemma_by o
                                     # \<open>foundation16\<close>
                                     # List_map hol_definition [\<open>null_option\<close>, \<open>bot_option\<close> ])]))"
 
-definition "print_istypeof_up_d_cast expr = (start_map O.lemma_by o
+definition "print_istypeof_up_d_cast expr = (start_map O.lemma o
   map_class_nupl3'_GE_inh (\<lambda>name_pers name_mid name_any.
     let var_X = \<open>X\<close>
       ; var_istyp = \<open>istyp\<close>

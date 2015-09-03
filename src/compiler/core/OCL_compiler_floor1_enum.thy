@@ -57,10 +57,10 @@ definition "print_enum = (\<lambda> OclEnum name_ty l \<Rightarrow> Pair
     ; name_ty_base' = pref_generic_enum name_ty
     ; uu = \<open>'\<AA>\<close> in
   List_flatten
-  [ [ O.dataty (Datatype (pref_ty_enum name_ty) (List_map (\<lambda>constr. (pref_constr_enum constr, [])) l))
-    , O.ty_synonym (Type_synonym' name_ty_base (option (option (Ty_base (pref_ty_enum name_ty)))))
-    , O.ty_synonym (Type_synonym'' name_ty_base' [uu] (\<lambda> [u] \<Rightarrow> Ty_apply (Ty_base \<open>val\<close>) [Ty_base u, Ty_base name_ty_base]))
-    , O.defs_overloaded
+  [ [ O.datatype (Datatype (pref_ty_enum name_ty) (List_map (\<lambda>constr. (pref_constr_enum constr, [])) l))
+    , O.type_synonym (Type_synonym' name_ty_base (option (option (Ty_base (pref_ty_enum name_ty)))))
+    , O.type_synonym (Type_synonym'' name_ty_base' [uu] (\<lambda> [u] \<Rightarrow> Ty_apply (Ty_base \<open>val\<close>) [Ty_base u, Ty_base name_ty_base]))
+    , O.defs
         (Defs_overloaded
           (\<open>StrictRefEq\<close> @@ isub_of_str name_ty)
           (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l var_x = \<open>x\<close>
@@ -77,7 +77,7 @@ definition "print_enum = (\<lambda> OclEnum name_ty l \<Rightarrow> Pair
                   (a \<open>invalid\<close> (b var_tau)))))) ]
   , List_map
       (\<lambda>constr.
-        O.definition_hol
+        O.definition
           (Definition (Expr_rewrite (b constr)
                                     \<open>=\<close>
                                     (Expr_lam \<open>_\<close> (\<lambda>_. Expr_some (Expr_some (Expr_annot' (b (pref_constr_enum constr)) (pref_ty_enum name_ty)))))))) l ]))"

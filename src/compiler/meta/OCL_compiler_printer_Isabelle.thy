@@ -338,7 +338,7 @@ definition "s_of_axiom _ = (\<lambda> Axiomatization n e \<Rightarrow> sprint2 \
 
 definition "s_of_text _ = (\<lambda> Text s \<Rightarrow> sprint1 \<open>text{* %s *}\<close>\<acute> (To_string s))"
 
-definition "s_of_ml _ = (\<lambda> ML e \<Rightarrow> sprint1 \<open>ML{* %s *}\<close>\<acute> (s_of_sexpr e))"
+definition "s_of_ml _ = (\<lambda> SML e \<Rightarrow> sprint1 \<open>ML{* %s *}\<close>\<acute> (s_of_sexpr e))"
 
 definition "s_of_thm _ = (\<lambda> Thm thm \<Rightarrow> sprint1 \<open>thm %s\<close>\<acute> (s_of_ntheorem_l1 thm))"
 

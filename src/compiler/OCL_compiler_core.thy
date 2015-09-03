@@ -75,7 +75,7 @@ definition "L_fold f =
             ; (l, b) = List.fold (\<lambda>f0. \<lambda>(l, b) \<Rightarrow> let (x, b) = f0 a b in (x # l, b)) l ([], b) in
           ([Isab_thy (H_thy_locale loc_data (rev l))], b)))"
 
-definition "section_aux n s = start_map' (\<lambda>_. [ O.section_title (Section n s) ])"
+definition "section_aux n s = start_map' (\<lambda>_. [ O.section (Section n s) ])"
 definition "section = section_aux 0"
 definition "subsection = section_aux 1"
 definition "subsubsection = section_aux 2"
