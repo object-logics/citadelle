@@ -160,27 +160,29 @@ datatype hol_thy_extended = (* pure Isabelle *)
 
 subsection{* ... *}
 
-locale O
+locale O (* outer syntax *)
 begin
-definition "datatype = Isab_thy o H_thy_simple o Theory_datatype"
-definition "type_synonym = Isab_thy o H_thy_simple o Theory_type_synonym"
-definition "type_notation = Isab_thy o H_thy_simple o Theory_type_notation"
-definition "instantiation = Isab_thy o H_thy_simple o Theory_instantiation"
-definition "defs = Isab_thy o H_thy_simple o Theory_defs"
-definition "consts = Isab_thy o H_thy_simple o Theory_consts"
-definition "definition = Isab_thy o H_thy_simple o Theory_definition"
-definition "lemmas = Isab_thy o H_thy_simple o Theory_lemmas"
-definition "lemma = Isab_thy o H_thy_simple o Theory_lemma"
-definition "axiomatization = Isab_thy o H_thy_simple o Theory_axiomatization"
-definition "section = Isab_thy o H_thy_simple o Theory_section"
-definition "text = Isab_thy o H_thy_simple o Theory_text"
-definition "ML = Isab_thy o H_thy_simple o Theory_ML"
-definition "thm = Isab_thy o H_thy_simple o Theory_thm"
-definition "interpretation = Isab_thy o H_thy_simple o Theory_interpretation"
+definition "i x = Isab_thy o H_thy_simple o x"
+definition "datatype = i Theory_datatype"
+definition "type_synonym = i Theory_type_synonym"
+definition "type_notation = i Theory_type_notation"
+definition "instantiation = i Theory_instantiation"
+definition "defs = i Theory_defs"
+definition "consts = i Theory_consts"
+definition "definition = i Theory_definition"
+definition "lemmas = i Theory_lemmas"
+definition "lemma = i Theory_lemma"
+definition "axiomatization = i Theory_axiomatization"
+definition "section = i Theory_section"
+definition "text = i Theory_text"
+definition "ML = i Theory_ML"
+definition "thm = i Theory_thm"
+definition "interpretation = i Theory_interpretation"
 end
 
 lemmas [code] =
   (*def*)
+  O.i_def
   O.datatype_def
   O.type_synonym_def
   O.type_notation_def
