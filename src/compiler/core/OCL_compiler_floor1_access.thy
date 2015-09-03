@@ -131,7 +131,7 @@ definition "print_access_choose_ml = start_map'''' O.ML o (\<lambda>expr _.
   (let a = \<lambda>f x. SML.apply f [x]
      ; b = \<lambda>s. SML.basic [s]
      ; lets = \<lambda>var exp. SML (SML.rewrite_val (SML.basic [var]) \<open>=\<close> exp)
-     ; mk_var = \<lambda>i. b (flatten [\<open>x\<close>, natural_of_str i]) in
+     ; mk_var = \<lambda>i. b (S.flatten [\<open>x\<close>, natural_of_str i]) in
    L.flatten
    [ print_access_choose_switch
        lets mk_var expr
@@ -166,7 +166,7 @@ definition "print_access_choose = start_map'''' O.definition o (\<lambda>expr _.
   [ let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l a = \<lambda>f x. Expr_app f [x]
       ; b = \<lambda>s. Expr_basic [s]
       ; lets = \<lambda>var exp. Definition (Expr_rewrite (Expr_basic [var]) \<open>=\<close> exp)
-      ; mk_var = \<lambda>i. b (flatten [\<open>x\<close>, natural_of_str i]) in
+      ; mk_var = \<lambda>i. b (S.flatten [\<open>x\<close>, natural_of_str i]) in
     print_access_choose_switch
       lets mk_var expr
       print_access_choose_name
@@ -207,7 +207,7 @@ definition "print_access_deref_oid = start_map O.definition o
                      , (Expr_basic [wildcard], Expr_basic [\<open>invalid\<close>, var_tau]) ]))))"
 
 definition "print_access_deref_assocs_name' name_from isub_name isup_attr =
-  flatten [var_deref, \<open>_\<close>, isub_name var_assocs, \<open>_\<close>, natural_of_str name_from, isup_attr \<open>_\<close>]"
+  S.flatten [var_deref, \<open>_\<close>, isub_name var_assocs, \<open>_\<close>, natural_of_str name_from, isup_attr \<open>_\<close>]"
 definition "print_access_deref_assocs_name name_from isub_name attr =
   print_access_deref_assocs_name' name_from isub_name (\<lambda>s. s @@ isup_of_str attr)"
 definition "print_access_deref_assocs = start_map'''' O.definition o (\<lambda>expr design_analysis.
@@ -329,19 +329,19 @@ definition "print_access_dot_consts =
       L.map
         (\<lambda>(var_at_when_hol, var_at_when_ocl, f_update_ocl).
           let name =
-             flatten [ \<open>dot\<close>
+             S.flatten [ \<open>dot\<close>
                      , case attr_ty of
-                         OclTy_object (OclTyObj (OclTyCore ty_obj) _) \<Rightarrow> flatten [\<open>_\<close>, natural_of_str (TyObjN_ass_switch (TyObj_from ty_obj)), \<open>_\<close>]
+                         OclTy_object (OclTyObj (OclTyCore ty_obj) _) \<Rightarrow> S.flatten [\<open>_\<close>, natural_of_str (TyObjN_ass_switch (TyObj_from ty_obj)), \<open>_\<close>]
                        | _ \<Rightarrow> \<open>\<close>
                      , isup_of_str attr_n, var_at_when_hol] in
-          ( f_update_ocl (\<lambda> l. String_to_String\<^sub>b\<^sub>a\<^sub>s\<^sub>e name # l)
+          ( f_update_ocl (\<lambda> l. String.to_String\<^sub>b\<^sub>a\<^sub>s\<^sub>e name # l)
           , Consts_raw0
             name
             (Ty_arrow
               (Ty_apply (Ty_base \<open>val\<close>) [Ty_base \<open>\<AA>\<close>, Ty_base \<open>'\<alpha>\<close>])
               (print_access_dot_consts_ty attr_ty))
             (let dot_name = mk_dot attr_n var_at_when_ocl
-               ; mk_par = \<lambda>s1 s2. flatten [s1, \<open> '/* \<close>, s2, \<open> *'/\<close>] in
+               ; mk_par = \<lambda>s1 s2. S.flatten [s1, \<open> '/* \<close>, s2, \<open> *'/\<close>] in
              case attr_ty of OclTy_object (OclTyObj (OclTyCore ty_obj) _) \<Rightarrow>
                (case apply_optim_ass_arity
                        ty_obj
@@ -359,9 +359,9 @@ definition "print_access_dot_consts =
         , (var_at_when_hol_pre, var_at_when_ocl_pre, update_D_ocl_accessor_pre)]) l_attr))"
 
 definition "print_access_dot_name isub_name dot_at_when attr_ty isup_attr =
-  flatten [ isup_attr (let dot_name = isub_name \<open>dot\<close> in
+  S.flatten [ isup_attr (let dot_name = isub_name \<open>dot\<close> in
                        case attr_ty of
-                         OclTy_object (OclTyObj (OclTyCore ty_obj) _) \<Rightarrow> flatten [dot_name, \<open>_\<close>, natural_of_str (TyObjN_ass_switch (TyObj_from ty_obj)), \<open>_\<close>]
+                         OclTy_object (OclTyObj (OclTyCore ty_obj) _) \<Rightarrow> S.flatten [dot_name, \<open>_\<close>, natural_of_str (TyObjN_ass_switch (TyObj_from ty_obj)), \<open>_\<close>]
                        | _ \<Rightarrow> dot_name)
           , dot_at_when]"
 
@@ -432,7 +432,7 @@ definition "print_access_dot_cp_lemmas_set =
 definition "print_access_dot_cp_lemmas = start_map' (\<lambda>_.
   L.map (\<lambda>x. O.lemmas (Lemmas_simp \<open>\<close> [T.thm x])) print_access_dot_cp_lemmas_set)"
 
-definition "print_access_dot_lemma_cp_name isub_name dot_at_when attr_ty isup_attr = flatten [\<open>cp_\<close>, print_access_dot_name isub_name dot_at_when attr_ty isup_attr]"
+definition "print_access_dot_lemma_cp_name isub_name dot_at_when attr_ty isup_attr = S.flatten [\<open>cp_\<close>, print_access_dot_name isub_name dot_at_when attr_ty isup_attr]"
 definition "print_access_dot_lemma_cp = start_map O.lemma o
  (let auto = \<lambda>l. M.auto_simp_add2 [T.thms print_access_dot_lemmas_id_name] (L.map hol_definition (\<open>cp\<close> # l)) in
   map_class_arg_only_var
@@ -442,7 +442,7 @@ definition "print_access_dot_lemma_cp = start_map O.lemma o
                 [Expr_app \<open>cp\<close> [Expr_lam \<open>X\<close> (\<lambda>var_x. dot_attr (Expr_annot_ocl (Expr_basic [var_x]) name)) ]]
                 []
                 (C.by [auto (if print_access_dot_cp_lemmas_set = [] then
-                                  [var_eval_extract, flatten [isup_attr (isub_name \<open>dot\<close>), dot_at_when]]
+                                  [var_eval_extract, S.flatten [isup_attr (isub_name \<open>dot\<close>), dot_at_when]]
                                 else
                                   [])]) ])
     (\<lambda>isub_name name (_, dot_at_when) attr_ty isup_attr dot_attr.
@@ -461,7 +461,7 @@ definition "print_access_dot_lemmas_cp = start_map O.lemmas o (\<lambda>expr.
   of [] \<Rightarrow> []
    | l \<Rightarrow> [Lemmas_simp \<open>\<close> l])"
 
-definition "print_access_lemma_strict_name isub_name dot_at_when attr_ty isup_attr name_invalid = flatten [print_access_dot_name isub_name dot_at_when attr_ty isup_attr, \<open>_\<close>, name_invalid]"
+definition "print_access_lemma_strict_name isub_name dot_at_when attr_ty isup_attr name_invalid = S.flatten [print_access_dot_name isub_name dot_at_when attr_ty isup_attr, \<open>_\<close>, name_invalid]"
 definition "print_access_lemma_strict expr = (start_map O.lemma o
   map_class_arg_only_var' (\<lambda>isub_name name (_, dot_at_when) attr_ty isup_attr dot_attr.
             L.map (\<lambda>(name_invalid, meth_invalid). Lemma
@@ -478,7 +478,7 @@ definition "print_access_lemma_strict expr = (start_map O.lemma o
                                            (L.map hol_definition
                                              (let l = (let l = (\<open>bot_option\<close> # meth_invalid) in
                                               if print_access_dot_lemmas_id_set expr = [] then
-                                                flatten [isup_attr (isub_name \<open>dot\<close>), dot_at_when] # l
+                                                S.flatten [isup_attr (isub_name \<open>dot\<close>), dot_at_when] # l
                                               else l) in
                                               if print_access_dot_cp_lemmas_set = []
                                               then
@@ -487,7 +487,7 @@ definition "print_access_lemma_strict expr = (start_map O.lemma o
                 [(\<open>invalid\<close>, [\<open>invalid\<close>]), (\<open>null\<close>, [\<open>null_fun\<close>, \<open>null_option\<close>])])) expr"
 
 definition "print_access_def_mono_name isub_name dot_at_when attr_ty isup_attr =
-  flatten [ \<open>defined_mono_\<close>, print_access_dot_name isub_name dot_at_when attr_ty isup_attr ]"
+  S.flatten [ \<open>defined_mono_\<close>, print_access_dot_name isub_name dot_at_when attr_ty isup_attr ]"
 definition "print_access_def_mono = start_map'''' O.lemma o (\<lambda>expr _.
   map_class_arg_only_var'
     (\<lambda>isub_name name (_, dot_at_when) attr_ty isup_attr dot_attr.
@@ -515,7 +515,7 @@ definition "print_access_def_mono = start_map'''' O.lemma o (\<lambda>expr _.
                 (C.by [M.simp_add [\<open>defined_split\<close>]]) ]) expr)"
 
 definition "print_access_is_repr_name isub_name dot_at_when attr_ty isup_attr =
-  flatten [ \<open>is_repr_\<close>, print_access_dot_name isub_name dot_at_when attr_ty isup_attr ]"
+  S.flatten [ \<open>is_repr_\<close>, print_access_dot_name isub_name dot_at_when attr_ty isup_attr ]"
 definition "print_access_is_repr = start_map'''' O.lemma o (\<lambda>expr design_analysis.
  (let is_design = design_analysis = Gen_only_design
     ; App_a = \<lambda>l. C.apply (if is_design then [] else l)
@@ -697,10 +697,10 @@ definition "print_access_repr_allinst = start_map''''' O.lemma o (\<lambda>expr 
           ; b = \<lambda>s. Expr_basic [s]
           ; var_x = \<open>x\<close> in
             [ Lemma
-                (flatten [ isup_attr (flatten [isub_name \<open>dot_repr\<close>, \<open>_\<close>, natural_of_str (TyObjN_ass_switch (TyObj_from ty_obj)), \<open>_\<close>])
+                (S.flatten [ isup_attr (S.flatten [isub_name \<open>dot_repr\<close>, \<open>_\<close>, natural_of_str (TyObjN_ass_switch (TyObj_from ty_obj)), \<open>_\<close>])
                          , dot_at_when])
                 ([ f (a \<open>\<delta>\<close> (dot_attr (Expr_annot_ocl (Expr_basic [var_x]) name)))
-                 , let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l all_inst = if String_equal var_in_when_state var_in_pre_state then
+                 , let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l all_inst = if var_in_when_state \<triangleq> var_in_pre_state then
                                         \<open>OclAllInstances_at_pre\<close>
                                       else
                                         \<open>OclAllInstances_at_post\<close> in

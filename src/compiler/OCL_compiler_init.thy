@@ -171,58 +171,90 @@ lemmas [code] =
   L.map_find_aux.simps
 
 definition "char_escape = Char Nibble0 Nibble9"
-definition "flatten = String_concatWith \<open>\<close>"
-definition String_flatten (infixr "@@" 65) where "String_flatten a b = flatten [a, b]"
-definition "String_make n c = \<lless>L.map (\<lambda>_. c) (L.upto 1 n)\<ggreater>"
+
+locale S
+locale String
+locale String\<^sub>b\<^sub>a\<^sub>s\<^sub>e
+
+definition (in S) "flatten = String_concatWith \<open>\<close>"
+definition (in String) "flatten a b = S.flatten [a, b]"
+notation String.flatten (infixr "@@" 65)
+definition (in String) "make n c = \<lless>L.map (\<lambda>_. c) (L.upto 1 n)\<ggreater>"
 definition "ST0 c = \<lless>[c]\<ggreater>"
 definition "ST0_base c = ST' [c]"
 
-definition "String\<^sub>b\<^sub>a\<^sub>s\<^sub>e_map_gen replace g = (\<lambda> ST s \<Rightarrow> replace \<open>\<close> (Some s) \<open>\<close>
-                                           | ST' s \<Rightarrow> flatten (L.map g s))"
-fun String_map_gen where
-   "String_map_gen replace g e =
-     (\<lambda> SS_base s \<Rightarrow> String\<^sub>b\<^sub>a\<^sub>s\<^sub>e_map_gen replace g s
-      | String_concatWith abr l \<Rightarrow> String_concatWith (String_map_gen replace g abr) (List.map (String_map_gen replace g) l)) e"
+definition (in String\<^sub>b\<^sub>a\<^sub>s\<^sub>e) "map_gen replace g = (\<lambda> ST s \<Rightarrow> replace \<open>\<close> (Some s) \<open>\<close>
+                                                | ST' s \<Rightarrow> S.flatten (L.map g s))"
+fun (in String) map_gen where
+   "map_gen replace g e =
+     (\<lambda> SS_base s \<Rightarrow> String\<^sub>b\<^sub>a\<^sub>s\<^sub>e.map_gen replace g s
+      | String_concatWith abr l \<Rightarrow> String_concatWith (map_gen replace g abr) (List.map (map_gen replace g) l)) e"
 
-definition "String_foldl_one f accu s = foldl f accu (String.explode s)"
-definition "String\<^sub>b\<^sub>a\<^sub>s\<^sub>e_foldl f accu = (\<lambda> ST s \<Rightarrow> String_foldl_one f accu s
-                                      | ST' s \<Rightarrow> foldl f accu s)"
-fun String_foldl where
-   "String_foldl f accu e =
-     (\<lambda> SS_base s \<Rightarrow> String\<^sub>b\<^sub>a\<^sub>s\<^sub>e_foldl f accu s
+definition (in String) "foldl_one f accu s = foldl f accu (String.explode s)"
+definition (in String\<^sub>b\<^sub>a\<^sub>s\<^sub>e) foldl where "foldl f accu = (\<lambda> ST s \<Rightarrow> String.foldl_one f accu s
+                                                       | ST' s \<Rightarrow> List.foldl f accu s)"
+fun (in String) foldl where
+   "foldl f accu e =
+     (\<lambda> SS_base s \<Rightarrow> String\<^sub>b\<^sub>a\<^sub>s\<^sub>e.foldl f accu s
       | String_concatWith abr l \<Rightarrow>
         (case l of [] \<Rightarrow> accu
-                 | x # xs \<Rightarrow> foldl (\<lambda>accu. String_foldl f (String_foldl f accu abr)) (String_foldl f accu x) xs)) e"
+                 | x # xs \<Rightarrow> List.foldl (\<lambda>accu. foldl f (foldl f accu abr)) (foldl f accu x) xs)) e"
 
-definition "replace_chars f s1 s s2 =
+definition (in S) "replace_chars f s1 s s2 =
   s1 @@ (case s of None \<Rightarrow> \<open>\<close> | Some s \<Rightarrow> flatten (L.map f (String.explode s))) @@ s2"
 
-definition "String_map f = String_map_gen (replace_chars (\<lambda>c. \<degree>f c\<degree>)) (\<lambda>x. \<degree>f x\<degree>)"
-definition "String_replace_chars f = String_map_gen (replace_chars (\<lambda>c. f c)) f"
-definition "String_all f = String_foldl (\<lambda>b s. b & f s) True"
-definition "String_length = String_foldl (\<lambda>n _. Suc n) 0"
-definition "String_to_list s = rev (String_foldl (\<lambda>l c. c # l) [] s)"
-definition "String\<^sub>b\<^sub>a\<^sub>s\<^sub>e_to_list = (\<lambda> ST s \<Rightarrow> String.explode s | ST' l \<Rightarrow> l)"
-definition "String_to_String\<^sub>b\<^sub>a\<^sub>s\<^sub>e = (\<lambda> SS_base s \<Rightarrow> s | s \<Rightarrow> ST' (String_to_list s))"
-definition "String\<^sub>b\<^sub>a\<^sub>s\<^sub>e_to_String = SS_base"
-definition "String\<^sub>b\<^sub>a\<^sub>s\<^sub>e_is_empty = (\<lambda> ST s \<Rightarrow> s = STR ''''
-                                  | ST' s \<Rightarrow> s = [])"
-fun String_is_empty where
-   "String_is_empty e = (\<lambda> SS_base s \<Rightarrow> String\<^sub>b\<^sub>a\<^sub>s\<^sub>e_is_empty s | String_concatWith _ l \<Rightarrow> list_all String_is_empty l) e"
+definition (in String) map where "map f = map_gen (S.replace_chars (\<lambda>c. \<degree>f c\<degree>)) (\<lambda>x. \<degree>f x\<degree>)"
+definition (in String) "replace_chars f = map_gen (S.replace_chars (\<lambda>c. f c)) f"
+definition (in String) "all f = foldl (\<lambda>b s. b & f s) True"
+definition (in String) length where "length = foldl (\<lambda>n _. Suc n) 0"
+definition (in String) "to_list s = rev (foldl (\<lambda>l c. c # l) [] s)"
+definition (in String\<^sub>b\<^sub>a\<^sub>s\<^sub>e) "to_list = (\<lambda> ST s \<Rightarrow> String.explode s | ST' l \<Rightarrow> l)"
+definition (in String) "to_String\<^sub>b\<^sub>a\<^sub>s\<^sub>e = (\<lambda> SS_base s \<Rightarrow> s | s \<Rightarrow> ST' (to_list s))"
+definition (in String\<^sub>b\<^sub>a\<^sub>s\<^sub>e) "to_String = SS_base"
+definition (in String\<^sub>b\<^sub>a\<^sub>s\<^sub>e) "is_empty = (\<lambda> ST s \<Rightarrow> s = STR ''''
+                                       | ST' s \<Rightarrow> s = [])"
+fun (in String) is_empty where
+   "is_empty e = (\<lambda> SS_base s \<Rightarrow> String\<^sub>b\<^sub>a\<^sub>s\<^sub>e.is_empty s | String_concatWith _ l \<Rightarrow> list_all is_empty l) e"
 
-definition "String_equal s1 s2 = (String_to_list s1 = String_to_list s2)"
+definition (in String) "equal s1 s2 = (to_list s1 = to_list s2)"
+notation String.equal (infixl "\<triangleq>" 50)
+
+lemmas [code] =
+  (*def*)
+  S.flatten_def
+  String.flatten_def
+  String.make_def
+  String\<^sub>b\<^sub>a\<^sub>s\<^sub>e.map_gen_def
+  String.foldl_one_def
+  String\<^sub>b\<^sub>a\<^sub>s\<^sub>e.foldl_def
+  S.replace_chars_def
+  String.map_def
+  String.replace_chars_def
+  String.all_def
+  String.length_def
+  String.to_list_def
+  String\<^sub>b\<^sub>a\<^sub>s\<^sub>e.to_list_def
+  String.to_String\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def
+  String\<^sub>b\<^sub>a\<^sub>s\<^sub>e.to_String_def
+  String\<^sub>b\<^sub>a\<^sub>s\<^sub>e.is_empty_def
+  String.equal_def
+
+  (*fun*)
+  String.map_gen.simps
+  String.foldl.simps
+  String.is_empty.simps
 
 (* *)
 
-definition "List_assoc' x l = L.assoc (String_to_list x) (L.map (map_prod String\<^sub>b\<^sub>a\<^sub>s\<^sub>e_to_list id) l)"
+definition "List_assoc' x l = L.assoc (String.to_list x) (L.map (map_prod String\<^sub>b\<^sub>a\<^sub>s\<^sub>e.to_list id) l)"
 syntax "_list_assoc" :: "string \<Rightarrow> (string\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<times> 'a) list \<Rightarrow> 'a option" ("List.assoc")
 translations "List.assoc" \<rightleftharpoons> "CONST List_assoc'"
 
-definition "List_member' l x = List.member (L.map String\<^sub>b\<^sub>a\<^sub>s\<^sub>e_to_list l) (String_to_list x)"
+definition "List_member' l x = List.member (L.map String\<^sub>b\<^sub>a\<^sub>s\<^sub>e.to_list l) (String.to_list x)"
 syntax "_list_member" :: "string\<^sub>b\<^sub>a\<^sub>s\<^sub>e list \<Rightarrow> string \<Rightarrow> bool" ("List'_member")
 translations "List_member" \<rightleftharpoons> "CONST List_member'"
 
-definition "flatten_base l = String_to_String\<^sub>b\<^sub>a\<^sub>s\<^sub>e (flatten (L.map String\<^sub>b\<^sub>a\<^sub>s\<^sub>e_to_String l))"
+definition "flatten_base l = String.to_String\<^sub>b\<^sub>a\<^sub>s\<^sub>e (S.flatten (L.map String\<^sub>b\<^sub>a\<^sub>s\<^sub>e.to_String l))"
 
 section{* Preliminaries *}
 
@@ -255,9 +287,9 @@ subsection{* ... *}
 
 definition "wildcard = \<open>_\<close>"
 
-definition "lowercase_of_str = String_map (\<lambda>c. let n = nat_of_char c in if n < 97 then char_of_nat (n + 32) else c)"
-definition "uppercase_of_str = String_map (\<lambda>c. let n = nat_of_char c in if n < 97 then c else char_of_nat (n - 32))"
-definition "number_of_str = String_replace_chars (\<lambda>c. [\<open>\<zero>\<close>, \<open>\<one>\<close>, \<open>\<two>\<close>, \<open>\<three>\<close>, \<open>\<four>\<close>, \<open>\<five>\<close>, \<open>\<six>\<close>, \<open>\<seven>\<close>, \<open>\<eight>\<close>, \<open>\<nine>\<close>] ! (nat_of_char c - 48))"
+definition "lowercase_of_str = String.map (\<lambda>c. let n = nat_of_char c in if n < 97 then char_of_nat (n + 32) else c)"
+definition "uppercase_of_str = String.map (\<lambda>c. let n = nat_of_char c in if n < 97 then c else char_of_nat (n - 32))"
+definition "number_of_str = String.replace_chars (\<lambda>c. [\<open>\<zero>\<close>, \<open>\<one>\<close>, \<open>\<two>\<close>, \<open>\<three>\<close>, \<open>\<four>\<close>, \<open>\<five>\<close>, \<open>\<six>\<close>, \<open>\<seven>\<close>, \<open>\<eight>\<close>, \<open>\<nine>\<close>] ! (nat_of_char c - 48))"
 definition "nat_raw_of_str = L.map (\<lambda>i. char_of_nat (nat_of_char (Char Nibble3 Nibble0) + i))"
 fun nat_of_str_aux where
    "nat_of_str_aux l (n :: Nat.nat) = (if n < 10 then n # l else nat_of_str_aux (n mod 10 # l) (n div 10))"
@@ -265,54 +297,54 @@ definition "nat_of_str n = \<lless>nat_raw_of_str (nat_of_str_aux [] n)\<ggreate
 definition "natural_of_str = nat_of_str o nat_of_natural"
 definition "add_0 n =
  (let n = nat_of_char n in
-  flatten (L.map (\<lambda>_. \<open>0\<close>) (upt 0 (if n < 10 then 2 else if n < 100 then 1 else 0)))
+  S.flatten (L.map (\<lambda>_. \<open>0\<close>) (upt 0 (if n < 10 then 2 else if n < 100 then 1 else 0)))
   @@ nat_of_str n)"
 definition "is_letter n = (n \<ge> CHR ''A'' & n \<le> CHR ''Z'' | n \<ge> CHR ''a'' & n \<le> CHR ''z'')"
 definition "is_digit n = (n \<ge> CHR ''0'' & n \<le> CHR ''9'')"
 definition "is_special = List.member '' <>^_=-./(){}''"
-definition "base255_of_str = String_replace_chars (\<lambda>c. if is_letter c then \<degree>c\<degree> else add_0 c)"
-definition "isub_of_str = String_replace_chars (\<lambda>c.
+definition "base255_of_str = String.replace_chars (\<lambda>c. if is_letter c then \<degree>c\<degree> else add_0 c)"
+definition "isub_of_str = String.replace_chars (\<lambda>c.
   if is_letter c | is_digit c | List.member ''_'' c then \<open>\<^sub>\<close> @@ \<degree>c\<degree> else add_0 c)"
 definition "isup_of_str s = \<open>__\<close> @@ s"
 definition "text_of_str str =
  (let s = \<open>c\<close>
     ; ap = \<open> # \<close> in
-  flatten [ \<open>(let \<close>, s, \<open> = char_of_nat in \<close>
-          , String_replace_chars (\<lambda>c.
+  S.flatten [ \<open>(let \<close>, s, \<open> = char_of_nat in \<close>
+          , String.replace_chars (\<lambda>c.
                                     if is_letter c then
-                                      flatten [\<open>CHR ''\<close>,\<degree>c\<degree>,\<open>''\<close>,ap]
+                                      S.flatten [\<open>CHR ''\<close>,\<degree>c\<degree>,\<open>''\<close>,ap]
                                     else
-                                      flatten [s, \<open> \<close>,  add_0 c, ap])
+                                      S.flatten [s, \<open> \<close>,  add_0 c, ap])
                                  str
           , \<open>[])\<close>])"
-definition' \<open>text2_of_str = String_replace_chars (\<lambda>c. flatten [\<open>\\<close>, \<open><\<close>, \<degree>c\<degree>, \<open>>\<close>])\<close>
+definition' \<open>text2_of_str = String.replace_chars (\<lambda>c. S.flatten [\<open>\\<close>, \<open><\<close>, \<degree>c\<degree>, \<open>>\<close>])\<close>
 
 definition "textstr_of_str f_flatten f_char f_str str =
- (let str0 = String_to_list str
+ (let str0 = String.to_list str
     ; f_letter = \<lambda>c. is_letter c | is_digit c | is_special c
     ; s = \<open>c\<close>
-    ; f_text = \<lambda> Nsplit_text l \<Rightarrow> flatten [f_str (flatten [\<open>STR ''\<close>,\<lless>l\<ggreater>,\<open>''\<close>])]
-               | Nsplit_sep c \<Rightarrow> flatten [f_char c]
+    ; f_text = \<lambda> Nsplit_text l \<Rightarrow> S.flatten [f_str (S.flatten [\<open>STR ''\<close>,\<lless>l\<ggreater>,\<open>''\<close>])]
+               | Nsplit_sep c \<Rightarrow> S.flatten [f_char c]
     ; str = case L.nsplit_f str0 (Not o f_letter) of
-              [] \<Rightarrow> flatten [f_str \<open>STR ''''\<close>]
+              [] \<Rightarrow> S.flatten [f_str \<open>STR ''''\<close>]
             | [x] \<Rightarrow> f_text x
-            | l \<Rightarrow> flatten (L.map (\<lambda>x. \<open>(\<close> @@ f_text x @@ \<open>) # \<close>) l) @@ \<open>[]\<close> in
+            | l \<Rightarrow> S.flatten (L.map (\<lambda>x. \<open>(\<close> @@ f_text x @@ \<open>) # \<close>) l) @@ \<open>[]\<close> in
   if list_all f_letter str0 then
     str
   else
-    f_flatten (flatten [ \<open>(\<close>, str, \<open>)\<close> ]))"
+    f_flatten (S.flatten [ \<open>(\<close>, str, \<open>)\<close> ]))"
 
-definition' \<open>escape_sml = String_replace_chars ((* (* ERROR code_reflect *)
+definition' \<open>escape_sml = String.replace_chars ((* (* ERROR code_reflect *)
                                                 \<lambda> Char Nibble2 Nibble2 \<Rightarrow> \<open>\"\<close> | x \<Rightarrow> \<degree>x\<degree>*)
                                                 \<lambda>x. if x = Char Nibble2 Nibble2 then \<open>\"\<close> else \<degree>x\<degree>)\<close>
 
-definition "mk_constr_name name = (\<lambda> x. flatten [isub_of_str name, \<open>_\<close>, isub_of_str x])"
-definition "mk_dot s1 s2 = flatten [\<open>.\<close>, s1, s2]"
-definition "mk_dot_par_gen dot l_s = flatten [dot, \<open>(\<close>, case l_s of [] \<Rightarrow> \<open>\<close> | x # xs \<Rightarrow> flatten [x, flatten (L.map (\<lambda>s. \<open>, \<close> @@ s) xs) ], \<open>)\<close>]"
+definition "mk_constr_name name = (\<lambda> x. S.flatten [isub_of_str name, \<open>_\<close>, isub_of_str x])"
+definition "mk_dot s1 s2 = S.flatten [\<open>.\<close>, s1, s2]"
+definition "mk_dot_par_gen dot l_s = S.flatten [dot, \<open>(\<close>, case l_s of [] \<Rightarrow> \<open>\<close> | x # xs \<Rightarrow> S.flatten [x, S.flatten (L.map (\<lambda>s. \<open>, \<close> @@ s) xs) ], \<open>)\<close>]"
 definition "mk_dot_par dot s = mk_dot_par_gen dot [s]"
-definition "mk_dot_comment s1 s2 s3 = mk_dot s1 (flatten [s2, \<open> /*\<close>, s3, \<open>*/\<close>])"
+definition "mk_dot_comment s1 s2 s3 = mk_dot s1 (S.flatten [s2, \<open> /*\<close>, s3, \<open>*/\<close>])"
 
-definition "hol_definition s = flatten [s, \<open>_def\<close>]"
-definition "hol_split s = flatten [s, \<open>.split\<close>]"
+definition "hol_definition s = S.flatten [s, \<open>_def\<close>]"
+definition "hol_split s = S.flatten [s, \<open>.split\<close>]"
 
 end

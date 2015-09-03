@@ -79,7 +79,7 @@ definition "write_file ocl = (
          s_of_thy_list (compiler_env_config_more_map (\<lambda>_. is_file) ocl) (rev l))))"
 end
 
-definition "write_file = s_of.write_file (String.implode o String_to_list) (ToNat integer_of_natural)"
+definition "write_file = s_of.write_file (String.implode o String.to_list) (ToNat integer_of_natural)"
 
 lemmas [code] =
   (* def *)

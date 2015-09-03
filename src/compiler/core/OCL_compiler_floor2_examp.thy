@@ -138,7 +138,7 @@ definition "print_examp_def_st_mapsto ocl l = list_bind id id
     l)"
 
 definition "print_examp_def_st2 = (\<lambda> OclDefSt name l \<Rightarrow> \<lambda>ocl.
- (\<lambda>(l, l_st). (L.map O'.definition l, ocl \<lparr> D_input_state := (String_to_String\<^sub>b\<^sub>a\<^sub>s\<^sub>e name, l_st) # D_input_state ocl \<rparr>))
+ (\<lambda>(l, l_st). (L.map O'.definition l, ocl \<lparr> D_input_state := (String.to_String\<^sub>b\<^sub>a\<^sub>s\<^sub>e name, l_st) # D_input_state ocl \<rparr>))
   (let b = \<lambda>s. Expr_basic [s]
      ; l = L.map (\<lambda> OclDefCoreBinding name \<Rightarrow> map_option (Pair name) (List.assoc name (D_input_instance ocl))) l
      ; (rbt, (map_self, map_username)) =
@@ -158,10 +158,10 @@ definition "print_examp_def_st2 = (\<lambda> OclDefSt name l \<Rightarrow> \<lam
         # [ print_examp_def_st_assoc (snd o rbt) map_self map_username l_assoc ]))) ]
    , l_st)))"
 
-definition "print_examp_def_st_dom_name name = flatten [\<open>dom_\<close>, name]"
+definition "print_examp_def_st_dom_name name = S.flatten [\<open>dom_\<close>, name]"
 definition "print_examp_def_st_dom = (\<lambda> _ ocl.
  (\<lambda> l. (L.map O'.lemma l, ocl))
-  (let (name, l_st) = map_prod String\<^sub>b\<^sub>a\<^sub>s\<^sub>e_to_String id (hd (D_input_state ocl))
+  (let (name, l_st) = map_prod String\<^sub>b\<^sub>a\<^sub>s\<^sub>e.to_String id (hd (D_input_state ocl))
      ; a = \<lambda>f x. Expr_app f [x]
      ; b = \<lambda>s. Expr_basic [s]
      ; d = hol_definition in
@@ -175,12 +175,12 @@ definition "print_examp_def_st_dom_lemmas = (\<lambda> _ ocl.
  (\<lambda> l. (L.map O'.lemmas l, ocl))
   (let (name, _) = hd (D_input_state ocl) in
    [ Lemmas_simp \<open>\<close>
-       [T.thm (print_examp_def_st_dom_name (String\<^sub>b\<^sub>a\<^sub>s\<^sub>e_to_String name))] ]))"
+       [T.thm (print_examp_def_st_dom_name (String\<^sub>b\<^sub>a\<^sub>s\<^sub>e.to_String name))] ]))"
 
-definition "print_examp_def_st_perm_name name = flatten [\<open>perm_\<close>, name]"
+definition "print_examp_def_st_perm_name name = S.flatten [\<open>perm_\<close>, name]"
 definition "print_examp_def_st_perm = (\<lambda> _ ocl.
  (\<lambda> l. (L.map O'.lemma l, ocl))
-  (let (name, l_st) = map_prod String\<^sub>b\<^sub>a\<^sub>s\<^sub>e_to_String id (hd (D_input_state ocl))
+  (let (name, l_st) = map_prod String\<^sub>b\<^sub>a\<^sub>s\<^sub>e.to_String id (hd (D_input_state ocl))
      ; expr_app = let ocl = ocl \<lparr> D_ocl_oid_start := oidReinitInh (D_ocl_oid_start ocl) \<rparr> in
                   print_examp_def_st_mapsto
                     ocl
@@ -209,7 +209,7 @@ definition "print_examp_def_st_allinst = (\<lambda> _ ocl.
      ; d = hol_definition
      ; (name_st, expr_app) =
          map_prod
-           String\<^sub>b\<^sub>a\<^sub>s\<^sub>e_to_String
+           String\<^sub>b\<^sub>a\<^sub>s\<^sub>e.to_String
            (print_examp_def_st_mapsto_gen
              (\<lambda>(_, ocore) ocli _.
                ( ocore
@@ -223,7 +223,7 @@ definition "print_examp_def_st_allinst = (\<lambda> _ ocl.
        ; expr_app = L.map (\<lambda>(ocore, ocli, exp).
               ( (ocore, ocli)
               , let asty = \<lambda>e. Expr_postunary e (b (dot_astype name))
-                  ; exp_annot = [( [flatten [const_oclastype, isub_of_str name, \<open>_\<close>, inst_ty ocli]]
+                  ; exp_annot = [( [S.flatten [const_oclastype, isub_of_str name, \<open>_\<close>, inst_ty ocli]]
                                  , ( asty (case ocore of OclDefCoreBinding _ \<Rightarrow> exp)
                                    , Some (let und = \<lambda>e. Expr_lam \<open>_\<close> (\<lambda>_. Expr_some e) in
                                            Expr_rewrite (und (in_pers ocli))
@@ -236,7 +236,7 @@ definition "print_examp_def_st_allinst = (\<lambda> _ ocl.
                   EQ \<Rightarrow> [([], (exp, None), False, ocore)]
                 | LT \<Rightarrow> exp_annot
                 | GT \<Rightarrow> (case fold_list_attr None (\<lambda>ty _. Cons ty) (Inst_attr ocli) [] of Some name2 # _ \<Rightarrow>
-                           if String_equal name name2 then exp_annot
+                           if name \<triangleq> name2 then exp_annot
                            else [] | _ \<Rightarrow> [])
                 | UN' \<Rightarrow> [])) expr_app
        ; (l_asty, ((l_spec, l_spec'), l_body)) = map_prod (M.simp_add_del [] o L.flatten)
@@ -248,7 +248,7 @@ definition "print_examp_def_st_allinst = (\<lambda> _ ocl.
                                            expr_app
                                 , List.map_filter (map_option (\<lambda> e \<Rightarrow> (\<open>\<close>, True, e))) l_spec'] in
      gen_pre_post0
-       (\<lambda>s. flatten [ name_st, \<open>_\<close>, s, \<open>_exec_\<close>, name ])
+       (\<lambda>s. S.flatten [ name_st, \<open>_\<close>, s, \<open>_exec_\<close>, name ])
        l_assum
        (\<lambda>f_expr f_mk _. Expr_binop
             (f_mk (b name_st))
@@ -296,7 +296,7 @@ definition "print_examp_def_st_allinst = (\<lambda> _ ocl.
                 , l_spec) ) expr_app l_spec)
             , [[M.rule (T.thm \<open>state_update_vs_allInstances_generic_empty\<close>)]] ]))
          (C.by (if l_spec = [] then [ M.simp ]
-                   else only_assms [ M.option [M.simp_all_add [d (flatten [isub_name const_oclastype, \<open>_\<AA>\<close>])]]])) )
+                   else only_assms [ M.option [M.simp_all_add [d (S.flatten [isub_name const_oclastype, \<open>_\<AA>\<close>])]]])) )
        (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l l = [ M.simp_all ] in if l_assum = [] then l else only_assms l))
      (case D_input_class ocl of Some class_spec \<Rightarrow> class_spec)))"
 
@@ -310,7 +310,7 @@ definition "get_state f = (\<lambda> OclDefPP _ s_pre s_post \<Rightarrow> \<lam
     ; (s_post, l_post) = case s_post of None \<Rightarrow> (s_pre, l_pre) | Some s_post \<Rightarrow> get_state s_post in
   f (s_pre, l_pre)
     (s_post, l_post)
-    ((s_pre, l_pre) # (if String_equal s_pre s_post then
+    ((s_pre, l_pre) # (if s_pre \<triangleq> s_post then
                          []
                        else
                          [ (s_post, l_post) ]))
@@ -344,7 +344,7 @@ definition "print_pre_post_wff = get_state (\<lambda> (s_pre, l_pre) (s_post, l_
      ; d = hol_definition
      ; mk_n = \<lambda>s. print_examp_def_st_locale_name s @@ \<open>.\<close> @@ s in
    [ Lemma_assumes
-       (flatten [\<open>basic_\<close>, s_pre, \<open>_\<close>, s_post, \<open>_wff\<close>])
+       (S.flatten [\<open>basic_\<close>, s_pre, \<open>_\<close>, s_post, \<open>_wff\<close>])
        (L.map (\<lambda> (cpt, OclDefCoreBinding (_, ocli)) \<Rightarrow>
                     let ty = \<lambda>s. s @@ isub_of_str (inst_ty ocli)
                       ; n = inst_name ocli in
@@ -382,13 +382,13 @@ definition "print_pre_post_where = get_state (\<lambda> (s_pre, l_pre) (s_post, 
        let (x_where, l_ocore) =
            case (RBT.lookup rbt_pre x_pers_oid, RBT.lookup rbt_post x_pers_oid) of
              (Some ocore1, Some ocore2) \<Rightarrow> (\<open>OclIsMaintained\<close>, let l = [(ocore1, s_pre), (ocore2, s_post)] in
-                                                               if String_to_list s_pre = String_to_list s_post then [hd l] else l)
+                                                               if String.to_list s_pre = String.to_list s_post then [hd l] else l)
            | (Some ocore, None) \<Rightarrow> (\<open>OclIsDeleted\<close>, [(ocore, s_pre)])
            | (None, Some ocore) \<Rightarrow> (\<open>OclIsNew\<close>, [(ocore, s_post)]) in
        L.map
          (\<lambda> (OclDefCoreBinding (name, ocli), name_st) \<Rightarrow>
            Lemma_assumes
-             (flatten [var_oid_uniq, natural_of_str (case x_pers_oid of Oid i \<Rightarrow> i), s_pre, s_post, \<open>_\<close>, name_st, \<open>_\<close>, x_where])
+             (S.flatten [var_oid_uniq, natural_of_str (case x_pers_oid of Oid i \<Rightarrow> i), s_pre, s_post, \<open>_\<close>, name_st, \<open>_\<close>, x_where])
              [(\<open>\<close>, True, Expr_rewrite (a \<open>oid_of\<close> (b (print_examp_instance_name (\<lambda>s. s @@ isub_of_str (inst_ty ocli)) (inst_name ocli))))
                                       \<open>=\<close>
                                       (Expr_oid var_oid_uniq x_pers_oid))]

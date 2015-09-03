@@ -74,29 +74,29 @@ definition "print_ctxt_is_accessor =
    | _ \<Rightarrow> False)"
 *)
 definition "print_ctxt_is_name_at_gen var s =
- (let var = String_to_list var
-    ; s = String_to_list s in
+ (let var = String.to_list var
+    ; s = String.to_list s in
   case var of _ # _ \<Rightarrow>
     let lg_var = length var in
-    if (* TODO use 'String_equal' *) L.take_last lg_var s = var then
+    if (* TODO use \<triangleq> *) L.take_last lg_var s = var then
       Some \<lless>L.take_first (length s - lg_var) s\<ggreater>
     else
       None)"
 
 definition "print_ctxt_is_name_at_pre = print_ctxt_is_name_at_gen var_at_when_hol_pre"
-definition "print_ctxt_is_name_at_post = (case String_to_list var_at_when_hol_post of [] \<Rightarrow>
+definition "print_ctxt_is_name_at_post = (case String.to_list var_at_when_hol_post of [] \<Rightarrow>
   \<lambda>s. case print_ctxt_is_name_at_pre s of None \<Rightarrow> Some s
                                         | _ \<Rightarrow> None)"
 
 definition "print_ctxt_to_ocl_gen_split s = 
- (case L.split_at (\<lambda> s. s = Char Nibble2 NibbleE) (String_to_list s) of
+ (case L.split_at (\<lambda> s. s = Char Nibble2 NibbleE) (String.to_list s) of
     (_, Some _, s) \<Rightarrow> Some s
   | _ \<Rightarrow> None)"
 definition "print_ctxt_to_ocl_gen l_access f var = (\<lambda> T_pure t \<Rightarrow>
   T_pure (P.map_Const (\<lambda> s ty.
     if (*print_ctxt2_is_accessor ty*)
        list_ex (case print_ctxt_to_ocl_gen_split s of
-                  Some s \<Rightarrow> \<lambda>n. String\<^sub>b\<^sub>a\<^sub>s\<^sub>e_to_list n = s
+                  Some s \<Rightarrow> \<lambda>n. String\<^sub>b\<^sub>a\<^sub>s\<^sub>e.to_list n = s
                 | _ \<Rightarrow> \<lambda>_. False) l_access then
       case f s of
         Some s \<Rightarrow> s @@ var
@@ -111,7 +111,7 @@ definition "raise_ml_unbound f_msg ctxt =
         [ (\<lambda>_. [O.ML (raise_ml (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l l = L.flatten (L.mapi (\<lambda> n. \<lambda>(msg, T_pure t) \<Rightarrow>
                                             let l =
                                               rev (P.fold_Free (\<lambda>l s.
-                                                (Error, flatten [f_msg n msg, \<open>: unbound value \<close>, s]) # l) [] t) in
+                                                (Error, S.flatten [f_msg n msg, \<open>: unbound value \<close>, s]) # l) [] t) in
                                             if l = [] then [(Writeln, f_msg n msg)] else l) ctxt) in
                                  if list_ex (\<lambda>(Error, _) \<Rightarrow> True | _ \<Rightarrow> False) l then l else [])
                                 \<open> error(s)\<close>)]) ]"
@@ -151,7 +151,7 @@ definition "print_ctxt_pre_post = (\<lambda>f. map_prod L.flatten id o f) o L.ma
               (\<lambda>(_, expr) \<Rightarrow>
                  cross_abs (\<lambda>_. id) nb_var (case f_to expr of T_pure expr \<Rightarrow> expr))) l_pre))
     ; f = \<lambda> (var_at_when_hol, var_at_when_ocl).
-        let dot_expr = \<lambda>e f_escape. Expr_postunary e (b (mk_dot_par_gen (flatten [\<open>.\<close>, attr_n, var_at_when_ocl]) (L.map (f_escape o fst) (Ctxt_fun_ty_arg ctxt)))) in
+        let dot_expr = \<lambda>e f_escape. Expr_postunary e (b (mk_dot_par_gen (S.flatten [\<open>.\<close>, attr_n, var_at_when_ocl]) (L.map (f_escape o fst) (Ctxt_fun_ty_arg ctxt)))) in
         (\<lambda>\<^sub>S\<^sub>c\<^sub>a\<^sub>l\<^sub>aocl.
             let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l var_r = var_result
               ; expr = 
@@ -175,7 +175,7 @@ definition "print_ctxt_pre_post = (\<lambda>f. map_prod L.flatten id o f) o L.ma
                                  b | P.fold_Const (\<lambda> b s. b | (case print_ctxt_to_ocl_gen_split s of
                                                                None \<Rightarrow> False
                                                              | Some s \<Rightarrow> 
-                                                                 let f_eq = \<lambda>a. String_to_list (print_ctxt_const_name attr_n a None) = s in
+                                                                 let f_eq = \<lambda>a. String.to_list (print_ctxt_const_name attr_n a None) = s in
                                                                  f_eq var_at_when_hol_post | f_eq var_at_when_hol_pre))
                                                 False
                                                 t)
@@ -203,13 +203,13 @@ definition "print_ctxt_pre_post = (\<lambda>f. map_prod L.flatten id o f) o L.ma
                | Some x \<Rightarrow> [x]))
         # (\<lambda>\<^sub>S\<^sub>c\<^sub>a\<^sub>l\<^sub>aocl. 
             L.flatten (fst (fold_class (\<lambda>_ name _ _ _ _.
-              Pair (if String_equal ty_name name then
+              Pair (if ty_name \<triangleq> name then
                       []
                     else
                       let var_x = \<open>x\<close>
                         ; f_escape = \<lambda>s. var_x @@ isub_of_str s in
                       [ O.defs
-                          (Defs_overloaded (flatten [ \<open>dot\<close>, isup_of_str attr_n, var_at_when_hol, \<open>_\<close>, name])
+                          (Defs_overloaded (S.flatten [ \<open>dot\<close>, isup_of_str attr_n, var_at_when_hol, \<open>_\<close>, name])
                                            (Expr_rewrite
                                              (dot_expr (Expr_annot_ocl (b var_x) name) f_escape)
                                              \<open>\<equiv>\<close>
@@ -217,7 +217,7 @@ definition "print_ctxt_pre_post = (\<lambda>f. map_prod L.flatten id o f) o L.ma
                   ()
                   (case D_input_class ocl of Some class_spec \<Rightarrow> class_spec))))
         # raise_ml_unbound
-          (\<lambda>n pref. flatten [\<open>(\<close>, natural_of_str (n + 1), \<open>) \<close>, if pref = OclCtxtPre then \<open>pre\<close> else \<open>post\<close>])
+          (\<lambda>n pref. S.flatten [\<open>(\<close>, natural_of_str (n + 1), \<open>) \<close>, if pref = OclCtxtPre then \<open>pre\<close> else \<open>post\<close>])
           l_ctxt in
   f (var_at_when_hol_post, var_at_when_ocl_post))
   (rev (fold_pre_post (\<lambda> l c. Cons (L.map (map_prod id snd) l, c)) ctxt []))))"
@@ -244,7 +244,7 @@ definition "print_ctxt_inv = (\<lambda>f. map_prod L.flatten id o f) o L.mapM (\
                                                      (case e ocl of T_pure e \<Rightarrow> e)) )))]) ])
       [(\<open>OclAllInstances_at_pre\<close>, var_at_when_hol_pre, \<lambda>ocl. print_ctxt_to_ocl_pre ocl (T_pure t))
       ,(\<open>OclAllInstances_at_post\<close>, var_at_when_hol_post, \<lambda>ocl. print_ctxt_to_ocl_post ocl (T_pure t))])
-  @@@@ [raise_ml_unbound (\<lambda>_ pref. flatten [\<open>inv \<close>, pref]) l])
+  @@@@ [raise_ml_unbound (\<lambda>_ pref. S.flatten [\<open>inv \<close>, pref]) l])
     l)"
 
 definition "print_ctxt_thm ctxt = Pair

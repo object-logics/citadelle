@@ -61,20 +61,20 @@ definition "print_examp_oclbase_gen =
           (b (number_of_str nb))
           (Expr_rewrite (b name) \<open>=\<close> (Expr_lambda wildcard (Expr_some (Expr_some ab_name)))))
   | OclDefReal (nb0, nb1) \<Rightarrow>
-        let name = flatten [ var_OclReal, nb0, \<open>_\<close>, nb1 ]
+        let name = S.flatten [ var_OclReal, nb0, \<open>_\<close>, nb1 ]
           ; b = \<lambda>s. Expr_basic [s]
-          ; ab_name = b (flatten [nb0(*(* WARNING
+          ; ab_name = b (S.flatten [nb0(*(* WARNING
                                           uncomment this as soon as OCL_basic_type_Real.thy
                                           is not implemented as 'nat' *), \<open>.\<close>, nb1*)]) in
         (ab_name, Definition_where2
           name
-          (b (flatten [number_of_str nb0, \<open>.\<close>, number_of_str nb1]))
+          (b (S.flatten [number_of_str nb0, \<open>.\<close>, number_of_str nb1]))
           (Expr_rewrite (b name) \<open>=\<close> (Expr_lambda wildcard (Expr_some (Expr_some ab_name)))))
   | OclDefString nb \<Rightarrow>
         let name = var_OclString @@ base255_of_str nb
           ; b = \<lambda>s. Expr_basic [s] in
-        if \<not> String_is_empty nb & String_all is_letter nb then
-          let ab_name = b (flatten [\<open>''\<close>, nb, \<open>''\<close>]) in
+        if \<not> String.is_empty nb & String.all is_letter nb then
+          let ab_name = b (S.flatten [\<open>''\<close>, nb, \<open>''\<close>]) in
           (ab_name,
           Definition_where2 name (b (text2_of_str nb))
             (Expr_rewrite (b name) \<open>=\<close> (Expr_lambda wildcard (Expr_some (Expr_some ab_name)))))
@@ -133,9 +133,9 @@ definition "list_bind\<^sub>e\<^sub>r\<^sub>r f0 f l =
   | (l, _) \<Rightarrow> Return_err (Return_err_l (L.map (\<lambda> Return_err e \<Rightarrow> e) l)))"
 
 definition "filter_ocl_exn s v = 
-     (if String_equal s \<open>null\<close> then
+     (if s \<triangleq> \<open>null\<close> then
         Return_err Return_ocl_null
-      else if String_equal s \<open>invalid\<close> then
+      else if s \<triangleq> \<open>invalid\<close> then
         Return_err Return_ocl_invalid
       else
         v)"
@@ -285,7 +285,7 @@ definition "init_map_class ocl l =
          , Succ accu))
        l
        ( RBT.empty
-       , RBT.bulkload (L.map (\<lambda>(k, _, v). (String\<^sub>b\<^sub>a\<^sub>s\<^sub>e_to_list k, v)) (D_input_instance ocl))
+       , RBT.bulkload (L.map (\<lambda>(k, _, v). (String\<^sub>b\<^sub>a\<^sub>s\<^sub>e.to_list k, v)) (D_input_instance ocl))
        , D_ocl_oid_start ocl
        , 0) in
    (rbt_of_class ocl, RBT.lookup rbt_nat, lookup rbt_str))"
@@ -331,9 +331,9 @@ definition' \<open>print_examp_def_st_assoc_build_rbt_gen_typecheck check_ty f_a
                   (\<lambda>(pre_post, name_attr, shall) (accu, rbt).
                     let f = \<lambda>msg. \<lambda> None \<Rightarrow> Some msg | _ \<Rightarrow> None
                       ; find_map = \<lambda>x. fold_data_shallow
-                                         (\<lambda>s. if String_equal s v_null
-                                               | String_equal s v_invalid
-                                               | list_ex (\<lambda>OclEnum _ l \<Rightarrow> list_ex (String_equal s) l) l_enum then None
+                                         (\<lambda>s. if s \<triangleq> v_null
+                                               | s \<triangleq> v_invalid
+                                               | list_ex (\<lambda>OclEnum _ l \<Rightarrow> list_ex (op \<triangleq> s) l) l_enum then None
                                               else f s (map_username s))
                                          (\<lambda>s. f (\<open>self \<close> @@ natural_of_str (case s of Oid n \<Rightarrow> n)) (map_self s))
                                          (\<lambda> None \<Rightarrow> id | Some x \<Rightarrow> Cons x)
@@ -345,7 +345,7 @@ definition' \<open>print_examp_def_st_assoc_build_rbt_gen_typecheck check_ty f_a
                             [] \<Rightarrow> (accu, rbt)
                           | l \<Rightarrow> (* some rhs variables are authorized because some could have been introduced in HOL side (between 2 meta embedded commands) *)
                                  ( if pre_post = None then 
-                                     (Error, flatten [ \<open>Extra variables on rhs: \<close>, String_concatWith \<open>, \<close> (L.map (\<lambda>s. \<open>"\<close> @@ s @@ \<open>"\<close>) l)
+                                     (Error, S.flatten [ \<open>Extra variables on rhs: \<close>, String_concatWith \<open>, \<close> (L.map (\<lambda>s. \<open>"\<close> @@ s @@ \<open>"\<close>) l)
                                                      , \<open> in the definition of "\<close>, Inst_name_ocli, \<open>"\<close> ]) # accu
                                    else accu
                                  , rbt)
@@ -353,33 +353,33 @@ definition' \<open>print_examp_def_st_assoc_build_rbt_gen_typecheck check_ty f_a
                           if lookup rbt name_attr = None then
                             (accu, insert name_attr () rbt)
                           else
-                            ((Warning, flatten [ \<open>At least one unused variable "\<close>, name_attr, \<open>"\<close>
+                            ((Warning, S.flatten [ \<open>At least one unused variable "\<close>, name_attr, \<open>"\<close>
                                                , \<open> in the definition of "\<close>, Inst_name_ocli, \<open>"\<close> ]) # accu, rbt) in
                         ( if f_attr name_attr = None then
-                            (Error, flatten [ \<open>Error in record input: "\<close>, name_attr, \<open>" is no proper field\<close>
+                            (Error, S.flatten [ \<open>Error in record input: "\<close>, name_attr, \<open>" is no proper field\<close>
                                             , \<open> in the definition of "\<close>, Inst_name_ocli, \<open>"\<close> ]) # accu
                           else accu
                         , rbt))
                   l
                   (accu, RBT.empty)))
                 ocli
-                (if String_equal Inst_name_ocli v_null
-                  | String_equal Inst_name_ocli v_invalid
+                (if Inst_name_ocli \<triangleq> v_null
+                  | Inst_name_ocli \<triangleq> v_invalid
                   | \<not> f_attr_none Inst_name_ocli (* e.g.: this constant should be (already) defined so that oclAllInstances can receive it as argument *) then
-                   (Error, flatten [ \<open>Bad head of lhs: existing constant "\<close>, Inst_name_ocli, \<open>"\<close> ]) # l
+                   (Error, S.flatten [ \<open>Bad head of lhs: existing constant "\<close>, Inst_name_ocli, \<open>"\<close> ]) # l
                  else
                    l)
         ; (l, rbt) =
             ( case check_ty ocli cpt of
                 Return_err err \<Rightarrow>
                   fold\<^sub>e\<^sub>r\<^sub>r
-                    (\<lambda> Return_err_ty (ty, obj) \<Rightarrow> Cons (Error, flatten [ \<open>Type unification failed: Clash of types "\<close>
+                    (\<lambda> Return_err_ty (ty, obj) \<Rightarrow> Cons (Error, S.flatten [ \<open>Type unification failed: Clash of types "\<close>
                                                                        , str_of_ty ty
                                                                        , \<open>" and "\<close>
                                                                        , str_of_data_shallow obj
                                                                        , \<open>"\<close>
                                                                        , \<open> in the definition of "\<close>, Inst_name_ocli, \<open>"\<close> ])
-                     | Return_ocl_invalid \<Rightarrow> Cons (Writeln, flatten [ \<open>"invalid" returned\<close>
+                     | Return_ocl_invalid \<Rightarrow> Cons (Writeln, S.flatten [ \<open>"invalid" returned\<close>
                                                                     , \<open> in the definition of "\<close>, Inst_name_ocli, \<open>"\<close> ])
                      | _ \<Rightarrow> id)
                     err
@@ -389,7 +389,7 @@ definition' \<open>print_examp_def_st_assoc_build_rbt_gen_typecheck check_ty f_a
       (if lookup rbt Inst_name_ocli = None then
          (l, insert Inst_name_ocli () rbt)
        else
-         ((Error, flatten [ \<open>Duplicate fixed variable(s): "\<close>, Inst_name_ocli, \<open>"\<close> ]) # l, rbt))) l
+         ((Error, S.flatten [ \<open>Duplicate fixed variable(s): "\<close>, Inst_name_ocli, \<open>"\<close> ]) # l, rbt))) l
     (accu, RBT.empty)))\<close>
 
 definition "print_examp_def_st_assoc_build_rbt = print_examp_def_st_assoc_build_rbt_gen (modify_def RBT.empty)"
@@ -428,19 +428,19 @@ definition "print_examp_instance_oid thy_definition_hol l ocl = (L.map thy_defin
 
 definition "check_single = (\<lambda> (name_attr, oid, l_oid) l_mult l.
   let l = (RBT.keys o RBT.bulkload o L.map (\<lambda>x. (x, ()))) l
-    ; assoc = \<lambda>x. case map_of l_oid x of Some s \<Rightarrow> s | None \<Rightarrow> case x of Oid n \<Rightarrow> flatten [\<open>/*\<close>, natural_of_str n, \<open>*/\<close>]
+    ; assoc = \<lambda>x. case map_of l_oid x of Some s \<Rightarrow> s | None \<Rightarrow> case x of Oid n \<Rightarrow> S.flatten [\<open>/*\<close>, natural_of_str n, \<open>*/\<close>]
     ; attr_len = natural_of_nat (length l)
     ; l_typed =
        L.map (\<lambda> (mult_min, mult_max0) \<Rightarrow>
          let mult_max = case mult_max0 of None \<Rightarrow> mult_min | Some mult_max \<Rightarrow> mult_max
            ; s_mult = \<lambda> Mult_nat n \<Rightarrow> natural_of_str n | Mult_star \<Rightarrow> \<open>*\<close> | Mult_infinity \<Rightarrow> \<open>\<infinity>\<close>
-           ; f = \<lambda>s. flatten [ \<open> // \<close>
+           ; f = \<lambda>s. S.flatten [ \<open> // \<close>
                              , s
                              , \<open> constraint [\<close>
                              , s_mult mult_min
-                             , if mult_max0 = None then \<open>\<close> else flatten [\<open> .. \<close>, s_mult mult_max]
+                             , if mult_max0 = None then \<open>\<close> else S.flatten [\<open> .. \<close>, s_mult mult_max]
                              , \<open>] not satisfied\<close> ] in
-         L.map (\<lambda> (b, msg) \<Rightarrow> (b, flatten [ assoc oid
+         L.map (\<lambda> (b, msg) \<Rightarrow> (b, S.flatten [ assoc oid
                                              , \<open> \<close>
                                              , case name_attr of None \<Rightarrow> \<open>/* unnamed attribute */\<close> | Some s \<Rightarrow> \<open>.\<close> @@ s
                                              , \<open> \<cong> Set{\<close> (* '\<cong>' instead of '=' because the lhs can be 'invalid' or 'null'! *)
@@ -651,10 +651,10 @@ definition' \<open>print_examp_instance_defassoc_typecheck_gen l_ocli ocl =
                   (l, b)
                 else
                   ( check_single_ty rbt_init rbt l_attr_gen l_oid x (ty1', mult1) ty2 l
-                  , String_equal ty1' ty1))
-              (if String_equal name ty1 then
+                  , ty1' \<triangleq> ty1))
+              (if name \<triangleq> ty1 then
                  ty1 # l
-               else if list_ex (String_equal ty1) l then
+               else if list_ex (op \<triangleq> ty1) l then
                  l
                else
                  [])
@@ -729,7 +729,7 @@ definition "print_examp_instance = (\<lambda> OclInstance l \<Rightarrow> \<lamb
        (D_ocl_oid_start ocl)
    , List.fold (\<lambda>ocli instance_rbt.
        let n = inst_name ocli in
-       (String_to_String\<^sub>b\<^sub>a\<^sub>s\<^sub>e n, ocli, case map_username n of Some oid \<Rightarrow> oid) # instance_rbt) l (D_input_instance ocl))))"
+       (String.to_String\<^sub>b\<^sub>a\<^sub>s\<^sub>e n, ocli, case map_username n of Some oid \<Rightarrow> oid) # instance_rbt) l (D_input_instance ocl))))"
 
 definition "print_examp_def_st_typecheck_var = (\<lambda> OclDefSt name _ \<Rightarrow> 
  (let b = \<lambda>s. Expr_basic [s]
@@ -754,7 +754,7 @@ definition "print_examp_def_st1 = (\<lambda> OclDefSt name l \<Rightarrow> boots
                                  ([], 0)
         ; (l_inst, l_defst) =
         List.fold (\<lambda> (pos, _, OclDefCoreAdd ocli) \<Rightarrow> \<lambda>(l_inst, l_defst).
-                     let i_name = case Inst_name ocli of Some x \<Rightarrow> x | None \<Rightarrow> flatten [name, \<open>_object\<close>, natural_of_str pos] in
+                     let i_name = case Inst_name ocli of Some x \<Rightarrow> x | None \<Rightarrow> S.flatten [name, \<open>_object\<close>, natural_of_str pos] in
                        ( map_instance_single (map_prod id (map_prod id (map_data_shallow_self (\<lambda>Oid self \<Rightarrow>
                            (case L.assoc self l of
                               Some (_, OclDefCoreBinding name) \<Rightarrow> ShallB_str name

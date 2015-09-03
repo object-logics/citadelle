@@ -262,7 +262,7 @@ definition "Expr_list l = (case l of [] \<Rightarrow> Expr_basic [\<open>[]\<clo
 definition "Expr_list' f l = Expr_list (L.map f l)"
 definition "Expr_pair e1 e2 = Expr_parenthesis (Expr_binop e1 \<open>,\<close> e2)"
 definition "Expr_pair' l = (case l of [] \<Rightarrow> Expr_basic [\<open>()\<close>] | _ \<Rightarrow> Expr_paren \<open>(\<close> \<open>)\<close> (expr_binop \<open>,\<close> l))"
-definition' \<open>Expr_string s = Expr_basic [flatten [\<open>"\<close>, s, \<open>"\<close>]]\<close>
+definition' \<open>Expr_string s = Expr_basic [S.flatten [\<open>"\<close>, s, \<open>"\<close>]]\<close>
 definition "Expr_applys0 e l = Expr_parenthesis (Expr_apply e (L.map Expr_parenthesis l))"
 definition "Expr_applys e l = Expr_applys0 (Expr_parenthesis e) l"
 definition "Expr_app e = Expr_applys0 (Expr_basic [e])"
@@ -274,14 +274,14 @@ definition "Expr_pure' = Expr_pure []"
 definition "Lemmas_simp = Lemmas_simp_thm True"
 definition "Lemmas_nosimp = Lemmas_simp_thm False"
 definition "Consts_value = \<open>(_)\<close>"
-definition "Consts_raw0 s l e o_arg = Consts s l (String_replace_chars (\<lambda>c. if c = Char Nibble5 NibbleF then \<open>'_\<close> else \<degree>c\<degree>) e @@ (case o_arg of
+definition "Consts_raw0 s l e o_arg = Consts s l (String.replace_chars (\<lambda>c. if c = Char Nibble5 NibbleF then \<open>'_\<close> else \<degree>c\<degree>) e @@ (case o_arg of
          None \<Rightarrow> \<open>\<close>
        | Some arg \<Rightarrow>
            let ap = \<lambda>s. \<open>'(\<close> @@ s @@ \<open>')\<close> in
            ap (if arg = 0 then
                 \<open>\<close>
               else
-                Consts_value @@ (flatten (L.map (\<lambda>_. \<open>,\<close> @@ Consts_value) (L.upto 2 arg))))))"
+                Consts_value @@ (S.flatten (L.map (\<lambda>_. \<open>,\<close> @@ Consts_value) (L.upto 2 arg))))))"
 definition "Ty_arrow = Ty_apply_bin \<open>\<Rightarrow>\<close>"
 definition "Ty_times = Ty_apply_bin \<open>\<times>\<close>"
 definition "Consts' s l e = Consts_raw0 s (Ty_arrow (Ty_base \<open>'\<alpha>\<close>) l) e None"

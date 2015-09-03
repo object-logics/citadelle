@@ -70,7 +70,7 @@ definition "print_ctxt_const ctxt ocl =
                           ; (n, isab_ty) = print_infra_type_synonym_class_rec_aux ty in
                         ( Ty_par (print_access_dot_consts_ty ty) # l_name
                         , if is_higher_order ty & \<not> List_member l n then
-                            (String_to_String\<^sub>b\<^sub>a\<^sub>s\<^sub>e n # l, Type_synonym' n isab_ty # l_isab_ty)
+                            (String.to_String\<^sub>b\<^sub>a\<^sub>s\<^sub>e n # l, Type_synonym' n isab_ty # l_isab_ty)
                           else
                             (l, l_isab_ty)))
                       (L.flatten
@@ -78,7 +78,7 @@ definition "print_ctxt_const ctxt ocl =
                           , [ case Ctxt_fun_ty_out ctxt of None \<Rightarrow> OclTy_base_void | Some s \<Rightarrow> s ] ])
                       ([], D_ocl_HO_type ocl, l_isab_ty) in
               ( map_prod
-                  (let ocl = ocl \<lparr> D_ocl_accessor := f_update_ocl (\<lambda> l. String_to_String\<^sub>b\<^sub>a\<^sub>s\<^sub>e name # l) (D_ocl_accessor ocl) \<rparr> in
+                  (let ocl = ocl \<lparr> D_ocl_accessor := f_update_ocl (\<lambda> l. String.to_String\<^sub>b\<^sub>a\<^sub>s\<^sub>e name # l) (D_ocl_accessor ocl) \<rparr> in
                    (\<lambda> D_ocl_HO_type. ocl \<lparr> D_ocl_HO_type := D_ocl_HO_type \<rparr>))
                   id
                   l

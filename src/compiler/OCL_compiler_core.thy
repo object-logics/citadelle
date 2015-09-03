@@ -81,9 +81,9 @@ definition "subsection = section_aux 1"
 definition "subsubsection = section_aux 2"
 definition "txt f = start_map'''' O.text o (\<lambda>_ design_analysis. [Text (f design_analysis)])"
 definition "txt' s = txt (\<lambda>_. s)"
-definition "txt'' = txt' o flatten"
-definition "txt''d s = txt (\<lambda> Gen_only_design \<Rightarrow> flatten s | _ \<Rightarrow> \<open>\<close>)"
-definition "txt''a s = txt (\<lambda> Gen_only_design \<Rightarrow> \<open>\<close> | _ \<Rightarrow> flatten s)"
+definition "txt'' = txt' o S.flatten"
+definition "txt''d s = txt (\<lambda> Gen_only_design \<Rightarrow> S.flatten s | _ \<Rightarrow> \<open>\<close>)"
+definition "txt''a s = txt (\<lambda> Gen_only_design \<Rightarrow> \<open>\<close> | _ \<Rightarrow> S.flatten s)"
 
 definition' thy_class ::
   (* polymorphism weakening needed by code_reflect *)

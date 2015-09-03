@@ -103,7 +103,7 @@ code_reflect' open OCL
              isabelle_apply isabelle_of_ocl_embed
 
 ML{*
- val To_string0 = String.implode o OCL.string_to_list
+ val To_string0 = String.implode o OCL.to_list
  fun To_nat (Code_Numeral.Nat i) = i
 *}
 

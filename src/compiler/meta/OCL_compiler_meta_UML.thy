@@ -256,13 +256,13 @@ fun fold_max_aux where
 
 definition "fold_max f l = fold_max_aux f (L.mapi Pair l) []"
 
-definition "lookup' m k = RBT.lookup m (String_to_list k)"
-definition "insert' k = RBT.insert (String_to_list k)"
-definition "map_entry' k = RBT.map_entry (String_to_list k)"
-definition "modify_def' v k = modify_def v (String_to_list k)"
+definition "lookup' m k = RBT.lookup m (String.to_list k)"
+definition "insert' k = RBT.insert (String.to_list k)"
+definition "map_entry' k = RBT.map_entry (String.to_list k)"
+definition "modify_def' v k = modify_def v (String.to_list k)"
 definition "keys' m = L.map (\<lambda>s. \<lless>s\<ggreater>) (RBT.keys m)"
-definition "lookup2' m = (\<lambda>(k1, k2). lookup2 m (String_to_list k1, String_to_list k2))"
-definition "insert2' = (\<lambda>(k1, k2). insert2 (String_to_list k1, String_to_list k2))"
+definition "lookup2' m = (\<lambda>(k1, k2). lookup2 m (String.to_list k1, String.to_list k2))"
+definition "insert2' = (\<lambda>(k1, k2). insert2 (String.to_list k1, String.to_list k2))"
 definition "fold' f = RBT.fold (\<lambda>c. f \<lless>c\<ggreater>)"
 definition "entries' m = L.map (map_prod (\<lambda>c. \<lless>c\<ggreater>) id) (RBT.entries m)"
 
@@ -450,14 +450,14 @@ fun str_of_ty where "str_of_ty e =
   | OclTy_object (OclTyObj (OclTyCore_pre s) _) \<Rightarrow> s
   (*| OclTy_object (OclTyObj (OclTyCore ty_obj) _)*)
   | OclTy_collection t ocl_ty \<Rightarrow> (if is_sequence t then
-                                    flatten [\<open>Sequence(\<close>, str_of_ty ocl_ty,\<open>)\<close>]
+                                    S.flatten [\<open>Sequence(\<close>, str_of_ty ocl_ty,\<open>)\<close>]
                                   else
-                                    flatten [\<open>Set(\<close>, str_of_ty ocl_ty,\<open>)\<close>])
-  | OclTy_pair ocl_ty1 ocl_ty2 \<Rightarrow> flatten [\<open>Pair(\<close>, str_of_ty ocl_ty1, \<open>,\<close>, str_of_ty ocl_ty2,\<open>)\<close>]
+                                    S.flatten [\<open>Set(\<close>, str_of_ty ocl_ty,\<open>)\<close>])
+  | OclTy_pair ocl_ty1 ocl_ty2 \<Rightarrow> S.flatten [\<open>Pair(\<close>, str_of_ty ocl_ty1, \<open>,\<close>, str_of_ty ocl_ty2,\<open>)\<close>]
   | OclTy_binding (_, ocl_ty) \<Rightarrow> str_of_ty ocl_ty
   | OclTy_class_syn s \<Rightarrow> s
   | OclTy_enum s \<Rightarrow> s
-  | OclTy_raw s \<Rightarrow> flatten [\<open>\<acute>\<close>, s, \<open>\<acute>\<close>]) e"
+  | OclTy_raw s \<Rightarrow> S.flatten [\<open>\<acute>\<close>, s, \<open>\<acute>\<close>]) e"
 
 definition "ty_void = str_of_ty OclTy_base_void"
 definition "ty_boolean = str_of_ty OclTy_base_boolean"
@@ -653,11 +653,11 @@ definition "class_arity = RBT.keys o (\<lambda>l. List.fold (\<lambda>x. RBT.ins
 
 definition "map_class_gen_h'_inh f =
   map_class_gen_h''''' (\<lambda>isub_name name _ l_inh l_subtree _.
-    let l_mem = \<lambda>l. List.member (L.map (\<lambda> OclClass n _ _ \<Rightarrow> String_to_list n) l) in
+    let l_mem = \<lambda>l. List.member (L.map (\<lambda> OclClass n _ _ \<Rightarrow> String.to_list n) l) in
     f isub_name
       name
-      (\<lambda>n. let n = String_to_list n in
-           if (* TODO use 'String_equal' *) n = String_to_list name then EQ else
+      (\<lambda>n. let n = String.to_list n in
+           if (* TODO use \<triangleq> *) n = String.to_list name then EQ else
            if l_mem (of_linh l_inh) n then GT else
            if l_mem l_subtree n then LT else
            UN'))"
@@ -787,7 +787,7 @@ definition "map_class_inh l_inherited = L.map (\<lambda> OclClass _ l _ \<Righta
 definition "find_inh name class =
  (case fold_class
     (\<lambda>_ name0 _ l_inh _ _ accu.
-      Pair () (if accu = None & String_equal name name0 then
+      Pair () (if accu = None & name \<triangleq> name0 then
                  Some (L.map (\<lambda>OclClass n _ _ \<Rightarrow> n) (of_inh l_inh))
                else
                  accu))

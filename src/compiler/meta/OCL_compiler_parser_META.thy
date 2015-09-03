@@ -209,20 +209,20 @@ definition "i_of_char a b = rec_char
 definition "i_of_string_gen s_flatten s_st0 s_st a b s = 
   b (let s = textstr_of_str (\<lambda>c. \<open>(\<close> @@ s_flatten @@ \<open> \<close> @@ c @@ \<open>)\<close>)
                             (\<lambda>Char n1 n2 \<Rightarrow>
-                                 s_st0 (flatten [\<open> (\<close>, \<open>Char \<close>, i_of_nibble id n1, \<open> \<close>, i_of_nibble id n2, \<open>)\<close>]))
-                            (\<lambda>c. s_st (flatten [\<open> (\<close>, c, \<open>)\<close>]))
+                                 s_st0 (S.flatten [\<open> (\<close>, \<open>Char \<close>, i_of_nibble id n1, \<open> \<close>, i_of_nibble id n2, \<open>)\<close>]))
+                            (\<lambda>c. s_st (S.flatten [\<open> (\<close>, c, \<open>)\<close>]))
                             s in
-     flatten [ \<open>(\<close>, s, \<open>)\<close> ])"
+     S.flatten [ \<open>(\<close>, s, \<open>)\<close> ])"
 
-definition "i_of_string = i_of_string_gen \<open>OCL_compiler_init.flatten\<close>
-                                          (\<lambda>s. flatten [\<open>(OCL_compiler_init.ST0\<close>, s, \<open>)\<close>])
-                                          (\<lambda>s. flatten [\<open>(OCL_compiler_init.abr_string.SS_base (OCL_compiler_init.string\<^sub>b\<^sub>a\<^sub>s\<^sub>e.ST\<close>, s, \<open>))\<close>])"
+definition "i_of_string = i_of_string_gen \<open>OCL_compiler_init.S.flatten\<close>
+                                          (\<lambda>s. S.flatten [\<open>(OCL_compiler_init.ST0\<close>, s, \<open>)\<close>])
+                                          (\<lambda>s. S.flatten [\<open>(OCL_compiler_init.abr_string.SS_base (OCL_compiler_init.string\<^sub>b\<^sub>a\<^sub>s\<^sub>e.ST\<close>, s, \<open>))\<close>])"
 definition "i_of_string\<^sub>b\<^sub>a\<^sub>s\<^sub>e a b s = i_of_string_gen \<open>OCL_compiler_init.flatten_base\<close>
-                                                   (\<lambda>s. flatten [\<open>(OCL_compiler_init.ST0_base\<close>, s, \<open>)\<close>])
-                                                   (\<lambda>s. flatten [\<open>(OCL_compiler_init.string\<^sub>b\<^sub>a\<^sub>s\<^sub>e.ST\<close>, s, \<open>)\<close>])
+                                                   (\<lambda>s. S.flatten [\<open>(OCL_compiler_init.ST0_base\<close>, s, \<open>)\<close>])
+                                                   (\<lambda>s. S.flatten [\<open>(OCL_compiler_init.string\<^sub>b\<^sub>a\<^sub>s\<^sub>e.ST\<close>, s, \<open>)\<close>])
                                                    a
                                                    b
-                                                   (String\<^sub>b\<^sub>a\<^sub>s\<^sub>e_to_String s)"
+                                                   (String\<^sub>b\<^sub>a\<^sub>s\<^sub>e.to_String s)"
 
 definition "i_of_nat a b = b o natural_of_str"
 
@@ -274,7 +274,7 @@ lemmas [code] =
 
 (* *)
 
-definition "isabelle_apply s l = flatten [s, flatten (L.map (\<lambda> s. flatten [\<open> (\<close>, s, \<open>)\<close>]) l)]"
+definition "isabelle_apply s l = S.flatten [s, S.flatten (L.map (\<lambda> s. S.flatten [\<open> (\<close>, s, \<open>)\<close>]) l)]"
 
 subsubsection{* SML *}
 
@@ -310,7 +310,7 @@ definition "i_of_bool b = case_bool
   (b \<open>false\<close>)"
 
 definition' \<open>sml_escape =
-  String_replace_chars ((* (* ERROR code_reflect *)
+  String.replace_chars ((* (* ERROR code_reflect *)
                         \<lambda> Char Nibble0 NibbleA \<Rightarrow> \<open>\n\<close>
                         | Char Nibble0 Nibble5 \<Rightarrow> \<open>\005\<close>
                         | Char Nibble0 Nibble6 \<Rightarrow> \<open>\006\<close>
@@ -323,20 +323,20 @@ definition' \<open>sml_escape =
                             else \<degree>x\<degree>)\<close>
 
 definition' \<open>i_of_string a b =
- (\<lambda>x. b (flatten [ \<open>(OCL.SS_base (OCL.ST "\<close>
+ (\<lambda>x. b (S.flatten [ \<open>(OCL.SS_base (OCL.ST "\<close>
                   , sml_escape x
                   , \<open>"))\<close>]))\<close>
 
 definition' \<open>i_of_string\<^sub>b\<^sub>a\<^sub>s\<^sub>e a b =
- (\<lambda>x. b (flatten [ \<open>(OCL.ST "\<close>
-                  , sml_escape (String\<^sub>b\<^sub>a\<^sub>s\<^sub>e_to_String x)
+ (\<lambda>x. b (S.flatten [ \<open>(OCL.ST "\<close>
+                  , sml_escape (String\<^sub>b\<^sub>a\<^sub>s\<^sub>e.to_String x)
                   , \<open>")\<close>]))\<close>
 
-definition "i_of_nat a b = (\<lambda>x. b (flatten [\<open>(Code_Numeral.Nat \<close>, natural_of_str x, \<open>)\<close>]))"
+definition "i_of_nat a b = (\<lambda>x. b (S.flatten [\<open>(Code_Numeral.Nat \<close>, natural_of_str x, \<open>)\<close>]))"
 
 end
 
-sublocale sml_of < i_of "\<lambda>c. case String_to_list c of x # xs \<Rightarrow> flatten [uppercase_of_str \<lless>[x]\<ggreater>, \<lless>xs\<ggreater>]"
+sublocale sml_of < i_of "\<lambda>c. case String.to_list c of x # xs \<Rightarrow> S.flatten [uppercase_of_str \<lless>[x]\<ggreater>, \<lless>xs\<ggreater>]"
                         sml_of.i_of_string
                         sml_of.i_of_string\<^sub>b\<^sub>a\<^sub>s\<^sub>e
                         sml_of.i_of_nat
@@ -376,6 +376,6 @@ lemmas [code] =
 
 (* *)
 
-definition "sml_apply s l = flatten [s, \<open> (\<close>, case\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l l of x # xs \<Rightarrow> flatten [x, flatten (L.map (\<lambda>s. flatten [\<open>, \<close>, s]) xs)], \<open>)\<close> ]"
+definition "sml_apply s l = S.flatten [s, \<open> (\<close>, case\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l l of x # xs \<Rightarrow> S.flatten [x, S.flatten (L.map (\<lambda>s. S.flatten [\<open>, \<close>, s]) xs)], \<open>)\<close> ]"
 
 end

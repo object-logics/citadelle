@@ -89,7 +89,7 @@ subsection{* ... *}
 definition "const_oclastype = \<open>OclAsType\<close>"
 definition "const_oclistypeof = \<open>OclIsTypeOf\<close>"
 definition "const_ocliskindof = \<open>OclIsKindOf\<close>"
-definition "const_mixfix dot_ocl name = flatten [dot_ocl, \<open>'(\<close>, name, \<open>')\<close>]"
+definition "const_mixfix dot_ocl name = S.flatten [dot_ocl, \<open>'(\<close>, name, \<open>')\<close>]"
 definition "const_oid_of s = \<open>oid_of_\<close> @@ s"
 definition "dot_oclastype = \<open>.oclAsType\<close>"
 definition "dot_oclistypeof = \<open>.oclIsTypeOf\<close>"
@@ -170,9 +170,9 @@ definition "find_class_ass ocl =
 
 definition "map_enum_syn l_enum l_syn =
  (\<lambda> OclTy_object (OclTyObj (OclTyCore_pre s) []) \<Rightarrow> 
-      if list_ex (\<lambda>syn. String_equal s (case syn of OclClassSynonym n _ \<Rightarrow> n)) l_syn then
+      if list_ex (\<lambda>syn. s \<triangleq> (case syn of OclClassSynonym n _ \<Rightarrow> n)) l_syn then
         OclTy_class_syn s
-      else if list_ex (\<lambda>enum. String_equal s (case enum of OclEnum n _ \<Rightarrow> n)) l_enum then
+      else if list_ex (\<lambda>enum. s \<triangleq> (case enum of OclEnum n _ \<Rightarrow> n)) l_enum then
         OclTy_enum s
       else
         OclTy_object (OclTyObj (OclTyCore_pre s) [])
@@ -232,7 +232,7 @@ definition "arrange_ass with_aggreg with_optim_ass l_c l_enum =
                         Some role_to \<Rightarrow>
                         List.fold (\<lambda> (cpt_from, (name_from, multip_from)).
                           L.map_find (\<lambda>cflat.
-                            if String_equal (cl_name_to_string cflat) (ty_obj_to_string name_from) then
+                            if cl_name_to_string cflat \<triangleq> ty_obj_to_string name_from then
                               Some (cflat \<lparr> ClassRaw_own :=
                                               L.flatten [ ClassRaw_own cflat
                                                            , [(role_to, let ty = OclTy_object name_to in
@@ -334,18 +334,18 @@ definition "pref_generic_enum name_ty = name_ty @@ isub_of_str \<open>generic\<c
 
 subsection{* AsType *}
 
-definition "print_astype_from_universe_name name = flatten [const_oclastype, isub_of_str name, \<open>_\<AA>\<close>]"
+definition "print_astype_from_universe_name name = S.flatten [const_oclastype, isub_of_str name, \<open>_\<AA>\<close>]"
 
 subsection{* IsTypeOf *}
 
-definition "print_istypeof_defined_name isub_name h_name = flatten [isub_name const_oclistypeof, \<open>_\<close>, h_name, \<open>_defined\<close>]"
-definition "print_istypeof_defined'_name isub_name h_name = flatten [isub_name const_oclistypeof, \<open>_\<close>, h_name, \<open>_defined'\<close>]"
-definition "print_istypeof_up_d_cast_name name_mid name_any name_pers = flatten [\<open>down_cast_type\<close>, isub_of_str name_mid, \<open>_from_\<close>, name_any, \<open>_to_\<close>, name_pers]"
+definition "print_istypeof_defined_name isub_name h_name = S.flatten [isub_name const_oclistypeof, \<open>_\<close>, h_name, \<open>_defined\<close>]"
+definition "print_istypeof_defined'_name isub_name h_name = S.flatten [isub_name const_oclistypeof, \<open>_\<close>, h_name, \<open>_defined'\<close>]"
+definition "print_istypeof_up_d_cast_name name_mid name_any name_pers = S.flatten [\<open>down_cast_type\<close>, isub_of_str name_mid, \<open>_from_\<close>, name_any, \<open>_to_\<close>, name_pers]"
 
 subsection{* IsKindOf *}
 
-definition "print_iskindof_up_eq_asty_name name = (flatten [\<open>actual_eq_static\<close>, isub_of_str name])"
-definition "print_iskindof_up_larger_name name_pers name_any = flatten [\<open>actualKind\<close>, isub_of_str name_pers, \<open>_larger_staticKind\<close>, isub_of_str name_any]"
+definition "print_iskindof_up_eq_asty_name name = (S.flatten [\<open>actual_eq_static\<close>, isub_of_str name])"
+definition "print_iskindof_up_larger_name name_pers name_any = S.flatten [\<open>actualKind\<close>, isub_of_str name_pers, \<open>_larger_staticKind\<close>, isub_of_str name_any]"
 
 subsection{* allInstances *}
 
@@ -375,14 +375,14 @@ definition "gen_pre_post f_tit spec f_lemma = gen_pre_post0 f_tit [] spec (\<lam
 
 subsection{* accessors *}
 
-definition "print_access_oid_uniq_name' name_from_nat isub_name attr = flatten [ isub_name var_oid_uniq, \<open>_\<close>, natural_of_str name_from_nat, \<open>_\<close>, attr ]"
+definition "print_access_oid_uniq_name' name_from_nat isub_name attr = S.flatten [ isub_name var_oid_uniq, \<open>_\<close>, natural_of_str name_from_nat, \<open>_\<close>, attr ]"
 definition "print_access_oid_uniq_name name_from_nat isub_name attr = print_access_oid_uniq_name' name_from_nat isub_name (isup_of_str attr)"
-definition "print_access_oid_uniq_mlname name_from_nat name attr = flatten [ var_oid_uniq, name, \<open>_\<close>, natural_of_str name_from_nat, \<open>_\<close>, attr ]"
+definition "print_access_oid_uniq_mlname name_from_nat name attr = S.flatten [ var_oid_uniq, name, \<open>_\<close>, natural_of_str name_from_nat, \<open>_\<close>, attr ]"
 
 definition "print_access_choose_name n i j =
-  flatten [var_switch, isub_of_str (natural_of_str n), \<open>_\<close>, natural_of_str i, natural_of_str j]"
+  S.flatten [var_switch, isub_of_str (natural_of_str n), \<open>_\<close>, natural_of_str i, natural_of_str j]"
 definition "print_access_choose_mlname n i j =
-  flatten [var_switch, natural_of_str n, \<open>_\<close>, natural_of_str i, natural_of_str j]"
+  S.flatten [var_switch, natural_of_str n, \<open>_\<close>, natural_of_str i, natural_of_str j]"
 
 definition "print_access_dot_consts_ty attr_ty =
               (let ty_base = \<lambda>attr_ty.
@@ -418,7 +418,7 @@ datatype reporting = Warning
 definition "raise_ml l_out s = SML (SML.apply \<open>Ty'.check\<close>
     [ SML.list'
         (\<lambda>(rep, s).
-          SML.pair (SML.basic [flatten [ \<open>OCL.\<close>
+          SML.pair (SML.basic [S.flatten [ \<open>OCL.\<close>
                                            , case rep of Warning \<Rightarrow> \<open>Warning\<close>
                                                        | Error \<Rightarrow> \<open>Error\<close>
                                                        | Writeln \<Rightarrow> \<open>Writeln\<close> ]])
@@ -426,14 +426,14 @@ definition "raise_ml l_out s = SML (SML.apply \<open>Ty'.check\<close>
         l_out
     , SML.string s ])"
 
-definition "print_examp_def_st_inst_var_name ocli name = flatten [case\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l Inst_name ocli of Some n \<Rightarrow> n, name]"
+definition "print_examp_def_st_inst_var_name ocli name = S.flatten [case\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l Inst_name ocli of Some n \<Rightarrow> n, name]"
 
 subsection{* context *}
 
 definition "print_ctxt_const_name attr_n var_at_when_hol name =
-  flatten [ \<open>dot\<close>, isup_of_str attr_n, var_at_when_hol] @@ (case name of None \<Rightarrow> \<open>\<close> | Some name \<Rightarrow> \<open>_\<close> @@ name)"
+  S.flatten [ \<open>dot\<close>, isup_of_str attr_n, var_at_when_hol] @@ (case name of None \<Rightarrow> \<open>\<close> | Some name \<Rightarrow> \<open>_\<close> @@ name)"
 definition "print_ctxt_pre_post_name attr_n var_at_when_hol name = hol_definition (print_ctxt_const_name attr_n var_at_when_hol name)"
-definition "print_ctxt_inv_name n tit var_at_when = flatten [n, \<open>_\<close>, tit, var_at_when]"
+definition "print_ctxt_inv_name n tit var_at_when = S.flatten [n, \<open>_\<close>, tit, var_at_when]"
 
 definition "make_ctxt_free_var pref ctxt =
  (var_self # L.flatten [ L.map fst (Ctxt_fun_ty_arg ctxt)

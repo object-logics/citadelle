@@ -58,7 +58,7 @@ definition "print_astype_consts = start_map O.consts o
 definition "print_astype_class = start_m' O.defs
   (\<lambda> compare (isub_name, name, nl_attr). \<lambda> OclClass h_name hl_attr _ \<Rightarrow>
     Defs_overloaded
-          (flatten [isub_name const_oclastype, \<open>_\<close>, h_name])
+          (S.flatten [isub_name const_oclastype, \<open>_\<close>, h_name])
           (let var_x = \<open>x\<close> in
            Expr_rewrite
              (Expr_postunary (Expr_annot_ocl (Expr_basic [var_x]) h_name) (Expr_basic [dot_astype name]))
@@ -135,7 +135,7 @@ definition "print_astype_lemmas_id = start_map' (\<lambda>expr.
   (let name_set = print_astype_lemma_cp_set expr in
    case name_set of [] \<Rightarrow> [] | _ \<Rightarrow> L.map O.lemmas
   [ Lemmas_simp \<open>\<close> (L.map (\<lambda>((isub_name, _), name).
-    T.thm (flatten [isub_name const_oclastype, \<open>_\<close>, name])) name_set) ]))"
+    T.thm (S.flatten [isub_name const_oclastype, \<open>_\<close>, name])) name_set) ]))"
 
 definition "print_astype_lemma_cp_set2 =
   (if activate_simp_optimization then
@@ -151,7 +151,7 @@ definition "print_astype_lemmas_id2 = start_map'' id o (\<lambda>expr base_attr 
   (let name_set = print_astype_lemma_cp_set2 expr base_attr in
    case name_set of [] \<Rightarrow> [] | _ \<Rightarrow> L.map O.lemmas
   [ Lemmas_simp \<open>\<close> (L.map (\<lambda>((isub_name_h, _), (_, name)).
-    T.thm (flatten [isub_name_h const_oclastype, \<open>_\<close>, name])) name_set) ]))"
+    T.thm (S.flatten [isub_name_h const_oclastype, \<open>_\<close>, name])) name_set) ]))"
 
 definition "print_astype_lemma_cp expr = (start_map O.lemma o get_hierarchy_map (
   let check_opt =
@@ -159,7 +159,7 @@ definition "print_astype_lemma_cp expr = (start_map O.lemma o get_hierarchy_map 
     (\<lambda>n1 n2. list_ex (\<lambda>((_, name1), name2). name1 = n1 & name2 = n2) set) in
   (\<lambda>name1 name2 name3.
     Lemma
-      (flatten [\<open>cp_\<close>, const_oclastype, isub_of_str name1, \<open>_\<close>, name3, \<open>_\<close>, name2])
+      (S.flatten [\<open>cp_\<close>, const_oclastype, isub_of_str name1, \<open>_\<close>, name3, \<open>_\<close>, name2])
       (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l var_p = \<open>p\<close> in
        L.map
          (\<lambda>x. Expr_app \<open>cp\<close> [x])
@@ -170,14 +170,14 @@ definition "print_astype_lemma_cp expr = (start_map O.lemma o get_hierarchy_map 
                (Expr_basic [dot_astype name1])))])
       []
       (C.by [M.rule (T.thm \<open>cpI1\<close>), if check_opt name1 name2 then M.simp
-                                             else M.simp_add [flatten [const_oclastype, isub_of_str name1, \<open>_\<close>, name2]]])
+                                             else M.simp_add [S.flatten [const_oclastype, isub_of_str name1, \<open>_\<close>, name2]]])
   )) (\<lambda>x. (x, x, x))) expr"
 
 definition "print_astype_lemmas_cp = start_map'
  (if activate_simp_optimization then L.map O.lemmas o
   (\<lambda>expr. [Lemmas_simp \<open>\<close> (get_hierarchy_map
   (\<lambda>name1 name2 name3.
-      T.thm (flatten [\<open>cp_\<close>, const_oclastype, isub_of_str name1, \<open>_\<close>, name3, \<open>_\<close>, name2]))
+      T.thm (S.flatten [\<open>cp_\<close>, const_oclastype, isub_of_str name1, \<open>_\<close>, name3, \<open>_\<close>, name2]))
   (\<lambda>x. (x, x, x)) expr)])
   else (\<lambda>_. []))"
 
@@ -188,7 +188,7 @@ definition "print_astype_lemma_strict expr = (start_map O.lemma o
     (\<lambda>n1 n2. list_ex (\<lambda>((_, name1), name2). name1 = n1 & name2 = n2) set) in
   (\<lambda>name1 name2 name3.
     Lemma
-      (flatten [const_oclastype, isub_of_str name1, \<open>_\<close>, name3, \<open>_\<close>, name2])
+      (S.flatten [const_oclastype, isub_of_str name1, \<open>_\<close>, name3, \<open>_\<close>, name2])
       [ Expr_rewrite
              (Expr_warning_parenthesis (Expr_postunary
                (Expr_annot_ocl (Expr_basic [name2]) name3)
@@ -198,7 +198,7 @@ definition "print_astype_lemma_strict expr = (start_map O.lemma o
       []
       (C.by (if check_opt name1 name3 then [M.simp]
                 else [M.rule (T.thm \<open>ext\<close>)
-                                      , M.simp_add (flatten [const_oclastype, isub_of_str name1, \<open>_\<close>, name3]
+                                      , M.simp_add (S.flatten [const_oclastype, isub_of_str name1, \<open>_\<close>, name3]
                                                       # hol_definition \<open>bot_option\<close>
                                                       # L.map hol_definition (if name2 = \<open>invalid\<close> then [\<open>invalid\<close>]
                                                          else [\<open>null_fun\<close>,\<open>null_option\<close>]))]))
@@ -207,7 +207,7 @@ definition "print_astype_lemma_strict expr = (start_map O.lemma o
 definition "print_astype_lemmas_strict = start_map'
  (if activate_simp_optimization then L.map O.lemmas o
   (\<lambda>expr. [ Lemmas_simp \<open>\<close> (get_hierarchy_map (\<lambda>name1 name2 name3.
-        T.thm (flatten [const_oclastype, isub_of_str name1, \<open>_\<close>, name3, \<open>_\<close>, name2])
+        T.thm (S.flatten [const_oclastype, isub_of_str name1, \<open>_\<close>, name3, \<open>_\<close>, name2])
       ) (\<lambda>x. (x, [\<open>invalid\<close>,\<open>null\<close>], x)) expr)])
   else (\<lambda>_. []))"
 
@@ -218,16 +218,16 @@ definition "print_astype_defined = start_m O.lemma m_class_default
        ; f = \<lambda>e. Expr_binop (Expr_basic [\<open>\<tau>\<close>]) \<open>\<Turnstile>\<close> (Expr_app \<open>\<delta>\<close> [e]) in
      case compare of LT \<Rightarrow>
         [ Lemma_assumes
-          (flatten [isub_name const_oclastype, \<open>_\<close>, h_name, \<open>_defined\<close>])
+          (S.flatten [isub_name const_oclastype, \<open>_\<close>, h_name, \<open>_defined\<close>])
           [(var_isdef, False, f (Expr_basic [var_X]))]
           (f (Expr_postunary (Expr_annot_ocl (Expr_basic [var_X]) h_name) (Expr_basic [dot_astype name])))
           [C.using [T.thm var_isdef]]
-          (C.by [M.auto_simp_add (flatten [isub_name const_oclastype, \<open>_\<close>, h_name]
+          (C.by [M.auto_simp_add (S.flatten [isub_name const_oclastype, \<open>_\<close>, h_name]
                                         # \<open>foundation16\<close>
                                         # L.map hol_definition [\<open>null_option\<close>, \<open>bot_option\<close> ])]) ]
       | _ \<Rightarrow> [])"
 
-definition "print_astype_up_d_cast0_name name_any name_pers = flatten [\<open>up\<close>, isub_of_str name_any, \<open>_down\<close>, isub_of_str name_pers, \<open>_cast0\<close>]"
+definition "print_astype_up_d_cast0_name name_any name_pers = S.flatten [\<open>up\<close>, isub_of_str name_any, \<open>_down\<close>, isub_of_str name_pers, \<open>_cast0\<close>]"
 definition "print_astype_up_d_cast0 = start_map O.lemma o
   map_class_nupl2'_inh (\<lambda>name_pers name_any.
     let var_X = \<open>X\<close>
@@ -243,20 +243,20 @@ definition "print_astype_up_d_cast0 = start_map O.lemma o
         [C.using [T.thm var_isdef]]
         (C.by [M.auto_simp_add_split
                                     (L.map T.thm
-                                    ( flatten [const_oclastype, isub_of_str name_any, \<open>_\<close>, name_pers]
-                                    # flatten [const_oclastype, isub_of_str name_pers, \<open>_\<close>, name_any]
+                                    ( S.flatten [const_oclastype, isub_of_str name_any, \<open>_\<close>, name_pers]
+                                    # S.flatten [const_oclastype, isub_of_str name_pers, \<open>_\<close>, name_any]
                                     # \<open>foundation22\<close>
                                     # \<open>foundation16\<close>
                                     # L.map hol_definition [\<open>null_option\<close>, \<open>bot_option\<close> ]))
                                     (split_ty name_pers) ]))"
 
-definition "print_astype_up_d_cast_name name_any name_pers = flatten [\<open>up\<close>, isub_of_str name_any, \<open>_down\<close>, isub_of_str name_pers, \<open>_cast\<close>]"
+definition "print_astype_up_d_cast_name name_any name_pers = S.flatten [\<open>up\<close>, isub_of_str name_any, \<open>_down\<close>, isub_of_str name_pers, \<open>_cast\<close>]"
 definition "print_astype_up_d_cast = start_map O.lemma o
   map_class_nupl2'_inh (\<lambda>name_pers name_any.
     let var_X = \<open>X\<close>
       ; var_tau = \<open>\<tau>\<close> in
     Lemma_assumes
-        (flatten [\<open>up\<close>, isub_of_str name_any, \<open>_down\<close>, isub_of_str name_pers, \<open>_cast\<close>])
+        (S.flatten [\<open>up\<close>, isub_of_str name_any, \<open>_down\<close>, isub_of_str name_pers, \<open>_cast\<close>])
         []
         (Expr_binop
              (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l asty = \<lambda>x ty. Expr_warning_parenthesis (Expr_postunary x (Expr_basic [dot_astype ty])) in
@@ -283,7 +283,7 @@ definition "print_astype_d_up_cast = start_map O.lemma o
       ; asty = \<lambda>x ty. Expr_warning_parenthesis (Expr_postunary x (Expr_basic [dot_astype ty]))
       ; not_val = a \<open>not\<close> (a \<open>\<upsilon>\<close> (b var_X)) in
     Lemma_assumes
-      (flatten [\<open>down\<close>, isub_of_str name_pers, \<open>_up\<close>, isub_of_str name_any, \<open>_cast\<close>])
+      (S.flatten [\<open>down\<close>, isub_of_str name_pers, \<open>_up\<close>, isub_of_str name_any, \<open>_cast\<close>])
       [(var_def_X, False, Expr_binop
              (Expr_basic [var_X])
              \<open>=\<close>
@@ -310,9 +310,9 @@ definition "print_astype_lemma_const expr = (start_map O.lemma o
           (\<lambda>n1 n2. list_ex (\<lambda>((_, name1), name2). name1 = n1 & name2 = n2) set)
       ; var_X = \<open>X\<close> in
     (\<lambda>name1 name2 name3.
-      let n = flatten [const_oclastype, isub_of_str name1, \<open>_\<close>, name3] in
+      let n = S.flatten [const_oclastype, isub_of_str name1, \<open>_\<close>, name3] in
       Lemma
-        (flatten [n, \<open>_\<close>, name2])
+        (S.flatten [n, \<open>_\<close>, name2])
         (L.map (a \<open>const\<close>)
           [ Expr_annot' (b var_X) (wrap_oclty name3)
           , Expr_postunary
@@ -326,7 +326,7 @@ definition "print_astype_lemma_const expr = (start_map O.lemma o
 definition "print_astype_lemmas_const = start_map'
  (if activate_simp_optimization then L.map O.lemmas o
   (\<lambda>expr. [ Lemmas_simp \<open>\<close> (get_hierarchy_map (\<lambda>name1 name2 name3.
-        T.thm (flatten [const_oclastype, isub_of_str name1, \<open>_\<close>, name3, \<open>_\<close>, name2])
+        T.thm (S.flatten [const_oclastype, isub_of_str name1, \<open>_\<close>, name3, \<open>_\<close>, name2])
       ) (\<lambda>x. (x, [\<open>const\<close>], x)) expr)])
   else (\<lambda>_. []))"
 

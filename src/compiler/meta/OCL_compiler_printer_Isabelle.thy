@@ -187,12 +187,12 @@ definition "s_of_ntheorems_l l = String_concat \<open> \<close> (L.map s_of_nthe
 
 definition "s_of_lemmas_simp _ = (\<lambda> Lemmas_simp_thm simp s l \<Rightarrow>
     sprint3 \<open>lemmas%s%s = %s\<close>\<acute>
-      (if String_is_empty s then \<open>\<close> else sprint1 \<open> %s\<close>\<acute> (To_string s))
+      (if String.is_empty s then \<open>\<close> else sprint1 \<open> %s\<close>\<acute> (To_string s))
       (if simp then \<open>[simp,code_unfold]\<close> else \<open>\<close>)
       (s_of_ntheorem_l l)
                                   | Lemmas_simp_thms s l \<Rightarrow>
     sprint2 \<open>lemmas%s [simp,code_unfold] = %s\<close>\<acute>
-      (if String_is_empty s then \<open>\<close> else sprint1 \<open> %s\<close>\<acute> (To_string s))
+      (if String.is_empty s then \<open>\<close> else sprint1 \<open> %s\<close>\<acute> (To_string s))
       (String_concat \<open>
                             \<close> (L.map To_string l)))"
 
@@ -222,7 +222,7 @@ fun s_of_tactic where "s_of_tactic expr = (\<lambda>
   | Method_elim s \<Rightarrow> sprint1 \<open>elim %s\<close>\<acute> (s_of_ntheorem s)
   | Method_subst asm l s =>
       let s_asm = if asm then \<open>(asm) \<close> else \<open>\<close> in
-      if L.map String_to_list l = [''0''] then
+      if L.map String.to_list l = [''0''] then
         sprint2 \<open>subst %s%s\<close>\<acute> s_asm (s_of_ntheorem s)
       else
         sprint3 \<open>subst %s(%s) %s\<close>\<acute> s_asm (String_concat \<open> \<close> (L.map To_string l)) (s_of_ntheorem s)
@@ -310,7 +310,7 @@ definition "s_of_lemma_by _ =
       (String_concat \<open>\<close> (L.map (\<lambda>(n, b, e).
           sprint2 \<open>
 assumes %s\"%s\"\<close>\<acute>
-            (let (n, b) = if b then (sprint1 \<open>%s[simp]\<close>\<acute> (To_string n), False) else (To_string n, String_is_empty n) in
+            (let (n, b) = if b then (sprint1 \<open>%s[simp]\<close>\<acute> (To_string n), False) else (To_string n, String.is_empty n) in
              if b then \<open>\<close> else sprint1 \<open>%s: \<close>\<acute> n)
             (s_of_expr e)) l_spec
        @@@@

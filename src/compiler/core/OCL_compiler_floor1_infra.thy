@@ -128,14 +128,14 @@ definition "print_infra_type_synonym_class_higher expr = start_map O.type_synony
 
 definition "print_infra_type_synonym_class_rec = (\<lambda>expr ocl.
   map_prod id (\<lambda> D_ocl_HO_type. ocl \<lparr> D_ocl_HO_type := D_ocl_HO_type \<rparr>)
-    (L.split (L.map (\<lambda>(tit, body). (O.type_synonym (Type_synonym' (String\<^sub>b\<^sub>a\<^sub>s\<^sub>e_to_String tit) body), tit))
+    (L.split (L.map (\<lambda>(tit, body). (O.type_synonym (Type_synonym' (String\<^sub>b\<^sub>a\<^sub>s\<^sub>e.to_String tit) body), tit))
                           (snd (fold_class (\<lambda>_ _ l_attr _ _ _.
                                              Pair () o List.fold
                                                (\<lambda>(_, t) l.
                                                  let f = (* WARNING we may test with RBT instead of List *)
                                                          \<lambda>t l.
                                                            let (tit, body) = print_infra_type_synonym_class_rec_aux t in
-                                                           if List.assoc tit l = None then (String_to_String\<^sub>b\<^sub>a\<^sub>s\<^sub>e tit, body) # l else l in
+                                                           if List.assoc tit l = None then (String.to_String\<^sub>b\<^sub>a\<^sub>s\<^sub>e tit, body) # l else l in
                                                  case t of
                                                    OclTy_object (OclTyObj (OclTyCore obj) _) \<Rightarrow>
                                                      let t = \<lambda>ty. OclTy_collection (ocl_multiplicity_ext [] None [ty] ()) (OclTy_class_pre (TyObjN_role_ty (TyObj_to obj))) in
@@ -184,7 +184,7 @@ definition "print_infra_instantiation_universe expr = start_map O.instantiation
 definition "print_instantia_def_strictrefeq_name mk_strict name = mk_strict [\<open>_\<close>, isub_of_str name]"
 definition "print_instantia_def_strictrefeq = start_map O.defs o
   map_class (\<lambda>isub_name name _ _ _ _.
-    let mk_strict = (\<lambda>l. flatten (\<open>StrictRefEq\<close> # isub_of_str \<open>Object\<close> # l))
+    let mk_strict = (\<lambda>l. S.flatten (\<open>StrictRefEq\<close> # isub_of_str \<open>Object\<close> # l))
       ; s_strict = mk_strict [\<open>_\<close>, isub_of_str name]
       ; var_x = \<open>x\<close>
       ; var_y = \<open>y\<close> in
@@ -199,7 +199,7 @@ definition "print_instantia_def_strictrefeq = start_map O.defs o
 definition "print_instantia_lemmas_strictrefeq = start_map'
   (if activate_simp_optimization then
      \<lambda>expr.
-       let mk_strict = (\<lambda>l. flatten (\<open>StrictRefEq\<close> # isub_of_str \<open>Object\<close> # l))
+       let mk_strict = (\<lambda>l. S.flatten (\<open>StrictRefEq\<close> # isub_of_str \<open>Object\<close> # l))
          ; name_set = map_class (\<lambda>_ name _ _ _ _. print_instantia_def_strictrefeq_name mk_strict name) expr in
        case name_set of [] \<Rightarrow> [] | _ \<Rightarrow> L.map O.lemmas
          [ Lemmas_simp \<open>\<close> (L.map (T.thm) name_set) ]
