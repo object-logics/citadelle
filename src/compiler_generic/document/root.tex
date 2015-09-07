@@ -71,13 +71,35 @@ author
 
 \maketitle
 
-  \begin{abstract}
-We represent a model in Isabelle/HOL allowing to write packages for
-domain specific specifications constructs (such as class models, B-machines...)
-in HOL itself. At present the package is geared towards parsing pretty-printing and
-code-generation to the Isabelle API's; it is for the moment not sufficiently rich
-for doing meta theory on Isabelle itself.
-  \end{abstract}
+\begin{abstract}
+We represent a theory \emph{of} (a fragment of) Isabelle/HOL 
+\emph{in} Isabelle/HOL. The purpose of this exercise is to write packages for
+domain specific specifications constructs such as class models, B-machines, ...
+in HOL itself; the Isabelle code-generator can then be used to generate
+tactic code.
+
+Consequently, at present, the package is geared towards 
+parsing, pretty-printing and code-generation to the Isabelle API's; 
+it is at the moment not sufficiently rich for doing meta theory on 
+Isabelle itself. Extensions in this direction are possible, though.
+
+Moreover, the chosen fragment is fairly rudimentary. However, it should be easy
+to be adapted to one's needs if a package is written on top of it.
+Nevertheless, the supported API contains types, terms, transformation of
+global context like definitions and data-type declarations as well
+as infrastructure for Isar-setups.
+
+This theory is drawn from the Featherweight OCL\cite{AFP} project where 
+it is used to contruct a package for object-oriented data-type theories
+generated from UML class diagrams. The Featherweight OCL, for example, allows for 
+both the direct execution of compiled tactic code by the Isabelle API
+as well as the generation of .thy-files for debugging purposes.
+
+Gained experience from this project shows that the compiled code is sufficiently
+efficient for practical purposes while being based on a formal \emph{model}
+on which properties of the package can be proven such as termination of certain
+transformations, correctness, etc.
+\end{abstract}
 \tableofcontents
 
 \parindent 0pt\parskip 0.5ex

@@ -41,7 +41,10 @@
  ******************************************************************************)
 (* $Id:$ *)
 
-header{* Part ... *}
+
+chapter{* Part I: A Meta-Model for the Isabelle API *}
+
+section{* SML Preliminaries *}
 
 theory Static
 imports Main

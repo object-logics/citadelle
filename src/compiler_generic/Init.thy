@@ -41,7 +41,7 @@
  ******************************************************************************)
 (* $Id:$ *)
 
-header{* Part ... *}
+section{* SML Preliminaries (2) *}
 
 theory Init
 imports "~~/src/HOL/Library/Code_Char"
@@ -50,7 +50,7 @@ imports "~~/src/HOL/Library/Code_Char"
 
 begin
 
-section{* ... *}
+subsection{* Optimizing Strings for Compilation *}
 
 type_notation natural ("nat")
 definition "Succ x = x + 1"
@@ -76,7 +76,7 @@ translations "\<degree>x\<degree>" \<rightleftharpoons> "CONST SS_base (CONST ST
 
 type_notation abr_string ("string")
 
-section{* ... *}
+subsection{* Instantiating Cartouches *}
 
 parse_translation {*
   [( @{syntax_const "_cartouche_string"}
@@ -97,7 +97,7 @@ parse_translation {*
 
 declare[[cartouche_type = "abr_string"]]
 
-subsection{* ... *}
+subsection{* Completing the List Standard Library *}
 
 datatype ('a, 'b) nsplit = Nsplit_text 'a
                          | Nsplit_sep 'b
@@ -170,13 +170,13 @@ lemmas [code] =
   (*fun*)
   L.map_find_aux.simps
 
-subsection{* ... *}
+subsection{* Completing the Char Standard Library *}
 
 definition "char_escape = Char Nibble0 Nibble9"
 definition "ST0 c = \<lless>[c]\<ggreater>"
 definition "ST0_base c = ST' [c]"
 
-subsection{* ... *}
+subsection{* Completing the String Standard Library *}
 
 locale S
 locale String
@@ -249,7 +249,6 @@ lemmas [code] =
   String.foldl.simps
   String.is_empty.simps
 
-section{* Preliminaries *}
 
 subsection{* Misc. (to be removed) *}
 
@@ -274,9 +273,6 @@ syntax  "_case_syntax\<^sub>S\<^sub>c\<^sub>a\<^sub>l\<^sub>a" :: "['a, cases_sy
 translations "case\<^sub>S\<^sub>c\<^sub>a\<^sub>l\<^sub>a v of w => x" \<rightleftharpoons> "CONST id (_case_syntax v (_case1 w x))"
              "case\<^sub>S\<^sub>c\<^sub>a\<^sub>l\<^sub>a v of w => x | y => z" \<rightleftharpoons> "CONST id (_case_syntax v (_case2 (_case1 w x) (_case1 y z)))"
 
-section{* ...  *}
-
-subsection{* ... *}
 
 definition "wildcard = \<open>_\<close>"
 
