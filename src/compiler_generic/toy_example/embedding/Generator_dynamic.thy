@@ -1469,7 +1469,7 @@ val () =
          [])
 *}
 
-subsection{* Outer Syntax: BaseType, def_record, def_record' *}
+subsection{* Outer Syntax: BaseType, def\_record, def\_record' *}
 
 ML{*
 val () =
@@ -1496,7 +1496,7 @@ val () =
 end
 *}
 
-subsection{* Outer Syntax: binary_record *}
+subsection{* Outer Syntax: binary\_record *}
 
 ML{*
 local
