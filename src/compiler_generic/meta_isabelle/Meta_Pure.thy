@@ -41,15 +41,13 @@
  ******************************************************************************)
 (* $Id:$ *)
 
-header{* Part ... *}
+section{* \text{Lambda\_pure} Meta-Model aka. AST definition of \text{Lambda\_pure} *}
 
 theory  Meta_Pure
 imports "../Init"
 begin
 
-section{* \text{Lambda\_pure} Meta-Model aka. AST definition of \text{Lambda\_pure} *}
-
-subsection{* type definition *}
+subsection{* Type Definition *}
 
 datatype pure_indexname = Pure_Indexname string nat
 datatype pure_class = Pure_Class string
@@ -66,7 +64,7 @@ datatype pure_term =
   Pure_Abs string pure_typ pure_term |
   Pure_App pure_term pure_term (infixl "$" 200)
 
-subsection{* *}
+subsection{* Fold, Map, etc. on Pure Terms.*}
 
 locale P
 begin (* TODO move datatypes in the locale (when terminations will not be needed to be proved by hand anymore) *)

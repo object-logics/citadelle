@@ -41,14 +41,13 @@
  ******************************************************************************)
 (* $Id:$ *)
 
-header{* Part ... *}
+section{* SML Meta-Model aka. AST definition of SML *}
 
 theory  Meta_SML
 imports "../toy_example/embedding/meta_toy/Meta_oid"
 begin
 
-section{* SML Meta-Model aka. AST definition of SML *}
-subsection{* type definition *}
+subsection{* Type Definition *}
 
 datatype sml_val_fun = Sval
                      | Sfun
@@ -64,7 +63,7 @@ datatype sml_expr = SML_string string
                   | SML_paren string (* left *) string (* right *) sml_expr
                   | SML_let_open string sml_expr
 
-section{* ... *}
+subsection{* Miscellaneous *}
 
 locale SML
 begin

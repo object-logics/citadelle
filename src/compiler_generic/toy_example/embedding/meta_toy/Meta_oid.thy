@@ -41,13 +41,14 @@
  ******************************************************************************)
 (* $Id:$ *)
 
-chapter{* Part ... *}
+section{* oid Meta-Model aka. AST definition of oid (to be removed) *}
+
+(* a theory stemming from an application *)
 
 theory Meta_oid
 imports "../../../Init"
 begin
 
-section{* oid Meta-Model aka. AST definition of oid *}
 
 subsection{* type definition *}
 

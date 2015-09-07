@@ -250,7 +250,7 @@ lemmas [code] =
   String.is_empty.simps
 
 
-subsection{* Misc. (to be removed) *}
+subsection{* Miscellaneous *} (* to be removed ? *)
 
 (* Syntactic errors in target languages can appear during extraction,
    so we explicitly output parenthesis around expressions
