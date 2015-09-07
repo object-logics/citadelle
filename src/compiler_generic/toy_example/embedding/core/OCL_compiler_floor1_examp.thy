@@ -690,40 +690,35 @@ definition "print_examp_instance_name = id"
 definition "print_examp_instance = (\<lambda> OclInstance l \<Rightarrow> \<lambda> ocl.
  (\<lambda> ((l_res, oid_start), instance_rbt).
     ((L.map O.definition o L.flatten) l_res, ocl \<lparr> D_ocl_oid_start := oid_start, D_input_instance := instance_rbt \<rparr>))
-  (let (rbt, (map_self, map_username)) = init_map_class ocl l
+  (let ((rbt:: string
+   \<Rightarrow> bool \<times>
+      (string
+       \<Rightarrow> (ocl_ty \<times> opt_attr_type \<times> opt_ident) option) \<times>
+      (opt_attr_type
+       \<Rightarrow> ((ocl_ty_class option
+            \<Rightarrow> nat
+               \<Rightarrow> (ocl_ty_class option \<times>
+                   (ocl_ty \<times>
+                    (string \<times> string) option \<times>
+                    ocl_data_shallow) option) list
+                  \<Rightarrow> (ocl_ty_class option \<times>
+                      (ocl_ty \<times>
+                       (string \<times> string) option \<times>
+                       ocl_data_shallow) option) list)
+           \<Rightarrow> (ocl_ty_class option \<times>
+               (ocl_ty \<times>
+                (string \<times> string) option \<times>
+                ocl_data_shallow) option) list
+              \<Rightarrow> (ocl_ty_class option \<times>
+                  (ocl_ty \<times>
+                   (string \<times> string) option \<times>
+                   ocl_data_shallow) option) list) option)), (map_self, map_username)) = init_map_class ocl l
      ; a = \<lambda>f x. Expr_app f [x]
      ; b = \<lambda>s. Expr_basic [s] in
    ( let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l var_inst_ass = \<open>inst_assoc\<close> in
      L.mapM
        (\<lambda> ocli cpt.
-         let var_oid = Expr_oid var_oid_uniq (oidGetInh cpt)
-           ; (isub_name, body2, body2') = 
-               case inst_ty0 ocli of
-                 Some ty \<Rightarrow> 
-                     let isub_name = \<lambda>s. s @@ String.isub (inst_ty ocli) in
-                     (isub_name, print_examp_instance_app_constr2_notmp_norec (snd o rbt, (map_self, map_username)) ocl (b var_inst_ass) ocli isub_name cpt)
-               | None \<Rightarrow> (id, (Return_err Return_err_ty_auto, id)) in
-         ( let l =
-             [ Definition
-                 (Expr_rewrite (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l e = b (inst_name ocli) in
-                                case Inst_ty ocli of 
-                                  None \<Rightarrow> e
-                                | Some ty \<Rightarrow> Expr_annot_ocl e ty)
-                               \<open>=\<close>
-                               (case body2 of Return_err _ \<Rightarrow> b \<open>invalid\<close>
-                                            | _ \<Rightarrow> body2' (Expr_lambda
-                                                             wildcard
-                                                             (Expr_some (Expr_some (let name_pers = print_examp_instance_name isub_name (inst_name ocli) in
-                                                                                    if D_ocl_semantics ocl = Gen_only_design then
-                                                                                      a name_pers (Expr_oid var_inst_assoc (oidGetInh (D_ocl_oid_start ocl)))
-                                                                                    else
-                                                                                      b name_pers))))))] in
-           case body2 of Return_err _ \<Rightarrow> l
-                       | Return_val body2 \<Rightarrow> Definition (Expr_rewrite (Expr_basic (print_examp_instance_name isub_name (inst_name ocli)
-                                                                                   # (if D_ocl_semantics ocl = Gen_only_design then [ var_inst_ass ] else [])))
-                                                                      \<open>=\<close>
-                                                                      body2)
-                                             # l
+         ( []
          , oidSucInh cpt))
        l
        (D_ocl_oid_start ocl)

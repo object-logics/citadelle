@@ -171,25 +171,7 @@ definition "print_access_choose = start_map'''' O.definition o (\<lambda>expr _.
       lets mk_var expr
       print_access_choose_name
       Expr_list Expr_function Expr_pair
-  , [ let var_pre_post = \<open>pre_post\<close>
-        ; var_to_from = \<open>to_from\<close>
-        ; var_assoc_oid = \<open>assoc_oid\<close>
-        ; var_f = \<open>f\<close>
-        ; var_oid = \<open>oid\<close> in
-      Definition (Expr_rewrite
-        (Expr_basic [var_deref_assocs, var_pre_post, var_to_from, var_assoc_oid, var_f, var_oid ])
-        \<open>=\<close>
-        (Expr_lam
-           \<open>\<tau>\<close>
-           (\<lambda>var_tau.
-           Expr_case (Expr_app var_assocs [Expr_app var_pre_post [Expr_basic [var_tau]]
-                                                                      ,Expr_basic [var_assoc_oid]])
-             [ let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l var_S = \<open>S\<close> in
-               ( Expr_some (Expr_basic [var_S])
-               , Expr_app var_f
-                   [ Expr_app var_deref_assocs_list (L.map b [var_to_from, var_oid, var_S])
-                   , Expr_basic [var_tau]])
-             , (Expr_basic[wildcard], Expr_app \<open>invalid\<close> [Expr_basic [var_tau]]) ]))) ]] ))"
+  , []] ))"
 
 definition "print_access_deref_oid_name isub_name = isub_name var_deref_oid"
 definition "print_access_deref_oid = start_map O.definition o

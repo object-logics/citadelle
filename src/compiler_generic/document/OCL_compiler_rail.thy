@@ -335,7 +335,7 @@ text {*
   ;
 \<close>}
 *}
-
+(*
 section{* Featherweight OCL: Library *}
 text {*
 \begin{matharray}{rcl}
@@ -368,7 +368,7 @@ text {*
   ;
 \<close>}
 *}
-
+*)
 section{* Featherweight OCL: Compiler *}
 subsection{* ....................................................................................................................................... *}
 (* WARNING syntax errors during the extraction to LaTeX for the symbol "acute":
