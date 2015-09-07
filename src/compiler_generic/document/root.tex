@@ -1,0 +1,99 @@
+\documentclass[fontsize=11pt,paper=a4,open=right,twoside,abstract=true]{scrreprt}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage{textcomp}
+\usepackage[english]{babel}
+%\usepackage[draft]{fixme}
+%\usepackage{fmde-acronyms}
+\usepackage{graphicx}
+\usepackage[numbers, sort&compress, sectionbib]{natbib}
+\usepackage[nocolortable, noaclist]{hol-ocl-isar}
+\usepackage{amsthm}
+\usepackage{mathtools}
+\usepackage{units}
+\usepackage{eurosym}
+\usepackage{versions}
+\usepackage{lstisar}
+\IfFileExists{railsetup.sty}{\usepackage{railsetup}}{}
+\usepackage{paralist}
+%% \usepackage[
+%% %final
+%% submission
+%% ]{anonymize} % [final]
+\usepackage{tabu}
+%\usepackage{prooftree}
+\usepackage{tikz}
+\usepackage{titletoc}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% short vs. long version
+
+%%%% Short Version:
+\includeversion{short}
+\excludeversion{extended}
+
+%%%% Extended Version:
+%\excludeversion{short}
+%\includeversion{extended}
+
+%%%% Misc.:
+\newenvironment{shortspace}[1]{}{} %\processifversion{short}{\vspace{#1}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% command
+
+\graphicspath{{data/},{figures/}}
+
+%%
+
+\newenvironment{matharray}[1]{\[\begin{array}{#1}}{\end{array}\]} % from 'iman.sty'
+\newcommand{\indexdef}[3]%
+{\ifthenelse{\equal{}{#1}}{\index{#3 (#2)|bold}}{\index{#3 (#1\ #2)|bold}}} % from 'isar.sty'
+
+%%
+
+\newcommand\inputif[1]{\IfFileExists{./#1}{\input{#1}}{}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% fix for package declaration to be at the end
+\usepackage[pdfpagelabels, pageanchor=false, plainpages=false]{hyperref}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% document
+
+\begin{document}
+
+\title{A Meta-Model for the Isabelle API}
+\author{%
+author
+}
+
+\maketitle
+
+  \begin{abstract}
+We represent a model in Isabelle/HOL allowing to write packages for
+domain specific specifications constructs (such as class models, B-machines...)
+in HOL itself. At present the package is geared towards parsing pretty-printing and
+code-generation to the Isabelle API's; it is for the moment not sufficiently rich
+for doing meta theory on Isabelle itself.
+  \end{abstract}
+\tableofcontents
+
+\parindent 0pt\parskip 0.5ex
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\input{session}
+
+\cite{nipkow.ea:isabelle:2002}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:
