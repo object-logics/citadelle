@@ -92,7 +92,7 @@ text {*
 \<close>}
 *}
 
-section{* UML/OCL: Extended USE Grammar *}
+section{* Toy Language Grammar *}
 subsection{* ....................................................................................................................................... *}
 text {*
 \begin{matharray}{rcl}
@@ -235,7 +235,7 @@ text {*
   ;
 \<close>}
 *}
-*)
+
 section{* UML/OCL: Type System *}
 subsection{* ....................................................................................................................................... *}
 text {*
@@ -312,8 +312,8 @@ text {*
 \<close>}
 *}
 text{* uml\_type\_weak is like uml\_type except that type\_object can not contain quantified names. *}
-
-section{* UML/OCL: Miscellaneous *}
+*)
+section{* Miscellaneous *}
 subsection{* ....................................................................................................................................... *}
 text {*
 \begin{matharray}{rcl}
@@ -369,7 +369,7 @@ text {*
 \<close>}
 *}
 *)
-section{* Featherweight OCL: Compiler *}
+section{* Commands Extending Isabelle 2015 *}
 subsection{* ....................................................................................................................................... *}
 (* WARNING syntax errors during the extraction to LaTeX for the symbol "acute":
            fun\<acute>, definition\<acute> or code_reflect\<acute> *)

@@ -64,13 +64,14 @@ session "Toy_Example" = Meta_Isabelle +
     "~~/src/HOL/Library/List_lexord"
     "~~/src/HOL/Library/RBT"
     "isabelle_home/src/HOL/Isabelle_Main2"
-  theories
     "toy_example/embedding/Generator_static"
-    "document/Rail"
+    "toy_example/embedding/Generator_dynamic"
+  theories
     (*"toy_example/generator/Analysis_deep"*)
     "toy_example/generator/Analysis_shallow"
     (*"toy_example/generator/Design_deep"*)
     "toy_example/generator/Design_shallow"
+    "document/Rail"
   document_files
     "hol-ocl-isar.sty"
     "lstisar.sty"
