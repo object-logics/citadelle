@@ -41,15 +41,13 @@
  ******************************************************************************)
 (* $Id:$ *)
 
-header{* Part ... *}
+section{* Instantiating the Printer for SML ... *}
 
 theory  Printer_SML
 imports Meta_SML
         "../toy_example/embedding/meta_toy/Printer_oid"
 begin
 
-
-subsection{* s of ... *} (* s_of *)
 
 context s_of
 begin

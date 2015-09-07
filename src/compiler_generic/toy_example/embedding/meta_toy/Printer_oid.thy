@@ -41,14 +41,12 @@
  ******************************************************************************)
 (* $Id:$ *)
 
-chapter{* Part ... *}
+subsection{* Printer oid --- to be suppressed *} (* s_of *)
 
 theory  Printer_oid
 imports "../../../meta_isabelle/Printer_init"
         Meta_oid
 begin
-
-subsection{* s of ... *} (* s_of *)
 
 context s_of
 begin

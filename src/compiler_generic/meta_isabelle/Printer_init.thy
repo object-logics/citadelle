@@ -41,7 +41,7 @@
  ******************************************************************************)
 (* $Id:$ *)
 
-section{* Providing Standard Library for Target Languages (OCaml, SML, Haskell, ...) *}
+section{* Providing a Library for Target Languages (OCaml, SML, Haskell, ...) *}
 
 theory  Printer_init
 imports "../Init"

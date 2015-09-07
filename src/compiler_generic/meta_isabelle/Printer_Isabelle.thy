@@ -41,7 +41,7 @@
  ******************************************************************************)
 (* $Id:$ *)
 
-header{* Part ... *}
+section{* Instantiating the Printer for Isabelle *}
 
 theory  Printer_Isabelle
 imports Meta_Isabelle
@@ -49,8 +49,6 @@ imports Meta_Isabelle
         Printer_SML
 begin
 
-
-subsection{* s of ... *} (* s_of *)
 
 context s_of
 begin
