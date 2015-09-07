@@ -42,11 +42,13 @@
 (* $Id:$ *)
 
 
-section{* SML Preliminaries (1) *}
+section{* Preliminaries (1) *}
 
 theory Static
 imports Main
 begin
+
+text\<open>This theory can later be included in generated files.\<close>
 
 locale L
 begin

@@ -41,7 +41,7 @@
  ******************************************************************************)
 (* $Id:$ *)
 
-section{* Isabelle/HOL Meta-Model aka. AST definition of HOL *}
+section{* Isabelle Meta-Model aka. AST definition of Isabelle *}
 
 theory  Meta_Isabelle
 imports Meta_Pure
@@ -206,7 +206,7 @@ record hol__thy_locale =
 datatype hol__thy = H_thy_simple hol__t
                   | H_thy_locale hol__thy_locale "hol__t list (* positioning comments can occur before and after this group of commands *) list"
 
-subsection{* Locale Instantiation *}
+subsection{* Extending Type Definitions with Conservative Definitions *}
 
 locale T
 begin
@@ -436,7 +436,7 @@ fun cross_abs_aux where
 
 definition "cross_abs f n l = cross_abs_aux f [] (n, l)"
 
-subsection{* Miscellaneous: Map *}
+subsection{* Operations of Fold, Map, ..., on the Meta-Model *}
 
 definition "hol_map_lemma f = (\<lambda> Theory_lemma x \<Rightarrow> Theory_lemma (f x)
                                | x \<Rightarrow> x)"

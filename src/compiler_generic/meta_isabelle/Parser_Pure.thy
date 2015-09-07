@@ -41,13 +41,12 @@
  ******************************************************************************)
 (* $Id:$ *)
 
-section{* Instantiating the Parser of (Pure) Term *}
+section{* Instantiating the Parser of (Pure) Terms *}
 
 theory  Parser_Pure
 imports Meta_Pure
         Parser_init
 begin
-
 
 context i_of
 begin

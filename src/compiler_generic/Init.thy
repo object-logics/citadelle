@@ -36,7 +36,7 @@
  ******************************************************************************)
 (* $Id:$ *)
 
-section{* SML Preliminaries (2) *}
+section{* Preliminaries (2) *}
 
 theory Init
 imports "~~/src/HOL/Library/Code_Char"
@@ -71,7 +71,11 @@ translations "\<degree>x\<degree>" \<rightleftharpoons> "CONST SS_base (CONST ST
 
 type_notation abr_string ("string")
 
-subsection{* Instantiating Cartouches *}
+subsection{* Completing the Standard Library *}
+
+text\<open>We instantiate a ``polymorphic'' form of cartouche
+     so that the ``type'' of cartouches in output can be parameterized
+     earlier with a special command.\<close>
 
 parse_translation {*
   [( @{syntax_const "_cartouche_string"}
@@ -90,9 +94,10 @@ parse_translation {*
      end)]
 *}
 
+text\<open>By default we set the type of cartouche to be the following:\<close>
 declare[[cartouche_type = "abr_string"]]
 
-subsection{* Completing the List Standard Library *}
+subsubsection{* Operations on List *}
 
 datatype ('a, 'b) nsplit = Nsplit_text 'a
                          | Nsplit_sep 'b
@@ -165,13 +170,13 @@ lemmas [code] =
   (*fun*)
   L.map_find_aux.simps
 
-subsection{* Completing the Char Standard Library *}
+subsubsection{* Operations on Char *}
 
 definition "char_escape = Char Nibble0 Nibble9"
 definition "ST0 c = \<lless>[c]\<ggreater>"
 definition "ST0_base c = ST' [c]"
 
-subsection{* Completing the String Standard Library *}
+subsubsection{* Operations on String *}
 
 locale S
 locale String
@@ -244,8 +249,7 @@ lemmas [code] =
   String.foldl.simps
   String.is_empty.simps
 
-
-subsection{* Miscellaneous *} (* to be removed ? *)
+subsection{* Miscellaneous *} (* to be removed *)
 
 (* Syntactic errors in target languages can appear during extraction,
    so we explicitly output parenthesis around expressions
@@ -268,6 +272,7 @@ syntax  "_case_syntax\<^sub>S\<^sub>c\<^sub>a\<^sub>l\<^sub>a" :: "['a, cases_sy
 translations "case\<^sub>S\<^sub>c\<^sub>a\<^sub>l\<^sub>a v of w => x" \<rightleftharpoons> "CONST id (_case_syntax v (_case1 w x))"
              "case\<^sub>S\<^sub>c\<^sub>a\<^sub>l\<^sub>a v of w => x | y => z" \<rightleftharpoons> "CONST id (_case_syntax v (_case2 (_case1 w x) (_case1 y z)))"
 
+subsection{* Preliminaries for Translations on Meta-Models *}
 
 definition "wildcard = \<open>_\<close>"
 

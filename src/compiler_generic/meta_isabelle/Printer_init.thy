@@ -41,15 +41,17 @@
  ******************************************************************************)
 (* $Id:$ *)
 
-section{* Providing a Library for Target Languages (OCaml, SML, Haskell, ...) *}
+section{* Providing a Minimal Parsing and Printing Libraries for Target Languages *}
 
 theory  Printer_init
 imports "../Init"
         "../isabelle_home/src/HOL/Isabelle_Main1"
 begin
 
-subsection{* Generation to Deep Form: OCaml *}
+text\<open>At the time of writing, targets languages supported
+     by Isabelle are: Haskell, OCaml, Scala, SML.\<close>
 
+subsection{* Parsing and Printing Libraries *}
 
   (* We put in 'CodeConst' functions using characters
      not allowed in a Isabelle 'code_const' expr
@@ -262,7 +264,7 @@ end
 
 *}
 
-subsection{* ML type *}
+subsection{* Interface with Types *}
 
 datatype ml_int = ML_int
 code_printing type_constructor ml_int \<rightharpoonup> (Haskell) "CodeType.MlInt" (* syntax! *)
@@ -280,9 +282,7 @@ code_printing type_constructor ml_monad \<rightharpoonup> (Haskell) "CodeType.Ml
 
 type_synonym ml_string = String.literal
 
-subsubsection{* ML code const *}
-
-text{* ... *}
+subsection{* Interface with Constants *}
 
 consts out_file1 :: "((ml_string \<Rightarrow> '\<alpha>1 \<Rightarrow> unit ml_monad) (* fprintf *) \<Rightarrow> unit ml_monad) \<Rightarrow> ml_string \<Rightarrow> unit ml_monad"
 code_printing constant out_file1 \<rightharpoonup> (Haskell) "CodeConst.outFile1"
@@ -372,7 +372,7 @@ code_printing constant ToNat \<rightharpoonup> (Haskell) "CodeConst.To.nat"
             | constant ToNat \<rightharpoonup> (Scala) "CodeConst.To.nat"
             | constant ToNat \<rightharpoonup> (SML) "CodeConst.To.nat"
 
-subsection{* Isabelle Notation *}
+subsection{* Setting Isabelle Notations *}
 
 syntax "_sprint0" :: "_ \<Rightarrow> ml_string" ("sprint0 (_)\<acute>")
 translations "sprint0 x\<acute>" \<rightleftharpoons> "CONST sprintf0 x"
@@ -392,7 +392,7 @@ translations "sprint4 x\<acute>" \<rightleftharpoons> "CONST sprintf4 x"
 syntax "_sprint5" :: "_ \<Rightarrow> _ \<Rightarrow> ml_string" ("sprint5 (_)\<acute>")
 translations "sprint5 x\<acute>" \<rightleftharpoons> "CONST sprintf5 x"
 
-subsection{* Miscellaneous *}
+subsection{* A Locale for Printing Isabelle Data-Types *}
 
 locale s_of =
   fixes To_string :: "string \<Rightarrow> ml_string"

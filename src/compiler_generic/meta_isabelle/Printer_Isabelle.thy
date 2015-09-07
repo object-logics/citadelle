@@ -49,7 +49,6 @@ imports Meta_Isabelle
         Printer_SML
 begin
 
-
 context s_of
 begin
 fun s_of_rawty where "s_of_rawty e = (\<lambda>

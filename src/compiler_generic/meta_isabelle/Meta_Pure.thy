@@ -41,7 +41,7 @@
  ******************************************************************************)
 (* $Id:$ *)
 
-section{* \text{Lambda\_pure} Meta-Model aka. AST definition of \text{Lambda\_pure} *}
+section{* (Pure) Terms Meta-Model aka. AST definition of (Pure) Terms *}
 
 theory  Meta_Pure
 imports "../Init"
@@ -64,7 +64,7 @@ datatype pure_term =
   Pure_Abs string pure_typ pure_term |
   Pure_App pure_term pure_term (infixl "$" 200)
 
-subsection{* Fold, Map, etc. on Pure Terms.*}
+subsection{* Operations of Fold, Map, ..., on the Meta-Model *}
 
 locale P
 begin (* TODO move datatypes in the locale (when terminations will not be needed to be proved by hand anymore) *)

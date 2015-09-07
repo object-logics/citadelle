@@ -41,11 +41,13 @@
  ******************************************************************************)
 (* $Id:$ *)
 
-section{* Initializing the Parser with Combinators *}
+section{* Initializing the Parser *}
 
 theory  Parser_init
 imports "../Init"
 begin
+
+subsection{* Some Generic Combinators *}
 
 definition "K x _ = x"
 

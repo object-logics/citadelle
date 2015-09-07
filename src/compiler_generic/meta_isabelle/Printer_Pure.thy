@@ -41,15 +41,12 @@
  ******************************************************************************)
 (* $Id:$ *)
 
-section{* Instantiating the Printer for Pure Terms *}
+section{* Instantiating the Printer for (Pure) Terms *}
 
 theory  Printer_Pure
 imports Meta_Pure
         Printer_init
 begin
-
-
-subsection{* s of ... *} (* s_of *)
 
 context s_of
 begin
