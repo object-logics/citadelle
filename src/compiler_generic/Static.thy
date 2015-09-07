@@ -42,8 +42,6 @@
 (* $Id:$ *)
 
 
-chapter{* Part I: A Meta-Model for the Isabelle API *}
-
 section{* SML Preliminaries (1) *}
 
 theory Static

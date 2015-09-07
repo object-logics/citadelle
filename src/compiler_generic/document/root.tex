@@ -105,7 +105,36 @@ transformations, correctness, etc.
 \parindent 0pt\parskip 0.5ex
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\input{session}
+%\input{session}
+
+\part{Part I: A Meta-Model for the Isabelle API }
+\chapter{Introduction}
+\input{Static.tex}
+\input{Init.tex}
+
+\chapter{Definition of Meta-Models}
+\input{Meta_Pure.tex}
+%\input{Meta_oid.tex}
+\input{Meta_SML.tex}
+\input{Meta_Isabelle.tex}
+
+\chapter{Parsing Meta-Models}
+\input{Parser_init.tex}
+\input{Parser_Pure.tex}
+
+\chapter{Printing Meta-Models}
+\input{Printer_init.tex}
+\input{Printer_Pure.tex}
+%\input{Printer_oid.tex}
+\input{Printer_SML.tex}
+\input{Printer_Isabelle.tex}
+
+\part{Part II: Case Study: A Toy Example}
+\inputif{Toy_Library.tex}
+\inputif{Analysis_shallow.tex}
+\inputif{Design_shallow.tex}
+\inputif{Rail.tex}
+
 
 \cite{nipkow.ea:isabelle:2002}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
