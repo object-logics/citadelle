@@ -45,7 +45,7 @@ header{* Part ... *}
 
 theory OCL_compiler_generator_dynamic
 imports OCL_compiler_printer
-        "isabelle_home/src/HOL/Isabelle_Main2"
+        "../compiler_generic/isabelle_home/src/HOL/Isabelle_Main2"
   keywords (* ocl (USE tool) *)
            "Between"
            "Attributes" "Operations" "Constraints"

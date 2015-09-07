@@ -45,7 +45,7 @@ header{* Part ... *}
 
 theory  OCL_compiler_printer_init
 imports "../OCL_compiler_init"
-        "../isabelle_home/src/HOL/Isabelle_Main1"
+        "../../compiler_generic/isabelle_home/src/HOL/Isabelle_Main1"
 begin
 
 section{* Generation to Deep Form: OCaml *}
