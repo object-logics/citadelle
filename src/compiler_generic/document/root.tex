@@ -66,7 +66,20 @@
 
 \title{A Meta-Model for the Isabelle API}
 \author{%
-author
+  \href{https://www.lri.fr/~tuong/}{Fr\'ed\'eric Tuong}
+  \and
+  \href{https://www.lri.fr/~wolff/}{Burkhart Wolff}}
+\publishers{%
+  Université Paris-Saclay, Univ Paris Sud, LRI, CNRS\\
+  b\^at. 650, 91405 Orsay,
+  France\\[2em]
+  %
+  IRT SystemX\\
+  8 av.~de la Vauve, 91120 Palaiseau,
+  France\\[2em]
+  %
+  frederic.tuong@\{u-psud, irt-systemx, lri\}.fr
+  burkhart.wolff@\{u-psud, irt-systemx, lri\}.fr
 }
 
 \maketitle
@@ -74,7 +87,7 @@ author
 \begin{abstract}
 We represent a theory \emph{of} (a fragment of) Isabelle/HOL 
 \emph{in} Isabelle/HOL. The purpose of this exercise is to write packages for
-domain specific specifications constructs such as class models, B-machines, ...
+domain specific specifications constructs such as class models, B-machines, ...,
 in HOL itself; the Isabelle code-generator can then be used to generate
 tactic code.
 
@@ -89,11 +102,11 @@ Nevertheless, the supported API contains types, terms, transformation of
 global context like definitions and data-type declarations as well
 as infrastructure for Isar-setups.
 
-This theory is drawn from the Featherweight OCL\cite{AFP} project where 
-it is used to contruct a package for object-oriented data-type theories
+This theory is drawn from the Featherweight OCL\cite{brucker.ea:featherweight:2014} project where 
+it is used to construct a package for object-oriented data-type theories
 generated from UML class diagrams. The Featherweight OCL, for example, allows for 
 both the direct execution of compiled tactic code by the Isabelle API
-as well as the generation of .thy-files for debugging purposes.
+as well as the generation of \verb|.thy|-files for debugging purposes.
 
 Gained experience from this project shows that the compiled code is sufficiently
 efficient for practical purposes while being based on a formal \emph{model}
@@ -107,14 +120,13 @@ transformations, correctness, etc.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %\input{session}
 
-\part{Part I: A Meta-Model for the Isabelle API }
-\chapter{Introduction}
+\part{A Meta-Model for the Isabelle API}
+\chapter{Initialization}
 \input{Static.tex}
 \input{Init.tex}
 
-\chapter{Definition of Meta-Models}
+\chapter{Defining Meta-Models}
 \input{Meta_Pure.tex}
-%\input{Meta_oid.tex}
 \input{Meta_SML.tex}
 \input{Meta_Isabelle.tex}
 
@@ -125,20 +137,17 @@ transformations, correctness, etc.
 \chapter{Printing Meta-Models}
 \input{Printer_init.tex}
 \input{Printer_Pure.tex}
-%\input{Printer_oid.tex}
 \input{Printer_SML.tex}
 \input{Printer_Isabelle.tex}
 
-\part{Part II: Case Study: A Toy Example}
+\part{A Toy Example}
 \inputif{Toy_Library.tex}
 \inputif{Analysis_shallow.tex}
 \inputif{Analysis_deep.tex}
-% Analysis Deep can not be included 
-\part{Part III: Appendix}
+
+\appendix
 \inputif{Rail.tex}
 
-
-\cite{nipkow.ea:isabelle:2002}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \bibliographystyle{abbrv}
