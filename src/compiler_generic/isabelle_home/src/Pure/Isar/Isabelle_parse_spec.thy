@@ -39,7 +39,7 @@
  ******************************************************************************)
 (* $Id:$ *)
 
-header{* Part ... *}
+chapter{* Part ... *}
 
 theory Isabelle_parse_spec
   imports Main

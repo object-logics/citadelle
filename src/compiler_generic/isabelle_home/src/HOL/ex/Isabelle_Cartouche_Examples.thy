@@ -39,7 +39,7 @@
  ******************************************************************************)
 (* $Id:$ *)
 
-header{* Part ... *}
+chapter{* Part ... *}
 
 theory Isabelle_Cartouche_Examples
 imports Main
