@@ -41,15 +41,14 @@
  ******************************************************************************)
 (* $Id:$ *)
 
-header{* Part ... *}
+section{* Isabelle/HOL Meta-Model aka. AST definition of HOL *}
 
 theory  Meta_Isabelle
 imports Meta_Pure
         Meta_SML
 begin
 
-section{* Isabelle/HOL Meta-Model aka. AST definition of HOL *}
-subsection{* type definition *}
+subsection{* Type Definition *}
 
 datatype hol__type = Ty_apply hol__type "hol__type list"
                    | Ty_apply_bin string (* binop *) hol__type hol__type
@@ -207,7 +206,7 @@ record hol__thy_locale =
 datatype hol__thy = H_thy_simple hol__t
                   | H_thy_locale hol__thy_locale "hol__t list (* positioning comments can occur before and after this group of commands *) list"
 
-section{* ... *}
+subsection{* Locale Instantiation *}
 
 locale T
 begin
@@ -437,7 +436,7 @@ fun cross_abs_aux where
 
 definition "cross_abs f n l = cross_abs_aux f [] (n, l)"
 
-subsection{* ... *}
+subsection{* Miscellaneous: Map *}
 
 definition "hol_map_lemma f = (\<lambda> Theory_lemma x \<Rightarrow> Theory_lemma (f x)
                                | x \<Rightarrow> x)"
