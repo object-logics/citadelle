@@ -41,7 +41,7 @@
  ******************************************************************************)
 (* $Id:$ *)
 
-header{* Part ... *}
+chapter{* Part ... *}
 
 theory  Meta_UML
 imports "../../../meta_isabelle/Meta_Pure"

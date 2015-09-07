@@ -41,14 +41,15 @@
  ******************************************************************************)
 (* $Id:$ *)
 
-header{* Part ... *}
+chapter{* Part ... *}
 
 theory Toy_Library
 imports (* As example, we are importing (arbitrary) theories which take some time to import.
            This is to situate ourself in the middle of a work, which needs at this point
            more developped meta-tactics to continue further,
            then we will continue here with the meta-compiler. *)
-        "~~/src/HOL/Multivariate_Analysis/ex/Approximations"
+        (*"~~/src/HOL/Multivariate_Analysis/ex/Approximations"*)
+        Main
 begin
 
 section\<open>...\<close>
