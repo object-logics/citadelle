@@ -66,7 +66,7 @@ session "Toy_Example" = Meta_Isabelle +
     "isabelle_home/src/HOL/Isabelle_Main2"
   theories
     "toy_example/embedding/Generator_static"
-    (*"document/Rail"*)
+    "document/Rail"
     (*"toy_example/generator/Analysis_deep"*)
     "toy_example/generator/Analysis_shallow"
     (*"toy_example/generator/Design_deep"*)

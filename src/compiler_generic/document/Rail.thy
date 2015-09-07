@@ -96,12 +96,12 @@ section{* UML/OCL: Extended USE Grammar *}
 subsection{* ....................................................................................................................................... *}
 text {*
 \begin{matharray}{rcl}
-  @{command_def Class} & : & @{text "theory \<rightarrow> theory"} \\
+  @{command_def record'} & : & @{text "theory \<rightarrow> theory"} \\
   @{command_def Abstract_class} & : & @{text "theory \<rightarrow> theory"} \\
 \end{matharray}
 
 @{rail \<open>
-  (  @@{command Class}
+  (  @@{command record'}
    | @@{command Abstract_class})
                    (  binding '=' @{syntax type_base}
                     | @{syntax type_object}
@@ -128,13 +128,13 @@ subsection{* ...................................................................
 text {*
 \begin{matharray}{rcl}
   @{command_def Aggregation} & : & @{text "theory \<rightarrow> theory"} \\
-  @{command_def Association} & : & @{text "theory \<rightarrow> theory"} \\
+  @{command_def record_link} & : & @{text "theory \<rightarrow> theory"} \\
   @{command_def Composition} & : & @{text "theory \<rightarrow> theory"}
 \end{matharray}
 
 @{rail \<open>
   (  @@{command Aggregation}
-   | @@{command Association}
+   | @@{command record_link}
    | @@{command Composition}) binding? @{syntax association}
   ;
   @{syntax_def association}:
@@ -164,11 +164,11 @@ text {*
 subsection{* ....................................................................................................................................... *}
 text {*
 \begin{matharray}{rcl}
-  @{command_def Context} & : & @{text "theory \<rightarrow> theory"}
+  @{command_def set_cartouche_type} & : & @{text "theory \<rightarrow> theory"}
 \end{matharray}
 
 @{rail \<open>
-  @@{command Context} ('[' @'shallow' ']')? @{syntax type_object} @{syntax context}
+  @@{command set_cartouche_type} ('[' @'shallow' ']')? @{syntax type_object} @{syntax context}
   ;
 \<close>}
 *}
@@ -176,11 +176,11 @@ text {*
 subsection{* ....................................................................................................................................... *}
 text {*
 \begin{matharray}{rcl}
-  @{command_def Instance} & : & @{text "theory \<rightarrow> theory"}
+  @{command_def def_record} & : & @{text "theory \<rightarrow> theory"}
 \end{matharray}
 
 @{rail \<open>
-  @@{command Instance} ((binding ('::' @{syntax type_object})? '=' \<newline>
+  @@{command def_record} ((binding ('::' @{syntax type_object})? '=' \<newline>
                          (@{syntax term_object} | @{syntax object_cast})) * ('and'?))
   ;
   @{syntax_def term_object}:
@@ -196,11 +196,11 @@ text {*
 subsection{* ....................................................................................................................................... *}
 text {*
 \begin{matharray}{rcl}
-  @{command_def State} & : & @{text "theory \<rightarrow> theory"}
+  @{command_def def_record'} & : & @{text "theory \<rightarrow> theory"}
 \end{matharray}
 
 @{rail \<open>
-  @@{command State} ('[' @'shallow' ']')? binding ('=' @{syntax state})?
+  @@{command def_record'} ('[' @'shallow' ']')? binding ('=' @{syntax state})?
   ;
   @{syntax_def state}:
                '[' ((binding | @{syntax object_cast}) * ',') ']'
@@ -210,11 +210,11 @@ text {*
 subsection{* ....................................................................................................................................... *}
 text {*
 \begin{matharray}{rcl}
-  @{command_def PrePost} & : & @{text "theory \<rightarrow> theory"}
+  @{command_def binary_record} & : & @{text "theory \<rightarrow> theory"}
 \end{matharray}
 
 @{rail \<open>
-  @@{command PrePost} ('[' @'shallow' ']')? (binding '=')? \<newline>
+  @@{command binary_record} ('[' @'shallow' ']')? (binding '=')? \<newline>
     @{syntax pre_post}
     @{syntax pre_post}?
   ;
