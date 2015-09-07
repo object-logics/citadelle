@@ -3,6 +3,7 @@
  *                       for the OMG Standard.
  *                       http://www.brucker.ch/projects/hol-testgen/
  *
+ * Printer_oid.thy ---
  * This file is part of HOL-TestGen.
  *
  * Copyright (c) 2013-2015 Université Paris-Sud, France
@@ -40,39 +41,24 @@
  ******************************************************************************)
 (* $Id:$ *)
 
-session "Meta_Isabelle" = HOL +
-  description {* Meta_Isabelle *}
-  options [document = pdf, document_output = document_generated]
-  theories [document = false]
-    "~~/src/HOL/Library/Code_Char"
-    "isabelle_home/src/HOL/Isabelle_Main0"
-    "isabelle_home/src/HOL/Isabelle_Main1"
-  theories
-    "meta_isabelle/Parser_Pure"
-    "meta_isabelle/Meta_Isabelle"
-    "meta_isabelle/Printer_Isabelle"
-  document_files
-    "hol-ocl-isar.sty"
-    "lstisar.sty"
-    "root.bib"
-    "root.tex"
+header{* Part ... *}
 
-session "Toy_Example" = Meta_Isabelle +
-  description {* Toy_Example *}
-  options [document = pdf, document_output = document_generated]
-  theories [document = false]
-    "~~/src/HOL/Library/List_lexord"
-    "~~/src/HOL/Library/RBT"
-    "isabelle_home/src/HOL/Isabelle_Main2"
-  theories
-    "toy_example/embedding/Generator_static"
-    "document/Rail"
-    (*"toy_example/generator/Analysis_deep"*)
-    "toy_example/generator/Analysis_shallow"
-    (*"toy_example/generator/Design_deep"*)
-    "toy_example/generator/Design_shallow"
-  document_files
-    "hol-ocl-isar.sty"
-    "lstisar.sty"
-    "root.bib"
-    "root.tex"
+theory  Printer_oid
+imports "../../../meta_isabelle/Printer_init"
+        Meta_oid
+begin
+
+subsection{* s of ... *} (* s_of *)
+
+context s_of
+begin
+definition "To_oid = rec_internal_oid To_nat"
+end
+
+lemmas [code] =
+  (* def *)
+  s_of.To_oid_def
+
+  (* fun *)
+
+end

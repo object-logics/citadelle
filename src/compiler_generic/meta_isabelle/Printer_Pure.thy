@@ -3,6 +3,7 @@
  *                       for the OMG Standard.
  *                       http://www.brucker.ch/projects/hol-testgen/
  *
+ * Printer_Pure.thy ---
  * This file is part of HOL-TestGen.
  *
  * Copyright (c) 2013-2015 Université Paris-Sud, France
@@ -40,39 +41,33 @@
  ******************************************************************************)
 (* $Id:$ *)
 
-session "Meta_Isabelle" = HOL +
-  description {* Meta_Isabelle *}
-  options [document = pdf, document_output = document_generated]
-  theories [document = false]
-    "~~/src/HOL/Library/Code_Char"
-    "isabelle_home/src/HOL/Isabelle_Main0"
-    "isabelle_home/src/HOL/Isabelle_Main1"
-  theories
-    "meta_isabelle/Parser_Pure"
-    "meta_isabelle/Meta_Isabelle"
-    "meta_isabelle/Printer_Isabelle"
-  document_files
-    "hol-ocl-isar.sty"
-    "lstisar.sty"
-    "root.bib"
-    "root.tex"
+header{* Part ... *}
 
-session "Toy_Example" = Meta_Isabelle +
-  description {* Toy_Example *}
-  options [document = pdf, document_output = document_generated]
-  theories [document = false]
-    "~~/src/HOL/Library/List_lexord"
-    "~~/src/HOL/Library/RBT"
-    "isabelle_home/src/HOL/Isabelle_Main2"
-  theories
-    "toy_example/embedding/Generator_static"
-    "document/Rail"
-    (*"toy_example/generator/Analysis_deep"*)
-    "toy_example/generator/Analysis_shallow"
-    (*"toy_example/generator/Design_deep"*)
-    "toy_example/generator/Design_shallow"
-  document_files
-    "hol-ocl-isar.sty"
-    "lstisar.sty"
-    "root.bib"
-    "root.tex"
+theory  Printer_Pure
+imports Meta_Pure
+        Printer_init
+begin
+
+
+subsection{* s of ... *} (* s_of *)
+
+context s_of
+begin
+
+fun s_of_pure_term where "s_of_pure_term l e = (\<lambda>
+    Pure_Const s _ \<Rightarrow> To_string s
+  | Pure_Free s _ \<Rightarrow> To_string s
+  | Pure_App t1 t2 \<Rightarrow> sprint2 \<open>(%s) (%s)\<close>\<acute> (s_of_pure_term l t1) (s_of_pure_term l t2)
+  | Pure_Abs s _ t \<Rightarrow>
+      let s = To_string s in
+      sprint2 \<open>(\<lambda> %s. %s)\<close>\<acute> s (s_of_pure_term (s # l) t)
+  | Pure_Bound n \<Rightarrow> sprint1 \<open>%s\<close>\<acute> (l ! nat_of_natural n)) e"
+
+end
+
+lemmas [code] =
+  (* def *)
+  (* fun *)
+  s_of.s_of_pure_term.simps
+
+end

@@ -3,6 +3,7 @@
  *                       for the OMG Standard.
  *                       http://www.brucker.ch/projects/hol-testgen/
  *
+ * Meta_oid.thy ---
  * This file is part of HOL-TestGen.
  *
  * Copyright (c) 2013-2015 Université Paris-Sud, France
@@ -40,39 +41,31 @@
  ******************************************************************************)
 (* $Id:$ *)
 
-session "Meta_Isabelle" = HOL +
-  description {* Meta_Isabelle *}
-  options [document = pdf, document_output = document_generated]
-  theories [document = false]
-    "~~/src/HOL/Library/Code_Char"
-    "isabelle_home/src/HOL/Isabelle_Main0"
-    "isabelle_home/src/HOL/Isabelle_Main1"
-  theories
-    "meta_isabelle/Parser_Pure"
-    "meta_isabelle/Meta_Isabelle"
-    "meta_isabelle/Printer_Isabelle"
-  document_files
-    "hol-ocl-isar.sty"
-    "lstisar.sty"
-    "root.bib"
-    "root.tex"
+header{* Part ... *}
 
-session "Toy_Example" = Meta_Isabelle +
-  description {* Toy_Example *}
-  options [document = pdf, document_output = document_generated]
-  theories [document = false]
-    "~~/src/HOL/Library/List_lexord"
-    "~~/src/HOL/Library/RBT"
-    "isabelle_home/src/HOL/Isabelle_Main2"
-  theories
-    "toy_example/embedding/Generator_static"
-    "document/Rail"
-    (*"toy_example/generator/Analysis_deep"*)
-    "toy_example/generator/Analysis_shallow"
-    (*"toy_example/generator/Design_deep"*)
-    "toy_example/generator/Design_shallow"
-  document_files
-    "hol-ocl-isar.sty"
-    "lstisar.sty"
-    "root.bib"
-    "root.tex"
+theory Meta_oid
+imports "../../../Init"
+begin
+
+section{* oid Meta-Model aka. AST definition of oid *}
+
+subsection{* type definition *}
+
+datatype internal_oid = Oid nat
+datatype internal_oids = Oids nat (* start *)
+                              nat (* oid for assoc (incremented from start) *)
+                              nat (* oid for inh (incremented from start) *)
+
+subsection{* Oid-Management *}
+
+definition "oidInit = (\<lambda> Oid n \<Rightarrow> Oids n n n)"
+
+definition "oidSucAssoc = (\<lambda> Oids n1 n2 n3 \<Rightarrow> Oids n1 (Succ n2) (Succ n3))"
+definition "oidSucInh = (\<lambda> Oids n1 n2 n3 \<Rightarrow> Oids n1 n2 (Succ n3))"
+definition "oidGetAssoc = (\<lambda> Oids _ n _ \<Rightarrow> Oid n)"
+definition "oidGetInh = (\<lambda> Oids _ _ n \<Rightarrow> Oid n)"
+
+definition "oidReinitAll = (\<lambda>Oids n1 _ _ \<Rightarrow> Oids n1 n1 n1)"
+definition "oidReinitInh = (\<lambda>Oids n1 n2 _ \<Rightarrow> Oids n1 n2 n2)"
+
+end

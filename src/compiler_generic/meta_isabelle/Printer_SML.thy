@@ -3,6 +3,7 @@
  *                       for the OMG Standard.
  *                       http://www.brucker.ch/projects/hol-testgen/
  *
+ * Printer_SML.thy ---
  * This file is part of HOL-TestGen.
  *
  * Copyright (c) 2013-2015 Université Paris-Sud, France
@@ -40,39 +41,41 @@
  ******************************************************************************)
 (* $Id:$ *)
 
-session "Meta_Isabelle" = HOL +
-  description {* Meta_Isabelle *}
-  options [document = pdf, document_output = document_generated]
-  theories [document = false]
-    "~~/src/HOL/Library/Code_Char"
-    "isabelle_home/src/HOL/Isabelle_Main0"
-    "isabelle_home/src/HOL/Isabelle_Main1"
-  theories
-    "meta_isabelle/Parser_Pure"
-    "meta_isabelle/Meta_Isabelle"
-    "meta_isabelle/Printer_Isabelle"
-  document_files
-    "hol-ocl-isar.sty"
-    "lstisar.sty"
-    "root.bib"
-    "root.tex"
+header{* Part ... *}
 
-session "Toy_Example" = Meta_Isabelle +
-  description {* Toy_Example *}
-  options [document = pdf, document_output = document_generated]
-  theories [document = false]
-    "~~/src/HOL/Library/List_lexord"
-    "~~/src/HOL/Library/RBT"
-    "isabelle_home/src/HOL/Isabelle_Main2"
-  theories
-    "toy_example/embedding/Generator_static"
-    "document/Rail"
-    (*"toy_example/generator/Analysis_deep"*)
-    "toy_example/generator/Analysis_shallow"
-    (*"toy_example/generator/Design_deep"*)
-    "toy_example/generator/Design_shallow"
-  document_files
-    "hol-ocl-isar.sty"
-    "lstisar.sty"
-    "root.bib"
-    "root.tex"
+theory  Printer_SML
+imports Meta_SML
+        "../toy_example/embedding/meta_toy/Printer_oid"
+begin
+
+
+subsection{* s of ... *} (* s_of *)
+
+context s_of
+begin
+
+definition "s_of_val_fun = (\<lambda> Sval \<Rightarrow> \<open>val\<close>
+                            | Sfun \<Rightarrow> \<open>fun\<close>)"
+
+fun' s_of_sexpr where \<open>s_of_sexpr e = (\<lambda>
+    SML_string s \<Rightarrow> sprint1 \<open>"%s"\<close>\<acute> (To_string (escape_sml s))
+  | SML_rewrite val_fun e1 symb e2 \<Rightarrow> sprint4 \<open>%s %s %s %s\<close>\<acute> (s_of_val_fun val_fun) (s_of_sexpr e1) (To_string symb) (s_of_sexpr e2)
+  | SML_basic l \<Rightarrow> sprint1 \<open>%s\<close>\<acute> (String_concat \<open> \<close> (L.map To_string l))
+  | SML_oid tit s \<Rightarrow> sprint2 \<open>%s%d\<close>\<acute> (To_string tit) (To_oid s)
+  | SML_binop e1 s e2 \<Rightarrow> sprint3 \<open>%s %s %s\<close>\<acute> (s_of_sexpr e1) (s_of_sexpr (SML_basic [s])) (s_of_sexpr e2)
+  | SML_annot e s \<Rightarrow> sprint2 \<open>(%s:%s)\<close>\<acute> (s_of_sexpr e) (To_string s)
+  | SML_function l \<Rightarrow> sprint1 \<open>(fn %s)\<close>\<acute> (String_concat \<open>
+    | \<close> (List.map (\<lambda> (s1, s2) \<Rightarrow> sprint2 \<open>%s => %s\<close>\<acute> (s_of_sexpr s1) (s_of_sexpr s2)) l))
+  | SML_apply s l \<Rightarrow> sprint2 \<open>(%s %s)\<close>\<acute> (To_string s) (String_concat \<open> \<close> (List.map (\<lambda> e \<Rightarrow> sprint1 \<open>(%s)\<close>\<acute> (s_of_sexpr e)) l))
+  | SML_paren p_left p_right e \<Rightarrow> sprint3 \<open>%s%s%s\<close>\<acute> (To_string p_left) (s_of_sexpr e) (To_string p_right)
+  | SML_let_open s e \<Rightarrow> sprint2 \<open>let open %s in %s end\<close>\<acute> (To_string s) (s_of_sexpr e)) e\<close>
+
+end
+
+lemmas [code] =
+  (* def *)
+  s_of.s_of_val_fun_def
+  (* fun *)
+  s_of.s_of_sexpr.simps
+
+end

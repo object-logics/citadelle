@@ -3,6 +3,7 @@
  *                       for the OMG Standard.
  *                       http://www.brucker.ch/projects/hol-testgen/
  *
+ * Generator_static.thy ---
  * This file is part of HOL-TestGen.
  *
  * Copyright (c) 2013-2015 Université Paris-Sud, France
@@ -40,39 +41,41 @@
  ******************************************************************************)
 (* $Id:$ *)
 
-session "Meta_Isabelle" = HOL +
-  description {* Meta_Isabelle *}
-  options [document = pdf, document_output = document_generated]
-  theories [document = false]
-    "~~/src/HOL/Library/Code_Char"
-    "isabelle_home/src/HOL/Isabelle_Main0"
-    "isabelle_home/src/HOL/Isabelle_Main1"
-  theories
-    "meta_isabelle/Parser_Pure"
-    "meta_isabelle/Meta_Isabelle"
-    "meta_isabelle/Printer_Isabelle"
-  document_files
-    "hol-ocl-isar.sty"
-    "lstisar.sty"
-    "root.bib"
-    "root.tex"
+header{* Part ... *}
 
-session "Toy_Example" = Meta_Isabelle +
-  description {* Toy_Example *}
-  options [document = pdf, document_output = document_generated]
-  theories [document = false]
-    "~~/src/HOL/Library/List_lexord"
-    "~~/src/HOL/Library/RBT"
-    "isabelle_home/src/HOL/Isabelle_Main2"
-  theories
-    "toy_example/embedding/Generator_static"
-    "document/Rail"
-    (*"toy_example/generator/Analysis_deep"*)
-    "toy_example/generator/Analysis_shallow"
-    (*"toy_example/generator/Design_deep"*)
-    "toy_example/generator/Design_shallow"
-  document_files
-    "hol-ocl-isar.sty"
-    "lstisar.sty"
-    "root.bib"
-    "root.tex"
+theory  Generator_static
+imports Printer
+begin
+
+subsection{* General Compiling Process: Test Scenario: Deep (without reflection) *}
+
+definition "Employee_DesignModel_UMLPart =
+ (let n = \<lambda>n1 n2. OclTyObj (OclTyCore_pre n1) (case n2 of None \<Rightarrow> [] | Some n2 \<Rightarrow> [[OclTyCore_pre n2]])
+    ; mk = \<lambda>n l. ocl_class_raw.make n l [] False in
+  [ mk (n \<langle>''Galaxy''\<rangle> None) [(\<langle>''sound''\<rangle>, OclTy_raw \<langle>''unit''\<rangle>), (\<langle>''moving''\<rangle>, OclTy_raw \<langle>''bool''\<rangle>)]
+  , mk (n \<langle>''Planet''\<rangle> (Some \<langle>''Galaxy''\<rangle>)) [(\<langle>''weight''\<rangle>, OclTy_raw \<langle>''nat''\<rangle>)]
+  , mk (n \<langle>''Person''\<rangle> (Some \<langle>''Planet''\<rangle>)) [(\<langle>''salary''\<rangle>, OclTy_raw \<langle>''int''\<rangle>)] ])"
+
+definition "main =
+ (let n = \<lambda>n1. OclTyObj (OclTyCore_pre n1) []
+    ; OclMult = \<lambda>m r. ocl_multiplicity.make [m] r [Set] in
+  write_file
+   (compiler_env_config.extend
+     (compiler_env_config_empty True None (oidInit (Oid 0)) Gen_only_design (None, False)
+        \<lparr> D_output_disable_thy := False
+        , D_output_header_thy := Some (\<langle>''Design_generated''\<rangle>
+                                      ,[\<langle>''../Toy_Library''\<rangle>]
+                                      ,\<langle>''../embedding/Generator_dynamic''\<rangle>) \<rparr>)
+     ( L.map (META_class_raw Floor1) Employee_DesignModel_UMLPart
+       @@@@ [ META_association (ocl_association.make
+                                  OclAssTy_association
+                                  (OclAssRel [ (n \<langle>''Person''\<rangle>, OclMult (Mult_star, None) None)
+                                             , (n \<langle>''Person''\<rangle>, OclMult (Mult_nat 0, Some (Mult_nat 1)) (Some \<langle>''boss''\<rangle>))]))
+          , META_flush_all OclFlushAll]
+     , None)))"
+(*
+apply_code_printing ()
+export_code main
+  in OCaml module_name M
+*)
+end

@@ -47,8 +47,8 @@ theory
   Analysis_shallow
 imports
   "../Toy_Library"
-  "../../OCL_compiler_static"
-  "../embedding/OCL_compiler_generator_dynamic"
+  "../../Static"
+  "../embedding/Generator_dynamic"
 begin
 
 generation_syntax [ shallow (generation_semantics [ analysis ])

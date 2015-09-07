@@ -3,6 +3,7 @@
  *                       for the OMG Standard.
  *                       http://www.brucker.ch/projects/hol-testgen/
  *
+ * Parser_Pure.thy ---
  * This file is part of HOL-TestGen.
  *
  * Copyright (c) 2013-2015 Université Paris-Sud, France
@@ -40,39 +41,49 @@
  ******************************************************************************)
 (* $Id:$ *)
 
-session "Meta_Isabelle" = HOL +
-  description {* Meta_Isabelle *}
-  options [document = pdf, document_output = document_generated]
-  theories [document = false]
-    "~~/src/HOL/Library/Code_Char"
-    "isabelle_home/src/HOL/Isabelle_Main0"
-    "isabelle_home/src/HOL/Isabelle_Main1"
-  theories
-    "meta_isabelle/Parser_Pure"
-    "meta_isabelle/Meta_Isabelle"
-    "meta_isabelle/Printer_Isabelle"
-  document_files
-    "hol-ocl-isar.sty"
-    "lstisar.sty"
-    "root.bib"
-    "root.tex"
+header{* Part ... *}
 
-session "Toy_Example" = Meta_Isabelle +
-  description {* Toy_Example *}
-  options [document = pdf, document_output = document_generated]
-  theories [document = false]
-    "~~/src/HOL/Library/List_lexord"
-    "~~/src/HOL/Library/RBT"
-    "isabelle_home/src/HOL/Isabelle_Main2"
-  theories
-    "toy_example/embedding/Generator_static"
-    "document/Rail"
-    (*"toy_example/generator/Analysis_deep"*)
-    "toy_example/generator/Analysis_shallow"
-    (*"toy_example/generator/Design_deep"*)
-    "toy_example/generator/Design_shallow"
-  document_files
-    "hol-ocl-isar.sty"
-    "lstisar.sty"
-    "root.bib"
-    "root.tex"
+theory  Parser_Pure
+imports Meta_Pure
+        Parser_init
+begin
+
+subsection{* i of ... *} (* i_of *)
+
+subsubsection{* general *}
+
+context i_of
+begin
+
+definition "i_of_pure_indexname a b = rec_pure_indexname
+  (ap2 a (b \<open>Pure_Indexname\<close>) (i_of_string a b) (i_of_nat a b))"
+
+definition "i_of_pure_class a b = rec_pure_class
+  (ap1 a (b \<open>Pure_Class\<close>) (i_of_string a b))"
+
+definition "i_of_pure_sort a b = rec_pure_sort
+  (ap1 a (b \<open>Pure_Sort\<close>) (i_of_list a b (i_of_pure_class a b)))"
+
+definition "i_of_pure_typ a b = rec_pure_typ
+  (ap2 a (b \<open>Pure_Type\<close>) (i_of_string a b) (i_of_list a b snd))
+  (ap2 a (b \<open>Pure_TFree\<close>) (i_of_string a b) (i_of_pure_sort a b))
+  (ap2 a (b \<open>Pure_TVar\<close>) (i_of_pure_indexname a b) (i_of_pure_sort a b))"
+
+definition "i_of_pure_term a b = (\<lambda>f0 f1 f2 f3 f4 f5. rec_pure_term f0 f1 f2 f3 (co2 K f4) (\<lambda>_ _. f5))
+  (ap2 a (b \<open>Pure_Const\<close>) (i_of_string a b) (i_of_pure_typ a b))
+  (ap2 a (b \<open>Pure_Free\<close>) (i_of_string a b) (i_of_pure_typ a b))
+  (ap2 a (b \<open>Pure_Var\<close>) (i_of_pure_indexname a b) (i_of_pure_typ a b))
+  (ap1 a (b \<open>Pure_Bound\<close>) (i_of_nat a b))
+  (ar3 a (b \<open>Pure_Abs\<close>) (i_of_string a b) (i_of_pure_typ a b))
+  (ar2 a (b \<open>Pure_App\<close>) id)"
+
+end
+
+lemmas [code] =
+  i_of.i_of_pure_indexname_def
+  i_of.i_of_pure_class_def
+  i_of.i_of_pure_sort_def
+  i_of.i_of_pure_typ_def
+  i_of.i_of_pure_term_def
+
+end

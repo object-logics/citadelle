@@ -3,6 +3,7 @@
  *                       for the OMG Standard.
  *                       http://www.brucker.ch/projects/hol-testgen/
  *
+ * Printer.thy ---
  * This file is part of HOL-TestGen.
  *
  * Copyright (c) 2013-2015 Université Paris-Sud, France
@@ -40,39 +41,55 @@
  ******************************************************************************)
 (* $Id:$ *)
 
-session "Meta_Isabelle" = HOL +
-  description {* Meta_Isabelle *}
-  options [document = pdf, document_output = document_generated]
-  theories [document = false]
-    "~~/src/HOL/Library/Code_Char"
-    "isabelle_home/src/HOL/Isabelle_Main0"
-    "isabelle_home/src/HOL/Isabelle_Main1"
-  theories
-    "meta_isabelle/Parser_Pure"
-    "meta_isabelle/Meta_Isabelle"
-    "meta_isabelle/Printer_Isabelle"
-  document_files
-    "hol-ocl-isar.sty"
-    "lstisar.sty"
-    "root.bib"
-    "root.tex"
+header{* Part ... *}
 
-session "Toy_Example" = Meta_Isabelle +
-  description {* Toy_Example *}
-  options [document = pdf, document_output = document_generated]
-  theories [document = false]
-    "~~/src/HOL/Library/List_lexord"
-    "~~/src/HOL/Library/RBT"
-    "isabelle_home/src/HOL/Isabelle_Main2"
-  theories
-    "toy_example/embedding/Generator_static"
-    "document/Rail"
-    (*"toy_example/generator/Analysis_deep"*)
-    "toy_example/generator/Analysis_shallow"
-    (*"toy_example/generator/Design_deep"*)
-    "toy_example/generator/Design_shallow"
-  document_files
-    "hol-ocl-isar.sty"
-    "lstisar.sty"
-    "root.bib"
-    "root.tex"
+theory  Printer
+imports Core
+        "meta_toy/Printer_META"
+begin
+
+section{* Generation to Deep Form: OCaml *}
+
+subsection{* conclusion *}
+
+definition "List_iterM f l =
+  List.fold (\<lambda>x m. bind m (\<lambda> () \<Rightarrow> f x)) l (return ())"
+
+context s_of
+begin
+definition "write_file ocl = (
+  let (l_thy, Sys_argv) = compiler_env_config.more ocl
+    ; (is_file, f_output) = case (D_output_header_thy ocl, Sys_argv)
+     of (Some (file_out, _), Some dir) \<Rightarrow>
+          let dir = To_string dir in
+          (True, \<lambda>f. bind (Sys_is_directory2 dir) (\<lambda> Sys_is_directory2_dir.
+                     out_file1 f (if Sys_is_directory2_dir then sprint2 \<open>%s/%s.thy\<close>\<acute> dir (To_string file_out) else dir)))
+      | _ \<Rightarrow> (False, out_stand1) in
+  f_output
+    (\<lambda>fprintf1.
+      List_iterM (fprintf1 \<open>%s
+\<close>                             )
+        (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l (ocl, l) =
+           fold_thy'
+             (\<lambda>f. f ())
+             (\<lambda>_ _. [])
+             (\<lambda>x acc1 acc2. (acc1, Cons x acc2))
+             l_thy
+             (compiler_env_config.truncate ocl, []) in
+         s_of_thy_list (compiler_env_config_more_map (\<lambda>_. is_file) ocl) (rev l))))"
+end
+
+definition "write_file = s_of.write_file (String.implode o String.to_list) (ToNat integer_of_natural)"
+
+lemmas [code] =
+  (* def *)
+  s_of.write_file_def
+
+  (* fun *)
+
+section{* ... *}  (* garbage collection of aliases *)
+
+no_type_notation natural ("nat")
+no_type_notation abr_string ("string")
+
+end

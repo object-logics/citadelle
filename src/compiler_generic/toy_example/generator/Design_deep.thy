@@ -46,14 +46,14 @@ header{* Part ... *}
 theory
   Design_deep
 imports
-  "../embedding/OCL_compiler_generator_dynamic"
+  "../embedding/Generator_dynamic"
 begin
 
 generation_syntax [ deep
                       (generation_semantics [ design (*, oid_start 10*) ])
                       (THEORY Design_generated)
-                      (IMPORTS ["../Toy_Library", "../../OCL_compiler_static"]
-                               "../embedding/OCL_compiler_generator_dynamic")
+                      (IMPORTS ["../Toy_Library", "../../Static"]
+                               "../embedding/Generator_dynamic")
                       SECTION
                       (*SORRY*) (*no_dirty*)
                       [ (* in Haskell *)
