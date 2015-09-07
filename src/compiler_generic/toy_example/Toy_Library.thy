@@ -41,18 +41,11 @@
  ******************************************************************************)
 (* $Id:$ *)
 
-chapter{* Part ... *}
+section{* A Toy Library for Objects in a State *}
 
 theory Toy_Library
-imports (* As example, we are importing (arbitrary) theories which take some time to import.
-           This is to situate ourself in the middle of a work, which needs at this point
-           more developped meta-tactics to continue further,
-           then we will continue here with the meta-compiler. *)
-        (*"~~/src/HOL/Multivariate_Analysis/ex/Approximations"*)
-        Main
+imports Main
 begin
-
-section\<open>...\<close>
 
 type_notation option ("\<langle>_\<rangle>\<^sub>\<bottom>") (* NOTE: "_\<^sub>\<bottom>" also works *)
 notation Some ("\<lfloor>(_)\<rfloor>")
@@ -60,7 +53,6 @@ notation Some ("\<lfloor>(_)\<rfloor>")
 fun    drop :: "'\<alpha> option \<Rightarrow> '\<alpha>" ("\<lceil>(_)\<rceil>")
 where  drop_lift[simp]: "\<lceil>\<lfloor>v\<rfloor>\<rceil> = v"
 
-section\<open>...\<close>
 
 type_synonym oid = nat
 

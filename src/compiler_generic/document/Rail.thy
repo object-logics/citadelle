@@ -41,7 +41,7 @@
  ******************************************************************************)
 (* $Id:$ *)
 
-chapter{* Part ... *}
+section{* The Grammar of the Toy-Class Package *}
 
 (*<*)
 theory Rail
@@ -50,7 +50,8 @@ begin
 ML_file "~~/src/Doc/antiquote_setup.ML"
 (*>*)
 
-section{* The Meta Compiler *}
+subsection{* Toy Language Grammar: The Generic Part *}
+
 text {*
 \begin{matharray}{rcl}
   @{command_def generation_syntax} & : & @{text "theory \<rightarrow> theory"}
@@ -92,8 +93,8 @@ text {*
 \<close>}
 *}
 
-section{* Toy Language Grammar *}
-subsection{* ....................................................................................................................................... *}
+subsection{* Toy Language Grammar: The Class Model Part *}
+
 text {*
 \begin{matharray}{rcl}
   @{command_def record'} & : & @{text "theory \<rightarrow> theory"} \\
@@ -124,7 +125,7 @@ text {*
   ;
 \<close>}
 *}
-subsection{* ....................................................................................................................................... *}
+
 text {*
 \begin{matharray}{rcl}
   @{command_def Aggregation} & : & @{text "theory \<rightarrow> theory"} \\
@@ -147,7 +148,7 @@ text {*
   ;
 \<close>}
 *}
-subsection{* ....................................................................................................................................... *}
+
 text {*
 \begin{matharray}{rcl}
   @{command_def Associationclass} & : & @{text "theory \<rightarrow> theory"} \\
@@ -161,7 +162,7 @@ text {*
   ;
 \<close>}
 *}
-subsection{* ....................................................................................................................................... *}
+
 text {*
 \begin{matharray}{rcl}
   @{command_def set_cartouche_type} & : & @{text "theory \<rightarrow> theory"}
@@ -173,7 +174,7 @@ text {*
 \<close>}
 *}
 
-subsection{* ....................................................................................................................................... *}
+
 text {*
 \begin{matharray}{rcl}
   @{command_def def_record} & : & @{text "theory \<rightarrow> theory"}
@@ -193,7 +194,7 @@ text {*
   ;
 \<close>}
 *}
-subsection{* ....................................................................................................................................... *}
+
 text {*
 \begin{matharray}{rcl}
   @{command_def def_record'} & : & @{text "theory \<rightarrow> theory"}
@@ -207,7 +208,7 @@ text {*
   ;
 \<close>}
 *}
-subsection{* ....................................................................................................................................... *}
+
 text {*
 \begin{matharray}{rcl}
   @{command_def binary_record} & : & @{text "theory \<rightarrow> theory"}
@@ -223,98 +224,9 @@ text {*
   ;
 \<close>}
 *}
-(*
-subsection{* ....................................................................................................................................... *}
-text {*
-\begin{matharray}{rcl}
-  @{command_def Enum} & : & @{text "theory \<rightarrow> theory"}
-\end{matharray}
 
-@{rail \<open>
-  @@{command Enum} binding '[' (binding * ',') ']'
-  ;
-\<close>}
-*}
+subsection{* Miscellaneous *}
 
-section{* UML/OCL: Type System *}
-subsection{* ....................................................................................................................................... *}
-text {*
-@{rail \<open>
-  @{syntax_def unlimited_natural}:
-               ('*'| '\<infinity>') | number
-  ;
-  @{syntax_def term_base}:
-                 ('true' | 'false')
-               | @{syntax unlimited_natural}
-               | number
-               | float_number
-               | string
-  ;
-  @{syntax_def multiplicity}:
-               '[' ((@{syntax unlimited_natural} ('\<bullet>\<bullet>' @{syntax unlimited_natural})?) * ',') ']'
-  ;
-  @{syntax_def uml_term}:
-                 @{syntax term_base}
-               | @{syntax multiplicity}
-
-               | binding
-
-               | @'self' nat?
-               | '[' (@{syntax uml_term} * ',') ']'
-               | '(' (@{syntax uml_term} * ',') ')'
-
-               | '\<langle>' term '\<rangle>'
-  ;
-  @{syntax_def name_object}:
-               ((binding + ',') ':')? binding
-  ;
-  @{syntax_def type_base}:
-                 'Void'
-               | 'Boolean'
-               | 'UnlimitedNatural'
-               | 'Integer'
-               | 'Real'
-               | 'String'
-  ;
-  @{syntax_def type_object}:
-               @{syntax name_object} (('<' (@{syntax name_object} + ',')) * ())
-  ;
-  @{syntax_def category}:
-               @{syntax multiplicity} \<newline>
-               (@'Role' binding)? 
-               (( @'Derived' '=' term
-                | @'Nonunique'
-                | @'Ordered'
-                | @'Qualifier' @{syntax uml_type}
-                | @'Redefines' binding
-                | @'Sequence_'
-                | @'Subsets' binding
-                | @'Union') * ())
-  ;
-  @{syntax_def uml_type}:
-                 @{syntax type_base}
-               | @{syntax type_object}
-
-               | ('Sequence' | 'Set' | @{syntax category}) @{syntax uml_type}
-               | 'Pair' ( @{syntax uml_type} @{syntax uml_type}
-                        | '(' @{syntax uml_type} ',' @{syntax uml_type} ')')
-               | '(' ((binding ':' ('(' @{syntax uml_type} ')' | uml_type_weak)) * ',') ')' \<newline>
-                 (':' @{syntax uml_type})?
-               | '(' @{syntax uml_type} ')'
-
-               | '\<langle>' type '\<rangle>'
-  ;
-  @{syntax_def use_prop}:
-              (  @{syntax type_object}
-               | @{syntax association}
-               | (binding? ':')? prop) (';'?)
-  ;
-\<close>}
-*}
-text{* uml\_type\_weak is like uml\_type except that type\_object can not contain quantified names. *}
-*)
-section{* Miscellaneous *}
-subsection{* ....................................................................................................................................... *}
 text {*
 \begin{matharray}{rcl}
   @{command_def End} & : & @{text "theory \<rightarrow> theory"}
@@ -324,7 +236,7 @@ text {*
   @@{command End} ('[' 'forced' ']' | '!')?
 \<close>}
 *}
-subsection{* ....................................................................................................................................... *}
+
 text {*
 \begin{matharray}{rcl}
   @{command_def BaseType} & : & @{text "theory \<rightarrow> theory"}
@@ -335,44 +247,13 @@ text {*
   ;
 \<close>}
 *}
-(*
-section{* Featherweight OCL: Library *}
-text {*
-\begin{matharray}{rcl}
-  @{command_def Assert} & : & @{text "theory \<rightarrow> theory"} \\
-  @{command_def Assert_local} & : & @{text "local_theory \<rightarrow> local_theory"}
-\end{matharray}
 
-@{rail \<open>
-  @@{command Assert} term
-  ;
-  @@{command Assert_local} term
-  ;
-\<close>}
-*}
-
-section{* Featherweight OCL: Auxiliary *}
-text {*
-\begin{matharray}{rcl}
-  @{command_def lazy_text} & : & @{text "local_theory \<rightarrow> local_theory"} \\
-  @{command_def apply_text} & : & @{text "local_theory \<rightarrow> local_theory"} \\
-  @{command_def reset_text} & : & @{text "local_theory \<rightarrow> local_theory"}
-\end{matharray}
-
-@{rail \<open>
-  @@{command lazy_text} target? text
-  ;
-  @@{command apply_text} '(' ')'
-  ;
-  @@{command reset_text} '(' ')'
-  ;
-\<close>}
-*}
-*)
 section{* Commands Extending Isabelle 2015 *}
-subsection{* ....................................................................................................................................... *}
+
 (* WARNING syntax errors during the extraction to LaTeX for the symbol "acute":
            fun\<acute>, definition\<acute> or code_reflect\<acute> *)
+
+text{* Rail-roads for Isabelle 2015 *}
 text {*
 \begin{matharray}{rcl}
   @{command_def "fun'"} & : & @{text "local_theory \<rightarrow> local_theory"} \\
@@ -394,7 +275,6 @@ text {*
 \<close>}
 *}
 
-subsection{* ....................................................................................................................................... *}
 text {*
 \begin{matharray}{rcl}
   @{command_def lazy_code_printing} & : & @{text "theory \<rightarrow> theory"} \\

@@ -41,7 +41,7 @@
  ******************************************************************************)
 (* $Id:$ *)
 
-chapter{* Part ... *}
+section{* Example: A Class Model Interactively Executed. *}
 
 theory
   Analysis_shallow
@@ -50,6 +50,10 @@ imports
   "../../Static"
   "../embedding/Generator_dynamic"
 begin
+
+text{* In this example, we configure our package to generate tactic SML code
+       (corresponding to .thy files, see @{file "Analysis_deep.thy"}) that
+       directly  executed on the Isabelle/HOL API's. *}
 
 generation_syntax [ shallow (generation_semantics [ analysis ])
                             (*SORRY*) (*no_dirty*)
