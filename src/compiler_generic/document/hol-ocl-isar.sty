@@ -1,5 +1,5 @@
 \NeedsTeXFormat{LaTeX2e}\relax
-\ProvidesClass{hol-ocl-isar}[2007/05/24 Achim D. Brucker ($Rev: 9004 $)]
+\ProvidesClass{hol-ocl-isar}[2007/05/24 Achim D. Brucker ($Rev: 11452 $)]
 
 \RequirePackage{ifthen}
 %
@@ -39,12 +39,19 @@
 }
 
 \usepackage{isabellesym}
+\ifthenelse{\boolean{isar@isasymonly}}{%
+  \usepackage[isasymonly]{fixisa}
+}{
+  \usepackage{isabelle}
+  \isabellestyle{it}
+%  \usepackage{fixisa}
+}
 
 \renewcommand{\isasymrbrakk}{\isamath{\mathclose{\rsem}}}
 \renewcommand{\isasymlbrakk}{\isamath{\mathopen{\lsem}}}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% begin: old hol-ocl-ng style
+%% begin: old hol-ocl-ng style 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \usepackage{xspace}
 %\usepackage{euscript}
@@ -57,8 +64,8 @@
 \RequirePackage[final]{listings}
 %%
 \newcommand{\ap}{\:}
-%%
-%% 1.1) Define package options
+%% 
+%% 1.1) Define package options 
 %% =========================
 %% 2) Color Definitions
 %% ======================
@@ -108,15 +115,15 @@
 \nc@colorlet{OclKeywordColor} {MidnightBlue}
 \newcommand{\OclKeywordColorName}{\textcolor{OclKeywordColor}{blue}\xspace}
 %
-% SML Keywords in \inlinesml{...} and \begin{sml}...\end{sml}
+% SML Keywords in \inlinesml{...} and \begin{sml}...\end{sml} 
 \nc@colorlet{SmlKeywordColor} {MidnightBlue}
 \newcommand{\SmlKeywordColorName}{\textcolor{SmlKeywordColor}{blue}\xspace}
 %
-% Java Keywords in \inlinejava{...} and \begin{java}...\end{java}
+% Java Keywords in \inlinejava{...} and \begin{java}...\end{java} 
 \nc@colorlet{JavaKeywordColor} {MidnightBlue}
 \newcommand{\JavaKeywordColorName}{\textcolor{JavaKeywordColor}{blue}\xspace}
 %
-% color for sections and boldface text
+% color for sections and boldface text 
 \nc@colorlet{SectionColor} {MidnightBlue}
 \newcommand{\SectionColorName}{\textcolor{SectionColor}{blue}\xspace}
 %
@@ -134,7 +141,12 @@
 \newcommand{\HolOclEmail}{\href{mailto:hol-ocl@brucker.ch}{hol-ocl@brucker.ch}}
 \newcommand{\HolOclWebsite}{\url{http://www.brucker.ch/research/hol-ocl/}}
 \newcommand{\HolOclLogo}{}
-\newcommand{\holocl}{HOL-OCL\xspace}
+\ifthenelse{\boolean{holocl@scf}}{%
+  \newcommand{\holocl}{\texorpdfstring{\mbox{\textsc{hol-ocl}}}{HOL-OCL}\xspace}%
+}{%
+%\newcommand{\holocl}{\texorpdfstring{\textsmaller{HOL-OCL}}{HOL-OCL}\xpsace}%
+  \newcommand{\holocl}{\texorpdfstring{\mbox{\textsmaller{HOL-OCL}}}{HOL-OCL}\xspace}%
+}
 %%
 %% 3.2) Environments for plain SML and OCL code
 %% --------------------------------------------
@@ -178,14 +190,18 @@
   numbers=left,numberstyle=\tiny,stepnumber=5,basicstyle=\small\smlfont,%
   backgroundcolor=\color{black!3},frame=lines,%xleftmargin=-8pt,xrightmargin=-8pt%
 }
-
+                   
 \lstdefinestyle{ocl}{basicstyle=\oclfont,%
                      commentstyle=\itshape,%
                      keywordstyle=\oclkeywordstyle,%
                      ndkeywordstyle=\oclkeywordstyle,%
                      morekeywords={package,endpackage,%
                        context,pre,inv,post,init,def,body,derive,%
-                       measurement},%
+                       measurement,
+                        % USE adds:
+                        Pre,Post,Class, Association, Aggregation,Attributes, End, Between, Role,Sequence,Context,Inv
+                      },%
+                      literate={{`}{}0},
                      mathescape=true,
                      sensitive=t,%
                      morecomment=[l]--,%
@@ -204,13 +220,13 @@
                 floatplacement={tbp},captionpos=b,framexleftmargin=10pt,
                 basicstyle=\small\javafont,backgroundcolor=\color{black!3},frame=lines}%
 
-
+                   
 \lstdefinestyle{displayocl}{style=ocl,
                 %floatplacement={tbp},captionpos=b,framexleftmargin=10pt,
-                floatplacement={tbp},captionpos=b,
+                floatplacement={tbp},captionpos=b, 
                 basicstyle=\small\oclfont,backgroundcolor=\color{black!3},frame=lines}%
 
-
+              
 \lstdefinestyle{holocl}{basicstyle=\holoclthyfont,%
                      commentstyle=\itshape,%
                      keywordstyle=\holoclthykeywordstyle,%
@@ -549,8 +565,107 @@
 
 
 %%
+%% Handling of acronyms
+%% --------------------
+\ifthenelse{\boolean{holocl@scf}}{%
+  \ifthenelse{\boolean{holocl@noaclist}}{%
+    \RequirePackage[printonlyused,nolist,nohyperlinks]{acronym}%
+  }{%
+    \RequirePackage[printonlyused]{acronym}%
+  }
+  \renewcommand{\acsfont}[1]{\textsc{#1}}
+}{%
+  \RequirePackage{relsize}
+  \ifthenelse{\boolean{holocl@noaclist}}{%
+    \RequirePackage[nolist,printonlyused,smaller,nohyperlinks]{acronym}%
+  }{%
+    \RequirePackage[printonlyused,smaller]{acronym}%
+  }
+}
+\DeclareRobustCommand*\textSC[1]{%
+\if b\expandafter\@car\f@series\@nil%
+% we're using a bold font
+\textscale{.75}{\MakeUppercase{#1}}%
+\else\MakeLowercase{\scshape #1}%
+\fi}
+%\renewcommand{\acffont}[1]{#1}
+%\renewcommand{\acfsfont}[1]{#1}
+
+\ifthenelse{\boolean{isar@mnsymbol}}{%
+  \DeclareRobustCommand{\Csharp}{C\raisebox{0.3ex}{\#}\xspace}%
+  \DeclareRobustCommand{\Specsharp}{Spec\raisebox{0.05ex}{\#}\xspace}%
+}{%
+  \DeclareRobustCommand{\Csharp}{C\raisebox{0.3ex}{\#}\xspace}%
+  \DeclareRobustCommand{\Specsharp}{Spec\raisebox{0.3ex}{\#}\xspace}%
+}
+\DeclareRobustCommand{\Cpp}
+{\valign{\vfil\hbox{##}\vfil\cr
+    \textrm{C\kern-.1em}\cr
+    $\hbox{\fontsize{\sf@size}{0}\textbf{+\kern-0.05em+}}$\cr}%
+}
+\ifthenelse{\boolean{holocl@scf}}{%
+  \DeclareRobustCommand{\IMPOO}%
+  {\texorpdfstring{\valign{\vfil\hbox{##}\vfil\cr%
+        \textrm{\acs{imp}\kern-.1em}\cr%
+        $\hbox{\fontsize{\sf@size}{0}{+\kern-0.05em+}}$\cr}%
+    }{IMP++}}
+}{%
+  \DeclareRobustCommand{\IMPOO}%
+  {\texorpdfstring{\valign{\vfil\hbox{##}\vfil\cr%
+        \textrm{\textsmaller{IMP}\kern-.1em}\cr%
+        $\hbox{\fontsize{\sf@size}{0}\textbf{+\kern-0.05em+}}$\cr}%
+    }{IMP++}}
+}
+
+\ifthenelse{\boolean{holocl@scf}}{%
+  \DeclareRobustCommand{\VDMpp}%
+  {\texorpdfstring{\valign{\vfil\hbox{##}\vfil\cr%
+        \textrm{\acs{vdm}\kern-.1em}\cr%
+        $\hbox{\fontsize{\sf@size}{0}{+\kern-0.05em+}}$\cr}%
+    }{VDM++}}
+}{%
+  \DeclareRobustCommand{\VDMpp}%
+  {\texorpdfstring{\valign{\vfil\hbox{##}\vfil\cr%
+        \textrm{\textsmaller{VDM}\kern-.1em}\cr%
+        $\hbox{\fontsize{\sf@size}{0}\textbf{+\kern-0.05em+}}$\cr}%
+    }{VDM++}}
+}
+
+\newcommand{\OCLlight}{$\textrm{OCL}_{\textit{light}}$}
+%\newcommand{\Cpp}{C\nolinebreak\hspace{-.05em}\raisebox{.4ex}{\tiny\bf +}%
+%                   \nolinebreak\hspace{-.10em}\raisebox{.4ex}{\tiny\bf +}}
+%\newcommand{\VDMpp}{\acs{vdm}\nolinebreak\hspace{-.05em}\raisebox{.4ex}{\tiny\bf +}%
+%                       \nolinebreak\hspace{-.10em}\raisebox{.4ex}{\tiny\bf +}}
+%\DeclareRobustCommand\acronym[1]{\textsmaller{\TextUpperCase{#1}}\@}
+%\DeclareRobustCommand\acronym[1]{\ac{#1}}
+\newcommand{\OCL}{\acs{ocl}\xspace}
+\newcommand{\CSP}{\acs{csp}\xspace}
+\newcommand{\UML}{\acs{uml}\xspace}
+\newcommand{\OO}{\acs{oo}\xspace}
+\newcommand{\OMG}{\acs{omg}\xspace}
+\newcommand{\HOL}{\acs{hol}\xspace}
+\newcommand{\VDM}{\acs{vdm}\xspace}
+\newcommand{\DNF}{\acs{dnf}\xspace}
+\newcommand{\TNF}{\acs{tnf}\xspace}
+\newcommand{\SML}{\acs{sml}\xspace}
+\newcommand{\CNF}{\acs{cnf}\xspace}
+\newcommand{\HCNF}{\acs{hcnf}\xspace}
+\newcommand{\SKL}{\acs{skl}\xspace}
+\newcommand{\XMI}{\acs{xmi}\xspace}
+\newcommand{\XML}{\acs{xml}\xspace}
+\newcommand{\CASE}{\acs{case}}
+\newcommand{\ArgoUML}{ArgoUML\xspace}
+\ifthenelse{\boolean{holocl@scf}}{%
+\newcommand{\holz}{{\textsc{hol-z}}\xspace}%
+}{%
+\newcommand{\holz}{{\textsmaller{HOL-Z}}\xspace}%
+}
+
+
+
 %%%
 %%%
+%%% 
 
 \newcommand{\spot}{.\;}
 \newcommand{\DevelopmentSpot}{\textcolor{black!95}{\bullet}\;}
@@ -598,12 +713,6 @@
   {#2\operatorname{\!.#3}^{(#1)}}%
 }
 
-\newcommand{\getRole}[3][]{%
-  \ifthenelse{\equal{#1}{}}%
-  {#2\operatorname{\!.#3}}%
-  {#2\operatorname{\!.#3}^{(#1)}}%
-}
-
 \newcommand{\setAttrib}[4][]{%
   \ifthenelse{\equal{#1}{}}%
   {#2\operatorname{\!.set_{#3}}\ap \mathit{#4}}%
@@ -619,7 +728,7 @@
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% end: old hol-ocl-ng style
+%% end: old hol-ocl-ng style 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
@@ -688,7 +797,7 @@
 %       \newMathOcl{AllInstances}{\mathbin}{\isasymOclAllInstances}
    %; ******************************
    %; * OCL Boolean                *
-   %; ******************************
+   %; ****************************** 
    \newMathOcl{Valid}{\mathrel}{\vDash}
        \newOcl{Valid}{\mathrel}{Valid}
        \newOcl{LocalValid}{\mathrel}{OclValid}
@@ -704,8 +813,8 @@
    \newMathOcl{False}{\mathord}{\mathocl{F}}
        \newOcl{False}{\mathord}{false}
    }
-   \newMathOcl{Not}{\mathop}{\lnot}
-       \newOcl{Not}{\mathop}{not\ap}
+   \newMathOcl{Not}{\mathop}{\lnot} 
+       \newOcl{Not}{\mathop}{not\ap} 
 
    \newMathOcl{And}{\mathbin}{\wedge}
        \newOcl{And}{\mathbin}{\ap and}
@@ -802,7 +911,7 @@
        \newMathOcl{ToUpper}{\mathop}{\isasymOclToUpper}
    \newOcl{ToLower}{\mathop}{.toLowert()}
        \newMathOcl{ToLower}{\mathop}{\isasymOclToLower}
-
+ 
    %; ******************************
    %; * OCL Collection             *
    %; ******************************
@@ -854,7 +963,7 @@
    \newOcl{Iterate}{\mathbin}{\aarrow iterate}
        \newMathOcl{Iterate}{\mathop}{\isasymOclIterate}
    \newOcl{IsUnique}{\mathbin}{\aarrow isUnique}
-       \newMathOcl{IsUnique}{\mathbin}{\isasymOclIsUnique}
+       \newMathOcl{IsUnique}{\mathbin}{\isasymOclIsUnique}  
    \newOcl{One}{\mathbin}{\aarrow one}
        \newMathOcl{One}{\mathop}{\isasymOclOne}
    \newOcl{Any}{\mathbin}{\aarrow any}
@@ -872,7 +981,7 @@
 
    \newOcl{SortedBy}{\mathbin}{\aarrow sortedBy}
       \newMathOcl{SortedBy}{\mathbin}{\isasymOclSortedBy}
-
+ 
 
    \newOcl{Sum}{\mathbin}{\aarrow sum()}
        \newMathOcl{Sum}{\mathop}{\isasymOclSum}
@@ -892,7 +1001,7 @@
        \newOcl{Intersection}{\mathbin}{\aarrow intersection}
    \newMathOcl{Complement}{\mathop}{^{-1}}
        \newOcl{Complement}{\mathop}{\aarrow complement()}
-
+ 
   \newMathOcl{At}{\mathop}{\natural}
        \newOcl{At}{\mathop}{\aarrow at}
   \newMathOcl{First}{\mathop}{\natural 1}
@@ -911,7 +1020,7 @@
        \newMathOcl{SubOrderedSet}{\mathop}{\isasymOclSubOrderedSet}
    \newOcl{SubSequence}{\mathbin}{\aarrow subSequence}
        \newMathOcl{SubSequence}{\mathop}{\isasymOclSubSequence}
-
+ 
 
 
    %; ******************************
@@ -939,14 +1048,14 @@
        \newMathOcl{StrictEq}{\mathrel}{\doteq}
     \newOcl{StrongEq}{\mathrel}{=}
        \newMathOcl{StrongEq}{\mathrel}{\triangleq}
-
+ 
     \newOcl{StrongNotEq}{\mathrel}{\not=}
        \newMathOcl{StrongNotEq}{\mathrel}{\not\triangleq}
-
+   
    \newOcl{StrictNotEq}{\mathrel}{<>}
        \newMathOcl{StrictNotEq}{\mathrel}{\not\doteq}
 
-
+ 
    \newOcl{StrictValueEq}{\mathrel}{\ensuremath{\sim==}}
        \newMathOcl{StrictValueEq}{\mathrel}{\dot{\simeq}}
    \newOcl{StrongValueEq}{\mathrel}{\ensuremath{\sim=}}
@@ -962,7 +1071,7 @@
       \newMathOcl{StrongDeepValueEq}{\mathrel}{\stackrel{\smalltriangleup}{\approxeq}}%
     }{%
       \newMathOcl{StrongDeepValueEq}{\mathrel}{\stackrel{\vartriangle}{\approxeq}}%
-    }
+    } 
    %\newOcl{RefEq}{\mathrel}{~=}
    %    \newMathOcl{RefEq}{\mathrel}{\simeq}
    %; ******************************
@@ -972,9 +1081,9 @@
    % \newMathOcl{Iny/sNew}{}
    % \newMathOcl{IsKind}{}
    % \newMathOcl{AsType}{}
-   % \newMathOcl{InState}{}
+   % \newMathOcl{InState}{} 
    % \newMathOcl{AllInstances}{}
-   % \newMathOcl{MethodCall}{}
+   % \newMathOcl{MethodCall}{} 
    % \newMathOcl{FeatureCall}{}
 
    \newOcl{IsModifiedOnly}{\mathbin}{\aarrow oclIsModifiedOnly()}
@@ -982,7 +1091,7 @@
 
    \newOcl{AllInstances}{\mathbin}{.allInstances()}
        \newMathOcl{AllInstances}{\mathbin}{\isasymOclAllInstances}
-
+   
    \newOcl{KindSetOf}{\mathbin}{::kindSetOf()}
        \newMathOcl{KindSetOf}{\mathbin}{\isasymOclKindSetOf}
 
@@ -991,7 +1100,7 @@
 
    \newOcl{AllInstancesATpre}{\mathbin}{.allInstances@pre()}
        \newMathOcl{AllInstancesATpre}{\mathbin}{\isasymOclAllInstancesATpre}
-
+   
    \newOcl{ATpre}{\mathbin}{@pre}
        \newMathOcl{ATpre}{\mathbin}{\isasymOclATpre}
 
