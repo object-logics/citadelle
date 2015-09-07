@@ -46,7 +46,7 @@ header{* Part ... *}
 theory  OCL_compiler_meta_META
 imports OCL_compiler_meta_UML
         OCL_compiler_meta_UML_extended
-        OCL_compiler_meta_Isabelle
+        "../../../meta_isabelle/OCL_compiler_meta_Isabelle"
 begin
 
 section{* The Meta-Model of all existing Meta-Models *}

@@ -3,7 +3,7 @@
  *                       for the OMG Standard.
  *                       http://www.brucker.ch/projects/hol-testgen/
  *
- * OCL_compiler_parser_oid.thy ---
+ * Toy_Library.thy --- OCL Contracts and an Example.
  * This file is part of HOL-TestGen.
  *
  * Copyright (c) 2013-2015 Université Paris-Sud, France
@@ -43,31 +43,33 @@
 
 header{* Part ... *}
 
-theory  OCL_compiler_parser_oid
-imports OCL_compiler_meta_oid
-        "../../../meta_isabelle/OCL_compiler_parser_init"
+theory Toy_Library
+imports (* As example, we are importing (arbitrary) theories which take some time to import.
+           This is to situate ourself in the middle of a work, which needs at this point
+           more developped meta-tactics to continue further,
+           then we will continue here with the meta-compiler. *)
+        "~~/src/HOL/Multivariate_Analysis/ex/Approximations"
 begin
 
-subsection{* i of ... *} (* i_of *)
+section\<open>...\<close>
 
-subsubsection{* general *}
+type_notation option ("\<langle>_\<rangle>\<^sub>\<bottom>") (* NOTE: "_\<^sub>\<bottom>" also works *)
+notation Some ("\<lfloor>(_)\<rfloor>")
 
-context i_of
-begin
+fun    drop :: "'\<alpha> option \<Rightarrow> '\<alpha>" ("\<lceil>(_)\<rceil>")
+where  drop_lift[simp]: "\<lceil>\<lfloor>v\<rfloor>\<rceil> = v"
 
-definition "i_of_internal_oid a b = rec_internal_oid
-  (ap1 a (b \<open>Oid\<close>) (i_of_nat a b))"
+section\<open>...\<close>
 
-definition "i_of_internal_oids a b = rec_internal_oids
-  (ap3 a (b \<open>Oids\<close>)
-    (i_of_nat a b)
-    (i_of_nat a b)
-    (i_of_nat a b))"
+type_synonym oid = nat
 
-end
+type_synonym '\<alpha> val' = "unit \<Rightarrow> '\<alpha>"
+type_notation val' ("\<cdot>(_)")
 
-lemmas [code] =
-  i_of.i_of_internal_oid_def
-  i_of.i_of_internal_oids_def
+record ('\<AA>)state =
+             heap   :: "oid \<rightharpoonup> '\<AA> "
+             assocs :: "oid \<rightharpoonup> ((oid list) list) list"
+
+lemmas [simp,code_unfold] = state.defs
 
 end

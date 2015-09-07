@@ -44,7 +44,7 @@
 header{* Part ... *}
 
 theory  OCL_compiler_printer_oid
-imports OCL_compiler_printer_init
+imports "../../../meta_isabelle/OCL_compiler_printer_init"
         OCL_compiler_meta_oid
 begin
 

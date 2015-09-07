@@ -44,7 +44,7 @@
 header{* Part ... *}
 
 theory OCL_compiler_init_rbt
-imports OCL_compiler_init
+imports "../../OCL_compiler_init"
         "~~/src/HOL/Library/RBT"
         "~~/src/HOL/Library/Char_ord"
         "~~/src/HOL/Library/List_lexord"

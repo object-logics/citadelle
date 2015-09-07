@@ -45,7 +45,7 @@ header{* Part ... *}
 
 theory  OCL_compiler_printer
 imports OCL_compiler_core
-        "meta/OCL_compiler_printer_META"
+        "meta_toy/OCL_compiler_printer_META"
 begin
 
 section{* Generation to Deep Form: OCaml *}

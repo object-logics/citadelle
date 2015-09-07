@@ -44,7 +44,7 @@
 header{* Part ... *}
 
 theory  OCL_compiler_meta_UML
-imports OCL_compiler_meta_Pure
+imports "../../../meta_isabelle/OCL_compiler_meta_Pure"
         "../OCL_compiler_init_rbt"
 begin
 

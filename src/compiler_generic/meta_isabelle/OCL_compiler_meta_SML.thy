@@ -44,7 +44,7 @@
 header{* Part ... *}
 
 theory  OCL_compiler_meta_SML
-imports OCL_compiler_meta_oid
+imports "../toy_example/embedding/meta_toy/OCL_compiler_meta_oid"
 begin
 
 section{* SML Meta-Model aka. AST definition of SML *}

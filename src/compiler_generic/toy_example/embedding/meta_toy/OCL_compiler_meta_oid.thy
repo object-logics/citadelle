@@ -44,7 +44,7 @@
 header{* Part ... *}
 
 theory OCL_compiler_meta_oid
-imports "../OCL_compiler_init"
+imports "../../../OCL_compiler_init"
 begin
 
 section{* oid Meta-Model aka. AST definition of oid *}

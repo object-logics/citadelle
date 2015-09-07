@@ -45,7 +45,7 @@ header{* Part ... *}
 
 theory  OCL_compiler_printer_SML
 imports OCL_compiler_meta_SML
-        OCL_compiler_printer_oid
+        "../toy_example/embedding/meta_toy/OCL_compiler_printer_oid"
 begin
 
 

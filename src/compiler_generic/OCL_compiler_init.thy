@@ -45,7 +45,7 @@ header{* Part ... *}
 
 theory OCL_compiler_init
 imports "~~/src/HOL/Library/Code_Char"
-        "../compiler_generic/isabelle_home/src/HOL/Isabelle_Main0"
+        "isabelle_home/src/HOL/Isabelle_Main0"
         OCL_compiler_static
 
 begin

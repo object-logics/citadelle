@@ -46,21 +46,21 @@ header{* Part ... *}
 theory
   Design_deep
 imports
-  "../../src/compiler/OCL_compiler_generator_dynamic"
+  "../embedding/OCL_compiler_generator_dynamic"
 begin
 
 generation_syntax [ deep
                       (generation_semantics [ design (*, oid_start 10*) ])
-                      (THEORY Employee_DesignModel_UMLPart_generated)
-                      (IMPORTS ["../src/UML_Main", "../src/compiler/OCL_compiler_static"]
-                               "../src/compiler/OCL_compiler_generator_dynamic")
+                      (THEORY Design_generated)
+                      (IMPORTS ["../Toy_Library", "../../OCL_compiler_static"]
+                               "../embedding/OCL_compiler_generator_dynamic")
                       SECTION
                       (*SORRY*) (*no_dirty*)
                       [ (* in Haskell *)
                         (* in OCaml module_name M *)
                         (* in Scala module_name M *)
                         in SML module_name M ]
-                      (output_directory "../../doc")
+                      (output_directory "../document_generated")
                   (*, syntax_print*) ]
 
 Class Person < Planet

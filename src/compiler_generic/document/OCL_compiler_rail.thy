@@ -45,9 +45,7 @@ header{* Part ... *}
 
 (*<*)
 theory OCL_compiler_rail
-imports "../UML_Types"
-        OCL_compiler_aux_text
-        OCL_compiler_generator_dynamic
+imports "../toy_example/embedding/OCL_compiler_generator_dynamic"
 begin
 ML_file "~~/src/Doc/antiquote_setup.ML"
 (*>*)
