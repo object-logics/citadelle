@@ -68,12 +68,12 @@ imports Printer
 
        and (* ocl (USE tool) *)
            "Enum"
-           "Abstract_class" "Class"
-           "Association" "Composition" "Aggregation"
+           "Abstract_class" "record'"
+           "record_link" "Composition" "Aggregation"
            "Abstract_associationclass" "Associationclass"
-           "Context"
+           "set_cartouche_type"
            (* ocl (added) *)
-           "End" "Instance" "BaseType" "State" "PrePost"
+           "End" "def_record" "BaseType" "def_record'" "binary_record"
 
            (* hol syntax *)
            "generation_syntax"
@@ -1376,7 +1376,7 @@ local
         | USE_class_synonym (n1, n2) => 
             OCL.META_class_synonym (OCL.OclClassSynonym (From.from_binding n1, n2)))
 in
-val () = mk_classDefinition USE_class @{command_keyword Class}
+val () = mk_classDefinition USE_class @{command_keyword record'}
 val () = mk_classDefinition USE_class_abstract @{command_keyword Abstract_class}
 end
 *}
@@ -1395,7 +1395,7 @@ local
       (fn l => fn _ =>
         OCL.META_association (Outer_syntax_Association.make ass_ty l))
 in
-val () = mk_associationDefinition OCL.OclAssTy_association @{command_keyword Association}
+val () = mk_associationDefinition OCL.OclAssTy_association @{command_keyword record_link}
 val () = mk_associationDefinition OCL.OclAssTy_composition @{command_keyword Composition}
 val () = mk_associationDefinition OCL.OclAssTy_aggregation @{command_keyword Aggregation}
 end
@@ -1438,7 +1438,7 @@ local
  open USE_parse
 in
 val () =
-  outer_syntax_command2 @{mk_string} @{command_keyword Context} ""
+  outer_syntax_command2 @{mk_string} @{command_keyword set_cartouche_type} ""
     (optional (Parse.list1 Parse.binding --| colon)
      -- Parse.binding
      -- context)
@@ -1469,7 +1469,7 @@ val () =
          [])
 *}
 
-subsection{* Outer Syntax: BaseType, Instance, State *}
+subsection{* Outer Syntax: BaseType, def_record, def_record' *}
 
 ML{*
 val () =
@@ -1481,12 +1481,12 @@ local
   open USE_parse
 in
 val () =
-  outer_syntax_command @{mk_string} @{command_keyword Instance} ""
+  outer_syntax_command @{mk_string} @{command_keyword def_record} ""
     (Scan.optional (parse_instance -- Scan.repeat (optional @{keyword "and"} |-- parse_instance) >> (fn (x, xs) => x :: xs)) [])
     (OCL.META_instance oo get_oclinst)
 
 val () =
-  outer_syntax_command @{mk_string} @{command_keyword State} ""
+  outer_syntax_command @{mk_string} @{command_keyword def_record'} ""
     (USE_parse.optional (paren @{keyword "shallow"}) -- Parse.binding --| @{keyword "="}
      -- state_parse)
      (fn ((is_shallow, name), l) => fn thy =>
@@ -1496,14 +1496,14 @@ val () =
 end
 *}
 
-subsection{* Outer Syntax: PrePost *}
+subsection{* Outer Syntax: binary_record *}
 
 ML{*
 local
   open USE_parse
 in
 val () =
-  outer_syntax_command @{mk_string} @{command_keyword PrePost} ""
+  outer_syntax_command @{mk_string} @{command_keyword binary_record} ""
     (USE_parse.optional (paren @{keyword "shallow"})
      -- USE_parse.optional (Parse.binding --| @{keyword "="})
      -- state_pp_parse
