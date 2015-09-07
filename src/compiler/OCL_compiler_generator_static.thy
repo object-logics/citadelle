@@ -60,18 +60,18 @@ definition "main =
  (let n = \<lambda>n1. OclTyObj (OclTyCore_pre n1) []
     ; OclMult = \<lambda>m r. ocl_multiplicity.make [m] r [Set] in
   write_file
-   (ocl_compiler_config.extend
-     (ocl_compiler_config_empty True None (oidInit (Oid 0)) Gen_only_design (None, False)
-        \<lparr> D_disable_thy_output := False
-        , D_file_out_path_dep := Some (\<langle>''Employee_DesignModel_UMLPart_generated''\<rangle>
+   (compiler_env_config.extend
+     (compiler_env_config_empty True None (oidInit (Oid 0)) Gen_only_design (None, False)
+        \<lparr> D_output_disable_thy := False
+        , D_output_header_thy := Some (\<langle>''Employee_DesignModel_UMLPart_generated''\<rangle>
                                       ,[\<langle>''../src/OCL_main''\<rangle>]
                                       ,\<langle>''../src/compiler/OCL_compiler_generator_dynamic''\<rangle>) \<rparr>)
-     ( List_map (OclAstClassRaw Floor1) Employee_DesignModel_UMLPart
-       @@@@ [ OclAstAssociation (ocl_association.make
+     ( L.map (META_class_raw Floor1) Employee_DesignModel_UMLPart
+       @@@@ [ META_association (ocl_association.make
                                   OclAssTy_association
                                   (OclAssRel [ (n \<langle>''Person''\<rangle>, OclMult (Mult_star, None) None)
                                              , (n \<langle>''Person''\<rangle>, OclMult (Mult_nat 0, Some (Mult_nat 1)) (Some \<langle>''boss''\<rangle>))]))
-          , OclAstFlushAll OclFlushAll]
+          , META_flush_all OclFlushAll]
      , None)))"
 (*
 apply_code_printing ()
