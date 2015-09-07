@@ -63,9 +63,9 @@ definition "main =
    (compiler_env_config.extend
      (compiler_env_config_empty True None (oidInit (Oid 0)) Gen_only_design (None, False)
         \<lparr> D_output_disable_thy := False
-        , D_output_header_thy := Some (\<langle>''Employee_DesignModel_UMLPart_generated''\<rangle>
-                                      ,[\<langle>''../src/OCL_main''\<rangle>]
-                                      ,\<langle>''../src/compiler/OCL_compiler_generator_dynamic''\<rangle>) \<rparr>)
+        , D_output_header_thy := Some (\<langle>''Design_generated''\<rangle>
+                                      ,[\<langle>''../Toy_Library''\<rangle>]
+                                      ,\<langle>''../embedding/OCL_compiler_generator_dynamic''\<rangle>) \<rparr>)
      ( L.map (META_class_raw Floor1) Employee_DesignModel_UMLPart
        @@@@ [ META_association (ocl_association.make
                                   OclAssTy_association

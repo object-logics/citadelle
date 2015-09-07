@@ -65,6 +65,7 @@ session "Toy_Example" = Meta_Isabelle +
     "~~/src/HOL/Library/RBT"
     "isabelle_home/src/HOL/Isabelle_Main2"
   theories
+    "toy_example/embedding/OCL_compiler_generator_static"
     "document/OCL_compiler_rail"
     (*"toy_example/generator/Analysis_deep"*)
     "toy_example/generator/Analysis_shallow"
