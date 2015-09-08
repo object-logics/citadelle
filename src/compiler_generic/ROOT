@@ -63,8 +63,8 @@ session "Toy_Example" = Meta_Isabelle +
     "toy_example/embedding/Generator_static"
     "toy_example/embedding/Generator_dynamic"
   theories
-    (*"toy_example/generator/Analysis_deep"*)
-    "toy_example/generator/Analysis_shallow"
+    (*"toy_example/generator/Design_deep"*)
+    "toy_example/generator/Design_shallow"
     "document/Rail"
   document_files
     "hol-ocl-isar.sty"
