@@ -36,7 +36,7 @@
  ******************************************************************************)
 (* $Id:$ *)
 
-section{* Example: A Class Model Converted into a Theory File. *}
+section{* Example: A Class Model Converted into a Theory File *}
 
 theory
   Analysis_deep

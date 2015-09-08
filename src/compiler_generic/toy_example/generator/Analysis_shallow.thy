@@ -36,7 +36,7 @@
  ******************************************************************************)
 (* $Id:$ *)
 
-section{* Example: A Class Model Interactively Executed. *}
+section{* Example: A Class Model Interactively Executed *}
 
 theory
   Analysis_shallow

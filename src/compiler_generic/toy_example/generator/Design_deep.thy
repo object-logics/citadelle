@@ -36,13 +36,20 @@
  ******************************************************************************)
 (* $Id:$ *)
 
-chapter{* Part ... *}
+section{* Example: A Class Model Converted into a Theory File *}
 
 theory
   Design_deep
 imports
   "../embedding/Generator_dynamic"
 begin
+
+text{* In this example, we configure our package to generate .thy files.
+       (c.f. @{file "Design_shallow.thy"} for the ``shallow'' counterpart).
+       This mode is particularly relevant for debugging purposes: 
+       the generated files (and their proofs!) can be executed on
+       a step by step basis. *}
+
 
 generation_syntax [ deep
                       (generation_semantics [ design (*, oid_start 10*) ])
