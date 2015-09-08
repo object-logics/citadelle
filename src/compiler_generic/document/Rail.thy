@@ -36,7 +36,7 @@
  ******************************************************************************)
 (* $Id:$ *)
 
-section{* The Grammar of the Toy-Class Package *}
+section{* Grammars *}
 
 (*<*)
 theory Rail
@@ -45,7 +45,7 @@ begin
 ML_file "~~/src/Doc/antiquote_setup.ML"
 (*>*)
 
-subsection{* Toy Language Grammar: The Generic Part *}
+subsection{* Toy-Class Package: The Generic Part *}
 
 text {*
 \begin{matharray}{rcl}
@@ -88,7 +88,7 @@ text {*
 \<close>}
 *}
 
-subsection{* Toy Language Grammar: The Class Model Part *}
+subsection{* Toy-Class Package: The Class Model Part *}
 
 text {*
 \begin{matharray}{rcl}
@@ -243,12 +243,10 @@ text {*
 \<close>}
 *}
 
-section{* Commands Extending Isabelle 2015 *}
+subsection{* Commands Extending Isabelle 2015 *}
 
 (* WARNING syntax errors during the extraction to LaTeX for the symbol "acute":
            fun\<acute>, definition\<acute> or code_reflect\<acute> *)
-
-text{* Rail-roads for Isabelle 2015 *}
 text {*
 \begin{matharray}{rcl}
   @{command_def "fun'"} & : & @{text "local_theory \<rightarrow> local_theory"} \\
