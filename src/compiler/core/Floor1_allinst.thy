@@ -3,7 +3,7 @@
  *                       for the OMG Standard.
  *                       http://www.brucker.ch/projects/hol-testgen/
  *
- * OCL_compiler_floor1_allinst.thy ---
+ * Floor1_allinst.thy ---
  * This file is part of HOL-TestGen.
  *
  * Copyright (c) 2013-2015 Université Paris-Saclay, Univ Paris Sud, France
@@ -43,8 +43,8 @@
 
 header{* Part ... *}
 
-theory  OCL_compiler_floor1_allinst
-imports OCL_compiler_core_init
+theory  Floor1_allinst
+imports Core_init
 begin
 
 section{* Translation of AST *}

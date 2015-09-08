@@ -3,7 +3,7 @@
  *                       for the OMG Standard.
  *                       http://www.brucker.ch/projects/hol-testgen/
  *
- * OCL_compiler_generator_static.thy ---
+ * Aux_tactic.thy ---
  * This file is part of HOL-TestGen.
  *
  * Copyright (c) 2013-2015 Université Paris-Saclay, Univ Paris Sud, France
@@ -43,39 +43,52 @@
 
 header{* Part ... *}
 
-theory  OCL_compiler_generator_static
-imports OCL_compiler_printer
+theory Aux_tactic
+imports Main
+  keywords "fun_sorry" "fun_quick"
+           :: thy_decl
 begin
 
-subsection{* General Compiling Process: Test Scenario: Deep (without reflection) *}
+subsection{* Infra-structure that skip lengthy termination proofs *}
 
-definition "Employee_DesignModel_UMLPart =
- (let n = \<lambda>n1 n2. OclTyObj (OclTyCore_pre n1) (case n2 of None \<Rightarrow> [] | Some n2 \<Rightarrow> [[OclTyCore_pre n2]])
-    ; mk = \<lambda>n l. ocl_class_raw.make n l [] False in
-  [ mk (n \<langle>''Galaxy''\<rangle> None) [(\<langle>''sound''\<rangle>, OclTy_raw \<langle>''unit''\<rangle>), (\<langle>''moving''\<rangle>, OclTy_raw \<langle>''bool''\<rangle>)]
-  , mk (n \<langle>''Planet''\<rangle> (Some \<langle>''Galaxy''\<rangle>)) [(\<langle>''weight''\<rangle>, OclTy_raw \<langle>''nat''\<rangle>)]
-  , mk (n \<langle>''Person''\<rangle> (Some \<langle>''Planet''\<rangle>)) [(\<langle>''salary''\<rangle>, OclTy_raw \<langle>''int''\<rangle>)] ])"
+ML{*
+structure Fun_quick = struct
+val quick_dirty = false
+  (* false: "fun_quick" behaves as "fun"
+     true: "fun_quick" behaves as "fun", but it proves completeness and termination with "sorry" *)
 
-definition "main =
- (let n = \<lambda>n1. OclTyObj (OclTyCore_pre n1) []
-    ; OclMult = \<lambda>m r. ocl_multiplicity.make [m] r [Set] in
-  write_file
-   (compiler_env_config.extend
-     (compiler_env_config_empty True None (oidInit (Oid 0)) Gen_only_design (None, False)
-        \<lparr> D_output_disable_thy := False
-        , D_output_header_thy := Some (\<langle>''Employee_DesignModel_UMLPart_generated''\<rangle>
-                                      ,[\<langle>''../src/OCL_main''\<rangle>]
-                                      ,\<langle>''../src/compiler/OCL_compiler_generator_dynamic''\<rangle>) \<rparr>)
-     ( L.map (META_class_raw Floor1) Employee_DesignModel_UMLPart
-       @@@@ [ META_association (ocl_association.make
-                                  OclAssTy_association
-                                  (OclAssRel [ (n \<langle>''Person''\<rangle>, OclMult (Mult_star, None) None)
-                                             , (n \<langle>''Person''\<rangle>, OclMult (Mult_nat 0, Some (Mult_nat 1)) (Some \<langle>''boss''\<rangle>))]))
-          , META_flush_all OclFlushAll]
-     , None)))"
-(*
-apply_code_printing ()
-export_code main
-  in OCaml module_name M
-*)
+val proof_by_patauto = Proof.global_terminal_proof
+  ( let open Method in
+    ( Combinator
+        ( no_combinator_info
+        , Then
+        , [ Basic (fn ctxt => SIMPLE_METHOD (Pat_Completeness.pat_completeness_tac ctxt 1) )
+          , Basic (fn ctxt => SIMPLE_METHOD (auto_tac (ctxt addsimps [])))])
+    , (Position.none, Position.none)) end
+  , NONE)
+val proof_by_sorry = Proof.global_skip_proof true
+
+fun mk_fun quick_dirty cmd_spec tac =
+  Outer_Syntax.local_theory' cmd_spec
+    "define general recursive functions (short version)"
+    (Function_Common.function_parser
+      (if quick_dirty then
+         Function_Common.FunctionConfig { sequential=true, default=NONE
+                                        , domintros=false, partials=true}
+       else
+         Function_Fun.fun_config)
+      >> (if quick_dirty then
+            fn ((config, fixes), statements) => fn b => fn ctxt =>
+            ctxt |> Function.function_cmd fixes statements config b
+                 |> tac
+                 |> Function.termination_cmd NONE
+                 |> proof_by_sorry
+          else
+            fn ((config, fixes), statements) => Function_Fun.add_fun_cmd fixes statements config))
+
+val () = mk_fun quick_dirty @{command_keyword fun_quick} proof_by_sorry
+val () = mk_fun true @{command_keyword fun_sorry} proof_by_patauto
+end
+*}
+
 end

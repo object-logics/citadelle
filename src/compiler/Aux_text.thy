@@ -3,7 +3,7 @@
  *                       for the OMG Standard.
  *                       http://www.brucker.ch/projects/hol-testgen/
  *
- * OCL_compiler_aux_text.thy ---
+ * Aux_text.thy ---
  * This file is part of HOL-TestGen.
  *
  * Copyright (c) 2013-2015 Université Paris-Saclay, Univ Paris Sud, France
@@ -43,7 +43,7 @@
 
 header{* Part ... *}
 
-theory OCL_compiler_aux_text
+theory Aux_text
 imports Main
   keywords "lazy_text" :: thy_decl
        and "reset_text" :: thy_decl

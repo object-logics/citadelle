@@ -44,7 +44,7 @@
 header{* Part ... *}
 
 theory  Class_model
-imports "../../src/compiler/OCL_compiler_init_rbt"
+imports "../../src/compiler/Init_rbt"
 begin
 
 datatype 'a tree = T 'a "'a tree list"
@@ -140,7 +140,7 @@ definition "print_abr sprintf_int write_file =
               (flatten [filename, \<langle>''.thy''\<rangle>])
               (List_flatten
                 [ [ flatten [\<langle>''theory ''\<rangle>, filename, \<langle>'' imports ''\<rangle>, gen_import, \<langle>'' ''\<rangle>, 
-                             g,\<langle>''../../src/compiler/OCL_compiler_generator_dynamic''\<rangle>,g,
+                             g,\<langle>''../../src/compiler/Generator_dynamic''\<rangle>,g,
                              \<langle>'' begin''\<rangle>]
                   , gen_init comp comp2]
                 , body
@@ -160,15 +160,15 @@ definition "print_abr sprintf_int write_file =
                       ,          \<langle>''                      (generation_semantics [ analysis (*, oid_start 10*) ])''\<rangle>
                       ,          \<langle>''                      skip_export''\<rangle>
                       , flatten [\<langle>''                      (THEORY ''\<rangle>, tree_name, \<langle>''_generated''\<rangle>, \<langle>''_''\<rangle>, comp, \<langle>'')''\<rangle>]
-                      , flatten [\<langle>''                      (IMPORTS [''\<rangle>,g,\<langle>''../../../src/UML_Main''\<rangle>,g,\<langle>'', ''\<rangle>,g,\<langle>''../../../src/compiler/OCL_compiler_static''\<rangle>,g,\<langle>'']''\<rangle>]
-                      , flatten [\<langle>''                               ''\<rangle>,g,\<langle>''../../../src/compiler/OCL_compiler_generator_dynamic''\<rangle>,g,\<langle>'')''\<rangle>]
+                      , flatten [\<langle>''                      (IMPORTS [''\<rangle>,g,\<langle>''../../../src/UML_Main''\<rangle>,g,\<langle>'', ''\<rangle>,g,\<langle>''../../../src/compiler/Static''\<rangle>,g,\<langle>'']''\<rangle>]
+                      , flatten [\<langle>''                               ''\<rangle>,g,\<langle>''../../../src/compiler/Generator_dynamic''\<rangle>,g,\<langle>'')''\<rangle>]
                       ,          \<langle>''                      SECTION''\<rangle>
                       , flatten [\<langle>''                      [ in ''\<rangle>, comp, \<langle>'' ''\<rangle>, comp2, \<langle>'' ]''\<rangle>]
                       , flatten [\<langle>''                      (output_directory ''\<rangle>,g,\<langle>''./doc''\<rangle>,g,\<langle>'') ]''\<rangle>] ]
         , flatten_n [ \<langle>''generation_syntax deep flush_all''\<rangle> ])
       , ( (\<langle>''shallow''\<rangle>, [(\<langle>''''\<rangle>, \<langle>''''\<rangle>)])
         , flatten [ g,\<langle>''../../src/UML_Main''\<rangle>,g, \<langle>'' ''\<rangle>
-                  , g,\<langle>''../../src/compiler/OCL_compiler_static''\<rangle>,g  ]
+                  , g,\<langle>''../../src/compiler/Static''\<rangle>,g  ]
         , \<lambda>_ _. flatten_n [ \<langle>''generation_syntax [ shallow (generation_semantics [ analysis ]) ]''\<rangle> ]
         , \<langle>''End!''\<rangle>) ]))"
 

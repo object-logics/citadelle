@@ -3,7 +3,7 @@
  *                       for the OMG Standard.
  *                       http://www.brucker.ch/projects/hol-testgen/
  *
- * OCL_compiler_printer_META.thy ---
+ * Printer_META.thy ---
  * This file is part of HOL-TestGen.
  *
  * Copyright (c) 2013-2015 Université Paris-Saclay, Univ Paris Sud, France
@@ -43,8 +43,8 @@
 
 header{* Part ... *}
 
-theory  OCL_compiler_printer_META
-imports OCL_compiler_parser_META
+theory  Printer_META
+imports Parser_META
         "../../compiler_generic/meta_isabelle/Printer_Isabelle"
 begin
 

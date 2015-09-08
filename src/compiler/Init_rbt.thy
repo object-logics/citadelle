@@ -3,7 +3,7 @@
  *                       for the OMG Standard.
  *                       http://www.brucker.ch/projects/hol-testgen/
  *
- * OCL_compiler_aux_tactic.thy ---
+ * Init_rbt.thy ---
  * This file is part of HOL-TestGen.
  *
  * Copyright (c) 2013-2015 Université Paris-Saclay, Univ Paris Sud, France
@@ -43,52 +43,44 @@
 
 header{* Part ... *}
 
-theory OCL_compiler_aux_tactic
-imports Main
-  keywords "fun_sorry" "fun_quick"
-           :: thy_decl
+theory Init_rbt
+imports "../compiler_generic/Init"
+        "~~/src/HOL/Library/RBT"
+        "~~/src/HOL/Library/Char_ord"
+        "~~/src/HOL/Library/List_lexord"
 begin
 
-subsection{* Infra-structure that skip lengthy termination proofs *}
+subsection{* RBT Miscellaneous *}
 
-ML{*
-structure Fun_quick = struct
-val quick_dirty = false
-  (* false: "fun_quick" behaves as "fun"
-     true: "fun_quick" behaves as "fun", but it proves completeness and termination with "sorry" *)
-
-val proof_by_patauto = Proof.global_terminal_proof
-  ( let open Method in
-    ( Combinator
-        ( no_combinator_info
-        , Then
-        , [ Basic (fn ctxt => SIMPLE_METHOD (Pat_Completeness.pat_completeness_tac ctxt 1) )
-          , Basic (fn ctxt => SIMPLE_METHOD (auto_tac (ctxt addsimps [])))])
-    , (Position.none, Position.none)) end
-  , NONE)
-val proof_by_sorry = Proof.global_skip_proof true
-
-fun mk_fun quick_dirty cmd_spec tac =
-  Outer_Syntax.local_theory' cmd_spec
-    "define general recursive functions (short version)"
-    (Function_Common.function_parser
-      (if quick_dirty then
-         Function_Common.FunctionConfig { sequential=true, default=NONE
-                                        , domintros=false, partials=true}
-       else
-         Function_Fun.fun_config)
-      >> (if quick_dirty then
-            fn ((config, fixes), statements) => fn b => fn ctxt =>
-            ctxt |> Function.function_cmd fixes statements config b
-                 |> tac
-                 |> Function.termination_cmd NONE
-                 |> proof_by_sorry
-          else
-            fn ((config, fixes), statements) => Function_Fun.add_fun_cmd fixes statements config))
-
-val () = mk_fun quick_dirty @{command_keyword fun_quick} proof_by_sorry
-val () = mk_fun true @{command_keyword fun_sorry} proof_by_patauto
+locale RBT
+begin
+definition "modify_def v k f rbt =
+  (case RBT.lookup rbt k of None \<Rightarrow> RBT.insert k (f v) rbt
+                      | Some _ \<Rightarrow> RBT.map_entry k f rbt)"
+definition "lookup2 rbt = (\<lambda>(x1, x2). Option.bind (RBT.lookup rbt x1) (\<lambda>rbt. RBT.lookup rbt x2))"
+definition "insert2 = (\<lambda>(x1, x2) v. RBT.modify_def RBT.empty x1 (RBT.insert x2 v))"
 end
-*}
+lemmas [code] =
+  (*def*)
+  RBT.modify_def_def
+  RBT.lookup2_def
+  RBT.insert2_def
+
+context L
+begin
+definition "unique f l = List.map_filter id (fst
+  (mapM
+    (\<lambda> (cpt, v) rbt. 
+      let f_cpt = f cpt in
+      if RBT.lookup rbt f_cpt = None then
+        (Some (cpt, v), RBT.insert f_cpt () rbt)
+      else 
+        (None, rbt))
+    l
+    RBT.empty))"
+end
+lemmas [code] =
+  (*def*)
+  L.unique_def
 
 end

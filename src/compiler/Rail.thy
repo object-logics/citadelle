@@ -3,7 +3,7 @@
  *                       for the OMG Standard.
  *                       http://www.brucker.ch/projects/hol-testgen/
  *
- * OCL_compiler_rail.thy ---
+ * Rail.thy ---
  * This file is part of HOL-TestGen.
  *
  * Copyright (c) 2013-2015 Université Paris-Saclay, Univ Paris Sud, France
@@ -44,10 +44,10 @@
 header{* Part ... *}
 
 (*<*)
-theory OCL_compiler_rail
+theory Rail
 imports "../UML_Types"
-        OCL_compiler_aux_text
-        OCL_compiler_generator_dynamic
+        Aux_text
+        Generator_dynamic
 begin
 ML_file "~~/src/Doc/antiquote_setup.ML"
 (*>*)

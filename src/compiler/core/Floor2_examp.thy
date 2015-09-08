@@ -3,7 +3,7 @@
  *                       for the OMG Standard.
  *                       http://www.brucker.ch/projects/hol-testgen/
  *
- * OCL_compiler_floor2_examp.thy ---
+ * Floor2_examp.thy ---
  * This file is part of HOL-TestGen.
  *
  * Copyright (c) 2013-2015 Université Paris-Saclay, Univ Paris Sud, France
@@ -43,8 +43,8 @@
 
 header{* Part ... *}
 
-theory  OCL_compiler_floor2_examp
-imports OCL_compiler_floor1_examp
+theory  Floor2_examp
+imports Floor1_examp
 begin
 
 section{* Translation of AST *}

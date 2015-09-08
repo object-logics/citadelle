@@ -3,7 +3,7 @@
  *                       for the OMG Standard.
  *                       http://www.brucker.ch/projects/hol-testgen/
  *
- * Gram_OCL_compiler_generator_dynamic.thy ---
+ * Gram_Generator_dynamic.thy ---
  * This file is part of HOL-TestGen.
  *
  * Copyright (c) 2013-2015 Université Paris-Saclay, Univ Paris Sud, France
@@ -43,11 +43,11 @@
 
 header{* Part ... *}
 
-theory Gram_OCL_compiler_generator_dynamic
+theory Gram_Generator_dynamic
 imports Gram_Main
 begin
 
-print_syntax' remove Main (*OCL_compiler_generator_dynamic*)
+print_syntax' remove Main (*Generator_dynamic*)
 prods:
   Fun.updbind = any[0] ":=" any[0] => "_updbind" (1000)
   Fun.updbinds = Fun.updbind[0] "," Fun.updbinds[0] => "_updbinds" (1000)
@@ -200,9 +200,9 @@ prods:
   logic = "op" "++" => "\<^const>Map.map_add" (1000)
   logic = "op" "|`" => "\<^const>Map.restrict_map" (1000)
   logic = "op" "\<subseteq>\<^sub>m" => "\<^const>Map.map_le" (1000)
-  logic = "op" "@@@@" => "\<^const>OCL_compiler_init.List_append" (1000)
-  logic = "op" "@@" => "\<^const>OCL_compiler_init.String_flatten" (1000)
-  logic = "op" "$" => "\<^const>OCL_compiler_meta_Pure.pure_term.PureApp" (1000)
+  logic = "op" "@@@@" => "\<^const>Init.List_append" (1000)
+  logic = "op" "@@" => "\<^const>Init.String_flatten" (1000)
+  logic = "op" "$" => "\<^const>Meta_Pure.pure_term.PureApp" (1000)
   logic = "op" "|\<guillemotleft>" => "\<^const>RBT_Impl.ord_class.rbt_less_symbol" (1000)
   logic = "op" "\<guillemotleft>|" => "\<^const>RBT_Impl.ord_class.rbt_greater" (1000)
   logic = "XCONST" longid_position[0] => "_context_xconst" (1000)
@@ -427,10 +427,10 @@ prods:
   logic = logic[51] "|\<guillemotleft>" any[51] => "\<^const>RBT_Impl.ord_class.rbt_less_symbol"
     (50)
   logic = logic[200] "$" logic[201]
-    => "\<^const>OCL_compiler_meta_Pure.pure_term.PureApp" (200)
-  logic = logic[66] "@@" logic[65] => "\<^const>OCL_compiler_init.String_flatten"
+    => "\<^const>Meta_Pure.pure_term.PureApp" (200)
+  logic = logic[66] "@@" logic[65] => "\<^const>Init.String_flatten"
     (65)
-  logic = logic[66] "@@@@" logic[65] => "\<^const>OCL_compiler_init.List_append"
+  logic = logic[66] "@@@@" logic[65] => "\<^const>Init.List_append"
     (65)
   logic = logic[900] "(" Map.maplets[0] ")" => "_MapUpd" (900)
   logic = logic[51] "\<subseteq>\<^sub>m" logic[51] => "\<^const>Map.map_le" (50)

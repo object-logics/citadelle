@@ -3,7 +3,7 @@
  *                       for the OMG Standard.
  *                       http://www.brucker.ch/projects/hol-testgen/
  *
- * OCL_compiler_parser_META.thy ---
+ * Parser_META.thy ---
  * This file is part of HOL-TestGen.
  *
  * Copyright (c) 2013-2015 Université Paris-Saclay, Univ Paris Sud, France
@@ -43,10 +43,10 @@
 
 header{* Part ... *}
 
-theory  OCL_compiler_parser_META
-imports OCL_compiler_meta_META
-        OCL_compiler_parser_UML
-        OCL_compiler_parser_UML_extended
+theory  Parser_META
+imports Meta_META
+        Parser_UML
+        Parser_UML_extended
 begin
 
 section{* Generation to both Form (setup part) *}

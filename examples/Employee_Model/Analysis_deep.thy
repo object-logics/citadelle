@@ -46,14 +46,14 @@ header{* Part ... *}
 theory
   Analysis_deep
 imports
-  "../../src/compiler/OCL_compiler_generator_dynamic"
+  "../../src/compiler/Generator_dynamic"
 begin
 
 generation_syntax [ deep
                       (generation_semantics [ analysis (*, oid_start 10*) ])
                       (THEORY Employee_AnalysisModel_UMLPart_generated)
-                      (IMPORTS ["../src/UML_Main", "../src/compiler/OCL_compiler_static"]
-                               "../src/compiler/OCL_compiler_generator_dynamic")
+                      (IMPORTS ["../src/UML_Main", "../src/compiler/Static"]
+                               "../src/compiler/Generator_dynamic")
                       SECTION
                       (*SORRY*) (*no_dirty*)
                       [ (* in Haskell *)

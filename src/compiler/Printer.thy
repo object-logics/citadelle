@@ -3,7 +3,7 @@
  *                       for the OMG Standard.
  *                       http://www.brucker.ch/projects/hol-testgen/
  *
- * OCL_compiler_init_rbt.thy ---
+ * Printer.thy ---
  * This file is part of HOL-TestGen.
  *
  * Copyright (c) 2013-2015 Université Paris-Saclay, Univ Paris Sud, France
@@ -43,44 +43,53 @@
 
 header{* Part ... *}
 
-theory OCL_compiler_init_rbt
-imports "../compiler_generic/Init"
-        "~~/src/HOL/Library/RBT"
-        "~~/src/HOL/Library/Char_ord"
-        "~~/src/HOL/Library/List_lexord"
+theory  Printer
+imports Core
+        "meta/Printer_META"
 begin
 
-subsection{* RBT Miscellaneous *}
+section{* Generation to Deep Form: OCaml *}
 
-locale RBT
+subsection{* conclusion *}
+
+definition "List_iterM f l =
+  List.fold (\<lambda>x m. bind m (\<lambda> () \<Rightarrow> f x)) l (return ())"
+
+context s_of
 begin
-definition "modify_def v k f rbt =
-  (case RBT.lookup rbt k of None \<Rightarrow> RBT.insert k (f v) rbt
-                      | Some _ \<Rightarrow> RBT.map_entry k f rbt)"
-definition "lookup2 rbt = (\<lambda>(x1, x2). Option.bind (RBT.lookup rbt x1) (\<lambda>rbt. RBT.lookup rbt x2))"
-definition "insert2 = (\<lambda>(x1, x2) v. RBT.modify_def RBT.empty x1 (RBT.insert x2 v))"
+definition "write_file ocl = (
+  let (l_thy, Sys_argv) = compiler_env_config.more ocl
+    ; (is_file, f_output) = case (D_output_header_thy ocl, Sys_argv)
+     of (Some (file_out, _), Some dir) \<Rightarrow>
+          let dir = To_string dir in
+          (True, \<lambda>f. bind (Sys_is_directory2 dir) (\<lambda> Sys_is_directory2_dir.
+                     out_file1 f (if Sys_is_directory2_dir then sprint2 \<open>%s/%s.thy\<close>\<acute> dir (To_string file_out) else dir)))
+      | _ \<Rightarrow> (False, out_stand1) in
+  f_output
+    (\<lambda>fprintf1.
+      List_iterM (fprintf1 \<open>%s
+\<close>                             )
+        (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l (ocl, l) =
+           fold_thy'
+             (\<lambda>f. f ())
+             (\<lambda>_ _. [])
+             (\<lambda>x acc1 acc2. (acc1, Cons x acc2))
+             l_thy
+             (compiler_env_config.truncate ocl, []) in
+         s_of_thy_list (compiler_env_config_more_map (\<lambda>_. is_file) ocl) (rev l))))"
 end
-lemmas [code] =
-  (*def*)
-  RBT.modify_def_def
-  RBT.lookup2_def
-  RBT.insert2_def
 
-context L
-begin
-definition "unique f l = List.map_filter id (fst
-  (mapM
-    (\<lambda> (cpt, v) rbt. 
-      let f_cpt = f cpt in
-      if RBT.lookup rbt f_cpt = None then
-        (Some (cpt, v), RBT.insert f_cpt () rbt)
-      else 
-        (None, rbt))
-    l
-    RBT.empty))"
-end
+definition "write_file = s_of.write_file (String.implode o String.to_list) (ToNat integer_of_natural)"
+
 lemmas [code] =
-  (*def*)
-  L.unique_def
+  (* def *)
+  s_of.write_file_def
+
+  (* fun *)
+
+section{* ... *}  (* garbage collection of aliases *)
+
+no_type_notation natural ("nat")
+no_type_notation abr_string ("string")
 
 end

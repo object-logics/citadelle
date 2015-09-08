@@ -111,7 +111,7 @@ session "OCL-all-dirty" in "src" = HOL +
 
     "../examples/empirical_evaluation/Class_model"
 
-    "../src/compiler/OCL_compiler_generator_static"
+    "../src/compiler/Generator_static"
 
     "../examples/Employee_Model/Analysis/Analysis_OCL"
     "../examples/Employee_Model/Design/Design_OCL"
@@ -129,10 +129,10 @@ session "OCL-all-dirty" in "src" = HOL +
     "../examples/LinkedList"
     "../examples/archive/Simple_Model"
 
-    "../src/compiler/OCL_compiler_aux_proof"
-    "../src/compiler/OCL_compiler_aux_tactic"
-    "../src/compiler/OCL_compiler_aux_text"
-    "../src/compiler/OCL_compiler_rail"
+    "../src/compiler/Aux_proof"
+    "../src/compiler/Aux_tactic"
+    "../src/compiler/Aux_text"
+    "../src/compiler/Rail"
 
     "../examples/archive/OCL_lib_Gogolla_challenge_integer"
   document_files

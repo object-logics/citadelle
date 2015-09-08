@@ -3,7 +3,7 @@
  *                       for the OMG Standard.
  *                       http://www.brucker.ch/projects/hol-testgen/
  *
- * OCL_compiler_printer.thy ---
+ * Generator_static.thy ---
  * This file is part of HOL-TestGen.
  *
  * Copyright (c) 2013-2015 Université Paris-Saclay, Univ Paris Sud, France
@@ -43,53 +43,39 @@
 
 header{* Part ... *}
 
-theory  OCL_compiler_printer
-imports OCL_compiler_core
-        "meta/OCL_compiler_printer_META"
+theory  Generator_static
+imports Printer
 begin
 
-section{* Generation to Deep Form: OCaml *}
+subsection{* General Compiling Process: Test Scenario: Deep (without reflection) *}
 
-subsection{* conclusion *}
+definition "Employee_DesignModel_UMLPart =
+ (let n = \<lambda>n1 n2. OclTyObj (OclTyCore_pre n1) (case n2 of None \<Rightarrow> [] | Some n2 \<Rightarrow> [[OclTyCore_pre n2]])
+    ; mk = \<lambda>n l. ocl_class_raw.make n l [] False in
+  [ mk (n \<langle>''Galaxy''\<rangle> None) [(\<langle>''sound''\<rangle>, OclTy_raw \<langle>''unit''\<rangle>), (\<langle>''moving''\<rangle>, OclTy_raw \<langle>''bool''\<rangle>)]
+  , mk (n \<langle>''Planet''\<rangle> (Some \<langle>''Galaxy''\<rangle>)) [(\<langle>''weight''\<rangle>, OclTy_raw \<langle>''nat''\<rangle>)]
+  , mk (n \<langle>''Person''\<rangle> (Some \<langle>''Planet''\<rangle>)) [(\<langle>''salary''\<rangle>, OclTy_raw \<langle>''int''\<rangle>)] ])"
 
-definition "List_iterM f l =
-  List.fold (\<lambda>x m. bind m (\<lambda> () \<Rightarrow> f x)) l (return ())"
-
-context s_of
-begin
-definition "write_file ocl = (
-  let (l_thy, Sys_argv) = compiler_env_config.more ocl
-    ; (is_file, f_output) = case (D_output_header_thy ocl, Sys_argv)
-     of (Some (file_out, _), Some dir) \<Rightarrow>
-          let dir = To_string dir in
-          (True, \<lambda>f. bind (Sys_is_directory2 dir) (\<lambda> Sys_is_directory2_dir.
-                     out_file1 f (if Sys_is_directory2_dir then sprint2 \<open>%s/%s.thy\<close>\<acute> dir (To_string file_out) else dir)))
-      | _ \<Rightarrow> (False, out_stand1) in
-  f_output
-    (\<lambda>fprintf1.
-      List_iterM (fprintf1 \<open>%s
-\<close>                             )
-        (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l (ocl, l) =
-           fold_thy'
-             (\<lambda>f. f ())
-             (\<lambda>_ _. [])
-             (\<lambda>x acc1 acc2. (acc1, Cons x acc2))
-             l_thy
-             (compiler_env_config.truncate ocl, []) in
-         s_of_thy_list (compiler_env_config_more_map (\<lambda>_. is_file) ocl) (rev l))))"
-end
-
-definition "write_file = s_of.write_file (String.implode o String.to_list) (ToNat integer_of_natural)"
-
-lemmas [code] =
-  (* def *)
-  s_of.write_file_def
-
-  (* fun *)
-
-section{* ... *}  (* garbage collection of aliases *)
-
-no_type_notation natural ("nat")
-no_type_notation abr_string ("string")
-
+definition "main =
+ (let n = \<lambda>n1. OclTyObj (OclTyCore_pre n1) []
+    ; OclMult = \<lambda>m r. ocl_multiplicity.make [m] r [Set] in
+  write_file
+   (compiler_env_config.extend
+     (compiler_env_config_empty True None (oidInit (Oid 0)) Gen_only_design (None, False)
+        \<lparr> D_output_disable_thy := False
+        , D_output_header_thy := Some (\<langle>''Employee_DesignModel_UMLPart_generated''\<rangle>
+                                      ,[\<langle>''../src/OCL_main''\<rangle>]
+                                      ,\<langle>''../src/compiler/Generator_dynamic''\<rangle>) \<rparr>)
+     ( L.map (META_class_raw Floor1) Employee_DesignModel_UMLPart
+       @@@@ [ META_association (ocl_association.make
+                                  OclAssTy_association
+                                  (OclAssRel [ (n \<langle>''Person''\<rangle>, OclMult (Mult_star, None) None)
+                                             , (n \<langle>''Person''\<rangle>, OclMult (Mult_nat 0, Some (Mult_nat 1)) (Some \<langle>''boss''\<rangle>))]))
+          , META_flush_all OclFlushAll]
+     , None)))"
+(*
+apply_code_printing ()
+export_code main
+  in OCaml module_name M
+*)
 end

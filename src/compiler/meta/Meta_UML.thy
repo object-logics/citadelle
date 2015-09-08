@@ -3,7 +3,7 @@
  *                       for the OMG Standard.
  *                       http://www.brucker.ch/projects/hol-testgen/
  *
- * OCL_compiler_meta_UML.thy ---
+ * Meta_UML.thy ---
  * This file is part of HOL-TestGen.
  *
  * Copyright (c) 2013-2015 Université Paris-Saclay, Univ Paris Sud, France
@@ -43,9 +43,9 @@
 
 header{* Part ... *}
 
-theory  OCL_compiler_meta_UML
+theory  Meta_UML
 imports "../../compiler_generic/meta_isabelle/Meta_Pure"
-        "../OCL_compiler_init_rbt"
+        "../Init_rbt"
 begin
 
 section{* OCL Meta-Model aka. AST definition of OCL *}

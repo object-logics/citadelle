@@ -45,15 +45,15 @@ theory   UML_OCL
 imports  "UML_Main" 
          "../examples/archive/Monads" (* NOTE: perform lazily the extraction of generation_syntax 
                                          so that dependencies can alternate among theories *)
-         "compiler/OCL_compiler_static"
-         "compiler/OCL_compiler_generator_dynamic"
+         "compiler/Static"
+         "compiler/Generator_dynamic"
 begin
 
 generation_syntax [ (*deep
                       (*(generation_semantics [ analysis (*, oid_start 10*) ])*)
                       (THEORY Model_generated)
-                      (IMPORTS ["../src/UML_Main", "../src/compiler/OCL_compiler_static"]
-                               "../src/compiler/OCL_compiler_generator_dynamic")
+                      (IMPORTS ["../src/UML_Main", "../src/compiler/Static"]
+                               "../src/compiler/Generator_dynamic")
                       SECTION
                       (*SORRY*)
                       [ in SML module_name M ]

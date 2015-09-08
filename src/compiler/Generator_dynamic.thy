@@ -3,7 +3,7 @@
  *                       for the OMG Standard.
  *                       http://www.brucker.ch/projects/hol-testgen/
  *
- * OCL_compiler_generator_dynamic.thy ---
+ * Generator_dynamic.thy ---
  * This file is part of HOL-TestGen.
  *
  * Copyright (c) 2013-2015 Université Paris-Saclay, Univ Paris Sud, France
@@ -43,8 +43,8 @@
 
 header{* Part ... *}
 
-theory OCL_compiler_generator_dynamic
-imports OCL_compiler_printer
+theory Generator_dynamic
+imports Printer
         "../compiler_generic/isabelle_home/src/HOL/Isabelle_Main2"
   keywords (* ocl (USE tool) *)
            "Between"

@@ -3,7 +3,7 @@
  *                       for the OMG Standard.
  *                       http://www.brucker.ch/projects/hol-testgen/
  *
- * OCL_compiler_parser_UML_extended.thy ---
+ * Parser_UML_extended.thy ---
  * This file is part of HOL-TestGen.
  *
  * Copyright (c) 2013-2015 Université Paris-Saclay, Univ Paris Sud, France
@@ -43,8 +43,8 @@
 
 header{* Part ... *}
 
-theory  OCL_compiler_parser_UML_extended
-imports OCL_compiler_meta_UML_extended
+theory  Parser_UML_extended
+imports Meta_UML_extended
         "../../compiler_generic/meta_isabelle/Parser_init"
 begin
 

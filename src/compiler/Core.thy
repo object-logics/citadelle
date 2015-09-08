@@ -3,7 +3,7 @@
  *                       for the OMG Standard.
  *                       http://www.brucker.ch/projects/hol-testgen/
  *
- * OCL_compiler_core.thy ---
+ * Core.thy ---
  * This file is part of HOL-TestGen.
  *
  * Copyright (c) 2013-2015 Université Paris-Saclay, Univ Paris Sud, France
@@ -43,18 +43,18 @@
 
 header{* Part ... *}
 
-theory  OCL_compiler_core
-imports "core/OCL_compiler_floor1_enum"
-        "core/OCL_compiler_floor1_infra"
-        "core/OCL_compiler_floor1_astype"
-        "core/OCL_compiler_floor1_istypeof"
-        "core/OCL_compiler_floor1_iskindof"
-        "core/OCL_compiler_floor1_allinst"
-        "core/OCL_compiler_floor1_access"
-        "core/OCL_compiler_floor1_examp"
-        "core/OCL_compiler_floor2_examp"
-        "core/OCL_compiler_floor1_ctxt"
-        "core/OCL_compiler_floor2_ctxt"
+theory  Core
+imports "core/Floor1_enum"
+        "core/Floor1_infra"
+        "core/Floor1_astype"
+        "core/Floor1_istypeof"
+        "core/Floor1_iskindof"
+        "core/Floor1_allinst"
+        "core/Floor1_access"
+        "core/Floor1_examp"
+        "core/Floor2_examp"
+        "core/Floor1_ctxt"
+        "core/Floor2_ctxt"
 begin
 
 section{* Translation of AST *}
@@ -358,29 +358,29 @@ definition "thy_instance = Hol_theory_ext
                              , print_examp_instance_defassoc_typecheck ]"
 definition "thy_def_base_l = Hol_theory_ext [ print_examp_oclbase ]"
 definition "thy_def_state = (\<lambda> Floor1 \<Rightarrow> Hol_theory_ext 
-                                           [ OCL_compiler_floor1_examp.print_examp_def_st_typecheck_var
-                                           , OCL_compiler_floor1_examp.print_examp_def_st1 ]
+                                           [ Floor1_examp.print_examp_def_st_typecheck_var
+                                           , Floor1_examp.print_examp_def_st1 ]
                              | Floor2 \<Rightarrow> Hol_theory_locale
-                                           OCL_compiler_floor2_examp.print_examp_def_st_locale
-                                           [ OCL_compiler_floor2_examp.print_examp_def_st2
-                                           , OCL_compiler_floor2_examp.print_examp_def_st_dom
-                                           , OCL_compiler_floor2_examp.print_examp_def_st_dom_lemmas
-                                           , OCL_compiler_floor2_examp.print_examp_def_st_perm
-                                           , OCL_compiler_floor2_examp.print_examp_def_st_allinst
-                                           , OCL_compiler_floor2_examp.print_examp_def_st_defassoc_typecheck ])"
+                                           Floor2_examp.print_examp_def_st_locale
+                                           [ Floor2_examp.print_examp_def_st2
+                                           , Floor2_examp.print_examp_def_st_dom
+                                           , Floor2_examp.print_examp_def_st_dom_lemmas
+                                           , Floor2_examp.print_examp_def_st_perm
+                                           , Floor2_examp.print_examp_def_st_allinst
+                                           , Floor2_examp.print_examp_def_st_defassoc_typecheck ])"
 definition "thy_def_pre_post = (\<lambda> Floor1 \<Rightarrow> Hol_theory_ext 
-                                              [ OCL_compiler_floor1_examp.print_pre_post ]
+                                              [ Floor1_examp.print_pre_post ]
                                 | Floor2 \<Rightarrow> Hol_theory_locale
-                                              OCL_compiler_floor2_examp.print_pre_post_locale
-                                              [ OCL_compiler_floor2_examp.print_pre_post_interp
-                                              , OCL_compiler_floor2_examp.print_pre_post_wff
-                                              , OCL_compiler_floor2_examp.print_pre_post_where ])"
+                                              Floor2_examp.print_pre_post_locale
+                                              [ Floor2_examp.print_pre_post_interp
+                                              , Floor2_examp.print_pre_post_wff
+                                              , Floor2_examp.print_pre_post_where ])"
 definition "thy_ctxt = (\<lambda> Floor1 \<Rightarrow> Hol_theory_ext 
-                                      [ OCL_compiler_floor1_ctxt.print_ctxt ]
+                                      [ Floor1_ctxt.print_ctxt ]
                         | Floor2 \<Rightarrow> Hol_theory_ext 
-                                      [ OCL_compiler_floor2_ctxt.print_ctxt_pre_post
-                                      , OCL_compiler_floor2_ctxt.print_ctxt_inv
-                                      , OCL_compiler_floor2_ctxt.print_ctxt_thm ])"
+                                      [ Floor2_ctxt.print_ctxt_pre_post
+                                      , Floor2_ctxt.print_ctxt_inv
+                                      , Floor2_ctxt.print_ctxt_thm ])"
 definition "thy_flush_all = Hol_theory_ext []"
 (* NOTE typechecking functions can be put at the end, however checking already defined constants can be done earlier *)
 
