@@ -63,7 +63,7 @@ session "Toy_Example" = Meta_Isabelle +
     "toy_example/embedding/Generator_static"
     "toy_example/embedding/Generator_dynamic"
   theories
-    "toy_example/generator/Analysis_deep"
+    (*"toy_example/generator/Analysis_deep"*)
     "toy_example/generator/Analysis_shallow"
     "document/Rail"
   document_files

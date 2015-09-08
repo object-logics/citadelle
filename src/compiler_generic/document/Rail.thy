@@ -36,8 +36,6 @@
  ******************************************************************************)
 (* $Id:$ *)
 
-section{* Grammars *}
-
 (*<*)
 theory Rail
 imports "../toy_example/embedding/Generator_dynamic"
@@ -45,7 +43,7 @@ begin
 ML_file "~~/src/Doc/antiquote_setup.ML"
 (*>*)
 
-subsection{* Toy-Class Package: The Generic Part *}
+section{* Toy-Class Package: The Generic Part *}
 
 text {*
 \begin{matharray}{rcl}
@@ -88,7 +86,7 @@ text {*
 \<close>}
 *}
 
-subsection{* Toy-Class Package: The Class Model Part *}
+section{* Toy-Class Package: The Class Model Part *}
 
 text {*
 \begin{matharray}{rcl}
@@ -220,7 +218,7 @@ text {*
 \<close>}
 *}
 
-subsection{* Miscellaneous *}
+section{* Miscellaneous *}
 
 text {*
 \begin{matharray}{rcl}
@@ -243,7 +241,7 @@ text {*
 \<close>}
 *}
 
-subsection{* Commands Extending Isabelle 2015 *}
+section{* Commands Extending Isabelle 2015 *}
 
 (* WARNING syntax errors during the extraction to LaTeX for the symbol "acute":
            fun\<acute>, definition\<acute> or code_reflect\<acute> *)

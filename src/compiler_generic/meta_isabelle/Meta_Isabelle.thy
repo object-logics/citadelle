@@ -45,6 +45,12 @@ begin
 
 subsection{* Type Definition *}
 
+text{* The following datatypes beginning with \verb|hol__| represent semi-concrete syntax,
+       deliberately not minimal abstract syntax like Pure Term, in order to facilitate
+       the pretty-printing process.
+       When using the FOCL compiler in shallow mode, variants such as @{term Ty_apply_paren}
+       are irrelevant. *}
+
 datatype hol__type = Ty_apply hol__type "hol__type list"
                    | Ty_apply_bin string (* binop *) hol__type hol__type
                    | Ty_apply_paren string (* left *) string (* right *) hol__type
