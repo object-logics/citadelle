@@ -45,7 +45,7 @@ header{* Part ... *}
 
 theory  OCL_compiler_parser_UML_extended
 imports OCL_compiler_meta_UML_extended
-        OCL_compiler_parser_oid
+        "../../compiler_generic/toy_example/embedding/meta_toy/Parser_oid"
 begin
 
 section{* Generation to both Form (setup part) *}

@@ -45,7 +45,7 @@ header{* Part ... *}
 
 theory  OCL_compiler_printer_META
 imports OCL_compiler_parser_META
-        OCL_compiler_printer_Isabelle
+        "../../compiler_generic/meta_isabelle/Printer_Isabelle"
 begin
 
 subsection{* s of ... *} (* s_of *)

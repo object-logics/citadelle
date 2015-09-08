@@ -45,7 +45,7 @@ header{* Part ... *}
 
 theory  OCL_compiler_parser_UML
 imports OCL_compiler_meta_UML
-        OCL_compiler_parser_Pure
+        "../../compiler_generic/meta_isabelle/Parser_Pure"
 begin
 
 section{* Generation to both Form (setup part) *}

@@ -44,7 +44,7 @@
 header{* Part ... *}
 
 theory  OCL_compiler_meta_UML_extended
-imports OCL_compiler_meta_oid
+imports "../../compiler_generic/toy_example/embedding/meta_toy/Meta_oid"
 begin
 
 section{* OCL Meta-Model aka. AST definition of OCL *}

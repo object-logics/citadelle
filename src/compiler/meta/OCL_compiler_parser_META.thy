@@ -214,12 +214,12 @@ definition "i_of_string_gen s_flatten s_st0 s_st a b s =
                             s in
      S.flatten [ \<open>(\<close>, s, \<open>)\<close> ])"
 
-definition "i_of_string = i_of_string_gen \<open>OCL_compiler_init.S.flatten\<close>
-                                          (\<lambda>s. S.flatten [\<open>(OCL_compiler_init.ST0\<close>, s, \<open>)\<close>])
-                                          (\<lambda>s. S.flatten [\<open>(OCL_compiler_init.abr_string.SS_base (OCL_compiler_init.string\<^sub>b\<^sub>a\<^sub>s\<^sub>e.ST\<close>, s, \<open>))\<close>])"
-definition "i_of_string\<^sub>b\<^sub>a\<^sub>s\<^sub>e a b s = i_of_string_gen \<open>OCL_compiler_init.String\<^sub>b\<^sub>a\<^sub>s\<^sub>e.flatten\<close>
-                                                   (\<lambda>s. S.flatten [\<open>(OCL_compiler_init.ST0_base\<close>, s, \<open>)\<close>])
-                                                   (\<lambda>s. S.flatten [\<open>(OCL_compiler_init.string\<^sub>b\<^sub>a\<^sub>s\<^sub>e.ST\<close>, s, \<open>)\<close>])
+definition "i_of_string = i_of_string_gen \<open>Init.S.flatten\<close>
+                                          (\<lambda>s. S.flatten [\<open>(Init.ST0\<close>, s, \<open>)\<close>])
+                                          (\<lambda>s. S.flatten [\<open>(Init.abr_string.SS_base (Init.string\<^sub>b\<^sub>a\<^sub>s\<^sub>e.ST\<close>, s, \<open>))\<close>])"
+definition "i_of_string\<^sub>b\<^sub>a\<^sub>s\<^sub>e a b s = i_of_string_gen \<open>Init.String\<^sub>b\<^sub>a\<^sub>s\<^sub>e.flatten\<close>
+                                                   (\<lambda>s. S.flatten [\<open>(Init.ST0_base\<close>, s, \<open>)\<close>])
+                                                   (\<lambda>s. S.flatten [\<open>(Init.string\<^sub>b\<^sub>a\<^sub>s\<^sub>e.ST\<close>, s, \<open>)\<close>])
                                                    a
                                                    b
                                                    (String\<^sub>b\<^sub>a\<^sub>s\<^sub>e.to_String s)"
