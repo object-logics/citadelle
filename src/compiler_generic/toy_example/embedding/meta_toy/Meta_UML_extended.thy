@@ -133,14 +133,4 @@ definition "inst_ty ocli = (case inst_ty0 ocli of Some ty \<Rightarrow> ty)"
 definition "fold_instance_single f ocli = fold_list_attr (inst_ty0 ocli) (\<lambda> Some x \<Rightarrow> f x) (Inst_attr ocli)"
 definition "fold_instance_single' f ocli = fold_list_attr (Inst_ty ocli) f (Inst_attr ocli)"
 
-definition "str_of_def_base = (\<lambda> OclDefInteger _ \<Rightarrow> \<open>Integer\<close>
-                               | OclDefReal _ \<Rightarrow> \<open>Real\<close>
-                               | OclDefString _ \<Rightarrow> \<open>String\<close>)"
-
-fun' str_of_data_shallow where
-    \<open>str_of_data_shallow e = (\<lambda> ShallB_term b \<Rightarrow> str_of_def_base b
-                              | ShallB_str s \<Rightarrow> \<open>"\<close> @@ s @@ \<open>"\<close>
-                              | ShallB_self _ \<Rightarrow> \<open>(*object_oid*)\<close>
-                              | ShallB_list l \<Rightarrow> \<open>[ \<close> @@ String_concatWith \<open>, \<close> (List.map str_of_data_shallow l) @@ \<open> ]\<close>) e\<close>
-
 end

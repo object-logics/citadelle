@@ -66,83 +66,17 @@ begin
  by (metis le_cases less_eq_internal_oid_def)
 end
 
-instantiation opt_ident :: linorder
-begin
- definition "n_of_opt_ident = (\<lambda> OptIdent n \<Rightarrow> n)"
- definition "n \<le> m \<longleftrightarrow> n_of_opt_ident n \<le> n_of_opt_ident m"
- definition "n < m \<longleftrightarrow> n_of_opt_ident n < n_of_opt_ident m"
- instance
- apply(default)
- apply (metis less_eq_opt_ident_def less_imp_le less_opt_ident_def not_less)
- apply (metis less_eq_opt_ident_def order_refl)
-   apply (metis less_eq_opt_ident_def order.trans)
-   apply(simp add: less_eq_opt_ident_def n_of_opt_ident_def, case_tac x, case_tac y, simp)
- by (metis le_cases less_eq_opt_ident_def)
-end
-
 subsection{* ... *}
 
-definition "const_oclastype = \<open>OclAsType\<close>"
-definition "const_oclistypeof = \<open>OclIsTypeOf\<close>"
-definition "const_ocliskindof = \<open>OclIsKindOf\<close>"
-definition "const_mixfix dot_ocl name = S.flatten [dot_ocl, \<open>'(\<close>, name, \<open>')\<close>]"
-definition "const_oid_of s = \<open>oid_of_\<close> @@ s"
-definition "dot_oclastype = \<open>.oclAsType\<close>"
-definition "dot_oclistypeof = \<open>.oclIsTypeOf\<close>"
-definition "dot_ocliskindof = \<open>.oclIsKindOf\<close>"
-definition "dot_astype = mk_dot_par dot_oclastype"
-definition "dot_istypeof = mk_dot_par dot_oclistypeof"
-definition "dot_iskindof = mk_dot_par dot_ocliskindof"
-
-definition "var_reconst_basetype = \<open>reconst_basetype\<close>"
-definition "var_reconst_basetype_void = \<open>reconst_basetype\<^sub>V\<^sub>o\<^sub>i\<^sub>d\<close>"
-definition "var_Abs_Void = \<open>Abs_Void\<^sub>b\<^sub>a\<^sub>s\<^sub>e\<close>"
 definition "var_oid_uniq = \<open>oid\<close>"
-definition "var_eval_extract = \<open>eval_extract\<close>"
-definition "var_deref = \<open>deref\<close>"
-definition "var_deref_oid = \<open>deref_oid\<close>"
-definition "var_deref_assocs = \<open>deref_assocs\<close>"
 definition "var_deref_assocs_list = \<open>deref_assocs_list\<close>"
 definition "var_inst_assoc = \<open>inst_assoc\<close>"
-definition "var_select = \<open>select\<close>"
-definition "var_select_object = \<open>select_object\<close>"
-definition "var_select_object_set = \<open>select_object\<^sub>S\<^sub>e\<^sub>t\<close>"
-definition "var_select_object_set_any = \<open>select_object_any\<^sub>S\<^sub>e\<^sub>t\<close>"
-definition "var_select_object_set_any_exec = \<open>select_object_any_exec\<^sub>S\<^sub>e\<^sub>t\<close>"
-definition "var_select_object_sequence = \<open>select_object\<^sub>S\<^sub>e\<^sub>q\<close>"
-definition "var_select_object_sequence_any = \<open>select_object_any\<^sub>S\<^sub>e\<^sub>q\<close>"
-definition "var_select_object_sequence_any_exec = \<open>select_object_any_exec\<^sub>S\<^sub>e\<^sub>q\<close>"
-definition "var_select_object_pair = \<open>select_object\<^sub>P\<^sub>a\<^sub>i\<^sub>r\<close>"
-definition "var_select_object_pair_any = \<open>select_object_any\<^sub>P\<^sub>a\<^sub>i\<^sub>r\<close>"
-definition "var_select_object_pair_any_exec = \<open>select_object_any_exec\<^sub>P\<^sub>a\<^sub>i\<^sub>r\<close>"
 definition "var_choose = \<open>choose\<close>"
 definition "var_switch = \<open>switch\<close>"
 definition "var_assocs = \<open>assocs\<close>"
 definition "var_map_of_list = \<open>map_of_list\<close>"
-definition "var_OclInteger = \<open>OclInt\<close>"
-definition "var_OclReal = \<open>OclReal\<close>"
-definition "var_OclString = \<open>OclString\<close>"
-definition "var_Abs_Set = \<open>Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e\<close>"
-definition "var_Abs_Set_inverse = var_Abs_Set @@ \<open>_inverse\<close>"
-definition "var_Set_base = \<open>Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e\<close>"
-definition "var_Sequence_base = \<open>Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e\<close>"
-definition "var_Pair_base = \<open>Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e\<close>"
-definition "var_mt_set = \<open>mtSet\<close>"
-definition "var_ANY_set = \<open>UML_Set.OclANY\<close>"
-definition "var_OclIncluding_set = \<open>UML_Set.OclIncluding\<close>"
-definition "var_OclForall_set = \<open>UML_Set.OclForall\<close>"
-definition "var_mt_sequence = \<open>mtSequence\<close>"
-definition "var_ANY_sequence = \<open>UML_Sequence.OclANY\<close>"
-definition "var_OclIncluding_sequence = \<open>UML_Sequence.OclIncluding\<close>"
-definition "var_OclForall_sequence = \<open>UML_Sequence.OclForall\<close>"
 definition "var_self = \<open>self\<close>"
 definition "var_result = \<open>result\<close>"
-definition "var_val' = \<open>val'\<close>"
-definition "update_D_ocl_accessor_pre f = (\<lambda>(l_pre, l_post). (f l_pre, l_post))"
-definition "update_D_ocl_accessor_post f = (\<lambda>(l_pre, l_post). (l_pre, f l_post))"
-
-definition "Expr_basety = (let var_x = \<open>x\<close> in
-                           Expr_lambdas [var_x, wildcard] (Expr_some (Expr_some (Expr_basic [var_x]))))"
 
 subsection{* ... *}
 
@@ -258,13 +192,7 @@ definition "datatype_in = \<open>in\<close>"
 
 section{* Translation of AST *}
 
-definition "map_class_arg_only_var = map_class_arg_only_var_gen (\<lambda>s e. Expr_postunary s (Expr_basic e))"
-definition "map_class_arg_only_var' = map_class_arg_only_var'_gen (\<lambda>s e. Expr_postunary s (Expr_basic e))"
-
-definition "split_ty name = L.map (\<lambda>s. hol_split (s @@ String.isub name)) [datatype_ext_name, datatype_name]"
-
 definition "start_map f = L.mapM (\<lambda>x acc. (f x, acc))"
-definition "start_map' f x accu = (f x, accu)"
 definition "start_map''' f fl = (\<lambda> ocl.
   let design_analysis = D_ocl_semantics ocl
     ; base_attr = (if design_analysis = Gen_only_design then id else L.filter (\<lambda> (_, OclTy_object (OclTyObj (OclTyCore _) _)) \<Rightarrow> False | _ \<Rightarrow> True))
@@ -273,20 +201,8 @@ definition "start_map''' f fl = (\<lambda> ocl.
   start_map f (fl design_analysis base_attr base_attr' base_attr'') ocl)"
 definition "start_map'' f fl e = start_map''' f (\<lambda>_. fl) e"
 definition "start_map'''' f fl = (\<lambda> ocl. start_map f (fl (D_ocl_semantics ocl)) ocl)"
-definition "start_map''''' f fl = (\<lambda> ocl. start_map f (fl (D_output_sorry_dirty ocl) (D_ocl_semantics ocl)) ocl)"
-
-definition "start_m_gen final f print = start_map'' final o (\<lambda>expr base_attr _ _.
-  m_class_gen2 base_attr f print expr)"
-definition "start_m final f print = start_map'' final o (\<lambda>expr base_attr _ _.
-  m_class base_attr f print expr)"
-definition "start_m' final print = start_map'' final o (\<lambda>expr base_attr _ _.
-  m_class' base_attr print expr)"
-definition "start_m'3_gen final print = start_map'' final o (\<lambda>expr base_attr _ _.
-  m_class_gen3 base_attr id print expr)"
 
 subsection{* ... *}
-
-definition "activate_simp_optimization = True"
 
 definition "bootstrap_floor f_x l ocl =
  (let (l, ocl) = f_x l ocl
@@ -305,116 +221,17 @@ definition "bootstrap_floor f_x l ocl =
       # l_setup
   , ocl \<lparr> D_output_auto_bootstrap := True \<rparr> ))"
 
-context SML
-begin
-definition "oid s = (\<lambda>Oid n \<Rightarrow> basic [s @@ String.of_natural n])"
-end
-
-lemmas [code] =
-  (*def*)
-  SML.oid_def
-
 definition "Expr_oid s = (\<lambda>Oid n \<Rightarrow> Expr_basic [s @@ String.of_natural n])"
 
 subsection{* Infra *}
-
-fun print_infra_type_synonym_class_rec_aux0 where
-   "print_infra_type_synonym_class_rec_aux0 e =
-   (let option = \<lambda>x. Ty_apply (Ty_base \<open>option\<close>) [x] in
-     (\<lambda> OclTy_collection c t \<Rightarrow>
-          let (name, ty) = print_infra_type_synonym_class_rec_aux0 t in
-          ( (if is_sequence c then \<open>Sequence\<close> else \<open>Set\<close>) @@ \<open>_\<close> @@ name
-          , Ty_apply (Ty_base (if is_sequence c then var_Sequence_base else var_Set_base)) [ty])
-      | OclTy_pair t1 t2 \<Rightarrow>
-          let (name1, ty1) = print_infra_type_synonym_class_rec_aux0 t1
-            ; (name2, ty2) = print_infra_type_synonym_class_rec_aux0 t2 in
-          ( \<open>Pair\<close> @@ \<open>_\<close> @@ name1 @@ \<open>_\<close> @@ name2
-          , Ty_apply (Ty_base var_Pair_base) [ty1, ty2])
-      | OclTy_object (OclTyObj (OclTyCore_pre s) _) \<Rightarrow> (s, option (option (Ty_base (datatype_name @@ String.isub s))))
-      | t \<Rightarrow> (str_of_ty t, Ty_base (str_of_ty t @@ String.isub \<open>base\<close>))) e)"
-
-definition "print_infra_type_synonym_class_rec_aux t =
- (let (tit, body) = print_infra_type_synonym_class_rec_aux0 t in
-  (tit, Ty_apply (Ty_base \<open>val\<close>) [Ty_base \<open>\<AA>\<close>, body]))"
-
-definition "pref_generic_enum name_ty = name_ty @@ String.isub \<open>generic\<close>"
-
-subsection{* AsType *}
-
-definition "print_astype_from_universe_name name = S.flatten [const_oclastype, String.isub name, \<open>_\<AA>\<close>]"
-
-subsection{* IsTypeOf *}
-
-definition "print_istypeof_defined_name isub_name h_name = S.flatten [isub_name const_oclistypeof, \<open>_\<close>, h_name, \<open>_defined\<close>]"
-definition "print_istypeof_defined'_name isub_name h_name = S.flatten [isub_name const_oclistypeof, \<open>_\<close>, h_name, \<open>_defined'\<close>]"
-definition "print_istypeof_up_d_cast_name name_mid name_any name_pers = S.flatten [\<open>down_cast_type\<close>, String.isub name_mid, \<open>_from_\<close>, name_any, \<open>_to_\<close>, name_pers]"
-
-subsection{* IsKindOf *}
-
-definition "print_iskindof_up_eq_asty_name name = (S.flatten [\<open>actual_eq_static\<close>, String.isub name])"
-definition "print_iskindof_up_larger_name name_pers name_any = S.flatten [\<open>actualKind\<close>, String.isub name_pers, \<open>_larger_staticKind\<close>, String.isub name_any]"
-
-subsection{* allInstances *}
-
-definition "gen_pre_post0 f_tit f_assum spec f_lemma meth_last =
-  (let b = \<lambda>s. Expr_basic [s]
-     ; d = hol_definition
-     ; f_allinst = \<lambda>s. \<open>OclAllInstances_\<close> @@ s
-     ; f_tit = f_tit o f_allinst
-     ; var_pre_post = \<open>pre_post\<close>
-     ; var_mk = \<open>mk\<close>
-     ; var_st = \<open>st\<close>
-     ; s_generic = \<open>generic\<close>
-     ; lem_gen = f_tit s_generic
-     ; mk_pre_post = \<lambda>pre_post at_when f_cpl.
-         let s_allinst = f_allinst at_when in
-         Lemma_assumes
-           (f_tit at_when)
-           f_assum
-           (spec (Expr_app s_allinst) f_cpl pre_post)
-           [C.unfolding [T.thm (d s_allinst)]]
-           (C.by (M.rule (T.thm lem_gen) # meth_last)) in
-  [ f_lemma lem_gen f_assum (spec (\<lambda>l. Expr_app (f_allinst s_generic) (b var_pre_post # l)) (\<lambda>e. Expr_app var_mk [e]) var_pre_post) var_pre_post var_mk var_st
-  , mk_pre_post \<open>snd\<close> \<open>at_post\<close> (Expr_pair (b var_st))
-  , mk_pre_post \<open>fst\<close> \<open>at_pre\<close> (\<lambda>e. Expr_pair e (b var_st)) ])"
-
-definition "gen_pre_post f_tit spec f_lemma = gen_pre_post0 f_tit [] spec (\<lambda>lem_gen _. f_lemma lem_gen)"
 
 subsection{* accessors *}
 
 definition "print_access_oid_uniq_name' name_from_nat isub_name attr = S.flatten [ isub_name var_oid_uniq, \<open>_\<close>, String.of_natural name_from_nat, \<open>_\<close>, attr ]"
 definition "print_access_oid_uniq_name name_from_nat isub_name attr = print_access_oid_uniq_name' name_from_nat isub_name (String.isup attr)"
-definition "print_access_oid_uniq_mlname name_from_nat name attr = S.flatten [ var_oid_uniq, name, \<open>_\<close>, String.of_natural name_from_nat, \<open>_\<close>, attr ]"
 
 definition "print_access_choose_name n i j =
   S.flatten [var_switch, String.isub (String.of_natural n), \<open>_\<close>, String.of_natural i, String.of_natural j]"
-definition "print_access_choose_mlname n i j =
-  S.flatten [var_switch, String.of_natural n, \<open>_\<close>, String.of_natural i, String.of_natural j]"
-
-definition "print_access_dot_consts_ty attr_ty =
-              (let ty_base = \<lambda>attr_ty.
-                 Ty_apply (Ty_base \<open>val\<close>) [Ty_base \<open>\<AA>\<close>,
-                    let option = \<lambda>x. Ty_apply (Ty_base \<open>option\<close>) [x] in
-                    option (option (Ty_base attr_ty))] in
-               case attr_ty of
-                  OclTy_raw attr_ty \<Rightarrow> ty_base attr_ty
-                | OclTy_object (OclTyObj (OclTyCore ty_obj) _) \<Rightarrow>
-                    let ty_obj = TyObj_to ty_obj
-                      ; name = TyObjN_role_ty ty_obj
-                      ; obj_mult = TyObjN_role_multip ty_obj in
-                    Ty_base (if single_multip obj_mult then
-                               wrap_oclty name
-                             else if is_sequence obj_mult then
-                               print_infra_type_synonym_class_sequence_name name
-                             else
-                               print_infra_type_synonym_class_set_name name)
-                | OclTy_object (OclTyObj (OclTyCore_pre s) _) \<Rightarrow> Raw (wrap_oclty s)
-                | OclTy_base_unlimitednatural \<Rightarrow> str_hol_of_ty_all Ty_apply ty_base attr_ty
-                   (* REMARK Dependencies to UnlimitedNatural.thy can be detected and added
-                             so that this pattern clause would be merged with the default case *)
-                | OclTy_collection _ _ \<Rightarrow> Raw (fst (print_infra_type_synonym_class_rec_aux attr_ty))
-                | OclTy_pair _ _ \<Rightarrow> Raw (fst (print_infra_type_synonym_class_rec_aux attr_ty))
-                | _ \<Rightarrow> Raw (str_of_ty attr_ty))"
 
 subsection{* example *}
 
@@ -422,30 +239,10 @@ datatype reporting = Warning
                    | Error
                    | Writeln
 
-definition "raise_ml l_out s = SML (SML.apply \<open>Ty'.check\<close>
-    [ SML.list'
-        (\<lambda>(rep, s).
-          SML.pair (SML.basic [S.flatten [ \<open>OCL.\<close>
-                                           , case rep of Warning \<Rightarrow> \<open>Warning\<close>
-                                                       | Error \<Rightarrow> \<open>Error\<close>
-                                                       | Writeln \<Rightarrow> \<open>Writeln\<close> ]])
-                     (SML.string s))
-        l_out
-    , SML.string s ])"
-
-definition "print_examp_def_st_inst_var_name ocli name = S.flatten [case\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l Inst_name ocli of Some n \<Rightarrow> n, name]"
-
 subsection{* context *}
-
-definition "print_ctxt_const_name attr_n var_at_when_hol name =
-  S.flatten [ \<open>dot\<close>, String.isup attr_n, var_at_when_hol] @@ (case name of None \<Rightarrow> \<open>\<close> | Some name \<Rightarrow> \<open>_\<close> @@ name)"
-definition "print_ctxt_pre_post_name attr_n var_at_when_hol name = hol_definition (print_ctxt_const_name attr_n var_at_when_hol name)"
-definition "print_ctxt_inv_name n tit var_at_when = S.flatten [n, \<open>_\<close>, tit, var_at_when]"
 
 definition "make_ctxt_free_var pref ctxt =
  (var_self # L.flatten [ L.map fst (Ctxt_fun_ty_arg ctxt)
                           , if pref = OclCtxtPre then [] else [var_result] ])"
-
-subsection{* context2 *}
 
 end

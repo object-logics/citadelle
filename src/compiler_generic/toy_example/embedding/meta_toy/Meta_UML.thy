@@ -184,16 +184,6 @@ definition "map_pre_post f =
                                ctxt)
                    | x \<Rightarrow> x))"
 
-definition "fold_pre_post f ctxt = 
-              List.fold 
-                (\<lambda> Ctxt_pp ctxt \<Rightarrow> 
-                     f (rev (List.fold
-                       (\<lambda> T_pp pref (OclProp_ctxt n e) \<Rightarrow> Cons (pref, n, e)
-                        | _ \<Rightarrow> id)
-                       (Ctxt_expr ctxt) [])) ctxt
-                 | _ \<Rightarrow> id)
-                (Ctxt_clause ctxt)"
-
 definition "map_invariant f_inv =
              Ctxt_clause_update
                (L.map 
@@ -204,26 +194,6 @@ definition "map_invariant f_inv =
                                   | x \<Rightarrow> x))
                                ctxt)
                    | Ctxt_inv ctxt \<Rightarrow> Ctxt_inv (f_inv ctxt)))"
-
-definition "fold_invariant f_inv ctxt =
-              List.fold
-                (\<lambda> Ctxt_pp ctxt \<Rightarrow>
-                             List.fold
-                               (\<lambda> T_invariant ctxt \<Rightarrow> f_inv ctxt
-                                | _ \<Rightarrow> id)
-                              (Ctxt_expr ctxt)
-                 | Ctxt_inv ctxt \<Rightarrow> f_inv ctxt)
-                (Ctxt_clause ctxt)"
-
-definition "fold_invariant' inva =
-  rev (fst (fold_invariant (\<lambda>(T_inv _ (OclProp_ctxt tit inva)) \<Rightarrow> \<lambda> (accu, n).
-                               ( (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l tit = case tit of None \<Rightarrow> String.of_nat n
-                                                          | Some tit \<Rightarrow> tit in
-                                  (tit, inva))
-                                 # accu
-                               , Suc n))
-                           inva
-                           ([], 0)))"
 
 fun remove_binding where
    "remove_binding e = (\<lambda> OclTy_collection m ty \<Rightarrow> OclTy_collection m (remove_binding ty)
@@ -495,9 +465,6 @@ fun str_hol_of_ty_all where "str_hol_of_ty_all f b e =
   | OclTy_enum s \<Rightarrow> b (pref_ty_enum s)
   | OclTy_raw s \<Rightarrow> b s) e"
 
-definition "print_infra_type_synonym_class_set_name name = \<open>Set_\<close> @@ name"
-definition "print_infra_type_synonym_class_sequence_name name = \<open>Sequence_\<close> @@ name"
-
 fun get_class_hierarchy_strict_aux where
    "get_class_hierarchy_strict_aux dataty l_res =
    (List.fold
@@ -515,18 +482,6 @@ fun get_class_hierarchy'_aux where
 definition "get_class_hierarchy' = get_class_hierarchy'_aux []"
 
 definition "get_class_hierarchy e = L.map (\<lambda> OclClass n l _ \<Rightarrow> (n, l)) (get_class_hierarchy' e)"
-definition "get_class_hierarchy_sub = (\<lambda> None \<Rightarrow> []
-                                       | Some next_dataty \<Rightarrow> get_class_hierarchy next_dataty)"
-definition "get_class_hierarchy_sub' = (\<lambda> None \<Rightarrow> []
-                                        | Some next_dataty \<Rightarrow> get_class_hierarchy' next_dataty)"
-
-datatype position = EQ (* equal *) | LT (* less *) | GT (* greater *) | UN' (* uncomparable *)
-
-fun fold_less_gen where "fold_less_gen f_gen f_jump f l = (case l of
-    x # xs \<Rightarrow> \<lambda>acc. fold_less_gen f_gen f_jump f xs (f_gen (f x) xs (f_jump acc))
-  | [] \<Rightarrow> id)"
-
-definition "fold_less2 = fold_less_gen List.fold"
 
 section{* Translation of AST *}
 
@@ -546,13 +501,9 @@ datatype 'a tmp_inh = Tinh 'a
 datatype 'a tmp_univ = Tuniv 'a
 definition "of_inh = (\<lambda>Tinh l \<Rightarrow> l)"
 definition "of_linh = L.map Inh"
-definition "of_linh_sib l = L.flatten (L.map snd (L.flatten (L.map Inh_sib l)))"
 definition "of_sub = (\<lambda>Tsub l \<Rightarrow> l)"
 definition "of_univ = (\<lambda>Tuniv l \<Rightarrow> l)"
 definition "map_inh f = (\<lambda>Tinh l \<Rightarrow> Tinh (f l))"
-definition "map_linh f cl = \<lparr> Inh = f (Inh cl)
-                            , Inh_sib = L.map (map_prod f (L.map f)) (Inh_sib cl)
-                            , Inh_sib_unflat = L.map f (Inh_sib_unflat cl) \<rparr>"
 
 fun fold_class_gen_aux where
    "fold_class_gen_aux l_inh f accu (OclClass name l_attr dataty) =
@@ -593,215 +544,16 @@ definition "map_class_gen f = fst o fold_class_gen
   (\<lambda> isub_name name l_attr l_inh l_subtree last_d. \<lambda> () \<Rightarrow>
     (f isub_name name l_attr l_inh l_subtree last_d, ())) ()"
 
-definition "add_hierarchy f x = (\<lambda>isub_name name _ _ _ _. f isub_name name (Tuniv (L.map fst (get_class_hierarchy x))))"
-definition "add_hierarchy' f x = (\<lambda>isub_name name _ _ _ _. f isub_name name (Tuniv (get_class_hierarchy x)))"
-definition "add_hierarchy'' f x = (\<lambda>isub_name name l_attr _ _ _. f isub_name name (Tuniv (get_class_hierarchy x)) l_attr)"
-definition "add_hierarchy''' f x = (\<lambda>isub_name name l_attr l_inh _ next_dataty. f isub_name name (Tuniv (get_class_hierarchy x)) l_attr (map_inh (L.map (\<lambda> OclClass _ l _ \<Rightarrow> l) o of_linh) l_inh) next_dataty)"
 definition "add_hierarchy'''' f x = (\<lambda>isub_name name l_attr l_inh l_subtree _. f isub_name name (Tuniv (get_class_hierarchy x)) l_attr (map_inh (L.map (\<lambda> OclClass _ l _ \<Rightarrow> l) o of_linh) l_inh) l_subtree)"
-definition "add_hierarchy''''' f = (\<lambda>isub_name name l_attr l_inh l_subtree. f isub_name name l_attr (of_inh l_inh) (of_sub l_subtree))"
 definition "map_class f = map_class_gen (\<lambda>isub_name name l_attr l_inh l_subtree next_dataty. [f isub_name name l_attr l_inh (Tsub (L.map (\<lambda> OclClass n _ _ \<Rightarrow> n) (of_sub l_subtree))) next_dataty])"
-definition "map_class' f = map_class_gen (\<lambda>isub_name name l_attr l_inh l_subtree next_dataty. [f isub_name name l_attr l_inh l_subtree next_dataty])"
 definition "fold_class f = fold_class_gen (\<lambda>isub_name name l_attr l_inh l_subtree next_dataty accu. let (x, accu) = f isub_name name l_attr (map_inh of_linh l_inh) (Tsub (L.map (\<lambda> OclClass n _ _ \<Rightarrow> n) (of_sub l_subtree))) next_dataty accu in ([x], accu))"
-definition "map_class_gen_h f x = map_class_gen (add_hierarchy f x) x"
-definition "map_class_gen_h' f x = map_class_gen (add_hierarchy' f x) x"
-definition "map_class_gen_h'' f x = map_class_gen (add_hierarchy'' f x) x"
-definition "map_class_gen_h''' f x = map_class_gen (add_hierarchy''' f x) x"
 definition "map_class_gen_h'''' f x = map_class_gen (add_hierarchy'''' (\<lambda>isub_name name l_inherited l_attr l_inh l_subtree. f isub_name name l_inherited l_attr l_inh (Tsub (L.map (\<lambda> OclClass n _ _ \<Rightarrow> n) (of_sub l_subtree)))) x) x"
-definition "map_class_gen_h''''' f x = map_class_gen (add_hierarchy''''' f) x"
-definition "map_class_h f x = map_class (add_hierarchy f x) x"
-definition "map_class_h' f x = map_class (add_hierarchy' f x) x"
-definition "map_class_h'' f x = map_class (add_hierarchy'' f x) x"
-definition "map_class_h''' f x = map_class (add_hierarchy''' f x) x"
-definition "map_class_h'''' f x = map_class (add_hierarchy'''' f x) x"
-definition "map_class_h''''' f x = map_class' (add_hierarchy''''' f) x"
-definition "map_class_arg_only f = map_class_gen (\<lambda> isub_name name l_attr _ _ _. case l_attr of [] \<Rightarrow> [] | l \<Rightarrow> f isub_name name l)"
-definition "map_class_arg_only' f = map_class_gen (\<lambda> isub_name name l_attr l_inh l_subtree _.
-  case filter (\<lambda> OclClass _ [] _ \<Rightarrow> False | _ \<Rightarrow> True) (of_linh (of_inh l_inh)) of
-    [] \<Rightarrow> []
-  | l \<Rightarrow> f isub_name name (l_attr, Tinh l, l_subtree))"
-definition "map_class_arg_only0 f1 f2 u = map_class_arg_only f1 u @@@@ map_class_arg_only' f2 u"
-definition "map_class_arg_only_var0 = (\<lambda>f_expr f_app f_lattr isub_name name l_attr.
-  L.flatten (L.flatten (
-    L.map (\<lambda>(var_in_when_state, dot_at_when, attr_when).
-      L.flatten (L.map (\<lambda> l_attr. L.map (\<lambda>(attr_name, attr_ty).
-        f_app
-          isub_name
-          name
-          (var_in_when_state, dot_at_when)
-          attr_ty
-          (\<lambda>s. s @@ String.isup attr_name)
-          (\<lambda>s. f_expr s
-            [ case case attr_ty of
-                     OclTy_object (OclTyObj (OclTyCore ty_obj) _) \<Rightarrow>
-                       apply_optim_ass_arity ty_obj
-                       (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l ty_obj = TyObj_from ty_obj in
-                       case TyObjN_role_name ty_obj of
-                          None => String.of_natural (TyObjN_ass_switch ty_obj)
-                        | Some s => s)
-                   | _ \<Rightarrow> None of
-                None \<Rightarrow> mk_dot attr_name attr_when
-              | Some s2 \<Rightarrow> mk_dot_comment attr_name attr_when s2 ])) l_attr)
-     (f_lattr l_attr)))
-   [ (var_in_post_state, var_at_when_hol_post, var_at_when_ocl_post)
-   , (var_in_pre_state, var_at_when_hol_pre, var_at_when_ocl_pre)])))"
-definition "map_class_arg_only_var_gen f_expr f1 f2 = map_class_arg_only0 (map_class_arg_only_var0 f_expr f1 (\<lambda>l. [l])) (map_class_arg_only_var0 f_expr f2 (\<lambda> (_, Tinh l, _) \<Rightarrow> L.map (\<lambda> OclClass _ l _ \<Rightarrow> l) l))"
-definition "map_class_arg_only_var'_gen f_expr f = map_class_arg_only0 (map_class_arg_only_var0 f_expr f (\<lambda>l. [l])) (map_class_arg_only_var0 f_expr f (\<lambda> (_, Tinh l, _) \<Rightarrow> L.map (\<lambda> OclClass _ l _ \<Rightarrow> l) l))"
-definition "map_class_one f_l f expr =
-  (case f_l (fst (fold_class (\<lambda>isub_name name l_attr l_inh l_inh_sib next_dataty _. ((isub_name, name, l_attr, l_inh, l_inh_sib, next_dataty), ())) () expr)) of
-     (isub_name, name, l_attr, l_inh, l_inh_sib, next_dataty) # _ \<Rightarrow>
-     f isub_name name l_attr l_inh l_inh_sib next_dataty)"
-definition "map_class_top = map_class_one rev"
-definition "get_hierarchy_map f f_l x = L.flatten (L.flatten (
-  let (l1, l2, l3) = f_l (L.map fst (get_class_hierarchy x)) in
-  L.map (\<lambda>name1. L.map (\<lambda>name2. L.map (f name1 name2) l3) l2) l1))"
 
 definition "class_arity = RBT.keys o (\<lambda>l. List.fold (\<lambda>x. RBT.insert x ()) l RBT.empty) o
   L.flatten o L.flatten o map_class (\<lambda> _ _ l_attr _ _ _.
     L.map (\<lambda> (_, OclTy_object (OclTyObj (OclTyCore ty_obj) _)) \<Rightarrow> [TyObj_ass_arity ty_obj]
               | _ \<Rightarrow> []) l_attr)"
 
-definition "map_class_gen_h'_inh f =
-  map_class_gen_h''''' (\<lambda>isub_name name _ l_inh l_subtree _.
-    let l_mem = \<lambda>l. List.member (L.map (\<lambda> OclClass n _ _ \<Rightarrow> String.to_list n) l) in
-    f isub_name
-      name
-      (\<lambda>n. let n = String.to_list n in
-           if (* TODO use \<triangleq> *) n = String.to_list name then EQ else
-           if l_mem (of_linh l_inh) n then GT else
-           if l_mem l_subtree n then LT else
-           UN'))"
-
-definition "m_class_gen2 base_attr f print =
- (let m_base_attr = \<lambda> OclClass n l b \<Rightarrow> OclClass n (base_attr l) b
-    ; f_base_attr = L.map m_base_attr in
-  map_class_gen_h''''' (\<lambda>isub_name name nl_attr l_inh l_subtree next_dataty.
-    f name
-      l_inh
-      l_subtree
-      (L.flatten (L.flatten (L.map (
-        let print_astype =
-              print
-                (L.map (map_linh m_base_attr) l_inh)
-                (f_base_attr l_subtree)
-                next_dataty
-          ; nl_attr = base_attr nl_attr in
-        (\<lambda>(l_hierarchy, l).
-          L.map
-            (print_astype l_hierarchy (isub_name, name, nl_attr) o m_base_attr)
-            l))
-        [ (EQ, [OclClass name nl_attr next_dataty])
-        , (GT, of_linh l_inh)
-        , (LT, l_subtree)
-        , (UN', of_linh_sib l_inh) ])))))"
-
-definition "f_less2 =
-  (\<lambda>f l. rev (fst (fold_less2 (\<lambda>(l, _). (l, None)) (\<lambda>x y (l, acc). (f x y acc # l, Some y)) l ([], None))))
-    (\<lambda>a b _. (a,b))"
-
-definition "m_class_gen3_GE base_attr f print =
- (let m_base_attr = \<lambda> OclClass n l b \<Rightarrow> OclClass n (base_attr l) b
-    ; f_base_attr = L.map m_base_attr in
-  map_class_gen_h''''' (\<lambda>isub_name name nl_attr l_inh l_subtree next_dataty.
-    let print_astype =
-         print
-           (L.map (map_linh m_base_attr) l_inh)
-           (f_base_attr l_subtree)
-           next_dataty in
-    L.flatten
-      [ f (L.flatten (L.map (\<lambda> (l_hierarchy, l).
-          L.map (\<lambda> OclClass h_name _ _ \<Rightarrow> print_astype name h_name h_name) l)
-          [ (GT, of_linh l_inh) ]))
-      , f (L.flatten (L.map (\<lambda> (l_hierarchy, l).
-          L.map (\<lambda> (h_name, hh_name). print_astype name h_name hh_name) (f_less2 (L.map (\<lambda> OclClass n _ _ \<Rightarrow> n) l)))
-          [ (GT, of_linh l_inh) ]))
-      , f (L.flatten (L.map (\<lambda> (l_hierarchy, l).
-          L.flatten (L.map (\<lambda> OclClass h_name _ _ \<Rightarrow>
-            L.map (\<lambda> OclClass sib_name _ _ \<Rightarrow> print_astype name sib_name h_name) (of_linh_sib l_inh)) l))
-          [ (GT, of_linh l_inh) ])) ]))"
-
-definition "m_class_gen3 base_attr f print =
- (let m_base_attr = \<lambda> OclClass n l b \<Rightarrow> OclClass n (base_attr l) b
-    ; f_base_attr = L.map m_base_attr in
-  map_class_gen_h''''' (\<lambda>isub_name name nl_attr l_inh l_subtree next_dataty.
-    let print_astype =
-         print
-           (L.map (map_linh m_base_attr) l_inh)
-           (f_base_attr l_subtree)
-           next_dataty in
-    f (L.flatten (
-        let l_tree = L.map (\<lambda>(cmp,l). (cmp, f_base_attr l))
-          [ (EQ, [OclClass name nl_attr next_dataty])
-          , (GT, of_linh l_inh)
-          , (LT, l_subtree)
-          , (UN', of_linh_sib l_inh) ] in
-        (\<lambda>f. L.flatten (L.map (\<lambda> (l_hierarchy, l). L.map (f l_hierarchy) l) l_tree))
-        (\<lambda> l_hierarchy1. \<lambda> OclClass h_name hl_attr hb \<Rightarrow>
-        (\<lambda>f. L.flatten (L.map (\<lambda> (l_hierarchy, l). L.map (f l_hierarchy) l) l_tree))
-        (\<lambda> l_hierarchy2. \<lambda> OclClass hh_name hhl_attr hhb \<Rightarrow>
-          print_astype
-            name
-            h_name
-            hh_name))))))"
-
-definition "m_class_default = (\<lambda>_ _ _. id)"
-definition "m_class base_attr f print = m_class_gen2 base_attr f (\<lambda>_ _ _. print)"
-definition "m_class3_GE base_attr f print = m_class_gen3_GE base_attr f (\<lambda>_ _ _. print)"
-definition "m_class' base_attr print =
-  m_class base_attr m_class_default (\<lambda> l_hierarchy x0 x1. [ print l_hierarchy x0 x1 ])"
-
-definition "map_class_nupl2'_inh f = List.map_filter id o
- (m_class' id (\<lambda>compare (_, name, _). \<lambda> OclClass h_name _ _ \<Rightarrow>
-    if compare = GT then Some (f name h_name) else None))"
-
-definition "map_class_nupl2'_inh_large f = List.map_filter id o
- (m_class' id (\<lambda>compare (_, name, _). \<lambda> OclClass h_name _ _ \<Rightarrow>
-    if compare = GT
-     | compare = UN' then Some (f name h_name) else None))"
-
-definition "map_class_nupl2''_inh f = List.map_filter id o
- (m_class_gen2 id m_class_default (\<lambda> l_inh _ _ compare (_, name, _). \<lambda> OclClass h_name _ h_subtree \<Rightarrow>
-    [ if compare = GT then
-        Some (f name h_name (L.map (\<lambda>x. (x, List.member (of_linh l_inh) x)) h_subtree))
-      else
-        None]))"
-
-definition "map_class_nupl2l'_inh_gen f = List.map_filter id o
- (m_class_gen2 id m_class_default (\<lambda> l_inh l_subtree _ compare (_, name, _). \<lambda> OclClass h_name _ _ \<Rightarrow>
-    [ if compare = GT then
-        Some (f l_subtree name (fst (List.fold (\<lambda>x. \<lambda> (l, True, prev_x) \<Rightarrow> (l, True, prev_x)
-                                          | (l, False, prev_x) \<Rightarrow>
-                                              case Inh x of OclClass n _ next_d \<Rightarrow>
-                                              ( (x, L.map (\<lambda> OclClass n l next_d \<Rightarrow>
-                                                               (OclClass n l next_d, n = prev_x))
-                                                             next_d)
-                                                # l
-                                              , n = h_name
-                                              , n))
-                                     l_inh
-                                     ([], False, name))))
-      else
-        None]))"
-
-definition "map_class_nupl2l'_inh f = map_class_nupl2l'_inh_gen (\<lambda>_ x l. f x l)"
-
-definition "map_class_nupl3'_LE'_inh f = L.flatten o map_class_nupl2l'_inh_gen (\<lambda>l_subtree x l.
-  L.map
-    (\<lambda>name_bot. f name_bot x l)
-    (x # L.map (\<lambda> OclClass n _ _ \<Rightarrow> n) l_subtree))"
-
-definition "map_class_nupl3'_GE_inh = m_class3_GE id id"
-
 definition "map_class_inh l_inherited = L.map (\<lambda> OclClass _ l _ \<Rightarrow> l) (of_inh (map_inh of_linh l_inherited))"
-
-definition "find_inh name class =
- (case fold_class
-    (\<lambda>_ name0 _ l_inh _ _ accu.
-      Pair () (if accu = None & name \<triangleq> name0 then
-                 Some (L.map (\<lambda>OclClass n _ _ \<Rightarrow> n) (of_inh l_inh))
-               else
-                 accu))
-    None
-    class
-  of (_, Some l) \<Rightarrow> l)"
 
 end

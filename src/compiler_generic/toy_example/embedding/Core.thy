@@ -64,16 +64,6 @@ definition "L_fold f =
             ; (l, b) = List.fold (\<lambda>f0. \<lambda>(l, b) \<Rightarrow> let (x, b) = f0 a b in (x # l, b)) l ([], b) in
           ([Isab_thy (H_thy_locale loc_data (rev l))], b)))"
 
-definition "section_aux n s = start_map' (\<lambda>_. [ O.section (Section n s) ])"
-definition "section = section_aux 0"
-definition "subsection = section_aux 1"
-definition "subsubsection = section_aux 2"
-definition "txt f = start_map'''' O.text o (\<lambda>_ design_analysis. [Text (f design_analysis)])"
-definition "txt' s = txt (\<lambda>_. s)"
-definition "txt'' = txt' o S.flatten"
-definition "txt''d s = txt (\<lambda> Gen_only_design \<Rightarrow> S.flatten s | _ \<Rightarrow> \<open>\<close>)"
-definition "txt''a s = txt (\<lambda> Gen_only_design \<Rightarrow> \<open>\<close> | _ \<Rightarrow> S.flatten s)"
-
 definition' thy_class ::
   (* polymorphism weakening needed by code_reflect *)
   "_ h_theory" where \<open>thy_class =
@@ -94,8 +84,7 @@ definition "thy_instance = Hol_theory_ext
                              , print_examp_instance ]"
 definition "thy_def_base_l = Hol_theory_ext []"
 definition "thy_def_state = (\<lambda> Floor1 \<Rightarrow> Hol_theory_ext 
-                                           [ Floor1_examp.print_examp_def_st_typecheck_var
-                                           , Floor1_examp.print_examp_def_st1 ]
+                                           [ Floor1_examp.print_examp_def_st1 ]
                              | Floor2 \<Rightarrow> Hol_theory_locale
                                            Floor2_examp.print_examp_def_st_locale
                                            [ Floor2_examp.print_examp_def_st2
