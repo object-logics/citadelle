@@ -206,7 +206,7 @@ record hol__thy_locale =
 datatype hol__thy = H_thy_simple hol__t
                   | H_thy_locale hol__thy_locale "hol__t list (* positioning comments can occur before and after this group of commands *) list"
 
-subsection{* Extending Type Definitions with Conservative Definitions *}
+subsection{* Extending Conservatively with Definitions *}
 
 locale T
 begin

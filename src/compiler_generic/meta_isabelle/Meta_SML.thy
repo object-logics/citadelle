@@ -57,7 +57,7 @@ datatype sml_expr = SML_string string
                   | SML_paren string (* left *) string (* right *) sml_expr
                   | SML_let_open string sml_expr
 
-subsection{* Extending Type Definitions with Conservative Definitions *}
+subsection{* Extending Conservatively with Definitions *}
 
 locale SML
 begin

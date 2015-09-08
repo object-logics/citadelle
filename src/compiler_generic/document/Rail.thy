@@ -241,7 +241,7 @@ text {*
 \<close>}
 *}
 
-section{* Commands Extending Isabelle 2015 *}
+section{* Some Extensions of Isabelle Commands *}
 
 (* WARNING syntax errors during the extraction to LaTeX for the symbol "acute":
            fun\<acute>, definition\<acute> or code_reflect\<acute> *)
