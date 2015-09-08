@@ -41,7 +41,6 @@ section{* Preliminaries (2) *}
 theory Init
 imports "~~/src/HOL/Library/Code_Char"
         "isabelle_home/src/HOL/Isabelle_Main0"
-        Static
 
 begin
 
@@ -104,8 +103,10 @@ subsubsection{* Operations on List *}
 
 datatype ('a, 'b) nsplit = Nsplit_text 'a
                          | Nsplit_sep 'b
-context L
+locale L
 begin
+definition map where "map f l = rev (foldl (\<lambda>l x. f x # l) [] l)"
+definition "flatten l = foldl (\<lambda>acc l. foldl (\<lambda>acc x. x # acc) acc (rev l)) [] (rev l)"
 definition "mapi f l = rev (fst (foldl (\<lambda>(l,cpt) x. (f cpt x # l, Succ cpt)) ([], 0::nat) l))"
 definition "iter f = foldl (\<lambda>_. f) ()"
 definition "maps f x = L.flatten (L.map f x)"
@@ -151,6 +152,8 @@ notation L.append (infixr "@@@@" 65)
 
 lemmas [code] =
   (*def*)
+  L.map_def
+  L.flatten_def
   L.mapi_def
   L.iter_def
   L.maps_def

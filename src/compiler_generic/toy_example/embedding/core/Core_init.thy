@@ -39,7 +39,8 @@
 chapter{* Part ... *}
 
 theory  Core_init
-imports "../meta_toy/Meta_META"
+imports "../../Toy_Library_Static"
+        "../meta_toy/Meta_META"
 begin
 
 section{* Preliminaries Compiler *}

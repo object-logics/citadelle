@@ -39,32 +39,19 @@
 
 section{* Preliminaries (1) *}
 
-theory Static
+theory Toy_Library_Static
 imports Main
 begin
 
-text\<open>This theory can later be included in generated files.\<close>
-
-locale L
-begin
-definition map where "map f l = rev (foldl (\<lambda>l x. f x # l) [] l)"
-definition "flatten l = foldl (\<lambda>acc l. foldl (\<lambda>acc x. x # acc) acc (rev l)) [] (rev l)"
-end
-
-lemmas [code] =
-  (*def*)
-  L.map_def
-  L.flatten_def
-
-(* *)
+text\<open>This theory is used by the compiler and is also plan to be included in generated files.\<close>
 
 definition "map_of_list = (foldl ((\<lambda>map. (\<lambda>(x , l1). (case (map (x)) of None \<Rightarrow> (map (x \<mapsto> l1))
-    | Some l0 \<Rightarrow> (map (x \<mapsto> (L.flatten ([l0 , l1])))))))) (Map.empty))"
+    | Some l0 \<Rightarrow> (map (x \<mapsto> (concat ([l0 , l1])))))))) (Map.empty))"
 
 definition "choose_0 = fst"
 definition "choose_1 = snd"
 
 definition "deref_assocs_list to_from oid S =
-  L.flatten (L.map (choose_1 o to_from) (filter (\<lambda>p. List.member (choose_0 (to_from p)) oid) S))"
+  concat (map (choose_1 o to_from) (filter (\<lambda>p. List.member (choose_0 (to_from p)) oid) S))"
 
 end
