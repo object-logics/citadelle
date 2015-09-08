@@ -1,10 +1,5 @@
 (*****************************************************************************
- * Featherweight-OCL --- A Formal Semantics for UML-OCL Version OCL 2.5
- *                       for the OMG Standard.
- *                       http://www.brucker.ch/projects/hol-testgen/
- *
- * Floor1_examp.thy ---
- * This file is part of HOL-TestGen.
+ * A Meta-Model for the Isabelle API
  *
  * Copyright (c) 2013-2015 Université Paris-Sud, France
  *               2013-2015 IRT SystemX, France
