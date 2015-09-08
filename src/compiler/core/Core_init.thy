@@ -44,7 +44,7 @@
 header{* Part ... *}
 
 theory  Core_init
-imports "../../compiler_generic/toy_example/Toy_Library_Static"
+imports "../Static"
         "../meta/Meta_META"
 begin
 
