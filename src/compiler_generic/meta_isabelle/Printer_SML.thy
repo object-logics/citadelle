@@ -40,7 +40,7 @@ section{* Instantiating the Printer for SML *}
 
 theory  Printer_SML
 imports Meta_SML
-        "../toy_example/embedding/meta_toy/Printer_oid"
+        Printer_init
 begin
 
 context s_of
@@ -53,7 +53,6 @@ fun' s_of_sexpr where \<open>s_of_sexpr e = (\<lambda>
     SML_string s \<Rightarrow> sprint1 \<open>"%s"\<close>\<acute> (To_string (escape_sml s))
   | SML_rewrite val_fun e1 symb e2 \<Rightarrow> sprint4 \<open>%s %s %s %s\<close>\<acute> (s_of_val_fun val_fun) (s_of_sexpr e1) (To_string symb) (s_of_sexpr e2)
   | SML_basic l \<Rightarrow> sprint1 \<open>%s\<close>\<acute> (String_concat \<open> \<close> (L.map To_string l))
-  | SML_oid tit s \<Rightarrow> sprint2 \<open>%s%d\<close>\<acute> (To_string tit) (To_oid s)
   | SML_binop e1 s e2 \<Rightarrow> sprint3 \<open>%s %s %s\<close>\<acute> (s_of_sexpr e1) (s_of_sexpr (SML_basic [s])) (s_of_sexpr e2)
   | SML_annot e s \<Rightarrow> sprint2 \<open>(%s:%s)\<close>\<acute> (s_of_sexpr e) (To_string s)
   | SML_function l \<Rightarrow> sprint1 \<open>(fn %s)\<close>\<acute> (String_concat \<open>

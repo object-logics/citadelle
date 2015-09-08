@@ -52,6 +52,9 @@ definition "Succ x = x + 1"
 
 datatype string\<^sub>b\<^sub>a\<^sub>s\<^sub>e = ST String.literal
                    | ST' "char list"
+                   (* NOTE one can further optimize here
+                           by adding another constructor for representing "nat"
+                           (oid management) *)
 
 datatype abr_string = (* NOTE operations in this datatype must not decrease the size of the string *)
                       SS_base string\<^sub>b\<^sub>a\<^sub>s\<^sub>e

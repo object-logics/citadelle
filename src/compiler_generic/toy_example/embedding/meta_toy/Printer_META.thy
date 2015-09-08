@@ -82,6 +82,8 @@ fun s_of_ctxt2_term_aux where "s_of_ctxt2_term_aux l e =
   | T_lambda s c \<Rightarrow> s_of_ctxt2_term_aux (s # l) c) e"
 definition "s_of_ctxt2_term = s_of_ctxt2_term_aux []"
 
+definition "To_oid = (\<lambda>Oid n \<Rightarrow> To_nat n)"
+
 fun s_of_ocl_list_attr where
    "s_of_ocl_list_attr f e = (\<lambda> OclAttrNoCast x \<Rightarrow> f x
                               | OclAttrCast ty (OclAttrNoCast x) _ \<Rightarrow> sprint2 \<open>(%s :: %s)\<close>\<acute> (f x) (To_string ty)
@@ -248,6 +250,7 @@ lemmas [code] =
   s_of.String_concat_map_def
   s_of.s_of_section_title_def
   s_of.s_of_ctxt2_term_def
+  s_of.To_oid_def
   s_of.s_of_ocl_def_base_def
   s_of.s_of_ocl_instance_single_def
   s_of.s_of_def_state_def

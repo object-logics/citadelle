@@ -75,7 +75,6 @@ definition "s_of_ty_synonym _ = (\<lambda> Type_synonym n v l \<Rightarrow>
 fun s_of_expr where "s_of_expr e = (\<lambda>
     Expr_rewrite e1 symb e2 \<Rightarrow> sprint3 \<open>%s %s %s\<close>\<acute> (s_of_expr e1) (To_string symb) (s_of_expr e2)
   | Expr_basic l \<Rightarrow> sprint1 \<open>%s\<close>\<acute> (String_concat \<open> \<close> (L.map To_string l))
-  | Expr_oid tit s \<Rightarrow> sprint2 \<open>%s%d\<close>\<acute> (To_string tit) (To_oid s)
   | Expr_annot e s \<Rightarrow> sprint2 \<open>(%s::%s)\<close>\<acute> (s_of_expr e) (s_of_rawty s)
   | Expr_bind symb e1 e2 \<Rightarrow> sprint3 \<open>(%s%s. %s)\<close>\<acute> (To_string symb) (s_of_expr e1) (s_of_expr e2)
   | Expr_fun_case e_case l \<Rightarrow> sprint2 \<open>(%s %s)\<close>\<acute>

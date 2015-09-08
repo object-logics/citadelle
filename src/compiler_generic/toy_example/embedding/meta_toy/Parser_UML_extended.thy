@@ -40,7 +40,7 @@ chapter{* Part ... *}
 
 theory  Parser_UML_extended
 imports Meta_UML_extended
-        Parser_oid
+        "../../../meta_isabelle/Parser_init"
 begin
 
 section{* Generation to both Form (setup part) *}
@@ -75,6 +75,15 @@ subsubsection{* general *}
 
 context i_of
 begin
+
+definition "i_of_internal_oid a b = rec_internal_oid
+  (ap1 a (b \<open>Oid\<close>) (i_of_nat a b))"
+
+definition "i_of_internal_oids a b = rec_internal_oids
+  (ap3 a (b \<open>Oids\<close>)
+    (i_of_nat a b)
+    (i_of_nat a b)
+    (i_of_nat a b))"
 
 definition "i_of_ocl_def_base a b = rec_ocl_def_base
   (ap1 a (b \<open>OclDefInteger\<close>) (i_of_string a b))
@@ -128,6 +137,8 @@ definition "i_of_ocl_def_pre_post a b = rec_ocl_def_pre_post
 end
 
 lemmas [code] =
+  i_of.i_of_internal_oid_def
+  i_of.i_of_internal_oids_def
   i_of.i_of_ocl_def_base_def
   i_of.i_of_ocl_data_shallow_def
   i_of.i_of_ocl_list_attr_def

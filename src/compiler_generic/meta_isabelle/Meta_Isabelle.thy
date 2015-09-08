@@ -65,7 +65,6 @@ datatype hol_type_synonym = Type_synonym string (* name *)
 
 datatype hol__expr = Expr_rewrite hol__expr (* left *) string (* symb rewriting *) hol__expr (* right *)
                    | Expr_basic "string list"
-                   | Expr_oid string (* prefix *) internal_oid
                    | Expr_annot hol__expr hol__type
                    | Expr_bind string (* symbol *) hol__expr (* arg *) hol__expr
                    | Expr_fun_case "hol__expr (* value *) option" (* none: function *) "(hol__expr (* pattern *) \<times> hol__expr (* to return *)) list"

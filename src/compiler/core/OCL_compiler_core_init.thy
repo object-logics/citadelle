@@ -309,6 +309,17 @@ definition "bootstrap_floor f_x l ocl =
       # l_setup
   , ocl \<lparr> D_output_auto_bootstrap := True \<rparr> ))"
 
+context SML
+begin
+definition "oid s = (\<lambda>Oid n \<Rightarrow> basic [s @@ String.of_natural n])"
+end
+
+lemmas [code] =
+  (*def*)
+  SML.oid_def
+
+definition "Expr_oid s = (\<lambda>Oid n \<Rightarrow> Expr_basic [s @@ String.of_natural n])"
+
 subsection{* Infra *}
 
 fun print_infra_type_synonym_class_rec_aux0 where

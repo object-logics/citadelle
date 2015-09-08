@@ -44,12 +44,17 @@
 header{* Part ... *}
 
 theory  OCL_compiler_meta_UML_extended
-imports "../../compiler_generic/toy_example/embedding/meta_toy/Meta_oid"
+imports "../../compiler_generic/Init"
 begin
 
 section{* OCL Meta-Model aka. AST definition of OCL *}
 
 subsection{* type definition *}
+
+datatype internal_oid = Oid nat
+datatype internal_oids = Oids nat (* start *)
+                              nat (* oid for assoc (incremented from start) *)
+                              nat (* oid for inh (incremented from start) *)
 
 datatype ocl_def_base = OclDefInteger "string" (* integer digit *)
                       | OclDefReal "string (* integer digit (left) *) \<times> string (* integer digit (right) *)"
@@ -91,6 +96,18 @@ datatype ocl_def_pre_post = OclDefPP
                               "string option" (* None: fresh name to be generated *)
                               ocl_def_pp_core (* pre *)
                               "ocl_def_pp_core option" (* post *) (* None: same as pre *)
+
+subsection{* Oid-Management *}
+
+definition "oidInit = (\<lambda> Oid n \<Rightarrow> Oids n n n)"
+
+definition "oidSucAssoc = (\<lambda> Oids n1 n2 n3 \<Rightarrow> Oids n1 (Succ n2) (Succ n3))"
+definition "oidSucInh = (\<lambda> Oids n1 n2 n3 \<Rightarrow> Oids n1 n2 (Succ n3))"
+definition "oidGetAssoc = (\<lambda> Oids _ n _ \<Rightarrow> Oid n)"
+definition "oidGetInh = (\<lambda> Oids _ _ n \<Rightarrow> Oid n)"
+
+definition "oidReinitAll = (\<lambda>Oids n1 _ _ \<Rightarrow> Oids n1 n1 n1)"
+definition "oidReinitInh = (\<lambda>Oids n1 n2 _ \<Rightarrow> Oids n1 n2 n2)"
 
 subsection{* ... *}
 

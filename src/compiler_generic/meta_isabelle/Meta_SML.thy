@@ -39,7 +39,7 @@
 section{* SML Meta-Model aka. AST definition of SML *}
 
 theory  Meta_SML
-imports "../toy_example/embedding/meta_toy/Meta_oid"
+imports "../Init"
 begin
 
 subsection{* Type Definition *}
@@ -50,7 +50,6 @@ datatype sml_val_fun = Sval
 datatype sml_expr = SML_string string
                   | SML_rewrite sml_val_fun sml_expr (* left *) string (* symb rewriting *) sml_expr (* right *)
                   | SML_basic "string list"
-                  | SML_oid string (* prefix *) internal_oid
                   | SML_binop sml_expr string sml_expr
                   | SML_annot sml_expr string (* type *)
                   | SML_function "(sml_expr (* pattern *) \<times> sml_expr (* to return *)) list"
@@ -65,7 +64,6 @@ begin
 no_type_notation abr_string ("string") definition "string = SML_string"
 definition "rewrite = SML_rewrite"
 definition "basic = SML_basic"
-definition "oid = SML_oid"
 definition "binop = SML_binop"
 definition "annot = SML_annot"
 definition "function = SML_function"
@@ -92,7 +90,6 @@ lemmas [code] =
   SML.string_def
   SML.rewrite_def
   SML.basic_def
-  SML.oid_def
   SML.binop_def
   SML.annot_def
   SML.function_def

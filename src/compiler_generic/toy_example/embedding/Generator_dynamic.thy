@@ -619,8 +619,8 @@ subsection{* General Compiling Process: Shallow *}
 ML{*
 structure OCL_overload = struct
   val s_of_rawty = OCL.s_of_rawty To_string0
-  val s_of_expr = OCL.s_of_expr To_string0 (Int.toString o To_nat)
-  val s_of_sexpr = OCL.s_of_sexpr To_string0 (Int.toString o To_nat)
+  val s_of_expr = OCL.s_of_expr To_string0
+  val s_of_sexpr = OCL.s_of_sexpr To_string0
   val fold = fold
 end
 *}
