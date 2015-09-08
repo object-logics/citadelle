@@ -1,4 +1,4 @@
-theory Employee_DesignModel_UMLPart_generated imports "../src/UML_Main"   "../src/compiler/OCL_compiler_static"   "../src/compiler/OCL_compiler_generator_dynamic" begin
+theory Employee_DesignModel_UMLPart_generated imports "../src/UML_Main"   "../src/compiler/Static"   "../src/compiler/Generator_dynamic" begin
 
 (* 1 ************************************ 0 + 0 *)
 
