@@ -54,7 +54,7 @@ text{* In this example, we configure our package to generate .thy files.
 generation_syntax [ deep
                       (generation_semantics [ design (*, oid_start 10*) ])
                       (THEORY Design_generated)
-                      (IMPORTS ["../Toy_Library", "../../Static"]
+                      (IMPORTS ["../Toy_Library", "../Toy_Library_Static"]
                                "../embedding/Generator_dynamic")
                       SECTION
                       (*SORRY*) (*no_dirty*)
