@@ -42,7 +42,7 @@ theory
   Design_shallow
 imports
   "../Toy_Library"
-  "../../Static"
+  "../Toy_Library_Static"
   "../embedding/Generator_dynamic"
 begin
 
