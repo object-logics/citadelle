@@ -65,27 +65,27 @@ generation_syntax [ deep
                       (output_directory "../document_generated")
                   (*, syntax_print*) ]
 
-record' Person < Planet
+Class Person < Planet
   Attributes salary : Integer (*\<acute>int\<acute>*)
 End
 
-record_link boss
+Association boss
   Between Person [*]
           Person [0 \<bullet>\<bullet> 1] Role boss
 End
 
-record' Planet < Galaxy
+Class Planet < Galaxy
   Attributes wormhole : UnlimitedNatural
              weight : Integer
 End
 
-record' Galaxy
+Class Galaxy
   Attributes sound : Void
              moving : Boolean
              outer_world : Set(Sequence(Planet))
 End
 
-def_record X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n1 :: Person = [ salary = 1300 , boss = X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2 ]
+Instance X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n1 :: Person = [ salary = 1300 , boss = X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2 ]
      and X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2 :: Person = [ salary = 1800 , boss = X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2 ]
      and X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n3 :: Person = []
      and X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n4 :: Person = [ salary = 2900 ]
@@ -97,7 +97,7 @@ def_record X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n1 :: Person = [ sala
      and X0 :: Person = [ outer_world = [ [ P1 ] ] ]
      and P1 :: Planet = [ outer_world = [ [ P1 ] , [ self 10 ] ] ]
 
-def_record' \<sigma>\<^sub>1 =
+State \<sigma>\<^sub>1 =
   [ ([ salary = 1000 , boss = self 1 ] :: Person)
   , ([ salary = 1200 ] :: Person)
   (* *)
@@ -108,7 +108,7 @@ def_record' \<sigma>\<^sub>1 =
   (* *)
   , X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n9 ]
 
-def_record' \<sigma>\<^sub>1' =
+State \<sigma>\<^sub>1' =
   [ X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n1
   , X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2
   , X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n3
@@ -119,11 +119,11 @@ def_record' \<sigma>\<^sub>1' =
   , X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n8
   , X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n9 ]
 
-(*def_record' \<sigma>\<^sub>0 = []*)
+(*State \<sigma>\<^sub>0 = []*)
 
-binary_record \<sigma>\<^sub>1 \<sigma>\<^sub>1'
+PrePost \<sigma>\<^sub>1 \<sigma>\<^sub>1'
 
-set_cartouche_type Person :: contents () : Set(Integer)
+Context Person :: contents () : Set(Integer)
   Post : "result \<triangleq> if (self .boss \<doteq> null)
                    then (Set{}->including\<^sub>S\<^sub>e\<^sub>t(self .salary))
                    else (self .boss .contents()->including\<^sub>S\<^sub>e\<^sub>t(self .salary))
@@ -131,10 +131,10 @@ set_cartouche_type Person :: contents () : Set(Integer)
   Post : "true"
   Pre  : "false"
 
-set_cartouche_type Person
+Context Person
   Inv a: "self .boss <> null implies (self .salary  \<triangleq>  ((self .boss) .salary))"
 
-set_cartouche_type Planet
+Context Planet
   Inv A : "true and (self .weight \<le>\<^sub>i\<^sub>n\<^sub>t \<zero>)"
 
 (*BaseType [ 1000, 1200, 1300, 1800, 2600, 2900, 3200, 3500
