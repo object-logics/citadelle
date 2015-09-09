@@ -128,8 +128,7 @@ definition "s_of__thm_attribute_aux_gen_where l =
 definition "s_of__thm_attribute_aux_gen_of l =
  (\<open>of\<close>, String_concat \<open> \<close> (L.map (\<lambda>expr. sprint1 \<open>\"%s\"\<close>\<acute> (s_of__expr expr)) l))"
 
-fun s_of__thm_attribute_aux where "s_of__thm_attribute_aux lacc e =
-  ((* FIXME regroup all the 'let' declarations at the beginning *)
+(* NOTE all 'let' declarations can be put at the beginning *)
    (*let f_where = (\<lambda>l. (\<open>where\<close>, String_concat \<open> and \<close>
                                         (L.map (\<lambda>(var, expr). sprint2 \<open>%s = \"%s\"\<close>\<acute>
                                                         (To_string var)
@@ -139,7 +138,9 @@ fun s_of__thm_attribute_aux where "s_of__thm_attribute_aux lacc e =
                                                         (s_of__expr expr)) l)))
      ; f_symmetric = (\<open>symmetric\<close>, \<open>\<close>)
      ; s_base = (\<lambda>s lacc. sprint2 \<open>%s[%s]\<close>\<acute> (To_string s) (String_concat \<open>, \<close> (L.map (\<lambda>(s, x). sprint2 \<open>%s %s\<close>\<acute> s x) lacc))) in
-   *)\<lambda> Thm_thm s \<Rightarrow> To_string s
+   *)
+fun s_of__thm_attribute_aux where "s_of__thm_attribute_aux lacc e =
+  (\<lambda> Thm_thm s \<Rightarrow> To_string s
    | Thm_thms s \<Rightarrow> To_string s
 
    | Thm_THEN (Thm_thm s) e2 \<Rightarrow> s_of__thm_attribute_aux_gen (\<open>THEN\<close>, s_of__thm_attribute_aux [] e2) lacc s
