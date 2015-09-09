@@ -214,6 +214,10 @@ Here is a feature-list of  \FOCL:
  \item  \FOCL types may be arbitrarily nested. For example,
          the expression
          \inlineocl|Set{Set{1,2}} = Set{Set{2,1}}| is legal and true.
+ \item  \FOCL types may be higher-order nested. For example,
+         the expression \inlineocl|\<lambda> X. Set{X} = Set{Set{2,1}}| is legal.
+         Higher-order pattern-matching can be easily extended following 
+         the principles in the \HOL library, which can be applied also to \FOCL types.
  \item All objects types are represented in an object universe\footnote{following
          the tradition of \HOL-\OCL~\cite{brucker.ea:extensible:2008-b}}.
          The universe construction also gives semantics to type casts, dynamic type
