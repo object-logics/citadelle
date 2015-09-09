@@ -39,8 +39,8 @@
 chapter{* Part ... *}
 
 theory  Meta_META
-imports Meta_UML
-        Meta_UML_extended
+imports Meta_Toy
+        Meta_Toy_extended
         "../../../meta_isabelle/Meta_Isabelle"
 begin
 

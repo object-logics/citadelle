@@ -38,8 +38,8 @@
 
 chapter{* Part ... *}
 
-theory  Parser_UML
-imports Meta_UML
+theory  Parser_Toy
+imports Meta_Toy
         "../../../meta_isabelle/Parser_Pure"
 begin
 

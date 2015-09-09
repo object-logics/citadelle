@@ -38,7 +38,7 @@
 
 chapter{* Part ... *}
 
-theory  Meta_UML_extended
+theory  Meta_Toy_extended
 imports "../../../Init"
 begin
 

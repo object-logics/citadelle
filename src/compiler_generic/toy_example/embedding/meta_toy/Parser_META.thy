@@ -40,8 +40,8 @@ chapter{* Part ... *}
 
 theory  Parser_META
 imports Meta_META
-        Parser_UML
-        Parser_UML_extended
+        Parser_Toy
+        Parser_Toy_extended
 begin
 
 section{* Generation to both Form (setup part) *}

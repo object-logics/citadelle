@@ -38,7 +38,7 @@
 
 chapter{* Part ... *}
 
-theory  Meta_UML
+theory  Meta_Toy
 imports "../../../meta_isabelle/Meta_Pure"
         "../Init_rbt"
 begin
