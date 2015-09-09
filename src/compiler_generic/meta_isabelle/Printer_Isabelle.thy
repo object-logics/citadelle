@@ -328,6 +328,12 @@ shows \"%s\"\<close>\<acute> (s_of__expr concl)]))
 definition "s_of_axiomatization _ = (\<lambda> Axiomatization n e \<Rightarrow> sprint2 \<open>axiomatization where %s:
 \"%s\"\<close>\<acute> (To_string n) (s_of__expr e))"
 
+definition "s_of_section _ = (\<lambda> Section n section_title \<Rightarrow>
+    sprint2 \<open>%s{* %s *}\<close>\<acute>
+      (sprint1 \<open>%ssection\<close>\<acute> (if n = 0 then \<open>\<close>
+                             else if n = 1 then \<open>sub\<close>
+                             else \<open>subsub\<close>))
+      (To_string section_title))"
 
 definition "s_of_text _ = (\<lambda> Text s \<Rightarrow> sprint1 \<open>text{* %s *}\<close>\<acute> (To_string s))"
 
@@ -341,6 +347,49 @@ definition' \<open>s_of_interpretation _ = (\<lambda> Interpretation n loc_n loc
      (To_string loc_n)
      (String_concat \<open>\<close> (L.map (\<lambda>s. sprint1 \<open> "%s"\<close>\<acute> (s_of__expr s)) loc_param))
      (s_of__command_final tac))\<close>
+
+definition "s_of__t ocl =
+            (\<lambda> Theory_datatype dataty \<Rightarrow> s_of_datatype ocl dataty
+             | Theory_type_synonym ty_synonym \<Rightarrow> s_of_type_synonym ocl ty_synonym
+             | Theory_type_notation ty_notation \<Rightarrow> s_of_type_notation ocl ty_notation
+             | Theory_instantiation instantiation_class \<Rightarrow> s_of_instantiation ocl instantiation_class
+             | Theory_defs defs_overloaded \<Rightarrow> s_of_defs ocl defs_overloaded
+             | Theory_consts consts_class \<Rightarrow> s_of_consts ocl consts_class
+             | Theory_definition definition_hol \<Rightarrow> s_of_definition ocl definition_hol
+             | Theory_lemmas lemmas_simp \<Rightarrow> s_of_lemmas ocl lemmas_simp
+             | Theory_lemma lemma_by \<Rightarrow> s_of_lemma ocl lemma_by
+             | Theory_axiomatization axiom \<Rightarrow> s_of_axiomatization ocl axiom
+             | Theory_section section_title \<Rightarrow> s_of_section ocl section_title
+             | Theory_text text \<Rightarrow> s_of_text ocl text
+             | Theory_ML ml \<Rightarrow> s_of_ML ocl ml
+             | Theory_thm thm \<Rightarrow> s_of_thm ocl thm
+             | Theory_interpretation thm \<Rightarrow> s_of_interpretation ocl thm)"
+
+definition "String_concat_map s f l = String_concat s (L.map f l)"
+
+definition' \<open>s_of__thy ocl =
+ (\<lambda> H_thy_simple t \<Rightarrow> s_of__t ocl t
+  | H_thy_locale data l \<Rightarrow> 
+      sprint3 \<open>locale %s =
+%s
+begin
+%s
+end\<close>\<acute>   (To_string (HolThyLocale_name data))
+        (String_concat_map
+           \<open>
+\<close>
+           (\<lambda> (l_fix, o_assum).
+                sprint2 \<open>%s%s\<close>\<acute> (String_concat_map \<open>
+\<close> (\<lambda>(e, ty). sprint2 \<open>fixes "%s" :: "%s"\<close>\<acute> (s_of__expr e) (s_of__type ty)) l_fix)
+                                (case o_assum of None \<Rightarrow> \<open>\<close>
+                                               | Some (name, e) \<Rightarrow> sprint2 \<open>
+assumes %s: "%s"\<close>\<acute> (To_string name) (s_of__expr e)))
+           (HolThyLocale_header data))
+        (String_concat_map \<open>
+
+\<close> (String_concat_map \<open>
+
+\<close> (s_of__t ocl)) l))\<close>
 
 end
 
@@ -371,10 +420,14 @@ lemmas [code] =
   Print.s_of__command_proof_def
   Print.s_of_lemma_def
   Print.s_of_axiomatization_def
+  Print.s_of_section_def
   Print.s_of_text_def
   Print.s_of_ML_def
   Print.s_of_thm_def
   Print.s_of_interpretation_def
+  Print.s_of__t_def
+  Print.String_concat_map_def
+  Print.s_of__thy_def
 
   (* fun *)
   Print.s_of__type.simps

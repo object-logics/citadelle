@@ -67,19 +67,13 @@ definition "concatWith l =
   else
     sprint2 \<prec>''(%s. (%s))''\<succ>\<acute> (To_string (String_concatWith \<open> \<close> (\<open>\<lambda>\<close> # rev l))))"
 
-definition "String_concat_map s f l = String_concat s (L.map f l)"
-
 declare[[cartouche_type = "String.literal"]]
 
-definition "s_of_section_title ocl = (\<lambda> Section n section_title \<Rightarrow>
-  if D_output_disable_thy ocl then
-    \<open>\<close>
+definition "s_of_section_title ocl =
+ (if D_output_disable_thy ocl then
+    \<lambda>_. \<open>\<close>
   else
-    sprint2 \<open>%s{* %s *}\<close>\<acute>
-      (sprint1 \<open>%ssection\<close>\<acute> (if n = 0 then \<open>\<close>
-                             else if n = 1 then \<open>sub\<close>
-                             else \<open>subsub\<close>))
-      (To_string section_title))"
+    s_of_section ocl)"
 
 fun s_of_ctxt2_term_aux where "s_of_ctxt2_term_aux l e =
  (\<lambda> T_pure pure \<Rightarrow> concatWith l (s_of_pure_term [] pure)
@@ -175,8 +169,7 @@ definition' \<open>s_of_all_meta_embedding _ =
         (s_of_def_pp_core s_pre)
         (case s_post of None \<Rightarrow> \<open>\<close> | Some s_post \<Rightarrow> sprint1 \<open> %s\<close>\<acute> (s_of_def_pp_core s_post)))\<close>
 
-(* FIXME move to Isabelle? *)
-definition "s_of_t ocl =
+definition "s_of__t0 ocl =
             (\<lambda> Theory_datatype dataty \<Rightarrow> s_of_datatype ocl dataty
              | Theory_type_synonym ty_synonym \<Rightarrow> s_of_type_synonym ocl ty_synonym
              | Theory_type_notation ty_notation \<Rightarrow> s_of_type_notation ocl ty_notation
@@ -193,8 +186,8 @@ definition "s_of_t ocl =
              | Theory_thm thm \<Rightarrow> s_of_thm ocl thm
              | Theory_interpretation thm \<Rightarrow> s_of_interpretation ocl thm)"
 
-definition' \<open>s_of_thy ocl =
- (\<lambda> H_thy_simple t \<Rightarrow> s_of_t ocl t
+definition' \<open>s_of__thy0 ocl =
+ (\<lambda> H_thy_simple t \<Rightarrow> s_of__t0 ocl t
   | H_thy_locale data l \<Rightarrow> 
       sprint3 \<open>locale %s =
 %s
@@ -215,7 +208,7 @@ assumes %s: "%s"\<close>\<acute> (To_string name) (s_of__expr e)))
 
 \<close> (String_concat_map \<open>
 
-\<close> (s_of_t ocl)) l))\<close>
+\<close> (s_of__t0 ocl)) l))\<close>
 
 definition "s_of_generation_syntax _ = (\<lambda> Gen_semantics mode \<Rightarrow>
   sprint1 \<open>generation_syntax [ shallow%s ]\<close>\<acute>
@@ -227,7 +220,7 @@ definition "s_of_generation_syntax _ = (\<lambda> Gen_semantics mode \<Rightarro
 definition "s_of_ml_extended _ = (\<lambda> Ml_extended e \<Rightarrow> sprint1 \<open>setup{* %s *}\<close>\<acute> (s_of_sexpr_extended e))"
 
 definition "s_of_thy_extended ocl = (\<lambda>
-    Isab_thy thy \<Rightarrow> s_of_thy ocl thy
+    Isab_thy thy \<Rightarrow> s_of__thy0 ocl thy
   | Isab_thy_generation_syntax generation_syntax \<Rightarrow> s_of_generation_syntax ocl generation_syntax
   | Isab_thy_ml_extended ml_extended \<Rightarrow> s_of_ml_extended ocl ml_extended
   | Isab_thy_all_meta_embedding all_meta_embedding \<Rightarrow> s_of_all_meta_embedding ocl all_meta_embedding)"
@@ -252,7 +245,6 @@ lemmas [code] =
   (* def *)
   Print.s_of_sexpr_extended_def
   Print.concatWith_def
-  Print.String_concat_map_def
   Print.s_of_section_title_def
   Print.s_of_ctxt2_term_def
   Print.To_oid_def
@@ -261,8 +253,8 @@ lemmas [code] =
   Print.s_of_def_state_def
   Print.s_of_def_pp_core_def
   Print.s_of_all_meta_embedding_def
-  Print.s_of_thy_def
-  Print.s_of_t_def
+  Print.s_of__t0_def
+  Print.s_of__thy0_def
   Print.s_of_generation_syntax_def
   Print.s_of_ml_extended_def
   Print.s_of_thy_extended_def
