@@ -48,8 +48,6 @@ session "Meta_Isabelle" = HOL +
     "meta_isabelle/Meta_Isabelle"
     "meta_isabelle/Printer_Isabelle"
   document_files
-    "hol-ocl-isar.sty"
-    "lstisar.sty"
     "root.bib"
     "root.tex"
 
@@ -67,7 +65,5 @@ session "Toy_Example" = Meta_Isabelle +
     "toy_example/generator/Design_shallow"
     "document/Rail"
   document_files
-    "hol-ocl-isar.sty"
-    "lstisar.sty"
     "root.bib"
     "root.tex"
