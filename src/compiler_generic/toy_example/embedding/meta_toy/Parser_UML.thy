@@ -137,7 +137,7 @@ subsection{* i of ... *} (* i_of *)
 
 subsubsection{* general *}
 
-context i_of
+context Parse
 begin
 
 definition "i_of_ocl_collection b = rec_ocl_collection
@@ -289,29 +289,29 @@ definition "i_of_ocl_enum a b = rec_ocl_enum
 end
 
 lemmas [code] =
-  i_of.i_of_ocl_collection_def
-  i_of.i_of_ocl_multiplicity_single_def
-  i_of.i_of_ocl_multiplicity_def
-  i_of.i_of_ocl_ty_class_node_def
-  i_of.i_of_ocl_ty_class_def
-  i_of.i_of_ocl_ty_obj_core_def
-  i_of.i_of_ocl_ty_obj_def
-  i_of.i_of_ocl_ty_def
-  i_of.i_of_ocl_association_type_def
-  i_of.i_of_ocl_association_relation_def
-  i_of.i_of_ocl_association_def
-  i_of.i_of_ocl_ctxt_prefix_def
-  i_of.i_of_ocl_ctxt_term_def
-  i_of.i_of_ocl_prop_def
-  i_of.i_of_ocl_ctxt_term_inv_def
-  i_of.i_of_ocl_ctxt_term_pp_def
-  i_of.i_of_ocl_ctxt_pre_post_def
-  i_of.i_of_ocl_ctxt_clause_def
-  i_of.i_of_ocl_ctxt_def
-  i_of.i_of_ocl_class_def
-  i_of.i_of_ocl_class_raw_def
-  i_of.i_of_ocl_ass_class_def
-  i_of.i_of_ocl_class_synonym_def
-  i_of.i_of_ocl_enum_def
+  Parse.i_of_ocl_collection_def
+  Parse.i_of_ocl_multiplicity_single_def
+  Parse.i_of_ocl_multiplicity_def
+  Parse.i_of_ocl_ty_class_node_def
+  Parse.i_of_ocl_ty_class_def
+  Parse.i_of_ocl_ty_obj_core_def
+  Parse.i_of_ocl_ty_obj_def
+  Parse.i_of_ocl_ty_def
+  Parse.i_of_ocl_association_type_def
+  Parse.i_of_ocl_association_relation_def
+  Parse.i_of_ocl_association_def
+  Parse.i_of_ocl_ctxt_prefix_def
+  Parse.i_of_ocl_ctxt_term_def
+  Parse.i_of_ocl_prop_def
+  Parse.i_of_ocl_ctxt_term_inv_def
+  Parse.i_of_ocl_ctxt_term_pp_def
+  Parse.i_of_ocl_ctxt_pre_post_def
+  Parse.i_of_ocl_ctxt_clause_def
+  Parse.i_of_ocl_ctxt_def
+  Parse.i_of_ocl_class_def
+  Parse.i_of_ocl_class_raw_def
+  Parse.i_of_ocl_ass_class_def
+  Parse.i_of_ocl_class_synonym_def
+  Parse.i_of_ocl_enum_def
 
 end

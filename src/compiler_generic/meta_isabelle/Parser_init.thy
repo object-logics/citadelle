@@ -94,9 +94,9 @@ definition "ar13 a v0 f1 f2 f3 f4 f5 f6 f7 f8 f9 f10 f11 f12 v1 v2 v3 v4 v5 v6 v
 definition "ar14 a v0 f1 f2 f3 f4 f5 f6 f7 f8 f9 f10 f11 f12 f13 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 v11 v12 v13 z = a v0 [f1 v1, f2 v2, f3 v3, f4 v4, f5 v5, f6 v6, f7 v7, f8 v8, f9 v9, f10 v10, f11 v11, f12 v12, f13 v13, z]"
 definition "ar15 a v0 f1 f2 f3 f4 f5 f6 f7 f8 f9 f10 f11 f12 f13 f14 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 v11 v12 v13 v14 z = a v0 [f1 v1, f2 v2, f3 v3, f4 v4, f5 v5, f6 v6, f7 v7, f8 v8, f9 v9, f10 v10, f11 v11, f12 v12, f13 v13, f14 v14, z]"
 
-subsection{* Generic Locale for Parsing *} (* i_of *)
+subsection{* Generic Locale for Parsing *}
 
-locale i_of =
+locale Parse =
   fixes ext :: "string \<Rightarrow> string"
 
   (* (effective) first order *)
@@ -124,8 +124,8 @@ definition "i_of_option a b f = rec_option
 end
 
 lemmas [code] =
-  i_of.i_of_pair_def
-  i_of.i_of_list_def
-  i_of.i_of_option_def
+  Parse.i_of_pair_def
+  Parse.i_of_list_def
+  Parse.i_of_option_def
 
 end

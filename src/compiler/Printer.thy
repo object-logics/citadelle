@@ -3,7 +3,7 @@
  *                       for the OMG Standard.
  *                       http://www.brucker.ch/projects/hol-testgen/
  *
- * Printer.thy ---
+ * Print.thy ---
  * This file is part of HOL-TestGen.
  *
  * Copyright (c) 2013-2015 Université Paris-Saclay, Univ Paris Sud, France
@@ -55,7 +55,7 @@ subsection{* conclusion *}
 definition "List_iterM f l =
   List.fold (\<lambda>x m. bind m (\<lambda> () \<Rightarrow> f x)) l (return ())"
 
-context s_of
+context Print
 begin
 definition "write_file ocl = (
   let (l_thy, Sys_argv) = compiler_env_config.more ocl
@@ -79,11 +79,11 @@ definition "write_file ocl = (
          s_of_thy_list (compiler_env_config_more_map (\<lambda>_. is_file) ocl) (rev l))))"
 end
 
-definition "write_file = s_of.write_file (String.implode o String.to_list) (ToNat integer_of_natural)"
+definition "write_file = Print.write_file (String.implode o String.to_list) (ToNat integer_of_natural)"
 
 lemmas [code] =
   (* def *)
-  s_of.write_file_def
+  Print.write_file_def
 
   (* fun *)
 

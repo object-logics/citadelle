@@ -43,7 +43,7 @@ imports Meta_Pure
         Printer_init
 begin
 
-context s_of
+context Print
 begin
 
 fun s_of_pure_term where "s_of_pure_term l e = (\<lambda>
@@ -60,6 +60,6 @@ end
 lemmas [code] =
   (* def *)
   (* fun *)
-  s_of.s_of_pure_term.simps
+  Print.s_of_pure_term.simps
 
 end

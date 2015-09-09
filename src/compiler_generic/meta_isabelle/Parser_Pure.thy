@@ -43,7 +43,7 @@ imports Meta_Pure
         Parser_init
 begin
 
-context i_of
+context Parse
 begin
 
 definition "i_of_pure_indexname a b = rec_pure_indexname
@@ -71,10 +71,10 @@ definition "i_of_pure_term a b = (\<lambda>f0 f1 f2 f3 f4 f5. rec_pure_term f0 f
 end
 
 lemmas [code] =
-  i_of.i_of_pure_indexname_def
-  i_of.i_of_pure_class_def
-  i_of.i_of_pure_sort_def
-  i_of.i_of_pure_typ_def
-  i_of.i_of_pure_term_def
+  Parse.i_of_pure_indexname_def
+  Parse.i_of_pure_class_def
+  Parse.i_of_pure_sort_def
+  Parse.i_of_pure_typ_def
+  Parse.i_of_pure_term_def
 
 end

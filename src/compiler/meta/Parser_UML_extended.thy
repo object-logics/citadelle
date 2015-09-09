@@ -74,11 +74,11 @@ by(intro ext, simp add: ocl_instance_single_rec0_def
                         ocl_instance_single.make_def
                         co3_def K_def)
 
-subsection{* i of ... *} (* i_of *)
+subsection{* i of ... *}
 
 subsubsection{* general *}
 
-context i_of
+context Parse
 begin
 
 definition "i_of_internal_oid a b = rec_internal_oid
@@ -142,17 +142,17 @@ definition "i_of_ocl_def_pre_post a b = rec_ocl_def_pre_post
 end
 
 lemmas [code] =
-  i_of.i_of_internal_oid_def
-  i_of.i_of_internal_oids_def
-  i_of.i_of_ocl_def_base_def
-  i_of.i_of_ocl_data_shallow_def
-  i_of.i_of_ocl_list_attr_def
-  i_of.i_of_ocl_instance_single_def
-  i_of.i_of_ocl_instance_def
-  i_of.i_of_ocl_def_base_l_def
-  i_of.i_of_ocl_def_state_core_def
-  i_of.i_of_ocl_def_state_def
-  i_of.i_of_ocl_def_pp_core_def
-  i_of.i_of_ocl_def_pre_post_def
+  Parse.i_of_internal_oid_def
+  Parse.i_of_internal_oids_def
+  Parse.i_of_ocl_def_base_def
+  Parse.i_of_ocl_data_shallow_def
+  Parse.i_of_ocl_list_attr_def
+  Parse.i_of_ocl_instance_single_def
+  Parse.i_of_ocl_instance_def
+  Parse.i_of_ocl_def_base_l_def
+  Parse.i_of_ocl_def_state_core_def
+  Parse.i_of_ocl_def_state_def
+  Parse.i_of_ocl_def_pp_core_def
+  Parse.i_of_ocl_def_pre_post_def
 
 end

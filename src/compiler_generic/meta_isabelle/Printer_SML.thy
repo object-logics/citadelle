@@ -43,7 +43,7 @@ imports Meta_SML
         Printer_init
 begin
 
-context s_of
+context Print
 begin
 
 definition "s_of_val_fun = (\<lambda> Sval \<Rightarrow> \<open>val\<close>
@@ -65,8 +65,8 @@ end
 
 lemmas [code] =
   (* def *)
-  s_of.s_of_val_fun_def
+  Print.s_of_val_fun_def
   (* fun *)
-  s_of.s_of_sexpr.simps
+  Print.s_of_sexpr.simps
 
 end

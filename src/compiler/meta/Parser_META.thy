@@ -90,7 +90,7 @@ subsection{* i of ... *} (* i_of *)
 
 subsubsection{* general *}
 
-context i_of
+context Parse
 begin
 
 definition "i_of_ocl_flush_all a b = rec_ocl_flush_all
@@ -145,12 +145,12 @@ definition "i_of_compiler_env_config a b f = compiler_env_config_rec
 end
 
 lemmas [code] =
-  i_of.i_of_ocl_flush_all_def
-  i_of.i_of_floor_def
-  i_of.i_of_all_meta_embedding_def
-  i_of.i_of_generation_semantics_ocl_def
-  i_of.i_of_generation_lemma_mode_def
-  i_of.i_of_compiler_env_config_def
+  Parse.i_of_ocl_flush_all_def
+  Parse.i_of_floor_def
+  Parse.i_of_all_meta_embedding_def
+  Parse.i_of_generation_semantics_ocl_def
+  Parse.i_of_generation_lemma_mode_def
+  Parse.i_of_compiler_env_config_def
 
 subsubsection{* Isabelle *}
 
@@ -228,17 +228,17 @@ definition "i_of_nat a b = b o String.of_natural"
 
 end
 
-sublocale isabelle_of < i_of "id"
-                             isabelle_of.i_of_string
-                             isabelle_of.i_of_string\<^sub>b\<^sub>a\<^sub>s\<^sub>e
-                             isabelle_of.i_of_nat
-                             isabelle_of.i_of_unit
-                             isabelle_of.i_of_bool
-                             isabelle_of.i_Pair
-                             isabelle_of.i_Nil
-                             isabelle_of.i_Cons
-                             isabelle_of.i_None
-                             isabelle_of.i_Some
+sublocale isabelle_of < Parse "id"
+                              isabelle_of.i_of_string
+                              isabelle_of.i_of_string\<^sub>b\<^sub>a\<^sub>s\<^sub>e
+                              isabelle_of.i_of_nat
+                              isabelle_of.i_of_unit
+                              isabelle_of.i_of_bool
+                              isabelle_of.i_Pair
+                              isabelle_of.i_Nil
+                              isabelle_of.i_Cons
+                              isabelle_of.i_None
+                              isabelle_of.i_Some
 done
 
 context isabelle_of begin
@@ -336,17 +336,17 @@ definition "i_of_nat a b = (\<lambda>x. b (S.flatten [\<open>(Code_Numeral.Nat \
 
 end
 
-sublocale sml_of < i_of "\<lambda>c. case String.to_list c of x # xs \<Rightarrow> S.flatten [String.uppercase \<lless>[x]\<ggreater>, \<lless>xs\<ggreater>]"
-                        sml_of.i_of_string
-                        sml_of.i_of_string\<^sub>b\<^sub>a\<^sub>s\<^sub>e
-                        sml_of.i_of_nat
-                        sml_of.i_of_unit
-                        sml_of.i_of_bool
-                        sml_of.i_Pair
-                        sml_of.i_Nil
-                        sml_of.i_Cons
-                        sml_of.i_None
-                        sml_of.i_Some
+sublocale sml_of < Parse "\<lambda>c. case String.to_list c of x # xs \<Rightarrow> S.flatten [String.uppercase \<lless>[x]\<ggreater>, \<lless>xs\<ggreater>]"
+                         sml_of.i_of_string
+                         sml_of.i_of_string\<^sub>b\<^sub>a\<^sub>s\<^sub>e
+                         sml_of.i_of_nat
+                         sml_of.i_of_unit
+                         sml_of.i_of_bool
+                         sml_of.i_Pair
+                         sml_of.i_Nil
+                         sml_of.i_Cons
+                         sml_of.i_None
+                         sml_of.i_Some
 done
 
 context sml_of begin

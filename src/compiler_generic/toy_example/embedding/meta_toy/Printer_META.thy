@@ -45,7 +45,7 @@ begin
 
 subsection{* s of ... *} (* s_of *)
 
-context s_of
+context Print
 begin
 
 declare[[cartouche_type = "abr_string"]]
@@ -172,19 +172,19 @@ definition' \<open>s_of_all_meta_embedding _ =
 
 (* FIXME move to Isabelle? *)
 definition "s_of_t ocl =
-            (\<lambda> Theory_datatype dataty \<Rightarrow> s_of_dataty ocl dataty
-             | Theory_type_synonym ty_synonym \<Rightarrow> s_of_ty_synonym ocl ty_synonym
-             | Theory_type_notation ty_notation \<Rightarrow> s_of_ty_notation ocl ty_notation
-             | Theory_instantiation instantiation_class \<Rightarrow> s_of_instantiation_class ocl instantiation_class
-             | Theory_defs defs_overloaded \<Rightarrow> s_of_defs_overloaded ocl defs_overloaded
-             | Theory_consts consts_class \<Rightarrow> s_of_consts_class ocl consts_class
-             | Theory_definition definition_hol \<Rightarrow> s_of_definition_hol ocl definition_hol
-             | Theory_lemmas lemmas_simp \<Rightarrow> s_of_lemmas_simp ocl lemmas_simp
-             | Theory_lemma lemma_by \<Rightarrow> s_of_lemma_by ocl lemma_by
-             | Theory_axiomatization axiom \<Rightarrow> s_of_axiom ocl axiom
+            (\<lambda> Theory_datatype dataty \<Rightarrow> s_of_datatype ocl dataty
+             | Theory_type_synonym ty_synonym \<Rightarrow> s_of_type_synonym ocl ty_synonym
+             | Theory_type_notation ty_notation \<Rightarrow> s_of_type_notation ocl ty_notation
+             | Theory_instantiation instantiation_class \<Rightarrow> s_of_instantiation ocl instantiation_class
+             | Theory_defs defs_overloaded \<Rightarrow> s_of_defs ocl defs_overloaded
+             | Theory_consts consts_class \<Rightarrow> s_of_consts ocl consts_class
+             | Theory_definition definition_hol \<Rightarrow> s_of_definition ocl definition_hol
+             | Theory_lemmas lemmas_simp \<Rightarrow> s_of_lemmas ocl lemmas_simp
+             | Theory_lemma lemma_by \<Rightarrow> s_of_lemma ocl lemma_by
+             | Theory_axiomatization axiom \<Rightarrow> s_of_axiomatization ocl axiom
              | Theory_section section_title \<Rightarrow> s_of_section_title ocl section_title
              | Theory_text text \<Rightarrow> s_of_text ocl text
-             | Theory_ML ml \<Rightarrow> s_of_ml ocl ml
+             | Theory_ML ml \<Rightarrow> s_of_ML ocl ml
              | Theory_thm thm \<Rightarrow> s_of_thm ocl thm
              | Theory_interpretation thm \<Rightarrow> s_of_interpretation ocl thm)"
 
@@ -201,10 +201,10 @@ end\<close>\<acute>   (To_string (HolThyLocale_name data))
 \<close>
            (\<lambda> (l_fix, o_assum).
                 sprint2 \<open>%s%s\<close>\<acute> (String_concat_map \<open>
-\<close> (\<lambda>(e, ty). sprint2 \<open>fixes "%s" :: "%s"\<close>\<acute> (s_of_expr e) (s_of_rawty ty)) l_fix)
+\<close> (\<lambda>(e, ty). sprint2 \<open>fixes "%s" :: "%s"\<close>\<acute> (s_of__expr e) (s_of__type ty)) l_fix)
                                 (case o_assum of None \<Rightarrow> \<open>\<close>
                                                | Some (name, e) \<Rightarrow> sprint2 \<open>
-assumes %s: "%s"\<close>\<acute> (To_string name) (s_of_expr e)))
+assumes %s: "%s"\<close>\<acute> (To_string name) (s_of__expr e)))
            (HolThyLocale_header data))
         (String_concat_map \<open>
 
@@ -230,7 +230,7 @@ definition "s_of_thy_extended ocl = (\<lambda>
 definition "s_of_thy_list ocl l_thy =
   (let (th_beg, th_end) = case D_output_header_thy ocl of None \<Rightarrow> ([], [])
    | Some (name, fic_import, fic_import_boot) \<Rightarrow>
-       ( [ sprint2 \<open>theory %s imports %s begin\<close>\<acute> (To_string name) (s_of_expr (expr_binop \<langle>'' ''\<rangle> (L.map Expr_string (fic_import @@@@ (if D_output_header_force ocl | D_output_auto_bootstrap ocl then [fic_import_boot] else []))))) ]
+       ( [ sprint2 \<open>theory %s imports %s begin\<close>\<acute> (To_string name) (s_of__expr (expr_binop \<langle>'' ''\<rangle> (L.map Expr_string (fic_import @@@@ (if D_output_header_force ocl | D_output_auto_bootstrap ocl then [fic_import_boot] else []))))) ]
        , [ \<open>\<close>, \<open>end\<close> ]) in
   L.flatten
         [ th_beg
@@ -245,27 +245,27 @@ end
 
 lemmas [code] =
   (* def *)
-  s_of.s_of_sexpr_extended_def
-  s_of.concatWith_def
-  s_of.String_concat_map_def
-  s_of.s_of_section_title_def
-  s_of.s_of_ctxt2_term_def
-  s_of.To_oid_def
-  s_of.s_of_ocl_def_base_def
-  s_of.s_of_ocl_instance_single_def
-  s_of.s_of_def_state_def
-  s_of.s_of_def_pp_core_def
-  s_of.s_of_all_meta_embedding_def
-  s_of.s_of_thy_def
-  s_of.s_of_t_def
-  s_of.s_of_generation_syntax_def
-  s_of.s_of_ml_extended_def
-  s_of.s_of_thy_extended_def
-  s_of.s_of_thy_list_def
+  Print.s_of_sexpr_extended_def
+  Print.concatWith_def
+  Print.String_concat_map_def
+  Print.s_of_section_title_def
+  Print.s_of_ctxt2_term_def
+  Print.To_oid_def
+  Print.s_of_ocl_def_base_def
+  Print.s_of_ocl_instance_single_def
+  Print.s_of_def_state_def
+  Print.s_of_def_pp_core_def
+  Print.s_of_all_meta_embedding_def
+  Print.s_of_thy_def
+  Print.s_of_t_def
+  Print.s_of_generation_syntax_def
+  Print.s_of_ml_extended_def
+  Print.s_of_thy_extended_def
+  Print.s_of_thy_list_def
 
   (* fun *)
-  s_of.s_of_ctxt2_term_aux.simps
-  s_of.s_of_ocl_list_attr.simps
-  s_of.s_of_ocl_data_shallow.simps
+  Print.s_of_ctxt2_term_aux.simps
+  Print.s_of_ocl_list_attr.simps
+  Print.s_of_ocl_data_shallow.simps
 
 end

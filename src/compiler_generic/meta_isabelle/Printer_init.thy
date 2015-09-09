@@ -391,7 +391,7 @@ translations "sprint5 x\<acute>" \<rightleftharpoons> "CONST sprintf5 x"
 
 subsection{* Generic Locale for Printing *}
 
-locale s_of =
+locale Print =
   fixes To_string :: "string \<Rightarrow> ml_string"
   fixes To_nat :: "nat \<Rightarrow> ml_int"
 begin
