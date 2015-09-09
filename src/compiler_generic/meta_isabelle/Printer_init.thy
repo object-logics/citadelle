@@ -36,7 +36,7 @@
  ******************************************************************************)
 (* $Id:$ *)
 
-section{* Parsing and Printing Libraries for Target Languages *}
+section{* Initializing the Printer *}
 
 theory  Printer_init
 imports "../Init"
@@ -46,7 +46,7 @@ begin
 text\<open>At the time of writing, targets languages supported
      by Isabelle are: Haskell, OCaml, Scala, SML.\<close>
 
-subsection{* Minimal Bootstrapping Code *}
+subsection{* Kernel Code for Target Languages *}
 
   (* We put in 'CodeConst' functions using characters
      not allowed in a Isabelle 'code_const' expr

@@ -42,8 +42,10 @@ imports "~~/src/HOL/Library/Code_Char"
 
 begin
 
-section{* Optimizations on the String Datatype *}
-text\<open>Concatenations on strings are delayed until the end.\<close>
+section{* Optimization on the String Datatype *}
+
+text\<open>The following types optimize on @{typ "char list"} concatenations,
+     which will be performed at the end (if needed).\<close>
 
 type_notation natural ("nat")
 definition "Succ x = x + 1"
@@ -74,10 +76,10 @@ type_notation abr_string ("string")
 
 section{* Basic Extension of the Standard Library *}
 
-subsection{* Simulate a Polymorphic Binding of Cartouches *}
+subsection{* Polymorphic Cartouches *}
 
-text\<open>We instantiate a ``polymorphic'' form of cartouche
-     so that the ``type'' of cartouches in output can be parameterized
+text\<open>We generalize the construction of cartouches for them to be used polymorphically,
+     however the ``real'' type of cartouche expressions needs to be specified
      earlier with a special command.\<close>
 
 parse_translation {*
@@ -97,7 +99,9 @@ parse_translation {*
      end)]
 *}
 
-text\<open>By default we set the type of cartouche to be the following:\<close>
+text\<open>This is the special command which sets the type of subsequent cartouches.
+     Note: here the given type is currently a string,
+           one should extend it to be a truly ``typed'' type...\<close>
 declare[[cartouche_type = "abr_string"]]
 
 subsection{* Operations on List *}
@@ -183,7 +187,7 @@ definition "char_escape = Char Nibble0 Nibble9"
 definition "ST0 c = \<lless>[c]\<ggreater>"
 definition "ST0_base c = ST' [c]"
 
-subsection{* Operations on String *}
+subsection{* Operations on String (I) *}
 
 locale S
 locale String
@@ -256,7 +260,7 @@ lemmas [code] =
   String.foldl.simps
   String.is_empty.simps
 
-subsection{* Extended Operations on String *}
+subsection{* Operations on String (II) *}
 
 definition "wildcard = \<open>_\<close>"
 
@@ -343,7 +347,7 @@ definition "mk_dot_comment s1 s2 s3 = mk_dot s1 (S.flatten [s2, \<open> /*\<clos
 definition "hol_definition s = S.flatten [s, \<open>_def\<close>]"
 definition "hol_split s = S.flatten [s, \<open>.split\<close>]"
 
-section{* Miscellaneous (Temporary Fix) *} (* to be removed *)
+section{* Miscellaneous *} (* section to be removed when errors will be fixed *)
 
 (* Syntactic errors in target languages can appear during extraction,
    so we explicitly output parenthesis around expressions
