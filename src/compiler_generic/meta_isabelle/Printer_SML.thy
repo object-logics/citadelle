@@ -47,19 +47,19 @@ context Print
 begin
 
 definition "of_val_fun = (\<lambda> Sval \<Rightarrow> \<open>val\<close>
-                            | Sfun \<Rightarrow> \<open>fun\<close>)"
+                          | Sfun \<Rightarrow> \<open>fun\<close>)"
 
 fun' of_sexpr where \<open>of_sexpr e = (\<lambda>
-    SML_string s \<Rightarrow> sprint1 \<open>"%s"\<close>\<acute> (To_string (escape_sml s))
-  | SML_rewrite val_fun e1 symb e2 \<Rightarrow> sprint4 \<open>%s %s %s %s\<close>\<acute> (of_val_fun val_fun) (of_sexpr e1) (To_string symb) (of_sexpr e2)
-  | SML_basic l \<Rightarrow> sprint1 \<open>%s\<close>\<acute> (String_concat \<open> \<close> (L.map To_string l))
-  | SML_binop e1 s e2 \<Rightarrow> sprint3 \<open>%s %s %s\<close>\<acute> (of_sexpr e1) (of_sexpr (SML_basic [s])) (of_sexpr e2)
-  | SML_annot e s \<Rightarrow> sprint2 \<open>(%s:%s)\<close>\<acute> (of_sexpr e) (To_string s)
-  | SML_function l \<Rightarrow> sprint1 \<open>(fn %s)\<close>\<acute> (String_concat \<open>
-    | \<close> (List.map (\<lambda> (s1, s2) \<Rightarrow> sprint2 \<open>%s => %s\<close>\<acute> (of_sexpr s1) (of_sexpr s2)) l))
-  | SML_apply s l \<Rightarrow> sprint2 \<open>(%s %s)\<close>\<acute> (To_string s) (String_concat \<open> \<close> (List.map (\<lambda> e \<Rightarrow> sprint1 \<open>(%s)\<close>\<acute> (of_sexpr e)) l))
-  | SML_paren p_left p_right e \<Rightarrow> sprint3 \<open>%s%s%s\<close>\<acute> (To_string p_left) (of_sexpr e) (To_string p_right)
-  | SML_let_open s e \<Rightarrow> sprint2 \<open>let open %s in %s end\<close>\<acute> (To_string s) (of_sexpr e)) e\<close>
+    SML_string s \<Rightarrow> \<open>"%s"\<close> (To_string (escape_sml s))
+  | SML_rewrite val_fun e1 symb e2 \<Rightarrow> \<open>%s %s %s %s\<close> (of_val_fun val_fun) (of_sexpr e1) (To_string symb) (of_sexpr e2)
+  | SML_basic l \<Rightarrow> \<open>%s\<close> (String_concat \<open> \<close> (L.map To_string l))
+  | SML_binop e1 s e2 \<Rightarrow> \<open>%s %s %s\<close> (of_sexpr e1) (of_sexpr (SML_basic [s])) (of_sexpr e2)
+  | SML_annot e s \<Rightarrow> \<open>(%s:%s)\<close> (of_sexpr e) (To_string s)
+  | SML_function l \<Rightarrow> \<open>(fn %s)\<close> (String_concat \<open>
+    | \<close> (List.map (\<lambda> (s1, s2) \<Rightarrow> \<open>%s => %s\<close> (of_sexpr s1) (of_sexpr s2)) l))
+  | SML_apply s l \<Rightarrow> \<open>(%s %s)\<close> (To_string s) (String_concat \<open> \<close> (List.map (\<lambda> e \<Rightarrow> \<open>(%s)\<close> (of_sexpr e)) l))
+  | SML_paren p_left p_right e \<Rightarrow> \<open>%s%s%s\<close> (To_string p_left) (of_sexpr e) (To_string p_right)
+  | SML_let_open s e \<Rightarrow> \<open>let open %s in %s end\<close> (To_string s) (of_sexpr e)) e\<close>
 
 end
 

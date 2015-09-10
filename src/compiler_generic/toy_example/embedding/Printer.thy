@@ -52,6 +52,9 @@ definition "List_iterM f l =
 
 context Print
 begin
+
+declare[[cartouche_type' = "String.literal"]]
+
 definition "write_file ocl = (
   let (l_thy, Sys_argv) = compiler_env_config.more ocl
     ; (is_file, f_output) = case (D_output_header_thy ocl, Sys_argv)

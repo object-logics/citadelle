@@ -49,11 +49,11 @@ begin
 fun of_pure_term where "of_pure_term l e = (\<lambda>
     Const s _ \<Rightarrow> To_string s
   | Free s _ \<Rightarrow> To_string s
-  | App t1 t2 \<Rightarrow> sprint2 \<open>(%s) (%s)\<close>\<acute> (of_pure_term l t1) (of_pure_term l t2)
+  | App t1 t2 \<Rightarrow> \<open>(%s) (%s)\<close> (of_pure_term l t1) (of_pure_term l t2)
   | Abs s _ t \<Rightarrow>
       let s = To_string s in
-      sprint2 \<open>(\<lambda> %s. %s)\<close>\<acute> s (of_pure_term (s # l) t)
-  | Bound n \<Rightarrow> sprint1 \<open>%s\<close>\<acute> (l ! nat_of_natural n)) e"
+      \<open>(\<lambda> %s. %s)\<close> s (of_pure_term (s # l) t)
+  | Bound n \<Rightarrow> \<open>%s\<close> (l ! nat_of_natural n)) e"
 
 end
 

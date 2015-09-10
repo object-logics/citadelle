@@ -82,21 +82,36 @@ text\<open>We generalize the construction of cartouches for them to be used poly
      however the ``real'' type of cartouche expressions needs to be specified
      earlier with a special command.\<close>
 
+ML{*
+val cartouche_grammar =
+  [ ("char list", snd)
+  , ("String.literal", (fn (_, x) => Syntax.const @{const_syntax STR} $ x))
+  , ("abr_string", (fn (_, x) => Syntax.const @{const_syntax SS_base}
+                                 $ (Syntax.const @{const_syntax ST}
+                                    $ (Syntax.const @{const_syntax STR}
+                                       $ x))))]
+*}
+
+ML{* 
+fun parse_translation_cartouche binding l f_char accu = 
+  let val cartouche_type = Attrib.setup_config_string binding (K (fst (hd l))) in
+  fn ctxt =>
+    string_tr
+      let val cart_type = Config.get ctxt cartouche_type in
+      case (List.find (fn (s, _) => s = cart_type)
+                          l) of
+        NONE => error ("Unregistered return type for the cartouche: \"" ^ cart_type ^ "\"")
+      | SOME (_, f) => f
+      end
+      f_char
+      accu
+      (Symbol_Pos.cartouche_content o Symbol_Pos.explode)
+  end
+*}
+
 parse_translation {*
   [( @{syntax_const "_cartouche_string"}
-   , let val cartouche_type = Attrib.setup_config_string @{binding cartouche_type} (K "char list") in
-       fn ctxt =>
-         string_tr
-           (case Config.get ctxt cartouche_type of
-              "char list" => I
-            | "String.literal" => (fn x => Syntax.const @{const_syntax STR} $ x)
-            | "abr_string" => (fn x => Syntax.const @{const_syntax SS_base}
-                                       $ (Syntax.const @{const_syntax ST}
-                                          $ (Syntax.const @{const_syntax STR}
-                                             $ x)))
-            | s => error ("Unregistered return type for the cartouche: \"" ^ s ^ "\""))
-           (Symbol_Pos.cartouche_content o Symbol_Pos.explode)
-     end)]
+   , parse_translation_cartouche @{binding cartouche_type} cartouche_grammar (K I) ())]
 *}
 
 text\<open>This is the special command which sets the type of subsequent cartouches.
