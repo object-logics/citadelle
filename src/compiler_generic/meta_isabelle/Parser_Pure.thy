@@ -46,32 +46,32 @@ begin
 context Parse
 begin
 
-definition "i_of_pure_indexname a b = i_of_pair a b (i_of_string a b) (i_of_nat a b)"
+definition "of_pure_indexname a b = of_pair a b (of_string a b) (of_nat a b)"
 
-definition "i_of_pure_class = i_of_string"
+definition "of_pure_class = of_string"
 
-definition "i_of_pure_sort a b = i_of_list a b (i_of_pure_class a b)"
+definition "of_pure_sort a b = of_list a b (of_pure_class a b)"
 
-definition "i_of_pure_typ a b = rec_typ
-  (ap2 a (b \<open>Type\<close>) (i_of_string a b) (i_of_list a b snd))
-  (ap2 a (b \<open>TFree\<close>) (i_of_string a b) (i_of_pure_sort a b))
-  (ap2 a (b \<open>TVar\<close>) (i_of_pure_indexname a b) (i_of_pure_sort a b))"
+definition "of_pure_typ a b = rec_typ
+  (ap2 a (b \<open>Type\<close>) (of_string a b) (of_list a b snd))
+  (ap2 a (b \<open>TFree\<close>) (of_string a b) (of_pure_sort a b))
+  (ap2 a (b \<open>TVar\<close>) (of_pure_indexname a b) (of_pure_sort a b))"
 
-definition "i_of_pure_term a b = (\<lambda>f0 f1 f2 f3 f4 f5. rec_term f0 f1 f2 f3 (co2 K f4) (\<lambda>_ _. f5))
-  (ap2 a (b \<open>Const\<close>) (i_of_string a b) (i_of_pure_typ a b))
-  (ap2 a (b \<open>Free\<close>) (i_of_string a b) (i_of_pure_typ a b))
-  (ap2 a (b \<open>Var\<close>) (i_of_pure_indexname a b) (i_of_pure_typ a b))
-  (ap1 a (b \<open>Bound\<close>) (i_of_nat a b))
-  (ar3 a (b \<open>Abs\<close>) (i_of_string a b) (i_of_pure_typ a b))
+definition "of_pure_term a b = (\<lambda>f0 f1 f2 f3 f4 f5. rec_term f0 f1 f2 f3 (co2 K f4) (\<lambda>_ _. f5))
+  (ap2 a (b \<open>Const\<close>) (of_string a b) (of_pure_typ a b))
+  (ap2 a (b \<open>Free\<close>) (of_string a b) (of_pure_typ a b))
+  (ap2 a (b \<open>Var\<close>) (of_pure_indexname a b) (of_pure_typ a b))
+  (ap1 a (b \<open>Bound\<close>) (of_nat a b))
+  (ar3 a (b \<open>Abs\<close>) (of_string a b) (of_pure_typ a b))
   (ar2 a (b \<open>App\<close>) id)"
 
 end
 
 lemmas [code] =
-  Parse.i_of_pure_indexname_def
-  Parse.i_of_pure_class_def
-  Parse.i_of_pure_sort_def
-  Parse.i_of_pure_typ_def
-  Parse.i_of_pure_term_def
+  Parse.of_pure_indexname_def
+  Parse.of_pure_class_def
+  Parse.of_pure_sort_def
+  Parse.of_pure_typ_def
+  Parse.of_pure_term_def
 
 end

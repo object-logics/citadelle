@@ -100,32 +100,32 @@ locale Parse =
   fixes ext :: "string \<Rightarrow> string"
 
   (* (effective) first order *)
-  fixes i_of_string :: "('a \<Rightarrow> 'a list \<Rightarrow> 'a) \<Rightarrow> (string \<Rightarrow> 'a) \<Rightarrow> string \<Rightarrow> 'a"
-  fixes i_of_string\<^sub>b\<^sub>a\<^sub>s\<^sub>e :: "('a \<Rightarrow> 'a list \<Rightarrow> 'a) \<Rightarrow> (string \<Rightarrow> 'a) \<Rightarrow> string\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<Rightarrow> 'a"
-  fixes i_of_nat :: "('a \<Rightarrow> 'a list \<Rightarrow> 'a) \<Rightarrow> (string \<Rightarrow> 'a) \<Rightarrow> natural \<Rightarrow> 'a"
-  fixes i_of_unit :: "(string \<Rightarrow> 'a) \<Rightarrow> unit \<Rightarrow> 'a"
-  fixes i_of_bool :: "(string \<Rightarrow> 'a) \<Rightarrow> bool \<Rightarrow> 'a"
+  fixes of_string :: "('a \<Rightarrow> 'a list \<Rightarrow> 'a) \<Rightarrow> (string \<Rightarrow> 'a) \<Rightarrow> string \<Rightarrow> 'a"
+  fixes of_string\<^sub>b\<^sub>a\<^sub>s\<^sub>e :: "('a \<Rightarrow> 'a list \<Rightarrow> 'a) \<Rightarrow> (string \<Rightarrow> 'a) \<Rightarrow> string\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<Rightarrow> 'a"
+  fixes of_nat :: "('a \<Rightarrow> 'a list \<Rightarrow> 'a) \<Rightarrow> (string \<Rightarrow> 'a) \<Rightarrow> natural \<Rightarrow> 'a"
+  fixes of_unit :: "(string \<Rightarrow> 'a) \<Rightarrow> unit \<Rightarrow> 'a"
+  fixes of_bool :: "(string \<Rightarrow> 'a) \<Rightarrow> bool \<Rightarrow> 'a"
 
   (* (simulation) higher order *)
   fixes i_Pair i_Nil i_Cons i_None i_Some :: string
 begin
 
-definition "i_of_pair a b f1 f2 = (\<lambda>f. \<lambda>(c, d) \<Rightarrow> f c d)
+definition "of_pair a b f1 f2 = (\<lambda>f. \<lambda>(c, d) \<Rightarrow> f c d)
   (ap2 a (b i_Pair) f1 f2)"
 
-definition "i_of_list a b f = (\<lambda>f0. rec_list f0 o co1 K)
+definition "of_list a b f = (\<lambda>f0. rec_list f0 o co1 K)
   (b i_Nil)
   (ar2 a (b i_Cons) f)"
 
-definition "i_of_option a b f = rec_option
+definition "of_option a b f = rec_option
   (b i_None)
   (ap1 a (b i_Some) f)"
 
 end
 
 lemmas [code] =
-  Parse.i_of_pair_def
-  Parse.i_of_list_def
-  Parse.i_of_option_def
+  Parse.of_pair_def
+  Parse.of_list_def
+  Parse.of_option_def
 
 end

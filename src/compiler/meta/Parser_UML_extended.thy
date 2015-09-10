@@ -81,78 +81,78 @@ subsubsection{* general *}
 context Parse
 begin
 
-definition "i_of_internal_oid a b = rec_internal_oid
-  (ap1 a (b \<open>Oid\<close>) (i_of_nat a b))"
+definition "of_internal_oid a b = rec_internal_oid
+  (ap1 a (b \<open>Oid\<close>) (of_nat a b))"
 
-definition "i_of_internal_oids a b = rec_internal_oids
+definition "of_internal_oids a b = rec_internal_oids
   (ap3 a (b \<open>Oids\<close>)
-    (i_of_nat a b)
-    (i_of_nat a b)
-    (i_of_nat a b))"
+    (of_nat a b)
+    (of_nat a b)
+    (of_nat a b))"
 
-definition "i_of_ocl_def_base a b = rec_ocl_def_base
-  (ap1 a (b \<open>OclDefInteger\<close>) (i_of_string a b))
-  (ap1 a (b \<open>OclDefReal\<close>) (i_of_pair a b (i_of_string a b) (i_of_string a b)))
-  (ap1 a (b \<open>OclDefString\<close>) (i_of_string a b))"
+definition "of_ocl_def_base a b = rec_ocl_def_base
+  (ap1 a (b \<open>OclDefInteger\<close>) (of_string a b))
+  (ap1 a (b \<open>OclDefReal\<close>) (of_pair a b (of_string a b) (of_string a b)))
+  (ap1 a (b \<open>OclDefString\<close>) (of_string a b))"
 
-definition "i_of_ocl_data_shallow a b = rec_ocl_data_shallow
-  (ap1 a (b \<open>ShallB_term\<close>) (i_of_ocl_def_base a b))
-  (ap1 a (b \<open>ShallB_str\<close>) (i_of_string a b))
-  (ap1 a (b \<open>ShallB_self\<close>) (i_of_internal_oid a b))
-  (ap1 a (b \<open>ShallB_list\<close>) (i_of_list a b snd))"
+definition "of_ocl_data_shallow a b = rec_ocl_data_shallow
+  (ap1 a (b \<open>ShallB_term\<close>) (of_ocl_def_base a b))
+  (ap1 a (b \<open>ShallB_str\<close>) (of_string a b))
+  (ap1 a (b \<open>ShallB_self\<close>) (of_internal_oid a b))
+  (ap1 a (b \<open>ShallB_list\<close>) (of_list a b snd))"
 
-definition "i_of_ocl_list_attr a b f = (\<lambda>f0. co4 (\<lambda>f1. rec_ocl_list_attr f0 (\<lambda>s _ a rec. f1 s rec a)) (ap3 a))
+definition "of_ocl_list_attr a b f = (\<lambda>f0. co4 (\<lambda>f1. rec_ocl_list_attr f0 (\<lambda>s _ a rec. f1 s rec a)) (ap3 a))
   (ap1 a (b \<open>OclAttrNoCast\<close>) f)
   (b \<open>OclAttrCast\<close>)
-    (i_of_string a b)
+    (of_string a b)
     id
     f"
 
-definition "i_of_ocl_instance_single a b f = ocl_instance_single_rec
+definition "of_ocl_instance_single a b f = ocl_instance_single_rec
   (ap4 a (b (ext \<open>ocl_instance_single_ext\<close>))
-    (i_of_option a b (i_of_string a b))
-    (i_of_option a b (i_of_string a b))
-    (i_of_ocl_list_attr a b (i_of_list a b (i_of_pair a b (i_of_option a b (i_of_pair a b (i_of_string a b) (i_of_string a b))) (i_of_pair a b (i_of_string a b) (i_of_ocl_data_shallow a b)))))
+    (of_option a b (of_string a b))
+    (of_option a b (of_string a b))
+    (of_ocl_list_attr a b (of_list a b (of_pair a b (of_option a b (of_pair a b (of_string a b) (of_string a b))) (of_pair a b (of_string a b) (of_ocl_data_shallow a b)))))
     (f a b))"
 
-definition "i_of_ocl_instance a b = rec_ocl_instance
+definition "of_ocl_instance a b = rec_ocl_instance
   (ap1 a (b \<open>OclInstance\<close>)
-    (i_of_list a b (i_of_ocl_instance_single a b (K i_of_unit))))"
+    (of_list a b (of_ocl_instance_single a b (K of_unit))))"
 
-definition "i_of_ocl_def_base_l a b = rec_ocl_def_base_l
-  (ap1 a (b \<open>OclDefBase\<close>) (i_of_list a b (i_of_ocl_def_base a b)))"
+definition "of_ocl_def_base_l a b = rec_ocl_def_base_l
+  (ap1 a (b \<open>OclDefBase\<close>) (of_list a b (of_ocl_def_base a b)))"
 
-definition "i_of_ocl_def_state_core a b f = rec_ocl_def_state_core
-  (ap1 a (b \<open>OclDefCoreAdd\<close>) (i_of_ocl_instance_single a b (K i_of_unit)))
+definition "of_ocl_def_state_core a b f = rec_ocl_def_state_core
+  (ap1 a (b \<open>OclDefCoreAdd\<close>) (of_ocl_instance_single a b (K of_unit)))
   (ap1 a (b \<open>OclDefCoreBinding\<close>) f)"
 
-definition "i_of_ocl_def_state a b = rec_ocl_def_state
-  (ap2 a (b \<open>OclDefSt\<close>) (i_of_string a b) (i_of_list a b (i_of_ocl_def_state_core a b (i_of_string a b))))"
+definition "of_ocl_def_state a b = rec_ocl_def_state
+  (ap2 a (b \<open>OclDefSt\<close>) (of_string a b) (of_list a b (of_ocl_def_state_core a b (of_string a b))))"
 
-definition "i_of_ocl_def_pp_core a b = rec_ocl_def_pp_core
-  (ap1 a (b \<open>OclDefPPCoreAdd\<close>) (i_of_list a b (i_of_ocl_def_state_core a b (i_of_string a b))))
-  (ap1 a (b \<open>OclDefPPCoreBinding\<close>) (i_of_string a b))"
+definition "of_ocl_def_pp_core a b = rec_ocl_def_pp_core
+  (ap1 a (b \<open>OclDefPPCoreAdd\<close>) (of_list a b (of_ocl_def_state_core a b (of_string a b))))
+  (ap1 a (b \<open>OclDefPPCoreBinding\<close>) (of_string a b))"
 
-definition "i_of_ocl_def_pre_post a b = rec_ocl_def_pre_post
+definition "of_ocl_def_pre_post a b = rec_ocl_def_pre_post
   (ap3 a (b \<open>OclDefPP\<close>)
-    (i_of_option a b (i_of_string a b))
-    (i_of_ocl_def_pp_core a b)
-    (i_of_option a b (i_of_ocl_def_pp_core a b)))"
+    (of_option a b (of_string a b))
+    (of_ocl_def_pp_core a b)
+    (of_option a b (of_ocl_def_pp_core a b)))"
 
 end
 
 lemmas [code] =
-  Parse.i_of_internal_oid_def
-  Parse.i_of_internal_oids_def
-  Parse.i_of_ocl_def_base_def
-  Parse.i_of_ocl_data_shallow_def
-  Parse.i_of_ocl_list_attr_def
-  Parse.i_of_ocl_instance_single_def
-  Parse.i_of_ocl_instance_def
-  Parse.i_of_ocl_def_base_l_def
-  Parse.i_of_ocl_def_state_core_def
-  Parse.i_of_ocl_def_state_def
-  Parse.i_of_ocl_def_pp_core_def
-  Parse.i_of_ocl_def_pre_post_def
+  Parse.of_internal_oid_def
+  Parse.of_internal_oids_def
+  Parse.of_ocl_def_base_def
+  Parse.of_ocl_data_shallow_def
+  Parse.of_ocl_list_attr_def
+  Parse.of_ocl_instance_single_def
+  Parse.of_ocl_instance_def
+  Parse.of_ocl_def_base_l_def
+  Parse.of_ocl_def_state_core_def
+  Parse.of_ocl_def_state_def
+  Parse.of_ocl_def_pp_core_def
+  Parse.of_ocl_def_pre_post_def
 
 end

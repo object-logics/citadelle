@@ -71,7 +71,7 @@ definition "write_file ocl = (
              (\<lambda>x acc1 acc2. (acc1, Cons x acc2))
              l_thy
              (compiler_env_config.truncate ocl, []) in
-         s_of_thy_list (compiler_env_config_more_map (\<lambda>_. is_file) ocl) (rev l))))"
+         of_thy_list (compiler_env_config_more_map (\<lambda>_. is_file) ocl) (rev l))))"
 end
 
 definition "write_file = Print.write_file (String.implode o String.to_list) (ToNat integer_of_natural)"

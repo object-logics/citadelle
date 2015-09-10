@@ -55,9 +55,9 @@ begin
 
 declare[[cartouche_type = "abr_string"]]
 
-definition "s_of_sexpr_extended = (\<lambda>
-    SML_extended s \<Rightarrow> s_of_sexpr s
-  | SML_ocl ocl \<Rightarrow> s_of_sexpr
+definition "of_sexpr_extended = (\<lambda>
+    SML_extended s \<Rightarrow> of_sexpr s
+  | SML_ocl ocl \<Rightarrow> of_sexpr
      (SML_apply \<open>Generation_mode.update_compiler_config\<close>
        [SML_apply \<open>K\<close> [SML_let_open \<open>OCL\<close> (SML_basic [sml_of_ocl_unit sml_apply id ocl])]]))"
 
@@ -69,63 +69,63 @@ definition "concatWith l =
 
 declare[[cartouche_type = "String.literal"]]
 
-definition "s_of_section_title ocl =
+definition "of_section_title ocl =
  (if D_output_disable_thy ocl then
     \<lambda>_. \<open>\<close>
   else
-    s_of_section ocl)"
+    of_section ocl)"
 
-fun s_of_ctxt2_term_aux where "s_of_ctxt2_term_aux l e =
- (\<lambda> T_pure pure \<Rightarrow> concatWith l (s_of_pure_term [] pure)
+fun of_ctxt2_term_aux where "of_ctxt2_term_aux l e =
+ (\<lambda> T_pure pure \<Rightarrow> concatWith l (of_pure_term [] pure)
   | T_to_be_parsed _ s \<Rightarrow> concatWith l (To_string s)
-  | T_lambda s c \<Rightarrow> s_of_ctxt2_term_aux (s # l) c) e"
-definition "s_of_ctxt2_term = s_of_ctxt2_term_aux []"
+  | T_lambda s c \<Rightarrow> of_ctxt2_term_aux (s # l) c) e"
+definition "of_ctxt2_term = of_ctxt2_term_aux []"
 
 definition "To_oid = (\<lambda>Oid n \<Rightarrow> To_nat n)"
 
-fun s_of_ocl_list_attr where
-   "s_of_ocl_list_attr f e = (\<lambda> OclAttrNoCast x \<Rightarrow> f x
+fun of_ocl_list_attr where
+   "of_ocl_list_attr f e = (\<lambda> OclAttrNoCast x \<Rightarrow> f x
                               | OclAttrCast ty (OclAttrNoCast x) _ \<Rightarrow> sprint2 \<open>(%s :: %s)\<close>\<acute> (f x) (To_string ty)
-                              | OclAttrCast ty l _ \<Rightarrow> sprint2 \<open>%s \<rightarrow> oclAsType( %s )\<close>\<acute> (s_of_ocl_list_attr f l) (To_string ty)) e"
+                              | OclAttrCast ty l _ \<Rightarrow> sprint2 \<open>%s \<rightarrow> oclAsType( %s )\<close>\<acute> (of_ocl_list_attr f l) (To_string ty)) e"
 
-definition' \<open>s_of_ocl_def_base = (\<lambda> OclDefInteger i \<Rightarrow> To_string i
+definition' \<open>of_ocl_def_base = (\<lambda> OclDefInteger i \<Rightarrow> To_string i
                                   | OclDefReal (i1, i2) \<Rightarrow> sprint2 \<open>%s.%s\<close>\<acute> (To_string i1) (To_string i2)
                                   | OclDefString s \<Rightarrow> sprint1 \<open>"%s"\<close>\<acute> (To_string s))\<close>
 
-fun s_of_ocl_data_shallow where
-   "s_of_ocl_data_shallow e = (\<lambda> ShallB_term b \<Rightarrow> s_of_ocl_def_base b
+fun of_ocl_data_shallow where
+   "of_ocl_data_shallow e = (\<lambda> ShallB_term b \<Rightarrow> of_ocl_def_base b
                                | ShallB_str s \<Rightarrow> To_string s
                                | ShallB_self s \<Rightarrow> sprint1 \<open>self %d\<close>\<acute> (To_oid s)
-                               | ShallB_list l \<Rightarrow> sprint1 \<open>[ %s ]\<close>\<acute> (String_concat \<open>, \<close> (List.map s_of_ocl_data_shallow l))) e"
+                               | ShallB_list l \<Rightarrow> sprint1 \<open>[ %s ]\<close>\<acute> (String_concat \<open>, \<close> (List.map of_ocl_data_shallow l))) e"
 
-definition' \<open>s_of_ocl_instance_single ocli =
+definition' \<open>of_ocl_instance_single ocli =
   sprint3 \<open>%s%s = %s\<close>\<acute>
     (case Inst_name ocli of Some s \<Rightarrow> To_string s)
     (case Inst_ty ocli of None \<Rightarrow> \<open>\<close> | Some ty \<Rightarrow> sprint1 \<open> :: %s\<close>\<acute> (To_string ty))
-    (s_of_ocl_list_attr
+    (of_ocl_list_attr
       (\<lambda>l. sprint1 \<open>[ %s ]\<close>\<acute>
              (String_concat \<open>, \<close>
                (L.map (\<lambda>(pre_post, attr, v).
                             sprint3 \<open>%s"%s" = %s\<close>\<acute> (case pre_post of None \<Rightarrow> \<open>\<close>
                                                                    | Some (s1, s2) \<Rightarrow> sprint2 \<open>("%s", "%s") |= \<close>\<acute> (To_string s1) (To_string s2))
                                                    (To_string attr)
-                                                   (s_of_ocl_data_shallow v))
+                                                   (of_ocl_data_shallow v))
                          l)))
       (Inst_attr ocli))\<close>
 
-definition "s_of_def_state l =
+definition "of_def_state l =
   String_concat \<open>, \<close> (L.map (\<lambda> OclDefCoreBinding s \<Rightarrow> To_string s
-                                | OclDefCoreAdd ocli \<Rightarrow> s_of_ocl_instance_single ocli) l)"
+                                | OclDefCoreAdd ocli \<Rightarrow> of_ocl_instance_single ocli) l)"
 
-definition "s_of_def_pp_core = (\<lambda> OclDefPPCoreBinding s \<Rightarrow> To_string s
-                                | OclDefPPCoreAdd l \<Rightarrow> sprint1 \<open>[ %s ]\<close>\<acute> (s_of_def_state l))"
+definition "of_def_pp_core = (\<lambda> OclDefPPCoreBinding s \<Rightarrow> To_string s
+                                | OclDefPPCoreAdd l \<Rightarrow> sprint1 \<open>[ %s ]\<close>\<acute> (of_def_state l))"
 
-definition' \<open>s_of_all_meta_embedding _ =
+definition' \<open>of_all_meta_embedding _ =
  (\<lambda> META_ctxt Floor2 ctxt \<Rightarrow>
     let f_inv = \<lambda> T_inv b (OclProp_ctxt n s) \<Rightarrow> sprint3 \<open>  %sInv %s : "%s"\<close>\<acute>
               (if b then \<open>Existential\<close> else \<open>\<close>)
               (case n of None \<Rightarrow> \<open>\<close> | Some s \<Rightarrow> To_string s)
-              (s_of_ctxt2_term s) in
+              (of_ctxt2_term s) in
       sprint3 \<open>Context[shallow] %s%s %s\<close>\<acute>
         (case Ctxt_param ctxt of
            [] \<Rightarrow> \<open>\<close>
@@ -149,7 +149,7 @@ definition' \<open>s_of_all_meta_embedding _ =
                 (case pref of OclCtxtPre \<Rightarrow> \<open>Pre\<close>
                             | OclCtxtPost \<Rightarrow> \<open>Post\<close>)
                 (case n of None \<Rightarrow> \<open>\<close> | Some s \<Rightarrow> To_string s)
-                (s_of_ctxt2_term s)
+                (of_ctxt2_term s)
              | T_invariant inva \<Rightarrow> f_inv inva
               )
             (Ctxt_expr ctxt)))
@@ -158,23 +158,23 @@ definition' \<open>s_of_all_meta_embedding _ =
 
   | META_instance (OclInstance l) \<Rightarrow>
       sprint1 \<open>Instance %s\<close>\<acute> (String_concat \<open>
-     and \<close> (L.map s_of_ocl_instance_single l))
+     and \<close> (L.map of_ocl_instance_single l))
   | META_def_state Floor2 (OclDefSt n l) \<Rightarrow> 
       sprint2 \<open>State[shallow] %s = [ %s ]\<close>\<acute>
         (To_string n)
-        (s_of_def_state l)
+        (of_def_state l)
   | META_def_pre_post Floor2 (OclDefPP n s_pre s_post) \<Rightarrow>
       sprint3 \<open>PrePost[shallow] %s%s%s\<close>\<acute>
         (case n of None \<Rightarrow> \<open>\<close> | Some n \<Rightarrow> sprint1 \<open>%s = \<close>\<acute> (To_string n))
-        (s_of_def_pp_core s_pre)
-        (case s_post of None \<Rightarrow> \<open>\<close> | Some s_post \<Rightarrow> sprint1 \<open> %s\<close>\<acute> (s_of_def_pp_core s_post)))\<close>
+        (of_def_pp_core s_pre)
+        (case s_post of None \<Rightarrow> \<open>\<close> | Some s_post \<Rightarrow> sprint1 \<open> %s\<close>\<acute> (of_def_pp_core s_post)))\<close>
 
-definition "s_of_semi__t0 ocl =
-            (\<lambda> Theory_section section_title \<Rightarrow> s_of_section_title ocl section_title
-             | x \<Rightarrow> s_of_semi__t ocl x)"
+definition "of_semi__t0 ocl =
+            (\<lambda> Theory_section section_title \<Rightarrow> of_section_title ocl section_title
+             | x \<Rightarrow> of_semi__t ocl x)"
 
-definition' \<open>s_of_semi__theory0 ocl =
- (\<lambda> H_thy_simple t \<Rightarrow> s_of_semi__t0 ocl t
+definition' \<open>of_semi__theory0 ocl =
+ (\<lambda> H_thy_simple t \<Rightarrow> of_semi__t0 ocl t
   | H_thy_locale data l \<Rightarrow> 
       sprint3 \<open>locale %s =
 %s
@@ -186,41 +186,41 @@ end\<close>\<acute>   (To_string (HolThyLocale_name data))
 \<close>
            (\<lambda> (l_fix, o_assum).
                 sprint2 \<open>%s%s\<close>\<acute> (String_concat_map \<open>
-\<close> (\<lambda>(e, ty). sprint2 \<open>fixes "%s" :: "%s"\<close>\<acute> (s_of_semi__term e) (s_of_semi__typ ty)) l_fix)
+\<close> (\<lambda>(e, ty). sprint2 \<open>fixes "%s" :: "%s"\<close>\<acute> (of_semi__term e) (of_semi__typ ty)) l_fix)
                                 (case o_assum of None \<Rightarrow> \<open>\<close>
                                                | Some (name, e) \<Rightarrow> sprint2 \<open>
-assumes %s: "%s"\<close>\<acute> (To_string name) (s_of_semi__term e)))
+assumes %s: "%s"\<close>\<acute> (To_string name) (of_semi__term e)))
            (HolThyLocale_header data))
         (String_concat_map \<open>
 
 \<close> (String_concat_map \<open>
 
-\<close> (s_of_semi__t0 ocl)) l))\<close>
+\<close> (of_semi__t0 ocl)) l))\<close>
 
-definition "s_of_generation_syntax _ = (\<lambda> Gen_semantics mode \<Rightarrow>
+definition "of_generation_syntax _ = (\<lambda> Gen_semantics mode \<Rightarrow>
   sprint1 \<open>generation_syntax [ shallow%s ]\<close>\<acute>
     (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l f = sprint1 \<open> (generation_semantics [ %s ])\<close>\<acute> in
      case mode of Gen_only_design \<Rightarrow> f \<open>design\<close>
                 | Gen_only_analysis \<Rightarrow> f \<open>analysis\<close>
                 | Gen_default \<Rightarrow> \<open>\<close>))"
 
-definition "s_of_ml_extended _ = (\<lambda> Ml_extended e \<Rightarrow> sprint1 \<open>setup{* %s *}\<close>\<acute> (s_of_sexpr_extended e))"
+definition "of_ml_extended _ = (\<lambda> Ml_extended e \<Rightarrow> sprint1 \<open>setup{* %s *}\<close>\<acute> (of_sexpr_extended e))"
 
-definition "s_of_thy_extended ocl = (\<lambda>
-    Isab_thy thy \<Rightarrow> s_of_semi__theory0 ocl thy
-  | Isab_thy_generation_syntax generation_syntax \<Rightarrow> s_of_generation_syntax ocl generation_syntax
-  | Isab_thy_ml_extended ml_extended \<Rightarrow> s_of_ml_extended ocl ml_extended
-  | Isab_thy_all_meta_embedding all_meta_embedding \<Rightarrow> s_of_all_meta_embedding ocl all_meta_embedding)"
+definition "of_thy_extended ocl = (\<lambda>
+    Isab_thy thy \<Rightarrow> of_semi__theory0 ocl thy
+  | Isab_thy_generation_syntax generation_syntax \<Rightarrow> of_generation_syntax ocl generation_syntax
+  | Isab_thy_ml_extended ml_extended \<Rightarrow> of_ml_extended ocl ml_extended
+  | Isab_thy_all_meta_embedding all_meta_embedding \<Rightarrow> of_all_meta_embedding ocl all_meta_embedding)"
 
-definition "s_of_thy_list ocl l_thy =
+definition "of_thy_list ocl l_thy =
   (let (th_beg, th_end) = case D_output_header_thy ocl of None \<Rightarrow> ([], [])
    | Some (name, fic_import, fic_import_boot) \<Rightarrow>
-       ( [ sprint2 \<open>theory %s imports %s begin\<close>\<acute> (To_string name) (s_of_semi__term (term_binop \<langle>'' ''\<rangle> (L.map Term_string (fic_import @@@@ (if D_output_header_force ocl | D_output_auto_bootstrap ocl then [fic_import_boot] else []))))) ]
+       ( [ sprint2 \<open>theory %s imports %s begin\<close>\<acute> (To_string name) (of_semi__term (term_binop \<langle>'' ''\<rangle> (L.map Term_string (fic_import @@@@ (if D_output_header_force ocl | D_output_auto_bootstrap ocl then [fic_import_boot] else []))))) ]
        , [ \<open>\<close>, \<open>end\<close> ]) in
   L.flatten
         [ th_beg
         , L.flatten (fst (L.mapM (\<lambda>l (i, cpt).
-            let (l_thy, lg) = L.mapM (\<lambda>l n. (s_of_thy_extended ocl l, Succ n)) l 0 in
+            let (l_thy, lg) = L.mapM (\<lambda>l n. (of_thy_extended ocl l, Succ n)) l 0 in
             (( \<open>\<close>
              # sprint4 \<open>%s(* %d ************************************ %d + %d *)\<close>\<acute>
                  (To_string (if compiler_env_config.more ocl then \<langle>''''\<rangle> else \<degree>char_escape\<degree>)) (To_nat (Succ i)) (To_nat cpt) (To_nat lg)
@@ -230,26 +230,26 @@ end
 
 lemmas [code] =
   (* def *)
-  Print.s_of_sexpr_extended_def
+  Print.of_sexpr_extended_def
   Print.concatWith_def
-  Print.s_of_section_title_def
-  Print.s_of_ctxt2_term_def
+  Print.of_section_title_def
+  Print.of_ctxt2_term_def
   Print.To_oid_def
-  Print.s_of_ocl_def_base_def
-  Print.s_of_ocl_instance_single_def
-  Print.s_of_def_state_def
-  Print.s_of_def_pp_core_def
-  Print.s_of_all_meta_embedding_def
-  Print.s_of_semi__t0_def
-  Print.s_of_semi__theory0_def
-  Print.s_of_generation_syntax_def
-  Print.s_of_ml_extended_def
-  Print.s_of_thy_extended_def
-  Print.s_of_thy_list_def
+  Print.of_ocl_def_base_def
+  Print.of_ocl_instance_single_def
+  Print.of_def_state_def
+  Print.of_def_pp_core_def
+  Print.of_all_meta_embedding_def
+  Print.of_semi__t0_def
+  Print.of_semi__theory0_def
+  Print.of_generation_syntax_def
+  Print.of_ml_extended_def
+  Print.of_thy_extended_def
+  Print.of_thy_list_def
 
   (* fun *)
-  Print.s_of_ctxt2_term_aux.simps
-  Print.s_of_ocl_list_attr.simps
-  Print.s_of_ocl_data_shallow.simps
+  Print.of_ctxt2_term_aux.simps
+  Print.of_ocl_list_attr.simps
+  Print.of_ocl_data_shallow.simps
 
 end
