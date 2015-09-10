@@ -46,10 +46,9 @@ begin
 subsection{* Type Definition *}
 
 text{* The following datatypes beginning with \verb|semi__| represent semi-concrete syntax,
-       deliberately not minimal abstract syntax like Pure Term, in order to facilitate
-       the pretty-printing process.
-       When using the FOCL compiler in shallow mode, variants such as @{term Typ_apply_paren}
-       are irrelevant. *}
+       deliberately not minimal abstract syntax like (Pure) Term,
+       this is for example to facilitate the pretty-printing process,
+       or for manipulating recursively data-structures through an abstracted and typed API. *}
 
 datatype semi__typ = Typ_apply semi__typ "semi__typ list"
                    | Typ_apply_bin string (* binop *) semi__typ semi__typ
@@ -85,7 +84,7 @@ datatype "defs" = Defs_overloaded string (* name *) semi__term (* content *)
 
 datatype "consts" = Consts string (* name *)
                            semi__typ
-                           string (* ocl 'post' mixfix *)
+                           string (* expression in 'post' mixfix *)
 
 datatype "definition" = Definition semi__term
                       | Definition_where1 string (* name *) "semi__term (* syntax extension *) \<times> nat (* priority *)" semi__term
@@ -240,8 +239,6 @@ definition "Raw = Typ_base"
 definition "Type_synonym' n = Type_synonym n []"
 definition "Type_synonym'' n l f = Type_synonym n l (f l)"
 definition "Term_annot' e s = Term_annot e (Typ_base s)"
-definition "wrap_oclty x = \<open>\<cdot>\<close> @@ x"
-definition "Term_annot_ocl e s = Term_annot' e (wrap_oclty s)"
 definition "Term_lambdas s = Term_bind \<open>\<lambda>\<close> (Term_basic s)"
 definition "Term_lambda x = Term_lambdas [x]"
 definition "Term_lambdas0 = Term_bind \<open>\<lambda>\<close>"
@@ -256,7 +253,6 @@ definition "Term_binop = Term_rewrite"
 definition "term_binop s l = (case rev l of x # xs \<Rightarrow> List.fold (\<lambda>x. Term_binop x s) xs x)"
 definition "term_binop' s l = (case rev l of x # xs \<Rightarrow> List.fold (\<lambda>x. Term_parenthesis o Term_binop x s) xs x)"
 definition "Term_set l = (case l of [] \<Rightarrow> Term_basic [\<open>{}\<close>] | _ \<Rightarrow> Term_paren \<open>{\<close> \<open>}\<close> (term_binop \<open>,\<close> l))"
-definition "Term_oclset l = (case l of [] \<Rightarrow> Term_basic [\<open>Set{}\<close>] | _ \<Rightarrow> Term_paren \<open>Set{\<close> \<open>}\<close> (term_binop \<open>,\<close> l))"
 definition "Term_list l = (case l of [] \<Rightarrow> Term_basic [\<open>[]\<close>] | _ \<Rightarrow> Term_paren \<open>[\<close> \<open>]\<close> (term_binop \<open>,\<close> l))"
 definition "Term_list' f l = Term_list (L.map f l)"
 definition "Term_pair e1 e2 = Term_parenthesis (Term_binop e1 \<open>,\<close> e2)"

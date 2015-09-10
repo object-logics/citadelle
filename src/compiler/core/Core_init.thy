@@ -310,6 +310,10 @@ definition "bootstrap_floor f_x l ocl =
       # l_setup
   , ocl \<lparr> D_output_auto_bootstrap := True \<rparr> ))"
 
+definition "wrap_oclty x = \<open>\<cdot>\<close> @@ x"
+definition "Term_annot_ocl e s = Term_annot' e (wrap_oclty s)"
+definition "Term_oclset l = (case l of [] \<Rightarrow> Term_basic [\<open>Set{}\<close>] | _ \<Rightarrow> Term_paren \<open>Set{\<close> \<open>}\<close> (term_binop \<open>,\<close> l))"
+
 context SML
 begin
 definition "oid s = (\<lambda>Oid n \<Rightarrow> basic [s @@ String.of_natural n])"
