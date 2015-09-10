@@ -88,7 +88,7 @@ definition "print_ctxt_to_ocl_gen_split s =
     (_, Some _, s) \<Rightarrow> Some s
   | _ \<Rightarrow> None)"
 definition "print_ctxt_to_ocl_gen l_access f var = (\<lambda> T_pure t \<Rightarrow>
-  T_pure (P.map_Const (\<lambda> s ty.
+  T_pure (Meta_Pure.map_Const (\<lambda> s ty.
     if (*print_ctxt2_is_accessor ty*)
        list_ex (case print_ctxt_to_ocl_gen_split s of
                   Some s \<Rightarrow> \<lambda>n. String\<^sub>b\<^sub>a\<^sub>s\<^sub>e.to_list n = s
@@ -105,7 +105,7 @@ definition "print_ctxt_to_ocl_post ocl = print_ctxt_to_ocl_gen (fst (D_ocl_acces
 definition "raise_ml_unbound f_msg ctxt =
         [ (\<lambda>_. [O.ML (raise_ml (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l l = L.flatten (L.mapi (\<lambda> n. \<lambda>(msg, T_pure t) \<Rightarrow>
                                             let l =
-                                              rev (P.fold_Free (\<lambda>l s.
+                                              rev (Meta_Pure.fold_Free (\<lambda>l s.
                                                 (Error, S.flatten [f_msg n msg, \<open>: unbound value \<close>, s]) # l) [] t) in
                                             if l = [] then [(Writeln, f_msg n msg)] else l) ctxt) in
                                  if list_ex (\<lambda>(Error, _) \<Rightarrow> True | _ \<Rightarrow> False) l then l else [])
@@ -167,7 +167,7 @@ definition "print_ctxt_pre_post = (\<lambda>f. map_prod L.flatten id o f) o L.ma
               ; (name0, def) =
                  (if 
                     List.fold (\<lambda> (_, T_pure t) \<Rightarrow> \<lambda> b \<Rightarrow>
-                                 b | P.fold_Const (\<lambda> b s. b | (case print_ctxt_to_ocl_gen_split s of
+                                 b | Meta_Pure.fold_Const (\<lambda> b s. b | (case print_ctxt_to_ocl_gen_split s of
                                                                None \<Rightarrow> False
                                                              | Some s \<Rightarrow> 
                                                                  let f_eq = \<lambda>a. String.to_list (print_ctxt_const_name attr_n a None) = s in

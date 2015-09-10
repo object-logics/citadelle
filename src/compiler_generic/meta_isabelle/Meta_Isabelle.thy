@@ -72,7 +72,7 @@ datatype hol__expr = Expr_rewrite hol__expr (* left *) string (* symb rewriting 
                    | Expr_paren string (* left *) string (* right *) hol__expr
                    | Expr_if_then_else hol__expr hol__expr hol__expr
                    | Expr_pure "string list" (* simulate a pre-initialized context (de bruijn variables under "lam") *)
-                               pure_term (* usual continuation of inner syntax term *)
+                               "term" (* usual continuation of inner syntax term *)
 
 datatype hol_type_notation = Type_notation string (* name *)
                                            string (* content *)

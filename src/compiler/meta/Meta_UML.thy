@@ -109,7 +109,7 @@ record ocl_association =        OclAss_type     :: ocl_association_type
 
 datatype ocl_ctxt_prefix = OclCtxtPre | OclCtxtPost
 
-datatype ocl_ctxt_term = T_pure pure_term
+datatype ocl_ctxt_term = T_pure "term"
                        | T_to_be_parsed string (* raw, it includes extra quoting characters like DEL (char 127) *)
                                         string (* same string but escaped without those quoting characters *)
                        | T_lambda string ocl_ctxt_term

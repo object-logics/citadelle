@@ -52,12 +52,12 @@ definition "i_of_pure_class = i_of_string"
 
 definition "i_of_pure_sort a b = i_of_list a b (i_of_pure_class a b)"
 
-definition "i_of_pure_typ a b = rec_pure_typ
+definition "i_of_pure_typ a b = rec_typ
   (ap2 a (b \<open>Type\<close>) (i_of_string a b) (i_of_list a b snd))
   (ap2 a (b \<open>TFree\<close>) (i_of_string a b) (i_of_pure_sort a b))
   (ap2 a (b \<open>TVar\<close>) (i_of_pure_indexname a b) (i_of_pure_sort a b))"
 
-definition "i_of_pure_term a b = (\<lambda>f0 f1 f2 f3 f4 f5. rec_pure_term f0 f1 f2 f3 (co2 K f4) (\<lambda>_ _. f5))
+definition "i_of_pure_term a b = (\<lambda>f0 f1 f2 f3 f4 f5. rec_term f0 f1 f2 f3 (co2 K f4) (\<lambda>_ _. f5))
   (ap2 a (b \<open>Const\<close>) (i_of_string a b) (i_of_pure_typ a b))
   (ap2 a (b \<open>Free\<close>) (i_of_string a b) (i_of_pure_typ a b))
   (ap2 a (b \<open>Var\<close>) (i_of_pure_indexname a b) (i_of_pure_typ a b))

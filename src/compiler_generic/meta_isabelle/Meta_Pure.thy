@@ -44,25 +44,22 @@ begin
 
 subsection{* Type Definition *}
 
-type_synonym pure_indexname = "string \<times> nat"
-type_synonym pure_class = string
-type_synonym pure_sort = "pure_class list"
-datatype pure_typ =
-  Type string "pure_typ list" |
-  TFree string pure_sort |
-  TVar pure_indexname pure_sort
-datatype pure_term =
-  Const string pure_typ |
-  Free string pure_typ |
-  Var pure_indexname pure_typ |
+type_synonym indexname = "string \<times> nat"
+type_synonym "class" = string
+type_synonym sort = "class list"
+datatype "typ" =
+  Type string "typ list" |
+  TFree string sort |
+  TVar indexname sort
+datatype "term" =
+  Const string "typ" |
+  Free string "typ" |
+  Var indexname "typ" |
   Bound nat |
-  Abs string pure_typ pure_term |
-  App pure_term pure_term (infixl "$" 200)
+  Abs string "typ" "term" |
+  App "term" "term" (infixl "$" 200)
 
 subsection{* Operations of Fold, Map, ..., on the Meta-Model *}
-
-locale P
-begin (* TODO move datatypes in the locale (when terminations will not be needed to be proved by hand anymore) *)
 
 fun map_Const where
    "map_Const f expr = (\<lambda> Const s ty \<Rightarrow> Const (f s ty) ty
@@ -87,14 +84,5 @@ fun fold_Free where
                              | App term1 term2 \<Rightarrow> fold_Free f (fold_Free f accu term1) term2
                              | _ \<Rightarrow> accu)
                               expr"
-end
-
-lemmas [code] =
-  (*def*)
-
-  (*fun*)
-  P.map_Const.simps
-  P.fold_Const.simps
-  P.fold_Free.simps
 
 end
