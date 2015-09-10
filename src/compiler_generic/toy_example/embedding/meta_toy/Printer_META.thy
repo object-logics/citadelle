@@ -54,7 +54,7 @@ definition "of_sexpr_extended = (\<lambda>
     SML_extended s \<Rightarrow> of_sexpr s
   | SML_ocl ocl \<Rightarrow> of_sexpr
      (SML_apply \<open>Generation_mode.update_compiler_config\<close>
-       [SML_apply \<open>K\<close> [SML_let_open \<open>OCL\<close> (SML_basic [sml_of_ocl_unit sml_apply id ocl])]]))"
+       [SML_apply \<open>K\<close> [SML_let_open \<open>META\<close> (SML_basic [sml_of_meta_unit sml_apply id ocl])]]))"
 
 definition "concatWith l =
  (if l = [] then

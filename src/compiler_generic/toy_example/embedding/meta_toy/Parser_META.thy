@@ -46,28 +46,28 @@ begin
 
 section{* Generation to both Form (setup part) *}
 
-definition "compiler_env_config_rec0 f ocl = f
-  (D_output_disable_thy ocl)
-  (D_output_header_thy ocl)
-  (D_ocl_oid_start ocl)
-  (D_output_position ocl)
-  (D_ocl_semantics ocl)
-  (D_input_class ocl)
-  (D_input_meta ocl)
-  (D_input_instance ocl)
-  (D_input_state ocl)
-  (D_output_header_force ocl)
-  (D_output_auto_bootstrap ocl)
-  (D_ocl_accessor ocl)
-  (D_ocl_HO_type ocl)
-  (D_output_sorry_dirty ocl)"
+definition "compiler_env_config_rec0 f env = f
+  (D_output_disable_thy env)
+  (D_output_header_thy env)
+  (D_ocl_oid_start env)
+  (D_output_position env)
+  (D_ocl_semantics env)
+  (D_input_class env)
+  (D_input_meta env)
+  (D_input_instance env)
+  (D_input_state env)
+  (D_output_header_force env)
+  (D_output_auto_bootstrap env)
+  (D_ocl_accessor env)
+  (D_ocl_HO_type env)
+  (D_output_sorry_dirty env)"
 
-definition "compiler_env_config_rec f ocl = compiler_env_config_rec0 f ocl
-  (compiler_env_config.more ocl)"
+definition "compiler_env_config_rec f env = compiler_env_config_rec0 f env
+  (compiler_env_config.more env)"
 
 (* *)
 
-lemma [code]: "compiler_env_config.extend = (\<lambda>ocl v. compiler_env_config_rec0 (co14 (\<lambda>f. f v) compiler_env_config_ext) ocl)"
+lemma [code]: "compiler_env_config.extend = (\<lambda>env v. compiler_env_config_rec0 (co14 (\<lambda>f. f v) compiler_env_config_ext) env)"
 by(intro ext, simp add: compiler_env_config_rec0_def
                         compiler_env_config.extend_def
                         co14_def K_def)
@@ -149,27 +149,27 @@ lemmas [code] =
 
 subsubsection{* Isabelle *}
 
-locale isabelle_of
+locale Parse_Isabelle
 begin
 
-definition "i_Pair = \<open>Pair\<close>"
-definition "i_Nil = \<open>Nil\<close>"
-definition "i_Cons = \<open>Cons\<close>"
-definition "i_None = \<open>None\<close>"
-definition "i_Some = \<open>Some\<close>"
+definition "Of_Pair = \<open>Pair\<close>"
+definition "Of_Nil = \<open>Nil\<close>"
+definition "Of_Cons = \<open>Cons\<close>"
+definition "Of_None = \<open>None\<close>"
+definition "Of_Some = \<open>Some\<close>"
 
 (* *)
 
 definition "of_pair a b f1 f2 = (\<lambda>f. \<lambda>(c, d) \<Rightarrow> f c d)
-  (ap2 a (b i_Pair) f1 f2)"
+  (ap2 a (b Of_Pair) f1 f2)"
 
 definition "of_list a b f = (\<lambda>f0. rec_list f0 o co1 K)
-  (b i_Nil)
-  (ar2 a (b i_Cons) f)"
+  (b Of_Nil)
+  (ar2 a (b Of_Cons) f)"
 
 definition "of_option a b f = rec_option
-  (b i_None)
-  (ap1 a (b i_Some) f)"
+  (b Of_None)
+  (ap1 a (b Of_Some) f)"
 
 (* *)
 
@@ -223,49 +223,49 @@ definition of_nat where "of_nat a b = b o String.of_natural"
 
 end
 
-sublocale isabelle_of < Parse "id"
-                              isabelle_of.of_string
-                              isabelle_of.of_string\<^sub>b\<^sub>a\<^sub>s\<^sub>e
-                              isabelle_of.of_nat
-                              isabelle_of.of_unit
-                              isabelle_of.of_bool
-                              isabelle_of.i_Pair
-                              isabelle_of.i_Nil
-                              isabelle_of.i_Cons
-                              isabelle_of.i_None
-                              isabelle_of.i_Some
+sublocale Parse_Isabelle < Parse "id"
+                              Parse_Isabelle.of_string
+                              Parse_Isabelle.of_string\<^sub>b\<^sub>a\<^sub>s\<^sub>e
+                              Parse_Isabelle.of_nat
+                              Parse_Isabelle.of_unit
+                              Parse_Isabelle.of_bool
+                              Parse_Isabelle.Of_Pair
+                              Parse_Isabelle.Of_Nil
+                              Parse_Isabelle.Of_Cons
+                              Parse_Isabelle.Of_None
+                              Parse_Isabelle.Of_Some
 done
 
-context isabelle_of begin
-  definition "ocl_embed a b =
+context Parse_Isabelle begin
+  definition "env_config a b =
     of_compiler_env_config a b (\<lambda> a b.
       of_pair a b
         (of_list a b (of_all_meta_embedding a b))
         (of_option a b (of_string a b)))"
 end
 
-definition "isabelle_of_ocl_embed = isabelle_of.ocl_embed"
+definition "isabelle_of_env_config = Parse_Isabelle.env_config"
 
 lemmas [code] =
-  isabelle_of.i_Pair_def
-  isabelle_of.i_Nil_def
-  isabelle_of.i_Cons_def
-  isabelle_of.i_None_def
-  isabelle_of.i_Some_def
+  Parse_Isabelle.Of_Pair_def
+  Parse_Isabelle.Of_Nil_def
+  Parse_Isabelle.Of_Cons_def
+  Parse_Isabelle.Of_None_def
+  Parse_Isabelle.Of_Some_def
 
-  isabelle_of.of_pair_def
-  isabelle_of.of_list_def
-  isabelle_of.of_option_def
-  isabelle_of.of_unit_def
-  isabelle_of.of_bool_def
-  isabelle_of.of_nibble_def
-  isabelle_of.of_char_def
-  isabelle_of.of_string_gen_def
-  isabelle_of.of_string_def
-  isabelle_of.of_string\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def
-  isabelle_of.of_nat_def
+  Parse_Isabelle.of_pair_def
+  Parse_Isabelle.of_list_def
+  Parse_Isabelle.of_option_def
+  Parse_Isabelle.of_unit_def
+  Parse_Isabelle.of_bool_def
+  Parse_Isabelle.of_nibble_def
+  Parse_Isabelle.of_char_def
+  Parse_Isabelle.of_string_gen_def
+  Parse_Isabelle.of_string_def
+  Parse_Isabelle.of_string\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def
+  Parse_Isabelle.of_nat_def
 
-  isabelle_of.ocl_embed_def
+  Parse_Isabelle.env_config_def
 
 (* *)
 
@@ -273,27 +273,27 @@ definition "isabelle_apply s l = S.flatten [s, S.flatten (L.map (\<lambda> s. S.
 
 subsubsection{* SML *}
 
-locale sml_of
+locale Parse_SML
 begin
 
-definition "i_Pair = \<open>I\<close>"
-definition "i_Nil = \<open>nil\<close>"
-definition "i_Cons = \<open>uncurry cons\<close>" (* val cons2 = uncurry cons *)
-definition "i_None = \<open>NONE\<close>"
-definition "i_Some = \<open>SOME\<close>"
+definition "Of_Pair = \<open>I\<close>"
+definition "Of_Nil = \<open>nil\<close>"
+definition "Of_Cons = \<open>uncurry cons\<close>" (* val cons2 = uncurry cons *)
+definition "Of_None = \<open>NONE\<close>"
+definition "Of_Some = \<open>SOME\<close>"
 
 (* *)
 
 definition "of_pair a b f1 f2 = (\<lambda>f. \<lambda>(c, d) \<Rightarrow> f c d)
-  (ap2 a (b i_Pair) f1 f2)"
+  (ap2 a (b Of_Pair) f1 f2)"
 
 definition "of_list a b f = (\<lambda>f0. rec_list f0 o co1 K)
-  (b i_Nil)
-  (ar2 a (b i_Cons) f)"
+  (b Of_Nil)
+  (ar2 a (b Of_Cons) f)"
 
 definition "of_option a b f = rec_option
-  (b i_None)
-  (ap1 a (b i_Some) f)"
+  (b Of_None)
+  (ap1 a (b Of_Some) f)"
 
 (* *)
 
@@ -318,12 +318,12 @@ definition' \<open>sml_escape =
                             else \<degree>x\<degree>)\<close>
 
 definition' \<open>of_string a b =
- (\<lambda>x. b (S.flatten [ \<open>(OCL.SS_base (OCL.ST "\<close>
+ (\<lambda>x. b (S.flatten [ \<open>(META.SS_base (META.ST "\<close>
                   , sml_escape x
                   , \<open>"))\<close>]))\<close>
 
 definition' \<open>of_string\<^sub>b\<^sub>a\<^sub>s\<^sub>e a b =
- (\<lambda>x. b (S.flatten [ \<open>(OCL.ST "\<close>
+ (\<lambda>x. b (S.flatten [ \<open>(META.ST "\<close>
                   , sml_escape (String\<^sub>b\<^sub>a\<^sub>s\<^sub>e.to_String x)
                   , \<open>")\<close>]))\<close>
 
@@ -331,43 +331,43 @@ definition of_nat where "of_nat a b = (\<lambda>x. b (S.flatten [\<open>(Code_Nu
 
 end
 
-sublocale sml_of < Parse "\<lambda>c. case String.to_list c of x # xs \<Rightarrow> S.flatten [String.uppercase \<lless>[x]\<ggreater>, \<lless>xs\<ggreater>]"
-                         sml_of.of_string
-                         sml_of.of_string\<^sub>b\<^sub>a\<^sub>s\<^sub>e
-                         sml_of.of_nat
-                         sml_of.of_unit
-                         sml_of.of_bool
-                         sml_of.i_Pair
-                         sml_of.i_Nil
-                         sml_of.i_Cons
-                         sml_of.i_None
-                         sml_of.i_Some
+sublocale Parse_SML < Parse "\<lambda>c. case String.to_list c of x # xs \<Rightarrow> S.flatten [String.uppercase \<lless>[x]\<ggreater>, \<lless>xs\<ggreater>]"
+                         Parse_SML.of_string
+                         Parse_SML.of_string\<^sub>b\<^sub>a\<^sub>s\<^sub>e
+                         Parse_SML.of_nat
+                         Parse_SML.of_unit
+                         Parse_SML.of_bool
+                         Parse_SML.Of_Pair
+                         Parse_SML.Of_Nil
+                         Parse_SML.Of_Cons
+                         Parse_SML.Of_None
+                         Parse_SML.Of_Some
 done
 
-context sml_of begin
-  definition "ocl_unit a b = of_compiler_env_config a b (\<lambda> _. of_unit)"
+context Parse_SML begin
+  definition "meta_unit a b = of_compiler_env_config a b (\<lambda> _. of_unit)"
 end
 
-definition "sml_of_ocl_unit = sml_of.ocl_unit"
+definition "sml_of_meta_unit = Parse_SML.meta_unit"
 
 lemmas [code] =
-  sml_of.i_Pair_def
-  sml_of.i_Nil_def
-  sml_of.i_Cons_def
-  sml_of.i_None_def
-  sml_of.i_Some_def
+  Parse_SML.Of_Pair_def
+  Parse_SML.Of_Nil_def
+  Parse_SML.Of_Cons_def
+  Parse_SML.Of_None_def
+  Parse_SML.Of_Some_def
 
-  sml_of.of_pair_def
-  sml_of.of_list_def
-  sml_of.of_option_def
-  sml_of.of_unit_def
-  sml_of.of_bool_def
-  sml_of.of_string_def
-  sml_of.of_string\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def
-  sml_of.of_nat_def
+  Parse_SML.of_pair_def
+  Parse_SML.of_list_def
+  Parse_SML.of_option_def
+  Parse_SML.of_unit_def
+  Parse_SML.of_bool_def
+  Parse_SML.of_string_def
+  Parse_SML.of_string\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def
+  Parse_SML.of_nat_def
 
-  sml_of.sml_escape_def
-  sml_of.ocl_unit_def
+  Parse_SML.sml_escape_def
+  Parse_SML.meta_unit_def
 
 (* *)
 

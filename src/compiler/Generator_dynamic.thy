@@ -46,36 +46,36 @@ header{* Part ... *}
 theory Generator_dynamic
 imports Printer
         "../compiler_generic/isabelle_home/src/HOL/Isabelle_Main2"
-  keywords (* ocl (USE tool) *)
+  keywords (* OCL (USE tool) *)
            "Between"
            "Attributes" "Operations" "Constraints"
            "Role"
            "Ordered" "Subsets" "Union" "Redefines" "Derived" "Qualifier"
            "Existential" "Inv" "Pre" "Post"
-           (* ocl (added) *)
+           (* OCL (added) *)
            "self"
            "Nonunique" "Sequence_"
 
-           (* hol syntax *)
+           (* Isabelle syntax *)
            "output_directory"
            "THEORY" "IMPORTS" "SECTION" "SORRY" "no_dirty"
            "deep" "shallow" "syntax_print" "skip_export"
            "generation_semantics"
            "flush_all"
 
-           (* hol semantics *)
+           (* Isabelle semantics (parameterizing the semantics of OCL) *)
            "design" "analysis" "oid_start"
 
-       and (* ocl (USE tool) *)
+       and (* OCL (USE tool) *)
            "Enum"
            "Abstract_class" "Class"
            "Association" "Composition" "Aggregation"
            "Abstract_associationclass" "Associationclass"
            "Context"
-           (* ocl (added) *)
+           (* OCL (added) *)
            "End" "Instance" "BaseType" "State" "PrePost"
 
-           (* hol syntax *)
+           (* Isabelle syntax *)
            "generation_syntax"
 
            :: thy_decl
@@ -90,7 +90,7 @@ apply_code_printing_reflect {*
   val stdout_file = Unsynchronized.ref ""
 *}
 code_reflect' open META
-   functions (* OCL compiler as monadic combinators for deep and shallow *)
+   functions (* executing the compiler as monadic combinators for deep and shallow *)
              fold_thy_deep fold_thy_shallow
 
              (* printing the HOL AST to (shallow Isabelle) string *)
@@ -100,7 +100,7 @@ code_reflect' open META
              compiler_env_config_reset_all compiler_env_config_update oidInit D_output_header_thy_update map2_ctxt_term check_export_code
 
              (* printing the OCL AST to (deep Isabelle) string *)
-             isabelle_apply isabelle_of_ocl_embed
+             isabelle_apply isabelle_of_env_config
 
 ML{*
  val To_string0 = String.implode o META.to_list
@@ -788,7 +788,7 @@ end
 end
 
 structure Shallow_main = struct open Shallow_conv open Shallow_ml
-fun OCL_main_thy in_theory in_local = let open META open META_overload in (*let val f = *)fn
+fun META_main_thy in_theory in_local = let open META open META_overload in (*let val f = *)fn
   Theory_datatype (Datatype (n, l)) => in_local
    (Isabelle_BNF_FP_Def_Sugar.co_datatype_cmd
       BNF_Util.Least_FP
@@ -907,9 +907,9 @@ fun OCL_main_thy in_theory in_local = let open META open META_overload in (*let 
  end*)
 end
 
-fun OCL_main aux ret = let open META open META_overload in fn
+fun META_main aux ret = let open META open META_overload in fn
   Isab_thy thy =>
-    ret o (case thy of H_thy_simple thy => OCL_main_thy I in_local thy
+    ret o (case thy of H_thy_simple thy => META_main_thy I in_local thy
                      | H_thy_locale (data, l) => fn thy => thy
                        |> (   Expression.add_locale_cmd
                                 (To_sbinding (META.holThyLocale_name data))
@@ -923,7 +923,7 @@ fun OCL_main aux ret = let open META open META_overload in fn
                                                       | SOME (n, e) => [Element.Assumes [((To_sbinding n, []), [(of_semi__term e, [])])]]])
                                     (META.holThyLocale_header data)))
                            #> snd)
-                       |> fold (fold (OCL_main_thy Local_Theory.background_theory
+                       |> fold (fold (META_main_thy Local_Theory.background_theory
                                                    (fn f => fn lthy => lthy
                                                      |> Local_Theory.new_group
                                                      |> f
@@ -970,7 +970,7 @@ ML{*
 
 fun exec_deep (ocl, output_header_thy, seri_args, filename_thy, tmp_export_code, l_obj) thy0 =
   let open Generation_mode in
-  let val of_arg = META.isabelle_of_ocl_embed META.isabelle_apply I in
+  let val of_arg = META.isabelle_of_env_config META.isabelle_apply I in
   let fun def s = in_local (snd o Specification.definition_cmd (NONE, ((@{binding ""}, []), s)) false) in
   let val name_main = Deep.mk_free (Proof_Context.init_global thy0) Deep0.Export_code_env.Isabelle.argument_main [] in
   thy0 |> def (String.concatWith " " (  "(" (* polymorphism weakening needed by export_code *)
@@ -1029,13 +1029,13 @@ fun outer_syntax_command0 mk_string cmd_spec cmd_descr parser get_oclclass =
              let fun aux (ocl, thy) x =
                   META.fold_thy_shallow
                    (fn f => f () handle ERROR e =>
-                     ( warning "Shallow Backtracking: HOL declarations occuring among OCL ones are ignored (if any)"
-                       (* TODO automatically determine if there is such HOL declarations,
+                     ( warning "Shallow Backtracking: (true) Isabelle declarations occuring among the META-simulated ones are ignored (if any)"
+                       (* TODO automatically determine if there is such Isabelle declarations,
                                for raising earlier a specific error message *)
                      ; error e))
                    (fn _ => fn _ => thy0)
                    (fn l => fn (ocl, thy) =>
-                     Shallow_main.OCL_main (fn x => fn thy => aux (ocl, thy) [x]) (pair ocl) l thy)
+                     Shallow_main.META_main (fn x => fn thy => aux (ocl, thy) [x]) (pair ocl) l thy)
                    x
                    (ocl, thy)
                  val (ocl, thy) = aux (ocl, thy) (get_oclclass thy) in
