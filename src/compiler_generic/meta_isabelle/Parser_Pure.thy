@@ -46,27 +46,24 @@ begin
 context Parse
 begin
 
-definition "i_of_pure_indexname a b = rec_pure_indexname
-  (ap2 a (b \<open>Pure_Indexname\<close>) (i_of_string a b) (i_of_nat a b))"
+definition "i_of_pure_indexname a b = i_of_pair a b (i_of_string a b) (i_of_nat a b)"
 
-definition "i_of_pure_class a b = rec_pure_class
-  (ap1 a (b \<open>Pure_Class\<close>) (i_of_string a b))"
+definition "i_of_pure_class = i_of_string"
 
-definition "i_of_pure_sort a b = rec_pure_sort
-  (ap1 a (b \<open>Pure_Sort\<close>) (i_of_list a b (i_of_pure_class a b)))"
+definition "i_of_pure_sort a b = i_of_list a b (i_of_pure_class a b)"
 
 definition "i_of_pure_typ a b = rec_pure_typ
-  (ap2 a (b \<open>Pure_Type\<close>) (i_of_string a b) (i_of_list a b snd))
-  (ap2 a (b \<open>Pure_TFree\<close>) (i_of_string a b) (i_of_pure_sort a b))
-  (ap2 a (b \<open>Pure_TVar\<close>) (i_of_pure_indexname a b) (i_of_pure_sort a b))"
+  (ap2 a (b \<open>Type\<close>) (i_of_string a b) (i_of_list a b snd))
+  (ap2 a (b \<open>TFree\<close>) (i_of_string a b) (i_of_pure_sort a b))
+  (ap2 a (b \<open>TVar\<close>) (i_of_pure_indexname a b) (i_of_pure_sort a b))"
 
 definition "i_of_pure_term a b = (\<lambda>f0 f1 f2 f3 f4 f5. rec_pure_term f0 f1 f2 f3 (co2 K f4) (\<lambda>_ _. f5))
-  (ap2 a (b \<open>Pure_Const\<close>) (i_of_string a b) (i_of_pure_typ a b))
-  (ap2 a (b \<open>Pure_Free\<close>) (i_of_string a b) (i_of_pure_typ a b))
-  (ap2 a (b \<open>Pure_Var\<close>) (i_of_pure_indexname a b) (i_of_pure_typ a b))
-  (ap1 a (b \<open>Pure_Bound\<close>) (i_of_nat a b))
-  (ar3 a (b \<open>Pure_Abs\<close>) (i_of_string a b) (i_of_pure_typ a b))
-  (ar2 a (b \<open>Pure_App\<close>) id)"
+  (ap2 a (b \<open>Const\<close>) (i_of_string a b) (i_of_pure_typ a b))
+  (ap2 a (b \<open>Free\<close>) (i_of_string a b) (i_of_pure_typ a b))
+  (ap2 a (b \<open>Var\<close>) (i_of_pure_indexname a b) (i_of_pure_typ a b))
+  (ap1 a (b \<open>Bound\<close>) (i_of_nat a b))
+  (ar3 a (b \<open>Abs\<close>) (i_of_string a b) (i_of_pure_typ a b))
+  (ar2 a (b \<open>App\<close>) id)"
 
 end
 

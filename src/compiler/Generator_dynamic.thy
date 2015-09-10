@@ -109,13 +109,12 @@ ML{*
 
 ML{*
 structure From = struct
- open OCL
  val from_char = I
  val from_string = OCL.SS_base o OCL.ST
  val from_binding = from_string o Binding.name_of
  fun from_term ctxt s = from_string (XML.content_of (YXML.parse_body (Syntax.string_of_term ctxt s)))
  val from_nat = Code_Numeral.Nat
- val from_internal_oid = Oid
+ val from_internal_oid = OCL.Oid
  val from_bool = I
  val from_unit = I
  val from_option = Option.map
@@ -123,21 +122,21 @@ structure From = struct
  fun from_pair f1 f2 (x, y) = (f1 x, f2 y)
  fun from_pair3 f1 f2 f3 (x, y, z) = (f1 x, f2 y, f3 z)
 
- val from_pure_indexname = OCL.Pure_Indexname o from_pair from_string from_nat
- val from_pure_class = OCL.Pure_Class o from_string
- val from_pure_sort = OCL.Pure_Sort o from_list from_pure_class
+ val from_pure_indexname = from_pair from_string from_nat
+ val from_pure_class = from_string
+ val from_pure_sort = from_list from_pure_class
  fun from_pure_typ e = (fn
-     Type (s, l) => (OCL.Pure_Type o from_pair from_string (from_list from_pure_typ)) (s, l)
-   | TFree (s, sort) => (OCL.Pure_TFree o from_pair from_string from_pure_sort) (s, sort)
-   | TVar (i, sort) => (OCL.Pure_TVar o from_pair from_pure_indexname from_pure_sort) (i, sort)
+     Type (s, l) => (OCL.Type o from_pair from_string (from_list from_pure_typ)) (s, l)
+   | TFree (s, sort) => (OCL.TFree o from_pair from_string from_pure_sort) (s, sort)
+   | TVar (i, sort) => (OCL.TVar o from_pair from_pure_indexname from_pure_sort) (i, sort)
   ) e
  fun from_pure_term e = (fn
-     Const (s, typ) => (OCL.Pure_Const o from_pair from_string from_pure_typ) (s, typ)
-   | Free (s, typ) => (OCL.Pure_Free o from_pair from_string from_pure_typ) (s, typ)
-   | Var (i, typ) => (OCL.Pure_Var o from_pair from_pure_indexname from_pure_typ) (i, typ)
-   | Bound i => (OCL.Pure_Bound o from_nat) i
-   | Abs (s, typ, term) => (OCL.Pure_Abs o from_pair3 from_string from_pure_typ from_pure_term) (s, typ, term)
-   | op $ (term1, term2) => (OCL.Pure_App o from_pair from_pure_term from_pure_term) (term1, term2)
+     Const (s, typ) => (OCL.Const o from_pair from_string from_pure_typ) (s, typ)
+   | Free (s, typ) => (OCL.Free o from_pair from_string from_pure_typ) (s, typ)
+   | Var (i, typ) => (OCL.Var o from_pair from_pure_indexname from_pure_typ) (i, typ)
+   | Bound i => (OCL.Bound o from_nat) i
+   | Abs (s, typ, term) => (OCL.Abs o from_pair3 from_string from_pure_typ from_pure_term) (s, typ, term)
+   | op $ (term1, term2) => (OCL.App o from_pair from_pure_term from_pure_term) (term1, term2)
   ) e
 
  fun from_p_term thy expr =
@@ -814,7 +813,7 @@ fun OCL_main_thy in_theory in_local = let open OCL open OCL_overload in (*let va
      let val name = To_string0 n in
      perform_instantiation
        thy
-       [ let val Type (s, _) = (Isabelle_Typedecl.abbrev_cmd0 NONE thy name) in s end ]
+       [ let val Term.Type (s, _) = (Isabelle_Typedecl.abbrev_cmd0 NONE thy name) in s end ]
        []
        (Syntax.read_sort (Proof_Context.init_global thy) "object")
        (fn _ => fn thy =>
@@ -947,9 +946,9 @@ fun OCL_main aux ret = let open OCL open OCL_overload in fn
               (fn (e, l_free) => 
                let val a = To_string0 a 
                    val (t, l_free) = case List.partition (fn (x, _) => x = a) l_free of
-                                       ([], l_free) => (TFree ("'a", ["HOL.type"]), l_free)
+                                       ([], l_free) => (Term.TFree ("'a", ["HOL.type"]), l_free)
                                      | ([(_, t)], l_free) => (t, l_free) in
-               (lambda (Free (a, t)) e, l_free)
+               (lambda (Term.Free (a, t)) e, l_free)
                end)
               (aux e)
           | _ => NONE in

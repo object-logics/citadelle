@@ -53,23 +53,23 @@ subsection{* context2 *}
 
 (* (* ERROR this lambda term type-checks expensively *)
 definition "print_ctxt_is_accessor =
-  (\<lambda> Pure_Type \<lless>''fun''\<ggreater>
-               [Pure_Type \<lless>''fun''\<ggreater>
-                       [Pure_Type \<lless>''Product_Type.prod''\<ggreater>
-                               [Pure_Type \<lless>''OCL_core.state.state_ext''\<ggreater>
-                                       [Pure_Type _ (* AA *) [], Pure_Type \<lless>''Product_Type.unit''\<ggreater> []],
-                                Pure_Type \<lless>''OCL_core.state.state_ext''\<ggreater>
-                                       [Pure_Type _ (* AA *) [], Pure_Type \<lless>''Product_Type.unit''\<ggreater> []]],
-                        Pure_TFree _ (* 'a *) (Pure_Sort [Pure_Class \<lless>''HOL.type''\<ggreater>])],
-                Pure_Type \<lless>''fun''\<ggreater>
-                       [Pure_Type \<lless>''Product_Type.prod''\<ggreater>
-                               [Pure_Type \<lless>''OCL_core.state.state_ext''\<ggreater>
-                                       [Pure_Type _ (* AA *) [], Pure_Type \<lless>''Product_Type.unit''\<ggreater> []],
-                                Pure_Type \<lless>''OCL_core.state.state_ext''\<ggreater>
-                                       [Pure_Type _ (* AA *) [], Pure_Type \<lless>''Product_Type.unit''\<ggreater> []]],
-                        Pure_Type \<lless>''Option.option''\<ggreater>
-                               [Pure_Type \<lless>''Option.option''\<ggreater>
-                                       [Pure_Type _ (* class name *) []]]]]
+  (\<lambda> Type \<lless>''fun''\<ggreater>
+               [Type \<lless>''fun''\<ggreater>
+                       [Type \<lless>''Product_Type.prod''\<ggreater>
+                               [Type \<lless>''OCL_core.state.state_ext''\<ggreater>
+                                       [Type _ (* AA *) [], Type \<lless>''Product_Type.unit''\<ggreater> []],
+                                Type \<lless>''OCL_core.state.state_ext''\<ggreater>
+                                       [Type _ (* AA *) [], Type \<lless>''Product_Type.unit''\<ggreater> []]],
+                        TFree _ (* 'a *) [\<lless>''HOL.type''\<ggreater>]],
+                Type \<lless>''fun''\<ggreater>
+                       [Type \<lless>''Product_Type.prod''\<ggreater>
+                               [Type \<lless>''OCL_core.state.state_ext''\<ggreater>
+                                       [Type _ (* AA *) [], Type \<lless>''Product_Type.unit''\<ggreater> []],
+                                Type \<lless>''OCL_core.state.state_ext''\<ggreater>
+                                       [Type _ (* AA *) [], Type \<lless>''Product_Type.unit''\<ggreater> []]],
+                        Type \<lless>''Option.option''\<ggreater>
+                               [Type \<lless>''Option.option''\<ggreater>
+                                       [Type _ (* class name *) []]]]]
        \<Rightarrow> True
    | _ \<Rightarrow> False)"
 *)

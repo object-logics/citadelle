@@ -430,7 +430,7 @@ lemmas [code] =
   C.have0_def
 
 fun cross_abs_aux where
-   "cross_abs_aux f l x = (\<lambda> (Suc n, Pure_Abs s _ t) \<Rightarrow> f s (cross_abs_aux f (s # l) (n, t))
+   "cross_abs_aux f l x = (\<lambda> (Suc n, Abs s _ t) \<Rightarrow> f s (cross_abs_aux f (s # l) (n, t))
                          | (_, e) \<Rightarrow> Expr_pure l e)
                          x"
 
