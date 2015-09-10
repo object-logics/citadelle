@@ -349,27 +349,27 @@ definition' \<open>of_interpretation _ = (\<lambda> Interpretation n loc_n loc_p
     (String_concat \<open>\<close> (L.map (\<lambda>s. \<open> "%s"\<close> (of_semi__term s)) loc_param))
     (of_semi__command_final tac))\<close>
 
-definition "of_semi__t ocl =
- (\<lambda> Theory_datatype dataty \<Rightarrow> of_datatype ocl dataty
-  | Theory_type_synonym ty_synonym \<Rightarrow> of_type_synonym ocl ty_synonym
-  | Theory_type_notation ty_notation \<Rightarrow> of_type_notation ocl ty_notation
-  | Theory_instantiation instantiation_class \<Rightarrow> of_instantiation ocl instantiation_class
-  | Theory_defs defs_overloaded \<Rightarrow> of_defs ocl defs_overloaded
-  | Theory_consts consts_class \<Rightarrow> of_consts ocl consts_class
-  | Theory_definition definition_hol \<Rightarrow> of_definition ocl definition_hol
-  | Theory_lemmas lemmas_simp \<Rightarrow> of_lemmas ocl lemmas_simp
-  | Theory_lemma lemma_by \<Rightarrow> of_lemma ocl lemma_by
-  | Theory_axiomatization axiom \<Rightarrow> of_axiomatization ocl axiom
-  | Theory_section section_title \<Rightarrow> of_section ocl section_title
-  | Theory_text text \<Rightarrow> of_text ocl text
-  | Theory_ML ml \<Rightarrow> of_ML ocl ml
-  | Theory_thm thm \<Rightarrow> of_thm ocl thm
-  | Theory_interpretation thm \<Rightarrow> of_interpretation ocl thm)"
+definition "of_semi__t env =
+ (\<lambda> Theory_datatype dataty \<Rightarrow> of_datatype env dataty
+  | Theory_type_synonym ty_synonym \<Rightarrow> of_type_synonym env ty_synonym
+  | Theory_type_notation ty_notation \<Rightarrow> of_type_notation env ty_notation
+  | Theory_instantiation instantiation_class \<Rightarrow> of_instantiation env instantiation_class
+  | Theory_defs defs_overloaded \<Rightarrow> of_defs env defs_overloaded
+  | Theory_consts consts_class \<Rightarrow> of_consts env consts_class
+  | Theory_definition definition_hol \<Rightarrow> of_definition env definition_hol
+  | Theory_lemmas lemmas_simp \<Rightarrow> of_lemmas env lemmas_simp
+  | Theory_lemma lemma_by \<Rightarrow> of_lemma env lemma_by
+  | Theory_axiomatization axiom \<Rightarrow> of_axiomatization env axiom
+  | Theory_section section_title \<Rightarrow> of_section env section_title
+  | Theory_text text \<Rightarrow> of_text env text
+  | Theory_ML ml \<Rightarrow> of_ML env ml
+  | Theory_thm thm \<Rightarrow> of_thm env thm
+  | Theory_interpretation thm \<Rightarrow> of_interpretation env thm)"
 
 definition "String_concat_map s f l = String_concat s (L.map f l)"
 
-definition' \<open>of_semi__theory ocl =
- (\<lambda> H_thy_simple t \<Rightarrow> of_semi__t ocl t
+definition' \<open>of_semi__theory env =
+ (\<lambda> H_thy_simple t \<Rightarrow> of_semi__t env t
   | H_thy_locale data l \<Rightarrow> 
       \<open>locale %s =
 %s
@@ -390,7 +390,7 @@ assumes %s: "%s"\<close> (To_string name) (of_semi__term e)))
 
 \<close> (String_concat_map \<open>
 
-\<close> (of_semi__t ocl)) l))\<close>
+\<close> (of_semi__t env)) l))\<close>
 
 end
 
