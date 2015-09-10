@@ -107,19 +107,19 @@ locale Parse =
   fixes of_bool :: "(string \<Rightarrow> 'a) \<Rightarrow> bool \<Rightarrow> 'a"
 
   (* (simulation) higher order *)
-  fixes i_Pair i_Nil i_Cons i_None i_Some :: string
+  fixes Of_Pair Of_Nil Of_Cons Of_None Of_Some :: string
 begin
 
 definition "of_pair a b f1 f2 = (\<lambda>f. \<lambda>(c, d) \<Rightarrow> f c d)
-  (ap2 a (b i_Pair) f1 f2)"
+  (ap2 a (b Of_Pair) f1 f2)"
 
 definition "of_list a b f = (\<lambda>f0. rec_list f0 o co1 K)
-  (b i_Nil)
-  (ar2 a (b i_Cons) f)"
+  (b Of_Nil)
+  (ar2 a (b Of_Cons) f)"
 
 definition "of_option a b f = rec_option
-  (b i_None)
-  (ap1 a (b i_Some) f)"
+  (b Of_None)
+  (ap1 a (b Of_Some) f)"
 
 end
 
