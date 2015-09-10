@@ -623,7 +623,7 @@ subsection{* General Compiling Process: Shallow *}
 
 ML{*
 structure OCL_overload = struct
-  val s_of_type = OCL.s_of_type To_string0
+  val s_of__type = OCL.s_of_type To_string0
   val s_of__expr = OCL.s_of_expr To_string0
   val s_of_sexpr = OCL.s_of_sexpr To_string0
   val fold = fold
@@ -797,7 +797,7 @@ fun OCL_main_thy in_theory in_local = let open OCL open OCL_overload in (*let va
       (Ctr_Sugar.default_ctr_options_cmd,
        [( ( ( (([], To_sbinding n), NoSyn)
             , List.map (fn (n, l) => ( ( (To_binding "", To_sbinding n)
-                                       , List.map (fn s => (To_binding "", s_of_type s)) l)
+                                       , List.map (fn s => (To_binding "", s_of__type s)) l)
                                      , NoSyn)) l)
           , (To_binding "", To_binding ""))
         , [])]))
@@ -805,7 +805,7 @@ fun OCL_main_thy in_theory in_local = let open OCL open OCL_overload in (*let va
    (fn thy =>
      let val s_bind = To_sbinding n in
      (snd o Typedecl.abbrev_global (s_bind, map To_string0 v, NoSyn)
-                                   (Isabelle_Typedecl.abbrev_cmd0 (SOME s_bind) thy (s_of_type l))) thy
+                                   (Isabelle_Typedecl.abbrev_cmd0 (SOME s_bind) thy (s_of__type l))) thy
      end)
 | Theory_type_notation (Type_notation (n, e)) => in_local
    (Specification.type_notation_cmd true ("", true) [(To_string0 n, Mixfix (To_string0 e, [], 1000))])
@@ -828,7 +828,7 @@ fun OCL_main_thy in_theory in_local = let open OCL open OCL_overload in (*let va
    (Isar_Cmd.add_defs ((false, true), [((To_sbinding n, s_of__expr e), [])]))
 | Theory_consts (Consts (n, ty, symb)) => in_theory
    (Sign.add_consts_cmd [( To_sbinding n
-                        , s_of_type ty
+                        , s_of__type ty
                         , Mixfix ("(_) " ^ To_string0 symb, [], 1000))])
 | Theory_definition def => in_local
     let val (def, e) = case def of
@@ -919,7 +919,7 @@ fun OCL_main aux ret = let open OCL open OCL_overload in fn
                                 (List.concat
                                   (map
                                     (fn (fixes, assumes) => List.concat
-                                      [ map (fn (e,ty) => Element.Fixes [(To_binding (s_of__expr e), SOME (s_of_type ty), NoSyn)]) fixes
+                                      [ map (fn (e,ty) => Element.Fixes [(To_binding (s_of__expr e), SOME (s_of__type ty), NoSyn)]) fixes
                                       , case assumes of NONE => []
                                                       | SOME (n, e) => [Element.Assumes [((To_sbinding n, []), [(s_of__expr e, [])])]]])
                                     (OCL.holThyLocale_header data)))
