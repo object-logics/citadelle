@@ -89,7 +89,7 @@ apply_code_printing_reflect {*
   (* this variable is not used but needed for well typechecking the reflected SML code *)
   val stdout_file = Unsynchronized.ref ""
 *}
-code_reflect' open OCL
+code_reflect' open META
    functions (* OCL compiler as monadic combinators for deep and shallow *)
              fold_thy_deep fold_thy_shallow
 
@@ -103,18 +103,18 @@ code_reflect' open OCL
              isabelle_apply isabelle_of_ocl_embed
 
 ML{*
- val To_string0 = String.implode o OCL.to_list
+ val To_string0 = String.implode o META.to_list
  fun To_nat (Code_Numeral.Nat i) = i
 *}
 
 ML{*
 structure From = struct
  val from_char = I
- val from_string = OCL.SS_base o OCL.ST
+ val from_string = META.SS_base o META.ST
  val from_binding = from_string o Binding.name_of
  fun from_term ctxt s = from_string (XML.content_of (YXML.parse_body (Syntax.string_of_term ctxt s)))
  val from_nat = Code_Numeral.Nat
- val from_internal_oid = OCL.Oid
+ val from_internal_oid = META.Oid
  val from_bool = I
  val from_unit = I
  val from_option = Option.map
@@ -126,21 +126,21 @@ structure From = struct
  val from_pure_class = from_string
  val from_pure_sort = from_list from_pure_class
  fun from_pure_typ e = (fn
-     Type (s, l) => (OCL.Type o from_pair from_string (from_list from_pure_typ)) (s, l)
-   | TFree (s, sort) => (OCL.TFree o from_pair from_string from_pure_sort) (s, sort)
-   | TVar (i, sort) => (OCL.TVar o from_pair from_pure_indexname from_pure_sort) (i, sort)
+     Type (s, l) => (META.Type o from_pair from_string (from_list from_pure_typ)) (s, l)
+   | TFree (s, sort) => (META.TFree o from_pair from_string from_pure_sort) (s, sort)
+   | TVar (i, sort) => (META.TVar o from_pair from_pure_indexname from_pure_sort) (i, sort)
   ) e
  fun from_pure_term e = (fn
-     Const (s, typ) => (OCL.Const o from_pair from_string from_pure_typ) (s, typ)
-   | Free (s, typ) => (OCL.Free o from_pair from_string from_pure_typ) (s, typ)
-   | Var (i, typ) => (OCL.Var o from_pair from_pure_indexname from_pure_typ) (i, typ)
-   | Bound i => (OCL.Bound o from_nat) i
-   | Abs (s, typ, term) => (OCL.Abs o from_pair3 from_string from_pure_typ from_pure_term) (s, typ, term)
-   | op $ (term1, term2) => (OCL.App o from_pair from_pure_term from_pure_term) (term1, term2)
+     Const (s, typ) => (META.Const o from_pair from_string from_pure_typ) (s, typ)
+   | Free (s, typ) => (META.Free o from_pair from_string from_pure_typ) (s, typ)
+   | Var (i, typ) => (META.Var o from_pair from_pure_indexname from_pure_typ) (i, typ)
+   | Bound i => (META.Bound o from_nat) i
+   | Abs (s, typ, term) => (META.Abs o from_pair3 from_string from_pure_typ from_pure_term) (s, typ, term)
+   | op $ (term1, term2) => (META.App o from_pair from_pure_term from_pure_term) (term1, term2)
   ) e
 
  fun from_p_term thy expr =
-   OCL.T_pure (from_pure_term (Syntax.read_term (Proof_Context.init_global thy) expr))
+   META.T_pure (from_pure_term (Syntax.read_term (Proof_Context.init_global thy) expr))
 end
 *}
 
@@ -152,22 +152,22 @@ fun in_local decl thy =
   |> Local_Theory.exit_global
 *}
 
-ML{* fun List_mapi f = OCL.mapi (f o To_nat) *}
+ML{* fun List_mapi f = META.mapi (f o To_nat) *}
 
 ML{*
 structure Ty' = struct
 fun check l_oid l =
-  let val Mp = OCL.map_prod
+  let val Mp = META.map_prod
       val Me = String.explode
       val Mi = String.implode
       val Ml = map in
-  OCL.check_export_code
+  META.check_export_code
     (writeln o Mi)
     (warning o Mi)
     (writeln o Markup.markup Markup.bad o Mi)
     (error o To_string0)
     (Ml (Mp I Me) l_oid)
-    ((OCL.SS_base o OCL.ST) l)
+    ((META.SS_base o META.ST) l)
   end
 end
 *}
@@ -514,9 +514,9 @@ datatype internal_deep = Internal_deep of (string * (string list (* imports *) *
                                         * Path.T (* tmp dir export_code *)
                                         * bool (* true: skip preview of code exportation *)
 
-datatype 'a generation_mode = Gen_deep of unit OCL.compiler_env_config_ext
+datatype 'a generation_mode = Gen_deep of unit META.compiler_env_config_ext
                                         * internal_deep
-                            | Gen_shallow of unit OCL.compiler_env_config_ext
+                            | Gen_shallow of unit META.compiler_env_config_ext
                                            * 'a (* theory init *)
                             | Gen_syntax_print of int option
 
@@ -528,11 +528,11 @@ structure Data_gen = Theory_Data
 
 val code_expr_argsP = Scan.optional (@{keyword "("} |-- Parse.args --| @{keyword ")"}) []
 
-val parse_scheme = @{keyword "design"} >> K OCL.Gen_only_design || @{keyword "analysis"} >> K OCL.Gen_only_analysis
+val parse_scheme = @{keyword "design"} >> K META.Gen_only_design || @{keyword "analysis"} >> K META.Gen_only_analysis
 
 val parse_sorry_mode = 
-  Scan.optional (  @{keyword "SORRY"} >> K (SOME OCL.Gen_sorry)
-                || @{keyword "no_dirty"} >> K (SOME OCL.Gen_no_dirty)) NONE
+  Scan.optional (  @{keyword "SORRY"} >> K (SOME META.Gen_sorry)
+                || @{keyword "no_dirty"} >> K (SOME META.Gen_no_dirty)) NONE
 
 val parse_deep =
      Scan.optional (@{keyword "skip_export"} >> K true) false
@@ -549,15 +549,15 @@ val parse_sem_ocl =
       Scan.optional (paren (@{keyword "generation_semantics"}
                      |-- paren (parse_scheme
                                 -- Scan.optional ((Parse.$$$ "," -- @{keyword "oid_start"}) |-- Parse.nat) z)))
-                    (OCL.Gen_default, z)
+                    (META.Gen_default, z)
   end
 
 val mode =
   let fun mk_ocl output_disable_thy output_header_thy oid_start design_analysis sorry_mode dirty =
-    OCL.compiler_env_config_empty
+    META.compiler_env_config_empty
                     (From.from_bool output_disable_thy)
                     (From.from_option (From.from_pair From.from_string (From.from_pair (From.from_list From.from_string) From.from_string)) output_header_thy)
-                    (OCL.oidInit (From.from_internal_oid (From.from_nat oid_start)))
+                    (META.oidInit (From.from_internal_oid (From.from_nat oid_start)))
                     design_analysis
                     (sorry_mode, dirty) in
 
@@ -574,7 +574,7 @@ val mode =
 
 fun f_command l_mode =
       Toplevel.theory (fn thy =>
-        let val (l_mode, thy) = OCL.mapM
+        let val (l_mode, thy) = META.mapM
           (fn Gen_shallow (ocl, ()) => let val thy0 = thy in
                                        fn thy => (Gen_shallow (ocl, thy0), thy) end
             | Gen_syntax_print n => (fn thy => (Gen_syntax_print n, thy))
@@ -612,8 +612,8 @@ fun update_compiler_config f =
     (Symtab.map_entry
       Deep0.gen_empty
       (fn l_mode =>
-        map (fn Gen_deep (ocl, d) => Gen_deep (OCL.compiler_env_config_update f ocl, d)
-              | Gen_shallow (ocl, thy) => Gen_shallow (OCL.compiler_env_config_update f ocl, thy)
+        map (fn Gen_deep (ocl, d) => Gen_deep (META.compiler_env_config_update f ocl, d)
+              | Gen_shallow (ocl, thy) => Gen_shallow (META.compiler_env_config_update f ocl, thy)
               | Gen_syntax_print n => Gen_syntax_print n) l_mode))
 end
 *}
@@ -621,10 +621,10 @@ end
 subsection{* General Compiling Process: Shallow *}
 
 ML{*
-structure OCL_overload = struct
-  val of_semi__typ = OCL.of_semi_typ To_string0
-  val of_semi__term = OCL.of_semi_term To_string0
-  val of_sexpr = OCL.of_sexpr To_string0
+structure META_overload = struct
+  val of_semi__typ = META.of_semi_typ To_string0
+  val of_semi__term = META.of_semi_term To_string0
+  val of_sexpr = META.of_sexpr To_string0
   val fold = fold
 end
 *}
@@ -641,7 +641,7 @@ val simp_all_tac = simp_meth_gen (CHANGED_PROP o PARALLEL_GOALS o ALLGOALS)
 datatype ty_thm = Thm_single of thm
                 | Thm_mult of thm list
 
-fun m_of_ntheorem0 ctxt = let open OCL open OCL_overload val S = fn Thm_single t => t
+fun m_of_ntheorem0 ctxt = let open META open META_overload val S = fn Thm_single t => t
                                                          val M = fn Thm_mult t => t in
  fn Thm_thm s => Thm_single (Proof_Context.get_thm ctxt (To_string0 s))
   | Thm_thms s => Thm_mult (Proof_Context.get_thms ctxt (To_string0 s))
@@ -670,11 +670,11 @@ fun addsimp (l1, l2) ctxt0 =
 fun m_of_ntheorems ctxt =
   let fun f thy = case (m_of_ntheorem0 ctxt thy) of Thm_mult t => t
                                                   | Thm_single t => [t] in
-  fn OCL.Thms_single thy => f thy
-   | OCL.Thms_mult thy => f thy
+  fn META.Thms_single thy => f thy
+   | META.Thms_mult thy => f thy
   end
 
-fun m_of_ntheorems' ctxt = m_of_ntheorems ctxt o OCL.Thms_single
+fun m_of_ntheorems' ctxt = m_of_ntheorems ctxt o META.Thms_single
 
 fun m_of_ntheorems_l ctxt l = List.concat (map (m_of_ntheorems ctxt) l)
 
@@ -684,7 +684,7 @@ fun s_simp_add_del_split (l_add, l_del, l_split) ctxt =
                           (ctxt addsimps (m_of_ntheorems_l ctxt l_add)
                                 delsimps (m_of_ntheorems_l ctxt l_del))
 
-fun m_of_tactic expr = let open OCL open Method open OCL_overload in case expr of
+fun m_of_tactic expr = let open META open Method open META_overload in case expr of
     Method_rule o_s => Basic (fn ctxt => METHOD (HEADGOAL o Isabelle_Classical.rule_tac ctxt
                                                   (case o_s of NONE => []
                                                              | SOME s => [m_of_ntheorem ctxt s])))
@@ -737,13 +737,13 @@ fun perform_instantiation thy tycos vs f_eq add_def tac (*add_eq_thms*) =
 
 fun then_tactic l = let open Method in (Combinator (no_combinator_info, Then, map m_of_tactic l), (Position.none, Position.none)) end
 
-fun local_terminal_proof o_by = let open OCL in case o_by of
+fun local_terminal_proof o_by = let open META in case o_by of
    Command_done => Proof.local_done_proof
  | Command_sorry => Proof.local_skip_proof true
  | Command_by l_apply => Proof.local_terminal_proof (then_tactic l_apply, NONE)
 end
 
-fun global_terminal_proof o_by = let open OCL in case o_by of
+fun global_terminal_proof o_by = let open META in case o_by of
    Command_done => Proof.global_done_proof
  | Command_sorry => Proof.global_skip_proof true
  | Command_by l_apply => Proof.global_terminal_proof (then_tactic l_apply, NONE)
@@ -754,28 +754,28 @@ fun proof_show_gen f thes st = st
   |> f
   |> Isar_Cmd.show [((@{binding ""}, []), [(thes, [])])] true
 
-val applyE_results = let open OCL_overload in
-                     fn OCL.Command_apply_end l => (fn st => st |> (Proof.apply_end_results (then_tactic l)) |> Seq.the_result "")
+val applyE_results = let open META_overload in
+                     fn META.Command_apply_end l => (fn st => st |> (Proof.apply_end_results (then_tactic l)) |> Seq.the_result "")
 end
 
-val apply_results = let open OCL_overload
+val apply_results = let open META_overload
                         val thesis = "?thesis"
                         fun proof_show f = proof_show_gen f thesis in
-                    fn OCL.Command_apply l => (fn st => st |> (Proof.apply_results (then_tactic l)) |> Seq.the_result "")
-                     | OCL.Command_using l => (fn st =>
+                    fn META.Command_apply l => (fn st => st |> (Proof.apply_results (then_tactic l)) |> Seq.the_result "")
+                     | META.Command_using l => (fn st =>
                          let val ctxt = Proof.context_of st in
                          Proof.using [map (fn s => ([ s], [])) (m_of_ntheorems_l ctxt l)] st
                          end)
-                     | OCL.Command_unfolding l => (fn st =>
+                     | META.Command_unfolding l => (fn st =>
                          let val ctxt = Proof.context_of st in
                          Proof.unfolding [map (fn s => ([s], [])) (m_of_ntheorems_l ctxt l)] st
                          end)
-                     | OCL.Command_let (e1, e2) => proof_show (Proof.let_bind_cmd [([of_semi__term e1], of_semi__term e2)])
-                     | OCL.Command_have (n, b, e, e_pr) => proof_show (fn st => st
+                     | META.Command_let (e1, e2) => proof_show (Proof.let_bind_cmd [([of_semi__term e1], of_semi__term e2)])
+                     | META.Command_have (n, b, e, e_pr) => proof_show (fn st => st
                          |> Isar_Cmd.have [( (To_sbinding n, if b then [Token.src ("simp", Position.none) []] else [])
                                            , [(of_semi__term e, [])])] true
                          |> local_terminal_proof e_pr)
-                     | OCL.Command_fix_let (l, l_let, o_exp, _) =>
+                     | META.Command_fix_let (l, l_let, o_exp, _) =>
                          proof_show_gen ( fold (fn (e1, e2) =>
                                                   Proof.let_bind_cmd [([of_semi__term e1], of_semi__term e2)])
                                                l_let
@@ -788,7 +788,7 @@ end
 end
 
 structure Shallow_main = struct open Shallow_conv open Shallow_ml
-fun OCL_main_thy in_theory in_local = let open OCL open OCL_overload in (*let val f = *)fn
+fun OCL_main_thy in_theory in_local = let open META open META_overload in (*let val f = *)fn
   Theory_datatype (Datatype (n, l)) => in_local
    (Isabelle_BNF_FP_Def_Sugar.co_datatype_cmd
       BNF_Util.Least_FP
@@ -863,7 +863,7 @@ fun OCL_main_thy in_theory in_local = let open OCL open OCL_overload in (*let va
                                                        ,[((String.concatWith (" \<Longrightarrow> ")
                                                              (List.map of_semi__term l_spec)), [])])])
              false lthy
-        |> fold (apply_results o OCL.Command_apply) l_apply
+        |> fold (apply_results o META.Command_apply) l_apply
         |> global_terminal_proof o_by)
 | Theory_lemma (Lemma_assumes (n, l_spec, concl, l_apply, o_by)) => in_local
    (fn lthy => lthy
@@ -874,7 +874,7 @@ fun OCL_main_thy in_theory in_local = let open OCL open OCL_overload in (*let va
              (Element.Shows [((@{binding ""}, []),[(of_semi__term concl, [])])])
              false
         |> fold apply_results l_apply
-        |> (case map_filter (fn OCL.Command_let _ => SOME [] | OCL.Command_have _ => SOME [] | OCL.Command_fix_let (_, _, _, l) => SOME l | _ => NONE) (rev l_apply) of
+        |> (case map_filter (fn META.Command_let _ => SOME [] | META.Command_have _ => SOME [] | META.Command_fix_let (_, _, _, l) => SOME l | _ => NONE) (rev l_apply) of
               [] => global_terminal_proof o_by
             | _ :: l => let val arg = (NONE, true) in fn st => st
               |> local_terminal_proof o_by
@@ -907,12 +907,12 @@ fun OCL_main_thy in_theory in_local = let open OCL open OCL_overload in (*let va
  end*)
 end
 
-fun OCL_main aux ret = let open OCL open OCL_overload in fn
+fun OCL_main aux ret = let open META open META_overload in fn
   Isab_thy thy =>
     ret o (case thy of H_thy_simple thy => OCL_main_thy I in_local thy
                      | H_thy_locale (data, l) => fn thy => thy
                        |> (   Expression.add_locale_cmd
-                                (To_sbinding (OCL.holThyLocale_name data))
+                                (To_sbinding (META.holThyLocale_name data))
                                 Binding.empty
                                 ([], [])
                                 (List.concat
@@ -921,7 +921,7 @@ fun OCL_main aux ret = let open OCL open OCL_overload in fn
                                       [ map (fn (e,ty) => Element.Fixes [(To_binding (of_semi__term e), SOME (of_semi__typ ty), NoSyn)]) fixes
                                       , case assumes of NONE => []
                                                       | SOME (n, e) => [Element.Assumes [((To_sbinding n, []), [(of_semi__term e, [])])]]])
-                                    (OCL.holThyLocale_header data)))
+                                    (META.holThyLocale_header data)))
                            #> snd)
                        |> fold (fold (OCL_main_thy Local_Theory.background_theory
                                                    (fn f => fn lthy => lthy
@@ -954,7 +954,7 @@ fun OCL_main aux ret = let open OCL open OCL_overload in fn
           | _ => NONE in
           case aux e of
             NONE => error "nested pure expression not expected"
-          | SOME (e, _) => OCL.T_pure (From.from_pure_term e)
+          | SOME (e, _) => META.T_pure (From.from_pure_term e)
           end) ocl) thy
 end
 
@@ -970,13 +970,13 @@ ML{*
 
 fun exec_deep (ocl, output_header_thy, seri_args, filename_thy, tmp_export_code, l_obj) thy0 =
   let open Generation_mode in
-  let val of_arg = OCL.isabelle_of_ocl_embed OCL.isabelle_apply I in
+  let val of_arg = META.isabelle_of_ocl_embed META.isabelle_apply I in
   let fun def s = in_local (snd o Specification.definition_cmd (NONE, ((@{binding ""}, []), s)) false) in
   let val name_main = Deep.mk_free (Proof_Context.init_global thy0) Deep0.Export_code_env.Isabelle.argument_main [] in
   thy0 |> def (String.concatWith " " (  "(" (* polymorphism weakening needed by export_code *)
                                         ^ name_main ^ " :: (_ \<times> abr_string option) compiler_env_config_scheme)"
                                     :: "="
-                                    :: To_string0 (of_arg (OCL.compiler_env_config_more_map (fn () => (l_obj, From.from_option From.from_string (Option.map (fn filename_thy => Deep.absolute_path filename_thy thy0) filename_thy))) ocl))
+                                    :: To_string0 (of_arg (META.compiler_env_config_more_map (fn () => (l_obj, From.from_option From.from_string (Option.map (fn filename_thy => Deep.absolute_path filename_thy thy0) filename_thy))) ocl))
                                     :: []))
        |> Deep.export_code_cmd' seri_args tmp_export_code
             (fn (((_, _), msg), _) => fn err => if err <> 0 then error msg else ()) filename_thy [name_main]
@@ -989,7 +989,7 @@ fun exec_deep (ocl, output_header_thy, seri_args, filename_thy, tmp_export_code,
                (case (output_header_thy, filename_thy) of
                   (SOME _, SOME _) => s
                 | _ => String.concat (map ((fn s => s ^ "\n") o Active.sendback_markup [Markup.padding_command] o trim_line)
-                   (String.tokens (fn c => From.from_char c = OCL.char_escape) s))) in
+                   (String.tokens (fn c => From.from_char c = META.char_escape) s))) in
              fold (fn (out, err) => K ( writeln (Markup.markup Markup.keyword2 err)
                                       ; case trim_line out of
                                           "" => ()
@@ -1003,7 +1003,7 @@ fun outer_syntax_command0 mk_string cmd_spec cmd_descr parser get_oclclass =
     (parser >> (fn name =>
       Toplevel.theory (fn thy =>
         let val (ocl, thy) =
-        OCL.mapM
+        META.mapM
 
           let val get_oclclass = get_oclclass name in
           fn Gen_syntax_print n =>
@@ -1022,12 +1022,12 @@ fun outer_syntax_command0 mk_string cmd_spec cmd_descr parser get_oclclass =
                 thy0 |> (if skip_exportation then
                            K ()
                          else
-                           exec_deep (OCL.d_output_header_thy_update (fn _ => NONE) ocl, output_header_thy, seri_args, NONE, tmp_export_code, l_obj))
-                     |> K (Gen_deep (OCL.fold_thy_deep l_obj ocl, Internal_deep (output_header_thy, seri_args, filename_thy, tmp_export_code, skip_exportation)), thy0)
+                           exec_deep (META.d_output_header_thy_update (fn _ => NONE) ocl, output_header_thy, seri_args, NONE, tmp_export_code, l_obj))
+                     |> K (Gen_deep (META.fold_thy_deep l_obj ocl, Internal_deep (output_header_thy, seri_args, filename_thy, tmp_export_code, skip_exportation)), thy0)
                 end)
            | Gen_shallow (ocl, thy0) => fn thy =>
              let fun aux (ocl, thy) x =
-                  OCL.fold_thy_shallow
+                  META.fold_thy_shallow
                    (fn f => f () handle ERROR e =>
                      ( warning "Shallow Backtracking: HOL declarations occuring among OCL ones are ignored (if any)"
                        (* TODO automatically determine if there is such HOL declarations,
@@ -1071,7 +1071,7 @@ val () = let open Generation_mode in
             val thy =
         fold
           (fn (ocl, Internal_deep (output_header_thy, seri_args, filename_thy, tmp_export_code, _)) => fn thy0 =>
-                thy0 |> let val (ocl, l_exec) = OCL.compiler_env_config_reset_all ocl in
+                thy0 |> let val (ocl, l_exec) = META.compiler_env_config_reset_all ocl in
                         exec_deep (ocl, output_header_thy, seri_args, filename_thy, tmp_export_code, l_exec) end
                      |> K thy0)
           l
@@ -1102,7 +1102,7 @@ structure USE_parse = struct
          get_oclclass
            (if is_shallow = NONE then
               ( fn s =>
-                  OCL.T_to_be_parsed ( From.from_string s
+                  META.T_to_be_parsed ( From.from_string s
                                      , xml_unescape s)
               , v_true)
             else
@@ -1116,103 +1116,103 @@ structure USE_parse = struct
 
   (* *)
 
-  val unlimited_natural =  ident_star >> (fn "*" => OCL.Mult_star
-                                           | "\<infinity>" => OCL.Mult_infinity
+  val unlimited_natural =  ident_star >> (fn "*" => META.Mult_star
+                                           | "\<infinity>" => META.Mult_infinity
                                            | _ => Scan.fail "Syntax error")
-                        || Parse.number >> (fn s => OCL.Mult_nat (case Int.fromString s of SOME i => From.from_nat i
+                        || Parse.number >> (fn s => META.Mult_nat (case Int.fromString s of SOME i => From.from_nat i
                                                                                          | NONE => Scan.fail "Syntax error"))
   val term_base =
-       Parse.number >> (OCL.OclDefInteger o From.from_string)
-    || Parse.float_number >> (OCL.OclDefReal o (From.from_pair From.from_string From.from_string o
+       Parse.number >> (META.OclDefInteger o From.from_string)
+    || Parse.float_number >> (META.OclDefReal o (From.from_pair From.from_string From.from_string o
          (fn s => case String.tokens (fn #"." => true | _ => false) s of [l1,l2] => (l1,l2)
                                                                        | _ => Scan.fail "Syntax error")))
-    || Parse.string >> (OCL.OclDefString o From.from_string)
+    || Parse.string >> (META.OclDefString o From.from_string)
 
   val multiplicity = parse_l' (unlimited_natural -- optional (ident_dot_dot |-- unlimited_natural))
 
   fun uml_term x =
-   (   term_base >> OCL.ShallB_term
-    || Parse.binding >> (OCL.ShallB_str o From.from_binding)
-    || @{keyword "self"} |-- Parse.nat >> (fn n => OCL.ShallB_self (From.from_internal_oid (From.from_nat n)))
+   (   term_base >> META.ShallB_term
+    || Parse.binding >> (META.ShallB_str o From.from_binding)
+    || @{keyword "self"} |-- Parse.nat >> (fn n => META.ShallB_self (From.from_internal_oid (From.from_nat n)))
     || paren (Parse.list uml_term) >> (* untyped, corresponds to Set, Sequence or Pair *)
                                       (* WARNING for Set: we are describing a finite set *)
-                                      OCL.ShallB_list) x
+                                      META.ShallB_list) x
 
   val name_object = optional (Parse.list1 Parse.binding --| colon) -- Parse.binding
 
   val type_object_weak = 
     let val name_object = Parse.binding >> (fn s => (NONE, s)) in
                     name_object -- Scan.repeat (Parse.$$$ "<" |-- Parse.list1 name_object) >>
-    let val f = fn (_, s) => OCL.OclTyCore_pre (From.from_binding s) in
-    fn (s, l) => OCL.OclTyObj (f s, map (map f) l)
+    let val f = fn (_, s) => META.OclTyCore_pre (From.from_binding s) in
+    fn (s, l) => META.OclTyObj (f s, map (map f) l)
     end
     end
 
   val type_object = name_object -- Scan.repeat (Parse.$$$ "<" |-- Parse.list1 name_object) >>
-    let val f = fn (_, s) => OCL.OclTyCore_pre (From.from_binding s) in
-    fn (s, l) => OCL.OclTyObj (f s, map (map f) l)
+    let val f = fn (_, s) => META.OclTyCore_pre (From.from_binding s) in
+    fn (s, l) => META.OclTyObj (f s, map (map f) l)
     end
 
   val category = 
        multiplicity
     -- optional (@{keyword "Role"} |-- Parse.binding)
-    -- Scan.repeat (   @{keyword "Ordered"} >> K OCL.Ordered0
-                    || @{keyword "Subsets"} |-- Parse.binding >> K OCL.Subsets0
-                    || @{keyword "Union"} >> K OCL.Union0
-                    || @{keyword "Redefines"} |-- Parse.binding >> K OCL.Redefines0
-                    || @{keyword "Derived"} -- Parse.$$$ "=" |-- Parse.term >> K OCL.Derived0
-                    || @{keyword "Qualifier"} |-- Parse.term >> K OCL.Qualifier0
-                    || @{keyword "Nonunique"} >> K OCL.Nonunique0
-                    || @{keyword "Sequence_"} >> K OCL.Sequence) >>
+    -- Scan.repeat (   @{keyword "Ordered"} >> K META.Ordered0
+                    || @{keyword "Subsets"} |-- Parse.binding >> K META.Subsets0
+                    || @{keyword "Union"} >> K META.Union0
+                    || @{keyword "Redefines"} |-- Parse.binding >> K META.Redefines0
+                    || @{keyword "Derived"} -- Parse.$$$ "=" |-- Parse.term >> K META.Derived0
+                    || @{keyword "Qualifier"} |-- Parse.term >> K META.Qualifier0
+                    || @{keyword "Nonunique"} >> K META.Nonunique0
+                    || @{keyword "Sequence_"} >> K META.Sequence) >>
     (fn ((l_mult, role), l) =>
-       OCL.Ocl_multiplicity_ext (l_mult, From.from_option From.from_binding role, l, ()))
+       META.Ocl_multiplicity_ext (l_mult, From.from_option From.from_binding role, l, ()))
 
-  val type_base =   Parse.reserved "Void" >> K OCL.OclTy_base_void
-                 || Parse.reserved "Boolean" >> K OCL.OclTy_base_boolean
-                 || Parse.reserved "Integer" >> K OCL.OclTy_base_integer
-                 || Parse.reserved "UnlimitedNatural" >> K OCL.OclTy_base_unlimitednatural
-                 || Parse.reserved "Real" >> K OCL.OclTy_base_real
-                 || Parse.reserved "String" >> K OCL.OclTy_base_string
+  val type_base =   Parse.reserved "Void" >> K META.OclTy_base_void
+                 || Parse.reserved "Boolean" >> K META.OclTy_base_boolean
+                 || Parse.reserved "Integer" >> K META.OclTy_base_integer
+                 || Parse.reserved "UnlimitedNatural" >> K META.OclTy_base_unlimitednatural
+                 || Parse.reserved "Real" >> K META.OclTy_base_real
+                 || Parse.reserved "String" >> K META.OclTy_base_string
 
   fun use_type_gen type_object v =
                    ((* collection *)
                     Parse.reserved "Set" |-- use_type >> 
-                      (fn l => OCL.OclTy_collection (OCL.Ocl_multiplicity_ext ([], NONE, [OCL.Set], ()), l))
+                      (fn l => META.OclTy_collection (META.Ocl_multiplicity_ext ([], NONE, [META.Set], ()), l))
                  || Parse.reserved "Sequence" |-- use_type >>
-                      (fn l => OCL.OclTy_collection (OCL.Ocl_multiplicity_ext ([], NONE, [OCL.Sequence], ()), l))
-                 || category -- use_type >> OCL.OclTy_collection
+                      (fn l => META.OclTy_collection (META.Ocl_multiplicity_ext ([], NONE, [META.Sequence], ()), l))
+                 || category -- use_type >> META.OclTy_collection
 
                     (* pair *)
                  || Parse.reserved "Pair" |-- (   use_type -- use_type
-                                               || Parse.$$$ "(" |-- use_type --| Parse.$$$ "," -- use_type --| Parse.$$$ ")") >> OCL.OclTy_pair
+                                               || Parse.$$$ "(" |-- use_type --| Parse.$$$ "," -- use_type --| Parse.$$$ ")") >> META.OclTy_pair
 
                     (* base *)
                  || type_base
 
                     (* raw HOL *)
                  || Parse.sym_ident (* "\<acute>" *) |-- Parse.typ --| Parse.sym_ident (* "\<acute>" *) >>
-                      (OCL.OclTy_raw o xml_unescape)
+                      (META.OclTy_raw o xml_unescape)
 
                     (* object type *)
-                 || type_object >> OCL.OclTy_object
+                 || type_object >> META.OclTy_object
 
                  || ((Parse.$$$ "(" |-- Parse.list (   (Parse.binding --| colon >> (From.from_option From.from_binding o SOME))
                                                     -- (   Parse.$$$ "(" |-- use_type --| Parse.$$$ ")"
-                                                        || use_type_gen type_object_weak) >> OCL.OclTy_binding
+                                                        || use_type_gen type_object_weak) >> META.OclTy_binding
                                                     ) --| Parse.$$$ ")"
                       >> (fn ty_arg => case rev ty_arg of
-                            [] => OCL.OclTy_base_void
-                          | ty_arg => fold (fn x => fn acc => OCL.OclTy_pair (x, acc))
+                            [] => META.OclTy_base_void
+                          | ty_arg => fold (fn x => fn acc => META.OclTy_pair (x, acc))
                                            (tl ty_arg)
                                            (hd ty_arg)))
                      -- optional (colon |-- use_type))
                     >> (fn (ty_arg, ty_out) => case ty_out of NONE => ty_arg
-                                                            | SOME ty_out => OCL.OclTy_arrow (ty_arg, ty_out))
-                 || (Parse.$$$ "(" |-- use_type --| Parse.$$$ ")" >> (fn s => OCL.OclTy_binding (NONE, s)))) v
+                                                            | SOME ty_out => META.OclTy_arrow (ty_arg, ty_out))
+                 || (Parse.$$$ "(" |-- use_type --| Parse.$$$ ")" >> (fn s => META.OclTy_binding (NONE, s)))) v
   and use_type x = use_type_gen type_object x
 
   val use_prop =    (optional (optional (Parse.binding >> From.from_binding) --| Parse.$$$ ":") >> (fn NONE => NONE | SOME x => x))
-                 -- Parse.term --| optional (Parse.$$$ ";") >> (fn (n, e) => fn from_expr => OCL.OclProp_ctxt (n, from_expr e))
+                 -- Parse.term --| optional (Parse.$$$ ";") >> (fn (n, e) => fn from_expr => META.OclProp_ctxt (n, from_expr e))
 
   (* *)
 
@@ -1230,7 +1230,7 @@ structure USE_parse = struct
      --  use_prop
 
   structure Outer_syntax_Association = struct
-    fun make ass_ty l = OCL.Ocl_association_ext (ass_ty, OCL.OclAssRel l, ())
+    fun make ass_ty l = META.Ocl_association_ext (ass_ty, META.OclAssRel l, ())
   end
 
   (* *)
@@ -1247,16 +1247,16 @@ structure USE_parse = struct
                || invariant >> USE_context_invariant)
         --| optional (Parse.$$$ ";")) >>
               (fn ((name_fun, ty), expr) => fn from_expr =>
-                OCL.Ctxt_pp
-                  (OCL.Ocl_ctxt_pre_post_ext
+                META.Ctxt_pp
+                  (META.Ocl_ctxt_pre_post_ext
                     ( From.from_binding name_fun
                     , ty
                     , From.from_list (fn USE_context_pre_post (pp, expr) =>
-                                           OCL.T_pp (if pp = "Pre" then OCL.OclCtxtPre else OCL.OclCtxtPost, expr from_expr)
-                                       | USE_context_invariant (b, expr) => OCL.T_invariant (OCL.T_inv (b, expr from_expr))) expr
+                                           META.T_pp (if pp = "Pre" then META.OclCtxtPre else META.OclCtxtPost, expr from_expr)
+                                       | USE_context_invariant (b, expr) => META.T_invariant (META.T_inv (b, expr from_expr))) expr
                     , ())))
        ||
-       invariant >> (fn (b, expr) => fn from_expr => OCL.Ctxt_inv (OCL.T_inv (b, expr from_expr))))
+       invariant >> (fn (b, expr) => fn from_expr => META.Ctxt_inv (META.T_inv (b, expr from_expr))))
 
   val class =
         optional @{keyword "Attributes"}
@@ -1269,7 +1269,7 @@ structure USE_parse = struct
   
   structure Outer_syntax_Class = struct
     fun make from_expr abstract ty_object attribute oper =
-      OCL.Ocl_class_raw_ext
+      META.Ocl_class_raw_ext
         ( ty_object
         , From.from_list (From.from_pair From.from_binding I) attribute
         , From.from_list (fn f => f from_expr) oper
@@ -1304,17 +1304,17 @@ structure USE_parse = struct
   val object_cast' = object_cast >> (fn (res, l) => (res, rev l))
 
   fun get_oclinst l _ =
-    OCL.OclInstance (map (fn ((name,typ), (l_attr, is_cast)) =>
+    META.OclInstance (map (fn ((name,typ), (l_attr, is_cast)) =>
         let val f = map (fn ((pre_post, attr), ocl) =>
                               ( From.from_option (From.from_pair From.from_binding From.from_binding) pre_post
                               , ( From.from_binding attr
                                 , ocl)))
             val l_attr =
               fold
-                (fn b => fn acc => OCL.OclAttrCast (From.from_binding b, acc, []))
+                (fn b => fn acc => META.OclAttrCast (From.from_binding b, acc, []))
                 is_cast
-                (OCL.OclAttrNoCast (f l_attr)) in
-        OCL.Ocl_instance_single_ext
+                (META.OclAttrNoCast (f l_attr)) in
+        META.Ocl_instance_single_ext
           (From.from_option From.from_binding name, From.from_option From.from_binding typ, l_attr, From.from_unit ()) end) l)
 
   val parse_instance = (Parse.binding >> SOME)
@@ -1323,15 +1323,15 @@ structure USE_parse = struct
 
   (* *)
 
-  datatype state_content = ST_l_attr of (((binding * binding) option * binding) * OCL.ocl_data_shallow) list * binding list
+  datatype state_content = ST_l_attr of (((binding * binding) option * binding) * META.ocl_data_shallow) list * binding list
                          | ST_binding of binding
   
   val state_parse = parse_l' (   object_cast >> ST_l_attr
                               || Parse.binding >> ST_binding)
 
-  fun mk_state thy = map (fn ST_l_attr l => OCL.OclDefCoreAdd (case get_oclinst (map (fn (l_i, l_ty) => ((NONE, SOME (hd l_ty)), (l_i, rev (tl l_ty)))) [l]) thy of
-                                                                 OCL.OclInstance [x] => x)
-                           | ST_binding b => OCL.OclDefCoreBinding (From.from_binding b))
+  fun mk_state thy = map (fn ST_l_attr l => META.OclDefCoreAdd (case get_oclinst (map (fn (l_i, l_ty) => ((NONE, SOME (hd l_ty)), (l_i, rev (tl l_ty)))) [l]) thy of
+                                                                 META.OclInstance [x] => x)
+                           | ST_binding b => META.OclDefCoreBinding (From.from_binding b))
 
   (* *)
 
@@ -1341,8 +1341,8 @@ structure USE_parse = struct
   val state_pp_parse = state_parse >> ST_PP_l_attr
                        || Parse.binding >> ST_PP_binding
 
-  fun mk_pp_state thy = fn ST_PP_l_attr l => OCL.OclDefPPCoreAdd (mk_state thy l)
-                         | ST_PP_binding s => OCL.OclDefPPCoreBinding (From.from_binding s)
+  fun mk_pp_state thy = fn ST_PP_l_attr l => META.OclDefPPCoreAdd (mk_state thy l)
+                         | ST_PP_binding s => META.OclDefPPCoreBinding (From.from_binding s)
 end
 *}
 
@@ -1353,7 +1353,7 @@ val () =
   outer_syntax_command @{mk_string} @{command_keyword Enum} ""
     (Parse.binding -- parse_l1' Parse.binding)
     (fn (n1, n2) => 
-      K (OCL.META_enum (OCL.OclEnum (From.from_binding n1, From.from_list From.from_binding n2))))
+      K (META.META_enum (META.OclEnum (From.from_binding n1, From.from_list From.from_binding n2))))
 *}
 
 subsection{* Outer Syntax: (abstract) class *}
@@ -1367,13 +1367,13 @@ local
       (   Parse.binding --| Parse.$$$ "=" -- USE_parse.type_base >> USE_class_synonym
        ||    type_object
           -- class >> USE_class_content)
-      (curry OCL.META_class_raw OCL.Floor1)
-      (curry OCL.META_class_raw OCL.Floor2)
+      (curry META.META_class_raw META.Floor1)
+      (curry META.META_class_raw META.Floor2)
       (fn (from_expr, META_class_raw) =>
        fn USE_class_content (ty_object, (attribute, oper)) =>
             META_class_raw (Outer_syntax_Class.make from_expr (abstract = USE_class_abstract) ty_object attribute oper)
         | USE_class_synonym (n1, n2) => 
-            OCL.META_class_synonym (OCL.OclClassSynonym (From.from_binding n1, n2)))
+            META.META_class_synonym (META.OclClassSynonym (From.from_binding n1, n2)))
 in
 val () = mk_classDefinition USE_class @{command_keyword Class}
 val () = mk_classDefinition USE_class_abstract @{command_keyword Abstract_class}
@@ -1392,11 +1392,11 @@ local
        ||     optional Parse.binding
           |-- association)
       (fn l => fn _ =>
-        OCL.META_association (Outer_syntax_Association.make ass_ty l))
+        META.META_association (Outer_syntax_Association.make ass_ty l))
 in
-val () = mk_associationDefinition OCL.OclAssTy_association @{command_keyword Association}
-val () = mk_associationDefinition OCL.OclAssTy_composition @{command_keyword Composition}
-val () = mk_associationDefinition OCL.OclAssTy_aggregation @{command_keyword Aggregation}
+val () = mk_associationDefinition META.OclAssTy_association @{command_keyword Association}
+val () = mk_associationDefinition META.OclAssTy_composition @{command_keyword Composition}
+val () = mk_associationDefinition META.OclAssTy_aggregation @{command_keyword Aggregation}
 end
 *}
 
@@ -1415,13 +1415,13 @@ local
        -- association
        -- class
        -- optional (Parse.reserved "aggregation" || Parse.reserved "composition"))
-      (curry OCL.META_ass_class OCL.Floor1)
-      (curry OCL.META_ass_class OCL.Floor2)
+      (curry META.META_ass_class META.Floor1)
+      (curry META.META_ass_class META.Floor2)
       (fn (from_expr, META_ass_class) =>
        fn (((ty_object, l_ass), (attribute, oper)), assty) =>
-          META_ass_class (OCL.OclAssClass ( Outer_syntax_Association.make (case assty of SOME "aggregation" => OCL.OclAssTy_aggregation
-                                                                                       | SOME "composition" => OCL.OclAssTy_composition
-                                                                                       | _ => OCL.OclAssTy_association)
+          META_ass_class (META.OclAssClass ( Outer_syntax_Association.make (case assty of SOME "aggregation" => META.OclAssTy_aggregation
+                                                                                       | SOME "composition" => META.OclAssTy_composition
+                                                                                       | _ => META.OclAssTy_association)
                                                                           l_ass
                                           , Outer_syntax_Class.make from_expr (abstract = USE_associationclass_abstract) ty_object attribute oper)))
 in
@@ -1441,14 +1441,14 @@ val () =
     (optional (Parse.list1 Parse.binding --| colon)
      -- Parse.binding
      -- context)
-    (curry OCL.META_ctxt OCL.Floor1)
-    (curry OCL.META_ctxt OCL.Floor2)
+    (curry META.META_ctxt META.Floor1)
+    (curry META.META_ctxt META.Floor2)
     (fn (from_expr, META_ctxt) =>
     (fn ((l_param, name), l) => 
     META_ctxt
-      (OCL.Ocl_ctxt_ext
+      (META.Ocl_ctxt_ext
         ( case l_param of NONE => [] | SOME l => From.from_list From.from_binding l
-        , OCL.OclTyObj (OCL.OclTyCore_pre (From.from_binding name), [])
+        , META.OclTyObj (META.OclTyCore_pre (From.from_binding name), [])
         , From.from_list (fn f => f from_expr) l
         , ()))))
 end
@@ -1463,7 +1463,7 @@ val () =
                     || Parse.$$$ "!" >> K true) false)
     (fn b => fn _ =>
        if b then
-         [OCL.META_flush_all OCL.OclFlushAll]
+         [META.META_flush_all META.OclFlushAll]
        else
          [])
 *}
@@ -1474,7 +1474,7 @@ ML{*
 val () =
   outer_syntax_command @{mk_string} @{command_keyword BaseType} ""
     (parse_l' USE_parse.term_base)
-    (K o OCL.META_def_base_l o OCL.OclDefBase)
+    (K o META.META_def_base_l o META.OclDefBase)
 
 local
   open USE_parse
@@ -1482,16 +1482,16 @@ in
 val () =
   outer_syntax_command @{mk_string} @{command_keyword Instance} ""
     (Scan.optional (parse_instance -- Scan.repeat (optional @{keyword "and"} |-- parse_instance) >> (fn (x, xs) => x :: xs)) [])
-    (OCL.META_instance oo get_oclinst)
+    (META.META_instance oo get_oclinst)
 
 val () =
   outer_syntax_command @{mk_string} @{command_keyword State} ""
     (USE_parse.optional (paren @{keyword "shallow"}) -- Parse.binding --| @{keyword "="}
      -- state_parse)
      (fn ((is_shallow, name), l) => fn thy =>
-      OCL.META_def_state
-        ( if is_shallow = NONE then OCL.Floor1 else OCL.Floor2
-        , OCL.OclDefSt (From.from_binding name, mk_state thy l)))
+      META.META_def_state
+        ( if is_shallow = NONE then META.Floor1 else META.Floor2
+        , META.OclDefSt (From.from_binding name, mk_state thy l)))
 end
 *}
 
@@ -1508,9 +1508,9 @@ val () =
      -- state_pp_parse
      -- USE_parse.optional state_pp_parse)
     (fn (((is_shallow, n), s_pre), s_post) => fn thy =>
-      OCL.META_def_pre_post
-        ( if is_shallow = NONE then OCL.Floor1 else OCL.Floor2
-        , OCL.OclDefPP ( From.from_option From.from_binding n
+      META.META_def_pre_post
+        ( if is_shallow = NONE then META.Floor1 else META.Floor2
+        , META.OclDefPP ( From.from_option From.from_binding n
                        , mk_pp_state thy s_pre
                        , From.from_option (mk_pp_state thy) s_post)))
 end
