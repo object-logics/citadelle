@@ -146,8 +146,8 @@ definition "var_val' = \<open>val'\<close>"
 definition "update_D_ocl_accessor_pre f = (\<lambda>(l_pre, l_post). (f l_pre, l_post))"
 definition "update_D_ocl_accessor_post f = (\<lambda>(l_pre, l_post). (l_pre, f l_post))"
 
-definition "Expr_basety = (let var_x = \<open>x\<close> in
-                           Expr_lambdas [var_x, wildcard] (Expr_some (Expr_some (Expr_basic [var_x]))))"
+definition "Term_basety = (let var_x = \<open>x\<close> in
+                           Term_lambdas [var_x, wildcard] (Term_some (Term_some (Term_basic [var_x]))))"
 
 subsection{* ... *}
 
@@ -263,8 +263,8 @@ definition "datatype_in = \<open>in\<close>"
 
 section{* Translation of AST *}
 
-definition "map_class_arg_only_var = map_class_arg_only_var_gen (\<lambda>s e. Expr_postunary s (Expr_basic e))"
-definition "map_class_arg_only_var' = map_class_arg_only_var'_gen (\<lambda>s e. Expr_postunary s (Expr_basic e))"
+definition "map_class_arg_only_var = map_class_arg_only_var_gen (\<lambda>s e. Term_postunary s (Term_basic e))"
+definition "map_class_arg_only_var' = map_class_arg_only_var'_gen (\<lambda>s e. Term_postunary s (Term_basic e))"
 
 definition "split_ty name = L.map (\<lambda>s. hol_split (s @@ String.isub name)) [datatype_ext_name, datatype_name]"
 
@@ -319,28 +319,28 @@ lemmas [code] =
   (*def*)
   SML.oid_def
 
-definition "Expr_oid s = (\<lambda>Oid n \<Rightarrow> Expr_basic [s @@ String.of_natural n])"
+definition "Term_oid s = (\<lambda>Oid n \<Rightarrow> Term_basic [s @@ String.of_natural n])"
 
 subsection{* Infra *}
 
 fun print_infra_type_synonym_class_rec_aux0 where
    "print_infra_type_synonym_class_rec_aux0 e =
-   (let option = \<lambda>x. Ty_apply (Ty_base \<open>option\<close>) [x] in
+   (let option = \<lambda>x. Typ_apply (Typ_base \<open>option\<close>) [x] in
      (\<lambda> OclTy_collection c t \<Rightarrow>
           let (name, ty) = print_infra_type_synonym_class_rec_aux0 t in
           ( (if is_sequence c then \<open>Sequence\<close> else \<open>Set\<close>) @@ \<open>_\<close> @@ name
-          , Ty_apply (Ty_base (if is_sequence c then var_Sequence_base else var_Set_base)) [ty])
+          , Typ_apply (Typ_base (if is_sequence c then var_Sequence_base else var_Set_base)) [ty])
       | OclTy_pair t1 t2 \<Rightarrow>
           let (name1, ty1) = print_infra_type_synonym_class_rec_aux0 t1
             ; (name2, ty2) = print_infra_type_synonym_class_rec_aux0 t2 in
           ( \<open>Pair\<close> @@ \<open>_\<close> @@ name1 @@ \<open>_\<close> @@ name2
-          , Ty_apply (Ty_base var_Pair_base) [ty1, ty2])
-      | OclTy_object (OclTyObj (OclTyCore_pre s) _) \<Rightarrow> (s, option (option (Ty_base (datatype_name @@ String.isub s))))
-      | t \<Rightarrow> (str_of_ty t, Ty_base (str_of_ty t @@ String.isub \<open>base\<close>))) e)"
+          , Typ_apply (Typ_base var_Pair_base) [ty1, ty2])
+      | OclTy_object (OclTyObj (OclTyCore_pre s) _) \<Rightarrow> (s, option (option (Typ_base (datatype_name @@ String.isub s))))
+      | t \<Rightarrow> (str_of_ty t, Typ_base (str_of_ty t @@ String.isub \<open>base\<close>))) e)"
 
 definition "print_infra_type_synonym_class_rec_aux t =
  (let (tit, body) = print_infra_type_synonym_class_rec_aux0 t in
-  (tit, Ty_apply (Ty_base \<open>val\<close>) [Ty_base \<open>\<AA>\<close>, body]))"
+  (tit, Typ_apply (Typ_base \<open>val\<close>) [Typ_base \<open>\<AA>\<close>, body]))"
 
 definition "pref_generic_enum name_ty = name_ty @@ String.isub \<open>generic\<close>"
 
@@ -362,7 +362,7 @@ definition "print_iskindof_up_larger_name name_pers name_any = S.flatten [\<open
 subsection{* allInstances *}
 
 definition "gen_pre_post0 f_tit f_assum spec f_lemma meth_last =
-  (let b = \<lambda>s. Expr_basic [s]
+  (let b = \<lambda>s. Term_basic [s]
      ; d = hol_definition
      ; f_allinst = \<lambda>s. \<open>OclAllInstances_\<close> @@ s
      ; f_tit = f_tit o f_allinst
@@ -376,12 +376,12 @@ definition "gen_pre_post0 f_tit f_assum spec f_lemma meth_last =
          Lemma_assumes
            (f_tit at_when)
            f_assum
-           (spec (Expr_app s_allinst) f_cpl pre_post)
+           (spec (Term_app s_allinst) f_cpl pre_post)
            [C.unfolding [T.thm (d s_allinst)]]
            (C.by (M.rule (T.thm lem_gen) # meth_last)) in
-  [ f_lemma lem_gen f_assum (spec (\<lambda>l. Expr_app (f_allinst s_generic) (b var_pre_post # l)) (\<lambda>e. Expr_app var_mk [e]) var_pre_post) var_pre_post var_mk var_st
-  , mk_pre_post \<open>snd\<close> \<open>at_post\<close> (Expr_pair (b var_st))
-  , mk_pre_post \<open>fst\<close> \<open>at_pre\<close> (\<lambda>e. Expr_pair e (b var_st)) ])"
+  [ f_lemma lem_gen f_assum (spec (\<lambda>l. Term_app (f_allinst s_generic) (b var_pre_post # l)) (\<lambda>e. Term_app var_mk [e]) var_pre_post) var_pre_post var_mk var_st
+  , mk_pre_post \<open>snd\<close> \<open>at_post\<close> (Term_pair (b var_st))
+  , mk_pre_post \<open>fst\<close> \<open>at_pre\<close> (\<lambda>e. Term_pair e (b var_st)) ])"
 
 definition "gen_pre_post f_tit spec f_lemma = gen_pre_post0 f_tit [] spec (\<lambda>lem_gen _. f_lemma lem_gen)"
 
@@ -398,23 +398,23 @@ definition "print_access_choose_mlname n i j =
 
 definition "print_access_dot_consts_ty attr_ty =
               (let ty_base = \<lambda>attr_ty.
-                 Ty_apply (Ty_base \<open>val\<close>) [Ty_base \<open>\<AA>\<close>,
-                    let option = \<lambda>x. Ty_apply (Ty_base \<open>option\<close>) [x] in
-                    option (option (Ty_base attr_ty))] in
+                 Typ_apply (Typ_base \<open>val\<close>) [Typ_base \<open>\<AA>\<close>,
+                    let option = \<lambda>x. Typ_apply (Typ_base \<open>option\<close>) [x] in
+                    option (option (Typ_base attr_ty))] in
                case attr_ty of
                   OclTy_raw attr_ty \<Rightarrow> ty_base attr_ty
                 | OclTy_object (OclTyObj (OclTyCore ty_obj) _) \<Rightarrow>
                     let ty_obj = TyObj_to ty_obj
                       ; name = TyObjN_role_ty ty_obj
                       ; obj_mult = TyObjN_role_multip ty_obj in
-                    Ty_base (if single_multip obj_mult then
+                    Typ_base (if single_multip obj_mult then
                                wrap_oclty name
                              else if is_sequence obj_mult then
                                print_infra_type_synonym_class_sequence_name name
                              else
                                print_infra_type_synonym_class_set_name name)
                 | OclTy_object (OclTyObj (OclTyCore_pre s) _) \<Rightarrow> Raw (wrap_oclty s)
-                | OclTy_base_unlimitednatural \<Rightarrow> str_hol_of_ty_all Ty_apply ty_base attr_ty
+                | OclTy_base_unlimitednatural \<Rightarrow> str_hol_of_ty_all Typ_apply ty_base attr_ty
                    (* REMARK Dependencies to UnlimitedNatural.thy can be detected and added
                              so that this pattern clause would be merged with the default case *)
                 | OclTy_collection _ _ \<Rightarrow> Raw (fst (print_infra_type_synonym_class_rec_aux attr_ty))

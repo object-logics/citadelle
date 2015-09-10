@@ -221,7 +221,7 @@ definition "bootstrap_floor f_x l ocl =
       # l_setup
   , ocl \<lparr> D_output_auto_bootstrap := True \<rparr> ))"
 
-definition "Expr_oid s = (\<lambda>Oid n \<Rightarrow> Expr_basic [s @@ String.of_natural n])"
+definition "Term_oid s = (\<lambda>Oid n \<Rightarrow> Term_basic [s @@ String.of_natural n])"
 
 subsection{* Infra *}
 

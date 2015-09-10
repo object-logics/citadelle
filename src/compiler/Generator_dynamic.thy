@@ -622,8 +622,8 @@ subsection{* General Compiling Process: Shallow *}
 
 ML{*
 structure OCL_overload = struct
-  val s_of__type = OCL.s_of_type To_string0
-  val s_of__expr = OCL.s_of_expr To_string0
+  val s_of_semi__typ = OCL.s_of_semi_typ To_string0
+  val s_of_semi__term = OCL.s_of_semi_term To_string0
   val s_of_sexpr = OCL.s_of_sexpr To_string0
   val fold = fold
 end
@@ -651,14 +651,14 @@ fun m_of_ntheorem0 ctxt = let open OCL open OCL_overload val S = fn Thm_single t
        | (Thm_mult e1, Thm_mult e2) => Thm_mult (e1 RLN (1, e2)))
   | Thm_simplified (e1, e2) => Thm_single (asm_full_simplify (clear_simpset ctxt addsimps [S (m_of_ntheorem0 ctxt e2)]) (S (m_of_ntheorem0 ctxt e1)))
   | Thm_OF (e1, e2) => Thm_single ([S (m_of_ntheorem0 ctxt e2)] MRS (S (m_of_ntheorem0 ctxt e1)))
-  | Thm_where (nth, l) => Thm_single (Rule_Insts.where_rule ctxt (List.map (fn (var, expr) => (((To_string0 var, 0), Position.none), s_of__expr expr)) l) [] (S (m_of_ntheorem0 ctxt nth)))
+  | Thm_where (nth, l) => Thm_single (Rule_Insts.where_rule ctxt (List.map (fn (var, expr) => (((To_string0 var, 0), Position.none), s_of_semi__term expr)) l) [] (S (m_of_ntheorem0 ctxt nth)))
   | Thm_symmetric e1 => 
       let val e2 = S (m_of_ntheorem0 ctxt (Thm_thm (From.from_string "sym"))) in
         case m_of_ntheorem0 ctxt e1 of
           Thm_single e1 => Thm_single (e1 RSN (1, e2))
         | Thm_mult e1 => Thm_mult (e1 RLN (1, [e2]))
       end
-  | Thm_of (nth, l) => Thm_single (Rule_Insts.of_rule ctxt (List.map (SOME o s_of__expr) l, []) [] (S (m_of_ntheorem0 ctxt nth)))
+  | Thm_of (nth, l) => Thm_single (Rule_Insts.of_rule ctxt (List.map (SOME o s_of_semi__term) l, []) [] (S (m_of_ntheorem0 ctxt nth)))
 end
 
 fun m_of_ntheorem ctxt s = case (m_of_ntheorem0 ctxt s) of Thm_single t => t
@@ -712,7 +712,7 @@ fun m_of_tactic expr = let open OCL open Method open OCL_overload in case expr o
               ,(Splitter.add_split, List.map (Proof_Context.get_thm ctxt o To_string0) l_split)]
               ctxt)))
   | Method_rename_tac l => Basic (K (SIMPLE_METHOD' (Tactic.rename_tac (List.map To_string0 l))))
-  | Method_case_tac e => Basic (fn ctxt => SIMPLE_METHOD' (Induct_Tacs.case_tac ctxt (s_of__expr e) [] NONE))
+  | Method_case_tac e => Basic (fn ctxt => SIMPLE_METHOD' (Induct_Tacs.case_tac ctxt (s_of_semi__term e) [] NONE))
   | Method_blast n => Basic (case n of NONE => SIMPLE_METHOD' o blast_tac
                                    | SOME lim => fn ctxt => SIMPLE_METHOD' (depth_tac ctxt (To_nat lim)))
   | Method_clarify => Basic (fn ctxt => (SIMPLE_METHOD' (fn i => CHANGED_PROP (clarify_tac ctxt i))))
@@ -770,19 +770,19 @@ val apply_results = let open OCL_overload
                          let val ctxt = Proof.context_of st in
                          Proof.unfolding [map (fn s => ([s], [])) (m_of_ntheorems_l ctxt l)] st
                          end)
-                     | OCL.Command_let (e1, e2) => proof_show (Proof.let_bind_cmd [([s_of__expr e1], s_of__expr e2)])
+                     | OCL.Command_let (e1, e2) => proof_show (Proof.let_bind_cmd [([s_of_semi__term e1], s_of_semi__term e2)])
                      | OCL.Command_have (n, b, e, e_pr) => proof_show (fn st => st
                          |> Isar_Cmd.have [( (To_sbinding n, if b then [Token.src ("simp", Position.none) []] else [])
-                                           , [(s_of__expr e, [])])] true
+                                           , [(s_of_semi__term e, [])])] true
                          |> local_terminal_proof e_pr)
                      | OCL.Command_fix_let (l, l_let, o_exp, _) =>
                          proof_show_gen ( fold (fn (e1, e2) =>
-                                                  Proof.let_bind_cmd [([s_of__expr e1], s_of__expr e2)])
+                                                  Proof.let_bind_cmd [([s_of_semi__term e1], s_of_semi__term e2)])
                                                l_let
                                         o Proof.fix_cmd (List.map (fn i => (To_sbinding i, NONE, NoSyn)) l))
                                         (case o_exp of NONE => thesis | SOME l_spec => 
                                           (String.concatWith (" \<Longrightarrow> ")
-                                                             (List.map s_of__expr l_spec)))
+                                                             (List.map s_of_semi__term l_spec)))
 end
 
 end
@@ -796,7 +796,7 @@ fun OCL_main_thy in_theory in_local = let open OCL open OCL_overload in (*let va
       (Ctr_Sugar.default_ctr_options_cmd,
        [( ( ( (([], To_sbinding n), NoSyn)
             , List.map (fn (n, l) => ( ( (To_binding "", To_sbinding n)
-                                       , List.map (fn s => (To_binding "", s_of__type s)) l)
+                                       , List.map (fn s => (To_binding "", s_of_semi__typ s)) l)
                                      , NoSyn)) l)
           , (To_binding "", To_binding ""))
         , [])]))
@@ -804,7 +804,7 @@ fun OCL_main_thy in_theory in_local = let open OCL open OCL_overload in (*let va
    (fn thy =>
      let val s_bind = To_sbinding n in
      (snd o Typedecl.abbrev_global (s_bind, map To_string0 v, NoSyn)
-                                   (Isabelle_Typedecl.abbrev_cmd0 (SOME s_bind) thy (s_of__type l))) thy
+                                   (Isabelle_Typedecl.abbrev_cmd0 (SOME s_bind) thy (s_of_semi__typ l))) thy
      end)
 | Theory_type_notation (Type_notation (n, e)) => in_local
    (Specification.type_notation_cmd true ("", true) [(To_string0 n, Mixfix (To_string0 e, [], 1000))])
@@ -818,16 +818,16 @@ fun OCL_main_thy in_theory in_local = let open OCL open OCL_overload in (*let va
        (Syntax.read_sort (Proof_Context.init_global thy) "object")
        (fn _ => fn thy =>
         let val ((_, (_, ty)), thy) = Specification.definition_cmd
-           (NONE, ((To_binding (To_string0 n_def ^ "_" ^ name ^ "_def"), []), s_of__expr expr)) false thy in
+           (NONE, ((To_binding (To_string0 n_def ^ "_" ^ name ^ "_def"), []), s_of_semi__term expr)) false thy in
          (ty, thy)
         end)
        (fn ctxt => fn thms => Class.intro_classes_tac ctxt [] THEN ALLGOALS (Proof_Context.fact_tac ctxt thms))
      end)
 | Theory_defs (Defs_overloaded (n, e)) => in_theory
-   (Isar_Cmd.add_defs ((false, true), [((To_sbinding n, s_of__expr e), [])]))
+   (Isar_Cmd.add_defs ((false, true), [((To_sbinding n, s_of_semi__term e), [])]))
 | Theory_consts (Consts (n, ty, symb)) => in_theory
    (Sign.add_consts_cmd [( To_sbinding n
-                        , s_of__type ty
+                        , s_of_semi__typ ty
                         , Mixfix ("(_) " ^ To_string0 symb, [], 1000))])
 | Theory_definition def => in_local
     let val (def, e) = case def of
@@ -835,12 +835,12 @@ fun OCL_main_thy in_theory in_local = let open OCL open OCL_overload in (*let va
       | Definition_where1 (name, (abbrev, prio), e) =>
           (SOME ( To_sbinding name
                 , NONE
-                , Mixfix ("(1" ^ s_of__expr abbrev ^ ")", [], To_nat prio)), e)
+                , Mixfix ("(1" ^ s_of_semi__term abbrev ^ ")", [], To_nat prio)), e)
       | Definition_where2 (name, abbrev, e) =>
           (SOME ( To_sbinding name
                 , NONE
-                , Mixfix ("(" ^ s_of__expr abbrev ^ ")", [], 1000)), e) in
-    (snd o Specification.definition_cmd (def, ((@{binding ""}, []), s_of__expr e)) false)
+                , Mixfix ("(" ^ s_of_semi__term abbrev ^ ")", [], 1000)), e) in
+    (snd o Specification.definition_cmd (def, ((@{binding ""}, []), s_of_semi__term e)) false)
     end
 | Theory_lemmas (Lemmas_simp_thm (simp, s, l)) => in_local
    (fn lthy => (snd o Specification.theorems Thm.lemmaK
@@ -861,7 +861,7 @@ fun OCL_main_thy in_theory in_local = let open OCL open OCL_overload in (*let va
            Specification.theorem_cmd Thm.lemmaK NONE (K I)
              (@{binding ""}, []) [] [] (Element.Shows [((To_sbinding n, [])
                                                        ,[((String.concatWith (" \<Longrightarrow> ")
-                                                             (List.map s_of__expr l_spec)), [])])])
+                                                             (List.map s_of_semi__term l_spec)), [])])])
              false lthy
         |> fold (apply_results o OCL.Command_apply) l_apply
         |> global_terminal_proof o_by)
@@ -870,8 +870,8 @@ fun OCL_main_thy in_theory in_local = let open OCL open OCL_overload in (*let va
         |> Specification.theorem_cmd Thm.lemmaK NONE (K I)
              (To_sbinding n, [])
              []
-             (List.map (fn (n, (b, e)) => Element.Assumes [((To_sbinding n, if b then [Token.src ("simp", Position.none) []] else []), [(s_of__expr e, [])])]) l_spec)
-             (Element.Shows [((@{binding ""}, []),[(s_of__expr concl, [])])])
+             (List.map (fn (n, (b, e)) => Element.Assumes [((To_sbinding n, if b then [Token.src ("simp", Position.none) []] else []), [(s_of_semi__term e, [])])]) l_spec)
+             (Element.Shows [((@{binding ""}, []),[(s_of_semi__term concl, [])])])
              false
         |> fold apply_results l_apply
         |> (case map_filter (fn OCL.Command_let _ => SOME [] | OCL.Command_have _ => SOME [] | OCL.Command_fix_let (_, _, _, l) => SOME l | _ => NONE) (rev l_apply) of
@@ -883,7 +883,7 @@ fun OCL_main_thy in_theory in_local = let open OCL open OCL_overload in (*let va
 | Theory_axiomatization (Axiomatization (n, e)) => in_theory
    (#2 o Specification.axiomatization_cmd
                                      []
-                                     [((To_sbinding n, []), [s_of__expr e])])
+                                     [((To_sbinding n, []), [s_of_semi__term e])])
 | Theory_section _ => in_theory I
 | Theory_text _ => in_theory I
 | Theory_ML ml => in_theory (Code_printing.reflect_ml (Input.source false (case ml of SML ml => s_of_sexpr ml) (Position.none, Position.none)))
@@ -899,7 +899,7 @@ fun OCL_main_thy in_theory in_local = let open OCL open OCL_overload in (*let va
                                            , if loc_param = [] then
                                                Expression.Named []
                                              else
-                                               Expression.Positional (map (SOME o s_of__expr) loc_param)))]
+                                               Expression.Positional (map (SOME o s_of_semi__term) loc_param)))]
                                      , [])
                                      []
     |> global_terminal_proof o_by)
@@ -918,9 +918,9 @@ fun OCL_main aux ret = let open OCL open OCL_overload in fn
                                 (List.concat
                                   (map
                                     (fn (fixes, assumes) => List.concat
-                                      [ map (fn (e,ty) => Element.Fixes [(To_binding (s_of__expr e), SOME (s_of__type ty), NoSyn)]) fixes
+                                      [ map (fn (e,ty) => Element.Fixes [(To_binding (s_of_semi__term e), SOME (s_of_semi__typ ty), NoSyn)]) fixes
                                       , case assumes of NONE => []
-                                                      | SOME (n, e) => [Element.Assumes [((To_sbinding n, []), [(s_of__expr e, [])])]]])
+                                                      | SOME (n, e) => [Element.Assumes [((To_sbinding n, []), [(s_of_semi__term e, [])])]]])
                                     (OCL.holThyLocale_header data)))
                            #> snd)
                        |> fold (fold (OCL_main_thy Local_Theory.background_theory

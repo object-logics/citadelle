@@ -127,35 +127,35 @@ definition "print_examp_def_st_assoc_build_rbt_gen f rbt map_self map_username l
 definition "print_examp_def_st_assoc_build_rbt = print_examp_def_st_assoc_build_rbt_gen (modify_def RBT.empty)"
 
 definition "print_examp_def_st_assoc rbt map_self map_username l_assoc =
-  (let b = \<lambda>s. Expr_basic [s]
+  (let b = \<lambda>s. Term_basic [s]
      ; rbt = print_examp_def_st_assoc_build_rbt rbt map_self map_username l_assoc in
-   Expr_app var_map_of_list [Expr_list (fold (\<lambda>name. fold (\<lambda>name_attr (l_attr, ty_obj) l_cons.
+   Term_app var_map_of_list [Term_list (fold (\<lambda>name. fold (\<lambda>name_attr (l_attr, ty_obj) l_cons.
          let cpt_from = TyObjN_ass_switch (TyObj_from ty_obj) in
-         Expr_pair
-           (Expr_basic [print_access_oid_uniq_name cpt_from (\<lambda>s. s @@ String.isub name) name_attr])
-           (Expr_app \<open>List.map\<close>
-             [ Expr_binop (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l var_x = \<open>x\<close>
+         Term_pair
+           (Term_basic [print_access_oid_uniq_name cpt_from (\<lambda>s. s @@ String.isub name) name_attr])
+           (Term_app \<open>List.map\<close>
+             [ Term_binop (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l var_x = \<open>x\<close>
                              ; var_y = \<open>y\<close> in
-                           Expr_lambdas0
-                             (Expr_pair (b var_x) (b var_y))
-                             (Expr_list [b var_x, b var_y]))
+                           Term_lambdas0
+                             (Term_pair (b var_x) (b var_y))
+                             (Term_list [b var_x, b var_y]))
                           \<open>o\<close>
                           (b (print_access_choose_name
                                 (TyObj_ass_arity ty_obj)
                                 cpt_from
                                 (TyObjN_ass_switch (TyObj_to ty_obj))))
-             , Expr_list' (Expr_list' (Expr_list' (Expr_oid var_oid_uniq))) l_attr ])
+             , Term_list' (Term_list' (Term_list' (Term_oid var_oid_uniq))) l_attr ])
          # l_cons)) rbt [])])"
 
 definition "print_examp_instance_oid thy_definition_hol l ocl = (L.map thy_definition_hol o L.flatten)
- (let (f1, f2) = (\<lambda> var_oid _ _. var_oid, \<lambda> _ _ cpt. Expr_oid \<open>\<close> (oidGetInh cpt)) in
+ (let (f1, f2) = (\<lambda> var_oid _ _. var_oid, \<lambda> _ _ cpt. Term_oid \<open>\<close> (oidGetInh cpt)) in
   L.map (\<lambda> (ocli, cpt).
     if List.fold (\<lambda>(_, _, cpt0) b. b | oidGetInh cpt0 = oidGetInh cpt) (D_input_instance ocl) False then
       []
     else
-      let var_oid = Expr_oid var_oid_uniq (oidGetInh cpt)
+      let var_oid = Term_oid var_oid_uniq (oidGetInh cpt)
         ; isub_name = \<lambda>s. s @@ String.isub (inst_ty ocli) in
-      [Definition (Expr_rewrite (f1 var_oid isub_name ocli) \<open>=\<close> (f2 ocli isub_name cpt))]) l)"
+      [Definition (Term_rewrite (f1 var_oid isub_name ocli) \<open>=\<close> (f2 ocli isub_name cpt))]) l)"
 
 definition "check_export_code f_writeln f_warning f_error f_raise l_report msg_last =
  (let l_err =
@@ -172,34 +172,34 @@ definition "check_export_code f_writeln f_warning f_error f_raise l_report msg_l
 
 definition "print_examp_instance_defassoc_gen name l_ocli ocl =
  (case D_ocl_semantics ocl of Gen_only_analysis \<Rightarrow> [] | Gen_default \<Rightarrow> [] | Gen_only_design \<Rightarrow>
-  let a = \<lambda>f x. Expr_app f [x]
-    ; b = \<lambda>s. Expr_basic [s]
+  let a = \<lambda>f x. Term_app f [x]
+    ; b = \<lambda>s. Term_basic [s]
     ; (rbt :: _ \<Rightarrow> _ \<times> _ \<times> (_ \<Rightarrow> ((_ \<Rightarrow> natural \<Rightarrow> _ \<Rightarrow> (ocl_ty \<times> ocl_data_shallow) option list) \<Rightarrow> _ \<Rightarrow> _) option)
       , (map_self, map_username)) =
         init_map_class ocl (fst (L.split l_ocli))
     ; l_ocli = if list_ex (\<lambda>(ocli, _). inst_ty0 ocli = None) l_ocli then [] else l_ocli in
   [Definition
-     (Expr_rewrite name
+     (Term_rewrite name
      \<open>=\<close>
      (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l var_oid_class = \<open>oid_class\<close>
         ; var_to_from = \<open>to_from\<close>
         ; var_oid = \<open>oid\<close>
-        ; a_l = \<lambda>s. Ty_apply (Ty_base var_ty_list) [s] in
-      Expr_lambdas
+        ; a_l = \<lambda>s. Typ_apply (Typ_base var_ty_list) [s] in
+      Term_lambdas
         [var_oid_class, var_to_from, var_oid]
-        (Expr_annot (Expr_case
-          (Expr_app var_deref_assocs_list
-            [ Expr_annot (b var_to_from) (Ty_arrow
-                                            (a_l (a_l (Ty_base const_oid)))
-                                            (let t = a_l (Ty_base const_oid) in
+        (Term_annot (Term_case
+          (Term_app var_deref_assocs_list
+            [ Term_annot (b var_to_from) (Ty_arrow
+                                            (a_l (a_l (Typ_base const_oid)))
+                                            (let t = a_l (Typ_base const_oid) in
                                              Ty_times t t))
-            , Expr_annot' (b var_oid) const_oid
+            , Term_annot' (b var_oid) const_oid
             , a \<open>drop\<close>
-              (Expr_applys (print_examp_def_st_assoc (snd o rbt) map_self map_username l_ocli)
-                           [Expr_annot' (b var_oid_class) const_oid])])
+              (Term_applys (print_examp_def_st_assoc (snd o rbt) map_self map_username l_ocli)
+                           [Term_annot' (b var_oid_class) const_oid])])
           [ (b \<open>Nil\<close>, b \<open>None\<close>)
           , let b_l = b \<open>l\<close> in
-            (b_l, a \<open>Some\<close> b_l)] ) (Ty_apply (Ty_base \<open>option\<close>) [a_l (Ty_base const_oid)]))))])"
+            (b_l, a \<open>Some\<close> b_l)] ) (Typ_apply (Typ_base \<open>option\<close>) [a_l (Typ_base const_oid)]))))])"
 
 definition "print_examp_instance_defassoc = (\<lambda> OclInstance l \<Rightarrow> \<lambda> ocl.
   let l = L.flatten (fst (L.mapM (\<lambda>ocli cpt. ([(ocli, cpt)], oidSucInh cpt)) l (D_ocl_oid_start ocl))) in
@@ -208,7 +208,7 @@ definition "print_examp_instance_defassoc = (\<lambda> OclInstance l \<Rightarro
       @@@@ L.map O.definition l_res
     , ocl))
   (print_examp_instance_defassoc_gen
-    (Expr_oid var_inst_assoc (oidGetInh (D_ocl_oid_start ocl)))
+    (Term_oid var_inst_assoc (oidGetInh (D_ocl_oid_start ocl)))
     l
     ocl))"
 
@@ -220,8 +220,8 @@ definition "print_examp_instance = (\<lambda> OclInstance l \<Rightarrow> \<lamb
                 (ocl_ty_class option \<times>
                   (ocl_ty \<times> (string \<times> string) option \<times> ocl_data_shallow) option) list) option)
        , (map_self, map_username)) = init_map_class ocl l
-     ; a = \<lambda>f x. Expr_app f [x]
-     ; b = \<lambda>s. Expr_basic [s] in
+     ; a = \<lambda>f x. Term_app f [x]
+     ; b = \<lambda>s. Term_basic [s] in
    ( let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l var_inst_ass = \<open>inst_assoc\<close> in
      L.mapM
        (\<lambda> ocli cpt.

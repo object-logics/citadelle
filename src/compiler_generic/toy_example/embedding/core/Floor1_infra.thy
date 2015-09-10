@@ -49,7 +49,7 @@ subsection{* infrastructure *}
 definition "print_infra_datatype_class = start_map'' O.datatype o (\<lambda>expr _ base_attr' _. map_class_gen_h''''
   (\<lambda>isub_name name _ l_attr l_inherited l_cons.
     let (l_attr, l_inherited) = base_attr' (l_attr, of_inh l_inherited)
-      ; map_ty = L.map ((\<lambda>x. Ty_apply (Ty_base \<open>option\<close>) [str_hol_of_ty_all Ty_apply Ty_base x]) o snd) in
+      ; map_ty = L.map ((\<lambda>x. Typ_apply (Typ_base \<open>option\<close>) [str_hol_of_ty_all Typ_apply Typ_base x]) o snd) in
     [ Datatype
         (isub_name datatype_ext_name)
         (  (L.rev_map (\<lambda>x. ( datatype_ext_constr_name @@ mk_constr_name name x
@@ -64,13 +64,13 @@ definition "print_infra_datatype_universe expr = start_map O.datatype
       (map_class (\<lambda>isub_name _ _ _ _ _. (isub_name datatype_in, [Raw (isub_name datatype_name)])) expr) ]"
 
 definition "print_infra_type_synonym_class_higher expr = start_map O.type_synonym
- (let option = Ty_apply_paren \<open>\<langle>\<close> \<open>\<rangle>\<^sub>\<bottom>\<close> in
+ (let option = Typ_apply_paren \<open>\<langle>\<close> \<open>\<rangle>\<^sub>\<bottom>\<close> in
   L.flatten
     (map_class
       (\<lambda>isub_name name _ _ _ _.
         [ Type_synonym' name
-                       (option (option (Ty_base (isub_name datatype_name))))
-        (*, Type_synonym' name (Ty_apply_paren \<open>\<cdot>\<close> \<open>\<close> (Ty_base (name @@ \<open>'\<close>)))*)])
+                       (option (option (Typ_base (isub_name datatype_name))))
+        (*, Type_synonym' name (Typ_apply_paren \<open>\<cdot>\<close> \<open>\<close> (Typ_base (name @@ \<open>'\<close>)))*)])
       expr))"
 
 end

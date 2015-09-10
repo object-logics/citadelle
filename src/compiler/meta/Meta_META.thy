@@ -151,7 +151,7 @@ datatype hol_generation_syntax = Gen_semantics generation_semantics_ocl
 datatype hol_ml_extended = Ml_extended sml_extended
 
 datatype hol_thy_extended = (* pure Isabelle *)
-                            Isab_thy hol__thy
+                            Isab_thy semi__theory
 
                             (* bootstrapping embedded languages *)
                           | Isab_thy_generation_syntax hol_generation_syntax

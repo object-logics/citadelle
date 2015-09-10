@@ -164,12 +164,12 @@ definition' \<open>s_of_all_meta_embedding _ =
         (s_of_def_pp_core s_pre)
         (case s_post of None \<Rightarrow> \<open>\<close> | Some s_post \<Rightarrow> sprint1 \<open> %s\<close>\<acute> (s_of_def_pp_core s_post)))\<close>
 
-definition "s_of__t0 ocl =
+definition "s_of_semi__t0 ocl =
             (\<lambda> Theory_section section_title \<Rightarrow> s_of_section_title ocl section_title
-             | x \<Rightarrow> s_of__t ocl x)"
+             | x \<Rightarrow> s_of_semi__t ocl x)"
 
-definition' \<open>s_of__thy0 ocl =
- (\<lambda> H_thy_simple t \<Rightarrow> s_of__t0 ocl t
+definition' \<open>s_of_semi__theory0 ocl =
+ (\<lambda> H_thy_simple t \<Rightarrow> s_of_semi__t0 ocl t
   | H_thy_locale data l \<Rightarrow> 
       sprint3 \<open>locale %s =
 %s
@@ -181,16 +181,16 @@ end\<close>\<acute>   (To_string (HolThyLocale_name data))
 \<close>
            (\<lambda> (l_fix, o_assum).
                 sprint2 \<open>%s%s\<close>\<acute> (String_concat_map \<open>
-\<close> (\<lambda>(e, ty). sprint2 \<open>fixes "%s" :: "%s"\<close>\<acute> (s_of__expr e) (s_of__type ty)) l_fix)
+\<close> (\<lambda>(e, ty). sprint2 \<open>fixes "%s" :: "%s"\<close>\<acute> (s_of_semi__term e) (s_of_semi__typ ty)) l_fix)
                                 (case o_assum of None \<Rightarrow> \<open>\<close>
                                                | Some (name, e) \<Rightarrow> sprint2 \<open>
-assumes %s: "%s"\<close>\<acute> (To_string name) (s_of__expr e)))
+assumes %s: "%s"\<close>\<acute> (To_string name) (s_of_semi__term e)))
            (HolThyLocale_header data))
         (String_concat_map \<open>
 
 \<close> (String_concat_map \<open>
 
-\<close> (s_of__t0 ocl)) l))\<close>
+\<close> (s_of_semi__t0 ocl)) l))\<close>
 
 definition "s_of_generation_syntax _ = (\<lambda> Gen_semantics mode \<Rightarrow>
   sprint1 \<open>generation_syntax [ shallow%s ]\<close>\<acute>
@@ -202,7 +202,7 @@ definition "s_of_generation_syntax _ = (\<lambda> Gen_semantics mode \<Rightarro
 definition "s_of_ml_extended _ = (\<lambda> Ml_extended e \<Rightarrow> sprint1 \<open>setup{* %s *}\<close>\<acute> (s_of_sexpr_extended e))"
 
 definition "s_of_thy_extended ocl = (\<lambda>
-    Isab_thy thy \<Rightarrow> s_of__thy0 ocl thy
+    Isab_thy thy \<Rightarrow> s_of_semi__theory0 ocl thy
   | Isab_thy_generation_syntax generation_syntax \<Rightarrow> s_of_generation_syntax ocl generation_syntax
   | Isab_thy_ml_extended ml_extended \<Rightarrow> s_of_ml_extended ocl ml_extended
   | Isab_thy_all_meta_embedding all_meta_embedding \<Rightarrow> s_of_all_meta_embedding ocl all_meta_embedding)"
@@ -210,7 +210,7 @@ definition "s_of_thy_extended ocl = (\<lambda>
 definition "s_of_thy_list ocl l_thy =
   (let (th_beg, th_end) = case D_output_header_thy ocl of None \<Rightarrow> ([], [])
    | Some (name, fic_import, fic_import_boot) \<Rightarrow>
-       ( [ sprint2 \<open>theory %s imports %s begin\<close>\<acute> (To_string name) (s_of__expr (expr_binop \<langle>'' ''\<rangle> (L.map Expr_string (fic_import @@@@ (if D_output_header_force ocl | D_output_auto_bootstrap ocl then [fic_import_boot] else []))))) ]
+       ( [ sprint2 \<open>theory %s imports %s begin\<close>\<acute> (To_string name) (s_of_semi__term (term_binop \<langle>'' ''\<rangle> (L.map Term_string (fic_import @@@@ (if D_output_header_force ocl | D_output_auto_bootstrap ocl then [fic_import_boot] else []))))) ]
        , [ \<open>\<close>, \<open>end\<close> ]) in
   L.flatten
         [ th_beg
@@ -235,8 +235,8 @@ lemmas [code] =
   Print.s_of_def_state_def
   Print.s_of_def_pp_core_def
   Print.s_of_all_meta_embedding_def
-  Print.s_of__t0_def
-  Print.s_of__thy0_def
+  Print.s_of_semi__t0_def
+  Print.s_of_semi__theory0_def
   Print.s_of_generation_syntax_def
   Print.s_of_ml_extended_def
   Print.s_of_thy_extended_def

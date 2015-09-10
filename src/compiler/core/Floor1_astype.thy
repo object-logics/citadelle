@@ -53,57 +53,57 @@ subsection{* AsType *}
 
 definition "print_astype_consts = start_map O.consts o
   map_class (\<lambda>isub_name name _ _ _ _.
-    Consts' (isub_name const_oclastype) (Ty_base (wrap_oclty name)) (const_mixfix dot_oclastype name))"
+    Consts' (isub_name const_oclastype) (Typ_base (wrap_oclty name)) (const_mixfix dot_oclastype name))"
 
 definition "print_astype_class = start_m' O.defs
   (\<lambda> compare (isub_name, name, nl_attr). \<lambda> OclClass h_name hl_attr _ \<Rightarrow>
     Defs_overloaded
           (S.flatten [isub_name const_oclastype, \<open>_\<close>, h_name])
           (let var_x = \<open>x\<close> in
-           Expr_rewrite
-             (Expr_postunary (Expr_annot_ocl (Expr_basic [var_x]) h_name) (Expr_basic [dot_astype name]))
+           Term_rewrite
+             (Term_postunary (Term_annot_ocl (Term_basic [var_x]) h_name) (Term_basic [dot_astype name]))
              \<open>\<equiv>\<close>
              (case compare
               of EQ \<Rightarrow>
-                Expr_basic [var_x]
+                Term_basic [var_x]
               | x \<Rightarrow>
-                Expr_lam \<open>\<tau>\<close>
-                  (\<lambda>var_tau. let val_invalid = Expr_app \<open>invalid\<close> [Expr_basic [var_tau]] in
-                  Expr_case
-                    (Expr_app var_x [Expr_basic [var_tau]])
-                    ( (Expr_basic [\<open>\<bottom>\<close>], val_invalid)
-                    # (Expr_some (Expr_basic [\<open>\<bottom>\<close>]), Expr_app \<open>null\<close> [Expr_basic [var_tau]])
+                Term_lam \<open>\<tau>\<close>
+                  (\<lambda>var_tau. let val_invalid = Term_app \<open>invalid\<close> [Term_basic [var_tau]] in
+                  Term_case
+                    (Term_app var_x [Term_basic [var_tau]])
+                    ( (Term_basic [\<open>\<bottom>\<close>], val_invalid)
+                    # (Term_some (Term_basic [\<open>\<bottom>\<close>]), Term_app \<open>null\<close> [Term_basic [var_tau]])
                     # (let pattern_complex = (\<lambda>h_name name l_extra.
                             let isub_h = (\<lambda> s. s @@ String.isub h_name)
                               ; isub_name = (\<lambda>s. s @@ String.isub name)
                               ; isub_n = (\<lambda>s. isub_name (s @@ \<open>_\<close>))
                               ; var_name = name in
-                             Expr_app (isub_h datatype_constr_name)
-                                        ( Expr_app (isub_n (isub_h datatype_ext_constr_name)) [Expr_basic [var_name]]
+                             Term_app (isub_h datatype_constr_name)
+                                        ( Term_app (isub_n (isub_h datatype_ext_constr_name)) [Term_basic [var_name]]
                                         # l_extra) )
                          ; pattern_simple = (\<lambda> name.
                             let isub_name = (\<lambda>s. s @@ String.isub name)
                               ; var_name = name in
-                             Expr_basic [var_name])
-                         ; some_some = (\<lambda>x. Expr_some (Expr_some x)) in
+                             Term_basic [var_name])
+                         ; some_some = (\<lambda>x. Term_some (Term_some x)) in
                        if x = LT then
-                         [ (some_some (pattern_simple h_name), some_some (pattern_complex name h_name (L.map (\<lambda>_. Expr_basic [\<open>None\<close>]) nl_attr))) ]
+                         [ (some_some (pattern_simple h_name), some_some (pattern_complex name h_name (L.map (\<lambda>_. Term_basic [\<open>None\<close>]) nl_attr))) ]
                        else
-                         let l = [(Expr_basic [wildcard], val_invalid)] in
+                         let l = [(Term_basic [wildcard], val_invalid)] in
                          if x = GT then
-                           (some_some (pattern_complex h_name name (L.map (\<lambda>_. Expr_basic [wildcard]) hl_attr)), some_some (pattern_simple name))
+                           (some_some (pattern_complex h_name name (L.map (\<lambda>_. Term_basic [wildcard]) hl_attr)), some_some (pattern_simple name))
                            # l
                          else l) ) ))))"
 
 definition "print_astype_from_universe =
- (let f_finish = (\<lambda> [] \<Rightarrow> ((id, Expr_binop (Expr_basic [\<open>Some\<close>]) \<open>o\<close>), [])
-                  | _ \<Rightarrow> ((Expr_some, id), [(Expr_basic [wildcard], Expr_basic [\<open>None\<close>])])) in
+ (let f_finish = (\<lambda> [] \<Rightarrow> ((id, Term_binop (Term_basic [\<open>Some\<close>]) \<open>o\<close>), [])
+                  | _ \<Rightarrow> ((Term_some, id), [(Term_basic [wildcard], Term_basic [\<open>None\<close>])])) in
   start_m_gen O.definition
   (\<lambda> name l_inh _ l.
     let const_astype = print_astype_from_universe_name name in
-    [ Definition (Expr_rewrite (Expr_basic [const_astype]) \<open>=\<close>
+    [ Definition (Term_rewrite (Term_basic [const_astype]) \<open>=\<close>
         (case f_finish l_inh of ((_, finish_with_some2), last_case_none) \<Rightarrow>
-          finish_with_some2 (Expr_function (L.flatten [l, last_case_none]))))])
+          finish_with_some2 (Term_function (L.flatten [l, last_case_none]))))])
   (\<lambda> l_inh _ _ compare (_, name, nl_attr). \<lambda> OclClass h_name hl_attr _ \<Rightarrow>
      if compare = UN' then [] else
      let ((finish_with_some1, _), _) = f_finish l_inh
@@ -113,18 +113,18 @@ definition "print_astype_from_universe =
                               ; isub_name = (\<lambda>s. s @@ String.isub name)
                               ; isub_n = (\<lambda>s. isub_name (s @@ \<open>_\<close>))
                               ; var_name = name in
-                             Expr_app (isub_h datatype_constr_name)
-                                        ( Expr_app (isub_n (isub_h datatype_ext_constr_name)) [Expr_basic [var_name]]
+                             Term_app (isub_h datatype_constr_name)
+                                        ( Term_app (isub_n (isub_h datatype_ext_constr_name)) [Term_basic [var_name]]
                                         # l_extra ))
        ; pattern_simple = (\<lambda> name.
                             let isub_name = (\<lambda>s. s @@ String.isub name)
                               ; var_name = name in
-                             Expr_basic [var_name])
-       ; case_branch = (\<lambda>pat res. [(Expr_app (isub_h datatype_in) [pat], finish_with_some1 res)]) in
+                             Term_basic [var_name])
+       ; case_branch = (\<lambda>pat res. [(Term_app (isub_h datatype_in) [pat], finish_with_some1 res)]) in
              case compare
-             of GT \<Rightarrow> case_branch (pattern_complex h_name name (L.map (\<lambda>_. Expr_basic [wildcard]) hl_attr)) (pattern_simple name)
-              | EQ \<Rightarrow> let n = Expr_basic [name] in case_branch n n
-              | LT \<Rightarrow> case_branch (pattern_simple h_name) (pattern_complex name h_name (L.map (\<lambda>_. Expr_basic [\<open>None\<close>]) nl_attr))))"
+             of GT \<Rightarrow> case_branch (pattern_complex h_name name (L.map (\<lambda>_. Term_basic [wildcard]) hl_attr)) (pattern_simple name)
+              | EQ \<Rightarrow> let n = Term_basic [name] in case_branch n n
+              | LT \<Rightarrow> case_branch (pattern_simple h_name) (pattern_complex name h_name (L.map (\<lambda>_. Term_basic [\<open>None\<close>]) nl_attr))))"
 
 definition "print_astype_lemma_cp_set =
   (if activate_simp_optimization then
@@ -162,12 +162,12 @@ definition "print_astype_lemma_cp expr = (start_map O.lemma o get_hierarchy_map 
       (S.flatten [\<open>cp_\<close>, const_oclastype, String.isub name1, \<open>_\<close>, name3, \<open>_\<close>, name2])
       (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l var_p = \<open>p\<close> in
        L.map
-         (\<lambda>x. Expr_app \<open>cp\<close> [x])
-         [ Expr_basic [var_p]
-         , Expr_lam \<open>x\<close>
-             (\<lambda>var_x. Expr_warning_parenthesis (Expr_postunary
-               (Expr_annot_ocl (Expr_app var_p [Expr_annot_ocl (Expr_basic [var_x]) name3]) name2)
-               (Expr_basic [dot_astype name1])))])
+         (\<lambda>x. Term_app \<open>cp\<close> [x])
+         [ Term_basic [var_p]
+         , Term_lam \<open>x\<close>
+             (\<lambda>var_x. Term_warning_parenthesis (Term_postunary
+               (Term_annot_ocl (Term_app var_p [Term_annot_ocl (Term_basic [var_x]) name3]) name2)
+               (Term_basic [dot_astype name1])))])
       []
       (C.by [M.rule (T.thm \<open>cpI1\<close>), if check_opt name1 name2 then M.simp
                                              else M.simp_add [S.flatten [const_oclastype, String.isub name1, \<open>_\<close>, name2]]])
@@ -189,12 +189,12 @@ definition "print_astype_lemma_strict expr = (start_map O.lemma o
   (\<lambda>name1 name2 name3.
     Lemma
       (S.flatten [const_oclastype, String.isub name1, \<open>_\<close>, name3, \<open>_\<close>, name2])
-      [ Expr_rewrite
-             (Expr_warning_parenthesis (Expr_postunary
-               (Expr_annot_ocl (Expr_basic [name2]) name3)
-               (Expr_basic [dot_astype name1])))
+      [ Term_rewrite
+             (Term_warning_parenthesis (Term_postunary
+               (Term_annot_ocl (Term_basic [name2]) name3)
+               (Term_basic [dot_astype name1])))
              \<open>=\<close>
-             (Expr_basic [name2])]
+             (Term_basic [name2])]
       []
       (C.by (if check_opt name1 name3 then [M.simp]
                 else [M.rule (T.thm \<open>ext\<close>)
@@ -215,12 +215,12 @@ definition "print_astype_defined = start_m O.lemma m_class_default
   (\<lambda> compare (isub_name, name, _). \<lambda> OclClass h_name _ _ \<Rightarrow>
      let var_X = \<open>X\<close>
        ; var_isdef = \<open>isdef\<close>
-       ; f = \<lambda>e. Expr_binop (Expr_basic [\<open>\<tau>\<close>]) \<open>\<Turnstile>\<close> (Expr_app \<open>\<delta>\<close> [e]) in
+       ; f = \<lambda>e. Term_binop (Term_basic [\<open>\<tau>\<close>]) \<open>\<Turnstile>\<close> (Term_app \<open>\<delta>\<close> [e]) in
      case compare of LT \<Rightarrow>
         [ Lemma_assumes
           (S.flatten [isub_name const_oclastype, \<open>_\<close>, h_name, \<open>_defined\<close>])
-          [(var_isdef, False, f (Expr_basic [var_X]))]
-          (f (Expr_postunary (Expr_annot_ocl (Expr_basic [var_X]) h_name) (Expr_basic [dot_astype name])))
+          [(var_isdef, False, f (Term_basic [var_X]))]
+          (f (Term_postunary (Term_annot_ocl (Term_basic [var_X]) h_name) (Term_basic [dot_astype name])))
           [C.using [T.thm var_isdef]]
           (C.by [M.auto_simp_add (S.flatten [isub_name const_oclastype, \<open>_\<close>, h_name]
                                         # \<open>foundation16\<close>
@@ -232,14 +232,14 @@ definition "print_astype_up_d_cast0 = start_map O.lemma o
   map_class_nupl2'_inh (\<lambda>name_pers name_any.
     let var_X = \<open>X\<close>
       ; var_isdef = \<open>isdef\<close>
-      ; f = Expr_binop (Expr_basic [\<open>\<tau>\<close>]) \<open>\<Turnstile>\<close> in
+      ; f = Term_binop (Term_basic [\<open>\<tau>\<close>]) \<open>\<Turnstile>\<close> in
     Lemma_assumes
         (print_astype_up_d_cast0_name name_any name_pers)
-        [(var_isdef, False, f (Expr_app \<open>\<delta>\<close> [Expr_basic [var_X]]))]
-        (f (Expr_binop
-             (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l asty = \<lambda>x ty. Expr_warning_parenthesis (Expr_postunary x (Expr_basic [dot_astype ty])) in
-              asty (asty (Expr_annot_ocl (Expr_basic [var_X]) name_pers) name_any) name_pers)
-             \<open>\<triangleq>\<close> (Expr_basic [var_X])))
+        [(var_isdef, False, f (Term_app \<open>\<delta>\<close> [Term_basic [var_X]]))]
+        (f (Term_binop
+             (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l asty = \<lambda>x ty. Term_warning_parenthesis (Term_postunary x (Term_basic [dot_astype ty])) in
+              asty (asty (Term_annot_ocl (Term_basic [var_X]) name_pers) name_any) name_pers)
+             \<open>\<triangleq>\<close> (Term_basic [var_X])))
         [C.using [T.thm var_isdef]]
         (C.by [M.auto_simp_add_split
                                     (L.map T.thm
@@ -258,15 +258,15 @@ definition "print_astype_up_d_cast = start_map O.lemma o
     Lemma_assumes
         (S.flatten [\<open>up\<close>, String.isub name_any, \<open>_down\<close>, String.isub name_pers, \<open>_cast\<close>])
         []
-        (Expr_binop
-             (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l asty = \<lambda>x ty. Expr_warning_parenthesis (Expr_postunary x (Expr_basic [dot_astype ty])) in
-              asty (asty (Expr_annot_ocl (Expr_basic [var_X]) name_pers) name_any) name_pers)
-             \<open>=\<close> (Expr_basic [var_X]))
+        (Term_binop
+             (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l asty = \<lambda>x ty. Term_warning_parenthesis (Term_postunary x (Term_basic [dot_astype ty])) in
+              asty (asty (Term_annot_ocl (Term_basic [var_X]) name_pers) name_any) name_pers)
+             \<open>=\<close> (Term_basic [var_X]))
         (L.map C.apply
           [[M.rule (T.thm \<open>ext\<close>), M.rename_tac [var_tau]]
           ,[M.rule (T.THEN (T.thm \<open>foundation22\<close>) (T.thm \<open>iffD1\<close>))]
-          ,[M.case_tac (Expr_binop (Expr_basic [var_tau]) \<open>\<Turnstile>\<close>
-              (Expr_app \<open>\<delta>\<close> [Expr_basic [var_X]])), M.simp_add [print_astype_up_d_cast0_name name_any name_pers]]
+          ,[M.case_tac (Term_binop (Term_basic [var_tau]) \<open>\<Turnstile>\<close>
+              (Term_app \<open>\<delta>\<close> [Term_basic [var_X]])), M.simp_add [print_astype_up_d_cast0_name name_any name_pers]]
           ,[M.simp_add [\<open>defined_split\<close>], M.elim (T.thm \<open>disjE\<close>)]
           ,[M.plus [M.erule (T.thm \<open>StrongEq_L_subst2_rev\<close>), M.simp, M.simp]]])
         C.done)"
@@ -275,22 +275,22 @@ definition "print_astype_d_up_cast = start_map O.lemma o
   map_class_nupl2'_inh (\<lambda>name_pers name_any.
     let var_X = \<open>X\<close>
       ; var_Y = \<open>Y\<close>
-      ; a = \<lambda>f x. Expr_app f [x]
-      ; b = \<lambda>s. Expr_basic [s]
+      ; a = \<lambda>f x. Term_app f [x]
+      ; b = \<lambda>s. Term_basic [s]
       ; var_tau = \<open>\<tau>\<close>
-      ; f_tau = \<lambda>s. Expr_warning_parenthesis (Expr_binop (b var_tau) \<open>\<Turnstile>\<close> (Expr_warning_parenthesis s))
+      ; f_tau = \<lambda>s. Term_warning_parenthesis (Term_binop (b var_tau) \<open>\<Turnstile>\<close> (Term_warning_parenthesis s))
       ; var_def_X = \<open>def_X\<close>
-      ; asty = \<lambda>x ty. Expr_warning_parenthesis (Expr_postunary x (Expr_basic [dot_astype ty]))
+      ; asty = \<lambda>x ty. Term_warning_parenthesis (Term_postunary x (Term_basic [dot_astype ty]))
       ; not_val = a \<open>not\<close> (a \<open>\<upsilon>\<close> (b var_X)) in
     Lemma_assumes
       (S.flatten [\<open>down\<close>, String.isub name_pers, \<open>_up\<close>, String.isub name_any, \<open>_cast\<close>])
-      [(var_def_X, False, Expr_binop
-             (Expr_basic [var_X])
+      [(var_def_X, False, Term_binop
+             (Term_basic [var_X])
              \<open>=\<close>
-             (asty (Expr_annot_ocl (Expr_basic [var_Y]) name_pers) name_any))]
-      (f_tau (Expr_binop not_val \<open>or\<close>
-               (Expr_binop
-                 (asty (asty (Expr_basic [var_X]) name_pers) name_any)
+             (asty (Term_annot_ocl (Term_basic [var_Y]) name_pers) name_any))]
+      (f_tau (Term_binop not_val \<open>or\<close>
+               (Term_binop
+                 (asty (asty (Term_basic [var_X]) name_pers) name_any)
                  \<open>\<doteq>\<close>
                  (b var_X))))
       (L.map C.apply
@@ -302,8 +302,8 @@ definition "print_astype_d_up_cast = start_map O.lemma o
 
 definition "print_astype_lemma_const expr = (start_map O.lemma o
   get_hierarchy_map
-   (let a = \<lambda>f x. Expr_app f [x]
-      ; b = \<lambda>s. Expr_basic [s]
+   (let a = \<lambda>f x. Term_app f [x]
+      ; b = \<lambda>s. Term_basic [s]
       ; d = hol_definition
       ; check_opt =
           let set = print_astype_lemma_cp_set expr in
@@ -314,10 +314,10 @@ definition "print_astype_lemma_const expr = (start_map O.lemma o
       Lemma
         (S.flatten [n, \<open>_\<close>, name2])
         (L.map (a \<open>const\<close>)
-          [ Expr_annot' (b var_X) (wrap_oclty name3)
-          , Expr_postunary
+          [ Term_annot' (b var_X) (wrap_oclty name3)
+          , Term_postunary
                    (b var_X)
-                   (Expr_basic [dot_astype name1]) ])
+                   (Term_basic [dot_astype name1]) ])
         []
         (C.by [ M.simp_add [d \<open>const\<close>]
                  , M.option [M.metis0 [\<open>no_types\<close>] (L.map T.thm (n # \<open>prod.collapse\<close> # L.map d [\<open>bot_option\<close>, \<open>invalid\<close>, \<open>null_fun\<close>, \<open>null_option\<close>]))]])))

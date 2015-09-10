@@ -49,7 +49,7 @@ subsection{* example *}
 definition "print_examp_def_st_locale_distinct = \<open>distinct_oid\<close>"
 definition "print_examp_def_st_locale_metis = M.metis (L.map T.thm [print_examp_def_st_locale_distinct, \<open>distinct_length_2_or_more\<close>])"
 definition "print_examp_def_st_locale_aux f_ocli l = 
- (let b = \<lambda>s. Expr_basic [s] in
+ (let b = \<lambda>s. Term_basic [s] in
   map_prod
     id
     L.flatten
@@ -61,20 +61,20 @@ definition "print_examp_def_st_locale_aux f_ocli l =
              ; ty = inst_ty ocli
              ; f = \<lambda>s. s @@ String.isub ty
              ; name_pers = print_examp_instance_name f n in
-           ( Expr_oid var_oid_uniq (oidGetInh cpt)
-           , [ ( [(b name_pers, Ty_base (f datatype_name))], None)
-             , ( [(b n, Ty_base (wrap_oclty ty))]
-               , Some (hol_definition n, Expr_rewrite (b n) \<open>=\<close> (Expr_lambda wildcard (Expr_some (Expr_some (b name_pers)))))) ]))
+           ( Term_oid var_oid_uniq (oidGetInh cpt)
+           , [ ( [(b name_pers, Typ_base (f datatype_name))], None)
+             , ( [(b n, Typ_base (wrap_oclty ty))]
+               , Some (hol_definition n, Term_rewrite (b n) \<open>=\<close> (Term_lambda wildcard (Term_some (Term_some (b name_pers)))))) ]))
         l)))"
 definition "print_examp_def_st_locale_make f_name f_ocli f_spec l =
  (let (oid, l_fix_assum) = print_examp_def_st_locale_aux f_ocli l
     ; ty_n = \<open>nat\<close> in
   \<lparr> HolThyLocale_name = f_name
   , HolThyLocale_header = L.flatten
-                            [ [ ( L.map (\<lambda>x. (x, Ty_base ty_n)) oid
+                            [ [ ( L.map (\<lambda>x. (x, Typ_base ty_n)) oid
                                 , Some ( print_examp_def_st_locale_distinct
-                                       , Expr_app \<open>distinct\<close> [let e = Expr_list oid in
-                                                                if oid = [] then Expr_annot' e (ty_n @@ \<open> list\<close>) else e])) ]
+                                       , Term_app \<open>distinct\<close> [let e = Term_list oid in
+                                                                if oid = [] then Term_annot' e (ty_n @@ \<open> list\<close>) else e])) ]
                             , l_fix_assum
                             , f_spec ] \<rparr>)"
 
@@ -90,7 +90,7 @@ definition "print_examp_def_st_locale = (\<lambda> OclDefSt n l \<Rightarrow> \<
 definition "print_examp_def_st_mapsto_gen f ocl =
   L.map
     (\<lambda>(cpt, ocore).
-        let b = \<lambda>s. Expr_basic [s]
+        let b = \<lambda>s. Term_basic [s]
           ; (ocli, exp) = case ocore of
                OclDefCoreBinding (name, ocli) \<Rightarrow>
                  (ocli, Some (b (print_examp_instance_name (\<lambda>s. s @@ String.isub (inst_ty ocli)) name))) in
@@ -99,13 +99,13 @@ definition "print_examp_def_st_mapsto_gen f ocl =
 definition "print_examp_def_st_mapsto ocl l = list_bind id id
  (print_examp_def_st_mapsto_gen
     (\<lambda>(cpt, _) ocli. map_option (\<lambda>exp.
-      Expr_binop (Expr_oid var_oid_uniq (oidGetInh cpt)) \<open>\<mapsto>\<close> (Expr_app (datatype_in @@ String.isub (inst_ty ocli)) [exp])))
+      Term_binop (Term_oid var_oid_uniq (oidGetInh cpt)) \<open>\<mapsto>\<close> (Term_app (datatype_in @@ String.isub (inst_ty ocli)) [exp])))
     ocl
     l)"
 
 definition "print_examp_def_st2 = (\<lambda> OclDefSt name l \<Rightarrow> \<lambda>ocl.
  (\<lambda>(l, l_st). (L.map O'.definition l, ocl \<lparr> D_input_state := (String.to_String\<^sub>b\<^sub>a\<^sub>s\<^sub>e name, l_st) # D_input_state ocl \<rparr>))
-  (let b = \<lambda>s. Expr_basic [s]
+  (let b = \<lambda>s. Term_basic [s]
      ; l = L.map (\<lambda> OclDefCoreBinding name \<Rightarrow> map_option (Pair name) (String.assoc name (D_input_instance ocl))) l
      ; (rbt, (map_self, map_username)) =
          (init_map_class 
@@ -119,8 +119,8 @@ definition "print_examp_def_st2 = (\<lambda> OclDefSt name l \<Rightarrow> \<lam
             | None \<Rightarrow> ([], l_assoc)) l []
      ; l_st = L.unique oidGetInh (L.flatten l_st) in
 
-   ( [ Definition (Expr_rewrite (b name) \<open>=\<close> (Expr_app \<open>state.make\<close>
-        ( Expr_app \<open>Map.empty\<close> (case print_examp_def_st_mapsto ocl l_st of None \<Rightarrow> [] | Some l \<Rightarrow> l)
+   ( [ Definition (Term_rewrite (b name) \<open>=\<close> (Term_app \<open>state.make\<close>
+        ( Term_app \<open>Map.empty\<close> (case print_examp_def_st_mapsto ocl l_st of None \<Rightarrow> [] | Some l \<Rightarrow> l)
         # [ print_examp_def_st_assoc (snd o rbt) map_self map_username l_assoc ]))) ]
    , l_st)))"
 
@@ -132,7 +132,7 @@ definition "print_examp_def_st_perm = (\<lambda> _ ocl.
                   print_examp_def_st_mapsto
                     ocl
                     (rev l_st)
-     ; b = \<lambda>s. Expr_basic [s]
+     ; b = \<lambda>s. Term_basic [s]
      ; d = hol_definition
      ; (l_app, l_last) =
          case l_st of [] \<Rightarrow> ([], C.by [M.simp_add [d name]])
@@ -144,8 +144,8 @@ definition "print_examp_def_st_perm = (\<lambda> _ ocl.
    case expr_app of None \<Rightarrow> [] | Some expr_app \<Rightarrow>
    [ Lemma
        (print_examp_def_st_perm_name name)
-       [Expr_rewrite (b name) \<open>=\<close> (Expr_app \<open>state.make\<close>
-          (Expr_app \<open>Map.empty\<close> expr_app # [Expr_app var_assocs [b name]]))]
+       [Term_rewrite (b name) \<open>=\<close> (Term_app \<open>state.make\<close>
+          (Term_app \<open>Map.empty\<close> expr_app # [Term_app var_assocs [b name]]))]
        l_app
        l_last ]))"
 
@@ -174,7 +174,7 @@ definition "print_pre_post_locale = get_state (\<lambda> (s_pre, l_pre) (s_post,
   print_examp_def_st_locale_make
     (\<open>pre_post_\<close> @@ s_pre @@ \<open>_\<close> @@ s_post)
     f_ocli
-    (L.map (\<lambda>(s, l). ([], Some (s, Expr_app
+    (L.map (\<lambda>(s, l). ([], Some (s, Term_app
                                         (print_examp_def_st_locale_name s)
                                         (print_pre_post_locale_aux f_ocli l))))
               l_pre_post)

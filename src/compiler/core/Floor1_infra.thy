@@ -54,13 +54,13 @@ subsection{* infrastructure *}
 definition "print_infra_enum_synonym _ ocl = (\<lambda>f. (f (fst (find_class_ass ocl)), ocl))
  (L.flatten o L.map
    (\<lambda> META_class_synonym (OclClassSynonym n1 n2) \<Rightarrow>
-        [ O.type_synonym (Type_synonym' (pref_ty_syn n1) (Ty_base (str_hol_of_ty_all (\<lambda>a _. a) id n2))) ]
+        [ O.type_synonym (Type_synonym' (pref_ty_syn n1) (Typ_base (str_hol_of_ty_all (\<lambda>a _. a) id n2))) ]
     | _ \<Rightarrow> []))"
 
 definition "print_infra_datatype_class = start_map'' O.datatype o (\<lambda>expr _ base_attr' _. map_class_gen_h''''
   (\<lambda>isub_name name _ l_attr l_inherited l_cons.
     let (l_attr, l_inherited) = base_attr' (l_attr, of_inh l_inherited)
-      ; map_ty = L.map ((\<lambda>x. Ty_apply (Ty_base \<open>option\<close>) [str_hol_of_ty_all Ty_apply Ty_base x]) o snd) in
+      ; map_ty = L.map ((\<lambda>x. Typ_apply (Typ_base \<open>option\<close>) [str_hol_of_ty_all Typ_apply Typ_base x]) o snd) in
     [ Datatype
         (isub_name datatype_ext_name)
         (  (L.rev_map (\<lambda>x. ( datatype_ext_constr_name @@ mk_constr_name name x
@@ -73,7 +73,7 @@ definition "print_infra_datatype_class = start_map'' O.datatype o (\<lambda>expr
 definition' \<open>print_latex_infra_datatype_class = start_map'' O.datatype o (\<lambda>expr _ base_attr' _. map_class_gen_h''''
   (\<lambda>isub_name name _ l_attr l_inherited l_cons.
     let (l_attr, l_inherited) = base_attr' (l_attr, of_inh l_inherited)
-      ; map_ty = L.map ((\<lambda>x. Ty_apply (Ty_base \<open>option\<close>) [str_hol_of_ty_all Ty_apply Ty_base x]) o snd)
+      ; map_ty = L.map ((\<lambda>x. Typ_apply (Typ_base \<open>option\<close>) [str_hol_of_ty_all Typ_apply Typ_base x]) o snd)
       ; n1 = \<open>{ext}\<close>
       ; n2 = \<open>{ty}\<close> in
     [ Datatype
@@ -92,16 +92,16 @@ definition "print_infra_datatype_universe expr = start_map O.datatype
 definition "print_infra_enum_syn _ ocl = (\<lambda>f1 f2. (L.flatten [f1 (D_input_meta ocl), f2 (fst (find_class_ass ocl))], ocl))
  (L.flatten o L.map
     (\<lambda> META_enum (OclEnum name_ty _) \<Rightarrow>
-         [O.type_synonym (Type_synonym' name_ty (Ty_apply (Ty_base (pref_generic_enum name_ty)) [Ty_base \<open>\<AA>\<close>]))]
+         [O.type_synonym (Type_synonym' name_ty (Typ_apply (Typ_base (pref_generic_enum name_ty)) [Typ_base \<open>\<AA>\<close>]))]
      | _ \<Rightarrow> []))
  (L.flatten o L.map
     (\<lambda> META_class_synonym (OclClassSynonym name_ty ty) \<Rightarrow>
-         [O.type_synonym (Type_synonym' name_ty (Ty_base (str_of_ty ty)))]
+         [O.type_synonym (Type_synonym' name_ty (Typ_base (str_of_ty ty)))]
      | _ \<Rightarrow> []))"
 
 definition "print_infra_type_synonym_class _ = start_map id
   (L.map O.type_synonym
-    (let ty = \<lambda> t s. Type_synonym' (str_of_ty t) (Ty_apply (Ty_base s) [Ty_base \<open>\<AA>\<close>]) in
+    (let ty = \<lambda> t s. Type_synonym' (str_of_ty t) (Typ_apply (Typ_base s) [Typ_base \<open>\<AA>\<close>]) in
      (* base type *)
      ty OclTy_base_void ty_void #
      ty OclTy_base_boolean ty_boolean #
@@ -110,20 +110,20 @@ definition "print_infra_type_synonym_class _ = start_map id
      ty OclTy_base_real ty_real #
      ty OclTy_base_string ty_string #
      (* *)
-     Type_synonym'' var_val' [\<open>'\<alpha>\<close>] (\<lambda> [alpha] \<Rightarrow> Ty_apply (Ty_base \<open>val\<close>) [Ty_base \<open>\<AA>\<close>, Ty_base alpha ]) #
+     Type_synonym'' var_val' [\<open>'\<alpha>\<close>] (\<lambda> [alpha] \<Rightarrow> Typ_apply (Typ_base \<open>val\<close>) [Typ_base \<open>\<AA>\<close>, Typ_base alpha ]) #
      [])
    @@@@
    L.map O.type_notation
      [ Type_notation var_val' \<open>\<cdot>(_)\<close> ])"
 
 definition "print_infra_type_synonym_class_higher expr = start_map O.type_synonym
- (let option = Ty_apply_paren \<open>\<langle>\<close> \<open>\<rangle>\<^sub>\<bottom>\<close> in
+ (let option = Typ_apply_paren \<open>\<langle>\<close> \<open>\<rangle>\<^sub>\<bottom>\<close> in
   L.flatten
     (map_class
       (\<lambda>isub_name name _ _ _ _.
         [ Type_synonym' name
-                       (option (option (Ty_base (isub_name datatype_name))))
-        (*, Type_synonym' name (Ty_apply_paren \<open>\<cdot>\<close> \<open>\<close> (Ty_base (name @@ \<open>'\<close>)))*)])
+                       (option (option (Typ_base (isub_name datatype_name))))
+        (*, Type_synonym' name (Typ_apply_paren \<open>\<cdot>\<close> \<open>\<close> (Typ_base (name @@ \<open>'\<close>)))*)])
       expr))"
 
 definition "print_infra_type_synonym_class_rec = (\<lambda>expr ocl.
@@ -154,30 +154,30 @@ definition "print_infra_instantiation_class = start_map'' O.instantiation o (\<l
     [Instantiation
       (isub_name datatype_name)
       oid_of
-      (Expr_rewrite
-        (Expr_basic [oid_of])
+      (Term_rewrite
+        (Term_basic [oid_of])
         \<open>=\<close>
-        (Expr_function
+        (Term_function
                    [ let var_oid = \<open>t\<close> in
-                     ( Expr_basic (isub_name datatype_constr_name # var_oid # L.map (\<lambda>_. wildcard) l_attr)
-                     , Expr_case
-                         (Expr_basic [var_oid])
-                         ( ( Expr_app
+                     ( Term_basic (isub_name datatype_constr_name # var_oid # L.map (\<lambda>_. wildcard) l_attr)
+                     , Term_case
+                         (Term_basic [var_oid])
+                         ( ( Term_app
                                (isub_name datatype_ext_constr_name)
-                               (Expr_basic [var_oid] # L.flatten (L.map (L.map (\<lambda>_. Expr_basic [wildcard])) l_inherited))
-                           , Expr_basic [var_oid])
-                         # L.map (\<lambda>x. ( Expr_app (datatype_ext_constr_name @@ mk_constr_name name x) [Expr_basic [var_oid]]
-                                         , Expr_app oid_of [Expr_basic [var_oid]])) (of_sub l_cons)))]))
+                               (Term_basic [var_oid] # L.flatten (L.map (L.map (\<lambda>_. Term_basic [wildcard])) l_inherited))
+                           , Term_basic [var_oid])
+                         # L.map (\<lambda>x. ( Term_app (datatype_ext_constr_name @@ mk_constr_name name x) [Term_basic [var_oid]]
+                                         , Term_app oid_of [Term_basic [var_oid]])) (of_sub l_cons)))]))
     ]) expr)"
 
 definition "print_infra_instantiation_universe expr = start_map O.instantiation
   [ let oid_of = \<open>oid_of\<close> in
     Instantiation \<open>\<AA>\<close> oid_of
-      (Expr_rewrite
-        (Expr_basic [oid_of])
+      (Term_rewrite
+        (Term_basic [oid_of])
         \<open>=\<close>
-        (Expr_function (map_class (\<lambda>isub_name name _ _ _ _.
-    let esc = (\<lambda>h. Expr_basic (h # [name])) in
+        (Term_function (map_class (\<lambda>isub_name name _ _ _ _.
+    let esc = (\<lambda>h. Term_basic (h # [name])) in
     (esc (isub_name datatype_in), esc oid_of)) expr))) ]"
 
 
@@ -190,11 +190,11 @@ definition "print_instantia_def_strictrefeq = start_map O.defs o
       ; var_y = \<open>y\<close> in
     Defs_overloaded
       (print_instantia_def_strictrefeq_name mk_strict name)
-      (Expr_rewrite (Expr_binop (Expr_annot_ocl (Expr_basic [var_x]) name)
+      (Term_rewrite (Term_binop (Term_annot_ocl (Term_basic [var_x]) name)
                                 \<open>\<doteq>\<close>
-                                (Expr_basic [var_y]))
+                                (Term_basic [var_y]))
                     \<open>\<equiv>\<close>
-                    (Expr_basic [mk_strict [], var_x, var_y])) )"
+                    (Term_basic [mk_strict [], var_x, var_y])) )"
 
 definition "print_instantia_lemmas_strictrefeq = start_map'
   (if activate_simp_optimization then

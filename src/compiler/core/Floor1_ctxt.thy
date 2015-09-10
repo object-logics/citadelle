@@ -52,7 +52,7 @@ section{* Translation of AST *}
 subsection{* context *}
 
 definition "print_ctxt_const ctxt ocl =
- (let Ty_par = Ty_apply_paren \<open>(\<close> \<open>)\<close> (* because of potential ambiguities *)
+ (let Ty_par = Typ_apply_paren \<open>(\<close> \<open>)\<close> (* because of potential ambiguities *)
     ; l_enum = List.map_filter (\<lambda> META_enum e \<Rightarrow> Some e | _ \<Rightarrow> None) (D_input_meta ocl)
     ; l_syn = List.map_filter (\<lambda> META_class_synonym c \<Rightarrow> Some c | _ \<Rightarrow> None) (D_input_meta ocl) in
   map_prod (map_prod id (rev o L.map O.type_synonym)) (rev o L.map O.consts)
@@ -84,7 +84,7 @@ definition "print_ctxt_const ctxt ocl =
                   l
               , Consts_raw0
                   name
-                  (ty_arrow (Ty_apply (Ty_base \<open>val\<close>) [Ty_base \<open>\<AA>\<close>, Ty_base \<open>'\<alpha>\<close>] # rev l_name))
+                  (ty_arrow (Typ_apply (Typ_base \<open>val\<close>) [Typ_base \<open>\<AA>\<close>, Typ_base \<open>'\<alpha>\<close>] # rev l_name))
                   (mk_dot attr_n var_at_when_ocl)
                   (Some (natural_of_nat (length (Ctxt_fun_ty_arg ctxt)))) # l_isab_const))
             [ (var_at_when_hol_post, var_at_when_ocl_post, update_D_ocl_accessor_post)

@@ -53,7 +53,7 @@ subsection{* IsKindOf *}
 
 definition "print_iskindof_consts = start_map O.consts o
   map_class (\<lambda>isub_name name _ _ _ _.
-    Consts' (isub_name const_ocliskindof) (Ty_base ty_boolean) (const_mixfix dot_ocliskindof name))"
+    Consts' (isub_name const_ocliskindof) (Typ_base ty_boolean) (const_mixfix dot_ocliskindof name))"
 
 definition "print_iskindof_class_name isub_name h_name = S.flatten [isub_name const_ocliskindof, \<open>_\<close>, h_name]"
 definition "print_iskindof_class = start_m_gen O.defs m_class_default
@@ -61,23 +61,23 @@ definition "print_iskindof_class = start_m_gen O.defs m_class_default
     [ Defs_overloaded
           (print_iskindof_class_name isub_name h_name)
           (let var_x = \<open>x\<close> in
-           Expr_rewrite
-             (Expr_postunary (Expr_annot_ocl (Expr_basic [var_x]) h_name) (Expr_basic [dot_iskindof name]))
+           Term_rewrite
+             (Term_postunary (Term_annot_ocl (Term_basic [var_x]) h_name) (Term_basic [dot_iskindof name]))
              \<open>\<equiv>\<close>
-             (let isof = (\<lambda>f name. Expr_warning_parenthesis (Expr_postunary (Expr_basic [var_x]) (Expr_basic [f name]))) in
-              expr_binop \<open>or\<close> (isof dot_istypeof name # L.map (\<lambda> OclClass name_past _ _ \<Rightarrow> isof dot_iskindof name_past) next_dataty)))])"
+             (let isof = (\<lambda>f name. Term_warning_parenthesis (Term_postunary (Term_basic [var_x]) (Term_basic [f name]))) in
+              term_binop \<open>or\<close> (isof dot_istypeof name # L.map (\<lambda> OclClass name_past _ _ \<Rightarrow> isof dot_iskindof name_past) next_dataty)))])"
 
 definition "print_iskindof_from_universe = start_m O.definition
   (\<lambda>name _ _ l.
     let const_iskindof = S.flatten [const_ocliskindof, String.isub name, \<open>_\<AA>\<close>] in
-    [ Definition (Expr_rewrite (Expr_basic [const_iskindof]) \<open>=\<close> (Expr_function l)) ])
+    [ Definition (Term_rewrite (Term_basic [const_iskindof]) \<open>=\<close> (Term_function l)) ])
   (\<lambda> _ (_, name, _). \<lambda> OclClass h_name _ _ \<Rightarrow>
     let isub_h = (\<lambda> s. s @@ String.isub h_name) in
-    [ ( Expr_app (isub_h datatype_in) [Expr_basic [h_name]]
-      , Expr_warning_parenthesis
-        (Expr_postunary (Expr_annot_ocl (Expr_applys Expr_basety [Expr_basic [h_name]])
+    [ ( Term_app (isub_h datatype_in) [Term_basic [h_name]]
+      , Term_warning_parenthesis
+        (Term_postunary (Term_annot_ocl (Term_applys Term_basety [Term_basic [h_name]])
                                     h_name)
-                        (Expr_basic [dot_iskindof name])))])"
+                        (Term_basic [dot_iskindof name])))])"
 
 definition "print_iskindof_lemma_cp_set =
   (if activate_simp_optimization then
@@ -95,12 +95,12 @@ definition "print_iskindof_lemma_cp = start_m'3_gen O.lemma
     let lemma_name = S.flatten [\<open>cp_\<close>, const_ocliskindof, String.isub name1, \<open>_\<close>, name3, \<open>_\<close>, name2]
       ; lemma_spec = let var_p = \<open>p\<close> in
        L.map
-         (\<lambda>x. Expr_app \<open>cp\<close> [x])
-         [ Expr_basic [var_p]
-         , Expr_lam \<open>x\<close>
-             (\<lambda>var_x. Expr_warning_parenthesis (Expr_postunary
-               (Expr_annot_ocl (Expr_app var_p [Expr_annot_ocl (Expr_basic [var_x]) name3]) name2)
-               (Expr_basic [dot_iskindof name1])))]
+         (\<lambda>x. Term_app \<open>cp\<close> [x])
+         [ Term_basic [var_p]
+         , Term_lam \<open>x\<close>
+             (\<lambda>var_x. Term_warning_parenthesis (Term_postunary
+               (Term_annot_ocl (Term_app var_p [Term_annot_ocl (Term_basic [var_x]) name3]) name2)
+               (Term_basic [dot_iskindof name1])))]
       ; lem_simp1 = M.simp_only [T.thm (S.flatten [const_ocliskindof, String.isub name1, \<open>_\<close>, name2])]
       ; lem_simp2 = M.simp_only [T.thm (S.flatten [\<open>cp_\<close>, const_oclistypeof, String.isub name1, \<open>_\<close>, name3, \<open>_\<close>, name2])] in
     let (tac1, tac2) =
@@ -108,7 +108,7 @@ definition "print_iskindof_lemma_cp = start_m'3_gen O.lemma
       else
       ( [ [ lem_simp1 ]
         , [ M.plus
-            [ M.rule (T.where (T.thm \<open>cpI2\<close>) [(\<open>f\<close>, Expr_preunary (Expr_basic [\<open>op\<close>]) (Expr_basic [\<open>or\<close>]))])
+            [ M.rule (T.where (T.thm \<open>cpI2\<close>) [(\<open>f\<close>, Term_preunary (Term_basic [\<open>op\<close>]) (Term_basic [\<open>or\<close>]))])
             , M.plus [M.rule (T.thm \<open>allI\<close>)]
             , M.rule (T.thm \<open>cp_OclOr\<close>) ]]
         , [ lem_simp2 ] ]
@@ -130,12 +130,12 @@ definition "print_iskindof_lemma_strict = start_m_gen O.lemma m_class_default
   L.map (\<lambda>(name2, name2').
     Lemma
       (S.flatten [const_ocliskindof, String.isub name1, \<open>_\<close>, name3, \<open>_\<close>, name2])
-      [ Expr_rewrite
-             (Expr_warning_parenthesis (Expr_postunary
-               (Expr_annot_ocl (Expr_basic [name2]) name3)
-               (Expr_basic [dot_iskindof name1])))
+      [ Term_rewrite
+             (Term_warning_parenthesis (Term_postunary
+               (Term_annot_ocl (Term_basic [name2]) name3)
+               (Term_basic [dot_iskindof name1])))
              \<open>=\<close>
-             (Expr_basic [name2'])]
+             (Term_basic [name2'])]
       []
       (C.by
         (M.simp_only
@@ -161,11 +161,11 @@ definition "print_iskindof_defined = start_m_gen O.lemma m_class_default
   (\<lambda> _ _ next_dataty _ (isub_name, name, _). \<lambda> OclClass h_name _ _ \<Rightarrow>
       let var_X = \<open>X\<close>
         ; var_isdef = \<open>isdef\<close>
-        ; f = \<lambda>symb e. Expr_binop (Expr_basic [\<open>\<tau>\<close>]) \<open>\<Turnstile>\<close> (Expr_app symb [e]) in
+        ; f = \<lambda>symb e. Term_binop (Term_basic [\<open>\<tau>\<close>]) \<open>\<Turnstile>\<close> (Term_app symb [e]) in
       [ Lemma_assumes
           (print_iskindof_defined_name isub_name h_name)
-          [(var_isdef, False, f \<open>\<upsilon>\<close> (Expr_basic [var_X]))]
-          (f \<open>\<delta>\<close> (Expr_postunary (Expr_annot_ocl (Expr_basic [var_X]) h_name) (Expr_basic [dot_iskindof name])))
+          [(var_isdef, False, f \<open>\<upsilon>\<close> (Term_basic [var_X]))]
+          (f \<open>\<delta>\<close> (Term_postunary (Term_annot_ocl (Term_basic [var_X]) h_name) (Term_basic [dot_iskindof name])))
           []
           (C.by [ M.simp_only [T.thm (S.flatten [isub_name const_ocliskindof, \<open>_\<close>, h_name])]
                    , M.rule
@@ -184,11 +184,11 @@ definition "print_iskindof_defined' = start_m O.lemma m_class_default
   (\<lambda> _ (isub_name, name, _). \<lambda> OclClass h_name _ _ \<Rightarrow>
       let var_X = \<open>X\<close>
         ; var_isdef = \<open>isdef\<close>
-        ; f = \<lambda>e. Expr_binop (Expr_basic [\<open>\<tau>\<close>]) \<open>\<Turnstile>\<close> (Expr_app \<open>\<delta>\<close> [e]) in
+        ; f = \<lambda>e. Term_binop (Term_basic [\<open>\<tau>\<close>]) \<open>\<Turnstile>\<close> (Term_app \<open>\<delta>\<close> [e]) in
       [ Lemma_assumes
           (print_iskindof_defined'_name isub_name h_name)
-          [(var_isdef, False, f (Expr_basic [var_X]))]
-          (f (Expr_postunary (Expr_annot_ocl (Expr_basic [var_X]) h_name) (Expr_basic [dot_iskindof name])))
+          [(var_isdef, False, f (Term_basic [var_X]))]
+          (f (Term_postunary (Term_annot_ocl (Term_basic [var_X]) h_name) (Term_basic [dot_iskindof name])))
           []
           (C.by [M.rule (T.OF (T.thm (print_iskindof_defined_name isub_name h_name))
                                      (T.THEN (T.thm var_isdef) (T.thm \<open>foundation20\<close>)))]) ])"
@@ -197,13 +197,13 @@ definition "print_iskindof_up_eq_asty = start_map O.lemma o map_class_gen_h'''''
   (\<lambda> _ name l_attr _ l_subtree next_dataty.
     let var_X = \<open>X\<close>
       ; var_isdef = \<open>isdef\<close>
-      ; f = Expr_binop (Expr_basic [\<open>\<tau>\<close>]) \<open>\<Turnstile>\<close> in
+      ; f = Term_binop (Term_basic [\<open>\<tau>\<close>]) \<open>\<Turnstile>\<close> in
     [Lemma_assumes
         (print_iskindof_up_eq_asty_name name)
-        [(var_isdef, False, f (Expr_app \<open>\<delta>\<close> [Expr_basic [var_X]]))]
-        (f (Expr_warning_parenthesis (Expr_postunary
-               (Expr_annot_ocl (Expr_basic [var_X]) name)
-               (Expr_basic [dot_iskindof name]))))
+        [(var_isdef, False, f (Term_app \<open>\<delta>\<close> [Term_basic [var_X]]))]
+        (f (Term_warning_parenthesis (Term_postunary
+               (Term_annot_ocl (Term_basic [var_X]) name)
+               (Term_basic [dot_iskindof name]))))
         (L.map C.apply
         [ [ M.simp_only [T.thm (hol_definition \<open>OclValid\<close>)]
           , M.insert [T.thm var_isdef]]
@@ -233,15 +233,15 @@ definition "print_iskindof_up_larger = start_map O.lemma o
   map_class_nupl2''_inh (\<lambda>name_pers name_any name_pred.
     let var_X = \<open>X\<close>
       ; var_isdef = \<open>isdef\<close>
-      ; f = Expr_binop (Expr_basic [\<open>\<tau>\<close>]) \<open>\<Turnstile>\<close>
+      ; f = Term_binop (Term_basic [\<open>\<tau>\<close>]) \<open>\<Turnstile>\<close>
       ; disjI1 = \<open>foundation25\<close>
       ; disjI2 = \<open>foundation25'\<close> in
     Lemma_assumes
       (print_iskindof_up_larger_name name_pers name_any)
-      [(var_isdef, False, f (Expr_app \<open>\<delta>\<close> [Expr_basic [var_X]]))]
-      (f (Expr_warning_parenthesis (Expr_postunary
-             (Expr_annot_ocl (Expr_basic [var_X]) name_pers)
-             (Expr_basic [dot_iskindof name_any]))))
+      [(var_isdef, False, f (Term_app \<open>\<delta>\<close> [Term_basic [var_X]]))]
+      (f (Term_warning_parenthesis (Term_postunary
+             (Term_annot_ocl (Term_basic [var_X]) name_pers)
+             (Term_basic [dot_iskindof name_any]))))
       [C.apply [M.simp_only [T.thm (S.flatten [const_ocliskindof, String.isub name_any, \<open>_\<close>, name_pers])]] ]
       (C.by
         (case
@@ -315,19 +315,19 @@ definition "print_iskindof_up_istypeof_unfold = start_m_gen O.lemma m_class_defa
     let var_X = \<open>X\<close>
       ; var_iskin = \<open>iskin\<close>
       ; var_isdef = \<open>isdef\<close>
-      ; f = \<lambda>f. f o Expr_parenthesis o Expr_binop (Expr_basic [\<open>\<tau>\<close>]) \<open>\<Turnstile>\<close> in
+      ; f = \<lambda>f. f o Term_parenthesis o Term_binop (Term_basic [\<open>\<tau>\<close>]) \<open>\<Turnstile>\<close> in
     [ Lemma_assumes
         (print_iskindof_up_istypeof_unfold_name name_pers name_any)
-        [(var_isdef, False, f id (Expr_app \<open>\<delta>\<close> [Expr_basic [var_X]]))
-        ,(var_iskin, False, f id (Expr_warning_parenthesis (Expr_postunary
-               (Expr_annot_ocl (Expr_basic [var_X]) name_any)
-                 (Expr_basic [dot_iskindof name_pers]))))]
-        (expr_binop' \<open>\<or>\<close>
+        [(var_isdef, False, f id (Term_app \<open>\<delta>\<close> [Term_basic [var_X]]))
+        ,(var_iskin, False, f id (Term_warning_parenthesis (Term_postunary
+               (Term_annot_ocl (Term_basic [var_X]) name_any)
+                 (Term_basic [dot_iskindof name_pers]))))]
+        (term_binop' \<open>\<or>\<close>
           (L.flatten
             (L.map (\<lambda>(f_dot, l). L.map
-                 (\<lambda>name_pred. f id (Expr_warning_parenthesis (Expr_postunary
-                   (Expr_annot_ocl (Expr_basic [var_X]) name_any)
-                   (Expr_basic [f_dot name_pred])))) l)
+                 (\<lambda>name_pred. f id (Term_warning_parenthesis (Term_postunary
+                   (Term_annot_ocl (Term_basic [var_X]) name_any)
+                   (Term_basic [f_dot name_pred])))) l)
                [ (dot_istypeof, name_pers # L.map (\<lambda> OclClass n _ _ \<Rightarrow> n) name_pred0) ])))
         (C.using [T.thm var_iskin]
          # C.apply [M.simp_only [T.thm (S.flatten [isub_name const_ocliskindof, \<open>_\<close>, name_any])]]
@@ -352,19 +352,19 @@ definition "print_iskindof_up_istypeof = start_map O.lemma o
       ; var_X = \<open>X\<close>
       ; var_iskin = \<open>iskin\<close>
       ; var_isdef = \<open>isdef\<close>
-      ; f = \<lambda>f. f o Expr_binop (Expr_basic [\<open>\<tau>\<close>]) \<open>\<Turnstile>\<close> in
+      ; f = \<lambda>f. f o Term_binop (Term_basic [\<open>\<tau>\<close>]) \<open>\<Turnstile>\<close> in
     Lemma_assumes
       (print_iskindof_up_istypeof_name name_pers name_any)
-      [(var_iskin, False, f (Expr_preunary (Expr_basic [\<open>\<not>\<close>])) (Expr_warning_parenthesis (Expr_postunary
-             (Expr_annot_ocl (Expr_basic [var_X]) name_any)
-               (Expr_basic [dot_iskindof name_pers]))))
-      ,(var_isdef, False, f id (Expr_app \<open>\<delta>\<close> [Expr_basic [var_X]]))]
-      (expr_binop' \<open>\<or>\<close>
+      [(var_iskin, False, f (Term_preunary (Term_basic [\<open>\<not>\<close>])) (Term_warning_parenthesis (Term_postunary
+             (Term_annot_ocl (Term_basic [var_X]) name_any)
+               (Term_basic [dot_iskindof name_pers]))))
+      ,(var_isdef, False, f id (Term_app \<open>\<delta>\<close> [Term_basic [var_X]]))]
+      (term_binop' \<open>\<or>\<close>
         (L.flatten
           (L.map (\<lambda>(f_dot, l). L.map
-               (\<lambda>name_pred. f id (Expr_warning_parenthesis (Expr_postunary
-                 (Expr_annot_ocl (Expr_basic [var_X]) name_any)
-                 (Expr_basic [f_dot name_pred])))) l)
+               (\<lambda>name_pred. f id (Term_warning_parenthesis (Term_postunary
+                 (Term_annot_ocl (Term_basic [var_X]) name_any)
+                 (Term_basic [f_dot name_pred])))) l)
              [ (dot_istypeof, L.map (\<lambda> (name_pred, _). case Inh name_pred of OclClass n _ _ \<Rightarrow> n) name_pred0)
              , (dot_iskindof, L.flatten (L.map (\<lambda> (name_pred, _). case Inh_sib_unflat name_pred of l \<Rightarrow> L.map (\<lambda> OclClass n _ _ \<Rightarrow> n) l) name_pred0)) ])))
       (C.using [T.OF (T.thm (print_iskindof_up_eq_asty_name name_any)) (T.thm var_isdef)]
@@ -385,17 +385,17 @@ definition "print_iskindof_up_d_cast = start_map O.lemma o
       ; var_X = \<open>X\<close>
       ; var_iskin = \<open>iskin\<close>
       ; var_isdef = \<open>isdef\<close>
-      ; f = \<lambda>f. f o Expr_binop (Expr_basic [\<open>\<tau>\<close>]) \<open>\<Turnstile>\<close> in
+      ; f = \<lambda>f. f o Term_binop (Term_basic [\<open>\<tau>\<close>]) \<open>\<Turnstile>\<close> in
     Lemma_assumes
         (S.flatten [\<open>down_cast_kind\<close>, String.isub name_mid, \<open>_from_\<close>, name_any, \<open>_to_\<close>, name_pers])
-        [(var_iskin, False, f (Expr_preunary (Expr_basic [\<open>\<not>\<close>])) (Expr_warning_parenthesis (Expr_postunary
-               (Expr_annot_ocl (Expr_basic [var_X]) name_any)
-               (Expr_basic [dot_iskindof name_mid]))))
-        ,(var_isdef, False, f id (Expr_app \<open>\<delta>\<close> [Expr_basic [var_X]]))]
-        (f id (Expr_binop (Expr_warning_parenthesis (Expr_postunary
-               (Expr_basic [var_X])
-               (Expr_basic [dot_astype name_pers]))
-             ) \<open>\<triangleq>\<close> (Expr_basic [\<open>invalid\<close>])))
+        [(var_iskin, False, f (Term_preunary (Term_basic [\<open>\<not>\<close>])) (Term_warning_parenthesis (Term_postunary
+               (Term_annot_ocl (Term_basic [var_X]) name_any)
+               (Term_basic [dot_iskindof name_mid]))))
+        ,(var_isdef, False, f id (Term_app \<open>\<delta>\<close> [Term_basic [var_X]]))]
+        (f id (Term_binop (Term_warning_parenthesis (Term_postunary
+               (Term_basic [var_X])
+               (Term_basic [dot_astype name_pers]))
+             ) \<open>\<triangleq>\<close> (Term_basic [\<open>invalid\<close>])))
         (L.flatten
           (let name_pred_inh = L.map (\<lambda> (name_pred, _). Inh name_pred) name_pred0
              ; name_pred_inh_sib_gen = L.flatten (L.map (\<lambda> (name_pred, _). case Inh_sib name_pred of l \<Rightarrow> l) name_pred0)

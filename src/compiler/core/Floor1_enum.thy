@@ -50,36 +50,36 @@ begin
 section{* Translation of AST *}
 
 definition "print_enum = (\<lambda> OclEnum name_ty l \<Rightarrow> Pair
- (let a = \<lambda>f x. Expr_app f [x]
-    ; b = \<lambda>s. Expr_basic [s]
-    ; option = Ty_apply_paren \<open>\<langle>\<close> \<open>\<rangle>\<^sub>\<bottom>\<close>
+ (let a = \<lambda>f x. Term_app f [x]
+    ; b = \<lambda>s. Term_basic [s]
+    ; option = Typ_apply_paren \<open>\<langle>\<close> \<open>\<rangle>\<^sub>\<bottom>\<close>
     ; name_ty_base = name_ty @@ String.isub \<open>base\<close>
     ; name_ty_base' = pref_generic_enum name_ty
     ; uu = \<open>'\<AA>\<close> in
   L.flatten
   [ [ O.datatype (Datatype (pref_ty_enum name_ty) (L.map (\<lambda>constr. (pref_constr_enum constr, [])) l))
-    , O.type_synonym (Type_synonym' name_ty_base (option (option (Ty_base (pref_ty_enum name_ty)))))
-    , O.type_synonym (Type_synonym'' name_ty_base' [uu] (\<lambda> [u] \<Rightarrow> Ty_apply (Ty_base \<open>val\<close>) [Ty_base u, Ty_base name_ty_base]))
+    , O.type_synonym (Type_synonym' name_ty_base (option (option (Typ_base (pref_ty_enum name_ty)))))
+    , O.type_synonym (Type_synonym'' name_ty_base' [uu] (\<lambda> [u] \<Rightarrow> Typ_apply (Typ_base \<open>val\<close>) [Typ_base u, Typ_base name_ty_base]))
     , O.defs
         (Defs_overloaded
           (\<open>StrictRefEq\<close> @@ String.isub name_ty)
           (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l var_x = \<open>x\<close>
              ; var_y = \<open>y\<close> in
-           Expr_rewrite
-            (Expr_rewrite (Expr_annot (b var_x) (Ty_apply (Ty_base name_ty_base') [Ty_base uu])) \<open>\<doteq>\<close> (b var_y))
+           Term_rewrite
+            (Term_rewrite (Term_annot (b var_x) (Typ_apply (Typ_base name_ty_base') [Typ_base uu])) \<open>\<doteq>\<close> (b var_y))
             \<open>\<equiv>\<close>
-            (Expr_lam \<open>\<tau>\<close>
+            (Term_lam \<open>\<tau>\<close>
               (\<lambda>var_tau.
-                Expr_if_then_else
-                  (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l f = \<lambda>v. Expr_rewrite (Expr_applys (a \<open>\<upsilon>\<close> (b v)) [b var_tau]) \<open>=\<close> (a \<open>true\<close> (b var_tau)) in
-                   Expr_binop (f var_x) \<open>\<and>\<close> (f var_y))
-                  (Expr_applys (Expr_rewrite (b var_x) \<open>\<triangleq>\<close> (b var_y)) [b var_tau])
+                Term_if_then_else
+                  (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l f = \<lambda>v. Term_rewrite (Term_applys (a \<open>\<upsilon>\<close> (b v)) [b var_tau]) \<open>=\<close> (a \<open>true\<close> (b var_tau)) in
+                   Term_binop (f var_x) \<open>\<and>\<close> (f var_y))
+                  (Term_applys (Term_rewrite (b var_x) \<open>\<triangleq>\<close> (b var_y)) [b var_tau])
                   (a \<open>invalid\<close> (b var_tau)))))) ]
   , L.map
       (\<lambda>constr.
         O.definition
-          (Definition (Expr_rewrite (b constr)
+          (Definition (Term_rewrite (b constr)
                                     \<open>=\<close>
-                                    (Expr_lam \<open>_\<close> (\<lambda>_. Expr_some (Expr_some (Expr_annot' (b (pref_constr_enum constr)) (pref_ty_enum name_ty)))))))) l ]))"
+                                    (Term_lam \<open>_\<close> (\<lambda>_. Term_some (Term_some (Term_annot' (b (pref_constr_enum constr)) (pref_ty_enum name_ty)))))))) l ]))"
 
 end

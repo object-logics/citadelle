@@ -70,10 +70,10 @@ definition "print_access_oid_uniq =
     O.definition
     (\<lambda>ocl oid_start. ocl \<lparr> D_ocl_oid_start := oid_start \<rparr>)
     (\<lambda>obj_name_from_nat _ isub_name attr cpt_obj.
-      Definition (Expr_rewrite
-                   (Expr_basic [print_access_oid_uniq_name obj_name_from_nat isub_name attr])
+      Definition (Term_rewrite
+                   (Term_basic [print_access_oid_uniq_name obj_name_from_nat isub_name attr])
                    \<open>=\<close>
-                   (Expr_oid \<open>\<close> cpt_obj)))"
+                   (Term_oid \<open>\<close> cpt_obj)))"
 
 definition "print_access_choose_switch
               lets mk_var expr
@@ -90,39 +90,39 @@ definition "print_access_choose_switch
              ((L.flatten o L.flatten) (L.map (\<lambda>i. L.map (\<lambda>j. if i = j then [] else [(i, j)]) l) l)))
           (class_arity expr))"
 definition "print_access_choose = start_map'''' O.definition o (\<lambda>expr _.
-  (let a = \<lambda>f x. Expr_app f [x]
-     ; b = \<lambda>s. Expr_basic [s]
-     ; lets = \<lambda>var exp. Definition (Expr_rewrite (Expr_basic [var]) \<open>=\<close> exp)
-     ; lets' = \<lambda>\<^sub>S\<^sub>c\<^sub>a\<^sub>l\<^sub>avar exp. Definition (Expr_rewrite (Expr_basic [var]) \<open>=\<close> (b exp))
-     ; lets'' = \<lambda>\<^sub>S\<^sub>c\<^sub>a\<^sub>l\<^sub>avar exp. Definition (Expr_rewrite (Expr_basic [var]) \<open>=\<close> (Expr_lam \<open>l\<close> (\<lambda>var_l. Expr_binop (b var_l) \<open>!\<close> (b exp))))
+  (let a = \<lambda>f x. Term_app f [x]
+     ; b = \<lambda>s. Term_basic [s]
+     ; lets = \<lambda>var exp. Definition (Term_rewrite (Term_basic [var]) \<open>=\<close> exp)
+     ; lets' = \<lambda>\<^sub>S\<^sub>c\<^sub>a\<^sub>l\<^sub>avar exp. Definition (Term_rewrite (Term_basic [var]) \<open>=\<close> (b exp))
+     ; lets'' = \<lambda>\<^sub>S\<^sub>c\<^sub>a\<^sub>l\<^sub>avar exp. Definition (Term_rewrite (Term_basic [var]) \<open>=\<close> (Term_lam \<open>l\<close> (\<lambda>var_l. Term_binop (b var_l) \<open>!\<close> (b exp))))
      ; _(* ignored *) = 
         let l_flatten = \<open>L.flatten\<close> in
         [ lets l_flatten (let fun_foldl = \<lambda>f base.
-                             Expr_lam \<open>l\<close> (\<lambda>var_l. Expr_app \<open>foldl\<close> [Expr_lam \<open>acc\<close> f, base, a \<open>rev\<close> (b var_l)]) in
+                             Term_lam \<open>l\<close> (\<lambda>var_l. Term_app \<open>foldl\<close> [Term_lam \<open>acc\<close> f, base, a \<open>rev\<close> (b var_l)]) in
                            fun_foldl (\<lambda>var_acc.
                              fun_foldl (\<lambda>var_acc.
-                               Expr_lam \<open>l\<close> (\<lambda>var_l. Expr_app \<open>Cons\<close> (L.map b [var_l, var_acc]))) (b var_acc)) (b \<open>Nil\<close>))
-        , lets var_map_of_list (Expr_app \<open>foldl\<close>
-            [ Expr_lam \<open>map\<close> (\<lambda>var_map.
+                               Term_lam \<open>l\<close> (\<lambda>var_l. Term_app \<open>Cons\<close> (L.map b [var_l, var_acc]))) (b var_acc)) (b \<open>Nil\<close>))
+        , lets var_map_of_list (Term_app \<open>foldl\<close>
+            [ Term_lam \<open>map\<close> (\<lambda>var_map.
                 let var_x = \<open>x\<close>
                   ; var_l0 = \<open>l0\<close>
                   ; var_l1 = \<open>l1\<close>
                   ; f_map = a var_map in
-                Expr_lambdas0 (Expr_pair (b var_x) (b var_l1))
-                  (Expr_case (f_map (b var_x))
-                    (L.map (\<lambda>(pat, e). (pat, f_map (Expr_binop (b var_x) \<open>\<mapsto>\<close> e)))
+                Term_lambdas0 (Term_pair (b var_x) (b var_l1))
+                  (Term_case (f_map (b var_x))
+                    (L.map (\<lambda>(pat, e). (pat, f_map (Term_binop (b var_x) \<open>\<mapsto>\<close> e)))
                       [ (b \<open>None\<close>, b var_l1)
-                      , (Expr_some (b var_l0), a l_flatten (Expr_list (L.map b [var_l0, var_l1])))])))
+                      , (Term_some (b var_l0), a l_flatten (Term_list (L.map b [var_l0, var_l1])))])))
             , b \<open>Map.empty\<close>])] in
   L.flatten
-  [ let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l a = \<lambda>f x. Expr_app f [x]
-      ; b = \<lambda>s. Expr_basic [s]
-      ; lets = \<lambda>var exp. Definition (Expr_rewrite (Expr_basic [var]) \<open>=\<close> exp)
+  [ let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l a = \<lambda>f x. Term_app f [x]
+      ; b = \<lambda>s. Term_basic [s]
+      ; lets = \<lambda>var exp. Definition (Term_rewrite (Term_basic [var]) \<open>=\<close> exp)
       ; mk_var = \<lambda>i. b (S.flatten [\<open>x\<close>, String.of_natural i]) in
     print_access_choose_switch
       lets mk_var expr
       print_access_choose_name
-      Expr_list Expr_function Expr_pair
+      Term_list Term_function Term_pair
   , []] ))"
 
 end
