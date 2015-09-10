@@ -165,21 +165,8 @@ definition' \<open>s_of_all_meta_embedding _ =
         (case s_post of None \<Rightarrow> \<open>\<close> | Some s_post \<Rightarrow> sprint1 \<open> %s\<close>\<acute> (s_of_def_pp_core s_post)))\<close>
 
 definition "s_of__t0 ocl =
-            (\<lambda> Theory_datatype dataty \<Rightarrow> s_of_datatype ocl dataty
-             | Theory_type_synonym ty_synonym \<Rightarrow> s_of_type_synonym ocl ty_synonym
-             | Theory_type_notation ty_notation \<Rightarrow> s_of_type_notation ocl ty_notation
-             | Theory_instantiation instantiation_class \<Rightarrow> s_of_instantiation ocl instantiation_class
-             | Theory_defs defs_overloaded \<Rightarrow> s_of_defs ocl defs_overloaded
-             | Theory_consts consts_class \<Rightarrow> s_of_consts ocl consts_class
-             | Theory_definition definition_hol \<Rightarrow> s_of_definition ocl definition_hol
-             | Theory_lemmas lemmas_simp \<Rightarrow> s_of_lemmas ocl lemmas_simp
-             | Theory_lemma lemma_by \<Rightarrow> s_of_lemma ocl lemma_by
-             | Theory_axiomatization axiom \<Rightarrow> s_of_axiomatization ocl axiom
-             | Theory_section section_title \<Rightarrow> s_of_section_title ocl section_title
-             | Theory_text text \<Rightarrow> s_of_text ocl text
-             | Theory_ML ml \<Rightarrow> s_of_ML ocl ml
-             | Theory_thm thm \<Rightarrow> s_of_thm ocl thm
-             | Theory_interpretation thm \<Rightarrow> s_of_interpretation ocl thm)"
+            (\<lambda> Theory_section section_title \<Rightarrow> s_of_section_title ocl section_title
+             | x \<Rightarrow> s_of__t ocl x)"
 
 definition' \<open>s_of__thy0 ocl =
  (\<lambda> H_thy_simple t \<Rightarrow> s_of__t0 ocl t
