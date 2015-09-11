@@ -47,8 +47,8 @@ section{* Translation of AST *}
 subsection{* accessors *}
 
 definition "print_access_oid_uniq_gen Thy_def D_ocl_oid_start_upd def_rewrite =
-  (\<lambda>expr ocl.
-      (\<lambda>(l, oid_start). (L.map Thy_def l, D_ocl_oid_start_upd ocl oid_start))
+  (\<lambda>expr env.
+      (\<lambda>(l, oid_start). (L.map Thy_def l, D_ocl_oid_start_upd env oid_start))
       (let (l, (acc, _)) = fold_class (\<lambda>isub_name name l_attr l_inh _ _ cpt.
          let l_inh = L.map (\<lambda> OclClass _ l _ \<Rightarrow> l) (of_inh l_inh) in
          let (l, cpt) = L.mapM (L.mapM
@@ -63,12 +63,12 @@ definition "print_access_oid_uniq_gen Thy_def D_ocl_oid_start_upd def_rewrite =
              , cpt_rbt))
             | _ \<Rightarrow> \<lambda>cpt. ([], cpt)))
            (l_attr # l_inh) cpt in
-         (L.flatten (L.flatten l), cpt)) (D_ocl_oid_start ocl, RBT.empty) expr in
+         (L.flatten (L.flatten l), cpt)) (D_ocl_oid_start env, RBT.empty) expr in
        (L.flatten l, acc)))"
 definition "print_access_oid_uniq =
   print_access_oid_uniq_gen
     O.definition
-    (\<lambda>ocl oid_start. ocl \<lparr> D_ocl_oid_start := oid_start \<rparr>)
+    (\<lambda>env oid_start. env \<lparr> D_ocl_oid_start := oid_start \<rparr>)
     (\<lambda>obj_name_from_nat _ isub_name attr cpt_obj.
       Definition (Term_rewrite
                    (Term_basic [print_access_oid_uniq_name obj_name_from_nat isub_name attr])

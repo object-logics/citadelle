@@ -46,14 +46,14 @@ section{* Translation of AST *}
 
 subsection{* context *}
 
-definition "print_ctxt_const _ ocl =
+definition "print_ctxt_const _ env =
  (map_prod (map_prod id (rev o L.map O.type_synonym)) (rev o L.map O.consts)
-    ((ocl, []), []))"
+    ((env, []), []))"
 
 definition "print_ctxt = (\<lambda>ctxt. bootstrap_floor
-  (\<lambda>l ocl.
-    let ((ocl, l_isab_ty), l_isab) = print_ctxt_const ctxt ocl in
-    (L.flatten [l_isab_ty, l_isab, l], ocl))
+  (\<lambda>l env.
+    let ((env, l_isab_ty), l_isab) = print_ctxt_const ctxt env in
+    (L.flatten [l_isab_ty, l_isab, l], env))
   [ Isab_thy_all_meta_embedding (META_ctxt Floor2
       (map_invariant (\<lambda>T_inv b (OclProp_ctxt n p) \<Rightarrow>
                        T_inv b (OclProp_ctxt n (T_lambdas (Ctxt_param ctxt @@@@ [var_self]) p)))

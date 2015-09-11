@@ -60,9 +60,9 @@ begin
 
 declare[[cartouche_type' = "String.literal"]]
 
-definition "write_file ocl = (
-  let (l_thy, Sys_argv) = compiler_env_config.more ocl
-    ; (is_file, f_output) = case (D_output_header_thy ocl, Sys_argv)
+definition "write_file env = (
+  let (l_thy, Sys_argv) = compiler_env_config.more env
+    ; (is_file, f_output) = case (D_output_header_thy env, Sys_argv)
      of (Some (file_out, _), Some dir) \<Rightarrow>
           let dir = To_string dir in
           (True, \<lambda>f. bind (Sys_is_directory2 dir) (\<lambda> Sys_is_directory2_dir.
@@ -72,14 +72,14 @@ definition "write_file ocl = (
     (\<lambda>fprintf1.
       List_iterM (fprintf1 \<open>%s
 \<close>                             )
-        (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l (ocl, l) =
+        (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l (env, l) =
            fold_thy'
              (\<lambda>f. f ())
              (\<lambda>_ _. [])
              (\<lambda>x acc1 acc2. (acc1, Cons x acc2))
              l_thy
-             (compiler_env_config.truncate ocl, []) in
-         of_thy_list (compiler_env_config_more_map (\<lambda>_. is_file) ocl) (rev l))))"
+             (compiler_env_config.truncate env, []) in
+         of_thy_list (compiler_env_config_more_map (\<lambda>_. is_file) env) (rev l))))"
 end
 
 definition "write_file = Print.write_file (String.implode o String.to_list) (ToNat integer_of_natural)"

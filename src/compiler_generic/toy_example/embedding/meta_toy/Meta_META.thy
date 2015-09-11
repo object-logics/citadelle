@@ -136,7 +136,7 @@ section{* SML Meta-Model (extended) *}
 subsection{* type definition *}
 
 datatype sml_extended = SML_extended sml_expr
-                      | SML_ocl compiler_env_config
+                      | SML_compiler_env compiler_env_config
 
 section{* Isabelle/HOL Meta-Model (extended) *}
 subsection{* type definition *}

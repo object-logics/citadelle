@@ -57,7 +57,7 @@ declare[[cartouche_type' = "abr_string"]]
 
 definition "of_sexpr_extended = (\<lambda>
     SML_extended s \<Rightarrow> of_sexpr s
-  | SML_ocl ocl \<Rightarrow> of_sexpr
+  | SML_compiler_env ocl \<Rightarrow> of_sexpr
      (SML_apply \<open>Generation_mode.update_compiler_config\<close>
        [SML_apply \<open>K\<close> [SML_let_open \<open>META\<close> (SML_basic [sml_of_meta_unit sml_apply id ocl])]]))"
 

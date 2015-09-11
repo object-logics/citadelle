@@ -63,19 +63,19 @@ definition "print_istypeof_class = start_m_gen O.defs m_class_default
              (Term_postunary (Term_annot_ocl (Term_basic [var_x]) h_name) (Term_basic [dot_istypeof name]))
              \<open>\<equiv>\<close>
              (Term_lam \<open>\<tau>\<close>
-                  (\<lambda>var_tau. let ocl_tau = (\<lambda>v. Term_app v [Term_basic [var_tau]]) in
+                  (\<lambda>var_tau. let app_tau = (\<lambda>v. Term_app v [Term_basic [var_tau]]) in
                   Term_case
-                    (ocl_tau var_x)
-                    ( (Term_basic [\<open>\<bottom>\<close>], ocl_tau \<open>invalid\<close>)
-                    # (Term_some (Term_basic [\<open>\<bottom>\<close>]), ocl_tau \<open>true\<close>)
-                    # (let l_false = [(Term_basic [wildcard], ocl_tau \<open>false\<close>)]
+                    (app_tau var_x)
+                    ( (Term_basic [\<open>\<bottom>\<close>], app_tau \<open>invalid\<close>)
+                    # (Term_some (Term_basic [\<open>\<bottom>\<close>]), app_tau \<open>true\<close>)
+                    # (let l_false = [(Term_basic [wildcard], app_tau \<open>false\<close>)]
                          ; pattern_complex_gen = (\<lambda>f1 f2.
                             let isub_h = (\<lambda> s. s @@ String.isub h_name) in
                              (Term_some (Term_some
                                (Term_app (isub_h datatype_constr_name)
                                            ( Term_app (f2 (\<lambda>s. isub_name (s @@ \<open>_\<close>)) (isub_h datatype_ext_constr_name))
                                                         (Term_basic [wildcard] # f1)
-                                           # L.map (\<lambda>_. Term_basic [wildcard]) hl_attr))), ocl_tau \<open>true\<close>)
+                                           # L.map (\<lambda>_. Term_basic [wildcard]) hl_attr))), app_tau \<open>true\<close>)
                              # (if h_last = [] then [] else l_false)) in
                        case compare
                        of EQ \<Rightarrow> pattern_complex_gen (L.flatten (L.map (L.map (\<lambda>_. Term_basic [wildcard]) o (\<lambda> OclClass _ l _ \<Rightarrow> l)) (of_linh l_inh))) (\<lambda>_. id)

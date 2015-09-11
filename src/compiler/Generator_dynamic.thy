@@ -544,7 +544,7 @@ val parse_deep =
         -- code_expr_argsP))
   -- Scan.optional ((Parse.$$$ "(" -- @{keyword "output_directory"}) |-- Parse.name --| Parse.$$$ ")" >> SOME) NONE
 
-val parse_sem_ocl =
+val parse_semantics =
   let val z = 0 in
       Scan.optional (paren (@{keyword "generation_semantics"}
                      |-- paren (parse_scheme
@@ -553,7 +553,7 @@ val parse_sem_ocl =
   end
 
 val mode =
-  let fun mk_ocl output_disable_thy output_header_thy oid_start design_analysis sorry_mode dirty =
+  let fun mk_env output_disable_thy output_header_thy oid_start design_analysis sorry_mode dirty =
     META.compiler_env_config_empty
                     (From.from_bool output_disable_thy)
                     (From.from_option (From.from_pair From.from_string (From.from_pair (From.from_list From.from_string) From.from_string)) output_header_thy)
@@ -561,13 +561,13 @@ val mode =
                     design_analysis
                     (sorry_mode, dirty) in
 
-     @{keyword "deep"} |-- parse_sem_ocl -- parse_deep >> (fn ((design_analysis, oid_start), (((((skip_exportation, output_header_thy), output_disable_thy), sorry_mode), seri_args), filename_thy)) =>
+     @{keyword "deep"} |-- parse_semantics -- parse_deep >> (fn ((design_analysis, oid_start), (((((skip_exportation, output_header_thy), output_disable_thy), sorry_mode), seri_args), filename_thy)) =>
        fn ctxt =>
-         Gen_deep ( mk_ocl (not output_disable_thy) output_header_thy oid_start design_analysis sorry_mode (Config.get ctxt quick_and_dirty)
+         Gen_deep ( mk_env (not output_disable_thy) output_header_thy oid_start design_analysis sorry_mode (Config.get ctxt quick_and_dirty)
                   , Internal_deep (output_header_thy, seri_args, filename_thy, Isabelle_System.create_tmp_path "deep_export_code" "", skip_exportation)))
-  || @{keyword "shallow"} |-- parse_sem_ocl -- parse_sorry_mode >> (fn ((design_analysis, oid_start), sorry_mode) =>
+  || @{keyword "shallow"} |-- parse_semantics -- parse_sorry_mode >> (fn ((design_analysis, oid_start), sorry_mode) =>
        fn ctxt =>
-       Gen_shallow (mk_ocl true NONE oid_start design_analysis sorry_mode (Config.get ctxt quick_and_dirty), ()))
+       Gen_shallow (mk_env true NONE oid_start design_analysis sorry_mode (Config.get ctxt quick_and_dirty), ()))
   || (@{keyword "syntax_print"} |-- Scan.optional (Parse.number >> SOME) NONE) >> (fn n => K (Gen_syntax_print (case n of NONE => NONE | SOME n => Int.fromString n)))
   end
 
@@ -575,10 +575,10 @@ val mode =
 fun f_command l_mode =
       Toplevel.theory (fn thy =>
         let val (l_mode, thy) = META.mapM
-          (fn Gen_shallow (ocl, ()) => let val thy0 = thy in
-                                       fn thy => (Gen_shallow (ocl, thy0), thy) end
+          (fn Gen_shallow (env, ()) => let val thy0 = thy in
+                                       fn thy => (Gen_shallow (env, thy0), thy) end
             | Gen_syntax_print n => (fn thy => (Gen_syntax_print n, thy))
-            | Gen_deep (ocl, Internal_deep (output_header_thy, seri_args, filename_thy, tmp_export_code, skip_exportation)) => fn thy =>
+            | Gen_deep (env, Internal_deep (output_header_thy, seri_args, filename_thy, tmp_export_code, skip_exportation)) => fn thy =>
                 let val _ = warning ("remove the directory (at the end): " ^ Path.implode (Path.expand tmp_export_code))
                     val seri_args' = List_mapi (fn i => fn ((ml_compiler, ml_module), export_arg) =>
                       let val tmp_export_code = Deep.mk_path_export_code tmp_export_code ml_compiler i
@@ -599,7 +599,7 @@ fun f_command l_mode =
                               (Proof_Context.init_global (Code_printing.apply_code_printing (Deep0.apply_hs_code_identifiers Deep0.Export_code_env.Haskell.function thy)))
                     val () = fold (fn ((((ml_compiler, ml_module), _), _), mk_fic) => fn _ =>
                       Deep0.find_init ml_compiler mk_fic ml_module Deep.mk_free thy) seri_args' () in
-                (Gen_deep (ocl, Internal_deep (output_header_thy, seri_args, filename_thy, tmp_export_code, skip_exportation)), thy) end)
+                (Gen_deep (env, Internal_deep (output_header_thy, seri_args, filename_thy, tmp_export_code, skip_exportation)), thy) end)
           let val ctxt = Proof_Context.init_global thy in
               map (fn f => f ctxt) l_mode
           end
@@ -612,8 +612,8 @@ fun update_compiler_config f =
     (Symtab.map_entry
       Deep0.gen_empty
       (fn l_mode =>
-        map (fn Gen_deep (ocl, d) => Gen_deep (META.compiler_env_config_update f ocl, d)
-              | Gen_shallow (ocl, thy) => Gen_shallow (META.compiler_env_config_update f ocl, thy)
+        map (fn Gen_deep (env, d) => Gen_deep (META.compiler_env_config_update f env, d)
+              | Gen_shallow (env, thy) => Gen_shallow (META.compiler_env_config_update f env, thy)
               | Gen_syntax_print n => Gen_syntax_print n) l_mode))
 end
 *}
@@ -932,7 +932,7 @@ fun META_main aux ret = let open META open META_overload in fn
                        |> Local_Theory.exit_global)
 | Isab_thy_generation_syntax _ => ret o I
 | Isab_thy_ml_extended _ => ret o I
-| Isab_thy_all_meta_embedding ocl => fn thy =>
+| Isab_thy_all_meta_embedding meta => fn thy =>
   aux
     (map2_ctxt_term
       (fn T_pure x => T_pure x
@@ -955,7 +955,7 @@ fun META_main aux ret = let open META open META_overload in fn
           case aux e of
             NONE => error "nested pure expression not expected"
           | SOME (e, _) => META.T_pure (From.from_pure_term e)
-          end) ocl) thy
+          end) meta) thy
 end
 
 end
@@ -968,7 +968,7 @@ setup{* ML_Antiquotation.inline @{binding mk_string} (Scan.succeed "(fn ctxt => 
 
 ML{*
 
-fun exec_deep (ocl, output_header_thy, seri_args, filename_thy, tmp_export_code, l_obj) thy0 =
+fun exec_deep (env, output_header_thy, seri_args, filename_thy, tmp_export_code, l_obj) thy0 =
   let open Generation_mode in
   let val of_arg = META.isabelle_of_env_config META.isabelle_apply I in
   let fun def s = in_local (snd o Specification.definition_cmd (NONE, ((@{binding ""}, []), s)) false) in
@@ -976,7 +976,7 @@ fun exec_deep (ocl, output_header_thy, seri_args, filename_thy, tmp_export_code,
   thy0 |> def (String.concatWith " " (  "(" (* polymorphism weakening needed by export_code *)
                                         ^ name_main ^ " :: (_ \<times> abr_string option) compiler_env_config_scheme)"
                                     :: "="
-                                    :: To_string0 (of_arg (META.compiler_env_config_more_map (fn () => (l_obj, From.from_option From.from_string (Option.map (fn filename_thy => Deep.absolute_path filename_thy thy0) filename_thy))) ocl))
+                                    :: To_string0 (of_arg (META.compiler_env_config_more_map (fn () => (l_obj, From.from_option From.from_string (Option.map (fn filename_thy => Deep.absolute_path filename_thy thy0) filename_thy))) env))
                                     :: []))
        |> Deep.export_code_cmd' seri_args tmp_export_code
             (fn (((_, _), msg), _) => fn err => if err <> 0 then error msg else ()) filename_thy [name_main]
@@ -997,15 +997,15 @@ fun exec_deep (ocl, output_header_thy, seri_args, filename_thy, tmp_export_code,
 
   end end end end
 
-fun outer_syntax_command0 mk_string cmd_spec cmd_descr parser get_oclclass =
+fun outer_syntax_command0 mk_string cmd_spec cmd_descr parser get_all_meta_embed =
   let open Generation_mode in
   Outer_Syntax.command cmd_spec cmd_descr
     (parser >> (fn name =>
       Toplevel.theory (fn thy =>
-        let val (ocl, thy) =
+        let val (env, thy) =
         META.mapM
 
-          let val get_oclclass = get_oclclass name in
+          let val get_all_meta_embed = get_all_meta_embed name in
           fn Gen_syntax_print n =>
                (fn thy =>
                   let val _ = writeln
@@ -1016,17 +1016,17 @@ fun outer_syntax_command0 mk_string cmd_spec cmd_descr parser get_oclclass =
                                   name) in
                   (Gen_syntax_print n, thy)
                   end)
-           | Gen_deep (ocl, Internal_deep (output_header_thy, seri_args, filename_thy, tmp_export_code, skip_exportation)) =>
+           | Gen_deep (env, Internal_deep (output_header_thy, seri_args, filename_thy, tmp_export_code, skip_exportation)) =>
               (fn thy0 =>
-                let val l_obj = get_oclclass thy0 in
+                let val l_obj = get_all_meta_embed thy0 in
                 thy0 |> (if skip_exportation then
                            K ()
                          else
-                           exec_deep (META.d_output_header_thy_update (fn _ => NONE) ocl, output_header_thy, seri_args, NONE, tmp_export_code, l_obj))
-                     |> K (Gen_deep (META.fold_thy_deep l_obj ocl, Internal_deep (output_header_thy, seri_args, filename_thy, tmp_export_code, skip_exportation)), thy0)
+                           exec_deep (META.d_output_header_thy_update (fn _ => NONE) env, output_header_thy, seri_args, NONE, tmp_export_code, l_obj))
+                     |> K (Gen_deep (META.fold_thy_deep l_obj env, Internal_deep (output_header_thy, seri_args, filename_thy, tmp_export_code, skip_exportation)), thy0)
                 end)
-           | Gen_shallow (ocl, thy0) => fn thy =>
-             let fun aux (ocl, thy) x =
+           | Gen_shallow (env, thy0) => fn thy =>
+             let fun aux (env, thy) x =
                   META.fold_thy_shallow
                    (fn f => f () handle ERROR e =>
                      ( warning "Shallow Backtracking: (true) Isabelle declarations occuring among the META-simulated ones are ignored (if any)"
@@ -1034,23 +1034,23 @@ fun outer_syntax_command0 mk_string cmd_spec cmd_descr parser get_oclclass =
                                for raising earlier a specific error message *)
                      ; error e))
                    (fn _ => fn _ => thy0)
-                   (fn l => fn (ocl, thy) =>
-                     Shallow_main.META_main (fn x => fn thy => aux (ocl, thy) [x]) (pair ocl) l thy)
+                   (fn l => fn (env, thy) =>
+                     Shallow_main.META_main (fn x => fn thy => aux (env, thy) [x]) (pair env) l thy)
                    x
-                   (ocl, thy)
-                 val (ocl, thy) = aux (ocl, thy) (get_oclclass thy) in
-             (Gen_shallow (ocl, thy0), thy)
+                   (env, thy)
+                 val (env, thy) = aux (env, thy) (get_all_meta_embed thy) in
+             (Gen_shallow (env, thy0), thy)
              end
           end
 
           (case Symtab.lookup (Data_gen.get thy) Deep0.gen_empty of SOME l => l | _ => [Gen_syntax_print NONE])
           thy
         in
-        Data_gen.map (Symtab.update (Deep0.gen_empty, ocl)) thy end)))
+        Data_gen.map (Symtab.update (Deep0.gen_empty, env)) thy end)))
   end
 
-fun outer_syntax_command mk_string cmd_spec cmd_descr parser get_oclclass =
- outer_syntax_command0 mk_string cmd_spec cmd_descr parser (fn a => fn thy => [get_oclclass a thy])
+fun outer_syntax_command mk_string cmd_spec cmd_descr parser get_all_meta_embed =
+ outer_syntax_command0 mk_string cmd_spec cmd_descr parser (fn a => fn thy => [get_all_meta_embed a thy])
 
 *}
 
@@ -1070,9 +1070,9 @@ val () = let open Generation_mode in
             val _ = case l of [] => warning "Nothing to perform." | _ => ()
             val thy =
         fold
-          (fn (ocl, Internal_deep (output_header_thy, seri_args, filename_thy, tmp_export_code, _)) => fn thy0 =>
-                thy0 |> let val (ocl, l_exec) = META.compiler_env_config_reset_all ocl in
-                        exec_deep (ocl, output_header_thy, seri_args, filename_thy, tmp_export_code, l_exec) end
+          (fn (env, Internal_deep (output_header_thy, seri_args, filename_thy, tmp_export_code, _)) => fn thy0 =>
+                thy0 |> let val (env, l_exec) = META.compiler_env_config_reset_all env in
+                        exec_deep (env, output_header_thy, seri_args, filename_thy, tmp_export_code, l_exec) end
                      |> K thy0)
           l
           thy
@@ -1095,11 +1095,11 @@ structure USE_parse = struct
   fun xml_unescape s = (XML.content_of (YXML.parse_body s), Position.none)
                        |> Symbol_Pos.explode |> Symbol_Pos.implode |> From.from_string
 
-  fun outer_syntax_command2 mk_string cmd_spec cmd_descr parser v_true v_false get_oclclass =
+  fun outer_syntax_command2 mk_string cmd_spec cmd_descr parser v_true v_false get_all_meta_embed =
     outer_syntax_command mk_string cmd_spec cmd_descr
       (optional (paren @{keyword "shallow"}) -- parser)
       (fn (is_shallow, use) => fn thy =>
-         get_oclclass
+         get_all_meta_embed
            (if is_shallow = NONE then
               ( fn s =>
                   META.T_to_be_parsed ( From.from_string s
@@ -1305,10 +1305,10 @@ structure USE_parse = struct
 
   fun get_oclinst l _ =
     META.OclInstance (map (fn ((name,typ), (l_attr, is_cast)) =>
-        let val f = map (fn ((pre_post, attr), ocl) =>
+        let val f = map (fn ((pre_post, attr), data) =>
                               ( From.from_option (From.from_pair From.from_binding From.from_binding) pre_post
                               , ( From.from_binding attr
-                                , ocl)))
+                                , data)))
             val l_attr =
               fold
                 (fn b => fn acc => META.OclAttrCast (From.from_binding b, acc, []))

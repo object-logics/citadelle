@@ -84,21 +84,21 @@ definition "print_examp_def_st_locale_make f_name f_ocli f_spec l =
                             , f_spec ] \<rparr>)"
 
 definition "print_examp_def_st_locale_name n = \<open>state_\<close> @@ n"
-definition "print_examp_def_st_locale = (\<lambda> OclDefSt n l \<Rightarrow> \<lambda>ocl.
- (\<lambda>d. (d, ocl))
+definition "print_examp_def_st_locale = (\<lambda> OclDefSt n l \<Rightarrow> \<lambda>env.
+ (\<lambda>d. (d, env))
   (print_examp_def_st_locale_make
     (\<open>state_\<close> @@ n)
-    (\<lambda> OclDefCoreBinding name \<Rightarrow> case String.assoc name (D_input_instance ocl) of Some n \<Rightarrow> n)
+    (\<lambda> OclDefCoreBinding name \<Rightarrow> case String.assoc name (D_input_instance env) of Some n \<Rightarrow> n)
     []
     l))"
 
-definition "print_examp_def_st_defassoc_typecheck_gen l ocl =
+definition "print_examp_def_st_defassoc_typecheck_gen l env =
  ([ raise_ml
       (case
          List.fold
            (\<lambda> OclDefCoreBinding name \<Rightarrow>
             \<lambda>(l, rbt).
-             ( ( (if String.assoc name (D_input_instance ocl) = None then
+             ( ( (if String.assoc name (D_input_instance env) = None then
                     Cons (Error, name)
                   else
                     id)
@@ -115,13 +115,13 @@ definition "print_examp_def_st_defassoc_typecheck_gen l ocl =
                             | (Warning, n) \<Rightarrow> (Warning, \<open>Duplicate variables on rhs: \<close> @@ n)) l)
       \<open> error(s)\<close> ])"
 
-definition "print_examp_def_st_defassoc_typecheck = (\<lambda> OclDefSt _ l \<Rightarrow> \<lambda> ocl.
-  (\<lambda>l_res. (L.map O'.ML l_res, ocl \<lparr> D_output_header_force := True \<rparr>))
+definition "print_examp_def_st_defassoc_typecheck = (\<lambda> OclDefSt _ l \<Rightarrow> \<lambda> env.
+  (\<lambda>l_res. (L.map O'.ML l_res, env \<lparr> D_output_header_force := True \<rparr>))
   (print_examp_def_st_defassoc_typecheck_gen
     l
-    ocl))"
+    env))"
 
-definition "print_examp_def_st_mapsto_gen f ocl =
+definition "print_examp_def_st_mapsto_gen f =
   L.map
     (\<lambda>(cpt, ocore).
         let b = \<lambda>s. Term_basic [s]
@@ -130,20 +130,19 @@ definition "print_examp_def_st_mapsto_gen f ocl =
                  (ocli, Some (b (print_examp_instance_name (\<lambda>s. s @@ String.isub (inst_ty ocli)) name))) in
         f (cpt, ocore) ocli exp)"
 
-definition "print_examp_def_st_mapsto ocl l = list_bind id id
+definition "print_examp_def_st_mapsto l = list_bind id id
  (print_examp_def_st_mapsto_gen
     (\<lambda>(cpt, _) ocli. map_option (\<lambda>exp.
       Term_binop (Term_oid var_oid_uniq (oidGetInh cpt)) \<open>\<mapsto>\<close> (Term_app (datatype_in @@ String.isub (inst_ty ocli)) [exp])))
-    ocl
     l)"
 
-definition "print_examp_def_st2 = (\<lambda> OclDefSt name l \<Rightarrow> \<lambda>ocl.
- (\<lambda>(l, l_st). (L.map O'.definition l, ocl \<lparr> D_input_state := (String.to_String\<^sub>b\<^sub>a\<^sub>s\<^sub>e name, l_st) # D_input_state ocl \<rparr>))
+definition "print_examp_def_st2 = (\<lambda> OclDefSt name l \<Rightarrow> \<lambda>env.
+ (\<lambda>(l, l_st). (L.map O'.definition l, env \<lparr> D_input_state := (String.to_String\<^sub>b\<^sub>a\<^sub>s\<^sub>e name, l_st) # D_input_state env \<rparr>))
   (let b = \<lambda>s. Term_basic [s]
-     ; l = L.map (\<lambda> OclDefCoreBinding name \<Rightarrow> map_option (Pair name) (String.assoc name (D_input_instance ocl))) l
+     ; l = L.map (\<lambda> OclDefCoreBinding name \<Rightarrow> map_option (Pair name) (String.assoc name (D_input_instance env))) l
      ; (rbt, (map_self, map_username)) =
          (init_map_class 
-           (ocl \<lparr> D_ocl_oid_start := oidReinitInh (D_ocl_oid_start ocl) \<rparr>)
+           (env \<lparr> D_ocl_oid_start := oidReinitInh (D_ocl_oid_start env) \<rparr>)
            (L.map (\<lambda> Some (_, ocli, _) \<Rightarrow> ocli | None \<Rightarrow> ocl_instance_single_empty) l)
           :: (_ \<Rightarrow> _ \<times> _ \<times> (_ \<Rightarrow> ((_ \<Rightarrow> nat \<Rightarrow> _ \<Rightarrow> _) \<Rightarrow> _
                         \<Rightarrow> (ocl_ty_class option \<times> (ocl_ty \<times> ocl_data_shallow) option) list) option)) \<times> _ \<times> _)
@@ -154,14 +153,14 @@ definition "print_examp_def_st2 = (\<lambda> OclDefSt name l \<Rightarrow> \<lam
      ; l_st = L.unique oidGetInh (L.flatten l_st) in
 
    ( [ Definition (Term_rewrite (b name) \<open>=\<close> (Term_app \<open>state.make\<close>
-        ( Term_app \<open>Map.empty\<close> (case print_examp_def_st_mapsto ocl l_st of None \<Rightarrow> [] | Some l \<Rightarrow> l)
+        ( Term_app \<open>Map.empty\<close> (case print_examp_def_st_mapsto l_st of None \<Rightarrow> [] | Some l \<Rightarrow> l)
         # [ print_examp_def_st_assoc (snd o rbt) map_self map_username l_assoc ]))) ]
    , l_st)))"
 
 definition "print_examp_def_st_dom_name name = S.flatten [\<open>dom_\<close>, name]"
-definition "print_examp_def_st_dom = (\<lambda> _ ocl.
- (\<lambda> l. (L.map O'.lemma l, ocl))
-  (let (name, l_st) = map_prod String\<^sub>b\<^sub>a\<^sub>s\<^sub>e.to_String id (hd (D_input_state ocl))
+definition "print_examp_def_st_dom = (\<lambda> _ env.
+ (\<lambda> l. (L.map O'.lemma l, env))
+  (let (name, l_st) = map_prod String\<^sub>b\<^sub>a\<^sub>s\<^sub>e.to_String id (hd (D_input_state env))
      ; a = \<lambda>f x. Term_app f [x]
      ; b = \<lambda>s. Term_basic [s]
      ; d = hol_definition in
@@ -171,20 +170,17 @@ definition "print_examp_def_st_dom = (\<lambda> _ ocl.
        []
        (C.by [M.auto_simp_add [d name]])]))"
 
-definition "print_examp_def_st_dom_lemmas = (\<lambda> _ ocl.
- (\<lambda> l. (L.map O'.lemmas l, ocl))
-  (let (name, _) = hd (D_input_state ocl) in
+definition "print_examp_def_st_dom_lemmas = (\<lambda> _ env.
+ (\<lambda> l. (L.map O'.lemmas l, env))
+  (let (name, _) = hd (D_input_state env) in
    [ Lemmas_simp \<open>\<close>
        [T.thm (print_examp_def_st_dom_name (String\<^sub>b\<^sub>a\<^sub>s\<^sub>e.to_String name))] ]))"
 
 definition "print_examp_def_st_perm_name name = S.flatten [\<open>perm_\<close>, name]"
-definition "print_examp_def_st_perm = (\<lambda> _ ocl.
- (\<lambda> l. (L.map O'.lemma l, ocl))
-  (let (name, l_st) = map_prod String\<^sub>b\<^sub>a\<^sub>s\<^sub>e.to_String id (hd (D_input_state ocl))
-     ; expr_app = let ocl = ocl \<lparr> D_ocl_oid_start := oidReinitInh (D_ocl_oid_start ocl) \<rparr> in
-                  print_examp_def_st_mapsto
-                    ocl
-                    (rev l_st)
+definition "print_examp_def_st_perm = (\<lambda> _ env.
+ (\<lambda> l. (L.map O'.lemma l, env))
+  (let (name, l_st) = map_prod String\<^sub>b\<^sub>a\<^sub>s\<^sub>e.to_String id (hd (D_input_state env))
+     ; expr_app = print_examp_def_st_mapsto (rev l_st)
      ; b = \<lambda>s. Term_basic [s]
      ; d = hol_definition
      ; (l_app, l_last) =
@@ -202,8 +198,8 @@ definition "print_examp_def_st_perm = (\<lambda> _ ocl.
        l_app
        l_last ]))"
 
-definition "print_examp_def_st_allinst = (\<lambda> _ ocl.
- (\<lambda> l. (L.map O'.lemma l, ocl))
+definition "print_examp_def_st_allinst = (\<lambda> _ env.
+ (\<lambda> l. (L.map O'.lemma l, env))
   (let a = \<lambda>f x. Term_app f [x]
      ; b = \<lambda>s. Term_basic [s]
      ; d = hol_definition
@@ -214,9 +210,8 @@ definition "print_examp_def_st_allinst = (\<lambda> _ ocl.
              (\<lambda>(_, ocore) ocli _.
                ( ocore
                , ocli
-               , case ocore of OclDefCoreBinding (name, _) \<Rightarrow> b name))
-             (ocl \<lparr> D_ocl_oid_start := oidReinitInh (D_ocl_oid_start ocl) \<rparr>))
-           (hd (D_input_state ocl)) in
+               , case ocore of OclDefCoreBinding (name, _) \<Rightarrow> b name)))
+           (hd (D_input_state env)) in
    map_class_gen_h'_inh (\<lambda> isub_name name compare.
      let in_name = \<lambda>ocli. b (print_examp_instance_name (\<lambda>s. s @@ String.isub (inst_ty ocli)) (inst_name ocli))
        ; in_pers = \<lambda>ocli. a name (a (datatype_in @@ String.isub (inst_ty ocli)) (in_name ocli))
@@ -298,14 +293,14 @@ definition "print_examp_def_st_allinst = (\<lambda> _ ocl.
          (C.by (if l_spec = [] then [ M.simp ]
                    else only_assms [ M.option [M.simp_all_add [d (S.flatten [isub_name const_oclastype, \<open>_\<AA>\<close>])]]])) )
        (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l l = [ M.simp_all ] in if l_assum = [] then l else only_assms l))
-     (case D_input_class ocl of Some class_spec \<Rightarrow> class_spec)))"
+     (case D_input_class env of Some class_spec \<Rightarrow> class_spec)))"
 
 definition "merge_unique_gen f l = List.fold (List.fold (\<lambda>x. case f x of Some (x, v) \<Rightarrow> RBT.insert x v | None \<Rightarrow> id)) l RBT.empty"
 definition "merge_unique f l = RBT.entries (merge_unique_gen f l)"
 definition "merge_unique' = L.map snd o merge_unique (\<lambda> (a, b). ((\<lambda>x. Some (x, (a, b))) o oidGetInh) a)"
 
-definition "get_state f = (\<lambda> OclDefPP _ s_pre s_post \<Rightarrow> \<lambda> ocl. 
-  let get_state = let l_st = D_input_state ocl in \<lambda>OclDefPPCoreBinding s \<Rightarrow> (s, case String.assoc s l_st of None \<Rightarrow> [] | Some l \<Rightarrow> l)
+definition "get_state f = (\<lambda> OclDefPP _ s_pre s_post \<Rightarrow> \<lambda> env. 
+  let get_state = let l_st = D_input_state env in \<lambda>OclDefPPCoreBinding s \<Rightarrow> (s, case String.assoc s l_st of None \<Rightarrow> [] | Some l \<Rightarrow> l)
     ; (s_pre, l_pre) = get_state s_pre
     ; (s_post, l_post) = case s_post of None \<Rightarrow> (s_pre, l_pre) | Some s_post \<Rightarrow> get_state s_post in
   f (s_pre, l_pre)
@@ -314,7 +309,7 @@ definition "get_state f = (\<lambda> OclDefPP _ s_pre s_post \<Rightarrow> \<lam
                          []
                        else
                          [ (s_post, l_post) ]))
-    ocl)"
+    env)"
 
 definition "print_pre_post_locale_aux f_ocli l =
  (let (oid, l_fix_assum) = print_examp_def_st_locale_aux f_ocli l in
@@ -337,8 +332,8 @@ definition "print_pre_post_interp = get_state (\<lambda> _ _.
     let n = print_examp_def_st_locale_name s in
     Interpretation n n (print_pre_post_locale_aux (\<lambda>(cpt, OclDefCoreBinding (_, ocli)) \<Rightarrow> (ocli, cpt)) l) (C.by [M.rule (T.thm s)])))"
 
-definition "print_pre_post_wff = get_state (\<lambda> (s_pre, l_pre) (s_post, l_post) l_pre_post ocl.
- (\<lambda> l. (L.map O'.lemma l, ocl))
+definition "print_pre_post_wff = get_state (\<lambda> (s_pre, l_pre) (s_post, l_post) l_pre_post env.
+ (\<lambda> l. (L.map O'.lemma l, env))
   (let a = \<lambda>f x. Term_app f [x]
      ; b = \<lambda>s. Term_basic [s]
      ; d = hol_definition
@@ -368,8 +363,8 @@ definition "print_pre_post_wff = get_state (\<lambda> (s_pre, l_pre) (s_post, l_
                                                  (L.flatten (L.map snd l_pre_post)))]))
        (C.by [M.auto_simp_add (L.map d (\<open>WFF\<close> # L.map (mk_n o fst) l_pre_post))])] ))"
 
-definition "print_pre_post_where = get_state (\<lambda> (s_pre, l_pre) (s_post, l_post) l_pre_post ocl.
- (\<lambda> l. ((L.map O'.lemma o L.flatten) l, ocl))
+definition "print_pre_post_where = get_state (\<lambda> (s_pre, l_pre) (s_post, l_post) l_pre_post env.
+ (\<lambda> l. ((L.map O'.lemma o L.flatten) l, env))
   (let a = \<lambda>f x. Term_app f [x]
      ; b = \<lambda>s. Term_basic [s]
      ; d = hol_definition

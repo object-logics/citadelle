@@ -51,7 +51,7 @@ section{* Translation of AST *}
 
 subsection{* infrastructure *}
 
-definition "print_infra_enum_synonym _ ocl = (\<lambda>f. (f (fst (find_class_ass ocl)), ocl))
+definition "print_infra_enum_synonym _ env = (\<lambda>f. (f (fst (find_class_ass env)), env))
  (L.flatten o L.map
    (\<lambda> META_class_synonym (OclClassSynonym n1 n2) \<Rightarrow>
         [ O.type_synonym (Type_synonym' (pref_ty_syn n1) (Typ_base (str_hol_of_ty_all (\<lambda>a _. a) id n2))) ]
@@ -89,7 +89,7 @@ definition "print_infra_datatype_universe expr = start_map O.datatype
   [ Datatype \<open>\<AA>\<close>
       (map_class (\<lambda>isub_name _ _ _ _ _. (isub_name datatype_in, [Raw (isub_name datatype_name)])) expr) ]"
 
-definition "print_infra_enum_syn _ ocl = (\<lambda>f1 f2. (L.flatten [f1 (D_input_meta ocl), f2 (fst (find_class_ass ocl))], ocl))
+definition "print_infra_enum_syn _ env = (\<lambda>f1 f2. (L.flatten [f1 (D_input_meta env), f2 (fst (find_class_ass env))], env))
  (L.flatten o L.map
     (\<lambda> META_enum (OclEnum name_ty _) \<Rightarrow>
          [O.type_synonym (Type_synonym' name_ty (Typ_apply (Typ_base (pref_generic_enum name_ty)) [Typ_base \<open>\<AA>\<close>]))]
@@ -126,8 +126,8 @@ definition "print_infra_type_synonym_class_higher expr = start_map O.type_synony
         (*, Type_synonym' name (Typ_apply_paren \<open>\<cdot>\<close> \<open>\<close> (Typ_base (name @@ \<open>'\<close>)))*)])
       expr))"
 
-definition "print_infra_type_synonym_class_rec = (\<lambda>expr ocl.
-  map_prod id (\<lambda> D_ocl_HO_type. ocl \<lparr> D_ocl_HO_type := D_ocl_HO_type \<rparr>)
+definition "print_infra_type_synonym_class_rec = (\<lambda>expr env.
+  map_prod id (\<lambda> D_ocl_HO_type. env \<lparr> D_ocl_HO_type := D_ocl_HO_type \<rparr>)
     (L.split (L.map (\<lambda>(tit, body). (O.type_synonym (Type_synonym' (String\<^sub>b\<^sub>a\<^sub>s\<^sub>e.to_String tit) body), tit))
                           (snd (fold_class (\<lambda>_ _ l_attr _ _ _.
                                              Pair () o List.fold

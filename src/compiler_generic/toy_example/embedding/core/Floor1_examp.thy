@@ -53,7 +53,7 @@ definition "list_bind f0 f l =
   else
     Some (f (List.map_filter id l)))"
 
-definition "rbt_of_class ocl =
+definition "rbt_of_class env =
   (let rbt = (snd o fold_class_gen (\<lambda>_ name l_attr l_inh _ _ rbt.
      ( [()]
      , modify_def (RBT.empty, []) name
@@ -68,7 +68,7 @@ definition "rbt_of_class ocl =
            let (rbt, info_own) = f_fold OptOwn l_attr rbt in
            let (rbt, info_inh) = f_fold OptInh (L.flatten (map_class_inh l_inh)) rbt in
            (rbt, [info_own, info_inh])))
-         rbt)) RBT.empty) (case D_input_class ocl of Some c \<Rightarrow> c) in
+         rbt)) RBT.empty) (case D_input_class env of Some c \<Rightarrow> c) in
    (\<lambda>name.
      let rbt = lookup rbt name in
      ( rbt = None
@@ -79,7 +79,7 @@ definition "rbt_of_class ocl =
           let (_, accu) =
             List.fold
               (let f_fold = \<lambda>b (n, accu). (Succ n, f b n accu) in
-               if D_ocl_semantics ocl = Gen_only_design then
+               if D_ocl_semantics env = Gen_only_design then
                  f_fold
                else
                  \<lambda> Some _ \<Rightarrow> (\<lambda>(n, accu). (Succ n, accu))
@@ -88,20 +88,20 @@ definition "rbt_of_class ocl =
 
 definition "inst_name ocli = (case Inst_name ocli of Some n \<Rightarrow> n)"
 
-definition "init_map_class ocl l =
+definition "init_map_class env l =
   (let (rbt_nat, rbt_str, _, _) =
      List.fold
-       (\<lambda> ocl (rbt_nat, rbt_str, oid_start, accu).
+       (\<lambda> ocli (rbt_nat, rbt_str, oid_start, accu).
          ( RBT.insert (Oid accu) oid_start rbt_nat
-         , insert (inst_name ocl) oid_start rbt_str
+         , insert (inst_name ocli) oid_start rbt_str
          , oidSucInh oid_start
          , Succ accu))
        l
        ( RBT.empty
-       , RBT.bulkload (L.map (\<lambda>(k, _, v). (String\<^sub>b\<^sub>a\<^sub>s\<^sub>e.to_list k, v)) (D_input_instance ocl))
-       , D_ocl_oid_start ocl
+       , RBT.bulkload (L.map (\<lambda>(k, _, v). (String\<^sub>b\<^sub>a\<^sub>s\<^sub>e.to_list k, v)) (D_input_instance env))
+       , D_ocl_oid_start env
        , 0) in
-   (rbt_of_class ocl, RBT.lookup rbt_nat, lookup rbt_str))"
+   (rbt_of_class env, RBT.lookup rbt_nat, lookup rbt_str))"
 
 definition "print_examp_def_st_assoc_build_rbt_gen f rbt map_self map_username l_assoc =
   List.fold
@@ -147,10 +147,10 @@ definition "print_examp_def_st_assoc rbt map_self map_username l_assoc =
              , Term_list' (Term_list' (Term_list' (Term_oid var_oid_uniq))) l_attr ])
          # l_cons)) rbt [])])"
 
-definition "print_examp_instance_oid thy_definition_hol l ocl = (L.map thy_definition_hol o L.flatten)
+definition "print_examp_instance_oid thy_definition_hol l env = (L.map thy_definition_hol o L.flatten)
  (let (f1, f2) = (\<lambda> var_oid _ _. var_oid, \<lambda> _ _ cpt. Term_oid \<open>\<close> (oidGetInh cpt)) in
   L.map (\<lambda> (ocli, cpt).
-    if List.fold (\<lambda>(_, _, cpt0) b. b | oidGetInh cpt0 = oidGetInh cpt) (D_input_instance ocl) False then
+    if List.fold (\<lambda>(_, _, cpt0) b. b | oidGetInh cpt0 = oidGetInh cpt) (D_input_instance env) False then
       []
     else
       let var_oid = Term_oid var_oid_uniq (oidGetInh cpt)
@@ -170,13 +170,13 @@ definition "check_export_code f_writeln f_warning f_error f_raise l_report msg_l
   else
     f_raise (String.of_nat (length l_err) @@ msg_last))"
 
-definition "print_examp_instance_defassoc_gen name l_ocli ocl =
- (case D_ocl_semantics ocl of Gen_only_analysis \<Rightarrow> [] | Gen_default \<Rightarrow> [] | Gen_only_design \<Rightarrow>
+definition "print_examp_instance_defassoc_gen name l_ocli env =
+ (case D_ocl_semantics env of Gen_only_analysis \<Rightarrow> [] | Gen_default \<Rightarrow> [] | Gen_only_design \<Rightarrow>
   let a = \<lambda>f x. Term_app f [x]
     ; b = \<lambda>s. Term_basic [s]
     ; (rbt :: _ \<Rightarrow> _ \<times> _ \<times> (_ \<Rightarrow> ((_ \<Rightarrow> natural \<Rightarrow> _ \<Rightarrow> (ocl_ty \<times> ocl_data_shallow) option list) \<Rightarrow> _ \<Rightarrow> _) option)
       , (map_self, map_username)) =
-        init_map_class ocl (fst (L.split l_ocli))
+        init_map_class env (fst (L.split l_ocli))
     ; l_ocli = if list_ex (\<lambda>(ocli, _). inst_ty0 ocli = None) l_ocli then [] else l_ocli in
   [Definition
      (Term_rewrite name
@@ -201,25 +201,25 @@ definition "print_examp_instance_defassoc_gen name l_ocli ocl =
           , let b_l = b \<open>l\<close> in
             (b_l, a \<open>Some\<close> b_l)] ) (Typ_apply (Typ_base \<open>option\<close>) [a_l (Typ_base const_oid)]))))])"
 
-definition "print_examp_instance_defassoc = (\<lambda> OclInstance l \<Rightarrow> \<lambda> ocl.
-  let l = L.flatten (fst (L.mapM (\<lambda>ocli cpt. ([(ocli, cpt)], oidSucInh cpt)) l (D_ocl_oid_start ocl))) in
+definition "print_examp_instance_defassoc = (\<lambda> OclInstance l \<Rightarrow> \<lambda> env.
+  let l = L.flatten (fst (L.mapM (\<lambda>ocli cpt. ([(ocli, cpt)], oidSucInh cpt)) l (D_ocl_oid_start env))) in
   (\<lambda>l_res.
-    ( print_examp_instance_oid O.definition l ocl
+    ( print_examp_instance_oid O.definition l env
       @@@@ L.map O.definition l_res
-    , ocl))
+    , env))
   (print_examp_instance_defassoc_gen
-    (Term_oid var_inst_assoc (oidGetInh (D_ocl_oid_start ocl)))
+    (Term_oid var_inst_assoc (oidGetInh (D_ocl_oid_start env)))
     l
-    ocl))"
+    env))"
 
 definition "print_examp_instance_name = id"
-definition "print_examp_instance = (\<lambda> OclInstance l \<Rightarrow> \<lambda> ocl.
+definition "print_examp_instance = (\<lambda> OclInstance l \<Rightarrow> \<lambda> env.
  (\<lambda> ((l_res, oid_start), instance_rbt).
-    ((L.map O.definition o L.flatten) l_res, ocl \<lparr> D_ocl_oid_start := oid_start, D_input_instance := instance_rbt \<rparr>))
+    ((L.map O.definition o L.flatten) l_res, env \<lparr> D_ocl_oid_start := oid_start, D_input_instance := instance_rbt \<rparr>))
   (let ( rbt :: _ \<Rightarrow> _ \<times> _ \<times> (_ \<Rightarrow> ((_ \<Rightarrow> nat \<Rightarrow> _ \<Rightarrow> _) \<Rightarrow> _ \<Rightarrow>
                 (ocl_ty_class option \<times>
                   (ocl_ty \<times> (string \<times> string) option \<times> ocl_data_shallow) option) list) option)
-       , (map_self, map_username)) = init_map_class ocl l
+       , (map_self, map_username)) = init_map_class env l
      ; a = \<lambda>f x. Term_app f [x]
      ; b = \<lambda>s. Term_basic [s] in
    ( let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l var_inst_ass = \<open>inst_assoc\<close> in
@@ -228,13 +228,13 @@ definition "print_examp_instance = (\<lambda> OclInstance l \<Rightarrow> \<lamb
          ( []
          , oidSucInh cpt))
        l
-       (D_ocl_oid_start ocl)
+       (D_ocl_oid_start env)
    , List.fold (\<lambda>ocli instance_rbt.
        let n = inst_name ocli in
-       (String.to_String\<^sub>b\<^sub>a\<^sub>s\<^sub>e n, ocli, case map_username n of Some oid \<Rightarrow> oid) # instance_rbt) l (D_input_instance ocl))))"
+       (String.to_String\<^sub>b\<^sub>a\<^sub>s\<^sub>e n, ocli, case map_username n of Some oid \<Rightarrow> oid) # instance_rbt) l (D_input_instance env))))"
 
 definition "print_examp_def_st1 = (\<lambda> OclDefSt name l \<Rightarrow> bootstrap_floor
-  (\<lambda>l ocl. (L.flatten [l], ocl))
+  (\<lambda>l env. (L.flatten [l], env))
   (L.map Isab_thy_all_meta_embedding
      (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l (l, _) = List.fold (\<lambda> (pos, core) (l, n).
                                           ((pos, pos - n, core) # l, 
@@ -265,10 +265,10 @@ definition "print_examp_def_st1 = (\<lambda> OclDefSt name l \<Rightarrow> boots
         META_instance (OclInstance l_inst) # l)))"
 
 definition "print_pre_post = (\<lambda> OclDefPP name s_pre s_post \<Rightarrow> bootstrap_floor
-  (\<lambda>f ocl. (L.flatten [f ocl], ocl))
-  (\<lambda>ocl.
+  (\<lambda>f env. (L.flatten [f env], env))
+  (\<lambda>env.
     let pref_name = case name of Some n \<Rightarrow> n
-                               | None \<Rightarrow> \<open>WFF_\<close> @@ String.of_nat (length (D_input_meta ocl))
+                               | None \<Rightarrow> \<open>WFF_\<close> @@ String.of_nat (length (D_input_meta env))
       ; f_comp = \<lambda>None \<Rightarrow> id | Some (_, f) \<Rightarrow> f
       ; f_conv = \<lambda>msg.
           \<lambda> OclDefPPCoreAdd ocl_def_state \<Rightarrow>

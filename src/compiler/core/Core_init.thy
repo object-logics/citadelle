@@ -151,23 +151,23 @@ definition "Term_basety = (let var_x = \<open>x\<close> in
 
 subsection{* ... *}
 
-definition "find_class_ass ocl =
- (let (l_class, l_ocl) =
+definition "find_class_ass env =
+ (let (l_class, l_all_meta) =
     partition (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l f = \<lambda>class. ClassRaw_clause class = [] in
                \<lambda> META_class_raw Floor1 class \<Rightarrow> f class
                | META_association _ \<Rightarrow> True
                | META_ass_class Floor1 (OclAssClass _ class) \<Rightarrow> f class
                | META_class_synonym _ \<Rightarrow> True
-               | _ \<Rightarrow> False) (rev (D_input_meta ocl)) in
+               | _ \<Rightarrow> False) (rev (D_input_meta env)) in
   ( L.flatten [l_class, List.map_filter (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l f = \<lambda>class. class \<lparr> ClassRaw_clause := [] \<rparr> in
                                        \<lambda> META_class_raw Floor1 c \<Rightarrow> Some (META_class_raw Floor1 (f c))
                                        | META_ass_class Floor1 (OclAssClass ass class) \<Rightarrow> Some (META_ass_class Floor1 (OclAssClass ass (f class)))
-                                       | _ \<Rightarrow> None) l_ocl]
+                                       | _ \<Rightarrow> None) l_all_meta]
   , L.flatten (L.map
       (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l f = \<lambda>class. [ META_ctxt Floor1 (ocl_ctxt_ext [] (ClassRaw_name class) (ClassRaw_clause class) ()) ] in
        \<lambda> META_class_raw Floor1 class \<Rightarrow> f class
        | META_ass_class Floor1 (OclAssClass _ class) \<Rightarrow> f class
-       | x \<Rightarrow> [x]) l_ocl)))"
+       | x \<Rightarrow> [x]) l_all_meta)))"
 
 definition "map_enum_syn l_enum l_syn =
  (\<lambda> OclTy_object (OclTyObj (OclTyCore_pre s) []) \<Rightarrow> 
@@ -270,15 +270,15 @@ definition "split_ty name = L.map (\<lambda>s. hol_split (s @@ String.isub name)
 
 definition "start_map f = L.mapM (\<lambda>x acc. (f x, acc))"
 definition "start_map' f x accu = (f x, accu)"
-definition "start_map''' f fl = (\<lambda> ocl.
-  let design_analysis = D_ocl_semantics ocl
+definition "start_map''' f fl = (\<lambda> env.
+  let design_analysis = D_ocl_semantics env
     ; base_attr = (if design_analysis = Gen_only_design then id else L.filter (\<lambda> (_, OclTy_object (OclTyObj (OclTyCore _) _)) \<Rightarrow> False | _ \<Rightarrow> True))
     ; base_attr' = (\<lambda> (l_attr, l_inh). (base_attr l_attr, L.map base_attr l_inh))
     ; base_attr'' = (\<lambda> (l_attr, l_inh). (base_attr l_attr, base_attr l_inh)) in
-  start_map f (fl design_analysis base_attr base_attr' base_attr'') ocl)"
+  start_map f (fl design_analysis base_attr base_attr' base_attr'') env)"
 definition "start_map'' f fl e = start_map''' f (\<lambda>_. fl) e"
-definition "start_map'''' f fl = (\<lambda> ocl. start_map f (fl (D_ocl_semantics ocl)) ocl)"
-definition "start_map''''' f fl = (\<lambda> ocl. start_map f (fl (D_output_sorry_dirty ocl) (D_ocl_semantics ocl)) ocl)"
+definition "start_map'''' f fl = (\<lambda> env. start_map f (fl (D_ocl_semantics env)) env)"
+definition "start_map''''' f fl = (\<lambda> env. start_map f (fl (D_output_sorry_dirty env) (D_ocl_semantics env)) env)"
 
 definition "start_m_gen final f print = start_map'' final o (\<lambda>expr base_attr _ _.
   m_class_gen2 base_attr f print expr)"
@@ -293,22 +293,22 @@ subsection{* ... *}
 
 definition "activate_simp_optimization = True"
 
-definition "bootstrap_floor f_x l ocl =
- (let (l, ocl) = f_x l ocl
-    ; l_setup = Isab_thy_ml_extended (Ml_extended (SML_ocl (ocl \<lparr> D_output_disable_thy := True
+definition "bootstrap_floor f_x l env =
+ (let (l, env) = f_x l env
+    ; l_setup = Isab_thy_ml_extended (Ml_extended (SML_compiler_env (env \<lparr> D_output_disable_thy := True
                                                               , D_output_header_thy := None
                                                               , D_output_position := (0, 0) \<rparr>) ))
             # l
-    ; l = if case D_input_meta ocl of [] \<Rightarrow> True | x # _ \<Rightarrow> ignore_meta_header x then
+    ; l = if case D_input_meta env of [] \<Rightarrow> True | x # _ \<Rightarrow> ignore_meta_header x then
             l
           else
             l_setup in
-  ( if D_output_auto_bootstrap ocl then
+  ( if D_output_auto_bootstrap env then
       l
     else
-      Isab_thy_generation_syntax (Gen_semantics (D_ocl_semantics ocl))
+      Isab_thy_generation_syntax (Gen_semantics (D_ocl_semantics env))
       # l_setup
-  , ocl \<lparr> D_output_auto_bootstrap := True \<rparr> ))"
+  , env \<lparr> D_output_auto_bootstrap := True \<rparr> ))"
 
 definition "wrap_oclty x = \<open>\<cdot>\<close> @@ x"
 definition "Term_annot_ocl e s = Term_annot' e (wrap_oclty s)"
