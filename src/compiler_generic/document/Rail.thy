@@ -43,7 +43,7 @@ begin
 ML_file "~~/src/Doc/antiquote_setup.ML"
 (*>*)
 
-section{* Main Setup of Meta-Commands *}
+section{* Main Setup of Meta Commands *}
 
 text {*
 \begin{matharray}{rcl}
@@ -158,7 +158,7 @@ Similarly, this would be a typical place for options like
 @{text eager} or @{text lazy} for choosing how the evaluation should happen...
 *}
 
-section{* All Meta-Commands of the Toy Language *}
+section{* All Meta Commands of the Toy Language *}
 
 text {*
 \begin{matharray}{rcl}

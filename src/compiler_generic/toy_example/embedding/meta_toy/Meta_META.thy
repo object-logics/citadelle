@@ -50,7 +50,7 @@ text{* The following basic Meta-Model will be used for requiring an eager
        or lazy interactive evaluation of already encountered Meta-Models. *}
 datatype ocl_flush_all = OclFlushAll
 
-subsection{* The META Meta-Model *}
+subsection{* The META Meta-Model (I) *}
 
 text{*
 Meta-Models can be seen as arranged in a semantic tower with several floors.
@@ -135,7 +135,7 @@ definition "map2_ctxt_term f =
 definition "compiler_env_config_more_map f ocl =
             compiler_env_config.extend  (compiler_env_config.truncate ocl) (f (compiler_env_config.more ocl))"
 
-subsection{* The META Meta-Model (extended) *}
+subsection{* The META Meta-Model (II) *}
 subsubsection{* Type Definition *}
 
 datatype boot_generation_syntax = Boot_generation_syntax generation_semantics_ocl

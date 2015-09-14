@@ -1236,7 +1236,7 @@ val () = let open Generation_mode in
 end
 *}
 
-subsection{* Outer Syntax: Parsing *}
+subsection{* Common Parser for Meta Commands *}
 
 ML{*
 structure USE_parse = struct
@@ -1520,7 +1520,7 @@ structure USE_parse = struct
 end
 *}
 
-subsection{* Outer Syntax: Defining: Enum *}
+subsection{* Setup of Meta Commands: Enum *}
 
 ML{*
 val () =
@@ -1530,7 +1530,7 @@ val () =
       K (META.META_enum (META.OclEnum (From.binding n1, From.list From.binding n2))))
 *}
 
-subsection{* Outer Syntax: Defining: (abstract) Class *}
+subsection{* Setup of Meta Commands: (abstract) Class *}
 
 ML{*
 local
@@ -1559,7 +1559,7 @@ val () = mk_classDefinition USE_class_abstract @{command_keyword Abstract_class}
 end
 *}
 
-subsection{* Outer Syntax: Defining: Association, Composition, Aggregation *}
+subsection{* Setup of Meta Commands: Association, Composition, Aggregation *}
 
 ML{*
 local
@@ -1579,7 +1579,7 @@ val () = mk_associationDefinition META.OclAssTy_aggregation @{command_keyword Ag
 end
 *}
 
-subsection{* Outer Syntax: Defining: (abstract) Associationclass *}
+subsection{* Setup of Meta Commands: (abstract) Associationclass *}
 
 ML{*
 
@@ -1617,7 +1617,7 @@ val () = mk_associationClassDefinition USE_associationclass_abstract @{command_k
 end
 *}
 
-subsection{* Outer Syntax: Defining: Context *}
+subsection{* Setup of Meta Commands: Context *}
 
 ML{*
 local
@@ -1641,7 +1641,7 @@ val () =
 end
 *}
 
-subsection{* Outer Syntax: Defining: End *}
+subsection{* Setup of Meta Commands: End *}
 
 ML{*
 val () =
@@ -1655,7 +1655,7 @@ val () =
          [])
 *}
 
-subsection{* Outer Syntax: Defining: BaseType, Instance, State *}
+subsection{* Setup of Meta Commands: BaseType, Instance, State *}
 
 ML{*
 val () =
@@ -1683,7 +1683,7 @@ val () =
 end
 *}
 
-subsection{* Outer Syntax: Defining: PrePost *}
+subsection{* Setup of Meta Commands: PrePost *}
 
 ML{*
 local
