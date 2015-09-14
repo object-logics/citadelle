@@ -41,6 +41,7 @@ section{* Dynamic Meta Embedding with Reflection *}
 theory Generator_dynamic
 imports Printer
         "../../isabelle_home/src/HOL/Isabelle_Main2"
+(*<*)
   keywords (* Toy language *)
            "Between"
            "Attributes" "Operations" "Constraints"
@@ -72,6 +73,7 @@ imports Printer
            "generation_syntax"
 
            :: thy_decl
+(*>*)
 begin
 
 apply_code_printing_reflect {*
@@ -554,7 +556,7 @@ end
 
 end
 *}
-
+(*<*)
 subsection{* Directives of Compilation for Target Languages *}
 
 ML{*
@@ -1229,7 +1231,7 @@ val () = let open Generation_mode in
 end
 *}
 
-subsection{* Common Parser for Meta Commands *}
+subsection{* Common Parser for the Toy Language *}
 
 ML{*
 structure USE_parse = struct
@@ -1513,7 +1515,7 @@ structure USE_parse = struct
 end
 *}
 
-subsection{* Setup of Meta Commands: Enum *}
+subsection{* Setup of Meta Commands for Toy: Enum *}
 
 ML{*
 val () =
@@ -1523,7 +1525,7 @@ val () =
       K (META.META_enum (META.OclEnum (From.binding n1, From.list From.binding n2))))
 *}
 
-subsection{* Setup of Meta Commands: (abstract) Class *}
+subsection{* Setup of Meta Commands for Toy: (abstract) Class *}
 
 ML{*
 local
@@ -1552,7 +1554,7 @@ val () = mk_classDefinition USE_class_abstract @{command_keyword Abstract_class}
 end
 *}
 
-subsection{* Setup of Meta Commands: Association, Composition, Aggregation *}
+subsection{* Setup of Meta Commands for Toy: Association, Composition, Aggregation *}
 
 ML{*
 local
@@ -1572,7 +1574,7 @@ val () = mk_associationDefinition META.OclAssTy_aggregation @{command_keyword Ag
 end
 *}
 
-subsection{* Setup of Meta Commands: (abstract) Associationclass *}
+subsection{* Setup of Meta Commands for Toy: (abstract) Associationclass *}
 
 ML{*
 
@@ -1610,7 +1612,7 @@ val () = mk_associationClassDefinition USE_associationclass_abstract @{command_k
 end
 *}
 
-subsection{* Setup of Meta Commands: Context *}
+subsection{* Setup of Meta Commands for Toy: Context *}
 
 ML{*
 local
@@ -1634,7 +1636,7 @@ val () =
 end
 *}
 
-subsection{* Setup of Meta Commands: End *}
+subsection{* Setup of Meta Commands for Toy: End *}
 
 ML{*
 val () =
@@ -1648,7 +1650,7 @@ val () =
          [])
 *}
 
-subsection{* Setup of Meta Commands: BaseType, Instance, State *}
+subsection{* Setup of Meta Commands for Toy: BaseType, Instance, State *}
 
 ML{*
 val () =
@@ -1676,7 +1678,7 @@ val () =
 end
 *}
 
-subsection{* Setup of Meta Commands: PrePost *}
+subsection{* Setup of Meta Commands for Toy: PrePost *}
 
 ML{*
 local
@@ -1697,5 +1699,5 @@ val () =
 end
 (*val _ = print_depth 100*)
 *}
-
+(*>*)
 end
