@@ -107,38 +107,37 @@ ML{*
 
 ML{*
 structure From = struct
- val from_char = I
- val from_string = META.SS_base o META.ST
- val from_binding = from_string o Binding.name_of
- fun from_term ctxt s = from_string (XML.content_of (YXML.parse_body (Syntax.string_of_term ctxt s)))
- val from_nat = Code_Numeral.Nat
- val from_internal_oid = META.Oid
- val from_bool = I
- val from_unit = I
- val from_option = Option.map
- val from_list = List.map
- fun from_pair f1 f2 (x, y) = (f1 x, f2 y)
- fun from_pair3 f1 f2 f3 (x, y, z) = (f1 x, f2 y, f3 z)
+ val string = META.SS_base o META.ST
+ val binding = string o Binding.name_of
+ (*fun term ctxt s = string (XML.content_of (YXML.parse_body (Syntax.string_of_term ctxt s)))*)
+ val nat = Code_Numeral.Nat
+ val internal_oid = META.Oid o nat
+ val option = Option.map
+ val list = List.map
+ fun pair f1 f2 (x, y) = (f1 x, f2 y)
+ fun pair3 f1 f2 f3 (x, y, z) = (f1 x, f2 y, f3 z)
 
- val from_pure_indexname = from_pair from_string from_nat
- val from_pure_class = from_string
- val from_pure_sort = from_list from_pure_class
- fun from_pure_typ e = (fn
-     Type (s, l) => (META.Type o from_pair from_string (from_list from_pure_typ)) (s, l)
-   | TFree (s, sort) => (META.TFree o from_pair from_string from_pure_sort) (s, sort)
-   | TVar (i, sort) => (META.TVar o from_pair from_pure_indexname from_pure_sort) (i, sort)
+ structure Pure = struct
+ val indexname = pair string nat
+ val class = string
+ val sort = list class
+ fun typ e = (fn
+     Type (s, l) => (META.Type o pair string (list typ)) (s, l)
+   | TFree (s, s0) => (META.TFree o pair string sort) (s, s0)
+   | TVar (i, s0) => (META.TVar o pair indexname sort) (i, s0)
   ) e
- fun from_pure_term e = (fn
-     Const (s, typ) => (META.Const o from_pair from_string from_pure_typ) (s, typ)
-   | Free (s, typ) => (META.Free o from_pair from_string from_pure_typ) (s, typ)
-   | Var (i, typ) => (META.Var o from_pair from_pure_indexname from_pure_typ) (i, typ)
-   | Bound i => (META.Bound o from_nat) i
-   | Abs (s, typ, term) => (META.Abs o from_pair3 from_string from_pure_typ from_pure_term) (s, typ, term)
-   | op $ (term1, term2) => (META.App o from_pair from_pure_term from_pure_term) (term1, term2)
+ fun term e = (fn
+     Const (s, t) => (META.Const o pair string typ) (s, t)
+   | Free (s, t) => (META.Free o pair string typ) (s, t)
+   | Var (i, t) => (META.Var o pair indexname typ) (i, t)
+   | Bound i => (META.Bound o nat) i
+   | Abs (s, ty, t) => (META.Abs o pair3 string typ term) (s, ty, t)
+   | op $ (term1, term2) => (META.App o pair term term) (term1, term2)
   ) e
+ end
 
- fun from_p_term thy expr =
-   META.T_pure (from_pure_term (Syntax.read_term (Proof_Context.init_global thy) expr))
+ fun ocl_ctxt_term thy expr =
+   META.T_pure (Pure.term (Syntax.read_term (Proof_Context.init_global thy) expr))
 end
 *}
 
@@ -205,7 +204,7 @@ fun m_of_ntheorem0 ctxt = let open META open META_overload val S = fn Thm_single
   | Thm_OF (e1, e2) => Thm_single ([S (m_of_ntheorem0 ctxt e2)] MRS (S (m_of_ntheorem0 ctxt e1)))
   | Thm_where (nth, l) => Thm_single (Rule_Insts.where_rule ctxt (List.map (fn (var, expr) => (((To_string0 var, 0), Position.none), of_semi__term expr)) l) [] (S (m_of_ntheorem0 ctxt nth)))
   | Thm_symmetric e1 => 
-      let val e2 = S (m_of_ntheorem0 ctxt (Thm_thm (From.from_string "sym"))) in
+      let val e2 = S (m_of_ntheorem0 ctxt (Thm_thm (From.string "sym"))) in
         case m_of_ntheorem0 ctxt e1 of
           Thm_single e1 => Thm_single (e1 RSN (1, e2))
         | Thm_mult e1 => Thm_mult (e1 RLN (1, [e2]))
@@ -506,7 +505,7 @@ fun META_main aux ret = let open META open META_overload in fn
           | _ => NONE in
           case aux e of
             NONE => error "nested pure expression not expected"
-          | SOME (e, _) => META.T_pure (From.from_pure_term e)
+          | SOME (e, _) => META.T_pure (From.Pure.term e)
           end) meta) thy
 end
 
@@ -896,9 +895,9 @@ val parse_semantics =
 val mode =
   let fun mk_env output_disable_thy output_header_thy oid_start design_analysis sorry_mode dirty =
     META.compiler_env_config_empty
-                    (From.from_bool output_disable_thy)
-                    (From.from_option (From.from_pair From.from_string (From.from_pair (From.from_list From.from_string) From.from_string)) output_header_thy)
-                    (META.oidInit (From.from_internal_oid (From.from_nat oid_start)))
+                    output_disable_thy
+                    (From.option (From.pair From.string (From.pair (From.list From.string) From.string)) output_header_thy)
+                    (META.oidInit (From.internal_oid oid_start))
                     design_analysis
                     (sorry_mode, dirty) in
 
@@ -973,7 +972,7 @@ fun exec_deep (env, output_header_thy, seri_args, filename_thy, tmp_export_code,
   thy0 |> def (String.concatWith " " (  "(" (* polymorphism weakening needed by export_code *)
                                         ^ name_main ^ " :: (_ \<times> abr_string option) compiler_env_config_scheme)"
                                     :: "="
-                                    :: To_string0 (of_arg (META.compiler_env_config_more_map (fn () => (l_obj, From.from_option From.from_string (Option.map (fn filename_thy => Deep.absolute_path filename_thy thy0) filename_thy))) env))
+                                    :: To_string0 (of_arg (META.compiler_env_config_more_map (fn () => (l_obj, From.option From.string (Option.map (fn filename_thy => Deep.absolute_path filename_thy thy0) filename_thy))) env))
                                     :: []))
        |> Deep.export_code_cmd' seri_args tmp_export_code
             (fn (((_, _), msg), _) => fn err => if err <> 0 then error msg else ()) filename_thy [name_main]
@@ -986,7 +985,7 @@ fun exec_deep (env, output_header_thy, seri_args, filename_thy, tmp_export_code,
                (case (output_header_thy, filename_thy) of
                   (SOME _, SOME _) => s
                 | _ => String.concat (map ((fn s => s ^ "\n") o Active.sendback_markup [Markup.padding_command] o trim_line)
-                   (String.tokens (fn c => From.from_char c = META.char_escape) s))) in
+                   (String.tokens (fn c => c = META.char_escape) s))) in
              fold (fn (out, err) => K ( writeln (Markup.markup Markup.keyword2 err)
                                       ; case trim_line out of
                                           "" => ()
@@ -1090,7 +1089,7 @@ structure USE_parse = struct
   fun repeat2 scan = scan ::: Scan.repeat1 scan
 
   fun xml_unescape s = (XML.content_of (YXML.parse_body s), Position.none)
-                       |> Symbol_Pos.explode |> Symbol_Pos.implode |> From.from_string
+                       |> Symbol_Pos.explode |> Symbol_Pos.implode |> From.string
 
   fun outer_syntax_command2 mk_string cmd_spec cmd_descr parser v_true v_false get_all_meta_embed =
     outer_syntax_command mk_string cmd_spec cmd_descr
@@ -1099,11 +1098,11 @@ structure USE_parse = struct
          get_all_meta_embed
            (if is_shallow = NONE then
               ( fn s =>
-                  META.T_to_be_parsed ( From.from_string s
+                  META.T_to_be_parsed ( From.string s
                                      , xml_unescape s)
               , v_true)
             else
-              (From.from_p_term thy, v_false))
+              (From.ocl_ctxt_term thy, v_false))
            use)
 
   (* *)
@@ -1116,21 +1115,21 @@ structure USE_parse = struct
   val unlimited_natural =  ident_star >> (fn "*" => META.Mult_star
                                            | "\<infinity>" => META.Mult_infinity
                                            | _ => Scan.fail "Syntax error")
-                        || Parse.number >> (fn s => META.Mult_nat (case Int.fromString s of SOME i => From.from_nat i
+                        || Parse.number >> (fn s => META.Mult_nat (case Int.fromString s of SOME i => From.nat i
                                                                                          | NONE => Scan.fail "Syntax error"))
   val term_base =
-       Parse.number >> (META.OclDefInteger o From.from_string)
-    || Parse.float_number >> (META.OclDefReal o (From.from_pair From.from_string From.from_string o
+       Parse.number >> (META.OclDefInteger o From.string)
+    || Parse.float_number >> (META.OclDefReal o (From.pair From.string From.string o
          (fn s => case String.tokens (fn #"." => true | _ => false) s of [l1,l2] => (l1,l2)
                                                                        | _ => Scan.fail "Syntax error")))
-    || Parse.string >> (META.OclDefString o From.from_string)
+    || Parse.string >> (META.OclDefString o From.string)
 
   val multiplicity = parse_l' (unlimited_natural -- optional (ident_dot_dot |-- unlimited_natural))
 
   fun uml_term x =
    (   term_base >> META.ShallB_term
-    || Parse.binding >> (META.ShallB_str o From.from_binding)
-    || @{keyword "self"} |-- Parse.nat >> (fn n => META.ShallB_self (From.from_internal_oid (From.from_nat n)))
+    || Parse.binding >> (META.ShallB_str o From.binding)
+    || @{keyword "self"} |-- Parse.nat >> (fn n => META.ShallB_self (From.internal_oid n))
     || paren (Parse.list uml_term) >> (* untyped, corresponds to Set, Sequence or Pair *)
                                       (* WARNING for Set: we are describing a finite set *)
                                       META.ShallB_list) x
@@ -1140,13 +1139,13 @@ structure USE_parse = struct
   val type_object_weak = 
     let val name_object = Parse.binding >> (fn s => (NONE, s)) in
                     name_object -- Scan.repeat (Parse.$$$ "<" |-- Parse.list1 name_object) >>
-    let val f = fn (_, s) => META.OclTyCore_pre (From.from_binding s) in
+    let val f = fn (_, s) => META.OclTyCore_pre (From.binding s) in
     fn (s, l) => META.OclTyObj (f s, map (map f) l)
     end
     end
 
   val type_object = name_object -- Scan.repeat (Parse.$$$ "<" |-- Parse.list1 name_object) >>
-    let val f = fn (_, s) => META.OclTyCore_pre (From.from_binding s) in
+    let val f = fn (_, s) => META.OclTyCore_pre (From.binding s) in
     fn (s, l) => META.OclTyObj (f s, map (map f) l)
     end
 
@@ -1162,7 +1161,7 @@ structure USE_parse = struct
                     || @{keyword "Nonunique"} >> K META.Nonunique0
                     || @{keyword "Sequence_"} >> K META.Sequence) >>
     (fn ((l_mult, role), l) =>
-       META.Ocl_multiplicity_ext (l_mult, From.from_option From.from_binding role, l, ()))
+       META.Ocl_multiplicity_ext (l_mult, From.option From.binding role, l, ()))
 
   val type_base =   Parse.reserved "Void" >> K META.OclTy_base_void
                  || Parse.reserved "Boolean" >> K META.OclTy_base_boolean
@@ -1193,7 +1192,7 @@ structure USE_parse = struct
                     (* object type *)
                  || type_object >> META.OclTy_object
 
-                 || ((Parse.$$$ "(" |-- Parse.list (   (Parse.binding --| colon >> (From.from_option From.from_binding o SOME))
+                 || ((Parse.$$$ "(" |-- Parse.list (   (Parse.binding --| colon >> (From.option From.binding o SOME))
                                                     -- (   Parse.$$$ "(" |-- use_type --| Parse.$$$ ")"
                                                         || use_type_gen type_object_weak) >> META.OclTy_binding
                                                     ) --| Parse.$$$ ")"
@@ -1208,7 +1207,7 @@ structure USE_parse = struct
                  || (Parse.$$$ "(" |-- use_type --| Parse.$$$ ")" >> (fn s => META.OclTy_binding (NONE, s)))) v
   and use_type x = use_type_gen type_object x
 
-  val use_prop =    (optional (optional (Parse.binding >> From.from_binding) --| Parse.$$$ ":") >> (fn NONE => NONE | SOME x => x))
+  val use_prop =    (optional (optional (Parse.binding >> From.binding) --| Parse.$$$ ":") >> (fn NONE => NONE | SOME x => x))
                  -- Parse.term --| optional (Parse.$$$ ";") >> (fn (n, e) => fn from_expr => META.OclProp_ctxt (n, from_expr e))
 
   (* *)
@@ -1246,9 +1245,9 @@ structure USE_parse = struct
               (fn ((name_fun, ty), expr) => fn from_expr =>
                 META.Ctxt_pp
                   (META.Ocl_ctxt_pre_post_ext
-                    ( From.from_binding name_fun
+                    ( From.binding name_fun
                     , ty
-                    , From.from_list (fn USE_context_pre_post (pp, expr) =>
+                    , From.list (fn USE_context_pre_post (pp, expr) =>
                                            META.T_pp (if pp = "Pre" then META.OclCtxtPre else META.OclCtxtPost, expr from_expr)
                                        | USE_context_invariant (b, expr) => META.T_invariant (META.T_inv (b, expr from_expr))) expr
                     , ())))
@@ -1268,8 +1267,8 @@ structure USE_parse = struct
     fun make from_expr abstract ty_object attribute oper =
       META.Ocl_class_raw_ext
         ( ty_object
-        , From.from_list (From.from_pair From.from_binding I) attribute
-        , From.from_list (fn f => f from_expr) oper
+        , From.list (From.pair From.binding I) attribute
+        , From.list (fn f => f from_expr) oper
         , abstract
         , ())
   end
@@ -1303,16 +1302,16 @@ structure USE_parse = struct
   fun get_oclinst l _ =
     META.OclInstance (map (fn ((name,typ), (l_attr, is_cast)) =>
         let val f = map (fn ((pre_post, attr), data) =>
-                              ( From.from_option (From.from_pair From.from_binding From.from_binding) pre_post
-                              , ( From.from_binding attr
+                              ( From.option (From.pair From.binding From.binding) pre_post
+                              , ( From.binding attr
                                 , data)))
             val l_attr =
               fold
-                (fn b => fn acc => META.OclAttrCast (From.from_binding b, acc, []))
+                (fn b => fn acc => META.OclAttrCast (From.binding b, acc, []))
                 is_cast
                 (META.OclAttrNoCast (f l_attr)) in
         META.Ocl_instance_single_ext
-          (From.from_option From.from_binding name, From.from_option From.from_binding typ, l_attr, From.from_unit ()) end) l)
+          (From.option From.binding name, From.option From.binding typ, l_attr, ()) end) l)
 
   val parse_instance = (Parse.binding >> SOME)
                      -- optional (@{keyword "::"} |-- Parse.binding) --| @{keyword "="}
@@ -1328,7 +1327,7 @@ structure USE_parse = struct
 
   fun mk_state thy = map (fn ST_l_attr l => META.OclDefCoreAdd (case get_oclinst (map (fn (l_i, l_ty) => ((NONE, SOME (hd l_ty)), (l_i, rev (tl l_ty)))) [l]) thy of
                                                                  META.OclInstance [x] => x)
-                           | ST_binding b => META.OclDefCoreBinding (From.from_binding b))
+                           | ST_binding b => META.OclDefCoreBinding (From.binding b))
 
   (* *)
 
@@ -1339,7 +1338,7 @@ structure USE_parse = struct
                        || Parse.binding >> ST_PP_binding
 
   fun mk_pp_state thy = fn ST_PP_l_attr l => META.OclDefPPCoreAdd (mk_state thy l)
-                         | ST_PP_binding s => META.OclDefPPCoreBinding (From.from_binding s)
+                         | ST_PP_binding s => META.OclDefPPCoreBinding (From.binding s)
 end
 *}
 
@@ -1350,7 +1349,7 @@ val () =
   outer_syntax_command @{mk_string} @{command_keyword Enum} ""
     (Parse.binding -- parse_l1' Parse.binding)
     (fn (n1, n2) => 
-      K (META.META_enum (META.OclEnum (From.from_binding n1, From.from_list From.from_binding n2))))
+      K (META.META_enum (META.OclEnum (From.binding n1, From.list From.binding n2))))
 *}
 
 subsection{* Outer Syntax: Defining: (abstract) Class *}
@@ -1370,7 +1369,7 @@ local
        fn USE_class_content (ty_object, (attribute, oper)) =>
             META_class_raw (Outer_syntax_Class.make from_expr (abstract = USE_class_abstract) ty_object attribute oper)
         | USE_class_synonym (n1, n2) => 
-            META.META_class_synonym (META.OclClassSynonym (From.from_binding n1, n2)))
+            META.META_class_synonym (META.OclClassSynonym (From.binding n1, n2)))
 in
 val () = mk_classDefinition USE_class @{command_keyword Class}
 val () = mk_classDefinition USE_class_abstract @{command_keyword Abstract_class}
@@ -1444,9 +1443,9 @@ val () =
     (fn ((l_param, name), l) => 
     META_ctxt
       (META.Ocl_ctxt_ext
-        ( case l_param of NONE => [] | SOME l => From.from_list From.from_binding l
-        , META.OclTyObj (META.OclTyCore_pre (From.from_binding name), [])
-        , From.from_list (fn f => f from_expr) l
+        ( case l_param of NONE => [] | SOME l => From.list From.binding l
+        , META.OclTyObj (META.OclTyCore_pre (From.binding name), [])
+        , From.list (fn f => f from_expr) l
         , ()))))
 end
 *}
@@ -1488,7 +1487,7 @@ val () =
      (fn ((is_shallow, name), l) => fn thy =>
       META.META_def_state
         ( if is_shallow = NONE then META.Floor1 else META.Floor2
-        , META.OclDefSt (From.from_binding name, mk_state thy l)))
+        , META.OclDefSt (From.binding name, mk_state thy l)))
 end
 *}
 
@@ -1507,9 +1506,9 @@ val () =
     (fn (((is_shallow, n), s_pre), s_post) => fn thy =>
       META.META_def_pre_post
         ( if is_shallow = NONE then META.Floor1 else META.Floor2
-        , META.OclDefPP ( From.from_option From.from_binding n
+        , META.OclDefPP ( From.option From.binding n
                        , mk_pp_state thy s_pre
-                       , From.from_option (mk_pp_state thy) s_post)))
+                       , From.option (mk_pp_state thy) s_post)))
 end
 (*val _ = print_depth 100*)
 *}
