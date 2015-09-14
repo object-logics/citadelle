@@ -70,7 +70,7 @@ definition "write_file env = (
              (\<lambda>x acc1 acc2. (acc1, Cons x acc2))
              l_thy
              (compiler_env_config.truncate env, []) in
-         of_thy_list (compiler_env_config_more_map (\<lambda>_. is_file) env) (rev l))))"
+         of_all_meta_lists (compiler_env_config_more_map (\<lambda>_. is_file) env) (rev l))))"
 end
 
 definition "write_file = Print.write_file (String.implode o String.to_list) (ToNat integer_of_natural)"

@@ -195,7 +195,7 @@ definition "start_map'''' f fl = (\<lambda> env. start_map f (fl (D_ocl_semantic
 
 definition "bootstrap_floor f_x l env =
  (let (l, env) = f_x l env
-    ; l_setup = Isab_thy_setup_env (Boot_setup_env (env \<lparr> D_output_disable_thy := True
+    ; l_setup = META_boot_setup_env (Boot_setup_env (env \<lparr> D_output_disable_thy := True
                                                         , D_output_header_thy := None
                                                         , D_output_position := (0, 0) \<rparr>) )
                 # l
@@ -206,7 +206,7 @@ definition "bootstrap_floor f_x l env =
   ( if D_output_auto_bootstrap env then
       l
     else
-      Isab_thy_generation_syntax (Boot_generation_syntax (D_ocl_semantics env))
+      META_boot_generation_syntax (Boot_generation_syntax (D_ocl_semantics env))
       # l_setup
   , env \<lparr> D_output_auto_bootstrap := True \<rparr> ))"
 

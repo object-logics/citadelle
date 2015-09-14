@@ -50,7 +50,7 @@ declare[[cartouche_type' = "abr_string"]]
 
 definition "setup_of_env env = 
   Setup (SML.app \<open>Generation_mode.update_compiler_config\<close>
-           [SML.app \<open>K\<close> [SML_let_open \<open>META\<close> (sml_of_meta_unit SML_apply (\<lambda>x. SML_basic [x]) env)]])"
+           [SML.app \<open>K\<close> [SML_let_open \<open>META\<close> (sml_of_compiler_env_config SML_apply (\<lambda>x. SML_basic [x]) env)]])"
 
 definition "concatWith l =
  (if l = [] then
@@ -60,11 +60,11 @@ definition "concatWith l =
 
 declare[[cartouche_type' = "fun\<^sub>p\<^sub>r\<^sub>i\<^sub>n\<^sub>t\<^sub>f"]]
 
-definition "of_section_title ocl =
- (if D_output_disable_thy ocl then
+definition "of\<^sub>e\<^sub>n\<^sub>v_section env =
+ (if D_output_disable_thy env then
     \<lambda>_. \<open>\<close>
   else
-    of_section ocl)"
+    of_section env)"
 
 fun of_ctxt2_term_aux where "of_ctxt2_term_aux l e =
  (\<lambda> T_pure pure \<Rightarrow> concatWith l (of_pure_term [] pure)
@@ -159,13 +159,13 @@ definition' \<open>of_all_meta_embedding _ =
         (of_def_pp_core s_pre)
         (case s_post of None \<Rightarrow> \<open>\<close> | Some s_post \<Rightarrow> \<open> %s\<close> (of_def_pp_core s_post)))\<close>
 
-definition "of_semi__t0 ocl =
-            (\<lambda> Theory_section section_title \<Rightarrow> of_section_title ocl section_title
-             | x \<Rightarrow> of_semi__t ocl x)"
+definition "of\<^sub>e\<^sub>n\<^sub>v_semi__theory env =
+            (\<lambda> Theory_section section_title \<Rightarrow> of\<^sub>e\<^sub>n\<^sub>v_section env section_title
+             | x \<Rightarrow> of_semi__theory env x)"
 
-definition' \<open>of_semi__theory0 ocl =
- (\<lambda> H_thy_simple t \<Rightarrow> of_semi__t0 ocl t
-  | H_thy_locale data l \<Rightarrow> 
+definition' \<open>of\<^sub>e\<^sub>n\<^sub>v_semi__theories env =
+ (\<lambda> Theories_one t \<Rightarrow> of\<^sub>e\<^sub>n\<^sub>v_semi__theory env t
+  | Theories_locale data l \<Rightarrow> 
       \<open>locale %s =
 %s
 begin
@@ -185,32 +185,32 @@ assumes %s: "%s"\<close> (To_string name) (of_semi__term e)))
 
 \<close> (String_concat_map \<open>
 
-\<close> (of_semi__t0 ocl)) l))\<close>
+\<close> (of\<^sub>e\<^sub>n\<^sub>v_semi__theory env)) l))\<close>
 
-definition "of_bootstrap_generation_syntax _ = (\<lambda> Boot_generation_syntax mode \<Rightarrow>
+definition "of_boot_generation_syntax _ = (\<lambda> Boot_generation_syntax mode \<Rightarrow>
   \<open>generation_syntax [ shallow%s ]\<close>
     (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l f = \<open> (generation_semantics [ %s ])\<close> in
      case mode of Gen_only_design \<Rightarrow> f \<open>design\<close>
                 | Gen_only_analysis \<Rightarrow> f \<open>analysis\<close>
                 | Gen_default \<Rightarrow> \<open>\<close>))"
 
-definition "of_bootstrap_setup_env env = (\<lambda> Boot_setup_env e \<Rightarrow> of_setup env (setup_of_env e))"
+definition "of_boot_setup_env env = (\<lambda> Boot_setup_env e \<Rightarrow> of_setup env (setup_of_env e))"
 
-definition "of_all_meta ocl = (\<lambda>
-    Isab_thy thy \<Rightarrow> of_semi__theory0 ocl thy
-  | Isab_thy_generation_syntax generation_syntax \<Rightarrow> of_bootstrap_generation_syntax ocl generation_syntax
-  | Isab_thy_setup_env setup_env \<Rightarrow> of_bootstrap_setup_env ocl setup_env
-  | Isab_thy_all_meta_embedding all_meta_embedding \<Rightarrow> of_all_meta_embedding ocl all_meta_embedding)"
+definition "of_all_meta env = (\<lambda>
+    META_semi__theories thy \<Rightarrow> of\<^sub>e\<^sub>n\<^sub>v_semi__theories env thy
+  | META_boot_generation_syntax generation_syntax \<Rightarrow> of_boot_generation_syntax env generation_syntax
+  | META_boot_setup_env setup_env \<Rightarrow> of_boot_setup_env env setup_env
+  | META_all_meta_embedding all_meta_embedding \<Rightarrow> of_all_meta_embedding env all_meta_embedding)"
 
-definition "of_thy_list ocl l_thy =
-  (let (th_beg, th_end) = case D_output_header_thy ocl of None \<Rightarrow> ([], [])
+definition "of_all_meta_lists env l_thy =
+  (let (th_beg, th_end) = case D_output_header_thy env of None \<Rightarrow> ([], [])
    | Some (name, fic_import, fic_import_boot) \<Rightarrow>
        ( [ \<open>theory %s imports %s begin\<close>
              (To_string name)
              (of_semi__term (term_binop \<langle>'' ''\<rangle>
                                         (L.map Term_string
-                                               (fic_import @@@@ (if D_output_header_force ocl
-                                                                  | D_output_auto_bootstrap ocl then
+                                               (fic_import @@@@ (if D_output_header_force env
+                                                                  | D_output_auto_bootstrap env then
                                                                    [fic_import_boot]
                                                                  else
                                                                    []))))) ]
@@ -218,11 +218,11 @@ definition "of_thy_list ocl l_thy =
   L.flatten
         [ th_beg
         , L.flatten (fst (L.mapM (\<lambda>l (i, cpt).
-            let (l_thy, lg) = L.mapM (\<lambda>l n. (of_all_meta ocl l, Succ n)) l 0 in
+            let (l_thy, lg) = L.mapM (\<lambda>l n. (of_all_meta env l, Succ n)) l 0 in
             (( \<open>\<close>
              # \<open>%s(* %d ************************************ %d + %d *)\<close>
-                 (To_string (if compiler_env_config.more ocl then \<langle>''''\<rangle> else \<degree>char_escape\<degree>)) (To_nat (Succ i)) (To_nat cpt) (To_nat lg)
-             # l_thy), Succ i, cpt + lg)) l_thy (D_output_position ocl)))
+                 (To_string (if compiler_env_config.more env then \<langle>''''\<rangle> else \<degree>char_escape\<degree>)) (To_nat (Succ i)) (To_nat cpt) (To_nat lg)
+             # l_thy), Succ i, cpt + lg)) l_thy (D_output_position env)))
         , th_end ])"
 end
 
@@ -230,7 +230,7 @@ lemmas [code] =
   (* def *)
   Print.setup_of_env_def
   Print.concatWith_def
-  Print.of_section_title_def
+  Print.of\<^sub>e\<^sub>n\<^sub>v_section_def
   Print.of_ctxt2_term_def
   Print.To_oid_def
   Print.of_ocl_def_base_def
@@ -238,12 +238,12 @@ lemmas [code] =
   Print.of_def_state_def
   Print.of_def_pp_core_def
   Print.of_all_meta_embedding_def
-  Print.of_semi__t0_def
-  Print.of_semi__theory0_def
-  Print.of_bootstrap_generation_syntax_def
-  Print.of_bootstrap_setup_env_def
+  Print.of\<^sub>e\<^sub>n\<^sub>v_semi__theory_def
+  Print.of\<^sub>e\<^sub>n\<^sub>v_semi__theories_def
+  Print.of_boot_generation_syntax_def
+  Print.of_boot_setup_env_def
   Print.of_all_meta_def
-  Print.of_thy_list_def
+  Print.of_all_meta_lists_def
 
   (* fun *)
   Print.of_ctxt2_term_aux.simps

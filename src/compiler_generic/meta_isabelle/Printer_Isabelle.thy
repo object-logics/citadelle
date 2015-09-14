@@ -351,7 +351,7 @@ definition' \<open>of_interpretation _ = (\<lambda> Interpretation n loc_n loc_p
     (String_concat \<open>\<close> (L.map (\<lambda>s. \<open> "%s"\<close> (of_semi__term s)) loc_param))
     (of_semi__command_final tac))\<close>
 
-definition "of_semi__t env =
+definition "of_semi__theory env =
  (\<lambda> Theory_datatype dataty \<Rightarrow> of_datatype env dataty
   | Theory_type_synonym ty_synonym \<Rightarrow> of_type_synonym env ty_synonym
   | Theory_type_notation ty_notation \<Rightarrow> of_type_notation env ty_notation
@@ -371,9 +371,9 @@ definition "of_semi__t env =
 
 definition "String_concat_map s f l = String_concat s (L.map f l)"
 
-definition' \<open>of_semi__theory env =
- (\<lambda> H_thy_simple t \<Rightarrow> of_semi__t env t
-  | H_thy_locale data l \<Rightarrow> 
+definition' \<open>of_semi__theories env =
+ (\<lambda> Theories_one t \<Rightarrow> of_semi__theory env t
+  | Theories_locale data l \<Rightarrow> 
       \<open>locale %s =
 %s
 begin
@@ -393,7 +393,7 @@ assumes %s: "%s"\<close> (To_string name) (of_semi__term e)))
 
 \<close> (String_concat_map \<open>
 
-\<close> (of_semi__t env)) l))\<close>
+\<close> (of_semi__theory env)) l))\<close>
 
 end
 
@@ -430,9 +430,9 @@ lemmas [code] =
   Print.of_setup_def
   Print.of_thm_def
   Print.of_interpretation_def
-  Print.of_semi__t_def
-  Print.String_concat_map_def
   Print.of_semi__theory_def
+  Print.String_concat_map_def
+  Print.of_semi__theories_def
 
   (* fun *)
   Print.of_semi__typ.simps

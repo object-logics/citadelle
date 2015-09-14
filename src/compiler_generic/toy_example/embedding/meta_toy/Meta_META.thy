@@ -135,26 +135,26 @@ definition "map2_ctxt_term f =
 definition "compiler_env_config_more_map f ocl =
             compiler_env_config.extend  (compiler_env_config.truncate ocl) (f (compiler_env_config.more ocl))"
 
-subsection{* Isabelle Meta-Model (extended) *}
+subsection{* The META Meta-Model (extended) *}
 subsubsection{* Type Definition *}
 
-datatype bootstrap_generation_syntax = Boot_generation_syntax generation_semantics_ocl
+datatype boot_generation_syntax = Boot_generation_syntax generation_semantics_ocl
 
-datatype bootstrap_setup_env = Boot_setup_env compiler_env_config
+datatype boot_setup_env = Boot_setup_env compiler_env_config
 
 datatype all_meta = (* pure Isabelle *)
-                    Isab_thy semi__theory
+                    META_semi__theories semi__theories
 
                     (* bootstrapping embedded languages *)
-                  | Isab_thy_generation_syntax bootstrap_generation_syntax
-                  | Isab_thy_setup_env bootstrap_setup_env
-                  | Isab_thy_all_meta_embedding all_meta_embedding
+                  | META_boot_generation_syntax boot_generation_syntax
+                  | META_boot_setup_env boot_setup_env
+                  | META_all_meta_embedding all_meta_embedding
 
 subsubsection{* Extending the Meta-Model *}
 
 locale O (* outer syntax *)
 begin
-definition "i x = Isab_thy o H_thy_simple o x"
+definition "i x = META_semi__theories o Theories_one o x"
 definition "datatype = i Theory_datatype"
 definition "type_synonym = i Theory_type_synonym"
 definition "type_notation = i Theory_type_notation"
@@ -234,8 +234,8 @@ lemmas [code] =
 
 subsubsection{* Operations of Fold, Map, ..., on the Meta-Model *}
 
-definition "hol_map_thy f = (\<lambda> Isab_thy (H_thy_simple x) \<Rightarrow> Isab_thy (H_thy_simple (f x))
-                             | Isab_thy (H_thy_locale data l) \<Rightarrow> Isab_thy (H_thy_locale data (L.map (L.map f) l))
-                             | x \<Rightarrow> x)"
+definition "map_semi__theory f = (\<lambda> META_semi__theories (Theories_one x) \<Rightarrow> META_semi__theories (Theories_one (f x))
+                                  | META_semi__theories (Theories_locale data l) \<Rightarrow> META_semi__theories (Theories_locale data (L.map (L.map f) l))
+                                  | x \<Rightarrow> x)"
 
 end

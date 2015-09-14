@@ -48,57 +48,57 @@ begin
 
 subsection{* Preliminaries *}
 
-datatype ('a, 'b) hol_theory = Hol_theory_ext "('a \<Rightarrow> 'b \<Rightarrow> all_meta list \<times> 'b) list"
-                             | Hol_theory_locale "'a \<Rightarrow> 'b \<Rightarrow> semi__locale \<times> 'b"
-                                                 "('a \<Rightarrow> 'b \<Rightarrow> semi__t list \<times> 'b) list"
+datatype ('a, 'b) embedding = Embed_theories "('a \<Rightarrow> 'b \<Rightarrow> all_meta list \<times> 'b) list"
+                            | Embed_locale "'a \<Rightarrow> 'b \<Rightarrow> semi__locale \<times> 'b"
+                                           "('a \<Rightarrow> 'b \<Rightarrow> semi__theory list \<times> 'b) list"
 
-type_synonym 'a h_theory = "('a, compiler_env_config) hol_theory" (* polymorphism weakening needed by code_reflect *)
+type_synonym 'a embedding' = "('a, compiler_env_config) embedding" (* polymorphism weakening needed by code_reflect *)
 
 definition "L_fold f =
- (\<lambda> Hol_theory_ext l \<Rightarrow> List.fold f l
-  | Hol_theory_locale loc_data l \<Rightarrow>
+ (\<lambda> Embed_theories l \<Rightarrow> List.fold f l
+  | Embed_locale loc_data l \<Rightarrow>
       f (\<lambda>a b.
           let (loc_data, b) = loc_data a b
             ; (l, b) = List.fold (\<lambda>f0. \<lambda>(l, b) \<Rightarrow> let (x, b) = f0 a b in (x # l, b)) l ([], b) in
-          ([Isab_thy (H_thy_locale loc_data (rev l))], b)))"
+          ([META_semi__theories (Theories_locale loc_data (rev l))], b)))"
 
 subsection{* Assembling Translations *}
 
 definition' thy_class ::
   (* polymorphism weakening needed by code_reflect *)
-  "_ h_theory" where \<open>thy_class =
-  Hol_theory_ext
+  "_ embedding'" where \<open>thy_class =
+  Embed_theories
           [ print_infra_datatype_class
           , print_infra_datatype_universe
           , print_infra_type_synonym_class_higher
           , print_access_oid_uniq
           , print_access_choose ]\<close>
 
-definition "thy_enum_flat = Hol_theory_ext []"
-definition "thy_enum = Hol_theory_ext []"
-definition "thy_class_synonym = Hol_theory_ext []"
-definition "thy_class_flat = Hol_theory_ext []"
-definition "thy_association = Hol_theory_ext []"
-definition "thy_instance = Hol_theory_ext 
+definition "thy_enum_flat = Embed_theories []"
+definition "thy_enum = Embed_theories []"
+definition "thy_class_synonym = Embed_theories []"
+definition "thy_class_flat = Embed_theories []"
+definition "thy_association = Embed_theories []"
+definition "thy_instance = Embed_theories 
                              [ print_examp_instance_defassoc
                              , print_examp_instance ]"
-definition "thy_def_base_l = Hol_theory_ext []"
-definition "thy_def_state = (\<lambda> Floor1 \<Rightarrow> Hol_theory_ext 
+definition "thy_def_base_l = Embed_theories []"
+definition "thy_def_state = (\<lambda> Floor1 \<Rightarrow> Embed_theories 
                                            [ Floor1_examp.print_examp_def_st1 ]
-                             | Floor2 \<Rightarrow> Hol_theory_locale
+                             | Floor2 \<Rightarrow> Embed_locale
                                            Floor2_examp.print_examp_def_st_locale
                                            [ Floor2_examp.print_examp_def_st2
                                            , Floor2_examp.print_examp_def_st_perm ])"
-definition "thy_def_pre_post = (\<lambda> Floor1 \<Rightarrow> Hol_theory_ext 
+definition "thy_def_pre_post = (\<lambda> Floor1 \<Rightarrow> Embed_theories 
                                               [ Floor1_examp.print_pre_post ]
-                                | Floor2 \<Rightarrow> Hol_theory_locale
+                                | Floor2 \<Rightarrow> Embed_locale
                                               Floor2_examp.print_pre_post_locale
                                               [ Floor2_examp.print_pre_post_interp ])"
-definition "thy_ctxt = (\<lambda> Floor1 \<Rightarrow> Hol_theory_ext 
+definition "thy_ctxt = (\<lambda> Floor1 \<Rightarrow> Embed_theories 
                                       [ Floor1_ctxt.print_ctxt ]
-                        | Floor2 \<Rightarrow> Hol_theory_ext 
+                        | Floor2 \<Rightarrow> Embed_theories 
                                       [])"
-definition "thy_flush_all = Hol_theory_ext []"
+definition "thy_flush_all = Embed_theories []"
 (* NOTE typechecking functions can be put at the end, however checking already defined constants can be done earlier *)
 
 subsection{* Combinators Folding the Compiling Environment *}
@@ -144,7 +144,7 @@ definition "fold_thy0 meta thy_object0 f =
     let (sorry, dirty) = D_output_sorry_dirty acc1
       ; (l, acc1) = x meta acc1 in
     (f (if sorry = Some Gen_sorry | sorry = None & dirty then
-          L.map (hol_map_thy (hol_map_lemma (\<lambda> Lemma n spec _ _ \<Rightarrow> Lemma n spec [] C.sorry
+          L.map (map_semi__theory (map_lemma (\<lambda> Lemma n spec _ _ \<Rightarrow> Lemma n spec [] C.sorry
                                                 | Lemma_assumes n spec1 spec2 _ _ \<Rightarrow> Lemma_assumes n spec1 spec2 [] C.sorry))) l
         else
           l) acc1 acc2)) thy_object0"

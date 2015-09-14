@@ -231,7 +231,7 @@ definition "print_examp_instance = (\<lambda> OclInstance l \<Rightarrow> \<lamb
 
 definition "print_examp_def_st1 = (\<lambda> OclDefSt name l \<Rightarrow> bootstrap_floor
   (\<lambda>l env. (L.flatten [l], env))
-  (L.map Isab_thy_all_meta_embedding
+  (L.map META_all_meta_embedding
      (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l (l, _) = List.fold (\<lambda> (pos, core) (l, n).
                                           ((pos, pos - n, core) # l, 
                                             case core of OclDefCoreAdd _ \<Rightarrow> n
@@ -272,7 +272,7 @@ definition "print_pre_post = (\<lambda> OclDefPP name s_pre s_post \<Rightarrow>
               (OclDefPPCoreBinding n, Cons (META_def_state Floor1 (OclDefSt n ocl_def_state)))
           | s \<Rightarrow> (s, id) in
     L.map
-      Isab_thy_all_meta_embedding
+      META_all_meta_embedding
       (let o_pre = Some (f_conv \<open>_pre\<close> s_pre)
          ; o_post = map_option (f_conv \<open>_post\<close>) s_post in
        (f_comp o_pre o f_comp o_post)

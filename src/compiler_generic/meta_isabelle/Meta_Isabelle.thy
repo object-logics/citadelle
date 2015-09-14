@@ -183,30 +183,30 @@ datatype "interpretation" = Interpretation string (* name *)
                                            "semi__term list" (* locale param *)
                                            semi__command_final
 
-datatype semi__t = Theory_datatype "datatype"
-                 | Theory_type_synonym "type_synonym"
-                 | Theory_type_notation "type_notation"
-                 | Theory_instantiation "instantiation"
-                 | Theory_defs "defs"
-                 | Theory_consts "consts"
-                 | Theory_definition "definition"
-                 | Theory_lemmas "lemmas"
-                 | Theory_lemma "lemma"
-                 | Theory_axiomatization "axiomatization"
-                 | Theory_section "section"
-                 | Theory_text "text"
-                 | Theory_ML "ML"
-                 | Theory_setup "setup"
-                 | Theory_thm "thm"
-                 | Theory_interpretation "interpretation"
+datatype semi__theory = Theory_datatype "datatype"
+                      | Theory_type_synonym "type_synonym"
+                      | Theory_type_notation "type_notation"
+                      | Theory_instantiation "instantiation"
+                      | Theory_defs "defs"
+                      | Theory_consts "consts"
+                      | Theory_definition "definition"
+                      | Theory_lemmas "lemmas"
+                      | Theory_lemma "lemma"
+                      | Theory_axiomatization "axiomatization"
+                      | Theory_section "section"
+                      | Theory_text "text"
+                      | Theory_ML "ML"
+                      | Theory_setup "setup"
+                      | Theory_thm "thm"
+                      | Theory_interpretation "interpretation"
 
 record semi__locale = 
   HolThyLocale_name :: string
   HolThyLocale_header :: "( (semi__term (* name *) \<times> semi__typ (* 'fix' statement *)) list
                           \<times> (string (* name *) \<times> semi__term (* 'assumes' statement *)) option (* None: no 'assumes' to generate *)) list"
 
-datatype semi__theory = H_thy_simple semi__t
-                      | H_thy_locale semi__locale "semi__t list (* positioning comments can occur before and after this group of commands *) list"
+datatype semi__theories = Theories_one semi__theory
+                        | Theories_locale semi__locale "semi__theory list (* positioning comments can occur before and after this group of commands *) list"
 
 subsection{* Extending the Meta-Model *}
 
@@ -437,7 +437,7 @@ definition "cross_abs f n l = cross_abs_aux f [] (n, l)"
 
 subsection{* Operations of Fold, Map, ..., on the Meta-Model *}
 
-definition "hol_map_lemma f = (\<lambda> Theory_lemma x \<Rightarrow> Theory_lemma (f x)
-                               | x \<Rightarrow> x)"
+definition "map_lemma f = (\<lambda> Theory_lemma x \<Rightarrow> Theory_lemma (f x)
+                           | x \<Rightarrow> x)"
 
 end

@@ -50,7 +50,7 @@ definition "print_ctxt = (\<lambda>ctxt. bootstrap_floor
   (\<lambda>l env.
     let ((env, l_isab_ty), l_isab) = print_ctxt_const ctxt env in
     (L.flatten [l_isab_ty, l_isab, l], env))
-  [ Isab_thy_all_meta_embedding (META_ctxt Floor2
+  [ META_all_meta_embedding (META_ctxt Floor2
       (map_invariant (\<lambda>T_inv b (OclProp_ctxt n p) \<Rightarrow>
                        T_inv b (OclProp_ctxt n (T_lambdas (Ctxt_param ctxt @@@@ [var_self]) p)))
                      (map_pre_post (\<lambda>pref ctxt. T_lambdas (make_ctxt_free_var pref ctxt))

@@ -242,14 +242,14 @@ sublocale Parse_Isabelle < Parse "id"
 done
 
 context Parse_Isabelle begin
-  definition "env_config a b =
+  definition "compiler_env_config a b =
     of_compiler_env_config a b (\<lambda> a b.
       of_pair a b
         (of_list a b (of_all_meta_embedding a b))
         (of_option a b (of_string a b)))"
 end
 
-definition "isabelle_of_env_config = Parse_Isabelle.env_config"
+definition "isabelle_of_compiler_env_config = Parse_Isabelle.compiler_env_config"
 
 lemmas [code] =
   Parse_Isabelle.Of_Pair_def
@@ -270,7 +270,7 @@ lemmas [code] =
   Parse_Isabelle.of_string\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def
   Parse_Isabelle.of_nat_def
 
-  Parse_Isabelle.env_config_def
+  Parse_Isabelle.compiler_env_config_def
 
 (* *)
 
@@ -350,10 +350,10 @@ sublocale Parse_SML < Parse "\<lambda>c. case String.to_list c of x # xs \<Right
 done
 
 context Parse_SML begin
-  definition "meta_unit a b = of_compiler_env_config a b (\<lambda> _. of_unit)"
+  definition "compiler_env_config a b = of_compiler_env_config a b (\<lambda> _. of_unit)"
 end
 
-definition "sml_of_meta_unit = Parse_SML.meta_unit"
+definition "sml_of_compiler_env_config = Parse_SML.compiler_env_config"
 
 lemmas [code] =
   Parse_SML.Of_Pair_def
@@ -372,7 +372,7 @@ lemmas [code] =
   Parse_SML.of_nat_def
 
   Parse_SML.sml_escape_def
-  Parse_SML.meta_unit_def
+  Parse_SML.compiler_env_config_def
 
 (* *)
 

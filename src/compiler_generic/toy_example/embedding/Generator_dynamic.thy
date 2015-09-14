@@ -89,7 +89,7 @@ code_reflect' open META
              compiler_env_config_reset_all compiler_env_config_update oidInit D_output_header_thy_update map2_ctxt_term check_export_code
 
              (* printing the TOY AST to (deep Isabelle) string *)
-             isabelle_apply isabelle_of_env_config
+             isabelle_apply isabelle_of_compiler_env_config
 
 subsection{* Interface Between the Reflected and the Native *}
 
@@ -453,9 +453,9 @@ fun META_main_thy in_theory in_local = let open META open META_overload in (*let
 end
 
 fun META_main aux ret = let open META open META_overload in fn
-  Isab_thy thy =>
-    ret o (case thy of H_thy_simple thy => META_main_thy I in_local thy
-                     | H_thy_locale (data, l) => fn thy => thy
+  META_semi_theories thy =>
+    ret o (case thy of Theories_one thy => META_main_thy I in_local thy
+                     | Theories_locale (data, l) => fn thy => thy
                        |> (   Expression.add_locale_cmd
                                 (To_sbinding (META.holThyLocale_name data))
                                 Binding.empty
@@ -475,9 +475,9 @@ fun META_main aux ret = let open META open META_overload in fn
                                                      |> Local_Theory.reset_group
                                                      |> Local_Theory.restore))) l
                        |> Local_Theory.exit_global)
-| Isab_thy_generation_syntax _ => ret o I
-| Isab_thy_setup_env _ => ret o I
-| Isab_thy_all_meta_embedding meta => fn thy =>
+| META_boot_generation_syntax _ => ret o I
+| META_boot_setup_env _ => ret o I
+| META_all_meta_embedding meta => fn thy =>
   aux
     (map2_ctxt_term
       (fn T_pure x => T_pure x
@@ -960,7 +960,7 @@ ML{*
 
 fun exec_deep (env, output_header_thy, seri_args, filename_thy, tmp_export_code, l_obj) thy0 =
   let open Generation_mode in
-  let val of_arg = META.isabelle_of_env_config META.isabelle_apply I in
+  let val of_arg = META.isabelle_of_compiler_env_config META.isabelle_apply I in
   let fun def s = in_local (snd o Specification.definition_cmd (NONE, ((@{binding ""}, []), s)) false) in
   let val name_main = Deep.mk_free (Proof_Context.init_global thy0) Deep0.Export_code_env.Isabelle.argument_main [] in
   thy0 |> def (String.concatWith " " (  "(" (* polymorphism weakening needed by export_code *)
