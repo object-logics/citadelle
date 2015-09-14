@@ -1,0 +1,129 @@
+(*****************************************************************************
+ * Featherweight-OCL --- A Formal Semantics for UML-OCL Version OCL 2.5
+ *                       for the OMG Standard.
+ *                       http://www.brucker.ch/projects/hol-testgen/
+ *
+ * Printer_UML_extended.thy ---
+ * This file is part of HOL-TestGen.
+ *
+ * Copyright (c) 2013-2015 Université Paris-Saclay, Univ Paris Sud, France
+ *               2013-2015 IRT SystemX, France
+ *
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are
+ * met:
+ *
+ *     * Redistributions of source code must retain the above copyright
+ *       notice, this list of conditions and the following disclaimer.
+ *
+ *     * Redistributions in binary form must reproduce the above
+ *       copyright notice, this list of conditions and the following
+ *       disclaimer in the documentation and/or other materials provided
+ *       with the distribution.
+ *
+ *     * Neither the name of the copyright holders nor the names of its
+ *       contributors may be used to endorse or promote products derived
+ *       from this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+ * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ ******************************************************************************)
+(* $Id:$ *)
+
+section{* Instantiating the Printer for OCL *}
+
+theory  Printer_UML_extended
+imports Meta_UML_extended
+        Printer_UML
+begin
+
+context Print
+begin
+
+definition "To_oid = (\<lambda>Oid n \<Rightarrow> To_nat n)"
+
+fun of_ocl_list_attr where
+   "of_ocl_list_attr f e = (\<lambda> OclAttrNoCast x \<Rightarrow> f x
+                            | OclAttrCast ty (OclAttrNoCast x) _ \<Rightarrow> \<open>(%s :: %s)\<close> (f x) (To_string ty)
+                            | OclAttrCast ty l _ \<Rightarrow> \<open>%s \<rightarrow> oclAsType( %s )\<close> (of_ocl_list_attr f l) (To_string ty)) e"
+
+definition' \<open>of_ocl_def_base = (\<lambda> OclDefInteger i \<Rightarrow> To_string i
+                                | OclDefReal (i1, i2) \<Rightarrow> \<open>%s.%s\<close> (To_string i1) (To_string i2)
+                                | OclDefString s \<Rightarrow> \<open>"%s"\<close> (To_string s))\<close>
+
+fun of_ocl_data_shallow where
+   "of_ocl_data_shallow e = (\<lambda> ShallB_term b \<Rightarrow> of_ocl_def_base b
+                             | ShallB_str s \<Rightarrow> To_string s
+                             | ShallB_self s \<Rightarrow> \<open>self %d\<close> (To_oid s)
+                             | ShallB_list l \<Rightarrow> \<open>[ %s ]\<close> (String_concat \<open>, \<close> (List.map of_ocl_data_shallow l))) e"
+
+definition' \<open>of_ocl_instance_single ocli =
+  \<open>%s%s = %s\<close>
+    (case Inst_name ocli of Some s \<Rightarrow> To_string s)
+    (case Inst_ty ocli of None \<Rightarrow> \<open>\<close> | Some ty \<Rightarrow> \<open> :: %s\<close> (To_string ty))
+    (of_ocl_list_attr
+      (\<lambda>l. \<open>[ %s ]\<close>
+             (String_concat \<open>, \<close>
+               (L.map (\<lambda>(pre_post, attr, v).
+                            \<open>%s"%s" = %s\<close> (case pre_post of None \<Rightarrow> \<open>\<close>
+                                                          | Some (s1, s2) \<Rightarrow> \<open>("%s", "%s") |= \<close> (To_string s1) (To_string s2))
+                                          (To_string attr)
+                                          (of_ocl_data_shallow v))
+                         l)))
+      (Inst_attr ocli))\<close>
+
+definition "of_ocl_instance _ = (\<lambda> OclInstance l \<Rightarrow>
+  \<open>Instance %s\<close> (String_concat \<open>
+     and \<close> (L.map of_ocl_instance_single l)))"
+
+definition "of_def_state l =
+  String_concat \<open>, \<close> (L.map (\<lambda> OclDefCoreBinding s \<Rightarrow> To_string s
+                             | OclDefCoreAdd ocli \<Rightarrow> of_ocl_instance_single ocli) l)"
+
+definition "of_ocl_def_state _ (floor :: (* polymorphism weakening needed by code_reflect *)
+                                         String.literal) = (\<lambda> OclDefSt n l \<Rightarrow> 
+  \<open>State%s %s = [ %s ]\<close>
+    floor
+    (To_string n)
+    (of_def_state l))"
+
+definition "of_def_pp_core = (\<lambda> OclDefPPCoreBinding s \<Rightarrow> To_string s
+                              | OclDefPPCoreAdd l \<Rightarrow> \<open>[ %s ]\<close> (of_def_state l))"
+
+definition "of_ocl_def_pre_post _ (floor :: (* polymorphism weakening needed by code_reflect *)
+                                            String.literal) = (\<lambda> OclDefPP n s_pre s_post \<Rightarrow>
+  \<open>PrePost%s %s%s%s\<close>
+    floor
+    (case n of None \<Rightarrow> \<open>\<close> | Some n \<Rightarrow> \<open>%s = \<close> (To_string n))
+    (of_def_pp_core s_pre)
+    (case s_post of None \<Rightarrow> \<open>\<close> | Some s_post \<Rightarrow> \<open> %s\<close> (of_def_pp_core s_post)))"
+
+end
+
+lemmas [code] =
+  (* def *)
+  Print.To_oid_def
+  Print.of_ocl_def_base_def
+  Print.of_ocl_instance_single_def
+  Print.of_ocl_instance_def
+  Print.of_def_state_def
+  Print.of_ocl_def_state_def
+  Print.of_def_pp_core_def
+  Print.of_ocl_def_pre_post_def
+
+  (* fun *)
+  Print.of_ocl_list_attr.simps
+  Print.of_ocl_data_shallow.simps
+
+end

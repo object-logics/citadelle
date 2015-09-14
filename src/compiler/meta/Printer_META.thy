@@ -46,6 +46,7 @@ section{* Instantiating the Printer for META *}
 theory  Printer_META
 imports Parser_META
         "../../compiler_generic/meta_isabelle/Printer_Isabelle"
+        Printer_UML_extended
 begin
 
 context Print
@@ -57,12 +58,6 @@ definition "setup_of_env env =
   Setup (SML.app \<open>Generation_mode.update_compiler_config\<close>
            [SML.app \<open>K\<close> [SML_let_open \<open>META\<close> (sml_of_compiler_env_config SML_apply (\<lambda>x. SML_basic [x]) env)]])"
 
-definition "concatWith l =
- (if l = [] then
-    id
-  else
-    sprint2 \<prec>''(%s. (%s))''\<succ>\<acute> (To_string (String_concatWith \<open> \<close> (\<open>\<lambda>\<close> # rev l))))"
-
 declare[[cartouche_type' = "fun\<^sub>p\<^sub>r\<^sub>i\<^sub>n\<^sub>t\<^sub>f"]]
 
 definition "of\<^sub>e\<^sub>n\<^sub>v_section env =
@@ -71,98 +66,13 @@ definition "of\<^sub>e\<^sub>n\<^sub>v_section env =
   else
     of_section env)"
 
-fun of_ctxt2_term_aux where "of_ctxt2_term_aux l e =
- (\<lambda> T_pure pure \<Rightarrow> concatWith l (of_pure_term [] pure)
-  | T_to_be_parsed _ s \<Rightarrow> concatWith l (To_string s)
-  | T_lambda s c \<Rightarrow> of_ctxt2_term_aux (s # l) c) e"
-definition "of_ctxt2_term = of_ctxt2_term_aux []"
+definition "of_floor = (\<lambda> Floor1 \<Rightarrow> \<open>\<close> | Floor2 \<Rightarrow> \<open>[shallow]\<close> | Floor3 \<Rightarrow> \<open>[shallow_shallow]\<close>)"
 
-definition "To_oid = (\<lambda>Oid n \<Rightarrow> To_nat n)"
-
-fun of_ocl_list_attr where
-   "of_ocl_list_attr f e = (\<lambda> OclAttrNoCast x \<Rightarrow> f x
-                            | OclAttrCast ty (OclAttrNoCast x) _ \<Rightarrow> \<open>(%s :: %s)\<close> (f x) (To_string ty)
-                            | OclAttrCast ty l _ \<Rightarrow> \<open>%s \<rightarrow> oclAsType( %s )\<close> (of_ocl_list_attr f l) (To_string ty)) e"
-
-definition' \<open>of_ocl_def_base = (\<lambda> OclDefInteger i \<Rightarrow> To_string i
-                                | OclDefReal (i1, i2) \<Rightarrow> \<open>%s.%s\<close> (To_string i1) (To_string i2)
-                                | OclDefString s \<Rightarrow> \<open>"%s"\<close> (To_string s))\<close>
-
-fun of_ocl_data_shallow where
-   "of_ocl_data_shallow e = (\<lambda> ShallB_term b \<Rightarrow> of_ocl_def_base b
-                             | ShallB_str s \<Rightarrow> To_string s
-                             | ShallB_self s \<Rightarrow> \<open>self %d\<close> (To_oid s)
-                             | ShallB_list l \<Rightarrow> \<open>[ %s ]\<close> (String_concat \<open>, \<close> (List.map of_ocl_data_shallow l))) e"
-
-definition' \<open>of_ocl_instance_single ocli =
-  \<open>%s%s = %s\<close>
-    (case Inst_name ocli of Some s \<Rightarrow> To_string s)
-    (case Inst_ty ocli of None \<Rightarrow> \<open>\<close> | Some ty \<Rightarrow> \<open> :: %s\<close> (To_string ty))
-    (of_ocl_list_attr
-      (\<lambda>l. \<open>[ %s ]\<close>
-             (String_concat \<open>, \<close>
-               (L.map (\<lambda>(pre_post, attr, v).
-                            \<open>%s"%s" = %s\<close> (case pre_post of None \<Rightarrow> \<open>\<close>
-                                                          | Some (s1, s2) \<Rightarrow> \<open>("%s", "%s") |= \<close> (To_string s1) (To_string s2))
-                                          (To_string attr)
-                                          (of_ocl_data_shallow v))
-                         l)))
-      (Inst_attr ocli))\<close>
-
-definition "of_def_state l =
-  String_concat \<open>, \<close> (L.map (\<lambda> OclDefCoreBinding s \<Rightarrow> To_string s
-                             | OclDefCoreAdd ocli \<Rightarrow> of_ocl_instance_single ocli) l)"
-
-definition "of_def_pp_core = (\<lambda> OclDefPPCoreBinding s \<Rightarrow> To_string s
-                              | OclDefPPCoreAdd l \<Rightarrow> \<open>[ %s ]\<close> (of_def_state l))"
-
-definition' \<open>of_all_meta_embedding _ =
- (\<lambda> META_ctxt Floor2 ctxt \<Rightarrow>
-    let f_inv = \<lambda> T_inv b (OclProp_ctxt n s) \<Rightarrow> \<open>  %sInv %s : "%s"\<close>
-              (if b then \<open>Existential\<close> else \<open>\<close>)
-              (case n of None \<Rightarrow> \<open>\<close> | Some s \<Rightarrow> To_string s)
-              (of_ctxt2_term s) in
-    \<open>Context[shallow] %s%s %s\<close>
-        (case Ctxt_param ctxt of
-           [] \<Rightarrow> \<open>\<close>
-         | l \<Rightarrow> \<open>%s : \<close> (String_concat \<open>, \<close> (L.map To_string l)))
-        (To_string (ty_obj_to_string (Ctxt_ty ctxt)))
-        (String_concat \<open>
-\<close> (L.map (\<lambda> Ctxt_pp ctxt \<Rightarrow>
-                \<open>:: %s (%s) %s
-%s\<close>
-        (To_string (Ctxt_fun_name ctxt))
-        (String_concat \<open>, \<close>
-          (L.map
-            (\<lambda> (s, ty). \<open>%s : %s\<close> (To_string s) (To_string (str_of_ty ty)))
-            (Ctxt_fun_ty_arg ctxt)))
-        (case Ctxt_fun_ty_out ctxt of None \<Rightarrow> \<open>\<close>
-                                    | Some ty \<Rightarrow> \<open>: %s\<close> (To_string (str_of_ty ty)))
-        (String_concat \<open>
-\<close>
-          (L.map
-            (\<lambda> T_pp pref (OclProp_ctxt n s) \<Rightarrow> \<open>  %s %s: "%s"\<close>
-                (case pref of OclCtxtPre \<Rightarrow> \<open>Pre\<close>
-                            | OclCtxtPost \<Rightarrow> \<open>Post\<close>)
-                (case n of None \<Rightarrow> \<open>\<close> | Some s \<Rightarrow> To_string s)
-                (of_ctxt2_term s)
-             | T_invariant inva \<Rightarrow> f_inv inva)
-            (Ctxt_expr ctxt)))
-          | Ctxt_inv inva \<Rightarrow> f_inv inva)
-         (Ctxt_clause ctxt)))
-
-  | META_instance (OclInstance l) \<Rightarrow>
-      \<open>Instance %s\<close> (String_concat \<open>
-     and \<close> (L.map of_ocl_instance_single l))
-  | META_def_state Floor2 (OclDefSt n l) \<Rightarrow> 
-      \<open>State[shallow] %s = [ %s ]\<close>
-        (To_string n)
-        (of_def_state l)
-  | META_def_pre_post Floor2 (OclDefPP n s_pre s_post) \<Rightarrow>
-      \<open>PrePost[shallow] %s%s%s\<close>
-        (case n of None \<Rightarrow> \<open>\<close> | Some n \<Rightarrow> \<open>%s = \<close> (To_string n))
-        (of_def_pp_core s_pre)
-        (case s_post of None \<Rightarrow> \<open>\<close> | Some s_post \<Rightarrow> \<open> %s\<close> (of_def_pp_core s_post)))\<close>
+definition "of_all_meta_embedding env =
+ (\<lambda> META_ctxt floor ctxt \<Rightarrow> of_ocl_ctxt env (of_floor floor) ctxt
+  | META_instance i \<Rightarrow> of_ocl_instance env i
+  | META_def_state floor s \<Rightarrow> of_ocl_def_state env (of_floor floor) s
+  | META_def_pre_post floor p \<Rightarrow> of_ocl_def_pre_post env (of_floor floor) p)"
 
 definition "of\<^sub>e\<^sub>n\<^sub>v_semi__theory env =
             (\<lambda> Theory_section section_title \<Rightarrow> of\<^sub>e\<^sub>n\<^sub>v_section env section_title
@@ -234,14 +144,8 @@ end
 lemmas [code] =
   (* def *)
   Print.setup_of_env_def
-  Print.concatWith_def
   Print.of\<^sub>e\<^sub>n\<^sub>v_section_def
-  Print.of_ctxt2_term_def
-  Print.To_oid_def
-  Print.of_ocl_def_base_def
-  Print.of_ocl_instance_single_def
-  Print.of_def_state_def
-  Print.of_def_pp_core_def
+  Print.of_floor_def
   Print.of_all_meta_embedding_def
   Print.of\<^sub>e\<^sub>n\<^sub>v_semi__theory_def
   Print.of\<^sub>e\<^sub>n\<^sub>v_semi__theories_def
@@ -251,8 +155,5 @@ lemmas [code] =
   Print.of_all_meta_lists_def
 
   (* fun *)
-  Print.of_ctxt2_term_aux.simps
-  Print.of_ocl_list_attr.simps
-  Print.of_ocl_data_shallow.simps
 
 end
