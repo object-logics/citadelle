@@ -138,23 +138,23 @@ definition "compiler_env_config_more_map f ocl =
 subsection{* SML Meta-Model (extended) *}
 subsubsection{* Type Definition *}
 
-datatype sml_extended = SML_extended sml_expr
-                      | SML_compiler_env compiler_env_config
+datatype META_SML = SML_semi__term' semi__term'
+                  | SML_compiler_env_config compiler_env_config
 
 subsection{* Isabelle Meta-Model (extended) *}
 subsubsection{* Type Definition *}
 
-datatype hol_generation_syntax = Gen_semantics generation_semantics_ocl
+datatype META_Isabelle_generation_syntax = Gen_semantics generation_semantics_ocl
 
-datatype hol_ml_extended = Ml_extended sml_extended
+datatype META_Isabelle_ML = ML_setup META_SML
 
-datatype hol_thy_extended = (* pure Isabelle *)
-                            Isab_thy semi__theory
+datatype META_Isabelle = (* pure Isabelle *)
+                         Isab_thy semi__theory
 
-                            (* bootstrapping embedded languages *)
-                          | Isab_thy_generation_syntax hol_generation_syntax
-                          | Isab_thy_ml_extended hol_ml_extended
-                          | Isab_thy_all_meta_embedding all_meta_embedding
+                         (* bootstrapping embedded languages *)
+                       | Isab_thy_generation_syntax META_Isabelle_generation_syntax
+                       | Isab_thy_ml_extended META_Isabelle_ML
+                       | Isab_thy_all_meta_embedding all_meta_embedding
 
 subsubsection{* Extending the Meta-Model *}
 

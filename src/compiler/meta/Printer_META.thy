@@ -53,11 +53,11 @@ begin
 
 declare[[cartouche_type' = "abr_string"]]
 
-definition "of_sexpr_extended = (\<lambda>
-    SML_extended s \<Rightarrow> of_sexpr s
-  | SML_compiler_env ocl \<Rightarrow> of_sexpr
-     (SML_apply \<open>Generation_mode.update_compiler_config\<close>
-       [SML_apply \<open>K\<close> [SML_let_open \<open>META\<close> (SML_basic [sml_of_meta_unit sml_apply id ocl])]]))"
+definition "of_semi__term'_extended = (\<lambda>
+    SML_semi__term' s \<Rightarrow> of_semi__term' s
+  | SML_compiler_env_config ocl \<Rightarrow> of_semi__term'
+     (SML_app \<open>Generation_mode.update_compiler_config\<close>
+       [SML_app \<open>K\<close> [SML_let_open \<open>META\<close> (SML_basic [sml_of_meta_unit sml_apply id ocl])]]))"
 
 definition "concatWith l =
  (if l = [] then
@@ -201,7 +201,7 @@ definition "of_generation_syntax _ = (\<lambda> Gen_semantics mode \<Rightarrow>
                 | Gen_only_analysis \<Rightarrow> f \<open>analysis\<close>
                 | Gen_default \<Rightarrow> \<open>\<close>))"
 
-definition "of_ml_extended _ = (\<lambda> Ml_extended e \<Rightarrow> \<open>setup{* %s *}\<close> (of_sexpr_extended e))"
+definition "of_ml_extended _ = (\<lambda> ML_setup e \<Rightarrow> \<open>setup{* %s *}\<close> (of_semi__term'_extended e))"
 
 definition "of_thy_extended ocl = (\<lambda>
     Isab_thy thy \<Rightarrow> of_semi__theory0 ocl thy
@@ -235,7 +235,7 @@ end
 
 lemmas [code] =
   (* def *)
-  Print.of_sexpr_extended_def
+  Print.of_semi__term'_extended_def
   Print.concatWith_def
   Print.of_section_title_def
   Print.of_ctxt2_term_def

@@ -44,18 +44,18 @@ begin
 
 subsection{* Type Definition *}
 
-datatype sml_val_fun = Sval
-                     | Sfun
+datatype semi__val_fun = Sval
+                       | Sfun
 
-datatype sml_expr = SML_string string
-                  | SML_rewrite sml_val_fun sml_expr (* left *) string (* symb rewriting *) sml_expr (* right *)
-                  | SML_basic "string list"
-                  | SML_binop sml_expr string sml_expr
-                  | SML_annot sml_expr string (* type *)
-                  | SML_function "(sml_expr (* pattern *) \<times> sml_expr (* to return *)) list"
-                  | SML_apply string "sml_expr list"
-                  | SML_paren string (* left *) string (* right *) sml_expr
-                  | SML_let_open string sml_expr
+datatype semi__term' = SML_string string
+                     | SML_rewrite semi__val_fun semi__term' (* left *) string (* symb rewriting *) semi__term' (* right *)
+                     | SML_basic "string list"
+                     | SML_binop semi__term' string semi__term'
+                     | SML_annot semi__term' string (* type *)
+                     | SML_function "(semi__term' (* pattern *) \<times> semi__term' (* to return *)) list"
+                     | SML_app string "semi__term' list"
+                     | SML_paren string (* left *) string (* right *) semi__term'
+                     | SML_let_open string semi__term'
 
 subsection{* Extending the Meta-Model *}
 
@@ -67,12 +67,12 @@ definition "basic = SML_basic"
 definition "binop = SML_binop"
 definition "annot = SML_annot"
 definition "function = SML_function"
-definition "apply = SML_apply"
+definition "app = SML_app"
 definition "paren = SML_paren"
 definition "let_open = SML_let_open"
 
 definition "none = basic [\<open>NONE\<close>]"
-definition "some s = apply \<open>SOME\<close> [s]"
+definition "some s = app \<open>SOME\<close> [s]"
 definition "option' f l = (case map_option f l of None \<Rightarrow> none | Some s \<Rightarrow> some s)"
 definition "option = option' id"
 definition "parenthesis (* mandatory parenthesis *) = paren \<open>(\<close> \<open>)\<close>"
@@ -93,7 +93,7 @@ lemmas [code] =
   SML.binop_def
   SML.annot_def
   SML.function_def
-  SML.apply_def
+  SML.app_def
   SML.paren_def
   SML.let_open_def
   SML.none_def

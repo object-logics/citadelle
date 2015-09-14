@@ -167,8 +167,8 @@ subsection{* Binding of Reflected API to Native API *}
 ML{*
 structure META_overload = struct
   val of_semi__typ = META.of_semi_typ To_string0
-  val of_semi__term = META.of_semi_term To_string0
-  val of_sexpr = META.of_sexpr To_string0
+  val of_semi__term = META.of_semi_terma To_string0
+  val of_semi__term' = META.of_semi_term To_string0
   val fold = fold
 end
 *}
@@ -430,7 +430,7 @@ fun META_main_thy in_theory in_local = let open META open META_overload in (*let
                                      [((To_sbinding n, []), [of_semi__term e])])
 | Theory_section _ => in_theory I
 | Theory_text _ => in_theory I
-| Theory_ML ml => in_theory (Code_printing.reflect_ml (Input.source false (case ml of SML ml => of_sexpr ml) (Position.none, Position.none)))
+| Theory_ML ml => in_theory (Code_printing.reflect_ml (Input.source false (case ml of SML ml => of_semi__term' ml) (Position.none, Position.none)))
 | Theory_thm (Thm thm) => in_local
    (fn lthy =>
     let val () = writeln (Pretty.string_of (Proof_Context.pretty_fact lthy ("", List.map (m_of_ntheorem lthy) thm))) in

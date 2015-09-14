@@ -172,7 +172,7 @@ datatype "section" = Section nat (* nesting level *)
 
 datatype "text" = Text string
 
-datatype "ML" = SML sml_expr
+datatype "ML" = SML semi__term'
 
 datatype "thm" = Thm "semi__thm_attribute list"
 

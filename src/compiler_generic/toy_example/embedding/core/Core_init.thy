@@ -195,7 +195,7 @@ definition "start_map'''' f fl = (\<lambda> env. start_map f (fl (D_ocl_semantic
 
 definition "bootstrap_floor f_x l env =
  (let (l, env) = f_x l env
-    ; l_setup = Isab_thy_ml_extended (Ml_extended (SML_compiler_env (env \<lparr> D_output_disable_thy := True
+    ; l_setup = Isab_thy_ml_extended (ML_setup (SML_compiler_env_config (env \<lparr> D_output_disable_thy := True
                                                               , D_output_header_thy := None
                                                               , D_output_position := (0, 0) \<rparr>) ))
             # l

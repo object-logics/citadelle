@@ -338,7 +338,7 @@ definition "of_section _ = (\<lambda> Section n section_title \<Rightarrow>
 
 definition "of_text _ = (\<lambda> Text s \<Rightarrow> \<open>text{* %s *}\<close> (To_string s))"
 
-definition "of_ML _ = (\<lambda> SML e \<Rightarrow> \<open>ML{* %s *}\<close> (of_sexpr e))"
+definition "of_ML _ = (\<lambda> SML e \<Rightarrow> \<open>ML{* %s *}\<close> (of_semi__term' e))"
 
 definition "of_thm _ = (\<lambda> Thm thm \<Rightarrow> \<open>thm %s\<close> (of_semi__thm_attribute_l1 thm))"
 

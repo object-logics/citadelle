@@ -46,27 +46,27 @@ begin
 context Print
 begin
 
-definition "of_val_fun = (\<lambda> Sval \<Rightarrow> \<open>val\<close>
-                          | Sfun \<Rightarrow> \<open>fun\<close>)"
+definition "of_semi__val_fun = (\<lambda> Sval \<Rightarrow> \<open>val\<close>
+                                | Sfun \<Rightarrow> \<open>fun\<close>)"
 
-fun' of_sexpr where \<open>of_sexpr e = (\<lambda>
+fun' of_semi__term' where \<open>of_semi__term' e = (\<lambda>
     SML_string s \<Rightarrow> \<open>"%s"\<close> (To_string (escape_sml s))
-  | SML_rewrite val_fun e1 symb e2 \<Rightarrow> \<open>%s %s %s %s\<close> (of_val_fun val_fun) (of_sexpr e1) (To_string symb) (of_sexpr e2)
+  | SML_rewrite val_fun e1 symb e2 \<Rightarrow> \<open>%s %s %s %s\<close> (of_semi__val_fun val_fun) (of_semi__term' e1) (To_string symb) (of_semi__term' e2)
   | SML_basic l \<Rightarrow> \<open>%s\<close> (String_concat \<open> \<close> (L.map To_string l))
-  | SML_binop e1 s e2 \<Rightarrow> \<open>%s %s %s\<close> (of_sexpr e1) (of_sexpr (SML_basic [s])) (of_sexpr e2)
-  | SML_annot e s \<Rightarrow> \<open>(%s:%s)\<close> (of_sexpr e) (To_string s)
+  | SML_binop e1 s e2 \<Rightarrow> \<open>%s %s %s\<close> (of_semi__term' e1) (of_semi__term' (SML_basic [s])) (of_semi__term' e2)
+  | SML_annot e s \<Rightarrow> \<open>(%s:%s)\<close> (of_semi__term' e) (To_string s)
   | SML_function l \<Rightarrow> \<open>(fn %s)\<close> (String_concat \<open>
-    | \<close> (List.map (\<lambda> (s1, s2) \<Rightarrow> \<open>%s => %s\<close> (of_sexpr s1) (of_sexpr s2)) l))
-  | SML_apply s l \<Rightarrow> \<open>(%s %s)\<close> (To_string s) (String_concat \<open> \<close> (List.map (\<lambda> e \<Rightarrow> \<open>(%s)\<close> (of_sexpr e)) l))
-  | SML_paren p_left p_right e \<Rightarrow> \<open>%s%s%s\<close> (To_string p_left) (of_sexpr e) (To_string p_right)
-  | SML_let_open s e \<Rightarrow> \<open>let open %s in %s end\<close> (To_string s) (of_sexpr e)) e\<close>
+    | \<close> (List.map (\<lambda> (s1, s2) \<Rightarrow> \<open>%s => %s\<close> (of_semi__term' s1) (of_semi__term' s2)) l))
+  | SML_app s l \<Rightarrow> \<open>(%s %s)\<close> (To_string s) (String_concat \<open> \<close> (List.map (\<lambda> e \<Rightarrow> \<open>(%s)\<close> (of_semi__term' e)) l))
+  | SML_paren p_left p_right e \<Rightarrow> \<open>%s%s%s\<close> (To_string p_left) (of_semi__term' e) (To_string p_right)
+  | SML_let_open s e \<Rightarrow> \<open>let open %s in %s end\<close> (To_string s) (of_semi__term' e)) e\<close>
 
 end
 
 lemmas [code] =
   (* def *)
-  Print.of_val_fun_def
+  Print.of_semi__val_fun_def
   (* fun *)
-  Print.of_sexpr.simps
+  Print.of_semi__term'.simps
 
 end
