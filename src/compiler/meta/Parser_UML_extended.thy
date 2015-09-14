@@ -41,7 +41,7 @@
  ******************************************************************************)
 (* $Id:$ *)
 
-section{* Instantiating the Parser of OCL *}
+section{* Instantiating the Parser of OCL (II) *}
 
 theory  Parser_UML_extended
 imports Meta_UML_extended

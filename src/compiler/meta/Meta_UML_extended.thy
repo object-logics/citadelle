@@ -41,7 +41,7 @@
  ******************************************************************************)
 (* $Id:$ *)
 
-section{* OCL Meta-Model aka. AST definition of OCL *}
+section{* OCL Meta-Model aka. AST definition of OCL (II) *}
 
 theory  Meta_UML_extended
 imports "../../compiler_generic/Init"

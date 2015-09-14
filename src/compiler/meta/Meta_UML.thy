@@ -41,7 +41,7 @@
  ******************************************************************************)
 (* $Id:$ *)
 
-section{* OCL Meta-Model aka. AST definition of OCL *}
+section{* OCL Meta-Model aka. AST definition of OCL (I) *}
 
 theory  Meta_UML
 imports "../../compiler_generic/meta_isabelle/Meta_Pure"

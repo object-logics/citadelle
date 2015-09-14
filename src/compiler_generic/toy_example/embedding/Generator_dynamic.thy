@@ -162,7 +162,7 @@ fun check l_oid l =
 end
 *}
 
-subsection{* Binding of Reflected API to Native API *}
+subsection{* Binding of the Reflected API to the Native API *}
 
 ML{*
 structure META_overload = struct

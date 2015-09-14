@@ -52,27 +52,11 @@ begin
 context Print
 begin
 
-declare[[cartouche_type' = "abr_string"]]
-
-definition "setup_of_env env = 
-  Setup (SML.app \<open>Generation_mode.update_compiler_config\<close>
-           [SML.app \<open>K\<close> [SML_let_open \<open>META\<close> (sml_of_compiler_env_config SML_apply (\<lambda>x. SML_basic [x]) env)]])"
-
-declare[[cartouche_type' = "fun\<^sub>p\<^sub>r\<^sub>i\<^sub>n\<^sub>t\<^sub>f"]]
-
 definition "of\<^sub>e\<^sub>n\<^sub>v_section env =
  (if D_output_disable_thy env then
     \<lambda>_. \<open>\<close>
   else
     of_section env)"
-
-definition "of_floor = (\<lambda> Floor1 \<Rightarrow> \<open>\<close> | Floor2 \<Rightarrow> \<open>[shallow]\<close> | Floor3 \<Rightarrow> \<open>[shallow_shallow]\<close>)"
-
-definition "of_all_meta_embedding env =
- (\<lambda> META_ctxt floor ctxt \<Rightarrow> of_ocl_ctxt env (of_floor floor) ctxt
-  | META_instance i \<Rightarrow> of_ocl_instance env i
-  | META_def_state floor s \<Rightarrow> of_ocl_def_state env (of_floor floor) s
-  | META_def_pre_post floor p \<Rightarrow> of_ocl_def_pre_post env (of_floor floor) p)"
 
 definition "of\<^sub>e\<^sub>n\<^sub>v_semi__theory env =
             (\<lambda> Theory_section section_title \<Rightarrow> of\<^sub>e\<^sub>n\<^sub>v_section env section_title
@@ -102,6 +86,16 @@ assumes %s: "%s"\<close> (To_string name) (of_semi__term e)))
 
 \<close> (of\<^sub>e\<^sub>n\<^sub>v_semi__theory env)) l))\<close>
 
+(* *)
+
+definition "of_floor = (\<lambda> Floor1 \<Rightarrow> \<open>\<close> | Floor2 \<Rightarrow> \<open>[shallow]\<close> | Floor3 \<Rightarrow> \<open>[shallow_shallow]\<close>)"
+
+definition "of_all_meta_embedding env =
+ (\<lambda> META_ctxt floor ctxt \<Rightarrow> of_ocl_ctxt env (of_floor floor) ctxt
+  | META_instance i \<Rightarrow> of_ocl_instance env i
+  | META_def_state floor s \<Rightarrow> of_ocl_def_state env (of_floor floor) s
+  | META_def_pre_post floor p \<Rightarrow> of_ocl_def_pre_post env (of_floor floor) p)"
+
 definition "of_boot_generation_syntax _ = (\<lambda> Boot_generation_syntax mode \<Rightarrow>
   \<open>generation_syntax [ shallow%s ]\<close>
     (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l f = \<open> (generation_semantics [ %s ])\<close> in
@@ -109,7 +103,13 @@ definition "of_boot_generation_syntax _ = (\<lambda> Boot_generation_syntax mode
                 | Gen_only_analysis \<Rightarrow> f \<open>analysis\<close>
                 | Gen_default \<Rightarrow> \<open>\<close>))"
 
-definition "of_boot_setup_env env = (\<lambda> Boot_setup_env e \<Rightarrow> of_setup env (setup_of_env e))"
+declare[[cartouche_type' = "abr_string"]]
+
+definition "of_boot_setup_env env = (\<lambda> Boot_setup_env e \<Rightarrow>
+  of_setup env (Setup (SML.app \<open>Generation_mode.update_compiler_config\<close>
+                         [SML.app \<open>K\<close> [SML_let_open \<open>META\<close> (sml_of_compiler_env_config SML_apply (\<lambda>x. SML_basic [x]) e)]])))"
+
+declare[[cartouche_type' = "fun\<^sub>p\<^sub>r\<^sub>i\<^sub>n\<^sub>t\<^sub>f"]]
 
 definition "of_all_meta env = (\<lambda>
     META_semi__theories thy \<Rightarrow> of\<^sub>e\<^sub>n\<^sub>v_semi__theories env thy
@@ -143,12 +143,11 @@ end
 
 lemmas [code] =
   (* def *)
-  Print.setup_of_env_def
   Print.of\<^sub>e\<^sub>n\<^sub>v_section_def
-  Print.of_floor_def
-  Print.of_all_meta_embedding_def
   Print.of\<^sub>e\<^sub>n\<^sub>v_semi__theory_def
   Print.of\<^sub>e\<^sub>n\<^sub>v_semi__theories_def
+  Print.of_floor_def
+  Print.of_all_meta_embedding_def
   Print.of_boot_generation_syntax_def
   Print.of_boot_setup_env_def
   Print.of_all_meta_def

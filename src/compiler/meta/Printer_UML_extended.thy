@@ -41,7 +41,7 @@
  ******************************************************************************)
 (* $Id:$ *)
 
-section{* Instantiating the Printer for OCL *}
+section{* Instantiating the Printer for OCL (II) *}
 
 theory  Printer_UML_extended
 imports Meta_UML_extended
@@ -53,11 +53,6 @@ begin
 
 definition "To_oid = (\<lambda>Oid n \<Rightarrow> To_nat n)"
 
-fun of_ocl_list_attr where
-   "of_ocl_list_attr f e = (\<lambda> OclAttrNoCast x \<Rightarrow> f x
-                            | OclAttrCast ty (OclAttrNoCast x) _ \<Rightarrow> \<open>(%s :: %s)\<close> (f x) (To_string ty)
-                            | OclAttrCast ty l _ \<Rightarrow> \<open>%s \<rightarrow> oclAsType( %s )\<close> (of_ocl_list_attr f l) (To_string ty)) e"
-
 definition' \<open>of_ocl_def_base = (\<lambda> OclDefInteger i \<Rightarrow> To_string i
                                 | OclDefReal (i1, i2) \<Rightarrow> \<open>%s.%s\<close> (To_string i1) (To_string i2)
                                 | OclDefString s \<Rightarrow> \<open>"%s"\<close> (To_string s))\<close>
@@ -67,6 +62,11 @@ fun of_ocl_data_shallow where
                              | ShallB_str s \<Rightarrow> To_string s
                              | ShallB_self s \<Rightarrow> \<open>self %d\<close> (To_oid s)
                              | ShallB_list l \<Rightarrow> \<open>[ %s ]\<close> (String_concat \<open>, \<close> (List.map of_ocl_data_shallow l))) e"
+
+fun of_ocl_list_attr where
+   "of_ocl_list_attr f e = (\<lambda> OclAttrNoCast x \<Rightarrow> f x
+                            | OclAttrCast ty (OclAttrNoCast x) _ \<Rightarrow> \<open>(%s :: %s)\<close> (f x) (To_string ty)
+                            | OclAttrCast ty l _ \<Rightarrow> \<open>%s \<rightarrow> oclAsType( %s )\<close> (of_ocl_list_attr f l) (To_string ty)) e"
 
 definition' \<open>of_ocl_instance_single ocli =
   \<open>%s%s = %s\<close>
@@ -87,7 +87,7 @@ definition "of_ocl_instance _ = (\<lambda> OclInstance l \<Rightarrow>
   \<open>Instance %s\<close> (String_concat \<open>
      and \<close> (L.map of_ocl_instance_single l)))"
 
-definition "of_def_state l =
+definition "of_ocl_def_state_core l =
   String_concat \<open>, \<close> (L.map (\<lambda> OclDefCoreBinding s \<Rightarrow> To_string s
                              | OclDefCoreAdd ocli \<Rightarrow> of_ocl_instance_single ocli) l)"
 
@@ -96,18 +96,18 @@ definition "of_ocl_def_state _ (floor :: (* polymorphism weakening needed by cod
   \<open>State%s %s = [ %s ]\<close>
     floor
     (To_string n)
-    (of_def_state l))"
+    (of_ocl_def_state_core l))"
 
-definition "of_def_pp_core = (\<lambda> OclDefPPCoreBinding s \<Rightarrow> To_string s
-                              | OclDefPPCoreAdd l \<Rightarrow> \<open>[ %s ]\<close> (of_def_state l))"
+definition "of_ocl_def_pp_core = (\<lambda> OclDefPPCoreBinding s \<Rightarrow> To_string s
+                                  | OclDefPPCoreAdd l \<Rightarrow> \<open>[ %s ]\<close> (of_ocl_def_state_core l))"
 
 definition "of_ocl_def_pre_post _ (floor :: (* polymorphism weakening needed by code_reflect *)
                                             String.literal) = (\<lambda> OclDefPP n s_pre s_post \<Rightarrow>
   \<open>PrePost%s %s%s%s\<close>
     floor
     (case n of None \<Rightarrow> \<open>\<close> | Some n \<Rightarrow> \<open>%s = \<close> (To_string n))
-    (of_def_pp_core s_pre)
-    (case s_post of None \<Rightarrow> \<open>\<close> | Some s_post \<Rightarrow> \<open> %s\<close> (of_def_pp_core s_post)))"
+    (of_ocl_def_pp_core s_pre)
+    (case s_post of None \<Rightarrow> \<open>\<close> | Some s_post \<Rightarrow> \<open> %s\<close> (of_ocl_def_pp_core s_post)))"
 
 end
 
@@ -117,9 +117,9 @@ lemmas [code] =
   Print.of_ocl_def_base_def
   Print.of_ocl_instance_single_def
   Print.of_ocl_instance_def
-  Print.of_def_state_def
+  Print.of_ocl_def_state_core_def
   Print.of_ocl_def_state_def
-  Print.of_def_pp_core_def
+  Print.of_ocl_def_pp_core_def
   Print.of_ocl_def_pre_post_def
 
   (* fun *)
