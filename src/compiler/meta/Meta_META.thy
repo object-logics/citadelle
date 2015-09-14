@@ -144,26 +144,20 @@ definition "map2_ctxt_term f =
 definition "compiler_env_config_more_map f ocl =
             compiler_env_config.extend  (compiler_env_config.truncate ocl) (f (compiler_env_config.more ocl))"
 
-subsection{* SML Meta-Model (extended) *}
-subsubsection{* Type Definition *}
-
-datatype META_SML = SML_semi__term' semi__term'
-                  | SML_compiler_env_config compiler_env_config
-
 subsection{* Isabelle Meta-Model (extended) *}
 subsubsection{* Type Definition *}
 
-datatype META_Isabelle_generation_syntax = Gen_semantics generation_semantics_ocl
+datatype bootstrap_generation_syntax = Boot_generation_syntax generation_semantics_ocl
 
-datatype META_Isabelle_ML = ML_setup META_SML
+datatype bootstrap_setup_env = Boot_setup_env compiler_env_config
 
-datatype META_Isabelle = (* pure Isabelle *)
-                         Isab_thy semi__theory
+datatype all_meta = (* pure Isabelle *)
+                    Isab_thy semi__theory
 
-                         (* bootstrapping embedded languages *)
-                       | Isab_thy_generation_syntax META_Isabelle_generation_syntax
-                       | Isab_thy_ml_extended META_Isabelle_ML
-                       | Isab_thy_all_meta_embedding all_meta_embedding
+                    (* bootstrapping embedded languages *)
+                  | Isab_thy_generation_syntax bootstrap_generation_syntax
+                  | Isab_thy_setup_env bootstrap_setup_env
+                  | Isab_thy_all_meta_embedding all_meta_embedding
 
 subsubsection{* Extending the Meta-Model *}
 
@@ -183,6 +177,7 @@ definition "axiomatization = i Theory_axiomatization"
 definition "section = i Theory_section"
 definition "text = i Theory_text"
 definition "ML = i Theory_ML"
+definition "setup = i Theory_setup"
 definition "thm = i Theory_thm"
 definition "interpretation = i Theory_interpretation"
 end
@@ -203,6 +198,7 @@ lemmas [code] =
   O.section_def
   O.text_def
   O.ML_def
+  O.setup_def
   O.thm_def
   O.interpretation_def
 
@@ -221,6 +217,7 @@ definition "axiomatization = Theory_axiomatization"
 definition "section = Theory_section"
 definition "text = Theory_text"
 definition "ML = Theory_ML"
+definition "setup = Theory_setup"
 definition "thm = Theory_thm"
 definition "interpretation = Theory_interpretation"
 end
@@ -240,6 +237,7 @@ lemmas [code] =
   O'.section_def
   O'.text_def
   O'.ML_def
+  O'.setup_def
   O'.thm_def
   O'.interpretation_def
 

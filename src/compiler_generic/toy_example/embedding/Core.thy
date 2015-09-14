@@ -48,7 +48,7 @@ begin
 
 subsection{* Preliminaries *}
 
-datatype ('a, 'b) hol_theory = Hol_theory_ext "('a \<Rightarrow> 'b \<Rightarrow> META_Isabelle list \<times> 'b) list"
+datatype ('a, 'b) hol_theory = Hol_theory_ext "('a \<Rightarrow> 'b \<Rightarrow> all_meta list \<times> 'b) list"
                              | Hol_theory_locale "'a \<Rightarrow> 'b \<Rightarrow> semi__locale \<times> 'b"
                                                  "('a \<Rightarrow> 'b \<Rightarrow> semi__t list \<times> 'b) list"
 

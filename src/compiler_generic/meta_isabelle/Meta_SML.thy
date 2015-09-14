@@ -53,7 +53,7 @@ datatype semi__term' = SML_string string
                      | SML_binop semi__term' string semi__term'
                      | SML_annot semi__term' string (* type *)
                      | SML_function "(semi__term' (* pattern *) \<times> semi__term' (* to return *)) list"
-                     | SML_app string "semi__term' list"
+                     | SML_apply semi__term' "semi__term' list"
                      | SML_paren string (* left *) string (* right *) semi__term'
                      | SML_let_open string semi__term'
 
@@ -67,10 +67,11 @@ definition "basic = SML_basic"
 definition "binop = SML_binop"
 definition "annot = SML_annot"
 definition "function = SML_function"
-definition "app = SML_app"
+definition "apply = SML_apply"
 definition "paren = SML_paren"
 definition "let_open = SML_let_open"
 
+definition "app s = apply (basic [s])"
 definition "none = basic [\<open>NONE\<close>]"
 definition "some s = app \<open>SOME\<close> [s]"
 definition "option' f l = (case map_option f l of None \<Rightarrow> none | Some s \<Rightarrow> some s)"
@@ -93,9 +94,10 @@ lemmas [code] =
   SML.binop_def
   SML.annot_def
   SML.function_def
-  SML.app_def
+  SML.apply_def
   SML.paren_def
   SML.let_open_def
+  SML.app_def
   SML.none_def
   SML.some_def
   SML.option'_def

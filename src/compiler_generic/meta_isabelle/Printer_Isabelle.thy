@@ -340,6 +340,8 @@ definition "of_text _ = (\<lambda> Text s \<Rightarrow> \<open>text{* %s *}\<clo
 
 definition "of_ML _ = (\<lambda> SML e \<Rightarrow> \<open>ML{* %s *}\<close> (of_semi__term' e))"
 
+definition "of_setup _ = (\<lambda> Setup e \<Rightarrow> \<open>setup{* %s *}\<close> (of_semi__term' e))"
+
 definition "of_thm _ = (\<lambda> Thm thm \<Rightarrow> \<open>thm %s\<close> (of_semi__thm_attribute_l1 thm))"
 
 definition' \<open>of_interpretation _ = (\<lambda> Interpretation n loc_n loc_param tac \<Rightarrow>
@@ -363,6 +365,7 @@ definition "of_semi__t env =
   | Theory_section section_title \<Rightarrow> of_section env section_title
   | Theory_text text \<Rightarrow> of_text env text
   | Theory_ML ml \<Rightarrow> of_ML env ml
+  | Theory_setup setup \<Rightarrow> of_setup env setup
   | Theory_thm thm \<Rightarrow> of_thm env thm
   | Theory_interpretation thm \<Rightarrow> of_interpretation env thm)"
 
@@ -424,6 +427,7 @@ lemmas [code] =
   Print.of_section_def
   Print.of_text_def
   Print.of_ML_def
+  Print.of_setup_def
   Print.of_thm_def
   Print.of_interpretation_def
   Print.of_semi__t_def

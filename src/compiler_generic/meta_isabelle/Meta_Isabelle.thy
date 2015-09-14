@@ -174,6 +174,8 @@ datatype "text" = Text string
 
 datatype "ML" = SML semi__term'
 
+datatype "setup" = Setup semi__term'
+
 datatype "thm" = Thm "semi__thm_attribute list"
 
 datatype "interpretation" = Interpretation string (* name *)
@@ -194,6 +196,7 @@ datatype semi__t = Theory_datatype "datatype"
                  | Theory_section "section"
                  | Theory_text "text"
                  | Theory_ML "ML"
+                 | Theory_setup "setup"
                  | Theory_thm "thm"
                  | Theory_interpretation "interpretation"
 

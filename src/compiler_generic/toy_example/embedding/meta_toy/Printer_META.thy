@@ -48,11 +48,9 @@ begin
 
 declare[[cartouche_type' = "abr_string"]]
 
-definition "of_semi__term'_extended = (\<lambda>
-    SML_semi__term' s \<Rightarrow> of_semi__term' s
-  | SML_compiler_env_config ocl \<Rightarrow> of_semi__term'
-     (SML_app \<open>Generation_mode.update_compiler_config\<close>
-       [SML_app \<open>K\<close> [SML_let_open \<open>META\<close> (SML_basic [sml_of_meta_unit sml_apply id ocl])]]))"
+definition "setup_of_env env = 
+  Setup (SML.app \<open>Generation_mode.update_compiler_config\<close>
+           [SML.app \<open>K\<close> [SML_let_open \<open>META\<close> (sml_of_meta_unit SML_apply (\<lambda>x. SML_basic [x]) env)]])"
 
 definition "concatWith l =
  (if l = [] then
@@ -189,19 +187,19 @@ assumes %s: "%s"\<close> (To_string name) (of_semi__term e)))
 
 \<close> (of_semi__t0 ocl)) l))\<close>
 
-definition "of_generation_syntax _ = (\<lambda> Gen_semantics mode \<Rightarrow>
+definition "of_bootstrap_generation_syntax _ = (\<lambda> Boot_generation_syntax mode \<Rightarrow>
   \<open>generation_syntax [ shallow%s ]\<close>
     (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l f = \<open> (generation_semantics [ %s ])\<close> in
      case mode of Gen_only_design \<Rightarrow> f \<open>design\<close>
                 | Gen_only_analysis \<Rightarrow> f \<open>analysis\<close>
                 | Gen_default \<Rightarrow> \<open>\<close>))"
 
-definition "of_ml_extended _ = (\<lambda> ML_setup e \<Rightarrow> \<open>setup{* %s *}\<close> (of_semi__term'_extended e))"
+definition "of_bootstrap_setup_env env = (\<lambda> Boot_setup_env e \<Rightarrow> of_setup env (setup_of_env e))"
 
-definition "of_thy_extended ocl = (\<lambda>
+definition "of_all_meta ocl = (\<lambda>
     Isab_thy thy \<Rightarrow> of_semi__theory0 ocl thy
-  | Isab_thy_generation_syntax generation_syntax \<Rightarrow> of_generation_syntax ocl generation_syntax
-  | Isab_thy_ml_extended ml_extended \<Rightarrow> of_ml_extended ocl ml_extended
+  | Isab_thy_generation_syntax generation_syntax \<Rightarrow> of_bootstrap_generation_syntax ocl generation_syntax
+  | Isab_thy_setup_env setup_env \<Rightarrow> of_bootstrap_setup_env ocl setup_env
   | Isab_thy_all_meta_embedding all_meta_embedding \<Rightarrow> of_all_meta_embedding ocl all_meta_embedding)"
 
 definition "of_thy_list ocl l_thy =
@@ -220,7 +218,7 @@ definition "of_thy_list ocl l_thy =
   L.flatten
         [ th_beg
         , L.flatten (fst (L.mapM (\<lambda>l (i, cpt).
-            let (l_thy, lg) = L.mapM (\<lambda>l n. (of_thy_extended ocl l, Succ n)) l 0 in
+            let (l_thy, lg) = L.mapM (\<lambda>l n. (of_all_meta ocl l, Succ n)) l 0 in
             (( \<open>\<close>
              # \<open>%s(* %d ************************************ %d + %d *)\<close>
                  (To_string (if compiler_env_config.more ocl then \<langle>''''\<rangle> else \<degree>char_escape\<degree>)) (To_nat (Succ i)) (To_nat cpt) (To_nat lg)
@@ -230,7 +228,7 @@ end
 
 lemmas [code] =
   (* def *)
-  Print.of_semi__term'_extended_def
+  Print.setup_of_env_def
   Print.concatWith_def
   Print.of_section_title_def
   Print.of_ctxt2_term_def
@@ -242,9 +240,9 @@ lemmas [code] =
   Print.of_all_meta_embedding_def
   Print.of_semi__t0_def
   Print.of_semi__theory0_def
-  Print.of_generation_syntax_def
-  Print.of_ml_extended_def
-  Print.of_thy_extended_def
+  Print.of_bootstrap_generation_syntax_def
+  Print.of_bootstrap_setup_env_def
+  Print.of_all_meta_def
   Print.of_thy_list_def
 
   (* fun *)

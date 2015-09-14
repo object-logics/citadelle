@@ -57,7 +57,7 @@ fun' of_semi__term' where \<open>of_semi__term' e = (\<lambda>
   | SML_annot e s \<Rightarrow> \<open>(%s:%s)\<close> (of_semi__term' e) (To_string s)
   | SML_function l \<Rightarrow> \<open>(fn %s)\<close> (String_concat \<open>
     | \<close> (List.map (\<lambda> (s1, s2) \<Rightarrow> \<open>%s => %s\<close> (of_semi__term' s1) (of_semi__term' s2)) l))
-  | SML_app s l \<Rightarrow> \<open>(%s %s)\<close> (To_string s) (String_concat \<open> \<close> (List.map (\<lambda> e \<Rightarrow> \<open>(%s)\<close> (of_semi__term' e)) l))
+  | SML_apply e l \<Rightarrow> \<open>(%s %s)\<close> (of_semi__term' e) (String_concat \<open> \<close> (List.map (\<lambda> e \<Rightarrow> \<open>(%s)\<close> (of_semi__term' e)) l))
   | SML_paren p_left p_right e \<Rightarrow> \<open>%s%s%s\<close> (To_string p_left) (of_semi__term' e) (To_string p_right)
   | SML_let_open s e \<Rightarrow> \<open>let open %s in %s end\<close> (To_string s) (of_semi__term' e)) e\<close>
 

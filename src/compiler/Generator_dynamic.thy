@@ -438,6 +438,7 @@ fun META_main_thy in_theory in_local = let open META open META_overload in (*let
 | Theory_section _ => in_theory I
 | Theory_text _ => in_theory I
 | Theory_ML ml => in_theory (Code_printing.reflect_ml (Input.source false (case ml of SML ml => of_semi__term' ml) (Position.none, Position.none)))
+| Theory_setup ml => in_theory (Isar_Cmd.setup (Input.source false (case ml of Setup ml => of_semi__term' ml) (Position.none, Position.none)))
 | Theory_thm (Thm thm) => in_local
    (fn lthy =>
     let val () = writeln (Pretty.string_of (Proof_Context.pretty_fact lthy ("", List.map (m_of_ntheorem lthy) thm))) in
@@ -482,7 +483,7 @@ fun META_main aux ret = let open META open META_overload in fn
                                                      |> Local_Theory.restore))) l
                        |> Local_Theory.exit_global)
 | Isab_thy_generation_syntax _ => ret o I
-| Isab_thy_ml_extended _ => ret o I
+| Isab_thy_setup_env _ => ret o I
 | Isab_thy_all_meta_embedding meta => fn thy =>
   aux
     (map2_ctxt_term
