@@ -36,7 +36,7 @@
  ******************************************************************************)
 (* $Id:$ *)
 
-section{* (Pure) Terms Meta-Model aka. AST definition of (Pure) Terms *}
+section{* (Pure) Term Meta-Model aka. AST definition of (Pure) Term *}
 
 theory  Meta_Pure
 imports "../Init"

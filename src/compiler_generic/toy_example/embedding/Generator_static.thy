@@ -36,13 +36,13 @@
  ******************************************************************************)
 (* $Id:$ *)
 
-chapter{* Part ... *}
+section{* Static Meta Embedding with Exportation *}
 
 theory  Generator_static
 imports Printer
 begin
 
-subsection{* General Compiling Process: Test Scenario: Deep (without reflection) *}
+subsection{* Giving an Input to Translate *}
 
 definition "Employee_DesignModel_UMLPart =
  (let n = \<lambda>n1 n2. OclTyObj (OclTyCore_pre n1) (case n2 of None \<Rightarrow> [] | Some n2 \<Rightarrow> [[OclTyCore_pre n2]])
@@ -68,6 +68,8 @@ definition "main =
                                              , (n \<langle>''Person''\<rangle>, OclMult (Mult_nat 0, Some (Mult_nat 1)) (Some \<langle>''boss''\<rangle>))]))
           , META_flush_all OclFlushAll]
      , None)))"
+
+subsection{* Statically Executing the Exportation *}
 (*
 apply_code_printing ()
 export_code main

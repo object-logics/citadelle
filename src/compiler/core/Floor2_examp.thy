@@ -41,15 +41,11 @@
  ******************************************************************************)
 (* $Id:$ *)
 
-header{* Part ... *}
+section{* Main Translation for: Example (Floor 2) *}
 
 theory  Floor2_examp
 imports Floor1_examp
 begin
-
-section{* Translation of AST *}
-
-subsection{* example *}
 
 definition "print_examp_def_st_locale_distinct = \<open>distinct_oid\<close>"
 definition "print_examp_def_st_locale_metis = M.metis (L.map T.thm [print_examp_def_st_locale_distinct, \<open>distinct_length_2_or_more\<close>])"

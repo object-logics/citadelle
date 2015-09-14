@@ -36,15 +36,11 @@
  ******************************************************************************)
 (* $Id:$ *)
 
-chapter{* Part ... *}
+section{* Main Translation for: Example (Floor 1) *}
 
 theory  Floor1_examp
 imports Core_init
 begin
-
-section{* Translation of AST *}
-
-subsection{* example *}
 
 definition "list_bind f0 f l =
  (let l = L.map f0 l in

@@ -41,15 +41,11 @@
  ******************************************************************************)
 (* $Id:$ *)
 
-header{* Part ... *}
+section{* Main Translation for: Infrastructure *}
 
 theory  Floor1_infra
 imports Core_init
 begin
-
-section{* Translation of AST *}
-
-subsection{* infrastructure *}
 
 definition "print_infra_enum_synonym _ env = (\<lambda>f. (f (fst (find_class_ass env)), env))
  (L.flatten o L.map

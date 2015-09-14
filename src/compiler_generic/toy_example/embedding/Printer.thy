@@ -36,16 +36,12 @@
  ******************************************************************************)
 (* $Id:$ *)
 
-chapter{* Part ... *}
+section{* Finalizing the Printer *}
 
 theory  Printer
 imports Core
         "meta_toy/Printer_META"
 begin
-
-section{* Generation to Deep Form: OCaml *}
-
-subsection{* conclusion *}
 
 definition "List_iterM f l =
   List.fold (\<lambda>x m. bind m (\<lambda> () \<Rightarrow> f x)) l (return ())"
@@ -85,7 +81,7 @@ lemmas [code] =
 
   (* fun *)
 
-section{* ... *}  (* garbage collection of aliases *)
+section{* Miscellaneous: Garbage Collection of Notations *}
 
 no_type_notation natural ("nat")
 no_type_notation abr_string ("string")

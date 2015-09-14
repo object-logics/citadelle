@@ -218,8 +218,6 @@ text {*
 \<close>}
 *}
 
-section{* Miscellaneous *}
-
 text {*
 \begin{matharray}{rcl}
   @{command_def End} & : & @{text "theory \<rightarrow> theory"}
@@ -241,7 +239,7 @@ text {*
 \<close>}
 *}
 
-section{* Some Extensions of Isabelle Commands *}
+section{* Extensions of Isabelle Commands *}
 
 (* WARNING syntax errors during the extraction to LaTeX for the symbol "acute":
            fun\<acute>, definition\<acute> or code_reflect\<acute> *)

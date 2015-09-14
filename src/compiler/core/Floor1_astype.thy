@@ -41,15 +41,11 @@
  ******************************************************************************)
 (* $Id:$ *)
 
-header{* Part ... *}
+section{* Main Translation for: AsType *}
 
 theory  Floor1_astype
 imports Core_init
 begin
-
-section{* Translation of AST *}
-
-subsection{* AsType *}
 
 definition "print_astype_consts = start_map O.consts o
   map_class (\<lambda>isub_name name _ _ _ _.

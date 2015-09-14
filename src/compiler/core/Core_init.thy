@@ -41,18 +41,12 @@
  ******************************************************************************)
 (* $Id:$ *)
 
-header{* Part ... *}
+section{* General Environment for the Translation: Introduction *}
 
 theory  Core_init
 imports "../Static"
         "../meta/Meta_META"
 begin
-
-section{* Preliminaries Compiler *}
-
-subsection{* RBT Miscellaneous *}
-
-subsection{* ... *} (* optimized data-structure version *)
 
 datatype opt_attr_type = OptInh | OptOwn
 datatype opt_ident = OptIdent nat
@@ -85,7 +79,6 @@ begin
  by (metis le_cases less_eq_opt_ident_def)
 end
 
-subsection{* ... *}
 
 definition "const_oclastype = \<open>OclAsType\<close>"
 definition "const_oclistypeof = \<open>OclIsTypeOf\<close>"
@@ -149,7 +142,6 @@ definition "update_D_ocl_accessor_post f = (\<lambda>(l_pre, l_post). (l_pre, f 
 definition "Term_basety = (let var_x = \<open>x\<close> in
                            Term_lambdas [var_x, wildcard] (Term_some (Term_some (Term_basic [var_x]))))"
 
-subsection{* ... *}
 
 definition "find_class_ass env =
  (let (l_class, l_all_meta) =
@@ -253,15 +245,13 @@ definition "arrange_ass with_aggreg with_optim_ass l_c l_enum =
     ( l_class
     , L.flatten [l_ass, l_ass0]))"
 
-subsection{* ... *}
-
 definition "datatype_name = \<open>ty\<close>"
 definition "datatype_ext_name = datatype_name @@ \<open>\<E>\<X>\<T>\<close>"
 definition "datatype_constr_name = \<open>mk\<close>"
 definition "datatype_ext_constr_name = datatype_constr_name @@ \<open>\<E>\<X>\<T>\<close>"
 definition "datatype_in = \<open>in\<close>"
 
-section{* Translation of AST *}
+subsection{* Main Combinators for the Translation *}
 
 definition "map_class_arg_only_var = map_class_arg_only_var_gen (\<lambda>s e. Term_postunary s (Term_basic e))"
 definition "map_class_arg_only_var' = map_class_arg_only_var'_gen (\<lambda>s e. Term_postunary s (Term_basic e))"
@@ -289,7 +279,6 @@ definition "start_m' final print = start_map'' final o (\<lambda>expr base_attr 
 definition "start_m'3_gen final print = start_map'' final o (\<lambda>expr base_attr _ _.
   m_class_gen3 base_attr id print expr)"
 
-subsection{* ... *}
 
 definition "activate_simp_optimization = True"
 
@@ -325,7 +314,9 @@ lemmas [code] =
 
 definition "Term_oid s = (\<lambda>Oid n \<Rightarrow> Term_basic [s @@ String.of_natural n])"
 
-subsection{* Infra *}
+subsection{* Preliminaries on: Enumeration *}
+
+subsection{* Preliminaries on: Infrastructure *}
 
 fun print_infra_type_synonym_class_rec_aux0 where
    "print_infra_type_synonym_class_rec_aux0 e =
@@ -348,22 +339,22 @@ definition "print_infra_type_synonym_class_rec_aux t =
 
 definition "pref_generic_enum name_ty = name_ty @@ String.isub \<open>generic\<close>"
 
-subsection{* AsType *}
+subsection{* Preliminaries on: AsType *}
 
 definition "print_astype_from_universe_name name = S.flatten [const_oclastype, String.isub name, \<open>_\<AA>\<close>]"
 
-subsection{* IsTypeOf *}
+subsection{* Preliminaries on: IsTypeOf *}
 
 definition "print_istypeof_defined_name isub_name h_name = S.flatten [isub_name const_oclistypeof, \<open>_\<close>, h_name, \<open>_defined\<close>]"
 definition "print_istypeof_defined'_name isub_name h_name = S.flatten [isub_name const_oclistypeof, \<open>_\<close>, h_name, \<open>_defined'\<close>]"
 definition "print_istypeof_up_d_cast_name name_mid name_any name_pers = S.flatten [\<open>down_cast_type\<close>, String.isub name_mid, \<open>_from_\<close>, name_any, \<open>_to_\<close>, name_pers]"
 
-subsection{* IsKindOf *}
+subsection{* Preliminaries on: IsKindOf *}
 
 definition "print_iskindof_up_eq_asty_name name = (S.flatten [\<open>actual_eq_static\<close>, String.isub name])"
 definition "print_iskindof_up_larger_name name_pers name_any = S.flatten [\<open>actualKind\<close>, String.isub name_pers, \<open>_larger_staticKind\<close>, String.isub name_any]"
 
-subsection{* allInstances *}
+subsection{* Preliminaries on: AllInstances *}
 
 definition "gen_pre_post0 f_tit f_assum spec f_lemma meth_last =
   (let b = \<lambda>s. Term_basic [s]
@@ -389,7 +380,7 @@ definition "gen_pre_post0 f_tit f_assum spec f_lemma meth_last =
 
 definition "gen_pre_post f_tit spec f_lemma = gen_pre_post0 f_tit [] spec (\<lambda>lem_gen _. f_lemma lem_gen)"
 
-subsection{* accessors *}
+subsection{* Preliminaries on: Accessor *}
 
 definition "print_access_oid_uniq_name' name_from_nat isub_name attr = S.flatten [ isub_name var_oid_uniq, \<open>_\<close>, String.of_natural name_from_nat, \<open>_\<close>, attr ]"
 definition "print_access_oid_uniq_name name_from_nat isub_name attr = print_access_oid_uniq_name' name_from_nat isub_name (String.isup attr)"
@@ -425,7 +416,7 @@ definition "print_access_dot_consts_ty attr_ty =
                 | OclTy_pair _ _ \<Rightarrow> Raw (fst (print_infra_type_synonym_class_rec_aux attr_ty))
                 | _ \<Rightarrow> Raw (str_of_ty attr_ty))"
 
-subsection{* example *}
+subsection{* Preliminaries on: Example (Floor 1) *}
 
 datatype reporting = Warning
                    | Error
@@ -444,7 +435,9 @@ definition "raise_ml l_out s = SML (SML.apply \<open>Ty'.check\<close>
 
 definition "print_examp_def_st_inst_var_name ocli name = S.flatten [case\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l Inst_name ocli of Some n \<Rightarrow> n, name]"
 
-subsection{* context *}
+subsection{* Preliminaries on: Example (Floor 2) *}
+
+subsection{* Preliminaries on: Context (Floor 1) *}
 
 definition "print_ctxt_const_name attr_n var_at_when_hol name =
   S.flatten [ \<open>dot\<close>, String.isup attr_n, var_at_when_hol] @@ (case name of None \<Rightarrow> \<open>\<close> | Some name \<Rightarrow> \<open>_\<close> @@ name)"
@@ -455,6 +448,6 @@ definition "make_ctxt_free_var pref ctxt =
  (var_self # L.flatten [ L.map fst (Ctxt_fun_ty_arg ctxt)
                           , if pref = OclCtxtPre then [] else [var_result] ])"
 
-subsection{* context2 *}
+subsection{* Preliminaries on: Context (Floor 2) *}
 
 end

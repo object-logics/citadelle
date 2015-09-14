@@ -41,16 +41,14 @@
  ******************************************************************************)
 (* $Id:$ *)
 
-header{* Part ... *}
+section{* OCL Meta-Model aka. AST definition of OCL *}
 
 theory  Meta_UML
 imports "../../compiler_generic/meta_isabelle/Meta_Pure"
         "../Init_rbt"
 begin
 
-section{* OCL Meta-Model aka. AST definition of OCL *}
-
-subsection{* type definition *}
+subsection{* Type Definition *}
 
 datatype ocl_collection = Set
                         | Sequence
@@ -147,7 +145,7 @@ datatype ocl_class_synonym = OclClassSynonym string (* name alias *) ocl_ty
 
 datatype ocl_enum = OclEnum string (* name *) "string (* constructor name *) list"
 
-subsection{* ... *}
+subsection{* Extending the Meta-Model *}
 
 definition "T_lambdas = List.fold T_lambda"
 definition "TyObjN_role_name = TyRole o TyObjN_role_multip"

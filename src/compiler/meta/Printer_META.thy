@@ -41,14 +41,12 @@
  ******************************************************************************)
 (* $Id:$ *)
 
-header{* Part ... *}
+section{* Instantiating the Printer for META *}
 
 theory  Printer_META
 imports Parser_META
         "../../compiler_generic/meta_isabelle/Printer_Isabelle"
 begin
-
-subsection{* s of ... *} (* s_of *)
 
 context Print
 begin

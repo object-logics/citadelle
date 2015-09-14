@@ -369,7 +369,7 @@ code_printing constant ToNat \<rightharpoonup> (Haskell) "CodeConst.To.nat"
             | constant ToNat \<rightharpoonup> (Scala) "CodeConst.To.nat"
             | constant ToNat \<rightharpoonup> (SML) "CodeConst.To.nat"
 
-subsection{* Some Notations (I: Raw Translations) *}
+subsection{* Some Notations (I): Raw Translations *}
 
 syntax "_sprint0" :: "_ \<Rightarrow> ml_string" ("sprint0 (_)\<acute>")
 translations "sprint0 x\<acute>" \<rightleftharpoons> "CONST sprintf0 x"
@@ -389,7 +389,7 @@ translations "sprint4 x\<acute>" \<rightleftharpoons> "CONST sprintf4 x"
 syntax "_sprint5" :: "_ \<Rightarrow> _ \<Rightarrow> ml_string" ("sprint5 (_)\<acute>")
 translations "sprint5 x\<acute>" \<rightleftharpoons> "CONST sprintf5 x"
 
-subsection{* Some Notations (II: Polymorphic Cartouches) *}
+subsection{* Some Notations (II): Polymorphic Cartouches *}
 
 syntax "_cartouche_string'" :: String.literal
 translations "_cartouche_string" \<rightleftharpoons> "_cartouche_string'"

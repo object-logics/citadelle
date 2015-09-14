@@ -36,16 +36,14 @@
  ******************************************************************************)
 (* $Id:$ *)
 
-chapter{* Part ... *}
+section{* Toy Meta-Model aka. AST definition of Toy (I) *}
 
 theory  Meta_Toy
 imports "../../../meta_isabelle/Meta_Pure"
         "../Init_rbt"
 begin
 
-section{* OCL Meta-Model aka. AST definition of OCL *}
-
-subsection{* type definition *}
+subsection{* Type Definition *}
 
 datatype ocl_collection = Set
                         | Sequence
@@ -142,7 +140,7 @@ datatype ocl_class_synonym = OclClassSynonym string (* name alias *) ocl_ty
 
 datatype ocl_enum = OclEnum string (* name *) "string (* constructor name *) list"
 
-subsection{* ... *}
+subsection{* Extending the Meta-Model *}
 
 definition "T_lambdas = List.fold T_lambda"
 definition "TyObjN_role_name = TyRole o TyObjN_role_multip"
@@ -482,8 +480,6 @@ fun get_class_hierarchy'_aux where
 definition "get_class_hierarchy' = get_class_hierarchy'_aux []"
 
 definition "get_class_hierarchy e = L.map (\<lambda> OclClass n l _ \<Rightarrow> (n, l)) (get_class_hierarchy' e)"
-
-section{* Translation of AST *}
 
 definition "var_in_pre_state = \<open>in_pre_state\<close>"
 definition "var_in_post_state = \<open>in_post_state\<close>"

@@ -36,7 +36,7 @@
  ******************************************************************************)
 (* $Id:$ *)
 
-chapter{* Part ... *}
+section{* General Environment for the Translation: Conclusion *}
 
 theory  Core
 imports "core/Floor1_infra"
@@ -46,9 +46,7 @@ imports "core/Floor1_infra"
         "core/Floor1_ctxt"
 begin
 
-section{* Translation of AST *}
-
-subsection{* Conclusion *}
+subsection{* Preliminaries *}
 
 datatype ('a, 'b) hol_theory = Hol_theory_ext "('a \<Rightarrow> 'b \<Rightarrow> hol_thy_extended list \<times> 'b) list"
                              | Hol_theory_locale "'a \<Rightarrow> 'b \<Rightarrow> semi__locale \<times> 'b"
@@ -63,6 +61,8 @@ definition "L_fold f =
           let (loc_data, b) = loc_data a b
             ; (l, b) = List.fold (\<lambda>f0. \<lambda>(l, b) \<Rightarrow> let (x, b) = f0 a b in (x # l, b)) l ([], b) in
           ([Isab_thy (H_thy_locale loc_data (rev l))], b)))"
+
+subsection{* Assembling Translations *}
 
 definition' thy_class ::
   (* polymorphism weakening needed by code_reflect *)
@@ -100,6 +100,8 @@ definition "thy_ctxt = (\<lambda> Floor1 \<Rightarrow> Hol_theory_ext
                                       [])"
 definition "thy_flush_all = Hol_theory_ext []"
 (* NOTE typechecking functions can be put at the end, however checking already defined constants can be done earlier *)
+
+subsection{* Combinators Folding the Compiling Environment *}
 
 definition "compiler_env_config_empty output_disable_thy output_header_thy oid_start design_analysis sorry_dirty =
   compiler_env_config.make

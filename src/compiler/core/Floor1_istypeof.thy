@@ -41,15 +41,12 @@
  ******************************************************************************)
 (* $Id:$ *)
 
-header{* Part ... *}
+section{* Main Translation for: IsTypeOf *}
 
 theory  Floor1_istypeof
 imports Core_init
 begin
 
-section{* Translation of AST *}
-
-subsection{* IsTypeOf *}
 definition "print_istypeof_consts = start_map O.consts o
   map_class (\<lambda>isub_name name _ _ _ _.
     Consts' (isub_name const_oclistypeof) (Typ_base ty_boolean) (const_mixfix dot_oclistypeof name))"

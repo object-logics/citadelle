@@ -37,7 +37,7 @@
 (* $Id:$ *)
 
 
-section{* Preliminaries (1) *}
+section{* Main Common Static Libraries *}
 
 theory Static
 imports Main

@@ -36,7 +36,7 @@
  ******************************************************************************)
 (* $Id:$ *)
 
-chapter{* Part ... *}
+section{* Dynamic Meta Embedding with Reflection *}
 
 theory Generator_dynamic
 imports Printer
@@ -74,10 +74,6 @@ imports Printer
            :: thy_decl
 begin
 
-section{* Generation to Shallow Form: SML *}
-
-subsection{* global *}
-
 apply_code_printing_reflect {*
   (* this variable is not used but needed for well typechecking the reflected SML code *)
   val stdout_file = Unsynchronized.ref ""
@@ -94,6 +90,8 @@ code_reflect' open META
 
              (* printing the TOY AST to (deep Isabelle) string *)
              isabelle_apply isabelle_of_env_config
+
+subsection{* Interface Between the Reflected and the Native *}
 
 ML{*
  val To_string0 = String.implode o META.to_list
@@ -165,453 +163,7 @@ fun check l_oid l =
 end
 *}
 
-subsection{* General Compiling Process: Deep (with reflection) *}
-
-ML{*
-structure Deep0 = struct
-
-fun apply_hs_code_identifiers ml_module thy =
-  let fun mod_hs (fic, ml_module) = Code_Symbol.Module (fic, [("Haskell", SOME ml_module)]) in
-  fold (Code_Target.set_identifiers o mod_hs)
-    (map (fn x => (Context.theory_name x, ml_module))
-         (* list of .hs files that will be merged together in "ml_module" *)
-         ( thy
-           :: (* we over-approximate the set of compiler files *)
-              Context.ancestors_of thy)) thy end
-
-val gen_empty = ""
-
-structure Export_code_env = struct
-  structure Isabelle = struct
-    val function = "write_file"
-    val argument_main = "main"
-  end
-
-  structure Haskell = struct
-    val function = "Function"
-    val argument = "Argument"
-    val main = "Main"
-    structure Filename = struct
-      fun hs_function ext = function ^ "." ^ ext
-      fun hs_argument ext = argument ^ "." ^ ext
-      fun hs_main ext = main ^ "." ^ ext
-    end
-  end
-
-  structure OCaml = struct
-    val make = "write"
-    structure Filename = struct
-      fun function ext = "function." ^ ext
-      fun argument ext = "argument." ^ ext
-      fun main_fic ext = "main." ^ ext
-      fun makefile ext = make ^ "." ^ ext
-    end
-  end
-
-  structure Scala = struct
-    structure Filename = struct
-      fun function ext = "Function." ^ ext
-      fun argument ext = "Argument." ^ ext
-    end
-  end
-
-  structure SML = struct
-    val main = "Run"
-    structure Filename = struct
-      fun function ext = "Function." ^ ext
-      fun argument ext = "Argument." ^ ext
-      fun stdout ext = "Stdout." ^ ext
-      fun main_fic ext = main ^ "." ^ ext
-    end
-  end
-
-  datatype file_input = File
-                      | Directory
-end
-
-fun compile l cmd =
-  let val (l, rc) = fold (fn cmd => (fn (l, 0) =>
-                                         let val {out, err, rc, ...} = Bash.process cmd in
-                                         ((out, err) :: l, rc) end
-                                     | x => x)) l ([], 0)
-      val l = rev l in
-  if rc = 0 then
-    (l, Isabelle_System.bash_output cmd)
-  else
-    let val () = fold (fn (out, err) => K (warning err; writeln out)) l () in
-    error "Compilation failed"
-    end
-  end
-
-val check =
-  fold (fn (cmd, msg) => fn () =>
-    let val (out, rc) = Isabelle_System.bash_output cmd in
-    if rc = 0 then
-      ()
-    else
-      ( writeln out
-      ; error msg)
-    end)
-
-val compiler = let open Export_code_env in
-  [ let val ml_ext = "hs" in
-    ( "Haskell", ml_ext, Directory, Haskell.Filename.hs_function
-    , check [("ghc --version", "ghc is not installed (required for compiling a Haskell project)")]
-    , (fn mk_fic => fn ml_module => fn mk_free => fn thy =>
-        File.write (mk_fic ("Main." ^ ml_ext))
-          (String.concatWith "; " [ "import qualified Unsafe.Coerce"
-                         , "import qualified " ^ Haskell.function
-                         , "import qualified " ^ Haskell.argument
-                         , "main :: IO ()"
-                         , "main = " ^ Haskell.function ^ "." ^ Isabelle.function ^ " (Unsafe.Coerce.unsafeCoerce " ^ Haskell.argument ^ "." ^
-                           mk_free (Proof_Context.init_global thy) Isabelle.argument_main ([]: (string * string) list) ^
-                           ")"]))
-    , fn tmp_export_code => fn tmp_file =>
-        compile [ "mv " ^ tmp_file ^ "/" ^ Haskell.Filename.hs_argument ml_ext ^ " " ^ Path.implode tmp_export_code
-                , "cd " ^ Path.implode tmp_export_code ^
-                  " && ghc -outputdir _build " ^ Haskell.Filename.hs_main ml_ext ]
-                (Path.implode (Path.append tmp_export_code (Path.make [Haskell.main]))))
-    end
-  , let val ml_ext = "ml" in
-    ( "OCaml", ml_ext, File, OCaml.Filename.function
-    , check [("ocp-build -version", "ocp-build is not installed (required for compiling an OCaml project)")
-            ,("ocamlopt -version", "ocamlopt is not installed (required for compiling an OCaml project)")]
-    , fn mk_fic => fn ml_module => fn mk_free => fn thy =>
-         let val () = File.write (mk_fic (OCaml.Filename.makefile "ocp"))
-                              (String.concat [ "comp += \"-g\" link += \"-g\" "
-                                             , "begin generated = true begin library \"nums\" end end "
-                                             , "begin program \"", OCaml.make, "\" sort = true files = [ \"", OCaml.Filename.function ml_ext
-                                             , "\" \"", OCaml.Filename.argument ml_ext
-                                             , "\" \"", OCaml.Filename.main_fic ml_ext
-                                             , "\" ]"
-                                             , "requires = [\"nums\"] "
-                                             , "end" ]) in
-         File.write (mk_fic (OCaml.Filename.main_fic ml_ext))
-           ("let _ = Function." ^ ml_module ^ "." ^ Isabelle.function ^ " (Obj.magic (Argument." ^ ml_module ^ "." ^
-            mk_free (Proof_Context.init_global thy) Isabelle.argument_main ([]: (string * string) list) ^ "))")
-         end
-    , fn tmp_export_code => fn tmp_file =>
-        compile [ "mv " ^ tmp_file ^ " " ^ Path.implode (Path.append tmp_export_code (Path.make [OCaml.Filename.argument ml_ext]))
-                , "cd " ^ Path.implode tmp_export_code ^
-                  " && ocp-build -init -scan -no-bytecode 2>&1" ]
-                (Path.implode (Path.append tmp_export_code (Path.make [ "_obuild", OCaml.make, OCaml.make ^ ".asm"]))))
-    end
-  , let val ml_ext = "scala"
-        val ml_module = Unsynchronized.ref ("", "") in
-    ( "Scala", ml_ext, File, Scala.Filename.function
-    , check [("scala -e 0", "scala is not installed (required for compiling a Scala project)")]
-    , (fn _ => fn ml_mod => fn mk_free => fn thy =>
-        ml_module := (ml_mod, mk_free (Proof_Context.init_global thy) Isabelle.argument_main ([]: (string * string) list)))
-    , fn tmp_export_code => fn tmp_file =>
-        let val l = File.read_lines (Path.explode tmp_file)
-            val (ml_module, ml_main) = Unsynchronized.! ml_module
-            val () = File.write_list
-                       (Path.append tmp_export_code (Path.make [Scala.Filename.argument ml_ext]))
-                       (List.map
-                         (fn s => s ^ "\n")
-                         ("object " ^ ml_module ^ " { def main (__ : Array [String]) = " ^ ml_module ^ "." ^ Isabelle.function ^ " (" ^ ml_module ^ "." ^ ml_main ^ ")" :: l @ ["}"])) in
-        compile []
-                ("scala -nowarn " ^ Path.implode (Path.append tmp_export_code (Path.make [Scala.Filename.argument ml_ext])))
-        end)
-    end
-  , let val ml_ext_thy = "thy"
-        val ml_ext_ml = "ML" in
-    ( "SML", ml_ext_ml, File, SML.Filename.function
-    , check [ let val isa = "isabelle" in
-              ( Path.implode (Path.expand (Path.append (Path.variable "ISABELLE_HOME") (Path.make ["bin", isa]))) ^ " version"
-              , isa ^ " is not installed (required for compiling a SML project)")
-              end ]
-    , fn mk_fic => fn ml_module => fn mk_free => fn thy =>
-         let val esc_star = "*"
-             fun ml l =
-               List.concat
-               [ [ "ML{" ^ esc_star ]
-               , map (fn s => s ^ ";") l
-               , [ esc_star ^ "}"] ]
-             val () = 
-               let val fic = mk_fic (SML.Filename.function ml_ext_ml)
-                   val _ = if File.exists fic then () else error "zzzzzz" in
-               (* replace ("\\" ^ "<") by ("\\\060") in 'fic' *)
-               File.write_list fic
-                 (map (fn s => 
-                         (if s = "" then
-                           ""
-                         else
-                           String.concatWith "\\"
-                             (map (fn s => 
-                                     let val l = String.size s in
-                                     if l > 0 andalso String.sub (s,0) = #"<" then
-                                       "\\060" ^ String.substring (s, 1, String.size s - 1)
-                                     else
-                                       s end)
-                                  (String.fields (fn c => c = #"\\") s))) ^ "\n")
-                      (File.read_lines fic))
-               end in
-         File.write_list (mk_fic (SML.Filename.main_fic ml_ext_thy))
-           (map (fn s => s ^ "\n") (List.concat
-             [ [ "theory " ^ SML.main
-               , "imports Main"
-               , "begin"
-               , "declare [[ML_print_depth = 500]]" (* any large number so that @{make_string} displays all the expression *) ]
-             , ml [ "val stdout_file = Unsynchronized.ref (File.read (Path.make [\"" ^ SML.Filename.stdout ml_ext_ml ^ "\"]))"
-                  , "use \"" ^ SML.Filename.argument ml_ext_ml ^ "\"" ]
-             , ml let val arg = "argument" in
-                  [ "val " ^ arg ^ " = XML.content_of (YXML.parse_body (@{make_string} (" ^ ml_module ^ "." ^
-                    mk_free (Proof_Context.init_global thy) Isabelle.argument_main ([]: (string * string) list) ^ ")))"
-                  , "use \"" ^ SML.Filename.function ml_ext_ml ^ "\""
-                  , "ML_Context.eval_source (ML_Compiler.verbose false ML_Compiler.flags) (Input.source false (\"let open " ^ ml_module ^ " in " ^ Isabelle.function ^ " (\" ^ " ^ arg ^ " ^ \") end\") (Position.none, Position.none) )" ]
-                  end
-             , [ "end" ]]))
-         end
-    , fn tmp_export_code => fn tmp_file =>
-        let val stdout_file = Isabelle_System.create_tmp_path "stdout_file" "thy"
-            val () = File.write (Path.append tmp_export_code (Path.make [SML.Filename.stdout ml_ext_ml])) (Path.implode (Path.expand stdout_file))
-            val (l, (_, exit_st)) =
-              compile [ "mv " ^ tmp_file ^ " " ^ Path.implode (Path.append tmp_export_code (Path.make [SML.Filename.argument ml_ext_ml]))
-                      , "cd " ^ Path.implode tmp_export_code ^
-                        " && echo 'use_thy \"" ^ SML.main ^
-                        "\";' | " ^
-                        Path.implode (Path.expand (Path.append (Path.variable "ISABELLE_HOME") (Path.make ["bin", "isabelle"]))) ^ " console" ]
-                      "true"
-            val stdout =
-              case SOME (File.read stdout_file) handle _ => NONE of
-                SOME s => let val () = File.rm stdout_file in s end
-              | NONE => "" in
-            (l, (stdout, if List.exists (fn (err, _) =>
-                              List.exists (fn "*** Error" => true | _ => false)
-                                (String.tokens (fn #"\n" => true | _ => false) err)) l then
-                           let val () = fold (fn (out, err) => K (warning err; writeln out)) l () in
-                           1
-                           end
-                         else exit_st))
-        end)
-    end ]
-end
-
-fun find_ext ml_compiler =
-  case List.find (fn (ml_compiler0, _, _, _, _, _, _) => ml_compiler0 = ml_compiler) compiler of
-    SOME (_, ext, _, _, _, _, _) => ext
-
-fun find_export_mode ml_compiler =
-  case List.find (fn (ml_compiler0, _, _, _, _, _, _) => ml_compiler0 = ml_compiler) compiler of
-    SOME (_, _, mode, _, _, _, _) => mode
-
-fun find_function ml_compiler =
-  case List.find (fn (ml_compiler0, _, _, _, _, _, _) => ml_compiler0 = ml_compiler) compiler of
-    SOME (_, _, _, f, _, _, _) => f
-
-fun find_check_compil ml_compiler =
-  case List.find (fn (ml_compiler0, _, _, _, _, _, _) => ml_compiler0 = ml_compiler) compiler of
-    SOME (_, _, _, _, build, _, _) => build
-
-fun find_init ml_compiler =
-  case List.find (fn (ml_compiler0, _, _, _, _, _, _) => ml_compiler0 = ml_compiler) compiler of
-    SOME (_, _, _, _, _, build, _) => build
-
-fun find_build ml_compiler =
-  case List.find (fn (ml_compiler0, _, _, _, _, _, _) => ml_compiler0 = ml_compiler) compiler of
-    SOME (_, _, _, _, _, _, build) => build
-
-
-end
-*}
-
-ML{*
-structure Deep = struct
-
-fun absolute_path filename thy = Path.implode (Path.append (Resources.master_directory thy) (Path.explode filename))
-
-fun export_code_tmp_file seris g =
-  fold
-    (fn ((ml_compiler, ml_module), export_arg) => fn f => fn g =>
-      f (fn accu =>
-        let val tmp_name = Context.theory_name @{theory} in
-        (if Deep0.find_export_mode ml_compiler = Deep0.Export_code_env.Directory then
-           Isabelle_System.with_tmp_dir tmp_name
-         else
-           Isabelle_System.with_tmp_file tmp_name (Deep0.find_ext ml_compiler))
-          (fn filename =>
-             g (((((ml_compiler, ml_module), Path.implode filename), export_arg) :: accu)))
-        end))
-    seris
-    (fn f => f [])
-    (g o rev)
-
-fun mk_path_export_code tmp_export_code ml_compiler i =
-  Path.append tmp_export_code (Path.make [ml_compiler ^ Int.toString i])
-
-fun export_code_cmd' seris tmp_export_code f_err filename_thy raw_cs thy =
-  export_code_tmp_file seris
-    (fn seris =>
-      let val mem_scala = List.exists (fn ((("Scala", _), _), _) => true | _ => false) seris
-          val _ = Isabelle_Code_Target.export_code_cmd
-        false
-        (if mem_scala then Deep0.Export_code_env.Isabelle.function :: raw_cs else raw_cs)
-        seris
-        (Proof_Context.init_global
-           let val v = Deep0.apply_hs_code_identifiers Deep0.Export_code_env.Haskell.argument thy in
-           if mem_scala then Code_printing.apply_code_printing v else v end) in
-      List_mapi
-        (fn i => fn seri => case seri of (((ml_compiler, _), filename), _) =>
-          let val (l, (out, err)) =
-                Deep0.find_build
-                  ml_compiler
-                  (mk_path_export_code tmp_export_code ml_compiler i)
-                  filename
-              val _ = f_err seri err in
-          (l, out)
-          end) seris
-      end)
-
-fun scan thy pos str =
-  Source.of_string str
-  |> Symbol.source
-  |> Token.source (Thy_Header.get_keywords' thy) pos
-  |> Source.exhaust;
-
-fun mk_term ctxt s = fst (Scan.pass (Context.Proof ctxt) Args.term (scan ctxt Position.none s))
-
-fun mk_free ctxt s l =
-  let val t_s = mk_term ctxt s in
-  if Term.is_Free t_s then s else
-    let val l = (s, "") :: l in
-    mk_free ctxt (fst (hd (Term.variant_frees t_s l))) l
-    end
-  end
-
-val list_all_eq = fn x0 :: xs =>
-  List.all (fn x1 => x0 = x1) xs
-
-end
-*}
-
-subsection{* ... *}
-
-ML{*
-fun p_gen f g =  f "[" "]" g
-              (*|| f "{" "}" g*)
-              || f "(" ")" g
-fun paren f = p_gen (fn s1 => fn s2 => fn f => Parse.$$$ s1 |-- f --| Parse.$$$ s2) f
-fun parse_l f = Parse.$$$ "[" |-- Parse.!!! (Parse.list f --| Parse.$$$ "]")
-fun parse_l' f = Parse.$$$ "[" |-- Parse.list f --| Parse.$$$ "]"
-fun parse_l1' f = Parse.$$$ "[" |-- Parse.list1 f --| Parse.$$$ "]"
-fun annot_ty f = Parse.$$$ "(" |-- f --| Parse.$$$ "::" -- Parse.binding --| Parse.$$$ ")"
-*}
-
-ML{*
-structure Generation_mode = struct
-
-datatype internal_deep = Internal_deep of (string * (string list (* imports *) * string (* import optional (bootstrap) *))) option
-                                        * ((bstring (* compiler *) * bstring (* main module *) ) * Token.T list) list (* seri_args *)
-                                        * bstring option (* filename_thy *)
-                                        * Path.T (* tmp dir export_code *)
-                                        * bool (* true: skip preview of code exportation *)
-
-datatype 'a generation_mode = Gen_deep of unit META.compiler_env_config_ext
-                                        * internal_deep
-                            | Gen_shallow of unit META.compiler_env_config_ext
-                                           * 'a (* theory init *)
-                            | Gen_syntax_print of int option
-
-structure Data_gen = Theory_Data
-  (type T = theory generation_mode list Symtab.table
-   val empty = Symtab.empty
-   val extend = I
-   val merge = Symtab.merge (K true))
-
-val code_expr_argsP = Scan.optional (@{keyword "("} |-- Parse.args --| @{keyword ")"}) []
-
-val parse_scheme = @{keyword "design"} >> K META.Gen_only_design || @{keyword "analysis"} >> K META.Gen_only_analysis
-
-val parse_sorry_mode = 
-  Scan.optional (  @{keyword "SORRY"} >> K (SOME META.Gen_sorry)
-                || @{keyword "no_dirty"} >> K (SOME META.Gen_no_dirty)) NONE
-
-val parse_deep =
-     Scan.optional (@{keyword "skip_export"} >> K true) false
-  -- Scan.optional (((Parse.$$$ "(" -- @{keyword "THEORY"}) |-- Parse.name -- ((Parse.$$$ ")" -- Parse.$$$ "(" -- @{keyword "IMPORTS"}) |-- parse_l' Parse.name -- Parse.name) --| Parse.$$$ ")") >> SOME) NONE
-  -- Scan.optional (@{keyword "SECTION"} >> K true) false
-  -- parse_sorry_mode
-  -- (* code_expr_inP *) parse_l1' (@{keyword "in"} |-- (Parse.name
-        -- Scan.optional (@{keyword "module_name"} |-- Parse.name) ""
-        -- code_expr_argsP))
-  -- Scan.optional ((Parse.$$$ "(" -- @{keyword "output_directory"}) |-- Parse.name --| Parse.$$$ ")" >> SOME) NONE
-
-val parse_semantics =
-  let val z = 0 in
-      Scan.optional (paren (@{keyword "generation_semantics"}
-                     |-- paren (parse_scheme
-                                -- Scan.optional ((Parse.$$$ "," -- @{keyword "oid_start"}) |-- Parse.nat) z)))
-                    (META.Gen_default, z)
-  end
-
-val mode =
-  let fun mk_env output_disable_thy output_header_thy oid_start design_analysis sorry_mode dirty =
-    META.compiler_env_config_empty
-                    (From.from_bool output_disable_thy)
-                    (From.from_option (From.from_pair From.from_string (From.from_pair (From.from_list From.from_string) From.from_string)) output_header_thy)
-                    (META.oidInit (From.from_internal_oid (From.from_nat oid_start)))
-                    design_analysis
-                    (sorry_mode, dirty) in
-
-     @{keyword "deep"} |-- parse_semantics -- parse_deep >> (fn ((design_analysis, oid_start), (((((skip_exportation, output_header_thy), output_disable_thy), sorry_mode), seri_args), filename_thy)) =>
-       fn ctxt =>
-         Gen_deep ( mk_env (not output_disable_thy) output_header_thy oid_start design_analysis sorry_mode (Config.get ctxt quick_and_dirty)
-                  , Internal_deep (output_header_thy, seri_args, filename_thy, Isabelle_System.create_tmp_path "deep_export_code" "", skip_exportation)))
-  || @{keyword "shallow"} |-- parse_semantics -- parse_sorry_mode >> (fn ((design_analysis, oid_start), sorry_mode) =>
-       fn ctxt =>
-       Gen_shallow (mk_env true NONE oid_start design_analysis sorry_mode (Config.get ctxt quick_and_dirty), ()))
-  || (@{keyword "syntax_print"} |-- Scan.optional (Parse.number >> SOME) NONE) >> (fn n => K (Gen_syntax_print (case n of NONE => NONE | SOME n => Int.fromString n)))
-  end
-
-
-fun f_command l_mode =
-      Toplevel.theory (fn thy =>
-        let val (l_mode, thy) = META.mapM
-          (fn Gen_shallow (env, ()) => let val thy0 = thy in
-                                       fn thy => (Gen_shallow (env, thy0), thy) end
-            | Gen_syntax_print n => (fn thy => (Gen_syntax_print n, thy))
-            | Gen_deep (env, Internal_deep (output_header_thy, seri_args, filename_thy, tmp_export_code, skip_exportation)) => fn thy =>
-                let val _ = warning ("remove the directory (at the end): " ^ Path.implode (Path.expand tmp_export_code))
-                    val seri_args' = List_mapi (fn i => fn ((ml_compiler, ml_module), export_arg) =>
-                      let val tmp_export_code = Deep.mk_path_export_code tmp_export_code ml_compiler i
-                          fun mk_fic s = Path.append tmp_export_code (Path.make [s])
-                          val () = Deep0.find_check_compil ml_compiler ()
-                          val () = Isabelle_System.mkdirs tmp_export_code in
-                      ((( (ml_compiler, ml_module)
-                        , Path.implode (if Deep0.find_export_mode ml_compiler = Deep0.Export_code_env.Directory then
-                                          tmp_export_code
-                                        else
-                                          mk_fic (Deep0.find_function ml_compiler (Deep0.find_ext ml_compiler))))
-                        , export_arg), mk_fic)
-                      end) seri_args
-                    val _ = Isabelle_Code_Target.export_code_cmd
-                              (List.exists (fn (((("SML", _), _), _), _) => true | _ => false) seri_args')
-                              [Deep0.Export_code_env.Isabelle.function]
-                              (List.map fst seri_args')
-                              (Proof_Context.init_global (Code_printing.apply_code_printing (Deep0.apply_hs_code_identifiers Deep0.Export_code_env.Haskell.function thy)))
-                    val () = fold (fn ((((ml_compiler, ml_module), _), _), mk_fic) => fn _ =>
-                      Deep0.find_init ml_compiler mk_fic ml_module Deep.mk_free thy) seri_args' () in
-                (Gen_deep (env, Internal_deep (output_header_thy, seri_args, filename_thy, tmp_export_code, skip_exportation)), thy) end)
-          let val ctxt = Proof_Context.init_global thy in
-              map (fn f => f ctxt) l_mode
-          end
-          thy in
-        Data_gen.map (Symtab.map_default (Deep0.gen_empty, l_mode) (fn _ => l_mode)) thy
-        end)
-
-fun update_compiler_config f =
-  Data_gen.map
-    (Symtab.map_entry
-      Deep0.gen_empty
-      (fn l_mode =>
-        map (fn Gen_deep (env, d) => Gen_deep (META.compiler_env_config_update f env, d)
-              | Gen_shallow (env, thy) => Gen_shallow (META.compiler_env_config_update f env, thy)
-              | Gen_syntax_print n => Gen_syntax_print n) l_mode))
-end
-*}
-
-subsection{* General Compiling Process: Shallow *}
+subsection{* Binding of Reflected API to Native API *}
 
 ML{*
 structure META_overload = struct
@@ -952,10 +504,455 @@ fun META_main aux ret = let open META open META_overload in fn
 end
 
 end
-(*val _ = print_depth 100*)
 *}
 
-subsection{* ... *}
+subsection{* Directives of Compilation for Target Languages *}
+
+ML{*
+structure Deep0 = struct
+
+fun apply_hs_code_identifiers ml_module thy =
+  let fun mod_hs (fic, ml_module) = Code_Symbol.Module (fic, [("Haskell", SOME ml_module)]) in
+  fold (Code_Target.set_identifiers o mod_hs)
+    (map (fn x => (Context.theory_name x, ml_module))
+         (* list of .hs files that will be merged together in "ml_module" *)
+         ( thy
+           :: (* we over-approximate the set of compiler files *)
+              Context.ancestors_of thy)) thy end
+
+val gen_empty = ""
+
+structure Export_code_env = struct
+  structure Isabelle = struct
+    val function = "write_file"
+    val argument_main = "main"
+  end
+
+  structure Haskell = struct
+    val function = "Function"
+    val argument = "Argument"
+    val main = "Main"
+    structure Filename = struct
+      fun hs_function ext = function ^ "." ^ ext
+      fun hs_argument ext = argument ^ "." ^ ext
+      fun hs_main ext = main ^ "." ^ ext
+    end
+  end
+
+  structure OCaml = struct
+    val make = "write"
+    structure Filename = struct
+      fun function ext = "function." ^ ext
+      fun argument ext = "argument." ^ ext
+      fun main_fic ext = "main." ^ ext
+      fun makefile ext = make ^ "." ^ ext
+    end
+  end
+
+  structure Scala = struct
+    structure Filename = struct
+      fun function ext = "Function." ^ ext
+      fun argument ext = "Argument." ^ ext
+    end
+  end
+
+  structure SML = struct
+    val main = "Run"
+    structure Filename = struct
+      fun function ext = "Function." ^ ext
+      fun argument ext = "Argument." ^ ext
+      fun stdout ext = "Stdout." ^ ext
+      fun main_fic ext = main ^ "." ^ ext
+    end
+  end
+
+  datatype file_input = File
+                      | Directory
+end
+
+fun compile l cmd =
+  let val (l, rc) = fold (fn cmd => (fn (l, 0) =>
+                                         let val {out, err, rc, ...} = Bash.process cmd in
+                                         ((out, err) :: l, rc) end
+                                     | x => x)) l ([], 0)
+      val l = rev l in
+  if rc = 0 then
+    (l, Isabelle_System.bash_output cmd)
+  else
+    let val () = fold (fn (out, err) => K (warning err; writeln out)) l () in
+    error "Compilation failed"
+    end
+  end
+
+val check =
+  fold (fn (cmd, msg) => fn () =>
+    let val (out, rc) = Isabelle_System.bash_output cmd in
+    if rc = 0 then
+      ()
+    else
+      ( writeln out
+      ; error msg)
+    end)
+
+val compiler = let open Export_code_env in
+  [ let val ml_ext = "hs" in
+    ( "Haskell", ml_ext, Directory, Haskell.Filename.hs_function
+    , check [("ghc --version", "ghc is not installed (required for compiling a Haskell project)")]
+    , (fn mk_fic => fn ml_module => fn mk_free => fn thy =>
+        File.write (mk_fic ("Main." ^ ml_ext))
+          (String.concatWith "; " [ "import qualified Unsafe.Coerce"
+                         , "import qualified " ^ Haskell.function
+                         , "import qualified " ^ Haskell.argument
+                         , "main :: IO ()"
+                         , "main = " ^ Haskell.function ^ "." ^ Isabelle.function ^ " (Unsafe.Coerce.unsafeCoerce " ^ Haskell.argument ^ "." ^
+                           mk_free (Proof_Context.init_global thy) Isabelle.argument_main ([]: (string * string) list) ^
+                           ")"]))
+    , fn tmp_export_code => fn tmp_file =>
+        compile [ "mv " ^ tmp_file ^ "/" ^ Haskell.Filename.hs_argument ml_ext ^ " " ^ Path.implode tmp_export_code
+                , "cd " ^ Path.implode tmp_export_code ^
+                  " && ghc -outputdir _build " ^ Haskell.Filename.hs_main ml_ext ]
+                (Path.implode (Path.append tmp_export_code (Path.make [Haskell.main]))))
+    end
+  , let val ml_ext = "ml" in
+    ( "OCaml", ml_ext, File, OCaml.Filename.function
+    , check [("ocp-build -version", "ocp-build is not installed (required for compiling an OCaml project)")
+            ,("ocamlopt -version", "ocamlopt is not installed (required for compiling an OCaml project)")]
+    , fn mk_fic => fn ml_module => fn mk_free => fn thy =>
+         let val () = File.write (mk_fic (OCaml.Filename.makefile "ocp"))
+                              (String.concat [ "comp += \"-g\" link += \"-g\" "
+                                             , "begin generated = true begin library \"nums\" end end "
+                                             , "begin program \"", OCaml.make, "\" sort = true files = [ \"", OCaml.Filename.function ml_ext
+                                             , "\" \"", OCaml.Filename.argument ml_ext
+                                             , "\" \"", OCaml.Filename.main_fic ml_ext
+                                             , "\" ]"
+                                             , "requires = [\"nums\"] "
+                                             , "end" ]) in
+         File.write (mk_fic (OCaml.Filename.main_fic ml_ext))
+           ("let _ = Function." ^ ml_module ^ "." ^ Isabelle.function ^ " (Obj.magic (Argument." ^ ml_module ^ "." ^
+            mk_free (Proof_Context.init_global thy) Isabelle.argument_main ([]: (string * string) list) ^ "))")
+         end
+    , fn tmp_export_code => fn tmp_file =>
+        compile [ "mv " ^ tmp_file ^ " " ^ Path.implode (Path.append tmp_export_code (Path.make [OCaml.Filename.argument ml_ext]))
+                , "cd " ^ Path.implode tmp_export_code ^
+                  " && ocp-build -init -scan -no-bytecode 2>&1" ]
+                (Path.implode (Path.append tmp_export_code (Path.make [ "_obuild", OCaml.make, OCaml.make ^ ".asm"]))))
+    end
+  , let val ml_ext = "scala"
+        val ml_module = Unsynchronized.ref ("", "") in
+    ( "Scala", ml_ext, File, Scala.Filename.function
+    , check [("scala -e 0", "scala is not installed (required for compiling a Scala project)")]
+    , (fn _ => fn ml_mod => fn mk_free => fn thy =>
+        ml_module := (ml_mod, mk_free (Proof_Context.init_global thy) Isabelle.argument_main ([]: (string * string) list)))
+    , fn tmp_export_code => fn tmp_file =>
+        let val l = File.read_lines (Path.explode tmp_file)
+            val (ml_module, ml_main) = Unsynchronized.! ml_module
+            val () = File.write_list
+                       (Path.append tmp_export_code (Path.make [Scala.Filename.argument ml_ext]))
+                       (List.map
+                         (fn s => s ^ "\n")
+                         ("object " ^ ml_module ^ " { def main (__ : Array [String]) = " ^ ml_module ^ "." ^ Isabelle.function ^ " (" ^ ml_module ^ "." ^ ml_main ^ ")" :: l @ ["}"])) in
+        compile []
+                ("scala -nowarn " ^ Path.implode (Path.append tmp_export_code (Path.make [Scala.Filename.argument ml_ext])))
+        end)
+    end
+  , let val ml_ext_thy = "thy"
+        val ml_ext_ml = "ML" in
+    ( "SML", ml_ext_ml, File, SML.Filename.function
+    , check [ let val isa = "isabelle" in
+              ( Path.implode (Path.expand (Path.append (Path.variable "ISABELLE_HOME") (Path.make ["bin", isa]))) ^ " version"
+              , isa ^ " is not installed (required for compiling a SML project)")
+              end ]
+    , fn mk_fic => fn ml_module => fn mk_free => fn thy =>
+         let val esc_star = "*"
+             fun ml l =
+               List.concat
+               [ [ "ML{" ^ esc_star ]
+               , map (fn s => s ^ ";") l
+               , [ esc_star ^ "}"] ]
+             val () = 
+               let val fic = mk_fic (SML.Filename.function ml_ext_ml)
+                   val _ = if File.exists fic then () else error "zzzzzz" in
+               (* replace ("\\" ^ "<") by ("\\\060") in 'fic' *)
+               File.write_list fic
+                 (map (fn s => 
+                         (if s = "" then
+                           ""
+                         else
+                           String.concatWith "\\"
+                             (map (fn s => 
+                                     let val l = String.size s in
+                                     if l > 0 andalso String.sub (s,0) = #"<" then
+                                       "\\060" ^ String.substring (s, 1, String.size s - 1)
+                                     else
+                                       s end)
+                                  (String.fields (fn c => c = #"\\") s))) ^ "\n")
+                      (File.read_lines fic))
+               end in
+         File.write_list (mk_fic (SML.Filename.main_fic ml_ext_thy))
+           (map (fn s => s ^ "\n") (List.concat
+             [ [ "theory " ^ SML.main
+               , "imports Main"
+               , "begin"
+               , "declare [[ML_print_depth = 500]]" (* any large number so that @{make_string} displays all the expression *) ]
+             , ml [ "val stdout_file = Unsynchronized.ref (File.read (Path.make [\"" ^ SML.Filename.stdout ml_ext_ml ^ "\"]))"
+                  , "use \"" ^ SML.Filename.argument ml_ext_ml ^ "\"" ]
+             , ml let val arg = "argument" in
+                  [ "val " ^ arg ^ " = XML.content_of (YXML.parse_body (@{make_string} (" ^ ml_module ^ "." ^
+                    mk_free (Proof_Context.init_global thy) Isabelle.argument_main ([]: (string * string) list) ^ ")))"
+                  , "use \"" ^ SML.Filename.function ml_ext_ml ^ "\""
+                  , "ML_Context.eval_source (ML_Compiler.verbose false ML_Compiler.flags) (Input.source false (\"let open " ^ ml_module ^ " in " ^ Isabelle.function ^ " (\" ^ " ^ arg ^ " ^ \") end\") (Position.none, Position.none) )" ]
+                  end
+             , [ "end" ]]))
+         end
+    , fn tmp_export_code => fn tmp_file =>
+        let val stdout_file = Isabelle_System.create_tmp_path "stdout_file" "thy"
+            val () = File.write (Path.append tmp_export_code (Path.make [SML.Filename.stdout ml_ext_ml])) (Path.implode (Path.expand stdout_file))
+            val (l, (_, exit_st)) =
+              compile [ "mv " ^ tmp_file ^ " " ^ Path.implode (Path.append tmp_export_code (Path.make [SML.Filename.argument ml_ext_ml]))
+                      , "cd " ^ Path.implode tmp_export_code ^
+                        " && echo 'use_thy \"" ^ SML.main ^
+                        "\";' | " ^
+                        Path.implode (Path.expand (Path.append (Path.variable "ISABELLE_HOME") (Path.make ["bin", "isabelle"]))) ^ " console" ]
+                      "true"
+            val stdout =
+              case SOME (File.read stdout_file) handle _ => NONE of
+                SOME s => let val () = File.rm stdout_file in s end
+              | NONE => "" in
+            (l, (stdout, if List.exists (fn (err, _) =>
+                              List.exists (fn "*** Error" => true | _ => false)
+                                (String.tokens (fn #"\n" => true | _ => false) err)) l then
+                           let val () = fold (fn (out, err) => K (warning err; writeln out)) l () in
+                           1
+                           end
+                         else exit_st))
+        end)
+    end ]
+end
+
+fun find_ext ml_compiler =
+  case List.find (fn (ml_compiler0, _, _, _, _, _, _) => ml_compiler0 = ml_compiler) compiler of
+    SOME (_, ext, _, _, _, _, _) => ext
+
+fun find_export_mode ml_compiler =
+  case List.find (fn (ml_compiler0, _, _, _, _, _, _) => ml_compiler0 = ml_compiler) compiler of
+    SOME (_, _, mode, _, _, _, _) => mode
+
+fun find_function ml_compiler =
+  case List.find (fn (ml_compiler0, _, _, _, _, _, _) => ml_compiler0 = ml_compiler) compiler of
+    SOME (_, _, _, f, _, _, _) => f
+
+fun find_check_compil ml_compiler =
+  case List.find (fn (ml_compiler0, _, _, _, _, _, _) => ml_compiler0 = ml_compiler) compiler of
+    SOME (_, _, _, _, build, _, _) => build
+
+fun find_init ml_compiler =
+  case List.find (fn (ml_compiler0, _, _, _, _, _, _) => ml_compiler0 = ml_compiler) compiler of
+    SOME (_, _, _, _, _, build, _) => build
+
+fun find_build ml_compiler =
+  case List.find (fn (ml_compiler0, _, _, _, _, _, _) => ml_compiler0 = ml_compiler) compiler of
+    SOME (_, _, _, _, _, _, build) => build
+
+
+end
+*}
+
+ML{*
+structure Deep = struct
+
+fun absolute_path filename thy = Path.implode (Path.append (Resources.master_directory thy) (Path.explode filename))
+
+fun export_code_tmp_file seris g =
+  fold
+    (fn ((ml_compiler, ml_module), export_arg) => fn f => fn g =>
+      f (fn accu =>
+        let val tmp_name = Context.theory_name @{theory} in
+        (if Deep0.find_export_mode ml_compiler = Deep0.Export_code_env.Directory then
+           Isabelle_System.with_tmp_dir tmp_name
+         else
+           Isabelle_System.with_tmp_file tmp_name (Deep0.find_ext ml_compiler))
+          (fn filename =>
+             g (((((ml_compiler, ml_module), Path.implode filename), export_arg) :: accu)))
+        end))
+    seris
+    (fn f => f [])
+    (g o rev)
+
+fun mk_path_export_code tmp_export_code ml_compiler i =
+  Path.append tmp_export_code (Path.make [ml_compiler ^ Int.toString i])
+
+fun export_code_cmd' seris tmp_export_code f_err filename_thy raw_cs thy =
+  export_code_tmp_file seris
+    (fn seris =>
+      let val mem_scala = List.exists (fn ((("Scala", _), _), _) => true | _ => false) seris
+          val _ = Isabelle_Code_Target.export_code_cmd
+        false
+        (if mem_scala then Deep0.Export_code_env.Isabelle.function :: raw_cs else raw_cs)
+        seris
+        (Proof_Context.init_global
+           let val v = Deep0.apply_hs_code_identifiers Deep0.Export_code_env.Haskell.argument thy in
+           if mem_scala then Code_printing.apply_code_printing v else v end) in
+      List_mapi
+        (fn i => fn seri => case seri of (((ml_compiler, _), filename), _) =>
+          let val (l, (out, err)) =
+                Deep0.find_build
+                  ml_compiler
+                  (mk_path_export_code tmp_export_code ml_compiler i)
+                  filename
+              val _ = f_err seri err in
+          (l, out)
+          end) seris
+      end)
+
+fun scan thy pos str =
+  Source.of_string str
+  |> Symbol.source
+  |> Token.source (Thy_Header.get_keywords' thy) pos
+  |> Source.exhaust;
+
+fun mk_term ctxt s = fst (Scan.pass (Context.Proof ctxt) Args.term (scan ctxt Position.none s))
+
+fun mk_free ctxt s l =
+  let val t_s = mk_term ctxt s in
+  if Term.is_Free t_s then s else
+    let val l = (s, "") :: l in
+    mk_free ctxt (fst (hd (Term.variant_frees t_s l))) l
+    end
+  end
+
+val list_all_eq = fn x0 :: xs =>
+  List.all (fn x1 => x0 = x1) xs
+
+end
+*}
+
+subsection{* Saving the History of Meta Commands *}
+
+ML{*
+fun p_gen f g =  f "[" "]" g
+              (*|| f "{" "}" g*)
+              || f "(" ")" g
+fun paren f = p_gen (fn s1 => fn s2 => fn f => Parse.$$$ s1 |-- f --| Parse.$$$ s2) f
+fun parse_l f = Parse.$$$ "[" |-- Parse.!!! (Parse.list f --| Parse.$$$ "]")
+fun parse_l' f = Parse.$$$ "[" |-- Parse.list f --| Parse.$$$ "]"
+fun parse_l1' f = Parse.$$$ "[" |-- Parse.list1 f --| Parse.$$$ "]"
+fun annot_ty f = Parse.$$$ "(" |-- f --| Parse.$$$ "::" -- Parse.binding --| Parse.$$$ ")"
+*}
+
+ML{*
+structure Generation_mode = struct
+
+datatype internal_deep = Internal_deep of (string * (string list (* imports *) * string (* import optional (bootstrap) *))) option
+                                        * ((bstring (* compiler *) * bstring (* main module *) ) * Token.T list) list (* seri_args *)
+                                        * bstring option (* filename_thy *)
+                                        * Path.T (* tmp dir export_code *)
+                                        * bool (* true: skip preview of code exportation *)
+
+datatype 'a generation_mode = Gen_deep of unit META.compiler_env_config_ext
+                                        * internal_deep
+                            | Gen_shallow of unit META.compiler_env_config_ext
+                                           * 'a (* theory init *)
+                            | Gen_syntax_print of int option
+
+structure Data_gen = Theory_Data
+  (type T = theory generation_mode list Symtab.table
+   val empty = Symtab.empty
+   val extend = I
+   val merge = Symtab.merge (K true))
+
+val code_expr_argsP = Scan.optional (@{keyword "("} |-- Parse.args --| @{keyword ")"}) []
+
+val parse_scheme = @{keyword "design"} >> K META.Gen_only_design || @{keyword "analysis"} >> K META.Gen_only_analysis
+
+val parse_sorry_mode = 
+  Scan.optional (  @{keyword "SORRY"} >> K (SOME META.Gen_sorry)
+                || @{keyword "no_dirty"} >> K (SOME META.Gen_no_dirty)) NONE
+
+val parse_deep =
+     Scan.optional (@{keyword "skip_export"} >> K true) false
+  -- Scan.optional (((Parse.$$$ "(" -- @{keyword "THEORY"}) |-- Parse.name -- ((Parse.$$$ ")" -- Parse.$$$ "(" -- @{keyword "IMPORTS"}) |-- parse_l' Parse.name -- Parse.name) --| Parse.$$$ ")") >> SOME) NONE
+  -- Scan.optional (@{keyword "SECTION"} >> K true) false
+  -- parse_sorry_mode
+  -- (* code_expr_inP *) parse_l1' (@{keyword "in"} |-- (Parse.name
+        -- Scan.optional (@{keyword "module_name"} |-- Parse.name) ""
+        -- code_expr_argsP))
+  -- Scan.optional ((Parse.$$$ "(" -- @{keyword "output_directory"}) |-- Parse.name --| Parse.$$$ ")" >> SOME) NONE
+
+val parse_semantics =
+  let val z = 0 in
+      Scan.optional (paren (@{keyword "generation_semantics"}
+                     |-- paren (parse_scheme
+                                -- Scan.optional ((Parse.$$$ "," -- @{keyword "oid_start"}) |-- Parse.nat) z)))
+                    (META.Gen_default, z)
+  end
+
+val mode =
+  let fun mk_env output_disable_thy output_header_thy oid_start design_analysis sorry_mode dirty =
+    META.compiler_env_config_empty
+                    (From.from_bool output_disable_thy)
+                    (From.from_option (From.from_pair From.from_string (From.from_pair (From.from_list From.from_string) From.from_string)) output_header_thy)
+                    (META.oidInit (From.from_internal_oid (From.from_nat oid_start)))
+                    design_analysis
+                    (sorry_mode, dirty) in
+
+     @{keyword "deep"} |-- parse_semantics -- parse_deep >> (fn ((design_analysis, oid_start), (((((skip_exportation, output_header_thy), output_disable_thy), sorry_mode), seri_args), filename_thy)) =>
+       fn ctxt =>
+         Gen_deep ( mk_env (not output_disable_thy) output_header_thy oid_start design_analysis sorry_mode (Config.get ctxt quick_and_dirty)
+                  , Internal_deep (output_header_thy, seri_args, filename_thy, Isabelle_System.create_tmp_path "deep_export_code" "", skip_exportation)))
+  || @{keyword "shallow"} |-- parse_semantics -- parse_sorry_mode >> (fn ((design_analysis, oid_start), sorry_mode) =>
+       fn ctxt =>
+       Gen_shallow (mk_env true NONE oid_start design_analysis sorry_mode (Config.get ctxt quick_and_dirty), ()))
+  || (@{keyword "syntax_print"} |-- Scan.optional (Parse.number >> SOME) NONE) >> (fn n => K (Gen_syntax_print (case n of NONE => NONE | SOME n => Int.fromString n)))
+  end
+
+
+fun f_command l_mode =
+      Toplevel.theory (fn thy =>
+        let val (l_mode, thy) = META.mapM
+          (fn Gen_shallow (env, ()) => let val thy0 = thy in
+                                       fn thy => (Gen_shallow (env, thy0), thy) end
+            | Gen_syntax_print n => (fn thy => (Gen_syntax_print n, thy))
+            | Gen_deep (env, Internal_deep (output_header_thy, seri_args, filename_thy, tmp_export_code, skip_exportation)) => fn thy =>
+                let val _ = warning ("remove the directory (at the end): " ^ Path.implode (Path.expand tmp_export_code))
+                    val seri_args' = List_mapi (fn i => fn ((ml_compiler, ml_module), export_arg) =>
+                      let val tmp_export_code = Deep.mk_path_export_code tmp_export_code ml_compiler i
+                          fun mk_fic s = Path.append tmp_export_code (Path.make [s])
+                          val () = Deep0.find_check_compil ml_compiler ()
+                          val () = Isabelle_System.mkdirs tmp_export_code in
+                      ((( (ml_compiler, ml_module)
+                        , Path.implode (if Deep0.find_export_mode ml_compiler = Deep0.Export_code_env.Directory then
+                                          tmp_export_code
+                                        else
+                                          mk_fic (Deep0.find_function ml_compiler (Deep0.find_ext ml_compiler))))
+                        , export_arg), mk_fic)
+                      end) seri_args
+                    val _ = Isabelle_Code_Target.export_code_cmd
+                              (List.exists (fn (((("SML", _), _), _), _) => true | _ => false) seri_args')
+                              [Deep0.Export_code_env.Isabelle.function]
+                              (List.map fst seri_args')
+                              (Proof_Context.init_global (Code_printing.apply_code_printing (Deep0.apply_hs_code_identifiers Deep0.Export_code_env.Haskell.function thy)))
+                    val () = fold (fn ((((ml_compiler, ml_module), _), _), mk_fic) => fn _ =>
+                      Deep0.find_init ml_compiler mk_fic ml_module Deep.mk_free thy) seri_args' () in
+                (Gen_deep (env, Internal_deep (output_header_thy, seri_args, filename_thy, tmp_export_code, skip_exportation)), thy) end)
+          let val ctxt = Proof_Context.init_global thy in
+              map (fn f => f ctxt) l_mode
+          end
+          thy in
+        Data_gen.map (Symtab.map_default (Deep0.gen_empty, l_mode) (fn _ => l_mode)) thy
+        end)
+
+fun update_compiler_config f =
+  Data_gen.map
+    (Symtab.map_entry
+      Deep0.gen_empty
+      (fn l_mode =>
+        map (fn Gen_deep (env, d) => Gen_deep (META.compiler_env_config_update f env, d)
+              | Gen_shallow (env, thy) => Gen_shallow (META.compiler_env_config_update f env, thy)
+              | Gen_syntax_print n => Gen_syntax_print n) l_mode))
+end
+*}
+
+subsection{* Factoring All Meta Commands Together *}
 
 setup{* ML_Antiquotation.inline @{binding mk_string} (Scan.succeed "(fn ctxt => fn x => Pretty.string_of (Pretty.from_ML (pretty_ml (PolyML.prettyRepresentation (x, Config.get ctxt ML_Options.print_depth)))))") *}
 
@@ -1047,7 +1044,7 @@ fun outer_syntax_command mk_string cmd_spec cmd_descr parser get_all_meta_embed 
 
 *}
 
-subsection{* ... *}
+subsection{* Parameterizing the Semantics of Embedded Languages *}
 
 ML{*
 val () = let open Generation_mode in
@@ -1074,7 +1071,7 @@ val () = let open Generation_mode in
 end
 *}
 
-subsection{* ... *}
+subsection{* Outer Syntax: Parsing *}
 
 ML{*
 structure USE_parse = struct
@@ -1339,7 +1336,7 @@ structure USE_parse = struct
 end
 *}
 
-subsection{* Outer Syntax: enum *}
+subsection{* Outer Syntax: Defining: Enum *}
 
 ML{*
 val () =
@@ -1349,7 +1346,7 @@ val () =
       K (META.META_enum (META.OclEnum (From.from_binding n1, From.from_list From.from_binding n2))))
 *}
 
-subsection{* Outer Syntax: (abstract) class *}
+subsection{* Outer Syntax: Defining: (abstract) Class *}
 
 ML{*
 local
@@ -1373,7 +1370,7 @@ val () = mk_classDefinition USE_class_abstract @{command_keyword Abstract_class}
 end
 *}
 
-subsection{* Outer Syntax: association, composition, aggregation *}
+subsection{* Outer Syntax: Defining: Association, Composition, Aggregation *}
 
 ML{*
 local
@@ -1393,7 +1390,7 @@ val () = mk_associationDefinition META.OclAssTy_aggregation @{command_keyword Ag
 end
 *}
 
-subsection{* Outer Syntax: (abstract) associationclass *}
+subsection{* Outer Syntax: Defining: (abstract) Associationclass *}
 
 ML{*
 
@@ -1423,7 +1420,7 @@ val () = mk_associationClassDefinition USE_associationclass_abstract @{command_k
 end
 *}
 
-subsection{* Outer Syntax: context *}
+subsection{* Outer Syntax: Defining: Context *}
 
 ML{*
 local
@@ -1447,7 +1444,7 @@ val () =
 end
 *}
 
-subsection{* Outer Syntax: End *}
+subsection{* Outer Syntax: Defining: End *}
 
 ML{*
 val () =
@@ -1461,7 +1458,7 @@ val () =
          [])
 *}
 
-subsection{* Outer Syntax: BaseType, Instance, State *}
+subsection{* Outer Syntax: Defining: BaseType, Instance, State *}
 
 ML{*
 val () =
@@ -1488,7 +1485,7 @@ val () =
 end
 *}
 
-subsection{* Outer Syntax: PrePost *}
+subsection{* Outer Syntax: Defining: PrePost *}
 
 ML{*
 local

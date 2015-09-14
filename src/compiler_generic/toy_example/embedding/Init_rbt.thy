@@ -36,7 +36,7 @@
  ******************************************************************************)
 (* $Id:$ *)
 
-chapter{* Part ... *}
+section{* Basic Extension of the Standard Library (Depending on RBT) *}
 
 theory Init_rbt
 imports "../../Init"
@@ -44,8 +44,6 @@ imports "../../Init"
         "~~/src/HOL/Library/Char_ord"
         "~~/src/HOL/Library/List_lexord"
 begin
-
-subsection{* RBT Miscellaneous *}
 
 locale RBT
 begin

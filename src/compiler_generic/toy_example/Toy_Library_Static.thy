@@ -37,7 +37,7 @@
 (* $Id:$ *)
 
 
-section{* Preliminaries (1) *}
+section{* Main Common Static Libraries *}
 
 theory Toy_Library_Static
 imports Main

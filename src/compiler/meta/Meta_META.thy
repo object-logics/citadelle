@@ -41,7 +41,7 @@
  ******************************************************************************)
 (* $Id:$ *)
 
-header{* Part ... *}
+section{* Regrouping Together All Existing Meta-Models *}
 
 theory  Meta_META
 imports Meta_UML
@@ -49,22 +49,29 @@ imports Meta_UML
         "../../compiler_generic/meta_isabelle/Meta_Isabelle"
 begin
 
-section{* The Meta-Model of all existing Meta-Models *}
-text{* Actually, the simulation occurs through one deep or shallow step (without internal recursion). *}
+subsection{* A Basic Meta-Model *}
 
+text{* The following basic Meta-Model will be used for requiring an eager
+       or lazy interactive evaluation of already encountered Meta-Models. *}
 datatype ocl_flush_all = OclFlushAll
 
-(* *)
+subsection{* The META Meta-Model *}
 
-datatype floor = Floor1 | Floor2 | Floor3
+text{*
+Meta-Models can be seen as arranged in a semantic tower with several floors.
+By default, @{term Floor1} corresponds to the top level,
+then a subsequent meta-evaluation would jump to a deeper floor,
+to @{term Floor2}, etc... *}
+
+datatype floor = Floor1 | Floor2 | Floor3 (* NOTE nat can be used *)
 
 (* *)
 
 (* le meta-model de "tout le monde" - frederic. *)
 datatype all_meta_embedding =
   (* For the following constructors, if they are preceded by an additional
-     'floor' field, then it indicates the degre of reflection
-     (otherwise degre = Floor1 by default). *)
+     'floor' field, then it indicates the degree of reflection
+     (otherwise degree = Floor1 by default). *)
   (* TODO: we can merge Enum and ClassRaw into a common record *)
 
                               (* USE *)
@@ -82,7 +89,7 @@ datatype all_meta_embedding =
                             | META_def_pre_post floor ocl_def_pre_post
                             | META_flush_all ocl_flush_all
 
-(* *)
+subsection{* Main Compiling Environment *}
 
 datatype generation_semantics_ocl = Gen_only_design | Gen_only_analysis | Gen_default
 datatype generation_lemma_mode = Gen_sorry | Gen_no_dirty
@@ -114,7 +121,7 @@ record compiler_env_config =  D_output_disable_thy :: bool
                               D_ocl_HO_type :: "(string\<^sub>b\<^sub>a\<^sub>s\<^sub>e (* raw HOL name (as key for rbt) *)) list"
                               D_output_sorry_dirty :: "generation_lemma_mode option \<times> bool (* dirty *)" (* Some Gen_sorry or None and {dirty}: activate sorry mode for skipping proofs *)
 
-subsection{* Auxilliary *}
+subsection{* Operations of Fold, Map, ..., on the Meta-Model *}
 
 definition "ignore_meta_header = (\<lambda> META_class_raw Floor1 _ \<Rightarrow> True
                                   | META_ass_class Floor1 _ \<Rightarrow> True
@@ -137,14 +144,14 @@ definition "map2_ctxt_term f =
 definition "compiler_env_config_more_map f ocl =
             compiler_env_config.extend  (compiler_env_config.truncate ocl) (f (compiler_env_config.more ocl))"
 
-section{* SML Meta-Model (extended) *}
-subsection{* type definition *}
+subsection{* SML Meta-Model (extended) *}
+subsubsection{* Type Definition *}
 
 datatype sml_extended = SML_extended sml_expr
                       | SML_compiler_env compiler_env_config
 
-section{* Isabelle/HOL Meta-Model (extended) *}
-subsection{* type definition *}
+subsection{* Isabelle Meta-Model (extended) *}
+subsubsection{* Type Definition *}
 
 datatype hol_generation_syntax = Gen_semantics generation_semantics_ocl
 
@@ -158,7 +165,7 @@ datatype hol_thy_extended = (* pure Isabelle *)
                           | Isab_thy_ml_extended hol_ml_extended
                           | Isab_thy_all_meta_embedding all_meta_embedding
 
-subsection{* ... *}
+subsubsection{* Extending the Meta-Model *}
 
 locale O (* outer syntax *)
 begin
@@ -236,7 +243,7 @@ lemmas [code] =
   O'.thm_def
   O'.interpretation_def
 
-subsection{* ... *}
+subsubsection{* Operations of Fold, Map, ..., on the Meta-Model *}
 
 definition "hol_map_thy f = (\<lambda> Isab_thy (H_thy_simple x) \<Rightarrow> Isab_thy (H_thy_simple (f x))
                              | Isab_thy (H_thy_locale data l) \<Rightarrow> Isab_thy (H_thy_locale data (L.map (L.map f) l))

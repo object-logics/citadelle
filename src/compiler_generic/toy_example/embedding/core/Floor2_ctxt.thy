@@ -36,15 +36,11 @@
  ******************************************************************************)
 (* $Id:$ *)
 
-header{* Part ... *}
+section{* Main Translation for: Context (Floor 2) *}
 
 theory  Floor2_ctxt
 imports Core_init
 begin
-
-section{* Translation of AST *}
-
-subsection{* context2 *}
 
 (* (* ERROR this lambda term type-checks expensively *)
 definition "print_ctxt_is_accessor =

@@ -36,15 +36,11 @@
  ******************************************************************************)
 (* $Id:$ *)
 
-chapter{* Part ... *}
+section{* Main Translation for: Context *}
 
 theory  Floor1_ctxt
 imports Core_init
 begin
-
-section{* Translation of AST *}
-
-subsection{* context *}
 
 definition "print_ctxt_const _ env =
  (map_prod (map_prod id (rev o L.map O.type_synonym)) (rev o L.map O.consts)

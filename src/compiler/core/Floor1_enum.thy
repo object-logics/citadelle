@@ -41,13 +41,11 @@
  ******************************************************************************)
 (* $Id:$ *)
 
-header{* Part ... *}
+section{* Main Translation for: Enumeration *}
 
 theory  Floor1_enum
 imports Core_init
 begin
-
-section{* Translation of AST *}
 
 definition "print_enum = (\<lambda> OclEnum name_ty l \<Rightarrow> Pair
  (let a = \<lambda>f x. Term_app f [x]

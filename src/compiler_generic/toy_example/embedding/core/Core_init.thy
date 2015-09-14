@@ -36,18 +36,12 @@
  ******************************************************************************)
 (* $Id:$ *)
 
-chapter{* Part ... *}
+section{* General Environment for the Translation: Introduction *}
 
 theory  Core_init
 imports "../../Toy_Library_Static"
         "../meta_toy/Meta_META"
 begin
-
-section{* Preliminaries Compiler *}
-
-subsection{* RBT Miscellaneous *}
-
-subsection{* ... *} (* optimized data-structure version *)
 
 datatype opt_attr_type = OptInh | OptOwn
 datatype opt_ident = OptIdent nat
@@ -66,7 +60,7 @@ begin
  by (metis le_cases less_eq_internal_oid_def)
 end
 
-subsection{* ... *}
+
 
 definition "var_oid_uniq = \<open>oid\<close>"
 definition "var_deref_assocs_list = \<open>deref_assocs_list\<close>"
@@ -78,7 +72,6 @@ definition "var_map_of_list = \<open>map_of_list\<close>"
 definition "var_self = \<open>self\<close>"
 definition "var_result = \<open>result\<close>"
 
-subsection{* ... *}
 
 definition "find_class_ass env =
  (let (l_class, l_all_meta) =
@@ -182,15 +175,13 @@ definition "arrange_ass with_aggreg with_optim_ass l_c l_enum =
     ( l_class
     , L.flatten [l_ass, l_ass0]))"
 
-subsection{* ... *}
-
 definition "datatype_name = \<open>ty\<close>"
 definition "datatype_ext_name = datatype_name @@ \<open>\<E>\<X>\<T>\<close>"
 definition "datatype_constr_name = \<open>mk\<close>"
 definition "datatype_ext_constr_name = datatype_constr_name @@ \<open>\<E>\<X>\<T>\<close>"
 definition "datatype_in = \<open>in\<close>"
 
-section{* Translation of AST *}
+subsection{* Main Combinators for the Translation *}
 
 definition "start_map f = L.mapM (\<lambda>x acc. (f x, acc))"
 definition "start_map''' f fl = (\<lambda> env.
@@ -201,8 +192,6 @@ definition "start_map''' f fl = (\<lambda> env.
   start_map f (fl design_analysis base_attr base_attr' base_attr'') env)"
 definition "start_map'' f fl e = start_map''' f (\<lambda>_. fl) e"
 definition "start_map'''' f fl = (\<lambda> env. start_map f (fl (D_ocl_semantics env)) env)"
-
-subsection{* ... *}
 
 definition "bootstrap_floor f_x l env =
  (let (l, env) = f_x l env
@@ -226,9 +215,11 @@ definition "Term_annot_ocl e s = Term_annot' e (wrap_oclty s)"
 definition "Term_oclset l = (case l of [] \<Rightarrow> Term_basic [\<open>Set{}\<close>] | _ \<Rightarrow> Term_paren \<open>Set{\<close> \<open>}\<close> (term_binop \<open>,\<close> l))"
 definition "Term_oid s = (\<lambda>Oid n \<Rightarrow> Term_basic [s @@ String.of_natural n])"
 
-subsection{* Infra *}
+subsection{* Preliminaries on: Enumeration *}
 
-subsection{* accessors *}
+subsection{* Preliminaries on: Infrastructure *}
+
+subsection{* Preliminaries on: Accessor *}
 
 definition "print_access_oid_uniq_name' name_from_nat isub_name attr = S.flatten [ isub_name var_oid_uniq, \<open>_\<close>, String.of_natural name_from_nat, \<open>_\<close>, attr ]"
 definition "print_access_oid_uniq_name name_from_nat isub_name attr = print_access_oid_uniq_name' name_from_nat isub_name (String.isup attr)"
@@ -236,13 +227,15 @@ definition "print_access_oid_uniq_name name_from_nat isub_name attr = print_acce
 definition "print_access_choose_name n i j =
   S.flatten [var_switch, String.isub (String.of_natural n), \<open>_\<close>, String.of_natural i, String.of_natural j]"
 
-subsection{* example *}
+subsection{* Preliminaries on: Example (Floor 1) *}
 
 datatype reporting = Warning
                    | Error
                    | Writeln
 
-subsection{* context *}
+subsection{* Preliminaries on: Example (Floor 2) *}
+
+subsection{* Preliminaries on: Context *}
 
 definition "make_ctxt_free_var pref ctxt =
  (var_self # L.flatten [ L.map fst (Ctxt_fun_ty_arg ctxt)

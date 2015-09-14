@@ -41,15 +41,11 @@
  ******************************************************************************)
 (* $Id:$ *)
 
-header{* Part ... *}
+section{* Main Translation for: Context (Floor 1) *}
 
 theory  Floor1_ctxt
 imports Core_init
 begin
-
-section{* Translation of AST *}
-
-subsection{* context *}
 
 definition "print_ctxt_const ctxt env =
  (let Ty_par = Typ_apply_paren \<open>(\<close> \<open>)\<close> (* because of potential ambiguities *)

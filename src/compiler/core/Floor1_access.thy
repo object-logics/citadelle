@@ -41,15 +41,11 @@
  ******************************************************************************)
 (* $Id:$ *)
 
-header{* Part ... *}
+section{* Main Translation for: Accessor *}
 
 theory  Floor1_access
 imports Core_init
 begin
-
-section{* Translation of AST *}
-
-subsection{* accessors *}
 
 definition "print_access_oid_uniq_gen Thy_def D_ocl_oid_start_upd def_rewrite =
   (\<lambda>expr env.

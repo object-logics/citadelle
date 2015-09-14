@@ -36,15 +36,11 @@
  ******************************************************************************)
 (* $Id:$ *)
 
-chapter{* Part ... *}
+section{* Main Translation for: Infrastructure *}
 
 theory  Floor1_infra
 imports Core_init
 begin
-
-section{* Translation of AST *}
-
-subsection{* infrastructure *}
 
 definition "print_infra_datatype_class = start_map'' O.datatype o (\<lambda>expr _ base_attr' _. map_class_gen_h''''
   (\<lambda>isub_name name _ l_attr l_inherited l_cons.

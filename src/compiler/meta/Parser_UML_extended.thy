@@ -41,14 +41,14 @@
  ******************************************************************************)
 (* $Id:$ *)
 
-header{* Part ... *}
+section{* Instantiating the Parser of OCL *}
 
 theory  Parser_UML_extended
 imports Meta_UML_extended
         "../../compiler_generic/meta_isabelle/Parser_init"
 begin
 
-section{* Generation to both Form (setup part) *}
+subsection{* Building Recursors for Records *} (* NOTE part to be automated *)
 
 definition "ocl_instance_single_rec0 f ocl = f
   (Inst_name ocl)
@@ -74,9 +74,7 @@ by(intro ext, simp add: ocl_instance_single_rec0_def
                         ocl_instance_single.make_def
                         co3_def K_def)
 
-subsection{* i of ... *}
-
-subsubsection{* general *}
+subsection{* Main *}
 
 context Parse
 begin

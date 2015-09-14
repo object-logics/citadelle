@@ -41,15 +41,11 @@
  ******************************************************************************)
 (* $Id:$ *)
 
-header{* Part ... *}
+section{* Main Translation for: Example (Floor 1) *}
 
 theory  Floor1_examp
 imports Core_init
 begin
-
-section{* Translation of AST *}
-
-subsection{* example *}
 
 definition "print_examp_oclbase_gen =
  (\<lambda> OclDefInteger nb \<Rightarrow>

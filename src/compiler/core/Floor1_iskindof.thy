@@ -41,15 +41,11 @@
  ******************************************************************************)
 (* $Id:$ *)
 
-header{* Part ... *}
+section{* Main Translation for: IsKindOf *}
 
 theory  Floor1_iskindof
 imports Core_init
 begin
-
-section{* Translation of AST *}
-
-subsection{* IsKindOf *}
 
 definition "print_iskindof_consts = start_map O.consts o
   map_class (\<lambda>isub_name name _ _ _ _.

@@ -41,15 +41,11 @@
  ******************************************************************************)
 (* $Id:$ *)
 
-header{* Part ... *}
+section{* Main Translation for: AllInstances *}
 
 theory  Floor1_allinst
 imports Core_init
 begin
-
-section{* Translation of AST *}
-
-subsection{* allInstances *}
 
 definition "print_allinst_def_id = start_map O.definition o
   map_class (\<lambda>isub_name name _ _ _ _.
