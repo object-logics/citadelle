@@ -15,26 +15,26 @@ datatype ty\<E>\<X>\<T>\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y = mk\<E>
                         | mk\<E>\<X>\<T>\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y_\<^sub>A\<^sub>t\<^sub>o\<^sub>m "ty\<^sub>A\<^sub>t\<^sub>o\<^sub>m"
                         | mk\<E>\<X>\<T>\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y "oid"
 datatype ty\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y = mk\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y "ty\<E>\<X>\<T>\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y" "nat option" "unit option"
-datatype ty\<E>\<X>\<T>\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y = mk\<E>\<X>\<T>\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y "ty\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y"
-                        | mk\<E>\<X>\<T>\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n "ty\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n"
-                        | mk\<E>\<X>\<T>\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_\<^sub>M\<^sub>o\<^sub>l\<^sub>e\<^sub>c\<^sub>u\<^sub>l\<^sub>e "ty\<^sub>M\<^sub>o\<^sub>l\<^sub>e\<^sub>c\<^sub>u\<^sub>l\<^sub>e"
-                        | mk\<E>\<X>\<T>\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_\<^sub>A\<^sub>t\<^sub>o\<^sub>m "ty\<^sub>A\<^sub>t\<^sub>o\<^sub>m"
-                        | mk\<E>\<X>\<T>\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y "oid"
-datatype ty\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y = mk\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y "ty\<E>\<X>\<T>\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y"
+datatype ty\<E>\<X>\<T>\<^sub>T\<^sub>o\<^sub>y\<^sub>A\<^sub>n\<^sub>y = mk\<E>\<X>\<T>\<^sub>T\<^sub>o\<^sub>y\<^sub>A\<^sub>n\<^sub>y_\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y "ty\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y"
+                        | mk\<E>\<X>\<T>\<^sub>T\<^sub>o\<^sub>y\<^sub>A\<^sub>n\<^sub>y_\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n "ty\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n"
+                        | mk\<E>\<X>\<T>\<^sub>T\<^sub>o\<^sub>y\<^sub>A\<^sub>n\<^sub>y_\<^sub>M\<^sub>o\<^sub>l\<^sub>e\<^sub>c\<^sub>u\<^sub>l\<^sub>e "ty\<^sub>M\<^sub>o\<^sub>l\<^sub>e\<^sub>c\<^sub>u\<^sub>l\<^sub>e"
+                        | mk\<E>\<X>\<T>\<^sub>T\<^sub>o\<^sub>y\<^sub>A\<^sub>n\<^sub>y_\<^sub>A\<^sub>t\<^sub>o\<^sub>m "ty\<^sub>A\<^sub>t\<^sub>o\<^sub>m"
+                        | mk\<E>\<X>\<T>\<^sub>T\<^sub>o\<^sub>y\<^sub>A\<^sub>n\<^sub>y "oid"
+datatype ty\<^sub>T\<^sub>o\<^sub>y\<^sub>A\<^sub>n\<^sub>y = mk\<^sub>T\<^sub>o\<^sub>y\<^sub>A\<^sub>n\<^sub>y "ty\<E>\<X>\<T>\<^sub>T\<^sub>o\<^sub>y\<^sub>A\<^sub>n\<^sub>y"
 
 (* 2 ************************************ 10 + 1 *)
 datatype \<AA> = in\<^sub>A\<^sub>t\<^sub>o\<^sub>m "ty\<^sub>A\<^sub>t\<^sub>o\<^sub>m"
                         | in\<^sub>M\<^sub>o\<^sub>l\<^sub>e\<^sub>c\<^sub>u\<^sub>l\<^sub>e "ty\<^sub>M\<^sub>o\<^sub>l\<^sub>e\<^sub>c\<^sub>u\<^sub>l\<^sub>e"
                         | in\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n "ty\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n"
                         | in\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y "ty\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y"
-                        | in\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y "ty\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y"
+                        | in\<^sub>T\<^sub>o\<^sub>y\<^sub>A\<^sub>n\<^sub>y "ty\<^sub>T\<^sub>o\<^sub>y\<^sub>A\<^sub>n\<^sub>y"
 
 (* 3 ************************************ 11 + 5 *)
 type_synonym Atom = "\<langle>\<langle>ty\<^sub>A\<^sub>t\<^sub>o\<^sub>m\<rangle>\<^sub>\<bottom>\<rangle>\<^sub>\<bottom>"
 type_synonym Molecule = "\<langle>\<langle>ty\<^sub>M\<^sub>o\<^sub>l\<^sub>e\<^sub>c\<^sub>u\<^sub>l\<^sub>e\<rangle>\<^sub>\<bottom>\<rangle>\<^sub>\<bottom>"
 type_synonym Person = "\<langle>\<langle>ty\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<rangle>\<^sub>\<bottom>\<rangle>\<^sub>\<bottom>"
 type_synonym Galaxy = "\<langle>\<langle>ty\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y\<rangle>\<^sub>\<bottom>\<rangle>\<^sub>\<bottom>"
-type_synonym OclAny = "\<langle>\<langle>ty\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y\<rangle>\<^sub>\<bottom>\<rangle>\<^sub>\<bottom>"
+type_synonym ToyAny = "\<langle>\<langle>ty\<^sub>T\<^sub>o\<^sub>y\<^sub>A\<^sub>n\<^sub>y\<rangle>\<^sub>\<bottom>\<rangle>\<^sub>\<bottom>"
 
 (* 4 ************************************ 16 + 3 *)
 definition "oid\<^sub>A\<^sub>t\<^sub>o\<^sub>m_0___boss = 0"
