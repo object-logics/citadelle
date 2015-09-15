@@ -69,9 +69,16 @@ fun of_ocl_list_attr where
                             | OclAttrCast ty l _ \<Rightarrow> \<open>%s \<rightarrow> oclAsType( %s )\<close> (of_ocl_list_attr f l) (To_string ty)) e"
 
 definition' \<open>of_ocl_instance_single ocli =
-  \<open>%s%s = %s\<close>
-    (case Inst_name ocli of Some s \<Rightarrow> To_string s)
-    (case Inst_ty ocli of None \<Rightarrow> \<open>\<close> | Some ty \<Rightarrow> \<open> :: %s\<close> (To_string ty))
+ (let (s_left, s_right) =
+    case Inst_name ocli of
+      None \<Rightarrow> (case Inst_ty ocli of Some ty \<Rightarrow> (\<open>(\<close>, \<open> :: %s)\<close> (To_string ty)))
+    | Some s \<Rightarrow>
+        ( \<open>%s%s = \<close>
+            (To_string s)
+            (case Inst_ty ocli of None \<Rightarrow> \<open>\<close> | Some ty \<Rightarrow> \<open> :: %s\<close> (To_string ty))
+        , \<open>\<close>) in
+  \<open>%s%s%s\<close>
+    s_left
     (of_ocl_list_attr
       (\<lambda>l. \<open>[ %s ]\<close>
              (String_concat \<open>, \<close>
@@ -81,7 +88,8 @@ definition' \<open>of_ocl_instance_single ocli =
                                           (To_string attr)
                                           (of_ocl_data_shallow v))
                          l)))
-      (Inst_attr ocli))\<close>
+      (Inst_attr ocli))
+    s_right)\<close>
 
 definition "of_ocl_instance _ = (\<lambda> OclInstance l \<Rightarrow>
   \<open>Instance %s\<close> (String_concat \<open>
