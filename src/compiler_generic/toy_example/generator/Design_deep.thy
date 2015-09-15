@@ -78,7 +78,24 @@ generation_syntax [ (*deep
                         in SML module_name M ]
                       (output_directory "../document_generated")
                   (*, syntax_print*)*) ]
+
 text{* 
+\begin{verbatim}
+generation_syntax
+  [ deep
+      (generation_semantics [ design ])
+      (THEORY Design_generated)
+      (IMPORTS ["../Toy_Library", "../Toy_Library_Static"]
+               "../embedding/Generator_dynamic")
+      SECTION
+      (*SORRY*) (*no_dirty*)
+      [ (* in Haskell *)
+        (* in OCaml module_name M *)
+        (* in Scala module_name M *)
+        in SML module_name M ]
+      (output_directory "../document_generated")
+  (*, syntax_print*) ]
+\end{verbatim}
 While in theory it is possible to set the @{keyword "deep"} mode
 for generating in all target languages, i.e. by writing 
 @{text "[ in Haskell, in OCaml module_name M, in Scala module_name M, in SML module_name M ]"},
