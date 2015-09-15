@@ -290,15 +290,6 @@ fun semi__method expr = let open META open Method open META_overload in case exp
                           ctxt)
 end
 
-fun instantiation' thy tycos vs f_eq add_def tac (*add_eq_thms*) =
-    thy
-    |> Class.instantiation (tycos, vs, f_eq)
-    |> fold_map add_def tycos
-    |-> Class.prove_instantiation_exit_result (map o Morphism.thm) tac
-(*    |-> fold Code.del_eqn
-    |> fold add_eq_thms tycos*)
-    |-> K I
-
 fun then_tactic l = let open Method in
   (Combinator (no_combinator_info, Then, map semi__method l), (Position.none, Position.none))
 end
@@ -377,21 +368,21 @@ fun semi__theory in_theory in_local = let open META open META_overload in (*let 
    (Specification.type_notation_cmd true ("", true) [(To_string0 n, Mixfix (To_string0 e, [], 1000))])
 | Theory_instantiation (Instantiation (n, n_def, expr)) => in_theory
    (fn thy =>
-     let val name = To_string0 n in
-     instantiation'
-       thy
-       [ let val Term.Type (s, _) = (Isabelle_Typedecl.abbrev_cmd0 NONE thy name) in s end ]
-       []
-       (Syntax.read_sort (Proof_Context.init_global thy) "object")
-       (fn _ => fn thy =>
+     let val name = To_string0 n
+         val tycos =
+           [ let val Term.Type (s, _) = (Isabelle_Typedecl.abbrev_cmd0 NONE thy name) in s end ] in
+    thy
+    |> Class.instantiation (tycos, [], Syntax.read_sort (Proof_Context.init_global thy) "object")
+    |> fold_map (fn _ => fn thy =>
         let val ((_, (_, ty)), thy) = Specification.definition_cmd
                                        ( NONE
                                        , ( (To_binding (To_string0 n_def ^ "_" ^ name ^ "_def"), [])
                                          , of_semi__term expr)) false thy in
          (ty, thy)
-        end)
-       (fn ctxt => fn thms =>
+        end) tycos
+    |-> Class.prove_instantiation_exit_result (map o Morphism.thm) (fn ctxt => fn thms =>
          Class.intro_classes_tac ctxt [] THEN ALLGOALS (Proof_Context.fact_tac ctxt thms))
+    |-> K I
      end)
 | Theory_defs (Defs_overloaded (n, e)) => in_theory
    (Isar_Cmd.add_defs ((false, true), [((To_sbinding n, of_semi__term e), [])]))
