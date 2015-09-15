@@ -106,8 +106,19 @@ definition "of_boot_generation_syntax _ = (\<lambda> Boot_generation_syntax mode
 declare[[cartouche_type' = "abr_string"]]
 
 definition "of_boot_setup_env env = (\<lambda> Boot_setup_env e \<Rightarrow>
-  of_setup env (Setup (SML.app \<open>Generation_mode.update_compiler_config\<close>
-                         [SML.app \<open>K\<close> [SML_let_open \<open>META\<close> (sml_of_compiler_env_config SML_apply (\<lambda>x. SML_basic [x]) e)]])))"
+  of_setup
+    env
+    (Setup
+      (SML.app
+        \<open>Generation_mode.update_compiler_config\<close>
+        [ SML.app
+            \<open>K\<close>
+            [ SML_let_open
+                \<open>META\<close>
+                ((* Instead of using
+                    (*sml_of_compiler_env_config SML_apply (\<lambda>x. SML_basic [x]) e*)
+                    the following allows to 'automatically' return an uncurried expression: *)
+                 SML_basic [sml_of_compiler_env_config sml_apply id e])]])))"
 
 declare[[cartouche_type' = "fun\<^sub>p\<^sub>r\<^sub>i\<^sub>n\<^sub>t\<^sub>f"]]
 
