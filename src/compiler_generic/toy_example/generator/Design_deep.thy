@@ -47,8 +47,8 @@ begin
 ML_file "~~/src/Doc/antiquote_setup.ML"
 
 text{*
-In this example, we configure our package to generate \verb|.thy| files,
-without executing the associated generated code
+In this example, we configure our package to generate a \verb|.thy| file,
+without executing the associated generated code contained in this \verb|.thy| file
 (c.f. @{file "Design_shallow.thy"} for a direct evaluation).
 This mode is particularly relevant for debugging purposes:
 while by default no evaluation occurs, 
@@ -65,7 +65,7 @@ to see the differences of imported theories, and which ones to manually import
 (whenever an error happens).
 *}
 
-generation_syntax [ deep
+generation_syntax [ (*deep
                       (generation_semantics [ design (*, oid_start 10*) ])
                       (THEORY Design_generated)
                       (IMPORTS ["../Toy_Library", "../Toy_Library_Static"]
@@ -77,7 +77,7 @@ generation_syntax [ deep
                         (* in Scala module_name M *)
                         in SML module_name M ]
                       (output_directory "../document_generated")
-                  (*, syntax_print*) ]
+                  (*, syntax_print*)*) ]
 text{* 
 While in theory it is possible to set the @{keyword "deep"} mode
 for generating in all target languages, i.e. by writing 
@@ -115,7 +115,7 @@ text{* The ``blue'' color of @{command End} indicates that
 (all meta-commands are defined in @{theory Generator_dynamic}).
 At run-time and in @{keyword "deep"} mode, the semantics of all meta-commands are 
 approximately similar: all meta-commands displays some quantity of Isabelle code
-in the output window (as long as they are syntactically correct).
+in the output window (as long as meta-commands are syntactically correctly formed).
 However each meta-command is unique because what is displayed
 in the output window depends on the sequence of all meta-commands already encountered before
 (and also depends on arguments given to the meta-commands). *}
@@ -128,7 +128,7 @@ and no Isabelle code is generated. *}
        End End End 
 text{*
 We remark that, like any meta-commands, @{command End} could have been written anywhere
-in this theory, for example before @{command Class} or before @{command generation_syntax}...
+in this theory, for example before @{command Class} or even before @{command generation_syntax}...
 Something does not have to be specially opened before using an @{command End}.
 *}
 
@@ -185,9 +185,8 @@ Instance X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n3 :: Person = [ salary
 
 text{* However at any time, the universe can (or will) automatically be recomputed,
 whenever we are adding meanwhile another class:
-\begin{verbatim}
-(* Class Big_Bang < Atom (* This will force the creation of a new universe. *) *)
-\end{verbatim}
+
+@{verbatim "(* Class Big_Bang < Atom (* This will force the creation of a new universe. *) *)"}
 
 As remark, not only the universe is recomputed, but 
 the recomputation takes also into account all meta-commands already encountered. 
@@ -203,7 +202,8 @@ these lines belong to the Isabelle language.
 One particularity of meta-commands is to generate pieces of code containing not only Isabelle code
 but also arbitrary meta-commands. 
 In @{keyword "deep"} mode, this is particularly not a danger 
-for meta-commands to generate themselves.
+for meta-commands to generate themselves
+(whereas for @{keyword "shallow"} the recursion might not terminate).
 
 In this case, such meta-commands must automatically generate the appropriate call to
 @{command generation_syntax} beforehand. 
@@ -215,8 +215,8 @@ For example, the environment is needed for consultation whenever resurrecting ob
 recomputing the universe or accessing the hierarchy of classes being
 defined.
 
-As a consequence, in the next example we add after @{command generation_syntax}
-a line @{command setup} which bootstraps the state of the compiling environment.
+As a consequence, in the next example a line @{command setup} is added
+after @{command generation_syntax} for bootstrapping the state of the compiling environment.
 *}
 
 State \<sigma>\<^sub>1 =
@@ -240,17 +240,13 @@ PrePost \<sigma>\<^sub>1 \<sigma>\<^sub>1'
 text{*
 The generation of meta-commands allows to perform various extensions
 on the Toy language being embedded, without altering the semantics of a particular command.
-The semantics of @{command PrePost} was hence extended to mimic the support of @{text "\<zeta>-reduction"}
-in its arguments:
-\begin{verbatim}
-(* PrePost \<sigma>\<^sub>1 [ ([ salary = 1000 , boss = self 1 ] :: Person) ] *)
-\end{verbatim}
+The semantics of @{command PrePost} was hence extended
+to mimic the support of @{text "\<zeta>"}-reduction with respect to its arguments: \\
+@{verbatim "(* PrePost \<sigma>\<^sub>1 [ ([ salary = 1000 , boss = self 1 ] :: Person) ] *)"}
 This will rewrite to a preliminary call to @{command State}
-(and the name @{text "WFF_10_post"} was automatically generated):
-\begin{verbatim}
-(* State WFF_10_post = [ ([ "salary" = 1000, "boss" = self 1 ] :: Person) ]
-   PrePost[shallow] \<sigma>\<^sub>1 WFF_10_post *)
-\end{verbatim}
+(the name @{text "WFF_10_post"} was automatically generated): \\
+@{verbatim \<open>(* State WFF_10_post = [ ([ "salary" = 1000, "boss" = self 1 ] :: Person) ]\<close>} \\
+@{verbatim "   PrePost[shallow] \<sigma>\<^sub>1 WFF_10_post *)"}
 then the rewriting of the above @{command State} terminates 
 with a final call to @{command Instance}.
 *}
@@ -261,8 +257,10 @@ text{*
 Meta-commands are obviously not restricted to manipulate expressions in the Outer Syntax level.
 It is possible to build meta-commands so that Inner Syntax expressions are directly parsed.
 However the dependencies of this theory have been minimized so that experimentations
-and debugging can easily occur in @{keyword "deep"} mode. 
-Since the Inner Syntax expressions would not be well-typed (due to missing dependencies), 
+and debugging can easily occur in @{keyword "deep"} mode 
+(this file only depends on @{theory Generator_dynamic}). 
+Since the Inner Syntax expressions would perhaps manipulate expressions coming from other theories
+than @{theory Generator_dynamic}, 
 it can be desirable to consider the Inner Syntax container as a string and leave the parsing 
 for subsequent semantic floors.
 
@@ -270,21 +268,18 @@ This is what is implemented here:
 *}
 
 text{*
-\begin{verbatim}
-Context Person :: content ()
-  Post "\<close>\<open>"
-\end{verbatim}
+\verb|Context Person :: content ()| \\
+\verb|  Post "\<close>\<open>"|
 *}
 
 text{*
-Here the expression @{text "\<close>\<open>"} is not well-typed in Isabelle, but an error is not raised
+Here the expression \verb|\<close>\<open>| is not well-typed in Isabelle, but an error is not raised
 because the above expression is not (yet) parsed as an Inner Syntax element.
 
 However, this is not the same for the resulting generated meta-command:
 \begin{verbatim}
 (* Context [shallow] Person :: content () 
-   Post : "(\<lambda> result self. (\<close>\<open>))" 
-*)
+   Post : "(\<lambda> result self. (\<close>\<open>))" *)
 \end{verbatim}
 and an error is immediately raised because the parsing of Inner Syntax expressions
 is activated in this case.
@@ -297,14 +292,35 @@ to be convinced that they are free variables compared with above: *}
 Context[shallow] Person :: content () 
   Post : "a + b = c"
 
-subsection{* Designing Class Models (IV): Conclusion: Saving the Generated to File *}
+subsection{* Designing Class Models (IV): Saving the Generated to File *}
 
 text{*
 The experimentations usually finish by saving all the universe 
-and generated Isabelle theory to the hard disk:
-\begin{verbatim}
-(* generation_syntax deep flush_all *)
-\end{verbatim}
+and generated Isabelle theory to the hard disk: \\
+@{verbatim "(* generation_syntax deep flush_all *)"}
+*}
+
+subsection{* Designing Class Models (V): Inspection of Generated Files *}
+
+text{*
+According to options given to the (first) command @{command generation_syntax} above, 
+we retrieve the first generated file in the mentioned directory:
+@{file "../document_generated/Design_generated.thy"}.
+
+Because this file still contains meta-commands, we execute again a new generating step
+inside this file and save the new result in
+@{file "../document_generated/Design_generated_generated.thy"}.
+As remark, in the generated theory, the dependency to @{theory Generator_dynamic} was 
+automatically removed because the meta-compiler has detected the absence of meta-commands
+in the generated content.
+
+Note: While the first generated file is intended to be always well-typed, 
+it can happen that subsequent generations will lead to a not well-typed file. 
+This is because the meta-compiler only saves the history of meta-commands.
+In case some ``native'' Isabelle declarations 
+are generated among meta-commands, then these Isabelle declarations
+are not saved by the meta-compiler (at the time of writing),
+so these declarations will not be again generated. 
 *}
 
 end

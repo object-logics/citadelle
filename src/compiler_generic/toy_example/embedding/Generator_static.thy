@@ -44,7 +44,7 @@ begin
 
 subsection{* Giving an Input to Translate *}
 
-definition "Employee_DesignModel_UMLPart =
+definition "Design =
  (let n = \<lambda>n1 n2. OclTyObj (OclTyCore_pre n1) (case n2 of None \<Rightarrow> [] | Some n2 \<Rightarrow> [[OclTyCore_pre n2]])
     ; mk = \<lambda>n l. ocl_class_raw.make n l [] False in
   [ mk (n \<langle>''Galaxy''\<rangle> None) [(\<langle>''sound''\<rangle>, OclTy_raw \<langle>''unit''\<rangle>), (\<langle>''moving''\<rangle>, OclTy_raw \<langle>''bool''\<rangle>)]
@@ -61,7 +61,7 @@ definition "main =
         , D_output_header_thy := Some (\<langle>''Design_generated''\<rangle>
                                       ,[\<langle>''../Toy_Library''\<rangle>]
                                       ,\<langle>''../embedding/Generator_dynamic''\<rangle>) \<rparr>)
-     ( L.map (META_class_raw Floor1) Employee_DesignModel_UMLPart
+     ( L.map (META_class_raw Floor1) Design
        @@@@ [ META_association (ocl_association.make
                                   OclAssTy_association
                                   (OclAssRel [ (n \<langle>''Person''\<rangle>, OclMult (Mult_star, None) None)
@@ -70,9 +70,14 @@ definition "main =
      , None)))"
 
 subsection{* Statically Executing the Exportation *}
-(*
-apply_code_printing ()
-export_code main
-  in OCaml module_name M
-*)
+
+text{*
+@{verbatim "apply_code_printing ()"} \\
+@{verbatim "export_code main"} \\
+@{verbatim "  (* in Haskell *)"} \\
+@{verbatim "  (* in OCaml module_name M *)"} \\
+@{verbatim "  (* in Scala module_name M *)"} \\
+@{verbatim "  (* in SML   module_name M *)"}
+*}
+
 end

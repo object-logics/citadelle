@@ -48,13 +48,27 @@ imports
 begin
 ML_file "~~/src/Doc/antiquote_setup.ML"
 
-text{* In this example, we configure our package to generate tactic SML code
-       (corresponding to .thy files, see @{file "Design_deep.thy"}) that
-       is directly executed on the Isabelle/HOL API's. *}
+text{* 
+In this example, we configure our package to execute tactic SML code
+(corresponding to some generated \verb|.thy| file, @{file "Design_deep.thy"}
+details how to obtain such generated \verb|.thy| file).
+Since SML code are already compiled (or reflected) and bound with the native Isabelle API in
+@{theory Generator_dynamic}, nothing is generated in this theory.
+The system only parses arguments given to meta-commands and immediately calls the corresponding 
+compiled functions.
+
+The execution time is comparatively similar as if tactics were written by hand,
+except that the generated SML code potentially inherits all optimizations performed
+by the raw code generation of Isabelle (if any).
+*}
 
 generation_syntax [ shallow (generation_semantics [ design ])
                             (*SORRY*) (*no_dirty*)
                   (*, syntax_print*) ]
+text{*
+The configuration in @{keyword "shallow"} mode is straightforward:
+in this mode @{command generation_syntax} basically terminates in $O(1)$.
+*}
 
 subsection{* Designing Class Models (I): Basics *}
 
@@ -81,6 +95,8 @@ Instance X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n1 :: Person = [ salary
 
 Instance X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n3 :: Person = [ salary = 1 ]
 
+(* Class Big_Bang < Atom (* This will force the creation of a new universe. *) *)
+
 subsection{* Designing Class Models (II): Jumping to Another Semantic Floor *}
 
 State \<sigma>\<^sub>1 =
@@ -101,14 +117,14 @@ State \<sigma>\<^sub>1' =
 
 PrePost \<sigma>\<^sub>1 \<sigma>\<^sub>1'
 
+(* PrePost \<sigma>\<^sub>1 [ ([ salary = 1000 , boss = self 1 ] :: Person) ] *)
+
 subsection{* Designing Class Models (III): Interaction with (Pure) Term *}
 
 text{*
-Here in @{keyword "shallow"} mode, the following expression is directly rejected:
-\begin{verbatim}
-Context Person :: content ()
-  Post "\<close>\<open>"
-\end{verbatim}
+Here in @{keyword "shallow"} mode, the following expression is directly rejected: \\
+\verb|Context Person :: content ()| \\
+\verb|  Post "\<close>\<open>"|
 *}
 
 Context[shallow] Person :: content () 
