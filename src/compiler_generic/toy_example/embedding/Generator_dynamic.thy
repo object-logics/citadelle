@@ -290,7 +290,7 @@ fun semi__method expr = let open META open Method open META_overload in case exp
                           ctxt)
 end
 
-fun instantiation thy tycos vs f_eq add_def tac (*add_eq_thms*) =
+fun instantiation' thy tycos vs f_eq add_def tac (*add_eq_thms*) =
     thy
     |> Class.instantiation (tycos, vs, f_eq)
     |> fold_map add_def tycos
@@ -378,7 +378,7 @@ fun semi__theory in_theory in_local = let open META open META_overload in (*let 
 | Theory_instantiation (Instantiation (n, n_def, expr)) => in_theory
    (fn thy =>
      let val name = To_string0 n in
-     instantiation
+     instantiation'
        thy
        [ let val Term.Type (s, _) = (Isabelle_Typedecl.abbrev_cmd0 NONE thy name) in s end ]
        []
@@ -1231,7 +1231,7 @@ val () = let open Generation_mode in
 end
 *}
 
-subsection{* Common Parser for the Toy Language *}
+subsection{* Common Parser for Toy *}
 
 ML{*
 structure USE_parse = struct

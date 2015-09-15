@@ -295,7 +295,7 @@ fun semi__method expr = let open META open Method open META_overload in case exp
                           ctxt)
 end
 
-fun instantiation thy tycos vs f_eq add_def tac (*add_eq_thms*) =
+fun instantiation' thy tycos vs f_eq add_def tac (*add_eq_thms*) =
     thy
     |> Class.instantiation (tycos, vs, f_eq)
     |> fold_map add_def tycos
@@ -383,7 +383,7 @@ fun semi__theory in_theory in_local = let open META open META_overload in (*let 
 | Theory_instantiation (Instantiation (n, n_def, expr)) => in_theory
    (fn thy =>
      let val name = To_string0 n in
-     instantiation
+     instantiation'
        thy
        [ let val Term.Type (s, _) = (Isabelle_Typedecl.abbrev_cmd0 NONE thy name) in s end ]
        []
@@ -1236,7 +1236,7 @@ val () = let open Generation_mode in
 end
 *}
 
-subsection{* Common Parser for Meta Commands *}
+subsection{* Common Parser for OCL *}
 
 ML{*
 structure USE_parse = struct
@@ -1520,7 +1520,7 @@ structure USE_parse = struct
 end
 *}
 
-subsection{* Setup of Meta Commands: Enum *}
+subsection{* Setup of Meta Commands for OCL: Enum *}
 
 ML{*
 val () =
@@ -1530,7 +1530,7 @@ val () =
       K (META.META_enum (META.OclEnum (From.binding n1, From.list From.binding n2))))
 *}
 
-subsection{* Setup of Meta Commands: (abstract) Class *}
+subsection{* Setup of Meta Commands for OCL: (abstract) Class *}
 
 ML{*
 local
@@ -1559,7 +1559,7 @@ val () = mk_classDefinition USE_class_abstract @{command_keyword Abstract_class}
 end
 *}
 
-subsection{* Setup of Meta Commands: Association, Composition, Aggregation *}
+subsection{* Setup of Meta Commands for OCL: Association, Composition, Aggregation *}
 
 ML{*
 local
@@ -1579,7 +1579,7 @@ val () = mk_associationDefinition META.OclAssTy_aggregation @{command_keyword Ag
 end
 *}
 
-subsection{* Setup of Meta Commands: (abstract) Associationclass *}
+subsection{* Setup of Meta Commands for OCL: (abstract) Associationclass *}
 
 ML{*
 
@@ -1617,7 +1617,7 @@ val () = mk_associationClassDefinition USE_associationclass_abstract @{command_k
 end
 *}
 
-subsection{* Setup of Meta Commands: Context *}
+subsection{* Setup of Meta Commands for OCL: Context *}
 
 ML{*
 local
@@ -1641,7 +1641,7 @@ val () =
 end
 *}
 
-subsection{* Setup of Meta Commands: End *}
+subsection{* Setup of Meta Commands for OCL: End *}
 
 ML{*
 val () =
@@ -1655,7 +1655,7 @@ val () =
          [])
 *}
 
-subsection{* Setup of Meta Commands: BaseType, Instance, State *}
+subsection{* Setup of Meta Commands for OCL: BaseType, Instance, State *}
 
 ML{*
 val () =
@@ -1683,7 +1683,7 @@ val () =
 end
 *}
 
-subsection{* Setup of Meta Commands: PrePost *}
+subsection{* Setup of Meta Commands for OCL: PrePost *}
 
 ML{*
 local
