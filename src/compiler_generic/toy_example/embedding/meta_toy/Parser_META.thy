@@ -49,17 +49,17 @@ subsection\<open>Building Recursors for Records\<close> (* NOTE part to be autom
 definition "compiler_env_config_rec0 f env = f
   (D_output_disable_thy env)
   (D_output_header_thy env)
-  (D_ocl_oid_start env)
+  (D_toy_oid_start env)
   (D_output_position env)
-  (D_ocl_semantics env)
+  (D_toy_semantics env)
   (D_input_class env)
   (D_input_meta env)
   (D_input_instance env)
   (D_input_state env)
   (D_output_header_force env)
   (D_output_auto_bootstrap env)
-  (D_ocl_accessor env)
-  (D_ocl_HO_type env)
+  (D_toy_accessor env)
+  (D_toy_HO_type env)
   (D_output_sorry_dirty env)"
 
 definition "compiler_env_config_rec f env = compiler_env_config_rec0 f env
@@ -86,8 +86,8 @@ subsection\<open>Main\<close>
 context Parse
 begin
 
-definition "of_ocl_flush_all a b = rec_ocl_flush_all
-  (b \<open>OclFlushAll\<close>)"
+definition "of_toy_flush_all a b = rec_toy_flush_all
+  (b \<open>ToyFlushAll\<close>)"
 
 definition "of_floor a b = rec_floor
   (b \<open>Floor1\<close>)
@@ -95,20 +95,20 @@ definition "of_floor a b = rec_floor
   (b \<open>Floor3\<close>)"
 
 definition "of_all_meta_embedding a b = rec_all_meta_embedding
-  (ap1 a (b \<open>META_enum\<close>) (of_ocl_enum a b))
-  (ap2 a (b \<open>META_class_raw\<close>) (of_floor a b) (of_ocl_class_raw a b (K of_unit)))
-  (ap1 a (b \<open>META_association\<close>) (of_ocl_association a b (K of_unit)))
-  (ap2 a (b \<open>META_ass_class\<close>) (of_floor a b) (of_ocl_ass_class a b))
-  (ap2 a (b \<open>META_ctxt\<close>) (of_floor a b) (of_ocl_ctxt a b (K of_unit)))
+  (ap1 a (b \<open>META_enum\<close>) (of_toy_enum a b))
+  (ap2 a (b \<open>META_class_raw\<close>) (of_floor a b) (of_toy_class_raw a b (K of_unit)))
+  (ap1 a (b \<open>META_association\<close>) (of_toy_association a b (K of_unit)))
+  (ap2 a (b \<open>META_ass_class\<close>) (of_floor a b) (of_toy_ass_class a b))
+  (ap2 a (b \<open>META_ctxt\<close>) (of_floor a b) (of_toy_ctxt a b (K of_unit)))
 
-  (ap1 a (b \<open>META_class_synonym\<close>) (of_ocl_class_synonym a b))
-  (ap1 a (b \<open>META_instance\<close>) (of_ocl_instance a b))
-  (ap1 a (b \<open>META_def_base_l\<close>) (of_ocl_def_base_l a b))
-  (ap2 a (b \<open>META_def_state\<close>) (of_floor a b) (of_ocl_def_state a b))
-  (ap2 a (b \<open>META_def_pre_post\<close>) (of_floor a b) (of_ocl_def_pre_post a b))
-  (ap1 a (b \<open>META_flush_all\<close>) (of_ocl_flush_all a b))"
+  (ap1 a (b \<open>META_class_synonym\<close>) (of_toy_class_synonym a b))
+  (ap1 a (b \<open>META_instance\<close>) (of_toy_instance a b))
+  (ap1 a (b \<open>META_def_base_l\<close>) (of_toy_def_base_l a b))
+  (ap2 a (b \<open>META_def_state\<close>) (of_floor a b) (of_toy_def_state a b))
+  (ap2 a (b \<open>META_def_pre_post\<close>) (of_floor a b) (of_toy_def_pre_post a b))
+  (ap1 a (b \<open>META_flush_all\<close>) (of_toy_flush_all a b))"
 
-definition "of_generation_semantics_ocl a b = rec_generation_semantics_ocl
+definition "of_generation_semantics_toy a b = rec_generation_semantics_toy
   (b \<open>Gen_only_design\<close>)
   (b \<open>Gen_only_analysis\<close>)
   (b \<open>Gen_default\<close>)"
@@ -123,11 +123,11 @@ definition "of_compiler_env_config a b f = compiler_env_config_rec
     (of_option a b (of_pair a b (of_string a b) (of_pair a b (of_list a b (of_string a b)) (of_string a b))))
     (of_internal_oids a b)
     (of_pair a b (of_nat a b) (of_nat a b))
-    (of_generation_semantics_ocl a b)
-    (of_option a b (of_ocl_class a b))
+    (of_generation_semantics_toy a b)
+    (of_option a b (of_toy_class a b))
     (of_list a b (of_all_meta_embedding a b))
-    (of_list a b (of_pair a b (of_string\<^sub>b\<^sub>a\<^sub>s\<^sub>e a b) (of_pair a b (of_ocl_instance_single a b (K of_unit)) (of_internal_oids a b))))
-    (of_list a b (of_pair a b (of_string\<^sub>b\<^sub>a\<^sub>s\<^sub>e a b) (of_list a b (of_pair a b (of_internal_oids a b) (of_ocl_def_state_core a b (of_pair a b (of_string a b) (of_ocl_instance_single a b  (K of_unit))))))))
+    (of_list a b (of_pair a b (of_string\<^sub>b\<^sub>a\<^sub>s\<^sub>e a b) (of_pair a b (of_toy_instance_single a b (K of_unit)) (of_internal_oids a b))))
+    (of_list a b (of_pair a b (of_string\<^sub>b\<^sub>a\<^sub>s\<^sub>e a b) (of_list a b (of_pair a b (of_internal_oids a b) (of_toy_def_state_core a b (of_pair a b (of_string a b) (of_toy_instance_single a b  (K of_unit))))))))
     (of_bool b)
     (of_bool b)
     (of_pair a b (of_list a b (of_string\<^sub>b\<^sub>a\<^sub>s\<^sub>e a b)) (of_list a b (of_string\<^sub>b\<^sub>a\<^sub>s\<^sub>e a b)))
@@ -138,10 +138,10 @@ definition "of_compiler_env_config a b f = compiler_env_config_rec
 end
 
 lemmas [code] =
-  Parse.of_ocl_flush_all_def
+  Parse.of_toy_flush_all_def
   Parse.of_floor_def
   Parse.of_all_meta_embedding_def
-  Parse.of_generation_semantics_ocl_def
+  Parse.of_generation_semantics_toy_def
   Parse.of_generation_lemma_mode_def
   Parse.of_compiler_env_config_def
 

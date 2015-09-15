@@ -49,46 +49,46 @@ datatype internal_oids = Oids nat (* start *)
                               nat (* oid for assoc (incremented from start) *)
                               nat (* oid for inh (incremented from start) *)
 
-datatype ocl_def_base = OclDefInteger "string" (* integer digit *)
-                      | OclDefReal "string (* integer digit (left) *) \<times> string (* integer digit (right) *)"
-                      | OclDefString "string"
+datatype toy_def_base = ToyDefInteger "string" (* integer digit *)
+                      | ToyDefReal "string (* integer digit (left) *) \<times> string (* integer digit (right) *)"
+                      | ToyDefString "string"
 
-datatype ocl_data_shallow = ShallB_term ocl_def_base
+datatype toy_data_shallow = ShallB_term toy_def_base
                           | ShallB_str string (* binding *)
                           | ShallB_self internal_oid
-                          | ShallB_list "ocl_data_shallow list"
+                          | ShallB_list "toy_data_shallow list"
 
-datatype 'a ocl_list_attr = OclAttrNoCast 'a (* inh, own *)
-                          | OclAttrCast
+datatype 'a toy_list_attr = ToyAttrNoCast 'a (* inh, own *)
+                          | ToyAttrCast
                               string (* cast from *)
-                              "'a ocl_list_attr" (* cast entity *)
+                              "'a toy_list_attr" (* cast entity *)
                               'a (* inh, own *)
 
-record ocl_instance_single = Inst_name :: "string option" (* None: fresh name to be generated *)
+record toy_instance_single = Inst_name :: "string option" (* None: fresh name to be generated *)
                              Inst_ty :: "string option" (* type *)
                              Inst_attr :: "((  (string (* pre state *) \<times> string (* post state *)) option
-                                               (* state used when ocl_data_shallow is an object variable (for retrieving its oid) *)
+                                               (* state used when toy_data_shallow is an object variable (for retrieving its oid) *)
                                              \<times> string (*name*)
-                                             \<times> ocl_data_shallow) list) (* inh and own *)
-                                           ocl_list_attr"
+                                             \<times> toy_data_shallow) list) (* inh and own *)
+                                           toy_list_attr"
 
-datatype ocl_instance = OclInstance "ocl_instance_single list" (* mutual recursive *)
+datatype toy_instance = ToyInstance "toy_instance_single list" (* mutual recursive *)
 
-datatype ocl_def_base_l = OclDefBase "ocl_def_base list"
+datatype toy_def_base_l = ToyDefBase "toy_def_base list"
 
-datatype 'a ocl_def_state_core = OclDefCoreAdd ocl_instance_single
-                               | OclDefCoreBinding 'a
+datatype 'a toy_def_state_core = ToyDefCoreAdd toy_instance_single
+                               | ToyDefCoreBinding 'a
 
-datatype ocl_def_state = OclDefSt  string (* name *)
-                                  "string (* name *) ocl_def_state_core list"
+datatype toy_def_state = ToyDefSt  string (* name *)
+                                  "string (* name *) toy_def_state_core list"
 
-datatype ocl_def_pp_core = OclDefPPCoreAdd "string (* name *) ocl_def_state_core list"
-                         | OclDefPPCoreBinding string (* name *)
+datatype toy_def_pp_core = ToyDefPPCoreAdd "string (* name *) toy_def_state_core list"
+                         | ToyDefPPCoreBinding string (* name *)
 
-datatype ocl_def_pre_post = OclDefPP
+datatype toy_def_pre_post = ToyDefPP
                               "string option" (* None: fresh name to be generated *)
-                              ocl_def_pp_core (* pre *)
-                              "ocl_def_pp_core option" (* post *) (* None: same as pre *)
+                              toy_def_pp_core (* pre *)
+                              "toy_def_pp_core option" (* post *) (* None: same as pre *)
 
 subsection\<open>Object ID Management\<close>
 
@@ -104,7 +104,7 @@ definition "oidReinitInh = (\<lambda>Oids n1 n2 _ \<Rightarrow> Oids n1 n2 n2)"
 
 subsection\<open>Operations of Fold, Map, ..., on the Meta-Model\<close>
 
-definition "ocl_instance_single_empty = \<lparr> Inst_name = None, Inst_ty = None, Inst_attr = OclAttrNoCast [] \<rparr>"
+definition "toy_instance_single_empty = \<lparr> Inst_name = None, Inst_ty = None, Inst_attr = ToyAttrNoCast [] \<rparr>"
 
 fun map_data_shallow_self where
    "map_data_shallow_self f e = (\<lambda> ShallB_self s \<Rightarrow> f s
@@ -113,22 +113,22 @@ fun map_data_shallow_self where
 
 fun map_list_attr where
    "map_list_attr f e = 
-     (\<lambda> OclAttrNoCast x \<Rightarrow> OclAttrNoCast (f x)
-      | OclAttrCast c_from l_attr x \<Rightarrow> OclAttrCast c_from (map_list_attr f l_attr) (f x)) e"
+     (\<lambda> ToyAttrNoCast x \<Rightarrow> ToyAttrNoCast (f x)
+      | ToyAttrCast c_from l_attr x \<Rightarrow> ToyAttrCast c_from (map_list_attr f l_attr) (f x)) e"
 
-definition "map_instance_single f ocli = ocli \<lparr> Inst_attr := map_list_attr (L.map f) (Inst_attr ocli) \<rparr>"
+definition "map_instance_single f toyi = toyi \<lparr> Inst_attr := map_list_attr (L.map f) (Inst_attr toyi) \<rparr>"
 
 fun fold_list_attr where
    "fold_list_attr cast_from f l_attr accu = (case l_attr of
-        OclAttrNoCast x \<Rightarrow> f cast_from x accu
-      | OclAttrCast c_from l_attr x \<Rightarrow> fold_list_attr (Some c_from) f l_attr (f cast_from x accu))"
+        ToyAttrNoCast x \<Rightarrow> f cast_from x accu
+      | ToyAttrCast c_from l_attr x \<Rightarrow> fold_list_attr (Some c_from) f l_attr (f cast_from x accu))"
 
-definition "inst_ty0 ocli = (case Inst_ty ocli of Some ty \<Rightarrow> Some ty
-                                                | None \<Rightarrow> (case Inst_attr ocli of OclAttrCast ty _ _ \<Rightarrow> Some ty
+definition "inst_ty0 toyi = (case Inst_ty toyi of Some ty \<Rightarrow> Some ty
+                                                | None \<Rightarrow> (case Inst_attr toyi of ToyAttrCast ty _ _ \<Rightarrow> Some ty
                                                                                 | _ \<Rightarrow> None))"
-definition "inst_ty ocli = (case inst_ty0 ocli of Some ty \<Rightarrow> ty)"
+definition "inst_ty toyi = (case inst_ty0 toyi of Some ty \<Rightarrow> ty)"
 
-definition "fold_instance_single f ocli = fold_list_attr (inst_ty0 ocli) (\<lambda> Some x \<Rightarrow> f x) (Inst_attr ocli)"
-definition "fold_instance_single' f ocli = fold_list_attr (Inst_ty ocli) f (Inst_attr ocli)"
+definition "fold_instance_single f toyi = fold_list_attr (inst_ty0 toyi) (\<lambda> Some x \<Rightarrow> f x) (Inst_attr toyi)"
+definition "fold_instance_single' f toyi = fold_list_attr (Inst_ty toyi) f (Inst_attr toyi)"
 
 end

@@ -45,28 +45,28 @@ begin
 
 subsection\<open>Building Recursors for Records\<close> (* NOTE part to be automated *)
 
-definition "ocl_instance_single_rec0 f ocl = f
-  (Inst_name ocl)
-  (Inst_ty ocl)
-  (Inst_attr ocl)"
+definition "toy_instance_single_rec0 f toy = f
+  (Inst_name toy)
+  (Inst_ty toy)
+  (Inst_attr toy)"
 
-definition "ocl_instance_single_rec f ocl = ocl_instance_single_rec0 f ocl
-  (ocl_instance_single.more ocl)"
+definition "toy_instance_single_rec f toy = toy_instance_single_rec0 f toy
+  (toy_instance_single.more toy)"
 
 (* *)
 
-lemma [code]: "ocl_instance_single.extend = (\<lambda>ocl v. ocl_instance_single_rec0 (co3 (\<lambda>f. f v) ocl_instance_single_ext) ocl)"
-by(intro ext, simp add: ocl_instance_single_rec0_def
-                        ocl_instance_single.extend_def
+lemma [code]: "toy_instance_single.extend = (\<lambda>toy v. toy_instance_single_rec0 (co3 (\<lambda>f. f v) toy_instance_single_ext) toy)"
+by(intro ext, simp add: toy_instance_single_rec0_def
+                        toy_instance_single.extend_def
                         co3_def K_def)
-lemma [code]: "ocl_instance_single.make = co3 (\<lambda>f. f ()) ocl_instance_single_ext"
-by(intro ext, simp add: ocl_instance_single.make_def
+lemma [code]: "toy_instance_single.make = co3 (\<lambda>f. f ()) toy_instance_single_ext"
+by(intro ext, simp add: toy_instance_single.make_def
                         co3_def)
-lemma [code]: "ocl_instance_single.truncate = ocl_instance_single_rec (co3 K ocl_instance_single.make)"
-by(intro ext, simp add: ocl_instance_single_rec0_def
-                        ocl_instance_single_rec_def
-                        ocl_instance_single.truncate_def
-                        ocl_instance_single.make_def
+lemma [code]: "toy_instance_single.truncate = toy_instance_single_rec (co3 K toy_instance_single.make)"
+by(intro ext, simp add: toy_instance_single_rec0_def
+                        toy_instance_single_rec_def
+                        toy_instance_single.truncate_def
+                        toy_instance_single.make_def
                         co3_def K_def)
 
 subsection\<open>Main\<close>
@@ -83,69 +83,69 @@ definition "of_internal_oids a b = rec_internal_oids
     (of_nat a b)
     (of_nat a b))"
 
-definition "of_ocl_def_base a b = rec_ocl_def_base
-  (ap1 a (b \<open>OclDefInteger\<close>) (of_string a b))
-  (ap1 a (b \<open>OclDefReal\<close>) (of_pair a b (of_string a b) (of_string a b)))
-  (ap1 a (b \<open>OclDefString\<close>) (of_string a b))"
+definition "of_toy_def_base a b = rec_toy_def_base
+  (ap1 a (b \<open>ToyDefInteger\<close>) (of_string a b))
+  (ap1 a (b \<open>ToyDefReal\<close>) (of_pair a b (of_string a b) (of_string a b)))
+  (ap1 a (b \<open>ToyDefString\<close>) (of_string a b))"
 
-definition "of_ocl_data_shallow a b = rec_ocl_data_shallow
-  (ap1 a (b \<open>ShallB_term\<close>) (of_ocl_def_base a b))
+definition "of_toy_data_shallow a b = rec_toy_data_shallow
+  (ap1 a (b \<open>ShallB_term\<close>) (of_toy_def_base a b))
   (ap1 a (b \<open>ShallB_str\<close>) (of_string a b))
   (ap1 a (b \<open>ShallB_self\<close>) (of_internal_oid a b))
   (ap1 a (b \<open>ShallB_list\<close>) (of_list a b snd))"
 
-definition "of_ocl_list_attr a b f = (\<lambda>f0. co4 (\<lambda>f1. rec_ocl_list_attr f0 (\<lambda>s _ a rec. f1 s rec a)) (ap3 a))
-  (ap1 a (b \<open>OclAttrNoCast\<close>) f)
-  (b \<open>OclAttrCast\<close>)
+definition "of_toy_list_attr a b f = (\<lambda>f0. co4 (\<lambda>f1. rec_toy_list_attr f0 (\<lambda>s _ a rec. f1 s rec a)) (ap3 a))
+  (ap1 a (b \<open>ToyAttrNoCast\<close>) f)
+  (b \<open>ToyAttrCast\<close>)
     (of_string a b)
     id
     f"
 
-definition "of_ocl_instance_single a b f = ocl_instance_single_rec
-  (ap4 a (b (ext \<open>ocl_instance_single_ext\<close>))
+definition "of_toy_instance_single a b f = toy_instance_single_rec
+  (ap4 a (b (ext \<open>toy_instance_single_ext\<close>))
     (of_option a b (of_string a b))
     (of_option a b (of_string a b))
-    (of_ocl_list_attr a b (of_list a b (of_pair a b (of_option a b (of_pair a b (of_string a b) (of_string a b))) (of_pair a b (of_string a b) (of_ocl_data_shallow a b)))))
+    (of_toy_list_attr a b (of_list a b (of_pair a b (of_option a b (of_pair a b (of_string a b) (of_string a b))) (of_pair a b (of_string a b) (of_toy_data_shallow a b)))))
     (f a b))"
 
-definition "of_ocl_instance a b = rec_ocl_instance
-  (ap1 a (b \<open>OclInstance\<close>)
-    (of_list a b (of_ocl_instance_single a b (K of_unit))))"
+definition "of_toy_instance a b = rec_toy_instance
+  (ap1 a (b \<open>ToyInstance\<close>)
+    (of_list a b (of_toy_instance_single a b (K of_unit))))"
 
-definition "of_ocl_def_base_l a b = rec_ocl_def_base_l
-  (ap1 a (b \<open>OclDefBase\<close>) (of_list a b (of_ocl_def_base a b)))"
+definition "of_toy_def_base_l a b = rec_toy_def_base_l
+  (ap1 a (b \<open>ToyDefBase\<close>) (of_list a b (of_toy_def_base a b)))"
 
-definition "of_ocl_def_state_core a b f = rec_ocl_def_state_core
-  (ap1 a (b \<open>OclDefCoreAdd\<close>) (of_ocl_instance_single a b (K of_unit)))
-  (ap1 a (b \<open>OclDefCoreBinding\<close>) f)"
+definition "of_toy_def_state_core a b f = rec_toy_def_state_core
+  (ap1 a (b \<open>ToyDefCoreAdd\<close>) (of_toy_instance_single a b (K of_unit)))
+  (ap1 a (b \<open>ToyDefCoreBinding\<close>) f)"
 
-definition "of_ocl_def_state a b = rec_ocl_def_state
-  (ap2 a (b \<open>OclDefSt\<close>) (of_string a b) (of_list a b (of_ocl_def_state_core a b (of_string a b))))"
+definition "of_toy_def_state a b = rec_toy_def_state
+  (ap2 a (b \<open>ToyDefSt\<close>) (of_string a b) (of_list a b (of_toy_def_state_core a b (of_string a b))))"
 
-definition "of_ocl_def_pp_core a b = rec_ocl_def_pp_core
-  (ap1 a (b \<open>OclDefPPCoreAdd\<close>) (of_list a b (of_ocl_def_state_core a b (of_string a b))))
-  (ap1 a (b \<open>OclDefPPCoreBinding\<close>) (of_string a b))"
+definition "of_toy_def_pp_core a b = rec_toy_def_pp_core
+  (ap1 a (b \<open>ToyDefPPCoreAdd\<close>) (of_list a b (of_toy_def_state_core a b (of_string a b))))
+  (ap1 a (b \<open>ToyDefPPCoreBinding\<close>) (of_string a b))"
 
-definition "of_ocl_def_pre_post a b = rec_ocl_def_pre_post
-  (ap3 a (b \<open>OclDefPP\<close>)
+definition "of_toy_def_pre_post a b = rec_toy_def_pre_post
+  (ap3 a (b \<open>ToyDefPP\<close>)
     (of_option a b (of_string a b))
-    (of_ocl_def_pp_core a b)
-    (of_option a b (of_ocl_def_pp_core a b)))"
+    (of_toy_def_pp_core a b)
+    (of_option a b (of_toy_def_pp_core a b)))"
 
 end
 
 lemmas [code] =
   Parse.of_internal_oid_def
   Parse.of_internal_oids_def
-  Parse.of_ocl_def_base_def
-  Parse.of_ocl_data_shallow_def
-  Parse.of_ocl_list_attr_def
-  Parse.of_ocl_instance_single_def
-  Parse.of_ocl_instance_def
-  Parse.of_ocl_def_base_l_def
-  Parse.of_ocl_def_state_core_def
-  Parse.of_ocl_def_state_def
-  Parse.of_ocl_def_pp_core_def
-  Parse.of_ocl_def_pre_post_def
+  Parse.of_toy_def_base_def
+  Parse.of_toy_data_shallow_def
+  Parse.of_toy_list_attr_def
+  Parse.of_toy_instance_single_def
+  Parse.of_toy_instance_def
+  Parse.of_toy_def_base_l_def
+  Parse.of_toy_def_state_core_def
+  Parse.of_toy_def_state_def
+  Parse.of_toy_def_pp_core_def
+  Parse.of_toy_def_pre_post_def
 
 end

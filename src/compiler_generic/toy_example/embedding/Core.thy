@@ -117,8 +117,8 @@ definition "compiler_env_config_reset_no_env env =
   compiler_env_config_empty
     (D_output_disable_thy env)
     (D_output_header_thy env)
-    (oidReinitAll (D_ocl_oid_start env))
-    (D_ocl_semantics env)
+    (oidReinitAll (D_toy_oid_start env))
+    (D_toy_semantics env)
     (D_output_sorry_dirty env)
     \<lparr> D_input_meta := D_input_meta env \<rparr>"
 
@@ -129,14 +129,14 @@ definition "compiler_env_config_reset_all env =
      L.flatten
        [ l_class
        , List.filter (\<lambda> META_flush_all _ \<Rightarrow> False | _ \<Rightarrow> True) l_env
-       , [META_flush_all OclFlushAll] ] ))"
+       , [META_flush_all ToyFlushAll] ] ))"
 
 definition "compiler_env_config_update f env =
   (* WARNING The semantics of the meta-embedded language is not intended to be reset here (like oid_start), only syntactic configurations of the compiler (path, etc...) *)
   f env
     \<lparr> D_output_disable_thy := D_output_disable_thy env
     , D_output_header_thy := D_output_header_thy env
-    , D_ocl_semantics := D_ocl_semantics env
+    , D_toy_semantics := D_toy_semantics env
     , D_output_sorry_dirty := D_output_sorry_dirty env \<rparr>"
 
 definition "fold_thy0 meta thy_object0 f =
@@ -166,7 +166,7 @@ definition "comp_env_input_class_mk f_try f_accu_reset f_fold f =
        (f_try (\<lambda> () \<Rightarrow>
          let D_input_meta0 = D_input_meta env
            ; (env, accu) =
-               let meta = class_unflat (arrange_ass True (D_ocl_semantics env \<noteq> Gen_default) l_class (L.map (\<lambda> META_enum e \<Rightarrow> e) l_enum))
+               let meta = class_unflat (arrange_ass True (D_toy_semantics env \<noteq> Gen_default) l_class (L.map (\<lambda> META_enum e \<Rightarrow> e) l_enum))
                  ; (env, accu) = List.fold (\<lambda> ast. comp_env_save ast (case ast of META_enum meta \<Rightarrow> fold_thy0 meta thy_enum) f)
                                            l_enum
                                            (let env = compiler_env_config_reset_no_env env in
@@ -197,7 +197,7 @@ definition "fold_thy' f_try f_accu_reset f =
      META_enum meta \<Rightarrow> comp_env_input_class_rm (fold_thy0 meta thy_enum_flat)
    | META_class_raw Floor1 meta \<Rightarrow> comp_env_input_class_rm (fold_thy0 meta thy_class_flat)
    | META_association meta \<Rightarrow> comp_env_input_class_rm (fold_thy0 meta thy_association)
-   | META_ass_class Floor1 (OclAssClass meta_ass meta_class) \<Rightarrow>
+   | META_ass_class Floor1 (ToyAssClass meta_ass meta_class) \<Rightarrow>
        comp_env_input_class_rm (comp_env_input_class_bind [ fold_thy0 meta_ass thy_association
                                                       , fold_thy0 meta_class thy_class_flat ])
    | META_class_synonym meta \<Rightarrow> comp_env_input_class_rm (fold_thy0 meta thy_class_synonym)

@@ -56,7 +56,7 @@ definition "rbt_of_class env =
          (let f_fold = \<lambda>tag l rbt.
             let (rbt, _, n) = List.fold
                                    (\<lambda> (name_attr, ty) \<Rightarrow> \<lambda>(rbt, cpt, l_obj).
-                                     (insert name_attr (ty, tag, OptIdent cpt) rbt, Succ cpt, (case ty of OclTy_object (OclTyObj (OclTyCore ty_obj) _) \<Rightarrow> Some ty_obj | _ \<Rightarrow> None) # l_obj))
+                                     (insert name_attr (ty, tag, OptIdent cpt) rbt, Succ cpt, (case ty of ToyTy_object (ToyTyObj (ToyTyCore ty_obj) _) \<Rightarrow> Some ty_obj | _ \<Rightarrow> None) # l_obj))
                                    l
                                    (rbt, 0, []) in
             (rbt, (tag, n)) in
@@ -75,39 +75,39 @@ definition "rbt_of_class env =
           let (_, accu) =
             List.fold
               (let f_fold = \<lambda>b (n, accu). (Succ n, f b n accu) in
-               if D_ocl_semantics env = Gen_only_design then
+               if D_toy_semantics env = Gen_only_design then
                  f_fold
                else
                  \<lambda> Some _ \<Rightarrow> (\<lambda>(n, accu). (Succ n, accu))
                  | None \<Rightarrow> f_fold None) (rev l) (0, accu) in
           accu) (L.assoc v l)))))"
 
-definition "inst_name ocli = (case Inst_name ocli of Some n \<Rightarrow> n)"
+definition "inst_name toyi = (case Inst_name toyi of Some n \<Rightarrow> n)"
 
 definition "init_map_class env l =
   (let (rbt_nat, rbt_str, _, _) =
      List.fold
-       (\<lambda> ocli (rbt_nat, rbt_str, oid_start, accu).
+       (\<lambda> toyi (rbt_nat, rbt_str, oid_start, accu).
          ( RBT.insert (Oid accu) oid_start rbt_nat
-         , insert (inst_name ocli) oid_start rbt_str
+         , insert (inst_name toyi) oid_start rbt_str
          , oidSucInh oid_start
          , Succ accu))
        l
        ( RBT.empty
        , RBT.bulkload (L.map (\<lambda>(k, _, v). (String\<^sub>b\<^sub>a\<^sub>s\<^sub>e.to_list k, v)) (D_input_instance env))
-       , D_ocl_oid_start env
+       , D_toy_oid_start env
        , 0) in
    (rbt_of_class env, RBT.lookup rbt_nat, lookup rbt_str))"
 
 definition "print_examp_def_st_assoc_build_rbt_gen f rbt map_self map_username l_assoc =
   List.fold
-     (\<lambda> (ocli, cpt). fold_instance_single
+     (\<lambda> (toyi, cpt). fold_instance_single
        (\<lambda> ty l_attr.
          let (f_attr_ty, _) = rbt ty in
          f ty
          (List.fold (\<lambda>(_, name_attr, shall).
            case f_attr_ty name_attr of
-             Some (OclTy_object (OclTyObj (OclTyCore ty_obj) _), _, _) \<Rightarrow>
+             Some (ToyTy_object (ToyTyObj (ToyTyCore ty_obj) _), _, _) \<Rightarrow>
                modify_def ([], ty_obj) name_attr
                (\<lambda>(l, accu). case let find_map = \<lambda> ShallB_str s \<Rightarrow> map_username s | ShallB_self s \<Rightarrow> map_self s | _ \<Rightarrow> None in
                                  case shall of
@@ -118,7 +118,7 @@ definition "print_examp_def_st_assoc_build_rbt_gen f rbt map_self map_username l
                                  | _ \<Rightarrow> map_option (\<lambda>x. [x]) (find_map shall) of
                       None \<Rightarrow> (l, accu)
                     | Some oid \<Rightarrow> (L.map (L.map oidGetInh) [[cpt], oid] # l, accu))
-           | _ \<Rightarrow> id) l_attr)) ocli) l_assoc RBT.empty"
+           | _ \<Rightarrow> id) l_attr)) toyi) l_assoc RBT.empty"
 
 definition "print_examp_def_st_assoc_build_rbt = print_examp_def_st_assoc_build_rbt_gen (modify_def RBT.empty)"
 
@@ -145,13 +145,13 @@ definition "print_examp_def_st_assoc rbt map_self map_username l_assoc =
 
 definition "print_examp_instance_oid thy_definition_hol l env = (L.map thy_definition_hol o L.flatten)
  (let (f1, f2) = (\<lambda> var_oid _ _. var_oid, \<lambda> _ _ cpt. Term_oid \<open>\<close> (oidGetInh cpt)) in
-  L.map (\<lambda> (ocli, cpt).
+  L.map (\<lambda> (toyi, cpt).
     if List.fold (\<lambda>(_, _, cpt0) b. b | oidGetInh cpt0 = oidGetInh cpt) (D_input_instance env) False then
       []
     else
       let var_oid = Term_oid var_oid_uniq (oidGetInh cpt)
-        ; isub_name = \<lambda>s. s @@ String.isub (inst_ty ocli) in
-      [Definition (Term_rewrite (f1 var_oid isub_name ocli) \<open>=\<close> (f2 ocli isub_name cpt))]) l)"
+        ; isub_name = \<lambda>s. s @@ String.isub (inst_ty toyi) in
+      [Definition (Term_rewrite (f1 var_oid isub_name toyi) \<open>=\<close> (f2 toyi isub_name cpt))]) l)"
 
 definition "check_export_code f_writeln f_warning f_error f_raise l_report msg_last =
  (let l_err =
@@ -166,14 +166,14 @@ definition "check_export_code f_writeln f_warning f_error f_raise l_report msg_l
   else
     f_raise (String.of_nat (length l_err) @@ msg_last))"
 
-definition "print_examp_instance_defassoc_gen name l_ocli env =
- (case D_ocl_semantics env of Gen_only_analysis \<Rightarrow> [] | Gen_default \<Rightarrow> [] | Gen_only_design \<Rightarrow>
+definition "print_examp_instance_defassoc_gen name l_toyi env =
+ (case D_toy_semantics env of Gen_only_analysis \<Rightarrow> [] | Gen_default \<Rightarrow> [] | Gen_only_design \<Rightarrow>
   let a = \<lambda>f x. Term_app f [x]
     ; b = \<lambda>s. Term_basic [s]
-    ; (rbt :: _ \<Rightarrow> _ \<times> _ \<times> (_ \<Rightarrow> ((_ \<Rightarrow> natural \<Rightarrow> _ \<Rightarrow> (ocl_ty \<times> ocl_data_shallow) option list) \<Rightarrow> _ \<Rightarrow> _) option)
+    ; (rbt :: _ \<Rightarrow> _ \<times> _ \<times> (_ \<Rightarrow> ((_ \<Rightarrow> natural \<Rightarrow> _ \<Rightarrow> (toy_ty \<times> toy_data_shallow) option list) \<Rightarrow> _ \<Rightarrow> _) option)
       , (map_self, map_username)) =
-        init_map_class env (fst (L.split l_ocli))
-    ; l_ocli = if list_ex (\<lambda>(ocli, _). inst_ty0 ocli = None) l_ocli then [] else l_ocli in
+        init_map_class env (fst (L.split l_toyi))
+    ; l_toyi = if list_ex (\<lambda>(toyi, _). inst_ty0 toyi = None) l_toyi then [] else l_toyi in
   [Definition
      (Term_rewrite name
      \<open>=\<close>
@@ -191,92 +191,92 @@ definition "print_examp_instance_defassoc_gen name l_ocli env =
                                              Ty_times t t))
             , Term_annot' (b var_oid) const_oid
             , a \<open>drop\<close>
-              (Term_applys (print_examp_def_st_assoc (snd o rbt) map_self map_username l_ocli)
+              (Term_applys (print_examp_def_st_assoc (snd o rbt) map_self map_username l_toyi)
                            [Term_annot' (b var_oid_class) const_oid])])
           [ (b \<open>Nil\<close>, b \<open>None\<close>)
           , let b_l = b \<open>l\<close> in
             (b_l, a \<open>Some\<close> b_l)] ) (Typ_apply (Typ_base \<open>option\<close>) [a_l (Typ_base const_oid)]))))])"
 
-definition "print_examp_instance_defassoc = (\<lambda> OclInstance l \<Rightarrow> \<lambda> env.
-  let l = L.flatten (fst (L.mapM (\<lambda>ocli cpt. ([(ocli, cpt)], oidSucInh cpt)) l (D_ocl_oid_start env))) in
+definition "print_examp_instance_defassoc = (\<lambda> ToyInstance l \<Rightarrow> \<lambda> env.
+  let l = L.flatten (fst (L.mapM (\<lambda>toyi cpt. ([(toyi, cpt)], oidSucInh cpt)) l (D_toy_oid_start env))) in
   (\<lambda>l_res.
     ( print_examp_instance_oid O.definition l env
       @@@@ L.map O.definition l_res
     , env))
   (print_examp_instance_defassoc_gen
-    (Term_oid var_inst_assoc (oidGetInh (D_ocl_oid_start env)))
+    (Term_oid var_inst_assoc (oidGetInh (D_toy_oid_start env)))
     l
     env))"
 
 definition "print_examp_instance_name = id"
-definition "print_examp_instance = (\<lambda> OclInstance l \<Rightarrow> \<lambda> env.
+definition "print_examp_instance = (\<lambda> ToyInstance l \<Rightarrow> \<lambda> env.
  (\<lambda> ((l_res, oid_start), instance_rbt).
-    ((L.map O.definition o L.flatten) l_res, env \<lparr> D_ocl_oid_start := oid_start, D_input_instance := instance_rbt \<rparr>))
+    ((L.map O.definition o L.flatten) l_res, env \<lparr> D_toy_oid_start := oid_start, D_input_instance := instance_rbt \<rparr>))
   (let ( rbt :: _ \<Rightarrow> _ \<times> _ \<times> (_ \<Rightarrow> ((_ \<Rightarrow> nat \<Rightarrow> _ \<Rightarrow> _) \<Rightarrow> _ \<Rightarrow>
-                (ocl_ty_class option \<times>
-                  (ocl_ty \<times> (string \<times> string) option \<times> ocl_data_shallow) option) list) option)
+                (toy_ty_class option \<times>
+                  (toy_ty \<times> (string \<times> string) option \<times> toy_data_shallow) option) list) option)
        , (map_self, map_username)) = init_map_class env l
      ; a = \<lambda>f x. Term_app f [x]
      ; b = \<lambda>s. Term_basic [s] in
    ( let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l var_inst_ass = \<open>inst_assoc\<close> in
      L.mapM
-       (\<lambda> ocli cpt.
+       (\<lambda> toyi cpt.
          ( []
          , oidSucInh cpt))
        l
-       (D_ocl_oid_start env)
-   , List.fold (\<lambda>ocli instance_rbt.
-       let n = inst_name ocli in
-       (String.to_String\<^sub>b\<^sub>a\<^sub>s\<^sub>e n, ocli, case map_username n of Some oid \<Rightarrow> oid) # instance_rbt) l (D_input_instance env))))"
+       (D_toy_oid_start env)
+   , List.fold (\<lambda>toyi instance_rbt.
+       let n = inst_name toyi in
+       (String.to_String\<^sub>b\<^sub>a\<^sub>s\<^sub>e n, toyi, case map_username n of Some oid \<Rightarrow> oid) # instance_rbt) l (D_input_instance env))))"
 
-definition "print_examp_def_st1 = (\<lambda> OclDefSt name l \<Rightarrow> bootstrap_floor
+definition "print_examp_def_st1 = (\<lambda> ToyDefSt name l \<Rightarrow> bootstrap_floor
   (\<lambda>l env. (L.flatten [l], env))
   (L.map META_all_meta_embedding
      (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l (l, _) = List.fold (\<lambda> (pos, core) (l, n).
                                           ((pos, pos - n, core) # l, 
-                                            case core of OclDefCoreAdd _ \<Rightarrow> n
-                                            | OclDefCoreBinding _ \<Rightarrow> Succ n))
+                                            case core of ToyDefCoreAdd _ \<Rightarrow> n
+                                            | ToyDefCoreBinding _ \<Rightarrow> Succ n))
                                  (L.mapi Pair l)
                                  ([], 0)
         ; (l_inst, l_defst) =
-        List.fold (\<lambda> (pos, _, OclDefCoreAdd ocli) \<Rightarrow> \<lambda>(l_inst, l_defst).
-                     let i_name = case Inst_name ocli of Some x \<Rightarrow> x | None \<Rightarrow> S.flatten [name, \<open>_object\<close>, String.of_natural pos] in
+        List.fold (\<lambda> (pos, _, ToyDefCoreAdd toyi) \<Rightarrow> \<lambda>(l_inst, l_defst).
+                     let i_name = case Inst_name toyi of Some x \<Rightarrow> x | None \<Rightarrow> S.flatten [name, \<open>_object\<close>, String.of_natural pos] in
                        ( map_instance_single (map_prod id (map_prod id (map_data_shallow_self (\<lambda>Oid self \<Rightarrow>
                            (case L.assoc self l of
-                              Some (_, OclDefCoreBinding name) \<Rightarrow> ShallB_str name
+                              Some (_, ToyDefCoreBinding name) \<Rightarrow> ShallB_str name
                             | Some (p, _) \<Rightarrow> ShallB_self (Oid p)
-                            | _ \<Rightarrow> ShallB_list []))))) ocli 
+                            | _ \<Rightarrow> ShallB_list []))))) toyi 
                          \<lparr> Inst_name := Some i_name \<rparr>
                        # l_inst
-                       , OclDefCoreBinding i_name # l_defst)
-                   | (_, _, OclDefCoreBinding name) \<Rightarrow> \<lambda>(l_inst, l_defst).
+                       , ToyDefCoreBinding i_name # l_defst)
+                   | (_, _, ToyDefCoreBinding name) \<Rightarrow> \<lambda>(l_inst, l_defst).
                        ( l_inst
-                       , OclDefCoreBinding name # l_defst))
+                       , ToyDefCoreBinding name # l_defst))
                   l
                   ([], []) 
-        ; l = [ META_def_state Floor2 (OclDefSt name l_defst) ] in
+        ; l = [ META_def_state Floor2 (ToyDefSt name l_defst) ] in
       if l_inst = [] then
         l
       else
-        META_instance (OclInstance l_inst) # l)))"
+        META_instance (ToyInstance l_inst) # l)))"
 
-definition "print_pre_post = (\<lambda> OclDefPP name s_pre s_post \<Rightarrow> bootstrap_floor
+definition "print_pre_post = (\<lambda> ToyDefPP name s_pre s_post \<Rightarrow> bootstrap_floor
   (\<lambda>f env. (L.flatten [f env], env))
   (\<lambda>env.
     let pref_name = case name of Some n \<Rightarrow> n
                                | None \<Rightarrow> \<open>WFF_\<close> @@ String.of_nat (length (D_input_meta env))
       ; f_comp = \<lambda>None \<Rightarrow> id | Some (_, f) \<Rightarrow> f
       ; f_conv = \<lambda>msg.
-          \<lambda> OclDefPPCoreAdd ocl_def_state \<Rightarrow>
+          \<lambda> ToyDefPPCoreAdd toy_def_state \<Rightarrow>
               let n = pref_name @@ msg in
-              (OclDefPPCoreBinding n, Cons (META_def_state Floor1 (OclDefSt n ocl_def_state)))
+              (ToyDefPPCoreBinding n, Cons (META_def_state Floor1 (ToyDefSt n toy_def_state)))
           | s \<Rightarrow> (s, id) in
     L.map
       META_all_meta_embedding
       (let o_pre = Some (f_conv \<open>_pre\<close> s_pre)
          ; o_post = map_option (f_conv \<open>_post\<close>) s_post in
        (f_comp o_pre o f_comp o_post)
-         [ META_def_pre_post Floor2 (OclDefPP name
+         [ META_def_pre_post Floor2 (ToyDefPP name
                                              (case\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l o_pre of Some (n, _) \<Rightarrow> n)
                                              (map_option fst o_post)) ])))"
 

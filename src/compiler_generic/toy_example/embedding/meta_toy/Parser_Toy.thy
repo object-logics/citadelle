@@ -45,92 +45,92 @@ begin
 
 subsection\<open>Building Recursors for Records\<close> (* NOTE part to be automated *)
 
-definition "ocl_multiplicity_rec0 f ocl = f
-  (TyMult ocl)
-  (TyRole ocl)
-  (TyCollect ocl)"
+definition "toy_multiplicity_rec0 f toy = f
+  (TyMult toy)
+  (TyRole toy)
+  (TyCollect toy)"
 
-definition "ocl_multiplicity_rec f ocl = ocl_multiplicity_rec0 f ocl
-  (ocl_multiplicity.more ocl)"
+definition "toy_multiplicity_rec f toy = toy_multiplicity_rec0 f toy
+  (toy_multiplicity.more toy)"
 
-definition "ocl_ty_class_node_rec0 f ocl = f
-  (TyObjN_ass_switch ocl)
-  (TyObjN_role_multip ocl)
-  (TyObjN_role_ty ocl)"
+definition "toy_ty_class_node_rec0 f toy = f
+  (TyObjN_ass_switch toy)
+  (TyObjN_role_multip toy)
+  (TyObjN_role_ty toy)"
 
-definition "ocl_ty_class_node_rec f ocl = ocl_ty_class_node_rec0 f ocl
-  (ocl_ty_class_node.more ocl)"
+definition "toy_ty_class_node_rec f toy = toy_ty_class_node_rec0 f toy
+  (toy_ty_class_node.more toy)"
 
-definition "ocl_ty_class_rec0 f ocl = f
-  (TyObj_name ocl)
-  (TyObj_ass_id ocl)
-  (TyObj_ass_arity ocl)
-  (TyObj_from ocl)
-  (TyObj_to ocl)"
+definition "toy_ty_class_rec0 f toy = f
+  (TyObj_name toy)
+  (TyObj_ass_id toy)
+  (TyObj_ass_arity toy)
+  (TyObj_from toy)
+  (TyObj_to toy)"
 
-definition "ocl_ty_class_rec f ocl = ocl_ty_class_rec0 f ocl
-  (ocl_ty_class.more ocl)"
+definition "toy_ty_class_rec f toy = toy_ty_class_rec0 f toy
+  (toy_ty_class.more toy)"
 
-definition "ocl_class_raw_rec0 f ocl = f
-  (ClassRaw_name ocl)
-  (ClassRaw_own ocl)
-  (ClassRaw_clause ocl)
-  (ClassRaw_abstract ocl)"
+definition "toy_class_raw_rec0 f toy = f
+  (ClassRaw_name toy)
+  (ClassRaw_own toy)
+  (ClassRaw_clause toy)
+  (ClassRaw_abstract toy)"
 
-definition "ocl_class_raw_rec f ocl = ocl_class_raw_rec0 f ocl
-  (ocl_class_raw.more ocl)"
+definition "toy_class_raw_rec f toy = toy_class_raw_rec0 f toy
+  (toy_class_raw.more toy)"
 
-definition "ocl_association_rec0 f ocl = f
-  (OclAss_type ocl)
-  (OclAss_relation ocl)"
+definition "toy_association_rec0 f toy = f
+  (ToyAss_type toy)
+  (ToyAss_relation toy)"
 
-definition "ocl_association_rec f ocl = ocl_association_rec0 f ocl
-  (ocl_association.more ocl)"
+definition "toy_association_rec f toy = toy_association_rec0 f toy
+  (toy_association.more toy)"
 
-definition "ocl_ctxt_pre_post_rec0 f ocl = f
-  (Ctxt_fun_name ocl)
-  (Ctxt_fun_ty ocl)
-  (Ctxt_expr ocl)"
+definition "toy_ctxt_pre_post_rec0 f toy = f
+  (Ctxt_fun_name toy)
+  (Ctxt_fun_ty toy)
+  (Ctxt_expr toy)"
 
-definition "ocl_ctxt_pre_post_rec f ocl = ocl_ctxt_pre_post_rec0 f ocl
-  (ocl_ctxt_pre_post.more ocl)"
+definition "toy_ctxt_pre_post_rec f toy = toy_ctxt_pre_post_rec0 f toy
+  (toy_ctxt_pre_post.more toy)"
 
-definition "ocl_ctxt_rec0 f ocl = f
-  (Ctxt_param ocl)
-  (Ctxt_ty ocl)
-  (Ctxt_clause ocl)"
+definition "toy_ctxt_rec0 f toy = f
+  (Ctxt_param toy)
+  (Ctxt_ty toy)
+  (Ctxt_clause toy)"
 
-definition "ocl_ctxt_rec f ocl = ocl_ctxt_rec0 f ocl
-  (ocl_ctxt.more ocl)"
+definition "toy_ctxt_rec f toy = toy_ctxt_rec0 f toy
+  (toy_ctxt.more toy)"
 
 (* *)
 
-lemma [code]: "ocl_class_raw.extend = (\<lambda>ocl v. ocl_class_raw_rec0 (co4 (\<lambda>f. f v) ocl_class_raw_ext) ocl)"
-by(intro ext, simp add: ocl_class_raw_rec0_def
-                        ocl_class_raw.extend_def
+lemma [code]: "toy_class_raw.extend = (\<lambda>toy v. toy_class_raw_rec0 (co4 (\<lambda>f. f v) toy_class_raw_ext) toy)"
+by(intro ext, simp add: toy_class_raw_rec0_def
+                        toy_class_raw.extend_def
                         co4_def K_def)
-lemma [code]: "ocl_class_raw.make = co4 (\<lambda>f. f ()) ocl_class_raw_ext"
-by(intro ext, simp add: ocl_class_raw.make_def
+lemma [code]: "toy_class_raw.make = co4 (\<lambda>f. f ()) toy_class_raw_ext"
+by(intro ext, simp add: toy_class_raw.make_def
                         co4_def)
-lemma [code]: "ocl_class_raw.truncate = ocl_class_raw_rec (co4 K ocl_class_raw.make)"
-by(intro ext, simp add: ocl_class_raw_rec0_def
-                        ocl_class_raw_rec_def
-                        ocl_class_raw.truncate_def
-                        ocl_class_raw.make_def
+lemma [code]: "toy_class_raw.truncate = toy_class_raw_rec (co4 K toy_class_raw.make)"
+by(intro ext, simp add: toy_class_raw_rec0_def
+                        toy_class_raw_rec_def
+                        toy_class_raw.truncate_def
+                        toy_class_raw.make_def
                         co4_def K_def)
 
-lemma [code]: "ocl_association.extend = (\<lambda>ocl v. ocl_association_rec0 (co2 (\<lambda>f. f v) ocl_association_ext) ocl)"
-by(intro ext, simp add: ocl_association_rec0_def
-                        ocl_association.extend_def
+lemma [code]: "toy_association.extend = (\<lambda>toy v. toy_association_rec0 (co2 (\<lambda>f. f v) toy_association_ext) toy)"
+by(intro ext, simp add: toy_association_rec0_def
+                        toy_association.extend_def
                         co2_def K_def)
-lemma [code]: "ocl_association.make = co2 (\<lambda>f. f ()) ocl_association_ext"
-by(intro ext, simp add: ocl_association.make_def
+lemma [code]: "toy_association.make = co2 (\<lambda>f. f ()) toy_association_ext"
+by(intro ext, simp add: toy_association.make_def
                         co2_def)
-lemma [code]: "ocl_association.truncate = ocl_association_rec (co2 K ocl_association.make)"
-by(intro ext, simp add: ocl_association_rec0_def
-                        ocl_association_rec_def
-                        ocl_association.truncate_def
-                        ocl_association.make_def
+lemma [code]: "toy_association.truncate = toy_association_rec (co2 K toy_association.make)"
+by(intro ext, simp add: toy_association_rec0_def
+                        toy_association_rec_def
+                        toy_association.truncate_def
+                        toy_association.make_def
                         co2_def K_def)
 
 subsection\<open>Main\<close>
@@ -138,7 +138,7 @@ subsection\<open>Main\<close>
 context Parse
 begin
 
-definition "of_ocl_collection b = rec_ocl_collection
+definition "of_toy_collection b = rec_toy_collection
   (b \<open>Set\<close>)
   (b \<open>Sequence\<close>)
   (b \<open>Ordered0\<close>)
@@ -149,167 +149,167 @@ definition "of_ocl_collection b = rec_ocl_collection
   (b \<open>Qualifier0\<close>)
   (b \<open>Nonunique0\<close>)"
 
-definition "of_ocl_multiplicity_single a b = rec_ocl_multiplicity_single
+definition "of_toy_multiplicity_single a b = rec_toy_multiplicity_single
   (ap1 a (b \<open>Mult_nat\<close>) (of_nat a b))
   (b \<open>Mult_star\<close>)
   (b \<open>Mult_infinity\<close>)"
 
-definition "of_ocl_multiplicity a b f = ocl_multiplicity_rec
-  (ap4 a (b (ext \<open>ocl_multiplicity_ext\<close>))
-    (of_list a b (of_pair a b (of_ocl_multiplicity_single a b) (of_option a b (of_ocl_multiplicity_single a b))))
+definition "of_toy_multiplicity a b f = toy_multiplicity_rec
+  (ap4 a (b (ext \<open>toy_multiplicity_ext\<close>))
+    (of_list a b (of_pair a b (of_toy_multiplicity_single a b) (of_option a b (of_toy_multiplicity_single a b))))
     (of_option a b (of_string a b))
-    (of_list a b (of_ocl_collection b))
+    (of_list a b (of_toy_collection b))
     (f a b))"
 
-definition "of_ocl_ty_class_node a b f = ocl_ty_class_node_rec
-  (ap4 a (b (ext \<open>ocl_ty_class_node_ext\<close>))
+definition "of_toy_ty_class_node a b f = toy_ty_class_node_rec
+  (ap4 a (b (ext \<open>toy_ty_class_node_ext\<close>))
     (of_nat a b)
-    (of_ocl_multiplicity a b (K of_unit))
+    (of_toy_multiplicity a b (K of_unit))
     (of_string a b)
     (f a b))"
 
-definition "of_ocl_ty_class a b f = ocl_ty_class_rec
-  (ap6 a (b (ext \<open>ocl_ty_class_ext\<close>))
+definition "of_toy_ty_class a b f = toy_ty_class_rec
+  (ap6 a (b (ext \<open>toy_ty_class_ext\<close>))
     (of_string a b)
     (of_nat a b)
     (of_nat a b)
-    (of_ocl_ty_class_node a b (K of_unit))
-    (of_ocl_ty_class_node a b (K of_unit))
+    (of_toy_ty_class_node a b (K of_unit))
+    (of_toy_ty_class_node a b (K of_unit))
     (f a b))"
 
-definition "of_ocl_ty_obj_core a b = rec_ocl_ty_obj_core
-  (ap1 a (b \<open>OclTyCore_pre\<close>) (of_string a b))
-  (ap1 a (b \<open>OclTyCore\<close>) (of_ocl_ty_class a b (K of_unit)))"
+definition "of_toy_ty_obj_core a b = rec_toy_ty_obj_core
+  (ap1 a (b \<open>ToyTyCore_pre\<close>) (of_string a b))
+  (ap1 a (b \<open>ToyTyCore\<close>) (of_toy_ty_class a b (K of_unit)))"
 
-definition "of_ocl_ty_obj a b = rec_ocl_ty_obj
-  (ap2 a (b \<open>OclTyObj\<close>) (of_ocl_ty_obj_core a b) (of_list a b (of_list a b (of_ocl_ty_obj_core a b))))"
+definition "of_toy_ty_obj a b = rec_toy_ty_obj
+  (ap2 a (b \<open>ToyTyObj\<close>) (of_toy_ty_obj_core a b) (of_list a b (of_list a b (of_toy_ty_obj_core a b))))"
 
-definition "of_ocl_ty a b = (\<lambda>f1 f2 f3 f4 f5 f6 f7 f8 f9 f10 f11 f12 f13 f14 f15.
-                                    rec_ocl_ty f1 f2 f3 f4 f5 f6
+definition "of_toy_ty a b = (\<lambda>f1 f2 f3 f4 f5 f6 f7 f8 f9 f10 f11 f12 f13 f14 f15.
+                                    rec_toy_ty f1 f2 f3 f4 f5 f6
                                                f7 (K o f8) (\<lambda>_ _. f9) (f10 o map_prod id snd) (\<lambda>_ _. f11) f12 f13 f14 f15)
-  (b \<open>OclTy_base_void\<close>)
-  (b \<open>OclTy_base_boolean\<close>)
-  (b \<open>OclTy_base_integer\<close>)
-  (b \<open>OclTy_base_unlimitednatural\<close>)
-  (b \<open>OclTy_base_real\<close>)
-  (b \<open>OclTy_base_string\<close>)
-  (ap1 a (b \<open>OclTy_object\<close>) (of_ocl_ty_obj a b))
-  (ar2 a (b \<open>OclTy_collection\<close>) (of_ocl_multiplicity a b (K of_unit)))
-  (ar2 a (b \<open>OclTy_pair\<close>) id)
-  (ap1 a (b \<open>OclTy_binding\<close>) (of_pair a b (of_option a b (of_string a b)) id))
-  (ar2 a (b \<open>OclTy_arrow\<close>) id)
-  (ap1 a (b \<open>OclTy_class_syn\<close>) (of_string a b))
-  (ap1 a (b \<open>OclTy_enum\<close>) (of_string a b))
-  (ap1 a (b \<open>OclTy_raw\<close>) (of_string a b))"
+  (b \<open>ToyTy_base_void\<close>)
+  (b \<open>ToyTy_base_boolean\<close>)
+  (b \<open>ToyTy_base_integer\<close>)
+  (b \<open>ToyTy_base_unlimitednatural\<close>)
+  (b \<open>ToyTy_base_real\<close>)
+  (b \<open>ToyTy_base_string\<close>)
+  (ap1 a (b \<open>ToyTy_object\<close>) (of_toy_ty_obj a b))
+  (ar2 a (b \<open>ToyTy_collection\<close>) (of_toy_multiplicity a b (K of_unit)))
+  (ar2 a (b \<open>ToyTy_pair\<close>) id)
+  (ap1 a (b \<open>ToyTy_binding\<close>) (of_pair a b (of_option a b (of_string a b)) id))
+  (ar2 a (b \<open>ToyTy_arrow\<close>) id)
+  (ap1 a (b \<open>ToyTy_class_syn\<close>) (of_string a b))
+  (ap1 a (b \<open>ToyTy_enum\<close>) (of_string a b))
+  (ap1 a (b \<open>ToyTy_raw\<close>) (of_string a b))"
 
-definition "of_ocl_association_type a b = rec_ocl_association_type
-  (b \<open>OclAssTy_native_attribute\<close>)
-  (b \<open>OclAssTy_association\<close>)
-  (b \<open>OclAssTy_composition\<close>)
-  (b \<open>OclAssTy_aggregation\<close>)"
+definition "of_toy_association_type a b = rec_toy_association_type
+  (b \<open>ToyAssTy_native_attribute\<close>)
+  (b \<open>ToyAssTy_association\<close>)
+  (b \<open>ToyAssTy_composition\<close>)
+  (b \<open>ToyAssTy_aggregation\<close>)"
 
-definition "of_ocl_association_relation a b = rec_ocl_association_relation
-  (ap1 a (b \<open>OclAssRel\<close>)
-    (of_list a b (of_pair a b (of_ocl_ty_obj a b) (of_ocl_multiplicity a b (K of_unit)))))"
+definition "of_toy_association_relation a b = rec_toy_association_relation
+  (ap1 a (b \<open>ToyAssRel\<close>)
+    (of_list a b (of_pair a b (of_toy_ty_obj a b) (of_toy_multiplicity a b (K of_unit)))))"
 
-definition "of_ocl_association a b f = ocl_association_rec
-  (ap3 a (b (ext \<open>ocl_association_ext\<close>))
-    (of_ocl_association_type a b)
-    (of_ocl_association_relation a b)
+definition "of_toy_association a b f = toy_association_rec
+  (ap3 a (b (ext \<open>toy_association_ext\<close>))
+    (of_toy_association_type a b)
+    (of_toy_association_relation a b)
     (f a b))"
 
-definition "of_ocl_ctxt_prefix a b = rec_ocl_ctxt_prefix
-  (b \<open>OclCtxtPre\<close>)
-  (b \<open>OclCtxtPost\<close>)"
+definition "of_toy_ctxt_prefix a b = rec_toy_ctxt_prefix
+  (b \<open>ToyCtxtPre\<close>)
+  (b \<open>ToyCtxtPost\<close>)"
 
-definition "of_ocl_ctxt_term a b = (\<lambda>f0 f1 f2. rec_ocl_ctxt_term f0 f1 (co1 K f2))
+definition "of_toy_ctxt_term a b = (\<lambda>f0 f1 f2. rec_toy_ctxt_term f0 f1 (co1 K f2))
   (ap1 a (b \<open>T_pure\<close>) (of_pure_term a b))
   (ap2 a (b \<open>T_to_be_parsed\<close>) (of_string a b) (of_string a b))
   (ar2 a (b \<open>T_lambda\<close>) (of_string a b))"
 
-definition "of_ocl_prop a b = rec_ocl_prop
-  (ap2 a (b \<open>OclProp_ctxt\<close>) (of_option a b (of_string a b)) (of_ocl_ctxt_term a b))"
+definition "of_toy_prop a b = rec_toy_prop
+  (ap2 a (b \<open>ToyProp_ctxt\<close>) (of_option a b (of_string a b)) (of_toy_ctxt_term a b))"
 
-definition "of_ocl_ctxt_term_inv a b = rec_ocl_ctxt_term_inv
-  (ap2 a (b \<open>T_inv\<close>) (of_bool b) (of_ocl_prop a b))"
+definition "of_toy_ctxt_term_inv a b = rec_toy_ctxt_term_inv
+  (ap2 a (b \<open>T_inv\<close>) (of_bool b) (of_toy_prop a b))"
 
-definition "of_ocl_ctxt_term_pp a b = rec_ocl_ctxt_term_pp
-  (ap2 a (b \<open>T_pp\<close>) (of_ocl_ctxt_prefix a b) (of_ocl_prop a b))
-  (ap1 a (b \<open>T_invariant\<close>) (of_ocl_ctxt_term_inv a b))"
+definition "of_toy_ctxt_term_pp a b = rec_toy_ctxt_term_pp
+  (ap2 a (b \<open>T_pp\<close>) (of_toy_ctxt_prefix a b) (of_toy_prop a b))
+  (ap1 a (b \<open>T_invariant\<close>) (of_toy_ctxt_term_inv a b))"
 
-definition "of_ocl_ctxt_pre_post a b f = ocl_ctxt_pre_post_rec
-  (ap4 a (b (ext \<open>ocl_ctxt_pre_post_ext\<close>))
+definition "of_toy_ctxt_pre_post a b f = toy_ctxt_pre_post_rec
+  (ap4 a (b (ext \<open>toy_ctxt_pre_post_ext\<close>))
     (of_string a b)
-    (of_ocl_ty a b)
-    (of_list a b (of_ocl_ctxt_term_pp a b))
+    (of_toy_ty a b)
+    (of_list a b (of_toy_ctxt_term_pp a b))
     (f a b))"
 
-definition "of_ocl_ctxt_clause a b = rec_ocl_ctxt_clause
-  (ap1 a (b \<open>Ctxt_pp\<close>) (of_ocl_ctxt_pre_post a b (K of_unit)))
-  (ap1 a (b \<open>Ctxt_inv\<close>) (of_ocl_ctxt_term_inv a b))"
+definition "of_toy_ctxt_clause a b = rec_toy_ctxt_clause
+  (ap1 a (b \<open>Ctxt_pp\<close>) (of_toy_ctxt_pre_post a b (K of_unit)))
+  (ap1 a (b \<open>Ctxt_inv\<close>) (of_toy_ctxt_term_inv a b))"
 
-definition "of_ocl_ctxt a b f = ocl_ctxt_rec
-  (ap4 a (b (ext \<open>ocl_ctxt_ext\<close>))
+definition "of_toy_ctxt a b f = toy_ctxt_rec
+  (ap4 a (b (ext \<open>toy_ctxt_ext\<close>))
     (of_list a b (of_string a b))
-    (of_ocl_ty_obj a b)
-    (of_list a b (of_ocl_ctxt_clause a b))
+    (of_toy_ty_obj a b)
+    (of_list a b (of_toy_ctxt_clause a b))
     (f a b))"
 
-definition "of_ocl_class a b = (\<lambda>f0 f1 f2 f3. rec_ocl_class (ap3 a f0 f1 f2 f3))
-  (b \<open>OclClass\<close>)
+definition "of_toy_class a b = (\<lambda>f0 f1 f2 f3. rec_toy_class (ap3 a f0 f1 f2 f3))
+  (b \<open>ToyClass\<close>)
     (of_string a b)
-    (of_list a b (of_pair a b (of_string a b) (of_ocl_ty a b)))
+    (of_list a b (of_pair a b (of_string a b) (of_toy_ty a b)))
     (of_list a b snd)"
 
-definition "of_ocl_class_raw a b f = ocl_class_raw_rec
-  (ap5 a (b (ext \<open>ocl_class_raw_ext\<close>))
-    (of_ocl_ty_obj a b)
-    (of_list a b (of_pair a b (of_string a b) (of_ocl_ty a b)))
-    (of_list a b (of_ocl_ctxt_clause a b))
+definition "of_toy_class_raw a b f = toy_class_raw_rec
+  (ap5 a (b (ext \<open>toy_class_raw_ext\<close>))
+    (of_toy_ty_obj a b)
+    (of_list a b (of_pair a b (of_string a b) (of_toy_ty a b)))
+    (of_list a b (of_toy_ctxt_clause a b))
     (of_bool b)
     (f a b))"
 
-definition "of_ocl_ass_class a b = rec_ocl_ass_class
-  (ap2 a (b \<open>OclAssClass\<close>)
-    (of_ocl_association a b (K of_unit))
-    (of_ocl_class_raw a b (K of_unit)))"
+definition "of_toy_ass_class a b = rec_toy_ass_class
+  (ap2 a (b \<open>ToyAssClass\<close>)
+    (of_toy_association a b (K of_unit))
+    (of_toy_class_raw a b (K of_unit)))"
 
-definition "of_ocl_class_synonym a b = rec_ocl_class_synonym
-  (ap2 a (b \<open>OclClassSynonym\<close>)
+definition "of_toy_class_synonym a b = rec_toy_class_synonym
+  (ap2 a (b \<open>ToyClassSynonym\<close>)
     (of_string a b)
-    (of_ocl_ty a b))"
+    (of_toy_ty a b))"
 
-definition "of_ocl_enum a b = rec_ocl_enum
-  (ap2 a (b \<open>OclEnum\<close>)
+definition "of_toy_enum a b = rec_toy_enum
+  (ap2 a (b \<open>ToyEnum\<close>)
     (of_string a b)
     (of_list a b (of_string a b)))"
 
 end
 
 lemmas [code] =
-  Parse.of_ocl_collection_def
-  Parse.of_ocl_multiplicity_single_def
-  Parse.of_ocl_multiplicity_def
-  Parse.of_ocl_ty_class_node_def
-  Parse.of_ocl_ty_class_def
-  Parse.of_ocl_ty_obj_core_def
-  Parse.of_ocl_ty_obj_def
-  Parse.of_ocl_ty_def
-  Parse.of_ocl_association_type_def
-  Parse.of_ocl_association_relation_def
-  Parse.of_ocl_association_def
-  Parse.of_ocl_ctxt_prefix_def
-  Parse.of_ocl_ctxt_term_def
-  Parse.of_ocl_prop_def
-  Parse.of_ocl_ctxt_term_inv_def
-  Parse.of_ocl_ctxt_term_pp_def
-  Parse.of_ocl_ctxt_pre_post_def
-  Parse.of_ocl_ctxt_clause_def
-  Parse.of_ocl_ctxt_def
-  Parse.of_ocl_class_def
-  Parse.of_ocl_class_raw_def
-  Parse.of_ocl_ass_class_def
-  Parse.of_ocl_class_synonym_def
-  Parse.of_ocl_enum_def
+  Parse.of_toy_collection_def
+  Parse.of_toy_multiplicity_single_def
+  Parse.of_toy_multiplicity_def
+  Parse.of_toy_ty_class_node_def
+  Parse.of_toy_ty_class_def
+  Parse.of_toy_ty_obj_core_def
+  Parse.of_toy_ty_obj_def
+  Parse.of_toy_ty_def
+  Parse.of_toy_association_type_def
+  Parse.of_toy_association_relation_def
+  Parse.of_toy_association_def
+  Parse.of_toy_ctxt_prefix_def
+  Parse.of_toy_ctxt_term_def
+  Parse.of_toy_prop_def
+  Parse.of_toy_ctxt_term_inv_def
+  Parse.of_toy_ctxt_term_pp_def
+  Parse.of_toy_ctxt_pre_post_def
+  Parse.of_toy_ctxt_clause_def
+  Parse.of_toy_ctxt_def
+  Parse.of_toy_class_def
+  Parse.of_toy_class_raw_def
+  Parse.of_toy_ass_class_def
+  Parse.of_toy_class_synonym_def
+  Parse.of_toy_enum_def
 
 end

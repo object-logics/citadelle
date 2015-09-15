@@ -48,85 +48,85 @@ begin
 
 definition "To_oid = (\<lambda>Oid n \<Rightarrow> To_nat n)"
 
-definition' \<open>of_ocl_def_base = (\<lambda> OclDefInteger i \<Rightarrow> To_string i
-                                | OclDefReal (i1, i2) \<Rightarrow> \<open>%s.%s\<close> (To_string i1) (To_string i2)
-                                | OclDefString s \<Rightarrow> \<open>"%s"\<close> (To_string s))\<close>
+definition' \<open>of_toy_def_base = (\<lambda> ToyDefInteger i \<Rightarrow> To_string i
+                                | ToyDefReal (i1, i2) \<Rightarrow> \<open>%s.%s\<close> (To_string i1) (To_string i2)
+                                | ToyDefString s \<Rightarrow> \<open>"%s"\<close> (To_string s))\<close>
 
-fun of_ocl_data_shallow where
-   "of_ocl_data_shallow e = (\<lambda> ShallB_term b \<Rightarrow> of_ocl_def_base b
+fun of_toy_data_shallow where
+   "of_toy_data_shallow e = (\<lambda> ShallB_term b \<Rightarrow> of_toy_def_base b
                              | ShallB_str s \<Rightarrow> To_string s
                              | ShallB_self s \<Rightarrow> \<open>self %d\<close> (To_oid s)
-                             | ShallB_list l \<Rightarrow> \<open>[ %s ]\<close> (String_concat \<open>, \<close> (List.map of_ocl_data_shallow l))) e"
+                             | ShallB_list l \<Rightarrow> \<open>[ %s ]\<close> (String_concat \<open>, \<close> (List.map of_toy_data_shallow l))) e"
 
-fun of_ocl_list_attr where
-   "of_ocl_list_attr f e = (\<lambda> OclAttrNoCast x \<Rightarrow> f x
-                            | OclAttrCast ty (OclAttrNoCast x) _ \<Rightarrow> \<open>(%s :: %s)\<close> (f x) (To_string ty)
-                            | OclAttrCast ty l _ \<Rightarrow> \<open>%s \<rightarrow> oclAsType( %s )\<close> (of_ocl_list_attr f l) (To_string ty)) e"
+fun of_toy_list_attr where
+   "of_toy_list_attr f e = (\<lambda> ToyAttrNoCast x \<Rightarrow> f x
+                            | ToyAttrCast ty (ToyAttrNoCast x) _ \<Rightarrow> \<open>(%s :: %s)\<close> (f x) (To_string ty)
+                            | ToyAttrCast ty l _ \<Rightarrow> \<open>%s \<rightarrow> toyAsType( %s )\<close> (of_toy_list_attr f l) (To_string ty)) e"
 
-definition' \<open>of_ocl_instance_single ocli =
+definition' \<open>of_toy_instance_single toyi =
  (let (s_left, s_right) =
-    case Inst_name ocli of
-      None \<Rightarrow> (case Inst_ty ocli of Some ty \<Rightarrow> (\<open>(\<close>, \<open> :: %s)\<close> (To_string ty)))
+    case Inst_name toyi of
+      None \<Rightarrow> (case Inst_ty toyi of Some ty \<Rightarrow> (\<open>(\<close>, \<open> :: %s)\<close> (To_string ty)))
     | Some s \<Rightarrow>
         ( \<open>%s%s = \<close>
             (To_string s)
-            (case Inst_ty ocli of None \<Rightarrow> \<open>\<close> | Some ty \<Rightarrow> \<open> :: %s\<close> (To_string ty))
+            (case Inst_ty toyi of None \<Rightarrow> \<open>\<close> | Some ty \<Rightarrow> \<open> :: %s\<close> (To_string ty))
         , \<open>\<close>) in
   \<open>%s%s%s\<close>
     s_left
-    (of_ocl_list_attr
+    (of_toy_list_attr
       (\<lambda>l. \<open>[ %s ]\<close>
              (String_concat \<open>, \<close>
                (L.map (\<lambda>(pre_post, attr, v).
                             \<open>%s"%s" = %s\<close> (case pre_post of None \<Rightarrow> \<open>\<close>
                                                           | Some (s1, s2) \<Rightarrow> \<open>("%s", "%s") |= \<close> (To_string s1) (To_string s2))
                                           (To_string attr)
-                                          (of_ocl_data_shallow v))
+                                          (of_toy_data_shallow v))
                          l)))
-      (Inst_attr ocli))
+      (Inst_attr toyi))
     s_right)\<close>
 
-definition "of_ocl_instance _ = (\<lambda> OclInstance l \<Rightarrow>
+definition "of_toy_instance _ = (\<lambda> ToyInstance l \<Rightarrow>
   \<open>Instance %s\<close> (String_concat \<open>
-     and \<close> (L.map of_ocl_instance_single l)))"
+     and \<close> (L.map of_toy_instance_single l)))"
 
-definition "of_ocl_def_state_core l =
-  String_concat \<open>, \<close> (L.map (\<lambda> OclDefCoreBinding s \<Rightarrow> To_string s
-                             | OclDefCoreAdd ocli \<Rightarrow> of_ocl_instance_single ocli) l)"
+definition "of_toy_def_state_core l =
+  String_concat \<open>, \<close> (L.map (\<lambda> ToyDefCoreBinding s \<Rightarrow> To_string s
+                             | ToyDefCoreAdd toyi \<Rightarrow> of_toy_instance_single toyi) l)"
 
-definition "of_ocl_def_state _ (floor :: (* polymorphism weakening needed by code_reflect *)
-                                         String.literal) = (\<lambda> OclDefSt n l \<Rightarrow> 
+definition "of_toy_def_state _ (floor :: (* polymorphism weakening needed by code_reflect *)
+                                         String.literal) = (\<lambda> ToyDefSt n l \<Rightarrow> 
   \<open>State%s %s = [ %s ]\<close>
     floor
     (To_string n)
-    (of_ocl_def_state_core l))"
+    (of_toy_def_state_core l))"
 
-definition "of_ocl_def_pp_core = (\<lambda> OclDefPPCoreBinding s \<Rightarrow> To_string s
-                                  | OclDefPPCoreAdd l \<Rightarrow> \<open>[ %s ]\<close> (of_ocl_def_state_core l))"
+definition "of_toy_def_pp_core = (\<lambda> ToyDefPPCoreBinding s \<Rightarrow> To_string s
+                                  | ToyDefPPCoreAdd l \<Rightarrow> \<open>[ %s ]\<close> (of_toy_def_state_core l))"
 
-definition "of_ocl_def_pre_post _ (floor :: (* polymorphism weakening needed by code_reflect *)
-                                            String.literal) = (\<lambda> OclDefPP n s_pre s_post \<Rightarrow>
+definition "of_toy_def_pre_post _ (floor :: (* polymorphism weakening needed by code_reflect *)
+                                            String.literal) = (\<lambda> ToyDefPP n s_pre s_post \<Rightarrow>
   \<open>PrePost%s %s%s%s\<close>
     floor
     (case n of None \<Rightarrow> \<open>\<close> | Some n \<Rightarrow> \<open>%s = \<close> (To_string n))
-    (of_ocl_def_pp_core s_pre)
-    (case s_post of None \<Rightarrow> \<open>\<close> | Some s_post \<Rightarrow> \<open> %s\<close> (of_ocl_def_pp_core s_post)))"
+    (of_toy_def_pp_core s_pre)
+    (case s_post of None \<Rightarrow> \<open>\<close> | Some s_post \<Rightarrow> \<open> %s\<close> (of_toy_def_pp_core s_post)))"
 
 end
 
 lemmas [code] =
   (* def *)
   Print.To_oid_def
-  Print.of_ocl_def_base_def
-  Print.of_ocl_instance_single_def
-  Print.of_ocl_instance_def
-  Print.of_ocl_def_state_core_def
-  Print.of_ocl_def_state_def
-  Print.of_ocl_def_pp_core_def
-  Print.of_ocl_def_pre_post_def
+  Print.of_toy_def_base_def
+  Print.of_toy_instance_single_def
+  Print.of_toy_instance_def
+  Print.of_toy_def_state_core_def
+  Print.of_toy_def_state_def
+  Print.of_toy_def_pp_core_def
+  Print.of_toy_def_pre_post_def
 
   (* fun *)
-  Print.of_ocl_list_attr.simps
-  Print.of_ocl_data_shallow.simps
+  Print.of_toy_list_attr.simps
+  Print.of_toy_data_shallow.simps
 
 end

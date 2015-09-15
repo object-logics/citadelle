@@ -174,12 +174,12 @@ text \<open>
                       @{syntax class})
   ;
   @{syntax_def class}:
-               @'Attributes'? ((binding ':' @{syntax uml_type}) * (';'?)) \<newline>
+               @'Attributes'? ((binding ':' @{syntax toy_type}) * (';'?)) \<newline>
                @{syntax context}
   ;
   @{syntax_def context}:
             (( ((() | @'Operations' | '::')
-                binding @{syntax uml_type} \<newline>
+                binding @{syntax toy_type} \<newline>
                 ('=' term | term)? (((@'Pre' | @'Post') @{syntax use_prop}
                                     | @{syntax invariant}) * ())
                )
@@ -251,11 +251,11 @@ text \<open>
   ;
   @{syntax_def term_object}:
                  ('[' ((('(' binding ',' binding ')' '|=')? \<newline>
-                        binding '=' @{syntax uml_term}) * ',') ']')
+                        binding '=' @{syntax toy_term}) * ',') ']')
   ;
   @{syntax_def object_cast}:
                '(' @{syntax term_object} '::' @{syntax type_object} ')' \<newline>
-               (('\<rightarrow>' 'oclAsType' '(' @{syntax type_object} ')') * ())
+               (('\<rightarrow>' 'toyAsType' '(' @{syntax type_object} ')') * ())
   ;
 \<close>}
 \<close>

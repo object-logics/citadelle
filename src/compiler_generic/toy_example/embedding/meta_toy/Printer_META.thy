@@ -86,10 +86,10 @@ assumes %s: "%s"\<close> (To_string name) (of_semi__term e)))
 definition "of_floor = (\<lambda> Floor1 \<Rightarrow> \<open>\<close> | Floor2 \<Rightarrow> \<open>[shallow]\<close> | Floor3 \<Rightarrow> \<open>[shallow_shallow]\<close>)"
 
 definition "of_all_meta_embedding env =
- (\<lambda> META_ctxt floor ctxt \<Rightarrow> of_ocl_ctxt env (of_floor floor) ctxt
-  | META_instance i \<Rightarrow> of_ocl_instance env i
-  | META_def_state floor s \<Rightarrow> of_ocl_def_state env (of_floor floor) s
-  | META_def_pre_post floor p \<Rightarrow> of_ocl_def_pre_post env (of_floor floor) p)"
+ (\<lambda> META_ctxt floor ctxt \<Rightarrow> of_toy_ctxt env (of_floor floor) ctxt
+  | META_instance i \<Rightarrow> of_toy_instance env i
+  | META_def_state floor s \<Rightarrow> of_toy_def_state env (of_floor floor) s
+  | META_def_pre_post floor p \<Rightarrow> of_toy_def_pre_post env (of_floor floor) p)"
 
 definition "of_boot_generation_syntax _ = (\<lambda> Boot_generation_syntax mode \<Rightarrow>
   \<open>generation_syntax [ shallow%s ]\<close>

@@ -48,7 +48,7 @@ subsection\<open>A Basic Meta-Model\<close>
 
 text\<open>The following basic Meta-Model will be used for requiring an eager
        or lazy interactive evaluation of already encountered Meta-Models.\<close>
-datatype ocl_flush_all = OclFlushAll
+datatype toy_flush_all = ToyFlushAll
 
 subsection\<open>The META Meta-Model (I)\<close>
 
@@ -68,48 +68,48 @@ datatype all_meta_embedding =
      'floor' field, then it indicates the degree of reflection
      (otherwise degree = Floor1 by default). *)
 
-                              META_enum ocl_enum
-                            | META_class_raw floor ocl_class_raw
-                            | META_association ocl_association
-                            | META_ass_class floor ocl_ass_class
-                            | META_ctxt floor ocl_ctxt
-                            | META_class_synonym ocl_class_synonym
-                            | META_instance ocl_instance
-                            | META_def_base_l ocl_def_base_l
-                            | META_def_state floor ocl_def_state
-                            | META_def_pre_post floor ocl_def_pre_post
-                            | META_flush_all ocl_flush_all
+                              META_enum toy_enum
+                            | META_class_raw floor toy_class_raw
+                            | META_association toy_association
+                            | META_ass_class floor toy_ass_class
+                            | META_ctxt floor toy_ctxt
+                            | META_class_synonym toy_class_synonym
+                            | META_instance toy_instance
+                            | META_def_base_l toy_def_base_l
+                            | META_def_state floor toy_def_state
+                            | META_def_pre_post floor toy_def_pre_post
+                            | META_flush_all toy_flush_all
 
 subsection\<open>Main Compiling Environment\<close>
 
-datatype generation_semantics_ocl = Gen_only_design | Gen_only_analysis | Gen_default
+datatype generation_semantics_toy = Gen_only_design | Gen_only_analysis | Gen_default
 datatype generation_lemma_mode = Gen_sorry | Gen_no_dirty
 
 record compiler_env_config =  D_output_disable_thy :: bool
                               D_output_header_thy :: "(string (* theory *)
                                                       \<times> string list (* imports *)
                                                       \<times> string (* import optional (compiler bootstrap) *)) option"
-                              D_ocl_oid_start :: internal_oids
+                              D_toy_oid_start :: internal_oids
                               D_output_position :: "nat \<times> nat"
-                              D_ocl_semantics :: generation_semantics_ocl
-                              D_input_class :: "ocl_class option"
+                              D_toy_semantics :: generation_semantics_toy
+                              D_input_class :: "toy_class option"
                                                (* last class considered for the generation *)
                               D_input_meta :: "all_meta_embedding list"
                               D_input_instance :: "(string\<^sub>b\<^sub>a\<^sub>s\<^sub>e (* name (as key for rbt) *)
-                                                   \<times> ocl_instance_single
+                                                   \<times> toy_instance_single
                                                    \<times> internal_oids) list"
                                                   (* instance namespace environment *)
                               D_input_state :: "(string\<^sub>b\<^sub>a\<^sub>s\<^sub>e (* name (as key for rbt) *)
                                                 \<times> (internal_oids
                                                 \<times> (string (* name *)
-                                                  \<times> ocl_instance_single (* alias *))
-                                                  ocl_def_state_core) list) list"
+                                                  \<times> toy_instance_single (* alias *))
+                                                  toy_def_state_core) list) list"
                                                (* state namespace environment *)
                               D_output_header_force :: bool (* true : the header should import the compiler for bootstrapping *)
                               D_output_auto_bootstrap :: bool (* true : add the generation_syntax command *)
-                              D_ocl_accessor :: " string\<^sub>b\<^sub>a\<^sub>s\<^sub>e (* name of the constant added *) list (* pre *)
+                              D_toy_accessor :: " string\<^sub>b\<^sub>a\<^sub>s\<^sub>e (* name of the constant added *) list (* pre *)
                                                 \<times> string\<^sub>b\<^sub>a\<^sub>s\<^sub>e (* name of the constant added *) list (* post *)"
-                              D_ocl_HO_type :: "(string\<^sub>b\<^sub>a\<^sub>s\<^sub>e (* raw HOL name (as key for rbt) *)) list"
+                              D_toy_HO_type :: "(string\<^sub>b\<^sub>a\<^sub>s\<^sub>e (* raw HOL name (as key for rbt) *)) list"
                               D_output_sorry_dirty :: "generation_lemma_mode option \<times> bool (* dirty *)" (* Some Gen_sorry or None and {dirty}: activate sorry mode for skipping proofs *)
 
 subsection\<open>Operations of Fold, Map, ..., on the Meta-Model\<close>
@@ -122,7 +122,7 @@ definition "ignore_meta_header = (\<lambda> META_class_raw Floor1 _ \<Rightarrow
                                   | _ \<Rightarrow> False)"
 
 definition "map2_ctxt_term f =
- (let f_prop = \<lambda> OclProp_ctxt n prop \<Rightarrow> OclProp_ctxt n (f prop)
+ (let f_prop = \<lambda> ToyProp_ctxt n prop \<Rightarrow> ToyProp_ctxt n (f prop)
     ; f_inva = \<lambda> T_inv b prop \<Rightarrow> T_inv b (f_prop prop) in
   \<lambda> META_ctxt Floor2 c \<Rightarrow>
     META_ctxt Floor2
@@ -132,13 +132,13 @@ definition "map2_ctxt_term f =
                    | Ctxt_inv l_inv \<Rightarrow> Ctxt_inv (f_inva l_inv))) c)
   | x \<Rightarrow> x)"
 
-definition "compiler_env_config_more_map f ocl =
-            compiler_env_config.extend  (compiler_env_config.truncate ocl) (f (compiler_env_config.more ocl))"
+definition "compiler_env_config_more_map f toy =
+            compiler_env_config.extend  (compiler_env_config.truncate toy) (f (compiler_env_config.more toy))"
 
 subsection\<open>The META Meta-Model (II)\<close>
 subsubsection\<open>Type Definition\<close>
 
-datatype boot_generation_syntax = Boot_generation_syntax generation_semantics_ocl
+datatype boot_generation_syntax = Boot_generation_syntax generation_semantics_toy
 
 datatype boot_setup_env = Boot_setup_env compiler_env_config
 

@@ -136,7 +136,7 @@ structure From = struct
   ) e
  end
 
- fun ocl_ctxt_term thy expr =
+ fun toy_ctxt_term thy expr =
    META.T_pure (Pure.term (Syntax.read_term (Proof_Context.init_global thy) expr))
 end
 \<close>
@@ -1225,9 +1225,9 @@ end
 subsection\<open>Common Parser for Toy\<close>
 
 ML\<open>
-structure USE_parse = struct
-  datatype ('a, 'b) use_context = USE_context_invariant of 'a
-                                | USE_context_pre_post of 'b
+structure TOY_parse = struct
+  datatype ('a, 'b) use_context = TOY_context_invariant of 'a
+                                | TOY_context_pre_post of 'b
 
   fun optional f = Scan.optional (f >> SOME) NONE
   val colon = Parse.$$$ ":"
@@ -1247,7 +1247,7 @@ structure USE_parse = struct
                                      , xml_unescape s)
               , v_true)
             else
-              (From.ocl_ctxt_term thy, v_false))
+              (From.toy_ctxt_term thy, v_false))
            use)
 
   (* *)
@@ -1266,20 +1266,20 @@ structure USE_parse = struct
                                                          SOME i => From.nat i
                                                        | NONE => Scan.fail "Syntax error"))
   val term_base =
-       Parse.number >> (META.OclDefInteger o From.string)
-    || Parse.float_number >> (META.OclDefReal o (From.pair From.string From.string o
+       Parse.number >> (META.ToyDefInteger o From.string)
+    || Parse.float_number >> (META.ToyDefReal o (From.pair From.string From.string o
          (fn s => case String.tokens (fn #"." => true
                                        | _ => false) s of [l1,l2] => (l1,l2)
                                                         | _ => Scan.fail "Syntax error")))
-    || Parse.string >> (META.OclDefString o From.string)
+    || Parse.string >> (META.ToyDefString o From.string)
 
   val multiplicity = parse_l' (unlimited_natural -- optional (ident_dot_dot |-- unlimited_natural))
 
-  fun uml_term x =
+  fun toy_term x =
    (   term_base >> META.ShallB_term
     || Parse.binding >> (META.ShallB_str o From.binding)
     || @{keyword "self"} |-- Parse.nat >> (fn n => META.ShallB_self (From.internal_oid n))
-    || paren (Parse.list uml_term) >> (* untyped, corresponds to Set, Sequence or Pair *)
+    || paren (Parse.list toy_term) >> (* untyped, corresponds to Set, Sequence or Pair *)
                                       (* WARNING for Set: we are describing a finite set *)
                                       META.ShallB_list) x
 
@@ -1288,14 +1288,14 @@ structure USE_parse = struct
   val type_object_weak = 
     let val name_object = Parse.binding >> (fn s => (NONE, s)) in
                     name_object -- Scan.repeat (Parse.$$$ "<" |-- Parse.list1 name_object) >>
-    let val f = fn (_, s) => META.OclTyCore_pre (From.binding s) in
-    fn (s, l) => META.OclTyObj (f s, map (map f) l)
+    let val f = fn (_, s) => META.ToyTyCore_pre (From.binding s) in
+    fn (s, l) => META.ToyTyObj (f s, map (map f) l)
     end
     end
 
   val type_object = name_object -- Scan.repeat (Parse.$$$ "<" |-- Parse.list1 name_object) >>
-    let val f = fn (_, s) => META.OclTyCore_pre (From.binding s) in
-    fn (s, l) => META.OclTyObj (f s, map (map f) l)
+    let val f = fn (_, s) => META.ToyTyCore_pre (From.binding s) in
+    fn (s, l) => META.ToyTyObj (f s, map (map f) l)
     end
 
   val category = 
@@ -1310,58 +1310,58 @@ structure USE_parse = struct
                     || @{keyword "Nonunique"} >> K META.Nonunique0
                     || @{keyword "Sequence_"} >> K META.Sequence) >>
     (fn ((l_mult, role), l) =>
-       META.Ocl_multiplicity_ext (l_mult, From.option From.binding role, l, ()))
+       META.Toy_multiplicity_ext (l_mult, From.option From.binding role, l, ()))
 
-  val type_base =   Parse.reserved "Void" >> K META.OclTy_base_void
-                 || Parse.reserved "Boolean" >> K META.OclTy_base_boolean
-                 || Parse.reserved "Integer" >> K META.OclTy_base_integer
-                 || Parse.reserved "UnlimitedNatural" >> K META.OclTy_base_unlimitednatural
-                 || Parse.reserved "Real" >> K META.OclTy_base_real
-                 || Parse.reserved "String" >> K META.OclTy_base_string
+  val type_base =   Parse.reserved "Void" >> K META.ToyTy_base_void
+                 || Parse.reserved "Boolean" >> K META.ToyTy_base_boolean
+                 || Parse.reserved "Integer" >> K META.ToyTy_base_integer
+                 || Parse.reserved "UnlimitedNatural" >> K META.ToyTy_base_unlimitednatural
+                 || Parse.reserved "Real" >> K META.ToyTy_base_real
+                 || Parse.reserved "String" >> K META.ToyTy_base_string
 
   fun use_type_gen type_object v =
      ((* collection *)
       Parse.reserved "Set" |-- use_type >> 
-        (fn l => META.OclTy_collection (META.Ocl_multiplicity_ext ([], NONE, [META.Set], ()), l))
+        (fn l => META.ToyTy_collection (META.Toy_multiplicity_ext ([], NONE, [META.Set], ()), l))
    || Parse.reserved "Sequence" |-- use_type >>
-        (fn l => META.OclTy_collection (META.Ocl_multiplicity_ext ([], NONE, [META.Sequence], ()), l))
-   || category -- use_type >> META.OclTy_collection
+        (fn l => META.ToyTy_collection (META.Toy_multiplicity_ext ([], NONE, [META.Sequence], ()), l))
+   || category -- use_type >> META.ToyTy_collection
 
       (* pair *)
    || Parse.reserved "Pair" |--
       (   use_type -- use_type
-      || Parse.$$$ "(" |-- use_type --| Parse.$$$ "," -- use_type --| Parse.$$$ ")") >> META.OclTy_pair
+      || Parse.$$$ "(" |-- use_type --| Parse.$$$ "," -- use_type --| Parse.$$$ ")") >> META.ToyTy_pair
 
       (* base *)
    || type_base
 
       (* raw HOL *)
    || Parse.sym_ident (* "\<acute>" *) |-- Parse.typ --| Parse.sym_ident (* "\<acute>" *) >>
-        (META.OclTy_raw o xml_unescape)
+        (META.ToyTy_raw o xml_unescape)
 
       (* object type *)
-   || type_object >> META.OclTy_object
+   || type_object >> META.ToyTy_object
 
    || ((Parse.$$$ "(" |-- Parse.list (   (Parse.binding --| colon >> (From.option From.binding o SOME))
                                       -- (   Parse.$$$ "(" |-- use_type --| Parse.$$$ ")"
-                                          || use_type_gen type_object_weak) >> META.OclTy_binding
+                                          || use_type_gen type_object_weak) >> META.ToyTy_binding
                                       ) --| Parse.$$$ ")"
         >> (fn ty_arg => case rev ty_arg of
-              [] => META.OclTy_base_void
-            | ty_arg => fold (fn x => fn acc => META.OclTy_pair (x, acc))
+              [] => META.ToyTy_base_void
+            | ty_arg => fold (fn x => fn acc => META.ToyTy_pair (x, acc))
                              (tl ty_arg)
                              (hd ty_arg)))
        -- optional (colon |-- use_type))
       >> (fn (ty_arg, ty_out) => case ty_out of NONE => ty_arg
-                                              | SOME ty_out => META.OclTy_arrow (ty_arg, ty_out))
-   || (Parse.$$$ "(" |-- use_type --| Parse.$$$ ")" >> (fn s => META.OclTy_binding (NONE, s)))) v
+                                              | SOME ty_out => META.ToyTy_arrow (ty_arg, ty_out))
+   || (Parse.$$$ "(" |-- use_type --| Parse.$$$ ")" >> (fn s => META.ToyTy_binding (NONE, s)))) v
   and use_type x = use_type_gen type_object x
 
   val use_prop =
    (optional (optional (Parse.binding >> From.binding) --| Parse.$$$ ":") >> (fn NONE => NONE
                                                                                | SOME x => x))
    -- Parse.term --| optional (Parse.$$$ ";") >> (fn (n, e) => fn from_expr =>
-                                                  META.OclProp_ctxt (n, from_expr e))
+                                                  META.ToyProp_ctxt (n, from_expr e))
 
   (* *)
 
@@ -1379,7 +1379,7 @@ structure USE_parse = struct
      --  use_prop
 
   structure Outer_syntax_Association = struct
-    fun make ass_ty l = META.Ocl_association_ext (ass_ty, META.OclAssRel l, ())
+    fun make ass_ty l = META.Toy_association_ext (ass_ty, META.ToyAssRel l, ())
   end
 
   (* *)
@@ -1392,20 +1392,20 @@ structure USE_parse = struct
         --| optional (Parse.$$$ "=" |-- Parse.term || Parse.term)
         -- Scan.repeat
               (      (@{keyword "Pre"} || @{keyword "Post"})
-                  -- use_prop >> USE_context_pre_post
-               || invariant >> USE_context_invariant)
+                  -- use_prop >> TOY_context_pre_post
+               || invariant >> TOY_context_invariant)
         --| optional (Parse.$$$ ";")) >>
               (fn ((name_fun, ty), expr) => fn from_expr =>
                 META.Ctxt_pp
-                  (META.Ocl_ctxt_pre_post_ext
+                  (META.Toy_ctxt_pre_post_ext
                     ( From.binding name_fun
                     , ty
-                    , From.list (fn USE_context_pre_post (pp, expr) =>
+                    , From.list (fn TOY_context_pre_post (pp, expr) =>
                                      META.T_pp (if pp = "Pre" then
-                                                  META.OclCtxtPre
+                                                  META.ToyCtxtPre
                                                 else
-                                                  META.OclCtxtPost, expr from_expr)
-                                 | USE_context_invariant (b, expr) =>
+                                                  META.ToyCtxtPost, expr from_expr)
+                                 | TOY_context_invariant (b, expr) =>
                                      META.T_invariant (META.T_inv (b, expr from_expr))) expr
                     , ())))
        ||
@@ -1417,12 +1417,12 @@ structure USE_parse = struct
                      --| optional (Parse.$$$ ";"))
     -- context
 
-  datatype use_classDefinition = USE_class | USE_class_abstract
-  datatype ('a, 'b) use_classDefinition_content = USE_class_content of 'a | USE_class_synonym of 'b
+  datatype use_classDefinition = TOY_class | TOY_class_abstract
+  datatype ('a, 'b) use_classDefinition_content = TOY_class_content of 'a | TOY_class_synonym of 'b
   
   structure Outer_syntax_Class = struct
     fun make from_expr abstract ty_object attribute oper =
-      META.Ocl_class_raw_ext
+      META.Toy_class_raw_ext
         ( ty_object
         , From.list (From.pair From.binding I) attribute
         , From.list (fn f => f from_expr) oper
@@ -1441,7 +1441,7 @@ structure USE_parse = struct
                                                                     | _ => Scan.fail "")))
                              -- Parse.binding
                              -- (    Parse.$$$ "="
-                                 |-- uml_term))
+                                 |-- toy_term))
 
   val list_attr' = term_object >> (fn res => (res, [] : binding list))
   fun object_cast e =
@@ -1450,25 +1450,25 @@ structure USE_parse = struct
                                                | "\<leadsto>" => Scan.succeed
                                                | "\<rightarrow>" => Scan.succeed
                                                | _ => Scan.fail ""))
-                     |-- (   Parse.reserved "oclAsType"
+                     |-- (   Parse.reserved "toyAsType"
                              |-- Parse.$$$ "("
                              |-- Parse.binding
                              --| Parse.$$$ ")"
                           || Parse.binding)) >> (fn ((res, x), l) => (res, rev (x :: l)))) e
   val object_cast' = object_cast >> (fn (res, l) => (res, rev l))
 
-  fun get_oclinst l _ =
-    META.OclInstance (map (fn ((name,typ), (l_attr, is_cast)) =>
+  fun get_toyinst l _ =
+    META.ToyInstance (map (fn ((name,typ), (l_attr, is_cast)) =>
         let val f = map (fn ((pre_post, attr), data) =>
                               ( From.option (From.pair From.binding From.binding) pre_post
                               , ( From.binding attr
                                 , data)))
             val l_attr =
               fold
-                (fn b => fn acc => META.OclAttrCast (From.binding b, acc, []))
+                (fn b => fn acc => META.ToyAttrCast (From.binding b, acc, []))
                 is_cast
-                (META.OclAttrNoCast (f l_attr)) in
-        META.Ocl_instance_single_ext
+                (META.ToyAttrNoCast (f l_attr)) in
+        META.Toy_instance_single_ext
           (From.option From.binding name, From.option From.binding typ, l_attr, ()) end) l)
 
   val parse_instance = (Parse.binding >> SOME)
@@ -1478,7 +1478,7 @@ structure USE_parse = struct
   (* *)
 
   datatype state_content =
-    ST_l_attr of (((binding * binding) option * binding) * META.ocl_data_shallow) list * binding list
+    ST_l_attr of (((binding * binding) option * binding) * META.toy_data_shallow) list * binding list
   | ST_binding of binding
   
   val state_parse = parse_l' (   object_cast >> ST_l_attr
@@ -1486,12 +1486,12 @@ structure USE_parse = struct
 
   fun mk_state thy =
     map (fn ST_l_attr l =>
-              META.OclDefCoreAdd
-                (case get_oclinst (map (fn (l_i, l_ty) =>
+              META.ToyDefCoreAdd
+                (case get_toyinst (map (fn (l_i, l_ty) =>
                                          ((NONE, SOME (hd l_ty)), (l_i, rev (tl l_ty)))) [l])
                                   thy of
-                   META.OclInstance [x] => x)
-          | ST_binding b => META.OclDefCoreBinding (From.binding b))
+                   META.ToyInstance [x] => x)
+          | ST_binding b => META.ToyDefCoreBinding (From.binding b))
 
   (* *)
 
@@ -1501,8 +1501,8 @@ structure USE_parse = struct
   val state_pp_parse = state_parse >> ST_PP_l_attr
                        || Parse.binding >> ST_PP_binding
 
-  fun mk_pp_state thy = fn ST_PP_l_attr l => META.OclDefPPCoreAdd (mk_state thy l)
-                         | ST_PP_binding s => META.OclDefPPCoreBinding (From.binding s)
+  fun mk_pp_state thy = fn ST_PP_l_attr l => META.ToyDefPPCoreAdd (mk_state thy l)
+                         | ST_PP_binding s => META.ToyDefPPCoreBinding (From.binding s)
 end
 \<close>
 
@@ -1513,35 +1513,35 @@ val () =
   outer_syntax_command @{mk_string} @{command_keyword Enum} ""
     (Parse.binding -- parse_l1' Parse.binding)
     (fn (n1, n2) => 
-      K (META.META_enum (META.OclEnum (From.binding n1, From.list From.binding n2))))
+      K (META.META_enum (META.ToyEnum (From.binding n1, From.list From.binding n2))))
 \<close>
 
 subsection\<open>Setup of Meta Commands for Toy: (abstract) Class\<close>
 
 ML\<open>
 local
-  open USE_parse
+  open TOY_parse
 
   fun mk_classDefinition abstract cmd_spec =
     outer_syntax_command2 @{mk_string} cmd_spec "Class generation"
-      (   Parse.binding --| Parse.$$$ "=" -- USE_parse.type_base >> USE_class_synonym
+      (   Parse.binding --| Parse.$$$ "=" -- TOY_parse.type_base >> TOY_class_synonym
        ||    type_object
-          -- class >> USE_class_content)
+          -- class >> TOY_class_content)
       (curry META.META_class_raw META.Floor1)
       (curry META.META_class_raw META.Floor2)
       (fn (from_expr, META_class_raw) =>
-       fn USE_class_content (ty_object, (attribute, oper)) =>
+       fn TOY_class_content (ty_object, (attribute, oper)) =>
             META_class_raw (Outer_syntax_Class.make
                              from_expr
-                             (abstract = USE_class_abstract)
+                             (abstract = TOY_class_abstract)
                              ty_object
                              attribute
                              oper)
-        | USE_class_synonym (n1, n2) => 
-            META.META_class_synonym (META.OclClassSynonym (From.binding n1, n2)))
+        | TOY_class_synonym (n1, n2) => 
+            META.META_class_synonym (META.ToyClassSynonym (From.binding n1, n2)))
 in
-val () = mk_classDefinition USE_class @{command_keyword Class}
-val () = mk_classDefinition USE_class_abstract @{command_keyword Abstract_class}
+val () = mk_classDefinition TOY_class @{command_keyword Class}
+val () = mk_classDefinition TOY_class_abstract @{command_keyword Abstract_class}
 end
 \<close>
 
@@ -1549,7 +1549,7 @@ subsection\<open>Setup of Meta Commands for Toy: Association, Composition, Aggre
 
 ML\<open>
 local
-  open USE_parse
+  open TOY_parse
 
   fun mk_associationDefinition ass_ty cmd_spec =
     outer_syntax_command @{mk_string} cmd_spec ""
@@ -1559,9 +1559,9 @@ local
       (fn l => fn _ =>
         META.META_association (Outer_syntax_Association.make ass_ty l))
 in
-val () = mk_associationDefinition META.OclAssTy_association @{command_keyword Association}
-val () = mk_associationDefinition META.OclAssTy_composition @{command_keyword Composition}
-val () = mk_associationDefinition META.OclAssTy_aggregation @{command_keyword Aggregation}
+val () = mk_associationDefinition META.ToyAssTy_association @{command_keyword Association}
+val () = mk_associationDefinition META.ToyAssTy_composition @{command_keyword Composition}
+val () = mk_associationDefinition META.ToyAssTy_aggregation @{command_keyword Aggregation}
 end
 \<close>
 
@@ -1570,9 +1570,9 @@ subsection\<open>Setup of Meta Commands for Toy: (abstract) Associationclass\<cl
 ML\<open>
 
 local
-  open USE_parse
+  open TOY_parse
 
-  datatype use_associationClassDefinition = USE_associationclass | USE_associationclass_abstract
+  datatype use_associationClassDefinition = TOY_associationclass | TOY_associationclass_abstract
 
   fun mk_associationClassDefinition abstract cmd_spec =
     outer_syntax_command2 @{mk_string} cmd_spec ""
@@ -1585,21 +1585,21 @@ local
       (fn (from_expr, META_ass_class) =>
        fn (((ty_object, l_ass), (attribute, oper)), assty) =>
           META_ass_class
-            (META.OclAssClass
+            (META.ToyAssClass
               ( Outer_syntax_Association.make
-                  (case assty of SOME "aggregation" => META.OclAssTy_aggregation
-                               | SOME "composition" => META.OclAssTy_composition
-                               | _ => META.OclAssTy_association)
+                  (case assty of SOME "aggregation" => META.ToyAssTy_aggregation
+                               | SOME "composition" => META.ToyAssTy_composition
+                               | _ => META.ToyAssTy_association)
                   l_ass
               , Outer_syntax_Class.make
                   from_expr
-                  (abstract = USE_associationclass_abstract)
+                  (abstract = TOY_associationclass_abstract)
                   ty_object
                   attribute
                   oper)))
 in
-val () = mk_associationClassDefinition USE_associationclass @{command_keyword Associationclass}
-val () = mk_associationClassDefinition USE_associationclass_abstract @{command_keyword Abstract_associationclass}
+val () = mk_associationClassDefinition TOY_associationclass @{command_keyword Associationclass}
+val () = mk_associationClassDefinition TOY_associationclass_abstract @{command_keyword Abstract_associationclass}
 end
 \<close>
 
@@ -1607,7 +1607,7 @@ subsection\<open>Setup of Meta Commands for Toy: Context\<close>
 
 ML\<open>
 local
- open USE_parse
+ open TOY_parse
 in
 val () =
   outer_syntax_command2 @{mk_string} @{command_keyword Context} ""
@@ -1619,9 +1619,9 @@ val () =
     (fn (from_expr, META_ctxt) =>
     (fn ((l_param, name), l) => 
     META_ctxt
-      (META.Ocl_ctxt_ext
+      (META.Toy_ctxt_ext
         ( case l_param of NONE => [] | SOME l => From.list From.binding l
-        , META.OclTyObj (META.OclTyCore_pre (From.binding name), [])
+        , META.ToyTyObj (META.ToyTyCore_pre (From.binding name), [])
         , From.list (fn f => f from_expr) l
         , ()))))
 end
@@ -1636,7 +1636,7 @@ val () =
                     || Parse.$$$ "!" >> K true) false)
     (fn b => fn _ =>
        if b then
-         [META.META_flush_all META.OclFlushAll]
+         [META.META_flush_all META.ToyFlushAll]
        else
          [])
 \<close>
@@ -1646,26 +1646,26 @@ subsection\<open>Setup of Meta Commands for Toy: BaseType, Instance, State\<clos
 ML\<open>
 val () =
   outer_syntax_command @{mk_string} @{command_keyword BaseType} ""
-    (parse_l' USE_parse.term_base)
-    (K o META.META_def_base_l o META.OclDefBase)
+    (parse_l' TOY_parse.term_base)
+    (K o META.META_def_base_l o META.ToyDefBase)
 
 local
-  open USE_parse
+  open TOY_parse
 in
 val () =
   outer_syntax_command @{mk_string} @{command_keyword Instance} ""
     (Scan.optional (parse_instance -- Scan.repeat (optional @{keyword "and"} |-- parse_instance) >>
                                                                         (fn (x, xs) => x :: xs)) [])
-    (META.META_instance oo get_oclinst)
+    (META.META_instance oo get_toyinst)
 
 val () =
   outer_syntax_command @{mk_string} @{command_keyword State} ""
-    (USE_parse.optional (paren @{keyword "shallow"}) -- Parse.binding --| @{keyword "="}
+    (TOY_parse.optional (paren @{keyword "shallow"}) -- Parse.binding --| @{keyword "="}
      -- state_parse)
      (fn ((is_shallow, name), l) => fn thy =>
       META.META_def_state
         ( if is_shallow = NONE then META.Floor1 else META.Floor2
-        , META.OclDefSt (From.binding name, mk_state thy l)))
+        , META.ToyDefSt (From.binding name, mk_state thy l)))
 end
 \<close>
 
@@ -1673,18 +1673,18 @@ subsection\<open>Setup of Meta Commands for Toy: PrePost\<close>
 
 ML\<open>
 local
-  open USE_parse
+  open TOY_parse
 in
 val () =
   outer_syntax_command @{mk_string} @{command_keyword PrePost} ""
-    (USE_parse.optional (paren @{keyword "shallow"})
-     -- USE_parse.optional (Parse.binding --| @{keyword "="})
+    (TOY_parse.optional (paren @{keyword "shallow"})
+     -- TOY_parse.optional (Parse.binding --| @{keyword "="})
      -- state_pp_parse
-     -- USE_parse.optional state_pp_parse)
+     -- TOY_parse.optional state_pp_parse)
     (fn (((is_shallow, n), s_pre), s_post) => fn thy =>
       META.META_def_pre_post
         ( if is_shallow = NONE then META.Floor1 else META.Floor2
-        , META.OclDefPP ( From.option From.binding n
+        , META.ToyDefPP ( From.option From.binding n
                        , mk_pp_state thy s_pre
                        , From.option (mk_pp_state thy) s_post)))
 end

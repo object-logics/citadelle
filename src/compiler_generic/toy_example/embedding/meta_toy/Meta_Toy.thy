@@ -45,129 +45,129 @@ begin
 
 subsection\<open>Type Definition\<close>
 
-datatype ocl_collection = Set
+datatype toy_collection = Set
                         | Sequence
                         | Ordered0 (* ordered set *)
                         | Subsets0 (*binding*)
                         | Union0
                         | Redefines0 (*binding*)
                         | Derived0 (*string*)
-                        | Qualifier0 (*binding \<times> use_oclty*)
+                        | Qualifier0 (*binding \<times> use_toyty*)
                         | Nonunique0 (*bag*)
 
-datatype ocl_multiplicity_single = Mult_nat nat
+datatype toy_multiplicity_single = Mult_nat nat
                                  | Mult_star
                                  | Mult_infinity
 
-record ocl_multiplicity = TyMult :: "(ocl_multiplicity_single \<times> ocl_multiplicity_single option) list"
+record toy_multiplicity = TyMult :: "(toy_multiplicity_single \<times> toy_multiplicity_single option) list"
                           TyRole :: "string option"
-                          TyCollect :: "ocl_collection list" (* return type of the accessor (constrained by the above multiplicity) *)
+                          TyCollect :: "toy_collection list" (* return type of the accessor (constrained by the above multiplicity) *)
 
-record ocl_ty_class_node =  TyObjN_ass_switch :: nat
-                            TyObjN_role_multip :: ocl_multiplicity
+record toy_ty_class_node =  TyObjN_ass_switch :: nat
+                            TyObjN_role_multip :: toy_multiplicity
                             TyObjN_role_ty :: string
-record ocl_ty_class =       TyObj_name :: string
+record toy_ty_class =       TyObj_name :: string
                             TyObj_ass_id :: nat
                             TyObj_ass_arity :: nat
-                            TyObj_from :: ocl_ty_class_node
-                            TyObj_to :: ocl_ty_class_node
-datatype ocl_ty_obj_core =  OclTyCore_pre string (* class name, untyped *) (* FIXME perform the typing separately *)
-                          | OclTyCore ocl_ty_class (* class name, typed *)
-datatype ocl_ty_obj =       OclTyObj  ocl_ty_obj_core
-                                     "ocl_ty_obj_core list (* the 'and' semantics *)
+                            TyObj_from :: toy_ty_class_node
+                            TyObj_to :: toy_ty_class_node
+datatype toy_ty_obj_core =  ToyTyCore_pre string (* class name, untyped *) (* FIXME perform the typing separately *)
+                          | ToyTyCore toy_ty_class (* class name, typed *)
+datatype toy_ty_obj =       ToyTyObj  toy_ty_obj_core
+                                     "toy_ty_obj_core list (* the 'and' semantics *)
                                                            list (* 'x # ...' means 'x < ...' *)" (* superclass *)
-datatype ocl_ty =           OclTy_base_void (* NOTE can be merged in a generic tuple *)
-                          | OclTy_base_boolean
-                          | OclTy_base_integer
-                          | OclTy_base_unlimitednatural
-                          | OclTy_base_real
-                          | OclTy_base_string
-                          | OclTy_object ocl_ty_obj
-                          | OclTy_collection ocl_multiplicity ocl_ty
-                          | OclTy_pair ocl_ty ocl_ty (* NOTE can be merged in a generic tuple *)
-                          | OclTy_binding "string option (* name *) \<times> ocl_ty" (* NOTE can be merged in a generic tuple *)
-                          | OclTy_arrow ocl_ty ocl_ty
-                          | OclTy_class_syn string
-                          | OclTy_enum string
-                          | OclTy_raw string (* denoting raw HOL-type *) (* FIXME to be removed *)
+datatype toy_ty =           ToyTy_base_void (* NOTE can be merged in a generic tuple *)
+                          | ToyTy_base_boolean
+                          | ToyTy_base_integer
+                          | ToyTy_base_unlimitednatural
+                          | ToyTy_base_real
+                          | ToyTy_base_string
+                          | ToyTy_object toy_ty_obj
+                          | ToyTy_collection toy_multiplicity toy_ty
+                          | ToyTy_pair toy_ty toy_ty (* NOTE can be merged in a generic tuple *)
+                          | ToyTy_binding "string option (* name *) \<times> toy_ty" (* NOTE can be merged in a generic tuple *)
+                          | ToyTy_arrow toy_ty toy_ty
+                          | ToyTy_class_syn string
+                          | ToyTy_enum string
+                          | ToyTy_raw string (* denoting raw HOL-type *) (* FIXME to be removed *)
 
 
-datatype ocl_association_type = OclAssTy_native_attribute
-                              | OclAssTy_association
-                              | OclAssTy_composition
-                              | OclAssTy_aggregation
-datatype ocl_association_relation = OclAssRel "(ocl_ty_obj \<times> ocl_multiplicity) list"
-record ocl_association =        OclAss_type     :: ocl_association_type
-                                OclAss_relation :: ocl_association_relation
+datatype toy_association_type = ToyAssTy_native_attribute
+                              | ToyAssTy_association
+                              | ToyAssTy_composition
+                              | ToyAssTy_aggregation
+datatype toy_association_relation = ToyAssRel "(toy_ty_obj \<times> toy_multiplicity) list"
+record toy_association =        ToyAss_type     :: toy_association_type
+                                ToyAss_relation :: toy_association_relation
 
-datatype ocl_ctxt_prefix = OclCtxtPre | OclCtxtPost
+datatype toy_ctxt_prefix = ToyCtxtPre | ToyCtxtPost
 
-datatype ocl_ctxt_term = T_pure "term"
+datatype toy_ctxt_term = T_pure "term"
                        | T_to_be_parsed string (* raw, it includes extra quoting characters like DEL (char 127) *)
                                         string (* same string but escaped without those quoting characters *)
-                       | T_lambda string ocl_ctxt_term
-datatype ocl_prop = OclProp_ctxt "string option" (* name *) ocl_ctxt_term
-                  (*| OclProp_rel ocl_ty_obj (* states that the constraint should be true *)
-                  | OclProp_ass ocl_association_relation (* states the relation as true *)*)
-datatype ocl_ctxt_term_inv = T_inv bool (* True: existential *) ocl_prop
-datatype ocl_ctxt_term_pp = T_pp ocl_ctxt_prefix ocl_prop
-                          | T_invariant ocl_ctxt_term_inv
+                       | T_lambda string toy_ctxt_term
+datatype toy_prop = ToyProp_ctxt "string option" (* name *) toy_ctxt_term
+                  (*| ToyProp_rel toy_ty_obj (* states that the constraint should be true *)
+                  | ToyProp_ass toy_association_relation (* states the relation as true *)*)
+datatype toy_ctxt_term_inv = T_inv bool (* True: existential *) toy_prop
+datatype toy_ctxt_term_pp = T_pp toy_ctxt_prefix toy_prop
+                          | T_invariant toy_ctxt_term_inv
 
-record ocl_ctxt_pre_post = Ctxt_fun_name :: string (* function name *)
-                           Ctxt_fun_ty :: ocl_ty
-                           Ctxt_expr :: "ocl_ctxt_term_pp list"
+record toy_ctxt_pre_post = Ctxt_fun_name :: string (* function name *)
+                           Ctxt_fun_ty :: toy_ty
+                           Ctxt_expr :: "toy_ctxt_term_pp list"
 
-datatype ocl_ctxt_clause = Ctxt_pp ocl_ctxt_pre_post
-                         | Ctxt_inv ocl_ctxt_term_inv
-record ocl_ctxt = Ctxt_param :: "string list" (* param *)
-                  Ctxt_ty :: ocl_ty_obj
-                  Ctxt_clause :: "ocl_ctxt_clause list"
+datatype toy_ctxt_clause = Ctxt_pp toy_ctxt_pre_post
+                         | Ctxt_inv toy_ctxt_term_inv
+record toy_ctxt = Ctxt_param :: "string list" (* param *)
+                  Ctxt_ty :: toy_ty_obj
+                  Ctxt_clause :: "toy_ctxt_clause list"
 
-datatype ocl_class =   OclClass
+datatype toy_class =   ToyClass
                          string (* name of the class *)
-                         "(string (* name *) \<times> ocl_ty) list" (* attribute *)
-                         "ocl_class list" (* link to subclasses *)
+                         "(string (* name *) \<times> toy_ty) list" (* attribute *)
+                         "toy_class list" (* link to subclasses *)
 
-record ocl_class_raw = ClassRaw_name :: ocl_ty_obj
-                       ClassRaw_own :: "(string (* name *) \<times> ocl_ty) list" (* attribute *)
-                       ClassRaw_clause :: "ocl_ctxt_clause list"
+record toy_class_raw = ClassRaw_name :: toy_ty_obj
+                       ClassRaw_own :: "(string (* name *) \<times> toy_ty) list" (* attribute *)
+                       ClassRaw_clause :: "toy_ctxt_clause list"
                        ClassRaw_abstract :: bool (* True: abstract *)
 
-datatype ocl_ass_class = OclAssClass ocl_association
-                                     ocl_class_raw
+datatype toy_ass_class = ToyAssClass toy_association
+                                     toy_class_raw
 
-datatype ocl_class_synonym = OclClassSynonym string (* name alias *) ocl_ty
+datatype toy_class_synonym = ToyClassSynonym string (* name alias *) toy_ty
 
-datatype ocl_enum = OclEnum string (* name *) "string (* constructor name *) list"
+datatype toy_enum = ToyEnum string (* name *) "string (* constructor name *) list"
 
 subsection\<open>Extending the Meta-Model\<close>
 
 definition "T_lambdas = List.fold T_lambda"
 definition "TyObjN_role_name = TyRole o TyObjN_role_multip"
-definition "OclTy_class c = OclTy_object (OclTyObj (OclTyCore c) [])"
-definition "OclTy_class_pre c = OclTy_object (OclTyObj (OclTyCore_pre c) [])"
-definition "OclAss_relation' l = (case OclAss_relation l of OclAssRel l \<Rightarrow> l)"
+definition "ToyTy_class c = ToyTy_object (ToyTyObj (ToyTyCore c) [])"
+definition "ToyTy_class_pre c = ToyTy_object (ToyTyObj (ToyTyCore_pre c) [])"
+definition "ToyAss_relation' l = (case ToyAss_relation l of ToyAssRel l \<Rightarrow> l)"
 
 fun fold_pair_var where
    "fold_pair_var f t accu = (case t of
-    OclTy_pair t1 t2 \<Rightarrow> Option.bind (fold_pair_var f t1 accu) (fold_pair_var f t2)
-  | OclTy_binding (Some v, t) \<Rightarrow> fold_pair_var f t (f (v, t) accu)
-  | OclTy_binding (None, t) \<Rightarrow> fold_pair_var f t accu
-  | OclTy_collection _ t \<Rightarrow> fold_pair_var f t accu
-  | OclTy_arrow _ _ \<Rightarrow> None
+    ToyTy_pair t1 t2 \<Rightarrow> Option.bind (fold_pair_var f t1 accu) (fold_pair_var f t2)
+  | ToyTy_binding (Some v, t) \<Rightarrow> fold_pair_var f t (f (v, t) accu)
+  | ToyTy_binding (None, t) \<Rightarrow> fold_pair_var f t accu
+  | ToyTy_collection _ t \<Rightarrow> fold_pair_var f t accu
+  | ToyTy_arrow _ _ \<Rightarrow> None
   | _ \<Rightarrow> Some accu)"
 
 definition "Ctxt_fun_ty_arg ctxt =
  (case 
     fold_pair_var
       Cons
-      (case Ctxt_fun_ty ctxt of OclTy_arrow t _ \<Rightarrow> t
+      (case Ctxt_fun_ty ctxt of ToyTy_arrow t _ \<Rightarrow> t
                               | t \<Rightarrow> t)
       []
   of Some l \<Rightarrow> rev l)"
 
 definition "Ctxt_fun_ty_out ctxt =
- (case Ctxt_fun_ty ctxt of OclTy_arrow _ t \<Rightarrow> Some t
+ (case Ctxt_fun_ty ctxt of ToyTy_arrow _ t \<Rightarrow> Some t
                          | _ \<Rightarrow> None)"
 
 definition "map_pre_post f = 
@@ -176,8 +176,8 @@ definition "map_pre_post f =
                   (\<lambda> Ctxt_pp ctxt \<Rightarrow>
                      Ctxt_pp (Ctxt_expr_update
                                (L.map
-                                  (\<lambda> T_pp pref (OclProp_ctxt n e) \<Rightarrow>
-                                     T_pp pref (OclProp_ctxt n (f pref ctxt e))
+                                  (\<lambda> T_pp pref (ToyProp_ctxt n e) \<Rightarrow>
+                                     T_pp pref (ToyProp_ctxt n (f pref ctxt e))
                                    | x \<Rightarrow> x))
                                ctxt)
                    | x \<Rightarrow> x))"
@@ -194,10 +194,10 @@ definition "map_invariant f_inv =
                    | Ctxt_inv ctxt \<Rightarrow> Ctxt_inv (f_inv ctxt)))"
 
 fun remove_binding where
-   "remove_binding e = (\<lambda> OclTy_collection m ty \<Rightarrow> OclTy_collection m (remove_binding ty)
-                        | OclTy_pair ty1 ty2 \<Rightarrow> OclTy_pair (remove_binding ty1) (remove_binding ty2)
-                        | OclTy_binding (_, ty) \<Rightarrow> remove_binding ty
-                        | OclTy_arrow ty1 ty2 \<Rightarrow> OclTy_arrow (remove_binding ty1) (remove_binding ty2)
+   "remove_binding e = (\<lambda> ToyTy_collection m ty \<Rightarrow> ToyTy_collection m (remove_binding ty)
+                        | ToyTy_pair ty1 ty2 \<Rightarrow> ToyTy_pair (remove_binding ty1) (remove_binding ty2)
+                        | ToyTy_binding (_, ty) \<Rightarrow> remove_binding ty
+                        | ToyTy_arrow ty1 ty2 \<Rightarrow> ToyTy_arrow (remove_binding ty1) (remove_binding ty2)
                         | x \<Rightarrow> x) e"
 
 subsection\<open>Class Translation Preliminaries\<close>
@@ -205,7 +205,7 @@ subsection\<open>Class Translation Preliminaries\<close>
 definition "const_oid = \<open>oid\<close>"
 definition "var_ty_list = \<open>list\<close>"
 definition "var_ty_prod = \<open>prod\<close>"
-definition "const_oclany = \<open>OclAny\<close>"
+definition "const_toyany = \<open>ToyAny\<close>"
 
 definition "single_multip = 
   List.list_all (\<lambda> (_, Some (Mult_nat n)) \<Rightarrow> n \<le> 1
@@ -257,7 +257,7 @@ function (sequential) class_unflat_aux where
 (* (* FIXME replace with this simplified form *)
    "class_unflat_aux rbt rbt_inv rbt_cycle r =
    (case lookup rbt_cycle r of (None (* cycle detection *)) \<Rightarrow>
-      OclClass
+      ToyClass
         r
         (case\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l lookup rbt r of Some l \<Rightarrow> l)
         (L.map
@@ -268,13 +268,13 @@ function (sequential) class_unflat_aux where
    (case lookup rbt_inv r of
   None \<Rightarrow>
 (case lookup rbt_cycle r of (None (* cycle detection *)) \<Rightarrow>
-      OclClass
+      ToyClass
         r
         (case\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l lookup rbt r of Some l \<Rightarrow> l)
         ( ( [])))
 | Some l \<Rightarrow>
 (case lookup rbt_cycle r of (None (* cycle detection *)) \<Rightarrow>
-      OclClass
+      ToyClass
         r
         (case\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l lookup rbt r of Some l \<Rightarrow> l)
         (L.map
@@ -353,26 +353,26 @@ proof -
   apply(rule rbt_fold_large)
  done
 qed
-definition "ty_obj_to_string = (\<lambda>OclTyObj (OclTyCore_pre s) _ \<Rightarrow> s)"
+definition "ty_obj_to_string = (\<lambda>ToyTyObj (ToyTyCore_pre s) _ \<Rightarrow> s)"
 definition "cl_name_to_string = ty_obj_to_string o ClassRaw_name"
 
 definition "class_unflat = (\<lambda> (l_class, l_ass).
   let l =
-    let const_oclany' = OclTyCore_pre const_oclany
+    let const_toyany' = ToyTyCore_pre const_toyany
       ; rbt = (* fold classes:
-                 set \<open>OclAny\<close> as default inherited class (for all classes linking to zero inherited classes) *)
+                 set \<open>ToyAny\<close> as default inherited class (for all classes linking to zero inherited classes) *)
               insert
-                const_oclany
-                (ocl_class_raw.make (OclTyObj const_oclany' []) [] [] False)
+                const_toyany
+                (toy_class_raw.make (ToyTyObj const_toyany' []) [] [] False)
                 (List.fold
                   (\<lambda> cflat \<Rightarrow>
-                    insert (cl_name_to_string cflat) (cflat \<lparr> ClassRaw_name := case ClassRaw_name cflat of OclTyObj n [] \<Rightarrow> OclTyObj n [[const_oclany']] | x \<Rightarrow> x \<rparr>))
+                    insert (cl_name_to_string cflat) (cflat \<lparr> ClassRaw_name := case ClassRaw_name cflat of ToyTyObj n [] \<Rightarrow> ToyTyObj n [[const_toyany']] | x \<Rightarrow> x \<rparr>))
                   l_class
                   RBT.empty) in
     (* fold associations:
        add remaining 'object' attributes *)
     L.map snd (entries (List.fold (\<lambda> (ass_oid, ass) \<Rightarrow>
-      let l_rel = OclAss_relation' ass in
+      let l_rel = ToyAss_relation' ass in
       fold_max
         (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l n_rel = natural_of_nat (List.length l_rel) in
          (\<lambda> (cpt_to, (name_to, category_to)).
@@ -381,9 +381,9 @@ definition "class_unflat = (\<lambda> (l_class, l_ass).
                List.fold (\<lambda> (cpt_from, (name_from, mult_from)).
                  let name_from = ty_obj_to_string name_from in
                  map_entry name_from (\<lambda>cflat. cflat \<lparr> ClassRaw_own := (role_to,
-                   OclTy_class (ocl_ty_class_ext const_oid ass_oid n_rel
-                     (ocl_ty_class_node_ext cpt_from mult_from name_from ())
-                     (ocl_ty_class_node_ext cpt_to category_to (ty_obj_to_string name_to) ())
+                   ToyTy_class (toy_ty_class_ext const_oid ass_oid n_rel
+                     (toy_ty_class_node_ext cpt_from mult_from name_from ())
+                     (toy_ty_class_node_ext cpt_to category_to (ty_obj_to_string name_to) ())
                      ())) # ClassRaw_own cflat \<rparr>))
            | _ \<Rightarrow> \<lambda>_. id))
         l_rel) (L.mapi Pair l_ass) rbt)) in
@@ -392,11 +392,11 @@ definition "class_unflat = (\<lambda> (l_class, l_ass).
     (List.fold
       (\<lambda> cflat.
         case ClassRaw_name cflat of
-          OclTyObj n [] \<Rightarrow> id
-        | OclTyObj n l \<Rightarrow> case rev ([n] # l) of x0 # xs \<Rightarrow> \<lambda>rbt. 
+          ToyTyObj n [] \<Rightarrow> id
+        | ToyTyObj n l \<Rightarrow> case rev ([n] # l) of x0 # xs \<Rightarrow> \<lambda>rbt. 
             snd (List.fold
                   (\<lambda> x (x0, rbt).
-                    (x, List.fold (\<lambda> OclTyCore_pre k \<Rightarrow> modify_def [] k (\<lambda>l. L.flatten [L.map (\<lambda>OclTyCore_pre s \<Rightarrow> s) x, l]))
+                    (x, List.fold (\<lambda> ToyTyCore_pre k \<Rightarrow> modify_def [] k (\<lambda>l. L.flatten [L.map (\<lambda>ToyTyCore_pre s \<Rightarrow> s) x, l]))
                                   x0
                                   rbt))
                   xs
@@ -404,89 +404,89 @@ definition "class_unflat = (\<lambda> (l_class, l_ass).
       l
       RBT.empty)
     RBT.empty
-    const_oclany)"
+    const_toyany)"
 
 definition "apply_optim_ass_arity ty_obj v =
   (if TyObj_ass_arity ty_obj \<le> 2 then None
    else Some v)"
 
-definition "is_higher_order = (\<lambda> OclTy_collection _ _ \<Rightarrow> True | OclTy_pair _ _ \<Rightarrow> True | _ \<Rightarrow> False)"
+definition "is_higher_order = (\<lambda> ToyTy_collection _ _ \<Rightarrow> True | ToyTy_pair _ _ \<Rightarrow> True | _ \<Rightarrow> False)"
 
-definition "parse_ty_raw = (\<lambda> OclTy_raw s \<Rightarrow> if s = \<open>int\<close> then OclTy_base_integer else OclTy_raw s
+definition "parse_ty_raw = (\<lambda> ToyTy_raw s \<Rightarrow> if s = \<open>int\<close> then ToyTy_base_integer else ToyTy_raw s
                             | x \<Rightarrow> x)"
 
 definition "is_sequence = list_ex (\<lambda> Sequence \<Rightarrow> True | _ \<Rightarrow> False) o TyCollect"
 
 fun str_of_ty where "str_of_ty e =
- (\<lambda> OclTy_base_void \<Rightarrow> \<open>Void\<close>
-  | OclTy_base_boolean \<Rightarrow> \<open>Boolean\<close>
-  | OclTy_base_integer \<Rightarrow> \<open>Integer\<close>
-  | OclTy_base_unlimitednatural \<Rightarrow> \<open>UnlimitedNatural\<close>
-  | OclTy_base_real \<Rightarrow> \<open>Real\<close>
-  | OclTy_base_string \<Rightarrow> \<open>String\<close>
-  | OclTy_object (OclTyObj (OclTyCore_pre s) _) \<Rightarrow> s
-  (*| OclTy_object (OclTyObj (OclTyCore ty_obj) _)*)
-  | OclTy_collection t ocl_ty \<Rightarrow> (if is_sequence t then
-                                    S.flatten [\<open>Sequence(\<close>, str_of_ty ocl_ty,\<open>)\<close>]
+ (\<lambda> ToyTy_base_void \<Rightarrow> \<open>Void\<close>
+  | ToyTy_base_boolean \<Rightarrow> \<open>Boolean\<close>
+  | ToyTy_base_integer \<Rightarrow> \<open>Integer\<close>
+  | ToyTy_base_unlimitednatural \<Rightarrow> \<open>UnlimitedNatural\<close>
+  | ToyTy_base_real \<Rightarrow> \<open>Real\<close>
+  | ToyTy_base_string \<Rightarrow> \<open>String\<close>
+  | ToyTy_object (ToyTyObj (ToyTyCore_pre s) _) \<Rightarrow> s
+  (*| ToyTy_object (ToyTyObj (ToyTyCore ty_obj) _)*)
+  | ToyTy_collection t toy_ty \<Rightarrow> (if is_sequence t then
+                                    S.flatten [\<open>Sequence(\<close>, str_of_ty toy_ty,\<open>)\<close>]
                                   else
-                                    S.flatten [\<open>Set(\<close>, str_of_ty ocl_ty,\<open>)\<close>])
-  | OclTy_pair ocl_ty1 ocl_ty2 \<Rightarrow> S.flatten [\<open>Pair(\<close>, str_of_ty ocl_ty1, \<open>,\<close>, str_of_ty ocl_ty2,\<open>)\<close>]
-  | OclTy_binding (_, ocl_ty) \<Rightarrow> str_of_ty ocl_ty
-  | OclTy_class_syn s \<Rightarrow> s
-  | OclTy_enum s \<Rightarrow> s
-  | OclTy_raw s \<Rightarrow> S.flatten [\<open>\<acute>\<close>, s, \<open>\<acute>\<close>]) e"
+                                    S.flatten [\<open>Set(\<close>, str_of_ty toy_ty,\<open>)\<close>])
+  | ToyTy_pair toy_ty1 toy_ty2 \<Rightarrow> S.flatten [\<open>Pair(\<close>, str_of_ty toy_ty1, \<open>,\<close>, str_of_ty toy_ty2,\<open>)\<close>]
+  | ToyTy_binding (_, toy_ty) \<Rightarrow> str_of_ty toy_ty
+  | ToyTy_class_syn s \<Rightarrow> s
+  | ToyTy_enum s \<Rightarrow> s
+  | ToyTy_raw s \<Rightarrow> S.flatten [\<open>\<acute>\<close>, s, \<open>\<acute>\<close>]) e"
 
-definition "ty_void = str_of_ty OclTy_base_void"
-definition "ty_boolean = str_of_ty OclTy_base_boolean"
-definition "ty_integer = str_of_ty OclTy_base_integer"
-definition "ty_unlimitednatural = str_of_ty OclTy_base_unlimitednatural"
-definition "ty_real = str_of_ty OclTy_base_real"
-definition "ty_string = str_of_ty OclTy_base_string"
+definition "ty_void = str_of_ty ToyTy_base_void"
+definition "ty_boolean = str_of_ty ToyTy_base_boolean"
+definition "ty_integer = str_of_ty ToyTy_base_integer"
+definition "ty_unlimitednatural = str_of_ty ToyTy_base_unlimitednatural"
+definition "ty_real = str_of_ty ToyTy_base_real"
+definition "ty_string = str_of_ty ToyTy_base_string"
 
 definition "pref_ty_enum s = \<open>ty_enum\<close> @@ String.isub s"
 definition "pref_ty_syn s = \<open>ty_syn\<close> @@ String.isub s"
 definition "pref_constr_enum s = \<open>constr\<close> @@ String.isub s"
 
 fun str_hol_of_ty_all where "str_hol_of_ty_all f b e =
- (\<lambda> OclTy_base_void \<Rightarrow> b \<open>unit\<close>
-  | OclTy_base_boolean \<Rightarrow> b \<open>bool\<close>
-  | OclTy_base_integer \<Rightarrow> b \<open>int\<close>
-  | OclTy_base_unlimitednatural \<Rightarrow> b \<open>nat\<close>
-  | OclTy_base_real \<Rightarrow> b \<open>real\<close>
-  | OclTy_base_string \<Rightarrow> b \<open>string\<close>
-  | OclTy_object (OclTyObj (OclTyCore_pre s) _) \<Rightarrow> b const_oid
-  | OclTy_object (OclTyObj (OclTyCore ty_obj) _) \<Rightarrow> f (b var_ty_list) [b (TyObj_name ty_obj)]
-  | OclTy_collection _ ty \<Rightarrow> f (b var_ty_list) [str_hol_of_ty_all f b ty]
-  | OclTy_pair ty1 ty2 \<Rightarrow> f (b var_ty_prod) [str_hol_of_ty_all f b ty1, str_hol_of_ty_all f b ty2]
-  | OclTy_binding (_, t) \<Rightarrow> str_hol_of_ty_all f b t
-  | OclTy_class_syn s \<Rightarrow> b (pref_ty_syn s)
-  | OclTy_enum s \<Rightarrow> b (pref_ty_enum s)
-  | OclTy_raw s \<Rightarrow> b s) e"
+ (\<lambda> ToyTy_base_void \<Rightarrow> b \<open>unit\<close>
+  | ToyTy_base_boolean \<Rightarrow> b \<open>bool\<close>
+  | ToyTy_base_integer \<Rightarrow> b \<open>int\<close>
+  | ToyTy_base_unlimitednatural \<Rightarrow> b \<open>nat\<close>
+  | ToyTy_base_real \<Rightarrow> b \<open>real\<close>
+  | ToyTy_base_string \<Rightarrow> b \<open>string\<close>
+  | ToyTy_object (ToyTyObj (ToyTyCore_pre s) _) \<Rightarrow> b const_oid
+  | ToyTy_object (ToyTyObj (ToyTyCore ty_obj) _) \<Rightarrow> f (b var_ty_list) [b (TyObj_name ty_obj)]
+  | ToyTy_collection _ ty \<Rightarrow> f (b var_ty_list) [str_hol_of_ty_all f b ty]
+  | ToyTy_pair ty1 ty2 \<Rightarrow> f (b var_ty_prod) [str_hol_of_ty_all f b ty1, str_hol_of_ty_all f b ty2]
+  | ToyTy_binding (_, t) \<Rightarrow> str_hol_of_ty_all f b t
+  | ToyTy_class_syn s \<Rightarrow> b (pref_ty_syn s)
+  | ToyTy_enum s \<Rightarrow> b (pref_ty_enum s)
+  | ToyTy_raw s \<Rightarrow> b s) e"
 
 fun get_class_hierarchy_strict_aux where
    "get_class_hierarchy_strict_aux dataty l_res =
    (List.fold
-     (\<lambda> OclClass name l_attr dataty \<Rightarrow> \<lambda> l_res.
-       get_class_hierarchy_strict_aux dataty (OclClass name l_attr dataty # l_res))
+     (\<lambda> ToyClass name l_attr dataty \<Rightarrow> \<lambda> l_res.
+       get_class_hierarchy_strict_aux dataty (ToyClass name l_attr dataty # l_res))
      dataty
      l_res)"
 definition "get_class_hierarchy_strict d = get_class_hierarchy_strict_aux d []"
 
 fun get_class_hierarchy'_aux where
-   "get_class_hierarchy'_aux l_res (OclClass name l_attr dataty) =
-   (let l_res = OclClass name l_attr dataty # l_res in
+   "get_class_hierarchy'_aux l_res (ToyClass name l_attr dataty) =
+   (let l_res = ToyClass name l_attr dataty # l_res in
     case dataty of [] \<Rightarrow> rev l_res
                  | dataty \<Rightarrow> List.fold (\<lambda>x acc. get_class_hierarchy'_aux acc x) dataty l_res)"
 definition "get_class_hierarchy' = get_class_hierarchy'_aux []"
 
-definition "get_class_hierarchy e = L.map (\<lambda> OclClass n l _ \<Rightarrow> (n, l)) (get_class_hierarchy' e)"
+definition "get_class_hierarchy e = L.map (\<lambda> ToyClass n l _ \<Rightarrow> (n, l)) (get_class_hierarchy' e)"
 
 definition "var_in_pre_state = \<open>in_pre_state\<close>"
 definition "var_in_post_state = \<open>in_post_state\<close>"
 definition "var_at_when_hol_post = \<open>\<close>"
 definition "var_at_when_hol_pre = \<open>at_pre\<close>"
-definition "var_at_when_ocl_post = \<open>\<close>"
-definition "var_at_when_ocl_pre = \<open>@pre\<close>"
+definition "var_at_when_toy_post = \<open>\<close>"
+definition "var_at_when_toy_pre = \<open>@pre\<close>"
 
 datatype 'a tmp_sub = Tsub 'a
 record 'a inheritance =
@@ -502,7 +502,7 @@ definition "of_univ = (\<lambda>Tuniv l \<Rightarrow> l)"
 definition "map_inh f = (\<lambda>Tinh l \<Rightarrow> Tinh (f l))"
 
 fun fold_class_gen_aux where
-   "fold_class_gen_aux l_inh f accu (OclClass name l_attr dataty) =
+   "fold_class_gen_aux l_inh f accu (ToyClass name l_attr dataty) =
  (let accu = f (\<lambda>s. s @@ String.isub name)
                name
                l_attr
@@ -515,7 +515,7 @@ fun fold_class_gen_aux where
     fst (List.fold
        (\<lambda> node (accu, l_inh_l, l_inh_r).
          ( fold_class_gen_aux
-             ( \<lparr> Inh = OclClass name l_attr dataty
+             ( \<lparr> Inh = ToyClass name l_attr dataty
                , Inh_sib = L.flatten (L.map (L.map (\<lambda>l. (l, get_class_hierarchy' l))) [l_inh_l, tl l_inh_r])
                , Inh_sib_unflat = L.flatten [l_inh_l, tl l_inh_r] \<rparr>
              # l_inh)
@@ -540,16 +540,16 @@ definition "map_class_gen f = fst o fold_class_gen
   (\<lambda> isub_name name l_attr l_inh l_subtree last_d. \<lambda> () \<Rightarrow>
     (f isub_name name l_attr l_inh l_subtree last_d, ())) ()"
 
-definition "add_hierarchy'''' f x = (\<lambda>isub_name name l_attr l_inh l_subtree _. f isub_name name (Tuniv (get_class_hierarchy x)) l_attr (map_inh (L.map (\<lambda> OclClass _ l _ \<Rightarrow> l) o of_linh) l_inh) l_subtree)"
-definition "map_class f = map_class_gen (\<lambda>isub_name name l_attr l_inh l_subtree next_dataty. [f isub_name name l_attr l_inh (Tsub (L.map (\<lambda> OclClass n _ _ \<Rightarrow> n) (of_sub l_subtree))) next_dataty])"
-definition "fold_class f = fold_class_gen (\<lambda>isub_name name l_attr l_inh l_subtree next_dataty accu. let (x, accu) = f isub_name name l_attr (map_inh of_linh l_inh) (Tsub (L.map (\<lambda> OclClass n _ _ \<Rightarrow> n) (of_sub l_subtree))) next_dataty accu in ([x], accu))"
-definition "map_class_gen_h'''' f x = map_class_gen (add_hierarchy'''' (\<lambda>isub_name name l_inherited l_attr l_inh l_subtree. f isub_name name l_inherited l_attr l_inh (Tsub (L.map (\<lambda> OclClass n _ _ \<Rightarrow> n) (of_sub l_subtree)))) x) x"
+definition "add_hierarchy'''' f x = (\<lambda>isub_name name l_attr l_inh l_subtree _. f isub_name name (Tuniv (get_class_hierarchy x)) l_attr (map_inh (L.map (\<lambda> ToyClass _ l _ \<Rightarrow> l) o of_linh) l_inh) l_subtree)"
+definition "map_class f = map_class_gen (\<lambda>isub_name name l_attr l_inh l_subtree next_dataty. [f isub_name name l_attr l_inh (Tsub (L.map (\<lambda> ToyClass n _ _ \<Rightarrow> n) (of_sub l_subtree))) next_dataty])"
+definition "fold_class f = fold_class_gen (\<lambda>isub_name name l_attr l_inh l_subtree next_dataty accu. let (x, accu) = f isub_name name l_attr (map_inh of_linh l_inh) (Tsub (L.map (\<lambda> ToyClass n _ _ \<Rightarrow> n) (of_sub l_subtree))) next_dataty accu in ([x], accu))"
+definition "map_class_gen_h'''' f x = map_class_gen (add_hierarchy'''' (\<lambda>isub_name name l_inherited l_attr l_inh l_subtree. f isub_name name l_inherited l_attr l_inh (Tsub (L.map (\<lambda> ToyClass n _ _ \<Rightarrow> n) (of_sub l_subtree)))) x) x"
 
 definition "class_arity = RBT.keys o (\<lambda>l. List.fold (\<lambda>x. RBT.insert x ()) l RBT.empty) o
   L.flatten o L.flatten o map_class (\<lambda> _ _ l_attr _ _ _.
-    L.map (\<lambda> (_, OclTy_object (OclTyObj (OclTyCore ty_obj) _)) \<Rightarrow> [TyObj_ass_arity ty_obj]
+    L.map (\<lambda> (_, ToyTy_object (ToyTyObj (ToyTyCore ty_obj) _)) \<Rightarrow> [TyObj_ass_arity ty_obj]
               | _ \<Rightarrow> []) l_attr)"
 
-definition "map_class_inh l_inherited = L.map (\<lambda> OclClass _ l _ \<Rightarrow> l) (of_inh (map_inh of_linh l_inherited))"
+definition "map_class_inh l_inherited = L.map (\<lambda> ToyClass _ l _ \<Rightarrow> l) (of_inh (map_inh of_linh l_inherited))"
 
 end
