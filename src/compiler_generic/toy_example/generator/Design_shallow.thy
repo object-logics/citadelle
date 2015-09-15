@@ -37,6 +37,7 @@
 (* $Id:$ *)
 
 section{* Example: A Class Model Interactively Executed *}
+subsection{* Introduction *}
 
 theory
   Design_shallow
@@ -45,91 +46,72 @@ imports
   "../Toy_Library_Static"
   "../embedding/Generator_dynamic"
 begin
+ML_file "~~/src/Doc/antiquote_setup.ML"
 
 text{* In this example, we configure our package to generate tactic SML code
        (corresponding to .thy files, see @{file "Design_deep.thy"}) that
-       directly  executed on the Isabelle/HOL API's. *}
+       is directly executed on the Isabelle/HOL API's. *}
 
 generation_syntax [ shallow (generation_semantics [ design ])
                             (*SORRY*) (*no_dirty*)
                   (*, syntax_print*) ]
 
-Class Person < Planet
-  Attributes salary : Integer (*\<acute>int\<acute>*)
+subsection{* Designing Class Models (I): Basics *}
+
+Class Atom < Molecule
+  Attributes size : Integer
 End
 
-Association boss
-  Between Person [*]
-          Person [0 \<bullet>\<bullet> 1] Role boss
-End
+       End End End 
 
-Class Planet < Galaxy
-  Attributes wormhole : UnlimitedNatural
-             weight : Integer
-End
+Class Molecule < Person
 
 Class Galaxy
-  Attributes sound : Void
-             moving : Boolean
-             outer_world : Set(Sequence(Planet))
-End
+  Attributes wormhole : UnlimitedNatural
+             is_sound : Void
+End!
+
+Class Person < Galaxy
+  Attributes salary : Integer
+             boss : Person
+             is_meta_thinking: Boolean
 
 Instance X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n1 :: Person = [ salary = 1300 , boss = X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2 ]
-     and X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2 :: Person = [ salary = 1800 , boss = X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2 ]
-     and X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n3 :: Person = []
-     and X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n4 :: Person = [ salary = 2900 ]
-     and X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n5 :: Person = [ salary = 3500 ]
-     and X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n6 :: Person = [ salary = 2500 , boss = X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n7 ]
-     and X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n7           = ([ salary = 3200 , boss = X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n7 ] :: Person) \<rightarrow>oclAsType( OclAny )
-     and X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n8 :: OclAny = []
-     and X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n9 :: Person = [ salary = 0 ]
-     and X0 :: Person = [ outer_world = [ [ P1 ] ] ]
-     and P1 :: Planet = [ outer_world = [ [ P1 ] , [ self 10 ] ] ]
+     and X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2 :: Person = [ salary = 1800 ]
+
+Instance X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n3 :: Person = [ salary = 1 ]
+
+subsection{* Designing Class Models (II): Jumping to Another Semantic Floor *}
 
 State \<sigma>\<^sub>1 =
   [ ([ salary = 1000 , boss = self 1 ] :: Person)
   , ([ salary = 1200 ] :: Person)
   (* *)
   , ([ salary = 2600 , boss = self 3 ] :: Person)
-  , X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n5
+  , X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n1
   , ([ salary = 2300 , boss = self 2 ] :: Person)
   (* *)
   (* *)
-  , X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n9 ]
+  , X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2 ]
 
 State \<sigma>\<^sub>1' =
   [ X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n1
   , X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2
-  , X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n3
-  , X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n4
-  (* *)
-  , X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n6
-  , X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n7
-  , X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n8
-  , X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n9 ]
-
-(*State \<sigma>\<^sub>0 = []*)
+  , X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n3 ]
 
 PrePost \<sigma>\<^sub>1 \<sigma>\<^sub>1'
-(*
-Context Person :: contents () : Set(Integer)
-  Post : "result \<triangleq> if (self .boss \<doteq> null)
-                   then (Set{}->including\<^sub>S\<^sub>e\<^sub>t(self .salary))
-                   else (self .boss .contents()->including\<^sub>S\<^sub>e\<^sub>t(self .salary))
-                   endif"
-  Post : "true"
-  Pre  : "false"
 
-Context Person
-  Inv a: "self .boss <> null implies (self .salary  \<triangleq>  ((self .boss) .salary))"
+subsection{* Designing Class Models (III): Interaction with (Pure) Term *}
 
-Context Planet
-  Inv A : "true and (self .weight \<le>\<^sub>i\<^sub>n\<^sub>t \<zero>)"
+text{*
+Here in @{keyword "shallow"} mode, the following expression is directly rejected:
+\begin{verbatim}
+Context Person :: content ()
+  Post "\<close>\<open>"
+\end{verbatim}
+*}
 
-(*BaseType [ 1000, 1200, 1300, 1800, 2600, 2900, 3200, 3500
-            , 3.14159265
-            , "abc", "\<AA>\<BB>\<CC>\<DD>\<EE>\<FF>" ]*)
+Context[shallow] Person :: content () 
+  Post : "a + b = c"
 
-lemmas [simp,code_unfold] = dot_accessor
-*)
 end
