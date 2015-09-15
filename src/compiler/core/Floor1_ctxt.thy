@@ -41,7 +41,7 @@
  ******************************************************************************)
 (* $Id:$ *)
 
-section{* Main Translation for: Context (Floor 1) *}
+section\<open>Main Translation for: Context (Floor 1)\<close>
 
 theory  Floor1_ctxt
 imports Core_init

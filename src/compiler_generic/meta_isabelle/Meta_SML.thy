@@ -36,13 +36,13 @@
  ******************************************************************************)
 (* $Id:$ *)
 
-section{* SML Meta-Model aka. AST definition of SML *}
+section\<open>SML Meta-Model aka. AST definition of SML\<close>
 
 theory  Meta_SML
 imports "../Init"
 begin
 
-subsection{* Type Definition *}
+subsection\<open>Type Definition\<close>
 
 datatype semi__val_fun = Sval
                        | Sfun
@@ -57,7 +57,7 @@ datatype semi__term' = SML_string string
                      | SML_paren string (* left *) string (* right *) semi__term'
                      | SML_let_open string semi__term'
 
-subsection{* Extending the Meta-Model *}
+subsection\<open>Extending the Meta-Model\<close>
 
 locale SML
 begin

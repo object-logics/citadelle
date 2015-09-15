@@ -41,7 +41,7 @@
  ******************************************************************************)
 (* $Id:$ *)
 
-section{* Main Translation for: AsType *}
+section\<open>Main Translation for: AsType\<close>
 
 theory  Floor1_astype
 imports Core_init

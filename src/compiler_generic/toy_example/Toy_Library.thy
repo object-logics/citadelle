@@ -36,7 +36,7 @@
  ******************************************************************************)
 (* $Id:$ *)
 
-section{* A Toy Library for Objects in a State *}
+section\<open>A Toy Library for Objects in a State\<close>
 
 theory Toy_Library
 imports Main

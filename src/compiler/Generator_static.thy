@@ -41,13 +41,13 @@
  ******************************************************************************)
 (* $Id:$ *)
 
-section{* Static Meta Embedding with Exportation *}
+section\<open>Static Meta Embedding with Exportation\<close>
 
 theory  Generator_static
 imports Printer
 begin
 
-subsection{* Giving an Input to Translate *}
+subsection\<open>Giving an Input to Translate\<close>
 
 definition "Design =
  (let n = \<lambda>n1 n2. OclTyObj (OclTyCore_pre n1) (case n2 of None \<Rightarrow> [] | Some n2 \<Rightarrow> [[OclTyCore_pre n2]])
@@ -74,15 +74,15 @@ definition "main =
           , META_flush_all OclFlushAll]
      , None)))"
 
-subsection{* Statically Executing the Exportation *}
+subsection\<open>Statically Executing the Exportation\<close>
 
-text{*
+text\<open>
 @{verbatim "apply_code_printing ()"} \\
 @{verbatim "export_code main"} \\
 @{verbatim "  (* in Haskell *)"} \\
 @{verbatim "  (* in OCaml module_name M *)"} \\
 @{verbatim "  (* in Scala module_name M *)"} \\
 @{verbatim "  (* in SML   module_name M *)"}
-*}
+\<close>
 
 end

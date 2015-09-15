@@ -36,7 +36,7 @@
  ******************************************************************************)
 (* $Id:$ *)
 
-section{* General Environment for the Translation: Introduction *}
+section\<open>General Environment for the Translation: Introduction\<close>
 
 theory  Core_init
 imports "../../Toy_Library_Static"
@@ -181,7 +181,7 @@ definition "datatype_constr_name = \<open>mk\<close>"
 definition "datatype_ext_constr_name = datatype_constr_name @@ \<open>\<E>\<X>\<T>\<close>"
 definition "datatype_in = \<open>in\<close>"
 
-subsection{* Main Combinators for the Translation *}
+subsection\<open>Main Combinators for the Translation\<close>
 
 definition "start_map f = L.mapM (\<lambda>x acc. (f x, acc))"
 definition "start_map''' f fl = (\<lambda> env.
@@ -215,11 +215,11 @@ definition "Term_annot_ocl e s = Term_annot' e (wrap_oclty s)"
 definition "Term_oclset l = (case l of [] \<Rightarrow> Term_basic [\<open>Set{}\<close>] | _ \<Rightarrow> Term_paren \<open>Set{\<close> \<open>}\<close> (term_binop \<open>,\<close> l))"
 definition "Term_oid s = (\<lambda>Oid n \<Rightarrow> Term_basic [s @@ String.of_natural n])"
 
-subsection{* Preliminaries on: Enumeration *}
+subsection\<open>Preliminaries on: Enumeration\<close>
 
-subsection{* Preliminaries on: Infrastructure *}
+subsection\<open>Preliminaries on: Infrastructure\<close>
 
-subsection{* Preliminaries on: Accessor *}
+subsection\<open>Preliminaries on: Accessor\<close>
 
 definition "print_access_oid_uniq_name' name_from_nat isub_name attr = S.flatten [ isub_name var_oid_uniq, \<open>_\<close>, String.of_natural name_from_nat, \<open>_\<close>, attr ]"
 definition "print_access_oid_uniq_name name_from_nat isub_name attr = print_access_oid_uniq_name' name_from_nat isub_name (String.isup attr)"
@@ -227,15 +227,15 @@ definition "print_access_oid_uniq_name name_from_nat isub_name attr = print_acce
 definition "print_access_choose_name n i j =
   S.flatten [var_switch, String.isub (String.of_natural n), \<open>_\<close>, String.of_natural i, String.of_natural j]"
 
-subsection{* Preliminaries on: Example (Floor 1) *}
+subsection\<open>Preliminaries on: Example (Floor 1)\<close>
 
 datatype reporting = Warning
                    | Error
                    | Writeln
 
-subsection{* Preliminaries on: Example (Floor 2) *}
+subsection\<open>Preliminaries on: Example (Floor 2)\<close>
 
-subsection{* Preliminaries on: Context *}
+subsection\<open>Preliminaries on: Context\<close>
 
 definition "make_ctxt_free_var pref ctxt =
  (var_self # L.flatten [ L.map fst (Ctxt_fun_ty_arg ctxt)

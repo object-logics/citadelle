@@ -36,19 +36,19 @@
  ******************************************************************************)
 (* $Id:$ *)
 
-section{* Isabelle Meta-Model aka. AST definition of Isabelle *}
+section\<open>Isabelle Meta-Model aka. AST definition of Isabelle\<close>
 
 theory  Meta_Isabelle
 imports Meta_Pure
         Meta_SML
 begin
 
-subsection{* Type Definition *}
+subsection\<open>Type Definition\<close>
 
-text{* The following datatypes beginning with \verb|semi__| represent semi-concrete syntax,
+text\<open>The following datatypes beginning with \verb|semi__| represent semi-concrete syntax,
        deliberately not minimal abstract syntax like (Pure) Term,
        this is for example to facilitate the pretty-printing process,
-       or for manipulating recursively data-structures through an abstracted and typed API. *}
+       or for manipulating recursively data-structures through an abstracted and typed API.\<close>
 
 datatype semi__typ = Typ_apply semi__typ "semi__typ list"
                    | Typ_apply_bin string (* binop *) semi__typ semi__typ
@@ -208,7 +208,7 @@ record semi__locale =
 datatype semi__theories = Theories_one semi__theory
                         | Theories_locale semi__locale "semi__theory list (* positioning comments can occur before and after this group of commands *) list"
 
-subsection{* Extending the Meta-Model *}
+subsection\<open>Extending the Meta-Model\<close>
 
 locale T
 begin
@@ -435,7 +435,7 @@ fun cross_abs_aux where
 
 definition "cross_abs f n l = cross_abs_aux f [] (n, l)"
 
-subsection{* Operations of Fold, Map, ..., on the Meta-Model *}
+subsection\<open>Operations of Fold, Map, ..., on the Meta-Model\<close>
 
 definition "map_lemma f = (\<lambda> Theory_lemma x \<Rightarrow> Theory_lemma (f x)
                            | x \<Rightarrow> x)"

@@ -41,7 +41,7 @@
  ******************************************************************************)
 (* $Id:$ *)
 
-header{* Part ... *}
+header\<open>Part ...\<close>
 
 (*<*)
 theory Rail
@@ -52,8 +52,8 @@ begin
 ML_file "~~/src/Doc/antiquote_setup.ML"
 (*>*)
 
-section{* The Meta Compiler *}
-text {*
+section\<open>The Meta Compiler\<close>
+text \<open>
 \begin{matharray}{rcl}
   @{command_def generation_syntax} & : & @{text "theory \<rightarrow> theory"}
 \end{matharray}
@@ -92,11 +92,11 @@ text {*
                (@'SORRY' | @'no_dirty')?
   ;
 \<close>}
-*}
+\<close>
 
-section{* UML/OCL: Extended USE Grammar *}
-subsection{* ....................................................................................................................................... *}
-text {*
+section\<open>UML/OCL: Extended USE Grammar\<close>
+subsection\<open>.......................................................................................................................................\<close>
+text \<open>
 \begin{matharray}{rcl}
   @{command_def Class} & : & @{text "theory \<rightarrow> theory"} \\
   @{command_def Abstract_class} & : & @{text "theory \<rightarrow> theory"} \\
@@ -125,9 +125,9 @@ text {*
                @'Constraints'? @'Existential'? @'Inv' @{syntax use_prop}
   ;
 \<close>}
-*}
-subsection{* ....................................................................................................................................... *}
-text {*
+\<close>
+subsection\<open>.......................................................................................................................................\<close>
+text \<open>
 \begin{matharray}{rcl}
   @{command_def Aggregation} & : & @{text "theory \<rightarrow> theory"} \\
   @{command_def Association} & : & @{text "theory \<rightarrow> theory"} \\
@@ -148,9 +148,9 @@ text {*
                ';'?
   ;
 \<close>}
-*}
-subsection{* ....................................................................................................................................... *}
-text {*
+\<close>
+subsection\<open>.......................................................................................................................................\<close>
+text \<open>
 \begin{matharray}{rcl}
   @{command_def Associationclass} & : & @{text "theory \<rightarrow> theory"} \\
   @{command_def Abstract_associationclass} & : & @{text "theory \<rightarrow> theory"}
@@ -162,9 +162,9 @@ text {*
                                             @{syntax association} @{syntax class} (() | 'aggregation' | 'composition')
   ;
 \<close>}
-*}
-subsection{* ....................................................................................................................................... *}
-text {*
+\<close>
+subsection\<open>.......................................................................................................................................\<close>
+text \<open>
 \begin{matharray}{rcl}
   @{command_def Context} & : & @{text "theory \<rightarrow> theory"}
 \end{matharray}
@@ -173,10 +173,10 @@ text {*
   @@{command Context} ('[' @'shallow' ']')? @{syntax type_object} @{syntax context}
   ;
 \<close>}
-*}
+\<close>
 
-subsection{* ....................................................................................................................................... *}
-text {*
+subsection\<open>.......................................................................................................................................\<close>
+text \<open>
 \begin{matharray}{rcl}
   @{command_def Instance} & : & @{text "theory \<rightarrow> theory"}
 \end{matharray}
@@ -194,9 +194,9 @@ text {*
                (('\<rightarrow>' 'oclAsType' '(' @{syntax type_object} ')') * ())
   ;
 \<close>}
-*}
-subsection{* ....................................................................................................................................... *}
-text {*
+\<close>
+subsection\<open>.......................................................................................................................................\<close>
+text \<open>
 \begin{matharray}{rcl}
   @{command_def State} & : & @{text "theory \<rightarrow> theory"}
 \end{matharray}
@@ -208,9 +208,9 @@ text {*
                '[' ((binding | @{syntax object_cast}) * ',') ']'
   ;
 \<close>}
-*}
-subsection{* ....................................................................................................................................... *}
-text {*
+\<close>
+subsection\<open>.......................................................................................................................................\<close>
+text \<open>
 \begin{matharray}{rcl}
   @{command_def PrePost} & : & @{text "theory \<rightarrow> theory"}
 \end{matharray}
@@ -224,10 +224,10 @@ text {*
                binding | @{syntax state}
   ;
 \<close>}
-*}
+\<close>
 (*
-subsection{* ....................................................................................................................................... *}
-text {*
+subsection\<open>.......................................................................................................................................\<close>
+text \<open>
 \begin{matharray}{rcl}
   @{command_def Enum} & : & @{text "theory \<rightarrow> theory"}
 \end{matharray}
@@ -236,11 +236,11 @@ text {*
   @@{command Enum} binding '[' (binding * ',') ']'
   ;
 \<close>}
-*}
+\<close>
 *)
-section{* UML/OCL: Type System *}
-subsection{* ....................................................................................................................................... *}
-text {*
+section\<open>UML/OCL: Type System\<close>
+subsection\<open>.......................................................................................................................................\<close>
+text \<open>
 @{rail \<open>
   @{syntax_def unlimited_natural}:
                ('*'| '\<infinity>') | number
@@ -312,12 +312,12 @@ text {*
                | (binding? ':')? prop) (';'?)
   ;
 \<close>}
-*}
-text{* uml\_type\_weak is like uml\_type except that type\_object can not contain quantified names. *}
+\<close>
+text\<open>uml\_type\_weak is like uml\_type except that type\_object can not contain quantified names.\<close>
 
-section{* UML/OCL: Miscellaneous *}
-subsection{* ....................................................................................................................................... *}
-text {*
+section\<open>UML/OCL: Miscellaneous\<close>
+subsection\<open>.......................................................................................................................................\<close>
+text \<open>
 \begin{matharray}{rcl}
   @{command_def End} & : & @{text "theory \<rightarrow> theory"}
 \end{matharray}
@@ -325,9 +325,9 @@ text {*
 @{rail \<open>
   @@{command End} ('[' 'forced' ']' | '!')?
 \<close>}
-*}
-subsection{* ....................................................................................................................................... *}
-text {*
+\<close>
+subsection\<open>.......................................................................................................................................\<close>
+text \<open>
 \begin{matharray}{rcl}
   @{command_def BaseType} & : & @{text "theory \<rightarrow> theory"}
 \end{matharray}
@@ -336,10 +336,10 @@ text {*
   @@{command BaseType} '[' (@{syntax term_base} * ',') ']'
   ;
 \<close>}
-*}
+\<close>
 
-section{* Featherweight OCL: Library *}
-text {*
+section\<open>Featherweight OCL: Library\<close>
+text \<open>
 \begin{matharray}{rcl}
   @{command_def Assert} & : & @{text "theory \<rightarrow> theory"} \\
   @{command_def Assert_local} & : & @{text "local_theory \<rightarrow> local_theory"}
@@ -351,10 +351,10 @@ text {*
   @@{command Assert_local} term
   ;
 \<close>}
-*}
+\<close>
 
-section{* Featherweight OCL: Auxiliary *}
-text {*
+section\<open>Featherweight OCL: Auxiliary\<close>
+text \<open>
 \begin{matharray}{rcl}
   @{command_def lazy_text} & : & @{text "local_theory \<rightarrow> local_theory"} \\
   @{command_def apply_text} & : & @{text "local_theory \<rightarrow> local_theory"} \\
@@ -369,13 +369,13 @@ text {*
   @@{command reset_text} '(' ')'
   ;
 \<close>}
-*}
+\<close>
 
-section{* Featherweight OCL: Compiler *}
-subsection{* ....................................................................................................................................... *}
+section\<open>Featherweight OCL: Compiler\<close>
+subsection\<open>.......................................................................................................................................\<close>
 (* WARNING syntax errors during the extraction to LaTeX for the symbol "acute":
            fun\<acute>, definition\<acute> or code_reflect\<acute> *)
-text {*
+text \<open>
 \begin{matharray}{rcl}
   @{command_def "fun'"} & : & @{text "local_theory \<rightarrow> local_theory"} \\
   @{command_def "definition'"} & : & @{text "local_theory \<rightarrow> local_theory"} \\
@@ -394,10 +394,10 @@ text {*
     ( @'functions' ( string + ) ) ? ( @'file' string ) ?
   ;
 \<close>}
-*}
+\<close>
 
-subsection{* ....................................................................................................................................... *}
-text {*
+subsection\<open>.......................................................................................................................................\<close>
+text \<open>
 \begin{matharray}{rcl}
   @{command_def lazy_code_printing} & : & @{text "theory \<rightarrow> theory"} \\
   @{command_def apply_code_printing} & : & @{text "theory \<rightarrow> theory"} \\
@@ -415,7 +415,7 @@ text {*
   @@{command apply_code_printing_reflect} text
   ;
 \<close>}
-*}
+\<close>
 
 (*<*)
 end

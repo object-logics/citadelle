@@ -41,27 +41,27 @@
  ******************************************************************************)
 (* $Id:$ *)
 
-header{* Part ... *}
+header\<open>Part ...\<close>
 
 theory Aux_proof
 imports Main
 begin
 
-section{* On the Semantics of Object-oriented Data Structures and Path Expressions *}
+section\<open>On the Semantics of Object-oriented Data Structures and Path Expressions\<close>
 
-subsection{* Basic modelization of attributes *}
+subsection\<open>Basic modelization of attributes\<close>
 
 datatype oid = Oid
 datatype attr_own = Attr_own
 datatype attr_inh = Attr_inh
 datatype '\<alpha> recurse = R nat '\<alpha>
 
-subsection{* Datatype definition of the class type and class type extension (version 1) *}
+subsection\<open>Datatype definition of the class type and class type extension (version 1)\<close>
 
 datatype t1_ext = T1_ext attr_own "(t1_ext recurse) option"
 datatype t1 = T1 oid attr_own attr_inh "(t1_ext recurse) option"
 
-subsection{* Datatype definition of the class type and class type extension (version 2) *}
+subsection\<open>Datatype definition of the class type and class type extension (version 2)\<close>
 
 datatype t2_ext = T2_ext_oid oid attr_inh
                 | T2_ext_rec "t2 recurse"
@@ -75,7 +75,7 @@ fun get2_inh where
    "get2_inh v = (\<lambda> T2 (T2_ext_oid _ inh) _ \<Rightarrow> inh
                   | T2 (T2_ext_rec (R _ t)) _ \<Rightarrow> get2_inh t) v"
 
-subsection{* Datatype definition of the class type and class type extension (version 3) *}
+subsection\<open>Datatype definition of the class type and class type extension (version 3)\<close>
 
 datatype t3_ext = T3_ext_oid oid attr_inh attr_own
                 | T3_ext_rec "t3 recurse"
@@ -93,7 +93,7 @@ fun get3_own where
    "get3_own v = (\<lambda> T3 (T3_ext_oid _ _ own) \<Rightarrow> own
                   | T3 (T3_ext_rec (R _ t)) \<Rightarrow> get3_own t) v"
 
-subsection{* Conversion t2 of t1 *}
+subsection\<open>Conversion t2 of t1\<close>
 
 fun m2_of_m1_ext where
    "m2_of_m1_ext oid attr_inh m1 = (\<lambda> T1_ext attr_own opt \<Rightarrow> T2 (case opt
@@ -104,7 +104,7 @@ definition "m2_of_m1 = (\<lambda> T1 oid attr_own attr_inh opt \<Rightarrow> T2 
    of None \<Rightarrow> T2_ext_oid oid attr_inh
     | Some (R ide m1) \<Rightarrow> T2_ext_rec (R ide (m2_of_m1_ext oid attr_inh m1))) attr_own)"
 
-subsection{* Conversion t1 of t2 *}
+subsection\<open>Conversion t1 of t2\<close>
 
 fun m1_ext_of_m2 where
    "m1_ext_of_m2 m2 =
@@ -115,7 +115,7 @@ definition "m1_of_m2 =
   (\<lambda> T2 (T2_ext_oid oid attr_inh) attr_own \<Rightarrow> T1 oid attr_own attr_inh None
    | T2 (T2_ext_rec (R ide m2)) attr_own \<Rightarrow> T1 (get2_oid m2) attr_own (get2_inh m2) (Some (R ide (m1_ext_of_m2 m2))))"
 
-subsection{* Bijectivity proofs *}
+subsection\<open>Bijectivity proofs\<close>
 
 lemma "m1_of_m2 (m2_of_m1 X) = X"
  apply(case_tac X, simp)

@@ -41,7 +41,7 @@
  ******************************************************************************)
 (* $Id:$ *)
 
-section{* Finalizing the Printer *}
+section\<open>Finalizing the Printer\<close>
 
 theory  Printer
 imports Core
@@ -86,7 +86,7 @@ lemmas [code] =
 
   (* fun *)
 
-section{* Miscellaneous: Garbage Collection of Notations *}
+section\<open>Miscellaneous: Garbage Collection of Notations\<close>
 
 no_type_notation natural ("nat")
 no_type_notation abr_string ("string")

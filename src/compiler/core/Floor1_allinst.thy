@@ -41,7 +41,7 @@
  ******************************************************************************)
 (* $Id:$ *)
 
-section{* Main Translation for: AllInstances *}
+section\<open>Main Translation for: AllInstances\<close>
 
 theory  Floor1_allinst
 imports Core_init

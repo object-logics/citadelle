@@ -36,14 +36,14 @@
  ******************************************************************************)
 (* $Id:$ *)
 
-section{* Instantiating the Parser of (Pure) Term *}
+section\<open>Instantiating the Parser of (Pure) Term\<close>
 
 theory  Parser_Pure
 imports Meta_Pure
         Parser_init
 begin
 
-subsection{* Main *}
+subsection\<open>Main\<close>
 
 context Parse
 begin

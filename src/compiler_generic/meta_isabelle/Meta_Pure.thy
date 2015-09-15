@@ -36,13 +36,13 @@
  ******************************************************************************)
 (* $Id:$ *)
 
-section{* (Pure) Term Meta-Model aka. AST definition of (Pure) Term *}
+section\<open>(Pure) Term Meta-Model aka. AST definition of (Pure) Term\<close>
 
 theory  Meta_Pure
 imports "../Init"
 begin
 
-subsection{* Type Definition *}
+subsection\<open>Type Definition\<close>
 
 type_synonym indexname = "string \<times> nat"
 type_synonym "class" = string
@@ -59,7 +59,7 @@ datatype "term" =
   Abs string "typ" "term" |
   App "term" "term" (infixl "$" 200)
 
-subsection{* Operations of Fold, Map, ..., on the Meta-Model *}
+subsection\<open>Operations of Fold, Map, ..., on the Meta-Model\<close>
 
 fun map_Const where
    "map_Const f expr = (\<lambda> Const s ty \<Rightarrow> Const (f s ty) ty

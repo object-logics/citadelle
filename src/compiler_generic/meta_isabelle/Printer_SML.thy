@@ -36,7 +36,7 @@
  ******************************************************************************)
 (* $Id:$ *)
 
-section{* Instantiating the Printer for SML *}
+section\<open>Instantiating the Printer for SML\<close>
 
 theory  Printer_SML
 imports Meta_SML

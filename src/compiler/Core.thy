@@ -41,7 +41,7 @@
  ******************************************************************************)
 (* $Id:$ *)
 
-section{* General Environment for the Translation: Conclusion *}
+section\<open>General Environment for the Translation: Conclusion\<close>
 
 theory  Core
 imports "core/Floor1_enum"
@@ -57,7 +57,7 @@ imports "core/Floor1_enum"
         "core/Floor2_ctxt"
 begin
 
-subsection{* Preliminaries *}
+subsection\<open>Preliminaries\<close>
 
 datatype ('a, 'b) embedding = Embed_theories "('a \<Rightarrow> 'b \<Rightarrow> all_meta list \<times> 'b) list"
                             | Embed_locale "'a \<Rightarrow> 'b \<Rightarrow> semi__locale \<times> 'b"
@@ -73,7 +73,7 @@ definition "L_fold f =
             ; (l, b) = List.fold (\<lambda>f0. \<lambda>(l, b) \<Rightarrow> let (x, b) = f0 a b in (x # l, b)) l ([], b) in
           ([META_semi__theories (Theories_locale loc_data (rev l))], b)))"
 
-subsection{* Assembling Translations *}
+subsection\<open>Assembling Translations\<close>
 
 definition "section_aux n s = start_map' (\<lambda>_. [ O.section (Section n s) ])"
 definition "section = section_aux 0"
@@ -384,7 +384,7 @@ definition "thy_ctxt = (\<lambda> Floor1 \<Rightarrow> Embed_theories
 definition "thy_flush_all = Embed_theories []"
 (* NOTE typechecking functions can be put at the end, however checking already defined constants can be done earlier *)
 
-subsection{* Combinators Folding the Compiling Environment *}
+subsection\<open>Combinators Folding the Compiling Environment\<close>
 
 definition "compiler_env_config_empty output_disable_thy output_header_thy oid_start design_analysis sorry_dirty =
   compiler_env_config.make

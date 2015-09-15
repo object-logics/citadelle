@@ -41,7 +41,7 @@
  ******************************************************************************)
 (* $Id:$ *)
 
-section{* Main Translation for: IsTypeOf *}
+section\<open>Main Translation for: IsTypeOf\<close>
 
 theory  Floor1_istypeof
 imports Core_init

@@ -43,9 +43,9 @@ begin
 ML_file "~~/src/Doc/antiquote_setup.ML"
 (*>*)
 
-section{* Main Setup of Meta Commands *}
+section\<open>Main Setup of Meta Commands\<close>
 
-text {*
+text \<open>
 \begin{matharray}{rcl}
   @{command_def generation_syntax} & : & @{text "theory \<rightarrow> theory"}
 \end{matharray}
@@ -84,9 +84,9 @@ text {*
                (@'SORRY' | @'no_dirty')?
   ;
 \<close>}
-*}
+\<close>
 
-text{*
+text\<open>
 @{command generation_syntax} sets the behavior of all incoming meta-commands.
 By default, without firstly writing @{command generation_syntax}, 
 meta-commands will only print in output what they have parsed, 
@@ -156,11 +156,11 @@ For example, @{keyword "design"} and @{keyword "analysis"} are two options for s
 the modelling of objects will be represented in the Toy Language.
 Similarly, this would be a typical place for options like
 @{text eager} or @{text lazy} for choosing how the evaluation should happen...
-*}
+\<close>
 
-section{* All Meta Commands of the Toy Language *}
+section\<open>All Meta Commands of the Toy Language\<close>
 
-text {*
+text \<open>
 \begin{matharray}{rcl}
   @{command_def Class} & : & @{text "theory \<rightarrow> theory"} \\
   @{command_def Abstract_class} & : & @{text "theory \<rightarrow> theory"} \\
@@ -189,9 +189,9 @@ text {*
                @'Constraints'? @'Existential'? @'Inv' @{syntax use_prop}
   ;
 \<close>}
-*}
+\<close>
 
-text {*
+text \<open>
 \begin{matharray}{rcl}
   @{command_def Aggregation} & : & @{text "theory \<rightarrow> theory"} \\
   @{command_def Association} & : & @{text "theory \<rightarrow> theory"} \\
@@ -212,9 +212,9 @@ text {*
                ';'?
   ;
 \<close>}
-*}
+\<close>
 
-text {*
+text \<open>
 \begin{matharray}{rcl}
   @{command_def Associationclass} & : & @{text "theory \<rightarrow> theory"} \\
   @{command_def Abstract_associationclass} & : & @{text "theory \<rightarrow> theory"}
@@ -226,9 +226,9 @@ text {*
                                             @{syntax association} @{syntax class} (() | 'aggregation' | 'composition')
   ;
 \<close>}
-*}
+\<close>
 
-text {*
+text \<open>
 \begin{matharray}{rcl}
   @{command_def Context} & : & @{text "theory \<rightarrow> theory"}
 \end{matharray}
@@ -237,10 +237,10 @@ text {*
   @@{command Context} ('[' @'shallow' ']')? @{syntax type_object} @{syntax context}
   ;
 \<close>}
-*}
+\<close>
 
 
-text {*
+text \<open>
 \begin{matharray}{rcl}
   @{command_def Instance} & : & @{text "theory \<rightarrow> theory"}
 \end{matharray}
@@ -258,9 +258,9 @@ text {*
                (('\<rightarrow>' 'oclAsType' '(' @{syntax type_object} ')') * ())
   ;
 \<close>}
-*}
+\<close>
 
-text {*
+text \<open>
 \begin{matharray}{rcl}
   @{command_def State} & : & @{text "theory \<rightarrow> theory"}
 \end{matharray}
@@ -272,9 +272,9 @@ text {*
                '[' ((binding | @{syntax object_cast}) * ',') ']'
   ;
 \<close>}
-*}
+\<close>
 
-text {*
+text \<open>
 \begin{matharray}{rcl}
   @{command_def PrePost} & : & @{text "theory \<rightarrow> theory"}
 \end{matharray}
@@ -288,9 +288,9 @@ text {*
                binding | @{syntax state}
   ;
 \<close>}
-*}
+\<close>
 
-text {*
+text \<open>
 \begin{matharray}{rcl}
   @{command_def End} & : & @{text "theory \<rightarrow> theory"}
 \end{matharray}
@@ -298,9 +298,9 @@ text {*
 @{rail \<open>
   @@{command End} ('[' 'forced' ']' | '!')?
 \<close>}
-*}
+\<close>
 
-text {*
+text \<open>
 \begin{matharray}{rcl}
   @{command_def BaseType} & : & @{text "theory \<rightarrow> theory"}
 \end{matharray}
@@ -309,13 +309,13 @@ text {*
   @@{command BaseType} '[' (@{syntax term_base} * ',') ']'
   ;
 \<close>}
-*}
+\<close>
 
-section{* Extensions of Isabelle Commands *}
+section\<open>Extensions of Isabelle Commands\<close>
 
 (* WARNING syntax errors during the extraction to LaTeX for the symbol "acute":
            fun\<acute>, definition\<acute> or code_reflect\<acute> *)
-text {*
+text \<open>
 \begin{matharray}{rcl}
   @{command_def "fun'"} & : & @{text "local_theory \<rightarrow> local_theory"} \\
   @{command_def "definition'"} & : & @{text "local_theory \<rightarrow> local_theory"} \\
@@ -334,27 +334,27 @@ text {*
     ( @'functions' ( string + ) ) ? ( @'file' string ) ?
   ;
 \<close>}
-*}
+\<close>
 
-text{* 
+text\<open>
 @{command fun'} has the same semantics as @{command fun} 
 except that it is possible to write the quote symbol (i.e., the symbol \verb|"|)
 in all recursive enclosing cartouches.
-*}
+\<close>
 
-text{* 
+text\<open>
 @{command definition'} has the same semantics as @{command definition}
 except that it is possible to write the quote symbol (i.e., the symbol \verb|"|)
 in all recursive enclosing cartouches.
-*}
+\<close>
 
-text{* 
+text\<open>
 @{command code_reflect'} has the same semantics as @{command code_reflect}
 except that it additionally contains the option @{keyword "open"} inspired
 from the command @{command export_code} (with the same semantics).
-*}
+\<close>
 
-text {*
+text \<open>
 \begin{matharray}{rcl}
   @{command_def lazy_code_printing} & : & @{text "theory \<rightarrow> theory"} \\
   @{command_def apply_code_printing} & : & @{text "theory \<rightarrow> theory"} \\
@@ -372,28 +372,28 @@ text {*
   @@{command apply_code_printing_reflect} text
   ;
 \<close>}
-*}
+\<close>
 
-text{* 
+text\<open>
 @{command lazy_code_printing} has the same semantics as @{command code_printing} 
 or @{command ML},
 except that no side effects occur until we give more details about its intended future semantics:
 this will be precised by calling
 @{command apply_code_printing} or @{command apply_code_printing_reflect}.
-*}
+\<close>
 
-text{*
+text\<open>
 @{command apply_code_printing} repeatedly calls @{command code_printing}
 to all previously registered elements with @{command lazy_code_printing} (the order is preserved).
-*}
+\<close>
 
-text{*
+text\<open>
 @{command apply_code_printing_reflect} repeatedly calls @{command ML}
 to all previously registered elements with @{command lazy_code_printing} (the order is preserved).
 As a consequence, code for other targets (Haskell, OCaml, Scala) are ignored.
 Moreover before the execution of the overall,
 it is possible to give an additional piece of SML code as argument to priorly execute.
-*}
+\<close>
 
 (*<*)
 end

@@ -42,7 +42,7 @@ imports "~~/src/HOL/Library/Code_Char"
 
 begin
 
-section{* Optimization on the String Datatype *}
+section\<open>Optimization on the String Datatype\<close>
 
 text\<open>The following types optimize on @{typ "char list"} concatenations,
      which will be performed at the end (if needed).\<close>
@@ -74,15 +74,15 @@ translations "\<degree>x\<degree>" \<rightleftharpoons> "CONST SS_base (CONST ST
 
 type_notation abr_string ("string")
 
-section{* Basic Extension of the Standard Library *}
+section\<open>Basic Extension of the Standard Library\<close>
 
-subsection{* Polymorphic Cartouches *}
+subsection\<open>Polymorphic Cartouches\<close>
 
 text\<open>We generalize the construction of cartouches for them to be used polymorphically,
      however the ``real'' type of cartouche expressions needs to be specified
      earlier with a special command.\<close>
 
-ML{*
+ML\<open>
 val cartouche_grammar =
   [ ("char list", snd)
   , ("String.literal", (fn (_, x) => Syntax.const @{const_syntax STR} $ x))
@@ -90,9 +90,9 @@ val cartouche_grammar =
                                  $ (Syntax.const @{const_syntax ST}
                                     $ (Syntax.const @{const_syntax STR}
                                        $ x))))]
-*}
+\<close>
 
-ML{* 
+ML\<open>
 fun parse_translation_cartouche binding l f_char accu = 
   let val cartouche_type = Attrib.setup_config_string binding (K (fst (hd l))) in
   fn ctxt =>
@@ -107,19 +107,19 @@ fun parse_translation_cartouche binding l f_char accu =
       accu
       (Symbol_Pos.cartouche_content o Symbol_Pos.explode)
   end
-*}
+\<close>
 
-parse_translation {*
+parse_translation \<open>
   [( @{syntax_const "_cartouche_string"}
    , parse_translation_cartouche @{binding cartouche_type} cartouche_grammar (K I) ())]
-*}
+\<close>
 
 text\<open>This is the special command which sets the type of subsequent cartouches.
      Note: here the given type is currently a string,
            one should extend it to be a truly ``typed'' type...\<close>
 declare[[cartouche_type = "abr_string"]]
 
-subsection{* Operations on List *}
+subsection\<open>Operations on List\<close>
 
 datatype ('a, 'b) nsplit = Nsplit_text 'a
                          | Nsplit_sep 'b
@@ -196,13 +196,13 @@ lemmas [code] =
   (*fun*)
   L.map_find_aux.simps
 
-subsection{* Operations on Char *}
+subsection\<open>Operations on Char\<close>
 
 definition "char_escape = Char Nibble0 Nibble9"
 definition "ST0 c = \<lless>[c]\<ggreater>"
 definition "ST0_base c = ST' [c]"
 
-subsection{* Operations on String (I) *}
+subsection\<open>Operations on String (I)\<close>
 
 locale S
 locale String
@@ -275,7 +275,7 @@ lemmas [code] =
   String.foldl.simps
   String.is_empty.simps
 
-subsection{* Operations on String (II) *}
+subsection\<open>Operations on String (II)\<close>
 
 definition "wildcard = \<open>_\<close>"
 
@@ -362,7 +362,7 @@ definition "mk_dot_comment s1 s2 s3 = mk_dot s1 (S.flatten [s2, \<open> /*\<clos
 definition "hol_definition s = S.flatten [s, \<open>_def\<close>]"
 definition "hol_split s = S.flatten [s, \<open>.split\<close>]"
 
-section{* Miscellaneous *} (* section to be removed when errors will be fixed *)
+section\<open>Miscellaneous\<close> (* section to be removed when errors will be fixed *)
 
 (* Syntactic errors in target languages can appear during extraction,
    so we explicitly output parenthesis around expressions

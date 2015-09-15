@@ -41,7 +41,7 @@
  ******************************************************************************)
 (* $Id:$ *)
 
-section{* Instantiating the Printer for OCL (II) *}
+section\<open>Instantiating the Printer for OCL (II)\<close>
 
 theory  Printer_UML_extended
 imports Meta_UML_extended

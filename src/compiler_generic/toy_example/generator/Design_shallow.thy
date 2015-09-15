@@ -36,8 +36,8 @@
  ******************************************************************************)
 (* $Id:$ *)
 
-section{* Example: A Class Model Interactively Executed *}
-subsection{* Introduction *}
+section\<open>Example: A Class Model Interactively Executed\<close>
+subsection\<open>Introduction\<close>
 
 theory
   Design_shallow
@@ -48,7 +48,7 @@ imports
 begin
 ML_file "~~/src/Doc/antiquote_setup.ML"
 
-text{* 
+text\<open>
 In this example, we configure our package to execute tactic SML code
 (corresponding to some generated \verb|.thy| file, @{file "Design_deep.thy"}
 details how to obtain such generated \verb|.thy| file).
@@ -60,17 +60,17 @@ compiled functions.
 The execution time is comparatively similar as if tactics were written by hand,
 except that the generated SML code potentially inherits all optimizations performed
 by the raw code generation of Isabelle (if any).
-*}
+\<close>
 
 generation_syntax [ shallow (generation_semantics [ design ])
                             (*SORRY*) (*no_dirty*)
                   (*, syntax_print*) ]
-text{*
+text\<open>
 The configuration in @{keyword "shallow"} mode is straightforward:
 in this mode @{command generation_syntax} basically terminates in $O(1)$.
-*}
+\<close>
 
-subsection{* Designing Class Models (I): Basics *}
+subsection\<open>Designing Class Models (I): Basics\<close>
 
 Class Atom < Molecule
   Attributes size : Integer
@@ -97,7 +97,7 @@ Instance X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n3 :: Person = [ salary
 
 (* Class Big_Bang < Atom (* This will force the creation of a new universe. *) *)
 
-subsection{* Designing Class Models (II): Jumping to Another Semantic Floor *}
+subsection\<open>Designing Class Models (II): Jumping to Another Semantic Floor\<close>
 
 State \<sigma>\<^sub>1 =
   [ ([ salary = 1000 , boss = self 1 ] :: Person)
@@ -119,7 +119,7 @@ PrePost \<sigma>\<^sub>1 \<sigma>\<^sub>1'
 
 (* PrePost \<sigma>\<^sub>1 [ ([ salary = 1000 , boss = self 1 ] :: Person) ] *)
 
-subsection{* Designing Class Models (III): Interaction with (Pure) Term *}
+subsection\<open>Designing Class Models (III): Interaction with (Pure) Term\<close>
 
 text{*
 Here in @{keyword "shallow"} mode, the following expression is directly rejected: \\

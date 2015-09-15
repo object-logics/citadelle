@@ -41,7 +41,7 @@
  ******************************************************************************)
 (* $Id:$ *)
 
-section{* Instantiating the Printer for META *}
+section\<open>Instantiating the Printer for META\<close>
 
 theory  Printer_META
 imports Parser_META

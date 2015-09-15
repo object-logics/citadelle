@@ -36,7 +36,7 @@
  ******************************************************************************)
 (* $Id:$ *)
 
-section{* Instantiating the Printer for (Pure) Term *}
+section\<open>Instantiating the Printer for (Pure) Term\<close>
 
 theory  Printer_Pure
 imports Meta_Pure

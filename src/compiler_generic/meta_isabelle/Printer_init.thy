@@ -36,7 +36,7 @@
  ******************************************************************************)
 (* $Id:$ *)
 
-section{* Initializing the Printer *}
+section\<open>Initializing the Printer\<close>
 
 theory  Printer_init
 imports "../Init"
@@ -46,16 +46,16 @@ begin
 text\<open>At the time of writing, targets languages supported
      by Isabelle are: Haskell, OCaml, Scala, SML.\<close>
 
-subsection{* Kernel Code for Target Languages *}
+subsection\<open>Kernel Code for Target Languages\<close>
 
   (* We put in 'CodeConst' functions using characters
      not allowed in a Isabelle 'code_const' expr
      (e.g. '_', '"', ...) *)
 
-lazy_code_printing code_module "CodeType" \<rightharpoonup> (Haskell) {*
+lazy_code_printing code_module "CodeType" \<rightharpoonup> (Haskell) \<open>
   type MlInt = Integer
 ; type MlMonad a = IO a
-*} | code_module "CodeConst" \<rightharpoonup> (Haskell) {*
+\<close> | code_module "CodeConst" \<rightharpoonup> (Haskell) \<open>
   import System.Directory
 ; import System.IO
 ; import qualified CodeConst.Printf
@@ -69,11 +69,11 @@ lazy_code_printing code_module "CodeType" \<rightharpoonup> (Haskell) {*
 
 ; outStand1 :: ((String -> String -> IO ()) -> IO ()) -> IO ()
 ; outStand1 f = f (\pat -> putStr . CodeConst.Printf.sprintf1 pat)
-*} | code_module "CodeConst.Monad" \<rightharpoonup> (Haskell) {*
+\<close> | code_module "CodeConst.Monad" \<rightharpoonup> (Haskell) \<open>
   bind a = (>>=) a
 ; return :: a -> IO a
 ; return = Prelude.return
-*} | code_module "CodeConst.Printf" \<rightharpoonup> (Haskell) {*
+\<close> | code_module "CodeConst.Printf" \<rightharpoonup> (Haskell) \<open>
   import Text.Printf
 ; sprintf0 = id
 
@@ -91,16 +91,16 @@ lazy_code_printing code_module "CodeType" \<rightharpoonup> (Haskell) {*
 
 ; sprintf5 :: PrintfArg a => PrintfArg b => PrintfArg c => PrintfArg d => PrintfArg e => String -> a -> b -> c -> d -> e -> String
 ; sprintf5 = printf
-*} | code_module "CodeConst.String" \<rightharpoonup> (Haskell) {*
+\<close> | code_module "CodeConst.String" \<rightharpoonup> (Haskell) \<open>
   concat s [] = []
 ; concat s (x : xs) = x ++ concatMap ((++) s) xs
-*} | code_module "CodeConst.Sys" \<rightharpoonup> (Haskell) {*
+\<close> | code_module "CodeConst.Sys" \<rightharpoonup> (Haskell) \<open>
   import System.Directory
 ; isDirectory2 = doesDirectoryExist
-*} | code_module "CodeConst.To" \<rightharpoonup> (Haskell) {*
+\<close> | code_module "CodeConst.To" \<rightharpoonup> (Haskell) \<open>
   nat = id
 
-*} | code_module "" \<rightharpoonup> (OCaml) {*
+\<close> | code_module "" \<rightharpoonup> (OCaml) \<open>
 module CodeType = struct
   type mlInt = int
 
@@ -148,7 +148,7 @@ module CodeConst = struct
   end
 end
 
-*} | code_module "" \<rightharpoonup> (Scala) {*
+\<close> | code_module "" \<rightharpoonup> (Scala) \<open>
 object CodeType {
   type mlMonad [A] = Option [A]
   type mlInt = Int
@@ -196,7 +196,7 @@ object CodeConst {
   }
 }
 
-*} | code_module "" \<rightharpoonup> (SML) {*
+\<close> | code_module "" \<rightharpoonup> (SML) \<open>
 structure CodeType = struct
   type mlInt = string
   type 'a mlMonad = 'a option
@@ -257,9 +257,9 @@ structure CodeConst = struct
   fun outStand1 f = outFile1 f (Unsynchronized.! stdout_file)
 end
 
-*}
+\<close>
 
-subsection{* Interface with Types *}
+subsection\<open>Interface with Types\<close>
 
 datatype ml_int = ML_int
 code_printing type_constructor ml_int \<rightharpoonup> (Haskell) "CodeType.MlInt" (* syntax! *)
@@ -277,9 +277,9 @@ code_printing type_constructor ml_monad \<rightharpoonup> (Haskell) "CodeType.Ml
 
 type_synonym ml_string = String.literal
 
-subsection{* Interface with Constants *}
+subsection\<open>Interface with Constants\<close>
 
-text{* module CodeConst *}
+text\<open>module CodeConst\<close>
 
 consts out_file1 :: "((ml_string \<Rightarrow> '\<alpha>1 \<Rightarrow> unit ml_monad) (* fprintf *) \<Rightarrow> unit ml_monad) \<Rightarrow> ml_string \<Rightarrow> unit ml_monad"
 code_printing constant out_file1 \<rightharpoonup> (Haskell) "CodeConst.outFile1"
@@ -293,7 +293,7 @@ code_printing constant out_stand1 \<rightharpoonup> (Haskell) "CodeConst.outStan
             | constant out_stand1 \<rightharpoonup> (Scala) "CodeConst.outStand1"
             | constant out_stand1 \<rightharpoonup> (SML) "CodeConst.outStand1"
 
-text{* module Monad *}
+text\<open>module Monad\<close>
 
 consts bind :: "'a ml_monad \<Rightarrow> ('a \<Rightarrow> 'b ml_monad) \<Rightarrow> 'b ml_monad"
 code_printing constant bind \<rightharpoonup> (Haskell) "CodeConst.Monad.bind"
@@ -307,7 +307,7 @@ code_printing constant return \<rightharpoonup> (Haskell) "CodeConst.Monad.retur
             | constant return \<rightharpoonup> (Scala) "CodeConst.Monad.Return" (* syntax! *)
             | constant return \<rightharpoonup> (SML) "CodeConst.Monad.return"
 
-text{* module Printf *}
+text\<open>module Printf\<close>
 
 consts sprintf0 :: "ml_string \<Rightarrow> ml_string"
 code_printing constant sprintf0 \<rightharpoonup> (Haskell) "CodeConst.Printf.sprintf0"
@@ -345,7 +345,7 @@ code_printing constant sprintf5 \<rightharpoonup> (Haskell) "CodeConst.Printf.sp
             | constant sprintf5 \<rightharpoonup> (Scala) "CodeConst.Printf.sprintf5"
             | constant sprintf5 \<rightharpoonup> (SML) "CodeConst.Printf.sprintf5"
 
-text{* module String *}
+text\<open>module String\<close>
 
 consts String_concat :: "ml_string \<Rightarrow> ml_string list \<Rightarrow> ml_string"
 code_printing constant String_concat \<rightharpoonup> (Haskell) "CodeConst.String.concat"
@@ -353,7 +353,7 @@ code_printing constant String_concat \<rightharpoonup> (Haskell) "CodeConst.Stri
             | constant String_concat \<rightharpoonup> (Scala) "CodeConst.String.concat"
             | constant String_concat \<rightharpoonup> (SML) "CodeConst.String.concat"
 
-text{* module Sys *}
+text\<open>module Sys\<close>
 
 consts Sys_is_directory2 :: "ml_string \<Rightarrow> bool ml_monad"
 code_printing constant Sys_is_directory2 \<rightharpoonup> (Haskell) "CodeConst.Sys.isDirectory2"
@@ -361,7 +361,7 @@ code_printing constant Sys_is_directory2 \<rightharpoonup> (Haskell) "CodeConst.
             | constant Sys_is_directory2 \<rightharpoonup> (Scala) "CodeConst.Sys.isDirectory2"
             | constant Sys_is_directory2 \<rightharpoonup> (SML) "CodeConst.Sys.isDirectory2"
 
-text{* module To *}
+text\<open>module To\<close>
 
 consts ToNat :: "(nat \<Rightarrow> integer) \<Rightarrow> nat \<Rightarrow> ml_int"
 code_printing constant ToNat \<rightharpoonup> (Haskell) "CodeConst.To.nat"
@@ -369,7 +369,7 @@ code_printing constant ToNat \<rightharpoonup> (Haskell) "CodeConst.To.nat"
             | constant ToNat \<rightharpoonup> (Scala) "CodeConst.To.nat"
             | constant ToNat \<rightharpoonup> (SML) "CodeConst.To.nat"
 
-subsection{* Some Notations (I): Raw Translations *}
+subsection\<open>Some Notations (I): Raw Translations\<close>
 
 syntax "_sprint0" :: "_ \<Rightarrow> ml_string" ("sprint0 (_)\<acute>")
 translations "sprint0 x\<acute>" \<rightleftharpoons> "CONST sprintf0 x"
@@ -389,12 +389,12 @@ translations "sprint4 x\<acute>" \<rightleftharpoons> "CONST sprintf4 x"
 syntax "_sprint5" :: "_ \<Rightarrow> _ \<Rightarrow> ml_string" ("sprint5 (_)\<acute>")
 translations "sprint5 x\<acute>" \<rightleftharpoons> "CONST sprintf5 x"
 
-subsection{* Some Notations (II): Polymorphic Cartouches *}
+subsection\<open>Some Notations (II): Polymorphic Cartouches\<close>
 
 syntax "_cartouche_string'" :: String.literal
 translations "_cartouche_string" \<rightleftharpoons> "_cartouche_string'"
 
-parse_translation {*
+parse_translation \<open>
   [( @{syntax_const "_cartouche_string'"}
    , parse_translation_cartouche
        @{binding cartouche_type'}
@@ -412,9 +412,9 @@ parse_translation {*
        (fn 37 (* #"%" *) => (fn x => x + 1)
          | _ => I)
        0)]
-*}
+\<close>
 
-subsection{* Generic Locale for Printing *}
+subsection\<open>Generic Locale for Printing\<close>
 
 locale Print =
   fixes To_string :: "string \<Rightarrow> ml_string"

@@ -41,7 +41,7 @@
  ******************************************************************************)
 (* $Id:$ *)
 
-section{* Main Translation for: Example (Floor 1) *}
+section\<open>Main Translation for: Example (Floor 1)\<close>
 
 theory  Floor1_examp
 imports Core_init

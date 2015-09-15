@@ -36,7 +36,7 @@
  ******************************************************************************)
 (* $Id:$ *)
 
-section{* Instantiating the Parser of META *}
+section\<open>Instantiating the Parser of META\<close>
 
 theory  Parser_META
 imports Meta_META
@@ -44,7 +44,7 @@ imports Meta_META
         Parser_Toy_extended
 begin
 
-subsection{* Building Recursors for Records *} (* NOTE part to be automated *)
+subsection\<open>Building Recursors for Records\<close> (* NOTE part to be automated *)
 
 definition "compiler_env_config_rec0 f env = f
   (D_output_disable_thy env)
@@ -81,7 +81,7 @@ by(intro ext, simp add: compiler_env_config_rec0_def
                         compiler_env_config.make_def
                         co14_def K_def)
 
-subsection{* Main *}
+subsection\<open>Main\<close>
 
 context Parse
 begin
@@ -145,9 +145,9 @@ lemmas [code] =
   Parse.of_generation_lemma_mode_def
   Parse.of_compiler_env_config_def
 
-section{* Finalizing the Parser *}
+section\<open>Finalizing the Parser\<close>
 
-subsection{* Isabelle Syntax *}
+subsection\<open>Isabelle Syntax\<close>
 
 locale Parse_Isabelle
 begin
@@ -271,7 +271,7 @@ lemmas [code] =
 
 definition "isabelle_apply s l = S.flatten [s, S.flatten (L.map (\<lambda> s. S.flatten [\<open> (\<close>, s, \<open>)\<close>]) l)]"
 
-subsection{* SML Syntax *}
+subsection\<open>SML Syntax\<close>
 
 locale Parse_SML
 begin

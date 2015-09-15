@@ -41,7 +41,7 @@
  ******************************************************************************)
 (* $Id:$ *)
 
-section{* Main Translation for: Accessor *}
+section\<open>Main Translation for: Accessor\<close>
 
 theory  Floor1_access
 imports Core_init

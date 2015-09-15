@@ -41,7 +41,7 @@
  ******************************************************************************)
 (* $Id:$ *)
 
-section{* Main Translation for: Infrastructure *}
+section\<open>Main Translation for: Infrastructure\<close>
 
 theory  Floor1_infra
 imports Core_init

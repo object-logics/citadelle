@@ -36,8 +36,8 @@
  ******************************************************************************)
 (* $Id:$ *)
 
-section{* Example: A Class Model Converted into a Theory File *}
-subsection{* Introduction *}
+section\<open>Example: A Class Model Converted into a Theory File\<close>
+subsection\<open>Introduction\<close>
 
 theory
   Design_deep
@@ -46,7 +46,7 @@ imports
 begin
 ML_file "~~/src/Doc/antiquote_setup.ML"
 
-text{*
+text\<open>
 In this example, we configure our package to generate a \verb|.thy| file,
 without executing the associated generated code contained in this \verb|.thy| file
 (c.f. @{file "Design_shallow.thy"} for a direct evaluation).
@@ -63,7 +63,7 @@ keyword @{keyword "imports"}.
 One should compare this current theory with @{file "Design_shallow.thy"}
 to see the differences of imported theories, and which ones to manually import
 (whenever an error happens).
-*}
+\<close>
 
 generation_syntax [ (*deep
                       (generation_semantics [ design (*, oid_start 10*) ])
@@ -79,7 +79,7 @@ generation_syntax [ (*deep
                       (output_directory "../document_generated")
                   (*, syntax_print*)*) ]
 
-text{* 
+text\<open>
 \begin{verbatim}
 generation_syntax
   [ deep
@@ -104,11 +104,11 @@ since the task of all target is to generate the same Isabelle content.
 However in case one language takes too much time to setup,
 we recommend to try the generation with another target language,
 because all optimizations are currently not (yet) seemingly implemented for all target languages,
-or differently activated. *}
+or differently activated.\<close>
 
-subsection{* Designing Class Models (I): Basics *}
+subsection\<open>Designing Class Models (I): Basics\<close>
 
-text{*
+text\<open>
 The following example shows the definitions of a set of classes, 
 called the ``universe'' of classes.
 Instead of providing a single command for building all the complete universe of classes
@@ -120,13 +120,13 @@ will only be fully constructed when all classes will be finished to be defined.
 This allows to define classes without having to follow a particular order of definitions.
 Here @{text Atom} is defined before the one of @{text Molecule}
 (@{text Molecule} will come after):
-*}
+\<close>
 
 Class Atom < Molecule
   Attributes size : Integer
 End
 
-text{* The ``blue'' color of @{command End} indicates that
+text\<open>The ``blue'' color of @{command End} indicates that
 @{command End} is not a ``green'' keyword. 
 @{command End} and @{command Class} are in fact similar, they belong to the group of meta-commands
 (all meta-commands are defined in @{theory Generator_dynamic}).
@@ -135,24 +135,24 @@ approximately similar: all meta-commands displays some quantity of Isabelle code
 in the output window (as long as meta-commands are syntactically correctly formed).
 However each meta-command is unique because what is displayed
 in the output window depends on the sequence of all meta-commands already encountered before
-(and also depends on arguments given to the meta-commands). *}
+(and also depends on arguments given to the meta-commands).\<close>
 
-text{* 
+text\<open>
 One particularity of @{command End} is to behave as the identity function when 
 @{command End} is called without arguments.
 As example, here we are calling lots of @{command End} without arguments,
-and no Isabelle code is generated. *}
+and no Isabelle code is generated.\<close>
        End End End 
-text{*
+text\<open>
 We remark that, like any meta-commands, @{command End} could have been written anywhere
 in this theory, for example before @{command Class} or even before @{command generation_syntax}...
 Something does not have to be specially opened before using an @{command End}.
-*}
+\<close>
 
 Class Molecule < Person
-text{* As example, here no @{command End} is written. *}
+text\<open>As example, here no @{command End} is written.\<close>
 
-text{*
+text\<open>
 The semantics of @{command End} is further precised here. 
 We earlier mentioned that the universe of classes is partially constructed, but one can still
 examine what is partially constructed, and one possibility is to use @{command End} for doing so.
@@ -164,43 +164,43 @@ examine what is partially constructed, and one possibility is to use @{command E
 of the universe, by considering all already encountered classes. 
 Then a partial representation of the universe can be interactively inspected.
 \end{itemize}
-*}
+\<close>
 
 Class Galaxy
   Attributes wormhole : UnlimitedNatural
              is_sound : Void
 End!
 
-text{* At this position, in the output window, 
+text\<open>At this position, in the output window, 
 we can observe for the first time some generated Isabelle code,
 corresponding to the partial universe of classes being constructed.
 
 Note: By default, @{text "Atom"} and @{text "Molecule"} are not (yet) present in the shown universe
-because @{text "Person"} has not been defined in a separate line (unlike @{text "Galaxy"} above). *}
+because @{text "Person"} has not been defined in a separate line (unlike @{text "Galaxy"} above).\<close>
 
 Class Person < Galaxy
   Attributes salary : Integer
              boss : Person
              is_meta_thinking: Boolean
 
-text{* 
+text\<open>
 There is not only @{command End} which forces the computation of the universe, for example
 @{command Instance} declares a set of objects belonging to the classes earlier defined, 
 but the entire universe is needed as knowledge, so there is no choice than forcing
 the generation of the universe.
-*}
+\<close>
 
 Instance X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n1 :: Person = [ salary = 1300 , boss = X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2 ]
      and X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2 :: Person = [ salary = 1800 ]
 
-text{*
+text\<open>
 Here we will call @{command Instance} again to show that the universe will not be computed again
 since it was already computed in the previous @{command Instance}.
-*}
+\<close>
 
 Instance X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n3 :: Person = [ salary = 1 ]
 
-text{* However at any time, the universe can (or will) automatically be recomputed,
+text\<open>However at any time, the universe can (or will) automatically be recomputed,
 whenever we are adding meanwhile another class:
 
 @{verbatim "(* Class Big_Bang < Atom (* This will force the creation of a new universe. *) *)"}
@@ -209,11 +209,11 @@ As remark, not only the universe is recomputed, but
 the recomputation takes also into account all meta-commands already encountered. 
 So in the new setting, @{text "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n1"}, @{text "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2"} and @{text "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n3"} 
 will be resurrected... after the @{text Big_Bang}.
-*}
+\<close>
 
-subsection{* Designing Class Models (II): Jumping to Another Semantic Floor *}
+subsection\<open>Designing Class Models (II): Jumping to Another Semantic Floor\<close>
 
-text{*
+text\<open>
 Until now, meta-commands was used to generate lines of code, and
 these lines belong to the Isabelle language.
 One particularity of meta-commands is to generate pieces of code containing not only Isabelle code
@@ -234,7 +234,7 @@ defined.
 
 As a consequence, in the next example a line @{command setup} is added
 after @{command generation_syntax} for bootstrapping the state of the compiling environment.
-*}
+\<close>
 
 State \<sigma>\<^sub>1 =
   [ ([ salary = 1000 , boss = self 1 ] :: Person)
@@ -254,7 +254,7 @@ State \<sigma>\<^sub>1' =
 
 PrePost \<sigma>\<^sub>1 \<sigma>\<^sub>1'
 
-text{*
+text\<open>
 The generation of meta-commands allows to perform various extensions
 on the Toy language being embedded, without altering the semantics of a particular command.
 The semantics of @{command PrePost} was hence extended
@@ -266,11 +266,11 @@ This will rewrite to a preliminary call to @{command State}
 @{verbatim "   PrePost[shallow] \<sigma>\<^sub>1 WFF_10_post *)"}
 then the rewriting of the above @{command State} terminates 
 with a final call to @{command Instance}.
-*}
+\<close>
 
-subsection{* Designing Class Models (III): Interaction with (Pure) Term *}
+subsection\<open>Designing Class Models (III): Interaction with (Pure) Term\<close>
 
-text{*
+text\<open>
 Meta-commands are obviously not restricted to manipulate expressions in the Outer Syntax level.
 It is possible to build meta-commands so that Inner Syntax expressions are directly parsed.
 However the dependencies of this theory have been minimized so that experimentations
@@ -282,7 +282,7 @@ it can be desirable to consider the Inner Syntax container as a string and leave
 for subsequent semantic floors.
 
 This is what is implemented here:
-*}
+\<close>
 
 text{*
 \verb|Context Person :: content ()| \\
@@ -302,24 +302,24 @@ and an error is immediately raised because the parsing of Inner Syntax expressio
 is activated in this case.
 *}
 
-text{* For example, one can put the mouse, with the CTRL gesture,
+text\<open>For example, one can put the mouse, with the CTRL gesture,
 over the variable @{term "a"}, @{term "b"} or @{term "c"}
-to be convinced that they are free variables compared with above: *}
+to be convinced that they are free variables compared with above:\<close>
 
 Context[shallow] Person :: content () 
   Post : "a + b = c"
 
-subsection{* Designing Class Models (IV): Saving the Generated to File *}
+subsection\<open>Designing Class Models (IV): Saving the Generated to File\<close>
 
-text{*
+text\<open>
 The experimentations usually finish by saving all the universe 
 and generated Isabelle theory to the hard disk: \\
 @{verbatim "(* generation_syntax deep flush_all *)"}
-*}
+\<close>
 
-subsection{* Designing Class Models (V): Inspection of Generated Files *}
+subsection\<open>Designing Class Models (V): Inspection of Generated Files\<close>
 
-text{*
+text\<open>
 According to options given to the (first) command @{command generation_syntax} above, 
 we retrieve the first generated file in the mentioned directory:
 @{file "../document_generated/Design_generated.thy"}.
@@ -338,6 +338,6 @@ In case some ``native'' Isabelle declarations
 are generated among meta-commands, then these Isabelle declarations
 are not saved by the meta-compiler (at the time of writing),
 so these declarations will not be again generated. 
-*}
+\<close>
 
 end

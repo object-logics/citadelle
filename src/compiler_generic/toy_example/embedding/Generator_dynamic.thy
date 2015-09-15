@@ -36,7 +36,7 @@
  ******************************************************************************)
 (* $Id:$ *)
 
-section{* Dynamic Meta Embedding with Reflection *}
+section\<open>Dynamic Meta Embedding with Reflection\<close>
 
 theory Generator_dynamic
 imports Printer
@@ -76,10 +76,10 @@ imports Printer
 (*>*)
 begin
 
-apply_code_printing_reflect {*
+apply_code_printing_reflect \<open>
   (* this variable is not used but needed for well typechecking the reflected SML code *)
   val stdout_file = Unsynchronized.ref ""
-*}
+\<close>
 code_reflect' open META
    functions (* executing the compiler as monadic combinators for deep and shallow *)
              fold_thy_deep fold_thy_shallow
@@ -98,14 +98,14 @@ code_reflect' open META
              (* printing the TOY AST to (deep Isabelle) string *)
              isabelle_apply isabelle_of_compiler_env_config
 
-subsection{* Interface Between the Reflected and the Native *}
+subsection\<open>Interface Between the Reflected and the Native\<close>
 
-ML{*
+ML\<open>
  val To_string0 = String.implode o META.to_list
  fun To_nat (Code_Numeral.Nat i) = i
-*}
+\<close>
 
-ML{*
+ML\<open>
 structure From = struct
  val string = META.SS_base o META.ST
  val binding = string o Binding.name_of
@@ -139,19 +139,19 @@ structure From = struct
  fun ocl_ctxt_term thy expr =
    META.T_pure (Pure.term (Syntax.read_term (Proof_Context.init_global thy) expr))
 end
-*}
+\<close>
 
-ML{*
+ML\<open>
 fun in_local decl thy =
   thy
   |> Named_Target.theory_init
   |> decl
   |> Local_Theory.exit_global
-*}
+\<close>
 
-ML{* fun List_mapi f = META.mapi (f o To_nat) *}
+ML\<open>fun List_mapi f = META.mapi (f o To_nat)\<close>
 
-ML{*
+ML\<open>
 structure Ty' = struct
 fun check l_oid l =
   let val Mp = META.map_prod
@@ -167,20 +167,20 @@ fun check l_oid l =
     ((META.SS_base o META.ST) l)
   end
 end
-*}
+\<close>
 
-subsection{* Binding of the Reflected API to the Native API *}
+subsection\<open>Binding of the Reflected API to the Native API\<close>
 
-ML{*
+ML\<open>
 structure META_overload = struct
   val of_semi__typ = META.of_semi_typ To_string0
   val of_semi__term = META.of_semi_terma To_string0
   val of_semi__term' = META.of_semi_term To_string0
   val fold = fold
 end
-*}
+\<close>
 
-ML{*
+ML\<open>
 structure Bind_Isabelle = struct
 fun To_binding s = Binding.make (s, Position.none)
 val To_sbinding = To_binding o To_string0
@@ -546,11 +546,11 @@ fun all_meta aux ret = let open META open META_overload in fn
 end
 
 end
-*}
+\<close>
 (*<*)
-subsection{* Directives of Compilation for Target Languages *}
+subsection\<open>Directives of Compilation for Target Languages\<close>
 
-ML{*
+ML\<open>
 structure Deep0 = struct
 
 fun apply_hs_code_identifiers ml_module thy =
@@ -827,9 +827,9 @@ fun build ml_compiler =
 end
 
 end
-*}
+\<close>
 
-ML{*
+ML\<open>
 structure Deep = struct
 
 fun absolute_path filename thy =
@@ -897,11 +897,11 @@ val list_all_eq = fn x0 :: xs =>
   List.all (fn x1 => x0 = x1) xs
 
 end
-*}
+\<close>
 
-subsection{* Saving the History of Meta Commands *}
+subsection\<open>Saving the History of Meta Commands\<close>
 
-ML{*
+ML\<open>
 fun p_gen f g =  f "[" "]" g
               (*|| f "{" "}" g*)
               || f "(" ")" g
@@ -910,9 +910,9 @@ fun parse_l f = Parse.$$$ "[" |-- Parse.!!! (Parse.list f --| Parse.$$$ "]")
 fun parse_l' f = Parse.$$$ "[" |-- Parse.list f --| Parse.$$$ "]"
 fun parse_l1' f = Parse.$$$ "[" |-- Parse.list1 f --| Parse.$$$ "]"
 fun annot_ty f = Parse.$$$ "(" |-- f --| Parse.$$$ "::" -- Parse.binding --| Parse.$$$ ")"
-*}
+\<close>
 
-ML{*
+ML\<open>
 structure Generation_mode = struct
 
 datatype internal_deep = Internal_deep of
@@ -1064,15 +1064,15 @@ fun update_compiler_config f =
               | Gen_shallow (env, thy) => Gen_shallow (META.compiler_env_config_update f env, thy)
               | Gen_syntax_print n => Gen_syntax_print n) l_mode))
 end
-*}
+\<close>
 
-subsection{* Factoring All Meta Commands Together *}
+subsection\<open>Factoring All Meta Commands Together\<close>
 
-setup{* ML_Antiquotation.inline @{binding mk_string} (Scan.succeed
+setup\<open>ML_Antiquotation.inline @{binding mk_string} (Scan.succeed
 "(fn ctxt => fn x => Pretty.string_of (Pretty.from_ML (pretty_ml (PolyML.prettyRepresentation (x, Config.get ctxt ML_Options.print_depth)))))")
-*}
+\<close>
 
-ML{*
+ML\<open>
 
 fun exec_deep (env, output_header_thy, seri_args, filename_thy, tmp_export_code, l_obj) thy0 =
   let open Generation_mode in
@@ -1193,11 +1193,11 @@ fun outer_syntax_command0 mk_string cmd_spec cmd_descr parser get_all_meta_embed
 fun outer_syntax_command mk_string cmd_spec cmd_descr parser get_all_meta_embed =
  outer_syntax_command0 mk_string cmd_spec cmd_descr parser (fn a => fn thy => [get_all_meta_embed a thy])
 
-*}
+\<close>
 
-subsection{* Parameterizing the Semantics of Embedded Languages *}
+subsection\<open>Parameterizing the Semantics of Embedded Languages\<close>
 
-ML{*
+ML\<open>
 val () = let open Generation_mode in
   Outer_Syntax.command @{command_keyword generation_syntax} "set the generating list"
     ((   mode >> (fn x => SOME [x])
@@ -1220,11 +1220,11 @@ val () = let open Generation_mode in
         in
         thy end)))
 end
-*}
+\<close>
 
-subsection{* Common Parser for Toy *}
+subsection\<open>Common Parser for Toy\<close>
 
-ML{*
+ML\<open>
 structure USE_parse = struct
   datatype ('a, 'b) use_context = USE_context_invariant of 'a
                                 | USE_context_pre_post of 'b
@@ -1504,21 +1504,21 @@ structure USE_parse = struct
   fun mk_pp_state thy = fn ST_PP_l_attr l => META.OclDefPPCoreAdd (mk_state thy l)
                          | ST_PP_binding s => META.OclDefPPCoreBinding (From.binding s)
 end
-*}
+\<close>
 
-subsection{* Setup of Meta Commands for Toy: Enum *}
+subsection\<open>Setup of Meta Commands for Toy: Enum\<close>
 
-ML{*
+ML\<open>
 val () =
   outer_syntax_command @{mk_string} @{command_keyword Enum} ""
     (Parse.binding -- parse_l1' Parse.binding)
     (fn (n1, n2) => 
       K (META.META_enum (META.OclEnum (From.binding n1, From.list From.binding n2))))
-*}
+\<close>
 
-subsection{* Setup of Meta Commands for Toy: (abstract) Class *}
+subsection\<open>Setup of Meta Commands for Toy: (abstract) Class\<close>
 
-ML{*
+ML\<open>
 local
   open USE_parse
 
@@ -1543,11 +1543,11 @@ in
 val () = mk_classDefinition USE_class @{command_keyword Class}
 val () = mk_classDefinition USE_class_abstract @{command_keyword Abstract_class}
 end
-*}
+\<close>
 
-subsection{* Setup of Meta Commands for Toy: Association, Composition, Aggregation *}
+subsection\<open>Setup of Meta Commands for Toy: Association, Composition, Aggregation\<close>
 
-ML{*
+ML\<open>
 local
   open USE_parse
 
@@ -1563,11 +1563,11 @@ val () = mk_associationDefinition META.OclAssTy_association @{command_keyword As
 val () = mk_associationDefinition META.OclAssTy_composition @{command_keyword Composition}
 val () = mk_associationDefinition META.OclAssTy_aggregation @{command_keyword Aggregation}
 end
-*}
+\<close>
 
-subsection{* Setup of Meta Commands for Toy: (abstract) Associationclass *}
+subsection\<open>Setup of Meta Commands for Toy: (abstract) Associationclass\<close>
 
-ML{*
+ML\<open>
 
 local
   open USE_parse
@@ -1601,11 +1601,11 @@ in
 val () = mk_associationClassDefinition USE_associationclass @{command_keyword Associationclass}
 val () = mk_associationClassDefinition USE_associationclass_abstract @{command_keyword Abstract_associationclass}
 end
-*}
+\<close>
 
-subsection{* Setup of Meta Commands for Toy: Context *}
+subsection\<open>Setup of Meta Commands for Toy: Context\<close>
 
-ML{*
+ML\<open>
 local
  open USE_parse
 in
@@ -1625,11 +1625,11 @@ val () =
         , From.list (fn f => f from_expr) l
         , ()))))
 end
-*}
+\<close>
 
-subsection{* Setup of Meta Commands for Toy: End *}
+subsection\<open>Setup of Meta Commands for Toy: End\<close>
 
-ML{*
+ML\<open>
 val () =
   outer_syntax_command0 @{mk_string} @{command_keyword End} "Class generation"
     (Scan.optional ( Parse.$$$ "[" -- Parse.reserved "forced" -- Parse.$$$ "]" >> K true
@@ -1639,11 +1639,11 @@ val () =
          [META.META_flush_all META.OclFlushAll]
        else
          [])
-*}
+\<close>
 
-subsection{* Setup of Meta Commands for Toy: BaseType, Instance, State *}
+subsection\<open>Setup of Meta Commands for Toy: BaseType, Instance, State\<close>
 
-ML{*
+ML\<open>
 val () =
   outer_syntax_command @{mk_string} @{command_keyword BaseType} ""
     (parse_l' USE_parse.term_base)
@@ -1667,11 +1667,11 @@ val () =
         ( if is_shallow = NONE then META.Floor1 else META.Floor2
         , META.OclDefSt (From.binding name, mk_state thy l)))
 end
-*}
+\<close>
 
-subsection{* Setup of Meta Commands for Toy: PrePost *}
+subsection\<open>Setup of Meta Commands for Toy: PrePost\<close>
 
-ML{*
+ML\<open>
 local
   open USE_parse
 in
@@ -1689,6 +1689,6 @@ val () =
                        , From.option (mk_pp_state thy) s_post)))
 end
 (*val _ = print_depth 100*)
-*}
+\<close>
 (*>*)
 end

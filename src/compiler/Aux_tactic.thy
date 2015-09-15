@@ -41,7 +41,7 @@
  ******************************************************************************)
 (* $Id:$ *)
 
-header{* Part ... *}
+header\<open>Part ...\<close>
 
 theory Aux_tactic
 imports Main
@@ -49,9 +49,9 @@ imports Main
            :: thy_decl
 begin
 
-subsection{* Infra-structure that skip lengthy termination proofs *}
+subsection\<open>Infra-structure that skip lengthy termination proofs\<close>
 
-ML{*
+ML\<open>
 structure Fun_quick = struct
 val quick_dirty = false
   (* false: "fun_quick" behaves as "fun"
@@ -89,6 +89,6 @@ fun mk_fun quick_dirty cmd_spec tac =
 val () = mk_fun quick_dirty @{command_keyword fun_quick} proof_by_sorry
 val () = mk_fun true @{command_keyword fun_sorry} proof_by_patauto
 end
-*}
+\<close>
 
 end

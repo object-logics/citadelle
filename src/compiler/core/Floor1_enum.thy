@@ -41,7 +41,7 @@
  ******************************************************************************)
 (* $Id:$ *)
 
-section{* Main Translation for: Enumeration *}
+section\<open>Main Translation for: Enumeration\<close>
 
 theory  Floor1_enum
 imports Core_init

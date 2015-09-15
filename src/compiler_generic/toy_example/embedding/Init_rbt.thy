@@ -36,7 +36,7 @@
  ******************************************************************************)
 (* $Id:$ *)
 
-section{* Basic Extension of the Standard Library (Depending on RBT) *}
+section\<open>Basic Extension of the Standard Library (Depending on RBT)\<close>
 
 theory Init_rbt
 imports "../../Init"

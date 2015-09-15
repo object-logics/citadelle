@@ -36,7 +36,7 @@
  ******************************************************************************)
 (* $Id:$ *)
 
-section{* Regrouping Together All Existing Meta-Models *}
+section\<open>Regrouping Together All Existing Meta-Models\<close>
 
 theory  Meta_META
 imports Meta_Toy
@@ -44,19 +44,19 @@ imports Meta_Toy
         "../../../meta_isabelle/Meta_Isabelle"
 begin
 
-subsection{* A Basic Meta-Model *}
+subsection\<open>A Basic Meta-Model\<close>
 
-text{* The following basic Meta-Model will be used for requiring an eager
-       or lazy interactive evaluation of already encountered Meta-Models. *}
+text\<open>The following basic Meta-Model will be used for requiring an eager
+       or lazy interactive evaluation of already encountered Meta-Models.\<close>
 datatype ocl_flush_all = OclFlushAll
 
-subsection{* The META Meta-Model (I) *}
+subsection\<open>The META Meta-Model (I)\<close>
 
-text{*
+text\<open>
 Meta-Models can be seen as arranged in a semantic tower with several floors.
 By default, @{term Floor1} corresponds to the top level,
 then a subsequent meta-evaluation would jump to a deeper floor,
-to @{term Floor2}, etc... *}
+to @{term Floor2}, etc...\<close>
 
 datatype floor = Floor1 | Floor2 | Floor3 (* NOTE nat can be used *)
 
@@ -80,7 +80,7 @@ datatype all_meta_embedding =
                             | META_def_pre_post floor ocl_def_pre_post
                             | META_flush_all ocl_flush_all
 
-subsection{* Main Compiling Environment *}
+subsection\<open>Main Compiling Environment\<close>
 
 datatype generation_semantics_ocl = Gen_only_design | Gen_only_analysis | Gen_default
 datatype generation_lemma_mode = Gen_sorry | Gen_no_dirty
@@ -112,7 +112,7 @@ record compiler_env_config =  D_output_disable_thy :: bool
                               D_ocl_HO_type :: "(string\<^sub>b\<^sub>a\<^sub>s\<^sub>e (* raw HOL name (as key for rbt) *)) list"
                               D_output_sorry_dirty :: "generation_lemma_mode option \<times> bool (* dirty *)" (* Some Gen_sorry or None and {dirty}: activate sorry mode for skipping proofs *)
 
-subsection{* Operations of Fold, Map, ..., on the Meta-Model *}
+subsection\<open>Operations of Fold, Map, ..., on the Meta-Model\<close>
 
 definition "ignore_meta_header = (\<lambda> META_class_raw Floor1 _ \<Rightarrow> True
                                   | META_ass_class Floor1 _ \<Rightarrow> True
@@ -135,8 +135,8 @@ definition "map2_ctxt_term f =
 definition "compiler_env_config_more_map f ocl =
             compiler_env_config.extend  (compiler_env_config.truncate ocl) (f (compiler_env_config.more ocl))"
 
-subsection{* The META Meta-Model (II) *}
-subsubsection{* Type Definition *}
+subsection\<open>The META Meta-Model (II)\<close>
+subsubsection\<open>Type Definition\<close>
 
 datatype boot_generation_syntax = Boot_generation_syntax generation_semantics_ocl
 
@@ -150,7 +150,7 @@ datatype all_meta = (* pure Isabelle *)
                   | META_boot_setup_env boot_setup_env
                   | META_all_meta_embedding all_meta_embedding
 
-subsubsection{* Extending the Meta-Model *}
+subsubsection\<open>Extending the Meta-Model\<close>
 
 locale O (* outer syntax *)
 begin
@@ -232,7 +232,7 @@ lemmas [code] =
   O'.thm_def
   O'.interpretation_def
 
-subsubsection{* Operations of Fold, Map, ..., on the Meta-Model *}
+subsubsection\<open>Operations of Fold, Map, ..., on the Meta-Model\<close>
 
 definition "map_semi__theory f = (\<lambda> META_semi__theories (Theories_one x) \<Rightarrow> META_semi__theories (Theories_one (f x))
                                   | META_semi__theories (Theories_locale data l) \<Rightarrow> META_semi__theories (Theories_locale data (L.map (L.map f) l))

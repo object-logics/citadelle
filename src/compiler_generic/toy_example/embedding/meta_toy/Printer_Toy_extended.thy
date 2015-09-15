@@ -36,7 +36,7 @@
  ******************************************************************************)
 (* $Id:$ *)
 
-section{* Instantiating the Printer for Toy (II) *}
+section\<open>Instantiating the Printer for Toy (II)\<close>
 
 theory  Printer_Toy_extended
 imports Meta_Toy_extended

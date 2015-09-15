@@ -36,14 +36,14 @@
  ******************************************************************************)
 (* $Id:$ *)
 
-section{* Toy Meta-Model aka. AST definition of Toy (I) *}
+section\<open>Toy Meta-Model aka. AST definition of Toy (I)\<close>
 
 theory  Meta_Toy
 imports "../../../meta_isabelle/Meta_Pure"
         "../Init_rbt"
 begin
 
-subsection{* Type Definition *}
+subsection\<open>Type Definition\<close>
 
 datatype ocl_collection = Set
                         | Sequence
@@ -140,7 +140,7 @@ datatype ocl_class_synonym = OclClassSynonym string (* name alias *) ocl_ty
 
 datatype ocl_enum = OclEnum string (* name *) "string (* constructor name *) list"
 
-subsection{* Extending the Meta-Model *}
+subsection\<open>Extending the Meta-Model\<close>
 
 definition "T_lambdas = List.fold T_lambda"
 definition "TyObjN_role_name = TyRole o TyObjN_role_multip"
@@ -200,7 +200,7 @@ fun remove_binding where
                         | OclTy_arrow ty1 ty2 \<Rightarrow> OclTy_arrow (remove_binding ty1) (remove_binding ty2)
                         | x \<Rightarrow> x) e"
 
-subsection{* Class Translation Preliminaries *}
+subsection\<open>Class Translation Preliminaries\<close>
 
 definition "const_oid = \<open>oid\<close>"
 definition "var_ty_list = \<open>list\<close>"

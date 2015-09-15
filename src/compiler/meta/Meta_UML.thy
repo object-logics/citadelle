@@ -41,14 +41,14 @@
  ******************************************************************************)
 (* $Id:$ *)
 
-section{* OCL Meta-Model aka. AST definition of OCL (I) *}
+section\<open>OCL Meta-Model aka. AST definition of OCL (I)\<close>
 
 theory  Meta_UML
 imports "../../compiler_generic/meta_isabelle/Meta_Pure"
         "../Init_rbt"
 begin
 
-subsection{* Type Definition *}
+subsection\<open>Type Definition\<close>
 
 datatype ocl_collection = Set
                         | Sequence
@@ -145,7 +145,7 @@ datatype ocl_class_synonym = OclClassSynonym string (* name alias *) ocl_ty
 
 datatype ocl_enum = OclEnum string (* name *) "string (* constructor name *) list"
 
-subsection{* Extending the Meta-Model *}
+subsection\<open>Extending the Meta-Model\<close>
 
 definition "T_lambdas = List.fold T_lambda"
 definition "TyObjN_role_name = TyRole o TyObjN_role_multip"
@@ -235,7 +235,7 @@ fun remove_binding where
                         | OclTy_arrow ty1 ty2 \<Rightarrow> OclTy_arrow (remove_binding ty1) (remove_binding ty2)
                         | x \<Rightarrow> x) e"
 
-subsection{* Class Translation Preliminaries *}
+subsection\<open>Class Translation Preliminaries\<close>
 
 definition "const_oid = \<open>oid\<close>"
 definition "var_ty_list = \<open>list\<close>"
@@ -531,7 +531,7 @@ fun fold_less_gen where "fold_less_gen f_gen f_jump f l = (case l of
 
 definition "fold_less2 = fold_less_gen List.fold"
 
-section{* Translation of AST *}
+section\<open>Translation of AST\<close>
 
 definition "var_in_pre_state = \<open>in_pre_state\<close>"
 definition "var_in_post_state = \<open>in_post_state\<close>"

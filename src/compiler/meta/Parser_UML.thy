@@ -41,14 +41,14 @@
  ******************************************************************************)
 (* $Id:$ *)
 
-section{* Instantiating the Parser of OCL (I) *}
+section\<open>Instantiating the Parser of OCL (I)\<close>
 
 theory  Parser_UML
 imports Meta_UML
         "../../compiler_generic/meta_isabelle/Parser_Pure"
 begin
 
-subsection{* Building Recursors for Records *} (* NOTE part to be automated *)
+subsection\<open>Building Recursors for Records\<close> (* NOTE part to be automated *)
 
 definition "ocl_multiplicity_rec0 f ocl = f
   (TyMult ocl)
@@ -138,7 +138,7 @@ by(intro ext, simp add: ocl_association_rec0_def
                         ocl_association.make_def
                         co2_def K_def)
 
-subsection{* Main *}
+subsection\<open>Main\<close>
 
 context Parse
 begin

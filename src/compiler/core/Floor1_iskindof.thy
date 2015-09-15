@@ -41,7 +41,7 @@
  ******************************************************************************)
 (* $Id:$ *)
 
-section{* Main Translation for: IsKindOf *}
+section\<open>Main Translation for: IsKindOf\<close>
 
 theory  Floor1_iskindof
 imports Core_init

@@ -36,14 +36,14 @@
  ******************************************************************************)
 (* $Id:$ *)
 
-section{* Instantiating the Parser of Toy (II) *}
+section\<open>Instantiating the Parser of Toy (II)\<close>
 
 theory  Parser_Toy_extended
 imports Meta_Toy_extended
         "../../../meta_isabelle/Parser_init"
 begin
 
-subsection{* Building Recursors for Records *} (* NOTE part to be automated *)
+subsection\<open>Building Recursors for Records\<close> (* NOTE part to be automated *)
 
 definition "ocl_instance_single_rec0 f ocl = f
   (Inst_name ocl)
@@ -69,7 +69,7 @@ by(intro ext, simp add: ocl_instance_single_rec0_def
                         ocl_instance_single.make_def
                         co3_def K_def)
 
-subsection{* Main *}
+subsection\<open>Main\<close>
 
 context Parse
 begin

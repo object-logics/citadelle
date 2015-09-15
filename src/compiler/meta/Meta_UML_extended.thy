@@ -41,13 +41,13 @@
  ******************************************************************************)
 (* $Id:$ *)
 
-section{* OCL Meta-Model aka. AST definition of OCL (II) *}
+section\<open>OCL Meta-Model aka. AST definition of OCL (II)\<close>
 
 theory  Meta_UML_extended
 imports "../../compiler_generic/Init"
 begin
 
-subsection{* Type Definition *}
+subsection\<open>Type Definition\<close>
 
 datatype internal_oid = Oid nat
 datatype internal_oids = Oids nat (* start *)
@@ -95,7 +95,7 @@ datatype ocl_def_pre_post = OclDefPP
                               ocl_def_pp_core (* pre *)
                               "ocl_def_pp_core option" (* post *) (* None: same as pre *)
 
-subsection{* Object ID Management *}
+subsection\<open>Object ID Management\<close>
 
 definition "oidInit = (\<lambda> Oid n \<Rightarrow> Oids n n n)"
 
@@ -107,7 +107,7 @@ definition "oidGetInh = (\<lambda> Oids _ _ n \<Rightarrow> Oid n)"
 definition "oidReinitAll = (\<lambda>Oids n1 _ _ \<Rightarrow> Oids n1 n1 n1)"
 definition "oidReinitInh = (\<lambda>Oids n1 n2 _ \<Rightarrow> Oids n1 n2 n2)"
 
-subsection{* Operations of Fold, Map, ..., on the Meta-Model *}
+subsection\<open>Operations of Fold, Map, ..., on the Meta-Model\<close>
 
 definition "ocl_instance_single_empty = \<lparr> Inst_name = None, Inst_ty = None, Inst_attr = OclAttrNoCast [] \<rparr>"
 

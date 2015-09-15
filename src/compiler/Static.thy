@@ -37,7 +37,7 @@
 (* $Id:$ *)
 
 
-section{* Main Common Static Libraries *}
+section\<open>Main Common Static Libraries\<close>
 
 theory Static
 imports Main
