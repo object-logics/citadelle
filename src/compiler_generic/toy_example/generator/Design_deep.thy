@@ -269,8 +269,12 @@ for subsequent semantic floors.
 This is what is implemented here:
 *}
 
+text{*
+\begin{verbatim}
 Context Person :: content ()
   Post "\<close>\<open>"
+\end{verbatim}
+*}
 
 text{*
 Here the expression @{text "\<close>\<open>"} is not well-typed in Isabelle, but an error is not raised
