@@ -64,12 +64,37 @@ definition "L_fold f =
 
 subsection\<open>Assembling Translations\<close>
 
+definition "txt f = start_map'''' O.text o (\<lambda>_ design_analysis. [Text (f design_analysis)])"
+definition "txt' s = txt (\<lambda>_. s)"
+definition "txt'' = txt' o S.flatten"
+
 definition' thy_class ::
   (* polymorphism weakening needed by code_reflect *)
   "_ embedding'" where \<open>thy_class =
   Embed_theories
-          [ print_infra_datatype_class
+          [ txt'' [ \<open>
+  For certain concepts like classes and class-types, only a generic
+  definition for its resulting semantics can be given. Generic means,
+  there is a function outside HOL that ``compiles'' a concrete,
+  closed-world class diagram into a ``theory'' of this data model,
+  consisting of a bunch of definitions for classes, accessors, method,
+  casts, and tests for actual types, as well as proofs for the
+  fundamental properties of these operations in this concrete data
+  model. \<close> ]
+          , txt'' [ \<open>
+   Our data universe  consists in the concrete class diagram just of node's,
+and implicitly of the class object. Each class implies the existence of a class
+type defined for the corresponding object representations as follows: \<close> ]
+          , print_infra_datatype_class
+          , txt'' [ \<open>
+   Now, we construct a concrete ``universe of ToyAny types'' by injection into a
+sum type containing the class types. This type of ToyAny will be used as instance
+for all respective type-variables. \<close> ]
           , print_infra_datatype_universe
+          , txt'' [ \<open>
+   Having fixed the object universe, we can introduce type synonyms that exactly correspond
+to Toy types. Again, we exploit that our representation of Toy is a ``shallow embedding'' with a
+one-to-one correspondance of Toy-types to types of the meta-language HOL. \<close> ]
           , print_infra_type_synonym_class_higher
           , print_access_oid_uniq
           , print_access_choose ]\<close>
