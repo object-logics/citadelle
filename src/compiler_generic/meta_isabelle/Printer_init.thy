@@ -43,8 +43,9 @@ imports "../Init"
         "../isabelle_home/src/HOL/Isabelle_Main1"
 begin
 
-text\<open>At the time of writing, targets languages supported
-     by Isabelle are: Haskell, OCaml, Scala, SML.\<close>
+text\<open>At the time of writing, the following target languages supported
+     by Isabelle are also supported by the meta-compiler:
+     Haskell, OCaml, Scala, SML.\<close>
 
 subsection\<open>Kernel Code for Target Languages\<close>
 

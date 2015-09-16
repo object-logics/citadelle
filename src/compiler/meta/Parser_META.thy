@@ -152,8 +152,13 @@ lemmas [code] =
 
 section\<open>Finalizing the Parser\<close>
 
-text\<open>As short remark, it should be feasible to invent a meta-command (e.g., @{text "datatype'"})
-to automatically generate the previous recursors in @{text Parse}.\<close>
+text\<open>It should be feasible to invent a meta-command (e.g., @{text "datatype'"})
+to automatically generate the previous recursors in @{text Parse}.
+
+Otherwise as an extra check, one can also overload polymorphic cartouches in @{theory Init}
+to really check that all the given constructor exists at the time of editing
+(similarly as writing @{verbatim "@{term ...}"},
+when it is embedded in a @{verbatim "text"} command).\<close>
 
 subsection\<open>Isabelle Syntax\<close>
 

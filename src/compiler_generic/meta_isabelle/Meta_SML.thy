@@ -44,6 +44,11 @@ begin
 
 subsection\<open>Type Definition\<close>
 
+text\<open>The following datatypes beginning with \verb|semi__| represent semi-concrete syntax,
+       deliberately not minimal abstract syntax like (Pure) Term,
+       this is for example to facilitate the pretty-printing process,
+       or for manipulating recursively data-structures through an abstract and typed API.\<close>
+
 datatype semi__val_fun = Sval
                        | Sfun
 

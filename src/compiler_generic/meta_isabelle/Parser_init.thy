@@ -129,9 +129,9 @@ lemmas [code] =
   Parse.of_option_def
 
 text\<open>
-As remark, this theory and all the deriving one could
+This theory and all the deriving one could
 also be prefixed by ``print'' instead of ``parse''. 
-In any case, we are converting (or printing) Meta-Models to another format, 
-and this format will finally get to be ``parsed'' by Isabelle!\<close>
+In any case, we are converting (or printing) the above datatypes to another format, 
+and finally this format will be ``parsed'' by Isabelle!\<close>
 
 end

@@ -256,10 +256,15 @@ definition "datatype_in = \<open>in\<close>"
 
 subsection\<open>Main Combinators for the Translation\<close>
 
-text\<open>As general remark, all the translating step can be simplified
-by the use of polymorphic cartouches,
-it looks feasible to embed an additional syntactic front-end for cartouche in order to embed
-the Isabelle syntax in cartouche and obtain an Isabelle Meta-Model in Isabelle.\<close>
+text\<open>
+As general remark, all the future translating steps 
+(e.g., that will occur in @{file "Floor1_access.thy"})
+will extensively use Isabelle expressions,
+represented by its Meta-Model, for example lots of functions will use @{term "Term_app"}...
+So the overall can be simplified by the use of polymorphic cartouches.
+It looks feasible to add a new front-end for cartouches in @{theory "Init"}
+supporting the use of Isabelle syntax in cartouches,
+then we could obtain at the end a parsed Isabelle Meta-Model in Isabelle.\<close>
 
 definition "map_class_arg_only_var = map_class_arg_only_var_gen (\<lambda>s e. Term_postunary s (Term_basic e))"
 definition "map_class_arg_only_var' = map_class_arg_only_var'_gen (\<lambda>s e. Term_postunary s (Term_basic e))"
