@@ -123,8 +123,8 @@ subsection\<open>Designing Class Models (III): Interaction with (Pure) Term\<clo
 
 text{*
 Here in @{keyword "shallow"} mode, the following expression is directly rejected: \\
-\verb|Context Person :: content ()| \\
-\verb|  Post "\<close>\<open>"|
+\verb|(* Context Person :: content ()| \\
+\verb|     Post "\<close>\<open>" *)|
 *}
 
 Context[shallow] Person :: content () 

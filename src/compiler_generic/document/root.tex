@@ -43,6 +43,7 @@
 %%
 
 \newcommand\inputif[1]{\IfFileExists{./#1}{\input{#1}}{}}
+\newcommand\chapterif[2]{\IfFileExists{./#1}{\chapter{#2}}{}}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % fix for package declaration to be at the end
@@ -117,22 +118,51 @@ transformations, correctness, etc.
 
 \part{A Meta-Model for the Isabelle API}
 \chapter{Initialization}
-\input{Init.tex}
+\inputif{Init.tex}
+\inputif{Init_rbt.tex}
 
 \chapter{Defining Meta-Models}
-\input{Meta_Pure.tex}
-\input{Meta_SML.tex}
-\input{Meta_Isabelle.tex}
+\inputif{Meta_Pure.tex}
+\inputif{Meta_SML.tex}
+\inputif{Meta_Isabelle.tex}
+  \inputif{Meta_Toy.tex}
+  \inputif{Meta_Toy_extended.tex}
+\inputif{Meta_META.tex}
+
+%\chapter{Toy Libraries Static}
+  \inputif{Toy_Library_Static.tex}
+
+%\chapter{Translating Meta-Models}
+\inputif{Core_init.tex}
+\inputif{Floor1_enum.tex}
+\inputif{Floor1_infra.tex}
+\inputif{Floor1_astype.tex}
+\inputif{Floor1_istypeof.tex}
+\inputif{Floor1_iskindof.tex}
+\inputif{Floor1_allinst.tex}
+\inputif{Floor1_access.tex}
+\inputif{Floor1_examp.tex}
+\inputif{Floor2_examp.tex}
+\inputif{Floor1_ctxt.tex}
+\inputif{Floor2_ctxt.tex}
+\inputif{Core.tex}
 
 \chapter{Parsing Meta-Models}
-\input{Parser_init.tex}
-\input{Parser_Pure.tex}
+\inputif{Parser_init.tex}
+\inputif{Parser_Pure.tex}
+  \inputif{Parser_Toy.tex}
+  \inputif{Parser_Toy_extended.tex}
+\inputif{Parser_META.tex}
 
 \chapter{Printing Meta-Models}
-\input{Printer_init.tex}
-\input{Printer_Pure.tex}
-\input{Printer_SML.tex}
-\input{Printer_Isabelle.tex}
+\inputif{Printer_init.tex}
+\inputif{Printer_Pure.tex}
+\inputif{Printer_SML.tex}
+\inputif{Printer_Isabelle.tex}
+  \inputif{Printer_Toy.tex}
+  \inputif{Printer_Toy_extended.tex}
+\inputif{Printer_META.tex}
+\inputif{Printer.tex}
 
 \chapter{Main}
 \inputif{Generator_static.tex}
@@ -186,6 +216,9 @@ Short modification of the argument lifting a $binding$ to a $binding$~$option$ w
 \item \verb|./src/Pure/Isar/Isabelle_isar_syn.thy| \hfill \emph{Main0}: \hspace{3em} \\
 This file only contains the definition of $definition'$.
 \end{itemize}
+
+\chapter{Example Showing One Generated File}
+\inputif{Design_generated_generated.tex}
 
 \end{document}
 
