@@ -83,18 +83,19 @@
 \begin{abstract}
 We represent a theory \emph{of} (a fragment of) Isabelle/HOL 
 \emph{in} Isabelle/HOL. The purpose of this exercise is to write packages for
-domain specific specifications constructs such as class models, B-machines, ...,
+domain-specific specifications such as class models, B-machines, \dots,
+and generally any languages that can be described with a sequence of ``datatype''
 in HOL itself; the Isabelle code-generator can then be used to generate
 tactic code.
 
-Consequently, at present, the package is geared towards 
-parsing, pretty-printing and code-generation to the Isabelle API's; 
-it is at the moment not sufficiently rich for doing meta theory on 
-Isabelle itself. Extensions in this direction are possible, though.
+Consequently the package is geared towards 
+parsing, printing and code-generation to the Isabelle API.
+It is at the moment not sufficiently rich for doing meta theory on 
+Isabelle itself. Extensions in this direction are possible though.
 
-Moreover, the chosen fragment is fairly rudimentary. However, it should be 
+Moreover, the chosen fragment is fairly rudimentary. However it should be 
 easily adapted to one's needs if a package is written on top of it.
-Nevertheless, the supported API contains types, terms, transformation of
+The supported API contains types, terms, transformation of
 global context like definitions and data-type declarations as well
 as infrastructure for Isar-setups.
 
