@@ -438,7 +438,7 @@ datatype reporting = Warning
 definition "raise_ml l_out s = SML (SML.app \<open>Ty'.check\<close>
     [ SML.list'
         (\<lambda>(rep, s).
-          SML.pair (SML.basic [S.flatten [ \<open>OCL.\<close>
+          SML.pair (SML.basic [S.flatten [ \<open>META.\<close>
                                            , case rep of Warning \<Rightarrow> \<open>Warning\<close>
                                                        | Error \<Rightarrow> \<open>Error\<close>
                                                        | Writeln \<Rightarrow> \<open>Writeln\<close> ]])
