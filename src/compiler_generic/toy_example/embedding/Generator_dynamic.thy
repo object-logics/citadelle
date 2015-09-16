@@ -76,10 +76,29 @@ imports Printer
 (*>*)
 begin
 
+text\<open>In the ``dynamic'' solution: the exportation is automatically handled inside Isabelle/jEdit. 
+Inputs are provided using the syntax of the Toy Language, and in output 
+we basically have two options:
+\begin{itemize}
+\item The first is to generate an Isabelle file for inspection or debugging.
+The generated file can interactively be loaded in Isabelle/jEdit, or saved to the hard disk.
+This mode is called the ``deep exportation'' mode or shortly the ``deep'' mode.
+The aim is to maximally automate the process one is manually performing in
+@{file "Generator_static.thy"}.
+\item On the other hand, it is also possible to directly execute
+in Isabelle/jEdit the generated file from the random access memory.
+This mode corresponds to the ``shallow reflection'' mode or shortly ``shallow'' mode.
+\end{itemize}
+In both modes, the reflection is necessary since the main part used by both
+was defined at Isabelle side.
+As a consequence, experimentations in ``deep'' and ``shallow'' are performed 
+without leaving the editing session, in the same as the one the meta-compiler is actually running.\<close>
+
 apply_code_printing_reflect \<open>
-  (* this variable is not used but needed for well typechecking the reflected SML code *)
   val stdout_file = Unsynchronized.ref ""
-\<close>
+\<close> text\<open>This variable is not used in this theory (only in @{file "Generator_static.thy"}),
+       but needed for well typechecking the reflected SML code.\<close> 
+
 code_reflect' open META
    functions (* executing the compiler as monadic combinators for deep and shallow *)
              fold_thy_deep fold_thy_shallow

@@ -44,8 +44,9 @@ begin
 
 section\<open>Optimization on the String Datatype\<close>
 
-text\<open>The following types optimize on @{typ "char list"} concatenations,
-     which will be performed at the end (if needed).\<close>
+text\<open>The following types will allow to delay all concatenations on @{typ "char list"},
+     until we reach the end. As optimization, we also consider the use of @{typ String.literal}
+     besides @{typ "char list"}.\<close>
 
 type_notation natural ("nat")
 definition "Succ x = x + 1"
@@ -78,9 +79,10 @@ section\<open>Basic Extension of the Standard Library\<close>
 
 subsection\<open>Polymorphic Cartouches\<close>
 
-text\<open>We generalize the construction of cartouches for them to be used polymorphically,
-     however the ``real'' type of cartouche expressions needs to be specified
-     earlier with a special command.\<close>
+text\<open>We generalize the construction of cartouches for them to be used ``polymorphically'',
+     however the type inference is not automatic: 
+     types of all cartouche expressions will need to be specified
+     earlier before their use (we will however provide a default type).\<close>
 
 ML\<open>
 val cartouche_grammar =
@@ -94,7 +96,9 @@ val cartouche_grammar =
 
 ML\<open>
 fun parse_translation_cartouche binding l f_char accu = 
-  let val cartouche_type = Attrib.setup_config_string binding (K (fst (hd l))) in
+  let val cartouche_type = Attrib.setup_config_string binding (K (fst (hd l)))
+      (* if there is no type specified, by default we set the first element
+         to be the default type of cartouches *) in
   fn ctxt =>
     string_tr
       let val cart_type = Config.get ctxt cartouche_type in
@@ -115,7 +119,7 @@ parse_translation \<open>
 \<close>
 
 text\<open>This is the special command which sets the type of subsequent cartouches.
-     Note: here the given type is currently a string,
+     Note: here the given type is currently parsed as a string,
            one should extend it to be a truly ``typed'' type...\<close>
 declare[[cartouche_type = "abr_string"]]
 
@@ -364,9 +368,9 @@ definition "hol_split s = S.flatten [s, \<open>.split\<close>]"
 
 section\<open>Miscellaneous\<close> (* section to be removed when errors will be fixed *)
 
-(* Syntactic errors in target languages can appear during extraction,
-   so we explicitly output parenthesis around expressions
-   (by enclosing them in a 'id' scope for instance) *)
+text\<open>Syntactic errors in target languages can appear during extraction,
+     so we explicitly output parenthesis around ambiguous expressions
+     (by enclosing them in a @{term id} scope for instance).\<close>
 
 syntax "_Let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l" :: "[letbinds, 'a] \<Rightarrow> 'a" ("(let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l (_)/ in (_))" [0, 10] 10)
 translations "_Let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l (_binds b bs) e" \<rightleftharpoons> "_Let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l b (_Let bs e)"

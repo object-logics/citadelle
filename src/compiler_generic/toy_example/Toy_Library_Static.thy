@@ -43,7 +43,9 @@ theory Toy_Library_Static
 imports Main
 begin
 
-text\<open>This theory is used by the compiler and is also plan to be included in generated files.\<close>
+text\<open>In case there are functions planned to be at the same time used by the compiler
+(by the translating step) and 
+also used by generated files, then these functions can be defined in this file.\<close>
 
 definition "map_of_list = (foldl ((\<lambda>map. (\<lambda>(x , l1). (case (map (x)) of None \<Rightarrow> (map (x \<mapsto> l1))
     | Some l0 \<Rightarrow> (map (x \<mapsto> (concat ([l0 , l1])))))))) (Map.empty))"

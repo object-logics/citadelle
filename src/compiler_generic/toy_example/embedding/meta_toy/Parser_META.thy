@@ -147,6 +147,9 @@ lemmas [code] =
 
 section\<open>Finalizing the Parser\<close>
 
+text\<open>As short remark, it should be feasible to invent a meta-command (e.g., @{text "datatype'"})
+to automatically generate the previous recursors in @{text Parse}.\<close>
+
 subsection\<open>Isabelle Syntax\<close>
 
 locale Parse_Isabelle

@@ -36,11 +36,21 @@
  ******************************************************************************)
 (* $Id:$ *)
 
+text\<open>We present two solutions for obtaining an Isabelle file.\<close>
+
 section\<open>Static Meta Embedding with Exportation\<close>
 
 theory  Generator_static
 imports Printer
 begin
+(*<*)
+ML_file "~~/src/Doc/antiquote_setup.ML"
+(*>*)
+
+text \<open>In the ``static'' solution: the user manually generates
+the Isabelle file after writing by hand a Toy input to translate.
+The input is not written with the syntax of the Toy Language,
+but with raw Isabelle constructors.\<close>
 
 subsection\<open>Giving an Input to Translate\<close>
 
@@ -50,6 +60,12 @@ definition "Design =
   [ mk (n \<langle>''Galaxy''\<rangle> None) [(\<langle>''sound''\<rangle>, ToyTy_raw \<langle>''unit''\<rangle>), (\<langle>''moving''\<rangle>, ToyTy_raw \<langle>''bool''\<rangle>)]
   , mk (n \<langle>''Planet''\<rangle> (Some \<langle>''Galaxy''\<rangle>)) [(\<langle>''weight''\<rangle>, ToyTy_raw \<langle>''nat''\<rangle>)]
   , mk (n \<langle>''Person''\<rangle> (Some \<langle>''Planet''\<rangle>)) [(\<langle>''salary''\<rangle>, ToyTy_raw \<langle>''int''\<rangle>)] ])"
+
+text \<open>Since we are in a Isabelle session, at this time, it becomes possible to inspect with 
+the command @{command value} the result of the translations applied with @{term Design}. 
+A suitable environment should nevertheless be provided, 
+one can typically experiment this by copying-pasting the following environment
+initialized in the above @{text main}:\<close>
 
 definition "main =
  (let n = \<lambda>n1. ToyTyObj (ToyTyCore_pre n1) []
@@ -79,5 +95,8 @@ text\<open>
 @{verbatim "  (* in Scala module_name M *)"} \\
 @{verbatim "  (* in SML   module_name M *)"}
 \<close>
+
+text\<open>After the exportation and executing the exported, we obtain an Isabelle \verb|.thy| file
+containing the generated code associated to the above input.\<close>
 
 end

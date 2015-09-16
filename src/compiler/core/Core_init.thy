@@ -48,6 +48,8 @@ imports "../Static"
         "../meta/Meta_META"
 begin
 
+text\<open>This file regroups common utilities used by the embedding functions of OCL in Isabelle.\<close>
+
 datatype opt_attr_type = OptInh | OptOwn
 datatype opt_ident = OptIdent nat
 
@@ -252,6 +254,11 @@ definition "datatype_ext_constr_name = datatype_constr_name @@ \<open>\<E>\<X>\<
 definition "datatype_in = \<open>in\<close>"
 
 subsection\<open>Main Combinators for the Translation\<close>
+
+text\<open>As general remark, all the translating step can be simplified
+by the use of polymorphic cartouches,
+it looks feasible to embed an additional syntactic front-end for cartouche in order to embed
+the Isabelle syntax in cartouche and obtain an Isabelle Meta-Model in Isabelle.\<close>
 
 definition "map_class_arg_only_var = map_class_arg_only_var_gen (\<lambda>s e. Term_postunary s (Term_basic e))"
 definition "map_class_arg_only_var' = map_class_arg_only_var'_gen (\<lambda>s e. Term_postunary s (Term_basic e))"

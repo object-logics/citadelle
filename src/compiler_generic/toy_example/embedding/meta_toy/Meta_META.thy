@@ -46,29 +46,39 @@ begin
 
 subsection\<open>A Basic Meta-Model\<close>
 
-text\<open>The following basic Meta-Model will be used for requiring an eager
-       or lazy interactive evaluation of already encountered Meta-Models.\<close>
+text\<open>The following basic Meta-Model is an empty Meta-Model.\<close>
+
+text\<open>Most of the Meta-Model we have defined (in particular those defined in Toy)
+     can be used in exceptional situations 
+     for requiring an eager or lazy interactive evaluation of already encountered Meta-Models.
+     This is also the case for this basic Meta-Model.\<close>
+
 datatype toy_flush_all = ToyFlushAll
 
 subsection\<open>The META Meta-Model (I)\<close>
 
+datatype floor = Floor1 | Floor2 | Floor3 (* NOTE nat can be used *)
+
 text\<open>
 Meta-Models can be seen as arranged in a semantic tower with several floors.
-By default, @{term Floor1} corresponds to the top level,
+By default, @{term Floor1} corresponds to the first level we are situating by default,
 then a subsequent meta-evaluation would jump to a deeper floor,
-to @{term Floor2}, etc...\<close>
+to @{term Floor2}, then @{term Floor3}...\<close>
 
-datatype floor = Floor1 | Floor2 | Floor3 (* NOTE nat can be used *)
+text\<open>
+It is not mandatory to jump to a floor superior than the one we currently are.
+The important point is to be sure that all jumps will ultimately terminate.\<close>
 
 (* *)
 
-(* le meta-model de "tout le monde" - frederic. *)
-datatype all_meta_embedding =
-  (* For the following constructors, if they are preceded by an additional
-     'floor' field, then it indicates the degree of reflection
-     (otherwise degree = Floor1 by default). *)
+text\<open>
+Most of the following constructors are preceded by an additional
+@{typ floor} field, which explicitly indicates the intended associated semantic to consider
+during the meta-embedding to Isabelle.
+In case no @{typ floor} is precised, we fix it to be @{term Floor1} by default.\<close>
 
-                              META_enum toy_enum
+(* le meta-model de "tout le monde" - frederic. *)
+datatype all_meta_embedding = META_enum toy_enum
                             | META_class_raw floor toy_class_raw
                             | META_association toy_association
                             | META_ass_class floor toy_ass_class
@@ -81,6 +91,8 @@ datatype all_meta_embedding =
                             | META_flush_all toy_flush_all
 
 subsection\<open>Main Compiling Environment\<close>
+
+text\<open>The environment constitutes the main data-structure carried by all monadic translations.\<close>
 
 datatype generation_semantics_toy = Gen_only_design | Gen_only_analysis | Gen_default
 datatype generation_lemma_mode = Gen_sorry | Gen_no_dirty
@@ -138,8 +150,11 @@ definition "compiler_env_config_more_map f toy =
 subsection\<open>The META Meta-Model (II)\<close>
 subsubsection\<open>Type Definition\<close>
 
-datatype boot_generation_syntax = Boot_generation_syntax generation_semantics_toy
+text\<open>
+For bootstrapping the environment through the jumps to another semantic floor, we additionally
+consider the environment as a Meta-Model.\<close>
 
+datatype boot_generation_syntax = Boot_generation_syntax generation_semantics_toy
 datatype boot_setup_env = Boot_setup_env compiler_env_config
 
 datatype all_meta = (* pure Isabelle *)
@@ -149,6 +164,10 @@ datatype all_meta = (* pure Isabelle *)
                   | META_boot_generation_syntax boot_generation_syntax
                   | META_boot_setup_env boot_setup_env
                   | META_all_meta_embedding all_meta_embedding
+
+text\<open>As remark, the Isabelle Meta-Model represented by @{typ semi__theories} can be merged
+with the previous META Meta-Model @{typ all_meta_embedding}. 
+However a corresponding parser and printer would then be required.\<close>
 
 subsubsection\<open>Extending the Meta-Model\<close>
 
