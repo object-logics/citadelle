@@ -189,22 +189,31 @@ transformations, correctness, etc.
 
 \section{Changes on Signatures}
 
-Some signatures was removed for exposing the main structure.
 \begin{itemize}
-\item \verb|./src/HOL/Tools/Function/Isabelle_function_common.thy| \hfill \emph{Main0} \hspace{3em}
-\item \verb|./src/HOL/Tools/Metis/Isabelle_metis_tactic.thy| \hfill \emph{Main2} \hspace{3em}
-\item \verb|./src/HOL/Tools/BNF/Isabelle_bnf_fp_def_sugar.thy| \hfill \emph{Main2} \hspace{3em}
-\item \verb|./src/Pure/Isar/Isabelle_parse_spec.thy| \hfill \emph{Main0} \hspace{3em}
-\item \verb|./src/Provers/Isabelle_classical.thy| \hfill \emph{Main2} \hspace{3em}
+\item \verb|./src/HOL/Tools/Metis/Isabelle_metis_tactic.thy| \hfill \emph{Main2}: \hspace{3em}
+\item \verb|./src/HOL/Tools/BNF/Isabelle_bnf_fp_def_sugar.thy| \hfill \emph{Main2}: \hspace{3em}
+\item \verb|./src/Provers/Isabelle_classical.thy| \hfill \emph{Main2}: \hspace{3em}
+\end{itemize}
+Some signatures was removed for exposing the main structure.
+
+\section{Extensions for Cartouches}
+
+\begin{itemize}
+\item \verb|./src/HOL/ex/Isabelle_Cartouche_Examples.thy| \hfill \emph{Main0}: \hspace{3em} \\
+Some functions have been generalized for supporting cartouches.
+\item \verb|./src/HOL/Tools/Function/Isabelle_fun.thy| \hfill \emph{Main0}: \hspace{3em} \\
+This file only contains the definition of $fun'$.
+\item \verb|./src/HOL/Tools/Function/Isabelle_function_common.thy| \hfill \emph{Main0}: \hspace{3em} \\
+Some functions have been generalized for supporting cartouches.
+\item \verb|./src/Pure/Isar/Isabelle_parse_spec.thy| \hfill \emph{Main0}: \hspace{3em} \\
+Some functions have been generalized for supporting cartouches.
+\item \verb|./src/Pure/Isar/Isabelle_isar_syn.thy| \hfill \emph{Main0}: \hspace{3em} \\
+This file only contains the definition of $definition'$.
 \end{itemize}
 
 \section{Other Changes}
 
 \begin{itemize}
-\item \verb|./src/HOL/ex/Isabelle_Cartouche_Examples.thy| \hfill \emph{Main0}: \hspace{3em} \\
-Some functions have been generalized for supporting the use of polymorphic cartouches.
-\item \verb|./src/HOL/Tools/Function/Isabelle_fun.thy| \hfill \emph{Main0}: \hspace{3em} \\
-This file only contains the definition of $fun'$.
 \item \verb|./src/Tools/Code/Isabelle_code_runtime.thy| \hfill \emph{Main1}: \hspace{3em} \\
 The option $open$ was introduced in this file for the definition of $code\_reflect'$.
 \item \verb|./src/Tools/Code/Isabelle_code_target.thy| \hfill \emph{Main1}: \hspace{3em} \\
@@ -213,8 +222,6 @@ we have also defined at the end the implementation of $lazy\_code\_printing$,
 $apply\_code\_printing$ and $apply\_code\_printing\_reflect$.
 \item \verb|./src/Pure/Isar/Isabelle_typedecl.thy| \hfill \emph{Main2}: \hspace{3em} \\
 Short modification of the argument lifting a $binding$ to a $binding$~$option$ with some signatures removed.
-\item \verb|./src/Pure/Isar/Isabelle_isar_syn.thy| \hfill \emph{Main0}: \hspace{3em} \\
-This file only contains the definition of $definition'$.
 \end{itemize}
 
 \chapter{Content of One Generated File (as example)}
