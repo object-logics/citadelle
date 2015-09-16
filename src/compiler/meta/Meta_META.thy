@@ -165,7 +165,7 @@ text\<open>
 For bootstrapping the environment through the jumps to another semantic floor, we additionally
 consider the environment as a Meta-Model.\<close>
 
-datatype boot_generation_syntax = Boot_generation_syntax generation_semantics_toy
+datatype boot_generation_syntax = Boot_generation_syntax generation_semantics_ocl
 datatype boot_setup_env = Boot_setup_env compiler_env_config
 
 datatype all_meta = (* pure Isabelle *)
