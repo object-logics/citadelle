@@ -81,8 +81,8 @@ fun fold_tree where
 
 datatype 'a class_output = OclAny | Class 'a
 
-definition "nat_raw_of_str26 = List_map (\<lambda>i. char_of_nat (nat_of_char (Char Nibble6 Nibble1) + i))"
-definition "nat_raw_of_str10 = List_map (\<lambda>i. char_of_nat (nat_of_char (Char Nibble3 Nibble0) + i))"
+definition "nat_raw_of_str26 = L.map (\<lambda>i. char_of_nat (nat_of_char (Char Nibble6 Nibble1) + i))"
+definition "nat_raw_of_str10 = L.map (\<lambda>i. char_of_nat (nat_of_char (Char Nibble3 Nibble0) + i))"
 
 fun str_of_nat26_aux where (* FIXME merge polymorphically *)
    "str_of_nat26_aux l (n :: Nat.nat) =
@@ -103,23 +103,23 @@ definition "str10_of_nat n = \<lless>nat_raw_of_str10 (str_of_nat10_aux [] n)\<g
 definition "string26_of_nat n =
  (let n = n - 1
     ; s1 = str26_of_nat n in
-  case String_to_list
+  case String.to_list
          (if n < 26 then
             let s2 = str26_of_nat (26 - n - 1) in
-            flatten [s1, s1, s2, s2]
+            S.flatten [s1, s1, s2, s2]
           else
-            flatten [s1, s1])
+            S.flatten [s1, s1])
   of
-  x # xs \<Rightarrow> flatten [uppercase_of_str \<lless>[x]\<ggreater>, \<lless>xs\<ggreater>])"
+  x # xs \<Rightarrow> S.flatten [String.uppercase \<lless>[x]\<ggreater>, \<lless>xs\<ggreater>])"
 
 definition "print_class =
- (\<lambda> (OclAny, s) \<Rightarrow> flatten [\<langle>''Class ''\<rangle>, s, \<langle>'' End''\<rangle>]
-  | (Class s1, s2) \<Rightarrow> flatten [\<langle>''Class ''\<rangle>, s2, \<langle>'' < ''\<rangle>, s1, \<langle>'' End''\<rangle>]  )"
+ (\<lambda> (OclAny, s) \<Rightarrow> S.flatten [\<langle>''Class ''\<rangle>, s, \<langle>'' End''\<rangle>]
+  | (Class s1, s2) \<Rightarrow> S.flatten [\<langle>''Class ''\<rangle>, s2, \<langle>'' < ''\<rangle>, s1, \<langle>'' End''\<rangle>]  )"
 
 definition "print_abr sprintf_int write_file =
   (let sprintf_int = sprintf_int o natural_of_nat
-     ; flatten_n = flatten o List_map (\<lambda>s. flatten [s, \<lless>[Char Nibble0 NibbleA]\<ggreater>]) in
-  List_flatten o List_flatten o List_map (\<lambda> (nb_child, deep).
+     ; S_flatten_n = S.flatten o L.map (\<lambda>s. S.flatten [s, \<lless>[Char Nibble0 NibbleA]\<ggreater>]) in
+  L.flatten o L.flatten o L.map (\<lambda> (nb_child, deep).
     let body = (rev o fst)
       (fold_tree
         (\<lambda> l1 l2 (l, map).
@@ -128,24 +128,24 @@ definition "print_abr sprintf_int write_file =
           (print_class (case n1 of 0 \<Rightarrow> OclAny | n \<Rightarrow> Class (string26_of_nat n), string26_of_nat n2) # l, map))
         (mk_tree nb_child deep)
         ([], ident_empty))
-      ; tree_name = flatten [\<langle>''Tree_''\<rangle>, sprintf_int nb_child, \<langle>''_''\<rangle>, sprintf_int deep]
+      ; tree_name = S.flatten [\<langle>''Tree_''\<rangle>, sprintf_int nb_child, \<langle>''_''\<rangle>, sprintf_int deep]
       ; g = \<lless>[Char Nibble2 Nibble2]\<ggreater> in
 
-    List_map
+    L.map
       (\<lambda> ((gen_mode, gen_comp), gen_import, gen_init, gen_flush).
-        List_map
+        L.map
           (\<lambda>(comp, comp2).
-            let filename = flatten [tree_name, \<langle>''_''\<rangle>, gen_mode, if String_to_list comp = [] then \<langle>''''\<rangle> else flatten [\<langle>''_''\<rangle>, comp]] in
+            let filename = S.flatten [tree_name, \<langle>''_''\<rangle>, gen_mode, if String.to_list comp = [] then \<langle>''''\<rangle> else S.flatten [\<langle>''_''\<rangle>, comp]] in
             write_file
-              (flatten [filename, \<langle>''.thy''\<rangle>])
-              (List_flatten
-                [ [ flatten [\<langle>''theory ''\<rangle>, filename, \<langle>'' imports ''\<rangle>, gen_import, \<langle>'' ''\<rangle>, 
+              (S.flatten [filename, \<langle>''.thy''\<rangle>])
+              (L.flatten
+                [ [ S.flatten [\<langle>''theory ''\<rangle>, filename, \<langle>'' imports ''\<rangle>, gen_import, \<langle>'' ''\<rangle>, 
                              g,\<langle>''../../src/compiler/Generator_dynamic''\<rangle>,g,
                              \<langle>'' begin''\<rangle>]
                   , gen_init comp comp2]
                 , body
                 , [ \<langle>''''\<rangle>
-                  , flatten [\<langle>''(* ''\<rangle>, str10_of_nat (length body), \<langle>'' *)''\<rangle> ]
+                  , S.flatten [\<langle>''(* ''\<rangle>, str10_of_nat (length body), \<langle>'' *)''\<rangle> ]
                   , \<langle>''''\<rangle>
                   , gen_flush
                   , \<langle>''''\<rangle>
@@ -156,23 +156,23 @@ definition "print_abr sprintf_int write_file =
                      , (\<langle>''SML''\<rangle>, \<langle>''module_name M''\<rangle>)])
         , \<langle>''''\<rangle>
         , \<lambda> comp comp2.
-            flatten_n [          \<langle>''generation_syntax [ deep''\<rangle>
+            S_flatten_n [          \<langle>''generation_syntax [ deep''\<rangle>
                       ,          \<langle>''                      (generation_semantics [ analysis (*, oid_start 10*) ])''\<rangle>
                       ,          \<langle>''                      skip_export''\<rangle>
-                      , flatten [\<langle>''                      (THEORY ''\<rangle>, tree_name, \<langle>''_generated''\<rangle>, \<langle>''_''\<rangle>, comp, \<langle>'')''\<rangle>]
-                      , flatten [\<langle>''                      (IMPORTS [''\<rangle>,g,\<langle>''../../../src/UML_Main''\<rangle>,g,\<langle>'', ''\<rangle>,g,\<langle>''../../../src/compiler/Static''\<rangle>,g,\<langle>'']''\<rangle>]
-                      , flatten [\<langle>''                               ''\<rangle>,g,\<langle>''../../../src/compiler/Generator_dynamic''\<rangle>,g,\<langle>'')''\<rangle>]
+                      , S.flatten [\<langle>''                      (THEORY ''\<rangle>, tree_name, \<langle>''_generated''\<rangle>, \<langle>''_''\<rangle>, comp, \<langle>'')''\<rangle>]
+                      , S.flatten [\<langle>''                      (IMPORTS [''\<rangle>,g,\<langle>''../../../src/UML_Main''\<rangle>,g,\<langle>'', ''\<rangle>,g,\<langle>''../../../src/compiler/Static''\<rangle>,g,\<langle>'']''\<rangle>]
+                      , S.flatten [\<langle>''                               ''\<rangle>,g,\<langle>''../../../src/compiler/Generator_dynamic''\<rangle>,g,\<langle>'')''\<rangle>]
                       ,          \<langle>''                      SECTION''\<rangle>
-                      , flatten [\<langle>''                      [ in ''\<rangle>, comp, \<langle>'' ''\<rangle>, comp2, \<langle>'' ]''\<rangle>]
-                      , flatten [\<langle>''                      (output_directory ''\<rangle>,g,\<langle>''./doc''\<rangle>,g,\<langle>'') ]''\<rangle>] ]
-        , flatten_n [ \<langle>''generation_syntax deep flush_all''\<rangle> ])
+                      , S.flatten [\<langle>''                      [ in ''\<rangle>, comp, \<langle>'' ''\<rangle>, comp2, \<langle>'' ]''\<rangle>]
+                      , S.flatten [\<langle>''                      (output_directory ''\<rangle>,g,\<langle>''./doc''\<rangle>,g,\<langle>'') ]''\<rangle>] ]
+        , S_flatten_n [ \<langle>''generation_syntax deep flush_all''\<rangle> ])
       , ( (\<langle>''shallow''\<rangle>, [(\<langle>''''\<rangle>, \<langle>''''\<rangle>)])
-        , flatten [ g,\<langle>''../../src/UML_Main''\<rangle>,g, \<langle>'' ''\<rangle>
+        , S.flatten [ g,\<langle>''../../src/UML_Main''\<rangle>,g, \<langle>'' ''\<rangle>
                   , g,\<langle>''../../src/compiler/Static''\<rangle>,g  ]
-        , \<lambda>_ _. flatten_n [ \<langle>''generation_syntax [ shallow (generation_semantics [ analysis ]) ]''\<rangle> ]
+        , \<lambda>_ _. S_flatten_n [ \<langle>''generation_syntax [ shallow (generation_semantics [ analysis ]) ]''\<rangle> ]
         , \<langle>''End!''\<rangle>) ]))"
 
-definition "main sprintf_int write_file = print_abr (\<lambda>n. \<lless>sprintf_int n\<ggreater>) (\<lambda>f l. write_file (String_to_list f) (List_map String_to_list l))
+definition "main sprintf_int write_file = print_abr (\<lambda>n. \<lless>sprintf_int n\<ggreater>) (\<lambda>f l. write_file (String.to_list f) (L.map String.to_list l))
   [ (1, 0)
   , (1, 1)
   , (1, 2)
