@@ -7,6 +7,6 @@ Class Ccxx < Bbyy End
 
 (* 3 *)
 
-Class.end
+End!
 
 end

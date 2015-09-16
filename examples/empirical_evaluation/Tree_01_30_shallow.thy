@@ -34,6 +34,6 @@ Class Bdbd < Bcbc End
 
 (* 30 *)
 
-Class.end
+End!
 
 end

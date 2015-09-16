@@ -16,6 +16,6 @@ Class Lloo < Kkpp End
 
 (* 12 *)
 
-Class.end
+End!
 
 end

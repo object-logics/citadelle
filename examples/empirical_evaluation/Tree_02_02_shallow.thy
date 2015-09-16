@@ -10,6 +10,6 @@ Class Ffuu < Bbyy End
 
 (* 6 *)
 
-Class.end
+End!
 
 end

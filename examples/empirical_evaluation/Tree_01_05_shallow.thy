@@ -9,6 +9,6 @@ Class Eevv < Ddww End
 
 (* 5 *)
 
-Class.end
+End!
 
 end

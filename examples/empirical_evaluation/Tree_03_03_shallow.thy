@@ -43,6 +43,6 @@ Class Bmbm < Bdbd End
 
 (* 39 *)
 
-Class.end
+End!
 
 end

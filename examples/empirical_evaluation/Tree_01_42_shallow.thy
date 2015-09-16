@@ -46,6 +46,6 @@ Class Bpbp < Bobo End
 
 (* 42 *)
 
-Class.end
+End!
 
 end

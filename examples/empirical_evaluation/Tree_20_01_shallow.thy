@@ -24,6 +24,6 @@ Class Ttgg End
 
 (* 20 *)
 
-Class.end
+End!
 
 end

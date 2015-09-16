@@ -11,6 +11,6 @@ Class Ggtt End
 
 (* 7 *)
 
-Class.end
+End!
 
 end

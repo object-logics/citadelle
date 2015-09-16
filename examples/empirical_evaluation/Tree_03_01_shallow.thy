@@ -7,6 +7,6 @@ Class Ccxx End
 
 (* 3 *)
 
-Class.end
+End!
 
 end

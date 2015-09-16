@@ -8,6 +8,6 @@ Class Ddww End
 
 (* 4 *)
 
-Class.end
+End!
 
 end

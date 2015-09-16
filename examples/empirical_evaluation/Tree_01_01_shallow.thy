@@ -5,6 +5,6 @@ Class Aazz End
 
 (* 1 *)
 
-Class.end
+End!
 
 end

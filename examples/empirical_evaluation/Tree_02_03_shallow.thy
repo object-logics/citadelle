@@ -18,6 +18,6 @@ Class Nnmm < Jjqq End
 
 (* 14 *)
 
-Class.end
+End!
 
 end

@@ -16,6 +16,6 @@ Class Lloo < Ccxx End
 
 (* 12 *)
 
-Class.end
+End!
 
 end

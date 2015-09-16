@@ -6,6 +6,6 @@ Class Bbyy End
 
 (* 2 *)
 
-Class.end
+End!
 
 end

@@ -60,6 +60,6 @@ Class Cdcd < Cccc End
 
 (* 56 *)
 
-Class.end
+End!
 
 end

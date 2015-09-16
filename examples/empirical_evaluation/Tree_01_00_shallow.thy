@@ -4,6 +4,6 @@ generation_syntax [ shallow (generation_semantics [ analysis ]) ]
 
 (* 0 *)
 
-Class.end
+End!
 
 end
