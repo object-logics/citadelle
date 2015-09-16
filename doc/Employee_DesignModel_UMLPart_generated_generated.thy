@@ -3,17 +3,17 @@ theory Employee_DesignModel_UMLPart_generated_generated imports "../src/UML_Main
 (* 1 ************************************ 0 + 0 *)
 
 (* 2 ************************************ 0 + 1 *)
-text{* 
-   \label{ex:employee-design:uml}  *}
+text \<open>
+   \label{ex:employee-design:uml} \<close>
 
 (* 3 ************************************ 1 + 1 *)
-text{*  *}
+text \<open>\<close>
 
 (* 4 ************************************ 2 + 1 *)
-section{* Introduction *}
+section \<open>Introduction\<close>
 
 (* 5 ************************************ 3 + 1 *)
-text{* 
+text \<open>
 
   For certain concepts like classes and class-types, only a generic
   definition for its resulting semantics can be given. Generic means,
@@ -22,60 +22,60 @@ text{*
   consisting of a bunch of definitions for classes, accessors, method,
   casts, and tests for actual types, as well as proofs for the
   fundamental properties of these operations in this concrete data
-  model.  *}
+  model. \<close>
 
 (* 6 ************************************ 4 + 1 *)
-text{* 
+text \<open>
    Such generic function or ``compiler'' can be implemented in
   Isabelle on the ML level.  This has been done, for a semantics
   following the open-world assumption, for UML 2.0
   in~\cite{brucker.ea:extensible:2008-b, brucker:interactive:2007}. In
   this paper, we follow another approach for UML 2.4: we define the
   concepts of the compilation informally, and present a concrete
-  example which is verified in Isabelle/HOL.  *}
+  example which is verified in Isabelle/HOL. \<close>
 
 (* 7 ************************************ 5 + 1 *)
-subsection{* Outlining the Example *}
+subsection \<open>Outlining the Example\<close>
 
 (* 8 ************************************ 6 + 1 *)
-text{* 
+text \<open>
    We are presenting here a ``design-model'' of the (slightly
 modified) example Figure 7.3, page 20 of
 the OCL standard~\cite{omg:ocl:2012}. To be precise, this theory contains the formalization of
-the data-part covered by the UML class model (see \autoref{fig:person}): *}
+the data-part covered by the UML class model (see \autoref{fig:person}):\<close>
 
 (* 9 ************************************ 7 + 1 *)
-text{*  *}
+text \<open>\<close>
 
 (* 10 ************************************ 8 + 1 *)
-text{* 
+text \<open>
 
 \begin{figure}
   \centering\scalebox{.3}{\includegraphics{figures/person.png}}%
   \caption{A simple UML class model drawn from Figure 7.3,
   page 20 of~\cite{omg:ocl:2012}. \label{fig:person}}
 \end{figure}
- *}
+\<close>
 
 (* 11 ************************************ 9 + 1 *)
-text{*  *}
+text \<open>\<close>
 
 (* 12 ************************************ 10 + 1 *)
-text{* 
+text \<open>
    This means that the association (attached to the association class
 \inlineocl{EmployeeRanking}) with the association ends \inlineocl+boss+ and \inlineocl+employees+ is implemented
 by the attribute  \inlineocl+boss+ and the operation \inlineocl+employees+ (to be discussed in the OCL part
 captured by the subsequent theory).
- *}
+\<close>
 
 (* 13 ************************************ 11 + 1 *)
-section{* Example Data-Universe and its Infrastructure *}
+section \<open>Example Data-Universe and its Infrastructure\<close>
 
 (* 14 ************************************ 12 + 1 *)
-text{* 
+text \<open>
    Our data universe  consists in the concrete class diagram just of node's,
 and implicitly of the class object. Each class implies the existence of a class
-type defined for the corresponding object representations as follows:  *}
+type defined for the corresponding object representations as follows: \<close>
 
 (* 15 ************************************ 13 + 8 *)
 datatype ty\<E>\<X>\<T>\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n = mk\<E>\<X>\<T>\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n "oid" "nat option" "int option" "unit option" "bool option" "oid list list option"
@@ -94,10 +94,10 @@ datatype ty\<E>\<X>\<T>\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y = mk\<E>
 datatype ty\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y = mk\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y "ty\<E>\<X>\<T>\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y"
 
 (* 16 ************************************ 21 + 1 *)
-text{* 
+text \<open>
    Now, we construct a concrete ``universe of OclAny types'' by injection into a
 sum type containing the class types. This type of OclAny will be used as instance
-for all respective type-variables.  *}
+for all respective type-variables. \<close>
 
 (* 17 ************************************ 22 + 1 *)
 datatype \<AA> = in\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n "ty\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n"
@@ -106,10 +106,10 @@ datatype \<AA> = in\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n "ty\<^sub>P\
                         | in\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y "ty\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y"
 
 (* 18 ************************************ 23 + 1 *)
-text{* 
+text \<open>
    Having fixed the object universe, we can introduce type synonyms that exactly correspond
 to OCL types. Again, we exploit that our representation of OCL is a ``shallow embedding'' with a
-one-to-one correspondance of OCL-types to types of the meta-language HOL.  *}
+one-to-one correspondance of OCL-types to types of the meta-language HOL. \<close>
 
 (* 19 ************************************ 24 + 7 *)
 type_synonym Void = "\<AA> Void"
@@ -134,10 +134,10 @@ type_synonym Set_Sequence_Planet = "(\<AA>, ty\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<
 (* 22 ************************************ 38 + 0 *)
 
 (* 23 ************************************ 38 + 1 *)
-text{* 
+text \<open>
    To reuse key-elements of the library like referential equality, we have
 to show that the object universe belongs to the type class ``oclany,'' \ie,
- each class type has to provide a function @{term oid_of} yielding the object id (oid) of the object.  *}
+ each class type has to provide a function @{term oid_of} yielding the object id (oid) of the object. \<close>
 
 (* 24 ************************************ 39 + 4 *)
 instantiation ty\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n :: object
@@ -178,12 +178,12 @@ begin
 end
 
 (* 26 ************************************ 44 + 1 *)
-section{* Instantiation of the Generic Strict Equality *}
+section \<open>Instantiation of the Generic Strict Equality\<close>
 
 (* 27 ************************************ 45 + 1 *)
-text{* 
+text \<open>
    We instantiate the referential equality
-on @{text "Person"} and @{text "OclAny"}  *}
+on @{text "Person"} and @{text "OclAny"} \<close>
 
 (* 28 ************************************ 46 + 4 *)
 defs(overloaded) StrictRefEq\<^sub>O\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t_\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n : "(x::\<cdot>Person) \<doteq> y \<equiv> StrictRefEq\<^sub>O\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t x y"
@@ -198,23 +198,23 @@ lemmas[simp,code_unfold] = StrictRefEq\<^sub>O\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<
                             StrictRefEq\<^sub>O\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t_\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y
 
 (* 30 ************************************ 51 + 1 *)
-text{* 
+text \<open>
    For each Class \emph{C}, we will have a casting operation \inlineocl{.oclAsType($C$)},
    a test on the actual type \inlineocl{.oclIsTypeOf($C$)} as well as its relaxed form
    \inlineocl{.oclIsKindOf($C$)} (corresponding exactly to Java's \verb+instanceof+-operator.
- *}
+\<close>
 
 (* 31 ************************************ 52 + 1 *)
-text{* 
+text \<open>
    Thus, since we have two class-types in our concrete class hierarchy, we have
 two operations to declare and to provide two overloading definitions for the two static types.
- *}
+\<close>
 
 (* 32 ************************************ 53 + 1 *)
-section{* OclAsType *}
+section \<open>OclAsType\<close>
 
 (* 33 ************************************ 54 + 1 *)
-subsection{* Definition *}
+subsection \<open>Definition\<close>
 
 (* 34 ************************************ 55 + 4 *)
 consts OclAsType\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n :: "'\<alpha> \<Rightarrow> \<cdot>Person" ("(_) .oclAsType'(Person')")
@@ -298,7 +298,7 @@ lemmas[simp,code_unfold] = OclAsType\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^s
                             OclAsType\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_OclAny
 
 (* 38 ************************************ 80 + 1 *)
-subsection{* Context Passing *}
+subsection \<open>Context Passing\<close>
 
 (* 39 ************************************ 81 + 64 *)
 lemma cp_OclAsType\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_OclAny_OclAny : "(cp (p)) \<Longrightarrow> (cp ((\<lambda>x. (((p ((x::\<cdot>OclAny)))::\<cdot>OclAny) .oclAsType(OclAny)))))"
@@ -497,7 +497,7 @@ lemmas[simp,code_unfold] = cp_OclAsType\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\
                             cp_OclAsType\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_Person_Person
 
 (* 41 ************************************ 146 + 1 *)
-subsection{* Execution with Invalid or Null as Argument *}
+subsection \<open>Execution with Invalid or Null as Argument\<close>
 
 (* 42 ************************************ 147 + 32 *)
 lemma OclAsType\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_OclAny_invalid : "((invalid::\<cdot>OclAny) .oclAsType(OclAny)) = invalid"
@@ -600,7 +600,7 @@ lemmas[simp,code_unfold] = OclAsType\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^s
                             OclAsType\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_Person_null
 
 (* 44 ************************************ 180 + 1 *)
-subsection{* Validity and Definedness Properties *}
+subsection \<open>Validity and Definedness Properties\<close>
 
 (* 45 ************************************ 181 + 6 *)
 lemma OclAsType\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t_Person_defined : 
@@ -635,7 +635,7 @@ shows "\<tau> \<Turnstile> (\<delta> ((X::\<cdot>Galaxy) .oclAsType(OclAny)))"
 by(auto simp: OclAsType\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_Galaxy foundation16 null_option_def bot_option_def) 
 
 (* 46 ************************************ 187 + 1 *)
-subsection{* Up Down Casting *}
+subsection \<open>Up Down Casting\<close>
 
 (* 47 ************************************ 188 + 6 *)
 lemma up\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t_down\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_cast0 : 
@@ -752,7 +752,7 @@ shows "(\<tau> \<Turnstile> ((not ((\<upsilon> (X)))) or ((X .oclAsType(Galaxy))
 by(rule foundation25', simp add: def_X up\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_down\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y_cast StrictRefEq\<^sub>O\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t_sym) 
 
 (* 50 ************************************ 206 + 1 *)
-subsection{* Const *}
+subsection \<open>Const\<close>
 
 (* 51 ************************************ 207 + 16 *)
 lemma OclAsType\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_OclAny_const : "(const ((X::\<cdot>OclAny))) \<Longrightarrow> (const (X .oclAsType(OclAny)))"
@@ -807,10 +807,10 @@ lemmas[simp,code_unfold] = OclAsType\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^s
                             OclAsType\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_Person_const
 
 (* 53 ************************************ 224 + 1 *)
-section{* OclIsTypeOf *}
+section \<open>OclIsTypeOf\<close>
 
 (* 54 ************************************ 225 + 1 *)
-subsection{* Definition *}
+subsection \<open>Definition\<close>
 
 (* 55 ************************************ 226 + 4 *)
 consts OclIsTypeOf\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n :: "'\<alpha> \<Rightarrow> Boolean" ("(_) .oclIsTypeOf'(Person')")
@@ -902,7 +902,7 @@ lemmas[simp,code_unfold] = OclIsTypeOf\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<
                             OclIsTypeOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_OclAny
 
 (* 59 ************************************ 251 + 1 *)
-subsection{* Context Passing *}
+subsection \<open>Context Passing\<close>
 
 (* 60 ************************************ 252 + 64 *)
 lemma cp_OclIsTypeOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_OclAny_OclAny : "(cp (p)) \<Longrightarrow> (cp ((\<lambda>x. (((p ((x::\<cdot>OclAny)))::\<cdot>OclAny) .oclIsTypeOf(OclAny)))))"
@@ -1101,7 +1101,7 @@ lemmas[simp,code_unfold] = cp_OclIsTypeOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>
                             cp_OclIsTypeOf\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_Person_Person
 
 (* 62 ************************************ 317 + 1 *)
-subsection{* Execution with Invalid or Null as Argument *}
+subsection \<open>Execution with Invalid or Null as Argument\<close>
 
 (* 63 ************************************ 318 + 32 *)
 lemma OclIsTypeOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_OclAny_invalid : "((invalid::\<cdot>OclAny) .oclIsTypeOf(OclAny)) = invalid"
@@ -1204,7 +1204,7 @@ lemmas[simp,code_unfold] = OclIsTypeOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<
                             OclIsTypeOf\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_Person_null
 
 (* 65 ************************************ 351 + 1 *)
-subsection{* Validity and Definedness Properties *}
+subsection \<open>Validity and Definedness Properties\<close>
 
 (* 66 ************************************ 352 + 16 *)
 lemma OclIsTypeOf\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_Person_defined : 
@@ -1355,7 +1355,7 @@ shows "\<tau> \<Turnstile> (\<delta> ((X::\<cdot>Galaxy) .oclIsTypeOf(OclAny)))"
 by(rule OclIsTypeOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_Galaxy_defined[OF isdef[THEN foundation20]]) 
 
 (* 68 ************************************ 384 + 1 *)
-subsection{* Up Down Casting *}
+subsection \<open>Up Down Casting\<close>
 
 (* 69 ************************************ 385 + 6 *)
 lemma actualType\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_larger_staticType\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t : 
@@ -1462,13 +1462,13 @@ shows "\<tau> \<Turnstile> (X .oclAsType(Galaxy)) \<triangleq> invalid"
 by(simp add: OclValid_def false_def true_def) 
 
 (* 71 ************************************ 401 + 1 *)
-subsection{* Const *}
+subsection \<open>Const\<close>
 
 (* 72 ************************************ 402 + 1 *)
-section{* OclIsKindOf *}
+section \<open>OclIsKindOf\<close>
 
 (* 73 ************************************ 403 + 1 *)
-subsection{* Definition *}
+subsection \<open>Definition\<close>
 
 (* 74 ************************************ 404 + 4 *)
 consts OclIsKindOf\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n :: "'\<alpha> \<Rightarrow> Boolean" ("(_) .oclIsKindOf'(Person')")
@@ -1519,7 +1519,7 @@ lemmas[simp,code_unfold] = OclIsKindOf\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<
                             OclIsKindOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_OclAny
 
 (* 78 ************************************ 429 + 1 *)
-subsection{* Context Passing *}
+subsection \<open>Context Passing\<close>
 
 (* 79 ************************************ 430 + 64 *)
 lemma cp_OclIsKindOf\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_Person_Person : "(cp (p)) \<Longrightarrow> (cp ((\<lambda>x. (((p ((x::\<cdot>Person)))::\<cdot>Person) .oclIsKindOf(Person)))))"
@@ -1862,7 +1862,7 @@ lemmas[simp,code_unfold] = cp_OclIsKindOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>
                             cp_OclIsKindOf\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_Person_Person
 
 (* 81 ************************************ 495 + 1 *)
-subsection{* Execution with Invalid or Null as Argument *}
+subsection \<open>Execution with Invalid or Null as Argument\<close>
 
 (* 82 ************************************ 496 + 32 *)
 lemma OclIsKindOf\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_Person_invalid : "((invalid::\<cdot>Person) .oclIsKindOf(Person)) = invalid"
@@ -1965,7 +1965,7 @@ lemmas[simp,code_unfold] = OclIsKindOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<
                             OclIsKindOf\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_Person_null
 
 (* 84 ************************************ 529 + 1 *)
-subsection{* Validity and Definedness Properties *}
+subsection \<open>Validity and Definedness Properties\<close>
 
 (* 85 ************************************ 530 + 16 *)
 lemma OclIsKindOf\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_Person_defined : 
@@ -2100,7 +2100,7 @@ shows "\<tau> \<Turnstile> (\<delta> ((X::\<cdot>Galaxy) .oclIsKindOf(OclAny)))"
 by(rule OclIsKindOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_Galaxy_defined[OF isdef[THEN foundation20]]) 
 
 (* 87 ************************************ 562 + 1 *)
-subsection{* Up Down Casting *}
+subsection \<open>Up Down Casting\<close>
 
 (* 88 ************************************ 563 + 4 *)
 lemma actual_eq_static\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n : 
@@ -2369,16 +2369,16 @@ shows "\<tau> \<Turnstile> (X .oclAsType(Planet)) \<triangleq> invalid"
 done 
 
 (* 93 ************************************ 595 + 1 *)
-subsection{* Const *}
+subsection \<open>Const\<close>
 
 (* 94 ************************************ 596 + 1 *)
-section{* OclAllInstances *}
+section \<open>OclAllInstances\<close>
 
 (* 95 ************************************ 597 + 1 *)
-text{* 
+text \<open>
    To denote OCL-types occuring in OCL expressions syntactically---as, for example,  as
 ``argument'' of \inlineisar{oclAllInstances()}---we use the inverses of the injection
-functions into the object universes; we show that this is sufficient ``characterization.''  *}
+functions into the object universes; we show that this is sufficient ``characterization.'' \<close>
 
 (* 96 ************************************ 598 + 4 *)
 definition "Person = OclAsType\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_\<AA>"
@@ -2415,7 +2415,7 @@ shows "(OclAllInstances_at_pre (OclAny)) = (\<lambda>\<tau>. (Abs_Set\<^sub>b\<^
 by(rule OclAllInstances_generic\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_exec) 
 
 (* 100 ************************************ 607 + 1 *)
-subsection{* OclIsTypeOf *}
+subsection \<open>OclIsTypeOf\<close>
 
 (* 101 ************************************ 608 + 2 *)
 lemma ex_ssubst : "(\<forall>x \<in> B. (s (x)) = (t (x))) \<Longrightarrow> (\<exists>x \<in> B. (P ((s (x))))) = (\<exists>x \<in> B. (P ((t (x)))))"
@@ -2545,7 +2545,7 @@ shows "(\<exists>\<tau>. \<tau> \<Turnstile> (not ((UML_Set.OclForall ((OclAllIn
 by(rule OclAny_OclAllInstances_generic_OclIsTypeOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y2, simp) 
 
 (* 103 ************************************ 631 + 1 *)
-subsection{* OclIsKindOf *}
+subsection \<open>OclIsKindOf\<close>
 
 (* 104 ************************************ 632 + 12 *)
 lemma Person_OclAllInstances_generic_OclIsKindOf\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n : "\<tau> \<Turnstile> (UML_Set.OclForall ((OclAllInstances_generic (pre_post) (Person))) (OclIsKindOf\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n))"
@@ -2722,29 +2722,29 @@ shows "\<tau> \<Turnstile> (UML_Set.OclForall ((OclAllInstances_at_pre (Galaxy))
 by(rule Galaxy_OclAllInstances_generic_OclIsKindOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y) 
 
 (* 106 ************************************ 662 + 1 *)
-section{* The Accessors *}
+section \<open>The Accessors\<close>
 
 (* 107 ************************************ 663 + 1 *)
-text{* 
-  \label{sec:edm-accessors} *}
+text \<open>
+  \label{sec:edm-accessors}\<close>
 
 (* 108 ************************************ 664 + 1 *)
-text{*  *}
+text \<open>\<close>
 
 (* 109 ************************************ 665 + 1 *)
-subsection{* Definition *}
+subsection \<open>Definition\<close>
 
 (* 110 ************************************ 666 + 1 *)
-text{*  *}
+text \<open>\<close>
 
 (* 111 ************************************ 667 + 1 *)
-ML{* val oidPerson_0_boss = 0 *}
+ML \<open>val oidPerson_0_boss = 0\<close>
 
 (* 112 ************************************ 668 + 1 *)
 definition "oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0___boss = 0"
 
 (* 113 ************************************ 669 + 1 *)
-text{*  *}
+text \<open>\<close>
 
 (* 114 ************************************ 670 + 5 *)
 definition "eval_extract x f = (\<lambda>\<tau>. (case x \<tau> of \<lfloor>\<lfloor>obj\<rfloor>\<rfloor> \<Rightarrow> (f ((oid_of (obj))) (\<tau>))
@@ -2755,11 +2755,11 @@ definition "reconst_basetype = (\<lambda>x _. \<lfloor>\<lfloor>x\<rfloor>\<rflo
 definition "reconst_basetype\<^sub>V\<^sub>o\<^sub>i\<^sub>d x = Abs_Void\<^sub>b\<^sub>a\<^sub>s\<^sub>e o (reconst_basetype (x))"
 
 (* 115 ************************************ 675 + 1 *)
-text{*  *}
+text \<open>\<close>
 
 (* 116 ************************************ 676 + 2 *)
-ML{* val switch2_01 = (fn [x0 , x1] => (x0 , x1)) *}
-ML{* val switch2_10 = (fn [x0 , x1] => (x1 , x0)) *}
+ML \<open>val switch2_01 = (fn [x0 , x1] => (x0 , x1))\<close>
+ML \<open>val switch2_10 = (fn [x0 , x1] => (x1 , x0))\<close>
 
 (* 117 ************************************ 678 + 3 *)
 definition "switch\<^sub>2_01 = (\<lambda> [x0 , x1] \<Rightarrow> (x0 , x1))"
@@ -2780,8 +2780,8 @@ definition "deref_oid\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y fst_snd f 
 (* 119 ************************************ 685 + 0 *)
 
 (* 120 ************************************ 685 + 1 *)
-text{* 
-   pointer undefined in state or not referencing a type conform object representation  *}
+text \<open>
+   pointer undefined in state or not referencing a type conform object representation \<close>
 
 (* 121 ************************************ 686 + 15 *)
 definition "select\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__boss f = (\<lambda> (mk\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (_) (\<bottom>) (_)) \<Rightarrow> null
@@ -2901,7 +2901,7 @@ lemmas dot_accessor = dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0___bo
                             dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t__outer_worldat_pre
 
 (* 126 ************************************ 746 + 1 *)
-subsection{* Context Passing *}
+subsection \<open>Context Passing\<close>
 
 (* 127 ************************************ 747 + 1 *)
 lemmas[simp,code_unfold] = eval_extract_def
@@ -3001,7 +3001,7 @@ lemmas[simp,code_unfold] = cp_dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>
                             cp_dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t__outer_worldat_pre
 
 (* 130 ************************************ 779 + 1 *)
-subsection{* Execution with Invalid or Null as Argument *}
+subsection \<open>Execution with Invalid or Null as Argument\<close>
 
 (* 131 ************************************ 780 + 60 *)
 lemma dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0___boss_invalid : "(invalid::\<cdot>Person) .boss = invalid"
@@ -3126,7 +3126,7 @@ lemma dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t__outer_worldat_pre_nul
 by(rule ext, simp add: dot_accessor bot_option_def null_fun_def null_option_def)
 
 (* 132 ************************************ 840 + 1 *)
-subsection{* Representation in States *}
+subsection \<open>Representation in States\<close>
 
 (* 133 ************************************ 841 + 30 *)
 lemma defined_mono_dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0___boss : "\<tau> \<Turnstile> (\<delta> ((X::\<cdot>Person) .boss)) \<Longrightarrow> \<tau> \<Turnstile> (\<delta> (X))"
@@ -3327,10 +3327,10 @@ by(rule) qed
 (* 135 ************************************ 873 + 0 *)
 
 (* 136 ************************************ 873 + 1 *)
-section{* A Little Infra-structure on Example States *}
+section \<open>A Little Infra-structure on Example States\<close>
 
 (* 137 ************************************ 874 + 1 *)
-text{* 
+text \<open>
 
 The example we are defining in this section comes from the figure~\ref{fig:edm1_system-states}.
 \begin{figure}
@@ -3339,10 +3339,10 @@ The example we are defining in this section comes from the figure~\ref{fig:edm1_
   (b) post-state $\sigma_1'$.}
 \label{fig:edm1_system-states}
 \end{figure}
- *}
+\<close>
 
 (* 138 ************************************ 875 + 1 *)
-text{*  *}
+text \<open>\<close>
 
 (* 139 ************************************ 876 + 1 *)
 lemmas [simp,code_unfold] = state.defs
@@ -3406,7 +3406,7 @@ definition "P1\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t inst_assoc = (mk\
 definition "(P1::\<cdot>Planet) = ((\<lambda>_. \<lfloor>\<lfloor>(P1\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t (inst_assoc1))\<rfloor>\<rfloor>))"
 
 (* 144 ************************************ 914 + 1 *)
-ML{* (Ty'.check ([(OCL.Writeln , "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n1 .boss \<cong> Set{ X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2 }") , (OCL.Writeln , "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n1 /* unnamed attribute */ \<cong> Set{}") , (OCL.Writeln , "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2 .boss \<cong> Set{ X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2 }") , (OCL.Writeln , "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2 /* unnamed attribute */ \<cong> Set{ X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n1 , X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2 }") , (OCL.Writeln , "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n3 .boss \<cong> Set{}") , (OCL.Writeln , "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n3 /* unnamed attribute */ \<cong> Set{}") , (OCL.Writeln , "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n4 .boss \<cong> Set{}") , (OCL.Writeln , "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n4 /* unnamed attribute */ \<cong> Set{}") , (OCL.Writeln , "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n5 .boss \<cong> Set{}") , (OCL.Writeln , "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n5 /* unnamed attribute */ \<cong> Set{}") , (OCL.Writeln , "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n6 .boss \<cong> Set{ X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n7 }") , (OCL.Writeln , "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n6 /* unnamed attribute */ \<cong> Set{}") , (OCL.Writeln , "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n7 .boss \<cong> Set{ X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n7 }") , (OCL.Writeln , "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n7 /* unnamed attribute */ \<cong> Set{ X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n6 , X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n7 }") , (OCL.Writeln , "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n9 .boss \<cong> Set{}") , (OCL.Writeln , "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n9 /* unnamed attribute */ \<cong> Set{}") , (OCL.Writeln , "X0 .boss \<cong> Set{}") , (OCL.Writeln , "X0 /* unnamed attribute */ \<cong> Set{}")]) (" error(s)")) *}
+ML \<open>(Ty'.check ([(META.Writeln , "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n1 .boss \<cong> Set{ X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2 }") , (META.Writeln , "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n1 /* unnamed attribute */ \<cong> Set{}") , (META.Writeln , "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2 .boss \<cong> Set{ X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2 }") , (META.Writeln , "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2 /* unnamed attribute */ \<cong> Set{ X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n1 , X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2 }") , (META.Writeln , "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n3 .boss \<cong> Set{}") , (META.Writeln , "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n3 /* unnamed attribute */ \<cong> Set{}") , (META.Writeln , "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n4 .boss \<cong> Set{}") , (META.Writeln , "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n4 /* unnamed attribute */ \<cong> Set{}") , (META.Writeln , "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n5 .boss \<cong> Set{}") , (META.Writeln , "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n5 /* unnamed attribute */ \<cong> Set{}") , (META.Writeln , "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n6 .boss \<cong> Set{ X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n7 }") , (META.Writeln , "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n6 /* unnamed attribute */ \<cong> Set{}") , (META.Writeln , "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n7 .boss \<cong> Set{ X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n7 }") , (META.Writeln , "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n7 /* unnamed attribute */ \<cong> Set{ X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n6 , X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n7 }") , (META.Writeln , "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n9 .boss \<cong> Set{}") , (META.Writeln , "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n9 /* unnamed attribute */ \<cong> Set{}") , (META.Writeln , "X0 .boss \<cong> Set{}") , (META.Writeln , "X0 /* unnamed attribute */ \<cong> Set{}")]) (" error(s)"))\<close>
 
 (* 145 ************************************ 915 + 2 *)
 definition "(typecheck_instance_bad_head_on_lhs_\<sigma>\<^sub>1_object4_\<sigma>\<^sub>1_object2_\<sigma>\<^sub>1_object1_\<sigma>\<^sub>1_object0 (\<sigma>\<^sub>1_object4) (\<sigma>\<^sub>1_object2) (\<sigma>\<^sub>1_object1) (\<sigma>\<^sub>1_object0)) = ()"
@@ -3431,7 +3431,7 @@ definition "\<sigma>\<^sub>1_object4\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^s
 definition "(\<sigma>\<^sub>1_object4::\<cdot>Person) = ((\<lambda>_. \<lfloor>\<lfloor>(\<sigma>\<^sub>1_object4\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (inst_assoc12))\<rfloor>\<rfloor>))"
 
 (* 148 ************************************ 930 + 1 *)
-ML{* (Ty'.check ([(OCL.Writeln , "\<sigma>\<^sub>1_object0 .boss \<cong> Set{ \<sigma>\<^sub>1_object1 }") , (OCL.Writeln , "\<sigma>\<^sub>1_object0 /* unnamed attribute */ \<cong> Set{}") , (OCL.Writeln , "\<sigma>\<^sub>1_object1 .boss \<cong> Set{}") , (OCL.Writeln , "\<sigma>\<^sub>1_object1 /* unnamed attribute */ \<cong> Set{ \<sigma>\<^sub>1_object0 }") , (OCL.Writeln , "\<sigma>\<^sub>1_object2 .boss \<cong> Set{ /*5*/ }") , (OCL.Writeln , "\<sigma>\<^sub>1_object2 /* unnamed attribute */ \<cong> Set{ \<sigma>\<^sub>1_object4 }") , (OCL.Writeln , "\<sigma>\<^sub>1_object4 .boss \<cong> Set{ \<sigma>\<^sub>1_object2 }") , (OCL.Writeln , "\<sigma>\<^sub>1_object4 /* unnamed attribute */ \<cong> Set{}")]) (" error(s)")) *}
+ML \<open>(Ty'.check ([(META.Writeln , "\<sigma>\<^sub>1_object0 .boss \<cong> Set{ \<sigma>\<^sub>1_object1 }") , (META.Writeln , "\<sigma>\<^sub>1_object0 /* unnamed attribute */ \<cong> Set{}") , (META.Writeln , "\<sigma>\<^sub>1_object1 .boss \<cong> Set{}") , (META.Writeln , "\<sigma>\<^sub>1_object1 /* unnamed attribute */ \<cong> Set{ \<sigma>\<^sub>1_object0 }") , (META.Writeln , "\<sigma>\<^sub>1_object2 .boss \<cong> Set{ /*5*/ }") , (META.Writeln , "\<sigma>\<^sub>1_object2 /* unnamed attribute */ \<cong> Set{ \<sigma>\<^sub>1_object4 }") , (META.Writeln , "\<sigma>\<^sub>1_object4 .boss \<cong> Set{ \<sigma>\<^sub>1_object2 }") , (META.Writeln , "\<sigma>\<^sub>1_object4 /* unnamed attribute */ \<cong> Set{}")]) (" error(s)"))\<close>
 
 (* 149 ************************************ 931 + 1 *)
 locale state_\<sigma>\<^sub>1 =
@@ -3709,7 +3709,7 @@ shows "(\<sigma>\<^sub>1 , st) \<Turnstile> (OclAllInstances_at_pre (OclAny)) \<
   unfolding OclAllInstances_at_pre_def
 by(rule \<sigma>\<^sub>1_OclAllInstances_generic_exec_OclAny, simp_all only: assms, simp_all) 
 
-ML{* (Ty'.check ([]) (" error(s)")) *}
+ML \<open>(Ty'.check ([]) (" error(s)"))\<close>
 end
 
 (* 150 ************************************ 932 + 1 *)
@@ -4044,7 +4044,7 @@ shows "(\<sigma>\<^sub>1' , st) \<Turnstile> (OclAllInstances_at_pre (OclAny)) \
   unfolding OclAllInstances_at_pre_def
 by(rule \<sigma>\<^sub>1'_OclAllInstances_generic_exec_OclAny, simp_all only: assms, simp_all) 
 
-ML{* (Ty'.check ([]) (" error(s)")) *}
+ML \<open>(Ty'.check ([]) (" error(s)"))\<close>
 end
 
 (* 151 ************************************ 933 + 1 *)
@@ -4378,7 +4378,7 @@ thm dot__contents_Person_def
 defs(overloaded) dot__contents_Planet : "(x::\<cdot>Planet) .contents() \<equiv> x .oclAsType(Person) .contents()"
 defs(overloaded) dot__contents_Galaxy : "(x::\<cdot>Galaxy) .contents() \<equiv> x .oclAsType(Person) .contents()"
 defs(overloaded) dot__contents_OclAny : "(x::\<cdot>OclAny) .contents() \<equiv> x .oclAsType(Person) .contents()"
-ML{* (Ty'.check ([]) (" error(s)")) *}
+ML \<open>(Ty'.check ([]) (" error(s)"))\<close>
 
 (* 153 ************************************ 940 + 0 *)
 
@@ -4389,7 +4389,7 @@ ML{* (Ty'.check ([]) (" error(s)")) *}
 (* 156 ************************************ 940 + 3 *)
 definition "Person_aat_pre = (\<lambda>\<tau>. (\<tau> \<Turnstile> (UML_Set.OclForall ((OclAllInstances_at_pre (Person))) ((\<lambda>self. ((UML_Logic.OclImplies) ((UML_Logic.OclNot) (((UML_Logic.StrictRefEq) ((Employee_DesignModel_UMLPart_generated.dot_0___bossat_pre) (self))) (UML_Types.null_class.null)))) (((UML_Logic.StrongEq) ((Employee_DesignModel_UMLPart_generated.dot__salaryat_pre) (self))) ((Employee_DesignModel_UMLPart_generated.dot__salaryat_pre) ((Employee_DesignModel_UMLPart_generated.dot_0___bossat_pre) (self)))))))))"
 definition "Person_a = (\<lambda>\<tau>. (\<tau> \<Turnstile> (UML_Set.OclForall ((OclAllInstances_at_post (Person))) ((\<lambda>self. ((UML_Logic.OclImplies) ((UML_Logic.OclNot) (((UML_Logic.StrictRefEq) ((Employee_DesignModel_UMLPart_generated.dot_0___boss) (self))) (UML_Types.null_class.null)))) (((UML_Logic.StrongEq) ((Employee_DesignModel_UMLPart_generated.dot__salary) (self))) ((Employee_DesignModel_UMLPart_generated.dot__salary) ((Employee_DesignModel_UMLPart_generated.dot_0___boss) (self)))))))))"
-ML{* (Ty'.check ([]) (" error(s)")) *}
+ML \<open>(Ty'.check ([]) (" error(s)"))\<close>
 
 (* 157 ************************************ 943 + 1 *)
 thm Person_aat_pre_def Person_a_def
@@ -4399,7 +4399,7 @@ thm Person_aat_pre_def Person_a_def
 (* 159 ************************************ 944 + 3 *)
 definition "Planet_Aat_pre = (\<lambda>\<tau>. (\<tau> \<Turnstile> (UML_Set.OclForall ((OclAllInstances_at_pre (Planet))) ((\<lambda>self. ((UML_Logic.OclAnd) (UML_Logic.true)) (((UML_Integer.OclLe\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r) ((Employee_DesignModel_UMLPart_generated.dot__weightat_pre) (self))) (UML_Integer.OclInt0)))))))"
 definition "Planet_A = (\<lambda>\<tau>. (\<tau> \<Turnstile> (UML_Set.OclForall ((OclAllInstances_at_post (Planet))) ((\<lambda>self. ((UML_Logic.OclAnd) (UML_Logic.true)) (((UML_Integer.OclLe\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r) ((Employee_DesignModel_UMLPart_generated.dot__weight) (self))) (UML_Integer.OclInt0)))))))"
-ML{* (Ty'.check ([]) (" error(s)")) *}
+ML \<open>(Ty'.check ([]) (" error(s)"))\<close>
 
 (* 160 ************************************ 947 + 1 *)
 thm Planet_Aat_pre_def Planet_A_def

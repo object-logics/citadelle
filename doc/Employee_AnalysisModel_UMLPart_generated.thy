@@ -3,17 +3,17 @@ theory Employee_AnalysisModel_UMLPart_generated imports "../src/UML_Main"   "../
 (* 1 ************************************ 0 + 0 *)
 
 (* 2 ************************************ 0 + 1 *)
-text{*  *}
+text \<open>\<close>
 
 (* 3 ************************************ 1 + 1 *)
-text{* 
-   \label{ex:employee-analysis:uml}  *}
+text \<open>
+   \label{ex:employee-analysis:uml} \<close>
 
 (* 4 ************************************ 2 + 1 *)
-section{* Introduction *}
+section \<open>Introduction\<close>
 
 (* 5 ************************************ 3 + 1 *)
-text{* 
+text \<open>
 
   For certain concepts like classes and class-types, only a generic
   definition for its resulting semantics can be given. Generic means,
@@ -22,26 +22,26 @@ text{*
   consisting of a bunch of definitions for classes, accessors, method,
   casts, and tests for actual types, as well as proofs for the
   fundamental properties of these operations in this concrete data
-  model.  *}
+  model. \<close>
 
 (* 6 ************************************ 4 + 1 *)
-text{* 
+text \<open>
    Such generic function or ``compiler'' can be implemented in
   Isabelle on the ML level.  This has been done, for a semantics
   following the open-world assumption, for UML 2.0
   in~\cite{brucker.ea:extensible:2008-b, brucker:interactive:2007}. In
   this paper, we follow another approach for UML 2.4: we define the
   concepts of the compilation informally, and present a concrete
-  example which is verified in Isabelle/HOL.  *}
+  example which is verified in Isabelle/HOL. \<close>
 
 (* 7 ************************************ 5 + 1 *)
-subsection{* Outlining the Example *}
+subsection \<open>Outlining the Example\<close>
 
 (* 8 ************************************ 6 + 1 *)
-text{*  *}
+text \<open>\<close>
 
 (* 9 ************************************ 7 + 1 *)
-text{* 
+text \<open>
    We are presenting here an ``analysis-model'' of the (slightly
 modified) example Figure 7.3, page 20 of
 the OCL standard~\cite{omg:ocl:2012}.
@@ -50,37 +50,37 @@ were really represented as relation on objects on the state---as is
 intended by the standard---rather by pointers between objects as is
 done in our ``design model'' (see \autoref{ex:employee-design:uml}).
 To be precise, this theory contains the formalization of the data-part
-covered by the UML class model (see \autoref{fig:person-ana}): *}
+covered by the UML class model (see \autoref{fig:person-ana}):\<close>
 
 (* 10 ************************************ 8 + 1 *)
-text{*  *}
+text \<open>\<close>
 
 (* 11 ************************************ 9 + 1 *)
-text{* 
+text \<open>
 
 \begin{figure}
   \centering\scalebox{.3}{\includegraphics{figures/person.png}}%
   \caption{A simple UML class model drawn from Figure 7.3,
   page 20 of~\cite{omg:ocl:2012}. \label{fig:person-ana}}
 \end{figure}
- *}
+\<close>
 
 (* 12 ************************************ 10 + 1 *)
-text{* 
+text \<open>
    This means that the association (attached to the association class
 \inlineocl{EmployeeRanking}) with the association ends \inlineocl+boss+ and \inlineocl+employees+ is implemented
 by the attribute  \inlineocl+boss+ and the operation \inlineocl+employees+ (to be discussed in the OCL part
 captured by the subsequent theory).
- *}
+\<close>
 
 (* 13 ************************************ 11 + 1 *)
-section{* Example Data-Universe and its Infrastructure *}
+section \<open>Example Data-Universe and its Infrastructure\<close>
 
 (* 14 ************************************ 12 + 1 *)
-text{* 
+text \<open>
    Our data universe  consists in the concrete class diagram just of node's,
 and implicitly of the class object. Each class implies the existence of a class
-type defined for the corresponding object representations as follows:  *}
+type defined for the corresponding object representations as follows: \<close>
 
 (* 15 ************************************ 13 + 8 *)
 datatype ty\<E>\<X>\<T>\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n = mk\<E>\<X>\<T>\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n "oid" "nat option" "int option" "unit option" "bool option" "oid list list option"
@@ -99,10 +99,10 @@ datatype ty\<E>\<X>\<T>\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y = mk\<E>
 datatype ty\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y = mk\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y "ty\<E>\<X>\<T>\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y"
 
 (* 16 ************************************ 21 + 1 *)
-text{* 
+text \<open>
    Now, we construct a concrete ``universe of OclAny types'' by injection into a
 sum type containing the class types. This type of OclAny will be used as instance
-for all respective type-variables.  *}
+for all respective type-variables. \<close>
 
 (* 17 ************************************ 22 + 1 *)
 datatype \<AA> = in\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n "ty\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n"
@@ -111,10 +111,10 @@ datatype \<AA> = in\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n "ty\<^sub>P\
                         | in\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y "ty\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y"
 
 (* 18 ************************************ 23 + 1 *)
-text{* 
+text \<open>
    Having fixed the object universe, we can introduce type synonyms that exactly correspond
 to OCL types. Again, we exploit that our representation of OCL is a ``shallow embedding'' with a
-one-to-one correspondance of OCL-types to types of the meta-language HOL.  *}
+one-to-one correspondance of OCL-types to types of the meta-language HOL. \<close>
 
 (* 19 ************************************ 24 + 7 *)
 type_synonym Void = "\<AA> Void"
@@ -139,10 +139,10 @@ type_synonym Set_Sequence_Planet = "(\<AA>, ty\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<
 (* 22 ************************************ 38 + 0 *)
 
 (* 23 ************************************ 38 + 1 *)
-text{* 
+text \<open>
    To reuse key-elements of the library like referential equality, we have
 to show that the object universe belongs to the type class ``oclany,'' \ie,
- each class type has to provide a function @{term oid_of} yielding the object id (oid) of the object.  *}
+ each class type has to provide a function @{term oid_of} yielding the object id (oid) of the object. \<close>
 
 (* 24 ************************************ 39 + 4 *)
 instantiation ty\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n :: object
@@ -183,12 +183,12 @@ begin
 end
 
 (* 26 ************************************ 44 + 1 *)
-section{* Instantiation of the Generic Strict Equality *}
+section \<open>Instantiation of the Generic Strict Equality\<close>
 
 (* 27 ************************************ 45 + 1 *)
-text{* 
+text \<open>
    We instantiate the referential equality
-on @{text "Person"} and @{text "OclAny"}  *}
+on @{text "Person"} and @{text "OclAny"} \<close>
 
 (* 28 ************************************ 46 + 4 *)
 defs(overloaded) StrictRefEq\<^sub>O\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t_\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n : "(x::\<cdot>Person) \<doteq> y \<equiv> StrictRefEq\<^sub>O\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t x y"
@@ -203,23 +203,23 @@ lemmas[simp,code_unfold] = StrictRefEq\<^sub>O\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<
                             StrictRefEq\<^sub>O\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t_\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y
 
 (* 30 ************************************ 51 + 1 *)
-text{* 
+text \<open>
    For each Class \emph{C}, we will have a casting operation \inlineocl{.oclAsType($C$)},
    a test on the actual type \inlineocl{.oclIsTypeOf($C$)} as well as its relaxed form
    \inlineocl{.oclIsKindOf($C$)} (corresponding exactly to Java's \verb+instanceof+-operator.
- *}
+\<close>
 
 (* 31 ************************************ 52 + 1 *)
-text{* 
+text \<open>
    Thus, since we have two class-types in our concrete class hierarchy, we have
 two operations to declare and to provide two overloading definitions for the two static types.
- *}
+\<close>
 
 (* 32 ************************************ 53 + 1 *)
-section{* OclAsType *}
+section \<open>OclAsType\<close>
 
 (* 33 ************************************ 54 + 1 *)
-subsection{* Definition *}
+subsection \<open>Definition\<close>
 
 (* 34 ************************************ 55 + 4 *)
 consts OclAsType\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n :: "'\<alpha> \<Rightarrow> \<cdot>Person" ("(_) .oclAsType'(Person')")
@@ -303,7 +303,7 @@ lemmas[simp,code_unfold] = OclAsType\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^s
                             OclAsType\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_OclAny
 
 (* 38 ************************************ 80 + 1 *)
-subsection{* Context Passing *}
+subsection \<open>Context Passing\<close>
 
 (* 39 ************************************ 81 + 64 *)
 lemma cp_OclAsType\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_OclAny_OclAny : "(cp (p)) \<Longrightarrow> (cp ((\<lambda>x. (((p ((x::\<cdot>OclAny)))::\<cdot>OclAny) .oclAsType(OclAny)))))"
@@ -502,7 +502,7 @@ lemmas[simp,code_unfold] = cp_OclAsType\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\
                             cp_OclAsType\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_Person_Person
 
 (* 41 ************************************ 146 + 1 *)
-subsection{* Execution with Invalid or Null as Argument *}
+subsection \<open>Execution with Invalid or Null as Argument\<close>
 
 (* 42 ************************************ 147 + 32 *)
 lemma OclAsType\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_OclAny_invalid : "((invalid::\<cdot>OclAny) .oclAsType(OclAny)) = invalid"
@@ -605,7 +605,7 @@ lemmas[simp,code_unfold] = OclAsType\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^s
                             OclAsType\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_Person_null
 
 (* 44 ************************************ 180 + 1 *)
-subsection{* Validity and Definedness Properties *}
+subsection \<open>Validity and Definedness Properties\<close>
 
 (* 45 ************************************ 181 + 6 *)
 lemma OclAsType\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t_Person_defined : 
@@ -640,7 +640,7 @@ shows "\<tau> \<Turnstile> (\<delta> ((X::\<cdot>Galaxy) .oclAsType(OclAny)))"
 by(auto simp: OclAsType\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_Galaxy foundation16 null_option_def bot_option_def) 
 
 (* 46 ************************************ 187 + 1 *)
-subsection{* Up Down Casting *}
+subsection \<open>Up Down Casting\<close>
 
 (* 47 ************************************ 188 + 6 *)
 lemma up\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t_down\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_cast0 : 
@@ -757,7 +757,7 @@ shows "(\<tau> \<Turnstile> ((not ((\<upsilon> (X)))) or ((X .oclAsType(Galaxy))
 by(rule foundation25', simp add: def_X up\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_down\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y_cast StrictRefEq\<^sub>O\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t_sym) 
 
 (* 50 ************************************ 206 + 1 *)
-subsection{* Const *}
+subsection \<open>Const\<close>
 
 (* 51 ************************************ 207 + 16 *)
 lemma OclAsType\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_OclAny_const : "(const ((X::\<cdot>OclAny))) \<Longrightarrow> (const (X .oclAsType(OclAny)))"
@@ -812,10 +812,10 @@ lemmas[simp,code_unfold] = OclAsType\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^s
                             OclAsType\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_Person_const
 
 (* 53 ************************************ 224 + 1 *)
-section{* OclIsTypeOf *}
+section \<open>OclIsTypeOf\<close>
 
 (* 54 ************************************ 225 + 1 *)
-subsection{* Definition *}
+subsection \<open>Definition\<close>
 
 (* 55 ************************************ 226 + 4 *)
 consts OclIsTypeOf\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n :: "'\<alpha> \<Rightarrow> Boolean" ("(_) .oclIsTypeOf'(Person')")
@@ -907,7 +907,7 @@ lemmas[simp,code_unfold] = OclIsTypeOf\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<
                             OclIsTypeOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_OclAny
 
 (* 59 ************************************ 251 + 1 *)
-subsection{* Context Passing *}
+subsection \<open>Context Passing\<close>
 
 (* 60 ************************************ 252 + 64 *)
 lemma cp_OclIsTypeOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_OclAny_OclAny : "(cp (p)) \<Longrightarrow> (cp ((\<lambda>x. (((p ((x::\<cdot>OclAny)))::\<cdot>OclAny) .oclIsTypeOf(OclAny)))))"
@@ -1106,7 +1106,7 @@ lemmas[simp,code_unfold] = cp_OclIsTypeOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>
                             cp_OclIsTypeOf\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_Person_Person
 
 (* 62 ************************************ 317 + 1 *)
-subsection{* Execution with Invalid or Null as Argument *}
+subsection \<open>Execution with Invalid or Null as Argument\<close>
 
 (* 63 ************************************ 318 + 32 *)
 lemma OclIsTypeOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_OclAny_invalid : "((invalid::\<cdot>OclAny) .oclIsTypeOf(OclAny)) = invalid"
@@ -1209,7 +1209,7 @@ lemmas[simp,code_unfold] = OclIsTypeOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<
                             OclIsTypeOf\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_Person_null
 
 (* 65 ************************************ 351 + 1 *)
-subsection{* Validity and Definedness Properties *}
+subsection \<open>Validity and Definedness Properties\<close>
 
 (* 66 ************************************ 352 + 16 *)
 lemma OclIsTypeOf\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_Person_defined : 
@@ -1360,7 +1360,7 @@ shows "\<tau> \<Turnstile> (\<delta> ((X::\<cdot>Galaxy) .oclIsTypeOf(OclAny)))"
 by(rule OclIsTypeOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_Galaxy_defined[OF isdef[THEN foundation20]]) 
 
 (* 68 ************************************ 384 + 1 *)
-subsection{* Up Down Casting *}
+subsection \<open>Up Down Casting\<close>
 
 (* 69 ************************************ 385 + 6 *)
 lemma actualType\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_larger_staticType\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t : 
@@ -1467,13 +1467,13 @@ shows "\<tau> \<Turnstile> (X .oclAsType(Galaxy)) \<triangleq> invalid"
 by(simp add: OclValid_def false_def true_def) 
 
 (* 71 ************************************ 401 + 1 *)
-subsection{* Const *}
+subsection \<open>Const\<close>
 
 (* 72 ************************************ 402 + 1 *)
-section{* OclIsKindOf *}
+section \<open>OclIsKindOf\<close>
 
 (* 73 ************************************ 403 + 1 *)
-subsection{* Definition *}
+subsection \<open>Definition\<close>
 
 (* 74 ************************************ 404 + 4 *)
 consts OclIsKindOf\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n :: "'\<alpha> \<Rightarrow> Boolean" ("(_) .oclIsKindOf'(Person')")
@@ -1524,7 +1524,7 @@ lemmas[simp,code_unfold] = OclIsKindOf\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<
                             OclIsKindOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_OclAny
 
 (* 78 ************************************ 429 + 1 *)
-subsection{* Context Passing *}
+subsection \<open>Context Passing\<close>
 
 (* 79 ************************************ 430 + 64 *)
 lemma cp_OclIsKindOf\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_Person_Person : "(cp (p)) \<Longrightarrow> (cp ((\<lambda>x. (((p ((x::\<cdot>Person)))::\<cdot>Person) .oclIsKindOf(Person)))))"
@@ -1867,7 +1867,7 @@ lemmas[simp,code_unfold] = cp_OclIsKindOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>
                             cp_OclIsKindOf\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_Person_Person
 
 (* 81 ************************************ 495 + 1 *)
-subsection{* Execution with Invalid or Null as Argument *}
+subsection \<open>Execution with Invalid or Null as Argument\<close>
 
 (* 82 ************************************ 496 + 32 *)
 lemma OclIsKindOf\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_Person_invalid : "((invalid::\<cdot>Person) .oclIsKindOf(Person)) = invalid"
@@ -1970,7 +1970,7 @@ lemmas[simp,code_unfold] = OclIsKindOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<
                             OclIsKindOf\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_Person_null
 
 (* 84 ************************************ 529 + 1 *)
-subsection{* Validity and Definedness Properties *}
+subsection \<open>Validity and Definedness Properties\<close>
 
 (* 85 ************************************ 530 + 16 *)
 lemma OclIsKindOf\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_Person_defined : 
@@ -2105,7 +2105,7 @@ shows "\<tau> \<Turnstile> (\<delta> ((X::\<cdot>Galaxy) .oclIsKindOf(OclAny)))"
 by(rule OclIsKindOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_Galaxy_defined[OF isdef[THEN foundation20]]) 
 
 (* 87 ************************************ 562 + 1 *)
-subsection{* Up Down Casting *}
+subsection \<open>Up Down Casting\<close>
 
 (* 88 ************************************ 563 + 4 *)
 lemma actual_eq_static\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n : 
@@ -2374,16 +2374,16 @@ shows "\<tau> \<Turnstile> (X .oclAsType(Planet)) \<triangleq> invalid"
 done 
 
 (* 93 ************************************ 595 + 1 *)
-subsection{* Const *}
+subsection \<open>Const\<close>
 
 (* 94 ************************************ 596 + 1 *)
-section{* OclAllInstances *}
+section \<open>OclAllInstances\<close>
 
 (* 95 ************************************ 597 + 1 *)
-text{* 
+text \<open>
    To denote OCL-types occuring in OCL expressions syntactically---as, for example,  as
 ``argument'' of \inlineisar{oclAllInstances()}---we use the inverses of the injection
-functions into the object universes; we show that this is sufficient ``characterization.''  *}
+functions into the object universes; we show that this is sufficient ``characterization.'' \<close>
 
 (* 96 ************************************ 598 + 4 *)
 definition "Person = OclAsType\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_\<AA>"
@@ -2420,7 +2420,7 @@ shows "(OclAllInstances_at_pre (OclAny)) = (\<lambda>\<tau>. (Abs_Set\<^sub>b\<^
 by(rule OclAllInstances_generic\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_exec) 
 
 (* 100 ************************************ 607 + 1 *)
-subsection{* OclIsTypeOf *}
+subsection \<open>OclIsTypeOf\<close>
 
 (* 101 ************************************ 608 + 2 *)
 lemma ex_ssubst : "(\<forall>x \<in> B. (s (x)) = (t (x))) \<Longrightarrow> (\<exists>x \<in> B. (P ((s (x))))) = (\<exists>x \<in> B. (P ((t (x)))))"
@@ -2550,7 +2550,7 @@ shows "(\<exists>\<tau>. \<tau> \<Turnstile> (not ((UML_Set.OclForall ((OclAllIn
 by(rule OclAny_OclAllInstances_generic_OclIsTypeOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y2, simp) 
 
 (* 103 ************************************ 631 + 1 *)
-subsection{* OclIsKindOf *}
+subsection \<open>OclIsKindOf\<close>
 
 (* 104 ************************************ 632 + 12 *)
 lemma Person_OclAllInstances_generic_OclIsKindOf\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n : "\<tau> \<Turnstile> (UML_Set.OclForall ((OclAllInstances_generic (pre_post) (Person))) (OclIsKindOf\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n))"
@@ -2727,36 +2727,36 @@ shows "\<tau> \<Turnstile> (UML_Set.OclForall ((OclAllInstances_at_pre (Galaxy))
 by(rule Galaxy_OclAllInstances_generic_OclIsKindOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y) 
 
 (* 106 ************************************ 662 + 1 *)
-section{* The Accessors *}
+section \<open>The Accessors\<close>
 
 (* 107 ************************************ 663 + 1 *)
-text{*  *}
+text \<open>\<close>
 
 (* 108 ************************************ 664 + 1 *)
-text{* 
-  \label{sec:eam-accessors} *}
+text \<open>
+  \label{sec:eam-accessors}\<close>
 
 (* 109 ************************************ 665 + 1 *)
-subsection{* Definition *}
+subsection \<open>Definition\<close>
 
 (* 110 ************************************ 666 + 1 *)
-text{* 
+text \<open>
    We start with a oid for the association; this oid can be used
 in presence of association classes to represent the association inside an object,
 pretty much similar to the \inlineisar+Employee_DesignModel_UMLPart+, where we stored
-an \verb+oid+ inside the class as ``pointer.''  *}
+an \verb+oid+ inside the class as ``pointer.'' \<close>
 
 (* 111 ************************************ 667 + 1 *)
-ML{* val oidPerson_0_boss = 0 *}
+ML \<open>val oidPerson_0_boss = 0\<close>
 
 (* 112 ************************************ 668 + 1 *)
 definition "oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0___boss = 0"
 
 (* 113 ************************************ 669 + 1 *)
-text{* 
+text \<open>
    From there on, we can already define an empty state which must contain
 for $\mathit{oid}_{Person}\mathcal{BOSS}$ the empty relation (encoded as association list, since there are
-associations with a Sequence-like structure). *}
+associations with a Sequence-like structure).\<close>
 
 (* 114 ************************************ 670 + 5 *)
 definition "eval_extract x f = (\<lambda>\<tau>. (case x \<tau> of \<lfloor>\<lfloor>obj\<rfloor>\<rfloor> \<Rightarrow> (f ((oid_of (obj))) (\<tau>))
@@ -2767,14 +2767,14 @@ definition "reconst_basetype = (\<lambda>x _. \<lfloor>\<lfloor>x\<rfloor>\<rflo
 definition "reconst_basetype\<^sub>V\<^sub>o\<^sub>i\<^sub>d x = Abs_Void\<^sub>b\<^sub>a\<^sub>s\<^sub>e o (reconst_basetype (x))"
 
 (* 115 ************************************ 675 + 1 *)
-text{* 
+text \<open>
    The @{text pre_post}-parameter is configured with @{text fst} or
 @{text snd}, the @{text to_from}-parameter either with the identity @{term id} or
-the following combinator @{text switch}:  *}
+the following combinator @{text switch}: \<close>
 
 (* 116 ************************************ 676 + 2 *)
-ML{* val switch2_01 = (fn [x0 , x1] => (x0 , x1)) *}
-ML{* val switch2_10 = (fn [x0 , x1] => (x1 , x0)) *}
+ML \<open>val switch2_01 = (fn [x0 , x1] => (x0 , x1))\<close>
+ML \<open>val switch2_10 = (fn [x0 , x1] => (x1 , x0))\<close>
 
 (* 117 ************************************ 678 + 3 *)
 definition "switch\<^sub>2_01 = (\<lambda> [x0 , x1] \<Rightarrow> (x0 , x1))"
@@ -2796,8 +2796,8 @@ definition "deref_oid\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y fst_snd f 
 definition "deref_assocs\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0___boss fst_snd f = (deref_assocs (fst_snd) (switch\<^sub>2_01) (oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0___boss) (f)) \<circ> oid_of"
 
 (* 120 ************************************ 686 + 1 *)
-text{* 
-   pointer undefined in state or not referencing a type conform object representation  *}
+text \<open>
+   pointer undefined in state or not referencing a type conform object representation \<close>
 
 (* 121 ************************************ 687 + 14 *)
 definition "select\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__salary f = (\<lambda> (mk\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (_) (\<bottom>)) \<Rightarrow> null
@@ -2916,7 +2916,7 @@ lemmas dot_accessor = dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0___bo
                             dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t__outer_worldat_pre
 
 (* 126 ************************************ 747 + 1 *)
-subsection{* Context Passing *}
+subsection \<open>Context Passing\<close>
 
 (* 127 ************************************ 748 + 1 *)
 lemmas[simp,code_unfold] = eval_extract_def
@@ -3016,7 +3016,7 @@ lemmas[simp,code_unfold] = cp_dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>
                             cp_dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t__outer_worldat_pre
 
 (* 130 ************************************ 780 + 1 *)
-subsection{* Execution with Invalid or Null as Argument *}
+subsection \<open>Execution with Invalid or Null as Argument\<close>
 
 (* 131 ************************************ 781 + 60 *)
 lemma dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0___boss_invalid : "(invalid::\<cdot>Person) .boss = invalid"
@@ -3141,7 +3141,7 @@ lemma dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t__outer_worldat_pre_nul
 by(rule ext, simp add: dot_accessor bot_option_def null_fun_def null_option_def)
 
 (* 132 ************************************ 841 + 1 *)
-subsection{* Representation in States *}
+subsection \<open>Representation in States\<close>
 
 (* 133 ************************************ 842 + 30 *)
 lemma defined_mono_dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0___boss : "\<tau> \<Turnstile> (\<delta> ((X::\<cdot>Person) .boss)) \<Longrightarrow> \<tau> \<Turnstile> (\<delta> (X))"
@@ -3338,13 +3338,13 @@ by(rule) qed
 (* 135 ************************************ 874 + 0 *)
 
 (* 136 ************************************ 874 + 1 *)
-section{* A Little Infra-structure on Example States *}
+section \<open>A Little Infra-structure on Example States\<close>
 
 (* 137 ************************************ 875 + 1 *)
-text{*  *}
+text \<open>\<close>
 
 (* 138 ************************************ 876 + 1 *)
-text{* 
+text \<open>
 
 The example we are defining in this section comes from the figure~\ref{fig:eam1_system-states}.
 \begin{figure}
@@ -3353,7 +3353,7 @@ The example we are defining in this section comes from the figure~\ref{fig:eam1_
   (b) post-state $\sigma_1'$.}
 \label{fig:eam1_system-states}
 \end{figure}
- *}
+\<close>
 
 (* 139 ************************************ 877 + 1 *)
 lemmas [simp,code_unfold] = state.defs
@@ -3415,14 +3415,14 @@ definition "P1\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t = (mk\<^sub>P\<^s
 definition "(P1::\<cdot>Planet) = ((\<lambda>_. \<lfloor>\<lfloor>P1\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t\<rfloor>\<rfloor>))"
 
 (* 144 ************************************ 914 + 1 *)
-ML{* (Ty'.check ([(OCL.Writeln , "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n1 .boss \<cong> Set{ X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2 }") , (OCL.Writeln , "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n1 /* unnamed attribute */ \<cong> Set{}") , (OCL.Writeln , "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2 .boss \<cong> Set{ X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2 }") , (OCL.Writeln , "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2 /* unnamed attribute */ \<cong> Set{ X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n1 , X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2 }") , (OCL.Writeln , "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n3 .boss \<cong> Set{}") , (OCL.Writeln , "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n3 /* unnamed attribute */ \<cong> Set{}") , (OCL.Writeln , "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n4 .boss \<cong> Set{}") , (OCL.Writeln , "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n4 /* unnamed attribute */ \<cong> Set{}") , (OCL.Writeln , "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n5 .boss \<cong> Set{}") , (OCL.Writeln , "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n5 /* unnamed attribute */ \<cong> Set{}") , (OCL.Writeln , "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n6 .boss \<cong> Set{ X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n7 }") , (OCL.Writeln , "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n6 /* unnamed attribute */ \<cong> Set{}") , (OCL.Writeln , "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n7 .boss \<cong> Set{ X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n7 }") , (OCL.Writeln , "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n7 /* unnamed attribute */ \<cong> Set{ X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n6 , X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n7 }") , (OCL.Writeln , "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n9 .boss \<cong> Set{}") , (OCL.Writeln , "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n9 /* unnamed attribute */ \<cong> Set{}") , (OCL.Writeln , "X0 .boss \<cong> Set{}") , (OCL.Writeln , "X0 /* unnamed attribute */ \<cong> Set{}")]) (" error(s)")) *}
+ML \<open>(Ty'.check ([(META.Writeln , "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n1 .boss \<cong> Set{ X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2 }") , (META.Writeln , "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n1 /* unnamed attribute */ \<cong> Set{}") , (META.Writeln , "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2 .boss \<cong> Set{ X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2 }") , (META.Writeln , "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2 /* unnamed attribute */ \<cong> Set{ X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n1 , X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2 }") , (META.Writeln , "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n3 .boss \<cong> Set{}") , (META.Writeln , "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n3 /* unnamed attribute */ \<cong> Set{}") , (META.Writeln , "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n4 .boss \<cong> Set{}") , (META.Writeln , "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n4 /* unnamed attribute */ \<cong> Set{}") , (META.Writeln , "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n5 .boss \<cong> Set{}") , (META.Writeln , "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n5 /* unnamed attribute */ \<cong> Set{}") , (META.Writeln , "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n6 .boss \<cong> Set{ X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n7 }") , (META.Writeln , "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n6 /* unnamed attribute */ \<cong> Set{}") , (META.Writeln , "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n7 .boss \<cong> Set{ X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n7 }") , (META.Writeln , "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n7 /* unnamed attribute */ \<cong> Set{ X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n6 , X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n7 }") , (META.Writeln , "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n9 .boss \<cong> Set{}") , (META.Writeln , "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n9 /* unnamed attribute */ \<cong> Set{}") , (META.Writeln , "X0 .boss \<cong> Set{}") , (META.Writeln , "X0 /* unnamed attribute */ \<cong> Set{}")]) (" error(s)"))\<close>
 
 (* 145 ************************************ 915 + 1 *)
 definition "(typecheck_state_bad_head_on_lhs_\<sigma>\<^sub>1 (\<sigma>\<^sub>1)) = ()"
 
 (* 146 ************************************ 916 + 4 *)
 generation_syntax [ shallow (generation_semantics [ analysis ]) ]
-setup{* (Generation_mode.update_compiler_config ((K (let open OCL in Compiler_env_config_ext (true, NONE, Oids ((Code_Numeral.Nat 0), (Code_Numeral.Nat 1), (Code_Numeral.Nat 12)), I ((Code_Numeral.Nat 0), (Code_Numeral.Nat 0)), Gen_only_analysis, SOME (OclClass ((OCL.SS_base (OCL.ST "OclAny")), nil, uncurry cons (OclClass ((OCL.SS_base (OCL.ST "Galaxy")), uncurry cons (I ((OCL.SS_base (OCL.ST "sound")), OclTy_base_void), uncurry cons (I ((OCL.SS_base (OCL.ST "moving")), OclTy_base_boolean), uncurry cons (I ((OCL.SS_base (OCL.ST "outer_world")), OclTy_collection (Ocl_multiplicity_ext (nil, NONE, uncurry cons (Set, nil), ()), OclTy_collection (Ocl_multiplicity_ext (nil, NONE, uncurry cons (Sequence, nil), ()), OclTy_object (OclTyObj (OclTyCore_pre ((OCL.SS_base (OCL.ST "Planet"))), nil))))), nil))), uncurry cons (OclClass ((OCL.SS_base (OCL.ST "Planet")), uncurry cons (I ((OCL.SS_base (OCL.ST "wormhole")), OclTy_base_unlimitednatural), uncurry cons (I ((OCL.SS_base (OCL.ST "weight")), OclTy_base_integer), nil)), uncurry cons (OclClass ((OCL.SS_base (OCL.ST "Person")), uncurry cons (I ((OCL.SS_base (OCL.ST "boss")), OclTy_object (OclTyObj (OclTyCore (Ocl_ty_class_ext ((OCL.SS_base (OCL.ST "oid")), (Code_Numeral.Nat 0), (Code_Numeral.Nat 2), Ocl_ty_class_node_ext ((Code_Numeral.Nat 0), Ocl_multiplicity_ext (uncurry cons (I (Mult_star, NONE), nil), NONE, nil, ()), (OCL.SS_base (OCL.ST "Person")), ()), Ocl_ty_class_node_ext ((Code_Numeral.Nat 1), Ocl_multiplicity_ext (uncurry cons (I (Mult_nat ((Code_Numeral.Nat 0)), SOME (Mult_nat ((Code_Numeral.Nat 1)))), nil), SOME ((OCL.SS_base (OCL.ST "boss"))), nil, ()), (OCL.SS_base (OCL.ST "Person")), ()), ())), nil))), uncurry cons (I ((OCL.SS_base (OCL.ST "salary")), OclTy_base_integer), nil)), nil), nil)), nil)), nil))), uncurry cons (META_instance (OclInstance (uncurry cons (Ocl_instance_single_ext (SOME ((OCL.SS_base (OCL.ST "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n1"))), SOME ((OCL.SS_base (OCL.ST "Person"))), OclAttrNoCast (uncurry cons (I (NONE, I ((OCL.SS_base (OCL.ST "salary")), ShallB_term (OclDefInteger ((OCL.SS_base (OCL.ST "1300")))))), uncurry cons (I (NONE, I ((OCL.SS_base (OCL.ST "boss")), ShallB_str ((OCL.SS_base (OCL.ST "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2"))))), nil))), ()), uncurry cons (Ocl_instance_single_ext (SOME ((OCL.SS_base (OCL.ST "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2"))), SOME ((OCL.SS_base (OCL.ST "Person"))), OclAttrNoCast (uncurry cons (I (NONE, I ((OCL.SS_base (OCL.ST "salary")), ShallB_term (OclDefInteger ((OCL.SS_base (OCL.ST "1800")))))), uncurry cons (I (NONE, I ((OCL.SS_base (OCL.ST "boss")), ShallB_str ((OCL.SS_base (OCL.ST "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2"))))), nil))), ()), uncurry cons (Ocl_instance_single_ext (SOME ((OCL.SS_base (OCL.ST "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n3"))), SOME ((OCL.SS_base (OCL.ST "Person"))), OclAttrNoCast (nil), ()), uncurry cons (Ocl_instance_single_ext (SOME ((OCL.SS_base (OCL.ST "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n4"))), SOME ((OCL.SS_base (OCL.ST "Person"))), OclAttrNoCast (uncurry cons (I (NONE, I ((OCL.SS_base (OCL.ST "salary")), ShallB_term (OclDefInteger ((OCL.SS_base (OCL.ST "2900")))))), nil)), ()), uncurry cons (Ocl_instance_single_ext (SOME ((OCL.SS_base (OCL.ST "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n5"))), SOME ((OCL.SS_base (OCL.ST "Person"))), OclAttrNoCast (uncurry cons (I (NONE, I ((OCL.SS_base (OCL.ST "salary")), ShallB_term (OclDefInteger ((OCL.SS_base (OCL.ST "3500")))))), nil)), ()), uncurry cons (Ocl_instance_single_ext (SOME ((OCL.SS_base (OCL.ST "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n6"))), SOME ((OCL.SS_base (OCL.ST "Person"))), OclAttrNoCast (uncurry cons (I (NONE, I ((OCL.SS_base (OCL.ST "salary")), ShallB_term (OclDefInteger ((OCL.SS_base (OCL.ST "2500")))))), uncurry cons (I (NONE, I ((OCL.SS_base (OCL.ST "boss")), ShallB_str ((OCL.SS_base (OCL.ST "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n7"))))), nil))), ()), uncurry cons (Ocl_instance_single_ext (SOME ((OCL.SS_base (OCL.ST "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n7"))), NONE, OclAttrCast ((OCL.SS_base (OCL.ST "OclAny")), OclAttrCast ((OCL.SS_base (OCL.ST "Person")), OclAttrNoCast (uncurry cons (I (NONE, I ((OCL.SS_base (OCL.ST "salary")), ShallB_term (OclDefInteger ((OCL.SS_base (OCL.ST "3200")))))), uncurry cons (I (NONE, I ((OCL.SS_base (OCL.ST "boss")), ShallB_str ((OCL.SS_base (OCL.ST "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n7"))))), nil))), nil), nil), ()), uncurry cons (Ocl_instance_single_ext (SOME ((OCL.SS_base (OCL.ST "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n8"))), SOME ((OCL.SS_base (OCL.ST "OclAny"))), OclAttrNoCast (nil), ()), uncurry cons (Ocl_instance_single_ext (SOME ((OCL.SS_base (OCL.ST "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n9"))), SOME ((OCL.SS_base (OCL.ST "Person"))), OclAttrNoCast (uncurry cons (I (NONE, I ((OCL.SS_base (OCL.ST "salary")), ShallB_term (OclDefInteger ((OCL.SS_base (OCL.ST "0")))))), nil)), ()), uncurry cons (Ocl_instance_single_ext (SOME ((OCL.SS_base (OCL.ST "X0"))), SOME ((OCL.SS_base (OCL.ST "Person"))), OclAttrNoCast (uncurry cons (I (NONE, I ((OCL.SS_base (OCL.ST "outer_world")), ShallB_list (uncurry cons (ShallB_list (uncurry cons (ShallB_str ((OCL.SS_base (OCL.ST "P1"))), nil)), nil)))), nil)), ()), uncurry cons (Ocl_instance_single_ext (SOME ((OCL.SS_base (OCL.ST "P1"))), SOME ((OCL.SS_base (OCL.ST "Planet"))), OclAttrNoCast (uncurry cons (I (NONE, I ((OCL.SS_base (OCL.ST "outer_world")), ShallB_list (uncurry cons (ShallB_list (uncurry cons (ShallB_str ((OCL.SS_base (OCL.ST "P1"))), nil)), uncurry cons (ShallB_list (uncurry cons (ShallB_self (Oid ((Code_Numeral.Nat 10))), nil)), nil))))), nil)), ()), nil))))))))))))), uncurry cons (META_class_raw (Floor1, Ocl_class_raw_ext (OclTyObj (OclTyCore_pre ((OCL.SS_base (OCL.ST "Galaxy"))), nil), uncurry cons (I ((OCL.SS_base (OCL.ST "sound")), OclTy_base_void), uncurry cons (I ((OCL.SS_base (OCL.ST "moving")), OclTy_base_boolean), uncurry cons (I ((OCL.SS_base (OCL.ST "outer_world")), OclTy_collection (Ocl_multiplicity_ext (nil, NONE, uncurry cons (Set, nil), ()), OclTy_binding (I (NONE, OclTy_collection (Ocl_multiplicity_ext (nil, NONE, uncurry cons (Sequence, nil), ()), OclTy_binding (I (NONE, OclTy_object (OclTyObj (OclTyCore_pre ((OCL.SS_base (OCL.ST "Planet"))), nil))))))))), nil))), nil, false, ())), uncurry cons (META_class_raw (Floor1, Ocl_class_raw_ext (OclTyObj (OclTyCore_pre ((OCL.SS_base (OCL.ST "Planet"))), uncurry cons (uncurry cons (OclTyCore_pre ((OCL.SS_base (OCL.ST "Galaxy"))), nil), nil)), uncurry cons (I ((OCL.SS_base (OCL.ST "wormhole")), OclTy_base_unlimitednatural), uncurry cons (I ((OCL.SS_base (OCL.ST "weight")), OclTy_base_integer), nil)), nil, false, ())), uncurry cons (META_association (Ocl_association_ext (OclAssTy_association, OclAssRel (uncurry cons (I (OclTyObj (OclTyCore_pre ((OCL.SS_base (OCL.ST "Person"))), nil), Ocl_multiplicity_ext (uncurry cons (I (Mult_star, NONE), nil), NONE, nil, ())), uncurry cons (I (OclTyObj (OclTyCore_pre ((OCL.SS_base (OCL.ST "Person"))), nil), Ocl_multiplicity_ext (uncurry cons (I (Mult_nat ((Code_Numeral.Nat 0)), SOME (Mult_nat ((Code_Numeral.Nat 1)))), nil), SOME ((OCL.SS_base (OCL.ST "boss"))), nil, ())), nil))), ())), uncurry cons (META_class_raw (Floor1, Ocl_class_raw_ext (OclTyObj (OclTyCore_pre ((OCL.SS_base (OCL.ST "Person"))), uncurry cons (uncurry cons (OclTyCore_pre ((OCL.SS_base (OCL.ST "Planet"))), nil), nil)), uncurry cons (I ((OCL.SS_base (OCL.ST "salary")), OclTy_base_integer), nil), nil, false, ())), nil))))), uncurry cons (I ((OCL.ST "P1"), I (Ocl_instance_single_ext (SOME ((OCL.SS_base (OCL.ST "P1"))), SOME ((OCL.SS_base (OCL.ST "Planet"))), OclAttrNoCast (uncurry cons (I (NONE, I ((OCL.SS_base (OCL.ST "outer_world")), ShallB_list (uncurry cons (ShallB_list (uncurry cons (ShallB_str ((OCL.SS_base (OCL.ST "P1"))), nil)), uncurry cons (ShallB_list (uncurry cons (ShallB_self (Oid ((Code_Numeral.Nat 10))), nil)), nil))))), nil)), ()), Oids ((Code_Numeral.Nat 0), (Code_Numeral.Nat 1), (Code_Numeral.Nat 11)))), uncurry cons (I ((OCL.ST "X0"), I (Ocl_instance_single_ext (SOME ((OCL.SS_base (OCL.ST "X0"))), SOME ((OCL.SS_base (OCL.ST "Person"))), OclAttrNoCast (uncurry cons (I (NONE, I ((OCL.SS_base (OCL.ST "outer_world")), ShallB_list (uncurry cons (ShallB_list (uncurry cons (ShallB_str ((OCL.SS_base (OCL.ST "P1"))), nil)), nil)))), nil)), ()), Oids ((Code_Numeral.Nat 0), (Code_Numeral.Nat 1), (Code_Numeral.Nat 10)))), uncurry cons (I ((OCL.ST "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n9"), I (Ocl_instance_single_ext (SOME ((OCL.SS_base (OCL.ST "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n9"))), SOME ((OCL.SS_base (OCL.ST "Person"))), OclAttrNoCast (uncurry cons (I (NONE, I ((OCL.SS_base (OCL.ST "salary")), ShallB_term (OclDefInteger ((OCL.SS_base (OCL.ST "0")))))), nil)), ()), Oids ((Code_Numeral.Nat 0), (Code_Numeral.Nat 1), (Code_Numeral.Nat 9)))), uncurry cons (I ((OCL.ST "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n8"), I (Ocl_instance_single_ext (SOME ((OCL.SS_base (OCL.ST "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n8"))), SOME ((OCL.SS_base (OCL.ST "OclAny"))), OclAttrNoCast (nil), ()), Oids ((Code_Numeral.Nat 0), (Code_Numeral.Nat 1), (Code_Numeral.Nat 8)))), uncurry cons (I ((OCL.ST "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n7"), I (Ocl_instance_single_ext (SOME ((OCL.SS_base (OCL.ST "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n7"))), NONE, OclAttrCast ((OCL.SS_base (OCL.ST "OclAny")), OclAttrCast ((OCL.SS_base (OCL.ST "Person")), OclAttrNoCast (uncurry cons (I (NONE, I ((OCL.SS_base (OCL.ST "salary")), ShallB_term (OclDefInteger ((OCL.SS_base (OCL.ST "3200")))))), uncurry cons (I (NONE, I ((OCL.SS_base (OCL.ST "boss")), ShallB_str ((OCL.SS_base (OCL.ST "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n7"))))), nil))), nil), nil), ()), Oids ((Code_Numeral.Nat 0), (Code_Numeral.Nat 1), (Code_Numeral.Nat 7)))), uncurry cons (I ((OCL.ST "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n6"), I (Ocl_instance_single_ext (SOME ((OCL.SS_base (OCL.ST "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n6"))), SOME ((OCL.SS_base (OCL.ST "Person"))), OclAttrNoCast (uncurry cons (I (NONE, I ((OCL.SS_base (OCL.ST "salary")), ShallB_term (OclDefInteger ((OCL.SS_base (OCL.ST "2500")))))), uncurry cons (I (NONE, I ((OCL.SS_base (OCL.ST "boss")), ShallB_str ((OCL.SS_base (OCL.ST "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n7"))))), nil))), ()), Oids ((Code_Numeral.Nat 0), (Code_Numeral.Nat 1), (Code_Numeral.Nat 6)))), uncurry cons (I ((OCL.ST "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n5"), I (Ocl_instance_single_ext (SOME ((OCL.SS_base (OCL.ST "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n5"))), SOME ((OCL.SS_base (OCL.ST "Person"))), OclAttrNoCast (uncurry cons (I (NONE, I ((OCL.SS_base (OCL.ST "salary")), ShallB_term (OclDefInteger ((OCL.SS_base (OCL.ST "3500")))))), nil)), ()), Oids ((Code_Numeral.Nat 0), (Code_Numeral.Nat 1), (Code_Numeral.Nat 5)))), uncurry cons (I ((OCL.ST "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n4"), I (Ocl_instance_single_ext (SOME ((OCL.SS_base (OCL.ST "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n4"))), SOME ((OCL.SS_base (OCL.ST "Person"))), OclAttrNoCast (uncurry cons (I (NONE, I ((OCL.SS_base (OCL.ST "salary")), ShallB_term (OclDefInteger ((OCL.SS_base (OCL.ST "2900")))))), nil)), ()), Oids ((Code_Numeral.Nat 0), (Code_Numeral.Nat 1), (Code_Numeral.Nat 4)))), uncurry cons (I ((OCL.ST "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n3"), I (Ocl_instance_single_ext (SOME ((OCL.SS_base (OCL.ST "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n3"))), SOME ((OCL.SS_base (OCL.ST "Person"))), OclAttrNoCast (nil), ()), Oids ((Code_Numeral.Nat 0), (Code_Numeral.Nat 1), (Code_Numeral.Nat 3)))), uncurry cons (I ((OCL.ST "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2"), I (Ocl_instance_single_ext (SOME ((OCL.SS_base (OCL.ST "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2"))), SOME ((OCL.SS_base (OCL.ST "Person"))), OclAttrNoCast (uncurry cons (I (NONE, I ((OCL.SS_base (OCL.ST "salary")), ShallB_term (OclDefInteger ((OCL.SS_base (OCL.ST "1800")))))), uncurry cons (I (NONE, I ((OCL.SS_base (OCL.ST "boss")), ShallB_str ((OCL.SS_base (OCL.ST "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2"))))), nil))), ()), Oids ((Code_Numeral.Nat 0), (Code_Numeral.Nat 1), (Code_Numeral.Nat 2)))), uncurry cons (I ((OCL.ST "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n1"), I (Ocl_instance_single_ext (SOME ((OCL.SS_base (OCL.ST "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n1"))), SOME ((OCL.SS_base (OCL.ST "Person"))), OclAttrNoCast (uncurry cons (I (NONE, I ((OCL.SS_base (OCL.ST "salary")), ShallB_term (OclDefInteger ((OCL.SS_base (OCL.ST "1300")))))), uncurry cons (I (NONE, I ((OCL.SS_base (OCL.ST "boss")), ShallB_str ((OCL.SS_base (OCL.ST "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2"))))), nil))), ()), Oids ((Code_Numeral.Nat 0), (Code_Numeral.Nat 1), (Code_Numeral.Nat 1)))), nil))))))))))), nil, true, false, I (uncurry cons ((OCL.ST "dot__outer_worldat_pre"), uncurry cons ((OCL.ST "dot__movingat_pre"), uncurry cons ((OCL.ST "dot__soundat_pre"), uncurry cons ((OCL.ST "dot__weightat_pre"), uncurry cons ((OCL.ST "dot__wormholeat_pre"), uncurry cons ((OCL.ST "dot__salaryat_pre"), uncurry cons ((OCL.ST "dot_0___bossat_pre"), nil))))))), uncurry cons ((OCL.ST "dot__outer_world"), uncurry cons ((OCL.ST "dot__moving"), uncurry cons ((OCL.ST "dot__sound"), uncurry cons ((OCL.ST "dot__weight"), uncurry cons ((OCL.ST "dot__wormhole"), uncurry cons ((OCL.ST "dot__salary"), uncurry cons ((OCL.ST "dot_0___boss"), nil)))))))), uncurry cons ((OCL.ST "Sequence_Person"), uncurry cons ((OCL.ST "Set_Person"), uncurry cons ((OCL.ST "Set_Sequence_Planet"), nil))), I (NONE, false), ()) end)))) *}
+setup \<open>(Generation_mode.update_compiler_config ((K (let open META in Compiler_env_config_ext (true, NONE, Oids ((Code_Numeral.Nat 0), (Code_Numeral.Nat 1), (Code_Numeral.Nat 12)), I ((Code_Numeral.Nat 0), (Code_Numeral.Nat 0)), Gen_only_analysis, SOME (OclClass ((META.SS_base (META.ST "OclAny")), nil, uncurry cons (OclClass ((META.SS_base (META.ST "Galaxy")), uncurry cons (I ((META.SS_base (META.ST "sound")), OclTy_base_void), uncurry cons (I ((META.SS_base (META.ST "moving")), OclTy_base_boolean), uncurry cons (I ((META.SS_base (META.ST "outer_world")), OclTy_collection (Ocl_multiplicity_ext (nil, NONE, uncurry cons (Set, nil), ()), OclTy_collection (Ocl_multiplicity_ext (nil, NONE, uncurry cons (Sequence, nil), ()), OclTy_object (OclTyObj (OclTyCore_pre ((META.SS_base (META.ST "Planet"))), nil))))), nil))), uncurry cons (OclClass ((META.SS_base (META.ST "Planet")), uncurry cons (I ((META.SS_base (META.ST "wormhole")), OclTy_base_unlimitednatural), uncurry cons (I ((META.SS_base (META.ST "weight")), OclTy_base_integer), nil)), uncurry cons (OclClass ((META.SS_base (META.ST "Person")), uncurry cons (I ((META.SS_base (META.ST "boss")), OclTy_object (OclTyObj (OclTyCore (Ocl_ty_class_ext ((META.SS_base (META.ST "oid")), (Code_Numeral.Nat 0), (Code_Numeral.Nat 2), Ocl_ty_class_node_ext ((Code_Numeral.Nat 0), Ocl_multiplicity_ext (uncurry cons (I (Mult_star, NONE), nil), NONE, nil, ()), (META.SS_base (META.ST "Person")), ()), Ocl_ty_class_node_ext ((Code_Numeral.Nat 1), Ocl_multiplicity_ext (uncurry cons (I (Mult_nat ((Code_Numeral.Nat 0)), SOME (Mult_nat ((Code_Numeral.Nat 1)))), nil), SOME ((META.SS_base (META.ST "boss"))), nil, ()), (META.SS_base (META.ST "Person")), ()), ())), nil))), uncurry cons (I ((META.SS_base (META.ST "salary")), OclTy_base_integer), nil)), nil), nil)), nil)), nil))), uncurry cons (META_instance (OclInstance (uncurry cons (Ocl_instance_single_ext (SOME ((META.SS_base (META.ST "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n1"))), SOME ((META.SS_base (META.ST "Person"))), OclAttrNoCast (uncurry cons (I (NONE, I ((META.SS_base (META.ST "salary")), ShallB_term (OclDefInteger ((META.SS_base (META.ST "1300")))))), uncurry cons (I (NONE, I ((META.SS_base (META.ST "boss")), ShallB_str ((META.SS_base (META.ST "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2"))))), nil))), ()), uncurry cons (Ocl_instance_single_ext (SOME ((META.SS_base (META.ST "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2"))), SOME ((META.SS_base (META.ST "Person"))), OclAttrNoCast (uncurry cons (I (NONE, I ((META.SS_base (META.ST "salary")), ShallB_term (OclDefInteger ((META.SS_base (META.ST "1800")))))), uncurry cons (I (NONE, I ((META.SS_base (META.ST "boss")), ShallB_str ((META.SS_base (META.ST "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2"))))), nil))), ()), uncurry cons (Ocl_instance_single_ext (SOME ((META.SS_base (META.ST "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n3"))), SOME ((META.SS_base (META.ST "Person"))), OclAttrNoCast (nil), ()), uncurry cons (Ocl_instance_single_ext (SOME ((META.SS_base (META.ST "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n4"))), SOME ((META.SS_base (META.ST "Person"))), OclAttrNoCast (uncurry cons (I (NONE, I ((META.SS_base (META.ST "salary")), ShallB_term (OclDefInteger ((META.SS_base (META.ST "2900")))))), nil)), ()), uncurry cons (Ocl_instance_single_ext (SOME ((META.SS_base (META.ST "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n5"))), SOME ((META.SS_base (META.ST "Person"))), OclAttrNoCast (uncurry cons (I (NONE, I ((META.SS_base (META.ST "salary")), ShallB_term (OclDefInteger ((META.SS_base (META.ST "3500")))))), nil)), ()), uncurry cons (Ocl_instance_single_ext (SOME ((META.SS_base (META.ST "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n6"))), SOME ((META.SS_base (META.ST "Person"))), OclAttrNoCast (uncurry cons (I (NONE, I ((META.SS_base (META.ST "salary")), ShallB_term (OclDefInteger ((META.SS_base (META.ST "2500")))))), uncurry cons (I (NONE, I ((META.SS_base (META.ST "boss")), ShallB_str ((META.SS_base (META.ST "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n7"))))), nil))), ()), uncurry cons (Ocl_instance_single_ext (SOME ((META.SS_base (META.ST "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n7"))), NONE, OclAttrCast ((META.SS_base (META.ST "OclAny")), OclAttrCast ((META.SS_base (META.ST "Person")), OclAttrNoCast (uncurry cons (I (NONE, I ((META.SS_base (META.ST "salary")), ShallB_term (OclDefInteger ((META.SS_base (META.ST "3200")))))), uncurry cons (I (NONE, I ((META.SS_base (META.ST "boss")), ShallB_str ((META.SS_base (META.ST "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n7"))))), nil))), nil), nil), ()), uncurry cons (Ocl_instance_single_ext (SOME ((META.SS_base (META.ST "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n8"))), SOME ((META.SS_base (META.ST "OclAny"))), OclAttrNoCast (nil), ()), uncurry cons (Ocl_instance_single_ext (SOME ((META.SS_base (META.ST "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n9"))), SOME ((META.SS_base (META.ST "Person"))), OclAttrNoCast (uncurry cons (I (NONE, I ((META.SS_base (META.ST "salary")), ShallB_term (OclDefInteger ((META.SS_base (META.ST "0")))))), nil)), ()), uncurry cons (Ocl_instance_single_ext (SOME ((META.SS_base (META.ST "X0"))), SOME ((META.SS_base (META.ST "Person"))), OclAttrNoCast (uncurry cons (I (NONE, I ((META.SS_base (META.ST "outer_world")), ShallB_list (uncurry cons (ShallB_list (uncurry cons (ShallB_str ((META.SS_base (META.ST "P1"))), nil)), nil)))), nil)), ()), uncurry cons (Ocl_instance_single_ext (SOME ((META.SS_base (META.ST "P1"))), SOME ((META.SS_base (META.ST "Planet"))), OclAttrNoCast (uncurry cons (I (NONE, I ((META.SS_base (META.ST "outer_world")), ShallB_list (uncurry cons (ShallB_list (uncurry cons (ShallB_str ((META.SS_base (META.ST "P1"))), nil)), uncurry cons (ShallB_list (uncurry cons (ShallB_self (Oid ((Code_Numeral.Nat 10))), nil)), nil))))), nil)), ()), nil))))))))))))), uncurry cons (META_class_raw (Floor1, Ocl_class_raw_ext (OclTyObj (OclTyCore_pre ((META.SS_base (META.ST "Galaxy"))), nil), uncurry cons (I ((META.SS_base (META.ST "sound")), OclTy_base_void), uncurry cons (I ((META.SS_base (META.ST "moving")), OclTy_base_boolean), uncurry cons (I ((META.SS_base (META.ST "outer_world")), OclTy_collection (Ocl_multiplicity_ext (nil, NONE, uncurry cons (Set, nil), ()), OclTy_binding (I (NONE, OclTy_collection (Ocl_multiplicity_ext (nil, NONE, uncurry cons (Sequence, nil), ()), OclTy_binding (I (NONE, OclTy_object (OclTyObj (OclTyCore_pre ((META.SS_base (META.ST "Planet"))), nil))))))))), nil))), nil, false, ())), uncurry cons (META_class_raw (Floor1, Ocl_class_raw_ext (OclTyObj (OclTyCore_pre ((META.SS_base (META.ST "Planet"))), uncurry cons (uncurry cons (OclTyCore_pre ((META.SS_base (META.ST "Galaxy"))), nil), nil)), uncurry cons (I ((META.SS_base (META.ST "wormhole")), OclTy_base_unlimitednatural), uncurry cons (I ((META.SS_base (META.ST "weight")), OclTy_base_integer), nil)), nil, false, ())), uncurry cons (META_association (Ocl_association_ext (OclAssTy_association, OclAssRel (uncurry cons (I (OclTyObj (OclTyCore_pre ((META.SS_base (META.ST "Person"))), nil), Ocl_multiplicity_ext (uncurry cons (I (Mult_star, NONE), nil), NONE, nil, ())), uncurry cons (I (OclTyObj (OclTyCore_pre ((META.SS_base (META.ST "Person"))), nil), Ocl_multiplicity_ext (uncurry cons (I (Mult_nat ((Code_Numeral.Nat 0)), SOME (Mult_nat ((Code_Numeral.Nat 1)))), nil), SOME ((META.SS_base (META.ST "boss"))), nil, ())), nil))), ())), uncurry cons (META_class_raw (Floor1, Ocl_class_raw_ext (OclTyObj (OclTyCore_pre ((META.SS_base (META.ST "Person"))), uncurry cons (uncurry cons (OclTyCore_pre ((META.SS_base (META.ST "Planet"))), nil), nil)), uncurry cons (I ((META.SS_base (META.ST "salary")), OclTy_base_integer), nil), nil, false, ())), nil))))), uncurry cons (I ((META.ST "P1"), I (Ocl_instance_single_ext (SOME ((META.SS_base (META.ST "P1"))), SOME ((META.SS_base (META.ST "Planet"))), OclAttrNoCast (uncurry cons (I (NONE, I ((META.SS_base (META.ST "outer_world")), ShallB_list (uncurry cons (ShallB_list (uncurry cons (ShallB_str ((META.SS_base (META.ST "P1"))), nil)), uncurry cons (ShallB_list (uncurry cons (ShallB_self (Oid ((Code_Numeral.Nat 10))), nil)), nil))))), nil)), ()), Oids ((Code_Numeral.Nat 0), (Code_Numeral.Nat 1), (Code_Numeral.Nat 11)))), uncurry cons (I ((META.ST "X0"), I (Ocl_instance_single_ext (SOME ((META.SS_base (META.ST "X0"))), SOME ((META.SS_base (META.ST "Person"))), OclAttrNoCast (uncurry cons (I (NONE, I ((META.SS_base (META.ST "outer_world")), ShallB_list (uncurry cons (ShallB_list (uncurry cons (ShallB_str ((META.SS_base (META.ST "P1"))), nil)), nil)))), nil)), ()), Oids ((Code_Numeral.Nat 0), (Code_Numeral.Nat 1), (Code_Numeral.Nat 10)))), uncurry cons (I ((META.ST "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n9"), I (Ocl_instance_single_ext (SOME ((META.SS_base (META.ST "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n9"))), SOME ((META.SS_base (META.ST "Person"))), OclAttrNoCast (uncurry cons (I (NONE, I ((META.SS_base (META.ST "salary")), ShallB_term (OclDefInteger ((META.SS_base (META.ST "0")))))), nil)), ()), Oids ((Code_Numeral.Nat 0), (Code_Numeral.Nat 1), (Code_Numeral.Nat 9)))), uncurry cons (I ((META.ST "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n8"), I (Ocl_instance_single_ext (SOME ((META.SS_base (META.ST "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n8"))), SOME ((META.SS_base (META.ST "OclAny"))), OclAttrNoCast (nil), ()), Oids ((Code_Numeral.Nat 0), (Code_Numeral.Nat 1), (Code_Numeral.Nat 8)))), uncurry cons (I ((META.ST "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n7"), I (Ocl_instance_single_ext (SOME ((META.SS_base (META.ST "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n7"))), NONE, OclAttrCast ((META.SS_base (META.ST "OclAny")), OclAttrCast ((META.SS_base (META.ST "Person")), OclAttrNoCast (uncurry cons (I (NONE, I ((META.SS_base (META.ST "salary")), ShallB_term (OclDefInteger ((META.SS_base (META.ST "3200")))))), uncurry cons (I (NONE, I ((META.SS_base (META.ST "boss")), ShallB_str ((META.SS_base (META.ST "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n7"))))), nil))), nil), nil), ()), Oids ((Code_Numeral.Nat 0), (Code_Numeral.Nat 1), (Code_Numeral.Nat 7)))), uncurry cons (I ((META.ST "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n6"), I (Ocl_instance_single_ext (SOME ((META.SS_base (META.ST "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n6"))), SOME ((META.SS_base (META.ST "Person"))), OclAttrNoCast (uncurry cons (I (NONE, I ((META.SS_base (META.ST "salary")), ShallB_term (OclDefInteger ((META.SS_base (META.ST "2500")))))), uncurry cons (I (NONE, I ((META.SS_base (META.ST "boss")), ShallB_str ((META.SS_base (META.ST "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n7"))))), nil))), ()), Oids ((Code_Numeral.Nat 0), (Code_Numeral.Nat 1), (Code_Numeral.Nat 6)))), uncurry cons (I ((META.ST "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n5"), I (Ocl_instance_single_ext (SOME ((META.SS_base (META.ST "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n5"))), SOME ((META.SS_base (META.ST "Person"))), OclAttrNoCast (uncurry cons (I (NONE, I ((META.SS_base (META.ST "salary")), ShallB_term (OclDefInteger ((META.SS_base (META.ST "3500")))))), nil)), ()), Oids ((Code_Numeral.Nat 0), (Code_Numeral.Nat 1), (Code_Numeral.Nat 5)))), uncurry cons (I ((META.ST "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n4"), I (Ocl_instance_single_ext (SOME ((META.SS_base (META.ST "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n4"))), SOME ((META.SS_base (META.ST "Person"))), OclAttrNoCast (uncurry cons (I (NONE, I ((META.SS_base (META.ST "salary")), ShallB_term (OclDefInteger ((META.SS_base (META.ST "2900")))))), nil)), ()), Oids ((Code_Numeral.Nat 0), (Code_Numeral.Nat 1), (Code_Numeral.Nat 4)))), uncurry cons (I ((META.ST "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n3"), I (Ocl_instance_single_ext (SOME ((META.SS_base (META.ST "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n3"))), SOME ((META.SS_base (META.ST "Person"))), OclAttrNoCast (nil), ()), Oids ((Code_Numeral.Nat 0), (Code_Numeral.Nat 1), (Code_Numeral.Nat 3)))), uncurry cons (I ((META.ST "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2"), I (Ocl_instance_single_ext (SOME ((META.SS_base (META.ST "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2"))), SOME ((META.SS_base (META.ST "Person"))), OclAttrNoCast (uncurry cons (I (NONE, I ((META.SS_base (META.ST "salary")), ShallB_term (OclDefInteger ((META.SS_base (META.ST "1800")))))), uncurry cons (I (NONE, I ((META.SS_base (META.ST "boss")), ShallB_str ((META.SS_base (META.ST "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2"))))), nil))), ()), Oids ((Code_Numeral.Nat 0), (Code_Numeral.Nat 1), (Code_Numeral.Nat 2)))), uncurry cons (I ((META.ST "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n1"), I (Ocl_instance_single_ext (SOME ((META.SS_base (META.ST "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n1"))), SOME ((META.SS_base (META.ST "Person"))), OclAttrNoCast (uncurry cons (I (NONE, I ((META.SS_base (META.ST "salary")), ShallB_term (OclDefInteger ((META.SS_base (META.ST "1300")))))), uncurry cons (I (NONE, I ((META.SS_base (META.ST "boss")), ShallB_str ((META.SS_base (META.ST "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2"))))), nil))), ()), Oids ((Code_Numeral.Nat 0), (Code_Numeral.Nat 1), (Code_Numeral.Nat 1)))), nil))))))))))), nil, true, false, I (uncurry cons ((META.ST "dot__outer_worldat_pre"), uncurry cons ((META.ST "dot__movingat_pre"), uncurry cons ((META.ST "dot__soundat_pre"), uncurry cons ((META.ST "dot__weightat_pre"), uncurry cons ((META.ST "dot__wormholeat_pre"), uncurry cons ((META.ST "dot__salaryat_pre"), uncurry cons ((META.ST "dot_0___bossat_pre"), nil))))))), uncurry cons ((META.ST "dot__outer_world"), uncurry cons ((META.ST "dot__moving"), uncurry cons ((META.ST "dot__sound"), uncurry cons ((META.ST "dot__weight"), uncurry cons ((META.ST "dot__wormhole"), uncurry cons ((META.ST "dot__salary"), uncurry cons ((META.ST "dot_0___boss"), nil)))))))), uncurry cons ((META.ST "Sequence_Person"), uncurry cons ((META.ST "Set_Person"), uncurry cons ((META.ST "Set_Sequence_Planet"), nil))), I (NONE, false), ()) end))))\<close>
 Instance \<sigma>\<^sub>1_object0 :: Person = [ "salary" = 1000, "boss" = self 1 ]
      and \<sigma>\<^sub>1_object1 :: Person = [ "salary" = 1200 ]
      and \<sigma>\<^sub>1_object2 :: Person = [ "salary" = 2600, "boss" = X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n5 ]
