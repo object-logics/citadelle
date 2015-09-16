@@ -252,20 +252,43 @@ State \<sigma>\<^sub>1' =
   , X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2
   , X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n3 ]
 
+text \<open>
+In certain circumstances, the command @{command setup}
+must be added again between some particular interleaving of two meta-commands
+and this may not depend on the presence of @{command generation_syntax}
+(which is defined only once when generating the first meta-command).
+For more details, one can refer to the source code of
+@{term "ignore_meta_header"} and @{term "bootstrap_floor"}.\<close>
+
 PrePost \<sigma>\<^sub>1 \<sigma>\<^sub>1'
 
 text\<open>
 The generation of meta-commands allows to perform various extensions
 on the Toy language being embedded, without altering the semantics of a particular command.
-The semantics of @{command PrePost} was hence extended
-to mimic the support of @{text "\<zeta>"}-reduction with respect to its arguments: \\
+@{command PrePost} usually only takes ``bound variables'' as parameters
+(not arbitrary @{text "\<lambda>"}-terms), however the semantics of @{command PrePost} was extended
+to mimic the support of some particular terms not restricted to variables.
+This extension was implemented by executing some steps of ``@{text "\<zeta>"}-reductions rewriting rules''
+operating on the meta-level of commands.
+First, it is at least needed to extend the syntax of expressions accepted by @{command PrePost}, 
+we then modify the parsing so that a larger subset of @{text "\<lambda>"}-terms
+can be given as parameters.
+Starting from this expression: \\
 @{verbatim "(* PrePost \<sigma>\<^sub>1 [ ([ salary = 1000 , boss = self 1 ] :: Person) ] *)"}
-This will rewrite to a preliminary call to @{command State}
-(the name @{text "WFF_10_post"} was automatically generated): \\
+
+the rewriting begins with a first call to the next semantic floor, we obtain 
+the following meta-commands (where @{command PrePost} @{text "[shallow]"} is an expression 
+in normal form): \\
 @{verbatim \<open>(* State WFF_10_post = [ ([ "salary" = 1000, "boss" = self 1 ] :: Person) ]\<close>} \\
 @{verbatim "   PrePost[shallow] \<sigma>\<^sub>1 WFF_10_post *)"}
-then the rewriting of the above @{command State} terminates 
-with a final call to @{command Instance}.
+(@{text "WFF_10_post"} is an automatically generated name).
+
+The rewriting of the above @{command State} is performed in its turn.
+Finally the overall ultimately terminates when reaching @{command Instance} being already 
+in normal form: \\
+@{verbatim \<open>(* Instance WFF_10_post_object0 :: Person = [ "salary" = 1000, "boss" = [  ] ]\<close>} \\
+@{verbatim "   State[shallow] WFF_10_post = [ WFF_10_post_object0 ]"} \\
+@{verbatim "   PrePost[shallow] \<sigma>\<^sub>1 WFF_10_post *)"}
 \<close>
 
 subsection\<open>Designing Class Models (III): Interaction with (Pure) Term\<close>
