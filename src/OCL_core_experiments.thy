@@ -6,7 +6,7 @@
  * OCL_core_experiments.thy --- 
  * This file is part of HOL-TestGen.
  *
- * Copyright (c) 2012      Université Paris-Saclay, Univ Paris Sud, France
+ * Copyright (c) 2012      Université Paris-Saclay, Univ. Paris-Sud, France
  *
  * All rights reserved.
  *

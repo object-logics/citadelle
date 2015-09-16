@@ -4,7 +4,7 @@
  * Copyright (c) 1986-2015 University of Cambridge,
  *                         Technische Universitaet Muenchen,
  *                         and contributors.
- *               2013-2015 Université Paris-Saclay, Univ Paris Sud, France
+ *               2013-2015 Université Paris-Saclay, Univ. Paris-Sud, France
  *               2013-2015 IRT SystemX, France
  *
  * All rights reserved.

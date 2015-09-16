@@ -6,7 +6,7 @@
  * class_model.ml --- Generation of class model represented as tree
  * This file is part of HOL-TestGen.
  *
- * Copyright (c) 2013-2015 Université Paris-Saclay, Univ Paris Sud, France
+ * Copyright (c) 2013-2015 Université Paris-Saclay, Univ. Paris-Sud, France
  *               2013-2015 IRT SystemX, France
  *
  * All rights reserved.
