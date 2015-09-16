@@ -36,6 +36,7 @@
  ******************************************************************************)
 (* $Id:$ *)
 
+chapter\<open>Translating Meta-Models\<close>
 section\<open>General Environment for the Translation: Introduction\<close>
 
 theory  Core_init

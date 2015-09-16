@@ -36,7 +36,7 @@
  ******************************************************************************)
 (* $Id:$ *)
 
-
+chapter\<open>Toy Libraries Static\<close>
 section\<open>Main Common Static Libraries\<close>
 
 theory Static

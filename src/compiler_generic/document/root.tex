@@ -125,14 +125,14 @@ transformations, correctness, etc.
 \inputif{Meta_Pure.tex}
 \inputif{Meta_SML.tex}
 \inputif{Meta_Isabelle.tex}
-  \inputif{Meta_Toy.tex}
-  \inputif{Meta_Toy_extended.tex}
+\inputif{Meta_Toy.tex} % toy
+\inputif{Meta_Toy_extended.tex} % toy
 \inputif{Meta_META.tex}
 
-%\chapter{Toy Libraries Static}
-  \inputif{Toy_Library_Static.tex}
+%\chapter{Toy Libraries Static} % chapter already declared in this following first file:
+  \inputif{Toy_Library_Static.tex} % toy
 
-%\chapter{Translating Meta-Models}
+%\chapter{Translating Meta-Models} % chapter already declared in this following first file:
 \inputif{Core_init.tex}
 \inputif{Floor1_enum.tex}
 \inputif{Floor1_infra.tex}
@@ -150,8 +150,8 @@ transformations, correctness, etc.
 \chapter{Parsing Meta-Models}
 \inputif{Parser_init.tex}
 \inputif{Parser_Pure.tex}
-  \inputif{Parser_Toy.tex}
-  \inputif{Parser_Toy_extended.tex}
+\inputif{Parser_Toy.tex} % toy
+\inputif{Parser_Toy_extended.tex} % toy
 \inputif{Parser_META.tex}
 
 \chapter{Printing Meta-Models}
@@ -159,8 +159,8 @@ transformations, correctness, etc.
 \inputif{Printer_Pure.tex}
 \inputif{Printer_SML.tex}
 \inputif{Printer_Isabelle.tex}
-  \inputif{Printer_Toy.tex}
-  \inputif{Printer_Toy_extended.tex}
+\inputif{Printer_Toy.tex} % toy
+\inputif{Printer_Toy_extended.tex} % toy
 \inputif{Printer_META.tex}
 \inputif{Printer.tex}
 
@@ -169,9 +169,9 @@ transformations, correctness, etc.
 \inputif{Generator_dynamic.tex}
 
 \part{A Toy Example}
-\inputif{Toy_Library.tex}
-\inputif{Design_deep.tex}
-\inputif{Design_shallow.tex}
+\inputif{Toy_Library.tex} % toy
+\inputif{Design_deep.tex} % toy
+\inputif{Design_shallow.tex} % toy
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -191,11 +191,11 @@ transformations, correctness, etc.
 
 Some signatures was removed for exposing the main structure.
 \begin{itemize}
-\item \verb|./src/HOL/Tools/Function/Isabelle_function_common.thy| \hfill \emph{Main0}: \hspace{3em}
-\item \verb|./src/HOL/Tools/Metis/Isabelle_metis_tactic.thy| \hfill \emph{Main2}: \hspace{3em}
-\item \verb|./src/HOL/Tools/BNF/Isabelle_bnf_fp_def_sugar.thy| \hfill \emph{Main2}: \hspace{3em}
-\item \verb|./src/Pure/Isar/Isabelle_parse_spec.thy| \hfill \emph{Main0}: \hspace{3em}
-\item \verb|./src/Provers/Isabelle_classical.thy| \hfill \emph{Main2}: \hspace{3em}
+\item \verb|./src/HOL/Tools/Function/Isabelle_function_common.thy| \hfill \emph{Main0} \hspace{3em}
+\item \verb|./src/HOL/Tools/Metis/Isabelle_metis_tactic.thy| \hfill \emph{Main2} \hspace{3em}
+\item \verb|./src/HOL/Tools/BNF/Isabelle_bnf_fp_def_sugar.thy| \hfill \emph{Main2} \hspace{3em}
+\item \verb|./src/Pure/Isar/Isabelle_parse_spec.thy| \hfill \emph{Main0} \hspace{3em}
+\item \verb|./src/Provers/Isabelle_classical.thy| \hfill \emph{Main2} \hspace{3em}
 \end{itemize}
 
 \section{Other Changes}
@@ -217,7 +217,7 @@ Short modification of the argument lifting a $binding$ to a $binding$~$option$ w
 This file only contains the definition of $definition'$.
 \end{itemize}
 
-\chapter{Example Showing One Generated File}
+\chapter{Content of One Generated File (as example)}
 \inputif{Design_generated_generated.tex}
 
 \end{document}
