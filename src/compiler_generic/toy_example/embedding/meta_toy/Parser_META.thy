@@ -313,17 +313,14 @@ definition of_bool where "of_bool b = case_bool
   (b \<open>false\<close>)"
 
 definition' \<open>sml_escape =
-  String.replace_chars ((* (* ERROR code_reflect *)
-                        \<lambda> Char Nibble0 NibbleA \<Rightarrow> \<open>\n\<close>
-                        | Char Nibble0 Nibble5 \<Rightarrow> \<open>\005\<close>
-                        | Char Nibble0 Nibble6 \<Rightarrow> \<open>\006\<close>
-                        | Char Nibble7 NibbleF \<Rightarrow> \<open>\127\<close>
-                        | x \<Rightarrow> \<degree>x\<degree>*)
-                        \<lambda>x. if x = Char Nibble0 NibbleA then \<open>\n\<close>
+  String.replace_chars (\<lambda>x. if x = Char Nibble0 NibbleA then \<open>\n\<close>
                             else if x = Char Nibble0 Nibble5 then \<open>\005\<close>
                             else if x = Char Nibble0 Nibble6 then \<open>\006\<close>
                             else if x = Char Nibble7 NibbleF then \<open>\127\<close>
                             else \<degree>x\<degree>)\<close>
+text \<open>Because of @{theory "Code_Char"}, it is not possible of extracting
+@{term "\<lambda> Char Nibble0 NibbleA \<Rightarrow> \<open>\<close>
+        | x \<Rightarrow> \<degree>x\<degree>"}.\<close>
 
 definition' \<open>of_string a b =
  (\<lambda>x. b (S.flatten [ \<open>(META.SS_base (META.ST "\<close>
