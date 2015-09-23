@@ -341,9 +341,9 @@ proof -
  by (metis Un_insert_right insert_dom)
 
  show ?thesis
-  apply(relation "measure (\<lambda>(_, rbt_inv, rbt_cycle, r).
-    ?len_merge rbt_cycle rbt_inv - length (RBT.keys rbt_cycle)
-    )", simp+)
+  apply(relation "measure (\<lambda>(_, rbt_inv, rbt_cycle, _).
+                           ?len_merge rbt_cycle rbt_inv - ?len rbt_cycle)"
+       , simp+)
   unfolding RBTS.lookup_def RBTS.insert_def
   apply(subst rbt_length, simp)
   apply(rule arith_diff)
