@@ -109,7 +109,7 @@ End
 
 Enum Week 
   [ Mon, Tue, Wed, Thu, Fri, Sat, Sun ]
-End
+End!
 
 (*
 (* Illustration of a wrong model transition: *)
@@ -197,6 +197,7 @@ Context Client :: booknext (f : Flight, r : Reservation)
               and (r .prev \<doteq> r)
               and (r .next \<doteq> null))"
 
+
 Context Client :: cancel (r : Reservation)
   Pre : "r .client \<doteq> self"
   Post: "self .cl_res ->select\<^sub>S\<^sub>e\<^sub>t(res | res .flight \<doteq> r .flight@pre)
@@ -210,7 +211,7 @@ Context Reservation :: connections () : Set(Integer)
                    endif"
   Pre  : "true"
 
-
+find_theorems (350) name:"Client"
 lemmas [simp,code_unfold] = dot_accessor
 
 end
