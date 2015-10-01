@@ -35,9 +35,11 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ******************************************************************************)
 
-session "Meta_Isabelle" = HOL +
+chapter AFP
+
+session Meta_Isabelle (AFP) = HOL +
   description {* Meta_Isabelle *}
-  options [document = pdf, document_output = document_generated]
+  options [timeout = 600, document = pdf, document_output = document_generated]
   theories [document = false]
     "~~/src/HOL/Library/Code_Char"
     "isabelle_home/src/HOL/Isabelle_Main0"
@@ -50,13 +52,18 @@ session "Meta_Isabelle" = HOL +
     "root.bib"
     "root.tex"
 
-session "Toy_Example" = Meta_Isabelle +
-  description {* Toy_Example *}
-  options [document = pdf, document_output = document_generated]
+session Isabelle_Meta_Model (AFP) = "HOL-Library" +
+  description {* Isabelle_Meta_Model containing a Toy Example *}
+  options [timeout = 600, document = pdf, document_output = document_generated]
   theories [document = false]
-    "~~/src/HOL/Library/List_lexord"
-    "~~/src/HOL/Library/RBT"
+    "isabelle_home/src/HOL/Isabelle_Main0"
+    "isabelle_home/src/HOL/Isabelle_Main1"
     "isabelle_home/src/HOL/Isabelle_Main2"
+  theories
+    "meta_isabelle/Parser_Pure"
+    "meta_isabelle/Meta_Isabelle"
+    "meta_isabelle/Printer_Isabelle"
+  theories [document = false]
     "toy_example/embedding/Printer"
   theories
     "toy_example/embedding/Generator_static"
@@ -70,18 +77,16 @@ session "Toy_Example" = Meta_Isabelle +
     "root.tex"
 
 (*
-session "Toy_All" = HOL +
+session Toy_All = "HOL-Library" +
   description {* Toy_All *}
-  options [document = pdf, document_output = document_generated]
+  options [timeout = 600, document = pdf, document_output = document_generated]
   theories [document = false]
-    "~~/src/HOL/Library/Code_Char"
-    "~~/src/HOL/Library/List_lexord"
-    "~~/src/HOL/Library/RBT"
     "isabelle_home/src/HOL/Isabelle_Main0"
     "isabelle_home/src/HOL/Isabelle_Main1"
     "isabelle_home/src/HOL/Isabelle_Main2"
   theories
     "toy_example/embedding/Generator_static"
+    (* "toy_example/embedding/Generator_dynamic" (* is imported by the following examples *) *)
     "toy_example/generator/Design_deep"
     "toy_example/generator/Design_shallow"
     "toy_example/document_generated/Design_generated_generated"
