@@ -41,7 +41,7 @@
  ******************************************************************************)
 (* $Id:$ *)
 
-chapter{* Example I : The Employee Analysis Model (UML) *}
+chapter{* Example: The Employee Analysis Model *} (* UML part *)
 
 (* This example is not yet balanced. Some parts of should go to
    Part V : State Operations and Objects *)

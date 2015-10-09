@@ -47,10 +47,9 @@ imports
   Design_UML (* Testing *)
 begin
 text {* \label{ex:employee-design:ocl} *}
-section{* OCL Part: Standard State Infrastructure *}
-text{* Ideally, these definitions are automatically generated from the class model. *}
+(* Ideally, these definitions are automatically generated from the class model. *)
 
-section{* Invariant *}
+section{* OCL Part: Invariant *}
 text{* These recursive predicates can be defined conservatively
 by greatest fix-point
 constructions---automatically. See~\cite{brucker.ea:hol-ocl-book:2006,brucker:interactive:2007}
@@ -134,7 +133,7 @@ coinductive inv :: "Person \<Rightarrow> (\<AA>)st \<Rightarrow> bool" where
                      \<Longrightarrow> ( inv self \<tau>)"
 
 
-section{* The Contract of a Recursive Query *}
+section{* OCL Part: The Contract of a Recursive Query *}
 text{* This part is analogous to the Analysis Model and skipped here. *}
 
 

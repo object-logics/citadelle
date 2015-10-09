@@ -130,6 +130,10 @@
 \renewcommand{\chapterautorefname}{Chapter}
 \newcommand{\subtableautorefname}{\tableautorefname}
 \newcommand{\subfigureautorefname}{\figureautorefname}
+\isatagannexa
+\renewcommand\thepart{\Alph{part}}
+\renewcommand\partname{Annex}
+\endisatagannexa
 
 \newenvironment{matharray}[1]{\[\begin{array}{#1}}{\end{array}\]} % from 'iman.sty'
 \newcommand{\indexdef}[3]%
@@ -223,10 +227,7 @@
   \tableofcontents
 \endisatagafp
 
-\isatagannexa
-  \appendix
-\endisatagannexa
-\chapter{Formal Semantics of OCL}
+\part{Formal Semantics of OCL}
 \input{introduction}
 %\clearpage
 \isatagafp
@@ -254,6 +255,7 @@
 % \input{Design_OCL.tex}
 \input{Analysis_UML.tex}
 \input{Analysis_OCL.tex}
+\part{Bibliography}
 \endisatagannexa
 \isatagafp
 \input{conclusion} %no conclusion for standard document
@@ -261,11 +263,14 @@
 \bibliographystyle{abbrvnat}
 \bibliography{root}
 
+\isatagafp
 \appendix
 \part{Appendix}
+\endisatagafp
 \input{FOCL_Syntax}
 
 \isatagannexa
+  \part{Table of Contents}
   \clearpage {\small \tableofcontents }
 \endisatagannexa
 \end{document}
