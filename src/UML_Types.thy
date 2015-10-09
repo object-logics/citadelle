@@ -41,7 +41,7 @@
  ******************************************************************************)
 (* $Id:$ *)
 
-header{* Formalization I: OCL Types and Core Definitions \label{sec:focl-types}*}
+chapter{* Formalization I: OCL Types and Core Definitions \label{sec:focl-types}*}
 
 theory    UML_Types
 imports   Transcendental (* Testing *)

@@ -41,7 +41,7 @@
  ******************************************************************************)
 (* $Id:$ *)
 
-header{* Example I : The Employee Analysis Model (UML) *}
+chapter{* Example I : The Employee Analysis Model (UML) *}
 
 (* This example is not yet balanced. Some parts of should go to
    Part V : State Operations and Objects *)

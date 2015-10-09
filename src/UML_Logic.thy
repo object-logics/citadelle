@@ -41,7 +41,7 @@
  ******************************************************************************)
 (* $Id:$ *)
 
-header{* Formalization II: OCL Terms and Library Operations *}
+chapter{* Formalization II: OCL Terms and Library Operations *}
 
 theory  UML_Logic 
 imports UML_Types 
