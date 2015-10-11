@@ -314,6 +314,10 @@ by(simp add: null_fun_def Sem_def)
 
 section{* Basic OCL Value Types *}
 
+text {* The structure of this section roughly follows the structure of Chapter
+11 of the OCL standard~\cite{omg:ocl:2012}, which introduces the OCL
+Library. *}
+
 text{* The semantic domain of the (basic) boolean type is now defined as the Standard:
 the space of valuation to @{typ "bool option option"}, \ie{} the Boolean base type:*}
 
@@ -355,9 +359,23 @@ type_synonym ('\<AA>)Void = "('\<AA>,Void\<^sub>b\<^sub>a\<^sub>s\<^sub>e) val"
 
 
 section{* Some OCL Collection Types *}
-text{* The construction of collection types is sligtly more involved: We need to define an
-concrete type, constrain it via a kind of data-invariant to ``legitimate elements'' (\ie{}
-in our type will be ``no junk, no confusion''), and abstract it to a new type constructor.*}
+
+text{* For the semantic construction of the collection types, we have two goals:
+\begin{enumerate}
+\item we want the types to be \emph{fully abstract}, \ie, the type should not
+      contain junk-elements that are not representable by OCL expressions, and
+\item we want a possibility to nest collection types (so, we want the
+      potential of talking about @{text "Set(Set(Sequences(Pairs(X,Y))))"}).
+\end{enumerate}
+The former principle rules out the option to define @{text "'\<alpha> Set"} just by
+ @{text "('\<AA>, ('\<alpha> option option) set) val"}. This would allow sets to contain
+junk elements such as @{text "{\<bottom>}"} which we need to identify with undefinedness
+itself. Abandoning fully abstractness of rules would later on produce all sorts
+of problems when quantifying over the elements of a type.
+However, if we build an own type, then it must conform to our abstract interface
+in order to have nested types: arguments of type-constructors must conform to our
+abstract interface, and the result type too.
+*}
 
 subsection{* The Construction of the Pair Type (Tuples) *}
 

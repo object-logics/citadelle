@@ -166,36 +166,8 @@ oops
 definition OclAsBag\<^sub>P\<^sub>a\<^sub>i\<^sub>r   :: "[('\<AA>,'\<alpha>::null,'\<alpha>::null) Pair]\<Rightarrow>('\<AA>,'\<alpha>)Bag" ("(_)->asBag\<^sub>P\<^sub>a\<^sub>i\<^sub>r'(')")
 where     "OclAsBag\<^sub>P\<^sub>a\<^sub>i\<^sub>r S = Bag{S .First(), S .Second()}"
 
-subsection{*  Properties on Collection Types: Strict Equality *}
-
-text {* The structure of this chapter roughly follows the structure of Chapter
-10 of the OCL standard~\cite{omg:ocl:2012}, which introduces the OCL
-Library. *}
-subsection{* Collection Types *}
-text_raw{*
-\isatagafp
-\fxfatal{MOVE TEXT:}
-\endisatagafp 
-*}
-
-text{* For the semantic construction of the collection types, we have two goals:
-\begin{enumerate}
-\item we want the types to be \emph{fully abstract}, \ie, the type should not
-      contain junk-elements that are not representable by OCL expressions, and
-\item we want a possibility to nest collection types (so, we want the
-      potential to talking about @{text "Set(Set(Sequences(Pairs(X,Y))))"}).
-\end{enumerate}
-The former principle rules out the option to define @{text "'\<alpha> Set"} just by
- @{text "('\<AA>, ('\<alpha> option option) set) val"}. This would allow sets to contain
-junk elements such as @{text "{\<bottom>}"} which we need to identify with undefinedness
-itself. Abandoning fully abstractness of rules would later on produce all sorts
-of problems when quantifying over the elements of a type.
-However, if we build an own type, then it must conform to our abstract interface
-in order to have nested types: arguments of type-constructors must conform to our
-abstract interface, and the result type too.
-*}
-
 text_raw{* \isatagafp *}
+subsection{* Collection Types *}
 lemmas cp_intro'' [intro!,simp,code_unfold] =
        cp_intro'
      (*  cp_intro''\<^sub>P\<^sub>a\<^sub>i\<^sub>r *)
@@ -204,18 +176,11 @@ lemmas cp_intro'' [intro!,simp,code_unfold] =
 text_raw{* \endisatagafp *}
 
 subsection{* Test Statements *}
-text_raw{*
-\isatagafp
-\fxfatal{MOVE TEXT:}
-\endisatagafp 
-*}
 
 lemma syntax_test: "Set{\<two>,\<one>} = (Set{}->including\<^sub>S\<^sub>e\<^sub>t(\<one>)->including\<^sub>S\<^sub>e\<^sub>t(\<two>))"
 by (rule refl)
 
-text{* Here is an example of a nested collection. Note that we have
-to use the abstract null (since we did not (yet) define a concrete
-constant @{term null} for the non-existing Sets) :*}
+text{* Here is an example of a nested collection. *}
 lemma semantic_test2:
 assumes H:"(Set{\<two>} \<doteq> null) = (false::('\<AA>)Boolean)"
 shows   "(\<tau>::('\<AA>)st) \<Turnstile> (Set{Set{\<two>},null}->includes\<^sub>S\<^sub>e\<^sub>t(null))"
