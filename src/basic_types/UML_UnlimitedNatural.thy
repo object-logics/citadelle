@@ -57,10 +57,10 @@ class      infinity = null +
 
 instantiation   option  :: (null)infinity
 begin
-   definition infinity_option_def: "(infinity::'a\<Colon>null option) \<equiv>  \<lfloor> null \<rfloor>"
-   instance proof  show "(infinity::'a\<Colon>null option) \<noteq> null"
+   definition infinity_option_def: "(infinity::'a::null option) \<equiv>  \<lfloor> null \<rfloor>"
+   instance proof  show "(infinity::'a::null option) \<noteq> null"
                    by( simp add:infinity_option_def null_is_valid null_option_def bot_option_def)
-                   show "(infinity::'a\<Colon>null option) \<noteq> bot"
+                   show "(infinity::'a::null option) \<noteq> bot"
                    by( simp add:infinity_option_def null_option_def bot_option_def)
             qed
 end

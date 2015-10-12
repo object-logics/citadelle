@@ -152,7 +152,7 @@ text{*
 instantiation   option  :: (type)bot
 begin
    definition bot_option_def: "(bot::'a option) \<equiv> (None::'a option)"
-   instance proof show        "\<exists>x\<Colon>'a option. x \<noteq> bot"
+   instance proof show        "\<exists>x::'a option. x \<noteq> bot"
                   by(rule_tac x="Some x" in exI, simp add:bot_option_def)
             qed
 end
@@ -160,8 +160,8 @@ end
 
 instantiation   option  :: (bot)null
 begin
-   definition null_option_def: "(null::'a\<Colon>bot option) \<equiv>  \<lfloor> bot \<rfloor>"
-   instance proof  show        "(null::'a\<Colon>bot option) \<noteq> bot"
+   definition null_option_def: "(null::'a::bot option) \<equiv>  \<lfloor> bot \<rfloor>"
+   instance proof  show        "(null::'a::bot option) \<noteq> bot"
                    by( simp add : null_option_def bot_option_def)
             qed
 end
@@ -384,11 +384,11 @@ text{* The core of an own type construction is done via a type
   is shown that this type ``fits'' indeed into the abstract type
   interface discussed in the previous section. *}
 
-typedef ('\<alpha>, '\<beta>) Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e = "{X::('\<alpha>\<Colon>null \<times> '\<beta>\<Colon>null) option option.
+typedef ('\<alpha>, '\<beta>) Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e = "{X::('\<alpha>::null \<times> '\<beta>::null) option option.
                                        X = bot \<or> X = null \<or> (fst\<lceil>\<lceil>X\<rceil>\<rceil> \<noteq> bot \<and> snd\<lceil>\<lceil>X\<rceil>\<rceil> \<noteq> bot)}"
                             by (rule_tac x="bot" in exI, simp)
 
-text{* We ``carve'' out from the concrete type @{typ "('\<alpha>\<Colon>null \<times> '\<beta>\<Colon>null) option option"} 
+text{* We ``carve'' out from the concrete type @{typ "('\<alpha>::null \<times> '\<beta>::null) option option"} 
 the new fully abstract type, which will not contain representations like @{term "\<lfloor>\<lfloor>(\<bottom>,a)\<rfloor>\<rfloor>"}
 or @{term "\<lfloor>\<lfloor>(b,\<bottom>)\<rfloor>\<rfloor>"}. The type constuctor @{text "Pair{x,y}"} to be defined later will
 identify these with @{term "invalid"}.
@@ -396,9 +396,9 @@ identify these with @{term "invalid"}.
 
 instantiation   Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e  :: (null,null)bot
 begin
-   definition bot_Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def: "(bot_class.bot :: ('a\<Colon>null,'b\<Colon>null) Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e) \<equiv> Abs_Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e None"
+   definition bot_Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def: "(bot_class.bot :: ('a::null,'b::null) Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e) \<equiv> Abs_Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e None"
 
-   instance proof show "\<exists>x\<Colon>('a,'b) Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e. x \<noteq> bot"
+   instance proof show "\<exists>x::('a,'b) Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e. x \<noteq> bot"
                   apply(rule_tac x="Abs_Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor>None\<rfloor>" in exI)
                   by(simp add: bot_Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def  Abs_Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inject  null_option_def bot_option_def)
             qed
@@ -430,7 +430,7 @@ text{* The core of an own type construction is done via a type
   there is the possibility to define in fact infinite 
   type constructors in \FOCL (c.f. \autoref{sec:type-extensions}). *}
 
-typedef '\<alpha> Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e ="{X::('\<alpha>\<Colon>null) set option option. X = bot \<or> X = null \<or> (\<forall>x\<in>\<lceil>\<lceil>X\<rceil>\<rceil>. x \<noteq> bot)}"
+typedef '\<alpha> Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e ="{X::('\<alpha>::null) set option option. X = bot \<or> X = null \<or> (\<forall>x\<in>\<lceil>\<lceil>X\<rceil>\<rceil>. x \<noteq> bot)}"
           by (rule_tac x="bot" in exI, simp)
 
 instantiation   Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e  :: (null)bot
@@ -438,7 +438,7 @@ begin
 
    definition bot_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def: "(bot::('a::null) Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e) \<equiv> Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e None"
 
-   instance proof show "\<exists>x\<Colon>'a Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e. x \<noteq> bot"
+   instance proof show "\<exists>x::'a Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e. x \<noteq> bot"
                   apply(rule_tac x="Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor>None\<rfloor>" in exI)
                   by(simp add: bot_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inject null_option_def bot_option_def)
             qed
@@ -473,7 +473,7 @@ text{* The core of an own type construction is done via a type
   can't be no bottom (invalid) element in them.
 *}
 
-typedef '\<alpha> Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e ="{X::('\<alpha>\<Colon>null \<Rightarrow> nat) option option. X = bot \<or> X = null \<or> \<lceil>\<lceil>X\<rceil>\<rceil> bot = 0 }"
+typedef '\<alpha> Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e ="{X::('\<alpha>::null \<Rightarrow> nat) option option. X = bot \<or> X = null \<or> \<lceil>\<lceil>X\<rceil>\<rceil> bot = 0 }"
           by (rule_tac x="bot" in exI, simp)
 
 instantiation   Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e  :: (null)bot
@@ -481,7 +481,7 @@ begin
 
    definition bot_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def: "(bot::('a::null) Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e) \<equiv> Abs_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e None"
 
-   instance proof show "\<exists>x\<Colon>'a Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e. x \<noteq> bot"
+   instance proof show "\<exists>x::'a Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e. x \<noteq> bot"
                   apply(rule_tac x="Abs_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor>None\<rfloor>" in exI)
                   by(simp add: bot_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def Abs_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inject 
                                null_option_def bot_option_def)
@@ -510,7 +510,7 @@ text{* The core of an own type construction is done via a type
   is shown that this type ``fits'' indeed into the abstract type
   interface discussed in the previous section. *}
 
-typedef '\<alpha> Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e ="{X::('\<alpha>\<Colon>null) list option option.
+typedef '\<alpha> Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e ="{X::('\<alpha>::null) list option option.
                               X = bot \<or> X = null \<or> (\<forall>x\<in>set \<lceil>\<lceil>X\<rceil>\<rceil>. x \<noteq> bot)}"
           by (rule_tac x="bot" in exI, simp)
 
@@ -519,7 +519,7 @@ begin
 
    definition bot_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def: "(bot::('a::null) Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e) \<equiv> Abs_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e None"
 
-   instance proof show "\<exists>x\<Colon>'a Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e. x \<noteq> bot"
+   instance proof show "\<exists>x::'a Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e. x \<noteq> bot"
                   apply(rule_tac x="Abs_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor>None\<rfloor>" in exI)
                   by(auto simp:bot_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def Abs_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inject 
                                null_option_def bot_option_def)

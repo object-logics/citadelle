@@ -1009,7 +1009,7 @@ oops
 lemma cp_OclForall2 [simp,intro!]:
 "\<lbrakk> cp (\<lambda> X St.(\<lambda>x. P (\<lambda>\<tau>. x) X St));
    cp (S :: (('a,'c)VAL \<Rightarrow> ('a,('b::bot))Set)) \<rbrakk>
- \<Longrightarrow> cp(\<lambda>X. \<MathOclForAll> Y \<in> S X \<bullet> P (Y\<Colon>'a \<Rightarrow> 'b) X) "
+ \<Longrightarrow> cp(\<lambda>X. \<MathOclForAll> Y \<in> S X \<bullet> P (Y::'a \<Rightarrow> 'b) X) "
 apply(simp only: cp_def OclForAll_def)
 apply(erule exE)+
 apply(rule exI, rule allI, rule allI)
