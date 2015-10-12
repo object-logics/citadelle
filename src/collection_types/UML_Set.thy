@@ -163,8 +163,8 @@ show "?thesis"
   apply_end(case_tac y,
             simp add: bot_option_def null_option_def OclValid_def defined_def split: split_if_asm,
             simp add: false_def true_def)
-  apply_end(erule disjE, simp add: bot_Void_def, simp)
-qed qed qed qed qed qed
+  qed (erule disjE, simp add: bot_Void_def, simp)
+qed qed qed qed qed
 
 definition Boolean :: "('\<AA>,Boolean\<^sub>b\<^sub>a\<^sub>s\<^sub>e) Set"
 where     "Boolean \<equiv> (\<lambda> \<tau>. (Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e o Some o Some)  ((Some o Some) ` (UNIV::bool set)))"
@@ -2239,10 +2239,9 @@ proof -
                  apply(subst cp_OclAnd, simp add: 8 cp_OclAnd[symmetric])
                  by(simp add: OclForall_def 4 5 6 7)
               qed
-           apply_end( simp add: 0
-                    | rule C1, simp+
-                    | rule C2, simp add: 0 )+
-           qed
+           qed ( simp add: 0
+               | rule C1, simp+
+               | rule C2, simp add: 0 )+
         qed
 
    have B : "\<And>\<tau>. \<not> (\<tau> \<Turnstile> (\<delta> S and \<upsilon> x)) \<Longrightarrow>
@@ -2953,8 +2952,7 @@ proof -
    apply(erule_tac x = x in ballE)+
    by(rule disjE4[OF destruct_ocl[of "P (\<lambda>\<tau>. x) \<tau>"]],
       (simp add: true_def false_def null_fun_def null_option_def bot_fun_def bot_option_def)+)
-  apply_end(simp add: assms[simplified OclValid_def true_def])+
- qed
+ qed(simp add: assms[simplified OclValid_def true_def])+
 qed
 
 lemma OclForall_includes :
@@ -3032,8 +3030,7 @@ proof -
        apply(simp_all add: true_def false_def invalid_def OclAnd_def
                            null_fun_def null_option_def bot_fun_def bot_option_def)
    by (metis (lifting) option.distinct(1))+
-   apply_end(simp add: OclValid_def)+
- qed
+ qed(simp add: OclValid_def)+
 qed
 
 lemma OclForall_cong:

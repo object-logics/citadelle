@@ -203,8 +203,7 @@ lemma OclAdd\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r_zero1[simp,
      apply(simp add: foundation16'[simplified OclValid_def])
     apply(simp add: B)
   by(simp add: OclValid_def)
-  apply_end(metis OclValid_def defined5 defined6 defined_and_I defined_not_I foundation9)
-qed
+qed(metis OclValid_def defined5 defined6 defined_and_I defined_not_I foundation9)
 
 lemma OclAdd\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r_zero2[simp,code_unfold] :
 "(\<zero> +\<^sub>i\<^sub>n\<^sub>t x) = (if \<upsilon> x and not (\<delta> x) then invalid else x endif)"
