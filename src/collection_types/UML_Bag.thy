@@ -631,17 +631,17 @@ consts (* abstract bag collection operations *)
     OclSum         :: " ('\<AA>,'\<alpha>::null) Bag \<Rightarrow> '\<AA> Integer"
   
 notation  OclSum         ("_->sum\<^sub>B\<^sub>a\<^sub>g'(')" (*[66]*))
-(*
+
 subsection{* Logical Properties *}
 
 text{* OclIncluding *}
 
 lemma OclIncluding_valid_args_valid:
-"(\<tau> \<Turnstile> \<upsilon>(X->including\<^sub>S\<^sub>e\<^sub>t(x))) = ((\<tau> \<Turnstile>(\<delta> X)) \<and> (\<tau> \<Turnstile>(\<upsilon> x)))"
+"(\<tau> \<Turnstile> \<upsilon>(X->including\<^sub>B\<^sub>a\<^sub>g(x))) = ((\<tau> \<Turnstile>(\<delta> X)) \<and> (\<tau> \<Turnstile>(\<upsilon> x)))"
 by (metis (hide_lams, no_types) OclIncluding.def_valid_then_def OclIncluding.defined_args_valid)
 
 lemma OclIncluding_valid_args_valid''[simp,code_unfold]:
-"\<upsilon>(X->including\<^sub>S\<^sub>e\<^sub>t(x)) = ((\<delta> X) and (\<upsilon> x))"
+"\<upsilon>(X->including\<^sub>B\<^sub>a\<^sub>g(x)) = ((\<delta> X) and (\<upsilon> x))"
 by (simp add: OclIncluding.def_valid_then_def)
 
 text{* etc. etc. *}
@@ -650,110 +650,115 @@ text_raw{* \isatagafp *}
 text{* OclExcluding *}
 
 lemma OclExcluding_valid_args_valid:
-"(\<tau> \<Turnstile> \<upsilon>(X->excluding\<^sub>S\<^sub>e\<^sub>t(x))) = ((\<tau> \<Turnstile>(\<delta> X)) \<and> (\<tau> \<Turnstile>(\<upsilon> x)))"
+"(\<tau> \<Turnstile> \<upsilon>(X->excluding\<^sub>B\<^sub>a\<^sub>g(x))) = ((\<tau> \<Turnstile>(\<delta> X)) \<and> (\<tau> \<Turnstile>(\<upsilon> x)))"
 by (metis OclExcluding.def_valid_then_def OclExcluding.defined_args_valid)
 
 lemma OclExcluding_valid_args_valid''[simp,code_unfold]:
-"\<upsilon>(X->excluding\<^sub>S\<^sub>e\<^sub>t(x)) = ((\<delta> X) and (\<upsilon> x))"
+"\<upsilon>(X->excluding\<^sub>B\<^sub>a\<^sub>g(x)) = ((\<delta> X) and (\<upsilon> x))"
 by (simp add: OclExcluding.def_valid_then_def)
 
 text{* OclIncludes *}
 
 lemma OclIncludes_valid_args_valid:
-"(\<tau> \<Turnstile> \<upsilon>(X->includes\<^sub>S\<^sub>e\<^sub>t(x))) = ((\<tau> \<Turnstile>(\<delta> X)) \<and> (\<tau> \<Turnstile>(\<upsilon> x)))"
+"(\<tau> \<Turnstile> \<upsilon>(X->includes\<^sub>B\<^sub>a\<^sub>g(x))) = ((\<tau> \<Turnstile>(\<delta> X)) \<and> (\<tau> \<Turnstile>(\<upsilon> x)))"
 by (simp add: OclIncludes.def_valid_then_def foundation10')
 
 lemma OclIncludes_valid_args_valid''[simp,code_unfold]:
-"\<upsilon>(X->includes\<^sub>S\<^sub>e\<^sub>t(x)) = ((\<delta> X) and (\<upsilon> x))"
+"\<upsilon>(X->includes\<^sub>B\<^sub>a\<^sub>g(x)) = ((\<delta> X) and (\<upsilon> x))"
 by (simp add: OclIncludes.def_valid_then_def)
 
 text{* OclExcludes *}
 
 lemma OclExcludes_valid_args_valid:
-"(\<tau> \<Turnstile> \<upsilon>(X->excludes\<^sub>S\<^sub>e\<^sub>t(x))) = ((\<tau> \<Turnstile>(\<delta> X)) \<and> (\<tau> \<Turnstile>(\<upsilon> x)))"
+"(\<tau> \<Turnstile> \<upsilon>(X->excludes\<^sub>B\<^sub>a\<^sub>g(x))) = ((\<tau> \<Turnstile>(\<delta> X)) \<and> (\<tau> \<Turnstile>(\<upsilon> x)))"
 by (simp add: OclExcludes.def_valid_then_def foundation10')
 
 lemma OclExcludes_valid_args_valid''[simp,code_unfold]:
-"\<upsilon>(X->excludes\<^sub>S\<^sub>e\<^sub>t(x)) = ((\<delta> X) and (\<upsilon> x))"
+"\<upsilon>(X->excludes\<^sub>B\<^sub>a\<^sub>g(x)) = ((\<delta> X) and (\<upsilon> x))"
 by (simp add: OclExcludes.def_valid_then_def)
 
 text{* OclSize *}
 
-lemma OclSize_defined_args_valid: "\<tau> \<Turnstile> \<delta> (X->size\<^sub>S\<^sub>e\<^sub>t()) \<Longrightarrow> \<tau> \<Turnstile> \<delta> X"
+lemma OclSize_defined_args_valid: "\<tau> \<Turnstile> \<delta> (X->size\<^sub>B\<^sub>a\<^sub>g()) \<Longrightarrow> \<tau> \<Turnstile> \<delta> X"
 by(auto simp: OclSize_def OclValid_def true_def valid_def false_def StrongEq_def
               defined_def invalid_def bot_fun_def null_fun_def
         split: bool.split_asm HOL.split_if_asm option.split)
 
 lemma OclSize_infinite:
-assumes non_finite:"\<tau> \<Turnstile> not(\<delta>(S->size\<^sub>S\<^sub>e\<^sub>t()))"
-shows   "(\<tau> \<Turnstile> not(\<delta>(S))) \<or> \<not> finite \<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (S \<tau>)\<rceil>\<rceil>"
+assumes non_finite:"\<tau> \<Turnstile> not(\<delta>(S->size\<^sub>B\<^sub>a\<^sub>g()))"
+shows   "(\<tau> \<Turnstile> not(\<delta>(S))) \<or> \<not> finite (Rep_Bag_base S \<tau>)"
 apply(insert non_finite, simp)
 apply(rule impI)
-apply(simp add: OclSize_def OclValid_def defined_def)
-apply(case_tac "finite \<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (S \<tau>)\<rceil>\<rceil>",
-      simp_all add:null_fun_def null_option_def bot_fun_def bot_option_def)
+apply(simp add: OclSize_def OclValid_def defined_def bot_fun_def null_fun_def bot_option_def null_option_def
+           split: split_if_asm)
 done
 
-lemma "\<tau> \<Turnstile> \<delta> X \<Longrightarrow> \<not> finite \<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (X \<tau>)\<rceil>\<rceil> \<Longrightarrow> \<not> \<tau> \<Turnstile> \<delta> (X->size\<^sub>S\<^sub>e\<^sub>t())"
+lemma "\<tau> \<Turnstile> \<delta> X \<Longrightarrow> \<not> finite (Rep_Bag_base X \<tau>) \<Longrightarrow> \<not> \<tau> \<Turnstile> \<delta> (X->size\<^sub>B\<^sub>a\<^sub>g())"
 by(simp add: OclSize_def OclValid_def defined_def bot_fun_def false_def true_def)
 
 lemma size_defined:
- assumes X_finite: "\<And>\<tau>. finite \<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (X \<tau>)\<rceil>\<rceil>"
- shows "\<delta> (X->size\<^sub>S\<^sub>e\<^sub>t()) = \<delta> X"
- apply(rule ext, simp add: cp_defined[of "X->size\<^sub>S\<^sub>e\<^sub>t()"] OclSize_def)
+ assumes X_finite: "\<And>\<tau>. finite (Rep_Bag_base X \<tau>)"
+ shows "\<delta> (X->size\<^sub>B\<^sub>a\<^sub>g()) = \<delta> X"
+ apply(rule ext, simp add: cp_defined[of "X->size\<^sub>B\<^sub>a\<^sub>g()"] OclSize_def)
  apply(simp add: defined_def bot_option_def bot_fun_def null_option_def null_fun_def X_finite)
 done
 
 lemma size_defined':
- assumes X_finite: "finite \<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (X \<tau>)\<rceil>\<rceil>"
- shows "(\<tau> \<Turnstile> \<delta> (X->size\<^sub>S\<^sub>e\<^sub>t())) = (\<tau> \<Turnstile> \<delta> X)"
- apply(simp add: cp_defined[of "X->size\<^sub>S\<^sub>e\<^sub>t()"] OclSize_def OclValid_def)
+ assumes X_finite: "finite (Rep_Bag_base X \<tau>)"
+ shows "(\<tau> \<Turnstile> \<delta> (X->size\<^sub>B\<^sub>a\<^sub>g())) = (\<tau> \<Turnstile> \<delta> X)"
+ apply(simp add: cp_defined[of "X->size\<^sub>B\<^sub>a\<^sub>g()"] OclSize_def OclValid_def)
  apply(simp add: defined_def bot_option_def bot_fun_def null_option_def null_fun_def X_finite)
 done
 
 text{* OclIsEmpty *}
 
-lemma OclIsEmpty_defined_args_valid:"\<tau> \<Turnstile> \<delta> (X->isEmpty\<^sub>S\<^sub>e\<^sub>t()) \<Longrightarrow> \<tau> \<Turnstile> \<upsilon> X"
+lemma OclIsEmpty_defined_args_valid:"\<tau> \<Turnstile> \<delta> (X->isEmpty\<^sub>B\<^sub>a\<^sub>g()) \<Longrightarrow> \<tau> \<Turnstile> \<upsilon> X"
   apply(auto simp: OclIsEmpty_def OclValid_def defined_def valid_def false_def true_def
                    bot_fun_def null_fun_def OclAnd_def OclOr_def OclNot_def
              split: split_if_asm)
-  apply(case_tac "(X->size\<^sub>S\<^sub>e\<^sub>t() \<doteq> \<zero>) \<tau>", simp add: bot_option_def, simp, rename_tac x)
+  apply(case_tac "(X->size\<^sub>B\<^sub>a\<^sub>g() \<doteq> \<zero>) \<tau>", simp add: bot_option_def, simp, rename_tac x)
   apply(case_tac x, simp add: null_option_def bot_option_def, simp)
   apply(simp add: OclSize_def StrictRefEq\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r valid_def)
 by (metis (hide_lams, no_types)
            bot_fun_def OclValid_def defined_def foundation2 invalid_def)
 
-lemma "\<tau> \<Turnstile> \<delta> (null->isEmpty\<^sub>S\<^sub>e\<^sub>t())"
+lemma "\<tau> \<Turnstile> \<delta> (null->isEmpty\<^sub>B\<^sub>a\<^sub>g())"
 by(auto simp: OclIsEmpty_def OclValid_def defined_def valid_def false_def true_def
               bot_fun_def null_fun_def OclAnd_def OclOr_def OclNot_def null_is_valid
         split: split_if_asm)
 
-lemma OclIsEmpty_infinite: "\<tau> \<Turnstile> \<delta> X \<Longrightarrow> \<not> finite \<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (X \<tau>)\<rceil>\<rceil> \<Longrightarrow> \<not> \<tau> \<Turnstile> \<delta> (X->isEmpty\<^sub>S\<^sub>e\<^sub>t())"
+lemma OclIsEmpty_infinite: "\<tau> \<Turnstile> \<delta> X \<Longrightarrow> \<not> finite (Rep_Bag_base X \<tau>) \<Longrightarrow> \<not> \<tau> \<Turnstile> \<delta> (X->isEmpty\<^sub>B\<^sub>a\<^sub>g())"
   apply(auto simp: OclIsEmpty_def OclValid_def defined_def valid_def false_def true_def
                    bot_fun_def null_fun_def OclAnd_def OclOr_def OclNot_def
              split: split_if_asm)
-  apply(case_tac "(X->size\<^sub>S\<^sub>e\<^sub>t() \<doteq> \<zero>) \<tau>", simp add: bot_option_def, simp, rename_tac x)
+  apply(case_tac "(X->size\<^sub>B\<^sub>a\<^sub>g() \<doteq> \<zero>) \<tau>", simp add: bot_option_def, simp, rename_tac x)
   apply(case_tac x, simp add: null_option_def bot_option_def, simp)
 by(simp add: OclSize_def StrictRefEq\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r valid_def bot_fun_def false_def true_def invalid_def)
 
 text{* OclNotEmpty *}
 
-lemma OclNotEmpty_defined_args_valid:"\<tau> \<Turnstile> \<delta> (X->notEmpty\<^sub>S\<^sub>e\<^sub>t()) \<Longrightarrow> \<tau> \<Turnstile> \<upsilon> X"
+lemma OclNotEmpty_defined_args_valid:"\<tau> \<Turnstile> \<delta> (X->notEmpty\<^sub>B\<^sub>a\<^sub>g()) \<Longrightarrow> \<tau> \<Turnstile> \<upsilon> X"
 by (metis (hide_lams, no_types) OclNotEmpty_def OclNot_defargs OclNot_not foundation6 foundation9
                                 OclIsEmpty_defined_args_valid)
 
-lemma "\<tau> \<Turnstile> \<delta> (null->notEmpty\<^sub>S\<^sub>e\<^sub>t())"
+lemma "\<tau> \<Turnstile> \<delta> (null->notEmpty\<^sub>B\<^sub>a\<^sub>g())"
 by (metis (hide_lams, no_types) OclNotEmpty_def OclAnd_false1 OclAnd_idem OclIsEmpty_def
                                 OclNot3 OclNot4 OclOr_def defined2 defined4 transform1 valid2)
 
-lemma OclNotEmpty_infinite: "\<tau> \<Turnstile> \<delta> X \<Longrightarrow> \<not> finite \<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (X \<tau>)\<rceil>\<rceil> \<Longrightarrow> \<not> \<tau> \<Turnstile> \<delta> (X->notEmpty\<^sub>S\<^sub>e\<^sub>t())"
+lemma OclNotEmpty_infinite: "\<tau> \<Turnstile> \<delta> X \<Longrightarrow> \<not> finite (Rep_Bag_base X \<tau>) \<Longrightarrow> \<not> \<tau> \<Turnstile> \<delta> (X->notEmpty\<^sub>B\<^sub>a\<^sub>g())"
  apply(simp add: OclNotEmpty_def)
  apply(drule OclIsEmpty_infinite, simp)
 by (metis OclNot_defargs OclNot_not foundation6 foundation9)
 
 lemma OclNotEmpty_has_elt : "\<tau> \<Turnstile> \<delta> X \<Longrightarrow>
-                          \<tau> \<Turnstile> X->notEmpty\<^sub>S\<^sub>e\<^sub>t() \<Longrightarrow>
-                          \<exists>e. e \<in> \<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (X \<tau>)\<rceil>\<rceil>"
+                          \<tau> \<Turnstile> X->notEmpty\<^sub>B\<^sub>a\<^sub>g() \<Longrightarrow>
+                          \<exists>e. e \<in> (Rep_Bag_base X \<tau>)"
+proof -
+ have s_non_empty: "\<And>S. S \<noteq> {} \<Longrightarrow> \<exists>x. x \<in> S"
+ by blast
+show "\<tau> \<Turnstile> \<delta> X \<Longrightarrow>
+      \<tau> \<Turnstile> X->notEmpty\<^sub>B\<^sub>a\<^sub>g() \<Longrightarrow>
+      ?thesis"
  apply(simp add: OclNotEmpty_def OclIsEmpty_def deMorgan1 deMorgan2, drule foundation5)
  apply(subst (asm) (2) OclNot_def,
        simp add: OclValid_def StrictRefEq\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r StrongEq_def
@@ -762,16 +767,24 @@ lemma OclNotEmpty_has_elt : "\<tau> \<Turnstile> \<delta> X \<Longrightarrow>
   apply(simp add: invalid_def bot_option_def true_def)
  apply(simp add: OclSize_def valid_def split: split_if_asm,
        simp_all add: false_def true_def bot_option_def bot_fun_def OclInt0_def)
-by (metis equals0I)
+ apply(drule s_non_empty[of "Rep_Bag_base X \<tau>"], erule exE, case_tac x)
+by blast
+qed
+
+lemma OclNotEmpty_has_elt' : "\<tau> \<Turnstile> \<delta> X \<Longrightarrow>
+                          \<tau> \<Turnstile> X->notEmpty\<^sub>B\<^sub>a\<^sub>g() \<Longrightarrow>
+                          \<exists>e. e \<in> (Rep_Set_base X \<tau>)"
+ apply(drule OclNotEmpty_has_elt, simp)
+by(simp add: Rep_Bag_base_def Rep_Set_base_def image_def)
 
 text{* OclANY *}
 
-lemma OclANY_defined_args_valid: "\<tau> \<Turnstile> \<delta> (X->any\<^sub>S\<^sub>e\<^sub>t()) \<Longrightarrow> \<tau> \<Turnstile> \<delta> X"
+lemma OclANY_defined_args_valid: "\<tau> \<Turnstile> \<delta> (X->any\<^sub>B\<^sub>a\<^sub>g()) \<Longrightarrow> \<tau> \<Turnstile> \<delta> X"
 by(auto simp: OclANY_def OclValid_def true_def valid_def false_def StrongEq_def
               defined_def invalid_def bot_fun_def null_fun_def OclAnd_def
         split: bool.split_asm HOL.split_if_asm option.split)
 
-lemma "\<tau> \<Turnstile> \<delta> X \<Longrightarrow> \<tau> \<Turnstile> X->isEmpty\<^sub>S\<^sub>e\<^sub>t() \<Longrightarrow> \<not> \<tau> \<Turnstile> \<delta> (X->any\<^sub>S\<^sub>e\<^sub>t())"
+lemma "\<tau> \<Turnstile> \<delta> X \<Longrightarrow> \<tau> \<Turnstile> X->isEmpty\<^sub>B\<^sub>a\<^sub>g() \<Longrightarrow> \<not> \<tau> \<Turnstile> \<delta> (X->any\<^sub>B\<^sub>a\<^sub>g())"
  apply(simp add: OclANY_def OclValid_def)
  apply(subst cp_defined, subst cp_OclAnd, simp add: OclNotEmpty_def, subst (1 2) cp_OclNot,
        simp add: cp_OclNot[symmetric] cp_OclAnd[symmetric] cp_defined[symmetric],
@@ -779,32 +792,33 @@ lemma "\<tau> \<Turnstile> \<delta> X \<Longrightarrow> \<tau> \<Turnstile> X->i
 by(drule foundation20[simplified OclValid_def true_def], simp)
 
 lemma OclANY_valid_args_valid:
-"(\<tau> \<Turnstile> \<upsilon>(X->any\<^sub>S\<^sub>e\<^sub>t())) = (\<tau> \<Turnstile> \<upsilon> X)"
+"(\<tau> \<Turnstile> \<upsilon>(X->any\<^sub>B\<^sub>a\<^sub>g())) = (\<tau> \<Turnstile> \<upsilon> X)"
 proof -
- have A: "(\<tau> \<Turnstile> \<upsilon>(X->any\<^sub>S\<^sub>e\<^sub>t())) \<Longrightarrow> ((\<tau> \<Turnstile>(\<upsilon> X)))"
+ have A: "(\<tau> \<Turnstile> \<upsilon>(X->any\<^sub>B\<^sub>a\<^sub>g())) \<Longrightarrow> ((\<tau> \<Turnstile>(\<upsilon> X)))"
           by(auto simp: OclANY_def OclValid_def true_def valid_def false_def StrongEq_def
                         defined_def invalid_def bot_fun_def null_fun_def
                   split: bool.split_asm HOL.split_if_asm option.split)
- have B: "(\<tau> \<Turnstile>(\<upsilon> X)) \<Longrightarrow> (\<tau> \<Turnstile> \<upsilon>(X->any\<^sub>S\<^sub>e\<^sub>t()))"
+ have B: "(\<tau> \<Turnstile>(\<upsilon> X)) \<Longrightarrow> (\<tau> \<Turnstile> \<upsilon>(X->any\<^sub>B\<^sub>a\<^sub>g()))"
            apply(auto simp: OclANY_def OclValid_def true_def false_def StrongEq_def
                             defined_def invalid_def valid_def bot_fun_def null_fun_def
                             bot_option_def null_option_def null_is_valid
                             OclAnd_def
                       split: bool.split_asm HOL.split_if_asm option.split)
-           apply(frule Set_inv_lemma[OF foundation16[THEN iffD2], OF conjI], simp)
+           apply(frule Bag_inv_lemma[OF foundation16[THEN iffD2], OF conjI], simp)
            apply(subgoal_tac "(\<delta> X) \<tau> = true \<tau>")
             prefer 2
             apply (metis (hide_lams, no_types) OclValid_def foundation16)
            apply(simp add: true_def,
-                 drule OclNotEmpty_has_elt[simplified OclValid_def true_def], simp)
-          by(erule exE,
-             insert someI2[where Q = "\<lambda>x. x \<noteq> \<bottom>" and P = "\<lambda>y. y \<in> \<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (X \<tau>)\<rceil>\<rceil>"],
-             simp)
+                 drule OclNotEmpty_has_elt'[simplified OclValid_def true_def], simp)
+           apply(erule exE,
+                 rule someI2[where Q = "\<lambda>x. x \<noteq> \<bottom>" and P = "\<lambda>y. y \<in> (Rep_Set_base X \<tau>)",
+                             simplified not_def, THEN mp], simp, auto)
+          by(simp add: Rep_Set_base_def image_def)
  show ?thesis by(auto dest:A intro:B)
 qed
 
 lemma OclANY_valid_args_valid''[simp,code_unfold]:
-"\<upsilon>(X->any\<^sub>S\<^sub>e\<^sub>t()) = (\<upsilon> X)"
+"\<upsilon>(X->any\<^sub>B\<^sub>a\<^sub>g()) = (\<upsilon> X)"
 by(auto intro!: OclANY_valid_args_valid transform2_rev)
 
 (* and higher order ones : forall, exists, iterate, select, reject... *)
@@ -822,74 +836,74 @@ text{* OclExcludes *} (* properties already generated by the corresponding local
 
 text{* OclSize *}
 
-lemma OclSize_invalid[simp,code_unfold]:"(invalid->size\<^sub>S\<^sub>e\<^sub>t()) = invalid"
+lemma OclSize_invalid[simp,code_unfold]:"(invalid->size\<^sub>B\<^sub>a\<^sub>g()) = invalid"
 by(simp add: bot_fun_def OclSize_def invalid_def defined_def valid_def false_def true_def)
 
-lemma OclSize_null[simp,code_unfold]:"(null->size\<^sub>S\<^sub>e\<^sub>t()) = invalid"
+lemma OclSize_null[simp,code_unfold]:"(null->size\<^sub>B\<^sub>a\<^sub>g()) = invalid"
 by(rule ext,
    simp add: bot_fun_def null_fun_def null_is_valid OclSize_def
              invalid_def defined_def valid_def false_def true_def)
 
 text{* OclIsEmpty *}
 
-lemma OclIsEmpty_invalid[simp,code_unfold]:"(invalid->isEmpty\<^sub>S\<^sub>e\<^sub>t()) = invalid"
+lemma OclIsEmpty_invalid[simp,code_unfold]:"(invalid->isEmpty\<^sub>B\<^sub>a\<^sub>g()) = invalid"
 by(simp add: OclIsEmpty_def)
 
-lemma OclIsEmpty_null[simp,code_unfold]:"(null->isEmpty\<^sub>S\<^sub>e\<^sub>t()) = true"
+lemma OclIsEmpty_null[simp,code_unfold]:"(null->isEmpty\<^sub>B\<^sub>a\<^sub>g()) = true"
 by(simp add: OclIsEmpty_def)
 
 text{* OclNotEmpty *}
 
-lemma OclNotEmpty_invalid[simp,code_unfold]:"(invalid->notEmpty\<^sub>S\<^sub>e\<^sub>t()) = invalid"
+lemma OclNotEmpty_invalid[simp,code_unfold]:"(invalid->notEmpty\<^sub>B\<^sub>a\<^sub>g()) = invalid"
 by(simp add: OclNotEmpty_def)
 
-lemma OclNotEmpty_null[simp,code_unfold]:"(null->notEmpty\<^sub>S\<^sub>e\<^sub>t()) = false"
+lemma OclNotEmpty_null[simp,code_unfold]:"(null->notEmpty\<^sub>B\<^sub>a\<^sub>g()) = false"
 by(simp add: OclNotEmpty_def)
 
 text{* OclANY *}
 
-lemma OclANY_invalid[simp,code_unfold]:"(invalid->any\<^sub>S\<^sub>e\<^sub>t()) = invalid"
+lemma OclANY_invalid[simp,code_unfold]:"(invalid->any\<^sub>B\<^sub>a\<^sub>g()) = invalid"
 by(simp add: bot_fun_def OclANY_def invalid_def defined_def valid_def false_def true_def)
 
-lemma OclANY_null[simp,code_unfold]:"(null->any\<^sub>S\<^sub>e\<^sub>t()) = null"
+lemma OclANY_null[simp,code_unfold]:"(null->any\<^sub>B\<^sub>a\<^sub>g()) = null"
 by(simp add: OclANY_def false_def true_def)
 
 text{* OclForall *}
 
-lemma OclForall_invalid[simp,code_unfold]:"invalid->forAll\<^sub>S\<^sub>e\<^sub>t(a| P a) = invalid"
+lemma OclForall_invalid[simp,code_unfold]:"invalid->forAll\<^sub>B\<^sub>a\<^sub>g(a| P a) = invalid"
 by(simp add: bot_fun_def invalid_def OclForall_def defined_def valid_def false_def true_def)
 
-lemma OclForall_null[simp,code_unfold]:"null->forAll\<^sub>S\<^sub>e\<^sub>t(a | P a) = invalid"
+lemma OclForall_null[simp,code_unfold]:"null->forAll\<^sub>B\<^sub>a\<^sub>g(a | P a) = invalid"
 by(simp add: bot_fun_def invalid_def OclForall_def defined_def valid_def false_def true_def)
 
 text{* OclExists *}
 
-lemma OclExists_invalid[simp,code_unfold]:"invalid->exists\<^sub>S\<^sub>e\<^sub>t(a| P a) = invalid"
+lemma OclExists_invalid[simp,code_unfold]:"invalid->exists\<^sub>B\<^sub>a\<^sub>g(a| P a) = invalid"
 by(simp add: OclExists_def)
 
-lemma OclExists_null[simp,code_unfold]:"null->exists\<^sub>S\<^sub>e\<^sub>t(a | P a) = invalid"
+lemma OclExists_null[simp,code_unfold]:"null->exists\<^sub>B\<^sub>a\<^sub>g(a | P a) = invalid"
 by(simp add: OclExists_def)
 
 text{* OclIterate *}
 
-lemma OclIterate_invalid[simp,code_unfold]:"invalid->iterate\<^sub>S\<^sub>e\<^sub>t(a; x = A | P a x) = invalid"
+lemma OclIterate_invalid[simp,code_unfold]:"invalid->iterate\<^sub>B\<^sub>a\<^sub>g(a; x = A | P a x) = invalid"
 by(simp add: bot_fun_def invalid_def OclIterate_def defined_def valid_def false_def true_def)
 
-lemma OclIterate_null[simp,code_unfold]:"null->iterate\<^sub>S\<^sub>e\<^sub>t(a; x = A | P a x) = invalid"
+lemma OclIterate_null[simp,code_unfold]:"null->iterate\<^sub>B\<^sub>a\<^sub>g(a; x = A | P a x) = invalid"
 by(simp add: bot_fun_def invalid_def OclIterate_def defined_def valid_def false_def true_def)
 
 
-lemma OclIterate_invalid_args[simp,code_unfold]:"S->iterate\<^sub>S\<^sub>e\<^sub>t(a; x = invalid | P a x) = invalid"
+lemma OclIterate_invalid_args[simp,code_unfold]:"S->iterate\<^sub>B\<^sub>a\<^sub>g(a; x = invalid | P a x) = invalid"
 by(simp add: bot_fun_def invalid_def OclIterate_def defined_def valid_def false_def true_def)
 
 text{* An open question is this ... *}
-lemma (*OclIterate_null_args[simp,code_unfold]:*) "S->iterate\<^sub>S\<^sub>e\<^sub>t(a; x = null | P a x) = invalid"
+lemma (*OclIterate_null_args[simp,code_unfold]:*) "S->iterate\<^sub>B\<^sub>a\<^sub>g(a; x = null | P a x) = invalid"
 oops
 (* In the definition above, this does not hold in general.
        And I believe, this is how it should be ... *)
 
 lemma OclIterate_infinite:
-assumes non_finite: "\<tau> \<Turnstile> not(\<delta>(S->size\<^sub>S\<^sub>e\<^sub>t()))"
+assumes non_finite: "\<tau> \<Turnstile> not(\<delta>(S->size\<^sub>B\<^sub>a\<^sub>g()))"
 shows "(OclIterate S A F) \<tau> = invalid \<tau>"
 apply(insert non_finite [THEN OclSize_infinite])
 apply(subst (asm) foundation9, simp)
@@ -897,18 +911,18 @@ by(metis OclIterate_def OclValid_def invalid_def)
 
 text{* OclSelect *}
 
-lemma OclSelect_invalid[simp,code_unfold]:"invalid->select\<^sub>S\<^sub>e\<^sub>t(a | P a) = invalid"
+lemma OclSelect_invalid[simp,code_unfold]:"invalid->select\<^sub>B\<^sub>a\<^sub>g(a | P a) = invalid"
 by(simp add: bot_fun_def invalid_def OclSelect_def defined_def valid_def false_def true_def)
 
-lemma OclSelect_null[simp,code_unfold]:"null->select\<^sub>S\<^sub>e\<^sub>t(a | P a) = invalid"
+lemma OclSelect_null[simp,code_unfold]:"null->select\<^sub>B\<^sub>a\<^sub>g(a | P a) = invalid"
 by(simp add: bot_fun_def invalid_def OclSelect_def defined_def valid_def false_def true_def)
 
 text{* OclReject *}
 
-lemma OclReject_invalid[simp,code_unfold]:"invalid->reject\<^sub>S\<^sub>e\<^sub>t(a | P a) = invalid"
+lemma OclReject_invalid[simp,code_unfold]:"invalid->reject\<^sub>B\<^sub>a\<^sub>g(a | P a) = invalid"
 by(simp add: OclReject_def)
 
-lemma OclReject_null[simp,code_unfold]:"null->reject\<^sub>S\<^sub>e\<^sub>t(a | P a) = invalid"
+lemma OclReject_null[simp,code_unfold]:"null->reject\<^sub>B\<^sub>a\<^sub>g(a | P a) = invalid"
 by(simp add: OclReject_def)
 
 text_raw{* \isatagafp *}
@@ -916,14 +930,14 @@ text_raw{* \isatagafp *}
 subsubsection{* Context Passing *}
 
 lemma cp_OclIncludes1:
-"(X->includes\<^sub>S\<^sub>e\<^sub>t(x)) \<tau> = (X->includes\<^sub>S\<^sub>e\<^sub>t(\<lambda> _. x \<tau>)) \<tau>"
+"(X->includes\<^sub>B\<^sub>a\<^sub>g(x)) \<tau> = (X->includes\<^sub>B\<^sub>a\<^sub>g(\<lambda> _. x \<tau>)) \<tau>"
 by(auto simp: OclIncludes_def StrongEq_def invalid_def
                  cp_defined[symmetric] cp_valid[symmetric])
 
-lemma cp_OclSize: "X->size\<^sub>S\<^sub>e\<^sub>t() \<tau> = ((\<lambda>_. X \<tau>)->size\<^sub>S\<^sub>e\<^sub>t()) \<tau>"
-by(simp add: OclSize_def cp_defined[symmetric])
+lemma cp_OclSize: "X->size\<^sub>B\<^sub>a\<^sub>g() \<tau> = ((\<lambda>_. X \<tau>)->size\<^sub>B\<^sub>a\<^sub>g()) \<tau>"
+by(simp add: OclSize_def cp_defined[symmetric] Rep_Bag_base_def)
 
-lemma cp_OclIsEmpty: "X->isEmpty\<^sub>S\<^sub>e\<^sub>t() \<tau> = ((\<lambda>_. X \<tau>)->isEmpty\<^sub>S\<^sub>e\<^sub>t()) \<tau>"
+lemma cp_OclIsEmpty: "X->isEmpty\<^sub>B\<^sub>a\<^sub>g() \<tau> = ((\<lambda>_. X \<tau>)->isEmpty\<^sub>B\<^sub>a\<^sub>g()) \<tau>"
  apply(simp only: OclIsEmpty_def)
  apply(subst (2) cp_OclOr,
        subst cp_OclAnd,
@@ -932,38 +946,38 @@ lemma cp_OclIsEmpty: "X->isEmpty\<^sub>S\<^sub>e\<^sub>t() \<tau> = ((\<lambda>_
 by(simp add: cp_defined[symmetric] cp_valid[symmetric] StrictRefEq\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r.cp0[symmetric]
              cp_OclSize[symmetric] cp_OclNot[symmetric] cp_OclAnd[symmetric] cp_OclOr[symmetric])
 
-lemma cp_OclNotEmpty: "X->notEmpty\<^sub>S\<^sub>e\<^sub>t() \<tau> = ((\<lambda>_. X \<tau>)->notEmpty\<^sub>S\<^sub>e\<^sub>t()) \<tau>"
+lemma cp_OclNotEmpty: "X->notEmpty\<^sub>B\<^sub>a\<^sub>g() \<tau> = ((\<lambda>_. X \<tau>)->notEmpty\<^sub>B\<^sub>a\<^sub>g()) \<tau>"
  apply(simp only: OclNotEmpty_def)
  apply(subst (2) cp_OclNot)
 by(simp add: cp_OclNot[symmetric] cp_OclIsEmpty[symmetric])
 
-lemma cp_OclANY: "X->any\<^sub>S\<^sub>e\<^sub>t() \<tau> = ((\<lambda>_. X \<tau>)->any\<^sub>S\<^sub>e\<^sub>t()) \<tau>"
+lemma cp_OclANY: "X->any\<^sub>B\<^sub>a\<^sub>g() \<tau> = ((\<lambda>_. X \<tau>)->any\<^sub>B\<^sub>a\<^sub>g()) \<tau>"
  apply(simp only: OclANY_def)
  apply(subst (2) cp_OclAnd)
 by(simp only: cp_OclAnd[symmetric] cp_defined[symmetric] cp_valid[symmetric]
-              cp_OclNotEmpty[symmetric])
+              cp_OclNotEmpty[symmetric] Rep_Set_base_def)
 
 lemma cp_OclForall:
-"(S->forAll\<^sub>S\<^sub>e\<^sub>t(x | P x)) \<tau> = ((\<lambda> _. S \<tau>)->forAll\<^sub>S\<^sub>e\<^sub>t(x | P (\<lambda> _. x \<tau>))) \<tau>"
-by(simp add: OclForall_def cp_defined[symmetric])
+"(S->forAll\<^sub>B\<^sub>a\<^sub>g(x | P x)) \<tau> = ((\<lambda> _. S \<tau>)->forAll\<^sub>B\<^sub>a\<^sub>g(x | P (\<lambda> _. x \<tau>))) \<tau>"
+by(auto simp add: OclForall_def cp_defined[symmetric] Rep_Set_base_def)
 
 (* first-order version !*)
 lemma cp_OclForall1 [simp,intro!]:
-"cp S \<Longrightarrow> cp (\<lambda>X. ((S X)->forAll\<^sub>S\<^sub>e\<^sub>t(x | P x)))"
+"cp S \<Longrightarrow> cp (\<lambda>X. ((S X)->forAll\<^sub>B\<^sub>a\<^sub>g(x | P x)))"
 apply(simp add: cp_def)
 apply(erule exE, rule exI, intro allI)
 apply(erule_tac x=X in allE)
 by(subst cp_OclForall, simp)
 
 lemma (*cp_OclForall2 [simp,intro!]:*)
-"cp (\<lambda>X St x. P (\<lambda>\<tau>. x) X St) \<Longrightarrow> cp S \<Longrightarrow> cp (\<lambda>X. (S X)->forAll\<^sub>S\<^sub>e\<^sub>t(x|P x X)) "
+"cp (\<lambda>X St x. P (\<lambda>\<tau>. x) X St) \<Longrightarrow> cp S \<Longrightarrow> cp (\<lambda>X. (S X)->forAll\<^sub>B\<^sub>a\<^sub>g(x|P x X)) "
 apply(simp only: cp_def)
 oops
 
 lemma (*cp_OclForall:*)
 "cp S \<Longrightarrow>
  (\<And> x. cp(P x)) \<Longrightarrow>
- cp(\<lambda>X. ((S X)->forAll\<^sub>S\<^sub>e\<^sub>t(x | P x X)))"
+ cp(\<lambda>X. ((S X)->forAll\<^sub>B\<^sub>a\<^sub>g(x | P x X)))"
 oops
 
 (* old proof in HOL-OCL based on Isabelle2005:
@@ -990,30 +1004,30 @@ done  (* temporary solution. *)
 *)
 
 lemma cp_OclExists:
-"(S->exists\<^sub>S\<^sub>e\<^sub>t(x | P x)) \<tau> = ((\<lambda> _. S \<tau>)->exists\<^sub>S\<^sub>e\<^sub>t(x | P (\<lambda> _. x \<tau>))) \<tau>"
+"(S->exists\<^sub>B\<^sub>a\<^sub>g(x | P x)) \<tau> = ((\<lambda> _. S \<tau>)->exists\<^sub>B\<^sub>a\<^sub>g(x | P (\<lambda> _. x \<tau>))) \<tau>"
 by(simp add: OclExists_def OclNot_def, subst cp_OclForall, simp)
 
 (* first-order version !*)
 lemma cp_OclExists1 [simp,intro!]:
-"cp S \<Longrightarrow> cp (\<lambda>X. ((S X)->exists\<^sub>S\<^sub>e\<^sub>t(x | P x)))"
+"cp S \<Longrightarrow> cp (\<lambda>X. ((S X)->exists\<^sub>B\<^sub>a\<^sub>g(x | P x)))"
 apply(simp add: cp_def)
 apply(erule exE, rule exI, intro allI)
 apply(erule_tac x=X in allE)
 by(subst cp_OclExists,simp)
 
 lemma cp_OclIterate: 
-     "(X->iterate\<^sub>S\<^sub>e\<^sub>t(a; x = A | P a x)) \<tau> =
-                ((\<lambda> _. X \<tau>)->iterate\<^sub>S\<^sub>e\<^sub>t(a; x = A | P a x)) \<tau>"
-by(simp add: OclIterate_def cp_defined[symmetric])
+     "(X->iterate\<^sub>B\<^sub>a\<^sub>g(a; x = A | P a x)) \<tau> =
+                ((\<lambda> _. X \<tau>)->iterate\<^sub>B\<^sub>a\<^sub>g(a; x = A | P a x)) \<tau>"
+by(simp add: OclIterate_def cp_defined[symmetric] Rep_Bag_base_def)
 
-lemma cp_OclSelect: "(X->select\<^sub>S\<^sub>e\<^sub>t(a | P a)) \<tau> =
-                ((\<lambda> _. X \<tau>)->select\<^sub>S\<^sub>e\<^sub>t(a | P a)) \<tau>"
-by(simp add: OclSelect_def cp_defined[symmetric])
+lemma cp_OclSelect: "(X->select\<^sub>B\<^sub>a\<^sub>g(a | P a)) \<tau> =
+                ((\<lambda> _. X \<tau>)->select\<^sub>B\<^sub>a\<^sub>g(a | P a)) \<tau>"
+by(simp add: OclSelect_def cp_defined[symmetric] Rep_Set_base_def)
 
-lemma cp_OclReject: "(X->reject\<^sub>S\<^sub>e\<^sub>t(a | P a)) \<tau> = ((\<lambda> _. X \<tau>)->reject\<^sub>S\<^sub>e\<^sub>t(a | P a)) \<tau>"
+lemma cp_OclReject: "(X->reject\<^sub>B\<^sub>a\<^sub>g(a | P a)) \<tau> = ((\<lambda> _. X \<tau>)->reject\<^sub>B\<^sub>a\<^sub>g(a | P a)) \<tau>"
 by(simp add: OclReject_def, subst cp_OclSelect, simp)
 
-lemmas cp_intro''\<^sub>S\<^sub>e\<^sub>t[intro!,simp,code_unfold] =
+lemmas cp_intro''\<^sub>B\<^sub>a\<^sub>g[intro!,simp,code_unfold] =
        cp_OclSize      [THEN allI[THEN allI[THEN cpI1], of "OclSize"]]
        cp_OclIsEmpty   [THEN allI[THEN allI[THEN cpI1], of "OclIsEmpty"]]
        cp_OclNotEmpty  [THEN allI[THEN allI[THEN cpI1], of "OclNotEmpty"]]
@@ -1024,13 +1038,13 @@ subsubsection{* Const *}
 lemma const_OclIncluding[simp,code_unfold] :
  assumes const_x : "const x"
      and const_S : "const S"
-   shows  "const (S->including\<^sub>S\<^sub>e\<^sub>t(x))"
+   shows  "const (S->including\<^sub>B\<^sub>a\<^sub>g(x))"
    proof -
-     have A:"\<And>\<tau> \<tau>'. \<not> (\<tau> \<Turnstile> \<upsilon> x) \<Longrightarrow> (S->including\<^sub>S\<^sub>e\<^sub>t(x) \<tau>) = (S->including\<^sub>S\<^sub>e\<^sub>t(x) \<tau>')"
+     have A:"\<And>\<tau> \<tau>'. \<not> (\<tau> \<Turnstile> \<upsilon> x) \<Longrightarrow> (S->including\<^sub>B\<^sub>a\<^sub>g(x) \<tau>) = (S->including\<^sub>B\<^sub>a\<^sub>g(x) \<tau>')"
             apply(simp add: foundation18)
             apply(erule const_subst[OF const_x const_invalid],simp_all)
             by(rule const_charn[OF const_invalid])
-     have B: "\<And> \<tau> \<tau>'. \<not> (\<tau> \<Turnstile> \<delta> S) \<Longrightarrow> (S->including\<^sub>S\<^sub>e\<^sub>t(x) \<tau>) = (S->including\<^sub>S\<^sub>e\<^sub>t(x) \<tau>')"
+     have B: "\<And> \<tau> \<tau>'. \<not> (\<tau> \<Turnstile> \<delta> S) \<Longrightarrow> (S->including\<^sub>B\<^sub>a\<^sub>g(x) \<tau>) = (S->including\<^sub>B\<^sub>a\<^sub>g(x) \<tau>')"
             apply(simp add: foundation16', elim disjE)
             apply(erule const_subst[OF const_S const_invalid],simp_all)
             apply(rule const_charn[OF const_invalid])
@@ -1043,8 +1057,8 @@ lemma const_OclIncluding[simp,code_unfold] :
        apply(frule_tac \<tau>'1= \<tau>' in  const_OclValid2[OF const_x, THEN iffD1])
        apply(frule_tac \<tau>'1= \<tau>' in  const_OclValid1[OF const_S, THEN iffD1])
        apply(simp add: OclIncluding_def OclValid_def)
-       apply(subst const_charn[OF const_x])
-       apply(subst const_charn[OF const_S])
+       apply(subst (1 2) const_charn[OF const_x])
+       apply(subst (1 2) const_charn[OF const_S])
        by simp
 qed
 text_raw{* \endisatagafp *}
@@ -1080,13 +1094,16 @@ lemma const_OclIncludes :
 by (metis (no_types) const_def const_defined const_true const_valid cp_defined cp_valid)
 
 *)
+
 subsection{* General Algebraic Execution Rules *}
 subsubsection{* Execution Rules on Including *}
 
 lemma OclIncluding_finite_rep_set :
   assumes X_def : "\<tau> \<Turnstile> \<delta> X"
       and x_val : "\<tau> \<Turnstile> \<upsilon> x"
-    shows "finite \<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (X->including\<^sub>S\<^sub>e\<^sub>t(x) \<tau>)\<rceil>\<rceil> = finite \<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (X \<tau>)\<rceil>\<rceil>"
+    shows "finite (Rep_Bag_base (X->including\<^sub>B\<^sub>a\<^sub>g(x)) \<tau>) = finite (Rep_Bag_base X \<tau>)"
+oops
+(*
  proof -
   have C : "\<lfloor>\<lfloor>insert (x \<tau>) \<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (X \<tau>)\<rceil>\<rceil>\<rfloor>\<rfloor> \<in> {X. X = bot \<or> X = null \<or> (\<forall>x\<in>\<lceil>\<lceil>X\<rceil>\<rceil>. x \<noteq> bot)}"
           by(insert X_def x_val, frule Set_inv_lemma, simp add: foundation18 invalid_def)
@@ -1095,51 +1112,15 @@ lemma OclIncluding_finite_rep_set :
      auto simp: OclIncluding_def Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inverse[OF C]
           dest: foundation13[THEN iffD2, THEN foundation22[THEN iffD1]])
 qed
-
-lemma OclIncluding_rep_set:
- assumes S_def: "\<tau> \<Turnstile> \<delta> S"
-   shows "\<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (S->including\<^sub>S\<^sub>e\<^sub>t(\<lambda>_. \<lfloor>\<lfloor>x\<rfloor>\<rfloor>) \<tau>)\<rceil>\<rceil> = insert \<lfloor>\<lfloor>x\<rfloor>\<rfloor> \<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (S \<tau>)\<rceil>\<rceil>"
- apply(simp add: OclIncluding_def S_def[simplified OclValid_def])
- apply(subst Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inverse, simp add: bot_option_def null_option_def)
- apply(insert Set_inv_lemma[OF S_def], metis bot_option_def not_Some_eq)
- by(simp)
-
-lemma OclIncluding_notempty_rep_set:
- assumes X_def: "\<tau> \<Turnstile> \<delta> X"
-     and a_val: "\<tau> \<Turnstile> \<upsilon> a"
-  shows "\<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (X->including\<^sub>S\<^sub>e\<^sub>t(a) \<tau>)\<rceil>\<rceil> \<noteq> {}"
- apply(simp add: OclIncluding_def X_def[simplified OclValid_def] a_val[simplified OclValid_def])
- apply(subst Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inverse, simp add: bot_option_def null_option_def)
- apply(insert Set_inv_lemma[OF X_def], metis a_val foundation18')
- by(simp)
-
-lemma OclIncluding_includes0:
- assumes "\<tau> \<Turnstile> X->includes\<^sub>S\<^sub>e\<^sub>t(x)"
-   shows "X->including\<^sub>S\<^sub>e\<^sub>t(x) \<tau> = X \<tau>"
-proof -
- have includes_def: "\<tau> \<Turnstile> X->includes\<^sub>S\<^sub>e\<^sub>t(x) \<Longrightarrow> \<tau> \<Turnstile> \<delta> X"
- by (metis bot_fun_def OclIncludes_def OclValid_def defined3 foundation16)
-
- have includes_val: "\<tau> \<Turnstile> X->includes\<^sub>S\<^sub>e\<^sub>t(x) \<Longrightarrow> \<tau> \<Turnstile> \<upsilon> x"
- using foundation5 foundation6 by fastforce
-
- show ?thesis
-  apply(insert includes_def[OF assms] includes_val[OF assms] assms,
-        simp add: OclIncluding_def OclIncludes_def OclValid_def true_def)
-  apply(drule insert_absorb, simp, subst abs_rep_simp')
- by(simp_all add: OclValid_def true_def)
-qed
-
-lemma OclIncluding_includes:
- assumes "\<tau> \<Turnstile> X->includes\<^sub>S\<^sub>e\<^sub>t(x)"
-   shows "\<tau> \<Turnstile> X->including\<^sub>S\<^sub>e\<^sub>t(x) \<triangleq> X"
-by(simp add: StrongEq_def OclValid_def true_def OclIncluding_includes0[OF assms])
+*)
 
 lemma OclIncluding_commute0 :
  assumes S_def : "\<tau> \<Turnstile> \<delta> S"
      and i_val : "\<tau> \<Turnstile> \<upsilon> i"
      and j_val : "\<tau> \<Turnstile> \<upsilon> j"
-   shows "\<tau> \<Turnstile> ((S :: ('\<AA>, 'a::null) Set)->including\<^sub>S\<^sub>e\<^sub>t(i)->including\<^sub>S\<^sub>e\<^sub>t(j) \<triangleq> (S->including\<^sub>S\<^sub>e\<^sub>t(j)->including\<^sub>S\<^sub>e\<^sub>t(i)))"
+   shows "\<tau> \<Turnstile> ((S :: ('\<AA>, 'a::null) Bag)->including\<^sub>B\<^sub>a\<^sub>g(i)->including\<^sub>B\<^sub>a\<^sub>g(j) \<triangleq> (S->including\<^sub>B\<^sub>a\<^sub>g(j)->including\<^sub>B\<^sub>a\<^sub>g(i)))"
+oops
+(*
 proof -
   have A : "\<lfloor>\<lfloor>insert (i \<tau>) \<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (S \<tau>)\<rceil>\<rceil>\<rfloor>\<rfloor> \<in> {X. X = bot \<or> X = null \<or> (\<forall>x\<in>\<lceil>\<lceil>X\<rceil>\<rceil>. x \<noteq> bot)}"
            by(insert S_def i_val, frule Set_inv_lemma, simp add: foundation18 invalid_def)
@@ -1187,33 +1168,35 @@ proof -
                      i_val[simplified OclValid_def] j_val[simplified OclValid_def] true_def * ** )
      done
 qed
-
+*)
 
 lemma OclIncluding_commute[simp,code_unfold]:
-"((S :: ('\<AA>, 'a::null) Set)->including\<^sub>S\<^sub>e\<^sub>t(i)->including\<^sub>S\<^sub>e\<^sub>t(j) = (S->including\<^sub>S\<^sub>e\<^sub>t(j)->including\<^sub>S\<^sub>e\<^sub>t(i)))"
+"((S :: ('\<AA>, 'a::null) Bag)->including\<^sub>B\<^sub>a\<^sub>g(i)->including\<^sub>B\<^sub>a\<^sub>g(j) = (S->including\<^sub>B\<^sub>a\<^sub>g(j)->including\<^sub>B\<^sub>a\<^sub>g(i)))"
+oops
+(*
 proof -
-  have A: "\<And> \<tau>.   \<tau> \<Turnstile> (i \<triangleq> invalid)   \<Longrightarrow> (S->including\<^sub>S\<^sub>e\<^sub>t(i)->including\<^sub>S\<^sub>e\<^sub>t(j)) \<tau> = invalid \<tau>"
+  have A: "\<And> \<tau>.   \<tau> \<Turnstile> (i \<triangleq> invalid)   \<Longrightarrow> (S->including\<^sub>B\<^sub>a\<^sub>g(i)->including\<^sub>B\<^sub>a\<^sub>g(j)) \<tau> = invalid \<tau>"
             apply(rule foundation22[THEN iffD1])
             by(erule StrongEq_L_subst2_rev, simp,simp)
-  have A': "\<And> \<tau>.   \<tau> \<Turnstile> (i \<triangleq> invalid)   \<Longrightarrow> (S->including\<^sub>S\<^sub>e\<^sub>t(j)->including\<^sub>S\<^sub>e\<^sub>t(i)) \<tau> = invalid \<tau>"
+  have A': "\<And> \<tau>.   \<tau> \<Turnstile> (i \<triangleq> invalid)   \<Longrightarrow> (S->including\<^sub>B\<^sub>a\<^sub>g(j)->including\<^sub>B\<^sub>a\<^sub>g(i)) \<tau> = invalid \<tau>"
             apply(rule foundation22[THEN iffD1])
             by(erule StrongEq_L_subst2_rev, simp,simp)
-  have B:"\<And> \<tau>.   \<tau> \<Turnstile> (j \<triangleq> invalid)   \<Longrightarrow> (S->including\<^sub>S\<^sub>e\<^sub>t(i)->including\<^sub>S\<^sub>e\<^sub>t(j)) \<tau> = invalid \<tau>"
+  have B:"\<And> \<tau>.   \<tau> \<Turnstile> (j \<triangleq> invalid)   \<Longrightarrow> (S->including\<^sub>B\<^sub>a\<^sub>g(i)->including\<^sub>B\<^sub>a\<^sub>g(j)) \<tau> = invalid \<tau>"
             apply(rule foundation22[THEN iffD1])
             by(erule StrongEq_L_subst2_rev, simp,simp)
-  have B':"\<And> \<tau>.   \<tau> \<Turnstile> (j \<triangleq> invalid)   \<Longrightarrow> (S->including\<^sub>S\<^sub>e\<^sub>t(j)->including\<^sub>S\<^sub>e\<^sub>t(i)) \<tau> = invalid \<tau>"
+  have B':"\<And> \<tau>.   \<tau> \<Turnstile> (j \<triangleq> invalid)   \<Longrightarrow> (S->including\<^sub>B\<^sub>a\<^sub>g(j)->including\<^sub>B\<^sub>a\<^sub>g(i)) \<tau> = invalid \<tau>"
             apply(rule foundation22[THEN iffD1])
             by(erule StrongEq_L_subst2_rev, simp,simp)
-  have C: "\<And> \<tau>.   \<tau> \<Turnstile> (S \<triangleq> invalid)   \<Longrightarrow> (S->including\<^sub>S\<^sub>e\<^sub>t(i)->including\<^sub>S\<^sub>e\<^sub>t(j)) \<tau> = invalid \<tau>"
+  have C: "\<And> \<tau>.   \<tau> \<Turnstile> (S \<triangleq> invalid)   \<Longrightarrow> (S->including\<^sub>B\<^sub>a\<^sub>g(i)->including\<^sub>B\<^sub>a\<^sub>g(j)) \<tau> = invalid \<tau>"
             apply(rule foundation22[THEN iffD1])
             by(erule StrongEq_L_subst2_rev, simp,simp)
-  have C': "\<And> \<tau>.  \<tau> \<Turnstile> (S \<triangleq> invalid)   \<Longrightarrow> (S->including\<^sub>S\<^sub>e\<^sub>t(j)->including\<^sub>S\<^sub>e\<^sub>t(i)) \<tau> = invalid \<tau>"
+  have C': "\<And> \<tau>.  \<tau> \<Turnstile> (S \<triangleq> invalid)   \<Longrightarrow> (S->including\<^sub>B\<^sub>a\<^sub>g(j)->including\<^sub>B\<^sub>a\<^sub>g(i)) \<tau> = invalid \<tau>"
             apply(rule foundation22[THEN iffD1])
             by(erule StrongEq_L_subst2_rev, simp,simp)
-  have D: "\<And> \<tau>.   \<tau> \<Turnstile> (S \<triangleq> null)   \<Longrightarrow> (S->including\<^sub>S\<^sub>e\<^sub>t(i)->including\<^sub>S\<^sub>e\<^sub>t(j)) \<tau> = invalid \<tau>"
+  have D: "\<And> \<tau>.   \<tau> \<Turnstile> (S \<triangleq> null)   \<Longrightarrow> (S->including\<^sub>B\<^sub>a\<^sub>g(i)->including\<^sub>B\<^sub>a\<^sub>g(j)) \<tau> = invalid \<tau>"
             apply(rule foundation22[THEN iffD1])
             by(erule StrongEq_L_subst2_rev, simp,simp)
-  have D': "\<And> \<tau>.  \<tau> \<Turnstile> (S \<triangleq> null)   \<Longrightarrow> (S->including\<^sub>S\<^sub>e\<^sub>t(j)->including\<^sub>S\<^sub>e\<^sub>t(i)) \<tau> = invalid \<tau>"
+  have D': "\<And> \<tau>.  \<tau> \<Turnstile> (S \<triangleq> null)   \<Longrightarrow> (S->including\<^sub>B\<^sub>a\<^sub>g(j)->including\<^sub>B\<^sub>a\<^sub>g(i)) \<tau> = invalid \<tau>"
             apply(rule foundation22[THEN iffD1])
             by(erule StrongEq_L_subst2_rev, simp,simp)
   show ?thesis
@@ -1229,16 +1212,18 @@ proof -
   apply(simp add:foundation18 A[OF foundation22[THEN iffD2]] A'[OF foundation22[THEN iffD2]])
  done
 qed
-
+*)
 
 subsubsection{* Execution Rules on Excluding *}
 
 lemma OclExcluding_finite_rep_set :
   assumes X_def : "\<tau> \<Turnstile> \<delta> X"
       and x_val : "\<tau> \<Turnstile> \<upsilon> x"
-    shows "finite \<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (X->excluding\<^sub>S\<^sub>e\<^sub>t(x) \<tau>)\<rceil>\<rceil> = finite \<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (X \<tau>)\<rceil>\<rceil>"
+    shows "finite (Rep_Bag_base (X->excluding\<^sub>B\<^sub>a\<^sub>g(x)) \<tau>) = finite (Rep_Bag_base X \<tau>)"
+oops
+(*
  proof -
-  have C : "\<lfloor>\<lfloor>\<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (X \<tau>)\<rceil>\<rceil> - {x \<tau>}\<rfloor>\<rfloor> \<in> {X. X = bot \<or> X = null \<or> (\<forall>x\<in>\<lceil>\<lceil>X\<rceil>\<rceil>. x \<noteq> bot)}"
+  have C : "\<lfloor>\<lfloor>(Rep_Bag_base X \<tau>) - {x \<tau>}\<rfloor>\<rfloor> \<in> {X. X = bot \<or> X = null \<or> (\<forall>x\<in>\<lceil>\<lceil>X\<rceil>\<rceil>. x \<noteq> bot)}"
           apply(insert X_def x_val, frule Set_inv_lemma)
           apply(simp add: foundation18 invalid_def)
           done
@@ -1247,83 +1232,57 @@ lemma OclExcluding_finite_rep_set :
      auto simp: OclExcluding_def Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inverse[OF C]
           dest: foundation13[THEN iffD2, THEN foundation22[THEN iffD1]])
 qed
-
-lemma OclExcluding_rep_set:
- assumes S_def: "\<tau> \<Turnstile> \<delta> S"
-   shows "\<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (S->excluding\<^sub>S\<^sub>e\<^sub>t(\<lambda>_. \<lfloor>\<lfloor>x\<rfloor>\<rfloor>) \<tau>)\<rceil>\<rceil> = \<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (S \<tau>)\<rceil>\<rceil> - {\<lfloor>\<lfloor>x\<rfloor>\<rfloor>}"
- apply(simp add: OclExcluding_def S_def[simplified OclValid_def])
- apply(subst Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inverse, simp add: bot_option_def null_option_def)
-  apply(insert Set_inv_lemma[OF S_def], metis Diff_iff bot_option_def not_None_eq)
-by(simp)
-
-lemma OclExcluding_excludes0:
- assumes "\<tau> \<Turnstile> X->excludes\<^sub>S\<^sub>e\<^sub>t(x)"
-   shows "X->excluding\<^sub>S\<^sub>e\<^sub>t(x) \<tau> = X \<tau>"
-proof -
- have excludes_def: "\<tau> \<Turnstile> X->excludes\<^sub>S\<^sub>e\<^sub>t(x) \<Longrightarrow> \<tau> \<Turnstile> \<delta> X"
- by (metis OclExcludes.def_valid_then_def OclExcludes_valid_args_valid'' foundation10' foundation6)
-
- have excludes_val: "\<tau> \<Turnstile> X->excludes\<^sub>S\<^sub>e\<^sub>t(x) \<Longrightarrow> \<tau> \<Turnstile> \<upsilon> x"
- by (metis OclExcludes.def_valid_then_def OclExcludes_valid_args_valid'' foundation10' foundation6)
-
- show ?thesis
-  apply(insert excludes_def[OF assms] excludes_val[OF assms] assms,
-        simp add: OclExcluding_def OclExcludes_def OclIncludes_def OclNot_def OclValid_def true_def)
- by (metis (hide_lams, no_types) abs_rep_simp' assms excludes_def)
-qed
-
-lemma OclExcluding_excludes:
- assumes "\<tau> \<Turnstile> X->excludes\<^sub>S\<^sub>e\<^sub>t(x)"
-   shows "\<tau> \<Turnstile> X->excluding\<^sub>S\<^sub>e\<^sub>t(x) \<triangleq> X"
-by(simp add: StrongEq_def OclValid_def true_def OclExcluding_excludes0[OF assms])
+*)
 
 lemma OclExcluding_charn0[simp]:
 assumes val_x:"\<tau> \<Turnstile> (\<upsilon> x)"
-shows         "\<tau> \<Turnstile> ((Set{}->excluding\<^sub>S\<^sub>e\<^sub>t(x))  \<triangleq>  Set{})"
+shows         "\<tau> \<Turnstile> ((Bag{}->excluding\<^sub>B\<^sub>a\<^sub>g(x))  \<triangleq>  Bag{})"
 proof -
   have A : "\<lfloor>None\<rfloor> \<in> {X. X = bot \<or> X = null \<or> (\<forall>x\<in>\<lceil>\<lceil>X\<rceil>\<rceil>. x \<noteq> bot)}"
   by(simp add: null_option_def bot_option_def)
-  have B : "\<lfloor>\<lfloor>{}\<rfloor>\<rfloor> \<in> {X. X = bot \<or> X = null \<or> (\<forall>x\<in>\<lceil>\<lceil>X\<rceil>\<rceil>. x \<noteq> bot)}" by(simp add: mtSet_def)
+  have B : "\<lfloor>\<lfloor>{}\<rfloor>\<rfloor> \<in> {X. X = bot \<or> X = null \<or> (\<forall>x\<in>\<lceil>\<lceil>X\<rceil>\<rceil>. x \<noteq> bot)}" by(simp add: mtBag_def)
 
   show ?thesis using val_x
     apply(auto simp: OclValid_def OclIncludes_def OclNot_def false_def true_def StrongEq_def
-                     OclExcluding_def mtSet_def defined_def bot_fun_def null_fun_def null_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def)
-     apply(auto simp: mtSet_def Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e.Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inverse
-                      Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e.Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inject[OF B A])
-  done
+                     OclExcluding_def mtBag_def defined_def bot_fun_def null_fun_def null_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def invalid_def)
+     apply(subst (asm) Abs_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inject, simp, simp add: null_option_def bot_option_def, simp)
+    apply(subst Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e.Abs_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inverse, simp_all)
+  by (metis fun_upd_triv)
 qed
 
 lemma OclExcluding_commute0 :
  assumes S_def : "\<tau> \<Turnstile> \<delta> S"
      and i_val : "\<tau> \<Turnstile> \<upsilon> i"
      and j_val : "\<tau> \<Turnstile> \<upsilon> j"
-   shows "\<tau> \<Turnstile> ((S :: ('\<AA>, 'a::null) Set)->excluding\<^sub>S\<^sub>e\<^sub>t(i)->excluding\<^sub>S\<^sub>e\<^sub>t(j) \<triangleq> (S->excluding\<^sub>S\<^sub>e\<^sub>t(j)->excluding\<^sub>S\<^sub>e\<^sub>t(i)))"
+   shows "\<tau> \<Turnstile> ((S :: ('\<AA>, 'a::null) Bag)->excluding\<^sub>B\<^sub>a\<^sub>g(i)->excluding\<^sub>B\<^sub>a\<^sub>g(j) \<triangleq> (S->excluding\<^sub>B\<^sub>a\<^sub>g(j)->excluding\<^sub>B\<^sub>a\<^sub>g(i)))"
+oops
+(*
 proof -
-  have A : "\<lfloor>\<lfloor>\<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (S \<tau>)\<rceil>\<rceil> - {i \<tau>}\<rfloor>\<rfloor> \<in> {X. X = bot \<or> X = null \<or> (\<forall>x\<in>\<lceil>\<lceil>X\<rceil>\<rceil>. x \<noteq> bot)}"
-           by(insert S_def i_val, frule Set_inv_lemma, simp add: foundation18 invalid_def)
-  have B : "\<lfloor>\<lfloor>\<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (S \<tau>)\<rceil>\<rceil> - {j \<tau>}\<rfloor>\<rfloor> \<in> {X. X = bot \<or> X = null \<or> (\<forall>x\<in>\<lceil>\<lceil>X\<rceil>\<rceil>. x \<noteq> bot)}"
-           by(insert S_def j_val, frule Set_inv_lemma, simp add: foundation18 invalid_def)
+  have A : "\<lfloor>\<lfloor>\<lceil>\<lceil>Rep_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e (S \<tau>)\<rceil>\<rceil> - {i \<tau>}\<rfloor>\<rfloor> \<in> {X. X = bot \<or> X = null \<or> (\<forall>x\<in>\<lceil>\<lceil>X\<rceil>\<rceil>. x \<noteq> bot)}"
+           by(insert S_def i_val, frule Bag_inv_lemma, simp add: foundation18 invalid_def)
+  have B : "\<lfloor>\<lfloor>\<lceil>\<lceil>Rep_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e (S \<tau>)\<rceil>\<rceil> - {j \<tau>}\<rfloor>\<rfloor> \<in> {X. X = bot \<or> X = null \<or> (\<forall>x\<in>\<lceil>\<lceil>X\<rceil>\<rceil>. x \<noteq> bot)}"
+           by(insert S_def j_val, frule Bag_inv_lemma, simp add: foundation18 invalid_def)
 
-  have G1 : "Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor>\<lfloor>\<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (S \<tau>)\<rceil>\<rceil> - {i \<tau>}\<rfloor>\<rfloor> \<noteq> Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e None"
-           by(insert A, simp add: Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inject bot_option_def null_option_def)
-  have G2 : "Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor>\<lfloor>\<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (S \<tau>)\<rceil>\<rceil> - {i \<tau>}\<rfloor>\<rfloor> \<noteq> Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor>None\<rfloor>"
-           by(insert A, simp add: Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inject bot_option_def null_option_def)
-  have G3 : "Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor>\<lfloor>\<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (S \<tau>)\<rceil>\<rceil> - {j \<tau>}\<rfloor>\<rfloor> \<noteq> Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e None"
-           by(insert B, simp add: Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inject bot_option_def null_option_def)
-  have G4 : "Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor>\<lfloor>\<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (S \<tau>)\<rceil>\<rceil> - {j \<tau>}\<rfloor>\<rfloor> \<noteq> Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor>None\<rfloor>"
-           by(insert B, simp add: Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inject bot_option_def null_option_def)
+  have G1 : "Abs_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor>\<lfloor>\<lceil>\<lceil>Rep_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e (S \<tau>)\<rceil>\<rceil> - {i \<tau>}\<rfloor>\<rfloor> \<noteq> Abs_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e None"
+           by(insert A, simp add: Abs_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inject bot_option_def null_option_def)
+  have G2 : "Abs_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor>\<lfloor>\<lceil>\<lceil>Rep_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e (S \<tau>)\<rceil>\<rceil> - {i \<tau>}\<rfloor>\<rfloor> \<noteq> Abs_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor>None\<rfloor>"
+           by(insert A, simp add: Abs_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inject bot_option_def null_option_def)
+  have G3 : "Abs_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor>\<lfloor>\<lceil>\<lceil>Rep_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e (S \<tau>)\<rceil>\<rceil> - {j \<tau>}\<rfloor>\<rfloor> \<noteq> Abs_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e None"
+           by(insert B, simp add: Abs_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inject bot_option_def null_option_def)
+  have G4 : "Abs_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor>\<lfloor>\<lceil>\<lceil>Rep_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e (S \<tau>)\<rceil>\<rceil> - {j \<tau>}\<rfloor>\<rfloor> \<noteq> Abs_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor>None\<rfloor>"
+           by(insert B, simp add: Abs_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inject bot_option_def null_option_def)
 
-  have *   : "(\<delta> (\<lambda>_. Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor>\<lfloor>\<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (S \<tau>)\<rceil>\<rceil> - {i \<tau>}\<rfloor>\<rfloor>)) \<tau> = \<lfloor>\<lfloor>True\<rfloor>\<rfloor>"
+  have *   : "(\<delta> (\<lambda>_. Abs_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor>\<lfloor>\<lceil>\<lceil>Rep_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e (S \<tau>)\<rceil>\<rceil> - {i \<tau>}\<rfloor>\<rfloor>)) \<tau> = \<lfloor>\<lfloor>True\<rfloor>\<rfloor>"
              by(auto simp: OclValid_def false_def  defined_def null_fun_def  true_def
-                              bot_fun_def bot_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def  null_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def S_def i_val G1 G2)
+                              bot_fun_def bot_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def  null_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def S_def i_val G1 G2)
 
-  have **  : "(\<delta> (\<lambda>_. Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor>\<lfloor>\<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (S \<tau>)\<rceil>\<rceil> - {j \<tau>}\<rfloor>\<rfloor>)) \<tau> = \<lfloor>\<lfloor>True\<rfloor>\<rfloor>"
+  have **  : "(\<delta> (\<lambda>_. Abs_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor>\<lfloor>\<lceil>\<lceil>Rep_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e (S \<tau>)\<rceil>\<rceil> - {j \<tau>}\<rfloor>\<rfloor>)) \<tau> = \<lfloor>\<lfloor>True\<rfloor>\<rfloor>"
              by(auto simp: OclValid_def false_def  defined_def null_fun_def  true_def
-                              bot_fun_def bot_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def  null_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def S_def i_val G3 G4)
+                              bot_fun_def bot_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def  null_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def S_def i_val G3 G4)
 
-  have *** : "Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor>\<lfloor>\<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e(Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e\<lfloor>\<lfloor>\<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e(S \<tau>)\<rceil>\<rceil>-{i \<tau>}\<rfloor>\<rfloor>)\<rceil>\<rceil>-{j \<tau>}\<rfloor>\<rfloor> =
-              Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor>\<lfloor>\<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e(Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e\<lfloor>\<lfloor>\<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e(S \<tau>)\<rceil>\<rceil>-{j \<tau>}\<rfloor>\<rfloor>)\<rceil>\<rceil>-{i \<tau>}\<rfloor>\<rfloor>"
-              apply(simp add: Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inverse[OF A] Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inverse[OF B])
+  have *** : "Abs_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor>\<lfloor>\<lceil>\<lceil>Rep_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e(Abs_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e\<lfloor>\<lfloor>\<lceil>\<lceil>Rep_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e(S \<tau>)\<rceil>\<rceil>-{i \<tau>}\<rfloor>\<rfloor>)\<rceil>\<rceil>-{j \<tau>}\<rfloor>\<rfloor> =
+              Abs_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor>\<lfloor>\<lceil>\<lceil>Rep_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e(Abs_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e\<lfloor>\<lfloor>\<lceil>\<lceil>Rep_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e(S \<tau>)\<rceil>\<rceil>-{j \<tau>}\<rfloor>\<rfloor>)\<rceil>\<rceil>-{i \<tau>}\<rfloor>\<rfloor>"
+              apply(simp add: Abs_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inverse[OF A] Abs_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inverse[OF B])
              by (metis Diff_insert2 insert_commute)
   show ?thesis
      apply(simp add: OclExcluding_def S_def[simplified OclValid_def]
@@ -1346,33 +1305,35 @@ proof -
                      i_val[simplified OclValid_def] j_val[simplified OclValid_def] true_def * ** )
      done
 qed
-
+*)
 
 lemma OclExcluding_commute[simp,code_unfold]:
-"((S :: ('\<AA>, 'a::null) Set)->excluding\<^sub>S\<^sub>e\<^sub>t(i)->excluding\<^sub>S\<^sub>e\<^sub>t(j) = (S->excluding\<^sub>S\<^sub>e\<^sub>t(j)->excluding\<^sub>S\<^sub>e\<^sub>t(i)))"
+"((S :: ('\<AA>, 'a::null) Bag)->excluding\<^sub>B\<^sub>a\<^sub>g(i)->excluding\<^sub>B\<^sub>a\<^sub>g(j) = (S->excluding\<^sub>B\<^sub>a\<^sub>g(j)->excluding\<^sub>B\<^sub>a\<^sub>g(i)))"
+oops
+(*
 proof -
-  have A: "\<And> \<tau>.   \<tau> \<Turnstile> i \<triangleq> invalid   \<Longrightarrow> (S->excluding\<^sub>S\<^sub>e\<^sub>t(i)->excluding\<^sub>S\<^sub>e\<^sub>t(j)) \<tau> = invalid \<tau>"
+  have A: "\<And> \<tau>.   \<tau> \<Turnstile> i \<triangleq> invalid   \<Longrightarrow> (S->excluding\<^sub>B\<^sub>a\<^sub>g(i)->excluding\<^sub>B\<^sub>a\<^sub>g(j)) \<tau> = invalid \<tau>"
             apply(rule foundation22[THEN iffD1])
             by(erule StrongEq_L_subst2_rev, simp,simp)
-  have A': "\<And> \<tau>.   \<tau> \<Turnstile> i \<triangleq> invalid   \<Longrightarrow> (S->excluding\<^sub>S\<^sub>e\<^sub>t(j)->excluding\<^sub>S\<^sub>e\<^sub>t(i)) \<tau> = invalid \<tau>"
+  have A': "\<And> \<tau>.   \<tau> \<Turnstile> i \<triangleq> invalid   \<Longrightarrow> (S->excluding\<^sub>B\<^sub>a\<^sub>g(j)->excluding\<^sub>B\<^sub>a\<^sub>g(i)) \<tau> = invalid \<tau>"
             apply(rule foundation22[THEN iffD1])
             by(erule StrongEq_L_subst2_rev, simp,simp)
-  have B:"\<And> \<tau>.   \<tau> \<Turnstile> j \<triangleq> invalid   \<Longrightarrow> (S->excluding\<^sub>S\<^sub>e\<^sub>t(i)->excluding\<^sub>S\<^sub>e\<^sub>t(j)) \<tau> = invalid \<tau>"
+  have B:"\<And> \<tau>.   \<tau> \<Turnstile> j \<triangleq> invalid   \<Longrightarrow> (S->excluding\<^sub>B\<^sub>a\<^sub>g(i)->excluding\<^sub>B\<^sub>a\<^sub>g(j)) \<tau> = invalid \<tau>"
             apply(rule foundation22[THEN iffD1])
             by(erule StrongEq_L_subst2_rev, simp,simp)
-  have B':"\<And> \<tau>.   \<tau> \<Turnstile> j \<triangleq> invalid   \<Longrightarrow> (S->excluding\<^sub>S\<^sub>e\<^sub>t(j)->excluding\<^sub>S\<^sub>e\<^sub>t(i)) \<tau> = invalid \<tau>"
+  have B':"\<And> \<tau>.   \<tau> \<Turnstile> j \<triangleq> invalid   \<Longrightarrow> (S->excluding\<^sub>B\<^sub>a\<^sub>g(j)->excluding\<^sub>B\<^sub>a\<^sub>g(i)) \<tau> = invalid \<tau>"
             apply(rule foundation22[THEN iffD1])
             by(erule StrongEq_L_subst2_rev, simp,simp)
-  have C: "\<And> \<tau>.   \<tau> \<Turnstile> S \<triangleq> invalid   \<Longrightarrow> (S->excluding\<^sub>S\<^sub>e\<^sub>t(i)->excluding\<^sub>S\<^sub>e\<^sub>t(j)) \<tau> = invalid \<tau>"
+  have C: "\<And> \<tau>.   \<tau> \<Turnstile> S \<triangleq> invalid   \<Longrightarrow> (S->excluding\<^sub>B\<^sub>a\<^sub>g(i)->excluding\<^sub>B\<^sub>a\<^sub>g(j)) \<tau> = invalid \<tau>"
             apply(rule foundation22[THEN iffD1])
             by(erule StrongEq_L_subst2_rev, simp,simp)
-  have C': "\<And> \<tau>.  \<tau> \<Turnstile> S \<triangleq> invalid   \<Longrightarrow> (S->excluding\<^sub>S\<^sub>e\<^sub>t(j)->excluding\<^sub>S\<^sub>e\<^sub>t(i)) \<tau> = invalid \<tau>"
+  have C': "\<And> \<tau>.  \<tau> \<Turnstile> S \<triangleq> invalid   \<Longrightarrow> (S->excluding\<^sub>B\<^sub>a\<^sub>g(j)->excluding\<^sub>B\<^sub>a\<^sub>g(i)) \<tau> = invalid \<tau>"
             apply(rule foundation22[THEN iffD1])
             by(erule StrongEq_L_subst2_rev, simp,simp)
-  have D: "\<And> \<tau>.   \<tau> \<Turnstile> S \<triangleq> null   \<Longrightarrow> (S->excluding\<^sub>S\<^sub>e\<^sub>t(i)->excluding\<^sub>S\<^sub>e\<^sub>t(j)) \<tau> = invalid \<tau>"
+  have D: "\<And> \<tau>.   \<tau> \<Turnstile> S \<triangleq> null   \<Longrightarrow> (S->excluding\<^sub>B\<^sub>a\<^sub>g(i)->excluding\<^sub>B\<^sub>a\<^sub>g(j)) \<tau> = invalid \<tau>"
             apply(rule foundation22[THEN iffD1])
             by(erule StrongEq_L_subst2_rev, simp,simp)
-  have D': "\<And> \<tau>.  \<tau> \<Turnstile> S \<triangleq> null   \<Longrightarrow> (S->excluding\<^sub>S\<^sub>e\<^sub>t(j)->excluding\<^sub>S\<^sub>e\<^sub>t(i)) \<tau> = invalid \<tau>"
+  have D': "\<And> \<tau>.  \<tau> \<Turnstile> S \<triangleq> null   \<Longrightarrow> (S->excluding\<^sub>B\<^sub>a\<^sub>g(j)->excluding\<^sub>B\<^sub>a\<^sub>g(i)) \<tau> = invalid \<tau>"
             apply(rule foundation22[THEN iffD1])
             by(erule StrongEq_L_subst2_rev, simp,simp)
   show ?thesis
@@ -1388,15 +1349,15 @@ proof -
   apply(simp add:foundation18 A[OF foundation22[THEN iffD2]] A'[OF foundation22[THEN iffD2]])
  done
 qed
-
+*)
 
 lemma OclExcluding_charn0_exec[simp,code_unfold]:
-"(Set{}->excluding\<^sub>S\<^sub>e\<^sub>t(x)) = (if (\<upsilon> x) then Set{} else invalid endif)"
+"(Bag{}->excluding\<^sub>B\<^sub>a\<^sub>g(x)) = (if (\<upsilon> x) then Bag{} else invalid endif)"
 proof -
-  have A: "\<And> \<tau>. (Set{}->excluding\<^sub>S\<^sub>e\<^sub>t(invalid)) \<tau> = (if (\<upsilon> invalid) then Set{} else invalid endif) \<tau>"
+  have A: "\<And> \<tau>. (Bag{}->excluding\<^sub>B\<^sub>a\<^sub>g(invalid)) \<tau> = (if (\<upsilon> invalid) then Bag{} else invalid endif) \<tau>"
           by simp
   have B: "\<And> \<tau> x. \<tau> \<Turnstile> (\<upsilon> x) \<Longrightarrow>
-                 (Set{}->excluding\<^sub>S\<^sub>e\<^sub>t(x)) \<tau> = (if (\<upsilon> x) then Set{} else invalid endif) \<tau>"
+                 (Bag{}->excluding\<^sub>B\<^sub>a\<^sub>g(x)) \<tau> = (if (\<upsilon> x) then Bag{} else invalid endif) \<tau>"
           by(simp add: OclExcluding_charn0[THEN foundation22[THEN iffD1]])
   show ?thesis
     apply(rule ext, rename_tac \<tau>)
@@ -1413,11 +1374,13 @@ assumes def_X:"\<tau> \<Turnstile> (\<delta> X)"
 and     val_x:"\<tau> \<Turnstile> (\<upsilon> x)"
 and     val_y:"\<tau> \<Turnstile> (\<upsilon> y)"
 and     neq  :"\<tau> \<Turnstile> not(x \<triangleq> y)"
-shows         "\<tau> \<Turnstile> ((X->including\<^sub>S\<^sub>e\<^sub>t(x))->excluding\<^sub>S\<^sub>e\<^sub>t(y)) \<triangleq> ((X->excluding\<^sub>S\<^sub>e\<^sub>t(y))->including\<^sub>S\<^sub>e\<^sub>t(x))"
+shows         "\<tau> \<Turnstile> ((X->including\<^sub>B\<^sub>a\<^sub>g(x))->excluding\<^sub>B\<^sub>a\<^sub>g(y)) \<triangleq> ((X->excluding\<^sub>B\<^sub>a\<^sub>g(y))->including\<^sub>B\<^sub>a\<^sub>g(x))"
+oops
+(*
 proof -
- have C : "\<lfloor>\<lfloor>insert (x \<tau>) \<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (X \<tau>)\<rceil>\<rceil>\<rfloor>\<rfloor> \<in> {X. X = bot \<or> X = null \<or> (\<forall>x\<in>\<lceil>\<lceil>X\<rceil>\<rceil>. x \<noteq> bot)}"
+ have C : "\<lfloor>\<lfloor>insert (x \<tau>) (Rep_Bag_base X \<tau>)\<rfloor>\<rfloor> \<in> {X. X = bot \<or> X = null \<or> (\<forall>x\<in>\<lceil>\<lceil>X\<rceil>\<rceil>. x \<noteq> bot)}"
           by(insert def_X val_x, frule Set_inv_lemma, simp add: foundation18 invalid_def)
- have D : "\<lfloor>\<lfloor>\<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (X \<tau>)\<rceil>\<rceil> - {y \<tau>}\<rfloor>\<rfloor> \<in> {X. X = bot \<or> X = null \<or> (\<forall>x\<in>\<lceil>\<lceil>X\<rceil>\<rceil>. x \<noteq> bot)}"
+ have D : "\<lfloor>\<lfloor>(Rep_Bag_base X \<tau>) - {y \<tau>}\<rfloor>\<rfloor> \<in> {X. X = bot \<or> X = null \<or> (\<forall>x\<in>\<lceil>\<lceil>X\<rceil>\<rceil>. x \<noteq> bot)}"
           by(insert def_X val_x, frule Set_inv_lemma, simp add: foundation18 invalid_def)
  have E : "x \<tau> \<noteq> y \<tau>"
           by(insert neq,
@@ -1425,23 +1388,23 @@ proof -
                         false_def true_def defined_def valid_def bot_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def
                         null_fun_def null_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def StrongEq_def OclNot_def)
 
- have G1 : "Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor>\<lfloor>insert (x \<tau>) \<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (X \<tau>)\<rceil>\<rceil>\<rfloor>\<rfloor> \<noteq> Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e None"
+ have G1 : "Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor>\<lfloor>insert (x \<tau>) (Rep_Bag_base X \<tau>)\<rfloor>\<rfloor> \<noteq> Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e None"
           by(insert C, simp add: Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inject bot_option_def null_option_def)
- have G2 : "Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor>\<lfloor>insert (x \<tau>) \<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (X \<tau>)\<rceil>\<rceil>\<rfloor>\<rfloor> \<noteq> Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor>None\<rfloor>"
+ have G2 : "Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor>\<lfloor>insert (x \<tau>) (Rep_Bag_base X \<tau>)\<rfloor>\<rfloor> \<noteq> Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor>None\<rfloor>"
           by(insert C, simp add: Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inject bot_option_def null_option_def)
- have G : "(\<delta> (\<lambda>_. Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor>\<lfloor>insert (x \<tau>) \<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (X \<tau>)\<rceil>\<rceil>\<rfloor>\<rfloor>)) \<tau> = true \<tau>"
+ have G : "(\<delta> (\<lambda>_. Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor>\<lfloor>insert (x \<tau>) (Rep_Bag_base X \<tau>)\<rfloor>\<rfloor>)) \<tau> = true \<tau>"
           by(auto simp: OclValid_def false_def true_def defined_def
                         bot_fun_def bot_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def null_fun_def null_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def G1 G2)
 
- have H1 : "Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor>\<lfloor>\<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (X \<tau>)\<rceil>\<rceil> - {y \<tau>}\<rfloor>\<rfloor> \<noteq> Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e None"
+ have H1 : "Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor>\<lfloor>(Rep_Bag_base X \<tau>) - {y \<tau>}\<rfloor>\<rfloor> \<noteq> Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e None"
           by(insert D, simp add: Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inject bot_option_def null_option_def)
- have H2 : "Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor>\<lfloor>\<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (X \<tau>)\<rceil>\<rceil> - {y \<tau>}\<rfloor>\<rfloor> \<noteq> Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor>None\<rfloor>"
+ have H2 : "Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor>\<lfloor>(Rep_Bag_base X \<tau>) - {y \<tau>}\<rfloor>\<rfloor> \<noteq> Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor>None\<rfloor>"
           by(insert D, simp add: Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inject bot_option_def null_option_def)
- have H : "(\<delta> (\<lambda>_. Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor>\<lfloor>\<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (X \<tau>)\<rceil>\<rceil> - {y \<tau>}\<rfloor>\<rfloor>)) \<tau> = true \<tau>"
+ have H : "(\<delta> (\<lambda>_. Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor>\<lfloor>(Rep_Bag_base X \<tau>) - {y \<tau>}\<rfloor>\<rfloor>)) \<tau> = true \<tau>"
           by(auto simp: OclValid_def false_def true_def defined_def
                            bot_fun_def bot_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def null_fun_def null_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def H1 H2)
 
- have Z : "insert (x \<tau>) \<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (X \<tau>)\<rceil>\<rceil> - {y \<tau>} = insert (x \<tau>) (\<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (X \<tau>)\<rceil>\<rceil> - {y \<tau>})"
+ have Z : "insert (x \<tau>) (Rep_Bag_base X \<tau>) - {y \<tau>} = insert (x \<tau>) ((Rep_Bag_base X \<tau>) - {y \<tau>})"
           by(auto simp: E)
  show ?thesis
   apply(insert def_X[THEN  foundation13[THEN iffD2]] val_x[THEN  foundation13[THEN iffD2]]
@@ -1451,19 +1414,21 @@ proof -
   apply(simp add: G H Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inverse[OF C] Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inverse[OF D] Z)
   done
 qed
-
+*)
 
 
 lemma OclExcluding_charn2:
 assumes def_X:"\<tau> \<Turnstile> (\<delta> X)"
 and     val_x:"\<tau> \<Turnstile> (\<upsilon> x)"
-shows         "\<tau> \<Turnstile> (((X->including\<^sub>S\<^sub>e\<^sub>t(x))->excluding\<^sub>S\<^sub>e\<^sub>t(x)) \<triangleq> (X->excluding\<^sub>S\<^sub>e\<^sub>t(x)))"
+shows         "\<tau> \<Turnstile> (((X->including\<^sub>B\<^sub>a\<^sub>g(x))->excluding\<^sub>B\<^sub>a\<^sub>g(x)) \<triangleq> (X->excluding\<^sub>B\<^sub>a\<^sub>g(x)))"
+oops
+(*
 proof -
- have C : "\<lfloor>\<lfloor>insert (x \<tau>) \<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (X \<tau>)\<rceil>\<rceil>\<rfloor>\<rfloor> \<in> {X. X = bot \<or> X = null \<or> (\<forall>x\<in>\<lceil>\<lceil>X\<rceil>\<rceil>. x \<noteq> bot)}"
+ have C : "\<lfloor>\<lfloor>insert (x \<tau>) (Rep_Bag_base X \<tau>)\<rfloor>\<rfloor> \<in> {X. X = bot \<or> X = null \<or> (\<forall>x\<in>\<lceil>\<lceil>X\<rceil>\<rceil>. x \<noteq> bot)}"
           by(insert def_X val_x, frule Set_inv_lemma, simp add: foundation18 invalid_def)
- have G1 : "Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor>\<lfloor>insert (x \<tau>) \<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (X \<tau>)\<rceil>\<rceil>\<rfloor>\<rfloor> \<noteq> Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e None"
+ have G1 : "Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor>\<lfloor>insert (x \<tau>) (Rep_Bag_base X \<tau>)\<rfloor>\<rfloor> \<noteq> Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e None"
           by(insert C, simp add: Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inject bot_option_def null_option_def)
- have G2 : "Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor>\<lfloor>insert (x \<tau>) \<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (X \<tau>)\<rceil>\<rceil>\<rfloor>\<rfloor> \<noteq> Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor>None\<rfloor>"
+ have G2 : "Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor>\<lfloor>insert (x \<tau>) (Rep_Bag_base X \<tau>)\<rfloor>\<rfloor> \<noteq> Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor>None\<rfloor>"
           by(insert C, simp add: Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inject bot_option_def null_option_def)
  show ?thesis
    apply(insert def_X[THEN foundation16[THEN iffD1]]
@@ -1480,28 +1445,30 @@ proof -
    apply(auto simp: G1 G2)
   done
 qed
+*)
 
 
 
-
-theorem OclExcluding_charn3:  "((X->including\<^sub>S\<^sub>e\<^sub>t(x))->excluding\<^sub>S\<^sub>e\<^sub>t(x)) = (X->excluding\<^sub>S\<^sub>e\<^sub>t(x))"
+theorem OclExcluding_charn3:  "((X->including\<^sub>B\<^sub>a\<^sub>g(x))->excluding\<^sub>B\<^sub>a\<^sub>g(x)) = (X->excluding\<^sub>B\<^sub>a\<^sub>g(x))"
+oops
+(*
 proof -
- have A1 : "\<And>\<tau>. \<tau> \<Turnstile> (X \<triangleq> invalid) \<Longrightarrow> (X->including\<^sub>S\<^sub>e\<^sub>t(x)->excluding\<^sub>S\<^sub>e\<^sub>t(x)) \<tau> = invalid \<tau>"
+ have A1 : "\<And>\<tau>. \<tau> \<Turnstile> (X \<triangleq> invalid) \<Longrightarrow> (X->including\<^sub>B\<^sub>a\<^sub>g(x)->excluding\<^sub>B\<^sub>a\<^sub>g(x)) \<tau> = invalid \<tau>"
             apply(rule foundation22[THEN iffD1])
             by(erule StrongEq_L_subst2_rev, simp,simp)
- have A1': "\<And>\<tau>. \<tau> \<Turnstile> (X \<triangleq> invalid) \<Longrightarrow> (X->excluding\<^sub>S\<^sub>e\<^sub>t(x)) \<tau> = invalid \<tau>"
+ have A1': "\<And>\<tau>. \<tau> \<Turnstile> (X \<triangleq> invalid) \<Longrightarrow> (X->excluding\<^sub>B\<^sub>a\<^sub>g(x)) \<tau> = invalid \<tau>"
             apply(rule foundation22[THEN iffD1])
             by(erule StrongEq_L_subst2_rev, simp,simp)
- have A2 : "\<And>\<tau>. \<tau> \<Turnstile> (X \<triangleq> null) \<Longrightarrow> (X->including\<^sub>S\<^sub>e\<^sub>t(x)->excluding\<^sub>S\<^sub>e\<^sub>t(x)) \<tau> = invalid \<tau>"
+ have A2 : "\<And>\<tau>. \<tau> \<Turnstile> (X \<triangleq> null) \<Longrightarrow> (X->including\<^sub>B\<^sub>a\<^sub>g(x)->excluding\<^sub>B\<^sub>a\<^sub>g(x)) \<tau> = invalid \<tau>"
             apply(rule foundation22[THEN iffD1])
             by(erule StrongEq_L_subst2_rev, simp,simp)
- have A2': "\<And>\<tau>. \<tau> \<Turnstile> (X \<triangleq> null) \<Longrightarrow> (X->excluding\<^sub>S\<^sub>e\<^sub>t(x)) \<tau> = invalid \<tau>"
+ have A2': "\<And>\<tau>. \<tau> \<Turnstile> (X \<triangleq> null) \<Longrightarrow> (X->excluding\<^sub>B\<^sub>a\<^sub>g(x)) \<tau> = invalid \<tau>"
             apply(rule foundation22[THEN iffD1])
             by(erule StrongEq_L_subst2_rev, simp,simp)
- have A3 : "\<And>\<tau>. \<tau> \<Turnstile> (x \<triangleq> invalid) \<Longrightarrow> (X->including\<^sub>S\<^sub>e\<^sub>t(x)->excluding\<^sub>S\<^sub>e\<^sub>t(x)) \<tau> = invalid \<tau>"
+ have A3 : "\<And>\<tau>. \<tau> \<Turnstile> (x \<triangleq> invalid) \<Longrightarrow> (X->including\<^sub>B\<^sub>a\<^sub>g(x)->excluding\<^sub>B\<^sub>a\<^sub>g(x)) \<tau> = invalid \<tau>"
             apply(rule foundation22[THEN iffD1])
             by(erule StrongEq_L_subst2_rev, simp,simp)
- have A3': "\<And>\<tau>. \<tau> \<Turnstile> (x \<triangleq> invalid) \<Longrightarrow> (X->excluding\<^sub>S\<^sub>e\<^sub>t(x)) \<tau> = invalid \<tau>"
+ have A3': "\<And>\<tau>. \<tau> \<Turnstile> (x \<triangleq> invalid) \<Longrightarrow> (X->excluding\<^sub>B\<^sub>a\<^sub>g(x)) \<tau> = invalid \<tau>"
             apply(rule foundation22[THEN iffD1])
             by(erule StrongEq_L_subst2_rev, simp,simp)
 
@@ -1516,7 +1483,7 @@ proof -
  apply(simp add:foundation18 A3[OF foundation22[THEN iffD2]] A3'[OF foundation22[THEN iffD2]])
  done
 qed
-
+*)
 
 text{* One would like a generic theorem of the form:
 \begin{isar}[mathescape]
@@ -1548,58 +1515,60 @@ lemma OclExcluding_charn_exec:
  and     cp_StrictRefEq: "\<And> (X::('\<AA>,'a::null)val) Y \<tau>. (X \<doteq> Y) \<tau> = ((\<lambda>_. X \<tau>) \<doteq> (\<lambda>_. Y \<tau>)) \<tau>"
  and     StrictRefEq_vs_StrongEq: "\<And> (x::('\<AA>,'a::null)val) y \<tau>.
                                       \<tau> \<Turnstile> \<upsilon> x \<Longrightarrow> \<tau> \<Turnstile> \<upsilon> y \<Longrightarrow> (\<tau> \<Turnstile> ((x \<doteq> y) \<triangleq> (x \<triangleq> y)))"
- shows "(X->including\<^sub>S\<^sub>e\<^sub>t(x::('\<AA>,'a::null)val)->excluding\<^sub>S\<^sub>e\<^sub>t(y)) =
+ shows "(X->including\<^sub>B\<^sub>a\<^sub>g(x::('\<AA>,'a::null)val)->excluding\<^sub>B\<^sub>a\<^sub>g(y)) =
         (if \<delta> X then if x \<doteq> y
-                     then X->excluding\<^sub>S\<^sub>e\<^sub>t(y)
-                     else X->excluding\<^sub>S\<^sub>e\<^sub>t(y)->including\<^sub>S\<^sub>e\<^sub>t(x)
+                     then X->excluding\<^sub>B\<^sub>a\<^sub>g(y)
+                     else X->excluding\<^sub>B\<^sub>a\<^sub>g(y)->including\<^sub>B\<^sub>a\<^sub>g(x)
                      endif
                 else invalid endif)"
+oops
+(*
 proof -
  (* Lifting theorems, largely analogous OclIncludes_execute_generic,
          with the same problems wrt. strict equality. *)
  have A1: "\<And>\<tau>. \<tau> \<Turnstile> (X \<triangleq> invalid) \<Longrightarrow>
-            (X->including\<^sub>S\<^sub>e\<^sub>t(x)->includes\<^sub>S\<^sub>e\<^sub>t(y)) \<tau> = invalid \<tau>"
+            (X->including\<^sub>B\<^sub>a\<^sub>g(x)->includes\<^sub>B\<^sub>a\<^sub>g(y)) \<tau> = invalid \<tau>"
             apply(rule foundation22[THEN iffD1])
             by(erule StrongEq_L_subst2_rev, simp,simp)
 
  have B1: "\<And>\<tau>. \<tau> \<Turnstile> (X \<triangleq> null) \<Longrightarrow>
-            (X->including\<^sub>S\<^sub>e\<^sub>t(x)->includes\<^sub>S\<^sub>e\<^sub>t(y)) \<tau> = invalid  \<tau>"
+            (X->including\<^sub>B\<^sub>a\<^sub>g(x)->includes\<^sub>B\<^sub>a\<^sub>g(y)) \<tau> = invalid  \<tau>"
             apply(rule foundation22[THEN iffD1])
             by(erule StrongEq_L_subst2_rev, simp,simp)
 
- have A2: "\<And>\<tau>. \<tau> \<Turnstile> (X \<triangleq> invalid) \<Longrightarrow> X->including\<^sub>S\<^sub>e\<^sub>t(x)->excluding\<^sub>S\<^sub>e\<^sub>t(y) \<tau> = invalid \<tau>"
+ have A2: "\<And>\<tau>. \<tau> \<Turnstile> (X \<triangleq> invalid) \<Longrightarrow> X->including\<^sub>B\<^sub>a\<^sub>g(x)->excluding\<^sub>B\<^sub>a\<^sub>g(y) \<tau> = invalid \<tau>"
             apply(rule foundation22[THEN iffD1])
             by(erule StrongEq_L_subst2_rev, simp,simp)
 
- have B2: "\<And>\<tau>. \<tau> \<Turnstile> (X \<triangleq> null) \<Longrightarrow> X->including\<^sub>S\<^sub>e\<^sub>t(x)->excluding\<^sub>S\<^sub>e\<^sub>t(y) \<tau> = invalid \<tau>"
+ have B2: "\<And>\<tau>. \<tau> \<Turnstile> (X \<triangleq> null) \<Longrightarrow> X->including\<^sub>B\<^sub>a\<^sub>g(x)->excluding\<^sub>B\<^sub>a\<^sub>g(y) \<tau> = invalid \<tau>"
             apply(rule foundation22[THEN iffD1])
             by(erule StrongEq_L_subst2_rev, simp,simp)
 
  note [simp] = cp_StrictRefEq [THEN allI[THEN allI[THEN allI[THEN cpI2]], of "StrictRefEq"]]
 
  have C: "\<And>\<tau>. \<tau> \<Turnstile> (x \<triangleq> invalid) \<Longrightarrow>
-           (X->including\<^sub>S\<^sub>e\<^sub>t(x)->excluding\<^sub>S\<^sub>e\<^sub>t(y)) \<tau> =
-           (if x \<doteq> y then X->excluding\<^sub>S\<^sub>e\<^sub>t(y) else X->excluding\<^sub>S\<^sub>e\<^sub>t(y)->including\<^sub>S\<^sub>e\<^sub>t(x) endif) \<tau>"
+           (X->including\<^sub>B\<^sub>a\<^sub>g(x)->excluding\<^sub>B\<^sub>a\<^sub>g(y)) \<tau> =
+           (if x \<doteq> y then X->excluding\<^sub>B\<^sub>a\<^sub>g(y) else X->excluding\<^sub>B\<^sub>a\<^sub>g(y)->including\<^sub>B\<^sub>a\<^sub>g(x) endif) \<tau>"
             apply(rule foundation22[THEN iffD1])
             apply(erule StrongEq_L_subst2_rev,simp,simp)
             by(simp add: strict1)
 
  have D: "\<And>\<tau>. \<tau> \<Turnstile> (y \<triangleq> invalid) \<Longrightarrow>
-           (X->including\<^sub>S\<^sub>e\<^sub>t(x)->excluding\<^sub>S\<^sub>e\<^sub>t(y)) \<tau> =
-           (if x \<doteq> y then X->excluding\<^sub>S\<^sub>e\<^sub>t(y) else X->excluding\<^sub>S\<^sub>e\<^sub>t(y)->including\<^sub>S\<^sub>e\<^sub>t(x) endif) \<tau>"
+           (X->including\<^sub>B\<^sub>a\<^sub>g(x)->excluding\<^sub>B\<^sub>a\<^sub>g(y)) \<tau> =
+           (if x \<doteq> y then X->excluding\<^sub>B\<^sub>a\<^sub>g(y) else X->excluding\<^sub>B\<^sub>a\<^sub>g(y)->including\<^sub>B\<^sub>a\<^sub>g(x) endif) \<tau>"
             apply(rule foundation22[THEN iffD1])
             apply(erule StrongEq_L_subst2_rev,simp,simp)
             by (simp add: strict2)
 
  have E: "\<And>\<tau>. \<tau> \<Turnstile> \<upsilon> x \<Longrightarrow> \<tau> \<Turnstile> \<upsilon> y \<Longrightarrow>
-              (if x \<doteq> y then X->excluding\<^sub>S\<^sub>e\<^sub>t(y) else X->excluding\<^sub>S\<^sub>e\<^sub>t(y)->including\<^sub>S\<^sub>e\<^sub>t(x) endif) \<tau> =
-              (if x \<triangleq> y then X->excluding\<^sub>S\<^sub>e\<^sub>t(y) else X->excluding\<^sub>S\<^sub>e\<^sub>t(y)->including\<^sub>S\<^sub>e\<^sub>t(x) endif) \<tau>"
+              (if x \<doteq> y then X->excluding\<^sub>B\<^sub>a\<^sub>g(y) else X->excluding\<^sub>B\<^sub>a\<^sub>g(y)->including\<^sub>B\<^sub>a\<^sub>g(x) endif) \<tau> =
+              (if x \<triangleq> y then X->excluding\<^sub>B\<^sub>a\<^sub>g(y) else X->excluding\<^sub>B\<^sub>a\<^sub>g(y)->including\<^sub>B\<^sub>a\<^sub>g(x) endif) \<tau>"
            apply(subst cp_OclIf)
            apply(subst StrictRefEq_vs_StrongEq[THEN foundation22[THEN iffD1]])
            by(simp_all add: cp_OclIf[symmetric])
 
  have F: "\<And>\<tau>. \<tau> \<Turnstile> \<delta> X \<Longrightarrow> \<tau> \<Turnstile> \<upsilon> x \<Longrightarrow> \<tau> \<Turnstile> (x \<triangleq> y) \<Longrightarrow>
-           (X->including\<^sub>S\<^sub>e\<^sub>t(x)->excluding\<^sub>S\<^sub>e\<^sub>t(y) \<tau>) = (X->excluding\<^sub>S\<^sub>e\<^sub>t(y) \<tau>)"
+           (X->including\<^sub>B\<^sub>a\<^sub>g(x)->excluding\<^sub>B\<^sub>a\<^sub>g(y) \<tau>) = (X->excluding\<^sub>B\<^sub>a\<^sub>g(y) \<tau>)"
            apply(drule StrongEq_L_sym)
            apply(rule foundation22[THEN iffD1])
            apply(erule StrongEq_L_subst2_rev,simp)
@@ -1622,8 +1591,8 @@ proof -
     apply(simp add: foundation9 F)
  done
 qed
-
-
+*)
+(*
 (* Hack to work around OF-Bug *)
 schematic_lemma OclExcluding_charn_exec\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r[simp,code_unfold]: "?X"
 by(rule OclExcluding_charn_exec[OF StrictRefEq\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r.strict1 StrictRefEq\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r.strict2
@@ -1636,17 +1605,17 @@ by(rule OclExcluding_charn_exec[OF StrictRefEq\<^sub>B\<^sub>o\<^sub>o\<^sub>l\<
                              StrictRefEq\<^sub>B\<^sub>o\<^sub>o\<^sub>l\<^sub>e\<^sub>a\<^sub>n.cp0 StrictRefEq\<^sub>B\<^sub>o\<^sub>o\<^sub>l\<^sub>e\<^sub>a\<^sub>n.StrictRefEq_vs_StrongEq], simp_all)
 
 
-schematic_lemma OclExcluding_charn_exec\<^sub>S\<^sub>e\<^sub>t[simp,code_unfold]: "?X"
-by(rule OclExcluding_charn_exec[OF StrictRefEq\<^sub>S\<^sub>e\<^sub>t.strict1 StrictRefEq\<^sub>S\<^sub>e\<^sub>t.strict2
-                                StrictRefEq\<^sub>S\<^sub>e\<^sub>t.defined_args_valid
-                                StrictRefEq\<^sub>S\<^sub>e\<^sub>t.cp0 StrictRefEq\<^sub>S\<^sub>e\<^sub>t.StrictRefEq_vs_StrongEq], simp_all)
-
-
+schematic_lemma OclExcluding_charn_exec\<^sub>B\<^sub>a\<^sub>g[simp,code_unfold]: "?X"
+by(rule OclExcluding_charn_exec[OF StrictRefEq\<^sub>B\<^sub>a\<^sub>g.strict1 StrictRefEq\<^sub>B\<^sub>a\<^sub>g.strict2
+                                StrictRefEq\<^sub>B\<^sub>a\<^sub>g.defined_args_valid
+                                StrictRefEq\<^sub>B\<^sub>a\<^sub>g.cp0 StrictRefEq\<^sub>B\<^sub>a\<^sub>g.StrictRefEq_vs_StrongEq], simp_all)
+*)
+(*
 subsubsection{* Execution Rules on Includes *}
 
 lemma OclIncludes_charn0[simp]:
 assumes val_x:"\<tau> \<Turnstile> (\<upsilon> x)"
-shows         "\<tau> \<Turnstile> not(Set{}->includes\<^sub>S\<^sub>e\<^sub>t(x))"
+shows         "\<tau> \<Turnstile> not(Set{}->includes\<^sub>B\<^sub>a\<^sub>g(x))"
 using val_x
 apply(auto simp: OclValid_def OclIncludes_def OclNot_def false_def true_def)
 apply(auto simp: mtSet_def Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e.Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inverse)
@@ -1654,11 +1623,11 @@ done
 
 
 lemma OclIncludes_charn0'[simp,code_unfold]:
-"Set{}->includes\<^sub>S\<^sub>e\<^sub>t(x) = (if \<upsilon> x then false else invalid endif)"
+"Set{}->includes\<^sub>B\<^sub>a\<^sub>g(x) = (if \<upsilon> x then false else invalid endif)"
 proof -
-  have A: "\<And> \<tau>. (Set{}->includes\<^sub>S\<^sub>e\<^sub>t(invalid)) \<tau> = (if (\<upsilon> invalid) then false else invalid endif) \<tau>"
+  have A: "\<And> \<tau>. (Set{}->includes\<^sub>B\<^sub>a\<^sub>g(invalid)) \<tau> = (if (\<upsilon> invalid) then false else invalid endif) \<tau>"
           by simp
-  have B: "\<And> \<tau> x. \<tau> \<Turnstile> (\<upsilon> x) \<Longrightarrow> (Set{}->includes\<^sub>S\<^sub>e\<^sub>t(x)) \<tau> = (if \<upsilon> x then false else invalid endif) \<tau>"
+  have B: "\<And> \<tau> x. \<tau> \<Turnstile> (\<upsilon> x) \<Longrightarrow> (Set{}->includes\<^sub>B\<^sub>a\<^sub>g(x)) \<tau> = (if \<upsilon> x then false else invalid endif) \<tau>"
           apply(frule OclIncludes_charn0, simp add: OclValid_def)
           apply(rule foundation21[THEN fun_cong, simplified StrongEq_def,simplified,
                      THEN iffD1, of _ _ "false"])
@@ -1674,9 +1643,9 @@ qed
 lemma OclIncludes_charn1:
 assumes def_X:"\<tau> \<Turnstile> (\<delta> X)"
 assumes val_x:"\<tau> \<Turnstile> (\<upsilon> x)"
-shows         "\<tau> \<Turnstile> (X->including\<^sub>S\<^sub>e\<^sub>t(x)->includes\<^sub>S\<^sub>e\<^sub>t(x))"
+shows         "\<tau> \<Turnstile> (X->including\<^sub>B\<^sub>a\<^sub>g(x)->includes\<^sub>B\<^sub>a\<^sub>g(x))"
 proof -
- have C : "\<lfloor>\<lfloor>insert (x \<tau>) \<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (X \<tau>)\<rceil>\<rceil>\<rfloor>\<rfloor> \<in> {X. X = bot \<or> X = null \<or> (\<forall>x\<in>\<lceil>\<lceil>X\<rceil>\<rceil>. x \<noteq> bot)}"
+ have C : "\<lfloor>\<lfloor>insert (x \<tau>) (Rep_Bag_base X \<tau>)\<rfloor>\<rfloor> \<in> {X. X = bot \<or> X = null \<or> (\<forall>x\<in>\<lceil>\<lceil>X\<rceil>\<rceil>. x \<noteq> bot)}"
           by(insert def_X val_x, frule Set_inv_lemma, simp add: foundation18 invalid_def)
  show ?thesis
   apply(subst OclIncludes_def, simp add: foundation10[simplified OclValid_def] OclValid_def
@@ -1693,9 +1662,9 @@ assumes def_X:"\<tau> \<Turnstile> (\<delta> X)"
 and     val_x:"\<tau> \<Turnstile> (\<upsilon> x)"
 and     val_y:"\<tau> \<Turnstile> (\<upsilon> y)"
 and     neq  :"\<tau> \<Turnstile> not(x \<triangleq> y)"
-shows         "\<tau> \<Turnstile> (X->including\<^sub>S\<^sub>e\<^sub>t(x)->includes\<^sub>S\<^sub>e\<^sub>t(y)) \<triangleq> (X->includes\<^sub>S\<^sub>e\<^sub>t(y))"
+shows         "\<tau> \<Turnstile> (X->including\<^sub>B\<^sub>a\<^sub>g(x)->includes\<^sub>B\<^sub>a\<^sub>g(y)) \<triangleq> (X->includes\<^sub>B\<^sub>a\<^sub>g(y))"
 proof -
- have C : "\<lfloor>\<lfloor>insert (x \<tau>) \<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (X \<tau>)\<rceil>\<rceil>\<rfloor>\<rfloor> \<in> {X. X = bot \<or> X = null \<or> (\<forall>x\<in>\<lceil>\<lceil>X\<rceil>\<rceil>. x \<noteq> bot)}"
+ have C : "\<lfloor>\<lfloor>insert (x \<tau>) (Rep_Bag_base X \<tau>)\<rfloor>\<rfloor> \<in> {X. X = bot \<or> X = null \<or> (\<forall>x\<in>\<lceil>\<lceil>X\<rceil>\<rceil>. x \<noteq> bot)}"
           by(insert def_X val_x, frule Set_inv_lemma, simp add: foundation18 invalid_def)
  show ?thesis
   apply(subst OclIncludes_def,
@@ -1717,40 +1686,40 @@ and     cp_StrictRefEq: "\<And> (X::('\<AA>,'a::null)val) Y \<tau>. (X \<doteq> 
 and     StrictRefEq_vs_StrongEq: "\<And> (x::('\<AA>,'a::null)val) y \<tau>.
                                       \<tau> \<Turnstile> \<upsilon> x \<Longrightarrow> \<tau> \<Turnstile> \<upsilon> y \<Longrightarrow> (\<tau> \<Turnstile> ((x \<doteq> y) \<triangleq> (x \<triangleq> y)))"
 shows
-      "(X->including\<^sub>S\<^sub>e\<^sub>t(x::('\<AA>,'a::null)val)->includes\<^sub>S\<^sub>e\<^sub>t(y)) =
-       (if \<delta> X then if x \<doteq> y then true else X->includes\<^sub>S\<^sub>e\<^sub>t(y) endif else invalid endif)"
+      "(X->including\<^sub>B\<^sub>a\<^sub>g(x::('\<AA>,'a::null)val)->includes\<^sub>B\<^sub>a\<^sub>g(y)) =
+       (if \<delta> X then if x \<doteq> y then true else X->includes\<^sub>B\<^sub>a\<^sub>g(y) endif else invalid endif)"
 proof -
   have A: "\<And>\<tau>. \<tau> \<Turnstile> (X \<triangleq> invalid) \<Longrightarrow>
-            (X->including\<^sub>S\<^sub>e\<^sub>t(x)->includes\<^sub>S\<^sub>e\<^sub>t(y)) \<tau> = invalid \<tau>"
+            (X->including\<^sub>B\<^sub>a\<^sub>g(x)->includes\<^sub>B\<^sub>a\<^sub>g(y)) \<tau> = invalid \<tau>"
             apply(rule foundation22[THEN iffD1])
             by(erule StrongEq_L_subst2_rev,simp,simp)
   have B: "\<And>\<tau>. \<tau> \<Turnstile> (X \<triangleq> null) \<Longrightarrow>
-            (X->including\<^sub>S\<^sub>e\<^sub>t(x)->includes\<^sub>S\<^sub>e\<^sub>t(y)) \<tau> = invalid  \<tau>"
+            (X->including\<^sub>B\<^sub>a\<^sub>g(x)->includes\<^sub>B\<^sub>a\<^sub>g(y)) \<tau> = invalid  \<tau>"
             apply(rule foundation22[THEN iffD1])
             by(erule StrongEq_L_subst2_rev,simp,simp)
 
   note [simp] = cp_StrictRefEq [THEN allI[THEN allI[THEN allI[THEN cpI2]], of "StrictRefEq"]]
 
   have C: "\<And>\<tau>. \<tau> \<Turnstile> (x \<triangleq> invalid) \<Longrightarrow>
-           (X->including\<^sub>S\<^sub>e\<^sub>t(x)->includes\<^sub>S\<^sub>e\<^sub>t(y)) \<tau> =
-           (if x \<doteq> y then true else X->includes\<^sub>S\<^sub>e\<^sub>t(y) endif) \<tau>"
+           (X->including\<^sub>B\<^sub>a\<^sub>g(x)->includes\<^sub>B\<^sub>a\<^sub>g(y)) \<tau> =
+           (if x \<doteq> y then true else X->includes\<^sub>B\<^sub>a\<^sub>g(y) endif) \<tau>"
             apply(rule foundation22[THEN iffD1])
             apply(erule StrongEq_L_subst2_rev,simp,simp)
             by (simp add: strict1)
   have D:"\<And>\<tau>. \<tau> \<Turnstile> (y \<triangleq> invalid) \<Longrightarrow>
-           (X->including\<^sub>S\<^sub>e\<^sub>t(x)->includes\<^sub>S\<^sub>e\<^sub>t(y)) \<tau> =
-           (if x \<doteq> y then true else X->includes\<^sub>S\<^sub>e\<^sub>t(y) endif) \<tau>"
+           (X->including\<^sub>B\<^sub>a\<^sub>g(x)->includes\<^sub>B\<^sub>a\<^sub>g(y)) \<tau> =
+           (if x \<doteq> y then true else X->includes\<^sub>B\<^sub>a\<^sub>g(y) endif) \<tau>"
             apply(rule foundation22[THEN iffD1])
             apply(erule StrongEq_L_subst2_rev,simp,simp)
             by (simp add: strict2)
   have E: "\<And>\<tau>. \<tau> \<Turnstile> \<upsilon> x \<Longrightarrow> \<tau> \<Turnstile> \<upsilon> y \<Longrightarrow>
-              (if x \<doteq> y then true else X->includes\<^sub>S\<^sub>e\<^sub>t(y) endif) \<tau> =
-              (if x \<triangleq> y then true else X->includes\<^sub>S\<^sub>e\<^sub>t(y) endif) \<tau>"
+              (if x \<doteq> y then true else X->includes\<^sub>B\<^sub>a\<^sub>g(y) endif) \<tau> =
+              (if x \<triangleq> y then true else X->includes\<^sub>B\<^sub>a\<^sub>g(y) endif) \<tau>"
            apply(subst cp_OclIf)
            apply(subst StrictRefEq_vs_StrongEq[THEN foundation22[THEN iffD1]])
            by(simp_all add: cp_OclIf[symmetric])
   have F: "\<And>\<tau>. \<tau> \<Turnstile> (x \<triangleq> y) \<Longrightarrow>
-               (X->including\<^sub>S\<^sub>e\<^sub>t(x)->includes\<^sub>S\<^sub>e\<^sub>t(y)) \<tau> = (X->including\<^sub>S\<^sub>e\<^sub>t(x)->includes\<^sub>S\<^sub>e\<^sub>t(x)) \<tau>"
+               (X->including\<^sub>B\<^sub>a\<^sub>g(x)->includes\<^sub>B\<^sub>a\<^sub>g(y)) \<tau> = (X->including\<^sub>B\<^sub>a\<^sub>g(x)->includes\<^sub>B\<^sub>a\<^sub>g(x)) \<tau>"
            apply(rule foundation22[THEN iffD1])
            by(erule StrongEq_L_subst2_rev,simp, simp)
   show ?thesis
@@ -1786,20 +1755,20 @@ by(rule OclIncludes_execute_generic[OF StrictRefEq\<^sub>B\<^sub>o\<^sub>o\<^sub
                                     StrictRefEq\<^sub>B\<^sub>o\<^sub>o\<^sub>l\<^sub>e\<^sub>a\<^sub>n.StrictRefEq_vs_StrongEq], simp_all)
 
 
-schematic_lemma OclIncludes_execute\<^sub>S\<^sub>e\<^sub>t[simp,code_unfold]: "?X"
-by(rule OclIncludes_execute_generic[OF StrictRefEq\<^sub>S\<^sub>e\<^sub>t.strict1 StrictRefEq\<^sub>S\<^sub>e\<^sub>t.strict2
-                                    StrictRefEq\<^sub>S\<^sub>e\<^sub>t.cp0
-                                    StrictRefEq\<^sub>S\<^sub>e\<^sub>t.StrictRefEq_vs_StrongEq], simp_all)
+schematic_lemma OclIncludes_execute\<^sub>B\<^sub>a\<^sub>g[simp,code_unfold]: "?X"
+by(rule OclIncludes_execute_generic[OF StrictRefEq\<^sub>B\<^sub>a\<^sub>g.strict1 StrictRefEq\<^sub>B\<^sub>a\<^sub>g.strict2
+                                    StrictRefEq\<^sub>B\<^sub>a\<^sub>g.cp0
+                                    StrictRefEq\<^sub>B\<^sub>a\<^sub>g.StrictRefEq_vs_StrongEq], simp_all)
 
 lemma OclIncludes_including_generic :
  assumes OclIncludes_execute_generic [simp] : "\<And>X x y.
-           (X->including\<^sub>S\<^sub>e\<^sub>t(x::('\<AA>,'a::null)val)->includes\<^sub>S\<^sub>e\<^sub>t(y)) =
-           (if \<delta> X then if x \<doteq> y then true else X->includes\<^sub>S\<^sub>e\<^sub>t(y) endif else invalid endif)"
+           (X->including\<^sub>B\<^sub>a\<^sub>g(x::('\<AA>,'a::null)val)->includes\<^sub>B\<^sub>a\<^sub>g(y)) =
+           (if \<delta> X then if x \<doteq> y then true else X->includes\<^sub>B\<^sub>a\<^sub>g(y) endif else invalid endif)"
      and StrictRefEq_strict'' : "\<And>x y. \<delta> ((x::('\<AA>,'a::null)val) \<doteq> y) = (\<upsilon>(x) and \<upsilon>(y))"
      and a_val : "\<tau> \<Turnstile> \<upsilon> a"
      and x_val : "\<tau> \<Turnstile> \<upsilon> x"
-     and S_incl : "\<tau> \<Turnstile> (S)->includes\<^sub>S\<^sub>e\<^sub>t((x::('\<AA>,'a::null)val))"
-   shows "\<tau> \<Turnstile> S->including\<^sub>S\<^sub>e\<^sub>t((a::('\<AA>,'a::null)val))->includes\<^sub>S\<^sub>e\<^sub>t(x)"
+     and S_incl : "\<tau> \<Turnstile> (S)->includes\<^sub>B\<^sub>a\<^sub>g((x::('\<AA>,'a::null)val))"
+   shows "\<tau> \<Turnstile> S->including\<^sub>B\<^sub>a\<^sub>g((a::('\<AA>,'a::null)val))->includes\<^sub>B\<^sub>a\<^sub>g(x)"
 proof -
  have discr_eq_bot1_true : "\<And>\<tau>. (\<bottom> \<tau> = true \<tau>) = False"
  by (metis bot_fun_def foundation1 foundation18' valid3)
@@ -1828,10 +1797,10 @@ subsubsection{* Execution Rules on Excludes *}
 lemma OclExcludes_charn1:
 assumes def_X:"\<tau> \<Turnstile> (\<delta> X)"
 assumes val_x:"\<tau> \<Turnstile> (\<upsilon> x)"
-shows         "\<tau> \<Turnstile> (X->excluding\<^sub>S\<^sub>e\<^sub>t(x)->excludes\<^sub>S\<^sub>e\<^sub>t(x))"
+shows         "\<tau> \<Turnstile> (X->excluding\<^sub>B\<^sub>a\<^sub>g(x)->excludes\<^sub>B\<^sub>a\<^sub>g(x))"
 proof -
  let ?OclSet = "\<lambda>S. \<lfloor>\<lfloor>S\<rfloor>\<rfloor> \<in> {X. X = \<bottom> \<or> X = null \<or> (\<forall>x\<in>\<lceil>\<lceil>X\<rceil>\<rceil>. x \<noteq> \<bottom>)}"
- have diff_in_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e : "?OclSet (\<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (X \<tau>)\<rceil>\<rceil> - {x \<tau>})"
+ have diff_in_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e : "?OclSet ((Rep_Bag_base X \<tau>) - {x \<tau>})"
   apply(simp, (rule disjI2)+)
  by (metis (hide_lams, no_types) Diff_iff Set_inv_lemma def_X)
 
@@ -1846,7 +1815,7 @@ qed
 
 subsubsection{* Execution Rules on Size *}
 
-lemma [simp,code_unfold]: "Set{} ->size\<^sub>S\<^sub>e\<^sub>t() = \<zero>"
+lemma [simp,code_unfold]: "Set{} ->size\<^sub>B\<^sub>a\<^sub>g() = \<zero>"
  apply(rule ext)
  apply(simp add: defined_def mtSet_def OclSize_def
                  bot_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def bot_fun_def
@@ -1855,8 +1824,8 @@ lemma [simp,code_unfold]: "Set{} ->size\<^sub>S\<^sub>e\<^sub>t() = \<zero>"
 by(simp add: Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inverse bot_option_def null_option_def OclInt0_def)
 
 lemma OclSize_including_exec[simp,code_unfold]:
- "((X ->including\<^sub>S\<^sub>e\<^sub>t(x)) ->size\<^sub>S\<^sub>e\<^sub>t()) = (if \<delta> X and \<upsilon> x then
-                                     X ->size\<^sub>S\<^sub>e\<^sub>t() +\<^sub>i\<^sub>n\<^sub>t if X ->includes\<^sub>S\<^sub>e\<^sub>t(x) then \<zero> else \<one> endif
+ "((X ->including\<^sub>B\<^sub>a\<^sub>g(x)) ->size\<^sub>B\<^sub>a\<^sub>g()) = (if \<delta> X and \<upsilon> x then
+                                     X ->size\<^sub>B\<^sub>a\<^sub>g() +\<^sub>i\<^sub>n\<^sub>t if X ->includes\<^sub>B\<^sub>a\<^sub>g(x) then \<zero> else \<one> endif
                                    else
                                      invalid
                                    endif)"
@@ -1875,31 +1844,31 @@ proof -
   apply(rule ext, rename_tac \<tau>)
   proof -
   fix \<tau>
-  have includes_notin: "\<not> \<tau> \<Turnstile> X->includes\<^sub>S\<^sub>e\<^sub>t(x) \<Longrightarrow> (\<delta> X) \<tau> = true \<tau> \<and> (\<upsilon> x) \<tau> = true \<tau> \<Longrightarrow>
-                        x \<tau> \<notin> \<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (X \<tau>)\<rceil>\<rceil>"
+  have includes_notin: "\<not> \<tau> \<Turnstile> X->includes\<^sub>B\<^sub>a\<^sub>g(x) \<Longrightarrow> (\<delta> X) \<tau> = true \<tau> \<and> (\<upsilon> x) \<tau> = true \<tau> \<Longrightarrow>
+                        x \<tau> \<notin> (Rep_Bag_base X \<tau>)"
   by(simp add: OclIncludes_def OclValid_def true_def)
 
-  have includes_def: "\<tau> \<Turnstile> X->includes\<^sub>S\<^sub>e\<^sub>t(x) \<Longrightarrow> \<tau> \<Turnstile> \<delta> X"
+  have includes_def: "\<tau> \<Turnstile> X->includes\<^sub>B\<^sub>a\<^sub>g(x) \<Longrightarrow> \<tau> \<Turnstile> \<delta> X"
   by (metis bot_fun_def OclIncludes_def OclValid_def defined3 foundation16)
 
-  have includes_val: "\<tau> \<Turnstile> X->includes\<^sub>S\<^sub>e\<^sub>t(x) \<Longrightarrow> \<tau> \<Turnstile> \<upsilon> x"
+  have includes_val: "\<tau> \<Turnstile> X->includes\<^sub>B\<^sub>a\<^sub>g(x) \<Longrightarrow> \<tau> \<Turnstile> \<upsilon> x"
   using foundation5 foundation6 by fastforce
 
   have ins_in_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e: "\<tau> \<Turnstile> \<delta> X \<Longrightarrow> \<tau> \<Turnstile> \<upsilon> x \<Longrightarrow>
-    \<lfloor>\<lfloor>insert (x \<tau>) \<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (X \<tau>)\<rceil>\<rceil>\<rfloor>\<rfloor> \<in> {X. X = \<bottom> \<or> X = null \<or> (\<forall>x\<in>\<lceil>\<lceil>X\<rceil>\<rceil>. x \<noteq> \<bottom>)}"
+    \<lfloor>\<lfloor>insert (x \<tau>) (Rep_Bag_base X \<tau>)\<rfloor>\<rfloor> \<in> {X. X = \<bottom> \<or> X = null \<or> (\<forall>x\<in>\<lceil>\<lceil>X\<rceil>\<rceil>. x \<noteq> \<bottom>)}"
    apply(simp add: bot_option_def null_option_def)
   by (metis (hide_lams, no_types) Set_inv_lemma foundation18' foundation5)
 
   have m : "\<And>\<tau>. (\<lambda>_. \<bottom>) = (\<lambda>_. invalid \<tau>)" by(rule ext, simp add:invalid_def)
   
-  show "X->including\<^sub>S\<^sub>e\<^sub>t(x)->size\<^sub>S\<^sub>e\<^sub>t() \<tau> = (if \<delta> X and \<upsilon> x
-                                     then X->size\<^sub>S\<^sub>e\<^sub>t() +\<^sub>i\<^sub>n\<^sub>t if X->includes\<^sub>S\<^sub>e\<^sub>t(x) then \<zero> else \<one> endif
+  show "X->including\<^sub>B\<^sub>a\<^sub>g(x)->size\<^sub>B\<^sub>a\<^sub>g() \<tau> = (if \<delta> X and \<upsilon> x
+                                     then X->size\<^sub>B\<^sub>a\<^sub>g() +\<^sub>i\<^sub>n\<^sub>t if X->includes\<^sub>B\<^sub>a\<^sub>g(x) then \<zero> else \<one> endif
                                      else invalid endif) \<tau>"
    apply(case_tac "\<tau> \<Turnstile> \<delta> X and \<upsilon> x", simp)
     apply(subst OclAdd\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r.cp0)
-    apply(case_tac "\<tau> \<Turnstile> X->includes\<^sub>S\<^sub>e\<^sub>t(x)", simp add: OclAdd\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r.cp0[symmetric])
-     apply(case_tac "\<tau> \<Turnstile> ((\<upsilon> (X->size\<^sub>S\<^sub>e\<^sub>t())) and not (\<delta> (X->size\<^sub>S\<^sub>e\<^sub>t())))", simp)
-      apply(drule foundation5[where P = "\<upsilon> X->size\<^sub>S\<^sub>e\<^sub>t()"], erule conjE)
+    apply(case_tac "\<tau> \<Turnstile> X->includes\<^sub>B\<^sub>a\<^sub>g(x)", simp add: OclAdd\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r.cp0[symmetric])
+     apply(case_tac "\<tau> \<Turnstile> ((\<upsilon> (X->size\<^sub>B\<^sub>a\<^sub>g())) and not (\<delta> (X->size\<^sub>B\<^sub>a\<^sub>g())))", simp)
+      apply(drule foundation5[where P = "\<upsilon> X->size\<^sub>B\<^sub>a\<^sub>g()"], erule conjE)
       apply(drule OclSize_infinite)
       apply(frule includes_def, drule includes_val, simp)
       apply(subst OclSize_def, subst OclIncluding_finite_rep_set, assumption+)
@@ -1934,14 +1903,14 @@ qed
 
 subsubsection{* Execution Rules on IsEmpty *}
 
-lemma [simp,code_unfold]: "Set{}->isEmpty\<^sub>S\<^sub>e\<^sub>t() = true"
+lemma [simp,code_unfold]: "Set{}->isEmpty\<^sub>B\<^sub>a\<^sub>g() = true"
 by(simp add: OclIsEmpty_def)
 
 lemma OclIsEmpty_including [simp]:
 assumes X_def: "\<tau> \<Turnstile> \<delta> X"
-    and X_finite: "finite \<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (X \<tau>)\<rceil>\<rceil>"
+    and X_finite: "finite (Rep_Bag_base X \<tau>)"
     and a_val: "\<tau> \<Turnstile> \<upsilon> a"
-shows "X->including\<^sub>S\<^sub>e\<^sub>t(a)->isEmpty\<^sub>S\<^sub>e\<^sub>t() \<tau> = false \<tau>"
+shows "X->including\<^sub>B\<^sub>a\<^sub>g(a)->isEmpty\<^sub>B\<^sub>a\<^sub>g() \<tau> = false \<tau>"
 proof -
  have A1 : "\<And>\<tau> X. X \<tau> = true \<tau> \<or> X \<tau> = false \<tau> \<Longrightarrow> (X and not X) \<tau> = false \<tau>"
  by (metis (no_types) OclAnd_false1 OclAnd_idem OclImplies_def OclNot3 OclNot_not OclOr_false1
@@ -1972,25 +1941,25 @@ qed
 
 subsubsection{* Execution Rules on NotEmpty *}
 
-lemma [simp,code_unfold]: "Set{}->notEmpty\<^sub>S\<^sub>e\<^sub>t() = false"
+lemma [simp,code_unfold]: "Set{}->notEmpty\<^sub>B\<^sub>a\<^sub>g() = false"
 by(simp add: OclNotEmpty_def)
 
 lemma OclNotEmpty_including [simp,code_unfold]:
 assumes X_def: "\<tau> \<Turnstile> \<delta> X"
-    and X_finite: "finite \<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (X \<tau>)\<rceil>\<rceil>"
+    and X_finite: "finite (Rep_Bag_base X \<tau>)"
     and a_val: "\<tau> \<Turnstile> \<upsilon> a"
-shows "X->including\<^sub>S\<^sub>e\<^sub>t(a)->notEmpty\<^sub>S\<^sub>e\<^sub>t() \<tau> = true \<tau>"
+shows "X->including\<^sub>B\<^sub>a\<^sub>g(a)->notEmpty\<^sub>B\<^sub>a\<^sub>g() \<tau> = true \<tau>"
  apply(simp add: OclNotEmpty_def)
  apply(subst cp_OclNot, subst OclIsEmpty_including, simp_all add: assms)
 by (metis OclNot4 cp_OclNot)
 
 subsubsection{* Execution Rules on Any *}
 
-lemma [simp,code_unfold]: "Set{}->any\<^sub>S\<^sub>e\<^sub>t() = null"
+lemma [simp,code_unfold]: "Set{}->any\<^sub>B\<^sub>a\<^sub>g() = null"
 by(rule ext, simp add: OclANY_def, simp add: false_def true_def)
 
 lemma OclANY_singleton_exec[simp,code_unfold]:
-      "(Set{}->including\<^sub>S\<^sub>e\<^sub>t(a))->any\<^sub>S\<^sub>e\<^sub>t() = a"
+      "(Set{}->including\<^sub>B\<^sub>a\<^sub>g(a))->any\<^sub>B\<^sub>a\<^sub>g() = a"
  apply(rule ext, rename_tac \<tau>, simp add: mtSet_def OclANY_def)
  apply(case_tac "\<tau> \<Turnstile> \<upsilon> a")
   apply(simp add: OclValid_def mtSet_defined[simplified mtSet_def]
@@ -2017,7 +1986,7 @@ by(simp add: cp_OclAnd[symmetric], rule impI, simp add: false_def true_def)
 
 subsubsection{* Execution Rules on Forall *}
 
-lemma OclForall_mtSet_exec[simp,code_unfold] :"((Set{})->forAll\<^sub>S\<^sub>e\<^sub>t(z| P(z))) = true"
+lemma OclForall_mtSet_exec[simp,code_unfold] :"((Set{})->forAll\<^sub>B\<^sub>a\<^sub>g(z| P(z))) = true"
 apply(simp add: OclForall_def)
 apply(subst mtSet_def)+
 apply(subst Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inverse, simp_all add: true_def)+
@@ -2025,26 +1994,26 @@ done
 
 
 text{* The following rule is a main theorem of our approach: From a denotational definition
-that assures consistency, but may be --- as in the case of the @{term "X->forAll\<^sub>S\<^sub>e\<^sub>t(x | P x)"} ---
+that assures consistency, but may be --- as in the case of the @{term "X->forAll\<^sub>B\<^sub>a\<^sub>g(x | P x)"} ---
 dauntingly complex, we derive operational rules that can serve as a gold-standard for operational
 execution, since they may be evaluated in whatever situation and according to whatever strategy.
-In the case of @{term "X->forAll\<^sub>S\<^sub>e\<^sub>t(x | P x)"}, the operational rule gives immediately a way to
+In the case of @{term "X->forAll\<^sub>B\<^sub>a\<^sub>g(x | P x)"}, the operational rule gives immediately a way to
 evaluation in any finite (in terms of conventional OCL: denotable) set, although the rule also
 holds for the infinite case:
 
-@{term "Integer\<^sub>n\<^sub>u\<^sub>l\<^sub>l ->forAll\<^sub>S\<^sub>e\<^sub>t(x | (Integer\<^sub>n\<^sub>u\<^sub>l\<^sub>l ->forAll\<^sub>S\<^sub>e\<^sub>t(y | x +\<^sub>i\<^sub>n\<^sub>t y \<triangleq> y +\<^sub>i\<^sub>n\<^sub>t x)))"}
+@{term "Integer\<^sub>n\<^sub>u\<^sub>l\<^sub>l ->forAll\<^sub>B\<^sub>a\<^sub>g(x | (Integer\<^sub>n\<^sub>u\<^sub>l\<^sub>l ->forAll\<^sub>B\<^sub>a\<^sub>g(y | x +\<^sub>i\<^sub>n\<^sub>t y \<triangleq> y +\<^sub>i\<^sub>n\<^sub>t x)))"}
 
 or even:
 
-@{term "Integer ->forAll\<^sub>S\<^sub>e\<^sub>t(x | (Integer ->forAll\<^sub>S\<^sub>e\<^sub>t(y | x +\<^sub>i\<^sub>n\<^sub>t y \<doteq> y +\<^sub>i\<^sub>n\<^sub>t x)))"}
+@{term "Integer ->forAll\<^sub>B\<^sub>a\<^sub>g(x | (Integer ->forAll\<^sub>B\<^sub>a\<^sub>g(y | x +\<^sub>i\<^sub>n\<^sub>t y \<doteq> y +\<^sub>i\<^sub>n\<^sub>t x)))"}
 
 are valid OCL statements in any context $\tau$.
 *}
 
 theorem OclForall_including_exec[simp,code_unfold] :
         assumes cp0 : "cp P"
-        shows         "((S->including\<^sub>S\<^sub>e\<^sub>t(x))->forAll\<^sub>S\<^sub>e\<^sub>t(z | P(z))) = (if \<delta> S and \<upsilon> x
-                                                                then P x and (S->forAll\<^sub>S\<^sub>e\<^sub>t(z | P(z)))
+        shows         "((S->including\<^sub>B\<^sub>a\<^sub>g(x))->forAll\<^sub>B\<^sub>a\<^sub>g(z | P(z))) = (if \<delta> S and \<upsilon> x
+                                                                then P x and (S->forAll\<^sub>B\<^sub>a\<^sub>g(z | P(z)))
                                                                 else invalid
                                                                 endif)"
 proof -
@@ -2061,7 +2030,7 @@ proof -
 
    have forall_including_invert : "\<And>\<tau> f. (f x \<tau> = f (\<lambda> _. x \<tau>) \<tau>) \<Longrightarrow>
                                           \<tau> \<Turnstile> (\<delta> S and \<upsilon> x) \<Longrightarrow>
-                                          (\<forall>x\<in>\<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (S->including\<^sub>S\<^sub>e\<^sub>t(x) \<tau>)\<rceil>\<rceil>. f (\<lambda>_. x) \<tau>) =
+                                          (\<forall>x\<in>\<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (S->including\<^sub>B\<^sub>a\<^sub>g(x) \<tau>)\<rceil>\<rceil>. f (\<lambda>_. x) \<tau>) =
                                             (f x \<tau> \<and> (\<forall>x\<in>\<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (S \<tau>)\<rceil>\<rceil>. f (\<lambda>_. x) \<tau>))"
            apply(drule foundation5, simp add: OclIncluding_def)
            apply(subst Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inverse)
@@ -2070,7 +2039,7 @@ proof -
 
    have exists_including_invert : "\<And>\<tau> f. (f x \<tau> = f (\<lambda> _. x \<tau>) \<tau>) \<Longrightarrow>
                                           \<tau> \<Turnstile> (\<delta> S and \<upsilon> x) \<Longrightarrow>
-                                          (\<exists>x\<in>\<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (S->including\<^sub>S\<^sub>e\<^sub>t(x) \<tau>)\<rceil>\<rceil>. f (\<lambda>_. x) \<tau>) =
+                                          (\<exists>x\<in>\<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (S->including\<^sub>B\<^sub>a\<^sub>g(x) \<tau>)\<rceil>\<rceil>. f (\<lambda>_. x) \<tau>) =
                                             (f x \<tau> \<or> (\<exists>x\<in>\<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (S \<tau>)\<rceil>\<rceil>. f (\<lambda>_. x) \<tau>))"
            apply(subst arg_cong[where f = "\<lambda>x. \<not>x",
                                 OF forall_including_invert[where f = "\<lambda>x \<tau>. \<not> (f x \<tau>)"],
@@ -2100,7 +2069,7 @@ proof -
    have C2 : "\<And>\<tau>. \<tau> \<Turnstile> (\<delta> S and \<upsilon> x) \<Longrightarrow>
                   P x \<tau> = null \<tau> \<or> (\<exists>x\<in>\<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (S \<tau>)\<rceil>\<rceil>. P (\<lambda>_. x) \<tau> = null \<tau>) \<Longrightarrow>
                   P x \<tau> = invalid \<tau> \<or> (\<exists>x\<in>\<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (S \<tau>)\<rceil>\<rceil>. P (\<lambda>_. x) \<tau> = invalid \<tau>) \<Longrightarrow>
-                  \<forall>x\<in>\<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (S->including\<^sub>S\<^sub>e\<^sub>t(x) \<tau>)\<rceil>\<rceil>. P (\<lambda>_. x) \<tau> \<noteq> false \<tau> \<Longrightarrow>
+                  \<forall>x\<in>\<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (S->including\<^sub>B\<^sub>a\<^sub>g(x) \<tau>)\<rceil>\<rceil>. P (\<lambda>_. x) \<tau> \<noteq> false \<tau> \<Longrightarrow>
                   invalid \<tau> = (P x and OclForall S P) \<tau>"
            apply(subgoal_tac "(\<delta> S)\<tau> = true \<tau>")
             prefer 2 apply(simp add: foundation10', simp add: OclValid_def)
@@ -2120,11 +2089,11 @@ proof -
            done
 
    have A : "\<And>\<tau>. \<tau> \<Turnstile> (\<delta> S and \<upsilon> x) \<Longrightarrow>
-                 OclForall (S->including\<^sub>S\<^sub>e\<^sub>t(x)) P \<tau> = (P x and OclForall S P) \<tau>"
+                 OclForall (S->including\<^sub>B\<^sub>a\<^sub>g(x)) P \<tau> = (P x and OclForall S P) \<tau>"
          proof - fix \<tau>
                  assume 0 : "\<tau> \<Turnstile> (\<delta> S and \<upsilon> x)"
                  let ?S = "\<lambda>ocl. P x \<tau> \<noteq> ocl \<tau> \<and> (\<forall>x\<in>\<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (S \<tau>)\<rceil>\<rceil>. P (\<lambda>_. x) \<tau> \<noteq> ocl \<tau>)"
-                 let ?S' = "\<lambda>ocl. \<forall>x\<in>\<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (S->including\<^sub>S\<^sub>e\<^sub>t(x) \<tau>)\<rceil>\<rceil>. P (\<lambda>_. x) \<tau> \<noteq> ocl \<tau>"
+                 let ?S' = "\<lambda>ocl. \<forall>x\<in>\<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (S->including\<^sub>B\<^sub>a\<^sub>g(x) \<tau>)\<rceil>\<rceil>. P (\<lambda>_. x) \<tau> \<noteq> ocl \<tau>"
                  let ?assms_1 = "?S' null"
                  let ?assms_2 = "?S' invalid"
                  let ?assms_3 = "?S' false"
@@ -2207,7 +2176,7 @@ proof -
         qed
 
    have B : "\<And>\<tau>. \<not> (\<tau> \<Turnstile> (\<delta> S and \<upsilon> x)) \<Longrightarrow>
-                 OclForall (S->including\<^sub>S\<^sub>e\<^sub>t(x)) P \<tau> = invalid \<tau>"
+                 OclForall (S->including\<^sub>B\<^sub>a\<^sub>g(x)) P \<tau> = invalid \<tau>"
            apply(rule foundation22[THEN iffD1])
            apply(simp only: foundation10' de_Morgan_conj foundation18'', elim disjE)
             apply(simp add:  defined_split, elim disjE)
@@ -2228,13 +2197,13 @@ qed
 subsubsection{* Execution Rules on Exists *}
 
 lemma OclExists_mtSet_exec[simp,code_unfold] :
-"((Set{})->exists\<^sub>S\<^sub>e\<^sub>t(z | P(z))) = false"
+"((Set{})->exists\<^sub>B\<^sub>a\<^sub>g(z | P(z))) = false"
 by(simp add: OclExists_def)
 
 lemma OclExists_including_exec[simp,code_unfold] :
  assumes cp: "cp P"
- shows "((S->including\<^sub>S\<^sub>e\<^sub>t(x))->exists\<^sub>S\<^sub>e\<^sub>t(z | P(z))) = (if \<delta> S and \<upsilon> x
-                                                 then P x or (S->exists\<^sub>S\<^sub>e\<^sub>t(z | P(z)))
+ shows "((S->including\<^sub>B\<^sub>a\<^sub>g(x))->exists\<^sub>B\<^sub>a\<^sub>g(z | P(z))) = (if \<delta> S and \<upsilon> x
+                                                 then P x or (S->exists\<^sub>B\<^sub>a\<^sub>g(z | P(z)))
                                                  else invalid
                                                  endif)"
  by(simp add: OclExists_def OclOr_def  cp OclNot_inject)
@@ -2242,7 +2211,7 @@ lemma OclExists_including_exec[simp,code_unfold] :
 
 subsubsection{* Execution Rules on Iterate *}
 
-lemma OclIterate_empty[simp,code_unfold]: "((Set{})->iterate\<^sub>S\<^sub>e\<^sub>t(a; x = A | P a x)) = A"
+lemma OclIterate_empty[simp,code_unfold]: "((Set{})->iterate\<^sub>B\<^sub>a\<^sub>g(a; x = A | P a x)) = A"
 proof -
  have C : "\<And> \<tau>. (\<delta> (\<lambda>\<tau>. Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor>\<lfloor>{}\<rfloor>\<rfloor>)) \<tau> = true \<tau>"
  by (metis (no_types) defined_def mtSet_def mtSet_defined null_fun_def)
@@ -2257,12 +2226,12 @@ qed
 text{* In particular, this does hold for A = null. *}
 
 lemma OclIterate_including:
-assumes S_finite:    "\<tau> \<Turnstile> \<delta>(S->size\<^sub>S\<^sub>e\<^sub>t())"
+assumes S_finite:    "\<tau> \<Turnstile> \<delta>(S->size\<^sub>B\<^sub>a\<^sub>g())"
 and     F_valid_arg: "(\<upsilon> A) \<tau> = (\<upsilon> (F a A)) \<tau>"
 and     F_commute:   "comp_fun_commute F"
 and     F_cp:        "\<And> x y \<tau>. F x y \<tau> = F (\<lambda> _. x \<tau>) y \<tau>"
-shows   "((S->including\<^sub>S\<^sub>e\<^sub>t(a))->iterate\<^sub>S\<^sub>e\<^sub>t(a; x =     A | F a x)) \<tau> =
-         ((S->excluding\<^sub>S\<^sub>e\<^sub>t(a))->iterate\<^sub>S\<^sub>e\<^sub>t(a; x = F a A | F a x)) \<tau>"
+shows   "((S->including\<^sub>B\<^sub>a\<^sub>g(a))->iterate\<^sub>B\<^sub>a\<^sub>g(a; x =     A | F a x)) \<tau> =
+         ((S->excluding\<^sub>B\<^sub>a\<^sub>g(a))->iterate\<^sub>B\<^sub>a\<^sub>g(a; x = F a A | F a x)) \<tau>"
 proof -
  have insert_in_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e : "\<And>\<tau>. (\<tau> \<Turnstile>(\<delta> S)) \<Longrightarrow> (\<tau> \<Turnstile>(\<upsilon> a)) \<Longrightarrow>
     \<lfloor>\<lfloor>insert (a \<tau>) \<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (S \<tau>)\<rceil>\<rceil>\<rfloor>\<rfloor> \<in> {X. X = bot \<or> X = null \<or> (\<forall>x\<in>\<lceil>\<lceil>X\<rceil>\<rceil>. x \<noteq> bot)}"
@@ -2334,46 +2303,46 @@ by(( subst (1 2 3 4 5) Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inverse
    | subst Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inject), (simp add: null_option_def bot_option_def)+)+
 
 definition "OclSelect_body :: _ \<Rightarrow> _ \<Rightarrow> _ \<Rightarrow> ('\<AA>, 'a option option) Set
-           \<equiv> (\<lambda>P x acc. if P x \<doteq> false then acc else acc->including\<^sub>S\<^sub>e\<^sub>t(x) endif)"
+           \<equiv> (\<lambda>P x acc. if P x \<doteq> false then acc else acc->including\<^sub>B\<^sub>a\<^sub>g(x) endif)"
 
 theorem OclSelect_including_exec[simp,code_unfold]:
  assumes P_cp : "cp P"
- shows "OclSelect (X->including\<^sub>S\<^sub>e\<^sub>t(y)) P = OclSelect_body P y (OclSelect (X->excluding\<^sub>S\<^sub>e\<^sub>t(y)) P)"
+ shows "OclSelect (X->including\<^sub>B\<^sub>a\<^sub>g(y)) P = OclSelect_body P y (OclSelect (X->excluding\<^sub>B\<^sub>a\<^sub>g(y)) P)"
  (is "_ = ?select")
 proof -
  have P_cp: "\<And>x \<tau>. P x \<tau> = P (\<lambda>_. x \<tau>) \<tau>" by(insert P_cp, auto simp: cp_def)
 
  have ex_including : "\<And>f X y \<tau>. \<tau> \<Turnstile> \<delta> X \<Longrightarrow> \<tau> \<Turnstile> \<upsilon> y \<Longrightarrow>
-                                   (\<exists>x\<in>\<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (X->including\<^sub>S\<^sub>e\<^sub>t(y) \<tau>)\<rceil>\<rceil>. f (P (\<lambda>_. x)) \<tau>) =
-                                   (f (P (\<lambda>_. y \<tau>)) \<tau> \<or> (\<exists>x\<in>\<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (X \<tau>)\<rceil>\<rceil>. f (P (\<lambda>_. x)) \<tau>))"
+                                   (\<exists>x\<in>\<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (X->including\<^sub>B\<^sub>a\<^sub>g(y) \<tau>)\<rceil>\<rceil>. f (P (\<lambda>_. x)) \<tau>) =
+                                   (f (P (\<lambda>_. y \<tau>)) \<tau> \<or> (\<exists>x\<in>(Rep_Bag_base X \<tau>). f (P (\<lambda>_. x)) \<tau>))"
       apply(simp add: OclIncluding_def OclValid_def)
        apply(subst Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inverse, simp, (rule disjI2)+)
       by (metis (hide_lams, no_types) OclValid_def Set_inv_lemma foundation18',simp)
 
  have al_including : "\<And>f X y \<tau>. \<tau> \<Turnstile> \<delta> X \<Longrightarrow> \<tau> \<Turnstile> \<upsilon> y \<Longrightarrow>
-                                   (\<forall>x\<in>\<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (X->including\<^sub>S\<^sub>e\<^sub>t(y) \<tau>)\<rceil>\<rceil>. f (P (\<lambda>_. x)) \<tau>) =
-                                   (f (P (\<lambda>_. y \<tau>)) \<tau> \<and> (\<forall>x\<in>\<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (X \<tau>)\<rceil>\<rceil>. f (P (\<lambda>_. x)) \<tau>))"
+                                   (\<forall>x\<in>\<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (X->including\<^sub>B\<^sub>a\<^sub>g(y) \<tau>)\<rceil>\<rceil>. f (P (\<lambda>_. x)) \<tau>) =
+                                   (f (P (\<lambda>_. y \<tau>)) \<tau> \<and> (\<forall>x\<in>(Rep_Bag_base X \<tau>). f (P (\<lambda>_. x)) \<tau>))"
       apply(simp add: OclIncluding_def OclValid_def)
        apply(subst Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inverse, simp, (rule disjI2)+)
       by (metis (hide_lams, no_types) OclValid_def Set_inv_lemma foundation18', simp)
 
  have ex_excluding1 : "\<And>f X y \<tau>. \<tau> \<Turnstile> \<delta> X \<Longrightarrow> \<tau> \<Turnstile> \<upsilon> y \<Longrightarrow> \<not> (f (P (\<lambda>_. y \<tau>)) \<tau>) \<Longrightarrow>
-                                   (\<exists>x\<in>\<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (X \<tau>)\<rceil>\<rceil>. f (P (\<lambda>_. x)) \<tau>) =
-                                   (\<exists>x\<in>\<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (X->excluding\<^sub>S\<^sub>e\<^sub>t(y) \<tau>)\<rceil>\<rceil>. f (P (\<lambda>_. x)) \<tau>)"
+                                   (\<exists>x\<in>(Rep_Bag_base X \<tau>). f (P (\<lambda>_. x)) \<tau>) =
+                                   (\<exists>x\<in>\<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (X->excluding\<^sub>B\<^sub>a\<^sub>g(y) \<tau>)\<rceil>\<rceil>. f (P (\<lambda>_. x)) \<tau>)"
       apply(simp add: OclExcluding_def OclValid_def)
        apply(subst Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inverse, simp, (rule disjI2)+)
       by (metis (no_types) Diff_iff OclValid_def Set_inv_lemma) auto
 
  have al_excluding1 : "\<And>f X y \<tau>. \<tau> \<Turnstile> \<delta> X \<Longrightarrow> \<tau> \<Turnstile> \<upsilon> y \<Longrightarrow> f (P (\<lambda>_. y \<tau>)) \<tau> \<Longrightarrow>
-                                   (\<forall>x\<in>\<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (X \<tau>)\<rceil>\<rceil>. f (P (\<lambda>_. x)) \<tau>) =
-                                   (\<forall>x\<in>\<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (X->excluding\<^sub>S\<^sub>e\<^sub>t(y) \<tau>)\<rceil>\<rceil>. f (P (\<lambda>_. x)) \<tau>)"
+                                   (\<forall>x\<in>(Rep_Bag_base X \<tau>). f (P (\<lambda>_. x)) \<tau>) =
+                                   (\<forall>x\<in>\<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (X->excluding\<^sub>B\<^sub>a\<^sub>g(y) \<tau>)\<rceil>\<rceil>. f (P (\<lambda>_. x)) \<tau>)"
       apply(simp add: OclExcluding_def OclValid_def)
       apply(subst Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inverse, simp, (rule disjI2)+)
       by (metis (no_types) Diff_iff OclValid_def Set_inv_lemma) auto
 
  have in_including : "\<And>f X y \<tau>. \<tau> \<Turnstile> \<delta> X \<Longrightarrow> \<tau> \<Turnstile> \<upsilon> y \<Longrightarrow>
-                                  {x \<in> \<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (X->including\<^sub>S\<^sub>e\<^sub>t(y) \<tau>)\<rceil>\<rceil>. f (P (\<lambda>_. x) \<tau>)} =
-                                   (let s = {x \<in> \<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (X \<tau>)\<rceil>\<rceil>. f (P (\<lambda>_. x) \<tau>)} in
+                                  {x \<in> \<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (X->including\<^sub>B\<^sub>a\<^sub>g(y) \<tau>)\<rceil>\<rceil>. f (P (\<lambda>_. x) \<tau>)} =
+                                   (let s = {x \<in> (Rep_Bag_base X \<tau>). f (P (\<lambda>_. x) \<tau>)} in
                                     if f (P (\<lambda>_. y \<tau>) \<tau>) then insert (y \<tau>) s else s)"
       apply(simp add: OclIncluding_def OclValid_def)
       apply(subst Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inverse, simp, (rule disjI2)+)
@@ -2382,27 +2351,27 @@ proof -
 
  let ?OclSet = "\<lambda>S. \<lfloor>\<lfloor>S\<rfloor>\<rfloor> \<in> {X. X = \<bottom> \<or> X = null \<or> (\<forall>x\<in>\<lceil>\<lceil>X\<rceil>\<rceil>. x \<noteq> \<bottom>)}"
 
- have diff_in_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e : "\<And>\<tau>. (\<delta> X) \<tau> = true \<tau> \<Longrightarrow> ?OclSet (\<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (X \<tau>)\<rceil>\<rceil> - {y \<tau>})"
+ have diff_in_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e : "\<And>\<tau>. (\<delta> X) \<tau> = true \<tau> \<Longrightarrow> ?OclSet ((Rep_Bag_base X \<tau>) - {y \<tau>})"
       apply(simp, (rule disjI2)+)
       by (metis (mono_tags) Diff_iff OclValid_def Set_inv_lemma)
 
  have ins_in_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e : "\<And>\<tau>. (\<delta> X) \<tau> = true \<tau> \<Longrightarrow> (\<upsilon> y) \<tau> = true \<tau> \<Longrightarrow>
-                           ?OclSet (insert (y \<tau>) {x \<in> \<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (X \<tau>)\<rceil>\<rceil>. P (\<lambda>_. x) \<tau> \<noteq> false \<tau>})"
+                           ?OclSet (insert (y \<tau>) {x \<in> (Rep_Bag_base X \<tau>). P (\<lambda>_. x) \<tau> \<noteq> false \<tau>})"
       apply(simp, (rule disjI2)+)
       by (metis (hide_lams, no_types) OclValid_def Set_inv_lemma foundation18')
 
  have ins_in_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e' : "\<And>\<tau>. (\<delta> X) \<tau> = true \<tau> \<Longrightarrow> (\<upsilon> y) \<tau> = true \<tau> \<Longrightarrow>
-        ?OclSet (insert (y \<tau>) {x \<in> \<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (X \<tau>)\<rceil>\<rceil>. x \<noteq> y \<tau> \<and> P (\<lambda>_. x) \<tau> \<noteq> false \<tau>})"
+        ?OclSet (insert (y \<tau>) {x \<in> (Rep_Bag_base X \<tau>). x \<noteq> y \<tau> \<and> P (\<lambda>_. x) \<tau> \<noteq> false \<tau>})"
       apply(simp, (rule disjI2)+)
       by (metis (hide_lams, no_types) OclValid_def Set_inv_lemma foundation18')
 
  have ins_in_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e'' : "\<And>\<tau>. (\<delta> X) \<tau> = true \<tau> \<Longrightarrow>
-        ?OclSet {x \<in> \<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (X \<tau>)\<rceil>\<rceil>. P (\<lambda>_. x) \<tau> \<noteq> false \<tau>}"
+        ?OclSet {x \<in> (Rep_Bag_base X \<tau>). P (\<lambda>_. x) \<tau> \<noteq> false \<tau>}"
       apply(simp, (rule disjI2)+)
       by (metis (hide_lams, no_types) OclValid_def Set_inv_lemma)
 
  have ins_in_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e''' : "\<And>\<tau>. (\<delta> X) \<tau> = true \<tau> \<Longrightarrow>
-        ?OclSet {x \<in> \<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (X \<tau>)\<rceil>\<rceil>. x \<noteq> y \<tau> \<and> P (\<lambda>_. x) \<tau> \<noteq> false \<tau>}"
+        ?OclSet {x \<in> (Rep_Bag_base X \<tau>). x \<noteq> y \<tau> \<and> P (\<lambda>_. x) \<tau> \<noteq> false \<tau>}"
       apply(simp, (rule disjI2)+)
       by(metis (hide_lams, no_types) OclValid_def Set_inv_lemma)
 
@@ -2410,12 +2379,12 @@ proof -
                              (if a then b else c endif) \<tau> = d \<tau>"
       by(simp add: OclIf_def OclValid_def)
 
- have invert_including : "\<And>P y \<tau>. P \<tau> = \<bottom> \<Longrightarrow> P->including\<^sub>S\<^sub>e\<^sub>t(y) \<tau> = \<bottom>"
+ have invert_including : "\<And>P y \<tau>. P \<tau> = \<bottom> \<Longrightarrow> P->including\<^sub>B\<^sub>a\<^sub>g(y) \<tau> = \<bottom>"
       by (metis (hide_lams, no_types) foundation16[THEN iffD1]
                 foundation18' OclIncluding_valid_args_valid)
 
  have exclude_defined : "\<And>\<tau>. \<tau> \<Turnstile> \<delta> X \<Longrightarrow>
-           (\<delta>(\<lambda>_. Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor>\<lfloor>{x\<in>\<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (X \<tau>)\<rceil>\<rceil>. x \<noteq> y \<tau> \<and> P (\<lambda>_. x) \<tau>\<noteq>false \<tau>}\<rfloor>\<rfloor>)) \<tau> = true \<tau>"
+           (\<delta>(\<lambda>_. Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor>\<lfloor>{x\<in>(Rep_Bag_base X \<tau>). x \<noteq> y \<tau> \<and> P (\<lambda>_. x) \<tau>\<noteq>false \<tau>}\<rfloor>\<rfloor>)) \<tau> = true \<tau>"
       apply(subst defined_def,
             simp add: false_def true_def bot_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def bot_fun_def null_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def null_fun_def)
       by(subst Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inject[OF ins_in_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e'''[simplified false_def]],
@@ -2428,14 +2397,14 @@ proof -
       by(subst cp_OclIf, simp add: cp_OclIf[symmetric] true_def)
 
  have OclSelect_body_bot: "\<And>\<tau>. \<tau> \<Turnstile> \<delta> X \<Longrightarrow> \<tau> \<Turnstile> \<upsilon> y \<Longrightarrow> P y \<tau> \<noteq> \<bottom> \<Longrightarrow>
-                               (\<exists>x\<in>\<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (X \<tau>)\<rceil>\<rceil>. P (\<lambda>_. x) \<tau> = \<bottom>) \<Longrightarrow> \<bottom> = ?select \<tau>"
+                               (\<exists>x\<in>(Rep_Bag_base X \<tau>). P (\<lambda>_. x) \<tau> = \<bottom>) \<Longrightarrow> \<bottom> = ?select \<tau>"
       apply(drule ex_excluding1[where X2 = X and y2 = y and f2 = "\<lambda>x \<tau>. x \<tau> = \<bottom>"],
             (simp add: P_cp[symmetric])+)
       apply(subgoal_tac "\<tau> \<Turnstile> (\<bottom> \<triangleq> ?select)", simp add: OclValid_def StrongEq_def true_def bot_fun_def)
       apply(simp add: OclSelect_body_def)
       apply(subst StrongEq_L_subst3[OF _ if_eq], simp, metis foundation18')
       apply(simp add: OclValid_def, subst StrongEq_def, subst true_def, simp)
-      apply(subgoal_tac "\<exists>x\<in>\<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (X->excluding\<^sub>S\<^sub>e\<^sub>t(y) \<tau>)\<rceil>\<rceil>. P (\<lambda>_. x) \<tau> = \<bottom> \<tau>")
+      apply(subgoal_tac "\<exists>x\<in>\<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (X->excluding\<^sub>B\<^sub>a\<^sub>g(y) \<tau>)\<rceil>\<rceil>. P (\<lambda>_. x) \<tau> = \<bottom> \<tau>")
        prefer 2 apply (metis bot_fun_def )
        apply(subst if_same[where d5 = "\<bottom>"])
         apply (metis defined7 transform1)
@@ -2471,7 +2440,7 @@ proof -
                       null_fun_def null_option_def)
       by (case_tac " P \<tau> = \<bottom> \<or> P \<tau> = null", simp_all add: true_def)
 
- have cp_OclSelect_body : "\<And>\<tau>. ?select \<tau> = OclSelect_body P y (\<lambda>_.(OclSelect (X->excluding\<^sub>S\<^sub>e\<^sub>t(y))P)\<tau>)\<tau>"
+ have cp_OclSelect_body : "\<And>\<tau>. ?select \<tau> = OclSelect_body P y (\<lambda>_.(OclSelect (X->excluding\<^sub>B\<^sub>a\<^sub>g(y))P)\<tau>)\<tau>"
       apply(simp add: OclSelect_body_def)
       by(subst (1 2) cp_OclIf, subst (1 2) OclIncluding.cp0, blast)
 
@@ -2489,7 +2458,7 @@ proof -
  show ?thesis
   apply(rule ext, rename_tac \<tau>)
   apply(subst OclSelect_def)
-  apply(case_tac "(\<delta> (X->including\<^sub>S\<^sub>e\<^sub>t(y))) \<tau> = true \<tau>", simp)
+  apply(case_tac "(\<delta> (X->including\<^sub>B\<^sub>a\<^sub>g(y))) \<tau> = true \<tau>", simp)
    apply(( subst ex_including | subst in_including),
          metis OclValid_def foundation5,
          metis OclValid_def foundation5)+
@@ -2577,7 +2546,7 @@ by(simp add: OclReject_def)
 
 lemma OclReject_including_exec[simp,code_unfold]:
  assumes P_cp : "cp P"
- shows "OclReject (X->including\<^sub>S\<^sub>e\<^sub>t(y)) P = OclSelect_body (not o P) y (OclReject (X->excluding\<^sub>S\<^sub>e\<^sub>t(y)) P)"
+ shows "OclReject (X->including\<^sub>B\<^sub>a\<^sub>g(y)) P = OclSelect_body (not o P) y (OclReject (X->excluding\<^sub>B\<^sub>a\<^sub>g(y)) P)"
  apply(simp add: OclReject_def comp_def, rule OclSelect_including_exec)
 by (metis  assms cp_intro'(5))
 
@@ -2589,28 +2558,28 @@ text{* OclIncluding *}
 lemma OclIncluding_idem0 :
  assumes "\<tau> \<Turnstile> \<delta> S"
      and "\<tau> \<Turnstile> \<upsilon> i"
-   shows "\<tau> \<Turnstile> (S->including\<^sub>S\<^sub>e\<^sub>t(i)->including\<^sub>S\<^sub>e\<^sub>t(i) \<triangleq> (S->including\<^sub>S\<^sub>e\<^sub>t(i)))"
+   shows "\<tau> \<Turnstile> (S->including\<^sub>B\<^sub>a\<^sub>g(i)->including\<^sub>B\<^sub>a\<^sub>g(i) \<triangleq> (S->including\<^sub>B\<^sub>a\<^sub>g(i)))"
 by(simp add: OclIncluding_includes OclIncludes_charn1 assms)
 
 (* Pure algebraic level *)
-theorem OclIncluding_idem[simp,code_unfold]: "((S :: ('\<AA>,'a::null)Set)->including\<^sub>S\<^sub>e\<^sub>t(i)->including\<^sub>S\<^sub>e\<^sub>t(i) = (S->including\<^sub>S\<^sub>e\<^sub>t(i)))"
+theorem OclIncluding_idem[simp,code_unfold]: "((S :: ('\<AA>,'a::null)Set)->including\<^sub>B\<^sub>a\<^sub>g(i)->including\<^sub>B\<^sub>a\<^sub>g(i) = (S->including\<^sub>B\<^sub>a\<^sub>g(i)))"
 proof -
-  have A: "\<And> \<tau>.   \<tau> \<Turnstile> (i \<triangleq> invalid)   \<Longrightarrow> (S->including\<^sub>S\<^sub>e\<^sub>t(i)->including\<^sub>S\<^sub>e\<^sub>t(i)) \<tau> = invalid \<tau>"
+  have A: "\<And> \<tau>.   \<tau> \<Turnstile> (i \<triangleq> invalid)   \<Longrightarrow> (S->including\<^sub>B\<^sub>a\<^sub>g(i)->including\<^sub>B\<^sub>a\<^sub>g(i)) \<tau> = invalid \<tau>"
             apply(rule foundation22[THEN iffD1])
             by(erule StrongEq_L_subst2_rev, simp,simp)
-  have A':"\<And> \<tau>.   \<tau> \<Turnstile> (i \<triangleq> invalid)   \<Longrightarrow> (S->including\<^sub>S\<^sub>e\<^sub>t(i)) \<tau> = invalid \<tau>"
+  have A':"\<And> \<tau>.   \<tau> \<Turnstile> (i \<triangleq> invalid)   \<Longrightarrow> (S->including\<^sub>B\<^sub>a\<^sub>g(i)) \<tau> = invalid \<tau>"
             apply(rule foundation22[THEN iffD1])
             by(erule StrongEq_L_subst2_rev, simp,simp)
-  have C: "\<And> \<tau>.   \<tau> \<Turnstile> (S \<triangleq> invalid)   \<Longrightarrow> (S->including\<^sub>S\<^sub>e\<^sub>t(i)->including\<^sub>S\<^sub>e\<^sub>t(i)) \<tau> = invalid \<tau>"
+  have C: "\<And> \<tau>.   \<tau> \<Turnstile> (S \<triangleq> invalid)   \<Longrightarrow> (S->including\<^sub>B\<^sub>a\<^sub>g(i)->including\<^sub>B\<^sub>a\<^sub>g(i)) \<tau> = invalid \<tau>"
             apply(rule foundation22[THEN iffD1])
             by(erule StrongEq_L_subst2_rev, simp,simp)
-  have C': "\<And> \<tau>.  \<tau> \<Turnstile> (S \<triangleq> invalid)   \<Longrightarrow> (S->including\<^sub>S\<^sub>e\<^sub>t(i)) \<tau> = invalid \<tau>"
+  have C': "\<And> \<tau>.  \<tau> \<Turnstile> (S \<triangleq> invalid)   \<Longrightarrow> (S->including\<^sub>B\<^sub>a\<^sub>g(i)) \<tau> = invalid \<tau>"
             apply(rule foundation22[THEN iffD1])
             by(erule StrongEq_L_subst2_rev, simp,simp)
-  have D: "\<And> \<tau>.   \<tau> \<Turnstile> (S \<triangleq> null)   \<Longrightarrow> (S->including\<^sub>S\<^sub>e\<^sub>t(i)->including\<^sub>S\<^sub>e\<^sub>t(i)) \<tau> = invalid \<tau>"
+  have D: "\<And> \<tau>.   \<tau> \<Turnstile> (S \<triangleq> null)   \<Longrightarrow> (S->including\<^sub>B\<^sub>a\<^sub>g(i)->including\<^sub>B\<^sub>a\<^sub>g(i)) \<tau> = invalid \<tau>"
             apply(rule foundation22[THEN iffD1])
             by(erule StrongEq_L_subst2_rev, simp,simp)
-  have D': "\<And> \<tau>.  \<tau> \<Turnstile> (S \<triangleq> null)   \<Longrightarrow> (S->including\<^sub>S\<^sub>e\<^sub>t(i)) \<tau> = invalid \<tau>"
+  have D': "\<And> \<tau>.  \<tau> \<Turnstile> (S \<triangleq> null)   \<Longrightarrow> (S->including\<^sub>B\<^sub>a\<^sub>g(i)) \<tau> = invalid \<tau>"
             apply(rule foundation22[THEN iffD1])
             by(erule StrongEq_L_subst2_rev, simp,simp)
   show ?thesis
@@ -2631,28 +2600,28 @@ text{* OclExcluding *}
 lemma OclExcluding_idem0 :
  assumes "\<tau> \<Turnstile> \<delta> S"
      and "\<tau> \<Turnstile> \<upsilon> i"
-   shows "\<tau> \<Turnstile> (S->excluding\<^sub>S\<^sub>e\<^sub>t(i)->excluding\<^sub>S\<^sub>e\<^sub>t(i) \<triangleq> (S->excluding\<^sub>S\<^sub>e\<^sub>t(i)))"
+   shows "\<tau> \<Turnstile> (S->excluding\<^sub>B\<^sub>a\<^sub>g(i)->excluding\<^sub>B\<^sub>a\<^sub>g(i) \<triangleq> (S->excluding\<^sub>B\<^sub>a\<^sub>g(i)))"
 by(simp add: OclExcluding_excludes OclExcludes_charn1 assms)
 
 (* Pure algebraic level *)
-theorem OclExcluding_idem[simp,code_unfold]: "((S->excluding\<^sub>S\<^sub>e\<^sub>t(i))->excluding\<^sub>S\<^sub>e\<^sub>t(i)) = (S->excluding\<^sub>S\<^sub>e\<^sub>t(i))"
+theorem OclExcluding_idem[simp,code_unfold]: "((S->excluding\<^sub>B\<^sub>a\<^sub>g(i))->excluding\<^sub>B\<^sub>a\<^sub>g(i)) = (S->excluding\<^sub>B\<^sub>a\<^sub>g(i))"
 proof -
-  have A: "\<And> \<tau>.   \<tau> \<Turnstile> (i \<triangleq> invalid)   \<Longrightarrow> (S->excluding\<^sub>S\<^sub>e\<^sub>t(i)->excluding\<^sub>S\<^sub>e\<^sub>t(i)) \<tau> = invalid \<tau>"
+  have A: "\<And> \<tau>.   \<tau> \<Turnstile> (i \<triangleq> invalid)   \<Longrightarrow> (S->excluding\<^sub>B\<^sub>a\<^sub>g(i)->excluding\<^sub>B\<^sub>a\<^sub>g(i)) \<tau> = invalid \<tau>"
             apply(rule foundation22[THEN iffD1])
             by(erule StrongEq_L_subst2_rev, simp,simp)
-  have A':"\<And> \<tau>.   \<tau> \<Turnstile> (i \<triangleq> invalid)   \<Longrightarrow> (S->excluding\<^sub>S\<^sub>e\<^sub>t(i)) \<tau> = invalid \<tau>"
+  have A':"\<And> \<tau>.   \<tau> \<Turnstile> (i \<triangleq> invalid)   \<Longrightarrow> (S->excluding\<^sub>B\<^sub>a\<^sub>g(i)) \<tau> = invalid \<tau>"
             apply(rule foundation22[THEN iffD1])
             by(erule StrongEq_L_subst2_rev, simp,simp)
-  have C: "\<And> \<tau>.   \<tau> \<Turnstile> (S \<triangleq> invalid)   \<Longrightarrow> (S->excluding\<^sub>S\<^sub>e\<^sub>t(i)->excluding\<^sub>S\<^sub>e\<^sub>t(i)) \<tau> = invalid \<tau>"
+  have C: "\<And> \<tau>.   \<tau> \<Turnstile> (S \<triangleq> invalid)   \<Longrightarrow> (S->excluding\<^sub>B\<^sub>a\<^sub>g(i)->excluding\<^sub>B\<^sub>a\<^sub>g(i)) \<tau> = invalid \<tau>"
             apply(rule foundation22[THEN iffD1])
             by(erule StrongEq_L_subst2_rev, simp,simp)
-  have C': "\<And> \<tau>.  \<tau> \<Turnstile> (S \<triangleq> invalid)   \<Longrightarrow> (S->excluding\<^sub>S\<^sub>e\<^sub>t(i)) \<tau> = invalid \<tau>"
+  have C': "\<And> \<tau>.  \<tau> \<Turnstile> (S \<triangleq> invalid)   \<Longrightarrow> (S->excluding\<^sub>B\<^sub>a\<^sub>g(i)) \<tau> = invalid \<tau>"
             apply(rule foundation22[THEN iffD1])
             by(erule StrongEq_L_subst2_rev, simp,simp)
-  have D: "\<And> \<tau>.   \<tau> \<Turnstile> (S \<triangleq> null)   \<Longrightarrow> (S->excluding\<^sub>S\<^sub>e\<^sub>t(i)->excluding\<^sub>S\<^sub>e\<^sub>t(i)) \<tau> = invalid \<tau>"
+  have D: "\<And> \<tau>.   \<tau> \<Turnstile> (S \<triangleq> null)   \<Longrightarrow> (S->excluding\<^sub>B\<^sub>a\<^sub>g(i)->excluding\<^sub>B\<^sub>a\<^sub>g(i)) \<tau> = invalid \<tau>"
             apply(rule foundation22[THEN iffD1])
             by(erule StrongEq_L_subst2_rev, simp,simp)
-  have D': "\<And> \<tau>.  \<tau> \<Turnstile> (S \<triangleq> null)   \<Longrightarrow> (S->excluding\<^sub>S\<^sub>e\<^sub>t(i)) \<tau> = invalid \<tau>"
+  have D': "\<And> \<tau>.  \<tau> \<Turnstile> (S \<triangleq> null)   \<Longrightarrow> (S->excluding\<^sub>B\<^sub>a\<^sub>g(i)) \<tau> = invalid \<tau>"
             apply(rule foundation22[THEN iffD1])
             by(erule StrongEq_L_subst2_rev, simp,simp)
   show ?thesis
@@ -2671,9 +2640,9 @@ text{* OclIncludes *}
 
 
 lemma OclIncludes_any[simp,code_unfold]:
-      "X->includes\<^sub>S\<^sub>e\<^sub>t(X->any\<^sub>S\<^sub>e\<^sub>t()) = (if \<delta> X then
-                                  if \<delta> (X->size\<^sub>S\<^sub>e\<^sub>t()) then not(X->isEmpty\<^sub>S\<^sub>e\<^sub>t())
-                                  else X->includes\<^sub>S\<^sub>e\<^sub>t(null) endif
+      "X->includes\<^sub>B\<^sub>a\<^sub>g(X->any\<^sub>B\<^sub>a\<^sub>g()) = (if \<delta> X then
+                                  if \<delta> (X->size\<^sub>B\<^sub>a\<^sub>g()) then not(X->isEmpty\<^sub>B\<^sub>a\<^sub>g())
+                                  else X->includes\<^sub>B\<^sub>a\<^sub>g(null) endif
                                 else invalid endif)"
 proof -
  have defined_inject_true : "\<And>\<tau> P. (\<delta> P) \<tau> \<noteq> true \<tau> \<Longrightarrow> (\<delta> P) \<tau> = false \<tau>"
@@ -2688,7 +2657,7 @@ proof -
 
 
 
- have notempty': "\<And>\<tau> X. \<tau> \<Turnstile> \<delta> X \<Longrightarrow> finite \<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (X \<tau>)\<rceil>\<rceil> \<Longrightarrow> not (X->isEmpty\<^sub>S\<^sub>e\<^sub>t()) \<tau> \<noteq> true \<tau> \<Longrightarrow>
+ have notempty': "\<And>\<tau> X. \<tau> \<Turnstile> \<delta> X \<Longrightarrow> finite (Rep_Bag_base X \<tau>) \<Longrightarrow> not (X->isEmpty\<^sub>B\<^sub>a\<^sub>g()) \<tau> \<noteq> true \<tau> \<Longrightarrow>
                         X \<tau> = Set{} \<tau>"
   apply(case_tac "X \<tau>", rename_tac X', simp add: mtSet_def Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inject)
   apply(erule disjE, metis (hide_lams, mono_tags) bot_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def bot_option_def foundation16)
@@ -2705,7 +2674,7 @@ proof -
   apply(simp add: Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inverse split: split_if_asm)
  by(simp add: true_def OclInt0_def OclNot_def StrictRefEq\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r StrongEq_def)
 
- have B: "\<And>X \<tau>. \<not> finite \<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (X \<tau>)\<rceil>\<rceil> \<Longrightarrow> (\<delta> (X->size\<^sub>S\<^sub>e\<^sub>t())) \<tau> = false \<tau>"
+ have B: "\<And>X \<tau>. \<not> finite (Rep_Bag_base X \<tau>) \<Longrightarrow> (\<delta> (X->size\<^sub>B\<^sub>a\<^sub>g())) \<tau> = false \<tau>"
   apply(subst cp_defined)
   apply(simp add: OclSize_def)
  by (metis bot_fun_def defined_def)
@@ -2716,18 +2685,18 @@ proof -
   apply(case_tac "(\<delta> X) \<tau> = true \<tau>",
         simp only: foundation20[simplified OclValid_def] cp_OclIf[symmetric], simp,
         subst (1 2) cp_OclAnd, simp add: cp_OclAnd[symmetric])
-   apply(case_tac "finite \<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (X \<tau>)\<rceil>\<rceil>")
+   apply(case_tac "finite (Rep_Bag_base X \<tau>)")
     apply(frule size_defined'[THEN iffD2, simplified OclValid_def], assumption)
     apply(subst (1 2 3 4) cp_OclIf, simp)
     apply(subst (1 2 3 4) cp_OclIf[symmetric], simp)
-    apply(case_tac "(X->notEmpty\<^sub>S\<^sub>e\<^sub>t()) \<tau> = true \<tau>", simp)
+    apply(case_tac "(X->notEmpty\<^sub>B\<^sub>a\<^sub>g()) \<tau> = true \<tau>", simp)
      apply(frule OclNotEmpty_has_elt[simplified OclValid_def], simp)
      apply(simp add: OclNotEmpty_def cp_OclIf[symmetric])
-     apply(subgoal_tac "(SOME y. y \<in> \<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (X \<tau>)\<rceil>\<rceil>) \<in> \<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (X \<tau>)\<rceil>\<rceil>", simp add: true_def)
+     apply(subgoal_tac "(SOME y. y \<in> (Rep_Bag_base X \<tau>)) \<in> (Rep_Bag_base X \<tau>)", simp add: true_def)
       apply(metis OclValid_def Set_inv_lemma foundation18' null_option_def true_def)
      apply(rule someI_ex, simp)
     apply(simp add: OclNotEmpty_def cp_valid[symmetric])
-    apply(subgoal_tac "\<not> (null \<tau> \<in> \<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (X \<tau>)\<rceil>\<rceil>)", simp)
+    apply(subgoal_tac "\<not> (null \<tau> \<in> (Rep_Bag_base X \<tau>))", simp)
      apply(subst OclIsEmpty_def, simp add: OclSize_def)
      apply(subst cp_OclNot, subst cp_OclOr, subst StrictRefEq\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r.cp0, subst cp_OclAnd,
            subst cp_OclNot, simp add: OclValid_def foundation20[simplified OclValid_def]
@@ -2740,10 +2709,10 @@ proof -
    apply(frule B)
    apply(subst (1 2 3 4) cp_OclIf, simp)
    apply(subst (1 2 3 4) cp_OclIf[symmetric], simp)
-   apply(case_tac "(X->notEmpty\<^sub>S\<^sub>e\<^sub>t()) \<tau> = true \<tau>", simp)
+   apply(case_tac "(X->notEmpty\<^sub>B\<^sub>a\<^sub>g()) \<tau> = true \<tau>", simp)
     apply(frule OclNotEmpty_has_elt[simplified OclValid_def], simp)
     apply(simp add: OclNotEmpty_def OclIsEmpty_def)
-    apply(subgoal_tac "X->size\<^sub>S\<^sub>e\<^sub>t() \<tau> = \<bottom>")
+    apply(subgoal_tac "X->size\<^sub>B\<^sub>a\<^sub>g() \<tau> = \<bottom>")
      prefer 2
      apply (metis (hide_lams, no_types) OclSize_def)
     apply(subst (asm) cp_OclNot, subst (asm) cp_OclOr, subst (asm) StrictRefEq\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r.cp0,
@@ -2760,11 +2729,11 @@ qed
 
 text{* OclSize *}
 
-lemma [simp,code_unfold]: "\<delta> (Set{} ->size\<^sub>S\<^sub>e\<^sub>t()) = true"
+lemma [simp,code_unfold]: "\<delta> (Set{} ->size\<^sub>B\<^sub>a\<^sub>g()) = true"
 by simp
 
 
-lemma [simp,code_unfold]: "\<delta> ((X ->including\<^sub>S\<^sub>e\<^sub>t(x)) ->size\<^sub>S\<^sub>e\<^sub>t()) = (\<delta>(X->size\<^sub>S\<^sub>e\<^sub>t()) and \<upsilon>(x))"
+lemma [simp,code_unfold]: "\<delta> ((X ->including\<^sub>B\<^sub>a\<^sub>g(x)) ->size\<^sub>B\<^sub>a\<^sub>g()) = (\<delta>(X->size\<^sub>B\<^sub>a\<^sub>g()) and \<upsilon>(x))"
 proof -
  have defined_inject_true : "\<And>\<tau> P. (\<delta> P) \<tau> \<noteq> true \<tau> \<Longrightarrow> (\<delta> P) \<tau> = false \<tau>"
       apply(simp add: defined_def true_def false_def bot_fun_def bot_option_def
@@ -2777,20 +2746,20 @@ proof -
       by (case_tac "P \<tau> = \<bottom>", simp_all add: true_def)
 
  have OclIncluding_finite_rep_set : "\<And>\<tau>. (\<delta> X and \<upsilon> x) \<tau> = true \<tau> \<Longrightarrow>
-                 finite \<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (X->including\<^sub>S\<^sub>e\<^sub>t(x) \<tau>)\<rceil>\<rceil> = finite \<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (X \<tau>)\<rceil>\<rceil>"
+                 finite \<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (X->including\<^sub>B\<^sub>a\<^sub>g(x) \<tau>)\<rceil>\<rceil> = finite (Rep_Bag_base X \<tau>)"
   apply(rule OclIncluding_finite_rep_set)
  by(metis OclValid_def foundation5)+
 
- have card_including_exec : "\<And>\<tau>. (\<delta> (\<lambda>_. \<lfloor>\<lfloor>int (card \<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (X->including\<^sub>S\<^sub>e\<^sub>t(x) \<tau>)\<rceil>\<rceil>)\<rfloor>\<rfloor>)) \<tau> =
-                                 (\<delta> (\<lambda>_. \<lfloor>\<lfloor>int (card \<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (X \<tau>)\<rceil>\<rceil>)\<rfloor>\<rfloor>)) \<tau>"
+ have card_including_exec : "\<And>\<tau>. (\<delta> (\<lambda>_. \<lfloor>\<lfloor>int (card \<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (X->including\<^sub>B\<^sub>a\<^sub>g(x) \<tau>)\<rceil>\<rceil>)\<rfloor>\<rfloor>)) \<tau> =
+                                 (\<delta> (\<lambda>_. \<lfloor>\<lfloor>int (card (Rep_Bag_base X \<tau>))\<rfloor>\<rfloor>)) \<tau>"
  by(simp add: defined_def bot_fun_def bot_option_def null_fun_def null_option_def)
 
  show ?thesis
   apply(rule ext, rename_tac \<tau>)
-  apply(case_tac "(\<delta> (X->including\<^sub>S\<^sub>e\<^sub>t(x)->size\<^sub>S\<^sub>e\<^sub>t())) \<tau> = true \<tau>", simp del: OclSize_including_exec)
-   apply(subst cp_OclAnd, subst cp_defined, simp only: cp_defined[of "X->including\<^sub>S\<^sub>e\<^sub>t(x)->size\<^sub>S\<^sub>e\<^sub>t()"],
+  apply(case_tac "(\<delta> (X->including\<^sub>B\<^sub>a\<^sub>g(x)->size\<^sub>B\<^sub>a\<^sub>g())) \<tau> = true \<tau>", simp del: OclSize_including_exec)
+   apply(subst cp_OclAnd, subst cp_defined, simp only: cp_defined[of "X->including\<^sub>B\<^sub>a\<^sub>g(x)->size\<^sub>B\<^sub>a\<^sub>g()"],
          simp add: OclSize_def)
-   apply(case_tac "((\<delta> X and \<upsilon> x) \<tau> = true \<tau> \<and> finite \<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (X->including\<^sub>S\<^sub>e\<^sub>t(x) \<tau>)\<rceil>\<rceil>)", simp)
+   apply(case_tac "((\<delta> X and \<upsilon> x) \<tau> = true \<tau> \<and> finite \<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (X->including\<^sub>B\<^sub>a\<^sub>g(x) \<tau>)\<rceil>\<rceil>)", simp)
     apply(erule conjE,
           simp add: OclIncluding_finite_rep_set[simplified OclValid_def] card_including_exec
                     cp_OclAnd[of "\<delta> X" "\<upsilon> x"]
@@ -2800,14 +2769,14 @@ proof -
           simp only: cp_OclAnd[THEN sym])
    apply(simp, simp add: defined_def true_def false_def bot_fun_def bot_option_def)
 
-  apply(drule defined_inject_true[of "X->including\<^sub>S\<^sub>e\<^sub>t(x)->size\<^sub>S\<^sub>e\<^sub>t()"],
+  apply(drule defined_inject_true[of "X->including\<^sub>B\<^sub>a\<^sub>g(x)->size\<^sub>B\<^sub>a\<^sub>g()"],
         simp del: OclSize_including_exec,
-        simp only: cp_OclAnd[of "\<delta> (X->size\<^sub>S\<^sub>e\<^sub>t())" "\<upsilon> x"],
-        simp add: cp_defined[of "X->including\<^sub>S\<^sub>e\<^sub>t(x)->size\<^sub>S\<^sub>e\<^sub>t()" ] cp_defined[of "X->size\<^sub>S\<^sub>e\<^sub>t()" ]
+        simp only: cp_OclAnd[of "\<delta> (X->size\<^sub>B\<^sub>a\<^sub>g())" "\<upsilon> x"],
+        simp add: cp_defined[of "X->including\<^sub>B\<^sub>a\<^sub>g(x)->size\<^sub>B\<^sub>a\<^sub>g()" ] cp_defined[of "X->size\<^sub>B\<^sub>a\<^sub>g()" ]
              del: OclSize_including_exec,
         simp add: OclSize_def card_including_exec
              del: OclSize_including_exec)
-  apply(case_tac "(\<delta> X and \<upsilon> x) \<tau> = true \<tau> \<and> finite \<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (X \<tau>)\<rceil>\<rceil>",
+  apply(case_tac "(\<delta> X and \<upsilon> x) \<tau> = true \<tau> \<and> finite (Rep_Bag_base X \<tau>)",
         simp add: OclIncluding_finite_rep_set[simplified OclValid_def] card_including_exec,
         simp only: cp_OclAnd[THEN sym],
         simp add: defined_def bot_fun_def)
@@ -2819,7 +2788,7 @@ proof -
  by(drule valid_inject_true[of "x"], simp add: cp_OclAnd[of _ "\<upsilon> x"])
 qed
 
-lemma [simp,code_unfold]: "\<delta> ((X ->excluding\<^sub>S\<^sub>e\<^sub>t(x)) ->size\<^sub>S\<^sub>e\<^sub>t()) = (\<delta>(X->size\<^sub>S\<^sub>e\<^sub>t()) and \<upsilon>(x))"
+lemma [simp,code_unfold]: "\<delta> ((X ->excluding\<^sub>B\<^sub>a\<^sub>g(x)) ->size\<^sub>B\<^sub>a\<^sub>g()) = (\<delta>(X->size\<^sub>B\<^sub>a\<^sub>g()) and \<upsilon>(x))"
 proof -
  have defined_inject_true : "\<And>\<tau> P. (\<delta> P) \<tau> \<noteq> true \<tau> \<Longrightarrow> (\<delta> P) \<tau> = false \<tau>"
       apply(simp add: defined_def true_def false_def bot_fun_def bot_option_def
@@ -2832,21 +2801,21 @@ proof -
       by (case_tac "P \<tau> = \<bottom>", simp_all add: true_def)
 
  have OclExcluding_finite_rep_set : "\<And>\<tau>. (\<delta> X and \<upsilon> x) \<tau> = true \<tau> \<Longrightarrow>
-                                     finite \<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (X->excluding\<^sub>S\<^sub>e\<^sub>t(x) \<tau>)\<rceil>\<rceil> =
-                                     finite \<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (X \<tau>)\<rceil>\<rceil>"
+                                     finite \<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (X->excluding\<^sub>B\<^sub>a\<^sub>g(x) \<tau>)\<rceil>\<rceil> =
+                                     finite (Rep_Bag_base X \<tau>)"
   apply(rule OclExcluding_finite_rep_set)
  by(metis OclValid_def foundation5)+
 
- have card_excluding_exec : "\<And>\<tau>. (\<delta> (\<lambda>_. \<lfloor>\<lfloor>int (card \<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (X->excluding\<^sub>S\<^sub>e\<^sub>t(x) \<tau>)\<rceil>\<rceil>)\<rfloor>\<rfloor>)) \<tau> =
-                                   (\<delta> (\<lambda>_. \<lfloor>\<lfloor>int (card \<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (X \<tau>)\<rceil>\<rceil>)\<rfloor>\<rfloor>)) \<tau>"
+ have card_excluding_exec : "\<And>\<tau>. (\<delta> (\<lambda>_. \<lfloor>\<lfloor>int (card \<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (X->excluding\<^sub>B\<^sub>a\<^sub>g(x) \<tau>)\<rceil>\<rceil>)\<rfloor>\<rfloor>)) \<tau> =
+                                   (\<delta> (\<lambda>_. \<lfloor>\<lfloor>int (card (Rep_Bag_base X \<tau>))\<rfloor>\<rfloor>)) \<tau>"
  by(simp add: defined_def bot_fun_def bot_option_def null_fun_def null_option_def)
 
  show ?thesis
   apply(rule ext, rename_tac \<tau>)
-  apply(case_tac "(\<delta> (X->excluding\<^sub>S\<^sub>e\<^sub>t(x)->size\<^sub>S\<^sub>e\<^sub>t())) \<tau> = true \<tau>", simp)
-   apply(subst cp_OclAnd, subst cp_defined, simp only: cp_defined[of "X->excluding\<^sub>S\<^sub>e\<^sub>t(x)->size\<^sub>S\<^sub>e\<^sub>t()"],
+  apply(case_tac "(\<delta> (X->excluding\<^sub>B\<^sub>a\<^sub>g(x)->size\<^sub>B\<^sub>a\<^sub>g())) \<tau> = true \<tau>", simp)
+   apply(subst cp_OclAnd, subst cp_defined, simp only: cp_defined[of "X->excluding\<^sub>B\<^sub>a\<^sub>g(x)->size\<^sub>B\<^sub>a\<^sub>g()"],
          simp add: OclSize_def)
-   apply(case_tac "((\<delta> X and \<upsilon> x) \<tau> = true \<tau> \<and> finite \<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (X->excluding\<^sub>S\<^sub>e\<^sub>t(x) \<tau>)\<rceil>\<rceil>)", simp)
+   apply(case_tac "((\<delta> X and \<upsilon> x) \<tau> = true \<tau> \<and> finite \<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (X->excluding\<^sub>B\<^sub>a\<^sub>g(x) \<tau>)\<rceil>\<rceil>)", simp)
     apply(erule conjE,
           simp add: OclExcluding_finite_rep_set[simplified OclValid_def] card_excluding_exec
                     cp_OclAnd[of "\<delta> X" "\<upsilon> x"]
@@ -2856,12 +2825,12 @@ proof -
           simp only: cp_OclAnd[THEN sym])
    apply(simp, simp add: defined_def true_def false_def bot_fun_def bot_option_def)
 
-  apply(drule defined_inject_true[of "X->excluding\<^sub>S\<^sub>e\<^sub>t(x)->size\<^sub>S\<^sub>e\<^sub>t()"],
+  apply(drule defined_inject_true[of "X->excluding\<^sub>B\<^sub>a\<^sub>g(x)->size\<^sub>B\<^sub>a\<^sub>g()"],
         simp,
-        simp only: cp_OclAnd[of "\<delta> (X->size\<^sub>S\<^sub>e\<^sub>t())" "\<upsilon> x"],
-        simp add: cp_defined[of "X->excluding\<^sub>S\<^sub>e\<^sub>t(x)->size\<^sub>S\<^sub>e\<^sub>t()" ] cp_defined[of "X->size\<^sub>S\<^sub>e\<^sub>t()" ],
+        simp only: cp_OclAnd[of "\<delta> (X->size\<^sub>B\<^sub>a\<^sub>g())" "\<upsilon> x"],
+        simp add: cp_defined[of "X->excluding\<^sub>B\<^sub>a\<^sub>g(x)->size\<^sub>B\<^sub>a\<^sub>g()" ] cp_defined[of "X->size\<^sub>B\<^sub>a\<^sub>g()" ],
         simp add: OclSize_def card_excluding_exec)
-  apply(case_tac "(\<delta> X and \<upsilon> x) \<tau> = true \<tau> \<and> finite \<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (X \<tau>)\<rceil>\<rceil>",
+  apply(case_tac "(\<delta> X and \<upsilon> x) \<tau> = true \<tau> \<and> finite (Rep_Bag_base X \<tau>)",
         simp add: OclExcluding_finite_rep_set[simplified OclValid_def] card_excluding_exec,
         simp only: cp_OclAnd[THEN sym],
         simp add: defined_def bot_fun_def)
@@ -2874,8 +2843,8 @@ proof -
 qed
 
 lemma [simp]:
- assumes X_finite: "\<And>\<tau>. finite \<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (X \<tau>)\<rceil>\<rceil>"
- shows "\<delta> ((X ->including\<^sub>S\<^sub>e\<^sub>t(x)) ->size\<^sub>S\<^sub>e\<^sub>t()) = (\<delta>(X) and \<upsilon>(x))"
+ assumes X_finite: "\<And>\<tau>. finite (Rep_Bag_base X \<tau>)"
+ shows "\<delta> ((X ->including\<^sub>B\<^sub>a\<^sub>g(x)) ->size\<^sub>B\<^sub>a\<^sub>g()) = (\<delta>(X) and \<upsilon>(x))"
 by(simp add: size_defined[OF X_finite] del: OclSize_including_exec)
 
 
@@ -2883,13 +2852,13 @@ text{* OclForall *}
 
 lemma OclForall_rep_set_false:
  assumes "\<tau> \<Turnstile> \<delta> X"
- shows "(OclForall X P \<tau> = false \<tau>) = (\<exists>x \<in> \<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (X \<tau>)\<rceil>\<rceil>. P (\<lambda>\<tau>. x) \<tau> = false \<tau>)"
+ shows "(OclForall X P \<tau> = false \<tau>) = (\<exists>x \<in> (Rep_Bag_base X \<tau>). P (\<lambda>\<tau>. x) \<tau> = false \<tau>)"
 by(insert assms, simp add: OclForall_def OclValid_def false_def true_def invalid_def
                            bot_fun_def bot_option_def null_fun_def null_option_def)
 
 lemma OclForall_rep_set_true:
  assumes "\<tau> \<Turnstile> \<delta> X"
- shows "(\<tau> \<Turnstile> OclForall X P) = (\<forall>x \<in> \<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (X \<tau>)\<rceil>\<rceil>. \<tau> \<Turnstile> P (\<lambda>\<tau>. x))"
+ shows "(\<tau> \<Turnstile> OclForall X P) = (\<forall>x \<in> (Rep_Bag_base X \<tau>). \<tau> \<Turnstile> P (\<lambda>\<tau>. x))"
 proof -
  have destruct_ocl : "\<And>x \<tau>. x = true \<tau> \<or> x = false \<tau> \<or> x = null \<tau> \<or> x = \<bottom> \<tau>"
   apply(case_tac x) apply (metis bot_Boolean_def)
@@ -2907,10 +2876,10 @@ proof -
   apply(rule impI, rule conjI, rule impI) apply (metis option.distinct(1))
   apply(rule impI, rule conjI, rule impI) apply (metis drop.simps)
   apply(intro conjI impI ballI)
-   proof - fix x show "\<forall>x\<in>\<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (X \<tau>)\<rceil>\<rceil>. P (\<lambda>_. x) \<tau> \<noteq> \<lfloor>None\<rfloor> \<Longrightarrow>
-                       \<forall>x\<in>\<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (X \<tau>)\<rceil>\<rceil>. \<exists>y. P (\<lambda>_. x) \<tau> = \<lfloor>y\<rfloor> \<Longrightarrow>
-                       \<forall>x\<in>\<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (X \<tau>)\<rceil>\<rceil>. P (\<lambda>_. x) \<tau> \<noteq> \<lfloor>\<lfloor>False\<rfloor>\<rfloor> \<Longrightarrow>
-                       x \<in> \<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (X \<tau>)\<rceil>\<rceil> \<Longrightarrow> P (\<lambda>\<tau>. x) \<tau> = \<lfloor>\<lfloor>True\<rfloor>\<rfloor>"
+   proof - fix x show "\<forall>x\<in>(Rep_Bag_base X \<tau>). P (\<lambda>_. x) \<tau> \<noteq> \<lfloor>None\<rfloor> \<Longrightarrow>
+                       \<forall>x\<in>(Rep_Bag_base X \<tau>). \<exists>y. P (\<lambda>_. x) \<tau> = \<lfloor>y\<rfloor> \<Longrightarrow>
+                       \<forall>x\<in>(Rep_Bag_base X \<tau>). P (\<lambda>_. x) \<tau> \<noteq> \<lfloor>\<lfloor>False\<rfloor>\<rfloor> \<Longrightarrow>
+                       x \<in> (Rep_Bag_base X \<tau>) \<Longrightarrow> P (\<lambda>\<tau>. x) \<tau> = \<lfloor>\<lfloor>True\<rfloor>\<rfloor>"
    apply(erule_tac x = x in ballE)+
    by(rule disjE4[OF destruct_ocl[of "P (\<lambda>\<tau>. x) \<tau>"]],
       (simp add: true_def false_def null_fun_def null_option_def bot_fun_def bot_option_def)+)
@@ -2937,7 +2906,7 @@ by(rule iffI, metis set_rev_mp, metis subsetI)
 
 lemma OclForall_iterate:
  assumes S_finite: "finite \<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (S \<tau>)\<rceil>\<rceil>"
-   shows "S->forAll\<^sub>S\<^sub>e\<^sub>t(x | P x) \<tau> = (S->iterate\<^sub>S\<^sub>e\<^sub>t(x; acc = true | acc and P x)) \<tau>"
+   shows "S->forAll\<^sub>B\<^sub>a\<^sub>g(x | P x) \<tau> = (S->iterate\<^sub>B\<^sub>a\<^sub>g(x; acc = true | acc and P x)) \<tau>"
 proof -
  have and_comm : "comp_fun_commute (\<lambda>x acc. acc and P x)"
   apply(simp add: comp_fun_commute_def comp_def)
@@ -2996,7 +2965,7 @@ proof -
 qed
 
 lemma OclForall_cong:
- assumes "\<And>x. x \<in> \<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (X \<tau>)\<rceil>\<rceil> \<Longrightarrow> \<tau> \<Turnstile> P (\<lambda>\<tau>. x) \<Longrightarrow> \<tau> \<Turnstile> Q (\<lambda>\<tau>. x)"
+ assumes "\<And>x. x \<in> (Rep_Bag_base X \<tau>) \<Longrightarrow> \<tau> \<Turnstile> P (\<lambda>\<tau>. x) \<Longrightarrow> \<tau> \<Turnstile> Q (\<lambda>\<tau>. x)"
  assumes P: "\<tau> \<Turnstile> OclForall X P"
  shows "\<tau> \<Turnstile> OclForall X Q"
 proof -
@@ -3009,7 +2978,7 @@ proof -
 qed
 
 lemma OclForall_cong':
- assumes "\<And>x. x \<in> \<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (X \<tau>)\<rceil>\<rceil> \<Longrightarrow> \<tau> \<Turnstile> P (\<lambda>\<tau>. x) \<Longrightarrow> \<tau> \<Turnstile> Q (\<lambda>\<tau>. x) \<Longrightarrow> \<tau> \<Turnstile> R (\<lambda>\<tau>. x)"
+ assumes "\<And>x. x \<in> (Rep_Bag_base X \<tau>) \<Longrightarrow> \<tau> \<Turnstile> P (\<lambda>\<tau>. x) \<Longrightarrow> \<tau> \<Turnstile> Q (\<lambda>\<tau>. x) \<Longrightarrow> \<tau> \<Turnstile> R (\<lambda>\<tau>. x)"
  assumes P: "\<tau> \<Turnstile> OclForall X P"
  assumes Q: "\<tau> \<Turnstile> OclForall X Q"
  shows "\<tau> \<Turnstile> OclForall X R"
@@ -3024,11 +2993,11 @@ qed
 
 text{* Strict Equality *}
 
-lemma StrictRefEq\<^sub>S\<^sub>e\<^sub>t_defined :
+lemma StrictRefEq\<^sub>B\<^sub>a\<^sub>g_defined :
  assumes x_def: "\<tau> \<Turnstile> \<delta> x"
  assumes y_def: "\<tau> \<Turnstile> \<delta> y"
  shows "((x::('\<AA>,'\<alpha>::null)Set) \<doteq> y) \<tau> =
-                (x->forAll\<^sub>S\<^sub>e\<^sub>t(z| y->includes\<^sub>S\<^sub>e\<^sub>t(z)) and (y->forAll\<^sub>S\<^sub>e\<^sub>t(z| x->includes\<^sub>S\<^sub>e\<^sub>t(z)))) \<tau>"
+                (x->forAll\<^sub>B\<^sub>a\<^sub>g(z| y->includes\<^sub>B\<^sub>a\<^sub>g(z)) and (y->forAll\<^sub>B\<^sub>a\<^sub>g(z| x->includes\<^sub>B\<^sub>a\<^sub>g(z)))) \<tau>"
 proof -
  have rep_set_inj : "\<And>\<tau>. (\<delta> x) \<tau> = true \<tau> \<Longrightarrow>
                          (\<delta> y) \<tau> = true \<tau> \<Longrightarrow>
@@ -3050,7 +3019,7 @@ proof -
  by(blast)
 
  show ?thesis
-  apply(simp add: StrictRefEq\<^sub>S\<^sub>e\<^sub>t StrongEq_def
+  apply(simp add: StrictRefEq\<^sub>B\<^sub>a\<^sub>g StrongEq_def
     foundation20[OF x_def, simplified OclValid_def]
     foundation20[OF y_def, simplified OclValid_def])
   apply(subgoal_tac "\<lfloor>\<lfloor>x \<tau> = y \<tau>\<rfloor>\<rfloor> = true \<tau> \<or> \<lfloor>\<lfloor>x \<tau> = y \<tau>\<rfloor>\<rfloor> = false \<tau>")
@@ -3077,10 +3046,10 @@ proof -
  by (metis OclValid_def rep_set_inj subset_antisym x_def y_def)
 qed
 
-lemma StrictRefEq\<^sub>S\<^sub>e\<^sub>t_exec[simp,code_unfold] :
+lemma StrictRefEq\<^sub>B\<^sub>a\<^sub>g_exec[simp,code_unfold] :
 "((x::('\<AA>,'\<alpha>::null)Set) \<doteq> y) =
   (if \<delta> x then (if \<delta> y
-                then ((x->forAll\<^sub>S\<^sub>e\<^sub>t(z| y->includes\<^sub>S\<^sub>e\<^sub>t(z)) and (y->forAll\<^sub>S\<^sub>e\<^sub>t(z| x->includes\<^sub>S\<^sub>e\<^sub>t(z)))))
+                then ((x->forAll\<^sub>B\<^sub>a\<^sub>g(z| y->includes\<^sub>B\<^sub>a\<^sub>g(z)) and (y->forAll\<^sub>B\<^sub>a\<^sub>g(z| x->includes\<^sub>B\<^sub>a\<^sub>g(z)))))
                 else if \<upsilon> y
                       then false (* x'->includes = null *)
                       else invalid
@@ -3106,27 +3075,27 @@ proof -
                   valid_inject_true[simplified OclValid_def],
         subst false_def, subst true_def, simp)
   apply(subst (1 2) cp_OclNot, simp, simp add: cp_OclNot[symmetric])
-  apply(simp add: StrictRefEq\<^sub>S\<^sub>e\<^sub>t_defined[simplified OclValid_def])
- by(simp add: StrictRefEq\<^sub>S\<^sub>e\<^sub>t StrongEq_def false_def true_def valid_def defined_def)
+  apply(simp add: StrictRefEq\<^sub>B\<^sub>a\<^sub>g_defined[simplified OclValid_def])
+ by(simp add: StrictRefEq\<^sub>B\<^sub>a\<^sub>g StrongEq_def false_def true_def valid_def defined_def)
 qed
 
-lemma StrictRefEq\<^sub>S\<^sub>e\<^sub>t_L_subst1 : "cp P \<Longrightarrow> \<tau> \<Turnstile> \<upsilon> x \<Longrightarrow> \<tau> \<Turnstile> \<upsilon> y \<Longrightarrow> \<tau> \<Turnstile> \<upsilon> P x \<Longrightarrow> \<tau> \<Turnstile> \<upsilon> P y \<Longrightarrow>
+lemma StrictRefEq\<^sub>B\<^sub>a\<^sub>g_L_subst1 : "cp P \<Longrightarrow> \<tau> \<Turnstile> \<upsilon> x \<Longrightarrow> \<tau> \<Turnstile> \<upsilon> y \<Longrightarrow> \<tau> \<Turnstile> \<upsilon> P x \<Longrightarrow> \<tau> \<Turnstile> \<upsilon> P y \<Longrightarrow>
     \<tau> \<Turnstile> (x::('\<AA>,'\<alpha>::null)Set) \<doteq> y \<Longrightarrow> \<tau> \<Turnstile> (P x ::('\<AA>,'\<alpha>::null)Set) \<doteq> P y"
- apply(simp only: StrictRefEq\<^sub>S\<^sub>e\<^sub>t OclValid_def)
+ apply(simp only: StrictRefEq\<^sub>B\<^sub>a\<^sub>g OclValid_def)
  apply(split split_if_asm)
   apply(simp add: StrongEq_L_subst1[simplified OclValid_def])
 by (simp add: invalid_def bot_option_def true_def)
 
 lemma OclIncluding_cong' :
 shows "\<tau> \<Turnstile> \<delta> s \<Longrightarrow> \<tau> \<Turnstile> \<delta> t \<Longrightarrow> \<tau> \<Turnstile> \<upsilon> x \<Longrightarrow>
-    \<tau> \<Turnstile> ((s::('\<AA>,'a::null)Set) \<doteq> t) \<Longrightarrow> \<tau> \<Turnstile> (s->including\<^sub>S\<^sub>e\<^sub>t(x) \<doteq> (t->including\<^sub>S\<^sub>e\<^sub>t(x)))"
+    \<tau> \<Turnstile> ((s::('\<AA>,'a::null)Set) \<doteq> t) \<Longrightarrow> \<tau> \<Turnstile> (s->including\<^sub>B\<^sub>a\<^sub>g(x) \<doteq> (t->including\<^sub>B\<^sub>a\<^sub>g(x)))"
 proof -
- have cp: "cp (\<lambda>s. (s->including\<^sub>S\<^sub>e\<^sub>t(x)))"
+ have cp: "cp (\<lambda>s. (s->including\<^sub>B\<^sub>a\<^sub>g(x)))"
   apply(simp add: cp_def, subst OclIncluding.cp0)
- by (rule_tac x = "(\<lambda>xab ab. ((\<lambda>_. xab)->including\<^sub>S\<^sub>e\<^sub>t(\<lambda>_. x ab)) ab)" in exI, simp)
+ by (rule_tac x = "(\<lambda>xab ab. ((\<lambda>_. xab)->including\<^sub>B\<^sub>a\<^sub>g(\<lambda>_. x ab)) ab)" in exI, simp)
 
  show "\<tau> \<Turnstile> \<delta> s \<Longrightarrow> \<tau> \<Turnstile> \<delta> t \<Longrightarrow> \<tau> \<Turnstile> \<upsilon> x \<Longrightarrow> \<tau> \<Turnstile> (s \<doteq> t) \<Longrightarrow> ?thesis"
-  apply(rule_tac P = "\<lambda>s. (s->including\<^sub>S\<^sub>e\<^sub>t(x))" in StrictRefEq\<^sub>S\<^sub>e\<^sub>t_L_subst1)
+  apply(rule_tac P = "\<lambda>s. (s->including\<^sub>B\<^sub>a\<^sub>g(x))" in StrictRefEq\<^sub>B\<^sub>a\<^sub>g_L_subst1)
        apply(rule cp)
       apply(simp add: foundation20) apply(simp add: foundation20)
     apply (simp add: foundation10 foundation6)+
@@ -3134,19 +3103,19 @@ proof -
 qed
 
 lemma OclIncluding_cong : "\<And>(s::('\<AA>,'a::null)Set) t x y \<tau>. \<tau> \<Turnstile> \<delta> t \<Longrightarrow> \<tau> \<Turnstile> \<upsilon> y \<Longrightarrow>
-                             \<tau> \<Turnstile> s \<doteq> t \<Longrightarrow> x = y \<Longrightarrow> \<tau> \<Turnstile> s->including\<^sub>S\<^sub>e\<^sub>t(x) \<doteq> (t->including\<^sub>S\<^sub>e\<^sub>t(y))"
+                             \<tau> \<Turnstile> s \<doteq> t \<Longrightarrow> x = y \<Longrightarrow> \<tau> \<Turnstile> s->including\<^sub>B\<^sub>a\<^sub>g(x) \<doteq> (t->including\<^sub>B\<^sub>a\<^sub>g(y))"
  apply(simp only:)
  apply(rule OclIncluding_cong', simp_all only:)
 by(auto simp: OclValid_def OclIf_def invalid_def bot_option_def OclNot_def split : split_if_asm)
 *)
 (* < *)
-(*lemma const_StrictRefEq\<^sub>S\<^sub>e\<^sub>t_empty : "const X \<Longrightarrow>  const (X \<doteq> Set{})" 
- apply(rule StrictRefEq\<^sub>S\<^sub>e\<^sub>t.const, assumption)
+(*lemma const_StrictRefEq\<^sub>B\<^sub>a\<^sub>g_empty : "const X \<Longrightarrow>  const (X \<doteq> Set{})" 
+ apply(rule StrictRefEq\<^sub>B\<^sub>a\<^sub>g.const, assumption)
 by(simp)
 
-lemma const_StrictRefEq\<^sub>S\<^sub>e\<^sub>t_including : 
- "const a \<Longrightarrow> const S \<Longrightarrow> const X \<Longrightarrow>  const (X \<doteq> S->including\<^sub>S\<^sub>e\<^sub>t(a))"
- apply(rule StrictRefEq\<^sub>S\<^sub>e\<^sub>t.const, assumption)
+lemma const_StrictRefEq\<^sub>B\<^sub>a\<^sub>g_including : 
+ "const a \<Longrightarrow> const S \<Longrightarrow> const X \<Longrightarrow>  const (X \<doteq> S->including\<^sub>B\<^sub>a\<^sub>g(a))"
+ apply(rule StrictRefEq\<^sub>B\<^sub>a\<^sub>g.const, assumption)
 by(rule const_OclIncluding)
 *)
 subsection{* Test Statements *}
