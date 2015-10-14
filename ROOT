@@ -44,7 +44,7 @@
 session "OCL-dirty" in "src" = HOL +
   description {* Featherweight OCL (Quick and Dirty) *}
   options [quick_and_dirty,document=pdf,document_output=document_generated,
-           document_variants="annex-a=annexa,-theory,-afp,-proof,-ML:document=afp,-annexa:outline=-annexa,afp,/proof,/ML",
+           document_variants="annex-a=annexa,-theory,-afp,-noexample,-proof,-ML:document=afp,-annexa,-noexample:outline=-annexa,-noexample,afp,/proof,/ML",
            show_question_marks = false]
   theories
     "../src/UML_Main"
@@ -72,7 +72,7 @@ session "OCL-dirty" in "src" = HOL +
 session "OCL" in "src" = HOL +
   description {* Featherweight OCL *}
   options [document=pdf,document_output=document_generated,
-           document_variants="annex-a=annexa,-theory,-afp,-proof,-ML:document=afp,-annexa:outline=-annexa,afp,/proof,/ML",
+           document_variants="annex-a=annexa,-theory,-afp,-noexample,-proof,-ML:document=afp,-annexa,-noexample:outline=-annexa,-noexample,afp,/proof,/ML",
            show_question_marks = false]
   theories
     "../src/UML_Main"
@@ -102,7 +102,7 @@ session "OCL" in "src" = HOL +
 session "OCL-all-dirty" in "src" = HOL +
   description {* Featherweight OCL (Long and Dirty) *}
   options [quick_and_dirty,document=pdf,document_output=document_generated,
-           document_variants="document=afp,-annexa",
+           document_variants="document=afp,-annexa,-noexample",
            show_question_marks = false]
   theories
     "../src/UML_Main"
@@ -158,7 +158,7 @@ session "OCL-all-dirty" in "src" = HOL +
 session "FOCL" in "src" = HOL +
   description {* Featherweight OCL (Compiler) *}
   options [document=pdf,document_output=document_generated,
-           document_variants="document=afp,-annexa",
+           document_variants="document=noexample,-afp,-annexa",
            show_question_marks = false]
   theories
     UML_OCL
@@ -183,7 +183,7 @@ session "FOCL" in "src" = HOL +
 session "FOCL-dirty" in "src" = HOL +
   description {* Featherweight OCL (Compiler) *}
   options [quick_and_dirty,document=pdf,document_output=document_generated,
-           document_variants="document=afp,-annexa",
+           document_variants="document=noexample,-afp,-annexa",
            show_question_marks = false]
   theories
     UML_OCL
