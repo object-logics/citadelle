@@ -62,7 +62,7 @@ where     "X \<cong> Y \<equiv>  \<lambda> \<tau>. \<lfloor>\<lfloor>Rep_Set_bas
 
 
 subsection{* As a Motivation for the (infinite) Type Construction: Type-Extensions as Bags 
-             \label{sec:type-extensions}*}
+             \label{sec:bag-type-extensions}*}
 
 text{* Our notion of typed bag goes beyond the usual notion of a finite executable bag and
 is powerful enough to capture \emph{the extension of a type} in UML and OCL. This means
