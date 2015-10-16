@@ -127,6 +127,8 @@ session "OCL-all-dirty" in "src" = HOL +
     "../examples/Flight_Model"
     "../examples/LinkedList"
     "../examples/archive/Simple_Model"
+    "../examples/archive/Toy_deep"
+    "../examples/archive/Toy_shallow"
 
     "../src/compiler/Aux_proof"
     "../src/compiler/Aux_tactic"
