@@ -55,7 +55,11 @@ generation_syntax [ shallow (generation_semantics [ design ])
                             (*SORRY*) (*no_dirty*)
                   (*, syntax_print*) ]
 
-Class Person < Planet
+Class B < A
+
+Class A < Person
+
+Class Person (*< Planet*)
   Attributes salary : Integer (*\<acute>int\<acute>*)
 End
 
@@ -64,6 +68,9 @@ Association boss
           Person [0 \<bullet>\<bullet> 1] Role boss
 End
 
+End!
+
+(*
 Class Planet < Galaxy
   Attributes wormhole : UnlimitedNatural
              weight : Integer
@@ -132,5 +139,5 @@ Context Planet
             , "abc", "\<AA>\<BB>\<CC>\<DD>\<EE>\<FF>" ]*)
 
 lemmas [simp,code_unfold] = dot_accessor
-
+*)
 end

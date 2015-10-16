@@ -111,6 +111,8 @@ Enum Week
   [ Mon, Tue, Wed, Thu, Fri, Sat, Sun ]
 End!
 
+find_theorems name:Reservation
+
 (*
 (* Illustration of a wrong model transition: *)
 Instance R00 :: Reservation = [ id = 00, flight = [ F1 ], "next" = R11 ]
@@ -171,6 +173,20 @@ Context f: Flight
   Inv B : "f .fl_res ->size\<^sub>S\<^sub>e\<^sub>q() \<le>\<^sub>i\<^sub>n\<^sub>t (f .seats)"
   Inv C : "f .passengers ->select\<^sub>S\<^sub>e\<^sub>t(p | p .oclIsTypeOf(Client))
                           \<doteq> ((f .fl_res)->collect\<^sub>S\<^sub>e\<^sub>q(c | c .client .oclAsType(Person))->asSet\<^sub>S\<^sub>e\<^sub>q())"
+
+find_theorems name : Flight "\<zero> <\<^sub>i\<^sub>n\<^sub>t (_ .seats)"
+
+section{* Model Analysis:  A satisfiable *}
+
+context pre_post_\<sigma>\<^sub>1_\<sigma>\<^sub>2
+begin
+term state_\<sigma>\<^sub>1
+
+lemma "\<exists> \<tau>. Flight_A \<tau>"
+apply(rule_tac x="(\<sigma>\<^sub>1,\<sigma>\<^sub>2)" in exI)
+oops
+
+end
 
 Context r: Reservation
   Inv A : "\<zero> <\<^sub>i\<^sub>n\<^sub>t (r .id)"

@@ -95,11 +95,12 @@ Context Bank :: withdraw (c : Client, account_id : Integer, amount:Integer)
 
 
 Context Bank :: get_balance (c : Client, account_id : Integer) : Integer
-  Pre  "(self .managed_accounts) ->exists\<^sub>S\<^sub>e\<^sub>t(X | (X .owner) \<doteq> c and 
-                                                ((X .account_id) \<doteq> account_id))"
-  Post "let A = self .managed_accounts ->select\<^sub>S\<^sub>e\<^sub>t(X | (X .owner) \<doteq> c and ((X .account_id) \<doteq> account_id)) 
+  Pre  client_exists: "(self .managed_accounts) ->exists\<^sub>S\<^sub>e\<^sub>t(X | (X .owner) \<doteq> c and 
+                                                              ((X .account_id) \<doteq> account_id))"
+  Post spec: "let A = self .managed_accounts ->select\<^sub>S\<^sub>e\<^sub>t(X | (X .owner) \<doteq> c and ((X .account_id) \<doteq> account_id)) 
                                         ->any\<^sub>S\<^sub>e\<^sub>t()
-        in  result \<doteq> (A .balance)"
+        in  result \<triangleq> (A .balance)"
+(*  Post frame:"Set{} ->oclIsModifiedOnly()" *)
 
 lemmas [simp,code_unfold] = dot_accessor
 
@@ -147,19 +148,55 @@ where     "val2Mon f \<equiv> (\<lambda>\<sigma>. if \<exists>\<sigma>'. \<exist
                              then Some(SOME(d,\<sigma>'). ((\<sigma>,\<sigma>') \<Turnstile> (f \<triangleq> (\<lambda>_. d)))) 
                              else None)"
 
+definition "bind_SE' f1 f2 = bind_SE f1 (f2 o K)"
+
 syntax    (xsymbols)
           "_bind_SE'" :: "[pttrn,('o,'\<sigma>)MON\<^sub>S\<^sub>E,('o','\<sigma>)MON\<^sub>S\<^sub>E] \<Rightarrow> ('o','\<sigma>)MON\<^sub>S\<^sub>E" 
           ("(2 _ \<longleftarrow> _; _)" [5,8,8]8)
 translations 
-          "x \<longleftarrow> f; g" == "CONST bind_SE (CONST val2Mon (f)) (% x . g)"
+          "x \<longleftarrow> f; g" == "CONST bind_SE' (CONST val2Mon (f)) (% x . g)"
 
 no_notation valid_SE (infix "\<Turnstile>" 15)
-notation valid_SE (infix "\<TTurnstile>" 15)
+notation valid_SE (infix "\<Turnstile>\<^sub>M\<^sub>o\<^sub>n" 15)
 
-term "\<sigma> \<TTurnstile> ( r \<longleftarrow> (bank :: \<cdot>Bank) .get_balance(c , a1) ;
-             _ \<longleftarrow> bank .deposit(c, a1, a) ;
-             _ \<longleftarrow> bank .withdraw(c , a1, b) ;
-             r' \<longleftarrow> bank .get_balance(c , a1) ; 
-             return (\<exists> \<tau>. (\<tau> \<Turnstile> ((\<lambda>_. r) +\<^sub>i\<^sub>n\<^sub>t a -\<^sub>i\<^sub>n\<^sub>t b \<doteq> (\<lambda>_. r')))))"
+lemma get_balanceE :
+assumes 1: "\<sigma> \<Turnstile>\<^sub>M\<^sub>o\<^sub>n ( r  \<longleftarrow> (self :: \<cdot>Bank) .get_balance(c , a1) ; M r)"
+and     2: "(\<sigma>,\<sigma>')\<Turnstile>(self .managed_accounts@pre) ->exists\<^sub>S\<^sub>e\<^sub>t(X | (X .owner@pre) \<doteq> c and 
+                                                ((X .account_id@pre) \<doteq> a1))" 
+and     3: "\<sigma>' = \<sigma>"
+and     4: "(\<sigma>,\<sigma>')\<Turnstile>(let A = self .managed_accounts ->select\<^sub>S\<^sub>e\<^sub>t(X | (X .owner) \<doteq> c and ((X .account_id) \<doteq> a1)) 
+                                        ->any\<^sub>S\<^sub>e\<^sub>t()
+                    in  result  \<triangleq> (A .balance)) "
+shows      "\<sigma>' \<Turnstile>\<^sub>M\<^sub>o\<^sub>n  (M (\<lambda>_. (result (\<sigma>,\<sigma>')))) "
+oops
+
+lemma get_balanceS :
+assumes     1: "(\<sigma>,\<sigma>')\<Turnstile>(self .managed_accounts@pre) ->exists\<^sub>S\<^sub>e\<^sub>t(X | (X .owner@pre) \<doteq> c and 
+                                                ((X .account_id@pre) \<doteq> a1))" 
+and     2: "\<sigma>' = \<sigma>"
+and     3: "(\<sigma>,\<sigma>')\<Turnstile>(let A = self .managed_accounts ->select\<^sub>S\<^sub>e\<^sub>t(X | (X .owner) \<doteq> c and ((X .account_id) \<doteq> a1)) 
+                                        ->any\<^sub>S\<^sub>e\<^sub>t()
+                    in  result  \<triangleq> (A .balance)) "
+shows      "(\<sigma> \<Turnstile>\<^sub>M\<^sub>o\<^sub>n ( r  \<longleftarrow> (self :: \<cdot>Bank) .get_balance(c , a1) ; M r)) = 
+            (\<sigma>' \<Turnstile>\<^sub>M\<^sub>o\<^sub>n  (M (\<lambda>_. (result (\<sigma>,\<sigma>'))))) "
+oops
+
+
+
+lemma valid_sequence: 
+assumes client_account_defined : "\<forall> \<sigma> . (\<sigma>\<^sub>0, \<sigma>) \<Turnstile> bank .managed_accounts@pre->exists\<^sub>S\<^sub>e\<^sub>t(X|X .owner@pre \<doteq> c and (X .account_id@pre \<doteq> a1))" 
+shows
+           "\<sigma>\<^sub>0 \<Turnstile>\<^sub>M\<^sub>o\<^sub>n ( r  \<longleftarrow> (bank :: \<cdot>Bank) .get_balance(c , a1) ;
+                     _  \<longleftarrow> bank .deposit(c, a1, a) ;
+                     _  \<longleftarrow> bank .withdraw(c , a1, b) ;
+                     r' \<longleftarrow> bank .get_balance(c , a1) ; 
+                     assert\<^sub>S\<^sub>E (\<lambda>\<sigma>.  ((\<sigma>,\<sigma>) \<Turnstile> (r +\<^sub>i\<^sub>n\<^sub>t a -\<^sub>i\<^sub>n\<^sub>t b \<doteq> r'))))"
+(*apply(subst get_balanceS)
+apply(rule client_account_defined[THEN spec])
+apply(rule refl)
+apply(simp only:Let_def)
+apply(rule UML_Logic.StrongEq_L_refl)
+*)
+oops
 
 end
