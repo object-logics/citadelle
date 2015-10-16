@@ -268,6 +268,7 @@ then we could obtain at the end a parsed Isabelle Meta-Model in Isabelle.\<close
 
 definition "map_class_arg_only_var = map_class_arg_only_var_gen (\<lambda>s e. Term_postunary s (Term_basic e))"
 definition "map_class_arg_only_var' = map_class_arg_only_var'_gen (\<lambda>s e. Term_postunary s (Term_basic e))"
+definition "map_class_arg_only_var'' = map_class_arg_only_var''_gen (\<lambda>s e. Term_postunary s (Term_basic e))"
 
 definition "split_ty name = L.map (\<lambda>s. hol_split (s @@ String.isub name)) [datatype_ext_name, datatype_name]"
 

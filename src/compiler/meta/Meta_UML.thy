@@ -649,6 +649,7 @@ definition "map_class_arg_only_var0 = (\<lambda>f_expr f_app f_lattr isub_name n
    , (var_in_pre_state, var_at_when_hol_pre, var_at_when_ocl_pre)])))"
 definition "map_class_arg_only_var_gen f_expr f1 f2 = map_class_arg_only0 (map_class_arg_only_var0 f_expr f1 (\<lambda>l. [l])) (map_class_arg_only_var0 f_expr f2 (\<lambda> (_, Tinh l, _) \<Rightarrow> L.map (\<lambda> OclClass _ l _ \<Rightarrow> l) l))"
 definition "map_class_arg_only_var'_gen f_expr f = map_class_arg_only0 (map_class_arg_only_var0 f_expr f (\<lambda>l. [l])) (map_class_arg_only_var0 f_expr f (\<lambda> (_, Tinh l, _) \<Rightarrow> L.map (\<lambda> OclClass _ l _ \<Rightarrow> l) l))"
+definition "map_class_arg_only_var''_gen f_expr f = map_class_arg_only (map_class_arg_only_var0 f_expr f (\<lambda>l. [l]))"
 definition "map_class_one f_l f expr =
   (case f_l (fst (fold_class (\<lambda>isub_name name l_attr l_inh l_inh_sib next_dataty _. ((isub_name, name, l_attr, l_inh, l_inh_sib, next_dataty), ())) () expr)) of
      (isub_name, name, l_attr, l_inh, l_inh_sib, next_dataty) # _ \<Rightarrow>

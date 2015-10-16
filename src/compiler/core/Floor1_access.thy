@@ -516,7 +516,11 @@ definition "print_access_is_repr = start_map'''' O.lemma o (\<lambda>expr design
  (let is_design = design_analysis = Gen_only_design
     ; App_a = \<lambda>l. C.apply (if is_design then [] else l)
     ; App_d = \<lambda>l. C.apply (if is_design then l else []) in
-  map_class_arg_only_var'
+  (if is_design then
+     (* TODO extend the support to object inherited attributes *)
+     map_class_arg_only_var''
+   else
+     map_class_arg_only_var')
     (\<lambda>isub_name name (var_in_when_state, dot_at_when) attr_ty isup_attr dot_attr.
       case attr_ty of OclTy_object (OclTyObj (OclTyCore ty_obj) _) \<Rightarrow>
      (let ty_mult = TyObjN_role_multip (TyObj_to ty_obj) in
