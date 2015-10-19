@@ -100,7 +100,7 @@ Context Bank :: get_balance (c : Client, account_id : Integer) : Integer
   Post spec: "let A = self .managed_accounts ->select\<^sub>S\<^sub>e\<^sub>t(X | (X .owner) \<doteq> c and ((X .account_id) \<doteq> account_id)) 
                                         ->any\<^sub>S\<^sub>e\<^sub>t()
         in  result \<triangleq> (A .balance)"
-(*  Post frame:"Set{} ->oclIsModifiedOnly()" *)
+  Post frame:"(Set{} :: \<cdot>Set(\<langle>\<langle>ty\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y\<rangle>\<^sub>\<bottom>\<rangle>\<^sub>\<bottom>)) ->oclIsModifiedOnly()"
 
 lemmas [simp,code_unfold] = dot_accessor
 

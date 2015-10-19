@@ -45,20 +45,40 @@ begin
 context Print
 begin
 
-fun of_pure_term where "of_pure_term l e = (\<lambda>
-    Const s _ \<Rightarrow> To_string s
-  | Free s _ \<Rightarrow> To_string s
-  | App t1 t2 \<Rightarrow> \<open>(%s) (%s)\<close> (of_pure_term l t1) (of_pure_term l t2)
-  | Abs s _ t \<Rightarrow>
-      let s = To_string s in
-      \<open>(\<lambda> %s. %s)\<close> s (of_pure_term (s # l) t)
+fun of_pure_typ where "of_pure_typ e = (\<lambda>
+    Type s l \<Rightarrow> if s \<triangleq> \<langle>''fun''\<rangle> then
+                  \<open>(%s)\<close> (String_concat \<open> \<Rightarrow> \<close> (List.map of_pure_typ l))
+                else if s \<triangleq> \<langle>''Product_Type.prod''\<rangle> then
+                  \<open>(%s)\<close> (String_concat \<open> \<times> \<close> (List.map of_pure_typ l))
+                else
+                  \<open>%s%s\<close> (case l of [] \<Rightarrow> \<open>\<close>
+                                  | _ \<Rightarrow> \<open>(%s) \<close> (String_concat \<open>, \<close> (List.map of_pure_typ l)))
+                         (To_string s)
+  | TFree _ _ \<Rightarrow> \<open>_\<close>) e"
+
+definition "pure_typ0 show_t s t =
+ (let s = To_string s in
+  if show_t then
+    \<open>(%s :: %s)\<close> s (of_pure_typ t)
+  else
+    s)"
+
+fun of_pure_term where "of_pure_term show_t l e = (\<lambda>
+    Const s t \<Rightarrow> pure_typ0 show_t s t
+  | Free s t \<Rightarrow> pure_typ0 show_t s t
+  | App t1 t2 \<Rightarrow> \<open>(%s) (%s)\<close> (of_pure_term show_t l t1) (of_pure_term show_t l t2)
+  | Abs s st t \<Rightarrow>
+      \<open>(\<lambda> %s. %s)\<close> (pure_typ0 show_t s st) (of_pure_term show_t (To_string s # l) t)
   | Bound n \<Rightarrow> \<open>%s\<close> (l ! nat_of_natural n)) e"
 
 end
 
 lemmas [code] =
   (* def *)
+  Print.pure_typ0_def
+
   (* fun *)
+  Print.of_pure_typ.simps
   Print.of_pure_term.simps
 
 end

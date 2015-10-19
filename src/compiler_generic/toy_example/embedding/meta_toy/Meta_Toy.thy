@@ -102,6 +102,7 @@ record toy_association =        ToyAss_type     :: toy_association_type
 datatype toy_ctxt_prefix = ToyCtxtPre | ToyCtxtPost
 
 datatype toy_ctxt_term = T_pure "term"
+                                "string option" (* represents the unparsed version of the term *)
                        | T_to_be_parsed string (* raw, it includes extra quoting characters like DEL (char 127) *)
                                         string (* same string but escaped without those quoting characters *)
                        | T_lambda string toy_ctxt_term

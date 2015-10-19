@@ -161,7 +161,7 @@ structure From = struct
  end
 
  fun ocl_ctxt_term thy expr =
-   META.T_pure (Pure.term (Syntax.read_term (Proof_Context.init_global thy) expr))
+   META.T_pure (Pure.term (Syntax.read_term (Proof_Context.init_global thy) expr), SOME (string expr))
 end
 \<close>
 
@@ -550,22 +550,24 @@ fun all_meta aux ret = let open META open META_overload in fn
           let fun aux e = case e of 
             T_to_be_parsed (s, _) => SOME let val t = Syntax.read_term (Proof_Context.init_global thy)
                                                                        (To_string0 s) in
-                                          (t, Term.add_frees t [])
+                                          (t, s, Term.add_frees t [])
                                           end
           | T_lambda (a, e) =>
             Option.map
-              (fn (e, l_free) => 
-               let val a = To_string0 a 
-                   val (t, l_free) = case List.partition (fn (x, _) => x = a) l_free of
+              (fn (e, s, l_free) => 
+               let val a0 = To_string0 a 
+                   val (t, l_free) = case List.partition (fn (x, _) => x = a0) l_free of
                                        ([], l_free) => (Term.TFree ("'a", ["HOL.type"]), l_free)
                                      | ([(_, t)], l_free) => (t, l_free) in
-               (lambda (Term.Free (a, t)) e, l_free)
+               (lambda ( Term.Free (a0, t)) e
+                       , META.String_concatWith (From.string "", [From.string "(% ", a, From.string ". ", s, From.string ")"])
+                       , l_free)
                end)
               (aux e)
           | _ => NONE in
           case aux e of
             NONE => error "nested pure expression not expected"
-          | SOME (e, _) => META.T_pure (From.Pure.term e)
+          | SOME (e, s, _) => META.T_pure (From.Pure.term e, SOME s)
           end) meta) thy
 end
 

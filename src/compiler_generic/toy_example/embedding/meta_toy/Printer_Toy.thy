@@ -56,7 +56,8 @@ definition "concatWith l =
 declare[[cartouche_type' = "fun\<^sub>p\<^sub>r\<^sub>i\<^sub>n\<^sub>t\<^sub>f"]]
 
 fun of_ctxt2_term_aux where "of_ctxt2_term_aux l e =
- (\<lambda> T_pure pure \<Rightarrow> concatWith l (of_pure_term [] pure)
+ (\<lambda> T_pure pure o_s \<Rightarrow> (case o_s of None \<Rightarrow> concatWith l (of_pure_term True [] pure)
+                                  | Some s \<Rightarrow> To_string s)
   | T_to_be_parsed _ s \<Rightarrow> concatWith l (To_string s)
   | T_lambda s c \<Rightarrow> of_ctxt2_term_aux (s # l) c) e"
 definition "of_ctxt2_term = of_ctxt2_term_aux []"

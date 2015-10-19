@@ -222,7 +222,7 @@ definition "of_toy_ctxt_prefix a b = rec_toy_ctxt_prefix
   (b \<open>ToyCtxtPost\<close>)"
 
 definition "of_toy_ctxt_term a b = (\<lambda>f0 f1 f2. rec_toy_ctxt_term f0 f1 (co1 K f2))
-  (ap1 a (b \<open>T_pure\<close>) (of_pure_term a b))
+  (ap2 a (b \<open>T_pure\<close>) (of_pure_term a b) (of_option a b (of_string a b)))
   (ap2 a (b \<open>T_to_be_parsed\<close>) (of_string a b) (of_string a b))
   (ar2 a (b \<open>T_lambda\<close>) (of_string a b))"
 
