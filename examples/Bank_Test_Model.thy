@@ -98,9 +98,9 @@ Context Bank :: get_balance (c : Client, account_id : Integer) : Integer
   Pre  client_exists: "(self .managed_accounts) ->exists\<^sub>S\<^sub>e\<^sub>t(X | (X .owner) \<doteq> c and 
                                                               ((X .account_id) \<doteq> account_id))"
   Post spec: "let A = self .managed_accounts ->select\<^sub>S\<^sub>e\<^sub>t(X | (X .owner) \<doteq> c and ((X .account_id) \<doteq> account_id)) 
-                                        ->any\<^sub>S\<^sub>e\<^sub>t()
-        in  result \<triangleq> (A .balance)"
-  Post frame:"(Set{} :: \<cdot>Set(\<langle>\<langle>ty\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y\<rangle>\<^sub>\<bottom>\<rangle>\<^sub>\<bottom>)) ->oclIsModifiedOnly()"
+                                             ->any\<^sub>S\<^sub>e\<^sub>t()
+              in  result \<triangleq> (A .balance)"
+  Post frame: "(Set{} :: \<cdot>Set(\<langle>\<langle>ty\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y\<rangle>\<^sub>\<bottom>\<rangle>\<^sub>\<bottom>)) ->oclIsModifiedOnly()"
 
 lemmas [simp,code_unfold] = dot_accessor
 
@@ -171,7 +171,7 @@ shows      "\<sigma>' \<Turnstile>\<^sub>M\<^sub>o\<^sub>n  (M (\<lambda>_. (res
 oops
 
 lemma get_balanceS :
-assumes     1: "(\<sigma>,\<sigma>')\<Turnstile>(self .managed_accounts@pre) ->exists\<^sub>S\<^sub>e\<^sub>t(X | (X .owner@pre) \<doteq> c and 
+assumes 1: "(\<sigma>,\<sigma>')\<Turnstile>(self .managed_accounts@pre) ->exists\<^sub>S\<^sub>e\<^sub>t(X | (X .owner@pre) \<doteq> c and 
                                                 ((X .account_id@pre) \<doteq> a1))" 
 and     2: "\<sigma>' = \<sigma>"
 and     3: "(\<sigma>,\<sigma>')\<Turnstile>(let A = self .managed_accounts ->select\<^sub>S\<^sub>e\<^sub>t(X | (X .owner) \<doteq> c and ((X .account_id) \<doteq> a1)) 
