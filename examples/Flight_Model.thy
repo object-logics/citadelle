@@ -174,6 +174,13 @@ Context f: Flight
 
 section{* Model Analysis: A satisfiable *}
 
+lemma "pp_\<sigma>\<^sub>1_\<sigma>\<^sub>2 \<tau>"
+by(simp add: pp_\<sigma>\<^sub>1_\<sigma>\<^sub>2_def,
+   default,
+   simp add: pp_oid_\<sigma>\<^sub>1_\<sigma>\<^sub>2,
+   (simp add: pp_object_\<sigma>\<^sub>1_\<sigma>\<^sub>2)+,
+   (simp add: pp_oid_\<sigma>\<^sub>1_\<sigma>\<^sub>2)+)
+
 context pre_post_\<sigma>\<^sub>1_\<sigma>\<^sub>2
 begin
 term state_\<sigma>\<^sub>1

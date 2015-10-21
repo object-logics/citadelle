@@ -62,16 +62,18 @@ subsection\<open>Preliminaries\<close>
 datatype ('a, 'b) embedding = Embed_theories "('a \<Rightarrow> 'b \<Rightarrow> all_meta list \<times> 'b) list"
                             | Embed_locale "'a \<Rightarrow> 'b \<Rightarrow> semi__locale \<times> 'b"
                                            "('a \<Rightarrow> 'b \<Rightarrow> semi__theory list \<times> 'b) list"
+                                           "('a \<Rightarrow> 'b \<Rightarrow> all_meta list \<times> 'b) list"
 
 type_synonym 'a embedding' = "('a, compiler_env_config) embedding" (* polymorphism weakening needed by code_reflect *)
 
 definition "L_fold f =
- (\<lambda> Embed_theories l \<Rightarrow> List.fold f l
-  | Embed_locale loc_data l \<Rightarrow>
-      f (\<lambda>a b.
+ (let f_locale = \<lambda>loc_data l.
+    f (\<lambda>a b.
           let (loc_data, b) = loc_data a b
             ; (l, b) = List.fold (\<lambda>f0. \<lambda>(l, b) \<Rightarrow> let (x, b) = f0 a b in (x # l, b)) l ([], b) in
-          ([META_semi__theories (Theories_locale loc_data (rev l))], b)))"
+          ([META_semi__theories (Theories_locale loc_data (rev l))], b)) in
+  \<lambda> Embed_theories l \<Rightarrow> List.fold f l
+  | Embed_locale loc_data l_loc l_th \<Rightarrow> List.fold f l_th o f_locale loc_data l_loc)"
 
 subsection\<open>Assembling Translations\<close>
 
@@ -367,14 +369,18 @@ definition "thy_def_state = (\<lambda> Floor1 \<Rightarrow> Embed_theories
                                            , Floor2_examp.print_examp_def_st_dom_lemmas
                                            , Floor2_examp.print_examp_def_st_perm
                                            , Floor2_examp.print_examp_def_st_allinst
-                                           , Floor2_examp.print_examp_def_st_defassoc_typecheck ])"
+                                           , Floor2_examp.print_examp_def_st_defassoc_typecheck ]
+                                           [ Floor2_examp.print_examp_def_st_def_interp ])"
 definition "thy_def_pre_post = (\<lambda> Floor1 \<Rightarrow> Embed_theories 
                                               [ Floor1_examp.print_pre_post ]
                                 | Floor2 \<Rightarrow> Embed_locale
                                               Floor2_examp.print_pre_post_locale
                                               [ Floor2_examp.print_pre_post_interp
+                                              , Floor2_examp.print_pre_post_def_state
                                               , Floor2_examp.print_pre_post_wff
-                                              , Floor2_examp.print_pre_post_where ])"
+                                              , Floor2_examp.print_pre_post_where ]
+                                              [ Floor2_examp.print_pre_post_def_interp
+                                              , Floor2_examp.print_pre_post_lemmas_oid ])"
 definition "thy_ctxt = (\<lambda> Floor1 \<Rightarrow> Embed_theories 
                                       [ Floor1_ctxt.print_ctxt ]
                         | Floor2 \<Rightarrow> Embed_theories 
