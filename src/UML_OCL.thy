@@ -49,6 +49,9 @@ imports  "UML_Main"
          "compiler/Generator_dynamic"
 begin
 
+no_notation valid_SE (infix "\<Turnstile>" 15)
+notation valid_SE (infix "\<Turnstile>\<^sub>M\<^sub>o\<^sub>n" 15)
+
 generation_syntax [ (*deep
                       (*(generation_semantics [ analysis (*, oid_start 10*) ])*)
                       (THEORY Model_generated)

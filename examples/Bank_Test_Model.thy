@@ -156,9 +156,6 @@ syntax    (xsymbols)
 translations 
           "x \<longleftarrow> f; g" == "CONST bind_SE' (CONST val2Mon (f)) (% x . g)"
 
-no_notation valid_SE (infix "\<Turnstile>" 15)
-notation valid_SE (infix "\<Turnstile>\<^sub>M\<^sub>o\<^sub>n" 15)
-
 lemma get_balanceE :
 assumes 1: "\<sigma> \<Turnstile>\<^sub>M\<^sub>o\<^sub>n ( r  \<longleftarrow> (self :: \<cdot>Bank) .get_balance(c , a1) ; M r)"
 and     2: "(\<sigma>,\<sigma>')\<Turnstile>(self .managed_accounts@pre) ->exists\<^sub>S\<^sub>e\<^sub>t(X | (X .owner@pre) \<doteq> c and 
