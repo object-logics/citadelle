@@ -391,15 +391,22 @@ notation   OclNotEmpty    ("_->notEmpty\<^sub>S\<^sub>e\<^sub>q'(')" (*[66]*))
 
 subsection{* Definition: Any *}
 
-definition "OclANY x = (\<lambda> \<tau>.
-  if x \<tau> = invalid \<tau> then
-    \<bottom>
-  else
-    case drop (drop (Rep_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e (x \<tau>))) of [] \<Rightarrow> \<bottom>
-                                              | l \<Rightarrow> hd l)"
+(* Slight breach of naming convention in order to avoid naming conflict on constant.*)
+definition OclANY   :: "[('\<AA>,'\<alpha>::null) Sequence] \<Rightarrow> ('\<AA>,'\<alpha>) val"
+where     "OclANY x = (\<lambda> \<tau>. if (\<upsilon> x) \<tau> = true \<tau>
+                            then if (\<delta> x and OclNotEmpty x) \<tau> = true \<tau>
+                                 then hd \<lceil>\<lceil>Rep_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e (x \<tau>)\<rceil>\<rceil>
+                                 else null \<tau>
+                            else \<bottom> )"
 notation   OclANY   ("_->any\<^sub>S\<^sub>e\<^sub>q'(')")
 
 (*TODO Locale - Equivalent*)  
+
+(* actually, this definition covers only: X->any\<^sub>S\<^sub>e\<^sub>q(true) of the standard, which foresees
+a (totally correct) high-level definition
+source->any\<^sub>S\<^sub>e\<^sub>q(iterator | body) =
+source->select(iterator | body)->asSequence()->first(). Since we don't have sequences,
+we have to go for a direct---restricted---definition. *)
 
 subsection{* Definition (future operators) *}
 
@@ -534,6 +541,25 @@ proof -
  done
 qed
 
+subsubsection{* Execution Rules on Size *}
+
+lemma [simp,code_unfold]: "Sequence{} ->size\<^sub>S\<^sub>e\<^sub>q() = \<zero>"
+by(simp add: OclSize_def)
+
+subsubsection{* Execution Rules on IsEmpty *}
+
+lemma [simp,code_unfold]: "Sequence{}->isEmpty\<^sub>S\<^sub>e\<^sub>q() = true"
+by(simp add: OclIsEmpty_def)
+
+subsubsection{* Execution Rules on NotEmpty *}
+
+lemma [simp,code_unfold]: "Sequence{}->notEmpty\<^sub>S\<^sub>e\<^sub>q() = false"
+by(simp add: OclNotEmpty_def)
+
+subsubsection{* Execution Rules on Any *}
+
+lemma [simp,code_unfold]: "Sequence{}->any\<^sub>S\<^sub>e\<^sub>q() = null"
+by(rule ext, simp add: OclANY_def, simp add: false_def true_def)
 
 (* < *)
 

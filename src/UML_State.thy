@@ -1046,7 +1046,14 @@ definition "select_object_any\<^sub>S\<^sub>e\<^sub>t f s_set =
     \<bottom>
   endif)"
 definition "select_object\<^sub>S\<^sub>e\<^sub>q = select_object mtSequence UML_Sequence.OclIncluding id"
-definition "select_object_any\<^sub>S\<^sub>e\<^sub>q f s_set = UML_Sequence.OclANY (select_object\<^sub>S\<^sub>e\<^sub>q f s_set)"
+definition "select_object_any0\<^sub>S\<^sub>e\<^sub>q f s_set = UML_Sequence.OclANY (select_object\<^sub>S\<^sub>e\<^sub>q f s_set)"
+definition "select_object_any\<^sub>S\<^sub>e\<^sub>q f s_set = 
+ (let s = select_object\<^sub>S\<^sub>e\<^sub>q f s_set in
+  if s->size\<^sub>S\<^sub>e\<^sub>q() \<triangleq> \<one> then
+    s->any\<^sub>S\<^sub>e\<^sub>q()
+  else
+    \<bottom>
+  endif)"
 definition "select_object\<^sub>P\<^sub>a\<^sub>i\<^sub>r f1 f2 = (\<lambda>(a,b). OclPair (f1 a) (f2 b))"
 
 subsection{* Validity and Definedness Properties *}
@@ -1105,6 +1112,26 @@ lemma fold_val_elem\<^sub>S\<^sub>e\<^sub>t:
     apply (metis (hide_lams, mono_tags) foundation10' foundation20)+
 by(simp add: assms)
 
+lemma select_object_any_defined0\<^sub>S\<^sub>e\<^sub>q:
+ assumes def_sel: "\<tau> \<Turnstile> \<delta> (select_object_any0\<^sub>S\<^sub>e\<^sub>q f s_set)"
+ shows "s_set \<noteq> []"
+ apply(insert def_sel, case_tac s_set)
+  apply(simp add: select_object_any0\<^sub>S\<^sub>e\<^sub>q_def select_object\<^sub>S\<^sub>e\<^sub>q_def select_object_def
+                  defined_def OclValid_def
+                  false_def true_def bot_fun_def bot_option_def
+             split: split_if_asm)
+by(simp)
+
+lemma select_object_any_defined0\<^sub>S\<^sub>e\<^sub>t:
+ assumes def_sel: "\<tau> \<Turnstile> \<delta> (select_object_any0\<^sub>S\<^sub>e\<^sub>t f s_set)"
+ shows "s_set \<noteq> []"
+ apply(insert def_sel, case_tac s_set)
+  apply(simp add: select_object_any0\<^sub>S\<^sub>e\<^sub>t_def select_object\<^sub>S\<^sub>e\<^sub>t_def select_object_def
+                  defined_def OclValid_def
+                  false_def true_def bot_fun_def bot_option_def
+             split: split_if_asm)
+by(simp)
+
 lemma select_object_any_defined\<^sub>S\<^sub>e\<^sub>q:
  assumes def_sel: "\<tau> \<Turnstile> \<delta> (select_object_any\<^sub>S\<^sub>e\<^sub>q f s_set)"
  shows "s_set \<noteq> []"
@@ -1112,17 +1139,7 @@ lemma select_object_any_defined\<^sub>S\<^sub>e\<^sub>q:
   apply(simp add: select_object_any\<^sub>S\<^sub>e\<^sub>q_def UML_Sequence.OclANY_def select_object\<^sub>S\<^sub>e\<^sub>q_def select_object_def
                   defined_def OclValid_def
                   false_def true_def bot_fun_def bot_option_def
-             split: split_if_asm)
-  apply(simp add: mtSequence_def, subst (asm) Abs_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inverse, simp, simp)
-by(simp)
-
-lemma (*select_object_any_defined\<^sub>S\<^sub>e\<^sub>t:*)
- assumes def_sel: "\<tau> \<Turnstile> \<delta> (select_object_any0\<^sub>S\<^sub>e\<^sub>t f s_set)"
- shows "s_set \<noteq> []"
- apply(insert def_sel, case_tac s_set)
-  apply(simp add: select_object_any0\<^sub>S\<^sub>e\<^sub>t_def UML_Sequence.OclANY_def select_object\<^sub>S\<^sub>e\<^sub>t_def select_object_def
-                  defined_def OclValid_def
-                  false_def true_def bot_fun_def bot_option_def
+                  OclInt0_def OclInt1_def StrongEq_def OclIf_def null_fun_def null_option_def
              split: split_if_asm)
 by(simp)
 
@@ -1138,24 +1155,57 @@ lemma select_object_any_defined\<^sub>S\<^sub>e\<^sub>t:
 by(simp)
 
 lemma select_object_any_exec0\<^sub>S\<^sub>e\<^sub>q:
- assumes def_sel: "\<tau> \<Turnstile> \<delta> (select_object_any\<^sub>S\<^sub>e\<^sub>q f s_set)"
- shows "\<tau> \<Turnstile> (select_object_any\<^sub>S\<^sub>e\<^sub>q f s_set \<triangleq> f (hd s_set))"
+ assumes def_sel: "\<tau> \<Turnstile> \<delta> (select_object_any0\<^sub>S\<^sub>e\<^sub>q f s_set)"
+ shows "\<exists> e. List.member s_set e \<and> (\<tau> \<Turnstile> (select_object_any0\<^sub>S\<^sub>e\<^sub>q f s_set \<triangleq> f e))"
+proof -
+ fix z
+ show " \<lceil>\<lceil>Rep_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e (select_object\<^sub>S\<^sub>e\<^sub>q f s_set \<tau>)\<rceil>\<rceil> = z \<Longrightarrow> ?thesis"
   apply(insert def_sel[simplified foundation16],
-        simp add: select_object_any\<^sub>S\<^sub>e\<^sub>q_def foundation22 UML_Sequence.OclANY_def split: split_if_asm)
-  apply(case_tac "\<lceil>\<lceil>Rep_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e (select_object\<^sub>S\<^sub>e\<^sub>q f s_set \<tau>)\<rceil>\<rceil>", simp add: bot_option_def, simp)
+        simp add: select_object_any0\<^sub>S\<^sub>e\<^sub>q_def foundation22 UML_Sequence.OclANY_def null_fun_def split: split_if_asm)
+
   apply(simp add: select_object\<^sub>S\<^sub>e\<^sub>q_def select_object_def)
   apply(subst (asm) select_fold_exec\<^sub>S\<^sub>e\<^sub>q)
-   apply(rule fold_val_elem\<^sub>S\<^sub>e\<^sub>q, simp add: foundation18' invalid_def)
-  apply(simp)
-by(drule arg_cong[where f = hd], subst (asm) hd_map, simp add: select_object_any_defined\<^sub>S\<^sub>e\<^sub>q[OF def_sel], simp)
+   apply(rule fold_val_elem\<^sub>S\<^sub>e\<^sub>q, simp add: OclValid_def)
+  apply(simp add: comp_def)
+
+  apply(case_tac s_set, simp, simp add: false_def true_def, simp)
+
+  proof - fix a l
+  show "f a \<tau> # map (\<lambda>x. f x \<tau>) l = z \<Longrightarrow>
+        \<exists>e. List.member (a # l) e \<and> hd z = f e \<tau>"
+   apply(rule exI[where x = a], case_tac z, simp+)
+  by(simp add: member_rec)
+ qed blast
+qed blast
 
 lemma select_object_any_exec\<^sub>S\<^sub>e\<^sub>q:
  assumes def_sel: "\<tau> \<Turnstile> \<delta> (select_object_any\<^sub>S\<^sub>e\<^sub>q f s_set)"
- shows "\<exists>e. List.member s_set e \<and> (\<tau> \<Turnstile> (select_object_any\<^sub>S\<^sub>e\<^sub>q f s_set \<triangleq> f e))"
- apply(insert select_object_any_exec0\<^sub>S\<^sub>e\<^sub>q[OF def_sel])
- apply(rule exI[where x = "hd s_set"], simp)
- apply(case_tac s_set, simp add: select_object_any_defined\<^sub>S\<^sub>e\<^sub>q[OF def_sel])
-by (metis list.sel member_rec(1))
+ shows "\<exists> e. List.member s_set e \<and> (\<tau> \<Turnstile> (select_object_any\<^sub>S\<^sub>e\<^sub>q f s_set \<triangleq> f e))"
+proof -
+ have def_sel0: "\<tau> \<Turnstile> \<delta> (select_object_any0\<^sub>S\<^sub>e\<^sub>q f s_set)"
+  apply(insert OclIf_defined'[OF def_sel[simplified select_object_any\<^sub>S\<^sub>e\<^sub>q_def select_object_any0\<^sub>S\<^sub>e\<^sub>q_def Let_def]],
+        auto simp add: select_object_any0\<^sub>S\<^sub>e\<^sub>q_def)
+ by(simp add: defined_def)
+
+ have A0: "\<tau> \<Turnstile> select_object\<^sub>S\<^sub>e\<^sub>q f s_set->size\<^sub>S\<^sub>e\<^sub>q() \<triangleq> \<one>"
+  apply(rule contrapos_pp, simp, simp add: StrongEq_def OclValid_def true_def)
+  apply(insert def_sel)
+  apply(simp add: select_object_any\<^sub>S\<^sub>e\<^sub>q_def Let_def OclValid_def)
+ by(subst (asm) cp_defined, subst (asm) cp_OclIf, subst (asm) StrongEq_def,
+    simp add: OclIf_def true_def defined_def false_def)
+
+ have A: "\<tau> \<Turnstile> (select_object_any\<^sub>S\<^sub>e\<^sub>q f s_set \<triangleq> select_object_any0\<^sub>S\<^sub>e\<^sub>q f s_set)"
+  apply(simp add: OclValid_def StrongEq_def true_def)
+  apply(simp add: select_object_any\<^sub>S\<^sub>e\<^sub>q_def select_object_any0\<^sub>S\<^sub>e\<^sub>q_def Let_def)
+ by(rule OclIf_true', rule A0)
+
+ show ?thesis
+  apply(rule exE[OF select_object_any_exec0\<^sub>S\<^sub>e\<^sub>q[OF def_sel0]])
+  proof - fix e
+   show "List.member s_set e \<and> \<tau> \<Turnstile> select_object_any0\<^sub>S\<^sub>e\<^sub>q f s_set \<triangleq> f e \<Longrightarrow> ?thesis"
+  by(rule exI[where x = e], simp add: StrongEq_L_trans[OF A])
+ qed
+qed 
 
 lemma (*select_object_any_exec\<^sub>S\<^sub>e\<^sub>t:*)
  assumes def_sel: "\<tau> \<Turnstile> \<delta> (select_object_any0\<^sub>S\<^sub>e\<^sub>t f s_set)"

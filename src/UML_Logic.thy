@@ -1143,7 +1143,15 @@ lemma OclNot_if[simp]:
   apply(subst cp_OclNot[symmetric])+
 by simp
 
+lemma OclIf_defined: "\<tau> \<Turnstile> \<delta> (if P then A else B endif) \<Longrightarrow> \<tau> \<Turnstile> \<delta> P"
+by(simp add: defined_def OclValid_def false_def true_def OclIf_def
+                  invalid_def bot_fun_def
+        split: split_if_asm)
 
+lemma OclIf_defined': "\<tau> \<Turnstile> \<delta> (if P then A else B endif) \<Longrightarrow> \<tau> \<Turnstile> \<delta> A \<or> \<tau> \<Turnstile> \<delta> B"
+by(simp add: defined_def OclValid_def false_def true_def OclIf_def
+                  invalid_def bot_fun_def
+        split: split_if_asm)
        
 subsection{* Fundamental Predicates on Basic Types: Strict (Referential) Equality *}
 
