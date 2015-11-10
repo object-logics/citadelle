@@ -355,6 +355,8 @@ context profile_bin\<^sub>S\<^sub>t\<^sub>r\<^sub>o\<^sub>n\<^sub>g\<^sub>E\<^su
          apply(subst cp_StrongEq[of _ "(x \<triangleq> y)"])
          by simp
          
+      lemma StrictRefEq_vs_StrongEq': "\<tau> \<Turnstile>(\<upsilon> x) \<Longrightarrow> \<tau> \<Turnstile>(\<upsilon> y) \<Longrightarrow> ( ((\<tau> \<Turnstile>f x y) = (\<tau> \<Turnstile> (x \<triangleq> y))))"
+         by(simp add: def_scheme OclValid_def)
    end
 
    
