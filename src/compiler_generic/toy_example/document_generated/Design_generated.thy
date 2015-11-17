@@ -98,10 +98,18 @@ Instance \<sigma>\<^sub>1_object0 :: Person = [ "salary" = 1000, "boss" = self 1
      and \<sigma>\<^sub>1_object4 :: Person = [ "salary" = 2300, "boss" = self 2 ]
 State[shallow] \<sigma>\<^sub>1 = [ \<sigma>\<^sub>1_object0, \<sigma>\<^sub>1_object1, \<sigma>\<^sub>1_object2, X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n1, \<sigma>\<^sub>1_object4, X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2 ]
 
-(* 15 ************************************ 34 + 1 *)
-State[shallow] \<sigma>\<^sub>1' = [ X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n1, X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2, X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n3 ]
+(* 15 ************************************ 34 + 2 *)
+definition "oid8 = 8"
+definition "inst_assoc8 = (\<lambda>oid_class to_from oid. ((case (deref_assocs_list ((to_from::oid list list \<Rightarrow> oid list \<times> oid list)) ((oid::oid)) ((drop ((((map_of_list ([]))) ((oid_class::oid))))))) of Nil \<Rightarrow> None
+    | l \<Rightarrow> (Some (l)))::oid list option))"
 
-(* 16 ************************************ 35 + 1 *)
+(* 16 ************************************ 36 + 0 *)
+
+(* 17 ************************************ 36 + 2 *)
+setup \<open>(Generation_mode.update_compiler_config ((K (let open META in Compiler_env_config_ext (true, NONE, Oids ((Code_Numeral.Nat 0), (Code_Numeral.Nat 0), (Code_Numeral.Nat 0)), I ((Code_Numeral.Nat 0), (Code_Numeral.Nat 0)), Gen_only_design, NONE, uncurry cons (META_instance (ToyInstance (uncurry cons (Toy_instance_single_ext (SOME ((META.SS_base (META.ST "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n4"))), SOME ((META.SS_base (META.ST "Person"))), ToyAttrNoCast (nil), ()), nil))), nil), nil, nil, false, false, I (nil, nil), nil, I (NONE, false), ()) end))))\<close>
+State[shallow] \<sigma>\<^sub>1' = [ X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n1, X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2, X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n3, X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n4 ]
+
+(* 18 ************************************ 38 + 1 *)
 PrePost[shallow] \<sigma>\<^sub>1 \<sigma>\<^sub>1'
 
 end
