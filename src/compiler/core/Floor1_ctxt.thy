@@ -88,7 +88,7 @@ definition "print_ctxt_const ctxt env =
       (Ctxt_clause ctxt)
       ((env, []), [])))"
 
-definition "print_ctxt = (\<lambda>ctxt. bootstrap_floor
+definition "print_ctxt = (\<lambda>ctxt. (\<lambda>f x e. let (l, e) = f x e in bootstrap_floor l e)
   (\<lambda>l env.
     let ((env, l_isab_ty), l_isab) = print_ctxt_const ctxt env in
     (L.flatten [l_isab_ty, l_isab, l], env))

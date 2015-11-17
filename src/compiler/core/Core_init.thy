@@ -296,21 +296,27 @@ definition "start_m'3_gen final print = start_map'' final o (\<lambda>expr base_
 
 definition "activate_simp_optimization = True"
 
-definition "bootstrap_floor f_x l env =
- (let (l, env) = f_x l env
-    ; l_setup = META_boot_setup_env (Boot_setup_env (env \<lparr> D_output_disable_thy := True
-                                                        , D_output_header_thy := None
-                                                        , D_output_position := (0, 0) \<rparr>) )
-                # l
-    ; l = if case D_input_meta env of [] \<Rightarrow> True | x # _ \<Rightarrow> ignore_meta_header x then
-            l
-          else
-            l_setup in
+definition "prev_was_stop = (\<lambda> [] \<Rightarrow> True | x # _ \<Rightarrow> ignore_meta_header x)"
+
+fun collect_meta_embed where 
+   "collect_meta_embed accu e = 
+    (\<lambda> (True, _) \<Rightarrow> rev accu
+     | (_, []) \<Rightarrow> rev accu
+     | (_, x # l_meta) \<Rightarrow> collect_meta_embed (x # accu) (prev_was_stop l_meta, l_meta)) e"
+
+definition "bootstrap_floor l env =
+ (let l_setup = \<lambda>f. META_boot_setup_env (Boot_setup_env (f env \<lparr> D_output_disable_thy := True
+                                                               , D_output_header_thy := None \<rparr>))
+                    # l in
   ( if D_output_auto_bootstrap env then
-      l
+      if prev_was_stop (D_input_meta env) then
+        l
+      else
+        l_setup (\<lambda>env. compiler_env_config_reset_no_env env
+                         \<lparr> D_input_meta := collect_meta_embed [] (False, D_input_meta env) \<rparr>)
     else
       META_boot_generation_syntax (Boot_generation_syntax (D_ocl_semantics env))
-      # l_setup
+      # l_setup id
   , env \<lparr> D_output_auto_bootstrap := True \<rparr> ))"
 
 definition "wrap_oclty x = \<open>\<cdot>\<close> @@ x"

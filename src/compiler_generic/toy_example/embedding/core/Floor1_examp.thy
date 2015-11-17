@@ -228,55 +228,74 @@ definition "print_examp_instance = (\<lambda> ToyInstance l \<Rightarrow> \<lamb
        let n = inst_name toyi in
        (String.to_String\<^sub>b\<^sub>a\<^sub>s\<^sub>e n, toyi, case map_username n of Some oid \<Rightarrow> oid) # instance_rbt) l (D_input_instance env))))"
 
-definition "print_examp_def_st1 = (\<lambda> ToyDefSt name l \<Rightarrow> bootstrap_floor
-  (\<lambda>l env. (L.flatten [l], env))
-  (L.map META_all_meta_embedding
-     (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l (l, _) = List.fold (\<lambda> (pos, core) (l, n).
-                                          ((pos, pos - n, core) # l, 
-                                            case core of ToyDefCoreAdd _ \<Rightarrow> n
-                                            | ToyDefCoreBinding _ \<Rightarrow> Succ n))
-                                 (L.mapi Pair l)
-                                 ([], 0)
-        ; (l_inst, l_defst) =
-        List.fold (\<lambda> (pos, _, ToyDefCoreAdd toyi) \<Rightarrow> \<lambda>(l_inst, l_defst).
-                     let i_name = case Inst_name toyi of Some x \<Rightarrow> x | None \<Rightarrow> S.flatten [name, \<open>_object\<close>, String.of_natural pos] in
-                       ( map_instance_single (map_prod id (map_prod id (map_data_shallow_self (\<lambda>Oid self \<Rightarrow>
-                           (case L.assoc self l of
-                              Some (_, ToyDefCoreBinding name) \<Rightarrow> ShallB_str name
-                            | Some (p, _) \<Rightarrow> ShallB_self (Oid p)
-                            | _ \<Rightarrow> ShallB_list []))))) toyi 
-                         \<lparr> Inst_name := Some i_name \<rparr>
-                       # l_inst
-                       , ToyDefCoreBinding i_name # l_defst)
-                   | (_, _, ToyDefCoreBinding name) \<Rightarrow> \<lambda>(l_inst, l_defst).
-                       ( l_inst
-                       , ToyDefCoreBinding name # l_defst))
-                  l
-                  ([], []) 
-        ; l = [ META_def_state Floor2 (ToyDefSt name l_defst) ] in
-      if l_inst = [] then
-        l
-      else
-        META_instance (ToyInstance l_inst) # l)))"
+definition "print_examp_def_st0 name l =
+ (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l (l, _) = List.fold (\<lambda> (pos, core) (l, n).
+                                      ((pos, pos - n, core) # l, 
+                                        case core of ToyDefCoreAdd _ \<Rightarrow> n
+                                        | ToyDefCoreBinding _ \<Rightarrow> Succ n))
+                             (L.mapi Pair l)
+                             ([], 0) in
+  List.fold (\<lambda> (pos, _, ToyDefCoreAdd toyi) \<Rightarrow> \<lambda>(l_inst, l_defst).
+               let i_name = case Inst_name toyi of Some x \<Rightarrow> x | None \<Rightarrow> S.flatten [name, \<open>_object\<close>, String.of_natural pos] in
+                 ( map_instance_single (map_prod id (map_prod id (map_data_shallow_self (\<lambda>Oid self \<Rightarrow>
+                     (case L.assoc self l of
+                        Some (_, ToyDefCoreBinding name) \<Rightarrow> ShallB_str name
+                      | Some (p, _) \<Rightarrow> ShallB_self (Oid p)
+                      | _ \<Rightarrow> ShallB_list []))))) toyi 
+                   \<lparr> Inst_name := Some i_name \<rparr>
+                 # l_inst
+                 , ToyDefCoreBinding i_name # l_defst)
+             | (_, _, ToyDefCoreBinding name) \<Rightarrow> \<lambda>(l_inst, l_defst).
+                 ( l_inst
+                 , ToyDefCoreBinding name # l_defst))
+            l
+            ([], []))"
 
-definition "print_pre_post = (\<lambda> ToyDefPP name s_pre s_post \<Rightarrow> bootstrap_floor
-  (\<lambda>f env. (L.flatten [f env], env))
+definition "print_examp_increase_oid l_inst =
+  snd o print_examp_instance (ToyInstance l_inst)"
+
+definition "bootstrap_floor' f_x l env =
+ (let (l, accu :: compiler_env_config \<Rightarrow> _) = f_x l env in
+  (bootstrap_floor l env, accu))"
+
+definition "print_examp_def_st1_gen = (\<lambda> ToyDefSt name l \<Rightarrow> bootstrap_floor'
+  (\<lambda>(l, accu) _. (L.flatten [L.map META_all_meta_embedding l], accu))
+  (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l (l_inst, l_defst) = print_examp_def_st0 name l
+     ; l = [ META_def_state Floor2 (ToyDefSt name l_defst) ] in
+   if l_inst = [] then
+     (l, id)
+   else
+     (META_instance (ToyInstance l_inst) # l, print_examp_increase_oid l_inst)))"
+
+definition "print_examp_def_st1 s = fst o print_examp_def_st1_gen s"
+definition "print_meta_setup_def_state s env = snd (print_examp_def_st1_gen s env) env"
+
+definition "print_pre_post_gen = (\<lambda> ToyDefPP name s_pre s_post \<Rightarrow> bootstrap_floor'
+  (\<lambda>f env. 
+    let (l, accu) = f env in
+    (L.flatten [ L.map META_all_meta_embedding l ], accu))
   (\<lambda>env.
     let pref_name = case name of Some n \<Rightarrow> n
                                | None \<Rightarrow> \<open>WFF_\<close> @@ String.of_nat (length (D_input_meta env))
-      ; f_comp = \<lambda>None \<Rightarrow> id | Some (_, f) \<Rightarrow> f
+      ; f_comp = \<lambda>None \<Rightarrow> id | Some (_, f, _) \<Rightarrow> f
+      ; f_comp_env = \<lambda>None \<Rightarrow> id | Some (_, _, f) \<Rightarrow> f
       ; f_conv = \<lambda>msg.
           \<lambda> ToyDefPPCoreAdd toy_def_state \<Rightarrow>
               let n = pref_name @@ msg in
-              (ToyDefPPCoreBinding n, Cons (META_def_state Floor1 (ToyDefSt n toy_def_state)))
-          | s \<Rightarrow> (s, id) in
-    L.map
-      META_all_meta_embedding
-      (let o_pre = Some (f_conv \<open>_pre\<close> s_pre)
-         ; o_post = map_option (f_conv \<open>_post\<close>) s_post in
-       (f_comp o_pre o f_comp o_post)
-         [ META_def_pre_post Floor2 (ToyDefPP name
-                                             (case\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l o_pre of Some (n, _) \<Rightarrow> n)
-                                             (map_option fst o_post)) ])))"
+              ( ToyDefPPCoreBinding n
+              , Cons (META_def_state Floor1 (ToyDefSt n toy_def_state))
+              , let l_inst = fst (print_examp_def_st0 n toy_def_state) in
+                if l_inst = [] then id else print_examp_increase_oid l_inst )
+          | s \<Rightarrow> (s, id, id)
+      ; o_pre = Some (f_conv \<open>_pre\<close> s_pre)
+      ; o_post = map_option (f_conv \<open>_post\<close>) s_post in
+    ( (f_comp o_pre o f_comp o_post)
+       [ META_def_pre_post Floor2 (ToyDefPP name
+                                           (case\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l o_pre of Some (n, _) \<Rightarrow> n)
+                                           (map_option fst o_post)) ]
+    , f_comp_env o_pre o f_comp_env o_post )))"
+
+definition "print_pre_post s = fst o print_pre_post_gen s"
+definition "print_meta_setup_def_pre_post s env = snd (print_pre_post_gen s env) env"
 
 end

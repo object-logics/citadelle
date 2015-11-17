@@ -70,6 +70,7 @@ definition "write_file env = (
 \<close>                             )
         (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l (env, l) =
            fold_thy'
+             comp_env_save_deep
              (\<lambda>f. f ())
              (\<lambda>_ _. [])
              (\<lambda>x acc1 acc2. (acc1, Cons x acc2))

@@ -739,58 +739,77 @@ definition "print_examp_def_st_typecheck_var = (\<lambda> OclDefSt name _ \<Righ
             \<open>=\<close> 
             (Term_pair' [])))]))"
 
-definition "print_examp_def_st1 = (\<lambda> OclDefSt name l \<Rightarrow> bootstrap_floor
-  (\<lambda>l env. (L.flatten [l], env))
-  (L.map META_all_meta_embedding
-     (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l (l, _) = List.fold (\<lambda> (pos, core) (l, n).
-                                          ((pos, pos - n, core) # l, 
-                                            case core of OclDefCoreAdd _ \<Rightarrow> n
-                                            | OclDefCoreBinding _ \<Rightarrow> Succ n))
-                                 (L.mapi Pair l)
-                                 ([], 0)
-        ; (l_inst, l_defst) =
-        List.fold (\<lambda> (pos, _, OclDefCoreAdd ocli) \<Rightarrow> \<lambda>(l_inst, l_defst).
-                     let i_name = case Inst_name ocli of Some x \<Rightarrow> x | None \<Rightarrow> S.flatten [name, \<open>_object\<close>, String.of_natural pos] in
-                       ( map_instance_single (map_prod id (map_prod id (map_data_shallow_self (\<lambda>Oid self \<Rightarrow>
-                           (case L.assoc self l of
-                              Some (_, OclDefCoreBinding name) \<Rightarrow> ShallB_str name
-                            | Some (p, _) \<Rightarrow> ShallB_self (Oid p)
-                            | _ \<Rightarrow> ShallB_list []))))) ocli 
-                         \<lparr> Inst_name := Some i_name \<rparr>
-                       # l_inst
-                       , OclDefCoreBinding i_name # l_defst)
-                   | (_, _, OclDefCoreBinding name) \<Rightarrow> \<lambda>(l_inst, l_defst).
-                       ( l_inst
-                       , OclDefCoreBinding name # l_defst))
-                  l
-                  ([], []) 
-        ; l = [ META_def_state Floor2 (OclDefSt name l_defst) ] in
-      if l_inst = [] then
-        l
-      else
-        META_instance (OclInstance l_inst) # l)))"
+definition "print_examp_def_st0 name l =
+ (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l (l, _) = List.fold (\<lambda> (pos, core) (l, n).
+                                      ((pos, pos - n, core) # l, 
+                                        case core of OclDefCoreAdd _ \<Rightarrow> n
+                                        | OclDefCoreBinding _ \<Rightarrow> Succ n))
+                             (L.mapi Pair l)
+                             ([], 0) in
+  List.fold (\<lambda> (pos, _, OclDefCoreAdd ocli) \<Rightarrow> \<lambda>(l_inst, l_defst).
+               let i_name = case Inst_name ocli of Some x \<Rightarrow> x | None \<Rightarrow> S.flatten [name, \<open>_object\<close>, String.of_natural pos] in
+                 ( map_instance_single (map_prod id (map_prod id (map_data_shallow_self (\<lambda>Oid self \<Rightarrow>
+                     (case L.assoc self l of
+                        Some (_, OclDefCoreBinding name) \<Rightarrow> ShallB_str name
+                      | Some (p, _) \<Rightarrow> ShallB_self (Oid p)
+                      | _ \<Rightarrow> ShallB_list []))))) ocli 
+                   \<lparr> Inst_name := Some i_name \<rparr>
+                 # l_inst
+                 , OclDefCoreBinding i_name # l_defst)
+             | (_, _, OclDefCoreBinding name) \<Rightarrow> \<lambda>(l_inst, l_defst).
+                 ( l_inst
+                 , OclDefCoreBinding name # l_defst))
+            l
+            ([], []))"
+
+definition "print_examp_increase_oid l_inst =
+  snd o print_examp_instance (OclInstance l_inst)"
+
+definition "bootstrap_floor' f_x l env =
+ (let (l, accu :: compiler_env_config \<Rightarrow> _) = f_x l env in
+  (bootstrap_floor l env, accu))"
+
+definition "print_examp_def_st1_gen = (\<lambda> OclDefSt name l \<Rightarrow> bootstrap_floor'
+  (\<lambda>(l, accu) _. (L.flatten [L.map META_all_meta_embedding l], accu))
+  (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l (l_inst, l_defst) = print_examp_def_st0 name l
+     ; l = [ META_def_state Floor2 (OclDefSt name l_defst) ] in
+   if l_inst = [] then
+     (l, id)
+   else
+     (META_instance (OclInstance l_inst) # l, print_examp_increase_oid l_inst)))"
+
+definition "print_examp_def_st1 s = fst o print_examp_def_st1_gen s"
+definition "print_meta_setup_def_state s env = snd (print_examp_def_st1_gen s env) env"
 
 definition "print_examp_def_st_defs = (\<lambda> _ \<Rightarrow> start_map O.lemmas
   [ Lemmas_simp_thms \<open>\<close> [ \<open>state.defs\<close>, \<open>const_ss\<close> ] ])"
 
-definition "print_pre_post = (\<lambda> OclDefPP name s_pre s_post \<Rightarrow> bootstrap_floor
-  (\<lambda>f env. (L.flatten [f env], env))
+definition "print_pre_post_gen = (\<lambda> OclDefPP name s_pre s_post \<Rightarrow> bootstrap_floor'
+  (\<lambda>f env. 
+    let (l, accu) = f env in
+    (L.flatten [ L.map META_all_meta_embedding l ], accu))
   (\<lambda>env.
     let pref_name = case name of Some n \<Rightarrow> n
                                | None \<Rightarrow> \<open>WFF_\<close> @@ String.of_nat (length (D_input_meta env))
-      ; f_comp = \<lambda>None \<Rightarrow> id | Some (_, f) \<Rightarrow> f
+      ; f_comp = \<lambda>None \<Rightarrow> id | Some (_, f, _) \<Rightarrow> f
+      ; f_comp_env = \<lambda>None \<Rightarrow> id | Some (_, _, f) \<Rightarrow> f
       ; f_conv = \<lambda>msg.
           \<lambda> OclDefPPCoreAdd ocl_def_state \<Rightarrow>
               let n = pref_name @@ msg in
-              (OclDefPPCoreBinding n, Cons (META_def_state Floor1 (OclDefSt n ocl_def_state)))
-          | s \<Rightarrow> (s, id) in
-    L.map
-      META_all_meta_embedding
-      (let o_pre = Some (f_conv \<open>_pre\<close> s_pre)
-         ; o_post = map_option (f_conv \<open>_post\<close>) s_post in
-       (f_comp o_pre o f_comp o_post)
-         [ META_def_pre_post Floor2 (OclDefPP name
-                                             (case\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l o_pre of Some (n, _) \<Rightarrow> n)
-                                             (map_option fst o_post)) ])))"
+              ( OclDefPPCoreBinding n
+              , Cons (META_def_state Floor1 (OclDefSt n ocl_def_state))
+              , let l_inst = fst (print_examp_def_st0 n ocl_def_state) in
+                if l_inst = [] then id else print_examp_increase_oid l_inst )
+          | s \<Rightarrow> (s, id, id)
+      ; o_pre = Some (f_conv \<open>_pre\<close> s_pre)
+      ; o_post = map_option (f_conv \<open>_post\<close>) s_post in
+    ( (f_comp o_pre o f_comp o_post)
+       [ META_def_pre_post Floor2 (OclDefPP name
+                                           (case\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l o_pre of Some (n, _) \<Rightarrow> n)
+                                           (map_option fst o_post)) ]
+    , f_comp_env o_pre o f_comp_env o_post )))"
+
+definition "print_pre_post s = fst o print_pre_post_gen s"
+definition "print_meta_setup_def_pre_post s env = snd (print_pre_post_gen s env) env"
 
 end

@@ -45,7 +45,7 @@ definition "print_ctxt_const _ env =
  (map_prod (map_prod id (rev o L.map O.type_synonym)) (rev o L.map O.consts)
     ((env, []), []))"
 
-definition "print_ctxt = (\<lambda>ctxt. bootstrap_floor
+definition "print_ctxt = (\<lambda>ctxt. (\<lambda>f x e. let (l, e) = f x e in bootstrap_floor l e)
   (\<lambda>l env.
     let ((env, l_isab_ty), l_isab) = print_ctxt_const ctxt env in
     (L.flatten [l_isab_ty, l_isab, l], env))

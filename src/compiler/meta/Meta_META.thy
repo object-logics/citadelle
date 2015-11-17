@@ -137,12 +137,17 @@ record compiler_env_config =  D_output_disable_thy :: bool
 
 subsection\<open>Operations of Fold, Map, ..., on the Meta-Model\<close>
 
-definition "ignore_meta_header = (\<lambda> META_class_raw Floor1 _ \<Rightarrow> True
-                                  | META_ass_class Floor1 _ \<Rightarrow> True
-                                  | META_ctxt Floor1 _ \<Rightarrow> True
+definition "ignore_meta_header = (\<lambda> META_ctxt Floor1 _ \<Rightarrow> True
                                   | META_def_state Floor1 _ \<Rightarrow> True
                                   | META_def_pre_post Floor1 _ \<Rightarrow> True
                                   | _ \<Rightarrow> False)"
+
+text\<open>
+As remark in @{term ignore_meta_header}, @{term META_class_raw} and @{term META_ass_class} do not occur,
+even if the associated meta-commands will be put at the beginning when generating files during the reordering step.
+This is because some values for which @{term ignore_meta_header} returns @{term False} can exist just before 
+meta-commands associated to @{term META_class_raw} or @{term META_ass_class}.
+\<close>
 
 definition "map2_ctxt_term f =
  (let f_prop = \<lambda> OclProp_ctxt n prop \<Rightarrow> OclProp_ctxt n (f prop)
@@ -157,6 +162,25 @@ definition "map2_ctxt_term f =
 
 definition "compiler_env_config_more_map f ocl =
             compiler_env_config.extend  (compiler_env_config.truncate ocl) (f (compiler_env_config.more ocl))"
+
+definition "compiler_env_config_empty output_disable_thy output_header_thy oid_start design_analysis sorry_dirty =
+  compiler_env_config.make
+    output_disable_thy
+    output_header_thy
+    oid_start
+    (0, 0)
+    design_analysis
+    None [] [] [] False False ([], []) []
+    sorry_dirty"
+
+definition "compiler_env_config_reset_no_env env =
+  compiler_env_config_empty
+    (D_output_disable_thy env)
+    (D_output_header_thy env)
+    (oidReinitAll (D_ocl_oid_start env))
+    (D_ocl_semantics env)
+    (D_output_sorry_dirty env)
+    \<lparr> D_input_meta := D_input_meta env \<rparr>"
 
 subsection\<open>The META Meta-Model (II)\<close>
 subsubsection\<open>Type Definition\<close>

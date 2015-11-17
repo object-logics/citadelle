@@ -127,25 +127,6 @@ definition "thy_flush_all = Embed_theories []"
 
 subsection\<open>Combinators Folding the Compiling Environment\<close>
 
-definition "compiler_env_config_empty output_disable_thy output_header_thy oid_start design_analysis sorry_dirty =
-  compiler_env_config.make
-    output_disable_thy
-    output_header_thy
-    oid_start
-    (0, 0)
-    design_analysis
-    None [] [] [] False False ([], []) []
-    sorry_dirty"
-
-definition "compiler_env_config_reset_no_env env =
-  compiler_env_config_empty
-    (D_output_disable_thy env)
-    (D_output_header_thy env)
-    (oidReinitAll (D_toy_oid_start env))
-    (D_toy_semantics env)
-    (D_output_sorry_dirty env)
-    \<lparr> D_input_meta := D_input_meta env \<rparr>"
-
 definition "compiler_env_config_reset_all env =
   (let env = compiler_env_config_reset_no_env env in
    ( env \<lparr> D_input_meta := [] \<rparr>
@@ -154,14 +135,6 @@ definition "compiler_env_config_reset_all env =
        [ l_class
        , List.filter (\<lambda> META_flush_all _ \<Rightarrow> False | _ \<Rightarrow> True) l_env
        , [META_flush_all ToyFlushAll] ] ))"
-
-definition "compiler_env_config_update f env =
-  (* WARNING The semantics of the meta-embedded language is not intended to be reset here (like oid_start), only syntactic configurations of the compiler (path, etc...) *)
-  f env
-    \<lparr> D_output_disable_thy := D_output_disable_thy env
-    , D_output_header_thy := D_output_header_thy env
-    , D_toy_semantics := D_toy_semantics env
-    , D_output_sorry_dirty := D_output_sorry_dirty env \<rparr>"
 
 definition "fold_thy0 meta thy_object0 f =
   L_fold (\<lambda>x (acc1, acc2).
@@ -180,6 +153,14 @@ definition "comp_env_input_class_rm f_fold f env_accu =
 definition "comp_env_save ast f_fold f env_accu =
   (let (env, accu) = f_fold f env_accu in
    (env \<lparr> D_input_meta := ast # D_input_meta env \<rparr>, accu))"
+
+definition "comp_env_save_deep ast f_fold =
+  comp_env_save ast (\<lambda>f. map_prod
+    (case ast of META_def_state Floor1 meta \<Rightarrow> Floor1_examp.print_meta_setup_def_state meta
+               | META_def_pre_post Floor1 meta \<Rightarrow> Floor1_examp.print_meta_setup_def_pre_post meta
+               | _ \<Rightarrow> id)
+    id o
+    f_fold f)"
 
 definition "comp_env_input_class_mk f_try f_accu_reset f_fold f =
   (\<lambda> (env, accu).
@@ -214,10 +195,10 @@ definition "comp_env_input_class_mk f_try f_accu_reset f_fold f =
 definition "comp_env_input_class_bind l f =
   List.fold (\<lambda>x. x f) l"
 
-definition "fold_thy' f_try f_accu_reset f =
+definition "fold_thy' f_env_save f_try f_accu_reset f =
  (let comp_env_input_class_mk = comp_env_input_class_mk f_try f_accu_reset in
   List.fold (\<lambda> ast.
-    comp_env_save ast (case ast of
+    f_env_save ast (case ast of
      META_enum meta \<Rightarrow> comp_env_input_class_rm (fold_thy0 meta thy_enum_flat)
    | META_class_raw Floor1 meta \<Rightarrow> comp_env_input_class_rm (fold_thy0 meta thy_class_flat)
    | META_association meta \<Rightarrow> comp_env_input_class_rm (fold_thy0 meta thy_association)
@@ -232,8 +213,37 @@ definition "fold_thy' f_try f_accu_reset f =
    | META_ctxt floor meta \<Rightarrow> comp_env_input_class_mk (fold_thy0 meta (thy_ctxt floor))
    | META_flush_all meta \<Rightarrow> comp_env_input_class_mk (fold_thy0 meta thy_flush_all)) f))"
 
+definition "compiler_env_config_update f env =
+  (* WARNING The semantics of the meta-embedded language is not intended to be reset here (like oid_start), only syntactic configurations of the compiler (path, etc...) *)
+ (let env' = f env in
+  if D_input_meta env = [] then
+    env'
+      \<lparr> D_output_disable_thy := D_output_disable_thy env
+      , D_output_header_thy := D_output_header_thy env
+      (*D_toy_oid_start*)
+      (*D_output_position*)
+      , D_toy_semantics := D_toy_semantics env
+      (*D_input_class*)
+      (*D_input_meta*)
+      (*D_input_instance*)
+      (*D_input_state*)
+      (*D_output_header_force*)
+      (*D_output_auto_bootstrap*)
+      (*D_toy_accessor*)
+      (*D_toy_HO_type*)
+      , D_output_sorry_dirty := D_output_sorry_dirty env \<rparr>
+  else
+    fst (fold_thy'
+           comp_env_save_deep
+           (\<lambda>f. f ())
+           (\<lambda>_. id)
+           (\<lambda>_. Pair)
+           (D_input_meta env')
+           (env, ())))"
+
 definition "fold_thy_shallow f_try f_accu_reset x = 
   fold_thy'
+    comp_env_save
     f_try
     f_accu_reset
     (\<lambda>l acc1.
@@ -243,6 +253,7 @@ definition "fold_thy_shallow f_try f_accu_reset x =
 
 definition "fold_thy_deep obj env =
   (case fold_thy'
+          comp_env_save_deep
           (\<lambda>f. f ())
           (\<lambda>env _. D_output_position env)
           (\<lambda>l acc1 (i, cpt). (acc1, (Succ i, natural_of_nat (List.length l) + cpt)))

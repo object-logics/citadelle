@@ -68,7 +68,7 @@ text \<open>Since we are in a Isabelle session, at this time, it becomes possibl
 the command @{command value} the result of the translations applied with @{term Design}. 
 A suitable environment should nevertheless be provided, 
 one can typically experiment this by copying-pasting the following environment
-initialized in the above @{text main}:\<close>
+initialized below in @{text main}:\<close>
 
 definition "main =
  (let n = \<lambda>n1. OclTyObj (OclTyCore_pre n1) []
