@@ -968,12 +968,6 @@ theorem framing:
  qed qed
 qed(simp add: OclSelf_at_post_def OclSelf_at_pre_def OclValid_def StrongEq_def true_def)+
 
-theorem framing'':
-  assumes wff : "WFF \<tau>"
-  assumes modifiesNothing:"\<tau> \<Turnstile> (Set{})->oclIsModifiedOnly()"
-  shows   "fst \<tau> = snd \<tau>"
-sorry
-
 text{* As corollary, the framing property can be expressed with only the strong equality
 as comparison operator. *}
 
@@ -1002,6 +996,12 @@ proof -
    apply(rule StrictRefEq\<^sub>O\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t_vs_StrongEq''[THEN iffD1, OF wff _ _ oid_preserve], assumption+)
  by(simp add: OclSelf_at_post_def OclSelf_at_pre_def OclValid_def StrongEq_def true_def)+
 qed
+
+theorem framing'':
+  assumes wff: "WFF \<tau>"
+  assumes modifiesNothing:"\<tau> \<Turnstile> (Set{})->oclIsModifiedOnly()"
+  shows   "fst \<tau> = snd \<tau>"
+oops
 
 subsection{* Miscellaneous *}
 

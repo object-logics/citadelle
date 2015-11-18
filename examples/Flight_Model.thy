@@ -141,7 +141,7 @@ F2 .fl_res = Set{ R11 }
 
 section{* Two State Instances of the Class Model *}
 
-text{* The following FOCL statement creates  the (typed) object instances \verb$S1$,
+text{* The following Featherweight OCL statement creates  the (typed) object instances \verb$S1$,
 \verb$C1$, \verb$R11$, \verb$R21$, \verb$F1$ and \verb$F2$ and verifies the 
 corresponding multiplicities.
 \begin{verbatim}
@@ -173,7 +173,7 @@ Instance S1  :: Staff  = [ name = "Mallory" , flights = F1 ]
      and F2  :: Flight = [ seats = 370 , "from" = "Plzen" , to = "Brno" ]
 
 text{* We check that, for example, the constant @{term S1} is now declared with the right OCL type. *}
-term "S1"
+term "S1 ::\<cdot> Staff"
 
 text{* In the following command, we place the object instances into a state @{text "\<sigma>\<^sub>1"}. This generates a definition
 for the latter as well as a number of theorems resulting from it, for example:
@@ -259,7 +259,6 @@ $\sigma_2$, not that its content has not been changed.
 (* TODO : Rename PrePost into : Transition *)
 PrePost \<sigma>\<^sub>1 \<sigma>\<^sub>2
 
-text{* Now we just define the  *}
 
 
 
@@ -394,7 +393,7 @@ lemma Flight_at_pre_sat: "let \<tau> = (\<sigma>\<^sub>1,\<sigma>\<^sub>2) in
 proof - 
  have forall_trivial: "\<And>\<tau> P. let S = OclAsType\<^sub>F\<^sub>l\<^sub>i\<^sub>g\<^sub>h\<^sub>t_\<AA> .allInstances@pre() in
                        (\<tau> \<Turnstile> (S->forAll\<^sub>S\<^sub>e\<^sub>t(X|P) \<triangleq> (S \<triangleq> Set{} or P)))"
- by(simp add: Let_def, rule forall_trivial, rule OclAllInstances_at_pre_defined)
+ by(simp add: Let_def, rule OclForall_body_trivial, rule OclAllInstances_at_pre_defined)
  show ?thesis
   apply(simp add: Let_def, intro impI)
   apply(simp add: Flight_Aat_pre_def StrongEq_L_subst3[OF _ forall_trivial[simplified Let_def], where P = "\<lambda>x. x"])
@@ -420,7 +419,7 @@ lemma Flight_at_post_sat: "let \<tau> = (\<sigma>\<^sub>1,\<sigma>\<^sub>2) in
 proof - 
  have forall_trivial: "\<And>\<tau> P. let S = OclAsType\<^sub>F\<^sub>l\<^sub>i\<^sub>g\<^sub>h\<^sub>t_\<AA> .allInstances() in
                        (\<tau> \<Turnstile> (S->forAll\<^sub>S\<^sub>e\<^sub>t(X|P) \<triangleq> (S \<triangleq> Set{} or P)))"
- by(simp add: Let_def, rule forall_trivial, rule OclAllInstances_at_post_defined)
+ by(simp add: Let_def, rule OclForall_body_trivial, rule OclAllInstances_at_post_defined)
  show ?thesis
   apply(simp add: Let_def, intro impI)
   apply(simp add: Flight_A_def StrongEq_L_subst3[OF _ forall_trivial[simplified Let_def], where P = "\<lambda>x. x"])
@@ -441,8 +440,6 @@ by(rule exI[where x = "(\<sigma>\<^sub>1,\<sigma>\<^sub>2)"], rule Flight_at_pos
 
 end
 
-context TRANS_\<sigma>\<^sub>1_\<sigma>\<^sub>2
-begin
 lemma Flight_at_pre_sat: "\<exists> \<tau>. Flight_Aat_pre \<tau>"
 proof - 
  note S1 = \<sigma>\<^sub>1[simplified state_interpretation_\<sigma>\<^sub>1_def, of "(\<sigma>\<^sub>0,\<sigma>\<^sub>0)"]
@@ -460,36 +457,9 @@ proof -
   apply(simp add: select\<^sub>F\<^sub>l\<^sub>i\<^sub>g\<^sub>h\<^sub>t__seats_def F2_def F2\<^sub>F\<^sub>l\<^sub>i\<^sub>g\<^sub>h\<^sub>t_def)
  by(simp add: reconst_basetype_def)
 
-have Flight_at_pre_sat: "let \<tau> = (\<sigma>\<^sub>1,\<sigma>\<^sub>2) in
-                           (\<tau> \<Turnstile> (\<zero> <\<^sub>i\<^sub>n\<^sub>t (F1 .seats@pre))) \<longrightarrow>
-                           (\<tau> \<Turnstile> (\<zero> <\<^sub>i\<^sub>n\<^sub>t (F2 .seats@pre))) \<longrightarrow>
-                           Flight_Aat_pre \<tau>"
-proof - 
- have forall_trivial: "\<And>\<tau> P. let S = OclAsType\<^sub>F\<^sub>l\<^sub>i\<^sub>g\<^sub>h\<^sub>t_\<AA> .allInstances@pre() in
-                       (\<tau> \<Turnstile> (S->forAll\<^sub>S\<^sub>e\<^sub>t(X|P) \<triangleq> (S \<triangleq> Set{} or P)))"
- by(simp add: Let_def, rule forall_trivial, rule OclAllInstances_at_pre_defined)
  show ?thesis
-  apply(simp add: Let_def, intro impI)
-  apply(simp add: Flight_Aat_pre_def StrongEq_L_subst3[OF _ forall_trivial[simplified Let_def], where P = "\<lambda>x. x"])
-  apply(subst StrongEq_L_subst3[where x = "OclAsType\<^sub>F\<^sub>l\<^sub>i\<^sub>g\<^sub>h\<^sub>t_\<AA> .allInstances@pre()"], simp, simp add: \<sigma>\<^sub>1_def)
-   apply(rule StrictRefEq\<^sub>S\<^sub>e\<^sub>t.StrictRefEq_vs_StrongEq'[THEN iffD1, OF _ _ state_\<sigma>\<^sub>1.\<sigma>\<^sub>1_OclAllInstances_at_pre_exec_Flight[OF \<sigma>\<^sub>1, simplified Flight_def]])
-            apply(rule OclAllInstances_at_pre_valid)
-           apply(simp add: F1_def F2_def)
-  apply(simp add: OclAsType\<^sub>F\<^sub>l\<^sub>i\<^sub>g\<^sub>h\<^sub>t_\<AA>_def)+
-  apply(simp add: OclValid_def, subst cp_OclOr, subst cp_OclIf, subst (1 2) cp_OclAnd, subst cp_OclIf)
- by(simp add: F1_def F2_def OclIf_def, fold true_def, simp add: OclOr_true2)
-qed
-
-have Flight_at_pre_sat': "\<exists> \<tau>.
-                        (\<tau> \<Turnstile> (\<zero> <\<^sub>i\<^sub>n\<^sub>t (F1 .seats@pre))) \<longrightarrow>
-                        (\<tau> \<Turnstile> (\<zero> <\<^sub>i\<^sub>n\<^sub>t (F2 .seats@pre))) \<longrightarrow>
-                        Flight_Aat_pre \<tau>"
-by(rule exI[where x = "(\<sigma>\<^sub>1,\<sigma>\<^sub>2)"], rule Flight_at_pre_sat[simplified Let_def])
-
-
- show ?thesis
-  apply(rule exI[where x = "(\<sigma>1,\<sigma>2)"], simp add: \<sigma>1_def \<sigma>2_def)
-  apply(rule Flight_at_pre_sat[OF PP, simplified Let_def, THEN mp, THEN mp])
+  apply(rule exI[where x = "(\<sigma>\<^sub>1,\<sigma>\<^sub>2)"], simp add: \<sigma>\<^sub>1_def \<sigma>\<^sub>2_def)
+  apply(rule pre_post_\<sigma>\<^sub>1_\<sigma>\<^sub>2.Flight_at_pre_sat[OF PP, simplified Let_def, THEN mp, THEN mp])
    apply(simp add: pre_post_\<sigma>\<^sub>1_\<sigma>\<^sub>2.\<sigma>\<^sub>1_def[OF PP] pre_post_\<sigma>\<^sub>1_\<sigma>\<^sub>2.\<sigma>\<^sub>2_def[OF PP], fold s1_def, fold s2_def)
    apply(simp add: OclValid_def)
   apply(subst OclLess\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r.cp0, simp add: F1_val OclInt0_def OclLess\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r_def)
@@ -518,7 +488,7 @@ proof -
  by(simp add: reconst_basetype_def)
 
  show ?thesis
-  apply(rule exI[where x = "(\<sigma>1,\<sigma>2)"], simp add: \<sigma>1_def \<sigma>2_def)
+  apply(rule exI[where x = "(\<sigma>\<^sub>1,\<sigma>\<^sub>2)"], simp add: \<sigma>\<^sub>1_def \<sigma>\<^sub>2_def)
   apply(rule pre_post_\<sigma>\<^sub>1_\<sigma>\<^sub>2.Flight_at_post_sat[OF PP, simplified Let_def, THEN mp, THEN mp])
    apply(simp add: pre_post_\<sigma>\<^sub>1_\<sigma>\<^sub>2.\<sigma>\<^sub>1_def[OF PP] pre_post_\<sigma>\<^sub>1_\<sigma>\<^sub>2.\<sigma>\<^sub>2_def[OF PP], fold s1_def, fold s2_def)
    apply(simp add: OclValid_def)
@@ -529,10 +499,9 @@ proof -
   apply(subst OclLess\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r.cp0, simp add: F2_val OclInt0_def OclLess\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r_def)
  done
 qed
-end
 
-thm TRANS_\<sigma>\<^sub>1_\<sigma>\<^sub>2.Flight_at_pre_sat[simplified Flight_Aat_pre_def]
-thm TRANS_\<sigma>\<^sub>1_\<sigma>\<^sub>2.Flight_at_post_sat[simplified Flight_A_def]
+thm Flight_at_pre_sat[simplified Flight_Aat_pre_def]
+thm Flight_at_post_sat[simplified Flight_A_def]
 
 Context r: Reservation
   Inv A : "\<zero> <\<^sub>i\<^sub>n\<^sub>t (r .id)"
