@@ -113,11 +113,11 @@ definition "thy_def_state = (\<lambda> Floor1 \<Rightarrow> Embed_theories
                                            Floor2_examp.print_examp_def_st_locale
                                            [ Floor2_examp.print_examp_def_st2
                                            , Floor2_examp.print_examp_def_st_perm ])"
-definition "thy_def_pre_post = (\<lambda> Floor1 \<Rightarrow> Embed_theories 
-                                              [ Floor1_examp.print_pre_post ]
+definition "thy_def_transition = (\<lambda> Floor1 \<Rightarrow> Embed_theories 
+                                              [ Floor1_examp.print_transition ]
                                 | Floor2 \<Rightarrow> Embed_locale
-                                              Floor2_examp.print_pre_post_locale
-                                              [ Floor2_examp.print_pre_post_interp ])"
+                                              Floor2_examp.print_transition_locale
+                                              [ Floor2_examp.print_transition_interp ])"
 definition "thy_ctxt = (\<lambda> Floor1 \<Rightarrow> Embed_theories 
                                       [ Floor1_ctxt.print_ctxt ]
                         | Floor2 \<Rightarrow> Embed_theories 
@@ -157,7 +157,7 @@ definition "comp_env_save ast f_fold f env_accu =
 definition "comp_env_save_deep ast f_fold =
   comp_env_save ast (\<lambda>f. map_prod
     (case ast of META_def_state Floor1 meta \<Rightarrow> Floor1_examp.print_meta_setup_def_state meta
-               | META_def_pre_post Floor1 meta \<Rightarrow> Floor1_examp.print_meta_setup_def_pre_post meta
+               | META_def_transition Floor1 meta \<Rightarrow> Floor1_examp.print_meta_setup_def_transition meta
                | _ \<Rightarrow> id)
     id o
     f_fold f)"
@@ -184,7 +184,7 @@ definition "comp_env_input_class_mk f_try f_accu_reset f_fold f =
                      META_instance meta \<Rightarrow> fold_thy0 meta thy_instance
                    | META_def_base_l meta \<Rightarrow> fold_thy0 meta thy_def_base_l
                    | META_def_state floor meta \<Rightarrow> fold_thy0 meta (thy_def_state floor)
-                   | META_def_pre_post floor meta \<Rightarrow> fold_thy0 meta (thy_def_pre_post floor)
+                   | META_def_transition floor meta \<Rightarrow> fold_thy0 meta (thy_def_transition floor)
                    | META_ctxt floor meta \<Rightarrow> fold_thy0 meta (thy_ctxt floor)
                    | META_flush_all meta \<Rightarrow> fold_thy0 meta thy_flush_all)
                         f)
@@ -209,7 +209,7 @@ definition "fold_thy' f_env_save f_try f_accu_reset f =
    | META_instance meta \<Rightarrow> comp_env_input_class_mk (fold_thy0 meta thy_instance)
    | META_def_base_l meta \<Rightarrow> fold_thy0 meta thy_def_base_l
    | META_def_state floor meta \<Rightarrow> comp_env_input_class_mk (fold_thy0 meta (thy_def_state floor))
-   | META_def_pre_post floor meta \<Rightarrow> fold_thy0 meta (thy_def_pre_post floor)
+   | META_def_transition floor meta \<Rightarrow> fold_thy0 meta (thy_def_transition floor)
    | META_ctxt floor meta \<Rightarrow> comp_env_input_class_mk (fold_thy0 meta (thy_ctxt floor))
    | META_flush_all meta \<Rightarrow> comp_env_input_class_mk (fold_thy0 meta thy_flush_all)) f))"
 

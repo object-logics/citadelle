@@ -156,25 +156,25 @@ definition "get_state f = (\<lambda> ToyDefPP _ s_pre s_post \<Rightarrow> \<lam
                          [ (s_post, l_post) ]))
     env)"
 
-definition "print_pre_post_locale_aux f_toyi l =
+definition "print_transition_locale_aux f_toyi l =
  (let (oid, l_fix_assum) = print_examp_def_st_locale_aux f_toyi l in
   L.flatten [oid, L.flatten (L.map (L.map fst o fst) l_fix_assum) ])"
 
-definition "print_pre_post_locale = get_state (\<lambda> (s_pre, l_pre) (s_post, l_post) l_pre_post. Pair
+definition "print_transition_locale = get_state (\<lambda> (s_pre, l_pre) (s_post, l_post) l_pre_post. Pair
  (let f_toyi = \<lambda>(cpt, ToyDefCoreBinding (_, toyi)) \<Rightarrow> (toyi, cpt) in
   print_examp_def_st_locale_make
-    (\<open>pre_post_\<close> @@ s_pre @@ \<open>_\<close> @@ s_post)
+    (\<open>transition_\<close> @@ s_pre @@ \<open>_\<close> @@ s_post)
     f_toyi
     (L.map (\<lambda>(s, l). ([], Some (s, Term_app
                                         (print_examp_def_st_locale_name s)
-                                        (print_pre_post_locale_aux f_toyi l))))
+                                        (print_transition_locale_aux f_toyi l))))
               l_pre_post)
     (merge_unique' [l_pre, l_post])))"
 
-definition "print_pre_post_interp = get_state (\<lambda> _ _.
+definition "print_transition_interp = get_state (\<lambda> _ _.
  Pair o L.map O'.interpretation o L.map
   (\<lambda>(s, l).
     let n = print_examp_def_st_locale_name s in
-    Interpretation n n (print_pre_post_locale_aux (\<lambda>(cpt, ToyDefCoreBinding (_, toyi)) \<Rightarrow> (toyi, cpt)) l) (C.by [M.rule (T.thm s)])))"
+    Interpretation n n (print_transition_locale_aux (\<lambda>(cpt, ToyDefCoreBinding (_, toyi)) \<Rightarrow> (toyi, cpt)) l) (C.by [M.rule (T.thm s)])))"
 
 end

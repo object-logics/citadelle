@@ -270,7 +270,7 @@ definition "print_examp_def_st1_gen = (\<lambda> ToyDefSt name l \<Rightarrow> b
 definition "print_examp_def_st1 s = fst o print_examp_def_st1_gen s"
 definition "print_meta_setup_def_state s env = snd (print_examp_def_st1_gen s env) env"
 
-definition "print_pre_post_gen = (\<lambda> ToyDefPP name s_pre s_post \<Rightarrow> bootstrap_floor'
+definition "print_transition_gen = (\<lambda> ToyDefPP name s_pre s_post \<Rightarrow> bootstrap_floor'
   (\<lambda>f env. 
     let (l, accu) = f env in
     (L.flatten [ L.map META_all_meta_embedding l ], accu))
@@ -290,12 +290,12 @@ definition "print_pre_post_gen = (\<lambda> ToyDefPP name s_pre s_post \<Rightar
       ; o_pre = Some (f_conv \<open>_pre\<close> s_pre)
       ; o_post = map_option (f_conv \<open>_post\<close>) s_post in
     ( (f_comp o_pre o f_comp o_post)
-       [ META_def_pre_post Floor2 (ToyDefPP name
+       [ META_def_transition Floor2 (ToyDefPP name
                                            (case\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l o_pre of Some (n, _) \<Rightarrow> n)
                                            (map_option fst o_post)) ]
     , f_comp_env o_pre o f_comp_env o_post )))"
 
-definition "print_pre_post s = fst o print_pre_post_gen s"
-definition "print_meta_setup_def_pre_post s env = snd (print_pre_post_gen s env) env"
+definition "print_transition s = fst o print_transition_gen s"
+definition "print_meta_setup_def_transition s env = snd (print_transition_gen s env) env"
 
 end

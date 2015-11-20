@@ -66,7 +66,7 @@ imports Printer
            "Association" "Composition" "Aggregation"
            "Abstract_associationclass" "Associationclass"
            "Context"
-           "End" "Instance" "BaseType" "State" "PrePost"
+           "End" "Instance" "BaseType" "State" "Transition"
 
            (* Isabelle syntax *)
            "generation_syntax"
@@ -1689,20 +1689,20 @@ val () =
 end
 \<close>
 
-subsection\<open>Setup of Meta Commands for Toy: PrePost\<close>
+subsection\<open>Setup of Meta Commands for Toy: Transition\<close>
 
 ML\<open>
 local
   open TOY_parse
 in
 val () =
-  outer_syntax_command @{mk_string} @{command_keyword PrePost} ""
+  outer_syntax_command @{mk_string} @{command_keyword Transition} ""
     (TOY_parse.optional (paren @{keyword "shallow"})
      -- TOY_parse.optional (Parse.binding --| @{keyword "="})
      -- state_pp_parse
      -- TOY_parse.optional state_pp_parse)
     (fn (((is_shallow, n), s_pre), s_post) => fn thy =>
-      META.META_def_pre_post
+      META.META_def_transition
         ( if is_shallow = NONE then META.Floor1 else META.Floor2
         , META.ToyDefPP ( From.option From.binding n
                        , mk_pp_state thy s_pre

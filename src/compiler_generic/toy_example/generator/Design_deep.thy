@@ -274,25 +274,25 @@ text\<open>
 Generally, generating meta-commands allows to perform various extensions
 on the Toy language being embedded, without altering the semantics of a particular command:\<close>
 
-PrePost \<sigma>\<^sub>1 \<sigma>\<^sub>1'
+Transition \<sigma>\<^sub>1 \<sigma>\<^sub>1'
 
 text\<open>
-@{command PrePost} usually only takes ``bound variables'' as parameters
-(not arbitrary @{text "\<lambda>"}-terms), however the semantics of @{command PrePost} was extended
+@{command Transition} usually only takes ``bound variables'' as parameters
+(not arbitrary @{text "\<lambda>"}-terms), however the semantics of @{command Transition} was extended
 to mimic the support of some particular terms not restricted to variables.
 This extension was implemented by executing some steps of ``@{text "\<zeta>"}-reductions rewriting rules''
 operating on the meta-level of commands.
-First, it is at least needed to extend the syntax of expressions accepted by @{command PrePost}, 
+First, it is at least needed to extend the syntax of expressions accepted by @{command Transition}, 
 we then modify the parsing so that a larger subset of @{text "\<lambda>"}-terms
 can be given as parameters.
 Starting from this expression: \\
-@{verbatim "(* PrePost \<sigma>\<^sub>1 [ ([ salary = 1000 , boss = self 1 ] :: Person) ] *)"}
+@{verbatim "(* Transition \<sigma>\<^sub>1 [ ([ salary = 1000 , boss = self 1 ] :: Person) ] *)"}
 
 the rewriting begins with a first call to the next semantic floor, we obtain 
-the following meta-commands (where @{command PrePost} @{text "[shallow]"} is an expression 
+the following meta-commands (where @{command Transition} @{text "[shallow]"} is an expression 
 in normal form): \\
 @{verbatim \<open>(* State WFF_10_post = [ ([ "salary" = 1000, "boss" = self 1 ] :: Person) ]\<close>} \\
-@{verbatim "   PrePost[shallow] \<sigma>\<^sub>1 WFF_10_post *)"}
+@{verbatim "   Transition[shallow] \<sigma>\<^sub>1 WFF_10_post *)"}
 (@{text "WFF_10_post"} is an automatically generated name).
 
 The rewriting of the above @{command State} is performed in its turn.
@@ -300,7 +300,7 @@ Finally the overall ultimately terminates when reaching @{command Instance} bein
 in normal form: \\
 @{verbatim \<open>(* Instance WFF_10_post_object0 :: Person = [ "salary" = 1000, "boss" = [  ] ]\<close>} \\
 @{verbatim "   State[shallow] WFF_10_post = [ WFF_10_post_object0 ]"} \\
-@{verbatim "   PrePost[shallow] \<sigma>\<^sub>1 WFF_10_post *)"}
+@{verbatim "   Transition[shallow] \<sigma>\<^sub>1 WFF_10_post *)"}
 \<close>
 
 subsection\<open>Designing Class Models (III): Interaction with (Pure) Term\<close>

@@ -95,7 +95,7 @@ Instance n1  :: Node = [ i = 2, "next" = n2 ]
 State \<sigma>\<^sub>1  = [ n1, n2, l1 ]
 State \<sigma>\<^sub>1' = [ n1', n2, n3, l1' ]
 
-PrePost  \<sigma>\<^sub>1 \<sigma>\<^sub>1'
+Transition  \<sigma>\<^sub>1 \<sigma>\<^sub>1'
 
 section{* Proof of State-Consistency and Implementability of ``insert'' *}
 

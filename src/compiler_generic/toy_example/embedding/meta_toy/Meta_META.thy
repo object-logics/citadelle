@@ -86,7 +86,7 @@ datatype all_meta_embedding = META_enum toy_enum
                             | META_instance toy_instance
                             | META_def_base_l toy_def_base_l
                             | META_def_state floor toy_def_state
-                            | META_def_pre_post floor toy_def_pre_post
+                            | META_def_transition floor toy_def_transition
                             | META_flush_all toy_flush_all
 
 subsection\<open>Main Compiling Environment\<close>
@@ -127,7 +127,7 @@ subsection\<open>Operations of Fold, Map, ..., on the Meta-Model\<close>
 
 definition "ignore_meta_header = (\<lambda> META_ctxt Floor1 _ \<Rightarrow> True
                                   | META_def_state Floor1 _ \<Rightarrow> True
-                                  | META_def_pre_post Floor1 _ \<Rightarrow> True
+                                  | META_def_transition Floor1 _ \<Rightarrow> True
                                   | _ \<Rightarrow> False)"
 
 text\<open>

@@ -256,8 +256,7 @@ where the latter only means that $X$'s object id exists both in $\sigma_1$ and
 $\sigma_2$, not that its content has not been changed.
 *}
 
-(* TODO : Rename PrePost into : Transition *)
-PrePost \<sigma>\<^sub>1 \<sigma>\<^sub>2
+Transition \<sigma>\<^sub>1 \<sigma>\<^sub>2
 
 
 
@@ -283,38 +282,38 @@ by(simp add: pp_\<sigma>\<^sub>1_\<sigma>\<^sub>2_def,
 
 definition \<sigma>\<^sub>0 :: "\<AA> state" where "\<sigma>\<^sub>0 = state.make Map.empty Map.empty"
 
-definition "\<sigma>\<^sub>1 = pre_post_\<sigma>\<^sub>1_\<sigma>\<^sub>2.\<sigma>\<^sub>1 oid3 oid4 oid5 oid6 oid7 oid8 oid9
+definition "\<sigma>\<^sub>t\<^sub>1 = transition_\<sigma>\<^sub>1_\<sigma>\<^sub>2.\<sigma>\<^sub>1 oid3 oid4 oid5 oid6 oid7 oid8 oid9
                   \<lceil>\<lceil>S1 (\<sigma>\<^sub>0, \<sigma>\<^sub>0)\<rceil>\<rceil> \<lceil>\<lceil>C1 (\<sigma>\<^sub>0, \<sigma>\<^sub>0)\<rceil>\<rceil> \<lceil>\<lceil>C2 (\<sigma>\<^sub>0, \<sigma>\<^sub>0)\<rceil>\<rceil> \<lceil>\<lceil>R11 (\<sigma>\<^sub>0, \<sigma>\<^sub>0)\<rceil>\<rceil>
                   \<lceil>\<lceil>R21 (\<sigma>\<^sub>0, \<sigma>\<^sub>0)\<rceil>\<rceil> \<lceil>\<lceil>F1 (\<sigma>\<^sub>0, \<sigma>\<^sub>0)\<rceil>\<rceil> \<lceil>\<lceil>F2 (\<sigma>\<^sub>0, \<sigma>\<^sub>0)\<rceil>\<rceil>"
 
-definition "\<sigma>\<^sub>2 = pre_post_\<sigma>\<^sub>1_\<sigma>\<^sub>2.\<sigma>\<^sub>2 oid3 oid6 oid8 oid9 oid10 oid11 oid12 oid13
+definition "\<sigma>\<^sub>t\<^sub>2 = transition_\<sigma>\<^sub>1_\<sigma>\<^sub>2.\<sigma>\<^sub>2 oid3 oid6 oid8 oid9 oid10 oid11 oid12 oid13
                   \<lceil>\<lceil>S1 (\<sigma>\<^sub>0, \<sigma>\<^sub>0)\<rceil>\<rceil> \<lceil>\<lceil>R11 (\<sigma>\<^sub>0, \<sigma>\<^sub>0)\<rceil>\<rceil> \<lceil>\<lceil>F1 (\<sigma>\<^sub>0, \<sigma>\<^sub>0)\<rceil>\<rceil> \<lceil>\<lceil>F2 (\<sigma>\<^sub>0, \<sigma>\<^sub>0)\<rceil>\<rceil>
                   \<lceil>\<lceil>\<sigma>\<^sub>2_object1 (\<sigma>\<^sub>0, \<sigma>\<^sub>0)\<rceil>\<rceil> \<lceil>\<lceil>\<sigma>\<^sub>2_object2 (\<sigma>\<^sub>0, \<sigma>\<^sub>0)\<rceil>\<rceil> \<lceil>\<lceil>\<sigma>\<^sub>2_object4 (\<sigma>\<^sub>0, \<sigma>\<^sub>0)\<rceil>\<rceil> \<lceil>\<lceil>\<sigma>\<^sub>2_object7 (\<sigma>\<^sub>0, \<sigma>\<^sub>0)\<rceil>\<rceil>"
 
-definition "s1 = state_\<sigma>\<^sub>1.\<sigma>\<^sub>1 oid3 oid4 oid5 oid6 oid7 oid8 oid9
+definition "\<sigma>\<^sub>s\<^sub>1 = state_\<sigma>\<^sub>1.\<sigma>\<^sub>1 oid3 oid4 oid5 oid6 oid7 oid8 oid9
                   \<lceil>\<lceil>S1 (\<sigma>\<^sub>0, \<sigma>\<^sub>0)\<rceil>\<rceil> \<lceil>\<lceil>C1 (\<sigma>\<^sub>0, \<sigma>\<^sub>0)\<rceil>\<rceil> \<lceil>\<lceil>C2 (\<sigma>\<^sub>0, \<sigma>\<^sub>0)\<rceil>\<rceil> \<lceil>\<lceil>R11 (\<sigma>\<^sub>0, \<sigma>\<^sub>0)\<rceil>\<rceil>
                   \<lceil>\<lceil>R21 (\<sigma>\<^sub>0, \<sigma>\<^sub>0)\<rceil>\<rceil> \<lceil>\<lceil>F1 (\<sigma>\<^sub>0, \<sigma>\<^sub>0)\<rceil>\<rceil> \<lceil>\<lceil>F2 (\<sigma>\<^sub>0, \<sigma>\<^sub>0)\<rceil>\<rceil>"
 
-definition "s2 = state_\<sigma>\<^sub>2.\<sigma>\<^sub>2 oid3 oid10 oid11 oid6 oid12 oid8 oid9 oid13
+definition "\<sigma>\<^sub>s\<^sub>2 = state_\<sigma>\<^sub>2.\<sigma>\<^sub>2 oid3 oid10 oid11 oid6 oid12 oid8 oid9 oid13
                   \<lceil>\<lceil>S1 (\<sigma>\<^sub>0, \<sigma>\<^sub>0)\<rceil>\<rceil> \<lceil>\<lceil>\<sigma>\<^sub>2_object1 (\<sigma>\<^sub>0, \<sigma>\<^sub>0)\<rceil>\<rceil> \<lceil>\<lceil>\<sigma>\<^sub>2_object2 (\<sigma>\<^sub>0, \<sigma>\<^sub>0)\<rceil>\<rceil> \<lceil>\<lceil>R11 (\<sigma>\<^sub>0, \<sigma>\<^sub>0)\<rceil>\<rceil>
                   \<lceil>\<lceil>\<sigma>\<^sub>2_object4 (\<sigma>\<^sub>0, \<sigma>\<^sub>0)\<rceil>\<rceil> \<lceil>\<lceil>F1 (\<sigma>\<^sub>0, \<sigma>\<^sub>0)\<rceil>\<rceil> \<lceil>\<lceil>F2 (\<sigma>\<^sub>0, \<sigma>\<^sub>0)\<rceil>\<rceil> \<lceil>\<lceil>\<sigma>\<^sub>2_object7 (\<sigma>\<^sub>0, \<sigma>\<^sub>0)\<rceil>\<rceil>"
 
 text{* Both formats are equivalent: *}
 
-lemma \<sigma>\<^sub>1_s1: "\<sigma>\<^sub>1 = s1"
-unfolding \<sigma>\<^sub>1_def s1_def 
- apply(subst pre_post_\<sigma>\<^sub>1_\<sigma>\<^sub>2.\<sigma>\<^sub>1_def)
+lemma \<sigma>\<^sub>t\<^sub>1_\<sigma>\<^sub>s\<^sub>1: "\<sigma>\<^sub>t\<^sub>1 = \<sigma>\<^sub>s\<^sub>1"
+unfolding \<sigma>\<^sub>t\<^sub>1_def \<sigma>\<^sub>s\<^sub>1_def 
+ apply(subst transition_\<sigma>\<^sub>1_\<sigma>\<^sub>2.\<sigma>\<^sub>1_def)
 by(rule \<sigma>\<^sub>1_\<sigma>\<^sub>2[simplified pp_\<sigma>\<^sub>1_\<sigma>\<^sub>2_def], simp)
 
 
-lemma \<sigma>\<^sub>2_s2: "\<sigma>\<^sub>2 = s2"
-unfolding \<sigma>\<^sub>2_def s2_def 
- apply(subst pre_post_\<sigma>\<^sub>1_\<sigma>\<^sub>2.\<sigma>\<^sub>2_def)
+lemma \<sigma>\<^sub>t\<^sub>2_\<sigma>\<^sub>s\<^sub>2: "\<sigma>\<^sub>t\<^sub>2 = \<sigma>\<^sub>s\<^sub>2"
+unfolding \<sigma>\<^sub>t\<^sub>2_def \<sigma>\<^sub>s\<^sub>2_def 
+ apply(subst transition_\<sigma>\<^sub>1_\<sigma>\<^sub>2.\<sigma>\<^sub>2_def)
 by(rule \<sigma>\<^sub>1_\<sigma>\<^sub>2[simplified pp_\<sigma>\<^sub>1_\<sigma>\<^sub>2_def], simp)
 
-lemma WFF_\<sigma>\<^sub>1_\<sigma>\<^sub>2: "WFF (\<sigma>\<^sub>1, \<sigma>\<^sub>2)"
-unfolding \<sigma>\<^sub>1_s1 \<sigma>\<^sub>2_s2 s1_def s2_def
- apply(rule pre_post_\<sigma>\<^sub>1_\<sigma>\<^sub>2.basic_\<sigma>\<^sub>1_\<sigma>\<^sub>2_wff)
+lemma "WFF (\<sigma>\<^sub>t\<^sub>1, \<sigma>\<^sub>t\<^sub>2)"
+unfolding \<sigma>\<^sub>t\<^sub>1_\<sigma>\<^sub>s\<^sub>1 \<sigma>\<^sub>t\<^sub>2_\<sigma>\<^sub>s\<^sub>2 \<sigma>\<^sub>s\<^sub>1_def \<sigma>\<^sub>s\<^sub>2_def
+ apply(rule transition_\<sigma>\<^sub>1_\<sigma>\<^sub>2.basic_\<sigma>\<^sub>1_\<sigma>\<^sub>2_wff)
  apply(rule \<sigma>\<^sub>1_\<sigma>\<^sub>2[simplified pp_\<sigma>\<^sub>1_\<sigma>\<^sub>2_def])
 by(simp_all add: pp_oid_\<sigma>\<^sub>1_\<sigma>\<^sub>2 pp_object_\<sigma>\<^sub>1_\<sigma>\<^sub>2 
       (* *)
@@ -344,48 +343,46 @@ text{* We wish to analyse our class model and show that the entire set of invari
 be satisfied, \ie{} there exists legal states that satisfy all constraints imposed
 by the class invariants. *}
 
-(* TODO : rename: pre_post into transition *)
-
 lemma Flight_consistent: "\<exists> \<tau>. Flight_Aat_pre \<tau> \<and>  Flight_A \<tau>"
-proof (rule_tac x="(\<sigma>\<^sub>1, \<sigma>\<^sub>2)" in exI, rule conjI)
+proof (rule_tac x="(\<sigma>\<^sub>t\<^sub>1, \<sigma>\<^sub>t\<^sub>2)" in exI, rule conjI)
    have forall_trivial: "\<And>\<tau> P. let S = OclAsType\<^sub>F\<^sub>l\<^sub>i\<^sub>g\<^sub>h\<^sub>t_\<AA> .allInstances@pre() in
                          (\<tau> \<Turnstile> (S->forAll\<^sub>S\<^sub>e\<^sub>t(X|P) \<triangleq> (S \<triangleq> Set{} or P)))"
    by(simp add: Let_def, rule OclForall_body_trivial, rule OclAllInstances_at_pre_defined)
    note S1 = \<sigma>\<^sub>1[simplified state_interpretation_\<sigma>\<^sub>1_def, of "(\<sigma>\<^sub>0,\<sigma>\<^sub>0)"]
    note S2 = \<sigma>\<^sub>2[simplified state_interpretation_\<sigma>\<^sub>2_def, of "(\<sigma>\<^sub>0,\<sigma>\<^sub>0)"]
    note PP = \<sigma>\<^sub>1_\<sigma>\<^sub>2[of "(\<sigma>\<^sub>0,\<sigma>\<^sub>0)", simplified pp_\<sigma>\<^sub>1_\<sigma>\<^sub>2_def]
-  show "Flight_Aat_pre (\<sigma>\<^sub>1, \<sigma>\<^sub>2)" 
+  show "Flight_Aat_pre (\<sigma>\<^sub>t\<^sub>1, \<sigma>\<^sub>t\<^sub>2)" 
            proof -
-             have F1_val: "F1 .seats@pre (s1, s2) = (\<lambda>_. \<lfloor>\<lfloor>120\<rfloor>\<rfloor>) (s1, s2)"
+             have F1_val: "F1 .seats@pre (\<sigma>\<^sub>s\<^sub>1, \<sigma>\<^sub>s\<^sub>2) = (\<lambda>_. \<lfloor>\<lfloor>120\<rfloor>\<rfloor>) (\<sigma>\<^sub>s\<^sub>1, \<sigma>\<^sub>s\<^sub>2)"
               apply(simp add: dot\<^sub>F\<^sub>l\<^sub>i\<^sub>g\<^sub>h\<^sub>t__seatsat_pre F1_def deref_oid\<^sub>F\<^sub>l\<^sub>i\<^sub>g\<^sub>h\<^sub>t_def in_pre_state_def F1\<^sub>F\<^sub>l\<^sub>i\<^sub>g\<^sub>h\<^sub>t_def oid_of_ty\<^sub>F\<^sub>l\<^sub>i\<^sub>g\<^sub>h\<^sub>t_def oid8_def)
-              apply(subst (8) s1_def, simp add: state_\<sigma>\<^sub>1.\<sigma>\<^sub>1_def[OF S1], simp add: pp_oid_\<sigma>\<^sub>1_\<sigma>\<^sub>2)
+              apply(subst (8) \<sigma>\<^sub>s\<^sub>1_def, simp add: state_\<sigma>\<^sub>1.\<sigma>\<^sub>1_def[OF S1], simp add: pp_oid_\<sigma>\<^sub>1_\<sigma>\<^sub>2)
               apply(simp add: select\<^sub>F\<^sub>l\<^sub>i\<^sub>g\<^sub>h\<^sub>t__seats_def F1_def F1\<^sub>F\<^sub>l\<^sub>i\<^sub>g\<^sub>h\<^sub>t_def)
              by(simp add: reconst_basetype_def)
-             have F2_val: "F2 .seats@pre (s1, s2) = (\<lambda>_. \<lfloor>\<lfloor>370\<rfloor>\<rfloor>) (s1, s2)"
+             have F2_val: "F2 .seats@pre (\<sigma>\<^sub>s\<^sub>1, \<sigma>\<^sub>s\<^sub>2) = (\<lambda>_. \<lfloor>\<lfloor>370\<rfloor>\<rfloor>) (\<sigma>\<^sub>s\<^sub>1, \<sigma>\<^sub>s\<^sub>2)"
               apply(simp add: dot\<^sub>F\<^sub>l\<^sub>i\<^sub>g\<^sub>h\<^sub>t__seatsat_pre F2_def deref_oid\<^sub>F\<^sub>l\<^sub>i\<^sub>g\<^sub>h\<^sub>t_def in_pre_state_def F2\<^sub>F\<^sub>l\<^sub>i\<^sub>g\<^sub>h\<^sub>t_def oid_of_ty\<^sub>F\<^sub>l\<^sub>i\<^sub>g\<^sub>h\<^sub>t_def oid9_def)
-              apply(subst (8) s1_def, simp add: state_\<sigma>\<^sub>1.\<sigma>\<^sub>1_def[OF S1], simp add: pp_oid_\<sigma>\<^sub>1_\<sigma>\<^sub>2)
+              apply(subst (8) \<sigma>\<^sub>s\<^sub>1_def, simp add: state_\<sigma>\<^sub>1.\<sigma>\<^sub>1_def[OF S1], simp add: pp_oid_\<sigma>\<^sub>1_\<sigma>\<^sub>2)
               apply(simp add: select\<^sub>F\<^sub>l\<^sub>i\<^sub>g\<^sub>h\<^sub>t__seats_def F2_def F2\<^sub>F\<^sub>l\<^sub>i\<^sub>g\<^sub>h\<^sub>t_def)
              by(simp add: reconst_basetype_def)
-             have 40: "(\<sigma>\<^sub>1, \<sigma>\<^sub>2) \<Turnstile> \<zero> <\<^sub>i\<^sub>n\<^sub>t F1 .seats@pre"
-              apply(simp add: OclValid_def \<sigma>\<^sub>1_s1 \<sigma>\<^sub>2_s2)
+             have 40: "(\<sigma>\<^sub>t\<^sub>1, \<sigma>\<^sub>t\<^sub>2) \<Turnstile> \<zero> <\<^sub>i\<^sub>n\<^sub>t F1 .seats@pre"
+              apply(simp add: OclValid_def \<sigma>\<^sub>t\<^sub>1_\<sigma>\<^sub>s\<^sub>1 \<sigma>\<^sub>t\<^sub>2_\<sigma>\<^sub>s\<^sub>2)
              by(subst OclLess\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r.cp0, simp add: F1_val OclInt0_def OclLess\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r_def)
-             have 41: "(\<sigma>\<^sub>1, \<sigma>\<^sub>2) \<Turnstile> \<zero> <\<^sub>i\<^sub>n\<^sub>t F2 .seats@pre"
-              apply(simp add: OclValid_def \<sigma>\<^sub>1_s1 \<sigma>\<^sub>2_s2)
+             have 41: "(\<sigma>\<^sub>t\<^sub>1, \<sigma>\<^sub>t\<^sub>2) \<Turnstile> \<zero> <\<^sub>i\<^sub>n\<^sub>t F2 .seats@pre"
+              apply(simp add: OclValid_def \<sigma>\<^sub>t\<^sub>1_\<sigma>\<^sub>s\<^sub>1 \<sigma>\<^sub>t\<^sub>2_\<sigma>\<^sub>s\<^sub>2)
              by(subst OclLess\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r.cp0, simp add: F2_val OclInt0_def OclLess\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r_def)
-             have 1 : "((\<sigma>\<^sub>1, \<sigma>\<^sub>2) \<Turnstile> Flight .allInstances@pre()->forAll\<^sub>S\<^sub>e\<^sub>t(self|
+             have 1 : "((\<sigma>\<^sub>t\<^sub>1, \<sigma>\<^sub>t\<^sub>2) \<Turnstile> Flight .allInstances@pre()->forAll\<^sub>S\<^sub>e\<^sub>t(self|
                                           Flight .allInstances@pre()->forAll\<^sub>S\<^sub>e\<^sub>t(f|\<zero> <\<^sub>i\<^sub>n\<^sub>t
                                                                               f .seats@pre))) =
-                       ((\<sigma>\<^sub>1, \<sigma>\<^sub>2) \<Turnstile> Flight .allInstances@pre() \<triangleq> Set{} or Flight .allInstances@pre()->forAll\<^sub>S\<^sub>e\<^sub>t(f| \<zero> <\<^sub>i\<^sub>n\<^sub>t  f .seats@pre))"
+                       ((\<sigma>\<^sub>t\<^sub>1, \<sigma>\<^sub>t\<^sub>2) \<Turnstile> Flight .allInstances@pre() \<triangleq> Set{} or Flight .allInstances@pre()->forAll\<^sub>S\<^sub>e\<^sub>t(f| \<zero> <\<^sub>i\<^sub>n\<^sub>t  f .seats@pre))"
              by(simp add: StrongEq_L_subst3[OF _ forall_trivial[simplified Let_def], where P = "\<lambda>x. x"])
-             have 2: " ... = ((\<sigma>\<^sub>1, \<sigma>\<^sub>2) \<Turnstile> Set{F1, F2} \<triangleq> Set{} or Set{F1,F2}->forAll\<^sub>S\<^sub>e\<^sub>t(f| \<zero> <\<^sub>i\<^sub>n\<^sub>t  f .seats@pre))"
+             have 2: " ... = ((\<sigma>\<^sub>t\<^sub>1, \<sigma>\<^sub>t\<^sub>2) \<Turnstile> Set{F1, F2} \<triangleq> Set{} or Set{F1,F2}->forAll\<^sub>S\<^sub>e\<^sub>t(f| \<zero> <\<^sub>i\<^sub>n\<^sub>t  f .seats@pre))"
              unfolding Flight_def
-              apply(subst StrongEq_L_subst3[where x = "OclAsType\<^sub>F\<^sub>l\<^sub>i\<^sub>g\<^sub>h\<^sub>t_\<AA> .allInstances@pre()"], simp, simp add: \<sigma>\<^sub>1_def \<sigma>\<^sub>1_s1[simplified \<sigma>\<^sub>1_def s1_def])
+              apply(subst StrongEq_L_subst3[where x = "OclAsType\<^sub>F\<^sub>l\<^sub>i\<^sub>g\<^sub>h\<^sub>t_\<AA> .allInstances@pre()"], simp, simp add: \<sigma>\<^sub>t\<^sub>1_def \<sigma>\<^sub>t\<^sub>1_\<sigma>\<^sub>s\<^sub>1[simplified \<sigma>\<^sub>t\<^sub>1_def \<sigma>\<^sub>s\<^sub>1_def])
             
                apply(rule StrictRefEq\<^sub>S\<^sub>e\<^sub>t.StrictRefEq_vs_StrongEq'[THEN iffD1, OF _ _ state_\<sigma>\<^sub>1.\<sigma>\<^sub>1_OclAllInstances_at_pre_exec_Flight[OF \<sigma>\<^sub>1[simplified state_interpretation_\<sigma>\<^sub>1_def], simplified Flight_def]])
                         apply(rule OclAllInstances_at_pre_valid)
                        apply(simp add: F1_def F2_def)
              by(simp add: OclAsType\<^sub>F\<^sub>l\<^sub>i\<^sub>g\<^sub>h\<^sub>t_\<AA>_def)+
-             have 3: " ... = ((\<sigma>\<^sub>1, \<sigma>\<^sub>2) \<Turnstile> Set{F1, F2} \<triangleq> Set{} or (\<zero> <\<^sub>i\<^sub>n\<^sub>t  (F2 .seats@pre)) and (\<zero> <\<^sub>i\<^sub>n\<^sub>t  (F1 .seats@pre)))"
+             have 3: " ... = ((\<sigma>\<^sub>t\<^sub>1, \<sigma>\<^sub>t\<^sub>2) \<Turnstile> Set{F1, F2} \<triangleq> Set{} or (\<zero> <\<^sub>i\<^sub>n\<^sub>t  (F2 .seats@pre)) and (\<zero> <\<^sub>i\<^sub>n\<^sub>t  (F1 .seats@pre)))"
               apply(simp, simp add: OclValid_def, subst (1 2) cp_OclOr, subst cp_OclIf, subst (1 2 3) cp_OclAnd, subst cp_OclIf)
              by(simp add: F1_def F2_def OclIf_def)
              have 4: " ..."
@@ -404,38 +401,38 @@ next
    note S1 = \<sigma>\<^sub>1[simplified state_interpretation_\<sigma>\<^sub>1_def, of "(\<sigma>\<^sub>0,\<sigma>\<^sub>0)"]
    note S2 = \<sigma>\<^sub>2[simplified state_interpretation_\<sigma>\<^sub>2_def, of "(\<sigma>\<^sub>0,\<sigma>\<^sub>0)"]
    note PP = \<sigma>\<^sub>1_\<sigma>\<^sub>2[of "(\<sigma>\<^sub>0,\<sigma>\<^sub>0)", simplified pp_\<sigma>\<^sub>1_\<sigma>\<^sub>2_def]
-  show "Flight_A (\<sigma>\<^sub>1, \<sigma>\<^sub>2)" 
+  show "Flight_A (\<sigma>\<^sub>t\<^sub>1, \<sigma>\<^sub>t\<^sub>2)" 
            proof -
-             have F1_val: "F1 .seats (s1, s2) = (\<lambda>_. \<lfloor>\<lfloor>120\<rfloor>\<rfloor>) (s1, s2)"
+             have F1_val: "F1 .seats (\<sigma>\<^sub>s\<^sub>1, \<sigma>\<^sub>s\<^sub>2) = (\<lambda>_. \<lfloor>\<lfloor>120\<rfloor>\<rfloor>) (\<sigma>\<^sub>s\<^sub>1, \<sigma>\<^sub>s\<^sub>2)"
               apply(simp add: dot\<^sub>F\<^sub>l\<^sub>i\<^sub>g\<^sub>h\<^sub>t__seats F1_def deref_oid\<^sub>F\<^sub>l\<^sub>i\<^sub>g\<^sub>h\<^sub>t_def in_post_state_def F1\<^sub>F\<^sub>l\<^sub>i\<^sub>g\<^sub>h\<^sub>t_def oid_of_ty\<^sub>F\<^sub>l\<^sub>i\<^sub>g\<^sub>h\<^sub>t_def oid8_def)
-              apply(subst (8) s2_def, simp add: state_\<sigma>\<^sub>2.\<sigma>\<^sub>2_def[OF S2], simp add: pp_oid_\<sigma>\<^sub>1_\<sigma>\<^sub>2)
+              apply(subst (8) \<sigma>\<^sub>s\<^sub>2_def, simp add: state_\<sigma>\<^sub>2.\<sigma>\<^sub>2_def[OF S2], simp add: pp_oid_\<sigma>\<^sub>1_\<sigma>\<^sub>2)
               apply(simp add: select\<^sub>F\<^sub>l\<^sub>i\<^sub>g\<^sub>h\<^sub>t__seats_def F1_def F1\<^sub>F\<^sub>l\<^sub>i\<^sub>g\<^sub>h\<^sub>t_def)
              by(simp add: reconst_basetype_def)
-             have F2_val: "F2 .seats (s1, s2) = (\<lambda>_. \<lfloor>\<lfloor>370\<rfloor>\<rfloor>) (s1, s2)"
+             have F2_val: "F2 .seats (\<sigma>\<^sub>s\<^sub>1, \<sigma>\<^sub>s\<^sub>2) = (\<lambda>_. \<lfloor>\<lfloor>370\<rfloor>\<rfloor>) (\<sigma>\<^sub>s\<^sub>1, \<sigma>\<^sub>s\<^sub>2)"
               apply(simp add: dot\<^sub>F\<^sub>l\<^sub>i\<^sub>g\<^sub>h\<^sub>t__seats F2_def deref_oid\<^sub>F\<^sub>l\<^sub>i\<^sub>g\<^sub>h\<^sub>t_def in_post_state_def F2\<^sub>F\<^sub>l\<^sub>i\<^sub>g\<^sub>h\<^sub>t_def oid_of_ty\<^sub>F\<^sub>l\<^sub>i\<^sub>g\<^sub>h\<^sub>t_def oid9_def)
-              apply(subst (8) s2_def, simp add: state_\<sigma>\<^sub>2.\<sigma>\<^sub>2_def[OF S2], simp add: pp_oid_\<sigma>\<^sub>1_\<sigma>\<^sub>2)
+              apply(subst (8) \<sigma>\<^sub>s\<^sub>2_def, simp add: state_\<sigma>\<^sub>2.\<sigma>\<^sub>2_def[OF S2], simp add: pp_oid_\<sigma>\<^sub>1_\<sigma>\<^sub>2)
               apply(simp add: select\<^sub>F\<^sub>l\<^sub>i\<^sub>g\<^sub>h\<^sub>t__seats_def F2_def F2\<^sub>F\<^sub>l\<^sub>i\<^sub>g\<^sub>h\<^sub>t_def)
              by(simp add: reconst_basetype_def)
-             have 40: "(\<sigma>\<^sub>1, \<sigma>\<^sub>2) \<Turnstile> \<zero> <\<^sub>i\<^sub>n\<^sub>t F1 .seats"
-              apply(simp add: OclValid_def \<sigma>\<^sub>1_s1 \<sigma>\<^sub>2_s2)
+             have 40: "(\<sigma>\<^sub>t\<^sub>1, \<sigma>\<^sub>t\<^sub>2) \<Turnstile> \<zero> <\<^sub>i\<^sub>n\<^sub>t F1 .seats"
+              apply(simp add: OclValid_def \<sigma>\<^sub>t\<^sub>1_\<sigma>\<^sub>s\<^sub>1 \<sigma>\<^sub>t\<^sub>2_\<sigma>\<^sub>s\<^sub>2)
              by(subst OclLess\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r.cp0, simp add: F1_val OclInt0_def OclLess\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r_def)
-             have 41: "(\<sigma>\<^sub>1, \<sigma>\<^sub>2) \<Turnstile> \<zero> <\<^sub>i\<^sub>n\<^sub>t F2 .seats"
-              apply(simp add: OclValid_def \<sigma>\<^sub>1_s1 \<sigma>\<^sub>2_s2)
+             have 41: "(\<sigma>\<^sub>t\<^sub>1, \<sigma>\<^sub>t\<^sub>2) \<Turnstile> \<zero> <\<^sub>i\<^sub>n\<^sub>t F2 .seats"
+              apply(simp add: OclValid_def \<sigma>\<^sub>t\<^sub>1_\<sigma>\<^sub>s\<^sub>1 \<sigma>\<^sub>t\<^sub>2_\<sigma>\<^sub>s\<^sub>2)
              by(subst OclLess\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r.cp0, simp add: F2_val OclInt0_def OclLess\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r_def)
-             have 1 : "((\<sigma>\<^sub>1, \<sigma>\<^sub>2) \<Turnstile> Flight .allInstances()->forAll\<^sub>S\<^sub>e\<^sub>t(self|
+             have 1 : "((\<sigma>\<^sub>t\<^sub>1, \<sigma>\<^sub>t\<^sub>2) \<Turnstile> Flight .allInstances()->forAll\<^sub>S\<^sub>e\<^sub>t(self|
                                           Flight .allInstances()->forAll\<^sub>S\<^sub>e\<^sub>t(f|\<zero> <\<^sub>i\<^sub>n\<^sub>t
                                                                               f .seats))) =
-                       ((\<sigma>\<^sub>1, \<sigma>\<^sub>2) \<Turnstile> Flight .allInstances() \<triangleq> Set{} or Flight .allInstances()->forAll\<^sub>S\<^sub>e\<^sub>t(f| \<zero> <\<^sub>i\<^sub>n\<^sub>t  f .seats))"
+                       ((\<sigma>\<^sub>t\<^sub>1, \<sigma>\<^sub>t\<^sub>2) \<Turnstile> Flight .allInstances() \<triangleq> Set{} or Flight .allInstances()->forAll\<^sub>S\<^sub>e\<^sub>t(f| \<zero> <\<^sub>i\<^sub>n\<^sub>t  f .seats))"
              by(simp add: StrongEq_L_subst3[OF _ forall_trivial[simplified Let_def], where P = "\<lambda>x. x"])
-             have 2: " ... = ((\<sigma>\<^sub>1, \<sigma>\<^sub>2) \<Turnstile> Set{F1, F2} \<triangleq> Set{} or Set{F1,F2}->forAll\<^sub>S\<^sub>e\<^sub>t(f| \<zero> <\<^sub>i\<^sub>n\<^sub>t  f .seats))"
+             have 2: " ... = ((\<sigma>\<^sub>t\<^sub>1, \<sigma>\<^sub>t\<^sub>2) \<Turnstile> Set{F1, F2} \<triangleq> Set{} or Set{F1,F2}->forAll\<^sub>S\<^sub>e\<^sub>t(f| \<zero> <\<^sub>i\<^sub>n\<^sub>t  f .seats))"
              unfolding Flight_def
-              apply(subst StrongEq_L_subst3[where x = "OclAsType\<^sub>F\<^sub>l\<^sub>i\<^sub>g\<^sub>h\<^sub>t_\<AA> .allInstances()"], simp, simp add: \<sigma>\<^sub>2_def \<sigma>\<^sub>2_s2[simplified \<sigma>\<^sub>2_def s2_def])
+              apply(subst StrongEq_L_subst3[where x = "OclAsType\<^sub>F\<^sub>l\<^sub>i\<^sub>g\<^sub>h\<^sub>t_\<AA> .allInstances()"], simp, simp add: \<sigma>\<^sub>t\<^sub>2_def \<sigma>\<^sub>t\<^sub>2_\<sigma>\<^sub>s\<^sub>2[simplified \<sigma>\<^sub>t\<^sub>2_def \<sigma>\<^sub>s\<^sub>2_def])
             
                apply(rule StrictRefEq\<^sub>S\<^sub>e\<^sub>t.StrictRefEq_vs_StrongEq'[THEN iffD1, OF _ _ state_\<sigma>\<^sub>2.\<sigma>\<^sub>2_OclAllInstances_at_post_exec_Flight[OF \<sigma>\<^sub>2[simplified state_interpretation_\<sigma>\<^sub>2_def], simplified Flight_def]])
                         apply(rule OclAllInstances_at_post_valid)
                        apply(simp add: F1_def F2_def)
              by(simp add: OclAsType\<^sub>F\<^sub>l\<^sub>i\<^sub>g\<^sub>h\<^sub>t_\<AA>_def)+
-             have 3: " ... = ((\<sigma>\<^sub>1, \<sigma>\<^sub>2) \<Turnstile> Set{F1, F2} \<triangleq> Set{} or (\<zero> <\<^sub>i\<^sub>n\<^sub>t  (F2 .seats)) and (\<zero> <\<^sub>i\<^sub>n\<^sub>t  (F1 .seats)))"
+             have 3: " ... = ((\<sigma>\<^sub>t\<^sub>1, \<sigma>\<^sub>t\<^sub>2) \<Turnstile> Set{F1, F2} \<triangleq> Set{} or (\<zero> <\<^sub>i\<^sub>n\<^sub>t  (F2 .seats)) and (\<zero> <\<^sub>i\<^sub>n\<^sub>t  (F1 .seats)))"
               apply(simp, simp add: OclValid_def, subst (1 2) cp_OclOr, subst cp_OclIf, subst (1 2 3) cp_OclAnd, subst cp_OclIf)
              by(simp add: F1_def F2_def OclIf_def)
              have 4: " ..."

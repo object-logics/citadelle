@@ -90,7 +90,7 @@ datatype ocl_def_state = OclDefSt  string (* name *)
 datatype ocl_def_pp_core = OclDefPPCoreAdd "string (* name *) ocl_def_state_core list"
                          | OclDefPPCoreBinding string (* name *)
 
-datatype ocl_def_pre_post = OclDefPP
+datatype ocl_def_transition = OclDefPP
                               "string option" (* None: fresh name to be generated *)
                               ocl_def_pp_core (* pre *)
                               "ocl_def_pp_core option" (* post *) (* None: same as pre *)

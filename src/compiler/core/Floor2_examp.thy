@@ -328,29 +328,29 @@ definition "get_state f = (\<lambda> OclDefPP _ s_pre s_post \<Rightarrow> \<lam
                          [ (s_post, l_post) ]))
     env)"
 
-definition "print_pre_post_locale_aux f_ocli l =
+definition "print_transition_locale_aux f_ocli l =
  (let (oid, l_fix_assum) = print_examp_def_st_locale_aux f_ocli l in
   L.flatten [oid, L.flatten (L.map (L.map fst o fst) l_fix_assum) ])"
 
-definition "print_pre_post_locale_name s_pre s_post = \<open>pre_post_\<close> @@ s_pre @@ \<open>_\<close> @@ s_post"
-definition "print_pre_post_locale = get_state (\<lambda> (s_pre, l_pre) (s_post, l_post) l_pre_post. Pair
+definition "print_transition_locale_name s_pre s_post = \<open>transition_\<close> @@ s_pre @@ \<open>_\<close> @@ s_post"
+definition "print_transition_locale = get_state (\<lambda> (s_pre, l_pre) (s_post, l_post) l_pre_post. Pair
  (let f_ocli = \<lambda>(cpt, OclDefCoreBinding (_, ocli)) \<Rightarrow> (ocli, cpt) in
   print_examp_def_st_locale_make
-    (print_pre_post_locale_name s_pre s_post)
+    (print_transition_locale_name s_pre s_post)
     f_ocli
     (L.map (\<lambda>(s, l). ([], Some (s, Term_app
                                         (print_examp_def_st_locale_name s)
-                                        (print_pre_post_locale_aux f_ocli l))))
+                                        (print_transition_locale_aux f_ocli l))))
               l_pre_post)
     (merge_unique' [l_pre, l_post])))"
 
-definition "print_pre_post_interp = get_state (\<lambda> _ _.
+definition "print_transition_interp = get_state (\<lambda> _ _.
  Pair o L.map O'.interpretation o L.map
   (\<lambda>(s, l).
     let n = print_examp_def_st_locale_name s in
-    Interpretation n n (print_pre_post_locale_aux (\<lambda>(cpt, OclDefCoreBinding (_, ocli)) \<Rightarrow> (ocli, cpt)) l) (C.by [M.rule (T.thm s)])))"
+    Interpretation n n (print_transition_locale_aux (\<lambda>(cpt, OclDefCoreBinding (_, ocli)) \<Rightarrow> (ocli, cpt)) l) (C.by [M.rule (T.thm s)])))"
 
-definition "print_pre_post_def_state = get_state (\<lambda> pre post _.
+definition "print_transition_def_state = get_state (\<lambda> pre post _.
  (Pair o L.map O'.definition)
  (L.map
   (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l a = \<lambda>f x. Term_app f [x]
@@ -359,7 +359,7 @@ definition "print_pre_post_def_state = get_state (\<lambda> pre post _.
     Definition (Term_rewrite (b s) \<open>=\<close> (b (print_examp_def_st_locale_name s @@ \<open>.\<close> @@ s)))))
   [ pre, post ]))"
 
-definition "print_pre_post_wff = get_state (\<lambda> (s_pre, l_pre) (s_post, l_post) l_pre_post env.
+definition "print_transition_wff = get_state (\<lambda> (s_pre, l_pre) (s_post, l_post) l_pre_post env.
  (\<lambda> l. (L.map O'.lemma l, env))
   (let a = \<lambda>f x. Term_app f [x]
      ; b = \<lambda>s. Term_basic [s]
@@ -390,7 +390,7 @@ definition "print_pre_post_wff = get_state (\<lambda> (s_pre, l_pre) (s_post, l_
                                                  (L.flatten (L.map snd l_pre_post)))]))
        (C.by [M.auto_simp_add (L.map d (\<open>WFF\<close> # L.map (mk_n o fst) l_pre_post))])] ))"
 
-definition "print_pre_post_where = get_state (\<lambda> (s_pre, l_pre) (s_post, l_post) l_pre_post env.
+definition "print_transition_where = get_state (\<lambda> (s_pre, l_pre) (s_post, l_post) l_pre_post env.
  (\<lambda> l. ((L.map O'.lemma o L.flatten) l, env))
   (let a = \<lambda>f x. Term_app f [x]
      ; b = \<lambda>s. Term_basic [s]
@@ -423,7 +423,7 @@ definition "print_pre_post_where = get_state (\<lambda> (s_pre, l_pre) (s_post, 
          l_ocore)
      (RBT.keys (RBT.union rbt_pre rbt_post)) ))"
 
-definition "print_pre_post_def_interp = get_state (\<lambda> (s_pre, l_pre) (s_post, l_post) _.
+definition "print_transition_def_interp = get_state (\<lambda> (s_pre, l_pre) (s_post, l_post) _.
  (Pair o L.map O.definition)
   (let a = \<lambda>f x. Term_app f [x]
      ; b = \<lambda>s. Term_basic [s]
@@ -440,10 +440,10 @@ definition "print_pre_post_def_interp = get_state (\<lambda> (s_pre, l_pre) (s_p
         (merge_unique' [l_pre, l_post]))) in
    [Definition (Term_rewrite (a (\<open>pp_\<close> @@ s_pre @@ \<open>_\<close> @@ s_post) (b var_tau))
                              \<open>=\<close>
-                             (Term_app (print_pre_post_locale_name s_pre s_post)
+                             (Term_app (print_transition_locale_name s_pre s_post)
                                (L.flatten [oid, L.flatten l_fix_assum])))]))"
 
-definition "print_pre_post_lemmas_oid = get_state (\<lambda> (s_pre, l_pre) (s_post, l_post) _.
+definition "print_transition_lemmas_oid = get_state (\<lambda> (s_pre, l_pre) (s_post, l_post) _.
  (Pair o L.map O.lemmas)
   (let b = \<lambda>s. Term_basic [s] in
    L.map (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l l_pp = merge_unique' [l_pre, l_post] in

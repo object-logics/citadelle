@@ -104,7 +104,7 @@ definition "of_all_meta_embedding a b = rec_all_meta_embedding
   (ap1 a (b \<open>META_instance\<close>) (of_toy_instance a b))
   (ap1 a (b \<open>META_def_base_l\<close>) (of_toy_def_base_l a b))
   (ap2 a (b \<open>META_def_state\<close>) (of_floor a b) (of_toy_def_state a b))
-  (ap2 a (b \<open>META_def_pre_post\<close>) (of_floor a b) (of_toy_def_pre_post a b))
+  (ap2 a (b \<open>META_def_transition\<close>) (of_floor a b) (of_toy_def_transition a b))
   (ap1 a (b \<open>META_flush_all\<close>) (of_toy_flush_all a b))"
 
 definition "of_generation_semantics_toy a b = rec_generation_semantics_toy

@@ -117,9 +117,9 @@ State \<sigma>\<^sub>1' =
   , X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n3
   , X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n4 ]
 
-PrePost \<sigma>\<^sub>1 \<sigma>\<^sub>1'
+Transition \<sigma>\<^sub>1 \<sigma>\<^sub>1'
 
-(* PrePost \<sigma>\<^sub>1 [ ([ salary = 1000 , boss = self 1 ] :: Person) ] *)
+(* Transition \<sigma>\<^sub>1 [ ([ salary = 1000 , boss = self 1 ] :: Person) ] *)
 
 subsection\<open>Designing Class Models (III): Interaction with (Pure) Term\<close>
 

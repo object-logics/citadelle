@@ -131,7 +131,7 @@ definition "of_ocl_def_pp_core a b = rec_ocl_def_pp_core
   (ap1 a (b \<open>OclDefPPCoreAdd\<close>) (of_list a b (of_ocl_def_state_core a b (of_string a b))))
   (ap1 a (b \<open>OclDefPPCoreBinding\<close>) (of_string a b))"
 
-definition "of_ocl_def_pre_post a b = rec_ocl_def_pre_post
+definition "of_ocl_def_transition a b = rec_ocl_def_transition
   (ap3 a (b \<open>OclDefPP\<close>)
     (of_option a b (of_string a b))
     (of_ocl_def_pp_core a b)
@@ -151,6 +151,6 @@ lemmas [code] =
   Parse.of_ocl_def_state_core_def
   Parse.of_ocl_def_state_def
   Parse.of_ocl_def_pp_core_def
-  Parse.of_ocl_def_pre_post_def
+  Parse.of_ocl_def_transition_def
 
 end

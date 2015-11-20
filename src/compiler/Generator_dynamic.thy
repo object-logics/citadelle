@@ -73,7 +73,7 @@ imports Printer
            "Abstract_associationclass" "Associationclass"
            "Context"
            (* OCL (added) *)
-           "End" "Instance" "BaseType" "State" "PrePost"
+           "End" "Instance" "BaseType" "State" "Transition"
 
            (* Isabelle syntax *)
            "generation_syntax"
@@ -1695,20 +1695,20 @@ val () =
 end
 \<close>
 
-subsection\<open>Setup of Meta Commands for OCL: PrePost\<close>
+subsection\<open>Setup of Meta Commands for OCL: Transition\<close>
 
 ML\<open>
 local
   open USE_parse
 in
 val () =
-  outer_syntax_command @{mk_string} @{command_keyword PrePost} ""
+  outer_syntax_command @{mk_string} @{command_keyword Transition} ""
     (USE_parse.optional (paren @{keyword "shallow"})
      -- USE_parse.optional (Parse.binding --| @{keyword "="})
      -- state_pp_parse
      -- USE_parse.optional state_pp_parse)
     (fn (((is_shallow, n), s_pre), s_post) => fn thy =>
-      META.META_def_pre_post
+      META.META_def_transition
         ( if is_shallow = NONE then META.Floor1 else META.Floor2
         , META.OclDefPP ( From.option From.binding n
                        , mk_pp_state thy s_pre

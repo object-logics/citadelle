@@ -119,7 +119,7 @@ State \<sigma>\<^sub>1' =
 
 (*State \<sigma>\<^sub>0 = []*)
 
-PrePost \<sigma>\<^sub>1 \<sigma>\<^sub>1'
+Transition \<sigma>\<^sub>1 \<sigma>\<^sub>1'
 
 Context Person :: contents () : Set(Integer)
   Post : "result \<triangleq> if (self .boss \<doteq> null)

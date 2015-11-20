@@ -95,7 +95,7 @@ State \<sigma>\<^sub>1' =
 
 State ss = []
 
-PrePost ss \<sigma>\<^sub>1'
+Transition ss \<sigma>\<^sub>1'
 
 BaseType [ 25, 250.0 ]
 

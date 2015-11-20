@@ -212,15 +212,15 @@ text \<open>
 subsection\<open>.......................................................................................................................................\<close>
 text \<open>
 \begin{matharray}{rcl}
-  @{command_def PrePost} & : & @{text "theory \<rightarrow> theory"}
+  @{command_def Transition} & : & @{text "theory \<rightarrow> theory"}
 \end{matharray}
 
 @{rail \<open>
-  @@{command PrePost} ('[' @'shallow' ']')? (binding '=')? \<newline>
-    @{syntax pre_post}
-    @{syntax pre_post}?
+  @@{command Transition} ('[' @'shallow' ']')? (binding '=')? \<newline>
+    @{syntax transition}
+    @{syntax transition}?
   ;
-  @{syntax_def pre_post}:
+  @{syntax_def transition}:
                binding | @{syntax state}
   ;
 \<close>}

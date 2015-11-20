@@ -109,9 +109,9 @@ definition "of_ocl_def_state _ (floor :: (* polymorphism weakening needed by cod
 definition "of_ocl_def_pp_core = (\<lambda> OclDefPPCoreBinding s \<Rightarrow> To_string s
                                   | OclDefPPCoreAdd l \<Rightarrow> \<open>[ %s ]\<close> (of_ocl_def_state_core l))"
 
-definition "of_ocl_def_pre_post _ (floor :: (* polymorphism weakening needed by code_reflect *)
+definition "of_ocl_def_transition _ (floor :: (* polymorphism weakening needed by code_reflect *)
                                             String.literal) = (\<lambda> OclDefPP n s_pre s_post \<Rightarrow>
-  \<open>PrePost%s %s%s%s\<close>
+  \<open>Transition%s %s%s%s\<close>
     floor
     (case n of None \<Rightarrow> \<open>\<close> | Some n \<Rightarrow> \<open>%s = \<close> (To_string n))
     (of_ocl_def_pp_core s_pre)
@@ -128,7 +128,7 @@ lemmas [code] =
   Print.of_ocl_def_state_core_def
   Print.of_ocl_def_state_def
   Print.of_ocl_def_pp_core_def
-  Print.of_ocl_def_pre_post_def
+  Print.of_ocl_def_transition_def
 
   (* fun *)
   Print.of_ocl_list_attr.simps

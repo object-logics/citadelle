@@ -84,7 +84,7 @@ datatype toy_def_state = ToyDefSt  string (* name *)
 datatype toy_def_pp_core = ToyDefPPCoreAdd "string (* name *) toy_def_state_core list"
                          | ToyDefPPCoreBinding string (* name *)
 
-datatype toy_def_pre_post = ToyDefPP
+datatype toy_def_transition = ToyDefPP
                               "string option" (* None: fresh name to be generated *)
                               toy_def_pp_core (* pre *)
                               "toy_def_pp_core option" (* post *) (* None: same as pre *)

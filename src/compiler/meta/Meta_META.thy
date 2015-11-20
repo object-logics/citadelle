@@ -98,7 +98,7 @@ datatype all_meta_embedding =
                             | META_instance ocl_instance
                             | META_def_base_l ocl_def_base_l
                             | META_def_state floor ocl_def_state
-                            | META_def_pre_post floor ocl_def_pre_post
+                            | META_def_transition floor ocl_def_transition
                             | META_flush_all ocl_flush_all
 
 subsection\<open>Main Compiling Environment\<close>
@@ -139,7 +139,7 @@ subsection\<open>Operations of Fold, Map, ..., on the Meta-Model\<close>
 
 definition "ignore_meta_header = (\<lambda> META_ctxt Floor1 _ \<Rightarrow> True
                                   | META_def_state Floor1 _ \<Rightarrow> True
-                                  | META_def_pre_post Floor1 _ \<Rightarrow> True
+                                  | META_def_transition Floor1 _ \<Rightarrow> True
                                   | _ \<Rightarrow> False)"
 
 text\<open>

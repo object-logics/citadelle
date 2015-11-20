@@ -94,7 +94,7 @@ definition "of_all_meta_embedding env =
  (\<lambda> META_ctxt floor ctxt \<Rightarrow> of_ocl_ctxt env (of_floor floor) ctxt
   | META_instance i \<Rightarrow> of_ocl_instance env i
   | META_def_state floor s \<Rightarrow> of_ocl_def_state env (of_floor floor) s
-  | META_def_pre_post floor p \<Rightarrow> of_ocl_def_pre_post env (of_floor floor) p)"
+  | META_def_transition floor p \<Rightarrow> of_ocl_def_transition env (of_floor floor) p)"
 
 definition "of_boot_generation_syntax _ = (\<lambda> Boot_generation_syntax mode \<Rightarrow>
   \<open>generation_syntax [ shallow%s ]\<close>
