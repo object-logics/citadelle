@@ -193,10 +193,10 @@ as well as:
 All these lemmas were stated under the precondition that the object instances are actually 
 defined entities.
 
-To simplify matters, we group all these definedness assumptions in a locale.
+To simplify matters, we group all these definedness assumptions in a locale called
+@{text "state_\<sigma>\<^sub>1"}.
 
 *}
-
 
 State \<sigma>\<^sub>1 =  [ S1, C1, C2, R11, R21, F1, F2 ]
 
@@ -225,8 +225,9 @@ with its number in the list of declarations; this indexing starts with 0 for the
 first position.
 
 All these facts were grouped together in an implicitly generated locale called
-@{text "state_\<sigma>\<^sub>1"}. 
+@{text "state_\<sigma>\<^sub>2"}. 
 *}
+
 State \<sigma>\<^sub>2 =
   [ S1
   , ([ name = "Bob", address = "Praha" , flights = F1 , cl_res = R11 ] :: Client)
@@ -281,6 +282,7 @@ by(simp add: state_interpretation_\<sigma>\<^sub>1_def,
    (simp add: pp_object_\<sigma>\<^sub>1_\<sigma>\<^sub>2)+)
 
 text{* This instance proof goes analogously. *}
+
 lemma \<sigma>\<^sub>2: "state_interpretation_\<sigma>\<^sub>2 \<tau>"
 by(simp add: state_interpretation_\<sigma>\<^sub>2_def,
    default,
@@ -300,7 +302,7 @@ by(simp add: pp_\<sigma>\<^sub>1_\<sigma>\<^sub>2_def,
 text{* For convenience, we (re)-define the entirely empty state. *}
 definition \<sigma>\<^sub>0 :: "\<AA> state" where "\<sigma>\<^sub>0 = state.make Map.empty Map.empty"
 
-text{* Moreover, we introduce the folling abbreviations: *}
+text{* Moreover, we introduce the following abbreviations: *}
 definition "\<sigma>\<^sub>t\<^sub>1 = transition_\<sigma>\<^sub>1_\<sigma>\<^sub>2.\<sigma>\<^sub>1 oid3 oid4 oid5 oid6 oid7 oid8 oid9
                   \<lceil>\<lceil>S1 (\<sigma>\<^sub>0, \<sigma>\<^sub>0)\<rceil>\<rceil> \<lceil>\<lceil>C1 (\<sigma>\<^sub>0, \<sigma>\<^sub>0)\<rceil>\<rceil> \<lceil>\<lceil>C2 (\<sigma>\<^sub>0, \<sigma>\<^sub>0)\<rceil>\<rceil> \<lceil>\<lceil>R11 (\<sigma>\<^sub>0, \<sigma>\<^sub>0)\<rceil>\<rceil>
                   \<lceil>\<lceil>R21 (\<sigma>\<^sub>0, \<sigma>\<^sub>0)\<rceil>\<rceil> \<lceil>\<lceil>F1 (\<sigma>\<^sub>0, \<sigma>\<^sub>0)\<rceil>\<rceil> \<lceil>\<lceil>F2 (\<sigma>\<^sub>0, \<sigma>\<^sub>0)\<rceil>\<rceil>"
@@ -333,7 +335,7 @@ unfolding \<sigma>\<^sub>t\<^sub>2_def \<sigma>\<^sub>s\<^sub>2_def
 by(rule \<sigma>\<^sub>1_\<sigma>\<^sub>2[simplified pp_\<sigma>\<^sub>1_\<sigma>\<^sub>2_def], simp)
 
 
-text{* In the following, we prove that the constructed states are in fact well-formed.*}
+text{* In the following, we prove that the constructed states are in fact well-formed. *}
 
 (* TODO : this should be done at the level of states, not transitions... *)
 lemma "WFF (\<sigma>\<^sub>t\<^sub>1, \<sigma>\<^sub>t\<^sub>2)"
@@ -352,31 +354,31 @@ by(simp_all add: pp_oid_\<sigma>\<^sub>1_\<sigma>\<^sub>2 pp_object_\<sigma>\<^s
 
  
 
-  lemma F1_val:"(\<sigma>\<^sub>s\<^sub>1, \<sigma>) \<Turnstile> F1 .seats@pre \<triangleq> (K \<lfloor>\<lfloor>120\<rfloor>\<rfloor>)"
-        proof(simp add: UML_Logic.foundation22 K_def )
-           show "F1 .seats@pre (\<sigma>\<^sub>s\<^sub>1, \<sigma>) = \<lfloor>\<lfloor>120\<rfloor>\<rfloor>"
-              proof -  note S1 = \<sigma>\<^sub>1[simplified state_interpretation_\<sigma>\<^sub>1_def, of "(\<sigma>\<^sub>0,\<sigma>\<^sub>0)"]
-              show ?thesis
-                  apply(simp add: dot\<^sub>F\<^sub>l\<^sub>i\<^sub>g\<^sub>h\<^sub>t__seatsat_pre F1_def deref_oid\<^sub>F\<^sub>l\<^sub>i\<^sub>g\<^sub>h\<^sub>t_def in_pre_state_def F1\<^sub>F\<^sub>l\<^sub>i\<^sub>g\<^sub>h\<^sub>t_def oid_of_ty\<^sub>F\<^sub>l\<^sub>i\<^sub>g\<^sub>h\<^sub>t_def oid8_def)
-                  apply(subst (8) \<sigma>\<^sub>s\<^sub>1_def, simp add: state_\<sigma>\<^sub>1.\<sigma>\<^sub>1_def[OF S1], simp add: pp_oid_\<sigma>\<^sub>1_\<sigma>\<^sub>2)
-                  apply(simp add: select\<^sub>F\<^sub>l\<^sub>i\<^sub>g\<^sub>h\<^sub>t__seats_def F1_def F1\<^sub>F\<^sub>l\<^sub>i\<^sub>g\<^sub>h\<^sub>t_def)
-                  by(simp add: reconst_basetype_def)
-              qed
-         qed 
+lemma F1_val: "(\<sigma>\<^sub>s\<^sub>1, \<sigma>) \<Turnstile> F1 .seats@pre \<triangleq> \<guillemotleft>120\<guillemotright>"
+      proof(simp add: UML_Logic.foundation22 k_def )
+         show "F1 .seats@pre (\<sigma>\<^sub>s\<^sub>1, \<sigma>) = \<lfloor>\<lfloor>120\<rfloor>\<rfloor>"
+            proof -  note S1 = \<sigma>\<^sub>1[simplified state_interpretation_\<sigma>\<^sub>1_def, of "(\<sigma>\<^sub>0,\<sigma>\<^sub>0)"]
+            show ?thesis
+                apply(simp add: dot\<^sub>F\<^sub>l\<^sub>i\<^sub>g\<^sub>h\<^sub>t__seatsat_pre F1_def deref_oid\<^sub>F\<^sub>l\<^sub>i\<^sub>g\<^sub>h\<^sub>t_def in_pre_state_def F1\<^sub>F\<^sub>l\<^sub>i\<^sub>g\<^sub>h\<^sub>t_def oid_of_ty\<^sub>F\<^sub>l\<^sub>i\<^sub>g\<^sub>h\<^sub>t_def oid8_def)
+                apply(subst (8) \<sigma>\<^sub>s\<^sub>1_def, simp add: state_\<sigma>\<^sub>1.\<sigma>\<^sub>1_def[OF S1], simp add: pp_oid_\<sigma>\<^sub>1_\<sigma>\<^sub>2)
+                apply(simp add: select\<^sub>F\<^sub>l\<^sub>i\<^sub>g\<^sub>h\<^sub>t__seats_def F1_def F1\<^sub>F\<^sub>l\<^sub>i\<^sub>g\<^sub>h\<^sub>t_def)
+                by(simp add: reconst_basetype_def)
+            qed
+       qed
 
-  lemma F2_val:"(\<sigma>\<^sub>s\<^sub>1, \<sigma>) \<Turnstile> F2 .seats@pre \<triangleq> (K \<lfloor>\<lfloor>370\<rfloor>\<rfloor>)"
-        proof(simp add: UML_Logic.foundation22 K_def )
-           show "F2 .seats@pre (\<sigma>\<^sub>s\<^sub>1, \<sigma>) = \<lfloor>\<lfloor>370\<rfloor>\<rfloor>"
-              proof -  note S1 = \<sigma>\<^sub>1[simplified state_interpretation_\<sigma>\<^sub>1_def, of "(\<sigma>\<^sub>0,\<sigma>\<^sub>0)"]
-              show ?thesis
-                  apply(simp add: dot\<^sub>F\<^sub>l\<^sub>i\<^sub>g\<^sub>h\<^sub>t__seatsat_pre F2_def deref_oid\<^sub>F\<^sub>l\<^sub>i\<^sub>g\<^sub>h\<^sub>t_def in_pre_state_def 
-                                  F2\<^sub>F\<^sub>l\<^sub>i\<^sub>g\<^sub>h\<^sub>t_def oid_of_ty\<^sub>F\<^sub>l\<^sub>i\<^sub>g\<^sub>h\<^sub>t_def oid9_def)
-                  apply(subst (8) \<sigma>\<^sub>s\<^sub>1_def, simp add: state_\<sigma>\<^sub>1.\<sigma>\<^sub>1_def[OF S1], simp add: pp_oid_\<sigma>\<^sub>1_\<sigma>\<^sub>2)
-                  apply(simp add: select\<^sub>F\<^sub>l\<^sub>i\<^sub>g\<^sub>h\<^sub>t__seats_def F2_def F2\<^sub>F\<^sub>l\<^sub>i\<^sub>g\<^sub>h\<^sub>t_def)
-                  by(simp add: reconst_basetype_def)
-              qed
-         qed 
-        
+lemma F2_val: "(\<sigma>\<^sub>s\<^sub>1, \<sigma>) \<Turnstile> F2 .seats@pre \<triangleq> \<guillemotleft>370\<guillemotright>"
+      proof(simp add: UML_Logic.foundation22 k_def )
+         show "F2 .seats@pre (\<sigma>\<^sub>s\<^sub>1, \<sigma>) = \<lfloor>\<lfloor>370\<rfloor>\<rfloor>"
+            proof -  note S1 = \<sigma>\<^sub>1[simplified state_interpretation_\<sigma>\<^sub>1_def, of "(\<sigma>\<^sub>0,\<sigma>\<^sub>0)"]
+            show ?thesis
+                apply(simp add: dot\<^sub>F\<^sub>l\<^sub>i\<^sub>g\<^sub>h\<^sub>t__seatsat_pre F2_def deref_oid\<^sub>F\<^sub>l\<^sub>i\<^sub>g\<^sub>h\<^sub>t_def in_pre_state_def 
+                                F2\<^sub>F\<^sub>l\<^sub>i\<^sub>g\<^sub>h\<^sub>t_def oid_of_ty\<^sub>F\<^sub>l\<^sub>i\<^sub>g\<^sub>h\<^sub>t_def oid9_def)
+                apply(subst (8) \<sigma>\<^sub>s\<^sub>1_def, simp add: state_\<sigma>\<^sub>1.\<sigma>\<^sub>1_def[OF S1], simp add: pp_oid_\<sigma>\<^sub>1_\<sigma>\<^sub>2)
+                apply(simp add: select\<^sub>F\<^sub>l\<^sub>i\<^sub>g\<^sub>h\<^sub>t__seats_def F2_def F2\<^sub>F\<^sub>l\<^sub>i\<^sub>g\<^sub>h\<^sub>t_def)
+                by(simp add: reconst_basetype_def)
+            qed
+       qed
+
 
 section{* Annotations of the Class Model in OCL *}
 
@@ -395,18 +397,18 @@ section{* Model Analysis I: A satisfiability proof of the invariants. *}
 
 (* Junk : TO BE DONE IN LIBRARY *)
 
-lemma [simp]: "(K \<lfloor>\<lfloor>x\<rfloor>\<rfloor>  <\<^sub>i\<^sub>n\<^sub>t K \<lfloor>\<lfloor>y\<rfloor>\<rfloor>) = (K\<lfloor>\<lfloor>x<y\<rfloor>\<rfloor>)" 
-by(rule ext,simp add: OclLess\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r_def K_def defined_def UML_Types.bot_fun_def 
-                      bot_option_def null_fun_def null_option_def)
+lemma [simp]: "(\<guillemotleft>x\<guillemotright> <\<^sub>i\<^sub>n\<^sub>t \<guillemotleft>y\<guillemotright>) = \<guillemotleft>x < y\<guillemotright>"
+by(rule ext, simp add: OclLess\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r_def k_def defined_def UML_Types.bot_fun_def 
+                       bot_option_def null_fun_def null_option_def)
 
-lemma OclInt0' :"\<zero> = K\<lfloor>\<lfloor>0\<rfloor>\<rfloor>" 
-by(rule ext,simp add: OclInt0_def K_def)
+lemma OclInt0': "\<zero> = \<guillemotleft>0\<guillemotright>" 
+by(rule ext, simp add: OclInt0_def k_def)
 
-lemma [simp]:"(\<tau> \<Turnstile> K \<lfloor>\<lfloor>True\<rfloor>\<rfloor>)"
-by(simp add: OclValid_def true_def K_def)
+lemma [simp]: "\<tau> \<Turnstile> \<guillemotleft>True\<guillemotright>"
+by(simp add: OclValid_def true_def k_def)
 
-lemma [simp]:"\<not>(\<tau> \<Turnstile> K \<lfloor>\<lfloor>False\<rfloor>\<rfloor>)"
-by(simp add: OclValid_def true_def K_def)
+lemma [simp]: "\<tau> |\<noteq> \<guillemotleft>False\<guillemotright>"
+by(simp add: OclValid_def true_def k_def)
 
 
 text{* We wish to analyse our class model and show that the entire set of invariants can
@@ -415,7 +417,7 @@ by the class invariants. *}
 
 lemma Flight_consistent: "\<exists> \<tau>. Flight_Aat_pre \<tau> \<and>  Flight_A \<tau>"
 proof (rule_tac x="(\<sigma>\<^sub>t\<^sub>1, \<sigma>\<^sub>t\<^sub>2)" in exI, rule conjI)
-      txt{* The following auxilliary fact establishes that @{thm forall_trivial} from the
+      txt{* The following auxilliary fact establishes that @{thm OclForall_body_trivial} from the
             library is applicable since @{term "OclAsType\<^sub>F\<^sub>l\<^sub>i\<^sub>g\<^sub>h\<^sub>t_\<AA> .allInstances@pre()"}
             is indeed defined. *}
       have forall_trivial: "\<And>\<tau> P. let S = OclAsType\<^sub>F\<^sub>l\<^sub>i\<^sub>g\<^sub>h\<^sub>t_\<AA> .allInstances@pre() in
@@ -570,11 +572,11 @@ definition cancel\<^sub>p\<^sub>o\<^sub>s\<^sub>t :: "(\<cdot>Client) \<Rightarr
 where     "cancel\<^sub>p\<^sub>o\<^sub>s\<^sub>t  self r result \<equiv> self .cl_res->select\<^sub>S\<^sub>e\<^sub>t(res|res .flight \<doteq> r .flight)->isEmpty\<^sub>S\<^sub>e\<^sub>t()" 
 
 lemma cancel\<^sub>n\<^sub>o\<^sub>n\<^sub>b\<^sub>l\<^sub>o\<^sub>c\<^sub>k\<^sub>i\<^sub>n\<^sub>g : "\<exists> self r \<tau>.  \<tau> \<Turnstile> (cancel\<^sub>p\<^sub>r\<^sub>e  self r)"
-sorry
+oops(* TODO *)
 
 lemma cancel\<^sub>i\<^sub>m\<^sub>p\<^sub>l\<^sub>e\<^sub>m\<^sub>e\<^sub>n\<^sub>t\<^sub>a\<^sub>b\<^sub>l\<^sub>e : " (\<sigma>,\<sigma>') \<Turnstile> (cancel\<^sub>p\<^sub>r\<^sub>e  self r) \<Longrightarrow> 
                            \<exists> \<sigma>' result.  ((\<sigma>,\<sigma>') \<Turnstile> (cancel\<^sub>p\<^sub>o\<^sub>s\<^sub>t  self r result))"
-sorry
+oops(* TODO *)
 
 find_theorems (350) name:"Client"
 lemmas [simp,code_unfold] = dot_accessor

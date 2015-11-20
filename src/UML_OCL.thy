@@ -52,6 +52,11 @@ begin
 no_notation valid_SE (infix "\<Turnstile>" 15)
 notation valid_SE (infix "\<Turnstile>\<^sub>M\<^sub>o\<^sub>n" 15)
 
+definition "k x _ = \<lfloor>\<lfloor> x \<rfloor>\<rfloor>"
+notation "k" ("\<guillemotleft>_\<guillemotright>")
+lemma "K \<lfloor>\<lfloor>x\<rfloor>\<rfloor> = \<guillemotleft>x\<guillemotright>"
+by(rule ext, simp add: K_def k_def)
+
 generation_syntax [ (*deep
                       (*(generation_semantics [ analysis (*, oid_start 10*) ])*)
                       (THEORY Model_generated)
