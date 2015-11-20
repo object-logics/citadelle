@@ -3012,6 +3012,48 @@ lemma OclForall_not_includes :
  apply(insert Set_inv_lemma[OF x_def], simp add: valid_def false_def true_def bot_fun_def)
 by(rule iffI, metis set_rev_mp, metis subsetI)
 
+
+lemma forall_trivial0:
+      assumes S_defined: "\<tau> \<Turnstile> \<delta> S"
+      assumes S_not_emp: "\<tau> |\<noteq> (S \<triangleq> Set{})"
+      shows "(if \<exists>xa\<in>\<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (S \<tau>)\<rceil>\<rceil>. P then A else B) = (if P then A else B)"
+ apply (simp add: OclValid_def StrongEq_def true_def mtSet_def, intro impI)
+ apply(case_tac "S \<tau>", simp, subst (asm) Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inverse, simp)
+ apply(insert S_not_emp, simp add: OclValid_def StrongEq_def mtSet_def true_def)
+ proof - fix y show "\<lceil>\<lceil>y\<rceil>\<rceil> = {} \<Longrightarrow> S \<tau> = Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e y \<Longrightarrow> B = A"
+  apply(case_tac y, simp)
+   apply(insert S_defined, simp add: defined_def OclValid_def false_def true_def bot_fun_def bot_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def split: split_if_asm)
+  apply(simp)
+  proof - fix a show "\<lceil>a\<rceil> = {} \<Longrightarrow> S \<tau> = Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor>a\<rfloor> \<Longrightarrow> y = \<lfloor>a\<rfloor> \<Longrightarrow> B = A"
+   apply(case_tac a, simp)
+    apply(insert S_defined, simp add: defined_def OclValid_def false_def true_def null_fun_def null_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def split: split_if_asm)
+   apply(simp)
+  by(insert S_not_emp, simp add: OclValid_def StrongEq_def mtSet_def true_def)
+ qed
+qed
+
+lemma forall_trivial:
+  assumes S_defined: "\<tau> \<Turnstile> \<delta> S"
+  shows "(\<tau> \<Turnstile> (S->forAll\<^sub>S\<^sub>e\<^sub>t(X|P) \<triangleq> (S \<triangleq> Set{} or P)))"
+proof - 
+ have A: "\<And>A B C. \<tau> \<Turnstile> (B \<triangleq> false) \<Longrightarrow> (\<tau> \<Turnstile> (A \<triangleq> (B or C))) = (\<tau> \<Turnstile> (A \<triangleq> C))"
+  apply(simp add: OclValid_def StrongEq_def true_def)
+ by(subst cp_OclOr, simp add: cp_OclOr[symmetric])
+
+ show ?thesis
+  apply(case_tac "\<tau> \<Turnstile> (S \<triangleq> Set{})")
+   apply(simp add: OclValid_def StrongEq_def Let_def true_def)
+   apply(subst cp_OclOr, subst cp_OclForall, simp, fold true_def, subst cp_OclForall[symmetric], simp)
+
+  apply(subst A)
+   apply(simp add: OclValid_def StrongEq_def false_def true_def)
+  apply(simp add: OclValid_def, simp only: UML_Set.OclForall_def)
+  apply(subst cp_StrongEq, subst (1 2 3) forall_trivial0,
+        rule S_defined, simp add: OclValid_def, simp only: S_defined[simplified OclValid_def])
+ by(simp add: StrongEq_def true_def, insert bool_split_0[of P \<tau>], auto simp add: true_def)
+qed
+
+
 lemma OclForall_iterate:
  assumes S_finite: "finite \<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (S \<tau>)\<rceil>\<rceil>"
    shows "S->forAll\<^sub>S\<^sub>e\<^sub>t(x | P x) \<tau> = (S->iterate\<^sub>S\<^sub>e\<^sub>t(x; acc = true | acc and P x)) \<tau>"
@@ -3273,6 +3315,8 @@ Assert   "\<tau> \<Turnstile> (Set{\<one>,\<two>} \<triangleq> Set{}->including\
 Assert   "\<tau> \<Turnstile> (Set{\<one>,invalid,\<two>} \<triangleq> invalid)"
 Assert   "\<tau> \<Turnstile> (Set{\<one>,\<two>}->including\<^sub>S\<^sub>e\<^sub>t(null) \<triangleq> Set{null,\<one>,\<two>})"
 Assert   "\<tau> \<Turnstile> (Set{\<one>,\<two>}->including\<^sub>S\<^sub>e\<^sub>t(null) \<triangleq> Set{\<one>,\<two>,null})"
+
+Assert   "\<tau> \<Turnstile> (Set{Set{\<two>},null} \<triangleq>  Set{null,Set{\<two>},null})"
 
 (* TODO Frederic ?:
 Assert   "\<not> (\<tau> \<Turnstile> (Set{\<one>,\<one>,\<two>} \<doteq> Set{\<one>,\<two>}))"
