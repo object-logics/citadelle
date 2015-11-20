@@ -190,7 +190,7 @@ by(simp)
 end
 
 (* 20 ************************************ 39 + 1 *)
-locale pre_post_\<sigma>\<^sub>1_\<sigma>\<^sub>1' =
+locale transition_\<sigma>\<^sub>1_\<sigma>\<^sub>1' =
 fixes "oid1" :: "nat"
 fixes "oid2" :: "nat"
 fixes "oid3" :: "nat"

@@ -110,6 +110,6 @@ setup \<open>(Generation_mode.update_compiler_config ((K (let open META in Compi
 State[shallow] \<sigma>\<^sub>1' = [ X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n1, X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2, X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n3, X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n4 ]
 
 (* 18 ************************************ 38 + 1 *)
-PrePost[shallow] \<sigma>\<^sub>1 \<sigma>\<^sub>1'
+Transition[shallow] \<sigma>\<^sub>1 \<sigma>\<^sub>1'
 
 end
