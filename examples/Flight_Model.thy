@@ -351,6 +351,9 @@ by(simp_all add: pp_oid_\<sigma>\<^sub>1_\<sigma>\<^sub>2 pp_object_\<sigma>\<^s
 
  
 
+(* TODO : the following four low-level properties on the states @{term \<sigma>\<^sub>s\<^sub>1} ... should also 
+          be proven automatically. This is stuff from the object and state presentation that
+          should be hidden away from the user. *)
 
 lemma F1_val_seatsATpre: "(\<sigma>\<^sub>s\<^sub>1, \<sigma>) \<Turnstile> F1 .seats@pre \<triangleq> \<guillemotleft>120\<guillemotright>"
       proof(simp add: UML_Logic.foundation22 k_def )
@@ -475,9 +478,9 @@ proof (rule_tac x="(\<sigma>\<^sub>t\<^sub>1, \<sigma>\<^sub>t\<^sub>2)" in exI,
              txt{* Now we calculate: *}
 
              have    "((\<sigma>\<^sub>t\<^sub>1,\<sigma>\<^sub>t\<^sub>2) \<Turnstile> Flight .allInstances@pre()->forAll\<^sub>S\<^sub>e\<^sub>t(self|
-                                          Flight .allInstances@pre()->forAll\<^sub>S\<^sub>e\<^sub>t(f|\<zero> <\<^sub>i\<^sub>n\<^sub>t f .seats@pre))) =
+                                         Flight .allInstances@pre()->forAll\<^sub>S\<^sub>e\<^sub>t(f|\<zero> <\<^sub>i\<^sub>n\<^sub>t f .seats@pre))) =
                       ((\<sigma>\<^sub>t\<^sub>1,\<sigma>\<^sub>t\<^sub>2) \<Turnstile> Flight .allInstances@pre() \<triangleq> Set{} or 
-                                          Flight .allInstances@pre()->forAll\<^sub>S\<^sub>e\<^sub>t(f| \<zero> <\<^sub>i\<^sub>n\<^sub>t f .seats@pre))"
+                                         Flight .allInstances@pre()->forAll\<^sub>S\<^sub>e\<^sub>t(f| \<zero> <\<^sub>i\<^sub>n\<^sub>t f .seats@pre))"
                      by(simp add: StrongEq_L_subst3[OF _ forall_trivial[simplified Let_def], 
                                                      where P = "\<lambda>x. x"])
              also
@@ -506,6 +509,9 @@ proof (rule_tac x="(\<sigma>\<^sub>t\<^sub>1, \<sigma>\<^sub>t\<^sub>2)" in exI,
                      unfolding Flight_Aat_pre_def  by simp
           qed
 next
+       txt{* Analogously for the first part, the following auxiliary fact establishes 
+             that @{thm OclForall_body_trivial} from the  library is applicable since 
+             @{term "OclAsType\<^sub>F\<^sub>l\<^sub>i\<^sub>g\<^sub>h\<^sub>t_\<AA> .allInstances()"}  is indeed defined. *}
        have forall_trivial: "\<And>\<tau> P. let S = OclAsType\<^sub>F\<^sub>l\<^sub>i\<^sub>g\<^sub>h\<^sub>t_\<AA> .allInstances() in
                          (\<tau> \<Turnstile> (S->forAll\<^sub>S\<^sub>e\<^sub>t(X|P) \<triangleq> (S \<triangleq> Set{} or P)))"
             by(simp add: Let_def, rule OclForall_body_trivial, rule OclAllInstances_at_post_defined)
@@ -520,10 +526,9 @@ next
                                                                   simplified \<sigma>\<^sub>t\<^sub>2_\<sigma>\<^sub>s\<^sub>2[symmetric]],simp)
                       by(simp add: OclInt0')
              have    "((\<sigma>\<^sub>t\<^sub>1, \<sigma>\<^sub>t\<^sub>2) \<Turnstile> Flight .allInstances()->forAll\<^sub>S\<^sub>e\<^sub>t(self|
-                                         Flight .allInstances()->forAll\<^sub>S\<^sub>e\<^sub>t(f|\<zero> <\<^sub>i\<^sub>n\<^sub>t
-                                                                             f .seats))) =
+                                         Flight .allInstances()->forAll\<^sub>S\<^sub>e\<^sub>t(f|\<zero> <\<^sub>i\<^sub>n\<^sub>t f .seats))) =
                       ((\<sigma>\<^sub>t\<^sub>1, \<sigma>\<^sub>t\<^sub>2) \<Turnstile> Flight .allInstances() \<triangleq> Set{} or 
-                                   Flight .allInstances()->forAll\<^sub>S\<^sub>e\<^sub>t(f| \<zero> <\<^sub>i\<^sub>n\<^sub>t  f .seats))"
+                                         Flight .allInstances()->forAll\<^sub>S\<^sub>e\<^sub>t(f| \<zero> <\<^sub>i\<^sub>n\<^sub>t f .seats))"
                      by(simp add: StrongEq_L_subst3[OF _ forall_trivial[simplified Let_def], 
                                                     where P = "\<lambda>x. x"])
              also   
