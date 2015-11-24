@@ -554,6 +554,13 @@ definition "print_examp_instance_defassoc = (\<lambda> OclInstance l \<Rightarro
     l
     env))"
 
+definition "fold_instance_single_name =
+ (let b = \<lambda>s. Term_basic [s] in
+  fold_instance_single' (\<lambda>_. List.fold (\<lambda> (_, _, d). fold_data_shallow Some
+                                                                       (\<lambda>_. None)
+                                                                       (\<lambda> Some s \<Rightarrow> Cons (b s) | None \<Rightarrow> id)
+                                                                       d)))"
+
 definition "print_examp_instance_defassoc_typecheck_var = (\<lambda> OclInstance l \<Rightarrow>
  (let b = \<lambda>s. Term_basic [s]
     ; l_var = List.fold (\<lambda>ocli. case Inst_name ocli of None \<Rightarrow> id | Some n \<Rightarrow> Cons n) l []
@@ -570,16 +577,7 @@ definition "print_examp_instance_defassoc_typecheck_var = (\<lambda> OclInstance
           (Term_rewrite
             (b (\<open>typecheck_instance_extra_variables_on_rhs\<close> @@ n))
             \<open>=\<close> 
-            (Term_lambdas
-              l_var
-              (Term_pair'
-                (List.fold
-                  (fold_instance_single' (\<lambda>_. List.fold (\<lambda> (_, _, d). fold_data_shallow Some
-                                                                                        (\<lambda>_. None)
-                                                                                        (\<lambda> Some s \<Rightarrow> Cons (b s) | None \<Rightarrow> id)
-                                                                                        d)))
-                  l
-                  [])))))]))"
+            (Term_lambdas l_var (Term_pair' (List.fold fold_instance_single_name l [])))))]))"
 
 definition "print_examp_instance_app_constr2_notmp_norec = (\<lambda>(rbt, (map_self, map_username)) cpt_start ocli isub_name cpt.
   let l_attr = split_inh_own rbt (inst_ty ocli) (Inst_attr ocli) in
@@ -727,17 +725,26 @@ definition "print_examp_instance = (\<lambda> OclInstance l \<Rightarrow> \<lamb
        let n = inst_name ocli in
        (String.to_String\<^sub>b\<^sub>a\<^sub>s\<^sub>e n, ocli, case map_username n of Some oid \<Rightarrow> oid) # instance_rbt) l (D_input_instance env))))"
 
-definition "print_examp_def_st_typecheck_var = (\<lambda> OclDefSt name _ \<Rightarrow> 
+definition "print_examp_def_st_typecheck_var = (\<lambda> OclDefSt name l \<Rightarrow> 
  (let b = \<lambda>s. Term_basic [s]
-    ; l_var = [name]
-    ; n = \<open>_\<close> @@ String_concatWith \<open>_\<close> l_var in
+    ; l_var0 = [name]
+    ; n = \<open>_\<close> @@ String_concatWith \<open>_\<close> l_var0 in
   Pair
     [ O.definition
         (Definition
           (Term_rewrite
-            (Term_app (\<open>typecheck_state_bad_head_on_lhs\<close> @@ n) (L.map b l_var))
+            (Term_app (\<open>typecheck_state_bad_head_on_lhs\<close> @@ n) (L.map b l_var0))
             \<open>=\<close> 
-            (Term_pair' [])))]))"
+            (Term_pair' [])))
+    , O.definition
+        (Definition
+          (Term_rewrite
+            (b (\<open>typecheck_state_extra_variables_on_rhs\<close> @@ n))
+            \<open>=\<close> 
+            (Term_pair' (List.fold (\<lambda> OclDefCoreAdd i \<Rightarrow> fold_instance_single_name i
+                                    | OclDefCoreBinding s \<Rightarrow> Cons (b s))
+                                   l
+                                   []))))]))"
 
 definition "print_examp_def_st0 name l =
  (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l (l, _) = List.fold (\<lambda> (pos, core) (l, n).
