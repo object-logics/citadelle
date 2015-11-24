@@ -277,24 +277,21 @@ text{* The following lemma establishes that the generated object presentations
 
 lemma \<sigma>\<^sub>1: "state_interpretation_\<sigma>\<^sub>1 \<tau>"
 by(simp add: state_interpretation_\<sigma>\<^sub>1_def,
-   default,
-   simp add: pp_oid_\<sigma>\<^sub>1_\<sigma>\<^sub>2,
+   default, simp add: pp_oid_\<sigma>\<^sub>1_\<sigma>\<^sub>2,
    (simp add: pp_object_\<sigma>\<^sub>1_\<sigma>\<^sub>2)+)
 
 text{* This instance proof goes analogously. *}
 
 lemma \<sigma>\<^sub>2: "state_interpretation_\<sigma>\<^sub>2 \<tau>"
 by(simp add: state_interpretation_\<sigma>\<^sub>2_def,
-   default,
-   simp add: pp_oid_\<sigma>\<^sub>1_\<sigma>\<^sub>2,
+   default, simp add: pp_oid_\<sigma>\<^sub>1_\<sigma>\<^sub>2,
    (simp add: pp_object_\<sigma>\<^sub>1_\<sigma>\<^sub>2)+)
 
 text{* The latter proof gives access to the locale @{text "transition_\<sigma>\<^sub>1_\<sigma>\<^sub>2"}. *}
 
 lemma \<sigma>\<^sub>1_\<sigma>\<^sub>2: "pp_\<sigma>\<^sub>1_\<sigma>\<^sub>2 \<tau>"
 by(simp add: pp_\<sigma>\<^sub>1_\<sigma>\<^sub>2_def,
-   default,
-   simp add: pp_oid_\<sigma>\<^sub>1_\<sigma>\<^sub>2,
+   default, simp add: pp_oid_\<sigma>\<^sub>1_\<sigma>\<^sub>2,
    (simp add: pp_object_\<sigma>\<^sub>1_\<sigma>\<^sub>2)+,
    (simp add: pp_oid_\<sigma>\<^sub>1_\<sigma>\<^sub>2)+)
 
@@ -309,7 +306,8 @@ definition "\<sigma>\<^sub>t\<^sub>1 = transition_\<sigma>\<^sub>1_\<sigma>\<^su
 
 definition "\<sigma>\<^sub>t\<^sub>2 = transition_\<sigma>\<^sub>1_\<sigma>\<^sub>2.\<sigma>\<^sub>2 oid3 oid6 oid8 oid9 oid10 oid11 oid12 oid13
                   \<lceil>\<lceil>S1 (\<sigma>\<^sub>0, \<sigma>\<^sub>0)\<rceil>\<rceil> \<lceil>\<lceil>R11 (\<sigma>\<^sub>0, \<sigma>\<^sub>0)\<rceil>\<rceil> \<lceil>\<lceil>F1 (\<sigma>\<^sub>0, \<sigma>\<^sub>0)\<rceil>\<rceil> \<lceil>\<lceil>F2 (\<sigma>\<^sub>0, \<sigma>\<^sub>0)\<rceil>\<rceil>
-                  \<lceil>\<lceil>\<sigma>\<^sub>2_object1 (\<sigma>\<^sub>0, \<sigma>\<^sub>0)\<rceil>\<rceil> \<lceil>\<lceil>\<sigma>\<^sub>2_object2 (\<sigma>\<^sub>0, \<sigma>\<^sub>0)\<rceil>\<rceil> \<lceil>\<lceil>\<sigma>\<^sub>2_object4 (\<sigma>\<^sub>0, \<sigma>\<^sub>0)\<rceil>\<rceil> \<lceil>\<lceil>\<sigma>\<^sub>2_object7 (\<sigma>\<^sub>0, \<sigma>\<^sub>0)\<rceil>\<rceil>"
+                  \<lceil>\<lceil>\<sigma>\<^sub>2_object1 (\<sigma>\<^sub>0, \<sigma>\<^sub>0)\<rceil>\<rceil> \<lceil>\<lceil>\<sigma>\<^sub>2_object2 (\<sigma>\<^sub>0, \<sigma>\<^sub>0)\<rceil>\<rceil> \<lceil>\<lceil>\<sigma>\<^sub>2_object4 (\<sigma>\<^sub>0, \<sigma>\<^sub>0)\<rceil>\<rceil> 
+                  \<lceil>\<lceil>\<sigma>\<^sub>2_object7 (\<sigma>\<^sub>0, \<sigma>\<^sub>0)\<rceil>\<rceil>"
 
 definition "\<sigma>\<^sub>s\<^sub>1 = state_\<sigma>\<^sub>1.\<sigma>\<^sub>1 oid3 oid4 oid5 oid6 oid7 oid8 oid9
                   \<lceil>\<lceil>S1 (\<sigma>\<^sub>0, \<sigma>\<^sub>0)\<rceil>\<rceil> \<lceil>\<lceil>C1 (\<sigma>\<^sub>0, \<sigma>\<^sub>0)\<rceil>\<rceil> \<lceil>\<lceil>C2 (\<sigma>\<^sub>0, \<sigma>\<^sub>0)\<rceil>\<rceil> \<lceil>\<lceil>R11 (\<sigma>\<^sub>0, \<sigma>\<^sub>0)\<rceil>\<rceil>
