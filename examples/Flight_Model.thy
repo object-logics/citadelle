@@ -349,7 +349,7 @@ by(simp_all add: pp_oid_\<sigma>\<^sub>1_\<sigma>\<^sub>2 pp_object_\<sigma>\<^s
 
  
 
-(* TODO : the following four low-level properties on the states @{term \<sigma>\<^sub>s\<^sub>1} ... should also 
+(* TODO : the following low-level properties on the states @{term \<sigma>\<^sub>s\<^sub>1} ... should also 
           be proven automatically. This is stuff from the object and state presentation that
           should be hidden away from the user. *)
 
@@ -406,6 +406,51 @@ proof(simp add: UML_Logic.foundation22 k_def )
         qed
 qed
 
+lemma C1_valid: "(\<sigma>\<^sub>s\<^sub>1, \<sigma>') \<Turnstile> (\<upsilon> C1)"
+by(simp add: OclValid_def C1_def)
+
+lemma R11_val_clientATpre: "(\<sigma>\<^sub>s\<^sub>1, \<sigma>') \<Turnstile> R11 .client@pre \<triangleq> C1"
+  proof(simp add: foundation22)
+
+  have C1_deref_val: "(\<sigma>\<^sub>s\<^sub>1, \<sigma>') \<Turnstile> deref_oid\<^sub>C\<^sub>l\<^sub>i\<^sub>e\<^sub>n\<^sub>t fst reconst_basetype 4 \<triangleq> C1"
+    proof(simp add: foundation22)
+    show "deref_oid\<^sub>C\<^sub>l\<^sub>i\<^sub>e\<^sub>n\<^sub>t fst reconst_basetype 4 (\<sigma>\<^sub>s\<^sub>1, \<sigma>') = C1 (\<sigma>\<^sub>s\<^sub>1, \<sigma>')"
+      proof -  note S1 = \<sigma>\<^sub>1[simplified state_interpretation_\<sigma>\<^sub>1_def, of "(\<sigma>\<^sub>0,\<sigma>\<^sub>0)"]
+      show ?thesis
+          apply(simp add: deref_oid\<^sub>C\<^sub>l\<^sub>i\<^sub>e\<^sub>n\<^sub>t_def)
+          apply(subst (8) \<sigma>\<^sub>s\<^sub>1_def, simp add: state_\<sigma>\<^sub>1.\<sigma>\<^sub>1_def[OF S1], simp add: pp_oid_\<sigma>\<^sub>1_\<sigma>\<^sub>2)
+          by(simp add: reconst_basetype_def C1_def)
+      qed
+    qed
+  
+  show "R11 .client@pre (\<sigma>\<^sub>s\<^sub>1, \<sigma>') = C1 (\<sigma>\<^sub>s\<^sub>1, \<sigma>')"
+  proof -  note S1 = \<sigma>\<^sub>1[simplified state_interpretation_\<sigma>\<^sub>1_def, of "(\<sigma>\<^sub>0,\<sigma>\<^sub>0)"]
+  show ?thesis
+    apply(simp add: dot\<^sub>R\<^sub>e\<^sub>s\<^sub>e\<^sub>r\<^sub>v\<^sub>a\<^sub>t\<^sub>i\<^sub>o\<^sub>n_1___clientat_pre R11_def deref_oid\<^sub>R\<^sub>e\<^sub>s\<^sub>e\<^sub>r\<^sub>v\<^sub>a\<^sub>t\<^sub>i\<^sub>o\<^sub>n_def in_pre_state_def
+                    R11\<^sub>R\<^sub>e\<^sub>s\<^sub>e\<^sub>r\<^sub>v\<^sub>a\<^sub>t\<^sub>i\<^sub>o\<^sub>n_def oid_of_ty\<^sub>R\<^sub>e\<^sub>s\<^sub>e\<^sub>r\<^sub>v\<^sub>a\<^sub>t\<^sub>i\<^sub>o\<^sub>n_def oid6_def)
+    apply(subst (8) \<sigma>\<^sub>s\<^sub>1_def, simp add: state_\<sigma>\<^sub>1.\<sigma>\<^sub>1_def[OF S1], simp add: pp_oid_\<sigma>\<^sub>1_\<sigma>\<^sub>2)
+    apply(simp add: deref_assocs\<^sub>R\<^sub>e\<^sub>s\<^sub>e\<^sub>r\<^sub>v\<^sub>a\<^sub>t\<^sub>i\<^sub>o\<^sub>n_1___client_def deref_assocs_def oid\<^sub>R\<^sub>e\<^sub>s\<^sub>e\<^sub>r\<^sub>v\<^sub>a\<^sub>t\<^sub>i\<^sub>o\<^sub>n_1___client_def)
+    apply(subst (3) \<sigma>\<^sub>s\<^sub>1_def, simp add: state_\<sigma>\<^sub>1.\<sigma>\<^sub>1_def[OF S1] map_of_list_def
+          oid\<^sub>C\<^sub>l\<^sub>i\<^sub>e\<^sub>n\<^sub>t_0___flights_def oid\<^sub>S\<^sub>t\<^sub>a\<^sub>f\<^sub>f_0___flights_def oid\<^sub>C\<^sub>l\<^sub>i\<^sub>e\<^sub>n\<^sub>t_0___cl_res_def)
+    apply(simp add: switch\<^sub>2_01_def switch\<^sub>2_10_def choose_0_def choose_1_def deref_assocs_list_def
+                    pp_oid_\<sigma>\<^sub>1_\<sigma>\<^sub>2 R11_def R11\<^sub>R\<^sub>e\<^sub>s\<^sub>e\<^sub>r\<^sub>v\<^sub>a\<^sub>t\<^sub>i\<^sub>o\<^sub>n_def oid_of_ty\<^sub>R\<^sub>e\<^sub>s\<^sub>e\<^sub>r\<^sub>v\<^sub>a\<^sub>t\<^sub>i\<^sub>o\<^sub>n_def List.member_def)
+    apply(simp add: select\<^sub>R\<^sub>e\<^sub>s\<^sub>e\<^sub>r\<^sub>v\<^sub>a\<^sub>t\<^sub>i\<^sub>o\<^sub>n__client_def select_object_any\<^sub>S\<^sub>e\<^sub>t_def select_object\<^sub>S\<^sub>e\<^sub>t_def)
+    apply(subgoal_tac "(let s = Set{deref_oid\<^sub>C\<^sub>l\<^sub>i\<^sub>e\<^sub>n\<^sub>t fst reconst_basetype 4} in
+                        if s->size\<^sub>S\<^sub>e\<^sub>t() \<triangleq> \<one> then s->any\<^sub>S\<^sub>e\<^sub>t() else \<bottom> endif) (\<sigma>\<^sub>s\<^sub>1, \<sigma>') = C1 (\<sigma>\<^sub>s\<^sub>1, \<sigma>')")
+     apply(subgoal_tac "Set{deref_oid\<^sub>C\<^sub>l\<^sub>i\<^sub>e\<^sub>n\<^sub>t fst reconst_basetype 4} =
+             select_object Set{} UML_Set.OclIncluding id (deref_oid\<^sub>C\<^sub>l\<^sub>i\<^sub>e\<^sub>n\<^sub>t fst reconst_basetype) [4]")
+      apply(simp only: Let_def)
+     apply(simp add: select_object_def)
+    apply(simp only: Let_def)
+    apply(subst cp_OclIf, subst OclSize_singleton[simplified OclValid_def])
+     apply(subst cp_valid)
+     using C1_deref_val[simplified OclValid_def StrongEq_def true_def]
+     apply(simp, subst cp_valid[symmetric], simp add: C1_valid[simplified OclValid_def])
+    using C1_deref_val[simplified OclValid_def StrongEq_def true_def]
+    by(subst cp_OclIf[symmetric], simp)
+  qed
+qed
+
 section{* Annotations of the Class Model in OCL *}
 
 text{* Subsequently, we state a desired class invariant for \verb$Flight$'s in the 
@@ -444,10 +489,8 @@ lemma OclInt9' : "\<nine> = \<guillemotleft>9\<guillemotright>" by(rule ext, sim
 lemma OclInt10': "\<one>\<zero>= \<guillemotleft>10\<guillemotright>"by(rule ext, simp add: OclInt10_def k_def) 
 
 lemma [simp]: "\<tau> \<Turnstile> \<guillemotleft>True\<guillemotright>"
-by(simp add: OclValid_def true_def k_def)
-
-lemma [simp]: "\<tau> |\<noteq> \<guillemotleft>False\<guillemotright>"
-by(simp add: OclValid_def true_def k_def)
+              "\<tau> |\<noteq> \<guillemotleft>False\<guillemotright>"
+by(simp add: OclValid_def true_def k_def)+
 
 
 text{* We wish to analyse our class model and show that the entire set of invariants can
@@ -603,8 +646,6 @@ text{* An operation contract is said to be non-blocking, iff there exists input 
        pre-condition output data exists that satisfies the post-condition.
 *}
 
-thm UML_OCL.dot__cancel_Client
-
 
 definition cancel\<^sub>p\<^sub>r\<^sub>e :: "(\<cdot>Client) \<Rightarrow> (\<cdot>Reservation) \<Rightarrow> \<cdot>Boolean\<^sub>b\<^sub>a\<^sub>s\<^sub>e" 
 where     "cancel\<^sub>p\<^sub>r\<^sub>e  self r \<equiv> (r .client@pre) \<doteq> self" 
@@ -612,8 +653,12 @@ where     "cancel\<^sub>p\<^sub>r\<^sub>e  self r \<equiv> (r .client@pre) \<dot
 definition cancel\<^sub>p\<^sub>o\<^sub>s\<^sub>t :: "(\<cdot>Client) \<Rightarrow> (\<cdot>Reservation) \<Rightarrow> (\<cdot>Void\<^sub>b\<^sub>a\<^sub>s\<^sub>e) \<Rightarrow> \<cdot>Boolean\<^sub>b\<^sub>a\<^sub>s\<^sub>e" 
 where     "cancel\<^sub>p\<^sub>o\<^sub>s\<^sub>t  self r result \<equiv> self .cl_res->select\<^sub>S\<^sub>e\<^sub>t(res|res .flight \<doteq> r .flight)->isEmpty\<^sub>S\<^sub>e\<^sub>t()" 
 
-lemma cancel\<^sub>n\<^sub>o\<^sub>n\<^sub>b\<^sub>l\<^sub>o\<^sub>c\<^sub>k\<^sub>i\<^sub>n\<^sub>g : "\<exists> self r \<tau>.  \<tau> \<Turnstile> (cancel\<^sub>p\<^sub>r\<^sub>e  self r)"
-oops(* TODO *)
+lemma cancel\<^sub>n\<^sub>o\<^sub>n\<^sub>b\<^sub>l\<^sub>o\<^sub>c\<^sub>k\<^sub>i\<^sub>n\<^sub>g : "\<exists> self r \<sigma>.  (\<sigma>,\<sigma>') \<Turnstile> (cancel\<^sub>p\<^sub>r\<^sub>e  self r)"
+ apply(rule exI[where x = "C1"], rule exI[where x = "R11"], rule exI[where x = "\<sigma>\<^sub>t\<^sub>1"])
+ using R11_val_clientATpre[simplified OclValid_def StrongEq_def true_def \<sigma>\<^sub>t\<^sub>1_\<sigma>\<^sub>s\<^sub>1[symmetric], of \<sigma>']
+ apply(simp add: cancel\<^sub>p\<^sub>r\<^sub>e_def StrictRefEq\<^sub>O\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t_\<^sub>R\<^sub>e\<^sub>s\<^sub>e\<^sub>r\<^sub>v\<^sub>a\<^sub>t\<^sub>i\<^sub>o\<^sub>n StrictRefEq\<^sub>O\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t_def OclValid_def)
+by(subst cp_valid, simp, subst cp_valid[symmetric],
+   simp add: C1_valid[simplified OclValid_def \<sigma>\<^sub>t\<^sub>1_\<sigma>\<^sub>s\<^sub>1[symmetric]])
 
 lemma cancel\<^sub>i\<^sub>m\<^sub>p\<^sub>l\<^sub>e\<^sub>m\<^sub>e\<^sub>n\<^sub>t\<^sub>a\<^sub>b\<^sub>l\<^sub>e : " (\<sigma>,\<sigma>') \<Turnstile> (cancel\<^sub>p\<^sub>r\<^sub>e  self r) \<Longrightarrow> 
                            \<exists> \<sigma>' result.  ((\<sigma>,\<sigma>') \<Turnstile> (cancel\<^sub>p\<^sub>o\<^sub>s\<^sub>t  self r result))"

@@ -1970,6 +1970,31 @@ proof -
  qed
 qed
 
+lemma OclSize_singleton: assumes X_val: "\<tau> \<Turnstile> \<upsilon> X"
+                         shows "\<tau> \<Turnstile> ((Set{X}->size\<^sub>S\<^sub>e\<^sub>t()) \<triangleq> \<one>)"
+  proof -
+  let ?A = "\<lambda>x. if \<upsilon> X then x else invalid endif"
+  let ?B = "if ?A false then \<zero> else \<one> endif"
+  let ?C = "if \<upsilon> ?B and not (\<delta> ?B) then invalid else ?B endif"
+  note cpI = cp_OclIf note cpI\<^sub>s = cp_OclIf[symmetric]
+  note cpS = cp_StrongEq note cpS\<^sub>s = cp_StrongEq[symmetric]
+  show ?thesis
+  apply(simp, subst StrongEq_L_subst3_rev[where x = "?A ?C" and y = ?C])
+    apply(simp add: OclValid_def, subst cpS, subst cpI)
+    apply(simp add: X_val[simplified OclValid_def], subst cpI\<^sub>s, simp, simp)
+  apply(subst StrongEq_L_subst3_rev[where x = ?C and y = ?B ])
+    apply(simp add: OclValid_def,
+          subst cpS, subst cpI, subst cp_OclAnd, subst cp_OclNot, subst cp_valid, subst cp_defined)
+    apply(subgoal_tac "?B \<tau> = \<one> \<tau>")
+     apply(simp, subst cp_defined[symmetric], subst cp_valid[symmetric], subst cp_OclNot[symmetric],
+                 subst cp_OclAnd[symmetric], subst cpI\<^sub>s, subst cpS\<^sub>s, simp)
+    apply(subst cpI, subst cpI)
+    apply(simp add: X_val[simplified OclValid_def], subst cpI\<^sub>s, subst cpI\<^sub>s, simp, simp)
+  apply(simp add: OclValid_def, subst cpS)
+  apply(subst cpI, subst cpI)
+  by(simp add: X_val[simplified OclValid_def], subst cpI\<^sub>s, subst cpI\<^sub>s, subst cpS\<^sub>s, simp)
+qed
+
 subsubsection{* Execution Rules on IsEmpty *}
 
 lemma [simp,code_unfold]: "Set{}->isEmpty\<^sub>S\<^sub>e\<^sub>t() = true"
