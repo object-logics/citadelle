@@ -651,7 +651,7 @@ definition cancel\<^sub>p\<^sub>r\<^sub>e :: "(\<cdot>Client) \<Rightarrow> (\<c
 where     "cancel\<^sub>p\<^sub>r\<^sub>e  self r \<equiv> (r .client@pre) \<doteq> self" 
 
 definition cancel\<^sub>p\<^sub>o\<^sub>s\<^sub>t :: "(\<cdot>Client) \<Rightarrow> (\<cdot>Reservation) \<Rightarrow> (\<cdot>Void\<^sub>b\<^sub>a\<^sub>s\<^sub>e) \<Rightarrow> \<cdot>Boolean\<^sub>b\<^sub>a\<^sub>s\<^sub>e" 
-where     "cancel\<^sub>p\<^sub>o\<^sub>s\<^sub>t  self r result \<equiv> self .cl_res->select\<^sub>S\<^sub>e\<^sub>t(res|res .flight \<doteq> r .flight)->isEmpty\<^sub>S\<^sub>e\<^sub>t()" 
+where     "cancel\<^sub>p\<^sub>o\<^sub>s\<^sub>t  self r result \<equiv> self .cl_res->select\<^sub>S\<^sub>e\<^sub>t(res|res .flight \<doteq> r .flight@pre)->isEmpty\<^sub>S\<^sub>e\<^sub>t()" 
 
 lemma cancel\<^sub>n\<^sub>o\<^sub>n\<^sub>b\<^sub>l\<^sub>o\<^sub>c\<^sub>k\<^sub>i\<^sub>n\<^sub>g : "\<exists> self r \<sigma>.  (\<sigma>,\<sigma>') \<Turnstile> (cancel\<^sub>p\<^sub>r\<^sub>e  self r)"
  apply(rule exI[where x = "C1"], rule exI[where x = "R11"], rule exI[where x = "\<sigma>\<^sub>t\<^sub>1"])
