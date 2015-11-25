@@ -47,6 +47,7 @@ subsection\<open>Building Recursors for Records\<close> (* NOTE part to be autom
 definition "toy_instance_single_rec0 f toy = f
   (Inst_name toy)
   (Inst_ty toy)
+  (Inst_attr_with toy)
   (Inst_attr toy)"
 
 definition "toy_instance_single_rec f toy = toy_instance_single_rec0 f toy
@@ -54,19 +55,19 @@ definition "toy_instance_single_rec f toy = toy_instance_single_rec0 f toy
 
 (* *)
 
-lemma [code]: "toy_instance_single.extend = (\<lambda>toy v. toy_instance_single_rec0 (co3 (\<lambda>f. f v) toy_instance_single_ext) toy)"
+lemma [code]: "toy_instance_single.extend = (\<lambda>toy v. toy_instance_single_rec0 (co4 (\<lambda>f. f v) toy_instance_single_ext) toy)"
 by(intro ext, simp add: toy_instance_single_rec0_def
                         toy_instance_single.extend_def
-                        co3_def K_def)
-lemma [code]: "toy_instance_single.make = co3 (\<lambda>f. f ()) toy_instance_single_ext"
+                        co4_def K_def)
+lemma [code]: "toy_instance_single.make = co4 (\<lambda>f. f ()) toy_instance_single_ext"
 by(intro ext, simp add: toy_instance_single.make_def
-                        co3_def)
-lemma [code]: "toy_instance_single.truncate = toy_instance_single_rec (co3 K toy_instance_single.make)"
+                        co4_def)
+lemma [code]: "toy_instance_single.truncate = toy_instance_single_rec (co4 K toy_instance_single.make)"
 by(intro ext, simp add: toy_instance_single_rec0_def
                         toy_instance_single_rec_def
                         toy_instance_single.truncate_def
                         toy_instance_single.make_def
-                        co3_def K_def)
+                        co4_def K_def)
 
 subsection\<open>Main\<close>
 
@@ -101,7 +102,8 @@ definition "of_toy_list_attr a b f = (\<lambda>f0. co4 (\<lambda>f1. rec_toy_lis
     f"
 
 definition "of_toy_instance_single a b f = toy_instance_single_rec
-  (ap4 a (b (ext \<open>toy_instance_single_ext\<close>))
+  (ap5 a (b (ext \<open>toy_instance_single_ext\<close>))
+    (of_option a b (of_string a b))
     (of_option a b (of_string a b))
     (of_option a b (of_string a b))
     (of_toy_list_attr a b (of_list a b (of_pair a b (of_option a b (of_pair a b (of_string a b) (of_string a b))) (of_pair a b (of_string a b) (of_toy_data_shallow a b)))))

@@ -55,6 +55,7 @@ imports Printer
            (* OCL (added) *)
            "self"
            "Nonunique" "Sequence_"
+           "with_"
 
            (* Isabelle syntax *)
            "output_directory"
@@ -933,6 +934,8 @@ fun p_gen f g =  f "[" "]" g
               || f "(" ")" g
 fun paren f = p_gen (fn s1 => fn s2 => fn f => Parse.$$$ s1 |-- f --| Parse.$$$ s2) f
 fun parse_l f = Parse.$$$ "[" |-- Parse.!!! (Parse.list f --| Parse.$$$ "]")
+fun parse_l_with f = Parse.$$$ "[" |-- Scan.optional (Parse.binding --| @{keyword "with_"} >> SOME) NONE
+                     -- Parse.!!! (Parse.list f --| Parse.$$$ "]")
 fun parse_l' f = Parse.$$$ "[" |-- Parse.list f --| Parse.$$$ "]"
 fun parse_l1' f = Parse.$$$ "[" |-- Parse.list1 f --| Parse.$$$ "]"
 fun annot_ty f = Parse.$$$ "(" |-- f --| Parse.$$$ "::" -- Parse.binding --| Parse.$$$ ")"
@@ -1458,16 +1461,16 @@ structure USE_parse = struct
 
   (* *)
 
-  val term_object = parse_l (   optional (    Parse.$$$ "("
-                                          |-- Parse.binding
-                                          --| Parse.$$$ ","
-                                          -- Parse.binding
-                                          --| Parse.$$$ ")"
-                                          --| (Parse.sym_ident >> (fn "|=" => Scan.succeed
-                                                                    | _ => Scan.fail "")))
-                             -- Parse.binding
-                             -- (    Parse.$$$ "="
-                                 |-- uml_term))
+  val term_object = parse_l_with (   optional (    Parse.$$$ "("
+                                               |-- Parse.binding
+                                               --| Parse.$$$ ","
+                                               -- Parse.binding
+                                               --| Parse.$$$ ")"
+                                               --| (Parse.sym_ident >> (fn "|=" => Scan.succeed
+                                                                         | _ => Scan.fail "")))
+                                  -- Parse.binding
+                                  -- (    Parse.$$$ "="
+                                      |-- uml_term))
 
   val list_attr' = term_object >> (fn res => (res, [] : binding list))
   fun object_cast e =
@@ -1484,7 +1487,7 @@ structure USE_parse = struct
   val object_cast' = object_cast >> (fn (res, l) => (res, rev l))
 
   fun get_oclinst l _ =
-    META.OclInstance (map (fn ((name,typ), (l_attr, is_cast)) =>
+    META.OclInstance (map (fn ((name,typ), ((l_attr_with, l_attr), is_cast)) =>
         let val f = map (fn ((pre_post, attr), data) =>
                               ( From.option (From.pair From.binding From.binding) pre_post
                               , ( From.binding attr
@@ -1495,7 +1498,11 @@ structure USE_parse = struct
                 is_cast
                 (META.OclAttrNoCast (f l_attr)) in
         META.Ocl_instance_single_ext
-          (From.option From.binding name, From.option From.binding typ, l_attr, ()) end) l)
+          ( From.option From.binding name
+          , From.option From.binding typ
+          , From.option From.binding l_attr_with
+          , l_attr
+          , ()) end) l)
 
   val parse_instance = (Parse.binding >> SOME)
                      -- optional (@{keyword "::"} |-- Parse.binding) --| @{keyword "="}
@@ -1504,7 +1511,7 @@ structure USE_parse = struct
   (* *)
 
   datatype state_content =
-    ST_l_attr of (((binding * binding) option * binding) * META.ocl_data_shallow) list * binding list
+    ST_l_attr of (binding option * (((binding * binding) option * binding) * META.ocl_data_shallow) list) * binding list
   | ST_binding of binding
   
   val state_parse = parse_l' (   object_cast >> ST_l_attr

@@ -74,7 +74,8 @@ definition' \<open>of_toy_instance_single toyi =
   \<open>%s%s%s\<close>
     s_left
     (of_toy_list_attr
-      (\<lambda>l. \<open>[ %s ]\<close>
+      (\<lambda>l. \<open>[ %s%s ]\<close>
+             (case Inst_attr_with toyi of None \<Rightarrow> \<open>\<close> | Some s \<Rightarrow> \<open>%s with_ \<close> (To_string s))
              (String_concat \<open>, \<close>
                (L.map (\<lambda>(pre_post, attr, v).
                             \<open>%s"%s" = %s\<close> (case pre_post of None \<Rightarrow> \<open>\<close>

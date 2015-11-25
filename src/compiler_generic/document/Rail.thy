@@ -249,8 +249,9 @@ text \<open>
                          (@{syntax term_object} | @{syntax object_cast})) * ('and'?))
   ;
   @{syntax_def term_object}:
-                 ('[' ((('(' binding ',' binding ')' '|=')? \<newline>
-                        binding '=' @{syntax toy_term}) * ',') ']')
+                 ('[' (binding @'with_')? \<newline>
+                        ((('(' binding ',' binding ')' '|=')? \<newline>
+                          binding '=' @{syntax toy_term}) * ',') ']')
   ;
   @{syntax_def object_cast}:
                '(' @{syntax term_object} '::' @{syntax type_object} ')' \<newline>

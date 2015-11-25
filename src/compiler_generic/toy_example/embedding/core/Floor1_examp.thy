@@ -87,10 +87,20 @@ definition "init_map_class env l =
   (let (rbt_nat, rbt_str, _, _) =
      List.fold
        (\<lambda> toyi (rbt_nat, rbt_str, oid_start, accu).
-         ( RBT.insert (Oid accu) oid_start rbt_nat
-         , insert (inst_name toyi) oid_start rbt_str
-         , oidSucInh oid_start
-         , Succ accu))
+         let f = \<lambda>_. 
+             ( RBT.insert (Oid accu) oid_start rbt_nat
+             , insert (inst_name toyi) oid_start rbt_str
+             , oidSucInh oid_start
+             , Succ accu) in
+         case Inst_attr_with toyi of
+           None \<Rightarrow> f ()
+         | Some s \<Rightarrow>
+             (case lookup rbt_str s of None \<Rightarrow> f ()
+              | Some oid_start' \<Rightarrow>
+                ( RBT.insert (Oid accu) oid_start' rbt_nat
+                , insert (inst_name toyi) oid_start' rbt_str
+                , oid_start
+                , Succ accu)))
        l
        ( RBT.empty
        , RBT.bulkload (L.map (\<lambda>(k, _, v). (String\<^sub>b\<^sub>a\<^sub>s\<^sub>e.to_list k, v)) (D_input_instance env))
@@ -166,12 +176,10 @@ definition "check_export_code f_writeln f_warning f_error f_raise l_report msg_l
     f_raise (String.of_nat (length l_err) @@ msg_last))"
 
 definition "print_examp_instance_defassoc_gen name l_toyi env =
- (case D_toy_semantics env of Gen_only_analysis \<Rightarrow> [] | Gen_default \<Rightarrow> [] | Gen_only_design \<Rightarrow>
+ (case D_toy_semantics env of Gen_only_analysis \<Rightarrow> \<lambda>_. [] | Gen_default \<Rightarrow> \<lambda>_. [] | Gen_only_design \<Rightarrow>
+  \<lambda>(rbt, (map_self, map_username)).
   let a = \<lambda>f x. Term_app f [x]
     ; b = \<lambda>s. Term_basic [s]
-    ; (rbt :: _ \<Rightarrow> _ \<times> _ \<times> (_ \<Rightarrow> ((_ \<Rightarrow> natural \<Rightarrow> _ \<Rightarrow> (toy_ty \<times> toy_data_shallow) option list) \<Rightarrow> _ \<Rightarrow> _) option)
-      , (map_self, map_username)) =
-        init_map_class env (fst (L.split l_toyi))
     ; l_toyi = if list_ex (\<lambda>(toyi, _). inst_ty0 toyi = None) l_toyi then [] else l_toyi in
   [Definition
      (Term_rewrite name
@@ -196,8 +204,24 @@ definition "print_examp_instance_defassoc_gen name l_toyi env =
           , let b_l = b \<open>l\<close> in
             (b_l, a \<open>Some\<close> b_l)] ) (Typ_apply (Typ_base \<open>option\<close>) [a_l (Typ_base const_oid)]))))])"
 
+definition "mk_instance_single_cpt0 map_username l env =
+ (let (l, cpt) =
+  L.mapM (\<lambda>toyi cpt. case Inst_attr_with toyi of
+                       None \<Rightarrow> ([(toyi, cpt)], oidSucInh cpt)
+                     | Some n \<Rightarrow>
+                       (case map_username n of None \<Rightarrow> ([(toyi, cpt)], oidSucInh cpt)
+                                             | Some cpt' \<Rightarrow> ([(toyi, cpt')], cpt)))
+         l
+         (D_toy_oid_start env) in
+  (L.flatten l, cpt))"
+
+definition "mk_instance_single_cpt map_username l =
+  fst o mk_instance_single_cpt0 map_username l"
+
 definition "print_examp_instance_defassoc = (\<lambda> ToyInstance l \<Rightarrow> \<lambda> env.
-  let l = L.flatten (fst (L.mapM (\<lambda>toyi cpt. ([(toyi, cpt)], oidSucInh cpt)) l (D_toy_oid_start env))) in
+  let (rbt :: _ \<Rightarrow> _ \<times> _ \<times> (_ \<Rightarrow> ((_ \<Rightarrow> natural \<Rightarrow> _ \<Rightarrow> (toy_ty \<times> toy_data_shallow) option list) \<Rightarrow> _ \<Rightarrow> _) option)
+      , (map_self, map_username)) = init_map_class env l
+    ; l = mk_instance_single_cpt map_username l env in
   (\<lambda>l_res.
     ( print_examp_instance_oid O.definition l env
       @@@@ L.map O.definition l_res
@@ -205,7 +229,8 @@ definition "print_examp_instance_defassoc = (\<lambda> ToyInstance l \<Rightarro
   (print_examp_instance_defassoc_gen
     (Term_oid var_inst_assoc (oidGetInh (D_toy_oid_start env)))
     l
-    env))"
+    env
+    (rbt, (map_self, map_username))))"
 
 definition "print_examp_instance_name = id"
 definition "print_examp_instance = (\<lambda> ToyInstance l \<Rightarrow> \<lambda> env.
@@ -218,12 +243,10 @@ definition "print_examp_instance = (\<lambda> ToyInstance l \<Rightarrow> \<lamb
      ; a = \<lambda>f x. Term_app f [x]
      ; b = \<lambda>s. Term_basic [s] in
    ( let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l var_inst_ass = \<open>inst_assoc\<close> in
-     L.mapM
-       (\<lambda> toyi cpt.
-         ( []
-         , oidSucInh cpt))
-       l
-       (D_toy_oid_start env)
+     map_prod
+       (L.map (\<lambda> _. []))
+       id
+       (mk_instance_single_cpt0 map_username l env)
    , List.fold (\<lambda>toyi instance_rbt.
        let n = inst_name toyi in
        (String.to_String\<^sub>b\<^sub>a\<^sub>s\<^sub>e n, toyi, case map_username n of Some oid \<Rightarrow> oid) # instance_rbt) l (D_input_instance env))))"

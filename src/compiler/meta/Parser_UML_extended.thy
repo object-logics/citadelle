@@ -53,6 +53,7 @@ subsection\<open>Building Recursors for Records\<close> (* NOTE part to be autom
 definition "ocl_instance_single_rec0 f ocl = f
   (Inst_name ocl)
   (Inst_ty ocl)
+  (Inst_attr_with ocl)
   (Inst_attr ocl)"
 
 definition "ocl_instance_single_rec f ocl = ocl_instance_single_rec0 f ocl
@@ -60,19 +61,19 @@ definition "ocl_instance_single_rec f ocl = ocl_instance_single_rec0 f ocl
 
 (* *)
 
-lemma [code]: "ocl_instance_single.extend = (\<lambda>ocl v. ocl_instance_single_rec0 (co3 (\<lambda>f. f v) ocl_instance_single_ext) ocl)"
+lemma [code]: "ocl_instance_single.extend = (\<lambda>ocl v. ocl_instance_single_rec0 (co4 (\<lambda>f. f v) ocl_instance_single_ext) ocl)"
 by(intro ext, simp add: ocl_instance_single_rec0_def
                         ocl_instance_single.extend_def
-                        co3_def K_def)
-lemma [code]: "ocl_instance_single.make = co3 (\<lambda>f. f ()) ocl_instance_single_ext"
+                        co4_def K_def)
+lemma [code]: "ocl_instance_single.make = co4 (\<lambda>f. f ()) ocl_instance_single_ext"
 by(intro ext, simp add: ocl_instance_single.make_def
-                        co3_def)
-lemma [code]: "ocl_instance_single.truncate = ocl_instance_single_rec (co3 K ocl_instance_single.make)"
+                        co4_def)
+lemma [code]: "ocl_instance_single.truncate = ocl_instance_single_rec (co4 K ocl_instance_single.make)"
 by(intro ext, simp add: ocl_instance_single_rec0_def
                         ocl_instance_single_rec_def
                         ocl_instance_single.truncate_def
                         ocl_instance_single.make_def
-                        co3_def K_def)
+                        co4_def K_def)
 
 subsection\<open>Main\<close>
 
@@ -107,7 +108,8 @@ definition "of_ocl_list_attr a b f = (\<lambda>f0. co4 (\<lambda>f1. rec_ocl_lis
     f"
 
 definition "of_ocl_instance_single a b f = ocl_instance_single_rec
-  (ap4 a (b (ext \<open>ocl_instance_single_ext\<close>))
+  (ap5 a (b (ext \<open>ocl_instance_single_ext\<close>))
+    (of_option a b (of_string a b))
     (of_option a b (of_string a b))
     (of_option a b (of_string a b))
     (of_ocl_list_attr a b (of_list a b (of_pair a b (of_option a b (of_pair a b (of_string a b) (of_string a b))) (of_pair a b (of_string a b) (of_ocl_data_shallow a b)))))

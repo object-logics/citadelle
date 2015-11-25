@@ -275,10 +275,20 @@ definition "init_map_class env l =
   (let (rbt_nat, rbt_str, _, _) =
      List.fold
        (\<lambda> ocli (rbt_nat, rbt_str, oid_start, accu).
-         ( RBT.insert (Oid accu) oid_start rbt_nat
-         , insert (inst_name ocli) oid_start rbt_str
-         , oidSucInh oid_start
-         , Succ accu))
+         let f = \<lambda>_. 
+             ( RBT.insert (Oid accu) oid_start rbt_nat
+             , insert (inst_name ocli) oid_start rbt_str
+             , oidSucInh oid_start
+             , Succ accu) in
+         case Inst_attr_with ocli of
+           None \<Rightarrow> f ()
+         | Some s \<Rightarrow>
+             (case lookup rbt_str s of None \<Rightarrow> f ()
+              | Some oid_start' \<Rightarrow>
+                ( RBT.insert (Oid accu) oid_start' rbt_nat
+                , insert (inst_name ocli) oid_start' rbt_str
+                , oid_start
+                , Succ accu)))
        l
        ( RBT.empty
        , RBT.bulkload (L.map (\<lambda>(k, _, v). (String\<^sub>b\<^sub>a\<^sub>s\<^sub>e.to_list k, v)) (D_input_instance env))
@@ -473,12 +483,10 @@ definition "check_export_code f_writeln f_warning f_error f_raise l_report msg_l
     f_raise (String.of_nat (length l_err) @@ msg_last))"
 
 definition "print_examp_instance_defassoc_gen name l_ocli env =
- (case D_ocl_semantics env of Gen_only_analysis \<Rightarrow> [] | Gen_default \<Rightarrow> [] | Gen_only_design \<Rightarrow>
+ (case D_ocl_semantics env of Gen_only_analysis \<Rightarrow> \<lambda>_. [] | Gen_default \<Rightarrow> \<lambda>_. [] | Gen_only_design \<Rightarrow>
+  \<lambda>(rbt, (map_self, map_username)).
   let a = \<lambda>f x. Term_app f [x]
     ; b = \<lambda>s. Term_basic [s]
-    ; (rbt :: _ \<Rightarrow> _ \<times> _ \<times> (_ \<Rightarrow> ((_ \<Rightarrow> natural \<Rightarrow> _ \<Rightarrow> (ocl_ty \<times> ocl_data_shallow) option list) \<Rightarrow> _ \<Rightarrow> _) option)
-      , (map_self, map_username)) =
-        init_map_class env (fst (L.split l_ocli))
     ; l_ocli = if list_ex (\<lambda>(ocli, _). inst_ty0 ocli = None) l_ocli then [] else l_ocli in
   [Definition
      (Term_rewrite name
@@ -543,8 +551,24 @@ definition "check_single_ty rbt_init rbt' l_attr_gen l_oid x =
                 ((snd o s') ([TyMult mult_from, TyMult mult_to]))
                 l]))"
 
+definition "mk_instance_single_cpt0 map_username l env =
+ (let (l, cpt) =
+  L.mapM (\<lambda>ocli cpt. case Inst_attr_with ocli of
+                       None \<Rightarrow> ([(ocli, cpt)], oidSucInh cpt)
+                     | Some n \<Rightarrow>
+                       (case map_username n of None \<Rightarrow> ([(ocli, cpt)], oidSucInh cpt)
+                                             | Some cpt' \<Rightarrow> ([(ocli, cpt')], cpt)))
+         l
+         (D_ocl_oid_start env) in
+  (L.flatten l, cpt))"
+
+definition "mk_instance_single_cpt map_username l =
+  fst o mk_instance_single_cpt0 map_username l"
+
 definition "print_examp_instance_defassoc = (\<lambda> OclInstance l \<Rightarrow> \<lambda> env.
-  let l = L.flatten (fst (L.mapM (\<lambda>ocli cpt. ([(ocli, cpt)], oidSucInh cpt)) l (D_ocl_oid_start env))) in
+  let (rbt :: _ \<Rightarrow> _ \<times> _ \<times> (_ \<Rightarrow> ((_ \<Rightarrow> natural \<Rightarrow> _ \<Rightarrow> (ocl_ty \<times> ocl_data_shallow) option list) \<Rightarrow> _ \<Rightarrow> _) option)
+      , (map_self, map_username)) = init_map_class env l
+    ; l = mk_instance_single_cpt map_username l env in
   (\<lambda>l_res.
     ( print_examp_instance_oid O.definition l env
       @@@@ L.map O.definition l_res
@@ -552,14 +576,19 @@ definition "print_examp_instance_defassoc = (\<lambda> OclInstance l \<Rightarro
   (print_examp_instance_defassoc_gen
     (Term_oid var_inst_assoc (oidGetInh (D_ocl_oid_start env)))
     l
-    env))"
+    env
+    (rbt, (map_self, map_username))))"
 
-definition "fold_instance_single_name =
+definition "fold_instance_single_name ocli =
  (let b = \<lambda>s. Term_basic [s] in
+  (case Inst_attr_with ocli of None \<Rightarrow> id
+                             | Some s \<Rightarrow> Cons (b s))
+  o
   fold_instance_single' (\<lambda>_. List.fold (\<lambda> (_, _, d). fold_data_shallow Some
                                                                        (\<lambda>_. None)
                                                                        (\<lambda> Some s \<Rightarrow> Cons (b s) | None \<Rightarrow> id)
-                                                                       d)))"
+                                                                       d))
+                        ocli)"
 
 definition "print_examp_instance_defassoc_typecheck_var = (\<lambda> OclInstance l \<Rightarrow>
  (let b = \<lambda>s. Term_basic [s]
@@ -609,15 +638,15 @@ definition' \<open>print_examp_instance_defassoc_typecheck_gen l_ocli env =
     ; (l_spec1, l_spec2) = arrange_ass False True (fst (find_class_ass env)) l_enum
     ; spec = class_unflat (l_spec1, l_spec2)
     ; env = env \<lparr> D_input_class := Some spec \<rparr>
-    ; l_assoc = L.flatten (fst (L.mapM (\<lambda>ocli cpt. (case ocli of None \<Rightarrow> []
-                                                                | Some ocli \<Rightarrow> [(ocli, cpt)], oidSucInh cpt)) l_ocli (D_ocl_oid_start env))) in
-  if list_ex (\<lambda>(ocli, _). inst_ty0 ocli = None) l_assoc then
+    ; l_assoc = List.map_filter id l_ocli in
+  if list_ex (\<lambda>ocli. inst_ty0 ocli = None) l_assoc then
     [ raise_ml
-        (List.map_filter (\<lambda>(ocli, _). if inst_ty0 ocli = None then Some (Error, \<open>Missing type annotation in the definition of "\<close> @@ inst_name ocli @@ \<open>"\<close>) else None) l_assoc)
+        (List.map_filter (\<lambda>ocli. if inst_ty0 ocli = None then Some (Error, \<open>Missing type annotation in the definition of "\<close> @@ inst_name ocli @@ \<open>"\<close>) else None) l_assoc)
         \<open> error(s)\<close>]
   else
     let (rbt_init0, (map_self, map_username)) = init_map_class env (L.map (\<lambda> Some ocli \<Rightarrow> ocli | None \<Rightarrow> ocl_instance_single_empty) l_ocli)
       ; rbt_init = snd o rbt_init0
+      ; l_assoc = mk_instance_single_cpt map_username l_assoc env
       ; rbt = print_examp_def_st_assoc_build_rbt2 rbt_init map_self map_username l_assoc
       ; l_attr_gen = map_of_list (fold (\<lambda>_ (l_attr, ty_obj).
              Cons ( TyObj_ass_id ty_obj
@@ -688,39 +717,39 @@ definition "print_examp_instance = (\<lambda> OclInstance l \<Rightarrow> \<lamb
      ; a = \<lambda>f x. Term_app f [x]
      ; b = \<lambda>s. Term_basic [s] in
    ( let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l var_inst_ass = \<open>inst_assoc\<close> in
-     L.mapM
-       (\<lambda> ocli cpt.
-         let var_oid = Term_oid var_oid_uniq (oidGetInh cpt)
-           ; (isub_name, body2, body2') = 
-               case inst_ty0 ocli of
-                 Some ty \<Rightarrow> 
-                     let isub_name = \<lambda>s. s @@ String.isub (inst_ty ocli) in
-                     (isub_name, print_examp_instance_app_constr2_notmp_norec (snd o rbt, (map_self, map_username)) (b var_inst_ass) ocli isub_name cpt)
-               | None \<Rightarrow> (id, (Return_err Return_err_ty_auto, id)) in
-         ( let l =
-             [ Definition
-                 (Term_rewrite (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l e = b (inst_name ocli) in
-                                case Inst_ty ocli of 
-                                  None \<Rightarrow> e
-                                | Some ty \<Rightarrow> Term_annot_ocl e ty)
-                               \<open>=\<close>
-                               (case body2 of Return_err _ \<Rightarrow> b \<open>invalid\<close>
-                                            | _ \<Rightarrow> body2' (Term_lambda
-                                                             wildcard
-                                                             (Term_some (Term_some (let name_pers = print_examp_instance_name isub_name (inst_name ocli) in
-                                                                                    if D_ocl_semantics env = Gen_only_design then
-                                                                                      a name_pers (Term_oid var_inst_assoc (oidGetInh (D_ocl_oid_start env)))
-                                                                                    else
-                                                                                      b name_pers))))))] in
+     map_prod
+       (L.map
+         (\<lambda> (ocli, cpt).
+           let var_oid = Term_oid var_oid_uniq (oidGetInh cpt)
+             ; (isub_name, body2, body2') = 
+                 case inst_ty0 ocli of
+                   Some ty \<Rightarrow> 
+                       let isub_name = \<lambda>s. s @@ String.isub (inst_ty ocli) in
+                       (isub_name, print_examp_instance_app_constr2_notmp_norec (snd o rbt, (map_self, map_username)) (b var_inst_ass) ocli isub_name cpt)
+                 | None \<Rightarrow> (id, (Return_err Return_err_ty_auto, id))
+             ; l =
+               [ Definition
+                   (Term_rewrite (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l e = b (inst_name ocli) in
+                                  case Inst_ty ocli of 
+                                    None \<Rightarrow> e
+                                  | Some ty \<Rightarrow> Term_annot_ocl e ty)
+                                 \<open>=\<close>
+                                 (case body2 of Return_err _ \<Rightarrow> b \<open>invalid\<close>
+                                              | _ \<Rightarrow> body2' (Term_lambda
+                                                               wildcard
+                                                               (Term_some (Term_some (let name_pers = print_examp_instance_name isub_name (inst_name ocli) in
+                                                                                      if D_ocl_semantics env = Gen_only_design then
+                                                                                        a name_pers (Term_oid var_inst_assoc (oidGetInh (D_ocl_oid_start env)))
+                                                                                      else
+                                                                                        b name_pers))))))] in
            case body2 of Return_err _ \<Rightarrow> l
                        | Return_val body2 \<Rightarrow> Definition (Term_rewrite (Term_basic (print_examp_instance_name isub_name (inst_name ocli)
                                                                                    # (if D_ocl_semantics env = Gen_only_design then [ var_inst_ass ] else [])))
                                                                       \<open>=\<close>
                                                                       body2)
-                                             # l
-         , oidSucInh cpt))
-       l
-       (D_ocl_oid_start env)
+                                             # l))
+       id
+       (mk_instance_single_cpt0 map_username l env)
    , List.fold (\<lambda>ocli instance_rbt.
        let n = inst_name ocli in
        (String.to_String\<^sub>b\<^sub>a\<^sub>s\<^sub>e n, ocli, case map_username n of Some oid \<Rightarrow> oid) # instance_rbt) l (D_input_instance env))))"

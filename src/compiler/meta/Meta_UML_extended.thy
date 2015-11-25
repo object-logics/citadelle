@@ -71,6 +71,7 @@ datatype 'a ocl_list_attr = OclAttrNoCast 'a (* inh, own *)
 
 record ocl_instance_single = Inst_name :: "string option" (* None: fresh name to be generated *)
                              Inst_ty :: "string option" (* type *)
+                             Inst_attr_with :: "string (* name *) option"
                              Inst_attr :: "((  (string (* pre state *) \<times> string (* post state *)) option
                                                (* state used when ocl_data_shallow is an object variable (for retrieving its oid) *)
                                              \<times> string (*name*)
@@ -109,7 +110,8 @@ definition "oidReinitInh = (\<lambda>Oids n1 n2 _ \<Rightarrow> Oids n1 n2 n2)"
 
 subsection\<open>Operations of Fold, Map, ..., on the Meta-Model\<close>
 
-definition "ocl_instance_single_empty = \<lparr> Inst_name = None, Inst_ty = None, Inst_attr = OclAttrNoCast [] \<rparr>"
+definition "ocl_instance_single_empty =
+  \<lparr> Inst_name = None, Inst_ty = None, Inst_attr_with = None, Inst_attr = OclAttrNoCast [] \<rparr>"
 
 fun map_data_shallow_self where
    "map_data_shallow_self f e = (\<lambda> ShallB_self s \<Rightarrow> f s
