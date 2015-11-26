@@ -249,7 +249,7 @@ text \<open>
                          (@{syntax term_object} | @{syntax object_cast})) * ('and'?))
   ;
   @{syntax_def term_object}:
-                 ('[' (binding @'with_')? \<newline>
+                 ('[' (binding @'with_only')? \<newline>
                         ((('(' binding ',' binding ')' '|=')? \<newline>
                           binding '=' @{syntax toy_term}) * ',') ']')
   ;

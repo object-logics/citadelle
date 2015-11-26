@@ -55,7 +55,7 @@ imports Printer
            (* OCL (added) *)
            "self"
            "Nonunique" "Sequence_"
-           "with_"
+           "with_only"
 
            (* Isabelle syntax *)
            "output_directory"
@@ -934,7 +934,7 @@ fun p_gen f g =  f "[" "]" g
               || f "(" ")" g
 fun paren f = p_gen (fn s1 => fn s2 => fn f => Parse.$$$ s1 |-- f --| Parse.$$$ s2) f
 fun parse_l f = Parse.$$$ "[" |-- Parse.!!! (Parse.list f --| Parse.$$$ "]")
-fun parse_l_with f = Parse.$$$ "[" |-- Scan.optional (Parse.binding --| @{keyword "with_"} >> SOME) NONE
+fun parse_l_with f = Parse.$$$ "[" |-- Scan.optional (Parse.binding --| @{keyword "with_only"} >> SOME) NONE
                      -- Parse.!!! (Parse.list f --| Parse.$$$ "]")
 fun parse_l' f = Parse.$$$ "[" |-- Parse.list f --| Parse.$$$ "]"
 fun parse_l1' f = Parse.$$$ "[" |-- Parse.list1 f --| Parse.$$$ "]"

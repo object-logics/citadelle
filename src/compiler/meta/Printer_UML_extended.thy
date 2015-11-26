@@ -81,7 +81,7 @@ definition' \<open>of_ocl_instance_single ocli =
     s_left
     (of_ocl_list_attr
       (\<lambda>l. \<open>[ %s%s ]\<close>
-             (case Inst_attr_with ocli of None \<Rightarrow> \<open>\<close> | Some s \<Rightarrow> \<open>%s with_ \<close> (To_string s))
+             (case Inst_attr_with ocli of None \<Rightarrow> \<open>\<close> | Some s \<Rightarrow> \<open>%s with_only \<close> (To_string s))
              (String_concat \<open>, \<close>
                (L.map (\<lambda>(pre_post, attr, v).
                             \<open>%s"%s" = %s\<close> (case pre_post of None \<Rightarrow> \<open>\<close>
