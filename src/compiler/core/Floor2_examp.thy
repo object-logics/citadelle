@@ -47,28 +47,55 @@ theory  Floor2_examp
 imports Floor1_examp
 begin
 
+definition "merge_unique_gen f l = List.fold (List.fold (\<lambda>x. case f x of Some (x, v) \<Rightarrow> RBT.insert x v | None \<Rightarrow> id)) l RBT.empty"
+definition "merge_unique f l = RBT.entries (merge_unique_gen f l)"
+definition "merge_unique' f =
+   L.map snd
+ o RBT.entries
+ o (\<lambda>l.
+     List.fold
+       (\<lambda>((k, _), e) rbt.
+         RBT.insert k
+                    (case RBT.lookup rbt k of
+                       None \<Rightarrow> [e]
+                     | Some l \<Rightarrow> e # l)
+                    rbt)
+       l
+       RBT.empty)
+ o merge_unique (\<lambda> ((a, n), b). Some ((oidGetInh a, n), (a, b)))
+ o L.map (L.map (\<lambda>(oid, e) \<Rightarrow> ((oid, f e), e)))"
+definition "merge_unique'' l = 
+  L.map (L.map (map_prod id (\<lambda> OclDefCoreBinding (_, ocli) \<Rightarrow> ocli)))
+        (merge_unique' (\<lambda> OclDefCoreBinding (s, _) \<Rightarrow> String.to_list s) l)"
+
+definition "map_tail f =
+ (let f = map_prod (Term_oid var_oid_uniq o oidGetInh) f in
+  L.map (\<lambda> x # xs \<Rightarrow>
+          map_prod id
+           (\<lambda>x. L.flatten (x # L.map (snd o f) xs))
+           (f x)))"
+
 definition "print_examp_def_st_locale_distinct = \<open>distinct_oid\<close>"
 definition "print_examp_def_st_locale_metis = M.metis (L.map T.thm [print_examp_def_st_locale_distinct, \<open>distinct_length_2_or_more\<close>])"
-definition "print_examp_def_st_locale_aux f_ocli l = 
+definition "print_examp_def_st_locale_aux l = 
  (let b = \<lambda>s. Term_basic [s] in
   map_prod
     id
     L.flatten
     (L.split
-      (L.map
-        (\<lambda> name.
-           let (ocli, cpt) = f_ocli name 
-             ; n = inst_name ocli
-             ; ty = inst_ty ocli
-             ; f = \<lambda>s. s @@ String.isub ty
-             ; name_pers = print_examp_instance_name f n in
-           ( Term_oid var_oid_uniq (oidGetInh cpt)
-           , [ ( [(b name_pers, Typ_base (f datatype_name))], None)
-             , ( [(b n, Typ_base (wrap_oclty ty))]
-               , Some (hol_definition n, Term_rewrite (b n) \<open>=\<close> (Term_lambda wildcard (Term_some (Term_some (b name_pers)))))) ]))
+      (map_tail
+        (\<lambda> ocli.
+           let n = inst_name ocli
+           ; ty = inst_ty ocli
+           ; f = \<lambda>s. s @@ String.isub ty
+           ; name_pers = print_examp_instance_name f n in
+           [ ( [(b name_pers, Typ_base (f datatype_name))], None)
+           , ( [(b n, Typ_base (wrap_oclty ty))]
+             , Some (hol_definition n, Term_rewrite (b n) \<open>=\<close> (Term_lambda wildcard (Term_some (Term_some (b name_pers)))))) ])
         l)))"
-definition "print_examp_def_st_locale_make f_name f_ocli f_spec l =
- (let (oid, l_fix_assum) = print_examp_def_st_locale_aux f_ocli l
+
+definition "print_examp_def_st_locale_make f_name f_spec l =
+ (let (oid, l_fix_assum) = print_examp_def_st_locale_aux l
     ; ty_n = \<open>nat\<close> in
   \<lparr> HolThyLocale_name = f_name
   , HolThyLocale_header = L.flatten
@@ -79,14 +106,30 @@ definition "print_examp_def_st_locale_make f_name f_ocli f_spec l =
                             , l_fix_assum
                             , f_spec ] \<rparr>)"
 
+definition "print_examp_def_st_locale_sort env l =
+  merge_unique' (String.to_list o inst_name)
+                (L.map (\<lambda> OclDefCoreBinding name \<Rightarrow> case String.assoc name (D_input_instance env) of
+                                                      Some n \<Rightarrow> [flip n]) l)"
+
+definition "filter_locale_interp =
+    L.split
+  o map_tail
+      (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l a = \<lambda>f x. Term_app f [x]
+       ; b = \<lambda>s. Term_basic [s]
+       ; c = Term_paren \<open>\<lceil>\<close> \<open>\<rceil>\<close>
+       ; var_tau = \<open>\<tau>\<close> in
+       \<lambda> ocli \<Rightarrow>
+        let n = inst_name ocli in
+        [ c (c (a n (b var_tau)))
+        , b n])"
+
 definition "print_examp_def_st_locale_name n = \<open>state_\<close> @@ n"
 definition "print_examp_def_st_locale = (\<lambda> OclDefSt n l \<Rightarrow> \<lambda>env.
  (\<lambda>d. (d, env))
   (print_examp_def_st_locale_make
     (print_examp_def_st_locale_name n)
-    (\<lambda> OclDefCoreBinding name \<Rightarrow> case String.assoc name (D_input_instance env) of Some n \<Rightarrow> n)
     []
-    l))"
+    (print_examp_def_st_locale_sort env l)))"
 
 definition "print_examp_def_st_defassoc_typecheck_gen l env =
  ([ raise_ml
@@ -295,26 +338,12 @@ definition "print_examp_def_st_def_interp = (\<lambda> OclDefSt n l \<Rightarrow
  (\<lambda> l. (L.map O.definition l, env))
   (let a = \<lambda>f x. Term_app f [x]
      ; b = \<lambda>s. Term_basic [s]
-     ; c = Term_paren \<open>\<lceil>\<close> \<open>\<rceil>\<close>
      ; var_tau = \<open>\<tau>\<close>
-     ; (oid, l_fix_assum) =
-    L.split
-      (L.map
-        (\<lambda> OclDefCoreBinding name \<Rightarrow>
-           case String.assoc name (D_input_instance env) of Some (ocli, cpt) \<Rightarrow>
-           let n = inst_name ocli in
-           ( Term_oid var_oid_uniq (oidGetInh cpt)
-           , [ c (c (a n (b var_tau)))
-             , b n]))
-        l) in
+     ; (oid, l_fix_assum) = filter_locale_interp (print_examp_def_st_locale_sort env l) in
    [Definition (Term_rewrite (a (\<open>state_interpretation_\<close> @@ n) (b var_tau))
                              \<open>=\<close>
                              (Term_app (print_examp_def_st_locale_name n)
                                (L.flatten [oid, L.flatten l_fix_assum])))]))"
-
-definition "merge_unique_gen f l = List.fold (List.fold (\<lambda>x. case f x of Some (x, v) \<Rightarrow> RBT.insert x v | None \<Rightarrow> id)) l RBT.empty"
-definition "merge_unique f l = RBT.entries (merge_unique_gen f l)"
-definition "merge_unique' = L.map snd o merge_unique (\<lambda> (a, b). ((\<lambda>x. Some (x, (a, b))) o oidGetInh) a)"
 
 definition "get_state f = (\<lambda> OclDefPP _ s_pre s_post \<Rightarrow> \<lambda> env. 
   let get_state = let l_st = D_input_state env in \<lambda>OclDefPPCoreBinding s \<Rightarrow> (s, case String.assoc s l_st of None \<Rightarrow> [] | Some l \<Rightarrow> l)
@@ -328,27 +357,26 @@ definition "get_state f = (\<lambda> OclDefPP _ s_pre s_post \<Rightarrow> \<lam
                          [ (s_post, l_post) ]))
     env)"
 
-definition "print_transition_locale_aux f_ocli l =
- (let (oid, l_fix_assum) = print_examp_def_st_locale_aux f_ocli l in
+definition "print_transition_locale_aux l =
+ (let (oid, l_fix_assum) = print_examp_def_st_locale_aux (merge_unique'' [l]) in
   L.flatten [oid, L.flatten (L.map (L.map fst o fst) l_fix_assum) ])"
 
 definition "print_transition_locale_name s_pre s_post = \<open>transition_\<close> @@ s_pre @@ \<open>_\<close> @@ s_post"
 definition "print_transition_locale = get_state (\<lambda> (s_pre, l_pre) (s_post, l_post) l_pre_post. Pair
- (let f_ocli = \<lambda>(cpt, OclDefCoreBinding (_, ocli)) \<Rightarrow> (ocli, cpt) in
-  print_examp_def_st_locale_make
+ (print_examp_def_st_locale_make
     (print_transition_locale_name s_pre s_post)
-    f_ocli
     (L.map (\<lambda>(s, l). ([], Some (s, Term_app
                                         (print_examp_def_st_locale_name s)
-                                        (print_transition_locale_aux f_ocli l))))
+                                        (print_transition_locale_aux l))))
               l_pre_post)
-    (merge_unique' [l_pre, l_post])))"
+    (merge_unique'' [l_pre, l_post])))"
 
 definition "print_transition_interp = get_state (\<lambda> _ _.
  Pair o L.map O'.interpretation o L.map
   (\<lambda>(s, l).
     let n = print_examp_def_st_locale_name s in
-    Interpretation n n (print_transition_locale_aux (\<lambda>(cpt, OclDefCoreBinding (_, ocli)) \<Rightarrow> (ocli, cpt)) l) (C.by [M.rule (T.thm s)])))"
+    Interpretation n n (print_transition_locale_aux l)
+                       (C.by [M.rule (T.thm s)])))"
 
 definition "print_transition_def_state = get_state (\<lambda> pre post _.
  (Pair o L.map O'.definition)
@@ -367,14 +395,15 @@ definition "print_transition_wff = get_state (\<lambda> (s_pre, l_pre) (s_post, 
      ; mk_n = \<lambda>s. print_examp_def_st_locale_name s @@ \<open>.\<close> @@ s in
    [ Lemma_assumes
        (S.flatten [\<open>basic_\<close>, s_pre, \<open>_\<close>, s_post, \<open>_wff\<close>])
-       (L.map (\<lambda> (cpt, OclDefCoreBinding (_, ocli)) \<Rightarrow>
-                    let ty = \<lambda>s. s @@ String.isub (inst_ty ocli)
-                      ; n = inst_name ocli in
-                    (\<open>\<close>, True, Term_rewrite 
-                                 (a \<open>oid_of\<close> (a (ty datatype_in) (b (print_examp_instance_name ty n))))
-                                 \<open>=\<close>
-                                 (Term_oid var_oid_uniq (oidGetInh cpt))))
-                 (merge_unique' [l_pre, l_post]))
+       (L.flatten
+         (L.map (L.map (\<lambda> (cpt, ocli) \<Rightarrow>
+                        let ty = \<lambda>s. s @@ String.isub (inst_ty ocli)
+                          ; n = inst_name ocli in
+                        (\<open>\<close>, True, Term_rewrite 
+                                     (a \<open>oid_of\<close> (a (ty datatype_in) (b (print_examp_instance_name ty n))))
+                                     \<open>=\<close>
+                                     (Term_oid var_oid_uniq (oidGetInh cpt)))))
+                (merge_unique'' [l_pre, l_post])))
        (a \<open>WFF\<close> (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l mk_n = b o mk_n in Term_pair (mk_n s_pre) (mk_n s_post)))
        (L.map snd
          (merge_unique (\<lambda> [oid_b, oid_a] \<Rightarrow>
@@ -427,17 +456,8 @@ definition "print_transition_def_interp = get_state (\<lambda> (s_pre, l_pre) (s
  (Pair o L.map O.definition)
   (let a = \<lambda>f x. Term_app f [x]
      ; b = \<lambda>s. Term_basic [s]
-     ; c = Term_paren \<open>\<lceil>\<close> \<open>\<rceil>\<close>
      ; var_tau = \<open>\<tau>\<close>
-     ; (oid, l_fix_assum) = 
-    (L.split
-      (L.map
-        (\<lambda> (cpt, OclDefCoreBinding (_, ocli)) \<Rightarrow>
-           let n = inst_name ocli in
-           ( Term_oid var_oid_uniq (oidGetInh cpt)
-           , [ c (c (a n (b var_tau)))
-             , b n]))
-        (merge_unique' [l_pre, l_post]))) in
+     ; (oid, l_fix_assum) = filter_locale_interp (merge_unique'' [l_pre, l_post]) in
    [Definition (Term_rewrite (a (\<open>pp_\<close> @@ s_pre @@ \<open>_\<close> @@ s_post) (b var_tau))
                              \<open>=\<close>
                              (Term_app (print_transition_locale_name s_pre s_post)
@@ -446,16 +466,15 @@ definition "print_transition_def_interp = get_state (\<lambda> (s_pre, l_pre) (s
 definition "print_transition_lemmas_oid = get_state (\<lambda> (s_pre, l_pre) (s_post, l_post) _.
  (Pair o L.map O.lemmas)
   (let b = \<lambda>s. Term_basic [s] in
-   L.map (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l l_pp = merge_unique' [l_pre, l_post] in
+   L.map (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l l_pp = merge_unique'' [l_pre, l_post] in
           (\<lambda>(tit, f). Lemmas_nosimp (tit @@ s_pre @@ \<open>_\<close> @@ s_post)
-                                    (L.map (T.thm o hol_definition o f) l_pp)))
-         [ (\<open>pp_oid_\<close>, \<lambda>(cpt, _).
-                         S.flatten [ var_oid_uniq
-                                   , String.of_natural (case oidGetInh cpt of Oid i \<Rightarrow> i)])
-         , (\<open>pp_object_\<close>, \<lambda>(cpt, OclDefCoreBinding (_, ocli)) \<Rightarrow>
-                           inst_name ocli)
-         , (\<open>pp_object_ty_\<close>, \<lambda>(cpt, OclDefCoreBinding (_, ocli)) \<Rightarrow>
+                                    (L.flatten (L.map (L.map (T.thm o hol_definition) o f) l_pp))))
+         [ (\<open>pp_oid_\<close>, (\<lambda>(cpt, _) # _ \<Rightarrow>
+                         [ S.flatten [ var_oid_uniq
+                                     , String.of_natural (case oidGetInh cpt of Oid i \<Rightarrow> i) ]]))
+         , (\<open>pp_object_\<close>, L.map (\<lambda>(_, ocli) \<Rightarrow> inst_name ocli))
+         , (\<open>pp_object_ty_\<close>, L.map (\<lambda>(_, ocli) \<Rightarrow>
                                print_examp_instance_name
-                                 (\<lambda>s. s @@ String.isub (inst_ty ocli)) (inst_name ocli)) ]))"
+                                 (\<lambda>s. s @@ String.isub (inst_ty ocli)) (inst_name ocli))) ]))"
 
 end

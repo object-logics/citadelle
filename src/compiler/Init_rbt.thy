@@ -48,6 +48,7 @@ imports "../compiler_generic/Init"
         "~~/src/HOL/Library/RBT"
         "~~/src/HOL/Library/Char_ord"
         "~~/src/HOL/Library/List_lexord"
+        "~~/src/HOL/Library/Product_Lexorder"
 begin
 
 locale RBT

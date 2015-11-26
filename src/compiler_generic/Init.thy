@@ -122,6 +122,10 @@ text\<open>This is the special command which sets the type of subsequent cartouc
            one should extend it to be a truly ``typed'' type...\<close>
 declare[[cartouche_type = "abr_string"]]
 
+subsection\<open>Operations on Pair\<close>
+
+definition "flip = (\<lambda>(a, b). (b, a))"
+
 subsection\<open>Operations on List\<close>
 
 datatype ('a, 'b) nsplit = Nsplit_text 'a

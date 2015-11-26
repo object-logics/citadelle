@@ -41,28 +41,55 @@ theory  Floor2_examp
 imports Floor1_examp
 begin
 
+definition "merge_unique_gen f l = List.fold (List.fold (\<lambda>x. case f x of Some (x, v) \<Rightarrow> RBT.insert x v | None \<Rightarrow> id)) l RBT.empty"
+definition "merge_unique f l = RBT.entries (merge_unique_gen f l)"
+definition "merge_unique' f =
+   L.map snd
+ o RBT.entries
+ o (\<lambda>l.
+     List.fold
+       (\<lambda>((k, _), e) rbt.
+         RBT.insert k
+                    (case RBT.lookup rbt k of
+                       None \<Rightarrow> [e]
+                     | Some l \<Rightarrow> e # l)
+                    rbt)
+       l
+       RBT.empty)
+ o merge_unique (\<lambda> ((a, n), b). Some ((oidGetInh a, n), (a, b)))
+ o L.map (L.map (\<lambda>(oid, e) \<Rightarrow> ((oid, f e), e)))"
+definition "merge_unique'' l = 
+  L.map (L.map (map_prod id (\<lambda> ToyDefCoreBinding (_, toyi) \<Rightarrow> toyi)))
+        (merge_unique' (\<lambda> ToyDefCoreBinding (s, _) \<Rightarrow> String.to_list s) l)"
+
+definition "map_tail f =
+ (let f = map_prod (Term_oid var_oid_uniq o oidGetInh) f in
+  L.map (\<lambda> x # xs \<Rightarrow>
+          map_prod id
+           (\<lambda>x. L.flatten (x # L.map (snd o f) xs))
+           (f x)))"
+
 definition "print_examp_def_st_locale_distinct = \<open>distinct_oid\<close>"
 definition "print_examp_def_st_locale_metis = M.metis (L.map T.thm [print_examp_def_st_locale_distinct, \<open>distinct_length_2_or_more\<close>])"
-definition "print_examp_def_st_locale_aux f_toyi l = 
+definition "print_examp_def_st_locale_aux l = 
  (let b = \<lambda>s. Term_basic [s] in
   map_prod
     id
     L.flatten
     (L.split
-      (L.map
-        (\<lambda> name.
-           let (toyi, cpt) = f_toyi name 
-             ; n = inst_name toyi
-             ; ty = inst_ty toyi
-             ; f = \<lambda>s. s @@ String.isub ty
-             ; name_pers = print_examp_instance_name f n in
-           ( Term_oid var_oid_uniq (oidGetInh cpt)
-           , [ ( [(b name_pers, Typ_base (f datatype_name))], None)
-             , ( [(b n, Typ_base (wrap_toyty ty))]
-               , Some (hol_definition n, Term_rewrite (b n) \<open>=\<close> (Term_lambda wildcard (Term_some (Term_some (b name_pers)))))) ]))
+      (map_tail
+        (\<lambda> toyi.
+           let n = inst_name toyi
+           ; ty = inst_ty toyi
+           ; f = \<lambda>s. s @@ String.isub ty
+           ; name_pers = print_examp_instance_name f n in
+           [ ( [(b name_pers, Typ_base (f datatype_name))], None)
+           , ( [(b n, Typ_base (wrap_toyty ty))]
+             , Some (hol_definition n, Term_rewrite (b n) \<open>=\<close> (Term_lambda wildcard (Term_some (Term_some (b name_pers)))))) ])
         l)))"
-definition "print_examp_def_st_locale_make f_name f_toyi f_spec l =
- (let (oid, l_fix_assum) = print_examp_def_st_locale_aux f_toyi l
+
+definition "print_examp_def_st_locale_make f_name f_spec l =
+ (let (oid, l_fix_assum) = print_examp_def_st_locale_aux l
     ; ty_n = \<open>nat\<close> in
   \<lparr> HolThyLocale_name = f_name
   , HolThyLocale_header = L.flatten
@@ -73,14 +100,30 @@ definition "print_examp_def_st_locale_make f_name f_toyi f_spec l =
                             , l_fix_assum
                             , f_spec ] \<rparr>)"
 
+definition "print_examp_def_st_locale_sort env l =
+  merge_unique' (String.to_list o inst_name)
+                (L.map (\<lambda> ToyDefCoreBinding name \<Rightarrow> case String.assoc name (D_input_instance env) of
+                                                      Some n \<Rightarrow> [flip n]) l)"
+
+definition "filter_locale_interp =
+    L.split
+  o map_tail
+      (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l a = \<lambda>f x. Term_app f [x]
+       ; b = \<lambda>s. Term_basic [s]
+       ; c = Term_paren \<open>\<lceil>\<close> \<open>\<rceil>\<close>
+       ; var_tau = \<open>\<tau>\<close> in
+       \<lambda> toyi \<Rightarrow>
+        let n = inst_name toyi in
+        [ c (c (a n (b var_tau)))
+        , b n])"
+
 definition "print_examp_def_st_locale_name n = \<open>state_\<close> @@ n"
 definition "print_examp_def_st_locale = (\<lambda> ToyDefSt n l \<Rightarrow> \<lambda>env.
  (\<lambda>d. (d, env))
   (print_examp_def_st_locale_make
-    (\<open>state_\<close> @@ n)
-    (\<lambda> ToyDefCoreBinding name \<Rightarrow> case String.assoc name (D_input_instance env) of Some n \<Rightarrow> n)
+    (print_examp_def_st_locale_name n)
     []
-    l))"
+    (print_examp_def_st_locale_sort env l)))"
 
 definition "print_examp_def_st_mapsto_gen f =
   L.map
@@ -140,10 +183,6 @@ definition "print_examp_def_st_perm = (\<lambda> _ env.
        l_app
        l_last ]))"
 
-definition "merge_unique_gen f l = List.fold (List.fold (\<lambda>x. case f x of Some (x, v) \<Rightarrow> RBT.insert x v | None \<Rightarrow> id)) l RBT.empty"
-definition "merge_unique f l = RBT.entries (merge_unique_gen f l)"
-definition "merge_unique' = L.map snd o merge_unique (\<lambda> (a, b). ((\<lambda>x. Some (x, (a, b))) o oidGetInh) a)"
-
 definition "get_state f = (\<lambda> ToyDefPP _ s_pre s_post \<Rightarrow> \<lambda> env. 
   let get_state = let l_st = D_input_state env in \<lambda>ToyDefPPCoreBinding s \<Rightarrow> (s, case String.assoc s l_st of None \<Rightarrow> [] | Some l \<Rightarrow> l)
     ; (s_pre, l_pre) = get_state s_pre
@@ -156,25 +195,25 @@ definition "get_state f = (\<lambda> ToyDefPP _ s_pre s_post \<Rightarrow> \<lam
                          [ (s_post, l_post) ]))
     env)"
 
-definition "print_transition_locale_aux f_toyi l =
- (let (oid, l_fix_assum) = print_examp_def_st_locale_aux f_toyi l in
+definition "print_transition_locale_aux l =
+ (let (oid, l_fix_assum) = print_examp_def_st_locale_aux (merge_unique'' [l]) in
   L.flatten [oid, L.flatten (L.map (L.map fst o fst) l_fix_assum) ])"
 
+definition "print_transition_locale_name s_pre s_post = \<open>transition_\<close> @@ s_pre @@ \<open>_\<close> @@ s_post"
 definition "print_transition_locale = get_state (\<lambda> (s_pre, l_pre) (s_post, l_post) l_pre_post. Pair
- (let f_toyi = \<lambda>(cpt, ToyDefCoreBinding (_, toyi)) \<Rightarrow> (toyi, cpt) in
-  print_examp_def_st_locale_make
-    (\<open>transition_\<close> @@ s_pre @@ \<open>_\<close> @@ s_post)
-    f_toyi
+ (print_examp_def_st_locale_make
+    (print_transition_locale_name s_pre s_post)
     (L.map (\<lambda>(s, l). ([], Some (s, Term_app
                                         (print_examp_def_st_locale_name s)
-                                        (print_transition_locale_aux f_toyi l))))
+                                        (print_transition_locale_aux l))))
               l_pre_post)
-    (merge_unique' [l_pre, l_post])))"
+    (merge_unique'' [l_pre, l_post])))"
 
 definition "print_transition_interp = get_state (\<lambda> _ _.
  Pair o L.map O'.interpretation o L.map
   (\<lambda>(s, l).
     let n = print_examp_def_st_locale_name s in
-    Interpretation n n (print_transition_locale_aux (\<lambda>(cpt, ToyDefCoreBinding (_, toyi)) \<Rightarrow> (toyi, cpt)) l) (C.by [M.rule (T.thm s)])))"
+    Interpretation n n (print_transition_locale_aux l)
+                       (C.by [M.rule (T.thm s)])))"
 
 end
