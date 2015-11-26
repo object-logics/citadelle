@@ -85,15 +85,13 @@ Context List :: insert(x:Integer) : Void
 section{* Instances and States of the Class Model  *}
 
 Instance n1  :: Node = [ i = 2, "next" = n2 ]
-     and n1' :: Node = [ i = 2, "next" = n3 ]
      and n2  :: Node = [ i = 5, "next" = null ]
      and n3  :: Node = [ i = 3, "next" = n2 ]
      and l1  :: List = [ content = n1 ]
-     and l1' :: List = [ content = n1' ]
 
 
 State \<sigma>\<^sub>1  = [ n1, n2, l1 ]
-State \<sigma>\<^sub>1' = [ n1', n2, n3, l1' ]
+State \<sigma>\<^sub>1' = [ ([ n1 with_only i = 2, "next" = n3 ] :: Node), n2, n3, ([ l1 with_only content = n1 ] :: List) ]
 
 Transition  \<sigma>\<^sub>1 \<sigma>\<^sub>1'
 

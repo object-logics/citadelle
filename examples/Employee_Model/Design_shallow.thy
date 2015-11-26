@@ -88,12 +88,12 @@ Instance X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n1 :: Person = [ salary
      and P1 :: Planet = [ outer_world = [ [ P1 ] , [ self 10 ] ] ]
 
 State \<sigma>\<^sub>1 =
-  [ ([ salary = 1000 , boss = self 1 ] :: Person)
-  , ([ salary = 1200 ] :: Person)
+  [ ([ X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n1 with_only salary = 1000 , boss = self 1 ] :: Person)
+  , ([ X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2 with_only salary = 1200 ] :: Person)
   (* *)
-  , ([ salary = 2600 , boss = self 3 ] :: Person)
+  , ([ X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n4 with_only salary = 2600 , boss = self 3 ] :: Person)
   , X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n5
-  , ([ salary = 2300 , boss = self 2 ] :: Person)
+  , ([ X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n6 with_only salary = 2300 , boss = self 2 ] :: Person)
   (* *)
   (* *)
   , X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n9 ]
