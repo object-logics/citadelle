@@ -91,7 +91,7 @@ Instance n1  :: Node = [ i = 2, "next" = n2 ]
 
 
 State \<sigma>\<^sub>1  = [ n1, n2, l1 ]
-State \<sigma>\<^sub>1' = [ ([ n1 with_only i = 2, "next" = n3 ] :: Node), n2, n3, ([ l1 with_only content = n1 ] :: List) ]
+State \<sigma>\<^sub>1' = [ ([ n1 with_only i = 2, "next" = n3 ] :: Node), n2, n3, l1 ]
 
 Transition  \<sigma>\<^sub>1 \<sigma>\<^sub>1'
 
