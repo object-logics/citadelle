@@ -3410,38 +3410,34 @@ ML \<open>(Ty'.check ([(META.Writeln , "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>
 
 (* 145 ************************************ 915 + 2 *)
 definition "(typecheck_instance_bad_head_on_lhs_\<sigma>\<^sub>1_object4_\<sigma>\<^sub>1_object2_\<sigma>\<^sub>1_object1_\<sigma>\<^sub>1_object0 (\<sigma>\<^sub>1_object4) (\<sigma>\<^sub>1_object2) (\<sigma>\<^sub>1_object1) (\<sigma>\<^sub>1_object0)) = ()"
-definition "typecheck_instance_extra_variables_on_rhs_\<sigma>\<^sub>1_object4_\<sigma>\<^sub>1_object2_\<sigma>\<^sub>1_object1_\<sigma>\<^sub>1_object0 = (\<lambda>\<sigma>\<^sub>1_object4 \<sigma>\<^sub>1_object2 \<sigma>\<^sub>1_object1 \<sigma>\<^sub>1_object0. (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n5))"
+definition "typecheck_instance_extra_variables_on_rhs_\<sigma>\<^sub>1_object4_\<sigma>\<^sub>1_object2_\<sigma>\<^sub>1_object1_\<sigma>\<^sub>1_object0 = (\<lambda>\<sigma>\<^sub>1_object4 \<sigma>\<^sub>1_object2 \<sigma>\<^sub>1_object1 \<sigma>\<^sub>1_object0. (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n6 , X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n4 , X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n5 , X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2 , X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n1))"
 
-(* 146 ************************************ 917 + 5 *)
-definition "oid12 = 12"
-definition "oid13 = 13"
-definition "oid14 = 14"
-definition "oid15 = 15"
-definition "inst_assoc12 = (\<lambda>oid_class to_from oid. ((case (deref_assocs_list ((to_from::oid list list \<Rightarrow> oid list \<times> oid list)) ((oid::oid)) ((drop ((((map_of_list ([(oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0___boss , (List.map ((\<lambda>(x , y). [x , y]) o switch\<^sub>2_01) ([[[oid15] , [oid14]] , [[oid14] , [oid5]] , [[oid12] , [oid13]]])))]))) ((oid_class::oid))))))) of Nil \<Rightarrow> None
+(* 146 ************************************ 917 + 1 *)
+definition "inst_assoc12 = (\<lambda>oid_class to_from oid. ((case (deref_assocs_list ((to_from::oid list list \<Rightarrow> oid list \<times> oid list)) ((oid::oid)) ((drop ((((map_of_list ([(oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0___boss , (List.map ((\<lambda>(x , y). [x , y]) o switch\<^sub>2_01) ([[[oid6] , [oid4]] , [[oid4] , [oid5]] , [[oid1] , [oid2]]])))]))) ((oid_class::oid))))))) of Nil \<Rightarrow> None
     | l \<Rightarrow> (Some (l)))::oid list option))"
 
-(* 147 ************************************ 922 + 8 *)
-definition "\<sigma>\<^sub>1_object0\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n inst_assoc = (mk\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n ((mk\<E>\<X>\<T>\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (oid12) (None) (None) (None) (None) (None))) (((inst_assoc) (oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0___boss) (switch\<^sub>2_01) (oid12))) (\<lfloor>1000\<rfloor>))"
+(* 147 ************************************ 918 + 8 *)
+definition "\<sigma>\<^sub>1_object0\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n inst_assoc = (mk\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n ((mk\<E>\<X>\<T>\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (oid1) (None) (None) (None) (None) (None))) (((inst_assoc) (oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0___boss) (switch\<^sub>2_01) (oid1))) (\<lfloor>1000\<rfloor>))"
 definition "(\<sigma>\<^sub>1_object0::\<cdot>Person) = ((\<lambda>_. \<lfloor>\<lfloor>(\<sigma>\<^sub>1_object0\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (inst_assoc12))\<rfloor>\<rfloor>))"
-definition "\<sigma>\<^sub>1_object1\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n inst_assoc = (mk\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n ((mk\<E>\<X>\<T>\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (oid13) (None) (None) (None) (None) (None))) (((inst_assoc) (oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0___boss) (switch\<^sub>2_01) (oid13))) (\<lfloor>1200\<rfloor>))"
+definition "\<sigma>\<^sub>1_object1\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n inst_assoc = (mk\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n ((mk\<E>\<X>\<T>\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (oid2) (None) (None) (None) (None) (None))) (((inst_assoc) (oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0___boss) (switch\<^sub>2_01) (oid2))) (\<lfloor>1200\<rfloor>))"
 definition "(\<sigma>\<^sub>1_object1::\<cdot>Person) = ((\<lambda>_. \<lfloor>\<lfloor>(\<sigma>\<^sub>1_object1\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (inst_assoc12))\<rfloor>\<rfloor>))"
-definition "\<sigma>\<^sub>1_object2\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n inst_assoc = (mk\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n ((mk\<E>\<X>\<T>\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (oid14) (None) (None) (None) (None) (None))) (((inst_assoc) (oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0___boss) (switch\<^sub>2_01) (oid14))) (\<lfloor>2600\<rfloor>))"
+definition "\<sigma>\<^sub>1_object2\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n inst_assoc = (mk\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n ((mk\<E>\<X>\<T>\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (oid4) (None) (None) (None) (None) (None))) (((inst_assoc) (oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0___boss) (switch\<^sub>2_01) (oid4))) (\<lfloor>2600\<rfloor>))"
 definition "(\<sigma>\<^sub>1_object2::\<cdot>Person) = ((\<lambda>_. \<lfloor>\<lfloor>(\<sigma>\<^sub>1_object2\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (inst_assoc12))\<rfloor>\<rfloor>))"
-definition "\<sigma>\<^sub>1_object4\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n inst_assoc = (mk\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n ((mk\<E>\<X>\<T>\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (oid15) (None) (None) (None) (None) (None))) (((inst_assoc) (oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0___boss) (switch\<^sub>2_01) (oid15))) (\<lfloor>2300\<rfloor>))"
+definition "\<sigma>\<^sub>1_object4\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n inst_assoc = (mk\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n ((mk\<E>\<X>\<T>\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (oid6) (None) (None) (None) (None) (None))) (((inst_assoc) (oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0___boss) (switch\<^sub>2_01) (oid6))) (\<lfloor>2300\<rfloor>))"
 definition "(\<sigma>\<^sub>1_object4::\<cdot>Person) = ((\<lambda>_. \<lfloor>\<lfloor>(\<sigma>\<^sub>1_object4\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (inst_assoc12))\<rfloor>\<rfloor>))"
 
-(* 148 ************************************ 930 + 1 *)
+(* 148 ************************************ 926 + 1 *)
 ML \<open>(Ty'.check ([(META.Writeln , "\<sigma>\<^sub>1_object0 .boss \<cong> Set{ \<sigma>\<^sub>1_object1 }") , (META.Writeln , "\<sigma>\<^sub>1_object0 /* unnamed attribute */ \<cong> Set{}") , (META.Writeln , "\<sigma>\<^sub>1_object1 .boss \<cong> Set{}") , (META.Writeln , "\<sigma>\<^sub>1_object1 /* unnamed attribute */ \<cong> Set{ \<sigma>\<^sub>1_object0 }") , (META.Writeln , "\<sigma>\<^sub>1_object2 .boss \<cong> Set{ /*5*/ }") , (META.Writeln , "\<sigma>\<^sub>1_object2 /* unnamed attribute */ \<cong> Set{ \<sigma>\<^sub>1_object4 }") , (META.Writeln , "\<sigma>\<^sub>1_object4 .boss \<cong> Set{ \<sigma>\<^sub>1_object2 }") , (META.Writeln , "\<sigma>\<^sub>1_object4 /* unnamed attribute */ \<cong> Set{}")]) (" error(s)"))\<close>
 
-(* 149 ************************************ 931 + 1 *)
+(* 149 ************************************ 927 + 1 *)
 locale state_\<sigma>\<^sub>1 =
-fixes "oid12" :: "nat"
-fixes "oid13" :: "nat"
-fixes "oid14" :: "nat"
+fixes "oid1" :: "nat"
+fixes "oid2" :: "nat"
+fixes "oid4" :: "nat"
 fixes "oid5" :: "nat"
-fixes "oid15" :: "nat"
+fixes "oid6" :: "nat"
 fixes "oid9" :: "nat"
-assumes distinct_oid: "(distinct ([oid12 , oid13 , oid14 , oid5 , oid15 , oid9]))"
+assumes distinct_oid: "(distinct ([oid1 , oid2 , oid4 , oid5 , oid6 , oid9]))"
 fixes "\<sigma>\<^sub>1_object0\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n" :: "ty\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n"
 fixes "\<sigma>\<^sub>1_object0" :: "\<cdot>Person"
 assumes \<sigma>\<^sub>1_object0_def: "\<sigma>\<^sub>1_object0 = (\<lambda>_. \<lfloor>\<lfloor>\<sigma>\<^sub>1_object0\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<rfloor>\<rfloor>)"
@@ -3461,14 +3457,14 @@ fixes "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n9\<^sub>P\<^sub>e\<^sub>
 fixes "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n9" :: "\<cdot>Person"
 assumes X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n9_def: "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n9 = (\<lambda>_. \<lfloor>\<lfloor>X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n9\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<rfloor>\<rfloor>)"
 begin
-definition "\<sigma>\<^sub>1 = (state.make ((Map.empty (oid12 \<mapsto> (in\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (\<sigma>\<^sub>1_object0\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n))) (oid13 \<mapsto> (in\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (\<sigma>\<^sub>1_object1\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n))) (oid14 \<mapsto> (in\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (\<sigma>\<^sub>1_object2\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n))) (oid5 \<mapsto> (in\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n5\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n))) (oid15 \<mapsto> (in\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (\<sigma>\<^sub>1_object4\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n))) (oid9 \<mapsto> (in\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n9\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n))))) ((map_of_list ([(oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0___boss , (List.map ((\<lambda>(x , y). [x , y]) o switch\<^sub>2_01) ([[[oid12] , [oid2]] , [[oid14] , [oid4]] , [[oid15] , [oid3]]])))]))))"
+definition "\<sigma>\<^sub>1 = (state.make ((Map.empty (oid1 \<mapsto> (in\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (\<sigma>\<^sub>1_object0\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n))) (oid2 \<mapsto> (in\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (\<sigma>\<^sub>1_object1\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n))) (oid4 \<mapsto> (in\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (\<sigma>\<^sub>1_object2\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n))) (oid5 \<mapsto> (in\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n5\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n))) (oid6 \<mapsto> (in\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (\<sigma>\<^sub>1_object4\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n))) (oid9 \<mapsto> (in\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n9\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n))))) ((map_of_list ([(oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0___boss , (List.map ((\<lambda>(x , y). [x , y]) o switch\<^sub>2_01) ([[[oid1] , [oid2]] , [[oid4] , [oid5]] , [[oid6] , [oid4]]])))]))))"
 
-lemma dom_\<sigma>\<^sub>1 : "(dom ((heap (\<sigma>\<^sub>1)))) = {oid12 , oid13 , oid14 , oid5 , oid15 , oid9}"
+lemma dom_\<sigma>\<^sub>1 : "(dom ((heap (\<sigma>\<^sub>1)))) = {oid1 , oid2 , oid4 , oid5 , oid6 , oid9}"
 by(auto simp: \<sigma>\<^sub>1_def)
 
 lemmas[simp,code_unfold] = dom_\<sigma>\<^sub>1
 
-lemma perm_\<sigma>\<^sub>1 : "\<sigma>\<^sub>1 = (state.make ((Map.empty (oid9 \<mapsto> (in\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n9\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n))) (oid15 \<mapsto> (in\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (\<sigma>\<^sub>1_object4\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n))) (oid5 \<mapsto> (in\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n5\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n))) (oid14 \<mapsto> (in\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (\<sigma>\<^sub>1_object2\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n))) (oid13 \<mapsto> (in\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (\<sigma>\<^sub>1_object1\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n))) (oid12 \<mapsto> (in\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (\<sigma>\<^sub>1_object0\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n))))) ((assocs (\<sigma>\<^sub>1))))"
+lemma perm_\<sigma>\<^sub>1 : "\<sigma>\<^sub>1 = (state.make ((Map.empty (oid9 \<mapsto> (in\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n9\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n))) (oid6 \<mapsto> (in\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (\<sigma>\<^sub>1_object4\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n))) (oid5 \<mapsto> (in\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n5\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n))) (oid4 \<mapsto> (in\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (\<sigma>\<^sub>1_object2\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n))) (oid2 \<mapsto> (in\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (\<sigma>\<^sub>1_object1\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n))) (oid1 \<mapsto> (in\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (\<sigma>\<^sub>1_object0\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n))))) ((assocs (\<sigma>\<^sub>1))))"
   apply(simp add: \<sigma>\<^sub>1_def)
   apply(subst (1) fun_upd_twist, metis distinct_oid distinct_length_2_or_more)
   apply(subst (2) fun_upd_twist, metis distinct_oid distinct_length_2_or_more)
@@ -3712,10 +3708,10 @@ by(rule \<sigma>\<^sub>1_OclAllInstances_generic_exec_OclAny, simp_all only: ass
 ML \<open>(Ty'.check ([]) (" error(s)"))\<close>
 end
 
-(* 150 ************************************ 932 + 1 *)
-definition "(state_interpretation_\<sigma>\<^sub>1 (\<tau>)) = (state_\<sigma>\<^sub>1 (oid12) (oid13) (oid14) (oid5) (oid15) (oid9) (\<lceil>\<lceil>(\<sigma>\<^sub>1_object0 (\<tau>))\<rceil>\<rceil>) (\<sigma>\<^sub>1_object0) (\<lceil>\<lceil>(\<sigma>\<^sub>1_object1 (\<tau>))\<rceil>\<rceil>) (\<sigma>\<^sub>1_object1) (\<lceil>\<lceil>(\<sigma>\<^sub>1_object2 (\<tau>))\<rceil>\<rceil>) (\<sigma>\<^sub>1_object2) (\<lceil>\<lceil>(X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n5 (\<tau>))\<rceil>\<rceil>) (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n5) (\<lceil>\<lceil>(\<sigma>\<^sub>1_object4 (\<tau>))\<rceil>\<rceil>) (\<sigma>\<^sub>1_object4) (\<lceil>\<lceil>(X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n9 (\<tau>))\<rceil>\<rceil>) (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n9))"
+(* 150 ************************************ 928 + 1 *)
+definition "(state_interpretation_\<sigma>\<^sub>1 (\<tau>)) = (state_\<sigma>\<^sub>1 (oid1) (oid2) (oid4) (oid5) (oid6) (oid9) (\<lceil>\<lceil>(\<sigma>\<^sub>1_object0 (\<tau>))\<rceil>\<rceil>) (\<sigma>\<^sub>1_object0) (\<lceil>\<lceil>(\<sigma>\<^sub>1_object1 (\<tau>))\<rceil>\<rceil>) (\<sigma>\<^sub>1_object1) (\<lceil>\<lceil>(\<sigma>\<^sub>1_object2 (\<tau>))\<rceil>\<rceil>) (\<sigma>\<^sub>1_object2) (\<lceil>\<lceil>(X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n5 (\<tau>))\<rceil>\<rceil>) (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n5) (\<lceil>\<lceil>(\<sigma>\<^sub>1_object4 (\<tau>))\<rceil>\<rceil>) (\<sigma>\<^sub>1_object4) (\<lceil>\<lceil>(X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n9 (\<tau>))\<rceil>\<rceil>) (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n9))"
 
-(* 151 ************************************ 933 + 1 *)
+(* 151 ************************************ 929 + 1 *)
 locale state_\<sigma>\<^sub>1' =
 fixes "oid1" :: "nat"
 fixes "oid2" :: "nat"
@@ -3751,7 +3747,7 @@ fixes "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n9\<^sub>P\<^sub>e\<^sub>
 fixes "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n9" :: "\<cdot>Person"
 assumes X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n9_def: "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n9 = (\<lambda>_. \<lfloor>\<lfloor>X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n9\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<rfloor>\<rfloor>)"
 begin
-definition "\<sigma>\<^sub>1' = (state.make ((Map.empty (oid1 \<mapsto> (in\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n1\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n))) (oid2 \<mapsto> (in\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n))) (oid3 \<mapsto> (in\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n3\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n))) (oid4 \<mapsto> (in\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n4\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n))) (oid6 \<mapsto> (in\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n6\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n))) (oid7 \<mapsto> (in\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n7\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y))) (oid8 \<mapsto> (in\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n8\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y))) (oid9 \<mapsto> (in\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n9\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n))))) ((map_of_list ([(oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0___boss , (List.map ((\<lambda>(x , y). [x , y]) o switch\<^sub>2_01) ([[[oid1] , [oid2]] , [[oid2] , [oid2]] , [[oid6] , [oid6]] , [[oid7] , [oid6]]])))]))))"
+definition "\<sigma>\<^sub>1' = (state.make ((Map.empty (oid1 \<mapsto> (in\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n1\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n))) (oid2 \<mapsto> (in\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n))) (oid3 \<mapsto> (in\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n3\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n))) (oid4 \<mapsto> (in\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n4\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n))) (oid6 \<mapsto> (in\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n6\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n))) (oid7 \<mapsto> (in\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n7\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y))) (oid8 \<mapsto> (in\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n8\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y))) (oid9 \<mapsto> (in\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n9\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n))))) ((map_of_list ([(oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0___boss , (List.map ((\<lambda>(x , y). [x , y]) o switch\<^sub>2_01) ([[[oid1] , [oid2]] , [[oid2] , [oid2]] , [[oid6] , [oid7]] , [[oid7] , [oid7]]])))]))))"
 
 lemma dom_\<sigma>\<^sub>1' : "(dom ((heap (\<sigma>\<^sub>1')))) = {oid1 , oid2 , oid3 , oid4 , oid6 , oid7 , oid8 , oid9}"
 by(auto simp: \<sigma>\<^sub>1'_def)
@@ -4050,10 +4046,10 @@ by(rule \<sigma>\<^sub>1'_OclAllInstances_generic_exec_OclAny, simp_all only: as
 ML \<open>(Ty'.check ([]) (" error(s)"))\<close>
 end
 
-(* 152 ************************************ 934 + 1 *)
+(* 152 ************************************ 930 + 1 *)
 definition "(state_interpretation_\<sigma>\<^sub>1' (\<tau>)) = (state_\<sigma>\<^sub>1' (oid1) (oid2) (oid3) (oid4) (oid6) (oid7) (oid8) (oid9) (\<lceil>\<lceil>(X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n1 (\<tau>))\<rceil>\<rceil>) (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n1) (\<lceil>\<lceil>(X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2 (\<tau>))\<rceil>\<rceil>) (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2) (\<lceil>\<lceil>(X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n3 (\<tau>))\<rceil>\<rceil>) (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n3) (\<lceil>\<lceil>(X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n4 (\<tau>))\<rceil>\<rceil>) (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n4) (\<lceil>\<lceil>(X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n6 (\<tau>))\<rceil>\<rceil>) (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n6) (\<lceil>\<lceil>(X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n7 (\<tau>))\<rceil>\<rceil>) (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n7) (\<lceil>\<lceil>(X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n8 (\<tau>))\<rceil>\<rceil>) (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n8) (\<lceil>\<lceil>(X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n9 (\<tau>))\<rceil>\<rceil>) (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n9))"
 
-(* 153 ************************************ 935 + 1 *)
+(* 153 ************************************ 931 + 1 *)
 locale transition_\<sigma>\<^sub>1_\<sigma>\<^sub>1' =
 fixes "oid1" :: "nat"
 fixes "oid2" :: "nat"
@@ -4064,26 +4060,34 @@ fixes "oid6" :: "nat"
 fixes "oid7" :: "nat"
 fixes "oid8" :: "nat"
 fixes "oid9" :: "nat"
-fixes "oid12" :: "nat"
-fixes "oid13" :: "nat"
-fixes "oid14" :: "nat"
-fixes "oid15" :: "nat"
-assumes distinct_oid: "(distinct ([oid1 , oid2 , oid3 , oid4 , oid5 , oid6 , oid7 , oid8 , oid9 , oid12 , oid13 , oid14 , oid15]))"
+assumes distinct_oid: "(distinct ([oid1 , oid2 , oid3 , oid4 , oid5 , oid6 , oid7 , oid8 , oid9]))"
+fixes "\<sigma>\<^sub>1_object0\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n" :: "ty\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n"
+fixes "\<sigma>\<^sub>1_object0" :: "\<cdot>Person"
+assumes \<sigma>\<^sub>1_object0_def: "\<sigma>\<^sub>1_object0 = (\<lambda>_. \<lfloor>\<lfloor>\<sigma>\<^sub>1_object0\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<rfloor>\<rfloor>)"
 fixes "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n1\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n" :: "ty\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n"
 fixes "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n1" :: "\<cdot>Person"
 assumes X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n1_def: "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n1 = (\<lambda>_. \<lfloor>\<lfloor>X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n1\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<rfloor>\<rfloor>)"
+fixes "\<sigma>\<^sub>1_object1\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n" :: "ty\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n"
+fixes "\<sigma>\<^sub>1_object1" :: "\<cdot>Person"
+assumes \<sigma>\<^sub>1_object1_def: "\<sigma>\<^sub>1_object1 = (\<lambda>_. \<lfloor>\<lfloor>\<sigma>\<^sub>1_object1\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<rfloor>\<rfloor>)"
 fixes "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n" :: "ty\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n"
 fixes "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2" :: "\<cdot>Person"
 assumes X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2_def: "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2 = (\<lambda>_. \<lfloor>\<lfloor>X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<rfloor>\<rfloor>)"
 fixes "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n3\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n" :: "ty\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n"
 fixes "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n3" :: "\<cdot>Person"
 assumes X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n3_def: "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n3 = (\<lambda>_. \<lfloor>\<lfloor>X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n3\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<rfloor>\<rfloor>)"
+fixes "\<sigma>\<^sub>1_object2\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n" :: "ty\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n"
+fixes "\<sigma>\<^sub>1_object2" :: "\<cdot>Person"
+assumes \<sigma>\<^sub>1_object2_def: "\<sigma>\<^sub>1_object2 = (\<lambda>_. \<lfloor>\<lfloor>\<sigma>\<^sub>1_object2\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<rfloor>\<rfloor>)"
 fixes "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n4\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n" :: "ty\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n"
 fixes "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n4" :: "\<cdot>Person"
 assumes X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n4_def: "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n4 = (\<lambda>_. \<lfloor>\<lfloor>X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n4\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<rfloor>\<rfloor>)"
 fixes "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n5\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n" :: "ty\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n"
 fixes "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n5" :: "\<cdot>Person"
 assumes X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n5_def: "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n5 = (\<lambda>_. \<lfloor>\<lfloor>X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n5\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<rfloor>\<rfloor>)"
+fixes "\<sigma>\<^sub>1_object4\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n" :: "ty\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n"
+fixes "\<sigma>\<^sub>1_object4" :: "\<cdot>Person"
+assumes \<sigma>\<^sub>1_object4_def: "\<sigma>\<^sub>1_object4 = (\<lambda>_. \<lfloor>\<lfloor>\<sigma>\<^sub>1_object4\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<rfloor>\<rfloor>)"
 fixes "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n6\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n" :: "ty\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n"
 fixes "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n6" :: "\<cdot>Person"
 assumes X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n6_def: "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n6 = (\<lambda>_. \<lfloor>\<lfloor>X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n6\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<rfloor>\<rfloor>)"
@@ -4096,24 +4100,12 @@ assumes X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n8_def: "X\<^sub>P\<^sub
 fixes "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n9\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n" :: "ty\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n"
 fixes "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n9" :: "\<cdot>Person"
 assumes X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n9_def: "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n9 = (\<lambda>_. \<lfloor>\<lfloor>X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n9\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<rfloor>\<rfloor>)"
-fixes "\<sigma>\<^sub>1_object0\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n" :: "ty\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n"
-fixes "\<sigma>\<^sub>1_object0" :: "\<cdot>Person"
-assumes \<sigma>\<^sub>1_object0_def: "\<sigma>\<^sub>1_object0 = (\<lambda>_. \<lfloor>\<lfloor>\<sigma>\<^sub>1_object0\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<rfloor>\<rfloor>)"
-fixes "\<sigma>\<^sub>1_object1\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n" :: "ty\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n"
-fixes "\<sigma>\<^sub>1_object1" :: "\<cdot>Person"
-assumes \<sigma>\<^sub>1_object1_def: "\<sigma>\<^sub>1_object1 = (\<lambda>_. \<lfloor>\<lfloor>\<sigma>\<^sub>1_object1\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<rfloor>\<rfloor>)"
-fixes "\<sigma>\<^sub>1_object2\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n" :: "ty\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n"
-fixes "\<sigma>\<^sub>1_object2" :: "\<cdot>Person"
-assumes \<sigma>\<^sub>1_object2_def: "\<sigma>\<^sub>1_object2 = (\<lambda>_. \<lfloor>\<lfloor>\<sigma>\<^sub>1_object2\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<rfloor>\<rfloor>)"
-fixes "\<sigma>\<^sub>1_object4\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n" :: "ty\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n"
-fixes "\<sigma>\<^sub>1_object4" :: "\<cdot>Person"
-assumes \<sigma>\<^sub>1_object4_def: "\<sigma>\<^sub>1_object4 = (\<lambda>_. \<lfloor>\<lfloor>\<sigma>\<^sub>1_object4\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<rfloor>\<rfloor>)"
 
-assumes \<sigma>\<^sub>1: "(state_\<sigma>\<^sub>1 (oid12) (oid13) (oid14) (oid5) (oid15) (oid9) (\<sigma>\<^sub>1_object0\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n) (\<sigma>\<^sub>1_object0) (\<sigma>\<^sub>1_object1\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n) (\<sigma>\<^sub>1_object1) (\<sigma>\<^sub>1_object2\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n) (\<sigma>\<^sub>1_object2) (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n5\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n) (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n5) (\<sigma>\<^sub>1_object4\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n) (\<sigma>\<^sub>1_object4) (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n9\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n) (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n9))"
+assumes \<sigma>\<^sub>1: "(state_\<sigma>\<^sub>1 (oid1) (oid2) (oid4) (oid5) (oid6) (oid9) (\<sigma>\<^sub>1_object0\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n) (\<sigma>\<^sub>1_object0) (\<sigma>\<^sub>1_object1\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n) (\<sigma>\<^sub>1_object1) (\<sigma>\<^sub>1_object2\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n) (\<sigma>\<^sub>1_object2) (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n5\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n) (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n5) (\<sigma>\<^sub>1_object4\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n) (\<sigma>\<^sub>1_object4) (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n9\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n) (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n9))"
 
 assumes \<sigma>\<^sub>1': "(state_\<sigma>\<^sub>1' (oid1) (oid2) (oid3) (oid4) (oid6) (oid7) (oid8) (oid9) (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n1\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n) (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n1) (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n) (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2) (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n3\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n) (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n3) (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n4\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n) (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n4) (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n6\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n) (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n6) (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n7\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y) (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n7) (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n8\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y) (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n8) (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n9\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n) (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n9))"
 begin
-interpretation state_\<sigma>\<^sub>1: state_\<sigma>\<^sub>1 "oid12" "oid13" "oid14" "oid5" "oid15" "oid9" "\<sigma>\<^sub>1_object0\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n" "\<sigma>\<^sub>1_object0" "\<sigma>\<^sub>1_object1\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n" "\<sigma>\<^sub>1_object1" "\<sigma>\<^sub>1_object2\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n" "\<sigma>\<^sub>1_object2" "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n5\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n" "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n5" "\<sigma>\<^sub>1_object4\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n" "\<sigma>\<^sub>1_object4" "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n9\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n" "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n9"
+interpretation state_\<sigma>\<^sub>1: state_\<sigma>\<^sub>1 "oid1" "oid2" "oid4" "oid5" "oid6" "oid9" "\<sigma>\<^sub>1_object0\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n" "\<sigma>\<^sub>1_object0" "\<sigma>\<^sub>1_object1\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n" "\<sigma>\<^sub>1_object1" "\<sigma>\<^sub>1_object2\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n" "\<sigma>\<^sub>1_object2" "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n5\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n" "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n5" "\<sigma>\<^sub>1_object4\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n" "\<sigma>\<^sub>1_object4" "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n9\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n" "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n9"
 by(rule \<sigma>\<^sub>1)
 
 interpretation state_\<sigma>\<^sub>1': state_\<sigma>\<^sub>1' "oid1" "oid2" "oid3" "oid4" "oid6" "oid7" "oid8" "oid9" "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n1\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n" "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n1" "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n" "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2" "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n3\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n" "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n3" "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n4\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n" "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n4" "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n6\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n" "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n6" "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n7\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y" "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n7" "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n8\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y" "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n8" "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n9\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n" "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n9"
@@ -4124,19 +4116,19 @@ definition "\<sigma>\<^sub>1 = state_\<sigma>\<^sub>1.\<sigma>\<^sub>1"
 definition "\<sigma>\<^sub>1' = state_\<sigma>\<^sub>1'.\<sigma>\<^sub>1'"
 
 lemma basic_\<sigma>\<^sub>1_\<sigma>\<^sub>1'_wff : 
+assumes [simp]: "(oid_of ((in\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (\<sigma>\<^sub>1_object0\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n)))) = oid1"
 assumes [simp]: "(oid_of ((in\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n1\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n)))) = oid1"
+assumes [simp]: "(oid_of ((in\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (\<sigma>\<^sub>1_object1\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n)))) = oid2"
 assumes [simp]: "(oid_of ((in\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n)))) = oid2"
 assumes [simp]: "(oid_of ((in\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n3\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n)))) = oid3"
+assumes [simp]: "(oid_of ((in\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (\<sigma>\<^sub>1_object2\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n)))) = oid4"
 assumes [simp]: "(oid_of ((in\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n4\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n)))) = oid4"
 assumes [simp]: "(oid_of ((in\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n5\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n)))) = oid5"
+assumes [simp]: "(oid_of ((in\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (\<sigma>\<^sub>1_object4\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n)))) = oid6"
 assumes [simp]: "(oid_of ((in\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n6\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n)))) = oid6"
 assumes [simp]: "(oid_of ((in\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n7\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y)))) = oid7"
 assumes [simp]: "(oid_of ((in\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n8\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y)))) = oid8"
 assumes [simp]: "(oid_of ((in\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n9\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n)))) = oid9"
-assumes [simp]: "(oid_of ((in\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (\<sigma>\<^sub>1_object0\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n)))) = oid12"
-assumes [simp]: "(oid_of ((in\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (\<sigma>\<^sub>1_object1\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n)))) = oid13"
-assumes [simp]: "(oid_of ((in\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (\<sigma>\<^sub>1_object2\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n)))) = oid14"
-assumes [simp]: "(oid_of ((in\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (\<sigma>\<^sub>1_object4\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n)))) = oid15"
 shows "(WFF ((state_\<sigma>\<^sub>1.\<sigma>\<^sub>1 , state_\<sigma>\<^sub>1'.\<sigma>\<^sub>1')))"
   proof - have [simp]: "oid1 \<noteq> oid2" by(metis distinct_oid distinct_length_2_or_more) show ?thesis
   proof - have [simp]: "oid1 \<noteq> oid3" by(metis distinct_oid distinct_length_2_or_more) show ?thesis
@@ -4146,10 +4138,6 @@ shows "(WFF ((state_\<sigma>\<^sub>1.\<sigma>\<^sub>1 , state_\<sigma>\<^sub>1'.
   proof - have [simp]: "oid1 \<noteq> oid7" by(metis distinct_oid distinct_length_2_or_more) show ?thesis
   proof - have [simp]: "oid1 \<noteq> oid8" by(metis distinct_oid distinct_length_2_or_more) show ?thesis
   proof - have [simp]: "oid1 \<noteq> oid9" by(metis distinct_oid distinct_length_2_or_more) show ?thesis
-  proof - have [simp]: "oid1 \<noteq> oid12" by(metis distinct_oid distinct_length_2_or_more) show ?thesis
-  proof - have [simp]: "oid1 \<noteq> oid13" by(metis distinct_oid distinct_length_2_or_more) show ?thesis
-  proof - have [simp]: "oid1 \<noteq> oid14" by(metis distinct_oid distinct_length_2_or_more) show ?thesis
-  proof - have [simp]: "oid1 \<noteq> oid15" by(metis distinct_oid distinct_length_2_or_more) show ?thesis
   proof - have [simp]: "oid2 \<noteq> oid1" by(metis distinct_oid distinct_length_2_or_more) show ?thesis
   proof - have [simp]: "oid2 \<noteq> oid3" by(metis distinct_oid distinct_length_2_or_more) show ?thesis
   proof - have [simp]: "oid2 \<noteq> oid4" by(metis distinct_oid distinct_length_2_or_more) show ?thesis
@@ -4158,10 +4146,6 @@ shows "(WFF ((state_\<sigma>\<^sub>1.\<sigma>\<^sub>1 , state_\<sigma>\<^sub>1'.
   proof - have [simp]: "oid2 \<noteq> oid7" by(metis distinct_oid distinct_length_2_or_more) show ?thesis
   proof - have [simp]: "oid2 \<noteq> oid8" by(metis distinct_oid distinct_length_2_or_more) show ?thesis
   proof - have [simp]: "oid2 \<noteq> oid9" by(metis distinct_oid distinct_length_2_or_more) show ?thesis
-  proof - have [simp]: "oid2 \<noteq> oid12" by(metis distinct_oid distinct_length_2_or_more) show ?thesis
-  proof - have [simp]: "oid2 \<noteq> oid13" by(metis distinct_oid distinct_length_2_or_more) show ?thesis
-  proof - have [simp]: "oid2 \<noteq> oid14" by(metis distinct_oid distinct_length_2_or_more) show ?thesis
-  proof - have [simp]: "oid2 \<noteq> oid15" by(metis distinct_oid distinct_length_2_or_more) show ?thesis
   proof - have [simp]: "oid3 \<noteq> oid1" by(metis distinct_oid distinct_length_2_or_more) show ?thesis
   proof - have [simp]: "oid3 \<noteq> oid2" by(metis distinct_oid distinct_length_2_or_more) show ?thesis
   proof - have [simp]: "oid3 \<noteq> oid4" by(metis distinct_oid distinct_length_2_or_more) show ?thesis
@@ -4170,10 +4154,6 @@ shows "(WFF ((state_\<sigma>\<^sub>1.\<sigma>\<^sub>1 , state_\<sigma>\<^sub>1'.
   proof - have [simp]: "oid3 \<noteq> oid7" by(metis distinct_oid distinct_length_2_or_more) show ?thesis
   proof - have [simp]: "oid3 \<noteq> oid8" by(metis distinct_oid distinct_length_2_or_more) show ?thesis
   proof - have [simp]: "oid3 \<noteq> oid9" by(metis distinct_oid distinct_length_2_or_more) show ?thesis
-  proof - have [simp]: "oid3 \<noteq> oid12" by(metis distinct_oid distinct_length_2_or_more) show ?thesis
-  proof - have [simp]: "oid3 \<noteq> oid13" by(metis distinct_oid distinct_length_2_or_more) show ?thesis
-  proof - have [simp]: "oid3 \<noteq> oid14" by(metis distinct_oid distinct_length_2_or_more) show ?thesis
-  proof - have [simp]: "oid3 \<noteq> oid15" by(metis distinct_oid distinct_length_2_or_more) show ?thesis
   proof - have [simp]: "oid4 \<noteq> oid1" by(metis distinct_oid distinct_length_2_or_more) show ?thesis
   proof - have [simp]: "oid4 \<noteq> oid2" by(metis distinct_oid distinct_length_2_or_more) show ?thesis
   proof - have [simp]: "oid4 \<noteq> oid3" by(metis distinct_oid distinct_length_2_or_more) show ?thesis
@@ -4182,10 +4162,6 @@ shows "(WFF ((state_\<sigma>\<^sub>1.\<sigma>\<^sub>1 , state_\<sigma>\<^sub>1'.
   proof - have [simp]: "oid4 \<noteq> oid7" by(metis distinct_oid distinct_length_2_or_more) show ?thesis
   proof - have [simp]: "oid4 \<noteq> oid8" by(metis distinct_oid distinct_length_2_or_more) show ?thesis
   proof - have [simp]: "oid4 \<noteq> oid9" by(metis distinct_oid distinct_length_2_or_more) show ?thesis
-  proof - have [simp]: "oid4 \<noteq> oid12" by(metis distinct_oid distinct_length_2_or_more) show ?thesis
-  proof - have [simp]: "oid4 \<noteq> oid13" by(metis distinct_oid distinct_length_2_or_more) show ?thesis
-  proof - have [simp]: "oid4 \<noteq> oid14" by(metis distinct_oid distinct_length_2_or_more) show ?thesis
-  proof - have [simp]: "oid4 \<noteq> oid15" by(metis distinct_oid distinct_length_2_or_more) show ?thesis
   proof - have [simp]: "oid5 \<noteq> oid1" by(metis distinct_oid distinct_length_2_or_more) show ?thesis
   proof - have [simp]: "oid5 \<noteq> oid2" by(metis distinct_oid distinct_length_2_or_more) show ?thesis
   proof - have [simp]: "oid5 \<noteq> oid3" by(metis distinct_oid distinct_length_2_or_more) show ?thesis
@@ -4194,10 +4170,6 @@ shows "(WFF ((state_\<sigma>\<^sub>1.\<sigma>\<^sub>1 , state_\<sigma>\<^sub>1'.
   proof - have [simp]: "oid5 \<noteq> oid7" by(metis distinct_oid distinct_length_2_or_more) show ?thesis
   proof - have [simp]: "oid5 \<noteq> oid8" by(metis distinct_oid distinct_length_2_or_more) show ?thesis
   proof - have [simp]: "oid5 \<noteq> oid9" by(metis distinct_oid distinct_length_2_or_more) show ?thesis
-  proof - have [simp]: "oid5 \<noteq> oid12" by(metis distinct_oid distinct_length_2_or_more) show ?thesis
-  proof - have [simp]: "oid5 \<noteq> oid13" by(metis distinct_oid distinct_length_2_or_more) show ?thesis
-  proof - have [simp]: "oid5 \<noteq> oid14" by(metis distinct_oid distinct_length_2_or_more) show ?thesis
-  proof - have [simp]: "oid5 \<noteq> oid15" by(metis distinct_oid distinct_length_2_or_more) show ?thesis
   proof - have [simp]: "oid6 \<noteq> oid1" by(metis distinct_oid distinct_length_2_or_more) show ?thesis
   proof - have [simp]: "oid6 \<noteq> oid2" by(metis distinct_oid distinct_length_2_or_more) show ?thesis
   proof - have [simp]: "oid6 \<noteq> oid3" by(metis distinct_oid distinct_length_2_or_more) show ?thesis
@@ -4206,10 +4178,6 @@ shows "(WFF ((state_\<sigma>\<^sub>1.\<sigma>\<^sub>1 , state_\<sigma>\<^sub>1'.
   proof - have [simp]: "oid6 \<noteq> oid7" by(metis distinct_oid distinct_length_2_or_more) show ?thesis
   proof - have [simp]: "oid6 \<noteq> oid8" by(metis distinct_oid distinct_length_2_or_more) show ?thesis
   proof - have [simp]: "oid6 \<noteq> oid9" by(metis distinct_oid distinct_length_2_or_more) show ?thesis
-  proof - have [simp]: "oid6 \<noteq> oid12" by(metis distinct_oid distinct_length_2_or_more) show ?thesis
-  proof - have [simp]: "oid6 \<noteq> oid13" by(metis distinct_oid distinct_length_2_or_more) show ?thesis
-  proof - have [simp]: "oid6 \<noteq> oid14" by(metis distinct_oid distinct_length_2_or_more) show ?thesis
-  proof - have [simp]: "oid6 \<noteq> oid15" by(metis distinct_oid distinct_length_2_or_more) show ?thesis
   proof - have [simp]: "oid7 \<noteq> oid1" by(metis distinct_oid distinct_length_2_or_more) show ?thesis
   proof - have [simp]: "oid7 \<noteq> oid2" by(metis distinct_oid distinct_length_2_or_more) show ?thesis
   proof - have [simp]: "oid7 \<noteq> oid3" by(metis distinct_oid distinct_length_2_or_more) show ?thesis
@@ -4218,10 +4186,6 @@ shows "(WFF ((state_\<sigma>\<^sub>1.\<sigma>\<^sub>1 , state_\<sigma>\<^sub>1'.
   proof - have [simp]: "oid7 \<noteq> oid6" by(metis distinct_oid distinct_length_2_or_more) show ?thesis
   proof - have [simp]: "oid7 \<noteq> oid8" by(metis distinct_oid distinct_length_2_or_more) show ?thesis
   proof - have [simp]: "oid7 \<noteq> oid9" by(metis distinct_oid distinct_length_2_or_more) show ?thesis
-  proof - have [simp]: "oid7 \<noteq> oid12" by(metis distinct_oid distinct_length_2_or_more) show ?thesis
-  proof - have [simp]: "oid7 \<noteq> oid13" by(metis distinct_oid distinct_length_2_or_more) show ?thesis
-  proof - have [simp]: "oid7 \<noteq> oid14" by(metis distinct_oid distinct_length_2_or_more) show ?thesis
-  proof - have [simp]: "oid7 \<noteq> oid15" by(metis distinct_oid distinct_length_2_or_more) show ?thesis
   proof - have [simp]: "oid8 \<noteq> oid1" by(metis distinct_oid distinct_length_2_or_more) show ?thesis
   proof - have [simp]: "oid8 \<noteq> oid2" by(metis distinct_oid distinct_length_2_or_more) show ?thesis
   proof - have [simp]: "oid8 \<noteq> oid3" by(metis distinct_oid distinct_length_2_or_more) show ?thesis
@@ -4230,10 +4194,6 @@ shows "(WFF ((state_\<sigma>\<^sub>1.\<sigma>\<^sub>1 , state_\<sigma>\<^sub>1'.
   proof - have [simp]: "oid8 \<noteq> oid6" by(metis distinct_oid distinct_length_2_or_more) show ?thesis
   proof - have [simp]: "oid8 \<noteq> oid7" by(metis distinct_oid distinct_length_2_or_more) show ?thesis
   proof - have [simp]: "oid8 \<noteq> oid9" by(metis distinct_oid distinct_length_2_or_more) show ?thesis
-  proof - have [simp]: "oid8 \<noteq> oid12" by(metis distinct_oid distinct_length_2_or_more) show ?thesis
-  proof - have [simp]: "oid8 \<noteq> oid13" by(metis distinct_oid distinct_length_2_or_more) show ?thesis
-  proof - have [simp]: "oid8 \<noteq> oid14" by(metis distinct_oid distinct_length_2_or_more) show ?thesis
-  proof - have [simp]: "oid8 \<noteq> oid15" by(metis distinct_oid distinct_length_2_or_more) show ?thesis
   proof - have [simp]: "oid9 \<noteq> oid1" by(metis distinct_oid distinct_length_2_or_more) show ?thesis
   proof - have [simp]: "oid9 \<noteq> oid2" by(metis distinct_oid distinct_length_2_or_more) show ?thesis
   proof - have [simp]: "oid9 \<noteq> oid3" by(metis distinct_oid distinct_length_2_or_more) show ?thesis
@@ -4242,70 +4202,30 @@ shows "(WFF ((state_\<sigma>\<^sub>1.\<sigma>\<^sub>1 , state_\<sigma>\<^sub>1'.
   proof - have [simp]: "oid9 \<noteq> oid6" by(metis distinct_oid distinct_length_2_or_more) show ?thesis
   proof - have [simp]: "oid9 \<noteq> oid7" by(metis distinct_oid distinct_length_2_or_more) show ?thesis
   proof - have [simp]: "oid9 \<noteq> oid8" by(metis distinct_oid distinct_length_2_or_more) show ?thesis
-  proof - have [simp]: "oid9 \<noteq> oid12" by(metis distinct_oid distinct_length_2_or_more) show ?thesis
-  proof - have [simp]: "oid9 \<noteq> oid13" by(metis distinct_oid distinct_length_2_or_more) show ?thesis
-  proof - have [simp]: "oid9 \<noteq> oid14" by(metis distinct_oid distinct_length_2_or_more) show ?thesis
-  proof - have [simp]: "oid9 \<noteq> oid15" by(metis distinct_oid distinct_length_2_or_more) show ?thesis
-  proof - have [simp]: "oid12 \<noteq> oid1" by(metis distinct_oid distinct_length_2_or_more) show ?thesis
-  proof - have [simp]: "oid12 \<noteq> oid2" by(metis distinct_oid distinct_length_2_or_more) show ?thesis
-  proof - have [simp]: "oid12 \<noteq> oid3" by(metis distinct_oid distinct_length_2_or_more) show ?thesis
-  proof - have [simp]: "oid12 \<noteq> oid4" by(metis distinct_oid distinct_length_2_or_more) show ?thesis
-  proof - have [simp]: "oid12 \<noteq> oid5" by(metis distinct_oid distinct_length_2_or_more) show ?thesis
-  proof - have [simp]: "oid12 \<noteq> oid6" by(metis distinct_oid distinct_length_2_or_more) show ?thesis
-  proof - have [simp]: "oid12 \<noteq> oid7" by(metis distinct_oid distinct_length_2_or_more) show ?thesis
-  proof - have [simp]: "oid12 \<noteq> oid8" by(metis distinct_oid distinct_length_2_or_more) show ?thesis
-  proof - have [simp]: "oid12 \<noteq> oid9" by(metis distinct_oid distinct_length_2_or_more) show ?thesis
-  proof - have [simp]: "oid12 \<noteq> oid13" by(metis distinct_oid distinct_length_2_or_more) show ?thesis
-  proof - have [simp]: "oid12 \<noteq> oid14" by(metis distinct_oid distinct_length_2_or_more) show ?thesis
-  proof - have [simp]: "oid12 \<noteq> oid15" by(metis distinct_oid distinct_length_2_or_more) show ?thesis
-  proof - have [simp]: "oid13 \<noteq> oid1" by(metis distinct_oid distinct_length_2_or_more) show ?thesis
-  proof - have [simp]: "oid13 \<noteq> oid2" by(metis distinct_oid distinct_length_2_or_more) show ?thesis
-  proof - have [simp]: "oid13 \<noteq> oid3" by(metis distinct_oid distinct_length_2_or_more) show ?thesis
-  proof - have [simp]: "oid13 \<noteq> oid4" by(metis distinct_oid distinct_length_2_or_more) show ?thesis
-  proof - have [simp]: "oid13 \<noteq> oid5" by(metis distinct_oid distinct_length_2_or_more) show ?thesis
-  proof - have [simp]: "oid13 \<noteq> oid6" by(metis distinct_oid distinct_length_2_or_more) show ?thesis
-  proof - have [simp]: "oid13 \<noteq> oid7" by(metis distinct_oid distinct_length_2_or_more) show ?thesis
-  proof - have [simp]: "oid13 \<noteq> oid8" by(metis distinct_oid distinct_length_2_or_more) show ?thesis
-  proof - have [simp]: "oid13 \<noteq> oid9" by(metis distinct_oid distinct_length_2_or_more) show ?thesis
-  proof - have [simp]: "oid13 \<noteq> oid12" by(metis distinct_oid distinct_length_2_or_more) show ?thesis
-  proof - have [simp]: "oid13 \<noteq> oid14" by(metis distinct_oid distinct_length_2_or_more) show ?thesis
-  proof - have [simp]: "oid13 \<noteq> oid15" by(metis distinct_oid distinct_length_2_or_more) show ?thesis
-  proof - have [simp]: "oid14 \<noteq> oid1" by(metis distinct_oid distinct_length_2_or_more) show ?thesis
-  proof - have [simp]: "oid14 \<noteq> oid2" by(metis distinct_oid distinct_length_2_or_more) show ?thesis
-  proof - have [simp]: "oid14 \<noteq> oid3" by(metis distinct_oid distinct_length_2_or_more) show ?thesis
-  proof - have [simp]: "oid14 \<noteq> oid4" by(metis distinct_oid distinct_length_2_or_more) show ?thesis
-  proof - have [simp]: "oid14 \<noteq> oid5" by(metis distinct_oid distinct_length_2_or_more) show ?thesis
-  proof - have [simp]: "oid14 \<noteq> oid6" by(metis distinct_oid distinct_length_2_or_more) show ?thesis
-  proof - have [simp]: "oid14 \<noteq> oid7" by(metis distinct_oid distinct_length_2_or_more) show ?thesis
-  proof - have [simp]: "oid14 \<noteq> oid8" by(metis distinct_oid distinct_length_2_or_more) show ?thesis
-  proof - have [simp]: "oid14 \<noteq> oid9" by(metis distinct_oid distinct_length_2_or_more) show ?thesis
-  proof - have [simp]: "oid14 \<noteq> oid12" by(metis distinct_oid distinct_length_2_or_more) show ?thesis
-  proof - have [simp]: "oid14 \<noteq> oid13" by(metis distinct_oid distinct_length_2_or_more) show ?thesis
-  proof - have [simp]: "oid14 \<noteq> oid15" by(metis distinct_oid distinct_length_2_or_more) show ?thesis
-  proof - have [simp]: "oid15 \<noteq> oid1" by(metis distinct_oid distinct_length_2_or_more) show ?thesis
-  proof - have [simp]: "oid15 \<noteq> oid2" by(metis distinct_oid distinct_length_2_or_more) show ?thesis
-  proof - have [simp]: "oid15 \<noteq> oid3" by(metis distinct_oid distinct_length_2_or_more) show ?thesis
-  proof - have [simp]: "oid15 \<noteq> oid4" by(metis distinct_oid distinct_length_2_or_more) show ?thesis
-  proof - have [simp]: "oid15 \<noteq> oid5" by(metis distinct_oid distinct_length_2_or_more) show ?thesis
-  proof - have [simp]: "oid15 \<noteq> oid6" by(metis distinct_oid distinct_length_2_or_more) show ?thesis
-  proof - have [simp]: "oid15 \<noteq> oid7" by(metis distinct_oid distinct_length_2_or_more) show ?thesis
-  proof - have [simp]: "oid15 \<noteq> oid8" by(metis distinct_oid distinct_length_2_or_more) show ?thesis
-  proof - have [simp]: "oid15 \<noteq> oid9" by(metis distinct_oid distinct_length_2_or_more) show ?thesis
-  proof - have [simp]: "oid15 \<noteq> oid12" by(metis distinct_oid distinct_length_2_or_more) show ?thesis
-  proof - have [simp]: "oid15 \<noteq> oid13" by(metis distinct_oid distinct_length_2_or_more) show ?thesis
-  proof - have [simp]: "oid15 \<noteq> oid14" by(metis distinct_oid distinct_length_2_or_more) show ?thesis
-by(auto simp: WFF_def state_\<sigma>\<^sub>1.\<sigma>\<^sub>1_def state_\<sigma>\<^sub>1'.\<sigma>\<^sub>1'_def) qed qed qed qed qed qed qed qed qed qed qed qed qed qed qed qed qed qed qed qed qed qed qed qed qed qed qed qed qed qed qed qed qed qed qed qed qed qed qed qed qed qed qed qed qed qed qed qed qed qed qed qed qed qed qed qed qed qed qed qed qed qed qed qed qed qed qed qed qed qed qed qed qed qed qed qed qed qed qed qed qed qed qed qed qed qed qed qed qed qed qed qed qed qed qed qed qed qed qed qed qed qed qed qed qed qed qed qed qed qed qed qed qed qed qed qed qed qed qed qed qed qed qed qed qed qed qed qed qed qed qed qed qed qed qed qed qed qed qed qed qed qed qed qed qed qed qed qed qed qed qed qed qed qed qed qed
+by(auto simp: WFF_def state_\<sigma>\<^sub>1.\<sigma>\<^sub>1_def state_\<sigma>\<^sub>1'.\<sigma>\<^sub>1'_def) qed qed qed qed qed qed qed qed qed qed qed qed qed qed qed qed qed qed qed qed qed qed qed qed qed qed qed qed qed qed qed qed qed qed qed qed qed qed qed qed qed qed qed qed qed qed qed qed qed qed qed qed qed qed qed qed qed qed qed qed qed qed qed qed qed qed qed qed qed qed qed qed
 
-lemma oid1\<sigma>\<^sub>1\<sigma>\<^sub>1'_\<sigma>\<^sub>1'_OclIsNew : 
-assumes [simp]: "(oid_of (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n1\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n)) = oid1"
-shows "(state_\<sigma>\<^sub>1.\<sigma>\<^sub>1 , state_\<sigma>\<^sub>1'.\<sigma>\<^sub>1') \<Turnstile> (OclIsNew (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n1))"
-  apply(simp add: state_\<sigma>\<^sub>1.\<sigma>\<^sub>1_def state_\<sigma>\<^sub>1'.\<sigma>\<^sub>1'_def X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n1_def OclIsNew_def OclValid_def oid_of_option_def)
+lemma oid1\<sigma>\<^sub>1\<sigma>\<^sub>1'_\<sigma>\<^sub>1_OclIsMaintained : 
+assumes [simp]: "(oid_of (\<sigma>\<^sub>1_object0\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n)) = oid1"
+shows "(state_\<sigma>\<^sub>1.\<sigma>\<^sub>1 , state_\<sigma>\<^sub>1'.\<sigma>\<^sub>1') \<Turnstile> (OclIsMaintained (\<sigma>\<^sub>1_object0))"
+  apply(simp add: state_\<sigma>\<^sub>1.\<sigma>\<^sub>1_def state_\<sigma>\<^sub>1'.\<sigma>\<^sub>1'_def \<sigma>\<^sub>1_object0_def OclIsMaintained_def OclValid_def oid_of_option_def)
 by((metis distinct_oid distinct_length_2_or_more)?) 
 
-lemma oid2\<sigma>\<^sub>1\<sigma>\<^sub>1'_\<sigma>\<^sub>1'_OclIsNew : 
+lemma oid1\<sigma>\<^sub>1\<sigma>\<^sub>1'_\<sigma>\<^sub>1'_OclIsMaintained : 
+assumes [simp]: "(oid_of (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n1\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n)) = oid1"
+shows "(state_\<sigma>\<^sub>1.\<sigma>\<^sub>1 , state_\<sigma>\<^sub>1'.\<sigma>\<^sub>1') \<Turnstile> (OclIsMaintained (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n1))"
+  apply(simp add: state_\<sigma>\<^sub>1.\<sigma>\<^sub>1_def state_\<sigma>\<^sub>1'.\<sigma>\<^sub>1'_def X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n1_def OclIsMaintained_def OclValid_def oid_of_option_def)
+by((metis distinct_oid distinct_length_2_or_more)?) 
+
+lemma oid2\<sigma>\<^sub>1\<sigma>\<^sub>1'_\<sigma>\<^sub>1_OclIsMaintained : 
+assumes [simp]: "(oid_of (\<sigma>\<^sub>1_object1\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n)) = oid2"
+shows "(state_\<sigma>\<^sub>1.\<sigma>\<^sub>1 , state_\<sigma>\<^sub>1'.\<sigma>\<^sub>1') \<Turnstile> (OclIsMaintained (\<sigma>\<^sub>1_object1))"
+  apply(simp add: state_\<sigma>\<^sub>1.\<sigma>\<^sub>1_def state_\<sigma>\<^sub>1'.\<sigma>\<^sub>1'_def \<sigma>\<^sub>1_object1_def OclIsMaintained_def OclValid_def oid_of_option_def)
+by((metis distinct_oid distinct_length_2_or_more)?) 
+
+lemma oid2\<sigma>\<^sub>1\<sigma>\<^sub>1'_\<sigma>\<^sub>1'_OclIsMaintained : 
 assumes [simp]: "(oid_of (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n)) = oid2"
-shows "(state_\<sigma>\<^sub>1.\<sigma>\<^sub>1 , state_\<sigma>\<^sub>1'.\<sigma>\<^sub>1') \<Turnstile> (OclIsNew (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2))"
-  apply(simp add: state_\<sigma>\<^sub>1.\<sigma>\<^sub>1_def state_\<sigma>\<^sub>1'.\<sigma>\<^sub>1'_def X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2_def OclIsNew_def OclValid_def oid_of_option_def)
+shows "(state_\<sigma>\<^sub>1.\<sigma>\<^sub>1 , state_\<sigma>\<^sub>1'.\<sigma>\<^sub>1') \<Turnstile> (OclIsMaintained (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2))"
+  apply(simp add: state_\<sigma>\<^sub>1.\<sigma>\<^sub>1_def state_\<sigma>\<^sub>1'.\<sigma>\<^sub>1'_def X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2_def OclIsMaintained_def OclValid_def oid_of_option_def)
 by((metis distinct_oid distinct_length_2_or_more)?) 
 
 lemma oid3\<sigma>\<^sub>1\<sigma>\<^sub>1'_\<sigma>\<^sub>1'_OclIsNew : 
@@ -4314,10 +4234,16 @@ shows "(state_\<sigma>\<^sub>1.\<sigma>\<^sub>1 , state_\<sigma>\<^sub>1'.\<sigm
   apply(simp add: state_\<sigma>\<^sub>1.\<sigma>\<^sub>1_def state_\<sigma>\<^sub>1'.\<sigma>\<^sub>1'_def X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n3_def OclIsNew_def OclValid_def oid_of_option_def)
 by((metis distinct_oid distinct_length_2_or_more)?) 
 
-lemma oid4\<sigma>\<^sub>1\<sigma>\<^sub>1'_\<sigma>\<^sub>1'_OclIsNew : 
+lemma oid4\<sigma>\<^sub>1\<sigma>\<^sub>1'_\<sigma>\<^sub>1_OclIsMaintained : 
+assumes [simp]: "(oid_of (\<sigma>\<^sub>1_object2\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n)) = oid4"
+shows "(state_\<sigma>\<^sub>1.\<sigma>\<^sub>1 , state_\<sigma>\<^sub>1'.\<sigma>\<^sub>1') \<Turnstile> (OclIsMaintained (\<sigma>\<^sub>1_object2))"
+  apply(simp add: state_\<sigma>\<^sub>1.\<sigma>\<^sub>1_def state_\<sigma>\<^sub>1'.\<sigma>\<^sub>1'_def \<sigma>\<^sub>1_object2_def OclIsMaintained_def OclValid_def oid_of_option_def)
+by((metis distinct_oid distinct_length_2_or_more)?) 
+
+lemma oid4\<sigma>\<^sub>1\<sigma>\<^sub>1'_\<sigma>\<^sub>1'_OclIsMaintained : 
 assumes [simp]: "(oid_of (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n4\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n)) = oid4"
-shows "(state_\<sigma>\<^sub>1.\<sigma>\<^sub>1 , state_\<sigma>\<^sub>1'.\<sigma>\<^sub>1') \<Turnstile> (OclIsNew (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n4))"
-  apply(simp add: state_\<sigma>\<^sub>1.\<sigma>\<^sub>1_def state_\<sigma>\<^sub>1'.\<sigma>\<^sub>1'_def X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n4_def OclIsNew_def OclValid_def oid_of_option_def)
+shows "(state_\<sigma>\<^sub>1.\<sigma>\<^sub>1 , state_\<sigma>\<^sub>1'.\<sigma>\<^sub>1') \<Turnstile> (OclIsMaintained (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n4))"
+  apply(simp add: state_\<sigma>\<^sub>1.\<sigma>\<^sub>1_def state_\<sigma>\<^sub>1'.\<sigma>\<^sub>1'_def X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n4_def OclIsMaintained_def OclValid_def oid_of_option_def)
 by((metis distinct_oid distinct_length_2_or_more)?) 
 
 lemma oid5\<sigma>\<^sub>1\<sigma>\<^sub>1'_\<sigma>\<^sub>1_OclIsDeleted : 
@@ -4326,10 +4252,16 @@ shows "(state_\<sigma>\<^sub>1.\<sigma>\<^sub>1 , state_\<sigma>\<^sub>1'.\<sigm
   apply(simp add: state_\<sigma>\<^sub>1.\<sigma>\<^sub>1_def state_\<sigma>\<^sub>1'.\<sigma>\<^sub>1'_def X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n5_def OclIsDeleted_def OclValid_def oid_of_option_def)
 by((metis distinct_oid distinct_length_2_or_more)?) 
 
-lemma oid6\<sigma>\<^sub>1\<sigma>\<^sub>1'_\<sigma>\<^sub>1'_OclIsNew : 
+lemma oid6\<sigma>\<^sub>1\<sigma>\<^sub>1'_\<sigma>\<^sub>1_OclIsMaintained : 
+assumes [simp]: "(oid_of (\<sigma>\<^sub>1_object4\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n)) = oid6"
+shows "(state_\<sigma>\<^sub>1.\<sigma>\<^sub>1 , state_\<sigma>\<^sub>1'.\<sigma>\<^sub>1') \<Turnstile> (OclIsMaintained (\<sigma>\<^sub>1_object4))"
+  apply(simp add: state_\<sigma>\<^sub>1.\<sigma>\<^sub>1_def state_\<sigma>\<^sub>1'.\<sigma>\<^sub>1'_def \<sigma>\<^sub>1_object4_def OclIsMaintained_def OclValid_def oid_of_option_def)
+by((metis distinct_oid distinct_length_2_or_more)?) 
+
+lemma oid6\<sigma>\<^sub>1\<sigma>\<^sub>1'_\<sigma>\<^sub>1'_OclIsMaintained : 
 assumes [simp]: "(oid_of (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n6\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n)) = oid6"
-shows "(state_\<sigma>\<^sub>1.\<sigma>\<^sub>1 , state_\<sigma>\<^sub>1'.\<sigma>\<^sub>1') \<Turnstile> (OclIsNew (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n6))"
-  apply(simp add: state_\<sigma>\<^sub>1.\<sigma>\<^sub>1_def state_\<sigma>\<^sub>1'.\<sigma>\<^sub>1'_def X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n6_def OclIsNew_def OclValid_def oid_of_option_def)
+shows "(state_\<sigma>\<^sub>1.\<sigma>\<^sub>1 , state_\<sigma>\<^sub>1'.\<sigma>\<^sub>1') \<Turnstile> (OclIsMaintained (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n6))"
+  apply(simp add: state_\<sigma>\<^sub>1.\<sigma>\<^sub>1_def state_\<sigma>\<^sub>1'.\<sigma>\<^sub>1'_def X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n6_def OclIsMaintained_def OclValid_def oid_of_option_def)
 by((metis distinct_oid distinct_length_2_or_more)?) 
 
 lemma oid7\<sigma>\<^sub>1\<sigma>\<^sub>1'_\<sigma>\<^sub>1'_OclIsNew : 
@@ -4355,36 +4287,12 @@ assumes [simp]: "(oid_of (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n9\<^s
 shows "(state_\<sigma>\<^sub>1.\<sigma>\<^sub>1 , state_\<sigma>\<^sub>1'.\<sigma>\<^sub>1') \<Turnstile> (OclIsMaintained (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n9))"
   apply(simp add: state_\<sigma>\<^sub>1.\<sigma>\<^sub>1_def state_\<sigma>\<^sub>1'.\<sigma>\<^sub>1'_def X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n9_def OclIsMaintained_def OclValid_def oid_of_option_def)
 by((metis distinct_oid distinct_length_2_or_more)?) 
-
-lemma oid12\<sigma>\<^sub>1\<sigma>\<^sub>1'_\<sigma>\<^sub>1_OclIsDeleted : 
-assumes [simp]: "(oid_of (\<sigma>\<^sub>1_object0\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n)) = oid12"
-shows "(state_\<sigma>\<^sub>1.\<sigma>\<^sub>1 , state_\<sigma>\<^sub>1'.\<sigma>\<^sub>1') \<Turnstile> (OclIsDeleted (\<sigma>\<^sub>1_object0))"
-  apply(simp add: state_\<sigma>\<^sub>1.\<sigma>\<^sub>1_def state_\<sigma>\<^sub>1'.\<sigma>\<^sub>1'_def \<sigma>\<^sub>1_object0_def OclIsDeleted_def OclValid_def oid_of_option_def)
-by((metis distinct_oid distinct_length_2_or_more)?) 
-
-lemma oid13\<sigma>\<^sub>1\<sigma>\<^sub>1'_\<sigma>\<^sub>1_OclIsDeleted : 
-assumes [simp]: "(oid_of (\<sigma>\<^sub>1_object1\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n)) = oid13"
-shows "(state_\<sigma>\<^sub>1.\<sigma>\<^sub>1 , state_\<sigma>\<^sub>1'.\<sigma>\<^sub>1') \<Turnstile> (OclIsDeleted (\<sigma>\<^sub>1_object1))"
-  apply(simp add: state_\<sigma>\<^sub>1.\<sigma>\<^sub>1_def state_\<sigma>\<^sub>1'.\<sigma>\<^sub>1'_def \<sigma>\<^sub>1_object1_def OclIsDeleted_def OclValid_def oid_of_option_def)
-by((metis distinct_oid distinct_length_2_or_more)?) 
-
-lemma oid14\<sigma>\<^sub>1\<sigma>\<^sub>1'_\<sigma>\<^sub>1_OclIsDeleted : 
-assumes [simp]: "(oid_of (\<sigma>\<^sub>1_object2\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n)) = oid14"
-shows "(state_\<sigma>\<^sub>1.\<sigma>\<^sub>1 , state_\<sigma>\<^sub>1'.\<sigma>\<^sub>1') \<Turnstile> (OclIsDeleted (\<sigma>\<^sub>1_object2))"
-  apply(simp add: state_\<sigma>\<^sub>1.\<sigma>\<^sub>1_def state_\<sigma>\<^sub>1'.\<sigma>\<^sub>1'_def \<sigma>\<^sub>1_object2_def OclIsDeleted_def OclValid_def oid_of_option_def)
-by((metis distinct_oid distinct_length_2_or_more)?) 
-
-lemma oid15\<sigma>\<^sub>1\<sigma>\<^sub>1'_\<sigma>\<^sub>1_OclIsDeleted : 
-assumes [simp]: "(oid_of (\<sigma>\<^sub>1_object4\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n)) = oid15"
-shows "(state_\<sigma>\<^sub>1.\<sigma>\<^sub>1 , state_\<sigma>\<^sub>1'.\<sigma>\<^sub>1') \<Turnstile> (OclIsDeleted (\<sigma>\<^sub>1_object4))"
-  apply(simp add: state_\<sigma>\<^sub>1.\<sigma>\<^sub>1_def state_\<sigma>\<^sub>1'.\<sigma>\<^sub>1'_def \<sigma>\<^sub>1_object4_def OclIsDeleted_def OclValid_def oid_of_option_def)
-by((metis distinct_oid distinct_length_2_or_more)?) 
 end
 
-(* 154 ************************************ 936 + 1 *)
-definition "(pp_\<sigma>\<^sub>1_\<sigma>\<^sub>1' (\<tau>)) = (transition_\<sigma>\<^sub>1_\<sigma>\<^sub>1' (oid1) (oid2) (oid3) (oid4) (oid5) (oid6) (oid7) (oid8) (oid9) (oid12) (oid13) (oid14) (oid15) (\<lceil>\<lceil>(X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n1 (\<tau>))\<rceil>\<rceil>) (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n1) (\<lceil>\<lceil>(X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2 (\<tau>))\<rceil>\<rceil>) (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2) (\<lceil>\<lceil>(X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n3 (\<tau>))\<rceil>\<rceil>) (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n3) (\<lceil>\<lceil>(X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n4 (\<tau>))\<rceil>\<rceil>) (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n4) (\<lceil>\<lceil>(X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n5 (\<tau>))\<rceil>\<rceil>) (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n5) (\<lceil>\<lceil>(X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n6 (\<tau>))\<rceil>\<rceil>) (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n6) (\<lceil>\<lceil>(X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n7 (\<tau>))\<rceil>\<rceil>) (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n7) (\<lceil>\<lceil>(X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n8 (\<tau>))\<rceil>\<rceil>) (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n8) (\<lceil>\<lceil>(X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n9 (\<tau>))\<rceil>\<rceil>) (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n9) (\<lceil>\<lceil>(\<sigma>\<^sub>1_object0 (\<tau>))\<rceil>\<rceil>) (\<sigma>\<^sub>1_object0) (\<lceil>\<lceil>(\<sigma>\<^sub>1_object1 (\<tau>))\<rceil>\<rceil>) (\<sigma>\<^sub>1_object1) (\<lceil>\<lceil>(\<sigma>\<^sub>1_object2 (\<tau>))\<rceil>\<rceil>) (\<sigma>\<^sub>1_object2) (\<lceil>\<lceil>(\<sigma>\<^sub>1_object4 (\<tau>))\<rceil>\<rceil>) (\<sigma>\<^sub>1_object4))"
+(* 154 ************************************ 932 + 1 *)
+definition "(pp_\<sigma>\<^sub>1_\<sigma>\<^sub>1' (\<tau>)) = (transition_\<sigma>\<^sub>1_\<sigma>\<^sub>1' (oid1) (oid2) (oid3) (oid4) (oid5) (oid6) (oid7) (oid8) (oid9) (\<lceil>\<lceil>(\<sigma>\<^sub>1_object0 (\<tau>))\<rceil>\<rceil>) (\<sigma>\<^sub>1_object0) (\<lceil>\<lceil>(X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n1 (\<tau>))\<rceil>\<rceil>) (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n1) (\<lceil>\<lceil>(\<sigma>\<^sub>1_object1 (\<tau>))\<rceil>\<rceil>) (\<sigma>\<^sub>1_object1) (\<lceil>\<lceil>(X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2 (\<tau>))\<rceil>\<rceil>) (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2) (\<lceil>\<lceil>(X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n3 (\<tau>))\<rceil>\<rceil>) (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n3) (\<lceil>\<lceil>(\<sigma>\<^sub>1_object2 (\<tau>))\<rceil>\<rceil>) (\<sigma>\<^sub>1_object2) (\<lceil>\<lceil>(X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n4 (\<tau>))\<rceil>\<rceil>) (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n4) (\<lceil>\<lceil>(X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n5 (\<tau>))\<rceil>\<rceil>) (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n5) (\<lceil>\<lceil>(\<sigma>\<^sub>1_object4 (\<tau>))\<rceil>\<rceil>) (\<sigma>\<^sub>1_object4) (\<lceil>\<lceil>(X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n6 (\<tau>))\<rceil>\<rceil>) (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n6) (\<lceil>\<lceil>(X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n7 (\<tau>))\<rceil>\<rceil>) (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n7) (\<lceil>\<lceil>(X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n8 (\<tau>))\<rceil>\<rceil>) (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n8) (\<lceil>\<lceil>(X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n9 (\<tau>))\<rceil>\<rceil>) (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n9))"
 
-(* 155 ************************************ 937 + 3 *)
+(* 155 ************************************ 933 + 3 *)
 lemmas pp_oid_\<sigma>\<^sub>1_\<sigma>\<^sub>1' = oid1_def
                             oid2_def
                             oid3_def
@@ -4394,38 +4302,34 @@ lemmas pp_oid_\<sigma>\<^sub>1_\<sigma>\<^sub>1' = oid1_def
                             oid7_def
                             oid8_def
                             oid9_def
-                            oid12_def
-                            oid13_def
-                            oid14_def
-                            oid15_def
-lemmas pp_object_\<sigma>\<^sub>1_\<sigma>\<^sub>1' = X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n1_def
+lemmas pp_object_\<sigma>\<^sub>1_\<sigma>\<^sub>1' = \<sigma>\<^sub>1_object0_def
+                            X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n1_def
+                            \<sigma>\<^sub>1_object1_def
                             X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2_def
                             X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n3_def
+                            \<sigma>\<^sub>1_object2_def
                             X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n4_def
                             X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n5_def
+                            \<sigma>\<^sub>1_object4_def
                             X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n6_def
                             X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n7_def
                             X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n8_def
                             X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n9_def
-                            \<sigma>\<^sub>1_object0_def
-                            \<sigma>\<^sub>1_object1_def
-                            \<sigma>\<^sub>1_object2_def
-                            \<sigma>\<^sub>1_object4_def
-lemmas pp_object_ty_\<sigma>\<^sub>1_\<sigma>\<^sub>1' = X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n1\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_def
+lemmas pp_object_ty_\<sigma>\<^sub>1_\<sigma>\<^sub>1' = \<sigma>\<^sub>1_object0\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_def
+                            X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n1\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_def
+                            \<sigma>\<^sub>1_object1\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_def
                             X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_def
                             X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n3\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_def
+                            \<sigma>\<^sub>1_object2\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_def
                             X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n4\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_def
                             X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n5\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_def
+                            \<sigma>\<^sub>1_object4\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_def
                             X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n6\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_def
                             X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n7\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_def
                             X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n8\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_def
                             X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n9\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_def
-                            \<sigma>\<^sub>1_object0\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_def
-                            \<sigma>\<^sub>1_object1\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_def
-                            \<sigma>\<^sub>1_object2\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_def
-                            \<sigma>\<^sub>1_object4\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_def
 
-(* 156 ************************************ 940 + 6 *)
+(* 156 ************************************ 936 + 6 *)
 axiomatization where dot__contents_Person_def:
 "(self::\<cdot>Person) .contents() \<equiv> (\<lambda>\<tau>. (Eps ((\<lambda>result. (Let ((\<lambda>_. result)) ((\<lambda>result. (if ((\<tau> \<Turnstile> ((\<delta> (self))))) then (\<tau> \<Turnstile> ((((UML_Logic.false :: (((_, Product_Type.unit) UML_Types.state.state_ext \<times> (_, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((HOL.bool) Option.option) Option.option)))))) \<and> (\<tau> \<Turnstile> ((((((UML_Logic.StrongEq :: ((((Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> (((Int.int) Option.option) Option.option) UML_Types.Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e) \<Rightarrow> ((((Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> (((Int.int) Option.option) Option.option) UML_Types.Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e) \<Rightarrow> (((Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((HOL.bool) Option.option) Option.option))))) (result)) (((((UML_Logic.OclIf :: ((((Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((HOL.bool) Option.option) Option.option) \<Rightarrow> ((((Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> (((Int.int) Option.option) Option.option) UML_Types.Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e) \<Rightarrow> ((((Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> (((Int.int) Option.option) Option.option) UML_Types.Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e) \<Rightarrow> (((Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> (((Int.int) Option.option) Option.option) UML_Types.Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e)))))) ((((UML_Logic.StrictRefEq :: ((((Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((Employee_DesignModel_UMLPart_generated.ty\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n) Option.option) Option.option) \<Rightarrow> ((((Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((Employee_DesignModel_UMLPart_generated.ty\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n) Option.option) Option.option) \<Rightarrow> (((Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((HOL.bool) Option.option) Option.option))))) (((Employee_DesignModel_UMLPart_generated.dot_0___boss :: ((((Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> _) \<Rightarrow> (((Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((Employee_DesignModel_UMLPart_generated.ty\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n) Option.option) Option.option)))) (self))) ((UML_Types.null_class.null :: (((Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((Employee_DesignModel_UMLPart_generated.ty\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n) Option.option) Option.option))))) ((((UML_Set.OclIncluding :: ((((Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> (((Int.int) Option.option) Option.option) UML_Types.Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e) \<Rightarrow> ((((Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((Int.int) Option.option) Option.option) \<Rightarrow> (((Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> (((Int.int) Option.option) Option.option) UML_Types.Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e))))) ((UML_Set.mtSet :: (((Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> (((Int.int) Option.option) Option.option) UML_Types.Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e)))) (((Employee_DesignModel_UMLPart_generated.dot__salary :: ((((Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> _) \<Rightarrow> (((Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((Int.int) Option.option) Option.option)))) (self)))) ((((UML_Set.OclIncluding :: ((((Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> (((Int.int) Option.option) Option.option) UML_Types.Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e) \<Rightarrow> ((((Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((Int.int) Option.option) Option.option) \<Rightarrow> (((Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> (((Int.int) Option.option) Option.option) UML_Types.Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e))))) (((Employee_DesignModel_UMLPart_generated.dot__contents :: ((((Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((Employee_DesignModel_UMLPart_generated.ty\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n) Option.option) Option.option) \<Rightarrow> (((Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> (((Int.int) Option.option) Option.option) UML_Types.Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e)))) (((Employee_DesignModel_UMLPart_generated.dot_0___boss :: ((((Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> _) \<Rightarrow> (((Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((Employee_DesignModel_UMLPart_generated.ty\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n) Option.option) Option.option)))) (self)))) (((Employee_DesignModel_UMLPart_generated.dot__salary :: ((((Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> _) \<Rightarrow> (((Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((Int.int) Option.option) Option.option)))) (self)))) and (UML_Logic.true :: (((_, Product_Type.unit) UML_Types.state.state_ext \<times> (_, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((HOL.bool) Option.option) Option.option)))))) else (\<tau> \<Turnstile> (result \<triangleq> invalid))))))))))"
 thm dot__contents_Person_def
@@ -4434,28 +4338,28 @@ defs(overloaded) dot__contents_Galaxy : "(x::\<cdot>Galaxy) .contents() \<equiv>
 defs(overloaded) dot__contents_OclAny : "(x::\<cdot>OclAny) .contents() \<equiv> x .oclAsType(Person) .contents()"
 ML \<open>(Ty'.check ([]) (" error(s)"))\<close>
 
-(* 157 ************************************ 946 + 0 *)
+(* 157 ************************************ 942 + 0 *)
 
-(* 158 ************************************ 946 + 0 *)
+(* 158 ************************************ 942 + 0 *)
 
-(* 159 ************************************ 946 + 0 *)
+(* 159 ************************************ 942 + 0 *)
 
-(* 160 ************************************ 946 + 3 *)
+(* 160 ************************************ 942 + 3 *)
 definition "Person_aat_pre = (\<lambda>\<tau>. (\<tau> \<Turnstile> (UML_Set.OclForall ((OclAllInstances_at_pre (Person))) ((\<lambda>self. (((UML_Logic.OclImplies :: ((((Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((HOL.bool) Option.option) Option.option) \<Rightarrow> ((((Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((HOL.bool) Option.option) Option.option) \<Rightarrow> (((Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((HOL.bool) Option.option) Option.option))))) (((UML_Logic.OclNot :: ((((Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((HOL.bool) Option.option) Option.option) \<Rightarrow> (((Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((HOL.bool) Option.option) Option.option)))) ((((UML_Logic.StrictRefEq :: ((((Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((Employee_DesignModel_UMLPart_generated.ty\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n) Option.option) Option.option) \<Rightarrow> ((((Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((Employee_DesignModel_UMLPart_generated.ty\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n) Option.option) Option.option) \<Rightarrow> (((Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((HOL.bool) Option.option) Option.option))))) (((Employee_DesignModel_UMLPart_generated.dot_0___bossat_pre :: ((((Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> _) \<Rightarrow> (((Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((Employee_DesignModel_UMLPart_generated.ty\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n) Option.option) Option.option)))) (self))) ((UML_Types.null_class.null :: (((Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((Employee_DesignModel_UMLPart_generated.ty\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n) Option.option) Option.option)))))) ((((UML_Logic.StrongEq :: ((((Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((Int.int) Option.option) Option.option) \<Rightarrow> ((((Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((Int.int) Option.option) Option.option) \<Rightarrow> (((Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((HOL.bool) Option.option) Option.option))))) (((Employee_DesignModel_UMLPart_generated.dot__salaryat_pre :: ((((Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> _) \<Rightarrow> (((Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((Int.int) Option.option) Option.option)))) (self))) (((Employee_DesignModel_UMLPart_generated.dot__salaryat_pre :: ((((Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((Employee_DesignModel_UMLPart_generated.ty\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n) Option.option) Option.option) \<Rightarrow> (((Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((Int.int) Option.option) Option.option)))) (((Employee_DesignModel_UMLPart_generated.dot_0___bossat_pre :: ((((Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> _) \<Rightarrow> (((Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((Employee_DesignModel_UMLPart_generated.ty\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n) Option.option) Option.option)))) (self)))))))))"
 definition "Person_a = (\<lambda>\<tau>. (\<tau> \<Turnstile> (UML_Set.OclForall ((OclAllInstances_at_post (Person))) ((\<lambda>self. (((UML_Logic.OclImplies :: ((((Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((HOL.bool) Option.option) Option.option) \<Rightarrow> ((((Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((HOL.bool) Option.option) Option.option) \<Rightarrow> (((Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((HOL.bool) Option.option) Option.option))))) (((UML_Logic.OclNot :: ((((Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((HOL.bool) Option.option) Option.option) \<Rightarrow> (((Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((HOL.bool) Option.option) Option.option)))) ((((UML_Logic.StrictRefEq :: ((((Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((Employee_DesignModel_UMLPart_generated.ty\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n) Option.option) Option.option) \<Rightarrow> ((((Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((Employee_DesignModel_UMLPart_generated.ty\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n) Option.option) Option.option) \<Rightarrow> (((Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((HOL.bool) Option.option) Option.option))))) (((Employee_DesignModel_UMLPart_generated.dot_0___boss :: ((((Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> _) \<Rightarrow> (((Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((Employee_DesignModel_UMLPart_generated.ty\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n) Option.option) Option.option)))) (self))) ((UML_Types.null_class.null :: (((Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((Employee_DesignModel_UMLPart_generated.ty\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n) Option.option) Option.option)))))) ((((UML_Logic.StrongEq :: ((((Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((Int.int) Option.option) Option.option) \<Rightarrow> ((((Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((Int.int) Option.option) Option.option) \<Rightarrow> (((Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((HOL.bool) Option.option) Option.option))))) (((Employee_DesignModel_UMLPart_generated.dot__salary :: ((((Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> _) \<Rightarrow> (((Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((Int.int) Option.option) Option.option)))) (self))) (((Employee_DesignModel_UMLPart_generated.dot__salary :: ((((Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((Employee_DesignModel_UMLPart_generated.ty\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n) Option.option) Option.option) \<Rightarrow> (((Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((Int.int) Option.option) Option.option)))) (((Employee_DesignModel_UMLPart_generated.dot_0___boss :: ((((Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> _) \<Rightarrow> (((Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((Employee_DesignModel_UMLPart_generated.ty\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n) Option.option) Option.option)))) (self)))))))))"
 ML \<open>(Ty'.check ([]) (" error(s)"))\<close>
 
-(* 161 ************************************ 949 + 1 *)
+(* 161 ************************************ 945 + 1 *)
 thm Person_aat_pre_def Person_a_def
 
-(* 162 ************************************ 950 + 0 *)
+(* 162 ************************************ 946 + 0 *)
 
-(* 163 ************************************ 950 + 3 *)
+(* 163 ************************************ 946 + 3 *)
 definition "Planet_Aat_pre = (\<lambda>\<tau>. (\<tau> \<Turnstile> (UML_Set.OclForall ((OclAllInstances_at_pre (Planet))) ((\<lambda>self. (((UML_Logic.OclAnd :: ((((Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((HOL.bool) Option.option) Option.option) \<Rightarrow> ((((Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((HOL.bool) Option.option) Option.option) \<Rightarrow> (((Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((HOL.bool) Option.option) Option.option))))) ((UML_Logic.true :: (((Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((HOL.bool) Option.option) Option.option)))) ((((UML_Integer.OclLe\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r :: ((((Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((Int.int) Option.option) Option.option) \<Rightarrow> ((((Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((Int.int) Option.option) Option.option) \<Rightarrow> (((Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((HOL.bool) Option.option) Option.option))))) (((Employee_DesignModel_UMLPart_generated.dot__weightat_pre :: ((((Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> _) \<Rightarrow> (((Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((Int.int) Option.option) Option.option)))) (self))) ((UML_Integer.OclInt0 :: (((Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((Int.int) Option.option) Option.option)))))))))"
 definition "Planet_A = (\<lambda>\<tau>. (\<tau> \<Turnstile> (UML_Set.OclForall ((OclAllInstances_at_post (Planet))) ((\<lambda>self. (((UML_Logic.OclAnd :: ((((Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((HOL.bool) Option.option) Option.option) \<Rightarrow> ((((Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((HOL.bool) Option.option) Option.option) \<Rightarrow> (((Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((HOL.bool) Option.option) Option.option))))) ((UML_Logic.true :: (((Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((HOL.bool) Option.option) Option.option)))) ((((UML_Integer.OclLe\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r :: ((((Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((Int.int) Option.option) Option.option) \<Rightarrow> ((((Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((Int.int) Option.option) Option.option) \<Rightarrow> (((Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((HOL.bool) Option.option) Option.option))))) (((Employee_DesignModel_UMLPart_generated.dot__weight :: ((((Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> _) \<Rightarrow> (((Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((Int.int) Option.option) Option.option)))) (self))) ((UML_Integer.OclInt0 :: (((Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((Int.int) Option.option) Option.option)))))))))"
 ML \<open>(Ty'.check ([]) (" error(s)"))\<close>
 
-(* 164 ************************************ 953 + 1 *)
+(* 164 ************************************ 949 + 1 *)
 thm Planet_Aat_pre_def Planet_A_def
 
 end
