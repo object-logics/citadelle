@@ -41,6 +41,22 @@ theory  Floor2_examp
 imports Floor1_examp
 begin
 
+definition "init_map_class2 env l =
+ (let rbt_str = RBT.bulkload (L.map (\<lambda>(k, _, v). (String\<^sub>b\<^sub>a\<^sub>s\<^sub>e.to_list k, v)) (D_input_instance env)) in
+  ( rbt_of_class env
+  , RBT.lookup (fst (List.fold
+                      (\<lambda> toyi (rbt_nat, accu).
+                        ( case lookup rbt_str (case Inst_attr_with toyi of
+                                                 None \<Rightarrow> inst_name toyi
+                                               | Some s \<Rightarrow> s) of
+                            None \<Rightarrow> rbt_nat
+                          | Some oid_start' \<Rightarrow> RBT.insert (Oid accu) oid_start' rbt_nat
+                        , Succ accu))
+                      l
+                      ( RBT.empty
+                      , 0)))
+  , lookup rbt_str))"
+
 definition "merge_unique_gen f l = List.fold (List.fold (\<lambda>x. case f x of Some (x, v) \<Rightarrow> RBT.insert x v | None \<Rightarrow> id)) l RBT.empty"
 definition "merge_unique f l = RBT.entries (merge_unique_gen f l)"
 definition "merge_unique' f =
@@ -145,8 +161,8 @@ definition "print_examp_def_st2 = (\<lambda> ToyDefSt name l \<Rightarrow> \<lam
   (let b = \<lambda>s. Term_basic [s]
      ; l = L.map (\<lambda> ToyDefCoreBinding name \<Rightarrow> map_option (Pair name) (String.assoc name (D_input_instance env))) l
      ; (rbt, (map_self, map_username)) =
-         (init_map_class 
-           (env \<lparr> D_toy_oid_start := oidReinitInh (D_toy_oid_start env) \<rparr>)
+         (init_map_class2 
+           env
            (L.map (\<lambda> Some (_, toyi, _) \<Rightarrow> toyi | None \<Rightarrow> toy_instance_single_empty) l)
           :: (_ \<Rightarrow> _ \<times> _ \<times> (_ \<Rightarrow> ((_ \<Rightarrow> nat \<Rightarrow> _ \<Rightarrow> _) \<Rightarrow> _
                         \<Rightarrow> (toy_ty_class option \<times> (toy_ty \<times> toy_data_shallow) option) list) option)) \<times> _ \<times> _)
