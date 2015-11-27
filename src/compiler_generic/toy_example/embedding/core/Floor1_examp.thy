@@ -247,9 +247,20 @@ definition "print_examp_instance = (\<lambda> ToyInstance l \<Rightarrow> \<lamb
        (L.map (\<lambda> _. []))
        id
        (mk_instance_single_cpt0 map_username l env)
-   , List.fold (\<lambda>toyi instance_rbt.
-       let n = inst_name toyi in
-       (String.to_String\<^sub>b\<^sub>a\<^sub>s\<^sub>e n, toyi, case map_username n of Some oid \<Rightarrow> oid) # instance_rbt) l (D_input_instance env))))"
+   , let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l l_id = L.mapi (\<lambda>i toyi. (i, inst_name toyi)) l in 
+     List.fold
+       (\<lambda>toyi instance_rbt.
+         let n = inst_name toyi in
+         ( String.to_String\<^sub>b\<^sub>a\<^sub>s\<^sub>e n
+         , map_inst_single_self (\<lambda>Oid self \<Rightarrow>
+                                  case L.assoc self l_id of
+                                    Some name \<Rightarrow> ShallB_str name
+                                  | _ \<Rightarrow> ShallB_list [])
+                                toyi
+         , case map_username n of Some oid \<Rightarrow> oid)
+         # instance_rbt)
+       l
+       (D_input_instance env))))"
 
 definition "print_examp_def_st0 name l =
  (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l (l, _) = List.fold (\<lambda> (pos, core) (l, n).
@@ -260,11 +271,11 @@ definition "print_examp_def_st0 name l =
                              ([], 0) in
   List.fold (\<lambda> (pos, _, ToyDefCoreAdd toyi) \<Rightarrow> \<lambda>(l_inst, l_defst).
                let i_name = case Inst_name toyi of Some x \<Rightarrow> x | None \<Rightarrow> S.flatten [name, \<open>_object\<close>, String.of_natural pos] in
-                 ( map_instance_single (map_prod id (map_prod id (map_data_shallow_self (\<lambda>Oid self \<Rightarrow>
+                 ( map_inst_single_self (\<lambda>Oid self \<Rightarrow>
                      (case L.assoc self l of
                         Some (_, ToyDefCoreBinding name) \<Rightarrow> ShallB_str name
                       | Some (p, _) \<Rightarrow> ShallB_self (Oid p)
-                      | _ \<Rightarrow> ShallB_list []))))) toyi 
+                      | _ \<Rightarrow> ShallB_list [])) toyi 
                    \<lparr> Inst_name := Some i_name \<rparr>
                  # l_inst
                  , ToyDefCoreBinding i_name # l_defst)

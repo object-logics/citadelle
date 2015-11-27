@@ -132,4 +132,10 @@ definition "inst_ty toyi = (case inst_ty0 toyi of Some ty \<Rightarrow> ty)"
 definition "fold_instance_single f toyi = fold_list_attr (inst_ty0 toyi) (\<lambda> Some x \<Rightarrow> f x) (Inst_attr toyi)"
 definition "fold_instance_single' f toyi = fold_list_attr (Inst_ty toyi) f (Inst_attr toyi)"
 
+definition "map_inst_single_self f =
+  map_instance_single
+    (map_prod id
+      (map_prod id
+        (map_data_shallow_self f)))"
+
 end

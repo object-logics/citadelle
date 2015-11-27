@@ -750,9 +750,20 @@ definition "print_examp_instance = (\<lambda> OclInstance l \<Rightarrow> \<lamb
                                              # l))
        id
        (mk_instance_single_cpt0 map_username l env)
-   , List.fold (\<lambda>ocli instance_rbt.
-       let n = inst_name ocli in
-       (String.to_String\<^sub>b\<^sub>a\<^sub>s\<^sub>e n, ocli, case map_username n of Some oid \<Rightarrow> oid) # instance_rbt) l (D_input_instance env))))"
+   , let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l l_id = L.mapi (\<lambda>i ocli. (i, inst_name ocli)) l in 
+     List.fold
+       (\<lambda>ocli instance_rbt.
+         let n = inst_name ocli in
+         ( String.to_String\<^sub>b\<^sub>a\<^sub>s\<^sub>e n
+         , map_inst_single_self (\<lambda>Oid self \<Rightarrow>
+                                  case L.assoc self l_id of
+                                    Some name \<Rightarrow> ShallB_str name
+                                  | _ \<Rightarrow> ShallB_list [])
+                                ocli
+         , case map_username n of Some oid \<Rightarrow> oid)
+         # instance_rbt)
+       l
+       (D_input_instance env))))"
 
 definition "print_examp_def_st_typecheck_var = (\<lambda> OclDefSt name l \<Rightarrow> 
  (let b = \<lambda>s. Term_basic [s]
@@ -784,11 +795,11 @@ definition "print_examp_def_st0 name l =
                              ([], 0) in
   List.fold (\<lambda> (pos, _, OclDefCoreAdd ocli) \<Rightarrow> \<lambda>(l_inst, l_defst).
                let i_name = case Inst_name ocli of Some x \<Rightarrow> x | None \<Rightarrow> S.flatten [name, \<open>_object\<close>, String.of_natural pos] in
-                 ( map_instance_single (map_prod id (map_prod id (map_data_shallow_self (\<lambda>Oid self \<Rightarrow>
+                 ( map_inst_single_self (\<lambda>Oid self \<Rightarrow>
                      (case L.assoc self l of
                         Some (_, OclDefCoreBinding name) \<Rightarrow> ShallB_str name
                       | Some (p, _) \<Rightarrow> ShallB_self (Oid p)
-                      | _ \<Rightarrow> ShallB_list []))))) ocli 
+                      | _ \<Rightarrow> ShallB_list [])) ocli 
                    \<lparr> Inst_name := Some i_name \<rparr>
                  # l_inst
                  , OclDefCoreBinding i_name # l_defst)

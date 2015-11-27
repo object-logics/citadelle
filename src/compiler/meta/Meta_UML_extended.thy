@@ -148,4 +148,10 @@ fun' str_of_data_shallow where
                               | ShallB_self _ \<Rightarrow> \<open>(*object_oid*)\<close>
                               | ShallB_list l \<Rightarrow> \<open>[ \<close> @@ String_concatWith \<open>, \<close> (List.map str_of_data_shallow l) @@ \<open> ]\<close>) e\<close>
 
+definition "map_inst_single_self f =
+  map_instance_single
+    (map_prod id
+      (map_prod id
+        (map_data_shallow_self f)))"
+
 end
