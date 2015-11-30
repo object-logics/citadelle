@@ -661,9 +661,54 @@ lemma cancel\<^sub>n\<^sub>o\<^sub>n\<^sub>b\<^sub>l\<^sub>o\<^sub>c\<^sub>k\<^s
 by(subst cp_valid, simp, subst cp_valid[symmetric],
    simp add: C1_valid[simplified OclValid_def \<sigma>\<^sub>t\<^sub>1_\<sigma>\<^sub>s\<^sub>1[symmetric]])
 
-lemma cancel\<^sub>i\<^sub>m\<^sub>p\<^sub>l\<^sub>e\<^sub>m\<^sub>e\<^sub>n\<^sub>t\<^sub>a\<^sub>b\<^sub>l\<^sub>e : " (\<sigma>,\<sigma>') \<Turnstile> (cancel\<^sub>p\<^sub>r\<^sub>e  self r) \<Longrightarrow> 
-                           \<exists> \<sigma>' result.  ((\<sigma>,\<sigma>') \<Turnstile> (cancel\<^sub>p\<^sub>o\<^sub>s\<^sub>t  self r result))"
-oops(* TODO *)
+lemma cancel\<^sub>i\<^sub>m\<^sub>p\<^sub>l\<^sub>e\<^sub>m\<^sub>e\<^sub>n\<^sub>t\<^sub>a\<^sub>b\<^sub>l\<^sub>e :
+ assumes self_const:   "const self"
+ assumes self_defined: "(\<sigma>,\<sigma>') \<Turnstile> \<delta> self"
+ (*assumes               "(\<sigma>,\<sigma>') \<Turnstile> (cancel\<^sub>p\<^sub>r\<^sub>e  self r)"*)
+ shows                 "\<exists> \<sigma>' result.  ((\<sigma>,\<sigma>') \<Turnstile> (cancel\<^sub>p\<^sub>o\<^sub>s\<^sub>t  self r result))"
+proof -
+ def \<sigma>'' \<equiv> "\<lparr> heap = let oid_self = oid_of (self (\<sigma>,\<sigma>')) in
+                     Map.empty (oid_self \<mapsto> in\<^sub>C\<^sub>l\<^sub>i\<^sub>e\<^sub>n\<^sub>t (mk\<^sub>C\<^sub>l\<^sub>i\<^sub>e\<^sub>n\<^sub>t (mk\<E>\<X>\<T>\<^sub>C\<^sub>l\<^sub>i\<^sub>e\<^sub>n\<^sub>t oid_self None) None))
+            , assocs = Map.empty (oid\<^sub>C\<^sub>l\<^sub>i\<^sub>e\<^sub>n\<^sub>t_0___cl_res \<mapsto> []) \<rparr>"
+
+ have self_const': "self (\<sigma>,\<sigma>') = self (\<sigma>,\<sigma>'')"
+ by (simp add: const_charn self_const)
+
+ have self_defined': "(\<sigma>,\<sigma>'') \<Turnstile> \<delta> self"
+ by(rule const_OclValid1[THEN iffD1, OF _ self_defined], rule self_const)
+
+ have self_definition: "\<exists>ta xa x. self (\<sigma>, \<sigma>'') = \<lfloor>\<lfloor>mk\<^sub>C\<^sub>l\<^sub>i\<^sub>e\<^sub>n\<^sub>t (mk\<E>\<X>\<T>\<^sub>C\<^sub>l\<^sub>i\<^sub>e\<^sub>n\<^sub>t ta xa) x\<rfloor>\<rfloor>"
+  apply(case_tac "self (\<sigma>, \<sigma>'')",
+        simp add: self_defined'[simplified foundation16' invalid_def bot_option_def null_fun_def null_option_def])
+  apply(simp)
+  proof - fix a show "self (\<sigma>, \<sigma>'') = \<lfloor>a\<rfloor> \<Longrightarrow> \<exists>ta xa x. a = \<lfloor>mk\<^sub>C\<^sub>l\<^sub>i\<^sub>e\<^sub>n\<^sub>t (mk\<E>\<X>\<T>\<^sub>C\<^sub>l\<^sub>i\<^sub>e\<^sub>n\<^sub>t ta xa) x\<rfloor>"
+  apply(case_tac a,
+        simp add: self_defined'[simplified foundation16' invalid_def bot_option_def null_fun_def null_option_def],
+        simp)
+  proof - fix aa show " self (\<sigma>, \<sigma>'') = \<lfloor>\<lfloor>aa\<rfloor>\<rfloor> \<Longrightarrow> \<exists>ta xa x. aa = mk\<^sub>C\<^sub>l\<^sub>i\<^sub>e\<^sub>n\<^sub>t (mk\<E>\<X>\<T>\<^sub>C\<^sub>l\<^sub>i\<^sub>e\<^sub>n\<^sub>t ta xa) x" 
+  apply(case_tac aa, simp)
+  proof - fix x1 x2 show " self (\<sigma>, \<sigma>'') = \<lfloor>\<lfloor>mk\<^sub>C\<^sub>l\<^sub>i\<^sub>e\<^sub>n\<^sub>t x1 x2\<rfloor>\<rfloor> \<Longrightarrow> \<exists>ta xa. x1 = mk\<E>\<X>\<T>\<^sub>C\<^sub>l\<^sub>i\<^sub>e\<^sub>n\<^sub>t ta xa"
+  by(case_tac x1, simp)
+  qed qed qed
+
+ have self_empty: "(\<sigma>, \<sigma>'') \<Turnstile> (self .cl_res \<triangleq> Set{})"
+  apply(simp add: OclValid_def StrongEq_def dot\<^sub>C\<^sub>l\<^sub>i\<^sub>e\<^sub>n\<^sub>t_0___cl_res)
+  apply(insert self_definition, elim exE, simp)
+  apply(simp add: deref_oid\<^sub>C\<^sub>l\<^sub>i\<^sub>e\<^sub>n\<^sub>t_def in_post_state_def, subst (8) \<sigma>''_def)
+  apply(simp add: self_const' Let_def oid_of_option_def deref_assocs\<^sub>C\<^sub>l\<^sub>i\<^sub>e\<^sub>n\<^sub>t_0___cl_res_def deref_assocs_def)
+  apply(subst (3) \<sigma>''_def, simp add: select\<^sub>C\<^sub>l\<^sub>i\<^sub>e\<^sub>n\<^sub>t__cl_res_def)
+  by(simp add: oid_of_ty\<^sub>C\<^sub>l\<^sub>i\<^sub>e\<^sub>n\<^sub>t_def deref_assocs_list_def switch\<^sub>2_01_def select_object\<^sub>S\<^sub>e\<^sub>t_def select_object_def)
+
+ show "?thesis"
+  apply(rule exI[where x = \<sigma>''], rule exI[where x = "null"])
+  apply(simp add: cancel\<^sub>p\<^sub>o\<^sub>s\<^sub>t_def)
+  apply(subst StrongEq_L_subst3[OF _ self_empty])
+   apply(rule UML_Set.cp_intro''\<^sub>S\<^sub>e\<^sub>t(2))
+   apply(simp only: cp_def)
+   apply(rule exI[where x = "\<lambda>X \<tau>. (\<lambda>_. X)->select\<^sub>S\<^sub>e\<^sub>t(res|StrictRefEq\<^sub>O\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t res .flight r .flight@pre) \<tau>"],
+         subst cp_OclSelect, simp)
+ by(simp)
+qed
 
 find_theorems (350) name:"Client"
 lemmas [simp,code_unfold] = dot_accessor
