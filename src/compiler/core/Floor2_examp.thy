@@ -185,7 +185,7 @@ definition "print_examp_def_st_mapsto_gen f =
                  (ocli, Some (b (print_examp_instance_name (\<lambda>s. s @@ String.isub (inst_ty ocli)) name))) in
         f (cpt, ocore) ocli exp)"
 
-definition "print_examp_def_st_mapsto l = list_bind id id
+definition "print_examp_def_st_mapsto l = L.bind id id
  (print_examp_def_st_mapsto_gen
     (\<lambda>(cpt, _) ocli. map_option (\<lambda>exp.
       Term_binop (Term_oid var_oid_uniq (oidGetInh cpt)) \<open>\<mapsto>\<close> (Term_app (datatype_in @@ String.isub (inst_ty ocli)) [exp])))

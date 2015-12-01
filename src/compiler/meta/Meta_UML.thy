@@ -292,30 +292,47 @@ syntax "_rbt_entries" :: "_ \<Rightarrow> _" ("entries") translations "entries" 
 function (sequential) class_unflat_aux where
 (* (* FIXME replace with this simplified form *)
    "class_unflat_aux rbt rbt_inv rbt_cycle r =
-   (case lookup rbt_cycle r of (None (* cycle detection *)) \<Rightarrow>
-      OclClass
-        r
-        (case\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l lookup rbt r of Some l \<Rightarrow> l)
-        (L.map
-          (class_unflat_aux rbt rbt_inv (insert r () rbt_cycle))
-          (case lookup rbt_inv r of None \<Rightarrow> [] | Some l \<Rightarrow> l)))"
+   (case lookup rbt_cycle r of None (* cycle detection *) \<Rightarrow>
+      map_option
+        (OclClass
+          r
+          (case\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l lookup rbt r of Some l \<Rightarrow> l))
+        (L.bind (class_unflat_aux rbt rbt_inv (insert r () rbt_cycle))
+                id
+                (case\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l lookup rbt_inv r of None \<Rightarrow> [] | Some l \<Rightarrow> l))
+    | _ \<Rightarrow> None)"
 *)
    "class_unflat_aux rbt rbt_inv rbt_cycle r =
-   (case lookup rbt_inv r of
-  None \<Rightarrow>
-(case lookup rbt_cycle r of (None (* cycle detection *)) \<Rightarrow>
-      OclClass
-        r
-        (case\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l lookup rbt r of Some l \<Rightarrow> l)
-        ( ( [])))
-| Some l \<Rightarrow>
-(case lookup rbt_cycle r of (None (* cycle detection *)) \<Rightarrow>
-      OclClass
-        r
-        (case\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l lookup rbt r of Some l \<Rightarrow> l)
-        (L.map
-          (class_unflat_aux rbt rbt_inv (insert r () rbt_cycle))
-          ( l))))"
+   (case\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l lookup rbt_inv r of None \<Rightarrow> 
+      (case lookup rbt_cycle r of None (* cycle detection *) \<Rightarrow>
+            map_option
+              (OclClass
+                r
+                (case\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l lookup rbt r of Some l \<Rightarrow> l))
+              ((\<lambda>f0 f l.
+          let l = List.map f0 l in
+            if list_ex (\<lambda> None \<Rightarrow> True | _ \<Rightarrow> False) l then
+              None
+            else
+              Some (f (List.map_filter id l))) (class_unflat_aux rbt rbt_inv (insert r () rbt_cycle))
+                      id
+                      ([]))
+          | _ \<Rightarrow> None)
+    | Some l \<Rightarrow> 
+      (case lookup rbt_cycle r of None (* cycle detection *) \<Rightarrow>
+            map_option
+              (OclClass
+                r
+                (case\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l lookup rbt r of Some l \<Rightarrow> l))
+              ((\<lambda>f0 f l.
+          let l = List.map f0 l in
+            if list_ex (\<lambda> None \<Rightarrow> True | _ \<Rightarrow> False) l then
+              None
+            else
+              Some (f (List.map_filter id l))) (class_unflat_aux rbt rbt_inv (insert r () rbt_cycle))
+                      id
+                      (l))
+          | _ \<Rightarrow> None))"
 by pat_completeness auto
 
 termination
@@ -441,6 +458,13 @@ definition "class_unflat = (\<lambda> (l_class, l_ass).
       RBT.empty)
     RBT.empty
     const_oclany)"
+
+definition "class_unflat' x =
+ (case class_unflat x of None \<Rightarrow> OclClass const_oclany [] []
+                       | Some tree \<Rightarrow> tree)"
+
+fun nb_class where
+   "nb_class e = (\<lambda> OclClass _ _ l \<Rightarrow> Suc (List.fold (op + o nb_class) l 0)) e"
 
 definition "apply_optim_ass_arity ty_obj v =
   (if TyObj_ass_arity ty_obj \<le> 2 then None

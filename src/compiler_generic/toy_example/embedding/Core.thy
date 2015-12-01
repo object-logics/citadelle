@@ -171,7 +171,7 @@ definition "comp_env_input_class_mk f_try f_accu_reset f_fold f =
        (f_try (\<lambda> () \<Rightarrow>
          let D_input_meta0 = D_input_meta env
            ; (env, accu) =
-               let meta = class_unflat (arrange_ass True (D_toy_semantics env \<noteq> Gen_default) l_class (L.map (\<lambda> META_enum e \<Rightarrow> e) l_enum))
+               let meta = class_unflat' (arrange_ass True (D_toy_semantics env \<noteq> Gen_default) l_class (L.map (\<lambda> META_enum e \<Rightarrow> e) l_enum))
                  ; (env, accu) = List.fold (\<lambda> ast. comp_env_save ast (case ast of META_enum meta \<Rightarrow> fold_thy0 meta thy_enum) f)
                                            l_enum
                                            (let env = compiler_env_config_reset_no_env env in

@@ -41,13 +41,6 @@ theory  Floor1_examp
 imports Core_init
 begin
 
-definition "list_bind f0 f l =
- (let l = L.map f0 l in
-  if list_ex (\<lambda> None \<Rightarrow> True | _ \<Rightarrow> False) l then
-    None
-  else
-    Some (f (List.map_filter id l)))"
-
 definition "rbt_of_class env =
   (let rbt = (snd o fold_class_gen (\<lambda>_ name l_attr l_inh _ _ rbt.
      ( [()]

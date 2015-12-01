@@ -174,6 +174,13 @@ fun map_find_aux where
                                                 | None \<Rightarrow> map_find_aux (x # accu) f xs)) l"
 definition "map_find = map_find_aux []"
 
+definition "bind f0 f l =
+ (let l = L.map f0 l in
+  if list_ex (\<lambda> None \<Rightarrow> True | _ \<Rightarrow> False) l then
+    None
+  else
+    Some (f (List.map_filter id l)))"
+
 end
 notation L.append (infixr "@@@@" 65)
 
@@ -199,6 +206,7 @@ lemmas [code] =
   L.nsplit_f_def
   L.replace_def
   L.map_find_def
+  L.bind_def
 
   (*fun*)
   L.map_find_aux.simps

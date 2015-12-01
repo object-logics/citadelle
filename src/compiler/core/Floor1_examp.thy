@@ -116,13 +116,6 @@ fun has_invalid where
                      | Return_err_l l \<Rightarrow> list_ex has_invalid l
                      | _ \<Rightarrow> False) e"
 
-definition "list_bind f0 f l =
- (let l = L.map f0 l in
-  if list_ex (\<lambda> None \<Rightarrow> True | _ \<Rightarrow> False) l then
-    None
-  else
-    Some (f (List.map_filter id l)))"
-
 definition "list_bind\<^sub>e\<^sub>r\<^sub>r f0 f l =
  (case List.partition (\<lambda> Return_err _ \<Rightarrow> True | _ \<Rightarrow> False) (L.map f0 l) of
     ([], l) \<Rightarrow> Return_val (f (L.map (\<lambda> Return_val e \<Rightarrow> e) l))
@@ -635,8 +628,28 @@ definition "print_examp_instance_app_constr2_notmp_norec = (\<lambda>(rbt, (map_
 
 definition' \<open>print_examp_instance_defassoc_typecheck_gen l_ocli env =
  (let l_enum = List.map_filter (\<lambda>META_enum e \<Rightarrow> Some e | _ \<Rightarrow> None) (D_input_meta env)
-    ; (l_spec1, l_spec2) = arrange_ass False True (fst (find_class_ass env)) l_enum
-    ; spec = class_unflat (l_spec1, l_spec2)
+    ; (l_spec1, l_spec2) = arrange_ass False True (fst (find_class_ass env)) l_enum in
+
+  case class_unflat (l_spec1, l_spec2) of None \<Rightarrow> [ raise_ml [(Error, \<open>The universe of classes contains a cycle\<close>)]
+                                                             \<open> error(s)\<close> ]
+                                        | Some spec \<Rightarrow> (* cycles could still occur, but not in "spec" *)
+  let raise_ml =
+    if length l_spec1 + (if list_ex (\<lambda> c. case ClassRaw_name c of
+                                            OclTyObj (OclTyCore_pre s) [] \<Rightarrow> s \<triangleq> const_oclany
+                                          | _ \<Rightarrow> False) l_spec1 then 0 else 1)
+       > nb_class spec then
+      \<lambda>l. raise_ml ((Warning, \<open>Some classes have been ignored because of duplications of classes, the absence of classes inheriting from OclAny or the presence of cycles.\n\<close> @@
+                              \<open>The classes considered for the generation are only:\n  \<close> @@
+                               String_concatWith \<open>, \<close>
+                                 (rev (fst (fold_class (\<lambda> _ name _ _ _.
+                                                         \<lambda> [] \<Rightarrow> Pair name
+                                                         | l \<Rightarrow> Pair (name @@ \<open>[\<close> @@ String_concatWith \<open>, \<close> (L.map (\<lambda> OclClass n _ _ \<Rightarrow> n) l) @@ \<open>]\<close>))
+                                                       ()
+                                                       spec))))
+                   # l)
+    else
+      raise_ml
+
     ; env = env \<lparr> D_input_class := Some spec \<rparr>
     ; l_assoc = List.map_filter id l_ocli in
   if list_ex (\<lambda>ocli. inst_ty0 ocli = None) l_assoc then
