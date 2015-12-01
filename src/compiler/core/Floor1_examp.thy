@@ -633,23 +633,54 @@ definition' \<open>print_examp_instance_defassoc_typecheck_gen l_ocli env =
   case class_unflat (l_spec1, l_spec2) of None \<Rightarrow> [ raise_ml [(Error, \<open>The universe of classes contains a cycle\<close>)]
                                                              \<open> error(s)\<close> ]
                                         | Some spec \<Rightarrow> (* cycles could still occur, but not in "spec" *)
-  let raise_ml =
-    if length l_spec1 + (if list_ex (\<lambda> c. case ClassRaw_name c of
-                                            OclTyObj (OclTyCore_pre s) [] \<Rightarrow> s \<triangleq> const_oclany
-                                          | _ \<Rightarrow> False) l_spec1 then 0 else 1)
-       > nb_class spec then
-      \<lambda>l. raise_ml ((Warning, \<open>Some classes have been ignored because of duplications of classes, the absence of classes inheriting from OclAny or the presence of cycles.\n\<close> @@
-                              \<open>The classes considered for the generation are only:\n  \<close> @@
-                               String_concatWith \<open>, \<close>
-                                 (rev (fst (fold_class (\<lambda> _ name _ _ _.
-                                                         \<lambda> [] \<Rightarrow> Pair name
-                                                         | l \<Rightarrow> Pair (name @@ \<open>[\<close> @@ String_concatWith \<open>, \<close> (L.map (\<lambda> OclClass n _ _ \<Rightarrow> n) l) @@ \<open>]\<close>))
-                                                       ()
-                                                       spec))))
-                   # l)
-    else
+  let raise_ml_warn = \<lambda>s raise_ml l. raise_ml ((Warning, s) # l)
+    ; raise_ml =
+      (if length l_spec1 + (if list_ex (\<lambda> c. cl_name_to_string c \<triangleq> const_oclany) l_spec1 then 0 else 1)
+          > nb_class spec then
+         raise_ml_warn (\<open>Some classes have been ignored because of duplications of classes, the absence of classes inheriting from OclAny or the presence of cycles.\n\<close> @@
+                        \<open>The classes considered for the generation are only:\n  \<close> @@
+                         String_concatWith \<open>, \<close>
+                           (rev (fst (fold_class (\<lambda> _ name _ _ _.
+                                                   \<lambda> [] \<Rightarrow> Pair name
+                                                   | l \<Rightarrow> Pair (name @@ \<open>[\<close> @@ String_concatWith \<open>, \<close> (L.map (\<lambda> OclClass n _ _ \<Rightarrow> n) l) @@ \<open>]\<close>))
+                                                 ()
+                                                 spec))))
+       else id)
       raise_ml
-
+    ; raise_ml = 
+      (case 
+         RBT.entries (List.fold (\<lambda> c l.
+                     snd (List.fold (\<lambda> (s, _) (rbt, l).
+                                       case lookup rbt s of
+                                         None \<Rightarrow> (insert s () rbt, l)
+                                       | Some _ \<Rightarrow> (rbt, insert s (cl_name_to_string c) l))
+                                    (ClassRaw_own c)
+                                    (RBT.empty, l)))
+                   l_spec1
+                   RBT.empty) of
+         [] \<Rightarrow> id
+       | l \<Rightarrow> raise_ml_warn (\<open>Duplicate constant declaration:\n\<close> @@
+                             String_concatWith \<open>\n\<close> (L.map (\<lambda>(s, name). \<open>  \<close> @@ name @@ \<open>: \<close> @@ \<lless>s\<ggreater>) l)))
+      raise_ml
+    ; raise_ml = 
+      (case
+         L.map fst
+           (RBT.entries
+             (List.fold
+               (\<lambda>ass accu. case OclAss_relation ass of OclAssRel l \<Rightarrow> 
+                 snd (List.fold (\<lambda>(_, m).
+                                   case TyRole m of None \<Rightarrow> id
+                                   | Some name \<Rightarrow> \<lambda>(rbt, accu).
+                                      (case lookup rbt name of None \<Rightarrow> (insert name () rbt, accu)
+                                                             | Some _ \<Rightarrow> (rbt, insert name () accu)))
+                                l
+                                (RBT.empty, accu)))
+               l_spec2
+               RBT.empty)) of
+         [] \<Rightarrow> id
+       | l \<Rightarrow> raise_ml_warn (\<open>Duplicate constant declaration in association:\n\<close> @@
+                             String_concatWith \<open>\n\<close> (L.map (\<lambda>s. \<open>  \<close> @@ \<lless>s\<ggreater>) l)))
+      raise_ml
     ; env = env \<lparr> D_input_class := Some spec \<rparr>
     ; l_assoc = List.map_filter id l_ocli in
   if list_ex (\<lambda>ocli. inst_ty0 ocli = None) l_assoc then

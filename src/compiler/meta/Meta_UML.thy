@@ -409,6 +409,8 @@ qed
 definition "ty_obj_to_string = (\<lambda>OclTyObj (OclTyCore_pre s) _ \<Rightarrow> s)"
 definition "cl_name_to_string = ty_obj_to_string o ClassRaw_name"
 
+definition "normalize f l = L.map snd (RBT.entries (RBT.bulkload (L.map (\<lambda>x. (f x, x)) l)))"
+
 definition "class_unflat = (\<lambda> (l_class, l_ass).
   let l =
     let const_oclany' = OclTyCore_pre const_oclany
@@ -425,23 +427,30 @@ definition "class_unflat = (\<lambda> (l_class, l_ass).
     (* fold associations:
        add remaining 'object' attributes *)
     L.map snd (entries (List.fold (\<lambda> (ass_oid, ass) \<Rightarrow>
-      let l_rel = OclAss_relation' ass in
-      fold_max
-        (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l n_rel = natural_of_nat (List.length l_rel) in
-         (\<lambda> (cpt_to, (name_to, category_to)).
-           case TyRole category_to of
-             Some role_to \<Rightarrow>
-               List.fold (\<lambda> (cpt_from, (name_from, mult_from)).
-                 let name_from = ty_obj_to_string name_from in
-                 map_entry name_from (\<lambda>cflat. cflat \<lparr> ClassRaw_own := (role_to,
-                   OclTy_class (ocl_ty_class_ext const_oid ass_oid n_rel
-                     (ocl_ty_class_node_ext cpt_from mult_from name_from ())
-                     (ocl_ty_class_node_ext cpt_to category_to (ty_obj_to_string name_to) ())
-                     ())) # ClassRaw_own cflat \<rparr>))
-           | _ \<Rightarrow> \<lambda>_. id))
+      case let (l_none, l_some) = List.partition (\<lambda>(_, m). TyRole m = None) (OclAss_relation' ass ) in
+           L.flatten [l_none, normalize (\<lambda>(_, m). case TyRole m of Some s \<Rightarrow> String.to_list s) l_some] of
+        [] \<Rightarrow> id
+      | [_] \<Rightarrow> id
+      | l_rel \<Rightarrow>
+        fold_max
+          (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l n_rel = natural_of_nat (List.length l_rel) in
+           (\<lambda> (cpt_to, (name_to, category_to)).
+             case TyRole category_to of
+               Some role_to \<Rightarrow>
+                 List.fold (\<lambda> (cpt_from, (name_from, mult_from)).
+                   let name_from = ty_obj_to_string name_from in
+                   map_entry name_from (\<lambda>cflat. cflat \<lparr> ClassRaw_own := (role_to,
+                     OclTy_class (ocl_ty_class_ext const_oid ass_oid n_rel
+                       (ocl_ty_class_node_ext cpt_from mult_from name_from ())
+                       (ocl_ty_class_node_ext cpt_to category_to (ty_obj_to_string name_to) ())
+                       ())) # ClassRaw_own cflat \<rparr>))
+             | _ \<Rightarrow> \<lambda>_. id))
         l_rel) (L.mapi Pair l_ass) rbt)) in
   class_unflat_aux
-    (List.fold (\<lambda> cflat. insert (cl_name_to_string cflat) (L.map (map_prod id remove_binding) (ClassRaw_own cflat))) l RBT.empty)
+    (List.fold (\<lambda> cflat. insert (cl_name_to_string cflat)
+                                (normalize (String.to_list o fst) (L.map (map_prod id remove_binding) (ClassRaw_own cflat))))
+               l
+               RBT.empty)
     (List.fold
       (\<lambda> cflat.
         case ClassRaw_name cflat of
