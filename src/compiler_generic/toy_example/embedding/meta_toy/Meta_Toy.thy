@@ -373,7 +373,14 @@ qed
 definition "ty_obj_to_string = (\<lambda>ToyTyObj (ToyTyCore_pre s) _ \<Rightarrow> s)"
 definition "cl_name_to_string = ty_obj_to_string o ClassRaw_name"
 
-definition "normalize f l = L.map snd (RBT.entries (RBT.bulkload (L.map (\<lambda>x. (f x, x)) l)))"
+definition "normalize f l =
+  rev (snd (List.fold (\<lambda>x (rbt, l).
+                        let x0 = f x in
+                        case RBT.lookup rbt x0 of
+                          None \<Rightarrow> (RBT.insert x0 () rbt, x # l)
+                        | Some _ \<Rightarrow> (rbt, l))
+                      l
+                      (RBT.empty, [])))"
 
 definition "class_unflat = (\<lambda> (l_class, l_ass).
   let l =
