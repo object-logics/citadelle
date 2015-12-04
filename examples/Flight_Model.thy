@@ -50,17 +50,6 @@ imports
   (* separate compilation : UML_OCL *)
 begin
 
-generation_syntax [ (*deep
-                      (*(generation_semantics [ analysis (*, oid_start 10*) ])*)
-                      (THEORY Model_generated)
-                      (IMPORTS ["../src/UML_Main", "../src/compiler/Static"]
-                               "../src/compiler/Generator_dynamic")
-                      SECTION
-                      (*SORRY*)
-                      [ in SML module_name M ]
-                      (output_directory "../doc")
-                  ,*) shallow (*SORRY*) ]
-
 section{* Class Model *}
 
 Class Flight
@@ -675,8 +664,6 @@ lemma cancel\<^sub>n\<^sub>o\<^sub>n\<^sub>b\<^sub>l\<^sub>o\<^sub>c\<^sub>k\<^s
 by(subst cp_valid, simp, subst cp_valid[symmetric],
    simp add: C1_valid[simplified OclValid_def \<sigma>\<^sub>t\<^sub>1_\<sigma>\<^sub>s\<^sub>1[symmetric]])
 
-
-thm cancel\<^sub>p\<^sub>r\<^sub>e_def
 lemma cancel\<^sub>i\<^sub>m\<^sub>p\<^sub>l\<^sub>e\<^sub>m\<^sub>e\<^sub>n\<^sub>t\<^sub>a\<^sub>b\<^sub>l\<^sub>e :
  assumes self_defined: "\<And>\<sigma> \<sigma>'. (\<sigma>, \<sigma>') \<Turnstile> \<delta> self"  (* self must be defined; since self is an 
                                               object representation (and not a reference)

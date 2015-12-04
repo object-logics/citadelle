@@ -53,7 +53,7 @@ imports
   (* separate compilation : UML_OCL *)
 begin
 
-generation_syntax [  shallow  ]
+generation_syntax [ shallow ]
 
 section{* The Class Model *}
 
