@@ -49,6 +49,17 @@ imports
   "../src/UML_OCL"
 begin
 
+generation_syntax [ (*deep
+                      (*(generation_semantics [ analysis (*, oid_start 10*) ])*)
+                      (THEORY Model_generated)
+                      (IMPORTS ["../src/UML_Main", "../src/compiler/Static"]
+                               "../src/compiler/Generator_dynamic")
+                      SECTION
+                      (*SORRY*)
+                      [ in SML module_name M ]
+                      (output_directory "../doc")
+                  ,*) shallow (*SORRY*) ]
+
 Class Bank
   Attributes name : String
 

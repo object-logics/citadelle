@@ -53,6 +53,8 @@ imports
   (* separate compilation : UML_OCL *)
 begin
 
+generation_syntax [  shallow  ]
+
 section{* The Class Model *}
 
 Class Node
@@ -62,7 +64,7 @@ End
 
 Class List
   Attributes content : Node
-End
+End!
 
 section{* ... and its Annotation by OCL Constraints  *}
 
