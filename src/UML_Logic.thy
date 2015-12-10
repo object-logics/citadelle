@@ -702,6 +702,12 @@ syntax OclNonValid  :: "[('\<AA>)st, ('\<AA>)Boolean] \<Rightarrow> bool" ("(1(_
 
 translations "\<tau> |\<noteq> P" == "\<not>(\<tau> \<Turnstile> P)" 
 
+definition OclValid_at_pre  :: "[('\<AA>)state, ('\<AA>)Boolean] \<Rightarrow> bool" ("(1(_)/ \<Turnstile>\<^sub>p\<^sub>r\<^sub>e (_))" 50)
+where     "\<sigma> \<Turnstile>\<^sub>p\<^sub>r\<^sub>e P \<equiv> (\<forall>\<sigma>\<^sub>p\<^sub>o\<^sub>s\<^sub>t. (\<sigma>, \<sigma>\<^sub>p\<^sub>o\<^sub>s\<^sub>t) \<Turnstile> P)"
+
+definition OclValid_at_post  :: "[('\<AA>)state, ('\<AA>)Boolean] \<Rightarrow> bool" ("(1(_)/ \<Turnstile>\<^sub>p\<^sub>o\<^sub>s\<^sub>t (_))" 50)
+where     "\<sigma> \<Turnstile>\<^sub>p\<^sub>o\<^sub>s\<^sub>t P \<equiv> (\<forall>\<sigma>\<^sub>p\<^sub>r\<^sub>e. (\<sigma>\<^sub>p\<^sub>r\<^sub>e, \<sigma>) \<Turnstile> P)"
+
 subsubsection{* Global vs. Local Judgements*}
 lemma transform1: "P = true \<Longrightarrow> \<tau> \<Turnstile> P"
 by(simp add: OclValid_def)
@@ -1081,7 +1087,63 @@ lemmas cp_intro[intro!,simp,code_unfold] =
 
 text_raw{* \endisatagafp *}
        
-       
+
+subsubsection{* Local Judgements and Strong Equality (at pre) *}
+
+lemma StrongEq_L_sym\<^sub>p\<^sub>r\<^sub>e: "\<sigma>\<^sub>p\<^sub>r\<^sub>e \<Turnstile>\<^sub>p\<^sub>r\<^sub>e (x \<triangleq> y) \<Longrightarrow> \<sigma>\<^sub>p\<^sub>r\<^sub>e \<Turnstile>\<^sub>p\<^sub>r\<^sub>e (y \<triangleq> x)"
+by(simp add: StrongEq_sym)
+
+lemma StrongEq_L_subst2\<^sub>p\<^sub>r\<^sub>e:"cp P \<Longrightarrow> \<sigma>\<^sub>p\<^sub>r\<^sub>e \<Turnstile>\<^sub>p\<^sub>r\<^sub>e (x \<triangleq> y) \<Longrightarrow> \<sigma>\<^sub>p\<^sub>r\<^sub>e \<Turnstile>\<^sub>p\<^sub>r\<^sub>e (P x) \<Longrightarrow> \<sigma>\<^sub>p\<^sub>r\<^sub>e \<Turnstile>\<^sub>p\<^sub>r\<^sub>e (P y)"
+by(auto simp: OclValid_def OclValid_at_pre_def StrongEq_def true_def cp_def)
+
+lemma StrongEq_L_subst2_rev\<^sub>p\<^sub>r\<^sub>e: "\<sigma>\<^sub>p\<^sub>r\<^sub>e \<Turnstile>\<^sub>p\<^sub>r\<^sub>e y \<triangleq> x \<Longrightarrow> cp P \<Longrightarrow> \<sigma>\<^sub>p\<^sub>r\<^sub>e \<Turnstile>\<^sub>p\<^sub>r\<^sub>e P x \<Longrightarrow> \<sigma>\<^sub>p\<^sub>r\<^sub>e \<Turnstile>\<^sub>p\<^sub>r\<^sub>e P y"
+apply(erule StrongEq_L_subst2\<^sub>p\<^sub>r\<^sub>e)
+apply(erule StrongEq_L_sym\<^sub>p\<^sub>r\<^sub>e)  
+by assumption
+
+lemma  StrongEq_L_subst3\<^sub>p\<^sub>r\<^sub>e:
+assumes cp: "cp P"
+and     eq: "\<sigma>\<^sub>p\<^sub>r\<^sub>e \<Turnstile>\<^sub>p\<^sub>r\<^sub>e (x \<triangleq> y)"
+shows       "(\<sigma>\<^sub>p\<^sub>r\<^sub>e \<Turnstile>\<^sub>p\<^sub>r\<^sub>e P x) = (\<sigma>\<^sub>p\<^sub>r\<^sub>e \<Turnstile>\<^sub>p\<^sub>r\<^sub>e P y)"
+apply(rule iffI)
+apply(rule StrongEq_L_subst2\<^sub>p\<^sub>r\<^sub>e[OF cp,OF eq],simp)
+apply(rule StrongEq_L_subst2\<^sub>p\<^sub>r\<^sub>e[OF cp,OF eq[THEN StrongEq_L_sym\<^sub>p\<^sub>r\<^sub>e]],simp)
+done
+
+lemma  StrongEq_L_subst3_rev\<^sub>p\<^sub>r\<^sub>e:
+assumes eq: "\<sigma>\<^sub>p\<^sub>r\<^sub>e \<Turnstile>\<^sub>p\<^sub>r\<^sub>e (x \<triangleq> y)" 
+and     cp: "cp P"
+shows       "(\<sigma>\<^sub>p\<^sub>r\<^sub>e \<Turnstile>\<^sub>p\<^sub>r\<^sub>e P x) = (\<sigma>\<^sub>p\<^sub>r\<^sub>e \<Turnstile>\<^sub>p\<^sub>r\<^sub>e P y)"
+by(insert cp, erule StrongEq_L_subst3\<^sub>p\<^sub>r\<^sub>e, rule eq)
+
+subsubsection{* Local Judgements and Strong Equality (at post) *}
+
+lemma StrongEq_L_sym\<^sub>p\<^sub>o\<^sub>s\<^sub>t: "\<sigma>\<^sub>p\<^sub>o\<^sub>s\<^sub>t \<Turnstile>\<^sub>p\<^sub>o\<^sub>s\<^sub>t (x \<triangleq> y) \<Longrightarrow> \<sigma>\<^sub>p\<^sub>o\<^sub>s\<^sub>t \<Turnstile>\<^sub>p\<^sub>o\<^sub>s\<^sub>t (y \<triangleq> x)"
+by(simp add: StrongEq_sym)
+
+lemma StrongEq_L_subst2\<^sub>p\<^sub>o\<^sub>s\<^sub>t:"cp P \<Longrightarrow> \<sigma>\<^sub>p\<^sub>o\<^sub>s\<^sub>t \<Turnstile>\<^sub>p\<^sub>o\<^sub>s\<^sub>t (x \<triangleq> y) \<Longrightarrow> \<sigma>\<^sub>p\<^sub>o\<^sub>s\<^sub>t \<Turnstile>\<^sub>p\<^sub>o\<^sub>s\<^sub>t (P x) \<Longrightarrow> \<sigma>\<^sub>p\<^sub>o\<^sub>s\<^sub>t \<Turnstile>\<^sub>p\<^sub>o\<^sub>s\<^sub>t (P y)"
+by(auto simp: OclValid_def OclValid_at_post_def StrongEq_def true_def cp_def)
+
+lemma StrongEq_L_subst2_rev\<^sub>p\<^sub>o\<^sub>s\<^sub>t: "\<sigma>\<^sub>p\<^sub>o\<^sub>s\<^sub>t \<Turnstile>\<^sub>p\<^sub>o\<^sub>s\<^sub>t y \<triangleq> x \<Longrightarrow> cp P \<Longrightarrow> \<sigma>\<^sub>p\<^sub>o\<^sub>s\<^sub>t \<Turnstile>\<^sub>p\<^sub>o\<^sub>s\<^sub>t P x \<Longrightarrow> \<sigma>\<^sub>p\<^sub>o\<^sub>s\<^sub>t \<Turnstile>\<^sub>p\<^sub>o\<^sub>s\<^sub>t P y"
+apply(erule StrongEq_L_subst2\<^sub>p\<^sub>o\<^sub>s\<^sub>t)
+apply(erule StrongEq_L_sym\<^sub>p\<^sub>o\<^sub>s\<^sub>t)  
+by assumption
+
+lemma  StrongEq_L_subst3\<^sub>p\<^sub>o\<^sub>s\<^sub>t:
+assumes cp: "cp P"
+and     eq: "\<sigma>\<^sub>p\<^sub>o\<^sub>s\<^sub>t \<Turnstile>\<^sub>p\<^sub>o\<^sub>s\<^sub>t (x \<triangleq> y)"
+shows       "(\<sigma>\<^sub>p\<^sub>o\<^sub>s\<^sub>t \<Turnstile>\<^sub>p\<^sub>o\<^sub>s\<^sub>t P x) = (\<sigma>\<^sub>p\<^sub>o\<^sub>s\<^sub>t \<Turnstile>\<^sub>p\<^sub>o\<^sub>s\<^sub>t P y)"
+apply(rule iffI)
+apply(rule StrongEq_L_subst2\<^sub>p\<^sub>o\<^sub>s\<^sub>t[OF cp,OF eq],simp)
+apply(rule StrongEq_L_subst2\<^sub>p\<^sub>o\<^sub>s\<^sub>t[OF cp,OF eq[THEN StrongEq_L_sym\<^sub>p\<^sub>o\<^sub>s\<^sub>t]],simp)
+done
+
+lemma  StrongEq_L_subst3_rev\<^sub>p\<^sub>o\<^sub>s\<^sub>t:
+assumes eq: "\<sigma>\<^sub>p\<^sub>o\<^sub>s\<^sub>t \<Turnstile>\<^sub>p\<^sub>o\<^sub>s\<^sub>t (x \<triangleq> y)" 
+and     cp: "cp P"
+shows       "(\<sigma>\<^sub>p\<^sub>o\<^sub>s\<^sub>t \<Turnstile>\<^sub>p\<^sub>o\<^sub>s\<^sub>t P x) = (\<sigma>\<^sub>p\<^sub>o\<^sub>s\<^sub>t \<Turnstile>\<^sub>p\<^sub>o\<^sub>s\<^sub>t P y)"
+by(insert cp, erule StrongEq_L_subst3\<^sub>p\<^sub>o\<^sub>s\<^sub>t, rule eq)
+
 subsection{* OCL's if then else endif *}
 
 definition OclIf :: "[('\<AA>)Boolean , ('\<AA>,'\<alpha>::null) val, ('\<AA>,'\<alpha>) val] \<Rightarrow> ('\<AA>,'\<alpha>) val"
@@ -1371,6 +1433,14 @@ lemmas const_ss = const_bot const_null  const_invalid  const_false  const_true  
                   const_OclOr const_OclImplies const_OclIf
                   const_HOL_if const_HOL_and const_HOL_eq
                
+text{* Miscellaneous: Recovering the definition of
+                      @{term OclValid_at_pre} and @{term OclValid_at_post} *}
+
+lemma OclValid_at_pre': "const X \<Longrightarrow> \<tau> \<Turnstile> X \<Longrightarrow> fst \<tau> \<Turnstile>\<^sub>p\<^sub>r\<^sub>e X"
+by (metis OclValid_at_pre_def OclValid_def const_charn true_def)
+
+lemma OclValid_at_post': "const X \<Longrightarrow> \<tau> \<Turnstile> X \<Longrightarrow> snd \<tau> \<Turnstile>\<^sub>p\<^sub>o\<^sub>s\<^sub>t X"
+by (metis OclValid_at_post_def OclValid_def const_charn true_def)
 
 text{* Miscellaneous: Overloading the syntax of ``bottom'' *}
 
