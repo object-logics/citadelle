@@ -155,7 +155,9 @@ definition "print_ctxt_pre_post = (\<lambda>f. map_prod L.flatten id o f) o L.ma
     ; f = \<lambda> (var_at_when_hol, var_at_when_ocl).
         let dot_expr = \<lambda>e f_escape. Term_postunary e (b (mk_dot_par_gen (S.flatten [\<open>.\<close>, attr_n, var_at_when_ocl]) (L.map (f_escape o fst) (Ctxt_fun_ty_arg ctxt)))) in
         (\<lambda>\<^sub>S\<^sub>c\<^sub>a\<^sub>l\<^sub>aenv.
-            let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l var_r = var_result
+            let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l (l_pre, l_post) = ( to_s OclCtxtPre (print_ctxt_to_ocl_pre env) l_pre
+                                      , to_s OclCtxtPost id l_post)
+              ; var_r = var_result
               ; expr = 
               Term_rewrite
                 (dot_expr (Term_annot_ocl (b var_self) ty_name) id)
@@ -167,9 +169,9 @@ definition "print_ctxt_pre_post = (\<lambda>f. map_prod L.flatten id o f) o L.ma
                                           , Term_lambda var_result
                                                         (Term_parenthesis (Term_if_then_else (term_binop0 \<open>True\<close> \<open>\<and>\<close> (f_tau (a \<open>\<delta>\<close> (b var_self)) # L.map (\<lambda>s. f_tau (a \<open>\<upsilon>\<close> (b (fst s)))) (Ctxt_fun_ty_arg ctxt)))
                                                                                              (Term_binop
-                                                                                               (f_tau (to_s OclCtxtPre (print_ctxt_to_ocl_pre env) l_pre))
+                                                                                               (f_tau l_pre)
                                                                                                \<open>\<and>\<close>
-                                                                                               (f_tau (to_s OclCtxtPost (print_ctxt_to_ocl_post env) l_post)))
+                                                                                               (f_tau l_post))
                                                                                              (f_tau (Term_rewrite (b var_result) \<open>\<triangleq>\<close> (b \<open>invalid\<close>)))))]))))
               ; (name0, def) =
                  (if 
@@ -199,8 +201,8 @@ definition "print_ctxt_pre_post = (\<lambda>f. map_prod L.flatten id o f) o L.ma
                       ctxt
                       (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l v = b var_self in
                        Term_lambdas0 (Term_annot_ocl v ty_name) (a name v))
-                      (OclCtxtPre, to_s OclCtxtPre (print_ctxt_to_ocl_pre env) l_pre)
-                      (OclCtxtPost, to_s OclCtxtPost (print_ctxt_to_ocl_post env) l_post) of
+                      (OclCtxtPre, l_pre)
+                      (OclCtxtPost, l_post) of
                  None \<Rightarrow> []
                | Some x \<Rightarrow> [x]))
         # (\<lambda>\<^sub>S\<^sub>c\<^sub>a\<^sub>l\<^sub>aenv. 
