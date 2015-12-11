@@ -322,6 +322,15 @@ by(rule ext, auto simp: StrongEq_def)
 lemma [simp,code_unfold]: "(false \<triangleq> true) = false"
 by(rule ext, auto simp: StrongEq_def)
 
+text{* We are also interested in equalities that need only one part of the state transition. *}
+definition StrongEq\<^sub>p\<^sub>r\<^sub>e::"['\<AA> st \<Rightarrow> '\<alpha>,'\<AA> st \<Rightarrow> '\<alpha>] \<Rightarrow> ('\<AA>)Boolean"  (infixl "\<triangleq>\<^sub>p\<^sub>r\<^sub>e" 30)
+where     "X \<triangleq>\<^sub>p\<^sub>r\<^sub>e Y \<equiv>  \<lambda> (\<sigma>,_). \<lfloor>\<lfloor> \<forall> \<sigma>' \<sigma>''. X (\<sigma>,\<sigma>') = Y (\<sigma>,\<sigma>'') \<rfloor>\<rfloor>"
+
+
+definition StrongEq\<^sub>p\<^sub>o\<^sub>s\<^sub>t::"['\<AA> st \<Rightarrow> '\<alpha>,'\<AA> st \<Rightarrow> '\<alpha>] \<Rightarrow> ('\<AA>)Boolean"  (infixl "\<triangleq>\<^sub>p\<^sub>o\<^sub>s\<^sub>t" 30)
+where     "X \<triangleq>\<^sub>p\<^sub>o\<^sub>s\<^sub>t Y \<equiv>  \<lambda> (_,\<sigma>). \<lfloor>\<lfloor> \<forall> \<sigma>' \<sigma>''. X (\<sigma>',\<sigma>) = Y (\<sigma>'',\<sigma>) \<rfloor>\<rfloor>"
+
+
 
 subsubsection{* Fundamental Predicates on Strong Equality *}
 
@@ -1263,7 +1272,8 @@ qed
 
 subsection{* A Side-calculus for Constant Terms *}
 
-definition "const X \<equiv> \<forall> \<tau> \<tau>'. X \<tau> = X \<tau>'"
+definition "const X \<equiv> \<forall> \<tau> \<tau>'. X \<tau> = X \<tau>'" 
+notation const ("\<TTurnstile> (_)")
 
 lemma const_charn: "const X \<Longrightarrow> X \<tau> = X \<tau>'"
 by(auto simp: const_def)
@@ -1436,11 +1446,27 @@ lemmas const_ss = const_bot const_null  const_invalid  const_false  const_true  
 text{* Miscellaneous: Recovering the definition of
                       @{term OclValid_at_pre} and @{term OclValid_at_post} *}
 
+lemma "\<forall>\<tau>. \<tau> \<Turnstile> X \<triangleq>\<^sub>p\<^sub>r\<^sub>e Y \<Longrightarrow> X (\<sigma>,\<sigma>') = Y (\<sigma>,\<sigma>'')"
+unfolding OclValid_def true_def StrongEq\<^sub>p\<^sub>r\<^sub>e_def
+by auto
+
+lemma "\<forall>\<tau>. \<tau> \<Turnstile> X \<triangleq>\<^sub>p\<^sub>o\<^sub>s\<^sub>t Y \<Longrightarrow> X (\<sigma>',\<sigma>) = Y (\<sigma>'',\<sigma>)"
+unfolding OclValid_def true_def StrongEq\<^sub>p\<^sub>o\<^sub>s\<^sub>t_def
+by auto
+
 lemma OclValid_at_pre': "const X \<Longrightarrow> \<tau> \<Turnstile> X \<Longrightarrow> fst \<tau> \<Turnstile>\<^sub>p\<^sub>r\<^sub>e X"
 by (metis OclValid_at_pre_def OclValid_def const_charn true_def)
 
 lemma OclValid_at_post': "const X \<Longrightarrow> \<tau> \<Turnstile> X \<Longrightarrow> snd \<tau> \<Turnstile>\<^sub>p\<^sub>o\<^sub>s\<^sub>t X"
 by (metis OclValid_at_post_def OclValid_def const_charn true_def)
+
+
+lemma OclValid_at_pre'' : "\<forall>\<sigma>. \<sigma> \<Turnstile>\<^sub>p\<^sub>r\<^sub>e X \<Longrightarrow>  const X"
+unfolding const_def OclValid_at_pre_def OclValid_def true_def by simp
+
+lemma OclValid_at_post'' : "\<forall>\<sigma>. \<sigma> \<Turnstile>\<^sub>p\<^sub>o\<^sub>s\<^sub>t X \<Longrightarrow>  const X"
+unfolding const_def OclValid_at_post_def OclValid_def true_def by simp
+
 
 text{* Miscellaneous: Overloading the syntax of ``bottom'' *}
 
