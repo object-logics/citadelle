@@ -483,6 +483,14 @@ definition "Flight_A\<^sub>p\<^sub>o\<^sub>s\<^sub>t = (\<lambda>\<sigma>. \<sig
 lemma Flight_A_prepost_transfer: "Flight_Aat_pre (\<sigma>, \<sigma>') = Flight_A (\<sigma>'', \<sigma>)"
 oops
 
+lemma Flight_A_prepost_transfer' : "Flight_A\<^sub>p\<^sub>o\<^sub>s\<^sub>t = Flight_A\<^sub>p\<^sub>r\<^sub>e"
+unfolding Flight_A\<^sub>p\<^sub>r\<^sub>e_def Flight_A\<^sub>p\<^sub>o\<^sub>s\<^sub>t_def OclValid_at_pre_def OclValid_at_post_def
+apply(rule ext, auto)
+apply(erule_tac x="\<sigma>" in allE)
+prefer 2
+apply(erule_tac x="\<sigma>" in allE)
+oops
+
 section{* Model Analysis I: A satisfiability proof of the invariants. *}
 
 (* Junk : TO BE DONE IN LIBRARY -- bu *)
@@ -695,7 +703,7 @@ lemma cancel\<^sub>n\<^sub>o\<^sub>n\<^sub>b\<^sub>l\<^sub>o\<^sub>c\<^sub>k\<^s
 qed
 
 lemma cancel\<^sub>i\<^sub>m\<^sub>p\<^sub>l\<^sub>e\<^sub>m\<^sub>e\<^sub>n\<^sub>t\<^sub>a\<^sub>b\<^sub>l\<^sub>e :
-(* assumes pre_satisfied: "\<sigma> \<Turnstile>\<^sub>p\<^sub>r\<^sub>e (cancel\<^sub>p\<^sub>r\<^sub>e  self r)"*)
+ assumes pre_satisfied: "\<sigma> \<Turnstile>\<^sub>p\<^sub>r\<^sub>e (cancel\<^sub>p\<^sub>r\<^sub>e  self r)"
  shows                  "\<exists> \<sigma>' result. ((\<sigma>,\<sigma>') \<Turnstile> \<delta> self) \<longrightarrow>
                                       ((\<sigma>,\<sigma>') \<Turnstile> \<upsilon> r) \<longrightarrow>
                                       ((\<sigma>,\<sigma>') \<Turnstile> (cancel\<^sub>p\<^sub>o\<^sub>s\<^sub>t  self r result))"
@@ -737,6 +745,10 @@ proof -
           subst cp_OclSelect, simp)
  by(simp+)
 qed
+text{* Note that this proof does in fact not use the pre-condition; in the special case of the
+operation cancel, the post-condition is satisfiable for \emph{arbitrary} defined and valid input,
+even input that does not satisfy the pre-condition.*}
+
 
 find_theorems (350) name:"Client"
 lemmas [simp,code_unfold] = dot_accessor
