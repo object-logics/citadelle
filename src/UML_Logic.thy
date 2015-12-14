@@ -707,7 +707,7 @@ subsection{* A Standard Logical Calculus for OCL *}
 definition OclValid  :: "[('\<AA>)st, ('\<AA>)Boolean] \<Rightarrow> bool" ("(1(_)/ \<Turnstile> (_))" 50)
 where     "\<tau> \<Turnstile> P \<equiv> ((P \<tau>) = true \<tau>)"
 
-syntax OclNonValid  :: "[('\<AA>)st, ('\<AA>)Boolean] \<Rightarrow> bool" ("(1(_)/ |\<noteq> (_))" 50)
+syntax "_OclNonValid"  :: "[('\<AA>)st, ('\<AA>)Boolean] \<Rightarrow> bool" ("(1(_)/ |\<noteq> (_))" 50)
 
 translations "\<tau> |\<noteq> P" == "\<not>(\<tau> \<Turnstile> P)" 
 
@@ -1240,7 +1240,7 @@ consts StrictRefEq :: "[('\<AA>,'a)val,('\<AA>,'a)val] \<Rightarrow> ('\<AA>)Boo
 text{* with {term "not"} we can express the notation:*}
 
 syntax
-  "notequal"        :: "('\<AA>)Boolean \<Rightarrow> ('\<AA>)Boolean \<Rightarrow> ('\<AA>)Boolean"   (infix "<>" 40)
+  "_notequal"        :: "('\<AA>)Boolean \<Rightarrow> ('\<AA>)Boolean \<Rightarrow> ('\<AA>)Boolean"   (infix "<>" 40)
 translations
   "a <> b" == "CONST OclNot(a \<doteq> b)"
        
