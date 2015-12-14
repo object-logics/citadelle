@@ -216,6 +216,8 @@ prods:
   logic = "op" "has_real_derivative" => "\<^const>Deriv.has_real_derivative" (1000)
   logic = "op" "powr" => "\<^const>Transcendental.powr" (1000)
   logic = "op" "\<triangleq>" => "\<^const>UML_Logic.StrongEq" (1000)
+  logic = "op" "\<triangleq>\<^sub>p\<^sub>r\<^sub>e" => "\<^const>UML_Logic.StrongEq\<^sub>p\<^sub>r\<^sub>e" (1000)
+  logic = "op" "\<triangleq>\<^sub>p\<^sub>o\<^sub>s\<^sub>t" => "\<^const>UML_Logic.StrongEq\<^sub>p\<^sub>o\<^sub>s\<^sub>t" (1000)
   logic = "op" "and" => "\<^const>UML_Logic.OclAnd" (1000)
   logic = "op" "or" => "\<^const>UML_Logic.OclOr" (1000)
   logic = "op" "implies" => "\<^const>UML_Logic.OclImplies" (1000)
@@ -238,6 +240,7 @@ prods:
   logic = "op" "mod\<^sub>r\<^sub>e\<^sub>a\<^sub>l" => "\<^const>UML_Real.OclModulus\<^sub>R\<^sub>e\<^sub>a\<^sub>l" (1000)
   logic = "op" "<\<^sub>r\<^sub>e\<^sub>a\<^sub>l" => "\<^const>UML_Real.OclLess\<^sub>R\<^sub>e\<^sub>a\<^sub>l" (1000)
   logic = "op" "\<le>\<^sub>r\<^sub>e\<^sub>a\<^sub>l" => "\<^const>UML_Real.OclLe\<^sub>R\<^sub>e\<^sub>a\<^sub>l" (1000)
+  logic = "op" "\<cong>" => "\<^const>UML_Bag.ApproxEq" (1000)
   logic = "XCONST" longid_position[0] => "_context_xconst" (1000)
   logic = "XCONST" id_position[0] => "_context_xconst" (1000)
   logic = "CONST" longid_position[0] => "_context_const" (1000)
@@ -460,8 +463,6 @@ prods:
   logic = "\<eight>" => "\<^const>UML_Integer.OclInt8" (1000)
   logic = "\<nine>" => "\<^const>UML_Integer.OclInt9" (1000)
   logic = "\<one>\<zero>" => "\<^const>UML_Integer.OclInt10" (1000)
-  logic = "Bag{}" => "\<^const>UML_Bag.mtBag" (1000)
-  logic = "Bag{" args[0] "}" => "_OclFinbag" (1000)
   logic = "\<a>" => "\<^const>UML_String.OclStringa" (1000)
   logic = "\<b>" => "\<^const>UML_String.OclStringb" (1000)
   logic = "\<c>" => "\<^const>UML_String.OclStringc" (1000)
@@ -477,44 +478,32 @@ prods:
   logic = "\<nine>.\<zero>" => "\<^const>UML_Real.OclReal9" (1000)
   logic = "\<one>\<zero>.\<zero>" => "\<^const>UML_Real.OclReal10" (1000)
   logic = "\<pi>" => "\<^const>UML_Real.OclRealpi" (1000)
+  logic = "Bag{}" => "\<^const>UML_Bag.mtBag" (1000)
+  logic = "Bag{" args[0] "}" => "_OclFinbag" (1000)
   logic = "Set{}" => "\<^const>UML_Set.mtSet" (1000)
   logic = "Set{" args[0] "}" => "_OclFinset" (1000)
   logic = "Sequence{}" => "\<^const>UML_Sequence.mtSequence" (1000)
   logic = "Sequence{" args[0] "}" => "_OclFinsequence" (1000)
   logic = cartouche_position[0] => "_cartouche_oclstring" (1000)
   logic = "_'" => "_ocl_denotation" (1000)
-  logic = logic[0] "->asBag\<^sub>P\<^sub>a\<^sub>i\<^sub>r()" => "\<^const>UML_Library.OclAsBag\<^sub>P\<^sub>a\<^sub>i\<^sub>r"
-    (1000)
-  logic = logic[0] "->asBag\<^sub>S\<^sub>e\<^sub>t()" => "\<^const>UML_Library.OclAsBag\<^sub>S\<^sub>e\<^sub>t"
-    (1000)
-  logic = logic[0] "->asBag\<^sub>S\<^sub>e\<^sub>q()" => "\<^const>UML_Library.OclAsBag\<^sub>S\<^sub>e\<^sub>q"
-    (1000)
-  logic = logic[0] "->asSequence\<^sub>P\<^sub>a\<^sub>i\<^sub>r()"
-    => "\<^const>UML_Library.OclAsSeq\<^sub>P\<^sub>a\<^sub>i\<^sub>r" (1000)
-  logic = logic[0] "->asSequence\<^sub>B\<^sub>a\<^sub>g()" => "\<^const>UML_Library.OclAsSeq\<^sub>B\<^sub>a\<^sub>g"
-    (1000)
-  logic = logic[0] "->asSequence\<^sub>S\<^sub>e\<^sub>t()" => "\<^const>UML_Library.OclAsSeq\<^sub>S\<^sub>e\<^sub>t"
-    (1000)
-  logic = logic[0] "->asSet\<^sub>B\<^sub>a\<^sub>g()" => "\<^const>UML_Library.OclAsSet\<^sub>B\<^sub>a\<^sub>g"
-    (1000)
-  logic = logic[0] "->asSet\<^sub>P\<^sub>a\<^sub>i\<^sub>r()" => "\<^const>UML_Library.OclAsSet\<^sub>P\<^sub>a\<^sub>i\<^sub>r"
-    (1000)
-  logic = logic[0] "->asSet\<^sub>S\<^sub>e\<^sub>q()" => "\<^const>UML_Library.OclAsSet\<^sub>S\<^sub>e\<^sub>q"
-    (1000)
-  logic = logic[0] "->asPair\<^sub>B\<^sub>a\<^sub>g()" => "\<^const>UML_Library.OclAsPair\<^sub>B\<^sub>a\<^sub>g"
-    (1000)
-  logic = logic[0] "->asPair\<^sub>S\<^sub>e\<^sub>t()" => "\<^const>UML_Library.OclAsPair\<^sub>S\<^sub>e\<^sub>t"
-    (1000)
-  logic = logic[0] "->asPair\<^sub>S\<^sub>e\<^sub>q()" => "\<^const>UML_Library.OclAsPair\<^sub>S\<^sub>e\<^sub>q"
-    (1000)
-  logic = logic[0] "->oclAsType\<^sub>I\<^sub>n\<^sub>t(Real)"
-    => "\<^const>UML_Library.OclAsReal\<^sub>I\<^sub>n\<^sub>t" (1000)
-  logic = logic[0] "->oclAsType\<^sub>R\<^sub>e\<^sub>a\<^sub>l(Integer)"
-    => "\<^const>UML_Library.OclAsInteger\<^sub>R\<^sub>e\<^sub>a\<^sub>l" (1000)
-  logic = logic[0] "->oclAsType\<^sub>R\<^sub>e\<^sub>a\<^sub>l(Boolean)"
-    => "\<^const>UML_Library.OclAsBoolean\<^sub>R\<^sub>e\<^sub>a\<^sub>l" (1000)
-  logic = logic[0] "->oclAsType\<^sub>I\<^sub>n\<^sub>t(Boolean)"
-    => "\<^const>UML_Library.OclAsBoolean\<^sub>I\<^sub>n\<^sub>t" (1000)
+  logic = logic[0] "->asBag\<^sub>P\<^sub>a\<^sub>i\<^sub>r()" => "\<^const>UML_Library.OclAsBag\<^sub>P\<^sub>a\<^sub>i\<^sub>r" (1000)
+  logic = logic[0] "->asBag\<^sub>S\<^sub>e\<^sub>t()" => "\<^const>UML_Library.OclAsBag\<^sub>S\<^sub>e\<^sub>t" (1000)
+  logic = logic[0] "->asBag\<^sub>S\<^sub>e\<^sub>q()" => "\<^const>UML_Library.OclAsBag\<^sub>S\<^sub>e\<^sub>q" (1000)
+  logic = logic[0] "->asSequence\<^sub>P\<^sub>a\<^sub>i\<^sub>r()" => "\<^const>UML_Library.OclAsSeq\<^sub>P\<^sub>a\<^sub>i\<^sub>r" (1000)
+  logic = logic[0] "->asSequence\<^sub>B\<^sub>a\<^sub>g()" => "\<^const>UML_Library.OclAsSeq\<^sub>B\<^sub>a\<^sub>g" (1000)
+  logic = logic[0] "->asSequence\<^sub>S\<^sub>e\<^sub>t()" => "\<^const>UML_Library.OclAsSeq\<^sub>S\<^sub>e\<^sub>t" (1000)
+  logic = logic[0] "->asSet\<^sub>B\<^sub>a\<^sub>g()" => "\<^const>UML_Library.OclAsSet\<^sub>B\<^sub>a\<^sub>g" (1000)
+  logic = logic[0] "->asSet\<^sub>P\<^sub>a\<^sub>i\<^sub>r()" => "\<^const>UML_Library.OclAsSet\<^sub>P\<^sub>a\<^sub>i\<^sub>r" (1000)
+  logic = logic[0] "->asSet\<^sub>S\<^sub>e\<^sub>q()" => "\<^const>UML_Library.OclAsSet\<^sub>S\<^sub>e\<^sub>q" (1000)
+  logic = logic[0] "->asPair\<^sub>B\<^sub>a\<^sub>g()" => "\<^const>UML_Library.OclAsPair\<^sub>B\<^sub>a\<^sub>g" (1000)
+  logic = logic[0] "->asPair\<^sub>S\<^sub>e\<^sub>t()" => "\<^const>UML_Library.OclAsPair\<^sub>S\<^sub>e\<^sub>t" (1000)
+  logic = logic[0] "->asPair\<^sub>S\<^sub>e\<^sub>q()" => "\<^const>UML_Library.OclAsPair\<^sub>S\<^sub>e\<^sub>q" (1000)
+  logic = logic[0] "->oclAsType\<^sub>I\<^sub>n\<^sub>t(Real)" => "\<^const>UML_Library.OclAsReal\<^sub>I\<^sub>n\<^sub>t" (1000)
+  logic = logic[0] "->oclAsType\<^sub>R\<^sub>e\<^sub>a\<^sub>l(Integer)" => "\<^const>UML_Library.OclAsInteger\<^sub>R\<^sub>e\<^sub>a\<^sub>l" (1000)
+  logic = logic[0] "->oclAsType\<^sub>R\<^sub>e\<^sub>a\<^sub>l(Boolean)" => "\<^const>UML_Library.OclAsBoolean\<^sub>R\<^sub>e\<^sub>a\<^sub>l" (1000)
+  logic = logic[0] "->oclAsType\<^sub>I\<^sub>n\<^sub>t(Boolean)" => "\<^const>UML_Library.OclAsBoolean\<^sub>I\<^sub>n\<^sub>t" (1000)
+  logic = logic[0] "->sum\<^sub>S\<^sub>e\<^sub>q()" => "\<^const>UML_Sequence.OclSum" (1000)
+  logic = logic[0] "->count\<^sub>S\<^sub>e\<^sub>q(" logic[0] ")" => "\<^const>UML_Sequence.OclCount" (1000)
   logic = logic[0] "->any\<^sub>S\<^sub>e\<^sub>q()" => "\<^const>UML_Sequence.OclANY" (1000)
   logic = logic[0] "->notEmpty\<^sub>S\<^sub>e\<^sub>q()" => "\<^const>UML_Sequence.OclNotEmpty"
     (1000)
@@ -564,29 +553,10 @@ prods:
   logic = logic[0] "->notEmpty\<^sub>S\<^sub>e\<^sub>t()" => "\<^const>UML_Set.OclNotEmpty" (1000)
   logic = logic[0] "->isEmpty\<^sub>S\<^sub>e\<^sub>t()" => "\<^const>UML_Set.OclIsEmpty" (1000)
   logic = logic[0] "->size\<^sub>S\<^sub>e\<^sub>t()" => "\<^const>UML_Set.OclSize" (1000)
-  logic = logic[0] "->excludes\<^sub>S\<^sub>e\<^sub>t(" logic[0] ")"
-    => "\<^const>UML_Set.OclExcludes" (1000)
-  logic = logic[0] "->includes\<^sub>S\<^sub>e\<^sub>t(" logic[0] ")"
-    => "\<^const>UML_Set.OclIncludes" (1000)
-  logic = logic[0] "->excluding\<^sub>S\<^sub>e\<^sub>t(" logic[0] ")"
-    => "\<^const>UML_Set.OclExcluding" (1000)
-  logic = logic[0] "->including\<^sub>S\<^sub>e\<^sub>t(" logic[0] ")"
-    => "\<^const>UML_Set.OclIncluding" (1000)
-  logic = logic[36] "\<le>\<^sub>r\<^sub>e\<^sub>a\<^sub>l" logic[36] => "\<^const>UML_Real.OclLe\<^sub>R\<^sub>e\<^sub>a\<^sub>l" (35)
-  logic = logic[36] "<\<^sub>r\<^sub>e\<^sub>a\<^sub>l" logic[36] => "\<^const>UML_Real.OclLess\<^sub>R\<^sub>e\<^sub>a\<^sub>l"
-    (35)
-  logic = logic[46] "mod\<^sub>r\<^sub>e\<^sub>a\<^sub>l" logic[46]
-    => "\<^const>UML_Real.OclModulus\<^sub>R\<^sub>e\<^sub>a\<^sub>l" (45)
-  logic = logic[46] "div\<^sub>r\<^sub>e\<^sub>a\<^sub>l" logic[46]
-    => "\<^const>UML_Real.OclDivision\<^sub>R\<^sub>e\<^sub>a\<^sub>l" (45)
-  logic = logic[46] "*\<^sub>r\<^sub>e\<^sub>a\<^sub>l" logic[46] => "\<^const>UML_Real.OclMult\<^sub>R\<^sub>e\<^sub>a\<^sub>l"
-    (45)
-  logic = logic[42] "-\<^sub>r\<^sub>e\<^sub>a\<^sub>l" logic[42] => "\<^const>UML_Real.OclMinus\<^sub>R\<^sub>e\<^sub>a\<^sub>l"
-    (41)
-  logic = logic[41] "+\<^sub>r\<^sub>e\<^sub>a\<^sub>l" logic[41] => "\<^const>UML_Real.OclAdd\<^sub>R\<^sub>e\<^sub>a\<^sub>l"
-    (40)
-  logic = logic[41] "+\<^sub>s\<^sub>t\<^sub>r\<^sub>i\<^sub>n\<^sub>g" logic[41]
-    => "\<^const>UML_String.OclAdd\<^sub>S\<^sub>t\<^sub>r\<^sub>i\<^sub>n\<^sub>g" (40)
+  logic = logic[0] "->excludes\<^sub>S\<^sub>e\<^sub>t(" logic[0] ")" => "\<^const>UML_Set.OclExcludes" (1000)
+  logic = logic[0] "->includes\<^sub>S\<^sub>e\<^sub>t(" logic[0] ")" => "\<^const>UML_Set.OclIncludes" (1000)
+  logic = logic[0] "->excluding\<^sub>S\<^sub>e\<^sub>t(" logic[0] ")" => "\<^const>UML_Set.OclExcluding" (1000)
+  logic = logic[0] "->including\<^sub>S\<^sub>e\<^sub>t(" logic[0] ")" => "\<^const>UML_Set.OclIncluding" (1000)
   logic = logic[0] "->sum\<^sub>B\<^sub>a\<^sub>g()" => "\<^const>UML_Bag.OclSum" (1000)
   logic = logic[0] "->count\<^sub>B\<^sub>a\<^sub>g(" logic[0] ")" => "\<^const>UML_Bag.OclCount"
     (1000)
@@ -608,37 +578,39 @@ prods:
   logic = logic[0] "->notEmpty\<^sub>B\<^sub>a\<^sub>g()" => "\<^const>UML_Bag.OclNotEmpty" (1000)
   logic = logic[0] "->isEmpty\<^sub>B\<^sub>a\<^sub>g()" => "\<^const>UML_Bag.OclIsEmpty" (1000)
   logic = logic[0] "->size\<^sub>B\<^sub>a\<^sub>g()" => "\<^const>UML_Bag.OclSize" (1000)
-  logic = logic[0] "->excludes\<^sub>B\<^sub>a\<^sub>g(" logic[0] ")"
-    => "\<^const>UML_Bag.OclExcludes" (1000)
-  logic = logic[0] "->includes\<^sub>B\<^sub>a\<^sub>g(" logic[0] ")"
-    => "\<^const>UML_Bag.OclIncludes" (1000)
-  logic = logic[0] "->excluding\<^sub>B\<^sub>a\<^sub>g(" logic[0] ")"
-    => "\<^const>UML_Bag.OclExcluding" (1000)
-  logic = logic[0] "->including\<^sub>B\<^sub>a\<^sub>g(" logic[0] ")"
-    => "\<^const>UML_Bag.OclIncluding" (1000)
-  logic = logic[36] "\<le>\<^sub>i\<^sub>n\<^sub>t" logic[36]
-    => "\<^const>UML_Integer.OclLe\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r" (35)
-  logic = logic[36] "<\<^sub>i\<^sub>n\<^sub>t" logic[36]
-    => "\<^const>UML_Integer.OclLess\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r" (35)
-  logic = logic[46] "mod\<^sub>i\<^sub>n\<^sub>t" logic[46]
-    => "\<^const>UML_Integer.OclModulus\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r" (45)
-  logic = logic[46] "div\<^sub>i\<^sub>n\<^sub>t" logic[46]
-    => "\<^const>UML_Integer.OclDivision\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r" (45)
-  logic = logic[46] "*\<^sub>i\<^sub>n\<^sub>t" logic[46]
-    => "\<^const>UML_Integer.OclMult\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r" (45)
-  logic = logic[42] "-\<^sub>i\<^sub>n\<^sub>t" logic[42]
-    => "\<^const>UML_Integer.OclMinus\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r" (41)
-  logic = logic[41] "+\<^sub>i\<^sub>n\<^sub>t" logic[41]
-    => "\<^const>UML_Integer.OclAdd\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r" (40)
+  logic = logic[0] "->excludes\<^sub>B\<^sub>a\<^sub>g(" logic[0] ")" => "\<^const>UML_Bag.OclExcludes" (1000)
+  logic = logic[0] "->includes\<^sub>B\<^sub>a\<^sub>g(" logic[0] ")" => "\<^const>UML_Bag.OclIncludes" (1000)
+  logic = logic[0] "->excluding\<^sub>B\<^sub>a\<^sub>g(" logic[0] ")" => "\<^const>UML_Bag.OclExcluding" (1000)
+  logic = logic[0] "->including\<^sub>B\<^sub>a\<^sub>g(" logic[0] ")" => "\<^const>UML_Bag.OclIncluding" (1000)
+  logic = logic[30] "\<cong>" logic[31] => "\<^const>UML_Bag.ApproxEq" (30)
+  logic = logic[36] "\<le>\<^sub>r\<^sub>e\<^sub>a\<^sub>l" logic[36] => "\<^const>UML_Real.OclLe\<^sub>R\<^sub>e\<^sub>a\<^sub>l" (35)
+  logic = logic[36] "<\<^sub>r\<^sub>e\<^sub>a\<^sub>l" logic[36] => "\<^const>UML_Real.OclLess\<^sub>R\<^sub>e\<^sub>a\<^sub>l" (35)
+  logic = logic[46] "mod\<^sub>r\<^sub>e\<^sub>a\<^sub>l" logic[46] => "\<^const>UML_Real.OclModulus\<^sub>R\<^sub>e\<^sub>a\<^sub>l" (45)
+  logic = logic[46] "div\<^sub>r\<^sub>e\<^sub>a\<^sub>l" logic[46] => "\<^const>UML_Real.OclDivision\<^sub>R\<^sub>e\<^sub>a\<^sub>l" (45)
+  logic = logic[46] "*\<^sub>r\<^sub>e\<^sub>a\<^sub>l" logic[46] => "\<^const>UML_Real.OclMult\<^sub>R\<^sub>e\<^sub>a\<^sub>l" (45)
+  logic = logic[42] "-\<^sub>r\<^sub>e\<^sub>a\<^sub>l" logic[42] => "\<^const>UML_Real.OclMinus\<^sub>R\<^sub>e\<^sub>a\<^sub>l" (41)
+  logic = logic[41] "+\<^sub>r\<^sub>e\<^sub>a\<^sub>l" logic[41] => "\<^const>UML_Real.OclAdd\<^sub>R\<^sub>e\<^sub>a\<^sub>l" (40)
+  logic = logic[41] "+\<^sub>s\<^sub>t\<^sub>r\<^sub>i\<^sub>n\<^sub>g" logic[41] => "\<^const>UML_String.OclAdd\<^sub>S\<^sub>t\<^sub>r\<^sub>i\<^sub>n\<^sub>g" (40)
+  logic = logic[36] "\<le>\<^sub>i\<^sub>n\<^sub>t" logic[36] => "\<^const>UML_Integer.OclLe\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r" (35)
+  logic = logic[36] "<\<^sub>i\<^sub>n\<^sub>t" logic[36] => "\<^const>UML_Integer.OclLess\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r" (35)
+  logic = logic[46] "mod\<^sub>i\<^sub>n\<^sub>t" logic[46] => "\<^const>UML_Integer.OclModulus\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r" (45)
+  logic = logic[46] "div\<^sub>i\<^sub>n\<^sub>t" logic[46] => "\<^const>UML_Integer.OclDivision\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r" (45)
+  logic = logic[46] "*\<^sub>i\<^sub>n\<^sub>t" logic[46] => "\<^const>UML_Integer.OclMult\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r" (45)
+  logic = logic[42] "-\<^sub>i\<^sub>n\<^sub>t" logic[42] => "\<^const>UML_Integer.OclMinus\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r" (41)
+  logic = logic[41] "+\<^sub>i\<^sub>n\<^sub>t" logic[41] => "\<^const>UML_Integer.OclAdd\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r" (40)
   logic = logic[0] ".Second()" => "\<^const>UML_Pair.OclSecond" (1000)
   logic = logic[0] ".First()" => "\<^const>UML_Pair.OclFirst" (1000)
   logic = logic[41] "<>" logic[41] => "_notequal" (40)
   logic = logic[30] "\<doteq>" logic[31] => "\<^const>UML_Logic.StrictRefEq" (30)
+  logic = logic[0] "\<Turnstile>\<^sub>p\<^sub>o\<^sub>s\<^sub>t" logic[0] => "\<^const>UML_Logic.OclValid_at_post" (50)
+  logic = logic[0] "\<Turnstile>\<^sub>p\<^sub>r\<^sub>e" logic[0] => "\<^const>UML_Logic.OclValid_at_pre" (50)
   logic = logic[0] "|\<noteq>" logic[0] => "_OclNonValid" (50)
   logic = logic[0] "\<Turnstile>" logic[0] => "\<^const>UML_Logic.OclValid" (50)
   logic = logic[25] "implies" logic[26] => "\<^const>UML_Logic.OclImplies" (25)
   logic = logic[25] "or" logic[26] => "\<^const>UML_Logic.OclOr" (25)
   logic = logic[30] "and" logic[31] => "\<^const>UML_Logic.OclAnd" (30)
+  logic = logic[30] "\<triangleq>\<^sub>p\<^sub>o\<^sub>s\<^sub>t" logic[31] => "\<^const>UML_Logic.StrongEq\<^sub>p\<^sub>o\<^sub>s\<^sub>t" (30)
+  logic = logic[30] "\<triangleq>\<^sub>p\<^sub>r\<^sub>e" logic[31] => "\<^const>UML_Logic.StrongEq\<^sub>p\<^sub>r\<^sub>e" (30)
   logic = logic[30] "\<triangleq>" logic[31] => "\<^const>UML_Logic.StrongEq" (30)
   logic = logic[51] "has_real_derivative" logic[51]
     => "\<^const>Deriv.has_real_derivative" (50)

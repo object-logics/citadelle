@@ -200,9 +200,10 @@ prods:
   logic = "op" "++" => "\<^const>Map.map_add" (1000)
   logic = "op" "|`" => "\<^const>Map.restrict_map" (1000)
   logic = "op" "\<subseteq>\<^sub>m" => "\<^const>Map.map_le" (1000)
-  logic = "op" "@@@@" => "\<^const>Init.List_append" (1000)
-  logic = "op" "@@" => "\<^const>Init.String_flatten" (1000)
-  logic = "op" "$" => "\<^const>Meta_Pure.pure_term.PureApp" (1000)
+  logic = "op" "@@@@" => "\<^const>Init.L.append" (1000)
+  logic = "op" "@@" => "\<^const>Init.String.flatten" (1000)
+  logic = "op" "\<triangleq>" => "\<^const>Init.String.equal" (1000)
+  logic = "op" "$" => "\<^const>Meta_Pure.term.App" (1000)
   logic = "op" "|\<guillemotleft>" => "\<^const>RBT_Impl.ord_class.rbt_less_symbol" (1000)
   logic = "op" "\<guillemotleft>|" => "\<^const>RBT_Impl.ord_class.rbt_greater" (1000)
   logic = "XCONST" longid_position[0] => "_context_xconst" (1000)
@@ -400,8 +401,6 @@ prods:
   logic = "\<prec>" logic[0] "\<succ>" => "_string2" (1000)
   logic = "\<lless>" logic[0] "\<ggreater>" => "_string3" (1000)
   logic = "\<degree>" logic[0] "\<degree>" => "_char1" (1000)
-  logic = "List.assoc" => "_list_assoc" (1000)
-  logic = "List_member" => "_list_member" (1000)
   logic = "let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l" HOL.letbinds[0] "in" any[10] => "_Let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l" (10)
   logic = "case\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l" any[0] "of" HOL.cases_syn[0] => "_case_syntax\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l"
     (10)
@@ -424,14 +423,11 @@ prods:
   logic = "sprint3" logic[0] "\<acute>" => "_sprint3" (1000)
   logic = "sprint4" logic[0] "\<acute>" => "_sprint4" (1000)
   logic = "sprint5" logic[0] "\<acute>" => "_sprint5" (1000)
-  logic = logic[51] "|\<guillemotleft>" any[51] => "\<^const>RBT_Impl.ord_class.rbt_less_symbol"
-    (50)
-  logic = logic[200] "$" logic[201]
-    => "\<^const>Meta_Pure.pure_term.PureApp" (200)
-  logic = logic[66] "@@" logic[65] => "\<^const>Init.String_flatten"
-    (65)
-  logic = logic[66] "@@@@" logic[65] => "\<^const>Init.List_append"
-    (65)
+  logic = logic[51] "|\<guillemotleft>" any[51] => "\<^const>RBT_Impl.ord_class.rbt_less_symbol" (50)
+  logic = logic[200] "$" logic[201] => "\<^const>Meta_Pure.term.App" (200)
+  logic = logic[50] "\<triangleq>" logic[51] => "\<^const>Init.String.equal" (50)
+  logic = logic[66] "@@" logic[65] => "\<^const>Init.String.flatten" (65)
+  logic = logic[66] "@@@@" logic[65] => "\<^const>Init.L.append" (65)
   logic = logic[900] "(" Map.maplets[0] ")" => "_MapUpd" (900)
   logic = logic[51] "\<subseteq>\<^sub>m" logic[51] => "\<^const>Map.map_le" (50)
   logic = logic[110] "|`" logic[111] => "\<^const>Map.restrict_map" (110)
