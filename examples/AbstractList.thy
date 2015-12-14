@@ -3,9 +3,7 @@
  *                       for the OMG Standard.
  *                       http://www.brucker.ch/projects/hol-testgen/
  *
- * LinkedList.thy --- OCL Contracts and Example drawn from
- *                     "A Specification-Based Test Case Generation Method for UML/OCL"
- *                     (Brucker, Krieger, Longuet, and  Wolff)
+ * AbstractList.thy --- OCL Contracts and an Example.
  *
  * This file is part of HOL-TestGen.
  *
@@ -44,7 +42,7 @@
  ******************************************************************************)
 (* $Id:$ *)
 
-header{* Example: Linked List *}
+header{* Example: Abstract List *}
 
 theory
   AbstractList
@@ -53,16 +51,7 @@ imports
   (* separate compilation : UML_OCL *)
 begin
 
-generation_syntax [ (*deep
-                      (*(generation_semantics [ analysis (*, oid_start 10*) ])*)
-                      (THEORY Model_generated)
-                      (IMPORTS ["../src/UML_Main", "../src/compiler/Static"]
-                               "../src/compiler/Generator_dynamic")
-                      SECTION
-                      (*SORRY*)
-                      [ in SML module_name M ]
-                      (output_directory "../doc")
-                  ,*) shallow (*SORRY*) ]
+generation_syntax [ shallow ]
 
 section{* The Class Model *}
 

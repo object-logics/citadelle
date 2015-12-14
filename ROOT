@@ -125,7 +125,7 @@ session "OCL-all-dirty" in "src" = HOL +
     (*"../examples/Employee_Model/Design_deep"*)
     "../examples/Employee_Model/Design_shallow"
     "../examples/Flight_Model"
-    "../examples/LinkedList"
+    "../examples/ListRefinement"
     "../examples/archive/Flight_Model_compact"
     "../examples/archive/Simple_Model"
     "../examples/archive/Toy_deep"

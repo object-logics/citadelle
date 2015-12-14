@@ -1273,7 +1273,6 @@ qed
 subsection{* A Side-calculus for Constant Terms *}
 
 definition "const X \<equiv> \<forall> \<tau> \<tau>'. X \<tau> = X \<tau>'" 
-notation const ("\<TTurnstile> (_)")
 
 lemma const_charn: "const X \<Longrightarrow> X \<tau> = X \<tau>'"
 by(auto simp: const_def)
