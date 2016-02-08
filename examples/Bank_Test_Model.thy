@@ -102,24 +102,44 @@ Context Bank :: get_balance (c : Client, account_id : Integer) : Integer
               in  result \<triangleq> (A .balance)"
   Post frame: "(Set{} :: \<cdot>Set(\<langle>\<langle>ty\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y\<rangle>\<^sub>\<bottom>\<rangle>\<^sub>\<bottom>)) ->oclIsModifiedOnly()"
 
-lemmas [simp,code_unfold] = dot_accessor
+lemma emptyFrame: "(\<sigma>,\<sigma>')   \<Turnstile> (Set{}->oclIsModifiedOnly()) \<Longrightarrow> \<sigma> = \<sigma>'"
+sorry
 
+lemma get_balance_is_query :
+assumes  *: "(\<sigma>,\<sigma>')   \<Turnstile> ((bank :: \<cdot>Bank) .get_balance(c , a1) \<doteq> d)"
+shows       "\<sigma> = \<sigma>'"
+sorry
+
+
+
+lemmas [simp,code_unfold] = dot_accessor
 lemma 
 assumes const_bank : "const bank"
 assumes const_c : "const c"
 assumes const_a1 : "const a1"
-assumes  *:   "(\<sigma>,\<sigma>')       \<Turnstile> ((bank :: \<cdot>Bank) .get_balance(c , a1) \<triangleq> d)"
+assumes  *:   "(\<sigma>,\<sigma>')       \<Turnstile> ((bank :: \<cdot>Bank) .get_balance(c , a1) \<doteq> d)"
 and      **:  "(\<sigma>',\<sigma>'')     \<Turnstile>  (bank .deposit(c, a1, a)    \<triangleq> null)"
 and      ***: "(\<sigma>'',\<sigma>''')   \<Turnstile>  (bank .withdraw(c, a1, b)   \<triangleq> null)"
 shows         "(\<sigma>''',\<sigma>'''') \<Turnstile> ((bank .get_balance(c , a1)) \<triangleq> (d +\<^sub>i\<^sub>n\<^sub>t a -\<^sub>i\<^sub>n\<^sub>t b))"
 proof - 
 have XXX: "\<And>\<tau> X. \<tau> \<Turnstile>  (X \<triangleq> null) \<Longrightarrow>  \<tau> \<Turnstile>  \<upsilon>(X)" 
-by (metis foundation18 foundation22 valid2 valid_bool_split)
+          by (metis foundation18 foundation22 valid2 valid_bool_split)
+have YYY:  "\<And>\<tau> X. \<tau> \<Turnstile>  (X \<doteq> d) \<Longrightarrow>  \<tau> \<Turnstile>  \<upsilon>(X)" 
+          by (simp add: StrictRefEq\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r.defargs) 
 show "?thesis"
 apply(insert * ** ***) 
+(* first phase : we make all implicit knowledge explicit. Delta-closure, is_query's. *)
+apply(frule get_balance_is_query, hypsubst)
 apply(frule XXX) back
-(*(* from this point, the SORRY flag (or declare [[quick_and_dirty = true]]) is currently needed for the following to work *)
-apply(drule dot__withdraw.defined_mono) 
+(* from this point, the SORRY flag (or declare [[quick_and_dirty = true]]) is currently 
+   needed for the following to work *)
+apply(drule dot__withdraw.defined_mono, clarify) 
+apply(frule XXX) 
+apply(drule dot__deposit.defined_mono, clarify) 
+apply(frule YYY) 
+apply(drule dot__get_balance.defined_mono, clarify) 
+apply(frule get_balance_is_query, hypsubst)
+
 
 apply(subst UML_OCL.dot__get_balance_Bank, subst OclValid_def, subst (2) StrongEq_def, subst true_def,
       simp only: option.inject eq_True Let_def)
