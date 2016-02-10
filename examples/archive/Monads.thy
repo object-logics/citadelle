@@ -8,8 +8,8 @@
  * Copyright (c) 2005-2007, ETH Zurich, Switzerland
  *               2009 B. Wolff, Univ. Paris-Saclay, Univ. Paris-Sud, France 
  *               2009, 2012 Achim D. Brucker, Germany
- *               2013-2015 Université Paris-Saclay, Univ. Paris-Sud, France
- *               2013-2015 IRT SystemX, France
+ *               2013-2016 Université Paris-Saclay, Univ. Paris-Sud, France
+ *               2013-2016 IRT SystemX, France
  *
  * All rights reserved.
  *

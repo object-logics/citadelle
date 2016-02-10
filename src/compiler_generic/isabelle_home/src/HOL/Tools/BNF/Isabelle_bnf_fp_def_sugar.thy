@@ -1,7 +1,7 @@
 (*****************************************************************************
  * ISABELLE COPYRIGHT NOTICE, LICENCE AND DISCLAIMER.
  *
- * Copyright (c) 1986-2015 University of Cambridge,
+ * Copyright (c) 1986-2016 University of Cambridge,
  *                         Technische Universitaet Muenchen,
  *                         and contributors.
  *

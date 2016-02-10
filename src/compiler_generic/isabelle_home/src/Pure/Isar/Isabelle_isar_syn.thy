@@ -1,11 +1,11 @@
 (*****************************************************************************
  * ISABELLE COPYRIGHT NOTICE, LICENCE AND DISCLAIMER.
  *
- * Copyright (c) 1986-2015 University of Cambridge,
+ * Copyright (c) 1986-2016 University of Cambridge,
  *                         Technische Universitaet Muenchen,
  *                         and contributors.
- *               2013-2015 Université Paris-Saclay, Univ. Paris-Sud, France
- *               2013-2015 IRT SystemX, France
+ *               2013-2016 Université Paris-Saclay, Univ. Paris-Sud, France
+ *               2013-2016 IRT SystemX, France
  *
  * All rights reserved.
  *

@@ -1,8 +1,8 @@
 (*****************************************************************************
  * A Meta-Model for the Isabelle API
  *
- * Copyright (c) 2013-2015 Université Paris-Saclay, Univ. Paris-Sud, France
- *               2013-2015 IRT SystemX, France
+ * Copyright (c) 2013-2016 Université Paris-Saclay, Univ. Paris-Sud, France
+ *               2013-2016 IRT SystemX, France
  *
  * All rights reserved.
  *
