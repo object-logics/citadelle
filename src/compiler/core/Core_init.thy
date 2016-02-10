@@ -283,6 +283,17 @@ definition "start_map''' f fl = (\<lambda> env.
 definition "start_map'' f fl e = start_map''' f (\<lambda>_. fl) e"
 definition "start_map'''' f fl = (\<lambda> env. start_map f (fl (D_ocl_semantics env)) env)"
 definition "start_map''''' f fl = (\<lambda> env. start_map f (fl (D_output_sorry_dirty env) (D_ocl_semantics env)) env)"
+definition "start_map'''''' f fl = (\<lambda> env. start_map f (fl (\<lambda>s. (case D_output_header_thy env of
+                                                                   Some (n_thy, _, _) \<Rightarrow>
+                                                                     String.replace_chars
+                                                                       ((* (* ERROR code_reflect *)
+                                                                        \<lambda> Char Nibble5 NibbleF \<Rightarrow> \<open>-\<close>
+                                                                        | x \<Rightarrow> \<degree>x\<degree>*)
+                                                                        \<lambda> x. if x = Char Nibble5 NibbleF then \<open>-\<close>
+                                                                             else \<degree>x\<degree>)
+                                                                       n_thy
+                                                                 | None \<Rightarrow> \<open>\<close>) @@ s)
+                                                         (D_ocl_semantics env)) env)"
 
 definition "start_m_gen final f print = start_map'' final o (\<lambda>expr base_attr _ _.
   m_class_gen2 base_attr f print expr)"

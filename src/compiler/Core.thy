@@ -81,11 +81,13 @@ definition "section_aux n s = start_map' (\<lambda>_. [ O.section (Section n s) 
 definition "section = section_aux 0"
 definition "subsection = section_aux 1"
 definition "subsubsection = section_aux 2"
-definition "txt f = start_map'''' O.text o (\<lambda>_ design_analysis. [Text (f design_analysis)])"
-definition "txt' s = txt (\<lambda>_. s)"
+definition "txt f = start_map'''''' O.text o (\<lambda>_ n_thy design_analysis. [Text (f n_thy design_analysis)])"
+definition "txt' s = txt (\<lambda>_ _. s)"
 definition "txt'' = txt' o S.flatten"
-definition "txt''d s = txt (\<lambda> Gen_only_design \<Rightarrow> S.flatten s | _ \<Rightarrow> \<open>\<close>)"
-definition "txt''a s = txt (\<lambda> Gen_only_design \<Rightarrow> \<open>\<close> | _ \<Rightarrow> S.flatten s)"
+definition "txt''d s = txt (\<lambda> _. \<lambda> Gen_only_design \<Rightarrow> S.flatten (s) | _ \<Rightarrow> \<open>\<close>)"
+definition "txt''d' s = txt (\<lambda> n_thy. \<lambda> Gen_only_design \<Rightarrow> S.flatten (s n_thy) | _ \<Rightarrow> \<open>\<close>)"
+definition "txt''a s = txt (\<lambda> _. \<lambda> Gen_only_design \<Rightarrow> \<open>\<close> | _ \<Rightarrow> S.flatten s)"
+definition "txt''a' s = txt (\<lambda> n_thy. \<lambda> Gen_only_design \<Rightarrow> \<open>\<close> | _ \<Rightarrow> S.flatten (s n_thy))"
 
 definition' thy_class ::
   (* polymorphism weakening needed by code_reflect *)
@@ -98,16 +100,16 @@ definition' thy_class ::
      ; subsection_const = subsection \<open>Const\<close> in
   (Embed_theories o L.flatten)
           [ [ print_infra_enum_synonym ]
-            , [ txt''d [ \<open>
-   \label{ex:employee-design:uml} \<close> ]
-            , txt''a [ \<open>
-   \label{ex:employee-analysis:uml} \<close> ]
+            , [ txt''d' (\<lambda>n_thy. [ \<open>
+   \label{ex:\<close> @@ n_thy \<open>employee-design:uml\<close> @@ \<open>} \<close> ])
+            , txt''a' (\<lambda>n_thy. [ \<open>
+   \label{ex:\<close> @@ n_thy \<open>employee-analysis:uml\<close> @@ \<open>} \<close> ])
             , section \<open>Introduction\<close>
             , txt'' [ \<open>
 
   For certain concepts like classes and class-types, only a generic
   definition for its resulting semantics can be given. Generic means,
-  there is a function outside HOL that ``compiles'' a concrete,
+  there is a function outside \HOL that ``compiles'' a concrete,
   closed-world class diagram into a ``theory'' of this data model,
   consisting of a bunch of definitions for classes, accessors, method,
   casts, and tests for actual types, as well as proofs for the
@@ -115,53 +117,54 @@ definition' thy_class ::
   model. \<close> ]
             , txt'' [ \<open>
    Such generic function or ``compiler'' can be implemented in
-  Isabelle on the ML level.  This has been done, for a semantics
-  following the open-world assumption, for UML 2.0
+  Isabelle on the \ML level.  This has been done, for a semantics
+  following the open-world assumption, for \UML 2.0
   in~\cite{brucker.ea:extensible:2008-b, brucker:interactive:2007}. In
-  this paper, we follow another approach for UML 2.4: we define the
+  this paper, we follow another approach for \UML 2.4: we define the
   concepts of the compilation informally, and present a concrete
-  example which is verified in Isabelle/HOL. \<close> ]
+  example which is verified in Isabelle/\HOL. \<close> ]
             , subsection \<open>Outlining the Example\<close>
-            , txt''d [ \<open>
+            , txt''d' (\<lambda>n_thy. [ \<open>
    We are presenting here a ``design-model'' of the (slightly
 modified) example Figure 7.3, page 20 of
-the OCL standard~\cite{omg:ocl:2012}. To be precise, this theory contains the formalization of
-the data-part covered by the UML class model (see \autoref{fig:person}):\<close> ]
-            , txt''a [ \<open>
+the \OCL standard~\cite{omg:ocl:2012}. To be precise, this theory contains the formalization of
+the data-part covered by the \UML class model (see \autoref{fig:\<close> @@ n_thy \<open>person\<close> @@ \<open>}):\<close> ])
+            , txt''a' (\<lambda>n_thy. [ \<open>
    We are presenting here an ``analysis-model'' of the (slightly
 modified) example Figure 7.3, page 20 of
-the OCL standard~\cite{omg:ocl:2012}.
+the \OCL standard~\cite{omg:ocl:2012}.
 Here, analysis model means that associations
 were really represented as relation on objects on the state---as is
 intended by the standard---rather by pointers between objects as is
-done in our ``design model'' (see \autoref{ex:employee-design:uml}).
+done in our ``design model''.
 To be precise, this theory contains the formalization of the data-part
-covered by the UML class model (see \autoref{fig:person-ana}):\<close> ]
-            , txt''d [ \<open>
+covered by the \UML class model (see \autoref{fig:\<close> @@ n_thy \<open>person-ana\<close> @@ \<open>}):\<close>
+(* (see \autoref{ex:employee-design:uml})*) ])
+            , txt''d' (\<lambda> n_thy. [ \<open>
 
 \begin{figure}
   \centering\scalebox{.3}{\includegraphics{figures/person.png}}%
-  \caption{A simple UML class model drawn from Figure 7.3,
-  page 20 of~\cite{omg:ocl:2012}. \label{fig:person}}
+  \caption{A simple \UML class model drawn from Figure 7.3,
+  page 20 of~\cite{omg:ocl:2012}. \label{fig:\<close> @@ n_thy \<open>person\<close> @@ \<open>}}
 \end{figure}
-\<close> ]
-            , txt''a [ \<open>
+\<close> ])
+            , txt''a' (\<lambda> n_thy. [ \<open>
 
 \begin{figure}
   \centering\scalebox{.3}{\includegraphics{figures/person.png}}%
-  \caption{A simple UML class model drawn from Figure 7.3,
-  page 20 of~\cite{omg:ocl:2012}. \label{fig:person-ana}}
+  \caption{A simple \UML class model drawn from Figure 7.3,
+  page 20 of~\cite{omg:ocl:2012}. \label{fig:\<close> @@ n_thy \<open>person-ana\<close> @@ \<open>}}
 \end{figure}
-\<close> ]
+\<close> ])
             , txt'' [ \<open>
    This means that the association (attached to the association class
 \inlineocl{EmployeeRanking}) with the association ends \inlineocl+boss+ and \inlineocl+employees+ is implemented
-by the attribute  \inlineocl+boss+ and the operation \inlineocl+employees+ (to be discussed in the OCL part
+by the attribute  \inlineocl+boss+ and the operation \inlineocl+employees+ (to be discussed in the \OCL part
 captured by the subsequent theory).
 \<close> ]
             , section \<open>Example Data-Universe and its Infrastructure\<close>
             (*, txt'' [ \<open>
-   Ideally, the following is generated automatically from a UML class model.  \<close> ]
+   Ideally, the following is generated automatically from a \UML class model.  \<close> ]
             *), txt'' [ \<open>
    Our data universe  consists in the concrete class diagram just of node's,
 and implicitly of the class object. Each class implies the existence of a class
@@ -175,8 +178,8 @@ for all respective type-variables. \<close> ]
             , print_infra_datatype_universe
             , txt'' [ \<open>
    Having fixed the object universe, we can introduce type synonyms that exactly correspond
-to OCL types. Again, we exploit that our representation of OCL is a ``shallow embedding'' with a
-one-to-one correspondance of OCL-types to types of the meta-language HOL. \<close> ]
+to \OCL types. Again, we exploit that our representation of \OCL is a ``shallow embedding'' with a
+one-to-one correspondance of \OCL-types to types of the meta-language \HOL. \<close> ]
             , print_infra_type_synonym_class
             , print_infra_type_synonym_class_higher
             , print_infra_type_synonym_class_rec
@@ -186,7 +189,7 @@ one-to-one correspondance of OCL-types to types of the meta-language HOL. \<clos
             *), txt'' [ \<open>
    To reuse key-elements of the library like referential equality, we have
 to show that the object universe belongs to the type class ``oclany,'' \ie,
- each class type has to provide a function @{term oid_of} yielding the object id (oid) of the object. \<close> ]
+ each class type has to provide a function @{term oid_of} yielding the Object ID (oid) of the object. \<close> ]
             , print_infra_instantiation_class
             , print_infra_instantiation_universe
 
@@ -264,7 +267,7 @@ two operations to declare and to provide two overloading definitions for the two
 
           , [ section \<open>OclAllInstances\<close>
             , txt'' [ \<open>
-   To denote OCL-types occuring in OCL expressions syntactically---as, for example,  as
+   To denote \OCL-types occuring in \OCL expressions syntactically---as, for example,  as
 ``argument'' of \inlineisar{oclAllInstances()}---we use the inverses of the injection
 functions into the object universes; we show that this is sufficient ``characterization.'' \<close> ]
             , print_allinst_def_id
@@ -279,10 +282,10 @@ functions into the object universes; we show that this is sufficient ``character
             , print_allinst_iskindof_larger
 
             , section \<open>The Accessors\<close>
-            , txt''d [ \<open>
-  \label{sec:edm-accessors}\<close> ]
-            , txt''a [ \<open>
-  \label{sec:eam-accessors}\<close> ]
+            , txt''d' (\<lambda>n_thy. [ \<open>
+  \label{sec:\<close> @@ n_thy \<open>edm-accessors\<close> @@ \<open>}\<close> ])
+            , txt''a' (\<lambda>n_thy. [ \<open>
+  \label{sec:\<close> @@ n_thy \<open>eam-accessors\<close> @@ \<open>}\<close> ])
             (*, txt'' [ \<open>
    Should be generated entirely from a class-diagram. \<close> ]
             *), subsection_def
@@ -325,26 +328,26 @@ the following combinator @{text switch}: \<close> ]
             , print_access_repr_allinst
 
             , section \<open>A Little Infra-structure on Example States\<close>
-            , txt''d [ \<open>
+            , txt''d' (\<lambda>n_thy. [ \<open>
 
-The example we are defining in this section comes from the figure~\ref{fig:edm1_system-states}.
+The example we are defining in this section comes from the \autoref{fig:\<close> @@ n_thy \<open>edm1_system-states\<close> @@ \<open>}.
 \begin{figure}
 \includegraphics[width=\textwidth]{figures/pre-post.pdf}
 \caption{(a) pre-state $\sigma_1$ and
   (b) post-state $\sigma_1'$.}
-\label{fig:edm1_system-states}
+\label{fig:\<close> @@ n_thy \<open>edm1_system-states\<close> @@ \<open>}
 \end{figure}
-\<close> ]
-            , txt''a [ \<open>
+\<close> ])
+            , txt''a' (\<lambda>n_thy. [ \<open>
 
-The example we are defining in this section comes from the figure~\ref{fig:eam1_system-states}.
+The example we are defining in this section comes from the \autoref{fig:\<close> @@ n_thy \<open>eam1_system-states\<close> @@ \<open>}.
 \begin{figure}
 \includegraphics[width=\textwidth]{figures/pre-post.pdf}
 \caption{(a) pre-state $\sigma_1$ and
   (b) post-state $\sigma_1'$.}
-\label{fig:eam1_system-states}
+\label{fig:\<close> @@ n_thy \<open>eam1_system-states\<close> @@ \<open>}
 \end{figure}
-\<close> ]
+\<close> ])
             , print_examp_def_st_defs
             , print_astype_lemmas_id2 ] ])\<close>
 
