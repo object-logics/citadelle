@@ -480,6 +480,7 @@ fun semi__theory in_theory in_local = let open META open META_overload in (*let 
                                      [((To_sbinding n, []), [of_semi__term e])])
 | Theory_section _ => in_theory I
 | Theory_text _ => in_theory I
+| Theory_text_raw _ => in_theory I
 | Theory_ML (SML ml) =>
     in_theory (Code_printing.reflect_ml (Input.source false (of_semi__term' ml)
                                                             (Position.none, Position.none)))

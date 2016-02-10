@@ -171,6 +171,8 @@ datatype "section" = Section nat (* nesting level *)
 
 datatype "text" = Text string
 
+datatype "text_raw" = Text_raw string
+
 datatype "ML" = SML semi__term'
 
 datatype "setup" = Setup semi__term'
@@ -194,6 +196,7 @@ datatype semi__theory = Theory_datatype "datatype"
                       | Theory_axiomatization "axiomatization"
                       | Theory_section "section"
                       | Theory_text "text"
+                      | Theory_text_raw "text_raw"
                       | Theory_ML "ML"
                       | Theory_setup "setup"
                       | Theory_thm "thm"

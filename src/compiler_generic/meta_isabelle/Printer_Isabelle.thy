@@ -336,6 +336,8 @@ definition "of_section _ = (\<lambda> Section n section_title \<Rightarrow>
 
 definition "of_text _ = (\<lambda> Text s \<Rightarrow> \<open>text \<open>%s\<close>\<close> (To_string s))"
 
+definition "of_text_raw _ = (\<lambda> Text_raw s \<Rightarrow> \<open>text_raw \<open>%s\<close>\<close> (To_string s))"
+
 definition "of_ML _ = (\<lambda> SML e \<Rightarrow> \<open>ML \<open>%s\<close>\<close> (of_semi__term' e))"
 
 definition "of_setup _ = (\<lambda> Setup e \<Rightarrow> \<open>setup \<open>%s\<close>\<close> (of_semi__term' e))"
@@ -362,6 +364,7 @@ definition "of_semi__theory env =
   | Theory_axiomatization axiom \<Rightarrow> of_axiomatization env axiom
   | Theory_section section_title \<Rightarrow> of_section env section_title
   | Theory_text text \<Rightarrow> of_text env text
+  | Theory_text_raw text \<Rightarrow> of_text_raw env text
   | Theory_ML ml \<Rightarrow> of_ML env ml
   | Theory_setup setup \<Rightarrow> of_setup env setup
   | Theory_thm thm \<Rightarrow> of_thm env thm
@@ -425,6 +428,7 @@ lemmas [code] =
   Print.of_axiomatization_def
   Print.of_section_def
   Print.of_text_def
+  Print.of_text_raw_def
   Print.of_ML_def
   Print.of_setup_def
   Print.of_thm_def
