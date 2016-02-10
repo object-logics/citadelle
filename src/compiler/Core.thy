@@ -82,12 +82,15 @@ definition "section = section_aux 0"
 definition "subsection = section_aux 1"
 definition "subsubsection = section_aux 2"
 definition "txt f = start_map'''''' O.text o (\<lambda>_ n_thy design_analysis. [Text (f n_thy design_analysis)])"
+definition "txt_raw f = start_map'''''' O.text_raw o (\<lambda>_ n_thy design_analysis. [Text_raw (f n_thy design_analysis)])"
 definition "txt' s = txt (\<lambda>_ _. s)"
 definition "txt'' = txt' o S.flatten"
 definition "txt''d s = txt (\<lambda> _. \<lambda> Gen_only_design \<Rightarrow> S.flatten (s) | _ \<Rightarrow> \<open>\<close>)"
 definition "txt''d' s = txt (\<lambda> n_thy. \<lambda> Gen_only_design \<Rightarrow> S.flatten (s n_thy) | _ \<Rightarrow> \<open>\<close>)"
+definition "txt_raw''d' s = txt_raw (\<lambda> n_thy. \<lambda> Gen_only_design \<Rightarrow> S.flatten (s n_thy) | _ \<Rightarrow> \<open>\<close>)"
 definition "txt''a s = txt (\<lambda> _. \<lambda> Gen_only_design \<Rightarrow> \<open>\<close> | _ \<Rightarrow> S.flatten s)"
 definition "txt''a' s = txt (\<lambda> n_thy. \<lambda> Gen_only_design \<Rightarrow> \<open>\<close> | _ \<Rightarrow> S.flatten (s n_thy))"
+definition "txt_raw''a' s = txt_raw (\<lambda> n_thy. \<lambda> Gen_only_design \<Rightarrow> \<open>\<close> | _ \<Rightarrow> S.flatten (s n_thy))"
 
 definition' thy_class ::
   (* polymorphism weakening needed by code_reflect *)
@@ -140,7 +143,7 @@ done in our ``design model''.
 To be precise, this theory contains the formalization of the data-part
 covered by the \UML class model (see \autoref{fig:\<close> @@ n_thy \<open>person-ana\<close> @@ \<open>}):\<close>
 (* (see \autoref{ex:employee-design:uml})*) ])
-            , txt''d' (\<lambda> n_thy. [ \<open>
+            , txt_raw''d' (\<lambda> n_thy. [ \<open>
 
 \begin{figure}
   \centering\scalebox{.3}{\includegraphics{figures/person.png}}%
@@ -148,7 +151,7 @@ covered by the \UML class model (see \autoref{fig:\<close> @@ n_thy \<open>perso
   page 20 of~\cite{omg:ocl:2012}. \label{fig:\<close> @@ n_thy \<open>person\<close> @@ \<open>}}
 \end{figure}
 \<close> ])
-            , txt''a' (\<lambda> n_thy. [ \<open>
+            , txt_raw''a' (\<lambda> n_thy. [ \<open>
 
 \begin{figure}
   \centering\scalebox{.3}{\includegraphics{figures/person.png}}%
@@ -331,6 +334,8 @@ the following combinator @{text switch}: \<close> ]
             , txt''d' (\<lambda>n_thy. [ \<open>
 
 The example we are defining in this section comes from the \autoref{fig:\<close> @@ n_thy \<open>edm1_system-states\<close> @@ \<open>}.
+\<close> ])
+            , txt_raw''d' (\<lambda>n_thy. [ \<open>
 \begin{figure}
 \includegraphics[width=\textwidth]{figures/pre-post.pdf}
 \caption{(a) pre-state $\sigma_1$ and
@@ -341,6 +346,8 @@ The example we are defining in this section comes from the \autoref{fig:\<close>
             , txt''a' (\<lambda>n_thy. [ \<open>
 
 The example we are defining in this section comes from the \autoref{fig:\<close> @@ n_thy \<open>eam1_system-states\<close> @@ \<open>}.
+\<close> ])
+            , txt_raw''a' (\<lambda>n_thy. [ \<open>
 \begin{figure}
 \includegraphics[width=\textwidth]{figures/pre-post.pdf}
 \caption{(a) pre-state $\sigma_1$ and
