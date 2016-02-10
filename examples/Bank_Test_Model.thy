@@ -102,6 +102,8 @@ Context Bank :: get_balance (c : Client, account_id : Integer) : Integer
               in  result \<triangleq> (A .balance)"
   Post frame: "(Set{} :: \<cdot>Set(\<langle>\<langle>ty\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y\<rangle>\<^sub>\<bottom>\<rangle>\<^sub>\<bottom>)) ->oclIsModifiedOnly()"
 
+(*(* from this point, the SORRY flag (or declare [[quick_and_dirty = true]]) is currently 
+   needed for the following to work *)
 lemma emptyFrame: "(\<sigma>,\<sigma>')   \<Turnstile> (Set{}->oclIsModifiedOnly()) \<Longrightarrow> \<sigma> = \<sigma>'"
 sorry
 
@@ -127,12 +129,10 @@ have XXX: "\<And>\<tau> X. \<tau> \<Turnstile>  (X \<triangleq> null) \<Longrigh
 have YYY:  "\<And>\<tau> X. \<tau> \<Turnstile>  (X \<doteq> d) \<Longrightarrow>  \<tau> \<Turnstile>  \<upsilon>(X)" 
           by (simp add: StrictRefEq\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r.defargs) 
 show "?thesis"
-apply(insert * ** ***) 
+apply(insert * ** *** ) 
 (* first phase : we make all implicit knowledge explicit. Delta-closure, is_query's. *)
 apply(frule get_balance_is_query, hypsubst)
 apply(frule XXX) back
-(* from this point, the SORRY flag (or declare [[quick_and_dirty = true]]) is currently 
-   needed for the following to work *)
 apply(drule dot__withdraw.defined_mono, clarify) 
 apply(frule XXX) 
 apply(drule dot__deposit.defined_mono, clarify) 
@@ -154,8 +154,8 @@ apply(subgoal_tac "(\<sigma>, \<sigma>') \<Turnstile> \<delta> bank \<and> (\<si
  prefer 2
  apply (meson const_OclValid1 const_OclValid2 const_a1 const_bank const_c)
 apply(simp only: simp_thms if_True)
-*)
 oops
+*)
 
 (* TODO : Use Locales. *)
 
